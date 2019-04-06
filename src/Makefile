@@ -8,10 +8,10 @@ SOURCES = \
 	EDK.dfy \
 	Cipher.dfy \
 	Materials.dfy \
-	DefaultCMM.dfy
+	DefaultCMM.dfy \
+	Session.dfy
 
 ADDITIONAL_SOURCES = \
-	Session.dfy \
 	EncryptDecryptString.dfy
 
 all: run

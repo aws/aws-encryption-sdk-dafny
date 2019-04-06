@@ -2,12 +2,16 @@ include "StandardLibrary.dfy"
 include "AwsCrypto.dfy"
 include "Materials.dfy"
 include "Cipher.dfy"
+include "ByteBuf.dfy"
 
 module Session {
   import opened StandardLibrary
   import opened Aws
   import opened Materials
-  import opened Cipher
+  import EDK
+  import Cipher
+  import opened ByteBuffer
+  import opened KeyringTraceModule
 
   // Encryption SDK mode
   datatype ProcessingMode = EncryptMode /* 0x9000 */ | DecryptMode /* 0x9001 */
@@ -29,8 +33,6 @@ module Session {
     | EncryptBody
     | WriterTrailer
 
-  class content_key { }  // TODO
-
 
   class Session {
     const mode: ProcessingMode
@@ -38,7 +40,7 @@ module Session {
     ghost var message_size: Option<nat>
 
     var state: SessionState
-    const cmm: CryptoMaterialsManager
+    const cmm: CMM
 
     /* Encrypt mode configuration */
     var precise_size: Option<nat> /* Exact size of message */
@@ -52,7 +54,7 @@ module Session {
     const frame_size := 256 * 1024 /* Frame size, zero for unframed */
 
     /* List of (struct aws_cryptosdk_keyring_trace_record)s */
-    var keyring_trace: seq<keyring_trace_record>
+    var keyring_trace: seq<KeyringTrace>
 
     /* Estimate for the amount of input data needed to make progress. */
     var input_size_estimate: nat
@@ -62,13 +64,13 @@ module Session {
 
     var frame_seqno: nat
 
-    var alg_props: aws_cryptosdk_alg_properties?
+    var alg_props: Cipher.AlgorithmProperties?
 
     /* Decrypted, derived (if applicable) content key */
-    var content_key: content_key?
+    var content_key: Cipher.content_key?
 
     /* In-progress trailing signature context (if applicable) */
-    var signctx: aws_cryptosdk_signctx?
+    var signctx: Cipher.SignCtx?
 
     /* Set to true after successful call to CMM to indicate availability
      * of keyring trace and--in the case of decryption--the encryption context.
@@ -81,12 +83,14 @@ module Session {
       (mode == EncryptMode || message_size == None) &&
       (state == Config ==>
         true) &&
-      (state.Error? ==> state != Error(SUCCESS))
+      (state.Error? ==> state != Error(AWS_OP_SUCCESS))
     }
 
-    constructor FromCMM(mode: ProcessingMode, cmm: CryptoMaterialsManager)
+    constructor FromCMM(mode: ProcessingMode, cmm: CMM)
+      modifies cmm
       ensures Valid()
       ensures this.mode == mode && this.input_consumed == 0 && this.message_size == None
+      ensures cmm.refcount == old(cmm.refcount) + 1
     {
       this.mode := mode;
       this.cmm := cmm;
@@ -125,34 +129,89 @@ module Session {
       requires message_size <= size_bound
       modifies this
       ensures Valid() && input_consumed == old(input_consumed)
-      ensures r == SUCCESS ==> this.message_size == Some(message_size)
+      ensures r == AWS_OP_SUCCESS ==> this.message_size == Some(message_size)
     {
       this.message_size := Some(message_size);
       if this.state == EncryptBody {
         priv_encrypt_compute_body_estimate();
       }
-      return SUCCESS;
+      return AWS_OP_SUCCESS;
     }
 
+    /*****
+    method ProcessEncrypt(outp: array<byte>, outlen: nat, inp: array<byte>, inlen: nat) returns (result: Outcome, out_bytes_written: nat, in_bytes_read: nat)
+      requires Valid() && mode == EncryptMode
+      requires state == Config
+      requires outp != inp && inlen <= inp.Length && outlen <= outp.Length
+      modifies this, outp
+      ensures Valid() && message_size == old(message_size)
+      ensures in_bytes_read <= inlen && out_bytes_written <= outlen
+      ensures result != AWS_OP_SUCCESS ==>
+                input_consumed == old(input_consumed) &&
+                forall i :: 0 <= i < outlen ==> outp[i] == 0
+      ensures result == AWS_OP_SUCCESS ==> state == Done
+      ensures result == AWS_OP_SUCCESS ==>
+                input_consumed == old(input_consumed) + in_bytes_read &&
+                in_bytes_read == inlen
+      ensures result == AWS_OP_SUCCESS && mode == EncryptMode ==>
+                outp[..out_bytes_written] == Math.Encrypt(inp[..in_bytes_read])
+      ensures result == AWS_OP_SUCCESS && mode == DecryptMode ==>
+                outp[..out_bytes_written] == Math.Decrypt(inp[..in_bytes_read])
+    {
+      var output := ByteBuf(0, outp, 0, outlen);
+      var input := ByteCursor(inlen, inp, 0);
+
+      var prior_state, old_inp := state, input.ptr;
+
+      var remaining_space := byte_buf_from_empty_array(output.enclosing_buffer, output.buffer_start_offset + output.len, output.capacity - output.len);
+
+      label try: {
+        result := priv_try_gen_key();
+        if result != AWS_OP_SUCCESS { break try; }
+        output := output.(len := output.len + remaining_space.len);
+        result := priv_try_write_header(remaining_space);
+        if result != AWS_OP_SUCCESS { break try; }
+        output := output.(len := output.len + remaining_space.len);
+        result := priv_try_encrypt_body(remaining_space, input);
+        if result != AWS_OP_SUCCESS { break try; }
+        output := output.(len := output.len + remaining_space.len);
+        result := priv_write_trailer(remaining_space);
+        if result != AWS_OP_SUCCESS { break try; }
+        output := output.(len := output.len + remaining_space.len);
+      }
+
+      out_bytes_written, in_bytes_read := output.len, input.ptr;
+
+      if result != AWS_OP_SUCCESS {
+        state := Error(result);
+        forall i | 0 <= i < outlen {
+          outp[i] := 0;
+        }
+        out_bytes_written := 0;
+      }
+    }
+    *****/
+
+    /*****
     method Process(outp: array<byte>, outlen: nat, inp: array<byte>, inlen: nat) returns (result: Outcome, out_bytes_written: nat, in_bytes_read: nat)
       requires Valid()
       requires outp != inp && inlen <= inp.Length && outlen <= outp.Length
       modifies this, outp
       ensures Valid() && message_size == old(message_size)
       ensures in_bytes_read <= inlen && out_bytes_written <= outlen
-      ensures result != SUCCESS ==>
+      ensures result != AWS_OP_SUCCESS ==>
                 input_consumed == old(input_consumed) &&
                 forall i :: 0 <= i < outlen ==> outp[i] == 0
-      ensures result == SUCCESS ==>
+      ensures result == AWS_OP_SUCCESS ==>
                 input_consumed == old(input_consumed) + in_bytes_read &&
                 in_bytes_read == inlen
-      ensures result == SUCCESS && mode == EncryptMode ==>
+      ensures result == AWS_OP_SUCCESS && mode == EncryptMode ==>
                 outp[..out_bytes_written] == Math.Encrypt(inp[..in_bytes_read])
-      ensures result == SUCCESS && mode == DecryptMode ==>
+      ensures result == AWS_OP_SUCCESS && mode == DecryptMode ==>
                 outp[..out_bytes_written] == Math.Decrypt(inp[..in_bytes_read])
     {
-      var output := byte_buf(0, outp, 0, outlen);
-      var input := byte_cursor(inlen, inp, 0);
+      var output := ByteBuf(0, outp, 0, outlen);
+      var input := ByteCursor(inlen, inp, 0);
 
       while true
         invariant Valid()
@@ -167,9 +226,9 @@ module Session {
         match state {
           case Config =>
             state := if mode == EncryptMode then GenKey else ReadHeader;
-            result := SUCCESS;
+            result := AWS_OP_SUCCESS;
           case Done =>
-            result := SUCCESS;
+            result := AWS_OP_SUCCESS;
           case Error(err) =>
             result := err;
           /*** Decrypt path ***/
@@ -190,14 +249,14 @@ module Session {
         var made_progress := remaining_space.len != 0 || input.ptr != old_inp || prior_state != state;
 
         output := output.(len := output.len + remaining_space.len);
-        if result != SUCCESS || !made_progress {
+        if result != AWS_OP_SUCCESS || !made_progress {
           break;
         }
       }
 
       out_bytes_written, in_bytes_read := output.len, input.ptr;
 
-      if result != SUCCESS {
+      if result != AWS_OP_SUCCESS {
         state := Error(result);
         forall i | 0 <= i < outlen {
           outp[i] := 0;
@@ -205,6 +264,7 @@ module Session {
         out_bytes_written := 0;
       }
     }
+    *****/
 
     predicate method IsDone()
       requires Valid()
@@ -217,95 +277,160 @@ module Session {
 
     method Destroy()
       requires Valid()
-      modifies this
+      modifies this, cmm
     {
       cmm.Release();
     }
 
     method priv_try_gen_key() returns (result: Outcome)
-      modifies `alg_props, `signctx, `cmm_success
+      modifies `alg_props, `signctx, `cmm_success, `keyring_trace, `content_key
+      modifies header, header.message_id
     {
-      result := AWS_CRYPTOSDK_ERR_CRYPTO_UNKNOWN;
-
+      var materials, data_key := null, null;
       label tryit: {
         // The default CMM will fill this in.
-        var request := new aws_cryptosdk_encryption_request(header.enc_context, precise_size);
+        var request := new EncryptionRequest(header.enc_context, if precise_size == None then UINT64_MAX else precise_size.get);
 
-        var r, materials := cmm.generate_encryption_materials(request);
-        if r != 0 {
+        result, materials := cmm.Generate(request);
+        if result != AWS_OP_SUCCESS {
           result := AWS_OP_ERR;
           break tryit;
         }
 
         // Perform basic validation of the materials generated
-        alg_props := aws_cryptosdk_alg_props(materials.alg);
-
-        // assert session->alg_props != null;
-        // assert materials->unencrypted_data_key.len == session->alg_props->data_key_len;
-        // assert aws_array_list_length(&materials->encrypted_data_keys) != 0;
+        alg_props := Cipher.AlgProperties(materials.alg);
+        if alg_props == null {
+          result := AWS_CRYPTOSDK_ERR_CRYPTO_UNKNOWN;
+          break tryit;
+        }
+        if materials.unencrypted_data_key.Length != alg_props.data_key_len {
+          result := AWS_CRYPTOSDK_ERR_CRYPTO_UNKNOWN;
+          break tryit;
+        }
+        if |materials.encrypted_data_keys| == 0 {
+          result := AWS_CRYPTOSDK_ERR_CRYPTO_UNKNOWN;
+          break tryit;
+        }
         // We should have a signature context iff this is a signed alg suite
-        // assert session->alg_props->signature_len == 0 <==> materials->signctx == null;
+        if !(alg_props.signature_len == 0 <==> materials.signctx == null) {
+          result := AWS_CRYPTOSDK_ERR_CRYPTO_UNKNOWN;
+          break tryit;
+        }
 
         // Move ownership of the signature context before we go any further.
         signctx, materials.signctx := materials.signctx, null;
 
-/*****
-        // TODO - eliminate the data_key type
-      //struct data_key data_key;
-///        memcpy(&data_key, materials->unencrypted_data_key.buffer, materials->unencrypted_data_key.len);
+        data_key := new byte[32];
+        forall i | 0 <= i < materials.unencrypted_data_key.Length {
+          data_key[i] := materials.unencrypted_data_key[i];
+        }
 
-///        aws_cryptosdk_transfer_list(&session->keyring_trace, &materials->keyring_trace);
+        keyring_trace := materials.keyring_trace;
         cmm_success := true;
 
         // Generate message ID and derive the content key from the data key.
-        if (aws_cryptosdk_genrandom(session->header.message_id, sizeof(session->header.message_id))) {
+        result := Cipher.GenRandom(header.message_id);
+        if result != AWS_OP_SUCCESS {
+          result := AWS_CRYPTOSDK_ERR_CRYPTO_UNKNOWN;
+          break tryit;
+        }
+
+        result, content_key := Cipher.DeriveKey(alg_props, data_key, header.message_id);
+        if result != AWS_OP_SUCCESS {
           result := AWS_OP_ERR;
           break tryit;
         }
 
-        if (aws_cryptosdk_derive_key(session->alg_props, &session->content_key, &data_key, session->header.message_id)) {
+        result := build_header(materials);
+        if result != AWS_OP_SUCCESS {
           result := AWS_OP_ERR;
           break tryit;
         }
 
-        if (build_header(session, materials)) {
+        result := sign_header();
+        if result != AWS_OP_SUCCESS {
           result := AWS_OP_ERR;
           break tryit;
         }
 
-        if (sign_header(session)) {
-          result := AWS_OP_ERR;
-          break tryit;
-        }
-*****/
-
-        result := AWS_ERROR_SUCCESS;
+        result := AWS_OP_SUCCESS;
       }
 
+      // Clean up
       if materials != null {
-///          aws_byte_buf_secure_zero(&materials->unencrypted_data_key);
-          aws_cryptosdk_encryption_materials_destroy(materials);
+        forall i | 0 <= i < materials.unencrypted_data_key.Length {
+          materials.unencrypted_data_key[i] := 0;
+        }
+        materials.Destroy();
       }
-
-///      aws_secure_zero(&data_key, sizeof(data_key));
+      if data_key != null {
+        forall i | 0 <= i < data_key.Length {
+          data_key[i] := 0;
+        }
+      }
 
       return result;
     }
+
+    method build_header(materials: EncryptionMaterials) returns (r: Outcome)
+      requires alg_props != null
+      modifies header, materials
+      ensures materials.unencrypted_data_key == old(materials.unencrypted_data_key)
+    {
+      header.alg_id := alg_props.alg_id;
+      if UINT32_MAX < frame_size {
+        return AWS_CRYPTOSDK_ERR_LIMIT_EXCEEDED;
+      }
+      header.frame_len := frame_size;
+
+      // Swap the materials' EDK list for the header's.
+      // When we clean up the materials structure we'll destroy the old EDK list.
+
+      header.edk_list, materials.encrypted_data_keys := materials.encrypted_data_keys, header.edk_list;
+
+      // The header should have been cleared earlier, so the materials structure should have
+      // zero EDKs (otherwise we'd need to destroy the old EDKs as well).
+      // TODO: check the property mentioned above, but not exactly like this:  assert |materials.encrypted_data_keys| == 0;
+
+      header.iv := ByteBufInit_Full_AllZero(alg_props.iv_len);
+      header.auth_tag := ByteBufInit_Full(alg_props.tag_len);
+
+      return AWS_OP_SUCCESS;
+    }
+
+    // TODO
+    method sign_header() returns (r: Outcome)
+
     method priv_encrypt_compute_body_estimate() {
       // TODO
     }
-    method priv_try_write_header(remaining_space: byte_buf) returns (result: Outcome) {
+    method priv_try_write_header(remaining_space: ByteBuf) returns (result: Outcome) {
       // TODO
     }
-    method priv_try_encrypt_body(remaining_space: byte_buf, input: byte_cursor) returns (result: Outcome) {
+    method priv_try_encrypt_body(remaining_space: ByteBuf, input: ByteCursor) returns (result: Outcome) {
       // TODO
     }
-    method priv_write_trailer(remaining_space: byte_buf) returns (result: Outcome) {
+    method priv_write_trailer(remaining_space: ByteBuf) returns (result: Outcome) {
       // TODO
     }
   }
 
+  type nat_4bytes = x | 0 <= x < 0x1_0000_0000
+
   class Header {
-    constructor ()  // aws_cryptosdk_hdr_init
+    var alg_id: AlgorithmID
+    var frame_len: nat_4bytes
+    var iv: ByteBuf
+    var auth_tag: ByteBuf
+    var message_id: array<byte>  // length 16
+    var enc_context: EncryptionContext
+    var edk_list: seq<EDK.EncryptedDataKey>
+
+    // number of bytes of header except for IV and auth tag,
+    // i.e., exactly the bytes that get authenticated
+    var auth_len: nat
+
+    constructor () {  // aws_cryptosdk_hdr_init
+    }
   }
 }

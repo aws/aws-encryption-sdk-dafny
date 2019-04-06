@@ -30,6 +30,24 @@ module ByteBuffer {
     bb := ByteBuf(a, 0, capacity, 0);
   }
 
+  method ByteBufInit_Full(capacity: nat) returns (bb: ByteBuf)
+    ensures fresh(bb.a) && GoodByteBuf(bb) && ByteBufCapacity(bb) == capacity == bb.len
+  {
+    var a := new byte[capacity];
+    bb := ByteBuf(a, 0, capacity, capacity);
+  }
+
+  method ByteBufInit_Full_AllZero(capacity: nat) returns (bb: ByteBuf)
+    ensures fresh(bb.a) && GoodByteBuf(bb) && ByteBufCapacity(bb) == capacity == bb.len
+    ensures forall i :: bb.start <= i < bb.start + bb.len ==> bb.a[i] == 0
+  {
+    var a := new byte[capacity];
+    forall i | 0 <= i < capacity {
+      a[i] := 0;
+    }
+    bb := ByteBuf(a, 0, capacity, capacity);
+  }
+
   function method ByteBufFromArray(a: array<byte>, len: nat): ByteBuf
     requires len <= a.Length
     ensures GoodByteBuf(ByteBufFromArray(a, len))

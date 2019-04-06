@@ -7,10 +7,7 @@ module Aws {
 
   datatype Outcome =
     | AWS_OP_SUCCESS
-    | AWS_CRYPTOSDK_ERR_CRYPTO_UNKNOWN
     | AWS_OP_ERR
-
-  datatype CryptoSDKError =
     /** The ciphertext was malformed or corrupt */
     | AWS_CRYPTOSDK_ERR_BAD_CIPHERTEXT /* 0x2000 */
     /** An unknown internal error has occurred */
@@ -47,6 +44,7 @@ module Aws {
   method ShutdownAPI(options: SDKOptions) {}
 
   const UINT64_MAX := 0xFFFF_FFFF_FFFF_FFFF
+  const UINT32_MAX := 0xFFFF_FFFF
 
   // Mathematical encryption/decryption functions used in specifications
   module Math {

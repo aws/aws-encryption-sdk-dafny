@@ -35,7 +35,7 @@ module DefaultCryptoMaterialsManager {
   */
   class DefaultCMM extends CMM {
     var kr: Keyring
-    var alg_props: AlgorithmProperties
+    var alg_props: AlgorithmProperties?
 
     constructor New(kr: Keyring)
     {
@@ -57,7 +57,10 @@ module DefaultCryptoMaterialsManager {
     // TODO
     method Generate(request: EncryptionRequest) returns (result: Outcome, materials: EncryptionMaterials)
       modifies request
+      ensures fresh(materials)
+      ensures fresh(materials.unencrypted_data_key) && materials.unencrypted_data_key.Length <= 32
     // TODO
     method Decrypt(request: DecryptionRequest) returns (result: Outcome, materials: DecryptionMaterials)
+      ensures fresh(materials)
   }
 }

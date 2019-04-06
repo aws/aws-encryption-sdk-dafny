@@ -16,8 +16,11 @@ module Materials {
     // Generate is needed only for encryption
     method Generate(request: EncryptionRequest) returns (result: Outcome, materials: EncryptionMaterials)
       modifies request
+      ensures fresh(materials)
+      ensures fresh(materials.unencrypted_data_key) && materials.unencrypted_data_key.Length <= 32
     // Decrypt is needed only for decryption
     method Decrypt(request: DecryptionRequest) returns (result: Outcome, materials: DecryptionMaterials)
+      ensures fresh(materials)
 
     // To be called by classes that implement a CMM
     static method BaseInit(cmm: CMM)
@@ -27,6 +30,7 @@ module Materials {
     }
     method Release()
       modifies this
+      ensures refcount == old(refcount) == 0 || refcount == old(refcount) - 1
     {
       if refcount != 0 {
         refcount := refcount - 1;
@@ -37,6 +41,7 @@ module Materials {
     }
     method Retain()
       modifies this
+      ensures refcount == old(refcount) + 1
     {
       refcount := refcount + 1;
     }
@@ -76,6 +81,11 @@ module Materials {
     var requested_alg: AlgorithmID
     // upper bound on the plaintext size to be encrypted
     var plaintext_size: nat
+
+    constructor (ctx: EncryptionContext, size: nat) {
+      this.enc_context := ctx;
+      this.plaintext_size := size;
+    }
   }
 
   /**
