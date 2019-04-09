@@ -1,9 +1,11 @@
 include "StandardLibrary.dfy"
 include "AwsCrypto.dfy"
+include "ByteBuf.dfy"
 
 module Cipher {
   import opened StandardLibrary
   import opened Aws
+  import opened ByteBuffer
 
   newtype AESKeyLen = x | 0 <= x < 1_000_000
   const AWS_CRYPTOSDK_AES_128: AESKeyLen := 128 / 8
@@ -48,6 +50,13 @@ module Cipher {
     * The algorithm ID for this algorithm suite
     */
     const alg_id: AlgorithmID
+
+    method SignHeader(content_key: content_key, authtag: ByteBuf, header: ByteBuf) returns (r: Outcome)  // int aws_cryptosdk_sign_header(const struct aws_cryptosdk_alg_properties *props, const struct content_key *content_key, const struct aws_byte_buf *authtag, const struct aws_byte_buf *header)
+      requires GoodByteBuf(authtag) && GoodByteBuf(header)
+      modifies header.a
+    {
+      // TODO
+    }
   }
 
   class AlgorithmProperties_AES_128_GCM_IV12_AUTH16_KDNONE_SIGNONE extends AlgorithmProperties {
@@ -101,7 +110,9 @@ module Cipher {
   /**
   * Represents an ongoing sign or verify operation
   */
-  class SignCtx { }
+  class SignCtx {
+    method SigUpdate(cursor: ByteCursor) returns (r: Outcome)
+  }
 
   method GenRandom(buf: array<byte>) returns (r: Outcome)
     modifies buf

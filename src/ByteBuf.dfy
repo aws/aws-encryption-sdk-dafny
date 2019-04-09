@@ -62,6 +62,37 @@ module ByteBuffer {
     ByteBuf(a, 0, capacity, 0)
   }
 
+  method ByteBufFill(bb: ByteBuf, b: byte)
+    requires GoodByteBuf(bb)
+    modifies bb.a
+    ensures forall i :: bb.start <= i < bb.start + bb.len ==> bb.a[i] == b
+    ensures forall i :: 0 <= i < bb.start || bb.start + bb.len <= i < bb.a.Length ==> bb.a[i] == old(bb.a[i])
+  {
+    forall i | 0 <= i < bb.len {
+      bb.a[bb.start + i] := b;
+    }
+  }
+
+  method ByteBufCopyFromByteBuf(dest: ByteBuf, src: ByteBuf)
+    requires GoodByteBuf(dest) && GoodByteBuf(src)
+    requires dest.len <= src.len
+    modifies dest.a
+  {
+    forall i | 0 <= i < dest.len {
+      dest.a[dest.start + i] := src.a[src.start + i];
+    }
+  }
+
+  method ByteBufCopyFromByteBufOffset(dest: ByteBuf, src: ByteBuf, srcOffset: nat)
+    requires GoodByteBuf(dest) && GoodByteBuf(src)
+    requires dest.len <= src.len - srcOffset
+    modifies dest.a
+  {
+    forall i | 0 <= i < dest.len {
+      dest.a[dest.start + i] := src.a[src.start + srcOffset + i];
+    }
+  }
+
   function method ByteCursorFromBuf(bb: ByteBuf): ByteCursor
     requires GoodByteBuf(bb)
     ensures GoodByteCursor(ByteCursorFromBuf(bb))

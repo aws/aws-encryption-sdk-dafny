@@ -1,9 +1,11 @@
 include "StandardLibrary.dfy"
 include "AwsCrypto.dfy"
+include "ByteBuf.dfy"
 
 module EDK {
   import opened StandardLibrary
   import opened Aws
+  import opened ByteBuffer
 
   /*
   * This public interface to the encrypted data key (EDK) objects is provided for
@@ -12,5 +14,9 @@ module EDK {
   * need to use it and you should not do so.
   */
 
-  type EncryptedDataKey
+  class EncryptedDataKey {
+    var provider_id: ByteBuf
+    var provider_info: ByteBuf
+    var ciphertext: ByteBuf
+  }
 }

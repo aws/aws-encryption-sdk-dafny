@@ -48,7 +48,7 @@ module Session {
     var data_so_far: nat  /* Bytes processed thus far */
 
     /* The actual header, if parsed */
-    var head_copy: array?<byte>
+    var header_copy: array?<byte>
     var header_size: nat
     var header: Header
     const frame_size := 256 * 1024 /* Frame size, zero for unframed */
@@ -81,9 +81,18 @@ module Session {
       reads this
     {
       (mode == EncryptMode || message_size == None) &&
-      (state == Config ==>
-        true) &&
-      (state.Error? ==> state != Error(AWS_OP_SUCCESS))
+      match state
+      case Config => true
+      case Error(r) => r != AWS_OP_SUCCESS
+      case Done => true
+      case ReadHeader => true
+      case UnwrapKey => true
+      case DecryptBody => true
+      case CheckTrailer => true
+      case GenKey => true
+      case WriteHeader => true
+      case EncryptBody => true
+      case WriterTrailer => true
     }
 
     constructor FromCMM(mode: ProcessingMode, cmm: CMM)
@@ -113,7 +122,7 @@ module Session {
       this.size_bound := UINT64_MAX;
       this.data_so_far := 0;
       this.cmm_success := false;
-      this.head_copy := null;
+      this.header_copy := null;
       this.header_size := 0;
       this.header := new Header();
       this.keyring_trace := [];
@@ -166,6 +175,7 @@ module Session {
       var remaining_space := byte_buf_from_empty_array(output.enclosing_buffer, output.buffer_start_offset + output.len, output.capacity - output.len);
 
       label try: {
+        state := GenKey;
         result := priv_try_gen_key();
         if result != AWS_OP_SUCCESS { break try; }
         output := output.(len := output.len + remaining_space.len);
@@ -283,8 +293,12 @@ module Session {
     }
 
     method priv_try_gen_key() returns (result: Outcome)
-      modifies `alg_props, `signctx, `cmm_success, `keyring_trace, `content_key
+      requires Valid() && state == GenKey
+      modifies this
+      modifies header.iv.a, header.auth_tag.a
       modifies header, header.message_id
+      ensures Valid()
+      ensures result == AWS_OP_SUCCESS ==> state == WriteHeader
     {
       var materials, data_key := null, null;
       label tryit: {
@@ -376,6 +390,9 @@ module Session {
       requires alg_props != null
       modifies header, materials
       ensures materials.unencrypted_data_key == old(materials.unencrypted_data_key)
+      ensures GoodByteBuf(header.iv) && GoodByteBuf(header.auth_tag)
+      ensures fresh(header.iv.a) && fresh(header.auth_tag.a)
+      ensures header.iv.len == alg_props.iv_len && header.auth_tag.len == alg_props.tag_len
     {
       header.alg_id := alg_props.alg_id;
       if UINT32_MAX < frame_size {
@@ -398,8 +415,63 @@ module Session {
       return AWS_OP_SUCCESS;
     }
 
-    // TODO
     method sign_header() returns (r: Outcome)
+      requires alg_props != null && content_key != null
+      requires GoodByteBuf(header.iv) && GoodByteBuf(header.auth_tag)
+      requires header.iv.len == alg_props.iv_len && header.auth_tag.len == alg_props.tag_len
+      modifies `header_size, `header_copy, `frame_seqno, `state
+      modifies header.iv.a, header.auth_tag.a
+      ensures state == if r == AWS_OP_SUCCESS then WriteHeader else old(state)
+    {
+      header_size := header.size();
+      header_copy := new byte[header_size];
+      
+      // Debug memsets - if something goes wrong below this makes it easier to
+      // see what happened. It also makes sure that the header is fully initialized,
+      // again just in case some bug doesn't overwrite them properly.
+      ByteBufFill(header.iv, 0x42);
+      ByteBufFill(header.auth_tag, 0xDE);
+
+      assert header_copy.Length == header_size;
+      var actual_size;
+      r, actual_size := header.write(header_copy);
+      if r != AWS_OP_SUCCESS {
+        return AWS_OP_ERR;
+      } else if actual_size != header_size {
+        return AWS_CRYPTOSDK_ERR_CRYPTO_UNKNOWN;
+      }
+
+      var authtag_len := alg_props.iv_len + alg_props.tag_len;
+      var to_sign := ByteBufFromArray(header_copy, header_size - authtag_len);
+      var authtag := ByteBuf(header_copy, header_size - authtag_len, header_size, authtag_len);
+
+      r := alg_props.SignHeader(content_key, authtag, to_sign);
+      if r != AWS_OP_SUCCESS {
+        return AWS_OP_ERR;
+      }
+
+      ByteBufCopyFromByteBuf(header.iv, authtag);
+      ByteBufCopyFromByteBufOffset(header.auth_tag, authtag, header.iv.len);
+
+      // Re-serialize the header now that we know the auth tag
+      assert header_copy.Length == header_size;
+      r, actual_size := header.write(header_copy);
+      if r != AWS_OP_SUCCESS {
+        return AWS_OP_ERR;
+      } else if actual_size != header_size {
+        return AWS_CRYPTOSDK_ERR_CRYPTO_UNKNOWN;
+      }
+
+      if signctx != null {
+        r := signctx.SigUpdate(ByteCursorFromArray(header_copy, header_size));
+        if r != AWS_OP_SUCCESS {
+          return AWS_OP_ERR;
+        }
+      }
+
+      frame_seqno, state := 1, WriteHeader;
+      return AWS_OP_SUCCESS;
+    }
 
     method priv_encrypt_compute_body_estimate() {
       // TODO
@@ -422,7 +494,8 @@ module Session {
     var frame_len: nat_4bytes
     var iv: ByteBuf
     var auth_tag: ByteBuf
-    var message_id: array<byte>  // length 16
+    static const MESSAGE_ID_LEN := 16
+    var message_id: array<byte>  // length MESSAGE_ID_LEN
     var enc_context: EncryptionContext
     var edk_list: seq<EDK.EncryptedDataKey>
 
@@ -432,5 +505,46 @@ module Session {
 
     constructor () {  // aws_cryptosdk_hdr_init
     }
+
+    method size() returns (bytes: nat)
+      ensures iv.len + auth_tag.len <= bytes
+    {
+      // 18 is the total size of the non-variable-size fields in the header
+      bytes := 18 + MESSAGE_ID_LEN + iv.len + auth_tag.len;
+      var aad_len := enc_context_size();
+      bytes := bytes + aad_len;
+
+      var i := 0;
+      while i < |edk_list|
+        invariant 0 <= i <= |edk_list|
+        invariant iv.len + auth_tag.len <= bytes
+      {
+        var edk := edk_list[i];
+        // 2 bytes for each field's length header * 3 fields
+        bytes := bytes + 6 + edk.provider_id.len + edk.provider_info.len + edk.ciphertext.len;
+        i := i + 1;
+      }
+    }
+    // Returns the size of enc_context
+    method enc_context_size() returns (size: nat)
+    {
+      if |enc_context| == 0 {
+        // Empty context.
+        return 0;
+      }
+      size := 2;  // First two bytes are the number of k-v pairs
+      var keysToGo := enc_context.Keys;
+      while keysToGo != {}
+        invariant keysToGo <= enc_context.Keys
+        decreases keysToGo
+      {
+        var key :| key in keysToGo;
+        keysToGo := keysToGo - {key};
+        size := size + 2 /* key length */ + |key| + 2 /* value length */ + |enc_context[key]|;
+      }
+    }
+
+    method write(outbuf: array<byte>) returns (r: Outcome, bytes_written: nat)  // int aws_cryptosdk_hdr_write(const struct aws_cryptosdk_hdr *hdr, size_t *bytes_written, uint8_t *outbuf, size_t outlen)
+      modifies outbuf
   }
 }
