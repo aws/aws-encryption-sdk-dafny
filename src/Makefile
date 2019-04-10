@@ -2,11 +2,13 @@ DAFNY = mono ../../dafny/Binaries/Dafny.exe
 
 SOURCES = \
   StandardLibrary.dfy \
+	ByteOrder.dfy \
 	AwsCrypto.dfy \
 	ByteBuf.dfy \
 	KeyringTrace.dfy \
 	EDK.dfy \
 	Cipher.dfy \
+	Frame.dfy \
 	Materials.dfy \
 	DefaultCMM.dfy \
 	Session.dfy

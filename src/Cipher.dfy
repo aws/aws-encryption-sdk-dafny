@@ -57,6 +57,13 @@ module Cipher {
     {
       // TODO
     }
+
+    method EncryptBody(outp: ByteBuf, inp: ByteCursor, seqno: nat, iv: array<byte>, key: content_key, tag: array<byte>, body_frame_type: FrameType)
+      returns (result: Outcome, message_id: array<byte>)
+    {
+      // TODO
+    }
+
   }
 
   class AlgorithmProperties_AES_128_GCM_IV12_AUTH16_KDNONE_SIGNONE extends AlgorithmProperties {
@@ -107,11 +114,15 @@ module Cipher {
     }
   }
 
+  datatype FrameType = FRAME_TYPE_SINGLE | FRAME_TYPE_FRAME | FRAME_TYPE_FINAL
+
   /**
   * Represents an ongoing sign or verify operation
   */
   class SignCtx {
     method SigUpdate(cursor: ByteCursor) returns (r: Outcome)
+    method SigFinish() returns (r: Outcome, signature: array<byte>)
+      ensures r == AWS_OP_SUCCESS ==> signature.Length < 0x1_0000
   }
 
   method GenRandom(buf: array<byte>) returns (r: Outcome)

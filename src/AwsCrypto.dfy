@@ -23,6 +23,9 @@ module Aws {
     /** No keyrings were able to decrypt the message in question */
     | AWS_CRYPTOSDK_ERR_CANNOT_DECRYPT
     | AWS_CRYPTOSDK_ERR_END_RANGE /* 0x2400 */
+    | AWS_ERROR_SHORT_BUFFER
+
+  function method aws_last_error(): Outcome  // TODO: this should not be a function like this
 
   type EncryptionContext = map<string,string>
 

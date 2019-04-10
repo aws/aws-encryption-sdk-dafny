@@ -3,6 +3,7 @@ include "AwsCrypto.dfy"
 include "Materials.dfy"
 include "Cipher.dfy"
 include "ByteBuf.dfy"
+include "Frame.dfy"
 
 module Session {
   import opened StandardLibrary
@@ -12,6 +13,7 @@ module Session {
   import Cipher
   import opened ByteBuffer
   import opened KeyringTraceModule
+  import opened FrameFormat
 
   // Encryption SDK mode
   datatype ProcessingMode = EncryptMode /* 0x9000 */ | DecryptMode /* 0x9001 */
@@ -31,7 +33,7 @@ module Session {
     | GenKey
     | WriteHeader
     | EncryptBody
-    | WriterTrailer
+    | WriteTrailer
 
 
   class Session {
@@ -92,7 +94,7 @@ module Session {
       case GenKey => true
       case WriteHeader => true
       case EncryptBody => true
-      case WriterTrailer => true
+      case WriteTrailer => true
     }
 
     constructor FromCMM(mode: ProcessingMode, cmm: CMM)
@@ -179,11 +181,11 @@ module Session {
         result := priv_try_gen_key();
         if result != AWS_OP_SUCCESS { break try; }
         output := output.(len := output.len + remaining_space.len);
-        result := priv_try_write_header(remaining_space);
-        if result != AWS_OP_SUCCESS { break try; }
+        remaining_space := priv_try_write_header(remaining_space);
+        if state != EncryptBody { break try; }
         output := output.(len := output.len + remaining_space.len);
         result := priv_try_encrypt_body(remaining_space, input);
-        if result != AWS_OP_SUCCESS { break try; }
+        if result != AWS_OP_SUCCESS || state != WriteTrailer { break try; }
         output := output.(len := output.len + remaining_space.len);
         result := priv_write_trailer(remaining_space);
         if result != AWS_OP_SUCCESS { break try; }
@@ -250,7 +252,8 @@ module Session {
           case GenKey =>
             result := priv_try_gen_key();
           case WriteHeader =>
-            result := priv_try_write_header(remaining_space);
+            remaining_space := priv_try_write_header(remaining_space);
+            result := AWS_OP_SUCCESS;
           case EncryptBody =>
             result := priv_try_encrypt_body(remaining_space, input);
           case WriterTrailer =>
@@ -476,14 +479,170 @@ module Session {
     method priv_encrypt_compute_body_estimate() {
       // TODO
     }
-    method priv_try_write_header(remaining_space: ByteBuf) returns (result: Outcome) {
-      // TODO
+
+    method priv_try_write_header(output: ByteBuf) returns (output': ByteBuf)
+      requires GoodByteBuf(output)
+      requires header_copy != null && header_size <= header_copy.Length
+      modifies `output_size_estimate, `state, output.a
+      ensures GoodByteBuf(output')
+      ensures state == old(state) || state == EncryptBody
+    {
+      output_size_estimate := header_size;
+
+      // We'll only write the header if we have enough of an output buffer to
+      // write the whole thing.
+
+      var success;
+      success, output' := ByteBufWrite(output, header_copy, header_size);
+      if success {
+        state := EncryptBody;
+      }
     }
-    method priv_try_encrypt_body(remaining_space: ByteBuf, input: ByteCursor) returns (result: Outcome) {
-      // TODO
+
+    method priv_try_encrypt_body(output: ByteBuf, input: ByteCursor) returns (result: Outcome, output': ByteBuf, input': ByteCursor)
+      requires GoodByteBuf(output) && GoodByteCursor(input)
+      requires precise_size.Some? ==> data_so_far <= precise_size.get
+      requires alg_props != null && content_key != null
+      modifies `output_size_estimate, `input_size_estimate, header`message_id, `data_so_far, `frame_seqno, `state, output.a
+      ensures result != AWS_OP_SUCCESS ==> state == old(state) && output' == output && input' == input
+    {
+      output', input' := output, input;
+
+      /* First, figure out how much plaintext we need. */
+      var plaintext_size, frame_type;
+      if frame_size != 0 {
+        /* This is a framed message; is it the last frame? */
+        if precise_size.Some? && precise_size.get - data_so_far < frame_size {
+          plaintext_size, frame_type := precise_size.get - data_so_far, Cipher.FRAME_TYPE_FINAL;
+        } else {
+          plaintext_size, frame_type := frame_size, Cipher.FRAME_TYPE_FRAME;
+        }
+      } else {
+        /* This is a non-framed message. We need the precise size before doing anything. */
+        if precise_size == None {
+          output_size_estimate, input_size_estimate := 0, 0;
+          return AWS_OP_SUCCESS, output, input;
+        }
+        plaintext_size, frame_type := precise_size.get, Cipher.FRAME_TYPE_SINGLE;
+      }
+
+      if UINT32_MAX < frame_seqno {
+        return AWS_CRYPTOSDK_ERR_LIMIT_EXCEEDED, output, input;
+      }
+      var frame: Frame;
+      frame := frame.(typ := frame_type, sequence_number := frame_seqno);
+
+      var ciphertext_size: nat, output_remaining;
+      result, frame, ciphertext_size, output_remaining := aws_cryptosdk_serialize_frame(frame, plaintext_size, output, alg_props);
+      output_size_estimate, input_size_estimate := ciphertext_size, plaintext_size;
+      if result != AWS_OP_SUCCESS {
+        if (aws_last_error() == AWS_ERROR_SHORT_BUFFER) {
+          // The ciphertext buffer was too small. We've updated estimates;
+          // just return without doing any work.
+          result := AWS_OP_SUCCESS;
+        } else {
+          // Some kind of validation failed?
+          result := AWS_CRYPTOSDK_ERR_CRYPTO_UNKNOWN;
+        }
+        return;
+      }
+
+      var success, plaintext, input_remaining := ByteCursorSplit(input, plaintext_size);
+      if !success {
+        // Not enough plaintext buffer space.
+        result := AWS_OP_SUCCESS;
+        return;
+      }
+      result, header.message_id := alg_props.EncryptBody(frame.ciphertext,
+              plaintext,
+              frame.sequence_number,
+              frame.iv.a,
+              content_key,
+              frame.authtag.a,
+              frame.typ);
+      if result != AWS_OP_SUCCESS {
+        // Something terrible happened. Clear the ciphertext buffer and error out.
+        ByteBufClear(output);
+        result := AWS_CRYPTOSDK_ERR_CRYPTO_UNKNOWN;
+        return;
+      }
+
+      if signctx != null {
+        // Note that the 'output' buffer contains only our ciphertext; we need to keep track of the frame
+        // headers as well
+        assert output.a == output_remaining.a && output.start == output_remaining.start;
+        var original_start := output.start + output.len;
+        var current_end    := output_remaining.start + output_remaining.len;
+
+        var to_sign := ByteCursor(output.a, original_start, output_remaining.len - output.len);
+
+        result := signctx.SigUpdate(to_sign);
+        if result != AWS_OP_SUCCESS {
+          // Something terrible happened. Clear the ciphertext buffer and error out.
+          ByteCursorClear(to_sign);
+          result := AWS_CRYPTOSDK_ERR_CRYPTO_UNKNOWN;
+          return;
+        }
+      }
+
+      // Success! Write back our input/output cursors now, and update our state.
+      output', input' := output_remaining, input_remaining;
+      data_so_far := data_so_far + plaintext_size;
+      frame_seqno := frame_seqno + 1;
+
+      if frame.typ != Cipher.FRAME_TYPE_FRAME {
+        // We've written a final frame, move on to the trailer
+        state := WriteTrailer;
+      }
+
+      result := AWS_OP_SUCCESS;
     }
-    method priv_write_trailer(remaining_space: ByteBuf) returns (result: Outcome) {
-      // TODO
+
+    method priv_write_trailer(output: ByteBuf) returns (result: Outcome, output': ByteBuf)
+      requires GoodByteBuf(output)
+      requires alg_props != null && signctx != null
+      modifies `input_size_estimate, `output_size_estimate, `signctx, `state, output.a
+    {
+      /* We definitely do not need any more input at this point.
+       * We might need more output space, and if so we will update the
+       * output estimate below. For now we set it to zero, so that when
+       * session is done, both estimates will be zero.
+       */
+      input_size_estimate, output_size_estimate := 0, 0;
+
+      if alg_props.signature_len == 0 {
+        state := Done;
+        return AWS_OP_SUCCESS, output;
+      }
+
+      // The trailer frame is a 16-bit length followed by the signature.
+      // Since we generate the signature with a deterministic size, we know how much space we need
+      // ahead of time.
+      var size_needed := 2 + alg_props.signature_len;
+      if ByteBufRemaining(output) < size_needed {
+        output_size_estimate := size_needed;
+        return AWS_OP_SUCCESS, output;
+      }
+
+      var signature;
+      result, signature := signctx.SigFinish();
+      // The signature context is unconditionally destroyed, so avoid double-free
+      signctx := null;
+      if result != AWS_OP_SUCCESS {
+        return AWS_OP_ERR, output;
+      }
+
+      var success, bb := ByteBufWriteBe16(output, signature.Length);
+      if success {
+        success, bb := ByteBufWrite(bb, signature, signature.Length);
+      }
+      if !success {
+        // Should never happen, but just in case
+        return AWS_CRYPTOSDK_ERR_CRYPTO_UNKNOWN, output;
+      }
+
+      state := Done;
+      return AWS_OP_SUCCESS, bb;
     }
   }
 
