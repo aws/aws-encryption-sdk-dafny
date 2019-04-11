@@ -71,6 +71,13 @@ module ByteBuffer {
     ByteBuf(bb.a, bb.start + n, bb.end, bb.len - n)
   }
 
+  function method ByteBufFromRemaining(bb: ByteBuf): ByteBuf
+    requires GoodByteBuf(bb)
+    ensures GoodByteBuf(ByteBufFromRemaining(bb))
+  {
+    ByteBuf(bb.a, bb.start + bb.len, bb.end, 0)
+  }
+
   function method ByteBufElongate(bb: ByteBuf, n: nat): ByteBuf
     requires GoodByteBuf(bb) && n <= ByteBufRemaining(bb)
     ensures GoodByteBuf(ByteBufElongate(bb, n))
@@ -189,7 +196,7 @@ module ByteBuffer {
 
   method ByteCursorSplit(bc: ByteCursor, n: nat) returns (success: bool, bc0: ByteCursor, bc1: ByteCursor)  // aws_byte_cursor_advance
     requires GoodByteCursor(bc)
-    ensures success ==> GoodByteCursor(bc0) && GoodByteCursor(bc1)
+    ensures success ==> GoodByteCursor(bc0) && GoodByteCursor(bc1) && bc0.a == bc1.a == bc.a
     ensures !success ==> bc1 == bc
   {
     if n <= bc.len {

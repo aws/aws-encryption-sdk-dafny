@@ -84,7 +84,8 @@ module Session {
     {
       (mode == EncryptMode || message_size == None) &&
       match state
-      case Config => true
+      case Config =>
+        data_so_far == 0
       case Error(r) => r != AWS_OP_SUCCESS
       case Done => true
       case ReadHeader => true
@@ -149,12 +150,17 @@ module Session {
       return AWS_OP_SUCCESS;
     }
 
-    /*****
+    // Note: ProcessEncrypt is a specialization of the Process method, for the purpose of testing the specifications of some of
+    // the worker methods it calls. It only calls a worker routine once, rather than repeatedly calling them, as would be needed
+    // in general. When the specification testing is completed, ProcessEncrypt will be deleted from the sources and replaced by the
+    // more general Process method.
     method ProcessEncrypt(outp: array<byte>, outlen: nat, inp: array<byte>, inlen: nat) returns (result: Outcome, out_bytes_written: nat, in_bytes_read: nat)
       requires Valid() && mode == EncryptMode
       requires state == Config
       requires outp != inp && inlen <= inp.Length && outlen <= outp.Length
-      modifies this, outp
+      modifies this, header, outp
+      modifies header, header.iv.a, header.auth_tag.a, header.message_id
+      /**
       ensures Valid() && message_size == old(message_size)
       ensures in_bytes_read <= inlen && out_bytes_written <= outlen
       ensures result != AWS_OP_SUCCESS ==>
@@ -168,31 +174,47 @@ module Session {
                 outp[..out_bytes_written] == Math.Encrypt(inp[..in_bytes_read])
       ensures result == AWS_OP_SUCCESS && mode == DecryptMode ==>
                 outp[..out_bytes_written] == Math.Decrypt(inp[..in_bytes_read])
+      **/
     {
-      var output := ByteBuf(0, outp, 0, outlen);
-      var input := ByteCursor(inlen, inp, 0);
+      var output := ByteBufFromArray(outp, outlen);
+      var input := ByteCursorFromArray(inp, inlen);
 
-      var prior_state, old_inp := state, input.ptr;
-
-      var remaining_space := byte_buf_from_empty_array(output.enclosing_buffer, output.buffer_start_offset + output.len, output.capacity - output.len);
-
-      label try: {
+      label tryit: {
+        // ----- Config
+        assert state == Config;
+        var remaining_space := ByteBufFromRemaining(output);
         state := GenKey;
-        result := priv_try_gen_key();
-        if result != AWS_OP_SUCCESS { break try; }
-        output := output.(len := output.len + remaining_space.len);
-        remaining_space := priv_try_write_header(remaining_space);
-        if state != EncryptBody { break try; }
-        output := output.(len := output.len + remaining_space.len);
-        result := priv_try_encrypt_body(remaining_space, input);
-        if result != AWS_OP_SUCCESS || state != WriteTrailer { break try; }
-        output := output.(len := output.len + remaining_space.len);
-        result := priv_write_trailer(remaining_space);
-        if result != AWS_OP_SUCCESS { break try; }
-        output := output.(len := output.len + remaining_space.len);
-      }
 
-      out_bytes_written, in_bytes_read := output.len, input.ptr;
+        // ----- GenKey
+        assert state == GenKey;
+        result := priv_try_gen_key();
+        if result != AWS_OP_SUCCESS { break tryit; }
+
+        // ----- WriteHeader
+        assert state == WriteHeader;
+        output := priv_try_write_header(output);
+        if state != EncryptBody { result := AWS_OP_ERR; break tryit; }
+
+        // ----- EncryptBody
+        assert state == EncryptBody;
+        assert header == old(header);
+        result, output, input := priv_try_encrypt_body(output, input);
+        if result != AWS_OP_SUCCESS { break tryit; }
+        if state != WriteTrailer { result := AWS_OP_ERR; break tryit; }
+
+        // ----- WriteTrailer
+        assert state == WriteTrailer;
+        assert output.a == outp;  // DEBUG
+        result, output := priv_write_trailer(output);
+        if result != AWS_OP_SUCCESS { break tryit; }
+        if state != Done { result := AWS_OP_ERR; break tryit; }
+
+        // ----- Done
+        assert state == Done;
+      }
+      assert result == AWS_OP_SUCCESS ==> state == Done;
+
+      out_bytes_written, in_bytes_read := output.len, input.len;
 
       if result != AWS_OP_SUCCESS {
         state := Error(result);
@@ -202,7 +224,6 @@ module Session {
         out_bytes_written := 0;
       }
     }
-    *****/
 
     /*****
     method Process(outp: array<byte>, outlen: nat, inp: array<byte>, inlen: nat) returns (result: Outcome, out_bytes_written: nat, in_bytes_read: nat)
@@ -301,7 +322,12 @@ module Session {
       modifies header.iv.a, header.auth_tag.a
       modifies header, header.message_id
       ensures Valid()
+      ensures unchanged(`data_so_far, `header)
       ensures result == AWS_OP_SUCCESS ==> state == WriteHeader
+      ensures result == AWS_OP_SUCCESS ==>
+        alg_props != null && content_key != null &&
+        (alg_props.signature_len != 0 ==> signctx != null) &&
+        header_copy != null && header_size <= header_copy.Length
     {
       var materials, data_key := null, null;
       label tryit: {
@@ -425,6 +451,7 @@ module Session {
       modifies `header_size, `header_copy, `frame_seqno, `state
       modifies header.iv.a, header.auth_tag.a
       ensures state == if r == AWS_OP_SUCCESS then WriteHeader else old(state)
+      ensures header_copy != null && header_copy.Length == header_size
     {
       header_size := header.size();
       header_copy := new byte[header_size];
@@ -484,7 +511,7 @@ module Session {
       requires GoodByteBuf(output)
       requires header_copy != null && header_size <= header_copy.Length
       modifies `output_size_estimate, `state, output.a
-      ensures GoodByteBuf(output')
+      ensures GoodByteBuf(output') && output'.a == output.a
       ensures state == old(state) || state == EncryptBody
     {
       output_size_estimate := header_size;
@@ -505,9 +532,9 @@ module Session {
       requires alg_props != null && content_key != null
       modifies `output_size_estimate, `input_size_estimate, header`message_id, `data_so_far, `frame_seqno, `state, output.a
       ensures result != AWS_OP_SUCCESS ==> state == old(state) && output' == output && input' == input
+      ensures state == old(state) || state == WriteTrailer
+      ensures GoodByteBuf(output') && GoodByteCursor(input') && output'.a == output.a && input'.a == input.a
     {
-      output', input' := output, input;
-
       /* First, figure out how much plaintext we need. */
       var plaintext_size, frame_type;
       if frame_size != 0 {
@@ -544,14 +571,13 @@ module Session {
           // Some kind of validation failed?
           result := AWS_CRYPTOSDK_ERR_CRYPTO_UNKNOWN;
         }
-        return;
+        return result, output, input;
       }
 
       var success, plaintext, input_remaining := ByteCursorSplit(input, plaintext_size);
       if !success {
         // Not enough plaintext buffer space.
-        result := AWS_OP_SUCCESS;
-        return;
+        return AWS_OP_SUCCESS, output, input;
       }
       result, header.message_id := alg_props.EncryptBody(frame.ciphertext,
               plaintext,
@@ -563,8 +589,7 @@ module Session {
       if result != AWS_OP_SUCCESS {
         // Something terrible happened. Clear the ciphertext buffer and error out.
         ByteBufClear(output);
-        result := AWS_CRYPTOSDK_ERR_CRYPTO_UNKNOWN;
-        return;
+        return AWS_CRYPTOSDK_ERR_CRYPTO_UNKNOWN, output, input;
       }
 
       if signctx != null {
@@ -580,8 +605,7 @@ module Session {
         if result != AWS_OP_SUCCESS {
           // Something terrible happened. Clear the ciphertext buffer and error out.
           ByteCursorClear(to_sign);
-          result := AWS_CRYPTOSDK_ERR_CRYPTO_UNKNOWN;
-          return;
+          return AWS_CRYPTOSDK_ERR_CRYPTO_UNKNOWN, output, input;
         }
       }
 
@@ -600,8 +624,11 @@ module Session {
 
     method priv_write_trailer(output: ByteBuf) returns (result: Outcome, output': ByteBuf)
       requires GoodByteBuf(output)
-      requires alg_props != null && signctx != null
+      requires alg_props != null
+      requires alg_props.signature_len != 0 ==> signctx != null
       modifies `input_size_estimate, `output_size_estimate, `signctx, `state, output.a
+      ensures result != AWS_OP_SUCCESS ==> state == old(state) && output' == output
+      ensures state == old(state) || state == Done
     {
       /* We definitely do not need any more input at this point.
        * We might need more output space, and if so we will update the
