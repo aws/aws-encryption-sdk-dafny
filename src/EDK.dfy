@@ -28,35 +28,57 @@ module EDK {
     }
     
     /**
-     * Deallocates all memory associated with an EDK. Setting all bytes of an EDK to
-     * zero when you declare it will make this safe to call even if some buffers are unused.
+     * Setting all bytes of an EDK to zero when you declare it will make this safe to call even if some buffers are unused.
      */
-    method EdkCleanUp(edk: EncryptedDataKey) {}
+    method EdkClear()
+    requires GoodByteBuf(this.provider_id) && GoodByteBuf(this.provider_info) && GoodByteBuf(this.ciphertext)
+    modifies this.provider_id.a, this.provider_info.a, this.ciphertext.a
+    {
+      ByteBufClear(this.provider_id);
+      ByteBufClear(this.provider_info);
+      ByteBufClear(this.ciphertext);
+    }
+  }
+
+  predicate GoodEDKList(edk_list: seq<EncryptedDataKey>)
+  reads edk_list
+  {
+    var num_keys := |edk_list|;
+    forall k :: 0 <= k < num_keys ==> GoodByteBuf(edk_list[k].provider_id) && GoodByteBuf(edk_list[k].provider_info) && 
+    GoodByteBuf(edk_list[k].ciphertext)
   }
   /**
-   * Allocates an empty list of EDKs.
+   * Clears all the EDKs in the list.
    */
-  method NewEdkList() returns (edk_list: seq<array>) {}
-
-  /**
-   * Deallocates all memory associated with all EDKs in the list and then deallocates the list.
-   */
-  method EdkListCleanUp(edk_list: seq<array>) returns (r: Outcome) {}
-
-  /**
-   * Deallocates all memory associated with all EDKs in the list and then clears the list.
-   * The array list itself remains allocated but empty.
-   */
-  method EdkListClear(edk_list: seq<array>) returns (r: Outcome) {}
+  method EdkListClear(edk_list: seq<EncryptedDataKey>)
+  requires GoodEDKList(edk_list)
+  modifies edk_list
+  {
+    var num_keys := |edk_list|;
+    var key_idx := 0;
+    while key_idx < num_keys
+          invariant 0 <= key_idx
+          decreases num_keys - key_idx
+          
+    {
+      //edk_list[key_idx].EdkClear();
+      key_idx := key_idx + 1; 
+    }
+}
 
   /**
    * Copies the EDK data in src to dest.
    */
-   method EdkClone(dst: EncryptedDataKey, src: EncryptedDataKey) returns (r: Outcome) modifies dst {}
-
-  /**
-  * Returns true if the contents of all EDK byte buffers are identical, false otherwise.
-  */
-  method EdkEq(edk1: EncryptedDataKey, edk2: EncryptedDataKey) returns (result: bool) {}
-
+   method EdkClone(dest: EncryptedDataKey, src: EncryptedDataKey)
+   requires GoodByteBuf(dest.provider_id) && GoodByteBuf(dest.provider_info) && GoodByteBuf(dest.ciphertext)
+   requires GoodByteBuf(src.provider_id) && GoodByteBuf(src.provider_info) && GoodByteBuf(src.ciphertext)
+   requires dest.provider_id.len <= src.provider_id.len
+   requires dest.provider_info.len <= src.provider_info.len
+   requires dest.ciphertext.len <= src.ciphertext.len
+   modifies dest.provider_id.a, dest.provider_info.a, dest.ciphertext.a 
+   {
+     ByteBufCopyFromByteBuf(dest.provider_id, src.provider_id);
+     ByteBufCopyFromByteBuf(dest.provider_info, src.provider_info);
+     ByteBufCopyFromByteBuf(dest.ciphertext, src.ciphertext);
+   }
 }
