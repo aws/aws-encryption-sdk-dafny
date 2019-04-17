@@ -52,7 +52,9 @@ module EDK {
    */
   method EdkListClear(edk_list: seq<EncryptedDataKey>)
   requires GoodEDKList(edk_list)
-  modifies edk_list
+  modifies set i | 0 <= i < |edk_list| :: edk_list[i].provider_id.a
+  modifies set i | 0 <= i < |edk_list| :: edk_list[i].provider_info.a
+  modifies set i | 0 <= i < |edk_list| :: edk_list[i].ciphertext.a
   {
     var num_keys := |edk_list|;
     var key_idx := 0;
@@ -61,7 +63,7 @@ module EDK {
           decreases num_keys - key_idx
           
     {
-      //edk_list[key_idx].EdkClear();
+      edk_list[key_idx].EdkClear();
       key_idx := key_idx + 1; 
     }
 }
