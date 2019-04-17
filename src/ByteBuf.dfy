@@ -25,6 +25,14 @@ module ByteBuffer {
     ByteBufCapacity(bb) - bb.len
   }
 
+  predicate ByteBufAdvances(b0: ByteBuf, b1: ByteBuf)
+    requires GoodByteBuf(b0)
+  {
+    GoodByteBuf(b1) &&
+    b0.a == b1.a && b0.start == b1.start && b0.end == b1.end &&
+    b0.len <= b1.len
+  }
+
   method ByteBufInit(capacity: nat) returns (bb: ByteBuf)
     ensures fresh(bb.a) && GoodByteBuf(bb) && ByteBufCapacity(bb) == capacity && bb.len == 0
   {
@@ -136,7 +144,7 @@ module ByteBuffer {
     requires GoodByteBuf(buf) && len <= src.Length
     modifies buf.a
     ensures GoodByteBuf(buf')
-    ensures !success ==> buf' == buf && forall i :: 0 <= i < buf.a.Length ==> buf.a[i] == old(buf.a[i])
+    ensures !success ==> buf' == buf && unchanged(buf.a)
     ensures success ==> buf' == buf.(len := buf.len + len)
   {
     if ByteBufRemaining(buf) < len {
@@ -180,6 +188,15 @@ module ByteBuffer {
     bc.start + bc.len <= bc.a.Length
   }
 
+  predicate ByteCursorAdvances(c0: ByteCursor, c1: ByteCursor)
+    requires GoodByteCursor(c0)
+  {
+    GoodByteCursor(c1) &&
+    c0.a == c1.a &&
+    c0.start <= c1.start &&
+    c0.start + c0.len == c1.start + c1.len
+  }
+
   function method ByteCursorFromBuf(bb: ByteBuf): ByteCursor
     requires GoodByteBuf(bb)
     ensures GoodByteCursor(ByteCursorFromBuf(bb))
@@ -196,7 +213,7 @@ module ByteBuffer {
 
   method ByteCursorSplit(bc: ByteCursor, n: nat) returns (success: bool, bc0: ByteCursor, bc1: ByteCursor)  // aws_byte_cursor_advance
     requires GoodByteCursor(bc)
-    ensures success ==> GoodByteCursor(bc0) && GoodByteCursor(bc1) && bc0.a == bc1.a == bc.a
+    ensures success ==> GoodByteCursor(bc0) && GoodByteCursor(bc1) && bc0.a == bc1.a == bc.a && ByteCursorAdvances(bc, bc1)
     ensures !success ==> bc1 == bc
   {
     if n <= bc.len {
