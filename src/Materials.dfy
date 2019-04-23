@@ -1,5 +1,6 @@
 include "StandardLibrary.dfy"
 include "KeyringTrace.dfy"
+include "ByteBuf.dfy"
 include "EDK.dfy"
 include "Cipher.dfy"
 
@@ -9,6 +10,7 @@ module Materials {
   import opened KeyringTraceModule
   import opened EDK
   import opened Cipher
+  import opened ByteBuffer
 
   trait {:termination false} CMM {
     var refcount: nat
@@ -50,8 +52,13 @@ module Materials {
   trait {:termination false} Keyring {
     var refcount: nat
     method Destroy()
-    method OnEncrypt(unencrypted_data_key: array?<byte>, keyring_trace: seq<KeyringTrace>, edks: seq<EncryptedDataKey>, enc_context: EncryptionContext, alg: AlgorithmID) returns (result: Outcome)
-    method OnDecrypt(unencrypted_data_key: array?<byte>, keyring_trace: seq<KeyringTrace>, edks: seq<EncryptedDataKey>, enc_context: EncryptionContext, alg: AlgorithmID) returns (result: Outcome)
+    method OnEncrypt(uedk: ByteBuf, keyring_trace: seq<KeyringTrace>, edk_list: seq<EncryptedDataKey>, enc_context: EncryptionContext,
+     alg_id: AlgorithmID) returns (result: Outcome, uedk': ByteBuf, keyring_trace': seq<KeyringTrace>)
+    modifies set i | 0 <= i < |edk_list| :: edk_list[i].provider_id.a
+    modifies set i | 0 <= i < |edk_list| :: edk_list[i].provider_info.a
+    modifies set i | 0 <= i < |edk_list| :: edk_list[i].ciphertext.a
+    method OnDecrypt(uedk: ByteBuf, keyring_trace: seq<KeyringTrace>, edk_list: seq<EncryptedDataKey>,enc_context: EncryptionContext,
+     alg_id: AlgorithmID) returns (result: Outcome, uedk': ByteBuf, keyring_trace': seq<KeyringTrace>)
 
     // To be called by classes that implement a Keyring
     static method BaseInit(kr: Keyring)

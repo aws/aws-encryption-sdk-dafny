@@ -1,21 +1,17 @@
 include "StandardLibrary.dfy"
 include "AwsCrypto.dfy"
 include "ByteBuf.dfy"
-
+include "EDK.dfy"
 module Cipher {
   import opened StandardLibrary
   import opened Aws
   import opened ByteBuffer
+  import opened EDK
 
   newtype AESKeyLen = x | 0 <= x < 1_000_000
   const AWS_CRYPTOSDK_AES_128: AESKeyLen := 128 / 8
   const AWS_CRYPTOSDK_AES_192: AESKeyLen := 192 / 8
   const AWS_CRYPTOSDK_AES_256: AESKeyLen := 256 / 8
-
-  datatype RSAPaddingMode =
-    | AWS_CRYPTOSDK_RSA_PKCS1
-    | AWS_CRYPTOSDK_RSA_OAEP_SHA1_MGF1
-    | AWS_CRYPTOSDK_RSA_OAEP_SHA256_MGF1
 
   trait AlgorithmProperties {
     // The name of the digest algorithm used for the KDF, or None if no KDF is used.
@@ -143,9 +139,99 @@ module Cipher {
   // A return code of 1 means success (how could this operation fail?)
   method RAND_bytes(buf: array<byte>, n: nat) returns (rc: int)
     requires n <= buf.Length
-    modifies buf
+    modifies buf {}
 
   class content_key { }  // TODO
 
-  method DeriveKey(properties: AlgorithmProperties, dataKey: array<byte>, messageId: array<byte>) returns (r: Outcome, contentKey: content_key)
+  method DeriveKey(properties: AlgorithmProperties, dataKey: array<byte>, messageId: array<byte>) 
+  returns (r: Outcome, contentKey: content_key) {}
+
+  method ByteBufCleanUp(bb: ByteBuf){}
+
+  method EncContextSize(enc_context: EncryptionContext) returns (result: Outcome, aad_len: nat) {}
+
+  method EncContextSerialize(aad: ByteBuf, enc_context: EncryptionContext) returns (result: Outcome) {}
+/**
+ * Does AES-GCM encryption using AES-256/192/128 with 12 byte IVs and 16 byte tags only.
+ * Determines which AES algorithm to use based on length of key.
+ *
+ * Assumes cipher and tag are already allocated byte buffers. Does NOT assume that lengths
+ * of buffers are already set, and will set them on successful encrypt.
+ *
+ * Returns AWS_OP_SUCCESS on a successful encrypt. On failure, returns AWS_OP_ERR and sets
+ * one of the following error codes:
+ *
+ * AWS_INVALID_BUFFER_SIZE : bad key or IV length, or not enough capacity in output buffers
+ * AWS_CRYPTOSDK_ERR_CRYPTO_UNKNOWN : OpenSSL error
+ *
+ * On last error, output buffers will be set to all zero bytes, and their lengths will be
+ * set to zero.
+ */
+
+  method AesGcmEncrypt(tag: ByteBuf, plain: ByteCursor, iv: ByteCursor,
+  aad: ByteCursor, key: string) returns (result: Outcome, cipher: ByteBuf) {}
+
+  /**
+ * Does AES-GCM decryption using AES-256/192/128 with 12 byte IVs and 16 byte tags only.
+ * Determines which AES algorithm to use based on length of key.
+ *
+ * Assumes plain is an already allocated byte buffer. Does NOT assume that length of plain
+ * buffer is already set, and will set it to the length of plain on a successful decrypt.
+ *
+ * Returns AWS_OP_SUCCESS on a successful decrypt. On failure, returns AWS_OP_ERR and sets
+ * one of the following error codes:
+ *
+ * AWS_INVALID_BUFFER_SIZE : bad key, tag, or IV length, or not enough capacity in plain
+ * AWS_CRYPTOSDK_ERR_BAD_CIPHERTEXT : unable to decrypt or authenticate ciphertext
+ * AWS_CRYPTOSDK_ERR_CRYPTO_UNKNOWN : OpenSSL error
+ *
+ * On either of the last two errors, the plain buffer will be set to all zero bytes, and its
+ * length will be set to zero.
+ */
+
+  method AesGcmDecrypt(cipher: ByteCursor, tag: ByteCursor, iv: ByteCursor, aad: ByteCursor, 
+  key: string) returns (result: Outcome, plain: ByteBuf) {}
+
+  /**
+ * Does RSA encryption of an unencrypted data key to an encrypted data key.
+ * RSA with PKCS1, OAEP_SHA1_MGF1 and OAEP_SHA256_MGF1 padding modes is supported.
+ *
+ * Here, 'cipher' is the encrypted AES data key obtained as a result of the RSA encryption,
+ *'rsa_public_key_pem' is a string that contains the RSA public key in PEM format and 'plain'
+ * refers to the unencrypted AES data key.
+ *
+ * This function requires that cipher has no memory allocated to it already, and allocates
+ * it newly. The length of the buffer will be set to the length of cipher on a successful encrypt.
+ *
+ * Returns AWS_OP_SUCCESS on a successful encrypt. On failure, returns AWS_OP_ERR and sets
+ * one of the following error codes:
+ *
+ * AWS_CRYPTOSDK_ERR_BAD_STATE : the output buffer was not in the proper (unallocated) state
+ * AWS_CRYPTOSDK_ERR_UNSUPPORTED_FORMAT: unsupported padding mode for RSA wrapping algorithm
+ * AWS_CRYPTOSDK_ERR_CRYPTO_UNKNOWN : OpenSSL error or other unknown errors
+ */
+  method RsaEncrypt(plain: ByteCursor, rsa_public_key_pem: string,
+    rsa_paddding_mode: RsaPaddingMode) returns (result: Outcome, cipher: ByteBuf) {}
+
+/**
+ * Does RSA decryption of an encrypted data key to an unecrypted data key.
+ * RSA with PKCS1, OAEP_SHA1_MGF1 and OAEP_SHA256_MGF1 padding modes is supported.
+ *
+ * Here, 'plain' refers to the unencrypted AES data key obtained as a result of the RSA
+ * decryption, 'rsa_private_key_pem' is a string that contains the RSA private key in PEM
+ * format and 'cipher' is the encrypted AES data key.
+ *
+ * This function requires that plain has no memory allocated to it already, and allocates
+ * it newly. The length of the buffer will be set to the length of plain on a successful decrypt.
+ *
+ * Returns AWS_OP_SUCCESS on a successful decrypt. On failure, returns AWS_OP_ERR and sets
+ * one of the following error codes:
+ *
+ * AWS_CRYPTOSDK_ERR_BAD_STATE : the output buffer was not in the proper (unallocated) state
+ * AWS_CRYPTOSDK_ERR_UNSUPPORTED_FORMAT: unsupported padding mode for RSA wrapping algorithm
+ * AWS_CRYPTOSDK_ERR_BAD_CIPHERTEXT : unable to decrypt or authenticate cipher text
+ * AWS_CRYPTOSDK_ERR_CRYPTO_UNKNOWN : OpenSSL error
+ */
+  method RsaDecrypt(cipher: ByteCursor, rsa_private_key_pem: string, 
+    rsa_paddding_mode: RsaPaddingMode) returns (result: Outcome, plain: ByteBuf) {}
 }
