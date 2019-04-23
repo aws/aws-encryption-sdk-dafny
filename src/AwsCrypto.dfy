@@ -25,6 +25,11 @@ module Aws {
     | AWS_CRYPTOSDK_ERR_END_RANGE /* 0x2400 */
     | AWS_ERROR_SHORT_BUFFER
 
+  datatype RsaPaddingMode =
+    | AWS_CRYPTOSDK_RSA_PKCS1
+    | AWS_CRYPTOSDK_RSA_OAEP_SHA1_MGF1
+    | AWS_CRYPTOSDK_RSA_OAEP_SHA256_MGF1
+
   function method aws_last_error(): Outcome  // TODO: this should not be a function like this
 
   type EncryptionContext = map<string,string>
