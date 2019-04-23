@@ -29,7 +29,7 @@ module Aws {
 
   type EncryptionContext = map<string,string>
 
-  newtype AlgorithmID = x | 0 <= x < 0x1000
+  newtype AlgorithmID = x | 0 <= x < 0x1_0000
   const AES_256_GCM_IV12_AUTH16_KDSHA384_SIGEC384 : AlgorithmID := 0x0378
   const AES_192_GCM_IV12_AUTH16_KDSHA384_SIGEC384 : AlgorithmID := 0x0346
   const AES_128_GCM_IV12_AUTH16_KDSHA256_SIGEC256 : AlgorithmID := 0x0214

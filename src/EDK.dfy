@@ -19,4 +19,11 @@ module EDK {
     var provider_info: ByteBuf
     var ciphertext: ByteBuf
   }
+
+  // Upon successful parsing, "edk" as non-null and "cur'" has been advanced.
+  // Otherwise, returns "edk" as null and "cur' == cur".
+  method Parse(cur: ByteCursor) returns (edk: EncryptedDataKey?, cur': ByteCursor)
+    requires GoodByteCursor(cur)
+    ensures edk != null ==> ByteCursorAdvances(cur, cur')
+    ensures edk == null ==> cur == cur'
 }

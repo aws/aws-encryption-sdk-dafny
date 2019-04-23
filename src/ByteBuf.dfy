@@ -72,13 +72,6 @@ module ByteBuffer {
     ByteBuf(a, 0, capacity, 0)
   }
 
-  function method ByteBufAdvance(bb: ByteBuf, n: nat): ByteBuf
-    requires GoodByteBuf(bb) && n <= bb.len
-    ensures GoodByteBuf(ByteBufAdvance(bb, n))
-  {
-    ByteBuf(bb.a, bb.start + n, bb.end, bb.len - n)
-  }
-
   function method ByteBufFromRemaining(bb: ByteBuf): ByteBuf
     requires GoodByteBuf(bb)
     ensures GoodByteBuf(ByteBufFromRemaining(bb))
@@ -86,9 +79,9 @@ module ByteBuffer {
     ByteBuf(bb.a, bb.start + bb.len, bb.end, 0)
   }
 
-  function method ByteBufElongate(bb: ByteBuf, n: nat): ByteBuf
+  function method ByteBufAdvance(bb: ByteBuf, n: nat): ByteBuf
     requires GoodByteBuf(bb) && n <= ByteBufRemaining(bb)
-    ensures GoodByteBuf(ByteBufElongate(bb, n))
+    ensures GoodByteBuf(ByteBufAdvance(bb, n))
   {
     bb.(len := bb.len + n)
   }
@@ -150,11 +143,10 @@ module ByteBuffer {
     if ByteBufRemaining(buf) < len {
       return false, buf;
     }
-
     forall i | 0 <= i < len {
       buf.a[buf.start + buf.len + i] := src[i];
     }
-    return true, buf.(len := buf.len + len);
+    return true, ByteBufAdvance(buf, len);
   }
 
   /**
@@ -176,7 +168,7 @@ module ByteBuffer {
     var n := bb.start + bb.len;
     bb.a[n] := b1;
     bb.a[n + 1] := b0;
-    return true, ByteBufElongate(bb, 2);
+    return true, ByteBufAdvance(bb, 2);
   }
 
   // ---------- ByteCursor --------------------------------------------------
@@ -211,9 +203,25 @@ module ByteBuffer {
     ByteCursor(a, 0, len)
   }
 
+  function method ByteCursorAdvance(bc: ByteCursor, n: nat): ByteCursor
+    requires GoodByteCursor(bc) && n <= bc.len
+    ensures ByteCursorAdvances(bc, ByteCursorAdvance(bc, n))
+  {
+    ByteCursor(bc.a, bc.start + n, bc.len - n)
+  }
+
+  function method ByteCursorDifference(orig: ByteCursor, updated: ByteCursor): nat
+    requires GoodByteCursor(orig) && GoodByteCursor(updated)
+    requires orig.a == updated.a && orig.start <= updated.start <= orig.start + orig.len
+  {
+    updated.start - orig.start
+  }
+
   method ByteCursorSplit(bc: ByteCursor, n: nat) returns (success: bool, bc0: ByteCursor, bc1: ByteCursor)  // aws_byte_cursor_advance
     requires GoodByteCursor(bc)
-    ensures success ==> GoodByteCursor(bc0) && GoodByteCursor(bc1) && bc0.a == bc1.a == bc.a && ByteCursorAdvances(bc, bc1)
+    ensures success ==>
+      GoodByteCursor(bc0) && bc0.a == bc.a && bc0.start == bc.start && bc0.len == n &&
+      ByteCursorAdvances(bc, bc1) && bc1.start == bc.start + n
     ensures !success ==> bc1 == bc
   {
     if n <= bc.len {
@@ -232,6 +240,98 @@ module ByteBuffer {
   {
     forall i | 0 <= i < bc.len {
       bc.a[bc.start + i] := 0;
+    }
+  }
+
+  method ByteCursorReadByte(bc: ByteCursor) returns (success: bool, bc': ByteCursor, b: byte)
+    requires GoodByteCursor(bc)
+    ensures success ==> ByteCursorAdvances(bc, bc')
+    ensures !success ==> bc' == bc
+  {
+    if bc.len == 0 {
+      return false, bc, 0;
+    }
+    b := bc.a[bc.start];
+    bc' := bc.(start := bc.start + 1, len := bc.len - 1);
+    success := true;
+  }
+
+  method ByteCursorReadBe16(bc: ByteCursor) returns (success: bool, bc': ByteCursor, x: nat)
+    requires GoodByteCursor(bc)
+    ensures success ==> ByteCursorAdvances(bc, bc') && x < 0x1_0000
+    ensures !success ==> bc' == bc
+  {
+    if bc.len < 2 {
+      return false, bc, 0;
+    }
+    var b0 := bc.a[bc.start];
+    var b1 := bc.a[bc.start + 1];
+    x := 256 * b1 as int + b0 as int;
+    bc' := bc.(start := bc.start + 2, len := bc.len - 2);
+    success := true;
+  }
+
+  method ByteCursorReadBe32(bc: ByteCursor) returns (success: bool, bc': ByteCursor, x: nat)
+    requires GoodByteCursor(bc)
+    ensures success ==> ByteCursorAdvances(bc, bc') && x < 0x1_0000_0000
+    ensures !success ==> bc' == bc
+  {
+    if bc.len < 4 {
+      return false, bc, 0;
+    }
+    var b0 := bc.a[bc.start];
+    var b1 := bc.a[bc.start + 1];
+    var b2 := bc.a[bc.start + 2];
+    var b3 := bc.a[bc.start + 3];
+    x := 0x100_0000 * b3 as int + 0x1_0000 * b2 as int + 0x100 * b1 as int + b0 as int;
+    bc' := bc.(start := bc.start + 4, len := bc.len - 4);
+    success := true;
+  }
+
+
+  method ByteCursorReadIntoArray(source: ByteCursor, dest: array<byte>, destOffset: nat, n: nat) returns (success: bool, source': ByteCursor)
+    requires GoodByteCursor(source)
+    requires destOffset + n <= dest.Length
+    modifies dest
+    ensures success ==> ByteCursorAdvances(source, source')
+    ensures !success ==> source == source' && unchanged(dest)
+  {
+    if source.len < n {
+      return false, source;
+    }
+    forall i | 0 <= i < n {
+      dest[destOffset + i] := source.a[source.start + i];
+    }
+    source' := ByteCursorAdvance(source, n);
+    success := true;
+  }
+
+  method ByteCursorReadIntoByteBuf(source: ByteCursor, dest: ByteBuf) returns (success: bool, source': ByteCursor, dest': ByteBuf)
+    requires GoodByteCursor(source) && GoodByteBuf(dest)
+    modifies dest.a
+    ensures success ==> ByteCursorAdvances(source, source') && ByteBufAdvances(dest, dest')
+    ensures !success ==> source == source' && dest == dest' && unchanged(dest.a)
+  {
+    var n := ByteBufRemaining(dest);
+    success, source' := ByteCursorReadIntoArray(source, dest.a, dest.start + dest.len, n);
+    if success {
+      dest' := ByteBufAdvance(dest, n);
+      assert ByteBufRemaining(dest') == 0;
+    } else {
+      dest' := dest;
+    }
+  }
+
+  method ByteCursorRead(source: ByteCursor, n: nat) returns (source': ByteCursor, a: array?<byte>)
+    requires GoodByteCursor(source)
+    ensures a != null ==> ByteCursorAdvances(source, source') && fresh(a)
+    ensures a == null ==> source == source'
+  {
+    a := new byte[n];
+    var success;
+    success, source' := ByteCursorReadIntoArray(source, a, 0, n);
+    if !success {
+      return source, null;
     }
   }
 }

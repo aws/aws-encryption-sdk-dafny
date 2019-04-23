@@ -33,7 +33,7 @@ module Cipher {
     */
     const content_key_len: nat
     // The IV length for this algorithm suite
-    const iv_len: nat
+    const iv_len: byte
     /**
     * The AEAD tag length for this algorithm suite. Note that, currently, we only
     * support stream-like ciphers that do not require padding, so the ciphertext
