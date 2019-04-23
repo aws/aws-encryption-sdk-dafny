@@ -86,16 +86,29 @@ module Session {
       match state
       case Config =>
         data_so_far == 0
-      case Error(r) => r != AWS_OP_SUCCESS
+      case Error(r) =>
+        r != AWS_OP_SUCCESS
       case Done => true
+      // decryption
       case ReadHeader => true
       case UnwrapKey => true
       case DecryptBody => true
       case CheckTrailer => true
-      case GenKey => true
-      case WriteHeader => true
-      case EncryptBody => true
-      case WriteTrailer => true
+      // encryption
+      case GenKey =>
+        data_so_far == 0
+      case WriteHeader =>
+        alg_props != null && content_key != null &&
+        data_so_far == 0 &&
+        header_copy != null && header_size <= header_copy.Length &&
+        (alg_props.signature_len != 0 ==> signctx != null)
+      case EncryptBody =>
+        alg_props != null && content_key != null &&
+        (precise_size.Some? ==> data_so_far <= precise_size.get) &&
+        (alg_props.signature_len != 0 ==> signctx != null)
+      case WriteTrailer =>
+        alg_props != null &&
+        (alg_props.signature_len != 0 ==> signctx != null)
     }
 
     constructor FromCMM(mode: ProcessingMode, cmm: CMM)
@@ -160,57 +173,38 @@ module Session {
       requires outp != inp && inlen <= inp.Length && outlen <= outp.Length
       modifies this, header, outp
       modifies header, header.iv.a, header.auth_tag.a, header.message_id
-      /**
-      ensures Valid() && message_size == old(message_size)
-      ensures in_bytes_read <= inlen && out_bytes_written <= outlen
-      ensures result != AWS_OP_SUCCESS ==>
-                input_consumed == old(input_consumed) &&
-                forall i :: 0 <= i < outlen ==> outp[i] == 0
+      ensures Valid()
+      ensures state.Error? || state == Done
       ensures result == AWS_OP_SUCCESS ==> state == Done
-      ensures result == AWS_OP_SUCCESS ==>
-                input_consumed == old(input_consumed) + in_bytes_read &&
-                in_bytes_read == inlen
-      ensures result == AWS_OP_SUCCESS && mode == EncryptMode ==>
-                outp[..out_bytes_written] == Math.Encrypt(inp[..in_bytes_read])
-      ensures result == AWS_OP_SUCCESS && mode == DecryptMode ==>
-                outp[..out_bytes_written] == Math.Decrypt(inp[..in_bytes_read])
-      **/
+      ensures in_bytes_read <= inlen && out_bytes_written <= outlen
+      ensures result != AWS_OP_SUCCESS ==> forall i :: 0 <= i < outlen ==> outp[i] == 0
     {
       var output := ByteBufFromArray(outp, outlen);
       var input := ByteCursorFromArray(inp, inlen);
 
       label tryit: {
         // ----- Config
-        assert state == Config;
-        var remaining_space := ByteBufFromRemaining(output);
         state := GenKey;
 
         // ----- GenKey
-        assert state == GenKey;
         result := priv_try_gen_key();
         if result != AWS_OP_SUCCESS { break tryit; }
 
         // ----- WriteHeader
-        assert state == WriteHeader;
         output := priv_try_write_header(output);
-        if state != EncryptBody { result := AWS_OP_ERR; break tryit; }
+        if state != EncryptBody { result := AWS_OP_ERR; break tryit; }  // output buffer is not large enough to hold header
 
         // ----- EncryptBody
-        assert state == EncryptBody;
-        assert header == old(header);
         result, output, input := priv_try_encrypt_body(output, input);
         if result != AWS_OP_SUCCESS { break tryit; }
         if state != WriteTrailer { result := AWS_OP_ERR; break tryit; }
 
         // ----- WriteTrailer
-        assert state == WriteTrailer;
-        assert output.a == outp;  // DEBUG
         result, output := priv_write_trailer(output);
         if result != AWS_OP_SUCCESS { break tryit; }
         if state != Done { result := AWS_OP_ERR; break tryit; }
 
         // ----- Done
-        assert state == Done;
       }
       assert result == AWS_OP_SUCCESS ==> state == Done;
 
@@ -225,12 +219,13 @@ module Session {
       }
     }
 
-    /*****
     method Process(outp: array<byte>, outlen: nat, inp: array<byte>, inlen: nat) returns (result: Outcome, out_bytes_written: nat, in_bytes_read: nat)
       requires Valid()
       requires outp != inp && inlen <= inp.Length && outlen <= outp.Length
-      modifies this, outp
-      ensures Valid() && message_size == old(message_size)
+      modifies this, header, header.message_id, header.iv.a, header.auth_tag.a, outp
+      ensures Valid()
+      /**
+      ensures message_size == old(message_size)
       ensures in_bytes_read <= inlen && out_bytes_written <= outlen
       ensures result != AWS_OP_SUCCESS ==>
                 input_consumed == old(input_consumed) &&
@@ -242,19 +237,33 @@ module Session {
                 outp[..out_bytes_written] == Math.Encrypt(inp[..in_bytes_read])
       ensures result == AWS_OP_SUCCESS && mode == DecryptMode ==>
                 outp[..out_bytes_written] == Math.Decrypt(inp[..in_bytes_read])
+      **/
     {
-      var output := ByteBuf(0, outp, 0, outlen);
-      var input := ByteCursor(inlen, inp, 0);
+      var output := ByteBufFromArray(outp, outlen);
+      var input := ByteCursorFromArray(inp, inlen);
 
       while true
         invariant Valid()
-        invariant output.len <= outlen && input.ptr <= inlen
-        invariant output.len <= output.capacity
-        decreases outlen - output.len, inlen - input.ptr, if state == Config then 1 else 0
+        invariant GoodByteBuf(output) && GoodByteCursor(input)
+        invariant output.a == outp && input.a == inp
+        invariant header == old(header) || fresh(header)
+        invariant header.message_id == old(header.message_id) || fresh(header.message_id)
+        invariant header.iv.a == old(header.iv.a) || fresh(header.iv.a)
+        invariant header.auth_tag.a == old(header.auth_tag.a) || fresh(header.auth_tag.a)
+        decreases
+          if state == Config then 20
+          else if state == GenKey then 18
+          else if state == WriteHeader then 16
+          else if state == EncryptBody then 14
+          else if state == WriteTrailer then 12
+          else if state == ReadHeader then 10
+          else if state == UnwrapKey then 8
+          else if state == DecryptBody then 6
+          else if state == CheckTrailer then 4
+          else 0,
+          output.end - output.start - output.len
       {
-        var prior_state, old_inp := state, input.ptr;
-
-        var remaining_space := byte_buf_from_empty_array(output.enclosing_buffer, output.buffer_start_offset + output.len, output.capacity - output.len);
+        var prevState, prevOutput, prevInput := state, output, input;
 
         match state {
           case Config =>
@@ -265,40 +274,47 @@ module Session {
           case Error(err) =>
             result := err;
           /*** Decrypt path ***/
-          case ReadHeader =>  // TODO
-          case UnwrapKey =>  // TODO
-          case DecryptBody =>  // TODO
-          case CheckTrailer =>  // TODO
+          case ReadHeader =>
+            result, input := priv_try_parse_header(input);
+          case UnwrapKey =>
+            result := priv_unwrap_keys();
+          case DecryptBody =>
+            result, input, output := priv_try_decrypt_body(input, output);
+          case CheckTrailer =>
+            result, input := priv_check_trailer(input);
           /*** Encrypt path ***/
           case GenKey =>
             result := priv_try_gen_key();
           case WriteHeader =>
-            remaining_space := priv_try_write_header(remaining_space);
-            result := AWS_OP_SUCCESS;
+            output := priv_try_write_header(output);
           case EncryptBody =>
-            result := priv_try_encrypt_body(remaining_space, input);
-          case WriterTrailer =>
-            result := priv_write_trailer(remaining_space);
+            result, output, input := priv_try_encrypt_body(output, input);
+          case WriteTrailer =>
+            result, output := priv_write_trailer(output);
         }
-        var made_progress := remaining_space.len != 0 || input.ptr != old_inp || prior_state != state;
-
-        output := output.(len := output.len + remaining_space.len);
-        if result != AWS_OP_SUCCESS || !made_progress {
+        if result != AWS_OP_SUCCESS {
+          break;
+        }
+        if state == prevState &&
+          output.start + output.len == prevOutput.start + prevOutput.len &&
+          input.start + input.len == prevInput.start + prevInput.len {
+          // the iteration made no progress
           break;
         }
       }
 
-      out_bytes_written, in_bytes_read := output.len, input.ptr;
+      out_bytes_written, in_bytes_read := output.len, input.len;
 
       if result != AWS_OP_SUCCESS {
-        state := Error(result);
         forall i | 0 <= i < outlen {
           outp[i] := 0;
         }
         out_bytes_written := 0;
+        if !state.Error? {
+          state := Error(result);
+        }
       }
     }
-    *****/
 
     predicate method IsDone()
       requires Valid()
@@ -316,18 +332,103 @@ module Session {
       cmm.Release();
     }
 
+    // -------------------- Decrypt path ------------------------------
+
+    method priv_try_parse_header(input: ByteCursor) returns (result: Outcome, input': ByteCursor)
+      requires Valid() && state == ReadHeader
+      requires GoodByteCursor(input)
+      modifies this, header
+      ensures Valid()
+      ensures ByteCursorAdvances(input, input')
+      ensures state == old(state) || state == UnwrapKey || state == DecryptBody
+      ensures header == old(header) || fresh(header)  // TODO: is this right/needed?
+      ensures header.message_id == old(header.message_id) || fresh(header.message_id)  // TODO: is this right/needed?
+      ensures header.iv.a == old(header.iv.a) || fresh(header.iv.a)  // TODO: is this right/needed?
+      ensures header.auth_tag.a == old(header.auth_tag.a) || fresh(header.auth_tag.a)  // TODO: is this right/needed?
+    {
+      result, input' := header.Parse(input);
+      if result != AWS_OP_SUCCESS {
+        if aws_last_error() == AWS_ERROR_SHORT_BUFFER {
+          if input_size_estimate <= input.len {
+            input_size_estimate := input.len + 128;
+          }
+          output_size_estimate := 0;
+          return AWS_OP_SUCCESS, input';  // suppress this error
+        }
+        return result, input';
+      }
+
+      header_size := header.size();
+      if header_size == 0 {
+        return AWS_CRYPTOSDK_ERR_BAD_CIPHERTEXT, input';
+      }
+
+      if header_size != input'.start - input.start {
+        return AWS_CRYPTOSDK_ERR_CRYPTO_UNKNOWN, input';
+      }
+
+      header_copy := new byte[header_size];
+      forall i | 0 <= i < header_size {
+        header_copy[i] := input.a[input.start + i];
+      }
+
+      state := UnwrapKey;
+      result := priv_unwrap_keys();
+    }
+
+    method priv_unwrap_keys() returns (result: Outcome)
+      requires Valid() && state == UnwrapKey
+      modifies this
+      ensures Valid()
+      ensures state == old(state) || state == DecryptBody
+      ensures header == old(header) || fresh(header)  // TODO: is this right/needed?
+      ensures header.message_id == old(header.message_id) || fresh(header.message_id)  // TODO: is this right/needed?
+      ensures header.iv.a == old(header.iv.a) || fresh(header.iv.a)  // TODO: is this right/needed?
+      ensures header.auth_tag.a == old(header.auth_tag.a) || fresh(header.auth_tag.a)  // TODO: is this right/needed?
+      // TODO
+
+    method priv_try_decrypt_body(input: ByteCursor, output: ByteBuf) returns (result: Outcome, input': ByteCursor, output': ByteBuf)
+      requires Valid() && state == DecryptBody
+      requires GoodByteCursor(input) && GoodByteBuf(output)
+      modifies this
+      ensures Valid()
+      ensures ByteCursorAdvances(input, input') && ByteBufAdvances(output, output')
+      ensures state == old(state) || state == CheckTrailer
+      ensures header == old(header) || fresh(header)  // TODO: is this right/needed?
+      ensures header.message_id == old(header.message_id) || fresh(header.message_id)  // TODO: is this right/needed?
+      ensures header.iv.a == old(header.iv.a) || fresh(header.iv.a)  // TODO: is this right/needed?
+      ensures header.auth_tag.a == old(header.auth_tag.a) || fresh(header.auth_tag.a)  // TODO: is this right/needed?
+      ensures ReallyImpressErnie()
+      // TODO
+
+    twostate predicate ReallyImpressErnie()
+      reads this
+    {
+      header == old(header) || fresh(header)
+    }
+
+    method priv_check_trailer(input: ByteCursor) returns (result: Outcome, input': ByteCursor)
+      requires Valid() && state == CheckTrailer
+      requires GoodByteCursor(input)
+      modifies this
+      ensures Valid()
+      ensures ByteCursorAdvances(input, input')
+      ensures state == old(state) || state == Done
+      ensures header == old(header) || fresh(header)  // TODO: is this right/needed?
+      ensures header.message_id == old(header.message_id) || fresh(header.message_id)  // TODO: is this right/needed?
+      ensures header.iv.a == old(header.iv.a) || fresh(header.iv.a)  // TODO: is this right/needed?
+      ensures header.auth_tag.a == old(header.auth_tag.a) || fresh(header.auth_tag.a)  // TODO: is this right/needed?
+      // TODO
+
+    // -------------------- Encrypt path ------------------------------
+
     method priv_try_gen_key() returns (result: Outcome)
       requires Valid() && state == GenKey
-      modifies this
-      modifies header.iv.a, header.auth_tag.a
-      modifies header, header.message_id
+      modifies this, header, header.message_id
       ensures Valid()
-      ensures unchanged(`data_so_far, `header)
+      ensures unchanged(`header, header`message_id)
       ensures result == AWS_OP_SUCCESS ==> state == WriteHeader
-      ensures result == AWS_OP_SUCCESS ==>
-        alg_props != null && content_key != null &&
-        (alg_props.signature_len != 0 ==> signctx != null) &&
-        header_copy != null && header_size <= header_copy.Length
+      ensures result == AWS_OP_SUCCESS ==> fresh(header.iv.a) && fresh(header.auth_tag.a)
     {
       var materials, data_key := null, null;
       label tryit: {
@@ -421,7 +522,8 @@ module Session {
       ensures materials.unencrypted_data_key == old(materials.unencrypted_data_key)
       ensures GoodByteBuf(header.iv) && GoodByteBuf(header.auth_tag)
       ensures fresh(header.iv.a) && fresh(header.auth_tag.a)
-      ensures header.iv.len == alg_props.iv_len && header.auth_tag.len == alg_props.tag_len
+      ensures unchanged(header`message_id)
+      ensures header.iv.len == alg_props.iv_len as nat && header.auth_tag.len == alg_props.tag_len
     {
       header.alg_id := alg_props.alg_id;
       if UINT32_MAX < frame_size {
@@ -438,7 +540,7 @@ module Session {
       // zero EDKs (otherwise we'd need to destroy the old EDKs as well).
       // TODO: check the property mentioned above, but not exactly like this:  assert |materials.encrypted_data_keys| == 0;
 
-      header.iv := ByteBufInit_Full_AllZero(alg_props.iv_len);
+      header.iv := ByteBufInit_Full_AllZero(alg_props.iv_len as nat);
       header.auth_tag := ByteBufInit_Full(alg_props.tag_len);
 
       return AWS_OP_SUCCESS;
@@ -447,7 +549,7 @@ module Session {
     method sign_header() returns (r: Outcome)
       requires alg_props != null && content_key != null
       requires GoodByteBuf(header.iv) && GoodByteBuf(header.auth_tag)
-      requires header.iv.len == alg_props.iv_len && header.auth_tag.len == alg_props.tag_len
+      requires header.iv.len == alg_props.iv_len as nat && header.auth_tag.len == alg_props.tag_len
       modifies `header_size, `header_copy, `frame_seqno, `state
       modifies header.iv.a, header.auth_tag.a
       ensures state == if r == AWS_OP_SUCCESS then WriteHeader else old(state)
@@ -471,7 +573,7 @@ module Session {
         return AWS_CRYPTOSDK_ERR_CRYPTO_UNKNOWN;
       }
 
-      var authtag_len := alg_props.iv_len + alg_props.tag_len;
+      var authtag_len := alg_props.iv_len as nat + alg_props.tag_len;
       var to_sign := ByteBufFromArray(header_copy, header_size - authtag_len);
       var authtag := ByteBuf(header_copy, header_size - authtag_len, header_size, authtag_len);
 
@@ -508,11 +610,12 @@ module Session {
     }
 
     method priv_try_write_header(output: ByteBuf) returns (output': ByteBuf)
+      requires Valid() && state == WriteHeader
       requires GoodByteBuf(output)
-      requires header_copy != null && header_size <= header_copy.Length
       modifies `output_size_estimate, `state, output.a
-      ensures GoodByteBuf(output') && output'.a == output.a
+      ensures Valid()
       ensures state == old(state) || state == EncryptBody
+      ensures ByteBufAdvances(output, output')
     {
       output_size_estimate := header_size;
 
@@ -527,13 +630,14 @@ module Session {
     }
 
     method priv_try_encrypt_body(output: ByteBuf, input: ByteCursor) returns (result: Outcome, output': ByteBuf, input': ByteCursor)
+      requires Valid() && state == EncryptBody
       requires GoodByteBuf(output) && GoodByteCursor(input)
-      requires precise_size.Some? ==> data_so_far <= precise_size.get
-      requires alg_props != null && content_key != null
       modifies `output_size_estimate, `input_size_estimate, header`message_id, `data_so_far, `frame_seqno, `state, output.a
-      ensures result != AWS_OP_SUCCESS ==> state == old(state) && output' == output && input' == input
+      ensures Valid()
       ensures state == old(state) || state == WriteTrailer
-      ensures GoodByteBuf(output') && GoodByteCursor(input') && output'.a == output.a && input'.a == input.a
+      ensures ByteBufAdvances(output, output') && ByteCursorAdvances(input, input')
+      ensures unchanged(header`message_id) || fresh(header.message_id)
+      ensures result != AWS_OP_SUCCESS ==> state == old(state) && output' == output && input' == input
     {
       /* First, figure out how much plaintext we need. */
       var plaintext_size, frame_type;
@@ -623,12 +727,13 @@ module Session {
     }
 
     method priv_write_trailer(output: ByteBuf) returns (result: Outcome, output': ByteBuf)
+      requires Valid() && state == WriteTrailer
       requires GoodByteBuf(output)
-      requires alg_props != null
-      requires alg_props.signature_len != 0 ==> signctx != null
       modifies `input_size_estimate, `output_size_estimate, `signctx, `state, output.a
-      ensures result != AWS_OP_SUCCESS ==> state == old(state) && output' == output
+      ensures result == AWS_OP_SUCCESS ==> Valid()  // this means returns in a valid state only on success
       ensures state == old(state) || state == Done
+      ensures result != AWS_OP_SUCCESS ==> state == old(state) && output' == output
+      ensures ByteBufAdvances(output, output')
     {
       /* We definitely do not need any more input at this point.
        * We might need more output space, and if so we will update the
@@ -675,6 +780,18 @@ module Session {
 
   type nat_4bytes = x | 0 <= x < 0x1_0000_0000
 
+  datatype ContentType = AWS_CRYPTOSDK_HEADER_CTYPE_NONFRAMED /* 0x01 */ | AWS_CRYPTOSDK_HEADER_CTYPE_FRAMED /* 0x02 */
+  function method ContentTypeValue(ct: ContentType): byte {
+    match ct
+    case AWS_CRYPTOSDK_HEADER_CTYPE_NONFRAMED => 0x01
+    case AWS_CRYPTOSDK_HEADER_CTYPE_FRAMED => 0x02
+  }
+  function method ToContentType(x: byte): Option<ContentType> {
+    if x == ContentTypeValue(AWS_CRYPTOSDK_HEADER_CTYPE_NONFRAMED) then Some(AWS_CRYPTOSDK_HEADER_CTYPE_NONFRAMED)
+    else if x == ContentTypeValue(AWS_CRYPTOSDK_HEADER_CTYPE_FRAMED) then Some(AWS_CRYPTOSDK_HEADER_CTYPE_FRAMED)
+    else None
+  }
+
   class Header {
     var alg_id: AlgorithmID
     var frame_len: nat_4bytes
@@ -688,6 +805,9 @@ module Session {
     // number of bytes of header except for IV and auth tag,
     // i.e., exactly the bytes that get authenticated
     var auth_len: nat
+
+    static const AWS_CRYPTOSDK_HEADER_VERSION_1_0: byte := 0x01
+    static const AWS_CRYPTOSDK_HEADER_TYPE_CUSTOMER_AED: byte := 0x80
 
     constructor () {  // aws_cryptosdk_hdr_init
     }
@@ -730,7 +850,198 @@ module Session {
       }
     }
 
+    method Clear()  // aws_cryptosdk_hdr_clear
+    // TODO
+
     method write(outbuf: array<byte>) returns (r: Outcome, bytes_written: nat)  // int aws_cryptosdk_hdr_write(const struct aws_cryptosdk_hdr *hdr, size_t *bytes_written, uint8_t *outbuf, size_t outlen)
       modifies outbuf
+    // TODO
+
+    method Parse(cursor: ByteCursor) returns (result: Outcome, cursor': ByteCursor)
+      requires GoodByteCursor(cursor)
+      modifies `alg_id, `message_id, `enc_context, `edk_list, `frame_len
+      modifies `auth_len, `iv, `auth_tag
+      ensures ByteCursorAdvances(cursor, cursor')
+      ensures message_id == old(message_id) || fresh(message_id)
+      ensures iv.a == old(iv.a) || fresh(iv.a)
+      ensures auth_tag.a == old(auth_tag.a) || fresh(auth_tag.a)
+    {
+      result := AWS_OP_SUCCESS;
+      label tryit: {
+        var cur := cursor;
+
+        Clear();
+
+        var bytefield, success;
+        success, cur, bytefield := ByteCursorReadByte(cur);
+        if !success {
+          result := AWS_ERROR_SHORT_BUFFER;
+          break tryit;
+        }
+        if bytefield != AWS_CRYPTOSDK_HEADER_VERSION_1_0 {
+          result := AWS_CRYPTOSDK_ERR_BAD_CIPHERTEXT;
+          break tryit;
+        }
+
+        success, cur, bytefield := ByteCursorReadByte(cur);
+        if !success {
+          result := AWS_ERROR_SHORT_BUFFER;
+          break tryit;
+        }
+        if bytefield != AWS_CRYPTOSDK_HEADER_TYPE_CUSTOMER_AED {
+          result := AWS_CRYPTOSDK_ERR_BAD_CIPHERTEXT;
+          break tryit;
+        }
+
+        var alg_id;
+        success, cur, alg_id := ByteCursorReadBe16(cur);
+        if !success {
+          result := AWS_ERROR_SHORT_BUFFER;
+          break tryit;
+        }
+        var knownAlgorithm := Cipher.AlgProperties(alg_id as AlgorithmID);
+        if knownAlgorithm == null {
+          result := AWS_CRYPTOSDK_ERR_BAD_CIPHERTEXT;
+          break tryit;
+        }
+        this.alg_id := alg_id as AlgorithmID;
+
+        var message_id_perhaps;
+        cur, message_id_perhaps := ByteCursorRead(cur, MESSAGE_ID_LEN);
+        if message_id_perhaps == null {
+          result := AWS_ERROR_SHORT_BUFFER;
+          break tryit;
+        }
+        this.message_id := message_id_perhaps;
+
+        var aad_len;
+        success, cur, aad_len := ByteCursorReadBe16(cur);
+        if !success {
+          result := AWS_ERROR_SHORT_BUFFER;
+          break tryit;
+        }
+
+        if aad_len != 0 {
+          var aad;
+          success, aad, cur := ByteCursorSplit(cur, aad_len);
+          // TODO: assert success;
+
+          // Note that, even if this fails with SHORT_BUF, we report a parse error, since we know we
+          // have enough data (according to the aad length field).
+          result, aad, this.enc_context := aws_cryptosdk_enc_ctx_deserialize(aad);
+          if result != AWS_OP_SUCCESS {
+            result := AWS_CRYPTOSDK_ERR_BAD_CIPHERTEXT;
+            break tryit;
+          }
+          if aad.len != 0 {
+            // trailing garbage after the aad block
+            result := AWS_CRYPTOSDK_ERR_BAD_CIPHERTEXT;
+            break tryit;
+          }
+        }
+
+        var edk_count;
+        success, cur, edk_count := ByteCursorReadBe16(cur);
+        if !success {
+          result := AWS_ERROR_SHORT_BUFFER;
+          break tryit;
+        }
+        if edk_count == 0 {
+          result := AWS_CRYPTOSDK_ERR_BAD_CIPHERTEXT;
+          break tryit;
+        }
+
+        var i := 0;
+        while i < edk_count
+          invariant 0 <= i <= edk_count
+          invariant ByteCursorAdvances(cursor, cur)
+          invariant message_id == old(message_id) || fresh(message_id)
+          invariant iv.a == old(iv.a) || fresh(iv.a)
+          invariant auth_tag.a == old(auth_tag.a) || fresh(auth_tag.a)
+        {
+          var edk;
+          edk, cur := EDK.Parse(cur);
+          if edk == null {
+            result := AWS_OP_ERR;
+            break tryit;
+          }
+          this.edk_list := this.edk_list + [edk];
+          i := i + 1;
+        }
+
+        var content_type_raw;
+        success, cur, content_type_raw := ByteCursorReadByte(cur);
+        if !success {
+          result := AWS_ERROR_SHORT_BUFFER;
+          break tryit;
+        }
+
+        var content_type := ToContentType(content_type_raw);
+        if content_type == None {
+          result := AWS_CRYPTOSDK_ERR_BAD_CIPHERTEXT;
+          break tryit;
+        }
+
+        var reserved;  // must be zero
+        success, cur, reserved := ByteCursorReadBe32(cur);
+        if !success {
+          result := AWS_ERROR_SHORT_BUFFER;
+          break tryit;
+        }
+        if reserved != 0 {
+          result := AWS_CRYPTOSDK_ERR_BAD_CIPHERTEXT;
+          break tryit;
+        }
+
+        var iv_len;
+        success, cur, iv_len := ByteCursorReadByte(cur);
+        if !success {
+          result := AWS_ERROR_SHORT_BUFFER;
+          break tryit;
+        }
+
+        if iv_len != knownAlgorithm.iv_len {
+          result := AWS_CRYPTOSDK_ERR_BAD_CIPHERTEXT;
+          break tryit;
+        }
+
+        var frame_len;
+        success, cur, frame_len := ByteCursorReadBe32(cur);
+        if !success {
+          result := AWS_ERROR_SHORT_BUFFER;
+          break tryit;
+        }
+
+        if (content_type.get == AWS_CRYPTOSDK_HEADER_CTYPE_NONFRAMED && frame_len != 0) ||
+           (content_type.get == AWS_CRYPTOSDK_HEADER_CTYPE_FRAMED && frame_len == 0) {
+          result := AWS_CRYPTOSDK_ERR_BAD_CIPHERTEXT;
+          break tryit;
+        }
+        this.frame_len := frame_len;
+
+        // cur.ptr now points to end of portion of header that is authenticated
+        this.auth_len := ByteCursorDifference(cursor, cur);
+
+        this.iv := ByteBufInit(iv_len as nat);
+        success, cur, this.iv := ByteCursorReadIntoByteBuf(cur, this.iv);
+        if !success {
+          result := AWS_ERROR_SHORT_BUFFER;
+          break tryit;
+        }
+
+        this.auth_tag := ByteBufInit(knownAlgorithm.tag_len);
+        success, cur, this.auth_tag := ByteCursorReadIntoByteBuf(cur, this.auth_tag);
+        if !success {
+          result := AWS_ERROR_SHORT_BUFFER;
+          break tryit;
+        }
+
+        return AWS_OP_SUCCESS, cur;
+      }
+      return result, cursor;
+    }
+
   }
+
+  method aws_cryptosdk_enc_ctx_deserialize(cur: ByteCursor) returns (result: Outcome, cur': ByteCursor, ec: EncryptionContext)
 }

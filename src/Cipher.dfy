@@ -33,7 +33,7 @@ module Cipher {
     */
     const content_key_len: nat
     // The IV length for this algorithm suite
-    const iv_len: nat
+    const iv_len: byte
     /**
     * The AEAD tag length for this algorithm suite. Note that, currently, we only
     * support stream-like ciphers that do not require padding, so the ciphertext
@@ -60,8 +60,10 @@ module Cipher {
 
     method EncryptBody(outp: ByteBuf, inp: ByteCursor, seqno: nat, iv: array<byte>, key: content_key, tag: array<byte>, body_frame_type: FrameType)
       returns (result: Outcome, message_id: array<byte>)
+      ensures fresh(message_id)
     {
       // TODO
+      message_id := new [][];  // TODO
     }
 
   }
