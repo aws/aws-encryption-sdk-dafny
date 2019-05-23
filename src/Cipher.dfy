@@ -1,11 +1,13 @@
 include "StandardLibrary.dfy"
 include "AwsCrypto.dfy"
 include "ByteBuf.dfy"
+include "ByteOrder.dfy"
 
 module Cipher {
   import opened StandardLibrary
   import opened Aws
   import opened ByteBuffer
+  import opened ByteOrder
 
   newtype AESKeyLen = x | 0 <= x < 1_000_000
   const AWS_CRYPTOSDK_AES_128: AESKeyLen := 128 / 8
@@ -145,7 +147,53 @@ module Cipher {
     requires n <= buf.Length
     modifies buf
 
-  class content_key { }  // TODO
+  class content_key 
+  {
+    var k: array<byte>
+    var len: nat
+    constructor (k': array<byte>, len':nat)
+      ensures k' == k
+      ensures len' == len
+    {
+      this.k := k';
+      this.len := len';
+    }
+  }  // TODO
 
+  
+  datatype HMAC_ALGORITHM = HmacSHA256 | HmacMD5 | HmacSHA1 | AWS_CRYPTOSDK_NOSHA
+  method WhichSha(properties: AlgorithmProperties) returns (h: HMAC_ALGORITHM)
+
+  method HKDF(which_sha: HMAC_ALGORITHM, salt: Option<array<byte>>, ikm: array<byte>, info: array<byte>, L: nat) returns (okm: array<byte>)
+    ensures okm.Length == L
   method DeriveKey(properties: AlgorithmProperties, dataKey: array<byte>, messageId: array<byte>) returns (r: Outcome, contentKey: content_key)
+    requires properties.data_key_len == dataKey.Length
+    // TODO
+  {
+    var which_sha := WhichSha(properties);
+    if (which_sha == AWS_CRYPTOSDK_NOSHA) {
+      var okm := new byte[properties.data_key_len];
+      forall i:nat | i < properties.data_key_len {
+        okm[i] := dataKey[i];
+      }
+      contentKey := new content_key(okm, properties.data_key_len);
+      r := AWS_OP_SUCCESS;
+      return;
+    }
+
+    var info := new byte[messageId.Length + 2];
+    info[0], info[1] := ToBytes2(properties.alg_id as nat);
+    forall i:nat | i < messageId.Length {
+      info[i+2] := messageId[i];
+    }
+    var L := properties.content_key_len;
+    var salt := None;
+    var ikm := dataKey;
+    // TODO: initialize okm with content key? Does HKDF read/extend okm?
+    var okm := HKDF(which_sha, salt, ikm, info, L);
+    assert okm.Length == L;
+    contentKey := new content_key(okm, L);
+    assert L == contentKey.len;
+    r := AWS_OP_SUCCESS;
+  }
 }
