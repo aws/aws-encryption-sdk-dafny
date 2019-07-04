@@ -1,9 +1,8 @@
-include "HKDFSpec.dfy"
-include "StandardLibrary.dfy"
+include "../Digests.dfy"
+include "../../Util/StandardLibrary.dfy"
 
 module {:extern "BouncyCastleCryptoMac"} BouncyCastleCryptoMac {
   import opened Digests
-  import opened HKDFSpec
   import opened StandardLibrary
  
   datatype {:extern "CipherParameters"} CipherParameters = KeyParameter(key: array<byte>) // unsupported: other parameters
@@ -42,7 +41,6 @@ module {:extern "BouncyCastleCryptoMac"} BouncyCastleCryptoMac {
       ensures
         var key := match params case KeyParameter(key) => key;
         match initialized { case Some(k) => validKey(k) && key[..] == k case None => false }
-      ensures unchanged(`algorithm)
       ensures InputSoFar == [] 
  
     // Once a key has been associated with the Mac object, calls to "update*" start
@@ -118,7 +116,6 @@ module {:extern "BouncyCastleCryptoMac"} BouncyCastleCryptoMac {
       ensures
         var key := match params case KeyParameter(key) => key;
         match initialized { case Some(k) => validKey(k) && key[..] == k case None => false }
-      ensures unchanged(`algorithm)
       ensures InputSoFar == [] 
  
     method {:extern "reset"} reset()
@@ -134,7 +131,6 @@ module {:extern "BouncyCastleCryptoMac"} BouncyCastleCryptoMac {
       requires initialized.Some?
       modifies this
       ensures unchanged(`initialized)
-      ensures unchanged(`algorithm)
       ensures InputSoFar == old(InputSoFar) + [input]
  
     method {:extern "update"} update(input: array<byte>, inOff: nat, len: nat)

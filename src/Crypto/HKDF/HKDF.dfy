@@ -14,15 +14,14 @@
 * "nfv" stands for necessary for verification
 */
  
-include "Arrays.dfy"
+include "../../Util/Arrays.dfy"
 include "CryptoMac.dfy"
+include "../Digests.dfy"
 include "HKDFSpec.dfy"
-include "StandardLibrary.dfy"
- 
-// =============== The code to be verified ===============
+include "../../Util/StandardLibrary.dfy"
  
 /**
-  * Implementation of the https://tools.ietf.org/html/rfc5869 hmac based key derivation function
+  * Implementation of the https://tools.ietf.org/html/rfc5869 HMAC-based key derivation function
   */
 module HKDF {
   import opened Arrays
@@ -30,8 +29,8 @@ module HKDF {
   import opened Digests
   import opened HKDFSpec
   import opened StandardLibrary
- 
-  method hkdf_Extract(which_sha: HMAC_ALGORITHM, hmac: HMac, salt: array<byte>, ikm: array<byte>) returns (prk: array<byte>)
+
+  method extract(which_sha: HMAC_ALGORITHM, hmac: HMac, salt: array<byte>, ikm: array<byte>) returns (prk: array<byte>)
     requires hmac.algorithm == which_sha && salt.Length != 0
     modifies hmac
     ensures prk[..] == Hash(which_sha, salt[..], ikm[..])
@@ -45,9 +44,8 @@ module HKDF {
     return prk;
   }
 
-  method hkdf_Expand(which_sha: HMAC_ALGORITHM, hmac: HMac, prk: array<byte>, info: array<byte>, n: int) returns (a: array<byte>)
+  method expand(which_sha: HMAC_ALGORITHM, hmac: HMac, prk: array<byte>, info: array<byte>, n: int) returns (a: array<byte>)
     requires hmac.algorithm == which_sha && 1 <= n <= 255 && prk.Length != 0
-    requires info.Length + hmac.getMacSize() + 1 <= ArrayMaxLength
     modifies hmac
     ensures fresh(a)
     ensures a[..] == T(which_sha, prk[..], info[..], n)
@@ -97,7 +95,6 @@ module HKDF {
   method hkdf(which_sha: HMAC_ALGORITHM, salt: array<byte>, ikm: array<byte>, info: array<byte>, L: int) returns (okm: array<byte>)
     requires which_sha == HmacSHA256 || which_sha == HmacSHA384
     requires 0 <= L <= 255 * HashLength(which_sha)
-    requires info.Length + HashLength(which_sha) + 1 <= ArrayMaxLength
     ensures fresh(okm)
     ensures okm.Length == L
     ensures
@@ -121,9 +118,9 @@ module HKDF {
  
     var n := 1 + (L-1) / hmac.getMacSize();  // note, since L and HMAC_SIZE are strictly positive, this gives the same result in Java as in Dafny
     assert n * hmac.getMacSize() >= L;
-    var prk := hkdf_Extract(which_sha, hmac, saltNonEmpty, ikm);
+    var prk := extract(which_sha, hmac, saltNonEmpty, ikm);
 
-    okm := hkdf_Expand(which_sha, hmac, prk, info, n);
+    okm := expand(which_sha, hmac, prk, info, n);
 
     // if necessary, trim padding
     if okm.Length > L {

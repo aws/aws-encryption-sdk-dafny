@@ -24,20 +24,6 @@ namespace Utils {
   }
 }
 
-namespace Arrays {
-
-  using Utils;
-  public partial class Array {
-    public static void copy<T>(T[] source, BigInteger length, out T[] dest) {
-      dest = new T[Util.BigIntegerToInt(length)];
-      System.Array.Copy(source, dest, Util.BigIntegerToInt(length));
-    }
-    public static void copyTo<T>(T[] source, T[] dest, BigInteger offset) {
-      source.CopyTo(dest, Util.BigIntegerToInt(offset)); 
-    }
-  }
-}
-
 
 namespace BouncyCastleCryptoMac {
 
@@ -86,8 +72,8 @@ namespace BouncyCastleCryptoMac {
       bcHMac.BlockUpdate(input, Util.BigIntegerToInt(inOff), Util.BigIntegerToInt(len));
     }
  
-    public void doFinal(byte[] output, BigInteger outOff, out BigInteger retVal) {
-      retVal = new BigInteger(bcHMac.DoFinal(output, Util.BigIntegerToInt(outOff)));
+    public BigInteger doFinal(byte[] output, BigInteger outOff) {
+      return new BigInteger(bcHMac.DoFinal(output, Util.BigIntegerToInt(outOff)));
     }
 
     public Org.BouncyCastle.Crypto.IDigest getUnderlyingDigest() {

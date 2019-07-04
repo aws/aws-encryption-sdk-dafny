@@ -1,11 +1,11 @@
-// RUN: %dafny /out:./Output/TestHKDF7.exe "./TestHKDF7.dfy" "../../src/HKDF-extern.cs" "../../lib/BouncyCastle.1.8.5/lib/BouncyCastle.Crypto.dll" /noVerify /compile:2
+// RUN: %dafny /out:./Output/TestHKDF7.exe "./TestHKDF7.dfy" "../../src/Crypto/HKDF/HKDF-extern.cs" "../../src/Util/Arrays-extern.cs" "../../lib/BouncyCastle.1.8.5/lib/BouncyCastle.Crypto.dll" /noVerify /compile:2
 // RUN: cp "../../lib/BouncyCastle.1.8.5/lib/BouncyCastle.Crypto.dll" "./Output/"
-// RUN: %mono ./Output/TestHKDF7.exe > "%t" 
+// RUN: %mono ./Output/TestHKDF7.exe > "%t" && rm ./Output/TestHKDF7.exe
 // RUN: %diff "%s.expect" "%t"
 
-include "../../src/StandardLibrary.dfy"
-include "../../src/HKDF.dfy"
-include "../../src/HKDFSpec.dfy"
+include "../../src/Util/StandardLibrary.dfy"
+include "../../src/Crypto/HKDF/HKDF.dfy"
+include "../../src/Crypto/HKDF/HKDFSpec.dfy"
 
 module TestHKDF7 {
   
@@ -453,10 +453,10 @@ module TestHKDF7 {
       0xbb, 0x65, 0xc3, 0x9f, 0xcf, 0x3e, 0xe3, 0x99, 0x89, 0x33, 0x61, 0x46, 0xdc, 0xb7, 0xba, 0x76 ];
 
     var okm := hkdf(HmacSHA256, tv_salt, tv_ikm, tv_info, 8129);
-    if(okm[..] == tv_okm_desired[..] ) {
-      print("EQUAL\n");
+    if okm[..] == tv_okm_desired[..] {
+      print "EQUAL\n";
     } else {
-      print("NOT EQUAL\n");
+      print "NOT EQUAL\n";
     }
   }
 }

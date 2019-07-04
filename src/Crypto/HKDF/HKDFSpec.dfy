@@ -1,21 +1,9 @@
-// =============== Crypto library stuff ===============
-include "StandardLibrary.dfy"
-
-module {:extern "Digests"} Digests {
-  datatype {:extern "HMAC_ALGORITHM"} HMAC_ALGORITHM = HmacSHA256 | HmacSHA384 | HmacNOSHA
-}
+include "../Digests.dfy"
+include "../../Util/StandardLibrary.dfy"
 
 module HKDFSpec {
   import opened StandardLibrary
   import opened Digests
-  
-  // Hash length in octets, e.g. HashLength(SHA256) = 256 = 32 * 8
-  function {:axiom} HashLength(algorithm: HMAC_ALGORITHM): nat
-    ensures algorithm == HmacSHA256 ==> HashLength(algorithm) == 32
-    ensures algorithm == HmacSHA384 ==> HashLength(algorithm) == 48
-
-  function {:axiom} Hash(algorithm: HMAC_ALGORITHM, key: seq<byte>, message: seq<byte>): seq<byte>
-    ensures |Hash(algorithm, key, message)| == HashLength(algorithm)
 
   // return T(i)
   function Ti(algorithm: HMAC_ALGORITHM, key: seq<byte>, info: seq<byte>, i: nat): seq<byte>

@@ -4,68 +4,41 @@ else
   DAFNY = dafny
 endif
 
-SRCDIR   = src
-BUILDDIR = build
-LIBDIR   = lib
 
-# Copied from previous one
-_SRC = \
-  StandardLibrary.dfy \
-	ByteOrder.dfy \
-	AwsCrypto.dfy \
-	ByteBuf.dfy \
-	KeyringTrace.dfy \
-	EDK.dfy \
-	Cipher.dfy \
-	Frame.dfy \
-	Materials.dfy \
-	DefaultCMM.dfy \
-	Session.dfy \
-	HKDF.dfy \
-	Arrays.dfy \
-	HKDFSpec.dfy \
-	CryptoMac.dfy
-SRC  = $(patsubst %,$(SRCDIR)/%,$(_SRC))
-SRCV = $(patsubst %, %.verified, $(SRC))
+SRCDIRS = src/Crypto \
+		  src/Util \
+		  src/Tests \
+		  src/SDK \
+		  src/Crypto/HKDF \
+		  src
 
-DEPS = $(LIBDIR)/BouncyCastle.1.8.5/lib/BouncyCastle.Crypto.dll
+SRCS = $(foreach dir, $(SRCDIRS), $(wildcard $(dir)/*.dfy))
+SRCV = $(patsubst src/%.dfy, build/%.dfy.verified, $(SRCS))
 
-_HKDFOBJ = HKDF.dll HKDF.cs HKDF.pdb
-HKDFOBJ  = $(patsubst %,$(BUILDDIR)/%,$(_HKDFOBJ))
+.PHONY: all hkdf clean
 
-.PHONY: clean deps all hkdf test help lit
+all: build/Main.exe
+	
+build/%.dfy.verified: src/%.dfy
+	$(DAFNY) $(patsubst build/%.dfy.verified, src/%.dfy, $@) /compile:0 && mkdir -p $(dir $@) && touch $@
 
-all: hkdf
+BCDLL = lib/BouncyCastle.1.8.5/lib/BouncyCastle.Crypto.dll
 
-# Verify each file separately
-$(SRCDIR)/%.dfy.verified: $(SRCDIR)/%.dfy
-	$(DAFNY) $^ /compile:0 && touch $@
+DEPS = $(foreach dir, $(SRCDIRS), $(wildcard $(dir)/*.cs)) \
+	$(BCDLL)
 
-_HKDFSRC = HKDF.dfy StandardLibrary.dfy Arrays.dfy HKDFSpec.dfy CryptoMac.dfy
-HKDFSRC  = $(patsubst %,$(SRCDIR)/%,$(_HKDFSRC))
-HKDFSRCV = $(patsubst %, %.verified, $(HKDFSRC))
+build/Main.exe: $(SRCV) $(DEPS) 
+	$(DAFNY) /out:build/Main $(SRCS) $(DEPS) /compile:2 /noVerify /noIncludes && cp $(BCDLL) build/
 
-# Compile output without verification, we already have verified each file
-$(HKDFOBJ): $(HKDFSRCV) $(SRCDIR)/HKDF-extern.cs $(DEPS)
-	$(DAFNY) /out:$(BUILDDIR)/HKDF $(HKDFSRC) $(SRCDIR)/HKDF-extern.cs $(DEPS) /compile:2 /noVerify /noIncludes
+OTHERSRCS = $(filter-out src/Crypto/HKDF/HKDF.dfy,$(SRCS))
+build/HKDF.dll: $(SRCV) $(DEPS) 
+	$(DAFNY) /out:build/HKDF src/Crypto/HKDF/HKDF.dfy $(OTHERSRCS) $(DEPS) /compile:2 /noVerify /noIncludes && cp $(BCDLL) build/
 
-hkdf: deps $(BUILDDIR)/HKDF.dll
+hkdf: build/HKDF.dll
 
-$(LIBDIR)/BouncyCastle.1.8.5/lib/BouncyCastle.Crypto.dll:
+lib/%.dll:
 	nuget install
 
-lit:
-	pip install lit
-
-test: 
-	lit test
-
-deps: $(LIBDIR)/BouncyCastle.1.8.5/lib/BouncyCastle.Crypto.dll
-
-clean:
-	rm -f $(BUILDDIR)/*
-	rm -rf $(LIBDIR)/*
-	rm -f $(SRCV)
-
-help:
-	@echo "Usage: make {all, hkdf, deps, lit, clean, help}"
+clean: 
+	rm -r build/*
+	rm -r lib/*
