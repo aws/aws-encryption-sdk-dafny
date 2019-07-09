@@ -46,13 +46,13 @@ module MessageHeader {
      * Utils
      */
     method readFixedLengthFromStreamOrFail(is: StringReader, n: nat) returns (ret: Result<array<byte>>)
-        requires is.valid()
+        requires is.Valid()
         modifies is
         ensures
             match ret
                 case Left(bytes) => n == bytes.Length
                 case Right(_)    => true
-        ensures is.valid()
+        ensures is.Valid()
     {
         var bytes := new byte[n];
         var out: Either<nat,Error>;
@@ -91,9 +91,9 @@ module MessageHeader {
         var auth: HeaderAuthentication
 
         static method deserializeVersion(is: StringReader) returns (ret: Result<T_Version>)
-            requires is.valid()
+            requires is.Valid()
             modifies is
-            ensures is.valid()
+            ensures is.Valid()
         {
             var res := readFixedLengthFromStreamOrFail(is, 1);
             match res {
@@ -108,9 +108,9 @@ module MessageHeader {
         }
 
         static method deserializeType(is: StringReader) returns (ret: Result<T_Type>)
-            requires is.valid()
+            requires is.Valid()
             modifies is
-            ensures is.valid()
+            ensures is.Valid()
         {
             var res := readFixedLengthFromStreamOrFail(is, 1);
             match res {
@@ -125,13 +125,13 @@ module MessageHeader {
         }
 
         static method deserializeAlgorithmSuiteID(is: StringReader) returns (ret: Result<AlgorithmSuite.ID>)
-            requires is.valid()
+            requires is.Valid()
             modifies is
             ensures
                 match ret
                     case Left(algorithmSuiteID) => ValidAlgorithmID(algorithmSuiteID)
                     case Right(_) => true
-            ensures is.valid()
+            ensures is.Valid()
         {
             var res := readFixedLengthFromStreamOrFail(is, 1);
             match res {
@@ -152,13 +152,13 @@ module MessageHeader {
             true
         }
         static method deserializeMsgID(is: StringReader) returns (ret: Result<T_MessageID>)
-            requires is.valid()
+            requires is.Valid()
             modifies is
             ensures
                 match ret
                     case Left(msgId) => ValidMessageId(msgId)
                     case Right(_) => true
-            ensures is.valid()
+            ensures is.Valid()
         {
             var res := readFixedLengthFromStreamOrFail(is, 16);
             match res {
@@ -173,20 +173,20 @@ module MessageHeader {
         }
 
         static method deserializeUTF8(is: StringReader, n: nat) returns (ret: Result<array<byte>>)
-            requires is.valid()
+            requires is.Valid()
             modifies is
             ensures
                 match ret
                     case Left(bytes) =>
                         && bytes.Length == n
-                        && ValidUTF8(bytes, 0)
+                        && ValidUTF8(bytes)
                     case Right(_) => true
-            ensures is.valid()
+            ensures is.Valid()
         {
             ret := readFixedLengthFromStreamOrFail(is, n);
             match ret {
                 case Left(bytes) =>
-                    if ValidUTF8(bytes, 0) {
+                    if ValidUTF8(bytes) {
                         return ret;
                     } else {
                         return Right(DeserializationError("Not a valid UTF8 string."));
@@ -196,13 +196,13 @@ module MessageHeader {
         }
 
         static method deserializeUnrestricted(is: StringReader, n: nat) returns (ret: Result<array<byte>>)
-            requires is.valid()
+            requires is.Valid()
             modifies is
             ensures
                 match ret
                     case Left(bytes) => bytes.Length == n
                     case Right(_) => true
-            ensures is.valid()
+            ensures is.Valid()
         {
             ret := readFixedLengthFromStreamOrFail(is, n);
         }
@@ -220,13 +220,13 @@ module MessageHeader {
 
         // TODO: Probably this should be factored out into EncCtx at some point
         static method deserializeAAD(is: StringReader) returns (ret: Result<T_AAD>)
-            requires is.valid()
+            requires is.Valid()
             modifies is
             ensures
                 match ret
                     case Left(aad) => ValidAAD(aad)
                     case Right(_) => true
-            ensures is.valid()
+            ensures is.Valid()
         {
             var kvPairsLength: uint16;
             {
@@ -262,11 +262,11 @@ module MessageHeader {
 
             var i := 0;
             while i < kvPairsCount
-                invariant is.valid()
+                invariant is.Valid()
                 invariant i <= kvPairsCount
                 invariant sortedUpTo(kvPairs, i as nat)
-                invariant forall j :: 0 <= j < i ==> ValidUTF8(kvPairs[j].0, 0)
-                invariant forall j :: 0 <= j < i ==> ValidUTF8(kvPairs[j].1, 0)
+                invariant forall j :: 0 <= j < i ==> ValidUTF8(kvPairs[j].0)
+                invariant forall j :: 0 <= j < i ==> ValidUTF8(kvPairs[j].1)
             {
                 var keyLength: uint16;
                 {
@@ -334,13 +334,13 @@ module MessageHeader {
 
         // TODO: Probably this should be factored out into EDK at some point
         static method deserializeEncryptedDataKeys(is: StringReader, ghost aad: T_AAD) returns (ret: Result<T_EncryptedDataKeys>)
-            requires is.valid()
+            requires is.Valid()
             modifies is
             ensures
                 match ret
                     case Left(edks) => ValidEncryptedDataKeys(edks)
                     case Right(_)   => true
-            ensures is.valid()
+            ensures is.Valid()
         {
             var res: Result;
             var edkCount: uint16;
@@ -358,7 +358,7 @@ module MessageHeader {
 
             var i := 0;
             while i < edkCount
-                invariant is.valid()
+                invariant is.Valid()
             {
                 // Key provider ID
                 var keyProviderIDLength: uint16;
@@ -414,9 +414,9 @@ module MessageHeader {
         }
 
         static method deserializeContentType(is: StringReader) returns (ret: Result<T_ContentType>)
-            requires is.valid()
+            requires is.Valid()
             modifies is
-            ensures is.valid()
+            ensures is.Valid()
         {
             var res := readFixedLengthFromStreamOrFail(is, 1);
             match res {
@@ -433,9 +433,9 @@ module MessageHeader {
         }
 
         static method deserializeReserved(is: StringReader) returns (ret: Result<T_Reserved>)
-            requires is.valid()
+            requires is.Valid()
             modifies is
-            ensures is.valid()
+            ensures is.Valid()
         {
             var res := readFixedLengthFromStreamOrFail(is, 4);
             match res {
@@ -450,19 +450,19 @@ module MessageHeader {
         }
 
         static method deserializeIVLength(is: StringReader, algSuiteId: AlgorithmSuite.ID) returns (ret: Result<uint8>)
-            requires is.valid()
+            requires is.Valid()
             requires algSuiteId in AlgorithmSuite.Suite.Keys
             modifies is
             ensures
                 match ret
                     case Left(ivLength) => ValidIVLength(ivLength, algSuiteId)
                     case Right(_)       => true
-            ensures is.valid()
+            ensures is.Valid()
         {
             var res := readFixedLengthFromStreamOrFail(is, 1);
             match res {
                 case Left(ivLength) =>
-                    if ivLength[0] == AlgorithmSuite.Suite[algSuiteId].params.iv_len {
+                    if ivLength[0] == AlgorithmSuite.Suite[algSuiteId].params.ivLen {
                         return Left(ivLength[0]);
                     } else {
                         return Right(DeserializationError("Incorrect IV length."));
@@ -472,13 +472,13 @@ module MessageHeader {
         }
 
         static method deserializeFrameLength(is: StringReader, contentType: T_ContentType) returns (ret: Result<uint32>)
-            requires is.valid()
+            requires is.Valid()
             modifies is
             ensures
                 match ret
                     case Left(frameLength) => ValidFrameLength(frameLength, contentType)
                     case Right(_) => true
-            ensures is.valid()
+            ensures is.Valid()
         {
             var res := readFixedLengthFromStreamOrFail(is, 4);
             match res {
@@ -497,9 +497,9 @@ module MessageHeader {
         * message.
         */
         static method deserializeHeaderBody(is: StringReader) returns (ret: Result<HeaderBody>)
-            requires is.valid()
+            requires is.Valid()
             modifies is
-            ensures is.valid()
+            ensures is.Valid()
             ensures
                 match ret
                     case Left(hb) => Valid(hb)
@@ -612,22 +612,22 @@ module MessageHeader {
         }
 
         static method deserializeAuthenticationTag(is: StringReader, tagLength: nat, ghost iv: array<byte>) returns (ret: Result<array<byte>>)
-            requires is.valid()
+            requires is.Valid()
             modifies is
             ensures
                 match ret
                     case Left(authenticationTag) => ValidAuthenticationTag(authenticationTag, tagLength, iv)
                     case Right(_) => true
-            ensures is.valid()
+            ensures is.Valid()
         {
             ret := readFixedLengthFromStreamOrFail(is, tagLength);
         }
 
         static method deserializeHeaderAuthentication(is: StringReader, body: HeaderBody) returns (ret: Result<HeaderAuthentication>)
-            requires is.valid()
+            requires is.Valid()
             requires body.algorithmSuiteID in AlgorithmSuite.Suite.Keys
             modifies is
-            ensures is.valid()
+            ensures is.Valid()
             ensures
                 match ret
                     case Left(headerAuthentication) => ValidHeaderAuthentication(headerAuthentication, body.algorithmSuiteID)
@@ -644,7 +644,7 @@ module MessageHeader {
             
             var authenticationTag: array<byte>;
             {
-                var res := deserializeAuthenticationTag(is, AlgorithmSuite.Suite[body.algorithmSuiteID].params.tag_len as nat, iv);
+                var res := deserializeAuthenticationTag(is, AlgorithmSuite.Suite[body.algorithmSuiteID].params.tagLen as nat, iv);
                 match res {
                     case Left(bytes) => authenticationTag := bytes;
                     case Right(e)    => return Right(e);
@@ -701,7 +701,7 @@ module MessageHeader {
         match aad {
             case AAD(kvPairsLength, kvPairs) =>
                 && kvPairsLength > 0
-                && forall i :: 0 <= i < kvPairs.Length ==> ValidUTF8(kvPairs[i].0, 0) && ValidUTF8(kvPairs[i].1, 0)
+                && forall i :: 0 <= i < kvPairs.Length ==> ValidUTF8(kvPairs[i].0) && ValidUTF8(kvPairs[i].1)
                 && sorted(kvPairs)
             case EmptyAAD() => true
         }
@@ -724,7 +724,7 @@ module MessageHeader {
     }
     predicate ValidIVLength(ivLength: uint8, algorithmSuiteID: AlgorithmSuite.ID)
     {
-        algorithmSuiteID in AlgorithmSuite.Suite.Keys && AlgorithmSuite.Suite[algorithmSuiteID].params.iv_len == ivLength
+        algorithmSuiteID in AlgorithmSuite.Suite.Keys && AlgorithmSuite.Suite[algorithmSuiteID].params.ivLen == ivLength
     }
     predicate ValidFrameLength(frameLength: uint32, contentType: T_ContentType)
     {
@@ -746,6 +746,6 @@ module MessageHeader {
     predicate ValidHeaderAuthentication(ha: HeaderAuthentication, algorithmSuiteID: AlgorithmSuite.ID)
         requires algorithmSuiteID in AlgorithmSuite.Suite.Keys
     {
-        ValidAuthenticationTag(ha.authenticationTag, AlgorithmSuite.Suite[algorithmSuiteID].params.tag_len as nat, ha.iv)
+        ValidAuthenticationTag(ha.authenticationTag, AlgorithmSuite.Suite[algorithmSuiteID].params.tagLen as nat, ha.iv)
     }
 }
