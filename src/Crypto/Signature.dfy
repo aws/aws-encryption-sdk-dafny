@@ -1,13 +1,15 @@
-include "../Util/StandardLibrary.dfy"
+include "../StandardLibrary/StandardLibrary.dfy"
 
 
 // TODO: instantiate this
 module {:extern "Signature"} Signature { 
     import opened StandardLibrary
-    datatype {:extern "Msg"} Msg = Msg(m: seq<byte>)
-    datatype {:extern "SigningKey"} SigningKey = SK(k : seq<byte>)
-    datatype {:extern "VerifKey"} VerifKey = VK(k : seq<byte>)
-    datatype {:extern "Sig"} Sig = Sig(c : seq<byte>)
+    import opened UInt = StandardLibrary.UInt
+
+    datatype {:extern "Msg"} Msg = Msg(m: seq<uint8>)
+    datatype {:extern "SigningKey"} SigningKey = SK(k : seq<uint8>)
+    datatype {:extern "VerifKey"} VerifKey = VK(k : seq<uint8>)
+    datatype {:extern "Sig"} Sig = Sig(c : seq<uint8>)
 
     datatype ECDSAParams = ECDSA_P384 | ECDSA_P256
 

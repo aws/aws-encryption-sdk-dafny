@@ -1,12 +1,13 @@
 include "../Digests.dfy"
-include "../../Util/StandardLibrary.dfy"
+include "../../StandardLibrary/StandardLibrary.dfy"
 
 module HKDFSpec {
   import opened StandardLibrary
+  import opened UInt = StandardLibrary.UInt
   import opened Digests
 
   // return T(i)
-  function Ti(algorithm: HMAC_ALGORITHM, key: seq<byte>, info: seq<byte>, i: nat): seq<byte>
+  function Ti(algorithm: HMAC_ALGORITHM, key: seq<uint8>, info: seq<uint8>, i: nat): seq<uint8>
     requires 0 <= i < 256
     decreases i, 1
   {
@@ -15,15 +16,15 @@ module HKDFSpec {
   }
 
   // return T(i-1) | info | i
-  function PreTi(algorithm: HMAC_ALGORITHM, key: seq<byte>, info: seq<byte>, i: nat): seq<byte>
+  function PreTi(algorithm: HMAC_ALGORITHM, key: seq<uint8>, info: seq<uint8>, i: nat): seq<uint8>
     requires 1 <= i < 256
     decreases i, 0
   {
-    Ti(algorithm, key, info, i-1) + info + [(i as byte)]
+    Ti(algorithm, key, info, i-1) + info + [(i as uint8)]
   }
  
   // return T(1) | T(2) | ... | T(n)
-  function T(algorithm: HMAC_ALGORITHM, key: seq<byte>, info: seq<byte>, n: nat): seq<byte>
+  function T(algorithm: HMAC_ALGORITHM, key: seq<uint8>, info: seq<uint8>, n: nat): seq<uint8>
     requires 0 <= n < 256
     decreases n
   {
@@ -31,13 +32,13 @@ module HKDFSpec {
       T(algorithm, key, info, n-1) + Ti(algorithm, key, info, n)
   }
  
-  lemma TLength(algorithm: HMAC_ALGORITHM, key: seq<byte>, info: seq<byte>, n: nat)
+  lemma TLength(algorithm: HMAC_ALGORITHM, key: seq<uint8>, info: seq<uint8>, n: nat)
     requires 0 <= n < 256
     ensures |T(algorithm, key, info, n)| == n * HashLength(algorithm)
   {
   }
  
-  lemma TPrefix(algorithm: HMAC_ALGORITHM, key: seq<byte>, info: seq<byte>, m: nat, n: nat)
+  lemma TPrefix(algorithm: HMAC_ALGORITHM, key: seq<uint8>, info: seq<uint8>, m: nat, n: nat)
     requires 0 <= m <= n < 256
     ensures T(algorithm, key, info, m) <= T(algorithm, key, info, n)
   {
@@ -47,7 +48,7 @@ module HKDFSpec {
     }
   }
  
-  function TMaxLength(algorithm: HMAC_ALGORITHM, key: seq<byte>, info: seq<byte>): (result: seq<byte>)
+  function TMaxLength(algorithm: HMAC_ALGORITHM, key: seq<uint8>, info: seq<uint8>): (result: seq<uint8>)
     ensures |result| == 255 * HashLength(algorithm)
   {
     TLength(algorithm, key, info, 255);

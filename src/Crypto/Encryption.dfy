@@ -1,4 +1,4 @@
-include "../Util/StandardLibrary.dfy"
+include "../StandardLibrary/StandardLibrary.dfy"
 include "Cipher.dfy"
 include "GenBytes.dfy"
 include "EncryptionDefs.dfy"

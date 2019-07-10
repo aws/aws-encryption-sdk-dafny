@@ -1,4 +1,4 @@
-include "../Util/StandardLibrary.dfy"
+include "../StandardLibrary/StandardLibrary.dfy"
 include "Cipher.dfy"
 include "EncryptionDefs.dfy"
 
@@ -6,6 +6,7 @@ module {:extern "RSAEncryption"} RSAEncryption {
     import opened EncDefs
     import C = Cipher
     import opened StandardLibrary
+    import opened UInt = StandardLibrary.UInt
 
     datatype {:extern "RSAPaddingMode"} RSAPaddingMode = PKCS1 | OAEP_SHA1 | OAEP_SHA256
 

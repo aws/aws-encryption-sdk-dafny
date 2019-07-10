@@ -1,12 +1,13 @@
 include "../SDK/AlgorithmSuite.dfy"
 include "../Util/Streams.dfy"
-include "../Util/StandardLibrary.dfy"
+include "../StandardLibrary/StandardLibrary.dfy"
 include "../Util/UTF8.dfy"
 
 module MessageHeader {
     import AlgorithmSuite
     import opened Streams
     import opened StandardLibrary
+    import opened UInt = StandardLibrary.UInt
     import opened UTF8
 
     /*
@@ -14,13 +15,13 @@ module MessageHeader {
      */
     type T_Version         = x | x == 0x01 /*Version 1.0*/ witness 0x01
     type T_Type            = x | x == 0x80 /*Customer Authenticated Encrypted Data*/ witness 0x80
-    type T_MessageID       = x: seq<byte> | |x| == 16 witness [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]
-    type T_Reserved        = x: seq<byte> | x == [0,0,0,0] witness [0,0,0,0]
+    type T_MessageID       = x: seq<uint8> | |x| == 16 witness [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]
+    type T_Reserved        = x: seq<uint8> | x == [0,0,0,0] witness [0,0,0,0]
     datatype T_ContentType = NonFramed | Framed
-    type EncCtx            = array<(array<byte>, array<byte>)>
+    type EncCtx            = array<(array<uint8>, array<uint8>)>
     datatype T_AAD         = AAD(length: uint16, kvPairs: EncCtx) | EmptyAAD
 
-    datatype EDKEntry      = EDKEntry(keyProviderId: array<byte>, keyProviderInfo: array<byte>, encDataKey: array<byte>)
+    datatype EDKEntry      = EDKEntry(keyProviderId: array<uint8>, keyProviderInfo: array<uint8>, encDataKey: array<uint8>)
     datatype T_EncryptedDataKeys
                            = EncryptedDataKeys(count: uint16, entries: array<EDKEntry>) | EmptyEncryptedDataKeys
 
@@ -40,12 +41,12 @@ module MessageHeader {
      * Header authentication type definition
      */
     
-    datatype HeaderAuthentication = HeaderAuthentication(iv: array<byte>, authenticationTag: array<byte>)
+    datatype HeaderAuthentication = HeaderAuthentication(iv: array<uint8>, authenticationTag: array<uint8>)
 
     /*
      * Utils
      */
-    method readFixedLengthFromStreamOrFail(is: StringReader, n: nat) returns (ret: Result<array<byte>>)
+    method readFixedLengthFromStreamOrFail(is: StringReader, n: nat) returns (ret: Result<array<uint8>>)
         requires is.Valid()
         modifies is
         ensures
@@ -54,7 +55,7 @@ module MessageHeader {
                 case Right(_)    => true
         ensures is.Valid()
     {
-        var bytes := new byte[n];
+        var bytes := new uint8[n];
         var out: Either<nat,Error>;
         out := is.Read(bytes, 0, n);
         match out {
@@ -68,7 +69,7 @@ module MessageHeader {
         }
     }
 
-    predicate sortedUpTo(a: array<(array<byte>, array<byte>)>, n: nat)
+    predicate sortedUpTo(a: array<(array<uint8>, array<uint8>)>, n: nat)
         requires n <= a.Length
         reads a
         reads set i | 0 <= i < n :: a[i].0
@@ -76,7 +77,7 @@ module MessageHeader {
         forall j :: 0 < j < n ==> lexCmpArrays(a[j-1].0, a[j].0, ltByte)
     }
 
-    predicate sorted(a: array<(array<byte>, array<byte>)>)
+    predicate sorted(a: array<(array<uint8>, array<uint8>)>)
         reads a
         reads set i | 0 <= i < a.Length :: a[i].0
     {
@@ -145,7 +146,7 @@ module MessageHeader {
             }
         }
 
-        static predicate method isValidMsgID (candidateID: array<byte>)
+        static predicate method isValidMsgID (candidateID: array<uint8>)
             requires candidateID.Length == 16
         {
             // TODO:
@@ -172,7 +173,7 @@ module MessageHeader {
             }
         }
 
-        static method deserializeUTF8(is: StringReader, n: nat) returns (ret: Result<array<byte>>)
+        static method deserializeUTF8(is: StringReader, n: nat) returns (ret: Result<array<uint8>>)
             requires is.Valid()
             modifies is
             ensures
@@ -195,7 +196,7 @@ module MessageHeader {
             }
         }
 
-        static method deserializeUnrestricted(is: StringReader, n: nat) returns (ret: Result<array<byte>>)
+        static method deserializeUnrestricted(is: StringReader, n: nat) returns (ret: Result<array<uint8>>)
             requires is.Valid()
             modifies is
             ensures
@@ -207,7 +208,7 @@ module MessageHeader {
             ret := readFixedLengthFromStreamOrFail(is, n);
         }
 
-        function encCtxToSeqs(kvPairs: array<(array<byte>, array<byte>)>, i: nat): seq<(seq<byte>, seq<byte>)>
+        function encCtxToSeqs(kvPairs: array<(array<uint8>, array<uint8>)>, i: nat): seq<(seq<uint8>, seq<uint8>)>
             decreases kvPairs.Length - i
             reads kvPairs
             reads set i | 0 <= i < kvPairs.Length :: kvPairs[i].0
@@ -232,7 +233,7 @@ module MessageHeader {
             {
                 var res := deserializeUnrestricted(is, 2);
                 match res {
-                    case Left(bytes) => kvPairsLength := deser_uint16_from_array(bytes);
+                    case Left(bytes) => kvPairsLength := arrayToUInt16(bytes);
                     case Right(e) => return Right(e);
                 }
             }
@@ -246,7 +247,7 @@ module MessageHeader {
                 var res := deserializeUnrestricted(is, 2);
                 match res {
                     case Left(bytes) =>
-                        kvPairsCount := deser_uint16_from_array(bytes);
+                        kvPairsCount := arrayToUInt16(bytes);
                         totalBytesRead := totalBytesRead + bytes.Length;
                         if kvPairsLength > 0 && kvPairsCount == 0 {
                             return Right(DeserializationError("Key value pairs count is 0."));
@@ -273,13 +274,13 @@ module MessageHeader {
                     var res := deserializeUnrestricted(is, 2);
                     match res {
                         case Left(bytes) =>
-                            keyLength := deser_uint16_from_array(bytes);
+                            keyLength := arrayToUInt16(bytes);
                             totalBytesRead := totalBytesRead + bytes.Length;
                         case Right(e) => return Right(e);
                     }
                 }
 
-                var key := new byte[keyLength];
+                var key := new uint8[keyLength];
                 {
                     var res := deserializeUTF8(is, keyLength as nat);
                     match res {
@@ -295,13 +296,13 @@ module MessageHeader {
                     var res := deserializeUnrestricted(is, 2);
                     match res {
                         case Left(bytes) =>
-                            valueLength := deser_uint16_from_array(bytes);
+                            valueLength := arrayToUInt16(bytes);
                             totalBytesRead := totalBytesRead + bytes.Length;
                         case Right(e) => return Right(e);
                     }
                 }
 
-                var value := new byte[valueLength];
+                var value := new uint8[valueLength];
                 {
                     var res := deserializeUTF8(is, valueLength as nat);
                     match res {
@@ -346,7 +347,7 @@ module MessageHeader {
             var edkCount: uint16;
             res := deserializeUnrestricted(is, 2);
             match res {
-                case Left(bytes) => edkCount := deser_uint16_from_array(bytes);
+                case Left(bytes) => edkCount := arrayToUInt16(bytes);
                 case Right(e)    => return Right(e);
             }
 
@@ -364,11 +365,11 @@ module MessageHeader {
                 var keyProviderIDLength: uint16;
                 res := deserializeUnrestricted(is, 2);
                 match res {
-                    case Left(bytes) => keyProviderIDLength := deser_uint16_from_array(bytes);
+                    case Left(bytes) => keyProviderIDLength := arrayToUInt16(bytes);
                     case Right(e)    => return Right(e);
                 }
 
-                var keyProviderID := new byte[keyProviderIDLength];
+                var keyProviderID := new uint8[keyProviderIDLength];
                 res := deserializeUTF8(is, keyProviderIDLength as nat);
                 match res {
                     case Left(bytes) => keyProviderID := bytes;
@@ -379,11 +380,11 @@ module MessageHeader {
                 var keyProviderInfoLength: uint16;
                 res := deserializeUnrestricted(is, 2);
                 match res {
-                    case Left(bytes) => keyProviderInfoLength := deser_uint16_from_array(bytes);
+                    case Left(bytes) => keyProviderInfoLength := arrayToUInt16(bytes);
                     case Right(e)    => return Right(e);
                 }
                 
-                var keyProviderInfo := new byte[keyProviderInfoLength];
+                var keyProviderInfo := new uint8[keyProviderInfoLength];
                 res := deserializeUTF8(is, keyProviderInfoLength as nat);
                 match res {
                     case Left(bytes) => keyProviderInfo := bytes;
@@ -394,11 +395,11 @@ module MessageHeader {
                 var edkLength: uint16;
                 res := deserializeUnrestricted(is, 2);
                 match res {
-                    case Left(bytes) => edkLength := deser_uint16_from_array(bytes);
+                    case Left(bytes) => edkLength := arrayToUInt16(bytes);
                     case Right(e)    => return Right(e);
                 }
                 
-                var edk := new byte[edkLength];
+                var edk := new uint8[edkLength];
                 res := deserializeUTF8(is, edkLength as nat);
                 match res {
                     case Left(bytes) => edk := bytes;
@@ -483,8 +484,8 @@ module MessageHeader {
             var res := readFixedLengthFromStreamOrFail(is, 4);
             match res {
                 case Left(frameLength) =>
-                    if contentType.NonFramed? && deser_uint32_from_array(frameLength) == 0 {
-                        return Left(deser_uint32_from_array(frameLength));
+                    if contentType.NonFramed? && arrayToUInt32(frameLength) == 0 {
+                        return Left(arrayToUInt32(frameLength));
                     } else {
                         return Right(DeserializationError("Frame length must be 0 when content type is non-framed."));
                     }
@@ -611,7 +612,7 @@ module MessageHeader {
                         frameLength));
         }
 
-        static method deserializeAuthenticationTag(is: StringReader, tagLength: nat, ghost iv: array<byte>) returns (ret: Result<array<byte>>)
+        static method deserializeAuthenticationTag(is: StringReader, tagLength: nat, ghost iv: array<uint8>) returns (ret: Result<array<uint8>>)
             requires is.Valid()
             modifies is
             ensures
@@ -633,7 +634,7 @@ module MessageHeader {
                     case Left(headerAuthentication) => ValidHeaderAuthentication(headerAuthentication, body.algorithmSuiteID)
                     case Right(_) => true
         {
-            var iv: array<byte>;
+            var iv: array<uint8>;
             {
                 var res := deserializeUnrestricted(is, body.ivLength as nat);
                 match res {
@@ -642,7 +643,7 @@ module MessageHeader {
                 }
             }
             
-            var authenticationTag: array<byte>;
+            var authenticationTag: array<uint8>;
             {
                 var res := deserializeAuthenticationTag(is, AlgorithmSuite.Suite[body.algorithmSuiteID].params.tagLen as nat, iv);
                 match res {
@@ -737,7 +738,7 @@ module MessageHeader {
     /*
      * Validity of the message header authentication
      */
-    predicate ValidAuthenticationTag(authenticationTag: array<byte>, tagLength: nat, iv: array<byte>)
+    predicate ValidAuthenticationTag(authenticationTag: array<uint8>, tagLength: nat, iv: array<uint8>)
     {
         true
         // TODO:

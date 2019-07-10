@@ -1,18 +1,19 @@
-include "../Util/StandardLibrary.dfy"
+include "../StandardLibrary/StandardLibrary.dfy"
 include "GenBytes.dfy"
 
 // Information about the ciphers in the Encryption SDK, as well as information common to all algorithms which use ciphers (both encryption and KDF).
 module {:extern "Cipher"} Cipher {
     import opened StandardLibrary
+    import opened UInt = StandardLibrary.UInt
     import opened RNG
 
     datatype AESMode = AES256 | AES128 | AES192
-    datatype {:extern "CipherParams"} CipherParams = CipherParams(mode : AESMode, tagLen : byte, ivLen : byte)
+    datatype {:extern "CipherParams"} CipherParams = CipherParams(mode : AESMode, tagLen : uint8, ivLen : uint8)
 
     const MAX_KEY_LEN := 32
     const CIPHER_KEY_LENGTHS := {32, 24, 16};
-    const TAG_LEN := 16 as byte;
-    const IV_LEN := 12 as byte;
+    const TAG_LEN := 16 as uint8;
+    const IV_LEN := 12 as uint8;
 
     const AES_GCM_128 := CipherParams(AES128, TAG_LEN, IV_LEN);
     const AES_GCM_192 := CipherParams(AES192, TAG_LEN, IV_LEN);
@@ -42,11 +43,11 @@ module {:extern "Cipher"} Cipher {
             case AES128 =>
     }
 
-    method GenIV(m : CipherParams) returns (s : seq<byte>) ensures |s| == m.ivLen as int {
+    method GenIV(m : CipherParams) returns (s : seq<uint8>) ensures |s| == m.ivLen as int {
             s := GenBytes(m.ivLen as uint16);
     }
 
-    method GenKey(m : CipherParams) returns (s : seq<byte>) ensures |s| == KeyLengthOfCipher(m) as int {
+    method GenKey(m : CipherParams) returns (s : seq<uint8>) ensures |s| == KeyLengthOfCipher(m) as int {
             s := GenBytes(KeyLengthOfCipher(m) as uint16);
     }
 

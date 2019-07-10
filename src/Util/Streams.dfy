@@ -1,7 +1,8 @@
-include "StandardLibrary.dfy"
+include "../StandardLibrary/StandardLibrary.dfy"
 
 module Streams {
   import opened StandardLibrary
+  import opened UInt = StandardLibrary.UInt
 
   trait Stream {
 
@@ -11,7 +12,7 @@ module Streams {
     function method available() : nat reads this requires Valid() // An upper bound on the amount of data the stream can deliver on Read
 
 
-    method Write(a : array<byte>, off : nat, req : nat) returns (len_written : Either<nat, Error>)
+    method Write(a : array<uint8>, off : nat, req : nat) returns (len_written : Either<nat, Error>)
       requires Valid()
       requires a.Length >= off + req
       modifies Repr
@@ -21,7 +22,7 @@ module Streams {
       ensures Valid()
 
 
-    method Read(i : array<byte>, off : nat, req : nat) returns (len_read : Either<nat, Error>)
+    method Read(i : array<uint8>, off : nat, req : nat) returns (len_read : Either<nat, Error>)
       requires Valid()
       requires i.Length >= off + req
       requires i !in Repr
@@ -34,7 +35,7 @@ module Streams {
 
   class StringReader extends Stream {
 
-    var data : array<byte>
+    var data : array<uint8>
     var pos : nat
 
     predicate Valid() reads this {
@@ -47,7 +48,7 @@ module Streams {
     function method available() : nat reads this requires Valid() { data.Length - pos }
 
 
-    constructor(d : array<byte>)
+    constructor(d : array<uint8>)
       ensures Valid()
     {
         Repr := {this, d};
@@ -55,7 +56,7 @@ module Streams {
         pos := 0;
     }
 
-    method Write(a : array<byte>, off : nat, req : nat) returns (len_written : Either<nat, Error>)
+    method Write(a : array<uint8>, off : nat, req : nat) returns (len_written : Either<nat, Error>)
       requires Valid()
       modifies this
       requires a !in Repr
@@ -67,7 +68,7 @@ module Streams {
       len_written := Right(IOError("Cannot write to StringReader"));
     }
     
-    method Read(arr : array<byte>, off : nat, req : nat) returns (len_read : Either<nat, Error>)
+    method Read(arr : array<uint8>, off : nat, req : nat) returns (len_read : Either<nat, Error>)
       requires Valid()
       requires arr.Length >= off + req
       requires arr != data
@@ -96,7 +97,7 @@ module Streams {
   }
 
   class StringWriter extends Stream {
-    var data : array<byte>
+    var data : array<uint8>
     var pos : nat
 
     predicate Valid() reads this {
@@ -112,12 +113,12 @@ module Streams {
     constructor(n : nat)
       ensures Valid()
     {
-        data := new byte[n];
+        data := new uint8[n];
         Repr := {this, data};
         pos := 0;
     }
 
-    method Write(a : array<byte>, off : nat, req : nat) returns (len_written : Either<nat, Error>)
+    method Write(a : array<uint8>, off : nat, req : nat) returns (len_written : Either<nat, Error>)
       requires Valid()
       requires a.Length >= off + req
       modifies this, data
@@ -144,7 +145,7 @@ module Streams {
       }
     }
     
-    method Read(arr : array<byte>, off : nat, req : nat) returns (len_read : Either<nat, Error>)
+    method Read(arr : array<uint8>, off : nat, req : nat) returns (len_read : Either<nat, Error>)
       requires Valid()
       requires arr.Length >= off + req
       requires arr != data

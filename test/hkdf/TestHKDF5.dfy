@@ -3,7 +3,7 @@
 // RUN: %mono ./Output/TestHKDF5.exe > "%t" && rm ./Output/TestHKDF5.exe
 // RUN: %diff "%s.expect" "%t"
 
-include "../../src/Util/StandardLibrary.dfy"
+include "../../src/StandardLibrary/StandardLibrary.dfy"
 include "../../src/Crypto/HKDF/HKDF.dfy"
 include "../../src/Crypto/HKDF/HKDFSpec.dfy"
 

@@ -1,10 +1,12 @@
-include "../Util/StandardLibrary.dfy"
+include "../StandardLibrary/StandardLibrary.dfy"
 include "../Util/Sort.dfy"
 
 module EncCtx {
     import opened StandardLibrary
+    import opened UInt = StandardLibrary.UInt
     module S refines Sort {
         import opened StandardLibrary
+        import opened UInt = StandardLibrary.UInt
         import O = SeqByteKeysOrder
     }
 
@@ -18,31 +20,33 @@ module EncCtx {
         // val
 
     // TODO maintain UTF8-encoding
-    predicate enc_ctx_sorted_nodup (x : seq<(seq<byte>, seq<byte>)>) { S.O.compat_mset(multiset(x)) && S.SeqSorted(x) }
-    type EncCtx = x : seq<(seq<byte>, seq<byte>)> | enc_ctx_sorted_nodup(x)
+    predicate enc_ctx_sorted_nodup (x : seq<(seq<uint8>, seq<uint8>)>) { S.O.compat_mset(multiset(x)) && S.SeqSorted(x) }
+    type EncCtx = x : seq<(seq<uint8>, seq<uint8>)> | enc_ctx_sorted_nodup(x)
     
     module Ser {
         import opened StandardLibrary
-        predicate method wf_ser_enc_ctx_head (e : seq<(seq<byte>, seq<byte>)> ) { 
-            sum(e, (p : (seq<byte>, seq<byte>)) => |p.0| + |p.1| + 4) + 4 <= UINT16_MAX // able to serialize length of serialization 
+        import opened UInt = StandardLibrary.UInt
+        
+        predicate method wf_ser_enc_ctx_head (e : seq<(seq<uint8>, seq<uint8>)> ) { 
+            sum(e, (p : (seq<uint8>, seq<uint8>)) => |p.0| + |p.1| + 4) + 4 <= UINT16_MAX // able to serialize length of serialization 
             && |e| <= UINT16_MAX // able to serialize number of pairs
         }
 
-        lemma wf_ser_enc_ctx_head_perm (e : seq<(seq<byte>, seq<byte>)>, e' : seq<(seq<byte>, seq<byte>)>)
+        lemma wf_ser_enc_ctx_head_perm (e : seq<(seq<uint8>, seq<uint8>)>, e' : seq<(seq<uint8>, seq<uint8>)>)
             requires multiset(e) == multiset(e')
             ensures wf_ser_enc_ctx_head(e) <==> wf_ser_enc_ctx_head(e') 
         {
             eq_multiset_eq_len(e, e');
-            sum_perm(e, e', (p : (seq<byte>, seq<byte>)) => |p.0| + |p.1| + 4);
+            sum_perm(e, e', (p : (seq<uint8>, seq<uint8>)) => |p.0| + |p.1| + 4);
         }
 
-        predicate method wf_ser_enc_ctx_body (e : seq<(seq<byte>, seq<byte>)> ) {
+        predicate method wf_ser_enc_ctx_body (e : seq<(seq<uint8>, seq<uint8>)> ) {
             forall p :: p in e ==> |p.0| <= UINT16_MAX && |p.1| <= UINT16_MAX // able to serialize each pair
         }
 
-        predicate method wf_ser_enc_ctx (e : seq<(seq<byte>, seq<byte>)>) { wf_ser_enc_ctx_body(e) && wf_ser_enc_ctx_head(e) }
+        predicate method wf_ser_enc_ctx (e : seq<(seq<uint8>, seq<uint8>)>) { wf_ser_enc_ctx_body(e) && wf_ser_enc_ctx_head(e) }
 
-        lemma wf_ser_enc_ctx_body_perm(e : seq<(seq<byte>, seq<byte>)>, e' : seq<(seq<byte>, seq<byte>)>) 
+        lemma wf_ser_enc_ctx_body_perm(e : seq<(seq<uint8>, seq<uint8>)>, e' : seq<(seq<uint8>, seq<uint8>)>) 
             requires multiset(e) == multiset(e')
             ensures wf_ser_enc_ctx_body(e) <==> wf_ser_enc_ctx_body(e') 
         {
@@ -51,13 +55,13 @@ module EncCtx {
         }
 
 
-        predicate ser_space_for (s : seq<(seq<byte>, seq<byte>)>, kl : nat, vl : nat) {
+        predicate ser_space_for (s : seq<(seq<uint8>, seq<uint8>)>, kl : nat, vl : nat) {
             forall k, v :: |k| == kl ==> |v| == vl ==> wf_ser_enc_ctx_body([(k,v)] + s) && wf_ser_enc_ctx_head([(k,v)] + s)
         }
 
-        lemma ser_space_forP (s : seq<(seq<byte>, seq<byte>)>, kl : nat, vl : nat)
+        lemma ser_space_forP (s : seq<(seq<uint8>, seq<uint8>)>, kl : nat, vl : nat)
             requires forall p :: p in s ==> |p.0| <= UINT16_MAX && |p.1| <= UINT16_MAX
-            requires sum(s, (p : (seq<byte>, seq<byte>)) => |p.0| + |p.1| + 4) + 4 <= UINT16_MAX - (kl + vl + 4)
+            requires sum(s, (p : (seq<uint8>, seq<uint8>)) => |p.0| + |p.1| + 4) + 4 <= UINT16_MAX - (kl + vl + 4)
             requires |s| <= UINT16_MAX - 1
             requires kl <= UINT16_MAX && vl <= UINT16_MAX
             ensures ser_space_for(s, kl, vl) 
@@ -65,22 +69,22 @@ module EncCtx {
             forall k, v | |k| == kl && |v| == vl ensures wf_ser_enc_ctx_body([(k,v)] + s) && wf_ser_enc_ctx_head([(k,v)] + s) {
                 assert |[(k,v)] + s| <= UINT16_MAX;
                 calc {
-                    sum([(k,v)] + s, (p : (seq<byte>, seq<byte>)) => |p.0| + |p.1| + 4) + 4
+                    sum([(k,v)] + s, (p : (seq<uint8>, seq<uint8>)) => |p.0| + |p.1| + 4) + 4
                     ==
-                    sum(s, (p : (seq<byte>, seq<byte>)) => |p.0| + |p.1| + 4) + |k| + |v| + 4
+                    sum(s, (p : (seq<uint8>, seq<uint8>)) => |p.0| + |p.1| + 4) + |k| + |v| + 4
                     <= UINT16_MAX;
                 }
-                assert sum([(k,v)] + s, (p : (seq<byte>, seq<byte>)) => |p.0| + |p.1| + 4) + 4 <= UINT16_MAX;
+                assert sum([(k,v)] + s, (p : (seq<uint8>, seq<uint8>)) => |p.0| + |p.1| + 4) + 4 <= UINT16_MAX;
             }
         }
 
 
-        predicate serializeable(s : seq<(seq<byte>, seq<byte>)>) 
+        predicate serializeable(s : seq<(seq<uint8>, seq<uint8>)>) 
         {
             wf_ser_enc_ctx_body(s) && wf_ser_enc_ctx_head(s)
         }
 
-        lemma serializeable_perm (e : seq<(seq<byte>, seq<byte>)>, e' : seq<(seq<byte>, seq<byte>)>) 
+        lemma serializeable_perm (e : seq<(seq<uint8>, seq<uint8>)>, e' : seq<(seq<uint8>, seq<uint8>)>) 
             requires multiset(e) == multiset(e')
             ensures serializeable(e) == serializeable(e') 
         {
@@ -88,40 +92,40 @@ module EncCtx {
             wf_ser_enc_ctx_head_perm(e, e');
         }
 
-        function method ser_enc_ctx_pair(c : (seq<byte>, seq<byte>)) : (res : seq<byte>)
+        function method ser_enc_ctx_pair(c : (seq<uint8>, seq<uint8>)) : (res : seq<uint8>)
             requires wf_ser_enc_ctx_body([c])
             ensures |res| == |c.0| + |c.1| + 4
         {
-            var keylen := ser_uint16(|c.0| as uint16);
-            var val_len := ser_uint16(|c.1| as uint16);
-            [keylen.0, keylen.1] + c.0 + [val_len.0, val_len.1] + c.1
+            var key_len := uint16ToSeq(|c.0| as uint16);
+            var val_len := uint16ToSeq(|c.1| as uint16);
+            key_len + c.0 + val_len + c.1
         }
 
-        function method ser_enc_ctx_body(c : seq<(seq<byte>, seq<byte>)>) : (res : seq<byte>)
+        function method ser_enc_ctx_body(c : seq<(seq<uint8>, seq<uint8>)>) : (res : seq<uint8>)
             requires wf_ser_enc_ctx_body(c)
-            ensures |res| == sum(c, (p : (seq<byte>, seq<byte>)) => |p.0| + |p.1| + 4)
+            ensures |res| == sum(c, (p : (seq<uint8>, seq<uint8>)) => |p.0| + |p.1| + 4)
         {
             if c == [] then [] else ser_enc_ctx_pair(c[0]) + ser_enc_ctx_body(c[1..])
         }
 
-        function method ser_enc_ctx(c : seq<(seq<byte>, seq<byte>)>) : (s : seq<byte>)
+        function method ser_enc_ctx(c : seq<(seq<uint8>, seq<uint8>)>) : (s : seq<uint8>)
             requires wf_ser_enc_ctx_body(c)
             requires wf_ser_enc_ctx_head(c)
-            ensures |s| == sum(c, (p : (seq<byte>, seq<byte>)) => |p.0| + |p.1| + 4) + 4
+            ensures |s| == sum(c, (p : (seq<uint8>, seq<uint8>)) => |p.0| + |p.1| + 4) + 4
         {
             var ser_body := ser_enc_ctx_body(c);
-            var ser_numpairs := ser_uint16(|c| as uint16);
-            var ser_len := ser_uint16((|ser_body| + 2) as uint16);
-            [ser_len.0, ser_len.1, ser_numpairs.0, ser_numpairs.1] + ser_body
+            var ser_numpairs := uint16ToSeq(|c| as uint16);
+            var ser_len := uint16ToSeq((|ser_body| + 2) as uint16);
+            ser_len + ser_numpairs + ser_body
         }
 
     }
 
-    method MkEncCtx (s : seq<(seq<byte>, seq<byte>)>) returns (o : EncCtx)
+    method MkEncCtx (s : seq<(seq<uint8>, seq<uint8>)>) returns (o : EncCtx)
         requires uniq_fst(s)
         ensures multiset(s) == multiset(o)
     {
-        var a : array<(seq<byte>, seq<byte>)> := new [|s|];
+        var a : array<(seq<uint8>, seq<uint8>)> := new [|s|];
         forall i | 0 <= i < a.Length {
             a[i] := s[i];
         }
@@ -133,14 +137,14 @@ module EncCtx {
         o := a[..];
     }
 
-    method InsertEncCtx (s : EncCtx, k : seq<byte>, v : seq<byte>) returns (o : EncCtx)
+    method InsertEncCtx (s : EncCtx, k : seq<uint8>, v : seq<uint8>) returns (o : EncCtx)
         requires forall j :: j in s ==> j.0 != k
         ensures multiset(o) == multiset{(k,v)} + multiset(s)
         ensures Ser.ser_space_for(s, |k|, |v|) ==> Ser.serializeable(o)
         ensures k in keys(o)
         ensures lookup(o, k) == v
     {
-        var a : array<(seq<byte>, seq<byte>)> := new [|s| + 1];
+        var a : array<(seq<uint8>, seq<uint8>)> := new [|s| + 1];
         forall i | 1 <= i < |s| + 1 {
             a[i] := s[i - 1];
         }
@@ -178,7 +182,7 @@ module EncCtx {
         uniq_idxP(c);
     }
 
-    lemma compatP (s : seq<(seq<byte>, seq<byte>)>)
+    lemma compatP (s : seq<(seq<uint8>, seq<uint8>)>)
         requires forall i, j :: 0 <= i < j < |s| ==> s[i].0 != s[j].0
         ensures S.O.compat_mset(multiset(s)) {
         uniq_idxP(s);
@@ -187,16 +191,16 @@ module EncCtx {
     }
     
 
-    function method keys(c : seq<(seq<byte>, seq<byte>)>) : seq<seq<byte>> {
+    function method keys(c : seq<(seq<uint8>, seq<uint8>)>) : seq<seq<uint8>> {
         if c == [] then [] else [c[0].0] + keys(c[1..])
     }
 
-    lemma notin_keysP (c : seq<(seq<byte>, seq<byte>)>, x : seq<byte>) 
+    lemma notin_keysP (c : seq<(seq<uint8>, seq<uint8>)>, x : seq<uint8>) 
     ensures (x !in keys(c)) <==> (forall j :: j in c ==> j.0 != x) {
 
     }
 
-    lemma in_keysP (c : seq<(seq<byte>, seq<byte>)>, x : seq<byte>)
+    lemma in_keysP (c : seq<(seq<uint8>, seq<uint8>)>, x : seq<uint8>)
         ensures
         (x in keys(c)) <==> (exists j :: j in c && j.0 == x) {
 
@@ -204,13 +208,13 @@ module EncCtx {
 
        
 
-    lemma notin_keys_compat_mset(s : EncCtx, k : seq<byte>, v : seq<byte>)
+    lemma notin_keys_compat_mset(s : EncCtx, k : seq<uint8>, v : seq<uint8>)
     requires forall j :: j in s ==> j.0 != k
     ensures S.O.compat_mset(multiset(s) + multiset{(k,v)}) {
 
     }
 
-    function method lookup(c : seq<(seq<byte>, seq<byte>)>, k : seq<byte>) : (s : seq<byte>)
+    function method lookup(c : seq<(seq<uint8>, seq<uint8>)>, k : seq<uint8>) : (s : seq<uint8>)
         requires k in keys(c)
         ensures (k,s) in c 
     {

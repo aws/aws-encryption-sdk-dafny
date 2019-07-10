@@ -6,10 +6,11 @@ endif
 
 
 SRCDIRS = src/Crypto \
+		  src/Crypto/HKDF \
 		  src/Util \
+		  src/StandardLibrary \
 		  src/Tests \
 		  src/SDK \
-		  src/Crypto/HKDF \
 		  src
 
 SRCS = $(foreach dir, $(SRCDIRS), $(wildcard $(dir)/*.dfy))

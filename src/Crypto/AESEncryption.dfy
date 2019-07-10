@@ -1,4 +1,4 @@
-include "../Util/StandardLibrary.dfy"
+include "../StandardLibrary/StandardLibrary.dfy"
 include "Cipher.dfy"
 include "EncryptionDefs.dfy"
 
@@ -6,6 +6,7 @@ module {:extern "AESEncryption"} AESEncryption {
     import opened EncDefs
     import C = Cipher
     import opened StandardLibrary
+    import opened UInt = StandardLibrary.UInt
 
     class {:extern "AES_GCM"} AES {
 
@@ -37,7 +38,7 @@ module {:extern "AESEncryption"} AESEncryption {
 
 
 
-        static function method {:extern "aes_decrypt_impl"} aes_decrypt_impl(cipher : C.CipherParams, taglen : byte, key : seq<byte>, ctxt : seq<byte>, iv : seq<byte>, aad : seq<byte>) : Option<seq<byte>>
+        static function method {:extern "aes_decrypt_impl"} aes_decrypt_impl(cipher : C.CipherParams, taglen : uint8, key : seq<uint8>, ctxt : seq<uint8>, iv : seq<uint8>, aad : seq<uint8>) : Option<seq<uint8>>
             requires |key| == C.KeyLengthOfCipher(cipher) as int
 
         static function method AESDecrypt(cipher : C.CipherParams, dk : DecryptionKey, md : MData, c : Ctx) : Option<Msg>
@@ -49,7 +50,7 @@ module {:extern "AESEncryption"} AESEncryption {
             }
 
         // TODO: make option because BC might fail; get rid of redundant info
-        static method {:extern "aes_encrypt"} aes_encrypt_impl(cipher : C.CipherParams, iv : seq<byte>, key : seq<byte>, msg : seq<byte>, md : seq<byte>) returns (ctx : Option<seq<byte>>)
+        static method {:extern "aes_encrypt"} aes_encrypt_impl(cipher : C.CipherParams, iv : seq<uint8>, key : seq<uint8>, msg : seq<uint8>, md : seq<uint8>) returns (ctx : Option<seq<uint8>>)
             requires |iv| == cipher.ivLen as int
             requires |key| == C.KeyLengthOfCipher(cipher) as int
             ensures ctx.Some? ==> |ctx.get| > (cipher.ivLen) as int

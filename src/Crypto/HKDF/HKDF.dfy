@@ -18,7 +18,7 @@ include "../../Util/Arrays.dfy"
 include "CryptoMac.dfy"
 include "../Digests.dfy"
 include "HKDFSpec.dfy"
-include "../../Util/StandardLibrary.dfy"
+include "../../StandardLibrary/StandardLibrary.dfy"
  
 /**
   * Implementation of the https://tools.ietf.org/html/rfc5869 HMAC-based key derivation function
@@ -29,8 +29,9 @@ module HKDF {
   import opened Digests
   import opened HKDFSpec
   import opened StandardLibrary
+  import opened UInt = StandardLibrary.UInt
 
-  method extract(which_sha: HMAC_ALGORITHM, hmac: HMac, salt: array<byte>, ikm: array<byte>) returns (prk: array<byte>)
+  method extract(which_sha: HMAC_ALGORITHM, hmac: HMac, salt: array<uint8>, ikm: array<uint8>) returns (prk: array<uint8>)
     requires hmac.algorithm == which_sha && salt.Length != 0
     modifies hmac
     ensures prk[..] == Hash(which_sha, salt[..], ikm[..])
@@ -39,12 +40,12 @@ module HKDF {
     hmac.init(params);
     assert hmac.InputSoFar + ikm[..] == ikm[..]; // nfv
     hmac.updateAll(ikm);
-    prk := new byte[hmac.getMacSize()];
+    prk := new uint8[hmac.getMacSize()];
     var _ := hmac.doFinal(prk, 0);
     return prk;
   }
 
-  method expand(which_sha: HMAC_ALGORITHM, hmac: HMac, prk: array<byte>, info: array<byte>, n: int) returns (a: array<byte>)
+  method expand(which_sha: HMAC_ALGORITHM, hmac: HMac, prk: array<uint8>, info: array<uint8>, n: int) returns (a: array<uint8>)
     requires hmac.algorithm == which_sha && 1 <= n <= 255 && prk.Length != 0
     modifies hmac
     ensures fresh(a)
@@ -55,13 +56,13 @@ module HKDF {
     hmac.init(params);
     ghost var gKey := hmac.initialized.get;
 
-    ghost var s: seq<byte> := [];  // s == T(0)
-    a := new byte[n * hmac.getMacSize()];
-    var TiArr: array<byte> := new byte[hmac.getMacSize()];
+    ghost var s: seq<uint8> := [];  // s == T(0)
+    a := new uint8[n * hmac.getMacSize()];
+    var TiArr: array<uint8> := new uint8[hmac.getMacSize()];
 
     // T(1)
     hmac.updateAll(info);
-    hmac.updateSingle(1 as byte);
+    hmac.updateSingle(1 as uint8);
     var _ := hmac.doFinal(TiArr, 0);
     Array.copyTo(TiArr, a, 0);
     s := s + TiArr[..];
@@ -82,9 +83,9 @@ module HKDF {
       // T(i+1)
       hmac.updateAll(TiArr);
       hmac.updateAll(info);
-      hmac.updateSingle((i+1) as byte);
+      hmac.updateSingle((i+1) as uint8);
       assert (i+1) <= 255;
-      assert hmac.InputSoFar[..] == TiArr[..] + info[..] + [((i+1) as byte)]; // nfv
+      assert hmac.InputSoFar[..] == TiArr[..] + info[..] + [((i+1) as uint8)]; // nfv
       var _ := hmac.doFinal(TiArr, 0);
       Array.copyTo(TiArr, a, i*hmac.getMacSize());
       s := s + TiArr[..]; // s == T(1) | ... | T(i) | T(i+1)
@@ -95,7 +96,7 @@ module HKDF {
   /**
    * The RFC 5869 KDF. Outputs L bytes of output key material.
    **/
-  method hkdf(which_sha: HMAC_ALGORITHM, salt: array<byte>, ikm: array<byte>, info: array<byte>, L: int) returns (okm: array<byte>)
+  method hkdf(which_sha: HMAC_ALGORITHM, salt: array<uint8>, ikm: array<uint8>, info: array<uint8>, L: int) returns (okm: array<uint8>)
     requires which_sha == HmacSHA256 || which_sha == HmacSHA384
     requires 0 <= L <= 255 * HashLength(which_sha)
     ensures fresh(okm)
@@ -107,15 +108,15 @@ module HKDF {
       okm[..L] == TMaxLength(which_sha, prk, info[..])[..L]
   {
     if L == 0 {
-      return new byte[0];
+      return new uint8[0];
     }
     var hmac := new HMac(which_sha);
  
-    var saltNonEmpty: array<byte>;
+    var saltNonEmpty: array<uint8>;
     if salt.Length != 0 { 
       saltNonEmpty := salt;
     } else { 
-      saltNonEmpty := new byte[hmac.getMacSize()](_ => 0);
+      saltNonEmpty := new uint8[hmac.getMacSize()](_ => 0);
     }
     assert saltNonEmpty[..] == if salt.Length==0 then Fill(0, hmac.getMacSize()) else salt[..]; // nfv
  

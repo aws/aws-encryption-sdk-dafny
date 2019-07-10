@@ -1,7 +1,7 @@
 include "../Crypto/All.dfy"
 include "../Crypto/Cipher.dfy"
 include "../Crypto/Digests.dfy"
-include "../Util/StandardLibrary.dfy"
+include "../StandardLibrary/StandardLibrary.dfy"
 
 module AlgorithmSuite {
 

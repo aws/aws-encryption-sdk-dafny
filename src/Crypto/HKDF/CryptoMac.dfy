@@ -1,11 +1,12 @@
 include "../Digests.dfy"
-include "../../Util/StandardLibrary.dfy"
+include "../../StandardLibrary/StandardLibrary.dfy"
 
 module {:extern "BouncyCastleCryptoMac"} BouncyCastleCryptoMac {
   import opened Digests
   import opened StandardLibrary
+  import opened UInt = StandardLibrary.UInt
  
-  datatype {:extern "CipherParameters"} CipherParameters = KeyParameter(key: array<byte>) // unsupported: other parameters
+  datatype {:extern "CipherParameters"} CipherParameters = KeyParameter(key: array<uint8>) // unsupported: other parameters
 
   // https://people.eecs.berkeley.edu/~jonah/bc/org/bouncycastle/crypto/Mac.html
   trait {:extern "Mac"} Mac {
@@ -29,9 +30,9 @@ module {:extern "BouncyCastleCryptoMac"} BouncyCastleCryptoMac {
     // the object and associate it with a new key.
     // Ghost field "initialized" keeps track of whether or not the Mac object has been initialized
     // and, if so, which key material is associated with it.
-    ghost var initialized: Option<seq<byte>>
+    ghost var initialized: Option<seq<uint8>>
 
-    predicate {:axiom} validKey(key: seq<byte>)
+    predicate {:axiom} validKey(key: seq<uint8>)
 
     method {:extern "init"} init(params: CipherParameters)
       // The documentation says it can throw "InvalidKeyException - if the given key is inappropriate for
@@ -52,7 +53,7 @@ module {:extern "BouncyCastleCryptoMac"} BouncyCastleCryptoMac {
     // The method  "doFinal" outputs the hash of the accumulated input and resets the accumulated 
     // input "InputSoFar" to the empty sequence (but leaves unchanged the key and algorithm of the Mac 
     // object).
-    ghost var InputSoFar: seq<byte>
+    ghost var InputSoFar: seq<uint8>
  
     method {:extern "reset"} reset()
       // BouncyCastle's documentation doesn't mention the following precondition, and it doesn't
@@ -63,19 +64,19 @@ module {:extern "BouncyCastleCryptoMac"} BouncyCastleCryptoMac {
       modifies `InputSoFar
       ensures InputSoFar == []
   
-    method {:extern "updateSingle"} updateSingle(input: byte)
+    method {:extern "updateSingle"} updateSingle(input: uint8)
       requires initialized.Some?
       modifies `InputSoFar
       ensures InputSoFar == old(InputSoFar) + [input]
  
-    method {:extern "update"} update(input: array<byte>, inOff: nat, len: nat)
+    method {:extern "update"} update(input: array<uint8>, inOff: nat, len: nat)
       requires initialized.Some?
       requires inOff + len <= input.Length
       modifies `InputSoFar
       ensures InputSoFar == old(InputSoFar) + input[inOff..inOff+len]
 
     // returns an int, but it is not specified, what that int stands for
-    method {:extern "doFinal"} doFinal(output: array<byte>, outOff: nat) returns (retVal: int)
+    method {:extern "doFinal"} doFinal(output: array<uint8>, outOff: nat) returns (retVal: int)
       requires initialized.Some?
       requires outOff + getMacSize() <= output.Length
       requires |Hash(algorithm, initialized.get, InputSoFar)| == getMacSize()
@@ -105,7 +106,7 @@ module {:extern "BouncyCastleCryptoMac"} BouncyCastleCryptoMac {
       reads this  // allow the implementation to read fields of the object
       ensures getMacSize() == HashLength(algorithm)
 
-    predicate {:axiom} validKey(key: seq<byte>)
+    predicate {:axiom} validKey(key: seq<uint8>)
 
     method {:extern "init"} init(params: CipherParameters)
       // The documentation says it can throw "InvalidKeyException - if the given key is inappropriate for
@@ -127,20 +128,20 @@ module {:extern "BouncyCastleCryptoMac"} BouncyCastleCryptoMac {
       modifies `InputSoFar
       ensures InputSoFar == []
  
-    method {:extern "updateSingle"} updateSingle(input: byte)
+    method {:extern "updateSingle"} updateSingle(input: uint8)
       requires initialized.Some?
       modifies this
       ensures unchanged(`initialized)
       ensures InputSoFar == old(InputSoFar) + [input]
  
-    method {:extern "update"} update(input: array<byte>, inOff: nat, len: nat)
+    method {:extern "update"} update(input: array<uint8>, inOff: nat, len: nat)
       requires initialized.Some?
       requires inOff + len <= input.Length
       modifies `InputSoFar
       ensures InputSoFar == old(InputSoFar) + input[inOff..inOff+len]
       
     // returns an int, but it is not specified, what that int stands for
-    method {:extern "doFinal"} doFinal(output: array<byte>, outOff: nat) returns (retVal: int)
+    method {:extern "doFinal"} doFinal(output: array<uint8>, outOff: nat) returns (retVal: int)
       requires initialized.Some?
       requires outOff + getMacSize() <= output.Length
       requires |Hash(algorithm, initialized.get, InputSoFar)| == getMacSize()
@@ -160,7 +161,7 @@ module {:extern "BouncyCastleCryptoMac"} BouncyCastleCryptoMac {
      * Derived methods:
      * These might have "simpler" post-conditions that have better verification behaviour
      */
-    method updateAll(input: array<byte>)
+    method updateAll(input: array<uint8>)
       requires initialized.Some?
       modifies `InputSoFar
       ensures InputSoFar == old(InputSoFar) + input[..]

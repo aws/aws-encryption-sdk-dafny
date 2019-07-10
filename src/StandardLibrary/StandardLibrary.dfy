@@ -1,23 +1,13 @@
+include "UInt.dfy"
+
 module {:extern "STL"} StandardLibrary {
-
-  newtype byte = x | 0 <= x < 256
-  type uint8 = byte
-
-  newtype uint16 = x | 0 <= x < 0x1_0000
-  const UINT16_MAX := 0x1_0000 - 1
-
-  newtype int32 = x | -0x8000_0000 <= x < 0x8000_0000
-
-  newtype uint32 = x | 0 <= x < 0x1_0000_0000
-  const UINT32_MAX := 0x1_0000_0000 - 1
-
-  newtype uint64 = x | 0 <= x < 0x1_0000_0000_0000_0000
+  import opened U = UInt
 
   datatype {:extern} Option<T> = None | Some(get: T)
 
   datatype Either<S,T> = Left(left: S) | Right(right: T)
 
-  datatype Error = IOError(m: string) | DeserializationError(m: string)
+  datatype Error = IOError(msg: string) | DeserializationError(msg: string)
 
   type Result<T> = Either<T, Error>
 
@@ -28,60 +18,6 @@ module {:extern "STL"} StandardLibrary {
     if n > 0 then [value] + Fill(value, n-1) else []
   }
 
-  function method ser_uint16 (x : uint16) : (byte, byte) {
-    var b1 : byte := (x / 256) as byte;
-    var b2 : byte := (x % 256) as byte;
-    (b1, b2)
-  }
-
-  function method deser_uint16 (p : (byte, byte)) : uint16 {
-    var x1 := (p.0 as int) * 256;
-    assert (x1 <= (256 * 256));
-    var x := x1 + (p.1 as int);
-    assert (x <= UINT16_MAX);
-    (x as uint16)
-  }
-
-  lemma ser_uint16K (x : uint16)
-  ensures deser_uint16(ser_uint16(x)) == x { }
-
-  lemma deser_uint16K (p : (byte, byte)) 
-  ensures ser_uint16(deser_uint16(p)) == p { }
-  
-  function method deser_uint16_from_array (p : array<byte>) : uint16
-    reads p
-    requires p.Length == 2
-  {
-    var x1 := p[0] as int * 256;
-    assert x1 <= 256 * 256;
-    var x := x1 + p[1] as int;
-    assert x <= UINT16_MAX;
-    x as uint16
-  }
-
-  function method deser_uint32_from_array (p : array<byte>) : uint32
-    reads p
-    requires p.Length == 4
-  {
-    // 2^24 = 0x100_0000
-    var x3 :=      p[0] as int * 0x100_0000;
-    // 2^16 = 0x1_0000
-    var x2 := x3 + p[1] as int * 0x1_0000;
-    // 2^8 = 0x100
-    var x1 := x2 + p[2] as int * 0x100;
-    // 2^0 = 0x1
-    var  x := x1 + p[3] as int;
-    assert x <= UINT32_MAX;
-    x as uint32
-  }
-
-  function method nseq<A> (x : A, n : nat) : (xs : seq<A>)
-    ensures (|xs| == n) 
-  {
-      if n == 0 then []
-      else [x] + (nseq(x, n-1))
-  }
-
   method array_of_seq<T> (s : seq<T>)  returns (a : array<T>)
     ensures fresh(a) 
     ensures a.Length == |s| 
@@ -90,24 +26,24 @@ module {:extern "STL"} StandardLibrary {
     a := new T[|s|](i requires 0 <= i < |s| => s[i]);
   }
 
-  function method byteseq_of_string (s : string) : (s' : seq<byte>)
+  function method byteseq_of_string (s : string) : (s' : seq<uint8>)
     requires forall i :: i in s ==> i < 256 as char
     ensures |s| == |s'| 
   {
       if s == [] then [] else  (
         assert (forall i :: i in s[1..] ==> i in s);
-        [(s[0] as int % 256) as byte] + byteseq_of_string(s[1..]))
+        [(s[0] as int % 256) as uint8] + byteseq_of_string(s[1..]))
   }
 
-  function method byteseq_of_string_unsafe (s : string) : (s' : seq<byte>)
+  function method byteseq_of_string_unsafe (s : string) : (s' : seq<uint8>)
     ensures |s| == |s'|
   {
       if s == [] then [] else  (
         assert (forall i :: i in s[1..] ==> i in s);
-        [(s[0] as int % 256) as byte] + byteseq_of_string_unsafe(s[1..]))
+        [(s[0] as int % 256) as uint8] + byteseq_of_string_unsafe(s[1..]))
   }
 
-  function method string_of_byteseq (s : seq<byte>) : (s' : string)
+  function method string_of_byteseq (s : seq<uint8>) : (s' : string)
     ensures |s| == |s'| 
     ensures forall i :: i in s' ==> i < 256 as char
   {
@@ -127,18 +63,18 @@ module {:extern "STL"} StandardLibrary {
       }
     }
 
-  lemma byteseq_stringK (s : seq<byte>)
+  lemma byteseq_stringK (s : seq<uint8>)
     ensures byteseq_of_string(string_of_byteseq(s)) == s {
 
     }
 
-  method StringToByteArray(s: string) returns (a: array<byte>)
+  method StringToByteArray(s: string) returns (a: array<uint8>)
     ensures fresh(a) && a.Length <= 2 * |s|
   {
     // Assume all 8-bit characters for now
-    a := new byte[|s|];
+    a := new uint8[|s|];
     forall i | 0 <= i < |s| {
-      a[i] := (s[i] as int % 256) as byte;
+      a[i] := (s[i] as int % 256) as uint8;
     }
   }
 
@@ -351,7 +287,7 @@ module {:extern "STL"} StandardLibrary {
     }
   }
 
-  predicate method ltByte(a: byte, b: byte) { a < b }
+  predicate method ltByte(a: uint8, b: uint8) { a < b }
   predicate method ltNat (a: nat,  b: nat)  { a < b }
   predicate method ltInt (a: int,  b: int)  { a < b }
   

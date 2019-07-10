@@ -1,5 +1,5 @@
 // adapted from dafny test Test/dafny3/GenericSort.dfy
-include "StandardLibrary.dfy"
+include "../StandardLibrary/StandardLibrary.dfy"
 abstract module TotalOrder {
   type T // the type to be compared
   predicate compat_mset(s : multiset<T>)
@@ -115,7 +115,9 @@ abstract module Sort {
 
 module SeqByteOrder refines TotalOrder {
   import opened StandardLibrary
-  type T = seq<byte>
+  import opened UInt = StandardLibrary.UInt
+
+  type T = seq<uint8>
   predicate compat_mset ... { true }
 
   function method min (x : int, y : int) : (r : int)
@@ -126,13 +128,13 @@ module SeqByteOrder refines TotalOrder {
     }
 
 
-  function method memcmp_le (a : seq<byte>, b : seq<byte>, len : nat) : (res : Option<bool>)
+  function method memcmp_le (a : seq<uint8>, b : seq<uint8>, len : nat) : (res : Option<bool>)
     requires |a| >= len
     requires |b| >= len {
     if len == 0 then None else if a[0] != b[0] then Some(a[0] < b[0]) else memcmp_le (a[1..], b[1..], len - 1)
   }
 
-  lemma memcmp_le_none (a : seq<byte>, b : seq<byte>, len : nat)  
+  lemma memcmp_le_none (a : seq<uint8>, b : seq<uint8>, len : nat)  
     requires |a| >= len
     requires |b| >= len
     ensures memcmp_le(a, b, len).None? <==> a[0..len] == b[0..len] {
@@ -153,7 +155,7 @@ module SeqByteOrder refines TotalOrder {
 
     }
 
-  lemma memcmp_le_some_flip (a : seq<byte>, b : seq<byte>, len : nat)
+  lemma memcmp_le_some_flip (a : seq<uint8>, b : seq<uint8>, len : nat)
     requires |a| >= len
     requires |b| >= len
     requires memcmp_le(a,b,len).Some?
@@ -161,7 +163,7 @@ module SeqByteOrder refines TotalOrder {
 
     }
 
-  predicate method leq (a : seq<byte>, b : seq<byte>) {
+  predicate method leq (a : seq<uint8>, b : seq<uint8>) {
     match memcmp_le(a,b, if |a| < |b| then |a| else |b|) {
       case Some(b) => b
       case None => |a| <= |b|
@@ -172,7 +174,7 @@ module SeqByteOrder refines TotalOrder {
     leq(a,b)
   }
 
-  lemma anti_seq (a : seq<byte>, b : seq<byte>)
+  lemma anti_seq (a : seq<uint8>, b : seq<uint8>)
     requires leq(a,b) && leq(b,a)
     ensures a == b { 
       memcmp_le_none(a, b, if |a| < |b| then |a| else |b|);
@@ -196,7 +198,7 @@ module SeqByteOrder refines TotalOrder {
   lemma Antisymmetry ... { anti_seq(a,b); }
 
   // TODO
-  lemma {:axiom} trans(a : seq<byte>, b : seq<byte>, c : seq<byte>)
+  lemma {:axiom} trans(a : seq<uint8>, b : seq<uint8>, c : seq<uint8>)
     requires leq(a,b)
     requires leq(b,c)
     ensures leq(a, c) 
@@ -205,7 +207,7 @@ module SeqByteOrder refines TotalOrder {
 
   lemma Transitivity ... { trans(a,b,c); }
 
-  lemma tot (a : seq<byte>, b : seq<byte>)
+  lemma tot (a : seq<uint8>, b : seq<uint8>)
     ensures leq(a,b) || leq(b,a) {
       if a == [] {
         if b == [] {
@@ -235,8 +237,10 @@ module SeqByteOrder refines TotalOrder {
 
 module SeqByteKeysOrder refines TotalOrder {
   import opened StandardLibrary
+  import opened UInt = StandardLibrary.UInt
   import O = SeqByteOrder
-  type T = (seq<byte>, seq<byte>)
+
+  type T = (seq<uint8>, seq<uint8>)
   predicate compat_mset ... { 
     (forall i, j :: i in s ==> j in s ==> i != j ==> i.0 != j.0) && // uniq keys
     (forall i :: i in s ==> s[i] == 1) // no duplicates
@@ -246,11 +250,11 @@ module SeqByteKeysOrder refines TotalOrder {
     O.Leq(a.0, b.0)
   }
 
-  function keys_of_mset (s : multiset<(seq<byte>, seq<byte>)>) : multiset<seq<byte>> {
+  function keys_of_mset (s : multiset<(seq<uint8>, seq<uint8>)>) : multiset<seq<uint8>> {
     if s == multiset{} then multiset{} else (var x :| x in s; multiset{x.0} + keys_of_mset(s - multiset{x}))
   }
 
-  lemma in_keys_of_mset (s : multiset<(seq<byte>, seq<byte>)>, x : (seq<byte>, seq<byte>))
+  lemma in_keys_of_mset (s : multiset<(seq<uint8>, seq<uint8>)>, x : (seq<uint8>, seq<uint8>))
     requires x in s
     ensures x.0 in keys_of_mset(s) {
 
