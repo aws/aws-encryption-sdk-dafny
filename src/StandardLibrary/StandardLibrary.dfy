@@ -7,7 +7,7 @@ module {:extern "STL"} StandardLibrary {
 
   datatype Either<S,T> = Left(left: S) | Right(right: T)
 
-  datatype Error = IOError(msg: string) | DeserializationError(msg: string)
+  datatype Error = IOError(msg: string) | DeserializationError(msg: string) | SerializationError(msg: string)
 
   type Result<T> = Either<T, Error>
 
@@ -250,13 +250,23 @@ module {:extern "STL"} StandardLibrary {
       }
     }
 
-  function method seq_map<S, T>(s : seq<S>, f : S -> T) : seq<T> {
-    if s == [] then [] else
-    [f(s[0])] + seq_map(s[1..], f)
+  function method MapSeq<S, T>(s: seq<S>, f: S ~> T): seq<T>
+    requires forall i :: 0 <= i < |s| ==> f.requires(s[i])
+    reads set i,o | 0 <= i < |s| && o in f.reads(s[i]) :: o
+  {
+      if s == []
+      then []
+      else [f(s[0])] + MapSeq(s[1..], f)
+  }
+
+  function method FlattenSeq<T>(s: seq<seq<T>>): seq<T> {
+      if s == []
+      then []
+      else s[0] + FlattenSeq(s[1..])
   }
 
   predicate method uniq_fst<S(==), T(==)> (s : seq<(S, T)>) {
-    uniq(seq_map(s, (x : (S, T)) => x.0))
+    uniq(MapSeq(s, (x : (S, T)) => x.0))
   }
 
 

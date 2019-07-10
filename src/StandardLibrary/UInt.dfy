@@ -11,7 +11,8 @@ module {:extern "STLUINT"} StandardLibrary.UInt {
 
     newtype uint64 = x | 0 <= x < 0x1_0000_0000_0000_0000
 
-    function method uint16ToSeq(x: uint16): seq<uint8> 
+    function method uint16ToSeq(x: uint16): seq<uint8>
+        ensures |uint16ToSeq(x)| == 2
     {
         var b0: uint8 := (x / 256) as uint8;
         var b1: uint8 := (x % 256) as uint8;
@@ -40,6 +41,7 @@ module {:extern "STLUINT"} StandardLibrary.UInt {
     method uint16ToArray(x: uint16) returns (ret: array<uint8>)
         ensures fresh(ret)
         ensures uint16ToSeq(x) == ret[..]
+        ensures ret.Length == 2
     {
         ret := new uint8[2];
         ret[0] := (x / 256) as uint8;
@@ -59,12 +61,13 @@ module {:extern "STLUINT"} StandardLibrary.UInt {
     }
 
     function method uint32ToSeq(x: uint32): seq<uint8>
+        ensures |uint32ToSeq(x)| == 4
     {
         var b0 := ( x / 0x100_0000) as uint8;
-        var x0: uint32 :=   x - (b0 as uint32 * 0x100_0000);
+        var x0: uint32 :=  x - (b0 as uint32 * 0x100_0000);
 
         var b1 := (x0 / 0x1_0000) as uint8;
-        var x1: uint32 :=  x0 - (b1 as uint32 * 0x1_0000);
+        var x1: uint32 := x0 - (b1 as uint32 * 0x1_0000);
 
         var b2 := (x1 / 0x100) as uint8;
         // or for symmetry:
@@ -101,6 +104,7 @@ module {:extern "STLUINT"} StandardLibrary.UInt {
     method uint32ToArray(x: uint32) returns (ret: array<uint8>)
         ensures fresh(ret)
         ensures uint32ToSeq(x) == ret[..]
+        ensures ret.Length == 4
     {
         var x' := x;
         ret := new uint8[4];

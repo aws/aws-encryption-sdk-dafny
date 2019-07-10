@@ -11,6 +11,7 @@ SRCDIRS = src/Crypto \
 		  src/StandardLibrary \
 		  src/Tests \
 		  src/SDK \
+		  src/SDK/MessageHeader \
 		  src
 
 SRCS = $(foreach dir, $(SRCDIRS), $(wildcard $(dir)/*.dfy))

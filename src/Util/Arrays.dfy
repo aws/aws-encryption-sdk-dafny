@@ -9,6 +9,7 @@ module {:extern "Arrays"} Arrays {
     //  C# Array.CopyTo method
     static method {:extern "copyTo"} copyTo<T>(source: array<T>, dest: array<T>, offset: nat)
       modifies dest
+      requires source != dest
       requires offset + source.Length <= dest.Length
       ensures dest.Length == old(dest.Length)
       ensures dest[..] == old(dest[..offset]) + source[..] + old(dest[offset+source.Length..])
