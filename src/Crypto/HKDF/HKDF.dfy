@@ -69,6 +69,9 @@ module HKDF {
     var i := 1;
     while i < n
       invariant 1 <= i <= n
+      // The following invariant simplifies the proof obligation needed to establish the precondition of Array.copyTo
+      // Before adding it, z3's outcome was unstable
+      invariant i*hmac.getMacSize() <= a.Length
       invariant TiArr.Length == HashLength(which_sha)
       invariant TiArr[..] == Ti(which_sha, prk[..], info[..], i)[..]
       invariant s == T(which_sha, prk[..], info[..], i)     // s == T(1) | ... | T(i)
