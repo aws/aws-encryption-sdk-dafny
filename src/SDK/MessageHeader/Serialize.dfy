@@ -18,7 +18,7 @@ module MessageHeader.Serialize {
     
     function {:opaque} serialize(hb: HeaderBody): seq<uint8>
         requires ValidHeaderBody(hb)
-        //requires ReprAAD(hb.aad) !! ReprEncryptedDataKeys(hb.encryptedDataKeys)
+        requires ReprAAD(hb.aad) !! ReprEncryptedDataKeys(hb.encryptedDataKeys)
         reads if hb.aad.AAD? then {hb.aad.kvPairs} else {}
         reads ReprAAD(hb.aad)
         reads ReprEncryptedDataKeys(hb.encryptedDataKeys)
@@ -164,6 +164,7 @@ module MessageHeader.Serialize {
                 case Right(e)  => return ret;
             }
         }
+        //reveal ReprEncryptedDataKeys();
         assert ValidHeaderBody(hb);
         reveal serialize();
         ghost var serHb := serialize(hb);

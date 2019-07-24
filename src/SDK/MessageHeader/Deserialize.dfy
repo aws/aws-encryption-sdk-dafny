@@ -585,14 +585,11 @@ module MessageHeader.Deserialize {
 
     method headerAuthentication(is: StringReader, body: HeaderBody) returns (ret: Result<HeaderAuthentication>)
         requires is.Valid()
-        requires is.Repr !! ReprAAD(body.aad)
-        requires is.Repr !! ReprEncryptedDataKeys(body.encryptedDataKeys)
-        requires ReprAAD(body.aad) !! ReprEncryptedDataKeys(body.encryptedDataKeys)
+        requires ValidHeaderBody(body)
         requires body.algorithmSuiteID in AlgorithmSuite.Suite.Keys
         modifies is
-        ensures unchanged(ReprAAD(body.aad))
-        ensures unchanged(ReprEncryptedDataKeys(body.encryptedDataKeys))
         ensures is.Valid()
+        ensures ValidHeaderBody(body)
         ensures
             match ret
                 case Left(headerAuthentication) => ValidHeaderAuthentication(headerAuthentication, body.algorithmSuiteID)
