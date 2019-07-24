@@ -166,6 +166,7 @@ module MessageHeader.Deserialize {
                 case Right(_) => true
         ensures is.Valid()
     {
+        reveal ValidAAD();
         var kvPairsLength: uint16;
         {
             var res := deserializeUnrestricted(is, 2);
@@ -292,6 +293,7 @@ module MessageHeader.Deserialize {
                 case Right(_)   => true
         ensures is.Valid()
     {
+        reveal ValidEncryptedDataKeys();
         var res: Result;
         var edkCount: uint16;
         res := deserializeUnrestricted(is, 2);
@@ -465,6 +467,7 @@ module MessageHeader.Deserialize {
                     // && fresh(ReprEncryptedDataKeys(hb.encryptedDataKeys))
                 case Right(_) => true
     {
+        reveal ValidHeaderBody();
         var version: T_Version;
         {
             var res := deserializeVersion(is);
@@ -556,9 +559,7 @@ module MessageHeader.Deserialize {
                 case Right(e) => return Right(e);
             }
         }
-
-        ret := Left(
-                HeaderBody(
+        var hb := HeaderBody(
                     version,
                     typ,
                     algorithmSuiteID,
@@ -568,7 +569,10 @@ module MessageHeader.Deserialize {
                     contentType,
                     reserved,
                     ivLength,
-                    frameLength));
+                    frameLength);
+        reveal ReprAAD();
+        assert ValidHeaderBody(hb);
+        ret := Left(hb);
     }
 
     method deserializeAuthenticationTag(is: StringReader, tagLength: nat, ghost iv: array<uint8>) returns (ret: Result<array<uint8>>)
@@ -589,12 +593,14 @@ module MessageHeader.Deserialize {
         requires body.algorithmSuiteID in AlgorithmSuite.Suite.Keys
         modifies is
         ensures is.Valid()
-        ensures ValidHeaderBody(body)
         ensures
             match ret
-                case Left(headerAuthentication) => ValidHeaderAuthentication(headerAuthentication, body.algorithmSuiteID)
+                case Left(headerAuthentication) => 
+                    && ValidHeaderAuthentication(headerAuthentication, body.algorithmSuiteID)
+                    && ValidHeaderBody(body)
                 case Right(_) => true
     {
+        reveal ReprAAD();
         var iv: array<uint8>;
         {
             var res := deserializeUnrestricted(is, body.ivLength as nat);
