@@ -45,7 +45,8 @@ module HKDF {
   }
 
   method expand(which_sha: HMAC_ALGORITHM, hmac: HMac, prk: array<byte>, info: array<byte>, n: int) returns (a: array<byte>)
-    requires hmac.algorithm == which_sha && 1 <= n <= 255 && prk.Length != 0
+    requires hmac.algorithm == which_sha && 1 <= n <= 255
+    requires 0 != prk.Length && HashLength(which_sha) <= prk.Length
     modifies hmac
     ensures fresh(a)
     ensures a[..] == T(which_sha, prk[..], info[..], n)
@@ -74,6 +75,7 @@ module HKDF {
       invariant i*hmac.getMacSize() <= a.Length
       invariant TiArr.Length == HashLength(which_sha)
       invariant TiArr[..] == Ti(which_sha, prk[..], info[..], i)[..]
+      invariant HashLength(which_sha) <= prk.Length 
       invariant s == T(which_sha, prk[..], info[..], i)     // s == T(1) | ... | T(i)
       invariant s == a[..i * hmac.getMacSize()]
       invariant hmac.initialized.Some? && hmac.initialized.get == gKey
