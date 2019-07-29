@@ -313,6 +313,7 @@ module MessageHeader.Deserialize {
             invariant is.Valid()
             invariant i <= edkCount
             invariant InBoundsEncryptedDataKeysUpTo(edks.entries, i as nat)
+            invariant forall j :: 0 <= j < i ==> ValidUTF8(edks.entries[j].keyProviderId)
             // TODO: I think we need to establish freshness to connect
             //       deserialization with the caller.
             //       Times out.
@@ -342,7 +343,7 @@ module MessageHeader.Deserialize {
             }
             
             var keyProviderInfo := new uint8[keyProviderInfoLength];
-            res := deserializeUTF8(is, keyProviderInfoLength as nat);
+            res := deserializeUnrestricted(is, keyProviderInfoLength as nat);
             match res {
                 case Left(bytes) => keyProviderInfo := bytes;
                 case Right(e)    => return Right(e);
@@ -357,7 +358,7 @@ module MessageHeader.Deserialize {
             }
             
             var edk := new uint8[edkLength];
-            res := deserializeUTF8(is, edkLength as nat);
+            res := deserializeUnrestricted(is, edkLength as nat);
             match res {
                 case Left(bytes) => edk := bytes;
                 case Right(e)    => return Right(e);

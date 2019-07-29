@@ -142,6 +142,7 @@ module MessageHeader.Validity {
     {
         && encryptedDataKeys.count as nat == encryptedDataKeys.entries.Length
         && InBoundsEncryptedDataKeys(encryptedDataKeys)
+        && forall i :: 0 <= i < encryptedDataKeys.entries.Length ==> ValidUTF8(encryptedDataKeys.entries[i].keyProviderId)
         // TODO: well-formedness of EDK
         /*
         Key Provider ID
