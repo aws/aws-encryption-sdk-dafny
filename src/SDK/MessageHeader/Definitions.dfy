@@ -6,7 +6,6 @@ module MessageHeader.Definitions {
     import opened StandardLibrary
     import opened UInt = StandardLibrary.UInt
 
-    type T_NonZero_uint16  = x: uint16 | x != 0 witness 1
     /*
     * Header body type definition
     */
@@ -16,11 +15,11 @@ module MessageHeader.Definitions {
     type T_Reserved        = x: seq<uint8> | x == [0,0,0,0] witness [0,0,0,0]
     datatype T_ContentType = NonFramed | Framed
     type EncCtx            = array<(array<uint8>, array<uint8>)>
-    datatype T_AAD         = AAD(length: T_NonZero_uint16, kvPairs: EncCtx) | EmptyAAD
+    datatype T_AAD         = AAD(kvPairs: EncCtx) | EmptyAAD
 
     datatype EDKEntry      = EDKEntry(keyProviderId: array<uint8>, keyProviderInfo: array<uint8>, encDataKey: array<uint8>)
     datatype T_EncryptedDataKeys
-                           = EncryptedDataKeys(count: T_NonZero_uint16, entries: array<EDKEntry>)
+                           = EncryptedDataKeys(entries: array<EDKEntry>)
 
     datatype HeaderBody    = HeaderBody(
                                 version: T_Version,

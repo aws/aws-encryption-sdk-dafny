@@ -59,7 +59,7 @@ module MessageHeader.Validity {
     {
         match aad {
             // Not extracting the fields of AAD here for now, but using `aad.` due to https://github.com/dafny-lang/dafny/issues/314
-            case AAD(_, _) =>
+            case AAD(_) =>
                 ReprAADUpTo(aad.kvPairs, aad.kvPairs.Length) +
                 {aad.kvPairs}
             case EmptyAAD() => {}
@@ -94,8 +94,7 @@ module MessageHeader.Validity {
         reads (reveal ReprAAD(); ReprAAD(aad))
     {
         match aad {
-            case AAD(kvPairsLength, kvPairs) =>
-                && 0 < kvPairsLength
+            case AAD(kvPairs) =>
                 && 0 < kvPairs.Length
                 && InBoundsKVPairs(kvPairs)
                 && ValidKVPairs(kvPairs)
@@ -131,7 +130,6 @@ module MessageHeader.Validity {
     }
 
     predicate InBoundsEncryptedDataKeys(encryptedDataKeys: T_EncryptedDataKeys) 
-        requires encryptedDataKeys.count as nat == encryptedDataKeys.entries.Length
         reads ReprEncryptedDataKeys(encryptedDataKeys)
     {
         InBoundsEncryptedDataKeysUpTo(encryptedDataKeys.entries, encryptedDataKeys.entries.Length)
@@ -140,7 +138,6 @@ module MessageHeader.Validity {
     predicate {:opaque} ValidEncryptedDataKeys(encryptedDataKeys: T_EncryptedDataKeys)
         reads ReprEncryptedDataKeys(encryptedDataKeys)
     {
-        && encryptedDataKeys.count as nat == encryptedDataKeys.entries.Length
         && InBoundsEncryptedDataKeys(encryptedDataKeys)
         // TODO: well-formedness of EDK
         /*
