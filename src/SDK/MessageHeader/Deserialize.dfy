@@ -275,7 +275,7 @@ module MessageHeader.Deserialize {
         if (kvPairsLength as nat) != totalBytesRead {
             return Right(DeserializationError("Bytes actually read differs from bytes supposed to be read."));
         }
-        return Left(AAD(kvPairsLength, kvPairs));
+        return Left(AAD(kvPairs));
     }
 
     // TODO: Probably this should be factored out into EDK at some point
@@ -307,7 +307,7 @@ module MessageHeader.Deserialize {
         }
 
         var edkEntries: array<EDKEntry> := new [edkCount];
-        var edks := EncryptedDataKeys(edkCount, edkEntries);
+        var edks := EncryptedDataKeys(edkEntries);
         var i := 0;
         while i < edkCount
             invariant is.Valid()

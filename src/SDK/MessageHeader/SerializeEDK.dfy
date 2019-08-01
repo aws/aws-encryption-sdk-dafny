@@ -34,7 +34,7 @@ module MessageHeader.SerializeEDK {
         requires ValidEncryptedDataKeys(encryptedDataKeys)
         reads ReprEncryptedDataKeys(encryptedDataKeys)
     {
-        uint16ToSeq(encryptedDataKeys.count) +
+        uint16ToSeq(encryptedDataKeys.entries.Length as uint16) +
         serializeEDKEntries(encryptedDataKeys.entries[..])
     }
 
@@ -64,7 +64,7 @@ module MessageHeader.SerializeEDK {
         ghost var currPos: nat := initLen;
 
         {
-            var bytes := uint16ToArray(encryptedDataKeys.count as uint16);
+            var bytes := uint16ToArray(encryptedDataKeys.entries.Length as uint16);
             ret := os.WriteSimple(bytes);
             match ret {
                 case Left(len) => totalWritten := totalWritten + len;

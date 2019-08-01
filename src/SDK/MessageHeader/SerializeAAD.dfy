@@ -12,7 +12,7 @@ module MessageHeader.SerializeAAD {
     import opened StandardLibrary
     import opened UInt = StandardLibrary.UInt
 
-    function encCtxToSeq(kvPairs: EncCtx, i: nat): seq<uint8>
+    function encCtxToSeqRec(kvPairs: EncCtx, i: nat): seq<uint8>
         requires forall i :: 0 <= i < kvPairs.Length ==> kvPairs[i].0.Length <= UINT16_MAX && kvPairs[i].1.Length <= UINT16_MAX
         decreases kvPairs.Length - i
         reads kvPairs
@@ -24,8 +24,19 @@ module MessageHeader.SerializeAAD {
         then 
             uint16ToSeq(kvPairs[i].0.Length as uint16) + kvPairs[i].0[..] +
             uint16ToSeq(kvPairs[i].1.Length as uint16) + kvPairs[i].1[..] +
-            encCtxToSeq(kvPairs, i + 1)
+            encCtxToSeqRec(kvPairs, i + 1)
         else []
+    }
+    
+    function encCtxToSeq(kvPairs: EncCtx): (ret: seq<uint8>)
+        requires forall i :: 0 <= i < kvPairs.Length ==> kvPairs[i].0.Length <= UINT16_MAX && kvPairs[i].1.Length <= UINT16_MAX
+        reads kvPairs
+        reads set i | 0 <= i < kvPairs.Length :: kvPairs[i].0
+        reads set i | 0 <= i < kvPairs.Length :: kvPairs[i].1
+        // reads ReprAADUpTo(kvPairs, kvPairs.Length)
+        ensures |ret| <= UINT16_MAX
+    {
+        encCtxToSeqRec(kvPairs, 0)
     }
 
     function serializeAAD(aad: T_AAD): seq<uint8>
@@ -33,10 +44,11 @@ module MessageHeader.SerializeAAD {
         reads ReprAAD(aad)
     {
         match aad {
-            case AAD(length, kvPairs) =>
-                uint16ToSeq(length) +
+            case AAD(kvPairs) =>
+                var encCtxSeq := encCtxToSeq(kvPairs);
+                uint16ToSeq(|encCtxSeq| as uint16) +
                 // It would be nicer if this could be a flatten + map as for AAD
-                uint16ToSeq(kvPairs.Length as uint16) + encCtxToSeq(kvPairs, 0)
+                uint16ToSeq(kvPairs.Length as uint16) + encCtxSeq
             case EmptyAAD() =>
                 uint16ToSeq(0)
         }
@@ -68,9 +80,12 @@ module MessageHeader.SerializeAAD {
         ghost var i := 0;
 
         match aad {
-            case AAD(length, kvPairs) => {
+            case AAD(kvPairs) => {
                 {
                     // Key Value Pairs Length (number of bytes of total AAD)
+                    var length: uint16;
+                    assert InBoundsKVPairs(kvPairs) ==> kvPairs.Length <= UINT16_MAX;
+                    assume length == |encCtxToSeq(kvPairs)| as uint16; // TODO: compute length
                     var bytes := uint16ToArray(length);
                     ret := os.WriteSimple(bytes);
                     match ret {
@@ -84,7 +99,6 @@ module MessageHeader.SerializeAAD {
                     assert totalWritten <= |serializeAAD(aad)|;
                 }
 
-                assert 0 < length;
                 assert 0 < kvPairs.Length;
                 {
                     assert InBoundsKVPairs(kvPairs) ==> kvPairs.Length <= UINT16_MAX;
