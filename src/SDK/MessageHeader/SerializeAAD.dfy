@@ -34,7 +34,7 @@ module MessageHeader.SerializeAAD {
         reads set i | 0 <= i < kvPairs.Length :: kvPairs[i].0
         reads set i | 0 <= i < kvPairs.Length :: kvPairs[i].1
         // reads ReprAADUpTo(kvPairs, kvPairs.Length)
-        ensures |ret| <= UINT16_MAX
+        ensures |ret| <= UINT16_MAX // TODO: we need to establish that this length fits into two bytes
     {
         encCtxToSeqRec(kvPairs, 0)
     }
@@ -85,7 +85,8 @@ module MessageHeader.SerializeAAD {
                     // Key Value Pairs Length (number of bytes of total AAD)
                     var length: uint16;
                     assert InBoundsKVPairs(kvPairs) ==> kvPairs.Length <= UINT16_MAX;
-                    assume length == |encCtxToSeq(kvPairs)| as uint16; // TODO: compute length
+                    // TODO: We need to compute length here after removing length field from AAD datatype
+                    assume length == |encCtxToSeq(kvPairs)| as uint16;
                     var bytes := uint16ToArray(length);
                     ret := os.WriteSimple(bytes);
                     match ret {
