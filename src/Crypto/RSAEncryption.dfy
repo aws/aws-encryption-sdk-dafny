@@ -1,9 +1,7 @@
 include "../StandardLibrary/StandardLibrary.dfy"
 include "Cipher.dfy"
-include "EncryptionDefs.dfy"
 
 module {:extern "RSAEncryption"} RSAEncryption {
-    import opened EncDefs
     import C = Cipher
     import opened StandardLibrary
     import opened UInt = StandardLibrary.UInt
@@ -11,7 +9,7 @@ module {:extern "RSAEncryption"} RSAEncryption {
     datatype {:extern "RSAPaddingMode"} RSAPaddingMode = PKCS1 | OAEP_SHA1 | OAEP_SHA256
 
     // const UINT32_MAX := 0x1_0000_0000 - 1
-    newtype RSABitLength = x | 521 <= x < (0x1_0000_0000) witness 521 // 521 = lowest bit size to make msg_len_of_rsa_params nonnegative
+    newtype {:nativeType "int"} RSABitLength = x | 521 <= x < (0x8000_0000) witness 521 // 521 = lowest bit size to make msg_len_of_rsa_params nonnegative
 
     // From Bouncy Castle, in RSACoreEngine.cs
     function method RSACoreMsgLen(bits : RSABitLength) : nat {
@@ -33,27 +31,30 @@ module {:extern "RSAEncryption"} RSAEncryption {
                 }
             }
 
-        static predicate {:axiom} RSAWfCtx (bits : RSABitLength, padding: RSAPaddingMode, c : Ctx) // should correspond to a valid RSA ciphertext
+        // TODO: make externs to test below predicates
 
-        static predicate {:axiom} RSAWfEK (bits : RSABitLength, padding : RSAPaddingMode, ek : EncryptionKey) // should correspond to a valid PEM-encoded encryption key
+        static predicate method {:axiom} RSAWfCtx (bits : RSABitLength, padding: RSAPaddingMode, c : seq<uint8>) // should correspond to a valid RSA ciphertext
 
-        static predicate {:axiom} RSAWfDK (bits : RSABitLength, padding : RSAPaddingMode, dk : DecryptionKey) // should correspond to a valid PEM-encoded decryption key
+        static predicate method {:axiom} RSAWfEK (bits : RSABitLength, padding : RSAPaddingMode, ek : seq<uint8>) // should correspond to a valid PEM-encoded encryption key
 
-        static predicate {:axiom} IsRSAKeypair(bits : RSABitLength, padding: RSAPaddingMode, ek : EncryptionKey, dk :DecryptionKey) // dk's public key is ek
+        static predicate method {:axiom} RSAWfDK (bits : RSABitLength, padding : RSAPaddingMode, dk : seq<uint8>) // should correspond to a valid PEM-encoded decryption key
 
-        static method {:extern "RSAKeygen"} RSAKeygen(bits : RSABitLength, padding: RSAPaddingMode) returns (ek : EncryptionKey, dk : DecryptionKey)
+        static predicate method {:axiom} IsRSAKeypair(bits : RSABitLength, padding: RSAPaddingMode, ek : seq<uint8>, dk :seq<uint8>) // dk's public key is ek
+
+        // TODO: below should return an option if anything throws.
+        static method {:extern "RSAKeygen"} RSAKeygen(bits : RSABitLength, padding: RSAPaddingMode) returns (ek : seq<uint8>, dk : seq<uint8>)
             ensures RSAWfEK(bits, padding, ek)
             ensures RSAWfDK(bits, padding, dk)
             ensures IsRSAKeypair(bits, padding, ek, dk)
 
-        static function method {:extern "RSADecrypt"} RSADecrypt(bits : RSABitLength, padding : RSAPaddingMode, dk : DecryptionKey, md : MData, c : Ctx) : Option<Msg>
-            requires RSAWfDK(bits, padding, dk)
-            requires RSAWfCtx(bits, padding, c)
+        static function method {:extern "RSADecrypt"} RSADecrypt(bits : RSABitLength, padding : RSAPaddingMode, dk : seq<uint8>, c : seq<uint8>) : Option<seq<uint8>>
+            // requires RSAWfCtx(bits, padding, c) -- there should be a runtime way to establish this. or maybe not?
+            requires RSAWfDK(bits, padding, dk) // similarly how should I validate the key is well formed
 
-        static method {:extern "RSAEncrypt"} RSAEncrypt(bits : RSABitLength, padding: RSAPaddingMode, ek : EncryptionKey, msg : Msg, md : MData) returns (c : Option<Ctx>)
-            requires RSAWfEK(bits, padding, ek)
+        static method {:extern "RSAEncrypt"} RSAEncrypt(bits : RSABitLength, padding: RSAPaddingMode, ek : seq<uint8>, msg : seq<uint8>) returns (c : Option<seq<uint8>>)
+            requires RSAWfEK(bits, padding, ek) // todo: be able to validate this at runtime
             ensures c.Some? ==> RSAWfCtx(bits,padding, c.get)
-            ensures c.Some? ==> forall dk :: IsRSAKeypair(bits,padding,ek, dk) ==> RSAWfDK(bits,padding,dk) ==> RSADecrypt(bits, padding, dk, md, c.get) == Some(msg)
+            ensures c.Some? ==> forall dk :: IsRSAKeypair(bits,padding,ek, dk) ==> RSAWfDK(bits,padding,dk) ==> RSADecrypt(bits, padding, dk, c.get) == Some(msg)
 
     }
 

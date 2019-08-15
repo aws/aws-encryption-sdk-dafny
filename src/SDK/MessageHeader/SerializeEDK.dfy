@@ -12,6 +12,8 @@ module MessageHeader.SerializeEDK {
     import opened StandardLibrary
     import opened UInt = StandardLibrary.UInt
 
+    lemma {:axiom} Assume(b: bool) ensures b
+
     // Alternative w/o flatten/map
     function serializeEDKEntries(entries: seq<EDKEntry>): seq<uint8>
         requires forall i :: 0 <= i < |entries| ==>
@@ -38,7 +40,7 @@ module MessageHeader.SerializeEDK {
         serializeEDKEntries(encryptedDataKeys.entries[..])
     }
 
-    method serializeEDKImpl(os: StringWriter, encryptedDataKeys: T_EncryptedDataKeys) returns (ret: Result<nat>)
+    method serializeEDKImpl(os: StringWriter, encryptedDataKeys: T_EncryptedDataKeys) returns (ret: Either<nat, Error>)
         requires os.Valid()
         modifies os`data
         ensures os.Valid()
@@ -76,7 +78,7 @@ module MessageHeader.SerializeEDK {
             assert prevPos <= currPos <= |os.data| ==> os.data[prevPos..currPos] == bytes[..];
             assert totalWritten <= |serializeEDK(encryptedDataKeys)|;
         }
-        assume false;
+        //assume false;
 
         var j := 0;
         ghost var written: seq<nat> := [currPos, currPos];

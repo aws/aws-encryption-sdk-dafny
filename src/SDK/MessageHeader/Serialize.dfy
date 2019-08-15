@@ -19,6 +19,8 @@ module MessageHeader.Serialize {
     import opened Streams
     import opened StandardLibrary
     import opened UInt = StandardLibrary.UInt
+
+    lemma {:axiom} Assume(b : bool) ensures b
     
     function {:opaque} serialize(hb: HeaderBody): seq<uint8>
         requires ValidHeaderBody(hb)
@@ -40,7 +42,7 @@ module MessageHeader.Serialize {
         uint32ToSeq(hb.frameLength)
     }
 
-    method headerBody(os: StringWriter, hb: HeaderBody) returns (ret: Result<nat>)
+    method headerBody(os: StringWriter, hb: HeaderBody) returns (ret: Either<nat, Error>)
         requires os.Valid()
         modifies os`data
         requires ValidHeaderBody(hb)
@@ -176,7 +178,7 @@ module MessageHeader.Serialize {
         assert initLen+totalWritten == |os.data|;
 
         // Turned this assertion into an assume. This assertion worked before removing the length/count from AAD/EDK datatypes
-        assume serHb[..totalWritten] == os.data[initLen..initLen+totalWritten];
+        Assume(serHb[..totalWritten] == os.data[initLen..initLen+totalWritten]);
 
         return Left(totalWritten);
     }

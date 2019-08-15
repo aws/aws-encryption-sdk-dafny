@@ -5,6 +5,7 @@ module {:extern "RNGWrap"} RNG {
     import opened UInt = StandardLibrary.UInt
 
     class {:extern} GenBytesClass {
+        // TODO: the below should return option if anything throws in the C#
         method {:extern} GenUniformArray(i : uint16) returns (o : array<uint8>) ensures o.Length == i as nat
         method {:extern} GenUniformSeq(i : uint16) returns (o : seq<uint8>) ensures |o| == i as nat
         constructor {:extern} ()

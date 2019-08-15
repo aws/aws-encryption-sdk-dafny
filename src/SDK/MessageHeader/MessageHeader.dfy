@@ -65,7 +65,7 @@ module MessageHeader {
             }
         }
 
-        method serializeHeader(os: StringWriter) returns (ret: Result<nat>)
+        method serializeHeader(os: StringWriter) returns (ret: Either<nat, Error>)
             requires os.Valid()
             requires body.Some?
             requires os.Repr !! Validity.ReprAAD(body.get.aad)

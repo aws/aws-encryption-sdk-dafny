@@ -1,6 +1,7 @@
 include "../Crypto/All.dfy"
 include "../Crypto/Cipher.dfy"
 include "../Crypto/Digests.dfy"
+include "../Crypto/Signature.dfy"
 include "../StandardLibrary/StandardLibrary.dfy"
 
 module AlgorithmSuite {
@@ -37,5 +38,15 @@ module AlgorithmSuite {
     AES_192_GCM_IV12_AUTH16_KDNONE_SIGNONE    := AlgSuite(CipherParams(AES192, 16, 12), Digests.HmacNOSHA,  None),
     AES_128_GCM_IV12_AUTH16_KDNONE_SIGNONE    := AlgSuite(CipherParams(AES128, 16, 12), Digests.HmacNOSHA,  None)
   ]
+
+
+  function method input_key_length(x : ID) : nat {
+      KeyLengthOfCipher(Suite[x].params)
+  }
+
+  function method signature_type_of_id(x : ID) : Option<S.ECDSAParams> {
+    Suite[x].sign
+  }
+  
 
 }

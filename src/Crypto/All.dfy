@@ -1,6 +1,4 @@
 include "Cipher.dfy"
-include "Encryption.dfy"
-include "EncryptionDefs.dfy"
 include "AESEncryption.dfy"
 include "RSAEncryption.dfy"
 include "GenBytes.dfy"

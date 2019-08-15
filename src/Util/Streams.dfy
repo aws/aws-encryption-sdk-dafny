@@ -140,10 +140,16 @@ module Streams {
     function method capacity(): nat
       reads this
       requires Valid() 
+      {
+        0 // TODO?
+      }
 
     function method available(): nat
       reads this
       requires Valid()
+      {
+        0 // TODO
+      }
 
     constructor(n : nat)
       ensures Valid()
@@ -152,7 +158,7 @@ module Streams {
         Repr := {this};
     }
     
-    method Write(a: array<uint8>, off: nat, req: nat) returns (res: Result<nat>)
+    method Write(a: array<uint8>, off: nat, req: nat) returns (res: Either<nat, Error>)
       requires Valid()
       requires off + req <= a.Length
       requires a !in Repr
@@ -182,7 +188,7 @@ module Streams {
       }
     }
 
-    method WriteSimple(a: array<uint8>) returns (res: Result<nat>)
+    method WriteSimple(a: array<uint8>) returns (res: Either<nat, Error>)
       requires Valid()
       requires a !in Repr
       modifies `data
@@ -204,7 +210,7 @@ module Streams {
       }
     }
 
-    method WriteSimpleSeq(a: seq<uint8>) returns (res: Result<nat>)
+    method WriteSimpleSeq(a: seq<uint8>) returns (res: Either<nat, Error>)
       requires Valid()
       modifies `data
       ensures unchanged(`Repr)
@@ -224,7 +230,7 @@ module Streams {
       }
     }
 
-    method WriteSingleByte(a: uint8) returns (res: Result<nat>)
+    method WriteSingleByte(a: uint8) returns (res: Either<nat, Error>)
       requires Valid()
       modifies `data
       ensures unchanged(`Repr)
@@ -251,7 +257,7 @@ module Streams {
       }
     }
 
-    method WriteSingleByteSimple(a: uint8) returns (res: Result<nat>)
+    method WriteSingleByteSimple(a: uint8) returns (res: Either<nat, Error>)
       requires Valid()
       modifies `data
       ensures unchanged(`Repr)
@@ -273,7 +279,7 @@ module Streams {
       }
     }
     
-    method Read(arr : array<uint8>, off : nat, req : nat) returns (res : Result<nat>)
+    method Read(arr : array<uint8>, off : nat, req : nat) returns (res : Either<nat, Error>)
       requires Valid()
       requires arr.Length >= off + req
       ensures Valid()

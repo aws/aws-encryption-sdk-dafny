@@ -11,8 +11,11 @@ SRCDIRS = src/Crypto \
 		  src/StandardLibrary \
 		  src/Tests \
 		  src/SDK \
+		  src/SDK/CMM \
+		  src/SDK/Keyring \
 		  src/SDK/MessageHeader \
 		  src
+
 
 SRCS = $(foreach dir, $(SRCDIRS), $(wildcard $(dir)/*.dfy))
 SRCV = $(patsubst src/%.dfy, build/%.dfy.verified, $(SRCS))
@@ -40,6 +43,9 @@ hkdf: build/HKDF.dll
 
 lib/%.dll:
 	nuget install
+
+noverif: $(DEPS)
+	$(DAFNY) /out:build/Main $(SRCS) $(DEPS) /compile:2 /noVerify /noIncludes && cp $(BCDLL) build/
 
 clean: 
 	rm -r build/*

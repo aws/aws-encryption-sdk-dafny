@@ -12,7 +12,7 @@ module MessageHeader.Utils {
     /*
      * Utils
      */
-    method readFixedLengthFromStreamOrFail(is: StringReader, n: nat) returns (ret: Result<array<uint8>>)
+    method readFixedLengthFromStreamOrFail(is: StringReader, n: nat) returns (ret: Either<array<uint8>, Error>)
         requires is.Valid()
         modifies is
         ensures
@@ -24,7 +24,7 @@ module MessageHeader.Utils {
         ensures is.Valid()
     {
         var bytes := new uint8[n];
-        var out: Result<nat>;
+        var out: Either<nat, Error>;
         out := is.Read(bytes, 0, n);
         match out {
             case Left(bytesRead) =>

@@ -29,7 +29,7 @@ module MessageHeader.Deserialize {
      * Message header-specific
      */
 
-    method deserializeVersion(is: StringReader) returns (ret: Result<T_Version>)
+    method deserializeVersion(is: StringReader) returns (ret: Either<T_Version, Error>)
         requires is.Valid()
         modifies is
         ensures is.Valid()
@@ -46,7 +46,7 @@ module MessageHeader.Deserialize {
         }
     }
 
-    method deserializeType(is: StringReader) returns (ret: Result<T_Type>)
+    method deserializeType(is: StringReader) returns (ret: Either<T_Type, Error>)
         requires is.Valid()
         modifies is
         ensures is.Valid()
@@ -63,7 +63,7 @@ module MessageHeader.Deserialize {
         }
     }
 
-    method deserializeAlgorithmSuiteID(is: StringReader) returns (ret: Result<AlgorithmSuite.ID>)
+    method deserializeAlgorithmSuiteID(is: StringReader) returns (ret: Either<AlgorithmSuite.ID, Error>)
         requires is.Valid()
         modifies is
         ensures
@@ -92,7 +92,7 @@ module MessageHeader.Deserialize {
     {
         true
     }
-    method deserializeMsgID(is: StringReader) returns (ret: Result<T_MessageID>)
+    method deserializeMsgID(is: StringReader) returns (ret: Either<T_MessageID, Error>)
         requires is.Valid()
         modifies is
         ensures
@@ -113,7 +113,7 @@ module MessageHeader.Deserialize {
         }
     }
 
-    method deserializeUTF8(is: StringReader, n: nat) returns (ret: Result<array<uint8>>)
+    method deserializeUTF8(is: StringReader, n: nat) returns (ret: Either<array<uint8>, Error>)
         requires is.Valid()
         modifies is
         ensures
@@ -137,7 +137,7 @@ module MessageHeader.Deserialize {
         }
     }
 
-    method deserializeUnrestricted(is: StringReader, n: nat) returns (ret: Result<array<uint8>>)
+    method deserializeUnrestricted(is: StringReader, n: nat) returns (ret: Either<array<uint8>, Error>)
         requires is.Valid()
         modifies is
         ensures
@@ -152,7 +152,7 @@ module MessageHeader.Deserialize {
     }
 
     // TODO: Probably this should be factored out into EncCtx at some point
-    method deserializeAAD(is: StringReader) returns (ret: Result<T_AAD>)
+    method deserializeAAD(is: StringReader) returns (ret: Either<T_AAD, Error>)
         requires is.Valid()
         modifies is
         ensures
@@ -279,7 +279,7 @@ module MessageHeader.Deserialize {
     }
 
     // TODO: Probably this should be factored out into EDK at some point
-    method deserializeEncryptedDataKeys(is: StringReader, ghost aad: T_AAD) returns (ret: Result<T_EncryptedDataKeys>)
+    method deserializeEncryptedDataKeys(is: StringReader, ghost aad: T_AAD) returns (ret: Either<T_EncryptedDataKeys, Error>)
         requires is.Valid()
         modifies is
         ensures
@@ -294,7 +294,7 @@ module MessageHeader.Deserialize {
         ensures is.Valid()
     {
         reveal ValidEncryptedDataKeys();
-        var res: Result;
+        var res: Either;
         var edkCount: uint16;
         res := deserializeUnrestricted(is, 2);
         match res {
@@ -371,7 +371,7 @@ module MessageHeader.Deserialize {
         return Left(edks);
     }
 
-    method deserializeContentType(is: StringReader) returns (ret: Result<T_ContentType>)
+    method deserializeContentType(is: StringReader) returns (ret: Either<T_ContentType, Error>)
         requires is.Valid()
         modifies is
         ensures is.Valid()
@@ -390,7 +390,7 @@ module MessageHeader.Deserialize {
         }
     }
 
-    method deserializeReserved(is: StringReader) returns (ret: Result<T_Reserved>)
+    method deserializeReserved(is: StringReader) returns (ret: Either<T_Reserved, Error>)
         requires is.Valid()
         modifies is
         ensures is.Valid()
@@ -407,7 +407,7 @@ module MessageHeader.Deserialize {
         }
     }
 
-    method deserializeIVLength(is: StringReader, algSuiteId: AlgorithmSuite.ID) returns (ret: Result<uint8>)
+    method deserializeIVLength(is: StringReader, algSuiteId: AlgorithmSuite.ID) returns (ret: Either<uint8, Error>)
         requires is.Valid()
         requires algSuiteId in AlgorithmSuite.Suite.Keys
         modifies is
@@ -429,7 +429,7 @@ module MessageHeader.Deserialize {
         }
     }
 
-    method deserializeFrameLength(is: StringReader, contentType: T_ContentType) returns (ret: Result<uint32>)
+    method deserializeFrameLength(is: StringReader, contentType: T_ContentType) returns (ret: Either<uint32, Error>)
         requires is.Valid()
         modifies is
         ensures
@@ -453,7 +453,7 @@ module MessageHeader.Deserialize {
     * Reads raw header data from the input stream and populates the header with all of the information about the
     * message.
     */
-    method headerBody(is: StringReader) returns (ret: Result<HeaderBody>)
+    method headerBody(is: StringReader) returns (ret: Either<HeaderBody, Error>)
         requires is.Valid()
         modifies is
         ensures is.Valid()
@@ -576,7 +576,7 @@ module MessageHeader.Deserialize {
         ret := Left(hb);
     }
 
-    method deserializeAuthenticationTag(is: StringReader, tagLength: nat, ghost iv: array<uint8>) returns (ret: Result<array<uint8>>)
+    method deserializeAuthenticationTag(is: StringReader, tagLength: nat, ghost iv: array<uint8>) returns (ret: Either<array<uint8>, Error>)
         requires is.Valid()
         modifies is
         ensures
@@ -588,7 +588,7 @@ module MessageHeader.Deserialize {
         ret := readFixedLengthFromStreamOrFail(is, tagLength);
     }
 
-    method headerAuthentication(is: StringReader, body: HeaderBody) returns (ret: Result<HeaderAuthentication>)
+    method headerAuthentication(is: StringReader, body: HeaderBody) returns (ret: Either<HeaderAuthentication, Error>)
         requires is.Valid()
         requires ValidHeaderBody(body)
         requires body.algorithmSuiteID in AlgorithmSuite.Suite.Keys

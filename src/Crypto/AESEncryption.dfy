@@ -1,71 +1,60 @@
 include "../StandardLibrary/StandardLibrary.dfy"
 include "Cipher.dfy"
-include "EncryptionDefs.dfy"
 
 module {:extern "AESEncryption"} AESEncryption {
-    import opened EncDefs
     import C = Cipher
     import opened StandardLibrary
     import opened UInt = StandardLibrary.UInt
 
     class {:extern "AES_GCM"} AES {
 
-        static predicate AESWfCtx(cipher : C.CipherParams, ctx : Ctx) {
-            |ctx.c| > (cipher.ivLen) as int
+        static predicate method AESWfCtx(cipher : C.CipherParams, ctx : seq<uint8>) {
+            |ctx| > (cipher.ivLen) as int
         }
 
-        static predicate AESWfEK (cipher : C.CipherParams, ek : EncryptionKey) {
-            |ek.k| == C.KeyLengthOfCipher(cipher) as int
+        static predicate method AESWfKey (cipher : C.CipherParams, k : seq<uint8>) {
+            |k| == C.KeyLengthOfCipher(cipher) as int
         }
 
-        static predicate AESWfDK (cipher : C.CipherParams, dk : DecryptionKey) {
-            |dk.k| == C.KeyLengthOfCipher(cipher) as int
+        // TODO: make below return an option if anything throws.
+        static method AESKeygen(cipher : C.CipherParams) returns (k : seq<uint8>)
+            ensures AESWfKey(cipher, k) {
+            k := C.GenKey(cipher);
         }
 
-        static predicate IsAESKeypair(ek : EncryptionKey, dk : DecryptionKey) 
-        {
-            ek.k == dk.k
-        }
-
-        static method AESKeygen(cipher : C.CipherParams) returns (ek : EncryptionKey, dk : DecryptionKey)
-            ensures AESWfEK(cipher, ek)
-            ensures AESWfDK(cipher, dk)
-            ensures IsAESKeypair(ek, dk) {
-            var k := C.GenKey(cipher);
-            ek := EK(k);
-            dk := DK(k);
-        }
-
-
-
-        static function method {:extern "aes_decrypt_impl"} aes_decrypt_impl(cipher : C.CipherParams, taglen : uint8, key : seq<uint8>, ctxt : seq<uint8>, iv : seq<uint8>, aad : seq<uint8>) : Option<seq<uint8>>
+        static function method {:extern "aes_decrypt"} aes_decrypt(cipher : C.CipherParams, taglen : uint8, key : seq<uint8>, ctxt : seq<uint8>, iv : seq<uint8>, aad : seq<uint8>) : Result<seq<uint8>>
             requires |key| == C.KeyLengthOfCipher(cipher) as int
 
-        static function method AESDecrypt(cipher : C.CipherParams, dk : DecryptionKey, md : MData, c : Ctx) : Option<Msg>
-            requires AESWfDK(cipher, dk)
+        static function method AESDecrypt(cipher : C.CipherParams, k : seq<uint8>, md : seq<uint8>, c : seq<uint8>) : Result<seq<uint8>>
+            requires AESWfKey(cipher, k)
             requires AESWfCtx(cipher, c) {
-            match aes_decrypt_impl(cipher, cipher.tagLen, dk.k, c.c[cipher.ivLen ..], c.c[0 .. cipher.ivLen], md.md)
-                case None => None
-                case Some(m) => Some(Msg(m))
+            match aes_decrypt(cipher, cipher.tagLen, k, c[cipher.ivLen ..], c[0 .. cipher.ivLen], md)
+                case Err(e) => Err(e)
+                case Ok(m) => Ok(m)
             }
 
-        // TODO: make option because BC might fail; get rid of redundant info
-        static method {:extern "aes_encrypt"} aes_encrypt_impl(cipher : C.CipherParams, iv : seq<uint8>, key : seq<uint8>, msg : seq<uint8>, md : seq<uint8>) returns (ctx : Option<seq<uint8>>)
+        static method {:extern "aes_encrypt"} aes_encrypt (cipher : C.CipherParams, 
+                                             iv : seq<uint8>, 
+                                             key : seq<uint8>, 
+                                             msg : seq<uint8>, 
+                                             aad : seq<uint8>) 
+            returns (ctx : Result<seq<uint8>>)
+
             requires |iv| == cipher.ivLen as int
             requires |key| == C.KeyLengthOfCipher(cipher) as int
-            ensures ctx.Some? ==> |ctx.get| > (cipher.ivLen) as int
-            ensures ctx.Some? ==> aes_decrypt_impl(cipher, cipher.tagLen, key, ctx.get, iv, md) == Some((msg))
+            ensures ctx.Ok? ==> |ctx.get| > (cipher.tagLen) as int 
+            ensures ctx.Ok? ==> aes_decrypt(cipher, cipher.tagLen, key, ctx.get, iv, aad) == Ok((msg))
 
-        static method AESEncrypt(cipher : C.CipherParams, ek : EncryptionKey, msg : Msg, md : MData) returns (c : Option<Ctx>)
-            requires AESWfEK(cipher,ek)
-            ensures c.Some? ==> AESWfCtx(cipher, c.get)
-            ensures c.Some? ==> forall dk :: IsAESKeypair(ek, dk) ==> AESDecrypt(cipher, dk, md, c.get) == Some(msg)
+        static method AESEncrypt(cipher : C.CipherParams, k : seq<uint8>, msg : seq<uint8>, md : seq<uint8>) returns (c : Result<seq<uint8>>)
+            requires AESWfKey(cipher, k)
+            ensures c.Ok? ==> AESWfCtx(cipher, c.get)
+            ensures c.Ok? ==> AESDecrypt(cipher, k, md, c.get) == Ok(msg)
             {
                 var iv := C.GenIV(cipher);
-                var ctx := aes_encrypt_impl(cipher, iv, ek.k, msg.m, md.md);
+                var ctx := aes_encrypt(cipher, iv, k, msg, md);
                 match ctx {
-                    case None => c := None;
-                    case Some(ct) => c := Some(Ctx(iv + ct));
+                    case Err(e) => return Err(e);
+                    case Ok(ct) => return Ok(iv + ct);
                 }
             }
     }

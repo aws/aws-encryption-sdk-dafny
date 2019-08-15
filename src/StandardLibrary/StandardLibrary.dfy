@@ -7,9 +7,9 @@ module {:extern "STL"} StandardLibrary {
 
   datatype Either<S,T> = Left(left: S) | Right(right: T)
 
-  datatype Error = IOError(msg: string) | DeserializationError(msg: string) | SerializationError(msg: string)
+  datatype Error = IOError(msg: string) | DeserializationError(msg: string) | SerializationError(msg: string) | Error(msg : string)
 
-  type Result<T> = Either<T, Error>
+  datatype {:extern} Result<T> = Ok(get : T) | Err(err : string)
 
   function Fill<T>(value: T, n: nat): seq<T>
     ensures |Fill(value, n)| == n
@@ -35,12 +35,12 @@ module {:extern "STL"} StandardLibrary {
         [(s[0] as int % 256) as uint8] + byteseq_of_string(s[1..]))
   }
 
-  function method byteseq_of_string_unsafe (s : string) : (s' : seq<uint8>)
+  function method byteseq_of_string_lossy (s : string) : (s' : seq<uint8>)
     ensures |s| == |s'|
   {
       if s == [] then [] else  (
         assert (forall i :: i in s[1..] ==> i in s);
-        [(s[0] as int % 256) as uint8] + byteseq_of_string_unsafe(s[1..]))
+        [(s[0] as int % 256) as uint8] + byteseq_of_string_lossy(s[1..]))
   }
 
   function method string_of_byteseq (s : seq<uint8>) : (s' : string)
@@ -97,7 +97,7 @@ module {:extern "STL"} StandardLibrary {
       method put(y : T) modifies this ensures (this.x == y) {
           this.x := y;
       }
-      function method  get() : (x : T) reads this ensures (x == this.x) {
+      function method  get() : (y : T) reads this ensures (y == this.x) {
           this.x
       }
   }

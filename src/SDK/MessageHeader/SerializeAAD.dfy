@@ -12,6 +12,9 @@ module MessageHeader.SerializeAAD {
     import opened StandardLibrary
     import opened UInt = StandardLibrary.UInt
 
+    lemma {:axiom} Assume(b : bool)
+        ensures b
+
     function encCtxToSeqRec(kvPairs: EncCtx, i: nat): seq<uint8>
         requires forall i :: 0 <= i < kvPairs.Length ==> kvPairs[i].0.Length <= UINT16_MAX && kvPairs[i].1.Length <= UINT16_MAX
         decreases kvPairs.Length - i
@@ -54,7 +57,7 @@ module MessageHeader.SerializeAAD {
         }
     }
     
-    method serializeAADImpl(os: StringWriter, aad: T_AAD) returns (ret: Result<nat>)
+    method serializeAADImpl(os: StringWriter, aad: T_AAD) returns (ret: Either<nat, Error>)
         requires os.Valid()
         modifies os`data // do we need to establish non-aliasing with encryptedDataKeys here?
         ensures os.Valid()
@@ -86,7 +89,7 @@ module MessageHeader.SerializeAAD {
                     var length: uint16;
                     assert InBoundsKVPairs(kvPairs) ==> kvPairs.Length <= UINT16_MAX;
                     // TODO: We need to compute length here after removing length field from AAD datatype
-                    assume length == |encCtxToSeq(kvPairs)| as uint16;
+                    Assume(length == |encCtxToSeq(kvPairs)| as uint16);
                     var bytes := uint16ToArray(length);
                     ret := os.WriteSimple(bytes);
                     match ret {
@@ -117,7 +120,7 @@ module MessageHeader.SerializeAAD {
                     assert totalWritten <= |serializeAAD(aad)|;
                 }
             
-                assume false; // TODO: verification times out after this point. I believe that we just do too many heap updates.
+                Assume(false); // TODO: verification times out after this point. I believe that we just do too many heap updates.
 
                 var j := 0;
                 while j < kvPairs.Length
