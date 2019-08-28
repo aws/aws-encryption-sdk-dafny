@@ -4,13 +4,13 @@ include "../Materials.dfy"
 
 module KeyringDefs {
   import opened StandardLibrary
-  import opened Materials
+  import Materials
 
   trait {:termination false} Keyring {
     ghost var Repr : set<object>
     predicate Valid() reads this, Repr
 
-    method OnEncrypt(encMat: EncryptionMaterials) returns (res: Result<EncryptionMaterials>)
+    method OnEncrypt(encMat: Materials.EncryptionMaterials) returns (res: Result<Materials.EncryptionMaterials>)
       requires Valid()
       requires encMat.Valid()
       modifies encMat
@@ -23,7 +23,7 @@ module KeyringDefs {
       // TODO: keyring trace GENERATED_DATA_KEY flag assurance
       // TODO: keyring trace ENCRYPTED_DATA_KEY flag assurance
 
-    method OnDecrypt(decMat: DecryptionMaterials, edks: seq<EncryptedDataKey>) returns (res: Result<DecryptionMaterials>)
+    method OnDecrypt(decMat: Materials.DecryptionMaterials, edks: seq<Materials.EncryptedDataKey>) returns (res: Result<Materials.DecryptionMaterials>)
       requires Valid()
       // TODO: Valid input DecMaterials
       modifies decMat

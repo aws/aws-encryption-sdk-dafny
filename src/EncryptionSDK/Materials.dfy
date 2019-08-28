@@ -67,7 +67,7 @@ module Materials {
       ensures |encryptedDataKeys| > 0
       ensures encryptedDataKeys[..|encryptedDataKeys|-1] == old(encryptedDataKeys)
     {
-      encryptedDataKeys := encryptedDataKeys + [edk];
+      encryptedDataKeys := encryptedDataKeys + [edk]; // Do we want to make this an Array type?
     }
   }
 
