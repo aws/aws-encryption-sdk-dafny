@@ -1,4 +1,4 @@
-module StandardLibrary.UInt {
+module {:extern "STLUINT"} StandardLibrary.UInt {
   newtype UInt8 = x | 0 <= x < 256
 
   newtype UInt16 = x | 0 <= x < 0x1_0000
