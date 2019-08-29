@@ -1,11 +1,13 @@
 module {:extern "STLUINT"} StandardLibrary.UInt {
-  newtype UInt8 = x | 0 <= x < 256
+  const UINT8_LIMIT := 256
+  newtype UInt8 = x | 0 <= x < UINT8_LIMIT
+  
+  const UINT16_LIMIT := 0x1_0000
+  newtype UInt16 = x | 0 <= x < UINT16_LIMIT
 
-  newtype UInt16 = x | 0 <= x < 0x1_0000
-  const UINT16_MAX := 0x1_0000 - 1
+  const UINT32_LIMIT := 0x1_0000_0000
+  newtype UInt32 = x | 0 <= x < UINT32_LIMIT
 
-  newtype UInt32 = x | 0 <= x < 0x1_0000_0000
-  const UINT32_MAX := 0x1_0000_0000 - 1
-
-  newtype UInt64 = x | 0 <= x < 0x1_0000_0000_0000_0000
+  const UINT64_LIMIT := 0x1_0000_0000_0000_0000
+  newtype UInt64 = x | 0 <= x < UINT64_LIMIT
 }

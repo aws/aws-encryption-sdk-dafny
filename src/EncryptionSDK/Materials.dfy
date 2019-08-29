@@ -27,6 +27,7 @@ module Materials {
       |encryptedDataKeys| > 0 ==> plaintextDataKey.Some?
       // TODO data key length assurance
     }
+
     constructor(algorithmSuiteID: AlgorithmSuite.ID,
                 encryptedDataKeys: seq<EncryptedDataKey>, 
                 encryptionContext: Option<EncryptionContext>, 
@@ -42,32 +43,25 @@ module Materials {
       this.signingKey := signingKey;
     }
 
-    method setPlaintextDataKey(dataKey: seq<UInt8>)
+    method SetPlaintextDataKey(dataKey: seq<UInt8>)
       requires Valid()
-      modifies this
+      requires plaintextDataKey.None?
+      modifies `plaintextDataKey
       ensures Valid()
-      ensures algorithmSuiteID == old(algorithmSuiteID)
-      ensures encryptedDataKeys == old(encryptedDataKeys)
-      ensures encryptionContext == old(encryptionContext)
-      ensures signingKey == old(signingKey)
       ensures plaintextDataKey == Some(dataKey)
     {
       plaintextDataKey := Some(dataKey);
     }
 
-    method appendEncryptedDataKeys(edk: EncryptedDataKey)
+    method AppendEncryptedDataKey(edk: EncryptedDataKey)
       requires Valid()
       requires plaintextDataKey.Some?
-      modifies this
+      modifies `encryptedDataKeys
       ensures Valid()
-      ensures plaintextDataKey == old(plaintextDataKey)
-      ensures algorithmSuiteID == old(algorithmSuiteID)
-      ensures encryptionContext == old(encryptionContext)
-      ensures signingKey == old(signingKey)
       ensures |encryptedDataKeys| > 0
       ensures encryptedDataKeys[..|encryptedDataKeys|-1] == old(encryptedDataKeys)
     {
-      encryptedDataKeys := encryptedDataKeys + [edk]; // Do we want to make this an Array type?
+      encryptedDataKeys := encryptedDataKeys + [edk]; // TODO: Determine if this is a performance issue
     }
   }
 
@@ -91,11 +85,9 @@ module Materials {
     }
 
     method setPlaintextDataKey(dataKey: seq<UInt8>)
-      modifies this
+      modifies `plaintextDataKey
+      requires plaintextDataKey.None?
       ensures plaintextDataKey == Some(dataKey)
-      ensures algorithmSuiteID == old(algorithmSuiteID)
-      ensures encryptionContext == old(encryptionContext)
-      ensures verificationKey == old(verificationKey)
     {
       plaintextDataKey := Some(dataKey);
     }
