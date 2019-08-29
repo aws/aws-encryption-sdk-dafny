@@ -28,9 +28,6 @@ module KeyringDefs {
       ensures Valid()
       // TODO: Valid output DecMaterials
       ensures decMat.plaintextDataKey.Some? ==> res.Success? && res.value == decMat
-      ensures res.Success? ==> res.value.algorithmSuiteID == old(decMat.algorithmSuiteID)
-      ensures res.Success? ==> res.value.encryptionContext == old(decMat.encryptionContext)
-      ensures res.Success? ==> res.value.verificationKey == old(decMat.verificationKey)
       // TODO: keyring trace DECRYPTED_DATA_KEY flag assurance
   }
 }
