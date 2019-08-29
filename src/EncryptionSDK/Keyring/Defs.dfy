@@ -13,20 +13,18 @@ module KeyringDefs {
     method OnEncrypt(encMat: Materials.EncryptionMaterials) returns (res: Result<Materials.EncryptionMaterials>)
       requires Valid()
       requires encMat.Valid()
-      modifies encMat
+      modifies encMat`plaintextDataKey
+      modifies encMat`encryptedDataKeys
       ensures Valid()
       ensures res.Success? ==> res.value.Valid()
       ensures res.Success? && old(encMat.plaintextDataKey.Some?) ==> res.value.plaintextDataKey == old(encMat.plaintextDataKey)
-      ensures res.Success? ==> res.value.algorithmSuiteID == old(encMat.algorithmSuiteID)
-      ensures res.Success? ==> res.value.encryptionContext == old(encMat.encryptionContext)
-      ensures res.Success? ==> res.value.signingKey == old(encMat.signingKey)
       // TODO: keyring trace GENERATED_DATA_KEY flag assurance
       // TODO: keyring trace ENCRYPTED_DATA_KEY flag assurance
 
     method OnDecrypt(decMat: Materials.DecryptionMaterials, edks: seq<Materials.EncryptedDataKey>) returns (res: Result<Materials.DecryptionMaterials>)
       requires Valid()
       // TODO: Valid input DecMaterials
-      modifies decMat
+      modifies decMat`plaintextDataKey
       ensures Valid()
       // TODO: Valid output DecMaterials
       ensures decMat.plaintextDataKey.Some? ==> res.Success? && res.value == decMat
