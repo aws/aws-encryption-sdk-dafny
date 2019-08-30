@@ -331,5 +331,4 @@ module {:extern "STL"} StandardLibrary {
   lemma {:axiom} eq_multiset_eq_len<T> (s : seq<T>, s' : seq<T>)
       requires multiset(s) == multiset(s')
       ensures |s| == |s'| 
-
 }
