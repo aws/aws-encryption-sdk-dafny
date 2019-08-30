@@ -3,39 +3,98 @@ include "../StandardLibrary/UInt.dfy"
 include "./AlgorithmSuite.dfy"
 
 
-module SDKDefs {
-    import opened StandardLibrary
-    import opened UInt = StandardLibrary.UInt
-    import AlgorithmSuite
+module Materials {
+  import opened StandardLibrary
+  import opened UInt = StandardLibrary.UInt
+  import AlgorithmSuite
 
-    type EncCtx = seq<(seq<uint8>, seq<uint8>)>
+  type EncryptionContext = seq<(seq<uint8>, seq<uint8>)>
 
+  datatype EncryptedDataKey = EncryptedDataKey(providerID : string, 
+                                               providerInfo : seq<uint8>,
+                                               ciphertext : seq<uint8>)
 
-    const EC_PUBLIC_KEY_FIELD: seq<uint8> := byteseq_of_string("aws-crypto-public-key");
+  // TODO: Add keyring trace
+  class EncryptionMaterials {
+    var algorithmSuiteID: AlgorithmSuite.ID
+    var encryptedDataKeys: seq<EncryptedDataKey>
+    var encryptionContext: Option<EncryptionContext>
+    var plaintextDataKey: Option<seq<uint8>>
+    var signingKey: Option<seq<uint8>>
 
-    datatype EDK = EDK(provider_id : seq<uint8>, 
-                       provider_info : seq<uint8>, 
-                       ciphertext : seq<uint8>)
-
-    datatype EncMaterials = EncMat(alg_id : AlgorithmSuite.ID, 
-                                   edks : seq<EDK>, 
-                                   enc_ctx : EncCtx, 
-                                   data_key : Option<seq<uint8>>, 
-                                   signing_key : Option<seq<uint8>>)
-
-    predicate WFEncMaterials(x : EncMaterials) {
-        x.data_key.Some? ==> |x.data_key.get| == AlgorithmSuite.input_key_length(x.alg_id)
-        // TODO: wf signature
+    predicate Valid() 
+      reads this
+    {
+      |encryptedDataKeys| > 0 ==> plaintextDataKey.Some?
+      // TODO data key length assurance
     }
 
-    datatype DecMaterials = DecMat(alg_id : AlgorithmSuite.ID, enc_ctx : EncCtx, data_key : Option<seq<uint8>>, verif_key : Option<seq<uint8>>)
-
-    predicate WFDecMaterials(x : DecMaterials) {
-        x.data_key.Some? ==> |x.data_key.get| == AlgorithmSuite.input_key_length(x.alg_id)
+    constructor(algorithmSuiteID: AlgorithmSuite.ID,
+                encryptedDataKeys: seq<EncryptedDataKey>, 
+                encryptionContext: Option<EncryptionContext>, 
+                plaintextDataKey: Option<seq<uint8>>,
+                signingKey: Option<seq<uint8>>)
+      requires |encryptedDataKeys| > 0 ==> plaintextDataKey.Some?
+      ensures Valid()
+    {
+      this.algorithmSuiteID := algorithmSuiteID;
+      this.encryptedDataKeys := encryptedDataKeys;
+      this.encryptionContext := encryptionContext;
+      this.plaintextDataKey := plaintextDataKey;
+      this.signingKey := signingKey;
     }
 
+    method SetPlaintextDataKey(dataKey: seq<uint8>)
+      requires Valid()
+      requires plaintextDataKey.None?
+      modifies `plaintextDataKey
+      ensures Valid()
+      ensures plaintextDataKey == Some(dataKey)
+    {
+      plaintextDataKey := Some(dataKey);
+    }
 
+    method AppendEncryptedDataKey(edk: EncryptedDataKey)
+      requires Valid()
+      requires plaintextDataKey.Some?
+      modifies `encryptedDataKeys
+      ensures Valid()
+      ensures |encryptedDataKeys| > 0
+      ensures encryptedDataKeys[..|encryptedDataKeys|-1] == old(encryptedDataKeys)
+    {
+      encryptedDataKeys := encryptedDataKeys + [edk]; // TODO: Determine if this is a performance issue
+    }
+  }
 
+  // TODO: Add keyring trace
+  class DecryptionMaterials {
+    var algorithmSuiteID: AlgorithmSuite.ID
+    var encryptionContext: Option<EncryptionContext>
+    var plaintextDataKey: Option<seq<uint8>>
+    var verificationKey: Option<seq<uint8>>
+    
+    // TODO add Valid()
+
+    constructor(algorithmSuiteID: AlgorithmSuite.ID,
+                encryptionContext: Option<EncryptionContext>,
+                plaintextDataKey: Option<seq<uint8>>,
+                verificationKey: Option<seq<uint8>>) {
+      this.algorithmSuiteID := algorithmSuiteID;
+      this.encryptionContext := encryptionContext;
+      this.plaintextDataKey := plaintextDataKey;
+      this.verificationKey := verificationKey;
+    }
+
+    method setPlaintextDataKey(dataKey: seq<uint8>)
+      modifies `plaintextDataKey
+      requires plaintextDataKey.None?
+      ensures plaintextDataKey == Some(dataKey)
+    {
+      plaintextDataKey := Some(dataKey);
+    }
+  }
+
+    /*
     function method naive_merge<T> (x : seq<T>, y : seq<T>, lt : (T, T) -> bool) : seq<T>
     {
         if |x| == 0 then y
@@ -89,4 +148,5 @@ module SDKDefs {
         if x == [] then [] else
         [(byteseq_of_string_lossy(x[0].0), byteseq_of_string_lossy(x[0].1))] + enc_ctx_of_strings(x[1..])
     }
+    */
 }
