@@ -59,8 +59,7 @@ module Materials {
       requires plaintextDataKey.Some?
       modifies `encryptedDataKeys
       ensures Valid()
-      ensures |encryptedDataKeys| > 0
-      ensures encryptedDataKeys[..|encryptedDataKeys|-1] == old(encryptedDataKeys)
+      ensures encryptedDataKeys == old(encryptedDataKeys) + [edk]
     {
       encryptedDataKeys := encryptedDataKeys + [edk]; // TODO: Determine if this is a performance issue
     }
@@ -86,8 +85,8 @@ module Materials {
     }
 
     method setPlaintextDataKey(dataKey: seq<uint8>)
-      modifies `plaintextDataKey
       requires plaintextDataKey.None?
+      modifies `plaintextDataKey
       ensures plaintextDataKey == Some(dataKey)
     {
       plaintextDataKey := Some(dataKey);
