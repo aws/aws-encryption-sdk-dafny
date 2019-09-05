@@ -8,7 +8,7 @@ module AlgorithmSuite {
   import StandardLibrary
   import opened UInt = StandardLibrary.UInt
 
-  const validIDs: set<UInt16> := {0x0378, 0x0346, 0x0214, 0x0178, 0x0146, 0x0114, 0x0078, 0x0046, 0x0014};
+  const validIDs: set<uint16> := {0x0378, 0x0346, 0x0214, 0x0178, 0x0146, 0x0114, 0x0078, 0x0046, 0x0014};
 
   newtype ID = x | x in validIDs witness 0x0014
   const AES_256_GCM_IV12_TAG16_HKDF_SHA384_ECDSA_P384: ID := 0x0378
