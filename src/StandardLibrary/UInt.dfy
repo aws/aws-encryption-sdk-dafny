@@ -139,4 +139,3 @@ module {:extern "STLUINT"} StandardLibrary.UInt {
         x as uint32
     }
 }
->>>>>>> d86c7da4676e9cfc8609dd5cb492177e18867845

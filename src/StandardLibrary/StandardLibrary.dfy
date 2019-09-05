@@ -9,7 +9,7 @@ module {:extern "STL"} StandardLibrary {
 
   datatype Error = IOError(msg: string) | DeserializationError(msg: string) | SerializationError(msg: string) | Error(msg : string)
 
-  datatype {:extern} Result<T> = Ok(get : T) | Err(err : string)
+  datatype {:extern} Result<T> = Success(value : T) | Failure(error : string)
 
   function Fill<T>(value: T, n: nat): seq<T>
     ensures |Fill(value, n)| == n
@@ -327,11 +327,9 @@ module {:extern "STL"} StandardLibrary {
                   then false
                   else true // i+1 == a.Length && i+1 == b.Length, i.e. a == b
   }
-  
 
   lemma {:axiom} eq_multiset_eq_len<T> (s : seq<T>, s' : seq<T>)
       requires multiset(s) == multiset(s')
       ensures |s| == |s'| 
 
->>>>>>> d86c7da4676e9cfc8609dd5cb492177e18867845
 }
