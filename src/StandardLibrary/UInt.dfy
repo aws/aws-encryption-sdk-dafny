@@ -1,13 +1,13 @@
 module {:extern "STLUInt"} StandardLibrary.UInt {
   newtype UInt8 = x | 0 <= x < 256
 
-  const UInt16_LIMIT := 0x1_0000
-  newtype UInt16 = x | 0 <= x < UInt16_LIMIT
+  const UINT16_LIMIT := 0x1_0000
+  newtype UInt16 = x | 0 <= x < UINT16_LIMIT
 
   newtype Int32 = x | -0x8000_0000 <= x < 0x8000_0000
 
-  const UInt32_LIMIT := 0x1_0000_0000
-  newtype UInt32 = x | 0 <= x < UInt32_LIMIT
+  const UINT32_LIMIT := 0x1_0000_0000
+  newtype UInt32 = x | 0 <= x < UINT32_LIMIT
 
   newtype UInt64 = x | 0 <= x < 0x1_0000_0000_0000_0000
 
@@ -25,7 +25,7 @@ module {:extern "STLUInt"} StandardLibrary.UInt {
     var x1 :=    (p[0] as int) * 256;
     assert x1 <= 256 * 256;
     var  x := x1 + (p[1] as int);
-    assert x < UInt16_LIMIT;
+    assert x < UINT16_LIMIT;
     x as UInt16
   }
 
@@ -56,7 +56,7 @@ module {:extern "STLUInt"} StandardLibrary.UInt {
     var x1 :=    p[0] as int * 256;
     assert x1 <= 256 * 256;
     var  x := x1 + p[1] as int;
-    assert x < UInt16_LIMIT;
+    assert x < UINT16_LIMIT;
     x as UInt16
   }
 
@@ -88,7 +88,7 @@ module {:extern "STLUInt"} StandardLibrary.UInt {
     var x1 := x2 + p[2] as int * 0x100;
     // 2^0 = 0x1
     var  x := x1 + p[3] as int;
-    assert x < UInt32_LIMIT;
+    assert x < UINT32_LIMIT;
     x as UInt32
   }
 
@@ -135,7 +135,7 @@ module {:extern "STLUInt"} StandardLibrary.UInt {
     var x1 := x2 + p[2] as int * 0x100;
     // 2^0 = 0x1
     var  x := x1 + p[3] as int;
-    assert x < UInt32_LIMIT;
+    assert x < UINT32_LIMIT;
     x as UInt32
   }
 }
