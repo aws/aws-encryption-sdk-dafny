@@ -26,24 +26,24 @@ module {:extern "STL"} StandardLibrary {
     a := new T[|s|](i requires 0 <= i < |s| => s[i]);
   }
 
-  function method byteseq_of_string (s : string) : (s' : seq<uint8>)
+  function method byteseq_of_string (s : string) : (s' : seq<UInt8>)
     requires forall i :: i in s ==> i < 256 as char
     ensures |s| == |s'| 
   {
       if s == [] then [] else  (
         assert (forall i :: i in s[1..] ==> i in s);
-        [(s[0] as int % 256) as uint8] + byteseq_of_string(s[1..]))
+        [(s[0] as int % 256) as UInt8] + byteseq_of_string(s[1..]))
   }
 
-  function method byteseq_of_string_lossy (s : string) : (s' : seq<uint8>)
+  function method byteseq_of_string_lossy (s : string) : (s' : seq<UInt8>)
     ensures |s| == |s'|
   {
       if s == [] then [] else  (
         assert (forall i :: i in s[1..] ==> i in s);
-        [(s[0] as int % 256) as uint8] + byteseq_of_string_lossy(s[1..]))
+        [(s[0] as int % 256) as UInt8] + byteseq_of_string_lossy(s[1..]))
   }
 
-  function method string_of_byteseq (s : seq<uint8>) : (s' : string)
+  function method string_of_byteseq (s : seq<UInt8>) : (s' : string)
     ensures |s| == |s'| 
     ensures forall i :: i in s' ==> i < 256 as char
   {
@@ -63,18 +63,18 @@ module {:extern "STL"} StandardLibrary {
       }
     }
 
-  lemma byteseq_stringK (s : seq<uint8>)
+  lemma byteseq_stringK (s : seq<UInt8>)
     ensures byteseq_of_string(string_of_byteseq(s)) == s {
 
     }
 
-  method StringToByteArray(s: string) returns (a: array<uint8>)
+  method StringToByteArray(s: string) returns (a: array<UInt8>)
     ensures fresh(a) && a.Length <= 2 * |s|
   {
     // Assume all 8-bit characters for now
-    a := new uint8[|s|];
+    a := new UInt8[|s|];
     forall i | 0 <= i < |s| {
-      a[i] := (s[i] as int % 256) as uint8;
+      a[i] := (s[i] as int % 256) as UInt8;
     }
   }
 
@@ -297,7 +297,7 @@ module {:extern "STL"} StandardLibrary {
     }
   }
 
-  predicate method ltByte(a: uint8, b: uint8) { a < b }
+  predicate method ltByte(a: UInt8, b: UInt8) { a < b }
   predicate method ltNat (a: nat,  b: nat)  { a < b }
   predicate method ltInt (a: int,  b: int)  { a < b }
   
