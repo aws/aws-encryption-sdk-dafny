@@ -2,7 +2,6 @@ include "../StandardLibrary/StandardLibrary.dfy"
 include "../StandardLibrary/UInt.dfy"
 include "./AlgorithmSuite.dfy"
 
-
 module Materials {
   import opened StandardLibrary
   import opened UInt = StandardLibrary.UInt

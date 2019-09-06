@@ -1,5 +1,4 @@
 include "../../StandardLibrary/StandardLibrary.dfy"
-include "../../StandardLibrary/UInt.dfy"
 include "../Common.dfy"
 
 module KeyringDefs {
