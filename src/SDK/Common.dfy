@@ -17,7 +17,7 @@ module Materials {
   class EncryptionMaterials {
     var algorithmSuiteID: AlgorithmSuite.ID
     var encryptedDataKeys: seq<EncryptedDataKey>
-    var encryptionContext: Option<EncryptionContext>
+    var encryptionContext: EncryptionContext
     var plaintextDataKey: Option<seq<uint8>>
     var signingKey: Option<seq<uint8>>
 
@@ -29,8 +29,8 @@ module Materials {
     }
 
     constructor(algorithmSuiteID: AlgorithmSuite.ID,
-                encryptedDataKeys: seq<EncryptedDataKey>, 
-                encryptionContext: Option<EncryptionContext>, 
+                encryptedDataKeys: seq<EncryptedDataKey>,
+                encryptionContext: EncryptionContext,
                 plaintextDataKey: Option<seq<uint8>>,
                 signingKey: Option<seq<uint8>>)
       requires |encryptedDataKeys| > 0 ==> plaintextDataKey.Some?
@@ -67,14 +67,18 @@ module Materials {
   // TODO: Add keyring trace
   class DecryptionMaterials {
     var algorithmSuiteID: AlgorithmSuite.ID
-    var encryptionContext: Option<EncryptionContext>
+    var encryptionContext: EncryptionContext
     var plaintextDataKey: Option<seq<uint8>>
     var verificationKey: Option<seq<uint8>>
     
-    // TODO add Valid()
+    predicate Valid()
+      reads this
+    {
+      true
+    }
 
     constructor(algorithmSuiteID: AlgorithmSuite.ID,
-                encryptionContext: Option<EncryptionContext>,
+                encryptionContext: EncryptionContext,
                 plaintextDataKey: Option<seq<uint8>>,
                 verificationKey: Option<seq<uint8>>) {
       this.algorithmSuiteID := algorithmSuiteID;
