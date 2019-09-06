@@ -43,8 +43,8 @@ module UTF8 {
                         if bit_at(a[offset], 3) then // 1111 1xxx
                             0 // Error case
                         else // 1111 0xxx
-                            4 
-                    else // 1110 xxxx 
+                            4
+                    else // 1110 xxxx
                         3
                 else // 110x xxxx
                     2
@@ -56,29 +56,29 @@ module UTF8 {
 
     predicate method ValidUTF8_at(a: array<uint8>, offset: nat)
         requires offset <= a.Length
-        reads a 
+        reads a
         decreases (a.Length - offset)
     {
         if offset == a.Length
-        then true 
+        then true
         else
             var c := CodePointCase(a, offset);
-            if c == 1 then 
+            if c == 1 then
                 ValidUTF8_at(a, offset + 1)
             else if c == 2 then
-                offset + 2 <= a.Length && 
-                ValidUTF8Continuation(a, offset + 1) && 
+                offset + 2 <= a.Length &&
+                ValidUTF8Continuation(a, offset + 1) &&
                 ValidUTF8_at(a, offset + 2)
             else if c == 3 then
-                offset + 3 <= a.Length && 
-                ValidUTF8Continuation(a, offset + 1) && 
-                ValidUTF8Continuation(a, offset + 2) && 
-                ValidUTF8_at(a, offset + 3) 
+                offset + 3 <= a.Length &&
+                ValidUTF8Continuation(a, offset + 1) &&
+                ValidUTF8Continuation(a, offset + 2) &&
+                ValidUTF8_at(a, offset + 3)
             else if c == 4 then
-                offset + 4 <= a.Length && 
-                ValidUTF8Continuation(a, offset + 1) && 
-                ValidUTF8Continuation(a, offset + 2) && 
-                ValidUTF8Continuation(a, offset + 3) && 
+                offset + 4 <= a.Length &&
+                ValidUTF8Continuation(a, offset + 1) &&
+                ValidUTF8Continuation(a, offset + 2) &&
+                ValidUTF8Continuation(a, offset + 3) &&
                 ValidUTF8_at(a, offset + 4)
             else
                 false

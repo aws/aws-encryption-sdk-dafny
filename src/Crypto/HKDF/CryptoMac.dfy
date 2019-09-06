@@ -5,26 +5,26 @@ module {:extern "BouncyCastleCryptoMac"} BouncyCastleCryptoMac {
   import opened Digests
   import opened StandardLibrary
   import opened UInt = StandardLibrary.UInt
- 
+
   datatype {:extern "CipherParameters"} CipherParameters = KeyParameter(key: array<uint8>) // unsupported: other parameters
 
   // https://people.eecs.berkeley.edu/~jonah/bc/org/bouncycastle/crypto/Mac.html
   trait {:extern "Mac"} Mac {
- 
+
     // The algorithm of a Mac object never changes. This is modeled by a constant ghost field.
     // The name of the algorithm can be retrieved by the "getAlgorithm" method.
     const {:extern "algorithm"} algorithm: HMAC_ALGORITHM
     function method {:extern "getAlgorithmName"} getAlgorithmName(): string
       ensures this.algorithm == HmacSHA256 ==> getAlgorithmName() == "SHA256"
       ensures this.algorithm == HmacSHA384 ==> getAlgorithmName() == "SHA384"
- 
+
     // I'm guessing that the algorithm determines the length of the hash-function output once
     // and for all.
     function method {:extern "getMacSize"} getMacSize(): nat
       reads this  // allow the implementation to read fields of the object
       ensures getMacSize() == HashLength(algorithm)
- 
- 
+
+
     // To be useful, a Mac object must be associated with a key. This association is performed
     // by the "init" method.  The "init" method can be called at any time to reset the state of
     // the object and associate it with a new key.
@@ -42,19 +42,19 @@ module {:extern "BouncyCastleCryptoMac"} BouncyCastleCryptoMac {
       ensures
         var key := match params case KeyParameter(key) => key;
         match initialized { case Some(k) => validKey(k) && key[..] == k case None => false }
-      ensures InputSoFar == [] 
- 
+      ensures InputSoFar == []
+
     // Once a key has been associated with the Mac object, calls to "update*" start
     // accumulating input that can be used to produce a MAC.  The accumulated input is modeled by
     // the ghost field "InputSoFar".
     // The act of resetting the object (which is done by the method "reset") is
     // to clear out any previous MAC computation. In other words, resetting the object sets "InputSoFar"
     // to the empty sequence (but leaves unchanged the key and algorithm of the Mac object).
-    // The method  "doFinal" outputs the hash of the accumulated input and resets the accumulated 
-    // input "InputSoFar" to the empty sequence (but leaves unchanged the key and algorithm of the Mac 
+    // The method  "doFinal" outputs the hash of the accumulated input and resets the accumulated
+    // input "InputSoFar" to the empty sequence (but leaves unchanged the key and algorithm of the Mac
     // object).
     ghost var InputSoFar: seq<uint8>
- 
+
     method {:extern "reset"} reset()
       // BouncyCastle's documentation doesn't mention the following precondition, and it doesn't
       // admit to any exception ever being thrown by the "reset" method. However, the documentation
@@ -63,12 +63,12 @@ module {:extern "BouncyCastleCryptoMac"} BouncyCastleCryptoMac {
       requires initialized.Some?
       modifies `InputSoFar
       ensures InputSoFar == []
-  
+
     method {:extern "updateSingle"} updateSingle(input: uint8)
       requires initialized.Some?
       modifies `InputSoFar
       ensures InputSoFar == old(InputSoFar) + [input]
- 
+
     method {:extern "update"} update(input: array<uint8>, inOff: nat, len: nat)
       requires initialized.Some?
       requires inOff + len <= input.Length
@@ -85,7 +85,7 @@ module {:extern "BouncyCastleCryptoMac"} BouncyCastleCryptoMac {
       ensures output.Length == old(output.Length)
       ensures InputSoFar == []
   }
- 
+
   // https://people.eecs.berkeley.edu/~jonah/bc/org/bouncycastle/crypto/HMac.html
   class {:extern "HMac"} HMac extends Mac {
 
@@ -93,13 +93,13 @@ module {:extern "BouncyCastleCryptoMac"} BouncyCastleCryptoMac {
      * Beginning of BouncyCastle library functions
      */
 
-    constructor {:extern} (algorithm: HMAC_ALGORITHM) 
+    constructor {:extern} (algorithm: HMAC_ALGORITHM)
       ensures this.algorithm == algorithm
 
     function method {:extern "getAlgorithmName"} getAlgorithmName(): string
       ensures this.algorithm == HmacSHA256 ==> getAlgorithmName() == "SHA256"
       ensures this.algorithm == HmacSHA384 ==> getAlgorithmName() == "SHA384"
- 
+
     // I'm guessing that the algorithm determines the length of the hash-function output once
     // and for all.
     function method {:extern "getMacSize"} getMacSize(): nat
@@ -117,8 +117,8 @@ module {:extern "BouncyCastleCryptoMac"} BouncyCastleCryptoMac {
       ensures
         var key := match params case KeyParameter(key) => key;
         match initialized { case Some(k) => validKey(k) && key[..] == k case None => false }
-      ensures InputSoFar == [] 
- 
+      ensures InputSoFar == []
+
     method {:extern "reset"} reset()
       // BouncyCastle's documentation doesn't mention the following precondition, and it doesn't
       // admit to any exception ever being thrown by the "reset" method. However, the documentation
@@ -127,19 +127,19 @@ module {:extern "BouncyCastleCryptoMac"} BouncyCastleCryptoMac {
       requires initialized.Some?
       modifies `InputSoFar
       ensures InputSoFar == []
- 
+
     method {:extern "updateSingle"} updateSingle(input: uint8)
       requires initialized.Some?
       modifies this
       ensures unchanged(`initialized)
       ensures InputSoFar == old(InputSoFar) + [input]
- 
+
     method {:extern "update"} update(input: array<uint8>, inOff: nat, len: nat)
       requires initialized.Some?
       requires inOff + len <= input.Length
       modifies `InputSoFar
       ensures InputSoFar == old(InputSoFar) + input[inOff..inOff+len]
-      
+
     // returns an int, but it is not specified, what that int stands for
     method {:extern "doFinal"} doFinal(output: array<uint8>, outOff: nat) returns (retVal: int)
       requires initialized.Some?
@@ -156,7 +156,7 @@ module {:extern "BouncyCastleCryptoMac"} BouncyCastleCryptoMac {
     /*
      * End of BouncyCastle library functions
      */
-    
+
     /*
      * Derived methods:
      * These might have "simpler" post-conditions that have better verification behaviour

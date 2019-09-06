@@ -90,7 +90,7 @@ module DefaultCMMDef {
                 case Err(e) => {return Err(e);}
             }
         }
-        
+
         constructor OfKeyring(k : KeyringDefs.Keyring) requires k.Valid() ensures kr == k ensures Valid() {
             kr := k;
             Repr := {this, kr} + k.Repr;

@@ -11,7 +11,7 @@ namespace Arrays {
       return dest;
     }
     public static void copyTo<T>(T[] source, T[] dest, BigInteger offset) {
-      source.CopyTo(dest, Util.BigIntegerToInt(offset)); 
+      source.CopyTo(dest, Util.BigIntegerToInt(offset));
     }
   }
 }

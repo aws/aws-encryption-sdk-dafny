@@ -50,7 +50,7 @@ module AESKeyringDef {
         function method aes_provider_info(iv : seq<uint8>) : seq<uint8>
             requires |iv| == 12
             reads this {
-              key_name + 
+              key_name +
                 [0, 0, 0, TAG_LEN * 8] + // tag length in bits
                 [0, 0, 0, IV_LEN] + // IV length in bytes
                 iv
@@ -85,7 +85,7 @@ module AESKeyringDef {
         }
 
         method OnDecrypt(x : DecMaterials, edks : seq<EDK>) returns (res : Result<DecMaterials>)
-            requires Valid() 
+            requires Valid()
             requires WFDecMaterials(x)
             ensures Valid()
             ensures res.Ok? ==> WFDecMaterials(res.get)

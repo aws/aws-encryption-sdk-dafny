@@ -27,13 +27,13 @@ module {:extern "Cipher"} Cipher {
         }
 
     function method KeyLengthOfCipher (c : CipherParams) : int {
-        match c.mode 
+        match c.mode
             case AES256 => 32
             case AES192 => 24
             case AES128 => 16
     }
 
-    lemma Cipher_KeyLengthK (c : CipherParams) 
+    lemma Cipher_KeyLengthK (c : CipherParams)
         requires c.tagLen == TAG_LEN
         requires c.ivLen == IV_LEN
         ensures CipherOfKeyLength(KeyLengthOfCipher(c)) == c {
