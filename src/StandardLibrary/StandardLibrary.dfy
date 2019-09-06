@@ -3,13 +3,50 @@ include "UInt.dfy"
 module {:extern "STL"} StandardLibrary {
   import opened U = UInt
 
-  datatype {:extern} Option<T> = None | Some(get: T)
+  datatype Option<T> = None | Some(get: T)
+  {
+    function method ToResult(): Result<T> {
+      match this
+      case Some(v) => Success(v)
+      case None() => Failure("Option is None")
+    }
+    function method GetOrElse(default: T): T {
+      match this
+      case Some(v) => v
+      case None => default
+    }
+  }
 
   datatype Either<S,T> = Left(left: S) | Right(right: T)
 
   datatype Error = IOError(msg: string) | DeserializationError(msg: string) | SerializationError(msg: string) | Error(msg : string)
 
-  datatype {:extern} Result<T> = Success(value : T) | Failure(error : string)
+  datatype Result<T> = Success(value: T) | Failure(error: string)
+  {
+    predicate method IsFailure() {
+      Failure?
+    }
+    function method PropagateFailure<U>(): Result<U>
+      requires Failure?
+    {
+      Failure(this.error)
+    }
+    function method Extract(): T
+      requires Success?
+    {
+      value
+    }
+    function method ToOption(): Option<T> {
+      match this
+      case Success(s) => Some(s)
+      case Failure(e) => None()
+    }
+    function method GetOrElse(default: T): T {
+      match this
+      case Success(s) => s
+      case Failure(e) => default
+    }
+  }
 
   function Fill<T>(value: T, n: nat): seq<T>
     ensures |Fill(value, n)| == n
