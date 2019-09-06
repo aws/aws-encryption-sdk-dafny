@@ -36,10 +36,10 @@ namespace AESEncryption {
                 byte[] c = new byte[cipher.GetOutputSize(msg.Elements.Length)];
                 var len = cipher.ProcessBytes(msg.Elements, 0, msg.Elements.Length, c, 0);
                 cipher.DoFinal(c, len);
-                return new STL.Result_Ok<byteseq>(new byteseq(c));
+                return new STL.Result_Success<byteseq>(new byteseq(c));
             }
             catch {
-                return new STL.Result_Err<byteseq>(new Dafny.Sequence<char>("aes encrypt err".ToCharArray()));
+                return new STL.Result_Failure<byteseq>(new Dafny.Sequence<char>("aes encrypt err".ToCharArray()));
             }
         }
 
@@ -51,11 +51,11 @@ namespace AESEncryption {
                 var pt = new byte[cipher.GetOutputSize(ctx.Elements.Length)];
                 var len = cipher.ProcessBytes(ctx.Elements, 0, ctx.Elements.Length, pt, 0);
                 cipher.DoFinal(pt, len);
-                return new STL.Result_Ok<byteseq>(new byteseq(pt));
+                return new STL.Result_Success<byteseq>(new byteseq(pt));
             }
             catch {
                 // TODO: distinguish BC error from unsuccessful decrypt
-                return new STL.Result_Err<byteseq>(new Dafny.Sequence<char>("aes decrypt err".ToCharArray()));
+                return new STL.Result_Failure<byteseq>(new Dafny.Sequence<char>("aes decrypt err".ToCharArray()));
 
             }
         }
