@@ -4,49 +4,57 @@ else
   DAFNY = dafny
 endif
 
+# TODO: Temporary subset of files to build and verify.
+# Add to this as more files can be verified.
+# Eventually this can be something like:
+# SRCS = $(foreach dir, $(SRCDIRS), $(wildcard $(dir)/*.dfy))
+SRCS = src/SDK/AlgorithmSuite.dfy \
+	   src/SDK/Common.dfy \
+	   src/SDK/Keyring/Defs.dfy \
+	   src/StandardLibrary/StandardLibrary.dfy \
+	   src/StandardLibrary/UInt.dfy \
 
-SRCDIRS = src/Crypto \
-		  src/Crypto/HKDF \
-		  src/Util \
-		  src/StandardLibrary \
-		  src/Tests \
-		  src/SDK \
-		  src/SDK/CMM \
-		  src/SDK/Keyring \
-		  src/SDK/MessageHeader \
-		  src
-
-
-SRCS = $(foreach dir, $(SRCDIRS), $(wildcard $(dir)/*.dfy))
 SRCV = $(patsubst src/%.dfy, build/%.dfy.verified, $(SRCS))
-
-.PHONY: all hkdf clean
-
-all: build/Main.exe
-	
-build/%.dfy.verified: src/%.dfy
-	$(DAFNY) $(patsubst build/%.dfy.verified, src/%.dfy, $@) /compile:0 && mkdir -p $(dir $@) && touch $@
 
 BCDLL = lib/BouncyCastle.1.8.5/lib/BouncyCastle.Crypto.dll
 
 DEPS = $(foreach dir, $(SRCDIRS), $(wildcard $(dir)/*.cs)) \
 	$(BCDLL)
 
-build/Main.exe: $(SRCV) $(DEPS) 
-	$(DAFNY) /out:build/Main $(SRCS) $(DEPS) /compile:2 /noVerify /noIncludes && cp $(BCDLL) build/
+.PHONY: all hkdf test noverif clean-build clean
 
-OTHERSRCS = $(filter-out src/Crypto/HKDF/HKDF.dfy,$(SRCS))
-build/HKDF.dll: $(SRCV) $(DEPS) 
-	$(DAFNY) /out:build/HKDF src/Crypto/HKDF/HKDF.dfy $(OTHERSRCS) $(DEPS) /compile:2 /noVerify /noIncludes && cp $(BCDLL) build/
+all: build test
 
-hkdf: build/HKDF.dll
+build: build/Main.exe
+
+verify: clean-build $(SRCV)
+
+build/%.dfy.verified: src/%.dfy
+	$(DAFNY) $(patsubst build/%.dfy.verified, src/%.dfy, $@) /compile:0 /compileVerbose:1 && mkdir -p $(dir $@) && touch $@
+
+build/Main.exe: verify $(DEPS) 
+	$(DAFNY) /out:build/Main $(SRCS) $(DEPS) /compile:2 /noVerify /noIncludes /compileVerbose:1 && cp $(BCDLL) build/
+
+# TODO: HKDF.dfy cannot be verified yet.
+# Once it can, re-add:
+#
+# OTHERSRCS = $(filter-out src/Crypto/HKDF/HKDF.dfy,$(SRCS))
+# build/HKDF.dll: $(SRCV) $(DEPS) 
+# 	$(DAFNY) /out:build/HKDF src/Crypto/HKDF/HKDF.dfy $(OTHERSRCS) $(DEPS) /compile:2 /noVerify /noIncludes && cp $(BCDLL) build/
+#
+# hkdf: build/HKDF.dll
 
 lib/%.dll:
 	nuget install
 
-noverif: $(DEPS)
-	$(DAFNY) /out:build/Main $(SRCS) $(DEPS) /compile:2 /noVerify /noIncludes && cp $(BCDLL) build/
+test:
+	lit test -q -v
 
-clean: 
+noverif: $(DEPS)
+	$(DAFNY) /out:build/Main $(SRCS) $(DEPS) /compile:2 /noVerify /noIncludes /compileVerbose:1 && cp $(BCDLL) build/
+
+clean-build:
 	rm -r build/*
+
+clean: clean-build
 	rm -r lib/*
