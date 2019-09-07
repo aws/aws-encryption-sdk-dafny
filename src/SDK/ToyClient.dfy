@@ -19,16 +19,19 @@ module ToyClientDef {
   class Client {
     var cmm: CMMDefs.CMM
     ghost var Repr: set<object>
+
     predicate Valid()
       reads this, Repr
     {
       this in Repr &&
       cmm in Repr && cmm.Repr <= Repr && this !in cmm.Repr && cmm.Valid()
     }
+
     constructor OfCMM(c: CMMDefs.CMM) requires c.Valid() ensures Valid() {
       cmm := c;
       Repr := {this, cmm} + c.Repr;
     }
+
     /*
     constructor OfKeyring(k: Keyring.Keyring) requires k.Valid() ensures Valid() ensures fresh(cmm) {
       cmm := new DefaultCMMDef.DefaultCMM.OfKeyring(k);
@@ -36,6 +39,7 @@ module ToyClientDef {
       Repr := {this, cmm} + cmm.Repr;
     }
     */
+
     method GetEncMaterials(ec: Materials.EncryptionContext) returns (res: Result<Materials.EncryptionMaterials>)
       requires Valid()
       ensures Valid()
