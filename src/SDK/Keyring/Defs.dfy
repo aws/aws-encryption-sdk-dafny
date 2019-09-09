@@ -1,4 +1,5 @@
 include "../../StandardLibrary/StandardLibrary.dfy"
+include "../../StandardLibrary/UInt.dfy"
 include "../Common.dfy"
 
 module KeyringDefs {
@@ -15,8 +16,9 @@ module KeyringDefs {
       modifies encMat`plaintextDataKey
       modifies encMat`encryptedDataKeys
       ensures Valid()
-      ensures res.Success? ==> res.value.Valid()
+      ensures res.Success? ==> res.value.Valid() && res.value == encMat
       ensures res.Success? && old(encMat.plaintextDataKey.Some?) ==> res.value.plaintextDataKey == old(encMat.plaintextDataKey)
+      ensures res.Failure? ==> unchanged(encMat)
       // TODO: keyring trace GENERATED_DATA_KEY flag assurance
       // TODO: keyring trace ENCRYPTED_DATA_KEY flag assurance
 
@@ -26,7 +28,9 @@ module KeyringDefs {
       modifies decMat`plaintextDataKey
       ensures Valid()
       // TODO: Valid output DecMaterials
-      ensures decMat.plaintextDataKey.Some? ==> res.Success? && res.value == decMat
+      //ensures decMat.plaintextDataKey.Some? ==> res.Success? && res.value == decMat // I don't think we can ensure success like this.
+      ensures res.Success? ==> res.value == decMat
+      ensures res.Failure? ==> unchanged(decMat)
       // TODO: keyring trace DECRYPTED_DATA_KEY flag assurance
   }
 }
