@@ -2,7 +2,6 @@ include "../StandardLibrary/StandardLibrary.dfy"
 include "../StandardLibrary/UInt.dfy"
 include "./AlgorithmSuite.dfy"
 
-
 module Materials {
   import opened StandardLibrary
   import opened UInt = StandardLibrary.UInt
@@ -81,7 +80,9 @@ module Materials {
     constructor(algorithmSuiteID: AlgorithmSuite.ID,
                 encryptionContext: EncryptionContext,
                 plaintextDataKey: Option<seq<uint8>>,
-                verificationKey: Option<seq<uint8>>) {
+                verificationKey: Option<seq<uint8>>)
+      ensures Valid()
+    {
       this.algorithmSuiteID := algorithmSuiteID;
       this.encryptionContext := encryptionContext;
       this.plaintextDataKey := plaintextDataKey;
@@ -89,8 +90,10 @@ module Materials {
     }
 
     method setPlaintextDataKey(dataKey: seq<uint8>)
+      requires Valid()
       requires plaintextDataKey.None?
       modifies `plaintextDataKey
+      ensures Valid()
       ensures plaintextDataKey == Some(dataKey)
     {
       plaintextDataKey := Some(dataKey);
