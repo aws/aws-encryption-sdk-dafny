@@ -6,7 +6,7 @@ include "./Defs.dfy"
 include "../../Crypto/Cipher.dfy"
 include "../../Crypto/GenBytes.dfy"
 include "../../Crypto/AESEncryption.dfy"
-include "../Common.dfy"
+include "../Materials.dfy"
 
 module AESKeyringDef {
     import opened KeyringDefs
