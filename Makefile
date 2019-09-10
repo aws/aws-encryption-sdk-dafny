@@ -30,13 +30,13 @@ build: build/Main.exe
 verify: clean-build $(SRCV)
 
 build/%.dfy.verified: src/%.dfy
-	$(DAFNY) $(patsubst build/%.dfy.verified, src/%.dfy, $@) /compile:0 /compileVerbose:1 && mkdir -p $(dir $@) && touch $@
+	$(DAFNY) $(patsubst build/%.dfy.verified, src/%.dfy, $@) /compile:0 && mkdir -p $(dir $@) && touch $@
 
 build/Main.exe: verify $(DEPS) 
-	$(DAFNY) /out:build/Main $(SRCS) $(DEPS) /compile:2 /noVerify /noIncludes /compileVerbose:1 && cp $(BCDLL) build/
+	$(DAFNY) /out:build/Main $(SRCS) $(DEPS) /compile:2 /noVerify /noIncludes && cp $(BCDLL) build/
 
-# TODO: HKDF.dfy cannot be verified yet.
-# Once it can, re-add:
+# TODO: HKDF.dfy hasn't been reviewed yet.
+# Once it is, re-add:
 #
 # OTHERSRCS = $(filter-out src/Crypto/HKDF/HKDF.dfy,$(SRCS))
 # build/HKDF.dll: $(SRCV) $(DEPS) 
@@ -51,7 +51,7 @@ test:
 	lit test -q -v
 
 noverif: $(DEPS)
-	$(DAFNY) /out:build/Main $(SRCS) $(DEPS) /compile:2 /noVerify /noIncludes /compileVerbose:1 && cp $(BCDLL) build/
+	$(DAFNY) /out:build/Main $(SRCS) $(DEPS) /compile:2 /noVerify /noIncludes && cp $(BCDLL) build/
 
 clean-build:
 	rm -r build/*

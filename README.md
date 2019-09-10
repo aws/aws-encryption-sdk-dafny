@@ -4,14 +4,34 @@
 
 AWS Encryption SDK for Dafny
 
+## Building
+
+To build, the AWS Encryption SDK requires the most up to date version of [dafny](https://github.com/dafny-lang/dafny) on your PATH.
+
+Building and verifying also requires [nuget](https://www.nuget.org/) to retrieve some dependencies.
+
+To build all files into one main executable:
+
+```
+make build
+```
+
+To run the dafny verifier across all files:
+
+```
+make verify
+```
+
+## Testing
+
+Requires install of the [LLVM Integrated Tester](https://llvm.org/docs/CommandGuide/lit.html (available through `pip install lit`).
+
+Run the test suite with:
+
+```
+make test
+```
+
 ## License
 
-This library is licensed under the Apache 2.0 License. 
-
-## Building (the HKDF)
-
-* You need to have a working Dafny installation and have Dafny.exe on your path
-  * Dafny itself depends on Boogie and an SMT solver such as Z3.
-* Download the BouncyCastle DLL by running e.g. `nuget install BouncyCastle` (requires `nuget` https://www.nuget.org/)
-* Run `make hkdf` to verify and build the hkdf
-* Run tests using `lit test` (requires the LLVM Integrated Tester `pip install lit`)
+This library is licensed under the Apache 2.0 License.
