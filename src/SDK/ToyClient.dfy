@@ -1,6 +1,6 @@
 include "../StandardLibrary/StandardLibrary.dfy"
 include "../StandardLibrary/UInt.dfy"
-include "Common.dfy"
+include "Materials.dfy"
 include "CMM/Defs.dfy"
 include "AlgorithmSuite.dfy"
 include "../Crypto/AESEncryption.dfy"
