@@ -6,7 +6,7 @@ include "./Defs.dfy"
 include "../../Crypto/Cipher.dfy"
 include "../../Crypto/GenBytes.dfy"
 include "../../Crypto/RSAEncryption.dfy"
-include "../Common.dfy"
+include "../Materials.dfy"
 
 module RSAKeyringDef {
     import opened KeyringDefs

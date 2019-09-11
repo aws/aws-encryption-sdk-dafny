@@ -9,7 +9,7 @@ module Materials {
 
   type EncryptionContext = seq<(seq<uint8>, seq<uint8>)>
 
-  datatype EncryptedDataKey = EncryptedDataKey(providerID : string,
+  datatype EncryptedDataKey = EncryptedDataKey(providerID : string, 
                                                providerInfo : seq<uint8>,
                                                ciphertext : seq<uint8>)
 
@@ -21,7 +21,7 @@ module Materials {
     var plaintextDataKey: Option<seq<uint8>>
     var signingKey: Option<seq<uint8>>
 
-    predicate Valid()
+    predicate Valid() 
       reads this
     {
       |encryptedDataKeys| > 0 ==> plaintextDataKey.Some?
@@ -70,7 +70,7 @@ module Materials {
     var encryptionContext: EncryptionContext
     var plaintextDataKey: Option<seq<uint8>>
     var verificationKey: Option<seq<uint8>>
-
+    
     predicate Valid()
       reads this
     {
@@ -80,7 +80,9 @@ module Materials {
     constructor(algorithmSuiteID: AlgorithmSuite.ID,
                 encryptionContext: EncryptionContext,
                 plaintextDataKey: Option<seq<uint8>>,
-                verificationKey: Option<seq<uint8>>) {
+                verificationKey: Option<seq<uint8>>)
+      ensures Valid()
+    {
       this.algorithmSuiteID := algorithmSuiteID;
       this.encryptionContext := encryptionContext;
       this.plaintextDataKey := plaintextDataKey;
@@ -88,8 +90,10 @@ module Materials {
     }
 
     method setPlaintextDataKey(dataKey: seq<uint8>)
+      requires Valid()
       requires plaintextDataKey.None?
       modifies `plaintextDataKey
+      ensures Valid()
       ensures plaintextDataKey == Some(dataKey)
     {
       plaintextDataKey := Some(dataKey);
@@ -100,7 +104,7 @@ module Materials {
     function method naive_merge<T> (x : seq<T>, y : seq<T>, lt : (T, T) -> bool) : seq<T>
     {
         if |x| == 0 then y
-        else if |y| == 0 then x
+        else if |y| == 0 then x 
         else if lt(x[0], y[0]) then [x[0]] + naive_merge(x[1..], y, lt)
         else [y[0]] + naive_merge(x, y[1..], lt)
     }
@@ -111,7 +115,7 @@ module Materials {
         var t := |x| / 2; naive_merge(naive_merge_sort(x[..t], lt), naive_merge_sort(x[t..], lt), lt)
 
     }
-
+    
     function method memcmp_le (a : seq<uint8>, b : seq<uint8>, len : nat) : (res : Option<bool>)
         requires |a| >= len
         requires |b| >= len {
@@ -130,7 +134,7 @@ module Materials {
         lex_lt(b.0, a.0)
     }
 
-    function method EncCtxFlatten (x : seq<(seq<uint8>, seq<uint8>)>) : seq<uint8> {
+    function method EncCtxFlatten (x : seq<(seq<uint8>, seq<uint8>)>) : seq<uint8> { 
         if x == [] then [] else
         x[0].0 + x[0].1 + EncCtxFlatten(x[1..])
     }
