@@ -7,36 +7,36 @@ module TestUInt {
   import StandardLibrary
   import opened UInt = StandardLibrary.UInt
 
-  method testSeqToUInt32() {
+  method TestSeqToUInt32() {
     var s := [0x01, 0x02, 0x30, 0x44];
-    if seqToUInt32(s) == 0x01023044 as uint32 {
+    if SeqToUInt32(s) == 0x01023044 as uint32 {
       print "CORRECT\n";
     } else {
       print "NOT CORRECT\n";
     }
   }
 
-  method testUInt32ToSeq() {
+  method TestUInt32ToSeq() {
     var x := 0x01023044;
-    if uint32ToSeq(x) == [0x01, 0x02, 0x30, 0x44] {
+    if UInt32ToSeq(x) == [0x01, 0x02, 0x30, 0x44] {
       print "CORRECT\n";
     } else {
       print "NOT CORRECT\n";
     }
   }
 
-  method testSeqToUInt16() {
+  method TestSeqToUInt16() {
     var s := [0x01, 0x22];
-    if seqToUInt16(s) == 0x0122 as uint16 {
+    if SeqToUInt16(s) == 0x0122 as uint16 {
       print "CORRECT\n";
     } else {
       print "NOT CORRECT\n";
     }
   }
 
-  method testUInt16ToSeq() {
+  method TestUInt16ToSeq() {
     var x := 0x0122;
-    if uint16ToSeq(x) == [0x01, 0x22] {
+    if UInt16ToSeq(x) == [0x01, 0x22] {
       print "CORRECT\n";
     } else {
       print "NOT CORRECT\n";
@@ -44,10 +44,10 @@ module TestUInt {
   }
 
   method Main() {
-    testSeqToUInt32();
-    testUInt32ToSeq();
+    TestSeqToUInt32();
+    TestUInt32ToSeq();
 
-    testSeqToUInt16();
-    testUInt16ToSeq();
+    TestSeqToUInt16();
+    TestUInt16ToSeq();
   }
 }
