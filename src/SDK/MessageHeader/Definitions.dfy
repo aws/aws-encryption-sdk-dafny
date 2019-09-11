@@ -36,6 +36,6 @@ module MessageHeader.Definitions {
     /*
     * Header authentication type definition
     */
-    
+
     datatype HeaderAuthentication = HeaderAuthentication(iv: array<uint8>, authenticationTag: array<uint8>)
 }

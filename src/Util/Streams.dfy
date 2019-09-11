@@ -72,7 +72,7 @@ module Streams {
     {
       res := Right(IOError("Cannot write to StringReader"));
     }
-    
+
     method Read(arr : array<uint8>, off : nat, req : nat) returns (res : Either<nat, Error>)
       requires Valid()
       requires arr.Length >= off + req
@@ -139,7 +139,7 @@ module Streams {
 
     function method capacity(): nat
       reads this
-      requires Valid() 
+      requires Valid()
       {
         0 // TODO?
       }
@@ -157,7 +157,7 @@ module Streams {
         data := [];
         Repr := {this};
     }
-    
+
     method Write(a: array<uint8>, off: nat, req: nat) returns (res: Either<nat, Error>)
       requires Valid()
       requires off + req <= a.Length
@@ -237,11 +237,11 @@ module Streams {
       ensures Valid()
       ensures
         match res
-          case Left(len_written) => 
+          case Left(len_written) =>
             if old(capacity()) == 0
             then
               len_written == 0
-            else 
+            else
               && len_written == 1
               && data == old(data) + [a]
               // Dafny->Boogie drops an old: https://github.com/dafny-lang/dafny/issues/320
@@ -278,7 +278,7 @@ module Streams {
         res := Right(IOError("Reached end of stream."));
       }
     }
-    
+
     method Read(arr : array<uint8>, off : nat, req : nat) returns (res : Either<nat, Error>)
       requires Valid()
       requires arr.Length >= off + req

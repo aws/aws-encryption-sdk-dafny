@@ -81,7 +81,7 @@ module RSAKeyringDef {
 
 
         method OnDecrypt(x : DecMaterials, edks : seq<EDK>) returns (res : Result<DecMaterials>)
-            requires Valid() 
+            requires Valid()
             requires WFDecMaterials(x)
             ensures Valid()
             ensures res.Ok? ==> WFDecMaterials(res.get)

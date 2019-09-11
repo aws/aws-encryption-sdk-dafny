@@ -23,10 +23,10 @@ namespace AESEncryption {
 
     public partial class AES_GCM {
 
-        public static STL.Result<byteseq> aes_encrypt(Cipher.CipherParams p, 
-                                                      byteseq iv, 
-                                                      byteseq key, 
-                                                      byteseq msg, 
+        public static STL.Result<byteseq> aes_encrypt(Cipher.CipherParams p,
+                                                      byteseq iv,
+                                                      byteseq key,
+                                                      byteseq msg,
                                                       byteseq aad) {
             try {
                 var cipher = new GcmBlockCipher(new AesEngine());
@@ -142,7 +142,7 @@ namespace RSAEncryption {
                 else { // paddingi_is_OAEP__SHA256
                     engine = new OaepEncoding(new RsaEngine(), new Sha256Digest(), null);
                 }
-            
+
                 using ( var txtreader = new StringReader(Encoding.UTF8.GetString(dk.Elements))) {
                     keyPair = (AsymmetricCipherKeyPair) new PemReader(txtreader).ReadObject();
                     engine.Init(false, keyPair.Private);
@@ -151,7 +151,7 @@ namespace RSAEncryption {
             }
             catch {
                 return new STL.Option_None<byteseq>();
-            }           
+            }
         }
     }
 }

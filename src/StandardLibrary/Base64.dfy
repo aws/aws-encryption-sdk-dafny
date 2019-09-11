@@ -16,7 +16,7 @@ module Base64 {
         |s| % 4 == 0 && forall k :: k in s ==> IsBase64Char(k)
     }
 
-    function method Base64Char(i: index): (c: char) 
+    function method Base64Char(i: index): (c: char)
         ensures IsBase64Char(c)
     {
         if i == 63 then '/'
@@ -48,7 +48,7 @@ module Base64 {
         assert n0 * 0x1_0000 + n1 * 0x100 + n2 == n;
         (n0 as uint8, n1 as uint8, n2 as uint8)
     }
-    
+
     function method CombineBytes(b: (uint8, uint8, uint8)): (n: int)
         ensures 0 <= n < 0x100_0000
         ensures SplitBytes(n) == b
@@ -148,8 +148,8 @@ module Base64 {
 
     predicate method Is1Padding(s: seq<char>) {
         |s| == 4 &&
-        IsBase64Char(s[0]) && 
-        IsBase64Char(s[1]) && 
+        IsBase64Char(s[0]) &&
+        IsBase64Char(s[1]) &&
         IsBase64Char(s[2]) && Base64Inv(s[2]) % 0x4 == 0 &&
         s[3] == '='
     }
@@ -174,9 +174,9 @@ module Base64 {
 
     predicate method Is2Padding(s: seq<char>) {
         |s| == 4 &&
-        IsBase64Char(s[0]) && 
-        IsBase64Char(s[1]) && Base64Inv(s[1]) % 0x10 == 0 && 
-        s[2] == '=' && 
+        IsBase64Char(s[0]) &&
+        IsBase64Char(s[1]) && Base64Inv(s[1]) % 0x10 == 0 &&
+        s[2] == '=' &&
         s[3] == '='
     }
 
@@ -198,17 +198,17 @@ module Base64 {
     }
 
     predicate method IsBase64String(s: string) {
-        && |s| % 4 == 0 
+        && |s| % 4 == 0
         && (|| IsUnpaddedBase64String(s)
             || (&& IsUnpaddedBase64String(s[..|s|-4])
-                && (|| Is2Padding(s[|s|-4..]) 
+                && (|| Is2Padding(s[|s|-4..])
                     || Is1Padding(s[|s|-4..]))))
     }
 
     function method DecodeValid(s: seq<char>): (b: seq<uint8>)
         requires IsBase64String(s)
     {
-        if s == [] then [] 
+        if s == [] then []
         else if Is2Padding(s[|s|-4..]) then DecodeConverter(s[..|s|-4]) + Decode2Padding(s[|s|-4..])
         else if Is1Padding(s[|s|-4..]) then DecodeConverter(s[..|s|-4]) + Decode1Padding(s[|s|-4..])
         else DecodeConverter(s)
@@ -229,7 +229,7 @@ module Base64 {
         assert DecodeValid(res) == b;
         res
     }
-    
+
     method TestBase64(msg: string, expected: string)
         requires forall k :: 0 <= k < |msg| ==> 0 <= msg[k] as int < 0x100
     {

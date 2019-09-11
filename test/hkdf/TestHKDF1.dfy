@@ -8,7 +8,7 @@ include "../../src/Crypto/HKDF/HKDF.dfy"
 include "../../src/Crypto/HKDF/HKDFSpec.dfy"
 
 module TestHKDF1 {
-  
+
   import opened StandardLibrary
   import opened HKDF
   import opened Digests

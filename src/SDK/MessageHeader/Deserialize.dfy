@@ -10,7 +10,7 @@ include "../../Util/UTF8.dfy"
 
 /*
  * The message header deserialization
- * 
+ *
  * The message header is deserialized from a uint8 stream.
  * When encountering an error, we stop and return it immediately, leaving the remaining inputs on the stream
  */
@@ -157,7 +157,7 @@ module MessageHeader.Deserialize {
         modifies is
         ensures
             match ret
-                case Left(aad) => 
+                case Left(aad) =>
                     && ValidAAD(aad)
                     // TODO: I think we need to establish freshness to connect
                     //       deserialization with the caller.
@@ -257,7 +257,7 @@ module MessageHeader.Deserialize {
                 }
             }
             assert value.Length <= UINT16_MAX;
-            
+
             // check for sortedness by key
             if i > 0 {
                 if lexCmpArrays(kvPairs[i-1].0, key, ltByte) {
@@ -341,7 +341,7 @@ module MessageHeader.Deserialize {
                 case Left(bytes) => keyProviderInfoLength := arrayToUInt16(bytes);
                 case Right(e)    => return Right(e);
             }
-            
+
             var keyProviderInfo := new uint8[keyProviderInfoLength];
             res := deserializeUnrestricted(is, keyProviderInfoLength as nat);
             match res {
@@ -356,14 +356,14 @@ module MessageHeader.Deserialize {
                 case Left(bytes) => edkLength := arrayToUInt16(bytes);
                 case Right(e)    => return Right(e);
             }
-            
+
             var edk := new uint8[edkLength];
             res := deserializeUnrestricted(is, edkLength as nat);
             match res {
                 case Left(bytes) => edk := bytes;
                 case Right(e)    => return Right(e);
             }
-            
+
             edks.entries[i] := EDKEntry(keyProviderID, keyProviderInfo, edk);
             i := i + 1;
         }
@@ -486,7 +486,7 @@ module MessageHeader.Deserialize {
                 case Right(e)   => return Right(e);
             }
         }
-        
+
         var algorithmSuiteID: AlgorithmSuite.ID;
         {
             var res := deserializeAlgorithmSuiteID(is);
@@ -495,7 +495,7 @@ module MessageHeader.Deserialize {
                 case Right(e)                => return Right(e);
             }
         }
-        
+
         var messageID: T_MessageID;
         {
             var res := deserializeMsgID(is);
@@ -533,7 +533,7 @@ module MessageHeader.Deserialize {
                 case Right(e)           => return Right(e);
             }
         }
-        
+
         var reserved: T_Reserved;
         {
             var res := deserializeReserved(is);
@@ -596,7 +596,7 @@ module MessageHeader.Deserialize {
         ensures is.Valid()
         ensures
             match ret
-                case Left(headerAuthentication) => 
+                case Left(headerAuthentication) =>
                     && ValidHeaderAuthentication(headerAuthentication, body.algorithmSuiteID)
                     && ValidHeaderBody(body)
                 case Right(_) => true
@@ -610,7 +610,7 @@ module MessageHeader.Deserialize {
                 case Right(e)    => return Right(e);
             }
         }
-        
+
         var authenticationTag: array<uint8>;
         {
             var res := deserializeAuthenticationTag(is, AlgorithmSuite.Suite[body.algorithmSuiteID].params.tagLen as nat, iv);

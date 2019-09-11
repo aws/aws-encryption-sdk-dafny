@@ -7,7 +7,7 @@ include "../../StandardLibrary/StandardLibrary.dfy"
 module MessageHeader.SerializeAAD {
     import opened Definitions
     import opened Validity
-    
+
     import opened Streams
     import opened StandardLibrary
     import opened UInt = StandardLibrary.UInt
@@ -24,13 +24,13 @@ module MessageHeader.SerializeAAD {
         // reads ReprAADUpTo(kvPairs, kvPairs.Length)
     {
         if i < kvPairs.Length
-        then 
+        then
             uint16ToSeq(kvPairs[i].0.Length as uint16) + kvPairs[i].0[..] +
             uint16ToSeq(kvPairs[i].1.Length as uint16) + kvPairs[i].1[..] +
             encCtxToSeqRec(kvPairs, i + 1)
         else []
     }
-    
+
     function encCtxToSeq(kvPairs: EncCtx): (ret: seq<uint8>)
         requires forall i :: 0 <= i < kvPairs.Length ==> kvPairs[i].0.Length <= UINT16_MAX && kvPairs[i].1.Length <= UINT16_MAX
         reads kvPairs
@@ -56,7 +56,7 @@ module MessageHeader.SerializeAAD {
                 uint16ToSeq(0)
         }
     }
-    
+
     method serializeAADImpl(os: StringWriter, aad: T_AAD) returns (ret: Either<nat, Error>)
         requires os.Valid()
         modifies os`data // do we need to establish non-aliasing with encryptedDataKeys here?
@@ -119,7 +119,7 @@ module MessageHeader.SerializeAAD {
                     assert written[i-1] <= written[i] <= |os.data| ==> os.data[written[i-1]..written[i]] == bytes[..];
                     assert totalWritten <= |serializeAAD(aad)|;
                 }
-            
+
                 Assume(false); // TODO: verification times out after this point. I believe that we just do too many heap updates.
 
                 var j := 0;
@@ -160,7 +160,7 @@ module MessageHeader.SerializeAAD {
                         assert written[i] - written[i-1] == bytes.Length;
                         assert written[i-1] <= written[i] <= |os.data| ==> os.data[written[i-1]..written[i]] == bytes[..];
                     }
-                    
+
                     {
                         assert InBoundsKVPairsUpTo(kvPairs, j) ==> kvPairs[j].1.Length <= UINT16_MAX;
                         var bytes := uint16ToArray(kvPairs[j].1.Length as uint16);
@@ -174,7 +174,7 @@ module MessageHeader.SerializeAAD {
                         assert written[i] - written[i-1] == bytes.Length;
                         assert written[i-1] <= written[i] <= |os.data| ==> os.data[written[i-1]..written[i]] == bytes[..];
                     }
-                    
+
                     {
                         var bytes := kvPairs[j].1;
                         ret := os.WriteSimple(bytes);
