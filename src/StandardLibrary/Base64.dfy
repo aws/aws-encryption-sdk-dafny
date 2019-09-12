@@ -215,11 +215,11 @@ module Base64 {
     }
 
     function method Decode(s: seq<char>): (b: Result<seq<uint8>>) {
-        if IsBase64String(s) then Ok(DecodeValid(s)) else Err("The encoding is malformed")
+        if IsBase64String(s) then Success(DecodeValid(s)) else Failure("The encoding is malformed")
     }
 
     function method Encode(b: seq<uint8>): (s: seq<char>)
-        ensures Decode(s) == Ok(b)
+        ensures Decode(s) == Success(b)
     {
         var res := (
             if |b| % 3 == 0 then EncodeConverter(b)
@@ -247,12 +247,12 @@ module Base64 {
         print "The encoding ", (if encoded == expected then "matches" else "doesn't match"), " the expected.\n";
 
         var decoded := Decode(encoded);
-        assert decoded.get == uint8Msg;
+        assert decoded.value == uint8Msg;
 
         var dmsg := "";
         i := 0;
-        while i < |decoded.get| {
-            dmsg := dmsg + [decoded.get[i] as int as char];
+        while i < |decoded.value| {
+            dmsg := dmsg + [decoded.value[i] as int as char];
             i := i + 1;
         }
         print "The decoded message is: ", dmsg, "\n\n";

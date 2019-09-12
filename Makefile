@@ -17,9 +17,15 @@ SRCS = src/SDK/AlgorithmSuite.dfy \
 	   src/Crypto/RSAEncryption.dfy \
 	   src/Crypto/Signature.dfy \
 	   src/SDK/Keyring/Defs.dfy \
+	   src/SDK/Keyring/RSAKeyring.dfy \
 	   src/SDK/Keyring/AESKeyring.dfy \
 	   src/StandardLibrary/StandardLibrary.dfy \
 	   src/StandardLibrary/UInt.dfy \
+	   src/StandardLibrary/Base64.dfy \
+	   src/SDK/CMM/Defs.dfy \
+	   src/SDK/CMM/DefaultCMM.dfy \
+	   src/SDK/ToyClient.dfy \
+	   src/Main.dfy \
 
 SRCV = $(patsubst src/%.dfy, build/%.dfy.verified, $(SRCS))
 
@@ -32,7 +38,7 @@ DEPS = $(foreach dir, $(SRCDIRS), $(wildcard $(dir)/*.cs)) \
 
 .PHONY: all hkdf test noverif clean-build clean
 
-all: build test
+all: verify build test
 
 build: build/Main.exe
 
@@ -41,7 +47,7 @@ verify: clean-build $(SRCV)
 build/%.dfy.verified: src/%.dfy
 	$(DAFNY) $(patsubst build/%.dfy.verified, src/%.dfy, $@) /compile:0 && mkdir -p $(dir $@) && touch $@
 
-build/Main.exe: verify $(DEPS) 
+build/Main.exe: $(SRCS) $(DEPS)
 	$(DAFNY) /out:build/Main $(SRCS) $(DEPS) /compile:2 /noVerify /noIncludes && cp $(BCDLL) build/
 
 # TODO: HKDF.dfy hasn't been reviewed yet.
