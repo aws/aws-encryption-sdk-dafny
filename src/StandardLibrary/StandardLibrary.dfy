@@ -11,6 +11,11 @@ module {:extern "STL"} StandardLibrary {
 
   datatype {:extern} Result<T> = Success(value : T) | Failure(error : string)
 
+  //TODO Make this stronger.
+  predicate ValidUTF8(s: string) {
+    forall i :: i in s ==> i < 256 as char
+  }
+
   function Fill<T>(value: T, n: nat): seq<T>
     ensures |Fill(value, n)| == n
     ensures forall i :: 0 <= i < n ==> Fill(value, n)[i] == value
@@ -26,13 +31,13 @@ module {:extern "STL"} StandardLibrary {
     a := new T[|s|](i requires 0 <= i < |s| => s[i]);
   }
 
-  function method byteseq_of_string (s : string) : (s' : seq<uint8>)
-    requires forall i :: i in s ==> i < 256 as char
+  function method StringToByteSeq (s : string) : (s' : seq<uint8>)
+    requires ValidUTF8(s)
     ensures |s| == |s'| 
   {
       if s == [] then [] else  (
         assert (forall i :: i in s[1..] ==> i in s);
-        [(s[0] as int % 256) as uint8] + byteseq_of_string(s[1..]))
+        [(s[0] as int % 256) as uint8] + StringToByteSeq(s[1..]))
   }
 
   function method byteseq_of_string_lossy (s : string) : (s' : seq<uint8>)
@@ -43,16 +48,16 @@ module {:extern "STL"} StandardLibrary {
         [(s[0] as int % 256) as uint8] + byteseq_of_string_lossy(s[1..]))
   }
 
-  function method string_of_byteseq (s : seq<uint8>) : (s' : string)
+  function method ByteSeqToString (s : seq<uint8>) : (s' : string)
     ensures |s| == |s'| 
-    ensures forall i :: i in s' ==> i < 256 as char
+    ensures ValidUTF8(s')
   {
-      if s == [] then [] else [(s[0] as char)] + string_of_byteseq(s[1..])
+      if s == [] then [] else [(s[0] as char)] + ByteSeqToString(s[1..])
   }
 
-  lemma string_byteseqK (s : string)
-    requires forall i :: i in s ==> i < 256 as char
-    ensures string_of_byteseq(byteseq_of_string(s)) == s {
+  lemma string_byteseqK (s : string) //Before I change the name of this lemma, I want to know what it means.
+    requires ValidUTF8(s)
+    ensures ByteSeqToString(StringToByteSeq(s)) == s {
       if s == [] {
 
       }
@@ -63,8 +68,8 @@ module {:extern "STL"} StandardLibrary {
       }
     }
 
-  lemma byteseq_stringK (s : seq<uint8>)
-    ensures byteseq_of_string(string_of_byteseq(s)) == s {
+  lemma byteseq_stringK (s : seq<uint8>) //Before I change the name of this lemma, I want to know what it means.
+    ensures StringToByteSeq(ByteSeqToString(s)) == s {
 
     }
 

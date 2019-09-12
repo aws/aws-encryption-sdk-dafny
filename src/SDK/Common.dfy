@@ -10,7 +10,7 @@ module Materials {
 
   type EncryptionContext = seq<(seq<uint8>, seq<uint8>)>
 
-  datatype EncryptedDataKey = EncryptedDataKey(providerID : seq<uint8>,
+  datatype EncryptedDataKey = EncryptedDataKey(providerID : string,
                                                providerInfo : seq<uint8>,
                                                ciphertext : seq<uint8>)
 
@@ -85,14 +85,15 @@ module Materials {
     }
 
     method setPlaintextDataKey(dataKey: seq<uint8>)
-      modifies `plaintextDataKey
       requires plaintextDataKey.None?
+      modifies `plaintextDataKey
       ensures plaintextDataKey == Some(dataKey)
     {
       plaintextDataKey := Some(dataKey);
     }
   }
 
+    //TODO: Review this code.
     function method naive_merge<T> (x : seq<T>, y : seq<T>, lt : (T, T) -> bool) : seq<T>
     {
         if |x| == 0 then y

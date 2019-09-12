@@ -28,7 +28,9 @@ module KeyringDefs {
       modifies decMat`plaintextDataKey
       ensures Valid()
       // TODO: Valid output DecMaterials
-      //ensures decMat.plaintextDataKey.Some? ==> res.Success? && res.value == decMat // I don't think we can ensure success like this.
+      ensures old(decMat.plaintextDataKey.Some?) ==> res.Success? &&
+                                                res.value == decMat &&
+                                                unchanged(decMat)
       ensures res.Success? ==> res.value == decMat
       ensures res.Failure? ==> unchanged(decMat)
       // TODO: keyring trace DECRYPTED_DATA_KEY flag assurance

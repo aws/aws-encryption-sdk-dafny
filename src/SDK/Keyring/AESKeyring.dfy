@@ -9,121 +9,134 @@ include "../../Crypto/AESEncryption.dfy"
 include "../Common.dfy"
 
 module AESKeyringDef {
-  import opened KeyringDefs
   import opened StandardLibrary
   import opened UInt = StandardLibrary.UInt
-  import opened Cipher
-  import GenBytes = RNG
   import AlgorithmSuite
-  import AES = AESEncryption
+  import Cipher
+  import GenBytes = RNG
+  import KeyringDefs
+  import AESEncryption
   import Mat = Materials
 
-  class AESKeyring extends Keyring {
-    const key_namespace : seq<uint8>
-    const key_name : seq<uint8>
-    const wrapping_key : seq<uint8>
-    const aes_type : CipherParams
+  class AESKeyring extends KeyringDefs.Keyring {
+    const keyNamespace: string
+    const keyName: string
+    const wrappingKey: seq<uint8>
+    const aesType: Cipher.CipherParams
 
     predicate Valid() reads this {
         Repr == {this} &&
-        (|wrapping_key| == KeyLengthOfCipher(aes_type)) &&
-        (aes_type in {AES_GCM_128, AES_GCM_192, AES_GCM_256})
+        (|wrappingKey| == Cipher.KeyLengthOfCipher(aesType)) &&
+        (aesType in {Cipher.AES_GCM_128, Cipher.AES_GCM_192, Cipher.AES_GCM_256}) &&
+        ValidUTF8(keyNamespace) && ValidUTF8(keyName)
     }
 
-    constructor(namespace: seq<uint8>, name: seq<uint8>, key: seq<uint8>, params: CipherParams)
-    requires params in {AES_GCM_128, AES_GCM_192, AES_GCM_256}
-    requires |key| == KeyLengthOfCipher(params)
-    ensures key_namespace == namespace
-    ensures key_name == name
-    ensures wrapping_key == key
-    ensures aes_type == params
-    ensures aes_type in {AES_GCM_128, AES_GCM_192, AES_GCM_256} //This seems redundant
+    constructor(namespace: string, name: string, key: seq<uint8>, params: Cipher.CipherParams)
+    //TODO Verify that CipherParams contains valid values.
+    requires ValidUTF8(namespace) && ValidUTF8(name)
+    requires params in {Cipher.AES_GCM_128, Cipher.AES_GCM_192, Cipher.AES_GCM_256}
+    requires |key| == Cipher.KeyLengthOfCipher(params)
+    ensures keyNamespace == namespace
+    ensures keyName == name
+    ensures wrappingKey == key
+    ensures aesType == params
     ensures Valid()
     {
-      key_namespace := namespace;
-      key_name := name;
-      wrapping_key := key;
-      aes_type := params;
+      keyNamespace := namespace;
+      keyName := name;
+      wrappingKey := key;
+      aesType := params;
       Repr := {this};
     }
 
-    function method aes_provider_info(iv: seq<uint8>): seq<uint8>
-      requires |iv| == 12
+    function method AESProviderInfo(iv: seq<uint8>): seq<uint8>
+      requires Valid()
+      requires |iv| == aesType.ivLen as int
       reads this
     {
-      key_name + 
-        [0, 0, 0, TAG_LEN * 8] + // tag length in bits
-        [0, 0, 0, IV_LEN] + // IV length in bytes
+      StringToByteSeq(keyName) + 
+        [0, 0, 0, aesType.tagLen * 8] + // tag length in bits
+        [0, 0, 0, aesType.ivLen] + // IV length in bytes
         iv
     }
 
-    method OnEncrypt(x: Mat.EncryptionMaterials) returns (res: Result<Mat.EncryptionMaterials>)
-      requires x.Valid()
+    method OnEncrypt(encMat: Mat.EncryptionMaterials) returns (res: Result<Mat.EncryptionMaterials>)
+      requires encMat.Valid()
       requires Valid() ensures Valid()
-      modifies x`plaintextDataKey
-      modifies x`encryptedDataKeys
-      ensures res.Success? ==> res.value.Valid() && res.value == x
-      ensures res.Success? && old(x.plaintextDataKey.Some?) ==> res.value.plaintextDataKey == old(x.plaintextDataKey)
-      ensures res.Failure? ==> unchanged(x)
+      modifies encMat`plaintextDataKey
+      modifies encMat`encryptedDataKeys
+      ensures res.Success? ==> res.value.Valid() && res.value == encMat
+      ensures res.Success? && old(encMat.plaintextDataKey.Some?) ==> res.value.plaintextDataKey == old(encMat.plaintextDataKey)
+      ensures res.Failure? ==> unchanged(encMat)
     {
-      var data_key := x.plaintextDataKey;
-      var alg_id := x.algorithmSuiteID;
-      if data_key.None? {
-        var k := RNG.GenBytes(AlgorithmSuite.InputKeyLength(alg_id) as uint16);
-        data_key := Some(k);
+      var dataKey := encMat.plaintextDataKey;
+      var algSuiteID := encMat.algorithmSuiteID;
+      if dataKey.None? {
+        var k := Cipher.RNG.GenBytes(AlgorithmSuite.InputKeyLength(algSuiteID) as uint16);
+        dataKey := Some(k);
       }
-      var iv := GenIV(aes_type);
-      var aad := if x.encryptionContext.Some?
-                 then Mat.FlattenSortEncCtx(x.encryptionContext.get)
+      var iv := Cipher.RNG.GenBytes(aesType.ivLen as uint16);
+      var aad := if encMat.encryptionContext.Some?
+                 then Mat.FlattenSortEncCtx(encMat.encryptionContext.get)
                  else []; //FIXME this is a hack, and I hate it.
-      var edk_ctxt := AES.AES.aes_encrypt(aes_type, iv, wrapping_key, data_key.get, aad);
-      if edk_ctxt.Failure? { return Failure("Error on encrypt!"); }
-      var provider_info := aes_provider_info(iv);
-      var edk := Mat.EncryptedDataKey(key_namespace, provider_info, edk_ctxt.value);
-      x.plaintextDataKey := data_key;
-      x.encryptedDataKeys := x.encryptedDataKeys + [edk];
-      return Success(x);
+      var encryptResult := AESEncryption.AES.aes_encrypt(aesType, iv, wrappingKey, dataKey.get, aad);
+      if encryptResult.Failure? { return Failure("Error on encrypt!"); }
+      var providerInfo := AESProviderInfo(iv);
+      var edk := Mat.EncryptedDataKey(keyNamespace, providerInfo, encryptResult.value);
+      encMat.plaintextDataKey := dataKey;
+      encMat.encryptedDataKeys := encMat.encryptedDataKeys + [edk];
+      return Success(encMat);
     }
 
-    function method ParseProviderInfo(info: seq<uint8>): Option<seq<uint8>> // returns the IV in the provider info, if it's of the right shape and key name is good
+    predicate method ValidProviderInfo(info: seq<uint8>)
     {
-      if |info| != |key_name| + 4 + 4 + 12 then None else
-      if info[0..|key_name|] != key_name then None else
-      Some(info[|key_name| + 8 ..])
+      //TODO Replace 4s with descriptive constants for auth tag length length, and IV length length
+      |info| == |keyName| + 4 + 4 + 12 &&
+      ByteSeqToString(info[0..|keyName|]) == keyName &&
+      seqToUInt32(info[|keyName|..|keyName| + 4]) == aesType.tagLen as uint32 &&
+      seqToUInt32(info[|keyName| + 4 .. |keyName| + 4 + 4]) == aesType.ivLen as uint32
     }
 
-    method OnDecrypt(x: Mat.DecryptionMaterials, edks: seq<Mat.EncryptedDataKey>) returns (res: Result<Mat.DecryptionMaterials>)
+    function method GetIvFromProvInfo(info: seq<uint8>): seq<uint8>
+      requires ValidProviderInfo(info)
+    {
+      info[|keyName| + 8 ..]
+    }
+
+    method OnDecrypt(decMat: Mat.DecryptionMaterials, edks: seq<Mat.EncryptedDataKey>) returns (res: Result<Mat.DecryptionMaterials>)
       requires Valid() 
       //requires x.Valid() //TODO Uncomment when valid is defined.
-      modifies x`plaintextDataKey
+      modifies decMat`plaintextDataKey
       ensures Valid()
-      //ensures res.Success? ==> res.value.Valid()
-      ensures res.Success? ==> res.value == x
-      ensures res.Failure? ==> unchanged(x)
+      ensures old(decMat.plaintextDataKey.Some?) ==> res.Success? &&
+                                                res.value == decMat &&
+                                                unchanged(decMat)
+      ensures res.Success? ==> res.value == decMat
+      ensures res.Failure? ==> unchanged(decMat)
     {
-      if |edks| == 0 { return Failure("No edks given to OnDecrypt!"); }
-      if edks[0].providerID != key_namespace { var res := OnDecrypt(x, edks[1..]); return res;}
-      match ParseProviderInfo(edks[0].providerInfo) {
-        case None => {var res := OnDecrypt(x, edks[1..]); return res;}
-        case Some(iv) => {
-          var flatEncCtx: seq<uint8> := if x.encryptionContext.Some?
-                                        then Mat.FlattenSortEncCtx(x.encryptionContext.get)
+      if decMat.plaintextDataKey.Some? {
+        return Success(decMat);
+      } else if |edks| == 0 {
+        return Failure("No edks given to OnDecrypt!");
+      }
+      var i := |edks|;
+      while i < |edks| {
+        if edks[i].providerID == keyNamespace && ValidProviderInfo(edks[i].providerInfo) {
+          var iv := GetIvFromProvInfo(edks[i].providerInfo);
+          var flatEncCtx: seq<uint8> := if decMat.encryptionContext.Some?
+                                        then Mat.FlattenSortEncCtx(decMat.encryptionContext.get)
                                         else []; //FIXME this is a hack, and I hate it.
-          var octxt: Result<seq<uint8>> := AES.AES.aes_decrypt(aes_type, TAG_LEN, wrapping_key, edks[0].ciphertext, iv, flatEncCtx);
-          match octxt {
-            case Failure(e) => {var res := OnDecrypt(x, edks[1..]); return res;}
-            case Success(ptKey) => {
-              if |ptKey| == AlgorithmSuite.InputKeyLength(x.algorithmSuiteID) { // check for correct key length
-                x.plaintextDataKey := Some(ptKey);
-                return Success(x);
-              }
-              else {
-                return Failure("Bad key length!");
-              }
+          var decryptResult := AESEncryption.AES.aes_decrypt(aesType, Cipher.TAG_LEN, wrappingKey, edks[0].ciphertext, iv, flatEncCtx);
+          if decryptResult.Success? {
+            var ptKey := decryptResult.value;
+            if |ptKey| == AlgorithmSuite.InputKeyLength(decMat.algorithmSuiteID) { // check for correct key length
+              decMat.plaintextDataKey := Some(ptKey);
+              return Success(decMat);
             }
           }
         }
       }
+      return Failure("Could not decrypt with any given EDK");
     }
   }
 }
