@@ -1,4 +1,4 @@
-include "../Common.dfy"
+include "../Materials.dfy"
 include "../../StandardLibrary/StandardLibrary.dfy"
 include "../../StandardLibrary/UInt.dfy"
 include "../../StandardLibrary/Base64.dfy"
@@ -90,7 +90,7 @@ module DefaultCMMDef {
                 case Err(e) => {return Err(e);}
             }
         }
-        
+
         constructor OfKeyring(k : KeyringDefs.Keyring) requires k.Valid() ensures kr == k ensures Valid() {
             kr := k;
             Repr := {this, kr} + k.Repr;

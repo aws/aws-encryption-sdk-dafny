@@ -3,13 +3,50 @@ include "UInt.dfy"
 module {:extern "STL"} StandardLibrary {
   import opened U = UInt
 
-  datatype {:extern} Option<T> = None | Some(get: T)
+  datatype Option<T> = None | Some(get: T)
+  {
+    function method ToResult(): Result<T> {
+      match this
+      case Some(v) => Success(v)
+      case None() => Failure("Option is None")
+    }
+    function method GetOrElse(default: T): T {
+      match this
+      case Some(v) => v
+      case None => default
+    }
+  }
 
   datatype Either<S,T> = Left(left: S) | Right(right: T)
 
   datatype Error = IOError(msg: string) | DeserializationError(msg: string) | SerializationError(msg: string) | Error(msg : string)
 
-  datatype {:extern} Result<T> = Success(value : T) | Failure(error : string)
+  datatype Result<T> = Success(value: T) | Failure(error: string)
+  {
+    predicate method IsFailure() {
+      Failure?
+    }
+    function method PropagateFailure<U>(): Result<U>
+      requires Failure?
+    {
+      Failure(this.error)
+    }
+    function method Extract(): T
+      requires Success?
+    {
+      value
+    }
+    function method ToOption(): Option<T> {
+      match this
+      case Success(s) => Some(s)
+      case Failure(e) => None()
+    }
+    function method GetOrElse(default: T): T {
+      match this
+      case Success(s) => s
+      case Failure(e) => default
+    }
+  }
 
   //TODO Make this stronger.
   predicate ValidUTF8(s: string) {
@@ -24,8 +61,8 @@ module {:extern "STL"} StandardLibrary {
   }
 
   method array_of_seq<T> (s : seq<T>)  returns (a : array<T>)
-    ensures fresh(a) 
-    ensures a.Length == |s| 
+    ensures fresh(a)
+    ensures a.Length == |s|
     ensures forall i :: 0 <= i < |s| ==> a[i] == s[i]
   {
     a := new T[|s|](i requires 0 <= i < |s| => s[i]);
@@ -136,7 +173,7 @@ module {:extern "STL"} StandardLibrary {
 
   // TODO
   lemma {:axiom} uniq_multisetP<T> (s : seq<T>)
-    ensures uniq(s) <==> (forall x :: x in s ==> multiset(s)[x] == 1) 
+    ensures uniq(s) <==> (forall x :: x in s ==> multiset(s)[x] == 1)
 
   function method sum<T>(s : seq<T>, f : T -> int) : int {
       if s == [] then 0 else f(s[0]) + sum(s[1..], f)
@@ -144,8 +181,8 @@ module {:extern "STL"} StandardLibrary {
 
   lemma {:axiom} sum_perm<T> (s : seq <T>, s' : seq<T>, f : T -> int)
       requires multiset(s) == multiset(s')
-      ensures sum(s, f) == sum(s', f)  
-       
+      ensures sum(s, f) == sum(s', f)
+
 
   function count<T> (s : seq<T>, x : T) : int {
     if s == [] then 0 else (if s[0] == x then 1 else 0) + count(s[1..], x)
@@ -207,7 +244,7 @@ module {:extern "STL"} StandardLibrary {
       }
     }
 
-  lemma multiset_seq_count<T> (s : seq<T>, x : T) 
+  lemma multiset_seq_count<T> (s : seq<T>, x : T)
   ensures multiset(s)[x] == count(s, x) {
     if s == [] { }
     else {
@@ -221,9 +258,9 @@ module {:extern "STL"} StandardLibrary {
   // TODO
   lemma {:axiom} multiset_seq_eq1<T> (s : seq<T>)
     requires forall i, j :: 0 <= i < j < |s| ==> s[i] != s[j]
-    ensures forall x :: x in multiset(s) ==> multiset(s)[x] == 1 
+    ensures forall x :: x in multiset(s) ==> multiset(s)[x] == 1
 
-  // TODO 
+  // TODO
   lemma {:axiom} multiset_of_seq_dup<T> (s : seq<T>, i : int, j : int)
       requires 0 <= i < j < |s|
       requires s[i] == s[j]
@@ -236,7 +273,7 @@ module {:extern "STL"} StandardLibrary {
   // TODO
   lemma {:axiom} seq_dup_multset<T> (s : seq<T>, x : T)
     requires multiset(s)[x] > 1
-    ensures exists i, j :: 0 <= i < j < |s| && s[i] == s[j]  
+    ensures exists i, j :: 0 <= i < j < |s| && s[i] == s[j]
 
 
   lemma eq_multiset_seq_memP<T> (s : seq<T>, s' : seq<T>, x : T)
@@ -305,7 +342,7 @@ module {:extern "STL"} StandardLibrary {
   predicate method ltByte(a: uint8, b: uint8) { a < b }
   predicate method ltNat (a: nat,  b: nat)  { a < b }
   predicate method ltInt (a: int,  b: int)  { a < b }
-  
+
   predicate method lexCmpArrays<T(==)>(a : array<T>, b : array<T>, lt: (T, T) -> bool)
       reads a, b
   {
@@ -319,12 +356,12 @@ module {:extern "STL"} StandardLibrary {
       decreases a.Length - i
       reads a, b
   {
-      if a[i] != b[i] 
+      if a[i] != b[i]
       then lt(a[i], b[i])
-      else 
+      else
           if i+1 < a.Length && i+1 < b.Length
           then lexCmpArraysNonEmpty(a, b, i+1, lt)
-          else 
+          else
               if i+1 == a.Length && i+1 < b.Length
               then true
               else
@@ -335,5 +372,5 @@ module {:extern "STL"} StandardLibrary {
 
   lemma {:axiom} eq_multiset_eq_len<T> (s : seq<T>, s' : seq<T>)
       requires multiset(s) == multiset(s')
-      ensures |s| == |s'| 
+      ensures |s| == |s'|
 }

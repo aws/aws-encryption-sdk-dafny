@@ -6,7 +6,7 @@ include "./Defs.dfy"
 include "../../Crypto/Cipher.dfy"
 include "../../Crypto/GenBytes.dfy"
 include "../../Crypto/RSAEncryption.dfy"
-include "../Common.dfy"
+include "../Materials.dfy"
 
 module MultiKeyringDef {
     import opened KeyringDefs
@@ -18,7 +18,7 @@ module MultiKeyringDef {
     import RSA = RSAEncryption
     import opened SDKDefs
 
-    function childrenRepr (xs : seq<Keyring>) : (res : set<object>) reads (set i | 0 <= i < |xs| :: xs[i]) 
+    function childrenRepr (xs : seq<Keyring>) : (res : set<object>) reads (set i | 0 <= i < |xs| :: xs[i])
         ensures forall i :: i in xs ==> i in res && i.Repr <= res
     {
         if xs == [] then {} else
@@ -46,7 +46,7 @@ module MultiKeyringDef {
         }
         predicate Valid() reads this, Repr {
             children in Repr &&
-            (generator != null ==> generator in Repr  && generator.Repr <= Repr && generator.Valid())  && 
+            (generator != null ==> generator in Repr  && generator.Repr <= Repr && generator.Valid())  &&
             (forall j :: 0 <= j < children.Length ==> children[j] in Repr && children[j].Repr <= Repr && children[j].Valid()) &&
             Repr == {this} + (if generator != null then {generator} + generator.Repr else {}) + {children} + childrenRepr(children[..])
         }
@@ -107,7 +107,7 @@ module MultiKeyringDef {
             decreases children.Length - i
         {
 
-            if i == children.Length { 
+            if i == children.Length {
                 return Ok(x);
             }
             else {
@@ -139,7 +139,7 @@ module MultiKeyringDef {
                     case Err(err) => { }
                 }
             }
-            if y.data_key.Some? { 
+            if y.data_key.Some? {
                 return Ok(y);
             }
             var r := OnDecryptRec(y, edks, 0);

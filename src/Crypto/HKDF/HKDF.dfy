@@ -13,13 +13,13 @@
 *
 * "nfv" stands for necessary for verification
 */
- 
+
 include "../../Util/Arrays.dfy"
 include "CryptoMac.dfy"
 include "../Digests.dfy"
 include "HKDFSpec.dfy"
 include "../../StandardLibrary/StandardLibrary.dfy"
- 
+
 /**
   * Implementation of the https://tools.ietf.org/html/rfc5869 HMAC-based key derivation function
   */
@@ -76,7 +76,7 @@ module HKDF {
       invariant i*hmac.getMacSize() <= a.Length
       invariant TiArr.Length == HashLength(which_sha)
       invariant TiArr[..] == Ti(which_sha, prk[..], info[..], i)[..]
-      invariant HashLength(which_sha) <= prk.Length 
+      invariant HashLength(which_sha) <= prk.Length
       invariant s == T(which_sha, prk[..], info[..], i)     // s == T(1) | ... | T(i)
       invariant s == a[..i * hmac.getMacSize()]
       invariant hmac.initialized.Some? && hmac.initialized.get == gKey
@@ -113,15 +113,15 @@ module HKDF {
       return new uint8[0];
     }
     var hmac := new HMac(which_sha);
- 
+
     var saltNonEmpty: array<uint8>;
-    if salt.Length != 0 { 
+    if salt.Length != 0 {
       saltNonEmpty := salt;
-    } else { 
+    } else {
       saltNonEmpty := new uint8[hmac.getMacSize()](_ => 0);
     }
     assert saltNonEmpty[..] == if salt.Length==0 then Fill(0, hmac.getMacSize()) else salt[..]; // nfv
- 
+
     var n := 1 + (L-1) / hmac.getMacSize();  // note, since L and HMAC_SIZE are strictly positive, this gives the same result in Java as in Dafny
     assert n * hmac.getMacSize() >= L;
     var prk := extract(which_sha, hmac, saltNonEmpty, ikm);

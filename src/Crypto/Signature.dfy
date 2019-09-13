@@ -2,7 +2,7 @@ include "../StandardLibrary/StandardLibrary.dfy"
 
 
 // TODO: instantiate this
-module {:extern "Signature"} Signature { 
+module {:extern "Signature"} Signature {
     import opened StandardLibrary
     import opened UInt = StandardLibrary.UInt
 
@@ -16,22 +16,22 @@ module {:extern "Signature"} Signature {
 //        static function method MaxMsgLen (s : ECDSAParams) : Option<nat> { None }
 
         static predicate {:axiom} WfSig (s : ECDSAParams, sig : Sig)
-        static predicate {:axiom} WfSK (s : ECDSAParams, sk : seq<uint8>) 
-        static predicate {:axiom} WfVK (s : ECDSAParams, vk : seq<uint8>) 
-        static predicate {:axiom} IsSignKeypair (s : ECDSAParams, sk : seq<uint8>, vk : seq<uint8>) 
+        static predicate {:axiom} WfSK (s : ECDSAParams, sk : seq<uint8>)
+        static predicate {:axiom} WfVK (s : ECDSAParams, vk : seq<uint8>)
+        static predicate {:axiom} IsSignKeypair (s : ECDSAParams, sk : seq<uint8>, vk : seq<uint8>)
 
         /*
         static function method VKOfSK (s : ECDSAParams, sk : seq<uint8>) : (vk : seq<uint8>)
             requires WfSK(s, sk)
             ensures WfVK(s, vk)
-            ensures IsSignKeypair(s, sk, vk) 
+            ensures IsSignKeypair(s, sk, vk)
             */
 
         static method {:extern "KeyGen"} KeyGen(s : ECDSAParams) returns (res : Option<(seq<uint8>, seq<uint8>)>)
             ensures res.Some? ==> WfSK(s, res.get.1)
             ensures res.Some? ==> WfVK(s, res.get.0)
             ensures res.Some? ==> IsSignKeypair(s, res.get.1, res.get.0)
-//            ensures VKOfSK(s, sk) == vk 
+//            ensures VKOfSK(s, sk) == vk
 
         static function method {:extern "Verify"} Verify(s : ECDSAParams, vk : seq<uint8>, m : seq<uint8>, sig : Sig) : bool
             requires WfVK(s, vk)
@@ -42,6 +42,6 @@ module {:extern "Signature"} Signature {
             requires WfSK(s, sk)
   //          requires MaxMsgLen(s).Some? ==> |m| <= MaxMsgLen(s).get
             ensures sig.Some? ==> WfSig(s, sig.get)
-            ensures sig.Some? ==> forall vk :: WfVK(s, vk) ==> IsSignKeypair(s, sk, vk) ==> Verify(s, vk, m, sig.get) == true 
+            ensures sig.Some? ==> forall vk :: WfVK(s, vk) ==> IsSignKeypair(s, sk, vk) ==> Verify(s, vk, m, sig.get) == true
     }
 }

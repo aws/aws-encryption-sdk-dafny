@@ -1,4 +1,4 @@
-// This file verified before removing length/count from the AAD/EDK datatypes 
+// This file verified before removing length/count from the AAD/EDK datatypes
 // with Dafny flag -arith:5 and when commenting out the HeapSucc transitivity axiom in the DafnyPrelude.bpl.
 // Turned the failing assertion into an assume for now.
 
@@ -15,13 +15,13 @@ module MessageHeader.Serialize {
     import opened SerializeAAD
     import opened SerializeEDK
     import opened Validity
-    
+
     import opened Streams
     import opened StandardLibrary
     import opened UInt = StandardLibrary.UInt
 
     lemma {:axiom} Assume(b : bool) ensures b
-    
+
     function {:opaque} serialize(hb: HeaderBody): seq<uint8>
         requires ValidHeaderBody(hb)
         requires ReprAAD(hb.aad) !! ReprEncryptedDataKeys(hb.encryptedDataKeys)
@@ -30,12 +30,12 @@ module MessageHeader.Serialize {
         reads ReprEncryptedDataKeys(hb.encryptedDataKeys)
     {
         reveal ValidHeaderBody();
-        [hb.version as uint8] + 
-        [hb.typ as uint8] + 
-        uint16ToSeq(hb.algorithmSuiteID as uint16) + 
-        hb.messageID + 
-        serializeAAD(hb.aad) + 
-        serializeEDK(hb.encryptedDataKeys) + 
+        [hb.version as uint8] +
+        [hb.typ as uint8] +
+        uint16ToSeq(hb.algorithmSuiteID as uint16) +
+        hb.messageID +
+        serializeAAD(hb.aad) +
+        serializeEDK(hb.encryptedDataKeys) +
         (match hb.contentType case NonFramed => [0x01] case Framed => [0x02]) +
         hb.reserved +
         [hb.ivLength] +
@@ -91,7 +91,7 @@ module MessageHeader.Serialize {
                 }
             }
         }
-        
+
         {
             var bytes := uint16ToArray(hb.algorithmSuiteID as uint16);
             ret := os.WriteSimple(bytes);
@@ -122,7 +122,7 @@ module MessageHeader.Serialize {
                 }
             }
         }
-        
+
         {
             ret := serializeEDKImpl(os, hb.encryptedDataKeys);
             match ret {
@@ -161,7 +161,7 @@ module MessageHeader.Serialize {
                 case Right(e)  => return ret;
             }
         }
-        
+
         {
             var bytes := uint32ToArray(hb.frameLength);
             ret := os.WriteSimple(bytes);

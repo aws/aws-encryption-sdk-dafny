@@ -4,49 +4,66 @@ else
   DAFNY = dafny
 endif
 
+# TODO: Temporary subset of files to build and verify.
+# Add to this as more files can be verified.
+# Eventually this can be something like:
+# SRCS = $(foreach dir, $(SRCDIRS), $(wildcard $(dir)/*.dfy))
+SRCS = src/SDK/AlgorithmSuite.dfy \
+	   src/SDK/Materials.dfy \
+	   src/Crypto/AESEncryption.dfy \
+	   src/Crypto/Cipher.dfy \
+	   src/Crypto/Digests.dfy \
+	   src/Crypto/GenBytes.dfy \
+	   src/Crypto/RSAEncryption.dfy \
+	   src/Crypto/Signature.dfy \
+	   src/SDK/Keyring/Defs.dfy \
+	   src/SDK/Keyring/AESKeyring.dfy \
+	   src/StandardLibrary/StandardLibrary.dfy \
+	   src/StandardLibrary/UInt.dfy \
 
-SRCDIRS = src/Crypto \
-		  src/Crypto/HKDF \
-		  src/Util \
-		  src/StandardLibrary \
-		  src/Tests \
-		  src/SDK \
-		  src/SDK/CMM \
-		  src/SDK/Keyring \
-		  src/SDK/MessageHeader \
-		  src
-
-
-SRCS = $(foreach dir, $(SRCDIRS), $(wildcard $(dir)/*.dfy))
 SRCV = $(patsubst src/%.dfy, build/%.dfy.verified, $(SRCS))
 
-.PHONY: all hkdf clean
-
-all: build/Main.exe
-	
-build/%.dfy.verified: src/%.dfy
-	$(DAFNY) $(patsubst build/%.dfy.verified, src/%.dfy, $@) /compile:0 && mkdir -p $(dir $@) && touch $@
-
 BCDLL = lib/BouncyCastle.1.8.5/lib/BouncyCastle.Crypto.dll
+
+SRCDIRS = $(dir $(SRCS))
 
 DEPS = $(foreach dir, $(SRCDIRS), $(wildcard $(dir)/*.cs)) \
 	$(BCDLL)
 
-build/Main.exe: $(SRCV) $(DEPS) 
+.PHONY: all hkdf test noverif clean-build clean
+
+all: build test
+
+build: build/Main.exe
+
+verify: clean-build $(SRCV)
+
+build/%.dfy.verified: src/%.dfy
+	$(DAFNY) $(patsubst build/%.dfy.verified, src/%.dfy, $@) /compile:0 && mkdir -p $(dir $@) && touch $@
+
+build/Main.exe: verify $(DEPS) 
 	$(DAFNY) /out:build/Main $(SRCS) $(DEPS) /compile:2 /noVerify /noIncludes && cp $(BCDLL) build/
 
-OTHERSRCS = $(filter-out src/Crypto/HKDF/HKDF.dfy,$(SRCS))
-build/HKDF.dll: $(SRCV) $(DEPS) 
-	$(DAFNY) /out:build/HKDF src/Crypto/HKDF/HKDF.dfy $(OTHERSRCS) $(DEPS) /compile:2 /noVerify /noIncludes && cp $(BCDLL) build/
-
-hkdf: build/HKDF.dll
+# TODO: HKDF.dfy hasn't been reviewed yet.
+# Once it is, re-add:
+#
+# OTHERSRCS = $(filter-out src/Crypto/HKDF/HKDF.dfy,$(SRCS))
+# build/HKDF.dll: $(SRCV) $(DEPS) 
+# 	$(DAFNY) /out:build/HKDF src/Crypto/HKDF/HKDF.dfy $(OTHERSRCS) $(DEPS) /compile:2 /noVerify /noIncludes && cp $(BCDLL) build/
+#
+# hkdf: build/HKDF.dll
 
 lib/%.dll:
 	nuget install
 
+test:
+	lit test -q -v
+
 noverif: $(DEPS)
 	$(DAFNY) /out:build/Main $(SRCS) $(DEPS) /compile:2 /noVerify /noIncludes && cp $(BCDLL) build/
 
-clean: 
+clean-build:
 	rm -r build/*
+
+clean: clean-build
 	rm -r lib/*

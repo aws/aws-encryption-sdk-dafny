@@ -1,6 +1,5 @@
 include "../../StandardLibrary/StandardLibrary.dfy"
-include "../../StandardLibrary/UInt.dfy"
-include "../Common.dfy"
+include "../Materials.dfy"
 
 module KeyringDefs {
   import opened StandardLibrary

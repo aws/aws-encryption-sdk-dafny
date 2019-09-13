@@ -11,7 +11,7 @@ module MessageHeader {
     import AlgorithmSuite
     import opened StandardLibrary
     import opened Streams
-    
+
     /*
      * Definition of the message header, i.e., the header body and the header authentication
      */

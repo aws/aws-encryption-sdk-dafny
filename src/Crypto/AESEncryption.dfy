@@ -38,16 +38,16 @@ module {:extern "AESEncryption"} AESEncryption {
                 case Success(m) => Success(m)
             }
 
-        static method {:extern "aes_encrypt"} aes_encrypt (cipher : C.CipherParams, 
-                                             iv : seq<uint8>, 
-                                             key : seq<uint8>, 
-                                             msg : seq<uint8>, 
-                                             aad : seq<uint8>) 
+        static method {:extern "aes_encrypt"} aes_encrypt (cipher : C.CipherParams,
+                                             iv : seq<uint8>,
+                                             key : seq<uint8>,
+                                             msg : seq<uint8>,
+                                             aad : seq<uint8>)
             returns (ctx : Result<seq<uint8>>)
 
             requires |iv| == cipher.ivLen as int
             requires |key| == C.KeyLengthOfCipher(cipher) as int
-            ensures ctx.Success? ==> |ctx.value| > (cipher.tagLen) as int 
+            ensures ctx.Success? ==> |ctx.value| > (cipher.tagLen) as int
             ensures ctx.Success? ==> aes_decrypt(cipher, cipher.tagLen, key, ctx.value, iv, aad) == Success((msg))
 
         static method AESEncrypt(cipher : C.CipherParams, k : seq<uint8>, msg : seq<uint8>, md : seq<uint8>) returns (c : Result<seq<uint8>>)

@@ -6,7 +6,7 @@ include "./Defs.dfy"
 include "../../Crypto/Cipher.dfy"
 include "../../Crypto/GenBytes.dfy"
 include "../../Crypto/AESEncryption.dfy"
-include "../Common.dfy"
+include "../Materials.dfy"
 
 module AESKeyringDef {
   import opened StandardLibrary
@@ -54,7 +54,7 @@ module AESKeyringDef {
       requires |iv| == aesType.ivLen as int
       reads this
     {
-      StringToByteSeq(keyName) + 
+      StringToByteSeq(keyName) +
         [0, 0, 0, aesType.tagLen * 8] + // tag length in bits
         [0, 0, 0, aesType.ivLen] + // IV length in bytes
         iv

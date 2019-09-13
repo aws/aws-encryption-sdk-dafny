@@ -7,7 +7,7 @@ include "../../StandardLibrary/StandardLibrary.dfy"
 module MessageHeader.SerializeEDK {
     import opened Definitions
     import opened Validity
-    
+
     import opened Streams
     import opened StandardLibrary
     import opened UInt = StandardLibrary.UInt

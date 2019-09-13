@@ -6,7 +6,7 @@ include "./Defs.dfy"
 include "../../Crypto/Cipher.dfy"
 include "../../Crypto/GenBytes.dfy"
 include "../../Crypto/RSAEncryption.dfy"
-include "../Common.dfy"
+include "../Materials.dfy"
 
 module RSAKeyringDef {
     import opened KeyringDefs
@@ -81,7 +81,7 @@ module RSAKeyringDef {
 
 
         method OnDecrypt(x : DecMaterials, edks : seq<EDK>) returns (res : Result<DecMaterials>)
-            requires Valid() 
+            requires Valid()
             requires WFDecMaterials(x)
             ensures Valid()
             ensures res.Ok? ==> WFDecMaterials(res.get)

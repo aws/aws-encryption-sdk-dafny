@@ -52,7 +52,7 @@ namespace BouncyCastleCryptoMac {
     public BigInteger getMacSize() {
       return new BigInteger(bcHMac.GetMacSize());
     }
-    
+
     public void init(CipherParameters ps) {
       if(ps.is_KeyParameter) {
         var bcKeyParameter = new Org.BouncyCastle.Crypto.Parameters.KeyParameter(ps.key);
@@ -63,15 +63,15 @@ namespace BouncyCastleCryptoMac {
     public void reset() {
       bcHMac.Reset();
     }
- 
+
     public void updateSingle(byte input) {
       bcHMac.Update(input);
     }
- 
+
     public void update(byte[] input , BigInteger inOff, BigInteger len) {
       bcHMac.BlockUpdate(input, Util.BigIntegerToInt(inOff), Util.BigIntegerToInt(len));
     }
- 
+
     public BigInteger doFinal(byte[] output, BigInteger outOff) {
       return new BigInteger(bcHMac.DoFinal(output, Util.BigIntegerToInt(outOff)));
     }

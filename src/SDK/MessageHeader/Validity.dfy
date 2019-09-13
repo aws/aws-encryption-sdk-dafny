@@ -70,8 +70,8 @@ module MessageHeader.Validity {
         requires j <= kvPairs.Length
         reads kvPairs
     {
-        forall i :: 0 <= i < j ==> 
-            && kvPairs[i].0.Length <= UINT16_MAX 
+        forall i :: 0 <= i < j ==>
+            && kvPairs[i].0.Length <= UINT16_MAX
             && kvPairs[i].1.Length <= UINT16_MAX
     }
 
@@ -102,7 +102,7 @@ module MessageHeader.Validity {
             case EmptyAAD() => true
         }
     }
-    
+
     function ReprEncryptedDataKeysUpTo(entries: seq<EDKEntry>, j: nat): set<object>
         requires j <= |entries|
     {
@@ -110,7 +110,7 @@ module MessageHeader.Validity {
         (set i | 0 <= i < j :: entries[i].keyProviderInfo) +
         (set i | 0 <= i < j :: entries[i].encDataKey)
     }
-    
+
     function ReprEncryptedDataKeys(encryptedDataKeys: T_EncryptedDataKeys): set<object>
         reads encryptedDataKeys.entries
     {
@@ -129,7 +129,7 @@ module MessageHeader.Validity {
             && entries[i].encDataKey.Length      <= UINT16_MAX
     }
 
-    predicate InBoundsEncryptedDataKeys(encryptedDataKeys: T_EncryptedDataKeys) 
+    predicate InBoundsEncryptedDataKeys(encryptedDataKeys: T_EncryptedDataKeys)
         reads ReprEncryptedDataKeys(encryptedDataKeys)
     {
         InBoundsEncryptedDataKeysUpTo(encryptedDataKeys.entries, encryptedDataKeys.entries.Length)
