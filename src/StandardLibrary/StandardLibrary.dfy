@@ -48,8 +48,7 @@ module {:extern "STL"} StandardLibrary {
     }
   }
 
-  //TODO Make this stronger.
-  predicate ValidUTF8(s: string) {
+  predicate StringIs8Bit(s: string) {
     forall i :: i in s ==> i < 256 as char
   }
 
@@ -93,7 +92,7 @@ module {:extern "STL"} StandardLibrary {
   }
 
   lemma StringByteSeqCorrect(s: string)
-    requires ValidUTF8(s)
+    requires StringIs8Bit(s)
     ensures ByteSeqToString(StringToByteSeq(s)) == s {
       if s == [] {
 

@@ -31,11 +31,11 @@ module AESKeyringDef {
         Repr == {this} &&
         (|wrappingKey| == Cipher.KeyLengthOfCipher(wrappingAlgorithm)) &&
         (wrappingAlgorithm in {Cipher.AES_GCM_128, Cipher.AES_GCM_192, Cipher.AES_GCM_256}) &&
-        ValidUTF8(keyNamespace) && ValidUTF8(keyName)
+        StringIs8Bit(keyNamespace) && StringIs8Bit(keyName)
     }
 
     constructor(namespace: string, name: string, key: seq<uint8>, wrappingAlg: Cipher.CipherParams)
-    requires ValidUTF8(namespace) && ValidUTF8(name)
+    requires StringIs8Bit(namespace) && StringIs8Bit(name)
     requires wrappingAlg in {Cipher.AES_GCM_128, Cipher.AES_GCM_192, Cipher.AES_GCM_256}
     requires |key| == Cipher.KeyLengthOfCipher(wrappingAlg)
     ensures keyNamespace == namespace
