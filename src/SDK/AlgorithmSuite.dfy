@@ -14,6 +14,15 @@ module AlgorithmSuite {
   const validIDs: set<uint16> := {0x0378, 0x0346, 0x0214, 0x0178, 0x0146, 0x0114, 0x0078, 0x0046, 0x0014};
 
   newtype ID = x | x in validIDs witness 0x0014
+  {
+    function method KeyLength(): nat {
+      Suite[this].params.keyLen as nat
+    }
+
+    function method SignatureType(): Option<S.ECDSAParams> {
+      Suite[this].sign
+    }
+  }
 
   const AES_256_GCM_IV12_TAG16_HKDF_SHA384_ECDSA_P384: ID := 0x0378
   const AES_192_GCM_IV12_TAG16_HKDF_SHA384_ECDSA_P384: ID := 0x0346
@@ -38,12 +47,4 @@ module AlgorithmSuite {
     AES_192_GCM_IV12_TAG16_KDFNONE_SIGNONE        := AlgSuite(C.AES_GCM_192, Digests.HmacNOSHA,  None),
     AES_128_GCM_IV12_TAG16_KDFNONE_SIGNONE        := AlgSuite(C.AES_GCM_128, Digests.HmacNOSHA,  None)
   ]
-
-  function method InputKeyLength(x: ID): nat {
-    C.KeyLengthOfCipher(Suite[x].params)
-  }
-
-  function method SigTypeOfID(x: ID): Option<S.ECDSAParams> {
-    Suite[x].sign
-  }
 }

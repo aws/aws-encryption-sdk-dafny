@@ -23,7 +23,6 @@ module {:extern "AESEncryption"} AESEncryption {
         }
 
         static function method {:extern "aes_decrypt"} aes_decrypt(cipher: C.CipherParams,
-                                                      taglen: uint8,
                                                       key: seq<uint8>,
                                                       ctxt: seq<uint8>,
                                                       iv: seq<uint8>,
@@ -33,7 +32,7 @@ module {:extern "AESEncryption"} AESEncryption {
         static function method AESDecrypt(cipher: C.CipherParams, k: seq<uint8>, md: seq<uint8>, c: seq<uint8>): Result<seq<uint8>>
             requires AESWfKey(cipher, k)
             requires AESWfCtx(cipher, c) {
-            match aes_decrypt(cipher, cipher.tagLen, k, c[cipher.ivLen ..], c[0 .. cipher.ivLen], md)
+            match aes_decrypt(cipher, k, c[cipher.ivLen ..], c[0 .. cipher.ivLen], md)
                 case Failure(e) => Failure(e)
                 case Success(m) => Success(m)
             }
@@ -48,7 +47,7 @@ module {:extern "AESEncryption"} AESEncryption {
             requires |iv| == cipher.ivLen as int
             requires |key| == C.KeyLengthOfCipher(cipher) as int
             ensures ctx.Success? ==> |ctx.value| > (cipher.tagLen) as int
-            ensures ctx.Success? ==> aes_decrypt(cipher, cipher.tagLen, key, ctx.value, iv, aad) == Success((msg))
+            ensures ctx.Success? ==> aes_decrypt(cipher, key, ctx.value, iv, aad) == Success((msg))
 
         static method AESEncrypt(cipher : C.CipherParams, k : seq<uint8>, msg : seq<uint8>, md : seq<uint8>) returns (c : Result<seq<uint8>>)
             requires AESWfKey(cipher, k)

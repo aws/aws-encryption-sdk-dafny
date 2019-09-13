@@ -69,7 +69,7 @@ module {:extern "STL"} StandardLibrary {
   }
 
   function method StringToByteSeq (s : string) : (s' : seq<uint8>)
-    requires ValidUTF8(s)
+    requires forall i :: i in s ==> i < 256 as char
     ensures |s| == |s'| 
   {
       if s == [] then [] else  (
@@ -87,12 +87,12 @@ module {:extern "STL"} StandardLibrary {
 
   function method ByteSeqToString (s : seq<uint8>) : (s' : string)
     ensures |s| == |s'| 
-    ensures ValidUTF8(s')
+    ensures forall i :: i in s' ==> i < 256 as char
   {
       if s == [] then [] else [(s[0] as char)] + ByteSeqToString(s[1..])
   }
 
-  lemma string_byteseqK (s : string) //Before I change the name of this lemma, I want to know what it means.
+  lemma StringByteSeqCorrect(s: string)
     requires ValidUTF8(s)
     ensures ByteSeqToString(StringToByteSeq(s)) == s {
       if s == [] {
@@ -105,7 +105,7 @@ module {:extern "STL"} StandardLibrary {
       }
     }
 
-  lemma byteseq_stringK (s : seq<uint8>) //Before I change the name of this lemma, I want to know what it means.
+  lemma ByteSeqStringCorrect(s: seq<uint8>)
     ensures StringToByteSeq(ByteSeqToString(s)) == s {
 
     }

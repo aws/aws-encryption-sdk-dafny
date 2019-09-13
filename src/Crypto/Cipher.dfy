@@ -33,6 +33,7 @@ module {:extern "Cipher"} Cipher {
             case AES128 => 16
     }
 
+    /*
     lemma Cipher_KeyLengthK (c : CipherParams)
         requires c.tagLen == TAG_LEN
         requires c.ivLen == IV_LEN
@@ -42,6 +43,7 @@ module {:extern "Cipher"} Cipher {
             case AES192 =>
             case AES128 =>
     }
+    */
 
     method GenIV(m : CipherParams) returns (s : seq<uint8>) ensures |s| == m.ivLen as int {
             s := GenBytes(m.ivLen as uint16);

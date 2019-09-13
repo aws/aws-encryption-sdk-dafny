@@ -43,10 +43,10 @@ namespace AESEncryption {
             }
         }
 
-        public static STL.Result<byteseq> aes_decrypt(Cipher.CipherParams p, byte taglen, byteseq key, byteseq ctx, byteseq iv, byteseq aad) {
+        public static STL.Result<byteseq> aes_decrypt(Cipher.CipherParams p, byteseq key, byteseq ctx, byteseq iv, byteseq aad) {
             try {
                 var cipher = new GcmBlockCipher(new AesEngine());
-                var param = new AeadParameters(new KeyParameter(key.Elements), taglen * 8, iv.Elements, aad.Elements);
+                var param = new AeadParameters(new KeyParameter(key.Elements), p.tagLen * 8, iv.Elements, aad.Elements);
                 cipher.Init(false, param);
                 var pt = new byte[cipher.GetOutputSize(ctx.Elements.Length)];
                 var len = cipher.ProcessBytes(ctx.Elements, 0, ctx.Elements.Length, pt, 0);
