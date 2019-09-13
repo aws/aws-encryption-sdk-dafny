@@ -48,11 +48,6 @@ module {:extern "STL"} StandardLibrary {
     }
   }
 
-  //TODO Make this stronger.
-  predicate ValidUTF8(s: string) {
-    forall i :: i in s ==> i < 256 as char
-  }
-
   function Fill<T>(value: T, n: nat): seq<T>
     ensures |Fill(value, n)| == n
     ensures forall i :: 0 <= i < n ==> Fill(value, n)[i] == value
