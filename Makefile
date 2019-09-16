@@ -18,6 +18,7 @@ SRCS = src/SDK/AlgorithmSuite.dfy \
 	   src/Crypto/Signature.dfy \
 	   src/SDK/Keyring/Defs.dfy \
 	   src/SDK/Keyring/AESKeyring.dfy \
+	   src/SDK/CMM/Defs.dfy \
 	   src/StandardLibrary/StandardLibrary.dfy \
 	   src/StandardLibrary/UInt.dfy \
 
