@@ -23,13 +23,12 @@ module KeyringDefs {
 
     method OnDecrypt(decMat: Materials.DecryptionMaterials, edks: seq<Materials.EncryptedDataKey>) returns (res: Result<Materials.DecryptionMaterials>)
       requires Valid()
-      // TODO: Valid input DecMaterials
+      requires decMat.Valid()
       modifies decMat`plaintextDataKey
       ensures Valid()
-      // TODO: Valid output DecMaterials
-      ensures old(decMat.plaintextDataKey.Some?) ==> res.Success? &&
-                                                res.value == decMat &&
-                                                unchanged(decMat)
+      ensures decMat.Valid()
+      ensures |edks| == 0 ==> res.Success? && unchanged(decMat)
+      ensures old(decMat.plaintextDataKey.Some?) ==> res.Success? && unchanged(decMat)
       ensures res.Success? ==> res.value == decMat
       ensures res.Failure? ==> unchanged(decMat)
       // TODO: keyring trace DECRYPTED_DATA_KEY flag assurance

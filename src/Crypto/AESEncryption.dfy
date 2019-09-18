@@ -2,6 +2,7 @@ include "../StandardLibrary/StandardLibrary.dfy"
 include "Cipher.dfy"
 
 module {:extern "AESEncryption"} AESEncryption {
+    //TODO This code has yet to be reviewed. See issue #36
     import C = Cipher
     import opened StandardLibrary
     import opened UInt = StandardLibrary.UInt

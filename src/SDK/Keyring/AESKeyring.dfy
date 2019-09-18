@@ -107,33 +107,34 @@ module AESKeyringDef {
       requires decMat.Valid()
       modifies decMat`plaintextDataKey
       ensures Valid()
-      ensures old(decMat.plaintextDataKey.Some?) ==> res.Success? &&
-                                                res.value == decMat &&
-                                                unchanged(decMat)
+      ensures decMat.Valid()
+      ensures |edks| == 0 ==> res.Success? && unchanged(decMat)
+      ensures old(decMat.plaintextDataKey.Some?) ==> res.Success? && unchanged(decMat)
       ensures res.Success? ==> res.value == decMat
       ensures res.Failure? ==> unchanged(decMat)
     {
       if decMat.plaintextDataKey.Some? {
         return Success(decMat);
-      } else if |edks| == 0 {
-        return Failure("No edks given to OnDecrypt!");
       }
-      var i := |edks|;
+      var i := 0;
       while i < |edks| {
         if edks[i].providerID == keyNamespace && ValidProviderInfo(edks[i].providerInfo) {
           var iv := GetIvFromProvInfo(edks[i].providerInfo);
           var flatEncCtx: seq<uint8> := Mat.FlattenSortEncCtx(decMat.encryptionContext);
-          var decryptResult := AESEncryption.AES.aes_decrypt(wrappingAlgorithm, wrappingKey, edks[0].ciphertext, iv, flatEncCtx);
+          var decryptResult := AESEncryption.AES.aes_decrypt(wrappingAlgorithm, wrappingKey, edks[i].ciphertext, iv, flatEncCtx);
           if decryptResult.Success? {
             var ptKey := decryptResult.value;
             if |ptKey| == decMat.algorithmSuiteID.KeyLength() { // check for correct key length
               decMat.plaintextDataKey := Some(ptKey);
               return Success(decMat);
             }
+          } else {
+            return Failure("Decryption failed");
           }
         }
+        i := i + 1;
       }
-      return Failure("Could not decrypt with any given EDK");
+      return Success(decMat);
     }
   }
 }

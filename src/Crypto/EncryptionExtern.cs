@@ -20,7 +20,7 @@ using Org.BouncyCastle.Asn1.X9;
 using byteseq = Dafny.Sequence<byte>;
 
 namespace AESEncryption {
-
+    //TODO This code has yet to be reviewed. See issue #36
     public partial class AES_GCM {
 
         public static STL.Result<byteseq> aes_encrypt(Cipher.CipherParams p,

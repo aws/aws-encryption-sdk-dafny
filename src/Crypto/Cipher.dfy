@@ -17,7 +17,7 @@ module {:extern "Cipher"} Cipher {
 
     const AES_GCM_128 := CipherParams(AES128, 16, TAG_LEN, IV_LEN);
     const AES_GCM_192 := CipherParams(AES192, 24, TAG_LEN, IV_LEN);
-    const AES_GCM_256 := CipherParams(AES256, 31, TAG_LEN, IV_LEN);
+    const AES_GCM_256 := CipherParams(AES256, 32, TAG_LEN, IV_LEN);
 
     function method CipherOfKeyLength(n : int) : CipherParams
         requires n in CIPHER_KEY_LENGTHS {
