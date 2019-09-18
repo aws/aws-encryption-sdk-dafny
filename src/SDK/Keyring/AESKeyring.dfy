@@ -9,108 +9,132 @@ include "../../Crypto/AESEncryption.dfy"
 include "../Materials.dfy"
 
 module AESKeyringDef {
-    import opened KeyringDefs
-    import opened StandardLibrary
-    import opened UInt = StandardLibrary.UInt
-    import opened Cipher
-    import GenBytes = RNG
-    import AlgorithmSuite
-    import AES = AESEncryption
-    import opened SDKDefs
+  import opened StandardLibrary
+  import opened UInt = StandardLibrary.UInt
+  import AlgorithmSuite
+  import Cipher
+  import GenBytes = RNG
+  import KeyringDefs
+  import AESEncryption
+  import Mat = Materials
 
-    class AESKeyring extends Keyring {
-        const key_namespace : seq<uint8>
-        const key_name : seq<uint8>
-        const wrapping_key : seq<uint8>
-        const aes_type : CipherParams
+  const AUTH_TAG_LEN_LEN := 4;
+  const IV_LEN_LEN       := 4;
 
-        predicate Valid() reads this {
-            Repr == {this} &&
-            (|wrapping_key| == KeyLengthOfCipher(aes_type)) &&
-            (aes_type in {AES_GCM_128, AES_GCM_192, AES_GCM_256})
-        }
+  class AESKeyring extends KeyringDefs.Keyring {
+    const keyNamespace: string
+    const keyName: string
+    const wrappingKey: seq<uint8>
+    const wrappingAlgorithm: Cipher.CipherParams
 
-        constructor(namespace : seq<uint8>, name : seq<uint8>, key : seq<uint8>, params : CipherParams)
-        requires params in {AES_GCM_128, AES_GCM_192, AES_GCM_256}
-        requires |key| == KeyLengthOfCipher(params)
-        ensures key_namespace == namespace
-        ensures key_name == name
-        ensures wrapping_key == key
-        ensures aes_type == params
-        ensures aes_type in {AES_GCM_128, AES_GCM_192, AES_GCM_256}
-        ensures Valid()
-        {
-            key_namespace := namespace;
-            key_name := name;
-            wrapping_key := key;
-           aes_type := params;
-           Repr := {this};
-        }
-
-        function method aes_provider_info(iv : seq<uint8>) : seq<uint8>
-            requires |iv| == 12
-            reads this {
-              key_name +
-                [0, 0, 0, TAG_LEN * 8] + // tag length in bits
-                [0, 0, 0, IV_LEN] + // IV length in bytes
-                iv
-            }
-
-        method OnEncrypt(x : EncMaterials) returns (res : Result<EncMaterials>)
-            requires WFEncMaterials(x)
-            requires Valid() ensures Valid()
-            ensures res.Ok? ==> WFEncMaterials(res.get)
-            ensures res.Ok? ==> res.get.alg_id == x.alg_id
-        {
-            var data_key := x.data_key;
-            var alg_id := x.alg_id;
-            if data_key.None? {
-                var k := RNG.GenBytes(AlgorithmSuite.input_key_length(alg_id) as uint16);
-                data_key := Some(k);
-            }
-            var iv := GenIV(aes_type);
-            var aad := FlattenSortEncCtx(x.enc_ctx);
-            var edk_ctxt := AES.AES.aes_encrypt(aes_type, iv, wrapping_key, data_key.get, aad);
-            if edk_ctxt.Err? { return Err("Error on encrypt!"); }
-            var provider_id := key_namespace;
-            var provider_info := aes_provider_info(iv);
-            return Ok(EncMat((alg_id), [EDK(provider_id, provider_info, edk_ctxt.get)] + x.edks, x.enc_ctx, data_key, None));
-        }
-
-        function method parse_provider_info(info : seq<uint8>) : Option<seq<uint8>> // returns the IV in the provider info, if it's of the right shape and key name is good
-        {
-            if |info| != |key_name| + 4 + 4 + 12 then None else
-            if info[0..|key_name|] != key_name then None else
-            Some (info[|key_name| + 8 ..])
-        }
-
-        method OnDecrypt(x : DecMaterials, edks : seq<EDK>) returns (res : Result<DecMaterials>)
-            requires Valid()
-            requires WFDecMaterials(x)
-            ensures Valid()
-            ensures res.Ok? ==> WFDecMaterials(res.get)
-            ensures res.Ok? ==> res.get.alg_id == x.alg_id
-        {
-            if |edks| == 0 { return Err("No edks given to OnDecrypt!"); }
-            if edks[0].provider_id != key_namespace { var x := OnDecrypt(x, edks[1..]); return x;}
-            match parse_provider_info(edks[0].provider_info) {
-                case None => {var x := OnDecrypt(x, edks[1..]); return x;}
-                case Some(iv) => {
-                    var octxt := AES.AES.aes_decrypt(aes_type, TAG_LEN, wrapping_key, edks[0].ciphertext, iv, EncCtxFlatten(x.enc_ctx));
-                    match octxt {
-                        case Err(e) => {var x := OnDecrypt(x, edks[1..]); return x;}
-                        case Ok(k) => {
-                            if |k| == AlgorithmSuite.input_key_length(x.alg_id) { // check for correct key length
-                                return Ok(DecMat(x.alg_id, x.enc_ctx, Some(k), None));
-                            }
-                            else {
-                                return Err("Bad key length!");
-                            }
-                        }
-                    }
-                }
-            }
-        }
-
+    predicate Valid() reads this {
+        Repr == {this} &&
+        (|wrappingKey| == Cipher.KeyLengthOfCipher(wrappingAlgorithm)) &&
+        (wrappingAlgorithm in {Cipher.AES_GCM_128, Cipher.AES_GCM_192, Cipher.AES_GCM_256}) &&
+        StringIs8Bit(keyNamespace) && StringIs8Bit(keyName)
     }
+
+    constructor(namespace: string, name: string, key: seq<uint8>, wrappingAlg: Cipher.CipherParams)
+    requires StringIs8Bit(namespace) && StringIs8Bit(name)
+    requires wrappingAlg in {Cipher.AES_GCM_128, Cipher.AES_GCM_192, Cipher.AES_GCM_256}
+    requires |key| == Cipher.KeyLengthOfCipher(wrappingAlg)
+    ensures keyNamespace == namespace
+    ensures keyName == name
+    ensures wrappingKey == key
+    ensures wrappingAlgorithm == wrappingAlg
+    ensures Valid()
+    {
+      keyNamespace := namespace;
+      keyName := name;
+      wrappingKey := key;
+      wrappingAlgorithm := wrappingAlg;
+      Repr := {this};
+    }
+
+    function method SerializeProviderInto(iv: seq<uint8>): seq<uint8>
+      requires Valid()
+      requires |iv| == wrappingAlgorithm.ivLen as int
+      reads this
+    {
+      StringToByteSeq(keyName) +
+        [0, 0, 0, wrappingAlgorithm.tagLen * 8] + // tag length in bits
+        [0, 0, 0, wrappingAlgorithm.ivLen] + // IV length in bytes
+        iv
+    }
+
+    method OnEncrypt(encMat: Mat.EncryptionMaterials) returns (res: Result<Mat.EncryptionMaterials>)
+      requires encMat.Valid()
+      requires Valid()
+      modifies encMat`plaintextDataKey
+      modifies encMat`encryptedDataKeys
+      ensures Valid()
+      ensures res.Success? ==> res.value.Valid() && res.value == encMat
+      ensures res.Success? && old(encMat.plaintextDataKey.Some?) ==> res.value.plaintextDataKey == old(encMat.plaintextDataKey)
+      ensures res.Failure? ==> unchanged(encMat)
+    {
+      var dataKey := encMat.plaintextDataKey;
+      if dataKey.None? {
+        var k := Cipher.RNG.GenBytes(encMat.algorithmSuiteID.KeyLength() as uint16);
+        dataKey := Some(k);
+      }
+      var iv := Cipher.RNG.GenBytes(wrappingAlgorithm.ivLen as uint16);
+      var aad := Mat.FlattenSortEncCtx(encMat.encryptionContext);
+      var encryptResult := AESEncryption.AES.aes_encrypt(wrappingAlgorithm, iv, wrappingKey, dataKey.get, aad);
+      if encryptResult.Failure? { return Failure("Error on encrypt!"); }
+      var providerInfo := SerializeProviderInto(iv);
+      var edk := Mat.EncryptedDataKey(keyNamespace, providerInfo, encryptResult.value);
+      encMat.plaintextDataKey := dataKey;
+      encMat.encryptedDataKeys := encMat.encryptedDataKeys + [edk];
+      return Success(encMat);
+    }
+
+    predicate method ValidProviderInfo(info: seq<uint8>)
+    {
+      |info| == |keyName| + AUTH_TAG_LEN_LEN + IV_LEN_LEN + wrappingAlgorithm.ivLen as int &&
+      ByteSeqToString(info[0..|keyName|]) == keyName &&
+      SeqToUInt32(info[|keyName|..|keyName| + AUTH_TAG_LEN_LEN]) == wrappingAlgorithm.tagLen as uint32 &&
+      SeqToUInt32(info[|keyName| + AUTH_TAG_LEN_LEN .. |keyName| + AUTH_TAG_LEN_LEN + IV_LEN_LEN]) == wrappingAlgorithm.ivLen as uint32
+    }
+
+    function method GetIvFromProvInfo(info: seq<uint8>): seq<uint8>
+      requires ValidProviderInfo(info)
+    {
+      info[|keyName| + AUTH_TAG_LEN_LEN + IV_LEN_LEN ..]
+    }
+
+    method OnDecrypt(decMat: Mat.DecryptionMaterials, edks: seq<Mat.EncryptedDataKey>) returns (res: Result<Mat.DecryptionMaterials>)
+      requires Valid() 
+      requires decMat.Valid()
+      modifies decMat`plaintextDataKey
+      ensures Valid()
+      ensures decMat.Valid()
+      ensures |edks| == 0 ==> res.Success? && unchanged(decMat)
+      ensures old(decMat.plaintextDataKey.Some?) ==> res.Success? && unchanged(decMat)
+      ensures res.Success? ==> res.value == decMat
+      ensures res.Failure? ==> unchanged(decMat)
+    {
+      if decMat.plaintextDataKey.Some? {
+        return Success(decMat);
+      }
+      var i := 0;
+      while i < |edks| {
+        if edks[i].providerID == keyNamespace && ValidProviderInfo(edks[i].providerInfo) {
+          var iv := GetIvFromProvInfo(edks[i].providerInfo);
+          var flatEncCtx: seq<uint8> := Mat.FlattenSortEncCtx(decMat.encryptionContext);
+          var decryptResult := AESEncryption.AES.aes_decrypt(wrappingAlgorithm, wrappingKey, edks[i].ciphertext, iv, flatEncCtx);
+          if decryptResult.Success? {
+            var ptKey := decryptResult.value;
+            if |ptKey| == decMat.algorithmSuiteID.KeyLength() { // check for correct key length
+              decMat.plaintextDataKey := Some(ptKey);
+              return Success(decMat);
+            }
+          } else {
+            return Failure("Decryption failed");
+          }
+        }
+        i := i + 1;
+      }
+      return Success(decMat);
+    }
+  }
 }

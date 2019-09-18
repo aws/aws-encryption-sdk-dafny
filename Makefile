@@ -9,14 +9,23 @@ endif
 # Eventually this can be something like:
 # SRCS = $(foreach dir, $(SRCDIRS), $(wildcard $(dir)/*.dfy))
 SRCS = src/SDK/AlgorithmSuite.dfy \
-	   src/SDK/Common.dfy \
+	   src/SDK/Materials.dfy \
+	   src/Crypto/AESEncryption.dfy \
+	   src/Crypto/Cipher.dfy \
+	   src/Crypto/Digests.dfy \
+	   src/Crypto/GenBytes.dfy \
+	   src/Crypto/RSAEncryption.dfy \
+	   src/Crypto/Signature.dfy \
 	   src/SDK/Keyring/Defs.dfy \
+	   src/SDK/Keyring/AESKeyring.dfy \
 	   src/StandardLibrary/StandardLibrary.dfy \
 	   src/StandardLibrary/UInt.dfy \
 
 SRCV = $(patsubst src/%.dfy, build/%.dfy.verified, $(SRCS))
 
 BCDLL = lib/BouncyCastle.1.8.5/lib/BouncyCastle.Crypto.dll
+
+SRCDIRS = $(dir $(SRCS))
 
 DEPS = $(foreach dir, $(SRCDIRS), $(wildcard $(dir)/*.cs)) \
 	$(BCDLL)

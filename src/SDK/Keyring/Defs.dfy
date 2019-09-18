@@ -15,18 +15,22 @@ module KeyringDefs {
       modifies encMat`plaintextDataKey
       modifies encMat`encryptedDataKeys
       ensures Valid()
-      ensures res.Success? ==> res.value.Valid()
+      ensures res.Success? ==> res.value.Valid() && res.value == encMat
       ensures res.Success? && old(encMat.plaintextDataKey.Some?) ==> res.value.plaintextDataKey == old(encMat.plaintextDataKey)
+      ensures res.Failure? ==> unchanged(encMat)
       // TODO: keyring trace GENERATED_DATA_KEY flag assurance
       // TODO: keyring trace ENCRYPTED_DATA_KEY flag assurance
 
     method OnDecrypt(decMat: Materials.DecryptionMaterials, edks: seq<Materials.EncryptedDataKey>) returns (res: Result<Materials.DecryptionMaterials>)
       requires Valid()
-      // TODO: Valid input DecMaterials
+      requires decMat.Valid()
       modifies decMat`plaintextDataKey
       ensures Valid()
-      // TODO: Valid output DecMaterials
-      ensures decMat.plaintextDataKey.Some? ==> res.Success? && res.value == decMat
+      ensures decMat.Valid()
+      ensures |edks| == 0 ==> res.Success? && unchanged(decMat)
+      ensures old(decMat.plaintextDataKey.Some?) ==> res.Success? && unchanged(decMat)
+      ensures res.Success? ==> res.value == decMat
+      ensures res.Failure? ==> unchanged(decMat)
       // TODO: keyring trace DECRYPTED_DATA_KEY flag assurance
   }
 }

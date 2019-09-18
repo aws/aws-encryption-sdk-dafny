@@ -2,6 +2,7 @@ include "../StandardLibrary/StandardLibrary.dfy"
 include "../StandardLibrary/UInt.dfy"
 include "./AlgorithmSuite.dfy"
 
+
 module Materials {
   import opened StandardLibrary
   import opened UInt = StandardLibrary.UInt
@@ -9,7 +10,7 @@ module Materials {
 
   type EncryptionContext = seq<(seq<uint8>, seq<uint8>)>
 
-  datatype EncryptedDataKey = EncryptedDataKey(providerID : string, 
+  datatype EncryptedDataKey = EncryptedDataKey(providerID : string,
                                                providerInfo : seq<uint8>,
                                                ciphertext : seq<uint8>)
 
@@ -100,7 +101,7 @@ module Materials {
     }
   }
 
-    /*
+    //TODO: Review this code.
     function method naive_merge<T> (x : seq<T>, y : seq<T>, lt : (T, T) -> bool) : seq<T>
     {
         if |x| == 0 then y
@@ -143,6 +144,7 @@ module Materials {
     {
         EncCtxFlatten(naive_merge_sort(x, lt_keys))
     }
+    /*
 
     function method enc_ctx_lookup(x : seq<(seq<uint8>, seq<uint8>)>, k : seq<uint8>) : Option<seq<uint8>>
     {
