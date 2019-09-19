@@ -41,6 +41,8 @@ DEPS = $(foreach dir, $(SRCDIRS), $(wildcard $(dir)/*.cs)) \
 
 all: verify build test
 
+release: all
+
 build: build/Main.exe
 
 verify: clean-build $(SRCV)
@@ -55,7 +57,7 @@ build/Main.exe: $(SRCS) $(DEPS)
 # Once it is, re-add:
 #
 # OTHERSRCS = $(filter-out src/Crypto/HKDF/HKDF.dfy,$(SRCS))
-# build/HKDF.dll: $(SRCV) $(DEPS) 
+# build/HKDF.dll: $(SRCV) $(DEPS)
 # 	$(DAFNY) /out:build/HKDF src/Crypto/HKDF/HKDF.dfy $(OTHERSRCS) $(DEPS) /compile:2 /noVerify /noIncludes && cp $(BCDLL) build/
 #
 # hkdf: build/HKDF.dll
@@ -63,14 +65,14 @@ build/Main.exe: $(SRCS) $(DEPS)
 lib/%.dll:
 	nuget install
 
-test:
+test: $(DEPS)
 	lit test -q -v
 
 noverif: $(DEPS)
 	$(DAFNY) /out:build/Main $(SRCS) $(DEPS) /compile:2 /noVerify /noIncludes && cp $(BCDLL) build/
 
 clean-build:
-	rm -r build/*
+	$(RM) -r build/*
 
 clean: clean-build
-	rm -r lib/*
+	$(RM) -r lib/*
