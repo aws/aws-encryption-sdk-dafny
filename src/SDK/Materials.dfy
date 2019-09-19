@@ -39,6 +39,8 @@ module Materials {
       requires |encryptedDataKeys| > 0 ==> plaintextDataKey.Some?
       ensures Valid()
       ensures this.algorithmSuiteID == algorithmSuiteID
+      ensures this.encryptedDataKeys == encryptedDataKeys
+      ensures this.encryptionContext == encryptionContext
       ensures this.plaintextDataKey == plaintextDataKey
     {
       this.algorithmSuiteID := algorithmSuiteID;
@@ -88,7 +90,9 @@ module Materials {
                 verificationKey: Option<seq<uint8>>)
       ensures Valid()
       ensures this.algorithmSuiteID == algorithmSuiteID
+      ensures this.encryptionContext == encryptionContext
       ensures this.plaintextDataKey == plaintextDataKey
+      ensures this.verificationKey == verificationKey
     {
       this.algorithmSuiteID := algorithmSuiteID;
       this.encryptionContext := encryptionContext;

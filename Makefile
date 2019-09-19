@@ -8,24 +8,25 @@ endif
 # Add to this as more files can be verified.
 # Eventually this can be something like:
 # SRCS = $(foreach dir, $(SRCDIRS), $(wildcard $(dir)/*.dfy))
-SRCS = src/SDK/AlgorithmSuite.dfy \
-	   src/SDK/Materials.dfy \
+SRCS = \
 	   src/Crypto/AESEncryption.dfy \
 	   src/Crypto/Cipher.dfy \
 	   src/Crypto/Digests.dfy \
 	   src/Crypto/GenBytes.dfy \
 	   src/Crypto/RSAEncryption.dfy \
 	   src/Crypto/Signature.dfy \
+	   src/Main.dfy \
+	   src/SDK/AlgorithmSuite.dfy \
+	   src/SDK/CMM/DefaultCMM.dfy \
+	   src/SDK/CMM/Defs.dfy \
+	   src/SDK/Keyring/AESKeyring.dfy \
 	   src/SDK/Keyring/Defs.dfy \
 	   src/SDK/Keyring/RSAKeyring.dfy \
-	   src/SDK/Keyring/AESKeyring.dfy \
+	   src/SDK/Materials.dfy \
+	   src/SDK/ToyClient.dfy \
+	   src/StandardLibrary/Base64.dfy \
 	   src/StandardLibrary/StandardLibrary.dfy \
 	   src/StandardLibrary/UInt.dfy \
-	   src/StandardLibrary/Base64.dfy \
-	   src/SDK/CMM/Defs.dfy \
-	   src/SDK/CMM/DefaultCMM.dfy \
-	   src/SDK/ToyClient.dfy \
-	   src/Main.dfy \
 
 SRCV = $(patsubst src/%.dfy, build/%.dfy.verified, $(SRCS))
 
