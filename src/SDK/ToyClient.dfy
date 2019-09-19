@@ -2,6 +2,8 @@ include "../StandardLibrary/StandardLibrary.dfy"
 include "../StandardLibrary/UInt.dfy"
 include "Materials.dfy"
 include "CMM/Defs.dfy"
+include "CMM/DefaultCMM.dfy"
+include "Keyring/Defs.dfy"
 include "AlgorithmSuite.dfy"
 include "../Crypto/AESEncryption.dfy"
 
@@ -10,6 +12,8 @@ module ToyClientDef {
   import opened UInt = StandardLibrary.UInt
   import Materials
   import CMMDefs
+  import DefaultCMMDef
+  import KeyringDefs
   import AlgorithmSuite
   import AESEncryption
   import Cipher
@@ -32,13 +36,15 @@ module ToyClientDef {
       Repr := {this, cmm} + c.Repr;
     }
 
-    /*
-    constructor OfKeyring(k: Keyring.Keyring) requires k.Valid() ensures Valid() ensures fresh(cmm) {
+    constructor OfKeyring(k: KeyringDefs.Keyring)
+      requires k.Valid()
+      ensures Valid()
+      ensures fresh(cmm)
+    {
       cmm := new DefaultCMMDef.DefaultCMM.OfKeyring(k);
       new;
       Repr := {this, cmm} + cmm.Repr;
     }
-    */
 
     method GetEncMaterials(ec: Materials.EncryptionContext) returns (res: Result<Materials.EncryptionMaterials>)
       requires Valid()
