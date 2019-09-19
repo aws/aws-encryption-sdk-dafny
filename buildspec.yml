@@ -1,10 +1,12 @@
 version: 0.2
-
 phases:
   install:
+    runtime-versions:
+      dotnet: 2.2
     commands:
       - cd ..
-      - apt-get install nuget
+      - yum install -y nuget
+      - pip install --no-cache-dir lit OutputCheck pyyaml
       - mozroots --import --sync
       # Get Boogie
       - git clone https://github.com/boogie-org/boogie.git
@@ -21,5 +23,4 @@ phases:
       - cd aws-encryption-sdk-dafny
   build:
     commands:
-      - make deps
-      - lit test --verbose
+      - make release
