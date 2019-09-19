@@ -67,7 +67,7 @@ module {:extern "STL"} StandardLibrary {
     a := new T[|s|](i requires 0 <= i < |s| => s[i]);
   }
 
-  function method StringToByteSeq (s : string) : (s' : seq<uint8>)
+  function method {:opaque} StringToByteSeq(s: string): (s': seq<uint8>)
     requires forall i :: i in s ==> i < 256 as char
     ensures |s| == |s'| 
   {
@@ -76,7 +76,7 @@ module {:extern "STL"} StandardLibrary {
         [(s[0] as int % 256) as uint8] + StringToByteSeq(s[1..]))
   }
 
-  function method byteseq_of_string_lossy (s : string) : (s' : seq<uint8>)
+  function method {:opaque} byteseq_of_string_lossy (s : string) : (s' : seq<uint8>)
     ensures |s| == |s'|
   {
       if s == [] then [] else  (
@@ -84,8 +84,8 @@ module {:extern "STL"} StandardLibrary {
         [(s[0] as int % 256) as uint8] + byteseq_of_string_lossy(s[1..]))
   }
 
-  function method ByteSeqToString (s : seq<uint8>) : (s' : string)
-    ensures |s| == |s'| 
+  function method {:opaque} ByteSeqToString(s: seq<uint8>): (s': string)
+    ensures |s| == |s'|
     ensures forall i :: i in s' ==> i < 256 as char
   {
       if s == [] then [] else [(s[0] as char)] + ByteSeqToString(s[1..])
@@ -93,21 +93,22 @@ module {:extern "STL"} StandardLibrary {
 
   lemma StringByteSeqCorrect(s: string)
     requires StringIs8Bit(s)
-    ensures ByteSeqToString(StringToByteSeq(s)) == s {
-      if s == [] {
-
-      }
-      else {
-        assert (s[0] in s);
-        assert (((s[0] as int % 256) as char) == s[0]);
-        assert (forall i :: i in s[1..] ==> i in s);
-      }
+    ensures ByteSeqToString(StringToByteSeq(s)) == s
+  {
+    reveal ByteSeqToString(), StringToByteSeq();
+    if s == [] {
+    } else {
+      assert s[0] in s;
+      assert (s[0] as int % 256) as char == s[0];
+      assert forall i :: i in s[1..] ==> i in s;
     }
+  }
 
   lemma ByteSeqStringCorrect(s: seq<uint8>)
-    ensures StringToByteSeq(ByteSeqToString(s)) == s {
-
-    }
+    ensures StringToByteSeq(ByteSeqToString(s)) == s
+  {
+    reveal ByteSeqToString(), StringToByteSeq();
+  }
 
   method StringToByteArray(s: string) returns (a: array<uint8>)
     ensures fresh(a) && a.Length <= 2 * |s|

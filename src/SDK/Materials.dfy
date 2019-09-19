@@ -10,6 +10,8 @@ module Materials {
 
   type EncryptionContext = seq<(seq<uint8>, seq<uint8>)>
 
+  const EC_PUBLIC_KEY_FIELD: seq<uint8> := StringToByteSeq("aws-crypto-public-key");
+
   datatype EncryptedDataKey = EncryptedDataKey(providerID : string,
                                                providerInfo : seq<uint8>,
                                                ciphertext : seq<uint8>)
@@ -22,7 +24,7 @@ module Materials {
     var plaintextDataKey: Option<seq<uint8>>
     var signingKey: Option<seq<uint8>>
 
-    predicate Valid() 
+    predicate Valid()
       reads this
     {
       |encryptedDataKeys| > 0 ==> plaintextDataKey.Some?
@@ -36,6 +38,10 @@ module Materials {
                 signingKey: Option<seq<uint8>>)
       requires |encryptedDataKeys| > 0 ==> plaintextDataKey.Some?
       ensures Valid()
+      ensures this.algorithmSuiteID == algorithmSuiteID
+      ensures this.encryptedDataKeys == encryptedDataKeys
+      ensures this.encryptionContext == encryptionContext
+      ensures this.plaintextDataKey == plaintextDataKey
     {
       this.algorithmSuiteID := algorithmSuiteID;
       this.encryptedDataKeys := encryptedDataKeys;
@@ -71,7 +77,7 @@ module Materials {
     var encryptionContext: EncryptionContext
     var plaintextDataKey: Option<seq<uint8>>
     var verificationKey: Option<seq<uint8>>
-    
+
     predicate Valid()
       reads this
     {
@@ -83,6 +89,10 @@ module Materials {
                 plaintextDataKey: Option<seq<uint8>>,
                 verificationKey: Option<seq<uint8>>)
       ensures Valid()
+      ensures this.algorithmSuiteID == algorithmSuiteID
+      ensures this.encryptionContext == encryptionContext
+      ensures this.plaintextDataKey == plaintextDataKey
+      ensures this.verificationKey == verificationKey
     {
       this.algorithmSuiteID := algorithmSuiteID;
       this.encryptionContext := encryptionContext;
@@ -105,7 +115,7 @@ module Materials {
     function method naive_merge<T> (x : seq<T>, y : seq<T>, lt : (T, T) -> bool) : seq<T>
     {
         if |x| == 0 then y
-        else if |y| == 0 then x 
+        else if |y| == 0 then x
         else if lt(x[0], y[0]) then [x[0]] + naive_merge(x[1..], y, lt)
         else [y[0]] + naive_merge(x, y[1..], lt)
     }
@@ -116,7 +126,7 @@ module Materials {
         var t := |x| / 2; naive_merge(naive_merge_sort(x[..t], lt), naive_merge_sort(x[t..], lt), lt)
 
     }
-    
+
     function method memcmp_le (a : seq<uint8>, b : seq<uint8>, len : nat) : (res : Option<bool>)
         requires |a| >= len
         requires |b| >= len {
@@ -129,13 +139,13 @@ module Materials {
         case Some(b) => !b
         case None => !(|a| <= |b|)
         }
-  }
+    }
 
     predicate method lt_keys(b : (seq<uint8>, seq<uint8>), a : (seq<uint8>, seq<uint8>)) {
         lex_lt(b.0, a.0)
     }
 
-    function method EncCtxFlatten (x : seq<(seq<uint8>, seq<uint8>)>) : seq<uint8> { 
+    function method EncCtxFlatten (x : seq<(seq<uint8>, seq<uint8>)>) : seq<uint8> {
         if x == [] then [] else
         x[0].0 + x[0].1 + EncCtxFlatten(x[1..])
     }
@@ -144,7 +154,6 @@ module Materials {
     {
         EncCtxFlatten(naive_merge_sort(x, lt_keys))
     }
-    /*
 
     function method enc_ctx_lookup(x : seq<(seq<uint8>, seq<uint8>)>, k : seq<uint8>) : Option<seq<uint8>>
     {
@@ -156,5 +165,4 @@ module Materials {
         if x == [] then [] else
         [(byteseq_of_string_lossy(x[0].0), byteseq_of_string_lossy(x[0].1))] + enc_ctx_of_strings(x[1..])
     }
-    */
 }

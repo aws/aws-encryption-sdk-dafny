@@ -12,8 +12,7 @@ module KeyringDefs {
     method OnEncrypt(encMat: Materials.EncryptionMaterials) returns (res: Result<Materials.EncryptionMaterials>)
       requires Valid()
       requires encMat.Valid()
-      modifies encMat`plaintextDataKey
-      modifies encMat`encryptedDataKeys
+      modifies encMat`plaintextDataKey, encMat`encryptedDataKeys
       ensures Valid()
       ensures res.Success? ==> res.value.Valid() && res.value == encMat
       ensures res.Success? && old(encMat.plaintextDataKey.Some?) ==> res.value.plaintextDataKey == old(encMat.plaintextDataKey)
