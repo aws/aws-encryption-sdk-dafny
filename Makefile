@@ -48,7 +48,7 @@ build: build/Main.exe
 verify: clean-build $(SRCV)
 
 build/%.dfy.verified: src/%.dfy
-	$(DAFNY) $(patsubst build/%.dfy.verified, src/%.dfy, $@) /compile:0 /trace && mkdir -p $(dir $@) && touch $@
+	$(DAFNY) $(patsubst build/%.dfy.verified, src/%.dfy, $@) /compile:0 && mkdir -p $(dir $@) && touch $@
 
 build/Main.exe: $(SRCS) $(DEPS)
 	$(DAFNY) /out:build/Main $(SRCS) $(DEPS) /compile:2 /noVerify /noIncludes && cp $(BCDLL) build/
