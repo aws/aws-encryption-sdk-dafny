@@ -220,6 +220,7 @@ module Base64 {
 
     function method Encode(b: seq<uint8>): (s: seq<char>)
         ensures Decode(s) == Success(b)
+        ensures StringIs8Bit(s)
     {
         var res := (
             if |b| % 3 == 0 then EncodeConverter(b)
