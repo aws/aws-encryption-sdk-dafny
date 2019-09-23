@@ -28,7 +28,13 @@ module Materials {
       reads this
     {
       (|encryptedDataKeys| > 0 ==> plaintextDataKey.Some?) &&
-      (plaintextDataKey.None? || |plaintextDataKey.get| == algorithmSuiteID.KeyLength())
+      (plaintextDataKey.None? || ValidPlaintextDataKey(plaintextDataKey.get))
+    }
+
+    predicate ValidPlaintextDataKey(pdk: seq<uint8>)
+      reads this
+    {
+      |pdk| == this.algorithmSuiteID.KeyLength()
     }
 
     constructor(algorithmSuiteID: AlgorithmSuite.ID,
@@ -83,7 +89,13 @@ module Materials {
     predicate Valid()
       reads this
     {
-      plaintextDataKey.None? || |plaintextDataKey.get| == algorithmSuiteID.KeyLength()
+      plaintextDataKey.None? || ValidPlaintextDataKey(plaintextDataKey.get)
+    }
+
+    predicate ValidPlaintextDataKey(pdk: seq<uint8>)
+      reads this
+    {
+      |pdk| == this.algorithmSuiteID.KeyLength()
     }
 
     constructor(algorithmSuiteID: AlgorithmSuite.ID,
