@@ -125,6 +125,15 @@ module Materials {
     {
       plaintextDataKey := Some(dataKey);
     }
+
+    method setVerificationKey(verifKey: seq<uint8>)
+    requires Valid()
+    requires verificationKey.None?
+    modifies `verificationKey
+    ensures Valid()
+    ensures verificationKey == Some(verifKey) {
+      verificationKey := Some(verifKey);
+    }
   }
 
     //TODO: Review this code.

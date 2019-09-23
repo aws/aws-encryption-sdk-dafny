@@ -52,7 +52,7 @@ module ToyClientDef {
       ensures res.Success? ==> res.value.algorithmSuiteID == AlgorithmSuite.AES_256_GCM_IV12_TAG16_HKDF_SHA384_ECDSA_P384
       ensures res.Success? ==> res.value.plaintextDataKey.Some?
     {
-      var r :- cmm.EncMatRequest(ec, None, None);
+      var r :- cmm.GetEncryptionMaterials(ec, None, None);
       if r.algorithmSuiteID != AlgorithmSuite.AES_256_GCM_IV12_TAG16_HKDF_SHA384_ECDSA_P384 {
         return Failure("bad alg id");
       } else if r.plaintextDataKey.None? {
@@ -80,7 +80,7 @@ module ToyClientDef {
       if |e.edks| == 0 {
         return Failure("no edks");
       }
-      var decmat :- cmm.DecMatRequest(AlgorithmSuite.AES_256_GCM_IV12_TAG16_HKDF_SHA384_ECDSA_P384, e.edks, e.ec);
+      var decmat :- cmm.DecryptMaterials(AlgorithmSuite.AES_256_GCM_IV12_TAG16_HKDF_SHA384_ECDSA_P384, e.edks, e.ec);
       match decmat.plaintextDataKey
       case Some(dk) =>
         if |dk| == 32 && |e.ctxt| > 12 {
