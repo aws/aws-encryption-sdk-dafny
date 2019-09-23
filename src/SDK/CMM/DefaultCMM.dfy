@@ -66,8 +66,9 @@ module DefaultCMMDef {
       if em.plaintextDataKey.None? ||
          |em.plaintextDataKey.get| != em.algorithmSuiteID.KeyLength() ||
          |em.encryptedDataKeys| == 0 ||
-         (em.algorithmSuiteID.SignatureType().Some? && em.signingKey.None?) {
-           return Failure("Could not retrieve materials required for encryption");
+         (em.algorithmSuiteID.SignatureType().Some? && em.signingKey.None?)
+      {
+        return Failure("Could not retrieve materials required for encryption");
       }
       res := Success(em);
     }
