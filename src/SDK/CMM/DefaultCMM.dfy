@@ -60,7 +60,7 @@ module DefaultCMMDef {
               enc_ec := [(Materials.EC_PUBLIC_KEY_FIELD, StringToByteSeq(Base64.Encode(ab.1)))] + enc_ec;
       }
 
-      var in_enc_mat := new Materials.EncryptionMaterials(id, [], enc_ec, None, enc_sk);
+      var in_enc_mat := new Materials.EncryptionMaterials(id, [], enc_ec, None, enc_sk, []);
       var em :- kr.OnEncrypt(in_enc_mat);
 
       if em.plaintextDataKey.None? ||
@@ -83,7 +83,7 @@ module DefaultCMMDef {
       ensures res.Success? && res.value.algorithmSuiteID.SignatureType().Some? ==> res.value.verificationKey.Some?
     {
       var vkey := Materials.enc_ctx_lookup(enc_ctx, Materials.EC_PUBLIC_KEY_FIELD);
-      var dec_mat := new Materials.DecryptionMaterials(alg_id, enc_ctx, None, vkey);
+      var dec_mat := new Materials.DecryptionMaterials(alg_id, enc_ctx, None, vkey, []);
       var dm :- kr.OnDecrypt(dec_mat, edks);
 
       if dm.algorithmSuiteID.SignatureType().Some? {

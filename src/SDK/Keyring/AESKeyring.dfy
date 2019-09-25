@@ -63,14 +63,23 @@ module AESKeyringDef {
     }
 
     method OnEncrypt(encMat: Mat.EncryptionMaterials) returns (res: Result<Mat.EncryptionMaterials>)
-      requires encMat.Valid()
       requires Valid()
-      modifies encMat`plaintextDataKey
-      modifies encMat`encryptedDataKeys
+      requires encMat.Valid()
+      modifies encMat`plaintextDataKey, encMat`encryptedDataKeys, encMat`keyringTrace
       ensures Valid()
       ensures res.Success? ==> res.value.Valid() && res.value == encMat
       ensures res.Success? && old(encMat.plaintextDataKey.Some?) ==> res.value.plaintextDataKey == old(encMat.plaintextDataKey)
       ensures res.Failure? ==> unchanged(encMat)
+      // if set plaintext data key on encrypt, keyring trace contains a new trace with the GENERATED_DATA_KEY flag.
+      ensures old(encMat.plaintextDataKey).None? && encMat.plaintextDataKey.Some? ==> (
+        |encMat.keyringTrace| > |old(encMat.keyringTrace)| &&
+        exists trace :: trace in encMat.keyringTrace[|old(encMat.keyringTrace)|..] && Mat.GENERATED_DATA_KEY in trace.flags
+      )
+      // if added a new encryptedDataKey, keyring trace contains a new trace with the ENCRYPTED_DATA_KEY flag.
+      ensures |encMat.encryptedDataKeys| > |old(encMat.encryptedDataKeys)| ==> (
+        |encMat.keyringTrace| > |old(encMat.keyringTrace)| &&
+        exists trace :: trace in encMat.keyringTrace[|old(encMat.keyringTrace)|..] && Mat.ENCRYPTED_DATA_KEY in trace.flags
+      )
     {
       var dataKey := encMat.plaintextDataKey;
       if dataKey.None? {
@@ -80,11 +89,26 @@ module AESKeyringDef {
       var iv := Cipher.RNG.GenBytes(wrappingAlgorithm.ivLen as uint16);
       var aad := Mat.FlattenSortEncCtx(encMat.encryptionContext);
       var encryptResult := AESEncryption.AES.aes_encrypt(wrappingAlgorithm, iv, wrappingKey, dataKey.get, aad);
-      if encryptResult.Failure? { return Failure("Error on encrypt!"); }
+      if encryptResult.Failure? { 
+        return Failure("Error on encrypt!");
+      }
+
+      // Successful encryption, update materials
+      if encMat.plaintextDataKey.None? {
+        encMat.SetPlaintextDataKey(dataKey.get);
+        encMat.AppendKeyringTrace(Mat.KeyringTraceEntry(keyNamespace, keyName, {Mat.GENERATED_DATA_KEY}));
+      }
       var providerInfo := SerializeProviderInto(iv);
       var edk := Mat.EncryptedDataKey(keyNamespace, providerInfo, encryptResult.value);
-      encMat.plaintextDataKey := dataKey;
-      encMat.encryptedDataKeys := encMat.encryptedDataKeys + [edk];
+      encMat.AppendEncryptedDataKey(edk);
+      encMat.AppendKeyringTrace(Mat.KeyringTraceEntry(keyNamespace, keyName, {Mat.ENCRYPTED_DATA_KEY, Mat.SIGNED_ENCRYPTION_CONTEXT}));
+
+      // TODO find way to remove this assert
+      assert |encMat.keyringTrace| - |old(encMat.keyringTrace)| == 2 ==> (
+        (exists trace :: trace in encMat.keyringTrace[|encMat.keyringTrace|-2..|encMat.keyringTrace|-1] && Mat.GENERATED_DATA_KEY in trace.flags) &&
+        (exists trace :: trace in encMat.keyringTrace[|encMat.keyringTrace|-1..] && Mat.ENCRYPTED_DATA_KEY in trace.flags)
+      );
+
       return Success(encMat);
     }
 
@@ -103,15 +127,21 @@ module AESKeyringDef {
     }
 
     method OnDecrypt(decMat: Mat.DecryptionMaterials, edks: seq<Mat.EncryptedDataKey>) returns (res: Result<Mat.DecryptionMaterials>)
-      requires Valid() 
+      requires Valid()
       requires decMat.Valid()
-      modifies decMat`plaintextDataKey
+      modifies decMat`plaintextDataKey, decMat`keyringTrace
       ensures Valid()
       ensures decMat.Valid()
       ensures |edks| == 0 ==> res.Success? && unchanged(decMat)
       ensures old(decMat.plaintextDataKey.Some?) ==> res.Success? && unchanged(decMat)
       ensures res.Success? ==> res.value == decMat
       ensures res.Failure? ==> unchanged(decMat)
+      // if set plaintext data key on decrypt, keyring trace contains a new trace with the DECRYPTED_DATA_KEY flag.
+      ensures old(decMat.plaintextDataKey).None? && decMat.plaintextDataKey.Some? ==> (
+        |decMat.keyringTrace| > |old(decMat.keyringTrace)| &&
+        |decMat.keyringTrace[|old(decMat.keyringTrace)|..]| > 0 &&
+        exists trace :: trace in decMat.keyringTrace[|old(decMat.keyringTrace)|..] && Mat.DECRYPTED_DATA_KEY in trace.flags
+      )
     {
       if decMat.plaintextDataKey.Some? {
         return Success(decMat);
@@ -126,6 +156,7 @@ module AESKeyringDef {
             var ptKey := decryptResult.value;
             if |ptKey| == decMat.algorithmSuiteID.KeyLength() { // check for correct key length
               decMat.plaintextDataKey := Some(ptKey);
+              decMat.AppendKeyringTrace(Mat.KeyringTraceEntry(keyNamespace, keyName, {Mat.DECRYPTED_DATA_KEY}));
               return Success(decMat);
             }
           } else {

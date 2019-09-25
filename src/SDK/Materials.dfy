@@ -16,19 +16,37 @@ module Materials {
                                                providerInfo : seq<uint8>,
                                                ciphertext : seq<uint8>)
 
-  // TODO: Add keyring trace
+  datatype KeyringTraceFlag = GENERATED_DATA_KEY |
+                              ENCRYPTED_DATA_KEY | 
+                              DECRYPTED_DATA_KEY | 
+                              SIGNED_ENCRYPTION_CONTEXT | 
+                              VERIFIED_ENCRYPTION_CONTEXT
+
+  datatype KeyringTraceEntry = KeyringTraceEntry(keyNamespace: string,
+                                                 keyName: string,
+                                                 flags: set<KeyringTraceFlag>)
+
+  // TODO more assurances we can make regarding key name and key namespace? Only ever appends to end?
+  type KeyringTrace = seq<KeyringTraceEntry>
+
+  const WrappingFlags: set<KeyringTraceFlag> := {GENERATED_DATA_KEY, ENCRYPTED_DATA_KEY, SIGNED_ENCRYPTION_CONTEXT};
+  const UnwrappingFlags: set<KeyringTraceFlag> := {DECRYPTED_DATA_KEY, VERIFIED_ENCRYPTION_CONTEXT};
+  // TODO set flags?
+
   class EncryptionMaterials {
     var algorithmSuiteID: AlgorithmSuite.ID
     var encryptedDataKeys: seq<EncryptedDataKey>
     var encryptionContext: EncryptionContext
     var plaintextDataKey: Option<seq<uint8>>
     var signingKey: Option<seq<uint8>>
+    var keyringTrace: KeyringTrace
 
     predicate Valid()
       reads this
     {
       (|encryptedDataKeys| > 0 ==> plaintextDataKey.Some?) &&
-      (plaintextDataKey.None? || ValidPlaintextDataKey(plaintextDataKey.get))
+      (plaintextDataKey.None? || ValidPlaintextDataKey(plaintextDataKey.get)) &&
+      forall trace :: trace in keyringTrace ==> (trace.flags * WrappingFlags) == trace.flags
     }
 
     predicate ValidPlaintextDataKey(pdk: seq<uint8>)
@@ -41,20 +59,24 @@ module Materials {
                 encryptedDataKeys: seq<EncryptedDataKey>,
                 encryptionContext: EncryptionContext,
                 plaintextDataKey: Option<seq<uint8>>,
-                signingKey: Option<seq<uint8>>)
+                signingKey: Option<seq<uint8>>,
+                keyringTrace: seq<KeyringTraceEntry>)
       requires |encryptedDataKeys| > 0 ==> plaintextDataKey.Some?
       requires plaintextDataKey.None? || |plaintextDataKey.get| == algorithmSuiteID.KeyLength()
+      requires forall trace :: trace in keyringTrace ==> (trace.flags * WrappingFlags) == trace.flags
       ensures Valid()
       ensures this.algorithmSuiteID == algorithmSuiteID
       ensures this.encryptedDataKeys == encryptedDataKeys
       ensures this.encryptionContext == encryptionContext
       ensures this.plaintextDataKey == plaintextDataKey
+      ensures this.keyringTrace == keyringTrace
     {
       this.algorithmSuiteID := algorithmSuiteID;
       this.encryptedDataKeys := encryptedDataKeys;
       this.encryptionContext := encryptionContext;
       this.plaintextDataKey := plaintextDataKey;
       this.signingKey := signingKey;
+      this.keyringTrace := keyringTrace;
     }
 
     method SetPlaintextDataKey(dataKey: seq<uint8>)
@@ -64,6 +86,7 @@ module Materials {
       modifies `plaintextDataKey
       ensures Valid()
       ensures plaintextDataKey == Some(dataKey)
+      // TODO do we enforce how traces are set in these methods?
     {
       plaintextDataKey := Some(dataKey);
     }
@@ -77,19 +100,32 @@ module Materials {
     {
       encryptedDataKeys := encryptedDataKeys + [edk]; // TODO: Determine if this is a performance issue
     }
+
+    method AppendKeyringTrace(trace: KeyringTraceEntry)
+      requires Valid()
+      requires trace.flags * WrappingFlags == trace.flags
+      modifies `keyringTrace
+      ensures Valid()
+      ensures keyringTrace == old(keyringTrace) + [trace]
+      //ensures old(keyringTrace) == keyringTrace[..|old(keyringTrace)|]
+      //ensures forall t :: t in old(keyringTrace) ==> t in keyringTrace
+    {
+      keyringTrace := keyringTrace + [trace]; // TODO: Determine if this is a performance issue
+    }
   }
 
-  // TODO: Add keyring trace
   class DecryptionMaterials {
     var algorithmSuiteID: AlgorithmSuite.ID
     var encryptionContext: EncryptionContext
     var plaintextDataKey: Option<seq<uint8>>
     var verificationKey: Option<seq<uint8>>
+    var keyringTrace: KeyringTrace
 
     predicate Valid()
       reads this
     {
-      plaintextDataKey.None? || ValidPlaintextDataKey(plaintextDataKey.get)
+      (plaintextDataKey.None? || ValidPlaintextDataKey(plaintextDataKey.get)) &&
+      forall trace :: trace in keyringTrace ==> (trace.flags * UnwrappingFlags) == trace.flags
     }
 
     predicate ValidPlaintextDataKey(pdk: seq<uint8>)
@@ -101,18 +137,22 @@ module Materials {
     constructor(algorithmSuiteID: AlgorithmSuite.ID,
                 encryptionContext: EncryptionContext,
                 plaintextDataKey: Option<seq<uint8>>,
-                verificationKey: Option<seq<uint8>>)
+                verificationKey: Option<seq<uint8>>,
+                keyringTrace: seq<KeyringTraceEntry>)
       requires plaintextDataKey.None? || |plaintextDataKey.get| == algorithmSuiteID.KeyLength()
+      requires forall trace :: trace in keyringTrace ==> (trace.flags * UnwrappingFlags) == trace.flags
       ensures Valid()
       ensures this.algorithmSuiteID == algorithmSuiteID
       ensures this.encryptionContext == encryptionContext
       ensures this.plaintextDataKey == plaintextDataKey
       ensures this.verificationKey == verificationKey
+      ensures this.keyringTrace == keyringTrace
     {
       this.algorithmSuiteID := algorithmSuiteID;
       this.encryptionContext := encryptionContext;
       this.plaintextDataKey := plaintextDataKey;
       this.verificationKey := verificationKey;
+      this.keyringTrace := keyringTrace;
     }
 
     method setPlaintextDataKey(dataKey: seq<uint8>)
@@ -127,12 +167,25 @@ module Materials {
     }
 
     method setVerificationKey(verifKey: seq<uint8>)
-    requires Valid()
-    requires verificationKey.None?
-    modifies `verificationKey
-    ensures Valid()
-    ensures verificationKey == Some(verifKey) {
+      requires Valid()
+      requires verificationKey.None?
+      modifies `verificationKey
+      ensures Valid()
+      ensures verificationKey == Some(verifKey)
+    {
       verificationKey := Some(verifKey);
+    }
+
+    method AppendKeyringTrace(trace: KeyringTraceEntry)
+      requires Valid()
+      requires trace.flags * UnwrappingFlags == trace.flags
+      modifies `keyringTrace
+      ensures Valid()
+      ensures keyringTrace == old(keyringTrace) + [trace]
+      ensures old(keyringTrace) == keyringTrace[..|old(keyringTrace)|]
+      ensures forall t :: t in old(keyringTrace) ==> t in keyringTrace
+    {
+      keyringTrace := keyringTrace + [trace]; // TODO: Determine if this is a performance issue
     }
   }
 
