@@ -295,6 +295,7 @@ module {:extern "STL"} StandardLibrary {
   function method MapSeq<S, T>(s: seq<S>, f: S ~> T): seq<T>
     requires forall i :: 0 <= i < |s| ==> f.requires(s[i])
     reads set i,o | 0 <= i < |s| && o in f.reads(s[i]) :: o
+    decreases |s|
   {
       if s == []
       then []
@@ -368,6 +369,19 @@ module {:extern "STL"} StandardLibrary {
                   if i+1 < a.Length && i+1 == b.Length
                   then false
                   else true // i+1 == a.Length && i+1 == b.Length, i.e. a == b
+  }
+
+  predicate method LexCmpSeqs<T(==)>(a: seq<T>, b: seq<T>, lt: (T, T) -> bool) {
+    exists k :: 0 <= k <= |a| && LexCmpSeqsTo(a, b, lt, k)
+  }
+
+  predicate method LexCmpSeqsTo<T(==)>(a: seq<T>, b: seq<T>, lt: (T, T) -> bool, lengthOfCommonPrefix: nat)
+    requires 0 <= lengthOfCommonPrefix <= |a|
+  {
+    lengthOfCommonPrefix <= |b| &&
+    (forall i :: 0 <= i < lengthOfCommonPrefix ==> a[i] == b[i]) &&
+    (lengthOfCommonPrefix == |a| ||
+     (lengthOfCommonPrefix < |b| && lt(a[lengthOfCommonPrefix], b[lengthOfCommonPrefix])))
   }
 
   lemma {:axiom} eq_multiset_eq_len<T> (s : seq<T>, s' : seq<T>)

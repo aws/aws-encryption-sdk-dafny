@@ -24,17 +24,15 @@ module UTF8 {
     }
 
     // Checks if a[offset] is a valid continuation uint8.
-    predicate method ValidUTF8Continuation(a: array<uint8>, offset: nat)
-        requires offset < a.Length
-        reads a
+    predicate method ValidUTF8Continuation(a: seq<uint8>, offset: nat)
+        requires offset < |a|
     {
             bit_at(a[offset], 7) && !bit_at(a[offset], 6)
     }
 
     // Returns which leading uint8 is at a[offset], or 0 if it is not a leading uint8.
-    function method CodePointCase(a: array<uint8>, offset: nat): uint8
-        requires offset < a.Length
-        reads a
+    function method CodePointCase(a: seq<uint8>, offset: nat): uint8
+        requires offset < |a|
     {
         if bit_at(a[offset], 7) then // 1xxx xxxx
             if bit_at(a[offset], 6) then //11xx xxxx
@@ -54,28 +52,27 @@ module UTF8 {
             1
     }
 
-    predicate method ValidUTF8_at(a: array<uint8>, offset: nat)
-        requires offset <= a.Length
-        reads a
-        decreases (a.Length - offset)
+    predicate method ValidUTF8_at(a: seq<uint8>, offset: nat)
+        requires offset <= |a|
+        decreases |a| - offset
     {
-        if offset == a.Length
+        if offset == |a|
         then true
         else
             var c := CodePointCase(a, offset);
             if c == 1 then
                 ValidUTF8_at(a, offset + 1)
             else if c == 2 then
-                offset + 2 <= a.Length &&
+                offset + 2 <= |a| &&
                 ValidUTF8Continuation(a, offset + 1) &&
                 ValidUTF8_at(a, offset + 2)
             else if c == 3 then
-                offset + 3 <= a.Length &&
+                offset + 3 <= |a| &&
                 ValidUTF8Continuation(a, offset + 1) &&
                 ValidUTF8Continuation(a, offset + 2) &&
                 ValidUTF8_at(a, offset + 3)
             else if c == 4 then
-                offset + 4 <= a.Length &&
+                offset + 4 <= |a| &&
                 ValidUTF8Continuation(a, offset + 1) &&
                 ValidUTF8Continuation(a, offset + 2) &&
                 ValidUTF8Continuation(a, offset + 3) &&
@@ -87,7 +84,16 @@ module UTF8 {
     predicate method ValidUTF8(a: array<uint8>)
         reads a
     {
-        ValidUTF8_at(a, 0)
+        ValidUTF8_at(a[..], 0)
     }
 
+    predicate method ValidUTF8Seq(s: seq<uint8>) {
+      ValidUTF8_at(s, 0)
+    }
+
+    lemma ValidUTF8ArraySeq(a: array<uint8>)
+      requires ValidUTF8(a)
+      ensures ValidUTF8Seq(a[..])
+    {
+    }
 }

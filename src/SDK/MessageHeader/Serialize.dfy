@@ -24,10 +24,6 @@ module MessageHeader.Serialize {
 
     function {:opaque} serialize(hb: HeaderBody): seq<uint8>
         requires ValidHeaderBody(hb)
-        requires ReprAAD(hb.aad) !! ReprEncryptedDataKeys(hb.encryptedDataKeys)
-        reads if hb.aad.AAD? then {hb.aad.kvPairs} else {}
-        reads ReprAAD(hb.aad)
-        reads ReprEncryptedDataKeys(hb.encryptedDataKeys)
     {
         reveal ValidHeaderBody();
         [hb.version as uint8] +
@@ -47,13 +43,9 @@ module MessageHeader.Serialize {
         modifies os`data
         requires ValidHeaderBody(hb)
         // It's crucial to require no aliasing here
-        requires os.Repr !! ReprAAD(hb.aad)
-        requires os.Repr !! ReprEncryptedDataKeys(hb.encryptedDataKeys)
-        requires ReprAAD(hb.aad) !! ReprEncryptedDataKeys(hb.encryptedDataKeys)
         ensures os.Valid()
         // TODO: these should probably be enabled
         //ensures unchanged(os`Repr)
-        //ensures unchanged(ReprAAD(hb.aad))
         //ensures unchanged(ReprEncryptedDataKeys(hb.encryptedDataKeys))
         //ensures old(|os.data|) <= |os.data|
         ensures ValidHeaderBody(hb)

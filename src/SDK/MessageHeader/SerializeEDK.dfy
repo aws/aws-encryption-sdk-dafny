@@ -16,33 +16,25 @@ module MessageHeader.SerializeEDK {
 
     // Alternative w/o flatten/map
     function serializeEDKEntries(entries: seq<EDKEntry>): seq<uint8>
-        requires forall i :: 0 <= i < |entries| ==>
-            && entries[i].keyProviderId.Length   < UINT16_LIMIT
-            && entries[i].keyProviderInfo.Length < UINT16_LIMIT
-            && entries[i].encDataKey.Length      < UINT16_LIMIT
-        reads ReprEncryptedDataKeysUpTo(entries, |entries|)
+        requires forall i :: 0 <= i < |entries| ==> entries[i].Valid()
     {
         if entries == []
         then []
         else
             var entry := entries[0];
-            UInt16ToSeq(entry.keyProviderId.Length as uint16)   + entry.keyProviderId[..] +
-            UInt16ToSeq(entry.keyProviderInfo.Length as uint16) + entry.keyProviderInfo[..] +
-            UInt16ToSeq(entry.encDataKey.Length as uint16)      + entry.encDataKey[..] +
+            UInt16ToSeq(|entry.providerID| as uint16)   + StringToByteSeq(entry.providerID) +
+            UInt16ToSeq(|entry.providerInfo| as uint16) + entry.providerInfo +
+            UInt16ToSeq(|entry.ciphertext| as uint16)   + entry.ciphertext +
             serializeEDKEntries(entries[1..])
     }
 
     function serializeEDK(encryptedDataKeys: T_EncryptedDataKeys): seq<uint8>
         requires ValidEncryptedDataKeys(encryptedDataKeys)
-        reads ReprEncryptedDataKeys(encryptedDataKeys)
     {
-        Assume(encryptedDataKeys.entries.Length < UINT16_LIMIT);
-        Assume(forall i :: 0 <= i < encryptedDataKeys.entries.Length ==>
-            && encryptedDataKeys.entries[i].keyProviderId.Length   < UINT16_LIMIT
-            && encryptedDataKeys.entries[i].keyProviderInfo.Length < UINT16_LIMIT
-            && encryptedDataKeys.entries[i].encDataKey.Length      < UINT16_LIMIT);
-        UInt16ToSeq(encryptedDataKeys.entries.Length as uint16) +
-        serializeEDKEntries(encryptedDataKeys.entries[..])
+        Assume(|encryptedDataKeys.entries| < UINT16_LIMIT);
+        Assume(forall i :: 0 <= i < |encryptedDataKeys.entries| ==> encryptedDataKeys.entries[i].Valid());
+        UInt16ToSeq(|encryptedDataKeys.entries| as uint16) +
+        serializeEDKEntries(encryptedDataKeys.entries)
     }
 
     method serializeEDKImpl(os: StringWriter, encryptedDataKeys: T_EncryptedDataKeys) returns (ret: Either<nat, Error>)
@@ -50,10 +42,8 @@ module MessageHeader.SerializeEDK {
         modifies os`data
         ensures os.Valid()
         requires ValidEncryptedDataKeys(encryptedDataKeys)
-        requires os.Repr !! ReprEncryptedDataKeys(encryptedDataKeys)
         ensures ValidEncryptedDataKeys(encryptedDataKeys)
         ensures unchanged(os`Repr)
-        ensures unchanged(ReprEncryptedDataKeys(encryptedDataKeys))
         //ensures old(|os.data|) <= |os.data|
         ensures
             match ret
@@ -72,8 +62,8 @@ module MessageHeader.SerializeEDK {
         ghost var currPos: nat := initLen;
 
         {
-            Assume(encryptedDataKeys.entries.Length < UINT16_LIMIT);
-            var bytes := UInt16ToArray(encryptedDataKeys.entries.Length as uint16);
+            Assume(|encryptedDataKeys.entries| < UINT16_LIMIT);
+            var bytes := UInt16ToArray(|encryptedDataKeys.entries| as uint16);
             ret := os.WriteSimple(bytes);
             match ret {
                 case Left(len) => totalWritten := totalWritten + len;
@@ -88,10 +78,9 @@ module MessageHeader.SerializeEDK {
 
         var j := 0;
         ghost var written: seq<nat> := [currPos, currPos];
-        while j < encryptedDataKeys.entries.Length
-            invariant j <= encryptedDataKeys.entries.Length
+        while j < |encryptedDataKeys.entries|
+            invariant j <= |encryptedDataKeys.entries|
             invariant j < |written|
-            invariant os.Repr !! ReprEncryptedDataKeys(encryptedDataKeys)
             invariant unchanged(os`Repr)
             invariant InBoundsEncryptedDataKeysUpTo(encryptedDataKeys.entries, j)
             invariant ValidEncryptedDataKeys(encryptedDataKeys)
@@ -105,8 +94,8 @@ module MessageHeader.SerializeEDK {
         {
             var entry := encryptedDataKeys.entries[j];
             {
-                Assume(entry.keyProviderId.Length < UINT16_LIMIT);
-                var bytes := UInt16ToArray(entry.keyProviderId.Length as uint16);
+                Assume(|entry.providerID| < UINT16_LIMIT);
+                var bytes := UInt16ToArray(|entry.providerID| as uint16);
                 ret := os.WriteSimple(bytes);
                 match ret {
                     case Left(len) => totalWritten := totalWritten + len;
@@ -119,7 +108,22 @@ module MessageHeader.SerializeEDK {
             }
 
             {
-                var bytes := entry.keyProviderId;
+                var bytes := StringToByteSeq(entry.providerID);
+                ret := os.WriteSimpleSeq(bytes);
+                match ret {
+                    case Left(len) => totalWritten := totalWritten + len;
+                    case Right(e)  => return ret;
+                }
+                prevPos := currPos;
+                currPos := initLen + totalWritten;
+                assert currPos - prevPos == |bytes|;
+                Assume(prevPos <= currPos <= |os.data| ==> os.data[prevPos..currPos] == bytes[..]);
+                assert prevPos <= currPos <= |os.data| ==> os.data[prevPos..currPos] == bytes[..];
+            }
+
+            {
+                Assume(|entry.providerInfo| < UINT16_LIMIT);
+                var bytes := UInt16ToArray(|entry.providerInfo| as uint16);
                 ret := os.WriteSimple(bytes);
                 match ret {
                     case Left(len) => totalWritten := totalWritten + len;
@@ -133,8 +137,22 @@ module MessageHeader.SerializeEDK {
             }
 
             {
-                Assume(entry.keyProviderInfo.Length < UINT16_LIMIT);
-                var bytes := UInt16ToArray(entry.keyProviderInfo.Length as uint16);
+                var bytes := entry.providerInfo;
+                ret := os.WriteSimpleSeq(bytes);
+                match ret {
+                    case Left(len) => totalWritten := totalWritten + len;
+                    case Right(e)  => return ret;
+                }
+                prevPos := currPos;
+                currPos := initLen + totalWritten;
+                assert currPos - prevPos == |bytes|;
+                Assume(prevPos <= currPos <= |os.data| ==> os.data[prevPos..currPos] == bytes[..]);
+                assert prevPos <= currPos <= |os.data| ==> os.data[prevPos..currPos] == bytes[..];
+            }
+
+            {
+                Assume(|entry.ciphertext| < UINT16_LIMIT);
+                var bytes := UInt16ToArray(|entry.ciphertext| as uint16);
                 ret := os.WriteSimple(bytes);
                 match ret {
                     case Left(len) => totalWritten := totalWritten + len;
@@ -148,44 +166,15 @@ module MessageHeader.SerializeEDK {
             }
 
             {
-                var bytes := entry.keyProviderInfo;
-                ret := os.WriteSimple(bytes);
+                var bytes := entry.ciphertext;
+                ret := os.WriteSimpleSeq(bytes);
                 match ret {
                     case Left(len) => totalWritten := totalWritten + len;
                     case Right(e)  => return ret;
                 }
                 prevPos := currPos;
                 currPos := initLen + totalWritten;
-                assert currPos - prevPos == bytes.Length;
-                Assume(prevPos <= currPos <= |os.data| ==> os.data[prevPos..currPos] == bytes[..]);
-                assert prevPos <= currPos <= |os.data| ==> os.data[prevPos..currPos] == bytes[..];
-            }
-
-            {
-                Assume(entry.encDataKey.Length < UINT16_LIMIT);
-                var bytes := UInt16ToArray(entry.encDataKey.Length as uint16);
-                ret := os.WriteSimple(bytes);
-                match ret {
-                    case Left(len) => totalWritten := totalWritten + len;
-                    case Right(e)  => return ret;
-                }
-                prevPos := currPos;
-                currPos := initLen + totalWritten;
-                assert currPos - prevPos == bytes.Length;
-                Assume(prevPos <= currPos <= |os.data| ==> os.data[prevPos..currPos] == bytes[..]);
-                assert prevPos <= currPos <= |os.data| ==> os.data[prevPos..currPos] == bytes[..];
-            }
-
-            {
-                var bytes := entry.encDataKey;
-                ret := os.WriteSimple(bytes);
-                match ret {
-                    case Left(len) => totalWritten := totalWritten + len;
-                    case Right(e)  => return ret;
-                }
-                prevPos := currPos;
-                currPos := initLen + totalWritten;
-                assert currPos - prevPos == bytes.Length;
+                assert currPos - prevPos == |bytes|;
                 Assume(prevPos <= currPos <= |os.data| ==> os.data[prevPos..currPos] == bytes[..]);
                 assert prevPos <= currPos <= |os.data| ==> os.data[prevPos..currPos] == bytes[..];
             }

@@ -161,10 +161,6 @@ module MessageHeader.Deserialize {
             match ret
                 case Left(aad) =>
                     && ValidAAD(aad)
-                    // TODO: I think we need to establish freshness to connect
-                    //       deserialization with the caller.
-                    //       Times out.
-                    //&& fresh(ReprAAD(aad))
                 case Right(_) => true
         ensures is.Valid()
     {
@@ -197,22 +193,20 @@ module MessageHeader.Deserialize {
             }
         }
 
-        var kvPairs: EncCtx := new [kvPairsCount];
-        assert kvPairs.Length > 0;
-        assert kvPairsCount == kvPairs.Length as uint16;
+        // TODO: declare this array, make kvPairs a ghost, maintain invariant that sequence is a prefix of the array:
+        // var kvPairsArray: array<(seq<uint8>, seq<uint8>)> := new [kvPairsCount];
+        var kvPairs: seq<(seq<uint8>, seq<uint8>)> := [];
+        assert kvPairsCount > 0;
 
         var i := 0;
         while i < kvPairsCount
             invariant is.Valid()
+            invariant |kvPairs| == i as int
             invariant i <= kvPairsCount
             invariant InBoundsKVPairsUpTo(kvPairs, i as nat)
             invariant SortedKVPairsUpTo(kvPairs, i as nat)
-            invariant forall j :: 0 <= j < i ==> ValidUTF8(kvPairs[j].0)
-            invariant forall j :: 0 <= j < i ==> ValidUTF8(kvPairs[j].1)
-            // TODO: I think we need to establish freshness to connect
-            //       deserialization with the caller.
-            //       Times out.
-            //invariant fresh(ReprAADUpTo(kvPairs, i as nat))
+            invariant forall j :: 0 <= j < i ==> ValidUTF8Seq(kvPairs[j].0)
+            invariant forall j :: 0 <= j < i ==> ValidUTF8Seq(kvPairs[j].1)
         {
             var keyLength: uint16;
             {
@@ -225,17 +219,19 @@ module MessageHeader.Deserialize {
                 }
             }
 
-            var key := new uint8[keyLength];
+            var key: seq<uint8>;
             {
                 var res := deserializeUTF8(is, keyLength as nat);
                 match res {
                     case Left(bytes) =>
-                        key := bytes;
+                        ValidUTF8ArraySeq(bytes);
+                        key := bytes[..];
                         totalBytesRead := totalBytesRead + bytes.Length;
                     case Right(e) => return Right(e);
                 }
             }
-            assert key.Length < UINT16_LIMIT;
+            assert |key| < UINT16_LIMIT;
+            assert ValidUTF8Seq(key);
 
             var valueLength: uint16;
             {
@@ -248,29 +244,25 @@ module MessageHeader.Deserialize {
                 }
             }
 
-            var value := new uint8[valueLength];
+            var value: seq<uint8>;
             {
                 var res := deserializeUTF8(is, valueLength as nat);
                 match res {
                     case Left(bytes) =>
-                        value := bytes;
+                        ValidUTF8ArraySeq(bytes);
+                        value := bytes[..];
                         totalBytesRead := totalBytesRead + bytes.Length;
                     case Right(e) => return Right(e);
                 }
             }
-            assert value.Length < UINT16_LIMIT;
+            assert |value| < UINT16_LIMIT;
+            assert ValidUTF8Seq(value);
 
             // check for sortedness by key
-            if i > 0 {
-                if lexCmpArrays(kvPairs[i-1].0, key, ltByte) {
-                    kvPairs[i] := (key, value);
-                } else {
-                    return Right(DeserializationError("Key-value pairs must be sorted by key."));
-                }
-            } else {
-                assert i == 0;
-                kvPairs[i] := (key, value);
+            if i != 0 && !LexCmpSeqs(kvPairs[i-1].0, key, ltByte) {
+                return Right(DeserializationError("Key-value pairs must be sorted by key."));
             }
+            kvPairs := kvPairs + [(key, value)];
             assert SortedKVPairsUpTo(kvPairs, (i+1) as nat);
             i := i + 1;
         }
@@ -288,10 +280,6 @@ module MessageHeader.Deserialize {
             match ret
                 case Left(edks) =>
                     && ValidEncryptedDataKeys(edks)
-                    // TODO: I think we need to establish freshness to connect
-                    //       deserialization with the caller.
-                    //       Times out.
-                    // && fresh(ReprEncryptedDataKeys(edks))
                 case Right(_)   => true
         ensures is.Valid()
     {
@@ -308,18 +296,12 @@ module MessageHeader.Deserialize {
             return Right(DeserializationError("Encrypted data key count must be > 0."));
         }
 
-        var edkEntries: array<EDKEntry> := new [edkCount];
-        var edks := EncryptedDataKeys(edkEntries);
+        var edkEntries: seq<EDKEntry> := [];
         var i := 0;
         while i < edkCount
             invariant is.Valid()
             invariant i <= edkCount
-            invariant InBoundsEncryptedDataKeysUpTo(edks.entries, i as nat)
-            invariant forall j :: 0 <= j < i ==> ValidUTF8(edks.entries[j].keyProviderId)
-            // TODO: I think we need to establish freshness to connect
-            //       deserialization with the caller.
-            //       Times out.
-            //invariant fresh(ReprEncryptedDataKeysUpTo(edks.entries, i as nat))
+            invariant InBoundsEncryptedDataKeys(edkEntries)
         {
             // Key provider ID
             var keyProviderIDLength: uint16;
@@ -329,10 +311,10 @@ module MessageHeader.Deserialize {
                 case Right(e)    => return Right(e);
             }
 
-            var keyProviderID := new uint8[keyProviderIDLength];
+            var keyProviderID: string;
             res := deserializeUTF8(is, keyProviderIDLength as nat);
             match res {
-                case Left(bytes) => keyProviderID := bytes;
+                case Left(bytes) => keyProviderID := ByteSeqToString(bytes[..]);
                 case Right(e)    => return Right(e);
             }
 
@@ -344,10 +326,10 @@ module MessageHeader.Deserialize {
                 case Right(e)    => return Right(e);
             }
 
-            var keyProviderInfo := new uint8[keyProviderInfoLength];
+            var keyProviderInfo: seq<uint8>;
             res := deserializeUnrestricted(is, keyProviderInfoLength as nat);
             match res {
-                case Left(bytes) => keyProviderInfo := bytes;
+                case Left(bytes) => keyProviderInfo := bytes[..];
                 case Right(e)    => return Right(e);
             }
 
@@ -359,17 +341,18 @@ module MessageHeader.Deserialize {
                 case Right(e)    => return Right(e);
             }
 
-            var edk := new uint8[edkLength];
+            var edk: seq<uint8>;
             res := deserializeUnrestricted(is, edkLength as nat);
             match res {
-                case Left(bytes) => edk := bytes;
+                case Left(bytes) => edk := bytes[..];
                 case Right(e)    => return Right(e);
             }
 
-            edks.entries[i] := EDKEntry(keyProviderID, keyProviderInfo, edk);
+            edkEntries := edkEntries + [Materials.EncryptedDataKey(keyProviderID, keyProviderInfo, edk)];
             i := i + 1;
         }
 
+        var edks := EncryptedDataKeys(edkEntries);
         return Left(edks);
     }
 
@@ -463,11 +446,6 @@ module MessageHeader.Deserialize {
             match ret
                 case Left(hb) =>
                     && ValidHeaderBody(hb)
-                    // TODO: I think we need to establish freshness to connect
-                    //       deserialization with the caller.
-                    //       Times out.
-                    // && fresh(ReprAAD(hb.aad))
-                    // && fresh(ReprEncryptedDataKeys(hb.encryptedDataKeys))
                 case Right(_) => true
     {
         Assume(false);
@@ -574,7 +552,6 @@ module MessageHeader.Deserialize {
                     reserved,
                     ivLength,
                     frameLength);
-        reveal ReprAAD();
         assert ValidHeaderBody(hb);
         ret := Left(hb);
     }
@@ -604,7 +581,6 @@ module MessageHeader.Deserialize {
                     && ValidHeaderBody(body)
                 case Right(_) => true
     {
-        reveal ReprAAD();
         var iv: array<uint8>;
         {
             var res := deserializeUnrestricted(is, body.ivLength as nat);

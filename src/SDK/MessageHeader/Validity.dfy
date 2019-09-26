@@ -17,8 +17,6 @@ module MessageHeader.Validity {
      * The validity depends on predicates and on the types of the fields
      */
     predicate {:opaque} ValidHeaderBody(hb: HeaderBody)
-        reads (reveal ReprAAD(); ReprAAD(hb.aad))
-        reads ReprEncryptedDataKeys(hb.encryptedDataKeys)
     {
         && ValidAlgorithmID(hb.algorithmSuiteID)
         && ValidMessageId(hb.messageID)
@@ -45,56 +43,29 @@ module MessageHeader.Validity {
         algorithmSuiteID in AlgorithmSuite.Suite.Keys
     }
 
-    function ReprAADUpTo(kvPairs: EncCtx, j: nat): set<object>
-        requires j <= kvPairs.Length
-        reads kvPairs
-    {
-        (set i | 0 <= i < j :: kvPairs[i].0) +
-        (set i | 0 <= i < j :: kvPairs[i].1)
-    }
-
-    function {:opaque} ReprAAD(aad: T_AAD): set<object>
-        reads if aad.AAD? then {aad.kvPairs} else {}
-    {
-        match aad {
-            // Not extracting the fields of AAD here for now, but using `aad.` due to https://github.com/dafny-lang/dafny/issues/314
-            case AAD(_) =>
-                ReprAADUpTo(aad.kvPairs, aad.kvPairs.Length) +
-                {aad.kvPairs}
-            case EmptyAAD() => {}
-        }
-    }
-
     predicate InBoundsKVPairsUpTo(kvPairs: EncCtx, j: nat)
-        requires j <= kvPairs.Length
-        reads kvPairs
+        requires j <= |kvPairs|
     {
         forall i :: 0 <= i < j ==>
-            && kvPairs[i].0.Length < UINT16_LIMIT
-            && kvPairs[i].1.Length < UINT16_LIMIT
+            && |kvPairs[i].0| < UINT16_LIMIT
+            && |kvPairs[i].1| < UINT16_LIMIT
     }
 
     predicate InBoundsKVPairs(kvPairs: EncCtx)
-        reads kvPairs
     {
-        && kvPairs.Length < UINT16_LIMIT
-        && InBoundsKVPairsUpTo(kvPairs, kvPairs.Length)
+        && |kvPairs| < UINT16_LIMIT
+        && InBoundsKVPairsUpTo(kvPairs, |kvPairs|)
     }
 
-    predicate ValidKVPairs(kvPairs: EncCtx)
-        reads kvPairs
-        reads set i | 0 <= i < kvPairs.Length :: kvPairs[i].0
-        reads set i | 0 <= i < kvPairs.Length :: kvPairs[i].1
-    {
-        forall i :: 0 <= i < kvPairs.Length ==> ValidUTF8(kvPairs[i].0) && ValidUTF8(kvPairs[i].1)
+    predicate ValidKVPairs(kvPairs: EncCtx) {
+        forall i :: 0 <= i < |kvPairs| ==> ValidUTF8Seq(kvPairs[i].0) && ValidUTF8Seq(kvPairs[i].1)
     }
 
     predicate {:opaque} ValidAAD(aad: T_AAD)
-        reads (reveal ReprAAD(); ReprAAD(aad))
     {
         match aad {
             case AAD(kvPairs) =>
-                && 0 < kvPairs.Length
+                && 0 < |kvPairs|
                 && InBoundsKVPairs(kvPairs)
                 && ValidKVPairs(kvPairs)
                 && Utils.SortedKVPairs(kvPairs)
@@ -102,43 +73,20 @@ module MessageHeader.Validity {
         }
     }
 
-    function ReprEncryptedDataKeysUpTo(entries: seq<EDKEntry>, j: nat): set<object>
+    predicate InBoundsEncryptedDataKeysUpTo(entries: seq<EDKEntry>, j: nat)
         requires j <= |entries|
     {
-        (set i | 0 <= i < j :: entries[i].keyProviderId) +
-        (set i | 0 <= i < j :: entries[i].keyProviderInfo) +
-        (set i | 0 <= i < j :: entries[i].encDataKey)
+        forall i :: 0 <= i < j ==> entries[i].Valid()
     }
 
-    function ReprEncryptedDataKeys(encryptedDataKeys: T_EncryptedDataKeys): set<object>
-        reads encryptedDataKeys.entries
+    predicate InBoundsEncryptedDataKeys(edks: seq<EDKEntry>)
     {
-        ReprEncryptedDataKeysUpTo(encryptedDataKeys.entries[..], encryptedDataKeys.entries.Length) +
-        {encryptedDataKeys.entries}
-    }
-
-    predicate InBoundsEncryptedDataKeysUpTo(entries: array<EDKEntry>, j: nat)
-        requires j <= entries.Length
-        reads entries
-        reads ReprEncryptedDataKeysUpTo(entries[..], entries.Length)
-    {
-        forall i :: 0 <= i < j ==>
-            && entries[i].keyProviderId.Length   < UINT16_LIMIT
-            && entries[i].keyProviderInfo.Length < UINT16_LIMIT
-            && entries[i].encDataKey.Length      < UINT16_LIMIT
-    }
-
-    predicate InBoundsEncryptedDataKeys(encryptedDataKeys: T_EncryptedDataKeys)
-        reads ReprEncryptedDataKeys(encryptedDataKeys)
-    {
-        InBoundsEncryptedDataKeysUpTo(encryptedDataKeys.entries, encryptedDataKeys.entries.Length)
+        InBoundsEncryptedDataKeysUpTo(edks, |edks|)
     }
 
     predicate {:opaque} ValidEncryptedDataKeys(encryptedDataKeys: T_EncryptedDataKeys)
-        reads ReprEncryptedDataKeys(encryptedDataKeys)
     {
-        && InBoundsEncryptedDataKeys(encryptedDataKeys)
-        && forall i :: 0 <= i < encryptedDataKeys.entries.Length ==> ValidUTF8(encryptedDataKeys.entries[i].keyProviderId)
+        && InBoundsEncryptedDataKeys(encryptedDataKeys.entries)
         // TODO: well-formedness of EDK
         /*
         Key Provider ID

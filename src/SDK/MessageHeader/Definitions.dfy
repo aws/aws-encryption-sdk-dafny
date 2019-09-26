@@ -1,10 +1,12 @@
 include "../AlgorithmSuite.dfy"
 include "../../StandardLibrary/StandardLibrary.dfy"
+include "../Materials.dfy"
 
 module MessageHeader.Definitions {
     import AlgorithmSuite
     import opened StandardLibrary
     import opened UInt = StandardLibrary.UInt
+    import Materials
 
     /*
     * Header body type definition
@@ -14,12 +16,12 @@ module MessageHeader.Definitions {
     type T_MessageID       = x: seq<uint8> | |x| == 16 witness [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]
     type T_Reserved        = x: seq<uint8> | x == [0,0,0,0] witness [0,0,0,0]
     datatype T_ContentType = NonFramed | Framed
-    type EncCtx            = array<(array<uint8>, array<uint8>)>
+    type EncCtx            = Materials.EncryptionContext
     datatype T_AAD         = AAD(kvPairs: EncCtx) | EmptyAAD
 
-    datatype EDKEntry      = EDKEntry(keyProviderId: array<uint8>, keyProviderInfo: array<uint8>, encDataKey: array<uint8>)
+    type EDKEntry          = Materials.EncryptedDataKey
     datatype T_EncryptedDataKeys
-                           = EncryptedDataKeys(entries: array<EDKEntry>)
+                           = EncryptedDataKeys(entries: seq<EDKEntry>)
 
     datatype HeaderBody    = HeaderBody(
                                 version: T_Version,

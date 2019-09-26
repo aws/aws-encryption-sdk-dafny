@@ -21,6 +21,14 @@ module Materials {
   datatype EncryptedDataKey = EncryptedDataKey(providerID : string,
                                                providerInfo : seq<uint8>,
                                                ciphertext : seq<uint8>)
+  {
+    predicate Valid() {
+      StringIs8Bit(providerID) &&
+      |providerID| < UINT16_LIMIT &&
+      |providerInfo| < UINT16_LIMIT &&
+      |ciphertext| < UINT16_LIMIT
+    }
+  }
 
   // TODO: Add keyring trace
   class EncryptionMaterials {

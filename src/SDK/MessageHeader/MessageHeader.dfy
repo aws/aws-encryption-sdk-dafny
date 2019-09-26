@@ -46,7 +46,6 @@ module MessageHeader {
                             case Left(auth_) =>
                                 body := Some(body_);
                                 auth := Some(auth_);
-                                reveal Validity.ReprAAD();
                                 assert Validity.ValidHeaderBody(body.get);
                             case Right(e)    => {
                                 print "Could not deserialize message header: " + e.msg + "\n";
@@ -68,9 +67,6 @@ module MessageHeader {
         method serializeHeader(os: StringWriter) returns (ret: Either<nat, Error>)
             requires os.Valid()
             requires body.Some?
-            requires os.Repr !! Validity.ReprAAD(body.get.aad)
-            requires os.Repr !! Validity.ReprEncryptedDataKeys(body.get.encryptedDataKeys)
-            requires Validity.ReprAAD(body.get.aad) !! Validity.ReprEncryptedDataKeys(body.get.encryptedDataKeys)
             requires Validity.ValidHeaderBody(body.get)
             modifies os.Repr
             ensures os.Valid()

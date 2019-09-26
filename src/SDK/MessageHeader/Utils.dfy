@@ -109,18 +109,14 @@ module MessageHeader.Utils {
     }
     */
 
-    predicate SortedKVPairsUpTo(a: array<(array<uint8>, array<uint8>)>, n: nat)
-        requires n <= a.Length
-        reads a
-        reads set i | 0 <= i < n :: a[i].0
+    predicate SortedKVPairsUpTo(a: seq<(seq<uint8>, seq<uint8>)>, n: nat)
+        requires n <= |a|
     {
-        forall j :: 0 < j < n ==> lexCmpArrays(a[j-1].0, a[j].0, ltByte)
+        forall j :: 0 < j < n ==> LexCmpSeqs(a[j-1].0, a[j].0, ltByte)
     }
 
-    predicate SortedKVPairs(a: array<(array<uint8>, array<uint8>)>)
-        reads a
-        reads set i | 0 <= i < a.Length :: a[i].0
+    predicate SortedKVPairs(a: seq<(seq<uint8>, seq<uint8>)>)
     {
-        SortedKVPairsUpTo(a, a.Length)
+        SortedKVPairsUpTo(a, |a|)
     }
 }

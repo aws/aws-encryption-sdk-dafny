@@ -16,27 +16,19 @@ module MessageHeader.SerializeAAD {
         ensures b
 
     function encCtxToSeqRec(kvPairs: EncCtx, i: nat): seq<uint8>
-        requires forall i :: 0 <= i < kvPairs.Length ==> kvPairs[i].0.Length < UINT16_LIMIT && kvPairs[i].1.Length < UINT16_LIMIT
-        decreases kvPairs.Length - i
-        reads kvPairs
-        reads set i | 0 <= i < kvPairs.Length :: kvPairs[i].0
-        reads set i | 0 <= i < kvPairs.Length :: kvPairs[i].1
-        // reads ReprAADUpTo(kvPairs, kvPairs.Length)
+        requires forall i :: 0 <= i < |kvPairs| ==> |kvPairs[i].0| < UINT16_LIMIT && |kvPairs[i].1| < UINT16_LIMIT
+        decreases |kvPairs| - i
     {
-        if i < kvPairs.Length
+        if i < |kvPairs|
         then
-            UInt16ToSeq(kvPairs[i].0.Length as uint16) + kvPairs[i].0[..] +
-            UInt16ToSeq(kvPairs[i].1.Length as uint16) + kvPairs[i].1[..] +
+            UInt16ToSeq(|kvPairs[i].0| as uint16) + kvPairs[i].0[..] +
+            UInt16ToSeq(|kvPairs[i].1| as uint16) + kvPairs[i].1[..] +
             encCtxToSeqRec(kvPairs, i + 1)
         else []
     }
 
     function encCtxToSeq(kvPairs: EncCtx): (ret: seq<uint8>)
-        requires forall i :: 0 <= i < kvPairs.Length ==> kvPairs[i].0.Length < UINT16_LIMIT && kvPairs[i].1.Length < UINT16_LIMIT
-        reads kvPairs
-        reads set i | 0 <= i < kvPairs.Length :: kvPairs[i].0
-        reads set i | 0 <= i < kvPairs.Length :: kvPairs[i].1
-        // reads ReprAADUpTo(kvPairs, kvPairs.Length)
+        requires forall i :: 0 <= i < |kvPairs| ==> |kvPairs[i].0| < UINT16_LIMIT && |kvPairs[i].1| < UINT16_LIMIT
         ensures |ret| < UINT16_LIMIT // TODO: we need to establish that this length fits into two bytes
     {
         Assume(|encCtxToSeqRec(kvPairs, 0)| < UINT16_LIMIT);  // TODO
@@ -45,15 +37,14 @@ module MessageHeader.SerializeAAD {
 
     function serializeAAD(aad: T_AAD): seq<uint8>
         requires ValidAAD(aad)
-        reads (Assume(false) /*effectively turn off reads checking*/; ReprAAD(aad))
     {
         match aad {
             case AAD(kvPairs) =>
-                Assume(forall i :: 0 <= i < kvPairs.Length ==> kvPairs[i].0.Length < UINT16_LIMIT && kvPairs[i].1.Length < UINT16_LIMIT);
+                Assume(forall i :: 0 <= i < |kvPairs| ==> |kvPairs[i].0| < UINT16_LIMIT && |kvPairs[i].1| < UINT16_LIMIT);
                 var encCtxSeq := encCtxToSeq(kvPairs);
                 UInt16ToSeq(|encCtxSeq| as uint16) +
                 // It would be nicer if this could be a flatten + map as for AAD
-                UInt16ToSeq(Assume(kvPairs.Length < UINT16_LIMIT); kvPairs.Length as uint16) + encCtxSeq
+                UInt16ToSeq(Assume(|kvPairs| < UINT16_LIMIT); |kvPairs| as uint16) + encCtxSeq
             case EmptyAAD() =>
                 UInt16ToSeq(0)
         }
@@ -64,10 +55,8 @@ module MessageHeader.SerializeAAD {
         modifies os`data // do we need to establish non-aliasing with encryptedDataKeys here?
         ensures os.Valid()
         requires ValidAAD(aad)
-        requires os.Repr !! ReprAAD(aad)
         ensures ValidAAD(aad)
         ensures unchanged(os`Repr)
-        ensures unchanged(ReprAAD(aad))
         //ensures old(|os.data|) <= |os.data|
         ensures
             match ret
@@ -89,15 +78,15 @@ module MessageHeader.SerializeAAD {
                 {
                     // Key Value Pairs Length (number of bytes of total AAD)
                     var length: uint16;
-                    assert InBoundsKVPairs(kvPairs) ==> kvPairs.Length < UINT16_LIMIT;
+                    assert InBoundsKVPairs(kvPairs) ==> |kvPairs| < UINT16_LIMIT;
                     // TODO: We need to compute length here after removing length field from AAD datatype
-                    Assume(forall i :: 0 <= i < kvPairs.Length ==> kvPairs[i].0.Length < UINT16_LIMIT && kvPairs[i].1.Length < UINT16_LIMIT);
+                    Assume(forall i :: 0 <= i < |kvPairs| ==> |kvPairs[i].0| < UINT16_LIMIT && |kvPairs[i].1| < UINT16_LIMIT);
                     Assume(length == |encCtxToSeq(kvPairs)| as uint16);
                     var bytes := UInt16ToArray(length);
                     ret := os.WriteSimple(bytes);
                     match ret {
                         case Left(len) => totalWritten := totalWritten + len;
-                        case Right(e)  => Assume(ValidAAD(aad) && unchanged(ReprAAD(aad)));
+                        case Right(e)  => Assume(ValidAAD(aad));
                                           return ret;
                     }
                     i := i + 1;
@@ -108,17 +97,17 @@ module MessageHeader.SerializeAAD {
                     assert totalWritten <= |serializeAAD(aad)|;
                 }
 
-                Assume(0 < kvPairs.Length);
-                assert 0 < kvPairs.Length;
+                Assume(0 < |kvPairs|);
+                assert 0 < |kvPairs|;
                 {
-                    assert InBoundsKVPairs(kvPairs) ==> kvPairs.Length < UINT16_LIMIT;
+                    assert InBoundsKVPairs(kvPairs) ==> |kvPairs| < UINT16_LIMIT;
                     // Key Value Pair Count (number of key value pairs)
-                    Assume(kvPairs.Length < UINT16_LIMIT);
-                    var bytes := UInt16ToArray(kvPairs.Length as uint16);
+                    Assume(|kvPairs| < UINT16_LIMIT);
+                    var bytes := UInt16ToArray(|kvPairs| as uint16);
                     ret := os.WriteSimple(bytes);
                     match ret {
                         case Left(len) => totalWritten := totalWritten + len;
-                        case Right(e)  => Assume(ValidAAD(aad) && unchanged(ReprAAD(aad)));
+                        case Right(e)  => Assume(ValidAAD(aad));
                                           return ret;
                     }
                     i := i + 1;
@@ -132,9 +121,8 @@ module MessageHeader.SerializeAAD {
                 Assume(false); // TODO: verification times out after this point. I believe that we just do too many heap updates.
 
                 var j := 0;
-                while j < kvPairs.Length
-                    invariant j <= kvPairs.Length
-                    invariant os.Repr !! ReprAAD(aad)
+                while j < |kvPairs|
+                    invariant j <= |kvPairs|
                     invariant unchanged(os`Repr)
                     invariant InBoundsKVPairsUpTo(kvPairs, j)
                     invariant ValidAAD(aad)
@@ -144,8 +132,8 @@ module MessageHeader.SerializeAAD {
                     //invariant serializeAAD(aad)[..totalWritten] == os.data[initLen..written[i]];
                 {
                     {
-                        assert InBoundsKVPairsUpTo(kvPairs, j) ==> kvPairs[j].0.Length < UINT16_LIMIT;
-                        var bytes := UInt16ToArray(kvPairs[j].0.Length as uint16);
+                        assert InBoundsKVPairsUpTo(kvPairs, j) ==> |kvPairs[j].0| < UINT16_LIMIT;
+                        var bytes := UInt16ToArray(|kvPairs[j].0| as uint16);
                         ret := os.WriteSimple(bytes);
                         match ret {
                             case Left(len) => totalWritten := totalWritten + len;
@@ -159,41 +147,41 @@ module MessageHeader.SerializeAAD {
 
                     {
                         var bytes := kvPairs[j].0;
-                        ret := os.WriteSimple(bytes);
+                        ret := os.WriteSimpleSeq(bytes);
                         match ret {
                             case Left(len) => totalWritten := totalWritten + len;
                             case Right(e)  => return ret;
                         }
                         i := i + 1;
                         written := written + [initLen + totalWritten];
-                        assert written[i] - written[i-1] == bytes.Length;
+                        assert written[i] - written[i-1] == |bytes|;
                         assert written[i-1] <= written[i] <= |os.data| ==> os.data[written[i-1]..written[i]] == bytes[..];
                     }
 
                     {
-                        assert InBoundsKVPairsUpTo(kvPairs, j) ==> kvPairs[j].1.Length < UINT16_LIMIT;
-                        var bytes := UInt16ToArray(kvPairs[j].1.Length as uint16);
-                        ret := os.WriteSimple(bytes);
+                        assert InBoundsKVPairsUpTo(kvPairs, j) ==> |kvPairs[j].1| < UINT16_LIMIT;
+                        var bytes := UInt16ToSeq(|kvPairs[j].1| as uint16);
+                        ret := os.WriteSimpleSeq(bytes);
                         match ret {
                             case Left(len) => totalWritten := totalWritten + len;
                             case Right(e)  => return ret;
                         }
                         i := i + 1;
                         written := written + [initLen + totalWritten];
-                        assert written[i] - written[i-1] == bytes.Length;
+                        assert written[i] - written[i-1] == |bytes|;
                         assert written[i-1] <= written[i] <= |os.data| ==> os.data[written[i-1]..written[i]] == bytes[..];
                     }
 
                     {
                         var bytes := kvPairs[j].1;
-                        ret := os.WriteSimple(bytes);
+                        ret := os.WriteSimpleSeq(bytes);
                         match ret {
                             case Left(len) => totalWritten := totalWritten + len;
                             case Right(e)  => return ret;
                         }
                         i := i + 1;
                         written := written + [initLen + totalWritten];
-                        assert written[i] - written[i-1] == bytes.Length;
+                        assert written[i] - written[i-1] == |bytes|;
                         assert written[i-1] <= written[i] <= |os.data| ==> os.data[written[i-1]..written[i]] == bytes[..];
                     }
                     j := j + 1;
@@ -204,14 +192,14 @@ module MessageHeader.SerializeAAD {
                 ret := os.WriteSimple(bytes);
                 match ret {
                     case Left(len) => totalWritten := totalWritten + len;
-                    case Right(e)  => Assume(ValidAAD(aad) && unchanged(ReprAAD(aad)));
+                    case Right(e)  => Assume(ValidAAD(aad));
                                       return ret;
                 }
                 i := i + 1;
                 written := written + [initLen + totalWritten];
                 assert written[i] - written[i-1] == 2;
                 assert written[i-1] <= written[i] <= |os.data| ==> os.data[written[i-1]..written[i]] == bytes[..];
-                Assume(ValidAAD(aad) && unchanged(ReprAAD(aad)));
+                Assume(ValidAAD(aad));
             }
         }
     }
