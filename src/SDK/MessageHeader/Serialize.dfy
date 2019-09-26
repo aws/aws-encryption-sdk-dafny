@@ -38,7 +38,7 @@ module MessageHeader.Serialize {
         UInt32ToSeq(hb.frameLength)
     }
 
-    method headerBody(os: StringWriter, hb: HeaderBody) returns (ret: Either<nat, Error>)
+    method headerBody(os: StringWriter, hb: HeaderBody) returns (ret: Result<nat>)
         requires os.Valid()
         modifies os`data
         requires ValidHeaderBody(hb)
@@ -51,13 +51,13 @@ module MessageHeader.Serialize {
         ensures ValidHeaderBody(hb)
         ensures
             match ret
-                case Left(totalWritten) =>
+                case Success(totalWritten) =>
                     var serHb := (reveal serialize(); serialize(hb));
                     var initLen := old(|os.data|);
                     && totalWritten == |serHb|
                     && initLen+totalWritten == |os.data|
                     && serHb[..totalWritten] == os.data[initLen..initLen+totalWritten]
-                case Right(e) => true
+                case Failure(e) => true
     {
         var totalWritten := 0;
         ghost var initLen := |os.data|;
@@ -67,8 +67,8 @@ module MessageHeader.Serialize {
         {
             ret := os.WriteSingleByteSimple(hb.version as uint8);
             match ret {
-                case Left(len) => totalWritten := totalWritten + len;
-                case Right(e)  => {
+                case Success(len) => totalWritten := totalWritten + len;
+                case Failure(e)  => {
                     return ret;
                 }
             }
@@ -77,8 +77,8 @@ module MessageHeader.Serialize {
         {
             ret := os.WriteSingleByteSimple(hb.typ as uint8);
             match ret {
-                case Left(len) => totalWritten := totalWritten + len;
-                case Right(e)  => {
+                case Success(len) => totalWritten := totalWritten + len;
+                case Failure(e)  => {
                     return ret;
                 }
             }
@@ -88,8 +88,8 @@ module MessageHeader.Serialize {
             var bytes := UInt16ToArray(hb.algorithmSuiteID as uint16);
             ret := os.WriteSimple(bytes);
             match ret {
-                case Left(len) => totalWritten := totalWritten + len;
-                case Right(e)  => {
+                case Success(len) => totalWritten := totalWritten + len;
+                case Failure(e)  => {
                     return ret;
                 }
             }
@@ -98,8 +98,8 @@ module MessageHeader.Serialize {
         {
             ret := os.WriteSimpleSeq(hb.messageID);
             match ret {
-                case Left(len) => totalWritten := totalWritten + len;
-                case Right(e)  => {
+                case Success(len) => totalWritten := totalWritten + len;
+                case Failure(e)  => {
                     return ret;
                 }
             }
@@ -108,8 +108,8 @@ module MessageHeader.Serialize {
         {
             ret := serializeAADImpl(os, hb.aad);
             match ret {
-                case Left(len) => totalWritten := totalWritten + len;
-                case Right(e)  => {
+                case Success(len) => totalWritten := totalWritten + len;
+                case Failure(e)  => {
                     return ret;
                 }
             }
@@ -118,8 +118,8 @@ module MessageHeader.Serialize {
         {
             ret := serializeEDKImpl(os, hb.encryptedDataKeys);
             match ret {
-                case Left(len) => totalWritten := totalWritten + len;
-                case Right(e)  => return ret;
+                case Success(len) => totalWritten := totalWritten + len;
+                case Failure(e)  => return ret;
             }
         }
 
@@ -131,9 +131,9 @@ module MessageHeader.Serialize {
             }
             ret := os.WriteSingleByteSimple(contentType);
             match ret {
-                case Left(len) =>
+                case Success(len) =>
                     totalWritten := totalWritten + len;
-                case Right(e)  =>
+                case Failure(e)  =>
                     return ret;
             }
         }
@@ -141,16 +141,16 @@ module MessageHeader.Serialize {
         {
             ret := os.WriteSimpleSeq(hb.reserved);
             match ret {
-                case Left(len) => totalWritten := totalWritten + len;
-                case Right(e)  => return ret;
+                case Success(len) => totalWritten := totalWritten + len;
+                case Failure(e)  => return ret;
             }
         }
 
         {
             ret := os.WriteSingleByteSimple(hb.ivLength);
             match ret {
-                case Left(len) => totalWritten := totalWritten + len;
-                case Right(e)  => return ret;
+                case Success(len) => totalWritten := totalWritten + len;
+                case Failure(e)  => return ret;
             }
         }
 
@@ -158,8 +158,8 @@ module MessageHeader.Serialize {
             var bytes := UInt32ToArray(hb.frameLength);
             ret := os.WriteSimple(bytes);
             match ret {
-                case Left(len) => totalWritten := totalWritten + len;
-                case Right(e)  => return ret;
+                case Success(len) => totalWritten := totalWritten + len;
+                case Failure(e)  => return ret;
             }
         }
         Assume(false);
@@ -173,6 +173,6 @@ module MessageHeader.Serialize {
         // Turned this assertion into an assume. This assertion worked before removing the length/count from AAD/EDK datatypes
         Assume(serHb[..totalWritten] == os.data[initLen..initLen+totalWritten]);
 
-        return Left(totalWritten);
+        return Success(totalWritten);
     }
 }

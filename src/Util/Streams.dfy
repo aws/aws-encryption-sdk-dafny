@@ -12,7 +12,7 @@ module Streams {
     function method available() : nat reads this requires Valid() // An upper bound on the amount of data the stream can deliver on Read
 
 
-    method Write(a : array<uint8>, off : nat, req : nat) returns (res : Either<nat, Error>)
+    method Write(a : array<uint8>, off : nat, req : nat) returns (res : Result<nat>)
       requires Valid()
       requires a.Length >= off + req
       modifies Repr
@@ -20,11 +20,11 @@ module Streams {
       ensures Valid()
       ensures
         match res
-          case Left(len_written) => len_written == min(req, old(capacity()))
-          case Right(e) => true
+          case Success(len_written) => len_written == min(req, old(capacity()))
+          case Failure(e) => true
 
 
-    method Read(i : array<uint8>, off : nat, req : nat) returns (res : Either<nat, Error>)
+    method Read(i : array<uint8>, off : nat, req : nat) returns (res : Result<nat>)
       requires Valid()
       requires i.Length >= off + req
       requires i !in Repr
@@ -32,8 +32,8 @@ module Streams {
       ensures Valid()
       ensures
         match res
-          case Left(len_read) => len_read == min(req, old(available()))
-          case Right(e) => true
+          case Success(len_read) => len_read == min(req, old(available()))
+          case Failure(e) => true
   }
 
 
@@ -60,20 +60,20 @@ module Streams {
         pos := 0;
     }
 
-    method Write(a : array<uint8>, off : nat, req : nat) returns (res : Either<nat, Error>)
+    method Write(a : array<uint8>, off : nat, req : nat) returns (res : Result<nat>)
       requires Valid()
       modifies this
       requires a !in Repr
       ensures Valid()
       ensures
         match res
-          case Left(len_written) => len_written == min(req, old(capacity()))
-          case Right(e) => unchanged(this)
+          case Success(len_written) => len_written == min(req, old(capacity()))
+          case Failure(e) => unchanged(this)
     {
-      res := Right(IOError("Cannot write to StringReader"));
+      res := Failure("IO Error: Cannot write to StringReader");
     }
 
-    method Read(arr : array<uint8>, off : nat, req : nat) returns (res : Either<nat, Error>)
+    method Read(arr : array<uint8>, off : nat, req : nat) returns (res : Result<nat>)
       requires Valid()
       requires arr.Length >= off + req
       requires arr != data
@@ -84,12 +84,12 @@ module Streams {
         arr[..] == arr[..off] + data[old(pos) .. (old(pos) + n)] + arr[off + n ..]
       ensures
         match res
-          case Left(len_read) => len_read == min(req, old(available()))
-          case Right(e) => unchanged(this) && unchanged(arr)
+          case Success(len_read) => len_read == min(req, old(available()))
+          case Failure(e) => unchanged(this) && unchanged(arr)
     {
       if off == arr.Length || available() == 0 {
         assert (min (req, available())) == 0;
-        res := Left(0);
+        res := Success(0);
       }
       else {
         var n := min(req, available());
@@ -97,7 +97,7 @@ module Streams {
           arr[off + i] := data[pos + i];
         }
         pos := pos + n;
-        res := Left(n);
+        res := Success(n);
       }
     }
     /*
@@ -108,21 +108,21 @@ module Streams {
       modifies this
       ensures
         match res
-          case Left(len_read) =>
+          case Success(len_read) =>
             var n := arr.Length;
             && pos == old(pos) + n
             && arr[..] == data[old(pos) .. pos]
             && len_read == n
-          case Right(e) => unchanged(this)
+          case Failure(e) => unchanged(this)
     {
       if arr.Length <= available() {
         forall i | 0 <= i < arr.Length {
           arr[i] := data[pos + i];
         }
         pos := pos + arr.Length;
-        res := Left(arr.Length);
+        res := Success(arr.Length);
       } else {
-        res := Right(IOError("Not enough bytes available on stream."));
+        res := Failure("IO Error: Not enough bytes available on stream.");
       }
     }
     */
@@ -158,7 +158,7 @@ module Streams {
         Repr := {this};
     }
 
-    method Write(a: array<uint8>, off: nat, req: nat) returns (res: Either<nat, Error>)
+    method Write(a: array<uint8>, off: nat, req: nat) returns (res: Result<nat>)
       requires Valid()
       requires off + req <= a.Length
       requires a !in Repr
@@ -167,7 +167,7 @@ module Streams {
       ensures Valid()
       ensures
         match res
-          case Left(len_written) =>
+          case Success(len_written) =>
             if old(capacity()) == 0
             then
               len_written == 0
@@ -176,19 +176,19 @@ module Streams {
               //&& Written(old(data), data, old(pos), pos, a[off..off+n], len_written, n)
               && len_written == min(req, old(capacity()))
               && data == old(data) + a[off..off+req]
-          case Right(e) => true
+          case Failure(e) => true
     {
       if off == a.Length || capacity() == 0 {
-        res := Left(0);
+        res := Success(0);
       }
       else {
         var n := min(req, capacity());
         data := data + a[off..off+req];
-        res := Left(n);
+        res := Success(n);
       }
     }
 
-    method WriteSimple(a: array<uint8>) returns (res: Either<nat, Error>)
+    method WriteSimple(a: array<uint8>) returns (res: Result<nat>)
       requires Valid()
       requires a !in Repr
       modifies `data
@@ -197,47 +197,47 @@ module Streams {
       ensures Valid()
       ensures
         match res
-          case Left(len_written) =>
+          case Success(len_written) =>
               && len_written == a.Length
               && data[..] == old(data) + a[..]
-          case Right(e) => unchanged(`data)
+          case Failure(e) => unchanged(`data)
     {
       if a.Length <= capacity() {
         data := data + a[..];
-        res := Left(a.Length);
+        res := Success(a.Length);
       } else {
-        res := Right(IOError("Reached end of stream."));
+        res := Failure("IO Error: Reached end of stream.");
       }
     }
 
-    method WriteSimpleSeq(a: seq<uint8>) returns (res: Either<nat, Error>)
+    method WriteSimpleSeq(a: seq<uint8>) returns (res: Result<nat>)
       requires Valid()
       modifies `data
       ensures unchanged(`Repr)
       ensures Valid()
       ensures
         match res
-          case Left(len_written) =>
+          case Success(len_written) =>
               && len_written == |a|
               && data[..] == old(data) + a
-          case Right(e) => unchanged(`data)
+          case Failure(e) => unchanged(`data)
     {
       if |a| <= capacity() {
         data := data + a;
-        res := Left(|a|);
+        res := Success(|a|);
       } else {
-        res := Right(IOError("Reached end of stream."));
+        res := Failure("IO Error: Reached end of stream.");
       }
     }
 
-    method WriteSingleByte(a: uint8) returns (res: Either<nat, Error>)
+    method WriteSingleByte(a: uint8) returns (res: Result<nat>)
       requires Valid()
       modifies `data
       ensures unchanged(`Repr)
       ensures Valid()
       ensures
         match res
-          case Left(len_written) =>
+          case Success(len_written) =>
             if old(capacity()) == 0
             then
               len_written == 0
@@ -246,50 +246,50 @@ module Streams {
               && data == old(data) + [a]
               // Dafny->Boogie drops an old: https://github.com/dafny-lang/dafny/issues/320
               //&& data[..] == old(data)[.. old(pos)] + [a] + old(data)[old(pos) + 1 ..]
-          case Right(e) => unchanged(`data)
+          case Failure(e) => unchanged(`data)
     {
       if capacity() == 0 {
-        res := Left(0);
+        res := Success(0);
       }
       else {
         data := data + [a];
-        res := Left(1);
+        res := Success(1);
       }
     }
 
-    method WriteSingleByteSimple(a: uint8) returns (res: Either<nat, Error>)
+    method WriteSingleByteSimple(a: uint8) returns (res: Result<nat>)
       requires Valid()
       modifies `data
       ensures unchanged(`Repr)
       ensures Valid()
       ensures
         match res
-          case Left(len_written) =>
+          case Success(len_written) =>
               len_written == 1
               && data == old(data) + [a]
               // Dafny->Boogie drops an old: https://github.com/dafny-lang/dafny/issues/320
               //&& data[..] == old(data)[.. old(pos)] + [a] + old(data)[old(pos) + 1 ..]
-          case Right(e) => unchanged(`data)
+          case Failure(e) => unchanged(`data)
     {
       if 1 <= capacity() {
         data := data + [a];
-        res := Left(1);
+        res := Success(1);
       } else {
-        res := Right(IOError("Reached end of stream."));
+        res := Failure("IO Error: Reached end of stream.");
       }
     }
 
-    method Read(arr : array<uint8>, off : nat, req : nat) returns (res : Either<nat, Error>)
+    method Read(arr : array<uint8>, off : nat, req : nat) returns (res : Result<nat>)
       requires Valid()
       requires arr.Length >= off + req
       ensures Valid()
       modifies arr, this
       ensures
         match res
-          case Left(len_read) => len_read == min(req, old(available()))
-          case Right(e) => unchanged(this) && unchanged(arr)
+          case Success(len_read) => len_read == min(req, old(available()))
+          case Failure(e) => unchanged(this) && unchanged(arr)
     {
-      res := Right(IOError("Cannot read from StringWriter"));
+      res := Failure("IO Error: Cannot read from StringWriter");
     }
   }
 

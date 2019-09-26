@@ -50,7 +50,7 @@ module MessageHeader.SerializeAAD {
         }
     }
 
-    method serializeAADImpl(os: StringWriter, aad: T_AAD) returns (ret: Either<nat, Error>)
+    method serializeAADImpl(os: StringWriter, aad: T_AAD) returns (ret: Result<nat>)
         requires os.Valid()
         modifies os`data // do we need to establish non-aliasing with encryptedDataKeys here?
         ensures os.Valid()
@@ -60,13 +60,13 @@ module MessageHeader.SerializeAAD {
         //ensures old(|os.data|) <= |os.data|
         ensures
             match ret
-                case Left(totalWritten) =>
+                case Success(totalWritten) =>
                     var serAAD := serializeAAD(aad);
                     var initLen := old(|os.data|);
                     && totalWritten == |serAAD|
                     && initLen+totalWritten == |os.data|
                     && os.data == old(os.data + serAAD)
-                case Right(e) => true
+                case Failure(e) => true
     {
         var totalWritten := 0;
         ghost var initLen := |os.data|;
@@ -85,8 +85,8 @@ module MessageHeader.SerializeAAD {
                     var bytes := UInt16ToArray(length);
                     ret := os.WriteSimple(bytes);
                     match ret {
-                        case Left(len) => totalWritten := totalWritten + len;
-                        case Right(e)  => Assume(ValidAAD(aad));
+                        case Success(len) => totalWritten := totalWritten + len;
+                        case Failure(e)  => Assume(ValidAAD(aad));
                                           return ret;
                     }
                     i := i + 1;
@@ -106,8 +106,8 @@ module MessageHeader.SerializeAAD {
                     var bytes := UInt16ToArray(|kvPairs| as uint16);
                     ret := os.WriteSimple(bytes);
                     match ret {
-                        case Left(len) => totalWritten := totalWritten + len;
-                        case Right(e)  => Assume(ValidAAD(aad));
+                        case Success(len) => totalWritten := totalWritten + len;
+                        case Failure(e)  => Assume(ValidAAD(aad));
                                           return ret;
                     }
                     i := i + 1;
@@ -136,8 +136,8 @@ module MessageHeader.SerializeAAD {
                         var bytes := UInt16ToArray(|kvPairs[j].0| as uint16);
                         ret := os.WriteSimple(bytes);
                         match ret {
-                            case Left(len) => totalWritten := totalWritten + len;
-                            case Right(e)  => return ret;
+                            case Success(len) => totalWritten := totalWritten + len;
+                            case Failure(e)  => return ret;
                         }
                         i := i + 1;
                         written := written + [initLen + totalWritten];
@@ -149,8 +149,8 @@ module MessageHeader.SerializeAAD {
                         var bytes := kvPairs[j].0;
                         ret := os.WriteSimpleSeq(bytes);
                         match ret {
-                            case Left(len) => totalWritten := totalWritten + len;
-                            case Right(e)  => return ret;
+                            case Success(len) => totalWritten := totalWritten + len;
+                            case Failure(e)  => return ret;
                         }
                         i := i + 1;
                         written := written + [initLen + totalWritten];
@@ -163,8 +163,8 @@ module MessageHeader.SerializeAAD {
                         var bytes := UInt16ToSeq(|kvPairs[j].1| as uint16);
                         ret := os.WriteSimpleSeq(bytes);
                         match ret {
-                            case Left(len) => totalWritten := totalWritten + len;
-                            case Right(e)  => return ret;
+                            case Success(len) => totalWritten := totalWritten + len;
+                            case Failure(e)  => return ret;
                         }
                         i := i + 1;
                         written := written + [initLen + totalWritten];
@@ -176,8 +176,8 @@ module MessageHeader.SerializeAAD {
                         var bytes := kvPairs[j].1;
                         ret := os.WriteSimpleSeq(bytes);
                         match ret {
-                            case Left(len) => totalWritten := totalWritten + len;
-                            case Right(e)  => return ret;
+                            case Success(len) => totalWritten := totalWritten + len;
+                            case Failure(e)  => return ret;
                         }
                         i := i + 1;
                         written := written + [initLen + totalWritten];
@@ -191,8 +191,8 @@ module MessageHeader.SerializeAAD {
                 var bytes := UInt16ToArray(0);
                 ret := os.WriteSimple(bytes);
                 match ret {
-                    case Left(len) => totalWritten := totalWritten + len;
-                    case Right(e)  => Assume(ValidAAD(aad));
+                    case Success(len) => totalWritten := totalWritten + len;
+                    case Failure(e)  => Assume(ValidAAD(aad));
                                       return ret;
                 }
                 i := i + 1;

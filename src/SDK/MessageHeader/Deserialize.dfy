@@ -31,59 +31,59 @@ module MessageHeader.Deserialize {
      * Message header-specific
      */
 
-    method deserializeVersion(is: StringReader) returns (ret: Either<T_Version, Error>)
+    method deserializeVersion(is: StringReader) returns (ret: Result<T_Version>)
         requires is.Valid()
         modifies is
         ensures is.Valid()
     {
         var res := readFixedLengthFromStreamOrFail(is, 1);
         match res {
-            case Left(version) =>
+            case Success(version) =>
                 if version[0] == 0x01 {
-                    return Left(version[0] as T_Version);
+                    return Success(version[0] as T_Version);
                 } else {
-                    return Right(DeserializationError("Version not supported."));
+                    return Failure("Deserialization Error: Version not supported.");
                 }
-            case Right(e) => return Right(e);
+            case Failure(e) => return Failure(e);
         }
     }
 
-    method deserializeType(is: StringReader) returns (ret: Either<T_Type, Error>)
+    method deserializeType(is: StringReader) returns (ret: Result<T_Type>)
         requires is.Valid()
         modifies is
         ensures is.Valid()
     {
         var res := readFixedLengthFromStreamOrFail(is, 1);
         match res {
-            case Left(typ) =>
+            case Success(typ) =>
                 if typ[0] == 0x80 {
-                    return Left(typ[0] as T_Type);
+                    return Success(typ[0] as T_Type);
                 } else {
-                    return Right(DeserializationError("Type not supported."));
+                    return Failure("Deserialization Error: Type not supported.");
                 }
-            case Right(e) => return Right(e);
+            case Failure(e) => return Failure(e);
         }
     }
 
-    method deserializeAlgorithmSuiteID(is: StringReader) returns (ret: Either<AlgorithmSuite.ID, Error>)
+    method deserializeAlgorithmSuiteID(is: StringReader) returns (ret: Result<AlgorithmSuite.ID>)
         requires is.Valid()
         modifies is
         ensures
             match ret
-                case Left(algorithmSuiteID) => ValidAlgorithmID(algorithmSuiteID)
-                case Right(_) => true
+                case Success(algorithmSuiteID) => ValidAlgorithmID(algorithmSuiteID)
+                case Failure(_) => true
         ensures is.Valid()
     {
         var res := readFixedLengthFromStreamOrFail(is, 2);
         match res {
-            case Left(algorithmSuiteID) =>
+            case Success(algorithmSuiteID) =>
                 var asid := ArrayToUInt16(algorithmSuiteID);
                 if asid in AlgorithmSuite.validIDs {
-                    return Left(asid as AlgorithmSuite.ID);
+                    return Success(asid as AlgorithmSuite.ID);
                 } else {
-                    return Right(DeserializationError("Algorithm suite not supported."));
+                    return Failure("Deserialization Error: Algorithm suite not supported.");
                 }
-            case Right(e) => return Right(e);
+            case Failure(e) => return Failure(e);
         }
     }
 
@@ -94,74 +94,74 @@ module MessageHeader.Deserialize {
     {
         true
     }
-    method deserializeMsgID(is: StringReader) returns (ret: Either<T_MessageID, Error>)
+    method deserializeMsgID(is: StringReader) returns (ret: Result<T_MessageID>)
         requires is.Valid()
         modifies is
         ensures
             match ret
-                case Left(msgId) => ValidMessageId(msgId)
-                case Right(_) => true
+                case Success(msgId) => ValidMessageId(msgId)
+                case Failure(_) => true
         ensures is.Valid()
     {
         var res := readFixedLengthFromStreamOrFail(is, 16);
         match res {
-            case Left(msgId) =>
+            case Success(msgId) =>
                 if isValidMsgID(msgId) {
-                    return Left(msgId[..]);
+                    return Success(msgId[..]);
                 } else {
-                    return Right(DeserializationError("Not a valid Message ID."));
+                    return Failure("Deserialization Error: Not a valid Message ID.");
                 }
-            case Right(e) => return Right(e);
+            case Failure(e) => return Failure(e);
         }
     }
 
-    method deserializeUTF8(is: StringReader, n: nat) returns (ret: Either<array<uint8>, Error>)
+    method deserializeUTF8(is: StringReader, n: nat) returns (ret: Result<array<uint8>>)
         requires is.Valid()
         modifies is
         ensures
             match ret
-                case Left(bytes) =>
+                case Success(bytes) =>
                     && bytes.Length == n
                     && ValidUTF8(bytes)
                     && fresh(bytes)
-                case Right(_) => true
+                case Failure(_) => true
         ensures is.Valid()
     {
         ret := readFixedLengthFromStreamOrFail(is, n);
         match ret {
-            case Left(bytes) =>
+            case Success(bytes) =>
                 if ValidUTF8(bytes) {
                     return ret;
                 } else {
-                    return Right(DeserializationError("Not a valid UTF8 string."));
+                    return Failure("Deserialization Error: Not a valid UTF8 string.");
                 }
-            case Right(e) => return ret;
+            case Failure(e) => return ret;
         }
     }
 
-    method deserializeUnrestricted(is: StringReader, n: nat) returns (ret: Either<array<uint8>, Error>)
+    method deserializeUnrestricted(is: StringReader, n: nat) returns (ret: Result<array<uint8>>)
         requires is.Valid()
         modifies is
         ensures
             match ret
-                case Left(bytes) =>
+                case Success(bytes) =>
                     && bytes.Length == n
                     && fresh(bytes)
-                case Right(_) => true
+                case Failure(_) => true
         ensures is.Valid()
     {
         ret := readFixedLengthFromStreamOrFail(is, n);
     }
 
     // TODO: Probably this should be factored out into EncCtx at some point
-    method deserializeAAD(is: StringReader) returns (ret: Either<T_AAD, Error>)
+    method deserializeAAD(is: StringReader) returns (ret: Result<T_AAD>)
         requires is.Valid()
         modifies is
         ensures
             match ret
-                case Left(aad) =>
+                case Success(aad) =>
                     && ValidAAD(aad)
-                case Right(_) => true
+                case Failure(_) => true
         ensures is.Valid()
     {
         reveal ValidAAD();
@@ -169,12 +169,12 @@ module MessageHeader.Deserialize {
         {
             var res := deserializeUnrestricted(is, 2);
             match res {
-                case Left(bytes) => kvPairsLength := ArrayToUInt16(bytes);
-                case Right(e) => return Right(e);
+                case Success(bytes) => kvPairsLength := ArrayToUInt16(bytes);
+                case Failure(e) => return Failure(e);
             }
         }
         if kvPairsLength == 0 {
-            return Left(EmptyAAD);
+            return Success(EmptyAAD);
         }
         var totalBytesRead := 0;
 
@@ -182,14 +182,14 @@ module MessageHeader.Deserialize {
         {
             var res := deserializeUnrestricted(is, 2);
             match res {
-                case Left(bytes) =>
+                case Success(bytes) =>
                     kvPairsCount := ArrayToUInt16(bytes);
                     totalBytesRead := totalBytesRead + bytes.Length;
                     if kvPairsLength > 0 && kvPairsCount == 0 {
-                        return Right(DeserializationError("Key value pairs count is 0."));
+                        return Failure("Deserialization Error: Key value pairs count is 0.");
                     }
                     assert kvPairsLength > 0 ==> kvPairsCount > 0;
-                case Right(e) => return Right(e);
+                case Failure(e) => return Failure(e);
             }
         }
 
@@ -212,10 +212,10 @@ module MessageHeader.Deserialize {
             {
                 var res := deserializeUnrestricted(is, 2);
                 match res {
-                    case Left(bytes) =>
+                    case Success(bytes) =>
                         keyLength := ArrayToUInt16(bytes);
                         totalBytesRead := totalBytesRead + bytes.Length;
-                    case Right(e) => return Right(e);
+                    case Failure(e) => return Failure(e);
                 }
             }
 
@@ -223,11 +223,11 @@ module MessageHeader.Deserialize {
             {
                 var res := deserializeUTF8(is, keyLength as nat);
                 match res {
-                    case Left(bytes) =>
+                    case Success(bytes) =>
                         ValidUTF8ArraySeq(bytes);
                         key := bytes[..];
                         totalBytesRead := totalBytesRead + bytes.Length;
-                    case Right(e) => return Right(e);
+                    case Failure(e) => return Failure(e);
                 }
             }
             assert |key| < UINT16_LIMIT;
@@ -237,10 +237,10 @@ module MessageHeader.Deserialize {
             {
                 var res := deserializeUnrestricted(is, 2);
                 match res {
-                    case Left(bytes) =>
+                    case Success(bytes) =>
                         valueLength := ArrayToUInt16(bytes);
                         totalBytesRead := totalBytesRead + bytes.Length;
-                    case Right(e) => return Right(e);
+                    case Failure(e) => return Failure(e);
                 }
             }
 
@@ -248,11 +248,11 @@ module MessageHeader.Deserialize {
             {
                 var res := deserializeUTF8(is, valueLength as nat);
                 match res {
-                    case Left(bytes) =>
+                    case Success(bytes) =>
                         ValidUTF8ArraySeq(bytes);
                         value := bytes[..];
                         totalBytesRead := totalBytesRead + bytes.Length;
-                    case Right(e) => return Right(e);
+                    case Failure(e) => return Failure(e);
                 }
             }
             assert |value| < UINT16_LIMIT;
@@ -260,40 +260,39 @@ module MessageHeader.Deserialize {
 
             // check for sortedness by key
             if i != 0 && !LexCmpSeqs(kvPairs[i-1].0, key, ltByte) {
-                return Right(DeserializationError("Key-value pairs must be sorted by key."));
+                return Failure("Deserialization Error: Key-value pairs must be sorted by key.");
             }
             kvPairs := kvPairs + [(key, value)];
             assert SortedKVPairsUpTo(kvPairs, (i+1) as nat);
             i := i + 1;
         }
         if (kvPairsLength as nat) != totalBytesRead {
-            return Right(DeserializationError("Bytes actually read differs from bytes supposed to be read."));
+            return Failure("Deserialization Error: Bytes actually read differs from bytes supposed to be read.");
         }
-        return Left(AAD(kvPairs));
+        return Success(AAD(kvPairs));
     }
 
     // TODO: Probably this should be factored out into EDK at some point
-    method deserializeEncryptedDataKeys(is: StringReader, ghost aad: T_AAD) returns (ret: Either<T_EncryptedDataKeys, Error>)
+    method deserializeEncryptedDataKeys(is: StringReader, ghost aad: T_AAD) returns (ret: Result<T_EncryptedDataKeys>)
         requires is.Valid()
         modifies is
         ensures
             match ret
-                case Left(edks) =>
+                case Success(edks) =>
                     && ValidEncryptedDataKeys(edks)
-                case Right(_)   => true
+                case Failure(_)   => true
         ensures is.Valid()
     {
         reveal ValidEncryptedDataKeys();
-        var res: Either;
         var edkCount: uint16;
-        res := deserializeUnrestricted(is, 2);
+        var res := deserializeUnrestricted(is, 2);
         match res {
-            case Left(bytes) => edkCount := ArrayToUInt16(bytes);
-            case Right(e)    => return Right(e);
+            case Success(bytes) => edkCount := ArrayToUInt16(bytes);
+            case Failure(e)    => return Failure(e);
         }
 
         if edkCount == 0 {
-            return Right(DeserializationError("Encrypted data key count must be > 0."));
+            return Failure("Deserialization Error: Encrypted data key count must be > 0.");
         }
 
         var edkEntries: seq<EDKEntry> := [];
@@ -307,45 +306,45 @@ module MessageHeader.Deserialize {
             var keyProviderIDLength: uint16;
             res := deserializeUnrestricted(is, 2);
             match res {
-                case Left(bytes) => keyProviderIDLength := ArrayToUInt16(bytes);
-                case Right(e)    => return Right(e);
+                case Success(bytes) => keyProviderIDLength := ArrayToUInt16(bytes);
+                case Failure(e)    => return Failure(e);
             }
 
             var keyProviderID: string;
             res := deserializeUTF8(is, keyProviderIDLength as nat);
             match res {
-                case Left(bytes) => keyProviderID := ByteSeqToString(bytes[..]);
-                case Right(e)    => return Right(e);
+                case Success(bytes) => keyProviderID := ByteSeqToString(bytes[..]);
+                case Failure(e)    => return Failure(e);
             }
 
             // Key provider info
             var keyProviderInfoLength: uint16;
             res := deserializeUnrestricted(is, 2);
             match res {
-                case Left(bytes) => keyProviderInfoLength := ArrayToUInt16(bytes);
-                case Right(e)    => return Right(e);
+                case Success(bytes) => keyProviderInfoLength := ArrayToUInt16(bytes);
+                case Failure(e)    => return Failure(e);
             }
 
             var keyProviderInfo: seq<uint8>;
             res := deserializeUnrestricted(is, keyProviderInfoLength as nat);
             match res {
-                case Left(bytes) => keyProviderInfo := bytes[..];
-                case Right(e)    => return Right(e);
+                case Success(bytes) => keyProviderInfo := bytes[..];
+                case Failure(e)    => return Failure(e);
             }
 
             // Encrypted data key
             var edkLength: uint16;
             res := deserializeUnrestricted(is, 2);
             match res {
-                case Left(bytes) => edkLength := ArrayToUInt16(bytes);
-                case Right(e)    => return Right(e);
+                case Success(bytes) => edkLength := ArrayToUInt16(bytes);
+                case Failure(e)    => return Failure(e);
             }
 
             var edk: seq<uint8>;
             res := deserializeUnrestricted(is, edkLength as nat);
             match res {
-                case Left(bytes) => edk := bytes[..];
-                case Right(e)    => return Right(e);
+                case Success(bytes) => edk := bytes[..];
+                case Failure(e)    => return Failure(e);
             }
 
             edkEntries := edkEntries + [Materials.EncryptedDataKey(keyProviderID, keyProviderInfo, edk)];
@@ -353,100 +352,100 @@ module MessageHeader.Deserialize {
         }
 
         var edks := EncryptedDataKeys(edkEntries);
-        return Left(edks);
+        return Success(edks);
     }
 
-    method deserializeContentType(is: StringReader) returns (ret: Either<T_ContentType, Error>)
+    method deserializeContentType(is: StringReader) returns (ret: Result<T_ContentType>)
         requires is.Valid()
         modifies is
         ensures is.Valid()
     {
         var res := readFixedLengthFromStreamOrFail(is, 1);
         match res {
-            case Left(contentType) =>
+            case Success(contentType) =>
                 if contentType[0] == 0x01 {
-                    return Left(NonFramed);
+                    return Success(NonFramed);
                 } else if contentType[0] == 0x02 {
-                    return Left(Framed);
+                    return Success(Framed);
                 } else {
-                    return Right(DeserializationError("Content type not supported."));
+                    return Failure("Deserialization Error: Content type not supported.");
                 }
-            case Right(e) => return Right(e);
+            case Failure(e) => return Failure(e);
         }
     }
 
-    method deserializeReserved(is: StringReader) returns (ret: Either<T_Reserved, Error>)
+    method deserializeReserved(is: StringReader) returns (ret: Result<T_Reserved>)
         requires is.Valid()
         modifies is
         ensures is.Valid()
     {
         var res := readFixedLengthFromStreamOrFail(is, 4);
         match res {
-            case Left(reserved) =>
+            case Success(reserved) =>
                 if reserved[0] == reserved[1] == reserved[2] == reserved[3] == 0 {
-                    return Left(reserved[..]);
+                    return Success(reserved[..]);
                 } else {
-                    return Right(DeserializationError("Reserved fields must be 0."));
+                    return Failure("Deserialization Error: Reserved fields must be 0.");
                 }
-            case Right(e) => return Right(e);
+            case Failure(e) => return Failure(e);
         }
     }
 
-    method deserializeIVLength(is: StringReader, algSuiteId: AlgorithmSuite.ID) returns (ret: Either<uint8, Error>)
+    method deserializeIVLength(is: StringReader, algSuiteId: AlgorithmSuite.ID) returns (ret: Result<uint8>)
         requires is.Valid()
         requires algSuiteId in AlgorithmSuite.Suite.Keys
         modifies is
         ensures
             match ret
-                case Left(ivLength) => ValidIVLength(ivLength, algSuiteId)
-                case Right(_)       => true
+                case Success(ivLength) => ValidIVLength(ivLength, algSuiteId)
+                case Failure(_)       => true
         ensures is.Valid()
     {
         var res := readFixedLengthFromStreamOrFail(is, 1);
         match res {
-            case Left(ivLength) =>
+            case Success(ivLength) =>
                 if ivLength[0] == AlgorithmSuite.Suite[algSuiteId].params.ivLen {
-                    return Left(ivLength[0]);
+                    return Success(ivLength[0]);
                 } else {
-                    return Right(DeserializationError("Incorrect IV length."));
+                    return Failure("Deserialization Error: Incorrect IV length.");
                 }
-            case Right(e) => return Right(e);
+            case Failure(e) => return Failure(e);
         }
     }
 
-    method deserializeFrameLength(is: StringReader, contentType: T_ContentType) returns (ret: Either<uint32, Error>)
+    method deserializeFrameLength(is: StringReader, contentType: T_ContentType) returns (ret: Result<uint32>)
         requires is.Valid()
         modifies is
         ensures
             match ret
-                case Left(frameLength) => ValidFrameLength(frameLength, contentType)
-                case Right(_) => true
+                case Success(frameLength) => ValidFrameLength(frameLength, contentType)
+                case Failure(_) => true
         ensures is.Valid()
     {
         var res := readFixedLengthFromStreamOrFail(is, 4);
         match res {
-            case Left(frameLength) =>
+            case Success(frameLength) =>
                 if contentType.NonFramed? && ArrayToUInt32(frameLength) == 0 {
-                    return Left(ArrayToUInt32(frameLength));
+                    return Success(ArrayToUInt32(frameLength));
                 } else {
-                    return Right(DeserializationError("Frame length must be 0 when content type is non-framed."));
+                    return Failure("Deserialization Error: Frame length must be 0 when content type is non-framed.");
                 }
-            case Right(e) => return Right(e);
+            case Failure(e) => return Failure(e);
         }
     }
     /**
     * Reads raw header data from the input stream and populates the header with all of the information about the
     * message.
     */
-    method headerBody(is: StringReader) returns (ret: Either<HeaderBody, Error>)
+    method headerBody(is: StringReader) returns (ret: Result<HeaderBody>)
         requires is.Valid()
         modifies is
         ensures is.Valid()
         ensures
             match ret
-                case Left(hb) =>
+                case Success(hb) =>
                     && ValidHeaderBody(hb)
-                case Right(_) => true
+                case Failure(_) => true
     {
         Assume(false);
         reveal ValidHeaderBody();
@@ -454,8 +453,8 @@ module MessageHeader.Deserialize {
         {
             var res := deserializeVersion(is);
             match res {
-                case Left(version_) => version := version_;
-                case Right(e)       => return Right(e);
+                case Success(version_) => version := version_;
+                case Failure(e)       => return Failure(e);
             }
         }
 
@@ -463,8 +462,8 @@ module MessageHeader.Deserialize {
         {
             var res := deserializeType(is);
             match res {
-                case Left(typ_) => typ := typ_;
-                case Right(e)   => return Right(e);
+                case Success(typ_) => typ := typ_;
+                case Failure(e)   => return Failure(e);
             }
         }
 
@@ -472,8 +471,8 @@ module MessageHeader.Deserialize {
         {
             var res := deserializeAlgorithmSuiteID(is);
             match res {
-                case Left(algorithmSuiteID_) => algorithmSuiteID := algorithmSuiteID_;
-                case Right(e)                => return Right(e);
+                case Success(algorithmSuiteID_) => algorithmSuiteID := algorithmSuiteID_;
+                case Failure(e)                => return Failure(e);
             }
         }
 
@@ -481,8 +480,8 @@ module MessageHeader.Deserialize {
         {
             var res := deserializeMsgID(is);
             match res {
-                case Left(messageID_) => messageID := messageID_;
-                case Right(e)    => return Right(e);
+                case Success(messageID_) => messageID := messageID_;
+                case Failure(e)    => return Failure(e);
             }
         }
 
@@ -491,8 +490,8 @@ module MessageHeader.Deserialize {
         {
             var res := deserializeAAD(is);
             match res {
-                case Left(aad_) => aad := aad_;
-                case Right(e)   => return Right(e);
+                case Success(aad_) => aad := aad_;
+                case Failure(e)   => return Failure(e);
             }
         }
 
@@ -501,8 +500,8 @@ module MessageHeader.Deserialize {
         {
             var res := deserializeEncryptedDataKeys(is, aad);
             match res {
-                case Left(encryptedDataKeys_) => encryptedDataKeys := encryptedDataKeys_;
-                case Right(e)   => return Right(e);
+                case Success(encryptedDataKeys_) => encryptedDataKeys := encryptedDataKeys_;
+                case Failure(e)   => return Failure(e);
             }
         }
 
@@ -510,8 +509,8 @@ module MessageHeader.Deserialize {
         {
             var res := deserializeContentType(is);
             match res {
-                case Left(contentType_) => contentType := contentType_;
-                case Right(e)           => return Right(e);
+                case Success(contentType_) => contentType := contentType_;
+                case Failure(e)           => return Failure(e);
             }
         }
 
@@ -519,8 +518,8 @@ module MessageHeader.Deserialize {
         {
             var res := deserializeReserved(is);
             match res {
-                case Left(reserved_) => reserved := reserved_;
-                case Right(e)    => return Right(e);
+                case Success(reserved_) => reserved := reserved_;
+                case Failure(e)    => return Failure(e);
             }
         }
 
@@ -528,8 +527,8 @@ module MessageHeader.Deserialize {
         {
             var res := deserializeIVLength(is, algorithmSuiteID);
             match res {
-                case Left(ivLength_) => ivLength := ivLength_;
-                case Right(e)    => return Right(e);
+                case Success(ivLength_) => ivLength := ivLength_;
+                case Failure(e)    => return Failure(e);
             }
         }
 
@@ -537,8 +536,8 @@ module MessageHeader.Deserialize {
         {
             var res := deserializeFrameLength(is, contentType);
             match res {
-                case Left(frameLength_) => frameLength := frameLength_;
-                case Right(e) => return Right(e);
+                case Success(frameLength_) => frameLength := frameLength_;
+                case Failure(e) => return Failure(e);
             }
         }
         var hb := HeaderBody(
@@ -553,22 +552,22 @@ module MessageHeader.Deserialize {
                     ivLength,
                     frameLength);
         assert ValidHeaderBody(hb);
-        ret := Left(hb);
+        ret := Success(hb);
     }
 
-    method deserializeAuthenticationTag(is: StringReader, tagLength: nat, ghost iv: array<uint8>) returns (ret: Either<array<uint8>, Error>)
+    method deserializeAuthenticationTag(is: StringReader, tagLength: nat, ghost iv: array<uint8>) returns (ret: Result<array<uint8>>)
         requires is.Valid()
         modifies is
         ensures
             match ret
-                case Left(authenticationTag) => ValidAuthenticationTag(authenticationTag, tagLength, iv)
-                case Right(_) => true
+                case Success(authenticationTag) => ValidAuthenticationTag(authenticationTag, tagLength, iv)
+                case Failure(_) => true
         ensures is.Valid()
     {
         ret := readFixedLengthFromStreamOrFail(is, tagLength);
     }
 
-    method headerAuthentication(is: StringReader, body: HeaderBody) returns (ret: Either<HeaderAuthentication, Error>)
+    method headerAuthentication(is: StringReader, body: HeaderBody) returns (ret: Result<HeaderAuthentication>)
         requires is.Valid()
         requires ValidHeaderBody(body)
         requires body.algorithmSuiteID in AlgorithmSuite.Suite.Keys
@@ -576,17 +575,17 @@ module MessageHeader.Deserialize {
         ensures is.Valid()
         ensures
             match ret
-                case Left(headerAuthentication) =>
+                case Success(headerAuthentication) =>
                     && ValidHeaderAuthentication(headerAuthentication, body.algorithmSuiteID)
                     && ValidHeaderBody(body)
-                case Right(_) => true
+                case Failure(_) => true
     {
         var iv: array<uint8>;
         {
             var res := deserializeUnrestricted(is, body.ivLength as nat);
             match res {
-                case Left(bytes) => iv := bytes;
-                case Right(e)    => return Right(e);
+                case Success(bytes) => iv := bytes;
+                case Failure(e)    => return Failure(e);
             }
         }
 
@@ -594,10 +593,10 @@ module MessageHeader.Deserialize {
         {
             var res := deserializeAuthenticationTag(is, AlgorithmSuite.Suite[body.algorithmSuiteID].params.tagLen as nat, iv);
             match res {
-                case Left(bytes) => authenticationTag := bytes;
-                case Right(e)    => return Right(e);
+                case Success(bytes) => authenticationTag := bytes;
+                case Failure(e)    => return Failure(e);
             }
         }
-        ret := Left(HeaderAuthentication(iv, authenticationTag));
+        ret := Success(HeaderAuthentication(iv, authenticationTag));
     }
 }

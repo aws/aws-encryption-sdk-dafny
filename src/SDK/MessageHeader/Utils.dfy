@@ -12,28 +12,27 @@ module MessageHeader.Utils {
     /*
      * Utils
      */
-    method readFixedLengthFromStreamOrFail(is: StringReader, n: nat) returns (ret: Either<array<uint8>, Error>)
+    method readFixedLengthFromStreamOrFail(is: StringReader, n: nat) returns (ret: Result<array<uint8>>)
         requires is.Valid()
         modifies is
         ensures
             match ret
-                case Left(bytes) =>
+                case Success(bytes) =>
                     && n == bytes.Length
                     && fresh(bytes)
-                case Right(_)    => true
+                case Failure(_)    => true
         ensures is.Valid()
     {
         var bytes := new uint8[n];
-        var out: Either<nat, Error>;
-        out := is.Read(bytes, 0, n);
+        var out := is.Read(bytes, 0, n);
         match out {
-            case Left(bytesRead) =>
+            case Success(bytesRead) =>
                 if bytesRead != n {
-                    return Right(IOError("Not enough bytes left on stream."));
+                    return Failure("IO Error: Not enough bytes left on stream.");
                 } else {
-                    return Left(bytes);
+                    return Success(bytes);
                 }
-            case Right(e) => return Right(e);
+            case Failure(e) => return Failure(e);
         }
     }
     /*
@@ -48,19 +47,19 @@ module MessageHeader.Utils {
       ensures os.Valid()
       ensures
         match ret
-          case Left(len_written) =>
+          case Success(len_written) =>
             && len_written == bytes.Length
             && os.pos == old(os.pos) + len_written
             && old(os.pos + len_written <= os.data.Length)
             && os.data[..] == old(os.data[..os.pos]) + bytes[..] + old(os.data[os.pos + len_written..])
-          case Right(e) => true
+          case Failure(e) => true
     {
         ghost var oldPos := os.pos;
         ghost var oldData := os.data;
         var oldCap := os.capacity();
         ret := os.Write(bytes, 0, bytes.Length);
         match ret {
-            case Left(len) =>
+            case Success(len) =>
                 if oldCap >= bytes.Length > 0 {
                 //if len == bytes.Length {
                    // assert len == bytes.Length;
@@ -72,11 +71,11 @@ module MessageHeader.Utils {
 
                     assert os.data[..] == oldData[..oldPos] + bytes[..] + oldData[oldPos + len..];
                     assert os.pos == oldPos + len;
-                    return Left(len);
+                    return Success(len);
                 } else {
-                    return Right(SerializationError("Reached end of stream."));
+                    return Failure("Serialization Error: Reached end of stream.");
                 }
-            case Right(e)  => return ret;
+            case Failure(e)  => return ret;
         }
     }
     */
@@ -89,22 +88,22 @@ module MessageHeader.Utils {
       ensures os.Valid()
       ensures
         match ret
-          case Left(len_written) =>
+          case Success(len_written) =>
             && len_written == 1
             && old(os.pos + len_written <= os.data.Length)
             && os.data[..] == old(os.data[..os.pos]) + [byte] + old(os.data[os.pos + len_written..])
             && os.pos == old(os.pos) + len_written
-          case Right(e) => true
+          case Failure(e) => true
     {
         ret := os.WriteSingleByte(byte);
         match ret {
-            case Left(len) =>
+            case Success(len) =>
                 if len == 1 {
-                    return Left(len);
+                    return Success(len);
                 } else {
-                    return Right(SerializationError("Reached end of stream."));
+                    return Failure("Serialization Error: Reached end of stream.");
                 }
-            case Right(e)  => return ret;
+            case Failure(e)  => return ret;
         }
     }
     */

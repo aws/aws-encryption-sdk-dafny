@@ -38,24 +38,24 @@ module MessageHeader {
             {
                 var res := Deserialize.headerBody(is);
                 match res {
-                    case Left(body_) =>
+                    case Success(body_) =>
                         // How does Dafny know the following assertion holds with Validity.ValidHeaderBody being opaque?
                         assert body_.algorithmSuiteID in AlgorithmSuite.Suite.Keys; // nfv
                         var res := Deserialize.headerAuthentication(is, body_);
                         match res {
-                            case Left(auth_) =>
+                            case Success(auth_) =>
                                 body := Some(body_);
                                 auth := Some(auth_);
                                 assert Validity.ValidHeaderBody(body.get);
-                            case Right(e)    => {
-                                print "Could not deserialize message header: " + e.msg + "\n";
+                            case Failure(e)    => {
+                                print "Could not deserialize message header: " + e + "\n";
                                 body := None;
                                 auth := None;
                                 return;
                             }
                         }
-                    case Right(e)    => {
-                        print "Could not deserialize message header: " + e.msg + "\n";
+                    case Failure(e)    => {
+                        print "Could not deserialize message header: " + e + "\n";
                         body := None;
                         auth := None;
                         return;
@@ -64,7 +64,7 @@ module MessageHeader {
             }
         }
 
-        method serializeHeader(os: StringWriter) returns (ret: Either<nat, Error>)
+        method serializeHeader(os: StringWriter) returns (ret: Result<nat>)
             requires os.Valid()
             requires body.Some?
             requires Validity.ValidHeaderBody(body.get)

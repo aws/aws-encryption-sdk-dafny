@@ -37,7 +37,7 @@ module MessageHeader.SerializeEDK {
         serializeEDKEntries(encryptedDataKeys.entries)
     }
 
-    method serializeEDKImpl(os: StringWriter, encryptedDataKeys: T_EncryptedDataKeys) returns (ret: Either<nat, Error>)
+    method serializeEDKImpl(os: StringWriter, encryptedDataKeys: T_EncryptedDataKeys) returns (ret: Result<nat>)
         requires os.Valid()
         modifies os`data
         ensures os.Valid()
@@ -47,13 +47,13 @@ module MessageHeader.SerializeEDK {
         //ensures old(|os.data|) <= |os.data|
         ensures
             match ret
-                case Left(totalWritten) =>
+                case Success(totalWritten) =>
                     var serEDK := serializeEDK(encryptedDataKeys);
                     var initLen := old(|os.data|);
                     && totalWritten == |serEDK|
                     && initLen+totalWritten == |os.data|
                     && os.data == old(os.data + serEDK)
-                case Right(e) => true
+                case Failure(e) => true
     {
         Assume(false);  // TODO: turned off verification for now
         var totalWritten: nat := 0;
@@ -66,8 +66,8 @@ module MessageHeader.SerializeEDK {
             var bytes := UInt16ToArray(|encryptedDataKeys.entries| as uint16);
             ret := os.WriteSimple(bytes);
             match ret {
-                case Left(len) => totalWritten := totalWritten + len;
-                case Right(e)  => return ret;
+                case Success(len) => totalWritten := totalWritten + len;
+                case Failure(e)  => return ret;
             }
             prevPos := currPos;
             currPos := initLen + totalWritten;
@@ -98,8 +98,8 @@ module MessageHeader.SerializeEDK {
                 var bytes := UInt16ToArray(|entry.providerID| as uint16);
                 ret := os.WriteSimple(bytes);
                 match ret {
-                    case Left(len) => totalWritten := totalWritten + len;
-                    case Right(e)  => return ret;
+                    case Success(len) => totalWritten := totalWritten + len;
+                    case Failure(e)  => return ret;
                 }
                 prevPos := currPos;
                 currPos := initLen + totalWritten;
@@ -111,8 +111,8 @@ module MessageHeader.SerializeEDK {
                 var bytes := StringToByteSeq(entry.providerID);
                 ret := os.WriteSimpleSeq(bytes);
                 match ret {
-                    case Left(len) => totalWritten := totalWritten + len;
-                    case Right(e)  => return ret;
+                    case Success(len) => totalWritten := totalWritten + len;
+                    case Failure(e)  => return ret;
                 }
                 prevPos := currPos;
                 currPos := initLen + totalWritten;
@@ -126,8 +126,8 @@ module MessageHeader.SerializeEDK {
                 var bytes := UInt16ToArray(|entry.providerInfo| as uint16);
                 ret := os.WriteSimple(bytes);
                 match ret {
-                    case Left(len) => totalWritten := totalWritten + len;
-                    case Right(e)  => return ret;
+                    case Success(len) => totalWritten := totalWritten + len;
+                    case Failure(e)  => return ret;
                 }
                 prevPos := currPos;
                 currPos := initLen + totalWritten;
@@ -140,8 +140,8 @@ module MessageHeader.SerializeEDK {
                 var bytes := entry.providerInfo;
                 ret := os.WriteSimpleSeq(bytes);
                 match ret {
-                    case Left(len) => totalWritten := totalWritten + len;
-                    case Right(e)  => return ret;
+                    case Success(len) => totalWritten := totalWritten + len;
+                    case Failure(e)  => return ret;
                 }
                 prevPos := currPos;
                 currPos := initLen + totalWritten;
@@ -155,8 +155,8 @@ module MessageHeader.SerializeEDK {
                 var bytes := UInt16ToArray(|entry.ciphertext| as uint16);
                 ret := os.WriteSimple(bytes);
                 match ret {
-                    case Left(len) => totalWritten := totalWritten + len;
-                    case Right(e)  => return ret;
+                    case Success(len) => totalWritten := totalWritten + len;
+                    case Failure(e)  => return ret;
                 }
                 prevPos := currPos;
                 currPos := initLen + totalWritten;
@@ -169,8 +169,8 @@ module MessageHeader.SerializeEDK {
                 var bytes := entry.ciphertext;
                 ret := os.WriteSimpleSeq(bytes);
                 match ret {
-                    case Left(len) => totalWritten := totalWritten + len;
-                    case Right(e)  => return ret;
+                    case Success(len) => totalWritten := totalWritten + len;
+                    case Failure(e)  => return ret;
                 }
                 prevPos := currPos;
                 currPos := initLen + totalWritten;
@@ -186,6 +186,6 @@ module MessageHeader.SerializeEDK {
         Assume(totalWritten == |serializeEDK(encryptedDataKeys)|);
         Assume(initLen+totalWritten == |os.data|);
         Assume(os.data == old(os.data) + serializeEDK(encryptedDataKeys));
-        return Left(totalWritten);
+        return Success(totalWritten);
     }
 }
