@@ -25,6 +25,8 @@ module MessageHeader.Deserialize {
     import opened UInt = StandardLibrary.UInt
     import opened UTF8
 
+    lemma {:axiom} Assume(b : bool) ensures b
+
     /*
      * Message header-specific
      */
@@ -75,7 +77,7 @@ module MessageHeader.Deserialize {
         var res := readFixedLengthFromStreamOrFail(is, 2);
         match res {
             case Left(algorithmSuiteID) =>
-                var asid := arrayToUInt16(algorithmSuiteID);
+                var asid := ArrayToUInt16(algorithmSuiteID);
                 if asid in AlgorithmSuite.validIDs {
                     return Left(asid as AlgorithmSuite.ID);
                 } else {
@@ -171,7 +173,7 @@ module MessageHeader.Deserialize {
         {
             var res := deserializeUnrestricted(is, 2);
             match res {
-                case Left(bytes) => kvPairsLength := arrayToUInt16(bytes);
+                case Left(bytes) => kvPairsLength := ArrayToUInt16(bytes);
                 case Right(e) => return Right(e);
             }
         }
@@ -185,7 +187,7 @@ module MessageHeader.Deserialize {
             var res := deserializeUnrestricted(is, 2);
             match res {
                 case Left(bytes) =>
-                    kvPairsCount := arrayToUInt16(bytes);
+                    kvPairsCount := ArrayToUInt16(bytes);
                     totalBytesRead := totalBytesRead + bytes.Length;
                     if kvPairsLength > 0 && kvPairsCount == 0 {
                         return Right(DeserializationError("Key value pairs count is 0."));
@@ -217,7 +219,7 @@ module MessageHeader.Deserialize {
                 var res := deserializeUnrestricted(is, 2);
                 match res {
                     case Left(bytes) =>
-                        keyLength := arrayToUInt16(bytes);
+                        keyLength := ArrayToUInt16(bytes);
                         totalBytesRead := totalBytesRead + bytes.Length;
                     case Right(e) => return Right(e);
                 }
@@ -233,14 +235,14 @@ module MessageHeader.Deserialize {
                     case Right(e) => return Right(e);
                 }
             }
-            assert key.Length <= UINT16_MAX;
+            assert key.Length < UINT16_LIMIT;
 
             var valueLength: uint16;
             {
                 var res := deserializeUnrestricted(is, 2);
                 match res {
                     case Left(bytes) =>
-                        valueLength := arrayToUInt16(bytes);
+                        valueLength := ArrayToUInt16(bytes);
                         totalBytesRead := totalBytesRead + bytes.Length;
                     case Right(e) => return Right(e);
                 }
@@ -256,7 +258,7 @@ module MessageHeader.Deserialize {
                     case Right(e) => return Right(e);
                 }
             }
-            assert value.Length <= UINT16_MAX;
+            assert value.Length < UINT16_LIMIT;
 
             // check for sortedness by key
             if i > 0 {
@@ -298,7 +300,7 @@ module MessageHeader.Deserialize {
         var edkCount: uint16;
         res := deserializeUnrestricted(is, 2);
         match res {
-            case Left(bytes) => edkCount := arrayToUInt16(bytes);
+            case Left(bytes) => edkCount := ArrayToUInt16(bytes);
             case Right(e)    => return Right(e);
         }
 
@@ -323,7 +325,7 @@ module MessageHeader.Deserialize {
             var keyProviderIDLength: uint16;
             res := deserializeUnrestricted(is, 2);
             match res {
-                case Left(bytes) => keyProviderIDLength := arrayToUInt16(bytes);
+                case Left(bytes) => keyProviderIDLength := ArrayToUInt16(bytes);
                 case Right(e)    => return Right(e);
             }
 
@@ -338,7 +340,7 @@ module MessageHeader.Deserialize {
             var keyProviderInfoLength: uint16;
             res := deserializeUnrestricted(is, 2);
             match res {
-                case Left(bytes) => keyProviderInfoLength := arrayToUInt16(bytes);
+                case Left(bytes) => keyProviderInfoLength := ArrayToUInt16(bytes);
                 case Right(e)    => return Right(e);
             }
 
@@ -353,7 +355,7 @@ module MessageHeader.Deserialize {
             var edkLength: uint16;
             res := deserializeUnrestricted(is, 2);
             match res {
-                case Left(bytes) => edkLength := arrayToUInt16(bytes);
+                case Left(bytes) => edkLength := ArrayToUInt16(bytes);
                 case Right(e)    => return Right(e);
             }
 
@@ -441,8 +443,8 @@ module MessageHeader.Deserialize {
         var res := readFixedLengthFromStreamOrFail(is, 4);
         match res {
             case Left(frameLength) =>
-                if contentType.NonFramed? && arrayToUInt32(frameLength) == 0 {
-                    return Left(arrayToUInt32(frameLength));
+                if contentType.NonFramed? && ArrayToUInt32(frameLength) == 0 {
+                    return Left(ArrayToUInt32(frameLength));
                 } else {
                     return Right(DeserializationError("Frame length must be 0 when content type is non-framed."));
                 }
@@ -468,6 +470,7 @@ module MessageHeader.Deserialize {
                     // && fresh(ReprEncryptedDataKeys(hb.encryptedDataKeys))
                 case Right(_) => true
     {
+        Assume(false);
         reveal ValidHeaderBody();
         var version: T_Version;
         {

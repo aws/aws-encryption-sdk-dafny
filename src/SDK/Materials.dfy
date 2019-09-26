@@ -10,7 +10,13 @@ module Materials {
 
   type EncryptionContext = seq<(seq<uint8>, seq<uint8>)>
 
+
+  function method EncryptionContextKeys(encryptionContext: EncryptionContext): set<seq<uint8>> {
+    set i | 0 <= i < |encryptionContext| :: encryptionContext[i].0
+  }
+
   const EC_PUBLIC_KEY_FIELD: seq<uint8> := StringToByteSeq("aws-crypto-public-key");
+  ghost const ReservedKeyValues := { EC_PUBLIC_KEY_FIELD }
 
   datatype EncryptedDataKey = EncryptedDataKey(providerID : string,
                                                providerInfo : seq<uint8>,

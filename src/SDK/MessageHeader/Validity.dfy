@@ -1,13 +1,12 @@
 include "Definitions.dfy"
 include "Utils.dfy"
 
-include "../AlgorithmSuite.dfy"
 include "../../StandardLibrary/StandardLibrary.dfy"
 include "../../Util/UTF8.dfy"
 
 module MessageHeader.Validity {
     import opened Definitions
-    import opened Utils
+    import Utils
 
     import AlgorithmSuite
     import opened StandardLibrary
@@ -71,14 +70,14 @@ module MessageHeader.Validity {
         reads kvPairs
     {
         forall i :: 0 <= i < j ==>
-            && kvPairs[i].0.Length <= UINT16_MAX
-            && kvPairs[i].1.Length <= UINT16_MAX
+            && kvPairs[i].0.Length < UINT16_LIMIT
+            && kvPairs[i].1.Length < UINT16_LIMIT
     }
 
     predicate InBoundsKVPairs(kvPairs: EncCtx)
         reads kvPairs
     {
-        && kvPairs.Length <= UINT16_MAX
+        && kvPairs.Length < UINT16_LIMIT
         && InBoundsKVPairsUpTo(kvPairs, kvPairs.Length)
     }
 
@@ -98,7 +97,7 @@ module MessageHeader.Validity {
                 && 0 < kvPairs.Length
                 && InBoundsKVPairs(kvPairs)
                 && ValidKVPairs(kvPairs)
-                && SortedKVPairs(kvPairs)
+                && Utils.SortedKVPairs(kvPairs)
             case EmptyAAD() => true
         }
     }
@@ -124,9 +123,9 @@ module MessageHeader.Validity {
         reads ReprEncryptedDataKeysUpTo(entries[..], entries.Length)
     {
         forall i :: 0 <= i < j ==>
-            && entries[i].keyProviderId.Length   <= UINT16_MAX
-            && entries[i].keyProviderInfo.Length <= UINT16_MAX
-            && entries[i].encDataKey.Length      <= UINT16_MAX
+            && entries[i].keyProviderId.Length   < UINT16_LIMIT
+            && entries[i].keyProviderInfo.Length < UINT16_LIMIT
+            && entries[i].encDataKey.Length      < UINT16_LIMIT
     }
 
     predicate InBoundsEncryptedDataKeys(encryptedDataKeys: T_EncryptedDataKeys)

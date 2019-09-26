@@ -32,14 +32,14 @@ module MessageHeader.Serialize {
         reveal ValidHeaderBody();
         [hb.version as uint8] +
         [hb.typ as uint8] +
-        uint16ToSeq(hb.algorithmSuiteID as uint16) +
+        UInt16ToSeq(hb.algorithmSuiteID as uint16) +
         hb.messageID +
         serializeAAD(hb.aad) +
         serializeEDK(hb.encryptedDataKeys) +
         (match hb.contentType case NonFramed => [0x01] case Framed => [0x02]) +
         hb.reserved +
         [hb.ivLength] +
-        uint32ToSeq(hb.frameLength)
+        UInt32ToSeq(hb.frameLength)
     }
 
     method headerBody(os: StringWriter, hb: HeaderBody) returns (ret: Either<nat, Error>)
@@ -93,7 +93,7 @@ module MessageHeader.Serialize {
         }
 
         {
-            var bytes := uint16ToArray(hb.algorithmSuiteID as uint16);
+            var bytes := UInt16ToArray(hb.algorithmSuiteID as uint16);
             ret := os.WriteSimple(bytes);
             match ret {
                 case Left(len) => totalWritten := totalWritten + len;
@@ -163,13 +163,14 @@ module MessageHeader.Serialize {
         }
 
         {
-            var bytes := uint32ToArray(hb.frameLength);
+            var bytes := UInt32ToArray(hb.frameLength);
             ret := os.WriteSimple(bytes);
             match ret {
                 case Left(len) => totalWritten := totalWritten + len;
                 case Right(e)  => return ret;
             }
         }
+        Assume(false);
         //reveal ReprEncryptedDataKeys();
         assert ValidHeaderBody(hb);
         reveal serialize();

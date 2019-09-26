@@ -17,16 +17,27 @@ SRCS = \
 	   src/Crypto/Signature.dfy \
 	   src/Main.dfy \
 	   src/SDK/AlgorithmSuite.dfy \
+	   src/SDK/Client.dfy \
 	   src/SDK/CMM/DefaultCMM.dfy \
 	   src/SDK/CMM/Defs.dfy \
 	   src/SDK/Keyring/AESKeyring.dfy \
 	   src/SDK/Keyring/Defs.dfy \
 	   src/SDK/Keyring/RSAKeyring.dfy \
 	   src/SDK/Materials.dfy \
+	   src/SDK/MessageHeader/Definitions.dfy \
+	   src/SDK/MessageHeader/Deserialize.dfy \
+	   src/SDK/MessageHeader/MessageHeader.dfy \
+	   src/SDK/MessageHeader/Serialize.dfy \
+	   src/SDK/MessageHeader/SerializeAAD.dfy \
+	   src/SDK/MessageHeader/SerializeEDK.dfy \
+	   src/SDK/MessageHeader/Utils.dfy \
+	   src/SDK/MessageHeader/Validity.dfy \
 	   src/SDK/ToyClient.dfy \
 	   src/StandardLibrary/Base64.dfy \
 	   src/StandardLibrary/StandardLibrary.dfy \
 	   src/StandardLibrary/UInt.dfy \
+	   src/Util/Streams.dfy \
+	   src/Util/UTF8.dfy \
 
 SRCV = $(patsubst src/%.dfy, build/%.dfy.verified, $(SRCS))
 
@@ -36,6 +47,8 @@ SRCDIRS = $(dir $(SRCS))
 
 DEPS = $(foreach dir, $(SRCDIRS), $(wildcard $(dir)/*.cs)) \
 	$(BCDLL)
+
+DEPS_CS = $(foreach dir, src/Crypto/ src/ src/SDK/ src/SDK/CMM src/SDK/Keyring src/SDK/MessageHeader src/StandardLibrary src/Util, $(wildcard $(dir)/*.cs))
 
 .PHONY: all hkdf test noverif clean-build clean
 
@@ -52,6 +65,9 @@ build/%.dfy.verified: src/%.dfy
 
 build/Main.exe: $(SRCS) $(DEPS)
 	$(DAFNY) /out:build/Main $(SRCS) $(DEPS) /compile:2 /noVerify /noIncludes && cp $(BCDLL) build/
+
+buildcs: build/Main.cs
+	csc /r:System.Numerics.dll /r:$(BCDLL) /target:exe /debug /nowarn:0164 /nowarn:0219 /nowarn:1717 /nowarn:0162 /nowarn:0168 build/Main.cs $(DEPS_CS) /out:build/Main.exe
 
 # TODO: HKDF.dfy hasn't been reviewed yet.
 # Once it is, re-add:

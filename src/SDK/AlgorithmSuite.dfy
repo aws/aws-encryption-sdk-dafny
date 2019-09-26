@@ -14,7 +14,9 @@ module AlgorithmSuite {
 
   newtype ID = x | x in validIDs witness 0x0014
   {
-    function method KeyLength(): nat {
+    function method KeyLength(): nat
+      ensures KeyLength() < 0x100
+    {
       Suite[this].params.keyLen as nat
     }
 
