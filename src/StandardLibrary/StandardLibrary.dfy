@@ -340,9 +340,9 @@ module {:extern "STL"} StandardLibrary {
     }
   }
 
-  predicate method ltByte(a: uint8, b: uint8) { a < b }
-  predicate method ltNat (a: nat,  b: nat)  { a < b }
-  predicate method ltInt (a: int,  b: int)  { a < b }
+  predicate method UInt8Less(a: uint8, b: uint8) { a < b }
+  predicate method NatLess (a: nat,  b: nat)  { a < b }
+  predicate method IntLess (a: int,  b: int)  { a < b }
 
   predicate method lexCmpArrays<T(==)>(a : array<T>, b : array<T>, lt: (T, T) -> bool)
       reads a, b
