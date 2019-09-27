@@ -22,15 +22,11 @@ module MessageHeader.Utils {
       case Failure(_) => true
   {
     var bytes := new uint8[n];
-    var out := is.Read(bytes, 0, n);
-    match out {
-      case Success(bytesRead) =>
-        if bytesRead != n {
-          return Failure("IO Error: Not enough bytes left on stream.");
-        } else {
-          return Success(bytes);
-        }
-      case Failure(e) => return Failure(e);
+    var bytesRead :- is.Read(bytes, 0, n);
+    if bytesRead != n {
+      return Failure("IO Error: Not enough bytes left on stream.");
+    } else {
+      return Success(bytes);
     }
   }
   /*
@@ -54,25 +50,20 @@ module MessageHeader.Utils {
     ghost var oldPos := os.pos;
     ghost var oldData := os.data;
     var oldCap := os.capacity();
-    ret := os.Write(bytes, 0, bytes.Length);
-    match ret {
-      case Success(len) =>
-        if oldCap >= bytes.Length > 0 {
-        //if len == bytes.Length {
-          // assert len == bytes.Length;
-          assert oldPos + len <= oldData.Length;
+    var len :- os.Write(bytes, 0, bytes.Length);
+    if 0 < bytes.Length <= oldCap {
+      // assert len == bytes.Length;
+      assert oldPos + len <= oldData.Length;
 
-          assert os.data[..oldPos] == oldData[..oldPos];
-          assert os.data[oldPos..oldPos+len] == bytes[..];
-          assert os.data[oldPos+len..] == oldData[oldPos + len..];
+      assert os.data[..oldPos] == oldData[..oldPos];
+      assert os.data[oldPos..oldPos+len] == bytes[..];
+      assert os.data[oldPos+len..] == oldData[oldPos + len..];
 
-          assert os.data[..] == oldData[..oldPos] + bytes[..] + oldData[oldPos + len..];
-          assert os.pos == oldPos + len;
-          return Success(len);
-        } else {
-          return Failure("Serialization Error: Reached end of stream.");
-        }
-      case Failure(e)  => return ret;
+      assert os.data[..] == oldData[..oldPos] + bytes[..] + oldData[oldPos + len..];
+      assert os.pos == oldPos + len;
+      return Success(len);
+    } else {
+      return Failure("Serialization Error: Reached end of stream.");
     }
   }
   */
@@ -91,15 +82,11 @@ module MessageHeader.Utils {
         && os.pos == old(os.pos) + len_written
       case Failure(e) => true
   {
-    ret := os.WriteSingleByte(byte);
-    match ret {
-      case Success(len) =>
-        if len == 1 {
-          return Success(len);
-        } else {
-          return Failure("Serialization Error: Reached end of stream.");
-        }
-      case Failure(e)  => return ret;
+    var len :- os.WriteSingleByte(byte);
+    if len == 1 {
+      return Success(len);
+    } else {
+      return Failure("Serialization Error: Reached end of stream.");
     }
   }
   */

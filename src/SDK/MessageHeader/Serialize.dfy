@@ -60,99 +60,44 @@ module MessageHeader.Serialize {
     reveal ValidHeaderBody();
     reveal ValidAAD();
     reveal ValidEncryptedDataKeys();
-    {
-      ret := os.WriteSingleByteSimple(hb.version as uint8);
-      match ret {
-        case Success(len) => totalWritten := totalWritten + len;
-        case Failure(e)  =>
-          return ret;
-      }
-    }
 
-    {
-      ret := os.WriteSingleByteSimple(hb.typ as uint8);
-      match ret {
-        case Success(len) => totalWritten := totalWritten + len;
-        case Failure(e)  =>
-          return ret;
-      }
-    }
+    var len :- os.WriteSingleByteSimple(hb.version as uint8);
+    totalWritten := totalWritten + len;
 
-    {
-      var bytes := UInt16ToArray(hb.algorithmSuiteID as uint16);
-      ret := os.WriteSimple(bytes);
-      match ret {
-        case Success(len) => totalWritten := totalWritten + len;
-        case Failure(e)  =>
-          return ret;
-      }
-    }
+    len :- os.WriteSingleByteSimple(hb.typ as uint8);
+    totalWritten := totalWritten + len;
 
-    {
-      ret := os.WriteSimpleSeq(hb.messageID);
-      match ret {
-        case Success(len) => totalWritten := totalWritten + len;
-        case Failure(e)  =>
-          return ret;
-      }
-    }
+    var bytes := UInt16ToArray(hb.algorithmSuiteID as uint16);
+    len :- os.WriteSimple(bytes);
+    totalWritten := totalWritten + len;
 
-    {
-      ret := SerializeAAD.SerializeAADImpl(os, hb.aad);
-      match ret {
-        case Success(len) => totalWritten := totalWritten + len;
-        case Failure(e)  =>
-          return ret;
-      }
-    }
+    len :- os.WriteSimpleSeq(hb.messageID);
+    totalWritten := totalWritten + len;
 
-    {
-      ret := SerializeEDK.SerializeEDKImpl(os, hb.encryptedDataKeys);
-      match ret {
-        case Success(len) => totalWritten := totalWritten + len;
-        case Failure(e)  => return ret;
-      }
-    }
+    len :- SerializeAAD.SerializeAADImpl(os, hb.aad);
+    totalWritten := totalWritten + len;
 
-    {
-      var contentType: uint8;
-      match hb.contentType {
-        case NonFramed => contentType := 0x01;
-        case Framed    => contentType := 0x02;
-      }
-      ret := os.WriteSingleByteSimple(contentType);
-      match ret {
-        case Success(len) =>
-          totalWritten := totalWritten + len;
-        case Failure(e)  =>
-          return ret;
-      }
-    }
+    len :- SerializeEDK.SerializeEDKImpl(os, hb.encryptedDataKeys);
+    totalWritten := totalWritten + len;
 
-    {
-      ret := os.WriteSimpleSeq(hb.reserved);
-      match ret {
-        case Success(len) => totalWritten := totalWritten + len;
-        case Failure(e)  => return ret;
-      }
+    var contentType: uint8;
+    match hb.contentType {
+      case NonFramed => contentType := 0x01;
+      case Framed    => contentType := 0x02;
     }
+    len :- os.WriteSingleByteSimple(contentType);
+    totalWritten := totalWritten + len;
 
-    {
-      ret := os.WriteSingleByteSimple(hb.ivLength);
-      match ret {
-        case Success(len) => totalWritten := totalWritten + len;
-        case Failure(e)  => return ret;
-      }
-    }
+    len :- os.WriteSimpleSeq(hb.reserved);
+    totalWritten := totalWritten + len;
 
-    {
-      var bytes := UInt32ToArray(hb.frameLength);
-      ret := os.WriteSimple(bytes);
-      match ret {
-        case Success(len) => totalWritten := totalWritten + len;
-        case Failure(e)  => return ret;
-      }
-    }
+    len :- os.WriteSingleByteSimple(hb.ivLength);
+    totalWritten := totalWritten + len;
+
+    bytes := UInt32ToArray(hb.frameLength);
+    len :- os.WriteSimple(bytes);
+    totalWritten := totalWritten + len;
+
     Assume(false);
     //reveal ReprEncryptedDataKeys();
     assert ValidHeaderBody(hb);

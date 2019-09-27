@@ -80,7 +80,7 @@ module Streams {
         case Success(len_written) => len_written == min(req, old(Capacity()))
         case Failure(e) => unchanged(this)
     {
-      res := Failure("IO Error: Cannot write to StringReader");
+      return Failure("IO Error: Cannot write to StringReader");
     }
 
     method Read(arr: array<uint8>, off: nat, req: nat) returns (res: Result<nat>)
@@ -97,14 +97,14 @@ module Streams {
     {
       if off == arr.Length || Available() == 0 {
         assert (min (req, Available())) == 0;
-        res := Success(0);
+        return Success(0);
       } else {
         var n := min(req, Available());
         forall i | 0 <= i < n {
           arr[off + i] := data[pos + i];
         }
         pos := pos + n;
-        res := Success(n);
+        return Success(n);
       }
     }
 
@@ -127,9 +127,9 @@ module Streams {
           arr[i] := data[pos + i];
         }
         pos := pos + arr.Length;
-        res := Success(arr.Length);
+        return Success(arr.Length);
       } else {
-        res := Failure("IO Error: Not enough bytes available on stream.");
+        return Failure("IO Error: Not enough bytes available on stream.");
       }
     }
     */
@@ -182,11 +182,11 @@ module Streams {
         case Failure(e) => true
     {
       if off == a.Length || Capacity() == 0 {
-        res := Success(0);
+        return Success(0);
       } else {
         var n := min(req, Capacity());
         data := data + a[off..off+req];
-        res := Success(n);
+        return Success(n);
       }
     }
 
@@ -202,9 +202,9 @@ module Streams {
     {
       if a.Length <= Capacity() {
         data := data + a[..];
-        res := Success(a.Length);
+        return Success(a.Length);
       } else {
-        res := Failure("IO Error: Reached end of stream.");
+        return Failure("IO Error: Reached end of stream.");
       }
     }
 
@@ -220,9 +220,9 @@ module Streams {
     {
       if |a| <= Capacity() {
         data := data + a;
-        res := Success(|a|);
+        return Success(|a|);
       } else {
-        res := Failure("IO Error: Reached end of stream.");
+        return Failure("IO Error: Reached end of stream.");
       }
     }
 
@@ -242,10 +242,10 @@ module Streams {
         case Failure(e) => unchanged(`data)
     {
       if Capacity() == 0 {
-        res := Success(0);
+        return Success(0);
       } else {
         data := data + [a];
-        res := Success(1);
+        return Success(1);
       }
     }
 
@@ -263,9 +263,9 @@ module Streams {
     {
       if 1 <= Capacity() {
         data := data + [a];
-        res := Success(1);
+        return Success(1);
       } else {
-        res := Failure("IO Error: Reached end of stream.");
+        return Failure("IO Error: Reached end of stream.");
       }
     }
 
@@ -278,7 +278,7 @@ module Streams {
         case Success(len_read) => len_read == min(req, old(Available()))
         case Failure(e) => unchanged(this) && unchanged(arr)
     {
-      res := Failure("IO Error: Cannot read from StringWriter");
+      return Failure("IO Error: Cannot read from StringWriter");
     }
   }
 }

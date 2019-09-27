@@ -71,6 +71,7 @@ module MessageHeader.SerializeAAD {
 
     match aad {
       case AAD(kvPairs) =>
+        var len: nat;
         {
           // Key Value Pairs Length (number of bytes of total AAD)
           var length: uint16;
@@ -79,12 +80,8 @@ module MessageHeader.SerializeAAD {
           Assume(forall i :: 0 <= i < |kvPairs| ==> |kvPairs[i].0| < UINT16_LIMIT && |kvPairs[i].1| < UINT16_LIMIT);
           Assume(length == |EncCtxToSeq(kvPairs)| as uint16);
           var bytes := UInt16ToArray(length);
-          ret := os.WriteSimple(bytes);
-          match ret {
-            case Success(len) => totalWritten := totalWritten + len;
-            case Failure(e)  => Assume(ValidAAD(aad));
-                               return ret;
-          }
+          len :- os.WriteSimple(bytes);
+          totalWritten := totalWritten + len;
           i := i + 1;
           written := written + [initLen + totalWritten];
           assert written[i] - written[i-1] == bytes.Length;
@@ -100,12 +97,8 @@ module MessageHeader.SerializeAAD {
           // Key Value Pair Count (number of key value pairs)
           Assume(|kvPairs| < UINT16_LIMIT);
           var bytes := UInt16ToArray(|kvPairs| as uint16);
-          ret := os.WriteSimple(bytes);
-          match ret {
-            case Success(len) => totalWritten := totalWritten + len;
-            case Failure(e)  => Assume(ValidAAD(aad));
-                               return ret;
-          }
+          len :- os.WriteSimple(bytes);
+          totalWritten := totalWritten + len;
           i := i + 1;
           written := written + [initLen + totalWritten];
           assert written[i] - written[i-1] == bytes.Length;
@@ -130,11 +123,8 @@ module MessageHeader.SerializeAAD {
           {
             assert InBoundsKVPairsUpTo(kvPairs, j) ==> |kvPairs[j].0| < UINT16_LIMIT;
             var bytes := UInt16ToArray(|kvPairs[j].0| as uint16);
-            ret := os.WriteSimple(bytes);
-            match ret {
-              case Success(len) => totalWritten := totalWritten + len;
-              case Failure(e)  => return ret;
-            }
+            len :- os.WriteSimple(bytes);
+            totalWritten := totalWritten + len;
             i := i + 1;
             written := written + [initLen + totalWritten];
             assert written[i] - written[i-1] == bytes.Length;
@@ -143,11 +133,8 @@ module MessageHeader.SerializeAAD {
 
           {
             var bytes := kvPairs[j].0;
-            ret := os.WriteSimpleSeq(bytes);
-            match ret {
-              case Success(len) => totalWritten := totalWritten + len;
-              case Failure(e)  => return ret;
-            }
+            len :- os.WriteSimpleSeq(bytes);
+            totalWritten := totalWritten + len;
             i := i + 1;
             written := written + [initLen + totalWritten];
             assert written[i] - written[i-1] == |bytes|;
@@ -157,11 +144,8 @@ module MessageHeader.SerializeAAD {
           {
             assert InBoundsKVPairsUpTo(kvPairs, j) ==> |kvPairs[j].1| < UINT16_LIMIT;
             var bytes := UInt16ToSeq(|kvPairs[j].1| as uint16);
-            ret := os.WriteSimpleSeq(bytes);
-            match ret {
-              case Success(len) => totalWritten := totalWritten + len;
-              case Failure(e)  => return ret;
-            }
+            len :- os.WriteSimpleSeq(bytes);
+            totalWritten := totalWritten + len;
             i := i + 1;
             written := written + [initLen + totalWritten];
             assert written[i] - written[i-1] == |bytes|;
@@ -170,11 +154,8 @@ module MessageHeader.SerializeAAD {
 
           {
             var bytes := kvPairs[j].1;
-            ret := os.WriteSimpleSeq(bytes);
-            match ret {
-              case Success(len) => totalWritten := totalWritten + len;
-              case Failure(e)  => return ret;
-            }
+            len :- os.WriteSimpleSeq(bytes);
+            totalWritten := totalWritten + len;
             i := i + 1;
             written := written + [initLen + totalWritten];
             assert written[i] - written[i-1] == |bytes|;
@@ -183,20 +164,18 @@ module MessageHeader.SerializeAAD {
 
           j := j + 1;
         }
+        return Success(len);
 
       case EmptyAAD() =>
         var bytes := UInt16ToArray(0);
-        ret := os.WriteSimple(bytes);
-        match ret {
-          case Success(len) => totalWritten := totalWritten + len;
-          case Failure(e)  => Assume(ValidAAD(aad));
-                             return ret;
-        }
+        var len :- os.WriteSimple(bytes);
+        totalWritten := totalWritten + len;
         i := i + 1;
         written := written + [initLen + totalWritten];
         assert written[i] - written[i-1] == 2;
         assert written[i-1] <= written[i] <= |os.data| ==> os.data[written[i-1]..written[i]] == bytes[..];
         Assume(ValidAAD(aad));
+        return Success(len);
     }
   }
 }

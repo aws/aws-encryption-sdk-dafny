@@ -61,7 +61,7 @@ module RSAKeyringDef {
       ensures res.Failure? ==> unchanged(encMat)
     {
       if encryptionKey.None? {
-        res := Failure("Encryption key undefined");
+        return Failure("Encryption key undefined");
       } else {
         var dataKey := encMat.plaintextDataKey;
         var algorithmID := encMat.algorithmSuiteID;
