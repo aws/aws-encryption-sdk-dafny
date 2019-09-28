@@ -12,156 +12,94 @@ module MessageHeader.SerializeEDK {
   import opened StandardLibrary
   import opened UInt = StandardLibrary.UInt
 
-  lemma {:axiom} Assume(b: bool)
-    ensures b
+  // ----- Specification -----
 
-  // Alternative w/o flatten/map
-  function SerializeEDKEntries(entries: seq<EDKEntry>): seq<uint8>
-    requires forall i :: 0 <= i < |entries| ==> entries[i].Valid()
-  {
-    if entries == [] then
-      []
-    else
-      var entry := entries[0];
-      UInt16ToSeq(|entry.providerID| as uint16)   + StringToByteSeq(entry.providerID) +
-      UInt16ToSeq(|entry.providerInfo| as uint16) + entry.providerInfo +
-      UInt16ToSeq(|entry.ciphertext| as uint16)   + entry.ciphertext +
-      SerializeEDKEntries(entries[1..])
-  }
-
-  function SerializeEDK(encryptedDataKeys: T_EncryptedDataKeys): seq<uint8>
+  function SerializeEDKs(encryptedDataKeys: T_EncryptedDataKeys): seq<uint8>
     requires ValidEncryptedDataKeys(encryptedDataKeys)
   {
-    Assume(|encryptedDataKeys.entries| < UINT16_LIMIT);
-    Assume(forall i :: 0 <= i < |encryptedDataKeys.entries| ==> encryptedDataKeys.entries[i].Valid());
-    UInt16ToSeq(|encryptedDataKeys.entries| as uint16) +
-    SerializeEDKEntries(encryptedDataKeys.entries)
+    reveal ValidEncryptedDataKeys();
+    var n := |encryptedDataKeys.entries|;
+    UInt16ToSeq(n as uint16) +
+    SerializeEDKEntries(encryptedDataKeys.entries, 0, n)
   }
 
-  method SerializeEDKImpl(os: Streams.StringWriter, encryptedDataKeys: T_EncryptedDataKeys) returns (ret: Result<nat>)
+  function SerializeEDKEntries(entries: seq<EDKEntry>, lo: nat, hi: nat): seq<uint8>
+    requires forall i :: 0 <= i < |entries| ==> entries[i].Valid()
+    requires lo <= hi <= |entries|
+  {
+    if lo == hi then [] else SerializeEDKEntries(entries, lo, hi - 1) + SerializeEDKEntry(entries[hi - 1])
+  }
+
+  function SerializeEDKEntry(edk: EDKEntry): seq<uint8>
+    requires edk.Valid()
+  {
+    UInt16ToSeq(|edk.providerID| as uint16)   + StringToByteSeq(edk.providerID) +
+    UInt16ToSeq(|edk.providerInfo| as uint16) + edk.providerInfo +
+    UInt16ToSeq(|edk.ciphertext| as uint16)   + edk.ciphertext
+  }
+
+  // ----- Implementation -----
+
+  method SerializeEDKsImpl(os: Streams.StringWriter, encryptedDataKeys: T_EncryptedDataKeys) returns (ret: Result<nat>)
     requires os.Valid() && ValidEncryptedDataKeys(encryptedDataKeys)
     modifies os`data
     ensures os.Valid() && ValidEncryptedDataKeys(encryptedDataKeys)
     //ensures old(|os.data|) <= |os.data|
     ensures match ret
       case Success(totalWritten) =>
-        var serEDK := SerializeEDK(encryptedDataKeys);
+        var serEDK := SerializeEDKs(encryptedDataKeys);
         var initLen := old(|os.data|);
         && totalWritten == |serEDK|
         && initLen + totalWritten == |os.data|
         && os.data == old(os.data) + serEDK
       case Failure(e) => true
   {
-    Assume(false);  // TODO: turned off verification for now
-    var totalWritten: nat := 0;
-    ghost var initLen := |os.data|;
-    ghost var prevPos: nat := initLen;
-    ghost var currPos: nat := initLen;
+    reveal ValidEncryptedDataKeys();
 
-    {
-      Assume(|encryptedDataKeys.entries| < UINT16_LIMIT);
-      var bytes := UInt16ToArray(|encryptedDataKeys.entries| as uint16);
-      var len :- os.WriteSimple(bytes);
-      totalWritten := totalWritten + len;
-      prevPos := currPos;
-      currPos := initLen + totalWritten;
-      assert currPos - prevPos == bytes.Length;
-      assert prevPos <= currPos <= |os.data| ==> os.data[prevPos..currPos] == bytes[..];
-      assert totalWritten <= |SerializeEDK(encryptedDataKeys)|;
-    }
+    var totalWritten := 0;
+
+    var bytes := UInt16ToArray(|encryptedDataKeys.entries| as uint16);
+    var len :- os.WriteSimple(bytes);
+    totalWritten := totalWritten + len;
+    assert totalWritten == 2;
 
     var j := 0;
-    ghost var written: seq<nat> := [currPos, currPos];
+    ghost var n := |encryptedDataKeys.entries|;
     while j < |encryptedDataKeys.entries|
-      invariant j <= |encryptedDataKeys.entries|
-      invariant j < |written|
-      invariant unchanged(os`Repr)
-      invariant InBoundsEncryptedDataKeysUpTo(encryptedDataKeys.entries, j)
-      invariant ValidEncryptedDataKeys(encryptedDataKeys)
-      invariant initLen + totalWritten == currPos
-      invariant 0 <= initLen <= prevPos <= currPos <= |os.data|
-      invariant forall k :: 0 <= k < |written| ==> initLen <= written[k] <= |os.data|
-      invariant currPos-initLen <= |SerializeEDK(encryptedDataKeys)|
-      invariant SerializeEDK(encryptedDataKeys)[..currPos-initLen] == os.data[initLen..currPos]
-      invariant SerializeEDK(encryptedDataKeys)[prevPos-initLen..currPos-initLen] == os.data[prevPos..currPos];
-      invariant 1 <= j ==> os.data[initLen..written[j]] == os.data[initLen..written[j-1]] + SerializeEDKEntries(encryptedDataKeys.entries[..j])
+      invariant j <= n == |encryptedDataKeys.entries|
+      invariant os.data ==
+        old(os.data) +
+        UInt16ToSeq(n as uint16) +
+        SerializeEDKEntries(encryptedDataKeys.entries, 0, j);
+      invariant totalWritten == 2 + |SerializeEDKEntries(encryptedDataKeys.entries, 0, j)|
     {
       var entry := encryptedDataKeys.entries[j];
-      {
-        Assume(|entry.providerID| < UINT16_LIMIT);
-        var bytes := UInt16ToArray(|entry.providerID| as uint16);
-        var len :- os.WriteSimple(bytes);
-        totalWritten := totalWritten + len;
-        prevPos := currPos;
-        currPos := initLen + totalWritten;
-        Assume(prevPos <= currPos <= |os.data| ==> os.data[prevPos..currPos] == bytes[..]);
-        assert prevPos <= currPos <= |os.data| ==> os.data[prevPos..currPos] == bytes[..];
-      }
 
-      {
-        var bytes := StringToByteSeq(entry.providerID);
-        var len :- os.WriteSimpleSeq(bytes);
-        totalWritten := totalWritten + len;
-        prevPos := currPos;
-        currPos := initLen + totalWritten;
-        assert currPos - prevPos == |bytes|;
-        Assume(prevPos <= currPos <= |os.data| ==> os.data[prevPos..currPos] == bytes[..]);
-        assert prevPos <= currPos <= |os.data| ==> os.data[prevPos..currPos] == bytes[..];
-      }
+      bytes := UInt16ToArray(|entry.providerID| as uint16);
+      len :- os.WriteSimple(bytes);
+      totalWritten := totalWritten + len;
 
-      {
-        Assume(|entry.providerInfo| < UINT16_LIMIT);
-        var bytes := UInt16ToArray(|entry.providerInfo| as uint16);
-        var len :- os.WriteSimple(bytes);
-        totalWritten := totalWritten + len;
-        prevPos := currPos;
-        currPos := initLen + totalWritten;
-        assert currPos - prevPos == bytes.Length;
-        Assume(prevPos <= currPos <= |os.data| ==> os.data[prevPos..currPos] == bytes[..]);
-        assert prevPos <= currPos <= |os.data| ==> os.data[prevPos..currPos] == bytes[..];
-      }
+      var byteSeq := StringToByteSeq(entry.providerID);
+      len :- os.WriteSimpleSeq(byteSeq);
+      totalWritten := totalWritten + len;
 
-      {
-        var bytes := entry.providerInfo;
-        var len :- os.WriteSimpleSeq(bytes);
-        totalWritten := totalWritten + len;
-        prevPos := currPos;
-        currPos := initLen + totalWritten;
-        assert currPos - prevPos == |bytes|;
-        Assume(prevPos <= currPos <= |os.data| ==> os.data[prevPos..currPos] == bytes[..]);
-        assert prevPos <= currPos <= |os.data| ==> os.data[prevPos..currPos] == bytes[..];
-      }
+      bytes := UInt16ToArray(|entry.providerInfo| as uint16);
+      len :- os.WriteSimple(bytes);
+      totalWritten := totalWritten + len;
 
-      {
-        Assume(|entry.ciphertext| < UINT16_LIMIT);
-        var bytes := UInt16ToArray(|entry.ciphertext| as uint16);
-        var len :- os.WriteSimple(bytes);
-        totalWritten := totalWritten + len;
-        prevPos := currPos;
-        currPos := initLen + totalWritten;
-        assert currPos - prevPos == bytes.Length;
-        Assume(prevPos <= currPos <= |os.data| ==> os.data[prevPos..currPos] == bytes[..]);
-        assert prevPos <= currPos <= |os.data| ==> os.data[prevPos..currPos] == bytes[..];
-      }
+      len :- os.WriteSimpleSeq(entry.providerInfo);
+      totalWritten := totalWritten + len;
 
-      {
-        var bytes := entry.ciphertext;
-        var len :- os.WriteSimpleSeq(bytes);
-        totalWritten := totalWritten + len;
-        prevPos := currPos;
-        currPos := initLen + totalWritten;
-        assert currPos - prevPos == |bytes|;
-        Assume(prevPos <= currPos <= |os.data| ==> os.data[prevPos..currPos] == bytes[..]);
-        assert prevPos <= currPos <= |os.data| ==> os.data[prevPos..currPos] == bytes[..];
-      }
-      written := written + [currPos];
+      bytes := UInt16ToArray(|entry.ciphertext| as uint16);
+      len :- os.WriteSimple(bytes);
+      totalWritten := totalWritten + len;
+
+      len :- os.WriteSimpleSeq(entry.ciphertext);
+      totalWritten := totalWritten + len;
+
       j := j + 1;
-      Assume(ValidEncryptedDataKeys(encryptedDataKeys));
     }
 
-    Assume(totalWritten == |SerializeEDK(encryptedDataKeys)|);
-    Assume(initLen+totalWritten == |os.data|);
-    Assume(os.data == old(os.data) + SerializeEDK(encryptedDataKeys));
     return Success(totalWritten);
   }
 }

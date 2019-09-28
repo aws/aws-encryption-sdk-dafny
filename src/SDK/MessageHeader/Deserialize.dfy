@@ -24,9 +24,6 @@ module MessageHeader.Deserialize {
   import opened UInt = StandardLibrary.UInt
   import UTF8
 
-  lemma {:axiom} Assume(b: bool)
-    ensures b
-
   /*
    * Message header-specific
    */
@@ -142,68 +139,64 @@ module MessageHeader.Deserialize {
     reveal ValidAAD();
 
     var bytes :- DeserializeUnrestricted(is, 2);
-    var kvPairsLength := ArrayToUInt16(bytes);
-    if kvPairsLength == 0 {
+    var aadLength := ArrayToUInt16(bytes);
+    if aadLength == 0 {
       return Success(EmptyAAD);
+    } else if aadLength < 2 {
+      return Failure("Deserialization Error: The number of bytes in encryption context exceeds the given length.");
     }
     var totalBytesRead := 0;
 
-    var kvPairsCount: uint16;
     bytes :- DeserializeUnrestricted(is, 2);
-    kvPairsCount := ArrayToUInt16(bytes);
+    var kvPairsCount := ArrayToUInt16(bytes) as nat;
     totalBytesRead := totalBytesRead + bytes.Length;
-    if kvPairsLength > 0 && kvPairsCount == 0 {
+    if kvPairsCount == 0 {
       return Failure("Deserialization Error: Key value pairs count is 0.");
     }
-    assert kvPairsLength > 0 ==> kvPairsCount > 0;
 
     // TODO: declare this array, make kvPairs a ghost, maintain invariant that sequence is a prefix of the array:
     // var kvPairsArray: array<(seq<uint8>, seq<uint8>)> := new [kvPairsCount];
     var kvPairs: seq<(seq<uint8>, seq<uint8>)> := [];
-    assert kvPairsCount > 0;
-
-    var i := 0;
+    var i: nat := 0;
     while i < kvPairsCount
       invariant is.Valid()
       invariant |kvPairs| == i as int
       invariant i <= kvPairsCount
-      invariant InBoundsKVPairsUpTo(kvPairs, i as nat)
-      invariant Utils.SortedKVPairsUpTo(kvPairs, i as nat)
-      invariant forall j :: 0 <= j < i ==> UTF8.ValidUTF8Seq(kvPairs[j].0)
-      invariant forall j :: 0 <= j < i ==> UTF8.ValidUTF8Seq(kvPairs[j].1)
+      invariant totalBytesRead == 2 + KVPairsLength(kvPairs, 0, i) <= aadLength as nat
+      invariant kvPairs == [] || ValidAAD(AAD(kvPairs))
     {
-      var keyLength: uint16;
       bytes :- DeserializeUnrestricted(is, 2);
-      keyLength := ArrayToUInt16(bytes);
+      var keyLength := ArrayToUInt16(bytes);
       totalBytesRead := totalBytesRead + bytes.Length;
 
       bytes :- DeserializeUTF8(is, keyLength as nat);
       UTF8.ValidUTF8ArraySeq(bytes);
       var key := bytes[..];
       totalBytesRead := totalBytesRead + bytes.Length;
-      assert |key| < UINT16_LIMIT;
-      assert UTF8.ValidUTF8Seq(key);
 
       bytes :- DeserializeUnrestricted(is, 2);
       var valueLength := ArrayToUInt16(bytes);
       totalBytesRead := totalBytesRead + bytes.Length;
+      // check that we're not exceeding the stated AAD length
+      if aadLength as nat < totalBytesRead + valueLength as nat {
+        return Failure("Deserialization Error: The number of bytes in encryption context exceeds the given length.");
+      }
 
       bytes :- DeserializeUTF8(is, valueLength as nat);
       UTF8.ValidUTF8ArraySeq(bytes);
       var value := bytes[..];
       totalBytesRead := totalBytesRead + bytes.Length;
-      assert |value| < UINT16_LIMIT;
-      assert UTF8.ValidUTF8Seq(value);
 
       // check for sortedness by key
       if i != 0 && !LexCmpSeqs(kvPairs[i - 1].0, key, UInt8Less) {
         return Failure("Deserialization Error: Key-value pairs must be sorted by key.");
       }
+
+      KVPairsLengthExtend(kvPairs, key, value);
       kvPairs := kvPairs + [(key, value)];
-      assert Utils.SortedKVPairsUpTo(kvPairs, (i+1) as nat);
       i := i + 1;
     }
-    if (kvPairsLength as nat) != totalBytesRead {
+    if aadLength as nat != totalBytesRead {
       return Failure("Deserialization Error: Bytes actually read differs from bytes supposed to be read.");
     }
     return Success(AAD(kvPairs));
@@ -231,7 +224,8 @@ module MessageHeader.Deserialize {
     while i < edkCount
       invariant is.Valid()
       invariant i <= edkCount
-      invariant InBoundsEncryptedDataKeys(edkEntries)
+      invariant |edkEntries| == i as int
+      invariant forall i :: 0 <= i < |edkEntries| ==> edkEntries[i].Valid()
     {
       // Key provider ID
       var keyProviderIDLength: uint16;

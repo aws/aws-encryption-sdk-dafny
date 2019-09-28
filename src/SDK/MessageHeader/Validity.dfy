@@ -45,45 +45,80 @@ module MessageHeader.Validity {
     algorithmSuiteID in AlgorithmSuite.Suite.Keys
   }
 
-  predicate InBoundsKVPairsUpTo(kvPairs: EncCtx, j: nat)
-    requires j <= |kvPairs|
+  predicate ValidKVPair(kvPair: (seq<uint8>, seq<uint8>)) {
+    && |kvPair.0| < UINT16_LIMIT
+    && |kvPair.1| < UINT16_LIMIT
+    && UTF8.ValidUTF8Seq(kvPair.0)
+    && UTF8.ValidUTF8Seq(kvPair.1)
+  }
+
+  function KVPairsLength(kvPairs: EncCtx, lo: nat, hi: nat): nat
+    requires lo <= hi <= |kvPairs|
   {
-    forall i :: 0 <= i < j ==>
-      && |kvPairs[i].0| < UINT16_LIMIT
-      && |kvPairs[i].1| < UINT16_LIMIT
+    if lo == hi then 0 else
+      KVPairsLength(kvPairs, lo, hi - 1) +
+      2 + |kvPairs[hi - 1].0| +
+      2 + |kvPairs[hi - 1].1|
   }
 
-  predicate InBoundsKVPairs(kvPairs: EncCtx) {
-    && |kvPairs| < UINT16_LIMIT
-    && InBoundsKVPairsUpTo(kvPairs, |kvPairs|)
+  lemma KVPairsLengthSplit(kvPairs: EncCtx, lo: nat, mid: nat, hi: nat)
+    requires lo <= mid <= hi <= |kvPairs|
+    ensures KVPairsLength(kvPairs, lo, hi)
+         == KVPairsLength(kvPairs, lo, mid) + KVPairsLength(kvPairs, mid, hi)
+  {
   }
 
-  predicate ValidKVPairs(kvPairs: EncCtx) {
-    forall i :: 0 <= i < |kvPairs| ==> UTF8.ValidUTF8Seq(kvPairs[i].0) && UTF8.ValidUTF8Seq(kvPairs[i].1)
+  lemma KVPairsLengthPrefix(kvPairs: EncCtx, more: EncCtx)
+    ensures KVPairsLength(kvPairs + more, 0, |kvPairs|) == KVPairsLength(kvPairs, 0, |kvPairs|)
+  {
+    var n := |kvPairs|;
+    if n == 0 {
+    } else {
+      var last := kvPairs[n - 1];
+      calc {
+        KVPairsLength(kvPairs + more, 0, n);
+      ==  // def. KVPairsLength
+        KVPairsLength(kvPairs + more, 0, n - 1) + 4 + |last.0| + |last.1|;
+      ==  { assert kvPairs + more == kvPairs[..n - 1] + ([last] + more); }
+        KVPairsLength(kvPairs[..n - 1] + ([last] + more), 0, n - 1) + 4 + |last.0| + |last.1|;
+      ==  { KVPairsLengthPrefix(kvPairs[..n - 1], [last] + more); }
+        KVPairsLength(kvPairs[..n - 1], 0, n - 1) + 4 + |last.0| + |last.1|;
+      ==  { KVPairsLengthPrefix(kvPairs[..n - 1], [last] + more); }
+        KVPairsLength(kvPairs[..n - 1] + [last], 0, n - 1) + 4 + |last.0| + |last.1|;
+      ==  { assert kvPairs[..n - 1] + [last] == kvPairs; }
+        KVPairsLength(kvPairs, 0, n - 1) + 4 + |last.0| + |last.1|;
+      ==  // def. KVPairsLength
+        KVPairsLength(kvPairs, 0, n);
+      }
+    }
+  }
+
+  lemma KVPairsLengthExtend(kvPairs: EncCtx, key: seq<uint8>, value: seq<uint8>)
+    ensures KVPairsLength(kvPairs + [(key, value)], 0, |kvPairs| + 1)
+         == KVPairsLength(kvPairs, 0, |kvPairs|) + 4 + |key| + |value|
+  {
+    KVPairsLengthPrefix(kvPairs, [(key, value)]);
+  }
+
+  function AADLength(aad: T_AAD): nat {
+    match aad
+    case AAD(kvPairs) => 2 + KVPairsLength(kvPairs, 0, |kvPairs|)
+    case EmptyAAD() => 0
   }
 
   predicate {:opaque} ValidAAD(aad: T_AAD) {
     match aad
     case AAD(kvPairs) =>
-      && 0 < |kvPairs|
-      && InBoundsKVPairs(kvPairs)
-      && ValidKVPairs(kvPairs)
+      && 0 < |kvPairs| < UINT16_LIMIT
+      && (forall i :: 0 <= i < |kvPairs| ==> ValidKVPair(kvPairs[i]))
       && Utils.SortedKVPairs(kvPairs)
+      && AADLength(aad) < UINT16_LIMIT
     case EmptyAAD() => true
   }
 
-  predicate InBoundsEncryptedDataKeysUpTo(entries: seq<EDKEntry>, j: nat)
-    requires j <= |entries|
-  {
-    forall i :: 0 <= i < j ==> entries[i].Valid()
-  }
-
-  predicate InBoundsEncryptedDataKeys(edks: seq<EDKEntry>) {
-    InBoundsEncryptedDataKeysUpTo(edks, |edks|)
-  }
-
   predicate {:opaque} ValidEncryptedDataKeys(encryptedDataKeys: T_EncryptedDataKeys) {
-    && InBoundsEncryptedDataKeys(encryptedDataKeys.entries)
+    && |encryptedDataKeys.entries| < UINT16_LIMIT
+    && (forall i :: 0 <= i < |encryptedDataKeys.entries| ==> encryptedDataKeys.entries[i].Valid())
     // TODO: well-formedness of EDK
     /*
     Key Provider ID
