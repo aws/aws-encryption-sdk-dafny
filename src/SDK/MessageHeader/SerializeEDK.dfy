@@ -44,7 +44,6 @@ module MessageHeader.SerializeEDK {
     requires os.Valid() && ValidEncryptedDataKeys(encryptedDataKeys)
     modifies os`data
     ensures os.Valid() && ValidEncryptedDataKeys(encryptedDataKeys)
-    //ensures old(|os.data|) <= |os.data|
     ensures match ret
       case Success(totalWritten) =>
         var serEDK := SerializeEDKs(encryptedDataKeys);

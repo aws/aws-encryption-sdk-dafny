@@ -100,20 +100,16 @@ module MessageHeader.Validity {
     KVPairsLengthPrefix(kvPairs, [(key, value)]);
   }
 
-  function AADLength(aad: T_AAD): nat {
-    match aad
-    case AAD(kvPairs) => 2 + KVPairsLength(kvPairs, 0, |kvPairs|)
-    case EmptyAAD() => 0
+  function AADLength(kvPairs: T_AAD): nat {
+    if |kvPairs| == 0 then 0 else
+      2 + KVPairsLength(kvPairs, 0, |kvPairs|)
   }
 
-  predicate {:opaque} ValidAAD(aad: T_AAD) {
-    match aad
-    case AAD(kvPairs) =>
-      && 0 < |kvPairs| < UINT16_LIMIT
-      && (forall i :: 0 <= i < |kvPairs| ==> ValidKVPair(kvPairs[i]))
-      && Utils.SortedKVPairs(kvPairs)
-      && AADLength(aad) < UINT16_LIMIT
-    case EmptyAAD() => true
+  predicate {:opaque} ValidAAD(kvPairs: T_AAD) {
+    && |kvPairs| < UINT16_LIMIT
+    && (forall i :: 0 <= i < |kvPairs| ==> ValidKVPair(kvPairs[i]))
+    && Utils.SortedKVPairs(kvPairs)
+    && AADLength(kvPairs) < UINT16_LIMIT
   }
 
   predicate {:opaque} ValidEncryptedDataKeys(encryptedDataKeys: T_EncryptedDataKeys) {

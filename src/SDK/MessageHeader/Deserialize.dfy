@@ -141,7 +141,7 @@ module MessageHeader.Deserialize {
     var bytes :- DeserializeUnrestricted(is, 2);
     var aadLength := ArrayToUInt16(bytes);
     if aadLength == 0 {
-      return Success(EmptyAAD);
+      return Success([]);
     } else if aadLength < 2 {
       return Failure("Deserialization Error: The number of bytes in encryption context exceeds the given length.");
     }
@@ -163,7 +163,7 @@ module MessageHeader.Deserialize {
       invariant |kvPairs| == i as int
       invariant i <= kvPairsCount
       invariant totalBytesRead == 2 + KVPairsLength(kvPairs, 0, i) <= aadLength as nat
-      invariant kvPairs == [] || ValidAAD(AAD(kvPairs))
+      invariant ValidAAD(kvPairs)
     {
       bytes :- DeserializeUnrestricted(is, 2);
       var keyLength := ArrayToUInt16(bytes);
@@ -199,11 +199,11 @@ module MessageHeader.Deserialize {
     if aadLength as nat != totalBytesRead {
       return Failure("Deserialization Error: Bytes actually read differs from bytes supposed to be read.");
     }
-    return Success(AAD(kvPairs));
+    return Success(kvPairs);
   }
 
   // TODO: Probably this should be factored out into EDK at some point
-  method DeserializeEncryptedDataKeys(is: Streams.StringReader, ghost aad: T_AAD) returns (ret: Result<T_EncryptedDataKeys>)
+  method DeserializeEncryptedDataKeys(is: Streams.StringReader) returns (ret: Result<T_EncryptedDataKeys>)
     requires is.Valid()
     modifies is
     ensures is.Valid()
@@ -297,7 +297,7 @@ module MessageHeader.Deserialize {
     modifies is
     ensures match ret
       case Success(ivLength) => ValidIVLength(ivLength, algSuiteId)
-      case Failure(_)       => true
+      case Failure(_) => true
   {
     var ivLength :- Utils.ReadFixedLengthFromStreamOrFail(is, 1);
     if ivLength[0] == AlgorithmSuite.Suite[algSuiteId].params.ivLen {
@@ -342,7 +342,7 @@ module MessageHeader.Deserialize {
     var algorithmSuiteID :- DeserializeAlgorithmSuiteID(is);
     var messageID :- DeserializeMsgID(is);
     var aad :- DeserializeAAD(is);
-    var encryptedDataKeys :- DeserializeEncryptedDataKeys(is, aad);
+    var encryptedDataKeys :- DeserializeEncryptedDataKeys(is);
     var contentType :- DeserializeContentType(is);
     var reserved :- DeserializeReserved(is);
     var ivLength :- DeserializeIVLength(is, algorithmSuiteID);

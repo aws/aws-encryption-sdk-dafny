@@ -14,18 +14,15 @@ module MessageHeader.SerializeAAD {
 
   // ----- Specification -----
 
-  function SerializeAAD(aad: T_AAD): seq<uint8>
-    requires ValidAAD(aad)
+  function SerializeAAD(kvPairs: T_AAD): seq<uint8>
+    requires ValidAAD(kvPairs)
   {
     reveal ValidAAD();
-    match aad
-    case AAD(kvPairs) =>
-      var n := |kvPairs|;
-      UInt16ToSeq(AADLength(aad) as uint16) +
+    UInt16ToSeq(AADLength(kvPairs) as uint16) +
+    var n := |kvPairs|;
+    if n == 0 then [] else
       UInt16ToSeq(n as uint16) +
       SerializeKVPairs(kvPairs, 0, n)
-    case EmptyAAD() =>
-      UInt16ToSeq(0)
   }
 
   function SerializeKVPairs(kvPairs: EncCtx, lo: nat, hi: nat): seq<uint8>
@@ -45,28 +42,27 @@ module MessageHeader.SerializeAAD {
   // Function AADLength is defined without referring to SerializeAAD (because then
   // these two would be mutually recursive with ValidAAD). The following lemma proves
   // that the two definitions correspond.
-  lemma ADDLengthCorrect(aad: T_AAD)
-    requires ValidAAD(aad)
-    ensures |SerializeAAD(aad)| == 2 + AADLength(aad)
+  lemma ADDLengthCorrect(kvPairs: T_AAD)
+    requires ValidAAD(kvPairs)
+    ensures |SerializeAAD(kvPairs)| == 2 + AADLength(kvPairs)
   {
     reveal ValidAAD();
-    match aad
-    case AAD(kvPairs) =>
-      KVPairsLengthCorrect(kvPairs, 0, |kvPairs|);
-      /**** Here's a more detailed proof:
-      var n := |kvPairs|;
+    KVPairsLengthCorrect(kvPairs, 0, |kvPairs|);
+    /**** Here's a more detailed proof:
+    var n := |kvPairs|;
+    if n != 0 {
       var s := SerializeKVPairs(kvPairs, 0, n);
       calc {
-        |SerializeAAD(aad)|;
+        |SerializeAAD(kvPairs)|;
       ==  // def. SerializeAAD
-        |UInt16ToSeq(AADLength(aad) as uint16) + UInt16ToSeq(n as uint16) + s|;
+        |UInt16ToSeq(AADLength(kvPairs) as uint16) + UInt16ToSeq(n as uint16) + s|;
       ==  // UInt16ToSeq yields length-2 sequence
         2 + 2 + |s|;
       ==  { KVPairsLengthCorrect(kvPairs, 0, n); }
         2 + 2 + KVPairsLength(kvPairs, 0, n);
       }
-      ****/
-    case EmptyAAD() =>
+    }
+    ****/
   }
 
   lemma KVPairsLengthCorrect(kvPairs: EncCtx, lo: nat, hi: nat)
@@ -99,14 +95,13 @@ module MessageHeader.SerializeAAD {
 
   // ----- Implementation -----
 
-  method SerializeAADImpl(os: Streams.StringWriter, aad: T_AAD) returns (ret: Result<nat>)
-    requires os.Valid() && ValidAAD(aad)
-    modifies os`data // do we need to establish non-aliasing with encryptedDataKeys here?
-    ensures os.Valid() && ValidAAD(aad)
-    //ensures old(|os.data|) <= |os.data|
+  method SerializeAADImpl(os: Streams.StringWriter, kvPairs: T_AAD) returns (ret: Result<nat>)
+    requires os.Valid() && ValidAAD(kvPairs)
+    modifies os`data
+    ensures os.Valid() && ValidAAD(kvPairs)
     ensures match ret
       case Success(totalWritten) =>
-        var serAAD := SerializeAAD(aad);
+        var serAAD := SerializeAAD(kvPairs);
         var initLen := old(|os.data|);
         && totalWritten == |serAAD|
         && initLen + totalWritten == |os.data|
@@ -114,76 +109,70 @@ module MessageHeader.SerializeAAD {
       case Failure(e) => true
   {
     reveal ValidAAD();
-
     var totalWritten := 0;
-    ghost var initLen := |os.data|;
 
-    match aad {
-      case AAD(kvPairs) =>
-        // Key Value Pairs Length (number of bytes of total AAD)
-        var length :- ComputeAADLength(aad);
-        var bytes := UInt16ToSeq(length);
-        var len :- os.WriteSimpleSeq(bytes);
-        totalWritten := totalWritten + len;
-        assert totalWritten == 2;
-
-        bytes := UInt16ToSeq(|kvPairs| as uint16);
-        len :- os.WriteSimpleSeq(bytes);
-        totalWritten := totalWritten + len;
-        assert totalWritten == 4;
-
-        var j := 0;
-        ghost var n := |kvPairs|;
-        while j < |kvPairs|
-          invariant j <= n == |kvPairs|
-          invariant os.data ==
-            old(os.data) +
-            UInt16ToSeq(length) +
-            UInt16ToSeq(n as uint16) +
-            SerializeKVPairs(kvPairs, 0, j)
-          invariant totalWritten == 4 + |SerializeKVPairs(kvPairs, 0, j)|
-        {
-          bytes := UInt16ToSeq(|kvPairs[j].0| as uint16);
-          len :- os.WriteSimpleSeq(bytes);
-          totalWritten := totalWritten + len;
-
-          len :- os.WriteSimpleSeq(kvPairs[j].0);
-          totalWritten := totalWritten + len;
-
-          bytes := UInt16ToSeq(|kvPairs[j].1| as uint16);
-          len :- os.WriteSimpleSeq(bytes);
-          totalWritten := totalWritten + len;
-
-          len :- os.WriteSimpleSeq(kvPairs[j].1);
-          totalWritten := totalWritten + len;
-
-          j := j + 1;
-        }
-        
-        return Success(totalWritten);
-
-      case EmptyAAD() =>
-        var bytes := UInt16ToArray(0);
-        var len :- os.WriteSimple(bytes);
-        assert len == 2;
-        return Success(len);
+    // Key Value Pairs Length (number of bytes of total AAD)
+    var length :- ComputeAADLength(kvPairs);
+    var bytes := UInt16ToSeq(length);
+    var len :- os.WriteSimpleSeq(bytes);
+    totalWritten := totalWritten + len;
+    assert totalWritten == 2;
+    if length == 0 {
+      return Success(totalWritten);
     }
+
+    bytes := UInt16ToSeq(|kvPairs| as uint16);
+    len :- os.WriteSimpleSeq(bytes);
+    totalWritten := totalWritten + len;
+    assert totalWritten == 4;
+
+    var j := 0;
+    ghost var n := |kvPairs|;
+    while j < |kvPairs|
+      invariant j <= n == |kvPairs|
+      invariant os.data ==
+        old(os.data) +
+        UInt16ToSeq(length) +
+        UInt16ToSeq(n as uint16) +
+        SerializeKVPairs(kvPairs, 0, j)
+      invariant totalWritten == 4 + |SerializeKVPairs(kvPairs, 0, j)|
+    {
+      bytes := UInt16ToSeq(|kvPairs[j].0| as uint16);
+      len :- os.WriteSimpleSeq(bytes);
+      totalWritten := totalWritten + len;
+
+      len :- os.WriteSimpleSeq(kvPairs[j].0);
+      totalWritten := totalWritten + len;
+
+      bytes := UInt16ToSeq(|kvPairs[j].1| as uint16);
+      len :- os.WriteSimpleSeq(bytes);
+      totalWritten := totalWritten + len;
+
+      len :- os.WriteSimpleSeq(kvPairs[j].1);
+      totalWritten := totalWritten + len;
+
+      j := j + 1;
+    }
+    
+    return Success(totalWritten);
   }
 
-  method ComputeAADLength(aad: T_AAD) returns (res: Result<uint16>)
-    requires aad.AAD? ==> |aad.kvPairs| < UINT16_LIMIT
-    requires aad.AAD? ==> forall i :: 0 <= i < |aad.kvPairs| ==> ValidKVPair(aad.kvPairs[i])
+  method ComputeAADLength(kvPairs: T_AAD) returns (res: Result<uint16>)
+    requires |kvPairs| < UINT16_LIMIT
+    requires forall i :: 0 <= i < |kvPairs| ==> ValidKVPair(kvPairs[i])
     ensures match res
-      case Success(len) => len as int == AADLength(aad)
-      case Failure(_) => UINT16_LIMIT <= AADLength(aad)
+      case Success(len) => len as int == AADLength(kvPairs)
+      case Failure(_) => UINT16_LIMIT <= AADLength(kvPairs)
   {
-    match aad
-    case AAD(kvPairs) =>
+    var n: int32 := |kvPairs| as int32;
+    if n == 0 {
+      return Success(0);
+    } else {
       var len: int32, limit: int32 := 2, UINT16_LIMIT as int32;
-      var i: int32, n: int32 := 0, |aad.kvPairs| as int32;
+      var i: int32 := 0;
       while i < n
-        invariant i <= n == |aad.kvPairs| as int32
-        invariant 2 + KVPairsLength(kvPairs, 0, i as int) == len as int < UINT16_LIMIT == limit as int
+        invariant i <= n
+        invariant 2 + KVPairsLength(kvPairs, 0, i as int) == len as int < UINT16_LIMIT
       {
         var kvPair := kvPairs[i];
         len := len + 4 + |kvPair.0| as int32 + |kvPair.1| as int32;
@@ -194,7 +183,6 @@ module MessageHeader.SerializeAAD {
         i := i + 1;
       }
       return Success(len as uint16);
-    case EmptyAAD() =>
-      return Success(0);
+    }
   }
 }

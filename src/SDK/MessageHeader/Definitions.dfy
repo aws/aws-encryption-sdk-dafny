@@ -17,7 +17,7 @@ module MessageHeader.Definitions {
   type T_Reserved              = x: seq<uint8> | x == [0,0,0,0] witness [0,0,0,0]
   datatype T_ContentType       = NonFramed | Framed
   type EncCtx                  = Materials.EncryptionContext
-  datatype T_AAD               = AAD(kvPairs: EncCtx) | EmptyAAD
+  type T_AAD                   = EncCtx
 
   type EDKEntry                = Materials.EncryptedDataKey
   datatype T_EncryptedDataKeys = EncryptedDataKeys(entries: seq<EDKEntry>)

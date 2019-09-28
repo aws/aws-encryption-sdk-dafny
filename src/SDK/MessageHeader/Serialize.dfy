@@ -35,17 +35,14 @@ module MessageHeader.Serialize {
   method SerializeHeaderBody(os: Streams.StringWriter, hb: HeaderBody) returns (ret: Result<nat>)
     requires os.Valid() && ValidHeaderBody(hb)
     modifies os`data
-    // It's crucial to require no aliasing here
     ensures os.Valid() && ValidHeaderBody(hb)
-    // TODO: these should probably be enabled
-    //ensures old(|os.data|) <= |os.data|
     ensures match ret
       case Success(totalWritten) =>
         var serHb := (reveal Serialize(); Serialize(hb));
         var initLen := old(|os.data|);
         && totalWritten == |serHb|
-        && initLen+totalWritten == |os.data|
-        && serHb[..totalWritten] == os.data[initLen..initLen+totalWritten]
+        && initLen + totalWritten == |os.data|
+        && serHb[..totalWritten] == os.data[initLen..initLen + totalWritten]
       case Failure(e) => true
   {
     var totalWritten := 0;
