@@ -141,15 +141,10 @@ module MessageHeader.Validity {
   /*
    * Validity of the message header authentication
    */
-  predicate ValidAuthenticationTag(authenticationTag: array<uint8>, tagLength: nat, iv: array<uint8>) {
-    true
-    // TODO: strengthen the spec
-    // The algorithm suite specified by the Algorithm Suite ID field determines how the value of this field is calculated, and uses this value to authenticate the contents of the header during decryption.
-  }
-
   predicate ValidHeaderAuthentication(ha: HeaderAuthentication, algorithmSuiteID: AlgorithmSuite.ID)
     requires algorithmSuiteID in AlgorithmSuite.Suite.Keys
   {
-    ValidAuthenticationTag(ha.authenticationTag, AlgorithmSuite.Suite[algorithmSuiteID].params.tagLen as nat, ha.iv)
+    |ha.authenticationTag| == AlgorithmSuite.Suite[algorithmSuiteID].params.tagLen as int &&
+    |ha.iv| == AlgorithmSuite.Suite[algorithmSuiteID].params.ivLen as int
   }
 }

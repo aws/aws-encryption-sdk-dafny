@@ -36,5 +36,5 @@ module MessageHeader.Definitions {
   * Header authentication type definition
   */
 
-  datatype HeaderAuthentication = HeaderAuthentication(iv: array<uint8>, authenticationTag: array<uint8>)
+  datatype HeaderAuthentication = HeaderAuthentication(iv: seq<uint8>, authenticationTag: seq<uint8>)
 }

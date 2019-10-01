@@ -40,9 +40,8 @@ module MessageHeader {
       var res := D.DeserializeHeaderBody(is);
       match res {
         case Success(body_) =>
-          // How does Dafny know the following assertion holds with Validity.ValidHeaderBody being opaque?
           assert body_.algorithmSuiteID in AlgorithmSuite.Suite.Keys; // nfv
-          var res := D.DeserializeAuthenticationHeader(is, body_);
+          var res := D.DeserializeHeaderAuthentication(is, body_.algorithmSuiteID);
           match res {
             case Success(auth_) =>
               body, auth := Some(body_), Some(auth_);

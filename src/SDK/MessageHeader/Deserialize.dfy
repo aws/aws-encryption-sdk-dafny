@@ -362,31 +362,18 @@ module MessageHeader.Deserialize {
     return Success(hb);
   }
 
-  method DeserializeAuthenticationTag(is: Streams.StringReader, tagLength: nat, ghost iv: array<uint8>) returns (ret: Result<array<uint8>>)
+  method DeserializeHeaderAuthentication(is: Streams.StringReader, algorithmSuiteID: AlgorithmSuite.ID) returns (ret: Result<HeaderAuthentication>)
     requires is.Valid()
+    requires algorithmSuiteID in AlgorithmSuite.Suite.Keys
     modifies is
     ensures is.Valid()
     ensures match ret
-      case Success(authenticationTag) => ValidAuthenticationTag(authenticationTag, tagLength, iv)
+      case Success(ha) => ValidHeaderAuthentication(ha, algorithmSuiteID)
       case Failure(_) => true
   {
-    ret := Utils.ReadFixedLengthFromStreamOrFail(is, tagLength);
-  }
-
-  method DeserializeAuthenticationHeader(is: Streams.StringReader, body: HeaderBody) returns (ret: Result<HeaderAuthentication>)
-    requires is.Valid()
-    requires ValidHeaderBody(body)
-    requires body.algorithmSuiteID in AlgorithmSuite.Suite.Keys
-    modifies is
-    ensures is.Valid()
-    ensures match ret
-      case Success(headerAuthentication) =>
-        && ValidHeaderAuthentication(headerAuthentication, body.algorithmSuiteID)
-        && ValidHeaderBody(body)
-      case Failure(_) => true
-  {
-    var iv :- DeserializeUnrestricted(is, body.ivLength as nat);
-    var authenticationTag :- DeserializeAuthenticationTag(is, AlgorithmSuite.Suite[body.algorithmSuiteID].params.tagLen as nat, iv);
-    return Success(HeaderAuthentication(iv, authenticationTag));
+    var params := AlgorithmSuite.Suite[algorithmSuiteID].params;
+    var iv :- DeserializeUnrestricted(is, params.ivLen as nat);
+    var authenticationTag :- DeserializeUnrestricted(is, params.tagLen as nat);
+    return Success(HeaderAuthentication(iv[..], authenticationTag[..]));
   }
 }
