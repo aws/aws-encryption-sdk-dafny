@@ -16,8 +16,6 @@ module MessageHeader.Definitions {
   type T_MessageID             = x: seq<uint8> | |x| == 16 witness [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]
   type T_Reserved              = x: seq<uint8> | x == [0,0,0,0] witness [0,0,0,0]
   datatype T_ContentType       = NonFramed | Framed
-  type EncCtx                  = Materials.EncryptionContext
-  type T_AAD                   = EncCtx
 
   type EDKEntry                = Materials.EncryptedDataKey
   datatype T_EncryptedDataKeys = EncryptedDataKeys(entries: seq<EDKEntry>)
@@ -27,7 +25,7 @@ module MessageHeader.Definitions {
                                    typ: T_Type,
                                    algorithmSuiteID: AlgorithmSuite.ID,
                                    messageID: T_MessageID,
-                                   aad: T_AAD,
+                                   aad: Materials.EncryptionContext,
                                    encryptedDataKeys: T_EncryptedDataKeys,
                                    contentType: T_ContentType,
                                    reserved: T_Reserved,

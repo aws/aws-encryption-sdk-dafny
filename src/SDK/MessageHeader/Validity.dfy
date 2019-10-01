@@ -52,7 +52,7 @@ module MessageHeader.Validity {
     && UTF8.ValidUTF8Seq(kvPair.1)
   }
 
-  function KVPairsLength(kvPairs: EncCtx, lo: nat, hi: nat): nat
+  function KVPairsLength(kvPairs: Materials.EncryptionContext, lo: nat, hi: nat): nat
     requires lo <= hi <= |kvPairs|
   {
     if lo == hi then 0 else
@@ -61,14 +61,14 @@ module MessageHeader.Validity {
       2 + |kvPairs[hi - 1].1|
   }
 
-  lemma KVPairsLengthSplit(kvPairs: EncCtx, lo: nat, mid: nat, hi: nat)
+  lemma KVPairsLengthSplit(kvPairs: Materials.EncryptionContext, lo: nat, mid: nat, hi: nat)
     requires lo <= mid <= hi <= |kvPairs|
     ensures KVPairsLength(kvPairs, lo, hi)
          == KVPairsLength(kvPairs, lo, mid) + KVPairsLength(kvPairs, mid, hi)
   {
   }
 
-  lemma KVPairsLengthPrefix(kvPairs: EncCtx, more: EncCtx)
+  lemma KVPairsLengthPrefix(kvPairs: Materials.EncryptionContext, more: Materials.EncryptionContext)
     ensures KVPairsLength(kvPairs + more, 0, |kvPairs|) == KVPairsLength(kvPairs, 0, |kvPairs|)
   {
     var n := |kvPairs|;
@@ -93,19 +93,19 @@ module MessageHeader.Validity {
     }
   }
 
-  lemma KVPairsLengthExtend(kvPairs: EncCtx, key: seq<uint8>, value: seq<uint8>)
+  lemma KVPairsLengthExtend(kvPairs: Materials.EncryptionContext, key: seq<uint8>, value: seq<uint8>)
     ensures KVPairsLength(kvPairs + [(key, value)], 0, |kvPairs| + 1)
          == KVPairsLength(kvPairs, 0, |kvPairs|) + 4 + |key| + |value|
   {
     KVPairsLengthPrefix(kvPairs, [(key, value)]);
   }
 
-  function AADLength(kvPairs: T_AAD): nat {
+  function AADLength(kvPairs: Materials.EncryptionContext): nat {
     if |kvPairs| == 0 then 0 else
       2 + KVPairsLength(kvPairs, 0, |kvPairs|)
   }
 
-  predicate {:opaque} ValidAAD(kvPairs: T_AAD) {
+  predicate {:opaque} ValidAAD(kvPairs: Materials.EncryptionContext) {
     && |kvPairs| < UINT16_LIMIT
     && (forall i :: 0 <= i < |kvPairs| ==> ValidKVPair(kvPairs[i]))
     && Utils.SortedKVPairs(kvPairs)

@@ -127,8 +127,8 @@ module MessageHeader.Deserialize {
     ret := Utils.ReadFixedLengthFromStreamOrFail(is, n);
   }
 
-  // TODO: Probably this should be factored out into EncCtx at some point
-  method DeserializeAAD(is: Streams.StringReader) returns (ret: Result<T_AAD>)
+  // TODO: Probably this should be factored out into Materials.EncryptionContext at some point
+  method DeserializeAAD(is: Streams.StringReader) returns (ret: Result<Materials.EncryptionContext>)
     requires is.Valid()
     modifies is
     ensures is.Valid()

@@ -14,7 +14,7 @@ module MessageHeader.SerializeAAD {
 
   // ----- Specification -----
 
-  function SerializeAAD(kvPairs: T_AAD): seq<uint8>
+  function SerializeAAD(kvPairs: Materials.EncryptionContext): seq<uint8>
     requires ValidAAD(kvPairs)
   {
     reveal ValidAAD();
@@ -25,7 +25,7 @@ module MessageHeader.SerializeAAD {
       SerializeKVPairs(kvPairs, 0, n)
   }
 
-  function SerializeKVPairs(kvPairs: EncCtx, lo: nat, hi: nat): seq<uint8>
+  function SerializeKVPairs(kvPairs: Materials.EncryptionContext, lo: nat, hi: nat): seq<uint8>
     requires forall i :: 0 <= i < |kvPairs| ==> ValidKVPair(kvPairs[i])
     requires lo <= hi <= |kvPairs|
   {
@@ -42,7 +42,7 @@ module MessageHeader.SerializeAAD {
   // Function AADLength is defined without referring to SerializeAAD (because then
   // these two would be mutually recursive with ValidAAD). The following lemma proves
   // that the two definitions correspond.
-  lemma ADDLengthCorrect(kvPairs: T_AAD)
+  lemma ADDLengthCorrect(kvPairs: Materials.EncryptionContext)
     requires ValidAAD(kvPairs)
     ensures |SerializeAAD(kvPairs)| == 2 + AADLength(kvPairs)
   {
@@ -65,7 +65,7 @@ module MessageHeader.SerializeAAD {
     ****/
   }
 
-  lemma KVPairsLengthCorrect(kvPairs: EncCtx, lo: nat, hi: nat)
+  lemma KVPairsLengthCorrect(kvPairs: Materials.EncryptionContext, lo: nat, hi: nat)
     requires forall i :: 0 <= i < |kvPairs| ==> ValidKVPair(kvPairs[i])
     requires lo <= hi <= |kvPairs|
     ensures |SerializeKVPairs(kvPairs, lo, hi)| == KVPairsLength(kvPairs, lo, hi)
@@ -95,7 +95,7 @@ module MessageHeader.SerializeAAD {
 
   // ----- Implementation -----
 
-  method SerializeAADImpl(os: Streams.StringWriter, kvPairs: T_AAD) returns (ret: Result<nat>)
+  method SerializeAADImpl(os: Streams.StringWriter, kvPairs: Materials.EncryptionContext) returns (ret: Result<nat>)
     requires os.Valid() && ValidAAD(kvPairs)
     modifies os`data
     ensures os.Valid() && ValidAAD(kvPairs)
@@ -157,7 +157,7 @@ module MessageHeader.SerializeAAD {
     return Success(totalWritten);
   }
 
-  method ComputeAADLength(kvPairs: T_AAD) returns (res: Result<uint16>)
+  method ComputeAADLength(kvPairs: Materials.EncryptionContext) returns (res: Result<uint16>)
     requires |kvPairs| < UINT16_LIMIT
     requires forall i :: 0 <= i < |kvPairs| ==> ValidKVPair(kvPairs[i])
     ensures match res

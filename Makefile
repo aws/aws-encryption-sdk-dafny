@@ -17,7 +17,6 @@ SRCS = \
 	   src/Crypto/Signature.dfy \
 	   src/Main.dfy \
 	   src/SDK/AlgorithmSuite.dfy \
-	   src/SDK/Client.dfy \
 	   src/SDK/CMM/DefaultCMM.dfy \
 	   src/SDK/CMM/Defs.dfy \
 	   src/SDK/Keyring/AESKeyring.dfy \
