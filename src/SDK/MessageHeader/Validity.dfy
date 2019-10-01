@@ -17,6 +17,11 @@ module MessageHeader.Validity {
    * Validity of the message header
    * The validity depends on predicates and on the types of the fields
    */
+  predicate ValidHeader(header: Header) {
+    && ValidHeaderBody(header.body)
+    && ValidHeaderAuthentication(header.auth, header.body.algorithmSuiteID)
+  }
+
   predicate {:opaque} ValidHeaderBody(hb: HeaderBody) {
     && ValidAlgorithmID(hb.algorithmSuiteID)
     && ValidMessageId(hb.messageID)

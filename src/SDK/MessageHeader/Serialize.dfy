@@ -35,14 +35,14 @@ module MessageHeader.Serialize {
   method SerializeHeaderBody(os: Streams.StringWriter, hb: HeaderBody) returns (ret: Result<nat>)
     requires os.Valid() && ValidHeaderBody(hb)
     modifies os`data
-    ensures os.Valid() && ValidHeaderBody(hb)
+    ensures os.Valid()
     ensures match ret
       case Success(totalWritten) =>
         var serHb := (reveal Serialize(); Serialize(hb));
         var initLen := old(|os.data|);
         && totalWritten == |serHb|
         && initLen + totalWritten == |os.data|
-        && serHb[..totalWritten] == os.data[initLen..initLen + totalWritten]
+        && serHb == os.data[initLen..initLen + totalWritten]
       case Failure(e) => true
   {
     var totalWritten := 0;
@@ -87,5 +87,24 @@ module MessageHeader.Serialize {
 
     reveal Serialize();
     return Success(totalWritten);
+  }
+
+  method SerializeHeaderAuthentication(os: Streams.StringWriter, ha: HeaderAuthentication, ghost algorithmSuiteID: AlgorithmSuite.ID) returns (ret: Result<nat>)
+    requires os.Valid()
+    requires ValidHeaderAuthentication(ha, algorithmSuiteID)
+    modifies os`data
+    ensures os.Valid()
+    ensures match ret
+      case Success(totalWritten) =>
+        var serHa := ha.iv + ha.authenticationTag;
+        var initLen := old(|os.data|);
+        && totalWritten == |serHa|
+        && initLen + totalWritten == |os.data|
+        && serHa == os.data[initLen..initLen + totalWritten]
+      case Failure(e) => true
+  {
+    var m :- os.WriteSimpleSeq(ha.iv);
+    var n :- os.WriteSimpleSeq(ha.authenticationTag);
+    return Success(m + n);
   }
 }

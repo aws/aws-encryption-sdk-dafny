@@ -9,8 +9,13 @@ module MessageHeader.Definitions {
   import Materials
 
   /*
-  * Header body type definition
-  */
+   * Definition of the message header, i.e., the header body and the header authentication
+   */
+  datatype Header = Header(body: HeaderBody, auth: HeaderAuthentication)
+
+  /*
+   * Header body type definition
+   */
   type T_Version               = x | x == 0x01 /*Version 1.0*/ witness 0x01
   type T_Type                  = x | x == 0x80 /*Customer Authenticated Encrypted Data*/ witness 0x80
   type T_MessageID             = x: seq<uint8> | |x| == 16 witness [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]
@@ -33,8 +38,7 @@ module MessageHeader.Definitions {
                                    frameLength: uint32)
 
   /*
-  * Header authentication type definition
-  */
-
+   * Header authentication type definition
+   */
   datatype HeaderAuthentication = HeaderAuthentication(iv: seq<uint8>, authenticationTag: seq<uint8>)
 }
