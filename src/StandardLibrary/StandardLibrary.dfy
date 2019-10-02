@@ -49,14 +49,14 @@ module {:extern "STL"} StandardLibrary {
   }
 
   predicate StringIs8Bit(s: string) {
-    forall i :: i in s ==> i < 256 as char
+    forall i :: 0 <= i < |s| ==> s[i] < 256 as char
   }
 
   function Fill<T>(value: T, n: nat): seq<T>
     ensures |Fill(value, n)| == n
     ensures forall i :: 0 <= i < n ==> Fill(value, n)[i] == value
   {
-    if n > 0 then [value] + Fill(value, n-1) else []
+    seq(n, _ => value)
   }
 
   method array_of_seq<T> (s : seq<T>)  returns (a : array<T>)
@@ -68,27 +68,23 @@ module {:extern "STL"} StandardLibrary {
   }
 
   function method {:opaque} StringToByteSeq(s: string): (s': seq<uint8>)
-    requires forall i :: i in s ==> i < 256 as char
+    requires StringIs8Bit(s)
     ensures |s| == |s'| 
   {
-      if s == [] then [] else  (
-        assert (forall i :: i in s[1..] ==> i in s);
-        [(s[0] as int % 256) as uint8] + StringToByteSeq(s[1..]))
+    seq(|s|, i requires 0 <= i < |s| => s[i] as uint8)
   }
 
-  function method {:opaque} byteseq_of_string_lossy (s : string) : (s' : seq<uint8>)
+  function method {:opaque} StringToByteSeqLossy(s: string): (s': seq<uint8>)
     ensures |s| == |s'|
   {
-      if s == [] then [] else  (
-        assert (forall i :: i in s[1..] ==> i in s);
-        [(s[0] as int % 256) as uint8] + byteseq_of_string_lossy(s[1..]))
+    seq(|s|, i requires 0 <= i < |s| => (s[i] as uint16 % 256) as uint8)
   }
 
   function method {:opaque} ByteSeqToString(s: seq<uint8>): (s': string)
     ensures |s| == |s'|
-    ensures forall i :: i in s' ==> i < 256 as char
+    ensures StringIs8Bit(s')
   {
-      if s == [] then [] else [(s[0] as char)] + ByteSeqToString(s[1..])
+    seq(|s|, i requires 0 <= i < |s| => s[i] as char)
   }
 
   lemma StringByteSeqCorrect(s: string)
@@ -120,134 +116,108 @@ module {:extern "STL"} StandardLibrary {
     }
   }
 
-  datatype gtag<A, B> = tagged(val : A, ghost tagged :  B)
-    function method val<A, B>(p : gtag<A,B>) : A {
-        match p
-            case tagged(x,y) => x
-    }
-
-    function tag<A, B>(p: gtag<A,B>) : B {
-        match p
-            case tagged(x,y) => y
-    }
-
   class mut<T> {
-      var x : T
-      constructor (y : T) ensures (this.x == y) {
-          this.x := y;
-      }
-      method put(y : T) modifies this ensures (this.x == y) {
-          this.x := y;
-      }
-      function method  get() : (y : T) reads this ensures (y == this.x) {
-          this.x
-      }
+    var x: T
+    constructor (y: T)
+      ensures x == y
+    {
+      x := y;
+    }
+    method put(y: T)
+      modifies this
+      ensures x == y
+    {
+      x := y;
+    }
+    function method get(): (y: T)
+      reads this
+      ensures y == x
+    {
+      x
+    }
   }
 
-  function method odflt<T> (o : Option<T>, x : T) : T {
-    match o
-      case Some(a) => a
-      case None => x
-  }
-
-  function method isSome<T> (o : Option<T>) : bool {
-    match o
-      case Some(_) => true
-      case None => false
-  }
-
-  function method isNone<T> (o : Option<T>) : bool {
-    match o
-      case Some(_) => false
-      case None => true
-  }
-
-  predicate method uniq<T(==)>(s : seq<T>) {
+  predicate method uniq<T(==)>(s: seq<T>) {
     if s == [] then true else if s[0] in s[1..] then false else uniq(s[1..])
   }
 
-  lemma uniq_idxP<T>(s : seq<T>)
-    ensures uniq(s) <==> (forall i, j :: 0 <= i < j < |s| ==> s[i] != s[j]) {
-
+  lemma uniq_idxP<T>(s: seq<T>)
+    ensures uniq(s) <==> (forall i, j :: 0 <= i < j < |s| ==> s[i] != s[j])
+  {
   }
 
   // TODO
-  lemma {:axiom} uniq_multisetP<T> (s : seq<T>)
+  lemma {:axiom} uniq_multisetP<T>(s: seq<T>)
     ensures uniq(s) <==> (forall x :: x in s ==> multiset(s)[x] == 1)
 
-  function method sum<T>(s : seq<T>, f : T -> int) : int {
-      if s == [] then 0 else f(s[0]) + sum(s[1..], f)
+  function method sum<T>(s: seq<T>, f: T -> int): int {
+    if s == [] then 0 else f(s[0]) + sum(s[1..], f)
   }
 
-  lemma {:axiom} sum_perm<T> (s : seq <T>, s' : seq<T>, f : T -> int)
-      requires multiset(s) == multiset(s')
-      ensures sum(s, f) == sum(s', f)
+  lemma {:axiom} sum_perm<T>(s: seq <T>, s': seq<T>, f: T -> int)
+    requires multiset(s) == multiset(s')
+    ensures sum(s, f) == sum(s', f)
 
 
-  function count<T> (s : seq<T>, x : T) : int {
+  function count<T>(s: seq<T>, x: T): int {
     if s == [] then 0 else (if s[0] == x then 1 else 0) + count(s[1..], x)
   }
 
-  lemma count_ge0<T> (s : seq<T>, x : T)
-    ensures 0 <= count(s, x) {
-      if s == [] { }
-      else {
-        assert count(s, x) == (if x == s[0] then 1 else 0) + count(s[1..], x);
-        count_ge0(s[1..], x);
-      }
+  lemma count_ge0<T>(s: seq<T>, x: T)
+    ensures 0 <= count(s, x)
+  {
+    if s == [] {
+    } else {
+      assert count(s, x) == (if x == s[0] then 1 else 0) + count(s[1..], x);
+      count_ge0(s[1..], x);
     }
+  }
 
-  lemma count_nil<T> (x : T)
-    ensures count([], x) == 0 { }
+  lemma count_nil<T>(x: T)
+    ensures count([], x) == 0
+  { }
 
-  lemma in_count_gt0P<T> (s : seq<T>, x : T)
-    ensures (x in s) <==> (count(s, x) > 0) {
-      if s == [] { }
-      else {
-        if s[0] == x {
-          count_ge0(s[1..], x);
-        }
-        else { }
-      }
+  lemma in_count_gt0P<T>(s: seq<T>, x: T)
+    ensures (x in s) <==> (count(s, x) > 0)
+  {
+    if s != [] && s[0] == x {
+      count_ge0(s[1..], x);
     }
+  }
 
-  lemma count_idx_gt0P<T> (s : seq<T>, i : int)
-    requires (0 <= i < |s|)
-    ensures count(s, s[i]) > 0 {
-      assert s[i] in s;
-      in_count_gt0P(s, s[i]);
+  lemma count_idx_gt0P<T>(s: seq<T>, i: int)
+    requires 0 <= i < |s|
+    ensures count(s, s[i]) > 0
+  {
+    assert s[i] in s;
+    in_count_gt0P(s, s[i]);
+  }
+
+  lemma count_eq0P<T>(s: seq<T>, x: T)
+    ensures (x !in s) <==> (count(s, x) == 0)
+  {
+    if s != [] && s[0] == x {
+      assert s[0] in s;
+      assert x in s;
+      count_ge0(s[1..], x);
     }
+  }
 
-  lemma count_eq0P<T> (s : seq<T>, x : T)
-    ensures (x !in s) <==> (count(s, x) == 0) {
-      if s == [] { }
-      else {
-        if s[0] == x {
-          assert s[0] in s;
-          assert x in s;
-          count_ge0(s[1..], x);
-        }
-        else { }
-      }
-    }
-
-  lemma uniq_count_le1<T> (s : seq<T>, x : T)
+  lemma uniq_count_le1<T>(s: seq<T>, x: T)
     requires uniq(s)
-    ensures count(s, x) <= 1 {
-      if s == [] { }
-      else {
-        if s[0] == x {
-          assert (s[0] !in s[1..]);
-          count_eq0P(s[1..], x);
-        }
-        else { }
-      }
+    ensures count(s, x) <= 1
+  {
+    if s != [] && s[0] == x {
+      assert (s[0] !in s[1..]);
+      count_eq0P(s[1..], x);
     }
+  }
 
-  lemma multiset_seq_count<T> (s : seq<T>, x : T)
-  ensures multiset(s)[x] == count(s, x) {
-    if s == [] { }
-    else {
+  lemma multiset_seq_count<T>(s: seq<T>, x: T)
+    ensures multiset(s)[x] == count(s, x)
+  {
+    if s == [] {
+    } else {
       assert s == [s[0]] + s[1..];
       assert multiset(s) == multiset{s[0]} + multiset(s[1..]);
       assert multiset(s)[x] == multiset{s[0]}[x] + multiset(s[1..])[x];
@@ -256,41 +226,42 @@ module {:extern "STL"} StandardLibrary {
   }
 
   // TODO
-  lemma {:axiom} multiset_seq_eq1<T> (s : seq<T>)
+  lemma {:axiom} multiset_seq_eq1<T>(s: seq<T>)
     requires forall i, j :: 0 <= i < j < |s| ==> s[i] != s[j]
     ensures forall x :: x in multiset(s) ==> multiset(s)[x] == 1
 
   // TODO
-  lemma {:axiom} multiset_of_seq_dup<T> (s : seq<T>, i : int, j : int)
-      requires 0 <= i < j < |s|
-      requires s[i] == s[j]
-      ensures multiset(s)[s[i]] > 1
+  lemma {:axiom} multiset_of_seq_dup<T>(s: seq<T>, i: int, j: int)
+    requires 0 <= i < j < |s|
+    requires s[i] == s[j]
+    ensures multiset(s)[s[i]] > 1
 
-  lemma multiset_of_seq_gt0P<T> (s : seq<T>, x : T)
+  lemma multiset_of_seq_gt0P<T>(s: seq<T>, x: T)
     requires multiset(s)[x] > 0
-    ensures exists i :: 0 <= i < |s| && s[i] == x { }
+    ensures exists i :: 0 <= i < |s| && s[i] == x
+  { }
 
   // TODO
-  lemma {:axiom} seq_dup_multset<T> (s : seq<T>, x : T)
+  lemma {:axiom} seq_dup_multset<T>(s: seq<T>, x: T)
     requires multiset(s)[x] > 1
     ensures exists i, j :: 0 <= i < j < |s| && s[i] == s[j]
 
 
-  lemma eq_multiset_seq_memP<T> (s : seq<T>, s' : seq<T>, x : T)
+  lemma eq_multiset_seq_memP<T>(s: seq<T>, s': seq<T>, x: T)
     requires multiset(s) == multiset(s')
     ensures (x in s) == (x in s')
-    {
-      if x in s {
-        assert x in multiset(s);
-        assert x in multiset(s');
-        assert x in s';
-      }
-      else {
-        assert x !in multiset(s);
-        assert x !in multiset(s');
-        assert x !in s';
-      }
+  {
+    if x in s {
+      assert x in multiset(s);
+      assert x in multiset(s');
+      assert x in s';
     }
+    else {
+      assert x !in multiset(s);
+      assert x !in multiset(s');
+      assert x !in s';
+    }
+  }
 
   function method MapSeq<S, T>(s: seq<S>, f: S ~> T): seq<T>
     requires forall i :: 0 <= i < |s| ==> f.requires(s[i])
@@ -300,36 +271,34 @@ module {:extern "STL"} StandardLibrary {
   }
 
   function method FlattenSeq<T>(s: seq<seq<T>>): seq<T> {
-      if s == []
-      then []
-      else s[0] + FlattenSeq(s[1..])
+    if s == [] then [] else s[0] + FlattenSeq(s[1..])
   }
 
-  predicate method uniq_fst<S(==), T(==)> (s : seq<(S, T)>) {
-    uniq(MapSeq(s, (x : (S, T)) => x.0))
+  predicate method uniq_fst<S(==), T(==)>(s: seq<(S, T)>) {
+    uniq(MapSeq(s, (x: (S, T)) => x.0))
   }
 
 
   // TODO
-  lemma {:axiom} uniq_fst_uniq<S, T> (s : seq<(S,T)>)
+  lemma {:axiom} uniq_fst_uniq<S, T>(s: seq<(S,T)>)
     requires uniq_fst(s)
     ensures uniq(s)
 
   // TODO
-  lemma {:axiom} uniq_fst_idxP<S, T> (s : seq<(S, T)>)
+  lemma {:axiom} uniq_fst_idxP<S, T>(s: seq<(S, T)>)
     requires uniq_fst(s)
     ensures forall i, j :: 0 <= i < j < |s| ==> s[i].0 != s[j].0
 
   function method min(a: int, b: int): int {
-    if a < b then a else b }
+    if a < b then a else b
+  }
 
-  method values<A,B>(m: map<A,B>) returns (vals: seq<B>)
-  {
+  method values<A,B>(m: map<A,B>) returns (vals: seq<B>) {
     var keys := m.Keys;
     vals := [];
     while keys != {}
-      decreases keys
       invariant |keys| + |vals| == |m.Keys|
+      decreases keys
     {
       var a :| a in keys;
       keys := keys - {a};
