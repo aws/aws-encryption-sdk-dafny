@@ -1,6 +1,7 @@
 include "Definitions.dfy"
 include "Utils.dfy"
 include "Validity.dfy"
+include "../Materials.dfy"
 
 include "../AlgorithmSuite.dfy"
 include "../../Util/Streams.dfy"
@@ -14,8 +15,8 @@ include "../../Util/UTF8.dfy"
  * When encountering an error, we stop and return it immediately, leaving the remaining inputs on the stream
  */
 module MessageHeader.Deserialize {
-  import opened Definitions
-  import opened Validity
+  import Msg = Definitions
+  import V = Validity
   import Utils
 
   import AlgorithmSuite
@@ -23,28 +24,29 @@ module MessageHeader.Deserialize {
   import opened StandardLibrary
   import opened UInt = StandardLibrary.UInt
   import UTF8
+  import Materials
 
-  method DeserializeVersion(is: Streams.StringReader) returns (ret: Result<Version>)
+  method DeserializeVersion(is: Streams.StringReader) returns (ret: Result<Msg.Version>)
     requires is.Valid()
     modifies is
     ensures is.Valid()
   {
     var version :- Utils.ReadFixedLengthFromStreamOrFail(is, 1);
     if version[0] == 0x01 {
-      return Success(version[0] as Version);
+      return Success(version[0] as Msg.Version);
     } else {
       return Failure("Deserialization Error: Version not supported.");
     }
   }
 
-  method DeserializeType(is: Streams.StringReader) returns (ret: Result<Type>)
+  method DeserializeType(is: Streams.StringReader) returns (ret: Result<Msg.Type>)
     requires is.Valid()
     modifies is
     ensures is.Valid()
   {
     var typ :- Utils.ReadFixedLengthFromStreamOrFail(is, 1);
     if typ[0] == 0x80 {
-      return Success(typ[0] as Type);
+      return Success(typ[0] as Msg.Type);
     } else {
       return Failure("Deserialization Error: Type not supported.");
     }
@@ -55,7 +57,7 @@ module MessageHeader.Deserialize {
     modifies is
     ensures is.Valid()
     ensures match ret
-      case Success(algorithmSuiteID) => ValidAlgorithmID(algorithmSuiteID)
+      case Success(algorithmSuiteID) => V.ValidAlgorithmID(algorithmSuiteID)
       case Failure(_) => true
   {
     var algorithmSuiteID :- Utils.ReadFixedLengthFromStreamOrFail(is, 2);
@@ -70,17 +72,17 @@ module MessageHeader.Deserialize {
   // TODO:
   predicate method IsValidMsgID (candidateID: array<uint8>)
     requires candidateID.Length == 16
-    ensures ValidMessageId(candidateID[..])
+    ensures V.ValidMessageId(candidateID[..])
   {
     true
   }
 
-  method DeserializeMsgID(is: Streams.StringReader) returns (ret: Result<MessageID>)
+  method DeserializeMsgID(is: Streams.StringReader) returns (ret: Result<Msg.MessageID>)
     requires is.Valid()
     modifies is
     ensures is.Valid()
     ensures match ret
-      case Success(msgId) => ValidMessageId(msgId)
+      case Success(msgId) => V.ValidMessageId(msgId)
       case Failure(_) => true
   {
     var msgId :- Utils.ReadFixedLengthFromStreamOrFail(is, 16);
@@ -129,10 +131,10 @@ module MessageHeader.Deserialize {
     modifies is
     ensures is.Valid()
     ensures match ret
-      case Success(aad) => ValidAAD(aad)
+      case Success(aad) => V.ValidAAD(aad)
       case Failure(_) => true
   {
-    reveal ValidAAD();
+    reveal V.ValidAAD();
 
     var bytes :- DeserializeUnrestricted(is, 2);
     var aadLength := ArrayToUInt16(bytes);
@@ -158,8 +160,8 @@ module MessageHeader.Deserialize {
       invariant is.Valid()
       invariant |kvPairs| == i as int
       invariant i <= kvPairsCount
-      invariant totalBytesRead == 2 + KVPairsLength(kvPairs, 0, i) <= aadLength as nat
-      invariant ValidAAD(kvPairs)
+      invariant totalBytesRead == 2 + V.KVPairsLength(kvPairs, 0, i) <= aadLength as nat
+      invariant V.ValidAAD(kvPairs)
     {
       bytes :- DeserializeUnrestricted(is, 2);
       var keyLength := ArrayToUInt16(bytes);
@@ -188,7 +190,7 @@ module MessageHeader.Deserialize {
       var opt, insertionPoint := Utils.InsertNewEntry(kvPairs, key, value);
       match opt {
         case Some(kvPairs_) =>
-          Validity.KVPairsLengthInsert(kvPairs, insertionPoint, key, value);
+          V.KVPairsLengthInsert(kvPairs, insertionPoint, key, value);
           kvPairs := kvPairs_;
         case None =>
           return Failure("Deserialization Error: Duplicate key.");
@@ -203,15 +205,15 @@ module MessageHeader.Deserialize {
   }
 
   // TODO: Probably this should be factored out into EDK at some point
-  method DeserializeEncryptedDataKeys(is: Streams.StringReader) returns (ret: Result<EncryptedDataKeys>)
+  method DeserializeEncryptedDataKeys(is: Streams.StringReader) returns (ret: Result<Msg.EncryptedDataKeys>)
     requires is.Valid()
     modifies is
     ensures is.Valid()
     ensures match ret
-      case Success(edks) => ValidEncryptedDataKeys(edks)
+      case Success(edks) => V.ValidEncryptedDataKeys(edks)
       case Failure(_) => true
   {
-    reveal ValidEncryptedDataKeys();
+    reveal V.ValidEncryptedDataKeys();
 
     var bytes :- DeserializeUnrestricted(is, 2);
     var edkCount := ArrayToUInt16(bytes);
@@ -258,26 +260,26 @@ module MessageHeader.Deserialize {
       i := i + 1;
     }
 
-    var edks := EncryptedDataKeys(edkEntries);
+    var edks := Msg.EncryptedDataKeys(edkEntries);
     return Success(edks);
   }
 
-  method DeserializeContentType(is: Streams.StringReader) returns (ret: Result<ContentType>)
+  method DeserializeContentType(is: Streams.StringReader) returns (ret: Result<Msg.ContentType>)
     requires is.Valid()
     modifies is
     ensures is.Valid()
   {
     var contentType :- Utils.ReadFixedLengthFromStreamOrFail(is, 1);
     if contentType[0] == 0x01 {
-      return Success(NonFramed);
+      return Success(Msg.NonFramed);
     } else if contentType[0] == 0x02 {
-      return Success(Framed);
+      return Success(Msg.Framed);
     } else {
       return Failure("Deserialization Error: Content type not supported.");
     }
   }
 
-  method DeserializeReserved(is: Streams.StringReader) returns (ret: Result<Reserved>)
+  method DeserializeReserved(is: Streams.StringReader) returns (ret: Result<Msg.Reserved>)
     requires is.Valid()
     modifies is
     ensures is.Valid()
@@ -296,7 +298,7 @@ module MessageHeader.Deserialize {
     ensures is.Valid()
     modifies is
     ensures match ret
-      case Success(ivLength) => ValidIVLength(ivLength, algSuiteId)
+      case Success(ivLength) => V.ValidIVLength(ivLength, algSuiteId)
       case Failure(_) => true
   {
     var ivLength :- Utils.ReadFixedLengthFromStreamOrFail(is, 1);
@@ -307,12 +309,12 @@ module MessageHeader.Deserialize {
     }
   }
 
-  method DeserializeFrameLength(is: Streams.StringReader, contentType: ContentType) returns (ret: Result<uint32>)
+  method DeserializeFrameLength(is: Streams.StringReader, contentType: Msg.ContentType) returns (ret: Result<uint32>)
     requires is.Valid()
     modifies is
     ensures is.Valid()
     ensures match ret
-      case Success(frameLength) => ValidFrameLength(frameLength, contentType)
+      case Success(frameLength) => V.ValidFrameLength(frameLength, contentType)
       case Failure(_) => true
   {
     var frameLength :- Utils.ReadFixedLengthFromStreamOrFail(is, 4);
@@ -327,15 +329,15 @@ module MessageHeader.Deserialize {
   * Reads raw header data from the input stream and populates the header with all of the information about the
   * message.
   */
-  method DeserializeHeaderBody(is: Streams.StringReader) returns (ret: Result<HeaderBody>)
+  method DeserializeHeaderBody(is: Streams.StringReader) returns (ret: Result<Msg.HeaderBody>)
     requires is.Valid()
     modifies is
     ensures is.Valid()
     ensures match ret
-      case Success(hb) => ValidHeaderBody(hb)
+      case Success(hb) => V.ValidHeaderBody(hb)
       case Failure(_) => true
   {
-    reveal ValidHeaderBody();
+    reveal V.ValidHeaderBody();
 
     var version :- DeserializeVersion(is);
     var typ :- DeserializeType(is);
@@ -348,7 +350,7 @@ module MessageHeader.Deserialize {
     var ivLength :- DeserializeIVLength(is, algorithmSuiteID);
     var frameLength :- DeserializeFrameLength(is, contentType);
     
-    var hb := HeaderBody(
+    var hb := Msg.HeaderBody(
       version,
       typ,
       algorithmSuiteID,
@@ -362,18 +364,18 @@ module MessageHeader.Deserialize {
     return Success(hb);
   }
 
-  method DeserializeHeaderAuthentication(is: Streams.StringReader, algorithmSuiteID: AlgorithmSuite.ID) returns (ret: Result<HeaderAuthentication>)
+  method DeserializeHeaderAuthentication(is: Streams.StringReader, algorithmSuiteID: AlgorithmSuite.ID) returns (ret: Result<Msg.HeaderAuthentication>)
     requires is.Valid()
     requires algorithmSuiteID in AlgorithmSuite.Suite.Keys
     modifies is
     ensures is.Valid()
     ensures match ret
-      case Success(ha) => ValidHeaderAuthentication(ha, algorithmSuiteID)
+      case Success(ha) => V.ValidHeaderAuthentication(ha, algorithmSuiteID)
       case Failure(_) => true
   {
     var params := AlgorithmSuite.Suite[algorithmSuiteID].params;
     var iv :- DeserializeUnrestricted(is, params.ivLen as nat);
     var authenticationTag :- DeserializeUnrestricted(is, params.tagLen as nat);
-    return Success(HeaderAuthentication(iv[..], authenticationTag[..]));
+    return Success(Msg.HeaderAuthentication(iv[..], authenticationTag[..]));
   }
 }

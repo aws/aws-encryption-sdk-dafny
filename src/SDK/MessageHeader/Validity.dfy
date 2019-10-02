@@ -3,26 +3,28 @@ include "Utils.dfy"
 
 include "../../StandardLibrary/StandardLibrary.dfy"
 include "../../Util/UTF8.dfy"
+include "../Materials.dfy"
 
 module MessageHeader.Validity {
-  import opened Definitions
+  import Msg = Definitions
   import Utils
 
   import AlgorithmSuite
   import opened StandardLibrary
   import opened UInt = StandardLibrary.UInt
   import UTF8
+  import Materials
 
   /*
    * Validity of the message header
    * The validity depends on predicates and on the types of the fields
    */
-  predicate ValidHeader(header: Header) {
+  predicate ValidHeader(header: Msg.Header) {
     && ValidHeaderBody(header.body)
     && ValidHeaderAuthentication(header.auth, header.body.algorithmSuiteID)
   }
 
-  predicate {:opaque} ValidHeaderBody(hb: HeaderBody) {
+  predicate {:opaque} ValidHeaderBody(hb: Msg.HeaderBody) {
     && ValidAlgorithmID(hb.algorithmSuiteID)
     && ValidMessageId(hb.messageID)
     && ValidAAD(hb.aad)
@@ -32,13 +34,13 @@ module MessageHeader.Validity {
   }
 
   // TODO: strengthen spec when available
-  predicate UniquelyIdentifiesMessage(id: MessageID)      { true }
-  predicate WeaklyBindsHeaderToHeaderBody(id: MessageID)  { true }
-  predicate EnablesSecureReuse(id: MessageID)             { true }
-  predicate ProtectsAgainstAccidentalReuse(id: MessageID) { true }
-  predicate ProtectsAgainstWearingOut(id: MessageID)      { true }
+  predicate UniquelyIdentifiesMessage(id: Msg.MessageID)      { true }
+  predicate WeaklyBindsHeaderToHeaderBody(id: Msg.MessageID)  { true }
+  predicate EnablesSecureReuse(id: Msg.MessageID)             { true }
+  predicate ProtectsAgainstAccidentalReuse(id: Msg.MessageID) { true }
+  predicate ProtectsAgainstWearingOut(id: Msg.MessageID)      { true }
 
-  predicate ValidMessageId(id: MessageID) {
+  predicate ValidMessageId(id: Msg.MessageID) {
     && UniquelyIdentifiesMessage(id)
     && WeaklyBindsHeaderToHeaderBody(id)
     && EnablesSecureReuse(id)
@@ -148,7 +150,7 @@ module MessageHeader.Validity {
     && AADLength(kvPairs) < UINT16_LIMIT
   }
 
-  predicate {:opaque} ValidEncryptedDataKeys(encryptedDataKeys: EncryptedDataKeys) {
+  predicate {:opaque} ValidEncryptedDataKeys(encryptedDataKeys: Msg.EncryptedDataKeys) {
     && |encryptedDataKeys.entries| < UINT16_LIMIT
     && (forall i :: 0 <= i < |encryptedDataKeys.entries| ==> encryptedDataKeys.entries[i].Valid())
     // TODO: well-formedness of EDK
@@ -168,7 +170,7 @@ module MessageHeader.Validity {
     algorithmSuiteID in AlgorithmSuite.Suite.Keys && AlgorithmSuite.Suite[algorithmSuiteID].params.ivLen == ivLength
   }
 
-  predicate ValidFrameLength(frameLength: uint32, contentType: ContentType) {
+  predicate ValidFrameLength(frameLength: uint32, contentType: Msg.ContentType) {
     match contentType
     case NonFramed => frameLength == 0
     case Framed => true
@@ -177,7 +179,7 @@ module MessageHeader.Validity {
   /*
    * Validity of the message header authentication
    */
-  predicate ValidHeaderAuthentication(ha: HeaderAuthentication, algorithmSuiteID: AlgorithmSuite.ID)
+  predicate ValidHeaderAuthentication(ha: Msg.HeaderAuthentication, algorithmSuiteID: AlgorithmSuite.ID)
     requires algorithmSuiteID in AlgorithmSuite.Suite.Keys
   {
     |ha.authenticationTag| == AlgorithmSuite.Suite[algorithmSuiteID].params.tagLen as int &&

@@ -1,12 +1,14 @@
 include "Definitions.dfy"
 include "Validity.dfy"
+include "../Materials.dfy"
 
 include "../../Util/Streams.dfy"
 include "../../StandardLibrary/StandardLibrary.dfy"
 
 module MessageHeader.SerializeEDK {
-  import opened Definitions
-  import opened Validity
+  import Msg = Definitions
+  import V = Validity
+  import Materials
 
   import Streams
   import opened StandardLibrary
@@ -14,10 +16,10 @@ module MessageHeader.SerializeEDK {
 
   // ----- Specification -----
 
-  function SerializeEDKs(encryptedDataKeys: EncryptedDataKeys): seq<uint8>
-    requires ValidEncryptedDataKeys(encryptedDataKeys)
+  function SerializeEDKs(encryptedDataKeys: Msg.EncryptedDataKeys): seq<uint8>
+    requires V.ValidEncryptedDataKeys(encryptedDataKeys)
   {
-    reveal ValidEncryptedDataKeys();
+    reveal V.ValidEncryptedDataKeys();
     var n := |encryptedDataKeys.entries|;
     UInt16ToSeq(n as uint16) +
     SerializeEDKEntries(encryptedDataKeys.entries, 0, n)
@@ -40,10 +42,10 @@ module MessageHeader.SerializeEDK {
 
   // ----- Implementation -----
 
-  method SerializeEDKsImpl(os: Streams.StringWriter, encryptedDataKeys: EncryptedDataKeys) returns (ret: Result<nat>)
-    requires os.Valid() && ValidEncryptedDataKeys(encryptedDataKeys)
+  method SerializeEDKsImpl(os: Streams.StringWriter, encryptedDataKeys: Msg.EncryptedDataKeys) returns (ret: Result<nat>)
+    requires os.Valid() && V.ValidEncryptedDataKeys(encryptedDataKeys)
     modifies os`data
-    ensures os.Valid() && ValidEncryptedDataKeys(encryptedDataKeys)
+    ensures os.Valid() && V.ValidEncryptedDataKeys(encryptedDataKeys)
     ensures match ret
       case Success(totalWritten) =>
         var serEDK := SerializeEDKs(encryptedDataKeys);
@@ -53,7 +55,7 @@ module MessageHeader.SerializeEDK {
         && os.data == old(os.data) + serEDK
       case Failure(e) => true
   {
-    reveal ValidEncryptedDataKeys();
+    reveal V.ValidEncryptedDataKeys();
 
     var totalWritten := 0;
 

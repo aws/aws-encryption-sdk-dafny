@@ -2,24 +2,26 @@ include "Definitions.dfy"
 include "SerializeAAD.dfy"
 include "SerializeEDK.dfy"
 include "Validity.dfy"
+include "../AlgorithmSuite.dfy"
 
 include "../../Util/Streams.dfy"
 include "../../StandardLibrary/StandardLibrary.dfy"
 
 module MessageHeader.Serialize {
-  import opened Definitions
+  import Msg = Definitions
   import SerializeAAD
   import SerializeEDK
-  import opened Validity
+  import V = Validity
+  import AlgorithmSuite
 
   import Streams
   import opened StandardLibrary
   import opened UInt = StandardLibrary.UInt
 
-  function {:opaque} Serialize(hb: HeaderBody): seq<uint8>
-    requires ValidHeaderBody(hb)
+  function {:opaque} Serialize(hb: Msg.HeaderBody): seq<uint8>
+    requires V.ValidHeaderBody(hb)
   {
-    reveal ValidHeaderBody();
+    reveal V.ValidHeaderBody();
     [hb.version as uint8] +
     [hb.typ as uint8] +
     UInt16ToSeq(hb.algorithmSuiteID as uint16) +
@@ -32,8 +34,8 @@ module MessageHeader.Serialize {
     UInt32ToSeq(hb.frameLength)
   }
 
-  method SerializeHeaderBody(os: Streams.StringWriter, hb: HeaderBody) returns (ret: Result<nat>)
-    requires os.Valid() && ValidHeaderBody(hb)
+  method SerializeHeaderBody(os: Streams.StringWriter, hb: Msg.HeaderBody) returns (ret: Result<nat>)
+    requires os.Valid() && V.ValidHeaderBody(hb)
     modifies os`data
     ensures os.Valid()
     ensures match ret
@@ -60,7 +62,7 @@ module MessageHeader.Serialize {
     len :- os.WriteSimpleSeq(hb.messageID);
     totalWritten := totalWritten + len;
 
-    reveal ValidHeaderBody();
+    reveal V.ValidHeaderBody();
     len :- SerializeAAD.SerializeAADImpl(os, hb.aad);
     totalWritten := totalWritten + len;
 
@@ -89,9 +91,9 @@ module MessageHeader.Serialize {
     return Success(totalWritten);
   }
 
-  method SerializeHeaderAuthentication(os: Streams.StringWriter, ha: HeaderAuthentication, ghost algorithmSuiteID: AlgorithmSuite.ID) returns (ret: Result<nat>)
+  method SerializeHeaderAuthentication(os: Streams.StringWriter, ha: Msg.HeaderAuthentication, ghost algorithmSuiteID: AlgorithmSuite.ID) returns (ret: Result<nat>)
     requires os.Valid()
-    requires ValidHeaderAuthentication(ha, algorithmSuiteID)
+    requires V.ValidHeaderAuthentication(ha, algorithmSuiteID)
     modifies os`data
     ensures os.Valid()
     ensures match ret
