@@ -69,44 +69,33 @@ module MessageHeader.Deserialize {
     }
   }
 
-  // TODO:
-  predicate method IsValidMsgID (candidateID: array<uint8>)
-    requires candidateID.Length == 16
-    ensures V.ValidMessageId(candidateID[..])
-  {
-    true
-  }
-
   method DeserializeMsgID(is: Streams.StringReader) returns (ret: Result<Msg.MessageID>)
     requires is.Valid()
     modifies is
     ensures is.Valid()
     ensures match ret
-      case Success(msgId) => V.ValidMessageId(msgId)
+      case Success(msgID) => V.ValidMessageID(msgID)
       case Failure(_) => true
   {
-    var msgId :- Utils.ReadFixedLengthFromStreamOrFail(is, 16);
-    if IsValidMsgID(msgId) {
-      return Success(msgId[..]);
-    } else {
-      return Failure("Deserialization Error: Not a valid Message ID.");
-    }
+    var id :- Utils.ReadFixedLengthFromStreamOrFail(is, 16);
+    var msgID := id[..];
+    return Success(id[..]);
   }
 
-  method DeserializeUTF8(is: Streams.StringReader, n: nat) returns (ret: Result<array<uint8>>)
+  method DeserializeUTF8(is: Streams.StringReader, n: nat) returns (ret: Result<seq<uint8>>)
     requires is.Valid()
     modifies is
     ensures is.Valid()
     ensures match ret
-      case Success(bytes) =>
-        && bytes.Length == n
-        && UTF8.ValidUTF8(bytes)
-        && fresh(bytes)
+      case Success(str) =>
+        && |str| == n
+        && UTF8.ValidUTF8Seq(str)
       case Failure(_) => true
   {
     var bytes :- Utils.ReadFixedLengthFromStreamOrFail(is, n);
-    if UTF8.ValidUTF8(bytes) {
-      return Success(bytes);
+    var str := bytes[..];
+    if UTF8.ValidUTF8Seq(str) {
+      return Success(str);
     } else {
       return Failure("Deserialization Error: Not a valid UTF8 string.");
     }
@@ -167,10 +156,8 @@ module MessageHeader.Deserialize {
       var keyLength := ArrayToUInt16(bytes);
       totalBytesRead := totalBytesRead + bytes.Length;
 
-      bytes :- DeserializeUTF8(is, keyLength as nat);
-      UTF8.ValidUTF8ArraySeq(bytes);
-      var key := bytes[..];
-      totalBytesRead := totalBytesRead + bytes.Length;
+      var key :- DeserializeUTF8(is, keyLength as nat);
+      totalBytesRead := totalBytesRead + |key|;
 
       bytes :- DeserializeUnrestricted(is, 2);
       var valueLength := ArrayToUInt16(bytes);
@@ -180,10 +167,8 @@ module MessageHeader.Deserialize {
         return Failure("Deserialization Error: The number of bytes in encryption context exceeds the given length.");
       }
 
-      bytes :- DeserializeUTF8(is, valueLength as nat);
-      UTF8.ValidUTF8ArraySeq(bytes);
-      var value := bytes[..];
-      totalBytesRead := totalBytesRead + bytes.Length;
+      var value :- DeserializeUTF8(is, valueLength as nat);
+      totalBytesRead := totalBytesRead + |value|;
 
       // We want to keep entries sorted by key. We don't insist that the entries be sorted
       // already, but we do insist there are no duplicate keys.
@@ -195,7 +180,7 @@ module MessageHeader.Deserialize {
         case None =>
           return Failure("Deserialization Error: Duplicate key.");
       }
-      
+
       i := i + 1;
     }
     if aadLength as nat != totalBytesRead {
@@ -235,8 +220,8 @@ module MessageHeader.Deserialize {
       keyProviderIDLength := ArrayToUInt16(bytes);
 
       var keyProviderID: string;
-      bytes :- DeserializeUTF8(is, keyProviderIDLength as nat);
-      keyProviderID := ByteSeqToString(bytes[..]);
+      var str :- DeserializeUTF8(is, keyProviderIDLength as nat);
+      keyProviderID := ByteSeqToString(str);
 
       // Key provider info
       var keyProviderInfoLength: uint16;
@@ -292,17 +277,17 @@ module MessageHeader.Deserialize {
     }
   }
 
-  method DeserializeIVLength(is: Streams.StringReader, algSuiteId: AlgorithmSuite.ID) returns (ret: Result<uint8>)
+  method DeserializeIVLength(is: Streams.StringReader, algorithmSuiteID: AlgorithmSuite.ID) returns (ret: Result<uint8>)
     requires is.Valid()
-    requires algSuiteId in AlgorithmSuite.Suite.Keys
+    requires algorithmSuiteID in AlgorithmSuite.Suite.Keys
     ensures is.Valid()
     modifies is
     ensures match ret
-      case Success(ivLength) => V.ValidIVLength(ivLength, algSuiteId)
+      case Success(ivLength) => V.ValidIVLength(ivLength, algorithmSuiteID)
       case Failure(_) => true
   {
     var ivLength :- Utils.ReadFixedLengthFromStreamOrFail(is, 1);
-    if ivLength[0] == AlgorithmSuite.Suite[algSuiteId].params.ivLen {
+    if ivLength[0] == AlgorithmSuite.Suite[algorithmSuiteID].params.ivLen {
       return Success(ivLength[0]);
     } else {
       return Failure("Deserialization Error: Incorrect IV length.");

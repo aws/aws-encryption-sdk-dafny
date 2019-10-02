@@ -26,7 +26,7 @@ module MessageHeader.Validity {
 
   predicate {:opaque} ValidHeaderBody(hb: Msg.HeaderBody) {
     && ValidAlgorithmID(hb.algorithmSuiteID)
-    && ValidMessageId(hb.messageID)
+    && ValidMessageID(hb.messageID)
     && ValidAAD(hb.aad)
     && ValidEncryptedDataKeys(hb.encryptedDataKeys)
     && ValidIVLength(hb.ivLength, hb.algorithmSuiteID)
@@ -40,7 +40,7 @@ module MessageHeader.Validity {
   predicate ProtectsAgainstAccidentalReuse(id: Msg.MessageID) { true }
   predicate ProtectsAgainstWearingOut(id: Msg.MessageID)      { true }
 
-  predicate ValidMessageId(id: Msg.MessageID) {
+  predicate ValidMessageID(id: Msg.MessageID) {
     && UniquelyIdentifiesMessage(id)
     && WeaklyBindsHeaderToHeaderBody(id)
     && EnablesSecureReuse(id)

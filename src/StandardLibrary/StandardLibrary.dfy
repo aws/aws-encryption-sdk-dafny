@@ -295,11 +295,8 @@ module {:extern "STL"} StandardLibrary {
   function method MapSeq<S, T>(s: seq<S>, f: S ~> T): seq<T>
     requires forall i :: 0 <= i < |s| ==> f.requires(s[i])
     reads set i,o | 0 <= i < |s| && o in f.reads(s[i]) :: o
-    decreases |s|
   {
-      if s == []
-      then []
-      else [f(s[0])] + MapSeq(s[1..], f)
+    if s == [] then [] else [f(s[0])] + MapSeq(s[1..], f)
   }
 
   function method FlattenSeq<T>(s: seq<seq<T>>): seq<T> {
@@ -340,57 +337,66 @@ module {:extern "STL"} StandardLibrary {
     }
   }
 
+  lemma {:axiom} eq_multiset_eq_len<T>(s: seq<T>, s': seq<T>)
+    requires multiset(s) == multiset(s')
+    ensures |s| == |s'|
+
   predicate method UInt8Less(a: uint8, b: uint8) { a < b }
-  predicate method NatLess (a: nat,  b: nat)  { a < b }
-  predicate method IntLess (a: int,  b: int)  { a < b }
+  predicate method NatLess(a: nat, b: nat)  { a < b }
+  predicate method IntLess(a: int, b: int)  { a < b }
 
-  predicate method lexCmpArrays<T(==)>(a : array<T>, b : array<T>, lt: (T, T) -> bool)
-      reads a, b
-  {
-      a.Length == 0 || (b.Length != 0 && lexCmpArraysNonEmpty(a, b, 0, lt))
+  /*
+   * Lexicographic comparison of sequences.
+   *
+   * Given two sequences `a` and `b` and a strict (that is, irreflexive)
+   * ordering `less` on the elements of these sequences, `LexCmpSeqs(a, b, less)`
+   * says whether or not `a` is lexicographically "less than or equal to" `b`.
+   *
+   * `a` is lexicographically "less than or equal to" `b` holds iff
+   *   there exists a `k` such that
+   *   - the first `k` elements of `a` and `b` are the same
+   *   - either:
+   *      -- `a` has length `k` (that is, `a` is a prefix of `b`)
+   *      -- `a[k]` is strictly less (using `less`) than `b[k]`
+   */
+
+  predicate method LexicographicLessOrEqual<T(==)>(a: seq<T>, b: seq<T>, less: (T, T) -> bool) {
+    exists k :: 0 <= k <= |a| && LexicographicLessOrEqualAux(a, b, less, k)
   }
 
-  predicate method lexCmpArraysNonEmpty<T(==)>(a : array<T>, b : array<T>, i: nat, lt: (T, T) -> bool)
-      requires i < a.Length
-      requires i < b.Length
-      requires forall j: nat :: j < i ==> a[j] == b[j]
-      decreases a.Length - i
-      reads a, b
-  {
-      if a[i] != b[i]
-      then lt(a[i], b[i])
-      else
-          if i+1 < a.Length && i+1 < b.Length
-          then lexCmpArraysNonEmpty(a, b, i+1, lt)
-          else
-              if i+1 == a.Length && i+1 < b.Length
-              then true
-              else
-                  if i+1 < a.Length && i+1 == b.Length
-                  then false
-                  else true // i+1 == a.Length && i+1 == b.Length, i.e. a == b
-  }
-
-  predicate method LexCmpSeqs<T(==)>(a: seq<T>, b: seq<T>, lt: (T, T) -> bool) {
-    exists k :: 0 <= k <= |a| && LexCmpSeqsTo(a, b, lt, k)
-  }
-
-  predicate method LexCmpSeqsTo<T(==)>(a: seq<T>, b: seq<T>, lt: (T, T) -> bool, lengthOfCommonPrefix: nat)
+  predicate method LexicographicLessOrEqualAux<T(==)>(a: seq<T>, b: seq<T>, less: (T, T) -> bool, lengthOfCommonPrefix: nat)
     requires 0 <= lengthOfCommonPrefix <= |a|
   {
     lengthOfCommonPrefix <= |b| &&
     (forall i :: 0 <= i < lengthOfCommonPrefix ==> a[i] == b[i]) &&
     (lengthOfCommonPrefix == |a| ||
-     (lengthOfCommonPrefix < |b| && lt(a[lengthOfCommonPrefix], b[lengthOfCommonPrefix])))
+     (lengthOfCommonPrefix < |b| && less(a[lengthOfCommonPrefix], b[lengthOfCommonPrefix])))
   }
 
-  predicate Trichotomous<T(!new)>(lt: (T, T) -> bool) {
-    forall t, t' :: lt(t, t') || t == t' || lt(t', t)
+  /*
+   * For an ordering `less` to be _trichotomous_ means that for any two `x` and `y`,
+   * exactly one of the following three conditions holds:
+   *   - less(x, y)
+   *   - x == y
+   *   - less(y, x)
+   * Note that being trichotomous implies being irreflexive. The definition of
+   * `Trichotomous` here allows overlap between the three conditions, which lets us
+   * think of non-strict orderings (like "less than or equal" as opposed to just
+   * "less than") as being trichotomous.
+   */
+
+  predicate Trichotomous<T(!new)>(less: (T, T) -> bool) {
+    forall t, t' :: less(t, t') || t == t' || less(t', t)
   }
 
-  lemma LexPreservesTrichotomy<T>(a: seq<T>, b: seq<T>, lt: (T, T) -> bool)
-    requires Trichotomous(lt)
-    ensures LexCmpSeqs(a, b, lt) || a == b || LexCmpSeqs(b, a, lt)
+  /*
+   * If an ordering `less` is trichotomous, then so is the irreflexive lexicographic
+   * order built around `less`.
+   */
+
+  lemma LexPreservesTrichotomy<T>(a: seq<T>, b: seq<T>, less: (T, T) -> bool)
+    requires Trichotomous(less)
+    ensures LexicographicLessOrEqual(a, b, less) || a == b || LexicographicLessOrEqual(b, a, less)
   {
     var m := 0;
     while m < |a| && m < |b| && a[m] == b[m]
@@ -403,20 +409,16 @@ module {:extern "STL"} StandardLibrary {
     if m == |a| == |b| {
       assert a == b;
     } else if m == |a| < |b| {
-      assert LexCmpSeqsTo(a, b, lt, m);
+      assert LexicographicLessOrEqualAux(a, b, less, m);
     } else if m == |b| < |a| {
-      assert LexCmpSeqsTo(b, a, lt, m);
+      assert LexicographicLessOrEqualAux(b, a, less, m);
     } else {
       assert m < |a| && m < |b|;
       if
-      case lt(a[m], b[m]) =>
-        assert LexCmpSeqsTo(a, b, lt, m);
-      case lt(b[m], a[m]) =>
-        assert LexCmpSeqsTo(b, a, lt, m);
+      case less(a[m], b[m]) =>
+        assert LexicographicLessOrEqualAux(a, b, less, m);
+      case less(b[m], a[m]) =>
+        assert LexicographicLessOrEqualAux(b, a, less, m);
     }
   }
-
-  lemma {:axiom} eq_multiset_eq_len<T> (s : seq<T>, s' : seq<T>)
-      requires multiset(s) == multiset(s')
-      ensures |s| == |s'|
 }

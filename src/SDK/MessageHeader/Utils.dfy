@@ -94,7 +94,7 @@ module MessageHeader.Utils {
   predicate SortedKVPairsUpTo(a: seq<(seq<uint8>, seq<uint8>)>, n: nat)
     requires n <= |a|
   {
-    forall j :: 0 < j < n ==> LexCmpSeqs(a[j-1].0, a[j].0, UInt8Less)
+    forall j :: 0 < j < n ==> LexicographicLessOrEqual(a[j-1].0, a[j].0, UInt8Less)
   }
 
   predicate SortedKVPairs(a: seq<(seq<uint8>, seq<uint8>)>)
@@ -114,9 +114,9 @@ module MessageHeader.Utils {
       && SortedKVPairs(kvPairs')
   {
     var n := |kvPairs|;
-    while 0 < n && LexCmpSeqs(key, kvPairs[n - 1].0, UInt8Less)
+    while 0 < n && LexicographicLessOrEqual(key, kvPairs[n - 1].0, UInt8Less)
       invariant 0 <= n <= |kvPairs|
-      invariant forall i :: n <= i < |kvPairs| ==> LexCmpSeqs(key, kvPairs[i].0, UInt8Less)
+      invariant forall i :: n <= i < |kvPairs| ==> LexicographicLessOrEqual(key, kvPairs[i].0, UInt8Less)
     {
       n := n - 1;
     }

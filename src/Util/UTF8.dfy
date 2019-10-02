@@ -90,10 +90,4 @@ module UTF8 {
   predicate method ValidUTF8Seq(s: seq<uint8>) {
     ValidUTF8_at(s, 0)
   }
-
-  lemma ValidUTF8ArraySeq(a: array<uint8>)
-    requires ValidUTF8(a)
-    ensures ValidUTF8Seq(a[..])
-  {
-  }
 }
