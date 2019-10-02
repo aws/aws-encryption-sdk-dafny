@@ -16,26 +16,26 @@ module MessageHeader.Definitions {
   /*
    * Header body type definition
    */
-  type T_Version               = x | x == 0x01 /*Version 1.0*/ witness 0x01
-  type T_Type                  = x | x == 0x80 /*Customer Authenticated Encrypted Data*/ witness 0x80
-  type T_MessageID             = x: seq<uint8> | |x| == 16 witness [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]
-  type T_Reserved              = x: seq<uint8> | x == [0,0,0,0] witness [0,0,0,0]
-  datatype T_ContentType       = NonFramed | Framed
+  type Version               = x | x == 0x01 /*Version 1.0*/ witness 0x01
+  type Type                  = x | x == 0x80 /*Customer Authenticated Encrypted Data*/ witness 0x80
+  const MESSAGE_ID_LEN       := 16
+  type MessageID             = x: seq<uint8> | |x| == MESSAGE_ID_LEN witness [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]
+  type Reserved              = x: seq<uint8> | x == [0,0,0,0] witness [0,0,0,0]
+  datatype ContentType       = NonFramed | Framed
 
-  type EDKEntry                = Materials.EncryptedDataKey
-  datatype T_EncryptedDataKeys = EncryptedDataKeys(entries: seq<EDKEntry>)
+  datatype EncryptedDataKeys = EncryptedDataKeys(entries: seq<Materials.EncryptedDataKey>)
 
-  datatype HeaderBody          = HeaderBody(
-                                   version: T_Version,
-                                   typ: T_Type,
-                                   algorithmSuiteID: AlgorithmSuite.ID,
-                                   messageID: T_MessageID,
-                                   aad: Materials.EncryptionContext,
-                                   encryptedDataKeys: T_EncryptedDataKeys,
-                                   contentType: T_ContentType,
-                                   reserved: T_Reserved,
-                                   ivLength: uint8,
-                                   frameLength: uint32)
+  datatype HeaderBody        = HeaderBody(
+                                 version: Version,
+                                 typ: Type,
+                                 algorithmSuiteID: AlgorithmSuite.ID,
+                                 messageID: MessageID,
+                                 aad: Materials.EncryptionContext,
+                                 encryptedDataKeys: EncryptedDataKeys,
+                                 contentType: ContentType,
+                                 reserved: Reserved,
+                                 ivLength: uint8,
+                                 frameLength: uint32)
 
   /*
    * Header authentication type definition

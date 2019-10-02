@@ -32,13 +32,13 @@ module MessageHeader.Validity {
   }
 
   // TODO: strengthen spec when available
-  predicate UniquelyIdentifiesMessage(id: T_MessageID)      { true }
-  predicate WeaklyBindsHeaderToHeaderBody(id: T_MessageID)  { true }
-  predicate EnablesSecureReuse(id: T_MessageID)             { true }
-  predicate ProtectsAgainstAccidentalReuse(id: T_MessageID) { true }
-  predicate ProtectsAgainstWearingOut(id: T_MessageID)      { true }
+  predicate UniquelyIdentifiesMessage(id: MessageID)      { true }
+  predicate WeaklyBindsHeaderToHeaderBody(id: MessageID)  { true }
+  predicate EnablesSecureReuse(id: MessageID)             { true }
+  predicate ProtectsAgainstAccidentalReuse(id: MessageID) { true }
+  predicate ProtectsAgainstWearingOut(id: MessageID)      { true }
 
-  predicate ValidMessageId(id: T_MessageID) {
+  predicate ValidMessageId(id: MessageID) {
     && UniquelyIdentifiesMessage(id)
     && WeaklyBindsHeaderToHeaderBody(id)
     && EnablesSecureReuse(id)
@@ -148,7 +148,7 @@ module MessageHeader.Validity {
     && AADLength(kvPairs) < UINT16_LIMIT
   }
 
-  predicate {:opaque} ValidEncryptedDataKeys(encryptedDataKeys: T_EncryptedDataKeys) {
+  predicate {:opaque} ValidEncryptedDataKeys(encryptedDataKeys: EncryptedDataKeys) {
     && |encryptedDataKeys.entries| < UINT16_LIMIT
     && (forall i :: 0 <= i < |encryptedDataKeys.entries| ==> encryptedDataKeys.entries[i].Valid())
     // TODO: well-formedness of EDK
@@ -168,7 +168,7 @@ module MessageHeader.Validity {
     algorithmSuiteID in AlgorithmSuite.Suite.Keys && AlgorithmSuite.Suite[algorithmSuiteID].params.ivLen == ivLength
   }
 
-  predicate ValidFrameLength(frameLength: uint32, contentType: T_ContentType) {
+  predicate ValidFrameLength(frameLength: uint32, contentType: ContentType) {
     match contentType
     case NonFramed => frameLength == 0
     case Framed => true

@@ -14,7 +14,7 @@ module MessageHeader.SerializeEDK {
 
   // ----- Specification -----
 
-  function SerializeEDKs(encryptedDataKeys: T_EncryptedDataKeys): seq<uint8>
+  function SerializeEDKs(encryptedDataKeys: EncryptedDataKeys): seq<uint8>
     requires ValidEncryptedDataKeys(encryptedDataKeys)
   {
     reveal ValidEncryptedDataKeys();
@@ -23,14 +23,14 @@ module MessageHeader.SerializeEDK {
     SerializeEDKEntries(encryptedDataKeys.entries, 0, n)
   }
 
-  function SerializeEDKEntries(entries: seq<EDKEntry>, lo: nat, hi: nat): seq<uint8>
+  function SerializeEDKEntries(entries: seq<Materials.EncryptedDataKey>, lo: nat, hi: nat): seq<uint8>
     requires forall i :: 0 <= i < |entries| ==> entries[i].Valid()
     requires lo <= hi <= |entries|
   {
     if lo == hi then [] else SerializeEDKEntries(entries, lo, hi - 1) + SerializeEDKEntry(entries[hi - 1])
   }
 
-  function SerializeEDKEntry(edk: EDKEntry): seq<uint8>
+  function SerializeEDKEntry(edk: Materials.EncryptedDataKey): seq<uint8>
     requires edk.Valid()
   {
     UInt16ToSeq(|edk.providerID| as uint16)   + StringToByteSeq(edk.providerID) +
@@ -40,7 +40,7 @@ module MessageHeader.SerializeEDK {
 
   // ----- Implementation -----
 
-  method SerializeEDKsImpl(os: Streams.StringWriter, encryptedDataKeys: T_EncryptedDataKeys) returns (ret: Result<nat>)
+  method SerializeEDKsImpl(os: Streams.StringWriter, encryptedDataKeys: EncryptedDataKeys) returns (ret: Result<nat>)
     requires os.Valid() && ValidEncryptedDataKeys(encryptedDataKeys)
     modifies os`data
     ensures os.Valid() && ValidEncryptedDataKeys(encryptedDataKeys)

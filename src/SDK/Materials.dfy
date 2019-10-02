@@ -10,8 +10,7 @@ module Materials {
 
   type EncryptionContext = seq<(seq<uint8>, seq<uint8>)>
 
-
-  function method EncryptionContextKeys(encryptionContext: EncryptionContext): set<seq<uint8>> {
+  function method GetKeysFromEncryptionContext(encryptionContext: EncryptionContext): set<seq<uint8>> {
     set i | 0 <= i < |encryptionContext| :: encryptionContext[i].0
   }
 

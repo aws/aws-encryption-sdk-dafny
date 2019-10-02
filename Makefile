@@ -38,13 +38,11 @@ SRCS = \
 	   src/Util/Streams.dfy \
 	   src/Util/UTF8.dfy \
 
-SRCS_DONT_VERIFY = \
-
 SRCV = $(patsubst src/%.dfy, build/%.dfy.verified, $(SRCS))
 
 BCDLL = lib/BouncyCastle.1.8.5/lib/BouncyCastle.Crypto.dll
 
-SRCDIRS = $(dir $(SRCS)) $(dir $(SRCS_DONT_VERIFY))
+SRCDIRS = $(dir $(SRCS))
 
 DEPS = $(foreach dir, $(SRCDIRS), $(wildcard $(dir)/*.cs)) \
 	$(BCDLL)
@@ -65,7 +63,7 @@ build/%.dfy.verified: src/%.dfy
 	$(DAFNY) $(patsubst build/%.dfy.verified, src/%.dfy, $@) /compile:0 && mkdir -p $(dir $@) && touch $@
 
 build/Main.exe: $(SRCS) $(DEPS)
-	$(DAFNY) /out:build/Main $(SRCS) $(SRCS_DONT_VERIFY) $(DEPS) /compile:2 /noVerify /noIncludes && cp $(BCDLL) build/
+	$(DAFNY) /out:build/Main $(SRCS) $(DEPS) /compile:2 /noVerify /noIncludes && cp $(BCDLL) build/
 
 buildcs: build/Main.cs
 	csc /r:System.Numerics.dll /r:$(BCDLL) /target:exe /debug /nowarn:0164 /nowarn:0219 /nowarn:1717 /nowarn:0162 /nowarn:0168 build/Main.cs $(DEPS_CS) /out:build/Main.exe

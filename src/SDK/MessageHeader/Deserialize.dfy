@@ -24,31 +24,27 @@ module MessageHeader.Deserialize {
   import opened UInt = StandardLibrary.UInt
   import UTF8
 
-  /*
-   * Message header-specific
-   */
-
-  method DeserializeVersion(is: Streams.StringReader) returns (ret: Result<T_Version>)
+  method DeserializeVersion(is: Streams.StringReader) returns (ret: Result<Version>)
     requires is.Valid()
     modifies is
     ensures is.Valid()
   {
     var version :- Utils.ReadFixedLengthFromStreamOrFail(is, 1);
     if version[0] == 0x01 {
-      return Success(version[0] as T_Version);
+      return Success(version[0] as Version);
     } else {
       return Failure("Deserialization Error: Version not supported.");
     }
   }
 
-  method DeserializeType(is: Streams.StringReader) returns (ret: Result<T_Type>)
+  method DeserializeType(is: Streams.StringReader) returns (ret: Result<Type>)
     requires is.Valid()
     modifies is
     ensures is.Valid()
   {
     var typ :- Utils.ReadFixedLengthFromStreamOrFail(is, 1);
     if typ[0] == 0x80 {
-      return Success(typ[0] as T_Type);
+      return Success(typ[0] as Type);
     } else {
       return Failure("Deserialization Error: Type not supported.");
     }
@@ -79,7 +75,7 @@ module MessageHeader.Deserialize {
     true
   }
 
-  method DeserializeMsgID(is: Streams.StringReader) returns (ret: Result<T_MessageID>)
+  method DeserializeMsgID(is: Streams.StringReader) returns (ret: Result<MessageID>)
     requires is.Valid()
     modifies is
     ensures is.Valid()
@@ -207,7 +203,7 @@ module MessageHeader.Deserialize {
   }
 
   // TODO: Probably this should be factored out into EDK at some point
-  method DeserializeEncryptedDataKeys(is: Streams.StringReader) returns (ret: Result<T_EncryptedDataKeys>)
+  method DeserializeEncryptedDataKeys(is: Streams.StringReader) returns (ret: Result<EncryptedDataKeys>)
     requires is.Valid()
     modifies is
     ensures is.Valid()
@@ -223,7 +219,7 @@ module MessageHeader.Deserialize {
       return Failure("Deserialization Error: Encrypted data key count is 0.");
     }
 
-    var edkEntries: seq<EDKEntry> := [];
+    var edkEntries: seq<Materials.EncryptedDataKey> := [];
     var i := 0;
     while i < edkCount
       invariant is.Valid()
@@ -266,7 +262,7 @@ module MessageHeader.Deserialize {
     return Success(edks);
   }
 
-  method DeserializeContentType(is: Streams.StringReader) returns (ret: Result<T_ContentType>)
+  method DeserializeContentType(is: Streams.StringReader) returns (ret: Result<ContentType>)
     requires is.Valid()
     modifies is
     ensures is.Valid()
@@ -281,7 +277,7 @@ module MessageHeader.Deserialize {
     }
   }
 
-  method DeserializeReserved(is: Streams.StringReader) returns (ret: Result<T_Reserved>)
+  method DeserializeReserved(is: Streams.StringReader) returns (ret: Result<Reserved>)
     requires is.Valid()
     modifies is
     ensures is.Valid()
@@ -311,7 +307,7 @@ module MessageHeader.Deserialize {
     }
   }
 
-  method DeserializeFrameLength(is: Streams.StringReader, contentType: T_ContentType) returns (ret: Result<uint32>)
+  method DeserializeFrameLength(is: Streams.StringReader, contentType: ContentType) returns (ret: Result<uint32>)
     requires is.Valid()
     modifies is
     ensures is.Valid()
