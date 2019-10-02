@@ -384,6 +384,38 @@ module {:extern "STL"} StandardLibrary {
      (lengthOfCommonPrefix < |b| && lt(a[lengthOfCommonPrefix], b[lengthOfCommonPrefix])))
   }
 
+  predicate Trichotomous<T(!new)>(lt: (T, T) -> bool) {
+    forall t, t' :: lt(t, t') || t == t' || lt(t', t)
+  }
+
+  lemma LexPreservesTrichotomy<T>(a: seq<T>, b: seq<T>, lt: (T, T) -> bool)
+    requires Trichotomous(lt)
+    ensures LexCmpSeqs(a, b, lt) || a == b || LexCmpSeqs(b, a, lt)
+  {
+    var m := 0;
+    while m < |a| && m < |b| && a[m] == b[m]
+      invariant m <= |a| && m <= |b|
+      invariant forall i :: 0 <= i < m ==> a[i] == b[i]
+    {
+      m := m + 1;
+    }
+    // m is the length of the common prefix of a and b
+    if m == |a| == |b| {
+      assert a == b;
+    } else if m == |a| < |b| {
+      assert LexCmpSeqsTo(a, b, lt, m);
+    } else if m == |b| < |a| {
+      assert LexCmpSeqsTo(b, a, lt, m);
+    } else {
+      assert m < |a| && m < |b|;
+      if
+      case lt(a[m], b[m]) =>
+        assert LexCmpSeqsTo(a, b, lt, m);
+      case lt(b[m], a[m]) =>
+        assert LexCmpSeqsTo(b, a, lt, m);
+    }
+  }
+
   lemma {:axiom} eq_multiset_eq_len<T> (s : seq<T>, s' : seq<T>)
       requires multiset(s) == multiset(s')
       ensures |s| == |s'|

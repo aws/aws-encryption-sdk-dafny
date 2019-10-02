@@ -187,13 +187,17 @@ module MessageHeader.Deserialize {
       var value := bytes[..];
       totalBytesRead := totalBytesRead + bytes.Length;
 
-      // check for sortedness by key
-      if i != 0 && !LexCmpSeqs(kvPairs[i - 1].0, key, UInt8Less) {
-        return Failure("Deserialization Error: Key-value pairs must be sorted by key.");
+      // We want to keep entries sorted by key. We don't insist that the entries be sorted
+      // already, but we do insist there are no duplicate keys.
+      var opt, insertionPoint := Utils.InsertNewEntry(kvPairs, key, value);
+      match opt {
+        case Some(kvPairs_) =>
+          Validity.KVPairsLengthInsert(kvPairs, insertionPoint, key, value);
+          kvPairs := kvPairs_;
+        case None =>
+          return Failure("Deserialization Error: Duplicate key.");
       }
-
-      KVPairsLengthExtend(kvPairs, key, value);
-      kvPairs := kvPairs + [(key, value)];
+      
       i := i + 1;
     }
     if aadLength as nat != totalBytesRead {
@@ -216,7 +220,7 @@ module MessageHeader.Deserialize {
     var bytes :- DeserializeUnrestricted(is, 2);
     var edkCount := ArrayToUInt16(bytes);
     if edkCount == 0 {
-      return Failure("Deserialization Error: Encrypted data key count must be > 0.");
+      return Failure("Deserialization Error: Encrypted data key count is 0.");
     }
 
     var edkEntries: seq<EDKEntry> := [];

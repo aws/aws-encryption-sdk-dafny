@@ -105,6 +105,37 @@ module MessageHeader.Validity {
     KVPairsLengthPrefix(kvPairs, [(key, value)]);
   }
 
+  lemma KVPairsLengthInsert(kvPairs: Materials.EncryptionContext, insertionPoint: nat, key: seq<uint8>, value: seq<uint8>)
+    requires insertionPoint <= |kvPairs|
+    ensures var kvPairs' := kvPairs[..insertionPoint] + [(key, value)] + kvPairs[insertionPoint..];
+      KVPairsLength(kvPairs', 0, |kvPairs'|) == KVPairsLength(kvPairs, 0, |kvPairs|) + 4 + |key| + |value|
+    decreases |kvPairs|
+  {
+    var kvPairs' := kvPairs[..insertionPoint] + [(key, value)] + kvPairs[insertionPoint..];
+    if |kvPairs| == insertionPoint {
+      assert kvPairs' == kvPairs + [(key, value)];
+      KVPairsLengthExtend(kvPairs, key, value);
+    } else {
+      var m := |kvPairs| - 1;
+      var (d0, d1) := kvPairs[m];
+      var a, b, c, d := kvPairs[..insertionPoint], [(key, value)], kvPairs[insertionPoint..m], [(d0, d1)];
+      assert kvPairs == a + c + d;
+      assert kvPairs' == a + b + c + d;
+      var ac := a + c;
+      var abc := a + b + c;
+      calc {
+        KVPairsLength(kvPairs', 0, |kvPairs'|);
+        KVPairsLength(abc + [(d0, d1)], 0, |abc| + 1);
+      ==  { KVPairsLengthExtend(abc, d0, d1); }
+        KVPairsLength(abc, 0, |abc|) + 4 + |d0| + |d1|;
+      ==  { KVPairsLengthInsert(ac, insertionPoint, key, value); }
+        KVPairsLength(ac, 0, |ac|) + 4 + |key| + |value| + 4 + |d0| + |d1|;
+      ==  { KVPairsLengthExtend(ac, d0, d1); }
+        KVPairsLength(kvPairs, 0, |kvPairs|) + 4 + |key| + |value|;
+      }
+    }
+  }
+
   function AADLength(kvPairs: Materials.EncryptionContext): nat {
     if |kvPairs| == 0 then 0 else
       2 + KVPairsLength(kvPairs, 0, |kvPairs|)
