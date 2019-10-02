@@ -32,8 +32,8 @@ module MessageHeader.Deserialize {
     ensures is.Valid()
   {
     var version :- Utils.ReadFixedLengthFromStreamOrFail(is, 1);
-    if version[0] == 0x01 {
-      return Success(version[0] as Msg.Version);
+    if version[0] == Msg.VERSION_1 {
+      return Success(version[0]);
     } else {
       return Failure("Deserialization Error: Version not supported.");
     }
@@ -45,8 +45,8 @@ module MessageHeader.Deserialize {
     ensures is.Valid()
   {
     var typ :- Utils.ReadFixedLengthFromStreamOrFail(is, 1);
-    if typ[0] == 0x80 {
-      return Success(typ[0] as Msg.Type);
+    if typ[0] == Msg.TYPE_CUSTOMER_AED {
+      return Success(typ[0]);
     } else {
       return Failure("Deserialization Error: Type not supported.");
     }
@@ -254,14 +254,12 @@ module MessageHeader.Deserialize {
     modifies is
     ensures is.Valid()
   {
-    var contentType :- Utils.ReadFixedLengthFromStreamOrFail(is, 1);
-    if contentType[0] == 0x01 {
-      return Success(Msg.NonFramed);
-    } else if contentType[0] == 0x02 {
-      return Success(Msg.Framed);
-    } else {
+    var bytes :- Utils.ReadFixedLengthFromStreamOrFail(is, 1);
+    match Msg.UInt8ToContentType(bytes[0])
+    case None =>
       return Failure("Deserialization Error: Content type not supported.");
-    }
+    case Some(contentType) =>
+      return Success(contentType);
   }
 
   method DeserializeReserved(is: Streams.StringReader) returns (ret: Result<Msg.Reserved>)

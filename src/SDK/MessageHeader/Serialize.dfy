@@ -28,7 +28,7 @@ module MessageHeader.Serialize {
     hb.messageID +
     SerializeAAD.SerializeAAD(hb.aad) +
     SerializeEDK.SerializeEDKs(hb.encryptedDataKeys) +
-    (match hb.contentType case NonFramed => [0x01] case Framed => [0x02]) +
+    [Msg.ContentTypeToUInt8(hb.contentType)] +
     hb.reserved +
     [hb.ivLength] +
     UInt32ToSeq(hb.frameLength)
@@ -69,11 +69,7 @@ module MessageHeader.Serialize {
     len :- SerializeEDK.SerializeEDKsImpl(os, hb.encryptedDataKeys);
     totalWritten := totalWritten + len;
 
-    var contentType: uint8;
-    match hb.contentType {
-      case NonFramed => contentType := 0x01;
-      case Framed    => contentType := 0x02;
-    }
+    var contentType := Msg.ContentTypeToUInt8(hb.contentType);
     len :- os.WriteSingleByteSimple(contentType);
     totalWritten := totalWritten + len;
 
