@@ -96,17 +96,17 @@ module MessageHeader.SerializeAAD {
 
   // ----- Implementation -----
 
-  method SerializeAADImpl(os: Streams.StringWriter, kvPairs: Materials.EncryptionContext) returns (ret: Result<nat>)
-    requires os.Valid() && V.ValidAAD(kvPairs)
-    modifies os`data
-    ensures os.Valid() && V.ValidAAD(kvPairs)
+  method SerializeAADImpl(wr: Streams.StringWriter, kvPairs: Materials.EncryptionContext) returns (ret: Result<nat>)
+    requires wr.Valid() && V.ValidAAD(kvPairs)
+    modifies wr`data
+    ensures wr.Valid() && V.ValidAAD(kvPairs)
     ensures match ret
       case Success(totalWritten) =>
         var serAAD := SerializeAAD(kvPairs);
-        var initLen := old(|os.data|);
+        var initLen := old(|wr.data|);
         && totalWritten == |serAAD|
-        && initLen + totalWritten == |os.data|
-        && os.data == old(os.data) + serAAD
+        && initLen + totalWritten == |wr.data|
+        && wr.data == old(wr.data) + serAAD
       case Failure(e) => true
   {
     reveal V.ValidAAD();
@@ -115,7 +115,7 @@ module MessageHeader.SerializeAAD {
     // Key Value Pairs Length (number of bytes of total AAD)
     var length :- ComputeAADLength(kvPairs);
     var bytes := UInt16ToSeq(length);
-    var len :- os.WriteSimpleSeq(bytes);
+    var len :- wr.WriteSimpleSeq(bytes);
     totalWritten := totalWritten + len;
     assert totalWritten == 2;
     if length == 0 {
@@ -123,7 +123,7 @@ module MessageHeader.SerializeAAD {
     }
 
     bytes := UInt16ToSeq(|kvPairs| as uint16);
-    len :- os.WriteSimpleSeq(bytes);
+    len :- wr.WriteSimpleSeq(bytes);
     totalWritten := totalWritten + len;
     assert totalWritten == 4;
 
@@ -131,25 +131,25 @@ module MessageHeader.SerializeAAD {
     ghost var n := |kvPairs|;
     while j < |kvPairs|
       invariant j <= n == |kvPairs|
-      invariant os.data ==
-        old(os.data) +
+      invariant wr.data ==
+        old(wr.data) +
         UInt16ToSeq(length) +
         UInt16ToSeq(n as uint16) +
         SerializeKVPairs(kvPairs, 0, j)
       invariant totalWritten == 4 + |SerializeKVPairs(kvPairs, 0, j)|
     {
       bytes := UInt16ToSeq(|kvPairs[j].0| as uint16);
-      len :- os.WriteSimpleSeq(bytes);
+      len :- wr.WriteSimpleSeq(bytes);
       totalWritten := totalWritten + len;
 
-      len :- os.WriteSimpleSeq(kvPairs[j].0);
+      len :- wr.WriteSimpleSeq(kvPairs[j].0);
       totalWritten := totalWritten + len;
 
       bytes := UInt16ToSeq(|kvPairs[j].1| as uint16);
-      len :- os.WriteSimpleSeq(bytes);
+      len :- wr.WriteSimpleSeq(bytes);
       totalWritten := totalWritten + len;
 
-      len :- os.WriteSimpleSeq(kvPairs[j].1);
+      len :- wr.WriteSimpleSeq(kvPairs[j].1);
       totalWritten := totalWritten + len;
 
       j := j + 1;

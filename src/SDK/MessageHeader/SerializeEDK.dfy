@@ -42,17 +42,17 @@ module MessageHeader.SerializeEDK {
 
   // ----- Implementation -----
 
-  method SerializeEDKsImpl(os: Streams.StringWriter, encryptedDataKeys: Msg.EncryptedDataKeys) returns (ret: Result<nat>)
-    requires os.Valid() && V.ValidEncryptedDataKeys(encryptedDataKeys)
-    modifies os`data
-    ensures os.Valid() && V.ValidEncryptedDataKeys(encryptedDataKeys)
+  method SerializeEDKsImpl(wr: Streams.StringWriter, encryptedDataKeys: Msg.EncryptedDataKeys) returns (ret: Result<nat>)
+    requires wr.Valid() && V.ValidEncryptedDataKeys(encryptedDataKeys)
+    modifies wr`data
+    ensures wr.Valid() && V.ValidEncryptedDataKeys(encryptedDataKeys)
     ensures match ret
       case Success(totalWritten) =>
         var serEDK := SerializeEDKs(encryptedDataKeys);
-        var initLen := old(|os.data|);
+        var initLen := old(|wr.data|);
         && totalWritten == |serEDK|
-        && initLen + totalWritten == |os.data|
-        && os.data == old(os.data) + serEDK
+        && initLen + totalWritten == |wr.data|
+        && wr.data == old(wr.data) + serEDK
       case Failure(e) => true
   {
     reveal V.ValidEncryptedDataKeys();
@@ -60,7 +60,7 @@ module MessageHeader.SerializeEDK {
     var totalWritten := 0;
 
     var bytes := UInt16ToArray(|encryptedDataKeys.entries| as uint16);
-    var len :- os.WriteSimple(bytes);
+    var len :- wr.WriteSimple(bytes);
     totalWritten := totalWritten + len;
     assert totalWritten == 2;
 
@@ -68,8 +68,8 @@ module MessageHeader.SerializeEDK {
     ghost var n := |encryptedDataKeys.entries|;
     while j < |encryptedDataKeys.entries|
       invariant j <= n == |encryptedDataKeys.entries|
-      invariant os.data ==
-        old(os.data) +
+      invariant wr.data ==
+        old(wr.data) +
         UInt16ToSeq(n as uint16) +
         SerializeEDKEntries(encryptedDataKeys.entries, 0, j);
       invariant totalWritten == 2 + |SerializeEDKEntries(encryptedDataKeys.entries, 0, j)|
@@ -77,25 +77,25 @@ module MessageHeader.SerializeEDK {
       var entry := encryptedDataKeys.entries[j];
 
       bytes := UInt16ToArray(|entry.providerID| as uint16);
-      len :- os.WriteSimple(bytes);
+      len :- wr.WriteSimple(bytes);
       totalWritten := totalWritten + len;
 
       var byteSeq := StringToByteSeq(entry.providerID);
-      len :- os.WriteSimpleSeq(byteSeq);
+      len :- wr.WriteSimpleSeq(byteSeq);
       totalWritten := totalWritten + len;
 
       bytes := UInt16ToArray(|entry.providerInfo| as uint16);
-      len :- os.WriteSimple(bytes);
+      len :- wr.WriteSimple(bytes);
       totalWritten := totalWritten + len;
 
-      len :- os.WriteSimpleSeq(entry.providerInfo);
+      len :- wr.WriteSimpleSeq(entry.providerInfo);
       totalWritten := totalWritten + len;
 
       bytes := UInt16ToArray(|entry.ciphertext| as uint16);
-      len :- os.WriteSimple(bytes);
+      len :- wr.WriteSimple(bytes);
       totalWritten := totalWritten + len;
 
-      len :- os.WriteSimpleSeq(entry.ciphertext);
+      len :- wr.WriteSimpleSeq(entry.ciphertext);
       totalWritten := totalWritten + len;
 
       j := j + 1;

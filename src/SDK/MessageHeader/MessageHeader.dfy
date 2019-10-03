@@ -15,26 +15,26 @@ module MessageHeader {
   import D = Deserialize
   import S = Serialize
 
-  method Deserialize(is: Streams.StringReader) returns (res: Result<Definitions.Header>)
-    requires is.Valid()
-    modifies is
-    ensures is.Valid()
+  method Deserialize(rd: Streams.StringReader) returns (res: Result<Definitions.Header>)
+    requires rd.Valid()
+    modifies rd
+    ensures rd.Valid()
     ensures match res
       case Success(header) => Validity.ValidHeader(header)
       case Failure(_) => true
   {
-    var body :- D.DeserializeHeaderBody(is);
-    var auth :- D.DeserializeHeaderAuthentication(is, body.algorithmSuiteID);
+    var body :- D.DeserializeHeaderBody(rd);
+    var auth :- D.DeserializeHeaderAuthentication(rd, body.algorithmSuiteID);
     return Success(Definitions.Header(body, auth));
   }
 
-  method Serialize(os: Streams.StringWriter, header: Definitions.Header) returns (ret: Result<nat>)
-    requires os.Valid() && Validity.ValidHeader(header)
-    modifies os.Repr
-    ensures os.Valid()
+  method Serialize(wr: Streams.StringWriter, header: Definitions.Header) returns (ret: Result<nat>)
+    requires wr.Valid() && Validity.ValidHeader(header)
+    modifies wr.Repr
+    ensures wr.Valid()
   {
-    var m :- S.SerializeHeaderBody(os, header.body);
-    var n :- S.SerializeHeaderAuthentication(os, header.auth, header.body.algorithmSuiteID);
+    var m :- S.SerializeHeaderBody(wr, header.body);
+    var n :- S.SerializeHeaderAuthentication(wr, header.auth, header.body.algorithmSuiteID);
     return Success(m + n);
   }
 }

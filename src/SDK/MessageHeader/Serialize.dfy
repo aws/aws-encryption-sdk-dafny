@@ -34,75 +34,75 @@ module MessageHeader.Serialize {
     UInt32ToSeq(hb.frameLength)
   }
 
-  method SerializeHeaderBody(os: Streams.StringWriter, hb: Msg.HeaderBody) returns (ret: Result<nat>)
-    requires os.Valid() && V.ValidHeaderBody(hb)
-    modifies os`data
-    ensures os.Valid()
+  method SerializeHeaderBody(wr: Streams.StringWriter, hb: Msg.HeaderBody) returns (ret: Result<nat>)
+    requires wr.Valid() && V.ValidHeaderBody(hb)
+    modifies wr`data
+    ensures wr.Valid()
     ensures match ret
       case Success(totalWritten) =>
         var serHb := (reveal Serialize(); Serialize(hb));
-        var initLen := old(|os.data|);
+        var initLen := old(|wr.data|);
         && totalWritten == |serHb|
-        && initLen + totalWritten == |os.data|
-        && serHb == os.data[initLen..initLen + totalWritten]
+        && initLen + totalWritten == |wr.data|
+        && serHb == wr.data[initLen..initLen + totalWritten]
       case Failure(e) => true
   {
     var totalWritten := 0;
 
-    var len :- os.WriteSingleByteSimple(hb.version as uint8);
+    var len :- wr.WriteSingleByteSimple(hb.version as uint8);
     totalWritten := totalWritten + len;
 
-    len :- os.WriteSingleByteSimple(hb.typ as uint8);
+    len :- wr.WriteSingleByteSimple(hb.typ as uint8);
     totalWritten := totalWritten + len;
 
     var bytes := UInt16ToArray(hb.algorithmSuiteID as uint16);
-    len :- os.WriteSimple(bytes);
+    len :- wr.WriteSimple(bytes);
     totalWritten := totalWritten + len;
 
-    len :- os.WriteSimpleSeq(hb.messageID);
+    len :- wr.WriteSimpleSeq(hb.messageID);
     totalWritten := totalWritten + len;
 
     reveal V.ValidHeaderBody();
-    len :- SerializeAAD.SerializeAADImpl(os, hb.aad);
+    len :- SerializeAAD.SerializeAADImpl(wr, hb.aad);
     totalWritten := totalWritten + len;
 
-    len :- SerializeEDK.SerializeEDKsImpl(os, hb.encryptedDataKeys);
+    len :- SerializeEDK.SerializeEDKsImpl(wr, hb.encryptedDataKeys);
     totalWritten := totalWritten + len;
 
     var contentType := Msg.ContentTypeToUInt8(hb.contentType);
-    len :- os.WriteSingleByteSimple(contentType);
+    len :- wr.WriteSingleByteSimple(contentType);
     totalWritten := totalWritten + len;
 
-    len :- os.WriteSimpleSeq(hb.reserved);
+    len :- wr.WriteSimpleSeq(hb.reserved);
     totalWritten := totalWritten + len;
 
-    len :- os.WriteSingleByteSimple(hb.ivLength);
+    len :- wr.WriteSingleByteSimple(hb.ivLength);
     totalWritten := totalWritten + len;
 
     bytes := UInt32ToArray(hb.frameLength);
-    len :- os.WriteSimple(bytes);
+    len :- wr.WriteSimple(bytes);
     totalWritten := totalWritten + len;
 
     reveal Serialize();
     return Success(totalWritten);
   }
 
-  method SerializeHeaderAuthentication(os: Streams.StringWriter, ha: Msg.HeaderAuthentication, ghost algorithmSuiteID: AlgorithmSuite.ID) returns (ret: Result<nat>)
-    requires os.Valid()
+  method SerializeHeaderAuthentication(wr: Streams.StringWriter, ha: Msg.HeaderAuthentication, ghost algorithmSuiteID: AlgorithmSuite.ID) returns (ret: Result<nat>)
+    requires wr.Valid()
     requires V.ValidHeaderAuthentication(ha, algorithmSuiteID)
-    modifies os`data
-    ensures os.Valid()
+    modifies wr`data
+    ensures wr.Valid()
     ensures match ret
       case Success(totalWritten) =>
         var serHa := ha.iv + ha.authenticationTag;
-        var initLen := old(|os.data|);
+        var initLen := old(|wr.data|);
         && totalWritten == |serHa|
-        && initLen + totalWritten == |os.data|
-        && serHa == os.data[initLen..initLen + totalWritten]
+        && initLen + totalWritten == |wr.data|
+        && serHa == wr.data[initLen..initLen + totalWritten]
       case Failure(e) => true
   {
-    var m :- os.WriteSimpleSeq(ha.iv);
-    var n :- os.WriteSimpleSeq(ha.authenticationTag);
+    var m :- wr.WriteSimpleSeq(ha.iv);
+    var n :- wr.WriteSimpleSeq(ha.authenticationTag);
     return Success(m + n);
   }
 }
