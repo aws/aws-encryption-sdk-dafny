@@ -1,19 +1,26 @@
 include "../AlgorithmSuite.dfy"
 include "../../StandardLibrary/StandardLibrary.dfy"
 include "../Materials.dfy"
-include "../../Util/Streams.dfy"
 include "../../Util/UTF8.dfy"
 
-module MessageHeader.Definitions {
+module MessageHeader.Format {
   import AlgorithmSuite
   import opened StandardLibrary
   import opened UInt = StandardLibrary.UInt
   import Materials
+  import UTF8
 
   /*
    * Definition of the message header, i.e., the header body and the header authentication
    */
   datatype Header = Header(body: HeaderBody, auth: HeaderAuthentication)
+  {
+    predicate Valid() {
+      && body.Valid()
+      && auth.Valid(body.algorithmSuiteID)
+    }
+  }
+
 
   /*
    * Header body type definition
@@ -53,62 +60,70 @@ module MessageHeader.Definitions {
   }
 
   datatype EncryptedDataKeys = EncryptedDataKeys(entries: seq<Materials.EncryptedDataKey>)
+  {
+    predicate {:opaque} Valid() {
+      && |entries| < UINT16_LIMIT
+      && (forall i :: 0 <= i < |entries| ==> entries[i].Valid())
+      // TODO: well-formedness of EDK
+      /*
+      Key Provider ID
+      The key provider identifier. The value of this field indicates the provider of the encrypted data key. See Key Provider for details on supported key providers.
 
-  datatype HeaderBody        = HeaderBody(
-                                 version: Version,
-                                 typ: Type,
-                                 algorithmSuiteID: AlgorithmSuite.ID,
-                                 messageID: MessageID,
-                                 aad: Materials.EncryptionContext,
-                                 encryptedDataKeys: EncryptedDataKeys,
-                                 contentType: ContentType,
-                                 reserved: Reserved,
-                                 ivLength: uint8,
-                                 frameLength: uint32)
+      Key Provider Information
+      The key provider information. The key provider for this encrypted data key determines what this field contains.
+
+      Encrypted Data Key
+      The encrypted data key. It is the data key encrypted by the key provider.
+      */
+    }
+  }
+
+  datatype HeaderBody = HeaderBody(
+                          version: Version,
+                          typ: Type,
+                          algorithmSuiteID: AlgorithmSuite.ID,
+                          messageID: MessageID,
+                          aad: Materials.EncryptionContext,
+                          encryptedDataKeys: EncryptedDataKeys,
+                          contentType: ContentType,
+                          reserved: Reserved,
+                          ivLength: uint8,
+                          frameLength: uint32)
+  {
+    predicate {:opaque} Valid() {
+      && ValidAlgorithmID(algorithmSuiteID)
+      && ValidMessageID(messageID)
+      && ValidAAD(aad)
+      && encryptedDataKeys.Valid()
+      && ValidIVLength(ivLength, algorithmSuiteID)
+      && ValidFrameLength(frameLength, contentType)
+    }
+  }
+
 
   /*
    * Header authentication type definition
    */
   datatype HeaderAuthentication = HeaderAuthentication(iv: seq<uint8>, authenticationTag: seq<uint8>)
-}
-
-
-module MessageHeader.Validity {
-  import Msg = Definitions
-  import Utils
-
-  import AlgorithmSuite
-  import opened StandardLibrary
-  import opened UInt = StandardLibrary.UInt
-  import UTF8
-  import Materials
-
-  /*
-   * Validity of the message header
-   * The validity depends on predicates and on the types of the fields
-   */
-  predicate ValidHeader(header: Msg.Header) {
-    && ValidHeaderBody(header.body)
-    && ValidHeaderAuthentication(header.auth, header.body.algorithmSuiteID)
+  {
+    predicate Valid(algorithmSuiteID: AlgorithmSuite.ID)
+      requires algorithmSuiteID in AlgorithmSuite.Suite.Keys
+    {
+      |authenticationTag| == AlgorithmSuite.Suite[algorithmSuiteID].params.tagLen as int &&
+      |iv| == AlgorithmSuite.Suite[algorithmSuiteID].params.ivLen as int
+    }
   }
 
-  predicate {:opaque} ValidHeaderBody(hb: Msg.HeaderBody) {
-    && ValidAlgorithmID(hb.algorithmSuiteID)
-    && ValidMessageID(hb.messageID)
-    && ValidAAD(hb.aad)
-    && ValidEncryptedDataKeys(hb.encryptedDataKeys)
-    && ValidIVLength(hb.ivLength, hb.algorithmSuiteID)
-    && ValidFrameLength(hb.frameLength, hb.contentType)
-  }
+
 
   // TODO: strengthen spec when available
-  predicate UniquelyIdentifiesMessage(id: Msg.MessageID)      { true }
-  predicate WeaklyBindsHeaderToHeaderBody(id: Msg.MessageID)  { true }
-  predicate EnablesSecureReuse(id: Msg.MessageID)             { true }
-  predicate ProtectsAgainstAccidentalReuse(id: Msg.MessageID) { true }
-  predicate ProtectsAgainstWearingOut(id: Msg.MessageID)      { true }
+  predicate UniquelyIdentifiesMessage(id: MessageID)      { true }
+  predicate WeaklyBindsHeaderToHeaderBody(id: MessageID)  { true }
+  predicate EnablesSecureReuse(id: MessageID)             { true }
+  predicate ProtectsAgainstAccidentalReuse(id: MessageID) { true }
+  predicate ProtectsAgainstWearingOut(id: MessageID)      { true }
 
-  predicate ValidMessageID(id: Msg.MessageID) {
+  predicate ValidMessageID(id: MessageID) {
     && UniquelyIdentifiesMessage(id)
     && WeaklyBindsHeaderToHeaderBody(id)
     && EnablesSecureReuse(id)
@@ -214,53 +229,19 @@ module MessageHeader.Validity {
   predicate {:opaque} ValidAAD(kvPairs: Materials.EncryptionContext) {
     && |kvPairs| < UINT16_LIMIT
     && (forall i :: 0 <= i < |kvPairs| ==> ValidKVPair(kvPairs[i]))
-    && Utils.SortedKVPairs(kvPairs)
+    && SortedKVPairs(kvPairs)
     && AADLength(kvPairs) < UINT16_LIMIT
-  }
-
-  predicate {:opaque} ValidEncryptedDataKeys(encryptedDataKeys: Msg.EncryptedDataKeys) {
-    && |encryptedDataKeys.entries| < UINT16_LIMIT
-    && (forall i :: 0 <= i < |encryptedDataKeys.entries| ==> encryptedDataKeys.entries[i].Valid())
-    // TODO: well-formedness of EDK
-    /*
-    Key Provider ID
-    The key provider identifier. The value of this field indicates the provider of the encrypted data key. See Key Provider for details on supported key providers.
-
-    Key Provider Information
-    The key provider information. The key provider for this encrypted data key determines what this field contains.
-
-    Encrypted Data Key
-    The encrypted data key. It is the data key encrypted by the key provider.
-    */
   }
 
   predicate ValidIVLength(ivLength: uint8, algorithmSuiteID: AlgorithmSuite.ID) {
     algorithmSuiteID in AlgorithmSuite.Suite.Keys && AlgorithmSuite.Suite[algorithmSuiteID].params.ivLen == ivLength
   }
 
-  predicate ValidFrameLength(frameLength: uint32, contentType: Msg.ContentType) {
+  predicate ValidFrameLength(frameLength: uint32, contentType: ContentType) {
     match contentType
     case NonFramed => frameLength == 0
     case Framed => true
   }
-
-  /*
-   * Validity of the message header authentication
-   */
-  predicate ValidHeaderAuthentication(ha: Msg.HeaderAuthentication, algorithmSuiteID: AlgorithmSuite.ID)
-    requires algorithmSuiteID in AlgorithmSuite.Suite.Keys
-  {
-    |ha.authenticationTag| == AlgorithmSuite.Suite[algorithmSuiteID].params.tagLen as int &&
-    |ha.iv| == AlgorithmSuite.Suite[algorithmSuiteID].params.ivLen as int
-  }
-}
-
-
-module MessageHeader.Utils {
-  import AlgorithmSuite
-  import Streams
-  import opened StandardLibrary
-  import opened UInt = StandardLibrary.UInt
 
   predicate SortedKVPairsUpTo(a: seq<(seq<uint8>, seq<uint8>)>, n: nat)
     requires n <= |a|

@@ -13,9 +13,7 @@ include "../../Util/UTF8.dfy"
  * When encountering an error, we stop and return it immediately, leaving the remaining inputs on the stream
  */
 module MessageHeader.Deserialize {
-  import Msg = Definitions
-  import V = Validity
-  import Utils
+  import Msg = Format
 
   import AlgorithmSuite
   import Streams
@@ -55,7 +53,7 @@ module MessageHeader.Deserialize {
     modifies rd
     ensures rd.Valid()
     ensures match ret
-      case Success(algorithmSuiteID) => V.ValidAlgorithmID(algorithmSuiteID)
+      case Success(algorithmSuiteID) => Msg.ValidAlgorithmID(algorithmSuiteID)
       case Failure(_) => true
   {
     var algorithmSuiteID :- rd.ReadUInt16();
@@ -71,7 +69,7 @@ module MessageHeader.Deserialize {
     modifies rd
     ensures rd.Valid()
     ensures match ret
-      case Success(msgID) => V.ValidMessageID(msgID)
+      case Success(msgID) => Msg.ValidMessageID(msgID)
       case Failure(_) => true
   {
     var msgID: seq<uint8> :- rd.ReadExact(Msg.MESSAGE_ID_LEN);
@@ -101,10 +99,10 @@ module MessageHeader.Deserialize {
     modifies rd
     ensures rd.Valid()
     ensures match ret
-      case Success(aad) => V.ValidAAD(aad)
+      case Success(aad) => Msg.ValidAAD(aad)
       case Failure(_) => true
   {
-    reveal V.ValidAAD();
+    reveal Msg.ValidAAD();
 
     var aadLength :- rd.ReadUInt16();
     if aadLength == 0 {
@@ -128,8 +126,8 @@ module MessageHeader.Deserialize {
       invariant rd.Valid()
       invariant |kvPairs| == i as int
       invariant i <= kvPairsCount
-      invariant totalBytesRead == 2 + V.KVPairsLength(kvPairs, 0, i as nat) <= aadLength as nat
-      invariant V.ValidAAD(kvPairs)
+      invariant totalBytesRead == 2 + Msg.KVPairsLength(kvPairs, 0, i as nat) <= aadLength as nat
+      invariant Msg.ValidAAD(kvPairs)
     {
       var keyLength :- rd.ReadUInt16();
       totalBytesRead := totalBytesRead + 2;
@@ -149,10 +147,10 @@ module MessageHeader.Deserialize {
 
       // We want to keep entries sorted by key. We don't insist that the entries be sorted
       // already, but we do insist there are no duplicate keys.
-      var opt, insertionPoint := Utils.InsertNewEntry(kvPairs, key, value);
+      var opt, insertionPoint := Msg.InsertNewEntry(kvPairs, key, value);
       match opt {
         case Some(kvPairs_) =>
-          V.KVPairsLengthInsert(kvPairs, insertionPoint, key, value);
+          Msg.KVPairsLengthInsert(kvPairs, insertionPoint, key, value);
           kvPairs := kvPairs_;
         case None =>
           return Failure("Deserialization Error: Duplicate key.");
@@ -171,10 +169,10 @@ module MessageHeader.Deserialize {
     modifies rd
     ensures rd.Valid()
     ensures match ret
-      case Success(edks) => V.ValidEncryptedDataKeys(edks)
+      case Success(edks) => edks.Valid()
       case Failure(_) => true
   {
-    reveal V.ValidEncryptedDataKeys();
+    //reveal Msg.EncryptedDataKeys.Valid();
 
     var edkCount :- rd.ReadUInt16();
     if edkCount == 0 {
@@ -242,7 +240,7 @@ module MessageHeader.Deserialize {
     ensures rd.Valid()
     modifies rd
     ensures match ret
-      case Success(ivLength) => V.ValidIVLength(ivLength, algorithmSuiteID)
+      case Success(ivLength) => Msg.ValidIVLength(ivLength, algorithmSuiteID)
       case Failure(_) => true
   {
     var ivLength :- rd.ReadExact(1);
@@ -258,7 +256,7 @@ module MessageHeader.Deserialize {
     modifies rd
     ensures rd.Valid()
     ensures match ret
-      case Success(frameLength) => V.ValidFrameLength(frameLength, contentType)
+      case Success(frameLength) => Msg.ValidFrameLength(frameLength, contentType)
       case Failure(_) => true
   {
     var frameLength :- rd.ReadExact(4);
@@ -278,10 +276,10 @@ module MessageHeader.Deserialize {
     modifies rd
     ensures rd.Valid()
     ensures match ret
-      case Success(hb) => V.ValidHeaderBody(hb)
+      case Success(hb) => hb.Valid()
       case Failure(_) => true
   {
-    reveal V.ValidHeaderBody();
+    //reveal Msg.HeaderBody.Valid();
 
     var version :- DeserializeVersion(rd);
     var typ :- DeserializeType(rd);
@@ -314,7 +312,7 @@ module MessageHeader.Deserialize {
     modifies rd
     ensures rd.Valid()
     ensures match ret
-      case Success(ha) => V.ValidHeaderAuthentication(ha, algorithmSuiteID)
+      case Success(ha) => ha.Valid(algorithmSuiteID)
       case Failure(_) => true
   {
     var params := AlgorithmSuite.Suite[algorithmSuiteID].params;

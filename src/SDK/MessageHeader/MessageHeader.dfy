@@ -14,21 +14,21 @@ module MessageHeader {
   import D = Deserialize
   import S = Serialize
 
-  method Deserialize(rd: Streams.StringReader) returns (res: Result<Definitions.Header>)
+  method Deserialize(rd: Streams.StringReader) returns (res: Result<Format.Header>)
     requires rd.Valid()
     modifies rd
     ensures rd.Valid()
     ensures match res
-      case Success(header) => Validity.ValidHeader(header)
+      case Success(header) => header.Valid()
       case Failure(_) => true
   {
     var body :- D.DeserializeHeaderBody(rd);
     var auth :- D.DeserializeHeaderAuthentication(rd, body.algorithmSuiteID);
-    return Success(Definitions.Header(body, auth));
+    return Success(Format.Header(body, auth));
   }
 
-  method Serialize(wr: Streams.StringWriter, header: Definitions.Header) returns (ret: Result<nat>)
-    requires wr.Valid() && Validity.ValidHeader(header)
+  method Serialize(wr: Streams.StringWriter, header: Format.Header) returns (ret: Result<nat>)
+    requires wr.Valid() && header.Valid()
     modifies wr.Repr
     ensures wr.Valid()
   {
