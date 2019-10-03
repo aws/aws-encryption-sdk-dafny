@@ -3,7 +3,7 @@ include "../../StandardLibrary/UInt.dfy"
 include "../AlgorithmSuite.dfy"
 include "./Defs.dfy"
 include "../../Crypto/Cipher.dfy"
-include "../../Crypto/GenBytes.dfy"
+include "../../Crypto/Random.dfy"
 include "../../Crypto/AESEncryption.dfy"
 include "../Materials.dfy"
 
@@ -12,7 +12,7 @@ module AESKeyringDef {
   import opened UInt = StandardLibrary.UInt
   import AlgorithmSuite
   import Cipher
-  import GenBytes = RNG
+  import Random
   import KeyringDefs
   import AESEncryption
   import Mat = Materials
@@ -73,10 +73,10 @@ module AESKeyringDef {
     {
       var dataKey := encMat.plaintextDataKey;
       if dataKey.None? {
-        var k := Cipher.RNG.GenBytes(encMat.algorithmSuiteID.KeyLength() as uint16);
+        var k := Random.GenerateBytes(encMat.algorithmSuiteID.KeyLength() as int32);
         dataKey := Some(k);
       }
-      var iv := Cipher.RNG.GenBytes(wrappingAlgorithm.ivLen as uint16);
+      var iv := Random.GenerateBytes(wrappingAlgorithm.ivLen as int32);
       var aad := Mat.FlattenSortEncCtx(encMat.encryptionContext);
       var encryptResult := AESEncryption.AES.aes_encrypt(wrappingAlgorithm, iv, wrappingKey, dataKey.get, aad);
       if encryptResult.Failure? { return Failure("Error on encrypt!"); }

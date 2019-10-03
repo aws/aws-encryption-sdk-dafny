@@ -3,7 +3,7 @@ include "../../StandardLibrary/UInt.dfy"
 include "../Materials.dfy"
 include "Defs.dfy"
 include "../AlgorithmSuite.dfy"
-include "../../Crypto/GenBytes.dfy"
+include "../../Crypto/Random.dfy"
 include "../../Crypto/RSAEncryption.dfy"
 
 module RSAKeyringDef {
@@ -13,7 +13,7 @@ module RSAKeyringDef {
   import AlgorithmSuite
   import RSA = RSAEncryption
   import Materials
-  import RNG
+  import Random
 
   class RSAKeyring extends KeyringDefs.Keyring {
     const keyNamespace: seq<uint8>
@@ -66,7 +66,7 @@ module RSAKeyringDef {
         var dataKey := encMat.plaintextDataKey;
         var algorithmID := encMat.algorithmSuiteID;
         if dataKey.None? {
-          var k := RNG.GenBytes(algorithmID.KeyLength() as uint16);
+          var k := Random.GenerateBytes(algorithmID.KeyLength() as int32);
           dataKey := Some(k);
         }
         var aad := Materials.FlattenSortEncCtx(encMat.encryptionContext);
