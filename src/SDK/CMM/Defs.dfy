@@ -12,15 +12,28 @@ module CMMDefs {
     ghost var Repr : set<object>
     predicate Valid() reads this, Repr
 
-    method EncMatRequest(ec: Materials.EncryptionContext, alg_id: Option<AlgorithmSuite.ID>, pt_len: Option<nat>) returns (res: Result<Materials.EncryptionMaterials>)
+    method GetEncryptionMaterials(encCtx: Materials.EncryptionContext,
+                                  algSuiteID: Option<AlgorithmSuite.ID>,
+                                  plaintextLen: Option<nat>)
+                                  returns (res: Result<Materials.EncryptionMaterials>)
       requires Valid()
       ensures Valid()
-      ensures res.Success? ==> res.value.Valid()
+      ensures res.Success? ==> res.value.Valid() &&
+                               res.value.plaintextDataKey.Some? && 
+                               |res.value.plaintextDataKey.get| == res.value.algorithmSuiteID.KeyLength() &&
+                               |res.value.encryptedDataKeys| > 0
+      ensures res.Success? && res.value.algorithmSuiteID.SignatureType().Some? ==> res.value.signingKey.Some?
 
-    method DecMatRequest(alg_id: AlgorithmSuite.ID, edks: seq<Materials.EncryptedDataKey>, enc_ctx: Materials.EncryptionContext) returns (res: Result<Materials.DecryptionMaterials>)
+    method DecryptMaterials(algSuiteID: AlgorithmSuite.ID,
+                            edks: seq<Materials.EncryptedDataKey>,
+                            encCtx: Materials.EncryptionContext)
+                            returns (res: Result<Materials.DecryptionMaterials>)
       requires |edks| > 0
       requires Valid()
       ensures Valid()
-      ensures res.Success? ==> res.value.Valid()
+      ensures res.Success? ==> res.value.Valid() &&
+                               res.value.plaintextDataKey.Some? &&
+                               |res.value.plaintextDataKey.get| == res.value.algorithmSuiteID.KeyLength()
+      ensures res.Success? && res.value.algorithmSuiteID.SignatureType().Some? ==> res.value.verificationKey.Some?
   }
 }
