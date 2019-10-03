@@ -22,11 +22,11 @@ module {:extern "AESEncryption"} AESEncryption {
     res := AES.AESDecrypt(params, key, ctxt, iv, aad);
   }
 
-  method AESEncrypt(params: AESUtils.Params, iv : seq<uint8>, key : seq<uint8>, msg : seq<uint8>, aad : seq<uint8>)
+  method AESEncrypt(params: AESUtils.Params, iv: seq<uint8>, key: seq<uint8>, msg: seq<uint8>, aad: seq<uint8>)
     returns (res : Result<seq<uint8>>)
     requires |iv| == params.ivLen as int
     requires |key| == params.keyLen as int
-    ensures res.Success? ==> |res.value| > params.tagLen as int
+    ensures res.Success? ==> params.tagLen as int < |res.value|
   {
     res := AES.AESEncrypt(params, iv, key, msg, aad);
   }

@@ -14,14 +14,14 @@ module WrappingAlgorithmSuite {
 
   const VALID_ALGORITHMS := {AES_GCM_128, AES_GCM_192, AES_GCM_256}
 
-  method GenIV(p: AES.Params) returns (s : seq<uint8>)
-  ensures |s| == p.ivLen as int
+  method GenIV(p: AES.Params) returns (s: seq<uint8>)
+    ensures |s| == p.ivLen as int
   {
     s := RNG.GenBytes(p.ivLen as uint16);
   }
 
-  method GenKey(p: AES.Params) returns (s : seq<uint8>)
-  ensures |s| == p.keyLen as int
+  method GenKey(p: AES.Params) returns (s: seq<uint8>)
+    ensures |s| == p.keyLen as int
   {
     s := RNG.GenBytes(p.keyLen as uint16);
   }

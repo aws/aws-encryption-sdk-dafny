@@ -87,7 +87,7 @@ module ToyClientDef {
       case Some(dk) =>
         if |dk| == 32 && |e.ctxt| > 12 {
           var cipherText := e.ctxt[WrappingAlgorithmSuite.AES_GCM_256.ivLen ..];
-          var iv := e.ctxt[0 .. WrappingAlgorithmSuite.AES_GCM_256.ivLen];
+          var iv := e.ctxt[.. WrappingAlgorithmSuite.AES_GCM_256.ivLen];
           var msg := AESEncryption.AESDecrypt(WrappingAlgorithmSuite.AES_GCM_256, dk, cipherText, iv, []);
           return msg;
         } else {

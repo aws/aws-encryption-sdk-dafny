@@ -31,8 +31,8 @@ module AESKeyringDef {
 
     predicate Valid() reads this {
         Repr == {this} &&
-        (|wrappingKey| == wrappingAlgorithm.keyLen as int) &&
-        (wrappingAlgorithm in WrappingSuite.VALID_ALGORITHMS) &&
+        |wrappingKey| == wrappingAlgorithm.keyLen as int &&
+        wrappingAlgorithm in WrappingSuite.VALID_ALGORITHMS &&
         StringIs8Bit(keyNamespace) && StringIs8Bit(keyName)
     }
 
