@@ -12,7 +12,7 @@ SRCS = \
 	   src/Crypto/AESEncryption.dfy \
 	   src/Crypto/Cipher.dfy \
 	   src/Crypto/Digests.dfy \
-	   src/Crypto/GenBytes.dfy \
+	   src/Crypto/Random.dfy \
 	   src/Crypto/RSAEncryption.dfy \
 	   src/Crypto/Signature.dfy \
 	   src/Main.dfy \
@@ -35,14 +35,11 @@ SRCS = \
 
 SRCV = $(patsubst src/%.dfy, build/%.dfy.verified, $(SRCS))
 
+DEPS_CS = $(wildcard src/extern/dotnet/*.cs)
+
 BCDLL = lib/BouncyCastle.1.8.5/lib/BouncyCastle.Crypto.dll
 
-SRCDIRS = $(dir $(SRCS))
-
-DEPS = $(foreach dir, $(SRCDIRS), $(wildcard $(dir)/*.cs)) \
-	$(BCDLL)
-
-DEPS_CS = $(foreach dir, src/Crypto/ src/ src/SDK/ src/SDK/CMM src/SDK/Keyring src/StandardLibrary src/Util, $(wildcard $(dir)/*.cs))
+DEPS = $(DEPS_CS) $(BCDLL)
 
 .PHONY: all release build verify buildcs hkdf test clean-build clean
 
