@@ -1,9 +1,8 @@
-include "Definitions.dfy"
+include "Format.dfy"
 include "Deserialize.dfy"
 include "Serialize.dfy"
-include "Validity.dfy"
-
 include "../AlgorithmSuite.dfy"
+
 include "../../Util/Streams.dfy"
 include "../../StandardLibrary/StandardLibrary.dfy"
 

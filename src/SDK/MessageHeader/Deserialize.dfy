@@ -1,9 +1,7 @@
-include "Definitions.dfy"
-include "Utils.dfy"
-include "Validity.dfy"
+include "Format.dfy"
 include "../Materials.dfy"
-
 include "../AlgorithmSuite.dfy"
+
 include "../../Util/Streams.dfy"
 include "../../StandardLibrary/StandardLibrary.dfy"
 include "../../Util/UTF8.dfy"
