@@ -10,11 +10,12 @@ endif
 # SRCS = $(foreach dir, $(SRCDIRS), $(wildcard $(dir)/*.dfy))
 SRCS = \
 	   src/Crypto/AESEncryption.dfy \
-	   src/Crypto/Cipher.dfy \
+	   src/Crypto/AESUtils.dfy \
 	   src/Crypto/Digests.dfy \
 	   src/Crypto/GenBytes.dfy \
 	   src/Crypto/RSAEncryption.dfy \
 	   src/Crypto/Signature.dfy \
+	   src/Crypto/WrappingAlgorithmSuite.dfy \
 	   src/Main.dfy \
 	   src/SDK/AlgorithmSuite.dfy \
 	   src/SDK/CMM/DefaultCMM.dfy \

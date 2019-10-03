@@ -3,7 +3,8 @@ include "../../StandardLibrary/StandardLibrary.dfy"
 include "../../StandardLibrary/UInt.dfy"
 include "../AlgorithmSuite.dfy"
 include "./Defs.dfy"
-include "../../Crypto/Cipher.dfy"
+include "../../Crypto/AESUtils.dfy"
+include "../../Crypto/WrappingAlgorithmSuite.dfy"
 include "../../Crypto/GenBytes.dfy"
 include "../../Crypto/AESEncryption.dfy"
 include "../Materials.dfy"
@@ -11,9 +12,10 @@ include "../Materials.dfy"
 module AESKeyringDef {
   import opened StandardLibrary
   import opened UInt = StandardLibrary.UInt
+  import AESUtils
   import AlgorithmSuite
-  import Cipher
-  import GenBytes = RNG
+  import WrappingSuite = WrappingAlgorithmSuite
+  import RNG
   import KeyringDefs
   import AESEncryption
   import Mat = Materials
@@ -25,19 +27,19 @@ module AESKeyringDef {
     const keyNamespace: string
     const keyName: string
     const wrappingKey: seq<uint8>
-    const wrappingAlgorithm: Cipher.CipherParams
+    const wrappingAlgorithm: AESUtils.Params
 
     predicate Valid() reads this {
         Repr == {this} &&
-        (|wrappingKey| == Cipher.KeyLengthOfCipher(wrappingAlgorithm)) &&
-        (wrappingAlgorithm in {Cipher.AES_GCM_128, Cipher.AES_GCM_192, Cipher.AES_GCM_256}) &&
+        (|wrappingKey| == wrappingAlgorithm.keyLen as int) &&
+        (wrappingAlgorithm in WrappingSuite.VALID_ALGORITHMS) &&
         StringIs8Bit(keyNamespace) && StringIs8Bit(keyName)
     }
 
-    constructor(namespace: string, name: string, key: seq<uint8>, wrappingAlg: Cipher.CipherParams)
+    constructor(namespace: string, name: string, key: seq<uint8>, wrappingAlg: AESUtils.Params)
     requires StringIs8Bit(namespace) && StringIs8Bit(name)
-    requires wrappingAlg in {Cipher.AES_GCM_128, Cipher.AES_GCM_192, Cipher.AES_GCM_256}
-    requires |key| == Cipher.KeyLengthOfCipher(wrappingAlg)
+    requires wrappingAlg in WrappingSuite.VALID_ALGORITHMS
+    requires |key| == wrappingAlg.keyLen as int
     ensures keyNamespace == namespace
     ensures keyName == name
     ensures wrappingKey == key
@@ -74,12 +76,12 @@ module AESKeyringDef {
     {
       var dataKey := encMat.plaintextDataKey;
       if dataKey.None? {
-        var k := Cipher.RNG.GenBytes(encMat.algorithmSuiteID.KeyLength() as uint16);
+        var k := RNG.GenBytes(encMat.algorithmSuiteID.KeyLength() as uint16);
         dataKey := Some(k);
       }
-      var iv := Cipher.RNG.GenBytes(wrappingAlgorithm.ivLen as uint16);
+      var iv := RNG.GenBytes(wrappingAlgorithm.ivLen as uint16);
       var aad := Mat.FlattenSortEncCtx(encMat.encryptionContext);
-      var encryptResult := AESEncryption.AES.aes_encrypt(wrappingAlgorithm, iv, wrappingKey, dataKey.get, aad);
+      var encryptResult := AESEncryption.AESEncrypt(wrappingAlgorithm, iv, wrappingKey, dataKey.get, aad);
       if encryptResult.Failure? { return Failure("Error on encrypt!"); }
       var providerInfo := SerializeProviderInto(iv);
       var edk := Mat.EncryptedDataKey(keyNamespace, providerInfo, encryptResult.value);
@@ -117,17 +119,19 @@ module AESKeyringDef {
         return Success(decMat);
       }
       var i := 0;
-      while i < |edks| {
+      while i < |edks|
+        invariant unchanged(decMat)
+      {
         if edks[i].providerID == keyNamespace && ValidProviderInfo(edks[i].providerInfo) {
           var iv := GetIvFromProvInfo(edks[i].providerInfo);
           var flatEncCtx: seq<uint8> := Mat.FlattenSortEncCtx(decMat.encryptionContext);
-          var decryptResult := AESEncryption.AES.aes_decrypt(wrappingAlgorithm, wrappingKey, edks[i].ciphertext, iv, flatEncCtx);
+          var decryptResult := AESEncryption.AESDecrypt(wrappingAlgorithm, wrappingKey, edks[i].ciphertext, iv, flatEncCtx);
           if decryptResult.Success? {
             var ptKey := decryptResult.value;
             if |ptKey| == decMat.algorithmSuiteID.KeyLength() { // check for correct key length
               decMat.plaintextDataKey := Some(ptKey);
               return Success(decMat);
-            }
+            } // Should we fail if the key length is incorrect?
           } else {
             return Failure("Decryption failed");
           }

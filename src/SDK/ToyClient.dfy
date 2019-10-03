@@ -1,11 +1,12 @@
 include "../StandardLibrary/StandardLibrary.dfy"
 include "../StandardLibrary/UInt.dfy"
-include "Materials.dfy"
+include "AlgorithmSuite.dfy"
 include "CMM/Defs.dfy"
 include "CMM/DefaultCMM.dfy"
 include "Keyring/Defs.dfy"
-include "AlgorithmSuite.dfy"
+include "Materials.dfy"
 include "../Crypto/AESEncryption.dfy"
+include "../Crypto/WrappingAlgorithmSuite.dfy"
 
 module ToyClientDef {
   import opened StandardLibrary
@@ -16,7 +17,7 @@ module ToyClientDef {
   import KeyringDefs
   import AlgorithmSuite
   import AESEncryption
-  import Cipher
+  import WrappingAlgorithmSuite
 
   datatype Encryption = Encryption(ec: Materials.EncryptionContext, edks: seq<Materials.EncryptedDataKey>, ctxt: seq<uint8>)
 
@@ -69,8 +70,9 @@ module ToyClientDef {
       if |em.plaintextDataKey.get| != 32 {
         return Failure("bad data key length");
       }
-      var ciphertext :- AESEncryption.AES.AESEncrypt(Cipher.AES_GCM_256, em.plaintextDataKey.get, pt, []);
-      return Success(Encryption(em.encryptionContext, em.encryptedDataKeys, ciphertext));
+      var iv := WrappingAlgorithmSuite.GenIV(WrappingAlgorithmSuite.AES_GCM_256);
+      var ciphertext :- AESEncryption.AESEncrypt(WrappingAlgorithmSuite.AES_GCM_256, iv ,em.plaintextDataKey.get, pt, []);
+      return Success(Encryption(em.encryptionContext, em.encryptedDataKeys, iv + ciphertext));
     }
 
     method Decrypt(e: Encryption) returns (res: Result<seq<uint8>>)
@@ -84,7 +86,9 @@ module ToyClientDef {
       match decmat.plaintextDataKey
       case Some(dk) =>
         if |dk| == 32 && |e.ctxt| > 12 {
-          var msg := AESEncryption.AES.AESDecrypt(Cipher.AES_GCM_256, dk, [], e.ctxt);
+          var cipherText := e.ctxt[WrappingAlgorithmSuite.AES_GCM_256.ivLen ..];
+          var iv := e.ctxt[0 .. WrappingAlgorithmSuite.AES_GCM_256.ivLen];
+          var msg := AESEncryption.AESDecrypt(WrappingAlgorithmSuite.AES_GCM_256, dk, cipherText, iv, []);
           return msg;
         } else {
           return Failure("bad dk");

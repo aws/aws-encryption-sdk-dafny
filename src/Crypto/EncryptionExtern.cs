@@ -23,7 +23,8 @@ namespace AESEncryption {
     //TODO This code has yet to be reviewed. See issue #36
     public partial class AES_GCM {
 
-        public static STL.Result<byteseq> aes_encrypt(Cipher.CipherParams p,
+        //FIXME: Ensure that these methods correctly handle authenticaition tags, see #36
+        public static STL.Result<byteseq> AESEncrypt(AESUtils.Params p,
                                                       byteseq iv,
                                                       byteseq key,
                                                       byteseq msg,
@@ -43,7 +44,7 @@ namespace AESEncryption {
             }
         }
 
-        public static STL.Result<byteseq> aes_decrypt(Cipher.CipherParams p, byteseq key, byteseq ctx, byteseq iv, byteseq aad) {
+        public static STL.Result<byteseq> AESDecrypt(AESUtils.Params p, byteseq key, byteseq ctx, byteseq iv, byteseq aad) {
             try {
                 var cipher = new GcmBlockCipher(new AesEngine());
                 var param = new AeadParameters(new KeyParameter(key.Elements), p.tagLen * 8, iv.Elements, aad.Elements);

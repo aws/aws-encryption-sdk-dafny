@@ -1,5 +1,6 @@
 include "../StandardLibrary/StandardLibrary.dfy"
 
+//TODO This module should be renamed, see #55.
 module {:extern "RNGWrap"} RNG {
     import opened StandardLibrary
     import opened UInt = StandardLibrary.UInt
