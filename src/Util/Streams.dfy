@@ -4,43 +4,11 @@ module Streams {
   import opened StandardLibrary
   import opened UInt = StandardLibrary.UInt
 
-  trait Stream {
-    ghost var Repr: set<object>
-
-    predicate Valid()
-      reads this
-
-    function method Capacity(): nat  // An upper bound on the amount of data the stream can accept on Write
-      requires Valid()
-      reads this
-
-    function method Available(): nat  // An upper bound on the amount of data the stream can deliver on Read
-      requires Valid()
-      reads this
-
-    method Write(a: array<uint8>, off: nat, req: nat) returns (res: Result<nat>)
-      requires Valid() && a !in Repr
-      requires off + req <= a.Length
-      modifies Repr
-      ensures Valid()
-      ensures match res
-        case Success(len_written) => len_written == min(req, old(Capacity()))
-        case Failure(e) => true
-
-    method Read(i: array<uint8>, off: nat, req: nat) returns (res: Result<nat>)
-      requires Valid() && i !in Repr
-      requires off + req <= i.Length
-      modifies this, i
-      ensures Valid()
-      ensures match res
-        case Success(len_read) => len_read == min(req, old(Available()))
-        case Failure(e) => true
-  }
-
-
-  class StringReader extends Stream {
-    var data: array<uint8>
+  class StringReader {
+    const data: array<uint8>
     var pos: nat
+
+    ghost var Repr: set<object>
 
     predicate Valid()
       reads this
@@ -50,14 +18,7 @@ module Streams {
       pos <= data.Length
     }
 
-    function method Capacity(): nat
-      requires Valid()
-      reads this
-    {
-      0
-    }
-
-    function method Available(): nat
+    function method Available(): nat  // An upper bound on the amount of data the stream can deliver on Read
       requires Valid()
       reads this
     {
@@ -72,27 +33,15 @@ module Streams {
       pos := 0;
     }
 
-    method Write(a: array<uint8>, off: nat, req: nat) returns (res: Result<nat>)
-      requires Valid() && a !in Repr
-      modifies this
-      ensures Valid()
-      ensures match res
-        case Success(len_written) => len_written == min(req, old(Capacity()))
-        case Failure(e) => unchanged(this)
-    {
-      return Failure("IO Error: Cannot write to StringReader");
-    }
-
     method Read(arr: array<uint8>, off: nat, req: nat) returns (res: Result<nat>)
       requires Valid() && arr != data
       requires off + req <= arr.Length
       modifies this, arr
       ensures Valid()
-      ensures unchanged(`data)
       ensures var n := min(req, old(Available()));
         arr[..] == arr[..off] + data[old(pos) .. (old(pos) + n)] + arr[off + n ..]
       ensures match res
-        case Success(len_read) => len_read == min(req, old(Available()))
+        case Success(lengthRead) => lengthRead == min(req, old(Available()))
         case Failure(e) => unchanged(this) && unchanged(arr)
     {
       if off == arr.Length || Available() == 0 {
@@ -108,35 +57,53 @@ module Streams {
       }
     }
 
-    /*
-    // TODO add a version without arrays
-    method ReadSimple(arr: array<uint8>) returns (res: Result<nat>)
+    method ReadSeq(req: nat) returns (res: Result<seq<uint8>>)
       requires Valid()
       modifies this
       ensures Valid()
-      ensures  match res
-        case Success(len_read) =>
-          var n := arr.Length;
-          && pos == old(pos) + n
-          && arr[..] == data[old(pos) .. pos]
-          && len_read == n
+      ensures match res
+        case Success(bytes) => bytes == data[old(pos)..][..min(req, old(Available()))]
         case Failure(e) => unchanged(this)
     {
-      if arr.Length <= Available() {
-        forall i | 0 <= i < arr.Length {
-          arr[i] := data[pos + i];
-        }
-        pos := pos + arr.Length;
-        return Success(arr.Length);
+      var n := min(req, Available());
+      var bytes := seq(n, i requires 0 <= i < n && pos + n <= data.Length reads this, data => data[pos + i]);
+      pos := pos + n;
+      return Success(bytes);
+    }
+
+    // Read exactly `n` bytes, if possible; otherwise, fail.
+    method ReadExact(n: nat) returns (ret: Result<seq<uint8>>)
+      requires Valid()
+      modifies this
+      ensures Valid()
+      ensures match ret
+        case Success(bytes) => |bytes| == n
+        case Failure(_) => true
+    {
+      var bytes :- ReadSeq(n);
+      if |bytes| != n {
+        return Failure("IO Error: Not enough bytes left on stream.");
       } else {
-        return Failure("IO Error: Not enough bytes available on stream.");
+        return Success(bytes);
       }
     }
-    */
+
+    // Read exactly 2 bytes, if possible, and return as a uint16; otherwise, fail.
+    method ReadUInt16() returns (ret: Result<uint16>)
+      requires Valid()
+      modifies this
+      ensures Valid()
+    {
+      var bytes :- ReadExact(2);
+      var n := SeqToUInt16(bytes);
+      return Success(n);
+    }
   }
 
-  class StringWriter extends Stream {
+  class StringWriter {
     ghost var data: seq<uint8>
+
+    ghost var Repr: set<object>
 
     predicate Valid()
       reads this
@@ -144,21 +111,14 @@ module Streams {
       this in Repr
     }
 
-    function method Capacity(): nat
+    function method Capacity(): nat  // An upper bound on the amount of data the stream can accept on Write
       requires Valid()
       reads this
     {
       0 // TODO?
     }
 
-    function method Available(): nat
-      requires Valid()
-      reads this
-    {
-      0 // TODO
-    }
-
-    constructor(n: nat)
+    constructor()
       ensures Valid()
     {
       data := [];
@@ -175,8 +135,6 @@ module Streams {
           if old(Capacity()) == 0 then
             len_written == 0
           else
-            //&& old(pos + n < |data|)
-            //&& Written(old(data), data, old(pos), pos, a[off..off+n], len_written, n)
             && len_written == min(req, old(Capacity()))
             && data == old(data) + a[off..off+req]
         case Failure(e) => true
@@ -267,18 +225,6 @@ module Streams {
       } else {
         return Failure("IO Error: Reached end of stream.");
       }
-    }
-
-    method Read(arr: array<uint8>, off: nat, req: nat) returns (res: Result<nat>)
-      requires Valid()
-      requires off + req <= arr.Length
-      modifies this, arr
-      ensures Valid()
-      ensures match res
-        case Success(len_read) => len_read == min(req, old(Available()))
-        case Failure(e) => unchanged(this) && unchanged(arr)
-    {
-      return Failure("IO Error: Cannot read from StringWriter");
     }
   }
 }
