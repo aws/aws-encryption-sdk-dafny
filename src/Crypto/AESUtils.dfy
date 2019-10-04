@@ -14,8 +14,8 @@ module {:extern "AESUtils"} AESUtils {
 
   function method KeyLengthOfCipher(m: Mode): uint8 {
     match m
-    case AES256 => 32 as uint8
-    case AES192 => 24 as uint8
-    case AES128 => 16 as uint8
+    case AES256 => 32
+    case AES192 => 24
+    case AES128 => 16
   }
 }

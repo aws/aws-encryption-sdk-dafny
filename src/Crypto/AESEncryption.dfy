@@ -14,7 +14,8 @@ module {:extern "AESEncryption"} AESEncryption {
   export
     provides AESDecrypt, AESEncrypt, AESUtils, StandardLibrary, UInt
 
-  //FIXME: Ensure that these methods correctly handle authenticaition tags, see #36
+  //Note: AESDecrypt expects the message authentication tag (also known as MAC) to be present as the last n bytes of ctxt.
+  //      n = params.tagLen
   method AESDecrypt(params: AESUtils.Params, key: seq<uint8>, ctxt: seq<uint8>, iv: seq<uint8>, aad: seq<uint8>)
     returns (res: Result<seq<uint8>>)
     requires |key| == params.keyLen as int
@@ -22,6 +23,7 @@ module {:extern "AESEncryption"} AESEncryption {
     res := AES.AESDecrypt(params, key, ctxt, iv, aad);
   }
 
+  //Note: The return value of AESEncrypt is the encrypted message, concatenated with the authentication tag.
   method AESEncrypt(params: AESUtils.Params, iv: seq<uint8>, key: seq<uint8>, msg: seq<uint8>, aad: seq<uint8>)
     returns (res : Result<seq<uint8>>)
     requires |iv| == params.ivLen as int

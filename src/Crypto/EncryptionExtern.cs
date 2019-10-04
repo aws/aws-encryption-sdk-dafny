@@ -23,7 +23,6 @@ namespace AESEncryption {
     //TODO This code has yet to be reviewed. See issue #36
     public partial class AES_GCM {
 
-        //FIXME: Ensure that these methods correctly handle authenticaition tags, see #36
         public static STL.Result<byteseq> AESEncrypt(AESUtils.Params p,
                                                       byteseq iv,
                                                       byteseq key,
@@ -36,7 +35,7 @@ namespace AESEncryption {
 
                 byte[] c = new byte[cipher.GetOutputSize(msg.Elements.Length)];
                 var len = cipher.ProcessBytes(msg.Elements, 0, msg.Elements.Length, c, 0);
-                cipher.DoFinal(c, len);
+                cipher.DoFinal(c, len); //Append authentication tag to `c`
                 return new STL.Result_Success<byteseq>(new byteseq(c));
             }
             catch {
@@ -51,7 +50,7 @@ namespace AESEncryption {
                 cipher.Init(false, param);
                 var pt = new byte[cipher.GetOutputSize(ctx.Elements.Length)];
                 var len = cipher.ProcessBytes(ctx.Elements, 0, ctx.Elements.Length, pt, 0);
-                cipher.DoFinal(pt, len);
+                cipher.DoFinal(pt, len); //Check message authentication tag
                 return new STL.Result_Success<byteseq>(new byteseq(pt));
             }
             catch {
