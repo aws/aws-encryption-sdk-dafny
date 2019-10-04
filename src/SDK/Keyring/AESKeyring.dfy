@@ -30,11 +30,13 @@ module AESKeyringDef {
         Repr == {this} &&
         (|wrappingKey| == Cipher.KeyLengthOfCipher(wrappingAlgorithm)) &&
         (wrappingAlgorithm in {Cipher.AES_GCM_128, Cipher.AES_GCM_192, Cipher.AES_GCM_256}) &&
-        StringIs8Bit(keyNamespace) && StringIs8Bit(keyName)
+        StringIs8Bit(keyNamespace) && StringIs8Bit(keyName) &&
+        |keyNamespace| < UINT16_LIMIT
     }
 
     constructor(namespace: string, name: string, key: seq<uint8>, wrappingAlg: Cipher.CipherParams)
     requires StringIs8Bit(namespace) && StringIs8Bit(name)
+    requires |namespace| < UINT16_LIMIT
     requires wrappingAlg in {Cipher.AES_GCM_128, Cipher.AES_GCM_192, Cipher.AES_GCM_256}
     requires |key| == Cipher.KeyLengthOfCipher(wrappingAlg)
     ensures keyNamespace == namespace
@@ -50,7 +52,7 @@ module AESKeyringDef {
       Repr := {this};
     }
 
-    function method SerializeProviderInto(iv: seq<uint8>): seq<uint8>
+    function method SerializeProviderInfo(iv: seq<uint8>): seq<uint8>
       requires Valid()
       requires |iv| == wrappingAlgorithm.ivLen as int
       reads this
@@ -80,7 +82,13 @@ module AESKeyringDef {
       var aad := Mat.FlattenSortEncCtx(encMat.encryptionContext);
       var encryptResult := AESEncryption.AES.aes_encrypt(wrappingAlgorithm, iv, wrappingKey, dataKey.get, aad);
       if encryptResult.Failure? { return Failure("Error on encrypt!"); }
-      var providerInfo := SerializeProviderInto(iv);
+      var providerInfo := SerializeProviderInfo(iv);
+      if UINT16_LIMIT <= |providerInfo| {
+        return Failure("Serialized provider info too long.");
+      }
+      if UINT16_LIMIT <= |encryptResult.value| {
+        return Failure("Encrypted data key too long.");
+      }
       var edk := Mat.EncryptedDataKey(keyNamespace, providerInfo, encryptResult.value);
       encMat.plaintextDataKey := dataKey;
       encMat.encryptedDataKeys := encMat.encryptedDataKeys + [edk];

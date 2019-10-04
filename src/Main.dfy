@@ -8,24 +8,28 @@ include "SDK/Materials.dfy"
 //include "Crypto/RSAEncryption.dfy"
 //include "Crypto/Signature.dfy"
 //include "Crypto/Cipher.dfy"
-//include "StandardLibrary/StandardLibrary.dfy"
+include "StandardLibrary/StandardLibrary.dfy"
+include "StandardLibrary/UInt.dfy"
 include "SDK/CMM/DefaultCMM.dfy"
+include "SDK/Client.dfy"
+include "SDK/MessageHeader.dfy"
 
 module Main {
   import opened StandardLibrary
   import opened UInt = StandardLibrary.UInt
   import DefaultCMMDef
   import Client = ToyClientDef
-  import RSA = RSAEncryption
+  import RSAEncryption
   import RSAKeyringDef
   import Materials
+  import ESDKClient
+  import Msg = MessageHeader
   //import AES = AESEncryption
   //import opened Cipher
   //import opened AESKeyringDef
   //import K = KeyringDefs
   //import opened MultiKeyringDef
   //import opened SDKDefs
-  //import opened DefaultCMMDef
   //import S = Signature
 
   /*
@@ -79,13 +83,26 @@ module Main {
   }
 
   method Main() {
-    var namespace := StringToByteSeq("namespace");
+    var namespace := "namespace";
     var name := StringToByteSeq("MyKeyring");
-    var ek, dk := RSA.RSA.RSAKeygen(2048, RSA.PKCS1);
-    var keyring := new RSAKeyringDef.RSAKeyring(namespace, name, RSA.RSAPaddingMode.PKCS1, 2048, Some(ek), Some(dk));
+    var ek, dk := RSAEncryption.RSA.RSAKeygen(2048, RSAEncryption.PKCS1);
+    var keyring := new RSAKeyringDef.RSAKeyring(namespace, name, RSAEncryption.RSAPaddingMode.PKCS1, 2048, Some(ek), Some(dk));
     var cmm := new DefaultCMMDef.DefaultCMM.OfKeyring(keyring);
-    var client := new Client.Client.OfCMM(cmm);
 
-    EncryptDecryptTest(client);
+    // ToyClient did this:
+    // var client := new Client.Client.OfCMM(cmm);
+    // EncryptDecryptTest(client);
+
+    assert Msg.ValidAAD([]) by {
+      reveal Msg.ValidAAD();
+    }
+    var result := ESDKClient.Encrypt(StringToByteSeq("the message I want to encrypt"), cmm, []);
+    match result {
+      case Failure(err) =>
+        print "Encryption Error: ", err, "\n";
+      case Success(bytes) =>
+        print "Encryption Success:\n";
+        print bytes, "\n";
+    }
   }
 }

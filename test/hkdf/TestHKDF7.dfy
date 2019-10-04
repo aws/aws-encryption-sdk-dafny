@@ -1,5 +1,5 @@
-// RUN: %dafny /out:./Output/TestHKDF7.exe "./TestHKDF7.dfy" "../../src/Crypto/HKDF/HKDF-extern.cs" "../../src/Util/Arrays-extern.cs" "../../lib/BouncyCastle.1.8.5/lib/BouncyCastle.Crypto.dll" /noVerify /compile:2
-// RUN: cp "../../lib/BouncyCastle.1.8.5/lib/BouncyCastle.Crypto.dll" "./Output/"
+// RUN: %bcdafny /out:Output/TestHKDF7.exe TestHKDF7.dfy /noVerify /compile:2
+// RUN: cp %bclib Output/
 // RUN: %mono ./Output/TestHKDF7.exe > "%t" && rm ./Output/TestHKDF7.exe
 // RUN: %diff "%s.expect" "%t"
 

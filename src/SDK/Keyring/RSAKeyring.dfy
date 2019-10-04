@@ -16,7 +16,7 @@ module RSAKeyringDef {
   import Random
 
   class RSAKeyring extends KeyringDefs.Keyring {
-    const keyNamespace: seq<uint8>
+    const keyNamespace: string
     const keyName: seq<uint8>
     const paddingMode: RSA.RSAPaddingMode
     const bitLength: RSA.RSABitLength
@@ -29,13 +29,16 @@ module RSAKeyringDef {
       Repr == {this} &&
       (encryptionKey.Some? ==> RSA.RSA.RSAWfEK(bitLength, paddingMode, encryptionKey.get)) &&
       (decryptionKey.Some? ==> RSA.RSA.RSAWfDK(bitLength, paddingMode, decryptionKey.get)) &&
-      (encryptionKey.Some? || decryptionKey.Some?)
+      (encryptionKey.Some? || decryptionKey.Some?) &&
+      StringIs8Bit(keyNamespace) && |keyNamespace| < UINT16_LIMIT &&
+      |keyName| < UINT16_LIMIT
     }
 
-    constructor(namespace: seq<uint8>, name: seq<uint8>, padding: RSA.RSAPaddingMode, bits: RSA.RSABitLength, ek: Option<seq<uint8>>, dk: Option<seq<uint8>>)
+    constructor(namespace: string, name: seq<uint8>, padding: RSA.RSAPaddingMode, bits: RSA.RSABitLength, ek: Option<seq<uint8>>, dk: Option<seq<uint8>>)
       requires ek.Some? ==> RSA.RSA.RSAWfEK(bits, padding, ek.get)
       requires dk.Some? ==> RSA.RSA.RSAWfDK(bits, padding, dk.get)
       requires ek.Some? || dk.Some?
+      requires StringIs8Bit(namespace) && |namespace| < UINT16_LIMIT && |name| < UINT16_LIMIT
       ensures keyNamespace == namespace
       ensures keyName == name
       ensures paddingMode == padding && bitLength == bits
@@ -73,8 +76,10 @@ module RSAKeyringDef {
         var edkCiphertext := RSA.RSA.RSAEncrypt(bitLength, paddingMode, encryptionKey.get, dataKey.get);
         if edkCiphertext.None? {
           return Failure("Error on encrypt!");
+        } else if UINT16_LIMIT <= |edkCiphertext.get| {
+          return Failure("Encrypted data key too long.");
         }
-        var edk := Materials.EncryptedDataKey(ByteSeqToString(keyNamespace), keyName, edkCiphertext.get);
+        var edk := Materials.EncryptedDataKey(keyNamespace, keyName, edkCiphertext.get);
         encMat.encryptedDataKeys := [edk] + encMat.encryptedDataKeys;
         encMat.plaintextDataKey := dataKey;
         return Success(encMat);
@@ -102,7 +107,7 @@ module RSAKeyringDef {
         invariant  0 <= i <= |edks|
       {
         var edk := edks[i];
-        if edk.providerID != ByteSeqToString(keyNamespace) {
+        if edk.providerID != keyNamespace {
           // continue with the next EDK
         } else if edk.providerInfo != keyName {
           // continue with the next EDK

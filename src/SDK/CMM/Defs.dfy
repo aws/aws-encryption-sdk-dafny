@@ -1,12 +1,14 @@
 include "../Materials.dfy"
 include "../../StandardLibrary/StandardLibrary.dfy"
 include "../../StandardLibrary/UInt.dfy"
+include "../../Crypto/Signature.dfy"
 
 module CMMDefs {
   import opened StandardLibrary
   import opened UInt = StandardLibrary.UInt
   import Materials
   import AlgorithmSuite
+  import Signature
 
   trait {:termination false} CMM {
     ghost var Repr : set<object>
@@ -22,7 +24,12 @@ module CMMDefs {
                                res.value.plaintextDataKey.Some? && 
                                |res.value.plaintextDataKey.get| == res.value.algorithmSuiteID.KeyLength() &&
                                |res.value.encryptedDataKeys| > 0
-      ensures res.Success? && res.value.algorithmSuiteID.SignatureType().Some? ==> res.value.signingKey.Some?
+      ensures res.Success? ==>
+        match res.value.algorithmSuiteID.SignatureType()
+          case None => true
+          case Some(sigType) =>
+            res.value.signingKey.Some? &&
+            Signature.ECDSA.WfSK(sigType, res.value.signingKey.get)
 
     method DecryptMaterials(algSuiteID: AlgorithmSuite.ID,
                             edks: seq<Materials.EncryptedDataKey>,

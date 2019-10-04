@@ -24,7 +24,7 @@ include "../../StandardLibrary/StandardLibrary.dfy"
   * Implementation of the https://tools.ietf.org/html/rfc5869 HMAC-based key derivation function
   */
 module HKDF {
-  import opened Arrays
+  import Arrays
   import opened BouncyCastleCryptoMac
   import opened Digests
   import opened HKDFSpec
@@ -65,13 +65,13 @@ module HKDF {
     hmac.updateAll(info);
     hmac.updateSingle(1 as uint8);
     var _ := hmac.doFinal(TiArr, 0);
-    Array.copyTo(TiArr, a, 0);
+    Arrays.Array.copyTo(TiArr, a, 0);
     s := s + TiArr[..];
 
     var i := 1;
     while i < n
       invariant 1 <= i <= n
-      // The following invariant simplifies the proof obligation needed to establish the precondition of Array.copyTo
+      // The following invariant simplifies the proof obligation needed to establish the precondition of Arrays.Array.copyTo
       // Before adding it, z3's outcome was unstable
       invariant i*hmac.getMacSize() <= a.Length
       invariant TiArr.Length == HashLength(which_sha)
@@ -89,7 +89,7 @@ module HKDF {
       assert (i+1) <= 255;
       assert hmac.InputSoFar[..] == TiArr[..] + info[..] + [((i+1) as uint8)]; // nfv
       var _ := hmac.doFinal(TiArr, 0);
-      Array.copyTo(TiArr, a, i*hmac.getMacSize());
+      Arrays.Array.copyTo(TiArr, a, i*hmac.getMacSize());
       s := s + TiArr[..]; // s == T(1) | ... | T(i) | T(i+1)
       i := i + 1;
     }
@@ -130,7 +130,7 @@ module HKDF {
 
     // if necessary, trim padding
     if okm.Length > L {
-      okm := Array.copy(okm, L);
+      okm := Arrays.Array.copy(okm, L);
     }
     calc {
       okm[..L];

@@ -40,8 +40,9 @@ module Materials {
     predicate Valid()
       reads this
     {
-      (|encryptedDataKeys| > 0 ==> plaintextDataKey.Some?) &&
-      (plaintextDataKey.None? || ValidPlaintextDataKey(plaintextDataKey.get))
+      && (|encryptedDataKeys| != 0 ==> plaintextDataKey.Some?)
+      && (plaintextDataKey.None? || ValidPlaintextDataKey(plaintextDataKey.get))
+      && (forall i :: 0 <= i < |encryptedDataKeys| ==> encryptedDataKeys[i].Valid())
     }
 
     predicate ValidPlaintextDataKey(pdk: seq<uint8>)
@@ -56,12 +57,14 @@ module Materials {
                 plaintextDataKey: Option<seq<uint8>>,
                 signingKey: Option<seq<uint8>>)
       requires |encryptedDataKeys| > 0 ==> plaintextDataKey.Some?
+      requires forall i :: 0 <= i < |encryptedDataKeys| ==> encryptedDataKeys[i].Valid()
       requires plaintextDataKey.None? || |plaintextDataKey.get| == algorithmSuiteID.KeyLength()
       ensures Valid()
       ensures this.algorithmSuiteID == algorithmSuiteID
       ensures this.encryptedDataKeys == encryptedDataKeys
       ensures this.encryptionContext == encryptionContext
       ensures this.plaintextDataKey == plaintextDataKey
+      ensures this.signingKey == signingKey
     {
       this.algorithmSuiteID := algorithmSuiteID;
       this.encryptedDataKeys := encryptedDataKeys;
@@ -82,7 +85,7 @@ module Materials {
     }
 
     method AppendEncryptedDataKey(edk: EncryptedDataKey)
-      requires Valid()
+      requires Valid() && edk.Valid()
       requires plaintextDataKey.Some?
       modifies `encryptedDataKeys
       ensures Valid()

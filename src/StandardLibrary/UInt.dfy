@@ -6,6 +6,7 @@ module {:extern "STLUInt"} StandardLibrary.UInt {
 
   newtype int32 = x | -0x8000_0000 <= x < 0x8000_0000
 
+  const UINT32_LIMIT := 0x1_0000_0000
   newtype uint32 = x | 0 <= x < 0x1_0000_0000
 
   newtype uint64 = x | 0 <= x < 0x1_0000_0000_0000_0000
@@ -118,5 +119,34 @@ module {:extern "STLUInt"} StandardLibrary.UInt {
     var x2 := x1 + a[2] as int * 0x100;
     var x := x2 + a[3] as int;
     x as uint32
+  }
+
+  function method {:opaque} UInt64ToSeq(x: uint64): seq<uint8>
+    ensures |UInt64ToSeq(x)| == 8
+  {
+    var bv := x as bv64;
+    var b0 := ((bv >> 56)       ) as uint8;
+    var b1 := ((bv >> 48) & 0xFF) as uint8;
+    var b2 := ((bv >> 40) & 0xFF) as uint8;
+    var b3 := ((bv >> 32) & 0xFF) as uint8;
+    var b4 := ((bv >> 24) & 0xFF) as uint8;
+    var b5 := ((bv >> 16) & 0xFF) as uint8;
+    var b6 := ((bv >>  8) & 0xFF) as uint8;
+    var b7 := ((bv      ) & 0xFF) as uint8;
+    [b0, b1, b2, b3, b4, b5, b6, b7]
+  }
+
+  function method {:opaque} SeqToUInt64(s: seq<uint8>): uint64
+    requires |s| == 8
+  {
+    ( ((s[0] as bv64) << 56)
+    | ((s[1] as bv64) << 48)
+    | ((s[2] as bv64) << 40)
+    | ((s[3] as bv64) << 32)
+    | ((s[4] as bv64) << 24)
+    | ((s[5] as bv64) << 16)
+    | ((s[6] as bv64) <<  8)
+    | ((s[7] as bv64)      )
+    ) as uint64
   }
 }

@@ -115,7 +115,7 @@ module Streams {
   }
 
   class StringWriter {
-    ghost var data: seq<uint8>
+    /*ghost TEMPORARILY MAKE THIS COMPILED, AWAITING BETTER SOLUTION FOR COMPILATION*/ var data: seq<uint8>
 
     ghost var Repr: set<object>
 

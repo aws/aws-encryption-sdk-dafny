@@ -42,8 +42,12 @@ module DefaultCMMDef {
                                res.value.plaintextDataKey.Some? && 
                                |res.value.plaintextDataKey.get| == res.value.algorithmSuiteID.KeyLength() &&
                                |res.value.encryptedDataKeys| > 0
-      ensures res.Success? && res.value.algorithmSuiteID.SignatureType().Some? ==> res.value.signingKey.Some?
-
+      ensures res.Success? ==>
+        match res.value.algorithmSuiteID.SignatureType()
+          case None => true
+          case Some(sigType) =>
+            res.value.signingKey.Some? &&
+            S.ECDSA.WfSK(sigType, res.value.signingKey.get)
     {
       var id := if alg_id.Some? then alg_id.get else AlgorithmSuite.AES_256_GCM_IV12_TAG16_HKDF_SHA384_ECDSA_P384;
       var enc_sk := None;
