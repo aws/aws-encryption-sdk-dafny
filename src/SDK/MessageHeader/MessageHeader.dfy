@@ -3,7 +3,7 @@ include "../../StandardLibrary/StandardLibrary.dfy"
 include "../Materials.dfy"
 include "../../Util/UTF8.dfy"
 
-module MessageHeader.Format {
+module MessageHeader {
   import AlgorithmSuite
   import opened StandardLibrary
   import opened UInt = StandardLibrary.UInt
@@ -13,6 +13,7 @@ module MessageHeader.Format {
   /*
    * Definition of the message header, i.e., the header body and the header authentication
    */
+
   datatype Header = Header(body: HeaderBody, auth: HeaderAuthentication)
   {
     predicate Valid() {
@@ -22,10 +23,10 @@ module MessageHeader.Format {
     }
   }
 
-
   /*
    * Header body type definition
    */
+
   const VERSION_1: uint8     := 0x01
   type Version               = x | x == VERSION_1 witness VERSION_1
 
@@ -88,11 +89,15 @@ module MessageHeader.Format {
     }
   }
 
-
   /*
    * Header authentication type definition
    */
+
   datatype HeaderAuthentication = HeaderAuthentication(iv: seq<uint8>, authenticationTag: seq<uint8>)
+
+  /*
+   * Validity predicates -- predicates that say when the data structures above are in a good state.
+   */
 
   predicate ValidKVPair(kvPair: (seq<uint8>, seq<uint8>)) {
     && |kvPair.0| < UINT16_LIMIT
@@ -213,32 +218,126 @@ module MessageHeader.Format {
     SortedKVPairsUpTo(a, |a|)
   }
 
-  method InsertNewEntry(kvPairs: seq<(seq<uint8>, seq<uint8>)>, key: seq<uint8>, value: seq<uint8>)
-      returns (res: Option<seq<(seq<uint8>, seq<uint8>)>>, ghost insertionPoint: nat)
-    requires SortedKVPairs(kvPairs)
-    ensures match res
-    case None =>
-      exists i :: 0 <= i < |kvPairs| && kvPairs[i].0 == key  // key already exists
-    case Some(kvPairs') =>
-      && insertionPoint <= |kvPairs|
-      && kvPairs' == kvPairs[..insertionPoint] + [(key, value)] + kvPairs[insertionPoint..]
-      && SortedKVPairs(kvPairs')
+  /*
+   * Specifications of serialized format
+   */
+
+  function {:opaque} HeaderBodyToSeq(hb: HeaderBody): seq<uint8>
+    requires hb.Valid()
   {
+    [hb.version as uint8] +
+    [hb.typ as uint8] +
+    UInt16ToSeq(hb.algorithmSuiteID as uint16) +
+    hb.messageID +
+    AADToSeq(hb.aad) +
+    EDKsToSeq(hb.encryptedDataKeys) +
+    [ContentTypeToUInt8(hb.contentType)] +
+    hb.reserved +
+    [hb.ivLength] +
+    UInt32ToSeq(hb.frameLength)
+  }
+
+  function AADToSeq(kvPairs: Materials.EncryptionContext): seq<uint8>
+    requires ValidAAD(kvPairs)
+  {
+    reveal ValidAAD();
+    UInt16ToSeq(AADLength(kvPairs) as uint16) +
     var n := |kvPairs|;
-    while 0 < n && LexicographicLessOrEqual(key, kvPairs[n - 1].0, UInt8Less)
-      invariant 0 <= n <= |kvPairs|
-      invariant forall i :: n <= i < |kvPairs| ==> LexicographicLessOrEqual(key, kvPairs[i].0, UInt8Less)
-    {
-      n := n - 1;
-    }
-    if 0 < n && kvPairs[n - 1].0 == key {
-      return None, n;
-    } else {
-      var kvPairs' := kvPairs[..n] + [(key, value)] + kvPairs[n..];
-      if 0 < n {
-        LexPreservesTrichotomy(kvPairs'[n - 1].0, kvPairs'[n].0, UInt8Less);
+    if n == 0 then [] else
+      UInt16ToSeq(n as uint16) +
+      KVPairsToSeq(kvPairs, 0, n)
+  }
+
+  function KVPairsToSeq(kvPairs: Materials.EncryptionContext, lo: nat, hi: nat): seq<uint8>
+    requires forall i :: 0 <= i < |kvPairs| ==> ValidKVPair(kvPairs[i])
+    requires lo <= hi <= |kvPairs|
+  {
+    if lo == hi then [] else KVPairsToSeq(kvPairs, lo, hi - 1) + KVPairToSeq(kvPairs[hi - 1])
+  }
+
+  function KVPairToSeq(kvPair: (seq<uint8>, seq<uint8>)): seq<uint8>
+    requires ValidKVPair(kvPair)
+  {
+    UInt16ToSeq(|kvPair.0| as uint16) + kvPair.0 +
+    UInt16ToSeq(|kvPair.1| as uint16) + kvPair.1
+  }
+
+  function EDKsToSeq(encryptedDataKeys: EncryptedDataKeys): seq<uint8>
+    requires encryptedDataKeys.Valid()
+  {
+    var n := |encryptedDataKeys.entries|;
+    UInt16ToSeq(n as uint16) +
+    EDKEntriesToSeq(encryptedDataKeys.entries, 0, n)
+  }
+
+  function EDKEntriesToSeq(entries: seq<Materials.EncryptedDataKey>, lo: nat, hi: nat): seq<uint8>
+    requires forall i :: 0 <= i < |entries| ==> entries[i].Valid()
+    requires lo <= hi <= |entries|
+  {
+    if lo == hi then [] else EDKEntriesToSeq(entries, lo, hi - 1) + EDKEntryToSeq(entries[hi - 1])
+  }
+
+  function EDKEntryToSeq(edk: Materials.EncryptedDataKey): seq<uint8>
+    requires edk.Valid()
+  {
+    UInt16ToSeq(|edk.providerID| as uint16)   + StringToByteSeq(edk.providerID) +
+    UInt16ToSeq(|edk.providerInfo| as uint16) + edk.providerInfo +
+    UInt16ToSeq(|edk.ciphertext| as uint16)   + edk.ciphertext
+  }
+
+  /* Function AADLength is defined without referring to SerializeAAD (because then
+   * these two would be mutually recursive with ValidAAD). The following lemma proves
+   * that the two definitions correspond.
+   */
+
+  lemma ADDLengthCorrect(kvPairs: Materials.EncryptionContext)
+    requires ValidAAD(kvPairs)
+    ensures |AADToSeq(kvPairs)| == 2 + AADLength(kvPairs)
+  {
+    reveal ValidAAD();
+    KVPairsLengthCorrect(kvPairs, 0, |kvPairs|);
+    /**** Here's a more detailed proof:
+    var n := |kvPairs|;
+    if n != 0 {
+      var s := KVPairsToSeq(kvPairs, 0, n);
+      calc {
+        |AADToSeq(kvPairs)|;
+      ==  // def. AADToSeq
+        |UInt16ToSeq(AADLength(kvPairs) as uint16) + UInt16ToSeq(n as uint16) + s|;
+      ==  // UInt16ToSeq yields length-2 sequence
+        2 + 2 + |s|;
+      ==  { KVPairsLengthCorrect(kvPairs, 0, n); }
+        2 + 2 + KVPairsLength(kvPairs, 0, n);
       }
-      return Some(kvPairs'), n;
     }
+    ****/
+  }
+
+  lemma KVPairsLengthCorrect(kvPairs: Materials.EncryptionContext, lo: nat, hi: nat)
+    requires forall i :: 0 <= i < |kvPairs| ==> ValidKVPair(kvPairs[i])
+    requires lo <= hi <= |kvPairs|
+    ensures |KVPairsToSeq(kvPairs, lo, hi)| == KVPairsLength(kvPairs, lo, hi)
+  {
+    /**** Here's a more detailed proof:
+    if lo < hi {
+      var kvPair := kvPairs[hi - 1];
+      calc {
+        |KVPairsToSeq(kvPairs, lo, hi)|;
+      ==  // def. KVPairsToSeq
+        |KVPairsToSeq(kvPairs, lo, hi - 1) + KVPairToSeq(kvPair)|;
+      ==
+        |KVPairsToSeq(kvPairs, lo, hi - 1)| + |KVPairToSeq(kvPair)|;
+      ==  { KVPairsLengthCorrect(kvPairs, lo, hi - 1); }
+        KVPairsLength(kvPairs, lo, hi - 1) + |KVPairToSeq(kvPair)|;
+      ==  // def. KVPairToSeq
+        KVPairsLength(kvPairs, lo, hi - 1) +
+        |UInt16ToSeq(|kvPair.0| as uint16) + kvPair.0 + UInt16ToSeq(|kvPair.1| as uint16) + kvPair.1|;
+      ==
+        KVPairsLength(kvPairs, lo, hi - 1) + 2 + |kvPair.0| + 2 + |kvPair.1|;
+      ==  // def. KVPairsLength
+        KVPairsLength(kvPairs, lo, hi);
+      }
+    }
+    ****/
   }
 }

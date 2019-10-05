@@ -24,7 +24,7 @@ SRCS = \
 	   src/SDK/Keyring/RSAKeyring.dfy \
 	   src/SDK/Materials.dfy \
 	   src/SDK/MessageHeader/Deserialize.dfy \
-	   src/SDK/MessageHeader/Format.dfy \
+	   src/SDK/MessageHeader/MessageHeader.dfy \
 	   src/SDK/MessageHeader/Serialize.dfy \
 	   src/SDK/ToyClient.dfy \
 	   src/StandardLibrary/Base64.dfy \

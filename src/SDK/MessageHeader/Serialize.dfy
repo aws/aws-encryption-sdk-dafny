@@ -1,12 +1,12 @@
-include "Format.dfy"
+include "MessageHeader.dfy"
 include "../Materials.dfy"
 include "../AlgorithmSuite.dfy"
 
 include "../../Util/Streams.dfy"
 include "../../StandardLibrary/StandardLibrary.dfy"
 
-module MessageHeader.Serialize {
-  import Msg = Format
+module Serialize {
+  import Msg = MessageHeader
   import AlgorithmSuite
 
   import Streams
@@ -14,28 +14,13 @@ module MessageHeader.Serialize {
   import opened UInt = StandardLibrary.UInt
   import Materials
 
-  function {:opaque} Serialize(hb: Msg.HeaderBody): seq<uint8>
-    requires hb.Valid()
-  {
-    [hb.version as uint8] +
-    [hb.typ as uint8] +
-    UInt16ToSeq(hb.algorithmSuiteID as uint16) +
-    hb.messageID +
-    SerializeAAD(hb.aad) +
-    SerializeEDKs(hb.encryptedDataKeys) +
-    [Msg.ContentTypeToUInt8(hb.contentType)] +
-    hb.reserved +
-    [hb.ivLength] +
-    UInt32ToSeq(hb.frameLength)
-  }
-
   method SerializeHeaderBody(wr: Streams.StringWriter, hb: Msg.HeaderBody) returns (ret: Result<nat>)
     requires wr.Valid() && hb.Valid()
     modifies wr`data
     ensures wr.Valid()
     ensures match ret
       case Success(totalWritten) =>
-        var serHb := (reveal Serialize(); Serialize(hb));
+        var serHb := (reveal Msg.HeaderBodyToSeq(); Msg.HeaderBodyToSeq(hb));
         var initLen := old(|wr.data|);
         && totalWritten == |serHb|
         && initLen + totalWritten == |wr.data|
@@ -56,10 +41,10 @@ module MessageHeader.Serialize {
     len :- wr.WriteSeq(hb.messageID);
     totalWritten := totalWritten + len;
 
-    len :- SerializeAADImpl(wr, hb.aad);
+    len :- SerializeAAD(wr, hb.aad);
     totalWritten := totalWritten + len;
 
-    len :- SerializeEDKsImpl(wr, hb.encryptedDataKeys);
+    len :- SerializeEDKs(wr, hb.encryptedDataKeys);
     totalWritten := totalWritten + len;
 
     var contentType := Msg.ContentTypeToUInt8(hb.contentType);
@@ -75,7 +60,7 @@ module MessageHeader.Serialize {
     len :- wr.WriteUInt32(hb.frameLength);
     totalWritten := totalWritten + len;
 
-    reveal Serialize();
+    reveal Msg.HeaderBodyToSeq();
     return Success(totalWritten);
   }
 
@@ -97,96 +82,15 @@ module MessageHeader.Serialize {
     return Success(m + n);
   }
 
-  // ----- SerializeAAD Specification -----
+  // ----- SerializeAAD -----
 
-  function SerializeAAD(kvPairs: Materials.EncryptionContext): seq<uint8>
-    requires Msg.ValidAAD(kvPairs)
-  {
-    reveal Msg.ValidAAD();
-    UInt16ToSeq(Msg.AADLength(kvPairs) as uint16) +
-    var n := |kvPairs|;
-    if n == 0 then [] else
-      UInt16ToSeq(n as uint16) +
-      SerializeKVPairs(kvPairs, 0, n)
-  }
-
-  function SerializeKVPairs(kvPairs: Materials.EncryptionContext, lo: nat, hi: nat): seq<uint8>
-    requires forall i :: 0 <= i < |kvPairs| ==> Msg.ValidKVPair(kvPairs[i])
-    requires lo <= hi <= |kvPairs|
-  {
-    if lo == hi then [] else SerializeKVPairs(kvPairs, lo, hi - 1) + SerializeKVPair(kvPairs[hi - 1])
-  }
-
-  function SerializeKVPair(kvPair: (seq<uint8>, seq<uint8>)): seq<uint8>
-    requires Msg.ValidKVPair(kvPair)
-  {
-    UInt16ToSeq(|kvPair.0| as uint16) + kvPair.0 +
-    UInt16ToSeq(|kvPair.1| as uint16) + kvPair.1
-  }
-
-  // Function Msg.AADLength is defined without referring to SerializeAAD (because then
-  // these two would be mutually recursive with Msg.ValidAAD). The following lemma proves
-  // that the two definitions correspond.
-  lemma ADDLengthCorrect(kvPairs: Materials.EncryptionContext)
-    requires Msg.ValidAAD(kvPairs)
-    ensures |SerializeAAD(kvPairs)| == 2 + Msg.AADLength(kvPairs)
-  {
-    reveal Msg.ValidAAD();
-    KVPairsLengthCorrect(kvPairs, 0, |kvPairs|);
-    /**** Here's a more detailed proof:
-    var n := |kvPairs|;
-    if n != 0 {
-      var s := SerializeKVPairs(kvPairs, 0, n);
-      calc {
-        |SerializeAAD(kvPairs)|;
-      ==  // def. SerializeAAD
-        |UInt16ToSeq(Msg.AADLength(kvPairs) as uint16) + UInt16ToSeq(n as uint16) + s|;
-      ==  // UInt16ToSeq yields length-2 sequence
-        2 + 2 + |s|;
-      ==  { KVPairsLengthCorrect(kvPairs, 0, n); }
-        2 + 2 + Msg.KVPairsLength(kvPairs, 0, n);
-      }
-    }
-    ****/
-  }
-
-  lemma KVPairsLengthCorrect(kvPairs: Materials.EncryptionContext, lo: nat, hi: nat)
-    requires forall i :: 0 <= i < |kvPairs| ==> Msg.ValidKVPair(kvPairs[i])
-    requires lo <= hi <= |kvPairs|
-    ensures |SerializeKVPairs(kvPairs, lo, hi)| == Msg.KVPairsLength(kvPairs, lo, hi)
-  {
-    /**** Here's a more detailed proof:
-    if lo < hi {
-      var kvPair := kvPairs[hi - 1];
-      calc {
-        |SerializeKVPairs(kvPairs, lo, hi)|;
-      ==  // def. SerializeKVPairs
-        |SerializeKVPairs(kvPairs, lo, hi - 1) + SerializeKVPair(kvPair)|;
-      ==
-        |SerializeKVPairs(kvPairs, lo, hi - 1)| + |SerializeKVPair(kvPair)|;
-      ==  { KVPairsLengthCorrect(kvPairs, lo, hi - 1); }
-        Msg.KVPairsLength(kvPairs, lo, hi - 1) + |SerializeKVPair(kvPair)|;
-      ==  // def. SerializeKVPair
-        Msg.KVPairsLength(kvPairs, lo, hi - 1) +
-        |UInt16ToSeq(|kvPair.0| as uint16) + kvPair.0 + UInt16ToSeq(|kvPair.1| as uint16) + kvPair.1|;
-      ==
-        Msg.KVPairsLength(kvPairs, lo, hi - 1) + 2 + |kvPair.0| + 2 + |kvPair.1|;
-      ==  // def. Msg.KVPairsLength
-        Msg.KVPairsLength(kvPairs, lo, hi);
-      }
-    }
-    ****/
-  }
-
-  // ----- SerializeAAD Implementation -----
-
-  method SerializeAADImpl(wr: Streams.StringWriter, kvPairs: Materials.EncryptionContext) returns (ret: Result<nat>)
+  method SerializeAAD(wr: Streams.StringWriter, kvPairs: Materials.EncryptionContext) returns (ret: Result<nat>)
     requires wr.Valid() && Msg.ValidAAD(kvPairs)
     modifies wr`data
     ensures wr.Valid() && Msg.ValidAAD(kvPairs)
     ensures match ret
       case Success(totalWritten) =>
-        var serAAD := SerializeAAD(kvPairs);
+        var serAAD := Msg.AADToSeq(kvPairs);
         var initLen := old(|wr.data|);
         && totalWritten == |serAAD|
         && initLen + totalWritten == |wr.data|
@@ -215,8 +119,8 @@ module MessageHeader.Serialize {
         old(wr.data) +
         UInt16ToSeq(aadLength) +
         UInt16ToSeq(n as uint16) +
-        SerializeKVPairs(kvPairs, 0, j)
-      invariant totalWritten == 4 + |SerializeKVPairs(kvPairs, 0, j)|
+        Msg.KVPairsToSeq(kvPairs, 0, j)
+      invariant totalWritten == 4 + |Msg.KVPairsToSeq(kvPairs, 0, j)|
     {
       len :- wr.WriteUInt16(|kvPairs[j].0| as uint16);
       totalWritten := totalWritten + len;
@@ -265,40 +169,15 @@ module MessageHeader.Serialize {
     }
   }
 
-  // ----- SerializeEDKs Specification -----
+  // ----- SerializeEDKs -----
 
-  function SerializeEDKs(encryptedDataKeys: Msg.EncryptedDataKeys): seq<uint8>
-    requires encryptedDataKeys.Valid()
-  {
-    var n := |encryptedDataKeys.entries|;
-    UInt16ToSeq(n as uint16) +
-    SerializeEDKEntries(encryptedDataKeys.entries, 0, n)
-  }
-
-  function SerializeEDKEntries(entries: seq<Materials.EncryptedDataKey>, lo: nat, hi: nat): seq<uint8>
-    requires forall i :: 0 <= i < |entries| ==> entries[i].Valid()
-    requires lo <= hi <= |entries|
-  {
-    if lo == hi then [] else SerializeEDKEntries(entries, lo, hi - 1) + SerializeEDKEntry(entries[hi - 1])
-  }
-
-  function SerializeEDKEntry(edk: Materials.EncryptedDataKey): seq<uint8>
-    requires edk.Valid()
-  {
-    UInt16ToSeq(|edk.providerID| as uint16)   + StringToByteSeq(edk.providerID) +
-    UInt16ToSeq(|edk.providerInfo| as uint16) + edk.providerInfo +
-    UInt16ToSeq(|edk.ciphertext| as uint16)   + edk.ciphertext
-  }
-
-  // ----- SerializeEDKs Implementation -----
-
-  method SerializeEDKsImpl(wr: Streams.StringWriter, encryptedDataKeys: Msg.EncryptedDataKeys) returns (ret: Result<nat>)
+  method SerializeEDKs(wr: Streams.StringWriter, encryptedDataKeys: Msg.EncryptedDataKeys) returns (ret: Result<nat>)
     requires wr.Valid() && encryptedDataKeys.Valid()
     modifies wr`data
     ensures wr.Valid() && encryptedDataKeys.Valid()
     ensures match ret
       case Success(totalWritten) =>
-        var serEDK := SerializeEDKs(encryptedDataKeys);
+        var serEDK := Msg.EDKsToSeq(encryptedDataKeys);
         var initLen := old(|wr.data|);
         && totalWritten == |serEDK|
         && initLen + totalWritten == |wr.data|
@@ -317,8 +196,8 @@ module MessageHeader.Serialize {
       invariant wr.data ==
         old(wr.data) +
         UInt16ToSeq(n as uint16) +
-        SerializeEDKEntries(encryptedDataKeys.entries, 0, j);
-      invariant totalWritten == 2 + |SerializeEDKEntries(encryptedDataKeys.entries, 0, j)|
+        Msg.EDKEntriesToSeq(encryptedDataKeys.entries, 0, j);
+      invariant totalWritten == 2 + |Msg.EDKEntriesToSeq(encryptedDataKeys.entries, 0, j)|
     {
       var entry := encryptedDataKeys.entries[j];
 

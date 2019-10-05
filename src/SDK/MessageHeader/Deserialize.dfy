@@ -1,4 +1,4 @@
-include "Format.dfy"
+include "MessageHeader.dfy"
 include "../Materials.dfy"
 include "../AlgorithmSuite.dfy"
 
@@ -12,12 +12,12 @@ include "../../Util/UTF8.dfy"
  * The message header is deserialized from a uint8 stream.
  * When encountering an error, we stop and return it immediately, leaving the remaining inputs on the stream
  */
-module MessageHeader.Deserialize {
+module Deserialize {
   export
     provides DeserializeHeaderBody, DeserializeHeaderAuthentication
     provides Streams, StandardLibrary, UInt, AlgorithmSuite, Msg
 
-  import Msg = Format
+  import Msg = MessageHeader
 
   import AlgorithmSuite
   import Streams
@@ -143,7 +143,7 @@ module MessageHeader.Deserialize {
 
       // We want to keep entries sorted by key. We don't insist that the entries be sorted
       // already, but we do insist there are no duplicate keys.
-      var opt, insertionPoint := Msg.InsertNewEntry(kvPairs, key, value);
+      var opt, insertionPoint := InsertNewEntry(kvPairs, key, value);
       match opt {
         case Some(kvPairs_) =>
           Msg.KVPairsLengthInsert(kvPairs, insertionPoint, key, value);
@@ -158,6 +158,35 @@ module MessageHeader.Deserialize {
       return Failure("Deserialization Error: Bytes actually read differs from bytes supposed to be read.");
     }
     return Success(kvPairs);
+  }
+
+  method InsertNewEntry(kvPairs: seq<(seq<uint8>, seq<uint8>)>, key: seq<uint8>, value: seq<uint8>)
+      returns (res: Option<seq<(seq<uint8>, seq<uint8>)>>, ghost insertionPoint: nat)
+    requires Msg.SortedKVPairs(kvPairs)
+    ensures match res
+    case None =>
+      exists i :: 0 <= i < |kvPairs| && kvPairs[i].0 == key  // key already exists
+    case Some(kvPairs') =>
+      && insertionPoint <= |kvPairs|
+      && kvPairs' == kvPairs[..insertionPoint] + [(key, value)] + kvPairs[insertionPoint..]
+      && Msg.SortedKVPairs(kvPairs')
+  {
+    var n := |kvPairs|;
+    while 0 < n && LexicographicLessOrEqual(key, kvPairs[n - 1].0, UInt8Less)
+      invariant 0 <= n <= |kvPairs|
+      invariant forall i :: n <= i < |kvPairs| ==> LexicographicLessOrEqual(key, kvPairs[i].0, UInt8Less)
+    {
+      n := n - 1;
+    }
+    if 0 < n && kvPairs[n - 1].0 == key {
+      return None, n;
+    } else {
+      var kvPairs' := kvPairs[..n] + [(key, value)] + kvPairs[n..];
+      if 0 < n {
+        LexPreservesTrichotomy(kvPairs'[n - 1].0, kvPairs'[n].0, UInt8Less);
+      }
+      return Some(kvPairs'), n;
+    }
   }
 
   method DeserializeEncryptedDataKeys(rd: Streams.StringReader) returns (ret: Result<Msg.EncryptedDataKeys>)
