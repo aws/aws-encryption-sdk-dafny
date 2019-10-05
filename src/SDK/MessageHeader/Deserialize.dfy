@@ -13,6 +13,10 @@ include "../../Util/UTF8.dfy"
  * When encountering an error, we stop and return it immediately, leaving the remaining inputs on the stream
  */
 module MessageHeader.Deserialize {
+  export
+    provides DeserializeHeaderBody, DeserializeHeaderAuthentication
+    provides Streams, StandardLibrary, UInt, AlgorithmSuite, Msg
+
   import Msg = Format
 
   import AlgorithmSuite
@@ -27,9 +31,9 @@ module MessageHeader.Deserialize {
     modifies rd
     ensures rd.Valid()
   {
-    var version :- rd.ReadExact(1);
-    if version[0] == Msg.VERSION_1 {
-      return Success(version[0]);
+    var version :- rd.ReadByte();
+    if version == Msg.VERSION_1 {
+      return Success(version);
     } else {
       return Failure("Deserialization Error: Version not supported.");
     }
@@ -40,9 +44,9 @@ module MessageHeader.Deserialize {
     modifies rd
     ensures rd.Valid()
   {
-    var typ :- rd.ReadExact(1);
-    if typ[0] == Msg.TYPE_CUSTOMER_AED {
-      return Success(typ[0]);
+    var typ :- rd.ReadByte();
+    if typ == Msg.TYPE_CUSTOMER_AED {
+      return Success(typ);
     } else {
       return Failure("Deserialization Error: Type not supported.");
     }
@@ -52,12 +56,9 @@ module MessageHeader.Deserialize {
     requires rd.Valid()
     modifies rd
     ensures rd.Valid()
-    ensures match ret
-      case Success(algorithmSuiteID) => Msg.ValidAlgorithmID(algorithmSuiteID)
-      case Failure(_) => true
   {
     var algorithmSuiteID :- rd.ReadUInt16();
-    if algorithmSuiteID in AlgorithmSuite.validIDs {
+    if algorithmSuiteID in AlgorithmSuite.ValidIDs {
       return Success(algorithmSuiteID as AlgorithmSuite.ID);
     } else {
       return Failure("Deserialization Error: Algorithm suite not supported.");
@@ -68,9 +69,6 @@ module MessageHeader.Deserialize {
     requires rd.Valid()
     modifies rd
     ensures rd.Valid()
-    ensures match ret
-      case Success(msgID) => Msg.ValidMessageID(msgID)
-      case Failure(_) => true
   {
     var msgID: seq<uint8> :- rd.ReadExact(Msg.MESSAGE_ID_LEN);
     return Success(msgID);
@@ -118,8 +116,6 @@ module MessageHeader.Deserialize {
       return Failure("Deserialization Error: Key value pairs count is 0.");
     }
 
-    // TODO: declare this array, make kvPairs a ghost, maintain invariant that sequence is a prefix of the array:
-    // var kvPairsArray: array<(seq<uint8>, seq<uint8>)> := new [kvPairsCount];
     var kvPairs: seq<(seq<uint8>, seq<uint8>)> := [];
     var i := 0;
     while i < kvPairsCount
@@ -172,8 +168,6 @@ module MessageHeader.Deserialize {
       case Success(edks) => edks.Valid()
       case Failure(_) => true
   {
-    //reveal Msg.EncryptedDataKeys.Valid();
-
     var edkCount :- rd.ReadUInt16();
     if edkCount == 0 {
       return Failure("Deserialization Error: Encrypted data key count is 0.");
@@ -213,8 +207,8 @@ module MessageHeader.Deserialize {
     modifies rd
     ensures rd.Valid()
   {
-    var bytes :- rd.ReadExact(1);
-    match Msg.UInt8ToContentType(bytes[0])
+    var byte :- rd.ReadByte();
+    match Msg.UInt8ToContentType(byte)
     case None =>
       return Failure("Deserialization Error: Content type not supported.");
     case Some(contentType) =>
@@ -234,39 +228,6 @@ module MessageHeader.Deserialize {
     }
   }
 
-  method DeserializeIVLength(rd: Streams.StringReader, algorithmSuiteID: AlgorithmSuite.ID) returns (ret: Result<uint8>)
-    requires rd.Valid()
-    requires algorithmSuiteID in AlgorithmSuite.Suite.Keys
-    ensures rd.Valid()
-    modifies rd
-    ensures match ret
-      case Success(ivLength) => Msg.ValidIVLength(ivLength, algorithmSuiteID)
-      case Failure(_) => true
-  {
-    var ivLength :- rd.ReadExact(1);
-    if ivLength[0] == AlgorithmSuite.Suite[algorithmSuiteID].params.ivLen {
-      return Success(ivLength[0]);
-    } else {
-      return Failure("Deserialization Error: Incorrect IV length.");
-    }
-  }
-
-  method DeserializeFrameLength(rd: Streams.StringReader, contentType: Msg.ContentType) returns (ret: Result<uint32>)
-    requires rd.Valid()
-    modifies rd
-    ensures rd.Valid()
-    ensures match ret
-      case Success(frameLength) => Msg.ValidFrameLength(frameLength, contentType)
-      case Failure(_) => true
-  {
-    var frameLength :- rd.ReadExact(4);
-    if contentType.NonFramed? && SeqToUInt32(frameLength) == 0 {
-      return Success(SeqToUInt32(frameLength));
-    } else {
-      return Failure("Deserialization Error: Frame length must be 0 when content type is non-framed.");
-    }
-  }
-
   /**
   * Reads raw header data from the input stream and populates the header with all of the information about the
   * message.
@@ -279,8 +240,6 @@ module MessageHeader.Deserialize {
       case Success(hb) => hb.Valid()
       case Failure(_) => true
   {
-    //reveal Msg.HeaderBody.Valid();
-
     var version :- DeserializeVersion(rd);
     var typ :- DeserializeType(rd);
     var algorithmSuiteID :- DeserializeAlgorithmSuiteID(rd);
@@ -289,9 +248,19 @@ module MessageHeader.Deserialize {
     var encryptedDataKeys :- DeserializeEncryptedDataKeys(rd);
     var contentType :- DeserializeContentType(rd);
     var reserved :- DeserializeReserved(rd);
-    var ivLength :- DeserializeIVLength(rd, algorithmSuiteID);
-    var frameLength :- DeserializeFrameLength(rd, contentType);
-    
+    var ivLength :- rd.ReadByte();
+    var frameLength :- rd.ReadUInt32();
+
+    // inter-field checks
+    if ivLength != AlgorithmSuite.Suite[algorithmSuiteID].params.ivLen {
+      return Failure("Deserialization Error: Incorrect IV length.");
+    }
+    if contentType.NonFramed? && frameLength != 0 {
+      return Failure("Deserialization Error: Frame length must be 0 when content type is non-framed.");
+    } else if contentType.Framed? && frameLength == 0 {
+      return Failure("Deserialization Error: Frame length must be non-0 when content type is framed.");
+    }
+
     var hb := Msg.HeaderBody(
       version,
       typ,
@@ -312,12 +281,13 @@ module MessageHeader.Deserialize {
     modifies rd
     ensures rd.Valid()
     ensures match ret
-      case Success(ha) => ha.Valid(algorithmSuiteID)
+      case Success(ha) =>
+        && |ha.iv| == algorithmSuiteID.IVLength()
+        && |ha.authenticationTag| == algorithmSuiteID.TagLength()
       case Failure(_) => true
   {
-    var params := AlgorithmSuite.Suite[algorithmSuiteID].params;
-    var iv :- rd.ReadExact(params.ivLen as nat);
-    var authenticationTag :- rd.ReadExact(params.tagLen as nat);
-    return Success(Msg.HeaderAuthentication(iv[..], authenticationTag[..]));
+    var iv :- rd.ReadExact(algorithmSuiteID.IVLength());
+    var authenticationTag :- rd.ReadExact(algorithmSuiteID.TagLength());
+    return Success(Msg.HeaderAuthentication(iv, authenticationTag));
   }
 }

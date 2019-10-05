@@ -17,7 +17,8 @@ module MessageHeader.Format {
   {
     predicate Valid() {
       && body.Valid()
-      && auth.Valid(body.algorithmSuiteID)
+      && |auth.iv| == body.algorithmSuiteID.IVLength()
+      && |auth.authenticationTag| == body.algorithmSuiteID.TagLength()
     }
   }
 
@@ -61,20 +62,9 @@ module MessageHeader.Format {
 
   datatype EncryptedDataKeys = EncryptedDataKeys(entries: seq<Materials.EncryptedDataKey>)
   {
-    predicate {:opaque} Valid() {
+    predicate Valid() {
       && |entries| < UINT16_LIMIT
       && (forall i :: 0 <= i < |entries| ==> entries[i].Valid())
-      // TODO: well-formedness of EDK
-      /*
-      Key Provider ID
-      The key provider identifier. The value of this field indicates the provider of the encrypted data key. See Key Provider for details on supported key providers.
-
-      Key Provider Information
-      The key provider information. The key provider for this encrypted data key determines what this field contains.
-
-      Encrypted Data Key
-      The encrypted data key. It is the data key encrypted by the key provider.
-      */
     }
   }
 
@@ -90,9 +80,7 @@ module MessageHeader.Format {
                           ivLength: uint8,
                           frameLength: uint32)
   {
-    predicate {:opaque} Valid() {
-      && ValidAlgorithmID(algorithmSuiteID)
-      && ValidMessageID(messageID)
+    predicate Valid() {
       && ValidAAD(aad)
       && encryptedDataKeys.Valid()
       && ValidIVLength(ivLength, algorithmSuiteID)
@@ -105,35 +93,6 @@ module MessageHeader.Format {
    * Header authentication type definition
    */
   datatype HeaderAuthentication = HeaderAuthentication(iv: seq<uint8>, authenticationTag: seq<uint8>)
-  {
-    predicate Valid(algorithmSuiteID: AlgorithmSuite.ID)
-      requires algorithmSuiteID in AlgorithmSuite.Suite.Keys
-    {
-      |authenticationTag| == AlgorithmSuite.Suite[algorithmSuiteID].params.tagLen as int &&
-      |iv| == AlgorithmSuite.Suite[algorithmSuiteID].params.ivLen as int
-    }
-  }
-
-
-
-  // TODO: strengthen spec when available
-  predicate UniquelyIdentifiesMessage(id: MessageID)      { true }
-  predicate WeaklyBindsHeaderToHeaderBody(id: MessageID)  { true }
-  predicate EnablesSecureReuse(id: MessageID)             { true }
-  predicate ProtectsAgainstAccidentalReuse(id: MessageID) { true }
-  predicate ProtectsAgainstWearingOut(id: MessageID)      { true }
-
-  predicate ValidMessageID(id: MessageID) {
-    && UniquelyIdentifiesMessage(id)
-    && WeaklyBindsHeaderToHeaderBody(id)
-    && EnablesSecureReuse(id)
-    && ProtectsAgainstAccidentalReuse(id)
-    && ProtectsAgainstWearingOut(id)
-  }
-
-  predicate ValidAlgorithmID(algorithmSuiteID: AlgorithmSuite.ID) {
-    algorithmSuiteID in AlgorithmSuite.Suite.Keys
-  }
 
   predicate ValidKVPair(kvPair: (seq<uint8>, seq<uint8>)) {
     && |kvPair.0| < UINT16_LIMIT
@@ -240,7 +199,7 @@ module MessageHeader.Format {
   predicate ValidFrameLength(frameLength: uint32, contentType: ContentType) {
     match contentType
     case NonFramed => frameLength == 0
-    case Framed => true
+    case Framed => frameLength != 0
   }
 
   predicate SortedKVPairsUpTo(a: seq<(seq<uint8>, seq<uint8>)>, n: nat)

@@ -17,7 +17,6 @@ module MessageHeader.Serialize {
   function {:opaque} Serialize(hb: Msg.HeaderBody): seq<uint8>
     requires hb.Valid()
   {
-    //reveal Msg.HeaderBody.Valid();
     [hb.version as uint8] +
     [hb.typ as uint8] +
     UInt16ToSeq(hb.algorithmSuiteID as uint16) +
@@ -45,20 +44,18 @@ module MessageHeader.Serialize {
   {
     var totalWritten := 0;
 
-    var len :- wr.WriteSingleByteSimple(hb.version as uint8);
+    var len :- wr.WriteByte(hb.version as uint8);
     totalWritten := totalWritten + len;
 
-    len :- wr.WriteSingleByteSimple(hb.typ as uint8);
+    len :- wr.WriteByte(hb.typ as uint8);
     totalWritten := totalWritten + len;
 
-    var bytes := UInt16ToArray(hb.algorithmSuiteID as uint16);
-    len :- wr.WriteSimple(bytes);
+    len :- wr.WriteUInt16(hb.algorithmSuiteID as uint16);
     totalWritten := totalWritten + len;
 
-    len :- wr.WriteSimpleSeq(hb.messageID);
+    len :- wr.WriteSeq(hb.messageID);
     totalWritten := totalWritten + len;
 
-    //reveal Msg.HeaderBody.Valid();
     len :- SerializeAADImpl(wr, hb.aad);
     totalWritten := totalWritten + len;
 
@@ -66,17 +63,16 @@ module MessageHeader.Serialize {
     totalWritten := totalWritten + len;
 
     var contentType := Msg.ContentTypeToUInt8(hb.contentType);
-    len :- wr.WriteSingleByteSimple(contentType);
+    len :- wr.WriteByte(contentType);
     totalWritten := totalWritten + len;
 
-    len :- wr.WriteSimpleSeq(hb.reserved);
+    len :- wr.WriteSeq(hb.reserved);
     totalWritten := totalWritten + len;
 
-    len :- wr.WriteSingleByteSimple(hb.ivLength);
+    len :- wr.WriteByte(hb.ivLength);
     totalWritten := totalWritten + len;
 
-    bytes := UInt32ToArray(hb.frameLength);
-    len :- wr.WriteSimple(bytes);
+    len :- wr.WriteUInt32(hb.frameLength);
     totalWritten := totalWritten + len;
 
     reveal Serialize();
@@ -85,7 +81,6 @@ module MessageHeader.Serialize {
 
   method SerializeHeaderAuthentication(wr: Streams.StringWriter, ha: Msg.HeaderAuthentication, ghost algorithmSuiteID: AlgorithmSuite.ID) returns (ret: Result<nat>)
     requires wr.Valid()
-    requires ha.Valid(algorithmSuiteID)
     modifies wr`data
     ensures wr.Valid()
     ensures match ret
@@ -97,8 +92,8 @@ module MessageHeader.Serialize {
         && serHa == wr.data[initLen..initLen + totalWritten]
       case Failure(e) => true
   {
-    var m :- wr.WriteSimpleSeq(ha.iv);
-    var n :- wr.WriteSimpleSeq(ha.authenticationTag);
+    var m :- wr.WriteSeq(ha.iv);
+    var n :- wr.WriteSeq(ha.authenticationTag);
     return Success(m + n);
   }
 
@@ -202,19 +197,15 @@ module MessageHeader.Serialize {
     var totalWritten := 0;
 
     // Key Value Pairs Length (number of bytes of total AAD)
-    var length :- ComputeAADLength(kvPairs);
-    var bytes := UInt16ToSeq(length);
-    var len :- wr.WriteSimpleSeq(bytes);
+    var aadLength :- ComputeAADLength(kvPairs);
+    var len :- wr.WriteUInt16(aadLength);
     totalWritten := totalWritten + len;
-    assert totalWritten == 2;
-    if length == 0 {
+    if aadLength == 0 {
       return Success(totalWritten);
     }
 
-    bytes := UInt16ToSeq(|kvPairs| as uint16);
-    len :- wr.WriteSimpleSeq(bytes);
+    len :- wr.WriteUInt16(|kvPairs| as uint16);
     totalWritten := totalWritten + len;
-    assert totalWritten == 4;
 
     var j := 0;
     ghost var n := |kvPairs|;
@@ -222,23 +213,21 @@ module MessageHeader.Serialize {
       invariant j <= n == |kvPairs|
       invariant wr.data ==
         old(wr.data) +
-        UInt16ToSeq(length) +
+        UInt16ToSeq(aadLength) +
         UInt16ToSeq(n as uint16) +
         SerializeKVPairs(kvPairs, 0, j)
       invariant totalWritten == 4 + |SerializeKVPairs(kvPairs, 0, j)|
     {
-      bytes := UInt16ToSeq(|kvPairs[j].0| as uint16);
-      len :- wr.WriteSimpleSeq(bytes);
+      len :- wr.WriteUInt16(|kvPairs[j].0| as uint16);
       totalWritten := totalWritten + len;
 
-      len :- wr.WriteSimpleSeq(kvPairs[j].0);
+      len :- wr.WriteSeq(kvPairs[j].0);
       totalWritten := totalWritten + len;
 
-      bytes := UInt16ToSeq(|kvPairs[j].1| as uint16);
-      len :- wr.WriteSimpleSeq(bytes);
+      len :- wr.WriteUInt16(|kvPairs[j].1| as uint16);
       totalWritten := totalWritten + len;
 
-      len :- wr.WriteSimpleSeq(kvPairs[j].1);
+      len :- wr.WriteSeq(kvPairs[j].1);
       totalWritten := totalWritten + len;
 
       j := j + 1;
@@ -281,7 +270,6 @@ module MessageHeader.Serialize {
   function SerializeEDKs(encryptedDataKeys: Msg.EncryptedDataKeys): seq<uint8>
     requires encryptedDataKeys.Valid()
   {
-    //reveal Msg.EncryptedDataKeys.Valid();
     var n := |encryptedDataKeys.entries|;
     UInt16ToSeq(n as uint16) +
     SerializeEDKEntries(encryptedDataKeys.entries, 0, n)
@@ -317,14 +305,10 @@ module MessageHeader.Serialize {
         && wr.data == old(wr.data) + serEDK
       case Failure(e) => true
   {
-    //reveal Msg.EncryptedDataKeys.Valid();
-
     var totalWritten := 0;
 
-    var bytes := UInt16ToArray(|encryptedDataKeys.entries| as uint16);
-    var len :- wr.WriteSimple(bytes);
+    var len :- wr.WriteUInt16(|encryptedDataKeys.entries| as uint16);
     totalWritten := totalWritten + len;
-    assert totalWritten == 2;
 
     var j := 0;
     ghost var n := |encryptedDataKeys.entries|;
@@ -338,26 +322,22 @@ module MessageHeader.Serialize {
     {
       var entry := encryptedDataKeys.entries[j];
 
-      bytes := UInt16ToArray(|entry.providerID| as uint16);
-      len :- wr.WriteSimple(bytes);
+      len :- wr.WriteUInt16(|entry.providerID| as uint16);
       totalWritten := totalWritten + len;
 
-      var byteSeq := StringToByteSeq(entry.providerID);
-      len :- wr.WriteSimpleSeq(byteSeq);
+      len :- wr.WriteSeq(StringToByteSeq(entry.providerID));
       totalWritten := totalWritten + len;
 
-      bytes := UInt16ToArray(|entry.providerInfo| as uint16);
-      len :- wr.WriteSimple(bytes);
+      len :- wr.WriteUInt16(|entry.providerInfo| as uint16);
       totalWritten := totalWritten + len;
 
-      len :- wr.WriteSimpleSeq(entry.providerInfo);
+      len :- wr.WriteSeq(entry.providerInfo);
       totalWritten := totalWritten + len;
 
-      bytes := UInt16ToArray(|entry.ciphertext| as uint16);
-      len :- wr.WriteSimple(bytes);
+      len :- wr.WriteUInt16(|entry.ciphertext| as uint16);
       totalWritten := totalWritten + len;
 
-      len :- wr.WriteSimpleSeq(entry.ciphertext);
+      len :- wr.WriteSeq(entry.ciphertext);
       totalWritten := totalWritten + len;
 
       j := j + 1;
