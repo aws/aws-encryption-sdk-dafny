@@ -4,7 +4,6 @@ include "AlgorithmSuite.dfy"
 include "CMM/Defs.dfy"
 include "CMM/DefaultCMM.dfy"
 include "Keyring/Defs.dfy"
-include "./Keyring/AESWrappingSuite.dfy"
 include "Materials.dfy"
 include "../Crypto/AESEncryption.dfy"
 include "../Crypto/AESUtils.dfy"
@@ -20,7 +19,6 @@ module ToyClientDef {
   import RNG
   import AlgorithmSuite
   import AESEncryption
-  import AESKeyring
   import AESUtils
 
   datatype Encryption = Encryption(ec: Materials.EncryptionContext, edks: seq<Materials.EncryptedDataKey>, iv: seq<uint8>, ctxt: AESEncryption.EncryptionArtifacts)

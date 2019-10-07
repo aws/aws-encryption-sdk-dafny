@@ -4,7 +4,6 @@ include "../../StandardLibrary/UInt.dfy"
 include "../AlgorithmSuite.dfy"
 include "./Defs.dfy"
 include "../../Crypto/AESUtils.dfy"
-include "./AESWrappingSuite.dfy"
 include "../../Crypto/GenBytes.dfy"
 include "../../Crypto/AESEncryption.dfy"
 include "../Materials.dfy"
@@ -18,10 +17,10 @@ module AESKeyring{
   import KeyringDefs
   import Mat = Materials
   import RNG
-  import WrappingSuite = AESWrappingSuite
 
   const AUTH_TAG_LEN_LEN := 4;
   const IV_LEN_LEN       := 4;
+  const VALID_ALGORITHMS := {AESUtils.AES_GCM_128, AESUtils.AES_GCM_192, AESUtils.AES_GCM_256}
 
   class AESKeyring extends KeyringDefs.Keyring {
     const keyNamespace: string
@@ -32,13 +31,13 @@ module AESKeyring{
     predicate Valid() reads this {
         Repr == {this} &&
         |wrappingKey| == wrappingAlgorithm.keyLen as int &&
-        wrappingAlgorithm in WrappingSuite.VALID_ALGORITHMS &&
+        wrappingAlgorithm in VALID_ALGORITHMS &&
         StringIs8Bit(keyNamespace) && StringIs8Bit(keyName)
     }
 
     constructor(namespace: string, name: string, key: seq<uint8>, wrappingAlg: AESUtils.Params)
     requires StringIs8Bit(namespace) && StringIs8Bit(name)
-    requires wrappingAlg in WrappingSuite.VALID_ALGORITHMS
+    requires wrappingAlg in VALID_ALGORITHMS
     requires |key| == wrappingAlg.keyLen as int
     ensures keyNamespace == namespace
     ensures keyName == name
