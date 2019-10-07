@@ -4,21 +4,21 @@ include "../../StandardLibrary/UInt.dfy"
 include "../AlgorithmSuite.dfy"
 include "./Defs.dfy"
 include "../../Crypto/AESUtils.dfy"
-include "../../Crypto/WrappingAlgorithmSuite.dfy"
+include "./AESWrappingSuite.dfy"
 include "../../Crypto/GenBytes.dfy"
 include "../../Crypto/AESEncryption.dfy"
 include "../Materials.dfy"
 
-module AESKeyringDef {
+module AESKeyring{
   import opened StandardLibrary
   import opened UInt = StandardLibrary.UInt
+  import AESEncryption
   import AESUtils
   import AlgorithmSuite
-  import WrappingSuite = WrappingAlgorithmSuite
-  import RNG
   import KeyringDefs
-  import AESEncryption
   import Mat = Materials
+  import RNG
+  import WrappingSuite = AESWrappingSuite
 
   const AUTH_TAG_LEN_LEN := 4;
   const IV_LEN_LEN       := 4;

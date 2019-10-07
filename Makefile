@@ -15,11 +15,11 @@ SRCS = \
 	   src/Crypto/GenBytes.dfy \
 	   src/Crypto/RSAEncryption.dfy \
 	   src/Crypto/Signature.dfy \
-	   src/Crypto/WrappingAlgorithmSuite.dfy \
 	   src/SDK/AlgorithmSuite.dfy \
 	   src/SDK/CMM/DefaultCMM.dfy \
 	   src/SDK/CMM/Defs.dfy \
 	   src/SDK/Keyring/AESKeyring.dfy \
+	   src/SDK/Keyring/AESWrappingSuite.dfy \
 	   src/SDK/Keyring/Defs.dfy \
 	   src/SDK/Keyring/RSAKeyring.dfy \
 	   src/SDK/Materials.dfy \
