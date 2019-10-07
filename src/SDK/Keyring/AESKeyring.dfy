@@ -81,10 +81,9 @@ module AESKeyringDef {
       }
       var iv := RNG.GenBytes(wrappingAlgorithm.ivLen as uint16);
       var aad := Mat.FlattenSortEncCtx(encMat.encryptionContext);
-      var encryptResult := AESEncryption.AESEncrypt(wrappingAlgorithm, iv, wrappingKey, dataKey.get, aad);
-      if encryptResult.Failure? { return Failure("Error on encrypt!"); }
+      var encryptResult :- AESEncryption.AESEncrypt(wrappingAlgorithm, iv, wrappingKey, dataKey.get, aad);
       var providerInfo := SerializeProviderInto(iv);
-      var edk := Mat.EncryptedDataKey(keyNamespace, providerInfo, encryptResult.value);
+      var edk := Mat.EncryptedDataKey(keyNamespace, providerInfo, encryptResult.cipherText + encryptResult.authTag);
       encMat.plaintextDataKey := dataKey;
       encMat.encryptedDataKeys := encMat.encryptedDataKeys + [edk];
       return Success(encMat);
@@ -122,10 +121,14 @@ module AESKeyringDef {
       while i < |edks|
         invariant unchanged(decMat)
       {
-        if edks[i].providerID == keyNamespace && ValidProviderInfo(edks[i].providerInfo) {
+        if edks[i].providerID == keyNamespace && ValidProviderInfo(edks[i].providerInfo) && wrappingAlgorithm.tagLen as int <= |edks[i].ciphertext| {
           var iv := GetIvFromProvInfo(edks[i].providerInfo);
           var flatEncCtx: seq<uint8> := Mat.FlattenSortEncCtx(decMat.encryptionContext);
-          var decryptResult := AESEncryption.AESDecrypt(wrappingAlgorithm, wrappingKey, edks[i].ciphertext, iv, flatEncCtx);
+          var encArt := AESEncryption.EncryptionArtifacts(
+              edks[i].ciphertext[wrappingAlgorithm.tagLen ..],
+              edks[i].ciphertext[.. wrappingAlgorithm.tagLen]
+              );
+          var decryptResult := AESEncryption.AESDecrypt(wrappingAlgorithm, wrappingKey, encArt, iv, flatEncCtx);
           if decryptResult.Success? {
             var ptKey := decryptResult.value;
             if |ptKey| == decMat.algorithmSuiteID.KeyLength() { // check for correct key length

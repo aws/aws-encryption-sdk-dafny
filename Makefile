@@ -16,7 +16,6 @@ SRCS = \
 	   src/Crypto/RSAEncryption.dfy \
 	   src/Crypto/Signature.dfy \
 	   src/Crypto/WrappingAlgorithmSuite.dfy \
-	   src/Main.dfy \
 	   src/SDK/AlgorithmSuite.dfy \
 	   src/SDK/CMM/DefaultCMM.dfy \
 	   src/SDK/CMM/Defs.dfy \

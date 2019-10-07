@@ -72,11 +72,12 @@ module ToyClientDef {
       }
       var iv := WrappingAlgorithmSuite.GenIV(WrappingAlgorithmSuite.AES_GCM_256);
       var ciphertext :- AESEncryption.AESEncrypt(WrappingAlgorithmSuite.AES_GCM_256, iv ,em.plaintextDataKey.get, pt, []);
-      return Success(Encryption(em.encryptionContext, em.encryptedDataKeys, iv + ciphertext));
+      return Success(Encryption(em.encryptionContext, em.encryptedDataKeys, iv + ciphertext.cipherText + ciphertext.authTag));
     }
 
     method Decrypt(e: Encryption) returns (res: Result<seq<uint8>>)
       requires Valid()
+      requires (WrappingAlgorithmSuite.AES_GCM_256.ivLen + WrappingAlgorithmSuite.AES_GCM_256.tagLen) as int < |e.ctxt|
       ensures Valid()
     {
       if |e.edks| == 0 {
@@ -86,7 +87,7 @@ module ToyClientDef {
       match decmat.plaintextDataKey
       case Some(dk) =>
         if |dk| == 32 && |e.ctxt| > 12 {
-          var cipherText := e.ctxt[WrappingAlgorithmSuite.AES_GCM_256.ivLen ..];
+          var cipherText := AESEncryption.EncryptionArtifactFromByteSeq(e.ctxt[WrappingAlgorithmSuite.AES_GCM_256.ivLen ..], WrappingAlgorithmSuite.AES_GCM_256);
           var iv := e.ctxt[.. WrappingAlgorithmSuite.AES_GCM_256.ivLen];
           var msg := AESEncryption.AESDecrypt(WrappingAlgorithmSuite.AES_GCM_256, dk, cipherText, iv, []);
           return msg;

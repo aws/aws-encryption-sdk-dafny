@@ -1,6 +1,7 @@
 using System;
-using System.Text;
+using System.Linq;
 using System.IO;
+using System.Text;
 using Org.BouncyCastle.Crypto;
 using Org.BouncyCastle.Crypto.Digests;
 using Org.BouncyCastle.Crypto.EC;
@@ -23,7 +24,7 @@ namespace AESEncryption {
     //TODO This code has yet to be reviewed. See issue #36
     public partial class AES_GCM {
 
-        public static STL.Result<byteseq> AESEncrypt(AESUtils.Params p,
+        public static STL.Result<EncryptionArtifacts> AESEncrypt(AESUtils.Params p,
                                                       byteseq iv,
                                                       byteseq key,
                                                       byteseq msg,
@@ -36,10 +37,12 @@ namespace AESEncryption {
                 byte[] c = new byte[cipher.GetOutputSize(msg.Elements.Length)];
                 var len = cipher.ProcessBytes(msg.Elements, 0, msg.Elements.Length, c, 0);
                 cipher.DoFinal(c, len); //Append authentication tag to `c`
-                return new STL.Result_Success<byteseq>(new byteseq(c));
+                return new STL.Result_Success<EncryptionArtifacts>(
+                        new EncryptionArtifacts(new byteseq(c.Take(len - 1).ToArray()), new byteseq(c.Skip(len - 1).ToArray()))
+                        );
             }
             catch {
-                return new STL.Result_Failure<byteseq>(new Dafny.Sequence<char>("aes encrypt err".ToCharArray()));
+                return new STL.Result_Failure<EncryptionArtifacts>(new Dafny.Sequence<char>("aes encrypt err".ToCharArray()));
             }
         }
 
