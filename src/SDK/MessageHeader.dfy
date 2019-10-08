@@ -1,7 +1,7 @@
-include "../AlgorithmSuite.dfy"
-include "../../StandardLibrary/StandardLibrary.dfy"
-include "../Materials.dfy"
-include "../../Util/UTF8.dfy"
+include "AlgorithmSuite.dfy"
+include "../StandardLibrary/StandardLibrary.dfy"
+include "Materials.dfy"
+include "../Util/UTF8.dfy"
 
 module MessageHeader {
   import AlgorithmSuite
@@ -64,7 +64,7 @@ module MessageHeader {
   datatype EncryptedDataKeys = EncryptedDataKeys(entries: seq<Materials.EncryptedDataKey>)
   {
     predicate Valid() {
-      && |entries| < UINT16_LIMIT
+      && 0 < |entries| < UINT16_LIMIT
       && (forall i :: 0 <= i < |entries| ==> entries[i].Valid())
     }
   }
@@ -84,7 +84,7 @@ module MessageHeader {
     predicate Valid() {
       && ValidAAD(aad)
       && encryptedDataKeys.Valid()
-      && ValidIVLength(ivLength, algorithmSuiteID)
+      && algorithmSuiteID.IVLength() == ivLength as nat
       && ValidFrameLength(frameLength, contentType)
     }
   }
@@ -195,10 +195,6 @@ module MessageHeader {
     && (forall i :: 0 <= i < |kvPairs| ==> ValidKVPair(kvPairs[i]))
     && SortedKVPairs(kvPairs)
     && AADLength(kvPairs) < UINT16_LIMIT
-  }
-
-  predicate ValidIVLength(ivLength: uint8, algorithmSuiteID: AlgorithmSuite.ID) {
-    algorithmSuiteID in AlgorithmSuite.Suite.Keys && AlgorithmSuite.Suite[algorithmSuiteID].params.ivLen == ivLength
   }
 
   predicate ValidFrameLength(frameLength: uint32, contentType: ContentType) {

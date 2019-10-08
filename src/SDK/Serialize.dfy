@@ -1,9 +1,9 @@
 include "MessageHeader.dfy"
-include "../Materials.dfy"
-include "../AlgorithmSuite.dfy"
+include "Materials.dfy"
+include "AlgorithmSuite.dfy"
 
-include "../../Util/Streams.dfy"
-include "../../StandardLibrary/StandardLibrary.dfy"
+include "../Util/Streams.dfy"
+include "../StandardLibrary/StandardLibrary.dfy"
 
 module Serialize {
   import Msg = MessageHeader

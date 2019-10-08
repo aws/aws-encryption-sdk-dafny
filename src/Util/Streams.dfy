@@ -44,31 +44,23 @@ module Streams {
         case Success(lengthRead) => lengthRead == min(req, old(Available()))
         case Failure(e) => unchanged(this) && unchanged(arr)
     {
-      if off == arr.Length || Available() == 0 {
-        assert (min (req, Available())) == 0;
-        return Success(0);
-      } else {
-        var n := min(req, Available());
-        forall i | 0 <= i < n {
-          arr[off + i] := data[pos + i];
-        }
-        pos := pos + n;
-        return Success(n);
+      var n := min(req, Available());
+      forall i | 0 <= i < n {
+        arr[off + i] := data[pos + i];
       }
+      pos := pos + n;
+      return Success(n);
     }
 
-    method ReadSeq(req: nat) returns (res: Result<seq<uint8>>)
+    method ReadSeq(desiredByteCount: nat) returns (bytes: seq<uint8>)
       requires Valid()
       modifies this
       ensures Valid()
-      ensures match res
-        case Success(bytes) => bytes == data[old(pos)..][..min(req, old(Available()))]
-        case Failure(e) => unchanged(this)
+      ensures bytes == data[old(pos)..][..min(desiredByteCount, old(Available()))]
     {
-      var n := min(req, Available());
-      var bytes := seq(n, i requires 0 <= i < n && pos + n <= data.Length reads this, data => data[pos + i]);
+      var n := min(desiredByteCount, Available());
+      bytes := seq(n, i requires 0 <= i < n && pos + n <= data.Length reads this, data => data[pos + i]);
       pos := pos + n;
-      return Success(bytes);
     }
 
     // Read exactly `n` bytes, if possible; otherwise, fail.
@@ -80,7 +72,7 @@ module Streams {
         case Success(bytes) => |bytes| == n
         case Failure(_) => true
     {
-      var bytes :- ReadSeq(n);
+      var bytes := ReadSeq(n);
       if |bytes| != n {
         return Failure("IO Error: Not enough bytes left on stream.");
       } else {
@@ -137,6 +129,7 @@ module Streams {
       requires Valid()
       reads this
     {
+      // TODO: revisit this definition if we change the backing store of the StringWriter to be something with limited capacity
       true
     }
 

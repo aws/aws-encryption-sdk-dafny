@@ -10,9 +10,9 @@ module AlgorithmSuite {
   import C = Cipher
   import Digests
 
-  const ValidIDs: set<uint16> := {0x0378, 0x0346, 0x0214, 0x0178, 0x0146, 0x0114, 0x0078, 0x0046, 0x0014};
+  const VALID_IDS: set<uint16> := {0x0378, 0x0346, 0x0214, 0x0178, 0x0146, 0x0114, 0x0078, 0x0046, 0x0014};
 
-  newtype ID = x | x in ValidIDs witness 0x0014
+  newtype ID = x | x in VALID_IDS witness 0x0014
   {
     function method KeyLength(): nat {
       Suite[this].params.keyLen as nat
@@ -68,9 +68,9 @@ module AlgorithmSuite {
   }
 
   lemma ValidIDsAreSuiteKeys()
-    ensures ValidIDs == set id | id in Suite.Keys :: id as uint16
+    ensures VALID_IDS == set id | id in Suite.Keys :: id as uint16
   {
-    forall x | x in ValidIDs
+    forall x | x in VALID_IDS
       ensures exists id :: id in Suite.Keys && id as uint16 == x
     {
       assert x as ID in Suite.Keys;

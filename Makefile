@@ -19,13 +19,13 @@ SRCS = \
 	   src/SDK/AlgorithmSuite.dfy \
 	   src/SDK/CMM/DefaultCMM.dfy \
 	   src/SDK/CMM/Defs.dfy \
+	   src/SDK/Deserialize.dfy \
 	   src/SDK/Keyring/AESKeyring.dfy \
 	   src/SDK/Keyring/Defs.dfy \
 	   src/SDK/Keyring/RSAKeyring.dfy \
 	   src/SDK/Materials.dfy \
-	   src/SDK/MessageHeader/Deserialize.dfy \
-	   src/SDK/MessageHeader/MessageHeader.dfy \
-	   src/SDK/MessageHeader/Serialize.dfy \
+	   src/SDK/MessageHeader.dfy \
+	   src/SDK/Serialize.dfy \
 	   src/SDK/ToyClient.dfy \
 	   src/StandardLibrary/Base64.dfy \
 	   src/StandardLibrary/StandardLibrary.dfy \
@@ -42,7 +42,7 @@ SRCDIRS = $(dir $(SRCS))
 DEPS = $(foreach dir, $(SRCDIRS), $(wildcard $(dir)/*.cs)) \
 	$(BCDLL)
 
-DEPS_CS = $(foreach dir, src/Crypto/ src/ src/SDK/ src/SDK/CMM src/SDK/Keyring src/SDK/MessageHeader src/StandardLibrary src/Util, $(wildcard $(dir)/*.cs))
+DEPS_CS = $(foreach dir, src/Crypto/ src/ src/SDK/ src/SDK/CMM src/SDK/Keyring src/StandardLibrary src/Util, $(wildcard $(dir)/*.cs))
 
 .PHONY: all release build verify buildcs hkdf test clean-build clean
 
