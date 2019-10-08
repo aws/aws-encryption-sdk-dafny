@@ -1,4 +1,3 @@
-include "../MessageHeader/Definitions.dfy"
 include "../../StandardLibrary/StandardLibrary.dfy"
 include "../../StandardLibrary/UInt.dfy"
 include "../AlgorithmSuite.dfy"

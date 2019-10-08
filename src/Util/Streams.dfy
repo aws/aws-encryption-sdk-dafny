@@ -4,132 +4,120 @@ module Streams {
   import opened StandardLibrary
   import opened UInt = StandardLibrary.UInt
 
-  trait Stream {
+  class StringReader {
+    const data: array<uint8>
+    var pos: nat
 
-    ghost var Repr : set<object>
-    predicate Valid() reads this
-    function method capacity()  : nat reads this requires Valid() // An upper bound on the amount of data the stream can accept on Write
-    function method available() : nat reads this requires Valid() // An upper bound on the amount of data the stream can deliver on Read
+    ghost var Repr: set<object>
 
-
-    method Write(a : array<uint8>, off : nat, req : nat) returns (res : Either<nat, Error>)
-      requires Valid()
-      requires a.Length >= off + req
-      modifies Repr
-      requires a !in Repr
-      ensures Valid()
-      ensures
-        match res
-          case Left(len_written) => len_written == min(req, old(capacity()))
-          case Right(e) => true
-
-
-    method Read(i : array<uint8>, off : nat, req : nat) returns (res : Either<nat, Error>)
-      requires Valid()
-      requires i.Length >= off + req
-      requires i !in Repr
-      modifies i, this
-      ensures Valid()
-      ensures
-        match res
-          case Left(len_read) => len_read == min(req, old(available()))
-          case Right(e) => true
-  }
-
-
-  class StringReader extends Stream {
-
-    var data : array<uint8>
-    var pos : nat
-
-    predicate Valid() reads this {
+    predicate Valid()
+      reads this
+    {
       this in Repr &&
       data in Repr &&
       pos <= data.Length
     }
 
-    function method capacity() : nat reads this requires Valid() { 0 }
-    function method available() : nat reads this requires Valid() { data.Length - pos }
-
-
-    constructor(d : array<uint8>)
-      ensures Valid()
+    function method Available(): nat  // An upper bound on the amount of data the stream can deliver on Read
+      requires Valid()
+      reads this
     {
-        Repr := {this, d};
-        data := d;
-        pos := 0;
+      data.Length - pos
     }
 
-    method Write(a : array<uint8>, off : nat, req : nat) returns (res : Either<nat, Error>)
-      requires Valid()
-      modifies this
-      requires a !in Repr
+    constructor(d: array<uint8>)
       ensures Valid()
-      ensures
-        match res
-          case Left(len_written) => len_written == min(req, old(capacity()))
-          case Right(e) => unchanged(this)
     {
-      res := Right(IOError("Cannot write to StringReader"));
+      Repr := {this, d};
+      data := d;
+      pos := 0;
     }
 
-    method Read(arr : array<uint8>, off : nat, req : nat) returns (res : Either<nat, Error>)
-      requires Valid()
-      requires arr.Length >= off + req
-      requires arr != data
+    method Read(arr: array<uint8>, off: nat, req: nat) returns (res: Result<nat>)
+      requires Valid() && arr != data
+      requires off + req <= arr.Length
+      modifies this, arr
       ensures Valid()
-      modifies arr, this
-      ensures unchanged(`data)
-      ensures var n := min(req, old(available()));
+      ensures var n := min(req, old(Available()));
         arr[..] == arr[..off] + data[old(pos) .. (old(pos) + n)] + arr[off + n ..]
-      ensures
-        match res
-          case Left(len_read) => len_read == min(req, old(available()))
-          case Right(e) => unchanged(this) && unchanged(arr)
+      ensures match res
+        case Success(lengthRead) => lengthRead == min(req, old(Available()))
+        case Failure(e) => unchanged(this) && unchanged(arr)
     {
-      if off == arr.Length || available() == 0 {
-        assert (min (req, available())) == 0;
-        res := Left(0);
+      var n := min(req, Available());
+      forall i | 0 <= i < n {
+        arr[off + i] := data[pos + i];
       }
-      else {
-        var n := min(req, available());
-        forall i | 0 <= i < n {
-          arr[off + i] := data[pos + i];
-        }
-        pos := pos + n;
-        res := Left(n);
-      }
+      pos := pos + n;
+      return Success(n);
     }
-    /*
-    // TODO add a version without arrays
-    method ReadSimple(arr: array<uint8>) returns (res: Result<nat>)
+
+    method ReadSeq(desiredByteCount: nat) returns (bytes: seq<uint8>)
       requires Valid()
-      ensures Valid()
       modifies this
-      ensures
-        match res
-          case Left(len_read) =>
-            var n := arr.Length;
-            && pos == old(pos) + n
-            && arr[..] == data[old(pos) .. pos]
-            && len_read == n
-          case Right(e) => unchanged(this)
+      ensures Valid()
+      ensures bytes == data[old(pos)..][..min(desiredByteCount, old(Available()))]
     {
-      if arr.Length <= available() {
-        forall i | 0 <= i < arr.Length {
-          arr[i] := data[pos + i];
-        }
-        pos := pos + arr.Length;
-        res := Left(arr.Length);
+      var n := min(desiredByteCount, Available());
+      bytes := seq(n, i requires 0 <= i < n && pos + n <= data.Length reads this, data => data[pos + i]);
+      pos := pos + n;
+    }
+
+    // Read exactly `n` bytes, if possible; otherwise, fail.
+    method ReadExact(n: nat) returns (res: Result<seq<uint8>>)
+      requires Valid()
+      modifies this
+      ensures Valid()
+      ensures match res
+        case Success(bytes) => |bytes| == n
+        case Failure(_) => true
+    {
+      var bytes := ReadSeq(n);
+      if |bytes| != n {
+        return Failure("IO Error: Not enough bytes left on stream.");
       } else {
-        res := Right(IOError("Not enough bytes available on stream."));
+        return Success(bytes);
       }
     }
-    */
+
+    // Read exactly 1 byte, if possible, and return as a uint8; otherwise, fail.
+    method ReadByte() returns (res: Result<uint8>)
+      requires Valid()
+      modifies this
+      ensures Valid()
+    {
+      var bytes :- ReadExact(1);
+      var n := bytes[0];
+      return Success(n);
+    }
+
+    // Read exactly 2 bytes, if possible, and return as a uint16; otherwise, fail.
+    method ReadUInt16() returns (res: Result<uint16>)
+      requires Valid()
+      modifies this
+      ensures Valid()
+    {
+      var bytes :- ReadExact(2);
+      var n := SeqToUInt16(bytes);
+      return Success(n);
+    }
+
+    // Read exactly 4 bytes, if possible, and return as a uint32; otherwise, fail.
+    method ReadUInt32() returns (res: Result<uint32>)
+      requires Valid()
+      modifies this
+      ensures Valid()
+    {
+      var bytes :- ReadExact(4);
+      var n := SeqToUInt32(bytes);
+      return Success(n);
+    }
   }
 
-  class StringWriter extends Stream {
-    ghost var data : seq<uint8>
+  class StringWriter {
+    ghost var data: seq<uint8>
+
+    ghost var Repr: set<object>
 
     predicate Valid()
       reads this
@@ -137,160 +125,115 @@ module Streams {
       this in Repr
     }
 
-    function method capacity(): nat
+    predicate method HasRemainingCapacity(n: nat)  // Compare with an upper bound on the amount of data the stream can accept on Write
+      requires Valid()
       reads this
-      requires Valid()
-      {
-        0 // TODO?
-      }
-
-    function method available(): nat
-      reads this
-      requires Valid()
-      {
-        0 // TODO
-      }
-
-    constructor(n : nat)
-      ensures Valid()
     {
-        data := [];
-        Repr := {this};
+      // TODO: revisit this definition if we change the backing store of the StringWriter to be something with limited capacity
+      true
     }
 
-    method Write(a: array<uint8>, off: nat, req: nat) returns (res: Either<nat, Error>)
-      requires Valid()
-      requires off + req <= a.Length
-      requires a !in Repr
-      modifies `data
-      ensures unchanged(`Repr)
-      ensures Valid()
-      ensures
-        match res
-          case Left(len_written) =>
-            if old(capacity()) == 0
-            then
-              len_written == 0
-            else
-              //&& old(pos + n < |data|)
-              //&& Written(old(data), data, old(pos), pos, a[off..off+n], len_written, n)
-              && len_written == min(req, old(capacity()))
-              && data == old(data) + a[off..off+req]
-          case Right(e) => true
+    constructor()
+      ensures Valid() && fresh(Repr)
     {
-      if off == a.Length || capacity() == 0 {
-        res := Left(0);
-      }
-      else {
-        var n := min(req, capacity());
-        data := data + a[off..off+req];
-        res := Left(n);
-      }
+      data := [];
+      Repr := {this};
     }
 
-    method WriteSimple(a: array<uint8>) returns (res: Either<nat, Error>)
-      requires Valid()
-      requires a !in Repr
+    method Write(a: array<uint8>, off: nat, len: nat) returns (res: Result<nat>)
+      requires Valid() && a !in Repr
+      requires off + len <= a.Length
       modifies `data
-      ensures unchanged(`Repr)
-      ensures unchanged(a)
       ensures Valid()
-      ensures
-        match res
-          case Left(len_written) =>
-              && len_written == a.Length
-              && data[..] == old(data) + a[..]
-          case Right(e) => unchanged(`data)
+      ensures match res
+        case Success(lengthWritten) =>
+          && old(HasRemainingCapacity(len))
+          && lengthWritten == len
+          && data == old(data) + a[off..][..len]
+        case Failure(e) => unchanged(`data)
     {
-      if a.Length <= capacity() {
-        data := data + a[..];
-        res := Left(a.Length);
+      if HasRemainingCapacity(len) {
+        data := data + a[off..off + len];
+        return Success(len);
       } else {
-        res := Right(IOError("Reached end of stream."));
+        return Failure("IO Error: Stream capacity exceeded.");
       }
     }
 
-    method WriteSimpleSeq(a: seq<uint8>) returns (res: Either<nat, Error>)
+    method WriteSeq(bytes: seq<uint8>) returns (res: Result<nat>)
       requires Valid()
       modifies `data
-      ensures unchanged(`Repr)
       ensures Valid()
-      ensures
-        match res
-          case Left(len_written) =>
-              && len_written == |a|
-              && data[..] == old(data) + a
-          case Right(e) => unchanged(`data)
+      ensures match res
+        case Success(lengthWritten) =>
+          && old(HasRemainingCapacity(|bytes|))
+          && lengthWritten == |bytes|
+          && data == old(data) + bytes
+        case Failure(e) => unchanged(`data)
     {
-      if |a| <= capacity() {
-        data := data + a;
-        res := Left(|a|);
+      if HasRemainingCapacity(|bytes|) {
+        data := data + bytes;
+        return Success(|bytes|);
       } else {
-        res := Right(IOError("Reached end of stream."));
+        return Failure("IO Error: Stream capacity exceeded.");
       }
     }
 
-    method WriteSingleByte(a: uint8) returns (res: Either<nat, Error>)
+    method WriteByte(n: uint8) returns (res: Result<nat>)
       requires Valid()
       modifies `data
-      ensures unchanged(`Repr)
       ensures Valid()
-      ensures
-        match res
-          case Left(len_written) =>
-            if old(capacity()) == 0
-            then
-              len_written == 0
-            else
-              && len_written == 1
-              && data == old(data) + [a]
-              // Dafny->Boogie drops an old: https://github.com/dafny-lang/dafny/issues/320
-              //&& data[..] == old(data)[.. old(pos)] + [a] + old(data)[old(pos) + 1 ..]
-          case Right(e) => unchanged(`data)
+      ensures match res
+        case Success(lengthWritten) =>
+          && old(HasRemainingCapacity(1))
+          && lengthWritten == 1
+          && data == old(data) + [n]
+        case Failure(e) => unchanged(`data)
     {
-      if capacity() == 0 {
-        res := Left(0);
-      }
-      else {
-        data := data + [a];
-        res := Left(1);
-      }
-    }
-
-    method WriteSingleByteSimple(a: uint8) returns (res: Either<nat, Error>)
-      requires Valid()
-      modifies `data
-      ensures unchanged(`Repr)
-      ensures Valid()
-      ensures
-        match res
-          case Left(len_written) =>
-              len_written == 1
-              && data == old(data) + [a]
-              // Dafny->Boogie drops an old: https://github.com/dafny-lang/dafny/issues/320
-              //&& data[..] == old(data)[.. old(pos)] + [a] + old(data)[old(pos) + 1 ..]
-          case Right(e) => unchanged(`data)
-    {
-      if 1 <= capacity() {
-        data := data + [a];
-        res := Left(1);
+      if HasRemainingCapacity(1) {
+        data := data + [n];
+        return Success(1);
       } else {
-        res := Right(IOError("Reached end of stream."));
+        return Failure("IO Error: Stream capacity exceeded.");
       }
     }
 
-    method Read(arr : array<uint8>, off : nat, req : nat) returns (res : Either<nat, Error>)
+    method WriteUInt16(n: uint16) returns (res: Result<nat>)
       requires Valid()
-      requires arr.Length >= off + req
+      modifies `data
       ensures Valid()
-      modifies arr, this
-      ensures
-        match res
-          case Left(len_read) => len_read == min(req, old(available()))
-          case Right(e) => unchanged(this) && unchanged(arr)
+      ensures match res
+        case Success(lengthWritten) =>
+          && old(HasRemainingCapacity(2))
+          && lengthWritten == 2
+          && data == old(data) + UInt16ToSeq(n)
+        case Failure(e) => unchanged(`data)
     {
-      res := Right(IOError("Cannot read from StringWriter"));
+      if HasRemainingCapacity(2) {
+        data := data + UInt16ToSeq(n);
+        return Success(2);
+      } else {
+        return Failure("IO Error: Stream capacity exceeded.");
+      }
+    }
+
+    method WriteUInt32(n: uint32) returns (res: Result<nat>)
+      requires Valid()
+      modifies `data
+      ensures Valid()
+      ensures match res
+        case Success(lengthWritten) =>
+          && old(HasRemainingCapacity(4))
+          && lengthWritten == 4
+          && data == old(data) + UInt32ToSeq(n)
+        case Failure(e) => unchanged(`data)
+    {
+      if HasRemainingCapacity(4) {
+        data := data + UInt32ToSeq(n);
+        return Success(4);
+      } else {
+        return Failure("IO Error: Stream capacity exceeded.");
+      }
     }
   }
-
 }
