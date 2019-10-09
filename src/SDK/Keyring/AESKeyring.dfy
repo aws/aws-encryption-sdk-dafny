@@ -73,17 +73,20 @@ module AESKeyring{
       ensures res.Success? && old(encMat.plaintextDataKey.Some?) ==> res.value.plaintextDataKey == old(encMat.plaintextDataKey)
       ensures res.Failure? ==> unchanged(encMat)
     {
-      var dataKey := encMat.plaintextDataKey;
-      if dataKey.None? {
-        var k := RNG.GenBytes(encMat.algorithmSuiteID.KeyLength() as uint16);
-        dataKey := Some(k);
+      var dataKey: seq<uint8>;
+      if encMat.plaintextDataKey.Some? {
+        dataKey := encMat.plaintextDataKey.get;
+      } else {
+        dataKey := RNG.GenBytes(encMat.algorithmSuiteID.KeyLength() as uint16);
       }
       var iv := RNG.GenBytes(wrappingAlgorithm.ivLen as uint16);
       var aad := Mat.FlattenSortEncCtx(encMat.encryptionContext);
-      var encryptResult :- AESEncryption.AESEncrypt(wrappingAlgorithm, iv, wrappingKey, dataKey.get, aad);
+      var encryptResult :- AESEncryption.AESEncrypt(wrappingAlgorithm, iv, wrappingKey, dataKey, aad);
       var providerInfo := SerializeProviderInto(iv);
       var edk := Mat.EncryptedDataKey(keyNamespace, providerInfo, encryptResult.cipherText + encryptResult.authTag);
-      encMat.plaintextDataKey := dataKey;
+      if encMat.plaintextDataKey.None? {
+        encMat.SetPlaintextDataKey(dataKey);
+      }
       encMat.encryptedDataKeys := encMat.encryptedDataKeys + [edk];
       return Success(encMat);
     }
@@ -127,15 +130,12 @@ module AESKeyring{
               edks[i].ciphertext[wrappingAlgorithm.tagLen ..],
               edks[i].ciphertext[.. wrappingAlgorithm.tagLen]
               );
-          var decryptResult := AESEncryption.AESDecrypt(wrappingAlgorithm, wrappingKey, encArt, iv, flatEncCtx);
-          if decryptResult.Success? {
-            var ptKey := decryptResult.value;
-            if |ptKey| == decMat.algorithmSuiteID.KeyLength() { // check for correct key length
-              decMat.plaintextDataKey := Some(ptKey);
-              return Success(decMat);
-            } // Should we fail if the key length is incorrect?
+          var ptKey :- AESEncryption.AESDecrypt(wrappingAlgorithm, wrappingKey, encArt, iv, flatEncCtx);
+          if |ptKey| == decMat.algorithmSuiteID.KeyLength() { // check for correct key length
+            decMat.setPlaintextDataKey(ptKey);
+            return Success(decMat);
           } else {
-            return Failure("Decryption failed");
+            return Failure("Decryption failed: bad datakey length.");
           }
         }
         i := i + 1;
