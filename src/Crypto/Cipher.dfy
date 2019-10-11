@@ -1,11 +1,11 @@
 include "../StandardLibrary/StandardLibrary.dfy"
-include "GenBytes.dfy"
+include "Random.dfy"
 
 // Information about the ciphers in the Encryption SDK, as well as information common to all algorithms which use ciphers (both encryption and KDF).
 module {:extern "Cipher"} Cipher {
     import opened StandardLibrary
     import opened UInt = StandardLibrary.UInt
-    import opened RNG
+    import Random
 
     datatype AESMode = AES256 | AES128 | AES192
     datatype {:extern "CipherParams"} CipherParams = CipherParams(mode: AESMode, keyLen: uint8, tagLen: uint8, ivLen: uint8)
@@ -46,11 +46,11 @@ module {:extern "Cipher"} Cipher {
     */
 
     method GenIV(m : CipherParams) returns (s : seq<uint8>) ensures |s| == m.ivLen as int {
-            s := GenBytes(m.ivLen as uint16);
+            s := Random.GenerateBytes(m.ivLen as int32);
     }
 
     method GenKey(m : CipherParams) returns (s : seq<uint8>) ensures |s| == KeyLengthOfCipher(m) as int {
-            s := GenBytes(KeyLengthOfCipher(m) as uint16);
+            s := Random.GenerateBytes(KeyLengthOfCipher(m) as int32);
     }
 
 

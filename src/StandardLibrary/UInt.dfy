@@ -1,6 +1,7 @@
 module {:extern "STLUInt"} StandardLibrary.UInt {
   newtype uint8 = x | 0 <= x < 0x100
 
+  const UINT16_LIMIT := 0x1_0000
   newtype uint16 = x | 0 <= x < 0x1_0000
 
   newtype int32 = x | -0x8000_0000 <= x < 0x8000_0000

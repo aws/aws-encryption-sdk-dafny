@@ -10,11 +10,24 @@ module Materials {
 
   type EncryptionContext = seq<(seq<uint8>, seq<uint8>)>
 
+  function method GetKeysFromEncryptionContext(encryptionContext: EncryptionContext): set<seq<uint8>> {
+    set i | 0 <= i < |encryptionContext| :: encryptionContext[i].0
+  }
+
   const EC_PUBLIC_KEY_FIELD: seq<uint8> := StringToByteSeq("aws-crypto-public-key");
+  ghost const ReservedKeyValues := { EC_PUBLIC_KEY_FIELD }
 
   datatype EncryptedDataKey = EncryptedDataKey(providerID: string,
                                                providerInfo: seq<uint8>,
                                                ciphertext: seq<uint8>)
+  {
+    predicate Valid() {
+      StringIs8Bit(providerID) &&
+      |providerID| < UINT16_LIMIT &&
+      |providerInfo| < UINT16_LIMIT &&
+      |ciphertext| < UINT16_LIMIT
+    }
+  }
 
   datatype KeyringTraceFlag =
   | GENERATED_DATA_KEY
@@ -220,6 +233,6 @@ module Materials {
 
     function method enc_ctx_of_strings(x : seq<(string, string)>) : seq<(seq<uint8>, seq<uint8>)>  {
         if x == [] then [] else
-        [(byteseq_of_string_lossy(x[0].0), byteseq_of_string_lossy(x[0].1))] + enc_ctx_of_strings(x[1..])
+        [(StringToByteSeqLossy(x[0].0), StringToByteSeqLossy(x[0].1))] + enc_ctx_of_strings(x[1..])
     }
 }

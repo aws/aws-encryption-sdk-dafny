@@ -70,7 +70,7 @@ module DefaultCMMDef {
       {
         return Failure("Could not retrieve materials required for encryption");
       }
-      res := Success(em);
+      return Success(em);
     }
 
     method DecryptMaterials(alg_id: AlgorithmSuite.ID, edks: seq<Materials.EncryptedDataKey>, enc_ctx: Materials.EncryptionContext) returns (res: Result<Materials.DecryptionMaterials>)
@@ -104,7 +104,7 @@ module DefaultCMMDef {
         return Failure("Could not get materials required for decryption.");
       }
 
-      res := Success(dm);
+      return Success(dm);
     }
   }
 }
