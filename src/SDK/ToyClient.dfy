@@ -21,7 +21,7 @@ module ToyClientDef {
   import AESEncryption
   import AESUtils
 
-  datatype Encryption = Encryption(ec: Materials.EncryptionContext, edks: seq<Materials.EncryptedDataKey>, iv: seq<uint8>, ctxt: AESEncryption.EncryptionArtifacts)
+  datatype Encryption = Encryption(ec: Materials.EncryptionContext, edks: seq<Materials.EncryptedDataKey>, iv: seq<uint8>, ctxt: seq<uint8>, authTag: seq<uint8>)
 
   const ALGORITHM := AESUtils.AES_GCM_256
 
@@ -76,12 +76,12 @@ module ToyClientDef {
       }
       var iv := RNG.GenBytes(ALGORITHM.ivLen as uint16);
       var ciphertext :- AESEncryption.AESEncrypt(ALGORITHM, iv ,em.plaintextDataKey.get, pt, []);
-      return Success(Encryption(em.encryptionContext, em.encryptedDataKeys, iv, ciphertext));
+      return Success(Encryption(em.encryptionContext, em.encryptedDataKeys, iv, ciphertext.cipherText, ciphertext.authTag));
     }
 
     method Decrypt(e: Encryption) returns (res: Result<seq<uint8>>)
       requires Valid()
-      requires ALGORITHM.tagLen as int == |e.ctxt.authTag|
+      requires ALGORITHM.tagLen as int == |e.authTag|
       requires ALGORITHM.ivLen as int == |e.iv|
       ensures Valid()
     {
@@ -92,7 +92,7 @@ module ToyClientDef {
       match decmat.plaintextDataKey
       case Some(dk) =>
         if |dk| == 32 {
-          var msg := AESEncryption.AESDecrypt(ALGORITHM, dk, e.ctxt, e.iv, []);
+          var msg := AESEncryption.AESDecrypt(ALGORITHM, dk, e.ctxt, e.authTag, e.iv, []);
           return msg;
         } else {
           return Failure("bad dk");

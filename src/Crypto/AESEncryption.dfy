@@ -29,8 +29,8 @@ module {:extern "AESEncryption"} AESEncryption {
     requires |key| == params.keyLen as int
     ensures res.Success? ==> |res.value.authTag| == params.tagLen as int
 
-  method {:extern "AESEncryption.AES_GCM", "AESDecrypt"} AESDecrypt(params: AESUtils.Params, key: seq<uint8>, encryptionArtifacts: EncryptionArtifacts, iv: seq<uint8>, aad: seq<uint8>)
+  method {:extern "AESEncryption.AES_GCM", "AESDecrypt"} AESDecrypt(params: AESUtils.Params, key: seq<uint8>, cipherTxt: seq<uint8>, authTag: seq<uint8>, iv: seq<uint8>, aad: seq<uint8>)
       returns (res: Result<seq<uint8>>)
     requires |key| == params.keyLen as int
-    requires |encryptionArtifacts.authTag| == params.tagLen as int
+    requires |authTag| == params.tagLen as int
 }

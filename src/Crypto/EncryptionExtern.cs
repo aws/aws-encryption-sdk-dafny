@@ -44,12 +44,12 @@ namespace AESEncryption {
             }
         }
 
-        public static STL.Result<byteseq> AESDecrypt(AESUtils.Params p, byteseq key, EncryptionArtifacts encArt, byteseq iv, byteseq aad) {
+        public static STL.Result<byteseq> AESDecrypt(AESUtils.Params p, byteseq key, byteseq cipherText, byteseq authTag, byteseq iv, byteseq aad) {
             try {
                 var cipher = new GcmBlockCipher(new AesEngine());
                 var param = new AeadParameters(new KeyParameter(key.Elements), p.tagLen * 8, iv.Elements, aad.Elements);
                 cipher.Init(false, param);
-                var ctx = encArt.cipherText.Concat(encArt.authTag);
+                var ctx = cipherText.Concat(authTag);
                 var pt = new byte[cipher.GetOutputSize(ctx.Elements.Length)];
                 var len = cipher.ProcessBytes(ctx.Elements, 0, ctx.Elements.Length, pt, 0);
                 cipher.DoFinal(pt, len); //Check message authentication tag

@@ -126,11 +126,8 @@ module AESKeyring{
         if edks[i].providerID == keyNamespace && ValidProviderInfo(edks[i].providerInfo) && wrappingAlgorithm.tagLen as int <= |edks[i].ciphertext| {
           var iv := GetIvFromProvInfo(edks[i].providerInfo);
           var flatEncCtx: seq<uint8> := Mat.FlattenSortEncCtx(decMat.encryptionContext);
-          var encArt := AESEncryption.EncryptionArtifacts(
-              edks[i].ciphertext[wrappingAlgorithm.tagLen ..],
-              edks[i].ciphertext[.. wrappingAlgorithm.tagLen]
-              );
-          var ptKey :- AESEncryption.AESDecrypt(wrappingAlgorithm, wrappingKey, encArt, iv, flatEncCtx);
+          var cipherText, authTag := edks[i].ciphertext[wrappingAlgorithm.tagLen ..], edks[i].ciphertext[.. wrappingAlgorithm.tagLen];
+          var ptKey :- AESEncryption.AESDecrypt(wrappingAlgorithm, wrappingKey, cipherText, authTag, iv, flatEncCtx);
           if |ptKey| == decMat.algorithmSuiteID.KeyLength() { // check for correct key length
             decMat.setPlaintextDataKey(ptKey);
             return Success(decMat);
