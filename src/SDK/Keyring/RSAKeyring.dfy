@@ -16,8 +16,8 @@ module RSAKeyringDef {
   import RNG
 
   class RSAKeyring extends KeyringDefs.Keyring {
-    const keyNamespace: string
-    const keyName: string
+    const keyNamespace: seq<uint8>
+    const keyName: seq<uint8>
     const paddingMode: RSA.RSAPaddingMode
     const bitLength: RSA.RSABitLength
     const encryptionKey: Option<seq<uint8>>
@@ -29,15 +29,13 @@ module RSAKeyringDef {
       Repr == {this} &&
       (encryptionKey.Some? ==> RSA.RSA.RSAWfEK(bitLength, paddingMode, encryptionKey.get)) &&
       (decryptionKey.Some? ==> RSA.RSA.RSAWfDK(bitLength, paddingMode, decryptionKey.get)) &&
-      (encryptionKey.Some? || decryptionKey.Some?) &&
-      StringIs8Bit(keyName)
+      (encryptionKey.Some? || decryptionKey.Some?)
     }
 
-    constructor(namespace: string, name: string, padding: RSA.RSAPaddingMode, bits: RSA.RSABitLength, ek: Option<seq<uint8>>, dk: Option<seq<uint8>>)
+    constructor(namespace: seq<uint8>, name: seq<uint8>, padding: RSA.RSAPaddingMode, bits: RSA.RSABitLength, ek: Option<seq<uint8>>, dk: Option<seq<uint8>>)
       requires ek.Some? ==> RSA.RSA.RSAWfEK(bits, padding, ek.get)
       requires dk.Some? ==> RSA.RSA.RSAWfDK(bits, padding, dk.get)
       requires ek.Some? || dk.Some?
-      requires StringIs8Bit(name)
       ensures keyNamespace == namespace
       ensures keyName == name
       ensures paddingMode == padding && bitLength == bits
@@ -61,16 +59,14 @@ module RSAKeyringDef {
       ensures res.Success? ==> res.value.Valid() && res.value == encMat
       ensures res.Success? && old(encMat.plaintextDataKey.Some?) ==> res.value.plaintextDataKey == old(encMat.plaintextDataKey)
       ensures res.Failure? ==> unchanged(encMat)
-      // if set plaintext data key on encrypt, keyring trace contains a new trace with the GENERATED_DATA_KEY flag.
-      ensures old(encMat.plaintextDataKey).None? && encMat.plaintextDataKey.Some? ==> (
+      // Iff keyring set plaintext data key on encrypt, keyring trace contains a new trace with the GENERATED_DATA_KEY flag.
+      ensures old(encMat.plaintextDataKey).None? && encMat.plaintextDataKey.Some? <==>
         |encMat.keyringTrace| > |old(encMat.keyringTrace)| &&
         exists trace :: trace in encMat.keyringTrace[|old(encMat.keyringTrace)|..] && Materials.GENERATED_DATA_KEY in trace.flags
-      )
-      // if added a new encryptedDataKey, keyring trace contains a new trace with the ENCRYPTED_DATA_KEY flag.
-      ensures |encMat.encryptedDataKeys| > |old(encMat.encryptedDataKeys)| ==> (
+      // Iff keyring added a new encryptedDataKey, keyring trace contains a new trace with the ENCRYPTED_DATA_KEY flag.
+      ensures |encMat.encryptedDataKeys| > |old(encMat.encryptedDataKeys)| <==>
         |encMat.keyringTrace| > |old(encMat.keyringTrace)| &&
         exists trace :: trace in encMat.keyringTrace[|old(encMat.keyringTrace)|..] && Materials.ENCRYPTED_DATA_KEY in trace.flags
-      )
     {
       if encryptionKey.None? {
         res := Failure("Encryption key undefined");
@@ -88,19 +84,13 @@ module RSAKeyringDef {
         }
 
         if encMat.plaintextDataKey.None? {
-          encMat.plaintextDataKey := dataKey;
-          encMat.AppendKeyringTrace(Materials.KeyringTraceEntry(keyNamespace, keyName, {Materials.GENERATED_DATA_KEY}));
+          var generateTrace := Materials.KeyringTraceEntry(ByteSeqToString(keyNamespace), ByteSeqToString(keyName), {Materials.GENERATED_DATA_KEY});
+          encMat.SetPlaintextDataKey(dataKey.get, generateTrace);
         }
 
-        var edk := Materials.EncryptedDataKey(keyNamespace, StringToByteSeq(keyName), edkCiphertext.get);
-        encMat.encryptedDataKeys := [edk] + encMat.encryptedDataKeys;
-        encMat.AppendKeyringTrace(Materials.KeyringTraceEntry(keyNamespace, keyName, {Materials.ENCRYPTED_DATA_KEY}));
-
-        // TODO find way to remove this assert
-        assert |encMat.keyringTrace| - |old(encMat.keyringTrace)| == 2 ==> (
-          (exists trace :: trace in encMat.keyringTrace[|encMat.keyringTrace|-2..|encMat.keyringTrace|-1] && Materials.GENERATED_DATA_KEY in trace.flags) &&
-          (exists trace :: trace in encMat.keyringTrace[|encMat.keyringTrace|-1..] && Materials.ENCRYPTED_DATA_KEY in trace.flags)
-        );
+        var edk := Materials.EncryptedDataKey(ByteSeqToString(keyNamespace), keyName, edkCiphertext.get);
+        var encryptTrace := Materials.KeyringTraceEntry(ByteSeqToString(keyNamespace), ByteSeqToString(keyName), {Materials.ENCRYPTED_DATA_KEY});
+        encMat.AppendEncryptedDataKey(edk, encryptTrace);
 
         return Success(encMat);
       }
@@ -116,12 +106,12 @@ module RSAKeyringDef {
       ensures old(decMat.plaintextDataKey.Some?) ==> res.Success? && unchanged(decMat)
       ensures res.Success? ==> res.value == decMat
       ensures res.Failure? ==> unchanged(decMat)
-      // if set plaintext data key on decrypt, keyring trace contains a new trace with the DECRYPTED_DATA_KEY flag.
-      ensures old(decMat.plaintextDataKey).None? && decMat.plaintextDataKey.Some? ==> (
+      // Iff keyring set plaintext data key on decrypt, keyring trace contains a new trace with the DECRYPTED_DATA_KEY flag.
+      ensures old(decMat.plaintextDataKey).None? && decMat.plaintextDataKey.Some? <==>
         |decMat.keyringTrace| > |old(decMat.keyringTrace)| &&
-        |decMat.keyringTrace[|old(decMat.keyringTrace)|..]| > 0 &&
-        exists trace :: trace in decMat.keyringTrace[|old(decMat.keyringTrace)|..] && Materials.DECRYPTED_DATA_KEY in trace.flags
-      )
+        decMat.keyringTrace[..|old(decMat.keyringTrace)|] == old(decMat.keyringTrace) &&
+        exists trace :: trace in decMat.keyringTrace[|old(decMat.keyringTrace)|..] &&
+        Materials.DECRYPTED_DATA_KEY in trace.flags
     {
       if decMat.plaintextDataKey.Some? || |edks| == 0 {
         return Success(decMat);
@@ -133,9 +123,9 @@ module RSAKeyringDef {
         invariant  0 <= i <= |edks|
       {
         var edk := edks[i];
-        if edk.providerID != keyNamespace {
+        if edk.providerID != ByteSeqToString(keyNamespace) {
           // continue with the next EDK
-        } else if edk.providerInfo != StringToByteSeq(keyName) {
+        } else if edk.providerInfo != keyName {
           // continue with the next EDK
         } else {
           var octxt := RSA.RSA.RSADecrypt(bitLength, paddingMode, decryptionKey.get, edks[0].ciphertext);
@@ -144,8 +134,8 @@ module RSAKeyringDef {
             // continue with the next EDK
           case Some(k) =>
             if |k| == decMat.algorithmSuiteID.KeyLength() { // check for correct key length
-              decMat.plaintextDataKey := Some(k);
-              decMat.AppendKeyringTrace(Materials.KeyringTraceEntry(keyNamespace, keyName, {Materials.DECRYPTED_DATA_KEY}));
+              var decryptTrace := Materials.KeyringTraceEntry(ByteSeqToString(keyNamespace), ByteSeqToString(keyName), {Materials.DECRYPTED_DATA_KEY});
+              decMat.SetPlaintextDataKey(k, decryptTrace);
               return Success(decMat);
             } else {
               return Failure(("Bad key length!"));

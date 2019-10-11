@@ -92,7 +92,7 @@ module DefaultCMMDef {
           return Failure("Could not get materials required for decryption.");
         case Some(pk) =>
           if dm.verificationKey.None? {
-            dm.setVerificationKey(pk);
+            dm.SetVerificationKey(pk);
           } else {
             return Failure("Verification key has already been set.");
           }

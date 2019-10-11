@@ -12,26 +12,25 @@ module Materials {
 
   const EC_PUBLIC_KEY_FIELD: seq<uint8> := StringToByteSeq("aws-crypto-public-key");
 
-  datatype EncryptedDataKey = EncryptedDataKey(providerID : string,
-                                               providerInfo : seq<uint8>,
-                                               ciphertext : seq<uint8>)
+  datatype EncryptedDataKey = EncryptedDataKey(providerID: string,
+                                               providerInfo: seq<uint8>,
+                                               ciphertext: seq<uint8>)
 
-  datatype KeyringTraceFlag = GENERATED_DATA_KEY |
-                              ENCRYPTED_DATA_KEY | 
-                              DECRYPTED_DATA_KEY | 
-                              SIGNED_ENCRYPTION_CONTEXT | 
-                              VERIFIED_ENCRYPTION_CONTEXT
+  datatype KeyringTraceFlag =
+  | GENERATED_DATA_KEY
+  | ENCRYPTED_DATA_KEY
+  | DECRYPTED_DATA_KEY
+  | SIGNED_ENCRYPTION_CONTEXT
+  | VERIFIED_ENCRYPTION_CONTEXT
 
   datatype KeyringTraceEntry = KeyringTraceEntry(keyNamespace: string,
                                                  keyName: string,
                                                  flags: set<KeyringTraceFlag>)
 
-  // TODO more assurances we can make regarding key name and key namespace? Only ever appends to end?
   type KeyringTrace = seq<KeyringTraceEntry>
 
   const WrappingFlags: set<KeyringTraceFlag> := {GENERATED_DATA_KEY, ENCRYPTED_DATA_KEY, SIGNED_ENCRYPTION_CONTEXT};
   const UnwrappingFlags: set<KeyringTraceFlag> := {DECRYPTED_DATA_KEY, VERIFIED_ENCRYPTION_CONTEXT};
-  // TODO set flags?
 
   class EncryptionMaterials {
     var algorithmSuiteID: AlgorithmSuite.ID
@@ -45,14 +44,10 @@ module Materials {
       reads this
     {
       (|encryptedDataKeys| > 0 ==> plaintextDataKey.Some?) &&
-      (plaintextDataKey.None? || ValidPlaintextDataKey(plaintextDataKey.get)) &&
-      forall trace :: trace in keyringTrace ==> (trace.flags * WrappingFlags) == trace.flags
-    }
-
-    predicate ValidPlaintextDataKey(pdk: seq<uint8>)
-      reads this
-    {
-      |pdk| == this.algorithmSuiteID.KeyLength()
+      (plaintextDataKey.None? || |plaintextDataKey.get| == this.algorithmSuiteID.KeyLength()) &&
+      (forall trace :: trace in keyringTrace ==> trace.flags <= WrappingFlags) &&
+      (plaintextDataKey.Some? <==> (exists trace :: trace in keyringTrace && GENERATED_DATA_KEY in trace.flags)) && 
+      (|encryptedDataKeys| > 0 <==> (exists trace :: trace in keyringTrace && ENCRYPTED_DATA_KEY in trace.flags))
     }
 
     constructor(algorithmSuiteID: AlgorithmSuite.ID,
@@ -63,7 +58,9 @@ module Materials {
                 keyringTrace: seq<KeyringTraceEntry>)
       requires |encryptedDataKeys| > 0 ==> plaintextDataKey.Some?
       requires plaintextDataKey.None? || |plaintextDataKey.get| == algorithmSuiteID.KeyLength()
-      requires forall trace :: trace in keyringTrace ==> (trace.flags * WrappingFlags) == trace.flags
+      requires forall trace :: trace in keyringTrace ==> trace.flags <= WrappingFlags
+      requires plaintextDataKey.Some? <==> (exists trace :: trace in keyringTrace && GENERATED_DATA_KEY in trace.flags)
+      requires |encryptedDataKeys| > 0 <==> (exists trace :: trace in keyringTrace && ENCRYPTED_DATA_KEY in trace.flags)
       ensures Valid()
       ensures this.algorithmSuiteID == algorithmSuiteID
       ensures this.encryptedDataKeys == encryptedDataKeys
@@ -79,38 +76,32 @@ module Materials {
       this.keyringTrace := keyringTrace;
     }
 
-    method SetPlaintextDataKey(dataKey: seq<uint8>)
+    method SetPlaintextDataKey(dataKey: seq<uint8>, trace: KeyringTraceEntry)
       requires Valid()
       requires plaintextDataKey.None?
+      requires trace.flags == {GENERATED_DATA_KEY}
       requires |dataKey| == algorithmSuiteID.KeyLength()
-      modifies `plaintextDataKey
+      modifies `plaintextDataKey, `keyringTrace
       ensures Valid()
       ensures plaintextDataKey == Some(dataKey)
-      // TODO do we enforce how traces are set in these methods?
+      ensures keyringTrace == old(keyringTrace) + [trace]
     {
       plaintextDataKey := Some(dataKey);
+      keyringTrace := keyringTrace + [trace];
     }
 
-    method AppendEncryptedDataKey(edk: EncryptedDataKey)
+    method AppendEncryptedDataKey(edk: EncryptedDataKey, trace: KeyringTraceEntry)
       requires Valid()
       requires plaintextDataKey.Some?
-      modifies `encryptedDataKeys
+      requires trace.flags <= WrappingFlags
+      requires ENCRYPTED_DATA_KEY in trace.flags
+      modifies `encryptedDataKeys, `keyringTrace
       ensures Valid()
       ensures encryptedDataKeys == old(encryptedDataKeys) + [edk]
+      ensures keyringTrace == old(keyringTrace) + [trace]
     {
       encryptedDataKeys := encryptedDataKeys + [edk]; // TODO: Determine if this is a performance issue
-    }
-
-    method AppendKeyringTrace(trace: KeyringTraceEntry)
-      requires Valid()
-      requires trace.flags * WrappingFlags == trace.flags
-      modifies `keyringTrace
-      ensures Valid()
-      ensures keyringTrace == old(keyringTrace) + [trace]
-      //ensures old(keyringTrace) == keyringTrace[..|old(keyringTrace)|]
-      //ensures forall t :: t in old(keyringTrace) ==> t in keyringTrace
-    {
-      keyringTrace := keyringTrace + [trace]; // TODO: Determine if this is a performance issue
+      keyringTrace := keyringTrace + [trace];
     }
   }
 
@@ -124,14 +115,9 @@ module Materials {
     predicate Valid()
       reads this
     {
-      (plaintextDataKey.None? || ValidPlaintextDataKey(plaintextDataKey.get)) &&
-      forall trace :: trace in keyringTrace ==> (trace.flags * UnwrappingFlags) == trace.flags
-    }
-
-    predicate ValidPlaintextDataKey(pdk: seq<uint8>)
-      reads this
-    {
-      |pdk| == this.algorithmSuiteID.KeyLength()
+      (plaintextDataKey.None? || |plaintextDataKey.get| == this.algorithmSuiteID.KeyLength()) &&
+      (forall trace :: trace in keyringTrace ==> trace.flags <= UnwrappingFlags) &&
+      (plaintextDataKey.Some? <==> (exists trace :: trace in keyringTrace && DECRYPTED_DATA_KEY in trace.flags))
     }
 
     constructor(algorithmSuiteID: AlgorithmSuite.ID,
@@ -140,7 +126,8 @@ module Materials {
                 verificationKey: Option<seq<uint8>>,
                 keyringTrace: seq<KeyringTraceEntry>)
       requires plaintextDataKey.None? || |plaintextDataKey.get| == algorithmSuiteID.KeyLength()
-      requires forall trace :: trace in keyringTrace ==> (trace.flags * UnwrappingFlags) == trace.flags
+      requires forall trace :: trace in keyringTrace ==> trace.flags <= UnwrappingFlags
+      requires plaintextDataKey.Some? <==> (exists trace :: trace in keyringTrace && DECRYPTED_DATA_KEY in trace.flags)
       ensures Valid()
       ensures this.algorithmSuiteID == algorithmSuiteID
       ensures this.encryptionContext == encryptionContext
@@ -155,18 +142,22 @@ module Materials {
       this.keyringTrace := keyringTrace;
     }
 
-    method setPlaintextDataKey(dataKey: seq<uint8>)
+    method SetPlaintextDataKey(dataKey: seq<uint8>, trace: KeyringTraceEntry)
       requires Valid()
       requires plaintextDataKey.None?
+      requires trace.flags <= UnwrappingFlags
+      requires DECRYPTED_DATA_KEY in trace.flags
       requires |dataKey| == algorithmSuiteID.KeyLength()
-      modifies `plaintextDataKey
+      modifies `plaintextDataKey, `keyringTrace
       ensures Valid()
       ensures plaintextDataKey == Some(dataKey)
+      ensures keyringTrace == old(keyringTrace) + [trace]
     {
       plaintextDataKey := Some(dataKey);
+      keyringTrace := keyringTrace + [trace];
     }
 
-    method setVerificationKey(verifKey: seq<uint8>)
+    method SetVerificationKey(verifKey: seq<uint8>)
       requires Valid()
       requires verificationKey.None?
       modifies `verificationKey
@@ -174,18 +165,6 @@ module Materials {
       ensures verificationKey == Some(verifKey)
     {
       verificationKey := Some(verifKey);
-    }
-
-    method AppendKeyringTrace(trace: KeyringTraceEntry)
-      requires Valid()
-      requires trace.flags * UnwrappingFlags == trace.flags
-      modifies `keyringTrace
-      ensures Valid()
-      ensures keyringTrace == old(keyringTrace) + [trace]
-      ensures old(keyringTrace) == keyringTrace[..|old(keyringTrace)|]
-      ensures forall t :: t in old(keyringTrace) ==> t in keyringTrace
-    {
-      keyringTrace := keyringTrace + [trace]; // TODO: Determine if this is a performance issue
     }
   }
 

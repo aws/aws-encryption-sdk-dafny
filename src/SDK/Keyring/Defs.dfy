@@ -17,32 +17,30 @@ module KeyringDefs {
       ensures res.Success? ==> res.value.Valid() && res.value == encMat
       ensures res.Success? && old(encMat.plaintextDataKey.Some?) ==> res.value.plaintextDataKey == old(encMat.plaintextDataKey)
       ensures res.Failure? ==> unchanged(encMat)
-      // if set plaintext data key on encrypt, keyring trace contains a new trace with the GENERATED_DATA_KEY flag.
-      ensures old(encMat.plaintextDataKey).None? && encMat.plaintextDataKey.Some? ==> (
+      // Iff keyring set plaintext data key on encrypt, keyring trace contains a new trace with the GENERATED_DATA_KEY flag.
+      ensures old(encMat.plaintextDataKey).None? && encMat.plaintextDataKey.Some? <==>
         |encMat.keyringTrace| > |old(encMat.keyringTrace)| &&
         exists trace :: trace in encMat.keyringTrace[|old(encMat.keyringTrace)|..] && Materials.GENERATED_DATA_KEY in trace.flags
-      )
-      // if added a new encryptedDataKey, keyring trace contains a new trace with the ENCRYPTED_DATA_KEY flag.
-      ensures |encMat.encryptedDataKeys| > |old(encMat.encryptedDataKeys)| ==> (
+      // Iff keyring added a new encryptedDataKey, keyring trace contains a new trace with the ENCRYPTED_DATA_KEY flag.
+      ensures |encMat.encryptedDataKeys| > |old(encMat.encryptedDataKeys)| <==>
         |encMat.keyringTrace| > |old(encMat.keyringTrace)| &&
         exists trace :: trace in encMat.keyringTrace[|old(encMat.keyringTrace)|..] && Materials.ENCRYPTED_DATA_KEY in trace.flags
-      )
         
     method OnDecrypt(decMat: Materials.DecryptionMaterials, edks: seq<Materials.EncryptedDataKey>) returns (res: Result<Materials.DecryptionMaterials>)
       requires Valid()
       requires decMat.Valid()
-      modifies decMat`plaintextDataKey
+      modifies decMat`plaintextDataKey, decMat`keyringTrace
       ensures Valid()
       ensures decMat.Valid()
       ensures |edks| == 0 ==> res.Success? && unchanged(decMat)
       ensures old(decMat.plaintextDataKey.Some?) ==> res.Success? && unchanged(decMat)
       ensures res.Success? ==> res.value == decMat
       ensures res.Failure? ==> unchanged(decMat)
-      // if set plaintext data key on decrypt, keyring trace contains a new trace with the DECRYPTED_DATA_KEY flag.
-      ensures old(decMat.plaintextDataKey).None? && decMat.plaintextDataKey.Some? ==> (
+      // Iff keyring set plaintext data key on decrypt, keyring trace contains a new trace with the DECRYPTED_DATA_KEY flag.
+      ensures old(decMat.plaintextDataKey).None? && decMat.plaintextDataKey.Some? <==>
         |decMat.keyringTrace| > |old(decMat.keyringTrace)| &&
-        |decMat.keyringTrace[|old(decMat.keyringTrace)|..]| > 0 &&
-        exists trace :: trace in decMat.keyringTrace[|old(decMat.keyringTrace)|..] && Materials.DECRYPTED_DATA_KEY in trace.flags
-      )
+        decMat.keyringTrace[..|old(decMat.keyringTrace)|] == old(decMat.keyringTrace) &&
+        exists trace :: trace in decMat.keyringTrace[|old(decMat.keyringTrace)|..] &&
+        Materials.DECRYPTED_DATA_KEY in trace.flags
   }
 }
