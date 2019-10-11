@@ -79,10 +79,10 @@ module Main {
   }
 
   method Main() {
-    var namespace := "namespace";
-    var name := "MyKeyring";
+    var namespace := StringToByteSeq("namespace");
+    var name := StringToByteSeq("MyKeyring");
     var ek, dk := RSA.RSA.RSAKeygen(2048, RSA.PKCS1);
-    var keyring := new RSAKeyringDef.RSAKeyring(StringToByteSeq(namespace), StringToByteSeq(name), RSA.RSAPaddingMode.PKCS1, 2048, Some(ek), Some(dk));
+    var keyring := new RSAKeyringDef.RSAKeyring(namespace, name, RSA.RSAPaddingMode.PKCS1, 2048, Some(ek), Some(dk));
     var cmm := new DefaultCMMDef.DefaultCMM.OfKeyring(keyring);
     var client := new Client.Client.OfCMM(cmm);
 

@@ -14,7 +14,8 @@ module CMMDefs {
 
     method GetEncryptionMaterials(encCtx: Materials.EncryptionContext,
                                   algSuiteID: Option<AlgorithmSuite.ID>,
-                                  plaintextLen: Option<nat>) returns (res: Result<Materials.EncryptionMaterials>)
+                                  plaintextLen: Option<nat>)
+                                  returns (res: Result<Materials.EncryptionMaterials>)
       requires Valid()
       ensures Valid()
       ensures res.Success? ==> res.value.Valid() &&
@@ -25,7 +26,8 @@ module CMMDefs {
 
     method DecryptMaterials(algSuiteID: AlgorithmSuite.ID,
                             edks: seq<Materials.EncryptedDataKey>,
-                            encCtx: Materials.EncryptionContext) returns (res: Result<Materials.DecryptionMaterials>)
+                            encCtx: Materials.EncryptionContext)
+                            returns (res: Result<Materials.DecryptionMaterials>)
       requires |edks| > 0
       requires Valid()
       ensures Valid()
