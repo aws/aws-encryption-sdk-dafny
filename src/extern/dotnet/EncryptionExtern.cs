@@ -16,6 +16,7 @@ using Org.BouncyCastle.Math.EC;
 using Org.BouncyCastle.OpenSsl;
 using Org.BouncyCastle.Security;
 using Org.BouncyCastle.Asn1.X9;
+using Org.BouncyCastle.Asn1;
 
 using byteseq = Dafny.Sequence<byte>;
 
@@ -205,13 +206,12 @@ namespace Signature {
             }
         }
 
-        public static STL.Option<_System.Tuple2<byteseq, byteseq>> Sign(ECDSAParams x, byteseq sk, byteseq msg) {
+        public static STL.Option<byteseq> Sign(ECDSAParams x, byteseq sk, byteseq msg) {
             try {
                 X9ECParameters p;
                 if (x.is_ECDSA__P384) {
                     p = ECNamedCurveTable.GetByName("secp384r1");
-                }
-                else {
+                } else {
                     p = ECNamedCurveTable.GetByName("secp256r1");
                 }
                 ECDomainParameters dp = new ECDomainParameters(p.Curve, p.G, p.N, p.H);
@@ -219,14 +219,27 @@ namespace Signature {
                 ECDsaSigner sign = new ECDsaSigner();
                 sign.Init(true, skp);
                 BigInteger[] sig = sign.GenerateSignature(msg.Elements);
-                byte[] r = sig[0].ToByteArray();
-                byte[] s = sig[1].ToByteArray();
-                return new STL.Option_Some<_System.Tuple2<byteseq, byteseq>>(new _System.Tuple2<byteseq, byteseq>(new byteseq(r), new byteseq(s)));
-            }
-            catch {
-                return new STL.Option_None<_System.Tuple2<byteseq, byteseq>>();
+                byte[] bytes = SignatureToByteArray(sig[0], sig[1]);
+                if (bytes.Length != x.SignatureLength()) {
+                    // Most of the time, a signature of the wrong length can be fixed
+                    // be negating s in the signature relative to the group order.
+                    bytes = SignatureToByteArray(sig[0], p.N.Subtract(sig[1]));
+                    if (bytes.Length != x.SignatureLength()) {
+                        // We give up. :(
+                        return new STL.Option_None<byteseq>();
+                    }
+                }
+                // Note, the postcondition of this method says that a Some? return must contain a
+                // sequence of bytes whose length is x.SignatureLength().
+                return new STL.Option_Some<byteseq>(new byteseq(bytes));
+            } catch {
+                return new STL.Option_None<byteseq>();
             }
         }
 
+        private static byte[] SignatureToByteArray(BigInteger r, BigInteger s) {
+            DerSequence derSeq = new DerSequence(new DerInteger(r), new DerInteger(s));
+            return derSeq.GetEncoded();
+        }
     }
 }

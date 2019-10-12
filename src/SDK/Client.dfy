@@ -87,16 +87,12 @@ module ESDKClient {
       case None =>
         // don't use a footer
       case Some(ecdsaParams) =>
-        var signResult := Signature.ECDSA.Sign(ecdsaParams, encMat.signingKey.get, msg);
+        var signResult := Signature.Sign(ecdsaParams, encMat.signingKey.get, msg);
         match signResult {
           case None =>
             return Failure("Message signing failed");
-          case Some((r,s)) =>
-            var footer := r + s;  // TODO: this is probably not right
-            if UINT16_LIMIT <= |footer| {
-              return Failure("Signature too long");
-            }
-            msg := msg + UInt16ToSeq(|footer| as uint16) + footer;
+          case Some(bytes) =>
+            msg := msg + UInt16ToSeq(|bytes| as uint16) + bytes;
         }
     }
 

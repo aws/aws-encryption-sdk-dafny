@@ -7,6 +7,13 @@ module {:extern "Signature"} Signature {
     import opened UInt = StandardLibrary.UInt
 
     datatype {:extern "ECDSAParams"} ECDSAParams = ECDSA_P384 | ECDSA_P256
+    {
+      function method SignatureLength(): uint16 {
+        match this
+        case ECDSA_P256 => 71
+        case ECDSA_P384 => 103
+      }
+    }
 
     // TODO: I keep signatures as pairs (r,s) for now until I understand how they are encoded in the message header
     type Sig = (seq<uint8>, seq<uint8>)
@@ -37,11 +44,11 @@ module {:extern "Signature"} Signature {
             requires WfVK(s, vk)
  //           requires MaxMsgLen(s).Some? ==> |m| <= MaxMsgLen(s).get
             requires WfSig(s, sig)
-
-        static method {:extern "Sign"} Sign(s : ECDSAParams, sk : seq<uint8>, m : seq<uint8>) returns (sig : Option<Sig>)
-            requires WfSK(s, sk)
-  //          requires MaxMsgLen(s).Some? ==> |m| <= MaxMsgLen(s).get
-            ensures sig.Some? ==> WfSig(s, sig.get)
-            ensures sig.Some? ==> forall vk :: WfVK(s, vk) ==> IsSignKeypair(s, sk, vk) ==> Verify(s, vk, m, sig.get) == true
     }
+
+    method {:extern "Signature.ECDSA", "Sign"} Sign(s: ECDSAParams, key: seq<uint8>, msg: seq<uint8>) returns (sig: Option<seq<uint8>>)
+      requires ECDSA.WfSK(s, key)
+      ensures sig.Some? ==> |sig.get| == s.SignatureLength() as int
+      // ensures sig.Some? ==> WfSig(s, sig.get)
+      // ensures sig.Some? ==> forall vk :: WfVK(s, vk) ==> IsSignKeypair(s, sk, vk) ==> Verify(s, vk, m, sig.get) == true
 }
