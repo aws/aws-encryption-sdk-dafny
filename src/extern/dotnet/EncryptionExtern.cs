@@ -183,25 +183,23 @@ namespace Signature {
             }
         }
 
-        public static bool Verify(ECDSAParams x, byteseq vk, byteseq msg, _System.Tuple2<byteseq, byteseq> sig) {
+        public static bool Verify(ECDSAParams x, byteseq vk, byteseq msg, byteseq sig) {
             try {
                 X9ECParameters p;
                 if (x.is_ECDSA__P384) {
                     p = ECNamedCurveTable.GetByName("secp384r1");
-                }
-                else {
+                } else {
                     p = ECNamedCurveTable.GetByName("secp256r1");
                 }
                 ECDomainParameters dp = new ECDomainParameters(p.Curve, p.G, p.N, p.H);
-                ECPoint pt  = p.Curve.DecodePoint(vk.Elements);
+                ECPoint pt = p.Curve.DecodePoint(vk.Elements);
                 ECPublicKeyParameters vkp = new ECPublicKeyParameters(pt, dp);
                 ECDsaSigner sign = new ECDsaSigner();
                 sign.Init(false, vkp);
-                BigInteger r = new BigInteger(sig._0.Elements);
-                BigInteger s = new BigInteger(sig._1.Elements);
+                BigInteger r, s;
+                ByteArrayToRS(sig.Elements, out r, out s);
                 return sign.VerifySignature(msg.Elements, r, s);
-            }
-            catch {
+            } catch {
                 return false;
             }
         }
@@ -240,6 +238,15 @@ namespace Signature {
         private static byte[] SignatureToByteArray(BigInteger r, BigInteger s) {
             DerSequence derSeq = new DerSequence(new DerInteger(r), new DerInteger(s));
             return derSeq.GetEncoded();
+        }
+
+        private static void ByteArrayToRS(byte[] bytes, out BigInteger r, out BigInteger s) {
+            Asn1InputStream asn1 = new Asn1InputStream(bytes);
+            var seq = (Asn1Sequence)asn1.ReadObject();
+            var dr = (DerInteger)seq[0];
+            var ds = (DerInteger)seq[1];
+            r = new BigInteger(dr.ToString());
+            s = new BigInteger(ds.ToString());
         }
     }
 }

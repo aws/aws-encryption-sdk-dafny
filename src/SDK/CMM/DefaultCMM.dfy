@@ -4,6 +4,7 @@ include "../../StandardLibrary/Base64.dfy"
 include "../Materials.dfy"
 include "Defs.dfy"
 include "../Keyring/Defs.dfy"
+include "../MessageHeader.dfy"
 
 module DefaultCMMDef {
   import opened StandardLibrary
@@ -14,6 +15,7 @@ module DefaultCMMDef {
   import AlgorithmSuite
   import S = Signature
   import Base64
+  import MessageHeader
 
   class DefaultCMM extends CMMDefs.CMM {
     const kr: KeyringDefs.Keyring
@@ -64,6 +66,7 @@ module DefaultCMMDef {
               enc_ec := [(Materials.EC_PUBLIC_KEY_FIELD, Base64.EncodeToByteSeq(ab.0))] + enc_ec;
       }
 
+      MessageHeader.AssumeValidAAD(enc_ec);  // TODO: we should prove this
       var in_enc_mat := new Materials.EncryptionMaterials(id, [], enc_ec, None, enc_sk);
       var em :- kr.OnEncrypt(in_enc_mat);
 
@@ -86,20 +89,22 @@ module DefaultCMMDef {
                                |res.value.plaintextDataKey.get| == res.value.algorithmSuiteID.KeyLength()
       ensures res.Success? && res.value.algorithmSuiteID.SignatureType().Some? ==> res.value.verificationKey.Some?
     {
-      var vkey := Materials.enc_ctx_lookup(enc_ctx, Materials.EC_PUBLIC_KEY_FIELD);
+      var vkey;
+      match Materials.enc_ctx_lookup(enc_ctx, Materials.EC_PUBLIC_KEY_FIELD) {
+        case None =>
+          vkey := None;
+        case Some(base64EncodedVKey) =>
+          var vkey' :- Base64.DecodeFromByteSeq(base64EncodedVKey);
+          vkey := Some(vkey');
+      }
       var dec_mat := new Materials.DecryptionMaterials(alg_id, enc_ctx, None, vkey);
       var dm :- kr.OnDecrypt(dec_mat, edks);
 
       if dm.algorithmSuiteID.SignatureType().Some? {
         match Materials.enc_ctx_lookup(dm.encryptionContext, Materials.EC_PUBLIC_KEY_FIELD)
         case None =>
-          return Failure("Could not get materials required for decryption.");
+          return Failure("Missing trailing signature public key");
         case Some(pk) =>
-          if dm.verificationKey.None? {
-            dm.setVerificationKey(pk);
-          } else {
-            return Failure("Verification key has already been set.");
-          }
       }
 
       if dm.plaintextDataKey.None? ||

@@ -96,13 +96,29 @@ module Main {
     assert Msg.ValidAAD([]) by {
       reveal Msg.ValidAAD();
     }
-    var result := ESDKClient.Encrypt(StringToByteSeq("the message I want to encrypt"), cmm, []);
+    var originalPlaintext := "the message I want to encrypt";
+    print "Starting with plaintext: ", originalPlaintext, "\n";
+    var result := ESDKClient.Encrypt(StringToByteSeq(originalPlaintext), cmm, []);
+    var message;
     match result {
       case Failure(err) =>
         print "Encryption Error: ", err, "\n";
+        return;
       case Success(bytes) =>
-        print "Encryption Success:\n";
-        print bytes, "\n";
+        print "Message: ", bytes, "\n";
+        message := bytes;
     }
+
+    result := ESDKClient.Decrypt(message, cmm);
+    var finalPlaintext;
+    match result {
+      case Failure(err) =>
+        print "Decryption Error: ", err, "\n";
+        return;
+      case Success(bytes) =>
+        finalPlaintext := ByteSeqToString(bytes);
+    }
+
+    print "Plaintext from the deserialized and decrypted message: ", finalPlaintext, "\n";
   }
 }

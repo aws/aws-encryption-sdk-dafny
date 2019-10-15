@@ -33,6 +33,16 @@ module Streams {
       pos := 0;
     }
 
+    constructor FromSeq(s: seq<uint8>)
+      ensures Valid()
+      ensures data[..] == s
+    {
+      var d := new uint8[|s|](i requires 0 <= i < |s| => s[i]);
+      Repr := {this, d};
+      data := d;
+      pos := 0;
+    }
+
     method Read(arr: array<uint8>, off: nat, req: nat) returns (res: Result<nat>)
       requires Valid() && arr != data
       requires off + req <= arr.Length
