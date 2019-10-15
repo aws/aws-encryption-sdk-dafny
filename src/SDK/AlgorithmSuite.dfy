@@ -10,12 +10,20 @@ module AlgorithmSuite {
   import S = Signature
   import Digests
 
-  const validIDs: set<uint16> := {0x0378, 0x0346, 0x0214, 0x0178, 0x0146, 0x0114, 0x0078, 0x0046, 0x0014};
+  const VALID_IDS: set<uint16> := {0x0378, 0x0346, 0x0214, 0x0178, 0x0146, 0x0114, 0x0078, 0x0046, 0x0014};
 
-  newtype ID = x | x in validIDs witness 0x0014
+  newtype ID = x | x in VALID_IDS witness 0x0014
   {
     function method KeyLength(): nat {
       Suite[this].params.keyLen as nat
+    }
+
+    function method IVLength(): nat {
+      Suite[this].params.ivLen as nat
+    }
+
+    function method TagLength(): nat {
+      Suite[this].params.tagLen as nat
     }
 
     function method SignatureType(): Option<S.ECDSAParams> {
@@ -46,4 +54,26 @@ module AlgorithmSuite {
     AES_192_GCM_IV12_TAG16_KDFNONE_SIGNONE        := AlgSuite(AES.AES_GCM_192, Digests.HmacNOSHA,  None),
     AES_128_GCM_IV12_TAG16_KDFNONE_SIGNONE        := AlgSuite(AES.AES_GCM_128, Digests.HmacNOSHA,  None)
   ]
+
+  /* Suite is intended to have an entry for each possible value of ID. This is stated and checked in three ways.
+   *   - lemma SuiteIsCompletes states and proves the connection between type ID and Suite.Keys
+   *   - lemma ValidIDsAreSuiteKeys states and proves the connected between predicate ValidIDs and Suite.Keys
+   *   - the member functions of ID use the expression `Suite[this]`, whose well-formedness relies on every
+   *     ID being in Suite.Keys
+   */
+
+  lemma SuiteIsComplete(id: ID)
+    ensures id in Suite.Keys
+  {
+  }
+
+  lemma ValidIDsAreSuiteKeys()
+    ensures VALID_IDS == set id | id in Suite.Keys :: id as uint16
+  {
+    forall x | x in VALID_IDS
+      ensures exists id :: id in Suite.Keys && id as uint16 == x
+    {
+      assert x as ID in Suite.Keys;
+    }
+  }
 }

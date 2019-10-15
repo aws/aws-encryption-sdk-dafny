@@ -1,10 +1,9 @@
-include "../MessageHeader/Definitions.dfy"
 include "../../StandardLibrary/StandardLibrary.dfy"
 include "../../StandardLibrary/UInt.dfy"
 include "../AlgorithmSuite.dfy"
 include "./Defs.dfy"
 include "../../Crypto/AESUtils.dfy"
-include "../../Crypto/GenBytes.dfy"
+include "../../Crypto/Random.dfy"
 include "../../Crypto/AESEncryption.dfy"
 include "../Materials.dfy"
 
@@ -14,9 +13,9 @@ module AESKeyring{
   import AESEncryption
   import AESUtils
   import AlgorithmSuite
+  import Random
   import KeyringDefs
   import Mat = Materials
-  import RNG
 
   const AUTH_TAG_LEN_LEN := 4;
   const IV_LEN_LEN       := 4;
@@ -77,9 +76,9 @@ module AESKeyring{
       if encMat.plaintextDataKey.Some? {
         dataKey := encMat.plaintextDataKey.get;
       } else {
-        dataKey := RNG.GenBytes(encMat.algorithmSuiteID.KeyLength() as uint16);
+        dataKey := Random.GenerateBytes(encMat.algorithmSuiteID.KeyLength() as int32);
       }
-      var iv := RNG.GenBytes(wrappingAlgorithm.ivLen as uint16);
+      var iv := Random.GenerateBytes(wrappingAlgorithm.ivLen as int32);
       var aad := Mat.FlattenSortEncCtx(encMat.encryptionContext);
       var encryptResult :- AESEncryption.AESEncrypt(wrappingAlgorithm, iv, wrappingKey, dataKey, aad);
       var providerInfo := SerializeProviderInto(iv);

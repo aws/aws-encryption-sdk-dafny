@@ -7,7 +7,7 @@ include "Keyring/Defs.dfy"
 include "Materials.dfy"
 include "../Crypto/AESEncryption.dfy"
 include "../Crypto/AESUtils.dfy"
-include "../Crypto/GenBytes.dfy"
+include "../Crypto/Random.dfy"
 
 module ToyClientDef {
   import opened StandardLibrary
@@ -16,7 +16,7 @@ module ToyClientDef {
   import CMMDefs
   import DefaultCMMDef
   import KeyringDefs
-  import RNG
+  import Random
   import AlgorithmSuite
   import AESEncryption
   import AESUtils
@@ -74,7 +74,7 @@ module ToyClientDef {
       if |em.plaintextDataKey.get| != 32 {
         return Failure("bad data key length");
       }
-      var iv := RNG.GenBytes(ALGORITHM.ivLen as uint16);
+      var iv := Random.GenerateBytes(ALGORITHM.ivLen as int32);
       var ciphertext :- AESEncryption.AESEncrypt(ALGORITHM, iv ,em.plaintextDataKey.get, pt, []);
       return Success(Encryption(em.encryptionContext, em.encryptedDataKeys, iv, ciphertext.cipherText, ciphertext.authTag));
     }
