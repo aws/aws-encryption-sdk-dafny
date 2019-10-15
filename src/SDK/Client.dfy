@@ -69,7 +69,10 @@ module ESDKClient {
     var unauthenticatedHeader := wr.data;
 
     var iv: seq<uint8> := seq(encMat.algorithmSuiteID.IVLength(), _ => 0);
-    var authTag :- MessageBody.Encrypt(encMat.algorithmSuiteID, iv, derivedDataKey, [], unauthenticatedHeader);
+    var pair :- MessageBody.Encrypt(encMat.algorithmSuiteID, iv, derivedDataKey, [], unauthenticatedHeader);
+    assert |pair.0| == 0;
+    var headerAuthentication := Msg.HeaderAuthentication(iv, pair.1);
+    var _ :- Serialize.SerializeHeaderAuthentication(wr, headerAuthentication, encMat.algorithmSuiteID);
 
     /*
      * Encrypt the given plaintext into the message body.
@@ -81,7 +84,7 @@ module ESDKClient {
      * Add footer with signature, if required.
      */
 
-    var msg := unauthenticatedHeader + authTag + body;
+    var msg := wr.data + body;
 
     match encMat.algorithmSuiteID.SignatureType() {
       case None =>

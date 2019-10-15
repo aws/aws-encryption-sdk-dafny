@@ -222,7 +222,7 @@ namespace Signature {
                 byte[] bytes = SignatureToByteArray(sig[0], sig[1]);
                 if (bytes.Length != x.SignatureLength()) {
                     // Most of the time, a signature of the wrong length can be fixed
-                    // be negating s in the signature relative to the group order.
+                    // by negating s in the signature relative to the group order.
                     bytes = SignatureToByteArray(sig[0], p.N.Subtract(sig[1]));
                     if (bytes.Length != x.SignatureLength()) {
                         // We give up. :(

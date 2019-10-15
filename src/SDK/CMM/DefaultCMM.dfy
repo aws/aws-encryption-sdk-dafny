@@ -61,7 +61,7 @@ module DefaultCMMDef {
             case None => return Failure("Keygen error");
             case Some(ab) =>
               enc_sk := Some(ab.1);
-              enc_ec := [(Materials.EC_PUBLIC_KEY_FIELD, StringToByteSeq(Base64.Encode(ab.1)))] + enc_ec;
+              enc_ec := [(Materials.EC_PUBLIC_KEY_FIELD, Base64.EncodeToByteSeq(ab.0))] + enc_ec;
       }
 
       var in_enc_mat := new Materials.EncryptionMaterials(id, [], enc_ec, None, enc_sk);
