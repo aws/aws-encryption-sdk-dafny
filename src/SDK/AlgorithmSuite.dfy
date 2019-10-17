@@ -1,4 +1,4 @@
-include "../Crypto/AESUtils.dfy"
+include "../Crypto/EncryptionParameters.dfy"
 include "../Crypto/Digests.dfy"
 include "../Crypto/Signature.dfy"
 include "../StandardLibrary/StandardLibrary.dfy"
@@ -6,7 +6,7 @@ include "../StandardLibrary/StandardLibrary.dfy"
 module AlgorithmSuite {
   import opened StandardLibrary
   import opened UInt = StandardLibrary.UInt
-  import AES = AESUtils
+  import P = EncryptionParameters
   import S = Signature
   import Digests
 
@@ -41,18 +41,18 @@ module AlgorithmSuite {
   const AES_192_GCM_IV12_TAG16_KDFNONE_SIGNONE:        ID := 0x0046
   const AES_128_GCM_IV12_TAG16_KDFNONE_SIGNONE:        ID := 0x0014
 
-  datatype AlgSuite = AlgSuite(params: AES.Params, hkdf: Digests.HMAC_ALGORITHM, sign: Option<S.ECDSAParams>)
+  datatype AlgSuite = AlgSuite(params: P.Params, hkdf: Digests.HMAC_ALGORITHM, sign: Option<S.ECDSAParams>)
 
   const Suite := map [
-    AES_256_GCM_IV12_TAG16_HKDF_SHA384_ECDSA_P384 := AlgSuite(AES.AES_GCM_256, Digests.HmacSHA384, Some(S.ECDSA_P384)),
-    AES_192_GCM_IV12_TAG16_HKDF_SHA384_ECDSA_P384 := AlgSuite(AES.AES_GCM_192, Digests.HmacSHA384, Some(S.ECDSA_P384)),
-    AES_128_GCM_IV12_TAG16_HKDF_SHA256_ECDSA_P256 := AlgSuite(AES.AES_GCM_128, Digests.HmacSHA256, Some(S.ECDSA_P256)),
-    AES_256_GCM_IV12_TAG16_HKDF_SHA256_SIGNONE    := AlgSuite(AES.AES_GCM_256, Digests.HmacSHA256, None),
-    AES_192_GCM_IV12_TAG16_HKDF_SHA256_SIGNONE    := AlgSuite(AES.AES_GCM_192, Digests.HmacSHA256, None),
-    AES_128_GCM_IV12_TAG16_HKDF_SHA256_SIGNONE    := AlgSuite(AES.AES_GCM_128, Digests.HmacSHA256, None),
-    AES_256_GCM_IV12_TAG16_KDFNONE_SIGNONE        := AlgSuite(AES.AES_GCM_256, Digests.HmacNOSHA,  None),
-    AES_192_GCM_IV12_TAG16_KDFNONE_SIGNONE        := AlgSuite(AES.AES_GCM_192, Digests.HmacNOSHA,  None),
-    AES_128_GCM_IV12_TAG16_KDFNONE_SIGNONE        := AlgSuite(AES.AES_GCM_128, Digests.HmacNOSHA,  None)
+    AES_256_GCM_IV12_TAG16_HKDF_SHA384_ECDSA_P384 := AlgSuite(P.AES_GCM_256, Digests.HmacSHA384, Some(S.ECDSA_P384)),
+    AES_192_GCM_IV12_TAG16_HKDF_SHA384_ECDSA_P384 := AlgSuite(P.AES_GCM_192, Digests.HmacSHA384, Some(S.ECDSA_P384)),
+    AES_128_GCM_IV12_TAG16_HKDF_SHA256_ECDSA_P256 := AlgSuite(P.AES_GCM_128, Digests.HmacSHA256, Some(S.ECDSA_P256)),
+    AES_256_GCM_IV12_TAG16_HKDF_SHA256_SIGNONE    := AlgSuite(P.AES_GCM_256, Digests.HmacSHA256, None),
+    AES_192_GCM_IV12_TAG16_HKDF_SHA256_SIGNONE    := AlgSuite(P.AES_GCM_192, Digests.HmacSHA256, None),
+    AES_128_GCM_IV12_TAG16_HKDF_SHA256_SIGNONE    := AlgSuite(P.AES_GCM_128, Digests.HmacSHA256, None),
+    AES_256_GCM_IV12_TAG16_KDFNONE_SIGNONE        := AlgSuite(P.AES_GCM_256, Digests.HmacNOSHA,  None),
+    AES_192_GCM_IV12_TAG16_KDFNONE_SIGNONE        := AlgSuite(P.AES_GCM_192, Digests.HmacNOSHA,  None),
+    AES_128_GCM_IV12_TAG16_KDFNONE_SIGNONE        := AlgSuite(P.AES_GCM_128, Digests.HmacNOSHA,  None)
   ]
 
   /* Suite is intended to have an entry for each possible value of ID. This is stated and checked in three ways.

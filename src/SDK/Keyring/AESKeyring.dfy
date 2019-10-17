@@ -2,7 +2,7 @@ include "../../StandardLibrary/StandardLibrary.dfy"
 include "../../StandardLibrary/UInt.dfy"
 include "../AlgorithmSuite.dfy"
 include "./Defs.dfy"
-include "../../Crypto/AESUtils.dfy"
+include "../../Crypto/EncryptionParameters.dfy"
 include "../../Crypto/Random.dfy"
 include "../../Crypto/AESEncryption.dfy"
 include "../Materials.dfy"
@@ -11,7 +11,7 @@ module AESKeyring{
   import opened StandardLibrary
   import opened UInt = StandardLibrary.UInt
   import AESEncryption
-  import AESUtils
+  import EncryptionParameters
   import AlgorithmSuite
   import Random
   import KeyringDefs
@@ -19,13 +19,13 @@ module AESKeyring{
 
   const AUTH_TAG_LEN_LEN := 4;
   const IV_LEN_LEN       := 4;
-  const VALID_ALGORITHMS := {AESUtils.AES_GCM_128, AESUtils.AES_GCM_192, AESUtils.AES_GCM_256}
+  const VALID_ALGORITHMS := {EncryptionParameters.AES_GCM_128, EncryptionParameters.AES_GCM_192, EncryptionParameters.AES_GCM_256}
 
   class AESKeyring extends KeyringDefs.Keyring {
     const keyNamespace: string
     const keyName: string
     const wrappingKey: seq<uint8>
-    const wrappingAlgorithm: AESUtils.Params
+    const wrappingAlgorithm: EncryptionParameters.Params
 
     predicate Valid() reads this {
         Repr == {this} &&
@@ -34,7 +34,7 @@ module AESKeyring{
         StringIs8Bit(keyNamespace) && StringIs8Bit(keyName)
     }
 
-    constructor(namespace: string, name: string, key: seq<uint8>, wrappingAlg: AESUtils.Params)
+    constructor(namespace: string, name: string, key: seq<uint8>, wrappingAlg: EncryptionParameters.Params)
     requires StringIs8Bit(namespace) && StringIs8Bit(name)
     requires wrappingAlg in VALID_ALGORITHMS
     requires |key| == wrappingAlg.keyLen as int
