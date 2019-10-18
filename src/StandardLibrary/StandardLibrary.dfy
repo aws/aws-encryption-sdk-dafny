@@ -266,6 +266,7 @@ module {:extern "STL"} StandardLibrary {
   function method MapSeq<S, T>(s: seq<S>, f: S ~> T): seq<T>
     requires forall i :: 0 <= i < |s| ==> f.requires(s[i])
     reads set i,o | 0 <= i < |s| && o in f.reads(s[i]) :: o
+    decreases |s|
   {
     if s == [] then [] else [f(s[0])] + MapSeq(s[1..], f)
   }
@@ -293,6 +294,7 @@ module {:extern "STL"} StandardLibrary {
     if a < b then a else b
   }
 
+  // TODO
   method values<A,B>(m: map<A,B>) returns (vals: seq<B>) {
     var keys := m.Keys;
     vals := [];
@@ -388,6 +390,27 @@ module {:extern "STL"} StandardLibrary {
         assert LexicographicLessOrEqualAux(a, b, less, m);
       case less(b[m], a[m]) =>
         assert LexicographicLessOrEqualAux(b, a, less, m);
+    }
+  }
+
+  function method Filter<T>(s: seq<T>, f: T -> bool): seq<T>
+    ensures forall i :: 0 <= i < |s| && f(s[i]) ==> s[i] in Filter(s, f)
+    ensures forall i :: 0 <= i < |Filter(s,f)| ==> Filter(s,f)[i] in s
+  {
+    if |s| == 0 then []
+    else if f(s[0]) then ([s[0]] + Filter(s[1..], f))
+    else Filter(s[1..], f)
+  }
+
+  lemma FilterIsDistributive<T>(s: seq<T>, s': seq<T>, f: T -> bool)
+    ensures Filter(s+s', f) == Filter(s,f) + Filter(s',f)
+  {
+    if s == [] {
+      assert s + s' == s';
+    } else {
+      FilterIsDistributive<T>(s[1..], s', f);
+      assert s + s' == [s[0]] + (s[1..] + s');
+      assert Filter(s+s', f) == Filter(s,f) + Filter(s',f);
     }
   }
 }

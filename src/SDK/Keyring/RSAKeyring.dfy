@@ -56,17 +56,16 @@ module RSAKeyringDef {
       requires encMat.Valid()
       modifies encMat`plaintextDataKey, encMat`encryptedDataKeys, encMat`keyringTrace
       ensures Valid()
+      // Success returns a valid set of the modified input encryptionMaterials
       ensures res.Success? ==> res.value.Valid() && res.value == encMat
-      ensures res.Success? && old(encMat.plaintextDataKey.Some?) ==> res.value.plaintextDataKey == old(encMat.plaintextDataKey)
+      // Failure does not modify the input encryptionMaterials
       ensures res.Failure? ==> unchanged(encMat)
-      // Iff keyring set plaintext data key on encrypt, keyring trace contains a new trace with the GENERATED_DATA_KEY flag.
-      ensures old(encMat.plaintextDataKey).None? && encMat.plaintextDataKey.Some? <==>
-        |encMat.keyringTrace| > |old(encMat.keyringTrace)| &&
-        exists trace :: trace in encMat.keyringTrace[|old(encMat.keyringTrace)|..] && Materials.GENERATED_DATA_KEY in trace.flags
-      // Iff keyring added a new encryptedDataKey, keyring trace contains a new trace with the ENCRYPTED_DATA_KEY flag.
-      ensures |encMat.encryptedDataKeys| > |old(encMat.encryptedDataKeys)| <==>
-        |encMat.keyringTrace| > |old(encMat.keyringTrace)| &&
-        exists trace :: trace in encMat.keyringTrace[|old(encMat.keyringTrace)|..] && Materials.ENCRYPTED_DATA_KEY in trace.flags
+      // If the encryptionMaterials contain a plaintextDataKey on input, it is unchanged
+      ensures old(encMat.plaintextDataKey.Some?) ==> unchanged(encMat`plaintextDataKey)
+      // New EDKs are only ever appended to the encryptedDataKeys
+      ensures old(encMat.encryptedDataKeys) <= encMat.encryptedDataKeys
+      // New traces are only ever appended to the keyringTrace
+      ensures old(encMat.keyringTrace) <= encMat.keyringTrace
     {
       if encryptionKey.None? {
         return Failure("Encryption key undefined");
@@ -101,17 +100,15 @@ module RSAKeyringDef {
       requires decMat.Valid()
       modifies decMat`plaintextDataKey, decMat`keyringTrace
       ensures Valid()
-      ensures decMat.Valid()
+      // Success returns a valid set of the modified input decryptionMaterials
+      ensures res.Success? ==> res.value.Valid() && res.value == decMat
+      // If given an empty list of EDKs, returns Success and does not update the decryptionMaterials
       ensures |edks| == 0 ==> res.Success? && unchanged(decMat)
+      // If input decryptionMaterials contain a plaintextDataKey,
+      // returns Success and does not update the decryptionMaterials
       ensures old(decMat.plaintextDataKey.Some?) ==> res.Success? && unchanged(decMat)
-      ensures res.Success? ==> res.value == decMat
+      // Failure does not modify the input encryptionMaterials
       ensures res.Failure? ==> unchanged(decMat)
-      // Iff keyring set plaintext data key on decrypt, keyring trace contains a new trace with the DECRYPTED_DATA_KEY flag.
-      ensures old(decMat.plaintextDataKey).None? && decMat.plaintextDataKey.Some? <==>
-        |decMat.keyringTrace| > |old(decMat.keyringTrace)| &&
-        decMat.keyringTrace[..|old(decMat.keyringTrace)|] == old(decMat.keyringTrace) &&
-        exists trace :: trace in decMat.keyringTrace[|old(decMat.keyringTrace)|..] &&
-        Materials.DECRYPTED_DATA_KEY in trace.flags
     {
       if decMat.plaintextDataKey.Some? || |edks| == 0 {
         return Success(decMat);

@@ -62,23 +62,38 @@ module AESKeyringDef {
     }
 
     method OnEncrypt(encMat: Mat.EncryptionMaterials) returns (res: Result<Mat.EncryptionMaterials>)
+      /* Keyring trait specific */
       requires Valid()
       requires encMat.Valid()
       modifies encMat`plaintextDataKey, encMat`encryptedDataKeys, encMat`keyringTrace
       ensures Valid()
       ensures res.Success? ==> res.value.Valid() && res.value == encMat
-      ensures res.Success? && old(encMat.plaintextDataKey.Some?) ==> res.value.plaintextDataKey == old(encMat.plaintextDataKey)
       ensures res.Failure? ==> unchanged(encMat)
-      // Iff keyring set plaintext data key on encrypt, keyring trace contains a new trace with the GENERATED_DATA_KEY flag.
-      ensures old(encMat.plaintextDataKey).None? && encMat.plaintextDataKey.Some? <==>
-        |encMat.keyringTrace| > |old(encMat.keyringTrace)| &&
-        exists trace :: trace in encMat.keyringTrace[|old(encMat.keyringTrace)|..] && Mat.GENERATED_DATA_KEY in trace.flags
-      // Iff keyring added a new encryptedDataKey, keyring trace contains a new trace with the ENCRYPTED_DATA_KEY, SIGNED_ENCRYPTION_CONTEXT flags.
-      ensures |encMat.encryptedDataKeys| > |old(encMat.encryptedDataKeys)| <==>
-        |encMat.keyringTrace| > |old(encMat.keyringTrace)| &&
-        exists trace :: trace in encMat.keyringTrace[|old(encMat.keyringTrace)|..] &&
-        Mat.ENCRYPTED_DATA_KEY in trace.flags &&
-        Mat.ENCRYPTED_DATA_KEY in trace.flags 
+      ensures old(encMat.plaintextDataKey.Some?) ==> unchanged(encMat`plaintextDataKey)
+      ensures old(encMat.encryptedDataKeys) <= encMat.encryptedDataKeys
+      ensures old(encMat.keyringTrace) <= encMat.keyringTrace
+      
+      /* Raw AES Keyring specific */
+      // Iff added an EDK, the appropriate trace is also added
+      ensures |encMat.encryptedDataKeys| > |old(encMat.encryptedDataKeys)| && old(encMat.plaintextDataKey).Some? <==> (
+        |encMat.keyringTrace| == |old(encMat.keyringTrace)| + 1 &&
+        var encryptTrace := encMat.keyringTrace[|encMat.keyringTrace|-1];
+        encryptTrace.flags == {Mat.ENCRYPTED_DATA_KEY, Mat.SIGNED_ENCRYPTION_CONTEXT} &&
+        encryptTrace.keyNamespace == keyNamespace &&
+        encryptTrace.keyName == keyName
+      )
+      // Iff set the plaintextDataKey and added an EDK, the appropriate traces are also added
+      ensures |encMat.encryptedDataKeys| > |old(encMat.encryptedDataKeys)| && old(encMat.plaintextDataKey).None? <==> (
+        |encMat.keyringTrace| == |old(encMat.keyringTrace)| + 2 &&
+        var encryptTrace := encMat.keyringTrace[|encMat.keyringTrace|-1];
+        encryptTrace.flags == {Mat.ENCRYPTED_DATA_KEY, Mat.SIGNED_ENCRYPTION_CONTEXT} &&
+        encryptTrace.keyNamespace == keyNamespace &&
+        encryptTrace.keyName == keyName &&
+        var generateTrace := encMat.keyringTrace[|encMat.keyringTrace|-2];
+        generateTrace.flags == {Mat.GENERATED_DATA_KEY} &&
+        generateTrace.keyNamespace == keyNamespace &&
+        generateTrace.keyName == keyName
+      )
     {
       var dataKey := encMat.plaintextDataKey;
       if dataKey.None? {
@@ -100,8 +115,10 @@ module AESKeyringDef {
       var providerInfo := SerializeProviderInto(iv);
       var edk := Mat.EncryptedDataKey(keyNamespace, providerInfo, encryptResult.value);
       var encryptTrace := Mat.KeyringTraceEntry(keyNamespace, keyName, {Mat.ENCRYPTED_DATA_KEY, Mat.SIGNED_ENCRYPTION_CONTEXT});
+      assume Mat.EDKMatchesPlaintextDataKey(edk, encMat.plaintextDataKey); // TODO this should eventually come from some extern
+      assume Mat.EDKMatchesKeyringTraceEntry(edk, encryptTrace); // TODO will this have to be an assumption here? Or where could this be derived?
       encMat.AppendEncryptedDataKey(edk, encryptTrace);
-
+      
       return Success(encMat);
     }
 
@@ -120,20 +137,25 @@ module AESKeyringDef {
     }
 
     method OnDecrypt(decMat: Mat.DecryptionMaterials, edks: seq<Mat.EncryptedDataKey>) returns (res: Result<Mat.DecryptionMaterials>)
+      /* Keyring Trait specific */
       requires Valid()
       requires decMat.Valid()
       modifies decMat`plaintextDataKey, decMat`keyringTrace
       ensures Valid()
-      ensures decMat.Valid()
+      ensures res.Success? ==> res.value.Valid() && res.value == decMat
       ensures |edks| == 0 ==> res.Success? && unchanged(decMat)
       ensures old(decMat.plaintextDataKey.Some?) ==> res.Success? && unchanged(decMat)
-      ensures res.Success? ==> res.value == decMat
       ensures res.Failure? ==> unchanged(decMat)
-      // Iff keyring set plaintext data key on decrypt, keyring trace contains a new trace with the DECRYPTED_DATA_KEY, VERIFIED_ENCRYPTION_CONTEXT flags.
-      ensures old(decMat.plaintextDataKey).None? && decMat.plaintextDataKey.Some? <==>
-        |decMat.keyringTrace| > |old(decMat.keyringTrace)| &&
-        decMat.keyringTrace[..|old(decMat.keyringTrace)|] == old(decMat.keyringTrace) &&
-        exists trace :: trace in decMat.keyringTrace[|old(decMat.keyringTrace)|..] && {Mat.DECRYPTED_DATA_KEY, Mat.VERIFIED_ENCRYPTION_CONTEXT} <= trace.flags
+
+      /* Raw AES Keyring specific */
+      // Iff set a plaintextDataKey, the appropriate trace is also added
+      ensures old(decMat.plaintextDataKey).None? && decMat.plaintextDataKey.Some? ==> (
+        |decMat.keyringTrace| == |old(decMat.keyringTrace)| + 1 &&
+        var decryptTrace := decMat.keyringTrace[|decMat.keyringTrace|-1];
+        decryptTrace.flags == {Mat.DECRYPTED_DATA_KEY, Mat.VERIFIED_ENCRYPTION_CONTEXT} &&
+        decryptTrace.keyNamespace == keyNamespace &&
+        decryptTrace.keyName == keyName
+      )
     {
       if decMat.plaintextDataKey.Some? {
         return Success(decMat);
