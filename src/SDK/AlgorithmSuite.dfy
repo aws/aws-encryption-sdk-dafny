@@ -1,4 +1,4 @@
-include "../Crypto/EncryptionParameters.dfy"
+include "../Crypto/EncryptionAlgorithms.dfy"
 include "../Crypto/Digests.dfy"
 include "../Crypto/Signature.dfy"
 include "../StandardLibrary/StandardLibrary.dfy"
@@ -6,7 +6,7 @@ include "../StandardLibrary/StandardLibrary.dfy"
 module AlgorithmSuite {
   import opened StandardLibrary
   import opened UInt = StandardLibrary.UInt
-  import P = EncryptionParameters
+  import P = EncryptionAlgorithms
   import S = Signature
   import Digests
 

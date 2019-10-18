@@ -1,6 +1,6 @@
 include "../StandardLibrary/StandardLibrary.dfy"
 
-module {:extern "EncryptionParameters"} EncryptionParameters {
+module {:extern "EncryptionAlgorithms"} EncryptionAlgorithms {
   import opened StandardLibrary
   import opened UInt = StandardLibrary.UInt
 

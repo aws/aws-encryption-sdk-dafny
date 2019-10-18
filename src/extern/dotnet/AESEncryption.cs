@@ -12,7 +12,7 @@ namespace AESEncryption {
     //TODO This code has yet to be reviewed. See issue #36
     public partial class AES_GCM {
 
-        public static STL.Result<EncryptionArtifacts> AESEncrypt(EncryptionParameters.Params p,
+        public static STL.Result<EncryptionOutput> AESEncrypt(EncryptionAlgorithms.Params p,
                                                       byteseq iv,
                                                       byteseq key,
                                                       byteseq msg,
@@ -25,14 +25,14 @@ namespace AESEncryption {
                 byte[] c = new byte[cipher.GetOutputSize(msg.Elements.Length)];
                 var len = cipher.ProcessBytes(msg.Elements, 0, msg.Elements.Length, c, 0);
                 cipher.DoFinal(c, len); //Append authentication tag to `c`
-                return new STL.Result_Success<EncryptionArtifacts>(__default.EncryptionArtifactFromByteSeq(byteseq.FromElements(c), p));
+                return new STL.Result_Success<EncryptionOutput>(__default.EncryptionArtifactFromByteSeq(byteseq.FromElements(c), p));
             }
             catch {
-                return new STL.Result_Failure<EncryptionArtifacts>(new Dafny.Sequence<char>("aes encrypt err".ToCharArray()));
+                return new STL.Result_Failure<EncryptionOutput>(new Dafny.Sequence<char>("aes encrypt err".ToCharArray()));
             }
         }
 
-        public static STL.Result<byteseq> AESDecrypt(EncryptionParameters.Params p, byteseq key, byteseq cipherText, byteseq authTag, byteseq iv, byteseq aad) {
+        public static STL.Result<byteseq> AESDecrypt(EncryptionAlgorithms.Params p, byteseq key, byteseq cipherText, byteseq authTag, byteseq iv, byteseq aad) {
             try {
                 var cipher = new GcmBlockCipher(new AesEngine());
                 var param = new AeadParameters(new KeyParameter(key.Elements), p.tagLen * 8, iv.Elements, aad.Elements);

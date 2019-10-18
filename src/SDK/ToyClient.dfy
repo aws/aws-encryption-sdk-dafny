@@ -6,7 +6,7 @@ include "CMM/DefaultCMM.dfy"
 include "Keyring/Defs.dfy"
 include "Materials.dfy"
 include "../Crypto/AESEncryption.dfy"
-include "../Crypto/EncryptionParameters.dfy"
+include "../Crypto/EncryptionAlgorithms.dfy"
 include "../Crypto/Random.dfy"
 
 module ToyClientDef {
@@ -19,11 +19,11 @@ module ToyClientDef {
   import Random
   import AlgorithmSuite
   import AESEncryption
-  import EncryptionParameters
+  import EncryptionAlgorithms
 
   datatype Encryption = Encryption(ec: Materials.EncryptionContext, edks: seq<Materials.EncryptedDataKey>, iv: seq<uint8>, ctxt: seq<uint8>, authTag: seq<uint8>)
 
-  const ALGORITHM := EncryptionParameters.AES_GCM_256
+  const ALGORITHM := EncryptionAlgorithms.AES_GCM_256
 
   class Client {
     var cmm: CMMDefs.CMM

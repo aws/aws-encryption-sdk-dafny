@@ -2,7 +2,7 @@ include "../../StandardLibrary/StandardLibrary.dfy"
 include "../../StandardLibrary/UInt.dfy"
 include "../AlgorithmSuite.dfy"
 include "./Defs.dfy"
-include "../../Crypto/EncryptionParameters.dfy"
+include "../../Crypto/EncryptionAlgorithms.dfy"
 include "../../Crypto/Random.dfy"
 include "../../Crypto/AESEncryption.dfy"
 include "../Materials.dfy"
@@ -11,7 +11,7 @@ module AESKeyring{
   import opened StandardLibrary
   import opened UInt = StandardLibrary.UInt
   import AESEncryption
-  import EncryptionParameters
+  import EncryptionAlgorithms
   import AlgorithmSuite
   import Random
   import KeyringDefs
@@ -19,24 +19,26 @@ module AESKeyring{
 
   const AUTH_TAG_LEN_LEN := 4;
   const IV_LEN_LEN       := 4;
-  const VALID_ALGORITHMS := {EncryptionParameters.AES_GCM_128, EncryptionParameters.AES_GCM_192, EncryptionParameters.AES_GCM_256}
+  const VALID_ALGORITHMS := {EncryptionAlgorithms.AES_GCM_128, EncryptionAlgorithms.AES_GCM_192, EncryptionAlgorithms.AES_GCM_256}
 
   class AESKeyring extends KeyringDefs.Keyring {
     const keyNamespace: string
     const keyName: string
     const wrappingKey: seq<uint8>
-    const wrappingAlgorithm: EncryptionParameters.Params
+    const wrappingAlgorithm: EncryptionAlgorithms.Params
 
     predicate Valid() reads this {
         Repr == {this} &&
         |wrappingKey| == wrappingAlgorithm.keyLen as int &&
         wrappingAlgorithm in VALID_ALGORITHMS &&
+        wrappingAlgorithm.Valid() &&
         StringIs8Bit(keyNamespace) && StringIs8Bit(keyName)
     }
 
-    constructor(namespace: string, name: string, key: seq<uint8>, wrappingAlg: EncryptionParameters.Params)
+    constructor(namespace: string, name: string, key: seq<uint8>, wrappingAlg: EncryptionAlgorithms.Params)
     requires StringIs8Bit(namespace) && StringIs8Bit(name)
     requires wrappingAlg in VALID_ALGORITHMS
+    requires wrappingAlg.Valid()
     requires |key| == wrappingAlg.keyLen as int
     ensures keyNamespace == namespace
     ensures keyName == name
@@ -125,6 +127,7 @@ module AESKeyring{
         if edks[i].providerID == keyNamespace && ValidProviderInfo(edks[i].providerInfo) && wrappingAlgorithm.tagLen as int <= |edks[i].ciphertext| {
           var iv := GetIvFromProvInfo(edks[i].providerInfo);
           var flatEncCtx: seq<uint8> := Mat.FlattenSortEncCtx(decMat.encryptionContext);
+          //TODO: #68
           var cipherText, authTag := edks[i].ciphertext[wrappingAlgorithm.tagLen ..], edks[i].ciphertext[.. wrappingAlgorithm.tagLen];
           var ptKey :- AESEncryption.AESDecrypt(wrappingAlgorithm, wrappingKey, cipherText, authTag, iv, flatEncCtx);
           if |ptKey| == decMat.algorithmSuiteID.KeyLength() { // check for correct key length
