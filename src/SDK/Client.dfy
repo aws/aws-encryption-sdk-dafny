@@ -90,7 +90,8 @@ module ESDKClient {
       case None =>
         // don't use a footer
       case Some(ecdsaParams) =>
-        var signResult := Signature.Sign(ecdsaParams, encMat.signingKey.get, msg);
+        var digest := Signature.Digest(ecdsaParams, msg);
+        var signResult := Signature.Sign(ecdsaParams, encMat.signingKey.get, digest);
         match signResult {
           case None =>
             return Failure("Message signing failed");

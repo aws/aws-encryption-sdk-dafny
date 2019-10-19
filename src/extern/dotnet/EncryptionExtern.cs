@@ -206,7 +206,7 @@ namespace Signature {
             }
         }
 
-        public static STL.Option<byteseq> Sign(ECDSAParams x, byteseq sk, byteseq msg) {
+        public static STL.Option<byteseq> Sign(ECDSAParams x, byteseq sk, byteseq digest) {
             try {
                 X9ECParameters p;
                 if (x.is_ECDSA__P384) {
@@ -218,20 +218,21 @@ namespace Signature {
                 ECPrivateKeyParameters skp = new ECPrivateKeyParameters(new BigInteger(sk.Elements), dp);
                 ECDsaSigner sign = new ECDsaSigner();
                 sign.Init(true, skp);
-                BigInteger[] sig = sign.GenerateSignature(msg.Elements);
-                byte[] bytes = SignatureToByteArray(sig[0], sig[1]);
-                if (bytes.Length != x.SignatureLength()) {
-                    // Most of the time, a signature of the wrong length can be fixed
-                    // by negating s in the signature relative to the group order.
-                    bytes = SignatureToByteArray(sig[0], p.N.Subtract(sig[1]));
+                do {
+                    BigInteger[] sig = sign.GenerateSignature(digest.Elements);
+                    byte[] bytes = SignatureToByteArray(sig[0], sig[1]);
                     if (bytes.Length != x.SignatureLength()) {
-                        // We give up. :(
-                        return new STL.Option_None<byteseq>();
+                        // Most of the time, a signature of the wrong length can be fixed
+                        // by negating s in the signature relative to the group order.
+                        bytes = SignatureToByteArray(sig[0], p.N.Subtract(sig[1]));
                     }
-                }
-                // Note, the postcondition of this method says that a Some? return must contain a
-                // sequence of bytes whose length is x.SignatureLength().
-                return new STL.Option_Some<byteseq>(new byteseq(bytes));
+                    if (bytes.Length == x.SignatureLength()) {
+                        // This will meet the method postcondition, which says that a Some? return must
+                        // contain a sequence of bytes whose length is x.SignatureLength().
+                        return new STL.Option_Some<byteseq>(new byteseq(bytes));
+                    }
+                    // We only get here with low probability, so try again (forever, if we have really bad luck).
+                } while (true);
             } catch {
                 return new STL.Option_None<byteseq>();
             }
@@ -240,6 +241,17 @@ namespace Signature {
         private static byte[] SignatureToByteArray(BigInteger r, BigInteger s) {
             DerSequence derSeq = new DerSequence(new DerInteger(r), new DerInteger(s));
             return derSeq.GetEncoded();
+        }
+
+        public static byteseq Digest(ECDSAParams x, byteseq msg) {
+            System.Security.Cryptography.HashAlgorithm alg;
+            if (x.is_ECDSA__P384) {
+                alg = System.Security.Cryptography.SHA384.Create();
+            } else {
+                alg = System.Security.Cryptography.SHA256.Create();
+            }
+            byte[] digest = alg.ComputeHash(msg.Elements);
+            return new byteseq(digest);
         }
     }
 }
