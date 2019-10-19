@@ -51,7 +51,7 @@ module Serialize {
     len :- wr.WriteByte(contentType);
     totalWritten := totalWritten + len;
 
-    len :- wr.WriteSeq(hb.reserved);
+    len :- wr.WriteSeq(Msg.Reserved);
     totalWritten := totalWritten + len;
 
     len :- wr.WriteByte(hb.ivLength);

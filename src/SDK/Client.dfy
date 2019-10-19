@@ -61,7 +61,6 @@ module ESDKClient {
       encryptionContext,
       Msg.EncryptedDataKeys(encMat.encryptedDataKeys),
       Msg.ContentType.Framed,
-      [0, 0, 0, 0],
       encMat.algorithmSuiteID.IVLength() as uint8,
       frameLength);
     var wr := new Streams.StringWriter();
