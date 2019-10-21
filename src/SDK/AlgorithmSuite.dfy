@@ -6,7 +6,7 @@ include "../StandardLibrary/StandardLibrary.dfy"
 module AlgorithmSuite {
   import opened StandardLibrary
   import opened UInt = StandardLibrary.UInt
-  import P = EncryptionAlgorithms
+  import EncryptionAlgorithms
   import S = Signature
   import Digests
 
@@ -15,15 +15,15 @@ module AlgorithmSuite {
   newtype ID = x | x in VALID_IDS witness 0x0014
   {
     function method KeyLength(): nat {
-      Suite[this].params.keyLen as nat
+      Suite[this].algorithm.keyLen as nat
     }
 
     function method IVLength(): nat {
-      Suite[this].params.ivLen as nat
+      Suite[this].algorithm.ivLen as nat
     }
 
     function method TagLength(): nat {
-      Suite[this].params.tagLen as nat
+      Suite[this].algorithm.tagLen as nat
     }
 
     function method SignatureType(): Option<S.ECDSAParams> {
@@ -41,18 +41,18 @@ module AlgorithmSuite {
   const AES_192_GCM_IV12_TAG16_KDFNONE_SIGNONE:        ID := 0x0046
   const AES_128_GCM_IV12_TAG16_KDFNONE_SIGNONE:        ID := 0x0014
 
-  datatype AlgSuite = AlgSuite(params: P.Params, hkdf: Digests.HMAC_ALGORITHM, sign: Option<S.ECDSAParams>)
+  datatype AlgSuite = AlgSuite(algorithm: EncryptionAlgorithms.EncryptionAlgorithm, hkdf: Digests.HMAC_ALGORITHM, sign: Option<S.ECDSAParams>)
 
   const Suite := map [
-    AES_256_GCM_IV12_TAG16_HKDF_SHA384_ECDSA_P384 := AlgSuite(P.AES_GCM_256, Digests.HmacSHA384, Some(S.ECDSA_P384)),
-    AES_192_GCM_IV12_TAG16_HKDF_SHA384_ECDSA_P384 := AlgSuite(P.AES_GCM_192, Digests.HmacSHA384, Some(S.ECDSA_P384)),
-    AES_128_GCM_IV12_TAG16_HKDF_SHA256_ECDSA_P256 := AlgSuite(P.AES_GCM_128, Digests.HmacSHA256, Some(S.ECDSA_P256)),
-    AES_256_GCM_IV12_TAG16_HKDF_SHA256_SIGNONE    := AlgSuite(P.AES_GCM_256, Digests.HmacSHA256, None),
-    AES_192_GCM_IV12_TAG16_HKDF_SHA256_SIGNONE    := AlgSuite(P.AES_GCM_192, Digests.HmacSHA256, None),
-    AES_128_GCM_IV12_TAG16_HKDF_SHA256_SIGNONE    := AlgSuite(P.AES_GCM_128, Digests.HmacSHA256, None),
-    AES_256_GCM_IV12_TAG16_KDFNONE_SIGNONE        := AlgSuite(P.AES_GCM_256, Digests.HmacNOSHA,  None),
-    AES_192_GCM_IV12_TAG16_KDFNONE_SIGNONE        := AlgSuite(P.AES_GCM_192, Digests.HmacNOSHA,  None),
-    AES_128_GCM_IV12_TAG16_KDFNONE_SIGNONE        := AlgSuite(P.AES_GCM_128, Digests.HmacNOSHA,  None)
+    AES_256_GCM_IV12_TAG16_HKDF_SHA384_ECDSA_P384 := AlgSuite(EncryptionAlgorithms.AES_GCM_256, Digests.HmacSHA384, Some(S.ECDSA_P384)),
+    AES_192_GCM_IV12_TAG16_HKDF_SHA384_ECDSA_P384 := AlgSuite(EncryptionAlgorithms.AES_GCM_192, Digests.HmacSHA384, Some(S.ECDSA_P384)),
+    AES_128_GCM_IV12_TAG16_HKDF_SHA256_ECDSA_P256 := AlgSuite(EncryptionAlgorithms.AES_GCM_128, Digests.HmacSHA256, Some(S.ECDSA_P256)),
+    AES_256_GCM_IV12_TAG16_HKDF_SHA256_SIGNONE    := AlgSuite(EncryptionAlgorithms.AES_GCM_256, Digests.HmacSHA256, None),
+    AES_192_GCM_IV12_TAG16_HKDF_SHA256_SIGNONE    := AlgSuite(EncryptionAlgorithms.AES_GCM_192, Digests.HmacSHA256, None),
+    AES_128_GCM_IV12_TAG16_HKDF_SHA256_SIGNONE    := AlgSuite(EncryptionAlgorithms.AES_GCM_128, Digests.HmacSHA256, None),
+    AES_256_GCM_IV12_TAG16_KDFNONE_SIGNONE        := AlgSuite(EncryptionAlgorithms.AES_GCM_256, Digests.HmacNOSHA,  None),
+    AES_192_GCM_IV12_TAG16_KDFNONE_SIGNONE        := AlgSuite(EncryptionAlgorithms.AES_GCM_192, Digests.HmacNOSHA,  None),
+    AES_128_GCM_IV12_TAG16_KDFNONE_SIGNONE        := AlgSuite(EncryptionAlgorithms.AES_GCM_128, Digests.HmacNOSHA,  None)
   ]
 
   /* Suite is intended to have an entry for each possible value of ID. This is stated and checked in three ways.

@@ -25,7 +25,7 @@ module AESKeyring{
     const keyNamespace: string
     const keyName: string
     const wrappingKey: seq<uint8>
-    const wrappingAlgorithm: EncryptionAlgorithms.Params
+    const wrappingAlgorithm: EncryptionAlgorithms.EncryptionAlgorithm
 
     predicate Valid() reads this {
         Repr == {this} &&
@@ -35,7 +35,7 @@ module AESKeyring{
         StringIs8Bit(keyNamespace) && StringIs8Bit(keyName)
     }
 
-    constructor(namespace: string, name: string, key: seq<uint8>, wrappingAlg: EncryptionAlgorithms.Params)
+    constructor(namespace: string, name: string, key: seq<uint8>, wrappingAlg: EncryptionAlgorithms.EncryptionAlgorithm)
     requires StringIs8Bit(namespace) && StringIs8Bit(name)
     requires wrappingAlg in VALID_ALGORITHMS
     requires wrappingAlg.Valid()
