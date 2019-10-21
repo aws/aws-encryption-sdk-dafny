@@ -3,7 +3,7 @@ include "../../StandardLibrary/UInt.dfy"
 include "../AlgorithmSuite.dfy"
 include "./Defs.dfy"
 include "../../Crypto/Cipher.dfy"
-include "../../Crypto/GenBytes.dfy"
+include "../../Crypto/Random.dfy"
 include "../../Crypto/RSAEncryption.dfy"
 include "../Materials.dfy"
 
@@ -12,10 +12,9 @@ module MultiKeyringDef {
     import opened StandardLibrary
     import opened UInt = StandardLibrary.UInt
     import opened Cipher
-    import GenBytes = RNG
     import AlgorithmSuite
     import RSA = RSAEncryption
-    import opened SDKDefs
+    import Mat = Materials
 
     function childrenRepr (xs : seq<Keyring>) : (res : set<object>) reads (set i | 0 <= i < |xs| :: xs[i])
         ensures forall i :: i in xs ==> i in res && i.Repr <= res
@@ -50,101 +49,100 @@ module MultiKeyringDef {
             Repr == {this} + (if generator != null then {generator} + generator.Repr else {}) + {children} + childrenRepr(children[..])
         }
 
-        method OnEncryptRec(x : EncMaterials, i : int) returns (res :Result<EncMaterials>)
+        method OnEncryptRec(x : Mat.EncryptionMaterials, i : int) returns (res: Result<Mat.EncryptionMaterials>)
             requires 0 <= i <= children.Length
-            requires WFEncMaterials(x)
+            requires x.Valid()
             requires Valid()
             ensures Valid()
-            ensures res.Ok? ==> WFEncMaterials(res.get)
-            ensures res.Ok? ==> res.get.alg_id == x.alg_id
+            ensures res.Success? ==> res.Extract().Valid()
+            ensures res.Success? ==> res.Extract().algorithmSuiteID == x.algorithmSuiteID
             decreases children.Length - i
         {
             if i == children.Length {
-                return Ok(x);
+                return Success(x);
             }
             else {
                 var y := children[i].OnEncrypt(x);
                 match y {
-                    case Ok(r) => {
+                    case Success(r) => {
                         var a := OnEncryptRec(r, i + 1);
                         return a;
                     }
-                    case Err(e) => {return Err(e); }
+                    case Failure(e) => {return Failure(e); }
                 }
 
             }
         }
 
-        method OnEncrypt(x : EncMaterials) returns (res : Result<EncMaterials>)
-            requires WFEncMaterials(x)
-            requires Valid()
+        method OnEncrypt(encMat : Mat.EncryptionMaterials) returns (res: Result<Mat.EncryptionMaterials>)
+            requires encMat.Valid()
             ensures Valid()
-            ensures res.Ok? ==> WFEncMaterials(res.get)
-            ensures res.Ok? ==> res.get.alg_id == x.alg_id
+            ensures res.Success? ==> res.Extract().Valid()
+            ensures res.Success? ==> res.Extract().algorithmSuiteID == encMat.algorithmSuiteID
         {
-            var r := x;
+            var r := encMat;
             if generator != null {
-                var res := generator.OnEncrypt(x);
+                var res := generator.OnEncrypt(encMat);
                 match res {
-                    case Ok(a) => { r := a; }
-                    case Err(e) => {return Err(e); }
+                    case Success(a) => { r := a; }
+                    case Failure(e) => {return Failure(e); }
                 }
             }
-            if r.data_key.None? {
-                return Err("Bad state: data key not found");
+            if r.plaintextDataKey.None? {
+                return Failure("Bad state: data key not found");
             }
             res := OnEncryptRec(r, 0);
         }
 
-        method OnDecryptRec(x : DecMaterials, edks : seq<EDK>, i : int) returns (res : Result<DecMaterials>)
+        method OnDecryptRec(encMat : Mat.DecryptionMaterials, edks : seq<Mat.EncryptedDataKey>, i : int) returns (res : Result<Mat.DecryptionMaterials>)
             requires 0 <= i <= children.Length
             requires Valid()
-            requires WFDecMaterials(x)
+            requires encMat.Valid()
             ensures Valid()
-            ensures res.Ok? ==> WFDecMaterials(res.get)
-            ensures res.Ok? ==> res.get.alg_id == x.alg_id
+            ensures res.Success? ==> res.Extract().Valid()
+            ensures res.Success? ==> res.Extract().algorithmSuiteID == encMat.algorithmSuiteID
             decreases children.Length - i
         {
 
             if i == children.Length {
-                return Ok(x);
+                return Success(encMat);
             }
             else {
-                var y := children[i].OnDecrypt(x, edks);
+                var y := children[i].OnDecrypt(encMat, edks);
                 match y {
-                    case Ok(r) => {
-                        return Ok(r);
+                    case Success(r) => {
+                        return Success(r);
                     }
-                    case Err(e) => {
-                        res := OnDecryptRec(x, edks, i + 1);
+                    case Failure(e) => {
+                        res := OnDecryptRec(encMat, edks, i + 1);
                     }
                 }
 
             }
         }
 
-        method OnDecrypt(x : DecMaterials, edks : seq<EDK>) returns (res : Result<DecMaterials>)
+        method OnDecrypt(encMat : Mat.DecryptionMaterials, edks : seq<Mat.EncryptedDataKey>) returns (res : Result<Mat.DecryptionMaterials>)
             requires Valid()
-            requires WFDecMaterials(x)
+            requires encMat.Valid()
             ensures Valid()
-            ensures res.Ok? ==> WFDecMaterials(res.get)
-            ensures res.Ok? ==> res.get.alg_id == x.alg_id
+            ensures res.Success? ==> res.Extract().Valid()
+            ensures res.Success? ==> res.Extract().algorithmSuiteID == encMat.algorithmSuiteID
         {
-            var y := x;
+            var y := encMat;
             if generator != null {
-                var r := generator.OnDecrypt(x, edks);
+                var r := generator.OnDecrypt(encMat, edks);
                 match r  {
-                    case Ok(a) => { y := a; }
-                    case Err(err) => { }
+                    case Success(a) => { y := a; }
+                    case Failure(Failure) => { }
                 }
             }
-            if y.data_key.Some? {
-                return Ok(y);
+            if y.plaintextDataKey.Some? {
+                return Success(y);
             }
             var r := OnDecryptRec(y, edks, 0);
             match r {
-                case Ok(r) => {return Ok(r);}
-                case Err(err) => {return Err("multi ondecrypt err");} // TODO: percolate errors through like in C version
+                case Success(r) => {return Success(r);}
+                case Failure(Failure) => {return Failure("multi ondecrypt Failure");} // TODO: percolate Failureors through like in C version
             }
         }
     }
