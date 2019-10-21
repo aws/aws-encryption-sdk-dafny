@@ -12,7 +12,6 @@ module {:extern "AESEncryption"} AESEncryption {
     provides AESDecrypt, AESEncrypt, EncryptionAlgorithms, StandardLibrary, UInt
     reveals EncryptionOutput
 
-  // Is there a better name/location for this?
   datatype EncryptionOutput = EncryptionOutput(cipherText: seq<uint8>, authTag: seq<uint8>)
 
   function method EncryptionArtifactFromByteSeq(s: seq<uint8>, p: EncryptionAlgorithms.Params): (encArt: EncryptionOutput)
