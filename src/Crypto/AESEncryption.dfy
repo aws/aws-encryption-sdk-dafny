@@ -28,7 +28,7 @@ module {:extern "AESEncryption"} AESEncryption {
       returns (res : Result<EncryptionOutput>)
     requires params.Valid()
     requires params.alg.AES?
-    requires params.mode.GCM?
+    requires params.alg.mode.GCM?
     requires |iv| == params.ivLen as int
     requires |key| == params.keyLen as int
     ensures res.Success? ==> |res.value.authTag| == params.tagLen as int
@@ -37,7 +37,7 @@ module {:extern "AESEncryption"} AESEncryption {
       returns (res: Result<seq<uint8>>)
     requires params.Valid()
     requires params.alg.AES?
-    requires params.mode.GCM?
+    requires params.alg.mode.GCM?
     requires |key| == params.keyLen as int
     requires |iv| == params.ivLen as int 
     requires |authTag| == params.tagLen as int
