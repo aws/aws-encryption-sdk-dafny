@@ -18,6 +18,7 @@ module MultiKeyringDef {
 
     function childrenRepr (xs : seq<Keyring>) : (res : set<object>) reads (set i | 0 <= i < |xs| :: xs[i])
         ensures forall i :: i in xs ==> i in res && i.Repr <= res
+        decreases |xs|
     {
         if xs == [] then {} else
         childrenRepr(xs[1..]) + {xs[0]} + xs[0].Repr
@@ -49,20 +50,24 @@ module MultiKeyringDef {
             Repr == {this} + (if generator != null then {generator} + generator.Repr else {}) + {children} + childrenRepr(children[..])
         }
 
-        method OnEncryptRec(x : Mat.EncryptionMaterials, i : int) returns (res: Result<Mat.EncryptionMaterials>)
-            requires 0 <= i <= children.Length
-            requires x.Valid()
+        method OnEncryptRec(encMat : Mat.EncryptionMaterials, i : int) returns (res: Result<Mat.EncryptionMaterials>)
             requires Valid()
+            requires 0 <= i <= children.Length
+            requires encMat.Valid()
+            modifies encMat`plaintextDataKey
+            modifies encMat`encryptedDataKeys
             ensures Valid()
-            ensures res.Success? ==> res.Extract().Valid()
-            ensures res.Success? ==> res.Extract().algorithmSuiteID == x.algorithmSuiteID
+            ensures res.Success? ==> res.value.Valid() && res.value == encMat
+            ensures res.Success? && old(encMat.plaintextDataKey.Some?) ==> res.value.plaintextDataKey == old(encMat.plaintextDataKey)
+            ensures res.Failure? ==> unchanged(encMat)
+            //ensures res.Success? ==> res.value.algorithmSuiteID == encMat.algorithmSuiteID
             decreases children.Length - i
         {
             if i == children.Length {
-                return Success(x);
+                return Success(encMat);
             }
             else {
-                var y := children[i].OnEncrypt(x);
+                var y := children[i].OnEncrypt(encMat);
                 match y {
                     case Success(r) => {
                         var a := OnEncryptRec(r, i + 1);
@@ -76,9 +81,14 @@ module MultiKeyringDef {
 
         method OnEncrypt(encMat : Mat.EncryptionMaterials) returns (res: Result<Mat.EncryptionMaterials>)
             requires encMat.Valid()
+            requires Valid()
+            modifies encMat`plaintextDataKey
+            modifies encMat`encryptedDataKeys
             ensures Valid()
-            ensures res.Success? ==> res.Extract().Valid()
-            ensures res.Success? ==> res.Extract().algorithmSuiteID == encMat.algorithmSuiteID
+            ensures res.Success? ==> res.value.Valid() && res.value == encMat
+            ensures res.Success? && old(encMat.plaintextDataKey.Some?) ==> res.value.plaintextDataKey == old(encMat.plaintextDataKey)
+            ensures res.Failure? ==> unchanged(encMat)
+            //ensures res.Success? ==> res.value.algorithmSuiteID == encMat.algorithmSuiteID
         {
             var r := encMat;
             if generator != null {
@@ -94,46 +104,55 @@ module MultiKeyringDef {
             res := OnEncryptRec(r, 0);
         }
 
-        method OnDecryptRec(encMat : Mat.DecryptionMaterials, edks : seq<Mat.EncryptedDataKey>, i : int) returns (res : Result<Mat.DecryptionMaterials>)
+        method OnDecryptRec(decMat : Mat.DecryptionMaterials, edks : seq<Mat.EncryptedDataKey>, i : int) returns (res : Result<Mat.DecryptionMaterials>)
             requires 0 <= i <= children.Length
             requires Valid()
-            requires encMat.Valid()
-            ensures Valid()
-            ensures res.Success? ==> res.Extract().Valid()
-            ensures res.Success? ==> res.Extract().algorithmSuiteID == encMat.algorithmSuiteID
+            requires decMat.Valid()
+            modifies decMat`plaintextDataKey
+            ensures decMat.Valid()
+            ensures |edks| == 0 ==> res.Success? && unchanged(decMat)
+            ensures old(decMat.plaintextDataKey.Some?) ==> res.Success? && unchanged(decMat)
+            ensures res.Success? ==> res.value == decMat
+            ensures res.Failure? ==> unchanged(decMat)
+            //ensures res.Success? ==> res.value.algorithmSuiteID == decMat.algorithmSuiteID
             decreases children.Length - i
         {
 
             if i == children.Length {
-                return Success(encMat);
+                return Success(decMat);
             }
             else {
-                var y := children[i].OnDecrypt(encMat, edks);
+                var y := children[i].OnDecrypt(decMat, edks);
                 match y {
                     case Success(r) => {
                         return Success(r);
                     }
                     case Failure(e) => {
-                        res := OnDecryptRec(encMat, edks, i + 1);
+                        res := OnDecryptRec(decMat, edks, i + 1);
                     }
                 }
 
             }
         }
 
-        method OnDecrypt(encMat : Mat.DecryptionMaterials, edks : seq<Mat.EncryptedDataKey>) returns (res : Result<Mat.DecryptionMaterials>)
+        method OnDecrypt(decMat : Mat.DecryptionMaterials, edks : seq<Mat.EncryptedDataKey>) returns (res : Result<Mat.DecryptionMaterials>)
             requires Valid()
-            requires encMat.Valid()
+            requires decMat.Valid()
+            modifies decMat`plaintextDataKey
             ensures Valid()
-            ensures res.Success? ==> res.Extract().Valid()
-            ensures res.Success? ==> res.Extract().algorithmSuiteID == encMat.algorithmSuiteID
+            ensures decMat.Valid()
+            ensures |edks| == 0 ==> res.Success? && unchanged(decMat)
+            ensures old(decMat.plaintextDataKey.Some?) ==> res.Success? && unchanged(decMat)
+            ensures res.Success? ==> res.value == decMat
+            ensures res.Failure? ==> unchanged(decMat)
+            //ensures res.Success? ==> res.value.algorithmSuiteID == encMat.algorithmSuiteID
         {
-            var y := encMat;
+            var y := decMat;
             if generator != null {
-                var r := generator.OnDecrypt(encMat, edks);
+                var r := generator.OnDecrypt(decMat, edks);
                 match r  {
                     case Success(a) => { y := a; }
-                    case Failure(Failure) => { }
+                    case Failure(f) => { }
                 }
             }
             if y.plaintextDataKey.Some? {
@@ -142,7 +161,7 @@ module MultiKeyringDef {
             var r := OnDecryptRec(y, edks, 0);
             match r {
                 case Success(r) => {return Success(r);}
-                case Failure(Failure) => {return Failure("multi ondecrypt Failure");} // TODO: percolate Failureors through like in C version
+                case Failure(f) => {return Failure("multi ondecrypt Failure");} // TODO: percolate Failureors through like in C version
             }
         }
     }
