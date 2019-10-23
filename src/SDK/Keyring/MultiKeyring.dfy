@@ -26,54 +26,72 @@ module MultiKeyringDef {
 
     class MultiKeyring extends Keyring {
         const generator : Keyring?
-        const children : array<Keyring>
-        constructor (g : Keyring?, c : array<Keyring>) ensures generator == g ensures children == c
+        const children : seq<Keyring>
+        constructor (g : Keyring?, c : seq<Keyring>) ensures generator == g ensures children == c
             requires g != null ==> g.Valid()
-            requires forall i :: 0 <= i < c.Length ==> c[i].Valid()
+            requires forall i :: 0 <= i < |c| ==> (c[i].Valid() && g !in c[i].Repr)
             ensures Valid()
         {
             generator := g;
             children := c;
-            Repr := {this};
             new;
-            if g != null {
-                Repr := Repr + {g} + g.Repr;
-            }
-            Repr := Repr + {children} + childrenRepr(c[..]);
-            assert (forall i :: 0 <= i < c.Length ==> c[i] in Repr && c[i].Repr <= Repr);
-
+            Repr := ReprDefn();
+            assert (forall i :: 0 <= i < |c| ==> c[i] in Repr && c[i].Repr <= Repr);
         }
+
         predicate Valid() reads this, Repr {
-            children in Repr &&
             (generator != null ==> generator in Repr  && generator.Repr <= Repr && generator.Valid())  &&
-            (forall j :: 0 <= j < children.Length ==> children[j] in Repr && children[j].Repr <= Repr && children[j].Valid()) &&
-            Repr == {this} + (if generator != null then {generator} + generator.Repr else {}) + {children} + childrenRepr(children[..])
+            (forall j :: 0 <= j < |children| ==> children[j] in Repr && children[j].Repr <= Repr && children[j].Valid()) &&
+            Repr == ReprDefn() &&
+            DisjointReprsRec({}, ChildKeyrings())
+        }
+
+        function ChildKeyrings(): seq<Keyring> reads generator, children {
+            (if generator != null then [generator] else []) + children
+        }
+
+        function ReprDefn(): set<object> reads this, generator, children {
+            {this} + (if generator != null then {generator} + generator.Repr else {}) + childrenRepr(children[..])
+        }
+
+        predicate DisjointReprsRec(r: set<object>, s: seq<Keyring>) 
+                reads r, s, set i,o | 0 <= i < |s| && o in s[i].Repr :: o
+                decreases |s|
+        {
+            if |s| == 0 then
+                true
+            else
+                (r !! s[0].Repr) && DisjointReprsRec(r + s[0].Repr, s[1..])
         }
 
         method OnEncryptRec(encMat : Mat.EncryptionMaterials, i : int) returns (res: Result<Mat.EncryptionMaterials>)
             requires Valid()
-            requires 0 <= i <= children.Length
+            requires 0 <= i <= |children|
             requires encMat.Valid()
             modifies encMat`plaintextDataKey
             modifies encMat`encryptedDataKeys
             ensures Valid()
+            ensures forall i :: 0 <= i < |children| ==> children[i].Valid()
             ensures res.Success? ==> res.value.Valid() && res.value == encMat
             ensures res.Success? && old(encMat.plaintextDataKey.Some?) ==> res.value.plaintextDataKey == old(encMat.plaintextDataKey)
-            ensures res.Failure? ==> unchanged(encMat)
             //ensures res.Success? ==> res.value.algorithmSuiteID == encMat.algorithmSuiteID
-            decreases children.Length - i
+            decreases |children| - i
         {
-            if i == children.Length {
+            if i == |children| {
                 return Success(encMat);
             }
             else {
                 var y := children[i].OnEncrypt(encMat);
+                assert generator != null ==> unchanged(generator);
+                assert (generator != null ==> generator in Repr  && generator.Repr <= Repr && generator.Valid());
                 match y {
                     case Success(r) => {
                         var a := OnEncryptRec(r, i + 1);
                         return a;
                     }
-                    case Failure(e) => {return Failure(e); }
+                    case Failure(e) => {
+                        return Failure(e); 
+                    }
                 }
 
             }
@@ -87,7 +105,7 @@ module MultiKeyringDef {
             ensures Valid()
             ensures res.Success? ==> res.value.Valid() && res.value == encMat
             ensures res.Success? && old(encMat.plaintextDataKey.Some?) ==> res.value.plaintextDataKey == old(encMat.plaintextDataKey)
-            ensures res.Failure? ==> unchanged(encMat)
+            // ensures res.Failure? ==> unchanged(encMat)
             //ensures res.Success? ==> res.value.algorithmSuiteID == encMat.algorithmSuiteID
         {
             var r := encMat;
@@ -105,7 +123,7 @@ module MultiKeyringDef {
         }
 
         method OnDecryptRec(decMat : Mat.DecryptionMaterials, edks : seq<Mat.EncryptedDataKey>, i : int) returns (res : Result<Mat.DecryptionMaterials>)
-            requires 0 <= i <= children.Length
+            requires 0 <= i <= |children|
             requires Valid()
             requires decMat.Valid()
             modifies decMat`plaintextDataKey
@@ -115,10 +133,10 @@ module MultiKeyringDef {
             ensures res.Success? ==> res.value == decMat
             ensures res.Failure? ==> unchanged(decMat)
             //ensures res.Success? ==> res.value.algorithmSuiteID == decMat.algorithmSuiteID
-            decreases children.Length - i
+            decreases |children| - i
         {
 
-            if i == children.Length {
+            if i == |children| {
                 return Success(decMat);
             }
             else {

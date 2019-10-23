@@ -56,6 +56,7 @@ module RSAKeyringDef {
       requires encMat.Valid()
       modifies encMat`plaintextDataKey, encMat`encryptedDataKeys
       ensures Valid()
+      ensures unchanged(Repr)
       ensures res.Success? ==> res.value.Valid() && res.value == encMat
       ensures res.Success? && old(encMat.plaintextDataKey.Some?) ==> res.value.plaintextDataKey == old(encMat.plaintextDataKey)
       ensures res.Failure? ==> unchanged(encMat)

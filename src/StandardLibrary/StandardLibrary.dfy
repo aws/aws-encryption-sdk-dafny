@@ -266,11 +266,12 @@ module {:extern "STL"} StandardLibrary {
   function method MapSeq<S, T>(s: seq<S>, f: S ~> T): seq<T>
     requires forall i :: 0 <= i < |s| ==> f.requires(s[i])
     reads set i,o | 0 <= i < |s| && o in f.reads(s[i]) :: o
+    decreases s
   {
     if s == [] then [] else [f(s[0])] + MapSeq(s[1..], f)
   }
 
-  function method FlattenSeq<T>(s: seq<seq<T>>): seq<T> {
+  function method FlattenSeq<T>(s: seq<seq<T>>): seq<T> decreases s {
     if s == [] then [] else s[0] + FlattenSeq(s[1..])
   }
 
