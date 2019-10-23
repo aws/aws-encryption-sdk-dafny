@@ -89,6 +89,7 @@ module RSAKeyringDef {
 
         var edk := Materials.EncryptedDataKey(ByteSeqToString(keyNamespace), keyName, edkCiphertext.get);
         var encryptTrace := Materials.KeyringTraceEntry(ByteSeqToString(keyNamespace), ByteSeqToString(keyName), {Materials.ENCRYPTED_DATA_KEY});
+
         encMat.AppendEncryptedDataKey(edk, encryptTrace);
 
         return Success(encMat);

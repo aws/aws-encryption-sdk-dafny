@@ -50,19 +50,22 @@ module AESKeyringDef {
       Repr := {this};
     }
 
-    function method SerializeProviderInto(iv: seq<uint8>): seq<uint8>
+    method SerializeProviderInto(iv: seq<uint8>) returns (res: seq<uint8>)
       requires Valid()
       requires |iv| == wrappingAlgorithm.ivLen as int
-      reads this
+      ensures ValidProviderInfo(res)
     {
-      StringToByteSeq(keyName) +
+      res := StringToByteSeq(keyName) +
         [0, 0, 0, wrappingAlgorithm.tagLen * 8] + // tag length in bits
         [0, 0, 0, wrappingAlgorithm.ivLen] + // IV length in bytes
-        iv
+        iv;
+      
+      StringByteSeqCorrect(keyName);
+      assert res[0..|keyName|] == StringToByteSeq(keyName);
     }
 
     method OnEncrypt(encMat: Mat.EncryptionMaterials) returns (res: Result<Mat.EncryptionMaterials>)
-      /* Keyring trait specific */
+      /* Keyring trait specification */
       requires Valid()
       requires encMat.Valid()
       modifies encMat`plaintextDataKey, encMat`encryptedDataKeys, encMat`keyringTrace
@@ -73,11 +76,16 @@ module AESKeyringDef {
       ensures old(encMat.encryptedDataKeys) <= encMat.encryptedDataKeys
       ensures old(encMat.keyringTrace) <= encMat.keyringTrace
       
-      /* Raw AES Keyring specific */
-      // Iff added an EDK, the appropriate trace is also added
+      /* Raw AES Keyring specification */
+      // If added an EDK, the EDK providerID and providerInfo was set correctly for this keyring
+      ensures |encMat.encryptedDataKeys| > |old(encMat.encryptedDataKeys)| ==>
+        var newEDK := encMat.encryptedDataKeys[|encMat.encryptedDataKeys| - 1];
+        newEDK.providerID == keyNamespace &&
+        ValidProviderInfo(newEDK.providerInfo)
+      // Iff added an EDK but did not set the plaintextDataKey, the appropriate trace is also added
       ensures |encMat.encryptedDataKeys| > |old(encMat.encryptedDataKeys)| && old(encMat.plaintextDataKey).Some? <==> (
         |encMat.keyringTrace| == |old(encMat.keyringTrace)| + 1 &&
-        var encryptTrace := encMat.keyringTrace[|encMat.keyringTrace|-1];
+        var encryptTrace := encMat.keyringTrace[|encMat.keyringTrace| - 1];
         encryptTrace.flags == {Mat.ENCRYPTED_DATA_KEY, Mat.SIGNED_ENCRYPTION_CONTEXT} &&
         encryptTrace.keyNamespace == keyNamespace &&
         encryptTrace.keyName == keyName
@@ -113,10 +121,9 @@ module AESKeyringDef {
       }
 
       var providerInfo := SerializeProviderInto(iv);
+      assert ValidProviderInfo(providerInfo);
       var edk := Mat.EncryptedDataKey(keyNamespace, providerInfo, encryptResult.value);
       var encryptTrace := Mat.KeyringTraceEntry(keyNamespace, keyName, {Mat.ENCRYPTED_DATA_KEY, Mat.SIGNED_ENCRYPTION_CONTEXT});
-      assume Mat.EDKMatchesPlaintextDataKey(edk, encMat.plaintextDataKey); // TODO this should eventually come from some extern
-      assume Mat.EDKMatchesKeyringTraceEntry(edk, encryptTrace); // TODO will this have to be an assumption here? Or where could this be derived?
       encMat.AppendEncryptedDataKey(edk, encryptTrace);
       
       return Success(encMat);
@@ -126,7 +133,7 @@ module AESKeyringDef {
     {
       |info| == |keyName| + AUTH_TAG_LEN_LEN + IV_LEN_LEN + wrappingAlgorithm.ivLen as int &&
       ByteSeqToString(info[0..|keyName|]) == keyName &&
-      SeqToUInt32(info[|keyName|..|keyName| + AUTH_TAG_LEN_LEN]) == wrappingAlgorithm.tagLen as uint32 &&
+      SeqToUInt32(info[|keyName|..|keyName| + AUTH_TAG_LEN_LEN]) == wrappingAlgorithm.tagLen as uint32 * 8 &&
       SeqToUInt32(info[|keyName| + AUTH_TAG_LEN_LEN .. |keyName| + AUTH_TAG_LEN_LEN + IV_LEN_LEN]) == wrappingAlgorithm.ivLen as uint32
     }
 

@@ -54,27 +54,8 @@ module Materials {
     DECRYPTED_DATA_KEY in trace.flags
   }
 
-  const WrappingFlags: set<KeyringTraceFlag> := {ENCRYPTED_DATA_KEY, SIGNED_ENCRYPTION_CONTEXT};
-  const UnwrappingFlags: set<KeyringTraceFlag> := {DECRYPTED_DATA_KEY, VERIFIED_ENCRYPTION_CONTEXT};
-
-  // TODO: where does this belong?
-  // Ghost predicate that describes a promise that the EDK
-  // is the encrypted form of the plaintextDataKey.
-  // This ensures that a set of EncryptionMaterials are invalid if, for example, the
-  // plaintextDataKey is changed after an edk has ben previously set.
-  predicate EDKMatchesPlaintextDataKey(edk: EncryptedDataKey, dataKey: Option<seq<uint8>>)
-  {
-    true
-  }
-
-  // TODO: where does this belong?
-  // Ghost predicate that describes a promise that the EDK
-  // corresponds with the trace.
-  // This ensures that a set of EncryptionMaterials are invalid if, for example, the
-  // keyringTrace is reordered or updated without this promise.
-  predicate EDKMatchesKeyringTraceEntry(edk: EncryptedDataKey, trace: KeyringTraceEntry) {
-    true
-  }
+  const ValidWrappingFlags: set<KeyringTraceFlag> := {ENCRYPTED_DATA_KEY, SIGNED_ENCRYPTION_CONTEXT};
+  const ValidUnwrappingFlags: set<KeyringTraceFlag> := {DECRYPTED_DATA_KEY, VERIFIED_ENCRYPTION_CONTEXT};
 
   class EncryptionMaterials {
     var algorithmSuiteID: AlgorithmSuite.ID
@@ -87,18 +68,25 @@ module Materials {
     predicate Valid()
       reads this
     {
+      // The plaintextDataKey is empty or is the correct length
+      (plaintextDataKey.None? || |plaintextDataKey.get| == algorithmSuiteID.KeyLength()) &&
+      // If the plaintextDataKey is empty, there are no encryptedDataKeys
+      (plaintextDataKey.None? ==> |encryptedDataKeys| == 0) &&
+      // If there is at least one EDK, the plaintextDataKey exists
+      (|encryptedDataKeys| > 0 ==> plaintextDataKey.Some?) &&
+      // Every trace only contains flags valid for Encryption Materials
+      (forall trace :: trace in keyringTrace ==> trace.flags <= ValidWrappingFlags + {GENERATED_DATA_KEY}) &&
+      // Every trace either indicates key generation and/or key encryption
       var generateTraces := Filter(keyringTrace, TraceHasGenerateFlag);
       var encryptTraces := Filter(keyringTrace, TraceHasEncryptFlag);
-      (plaintextDataKey.None? || |plaintextDataKey.get| == algorithmSuiteID.KeyLength()) &&
-      (plaintextDataKey.None? ==> |encryptedDataKeys| == 0) &&
-      (|encryptedDataKeys| > 0 ==> plaintextDataKey.Some?) &&
-      (forall edk :: edk in encryptedDataKeys ==> EDKMatchesPlaintextDataKey(edk, plaintextDataKey)) &&
-      (forall trace :: trace in keyringTrace ==> trace.flags <= WrappingFlags + {GENERATED_DATA_KEY}) &&
       (forall trace :: trace in keyringTrace ==> trace in generateTraces || trace in encryptTraces) &&
+      // If the plaintextDataKey exists, there is exactly 1 trace that indicates key generation
       (plaintextDataKey.Some? <==> |generateTraces| == 1) &&
+      // If the plaintextDataKey is empty, there are no traces that indicates key generation
       (plaintextDataKey.None? <==> |generateTraces| == 0) &&
-      (|encryptedDataKeys| == |encryptTraces|) &&
-      (forall i :: 0 <= i < |encryptedDataKeys| ==> EDKMatchesKeyringTraceEntry(encryptedDataKeys[i], encryptTraces[i]))
+      // The number of EDKs and traces that indicate key encryption are equal
+      (|encryptedDataKeys| == |encryptTraces|)
+      // TODO: condition that ties each EDK to the plaintextDataKey
     }
 
     constructor(algorithmSuiteID: AlgorithmSuite.ID,
@@ -107,21 +95,17 @@ module Materials {
                 plaintextDataKey: Option<seq<uint8>>,
                 signingKey: Option<seq<uint8>>,
                 keyringTrace: seq<KeyringTraceEntry>)
-      requires plaintextDataKey.None? || |plaintextDataKey.get| == algorithmSuiteID.KeyLength()
-      requires plaintextDataKey.None? <==> |encryptedDataKeys| == 0
-      requires |encryptedDataKeys| > 0 ==> plaintextDataKey.Some?
-      requires forall edk :: edk in encryptedDataKeys ==> EDKMatchesPlaintextDataKey(edk, plaintextDataKey)
-      requires forall trace :: trace in keyringTrace ==> trace.flags <= WrappingFlags + {GENERATED_DATA_KEY}
-      requires forall trace :: trace in keyringTrace ==> 
-        trace in Filter(keyringTrace, TraceHasGenerateFlag) ||
-        trace in Filter(keyringTrace, TraceHasEncryptFlag)
-      requires plaintextDataKey.Some? <==> |Filter(keyringTrace, TraceHasGenerateFlag)| == 1
-      requires plaintextDataKey.None? <==> |Filter(keyringTrace, TraceHasGenerateFlag)| == 0
-      requires |encryptedDataKeys| == |Filter(keyringTrace, TraceHasEncryptFlag)|
-      requires forall i :: 0 <= i < |encryptedDataKeys| ==>
-        encryptedDataKeys[i].providerID == Filter(keyringTrace, TraceHasEncryptFlag)[i].keyNamespace
-      requires forall i :: 0 <= i < |encryptedDataKeys| ==>
-        EDKMatchesKeyringTraceEntry(encryptedDataKeys[i], Filter(keyringTrace, TraceHasEncryptFlag)[i])
+      requires
+        (plaintextDataKey.None? || |plaintextDataKey.get| == algorithmSuiteID.KeyLength()) &&
+        (plaintextDataKey.None? ==> |encryptedDataKeys| == 0) &&
+        (|encryptedDataKeys| > 0 ==> plaintextDataKey.Some?) &&
+        (forall trace :: trace in keyringTrace ==> trace.flags <= ValidWrappingFlags + {GENERATED_DATA_KEY}) &&
+        var generateTraces := Filter(keyringTrace, TraceHasGenerateFlag);
+        var encryptTraces := Filter(keyringTrace, TraceHasEncryptFlag);
+        (forall trace :: trace in keyringTrace ==> trace in generateTraces || trace in encryptTraces) &&
+        (plaintextDataKey.Some? <==> |generateTraces| == 1) &&
+        (plaintextDataKey.None? <==> |generateTraces| == 0) &&
+        (|encryptedDataKeys| == |encryptTraces|)
       ensures Valid()
       ensures this.algorithmSuiteID == algorithmSuiteID
       ensures this.encryptedDataKeys == encryptedDataKeys
@@ -152,15 +136,12 @@ module Materials {
       plaintextDataKey := Some(dataKey);
       keyringTrace := keyringTrace + [trace];
     }
-
+    
     method AppendEncryptedDataKey(edk: EncryptedDataKey, trace: KeyringTraceEntry)
       requires Valid()
-      requires EDKMatchesPlaintextDataKey(edk, plaintextDataKey)
       requires plaintextDataKey.Some?
       requires ENCRYPTED_DATA_KEY in trace.flags
-      requires trace.flags <= WrappingFlags
-      requires trace.keyNamespace == edk.providerID
-      requires EDKMatchesKeyringTraceEntry(edk, trace)
+      requires trace.flags <= ValidWrappingFlags
       modifies `encryptedDataKeys, `keyringTrace
       ensures Valid()
       ensures encryptedDataKeys == old(encryptedDataKeys) + [edk]
@@ -183,11 +164,16 @@ module Materials {
     predicate Valid()
       reads this
     {
-      var decryptTraces := Filter(keyringTrace, TraceHasDecryptFlag);
+      // The plaintextDataKey is empty or it is the correct length
       (plaintextDataKey.None? || |plaintextDataKey.get| == algorithmSuiteID.KeyLength()) &&
-      (forall trace :: trace in keyringTrace ==> trace.flags <= UnwrappingFlags) &&
+      // Every trace in the keyringTrace only contains flags valid for DecryptionMaterials
+      (forall trace :: trace in keyringTrace ==> trace.flags <= ValidUnwrappingFlags) &&
+      // Every trace in the keyringTrace is a trace that indicates key decryption
+      var decryptTraces := Filter(keyringTrace, TraceHasDecryptFlag);
       (forall trace :: trace in keyringTrace ==> trace in decryptTraces) &&
+      // If the plaintextDataKey exists, there is exactly 1 trace indicating key decryption
       (plaintextDataKey.Some? <==> |decryptTraces| == 1) &&
+      // If the plaintextDataKey is empty, there are no traces indicating key decryption
       (plaintextDataKey.None? <==> |decryptTraces| == 0)
     }
 
@@ -196,11 +182,13 @@ module Materials {
                 plaintextDataKey: Option<seq<uint8>>,
                 verificationKey: Option<seq<uint8>>,
                 keyringTrace: seq<KeyringTraceEntry>)
-      requires plaintextDataKey.None? || |plaintextDataKey.get| == algorithmSuiteID.KeyLength()
-      requires forall trace :: trace in keyringTrace ==> trace.flags <= UnwrappingFlags
-      requires forall trace :: trace in keyringTrace ==> trace in Filter(keyringTrace, TraceHasDecryptFlag)
-      requires plaintextDataKey.Some? <==> |Filter(keyringTrace, TraceHasDecryptFlag)| == 1
-      requires plaintextDataKey.None? <==> |Filter(keyringTrace, TraceHasDecryptFlag)| == 0
+      requires
+        (plaintextDataKey.None? || |plaintextDataKey.get| == algorithmSuiteID.KeyLength()) &&
+        (forall trace :: trace in keyringTrace ==> trace.flags <= ValidUnwrappingFlags) &&
+        var decryptTraces := Filter(keyringTrace, TraceHasDecryptFlag);
+        (forall trace :: trace in keyringTrace ==> trace in decryptTraces) &&
+        (plaintextDataKey.Some? <==> |decryptTraces| == 1) &&
+        (plaintextDataKey.None? <==> |decryptTraces| == 0)
       ensures Valid()
       ensures this.algorithmSuiteID == algorithmSuiteID
       ensures this.encryptionContext == encryptionContext
@@ -215,14 +203,10 @@ module Materials {
       this.keyringTrace := keyringTrace;
     }
 
-    // TODO: Is there a way for us to ensure this within Valid()?
-    // This method MUST be used to set the plaintextDataKey, as it ensures the
-    // property that an EncryptionMaterial's plaintextDataKey can only be set once,
-    // and keyringTrace is in order
     method SetPlaintextDataKey(dataKey: seq<uint8>, trace: KeyringTraceEntry)
       requires Valid()
       requires plaintextDataKey.None?
-      requires trace.flags <= UnwrappingFlags
+      requires trace.flags <= ValidUnwrappingFlags
       requires DECRYPTED_DATA_KEY in trace.flags
       requires |dataKey| == algorithmSuiteID.KeyLength()
       modifies `plaintextDataKey, `keyringTrace
