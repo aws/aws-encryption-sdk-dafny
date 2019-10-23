@@ -39,5 +39,7 @@ module KeyringDefs {
       ensures old(decMat.plaintextDataKey.Some?) ==> res.Success? && unchanged(decMat)
       // Failure does not modify the input encryptionMaterials
       ensures res.Failure? ==> unchanged(decMat)
+      // New traces are only ever appended to the keyringTrace
+      ensures old(decMat.keyringTrace) <= decMat.keyringTrace
   }
 }

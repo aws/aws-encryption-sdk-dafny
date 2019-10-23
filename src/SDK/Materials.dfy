@@ -80,9 +80,9 @@ module Materials {
       var generateTraces := Filter(keyringTrace, TraceHasGenerateFlag);
       var encryptTraces := Filter(keyringTrace, TraceHasEncryptFlag);
       (forall trace :: trace in keyringTrace ==> trace in generateTraces || trace in encryptTraces) &&
-      // If the plaintextDataKey exists, there is exactly 1 trace that indicates key generation
+      // Iff the plaintextDataKey exists, there is exactly 1 trace that indicates key generation
       (plaintextDataKey.Some? <==> |generateTraces| == 1) &&
-      // If the plaintextDataKey is empty, there are no traces that indicates key generation
+      // Iff the plaintextDataKey is empty, there are no traces that indicates key generation
       (plaintextDataKey.None? <==> |generateTraces| == 0) &&
       // The number of EDKs and traces that indicate key encryption are equal
       (|encryptedDataKeys| == |encryptTraces|)
@@ -136,7 +136,7 @@ module Materials {
       plaintextDataKey := Some(dataKey);
       keyringTrace := keyringTrace + [trace];
     }
-    
+
     method AppendEncryptedDataKey(edk: EncryptedDataKey, trace: KeyringTraceEntry)
       requires Valid()
       requires plaintextDataKey.Some?
@@ -168,13 +168,10 @@ module Materials {
       (plaintextDataKey.None? || |plaintextDataKey.get| == algorithmSuiteID.KeyLength()) &&
       // Every trace in the keyringTrace only contains flags valid for DecryptionMaterials
       (forall trace :: trace in keyringTrace ==> trace.flags <= ValidUnwrappingFlags) &&
-      // Every trace in the keyringTrace is a trace that indicates key decryption
-      var decryptTraces := Filter(keyringTrace, TraceHasDecryptFlag);
-      (forall trace :: trace in keyringTrace ==> trace in decryptTraces) &&
-      // If the plaintextDataKey exists, there is exactly 1 trace indicating key decryption
-      (plaintextDataKey.Some? <==> |decryptTraces| == 1) &&
-      // If the plaintextDataKey is empty, there are no traces indicating key decryption
-      (plaintextDataKey.None? <==> |decryptTraces| == 0)
+      // If the plaintextDataKey exists, there is exactly 1 trace that indicates decryption
+      (plaintextDataKey.Some? <==> |keyringTrace| == 1 && TraceHasDecryptFlag(keyringTrace[0])) &&
+      // If the plaintextDataKey is empty, there are no traces
+      (plaintextDataKey.None? <==> |keyringTrace| == 0)
     }
 
     constructor(algorithmSuiteID: AlgorithmSuite.ID,
@@ -185,10 +182,8 @@ module Materials {
       requires
         (plaintextDataKey.None? || |plaintextDataKey.get| == algorithmSuiteID.KeyLength()) &&
         (forall trace :: trace in keyringTrace ==> trace.flags <= ValidUnwrappingFlags) &&
-        var decryptTraces := Filter(keyringTrace, TraceHasDecryptFlag);
-        (forall trace :: trace in keyringTrace ==> trace in decryptTraces) &&
-        (plaintextDataKey.Some? <==> |decryptTraces| == 1) &&
-        (plaintextDataKey.None? <==> |decryptTraces| == 0)
+        (plaintextDataKey.Some? <==> |keyringTrace| == 1 && TraceHasDecryptFlag(keyringTrace[0])) &&
+        (plaintextDataKey.None? <==> |keyringTrace| == 0)
       ensures Valid()
       ensures this.algorithmSuiteID == algorithmSuiteID
       ensures this.encryptionContext == encryptionContext

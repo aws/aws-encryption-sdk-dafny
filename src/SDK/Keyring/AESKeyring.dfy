@@ -34,14 +34,14 @@ module AESKeyringDef {
     }
 
     constructor(namespace: string, name: string, key: seq<uint8>, wrappingAlg: Cipher.CipherParams)
-    requires StringIs8Bit(namespace) && StringIs8Bit(name)
-    requires wrappingAlg in {Cipher.AES_GCM_128, Cipher.AES_GCM_192, Cipher.AES_GCM_256}
-    requires |key| == Cipher.KeyLengthOfCipher(wrappingAlg)
-    ensures keyNamespace == namespace
-    ensures keyName == name
-    ensures wrappingKey == key
-    ensures wrappingAlgorithm == wrappingAlg
-    ensures Valid()
+      requires StringIs8Bit(namespace) && StringIs8Bit(name)
+      requires wrappingAlg in {Cipher.AES_GCM_128, Cipher.AES_GCM_192, Cipher.AES_GCM_256}
+      requires |key| == Cipher.KeyLengthOfCipher(wrappingAlg)
+      ensures keyNamespace == namespace
+      ensures keyName == name
+      ensures wrappingKey == key
+      ensures wrappingAlgorithm == wrappingAlg
+      ensures Valid()
     {
       keyNamespace := namespace;
       keyName := name;
@@ -56,10 +56,10 @@ module AESKeyringDef {
       ensures ValidProviderInfo(res)
     {
       res := StringToByteSeq(keyName) +
-        [0, 0, 0, wrappingAlgorithm.tagLen * 8] + // tag length in bits
-        [0, 0, 0, wrappingAlgorithm.ivLen] + // IV length in bytes
-        iv;
-      
+             UInt32ToSeq(wrappingAlgorithm.tagLen as uint32 * 8) + // tag length in bits
+             UInt32ToSeq(wrappingAlgorithm.ivLen as uint32) + // IV length in bytes
+            iv;
+
       StringByteSeqCorrect(keyName);
       assert res[0..|keyName|] == StringToByteSeq(keyName);
     }
@@ -75,7 +75,7 @@ module AESKeyringDef {
       ensures old(encMat.plaintextDataKey.Some?) ==> unchanged(encMat`plaintextDataKey)
       ensures old(encMat.encryptedDataKeys) <= encMat.encryptedDataKeys
       ensures old(encMat.keyringTrace) <= encMat.keyringTrace
-      
+
       /* Raw AES Keyring specification */
       // If added an EDK, the EDK providerID and providerInfo was set correctly for this keyring
       ensures |encMat.encryptedDataKeys| > |old(encMat.encryptedDataKeys)| ==>
@@ -111,7 +111,7 @@ module AESKeyringDef {
       var iv := Random.GenerateBytes(wrappingAlgorithm.ivLen as int32);
       var aad := Mat.FlattenSortEncCtx(encMat.encryptionContext);
       var encryptResult := AESEncryption.AES.aes_encrypt(wrappingAlgorithm, iv, wrappingKey, dataKey.get, aad);
-      if encryptResult.Failure? { 
+      if encryptResult.Failure? {
         return Failure("Error on encrypt!");
       }
 
@@ -121,11 +121,10 @@ module AESKeyringDef {
       }
 
       var providerInfo := SerializeProviderInto(iv);
-      assert ValidProviderInfo(providerInfo);
       var edk := Mat.EncryptedDataKey(keyNamespace, providerInfo, encryptResult.value);
       var encryptTrace := Mat.KeyringTraceEntry(keyNamespace, keyName, {Mat.ENCRYPTED_DATA_KEY, Mat.SIGNED_ENCRYPTION_CONTEXT});
       encMat.AppendEncryptedDataKey(edk, encryptTrace);
-      
+
       return Success(encMat);
     }
 
@@ -144,7 +143,7 @@ module AESKeyringDef {
     }
 
     method OnDecrypt(decMat: Mat.DecryptionMaterials, edks: seq<Mat.EncryptedDataKey>) returns (res: Result<Mat.DecryptionMaterials>)
-      /* Keyring Trait specific */
+      /* Keyring Trait specification */
       requires Valid()
       requires decMat.Valid()
       modifies decMat`plaintextDataKey, decMat`keyringTrace
@@ -153,8 +152,9 @@ module AESKeyringDef {
       ensures |edks| == 0 ==> res.Success? && unchanged(decMat)
       ensures old(decMat.plaintextDataKey.Some?) ==> res.Success? && unchanged(decMat)
       ensures res.Failure? ==> unchanged(decMat)
+      ensures old(decMat.keyringTrace) <= decMat.keyringTrace
 
-      /* Raw AES Keyring specific */
+      /* Raw AES Keyring specification */
       // Iff set a plaintextDataKey, the appropriate trace is also added
       ensures old(decMat.plaintextDataKey).None? && decMat.plaintextDataKey.Some? ==> (
         |decMat.keyringTrace| == |old(decMat.keyringTrace)| + 1 &&
