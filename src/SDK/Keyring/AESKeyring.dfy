@@ -58,7 +58,7 @@ module AESKeyringDef {
       res := StringToByteSeq(keyName) +
              UInt32ToSeq(wrappingAlgorithm.tagLen as uint32 * 8) + // tag length in bits
              UInt32ToSeq(wrappingAlgorithm.ivLen as uint32) + // IV length in bytes
-            iv;
+             iv;
 
       StringByteSeqCorrect(keyName);
       assert res[0..|keyName|] == StringToByteSeq(keyName);
