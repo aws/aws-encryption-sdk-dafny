@@ -1,20 +1,20 @@
 include "../SDK/AlgorithmSuite.dfy"
 include "../StandardLibrary/StandardLibrary.dfy"
-include "EncryptionAlgorithms.dfy"
+include "EncryptionSuites.dfy"
 include "GenBytes.dfy"
 
 module {:extern "AESEncryption"} AESEncryption {
-  import EncryptionAlgorithms
+  import EncryptionSuites
   import opened StandardLibrary
   import opened UInt = StandardLibrary.UInt
 
   export
-    provides AESDecrypt, AESEncrypt, EncryptionAlgorithms, StandardLibrary, UInt
+    provides AESDecrypt, AESEncrypt, EncryptionSuites, StandardLibrary, UInt
     reveals EncryptionOutput
 
   datatype EncryptionOutput = EncryptionOutput(cipherText: seq<uint8>, authTag: seq<uint8>)
 
-  function method EncryptionArtifactFromByteSeq(s: seq<uint8>, encAlg: EncryptionAlgorithms.EncryptionAlgorithm): (encArt: EncryptionOutput)
+  function method EncryptionArtifactFromByteSeq(s: seq<uint8>, encAlg: EncryptionSuites.EncryptionSuite): (encArt: EncryptionOutput)
     requires encAlg.Valid()
     requires |s| >= encAlg.tagLen as int
     ensures |encArt.cipherText + encArt.authTag| == |s|
@@ -23,7 +23,7 @@ module {:extern "AESEncryption"} AESEncryption {
     EncryptionOutput(s[.. |s| - encAlg.tagLen as int], s[|s| - encAlg.tagLen as int ..])
   }
 
-  method {:extern "AESEncryption.AES_GCM", "AESEncrypt"} AESEncrypt(encAlg: EncryptionAlgorithms.EncryptionAlgorithm, iv: seq<uint8>, key: seq<uint8>, msg: seq<uint8>, aad: seq<uint8>)
+  method {:extern "AESEncryption.AES_GCM", "AESEncrypt"} AESEncrypt(encAlg: EncryptionSuites.EncryptionSuite, iv: seq<uint8>, key: seq<uint8>, msg: seq<uint8>, aad: seq<uint8>)
       returns (res : Result<EncryptionOutput>)
     requires encAlg.Valid()
     requires encAlg.alg.AES?
@@ -32,7 +32,7 @@ module {:extern "AESEncryption"} AESEncryption {
     requires |key| == encAlg.keyLen as int
     ensures res.Success? ==> |res.value.authTag| == encAlg.tagLen as int
 
-  method {:extern "AESEncryption.AES_GCM", "AESDecrypt"} AESDecrypt(encAlg: EncryptionAlgorithms.EncryptionAlgorithm, key: seq<uint8>, cipherTxt: seq<uint8>, authTag: seq<uint8>, iv: seq<uint8>, aad: seq<uint8>)
+  method {:extern "AESEncryption.AES_GCM", "AESDecrypt"} AESDecrypt(encAlg: EncryptionSuites.EncryptionSuite, key: seq<uint8>, cipherTxt: seq<uint8>, authTag: seq<uint8>, iv: seq<uint8>, aad: seq<uint8>)
       returns (res: Result<seq<uint8>>)
     requires encAlg.Valid()
     requires encAlg.alg.AES?

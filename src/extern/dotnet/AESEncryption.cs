@@ -12,7 +12,7 @@ namespace AESEncryption {
     //TODO This code has yet to be reviewed. See issue #36
     public partial class AES_GCM {
 
-        public static STL.Result<EncryptionOutput> AESEncrypt(EncryptionAlgorithms.EncryptionAlgorithm encAlg,
+        public static STL.Result<EncryptionOutput> AESEncrypt(EncryptionSuites.EncryptionSuite encAlg,
                                                       byteseq iv,
                                                       byteseq key,
                                                       byteseq msg,
@@ -32,7 +32,7 @@ namespace AESEncryption {
             }
         }
 
-        public static STL.Result<byteseq> AESDecrypt(EncryptionAlgorithms.EncryptionAlgorithm encAlg, byteseq key, byteseq cipherText, byteseq authTag, byteseq iv, byteseq aad) {
+        public static STL.Result<byteseq> AESDecrypt(EncryptionSuites.EncryptionSuite encAlg, byteseq key, byteseq cipherText, byteseq authTag, byteseq iv, byteseq aad) {
             try {
                 var cipher = new GcmBlockCipher(new AesEngine());
                 var param = new AeadParameters(new KeyParameter(key.Elements), encAlg.tagLen * 8, iv.Elements, aad.Elements);
