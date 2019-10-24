@@ -61,16 +61,12 @@ module AESKeyringDef {
         iv
     }
 
-    method OnEncrypt(encMat: Mat.EncryptionMaterials) returns (res: Result<Mat.EncryptionMaterials>)
-      requires encMat.Valid()
+    method OnEncrypt(encMat: Mat.ValidEncryptionMaterialsInput) returns (res: Result<Mat.ValidEncryptionMaterialsOutput>)
       requires Valid()
-      modifies encMat`plaintextDataKey
-      modifies encMat`encryptedDataKeys
       ensures Valid()
       ensures unchanged(Repr)
-      ensures res.Success? ==> res.value.Valid() && res.value == encMat
-      ensures res.Success? && old(encMat.plaintextDataKey.Some?) ==> res.value.plaintextDataKey == old(encMat.plaintextDataKey)
-      ensures res.Failure? ==> unchanged(encMat)
+      ensures res.Success? ==> encMat.algorithmSuiteID == res.value.algorithmSuiteID
+      ensures res.Success? && encMat.plaintextDataKey.Some? ==> res.value.plaintextDataKey == encMat.plaintextDataKey.get
     {
       var dataKey := encMat.plaintextDataKey;
       if dataKey.None? {
@@ -83,9 +79,11 @@ module AESKeyringDef {
       if encryptResult.Failure? { return Failure("Error on encrypt!"); }
       var providerInfo := SerializeProviderInto(iv);
       var edk := Mat.EncryptedDataKey(keyNamespace, providerInfo, encryptResult.value);
-      encMat.plaintextDataKey := dataKey;
-      encMat.encryptedDataKeys := encMat.encryptedDataKeys + [edk];
-      return Success(encMat);
+      var emo := Mat.EncryptionMaterialsOutput(encMat.algorithmSuiteID, dataKey.get, [edk], None);
+      if !emo.Valid() {
+        return Failure("Could not retrieve materials required for encryption");
+      }
+      return Success(emo);
     }
 
     predicate method ValidProviderInfo(info: seq<uint8>)
