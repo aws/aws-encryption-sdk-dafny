@@ -39,6 +39,7 @@ module Materials {
       (plaintextDataKey.None? || algorithmSuiteID.ValidPlaintextDataKey(plaintextDataKey.get))
     }
   }
+  type ValidEncryptionMaterialsInput = i: EncryptionMaterialsInput | i.Valid() witness EncryptionMaterialsInput(0x0014, [], None)
 
   datatype EncryptionMaterialsOutput = EncryptionMaterialsOutput(
     algorithmSuiteID: AlgorithmSuite.ID,
@@ -52,6 +53,7 @@ module Materials {
       algorithmSuiteID.SignatureType().Some? ==> signingKey.Some?
     }
   }
+  type ValidEncryptionMaterialsOutput = i: EncryptionMaterialsOutput | i.Valid() witness EncryptionMaterialsOutput(0x0014, [], [], None)
 
   // TODO: Add keyring trace
   class DecryptionMaterials {

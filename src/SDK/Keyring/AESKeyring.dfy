@@ -61,11 +61,10 @@ module AESKeyringDef {
         iv
     }
 
-    method OnEncrypt(encMat: Mat.EncryptionMaterialsInput) returns (res: Result<Mat.EncryptionMaterialsOutput>)
-      requires encMat.Valid()
+    method OnEncrypt(encMat: Mat.ValidEncryptionMaterialsInput) returns (res: Result<Mat.ValidEncryptionMaterialsOutput>)
       requires Valid()
       ensures Valid()
-      ensures res.Success? ==> res.value.Valid() && encMat.algorithmSuiteID == res.value.algorithmSuiteID
+      ensures res.Success? ==> encMat.algorithmSuiteID == res.value.algorithmSuiteID
       ensures res.Success? && encMat.plaintextDataKey.Some? ==> res.value.plaintextDataKey == encMat.plaintextDataKey.get
     {
       var dataKey := encMat.plaintextDataKey;

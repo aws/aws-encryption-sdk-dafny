@@ -35,7 +35,7 @@ module DefaultCMMDef {
       Repr := {this, kr} + k.Repr;
     }
 
-    method GetEncryptionMaterials(ec: Materials.EncryptionContext, alg_id: Option<AlgorithmSuite.ID>, pt_len: Option<nat>) returns (res: Result<Materials.EncryptionMaterialsOutput>)
+    method GetEncryptionMaterials(ec: Materials.EncryptionContext, alg_id: Option<AlgorithmSuite.ID>, pt_len: Option<nat>) returns (res: Result<Materials.ValidEncryptionMaterialsOutput>)
       requires Valid()
       ensures Valid()
       ensures res.Success? ==> res.value.Valid()

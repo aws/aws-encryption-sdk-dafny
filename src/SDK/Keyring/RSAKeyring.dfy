@@ -51,11 +51,10 @@ module RSAKeyringDef {
       Repr := {this};
     }
 
-    method OnEncrypt(encMat: Materials.EncryptionMaterialsInput) returns (res: Result<Materials.EncryptionMaterialsOutput>)
+    method OnEncrypt(encMat: Materials.ValidEncryptionMaterialsInput) returns (res: Result<Materials.ValidEncryptionMaterialsOutput>)
       requires Valid()
-      requires encMat.Valid()
       ensures Valid()
-      ensures res.Success? ==> res.value.Valid() && encMat.algorithmSuiteID == res.value.algorithmSuiteID
+      ensures res.Success? ==> encMat.algorithmSuiteID == res.value.algorithmSuiteID
       ensures res.Success? && encMat.plaintextDataKey.Some? ==> res.value.plaintextDataKey == encMat.plaintextDataKey.get
     {
       if encryptionKey.None? {

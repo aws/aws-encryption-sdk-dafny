@@ -15,10 +15,9 @@ module CMMDefs {
     method GetEncryptionMaterials(encCtx: Materials.EncryptionContext,
                                   algSuiteID: Option<AlgorithmSuite.ID>,
                                   plaintextLen: Option<nat>)
-                                  returns (res: Result<Materials.EncryptionMaterialsOutput>)
+                                  returns (res: Result<Materials.ValidEncryptionMaterialsOutput>)
       requires Valid()
       ensures Valid()
-      ensures res.Success? ==> res.value.Valid()
 
     method DecryptMaterials(algSuiteID: AlgorithmSuite.ID,
                             edks: seq<Materials.EncryptedDataKey>,
