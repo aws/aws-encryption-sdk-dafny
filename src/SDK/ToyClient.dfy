@@ -69,6 +69,8 @@ module ToyClientDef {
     method Encrypt(pt: seq<uint8>, ec: Materials.EncryptionContext) returns (res: Result<Encryption>)
       requires Valid()
       ensures Valid()
+      ensures res.Success? ==> |res.value.authTag| == ALGORITHM.tagLen as int
+      ensures res.Success? ==> |res.value.iv| == ALGORITHM.ivLen as int
     {
       var em :- GetEncMaterials(ec);
       if |em.plaintextDataKey.get| != 32 {

@@ -15,6 +15,7 @@ SRCS = \
 	   src/Crypto/Random.dfy \
 	   src/Crypto/RSAEncryption.dfy \
 	   src/Crypto/Signature.dfy \
+	   src/Main.dfy \
 	   src/SDK/AlgorithmSuite.dfy \
 	   src/SDK/CMM/DefaultCMM.dfy \
 	   src/SDK/CMM/Defs.dfy \
