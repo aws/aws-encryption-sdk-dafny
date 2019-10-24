@@ -64,29 +64,23 @@ module MultiKeyringDef {
                 (r !! s[0].Repr) && DisjointReprsRec(r + s[0].Repr, s[1..])
         }
 
-        method OnEncryptRec(encMat : Mat.EncryptionMaterials, i : int) returns (res: Result<Mat.EncryptionMaterials>)
+        method OnEncryptRec(input : Mat.ValidEncryptionMaterialsInput, output : seq<Mat.EncryptedDataKey>, i : int) returns (res: Result<seq<Mat.EncryptedDataKey>>)
             requires Valid()
             requires 0 <= i <= |children|
-            requires encMat.Valid()
-            modifies encMat`plaintextDataKey
-            modifies encMat`encryptedDataKeys
             ensures Valid()
             ensures forall i :: 0 <= i < |children| ==> children[i].Valid()
-            ensures res.Success? ==> res.value.Valid() && res.value == encMat
-            ensures res.Success? && old(encMat.plaintextDataKey.Some?) ==> res.value.plaintextDataKey == old(encMat.plaintextDataKey)
-            //ensures res.Success? ==> res.value.algorithmSuiteID == encMat.algorithmSuiteID
             decreases |children| - i
         {
             if i == |children| {
-                return Success(encMat);
+                return Success(output);
             }
             else {
-                var y := children[i].OnEncrypt(encMat);
+                var y := children[i].OnEncrypt(input);
                 assert generator != null ==> unchanged(generator);
                 assert (generator != null ==> generator in Repr  && generator.Repr <= Repr && generator.Valid());
                 match y {
                     case Success(r) => {
-                        var a := OnEncryptRec(r, i + 1);
+                        var a := OnEncryptRec(input, output + y.value.encryptedDataKeys, i + 1);
                         return a;
                     }
                     case Failure(e) => {
@@ -97,36 +91,38 @@ module MultiKeyringDef {
             }
         }
 
-        method OnEncrypt(encMat : Mat.EncryptionMaterials) returns (res: Result<Mat.EncryptionMaterials>)
-            requires encMat.Valid()
+        method OnEncrypt(encMat : Mat.ValidEncryptionMaterialsInput) returns (res: Result<Mat.ValidEncryptionMaterialsOutput>)
             requires Valid()
-            modifies encMat`plaintextDataKey
-            modifies encMat`encryptedDataKeys
             ensures Valid()
-            ensures res.Success? ==> res.value.Valid() && res.value == encMat
-            ensures res.Success? && old(encMat.plaintextDataKey.Some?) ==> res.value.plaintextDataKey == old(encMat.plaintextDataKey)
-            // ensures res.Failure? ==> unchanged(encMat)
-            //ensures res.Success? ==> res.value.algorithmSuiteID == encMat.algorithmSuiteID
+            ensures unchanged(Repr)
+            ensures res.Success? ==> encMat.algorithmSuiteID == res.value.algorithmSuiteID
+            ensures res.Success? && encMat.plaintextDataKey.Some? ==> res.value.plaintextDataKey == encMat.plaintextDataKey.get
         {
-            var r := encMat;
+            var pdk := encMat.plaintextDataKey;
             if generator != null {
                 var res := generator.OnEncrypt(encMat);
                 match res {
-                    case Success(a) => { r := a; }
-                    case Failure(e) => {return Failure(e); }
+                    case Success(a) => { pdk := Some(a.plaintextDataKey); }
+                    case Failure(e) => { return Failure(e); }
                 }
             }
-            if r.plaintextDataKey.None? {
+            if pdk.None? {
                 return Failure("Bad state: data key not found");
             }
-            res := OnEncryptRec(r, 0);
+            var edksResult := OnEncryptRec(encMat, [], 0);
+            res := match edksResult {
+                case Success(edks) => {
+                    var output := Mat.EncryptionMaterialsOutput(encMat.algorithmSuiteID, pdk.get, edks, None);
+                    if output.Valid() then Success(output) else Failure("What do??")
+                }
+                case Failure(error) => Failure("What do??")
+            };
         }
 
         method OnDecryptRec(decMat : Mat.DecryptionMaterials, edks : seq<Mat.EncryptedDataKey>, i : int) returns (res : Result<Mat.DecryptionMaterials>)
             requires 0 <= i <= |children|
             requires Valid()
             requires decMat.Valid()
-            modifies decMat`plaintextDataKey
             ensures decMat.Valid()
             ensures |edks| == 0 ==> res.Success? && unchanged(decMat)
             ensures old(decMat.plaintextDataKey.Some?) ==> res.Success? && unchanged(decMat)
@@ -156,7 +152,6 @@ module MultiKeyringDef {
         method OnDecrypt(decMat : Mat.DecryptionMaterials, edks : seq<Mat.EncryptedDataKey>) returns (res : Result<Mat.DecryptionMaterials>)
             requires Valid()
             requires decMat.Valid()
-            modifies decMat`plaintextDataKey
             ensures Valid()
             ensures decMat.Valid()
             ensures |edks| == 0 ==> res.Success? && unchanged(decMat)
