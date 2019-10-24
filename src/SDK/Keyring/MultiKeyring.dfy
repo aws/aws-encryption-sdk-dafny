@@ -110,13 +110,17 @@ module MultiKeyringDef {
                 return Failure("Bad state: data key not found");
             }
             var edksResult := OnEncryptRec(encMat, [], 0);
-            res := match edksResult {
+            match edksResult {
                 case Success(edks) => {
                     var output := Mat.EncryptionMaterialsOutput(encMat.algorithmSuiteID, pdk.get, edks, None);
-                    if output.Valid() then Success(output) else Failure("What do??")
+                    if output.Valid() {
+                        return Success(output);
+                    } else {
+                        return Failure("multi ondecrypt Failure");
+                    }
                 }
-                case Failure(error) => Failure("What do??")
-            };
+                case Failure(error) => {return Failure("multi ondecrypt Failure");} // TODO: percolate Failureors through like in C version
+            }
         }
 
         method OnDecryptRec(decMat : Mat.DecryptionMaterials, edks : seq<Mat.EncryptedDataKey>, i : int) returns (res : Result<Mat.DecryptionMaterials>)
