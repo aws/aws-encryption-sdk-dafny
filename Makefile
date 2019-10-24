@@ -10,7 +10,7 @@ endif
 # SRCS = $(foreach dir, $(SRCDIRS), $(wildcard $(dir)/*.dfy))
 SRCS = \
 	   src/Crypto/AESEncryption.dfy \
-	   src/Crypto/Cipher.dfy \
+	   src/Crypto/EncryptionSuites.dfy \
 	   src/Crypto/Digests.dfy \
 	   src/Crypto/Random.dfy \
 	   src/Crypto/RSAEncryption.dfy \

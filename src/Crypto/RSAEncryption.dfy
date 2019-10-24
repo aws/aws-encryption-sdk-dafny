@@ -1,8 +1,7 @@
 include "../StandardLibrary/StandardLibrary.dfy"
-include "Cipher.dfy"
 
+//This code must be reviewed, see #18
 module {:extern "RSAEncryption"} RSAEncryption {
-    import C = Cipher
     import opened StandardLibrary
     import opened UInt = StandardLibrary.UInt
 
