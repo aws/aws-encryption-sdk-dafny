@@ -51,14 +51,12 @@ module RSAKeyringDef {
       Repr := {this};
     }
 
-    method OnEncrypt(encMat: Materials.EncryptionMaterials) returns (res: Result<Materials.EncryptionMaterials>)
+    method OnEncrypt(encMat: Materials.EncryptionMaterialsInput) returns (res: Result<Materials.EncryptionMaterialsOutput>)
       requires Valid()
       requires encMat.Valid()
-      modifies encMat`plaintextDataKey, encMat`encryptedDataKeys
       ensures Valid()
-      ensures res.Success? ==> res.value.Valid() && res.value == encMat
-      ensures res.Success? && old(encMat.plaintextDataKey.Some?) ==> res.value.plaintextDataKey == old(encMat.plaintextDataKey)
-      ensures res.Failure? ==> unchanged(encMat)
+      ensures res.Success? ==> res.value.Valid() && encMat.algorithmSuiteID == res.value.algorithmSuiteID
+      ensures res.Success? && encMat.plaintextDataKey.Some? ==> res.value.plaintextDataKey == encMat.plaintextDataKey.get
     {
       if encryptionKey.None? {
         return Failure("Encryption key undefined");
@@ -75,9 +73,11 @@ module RSAKeyringDef {
           return Failure("Error on encrypt!");
         }
         var edk := Materials.EncryptedDataKey(ByteSeqToString(keyNamespace), keyName, edkCiphertext.get);
-        encMat.encryptedDataKeys := [edk] + encMat.encryptedDataKeys;
-        encMat.plaintextDataKey := dataKey;
-        return Success(encMat);
+        var emo := Materials.EncryptionMaterialsOutput(encMat.algorithmSuiteID, dataKey.get, [edk], None);
+        if !emo.Valid() {
+          return Failure("Could not retrieve materials required for encryption");
+        }
+        return Success(emo);
       }
     }
 

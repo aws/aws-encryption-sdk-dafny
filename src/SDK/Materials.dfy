@@ -30,65 +30,26 @@ module Materials {
   }
 
   // TODO: Add keyring trace
-  class EncryptionMaterials {
-    var algorithmSuiteID: AlgorithmSuite.ID
-    var encryptedDataKeys: seq<EncryptedDataKey>
-    var encryptionContext: EncryptionContext
-    var plaintextDataKey: Option<seq<uint8>>
-    var signingKey: Option<seq<uint8>>
+  datatype EncryptionMaterialsInput = EncryptionMaterialsInput(
+    algorithmSuiteID: AlgorithmSuite.ID,
+    encryptionContext: EncryptionContext,
+    plaintextDataKey: Option<seq<uint8>>) {
 
-    predicate Valid()
-      reads this
-    {
-      (|encryptedDataKeys| > 0 ==> plaintextDataKey.Some?) &&
-      (plaintextDataKey.None? || ValidPlaintextDataKey(plaintextDataKey.get))
+    predicate Valid() {
+      (plaintextDataKey.None? || algorithmSuiteID.ValidPlaintextDataKey(plaintextDataKey.get))
     }
+  }
 
-    predicate ValidPlaintextDataKey(pdk: seq<uint8>)
-      reads this
-    {
-      |pdk| == this.algorithmSuiteID.KeyLength()
-    }
+  datatype EncryptionMaterialsOutput = EncryptionMaterialsOutput(
+    algorithmSuiteID: AlgorithmSuite.ID,
+    plaintextDataKey: seq<uint8>,
+    encryptedDataKeys: seq<EncryptedDataKey>,
+    signingKey: Option<seq<uint8>>) {
 
-    constructor(algorithmSuiteID: AlgorithmSuite.ID,
-                encryptedDataKeys: seq<EncryptedDataKey>,
-                encryptionContext: EncryptionContext,
-                plaintextDataKey: Option<seq<uint8>>,
-                signingKey: Option<seq<uint8>>)
-      requires |encryptedDataKeys| > 0 ==> plaintextDataKey.Some?
-      requires plaintextDataKey.None? || |plaintextDataKey.get| == algorithmSuiteID.KeyLength()
-      ensures Valid()
-      ensures this.algorithmSuiteID == algorithmSuiteID
-      ensures this.encryptedDataKeys == encryptedDataKeys
-      ensures this.encryptionContext == encryptionContext
-      ensures this.plaintextDataKey == plaintextDataKey
-    {
-      this.algorithmSuiteID := algorithmSuiteID;
-      this.encryptedDataKeys := encryptedDataKeys;
-      this.encryptionContext := encryptionContext;
-      this.plaintextDataKey := plaintextDataKey;
-      this.signingKey := signingKey;
-    }
-
-    method SetPlaintextDataKey(dataKey: seq<uint8>)
-      requires Valid()
-      requires plaintextDataKey.None?
-      requires |dataKey| == algorithmSuiteID.KeyLength()
-      modifies `plaintextDataKey
-      ensures Valid()
-      ensures plaintextDataKey == Some(dataKey)
-    {
-      plaintextDataKey := Some(dataKey);
-    }
-
-    method AppendEncryptedDataKey(edk: EncryptedDataKey)
-      requires Valid()
-      requires plaintextDataKey.Some?
-      modifies `encryptedDataKeys
-      ensures Valid()
-      ensures encryptedDataKeys == old(encryptedDataKeys) + [edk]
-    {
-      encryptedDataKeys := encryptedDataKeys + [edk]; // TODO: Determine if this is a performance issue
+    predicate method Valid() {
+      algorithmSuiteID.ValidPlaintextDataKey(plaintextDataKey) &&
+      |encryptedDataKeys| > 0 &&
+      algorithmSuiteID.SignatureType().Some? ==> signingKey.Some?
     }
   }
 
@@ -99,23 +60,15 @@ module Materials {
     var plaintextDataKey: Option<seq<uint8>>
     var verificationKey: Option<seq<uint8>>
 
-    predicate Valid()
-      reads this
-    {
-      plaintextDataKey.None? || ValidPlaintextDataKey(plaintextDataKey.get)
-    }
-
-    predicate ValidPlaintextDataKey(pdk: seq<uint8>)
-      reads this
-    {
-      |pdk| == this.algorithmSuiteID.KeyLength()
+    predicate Valid() reads this {
+      plaintextDataKey.None? || algorithmSuiteID.ValidPlaintextDataKey(plaintextDataKey.get)
     }
 
     constructor(algorithmSuiteID: AlgorithmSuite.ID,
                 encryptionContext: EncryptionContext,
                 plaintextDataKey: Option<seq<uint8>>,
                 verificationKey: Option<seq<uint8>>)
-      requires plaintextDataKey.None? || |plaintextDataKey.get| == algorithmSuiteID.KeyLength()
+      requires plaintextDataKey.None? || algorithmSuiteID.ValidPlaintextDataKey(plaintextDataKey.get)
       ensures Valid()
       ensures this.algorithmSuiteID == algorithmSuiteID
       ensures this.encryptionContext == encryptionContext

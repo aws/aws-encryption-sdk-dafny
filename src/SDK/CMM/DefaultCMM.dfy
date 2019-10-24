@@ -35,14 +35,10 @@ module DefaultCMMDef {
       Repr := {this, kr} + k.Repr;
     }
 
-    method GetEncryptionMaterials(ec: Materials.EncryptionContext, alg_id: Option<AlgorithmSuite.ID>, pt_len: Option<nat>) returns (res: Result<Materials.EncryptionMaterials>)
+    method GetEncryptionMaterials(ec: Materials.EncryptionContext, alg_id: Option<AlgorithmSuite.ID>, pt_len: Option<nat>) returns (res: Result<Materials.EncryptionMaterialsOutput>)
       requires Valid()
       ensures Valid()
-      ensures res.Success? ==> res.value.Valid() &&
-                               res.value.plaintextDataKey.Some? && 
-                               |res.value.plaintextDataKey.get| == res.value.algorithmSuiteID.KeyLength() &&
-                               |res.value.encryptedDataKeys| > 0
-      ensures res.Success? && res.value.algorithmSuiteID.SignatureType().Some? ==> res.value.signingKey.Some?
+      ensures res.Success? ==> res.value.Valid()
 
     {
       var id := if alg_id.Some? then alg_id.get else AlgorithmSuite.AES_256_GCM_IV12_TAG16_HKDF_SHA384_ECDSA_P384;
@@ -60,17 +56,13 @@ module DefaultCMMDef {
               enc_ec := [(Materials.EC_PUBLIC_KEY_FIELD, StringToByteSeq(Base64.Encode(ab.1)))] + enc_ec;
       }
 
-      var in_enc_mat := new Materials.EncryptionMaterials(id, [], enc_ec, None, enc_sk);
+      var in_enc_mat := Materials.EncryptionMaterialsInput(id, enc_ec, None);
       var em :- kr.OnEncrypt(in_enc_mat);
 
-      if em.plaintextDataKey.None? ||
-         |em.plaintextDataKey.get| != em.algorithmSuiteID.KeyLength() ||
-         |em.encryptedDataKeys| == 0 ||
-         (em.algorithmSuiteID.SignatureType().Some? && em.signingKey.None?)
-      {
+      if !em.Valid() {
         return Failure("Could not retrieve materials required for encryption");
       }
-      return Success(em);
+      return Success(Materials.EncryptionMaterialsOutput(id, em.plaintextDataKey, em.encryptedDataKeys, enc_sk));
     }
 
     method DecryptMaterials(alg_id: AlgorithmSuite.ID, edks: seq<Materials.EncryptedDataKey>, enc_ctx: Materials.EncryptionContext) returns (res: Result<Materials.DecryptionMaterials>)

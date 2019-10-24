@@ -29,6 +29,10 @@ module AlgorithmSuite {
     function method SignatureType(): Option<S.ECDSAParams> {
       Suite[this].sign
     }
+
+    predicate method ValidPlaintextDataKey(pdk: seq<uint8>) {
+      |pdk| == KeyLength()
+    }
   }
 
   const AES_256_GCM_IV12_TAG16_HKDF_SHA384_ECDSA_P384: ID := 0x0378

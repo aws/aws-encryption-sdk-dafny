@@ -9,14 +9,12 @@ module KeyringDefs {
     ghost var Repr : set<object>
     predicate Valid() reads this, Repr
 
-    method OnEncrypt(encMat: Materials.EncryptionMaterials) returns (res: Result<Materials.EncryptionMaterials>)
+    method OnEncrypt(encMat: Materials.EncryptionMaterialsInput) returns (res: Result<Materials.EncryptionMaterialsOutput>)
       requires Valid()
       requires encMat.Valid()
-      modifies encMat`plaintextDataKey, encMat`encryptedDataKeys
       ensures Valid()
-      ensures res.Success? ==> res.value.Valid() && res.value == encMat
-      ensures res.Success? && old(encMat.plaintextDataKey.Some?) ==> res.value.plaintextDataKey == old(encMat.plaintextDataKey)
-      ensures res.Failure? ==> unchanged(encMat)
+      ensures res.Success? ==> res.value.Valid() && encMat.algorithmSuiteID == res.value.algorithmSuiteID
+      ensures res.Success? && encMat.plaintextDataKey.Some? ==> res.value.plaintextDataKey == encMat.plaintextDataKey.get
       // TODO: keyring trace GENERATED_DATA_KEY flag assurance
       // TODO: keyring trace ENCRYPTED_DATA_KEY flag assurance
 

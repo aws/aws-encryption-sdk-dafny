@@ -15,14 +15,10 @@ module CMMDefs {
     method GetEncryptionMaterials(encCtx: Materials.EncryptionContext,
                                   algSuiteID: Option<AlgorithmSuite.ID>,
                                   plaintextLen: Option<nat>)
-                                  returns (res: Result<Materials.EncryptionMaterials>)
+                                  returns (res: Result<Materials.EncryptionMaterialsOutput>)
       requires Valid()
       ensures Valid()
-      ensures res.Success? ==> res.value.Valid() &&
-                               res.value.plaintextDataKey.Some? && 
-                               |res.value.plaintextDataKey.get| == res.value.algorithmSuiteID.KeyLength() &&
-                               |res.value.encryptedDataKeys| > 0
-      ensures res.Success? && res.value.algorithmSuiteID.SignatureType().Some? ==> res.value.signingKey.Some?
+      ensures res.Success? ==> res.value.Valid()
 
     method DecryptMaterials(algSuiteID: AlgorithmSuite.ID,
                             edks: seq<Materials.EncryptedDataKey>,
