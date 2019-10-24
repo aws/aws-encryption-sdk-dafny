@@ -46,7 +46,7 @@ module ToyClientDef {
       Repr := {this, cmm} + cmm.Repr;
     }
 
-    method GetEncMaterials(ec: Materials.EncryptionContext) returns (res: Result<Materials.EncryptionMaterialsOutput>)
+    method GetEncMaterials(ec: Materials.EncryptionContext) returns (res: Result<Materials.ValidEncryptionMaterialsOutput>)
       requires Valid()
       ensures Valid()
       ensures res.Success? ==> res.value.algorithmSuiteID == AlgorithmSuite.AES_256_GCM_IV12_TAG16_HKDF_SHA384_ECDSA_P384

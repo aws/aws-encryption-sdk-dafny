@@ -57,10 +57,6 @@ module DefaultCMMDef {
 
       var in_enc_mat := Materials.EncryptionMaterialsInput(id, enc_ec, None);
       var em :- kr.OnEncrypt(in_enc_mat);
-
-      if !em.Valid() {
-        return Failure("Could not retrieve materials required for encryption");
-      }
       return Success(Materials.EncryptionMaterialsOutput(id, em.plaintextDataKey, em.encryptedDataKeys, enc_sk));
     }
 

@@ -78,11 +78,11 @@ module AESKeyringDef {
       if encryptResult.Failure? { return Failure("Error on encrypt!"); }
       var providerInfo := SerializeProviderInto(iv);
       var edk := Mat.EncryptedDataKey(keyNamespace, providerInfo, encryptResult.value);
-      var emo := Mat.EncryptionMaterialsOutput(encMat.algorithmSuiteID, dataKey.get, [edk], None);
-      if !emo.Valid() {
+      var encMatOutput := Mat.EncryptionMaterialsOutput(encMat.algorithmSuiteID, dataKey.get, [edk], None);
+      if !encMatOutput.Valid() {
         return Failure("Could not retrieve materials required for encryption");
       }
-      return Success(emo);
+      return Success(encMatOutput);
     }
 
     predicate method ValidProviderInfo(info: seq<uint8>)
