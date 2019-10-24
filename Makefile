@@ -20,9 +20,9 @@ SRCS = \
 	   src/SDK/CMM/DefaultCMM.dfy \
 	   src/SDK/CMM/Defs.dfy \
 	   src/SDK/Deserialize.dfy \
-	   src/SDK/Keyring/AESKeyring.dfy \
+	   src/SDK/Keyring/RawAESKeyring.dfy \
 	   src/SDK/Keyring/Defs.dfy \
-	   src/SDK/Keyring/RSAKeyring.dfy \
+	   src/SDK/Keyring/RawRSAKeyring.dfy \
 	   src/SDK/Materials.dfy \
 	   src/SDK/MessageHeader.dfy \
 	   src/SDK/Serialize.dfy \
