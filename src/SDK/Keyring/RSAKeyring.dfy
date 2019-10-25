@@ -73,11 +73,11 @@ module RSAKeyringDef {
           return Failure("Error on encrypt!");
         }
         var edk := Materials.EncryptedDataKey(ByteSeqToString(keyNamespace), keyName, edkCiphertext.get);
-        var emo := Materials.EncryptionMaterialsOutput(encMat.algorithmSuiteID, dataKey.get, [edk], None);
-        if !emo.Valid() {
+        var encMatOutput := Materials.EncryptionMaterialsOutput(encMat.algorithmSuiteID, dataKey.get, [edk], None);
+        if !encMatOutput.Valid() {
           return Failure("Could not retrieve materials required for encryption");
         }
-        return Success(emo);
+        return Success(encMatOutput);
       }
     }
 

@@ -38,7 +38,6 @@ module DefaultCMMDef {
     method GetEncryptionMaterials(ec: Materials.EncryptionContext, alg_id: Option<AlgorithmSuite.ID>, pt_len: Option<nat>) returns (res: Result<Materials.ValidEncryptionMaterialsOutput>)
       requires Valid()
       ensures Valid()
-      ensures res.Success? ==> res.value.Valid()
 
     {
       var id := if alg_id.Some? then alg_id.get else AlgorithmSuite.AES_256_GCM_IV12_TAG16_HKDF_SHA384_ECDSA_P384;
@@ -58,10 +57,6 @@ module DefaultCMMDef {
 
       var in_enc_mat := Materials.EncryptionMaterialsInput(id, enc_ec, None);
       var em :- kr.OnEncrypt(in_enc_mat);
-
-      if !em.Valid() {
-        return Failure("Could not retrieve materials required for encryption");
-      }
       return Success(Materials.EncryptionMaterialsOutput(id, em.plaintextDataKey, em.encryptedDataKeys, enc_sk));
     }
 
