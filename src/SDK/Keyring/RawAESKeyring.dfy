@@ -7,7 +7,7 @@ include "../../Crypto/Random.dfy"
 include "../../Crypto/AESEncryption.dfy"
 include "../Materials.dfy"
 
-module AESKeyring{
+module RawAESKeyring{
   import opened StandardLibrary
   import opened UInt = StandardLibrary.UInt
   import AESEncryption
@@ -21,7 +21,7 @@ module AESKeyring{
   const IV_LEN_LEN       := 4;
   const VALID_ALGORITHMS := {EncryptionSuites.AES_GCM_128, EncryptionSuites.AES_GCM_192, EncryptionSuites.AES_GCM_256}
 
-  class AESKeyring extends KeyringDefs.Keyring {
+  class RawAESKeyring extends KeyringDefs.Keyring {
     const keyNamespace: string
     const keyName: string
     const wrappingKey: seq<uint8>
