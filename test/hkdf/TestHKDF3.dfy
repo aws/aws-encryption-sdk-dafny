@@ -27,7 +27,7 @@ module TestHKDF3 {
                                  0xbf, 0x36, 0x9f, 0x39, 0x4c, 0xfa, 0xb4, 0x36, 0x85, 0xf7, 0x48,
                                  0xb6, 0x45, 0x77, 0x63, 0xe4, 0xf0, 0x20, 0x4f, 0xc5 ];
 
-    var okm := hkdf(HmacSHA384, tv_salt, tv_ikm, tv_info, 42);
+    var okm := hkdf(HmacSHA384, Some(tv_salt), tv_ikm, tv_info, 42);
     if okm[..] == tv_okm_desired[..] {
       print "EQUAL\n";
     } else {

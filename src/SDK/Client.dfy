@@ -111,12 +111,11 @@ module ESDKClient {
       return plaintextDataKey;
     }
 
-    var salt := new [0];
     var inputKeyMaterials := SeqToArray(plaintextDataKey);
     var infoSeq := UInt16ToSeq(algorithmSuiteID as uint16) + messageID;
     var info := SeqToArray(infoSeq);
     var len := algorithmSuiteID.KeyLength();
-    var derivedKey := HKDF.hkdf(whichSHA, salt, inputKeyMaterials, info, len);
+    var derivedKey := HKDF.hkdf(whichSHA, None, inputKeyMaterials, info, len);
     return derivedKey[..];
   }
 }

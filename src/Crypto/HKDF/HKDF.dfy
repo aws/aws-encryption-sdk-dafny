@@ -98,14 +98,15 @@ module HKDF {
   /**
    * The RFC 5869 KDF. Outputs L bytes of output key material.
    **/
-  method hkdf(which_sha: HMAC_ALGORITHM, salt: array<uint8>, ikm: array<uint8>, info: array<uint8>, L: int) returns (okm: array<uint8>)
+  method hkdf(which_sha: HMAC_ALGORITHM, salt: Option<array<uint8>>, ikm: array<uint8>, info: array<uint8>, L: int) returns (okm: array<uint8>)
     requires which_sha == HmacSHA256 || which_sha == HmacSHA384
     requires 0 <= L <= 255 * HashLength(which_sha)
+    requires salt.None? || salt.get.Length != 0
     ensures fresh(okm)
     ensures okm.Length == L
     ensures
       // Extract:
-      var prk := Hash(which_sha, if salt.Length==0 then Fill(0, HashLength(which_sha)) else salt[..], ikm[..]);
+      var prk := Hash(which_sha, if salt.None? then Fill(0, HashLength(which_sha)) else salt.get[..], ikm[..]);
       // Expand:
       okm[..L] == TMaxLength(which_sha, prk, info[..])[..L]
   {
@@ -115,12 +116,13 @@ module HKDF {
     var hmac := new HMac(which_sha);
 
     var saltNonEmpty: array<uint8>;
-    if salt.Length != 0 {
-      saltNonEmpty := salt;
-    } else {
-      saltNonEmpty := new uint8[hmac.getMacSize()](_ => 0);
+    match salt {
+      case None =>
+        saltNonEmpty := new uint8[hmac.getMacSize()](_ => 0);
+      case Some(s) =>
+        saltNonEmpty := s;
     }
-    assert saltNonEmpty[..] == if salt.Length==0 then Fill(0, hmac.getMacSize()) else salt[..]; // nfv
+    assert saltNonEmpty[..] == if salt.None? then Fill(0, hmac.getMacSize()) else salt.get[..]; // nfv
 
     var n := 1 + (L-1) / hmac.getMacSize();  // note, since L and HMAC_SIZE are strictly positive, this gives the same result in Java as in Dafny
     assert n * hmac.getMacSize() >= L;
