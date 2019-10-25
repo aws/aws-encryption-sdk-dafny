@@ -18,6 +18,12 @@ module AlgorithmSuite {
       Suite[this].params.keyLen as nat
     }
 
+    function method KDFInputKeyLength(): nat
+      ensures Suite[this].hkdf == Digests.HmacNOSHA ==> KDFInputKeyLength() == KeyLength()
+    {
+      KeyLength()
+    }
+
     function method IVLength(): nat {
       Suite[this].params.ivLen as nat
     }

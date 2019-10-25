@@ -75,7 +75,7 @@ module AESKeyringDef {
     {
       var dataKey := encMat.plaintextDataKey;
       if dataKey.None? {
-        var k := Random.GenerateBytes(encMat.algorithmSuiteID.KeyLength() as int32);
+        var k := Random.GenerateBytes(encMat.algorithmSuiteID.KDFInputKeyLength() as int32);
         dataKey := Some(k);
       }
       var iv := Random.GenerateBytes(wrappingAlgorithm.ivLen as int32);
@@ -131,7 +131,7 @@ module AESKeyringDef {
           var decryptResult := AESEncryption.AES.aes_decrypt(wrappingAlgorithm, wrappingKey, edks[i].ciphertext, iv, flatEncCtx);
           if decryptResult.Success? {
             var ptKey := decryptResult.value;
-            if |ptKey| == decMat.algorithmSuiteID.KeyLength() { // check for correct key length
+            if |ptKey| == decMat.algorithmSuiteID.KDFInputKeyLength() { // check for correct key length
               decMat.plaintextDataKey := Some(ptKey);
               return Success(decMat);
             }

@@ -69,7 +69,7 @@ module RSAKeyringDef {
         var dataKey := encMat.plaintextDataKey;
         var algorithmID := encMat.algorithmSuiteID;
         if dataKey.None? {
-          var k := Random.GenerateBytes(algorithmID.KeyLength() as int32);
+          var k := Random.GenerateBytes(algorithmID.KDFInputKeyLength() as int32);
           dataKey := Some(k);
         }
         var aad := Materials.FlattenSortEncCtx(encMat.encryptionContext);
@@ -117,7 +117,7 @@ module RSAKeyringDef {
           case None =>
             // continue with the next EDK
           case Some(k) =>
-            if |k| == decMat.algorithmSuiteID.KeyLength() { // check for correct key length
+            if |k| == decMat.algorithmSuiteID.KDFInputKeyLength() { // check for correct key length
               decMat.plaintextDataKey := Some(k);
               return Success(decMat);
             } else {

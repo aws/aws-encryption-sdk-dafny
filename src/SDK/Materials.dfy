@@ -48,7 +48,7 @@ module Materials {
     predicate ValidPlaintextDataKey(pdk: seq<uint8>)
       reads this
     {
-      |pdk| == this.algorithmSuiteID.KeyLength()
+      |pdk| == this.algorithmSuiteID.KDFInputKeyLength()
     }
 
     constructor(algorithmSuiteID: AlgorithmSuite.ID,
@@ -58,7 +58,7 @@ module Materials {
                 signingKey: Option<seq<uint8>>)
       requires |encryptedDataKeys| > 0 ==> plaintextDataKey.Some?
       requires forall i :: 0 <= i < |encryptedDataKeys| ==> encryptedDataKeys[i].Valid()
-      requires plaintextDataKey.None? || |plaintextDataKey.get| == algorithmSuiteID.KeyLength()
+      requires plaintextDataKey.None? || |plaintextDataKey.get| == algorithmSuiteID.KDFInputKeyLength()
       ensures Valid()
       ensures this.algorithmSuiteID == algorithmSuiteID
       ensures this.encryptedDataKeys == encryptedDataKeys
@@ -76,7 +76,7 @@ module Materials {
     method SetPlaintextDataKey(dataKey: seq<uint8>)
       requires Valid()
       requires plaintextDataKey.None?
-      requires |dataKey| == algorithmSuiteID.KeyLength()
+      requires |dataKey| == algorithmSuiteID.KDFInputKeyLength()
       modifies `plaintextDataKey
       ensures Valid()
       ensures plaintextDataKey == Some(dataKey)
@@ -111,14 +111,14 @@ module Materials {
     predicate ValidPlaintextDataKey(pdk: seq<uint8>)
       reads this
     {
-      |pdk| == this.algorithmSuiteID.KeyLength()
+      |pdk| == this.algorithmSuiteID.KDFInputKeyLength()
     }
 
     constructor(algorithmSuiteID: AlgorithmSuite.ID,
                 encryptionContext: EncryptionContext,
                 plaintextDataKey: Option<seq<uint8>>,
                 verificationKey: Option<seq<uint8>>)
-      requires plaintextDataKey.None? || |plaintextDataKey.get| == algorithmSuiteID.KeyLength()
+      requires plaintextDataKey.None? || |plaintextDataKey.get| == algorithmSuiteID.KDFInputKeyLength()
       ensures Valid()
       ensures this.algorithmSuiteID == algorithmSuiteID
       ensures this.encryptionContext == encryptionContext
@@ -134,7 +134,7 @@ module Materials {
     method setPlaintextDataKey(dataKey: seq<uint8>)
       requires Valid()
       requires plaintextDataKey.None?
-      requires |dataKey| == algorithmSuiteID.KeyLength()
+      requires |dataKey| == algorithmSuiteID.KDFInputKeyLength()
       modifies `plaintextDataKey
       ensures Valid()
       ensures plaintextDataKey == Some(dataKey)

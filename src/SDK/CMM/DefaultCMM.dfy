@@ -40,7 +40,7 @@ module DefaultCMMDef {
       ensures Valid()
       ensures res.Success? ==> res.value.Valid() &&
                                res.value.plaintextDataKey.Some? && 
-                               |res.value.plaintextDataKey.get| == res.value.algorithmSuiteID.KeyLength() &&
+                               |res.value.plaintextDataKey.get| == res.value.algorithmSuiteID.KDFInputKeyLength() &&
                                |res.value.encryptedDataKeys| > 0
       ensures res.Success? ==>
         match res.value.algorithmSuiteID.SignatureType()
@@ -68,7 +68,7 @@ module DefaultCMMDef {
       var em :- kr.OnEncrypt(in_enc_mat);
 
       if em.plaintextDataKey.None? ||
-         |em.plaintextDataKey.get| != em.algorithmSuiteID.KeyLength() ||
+         |em.plaintextDataKey.get| != em.algorithmSuiteID.KDFInputKeyLength() ||
          |em.encryptedDataKeys| == 0 ||
          (em.algorithmSuiteID.SignatureType().Some? && em.signingKey.None?)
       {
