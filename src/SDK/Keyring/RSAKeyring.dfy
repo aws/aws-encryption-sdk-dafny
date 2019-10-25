@@ -51,33 +51,33 @@ module RSAKeyringDef {
       Repr := {this};
     }
 
-    method OnEncrypt(encMat: Materials.ValidEncryptionMaterialsInput) returns (res: Result<Materials.ValidEncryptionMaterialsOutput>)
+    method OnEncrypt(encMat: Materials.ValidEncryptionMaterialsInput) returns (res: Result<Option<Materials.ValidDataKey>>)
       requires Valid()
       ensures Valid()
       ensures unchanged(Repr)
-      ensures res.Success? ==> encMat.algorithmSuiteID == res.value.algorithmSuiteID
-      ensures res.Success? && encMat.plaintextDataKey.Some? ==> res.value.plaintextDataKey == encMat.plaintextDataKey.get
+      ensures res.Success? && res.value.Some? ==> 
+        encMat.algorithmSuiteID == res.value.get.algorithmSuiteID
+      ensures res.Success? && res.value.Some? ==> 
+        (encMat.plaintextDataKey.Some? ==> encMat.plaintextDataKey.get == res.value.get.plaintextDataKey)
     {
       if encryptionKey.None? {
         return Failure("Encryption key undefined");
       } else {
-        var dataKey := encMat.plaintextDataKey;
+        var plaintextDataKey := encMat.plaintextDataKey;
         var algorithmID := encMat.algorithmSuiteID;
-        if dataKey.None? {
+        if plaintextDataKey.None? {
           var k := Random.GenerateBytes(algorithmID.KeyLength() as int32);
-          dataKey := Some(k);
+          plaintextDataKey := Some(k);
         }
         var aad := Materials.FlattenSortEncCtx(encMat.encryptionContext);
-        var edkCiphertext := RSA.RSA.RSAEncrypt(bitLength, paddingMode, encryptionKey.get, dataKey.get);
+        var edkCiphertext := RSA.RSA.RSAEncrypt(bitLength, paddingMode, encryptionKey.get, plaintextDataKey.get);
         if edkCiphertext.None? {
           return Failure("Error on encrypt!");
         }
         var edk := Materials.EncryptedDataKey(ByteSeqToString(keyNamespace), keyName, edkCiphertext.get);
-        var emo := Materials.EncryptionMaterialsOutput(encMat.algorithmSuiteID, dataKey.get, [edk], None);
-        if !emo.Valid() {
-          return Failure("Could not retrieve materials required for encryption");
-        }
-        return Success(emo);
+        var dataKey := Materials.DataKey(encMat.algorithmSuiteID, plaintextDataKey.get, [edk]);
+        assert dataKey.algorithmSuiteID.ValidPlaintextDataKey(dataKey.plaintextDataKey);
+        return Success(Some(dataKey));
       }
     }
 

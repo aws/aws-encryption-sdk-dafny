@@ -49,10 +49,10 @@ module ToyClientDef {
     method GetEncMaterials(ec: Materials.EncryptionContext) returns (res: Result<Materials.EncryptionMaterialsOutput>)
       requires Valid()
       ensures Valid()
-      ensures res.Success? ==> res.value.algorithmSuiteID == AlgorithmSuite.AES_256_GCM_IV12_TAG16_HKDF_SHA384_ECDSA_P384
+      ensures res.Success? ==> res.value.dataKey.algorithmSuiteID == AlgorithmSuite.AES_256_GCM_IV12_TAG16_HKDF_SHA384_ECDSA_P384
     {
       var r :- cmm.GetEncryptionMaterials(ec, None, None);
-      if r.algorithmSuiteID != AlgorithmSuite.AES_256_GCM_IV12_TAG16_HKDF_SHA384_ECDSA_P384 {
+      if r.dataKey.algorithmSuiteID != AlgorithmSuite.AES_256_GCM_IV12_TAG16_HKDF_SHA384_ECDSA_P384 {
         return Failure("bad alg id");
       }
       return Success(r);
@@ -63,11 +63,12 @@ module ToyClientDef {
       ensures Valid()
     {
       var em :- GetEncMaterials(ec);
-      if |em.plaintextDataKey| != 32 {
+      // TODO-RS: Why are we dynamically checking this? It should be impossible to fail
+      if |em.dataKey.plaintextDataKey| != 32 {
         return Failure("bad data key length");
       }
-      var ciphertext :- AESEncryption.AES.AESEncrypt(Cipher.AES_GCM_256, em.plaintextDataKey, pt, []);
-      return Success(Encryption(ec, em.encryptedDataKeys, ciphertext));
+      var ciphertext :- AESEncryption.AES.AESEncrypt(Cipher.AES_GCM_256, em.dataKey.plaintextDataKey, pt, []);
+      return Success(Encryption(ec, em.dataKey.encryptedDataKeys, ciphertext));
     }
 
     method Decrypt(e: Encryption) returns (res: Result<seq<uint8>>)

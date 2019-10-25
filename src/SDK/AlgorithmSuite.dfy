@@ -30,8 +30,8 @@ module AlgorithmSuite {
       Suite[this].sign
     }
 
-    predicate method ValidPlaintextDataKey(pdk: seq<uint8>) {
-      |pdk| == KeyLength()
+    predicate method ValidPlaintextDataKey(plaintextDataKey: seq<uint8>) {
+      |plaintextDataKey| == KeyLength()
     }
   }
 

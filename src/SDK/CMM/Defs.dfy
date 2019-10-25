@@ -18,6 +18,7 @@ module CMMDefs {
                                   returns (res: Result<Materials.ValidEncryptionMaterialsOutput>)
       requires Valid()
       ensures Valid()
+      ensures res.Success? && algSuiteID.Some? ==> res.value.dataKey.algorithmSuiteID == algSuiteID.get
 
     method DecryptMaterials(algSuiteID: AlgorithmSuite.ID,
                             edks: seq<Materials.EncryptedDataKey>,

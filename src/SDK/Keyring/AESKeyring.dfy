@@ -61,29 +61,29 @@ module AESKeyringDef {
         iv
     }
 
-    method OnEncrypt(encMat: Mat.ValidEncryptionMaterialsInput) returns (res: Result<Mat.ValidEncryptionMaterialsOutput>)
+    method OnEncrypt(encMat: Mat.ValidEncryptionMaterialsInput) returns (res: Result<Option<Mat.ValidDataKey>>)
       requires Valid()
       ensures Valid()
       ensures unchanged(Repr)
-      ensures res.Success? ==> encMat.algorithmSuiteID == res.value.algorithmSuiteID
-      ensures res.Success? && encMat.plaintextDataKey.Some? ==> res.value.plaintextDataKey == encMat.plaintextDataKey.get
+      ensures res.Success? && res.value.Some? ==> 
+        encMat.algorithmSuiteID == res.value.get.algorithmSuiteID
+      ensures res.Success? && res.value.Some? ==> 
+        (encMat.plaintextDataKey.Some? ==> encMat.plaintextDataKey.get == res.value.get.plaintextDataKey)
     {
-      var dataKey := encMat.plaintextDataKey;
-      if dataKey.None? {
+      var plaintextDataKey := encMat.plaintextDataKey;
+      if plaintextDataKey.None? {
         var k := Random.GenerateBytes(encMat.algorithmSuiteID.KeyLength() as int32);
-        dataKey := Some(k);
+        plaintextDataKey := Some(k);
       }
       var iv := Random.GenerateBytes(wrappingAlgorithm.ivLen as int32);
       var aad := Mat.FlattenSortEncCtx(encMat.encryptionContext);
-      var encryptResult := AESEncryption.AES.aes_encrypt(wrappingAlgorithm, iv, wrappingKey, dataKey.get, aad);
+      var encryptResult := AESEncryption.AES.aes_encrypt(wrappingAlgorithm, iv, wrappingKey, plaintextDataKey.get, aad);
       if encryptResult.Failure? { return Failure("Error on encrypt!"); }
       var providerInfo := SerializeProviderInto(iv);
       var edk := Mat.EncryptedDataKey(keyNamespace, providerInfo, encryptResult.value);
-      var emo := Mat.EncryptionMaterialsOutput(encMat.algorithmSuiteID, dataKey.get, [edk], None);
-      if !emo.Valid() {
-        return Failure("Could not retrieve materials required for encryption");
-      }
-      return Success(emo);
+      var dataKey := Mat.DataKey(encMat.algorithmSuiteID, plaintextDataKey.get, [edk]);
+      assert dataKey.algorithmSuiteID.ValidPlaintextDataKey(dataKey.plaintextDataKey);
+      return Success(Some(dataKey));
     }
 
     predicate method ValidProviderInfo(info: seq<uint8>)
