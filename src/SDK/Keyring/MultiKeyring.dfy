@@ -30,6 +30,7 @@ module MultiKeyringDef {
         constructor (g : Keyring?, c : seq<Keyring>) ensures generator == g ensures children == c
             requires g != null ==> g.Valid()
             requires forall i :: 0 <= i < |c| ==> (c[i].Valid() && g !in c[i].Repr)
+            requires DisjointReprsRec({}, ChildKeyrings(g, c))
             ensures Valid()
         {
             generator := g;
@@ -43,18 +44,18 @@ module MultiKeyringDef {
             (generator != null ==> generator in Repr  && generator.Repr <= Repr && generator.Valid())  &&
             (forall j :: 0 <= j < |children| ==> children[j] in Repr && children[j].Repr <= Repr && children[j].Valid()) &&
             Repr == ReprDefn() &&
-            DisjointReprsRec({}, ChildKeyrings())
+            DisjointReprsRec({}, ChildKeyrings(generator, children))
         }
 
-        function ChildKeyrings(): seq<Keyring> reads generator, children {
-            (if generator != null then [generator] else []) + children
+        static function ChildKeyrings(g: Keyring?, c: seq<Keyring>): seq<Keyring> {
+            (if g != null then [g] else []) + c
         }
 
         function ReprDefn(): set<object> reads this, generator, children {
             {this} + (if generator != null then {generator} + generator.Repr else {}) + childrenRepr(children[..])
         }
 
-        predicate DisjointReprsRec(r: set<object>, s: seq<Keyring>) 
+        static predicate DisjointReprsRec(r: set<object>, s: seq<Keyring>) 
                 reads r, s, set i,o | 0 <= i < |s| && o in s[i].Repr :: o
                 decreases |s|
         {
@@ -113,6 +114,8 @@ module MultiKeyringDef {
             requires 0 <= i <= |children|
             requires Valid()
             requires decMat.Valid()
+            requires decMat !in Repr
+            modifies decMat`plaintextDataKey
             ensures decMat.Valid()
             ensures |edks| == 0 ==> res.Success? && unchanged(decMat)
             ensures old(decMat.plaintextDataKey.Some?) ==> res.Success? && unchanged(decMat)
@@ -142,6 +145,8 @@ module MultiKeyringDef {
         method OnDecrypt(decMat : Mat.DecryptionMaterials, edks : seq<Mat.EncryptedDataKey>) returns (res : Result<Mat.DecryptionMaterials>)
             requires Valid()
             requires decMat.Valid()
+            requires decMat !in Repr
+            modifies decMat`plaintextDataKey
             ensures Valid()
             ensures decMat.Valid()
             ensures |edks| == 0 ==> res.Success? && unchanged(decMat)

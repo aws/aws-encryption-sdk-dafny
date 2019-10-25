@@ -103,6 +103,7 @@ module AESKeyringDef {
     method OnDecrypt(decMat: Mat.DecryptionMaterials, edks: seq<Mat.EncryptedDataKey>) returns (res: Result<Mat.DecryptionMaterials>)
       requires Valid() 
       requires decMat.Valid()
+      requires decMat !in Repr
       modifies decMat`plaintextDataKey
       ensures Valid()
       ensures decMat.Valid()

@@ -84,6 +84,7 @@ module RSAKeyringDef {
     method OnDecrypt(decMat: Materials.DecryptionMaterials, edks: seq<Materials.EncryptedDataKey>) returns (res: Result<Materials.DecryptionMaterials>)
       requires Valid()
       requires decMat.Valid()
+      requires decMat !in Repr
       modifies decMat`plaintextDataKey
       ensures Valid()
       ensures decMat.Valid()
