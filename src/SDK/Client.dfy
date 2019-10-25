@@ -68,9 +68,8 @@ module ESDKClient {
     var unauthenticatedHeader := wr.data;
 
     var iv: seq<uint8> := seq(encMat.algorithmSuiteID.IVLength(), _ => 0);
-    var pair :- MessageBody.Encrypt(encMat.algorithmSuiteID, iv, derivedDataKey, [], unauthenticatedHeader);
-    assert |pair.0| == 0;
-    var headerAuthentication := Msg.HeaderAuthentication(iv, pair.1);
+    var authenticationTag :- AuthTag(encMat.algorithmSuiteID, iv, derivedDataKey, unauthenticatedHeader);
+    var headerAuthentication := Msg.HeaderAuthentication(iv, authenticationTag);
     var _ :- Serialize.SerializeHeaderAuthentication(wr, headerAuthentication, encMat.algorithmSuiteID);
 
     /*
@@ -117,5 +116,21 @@ module ESDKClient {
     var len := algorithmSuiteID.KeyLength();
     var derivedKey := HKDF.hkdf(whichSHA, None, inputKeyMaterials, info, len);
     return derivedKey[..];
+  }
+
+  method AuthTag(algorithmSuiteID: AlgorithmSuite.ID, iv: seq<uint8>, key: seq<uint8>, aad: seq<uint8>) returns (res: Result<seq<uint8>>)
+    requires |iv| == algorithmSuiteID.IVLength()
+    requires |key| == algorithmSuiteID.KeyLength()
+    ensures match res
+      case Success(authTag) =>
+        |authTag| == algorithmSuiteID.TagLength()
+      case Failure(_) => true
+  {
+    var cipher := AlgorithmSuite.Suite[algorithmSuiteID].params;
+    var bytes :- AESEncryption.AES.aes_encrypt(cipher, iv, key, [], aad);
+    if |bytes| != algorithmSuiteID.TagLength() {
+      return Failure("unexpected AES encryption result");
+    }
+    return Success(bytes);
   }
 }
