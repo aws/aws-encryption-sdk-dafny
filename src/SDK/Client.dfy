@@ -126,11 +126,8 @@ module ESDKClient {
         |authTag| == algorithmSuiteID.TagLength()
       case Failure(_) => true
   {
-    var cipher := AlgorithmSuite.Suite[algorithmSuiteID].params;
-    var bytes :- AESEncryption.AES.aes_encrypt(cipher, iv, key, [], aad);
-    if |bytes| != algorithmSuiteID.TagLength() {
-      return Failure("unexpected AES encryption result");
-    }
-    return Success(bytes);
+    var cipher := AlgorithmSuite.Suite[algorithmSuiteID].algorithm;
+    var encryptionOutput :- AESEncryption.AESEncrypt(cipher, iv, key, [], aad);
+    return Success(encryptionOutput.authTag);
   }
 }

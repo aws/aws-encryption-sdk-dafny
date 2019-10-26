@@ -1,11 +1,12 @@
 include "SDK/ToyClient.dfy"
-include "SDK/Keyring/RSAKeyring.dfy"
+include "SDK/Keyring/RawRSAKeyring.dfy"
 include "SDK/Materials.dfy"
 include "StandardLibrary/StandardLibrary.dfy"
 include "StandardLibrary/UInt.dfy"
 include "SDK/CMM/DefaultCMM.dfy"
 include "SDK/Client.dfy"
 include "SDK/MessageHeader.dfy"
+include "Crypto/RSAEncryption.dfy"
 
 module Main {
   import opened StandardLibrary
@@ -13,7 +14,7 @@ module Main {
   import DefaultCMMDef
   import Client = ToyClientDef
   import RSAEncryption
-  import RSAKeyringDef
+  import RawRSAKeyringDef
   import Materials
   import ESDKClient
   import Msg = MessageHeader
@@ -42,7 +43,7 @@ module Main {
     var namespace := "namespace";
     var name := StringToByteSeq("MyKeyring");
     var ek, dk := RSAEncryption.RSA.RSAKeygen(2048, RSAEncryption.PKCS1);
-    var keyring := new RSAKeyringDef.RSAKeyring(namespace, name, RSAEncryption.RSAPaddingMode.PKCS1, 2048, Some(ek), Some(dk));
+    var keyring := new RawRSAKeyringDef.RawRSAKeyring(namespace, name, RSAEncryption.RSAPaddingMode.PKCS1, 2048, Some(ek), Some(dk));
     var cmm := new DefaultCMMDef.DefaultCMM.OfKeyring(keyring);
 
     assert Msg.ValidAAD([]) by {

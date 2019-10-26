@@ -63,9 +63,8 @@ module MessageBody {
     var contentAAD := BODY_AAD_CONTENT_REGULAR_FRAME;
     var aad := messageID + contentAAD + seqNumSeq + UInt64ToSeq(|plaintext| as uint64);
 
-    var pair :- Encrypt(algorithmSuiteID, iv, key, plaintext, aad);
-    var (encryptedContents, authTag) := pair;
-    unauthenticatedFrame := unauthenticatedFrame + encryptedContents + authTag;
+    var encryptionOutput :- Encrypt(algorithmSuiteID, iv, key, plaintext, aad);
+    unauthenticatedFrame := unauthenticatedFrame + encryptionOutput.cipherText + encryptionOutput.authTag;
 
     return Success(unauthenticatedFrame);
   }
@@ -92,28 +91,23 @@ module MessageBody {
     var contentAAD := BODY_AAD_CONTENT_FINAL_FRAME;
     var aad := messageID + contentAAD + seqNumSeq + UInt64ToSeq(|plaintext| as uint64);
 
-    var pair :- Encrypt(algorithmSuiteID, iv, key, plaintext, aad);
-    var (encryptedContents, authTag) := pair;
-    unauthenticatedFrame := unauthenticatedFrame + encryptedContents + authTag;
+    var encryptionOutput :- Encrypt(algorithmSuiteID, iv, key, plaintext, aad);
+    unauthenticatedFrame := unauthenticatedFrame + encryptionOutput.cipherText + encryptionOutput.authTag;
 
     return Success(unauthenticatedFrame);
   }
 
-  method Encrypt(algorithmSuiteID: AlgorithmSuite.ID, iv: seq<uint8>, key: seq<uint8>, plaintext: seq<uint8>, aad: seq<uint8>) returns (res: Result<(seq<uint8>,seq<uint8>)>)
+  method Encrypt(algorithmSuiteID: AlgorithmSuite.ID, iv: seq<uint8>, key: seq<uint8>, plaintext: seq<uint8>, aad: seq<uint8>) returns (res: Result<AESEncryption.EncryptionOutput>)
     requires |iv| == algorithmSuiteID.IVLength()
     requires |key| == algorithmSuiteID.KeyLength()
     ensures match res
-      case Success((ciphertext, authTag)) =>
-        |ciphertext| == |plaintext| &&
-        |authTag| == algorithmSuiteID.TagLength()
+      case Success(encryptionOutput) =>
+        |encryptionOutput.cipherText| == |plaintext| &&
+        |encryptionOutput.authTag| == algorithmSuiteID.TagLength()
       case Failure(_) => true
   {
-    var cipher := AlgorithmSuite.Suite[algorithmSuiteID].params;
-    var bytes :- AESEncryption.AES.aes_encrypt(cipher, iv, key, plaintext, aad);
-    var n := |plaintext|;
-    if |bytes| != n + algorithmSuiteID.TagLength() {
-      return Failure("unexpected AES encryption result");
-    }
-    return Success((bytes[..n], bytes[n..]));
+    var cipher := AlgorithmSuite.Suite[algorithmSuiteID].algorithm;
+    var encryptionOutput :- AESEncryption.AESEncrypt(cipher, iv, key, plaintext, aad);
+    return Success(encryptionOutput);
   }
 }

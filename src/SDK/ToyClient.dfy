@@ -6,6 +6,8 @@ include "CMM/DefaultCMM.dfy"
 include "Keyring/Defs.dfy"
 include "AlgorithmSuite.dfy"
 include "../Crypto/AESEncryption.dfy"
+include "../Crypto/EncryptionSuites.dfy"
+include "../Crypto/Random.dfy"
 
 module ToyClientDef {
   import opened StandardLibrary
@@ -14,11 +16,14 @@ module ToyClientDef {
   import CMMDefs
   import DefaultCMMDef
   import KeyringDefs
+  import Random
   import AlgorithmSuite
   import AESEncryption
-  import Cipher
+  import EncryptionSuites
 
-  datatype Encryption = Encryption(ec: Materials.EncryptionContext, edks: seq<Materials.EncryptedDataKey>, ctxt: seq<uint8>)
+  datatype Encryption = Encryption(ec: Materials.EncryptionContext, edks: seq<Materials.EncryptedDataKey>, iv: seq<uint8>, ctxt: seq<uint8>, authTag: seq<uint8>)
+
+  const ALGORITHM := EncryptionSuites.AES_GCM_256
 
   class Client {
     var cmm: CMMDefs.CMM
@@ -64,17 +69,22 @@ module ToyClientDef {
     method Encrypt(pt: seq<uint8>, ec: Materials.EncryptionContext) returns (res: Result<Encryption>)
       requires Valid()
       ensures Valid()
+      ensures res.Success? ==> |res.value.authTag| == ALGORITHM.tagLen as int
+      ensures res.Success? ==> |res.value.iv| == ALGORITHM.ivLen as int
     {
       var em :- GetEncMaterials(ec);
       if |em.plaintextDataKey.get| != 32 {
         return Failure("bad data key length");
       }
-      var ciphertext :- AESEncryption.AES.AESEncrypt(Cipher.AES_GCM_256, em.plaintextDataKey.get, pt, []);
-      return Success(Encryption(em.encryptionContext, em.encryptedDataKeys, ciphertext));
+      var iv := Random.GenerateBytes(ALGORITHM.ivLen as int32);
+      var ciphertext :- AESEncryption.AESEncrypt(ALGORITHM, iv ,em.plaintextDataKey.get, pt, []);
+      return Success(Encryption(em.encryptionContext, em.encryptedDataKeys, iv, ciphertext.cipherText, ciphertext.authTag));
     }
 
     method Decrypt(e: Encryption) returns (res: Result<seq<uint8>>)
       requires Valid()
+      requires ALGORITHM.tagLen as int == |e.authTag|
+      requires ALGORITHM.ivLen as int == |e.iv|
       ensures Valid()
     {
       if |e.edks| == 0 {
@@ -83,8 +93,8 @@ module ToyClientDef {
       var decmat :- cmm.DecryptMaterials(AlgorithmSuite.AES_256_GCM_IV12_TAG16_HKDF_SHA384_ECDSA_P384, e.edks, e.ec);
       match decmat.plaintextDataKey
       case Some(dk) =>
-        if |dk| == 32 && |e.ctxt| > 12 {
-          var msg := AESEncryption.AES.AESDecrypt(Cipher.AES_GCM_256, dk, [], e.ctxt);
+        if |dk| == 32 {
+          var msg := AESEncryption.AESDecrypt(ALGORITHM, dk, e.ctxt, e.authTag, e.iv, []);
           return msg;
         } else {
           return Failure("bad dk");

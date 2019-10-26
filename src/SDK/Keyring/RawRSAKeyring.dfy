@@ -6,7 +6,7 @@ include "../AlgorithmSuite.dfy"
 include "../../Crypto/Random.dfy"
 include "../../Crypto/RSAEncryption.dfy"
 
-module RSAKeyringDef {
+module RawRSAKeyringDef {
   import opened StandardLibrary
   import opened UInt = StandardLibrary.UInt
   import KeyringDefs
@@ -15,7 +15,7 @@ module RSAKeyringDef {
   import Materials
   import Random
 
-  class RSAKeyring extends KeyringDefs.Keyring {
+  class RawRSAKeyring extends KeyringDefs.Keyring {
     const keyNamespace: string
     const keyName: seq<uint8>
     const paddingMode: RSA.RSAPaddingMode

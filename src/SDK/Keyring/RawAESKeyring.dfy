@@ -2,16 +2,16 @@ include "../../StandardLibrary/StandardLibrary.dfy"
 include "../../StandardLibrary/UInt.dfy"
 include "../AlgorithmSuite.dfy"
 include "./Defs.dfy"
-include "../../Crypto/Cipher.dfy"
+include "../../Crypto/EncryptionSuites.dfy"
 include "../../Crypto/Random.dfy"
 include "../../Crypto/AESEncryption.dfy"
 include "../Materials.dfy"
 
-module AESKeyringDef {
+module RawAESKeyring{
   import opened StandardLibrary
   import opened UInt = StandardLibrary.UInt
+  import EncryptionSuites
   import AlgorithmSuite
-  import Cipher
   import Random
   import KeyringDefs
   import AESEncryption
@@ -19,26 +19,29 @@ module AESKeyringDef {
 
   const AUTH_TAG_LEN_LEN := 4;
   const IV_LEN_LEN       := 4;
+  const VALID_ALGORITHMS := {EncryptionSuites.AES_GCM_128, EncryptionSuites.AES_GCM_192, EncryptionSuites.AES_GCM_256}
 
-  class AESKeyring extends KeyringDefs.Keyring {
+  class RawAESKeyring extends KeyringDefs.Keyring {
     const keyNamespace: string
     const keyName: string
     const wrappingKey: seq<uint8>
-    const wrappingAlgorithm: Cipher.CipherParams
+    const wrappingAlgorithm: EncryptionSuites.EncryptionSuite
 
     predicate Valid() reads this {
         Repr == {this} &&
-        (|wrappingKey| == Cipher.KeyLengthOfCipher(wrappingAlgorithm)) &&
-        (wrappingAlgorithm in {Cipher.AES_GCM_128, Cipher.AES_GCM_192, Cipher.AES_GCM_256}) &&
+        |wrappingKey| == wrappingAlgorithm.keyLen as int &&
+        wrappingAlgorithm in VALID_ALGORITHMS &&
+        wrappingAlgorithm.Valid() &&
         StringIs8Bit(keyNamespace) && StringIs8Bit(keyName) &&
         |keyNamespace| < UINT16_LIMIT
     }
 
-    constructor(namespace: string, name: string, key: seq<uint8>, wrappingAlg: Cipher.CipherParams)
+    constructor(namespace: string, name: string, key: seq<uint8>, wrappingAlg: EncryptionSuites.EncryptionSuite)
     requires StringIs8Bit(namespace) && StringIs8Bit(name)
     requires |namespace| < UINT16_LIMIT
-    requires wrappingAlg in {Cipher.AES_GCM_128, Cipher.AES_GCM_192, Cipher.AES_GCM_256}
-    requires |key| == Cipher.KeyLengthOfCipher(wrappingAlg)
+    requires wrappingAlg in VALID_ALGORITHMS
+    requires wrappingAlg.Valid()
+    requires |key| == wrappingAlg.keyLen as int
     ensures keyNamespace == namespace
     ensures keyName == name
     ensures wrappingKey == key
@@ -73,24 +76,27 @@ module AESKeyringDef {
       ensures res.Success? && old(encMat.plaintextDataKey.Some?) ==> res.value.plaintextDataKey == old(encMat.plaintextDataKey)
       ensures res.Failure? ==> unchanged(encMat)
     {
-      var dataKey := encMat.plaintextDataKey;
-      if dataKey.None? {
-        var k := Random.GenerateBytes(encMat.algorithmSuiteID.KDFInputKeyLength() as int32);
-        dataKey := Some(k);
+      var dataKey;
+      if encMat.plaintextDataKey.Some? {
+        dataKey := encMat.plaintextDataKey.get;
+      } else {
+        dataKey := Random.GenerateBytes(encMat.algorithmSuiteID.KDFInputKeyLength() as int32);
       }
       var iv := Random.GenerateBytes(wrappingAlgorithm.ivLen as int32);
       var aad := Mat.FlattenSortEncCtx(encMat.encryptionContext);
-      var encryptResult := AESEncryption.AES.aes_encrypt(wrappingAlgorithm, iv, wrappingKey, dataKey.get, aad);
-      if encryptResult.Failure? { return Failure("Error on encrypt!"); }
+      var encryptResult :- AESEncryption.AESEncrypt(wrappingAlgorithm, iv, wrappingKey, dataKey, aad);
+      var encryptedKey := encryptResult.cipherText + encryptResult.authTag;
       var providerInfo := SerializeProviderInfo(iv);
       if UINT16_LIMIT <= |providerInfo| {
         return Failure("Serialized provider info too long.");
       }
-      if UINT16_LIMIT <= |encryptResult.value| {
+      if UINT16_LIMIT <= |encryptedKey| {
         return Failure("Encrypted data key too long.");
       }
-      var edk := Mat.EncryptedDataKey(keyNamespace, providerInfo, encryptResult.value);
-      encMat.plaintextDataKey := dataKey;
+      var edk := Mat.EncryptedDataKey(keyNamespace, providerInfo, encryptedKey);
+      if encMat.plaintextDataKey.None? {
+        encMat.SetPlaintextDataKey(dataKey);
+      }
       encMat.encryptedDataKeys := encMat.encryptedDataKeys + [edk];
       return Success(encMat);
     }
@@ -124,19 +130,20 @@ module AESKeyringDef {
         return Success(decMat);
       }
       var i := 0;
-      while i < |edks| {
-        if edks[i].providerID == keyNamespace && ValidProviderInfo(edks[i].providerInfo) {
+      while i < |edks|
+        invariant unchanged(decMat)
+      {
+        if edks[i].providerID == keyNamespace && ValidProviderInfo(edks[i].providerInfo) && wrappingAlgorithm.tagLen as int <= |edks[i].ciphertext| {
           var iv := GetIvFromProvInfo(edks[i].providerInfo);
           var flatEncCtx: seq<uint8> := Mat.FlattenSortEncCtx(decMat.encryptionContext);
-          var decryptResult := AESEncryption.AES.aes_decrypt(wrappingAlgorithm, wrappingKey, edks[i].ciphertext, iv, flatEncCtx);
-          if decryptResult.Success? {
-            var ptKey := decryptResult.value;
-            if |ptKey| == decMat.algorithmSuiteID.KDFInputKeyLength() { // check for correct key length
-              decMat.plaintextDataKey := Some(ptKey);
-              return Success(decMat);
-            }
+          //TODO: #68
+          var cipherText, authTag := edks[i].ciphertext[wrappingAlgorithm.tagLen ..], edks[i].ciphertext[.. wrappingAlgorithm.tagLen];
+          var ptKey :- AESEncryption.AESDecrypt(wrappingAlgorithm, wrappingKey, cipherText, authTag, iv, flatEncCtx);
+          if |ptKey| == decMat.algorithmSuiteID.KeyLength() { // check for correct key length
+            decMat.setPlaintextDataKey(ptKey);
+            return Success(decMat);
           } else {
-            return Failure("Decryption failed");
+            return Failure("Decryption failed: bad datakey length.");
           }
         }
         i := i + 1;
