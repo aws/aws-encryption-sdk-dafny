@@ -110,53 +110,9 @@ module Materials {
     witness EncryptionMaterialsOutput(ValidDataKeyWitness(), Some(seq(32, i => 0)))
 
   // TODO: Add keyring trace
-  class DecryptionMaterials {
-    var algorithmSuiteID: AlgorithmSuite.ID
-    var encryptionContext: EncryptionContext
-    var plaintextDataKey: Option<seq<uint8>>
-    var verificationKey: Option<seq<uint8>>
-
-    predicate Valid() reads this {
-      plaintextDataKey.None? || algorithmSuiteID.ValidPlaintextDataKey(plaintextDataKey.get)
-    }
-
-    constructor(algorithmSuiteID: AlgorithmSuite.ID,
-                encryptionContext: EncryptionContext,
-                plaintextDataKey: Option<seq<uint8>>,
-                verificationKey: Option<seq<uint8>>)
-      requires plaintextDataKey.None? || algorithmSuiteID.ValidPlaintextDataKey(plaintextDataKey.get)
-      ensures Valid()
-      ensures this.algorithmSuiteID == algorithmSuiteID
-      ensures this.encryptionContext == encryptionContext
-      ensures this.plaintextDataKey == plaintextDataKey
-      ensures this.verificationKey == verificationKey
-    {
-      this.algorithmSuiteID := algorithmSuiteID;
-      this.encryptionContext := encryptionContext;
-      this.plaintextDataKey := plaintextDataKey;
-      this.verificationKey := verificationKey;
-    }
-
-    method setPlaintextDataKey(dataKey: seq<uint8>)
-      requires Valid()
-      requires plaintextDataKey.None?
-      requires |dataKey| == algorithmSuiteID.KeyLength()
-      modifies `plaintextDataKey
-      ensures Valid()
-      ensures plaintextDataKey == Some(dataKey)
-    {
-      plaintextDataKey := Some(dataKey);
-    }
-
-    method setVerificationKey(verifKey: seq<uint8>)
-    requires Valid()
-    requires verificationKey.None?
-    modifies `verificationKey
-    ensures Valid()
-    ensures verificationKey == Some(verifKey) {
-      verificationKey := Some(verifKey);
-    }
-  }
+  datatype DecryptionMaterialsOutput = DecryptionMaterialsOutput(
+    dataKey: ValidDataKey,
+    verificationKey: Option<seq<uint8>>)
 
     //TODO: Review this code.
     function method naive_merge<T> (x : seq<T>, y : seq<T>, lt : (T, T) -> bool) : seq<T>

@@ -1,9 +1,11 @@
 include "../../StandardLibrary/StandardLibrary.dfy"
 include "../Materials.dfy"
+include "../AlgorithmSuite.dfy"
 
 module KeyringDefs {
   import opened StandardLibrary
   import Materials
+  import AlgorithmSuite
 
   trait {:termination false} Keyring {
     ghost var Repr : set<object>
@@ -17,17 +19,11 @@ module KeyringDefs {
       // TODO: keyring trace GENERATED_DATA_KEY flag assurance
       // TODO: keyring trace ENCRYPTED_DATA_KEY flag assurance
 
-    method OnDecrypt(decMat: Materials.DecryptionMaterials, edks: seq<Materials.EncryptedDataKey>) returns (res: Result<Materials.DecryptionMaterials>)
+    method OnDecrypt(algorithmSuiteID: AlgorithmSuite.ID, encryptionContext: Materials.EncryptionContext, edks: seq<Materials.EncryptedDataKey>)
+      returns (res: Result<Option<Materials.DecryptionMaterialsOutput>>)
       requires Valid()
-      requires decMat.Valid()
-      requires decMat !in Repr
-      modifies decMat`plaintextDataKey
       ensures Valid()
-      ensures decMat.Valid()
-      ensures |edks| == 0 ==> res.Success? && unchanged(decMat)
-      ensures old(decMat.plaintextDataKey.Some?) ==> res.Success? && unchanged(decMat)
-      ensures res.Success? ==> res.value == decMat
-      ensures res.Failure? ==> unchanged(decMat)
+      ensures |edks| == 0 ==> res.Success? && res.value.None?
       // TODO: keyring trace DECRYPTED_DATA_KEY flag assurance
   }
 }
