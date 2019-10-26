@@ -3,6 +3,7 @@ include "../StandardLibrary/UInt.dfy"
 include "MessageHeader.dfy"
 include "AlgorithmSuite.dfy"
 include "../Crypto/AESEncryption.dfy"
+include "../Crypto/EncryptionSuites.dfy"
 
 module MessageBody {
   export
@@ -14,6 +15,7 @@ module MessageBody {
   import AlgorithmSuite
   import Msg = MessageHeader
   import AESEncryption
+  import EncryptionSuites
 
   const BODY_AAD_CONTENT_REGULAR_FRAME := StringToByteSeq("AWSKMSEncryptionClient Frame");
   const BODY_AAD_CONTENT_FINAL_FRAME := StringToByteSeq("AWSKMSEncryptionClient Final Frame");
@@ -63,7 +65,7 @@ module MessageBody {
     var contentAAD := BODY_AAD_CONTENT_REGULAR_FRAME;
     var aad := messageID + contentAAD + seqNumSeq + UInt64ToSeq(|plaintext| as uint64);
 
-    var encryptionOutput :- Encrypt(algorithmSuiteID, iv, key, plaintext, aad);
+    var encryptionOutput :- AESEncryption.AESEncrypt(algorithmSuiteID.Algorithm(), iv, key, plaintext, aad);
     unauthenticatedFrame := unauthenticatedFrame + encryptionOutput.cipherText + encryptionOutput.authTag;
 
     return Success(unauthenticatedFrame);
@@ -91,23 +93,9 @@ module MessageBody {
     var contentAAD := BODY_AAD_CONTENT_FINAL_FRAME;
     var aad := messageID + contentAAD + seqNumSeq + UInt64ToSeq(|plaintext| as uint64);
 
-    var encryptionOutput :- Encrypt(algorithmSuiteID, iv, key, plaintext, aad);
+    var encryptionOutput :- AESEncryption.AESEncrypt(algorithmSuiteID.Algorithm(), iv, key, plaintext, aad);
     unauthenticatedFrame := unauthenticatedFrame + encryptionOutput.cipherText + encryptionOutput.authTag;
 
     return Success(unauthenticatedFrame);
-  }
-
-  method Encrypt(algorithmSuiteID: AlgorithmSuite.ID, iv: seq<uint8>, key: seq<uint8>, plaintext: seq<uint8>, aad: seq<uint8>) returns (res: Result<AESEncryption.EncryptionOutput>)
-    requires |iv| == algorithmSuiteID.IVLength()
-    requires |key| == algorithmSuiteID.KeyLength()
-    ensures match res
-      case Success(encryptionOutput) =>
-        |encryptionOutput.cipherText| == |plaintext| &&
-        |encryptionOutput.authTag| == algorithmSuiteID.TagLength()
-      case Failure(_) => true
-  {
-    var cipher := AlgorithmSuite.Suite[algorithmSuiteID].algorithm;
-    var encryptionOutput :- AESEncryption.AESEncrypt(cipher, iv, key, plaintext, aad);
-    return Success(encryptionOutput);
   }
 }

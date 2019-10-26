@@ -14,6 +14,12 @@ module AlgorithmSuite {
 
   newtype ID = x | x in VALID_IDS witness 0x0014
   {
+    function method Algorithm(): EncryptionSuites.EncryptionSuite
+      ensures Algorithm().Valid()
+    {
+      Suite[this].algorithm
+    }
+
     function method KeyLength(): nat {
       Suite[this].algorithm.keyLen as nat
     }
