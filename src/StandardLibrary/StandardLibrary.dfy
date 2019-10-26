@@ -67,6 +67,8 @@ module {:extern "STL"} StandardLibrary {
     a := new T[|s|](i requires 0 <= i < |s| => s[i]);
   }
 
+  // TODO: The intention is that this function return a UTF8 string. This
+  // should be specified and proved.
   function method {:opaque} StringToByteSeq(s: string): (s': seq<uint8>)
     requires StringIs8Bit(s)
     ensures |s| == |s'| 

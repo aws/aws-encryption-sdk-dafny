@@ -53,11 +53,11 @@ module MessageBody {
     requires |plaintext| == frameLength && sequenceNumber != ENDFRAME_SEQUENCE_NUMBER
     requires 4 <= algorithmSuiteID.IVLength()
   {
-    var seqNumSeq := UInt32ToSeq(sequenceNumber as uint32);
+    var seqNumSeq := UInt32ToSeq(sequenceNumber);
     var unauthenticatedFrame := seqNumSeq;
 
-    var iv: seq<uint8> := seq(algorithmSuiteID.IVLength() - 4, _ => 0) + UInt32ToSeq(sequenceNumber as uint32);
-    assert |iv| == algorithmSuiteID.IVLength();
+    var iv := seq(algorithmSuiteID.IVLength() - 4, _ => 0) + UInt32ToSeq(sequenceNumber);
+    SeqWithUInt32Suffix(iv, sequenceNumber as nat);  // this proves SeqToNat(iv) == sequenceNumber as nat
     unauthenticatedFrame := unauthenticatedFrame + iv;
 
     var contentAAD := BODY_AAD_CONTENT_REGULAR_FRAME;
@@ -79,11 +79,11 @@ module MessageBody {
     requires 4 <= algorithmSuiteID.IVLength()
   {
     var unauthenticatedFrame := UInt32ToSeq(ENDFRAME_SEQUENCE_NUMBER);
-    var seqNumSeq := UInt32ToSeq(sequenceNumber as uint32);
+    var seqNumSeq := UInt32ToSeq(sequenceNumber);
     unauthenticatedFrame := unauthenticatedFrame + seqNumSeq;
 
-    var iv: seq<uint8> := seq(algorithmSuiteID.IVLength() - 4, _ => 0) + UInt32ToSeq(sequenceNumber as uint32);
-    assert |iv| == algorithmSuiteID.IVLength();
+    var iv := seq(algorithmSuiteID.IVLength() - 4, _ => 0) + UInt32ToSeq(sequenceNumber);
+    SeqWithUInt32Suffix(iv, sequenceNumber as nat);  // this proves SeqToNat(iv) == sequenceNumber as nat
     unauthenticatedFrame := unauthenticatedFrame + iv;
 
     unauthenticatedFrame := unauthenticatedFrame + UInt32ToSeq(|plaintext| as uint32);

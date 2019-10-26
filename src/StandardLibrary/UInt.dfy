@@ -81,6 +81,79 @@ module {:extern "STLUInt"} StandardLibrary.UInt {
     x as uint32
   }
 
+  // Here is a generate function for converting any byte sequence to a nat.
+  // The intention is that this function should be "obviously correct".
+  // The SeqWithUInt32Suffix(s, n) lemma below can then be used to establish
+  // SeqToNat(s) == n, provided appropriate conditions hold of s and n.
+  function SeqToNat(s: seq<uint8>): nat {
+    if s == [] then
+      0
+    else
+      var last := |s| - 1;
+      SeqToNat(s[..last]) * 0x100 + s[last] as nat
+  }
+
+  // This lemma says that prepending a 0 to a byte sequence does not change its
+  // SeqToNat value. The lemma is used in the proof of SeqWithUInt32Suffix below.
+  lemma SeqToNatZeroPrefix(s: seq<uint8>)
+    ensures SeqToNat(s) == SeqToNat([0] + s)
+  {
+    if s == [] {
+    } else {
+      var s' := [0] + s;
+      var last := |s| - 1;
+      calc {
+        SeqToNat(s');
+      ==  // def. SeqToNat
+        SeqToNat(s'[..|s|]) * 0x100 + s'[|s|] as nat;
+      ==  { assert s'[..|s|] == [0] + s[..|s|-1] && s'[|s|] == s[last]; }
+        SeqToNat([0] + s[..last]) * 0x100 + s[last] as nat;
+      ==  { SeqToNatZeroPrefix(s[..last]); }
+        SeqToNat(s[..last]) * 0x100 + s[last] as nat;
+      ==  // def. SeqToNat
+        SeqToNat(s);
+      }
+    }
+  }
+
+  // By the following lemma, the condition SeqToNat(s) == n
+  // follows from the conditions in the preconditions.
+  lemma SeqWithUInt32Suffix(s: seq<uint8>, n: nat)
+    requires n < UINT32_LIMIT
+    requires 4 <= |s|
+    requires var but4 := |s| - 4;
+      s[but4..] == UInt32ToSeq(n as uint32) &&
+      forall i :: 0 <= i < but4 ==> s[i] == 0
+    ensures SeqToNat(s) == n
+  {
+    if |s| == 4 {
+      calc {
+        SeqToNat(s);
+      ==
+        SeqToNat(s[..3]) * 0x100 + s[3] as nat;
+      ==  { assert s[..3][..2] == s[..2] && s[..3][2] == s[2]; }
+        (SeqToNat(s[..2])
+          * 0x100 + s[2] as nat)
+          * 0x100 + s[3] as nat;
+      ==  { assert s[..2][..1] == s[..1] && s[..2][1] == s[1]; }
+        ((SeqToNat(s[..1])
+          * 0x100 + s[1] as nat)
+          * 0x100 + s[2] as nat)
+          * 0x100 + s[3] as nat;
+      ==  { assert s[..1][..0] == s[..0] && s[..1][0] == s[0]; }
+        (((SeqToNat(s[..0])
+          * 0x100 + s[0] as nat)
+          * 0x100 + s[1] as nat)
+          * 0x100 + s[2] as nat)
+          * 0x100 + s[3] as nat;
+      }
+    } else {
+      assert s == [0] + s[1..];
+      SeqToNatZeroPrefix(s[1..]);
+      SeqWithUInt32Suffix(s[1..], n);
+    }
+  }
+
   lemma UInt32SeqSerDeser(x: uint32)
     ensures SeqToUInt32(UInt32ToSeq(x)) == x
   {}

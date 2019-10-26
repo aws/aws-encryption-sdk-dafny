@@ -102,8 +102,8 @@ module ESDKClient {
   }
 
   method DeriveKey(plaintextDataKey: seq<uint8>, algorithmSuiteID: AlgorithmSuite.ID, messageID: Msg.MessageID) returns (derivedDataKey: seq<uint8>)
-    ensures |derivedDataKey| == algorithmSuiteID.KeyLength()
     requires |plaintextDataKey| == algorithmSuiteID.KDFInputKeyLength()
+    ensures |derivedDataKey| == algorithmSuiteID.KeyLength()
   {
     var whichSHA := AlgorithmSuite.Suite[algorithmSuiteID].hkdf;
     if whichSHA == Digests.HmacNOSHA {
