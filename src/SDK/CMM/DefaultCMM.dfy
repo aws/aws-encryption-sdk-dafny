@@ -35,7 +35,8 @@ module DefaultCMMDef {
       Repr := {this, kr} + k.Repr;
     }
 
-    method GetEncryptionMaterials(ec: Materials.EncryptionContext, alg_id: Option<AlgorithmSuite.ID>, pt_len: Option<nat>) returns (res: Result<Materials.ValidEncryptionMaterialsOutput>)
+    method GetEncryptionMaterials(ec: Materials.EncryptionContext, alg_id: Option<AlgorithmSuite.ID>, pt_len: Option<nat>) 
+      returns (res: Result<Materials.ValidEncryptionMaterialsOutput>)
       requires Valid()
       ensures Valid()
       ensures res.Success? ==> res.value.Valid()
@@ -64,38 +65,29 @@ module DefaultCMMDef {
       return Success(Materials.EncryptionMaterialsOutput(dataKey.get, enc_sk));
     }
 
-    method DecryptMaterials(alg_id: AlgorithmSuite.ID, edks: seq<Materials.EncryptedDataKey>, enc_ctx: Materials.EncryptionContext) returns (res: Result<Materials.DecryptionMaterials>)
+    method DecryptMaterials(alg_id: AlgorithmSuite.ID, edks: seq<Materials.EncryptedDataKey>, enc_ctx: Materials.EncryptionContext) 
+      returns (res: Result<Materials.ValidEncryptionMaterialsOutput>)
       requires |edks| > 0
       requires Valid()
       ensures Valid()
-      ensures res.Success? ==> res.value.Valid() &&
-                               res.value.plaintextDataKey.Some? &&
-                               |res.value.plaintextDataKey.get| == res.value.algorithmSuiteID.KeyLength()
-      ensures res.Success? && res.value.algorithmSuiteID.SignatureType().Some? ==> res.value.verificationKey.Some?
     {
       var vkey := Materials.enc_ctx_lookup(enc_ctx, Materials.EC_PUBLIC_KEY_FIELD);
-      var dec_mat := new Materials.DecryptionMaterials(alg_id, enc_ctx, None, vkey);
-      var dm :- kr.OnDecrypt(dec_mat, edks);
+      var dm :- kr.OnDecrypt(alg_id, enc_ctx, edks);
+      if dm.None? {
+        return Failure("Could not get materials required for decryption.");
+      }
 
-      if dm.algorithmSuiteID.SignatureType().Some? {
+      if dm.get.dataKey.algorithmSuiteID.SignatureType().Some? {
         match Materials.enc_ctx_lookup(dm.encryptionContext, Materials.EC_PUBLIC_KEY_FIELD)
         case None =>
           return Failure("Could not get materials required for decryption.");
         case Some(pk) =>
           if dm.verificationKey.None? {
             dm.setVerificationKey(pk);
-          } else {
-            return Failure("Verification key has already been set.");
           }
+      } else {
+        return Success(dm.get);
       }
-
-      if dm.plaintextDataKey.None? ||
-         |dm.plaintextDataKey.get| != dm.algorithmSuiteID.KeyLength() ||
-         (dm.algorithmSuiteID.SignatureType().Some? && |dm.plaintextDataKey.get| != dm.algorithmSuiteID.KeyLength()) {
-        return Failure("Could not get materials required for decryption.");
-      }
-
-      return Success(dm);
     }
   }
 }
