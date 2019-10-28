@@ -79,16 +79,12 @@ module ToyClientDef {
         return Failure("no edks");
       }
       var decmat :- cmm.DecryptMaterials(AlgorithmSuite.AES_256_GCM_IV12_TAG16_HKDF_SHA384_ECDSA_P384, e.edks, e.ec);
-      match decmat.plaintextDataKey
-      case Some(dk) =>
-        if |dk| == 32 && |e.ctxt| > 12 {
-          var msg := AESEncryption.AES.AESDecrypt(Cipher.AES_GCM_256, dk, [], e.ctxt);
-          return msg;
-        } else {
-          return Failure("bad dk");
-        }
-      case None =>
-        return Failure("no dk?");
+      if |decmat.dataKey.plaintextDataKey| == 32 && |e.ctxt| > 12 {
+        var msg := AESEncryption.AES.AESDecrypt(Cipher.AES_GCM_256, decmat.dataKey.plaintextDataKey, [], e.ctxt);
+        return msg;
+      } else {
+        return Failure("bad dk");
+      }
     }
   }
 }

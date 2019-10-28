@@ -2,7 +2,7 @@ include "../../StandardLibrary/StandardLibrary.dfy"
 include "../Materials.dfy"
 include "../AlgorithmSuite.dfy"
 
-module KeyringDefs {
+  module KeyringDefs {
   import opened StandardLibrary
   import Materials
   import AlgorithmSuite

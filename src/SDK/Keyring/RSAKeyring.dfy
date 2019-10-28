@@ -81,20 +81,14 @@ module RSAKeyringDef {
       }
     }
 
-    method OnDecrypt(decMat: Materials.DecryptionMaterials, edks: seq<Materials.EncryptedDataKey>) returns (res: Result<Materials.DecryptionMaterials>)
+    method OnDecrypt(algorithmSuiteID: AlgorithmSuite.ID, encryptionContext: Materials.EncryptionContext, edks: seq<Materials.EncryptedDataKey>)
+      returns (res: Result<Option<Materials.DecryptionMaterialsOutput>>)
       requires Valid()
-      requires decMat.Valid()
-      requires decMat !in Repr
-      modifies decMat`plaintextDataKey
       ensures Valid()
-      ensures decMat.Valid()
-      ensures |edks| == 0 ==> res.Success? && unchanged(decMat)
-      ensures old(decMat.plaintextDataKey.Some?) ==> res.Success? && unchanged(decMat)
-      ensures res.Success? ==> res.value == decMat
-      ensures res.Failure? ==> unchanged(decMat)
+      ensures |edks| == 0 ==> res.Success? && res.value.None?
     {
-      if decMat.plaintextDataKey.Some? || |edks| == 0 {
-        return Success(decMat);
+      if |edks| == 0 {
+        return Success(None);
       } else if decryptionKey.None? {
         return Failure("Decryption key undefined");
       }
@@ -113,16 +107,16 @@ module RSAKeyringDef {
           case None =>
             // continue with the next EDK
           case Some(k) =>
-            if |k| == decMat.algorithmSuiteID.KeyLength() { // check for correct key length
-              decMat.plaintextDataKey := Some(k);
-              return Success(decMat);
+            if algorithmSuiteID.ValidPlaintextDataKey(k) { // check for correct key length
+              var dataKey := Materials.DataKey(algorithmSuiteID, k, edks);
+              return Success(Some(Materials.DecryptionMaterialsOutput(dataKey, None)));
             } else {
               return Failure(("Bad key length!"));
             }
         }
         i := i + 1;
       }
-      return Success(decMat);
+      return Success(None);
     }
   }
 }

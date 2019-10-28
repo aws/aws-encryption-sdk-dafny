@@ -100,32 +100,23 @@ module AESKeyringDef {
       info[|keyName| + AUTH_TAG_LEN_LEN + IV_LEN_LEN ..]
     }
 
-    method OnDecrypt(decMat: Mat.DecryptionMaterials, edks: seq<Mat.EncryptedDataKey>) returns (res: Result<Mat.DecryptionMaterials>)
+    method OnDecrypt(algorithmSuiteID: AlgorithmSuite.ID, encryptionContext: Mat.EncryptionContext, edks: seq<Mat.EncryptedDataKey>) 
+      returns (res: Result<Option<Mat.DecryptionMaterialsOutput>>)
       requires Valid() 
-      requires decMat.Valid()
-      requires decMat !in Repr
-      modifies decMat`plaintextDataKey
       ensures Valid()
-      ensures decMat.Valid()
-      ensures |edks| == 0 ==> res.Success? && unchanged(decMat)
-      ensures old(decMat.plaintextDataKey.Some?) ==> res.Success? && unchanged(decMat)
-      ensures res.Success? ==> res.value == decMat
-      ensures res.Failure? ==> unchanged(decMat)
+      ensures |edks| == 0 ==> res.Success? && res.value.None?
     {
-      if decMat.plaintextDataKey.Some? {
-        return Success(decMat);
-      }
       var i := 0;
       while i < |edks| {
         if edks[i].providerID == keyNamespace && ValidProviderInfo(edks[i].providerInfo) {
           var iv := GetIvFromProvInfo(edks[i].providerInfo);
-          var flatEncCtx: seq<uint8> := Mat.FlattenSortEncCtx(decMat.encryptionContext);
+          var flatEncCtx: seq<uint8> := Mat.FlattenSortEncCtx(encryptionContext);
           var decryptResult := AESEncryption.AES.aes_decrypt(wrappingAlgorithm, wrappingKey, edks[i].ciphertext, iv, flatEncCtx);
           if decryptResult.Success? {
             var ptKey := decryptResult.value;
-            if |ptKey| == decMat.algorithmSuiteID.KeyLength() { // check for correct key length
-              decMat.plaintextDataKey := Some(ptKey);
-              return Success(decMat);
+            if |ptKey| == algorithmSuiteID.KeyLength() { // check for correct key length
+              var dataKey := Mat.DataKey(algorithmSuiteID, ptKey, edks);
+              return Success(Some(Mat.DecryptionMaterialsOutput(dataKey, None)));
             }
           } else {
             return Failure("Decryption failed");
@@ -133,7 +124,7 @@ module AESKeyringDef {
         }
         i := i + 1;
       }
-      return Success(decMat);
+      return Success(None);
     }
   }
 }
