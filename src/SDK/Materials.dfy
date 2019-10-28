@@ -75,23 +75,24 @@ module Materials {
     r
   }
 
-  predicate method ValidOnEncryptResult1(input: ValidEncryptionMaterialsInput, output: ValidDataKey) {
-    input.algorithmSuiteID == output.algorithmSuiteID
-  }
-  predicate method ValidOnEncryptResult2(input: ValidEncryptionMaterialsInput, output: ValidDataKey) {
+  predicate method ValidOnEncryptResult(input: ValidEncryptionMaterialsInput, output: ValidDataKey) {
+    input.algorithmSuiteID == output.algorithmSuiteID &&
     input.plaintextDataKey.Some? ==> input.plaintextDataKey.get == output.plaintextDataKey
   }
+
+  lemma ValidOnEncryptResultImpliesSameAlgorithmSuiteID(input: ValidEncryptionMaterialsInput, output: ValidDataKey) 
+    requires ValidOnEncryptResult(input, output)
+    ensures input.algorithmSuiteID == output.algorithmSuiteID
   
   lemma MergingResults(input: ValidEncryptionMaterialsInput, dk1: ValidDataKey, dk2: ValidDataKey) 
-    requires ValidOnEncryptResult1(input, dk1)
-    requires ValidOnEncryptResult2(input, dk1)
-    requires ValidOnEncryptResult1(input, dk2)
-    requires ValidOnEncryptResult2(input, dk2)
+    requires ValidOnEncryptResult(input, dk1)
+    requires ValidOnEncryptResult(input, dk2)
     requires dk1.plaintextDataKey == dk2.plaintextDataKey
     ensures CompatibleDataKeys(dk1, dk2)
-    ensures ValidOnEncryptResult1(input, MergeDataKeys(dk1, dk2))
-    ensures ValidOnEncryptResult2(input, MergeDataKeys(dk1, dk2))
+    ensures ValidOnEncryptResult(input, MergeDataKeys(dk1, dk2))
   {
+    ValidOnEncryptResultImpliesSameAlgorithmSuiteID(input, dk1);
+    ValidOnEncryptResultImpliesSameAlgorithmSuiteID(input, dk2);
     assert input.algorithmSuiteID == dk1.algorithmSuiteID == dk2.algorithmSuiteID;
     if (input.plaintextDataKey.Some?) {
       assert input.plaintextDataKey.get == dk1.plaintextDataKey == dk2.plaintextDataKey;

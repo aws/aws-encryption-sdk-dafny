@@ -67,13 +67,11 @@ module MultiKeyringDef {
         method OnEncryptRec(input: Mat.ValidEncryptionMaterialsInput, output: Mat.ValidDataKey, i: int) returns (res: Result<Mat.ValidDataKey>)
             requires Valid()
             requires 0 <= i <= |children|
-            requires Mat.ValidOnEncryptResult1(input, output)
-            requires Mat.ValidOnEncryptResult2(input, output)
+            requires Mat.ValidOnEncryptResult(input, output)
             requires input.plaintextDataKey.Some? && input.plaintextDataKey.get == output.plaintextDataKey
             ensures Valid()
             ensures forall i :: 0 <= i < |children| ==> children[i].Valid()
-            ensures res.Success? ==> Mat.ValidOnEncryptResult1(input, res.value)
-            ensures res.Success? ==> Mat.ValidOnEncryptResult2(input, res.value)
+            ensures res.Success? ==> Mat.ValidOnEncryptResult(input, res.value)
             decreases |children| - i
         {
             if i == |children| {
@@ -81,6 +79,9 @@ module MultiKeyringDef {
             }
             else {
                 var r :- children[i].OnEncrypt(input);
+                if r.Some? {
+                    Materials.ValidOnEncryptResultImpliesSameAlgorithmSuiteID(input, r.get);
+                }
                 var newOutput := if r.Some? then
                         Mat.MergingResults(input, output, r.get);
                         Mat.MergeDataKeys(output, r.get) 
@@ -93,13 +94,18 @@ module MultiKeyringDef {
         method OnEncrypt(encMat : Mat.ValidEncryptionMaterialsInput) returns (res: Result<Option<Mat.ValidDataKey>>)
             requires Valid()
             ensures Valid()
-            ensures unchanged(Repr)
-            ensures res.Success? && res.value.Some? ==> Materials.ValidOnEncryptResult1(encMat, res.value.get)
-            ensures res.Success? && res.value.Some? ==> Materials.ValidOnEncryptResult2(encMat, res.value.get)
+            ensures res.Success? && res.value.Some? ==> Materials.ValidOnEncryptResult(encMat, res.value.get)
         {
-            var initialDataKey := if encMat.plaintextDataKey.Some? then Some(Mat.DataKey(encMat.algorithmSuiteID, encMat.plaintextDataKey.get, [])) else None;
+            var initialDataKey: Option<Mat.ValidDataKey> := None;
+            if encMat.plaintextDataKey.Some? {
+                initialDataKey := Some(Mat.DataKey(encMat.algorithmSuiteID, encMat.plaintextDataKey.get, []));
+            }
+            
             if generator != null {
                 initialDataKey :- generator.OnEncrypt(encMat);
+                if initialDataKey.Some? {
+                    Materials.ValidOnEncryptResultImpliesSameAlgorithmSuiteID(encMat, initialDataKey.get);
+                }
             }
             if initialDataKey.None? {
                 return Failure("Bad state: data key not found");

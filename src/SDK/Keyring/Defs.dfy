@@ -14,8 +14,7 @@ include "../AlgorithmSuite.dfy"
     method OnEncrypt(encMat: Materials.ValidEncryptionMaterialsInput) returns (res: Result<Option<Materials.ValidDataKey>>)
       requires Valid()
       ensures Valid()
-      ensures res.Success? && res.value.Some? ==> Materials.ValidOnEncryptResult1(encMat, res.value.get)
-      ensures res.Success? && res.value.Some? ==> Materials.ValidOnEncryptResult2(encMat, res.value.get)
+      ensures res.Success? && res.value.Some? ==> Materials.ValidOnEncryptResult(encMat, res.value.get)
       // TODO: keyring trace GENERATED_DATA_KEY flag assurance
       // TODO: keyring trace ENCRYPTED_DATA_KEY flag assurance
 

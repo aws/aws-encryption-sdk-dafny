@@ -62,6 +62,7 @@ module DefaultCMMDef {
       if dataKey.None? {
         return Failure("Could not retrieve materials required for encryption");
       }
+      Materials.ValidOnEncryptResultImpliesSameAlgorithmSuiteID(in_enc_mat, dataKey.get);
       return Success(Materials.EncryptionMaterialsOutput(dataKey.get, enc_sk));
     }
 
