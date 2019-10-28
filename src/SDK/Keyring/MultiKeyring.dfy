@@ -2,7 +2,6 @@ include "../../StandardLibrary/StandardLibrary.dfy"
 include "../../StandardLibrary/UInt.dfy"
 include "../AlgorithmSuite.dfy"
 include "./Defs.dfy"
-include "../../Crypto/Cipher.dfy"
 include "../../Crypto/Random.dfy"
 include "../../Crypto/RSAEncryption.dfy"
 include "../Materials.dfy"
@@ -11,7 +10,6 @@ module MultiKeyringDef {
     import opened KeyringDefs
     import opened StandardLibrary
     import opened UInt = StandardLibrary.UInt
-    import opened Cipher
     import AlgorithmSuite
     import RSA = RSAEncryption
     import Mat = Materials

@@ -77,7 +77,7 @@ module RawAESKeyring{
       }
       var iv := Random.GenerateBytes(wrappingAlgorithm.ivLen as int32);
       var aad := Mat.FlattenSortEncCtx(encMat.encryptionContext);
-      var encryptResult :- AESEncryption.AESEncrypt(wrappingAlgorithm, iv, wrappingKey, dataKey, aad);
+      var encryptResult :- AESEncryption.AESEncrypt(wrappingAlgorithm, iv, wrappingKey, plaintextDataKey.get, aad);
       var providerInfo := SerializeProviderInto(iv);
       var edk := Mat.EncryptedDataKey(keyNamespace, providerInfo, encryptResult.cipherText + encryptResult.authTag);
       var dataKey := Mat.DataKey(encMat.algorithmSuiteID, plaintextDataKey.get, [edk]);
