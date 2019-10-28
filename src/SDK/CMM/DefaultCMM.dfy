@@ -78,14 +78,15 @@ module DefaultCMMDef {
         return Failure("Could not get materials required for decryption.");
       }
 
-      if dm.get.dataKey.algorithmSuiteID.SignatureType().Some? {
+      var verificationKey := None;
+      if dm.get.algorithmSuiteID.SignatureType().Some? {
         match Materials.enc_ctx_lookup(enc_ctx, Materials.EC_PUBLIC_KEY_FIELD)
         case None =>
           return Failure("Could not get materials required for decryption.");
         case Some(pk) =>
-          return Success(Materials.DecryptionMaterialsOutput(dm.get.dataKey, Some(pk)));
+          verificationKey := Some(pk);
       } else {
-        return Success(dm.get);
+        return Success(Materials.DecryptionMaterialsOutput(dm.get, verificationKey));
       }
     }
   }

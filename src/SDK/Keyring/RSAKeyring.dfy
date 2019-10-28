@@ -55,10 +55,7 @@ module RSAKeyringDef {
       requires Valid()
       ensures Valid()
       ensures unchanged(Repr)
-      ensures res.Success? && res.value.Some? ==> 
-        encMat.algorithmSuiteID == res.value.get.algorithmSuiteID
-      ensures res.Success? && res.value.Some? ==> 
-        (encMat.plaintextDataKey.Some? ==> encMat.plaintextDataKey.get == res.value.get.plaintextDataKey)
+      ensures res.Success? && res.value.Some? ==> Materials.ValidOnEncryptResult(encMat, res.value.get)
     {
       if encryptionKey.None? {
         return Failure("Encryption key undefined");
@@ -82,10 +79,11 @@ module RSAKeyringDef {
     }
 
     method OnDecrypt(algorithmSuiteID: AlgorithmSuite.ID, encryptionContext: Materials.EncryptionContext, edks: seq<Materials.EncryptedDataKey>)
-      returns (res: Result<Option<Materials.DecryptionMaterialsOutput>>)
+      returns (res: Result<Option<Materials.ValidDataKey>>)
       requires Valid()
       ensures Valid()
       ensures |edks| == 0 ==> res.Success? && res.value.None?
+      ensures res.Success? && res.value.Some? ==> res.value.get.encryptedDataKeys == edks
     {
       if |edks| == 0 {
         return Success(None);
@@ -107,9 +105,9 @@ module RSAKeyringDef {
           case None =>
             // continue with the next EDK
           case Some(k) =>
-            if algorithmSuiteID.ValidPlaintextDataKey(k) { // check for correct key length
-              var dataKey := Materials.DataKey(algorithmSuiteID, k, edks);
-              return Success(Some(Materials.DecryptionMaterialsOutput(dataKey, None)));
+            var dataKey := Materials.DataKey(algorithmSuiteID, k, edks);
+            if dataKey.Valid() { // check for correct key length
+              return Success(Some(dataKey));
             } else {
               return Failure(("Bad key length!"));
             }

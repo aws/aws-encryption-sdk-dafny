@@ -19,10 +19,11 @@ include "../AlgorithmSuite.dfy"
       // TODO: keyring trace ENCRYPTED_DATA_KEY flag assurance
 
     method OnDecrypt(algorithmSuiteID: AlgorithmSuite.ID, encryptionContext: Materials.EncryptionContext, edks: seq<Materials.EncryptedDataKey>)
-      returns (res: Result<Option<Materials.DecryptionMaterialsOutput>>)
+      returns (res: Result<Option<Materials.ValidDataKey>>)
       requires Valid()
       ensures Valid()
       ensures |edks| == 0 ==> res.Success? && res.value.None?
+      ensures res.Success? && res.value.Some? ==> res.value.get.encryptedDataKeys == edks
       // TODO: keyring trace DECRYPTED_DATA_KEY flag assurance
   }
 }

@@ -65,10 +65,7 @@ module AESKeyringDef {
       requires Valid()
       ensures Valid()
       ensures unchanged(Repr)
-      ensures res.Success? && res.value.Some? ==> 
-        encMat.algorithmSuiteID == res.value.get.algorithmSuiteID
-      ensures res.Success? && res.value.Some? ==> 
-        (encMat.plaintextDataKey.Some? ==> encMat.plaintextDataKey.get == res.value.get.plaintextDataKey)
+      ensures res.Success? && res.value.Some? ==> Mat.ValidOnEncryptResult(encMat, res.value.get)
     {
       var plaintextDataKey := encMat.plaintextDataKey;
       if plaintextDataKey.None? {
@@ -101,10 +98,11 @@ module AESKeyringDef {
     }
 
     method OnDecrypt(algorithmSuiteID: AlgorithmSuite.ID, encryptionContext: Mat.EncryptionContext, edks: seq<Mat.EncryptedDataKey>) 
-      returns (res: Result<Option<Mat.DecryptionMaterialsOutput>>)
+      returns (res: Result<Option<Mat.ValidDataKey>>)
       requires Valid() 
       ensures Valid()
       ensures |edks| == 0 ==> res.Success? && res.value.None?
+      ensures res.Success? && res.value.Some? ==> res.value.get.encryptedDataKeys == edks
     {
       var i := 0;
       while i < |edks| {
@@ -114,10 +112,10 @@ module AESKeyringDef {
           var decryptResult := AESEncryption.AES.aes_decrypt(wrappingAlgorithm, wrappingKey, edks[i].ciphertext, iv, flatEncCtx);
           if decryptResult.Success? {
             var ptKey := decryptResult.value;
-            if |ptKey| == algorithmSuiteID.KeyLength() { // check for correct key length
-              var dataKey := Mat.DataKey(algorithmSuiteID, ptKey, edks);
-              return Success(Some(Mat.DecryptionMaterialsOutput(dataKey, None)));
-            }
+            var dataKey := Mat.DataKey(algorithmSuiteID, ptKey, edks);
+            if dataKey.Valid() { // check for correct key length
+              return Success(Some(dataKey));
+            } // TODO-RS: Shouldn't the else case here be a Failure too?
           } else {
             return Failure("Decryption failed");
           }

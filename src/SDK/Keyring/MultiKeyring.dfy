@@ -116,11 +116,12 @@ module MultiKeyringDef {
         }
 
         method OnDecryptRec(algorithmSuiteID: AlgorithmSuite.ID, encryptionContext: Materials.EncryptionContext, edks: seq<Materials.EncryptedDataKey>, i : int)
-            returns (res: Result<Option<Materials.DecryptionMaterialsOutput>>)
+            returns (res: Result<Option<Materials.ValidDataKey>>)
             requires 0 <= i <= |children|
             requires Valid()
             ensures Valid()
             ensures |edks| == 0 ==> res.Success? && res.value.None?
+            ensures res.Success? && res.value.Some? ==> res.value.get.encryptedDataKeys == edks
             decreases |children| - i
         {
             if i == |children| {
@@ -141,11 +142,11 @@ module MultiKeyringDef {
         }
 
         method OnDecrypt(algorithmSuiteID: AlgorithmSuite.ID, encryptionContext: Materials.EncryptionContext, edks: seq<Materials.EncryptedDataKey>)
-            returns (res: Result<Option<Materials.DecryptionMaterialsOutput>>)
+            returns (res: Result<Option<Materials.ValidDataKey>>)
             requires Valid()
             ensures Valid()
             ensures |edks| == 0 ==> res.Success? && res.value.None?
-            //ensures res.Success? ==> res.value.algorithmSuiteID == encMat.algorithmSuiteID
+            ensures res.Success? && res.value.Some? ==> res.value.get.encryptedDataKeys == edks
         {
             if generator != null {
                 var result :- generator.OnDecrypt(algorithmSuiteID, encryptionContext, edks);
