@@ -1,6 +1,6 @@
 include "SDK/ToyClient.dfy"
-//include "SDK/Keyring/AESKeyring.dfy"
-include "SDK/Keyring/RSAKeyring.dfy"
+//include "SDK/Keyring/RawAESKeyring.dfy"
+include "SDK/Keyring/RawRSAKeyring.dfy"
 //include "SDK/Keyring/MultiKeyring.dfy"
 //include "SDK/Keyring/Defs.dfy"
 include "SDK/Materials.dfy"
@@ -17,11 +17,11 @@ module Main {
   import DefaultCMMDef
   import Client = ToyClientDef
   import RSA = RSAEncryption
-  import RSAKeyringDef
+  import RawRSAKeyringDef
   import Materials
   //import AES = AESEncryption
   //import opened Cipher
-  //import opened AESKeyringDef
+  //import opened RawAESKeyringDef
   //import K = KeyringDefs
   //import opened MultiKeyringDef
   //import opened SDKDefs
@@ -31,9 +31,9 @@ module Main {
   /*
   method RunToyClient() {
     var ek, dk := RSA.RSA.RSAKeygen(2048, RSA.PKCS1);
-    var rsa_kr := new RSAKeyring(byteseq_of_string("namespace"), byteseq_of_string("name"), RSA.PKCS1, 2048, Some(ek), Some(dk));
+    var rsa_kr := new RawRSAKeyring(byteseq_of_string("namespace"), byteseq_of_string("name"), RSA.PKCS1, 2048, Some(ek), Some(dk));
     var k2 := AES.AES.AESKeygen(AES_GCM_256);
-    var aes_kr := new AESKeyring(byteseq_of_string("namespace"), byteseq_of_string("name2"), k2, AES_GCM_256);
+    var aes_kr := new RawAESKeyring(byteseq_of_string("namespace"), byteseq_of_string("name2"), k2, AES_GCM_256);
     var kr_children := new K.Keyring[1](_ => rsa_kr);
     var kr := new MultiKeyring(aes_kr, kr_children);
     var cmm := new DefaultCMM.OfKeyring(kr);
@@ -82,7 +82,7 @@ module Main {
     var namespace := StringToByteSeq("namespace");
     var name := StringToByteSeq("MyKeyring");
     var ek, dk := RSA.RSA.RSAKeygen(2048, RSA.PKCS1);
-    var keyring := new RSAKeyringDef.RSAKeyring(namespace, name, RSA.RSAPaddingMode.PKCS1, 2048, Some(ek), Some(dk));
+    var keyring := new RawRSAKeyringDef.RawRSAKeyring(namespace, name, RSA.RSAPaddingMode.PKCS1, 2048, Some(ek), Some(dk));
     var cmm := new DefaultCMMDef.DefaultCMM.OfKeyring(keyring);
     var client := new Client.Client.OfCMM(cmm);
 

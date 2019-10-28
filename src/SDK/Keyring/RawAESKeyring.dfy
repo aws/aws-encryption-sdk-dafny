@@ -2,41 +2,44 @@ include "../../StandardLibrary/StandardLibrary.dfy"
 include "../../StandardLibrary/UInt.dfy"
 include "../AlgorithmSuite.dfy"
 include "./Defs.dfy"
-include "../../Crypto/Cipher.dfy"
+include "../../Crypto/EncryptionSuites.dfy"
 include "../../Crypto/Random.dfy"
 include "../../Crypto/AESEncryption.dfy"
 include "../Materials.dfy"
 
-module AESKeyringDef {
+module RawAESKeyring{
   import opened StandardLibrary
   import opened UInt = StandardLibrary.UInt
+  import AESEncryption
+  import EncryptionSuites
   import AlgorithmSuite
-  import Cipher
   import Random
   import KeyringDefs
-  import AESEncryption
   import Mat = Materials
 
   const AUTH_TAG_LEN_LEN := 4;
   const IV_LEN_LEN       := 4;
+  const VALID_ALGORITHMS := {EncryptionSuites.AES_GCM_128, EncryptionSuites.AES_GCM_192, EncryptionSuites.AES_GCM_256}
 
-  class AESKeyring extends KeyringDefs.Keyring {
+  class RawAESKeyring extends KeyringDefs.Keyring {
     const keyNamespace: string
     const keyName: string
     const wrappingKey: seq<uint8>
-    const wrappingAlgorithm: Cipher.CipherParams
+    const wrappingAlgorithm: EncryptionSuites.EncryptionSuite
 
     predicate Valid() reads this {
         Repr == {this} &&
-        (|wrappingKey| == Cipher.KeyLengthOfCipher(wrappingAlgorithm)) &&
-        (wrappingAlgorithm in {Cipher.AES_GCM_128, Cipher.AES_GCM_192, Cipher.AES_GCM_256}) &&
+        |wrappingKey| == wrappingAlgorithm.keyLen as int &&
+        wrappingAlgorithm in VALID_ALGORITHMS &&
+        wrappingAlgorithm.Valid() &&
         StringIs8Bit(keyNamespace) && StringIs8Bit(keyName)
     }
 
-    constructor(namespace: string, name: string, key: seq<uint8>, wrappingAlg: Cipher.CipherParams)
+    constructor(namespace: string, name: string, key: seq<uint8>, wrappingAlg: EncryptionSuites.EncryptionSuite)
     requires StringIs8Bit(namespace) && StringIs8Bit(name)
-    requires wrappingAlg in {Cipher.AES_GCM_128, Cipher.AES_GCM_192, Cipher.AES_GCM_256}
-    requires |key| == Cipher.KeyLengthOfCipher(wrappingAlg)
+    requires wrappingAlg in VALID_ALGORITHMS
+    requires wrappingAlg.Valid()
+    requires |key| == wrappingAlg.keyLen as int
     ensures keyNamespace == namespace
     ensures keyName == name
     ensures wrappingKey == key
@@ -74,10 +77,9 @@ module AESKeyringDef {
       }
       var iv := Random.GenerateBytes(wrappingAlgorithm.ivLen as int32);
       var aad := Mat.FlattenSortEncCtx(encMat.encryptionContext);
-      var encryptResult := AESEncryption.AES.aes_encrypt(wrappingAlgorithm, iv, wrappingKey, plaintextDataKey.get, aad);
-      if encryptResult.Failure? { return Failure("Error on encrypt!"); }
+      var encryptResult :- AESEncryption.AESEncrypt(wrappingAlgorithm, iv, wrappingKey, dataKey, aad);
       var providerInfo := SerializeProviderInto(iv);
-      var edk := Mat.EncryptedDataKey(keyNamespace, providerInfo, encryptResult.value);
+      var edk := Mat.EncryptedDataKey(keyNamespace, providerInfo, encryptResult.cipherText + encryptResult.authTag);
       var dataKey := Mat.DataKey(encMat.algorithmSuiteID, plaintextDataKey.get, [edk]);
       assert dataKey.algorithmSuiteID.ValidPlaintextDataKey(dataKey.plaintextDataKey);
       return Success(Some(dataKey));
@@ -105,19 +107,19 @@ module AESKeyringDef {
       ensures res.Success? && res.value.Some? ==> res.value.get.encryptedDataKeys == edks
     {
       var i := 0;
-      while i < |edks| {
-        if edks[i].providerID == keyNamespace && ValidProviderInfo(edks[i].providerInfo) {
+      while i < |edks|
+      {
+        if edks[i].providerID == keyNamespace && ValidProviderInfo(edks[i].providerInfo) && wrappingAlgorithm.tagLen as int <= |edks[i].ciphertext| {
           var iv := GetIvFromProvInfo(edks[i].providerInfo);
           var flatEncCtx: seq<uint8> := Mat.FlattenSortEncCtx(encryptionContext);
-          var decryptResult := AESEncryption.AES.aes_decrypt(wrappingAlgorithm, wrappingKey, edks[i].ciphertext, iv, flatEncCtx);
-          if decryptResult.Success? {
-            var ptKey := decryptResult.value;
-            var dataKey := Mat.DataKey(algorithmSuiteID, ptKey, edks);
-            if dataKey.Valid() { // check for correct key length
-              return Success(Some(dataKey));
-            } // TODO-RS: Shouldn't the else case here be a Failure too?
+          //TODO: #68
+          var cipherText, authTag := edks[i].ciphertext[wrappingAlgorithm.tagLen ..], edks[i].ciphertext[.. wrappingAlgorithm.tagLen];
+          var ptKey :- AESEncryption.AESDecrypt(wrappingAlgorithm, wrappingKey, cipherText, authTag, iv, flatEncCtx);
+          var dataKey := Mat.DataKey(algorithmSuiteID, ptKey, edks);
+          if dataKey.Valid() { // check for correct key length
+            return Success(Some(dataKey));
           } else {
-            return Failure("Decryption failed");
+            return Failure("Decryption failed: bad datakey length.");
           }
         }
         i := i + 1;

@@ -1,66 +1,43 @@
+include "../SDK/AlgorithmSuite.dfy"
 include "../StandardLibrary/StandardLibrary.dfy"
-include "Cipher.dfy"
+include "EncryptionSuites.dfy"
+include "GenBytes.dfy"
 
 module {:extern "AESEncryption"} AESEncryption {
-    //TODO This code has yet to be reviewed. See issue #36
-    import C = Cipher
-    import opened StandardLibrary
-    import opened UInt = StandardLibrary.UInt
+  import EncryptionSuites
+  import opened StandardLibrary
+  import opened UInt = StandardLibrary.UInt
 
-    class {:extern "AES_GCM"} AES {
+  export
+    provides AESDecrypt, AESEncrypt, EncryptionSuites, StandardLibrary, UInt
+    reveals EncryptionOutput
 
-        static predicate method AESWfCtx(cipher : C.CipherParams, ctx : seq<uint8>) {
-            |ctx| > (cipher.ivLen) as int
-        }
+  datatype EncryptionOutput = EncryptionOutput(cipherText: seq<uint8>, authTag: seq<uint8>)
 
-        static predicate method AESWfKey (cipher : C.CipherParams, k : seq<uint8>) {
-            |k| == C.KeyLengthOfCipher(cipher) as int
-        }
+  function method EncryptionArtifactFromByteSeq(s: seq<uint8>, encAlg: EncryptionSuites.EncryptionSuite): (encArt: EncryptionOutput)
+    requires encAlg.Valid()
+    requires |s| >= encAlg.tagLen as int
+    ensures |encArt.cipherText + encArt.authTag| == |s|
+    ensures |encArt.authTag| == encAlg.tagLen as int
+  {
+    EncryptionOutput(s[.. |s| - encAlg.tagLen as int], s[|s| - encAlg.tagLen as int ..])
+  }
 
-        // TODO: make below return an option if anything throws.
-        static method AESKeygen(cipher : C.CipherParams) returns (k : seq<uint8>)
-            ensures AESWfKey(cipher, k) {
-            k := C.GenKey(cipher);
-        }
+  method {:extern "AESEncryption.AES_GCM", "AESEncrypt"} AESEncrypt(encAlg: EncryptionSuites.EncryptionSuite, iv: seq<uint8>, key: seq<uint8>, msg: seq<uint8>, aad: seq<uint8>)
+      returns (res : Result<EncryptionOutput>)
+    requires encAlg.Valid()
+    requires encAlg.alg.AES?
+    requires encAlg.alg.mode.GCM?
+    requires |iv| == encAlg.ivLen as int
+    requires |key| == encAlg.keyLen as int
+    ensures res.Success? ==> |res.value.authTag| == encAlg.tagLen as int
 
-        static function method {:extern "aes_decrypt"} aes_decrypt(cipher: C.CipherParams,
-                                                      key: seq<uint8>,
-                                                      ctxt: seq<uint8>,
-                                                      iv: seq<uint8>,
-                                                      aad: seq<uint8>): Result<seq<uint8>>
-            requires |key| == C.KeyLengthOfCipher(cipher) as int
-
-        static function method AESDecrypt(cipher: C.CipherParams, k: seq<uint8>, md: seq<uint8>, c: seq<uint8>): Result<seq<uint8>>
-            requires AESWfKey(cipher, k)
-            requires AESWfCtx(cipher, c) {
-            match aes_decrypt(cipher, k, c[cipher.ivLen ..], c[0 .. cipher.ivLen], md)
-                case Failure(e) => Failure(e)
-                case Success(m) => Success(m)
-            }
-
-        static method {:extern "aes_encrypt"} aes_encrypt (cipher : C.CipherParams,
-                                             iv : seq<uint8>,
-                                             key : seq<uint8>,
-                                             msg : seq<uint8>,
-                                             aad : seq<uint8>)
-            returns (ctx : Result<seq<uint8>>)
-
-            requires |iv| == cipher.ivLen as int
-            requires |key| == C.KeyLengthOfCipher(cipher) as int
-            ensures ctx.Success? ==> |ctx.value| > (cipher.tagLen) as int
-            ensures ctx.Success? ==> aes_decrypt(cipher, key, ctx.value, iv, aad) == Success((msg))
-
-        static method AESEncrypt(cipher : C.CipherParams, k : seq<uint8>, msg : seq<uint8>, md : seq<uint8>) returns (c : Result<seq<uint8>>)
-            requires AESWfKey(cipher, k)
-            ensures c.Success? ==> AESWfCtx(cipher, c.value)
-            ensures c.Success? ==> AESDecrypt(cipher, k, md, c.value) == Success(msg)
-            {
-                var iv := C.GenIV(cipher);
-                var ctx := aes_encrypt(cipher, iv, k, msg, md);
-                match ctx {
-                    case Failure(e) => return Failure(e);
-                    case Success(ct) => return Success(iv + ct);
-                }
-            }
-    }
+  method {:extern "AESEncryption.AES_GCM", "AESDecrypt"} AESDecrypt(encAlg: EncryptionSuites.EncryptionSuite, key: seq<uint8>, cipherTxt: seq<uint8>, authTag: seq<uint8>, iv: seq<uint8>, aad: seq<uint8>)
+      returns (res: Result<seq<uint8>>)
+    requires encAlg.Valid()
+    requires encAlg.alg.AES?
+    requires encAlg.alg.mode.GCM?
+    requires |key| == encAlg.keyLen as int
+    requires |iv| == encAlg.ivLen as int
+    requires |authTag| == encAlg.tagLen as int
 }
