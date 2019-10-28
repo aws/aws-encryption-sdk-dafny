@@ -31,22 +31,20 @@ module Materials {
   }
 
   // TODO: Add keyring trace
-  datatype EncryptionMaterialsInput = EncryptionMaterialsInput(
-    algorithmSuiteID: AlgorithmSuite.ID,
-    encryptionContext: EncryptionContext,
-    plaintextDataKey: Option<seq<uint8>>) {
-
+  datatype EncryptionMaterialsInput = EncryptionMaterialsInput(algorithmSuiteID: AlgorithmSuite.ID,
+                                                               encryptionContext: EncryptionContext,
+                                                               plaintextDataKey: Option<seq<uint8>>) 
+  {
     predicate Valid() {
       (plaintextDataKey.None? || algorithmSuiteID.ValidPlaintextDataKey(plaintextDataKey.get))
     }
   }
   type ValidEncryptionMaterialsInput = i: EncryptionMaterialsInput | i.Valid() witness EncryptionMaterialsInput(0x0014, [], None)
 
-  datatype DataKey = DataKey(
-    algorithmSuiteID: AlgorithmSuite.ID, // TODO-RS: This could be a ghost var?
-    plaintextDataKey: seq<uint8>,
-    encryptedDataKeys: seq<EncryptedDataKey>) {
-
+  datatype DataKey = DataKey(algorithmSuiteID: AlgorithmSuite.ID, // TODO-RS: This could be a ghost var?
+                             plaintextDataKey: seq<uint8>,
+                             encryptedDataKeys: seq<EncryptedDataKey>) 
+  {
     predicate method Valid() {
       algorithmSuiteID.ValidPlaintextDataKey(plaintextDataKey)
       // TODO-RS: assert that the encrypted data keys are actually tied to the plaintext!
@@ -58,20 +56,17 @@ module Materials {
   }  
   type ValidDataKey = i: DataKey | i.Valid() witness ValidDataKeyWitness()
 
-  predicate method CompatibleDataKeys(k1: ValidDataKey, k2: ValidDataKey)
-  {
+  predicate method CompatibleDataKeys(k1: ValidDataKey, k2: ValidDataKey) {
     k1.algorithmSuiteID == k2.algorithmSuiteID && k1.plaintextDataKey == k2.plaintextDataKey
   }
 
   function method MergeDataKeys(k1: ValidDataKey, k2: ValidDataKey): (res: ValidDataKey)
-    requires k2.Valid() // TODO-RS: Why is this necessary?
     requires CompatibleDataKeys(k1, k2)
     ensures res.algorithmSuiteID == k1.algorithmSuiteID == k2.algorithmSuiteID
     ensures res.plaintextDataKey == k1.plaintextDataKey == k2.plaintextDataKey
     ensures res.encryptedDataKeys == k1.encryptedDataKeys + k2.encryptedDataKeys
   {
     var r := DataKey(k1.algorithmSuiteID, k1.plaintextDataKey, k1.encryptedDataKeys + k2.encryptedDataKeys);
-    assert r.Valid(); // TODO-RS: And this?
     r
   }
 
@@ -89,7 +84,7 @@ module Materials {
     requires ValidOnEncryptResult(input, dk2)
     requires dk1.plaintextDataKey == dk2.plaintextDataKey
     ensures CompatibleDataKeys(dk1, dk2)
-    ensures ValidOnEncryptResult(input, MergeDataKeys(dk1, dk2))
+    ensures ValidOnEncryptResult(input, MergeDataKeys(dk1, dk2)) 
   {
     ValidOnEncryptResultImpliesSameAlgorithmSuiteID(input, dk1);
     ValidOnEncryptResultImpliesSameAlgorithmSuiteID(input, dk2);
@@ -99,10 +94,9 @@ module Materials {
     }
   }
 
-  datatype EncryptionMaterialsOutput = EncryptionMaterialsOutput(
-    dataKey: ValidDataKey,
-    signingKey: Option<seq<uint8>>) {
-
+  datatype EncryptionMaterialsOutput = EncryptionMaterialsOutput(dataKey: ValidDataKey,
+                                                                 signingKey: Option<seq<uint8>>)
+  {
     predicate method Valid() {
       dataKey.algorithmSuiteID.SignatureType().Some? ==> signingKey.Some?
     }
@@ -111,9 +105,8 @@ module Materials {
     witness EncryptionMaterialsOutput(ValidDataKeyWitness(), Some(seq(32, i => 0)))
 
   // TODO: Add keyring trace
-  datatype DecryptionMaterialsOutput = DecryptionMaterialsOutput(
-    dataKey: ValidDataKey,
-    verificationKey: Option<seq<uint8>>)
+  datatype DecryptionMaterialsOutput = DecryptionMaterialsOutput(dataKey: ValidDataKey,
+                                                                 verificationKey: Option<seq<uint8>>)
 
     //TODO: Review this code.
     function method naive_merge<T> (x : seq<T>, y : seq<T>, lt : (T, T) -> bool) : seq<T>

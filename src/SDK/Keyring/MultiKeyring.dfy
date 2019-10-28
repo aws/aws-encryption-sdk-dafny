@@ -126,8 +126,7 @@ module MultiKeyringDef {
         {
             if i == |children| {
                 return Success(None);
-            }
-            else {
+            } else {
                 var y :- children[i].OnDecrypt(algorithmSuiteID, encryptionContext, edks);
                 match y {
                     case Some(r) => {
@@ -137,7 +136,6 @@ module MultiKeyringDef {
                         res := OnDecryptRec(algorithmSuiteID, encryptionContext, edks, i + 1);
                     }
                 }
-
             }
         }
 
