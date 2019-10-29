@@ -107,6 +107,27 @@ module Materials {
   // TODO: Add keyring trace
   datatype DecryptionMaterialsOutput = DecryptionMaterialsOutput(dataKey: ValidDataKey,
                                                                  verificationKey: Option<seq<uint8>>)
+      dataKey.algorithmSuiteID.SignatureType().Some? ==> verificationKey.Some?
+    }
+  }
+  type ValidDecryptionMaterialsOutput = i: DecryptionMaterialsOutput | i.Valid() 
+    witness DecryptionMaterialsOutput(ValidDataKeyWitness(), Some(seq(32, i => 0)))
+
+  predicate method ValidOnDecryptResult(algorithmSuiteID: AlgorithmSuite.ID, 
+                                        encryptionContext: EncryptionContext, 
+                                        edks: seq<EncryptedDataKey>, 
+                                        output: ValidDataKey) {
+    output.algorithmSuiteID == algorithmSuiteID &&
+    output.encryptedDataKeys == edks
+  }
+
+  lemma ValidOnDecryptResultImpliesSameAlgorithmSuiteID(algorithmSuiteID: AlgorithmSuite.ID, 
+                                                        encryptionContext: EncryptionContext, 
+                                                        edks: seq<EncryptedDataKey>, 
+                                                        output: ValidDataKey)
+    requires ValidOnDecryptResult(algorithmSuiteID, encryptionContext, edks, output)
+    ensures output.algorithmSuiteID == algorithmSuiteID
+  {}
 
     //TODO: Review this code.
     function method naive_merge<T> (x : seq<T>, y : seq<T>, lt : (T, T) -> bool) : seq<T>

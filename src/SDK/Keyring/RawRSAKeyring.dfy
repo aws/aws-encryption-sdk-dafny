@@ -83,7 +83,7 @@ module RawRSAKeyringDef {
       requires Valid()
       ensures Valid()
       ensures |edks| == 0 ==> res.Success? && res.value.None?
-      ensures res.Success? && res.value.Some? ==> res.value.get.encryptedDataKeys == edks
+      ensures res.Success? && res.value.Some? ==> Materials.ValidOnDecryptResult(algorithmSuiteID, encryptionContext, edks, res.value.get)
     {
       if |edks| == 0 {
         return Success(None);

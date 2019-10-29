@@ -119,7 +119,8 @@ module MultiKeyringDef {
             requires Valid()
             ensures Valid()
             ensures |edks| == 0 ==> res.Success? && res.value.None?
-            ensures res.Success? && res.value.Some? ==> res.value.get.encryptedDataKeys == edks
+            ensures res.Success? && res.value.Some? ==> 
+                Materials.ValidOnDecryptResult(algorithmSuiteID, encryptionContext, edks, res.value.get)
             decreases |children| - i
         {
             if i == |children| {
@@ -142,7 +143,8 @@ module MultiKeyringDef {
             requires Valid()
             ensures Valid()
             ensures |edks| == 0 ==> res.Success? && res.value.None?
-            ensures res.Success? && res.value.Some? ==> res.value.get.encryptedDataKeys == edks
+            ensures res.Success? && res.value.Some? ==> 
+                Materials.ValidOnDecryptResult(algorithmSuiteID, encryptionContext, edks, res.value.get)
         {
             if generator != null {
                 var result :- generator.OnDecrypt(algorithmSuiteID, encryptionContext, edks);

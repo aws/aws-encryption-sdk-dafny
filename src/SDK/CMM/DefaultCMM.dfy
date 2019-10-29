@@ -67,16 +67,18 @@ module DefaultCMMDef {
     }
 
     method DecryptMaterials(alg_id: AlgorithmSuite.ID, edks: seq<Materials.EncryptedDataKey>, enc_ctx: Materials.EncryptionContext) 
-      returns (res: Result<Materials.DecryptionMaterialsOutput>)
+      returns (res: Result<Materials.ValidDecryptionMaterialsOutput>)
       requires |edks| > 0
       requires Valid()
       ensures Valid()
+      ensures res.Success? ==> res.value.dataKey.algorithmSuiteID == alg_id
     {
       var vkey := Materials.enc_ctx_lookup(enc_ctx, Materials.EC_PUBLIC_KEY_FIELD);
       var dm :- kr.OnDecrypt(alg_id, enc_ctx, edks);
       if dm.None? {
         return Failure("Could not get materials required for decryption.");
       }
+      Materials.ValidOnDecryptResultImpliesSameAlgorithmSuiteID(alg_id, enc_ctx, edks, dm.get);
 
       var verificationKey := None;
       if dm.get.algorithmSuiteID.SignatureType().Some? {
@@ -85,9 +87,8 @@ module DefaultCMMDef {
           return Failure("Could not get materials required for decryption.");
         case Some(pk) =>
           verificationKey := Some(pk);
-      } else {
-        return Success(Materials.DecryptionMaterialsOutput(dm.get, verificationKey));
       }
+      return Success(Materials.DecryptionMaterialsOutput(dm.get, verificationKey));
     }
   }
 }

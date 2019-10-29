@@ -23,9 +23,10 @@ module CMMDefs {
     method DecryptMaterials(algSuiteID: AlgorithmSuite.ID,
                             edks: seq<Materials.EncryptedDataKey>,
                             encCtx: Materials.EncryptionContext)
-                            returns (res: Result<Materials.DecryptionMaterialsOutput>)
+                            returns (res: Result<Materials.ValidDecryptionMaterialsOutput>)
       requires |edks| > 0
       requires Valid()
       ensures Valid()
+      ensures res.Success? ==> res.value.dataKey.algorithmSuiteID == algSuiteID
   }
 }
