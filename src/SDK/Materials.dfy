@@ -107,6 +107,8 @@ module Materials {
   // TODO: Add keyring trace
   datatype DecryptionMaterialsOutput = DecryptionMaterialsOutput(dataKey: ValidDataKey,
                                                                  verificationKey: Option<seq<uint8>>)
+  {
+    predicate method Valid() {
       dataKey.algorithmSuiteID.SignatureType().Some? ==> verificationKey.Some?
     }
   }
