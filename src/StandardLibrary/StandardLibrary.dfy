@@ -266,12 +266,11 @@ module {:extern "STL"} StandardLibrary {
   function method MapSeq<S, T>(s: seq<S>, f: S ~> T): seq<T>
     requires forall i :: 0 <= i < |s| ==> f.requires(s[i])
     reads set i,o | 0 <= i < |s| && o in f.reads(s[i]) :: o
-    decreases s
   {
     if s == [] then [] else [f(s[0])] + MapSeq(s[1..], f)
   }
 
-  function method FlattenSeq<T>(s: seq<seq<T>>): seq<T> decreases s {
+  function method FlattenSeq<T>(s: seq<seq<T>>): seq<T> {
     if s == [] then [] else s[0] + FlattenSeq(s[1..])
   }
 
@@ -391,45 +390,4 @@ module {:extern "STL"} StandardLibrary {
         assert LexicographicLessOrEqualAux(b, a, less, m);
     }
   }
-
-  // ----- foldl ----------
-
-  function method foldl<A,B>(f: (B,A) -> B, b: B, xs: seq<A>): B
-  {
-    if |xs| == 0 then
-      b
-    else 
-      foldl(f, f(b, xs[0]), xs[1..])
-  }
-
-  lemma SequenceCons<T>(xs: seq<T>) 
-      requires |xs| > 0
-      ensures [xs[0]] + xs[1..] == xs
-  {
-
-  }
-
-  // Here is FoldL_Property again, but this time with "f" instead of "stp".
-  lemma FoldL_Property_inv_f<A,B>(inv: (B,seq<A>) -> bool, f: (B,A) -> B, b: B, xs: seq<A>)
-    requires forall x, xs, b :: inv(b, [x] + xs) ==> inv(f(b, x), xs)
-    requires inv(b, xs)
-    ensures inv(foldl(f, b, xs), [])
-  {
-    // the rest of the calculation can be omitted.
-    if |xs| > 0 {
-      var head := xs[0];
-      var tail := xs[1..];
-      calc {
-        true;
-      ==>  // by the precondition
-        { SequenceCons(xs); }
-        inv(b, [head] + tail);  // TODO-RS: Need to prove property of seq + seq
-      ==>  // by the inductive property of "inv"
-        inv(f(b, head), tail);
-      ==>  { FoldL_Property_inv_f(inv, f, f(b, head), tail); }  // induction hypothesis
-        inv(foldl(f, f(b, head), tail), []);
-      }
-    }
-  }
-
 }
