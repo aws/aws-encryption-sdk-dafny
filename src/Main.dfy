@@ -10,6 +10,7 @@ include "SDK/Materials.dfy"
 //include "Crypto/Cipher.dfy"
 //include "StandardLibrary/StandardLibrary.dfy"
 include "SDK/CMM/DefaultCMM.dfy"
+include "Util/UTF8.dfy"
 
 module Main {
   import opened StandardLibrary
@@ -19,6 +20,7 @@ module Main {
   import RSA = RSAEncryption
   import RawRSAKeyringDef
   import Materials
+  import UTF8
   //import AES = AESEncryption
   //import opened Cipher
   //import opened RawAESKeyringDef
@@ -63,7 +65,14 @@ module Main {
   {
     var msg := StringToByteSeq("hello");
     print "Message: ", msg, "\n";
-    var e := client.Encrypt(msg, Materials.enc_ctx_of_strings([("keyA", "valA")]));
+    var keyA := UTF8.Encode("keyA");
+    var valA := UTF8.Encode("valA");
+    if keyA.Failure? || valA.Failure? {
+      print "Failure: hardcoded key/value cannot be utf8 encoded";
+      return;
+    }
+
+    var e := client.Encrypt(msg, Materials.enc_ctx_of_strings([(keyA.value, valA.value)]));
     if e.Failure? {
       print "Bad encryption :( ", e.error, "\n";
       return;
@@ -79,13 +88,17 @@ module Main {
   }
 
   method Main() {
-    var namespace := StringToByteSeq("namespace");
-    var name := StringToByteSeq("MyKeyring");
+    var namespace := UTF8.Encode("namespace");
+    var name := UTF8.Encode("MyKeyring");
+    if name.Failure? || namespace.Failure? {
+      print "Failure: hardcoded name/namespace cannot be utf8 encoded";
+      return;
+    }
+
     var ek, dk := RSA.RSA.RSAKeygen(2048, RSA.PKCS1);
-    var keyring := new RawRSAKeyringDef.RawRSAKeyring(namespace, name, RSA.RSAPaddingMode.PKCS1, 2048, Some(ek), Some(dk));
+    var keyring := new RawRSAKeyringDef.RSAKeyring(namespace.value, name.value, RSA.RSAPaddingMode.PKCS1, 2048, Some(ek), Some(dk));
     var cmm := new DefaultCMMDef.DefaultCMM.OfKeyring(keyring);
     var client := new Client.Client.OfCMM(cmm);
-
     EncryptDecryptTest(client);
   }
 }

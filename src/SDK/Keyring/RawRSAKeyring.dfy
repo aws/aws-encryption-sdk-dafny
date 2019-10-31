@@ -5,6 +5,7 @@ include "Defs.dfy"
 include "../AlgorithmSuite.dfy"
 include "../../Crypto/Random.dfy"
 include "../../Crypto/RSAEncryption.dfy"
+include "../../Util/UTF8.dfy"
 
 module RawRSAKeyringDef {
   import opened StandardLibrary
@@ -14,10 +15,11 @@ module RawRSAKeyringDef {
   import RSA = RSAEncryption
   import Materials
   import Random
+  import UTF8
 
   class RawRSAKeyring extends KeyringDefs.Keyring {
-    const keyNamespace: seq<uint8>
-    const keyName: seq<uint8>
+    const keyNamespace: UTF8.ValidUTF8Bytes
+    const keyName: UTF8.ValidUTF8Bytes
     const paddingMode: RSA.RSAPaddingMode
     const bitLength: RSA.RSABitLength
     const encryptionKey: Option<seq<uint8>>
@@ -32,7 +34,7 @@ module RawRSAKeyringDef {
       (encryptionKey.Some? || decryptionKey.Some?)
     }
 
-    constructor(namespace: seq<uint8>, name: seq<uint8>, padding: RSA.RSAPaddingMode, bits: RSA.RSABitLength, ek: Option<seq<uint8>>, dk: Option<seq<uint8>>)
+    constructor(namespace: UTF8.ValidUTF8Bytes, name: UTF8.ValidUTF8Bytes, padding: RSA.RSAPaddingMode, bits: RSA.RSABitLength, ek: Option<seq<uint8>>, dk: Option<seq<uint8>>)
       requires ek.Some? ==> RSA.RSA.RSAWfEK(bits, padding, ek.get)
       requires dk.Some? ==> RSA.RSA.RSAWfDK(bits, padding, dk.get)
       requires ek.Some? || dk.Some?
@@ -74,7 +76,7 @@ module RawRSAKeyringDef {
         if edkCiphertext.None? {
           return Failure("Error on encrypt!");
         }
-        var edk := Materials.EncryptedDataKey(ByteSeqToString(keyNamespace), keyName, edkCiphertext.get);
+        var edk := Materials.EncryptedDataKey(keyNamespace, keyName, edkCiphertext.get);
         encMat.encryptedDataKeys := [edk] + encMat.encryptedDataKeys;
         encMat.plaintextDataKey := dataKey;
         return Success(encMat);
@@ -102,7 +104,7 @@ module RawRSAKeyringDef {
         invariant  0 <= i <= |edks|
       {
         var edk := edks[i];
-        if edk.providerID != ByteSeqToString(keyNamespace) {
+        if edk.providerID != keyNamespace {
           // continue with the next EDK
         } else if edk.providerInfo != keyName {
           // continue with the next EDK

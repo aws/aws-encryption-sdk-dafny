@@ -6,6 +6,7 @@ include "../../Crypto/EncryptionSuites.dfy"
 include "../../Crypto/Random.dfy"
 include "../../Crypto/AESEncryption.dfy"
 include "../Materials.dfy"
+include "../../Util/UTF8.dfy"
 
 module RawAESKeyring{
   import opened StandardLibrary
@@ -16,14 +17,15 @@ module RawAESKeyring{
   import Random
   import KeyringDefs
   import Mat = Materials
+  import UTF8
 
   const AUTH_TAG_LEN_LEN := 4;
   const IV_LEN_LEN       := 4;
   const VALID_ALGORITHMS := {EncryptionSuites.AES_GCM_128, EncryptionSuites.AES_GCM_192, EncryptionSuites.AES_GCM_256}
 
   class RawAESKeyring extends KeyringDefs.Keyring {
-    const keyNamespace: string
-    const keyName: string
+    const keyNamespace: UTF8.ValidUTF8Bytes
+    const keyName: UTF8.ValidUTF8Bytes
     const wrappingKey: seq<uint8>
     const wrappingAlgorithm: EncryptionSuites.EncryptionSuite
 
@@ -31,20 +33,17 @@ module RawAESKeyring{
         Repr == {this} &&
         |wrappingKey| == wrappingAlgorithm.keyLen as int &&
         wrappingAlgorithm in VALID_ALGORITHMS &&
-        wrappingAlgorithm.Valid() &&
-        StringIs8Bit(keyNamespace) && StringIs8Bit(keyName)
+        wrappingAlgorithm.Valid()
     }
 
-    constructor(namespace: string, name: string, key: seq<uint8>, wrappingAlg: EncryptionSuites.EncryptionSuite)
-    requires StringIs8Bit(namespace) && StringIs8Bit(name)
-    requires wrappingAlg in VALID_ALGORITHMS
-    requires wrappingAlg.Valid()
-    requires |key| == wrappingAlg.keyLen as int
-    ensures keyNamespace == namespace
-    ensures keyName == name
-    ensures wrappingKey == key
-    ensures wrappingAlgorithm == wrappingAlg
-    ensures Valid()
+    constructor(namespace: UTF8.ValidUTF8Bytes, name: UTF8.ValidUTF8Bytes, key: seq<uint8>, wrappingAlg: Cipher.CipherParams)
+      requires wrappingAlg in {Cipher.AES_GCM_128, Cipher.AES_GCM_192, Cipher.AES_GCM_256}
+      requires |key| == Cipher.KeyLengthOfCipher(wrappingAlg)
+      ensures keyNamespace == namespace
+      ensures keyName == name
+      ensures wrappingKey == key
+      ensures wrappingAlgorithm == wrappingAlg
+      ensures Valid()
     {
       keyNamespace := namespace;
       keyName := name;
@@ -58,7 +57,7 @@ module RawAESKeyring{
       requires |iv| == wrappingAlgorithm.ivLen as int
       reads this
     {
-      StringToByteSeq(keyName) +
+        keyName +
         [0, 0, 0, wrappingAlgorithm.tagLen * 8] + // tag length in bits
         [0, 0, 0, wrappingAlgorithm.ivLen] + // IV length in bytes
         iv
@@ -95,7 +94,7 @@ module RawAESKeyring{
     predicate method ValidProviderInfo(info: seq<uint8>)
     {
       |info| == |keyName| + AUTH_TAG_LEN_LEN + IV_LEN_LEN + wrappingAlgorithm.ivLen as int &&
-      ByteSeqToString(info[0..|keyName|]) == keyName &&
+      info[0..|keyName|] == keyName &&
       SeqToUInt32(info[|keyName|..|keyName| + AUTH_TAG_LEN_LEN]) == wrappingAlgorithm.tagLen as uint32 &&
       SeqToUInt32(info[|keyName| + AUTH_TAG_LEN_LEN .. |keyName| + AUTH_TAG_LEN_LEN + IV_LEN_LEN]) == wrappingAlgorithm.ivLen as uint32
     }
