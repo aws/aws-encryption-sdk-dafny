@@ -36,9 +36,10 @@ module RawAESKeyring{
         wrappingAlgorithm.Valid()
     }
 
-    constructor(namespace: UTF8.ValidUTF8Bytes, name: UTF8.ValidUTF8Bytes, key: seq<uint8>, wrappingAlg: Cipher.CipherParams)
-      requires wrappingAlg in {Cipher.AES_GCM_128, Cipher.AES_GCM_192, Cipher.AES_GCM_256}
-      requires |key| == Cipher.KeyLengthOfCipher(wrappingAlg)
+    constructor(namespace: UTF8.ValidUTF8Bytes, name: UTF8.ValidUTF8Bytes, key: seq<uint8>, wrappingAlg: EncryptionSuites.EncryptionSuite)
+      requires wrappingAlg in VALID_ALGORITHMS
+      requires wrappingAlg.Valid()
+      requires |key| == wrappingAlg.keyLen as int
       ensures keyNamespace == namespace
       ensures keyName == name
       ensures wrappingKey == key

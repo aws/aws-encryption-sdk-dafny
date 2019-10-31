@@ -96,7 +96,7 @@ module Main {
     }
 
     var ek, dk := RSA.RSA.RSAKeygen(2048, RSA.PKCS1);
-    var keyring := new RawRSAKeyringDef.RSAKeyring(namespace.value, name.value, RSA.RSAPaddingMode.PKCS1, 2048, Some(ek), Some(dk));
+    var keyring := new RawRSAKeyringDef.RawRSAKeyring(namespace.value, name.value, RSA.RSAPaddingMode.PKCS1, 2048, Some(ek), Some(dk));
     var cmm := new DefaultCMMDef.DefaultCMM.OfKeyring(keyring);
     var client := new Client.Client.OfCMM(cmm);
     EncryptDecryptTest(client);
