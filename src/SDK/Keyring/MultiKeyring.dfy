@@ -28,7 +28,7 @@ module MultiKeyringDef {
         constructor (g : Keyring?, c : seq<Keyring>) ensures generator == g ensures children == c
             requires g != null ==> g.Valid()
             requires forall i :: 0 <= i < |c| ==> c[i].Valid()
-            requires DisjointReprsRec({}, ChildKeyrings(g, c))
+            requires PairwiseDisjoint(MapSeq(ChildKeyrings(g, c), (k: Keyring) reads k, k.Repr => k.Repr))
             ensures Valid()
         {
             generator := g;
@@ -41,25 +41,21 @@ module MultiKeyringDef {
             (generator != null ==> generator in Repr  && generator.Repr <= Repr && generator.Valid())  &&
             (forall j :: 0 <= j < |children| ==> children[j] in Repr && children[j].Repr <= Repr && children[j].Valid()) &&
             Repr == ReprDefn() &&
-            DisjointReprsRec({}, ChildKeyrings(generator, children))
+            PairwiseDisjoint(MapSeq(ChildKeyrings(generator, children), (k: Keyring) reads k, k.Repr => k.Repr))
         }
 
         static function ChildKeyrings(g: Keyring?, c: seq<Keyring>): seq<Keyring> {
             (if g != null then [g] else []) + c
         }
 
-        function ReprDefn(): set<object> reads this, generator, children {
-            {this} + (if generator != null then {generator} + generator.Repr else {}) + childrenRepr(children[..])
+        static function ChildReprs(g: Keyring?, c: seq<Keyring>): seq<set<object>> 
+            reads g, c, (if g != null then g.Repr else {}), set i,o | 0 <= i < |c| && o in c[i].Repr :: o
+        {
+            MapSeq(ChildKeyrings(g, c), (k: Keyring) reads k, k.Repr => k.Repr)
         }
 
-        static predicate DisjointReprsRec(r: set<object>, s: seq<Keyring>) 
-                reads r, s, set i,o | 0 <= i < |s| && o in s[i].Repr :: o
-                decreases |s|
-        {
-            if |s| == 0 then
-                true
-            else
-                (r !! s[0].Repr) && DisjointReprsRec(r + s[0].Repr, s[1..])
+        function ReprDefn(): set<object> reads this, generator, children {
+            {this} + (if generator != null then {generator} + generator.Repr else {}) + childrenRepr(children[..])
         }
 
         method OnEncryptRec(input: Mat.ValidEncryptionMaterialsInput, output: Mat.ValidDataKey, i: int) returns (res: Result<Mat.ValidDataKey>)
@@ -126,15 +122,17 @@ module MultiKeyringDef {
             if i == |children| {
                 return Success(None);
             } else {
-                var y :- children[i].OnDecrypt(algorithmSuiteID, encryptionContext, edks);
+                var y := children[i].OnDecrypt(algorithmSuiteID, encryptionContext, edks);
                 match y {
-                    case Some(r) => {
-                        return Success(Some(r));
-                    }
-                    case None => {
-                        res := OnDecryptRec(algorithmSuiteID, encryptionContext, edks, i + 1);
-                    }
+                    case Success(result) =>
+                        if result.Some? {
+                            return y;
+                        }
+                    // TODO-RS: If all keyrings fail, pass on at least one of the errors,
+                    // preferrably all of them in a chain of some kind.
+                    case Failure(_) => {}
                 }
+                res := OnDecryptRec(algorithmSuiteID, encryptionContext, edks, i + 1);
             }
         }
 

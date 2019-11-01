@@ -8,7 +8,6 @@ module Materials {
   import opened UInt = StandardLibrary.UInt
   import AlgorithmSuite
 
-  // TODO-RS: Are these intended to be UTF8?
   type EncryptionContext = seq<(seq<uint8>, seq<uint8>)>
 
   function method GetKeysFromEncryptionContext(encryptionContext: EncryptionContext): set<seq<uint8>> {
@@ -78,7 +77,8 @@ module Materials {
   lemma ValidOnEncryptResultImpliesSameAlgorithmSuiteID(input: ValidEncryptionMaterialsInput, output: ValidDataKey) 
     requires ValidOnEncryptResult(input, output)
     ensures input.algorithmSuiteID == output.algorithmSuiteID
-  
+  {}
+
   lemma MergingResults(input: ValidEncryptionMaterialsInput, dk1: ValidDataKey, dk2: ValidDataKey) 
     requires ValidOnEncryptResult(input, dk1)
     requires ValidOnEncryptResult(input, dk2)
@@ -98,7 +98,9 @@ module Materials {
                                                                  signingKey: Option<seq<uint8>>)
   {
     predicate method Valid() {
-      dataKey.algorithmSuiteID.SignatureType().Some? ==> signingKey.Some?
+      && dataKey.algorithmSuiteID.SignatureType().Some? ==> signingKey.Some?
+      // TODO-RS:
+      // && |dataKey.encryptedDataKeys| > 0
     }
   }
   type ValidEncryptionMaterialsOutput = i: EncryptionMaterialsOutput | i.Valid() 
@@ -119,8 +121,8 @@ module Materials {
                                         encryptionContext: EncryptionContext, 
                                         edks: seq<EncryptedDataKey>, 
                                         output: ValidDataKey) {
-    output.algorithmSuiteID == algorithmSuiteID &&
-    output.encryptedDataKeys == edks
+    && output.algorithmSuiteID == algorithmSuiteID
+    && output.encryptedDataKeys == edks
   }
 
   lemma ValidOnDecryptResultImpliesSameAlgorithmSuiteID(algorithmSuiteID: AlgorithmSuite.ID, 

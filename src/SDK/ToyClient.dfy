@@ -70,10 +70,6 @@ module ToyClientDef {
       ensures res.Success? ==> |res.value.iv| == ALGORITHM.ivLen as int
     {
       var em :- GetEncMaterials(ec);
-      // TODO-RS: Why are we dynamically checking this? It should be impossible to fail
-      if |em.dataKey.plaintextDataKey| != 32 {
-        return Failure("bad data key length");
-      }
       var iv := Random.GenerateBytes(ALGORITHM.ivLen as int32);
       var ciphertext :- AESEncryption.AESEncrypt(ALGORITHM, iv, em.dataKey.plaintextDataKey, pt, []);
       return Success(Encryption(ec, em.dataKey.encryptedDataKeys, iv, ciphertext.cipherText, ciphertext.authTag));
@@ -89,7 +85,7 @@ module ToyClientDef {
         return Failure("no edks");
       }
       var decmat :- cmm.DecryptMaterials(AlgorithmSuite.AES_256_GCM_IV12_TAG16_HKDF_SHA384_ECDSA_P384, e.edks, e.ec);
-      if |decmat.dataKey.plaintextDataKey| == 32 && |e.ctxt| > 12 {
+      if |decmat.dataKey.plaintextDataKey| == 32 {
         var msg := AESEncryption.AESDecrypt(ALGORITHM, decmat.dataKey.plaintextDataKey, e.ctxt, e.authTag, e.iv, []);
         return msg;
       } else {

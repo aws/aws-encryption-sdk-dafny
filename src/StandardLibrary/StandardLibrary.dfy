@@ -266,6 +266,7 @@ module {:extern "STL"} StandardLibrary {
   function method MapSeq<S, T>(s: seq<S>, f: S ~> T): seq<T>
     requires forall i :: 0 <= i < |s| ==> f.requires(s[i])
     reads set i,o | 0 <= i < |s| && o in f.reads(s[i]) :: o
+    decreases s
   {
     if s == [] then [] else [f(s[0])] + MapSeq(s[1..], f)
   }
@@ -389,5 +390,19 @@ module {:extern "STL"} StandardLibrary {
       case less(b[m], a[m]) =>
         assert LexicographicLessOrEqualAux(b, a, less, m);
     }
+  }
+
+  predicate method PairwiseDisjoint(sets: seq<set<object>>) 
+    // TODO-RS: Challenging to explicitly verify, but here for documentation purposes.
+    // ensures forall s1, s2 :: s1 in sets && s2 in sets && s1 != s2 ==> s1 !! s2 
+  {
+    PairwiseDisjointWith(sets, {})
+  }
+
+  predicate method PairwiseDisjointWith(sets: seq<set<object>>, r: set<object>) decreases sets {
+    if |sets| == 0 then
+      true
+    else
+      (r !! sets[0]) && PairwiseDisjointWith(sets[1..], r + sets[0])
   }
 }

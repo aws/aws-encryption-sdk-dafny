@@ -39,7 +39,6 @@ module DefaultCMMDef {
       returns (res: Result<Materials.ValidEncryptionMaterialsOutput>)
       requires Valid()
       ensures Valid()
-      ensures res.Success? ==> res.value.Valid()
       ensures res.Success? && alg_id.Some? ==> res.value.dataKey.algorithmSuiteID == alg_id.get
     {
       var id := if alg_id.Some? then alg_id.get else AlgorithmSuite.AES_256_GCM_IV12_TAG16_HKDF_SHA384_ECDSA_P384;
