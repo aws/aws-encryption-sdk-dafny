@@ -1,8 +1,0 @@
-
-Dafny program verifier finished with 10 verified, 0 errors
-xs = [57, 100, -34, 1, 8]
-foldr = 264
-foldl = 264
-length = 5
-foldr inc = 5
-foldl inc = 5
