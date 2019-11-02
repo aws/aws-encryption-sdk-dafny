@@ -51,7 +51,7 @@ module ToyClientDef {
       Repr := {this, cmm} + cmm.Repr;
     }
 
-    method GetEncMaterials(ec: Materials.EncryptionContext) returns (res: Result<Materials.ValidEncryptionMaterialsOutput>)
+    method GetEncMaterials(ec: Materials.EncryptionContext) returns (res: Result<Materials.ValidEncryptionMaterials>)
       requires Valid()
       ensures Valid()
       ensures res.Success? ==> res.value.dataKey.algorithmSuiteID == AlgorithmSuite.AES_256_GCM_IV12_TAG16_HKDF_SHA384_ECDSA_P384
@@ -85,8 +85,8 @@ module ToyClientDef {
         return Failure("no edks");
       }
       var decmat :- cmm.DecryptMaterials(AlgorithmSuite.AES_256_GCM_IV12_TAG16_HKDF_SHA384_ECDSA_P384, e.edks, e.ec);
-      if |decmat.dataKey.plaintextDataKey| == 32 {
-        var msg := AESEncryption.AESDecrypt(ALGORITHM, decmat.dataKey.plaintextDataKey, e.ctxt, e.authTag, e.iv, []);
+      if |decmat.plaintextDataKey| == 32 {
+        var msg := AESEncryption.AESDecrypt(ALGORITHM, decmat.plaintextDataKey, e.ctxt, e.authTag, e.iv, []);
         return msg;
       } else {
         return Failure("bad dk");

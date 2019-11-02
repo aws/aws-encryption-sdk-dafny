@@ -36,7 +36,7 @@ module DefaultCMMDef {
     }
 
     method GetEncryptionMaterials(ec: Materials.EncryptionContext, alg_id: Option<AlgorithmSuite.ID>, pt_len: Option<nat>) 
-      returns (res: Result<Materials.ValidEncryptionMaterialsOutput>)
+      returns (res: Result<Materials.ValidEncryptionMaterials>)
       requires Valid()
       ensures Valid()
       ensures res.Success? && alg_id.Some? ==> res.value.dataKey.algorithmSuiteID == alg_id.get
@@ -56,38 +56,34 @@ module DefaultCMMDef {
               enc_ec := [(Materials.EC_PUBLIC_KEY_FIELD, StringToByteSeq(Base64.Encode(ab.1)))] + enc_ec;
       }
 
-      var in_enc_mat := Materials.EncryptionMaterialsInput(id, enc_ec, None);
-      var dataKey :- kr.OnEncrypt(in_enc_mat);
-      if dataKey.None? {
+      var dataKey :- kr.OnEncrypt(id, enc_ec, None);
+      if dataKey.None? || |dataKey.get.encryptedDataKeys| == 0 {
         return Failure("Could not retrieve materials required for encryption");
       }
-      Materials.ValidOnEncryptResultImpliesSameAlgorithmSuiteID(in_enc_mat, dataKey.get);
-      return Success(Materials.EncryptionMaterialsOutput(dataKey.get, enc_sk));
+      return Success(Materials.EncryptionMaterials(dataKey.get, enc_sk));
     }
 
     method DecryptMaterials(alg_id: AlgorithmSuite.ID, edks: seq<Materials.EncryptedDataKey>, enc_ctx: Materials.EncryptionContext) 
-      returns (res: Result<Materials.ValidDecryptionMaterialsOutput>)
+      returns (res: Result<Materials.DecryptionMaterials>)
       requires |edks| > 0
       requires Valid()
       ensures Valid()
-      ensures res.Success? ==> res.value.dataKey.algorithmSuiteID == alg_id
     {
       var vkey := Materials.enc_ctx_lookup(enc_ctx, Materials.EC_PUBLIC_KEY_FIELD);
       var dm :- kr.OnDecrypt(alg_id, enc_ctx, edks);
       if dm.None? {
         return Failure("Could not get materials required for decryption.");
       }
-      Materials.ValidOnDecryptResultImpliesSameAlgorithmSuiteID(alg_id, enc_ctx, edks, dm.get);
 
       var verificationKey := None;
-      if dm.get.algorithmSuiteID.SignatureType().Some? {
+      if alg_id.SignatureType().Some? {
         match Materials.enc_ctx_lookup(enc_ctx, Materials.EC_PUBLIC_KEY_FIELD)
         case None =>
           return Failure("Could not get materials required for decryption.");
         case Some(pk) =>
           verificationKey := Some(pk);
       }
-      return Success(Materials.DecryptionMaterialsOutput(dm.get, verificationKey));
+      return Success(Materials.DecryptionMaterials(dm.get, verificationKey));
     }
   }
 }

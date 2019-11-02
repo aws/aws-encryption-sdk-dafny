@@ -28,7 +28,7 @@ module MultiKeyringDef {
         constructor (g : Keyring?, c : seq<Keyring>) ensures generator == g ensures children == c
             requires g != null ==> g.Valid()
             requires forall i :: 0 <= i < |c| ==> c[i].Valid()
-            requires PairwiseDisjoint(MapSeq(ChildKeyrings(g, c), (k: Keyring) reads k, k.Repr => k.Repr))
+            requires AllKeyringsDisjoint(g, c)
             ensures Valid()
         {
             generator := g;
@@ -38,85 +38,83 @@ module MultiKeyringDef {
         }
 
         predicate Valid() reads this, Repr {
-            (generator != null ==> generator in Repr  && generator.Repr <= Repr && generator.Valid())  &&
+            (generator != null ==> generator in Repr && generator.Repr <= Repr && generator.Valid())  &&
             (forall j :: 0 <= j < |children| ==> children[j] in Repr && children[j].Repr <= Repr && children[j].Valid()) &&
             Repr == ReprDefn() &&
-            PairwiseDisjoint(MapSeq(ChildKeyrings(generator, children), (k: Keyring) reads k, k.Repr => k.Repr))
+            AllKeyringsDisjoint(generator, children)
         }
 
-        static function ChildKeyrings(g: Keyring?, c: seq<Keyring>): seq<Keyring> {
-            (if g != null then [g] else []) + c
-        }
-
-        static function ChildReprs(g: Keyring?, c: seq<Keyring>): seq<set<object>> 
+        static predicate AllKeyringsDisjoint(g: Keyring?, c: seq<Keyring>) 
             reads g, c, (if g != null then g.Repr else {}), set i,o | 0 <= i < |c| && o in c[i].Repr :: o
         {
-            MapSeq(ChildKeyrings(g, c), (k: Keyring) reads k, k.Repr => k.Repr)
+            var keyrings: seq<Keyring> := (if g != null then [g] else []) + c;
+            PairwiseDisjoint(MapSeq(keyrings, (k: Keyring) reads k, k.Repr => k.Repr))
         }
 
         function ReprDefn(): set<object> reads this, generator, children {
             {this} + (if generator != null then {generator} + generator.Repr else {}) + childrenRepr(children[..])
         }
 
-        method OnEncryptRec(input: Mat.ValidEncryptionMaterialsInput, output: Mat.ValidDataKey, i: int) returns (res: Result<Mat.ValidDataKey>)
+        method OnEncryptRec(encryptionContext: Mat.EncryptionContext,
+                            output: Mat.ValidDataKey, i: int) returns (res: Result<Mat.ValidDataKey>)
             requires Valid()
             requires 0 <= i <= |children|
-            requires Mat.ValidOnEncryptResult(input, output)
-            requires input.plaintextDataKey.Some? && input.plaintextDataKey.get == output.plaintextDataKey
             ensures Valid()
             ensures forall i :: 0 <= i < |children| ==> children[i].Valid()
-            ensures res.Success? ==> Mat.ValidOnEncryptResult(input, res.value)
+            ensures res.Success? ==> 
+                output.plaintextDataKey == res.value.plaintextDataKey
+            ensures res.Success? ==> 
+                output.algorithmSuiteID == res.value.algorithmSuiteID
             decreases |children| - i
         {
             if i == |children| {
                 return Success(output);
             }
             else {
-                var r :- children[i].OnEncrypt(input);
-                if r.Some? {
-                    Materials.ValidOnEncryptResultImpliesSameAlgorithmSuiteID(input, r.get);
-                }
-                var newOutput := if r.Some? then
-                        Mat.MergingResults(input, output, r.get);
-                        Mat.MergeDataKeys(output, r.get) 
-                    else output;
-                var a := OnEncryptRec(input, newOutput, i + 1);
+                var r :- children[i].OnEncrypt(output.algorithmSuiteID, encryptionContext, Some(output.plaintextDataKey));
+                var newOutput := if r.Some? then Mat.MergeDataKeys(output, r.get) else output;
+                var a := OnEncryptRec(encryptionContext, newOutput, i + 1);
                 return a;
             }
         }
 
-        method OnEncrypt(encMat : Mat.ValidEncryptionMaterialsInput) returns (res: Result<Option<Mat.ValidDataKey>>)
+        method OnEncrypt(algorithmSuiteID: Mat.AlgorithmSuite.ID,
+                         encryptionContext: Mat.EncryptionContext,
+                         plaintextDataKey: Option<seq<uint8>>) returns (res: Result<Option<Mat.ValidDataKey>>)
             requires Valid()
+            requires plaintextDataKey.Some? ==> algorithmSuiteID.ValidPlaintextDataKey(plaintextDataKey.get)
             ensures Valid()
-            ensures res.Success? && res.value.Some? ==> Materials.ValidOnEncryptResult(encMat, res.value.get)
+            ensures unchanged(Repr)
+            ensures res.Success? && res.value.Some? && plaintextDataKey.Some? ==> 
+                plaintextDataKey.get == res.value.get.plaintextDataKey
+            ensures res.Success? && res.value.Some? ==> 
+                algorithmSuiteID == res.value.get.algorithmSuiteID
         {
             var initialDataKey: Option<Mat.ValidDataKey> := None;
-            if encMat.plaintextDataKey.Some? {
-                initialDataKey := Some(Mat.DataKey(encMat.algorithmSuiteID, encMat.plaintextDataKey.get, []));
+            if plaintextDataKey.Some? {
+                initialDataKey := Some(Mat.DataKey(algorithmSuiteID, plaintextDataKey.get, []));
             }
             
             if generator != null {
-                initialDataKey :- generator.OnEncrypt(encMat);
+                initialDataKey :- generator.OnEncrypt(algorithmSuiteID, encryptionContext, plaintextDataKey);
                 if initialDataKey.Some? {
-                    Materials.ValidOnEncryptResultImpliesSameAlgorithmSuiteID(encMat, initialDataKey.get);
+                    assert initialDataKey.get.algorithmSuiteID == algorithmSuiteID;
+                    assert algorithmSuiteID.ValidPlaintextDataKey(initialDataKey.get.plaintextDataKey);
                 }
             }
             if initialDataKey.None? {
                 return Failure("Bad state: data key not found");
             }
-            var input := Mat.EncryptionMaterialsInput(encMat.algorithmSuiteID, encMat.encryptionContext, Some(initialDataKey.get.plaintextDataKey));
-            var result :- OnEncryptRec(input, initialDataKey.get, 0);
+            var result :- OnEncryptRec(encryptionContext, initialDataKey.get, 0);
             res := Success(Some(result));
         }
 
         method OnDecryptRec(algorithmSuiteID: AlgorithmSuite.ID, encryptionContext: Materials.EncryptionContext, edks: seq<Materials.EncryptedDataKey>, i : int)
-            returns (res: Result<Option<Materials.ValidDataKey>>)
+            returns (res: Result<Option<seq<uint8>>>)
             requires 0 <= i <= |children|
             requires Valid()
             ensures Valid()
             ensures |edks| == 0 ==> res.Success? && res.value.None?
-            ensures res.Success? && res.value.Some? ==> 
-                Materials.ValidOnDecryptResult(algorithmSuiteID, encryptionContext, edks, res.value.get)
             decreases |children| - i
         {
             if i == |children| {
@@ -136,13 +134,13 @@ module MultiKeyringDef {
             }
         }
 
-        method OnDecrypt(algorithmSuiteID: AlgorithmSuite.ID, encryptionContext: Materials.EncryptionContext, edks: seq<Materials.EncryptedDataKey>)
-            returns (res: Result<Option<Materials.ValidDataKey>>)
-            requires Valid()
+        method OnDecrypt(algorithmSuiteID: AlgorithmSuite.ID,
+                     encryptionContext: Mat.EncryptionContext,
+                     edks: seq<Mat.EncryptedDataKey>) 
+            returns (res: Result<Option<seq<uint8>>>)
+            requires Valid() 
             ensures Valid()
             ensures |edks| == 0 ==> res.Success? && res.value.None?
-            ensures res.Success? && res.value.Some? ==> 
-                Materials.ValidOnDecryptResult(algorithmSuiteID, encryptionContext, edks, res.value.get)
         {
             if generator != null {
                 var result :- generator.OnDecrypt(algorithmSuiteID, encryptionContext, edks);

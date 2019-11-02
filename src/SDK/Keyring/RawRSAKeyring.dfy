@@ -51,39 +51,46 @@ module RawRSAKeyringDef {
       Repr := {this};
     }
 
-    method OnEncrypt(encMat: Materials.ValidEncryptionMaterialsInput) returns (res: Result<Option<Materials.ValidDataKey>>)
+    method OnEncrypt(algorithmSuiteID: Materials.AlgorithmSuite.ID,
+                     encryptionContext: Materials.EncryptionContext,
+                     plaintextDataKey: Option<seq<uint8>>) returns (res: Result<Option<Materials.ValidDataKey>>)
       requires Valid()
+      requires plaintextDataKey.Some? ==> algorithmSuiteID.ValidPlaintextDataKey(plaintextDataKey.get)
       ensures Valid()
       ensures unchanged(Repr)
-      ensures res.Success? && res.value.Some? ==> Materials.ValidOnEncryptResult(encMat, res.value.get)
+      ensures res.Success? && res.value.Some? ==> 
+          algorithmSuiteID == res.value.get.algorithmSuiteID
+      ensures res.Success? && res.value.Some? && plaintextDataKey.Some? ==> 
+          plaintextDataKey.get == res.value.get.plaintextDataKey
     {
       if encryptionKey.None? {
         return Failure("Encryption key undefined");
       } else {
-        var plaintextDataKey := encMat.plaintextDataKey;
-        var algorithmID := encMat.algorithmSuiteID;
+        var plaintextDataKey := plaintextDataKey;
+        var algorithmID := algorithmSuiteID;
         if plaintextDataKey.None? {
           var k := Random.GenerateBytes(algorithmID.KeyLength() as int32);
           plaintextDataKey := Some(k);
         }
-        var aad := Materials.FlattenSortEncCtx(encMat.encryptionContext);
+        var aad := Materials.FlattenSortEncCtx(encryptionContext);
         var edkCiphertext := RSA.RSA.RSAEncrypt(bitLength, paddingMode, encryptionKey.get, plaintextDataKey.get);
         if edkCiphertext.None? {
           return Failure("Error on encrypt!");
         }
         var edk := Materials.EncryptedDataKey(ByteSeqToString(keyNamespace), keyName, edkCiphertext.get);
-        var dataKey := Materials.DataKey(encMat.algorithmSuiteID, plaintextDataKey.get, [edk]);
+        var dataKey := Materials.DataKey(algorithmSuiteID, plaintextDataKey.get, [edk]);
         assert dataKey.algorithmSuiteID.ValidPlaintextDataKey(dataKey.plaintextDataKey);
         return Success(Some(dataKey));
       }
     }
 
-    method OnDecrypt(algorithmSuiteID: AlgorithmSuite.ID, encryptionContext: Materials.EncryptionContext, edks: seq<Materials.EncryptedDataKey>)
-      returns (res: Result<Option<Materials.ValidDataKey>>)
-      requires Valid()
+    method OnDecrypt(algorithmSuiteID: AlgorithmSuite.ID, 
+                     encryptionContext: Materials.EncryptionContext, 
+                     edks: seq<Materials.EncryptedDataKey>)
+      returns (res: Result<Option<seq<uint8>>>)
+      requires Valid() 
       ensures Valid()
       ensures |edks| == 0 ==> res.Success? && res.value.None?
-      ensures res.Success? && res.value.Some? ==> Materials.ValidOnDecryptResult(algorithmSuiteID, encryptionContext, edks, res.value.get)
     {
       if |edks| == 0 {
         return Success(None);
@@ -105,9 +112,8 @@ module RawRSAKeyringDef {
           case None =>
             // continue with the next EDK
           case Some(k) =>
-            var dataKey := Materials.DataKey(algorithmSuiteID, k, edks);
-            if dataKey.Valid() { // check for correct key length
-              return Success(Some(dataKey));
+            if algorithmSuiteID.ValidPlaintextDataKey(k) { // check for correct key length
+              return Success(Some(k));
             } else {
               return Failure(("Bad key length!"));
             }
