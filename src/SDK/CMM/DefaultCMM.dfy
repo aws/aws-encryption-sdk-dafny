@@ -90,7 +90,7 @@ module DefaultCMMDef {
       var vkey := None;
       var reservedField :- UTF8.Encode(Materials.EC_PUBLIC_KEY_FIELD);
       if alg_id.SignatureType().Some? {
-        var encodedVKey := Materials.enc_ctx_lookup(enc_ctx, reservedField);
+        var encodedVKey := Materials.EncCtxLookup(enc_ctx, reservedField);
         if !encodedVKey.Some? {
           return Failure("Could not get materials required for decryption.");
         }

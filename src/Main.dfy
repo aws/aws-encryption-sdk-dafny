@@ -63,16 +63,20 @@ module Main {
   method EncryptDecryptTest(client: Client.Client)
     requires client.Valid()
   {
-    var msg := StringToByteSeq("hello");
-    print "Message: ", msg, "\n";
+    var msg := UTF8.Encode("hello");
+    if msg.Failure? {
+      print "Failure: hardcoded plaintext cannot be utf8 encoded\n";
+      return;
+    }
+    print "Message: ", msg.value, "\n";
     var keyA := UTF8.Encode("keyA");
     var valA := UTF8.Encode("valA");
     if keyA.Failure? || valA.Failure? {
-      print "Failure: hardcoded key/value cannot be utf8 encoded";
+      print "Failure: hardcoded key/value cannot be utf8 encoded\n";
       return;
     }
 
-    var e := client.Encrypt(msg, Materials.enc_ctx_of_strings([(keyA.value, valA.value)]));
+    var e := client.Encrypt(msg.value, Materials.EncCtxOfStrings([(keyA.value, valA.value)]));
     if e.Failure? {
       print "Bad encryption :( ", e.error, "\n";
       return;
@@ -84,7 +88,12 @@ module Main {
     }
     print "Produced ", |e.value.edks|, " EDKs \n";
     print "Decrypted to: ", d.value, "\n";
-    print "AAD: ", ByteSeqToString(Materials.FlattenSortEncCtx(e.value.ec)), "\n";
+    var aad := UTF8.Decode(Materials.FlattenSortEncCtx(e.value.ec));
+    if aad.Failure? {
+      print "Failure: encryption context cannot be utf8 decoded after serialization\n";
+      return;
+    }
+    print "AAD: ", aad.value, "\n";
   }
 
   method Main() {

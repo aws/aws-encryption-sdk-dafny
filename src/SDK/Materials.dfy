@@ -184,24 +184,24 @@ module Materials {
         lex_lt(b.0, a.0)
     }
 
-    function method EncCtxFlatten (x : seq<(seq<uint8>, seq<uint8>)>) : seq<uint8> {
+    function method EncCtxFlatten (x : seq<(UTF8.ValidUTF8Bytes, UTF8.ValidUTF8Bytes)>): UTF8.ValidUTF8Bytes {
         if x == [] then [] else
         x[0].0 + x[0].1 + EncCtxFlatten(x[1..])
     }
 
-    function method FlattenSortEncCtx(x : seq<(seq<uint8>, seq<uint8>)>) : seq<uint8>
+    function method FlattenSortEncCtx(x : seq<(UTF8.ValidUTF8Bytes, UTF8.ValidUTF8Bytes)>): UTF8.ValidUTF8Bytes
     {
         EncCtxFlatten(naive_merge_sort(x, lt_keys))
     }
 
-    function method enc_ctx_lookup(x : seq<(UTF8.ValidUTF8Bytes, UTF8.ValidUTF8Bytes)>, k : UTF8.ValidUTF8Bytes) : Option<UTF8.ValidUTF8Bytes>
+    function method EncCtxLookup(x : seq<(UTF8.ValidUTF8Bytes, UTF8.ValidUTF8Bytes)>, k : UTF8.ValidUTF8Bytes): Option<UTF8.ValidUTF8Bytes>
     {
         if |x| == 0 then None else
-        if x[0].0 == k then Some(x[0].1) else enc_ctx_lookup(x[1..], k)
+        if x[0].0 == k then Some(x[0].1) else EncCtxLookup(x[1..], k)
     }
 
-    function method enc_ctx_of_strings(x : seq<(UTF8.ValidUTF8Bytes, UTF8.ValidUTF8Bytes)>) : seq<(UTF8.ValidUTF8Bytes, UTF8.ValidUTF8Bytes)>  {
+    function method EncCtxOfStrings(x : seq<(UTF8.ValidUTF8Bytes, UTF8.ValidUTF8Bytes)>): seq<(UTF8.ValidUTF8Bytes, UTF8.ValidUTF8Bytes)>  {
         if x == [] then [] else
-        [(x[0].0, x[0].1)] + enc_ctx_of_strings(x[1..])
+        [(x[0].0, x[0].1)] + EncCtxOfStrings(x[1..])
     }
 }
