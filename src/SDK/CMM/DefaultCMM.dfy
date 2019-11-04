@@ -4,6 +4,7 @@ include "../../StandardLibrary/Base64.dfy"
 include "../Materials.dfy"
 include "Defs.dfy"
 include "../Keyring/Defs.dfy"
+include "../../Util/UTF8.dfy"
 
 module DefaultCMMDef {
   import opened StandardLibrary
@@ -14,6 +15,7 @@ module DefaultCMMDef {
   import AlgorithmSuite
   import S = Signature
   import Base64
+  import UTF8
 
   class DefaultCMM extends CMMDefs.CMM {
     const kr: KeyringDefs.Keyring
@@ -53,7 +55,9 @@ module DefaultCMMDef {
             case None => return Failure("Keygen error");
             case Some(ab) =>
               enc_sk := Some(ab.1);
-              enc_ec := [(Materials.EC_PUBLIC_KEY_FIELD, StringToByteSeq(Base64.Encode(ab.1)))] + enc_ec;
+              var enc_vk :- UTF8.Encode(Base64.Encode(ab.1));
+              var reservedField :- UTF8.Encode(Materials.EC_PUBLIC_KEY_FIELD);
+              enc_ec := [(reservedField, enc_vk)] + enc_ec;
       }
 
       var dataKey :- kr.OnEncrypt(id, enc_ec, None);
@@ -69,21 +73,25 @@ module DefaultCMMDef {
       requires Valid()
       ensures Valid()
     {
-      var vkey := Materials.enc_ctx_lookup(enc_ctx, Materials.EC_PUBLIC_KEY_FIELD);
+      // Retrieve and decode verification key from encryption context if using signing algorithm
+      var vkey := None;
+      var reservedField :- UTF8.Encode(Materials.EC_PUBLIC_KEY_FIELD);
+      if alg_id.SignatureType().Some? {
+        var encodedVKey := Materials.EncCtxLookup(enc_ctx, reservedField);
+        if !encodedVKey.Some? {
+          return Failure("Could not get materials required for decryption.");
+        }
+        var utf8Decoded :- UTF8.Decode(encodedVKey.get);
+        var base64Decoded :- Base64.Decode(utf8Decoded);
+        vkey := Some(base64Decoded);
+      }
+
       var dm :- kr.OnDecrypt(alg_id, enc_ctx, edks);
       if dm.None? {
         return Failure("Could not get materials required for decryption.");
       }
 
-      var verificationKey := None;
-      if alg_id.SignatureType().Some? {
-        match Materials.enc_ctx_lookup(enc_ctx, Materials.EC_PUBLIC_KEY_FIELD)
-        case None =>
-          return Failure("Could not get materials required for decryption.");
-        case Some(pk) =>
-          verificationKey := Some(pk);
-      }
-      return Success(Materials.DecryptionMaterials(alg_id, enc_ctx, dm.get, verificationKey));
+      return Success(Materials.DecryptionMaterials(alg_id, enc_ctx, dm.get, vkey));
     }
   }
 }
