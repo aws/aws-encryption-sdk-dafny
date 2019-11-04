@@ -74,9 +74,12 @@ module Materials {
       && dataKey.algorithmSuiteID.SignatureType().Some? ==> signingKey.Some?
       && |dataKey.encryptedDataKeys| > 0
     }
+
+    static function method ValidWitness(): EncryptionMaterials { 
+       EncryptionMaterials([], DataKey.ValidWitness(), Some(seq(32, i => 0)))
+    }
   }
-  type ValidEncryptionMaterials = i: EncryptionMaterials | i.Valid() 
-    witness EncryptionMaterials([], DataKey.ValidWitness(), Some(seq(32, i => 0)))
+  type ValidEncryptionMaterials = i: EncryptionMaterials | i.Valid() witness EncryptionMaterials.ValidWitness()
 
   // TODO: Add keyring trace
   datatype DecryptionMaterials = DecryptionMaterials(algorithmSuiteID: AlgorithmSuite.ID,
@@ -88,10 +91,13 @@ module Materials {
       && algorithmSuiteID.ValidPlaintextDataKey(plaintextDataKey)
       && algorithmSuiteID.SignatureType().Some? ==> verificationKey.Some?
     }
+
+    static function method ValidWitness(): DecryptionMaterials { 
+      DecryptionMaterials(AlgorithmSuite.AES_256_GCM_IV12_TAG16_HKDF_SHA384_ECDSA_P384,
+                          [], seq(32, i => 0), Some(seq(32, i => 0)))
+    }
   }
-  type ValidDecryptionMaterials = i: DecryptionMaterials | i.Valid() 
-    witness DecryptionMaterials(AlgorithmSuite.AES_256_GCM_IV12_TAG16_HKDF_SHA384_ECDSA_P384,
-        [], seq(32, i => 0), Some(seq(32, i => 0)))
+  type ValidDecryptionMaterials = i: DecryptionMaterials | i.Valid() witness DecryptionMaterials.ValidWitness()
 
     //TODO: Review this code.
     function method naive_merge<T> (x : seq<T>, y : seq<T>, lt : (T, T) -> bool) : seq<T>
