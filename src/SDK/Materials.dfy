@@ -30,7 +30,7 @@ module Materials {
     }
 
     static function method ValidWitness(): EncryptedDataKey {
-      EncryptedDataKey("provider", StringToByteSeq("provider info"), StringToByteSeq("cypher text"))
+      EncryptedDataKey([], [], [])
     }
   }
 
