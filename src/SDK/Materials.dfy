@@ -55,7 +55,7 @@ module Materials {
     k1.algorithmSuiteID == k2.algorithmSuiteID && k1.plaintextDataKey == k2.plaintextDataKey
   }
 
-  function method MergeDataKeys(k1: ValidDataKeyMaterials, k2: ValidDataKeyMaterials): (res: ValidDataKeyMaterials)
+  function method MergeDataKeyMaterials(k1: ValidDataKeyMaterials, k2: ValidDataKeyMaterials): (res: ValidDataKeyMaterials)
     requires CompatibleDataKeyMaterials(k1, k2)
     ensures res.algorithmSuiteID == k1.algorithmSuiteID == k2.algorithmSuiteID
     ensures res.plaintextDataKey == k1.plaintextDataKey == k2.plaintextDataKey

@@ -3,7 +3,7 @@ include "../../StandardLibrary/UInt.dfy"
 include "../Materials.dfy"
 include "../AlgorithmSuite.dfy"
 
-  module KeyringDefs {
+module KeyringDefs {
   import opened StandardLibrary
   import opened UInt = StandardLibrary.UInt
   import Materials
