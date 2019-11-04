@@ -50,7 +50,6 @@ module Materials {
     }
   }
 
-    
   type ValidDataKey = i: DataKey | i.Valid() witness DataKey.ValidWitness()
 
   predicate method CompatibleDataKeys(k1: ValidDataKey, k2: ValidDataKey) {
@@ -67,7 +66,8 @@ module Materials {
     r
   }
 
-  datatype EncryptionMaterials = EncryptionMaterials(dataKey: ValidDataKey,
+  datatype EncryptionMaterials = EncryptionMaterials(encryptionContext: EncryptionContext,
+                                                     dataKey: ValidDataKey,
                                                      signingKey: Option<seq<uint8>>)
   {
     predicate method Valid() {
@@ -76,11 +76,22 @@ module Materials {
     }
   }
   type ValidEncryptionMaterials = i: EncryptionMaterials | i.Valid() 
-    witness EncryptionMaterials(DataKey.ValidWitness(), Some(seq(32, i => 0)))
+    witness EncryptionMaterials([], DataKey.ValidWitness(), Some(seq(32, i => 0)))
 
   // TODO: Add keyring trace
-  datatype DecryptionMaterials = DecryptionMaterials(plaintextDataKey: seq<uint8>,
+  datatype DecryptionMaterials = DecryptionMaterials(algorithmSuiteID: AlgorithmSuite.ID,
+                                                     encryptionContext: EncryptionContext,
+                                                     plaintextDataKey: seq<uint8>,
                                                      verificationKey: Option<seq<uint8>>)
+  {
+    predicate method Valid() {
+      && algorithmSuiteID.ValidPlaintextDataKey(plaintextDataKey)
+      && algorithmSuiteID.SignatureType().Some? ==> verificationKey.Some?
+    }
+  }
+  type ValidDecryptionMaterials = i: DecryptionMaterials | i.Valid() 
+    witness DecryptionMaterials(AlgorithmSuite.AES_256_GCM_IV12_TAG16_HKDF_SHA384_ECDSA_P384,
+        [], seq(32, i => 0), Some(seq(32, i => 0)))
 
     //TODO: Review this code.
     function method naive_merge<T> (x : seq<T>, y : seq<T>, lt : (T, T) -> bool) : seq<T>

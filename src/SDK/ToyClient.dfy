@@ -72,7 +72,7 @@ module ToyClientDef {
       var em :- GetEncMaterials(ec);
       var iv := Random.GenerateBytes(ALGORITHM.ivLen as int32);
       var ciphertext :- AESEncryption.AESEncrypt(ALGORITHM, iv, em.dataKey.plaintextDataKey, pt, []);
-      return Success(Encryption(ec, em.dataKey.encryptedDataKeys, iv, ciphertext.cipherText, ciphertext.authTag));
+      return Success(Encryption(em.encryptionContext, em.dataKey.encryptedDataKeys, iv, ciphertext.cipherText, ciphertext.authTag));
     }
 
     method Decrypt(e: Encryption) returns (res: Result<seq<uint8>>)

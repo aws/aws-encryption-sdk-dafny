@@ -60,11 +60,11 @@ module DefaultCMMDef {
       if dataKey.None? || |dataKey.get.encryptedDataKeys| == 0 {
         return Failure("Could not retrieve materials required for encryption");
       }
-      return Success(Materials.EncryptionMaterials(dataKey.get, enc_sk));
+      return Success(Materials.EncryptionMaterials(enc_ec, dataKey.get, enc_sk));
     }
 
     method DecryptMaterials(alg_id: AlgorithmSuite.ID, edks: seq<Materials.EncryptedDataKey>, enc_ctx: Materials.EncryptionContext) 
-      returns (res: Result<Materials.DecryptionMaterials>)
+      returns (res: Result<Materials.ValidDecryptionMaterials>)
       requires |edks| > 0
       requires Valid()
       ensures Valid()
@@ -83,7 +83,7 @@ module DefaultCMMDef {
         case Some(pk) =>
           verificationKey := Some(pk);
       }
-      return Success(Materials.DecryptionMaterials(dm.get, verificationKey));
+      return Success(Materials.DecryptionMaterials(alg_id, enc_ctx, dm.get, verificationKey));
     }
   }
 }
