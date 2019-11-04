@@ -66,7 +66,7 @@ module RawAESKeyring{
 
     method OnEncrypt(algorithmSuiteID: Mat.AlgorithmSuite.ID,
                      encryptionContext: Mat.EncryptionContext,
-                     plaintextDataKey: Option<seq<uint8>>) returns (res: Result<Option<Mat.ValidDataKey>>)
+                     plaintextDataKey: Option<seq<uint8>>) returns (res: Result<Option<Mat.ValidDataKeyMaterials>>)
       requires Valid()
       requires plaintextDataKey.Some? ==> algorithmSuiteID.ValidPlaintextDataKey(plaintextDataKey.get)
       ensures Valid()
@@ -86,7 +86,7 @@ module RawAESKeyring{
       var encryptResult :- AESEncryption.AESEncrypt(wrappingAlgorithm, iv, wrappingKey, plaintextDataKey.get, aad);
       var providerInfo := SerializeProviderInto(iv);
       var edk := Mat.EncryptedDataKey(keyNamespace, providerInfo, encryptResult.cipherText + encryptResult.authTag);
-      var dataKey := Mat.DataKey(algorithmSuiteID, plaintextDataKey.get, [edk]);
+      var dataKey := Mat.DataKeyMaterials(algorithmSuiteID, plaintextDataKey.get, [edk]);
       assert dataKey.algorithmSuiteID.ValidPlaintextDataKey(dataKey.plaintextDataKey);
       return Success(Some(dataKey));
     }

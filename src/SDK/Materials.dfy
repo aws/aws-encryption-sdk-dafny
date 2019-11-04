@@ -34,40 +34,39 @@ module Materials {
   }
 
   // TODO: Add keyring trace
-  datatype DataKey = DataKey(algorithmSuiteID: AlgorithmSuite.ID,
-                             plaintextDataKey: seq<uint8>,
-                             encryptedDataKeys: seq<EncryptedDataKey>) 
+  datatype DataKeyMaterials = DataKeyMaterials(algorithmSuiteID: AlgorithmSuite.ID,
+                                               plaintextDataKey: seq<uint8>,
+                                               encryptedDataKeys: seq<EncryptedDataKey>) 
   {
     predicate method Valid() {
       algorithmSuiteID.ValidPlaintextDataKey(plaintextDataKey)
-      // TODO-RS: assert that the encrypted data keys are actually tied to the plaintext!
     }
 
-    static function method ValidWitness(): DataKey { 
-      DataKey(AlgorithmSuite.AES_256_GCM_IV12_TAG16_HKDF_SHA384_ECDSA_P384, 
-              seq(32, i => 0), 
-              [EncryptedDataKey.ValidWitness()])
+    static function method ValidWitness(): DataKeyMaterials { 
+      DataKeyMaterials(AlgorithmSuite.AES_256_GCM_IV12_TAG16_HKDF_SHA384_ECDSA_P384, 
+                      seq(32, i => 0), 
+                      [EncryptedDataKey.ValidWitness()])
     }
   }
 
-  type ValidDataKey = i: DataKey | i.Valid() witness DataKey.ValidWitness()
+  type ValidDataKeyMaterials = i: DataKeyMaterials | i.Valid() witness DataKeyMaterials.ValidWitness()
 
-  predicate method CompatibleDataKeys(k1: ValidDataKey, k2: ValidDataKey) {
+  predicate method CompatibleDataKeyMaterials(k1: ValidDataKeyMaterials, k2: ValidDataKeyMaterials) {
     k1.algorithmSuiteID == k2.algorithmSuiteID && k1.plaintextDataKey == k2.plaintextDataKey
   }
 
-  function method MergeDataKeys(k1: ValidDataKey, k2: ValidDataKey): (res: ValidDataKey)
-    requires CompatibleDataKeys(k1, k2)
+  function method MergeDataKeys(k1: ValidDataKeyMaterials, k2: ValidDataKeyMaterials): (res: ValidDataKeyMaterials)
+    requires CompatibleDataKeyMaterials(k1, k2)
     ensures res.algorithmSuiteID == k1.algorithmSuiteID == k2.algorithmSuiteID
     ensures res.plaintextDataKey == k1.plaintextDataKey == k2.plaintextDataKey
     ensures res.encryptedDataKeys == k1.encryptedDataKeys + k2.encryptedDataKeys
   {
-    var r := DataKey(k1.algorithmSuiteID, k1.plaintextDataKey, k1.encryptedDataKeys + k2.encryptedDataKeys);
+    var r := DataKeyMaterials(k1.algorithmSuiteID, k1.plaintextDataKey, k1.encryptedDataKeys + k2.encryptedDataKeys);
     r
   }
 
   datatype EncryptionMaterials = EncryptionMaterials(encryptionContext: EncryptionContext,
-                                                     dataKey: ValidDataKey,
+                                                     dataKey: ValidDataKeyMaterials,
                                                      signingKey: Option<seq<uint8>>)
   {
     predicate method Valid() {
@@ -76,7 +75,7 @@ module Materials {
     }
 
     static function method ValidWitness(): EncryptionMaterials { 
-       EncryptionMaterials([], DataKey.ValidWitness(), Some(seq(32, i => 0)))
+       EncryptionMaterials([], DataKeyMaterials.ValidWitness(), Some(seq(32, i => 0)))
     }
   }
   type ValidEncryptionMaterials = i: EncryptionMaterials | i.Valid() witness EncryptionMaterials.ValidWitness()

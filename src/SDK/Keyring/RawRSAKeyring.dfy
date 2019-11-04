@@ -53,7 +53,7 @@ module RawRSAKeyringDef {
 
     method OnEncrypt(algorithmSuiteID: Materials.AlgorithmSuite.ID,
                      encryptionContext: Materials.EncryptionContext,
-                     plaintextDataKey: Option<seq<uint8>>) returns (res: Result<Option<Materials.ValidDataKey>>)
+                     plaintextDataKey: Option<seq<uint8>>) returns (res: Result<Option<Materials.ValidDataKeyMaterials>>)
       requires Valid()
       requires plaintextDataKey.Some? ==> algorithmSuiteID.ValidPlaintextDataKey(plaintextDataKey.get)
       ensures Valid()
@@ -78,7 +78,7 @@ module RawRSAKeyringDef {
           return Failure("Error on encrypt!");
         }
         var edk := Materials.EncryptedDataKey(ByteSeqToString(keyNamespace), keyName, edkCiphertext.get);
-        var dataKey := Materials.DataKey(algorithmSuiteID, plaintextDataKey.get, [edk]);
+        var dataKey := Materials.DataKeyMaterials(algorithmSuiteID, plaintextDataKey.get, [edk]);
         assert dataKey.algorithmSuiteID.ValidPlaintextDataKey(dataKey.plaintextDataKey);
         return Success(Some(dataKey));
       }

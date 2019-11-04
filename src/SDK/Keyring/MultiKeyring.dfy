@@ -56,7 +56,7 @@ module MultiKeyringDef {
         }
 
         method OnEncryptRec(encryptionContext: Mat.EncryptionContext,
-                            output: Mat.ValidDataKey, i: int) returns (res: Result<Mat.ValidDataKey>)
+                            output: Mat.ValidDataKeyMaterials, i: int) returns (res: Result<Mat.ValidDataKeyMaterials>)
             requires Valid()
             requires 0 <= i <= |children|
             ensures Valid()
@@ -80,7 +80,7 @@ module MultiKeyringDef {
 
         method OnEncrypt(algorithmSuiteID: Mat.AlgorithmSuite.ID,
                          encryptionContext: Mat.EncryptionContext,
-                         plaintextDataKey: Option<seq<uint8>>) returns (res: Result<Option<Mat.ValidDataKey>>)
+                         plaintextDataKey: Option<seq<uint8>>) returns (res: Result<Option<Mat.ValidDataKeyMaterials>>)
             requires Valid()
             requires plaintextDataKey.Some? ==> algorithmSuiteID.ValidPlaintextDataKey(plaintextDataKey.get)
             ensures Valid()
@@ -90,9 +90,9 @@ module MultiKeyringDef {
             ensures res.Success? && res.value.Some? ==> 
                 algorithmSuiteID == res.value.get.algorithmSuiteID
         {
-            var initialDataKey: Option<Mat.ValidDataKey> := None;
+            var initialDataKey: Option<Mat.ValidDataKeyMaterials> := None;
             if plaintextDataKey.Some? {
-                initialDataKey := Some(Mat.DataKey(algorithmSuiteID, plaintextDataKey.get, []));
+                initialDataKey := Some(Mat.DataKeyMaterials(algorithmSuiteID, plaintextDataKey.get, []));
             }
             
             if generator != null {
