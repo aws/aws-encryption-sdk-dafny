@@ -24,20 +24,21 @@ module MultiKeyringDef {
 
     class MultiKeyring extends Keyring {
         const generator : Keyring?
-        const children : seq<Keyring>
-        constructor (g : Keyring?, c : seq<Keyring>) ensures generator == g ensures children == c
+        const children : array<Keyring>
+        constructor (g : Keyring?, c : array<Keyring>) ensures generator == g ensures children == c
             requires g != null ==> g.Valid()
-            requires forall i :: 0 <= i < |c| ==> c[i].Valid()
+            requires forall i :: 0 <= i < c.Length ==> c[i].Valid()
             ensures Valid()
         {
             generator := g;
             children := c;
-            Repr := {this} + (if g != null then {g} + g.Repr else {}) + childrenRepr(c[..]);
+            Repr := {this} + (if g != null then {g} + g.Repr else {}) + {children} + childrenRepr(c[..]);
         }
 
         predicate Valid() reads this, Repr {
+            && children in Repr
             && (generator != null ==> generator in Repr && generator.Repr <= Repr && generator.Valid())
-            && (forall j :: 0 <= j < |children| ==> children[j] in Repr && children[j].Repr <= Repr && children[j].Valid())
+            && (forall j :: 0 <= j < children.Length ==> children[j] in Repr && children[j].Repr <= Repr && children[j].Valid())
         }
 
         method OnEncrypt(algorithmSuiteID: Mat.AlgorithmSuite.ID,
@@ -68,10 +69,10 @@ module MultiKeyringDef {
             // TODO-RS: Use folding here instead
             var resultMaterials := initialMaterials.get;
             var i := 0;
-            while (i < |children|) 
+            while (i < children.Length) 
                 invariant algorithmSuiteID == resultMaterials.algorithmSuiteID
                 invariant plaintextDataKey.Some? ==> plaintextDataKey.get == resultMaterials.plaintextDataKey
-                decreases |children| - i 
+                decreases children.Length - i 
             {
                 var childResult :- children[i].OnEncrypt(resultMaterials.algorithmSuiteID, encryptionContext, Some(resultMaterials.plaintextDataKey));
                 if childResult.Some? {
@@ -99,11 +100,11 @@ module MultiKeyringDef {
                 }
             }
             var i := 0;
-            while (i < |children|) 
+            while (i < children.Length) 
                 invariant |edks| == 0 ==> res.Success? && res.value.None?
                 invariant res.Success? && res.value.Some? ==> 
                     algorithmSuiteID.ValidPlaintextDataKey(res.value.get)
-                decreases |children| - i
+                decreases children.Length - i
             {
                 var plaintextDataKey := TryDecryptForKeyring(children[i], algorithmSuiteID, encryptionContext, edks);
                 if plaintextDataKey.Some? {
