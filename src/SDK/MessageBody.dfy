@@ -29,7 +29,7 @@ module MessageBody {
   {
     var body := [];
     var n, sequenceNumber := 0, START_SEQUENCE_NUMBER;
-    while n + frameLength <= |plaintext|
+    while n + frameLength < |plaintext|
       invariant 0 <= n <= |plaintext|
       invariant START_SEQUENCE_NUMBER <= sequenceNumber <= ENDFRAME_SEQUENCE_NUMBER
     {
@@ -46,7 +46,7 @@ module MessageBody {
     return Success(body);
   }
 
-  method EncryptRegularFrame(algorithmSuiteID: AlgorithmSuite.ID, key: seq<uint8>, frameLength: int,
+  method EncryptRegularFrame(algorithmSuiteID: AlgorithmSuite.ID, key: seq<uint8>, ghost frameLength: int,
                              messageID: Msg.MessageID, plaintext: seq<uint8>, sequenceNumber: uint32)
       returns (res: Result<seq<uint8>>)
     requires |key| == algorithmSuiteID.KeyLength()
@@ -65,7 +65,7 @@ module MessageBody {
     var contentAAD := BODY_AAD_CONTENT_REGULAR_FRAME;
     var aad := messageID + contentAAD + seqNumSeq + UInt64ToSeq(|plaintext| as uint64);
 
-    var encryptionOutput :- AESEncryption.AESEncrypt(algorithmSuiteID.Algorithm(), iv, key, plaintext, aad);
+    var encryptionOutput :- AESEncryption.AESEncrypt(algorithmSuiteID.EncryptionSuite(), iv, key, plaintext, aad);
     unauthenticatedFrame := unauthenticatedFrame + encryptionOutput.cipherText + encryptionOutput.authTag;
 
     return Success(unauthenticatedFrame);
@@ -77,7 +77,7 @@ module MessageBody {
     requires |key| == algorithmSuiteID.KeyLength()
     requires 0 < frameLength && START_SEQUENCE_NUMBER <= sequenceNumber <= ENDFRAME_SEQUENCE_NUMBER
     requires |plaintext| < UINT32_LIMIT
-    requires |plaintext| < frameLength
+    requires |plaintext| <= frameLength
     requires 4 <= algorithmSuiteID.IVLength()
   {
     var unauthenticatedFrame := UInt32ToSeq(ENDFRAME_SEQUENCE_NUMBER);
@@ -93,7 +93,7 @@ module MessageBody {
     var contentAAD := BODY_AAD_CONTENT_FINAL_FRAME;
     var aad := messageID + contentAAD + seqNumSeq + UInt64ToSeq(|plaintext| as uint64);
 
-    var encryptionOutput :- AESEncryption.AESEncrypt(algorithmSuiteID.Algorithm(), iv, key, plaintext, aad);
+    var encryptionOutput :- AESEncryption.AESEncrypt(algorithmSuiteID.EncryptionSuite(), iv, key, plaintext, aad);
     unauthenticatedFrame := unauthenticatedFrame + encryptionOutput.cipherText + encryptionOutput.authTag;
 
     return Success(unauthenticatedFrame);

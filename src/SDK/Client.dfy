@@ -68,7 +68,7 @@ module ESDKClient {
     var unauthenticatedHeader := wr.data;
 
     var iv: seq<uint8> := seq(encMat.algorithmSuiteID.IVLength(), _ => 0);
-    var encryptionOutput :- AESEncryption.AESEncrypt(encMat.algorithmSuiteID.Algorithm(), iv, derivedDataKey, [], unauthenticatedHeader);
+    var encryptionOutput :- AESEncryption.AESEncrypt(encMat.algorithmSuiteID.EncryptionSuite(), iv, derivedDataKey, [], unauthenticatedHeader);
     var headerAuthentication := Msg.HeaderAuthentication(iv, encryptionOutput.authTag);
     var _ :- Serialize.SerializeHeaderAuthentication(wr, headerAuthentication, encMat.algorithmSuiteID);
 

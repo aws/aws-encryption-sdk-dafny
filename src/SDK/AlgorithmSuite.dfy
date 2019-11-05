@@ -14,8 +14,8 @@ module AlgorithmSuite {
 
   newtype ID = x | x in VALID_IDS witness 0x0014
   {
-    function method Algorithm(): EncryptionSuites.EncryptionSuite
-      ensures Algorithm().Valid()
+    function method EncryptionSuite(): EncryptionSuites.EncryptionSuite
+      ensures EncryptionSuite().Valid()
     {
       Suite[this].algorithm
     }
