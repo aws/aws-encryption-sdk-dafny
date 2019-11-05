@@ -41,11 +41,11 @@ module DefaultCMMDef {
       returns (res: Result<Materials.ValidEncryptionMaterials>)
       requires Valid()
       ensures Valid()
-      ensures res.Success? && alg_id.Some? ==> res.value.dataKey.algorithmSuiteID == alg_id.get
+      ensures res.Success? && alg_id.Some? ==> res.value.dataKeyMaterials.algorithmSuiteID == alg_id.get
     {
       var id := if alg_id.Some? then alg_id.get else AlgorithmSuite.AES_256_GCM_IV12_TAG16_HKDF_SHA384_ECDSA_P384;
       var enc_sk := None;
-      var enc_ec := ec;
+      var enc_ctx := ec;
 
       match id.SignatureType() {
         case None =>
@@ -57,14 +57,14 @@ module DefaultCMMDef {
               enc_sk := Some(ab.1);
               var enc_vk :- UTF8.Encode(Base64.Encode(ab.1));
               var reservedField :- UTF8.Encode(Materials.EC_PUBLIC_KEY_FIELD);
-              enc_ec := [(reservedField, enc_vk)] + enc_ec;
+              enc_ctx := [(reservedField, enc_vk)] + enc_ctx;
       }
 
-      var dataKey :- kr.OnEncrypt(id, enc_ec, None);
-      if dataKey.None? || |dataKey.get.encryptedDataKeys| == 0 {
+      var dataKeyMaterials :- kr.OnEncrypt(id, enc_ctx, None);
+      if dataKeyMaterials.None? || |dataKeyMaterials.get.encryptedDataKeys| == 0 {
         return Failure("Could not retrieve materials required for encryption");
       }
-      return Success(Materials.EncryptionMaterials(enc_ec, dataKey.get, enc_sk));
+      return Success(Materials.EncryptionMaterials(enc_ctx, dataKeyMaterials.get, enc_sk));
     }
 
     method DecryptMaterials(alg_id: AlgorithmSuite.ID, edks: seq<Materials.EncryptedDataKey>, enc_ctx: Materials.EncryptionContext) 

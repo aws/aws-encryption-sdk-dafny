@@ -54,10 +54,11 @@ module ToyClientDef {
     method GetEncMaterials(ec: Materials.EncryptionContext) returns (res: Result<Materials.ValidEncryptionMaterials>)
       requires Valid()
       ensures Valid()
-      ensures res.Success? ==> res.value.dataKey.algorithmSuiteID == AlgorithmSuite.AES_256_GCM_IV12_TAG16_HKDF_SHA384_ECDSA_P384
+      ensures res.Success? ==> 
+        res.value.dataKeyMaterials.algorithmSuiteID == AlgorithmSuite.AES_256_GCM_IV12_TAG16_HKDF_SHA384_ECDSA_P384
     {
       var r :- cmm.GetEncryptionMaterials(ec, None, None);
-      if r.dataKey.algorithmSuiteID != AlgorithmSuite.AES_256_GCM_IV12_TAG16_HKDF_SHA384_ECDSA_P384 {
+      if r.dataKeyMaterials.algorithmSuiteID != AlgorithmSuite.AES_256_GCM_IV12_TAG16_HKDF_SHA384_ECDSA_P384 {
         return Failure("bad alg id");
       }
       return Success(r);
@@ -71,8 +72,9 @@ module ToyClientDef {
     {
       var em :- GetEncMaterials(ec);
       var iv := Random.GenerateBytes(ALGORITHM.ivLen as int32);
-      var ciphertext :- AESEncryption.AESEncrypt(ALGORITHM, iv, em.dataKey.plaintextDataKey, pt, []);
-      return Success(Encryption(em.encryptionContext, em.dataKey.encryptedDataKeys, iv, ciphertext.cipherText, ciphertext.authTag));
+      var ciphertext :- AESEncryption.AESEncrypt(ALGORITHM, iv, em.dataKeyMaterials.plaintextDataKey, pt, []);
+      return Success(Encryption(em.encryptionContext, em.dataKeyMaterials.encryptedDataKeys, 
+                                iv, ciphertext.cipherText, ciphertext.authTag));
     }
 
     method Decrypt(e: Encryption) returns (res: Result<seq<uint8>>)

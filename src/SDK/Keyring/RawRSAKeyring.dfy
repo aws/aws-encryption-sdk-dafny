@@ -93,6 +93,8 @@ module RawRSAKeyringDef {
       requires Valid() 
       ensures Valid()
       ensures |edks| == 0 ==> res.Success? && res.value.None?
+      ensures res.Success? && res.value.Some? ==> 
+          algorithmSuiteID.ValidPlaintextDataKey(res.value.get)
     {
       if |edks| == 0 {
         return Success(None);

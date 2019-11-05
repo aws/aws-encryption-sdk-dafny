@@ -67,12 +67,12 @@ module Materials {
   }
 
   datatype EncryptionMaterials = EncryptionMaterials(encryptionContext: EncryptionContext,
-                                                     dataKey: ValidDataKeyMaterials,
+                                                     dataKeyMaterials: ValidDataKeyMaterials,
                                                      signingKey: Option<seq<uint8>>)
   {
     predicate method Valid() {
-      && dataKey.algorithmSuiteID.SignatureType().Some? ==> signingKey.Some?
-      && |dataKey.encryptedDataKeys| > 0
+      && dataKeyMaterials.algorithmSuiteID.SignatureType().Some? ==> signingKey.Some?
+      && |dataKeyMaterials.encryptedDataKeys| > 0
     }
 
     static function method ValidWitness(): EncryptionMaterials { 

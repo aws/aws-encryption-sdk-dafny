@@ -111,6 +111,8 @@ module RawAESKeyring{
       requires Valid() 
       ensures Valid()
       ensures |edks| == 0 ==> res.Success? && res.value.None?
+      ensures res.Success? && res.value.Some? ==> 
+          algorithmSuiteID.ValidPlaintextDataKey(res.value.get)
     {
       var i := 0;
       while i < |edks|

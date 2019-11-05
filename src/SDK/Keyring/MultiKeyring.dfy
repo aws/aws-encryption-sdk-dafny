@@ -88,6 +88,8 @@ module MultiKeyringDef {
             requires Valid() 
             ensures Valid()
             ensures |edks| == 0 ==> res.Success? && res.value.None?
+            ensures res.Success? && res.value.Some? ==> 
+                algorithmSuiteID.ValidPlaintextDataKey(res.value.get)
         {
             res := Success(None);
             if generator != null {
@@ -99,6 +101,8 @@ module MultiKeyringDef {
             var i := 0;
             while (i < |children|) 
                 invariant |edks| == 0 ==> res.Success? && res.value.None?
+                invariant res.Success? && res.value.Some? ==> 
+                    algorithmSuiteID.ValidPlaintextDataKey(res.value.get)
                 decreases |children| - i
             {
                 var plaintextDataKey := TryDecryptForKeyring(children[i], algorithmSuiteID, encryptionContext, edks);
@@ -118,6 +122,7 @@ module MultiKeyringDef {
             requires keyring.Valid()
             ensures Valid()
             ensures |edks| == 0 ==> res.None?
+            ensures res.Some? ==> algorithmSuiteID.ValidPlaintextDataKey(res.get)
         {
             var y := keyring.OnDecrypt(algorithmSuiteID, encryptionContext, edks);
             return match y {
