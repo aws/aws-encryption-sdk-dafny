@@ -352,18 +352,4 @@ module {:extern "STL"} StandardLibrary {
         assert LexicographicLessOrEqualAux(b, a, less, m);
     }
   }
-
-  predicate method PairwiseDisjoint(sets: seq<set<object>>) 
-    // TODO-RS: Challenging to explicitly verify, but here for documentation purposes.
-    // ensures forall s1, s2 :: s1 in sets && s2 in sets && s1 != s2 ==> s1 !! s2 
-  {
-    PairwiseDisjointWith(sets, {})
-  }
-
-  predicate method PairwiseDisjointWith(sets: seq<set<object>>, r: set<object>) decreases sets {
-    if |sets| == 0 then
-      true
-    else
-      (r !! sets[0]) && PairwiseDisjointWith(sets[1..], r + sets[0])
-  }
 }
