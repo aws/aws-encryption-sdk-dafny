@@ -16,7 +16,7 @@ module Materials {
     set i | 0 <= i < |encryptionContext| :: encryptionContext[i].0
   }
 
-  const EC_PUBLIC_KEY_FIELD: string := "aws-crypto-public-key";
+  const EC_PUBLIC_KEY_FIELD := UTF8.Encode("aws-crypto-public-key").value
   ghost const ReservedKeyValues := { EC_PUBLIC_KEY_FIELD }
 
   datatype EncryptedDataKey = EncryptedDataKey(providerID : UTF8.ValidUTF8Bytes,
@@ -41,14 +41,15 @@ module Materials {
     predicate Valid()
       reads this
     {
-      (|encryptedDataKeys| > 0 ==> plaintextDataKey.Some?) &&
-      (plaintextDataKey.None? || ValidPlaintextDataKey(plaintextDataKey.get))
+      && (|encryptedDataKeys| != 0 ==> plaintextDataKey.Some?)
+      && (plaintextDataKey.None? || ValidPlaintextDataKey(plaintextDataKey.get))
+      && (forall i :: 0 <= i < |encryptedDataKeys| ==> encryptedDataKeys[i].Valid())
     }
 
     predicate ValidPlaintextDataKey(pdk: seq<uint8>)
       reads this
     {
-      |pdk| == this.algorithmSuiteID.KeyLength()
+      |pdk| == this.algorithmSuiteID.KDFInputKeyLength()
     }
 
     constructor(algorithmSuiteID: AlgorithmSuite.ID,
@@ -57,12 +58,14 @@ module Materials {
                 plaintextDataKey: Option<seq<uint8>>,
                 signingKey: Option<seq<uint8>>)
       requires |encryptedDataKeys| > 0 ==> plaintextDataKey.Some?
-      requires plaintextDataKey.None? || |plaintextDataKey.get| == algorithmSuiteID.KeyLength()
+      requires forall i :: 0 <= i < |encryptedDataKeys| ==> encryptedDataKeys[i].Valid()
+      requires plaintextDataKey.None? || |plaintextDataKey.get| == algorithmSuiteID.KDFInputKeyLength()
       ensures Valid()
       ensures this.algorithmSuiteID == algorithmSuiteID
       ensures this.encryptedDataKeys == encryptedDataKeys
       ensures this.encryptionContext == encryptionContext
       ensures this.plaintextDataKey == plaintextDataKey
+      ensures this.signingKey == signingKey
     {
       this.algorithmSuiteID := algorithmSuiteID;
       this.encryptedDataKeys := encryptedDataKeys;
@@ -74,7 +77,7 @@ module Materials {
     method SetPlaintextDataKey(dataKey: seq<uint8>)
       requires Valid()
       requires plaintextDataKey.None?
-      requires |dataKey| == algorithmSuiteID.KeyLength()
+      requires |dataKey| == algorithmSuiteID.KDFInputKeyLength()
       modifies `plaintextDataKey
       ensures Valid()
       ensures plaintextDataKey == Some(dataKey)
@@ -83,7 +86,7 @@ module Materials {
     }
 
     method AppendEncryptedDataKey(edk: EncryptedDataKey)
-      requires Valid()
+      requires Valid() && edk.Valid()
       requires plaintextDataKey.Some?
       modifies `encryptedDataKeys
       ensures Valid()
@@ -109,14 +112,14 @@ module Materials {
     predicate ValidPlaintextDataKey(pdk: seq<uint8>)
       reads this
     {
-      |pdk| == this.algorithmSuiteID.KeyLength()
+      |pdk| == this.algorithmSuiteID.KDFInputKeyLength()
     }
 
     constructor(algorithmSuiteID: AlgorithmSuite.ID,
                 encryptionContext: EncryptionContext,
                 plaintextDataKey: Option<seq<uint8>>,
                 verificationKey: Option<seq<uint8>>)
-      requires plaintextDataKey.None? || |plaintextDataKey.get| == algorithmSuiteID.KeyLength()
+      requires plaintextDataKey.None? || |plaintextDataKey.get| == algorithmSuiteID.KDFInputKeyLength()
       ensures Valid()
       ensures this.algorithmSuiteID == algorithmSuiteID
       ensures this.encryptionContext == encryptionContext
@@ -132,7 +135,7 @@ module Materials {
     method setPlaintextDataKey(dataKey: seq<uint8>)
       requires Valid()
       requires plaintextDataKey.None?
-      requires |dataKey| == algorithmSuiteID.KeyLength()
+      requires |dataKey| == algorithmSuiteID.KDFInputKeyLength()
       modifies `plaintextDataKey
       ensures Valid()
       ensures plaintextDataKey == Some(dataKey)

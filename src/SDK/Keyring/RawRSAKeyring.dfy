@@ -31,13 +31,16 @@ module RawRSAKeyringDef {
       Repr == {this} &&
       (encryptionKey.Some? ==> RSA.RSA.RSAWfEK(bitLength, paddingMode, encryptionKey.get)) &&
       (decryptionKey.Some? ==> RSA.RSA.RSAWfDK(bitLength, paddingMode, decryptionKey.get)) &&
-      (encryptionKey.Some? || decryptionKey.Some?)
+      (encryptionKey.Some? || decryptionKey.Some?) &&
+      |keyNamespace| < UINT16_LIMIT &&
+      |keyName| < UINT16_LIMIT
     }
 
     constructor(namespace: UTF8.ValidUTF8Bytes, name: UTF8.ValidUTF8Bytes, padding: RSA.RSAPaddingMode, bits: RSA.RSABitLength, ek: Option<seq<uint8>>, dk: Option<seq<uint8>>)
       requires ek.Some? ==> RSA.RSA.RSAWfEK(bits, padding, ek.get)
       requires dk.Some? ==> RSA.RSA.RSAWfDK(bits, padding, dk.get)
       requires ek.Some? || dk.Some?
+      requires |namespace| < UINT16_LIMIT && |name| < UINT16_LIMIT
       ensures keyNamespace == namespace
       ensures keyName == name
       ensures paddingMode == padding && bitLength == bits
@@ -68,13 +71,15 @@ module RawRSAKeyringDef {
         var dataKey := encMat.plaintextDataKey;
         var algorithmID := encMat.algorithmSuiteID;
         if dataKey.None? {
-          var k := Random.GenerateBytes(algorithmID.KeyLength() as int32);
+          var k := Random.GenerateBytes(algorithmID.KDFInputKeyLength() as int32);
           dataKey := Some(k);
         }
         var aad := Materials.FlattenSortEncCtx(encMat.encryptionContext);
         var edkCiphertext := RSA.RSA.RSAEncrypt(bitLength, paddingMode, encryptionKey.get, dataKey.get);
         if edkCiphertext.None? {
           return Failure("Error on encrypt!");
+        } else if UINT16_LIMIT <= |edkCiphertext.get| {
+          return Failure("Encrypted data key too long.");
         }
         var edk := Materials.EncryptedDataKey(keyNamespace, keyName, edkCiphertext.get);
         encMat.encryptedDataKeys := [edk] + encMat.encryptedDataKeys;
@@ -114,7 +119,7 @@ module RawRSAKeyringDef {
           case None =>
             // continue with the next EDK
           case Some(k) =>
-            if |k| == decMat.algorithmSuiteID.KeyLength() { // check for correct key length
+            if |k| == decMat.algorithmSuiteID.KDFInputKeyLength() { // check for correct key length
               decMat.plaintextDataKey := Some(k);
               return Success(decMat);
             } else {

@@ -42,10 +42,14 @@ module DefaultCMMDef {
       ensures Valid()
       ensures res.Success? ==> res.value.Valid() &&
                                res.value.plaintextDataKey.Some? && 
-                               |res.value.plaintextDataKey.get| == res.value.algorithmSuiteID.KeyLength() &&
+                               |res.value.plaintextDataKey.get| == res.value.algorithmSuiteID.KDFInputKeyLength() &&
                                |res.value.encryptedDataKeys| > 0
-      ensures res.Success? && res.value.algorithmSuiteID.SignatureType().Some? ==> res.value.signingKey.Some?
-
+      ensures res.Success? ==>
+        match res.value.algorithmSuiteID.SignatureType()
+          case None => true
+          case Some(sigType) =>
+            res.value.signingKey.Some? &&
+            S.ECDSA.WfSK(sigType, res.value.signingKey.get)
     {
       var id := if alg_id.Some? then alg_id.get else AlgorithmSuite.AES_256_GCM_IV12_TAG16_HKDF_SHA384_ECDSA_P384;
       var enc_sk := None;
@@ -59,8 +63,8 @@ module DefaultCMMDef {
             case None => return Failure("Keygen error");
             case Some(ab) =>
               enc_sk := Some(ab.1);
-              var enc_vk :- UTF8.Encode(Base64.Encode(ab.1));
-              var reservedField :- UTF8.Encode(Materials.EC_PUBLIC_KEY_FIELD);
+              var enc_vk :- UTF8.Encode(Base64.Encode(ab.0));
+              var reservedField := Materials.EC_PUBLIC_KEY_FIELD;
               enc_ec := [(reservedField, enc_vk)] + enc_ec;
       }
 
@@ -68,7 +72,7 @@ module DefaultCMMDef {
       var em :- kr.OnEncrypt(in_enc_mat);
 
       if em.plaintextDataKey.None? ||
-         |em.plaintextDataKey.get| != em.algorithmSuiteID.KeyLength() ||
+         |em.plaintextDataKey.get| != em.algorithmSuiteID.KDFInputKeyLength() ||
          |em.encryptedDataKeys| == 0 ||
          (em.algorithmSuiteID.SignatureType().Some? && em.signingKey.None?)
       {
@@ -88,10 +92,10 @@ module DefaultCMMDef {
     {
       // Retrieve and decode verification key from encryption context if using signing algorithm
       var vkey := None;
-      var reservedField :- UTF8.Encode(Materials.EC_PUBLIC_KEY_FIELD);
       if alg_id.SignatureType().Some? {
+        var reservedField := Materials.EC_PUBLIC_KEY_FIELD;
         var encodedVKey := Materials.EncCtxLookup(enc_ctx, reservedField);
-        if !encodedVKey.Some? {
+        if encodedVKey == None {
           return Failure("Could not get materials required for decryption.");
         }
         var utf8Decoded :- UTF8.Decode(encodedVKey.get);

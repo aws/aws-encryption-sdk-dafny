@@ -1,5 +1,5 @@
-// RUN: %dafny /out:./Output/TestHKDF5.exe "./TestHKDF5.dfy" "../../src/Crypto/HKDF/HKDF-extern.cs" "../../src/Util/Arrays-extern.cs" "../../lib/BouncyCastle.1.8.5/lib/BouncyCastle.Crypto.dll" /noVerify /compile:2
-// RUN: cp "../../lib/BouncyCastle.1.8.5/lib/BouncyCastle.Crypto.dll" "./Output/"
+// RUN: %bcdafny /out:Output/TestHKDF5.exe TestHKDF5.dfy /noVerify /compile:2
+// RUN: cp %bclib Output/
 // RUN: %mono ./Output/TestHKDF5.exe > "%t" && rm ./Output/TestHKDF5.exe
 // RUN: %diff "%s.expect" "%t"
 
@@ -15,7 +15,7 @@ module TestHKDF5 {
 
   method Main() {
     // Test vector 5: Test with SHA-384 and zero-length salt/info
-    var tv_salt := new [][];
+    var tv_salt := None;
 
     var tv_ikm  := new [][ 0x0b, 0x0b, 0x0b, 0x0b, 0x0b, 0x0b, 0x0b, 0x0b, 0x0b, 0x0b, 0x0b,
                            0x0b, 0x0b, 0x0b, 0x0b, 0x0b, 0x0b, 0x0b, 0x0b, 0x0b, 0x0b, 0x0b ];
