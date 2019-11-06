@@ -6,25 +6,34 @@ using System.Collections.Generic;
 using byteseq = Dafny.Sequence<byte>;
 
 public class Client {
+  
   private ESDK.Client dafnyClient;
   
   MemoryStream Encrypt(MemoryStream plaintext, Dictionary<string, string> encryptionContext) {
     byteseq dafnyPlaintext = DafnySequenceFromMemoryStream(plaintext);
     Dafny.Sequence<_System.Tuple2<byteseq, byteseq>> dafnyEC = DafnySeqOfPairsFromDictionary(encryptionContext);
+    
+    // TODO: Might need a GIL here if ANYTHING in the Dafny runtime isn't threadsafe!
     STL.Result<ESDK.Encryption> result = dafnyClient.Encrypt(dafnyPlaintext, dafnyEC);
+    
     return MemoryStreamFromDafnySequence(getResult<ESDK.Encryption>(result).ctxt);
   }
 
   private MemoryStream MemoryStreamFromDafnySequence(byteseq seq) {
-    // TODO: Unsafe! Need to make a copy.
-    return new MemoryStream(seq.Elements);
+    // TODO: Find a way to safely avoid copying 
+    byte[] copy = new byte[seq.Elements.Length];
+    Array.Copy(seq.Elements, 0, copy, 0, seq.Elements.Length);
+    return new MemoryStream(copy);
   }
   
   private byteseq DafnySequenceFromMemoryStream(MemoryStream bytes) {
-    throw new NotImplementedException();
+    // TODO: Find a way to safely avoid copying 
+    return new Dafny.Sequence<byte>(bytes.ToArray());
   }
   
   private Dafny.Sequence<_System.Tuple2<byteseq,byteseq>> DafnySeqOfPairsFromDictionary(Dictionary<string, string> bytes) {
+    // TODO: Similar implementation to the above methods. Can we find a more general way to map
+    // to and from Dafny.Sequence and IEnumerable
     throw new NotImplementedException();
   }
 
@@ -32,7 +41,8 @@ public class Client {
     if (result is STL.Result_Success<T> s) {
       return s.value;
     } else if (result is STL.Result_Failure<T> f) {
-      // TODO-RS: Need to refine the wrapped value in a Failure
+      // TODO-RS: Need to refine the wrapped value in a Failure so we
+      // can throw specific exception types.
       throw new DafnyException(StringFromDafnyString(f.error));
     } else {
       throw new ArgumentException(message: "Unrecognized STL.Result constructor", paramName: nameof(result));
