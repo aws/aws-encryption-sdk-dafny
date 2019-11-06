@@ -16,7 +16,7 @@ module Materials {
     set i | 0 <= i < |encryptionContext| :: encryptionContext[i].0
   }
 
-  const EC_PUBLIC_KEY_FIELD: string := "aws-crypto-public-key";
+  const EC_PUBLIC_KEY_FIELD := UTF8.Encode("aws-crypto-public-key").value
   ghost const ReservedKeyValues := { EC_PUBLIC_KEY_FIELD }
 
   datatype EncryptedDataKey = EncryptedDataKey(providerID : UTF8.ValidUTF8Bytes,

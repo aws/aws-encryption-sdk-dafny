@@ -42,6 +42,13 @@ module DefaultCMMDef {
       requires Valid()
       ensures Valid()
       ensures res.Success? && alg_id.Some? ==> res.value.dataKeyMaterials.algorithmSuiteID == alg_id.get
+      ensures res.Success? ==> |res.value.dataKeyMaterials.encryptedDataKeys| > 0
+      ensures res.Success? ==>
+        match res.value.dataKeyMaterials.algorithmSuiteID.SignatureType()
+          case None => true
+          case Some(sigType) =>
+            res.value.signingKey.Some? &&
+            S.ECDSA.WfSK(sigType, res.value.signingKey.get)
     {
       var id := if alg_id.Some? then alg_id.get else AlgorithmSuite.AES_256_GCM_IV12_TAG16_HKDF_SHA384_ECDSA_P384;
       var enc_sk := None;
@@ -56,7 +63,7 @@ module DefaultCMMDef {
             case Some(ab) =>
               enc_sk := Some(ab.1);
               var enc_vk :- UTF8.Encode(Base64.Encode(ab.1));
-              var reservedField :- UTF8.Encode(Materials.EC_PUBLIC_KEY_FIELD);
+              var reservedField := Materials.EC_PUBLIC_KEY_FIELD;
               enc_ctx := [(reservedField, enc_vk)] + enc_ctx;
       }
 
@@ -75,10 +82,10 @@ module DefaultCMMDef {
     {
       // Retrieve and decode verification key from encryption context if using signing algorithm
       var vkey := None;
-      var reservedField :- UTF8.Encode(Materials.EC_PUBLIC_KEY_FIELD);
       if alg_id.SignatureType().Some? {
+        var reservedField := Materials.EC_PUBLIC_KEY_FIELD;
         var encodedVKey := Materials.EncCtxLookup(enc_ctx, reservedField);
-        if !encodedVKey.Some? {
+        if encodedVKey == None {
           return Failure("Could not get materials required for decryption.");
         }
         var utf8Decoded :- UTF8.Decode(encodedVKey.get);

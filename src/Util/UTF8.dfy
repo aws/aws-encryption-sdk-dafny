@@ -17,9 +17,14 @@ module {:extern "UTF8"} UTF8 {
 
   type ValidUTF8Bytes = i: seq<uint8> | ValidUTF8Seq(i) witness []
 
-  method {:extern "Encode"} Encode(s: string) returns (res: Result<ValidUTF8Bytes>)
+  function method {:extern "Encode"} Encode(s: string): Result<ValidUTF8Bytes>
+    ensures IsASCIIString(s) ==> Encode(s).Success? && |Encode(s).value| == |s|
 
-  method {:extern "Decode"} Decode(s: ValidUTF8Bytes) returns (res: Result<string>)
+  function method {:extern "Decode"} Decode(s: ValidUTF8Bytes): Result<string>
+
+  predicate IsASCIIString(s: string) {
+    forall i :: 0 <= i < |s| ==> s[i] as int < 128
+  }
 
   // Returns the value of the idx'th bit, from least to most significant bit (0- indexed)
   function method BitAt(x: uint8, idx: uint8): bool

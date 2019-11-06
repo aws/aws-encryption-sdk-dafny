@@ -59,7 +59,7 @@ module {:extern "STL"} StandardLibrary {
     seq(n, _ => value)
   }
 
-  method array_of_seq<T> (s : seq<T>)  returns (a : array<T>)
+  method SeqToArray<T>(s: seq)  returns (a: array)
     ensures fresh(a)
     ensures a.Length == |s|
     ensures forall i :: 0 <= i < |s| ==> a[i] == s[i]

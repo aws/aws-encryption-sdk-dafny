@@ -11,11 +11,11 @@ include "../../Util/UTF8.dfy"
 module RawAESKeyring{
   import opened StandardLibrary
   import opened UInt = StandardLibrary.UInt
-  import AESEncryption
   import EncryptionSuites
   import AlgorithmSuite
   import Random
   import KeyringDefs
+  import AESEncryption
   import Mat = Materials
   import UTF8
 
@@ -33,10 +33,12 @@ module RawAESKeyring{
         Repr == {this} &&
         |wrappingKey| == wrappingAlgorithm.keyLen as int &&
         wrappingAlgorithm in VALID_ALGORITHMS &&
-        wrappingAlgorithm.Valid()
+        wrappingAlgorithm.Valid() &&
+        |keyNamespace| < UINT16_LIMIT
     }
 
     constructor(namespace: UTF8.ValidUTF8Bytes, name: UTF8.ValidUTF8Bytes, key: seq<uint8>, wrappingAlg: EncryptionSuites.EncryptionSuite)
+      requires |namespace| < UINT16_LIMIT
       requires wrappingAlg in VALID_ALGORITHMS
       requires wrappingAlg.Valid()
       requires |key| == wrappingAlg.keyLen as int
@@ -53,7 +55,7 @@ module RawAESKeyring{
       Repr := {this};
     }
 
-    function method SerializeProviderInto(iv: seq<uint8>): seq<uint8>
+    function method SerializeProviderInfo(iv: seq<uint8>): seq<uint8>
       requires Valid()
       requires |iv| == wrappingAlgorithm.ivLen as int
       reads this
@@ -84,8 +86,15 @@ module RawAESKeyring{
       var iv := Random.GenerateBytes(wrappingAlgorithm.ivLen as int32);
       var aad := Mat.FlattenSortEncCtx(encryptionContext);
       var encryptResult :- AESEncryption.AESEncrypt(wrappingAlgorithm, iv, wrappingKey, plaintextDataKey.get, aad);
-      var providerInfo := SerializeProviderInto(iv);
-      var edk := Mat.EncryptedDataKey(keyNamespace, providerInfo, encryptResult.cipherText + encryptResult.authTag);
+      var encryptedKey := encryptResult.cipherText + encryptResult.authTag;
+      var providerInfo := SerializeProviderInfo(iv);
+      if UINT16_LIMIT <= |providerInfo| {
+        return Failure("Serialized provider info too long.");
+      }
+      if UINT16_LIMIT <= |encryptedKey| {
+        return Failure("Encrypted data key too long.");
+      }
+      var edk := Mat.EncryptedDataKey(keyNamespace, providerInfo, encryptedKey);
       var dataKey := Mat.DataKeyMaterials(algorithmSuiteID, plaintextDataKey.get, [edk]);
       assert dataKey.algorithmSuiteID.ValidPlaintextDataKey(dataKey.plaintextDataKey);
       return Success(Some(dataKey));
