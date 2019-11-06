@@ -9,7 +9,7 @@ include "../Crypto/AESEncryption.dfy"
 include "../Crypto/EncryptionSuites.dfy"
 include "../Crypto/Random.dfy"
 
-module ToyClientDef {
+module {:extern "ESDK"} ToyClientDef {
   import opened StandardLibrary
   import opened UInt = StandardLibrary.UInt
   import Materials
