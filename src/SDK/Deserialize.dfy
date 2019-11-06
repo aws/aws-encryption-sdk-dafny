@@ -199,7 +199,7 @@ module Deserialize {
       return Failure("Deserialization Error: Key value pairs count is 0.");
     }
 
-    var kvPairs: seq<(seq<uint8>, seq<uint8>)> := [];
+    var kvPairs: seq<(UTF8.ValidUTF8Bytes, UTF8.ValidUTF8Bytes)> := [];
     var i := 0;
     while i < kvPairsCount
       invariant rd.Valid()
@@ -243,7 +243,7 @@ module Deserialize {
     return Success(kvPairs);
   }
 
-  method InsertNewEntry(kvPairs: seq<(seq<uint8>, seq<uint8>)>, key: seq<uint8>, value: seq<uint8>)
+  method InsertNewEntry(kvPairs: seq<(UTF8.ValidUTF8Bytes, UTF8.ValidUTF8Bytes)>, key: UTF8.ValidUTF8Bytes, value: UTF8.ValidUTF8Bytes)
       returns (res: Option<seq<(seq<uint8>, seq<uint8>)>>, ghost insertionPoint: nat)
     requires Msg.SortedKVPairs(kvPairs)
     ensures match res
@@ -296,7 +296,7 @@ module Deserialize {
       // Key provider ID
       var keyProviderIDLength :- rd.ReadUInt16();
       var str :- DeserializeUTF8(rd, keyProviderIDLength as nat);
-      var keyProviderID := ByteSeqToString(str);
+      var keyProviderID := str;
 
       // Key provider info
       var keyProviderInfoLength :- rd.ReadUInt16();

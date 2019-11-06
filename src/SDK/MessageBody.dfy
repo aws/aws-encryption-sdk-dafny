@@ -4,6 +4,7 @@ include "MessageHeader.dfy"
 include "AlgorithmSuite.dfy"
 include "../Crypto/AESEncryption.dfy"
 include "../Crypto/EncryptionSuites.dfy"
+include "../Util/UTF8.dfy"
 
 module MessageBody {
   export
@@ -16,9 +17,10 @@ module MessageBody {
   import Msg = MessageHeader
   import AESEncryption
   import EncryptionSuites
+  import UTF8
 
-  const BODY_AAD_CONTENT_REGULAR_FRAME := StringToByteSeq("AWSKMSEncryptionClient Frame");
-  const BODY_AAD_CONTENT_FINAL_FRAME := StringToByteSeq("AWSKMSEncryptionClient Final Frame");
+  const BODY_AAD_CONTENT_REGULAR_FRAME := UTF8.Encode("AWSKMSEncryptionClient Frame").value
+  const BODY_AAD_CONTENT_FINAL_FRAME := UTF8.Encode("AWSKMSEncryptionClient Final Frame").value
 
   const START_SEQUENCE_NUMBER: uint32 := 1
   const ENDFRAME_SEQUENCE_NUMBER: uint32 := 0xFFFF_FFFF

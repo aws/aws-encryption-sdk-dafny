@@ -204,7 +204,7 @@ module Serialize {
       len :- wr.WriteUInt16(|entry.providerID| as uint16);
       totalWritten := totalWritten + len;
 
-      len :- wr.WriteSeq(StringToByteSeq(entry.providerID));
+      len :- wr.WriteSeq(entry.providerID);
       totalWritten := totalWritten + len;
 
       len :- wr.WriteUInt16(|entry.providerInfo| as uint16);

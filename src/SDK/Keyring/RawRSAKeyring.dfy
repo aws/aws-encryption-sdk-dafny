@@ -5,6 +5,7 @@ include "Defs.dfy"
 include "../AlgorithmSuite.dfy"
 include "../../Crypto/Random.dfy"
 include "../../Crypto/RSAEncryption.dfy"
+include "../../Util/UTF8.dfy"
 
 module RawRSAKeyringDef {
   import opened StandardLibrary
@@ -14,10 +15,11 @@ module RawRSAKeyringDef {
   import RSA = RSAEncryption
   import Materials
   import Random
+  import UTF8
 
   class RawRSAKeyring extends KeyringDefs.Keyring {
-    const keyNamespace: string
-    const keyName: seq<uint8>
+    const keyNamespace: UTF8.ValidUTF8Bytes
+    const keyName: UTF8.ValidUTF8Bytes
     const paddingMode: RSA.RSAPaddingMode
     const bitLength: RSA.RSABitLength
     const encryptionKey: Option<seq<uint8>>
@@ -30,15 +32,15 @@ module RawRSAKeyringDef {
       (encryptionKey.Some? ==> RSA.RSA.RSAWfEK(bitLength, paddingMode, encryptionKey.get)) &&
       (decryptionKey.Some? ==> RSA.RSA.RSAWfDK(bitLength, paddingMode, decryptionKey.get)) &&
       (encryptionKey.Some? || decryptionKey.Some?) &&
-      StringIs8Bit(keyNamespace) && |keyNamespace| < UINT16_LIMIT &&
+      |keyNamespace| < UINT16_LIMIT &&
       |keyName| < UINT16_LIMIT
     }
 
-    constructor(namespace: string, name: seq<uint8>, padding: RSA.RSAPaddingMode, bits: RSA.RSABitLength, ek: Option<seq<uint8>>, dk: Option<seq<uint8>>)
+    constructor(namespace: UTF8.ValidUTF8Bytes, name: UTF8.ValidUTF8Bytes, padding: RSA.RSAPaddingMode, bits: RSA.RSABitLength, ek: Option<seq<uint8>>, dk: Option<seq<uint8>>)
       requires ek.Some? ==> RSA.RSA.RSAWfEK(bits, padding, ek.get)
       requires dk.Some? ==> RSA.RSA.RSAWfDK(bits, padding, dk.get)
       requires ek.Some? || dk.Some?
-      requires StringIs8Bit(namespace) && |namespace| < UINT16_LIMIT && |name| < UINT16_LIMIT
+      requires |namespace| < UINT16_LIMIT && |name| < UINT16_LIMIT
       ensures keyNamespace == namespace
       ensures keyName == name
       ensures paddingMode == padding && bitLength == bits
