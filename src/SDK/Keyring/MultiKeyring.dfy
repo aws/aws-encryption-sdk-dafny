@@ -24,6 +24,7 @@ module MultiKeyringDef {
 
     class MultiKeyring extends Keyring {
         const generator : Keyring?
+        // TODO-RS: Make this a seq<Keyring> once https://github.com/dafny-lang/dafny/issues/406 is addressed
         const children : array<Keyring>
         constructor (g : Keyring?, c : array<Keyring>) ensures generator == g ensures children == c
             requires g != null ==> g.Valid()
