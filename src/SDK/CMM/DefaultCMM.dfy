@@ -37,15 +37,14 @@ module DefaultCMMDef {
       Repr := {this, kr} + k.Repr;
     }
 
-    method GetEncryptionMaterials(ec: Materials.EncryptionContext, alg_id: Option<AlgorithmSuite.ID>, pt_len: Option<nat>) returns (res: Result<Materials.EncryptionMaterials>)
+    method GetEncryptionMaterials(ec: Materials.EncryptionContext, alg_id: Option<AlgorithmSuite.ID>, pt_len: Option<nat>) 
+      returns (res: Result<Materials.ValidEncryptionMaterials>)
       requires Valid()
       ensures Valid()
-      ensures res.Success? ==> res.value.Valid() &&
-                               res.value.plaintextDataKey.Some? && 
-                               |res.value.plaintextDataKey.get| == res.value.algorithmSuiteID.KDFInputKeyLength() &&
-                               |res.value.encryptedDataKeys| > 0
+      ensures res.Success? && alg_id.Some? ==> res.value.dataKeyMaterials.algorithmSuiteID == alg_id.get
+      ensures res.Success? ==> |res.value.dataKeyMaterials.encryptedDataKeys| > 0
       ensures res.Success? ==>
-        match res.value.algorithmSuiteID.SignatureType()
+        match res.value.dataKeyMaterials.algorithmSuiteID.SignatureType()
           case None => true
           case Some(sigType) =>
             res.value.signingKey.Some? &&
@@ -53,7 +52,7 @@ module DefaultCMMDef {
     {
       var id := if alg_id.Some? then alg_id.get else AlgorithmSuite.AES_256_GCM_IV12_TAG16_HKDF_SHA384_ECDSA_P384;
       var enc_sk := None;
-      var enc_ec := ec;
+      var enc_ctx := ec;
 
       match id.SignatureType() {
         case None =>
@@ -63,32 +62,23 @@ module DefaultCMMDef {
             case None => return Failure("Keygen error");
             case Some(ab) =>
               enc_sk := Some(ab.1);
-              var enc_vk :- UTF8.Encode(Base64.Encode(ab.0));
+              var enc_vk :- UTF8.Encode(Base64.Encode(ab.1));
               var reservedField := Materials.EC_PUBLIC_KEY_FIELD;
-              enc_ec := [(reservedField, enc_vk)] + enc_ec;
+              enc_ctx := [(reservedField, enc_vk)] + enc_ctx;
       }
 
-      var in_enc_mat := new Materials.EncryptionMaterials(id, [], enc_ec, None, enc_sk);
-      var em :- kr.OnEncrypt(in_enc_mat);
-
-      if em.plaintextDataKey.None? ||
-         |em.plaintextDataKey.get| != em.algorithmSuiteID.KDFInputKeyLength() ||
-         |em.encryptedDataKeys| == 0 ||
-         (em.algorithmSuiteID.SignatureType().Some? && em.signingKey.None?)
-      {
+      var dataKeyMaterials :- kr.OnEncrypt(id, enc_ctx, None);
+      if dataKeyMaterials.None? || |dataKeyMaterials.get.encryptedDataKeys| == 0 {
         return Failure("Could not retrieve materials required for encryption");
       }
-      return Success(em);
+      return Success(Materials.EncryptionMaterials(enc_ctx, dataKeyMaterials.get, enc_sk));
     }
 
-    method DecryptMaterials(alg_id: AlgorithmSuite.ID, edks: seq<Materials.EncryptedDataKey>, enc_ctx: Materials.EncryptionContext) returns (res: Result<Materials.DecryptionMaterials>)
+    method DecryptMaterials(alg_id: AlgorithmSuite.ID, edks: seq<Materials.EncryptedDataKey>, enc_ctx: Materials.EncryptionContext) 
+      returns (res: Result<Materials.ValidDecryptionMaterials>)
       requires |edks| > 0
       requires Valid()
       ensures Valid()
-      ensures res.Success? ==> res.value.Valid() &&
-                               res.value.plaintextDataKey.Some? &&
-                               |res.value.plaintextDataKey.get| == res.value.algorithmSuiteID.KeyLength()
-      ensures res.Success? && res.value.algorithmSuiteID.SignatureType().Some? ==> res.value.verificationKey.Some?
     {
       // Retrieve and decode verification key from encryption context if using signing algorithm
       var vkey := None;
@@ -103,16 +93,12 @@ module DefaultCMMDef {
         vkey := Some(base64Decoded);
       }
 
-      var dec_mat := new Materials.DecryptionMaterials(alg_id, enc_ctx, None, vkey);
-      var dm :- kr.OnDecrypt(dec_mat, edks);
-
-      if dm.plaintextDataKey.None? ||
-         |dm.plaintextDataKey.get| != dm.algorithmSuiteID.KeyLength() ||
-         (dm.algorithmSuiteID.SignatureType().Some? && |dm.plaintextDataKey.get| != dm.algorithmSuiteID.KeyLength()) {
+      var dm :- kr.OnDecrypt(alg_id, enc_ctx, edks);
+      if dm.None? {
         return Failure("Could not get materials required for decryption.");
       }
 
-      return Success(dm);
+      return Success(Materials.DecryptionMaterials(alg_id, enc_ctx, dm.get, vkey));
     }
   }
 }

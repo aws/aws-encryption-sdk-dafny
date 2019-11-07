@@ -51,17 +51,15 @@ module ToyClientDef {
       Repr := {this, cmm} + cmm.Repr;
     }
 
-    method GetEncMaterials(ec: Materials.EncryptionContext) returns (res: Result<Materials.EncryptionMaterials>)
+    method GetEncMaterials(ec: Materials.EncryptionContext) returns (res: Result<Materials.ValidEncryptionMaterials>)
       requires Valid()
       ensures Valid()
-      ensures res.Success? ==> res.value.algorithmSuiteID == AlgorithmSuite.AES_256_GCM_IV12_TAG16_HKDF_SHA384_ECDSA_P384
-      ensures res.Success? ==> res.value.plaintextDataKey.Some?
+      ensures res.Success? ==> 
+        res.value.dataKeyMaterials.algorithmSuiteID == AlgorithmSuite.AES_256_GCM_IV12_TAG16_HKDF_SHA384_ECDSA_P384
     {
       var r :- cmm.GetEncryptionMaterials(ec, None, None);
-      if r.algorithmSuiteID != AlgorithmSuite.AES_256_GCM_IV12_TAG16_HKDF_SHA384_ECDSA_P384 {
+      if r.dataKeyMaterials.algorithmSuiteID != AlgorithmSuite.AES_256_GCM_IV12_TAG16_HKDF_SHA384_ECDSA_P384 {
         return Failure("bad alg id");
-      } else if r.plaintextDataKey.None? {
-        return Failure("bad data key");
       }
       return Success(r);
     }
@@ -73,12 +71,10 @@ module ToyClientDef {
       ensures res.Success? ==> |res.value.iv| == ALGORITHM.ivLen as int
     {
       var em :- GetEncMaterials(ec);
-      if |em.plaintextDataKey.get| != 32 {
-        return Failure("bad data key length");
-      }
       var iv := Random.GenerateBytes(ALGORITHM.ivLen as int32);
-      var ciphertext :- AESEncryption.AESEncrypt(ALGORITHM, iv ,em.plaintextDataKey.get, pt, []);
-      return Success(Encryption(em.encryptionContext, em.encryptedDataKeys, iv, ciphertext.cipherText, ciphertext.authTag));
+      var ciphertext :- AESEncryption.AESEncrypt(ALGORITHM, iv, em.dataKeyMaterials.plaintextDataKey, pt, []);
+      return Success(Encryption(em.encryptionContext, em.dataKeyMaterials.encryptedDataKeys, 
+                                iv, ciphertext.cipherText, ciphertext.authTag));
     }
 
     method Decrypt(e: Encryption) returns (res: Result<seq<uint8>>)
@@ -91,16 +87,12 @@ module ToyClientDef {
         return Failure("no edks");
       }
       var decmat :- cmm.DecryptMaterials(AlgorithmSuite.AES_256_GCM_IV12_TAG16_HKDF_SHA384_ECDSA_P384, e.edks, e.ec);
-      match decmat.plaintextDataKey
-      case Some(dk) =>
-        if |dk| == 32 {
-          var msg := AESEncryption.AESDecrypt(ALGORITHM, dk, e.ctxt, e.authTag, e.iv, []);
-          return msg;
-        } else {
-          return Failure("bad dk");
-        }
-      case None =>
-        return Failure("no dk?");
+      if |decmat.plaintextDataKey| == 32 {
+        var msg := AESEncryption.AESDecrypt(ALGORITHM, decmat.plaintextDataKey, e.ctxt, e.authTag, e.iv, []);
+        return msg;
+      } else {
+        return Failure("bad dk");
+      }
     }
   }
 }

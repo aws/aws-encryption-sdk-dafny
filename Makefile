@@ -26,6 +26,7 @@ SRCS = \
 	   src/SDK/Deserialize.dfy \
 	   src/SDK/Keyring/RawAESKeyring.dfy \
 	   src/SDK/Keyring/Defs.dfy \
+	   src/SDK/Keyring/MultiKeyring.dfy \
 	   src/SDK/Keyring/RawRSAKeyring.dfy \
 	   src/SDK/Materials.dfy \
 	   src/SDK/MessageBody.dfy \

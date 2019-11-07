@@ -1,2 +1,4 @@
+.idea/*
+**/.DS_Store
 build/*
-test/*/Output/*
+test/**/Output/*
