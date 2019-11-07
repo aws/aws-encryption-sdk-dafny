@@ -34,10 +34,12 @@ module Materials {
     }
   }
 
+  type ValidEncryptedDataKey = i : EncryptedDataKey | i.Valid() witness EncryptedDataKey.ValidWitness()
+
   // TODO: Add keyring trace
   datatype DataKeyMaterials = DataKeyMaterials(algorithmSuiteID: AlgorithmSuite.ID,
                                                plaintextDataKey: seq<uint8>,
-                                               encryptedDataKeys: seq<EncryptedDataKey>) 
+                                               encryptedDataKeys: seq<ValidEncryptedDataKey>) 
   {
     predicate method Valid() {
       algorithmSuiteID.ValidPlaintextDataKey(plaintextDataKey)
