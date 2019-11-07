@@ -5,8 +5,9 @@ include "Defs.dfy"
 include "../AlgorithmSuite.dfy"
 include "../../Crypto/Random.dfy"
 include "../../Crypto/RSAEncryption.dfy"
+include "../../Util/UTF8.dfy"
 
-module RSAKeyringDef {
+module RawRSAKeyringDef {
   import opened StandardLibrary
   import opened UInt = StandardLibrary.UInt
   import KeyringDefs
@@ -14,10 +15,11 @@ module RSAKeyringDef {
   import RSA = RSAEncryption
   import Materials
   import Random
+  import UTF8
 
-  class RSAKeyring extends KeyringDefs.Keyring {
-    const keyNamespace: string
-    const keyName: seq<uint8>
+  class RawRSAKeyring extends KeyringDefs.Keyring {
+    const keyNamespace: UTF8.ValidUTF8Bytes
+    const keyName: UTF8.ValidUTF8Bytes
     const paddingMode: RSA.RSAPaddingMode
     const bitLength: RSA.RSABitLength
     const encryptionKey: Option<seq<uint8>>
@@ -30,15 +32,15 @@ module RSAKeyringDef {
       (encryptionKey.Some? ==> RSA.RSA.RSAWfEK(bitLength, paddingMode, encryptionKey.get)) &&
       (decryptionKey.Some? ==> RSA.RSA.RSAWfDK(bitLength, paddingMode, decryptionKey.get)) &&
       (encryptionKey.Some? || decryptionKey.Some?) &&
-      StringIs8Bit(keyNamespace) && |keyNamespace| < UINT16_LIMIT &&
+      |keyNamespace| < UINT16_LIMIT &&
       |keyName| < UINT16_LIMIT
     }
 
-    constructor(namespace: string, name: seq<uint8>, padding: RSA.RSAPaddingMode, bits: RSA.RSABitLength, ek: Option<seq<uint8>>, dk: Option<seq<uint8>>)
+    constructor(namespace: UTF8.ValidUTF8Bytes, name: UTF8.ValidUTF8Bytes, padding: RSA.RSAPaddingMode, bits: RSA.RSABitLength, ek: Option<seq<uint8>>, dk: Option<seq<uint8>>)
       requires ek.Some? ==> RSA.RSA.RSAWfEK(bits, padding, ek.get)
       requires dk.Some? ==> RSA.RSA.RSAWfDK(bits, padding, dk.get)
       requires ek.Some? || dk.Some?
-      requires StringIs8Bit(namespace) && |namespace| < UINT16_LIMIT && |name| < UINT16_LIMIT
+      requires |namespace| < UINT16_LIMIT && |name| < UINT16_LIMIT
       ensures keyNamespace == namespace
       ensures keyName == name
       ensures paddingMode == padding && bitLength == bits
@@ -69,7 +71,7 @@ module RSAKeyringDef {
         var dataKey := encMat.plaintextDataKey;
         var algorithmID := encMat.algorithmSuiteID;
         if dataKey.None? {
-          var k := Random.GenerateBytes(algorithmID.KeyLength() as int32);
+          var k := Random.GenerateBytes(algorithmID.KDFInputKeyLength() as int32);
           dataKey := Some(k);
         }
         var aad := Materials.FlattenSortEncCtx(encMat.encryptionContext);
@@ -117,7 +119,7 @@ module RSAKeyringDef {
           case None =>
             // continue with the next EDK
           case Some(k) =>
-            if |k| == decMat.algorithmSuiteID.KeyLength() { // check for correct key length
+            if |k| == decMat.algorithmSuiteID.KDFInputKeyLength() { // check for correct key length
               decMat.plaintextDataKey := Some(k);
               return Success(decMat);
             } else {

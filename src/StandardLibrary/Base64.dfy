@@ -231,14 +231,6 @@ module Base64 {
         res
     }
 
-    function method DecodeFromByteSeq(s: seq<uint8>): Result<seq<uint8>> {
-      Decode(ByteSeqToString(s))
-    }
-
-    function method EncodeToByteSeq(b: seq<uint8>): seq<uint8> {
-      StringToByteSeq(Encode(b))
-    }
-
     method TestBase64(msg: string, expected: string)
         requires forall k :: 0 <= k < |msg| ==> 0 <= msg[k] as int < 0x100
     {

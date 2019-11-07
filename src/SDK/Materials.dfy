@@ -1,28 +1,29 @@
 include "../StandardLibrary/StandardLibrary.dfy"
 include "../StandardLibrary/UInt.dfy"
 include "./AlgorithmSuite.dfy"
+include "../Util/UTF8.dfy"
 
 
 module Materials {
   import opened StandardLibrary
   import opened UInt = StandardLibrary.UInt
+  import UTF8
   import AlgorithmSuite
 
-  type EncryptionContext = seq<(seq<uint8>, seq<uint8>)>
+  type EncryptionContext = seq<(UTF8.ValidUTF8Bytes, UTF8.ValidUTF8Bytes)>
 
-  function method GetKeysFromEncryptionContext(encryptionContext: EncryptionContext): set<seq<uint8>> {
+  function method GetKeysFromEncryptionContext(encryptionContext: EncryptionContext): set<UTF8.ValidUTF8Bytes> {
     set i | 0 <= i < |encryptionContext| :: encryptionContext[i].0
   }
 
-  const EC_PUBLIC_KEY_FIELD: seq<uint8> := StringToByteSeq("aws-crypto-public-key");
+  const EC_PUBLIC_KEY_FIELD := UTF8.Encode("aws-crypto-public-key").value
   ghost const ReservedKeyValues := { EC_PUBLIC_KEY_FIELD }
 
-  datatype EncryptedDataKey = EncryptedDataKey(providerID : string,
+  datatype EncryptedDataKey = EncryptedDataKey(providerID : UTF8.ValidUTF8Bytes,
                                                providerInfo : seq<uint8>,
                                                ciphertext : seq<uint8>)
   {
     predicate Valid() {
-      StringIs8Bit(providerID) &&
       |providerID| < UINT16_LIMIT &&
       |providerInfo| < UINT16_LIMIT &&
       |ciphertext| < UINT16_LIMIT
@@ -48,7 +49,7 @@ module Materials {
     predicate ValidPlaintextDataKey(pdk: seq<uint8>)
       reads this
     {
-      |pdk| == this.algorithmSuiteID.KeyLength()
+      |pdk| == this.algorithmSuiteID.KDFInputKeyLength()
     }
 
     constructor(algorithmSuiteID: AlgorithmSuite.ID,
@@ -58,7 +59,7 @@ module Materials {
                 signingKey: Option<seq<uint8>>)
       requires |encryptedDataKeys| > 0 ==> plaintextDataKey.Some?
       requires forall i :: 0 <= i < |encryptedDataKeys| ==> encryptedDataKeys[i].Valid()
-      requires plaintextDataKey.None? || |plaintextDataKey.get| == algorithmSuiteID.KeyLength()
+      requires plaintextDataKey.None? || |plaintextDataKey.get| == algorithmSuiteID.KDFInputKeyLength()
       ensures Valid()
       ensures this.algorithmSuiteID == algorithmSuiteID
       ensures this.encryptedDataKeys == encryptedDataKeys
@@ -76,7 +77,7 @@ module Materials {
     method SetPlaintextDataKey(dataKey: seq<uint8>)
       requires Valid()
       requires plaintextDataKey.None?
-      requires |dataKey| == algorithmSuiteID.KeyLength()
+      requires |dataKey| == algorithmSuiteID.KDFInputKeyLength()
       modifies `plaintextDataKey
       ensures Valid()
       ensures plaintextDataKey == Some(dataKey)
@@ -111,14 +112,14 @@ module Materials {
     predicate ValidPlaintextDataKey(pdk: seq<uint8>)
       reads this
     {
-      |pdk| == this.algorithmSuiteID.KeyLength()
+      |pdk| == this.algorithmSuiteID.KDFInputKeyLength()
     }
 
     constructor(algorithmSuiteID: AlgorithmSuite.ID,
                 encryptionContext: EncryptionContext,
                 plaintextDataKey: Option<seq<uint8>>,
                 verificationKey: Option<seq<uint8>>)
-      requires plaintextDataKey.None? || |plaintextDataKey.get| == algorithmSuiteID.KeyLength()
+      requires plaintextDataKey.None? || |plaintextDataKey.get| == algorithmSuiteID.KDFInputKeyLength()
       ensures Valid()
       ensures this.algorithmSuiteID == algorithmSuiteID
       ensures this.encryptionContext == encryptionContext
@@ -134,7 +135,7 @@ module Materials {
     method setPlaintextDataKey(dataKey: seq<uint8>)
       requires Valid()
       requires plaintextDataKey.None?
-      requires |dataKey| == algorithmSuiteID.KeyLength()
+      requires |dataKey| == algorithmSuiteID.KDFInputKeyLength()
       modifies `plaintextDataKey
       ensures Valid()
       ensures plaintextDataKey == Some(dataKey)
@@ -186,24 +187,24 @@ module Materials {
         lex_lt(b.0, a.0)
     }
 
-    function method EncCtxFlatten (x : seq<(seq<uint8>, seq<uint8>)>) : seq<uint8> {
+    function method EncCtxFlatten (x : seq<(UTF8.ValidUTF8Bytes, UTF8.ValidUTF8Bytes)>): UTF8.ValidUTF8Bytes {
         if x == [] then [] else
         x[0].0 + x[0].1 + EncCtxFlatten(x[1..])
     }
 
-    function method FlattenSortEncCtx(x : seq<(seq<uint8>, seq<uint8>)>) : seq<uint8>
+    function method FlattenSortEncCtx(x : seq<(UTF8.ValidUTF8Bytes, UTF8.ValidUTF8Bytes)>): UTF8.ValidUTF8Bytes
     {
         EncCtxFlatten(naive_merge_sort(x, lt_keys))
     }
 
-    function method enc_ctx_lookup(x : seq<(seq<uint8>, seq<uint8>)>, k : seq<uint8>) : Option<seq<uint8>>
+    function method EncCtxLookup(x : seq<(UTF8.ValidUTF8Bytes, UTF8.ValidUTF8Bytes)>, k : UTF8.ValidUTF8Bytes): Option<UTF8.ValidUTF8Bytes>
     {
         if |x| == 0 then None else
-        if x[0].0 == k then Some(x[0].1) else enc_ctx_lookup(x[1..], k)
+        if x[0].0 == k then Some(x[0].1) else EncCtxLookup(x[1..], k)
     }
 
-    function method enc_ctx_of_strings(x : seq<(string, string)>) : seq<(seq<uint8>, seq<uint8>)>  {
+    function method EncCtxOfStrings(x : seq<(UTF8.ValidUTF8Bytes, UTF8.ValidUTF8Bytes)>): seq<(UTF8.ValidUTF8Bytes, UTF8.ValidUTF8Bytes)>  {
         if x == [] then [] else
-        [(StringToByteSeqLossy(x[0].0), StringToByteSeqLossy(x[0].1))] + enc_ctx_of_strings(x[1..])
+        [(x[0].0, x[0].1)] + EncCtxOfStrings(x[1..])
     }
 }

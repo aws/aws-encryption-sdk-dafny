@@ -48,9 +48,11 @@ module {:extern "Signature"} Signature {
         // requires WfSig(s, sig)
     }
 
-    method {:extern "Signature.ECDSA", "Sign"} Sign(s: ECDSAParams, key: seq<uint8>, msg: seq<uint8>) returns (sig: Option<seq<uint8>>)
+    method {:extern "Signature.ECDSA", "Sign"} Sign(s: ECDSAParams, key: seq<uint8>, digest: seq<uint8>) returns (sig: Option<seq<uint8>>)
       requires ECDSA.WfSK(s, key)
       ensures sig.Some? ==> |sig.get| == s.SignatureLength() as int
       // ensures sig.Some? ==> WfSig(s, sig.get)
       // ensures sig.Some? ==> forall vk :: WfVK(s, vk) ==> IsSignKeypair(s, sk, vk) ==> Verify(s, vk, m, sig.get) == true
+
+    method {:extern "Signature.ECDSA", "Digest"} Digest(s: ECDSAParams, msg: seq<uint8>) returns (digest: seq<uint8>)
 }

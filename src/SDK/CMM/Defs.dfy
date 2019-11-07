@@ -22,7 +22,7 @@ module CMMDefs {
       ensures Valid()
       ensures res.Success? ==> res.value.Valid() &&
                                res.value.plaintextDataKey.Some? && 
-                               |res.value.plaintextDataKey.get| == res.value.algorithmSuiteID.KeyLength() &&
+                               |res.value.plaintextDataKey.get| == res.value.algorithmSuiteID.KDFInputKeyLength() &&
                                |res.value.encryptedDataKeys| > 0
       ensures res.Success? ==>
         match res.value.algorithmSuiteID.SignatureType()

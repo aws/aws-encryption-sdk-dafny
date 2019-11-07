@@ -27,7 +27,7 @@ module TestHKDF0 {
                                    0x5a, 0x4c, 0x5d, 0xb0, 0x2d, 0x56, 0xec, 0xc4, 0xc5, 0xbf, 0x34,
                                    0x00, 0x72, 0x08, 0xd5, 0xb8, 0x87, 0x18, 0x58, 0x65 ];
 
-    var okm := hkdf(HmacSHA256, tv_salt, tv_ikm, tv_info, 42);
+    var okm := hkdf(HmacSHA256, Some(tv_salt), tv_ikm, tv_info, 42);
     if okm[..] == tv_okm_desired[..] {
       print "EQUAL\n";
     } else {

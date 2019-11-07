@@ -64,7 +64,6 @@ module ESDKClient {
       encMat.encryptionContext,  // NOTE: This had been wrong (was "encryptionContext"). HeaderBody.Valid should say EC_PUBLIC_KEY_FIELD is a key of encryptionContext if algorithmSuiteID.SignatureType().Some?
       Msg.EncryptedDataKeys(encMat.encryptedDataKeys),
       Msg.ContentType.Framed,
-      [0, 0, 0, 0],
       encMat.algorithmSuiteID.IVLength() as uint8,
       frameLength);
     var wr := new Streams.StringWriter();
@@ -73,9 +72,8 @@ module ESDKClient {
     var unauthenticatedHeader := wr.data;
 
     var iv: seq<uint8> := seq(encMat.algorithmSuiteID.IVLength(), _ => 0);
-    var pair :- MessageBody.Encrypt(encMat.algorithmSuiteID, iv, derivedDataKey, [], unauthenticatedHeader);
-    assert |pair.0| == 0;
-    var headerAuthentication := Msg.HeaderAuthentication(iv, pair.1);
+    var encryptionOutput :- AESEncryption.AESEncrypt(encMat.algorithmSuiteID.EncryptionSuite(), iv, derivedDataKey, [], unauthenticatedHeader);
+    var headerAuthentication := Msg.HeaderAuthentication(iv, encryptionOutput.authTag);
     var _ :- Serialize.SerializeHeaderAuthentication(wr, headerAuthentication, encMat.algorithmSuiteID);
 
     /*
@@ -94,7 +92,8 @@ module ESDKClient {
       case None =>
         // don't use a footer
       case Some(ecdsaParams) =>
-        var signResult := Signature.Sign(ecdsaParams, encMat.signingKey.get, msg);
+        var digest := Signature.Digest(ecdsaParams, msg);
+        var signResult := Signature.Sign(ecdsaParams, encMat.signingKey.get, digest);
         match signResult {
           case None =>
             return Failure("Message signing failed");
@@ -107,7 +106,7 @@ module ESDKClient {
   }
 
   method DeriveKey(plaintextDataKey: seq<uint8>, algorithmSuiteID: AlgorithmSuite.ID, messageID: Msg.MessageID) returns (derivedDataKey: seq<uint8>)
-    requires |plaintextDataKey| == algorithmSuiteID.KeyLength()
+    requires |plaintextDataKey| == algorithmSuiteID.KDFInputKeyLength()
     ensures |derivedDataKey| == algorithmSuiteID.KeyLength()
   {
     var whichSHA := AlgorithmSuite.Suite[algorithmSuiteID].hkdf;
@@ -115,12 +114,11 @@ module ESDKClient {
       return plaintextDataKey;
     }
 
-    var salt := new [0];
     var inputKeyMaterials := SeqToArray(plaintextDataKey);
     var infoSeq := UInt16ToSeq(algorithmSuiteID as uint16) + messageID;
     var info := SeqToArray(infoSeq);
     var len := algorithmSuiteID.KeyLength();
-    var derivedKey := HKDF.hkdf(whichSHA, salt, inputKeyMaterials, info, len);
+    var derivedKey := HKDF.hkdf(whichSHA, None, inputKeyMaterials, info, len);
     return derivedKey[..];
   }
 
@@ -167,7 +165,8 @@ module ESDKClient {
         var signatureLength :- rd.ReadUInt16();
         var sig :- rd.ReadExact(signatureLength as nat);
         // verify signature
-        var signatureVerified := Signature.ECDSA.Verify(ecdsaParams, decMat.verificationKey.get, msg, sig);
+        var digest := Signature.Digest(ecdsaParams, msg);
+        var signatureVerified := Signature.ECDSA.Verify(ecdsaParams, decMat.verificationKey.get, digest, sig);
         if !signatureVerified {
           return Failure("signature not verified");
         }
