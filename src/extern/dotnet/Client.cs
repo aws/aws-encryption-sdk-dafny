@@ -5,6 +5,7 @@ using System.Collections.Generic;
 
 using byteseq = Dafny.Sequence<byte>;
 
+// Sample of a top-level AWS Encryption SDK client method.
 public class Client {
   
   // ESDK.Client is the Dafny-generated class
@@ -12,15 +13,17 @@ public class Client {
   
   public MemoryStream Encrypt(MemoryStream plaintext, Dictionary<string, string> encryptionContext) {
     byteseq dafnyPlaintext = DafnyFFI.SequenceFromMemoryStream(plaintext);
-    Dafny.Sequence<_System.Tuple2<byteseq, byteseq>> dafnyEC = DafnyFFI.SeqOfPairsFromDictionary(encryptionContext);
+    Dafny.Sequence<_System.Tuple2<byteseq, byteseq>> dafnyEC = 
+        DafnyFFI.SeqOfPairsFromDictionary(encryptionContext);
     
-    // TODO: Might need a GIL here if ANYTHING in the Dafny runtime isn't threadsafe!
+    // TODO: Might need a lock here if ANYTHING in the Dafny runtime isn't threadsafe!
     STL.Result<ESDK.Encryption> result = dafnyClient.Encrypt(dafnyPlaintext, dafnyEC);
     
     return DafnyFFI.MemoryStreamFromSequence(DafnyFFI.GetResult<ESDK.Encryption>(result).ctxt);
   }
 }
 
+// Shared utilities for embedding Dafny.
 public class DafnyFFI {
   
   public static MemoryStream MemoryStreamFromSequence(byteseq seq) {
@@ -35,9 +38,10 @@ public class DafnyFFI {
     return new Dafny.Sequence<byte>(bytes.ToArray());
   }
   
-  public static Dafny.Sequence<_System.Tuple2<byteseq,byteseq>> SeqOfPairsFromDictionary(Dictionary<string, string> bytes) {
-    // TODO: Similar implementation to the above methods. Can we find a more general way to map
-    // to and from Dafny.Sequence and IEnumerable?
+  public static Dafny.Sequence<_System.Tuple2<byteseq,byteseq>> 
+        SeqOfPairsFromDictionary(Dictionary<string, string> bytes) {
+    // TODO: Similar implementation to the above methods.
+    // Can we find a more general way to map to and from Dafny.Sequence and IEnumerable?
     throw new NotImplementedException();
   }
 
@@ -54,7 +58,7 @@ public class DafnyFFI {
       // can throw specific exception types.
       throw new DafnyException(StringFromDafnyString(f.error));
     } else {
-      throw new ArgumentException(message: "Unrecognized STL.Result constructor", paramName: nameof(result));
+      throw new ArgumentException(message: "Unrecognized STL.Result constructor");
     }
   }
 }
