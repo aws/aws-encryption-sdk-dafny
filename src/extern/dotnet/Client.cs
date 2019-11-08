@@ -7,37 +7,46 @@ using byteseq = Dafny.Sequence<byte>;
 
 public class Client {
   
+  // ESDK.Client is the Dafny-generated class
   private ESDK.Client dafnyClient;
   
-  MemoryStream Encrypt(MemoryStream plaintext, Dictionary<string, string> encryptionContext) {
-    byteseq dafnyPlaintext = DafnySequenceFromMemoryStream(plaintext);
-    Dafny.Sequence<_System.Tuple2<byteseq, byteseq>> dafnyEC = DafnySeqOfPairsFromDictionary(encryptionContext);
+  public MemoryStream Encrypt(MemoryStream plaintext, Dictionary<string, string> encryptionContext) {
+    byteseq dafnyPlaintext = DafnyFFI.SequenceFromMemoryStream(plaintext);
+    Dafny.Sequence<_System.Tuple2<byteseq, byteseq>> dafnyEC = DafnyFFI.SeqOfPairsFromDictionary(encryptionContext);
     
     // TODO: Might need a GIL here if ANYTHING in the Dafny runtime isn't threadsafe!
     STL.Result<ESDK.Encryption> result = dafnyClient.Encrypt(dafnyPlaintext, dafnyEC);
     
-    return MemoryStreamFromDafnySequence(getResult<ESDK.Encryption>(result).ctxt);
+    return DafnyFFI.MemoryStreamFromSequence(DafnyFFI.GetResult<ESDK.Encryption>(result).ctxt);
   }
+}
 
-  private MemoryStream MemoryStreamFromDafnySequence(byteseq seq) {
+public class DafnyFFI {
+  
+  public static MemoryStream MemoryStreamFromSequence(byteseq seq) {
     // TODO: Find a way to safely avoid copying 
     byte[] copy = new byte[seq.Elements.Length];
     Array.Copy(seq.Elements, 0, copy, 0, seq.Elements.Length);
     return new MemoryStream(copy);
   }
   
-  private byteseq DafnySequenceFromMemoryStream(MemoryStream bytes) {
+  public static byteseq SequenceFromMemoryStream(MemoryStream bytes) {
     // TODO: Find a way to safely avoid copying 
     return new Dafny.Sequence<byte>(bytes.ToArray());
   }
   
-  private Dafny.Sequence<_System.Tuple2<byteseq,byteseq>> DafnySeqOfPairsFromDictionary(Dictionary<string, string> bytes) {
+  public static Dafny.Sequence<_System.Tuple2<byteseq,byteseq>> SeqOfPairsFromDictionary(Dictionary<string, string> bytes) {
     // TODO: Similar implementation to the above methods. Can we find a more general way to map
-    // to and from Dafny.Sequence and IEnumerable
+    // to and from Dafny.Sequence and IEnumerable?
     throw new NotImplementedException();
   }
 
-  private T getResult<T>(STL.Result<T> result) {
+  public static string StringFromDafnyString(Dafny.Sequence<char> dafnyString) {
+    // This is safe under the assumption that nothing modifies the wrapped array
+    return new string(dafnyString.Elements);
+  }
+  
+  public static T GetResult<T>(STL.Result<T> result) {
     if (result is STL.Result_Success<T> s) {
       return s.value;
     } else if (result is STL.Result_Failure<T> f) {
@@ -48,13 +57,11 @@ public class Client {
       throw new ArgumentException(message: "Unrecognized STL.Result constructor", paramName: nameof(result));
     }
   }
-
-  private string StringFromDafnyString(Dafny.Sequence<char> dafnyString) {
-    return new string(dafnyString.Elements);
-  }
 }
 
 public class DafnyException : Exception {
   public DafnyException(string message) : base(message) {
   }
 }
+
+
