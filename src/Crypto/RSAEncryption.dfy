@@ -8,7 +8,7 @@ module {:extern "RSAEncryption"} RSAEncryption {
     datatype {:extern "RSAPaddingMode"} RSAPaddingMode = PKCS1 | OAEP_SHA1 | OAEP_SHA256
 
     // const UINT32_MAX := 0x1_0000_0000 - 1
-    newtype {:nativeType "int"} RSABitLength = x | 521 <= x < (0x8000_0000) witness 521 // 521 = lowest bit size to make msg_len_of_rsa_params nonnegative
+    newtype RSABitLength = x | 521 <= x < (0x8000_0000) witness 521 // 521 = lowest bit size to make msg_len_of_rsa_params nonnegative
 
     // From Bouncy Castle, in RSACoreEngine.cs
     function method RSACoreMsgLen(bits : RSABitLength) : nat {
