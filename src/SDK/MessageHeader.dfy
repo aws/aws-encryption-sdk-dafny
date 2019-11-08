@@ -36,7 +36,7 @@ module MessageHeader {
   const MESSAGE_ID_LEN       := 16
   type MessageID             = x: seq<uint8> | |x| == MESSAGE_ID_LEN witness [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]
 
-  type Reserved              = x: seq<uint8> | x == [0,0,0,0] witness [0,0,0,0]
+  const Reserved: seq<uint8> := [0,0,0,0]
 
   datatype ContentType       = NonFramed | Framed
 
@@ -77,7 +77,6 @@ module MessageHeader {
                           aad: Materials.EncryptionContext,
                           encryptedDataKeys: EncryptedDataKeys,
                           contentType: ContentType,
-                          reserved: Reserved,
                           ivLength: uint8,
                           frameLength: uint32)
   {
@@ -99,7 +98,7 @@ module MessageHeader {
    * Validity predicates -- predicates that say when the data structures above are in a good state.
    */
 
-  predicate ValidKVPair(kvPair: (seq<uint8>, seq<uint8>)) {
+  predicate ValidKVPair(kvPair: (UTF8.ValidUTF8Bytes, UTF8.ValidUTF8Bytes)) {
     && |kvPair.0| < UINT16_LIMIT
     && |kvPair.1| < UINT16_LIMIT
     && UTF8.ValidUTF8Seq(kvPair.0)
@@ -147,14 +146,14 @@ module MessageHeader {
     }
   }
 
-  lemma KVPairsLengthExtend(kvPairs: Materials.EncryptionContext, key: seq<uint8>, value: seq<uint8>)
+  lemma KVPairsLengthExtend(kvPairs: Materials.EncryptionContext, key: UTF8.ValidUTF8Bytes, value: UTF8.ValidUTF8Bytes)
     ensures KVPairsLength(kvPairs + [(key, value)], 0, |kvPairs| + 1)
          == KVPairsLength(kvPairs, 0, |kvPairs|) + 4 + |key| + |value|
   {
     KVPairsLengthPrefix(kvPairs, [(key, value)]);
   }
 
-  lemma KVPairsLengthInsert(kvPairs: Materials.EncryptionContext, insertionPoint: nat, key: seq<uint8>, value: seq<uint8>)
+  lemma KVPairsLengthInsert(kvPairs: Materials.EncryptionContext, insertionPoint: nat, key: UTF8.ValidUTF8Bytes, value: UTF8.ValidUTF8Bytes)
     requires insertionPoint <= |kvPairs|
     ensures var kvPairs' := kvPairs[..insertionPoint] + [(key, value)] + kvPairs[insertionPoint..];
       KVPairsLength(kvPairs', 0, |kvPairs'|) == KVPairsLength(kvPairs, 0, |kvPairs|) + 4 + |key| + |value|
@@ -203,13 +202,13 @@ module MessageHeader {
     case Framed => frameLength != 0
   }
 
-  predicate SortedKVPairsUpTo(a: seq<(seq<uint8>, seq<uint8>)>, n: nat)
+  predicate SortedKVPairsUpTo(a: seq<(UTF8.ValidUTF8Bytes, UTF8.ValidUTF8Bytes)>, n: nat)
     requires n <= |a|
   {
     forall j :: 0 < j < n ==> LexicographicLessOrEqual(a[j-1].0, a[j].0, UInt8Less)
   }
 
-  predicate SortedKVPairs(a: seq<(seq<uint8>, seq<uint8>)>)
+  predicate SortedKVPairs(a: seq<(UTF8.ValidUTF8Bytes, UTF8.ValidUTF8Bytes)>)
   {
     SortedKVPairsUpTo(a, |a|)
   }
@@ -228,7 +227,7 @@ module MessageHeader {
     AADToSeq(hb.aad) +
     EDKsToSeq(hb.encryptedDataKeys) +
     [ContentTypeToUInt8(hb.contentType)] +
-    hb.reserved +
+    Reserved +
     [hb.ivLength] +
     UInt32ToSeq(hb.frameLength)
   }
@@ -251,7 +250,7 @@ module MessageHeader {
     if lo == hi then [] else KVPairsToSeq(kvPairs, lo, hi - 1) + KVPairToSeq(kvPairs[hi - 1])
   }
 
-  function KVPairToSeq(kvPair: (seq<uint8>, seq<uint8>)): seq<uint8>
+  function KVPairToSeq(kvPair: (UTF8.ValidUTF8Bytes, UTF8.ValidUTF8Bytes)): seq<uint8>
     requires ValidKVPair(kvPair)
   {
     UInt16ToSeq(|kvPair.0| as uint16) + kvPair.0 +
@@ -276,7 +275,7 @@ module MessageHeader {
   function EDKEntryToSeq(edk: Materials.EncryptedDataKey): seq<uint8>
     requires edk.Valid()
   {
-    UInt16ToSeq(|edk.providerID| as uint16)   + StringToByteSeq(edk.providerID) +
+    UInt16ToSeq(|edk.providerID| as uint16)   + edk.providerID +
     UInt16ToSeq(|edk.providerInfo| as uint16) + edk.providerInfo +
     UInt16ToSeq(|edk.ciphertext| as uint16)   + edk.ciphertext
   }

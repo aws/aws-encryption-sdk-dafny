@@ -11,9 +11,20 @@ include "../StandardLibrary/StandardLibrary.dfy"
 
 // This does NOT perform any range checks on the values encoded.
 
-module UTF8 {
+module {:extern "UTF8"} UTF8 {
   import opened StandardLibrary
   import opened UInt = StandardLibrary.UInt
+
+  type ValidUTF8Bytes = i: seq<uint8> | ValidUTF8Seq(i) witness []
+
+  function method {:extern "Encode"} Encode(s: string): Result<ValidUTF8Bytes>
+    ensures IsASCIIString(s) ==> Encode(s).Success? && |Encode(s).value| == |s|
+
+  function method {:extern "Decode"} Decode(s: ValidUTF8Bytes): Result<string>
+
+  predicate IsASCIIString(s: string) {
+    forall i :: 0 <= i < |s| ==> s[i] as int < 128
+  }
 
   // Returns the value of the idx'th bit, from least to most significant bit (0- indexed)
   function method BitAt(x: uint8, idx: uint8): bool

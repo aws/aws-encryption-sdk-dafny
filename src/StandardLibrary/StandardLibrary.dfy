@@ -59,51 +59,12 @@ module {:extern "STL"} StandardLibrary {
     seq(n, _ => value)
   }
 
-  method array_of_seq<T> (s : seq<T>)  returns (a : array<T>)
+  method SeqToArray<T>(s: seq)  returns (a: array)
     ensures fresh(a)
     ensures a.Length == |s|
     ensures forall i :: 0 <= i < |s| ==> a[i] == s[i]
   {
     a := new T[|s|](i requires 0 <= i < |s| => s[i]);
-  }
-
-  function method {:opaque} StringToByteSeq(s: string): (s': seq<uint8>)
-    requires StringIs8Bit(s)
-    ensures |s| == |s'| 
-  {
-    seq(|s|, i requires 0 <= i < |s| => s[i] as uint8)
-  }
-
-  function method {:opaque} StringToByteSeqLossy(s: string): (s': seq<uint8>)
-    ensures |s| == |s'|
-  {
-    seq(|s|, i requires 0 <= i < |s| => (s[i] as uint16 % 256) as uint8)
-  }
-
-  function method {:opaque} ByteSeqToString(s: seq<uint8>): (s': string)
-    ensures |s| == |s'|
-    ensures StringIs8Bit(s')
-  {
-    seq(|s|, i requires 0 <= i < |s| => s[i] as char)
-  }
-
-  lemma StringByteSeqCorrect(s: string)
-    requires StringIs8Bit(s)
-    ensures ByteSeqToString(StringToByteSeq(s)) == s
-  {
-    reveal ByteSeqToString(), StringToByteSeq();
-    if s == [] {
-    } else {
-      assert s[0] in s;
-      assert (s[0] as int % 256) as char == s[0];
-      assert forall i :: i in s[1..] ==> i in s;
-    }
-  }
-
-  lemma ByteSeqStringCorrect(s: seq<uint8>)
-    ensures StringToByteSeq(ByteSeqToString(s)) == s
-  {
-    reveal ByteSeqToString(), StringToByteSeq();
   }
 
   method StringToByteArray(s: string) returns (a: array<uint8>)
@@ -266,6 +227,7 @@ module {:extern "STL"} StandardLibrary {
   function method MapSeq<S, T>(s: seq<S>, f: S ~> T): seq<T>
     requires forall i :: 0 <= i < |s| ==> f.requires(s[i])
     reads set i,o | 0 <= i < |s| && o in f.reads(s[i]) :: o
+    decreases s
   {
     if s == [] then [] else [f(s[0])] + MapSeq(s[1..], f)
   }
