@@ -72,7 +72,7 @@ module DefaultCMMDef {
               enc_ec := [(reservedField, enc_vk)] + enc_ec;
       }
 
-      MessageHeader.AssumeValidAAD(enc_ec);  // TODO: we should check this
+      MessageHeader.AssumeValidAAD(enc_ec);  // TODO: we should check this (https://github.com/awslabs/aws-encryption-sdk-dafny/issues/79)
       var in_enc_mat := new Materials.EncryptionMaterials(id, [], enc_ec, None, enc_sk);
       var em :- kr.OnEncrypt(in_enc_mat);
 
