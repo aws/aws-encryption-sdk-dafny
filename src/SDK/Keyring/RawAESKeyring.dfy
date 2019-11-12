@@ -28,23 +28,23 @@ module RawAESKeyring{
     const wrappingAlgorithm: EncryptionSuites.EncryptionSuite
 
     predicate Valid() reads this {
-        Repr == {this} &&
-        |wrappingKey| == wrappingAlgorithm.keyLen as int &&
-        wrappingAlgorithm in VALID_ALGORITHMS &&
-        wrappingAlgorithm.Valid() &&
-        StringIs8Bit(keyNamespace) && StringIs8Bit(keyName)
+      Repr == {this} &&
+      |wrappingKey| == wrappingAlgorithm.keyLen as int &&
+      wrappingAlgorithm in VALID_ALGORITHMS &&
+      wrappingAlgorithm.Valid() &&
+      StringIs8Bit(keyNamespace) && StringIs8Bit(keyName)
     }
 
     constructor(namespace: string, name: string, key: seq<uint8>, wrappingAlg: EncryptionSuites.EncryptionSuite)
-    requires StringIs8Bit(namespace) && StringIs8Bit(name)
-    requires wrappingAlg in VALID_ALGORITHMS
-    requires wrappingAlg.Valid()
-    requires |key| == wrappingAlg.keyLen as int
-    ensures keyNamespace == namespace
-    ensures keyName == name
-    ensures wrappingKey == key
-    ensures wrappingAlgorithm == wrappingAlg
-    ensures Valid()
+      requires StringIs8Bit(namespace) && StringIs8Bit(name)
+      requires wrappingAlg in VALID_ALGORITHMS
+      requires wrappingAlg.Valid()
+      requires |key| == wrappingAlg.keyLen as int
+      ensures keyNamespace == namespace
+      ensures keyName == name
+      ensures wrappingKey == key
+      ensures wrappingAlgorithm == wrappingAlg
+      ensures Valid()
     {
       keyNamespace := namespace;
       keyName := name;

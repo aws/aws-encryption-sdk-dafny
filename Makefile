@@ -15,13 +15,15 @@ SRCS = \
 	   src/Crypto/Random.dfy \
 	   src/Crypto/RSAEncryption.dfy \
 	   src/Crypto/Signature.dfy \
+	   src/KMS/KMSUtils.dfy \
 	   src/Main.dfy \
 	   src/SDK/AlgorithmSuite.dfy \
 	   src/SDK/CMM/DefaultCMM.dfy \
 	   src/SDK/CMM/Defs.dfy \
 	   src/SDK/Deserialize.dfy \
-	   src/SDK/Keyring/RawAESKeyring.dfy \
 	   src/SDK/Keyring/Defs.dfy \
+	   src/SDK/Keyring/KMSKeyring.dfy \
+	   src/SDK/Keyring/RawAESKeyring.dfy \
 	   src/SDK/Keyring/RawRSAKeyring.dfy \
 	   src/SDK/Materials.dfy \
 	   src/SDK/MessageHeader.dfy \
@@ -39,7 +41,10 @@ DEPS_CS = $(wildcard src/extern/dotnet/*.cs)
 
 BCDLL = lib/BouncyCastle.1.8.5/lib/BouncyCastle.Crypto.dll
 
-DEPS = $(DEPS_CS) $(BCDLL)
+AWSDLLS = lib/AWSSDK.KeyManagementService.3.3.101.83/lib/net45/AWSSDK.KeyManagementService.dll \
+		  lib/AWSSDK.Core.3.3.103.62/lib/net45/AWSSDK.Core.dll
+
+DEPS = $(DEPS_CS) $(BCDLL) $(AWSDLLS)
 
 .PHONY: all release build verify buildcs hkdf test clean-build clean
 
@@ -55,7 +60,7 @@ build/%.dfy.verified: src/%.dfy
 	$(DAFNY) $(patsubst build/%.dfy.verified, src/%.dfy, $@) /compile:0 && mkdir -p $(dir $@) && touch $@
 
 build/Main.exe: $(SRCS) $(DEPS)
-	$(DAFNY) /out:build/Main $(SRCS) $(DEPS) /compile:2 /noVerify /noIncludes && cp $(BCDLL) build/
+	$(DAFNY) /out:build/Main $(SRCS) $(DEPS) /compile:2 /noVerify /noIncludes && cp $(DEPS) build/
 
 buildcs: build/Main.cs
 	csc /r:System.Numerics.dll /r:$(BCDLL) /target:exe /debug /nowarn:0164 /nowarn:0219 /nowarn:1717 /nowarn:0162 /nowarn:0168 build/Main.cs $(DEPS_CS) /out:build/Main.exe

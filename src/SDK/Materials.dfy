@@ -3,7 +3,7 @@ include "../StandardLibrary/UInt.dfy"
 include "./AlgorithmSuite.dfy"
 
 
-module Materials {
+module {:extern "Materials"} Materials {
   import opened StandardLibrary
   import opened UInt = StandardLibrary.UInt
   import AlgorithmSuite
@@ -84,6 +84,7 @@ module Materials {
     method AppendEncryptedDataKey(edk: EncryptedDataKey)
       requires Valid()
       requires plaintextDataKey.Some?
+      requires edk.Valid()
       modifies `encryptedDataKeys
       ensures Valid()
       ensures encryptedDataKeys == old(encryptedDataKeys) + [edk]

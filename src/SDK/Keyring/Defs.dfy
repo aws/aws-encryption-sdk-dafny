@@ -16,7 +16,7 @@ module KeyringDefs {
       ensures Valid()
       ensures res.Success? ==> res.value.Valid() && res.value == encMat
       ensures res.Success? && old(encMat.plaintextDataKey.Some?) ==> res.value.plaintextDataKey == old(encMat.plaintextDataKey)
-      ensures res.Failure? ==> unchanged(encMat)
+      // ensures res.Failure? ==> unchanged(encMat)
       // TODO: keyring trace GENERATED_DATA_KEY flag assurance
       // TODO: keyring trace ENCRYPTED_DATA_KEY flag assurance
 
