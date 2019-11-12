@@ -32,7 +32,6 @@ module ESDKClient {
 
   /*
    * Encrypt a plaintext and serialize it into a message.
-   * Following https://github.com/awslabs/aws-encryption-sdk-specification/blob/master/client-apis/encrypt.md, 2019-09-24.
    */
   method Encrypt(plaintext: seq<uint8>, cmm: CMMDefs.CMM, encryptionContext: Materials.EncryptionContext) returns (res: Result<seq<uint8>>)
     requires Materials.GetKeysFromEncryptionContext(encryptionContext) !! Materials.ReservedKeyValues
@@ -43,7 +42,6 @@ module ESDKClient {
      */
 
     var encMat :- cmm.GetEncryptionMaterials(encryptionContext, None, Some(|plaintext|));
-    Msg.AssumeValidAAD(encMat.encryptionContext);
     if UINT16_LIMIT <= |encMat.encryptedDataKeys| {
       return Failure("Number of EDKs exceeds the allowed maximum.");
     }
@@ -61,7 +59,7 @@ module ESDKClient {
       Msg.TYPE_CUSTOMER_AED,
       encMat.algorithmSuiteID,
       messageID,
-      encMat.encryptionContext,  // NOTE: This had been wrong (was "encryptionContext"). HeaderBody.Valid should say EC_PUBLIC_KEY_FIELD is a key of encryptionContext if algorithmSuiteID.SignatureType().Some?
+      encMat.encryptionContext,
       Msg.EncryptedDataKeys(encMat.encryptedDataKeys),
       Msg.ContentType.Framed,
       encMat.algorithmSuiteID.IVLength() as uint8,
@@ -124,7 +122,6 @@ module ESDKClient {
 
   /*
    * Deserialize a message and decrypt into a plaintext.
-   * Following https://github.com/awslabs/aws-encryption-sdk-specification/blob/master/client-apis/decrypt.md, 2019-10-11.
    */
   method Decrypt(message: seq<uint8>, cmm: CMMDefs.CMM) returns (res: Result<seq<uint8>>)
     requires cmm.Valid()

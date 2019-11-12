@@ -47,6 +47,8 @@ module DefaultCMMDef {
                                |res.value.plaintextDataKey.get| == res.value.algorithmSuiteID.KDFInputKeyLength() &&
                                |res.value.encryptedDataKeys| > 0
       ensures res.Success? ==>
+        ValidAAD(res.value.encryptionContext)
+      ensures res.Success? ==>
         match res.value.algorithmSuiteID.SignatureType()
           case None => true
           case Some(sigType) =>
@@ -70,7 +72,7 @@ module DefaultCMMDef {
               enc_ec := [(reservedField, enc_vk)] + enc_ec;
       }
 
-      MessageHeader.AssumeValidAAD(enc_ec);  // TODO: we should prove this
+      MessageHeader.AssumeValidAAD(enc_ec);  // TODO: we should check this
       var in_enc_mat := new Materials.EncryptionMaterials(id, [], enc_ec, None, enc_sk);
       var em :- kr.OnEncrypt(in_enc_mat);
 

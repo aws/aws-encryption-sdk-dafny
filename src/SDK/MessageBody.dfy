@@ -69,8 +69,7 @@ module MessageBody {
     SeqWithUInt32Suffix(iv, sequenceNumber as nat);  // this proves SeqToNat(iv) == sequenceNumber as nat
     unauthenticatedFrame := unauthenticatedFrame + iv;
 
-    var contentAAD := BODY_AAD_CONTENT_REGULAR_FRAME;
-    var aad := messageID + contentAAD + seqNumSeq + UInt64ToSeq(|plaintext| as uint64);
+    var aad := BodyAAD(messageID, false, sequenceNumber, |plaintext| as uint64);
 
     var encryptionOutput :- AESEncryption.AESEncrypt(algorithmSuiteID.EncryptionSuite(), iv, key, plaintext, aad);
     unauthenticatedFrame := unauthenticatedFrame + encryptionOutput.cipherText + encryptionOutput.authTag;
@@ -97,8 +96,7 @@ module MessageBody {
 
     unauthenticatedFrame := unauthenticatedFrame + UInt32ToSeq(|plaintext| as uint32);
 
-    var contentAAD := BODY_AAD_CONTENT_FINAL_FRAME;
-    var aad := messageID + contentAAD + seqNumSeq + UInt64ToSeq(|plaintext| as uint64);
+    var aad := BodyAAD(messageID, true, sequenceNumber, |plaintext| as uint64);
 
     var encryptionOutput :- AESEncryption.AESEncrypt(algorithmSuiteID.EncryptionSuite(), iv, key, plaintext, aad);
     unauthenticatedFrame := unauthenticatedFrame + encryptionOutput.cipherText + encryptionOutput.authTag;
@@ -160,17 +158,18 @@ module MessageBody {
       len :- rd.ReadUInt32();
     }
 
-    var contentAAD := if final then BODY_AAD_CONTENT_FINAL_FRAME else BODY_AAD_CONTENT_REGULAR_FRAME;
-    var aad := messageID + contentAAD + UInt32ToSeq(sequenceNumber) + UInt64ToSeq(len as uint64);
+    var aad := BodyAAD(messageID, final, sequenceNumber, len as uint64);
 
     var ciphertext :- rd.ReadExact(len as nat);
     var authTag :- rd.ReadExact(algorithmSuiteID.TagLength());
     var plaintext :- Decrypt(ciphertext, authTag, algorithmSuiteID, iv, key, aad);
 
     return Success((plaintext, final));
+  }
 
-    // NOTE: It seems the Java version does not allow the final frame to have sequence number
-    // Constants.MAX_FRAME_NUMBER, see line 153 of FrameDecryptionHandler.java.
+  method BodyAAD(messageID: seq<uint8>, final: bool, sequenceNumber: uint32, length: uint64) returns (aad: seq<uint8>) {
+    var contentAAD := if final then BODY_AAD_CONTENT_FINAL_FRAME else BODY_AAD_CONTENT_REGULAR_FRAME;
+    aad := messageID + contentAAD + UInt32ToSeq(sequenceNumber) + UInt64ToSeq(length);
   }
 
   method Decrypt(ciphertext: seq<uint8>, authTag: seq<uint8>, algorithmSuiteID: AlgorithmSuite.ID, iv: seq<uint8>, key: seq<uint8>, aad: seq<uint8>) returns (res: Result<seq<uint8>>)

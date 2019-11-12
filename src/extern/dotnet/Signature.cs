@@ -54,7 +54,7 @@ namespace Signature {
                 ECDsaSigner sign = new ECDsaSigner();
                 sign.Init(false, vkp);
                 BigInteger r, s;
-                ByteArrayToRS(sig.Elements, out r, out s);
+                DERDeserialize(sig.Elements, out r, out s);
                 return sign.VerifySignature(digest.Elements, r, s);
             } catch {
                 return false;
@@ -75,11 +75,11 @@ namespace Signature {
                 sign.Init(true, skp);
                 do {
                     BigInteger[] sig = sign.GenerateSignature(digest.Elements);
-                    byte[] bytes = SignatureToByteArray(sig[0], sig[1]);
+                    byte[] bytes = DERSerialize(sig[0], sig[1]);
                     if (bytes.Length != x.SignatureLength()) {
                         // Most of the time, a signature of the wrong length can be fixed
                         // by negating s in the signature relative to the group order.
-                        bytes = SignatureToByteArray(sig[0], p.N.Subtract(sig[1]));
+                        bytes = DERSerialize(sig[0], p.N.Subtract(sig[1]));
                     }
                     if (bytes.Length == x.SignatureLength()) {
                         // This will meet the method postcondition, which says that a Some? return must
@@ -93,11 +93,6 @@ namespace Signature {
             }
         }
 
-        private static byte[] SignatureToByteArray(BigInteger r, BigInteger s) {
-            DerSequence derSeq = new DerSequence(new DerInteger(r), new DerInteger(s));
-            return derSeq.GetEncoded();
-        }
-
         public static byteseq Digest(ECDSAParams x, byteseq msg) {
             System.Security.Cryptography.HashAlgorithm alg;
             if (x.is_ECDSA__P384) {
@@ -109,7 +104,12 @@ namespace Signature {
             return new byteseq(digest);
         }
 
-        private static void ByteArrayToRS(byte[] bytes, out BigInteger r, out BigInteger s) {
+        private static byte[] DERSerialize(BigInteger r, BigInteger s) {
+            DerSequence derSeq = new DerSequence(new DerInteger(r), new DerInteger(s));
+            return derSeq.GetEncoded();
+        }
+
+        private static void DERDeserialize(byte[] bytes, out BigInteger r, out BigInteger s) {
             Asn1InputStream asn1 = new Asn1InputStream(bytes);
             var seq = (Asn1Sequence)asn1.ReadObject();
             var dr = (DerInteger)seq[0];
