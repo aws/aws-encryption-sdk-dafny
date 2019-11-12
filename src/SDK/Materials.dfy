@@ -21,7 +21,6 @@ module Materials {
   datatype EncryptedDataKey = EncryptedDataKey(providerID: UTF8.ValidUTF8Bytes,
                                                providerInfo: seq<uint8>,
                                                ciphertext: seq<uint8>)
-
   {
     predicate Valid() {
       |providerID| < UINT16_LIMIT &&
@@ -36,7 +35,6 @@ module Materials {
 
   type ValidEncryptedDataKey = i : EncryptedDataKey | i.Valid() witness EncryptedDataKey.ValidWitness()
 
-
   datatype KeyringTraceFlag =
   | GENERATED_DATA_KEY
   | ENCRYPTED_DATA_KEY
@@ -48,7 +46,8 @@ module Materials {
                                                  keyName: UTF8.ValidUTF8Bytes,
                                                  flags: set<KeyringTraceFlag>)
 
-  // TODO is there a better location for these predicates?
+  // TODO: It would be nice for these to be methods of KeyringTraceEntry and to take a generic flag, however their use in Filter complicates things.
+  // Is there a better way to go about filtering KeyringTraceEntries for traces with specific flags?
   predicate method TraceHasGenerateFlag(trace: KeyringTraceEntry) {
     GENERATED_DATA_KEY in trace.flags
   }
@@ -70,69 +69,61 @@ module Materials {
                                                keyringTrace: seq<KeyringTraceEntry>) 
   {
     predicate method Valid() {
-      algorithmSuiteID.ValidPlaintextDataKey(plaintextDataKey)
+      var generateTraces := Filter(keyringTrace, TraceHasGenerateFlag);
+      var encryptTraces := Filter(keyringTrace, TraceHasEncryptFlag);
+      && algorithmSuiteID.ValidPlaintextDataKey(plaintextDataKey)
+      && (forall trace :: trace in keyringTrace ==> trace.flags <= ValidEncryptionMaterialFlags)
+      && (forall trace :: trace in keyringTrace ==> trace in generateTraces || trace in encryptTraces)
+      && |generateTraces| <= 1
+      && (|generateTraces| == 1 ==> keyringTrace[0] == generateTraces[0])
+      && |encryptTraces| == |encryptedDataKeys|
+      // TODO: How can we strongly tie each trace to it's corresponding EDK?
     }
 
     static function method ValidWitness(): DataKeyMaterials { 
       DataKeyMaterials(AlgorithmSuite.AES_256_GCM_IV12_TAG16_HKDF_SHA384_ECDSA_P384, 
                       seq(32, i => 0), 
                       [EncryptedDataKey.ValidWitness()],
-                      [])
+                      [KeyringTraceEntry([], [], {ENCRYPTED_DATA_KEY, GENERATED_DATA_KEY})])
     }
   }
 
   type ValidDataKeyMaterials = i: DataKeyMaterials | i.Valid() witness DataKeyMaterials.ValidWitness()
 
-  datatype OnDecryptResult = OnDecryptResult(algorithmSuiteID: AlgorithmSuite.ID,
-                                             plaintextDataKey: seq<uint8>,
-                                             keyringTrace: seq<KeyringTraceEntry>)
-  {
-    predicate method Valid() {
-      algorithmSuiteID.ValidPlaintextDataKey(plaintextDataKey)
-    }
-
-    static function method ValidWitness(): OnDecryptResult {
-      OnDecryptResult(AlgorithmSuite.AES_256_GCM_IV12_TAG16_HKDF_SHA384_ECDSA_P384, 
-                      seq(32, i => 0),
-                      [])
-    }
-  }
-
-  type ValidOnDecryptResult = i: OnDecryptResult | i.Valid() witness OnDecryptResult.ValidWitness()
-
+  // TODO: The ordering of the params matter now, what's a better name for this function?
   predicate method CompatibleDataKeyMaterials(k1: ValidDataKeyMaterials, k2: ValidDataKeyMaterials) {
+    var generateTraces := Filter(k1.keyringTrace + k2.keyringTrace, TraceHasGenerateFlag);
     k1.algorithmSuiteID == k2.algorithmSuiteID && k1.plaintextDataKey == k2.plaintextDataKey
+    && |generateTraces| <= 1
+    && (|generateTraces| == 1 ==> |k1.keyringTrace| > 0 && generateTraces[0] == k1.keyringTrace[0])
   }
 
+  // TODO: The ordering of materials matters now, what's a better name for this function?
   function method MergeDataKeyMaterials(k1: ValidDataKeyMaterials, k2: ValidDataKeyMaterials): (res: ValidDataKeyMaterials)
     requires CompatibleDataKeyMaterials(k1, k2)
     ensures res.algorithmSuiteID == k1.algorithmSuiteID == k2.algorithmSuiteID
     ensures res.plaintextDataKey == k1.plaintextDataKey == k2.plaintextDataKey
     ensures res.encryptedDataKeys == k1.encryptedDataKeys + k2.encryptedDataKeys
+    ensures res.keyringTrace == k1.keyringTrace + k2.keyringTrace
   {
+    FilterIsDistributive(k1.keyringTrace, k2.keyringTrace, TraceHasEncryptFlag);
+    FilterIsDistributive(k1.keyringTrace, k2.keyringTrace, TraceHasGenerateFlag);
     var r := DataKeyMaterials(k1.algorithmSuiteID, k1.plaintextDataKey, k1.encryptedDataKeys + k2.encryptedDataKeys, k1.keyringTrace + k2.keyringTrace);
     r
   }
 
+  // TODO: Due to the dataKeyMaterials structure, the placement of the keyringTrace in encryption/decryption materials is inconsistant.
   datatype EncryptionMaterials = EncryptionMaterials(encryptionContext: EncryptionContext,
                                                      dataKeyMaterials: ValidDataKeyMaterials,
-                                                     signingKey: Option<seq<uint8>>,
-                                                     keyringTrace: seq<KeyringTraceEntry>)
-
+                                                     signingKey: Option<seq<uint8>>)
   {
     predicate method Valid() {
-      var generateTraces := Filter(keyringTrace, TraceHasGenerateFlag);
-      var encryptTraces := Filter(keyringTrace, TraceHasEncryptFlag);
       && dataKeyMaterials.algorithmSuiteID.SignatureType().Some? ==> signingKey.Some?
       && |dataKeyMaterials.encryptedDataKeys| > 0
-      && (forall trace :: trace in keyringTrace ==> trace.flags <= ValidEncryptionMaterialFlags)
-      && (forall trace :: trace in keyringTrace ==> trace in generateTraces || trace in encryptTraces)
-      && (|generateTraces| == 1)
-      && (|encryptTraces| == |dataKeyMaterials.encryptedDataKeys|)
     }
 
     static function method ValidWitness(): EncryptionMaterials { 
-       EncryptionMaterials([], DataKeyMaterials.ValidWitness(), Some(seq(32, i => 0)), [])
+      EncryptionMaterials([], DataKeyMaterials.ValidWitness(), Some(seq(32, i => 0)))
     }
   }
 
@@ -154,9 +145,11 @@ module Materials {
 
     static function method ValidWitness(): DecryptionMaterials { 
       DecryptionMaterials(AlgorithmSuite.AES_256_GCM_IV12_TAG16_HKDF_SHA384_ECDSA_P384,
-                          [], seq(32, i => 0), Some(seq(32, i => 0)), [])
+                          [], seq(32, i => 0), Some(seq(32, i => 0)),
+                          [KeyringTraceEntry([], [], {DECRYPTED_DATA_KEY})])
     }
   }
+
   type ValidDecryptionMaterials = i: DecryptionMaterials | i.Valid() witness DecryptionMaterials.ValidWitness()
 
     //TODO: Review this code.

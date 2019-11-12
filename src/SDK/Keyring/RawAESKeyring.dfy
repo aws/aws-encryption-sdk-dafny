@@ -72,17 +72,26 @@ module RawAESKeyring{
       requires Valid()
       requires plaintextDataKey.Some? ==> algorithmSuiteID.ValidPlaintextDataKey(plaintextDataKey.get)
       ensures Valid()
-      ensures unchanged(Repr)
       ensures res.Success? && res.value.Some? ==> 
-          algorithmSuiteID == res.value.get.algorithmSuiteID
+        algorithmSuiteID == res.value.get.algorithmSuiteID
       ensures res.Success? && res.value.Some? && plaintextDataKey.Some? ==> 
-          plaintextDataKey.get == res.value.get.plaintextDataKey
+        plaintextDataKey.get == res.value.get.plaintextDataKey
+      ensures res.Success? && res.value.Some? && plaintextDataKey.None? ==>
+        var generateTraces := Filter(res.value.get.keyringTrace, Mat.TraceHasGenerateFlag);
+        |generateTraces| == 1
+      ensures res.Success? && res.value.Some? && plaintextDataKey.Some? ==>
+        var generateTraces := Filter(res.value.get.keyringTrace, Mat.TraceHasGenerateFlag);
+        |generateTraces| == 0
     {
+      var keyringTrace := [];
       var plaintextDataKey := plaintextDataKey;
       if plaintextDataKey.None? {
         var k := Random.GenerateBytes(algorithmSuiteID.KeyLength() as int32);
         plaintextDataKey := Some(k);
+        var generateTrace := Mat.KeyringTraceEntry(keyNamespace, keyName, {Mat.GENERATED_DATA_KEY});
+        keyringTrace := keyringTrace + [generateTrace];
       }
+
       var iv := Random.GenerateBytes(wrappingAlgorithm.ivLen as int32);
       var aad := Mat.FlattenSortEncCtx(encryptionContext);
       var encryptResult :- AESEncryption.AESEncrypt(wrappingAlgorithm, iv, wrappingKey, plaintextDataKey.get, aad);
@@ -95,9 +104,13 @@ module RawAESKeyring{
         return Failure("Encrypted data key too long.");
       }
       var edk := Mat.EncryptedDataKey(keyNamespace, providerInfo, encryptedKey);
-      var dataKey := Mat.DataKeyMaterials(algorithmSuiteID, plaintextDataKey.get, [edk]);
-      assert dataKey.algorithmSuiteID.ValidPlaintextDataKey(dataKey.plaintextDataKey);
-      return Success(Some(dataKey));
+
+      var encryptTrace := Mat.KeyringTraceEntry(keyNamespace, keyName, {Mat.ENCRYPTED_DATA_KEY, Mat.SIGNED_ENCRYPTION_CONTEXT});
+      keyringTrace := keyringTrace + [encryptTrace];
+      FilterIsDistributive(keyringTrace, [encryptTrace], Mat.TraceHasGenerateFlag); // TODO: Is there a better idiom for naming/placement of these lemmas?
+      FilterIsDistributive(keyringTrace, [encryptTrace], Mat.TraceHasEncryptFlag);
+
+      res := Success(Some(Mat.DataKeyMaterials(algorithmSuiteID, plaintextDataKey.get, [edk], keyringTrace)));
     }
 
     predicate method ValidProviderInfo(info: seq<uint8>)
@@ -116,12 +129,10 @@ module RawAESKeyring{
 
     method OnDecrypt(algorithmSuiteID: AlgorithmSuite.ID,
                      encryptionContext: Mat.EncryptionContext,
-                     edks: seq<Mat.EncryptedDataKey>) returns (res: Result<Option<seq<uint8>>>)
-      requires Valid() 
+                     edks: seq<Mat.EncryptedDataKey>) returns (res: Result<Option<KeyringDefs.ValidOnDecryptResult>>)
+      requires Valid()
       ensures Valid()
       ensures |edks| == 0 ==> res.Success? && res.value.None?
-      ensures res.Success? && res.value.Some? ==> 
-          algorithmSuiteID.ValidPlaintextDataKey(res.value.get)
     {
       var i := 0;
       while i < |edks|
@@ -132,8 +143,9 @@ module RawAESKeyring{
           //TODO: #68
           var cipherText, authTag := edks[i].ciphertext[wrappingAlgorithm.tagLen ..], edks[i].ciphertext[.. wrappingAlgorithm.tagLen];
           var ptKey :- AESEncryption.AESDecrypt(wrappingAlgorithm, wrappingKey, cipherText, authTag, iv, flatEncCtx);
+          var decryptTrace := Mat.KeyringTraceEntry(keyNamespace, keyName, {Mat.DECRYPTED_DATA_KEY, Mat.VERIFIED_ENCRYPTION_CONTEXT});
           if algorithmSuiteID.ValidPlaintextDataKey(ptKey) { // check for correct key length
-            return Success(Some(ptKey));
+            return Success(Some(KeyringDefs.OnDecryptResult(algorithmSuiteID, ptKey, [decryptTrace])));
           } else {
             return Failure("Decryption failed: bad datakey length.");
           }

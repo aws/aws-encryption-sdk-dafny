@@ -62,20 +62,28 @@ module RawRSAKeyringDef {
       requires Valid()
       requires plaintextDataKey.Some? ==> algorithmSuiteID.ValidPlaintextDataKey(plaintextDataKey.get)
       ensures Valid()
-      ensures unchanged(Repr)
       ensures res.Success? && res.value.Some? ==> 
-          algorithmSuiteID == res.value.get.algorithmSuiteID
+        algorithmSuiteID == res.value.get.algorithmSuiteID
       ensures res.Success? && res.value.Some? && plaintextDataKey.Some? ==> 
-          plaintextDataKey.get == res.value.get.plaintextDataKey
+        plaintextDataKey.get == res.value.get.plaintextDataKey
+      ensures res.Success? && res.value.Some? && plaintextDataKey.None? ==>
+        var generateTraces := Filter(res.value.get.keyringTrace, Materials.TraceHasGenerateFlag);
+        |generateTraces| == 1
+      ensures res.Success? && res.value.Some? && plaintextDataKey.Some? ==>
+        var generateTraces := Filter(res.value.get.keyringTrace, Materials.TraceHasGenerateFlag);
+        |generateTraces| == 0
     {
       if encryptionKey.None? {
         return Failure("Encryption key undefined");
       } else {
         var plaintextDataKey := plaintextDataKey;
         var algorithmID := algorithmSuiteID;
+        var keyringTrace := [];
         if plaintextDataKey.None? {
           var k := Random.GenerateBytes(algorithmID.KDFInputKeyLength() as int32);
           plaintextDataKey := Some(k);
+          var generateTrace := Materials.KeyringTraceEntry(keyNamespace, keyName, {Materials.GENERATED_DATA_KEY});
+          keyringTrace := keyringTrace + [generateTrace];
         }
         var aad := Materials.FlattenSortEncCtx(encryptionContext);
         var edkCiphertext := RSA.RSA.RSAEncrypt(bitLength, paddingMode, encryptionKey.get, plaintextDataKey.get);
@@ -85,7 +93,13 @@ module RawRSAKeyringDef {
           return Failure("Encrypted data key too long.");
         }
         var edk := Materials.EncryptedDataKey(keyNamespace, keyName, edkCiphertext.get);
-        var dataKey := Materials.DataKeyMaterials(algorithmSuiteID, plaintextDataKey.get, [edk]);
+        
+        var encryptTrace := Materials.KeyringTraceEntry(keyNamespace, keyName, {Materials.ENCRYPTED_DATA_KEY, Materials.SIGNED_ENCRYPTION_CONTEXT});
+        keyringTrace := keyringTrace + [encryptTrace];
+        FilterIsDistributive(keyringTrace, [encryptTrace], Materials.TraceHasGenerateFlag); // TODO: Is there a better idiom for naming/placement of these lemmas?
+        FilterIsDistributive(keyringTrace, [encryptTrace], Materials.TraceHasEncryptFlag);
+        
+        var dataKey := Materials.DataKeyMaterials(algorithmSuiteID, plaintextDataKey.get, [edk], keyringTrace);
         assert dataKey.algorithmSuiteID.ValidPlaintextDataKey(dataKey.plaintextDataKey);
         return Success(Some(dataKey));
       }
@@ -93,13 +107,10 @@ module RawRSAKeyringDef {
 
     method OnDecrypt(algorithmSuiteID: AlgorithmSuite.ID, 
                      encryptionContext: Materials.EncryptionContext, 
-                     edks: seq<Materials.EncryptedDataKey>)
-      returns (res: Result<Option<seq<uint8>>>)
+                     edks: seq<Materials.EncryptedDataKey>) returns (res: Result<Option<KeyringDefs.ValidOnDecryptResult>>)
       requires Valid() 
       ensures Valid()
       ensures |edks| == 0 ==> res.Success? && res.value.None?
-      ensures res.Success? && res.value.Some? ==> 
-          algorithmSuiteID.ValidPlaintextDataKey(res.value.get)
     {
       if |edks| == 0 {
         return Success(None);
@@ -122,7 +133,8 @@ module RawRSAKeyringDef {
             // continue with the next EDK
           case Some(k) =>
             if algorithmSuiteID.ValidPlaintextDataKey(k) { // check for correct key length
-              return Success(Some(k));
+              var decryptTrace := Materials.KeyringTraceEntry(keyNamespace, keyName, {Materials.DECRYPTED_DATA_KEY, Materials.VERIFIED_ENCRYPTION_CONTEXT});
+              return Success(Some(KeyringDefs.OnDecryptResult(algorithmSuiteID, k, [decryptTrace])));
             } else {
               return Failure(("Bad key length!"));
             }
