@@ -149,7 +149,7 @@ module ESDKClient {
     var plaintext;
     match header.body.contentType {
       case NonFramed =>
-        // TODO
+        plaintext :- MessageBody.DecryptNonFramedMessageBody(rd, decMat.algorithmSuiteID, decryptionKey, header.body.messageID);
       case Framed =>
         plaintext :- MessageBody.DecryptFramedMessageBody(rd, decMat.algorithmSuiteID, decryptionKey, header.body.frameLength as int, header.body.messageID);
     }

@@ -122,6 +122,17 @@ module Streams {
       var n := SeqToUInt32(bytes);
       return Success(n);
     }
+
+    // Read exactly 8 bytes, if possible, and return as a uint64; otherwise, fail.
+    method ReadUInt64() returns (res: Result<uint64>)
+      requires Valid()
+      modifies this
+      ensures Valid()
+    {
+      var bytes :- ReadExact(8);
+      var n := SeqToUInt64(bytes);
+      return Success(n);
+    }
   }
 
   class StringWriter {
