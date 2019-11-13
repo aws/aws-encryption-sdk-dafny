@@ -1,14 +1,18 @@
 include "./Defs.dfy"
 include "../Materials.dfy"
+include "../AlgorithmSuite.dfy"
 include "../../StandardLibrary/StandardLibrary.dfy"
 include "../../KMS/KMSUtils.dfy"
+include "../../Util/UTF8.dfy"
 
 module KMSKeyring {
   import opened StandardLibrary
   import opened UInt = StandardLibrary.UInt
+  import AlgorithmSuite
   import KeyringDefs
   import Mat = Materials
   import KMSUtils
+  import UTF8
 
   class KMSKeyring extends KeyringDefs.Keyring {
 
@@ -76,130 +80,142 @@ module KMSKeyring {
       this.isDiscovery    := |keyIDs| == 0 && generator.None?;
     }
 
-    method GenerateAndSetKey(encMat: Mat.EncryptionMaterials) returns (res: Result<()>)
+    method GenerateAndSetKey(algorithmSuiteID: AlgorithmSuite.ID, encryptionContext: Mat.EncryptionContext) returns (res: Result<(seq<uint8>, Mat.EncryptedDataKey)>)
       requires Valid()
-      requires encMat.Valid()
-      requires encMat.plaintextDataKey.None?
       requires generator.Some?
       requires !isDiscovery
-      modifies encMat`plaintextDataKey, encMat`encryptedDataKeys
       ensures Valid()
-      ensures res.Success? ==> encMat.Valid() && encMat.plaintextDataKey.Some? && |encMat.encryptedDataKeys| > 0 &&
-                               encMat.encryptedDataKeys[..|encMat.encryptedDataKeys| - 1] == old(encMat.encryptedDataKeys)
+      ensures res.Success? ==> algorithmSuiteID.ValidPlaintextDataKey(res.value.0) && res.value.1.Valid()
       // TODO: ensure GENERATED_DATA_KEY flag
     {
-      var generatorRequest := KMSUtils.GenerateDataKeyRequest(encMat.encryptionContext, grantTokens, generator.get, encMat.algorithmSuiteID.KeyLength() as int32);
+      var generatorRequest := KMSUtils.GenerateDataKeyRequest(encryptionContext, grantTokens, generator.get, algorithmSuiteID.KeyLength() as int32);
       var region :- RegionFromKMSKeyARN(generator.get);
       var client := clientSupplier(region);
       var generatorResponse :- client.GenerateDataKey(generatorRequest);
       if !generatorResponse.IsWellFormed() {
         return Failure("Invalid response from KMS GenerateDataKey");
       }
-      var encryptedDataKey := generatorResponse.ciphertextBlob;
+      var providerInfo :- UTF8.Encode(generatorResponse.keyID);
+      if UINT16_LIMIT <= |providerInfo| {
+        return Failure("providerInfo exceeds maximum length");
+      }
+      var encryptedDataKey := Mat.EncryptedDataKey(KMSUtils.ProviderID(), providerInfo, generatorResponse.ciphertextBlob);
       var keyID := generatorResponse.keyID;
       var plaintextDataKey := generatorResponse.plaintext;
 
-      if |plaintextDataKey| != encMat.algorithmSuiteID.KeyLength() {
+      if |plaintextDataKey| != algorithmSuiteID.KeyLength() {
         return Failure("Invalid response from KMS GenerateDataKey: bad key length");
       }
 
-      encMat.SetPlaintextDataKey(plaintextDataKey);
-      encMat.AppendEncryptedDataKey(Mat.EncryptedDataKey(KMSUtils.PROVIDER_ID, StringToByteSeq(keyID), encryptedDataKey));
-      return Success(());
+      return Success((plaintextDataKey, encryptedDataKey));
     }
 
-    method OnEncrypt(encMat: Mat.EncryptionMaterials) returns (res: Result<Mat.EncryptionMaterials>)
+    method OnEncrypt(algorithmSuiteID: Mat.AlgorithmSuite.ID,
+                     encryptionContext: Mat.EncryptionContext,
+                     plaintextDataKey: Option<seq<uint8>>) returns (res: Result<Option<Mat.ValidDataKeyMaterials>>)
       requires Valid()
-      requires encMat.Valid()
-      modifies encMat`plaintextDataKey, encMat`encryptedDataKeys
+      requires plaintextDataKey.Some? ==> algorithmSuiteID.ValidPlaintextDataKey(plaintextDataKey.get)
       ensures Valid()
-      ensures isDiscovery ==> res.Success? && unchanged(res.value)
-      ensures res.Success? ==> res.value.Valid() && res.value == encMat
-      ensures res.Success? && old(encMat.plaintextDataKey.Some?) ==> res.value.plaintextDataKey == old(encMat.plaintextDataKey)
-      // ensures res.Failure? ==> unchanged(encMat)
+      ensures isDiscovery ==> res.Success? && res.value.None?
+      ensures res.Success? && res.value.Some? ==> 
+          algorithmSuiteID == res.value.get.algorithmSuiteID
+      ensures res.Success? && res.value.Some? && plaintextDataKey.Some? ==> 
+          plaintextDataKey.get == res.value.get.plaintextDataKey
       // TODO: keyring trace GENERATED_DATA_KEY flag assurance
       // TODO: keyring trace ENCRYPTED_DATA_KEY flag assurance
     {
-      var encryptCMKs := keyIDs;
-
       if isDiscovery {
-        return Success(encMat);
-      } else if encMat.plaintextDataKey.None? && generator.None? {
+        return Success(None);
+      } else if plaintextDataKey.None? && generator.None? {
         return Failure("No plaintext datakey or generator defined");
       }
 
+      var encryptCMKs := keyIDs;
+      var edks: seq<Mat.EncryptedDataKey> := [];
+      var ptdk: seq<uint8>;
+
       if generator.Some? {
-        if encMat.plaintextDataKey.None? {
-          var _ :- GenerateAndSetKey(encMat);
+        if plaintextDataKey.None? {
+          var resTuple :- GenerateAndSetKey(algorithmSuiteID, encryptionContext);
+          ptdk := resTuple.0;
+          edks := [resTuple.1];
         } else {
+          ptdk := plaintextDataKey.get;
           encryptCMKs := encryptCMKs + [generator.get];
         }
+      } else {
+        ptdk := plaintextDataKey.get;
       }
 
-      ghost var oldPlaintextDataKey := encMat.plaintextDataKey.get;
       var i := 0;
       while i < |encryptCMKs|
-        invariant encMat.plaintextDataKey.Some?
-        invariant encMat.plaintextDataKey.get == oldPlaintextDataKey
-        invariant encMat.Valid()
+        invariant plaintextDataKey.Some? ==> ptdk == plaintextDataKey.get
+        invariant forall edk :: edk in edks ==> edk.Valid()
       {
-        var encryptRequest := KMSUtils.EncryptRequest(encMat.encryptionContext, grantTokens, encryptCMKs[i], encMat.plaintextDataKey.get);
+        var encryptRequest := KMSUtils.EncryptRequest(encryptionContext, grantTokens, encryptCMKs[i], ptdk);
         var region :- RegionFromKMSKeyARN(encryptCMKs[i]);
         var client := clientSupplier(region);
         var encryptResponse :- client.Encrypt(encryptRequest);
         if encryptResponse.IsWellFormed() {
-          encMat.AppendEncryptedDataKey(Mat.EncryptedDataKey(KMSUtils.PROVIDER_ID, StringToByteSeq(encryptResponse.keyID), encryptResponse.ciphertextBlob));
+          var providerInfo :- UTF8.Encode(encryptResponse.keyID);
+          if UINT16_LIMIT <= |providerInfo| {
+            return Failure("providerInfo exceeds maximum length");
+          }
+          var edk := Mat.EncryptedDataKey(KMSUtils.ProviderID(), providerInfo, encryptResponse.ciphertextBlob);
+          assert edk.Valid();
+          edks := edks + [edk];
         } else {
           return Failure("Invalid response from KMS Encrypt");
         }
         i := i + 1;
       }
-      return Success(encMat);
+      var datakeyMat := Mat.DataKeyMaterials(algorithmSuiteID, ptdk, edks);
+      assert datakeyMat.Valid();
+      return Success(Some(datakeyMat));
     }
 
     predicate method DecryptableEDK(edk: Mat.EncryptedDataKey)
     {
-      edk.providerID == KMSUtils.PROVIDER_ID &&
-      (isDiscovery || ByteSeqToString(edk.providerInfo) in keyIDs)
+      edk.providerID == KMSUtils.ProviderID() &&
+      UTF8.ValidUTF8Seq(edk.providerInfo) && UTF8.Decode(edk.providerInfo).Success? &&
+      (isDiscovery || UTF8.Decode(edk.providerInfo).value in keyIDs)
     }
 
-    method OnDecrypt(decMat: Mat.DecryptionMaterials, edks: seq<Mat.EncryptedDataKey>) returns (res: Result<Mat.DecryptionMaterials>)
+    method OnDecrypt(algorithmSuiteID: AlgorithmSuite.ID,
+                     encryptionContext: Mat.EncryptionContext,
+                     edks: seq<Mat.EncryptedDataKey>) returns (res: Result<Option<seq<uint8>>>)
       requires Valid()
-      requires decMat.Valid()
-      modifies decMat`plaintextDataKey
       ensures Valid()
-      ensures decMat.Valid()
-      ensures |edks| == 0 ==> res.Success? && unchanged(decMat)
-      ensures old(decMat.plaintextDataKey.Some?) ==> res.Success? && unchanged(decMat)
-      ensures res.Success? ==> res.value == decMat
-      ensures res.Failure? ==> unchanged(decMat)
+      ensures |edks| == 0 ==> res.Success? && res.value.None?
+      ensures res.Success? && res.value.Some? ==> algorithmSuiteID.ValidPlaintextDataKey(res.value.get)
       // TODO: keyring trace DECRYPTED_DATA_KEY flag assurance
       {
-        if |edks| == 0 || decMat.plaintextDataKey.Some? {
-          return Success(decMat);
+        if |edks| == 0 {
+          return Success(None);
         }
         var decryptableEDKs := Filter(edks, DecryptableEDK);
+        assert forall edk :: edk in decryptableEDKs ==> DecryptableEDK(edk);
         var i := 0;
-        while i < |decryptableEDKs|
-          invariant unchanged(decMat)
-        {
+        while i < |decryptableEDKs| {
           var edk := decryptableEDKs[i];
-          var decryptRequest := KMSUtils.DecryptRequest(edk.ciphertext, decMat.encryptionContext, grantTokens);
-          var region :- RegionFromKMSKeyARN(ByteSeqToString(edk.providerInfo));
+          var decryptRequest := KMSUtils.DecryptRequest(edk.ciphertext, encryptionContext, grantTokens);
+          var providerInfo :- UTF8.Decode(edk.providerInfo);
+          var region :- RegionFromKMSKeyARN(providerInfo);
           var client := clientSupplier(region);
           var decryptResponseResult := client.Decrypt(decryptRequest);
           if decryptResponseResult.Success? {
             var decryptResponse := decryptResponseResult.value;
-            if decryptResponse.keyID != ByteSeqToString(edk.providerInfo) || |decryptResponse.plaintext| != decMat.algorithmSuiteID.KeyLength() {
+            if (UTF8.Decode(edk.providerInfo).Success? && decryptResponse.keyID != UTF8.Decode(edk.providerInfo).value)
+               || |decryptResponse.plaintext| != algorithmSuiteID.KeyLength() {
               return Failure("Invalid response from KMS Decrypt");
             } else {
-              decMat.setPlaintextDataKey(decryptResponse.plaintext);
-              return Success(decMat);
+              assert algorithmSuiteID.ValidPlaintextDataKey(decryptResponse.plaintext);
+              return Success(Some(decryptResponse.plaintext));
             }
           }
           i := i + 1;
         }
-        return Success(decMat);
+        return Success(None);
       }
   }
 }

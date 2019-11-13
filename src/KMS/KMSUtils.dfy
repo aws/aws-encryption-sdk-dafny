@@ -1,13 +1,22 @@
 include "../SDK/Materials.dfy"
 include "../StandardLibrary/StandardLibrary.dfy"
 include "../StandardLibrary/UInt.dfy"
+include "../Util/UTF8.dfy"
 
 module {:extern "KMSUtils"} KMSUtils {
   import Mat = Materials
   import opened StandardLibrary
   import opened UInt = StandardLibrary.UInt
+  import UTF8
 
   const PROVIDER_ID := "aws-kms"
+
+  function method ProviderID(): (id: UTF8.ValidUTF8Bytes)
+  {
+    var result := UTF8.Encode(PROVIDER_ID);
+    assume result.Success?;
+    result.value
+  }
 
   datatype DataKeySpec = AES_128 | AES_256
 

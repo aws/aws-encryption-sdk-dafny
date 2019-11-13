@@ -5,6 +5,7 @@ include "Defs.dfy"
 include "../AlgorithmSuite.dfy"
 include "../../Crypto/Random.dfy"
 include "../../Crypto/RSAEncryption.dfy"
+include "../../Util/UTF8.dfy"
 
 module RawRSAKeyringDef {
   import opened StandardLibrary
@@ -14,10 +15,11 @@ module RawRSAKeyringDef {
   import RSA = RSAEncryption
   import Materials
   import Random
+  import UTF8
 
   class RawRSAKeyring extends KeyringDefs.Keyring {
-    const keyNamespace: seq<uint8>
-    const keyName: seq<uint8>
+    const keyNamespace: UTF8.ValidUTF8Bytes
+    const keyName: UTF8.ValidUTF8Bytes
     const paddingMode: RSA.RSAPaddingMode
     const bitLength: RSA.RSABitLength
     const encryptionKey: Option<seq<uint8>>
@@ -29,13 +31,16 @@ module RawRSAKeyringDef {
       Repr == {this} &&
       (encryptionKey.Some? ==> RSA.RSA.RSAWfEK(bitLength, paddingMode, encryptionKey.get)) &&
       (decryptionKey.Some? ==> RSA.RSA.RSAWfDK(bitLength, paddingMode, decryptionKey.get)) &&
-      (encryptionKey.Some? || decryptionKey.Some?)
+      (encryptionKey.Some? || decryptionKey.Some?) &&
+      |keyNamespace| < UINT16_LIMIT &&
+      |keyName| < UINT16_LIMIT
     }
 
-    constructor(namespace: seq<uint8>, name: seq<uint8>, padding: RSA.RSAPaddingMode, bits: RSA.RSABitLength, ek: Option<seq<uint8>>, dk: Option<seq<uint8>>)
+    constructor(namespace: UTF8.ValidUTF8Bytes, name: UTF8.ValidUTF8Bytes, padding: RSA.RSAPaddingMode, bits: RSA.RSABitLength, ek: Option<seq<uint8>>, dk: Option<seq<uint8>>)
       requires ek.Some? ==> RSA.RSA.RSAWfEK(bits, padding, ek.get)
       requires dk.Some? ==> RSA.RSA.RSAWfDK(bits, padding, dk.get)
       requires ek.Some? || dk.Some?
+      requires |namespace| < UINT16_LIMIT && |name| < UINT16_LIMIT
       ensures keyNamespace == namespace
       ensures keyName == name
       ensures paddingMode == padding && bitLength == bits
@@ -51,49 +56,53 @@ module RawRSAKeyringDef {
       Repr := {this};
     }
 
-    method OnEncrypt(encMat: Materials.EncryptionMaterials) returns (res: Result<Materials.EncryptionMaterials>)
+    method OnEncrypt(algorithmSuiteID: Materials.AlgorithmSuite.ID,
+                     encryptionContext: Materials.EncryptionContext,
+                     plaintextDataKey: Option<seq<uint8>>) returns (res: Result<Option<Materials.ValidDataKeyMaterials>>)
       requires Valid()
-      requires encMat.Valid()
-      modifies encMat`plaintextDataKey, encMat`encryptedDataKeys
+      requires plaintextDataKey.Some? ==> algorithmSuiteID.ValidPlaintextDataKey(plaintextDataKey.get)
       ensures Valid()
-      ensures res.Success? ==> res.value.Valid() && res.value == encMat
-      ensures res.Success? && old(encMat.plaintextDataKey.Some?) ==> res.value.plaintextDataKey == old(encMat.plaintextDataKey)
-      ensures res.Failure? ==> unchanged(encMat)
+      ensures unchanged(Repr)
+      ensures res.Success? && res.value.Some? ==> 
+          algorithmSuiteID == res.value.get.algorithmSuiteID
+      ensures res.Success? && res.value.Some? && plaintextDataKey.Some? ==> 
+          plaintextDataKey.get == res.value.get.plaintextDataKey
     {
       if encryptionKey.None? {
         return Failure("Encryption key undefined");
       } else {
-        var dataKey := encMat.plaintextDataKey;
-        var algorithmID := encMat.algorithmSuiteID;
-        if dataKey.None? {
-          var k := Random.GenerateBytes(algorithmID.KeyLength() as int32);
-          dataKey := Some(k);
+        var plaintextDataKey := plaintextDataKey;
+        var algorithmID := algorithmSuiteID;
+        if plaintextDataKey.None? {
+          var k := Random.GenerateBytes(algorithmID.KDFInputKeyLength() as int32);
+          plaintextDataKey := Some(k);
         }
-        var aad := Materials.FlattenSortEncCtx(encMat.encryptionContext);
-        var edkCiphertext := RSA.RSA.RSAEncrypt(bitLength, paddingMode, encryptionKey.get, dataKey.get);
+        var aad := Materials.FlattenSortEncCtx(encryptionContext);
+        var edkCiphertext := RSA.RSA.RSAEncrypt(bitLength, paddingMode, encryptionKey.get, plaintextDataKey.get);
         if edkCiphertext.None? {
           return Failure("Error on encrypt!");
+        } else if UINT16_LIMIT <= |edkCiphertext.get| {
+          return Failure("Encrypted data key too long.");
         }
-        var edk := Materials.EncryptedDataKey(ByteSeqToString(keyNamespace), keyName, edkCiphertext.get);
-        encMat.encryptedDataKeys := [edk] + encMat.encryptedDataKeys;
-        encMat.plaintextDataKey := dataKey;
-        return Success(encMat);
+        var edk := Materials.EncryptedDataKey(keyNamespace, keyName, edkCiphertext.get);
+        var dataKey := Materials.DataKeyMaterials(algorithmSuiteID, plaintextDataKey.get, [edk]);
+        assert dataKey.algorithmSuiteID.ValidPlaintextDataKey(dataKey.plaintextDataKey);
+        return Success(Some(dataKey));
       }
     }
 
-    method OnDecrypt(decMat: Materials.DecryptionMaterials, edks: seq<Materials.EncryptedDataKey>) returns (res: Result<Materials.DecryptionMaterials>)
-      requires Valid()
-      requires decMat.Valid()
-      modifies decMat`plaintextDataKey
+    method OnDecrypt(algorithmSuiteID: AlgorithmSuite.ID, 
+                     encryptionContext: Materials.EncryptionContext, 
+                     edks: seq<Materials.EncryptedDataKey>)
+      returns (res: Result<Option<seq<uint8>>>)
+      requires Valid() 
       ensures Valid()
-      ensures decMat.Valid()
-      ensures |edks| == 0 ==> res.Success? && unchanged(decMat)
-      ensures old(decMat.plaintextDataKey.Some?) ==> res.Success? && unchanged(decMat)
-      ensures res.Success? ==> res.value == decMat
-      ensures res.Failure? ==> unchanged(decMat)
+      ensures |edks| == 0 ==> res.Success? && res.value.None?
+      ensures res.Success? && res.value.Some? ==> 
+          algorithmSuiteID.ValidPlaintextDataKey(res.value.get)
     {
-      if decMat.plaintextDataKey.Some? || |edks| == 0 {
-        return Success(decMat);
+      if |edks| == 0 {
+        return Success(None);
       } else if decryptionKey.None? {
         return Failure("Decryption key undefined");
       }
@@ -102,7 +111,7 @@ module RawRSAKeyringDef {
         invariant  0 <= i <= |edks|
       {
         var edk := edks[i];
-        if edk.providerID != ByteSeqToString(keyNamespace) {
+        if edk.providerID != keyNamespace {
           // continue with the next EDK
         } else if edk.providerInfo != keyName {
           // continue with the next EDK
@@ -112,16 +121,15 @@ module RawRSAKeyringDef {
           case None =>
             // continue with the next EDK
           case Some(k) =>
-            if |k| == decMat.algorithmSuiteID.KeyLength() { // check for correct key length
-              decMat.plaintextDataKey := Some(k);
-              return Success(decMat);
+            if algorithmSuiteID.ValidPlaintextDataKey(k) { // check for correct key length
+              return Success(Some(k));
             } else {
               return Failure(("Bad key length!"));
             }
         }
         i := i + 1;
       }
-      return Success(decMat);
+      return Success(None);
     }
   }
 }
