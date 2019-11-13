@@ -64,6 +64,9 @@ build/%.dfy.verified: src/%.dfy
 build/Main.exe: $(SRCS) $(DEPS)
 	$(DAFNY) /out:build/Main $(SRCS) $(DEPS) /compile:2 /noVerify /noIncludes && cp $(BCDLL) build/
 
+buildjs: $(SRCS)
+	$(DAFNY) /out:build/Main $(SRCS) /compile:2 /noVerify /noIncludes /compileTarget:js /spillTargetCode:1
+
 buildcs: build/Main.cs
 	csc /r:System.Numerics.dll /r:$(BCDLL) /target:exe /debug /nowarn:0164 /nowarn:0219 /nowarn:1717 /nowarn:0162 /nowarn:0168 build/Main.cs $(DEPS_CS) /out:build/Main.exe
 
