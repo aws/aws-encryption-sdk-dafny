@@ -2,3 +2,5 @@
 **/.DS_Store
 build/*
 test/**/Output/*
+/package-lock.json
+/node_modules
