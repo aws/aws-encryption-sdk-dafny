@@ -4,7 +4,9 @@ include "../../StandardLibrary/Base64.dfy"
 include "../Materials.dfy"
 include "Defs.dfy"
 include "../Keyring/Defs.dfy"
+include "../MessageHeader.dfy"
 include "../../Util/UTF8.dfy"
+include "../Deserialize.dfy"
 
 module DefaultCMMDef {
   import opened StandardLibrary
@@ -15,7 +17,9 @@ module DefaultCMMDef {
   import AlgorithmSuite
   import S = Signature
   import Base64
+  import MessageHeader
   import UTF8
+  import Deserialize
 
   class DefaultCMM extends CMMDefs.CMM {
     const kr: KeyringDefs.Keyring
@@ -37,12 +41,13 @@ module DefaultCMMDef {
       Repr := {this, kr} + k.Repr;
     }
 
-    method GetEncryptionMaterials(ec: Materials.EncryptionContext, alg_id: Option<AlgorithmSuite.ID>, pt_len: Option<nat>) 
-      returns (res: Result<Materials.ValidEncryptionMaterials>)
+    method GetEncryptionMaterials(ec: Materials.EncryptionContext, alg_id: Option<AlgorithmSuite.ID>, pt_len: Option<nat>) returns (res: Result<Materials.ValidEncryptionMaterials>)
       requires Valid()
+      requires ValidAAD(ec) && Materials.GetKeysFromEncryptionContext(ec) !! Materials.ReservedKeyValues
       ensures Valid()
-      ensures res.Success? && alg_id.Some? ==> res.value.dataKeyMaterials.algorithmSuiteID == alg_id.get
+      ensures res.Success? ==> |res.value.dataKeyMaterials.plaintextDataKey| == res.value.dataKeyMaterials.algorithmSuiteID.KDFInputKeyLength()
       ensures res.Success? ==> |res.value.dataKeyMaterials.encryptedDataKeys| > 0
+      ensures res.Success? ==> ValidAAD(res.value.encryptionContext)
       ensures res.Success? ==>
         match res.value.dataKeyMaterials.algorithmSuiteID.SignatureType()
           case None => true
@@ -62,10 +67,22 @@ module DefaultCMMDef {
             case None => return Failure("Keygen error");
             case Some(ab) =>
               enc_sk := Some(ab.1);
-              var enc_vk :- UTF8.Encode(Base64.Encode(ab.1));
+              var enc_vk :- UTF8.Encode(Base64.Encode(ab.0));
               var reservedField := Materials.EC_PUBLIC_KEY_FIELD;
-              enc_ctx := [(reservedField, enc_vk)] + enc_ctx;
+              assert reservedField in Materials.ReservedKeyValues;
+              assert forall i | 0 <= i < |ec| :: ec[i].0 != reservedField;
+              assert MessageHeader.SortedKVPairs(enc_ctx) by { // this is a precondition of InsertNewEntry
+                assert MessageHeader.ValidAAD(enc_ctx);
+                reveal MessageHeader.ValidAAD();
+              }
+              // The following 3 lines should be combined into one, once this gets fixed: https://github.com/dafny-lang/dafny/issues/425
+              var optionResult;
+              ghost var insertionPoint;
+              optionResult, insertionPoint := Deserialize.InsertNewEntry(enc_ctx, reservedField, enc_vk);
+              enc_ctx := optionResult.get;
       }
+
+      MessageHeader.AssumeValidAAD(enc_ctx);  // TODO: we should check this (https://github.com/awslabs/aws-encryption-sdk-dafny/issues/79)
 
       var dataKeyMaterials :- kr.OnEncrypt(id, enc_ctx, None);
       if dataKeyMaterials.None? || |dataKeyMaterials.get.encryptedDataKeys| == 0 {
@@ -79,6 +96,9 @@ module DefaultCMMDef {
       requires |edks| > 0
       requires Valid()
       ensures Valid()
+      ensures res.Success? ==>
+        |res.value.plaintextDataKey| == res.value.algorithmSuiteID.KeyLength()
+      ensures res.Success? && res.value.algorithmSuiteID.SignatureType().Some? ==> res.value.verificationKey.Some?
     {
       // Retrieve and decode verification key from encryption context if using signing algorithm
       var vkey := None;

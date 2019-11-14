@@ -40,10 +40,13 @@ module {:extern "Signature"} Signature {
             ensures res.Some? ==> IsSignKeypair(s, res.get.1, res.get.0)
 //            ensures VKOfSK(s, sk) == vk
 
-        static function method {:extern "Verify"} Verify(s : ECDSAParams, vk : seq<uint8>, m : seq<uint8>, sig : Sig) : bool
-            requires WfVK(s, vk)
- //           requires MaxMsgLen(s).Some? ==> |m| <= MaxMsgLen(s).get
-            requires WfSig(s, sig)
+
+      // TODO: This function should be moved out to the module level, like method "Sign". But apparently :extern in Dafny doesn't yet do this for functions.
+      // See https://github.com/dafny-lang/dafny/issues/423
+      static function method {:extern "Verify"} Verify(s: ECDSAParams, key: seq<uint8>, msg: seq<uint8>, sig: seq<uint8>): bool
+        // requires ECDSA.WfVK(s, key)
+        // requires MaxMsgLen(s).Some? ==> |msg| <= MaxMsgLen(s).get
+        // requires WfSig(s, sig)
     }
 
     method {:extern "Signature.ECDSA", "Sign"} Sign(s: ECDSAParams, key: seq<uint8>, digest: seq<uint8>) returns (sig: Option<seq<uint8>>)
