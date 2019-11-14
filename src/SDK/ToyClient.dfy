@@ -8,6 +8,7 @@ include "AlgorithmSuite.dfy"
 include "../Crypto/AESEncryption.dfy"
 include "../Crypto/EncryptionSuites.dfy"
 include "../Crypto/Random.dfy"
+include "MessageHeader.dfy"
 
 module ToyClientDef {
   import opened StandardLibrary
@@ -20,6 +21,7 @@ module ToyClientDef {
   import AlgorithmSuite
   import AESEncryption
   import EncryptionSuites
+  import MessageHeader
 
   datatype Encryption = Encryption(ec: Materials.EncryptionContext, edks: seq<Materials.EncryptedDataKey>, iv: seq<uint8>, ctxt: seq<uint8>, authTag: seq<uint8>)
 
@@ -53,6 +55,7 @@ module ToyClientDef {
 
     method GetEncMaterials(ec: Materials.EncryptionContext) returns (res: Result<Materials.ValidEncryptionMaterials>)
       requires Valid()
+      requires MessageHeader.ValidAAD(ec) && Materials.GetKeysFromEncryptionContext(ec) !! Materials.ReservedKeyValues
       ensures Valid()
       ensures res.Success? ==> 
         res.value.dataKeyMaterials.algorithmSuiteID == AlgorithmSuite.AES_256_GCM_IV12_TAG16_HKDF_SHA384_ECDSA_P384
@@ -66,6 +69,7 @@ module ToyClientDef {
 
     method Encrypt(pt: seq<uint8>, ec: Materials.EncryptionContext) returns (res: Result<Encryption>)
       requires Valid()
+      requires MessageHeader.ValidAAD(ec) && Materials.GetKeysFromEncryptionContext(ec) !! Materials.ReservedKeyValues
       ensures Valid()
       ensures res.Success? ==> |res.value.authTag| == ALGORITHM.tagLen as int
       ensures res.Success? ==> |res.value.iv| == ALGORITHM.ivLen as int

@@ -11,7 +11,7 @@ phases:
       # Get Boogie
       - git clone https://github.com/boogie-org/boogie.git
       - nuget restore boogie/Source/Boogie.sln
-      - xbuild boogie/Source/Boogie.sln
+      - msbuild boogie/Source/Boogie.sln
       # Get Dafny
       - git clone https://github.com/microsoft/dafny.git
       - msbuild dafny/Source/Dafny.sln
