@@ -80,7 +80,7 @@ module KMSKeyring {
       this.isDiscovery    := |keyIDs| == 0 && generator.None?;
     }
 
-    method GenerateAndSetKey(algorithmSuiteID: AlgorithmSuite.ID, encryptionContext: Mat.EncryptionContext) returns (res: Result<(seq<uint8>, Mat.EncryptedDataKey)>)
+    method Generate(algorithmSuiteID: AlgorithmSuite.ID, encryptionContext: Mat.EncryptionContext) returns (res: Result<(seq<uint8>, Mat.EncryptedDataKey)>)
       requires Valid()
       requires generator.Some?
       requires !isDiscovery
@@ -117,9 +117,9 @@ module KMSKeyring {
       requires plaintextDataKey.Some? ==> algorithmSuiteID.ValidPlaintextDataKey(plaintextDataKey.get)
       ensures Valid()
       ensures isDiscovery ==> res.Success? && res.value.None?
-      ensures res.Success? && res.value.Some? ==> 
+      ensures res.Success? && res.value.Some? ==>
           algorithmSuiteID == res.value.get.algorithmSuiteID
-      ensures res.Success? && res.value.Some? && plaintextDataKey.Some? ==> 
+      ensures res.Success? && res.value.Some? && plaintextDataKey.Some? ==>
           plaintextDataKey.get == res.value.get.plaintextDataKey
       // TODO: keyring trace GENERATED_DATA_KEY flag assurance
       // TODO: keyring trace ENCRYPTED_DATA_KEY flag assurance
@@ -136,7 +136,7 @@ module KMSKeyring {
 
       if generator.Some? {
         if plaintextDataKey.None? {
-          var resTuple :- GenerateAndSetKey(algorithmSuiteID, encryptionContext);
+          var resTuple :- Generate(algorithmSuiteID, encryptionContext);
           ptdk := resTuple.0;
           edks := [resTuple.1];
         } else {
@@ -162,7 +162,6 @@ module KMSKeyring {
             return Failure("providerInfo exceeds maximum length");
           }
           var edk := Mat.EncryptedDataKey(KMSUtils.ProviderID(), providerInfo, encryptResponse.ciphertextBlob);
-          assert edk.Valid();
           edks := edks + [edk];
         } else {
           return Failure("Invalid response from KMS Encrypt");
@@ -176,9 +175,11 @@ module KMSKeyring {
 
     predicate method DecryptableEDK(edk: Mat.EncryptedDataKey)
     {
+      var keys := if generator.Some? then keyIDs + [generator.get]
+                  else keyIDs;
       edk.providerID == KMSUtils.ProviderID() &&
       UTF8.ValidUTF8Seq(edk.providerInfo) && UTF8.Decode(edk.providerInfo).Success? &&
-      (isDiscovery || UTF8.Decode(edk.providerInfo).value in keyIDs)
+      (isDiscovery || UTF8.Decode(edk.providerInfo).value in keys)
     }
 
     method OnDecrypt(algorithmSuiteID: AlgorithmSuite.ID,
@@ -194,7 +195,6 @@ module KMSKeyring {
           return Success(None);
         }
         var decryptableEDKs := Filter(edks, DecryptableEDK);
-        assert forall edk :: edk in decryptableEDKs ==> DecryptableEDK(edk);
         var i := 0;
         while i < |decryptableEDKs| {
           var edk := decryptableEDKs[i];
@@ -209,7 +209,6 @@ module KMSKeyring {
                || |decryptResponse.plaintext| != algorithmSuiteID.KeyLength() {
               return Failure("Invalid response from KMS Decrypt");
             } else {
-              assert algorithmSuiteID.ValidPlaintextDataKey(decryptResponse.plaintext);
               return Success(Some(decryptResponse.plaintext));
             }
           }

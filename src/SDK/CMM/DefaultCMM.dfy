@@ -115,7 +115,7 @@ module DefaultCMMDef {
 
       var dm :- kr.OnDecrypt(alg_id, enc_ctx, edks);
       if dm.None? {
-        return Failure("Could not get materials required for decryption.");
+        return Failure("Keyring.OnDecrypt did not return a value.");
       }
 
       return Success(Materials.DecryptionMaterials(alg_id, enc_ctx, dm.get, vkey));

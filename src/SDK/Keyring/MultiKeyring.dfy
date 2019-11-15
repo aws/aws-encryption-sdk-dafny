@@ -126,9 +126,6 @@ module MultiKeyringDef {
             ensures |edks| == 0 ==> res.None?
             ensures res.Some? ==> algorithmSuiteID.ValidPlaintextDataKey(res.get)
         {
-            if |edks| == 0 {
-              return None;
-            }
             var y := keyring.OnDecrypt(algorithmSuiteID, encryptionContext, edks);
             return match y {
                 case Success(plaintextDataKey) => plaintextDataKey

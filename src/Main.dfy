@@ -1,4 +1,4 @@
-include "SDK/Keyring/RawRSAKeyring.dfy"
+include "SDK/Keyring/KMSKeyring.dfy"
 include "SDK/Materials.dfy"
 include "StandardLibrary/StandardLibrary.dfy"
 include "StandardLibrary/UInt.dfy"
@@ -6,7 +6,7 @@ include "SDK/CMM/Defs.dfy"
 include "SDK/CMM/DefaultCMM.dfy"
 include "SDK/Client.dfy"
 include "SDK/MessageHeader.dfy"
-include "Crypto/RSAEncryption.dfy"
+include "KMS/KMSUtils.dfy"
 include "Util/UTF8.dfy"
 include "StandardLibrary/Base64.dfy"
 
@@ -15,8 +15,8 @@ module Main {
   import opened UInt = StandardLibrary.UInt
   import CMMDefs
   import DefaultCMMDef
-  import RSAEncryption
-  import RawRSAKeyringDef
+  import KMSUtils
+  import KMSKeyring
   import Materials
   import Client = ESDKClient
   import Msg = MessageHeader
@@ -65,8 +65,8 @@ module Main {
       return;
     }
 
-    var ek, dk := RSAEncryption.RSA.RSAKeygen(2048, RSAEncryption.PKCS1);
-    var keyring := new RawRSAKeyringDef.RawRSAKeyring(namespace.value, name.value, RSAEncryption.RSAPaddingMode.PKCS1, 2048, Some(ek), Some(dk));
+    var generator := "arn:aws:kms:us-west-2:658956600833:key/b3537ef1-d8dc-4780-9f5a-55776cbb2f7f";
+    var keyring := new KMSKeyring.KMSKeyring(KMSUtils.GetClient, [], Some(generator), []);
     var cmm := new DefaultCMMDef.DefaultCMM.OfKeyring(keyring);
 
     EncryptDecryptTest(cmm);

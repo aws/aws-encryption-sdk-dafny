@@ -8,8 +8,11 @@ using Amazon;
 
 using KMS = Amazon.KeyManagementService;
 using DString = Dafny.Sequence<char>;
+using ArrayDString = Dafny.ArraySequence<char>;
 using byteseq = Dafny.Sequence<byte>;
+using Arraybyteseq = Dafny.ArraySequence<byte>;
 using EncryptionContext = Dafny.Sequence<_System.Tuple2<Dafny.Sequence<byte>,Dafny.Sequence<byte>>>;
+using ArrayEncryptionContext = Dafny.ArraySequence<_System.Tuple2<Dafny.ArraySequence<byte>,Dafny.ArraySequence<byte>>>;
 
 namespace KMSUtils {
     public partial class __default {
@@ -28,8 +31,11 @@ namespace KMSUtils {
 
         //TODO: #54
         public static ResponseMetadata ConvertMetaData(Amazon.Runtime.ResponseMetadata rmd) {
-            Dafny.Map<DString, DString> metadata = Dafny.Map<DString, DString>.FromCollection(rmd.Metadata.Select(kvp => new Dafny.Pair<DString, DString>(new DString(kvp.Key.ToCharArray()), new DString(kvp.Value.ToCharArray()))).ToList());
-            DString requestID = new DString(rmd.RequestId.ToCharArray());
+            Dafny.Map<DString, DString> metadata = Dafny.Map<DString, DString>
+                .FromCollection(rmd.Metadata.Select(
+                            kvp => new Dafny.Pair<DString, DString>((DString)(new ArrayDString(kvp.Key.ToCharArray())), (DString)(new ArrayDString(kvp.Value.ToCharArray())))
+                            ).ToList());
+            DString requestID = new ArrayDString(rmd.RequestId.ToCharArray());
             return new ResponseMetadata(metadata, requestID);
         }
     }
@@ -52,15 +58,15 @@ namespace KMSUtils {
             };
             KMS.Model.GenerateDataKeyResponse response = this.client.GenerateDataKey(kmsRequest);
             return new STL.Result_Success<GenerateDataKeyResponse>(new GenerateDataKeyResponse(
-                    new byteseq(response.CiphertextBlob.GetBuffer()),
+                    new Arraybyteseq(response.CiphertextBlob.ToArray()),
                     response.ContentLength,
                     (int)response.HttpStatusCode,
-                    new DString(response.KeyId.ToCharArray()),
-                    new byteseq(response.Plaintext.GetBuffer()),
+                    new ArrayDString(response.KeyId.ToCharArray()),
+                    new Arraybyteseq(response.Plaintext.ToArray()),
                     __default.ConvertMetaData(response.ResponseMetadata)
                     ));
-            } catch {
-                return new STL.Result_Failure<GenerateDataKeyResponse>(new Dafny.Sequence<char>("Exception in KMS.GenerateDataKey()".ToCharArray()));
+            } catch (System.Exception exception) {
+                return new STL.Result_Failure<GenerateDataKeyResponse>(new ArrayDString(exception.ToString().ToCharArray()));
             }
         }
 
@@ -75,14 +81,14 @@ namespace KMSUtils {
                 };
                 KMS.Model.EncryptResponse response = this.client.Encrypt(kmsRequest);
                 return new STL.Result_Success<EncryptResponse>(new EncryptResponse(
-                            new byteseq(response.CiphertextBlob.GetBuffer()),
+                            new Arraybyteseq(response.CiphertextBlob.ToArray()),
                             response.ContentLength,
                             (int)response.HttpStatusCode,
-                            new DString(response.KeyId.ToCharArray()),
+                            new ArrayDString(response.KeyId.ToCharArray()),
                             __default.ConvertMetaData(response.ResponseMetadata)
                             ));
-            } catch {
-                return new STL.Result_Failure<EncryptResponse>(new Dafny.Sequence<char>("Exception in KMS.Encrypt()".ToCharArray()));
+            } catch (System.Exception exception) {
+                return new STL.Result_Failure<EncryptResponse>(new ArrayDString(exception.ToString().ToCharArray()));
             }
         }
 
@@ -98,12 +104,12 @@ namespace KMSUtils {
                 return new STL.Result_Success<DecryptResponse>(new DecryptResponse(
                             response.ContentLength,
                             (int)response.HttpStatusCode,
-                            new DString(response.KeyId.ToCharArray()),
-                            new byteseq(response.Plaintext.GetBuffer()),
+                            new ArrayDString(response.KeyId.ToCharArray()),
+                            new Arraybyteseq(response.Plaintext.ToArray()),
                             __default.ConvertMetaData(response.ResponseMetadata)
                             ));
-            } catch {
-                return new STL.Result_Failure<DecryptResponse>(new Dafny.Sequence<char>("Exception in KMS.Decypt()".ToCharArray()));
+            } catch (System.Exception exception) {
+                return new STL.Result_Failure<DecryptResponse>(new ArrayDString(exception.ToString().ToCharArray()));
             }
         }
     }

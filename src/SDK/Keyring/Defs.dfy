@@ -31,6 +31,7 @@ module KeyringDefs {
                      edks: seq<Materials.EncryptedDataKey>) returns (res: Result<Option<seq<uint8>>>)
       requires Valid()
       ensures Valid()
+      ensures |edks| == 0 ==> res.Success? && res.value.None?
       ensures res.Success? && res.value.Some? ==> 
           algorithmSuiteID.ValidPlaintextDataKey(res.value.get)
       // TODO: keyring trace DECRYPTED_DATA_KEY flag assurance
