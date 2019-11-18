@@ -51,7 +51,7 @@ module Serialize {
     len :- wr.WriteByte(contentType);
     totalWritten := totalWritten + len;
 
-    len :- wr.WriteSeq(hb.reserved);
+    len :- wr.WriteSeq(Msg.Reserved);
     totalWritten := totalWritten + len;
 
     len :- wr.WriteByte(hb.ivLength);
@@ -72,9 +72,9 @@ module Serialize {
       case Success(totalWritten) =>
         var serHa := ha.iv + ha.authenticationTag;
         var initLen := old(|wr.data|);
-        && totalWritten == |serHa|
         && initLen + totalWritten == |wr.data|
         && serHa == wr.data[initLen..initLen + totalWritten]
+        && totalWritten == |serHa|
       case Failure(e) => true
   {
     var m :- wr.WriteSeq(ha.iv);

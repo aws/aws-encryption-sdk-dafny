@@ -59,7 +59,7 @@ module {:extern "STL"} StandardLibrary {
     seq(n, _ => value)
   }
 
-  method array_of_seq<T> (s : seq<T>)  returns (a : array<T>)
+  method SeqToArray<T>(s: seq)  returns (a: array)
     ensures fresh(a)
     ensures a.Length == |s|
     ensures forall i :: 0 <= i < |s| ==> a[i] == s[i]
@@ -227,6 +227,7 @@ module {:extern "STL"} StandardLibrary {
   function method MapSeq<S, T>(s: seq<S>, f: S ~> T): seq<T>
     requires forall i :: 0 <= i < |s| ==> f.requires(s[i])
     reads set i,o | 0 <= i < |s| && o in f.reads(s[i]) :: o
+    decreases s
   {
     if s == [] then [] else [f(s[0])] + MapSeq(s[1..], f)
   }

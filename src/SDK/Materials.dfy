@@ -16,7 +16,7 @@ module Materials {
     set i | 0 <= i < |encryptionContext| :: encryptionContext[i].0
   }
 
-  const EC_PUBLIC_KEY_FIELD: string := "aws-crypto-public-key";
+  const EC_PUBLIC_KEY_FIELD := UTF8.Encode("aws-crypto-public-key").value
   ghost const ReservedKeyValues := { EC_PUBLIC_KEY_FIELD }
 
   datatype EncryptedDataKey = EncryptedDataKey(providerID : UTF8.ValidUTF8Bytes,
@@ -28,127 +28,78 @@ module Materials {
       |providerInfo| < UINT16_LIMIT &&
       |ciphertext| < UINT16_LIMIT
     }
+
+    static function method ValidWitness(): EncryptedDataKey {
+      EncryptedDataKey([], [], [])
+    }
   }
+
+  type ValidEncryptedDataKey = i : EncryptedDataKey | i.Valid() witness EncryptedDataKey.ValidWitness()
 
   // TODO: Add keyring trace
-  class EncryptionMaterials {
-    var algorithmSuiteID: AlgorithmSuite.ID
-    var encryptedDataKeys: seq<EncryptedDataKey>
-    var encryptionContext: EncryptionContext
-    var plaintextDataKey: Option<seq<uint8>>
-    var signingKey: Option<seq<uint8>>
-
-    predicate Valid()
-      reads this
-    {
-      (|encryptedDataKeys| > 0 ==> plaintextDataKey.Some?) &&
-      (plaintextDataKey.None? || ValidPlaintextDataKey(plaintextDataKey.get))
+  datatype DataKeyMaterials = DataKeyMaterials(algorithmSuiteID: AlgorithmSuite.ID,
+                                               plaintextDataKey: seq<uint8>,
+                                               encryptedDataKeys: seq<ValidEncryptedDataKey>) 
+  {
+    predicate method Valid() {
+      algorithmSuiteID.ValidPlaintextDataKey(plaintextDataKey)
     }
 
-    predicate ValidPlaintextDataKey(pdk: seq<uint8>)
-      reads this
-    {
-      |pdk| == this.algorithmSuiteID.KeyLength()
-    }
-
-    constructor(algorithmSuiteID: AlgorithmSuite.ID,
-                encryptedDataKeys: seq<EncryptedDataKey>,
-                encryptionContext: EncryptionContext,
-                plaintextDataKey: Option<seq<uint8>>,
-                signingKey: Option<seq<uint8>>)
-      requires |encryptedDataKeys| > 0 ==> plaintextDataKey.Some?
-      requires plaintextDataKey.None? || |plaintextDataKey.get| == algorithmSuiteID.KeyLength()
-      ensures Valid()
-      ensures this.algorithmSuiteID == algorithmSuiteID
-      ensures this.encryptedDataKeys == encryptedDataKeys
-      ensures this.encryptionContext == encryptionContext
-      ensures this.plaintextDataKey == plaintextDataKey
-    {
-      this.algorithmSuiteID := algorithmSuiteID;
-      this.encryptedDataKeys := encryptedDataKeys;
-      this.encryptionContext := encryptionContext;
-      this.plaintextDataKey := plaintextDataKey;
-      this.signingKey := signingKey;
-    }
-
-    method SetPlaintextDataKey(dataKey: seq<uint8>)
-      requires Valid()
-      requires plaintextDataKey.None?
-      requires |dataKey| == algorithmSuiteID.KeyLength()
-      modifies `plaintextDataKey
-      ensures Valid()
-      ensures plaintextDataKey == Some(dataKey)
-    {
-      plaintextDataKey := Some(dataKey);
-    }
-
-    method AppendEncryptedDataKey(edk: EncryptedDataKey)
-      requires Valid()
-      requires plaintextDataKey.Some?
-      modifies `encryptedDataKeys
-      ensures Valid()
-      ensures encryptedDataKeys == old(encryptedDataKeys) + [edk]
-    {
-      encryptedDataKeys := encryptedDataKeys + [edk]; // TODO: Determine if this is a performance issue
+    static function method ValidWitness(): DataKeyMaterials { 
+      DataKeyMaterials(AlgorithmSuite.AES_256_GCM_IV12_TAG16_HKDF_SHA384_ECDSA_P384, 
+                      seq(32, i => 0), 
+                      [EncryptedDataKey.ValidWitness()])
     }
   }
+
+  type ValidDataKeyMaterials = i: DataKeyMaterials | i.Valid() witness DataKeyMaterials.ValidWitness()
+
+  predicate method CompatibleDataKeyMaterials(k1: ValidDataKeyMaterials, k2: ValidDataKeyMaterials) {
+    k1.algorithmSuiteID == k2.algorithmSuiteID && k1.plaintextDataKey == k2.plaintextDataKey
+  }
+
+  function method MergeDataKeyMaterials(k1: ValidDataKeyMaterials, k2: ValidDataKeyMaterials): (res: ValidDataKeyMaterials)
+    requires CompatibleDataKeyMaterials(k1, k2)
+    ensures res.algorithmSuiteID == k1.algorithmSuiteID == k2.algorithmSuiteID
+    ensures res.plaintextDataKey == k1.plaintextDataKey == k2.plaintextDataKey
+    ensures res.encryptedDataKeys == k1.encryptedDataKeys + k2.encryptedDataKeys
+  {
+    var r := DataKeyMaterials(k1.algorithmSuiteID, k1.plaintextDataKey, k1.encryptedDataKeys + k2.encryptedDataKeys);
+    r
+  }
+
+  datatype EncryptionMaterials = EncryptionMaterials(encryptionContext: EncryptionContext,
+                                                     dataKeyMaterials: ValidDataKeyMaterials,
+                                                     signingKey: Option<seq<uint8>>)
+  {
+    predicate method Valid() {
+      && dataKeyMaterials.algorithmSuiteID.SignatureType().Some? ==> signingKey.Some?
+      && |dataKeyMaterials.encryptedDataKeys| > 0
+    }
+
+    static function method ValidWitness(): EncryptionMaterials { 
+       EncryptionMaterials([], DataKeyMaterials.ValidWitness(), Some(seq(32, i => 0)))
+    }
+  }
+  type ValidEncryptionMaterials = i: EncryptionMaterials | i.Valid() witness EncryptionMaterials.ValidWitness()
 
   // TODO: Add keyring trace
-  class DecryptionMaterials {
-    var algorithmSuiteID: AlgorithmSuite.ID
-    var encryptionContext: EncryptionContext
-    var plaintextDataKey: Option<seq<uint8>>
-    var verificationKey: Option<seq<uint8>>
-
-    predicate Valid()
-      reads this
-    {
-      plaintextDataKey.None? || ValidPlaintextDataKey(plaintextDataKey.get)
+  datatype DecryptionMaterials = DecryptionMaterials(algorithmSuiteID: AlgorithmSuite.ID,
+                                                     encryptionContext: EncryptionContext,
+                                                     plaintextDataKey: seq<uint8>,
+                                                     verificationKey: Option<seq<uint8>>)
+  {
+    predicate method Valid() {
+      && algorithmSuiteID.ValidPlaintextDataKey(plaintextDataKey)
+      && algorithmSuiteID.SignatureType().Some? ==> verificationKey.Some?
     }
 
-    predicate ValidPlaintextDataKey(pdk: seq<uint8>)
-      reads this
-    {
-      |pdk| == this.algorithmSuiteID.KeyLength()
-    }
-
-    constructor(algorithmSuiteID: AlgorithmSuite.ID,
-                encryptionContext: EncryptionContext,
-                plaintextDataKey: Option<seq<uint8>>,
-                verificationKey: Option<seq<uint8>>)
-      requires plaintextDataKey.None? || |plaintextDataKey.get| == algorithmSuiteID.KeyLength()
-      ensures Valid()
-      ensures this.algorithmSuiteID == algorithmSuiteID
-      ensures this.encryptionContext == encryptionContext
-      ensures this.plaintextDataKey == plaintextDataKey
-      ensures this.verificationKey == verificationKey
-    {
-      this.algorithmSuiteID := algorithmSuiteID;
-      this.encryptionContext := encryptionContext;
-      this.plaintextDataKey := plaintextDataKey;
-      this.verificationKey := verificationKey;
-    }
-
-    method setPlaintextDataKey(dataKey: seq<uint8>)
-      requires Valid()
-      requires plaintextDataKey.None?
-      requires |dataKey| == algorithmSuiteID.KeyLength()
-      modifies `plaintextDataKey
-      ensures Valid()
-      ensures plaintextDataKey == Some(dataKey)
-    {
-      plaintextDataKey := Some(dataKey);
-    }
-
-    method setVerificationKey(verifKey: seq<uint8>)
-    requires Valid()
-    requires verificationKey.None?
-    modifies `verificationKey
-    ensures Valid()
-    ensures verificationKey == Some(verifKey) {
-      verificationKey := Some(verifKey);
+    static function method ValidWitness(): DecryptionMaterials { 
+      DecryptionMaterials(AlgorithmSuite.AES_256_GCM_IV12_TAG16_HKDF_SHA384_ECDSA_P384,
+                          [], seq(32, i => 0), Some(seq(32, i => 0)))
     }
   }
+  type ValidDecryptionMaterials = i: DecryptionMaterials | i.Valid() witness DecryptionMaterials.ValidWitness()
 
     //TODO: Review this code.
     function method naive_merge<T> (x : seq<T>, y : seq<T>, lt : (T, T) -> bool) : seq<T>

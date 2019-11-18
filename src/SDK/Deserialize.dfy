@@ -16,6 +16,7 @@ module Deserialize {
   export
     provides DeserializeHeader
     provides Streams, StandardLibrary, UInt, AlgorithmSuite, Msg
+    provides InsertNewEntry, UTF8
 
   import Msg = MessageHeader
 
@@ -59,7 +60,7 @@ module Deserialize {
     var aad :- DeserializeAAD(rd);
     var encryptedDataKeys :- DeserializeEncryptedDataKeys(rd);
     var contentType :- DeserializeContentType(rd);
-    var reserved :- DeserializeReserved(rd);
+    var _ :- DeserializeReserved(rd);
     var ivLength :- rd.ReadByte();
     var frameLength :- rd.ReadUInt32();
 
@@ -81,7 +82,6 @@ module Deserialize {
       aad,
       encryptedDataKeys,
       contentType,
-      reserved,
       ivLength,
       frameLength);
     return Success(hb);
@@ -328,14 +328,14 @@ module Deserialize {
       return Success(contentType);
   }
 
-  method DeserializeReserved(rd: Streams.StringReader) returns (ret: Result<Msg.Reserved>)
+  method DeserializeReserved(rd: Streams.StringReader) returns (ret: Result<seq<uint8>>)
     requires rd.Valid()
     modifies rd
     ensures rd.Valid()
   {
     var reserved :- rd.ReadExact(4);
-    if reserved[0] == reserved[1] == reserved[2] == reserved[3] == 0 {
-      return Success(reserved[..]);
+    if reserved == Msg.Reserved {
+      return Success(reserved);
     } else {
       return Failure("Deserialization Error: Reserved fields must be 0.");
     }

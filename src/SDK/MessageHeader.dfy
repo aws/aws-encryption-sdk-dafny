@@ -36,7 +36,7 @@ module MessageHeader {
   const MESSAGE_ID_LEN       := 16
   type MessageID             = x: seq<uint8> | |x| == MESSAGE_ID_LEN witness [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]
 
-  type Reserved              = x: seq<uint8> | x == [0,0,0,0] witness [0,0,0,0]
+  const Reserved: seq<uint8> := [0,0,0,0]
 
   datatype ContentType       = NonFramed | Framed
 
@@ -77,7 +77,6 @@ module MessageHeader {
                           aad: Materials.EncryptionContext,
                           encryptedDataKeys: EncryptedDataKeys,
                           contentType: ContentType,
-                          reserved: Reserved,
                           ivLength: uint8,
                           frameLength: uint32)
   {
@@ -197,6 +196,9 @@ module MessageHeader {
     && AADLength(kvPairs) < UINT16_LIMIT
   }
 
+  lemma {:axiom} AssumeValidAAD(kvPairs: Materials.EncryptionContext)  // TODO: this should be removed and replaced by something usable
+    ensures ValidAAD(kvPairs)
+
   predicate ValidFrameLength(frameLength: uint32, contentType: ContentType) {
     match contentType
     case NonFramed => frameLength == 0
@@ -228,7 +230,7 @@ module MessageHeader {
     AADToSeq(hb.aad) +
     EDKsToSeq(hb.encryptedDataKeys) +
     [ContentTypeToUInt8(hb.contentType)] +
-    hb.reserved +
+    Reserved +
     [hb.ivLength] +
     UInt32ToSeq(hb.frameLength)
   }
