@@ -86,6 +86,7 @@ module IntegTestKMS {
       print "CORRECT\n";
     } else {
       print "NOT CORRECT\n";
+      print result.error;
     }
   }
 }
