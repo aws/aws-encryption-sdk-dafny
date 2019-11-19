@@ -53,7 +53,7 @@ AWSDLLS = lib/AWSSDK.KeyManagementService.3.3.101.83/lib/net45/AWSSDK.KeyManagem
 
 DEPS = $(DEPS_CS) $(BCDLL) $(AWSDLLS)
 
-.PHONY: all release build verify buildcs hkdf test clean-build clean
+.PHONY: all release build verify buildcs hkdf test clean-test clean-build clean
 
 all: verify build test
 
@@ -90,8 +90,11 @@ lib/%.dll:
 test: $(DEPS)
 	lit test -q -v
 
+clean-test:
+	$(RM) test/**/Output/*
+
 clean-build:
 	$(RM) -r build/*
 
-clean: clean-build
+clean: clean-build clean-test
 	$(RM) -r lib/*

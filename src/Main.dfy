@@ -66,7 +66,8 @@ module Main {
     }
 
     var generator := "arn:aws:kms:us-west-2:658956600833:key/b3537ef1-d8dc-4780-9f5a-55776cbb2f7f";
-    var keyring := new KMSKeyring.KMSKeyring(KMSUtils.GetClient, [], Some(generator), []);
+    var clientSupplier := new KMSUtils.DefaultClientSupplier();
+    var keyring := new KMSKeyring.KMSKeyring(clientSupplier, [], Some(generator), []);
     var cmm := new DefaultCMMDef.DefaultCMM.OfKeyring(keyring);
 
     EncryptDecryptTest(cmm);

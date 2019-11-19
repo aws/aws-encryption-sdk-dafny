@@ -18,11 +18,20 @@ module {:extern "KMSUtils"} KMSUtils {
     result.value
   }
 
+  trait ClientSupplier {
+    method GetClient(region: Option<string>) returns (res: Result<KMSClient>)
+  }
+
+  class DefaultClientSupplier extends ClientSupplier {
+    constructor() {}
+    method {:extern} GetClient(region: Option<string>) returns (res: Result<KMSClient>)
+  }
+
   datatype DataKeySpec = AES_128 | AES_256
 
   datatype ResponseMetadata = ResponseMetadata(metadate: map<string, string>, requestID: string)
 
-  type HttpStatusCode = int // FIXME: Restrict this
+  type HttpStatusCode = int //FIXME: Restrict this
 
 
   datatype GenerateDataKeyRequest = GenerateDataKeyRequest(encryptionContext: Mat.EncryptionContext, grantTokens: seq<string>, keyID: string, numberOfBytes: int32)
@@ -48,16 +57,13 @@ module {:extern "KMSUtils"} KMSUtils {
 
   datatype DecryptResponse = DecryptResponse(contentLength: int, httpStatusCode: HttpStatusCode, keyID: string, plaintext: seq<uint8>, responseMetadata: ResponseMetadata)
 
-  // FIXME: mmtj Is it reasonable to call this a function?
-  function method {:extern} GetClient(region: string): (res: KMSClient)
-
   // https://docs.aws.amazon.com/sdkfornet/v3/apidocs/items/KeyManagementService/TKeyManagementServiceClient.html
   class KMSClient {
     method {:extern} GenerateDataKey(request: GenerateDataKeyRequest) returns (res: Result<GenerateDataKeyResponse>)
-      // TODO mmtj: Should this be marked as modifying all of request's fields?
+      //TODO mmtj: Should this be marked as modifying all of request's fields?
 
 	method {:extern} Encrypt(request: EncryptRequest) returns (res: Result<EncryptResponse>)
-      // TODO mmtj: Should this be marked as modifying all of request's fields?
+      //TODO mmtj: Should this be marked as modifying all of request's fields?
 
     method {:extern} Decrypt(request: DecryptRequest) returns (res: Result<DecryptResponse>)
       // TODO mmtj: Should this be marked as modifying all of request's fields?

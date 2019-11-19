@@ -16,7 +16,7 @@ module KMSKeyring {
 
   class KMSKeyring extends KeyringDefs.Keyring {
 
-    const clientSupplier: string -> KMSUtils.KMSClient
+    const clientSupplier: KMSUtils.ClientSupplier
     const keyIDs: seq<string>
     const generator: Option<string>
     const grantTokens: seq<string>
@@ -69,7 +69,7 @@ module KMSKeyring {
       |keyIDs| == 0 && generator.None? ==> isDiscovery
     }
 
-    constructor(clientSupplier: string -> KMSUtils.KMSClient, keyIDs: seq<string>, generator: Option<string>, grantTokens: seq<string>)
+    constructor(clientSupplier: KMSUtils.ClientSupplier, keyIDs: seq<string>, generator: Option<string>, grantTokens: seq<string>)
       ensures Valid()
     {
       this.clientSupplier := clientSupplier;
@@ -80,17 +80,18 @@ module KMSKeyring {
       this.isDiscovery    := |keyIDs| == 0 && generator.None?;
     }
 
-    method Generate(algorithmSuiteID: AlgorithmSuite.ID, encryptionContext: Mat.EncryptionContext) returns (res: Result<(seq<uint8>, Mat.EncryptedDataKey)>)
+    method Generate(algorithmSuiteID: AlgorithmSuite.ID, encryptionContext: Mat.EncryptionContext) returns (res: Result<Mat.ValidDataKeyMaterials>)
       requires Valid()
       requires generator.Some?
       requires !isDiscovery
       ensures Valid()
-      ensures res.Success? ==> algorithmSuiteID.ValidPlaintextDataKey(res.value.0) && res.value.1.Valid()
+      ensures res.Success? ==> res.value.algorithmSuiteID == algorithmSuiteID
       // TODO: ensure GENERATED_DATA_KEY flag
     {
       var generatorRequest := KMSUtils.GenerateDataKeyRequest(encryptionContext, grantTokens, generator.get, algorithmSuiteID.KeyLength() as int32);
-      var region :- RegionFromKMSKeyARN(generator.get);
-      var client := clientSupplier(region);
+      var regionRes := RegionFromKMSKeyARN(generator.get);
+      var regionOpt := regionRes.ToOption();
+      var client :- clientSupplier.GetClient(regionOpt);
       var generatorResponse :- client.GenerateDataKey(generatorRequest);
       if !generatorResponse.IsWellFormed() {
         return Failure("Invalid response from KMS GenerateDataKey");
@@ -103,11 +104,11 @@ module KMSKeyring {
       var keyID := generatorResponse.keyID;
       var plaintextDataKey := generatorResponse.plaintext;
 
-      if |plaintextDataKey| != algorithmSuiteID.KeyLength() {
+      if !algorithmSuiteID.ValidPlaintextDataKey(plaintextDataKey) {
         return Failure("Invalid response from KMS GenerateDataKey: bad key length");
       }
 
-      return Success((plaintextDataKey, encryptedDataKey));
+      return Success(Mat.DataKeyMaterials(algorithmSuiteID, plaintextDataKey, [encryptedDataKey]));
     }
 
     method OnEncrypt(algorithmSuiteID: Mat.AlgorithmSuite.ID,
@@ -131,14 +132,14 @@ module KMSKeyring {
       }
 
       var encryptCMKs := keyIDs;
-      var edks: seq<Mat.EncryptedDataKey> := [];
+      var edks: seq<Mat.ValidEncryptedDataKey> := [];
       var ptdk: seq<uint8>;
 
       if generator.Some? {
         if plaintextDataKey.None? {
-          var resTuple :- Generate(algorithmSuiteID, encryptionContext);
-          ptdk := resTuple.0;
-          edks := [resTuple.1];
+          var generatedMaterials :- Generate(algorithmSuiteID, encryptionContext);
+          ptdk := generatedMaterials.plaintextDataKey;
+          edks := generatedMaterials.encryptedDataKeys;
         } else {
           ptdk := plaintextDataKey.get;
           encryptCMKs := encryptCMKs + [generator.get];
@@ -150,11 +151,11 @@ module KMSKeyring {
       var i := 0;
       while i < |encryptCMKs|
         invariant plaintextDataKey.Some? ==> ptdk == plaintextDataKey.get
-        invariant forall edk :: edk in edks ==> edk.Valid()
       {
         var encryptRequest := KMSUtils.EncryptRequest(encryptionContext, grantTokens, encryptCMKs[i], ptdk);
-        var region :- RegionFromKMSKeyARN(encryptCMKs[i]);
-        var client := clientSupplier(region);
+        var regionRes := RegionFromKMSKeyARN(encryptCMKs[i]);
+        var regionOpt := regionRes.ToOption();
+        var client :- clientSupplier.GetClient(regionOpt);
         var encryptResponse :- client.Encrypt(encryptRequest);
         if encryptResponse.IsWellFormed() {
           var providerInfo :- UTF8.Encode(encryptResponse.keyID);
@@ -175,8 +176,7 @@ module KMSKeyring {
 
     predicate method DecryptableEDK(edk: Mat.EncryptedDataKey)
     {
-      var keys := if generator.Some? then keyIDs + [generator.get]
-                  else keyIDs;
+      var keys := if generator.Some? then keyIDs + [generator.get] else keyIDs;
       edk.providerID == KMSUtils.ProviderID() &&
       UTF8.ValidUTF8Seq(edk.providerInfo) && UTF8.Decode(edk.providerInfo).Success? &&
       (isDiscovery || UTF8.Decode(edk.providerInfo).value in keys)
@@ -200,13 +200,14 @@ module KMSKeyring {
           var edk := decryptableEDKs[i];
           var decryptRequest := KMSUtils.DecryptRequest(edk.ciphertext, encryptionContext, grantTokens);
           var providerInfo :- UTF8.Decode(edk.providerInfo);
-          var region :- RegionFromKMSKeyARN(providerInfo);
-          var client := clientSupplier(region);
+          var regionRes := RegionFromKMSKeyARN(providerInfo);
+          var regionOpt := regionRes.ToOption();
+          var client :- clientSupplier.GetClient(regionOpt);
           var decryptResponseResult := client.Decrypt(decryptRequest);
           if decryptResponseResult.Success? {
             var decryptResponse := decryptResponseResult.value;
             if (UTF8.Decode(edk.providerInfo).Success? && decryptResponse.keyID != UTF8.Decode(edk.providerInfo).value)
-               || |decryptResponse.plaintext| != algorithmSuiteID.KeyLength() {
+               || !algorithmSuiteID.ValidPlaintextDataKey(decryptResponse.plaintext) {
               return Failure("Invalid response from KMS Decrypt");
             } else {
               return Success(Some(decryptResponse.plaintext));

@@ -20,7 +20,7 @@ module {:extern "UTF8"} UTF8 {
   function method {:extern "Encode"} Encode(s: string): Result<ValidUTF8Bytes>
     ensures IsASCIIString(s) ==> Encode(s).Success? && |Encode(s).value| == |s|
 
-  // #81
+  // Issue #81
   function method {:extern "Decode"} Decode(s: ValidUTF8Bytes): Result<string>
 
   predicate IsASCIIString(s: string) {
@@ -99,7 +99,7 @@ module {:extern "UTF8"} UTF8 {
     ValidUTF8_at(a[..], 0)
   }
 
-  // #82
+  // Issue #82
   predicate method ValidUTF8Seq(s: seq<uint8>) {
     ValidUTF8_at(s, 0)
   }

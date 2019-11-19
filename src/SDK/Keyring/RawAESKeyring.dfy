@@ -30,11 +30,11 @@ module RawAESKeyring{
     const wrappingAlgorithm: EncryptionSuites.EncryptionSuite
 
     predicate Valid() reads this {
-      Repr == {this} &&
-      |wrappingKey| == wrappingAlgorithm.keyLen as int &&
-      wrappingAlgorithm in VALID_ALGORITHMS &&
-      wrappingAlgorithm.Valid() &&
-      |keyNamespace| < UINT16_LIMIT
+      && Repr == {this}
+      && |wrappingKey| == wrappingAlgorithm.keyLen as int
+      && wrappingAlgorithm in VALID_ALGORITHMS
+      && wrappingAlgorithm.Valid()
+      && |keyNamespace| < UINT16_LIMIT
     }
 
     constructor(namespace: UTF8.ValidUTF8Bytes, name: UTF8.ValidUTF8Bytes, key: seq<uint8>, wrappingAlg: EncryptionSuites.EncryptionSuite)

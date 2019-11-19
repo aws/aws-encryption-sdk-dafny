@@ -16,10 +16,7 @@ using ArrayEncryptionContext = Dafny.ArraySequence<_System.Tuple2<Dafny.ArraySeq
 
 namespace KMSUtils {
     public partial class __default {
-        public static KMSClient GetClient(DString region) {
-            return new KMSClient(new KMS.AmazonKeyManagementServiceClient(RegionEndpoint.GetBySystemName(region.ToString())));
-        }
-        //TODO: #54
+        //TODO: Issue #54
         public static Dictionary<String, String> EncryptionContextToString(EncryptionContext encContext) {
             UTF8Encoding utf8 = new UTF8Encoding(false, true);
             Dictionary<string, string> strDict = encContext.Elements.ToDictionary(
@@ -29,7 +26,7 @@ namespace KMSUtils {
             return strDict;
         }
 
-        //TODO: #54
+        //TODO: Issue #54
         public static ResponseMetadata ConvertMetaData(Amazon.Runtime.ResponseMetadata rmd) {
             Dafny.Map<DString, DString> metadata = Dafny.Map<DString, DString>
                 .FromCollection(rmd.Metadata.Select(
@@ -37,6 +34,20 @@ namespace KMSUtils {
                             ).ToList());
             DString requestID = new ArrayDString(rmd.RequestId.ToCharArray());
             return new ResponseMetadata(metadata, requestID);
+        }
+    }
+    public partial class DefaultClientSupplier : ClientSupplier {
+        public STL.Result<KMSClient> GetClient(STL.Option<DString> region) {
+            try {
+                if (region.is_Some) {
+                    DString neverUsed = new ArrayDString("".ToCharArray());
+                    return new STL.Result_Success<KMSClient>(new KMSClient(new KMS.AmazonKeyManagementServiceClient(RegionEndpoint.GetBySystemName(region.GetOrElse(neverUsed).ToString()))));
+                } else {
+                    return new STL.Result_Failure<KMSClient>(new ArrayDString("Client Supplier does not have default region.".ToCharArray()));
+                }
+            } catch (System.Exception exception) {
+                return new STL.Result_Failure<KMSClient>(new ArrayDString(exception.ToString().ToCharArray()));
+            }
         }
     }
     public partial class KMSClient {
