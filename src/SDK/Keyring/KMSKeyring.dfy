@@ -199,7 +199,7 @@ module KMSKeyring {
         while i < |decryptableEDKs| {
           var edk := decryptableEDKs[i];
           var decryptRequest := KMSUtils.DecryptRequest(edk.ciphertext, encryptionContext, grantTokens);
-          var providerInfo :- UTF8.Decode(edk.providerInfo);
+          var providerInfo := UTF8.Decode(edk.providerInfo).value;
           var regionRes := RegionFromKMSKeyARN(providerInfo);
           var regionOpt := regionRes.ToOption();
           var client :- clientSupplier.GetClient(regionOpt);

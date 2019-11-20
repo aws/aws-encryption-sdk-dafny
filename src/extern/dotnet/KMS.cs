@@ -20,8 +20,8 @@ namespace KMSUtils {
         public static Dictionary<String, String> EncryptionContextToString(EncryptionContext encContext) {
             UTF8Encoding utf8 = new UTF8Encoding(false, true);
             Dictionary<string, string> strDict = encContext.Elements.ToDictionary(
-                    strKey => utf8.GetString((byte[])strKey._0.Elements.Clone()),
-                    strElm => utf8.GetString((byte[])strElm._1.Elements.Clone())
+                    strKey => utf8.GetString(ConvertByteSeq(strKey._0)),
+                    strElm => utf8.GetString(ConvertByteSeq(strElm._1))
                     );
             return strDict;
         }
@@ -34,6 +34,9 @@ namespace KMSUtils {
                             ).ToList());
             DString requestID = new ArrayDString(rmd.RequestId.ToCharArray());
             return new ResponseMetadata(metadata, requestID);
+        }
+        public static byte[] ConvertByteSeq(byteseq bytes) {
+            return (byte[])bytes.Elements.Clone();
         }
     }
     public partial class DefaultClientSupplier : ClientSupplier {
@@ -88,7 +91,7 @@ namespace KMSUtils {
                     EncryptionContext = __default.EncryptionContextToString(request.encryptionContext),
                     GrantTokens = request.grantTokens.Elements.Select(element => element.ToString()).ToList(),
                     KeyId = request.keyID.ToString(),
-                    Plaintext = new MemoryStream((byte[])request.plaintext.Elements.Clone())
+                    Plaintext = new MemoryStream(__default.ConvertByteSeq(request.plaintext))
                 };
                 KMS.Model.EncryptResponse response = this.client.Encrypt(kmsRequest);
                 return new STL.Result_Success<EncryptResponse>(new EncryptResponse(
@@ -107,7 +110,7 @@ namespace KMSUtils {
             try {
                 KMS.Model.DecryptRequest kmsRequest = new KMS.Model.DecryptRequest()
                 {
-                    CiphertextBlob = new MemoryStream((byte[])request.ciphertextBlob.Elements.Clone()),
+                    CiphertextBlob = new MemoryStream(__default.ConvertByteSeq(request.ciphertextBlob)),
                     EncryptionContext = __default.EncryptionContextToString(request.encryptionContext),
                     GrantTokens = request.grantTokens.Elements.Select(element => element.ToString()).ToList(),
                 };
