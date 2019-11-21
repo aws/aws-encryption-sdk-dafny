@@ -35,7 +35,7 @@ public class DafnyFFI {
   
   public static byteseq SequenceFromMemoryStream(MemoryStream bytes) {
     // TODO: Find a way to safely avoid copying 
-    return new Dafny.Sequence<byte>(bytes.ToArray());
+    return new Dafny.ArraySequence<byte>(bytes.ToArray());
   }
   
   public static Dafny.Sequence<_System.Tuple2<byteseq,byteseq>> 
