@@ -86,7 +86,11 @@ module IntegTestKMS {
       print "CORRECT\n";
     } else {
       print "NOT CORRECT\n";
-      print result.error;
+      if result.Failure? {
+        print result.error;
+      } else {
+        print "Wrong message value: ", result.value;
+      }
     }
   }
 }
