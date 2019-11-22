@@ -14,6 +14,12 @@ module KMSKeyring {
   import KMSUtils
   import UTF8
 
+  function method RegionFromKMSKeyARN(arn: string): Result<string>
+  {
+    var components := Split(arn, ':');
+    if 6 <= |components| && components[0] == "arn" && components[2] == "kms" then Success(components[3]) else Failure("Malformed ARN")
+  }
+
   class KMSKeyring extends KeyringDefs.Keyring {
 
     const clientSupplier: KMSUtils.ClientSupplier
@@ -21,48 +27,6 @@ module KMSKeyring {
     const generator: Option<string>
     const grantTokens: seq<string>
     const isDiscovery: bool
-
-    /*
-    * Does not correctly handle alias strings.
-    * Also it could probably be a function
-    */
-    method RegionFromKMSKeyARN(arn: string) returns (res: Result<string>) {
-      // arn:aws:kms:us-east-1:999999999999:key/01234567-89ab-cdef-fedc-ba9876543210
-      if ':' !in arn {
-        return Failure("Malformed ARN");
-      }
-
-      var start, end := 0, 0;
-      end := StringFind(arn, ':', start);
-      if arn[start..end] != "arn" {
-        return Failure("Malformed ARN");
-      }
-      start := end + 1;
-
-      if ':' !in arn[start..] {
-        return Failure("Malformed ARN");
-      }
-
-      end := StringFind(arn, ':', start);
-      start := end + 1;
-
-      if ':' !in arn[start..] {
-        return Failure("Malformed ARN");
-      }
-
-      end := StringFind(arn, ':', start);
-      if arn[start..end] != "kms" {
-        return Failure("Malformed ARN");
-      }
-      start := end + 1;
-
-      if ':' !in arn[start..] {
-        return Failure("Malformed ARN");
-      }
-
-      end := StringFind(arn, ':', start);
-      return Success(arn[start..end]);
-    }
 
     predicate Valid() reads this, Repr {
       Repr == {this} &&

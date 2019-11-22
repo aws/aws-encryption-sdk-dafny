@@ -87,7 +87,7 @@ buildcs: build/Main.cs
 lib/%.dll:
 	nuget install
 
-test: $(DEPS)
+test: $(DEPS) clean-test
 	lit test -q -v
 
 clean-test:

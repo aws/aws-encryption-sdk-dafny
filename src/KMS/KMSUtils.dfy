@@ -13,9 +13,7 @@ module {:extern "KMSUtils"} KMSUtils {
 
   function method ProviderID(): (id: UTF8.ValidUTF8Bytes)
   {
-    var result := UTF8.Encode(PROVIDER_ID);
-    assume result.Success?;
-    result.value
+    UTF8.Encode(PROVIDER_ID).value
   }
 
   trait ClientSupplier {

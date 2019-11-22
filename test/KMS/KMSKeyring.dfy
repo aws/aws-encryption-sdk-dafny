@@ -13,14 +13,8 @@ module TestKMSKeyring {
   import opened UInt = StandardLibrary.UInt
   import KMSKeyring
   import KMSUtils
-  method GenaricKeyringFactory() returns (keyring: KMSKeyring.KMSKeyring) {
-    var generator := "arn:aws:kms:us-west-2:658956600833:key/b3537ef1-d8dc-4780-9f5a-55776cbb2f7f";
-    var clientSupplier := new KMSUtils.DefaultClientSupplier();
-    keyring := new KMSKeyring.KMSKeyring(clientSupplier, [], Some(generator), []);
-  }
   method TestRegionParseValidInput0() {
-    var kr := GenaricKeyringFactory();
-    var res := kr.RegionFromKMSKeyARN("arn:aws:kms:us-west-1:658956600833:key/b3537ef1-d8dc-4780-9f5a-55776cbb2f7f");
+    var res := KMSKeyring.RegionFromKMSKeyARN("arn:aws:kms:us-west-1:658956600833:key/b3537ef1-d8dc-4780-9f5a-55776cbb2f7f");
     if res.Success? && res.value == "us-west-1" {
       print "CORRECT\n";
     } else {
@@ -28,8 +22,7 @@ module TestKMSKeyring {
     }
   }
   method TestRegionParseValidInput1() {
-    var kr := GenaricKeyringFactory();
-    var res := kr.RegionFromKMSKeyARN("arn:xxx:kms:us-west-1:658956600833:key/b3537ef1-d8dc-4780-9f5a-55776cbb2f7f");
+    var res := KMSKeyring.RegionFromKMSKeyARN("arn:xxx:kms:us-west-1:658956600833:key/b3537ef1-d8dc-4780-9f5a-55776cbb2f7f");
     if res.Success? && res.value == "us-west-1" {
       print "CORRECT\n";
     } else {
@@ -37,8 +30,7 @@ module TestKMSKeyring {
     }
   }
   method TestRegionParseValidInput2() {
-    var kr := GenaricKeyringFactory();
-    var res := kr.RegionFromKMSKeyARN("arn::kms:us-west-1:658956600833:key/b3537ef1-d8dc-4780-9f5a-55776cbb2f7f");
+    var res := KMSKeyring.RegionFromKMSKeyARN("arn::kms:us-west-1:658956600833:key/b3537ef1-d8dc-4780-9f5a-55776cbb2f7f");
     if res.Success? && res.value == "us-west-1" {
       print "CORRECT\n";
     } else {
@@ -46,8 +38,7 @@ module TestKMSKeyring {
     }
   }
   method TestRegionParseValidInput3() {
-    var kr := GenaricKeyringFactory();
-    var res := kr.RegionFromKMSKeyARN("arn:aws:kms:us-west-1:658956600833:alias/EncryptDecrypt");
+    var res := KMSKeyring.RegionFromKMSKeyARN("arn:aws:kms:us-west-1:658956600833:alias/EncryptDecrypt");
     if res.Success? && res.value == "us-west-1" {
       print "CORRECT\n";
     } else {
@@ -55,8 +46,7 @@ module TestKMSKeyring {
     }
   }
   method TestRegionParseBadInput0() {
-    var kr := GenaricKeyringFactory();
-    var res := kr.RegionFromKMSKeyARN("arn:aws:s3:us-west-1:658956600833:key/b3537ef1-d8dc-4780-9f5a-55776cbb2f7f");
+    var res := KMSKeyring.RegionFromKMSKeyARN("arn:aws:s3:us-west-1:658956600833:key/b3537ef1-d8dc-4780-9f5a-55776cbb2f7f");
     if res.Failure? && res.error == "Malformed ARN" {
       print "CORRECT\n";
     } else {
@@ -64,8 +54,7 @@ module TestKMSKeyring {
     }
   }
   method TestRegionParseBadInput1() {
-    var kr := GenaricKeyringFactory();
-    var res := kr.RegionFromKMSKeyARN("alias/EncryptDecrypt");
+    var res := KMSKeyring.RegionFromKMSKeyARN("alias/EncryptDecrypt");
     if res.Failure? && res.error == "Malformed ARN" {
       print "CORRECT\n";
     } else {

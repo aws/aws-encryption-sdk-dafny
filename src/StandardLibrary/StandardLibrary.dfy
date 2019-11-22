@@ -48,15 +48,35 @@ module {:extern "STL"} StandardLibrary {
     }
   }
 
-  function method StringFind(s: string, c: char, i: nat): (index: nat)
-    requires i < |s|
-    requires c in s[i..]
-    ensures i <= index
-    ensures index < |s| && s[index] == c
+  function method Join<T>(ss: seq<seq<T>>, joiner: seq<T>): (s: seq<T>)
+    requires 0 < |ss|
+  {
+    if |ss| == 1 then ss[0] else ss[0] + joiner + Join(ss[1..], joiner)
+  }
+
+  function method Split<T(==)>(s: seq<T>, delim: T): (res: seq<seq<T>>)
+    ensures delim !in s ==> res == [s]
+    ensures s == [] ==> res == [[]]
+    ensures 0 < |res|
+    ensures forall i :: 0 <= i < |res| ==> delim !in res[i]
+    ensures Join(res, [delim]) == s
+    decreases |s|
+  {
+    var i := Find(s, delim, 0);
+    if i.Some? then [s[..i.get]] + Split(s[i.get+1..], delim) else [s]
+  }
+
+  function method Find<T(==)>(s: seq<T>, c: T, i: nat): (index: Option<nat>)
+    requires i <= |s|
+    ensures index.Some? ==> i <= index.get
+                         && index.get < |s| && s[index.get] == c
+                         && c !in s[i..index.get]
+    ensures index.None? ==> c !in s[i..]
     decreases |s| - i
   {
-    if s[i] == c then i
-    else StringFind(s, c, i + 1)
+    if i == |s| then None
+    else if s[i] == c then Some(i)
+    else Find(s, c, i + 1)
   }
 
   predicate method StringIs8Bit(s: string) {
