@@ -8,7 +8,7 @@ endif
 # Add to this as more files can be verified.
 # Eventually this can be something like:
 # SRCS = $(foreach dir, $(SRCDIRS), $(wildcard $(dir)/*.dfy))
-SRCS = \
+LIBSRCS = \
 	   src/Crypto/AESEncryption.dfy \
 	   src/Crypto/EncryptionSuites.dfy \
 	   src/Crypto/Digests.dfy \
@@ -18,7 +18,6 @@ SRCS = \
 	   src/Crypto/Random.dfy \
 	   src/Crypto/RSAEncryption.dfy \
 	   src/Crypto/Signature.dfy \
-	   src/Main.dfy \
 	   src/SDK/AlgorithmSuite.dfy \
 	   src/SDK/Client.dfy \
 	   src/SDK/CMM/DefaultCMM.dfy \
@@ -39,6 +38,12 @@ SRCS = \
 	   src/Util/Arrays.dfy \
 	   src/Util/Streams.dfy \
 	   src/Util/UTF8.dfy \
+
+SRCS = $(LIBSRCS) \
+	   src/Main.dfy
+
+BENCHSRCS = $(LIBSRCS) \
+			src/Bench.dfy
 
 SRCV = $(patsubst src/%.dfy, build/%.dfy.verified, $(SRCS))
 
@@ -62,7 +67,17 @@ build/%.dfy.verified: src/%.dfy
 	$(DAFNY) $(patsubst build/%.dfy.verified, src/%.dfy, $@) /compile:0 && mkdir -p $(dir $@) && touch $@
 
 build/Main.exe: $(SRCS) $(DEPS)
-	$(DAFNY) /out:build/Main $(SRCS) $(DEPS) /compile:2 /noVerify /noIncludes && cp $(BCDLL) build/
+	$(DAFNY) /out:build/Main $(SRCS) $(DEPS) /compile:2 /noVerify /noIncludes /spillTargetCode:1 && cp $(BCDLL) build/
+
+build/Bench.exe: $(BENCHSRCS) $(DEPS)
+	$(DAFNY) /out:build/Bench $(BENCHSRCS) $(DEPS) /compile:2 /noVerify /noIncludes /spillTargetCode:1 && cp $(BCDLL) build/
+
+build/java/src/bench/bench.java: $(BENCHSRCS)
+	$(DAFNY) /out:build/java/src/bench $(BENCHSRCS) /compile:0 /noVerify /noIncludes /spillTargetCode:3 /compileTarget:java
+
+build/java/bench.jar: $(BENCHSRCS) build/java/src/bench/bench.java
+	mvn -f bench.pom.xml package
+	cp build/java/aws-encryption-sdk-dafny-benchmarks-1.0-SNAPSHOT-jar-with-dependencies.jar build/java/bench.jar
 
 buildjs: $(SRCS)
 	$(DAFNY) /out:build/Main $(SRCS) /compile:2 /noVerify /noIncludes /compileTarget:js /spillTargetCode:1
