@@ -13,7 +13,7 @@ module TestKMSKeyring {
   import opened UInt = StandardLibrary.UInt
   import KMSKeyring
   import KMSUtils
-  method TestRegionParseValidInput0() {
+  method TestRegionParseValidInput() {
     var res := KMSKeyring.RegionFromKMSKeyARN("arn:aws:kms:us-west-1:658956600833:key/b3537ef1-d8dc-4780-9f5a-55776cbb2f7f");
     if res.Success? && res.value == "us-west-1" {
       print "CORRECT\n";
@@ -21,7 +21,7 @@ module TestKMSKeyring {
       print "NOT CORRECT\n";
     }
   }
-  method TestRegionParseValidInput1() {
+  method TestRegionParseValidInputWildPartition() {
     var res := KMSKeyring.RegionFromKMSKeyARN("arn:xxx:kms:us-west-1:658956600833:key/b3537ef1-d8dc-4780-9f5a-55776cbb2f7f");
     if res.Success? && res.value == "us-west-1" {
       print "CORRECT\n";
@@ -29,7 +29,7 @@ module TestKMSKeyring {
       print "NOT CORRECT\n";
     }
   }
-  method TestRegionParseValidInput2() {
+  method TestRegionParseValidInputNoPartition() {
     var res := KMSKeyring.RegionFromKMSKeyARN("arn::kms:us-west-1:658956600833:key/b3537ef1-d8dc-4780-9f5a-55776cbb2f7f");
     if res.Success? && res.value == "us-west-1" {
       print "CORRECT\n";
@@ -37,7 +37,7 @@ module TestKMSKeyring {
       print "NOT CORRECT\n";
     }
   }
-  method TestRegionParseValidInput3() {
+  method TestRegionParseValidInputAliasArn() {
     var res := KMSKeyring.RegionFromKMSKeyARN("arn:aws:kms:us-west-1:658956600833:alias/EncryptDecrypt");
     if res.Success? && res.value == "us-west-1" {
       print "CORRECT\n";
@@ -45,7 +45,7 @@ module TestKMSKeyring {
       print "NOT CORRECT\n";
     }
   }
-  method TestRegionParseBadInput0() {
+  method TestRegionParseBadInputBadService() {
     var res := KMSKeyring.RegionFromKMSKeyARN("arn:aws:s3:us-west-1:658956600833:key/b3537ef1-d8dc-4780-9f5a-55776cbb2f7f");
     if res.Failure? && res.error == "Malformed ARN" {
       print "CORRECT\n";
@@ -53,7 +53,7 @@ module TestKMSKeyring {
       print "NOT CORRECT\n";
     }
   }
-  method TestRegionParseBadInput1() {
+  method TestRegionParseBadInputAlias() {
     var res := KMSKeyring.RegionFromKMSKeyARN("alias/EncryptDecrypt");
     if res.Failure? && res.error == "Malformed ARN" {
       print "CORRECT\n";
@@ -63,12 +63,12 @@ module TestKMSKeyring {
   }
 
   method Main() {
-    TestRegionParseValidInput0();
-    TestRegionParseValidInput1();
-    TestRegionParseValidInput2();
-    TestRegionParseValidInput3();
+    TestRegionParseValidInput();
+    TestRegionParseValidInputWildPartition();
+    TestRegionParseValidInputNoPartition();
+    TestRegionParseValidInputAliasArn();
 
-    TestRegionParseBadInput0();
-    TestRegionParseBadInput1();
+    TestRegionParseBadInputBadService();
+    TestRegionParseBadInputAlias();
   }
 }

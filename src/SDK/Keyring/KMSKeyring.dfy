@@ -14,7 +14,9 @@ module KMSKeyring {
   import KMSUtils
   import UTF8
 
-  function method RegionFromKMSKeyARN(arn: string): Result<string>
+  const PROVIDER_ID := UTF8.Encode("aws-kms").value
+
+  function method RegionFromKMSKeyARN(arn: KMSUtils.CustomerMasterKey): Result<string>
   {
     var components := Split(arn, ':');
     if 6 <= |components| && components[0] == "arn" && components[2] == "kms" then Success(components[3]) else Failure("Malformed ARN")
@@ -23,19 +25,23 @@ module KMSKeyring {
   class KMSKeyring extends KeyringDefs.Keyring {
 
     const clientSupplier: KMSUtils.ClientSupplier
-    const keyIDs: seq<string>
-    const generator: Option<string>
-    const grantTokens: seq<string>
+    const keyIDs: seq<KMSUtils.CustomerMasterKey>
+    const generator: Option<KMSUtils.CustomerMasterKey>
+    const grantTokens: seq<KMSUtils.GrantToken>
     const isDiscovery: bool
 
     predicate Valid() reads this, Repr {
-      Repr == {this} &&
-      |keyIDs| == 0 && generator.None? ==> isDiscovery
+      && Repr == {this}
+      && (0 <= |grantTokens| <= KMSUtils.MAX_GRANT_TOKENS)
+      && (|keyIDs| == 0 && generator.None? ==> isDiscovery)
     }
 
-    constructor(clientSupplier: KMSUtils.ClientSupplier, keyIDs: seq<string>, generator: Option<string>, grantTokens: seq<string>)
+    constructor(clientSupplier: KMSUtils.ClientSupplier, keyIDs: seq<KMSUtils.CustomerMasterKey>, generator: Option<KMSUtils.CustomerMasterKey>, grantTokens: seq<KMSUtils.GrantToken>)
+      requires 0 <= |grantTokens| <= KMSUtils.MAX_GRANT_TOKENS
       ensures Valid()
     {
+      Repr := {this};
+
       this.clientSupplier := clientSupplier;
       this.keyIDs         := keyIDs;
       this.generator      := generator;
@@ -52,7 +58,7 @@ module KMSKeyring {
       ensures res.Success? ==> res.value.algorithmSuiteID == algorithmSuiteID
       // TODO: ensure GENERATED_DATA_KEY flag
     {
-      var generatorRequest := KMSUtils.GenerateDataKeyRequest(encryptionContext, grantTokens, generator.get, algorithmSuiteID.KeyLength() as int32);
+      var generatorRequest := KMSUtils.GenerateDataKeyRequest(encryptionContext, grantTokens, generator.get, algorithmSuiteID.KDFInputKeyLength() as int32);
       var regionRes := RegionFromKMSKeyARN(generator.get);
       var regionOpt := regionRes.ToOption();
       var client :- clientSupplier.GetClient(regionOpt);
@@ -64,18 +70,18 @@ module KMSKeyring {
       if UINT16_LIMIT <= |providerInfo| {
         return Failure("providerInfo exceeds maximum length");
       }
-      var encryptedDataKey := Mat.EncryptedDataKey(KMSUtils.ProviderID(), providerInfo, generatorResponse.ciphertextBlob);
+      var encryptedDataKey := Mat.EncryptedDataKey(PROVIDER_ID, providerInfo, generatorResponse.ciphertextBlob);
       var keyID := generatorResponse.keyID;
       var plaintextDataKey := generatorResponse.plaintext;
 
       if !algorithmSuiteID.ValidPlaintextDataKey(plaintextDataKey) {
-        return Failure("Invalid response from KMS GenerateDataKey: bad key length");
+        return Failure("Invalid response from KMS GenerateDataKey: Invalid key");
       }
 
       return Success(Mat.DataKeyMaterials(algorithmSuiteID, plaintextDataKey, [encryptedDataKey]));
     }
 
-    method OnEncrypt(algorithmSuiteID: Mat.AlgorithmSuite.ID,
+    method OnEncrypt(algorithmSuiteID: AlgorithmSuite.ID,
                      encryptionContext: Mat.EncryptionContext,
                      plaintextDataKey: Option<seq<uint8>>) returns (res: Result<Option<Mat.ValidDataKeyMaterials>>)
       requires Valid()
@@ -114,7 +120,6 @@ module KMSKeyring {
 
       var i := 0;
       while i < |encryptCMKs|
-        invariant plaintextDataKey.Some? ==> ptdk == plaintextDataKey.get
       {
         var encryptRequest := KMSUtils.EncryptRequest(encryptionContext, grantTokens, encryptCMKs[i], ptdk);
         var regionRes := RegionFromKMSKeyARN(encryptCMKs[i]);
@@ -126,7 +131,7 @@ module KMSKeyring {
           if UINT16_LIMIT <= |providerInfo| {
             return Failure("providerInfo exceeds maximum length");
           }
-          var edk := Mat.EncryptedDataKey(KMSUtils.ProviderID(), providerInfo, encryptResponse.ciphertextBlob);
+          var edk := Mat.EncryptedDataKey(PROVIDER_ID, providerInfo, encryptResponse.ciphertextBlob);
           edks := edks + [edk];
         } else {
           return Failure("Invalid response from KMS Encrypt");
@@ -138,11 +143,12 @@ module KMSKeyring {
       return Success(Some(datakeyMat));
     }
 
-    predicate method DecryptableEDK(edk: Mat.EncryptedDataKey)
+    predicate method ShouldAttemptDecryption(edk: Mat.EncryptedDataKey)
     {
       var keys := if generator.Some? then keyIDs + [generator.get] else keyIDs;
-      edk.providerID == KMSUtils.ProviderID() &&
+      edk.providerID == PROVIDER_ID &&
       UTF8.ValidUTF8Seq(edk.providerInfo) && UTF8.Decode(edk.providerInfo).Success? &&
+      KMSUtils.ValidFormatCMK(UTF8.Decode(edk.providerInfo).value) &&
       (isDiscovery || UTF8.Decode(edk.providerInfo).value in keys)
     }
 
@@ -154,32 +160,36 @@ module KMSKeyring {
       ensures |edks| == 0 ==> res.Success? && res.value.None?
       ensures res.Success? && res.value.Some? ==> algorithmSuiteID.ValidPlaintextDataKey(res.value.get)
       // TODO: keyring trace DECRYPTED_DATA_KEY flag assurance
-      {
-        if |edks| == 0 {
-          return Success(None);
-        }
-        var decryptableEDKs := Filter(edks, DecryptableEDK);
-        var i := 0;
-        while i < |decryptableEDKs| {
-          var edk := decryptableEDKs[i];
+    {
+      if |edks| == 0 {
+        return Success(None);
+      }
+      var i := 0;
+      while i < |edks| {
+        var edk := edks[i];
+        if ShouldAttemptDecryption(edk) {
           var decryptRequest := KMSUtils.DecryptRequest(edk.ciphertext, encryptionContext, grantTokens);
           var providerInfo := UTF8.Decode(edk.providerInfo).value;
           var regionRes := RegionFromKMSKeyARN(providerInfo);
           var regionOpt := regionRes.ToOption();
-          var client :- clientSupplier.GetClient(regionOpt);
-          var decryptResponseResult := client.Decrypt(decryptRequest);
-          if decryptResponseResult.Success? {
-            var decryptResponse := decryptResponseResult.value;
-            if (UTF8.Decode(edk.providerInfo).Success? && decryptResponse.keyID != UTF8.Decode(edk.providerInfo).value)
-               || !algorithmSuiteID.ValidPlaintextDataKey(decryptResponse.plaintext) {
-              return Failure("Invalid response from KMS Decrypt");
-            } else {
-              return Success(Some(decryptResponse.plaintext));
+          var clientRes := clientSupplier.GetClient(regionOpt);
+          if clientRes.Success? {
+            var client := clientRes.value;
+            var decryptResponseResult := client.Decrypt(decryptRequest);
+            if decryptResponseResult.Success? {
+              var decryptResponse := decryptResponseResult.value;
+              if (decryptResponse.keyID != UTF8.Decode(edk.providerInfo).value)
+                  || !algorithmSuiteID.ValidPlaintextDataKey(decryptResponse.plaintext) {
+                return Failure("Invalid response from KMS Decrypt");
+              } else {
+                return Success(Some(decryptResponse.plaintext));
+              }
             }
           }
-          i := i + 1;
         }
-        return Success(None);
+        i := i + 1;
       }
+      return Success(None);
+    }
   }
 }

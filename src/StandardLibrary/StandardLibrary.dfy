@@ -79,7 +79,7 @@ module {:extern "STL"} StandardLibrary {
     else Find(s, c, i + 1)
   }
 
-  predicate method StringIs8Bit(s: string) {
+  predicate StringIs8Bit(s: string) {
     forall i :: 0 <= i < |s| ==> s[i] < 256 as char
   }
 

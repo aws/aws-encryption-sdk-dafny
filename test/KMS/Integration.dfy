@@ -39,7 +39,7 @@ module IntegTestKMS {
     var keyA, valA := UTF8.Encode("keyA").value, UTF8.Encode("valA").value;
     var encryptionContext := [(keyA, valA)];
     assert Msg.ValidAAD(encryptionContext) by {
-      // To proving ValidAAD, we need to reveal the definition of ValidAAD:
+      // To prove ValidAAD, we need to reveal the definition of ValidAAD:
       reveal Msg.ValidAAD();
       // We also need to help the verifier with proving the AADLength is small:
       calc {
@@ -73,7 +73,8 @@ module IntegTestKMS {
       return;
     }
 
-    var generator := "arn:aws:kms:us-west-2:658956600833:key/b3537ef1-d8dc-4780-9f5a-55776cbb2f7f";
+    var cmk := "arn:aws:kms:us-west-2:658956600833:key/b3537ef1-d8dc-4780-9f5a-55776cbb2f7f";
+    var generator: KMSUtils.CustomerMasterKey := cmk;
     var clientSupplier := new KMSUtils.DefaultClientSupplier();
     var keyring := new KMSKeyring.KMSKeyring(clientSupplier, [], Some(generator), []);
     var cmm := new DefaultCMMDef.DefaultCMM.OfKeyring(keyring);
