@@ -164,7 +164,7 @@ module ESDKClient {
         var sig :- rd.ReadExact(signatureLength as nat);
         // verify signature
         var digest := Signature.Digest(ecdsaParams, msg);
-        var signatureVerified := Signature.ECDSA.Verify(ecdsaParams, decMat.verificationKey.get, digest, sig);
+        var signatureVerified := Signature.Verify(ecdsaParams, decMat.verificationKey.get, digest, sig);
         if !signatureVerified {
           return Failure("signature not verified");
         }
