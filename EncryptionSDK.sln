@@ -1,8 +1,8 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EncryptionSDK", "EncryptionSDK.csproj", "{168246A2-E0A7-4605-B3DD-48F15E2987EA}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EncryptionSDK", "src\EncryptionSDK.csproj", "{168246A2-E0A7-4605-B3DD-48F15E2987EA}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EncryptionSDKTests", "..\test\EncryptionSDKTests.csproj", "{CFD738FD-9BE3-45D0-8118-F823AB4AC68F}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EncryptionSDKTests", "test\EncryptionSDKTests.csproj", "{CFD738FD-9BE3-45D0-8118-F823AB4AC68F}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
