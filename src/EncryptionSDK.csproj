@@ -32,7 +32,7 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <PropertyGroup>
-    <CoreCompileDependsOn>UpdateGeneratedFiles;$(CoreCompileDependsOn)</CoreCompileDependsOn>
+    <CoreCompileDependsOn>GenerateFromDafnySource;$(CoreCompileDependsOn)</CoreCompileDependsOn>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="BouncyCastle.Crypto, Version=1.8.5.0, Culture=neutral, PublicKeyToken=0e99375e54769942">
@@ -51,9 +51,11 @@
     <Compile Include="extern/dotnet/Signature.cs" />
     <Compile Include="extern/dotnet/UTF8.cs" />
   </ItemGroup>
-  <ItemGroup>
-    <Compile Include="generated-src/Main.cs" />
-  </ItemGroup>
+  <!--
+    TODO: Temporary subset of files to build and verify.
+    Add to this as more files can be verified.
+    Eventually this can be a wildcard pattern.
+  -->
   <ItemGroup>
     <DafnySource Include="Crypto/AESEncryption.dfy" />
     <DafnySource Include="Crypto/EncryptionSuites.dfy" />
@@ -90,20 +92,19 @@
     <None Include="packages.config" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
-  <Target Name="BeforeBuild" DependsOnTargets="UpdateGeneratedFiles" />
-  <Target Name="UpdateGeneratedFiles" DependsOnTargets="_UpdateGeneratedFiles">
+  <Target Name="Verify">
+    <Exec Command="dafny %(DafnySource.Identity) /compile:0 &amp;&amp; mkdir -p build/%(DafnySource.Identity) &amp;&amp; touch build/%(DafnySource.Identity).verified" />
+  </Target>
+  <Target Name="BeforeBuild" DependsOnTargets="GenerateFromDafnySource" />
+  <Target Name="GenerateFromDafnySource" DependsOnTargets="_GenerateFromDafnySource">
     <ItemGroup>
-      <!--Compile Include="build/Main.cs" /-->
-      <!-- see https://mhut.ch/journal/2016/04/19/msbuild_code_generation_vs2015
-      <FileWrites Include="generated-src/Main.cs" />
-      -->
+      <Compile Include="generated-src/Main.cs" />
     </ItemGroup>
   </Target>
-  <Target Name="_UpdateGeneratedFiles" DependsOnTargets="ResolveReferences" Inputs="$(MSBuildProjectFile);@(DafnySource)" Outputs="build/Main.cs">
+  <Target Name="_GenerateFromDafnySource" DependsOnTargets="ResolveReferences" Inputs="$(MSBuildProjectFile);@(DafnySource)" Outputs="generated-src/Main.cs">
     <ItemGroup>
       <DafnyReferencePath Include="@(ReferencePath)" Condition="%(FileName) != 'mscorlib' And %(FileName) != 'System' And %(FileName) != 'System.Core' And %(FileName) != 'System.Numerics'" />
     </ItemGroup>
-    <Message Text="ReferencePath = @(ReferencePath-&gt;MetaData('Filename'))" />
     <Exec Command="dafny /out:generated-src/Main @(DafnySource, ' ') @(Compile, ' ') @(DafnyReferencePath, ' ') /compile:2 /spillTargetCode:2 /noVerify /noIncludes" />
   </Target>
 </Project>
