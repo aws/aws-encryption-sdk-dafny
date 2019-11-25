@@ -11,7 +11,7 @@ namespace EncryptionSDKTests
         {
             var myArray = new int[] {1, 2, 3, 4, 5};
             var copy = Arrays.Array.copy(myArray, new BigInteger(5));
-            Assert.AreEqual(copy, myArray);
+            Assert.AreEqual(myArray, copy);
         }
     }
 }
