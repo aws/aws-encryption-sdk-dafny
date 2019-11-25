@@ -8,11 +8,8 @@ using Amazon;
 
 using KMS = Amazon.KeyManagementService;
 using DString = Dafny.Sequence<char>;
-using ArrayDString = Dafny.ArraySequence<char>;
 using byteseq = Dafny.Sequence<byte>;
-using Arraybyteseq = Dafny.ArraySequence<byte>;
 using EncryptionContext = Dafny.Sequence<_System.Tuple2<Dafny.Sequence<byte>,Dafny.Sequence<byte>>>;
-using ArrayEncryptionContext = Dafny.ArraySequence<_System.Tuple2<Dafny.ArraySequence<byte>,Dafny.ArraySequence<byte>>>;
 
 namespace KMSUtils {
     public partial class __default {
@@ -30,9 +27,9 @@ namespace KMSUtils {
         public static ResponseMetadata ConvertMetaData(Amazon.Runtime.ResponseMetadata rmd) {
             Dafny.Map<DString, DString> metadata = Dafny.Map<DString, DString>
                 .FromCollection(rmd.Metadata.Select(
-                            kvp => new Dafny.Pair<DString, DString>((DString)(new ArrayDString(kvp.Key.ToCharArray())), (DString)(new ArrayDString(kvp.Value.ToCharArray())))
+                            kvp => new Dafny.Pair<DString, DString>((DString.FromString(kvp.Key.ToString())), (DString.FromString(kvp.Value.ToString())))
                             ).ToList());
-            DString requestID = new ArrayDString(rmd.RequestId.ToCharArray());
+            DString requestID = DString.FromString(rmd.RequestId.ToString());
             return new ResponseMetadata(metadata, requestID);
         }
         public static byte[] ConvertByteSeq(byteseq bytes) {
@@ -43,13 +40,13 @@ namespace KMSUtils {
         public STL.Result<KMSClient> GetClient(STL.Option<DString> region) {
             try {
                 if (region.is_Some) {
-                    DString neverUsed = new ArrayDString("".ToCharArray());
+                    DString neverUsed = DString.FromString("".ToString());
                     return new STL.Result_Success<KMSClient>(new KMSClient(new KMS.AmazonKeyManagementServiceClient(RegionEndpoint.GetBySystemName(region.GetOrElse(neverUsed).ToString()))));
                 } else {
-                    return new STL.Result_Failure<KMSClient>(new ArrayDString("Client Supplier does not have default region.".ToCharArray()));
+                    return new STL.Result_Failure<KMSClient>(DString.FromString("Client Supplier does not have default region.".ToString()));
                 }
             } catch (System.Exception exception) {
-                return new STL.Result_Failure<KMSClient>(new ArrayDString(exception.ToString().ToCharArray()));
+                return new STL.Result_Failure<KMSClient>(DString.FromString(exception.ToString()));
             }
         }
     }
@@ -72,15 +69,15 @@ namespace KMSUtils {
             };
             KMS.Model.GenerateDataKeyResponse response = this.client.GenerateDataKey(kmsRequest);
             return new STL.Result_Success<GenerateDataKeyResponse>(new GenerateDataKeyResponse(
-                    new Arraybyteseq(response.CiphertextBlob.ToArray()),
+                    byteseq.FromArray(response.CiphertextBlob.ToArray()),
                     response.ContentLength,
                     (int)response.HttpStatusCode,
-                    new ArrayDString(response.KeyId.ToCharArray()),
-                    new Arraybyteseq(response.Plaintext.ToArray()),
+                    DString.FromString(response.KeyId.ToString()),
+                    byteseq.FromArray(response.Plaintext.ToArray()),
                     __default.ConvertMetaData(response.ResponseMetadata)
                     ));
             } catch (System.Exception exception) {
-                return new STL.Result_Failure<GenerateDataKeyResponse>(new ArrayDString(exception.ToString().ToCharArray()));
+                return new STL.Result_Failure<GenerateDataKeyResponse>(DString.FromString(exception.ToString()));
             }
         }
 
@@ -95,14 +92,14 @@ namespace KMSUtils {
                 };
                 KMS.Model.EncryptResponse response = this.client.Encrypt(kmsRequest);
                 return new STL.Result_Success<EncryptResponse>(new EncryptResponse(
-                            new Arraybyteseq(response.CiphertextBlob.ToArray()),
+                            byteseq.FromArray(response.CiphertextBlob.ToArray()),
                             response.ContentLength,
                             (int)response.HttpStatusCode,
-                            new ArrayDString(response.KeyId.ToCharArray()),
+                            DString.FromString(response.KeyId.ToString()),
                             __default.ConvertMetaData(response.ResponseMetadata)
                             ));
             } catch (System.Exception exception) {
-                return new STL.Result_Failure<EncryptResponse>(new ArrayDString(exception.ToString().ToCharArray()));
+                return new STL.Result_Failure<EncryptResponse>(DString.FromString(exception.ToString()));
             }
         }
 
@@ -118,12 +115,12 @@ namespace KMSUtils {
                 return new STL.Result_Success<DecryptResponse>(new DecryptResponse(
                             response.ContentLength,
                             (int)response.HttpStatusCode,
-                            new ArrayDString(response.KeyId.ToCharArray()),
-                            new Arraybyteseq(response.Plaintext.ToArray()),
+                            DString.FromString(response.KeyId.ToString()),
+                            byteseq.FromArray(response.Plaintext.ToArray()),
                             __default.ConvertMetaData(response.ResponseMetadata)
                             ));
             } catch (System.Exception exception) {
-                return new STL.Result_Failure<DecryptResponse>(new ArrayDString(exception.ToString().ToCharArray()));
+                return new STL.Result_Failure<DecryptResponse>(DString.FromString(exception.ToString()));
             }
         }
     }
