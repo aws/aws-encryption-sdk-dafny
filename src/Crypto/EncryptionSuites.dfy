@@ -5,7 +5,7 @@ module {:extern "EncryptionSuites"} EncryptionSuites {
   import opened UInt = StandardLibrary.UInt
 
   datatype EncryptionAlgorithm = AES(mode: AESMode)
-  datatype AESMode   = GCM
+  datatype AESMode = GCM
 
   datatype EncryptionSuite = EncryptionSuite(alg: EncryptionAlgorithm, keyLen: uint8, tagLen: uint8, ivLen: uint8)
   {

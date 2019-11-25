@@ -14,8 +14,20 @@ module AlgorithmSuite {
 
   newtype ID = x | x in VALID_IDS witness 0x0014
   {
+    function method EncryptionSuite(): EncryptionSuites.EncryptionSuite
+      ensures EncryptionSuite().Valid()
+    {
+      Suite[this].algorithm
+    }
+
     function method KeyLength(): nat {
       Suite[this].algorithm.keyLen as nat
+    }
+
+    function method KDFInputKeyLength(): nat
+      ensures Suite[this].hkdf == Digests.HmacNOSHA ==> KDFInputKeyLength() == KeyLength()
+    {
+      KeyLength()
     }
 
     function method IVLength(): nat {
@@ -28,6 +40,10 @@ module AlgorithmSuite {
 
     function method SignatureType(): Option<S.ECDSAParams> {
       Suite[this].sign
+    }
+
+    predicate method ValidPlaintextDataKey(plaintextDataKey: seq<uint8>) {
+      |plaintextDataKey| == KDFInputKeyLength()
     }
   }
 

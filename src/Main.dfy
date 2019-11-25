@@ -1,99 +1,60 @@
-include "SDK/ToyClient.dfy"
-//include "SDK/Keyring/RawAESKeyring.dfy"
 include "SDK/Keyring/RawRSAKeyring.dfy"
-//include "SDK/Keyring/MultiKeyring.dfy"
-//include "SDK/Keyring/Defs.dfy"
 include "SDK/Materials.dfy"
-//include "Crypto/AESEncryption.dfy"
-//include "Crypto/RSAEncryption.dfy"
-//include "Crypto/Signature.dfy"
-//include "Crypto/Cipher.dfy"
-//include "StandardLibrary/StandardLibrary.dfy"
+include "StandardLibrary/StandardLibrary.dfy"
+include "StandardLibrary/UInt.dfy"
+include "SDK/CMM/Defs.dfy"
 include "SDK/CMM/DefaultCMM.dfy"
+include "SDK/Client.dfy"
+include "SDK/MessageHeader.dfy"
+include "Crypto/RSAEncryption.dfy"
 include "Util/UTF8.dfy"
+include "StandardLibrary/Base64.dfy"
 
 module Main {
   import opened StandardLibrary
   import opened UInt = StandardLibrary.UInt
+  import CMMDefs
   import DefaultCMMDef
-  import Client = ToyClientDef
-  import RSA = RSAEncryption
+  import RSAEncryption
   import RawRSAKeyringDef
   import Materials
+  import Client = ESDKClient
+  import Msg = MessageHeader
   import UTF8
-  //import AES = AESEncryption
-  //import opened Cipher
-  //import opened RawAESKeyringDef
-  //import K = KeyringDefs
-  //import opened MultiKeyringDef
-  //import opened SDKDefs
-  //import opened DefaultCMMDef
-  //import S = Signature
+  import Base64
 
-  /*
-  method RunToyClient() {
-    var ek, dk := RSA.RSA.RSAKeygen(2048, RSA.PKCS1);
-    var rsa_kr := new RawRSAKeyring(byteseq_of_string("namespace"), byteseq_of_string("name"), RSA.PKCS1, 2048, Some(ek), Some(dk));
-    var k2 := AES.AES.AESKeygen(AES_GCM_256);
-    var aes_kr := new RawAESKeyring(byteseq_of_string("namespace"), byteseq_of_string("name2"), k2, AES_GCM_256);
-    var kr_children := new K.Keyring[1](_ => rsa_kr);
-    var kr := new MultiKeyring(aes_kr, kr_children);
-    var cmm := new DefaultCMM.OfKeyring(kr);
-    var client := new ToyClient.OfCMM(cmm);
-
-    var msg := byteseq_of_string("hello");
-    print "Message: ", msg, "\n";
-    var e := client.Enc(byteseq_of_string("hello"), enc_ctx_of_strings([("keyA", "valA")]));
-    // datatype Encryption = Encryption(ec : EncCtx, edks : seq<EDK>, ciphertext : seq<uint8>)
-    if e.Err? {
-      print "Bad encryption :( ", e.err, "\n";
-      return;
-    }
-    var d := client.Dec(e.get);
-    if d.Err? {
-      print "bad decryption: ", d.err, "\n";
-      return;
-    }
-    print "Produced ", |e.get.edks|, " EDKs \n";
-    print "Decrypted to: ", d.get, "\n";
-    print "AAD: ", string_of_byteseq(FlattenSortEncCtx(e.get.ec)), "\n";
-  }
-  */
-
-  method EncryptDecryptTest(client: Client.Client)
-    requires client.Valid()
+  method EncryptDecryptTest(cmm: CMMDefs.CMM)
+    requires cmm.Valid()
   {
-    var msg := UTF8.Encode("hello");
-    if msg.Failure? {
-      print "Failure: hardcoded plaintext cannot be utf8 encoded\n";
-      return;
-    }
-    print "Message: ", msg.value, "\n";
-    var keyA := UTF8.Encode("keyA");
-    var valA := UTF8.Encode("valA");
-    if keyA.Failure? || valA.Failure? {
-      print "Failure: hardcoded key/value cannot be utf8 encoded\n";
-      return;
-    }
+    var msg := UTF8.Encode("hello").value;
+    print "Original plaintext: ", msg, "\n";
 
-    var e := client.Encrypt(msg.value, Materials.EncCtxOfStrings([(keyA.value, valA.value)]));
+    var keyA, valA := UTF8.Encode("keyA").value, UTF8.Encode("valA").value;
+    var encryptionContext := [(keyA, valA)];
+    assert Msg.ValidAAD(encryptionContext) by {
+      // To proving ValidAAD, we need to reveal the definition of ValidAAD:
+      reveal Msg.ValidAAD();
+      // We also need to help the verifier with proving the AADLength is small:
+      calc {
+        Msg.AADLength(encryptionContext);
+        2 + Msg.KVPairsLength(encryptionContext, 0, 1);
+        2 + 2 + |keyA| + 2 + |valA|;
+      }
+      assert Msg.AADLength(encryptionContext) < UINT16_LIMIT;
+    }
+    var e := Client.Encrypt(msg, cmm, encryptionContext);
     if e.Failure? {
       print "Bad encryption :( ", e.error, "\n";
       return;
     }
-    var d := client.Decrypt(e.value);
+    print "Encrypted message: ", Base64.Encode(e.value), "\n";
+
+    var d := Client.Decrypt(e.value, cmm);
     if d.Failure? {
       print "bad decryption: ", d.error, "\n";
       return;
     }
-    print "Produced ", |e.value.edks|, " EDKs \n";
-    print "Decrypted to: ", d.value, "\n";
-    var aad := UTF8.Decode(Materials.FlattenSortEncCtx(e.value.ec));
-    if aad.Failure? {
-      print "Failure: encryption context cannot be utf8 decoded after serialization\n";
-      return;
-    }
-    print "AAD: ", aad.value, "\n";
+    print "Plaintext from the deserialized and decrypted message: ", d.value, "\n";
   }
 
   method Main() {
@@ -104,10 +65,10 @@ module Main {
       return;
     }
 
-    var ek, dk := RSA.RSA.RSAKeygen(2048, RSA.PKCS1);
-    var keyring := new RawRSAKeyringDef.RawRSAKeyring(namespace.value, name.value, RSA.RSAPaddingMode.PKCS1, 2048, Some(ek), Some(dk));
+    var ek, dk := RSAEncryption.RSA.RSAKeygen(2048, RSAEncryption.PKCS1);
+    var keyring := new RawRSAKeyringDef.RawRSAKeyring(namespace.value, name.value, RSAEncryption.RSAPaddingMode.PKCS1, 2048, Some(ek), Some(dk));
     var cmm := new DefaultCMMDef.DefaultCMM.OfKeyring(keyring);
-    var client := new Client.Client.OfCMM(cmm);
-    EncryptDecryptTest(client);
+
+    EncryptDecryptTest(cmm);
   }
 }
