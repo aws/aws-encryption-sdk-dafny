@@ -14,7 +14,9 @@ module CMMDefs {
 
   trait {:termination false} CMM {
     ghost var Repr : set<object>
-    predicate Valid() reads this, Repr
+    predicate Valid()
+      reads this, Repr
+      ensures Valid() ==> this in Repr
 
     method GetEncryptionMaterials(encCtx: Materials.EncryptionContext,
                                   algSuiteID: Option<AlgorithmSuite.ID>,
@@ -22,7 +24,8 @@ module CMMDefs {
                                   returns (res: Result<Materials.ValidEncryptionMaterials>)
       requires Valid()
       requires ValidAAD(encCtx) && Materials.GetKeysFromEncryptionContext(encCtx) !! Materials.ReservedKeyValues
-      ensures Valid()
+      modifies Repr
+      ensures Valid() && fresh(Repr - old(Repr))
       ensures res.Success? ==> |res.value.dataKeyMaterials.plaintextDataKey| == res.value.dataKeyMaterials.algorithmSuiteID.KDFInputKeyLength()
       ensures res.Success? ==> |res.value.dataKeyMaterials.encryptedDataKeys| > 0
       ensures res.Success? ==> ValidAAD(res.value.encryptionContext)
@@ -43,9 +46,9 @@ module CMMDefs {
                             edks: seq<Materials.EncryptedDataKey>,
                             encCtx: Materials.EncryptionContext)
                             returns (res: Result<Materials.ValidDecryptionMaterials>)
-      requires |edks| > 0
-      requires Valid()
-      ensures Valid()
+      requires Valid() && ValidAAD(encCtx) && |edks| > 0
+      modifies Repr
+      ensures Valid() && fresh(Repr - old(Repr))
       ensures res.Success? ==>
         |res.value.plaintextDataKey| == res.value.algorithmSuiteID.KeyLength()
       ensures res.Success? && res.value.algorithmSuiteID.SignatureType().Some? ==> res.value.verificationKey.Some?

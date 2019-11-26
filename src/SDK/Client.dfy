@@ -36,6 +36,8 @@ module ESDKClient {
   method Encrypt(plaintext: seq<uint8>, cmm: CMMDefs.CMM, encryptionContext: Materials.EncryptionContext) returns (res: Result<seq<uint8>>)
     requires Materials.GetKeysFromEncryptionContext(encryptionContext) !! Materials.ReservedKeyValues
     requires cmm.Valid() && Msg.ValidAAD(encryptionContext)
+    modifies cmm.Repr
+    ensures cmm.Valid() && fresh(cmm.Repr - old(cmm.Repr))
   {
     /*
      * What's needed for the encryption: encryption materials, message ID, and derived data key.
@@ -126,6 +128,8 @@ module ESDKClient {
    */
   method Decrypt(message: seq<uint8>, cmm: CMMDefs.CMM) returns (res: Result<seq<uint8>>)
     requires cmm.Valid()
+    modifies cmm.Repr
+    ensures cmm.Valid() && fresh(cmm.Repr - old(cmm.Repr))
   {
     /*
      * Parse the message header to obtain: algorithm suite ID, encrypted data keys, and encryption context.

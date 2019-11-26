@@ -56,11 +56,14 @@ module ToyClientDef {
     method GetEncMaterials(ec: Materials.EncryptionContext) returns (res: Result<Materials.ValidEncryptionMaterials>)
       requires Valid()
       requires MessageHeader.ValidAAD(ec) && Materials.GetKeysFromEncryptionContext(ec) !! Materials.ReservedKeyValues
-      ensures Valid()
+      modifies Repr
+      ensures Valid() && fresh(Repr - old(Repr))
       ensures res.Success? ==> 
         res.value.dataKeyMaterials.algorithmSuiteID == AlgorithmSuite.AES_256_GCM_IV12_TAG16_HKDF_SHA384_ECDSA_P384
     {
-      var r :- cmm.GetEncryptionMaterials(ec, None, None);
+      res := cmm.GetEncryptionMaterials(ec, None, None);
+      Repr := Repr + cmm.Repr;
+      var r :- res;
       if r.dataKeyMaterials.algorithmSuiteID != AlgorithmSuite.AES_256_GCM_IV12_TAG16_HKDF_SHA384_ECDSA_P384 {
         return Failure("bad alg id");
       }
@@ -70,7 +73,8 @@ module ToyClientDef {
     method Encrypt(pt: seq<uint8>, ec: Materials.EncryptionContext) returns (res: Result<Encryption>)
       requires Valid()
       requires MessageHeader.ValidAAD(ec) && Materials.GetKeysFromEncryptionContext(ec) !! Materials.ReservedKeyValues
-      ensures Valid()
+      modifies Repr
+      ensures Valid() && fresh(Repr - old(Repr))
       ensures res.Success? ==> |res.value.authTag| == ALGORITHM.tagLen as int
       ensures res.Success? ==> |res.value.iv| == ALGORITHM.ivLen as int
     {
@@ -82,15 +86,18 @@ module ToyClientDef {
     }
 
     method Decrypt(e: Encryption) returns (res: Result<seq<uint8>>)
-      requires Valid()
+      requires Valid() && MessageHeader.ValidAAD(e.ec)
       requires ALGORITHM.tagLen as int == |e.authTag|
       requires ALGORITHM.ivLen as int == |e.iv|
-      ensures Valid()
+      modifies Repr
+      ensures Valid() && fresh(Repr - old(Repr))
     {
       if |e.edks| == 0 {
         return Failure("no edks");
       }
-      var decmat :- cmm.DecryptMaterials(AlgorithmSuite.AES_256_GCM_IV12_TAG16_HKDF_SHA384_ECDSA_P384, e.edks, e.ec);
+      var dres := cmm.DecryptMaterials(AlgorithmSuite.AES_256_GCM_IV12_TAG16_HKDF_SHA384_ECDSA_P384, e.edks, e.ec);
+      Repr := Repr + cmm.Repr;
+      var decmat :- dres;
       if |decmat.plaintextDataKey| == 32 {
         var msg := AESEncryption.AESDecrypt(ALGORITHM, decmat.plaintextDataKey, e.ctxt, e.authTag, e.iv, []);
         return msg;

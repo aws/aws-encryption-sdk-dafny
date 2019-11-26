@@ -25,6 +25,8 @@ module Main {
 
   method EncryptDecryptTest(cmm: CMMDefs.CMM)
     requires cmm.Valid()
+    modifies cmm.Repr
+    ensures cmm.Valid() && fresh(cmm.Repr - old(cmm.Repr))
   {
     var msg := UTF8.Encode("hello").value;
     print "Original plaintext: ", msg, "\n";

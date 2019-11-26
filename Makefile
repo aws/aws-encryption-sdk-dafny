@@ -21,6 +21,7 @@ SRCS = \
 	   src/Main.dfy \
 	   src/SDK/AlgorithmSuite.dfy \
 	   src/SDK/Client.dfy \
+	   src/SDK/CMM/CachingCMM.dfy \
 	   src/SDK/CMM/DefaultCMM.dfy \
 	   src/SDK/CMM/Defs.dfy \
 	   src/SDK/Deserialize.dfy \
@@ -38,6 +39,7 @@ SRCS = \
 	   src/StandardLibrary/UInt.dfy \
 	   src/Util/Arrays.dfy \
 	   src/Util/Streams.dfy \
+	   src/Util/Time.dfy \
 	   src/Util/UTF8.dfy \
 
 SRCV = $(patsubst src/%.dfy, build/%.dfy.verified, $(SRCS))

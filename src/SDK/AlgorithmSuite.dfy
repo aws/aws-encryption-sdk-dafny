@@ -24,8 +24,12 @@ module AlgorithmSuite {
       Suite[this].algorithm.keyLen as nat
     }
 
+    predicate method ContainsIdentityKDF() {
+      Suite[this].hkdf == Digests.HmacNOSHA
+    }
+
     function method KDFInputKeyLength(): nat
-      ensures Suite[this].hkdf == Digests.HmacNOSHA ==> KDFInputKeyLength() == KeyLength()
+      ensures ContainsIdentityKDF() ==> KDFInputKeyLength() == KeyLength()
     {
       KeyLength()
     }
