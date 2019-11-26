@@ -16,6 +16,7 @@ module Deserialize {
   export
     provides DeserializeHeader
     provides Streams, StandardLibrary, UInt, AlgorithmSuite, Msg
+    provides InsertNewEntry, UTF8
 
   import Msg = MessageHeader
 

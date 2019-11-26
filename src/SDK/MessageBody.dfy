@@ -3,19 +3,24 @@ include "../StandardLibrary/UInt.dfy"
 include "MessageHeader.dfy"
 include "AlgorithmSuite.dfy"
 include "../Crypto/AESEncryption.dfy"
+include "Materials.dfy"
+include "../Util/Streams.dfy"
 include "../Crypto/EncryptionSuites.dfy"
 include "../Util/UTF8.dfy"
 
 module MessageBody {
   export
     provides EncryptMessageBody
-    provides StandardLibrary, UInt, Msg, AlgorithmSuite
+    provides DecryptFramedMessageBody
+    provides StandardLibrary, UInt, Msg, AlgorithmSuite, Materials, Streams
 
   import opened StandardLibrary
   import opened UInt = StandardLibrary.UInt
   import AlgorithmSuite
   import Msg = MessageHeader
   import AESEncryption
+  import Materials
+  import Streams
   import EncryptionSuites
   import UTF8
 
@@ -64,8 +69,7 @@ module MessageBody {
     SeqWithUInt32Suffix(iv, sequenceNumber as nat);  // this proves SeqToNat(iv) == sequenceNumber as nat
     unauthenticatedFrame := unauthenticatedFrame + iv;
 
-    var contentAAD := BODY_AAD_CONTENT_REGULAR_FRAME;
-    var aad := messageID + contentAAD + seqNumSeq + UInt64ToSeq(|plaintext| as uint64);
+    var aad := BodyAAD(messageID, false, sequenceNumber, |plaintext| as uint64);
 
     var encryptionOutput :- AESEncryption.AESEncrypt(algorithmSuiteID.EncryptionSuite(), iv, key, plaintext, aad);
     unauthenticatedFrame := unauthenticatedFrame + encryptionOutput.cipherText + encryptionOutput.authTag;
@@ -92,12 +96,88 @@ module MessageBody {
 
     unauthenticatedFrame := unauthenticatedFrame + UInt32ToSeq(|plaintext| as uint32);
 
-    var contentAAD := BODY_AAD_CONTENT_FINAL_FRAME;
-    var aad := messageID + contentAAD + seqNumSeq + UInt64ToSeq(|plaintext| as uint64);
+    var aad := BodyAAD(messageID, true, sequenceNumber, |plaintext| as uint64);
 
     var encryptionOutput :- AESEncryption.AESEncrypt(algorithmSuiteID.EncryptionSuite(), iv, key, plaintext, aad);
     unauthenticatedFrame := unauthenticatedFrame + encryptionOutput.cipherText + encryptionOutput.authTag;
 
     return Success(unauthenticatedFrame);
+  }
+
+  method DecryptFramedMessageBody(rd: Streams.StringReader, algorithmSuiteID: AlgorithmSuite.ID, key: seq<uint8>, frameLength: int, messageID: Msg.MessageID) returns (res: Result<seq<uint8>>)
+    requires rd.Valid()
+    requires |key| == algorithmSuiteID.KeyLength()
+    requires 0 < frameLength < UINT32_LIMIT
+    modifies rd
+    ensures rd.Valid()
+  {
+    var plaintext := [];
+    var n := 1;
+    while true
+      invariant rd.Valid()
+      decreases ENDFRAME_SEQUENCE_NUMBER - n
+    {
+      var pair :- DecryptFrame(rd, algorithmSuiteID, key, frameLength, messageID, n);
+      var (framePlaintext, final) := pair;
+      plaintext := plaintext + framePlaintext;
+      if final {
+        break;
+      }
+      n := n + 1;
+    }
+    return Success(plaintext);
+  }
+
+  method DecryptFrame(rd: Streams.StringReader, algorithmSuiteID: AlgorithmSuite.ID, key: seq<uint8>, frameLength: int, messageID: Msg.MessageID,
+                      expectedSequenceNumber: uint32)
+      returns (res: Result<(seq<uint8>, bool)>)
+    requires rd.Valid()
+    requires |key| == algorithmSuiteID.KeyLength()
+    requires 0 < frameLength < UINT32_LIMIT
+    modifies rd
+    ensures rd.Valid()
+    ensures match res
+      case Success((plaintext, final)) =>
+        expectedSequenceNumber == ENDFRAME_SEQUENCE_NUMBER ==> final  // but "final" may come up before this
+      case Failure(_) => true
+  {
+    var final := false;
+    var sequenceNumber :- rd.ReadUInt32();
+    if sequenceNumber == ENDFRAME_SEQUENCE_NUMBER {
+      final := true;
+      sequenceNumber :- rd.ReadUInt32();
+    }
+    if sequenceNumber != expectedSequenceNumber {
+      return Failure("unexpected frame sequence number");
+    }
+
+    var iv :- rd.ReadExact(algorithmSuiteID.IVLength());
+
+    var len := frameLength as uint32;
+    if final {
+      len :- rd.ReadUInt32();
+    }
+
+    var aad := BodyAAD(messageID, final, sequenceNumber, len as uint64);
+
+    var ciphertext :- rd.ReadExact(len as nat);
+    var authTag :- rd.ReadExact(algorithmSuiteID.TagLength());
+    var plaintext :- Decrypt(ciphertext, authTag, algorithmSuiteID, iv, key, aad);
+
+    return Success((plaintext, final));
+  }
+
+  method BodyAAD(messageID: seq<uint8>, final: bool, sequenceNumber: uint32, length: uint64) returns (aad: seq<uint8>) {
+    var contentAAD := if final then BODY_AAD_CONTENT_FINAL_FRAME else BODY_AAD_CONTENT_REGULAR_FRAME;
+    aad := messageID + contentAAD + UInt32ToSeq(sequenceNumber) + UInt64ToSeq(length);
+  }
+
+  method Decrypt(ciphertext: seq<uint8>, authTag: seq<uint8>, algorithmSuiteID: AlgorithmSuite.ID, iv: seq<uint8>, key: seq<uint8>, aad: seq<uint8>) returns (res: Result<seq<uint8>>)
+    requires |iv| == algorithmSuiteID.IVLength()
+    requires |key| == algorithmSuiteID.KeyLength()
+    requires |authTag| == algorithmSuiteID.TagLength()
+  {
+    var encAlg := algorithmSuiteID.EncryptionSuite();
+    res := AESEncryption.AESDecrypt(encAlg, key, ciphertext, authTag, iv, aad);
   }
 }

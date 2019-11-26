@@ -5,6 +5,7 @@ include "CMM/Defs.dfy"
 include "MessageHeader.dfy"
 include "MessageBody.dfy"
 include "Serialize.dfy"
+include "Deserialize.dfy"
 include "../Crypto/Random.dfy"
 include "../Util/Streams.dfy"
 include "../Crypto/Digests.dfy"
@@ -27,10 +28,10 @@ module ESDKClient {
   import HKDF
   import AESEncryption
   import Signature
+  import Deserialize
 
   /*
    * Encrypt a plaintext and serialize it into a message.
-   * Following https://github.com/awslabs/aws-encryption-sdk-specification/blob/master/client-apis/encrypt.md, 2019-09-24.
    */
   method Encrypt(plaintext: seq<uint8>, cmm: CMMDefs.CMM, encryptionContext: Materials.EncryptionContext) returns (res: Result<seq<uint8>>)
     requires Materials.GetKeysFromEncryptionContext(encryptionContext) !! Materials.ReservedKeyValues
@@ -59,12 +60,13 @@ module ESDKClient {
       Msg.TYPE_CUSTOMER_AED,
       dataKeyMaterials.algorithmSuiteID,
       messageID,
-      encryptionContext,
+      encMat.encryptionContext,
       Msg.EncryptedDataKeys(dataKeyMaterials.encryptedDataKeys),
       Msg.ContentType.Framed,
       dataKeyMaterials.algorithmSuiteID.IVLength() as uint8,
       frameLength);
     var wr := new Streams.StringWriter();
+
     var _ :- Serialize.SerializeHeaderBody(wr, headerBody);
     var unauthenticatedHeader := wr.data;
 
@@ -117,5 +119,61 @@ module ESDKClient {
     var len := algorithmSuiteID.KeyLength();
     var derivedKey := HKDF.hkdf(whichSHA, None, inputKeyMaterials, info, len);
     return derivedKey[..];
+  }
+
+  /*
+   * Deserialize a message and decrypt into a plaintext.
+   */
+  method Decrypt(message: seq<uint8>, cmm: CMMDefs.CMM) returns (res: Result<seq<uint8>>)
+    requires cmm.Valid()
+  {
+    /*
+     * Parse the message header to obtain: algorithm suite ID, encrypted data keys, and encryption context.
+     */
+
+    var rd := new Streams.StringReader.FromSeq(message);
+    var header :- Deserialize.DeserializeHeader(rd);
+
+    /*
+     * What's needed for the decryption: decryption materials, decryption key.
+     */
+
+    var decMat :- cmm.DecryptMaterials(header.body.algorithmSuiteID, header.body.encryptedDataKeys.entries, header.body.aad);
+
+    var decryptionKey := DeriveKey(decMat.plaintextDataKey, decMat.algorithmSuiteID, header.body.messageID);
+
+    /*
+     * Parse and decrypt message body.
+     */
+
+    var plaintext;
+    match header.body.contentType {
+      case NonFramed =>
+        // TODO
+      case Framed =>
+        plaintext :- MessageBody.DecryptFramedMessageBody(rd, decMat.algorithmSuiteID, decryptionKey, header.body.frameLength as int, header.body.messageID);
+    }
+
+    match decMat.algorithmSuiteID.SignatureType() {
+      case None =>
+        // there's no footer
+      case Some(ecdsaParams) =>
+        var msg := message[..rd.pos];  // unauthenticatedHeader + authTag + body  // TODO: there should be a better way to get this
+        // read signature
+        var signatureLength :- rd.ReadUInt16();
+        var sig :- rd.ReadExact(signatureLength as nat);
+        // verify signature
+        var digest := Signature.Digest(ecdsaParams, msg);
+        var signatureVerified := Signature.Verify(ecdsaParams, decMat.verificationKey.get, digest, sig);
+        if !signatureVerified {
+          return Failure("signature not verified");
+        }
+    }
+
+    if rd.Available() != 0 {
+      return Failure("message contains additional bytes at end");
+    }
+
+    return Success(plaintext);
   }
 }

@@ -196,6 +196,9 @@ module MessageHeader {
     && AADLength(kvPairs) < UINT16_LIMIT
   }
 
+  lemma {:axiom} AssumeValidAAD(kvPairs: Materials.EncryptionContext)  // TODO: this should be removed and replaced by something usable
+    ensures ValidAAD(kvPairs)
+
   predicate ValidFrameLength(frameLength: uint32, contentType: ContentType) {
     match contentType
     case NonFramed => frameLength == 0
