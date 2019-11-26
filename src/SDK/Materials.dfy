@@ -45,18 +45,23 @@ module Materials {
   datatype KeyringTraceEntry = KeyringTraceEntry(keyNamespace: UTF8.ValidUTF8Bytes,
                                                  keyName: UTF8.ValidUTF8Bytes,
                                                  flags: set<KeyringTraceFlag>)
+  {
+    predicate method HasGenerateFlag() {
+      GENERATED_DATA_KEY in flags
+    }
+  }
 
   // TODO: It would be nice for these to be methods of KeyringTraceEntry and to take a generic flag, however their use in Filter complicates things.
   // Is there a better way to go about filtering KeyringTraceEntries for traces with specific flags?
-  predicate method TraceHasGenerateFlag(trace: KeyringTraceEntry) {
+  predicate method IsGenerateTrace(trace: KeyringTraceEntry) {
     GENERATED_DATA_KEY in trace.flags
   }
 
-  predicate method TraceHasEncryptFlag(trace: KeyringTraceEntry) {
+  predicate method IsEncryptTrace(trace: KeyringTraceEntry) {
     ENCRYPTED_DATA_KEY in trace.flags
   }
 
-  predicate method TraceHasDecryptFlag(trace: KeyringTraceEntry) {
+  predicate method IsDecryptTrace(trace: KeyringTraceEntry) {
     DECRYPTED_DATA_KEY in trace.flags
   }
 
@@ -69,8 +74,8 @@ module Materials {
                                                keyringTrace: seq<KeyringTraceEntry>) 
   {
     predicate method Valid() {
-      var generateTraces := Filter(keyringTrace, TraceHasGenerateFlag);
-      var encryptTraces := Filter(keyringTrace, TraceHasEncryptFlag);
+      var generateTraces := Filter(keyringTrace, IsGenerateTrace);
+      var encryptTraces := Filter(keyringTrace, IsEncryptTrace);
       && algorithmSuiteID.ValidPlaintextDataKey(plaintextDataKey)
       && (forall trace :: trace in keyringTrace ==> trace.flags <= ValidEncryptionMaterialFlags)
       && (forall trace :: trace in keyringTrace ==> trace in generateTraces || trace in encryptTraces)
@@ -80,7 +85,7 @@ module Materials {
       // TODO: How can we strongly tie each trace to it's corresponding EDK?
     }
 
-    static function method ValidWitness(): DataKeyMaterials { 
+    static function method ValidWitness(): DataKeyMaterials {
       DataKeyMaterials(AlgorithmSuite.AES_256_GCM_IV12_TAG16_HKDF_SHA384_ECDSA_P384, 
                       seq(32, i => 0), 
                       [EncryptedDataKey.ValidWitness()],
@@ -90,29 +95,27 @@ module Materials {
 
   type ValidDataKeyMaterials = i: DataKeyMaterials | i.Valid() witness DataKeyMaterials.ValidWitness()
 
-  // TODO: The ordering of the params matter now, what's a better name for this function?
   predicate method CompatibleDataKeyMaterials(k1: ValidDataKeyMaterials, k2: ValidDataKeyMaterials) {
-    var generateTraces := Filter(k1.keyringTrace + k2.keyringTrace, TraceHasGenerateFlag);
+    var generateTraces := Filter(k1.keyringTrace + k2.keyringTrace, IsGenerateTrace);
     k1.algorithmSuiteID == k2.algorithmSuiteID && k1.plaintextDataKey == k2.plaintextDataKey
     && |generateTraces| <= 1
     && (|generateTraces| == 1 ==> |k1.keyringTrace| > 0 && generateTraces[0] == k1.keyringTrace[0])
   }
 
-  // TODO: The ordering of materials matters now, what's a better name for this function?
-  function method MergeDataKeyMaterials(k1: ValidDataKeyMaterials, k2: ValidDataKeyMaterials): (res: ValidDataKeyMaterials)
+  function method ConcatDataKeyMaterials(k1: ValidDataKeyMaterials, k2: ValidDataKeyMaterials): (res: ValidDataKeyMaterials)
     requires CompatibleDataKeyMaterials(k1, k2)
     ensures res.algorithmSuiteID == k1.algorithmSuiteID == k2.algorithmSuiteID
     ensures res.plaintextDataKey == k1.plaintextDataKey == k2.plaintextDataKey
     ensures res.encryptedDataKeys == k1.encryptedDataKeys + k2.encryptedDataKeys
     ensures res.keyringTrace == k1.keyringTrace + k2.keyringTrace
   {
-    FilterIsDistributive(k1.keyringTrace, k2.keyringTrace, TraceHasEncryptFlag);
-    FilterIsDistributive(k1.keyringTrace, k2.keyringTrace, TraceHasGenerateFlag);
+    FilterIsDistributive(k1.keyringTrace, k2.keyringTrace, IsEncryptTrace);
+    FilterIsDistributive(k1.keyringTrace, k2.keyringTrace, IsGenerateTrace);
     var r := DataKeyMaterials(k1.algorithmSuiteID, k1.plaintextDataKey, k1.encryptedDataKeys + k2.encryptedDataKeys, k1.keyringTrace + k2.keyringTrace);
     r
   }
 
-  // TODO: Due to the dataKeyMaterials structure, the placement of the keyringTrace in encryption/decryption materials is inconsistant.
+  // TODO: Due to the dataKeyMaterials structure, the placement of the keyringTrace in encryption/decryption materials is inconsistent.
   datatype EncryptionMaterials = EncryptionMaterials(encryptionContext: EncryptionContext,
                                                      dataKeyMaterials: ValidDataKeyMaterials,
                                                      signingKey: Option<seq<uint8>>)
@@ -140,7 +143,7 @@ module Materials {
       && algorithmSuiteID.ValidPlaintextDataKey(plaintextDataKey)
       && algorithmSuiteID.SignatureType().Some? ==> verificationKey.Some?
       && (forall trace :: trace in keyringTrace ==> trace.flags <= ValidDecryptionMaterialFlags)
-      && |keyringTrace| == 1 && TraceHasDecryptFlag(keyringTrace[0])
+      && |keyringTrace| == 1 && IsDecryptTrace(keyringTrace[0])
     }
 
     static function method ValidWitness(): DecryptionMaterials { 

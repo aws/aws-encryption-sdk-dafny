@@ -67,10 +67,10 @@ module RawRSAKeyringDef {
       ensures res.Success? && res.value.Some? && plaintextDataKey.Some? ==> 
         plaintextDataKey.get == res.value.get.plaintextDataKey
       ensures res.Success? && res.value.Some? && plaintextDataKey.None? ==>
-        var generateTraces := Filter(res.value.get.keyringTrace, Materials.TraceHasGenerateFlag);
+        var generateTraces := Filter(res.value.get.keyringTrace, Materials.IsGenerateTrace);
         |generateTraces| == 1
       ensures res.Success? && res.value.Some? && plaintextDataKey.Some? ==>
-        var generateTraces := Filter(res.value.get.keyringTrace, Materials.TraceHasGenerateFlag);
+        var generateTraces := Filter(res.value.get.keyringTrace, Materials.IsGenerateTrace);
         |generateTraces| == 0
     {
       if encryptionKey.None? {
@@ -95,9 +95,9 @@ module RawRSAKeyringDef {
         var edk := Materials.EncryptedDataKey(keyNamespace, keyName, edkCiphertext.get);
         
         var encryptTrace := Materials.KeyringTraceEntry(keyNamespace, keyName, {Materials.ENCRYPTED_DATA_KEY, Materials.SIGNED_ENCRYPTION_CONTEXT});
+        FilterIsDistributive(keyringTrace, [encryptTrace], Materials.IsGenerateTrace);
+        FilterIsDistributive(keyringTrace, [encryptTrace], Materials.IsEncryptTrace);
         keyringTrace := keyringTrace + [encryptTrace];
-        FilterIsDistributive(keyringTrace, [encryptTrace], Materials.TraceHasGenerateFlag); // TODO: Is there a better idiom for naming/placement of these lemmas?
-        FilterIsDistributive(keyringTrace, [encryptTrace], Materials.TraceHasEncryptFlag);
         
         var dataKey := Materials.DataKeyMaterials(algorithmSuiteID, plaintextDataKey.get, [edk], keyringTrace);
         assert dataKey.algorithmSuiteID.ValidPlaintextDataKey(dataKey.plaintextDataKey);

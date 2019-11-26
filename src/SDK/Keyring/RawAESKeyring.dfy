@@ -72,16 +72,13 @@ module RawAESKeyring{
       requires Valid()
       requires plaintextDataKey.Some? ==> algorithmSuiteID.ValidPlaintextDataKey(plaintextDataKey.get)
       ensures Valid()
-      ensures res.Success? && res.value.Some? ==> 
+      ensures res.Success? && res.value.Some? ==>
         algorithmSuiteID == res.value.get.algorithmSuiteID
-      ensures res.Success? && res.value.Some? && plaintextDataKey.Some? ==> 
-        plaintextDataKey.get == res.value.get.plaintextDataKey
-      ensures res.Success? && res.value.Some? && plaintextDataKey.None? ==>
-        var generateTraces := Filter(res.value.get.keyringTrace, Mat.TraceHasGenerateFlag);
-        |generateTraces| == 1
       ensures res.Success? && res.value.Some? && plaintextDataKey.Some? ==>
-        var generateTraces := Filter(res.value.get.keyringTrace, Mat.TraceHasGenerateFlag);
-        |generateTraces| == 0
+        plaintextDataKey.get == res.value.get.plaintextDataKey
+      ensures res.Success? && res.value.Some? ==>
+        var generateTraces := Filter(res.value.get.keyringTrace, Mat.IsGenerateTrace);
+        |generateTraces| == if plaintextDataKey.None? then 1 else 0
     {
       var keyringTrace := [];
       var plaintextDataKey := plaintextDataKey;
@@ -106,9 +103,9 @@ module RawAESKeyring{
       var edk := Mat.EncryptedDataKey(keyNamespace, providerInfo, encryptedKey);
 
       var encryptTrace := Mat.KeyringTraceEntry(keyNamespace, keyName, {Mat.ENCRYPTED_DATA_KEY, Mat.SIGNED_ENCRYPTION_CONTEXT});
+      FilterIsDistributive(keyringTrace, [encryptTrace], Mat.IsGenerateTrace);
+      FilterIsDistributive(keyringTrace, [encryptTrace], Mat.IsEncryptTrace);
       keyringTrace := keyringTrace + [encryptTrace];
-      FilterIsDistributive(keyringTrace, [encryptTrace], Mat.TraceHasGenerateFlag); // TODO: Is there a better idiom for naming/placement of these lemmas?
-      FilterIsDistributive(keyringTrace, [encryptTrace], Mat.TraceHasEncryptFlag);
 
       res := Success(Some(Mat.DataKeyMaterials(algorithmSuiteID, plaintextDataKey.get, [edk], keyringTrace)));
     }

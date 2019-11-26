@@ -19,7 +19,7 @@ module KeyringDefs {
     predicate Valid() {
       && algorithmSuiteID.ValidPlaintextDataKey(plaintextDataKey)
       && (forall trace :: trace in keyringTrace ==> trace.flags <= Materials.ValidDecryptionMaterialFlags)
-      && |keyringTrace| == 1 && Materials.TraceHasDecryptFlag(keyringTrace[0])
+      && |keyringTrace| == 1 && Materials.IsDecryptTrace(keyringTrace[0])
     }
 
     static function method ValidWitness(): OnDecryptResult {
@@ -49,10 +49,10 @@ module KeyringDefs {
         plaintextDataKey.get == res.value.get.plaintextDataKey
       // TODO: Is there any way we can move the below logic into the dataKeyMaterials itself? Or does that not make sense functionally?
       ensures res.Success? && res.value.Some? && plaintextDataKey.None? ==>
-        var generateTraces := Filter(res.value.get.keyringTrace, Materials.TraceHasGenerateFlag);
+        var generateTraces := Filter(res.value.get.keyringTrace, Materials.IsGenerateTrace);
         |generateTraces| == 1
       ensures res.Success? && res.value.Some? && plaintextDataKey.Some? ==>
-        var generateTraces := Filter(res.value.get.keyringTrace, Materials.TraceHasGenerateFlag);
+        var generateTraces := Filter(res.value.get.keyringTrace, Materials.IsGenerateTrace);
         |generateTraces| == 0
 
     method OnDecrypt(algorithmSuiteID: AlgorithmSuite.ID,
