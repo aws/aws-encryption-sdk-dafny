@@ -101,7 +101,7 @@
       <Compile Include="generated-src/Main.cs" />
     </ItemGroup>
   </Target>
-  <Target Name="_GenerateFromDafnySource" DependsOnTargets="ResolveReferences" Inputs="$(MSBuildProjectFile);@(DafnySource)" Outputs="generated-src/Main.cs">
+  <Target Name="_GenerateFromDafnySource" DependsOnTargets="ResolveReferences" Inputs="$(MSBuildProjectFile);@(DafnySource);@(Compile)" Outputs="generated-src/Main.cs">
     <ItemGroup>
       <DafnyReferencePath Include="@(ReferencePath)" Condition="%(FileName) != 'mscorlib' And %(FileName) != 'System' And %(FileName) != 'System.Core' And %(FileName) != 'System.Numerics'" />
     </ItemGroup>
