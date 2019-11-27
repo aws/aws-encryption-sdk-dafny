@@ -1,7 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <OutputType>Library</OutputType>
+    <OutputType>Exe</OutputType>
     <TargetFramework>netcoreapp3.0</TargetFramework>
     <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
   </PropertyGroup>
@@ -44,17 +44,19 @@
 <!--    <DafnySource Include="Util/UTF8.dfy" />-->
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="BouncyCastle" Version="1.8.5" />
+    <PackageReference Include="Portable.BouncyCastle" Version="1.8.5.2" />
   </ItemGroup>
   <Target Name="Verify">
     <Exec Command="dafny %(DafnySource.Identity) /compile:0 &amp;&amp; mkdir -p build/%(DafnySource.Identity) &amp;&amp; touch build/%(DafnySource.Identity).verified" />
   </Target>
-  <Target Name="GenerateFromDafnySource" BeforeTargets="CoreCompile" DependsOnTargets="_GenerateFromDafnySource">
+  <Target Name="GenerateFromDafnySource" 
+          AfterTargets="ResolveReferences"
+          BeforeTargets="CoreCompile" 
+          Inputs="$(MSBuildProjectFile);@(DafnySource)" 
+          Outputs="../generated-src/Main.cs">
+    <Exec Command="dafny /out:../generated-src/Main @(DafnySource, ' ') /compile:0 /spillTargetCode:2" />
     <ItemGroup>
       <Compile Include="../generated-src/Main.cs" />
     </ItemGroup>
-  </Target>
-  <Target Name="_GenerateFromDafnySource" AfterTargets="ResolveReferences" Inputs="$(MSBuildProjectFile);@(DafnySource)" Outputs="../generated-src/Main.cs">
-    <Exec Command="dafny /out:../generated-src/Main @(DafnySource, ' ') /compile:0 /spillTargetCode:2" />
   </Target>
 </Project>
