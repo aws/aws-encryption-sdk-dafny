@@ -97,7 +97,7 @@ module DefaultCMMDef {
       requires Valid()
       ensures Valid()
       ensures res.Success? ==>
-        |res.value.plaintextDataKey| == res.value.algorithmSuiteID.KeyLength()
+        |res.value.plaintextDataKey| == res.value.algorithmSuiteID.KDFInputKeyLength()
       ensures res.Success? && res.value.algorithmSuiteID.SignatureType().Some? ==> res.value.verificationKey.Some?
     {
       // Retrieve and decode verification key from encryption context if using signing algorithm

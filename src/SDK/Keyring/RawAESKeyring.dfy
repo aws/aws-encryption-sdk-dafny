@@ -130,6 +130,7 @@ module RawAESKeyring{
       requires Valid()
       ensures Valid()
       ensures |edks| == 0 ==> res.Success? && res.value.None?
+      ensures res.Success? && res.value.Some? ==> res.value.get.algorithmSuiteID == algorithmSuiteID
     {
       var i := 0;
       while i < |edks|

@@ -61,5 +61,6 @@ module KeyringDefs {
       requires Valid()
       ensures Valid()
       ensures |edks| == 0 ==> res.Success? && res.value.None?
+      ensures res.Success? && res.value.Some? ==> res.value.get.algorithmSuiteID == algorithmSuiteID
   }
 }

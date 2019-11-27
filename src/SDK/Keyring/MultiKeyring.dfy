@@ -75,7 +75,7 @@ module MultiKeyringDef {
             // TODO-RS: Use folding here instead
             var resultMaterials := initialMaterials.get;
             var i := 0;
-            while (i < children.Length)
+            while i < children.Length
                 invariant algorithmSuiteID == resultMaterials.algorithmSuiteID
                 invariant plaintextDataKey.Some? ==> plaintextDataKey.get == resultMaterials.plaintextDataKey
                 invariant
@@ -87,7 +87,7 @@ module MultiKeyringDef {
                 var childResult :- children[i].OnEncrypt(resultMaterials.algorithmSuiteID, encryptionContext, Some(resultMaterials.plaintextDataKey));
                 if childResult.Some? {
                     FilterIsDistributive(resultMaterials.keyringTrace, childResult.get.keyringTrace, Mat.IsGenerateTrace);
-                    resultMaterials := Mat.MergeDataKeyMaterials(resultMaterials, childResult.get);
+                    resultMaterials := Mat.ConcatDataKeyMaterials(resultMaterials, childResult.get);
                 }
                 i := i + 1;
             }
@@ -99,6 +99,7 @@ module MultiKeyringDef {
             requires Valid()
             ensures Valid()
             ensures |edks| == 0 ==> res.Success? && res.value.None?
+            ensures res.Success? && res.value.Some? ==> res.value.get.algorithmSuiteID == algorithmSuiteID
         {
             res := Success(None);
             if generator != null {
@@ -108,8 +109,9 @@ module MultiKeyringDef {
                 }
             }
             var i := 0;
-            while (i < children.Length) 
+            while i < children.Length
                 invariant |edks| == 0 ==> res.Success? && res.value.None?
+                invariant res.Success? && res.value.Some? ==> res.value.get.algorithmSuiteID == algorithmSuiteID
                 decreases children.Length - i
             {
                 var onDecryptResult := TryDecryptForKeyring(children[i], algorithmSuiteID, encryptionContext, edks);
@@ -129,6 +131,7 @@ module MultiKeyringDef {
             requires keyring.Valid()
             ensures Valid()
             ensures |edks| == 0 ==> res.None?
+            ensures res.Some? ==> res.get.algorithmSuiteID == algorithmSuiteID
         {
             var y := keyring.OnDecrypt(algorithmSuiteID, encryptionContext, edks);
             return match y {
