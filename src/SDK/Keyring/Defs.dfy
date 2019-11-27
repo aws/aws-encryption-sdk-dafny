@@ -9,12 +9,9 @@ module KeyringDefs {
   import Materials
   import AlgorithmSuite
 
-  // TODO Seems a bit strange to have this defined here but ValidDataKeyMaterials elsewhere, however this is defining logic
-  // specific to keyrings so it might seem misplaced in Materials.dfy
-  // TODO 'res' is already a common name for the out param, so naming this Result might be overloading the term
   datatype OnDecryptResult = OnDecryptResult(algorithmSuiteID: AlgorithmSuite.ID,
                                              plaintextDataKey: seq<uint8>,
-                                             keyringTrace: seq<Materials.KeyringTraceEntry>) // TODO does it make sense to define this as a sequence when we are requiring only one for now?
+                                             keyringTrace: seq<Materials.KeyringTraceEntry>)
   {
     predicate Valid() {
       && algorithmSuiteID.ValidPlaintextDataKey(plaintextDataKey)
@@ -47,13 +44,9 @@ module KeyringDefs {
         algorithmSuiteID == res.value.get.algorithmSuiteID
       ensures res.Success? && res.value.Some? && plaintextDataKey.Some? ==> 
         plaintextDataKey.get == res.value.get.plaintextDataKey
-      // TODO: Is there any way we can move the below logic into the dataKeyMaterials itself? Or does that not make sense functionally?
-      ensures res.Success? && res.value.Some? && plaintextDataKey.None? ==>
+      ensures res.Success? && res.value.Some? ==>
         var generateTraces := Filter(res.value.get.keyringTrace, Materials.IsGenerateTrace);
-        |generateTraces| == 1
-      ensures res.Success? && res.value.Some? && plaintextDataKey.Some? ==>
-        var generateTraces := Filter(res.value.get.keyringTrace, Materials.IsGenerateTrace);
-        |generateTraces| == 0
+        |generateTraces| == if plaintextDataKey.None? then 1 else 0
 
     method OnDecrypt(algorithmSuiteID: AlgorithmSuite.ID,
                      encryptionContext: Materials.EncryptionContext,

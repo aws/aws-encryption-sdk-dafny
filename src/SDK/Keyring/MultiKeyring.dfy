@@ -52,12 +52,9 @@ module MultiKeyringDef {
                 algorithmSuiteID == res.value.get.algorithmSuiteID
             ensures res.Success? && res.value.Some? && plaintextDataKey.Some? ==>
                 plaintextDataKey.get == res.value.get.plaintextDataKey
-            ensures res.Success? && res.value.Some? && plaintextDataKey.None? ==>
+            ensures res.Success? && res.value.Some? ==>
                 var generateTraces := Filter(res.value.get.keyringTrace, Mat.IsGenerateTrace);
-                |generateTraces| == 1
-            ensures res.Success? && res.value.Some? && plaintextDataKey.Some? ==>
-                var generateTraces := Filter(res.value.get.keyringTrace, Mat.IsGenerateTrace);
-                |generateTraces| == 0
+                |generateTraces| == if plaintextDataKey.None? then 1 else 0
         {
             // First pass on or generate the plaintext data key
             var initialMaterials: Option<Mat.ValidDataKeyMaterials> := None;
@@ -80,7 +77,7 @@ module MultiKeyringDef {
                 invariant plaintextDataKey.Some? ==> plaintextDataKey.get == resultMaterials.plaintextDataKey
                 invariant
                     var generateTraces := Filter(resultMaterials.keyringTrace, Mat.IsGenerateTrace);
-                    (plaintextDataKey.Some? ==> |generateTraces| == 0)
+                    && (plaintextDataKey.Some? ==> |generateTraces| == 0)
                     && (plaintextDataKey.None? ==> |generateTraces| == 1);
                 decreases children.Length - i 
             {

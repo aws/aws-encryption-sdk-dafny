@@ -66,12 +66,9 @@ module RawRSAKeyringDef {
         algorithmSuiteID == res.value.get.algorithmSuiteID
       ensures res.Success? && res.value.Some? && plaintextDataKey.Some? ==> 
         plaintextDataKey.get == res.value.get.plaintextDataKey
-      ensures res.Success? && res.value.Some? && plaintextDataKey.None? ==>
+      ensures res.Success? && res.value.Some? ==>
         var generateTraces := Filter(res.value.get.keyringTrace, Materials.IsGenerateTrace);
-        |generateTraces| == 1
-      ensures res.Success? && res.value.Some? && plaintextDataKey.Some? ==>
-        var generateTraces := Filter(res.value.get.keyringTrace, Materials.IsGenerateTrace);
-        |generateTraces| == 0
+        |generateTraces| == if plaintextDataKey.None? then 1 else 0
     {
       if encryptionKey.None? {
         return Failure("Encryption key undefined");

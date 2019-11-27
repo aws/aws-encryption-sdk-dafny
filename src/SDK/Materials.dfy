@@ -45,14 +45,7 @@ module Materials {
   datatype KeyringTraceEntry = KeyringTraceEntry(keyNamespace: UTF8.ValidUTF8Bytes,
                                                  keyName: UTF8.ValidUTF8Bytes,
                                                  flags: set<KeyringTraceFlag>)
-  {
-    predicate method HasGenerateFlag() {
-      GENERATED_DATA_KEY in flags
-    }
-  }
 
-  // TODO: It would be nice for these to be methods of KeyringTraceEntry and to take a generic flag, however their use in Filter complicates things.
-  // Is there a better way to go about filtering KeyringTraceEntries for traces with specific flags?
   predicate method IsGenerateTrace(trace: KeyringTraceEntry) {
     GENERATED_DATA_KEY in trace.flags
   }
@@ -71,7 +64,7 @@ module Materials {
   datatype DataKeyMaterials = DataKeyMaterials(algorithmSuiteID: AlgorithmSuite.ID,
                                                plaintextDataKey: seq<uint8>,
                                                encryptedDataKeys: seq<ValidEncryptedDataKey>,
-                                               keyringTrace: seq<KeyringTraceEntry>) 
+                                               keyringTrace: seq<KeyringTraceEntry>)
   {
     predicate method Valid() {
       var generateTraces := Filter(keyringTrace, IsGenerateTrace);
@@ -82,12 +75,12 @@ module Materials {
       && |generateTraces| <= 1
       && (|generateTraces| == 1 ==> keyringTrace[0] == generateTraces[0])
       && |encryptTraces| == |encryptedDataKeys|
-      // TODO: How can we strongly tie each trace to it's corresponding EDK?
+      // TODO: Strongly tie each trace to it's corresponding EDK (https://github.com/awslabs/aws-encryption-sdk-dafny/issues/100)
     }
 
     static function method ValidWitness(): DataKeyMaterials {
-      DataKeyMaterials(AlgorithmSuite.AES_256_GCM_IV12_TAG16_HKDF_SHA384_ECDSA_P384, 
-                      seq(32, i => 0), 
+      DataKeyMaterials(AlgorithmSuite.AES_256_GCM_IV12_TAG16_HKDF_SHA384_ECDSA_P384,
+                      seq(32, i => 0),
                       [EncryptedDataKey.ValidWitness()],
                       [KeyringTraceEntry([], [], {ENCRYPTED_DATA_KEY, GENERATED_DATA_KEY})])
     }
@@ -115,7 +108,6 @@ module Materials {
     r
   }
 
-  // TODO: Due to the dataKeyMaterials structure, the placement of the keyringTrace in encryption/decryption materials is inconsistent.
   datatype EncryptionMaterials = EncryptionMaterials(encryptionContext: EncryptionContext,
                                                      dataKeyMaterials: ValidDataKeyMaterials,
                                                      signingKey: Option<seq<uint8>>)
@@ -125,7 +117,7 @@ module Materials {
       && |dataKeyMaterials.encryptedDataKeys| > 0
     }
 
-    static function method ValidWitness(): EncryptionMaterials { 
+    static function method ValidWitness(): EncryptionMaterials {
       EncryptionMaterials([], DataKeyMaterials.ValidWitness(), Some(seq(32, i => 0)))
     }
   }
@@ -146,7 +138,7 @@ module Materials {
       && |keyringTrace| == 1 && IsDecryptTrace(keyringTrace[0])
     }
 
-    static function method ValidWitness(): DecryptionMaterials { 
+    static function method ValidWitness(): DecryptionMaterials {
       DecryptionMaterials(AlgorithmSuite.AES_256_GCM_IV12_TAG16_HKDF_SHA384_ECDSA_P384,
                           [], seq(32, i => 0), Some(seq(32, i => 0)),
                           [KeyringTraceEntry([], [], {DECRYPTED_DATA_KEY})])
