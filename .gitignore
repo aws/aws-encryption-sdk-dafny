@@ -11,6 +11,6 @@ test/**/Output/*
 
 /src/bin
 /src/obj
-/src/generated-src
+/generated-src
 /test/bin
 /test/obj

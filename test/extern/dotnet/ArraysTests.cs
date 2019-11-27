@@ -1,17 +1,16 @@
 ﻿using System.Numerics;
-using NUnit.Framework;
+using Xunit;
 
 namespace EncryptionSDKTests
 {
-    [TestFixture]
     public class ArraysTests
     {
-        [Test]
+        [Fact]
         public void CopyShouldWork()
         {
             var myArray = new int[] {1, 2, 3, 4, 5};
             var copy = Arrays.Array.copy(myArray, new BigInteger(5));
-            Assert.AreEqual(myArray, copy);
+            Assert.Equal(myArray, copy);
         }
     }
 }
