@@ -17,4 +17,18 @@
     <ProjectReference Include="..\src\AWSEncryptionSDK.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <DafnySource Include="StandardLibrary/UInt.dfy" />
+  </ItemGroup>
+
+  <Target Name="GenerateFromDafnySource" 
+          AfterTargets="ResolveReferences"
+          BeforeTargets="CoreCompile"
+          Inputs="$(MSBuildProjectFile);@(DafnySource)" 
+          Outputs="../generated-src/Main.cs">
+    <Exec Command="dafny /out:../generated-src/TestMain @(DafnySource, ' ') /compile:0 /spillTargetCode:2 /useRuntimeLib" />
+    <ItemGroup>
+      <Compile Include="../generated-src/TestMain.cs" />
+    </ItemGroup>
+  </Target>
 </Project>

@@ -48,6 +48,25 @@ module {:extern "STL"} StandardLibrary {
     }
   }
 
+  function method RequireEqual<T(==)>(expected: T, actual: T): (r: Result<()>) 
+      ensures r.Success? ==> expected == actual
+  {
+    // TODO: Use RequireWithMessage when it is possible to call ToString on an arbitrary type
+    Require(expected == actual)
+  }
+  
+  function method Require(b: bool): (r: Result<()>) 
+      ensures r.Success? ==> b 
+  {
+    RequireWithMessage(b, "Failed requirement")
+  }
+
+  function method RequireWithMessage(b: bool, message: string): (r: Result<()>) 
+      ensures r.Success? ==> b 
+  {
+    if b then Success(()) else Failure(message)
+  }
+
   predicate StringIs8Bit(s: string) {
     forall i :: 0 <= i < |s| ==> s[i] < 256 as char
   }

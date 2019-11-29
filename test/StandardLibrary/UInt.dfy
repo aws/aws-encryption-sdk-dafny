@@ -1,53 +1,27 @@
-// RUN: %dafny "./UInt.dfy" /compile:3 > "%t"
-// RUN: %diff "%s.expect" "%t"
-
 include "../../src/StandardLibrary/UInt.dfy"
+include "../../src/StandardLibrary/StandardLibrary.dfy"
 
-module TestUInt {
-  import StandardLibrary
+module {:extern "TestUInt"} TestUInt  {
+  import opened StandardLibrary
   import opened UInt = StandardLibrary.UInt
 
-  method TestSeqToUInt32() {
+  function method {:test} TestSeqToUInt32(): Result<()> {
     var s := [0x01, 0x02, 0x30, 0x44];
-    if SeqToUInt32(s) == 0x01023044 as uint32 {
-      print "CORRECT\n";
-    } else {
-      print "NOT CORRECT\n";
-    }
+    RequireEqual(0x01023044 as uint32, SeqToUInt32(s))
   }
 
-  method TestUInt32ToSeq() {
+  function method {:test} TestUInt32ToSeq(): Result<()> {
     var x := 0x01023044;
-    if UInt32ToSeq(x) == [0x01, 0x02, 0x30, 0x44] {
-      print "CORRECT\n";
-    } else {
-      print "NOT CORRECT\n";
-    }
+    RequireEqual([0x01, 0x02, 0x30, 0x44], UInt32ToSeq(x))
   }
 
-  method TestSeqToUInt16() {
+  function method {:test} TestSeqToUInt16(): Result<()> {
     var s := [0x01, 0x22];
-    if SeqToUInt16(s) == 0x0122 as uint16 {
-      print "CORRECT\n";
-    } else {
-      print "NOT CORRECT\n";
-    }
+    RequireEqual(0x0122 as uint16, SeqToUInt16(s))
   }
 
-  method TestUInt16ToSeq() {
+  function method {:test} TestUInt16ToSeq(): Result<()> {
     var x := 0x0122;
-    if UInt16ToSeq(x) == [0x01, 0x22] {
-      print "CORRECT\n";
-    } else {
-      print "NOT CORRECT\n";
-    }
-  }
-
-  method Main() {
-    TestSeqToUInt32();
-    TestUInt32ToSeq();
-
-    TestSeqToUInt16();
-    TestUInt16ToSeq();
+    RequireEqual([0x01, 0x22], UInt16ToSeq(x))
   }
 }
