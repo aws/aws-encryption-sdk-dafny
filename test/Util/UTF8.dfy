@@ -1,6 +1,3 @@
-// RUN: %dafny "./UTF8.dfy" "../../src/extern/dotnet/UTF8.cs" /compile:3 > "%t" && rm "./UTF8.cs"
-// RUN: %diff "%s.expect" "%t"
-
 include "../../src/Util/UTF8.dfy"
 
 module TestUTF8 {

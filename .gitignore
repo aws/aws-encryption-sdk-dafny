@@ -14,3 +14,4 @@ test/**/Output/*
 /generated-src
 /test/bin
 /test/obj
+/generated-test

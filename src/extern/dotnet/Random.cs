@@ -7,7 +7,7 @@ namespace Random {
       RandomNumberGenerator rng = RandomNumberGenerator.Create();
       byte[] z = new byte[i];
       rng.GetBytes(z);
-      return new Dafny.ArraySequence<byte>(z);
+      return Dafny.Sequence<byte>.FromArray(z);
     }
   }
 }

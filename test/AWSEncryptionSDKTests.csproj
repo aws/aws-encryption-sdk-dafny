@@ -13,22 +13,41 @@
     <PackageReference Include="coverlet.collector" Version="1.0.1" />
   </ItemGroup>
 
+  <!-- 
+    TODO: We should be able to just reference the source project, but that doesn't work
+    well for Dafny yet: external C# code will be compiled and referrable, but the way we
+    are currently writing external code requires that the external C# code is actually compiled
+    together with the C# code generated from Dafny. For now we just inline the referenced project.
+
   <ItemGroup>
-    <ProjectReference Include="..\src\AWSEncryptionSDK.csproj" />
+    <ProjectReference Include="../src/AWSEncryptionSDK.csproj" />
+  </ItemGroup>
+  -->
+
+  <ItemGroup>
+    <DafnySource Include="../src/**/*.dfy" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="../src/**/*.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="Portable.BouncyCastle" Version="1.8.5.2" />
   </ItemGroup>
 
   <ItemGroup>
-    <DafnySource Include="StandardLibrary/UInt.dfy" />
+    <DafnySource Include="**/*.dfy" />
   </ItemGroup>
+
+  <!-- TODO: extract generic Dafny tasks that can be shared as part of Dafny itself -->
 
   <Target Name="GenerateFromDafnySource" 
           AfterTargets="ResolveReferences"
           BeforeTargets="CoreCompile"
           Inputs="$(MSBuildProjectFile);@(DafnySource)" 
           Outputs="../generated-src/Main.cs">
-    <Exec Command="dafny /out:../generated-src/TestMain @(DafnySource, ' ') /compile:0 /spillTargetCode:2 /useRuntimeLib" />
+    <Exec Command="dafny /out:../generated-test/Main @(DafnySource, ' ') /compile:0 /spillTargetCode:3 /noVerify" />
     <ItemGroup>
-      <Compile Include="../generated-src/TestMain.cs" />
+      <Compile Include="../generated-test/Main.cs" />
     </ItemGroup>
   </Target>
 </Project>
