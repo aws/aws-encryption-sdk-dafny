@@ -48,8 +48,13 @@
   
   <!-- TODO: extract generic Dafny tasks that can be shared as part of Dafny itself -->
   
-  <Target Name="Verify">
-    <Exec Command="dafny %(DafnySource.Identity) /compile:0 &amp;&amp; mkdir -p build/%(DafnySource.Identity) &amp;&amp; touch build/%(DafnySource.Identity).verified" />
+  <Target Name="Verify" 
+          Inputs="@(DafnySource)" 
+          Outputs="@(DafnySource->'obj/Verification/%(Identity).verified')">
+    <Message Text="Verifying %(DafnySource.Identity)..." Importance="high"/>
+    <Exec Command="dafny %(DafnySource.Identity) /compile:0"/>
+    <Exec Command="mkdir -p `dirname obj/Verification/%(DafnySource.Identity).verified`" />
+    <Exec Command="touch obj/Verification/%(DafnySource.Identity).verified" />
   </Target>
   <Target Name="GenerateFromDafnySource" 
           AfterTargets="ResolveReferences"
