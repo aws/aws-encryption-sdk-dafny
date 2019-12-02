@@ -56,7 +56,7 @@
     <Exec Command="mkdir -p `dirname obj/Verification/%(DafnySource.Identity).verified`" />
     <Exec Command="touch obj/Verification/%(DafnySource.Identity).verified" />
   </Target>
-  <Target Name="GenerateFromDafnySource" 
+  <Target Name="CompileDafny" 
           AfterTargets="ResolveReferences"
           BeforeTargets="CoreCompile" 
           Inputs="$(MSBuildProjectFile);@(DafnySource)" 
@@ -65,5 +65,9 @@
     <ItemGroup>
       <Compile Include="../generated-src/Main.cs" />
     </ItemGroup>
+  </Target>
+  <!-- TODO: Define Inputs and Outputs for this -->
+  <Target Name="BuildJS">
+    <Exec Command="dafny /out:build/Main @(DafnySource, ' ') /compile:2 /noVerify /noIncludes /compileTarget:js /spillTargetCode:1" />
   </Target>
 </Project>

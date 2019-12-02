@@ -17,13 +17,13 @@
     TODO: We should be able to just reference the source project, but that doesn't work
     well for Dafny yet: external C# code will be compiled and referrable, but the way we
     are currently writing external code requires that the external C# code is actually compiled
-    together with the C# code generated from Dafny. For now we just inline the referenced project.
+    together with the C# code generated from Dafny. For now we just inline the referenced project's
+    source and dependencies.
 
   <ItemGroup>
     <ProjectReference Include="../src/AWSEncryptionSDK.csproj" />
   </ItemGroup>
   -->
-
   <ItemGroup>
     <DafnySource Include="../src/**/*.dfy" />
   </ItemGroup>
