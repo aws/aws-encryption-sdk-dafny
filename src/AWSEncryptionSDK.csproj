@@ -61,13 +61,14 @@
           BeforeTargets="CoreCompile" 
           Inputs="$(MSBuildProjectFile);@(DafnySource)" 
           Outputs="../generated-src/Main.cs">
+    <Message Text="Compiling Dafny source files to generated-src/Main.cs..." />
     <Exec Command="dafny /out:../generated-src/Main @(DafnySource, ' ') /compile:0 /spillTargetCode:3 /noVerify" />
     <ItemGroup>
       <Compile Include="../generated-src/Main.cs" />
     </ItemGroup>
   </Target>
   <!-- TODO: Define Inputs and Outputs for this -->
-  <Target Name="BuildJS">
+  <Target Name="CompileDafnyToJS">
     <Exec Command="dafny /out:build/Main @(DafnySource, ' ') /compile:2 /noVerify /noIncludes /compileTarget:js /spillTargetCode:1" />
   </Target>
 </Project>
