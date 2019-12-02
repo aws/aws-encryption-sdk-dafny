@@ -46,16 +46,16 @@ module Materials {
                                                  keyName: UTF8.ValidUTF8Bytes,
                                                  flags: set<KeyringTraceFlag>)
 
-  predicate method IsGenerateTrace(trace: KeyringTraceEntry) {
-    GENERATED_DATA_KEY in trace.flags
+  predicate method IsGenerateTraceEntry(entry: KeyringTraceEntry) {
+    GENERATED_DATA_KEY in entry.flags
   }
 
-  predicate method IsEncryptTrace(trace: KeyringTraceEntry) {
-    ENCRYPTED_DATA_KEY in trace.flags
+  predicate method IsEncryptTraceEntry(entry: KeyringTraceEntry) {
+    ENCRYPTED_DATA_KEY in entry.flags
   }
 
-  predicate method IsDecryptTrace(trace: KeyringTraceEntry) {
-    DECRYPTED_DATA_KEY in trace.flags
+  predicate method IsDecryptTraceEntry(entry: KeyringTraceEntry) {
+    DECRYPTED_DATA_KEY in entry.flags
   }
 
   const ValidEncryptionMaterialFlags: set<KeyringTraceFlag> := {ENCRYPTED_DATA_KEY, SIGNED_ENCRYPTION_CONTEXT, GENERATED_DATA_KEY};
@@ -67,15 +67,15 @@ module Materials {
                                                keyringTrace: seq<KeyringTraceEntry>)
   {
     predicate method Valid() {
-      var generateTraces := Filter(keyringTrace, IsGenerateTrace);
-      var encryptTraces := Filter(keyringTrace, IsEncryptTrace);
+      var generateTraces := Filter(keyringTrace, IsGenerateTraceEntry);
+      var encryptTraces := Filter(keyringTrace, IsEncryptTraceEntry);
       && algorithmSuiteID.ValidPlaintextDataKey(plaintextDataKey)
-      && (forall trace :: trace in keyringTrace ==> trace.flags <= ValidEncryptionMaterialFlags)
-      && (forall trace :: trace in keyringTrace ==> trace in generateTraces || trace in encryptTraces)
+      && (forall entry :: entry in keyringTrace ==> entry.flags <= ValidEncryptionMaterialFlags)
+      && (forall entry :: entry in keyringTrace ==> IsGenerateTraceEntry(entry) || IsEncryptTraceEntry(entry))
       && |generateTraces| <= 1
       && (|generateTraces| == 1 ==> keyringTrace[0] == generateTraces[0])
       && |encryptTraces| == |encryptedDataKeys|
-      // TODO: Strongly tie each trace to it's corresponding EDK (https://github.com/awslabs/aws-encryption-sdk-dafny/issues/100)
+      // TODO: Strongly tie each trace entry to it's corresponding EDK (https://github.com/awslabs/aws-encryption-sdk-dafny/issues/100)
     }
 
     static function method ValidWitness(): DataKeyMaterials {
@@ -89,7 +89,7 @@ module Materials {
   type ValidDataKeyMaterials = i: DataKeyMaterials | i.Valid() witness DataKeyMaterials.ValidWitness()
 
   predicate method CompatibleDataKeyMaterials(k1: ValidDataKeyMaterials, k2: ValidDataKeyMaterials) {
-    var generateTraces := Filter(k1.keyringTrace + k2.keyringTrace, IsGenerateTrace);
+    var generateTraces := Filter(k1.keyringTrace + k2.keyringTrace, IsGenerateTraceEntry);
     k1.algorithmSuiteID == k2.algorithmSuiteID && k1.plaintextDataKey == k2.plaintextDataKey
     && |generateTraces| <= 1
     && (|generateTraces| == 1 ==> |k1.keyringTrace| > 0 && generateTraces[0] == k1.keyringTrace[0])
@@ -102,8 +102,8 @@ module Materials {
     ensures res.encryptedDataKeys == k1.encryptedDataKeys + k2.encryptedDataKeys
     ensures res.keyringTrace == k1.keyringTrace + k2.keyringTrace
   {
-    FilterIsDistributive(k1.keyringTrace, k2.keyringTrace, IsEncryptTrace);
-    FilterIsDistributive(k1.keyringTrace, k2.keyringTrace, IsGenerateTrace);
+    FilterIsDistributive(k1.keyringTrace, k2.keyringTrace, IsEncryptTraceEntry);
+    FilterIsDistributive(k1.keyringTrace, k2.keyringTrace, IsGenerateTraceEntry);
     var r := DataKeyMaterials(k1.algorithmSuiteID, k1.plaintextDataKey, k1.encryptedDataKeys + k2.encryptedDataKeys, k1.keyringTrace + k2.keyringTrace);
     r
   }
@@ -134,8 +134,7 @@ module Materials {
     predicate method Valid() {
       && algorithmSuiteID.ValidPlaintextDataKey(plaintextDataKey)
       && algorithmSuiteID.SignatureType().Some? ==> verificationKey.Some?
-      && (forall trace :: trace in keyringTrace ==> trace.flags <= ValidDecryptionMaterialFlags)
-      && |keyringTrace| == 1 && IsDecryptTrace(keyringTrace[0])
+      && (forall entry :: entry in keyringTrace ==> entry.flags <= ValidDecryptionMaterialFlags)
     }
 
     static function method ValidWitness(): DecryptionMaterials {

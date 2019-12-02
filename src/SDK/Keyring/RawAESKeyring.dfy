@@ -72,12 +72,13 @@ module RawAESKeyring{
       requires Valid()
       requires plaintextDataKey.Some? ==> algorithmSuiteID.ValidPlaintextDataKey(plaintextDataKey.get)
       ensures Valid()
+      ensures unchanged(Repr)
       ensures res.Success? && res.value.Some? ==>
         algorithmSuiteID == res.value.get.algorithmSuiteID
       ensures res.Success? && res.value.Some? && plaintextDataKey.Some? ==>
         plaintextDataKey.get == res.value.get.plaintextDataKey
       ensures res.Success? && res.value.Some? ==>
-        var generateTraces := Filter(res.value.get.keyringTrace, Mat.IsGenerateTrace);
+        var generateTraces := Filter(res.value.get.keyringTrace, Mat.IsGenerateTraceEntry);
         |generateTraces| == if plaintextDataKey.None? then 1 else 0
     {
       var keyringTrace := [];
@@ -85,8 +86,8 @@ module RawAESKeyring{
       if plaintextDataKey.None? {
         var k := Random.GenerateBytes(algorithmSuiteID.KeyLength() as int32);
         plaintextDataKey := Some(k);
-        var generateTrace := Mat.KeyringTraceEntry(keyNamespace, keyName, {Mat.GENERATED_DATA_KEY});
-        keyringTrace := keyringTrace + [generateTrace];
+        var generateTraceEntry := Mat.KeyringTraceEntry(keyNamespace, keyName, {Mat.GENERATED_DATA_KEY});
+        keyringTrace := keyringTrace + [generateTraceEntry];
       }
 
       var iv := Random.GenerateBytes(wrappingAlgorithm.ivLen as int32);
@@ -102,10 +103,10 @@ module RawAESKeyring{
       }
       var edk := Mat.EncryptedDataKey(keyNamespace, providerInfo, encryptedKey);
 
-      var encryptTrace := Mat.KeyringTraceEntry(keyNamespace, keyName, {Mat.ENCRYPTED_DATA_KEY, Mat.SIGNED_ENCRYPTION_CONTEXT});
-      FilterIsDistributive(keyringTrace, [encryptTrace], Mat.IsGenerateTrace);
-      FilterIsDistributive(keyringTrace, [encryptTrace], Mat.IsEncryptTrace);
-      keyringTrace := keyringTrace + [encryptTrace];
+      var encryptTraceEntry := Mat.KeyringTraceEntry(keyNamespace, keyName, {Mat.ENCRYPTED_DATA_KEY, Mat.SIGNED_ENCRYPTION_CONTEXT});
+      FilterIsDistributive(keyringTrace, [encryptTraceEntry], Mat.IsGenerateTraceEntry);
+      FilterIsDistributive(keyringTrace, [encryptTraceEntry], Mat.IsEncryptTraceEntry);
+      keyringTrace := keyringTrace + [encryptTraceEntry];
 
       res := Success(Some(Mat.DataKeyMaterials(algorithmSuiteID, plaintextDataKey.get, [edk], keyringTrace)));
     }
@@ -141,9 +142,9 @@ module RawAESKeyring{
           //TODO: #68
           var cipherText, authTag := edks[i].ciphertext[wrappingAlgorithm.tagLen ..], edks[i].ciphertext[.. wrappingAlgorithm.tagLen];
           var ptKey :- AESEncryption.AESDecrypt(wrappingAlgorithm, wrappingKey, cipherText, authTag, iv, flatEncCtx);
-          var decryptTrace := Mat.KeyringTraceEntry(keyNamespace, keyName, {Mat.DECRYPTED_DATA_KEY, Mat.VERIFIED_ENCRYPTION_CONTEXT});
+          var decryptTraceEntry := Mat.KeyringTraceEntry(keyNamespace, keyName, {Mat.DECRYPTED_DATA_KEY, Mat.VERIFIED_ENCRYPTION_CONTEXT});
           if algorithmSuiteID.ValidPlaintextDataKey(ptKey) { // check for correct key length
-            return Success(Some(KeyringDefs.OnDecryptResult(algorithmSuiteID, ptKey, [decryptTrace])));
+            return Success(Some(KeyringDefs.OnDecryptResult(algorithmSuiteID, ptKey, [decryptTraceEntry])));
           } else {
             return Failure("Decryption failed: bad datakey length.");
           }

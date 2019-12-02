@@ -48,12 +48,13 @@ module MultiKeyringDef {
             requires Valid()
             requires plaintextDataKey.Some? ==> algorithmSuiteID.ValidPlaintextDataKey(plaintextDataKey.get)
             ensures Valid()
+            ensures unchanged(Repr)
             ensures res.Success? && res.value.Some? ==> 
                 algorithmSuiteID == res.value.get.algorithmSuiteID
             ensures res.Success? && res.value.Some? && plaintextDataKey.Some? ==>
                 plaintextDataKey.get == res.value.get.plaintextDataKey
             ensures res.Success? && res.value.Some? ==>
-                var generateTraces := Filter(res.value.get.keyringTrace, Mat.IsGenerateTrace);
+                var generateTraces := Filter(res.value.get.keyringTrace, Mat.IsGenerateTraceEntry);
                 |generateTraces| == if plaintextDataKey.None? then 1 else 0
         {
             // First pass on or generate the plaintext data key
@@ -76,14 +77,14 @@ module MultiKeyringDef {
                 invariant algorithmSuiteID == resultMaterials.algorithmSuiteID
                 invariant plaintextDataKey.Some? ==> plaintextDataKey.get == resultMaterials.plaintextDataKey
                 invariant
-                    var generateTraces := Filter(resultMaterials.keyringTrace, Mat.IsGenerateTrace);
+                    var generateTraces := Filter(resultMaterials.keyringTrace, Mat.IsGenerateTraceEntry);
                     && (plaintextDataKey.Some? ==> |generateTraces| == 0)
                     && (plaintextDataKey.None? ==> |generateTraces| == 1);
                 decreases children.Length - i 
             {
                 var childResult :- children[i].OnEncrypt(resultMaterials.algorithmSuiteID, encryptionContext, Some(resultMaterials.plaintextDataKey));
                 if childResult.Some? {
-                    FilterIsDistributive(resultMaterials.keyringTrace, childResult.get.keyringTrace, Mat.IsGenerateTrace);
+                    FilterIsDistributive(resultMaterials.keyringTrace, childResult.get.keyringTrace, Mat.IsGenerateTraceEntry);
                     resultMaterials := Mat.ConcatDataKeyMaterials(resultMaterials, childResult.get);
                 }
                 i := i + 1;

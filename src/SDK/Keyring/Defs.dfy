@@ -15,15 +15,14 @@ module KeyringDefs {
   {
     predicate Valid() {
       && algorithmSuiteID.ValidPlaintextDataKey(plaintextDataKey)
-      && (forall trace :: trace in keyringTrace ==> trace.flags <= Materials.ValidDecryptionMaterialFlags)
-      && |keyringTrace| == 1 && Materials.IsDecryptTrace(keyringTrace[0])
+      && (forall entry :: entry in keyringTrace ==> entry.flags <= Materials.ValidDecryptionMaterialFlags)
     }
 
     static function method ValidWitness(): OnDecryptResult {
       var pdk := seq(32, i => 0);
-      var trace := Materials.KeyringTraceEntry([], [], {Materials.DECRYPTED_DATA_KEY});
+      var entry := Materials.KeyringTraceEntry([], [], {Materials.DECRYPTED_DATA_KEY});
       var r := OnDecryptResult(AlgorithmSuite.AES_256_GCM_IV12_TAG16_HKDF_SHA384_ECDSA_P384,
-                      pdk, [trace]);
+                      pdk, [entry]);
       r
     }
   }
@@ -45,7 +44,7 @@ module KeyringDefs {
       ensures res.Success? && res.value.Some? && plaintextDataKey.Some? ==> 
         plaintextDataKey.get == res.value.get.plaintextDataKey
       ensures res.Success? && res.value.Some? ==>
-        var generateTraces := Filter(res.value.get.keyringTrace, Materials.IsGenerateTrace);
+        var generateTraces := Filter(res.value.get.keyringTrace, Materials.IsGenerateTraceEntry);
         |generateTraces| == if plaintextDataKey.None? then 1 else 0
 
     method OnDecrypt(algorithmSuiteID: AlgorithmSuite.ID,
