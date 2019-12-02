@@ -56,15 +56,19 @@
     <Exec Command="mkdir -p `dirname obj/Verification/%(DafnySource.Identity).verified`" />
     <Exec Command="touch obj/Verification/%(DafnySource.Identity).verified" />
   </Target>
+
+  <PropertyGroup>
+    <DafnyOutputFile>../generated-src/Main.cs</DafnyOutputFile>
+  </PropertyGroup>
   <Target Name="CompileDafny" 
           AfterTargets="ResolveReferences"
           BeforeTargets="CoreCompile" 
           Inputs="$(MSBuildProjectFile);@(DafnySource)" 
-          Outputs="../generated-src/Main.cs">
-    <Message Text="Compiling Dafny source files to generated-src/Main.cs..." />
-    <Exec Command="dafny /out:../generated-src/Main @(DafnySource, ' ') /compile:0 /spillTargetCode:3 /noVerify" />
+          Outputs="$(DafnyOutputFile)">
+    <Message Text="Compiling Dafny source files to $(DafnyOutputFile)..." Importance="high"/>
+    <Exec Command="dafny /out:$(DafnyOutputFile) @(DafnySource, ' ') /compile:0 /spillTargetCode:3 /noVerify" />
     <ItemGroup>
-      <Compile Include="../generated-src/Main.cs" />
+      <Compile Include="$(DafnyOutputFile)" />
     </ItemGroup>
   </Target>
   <!-- TODO: Define Inputs and Outputs for this -->
