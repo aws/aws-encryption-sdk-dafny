@@ -23,4 +23,4 @@ phases:
       - cd aws-encryption-sdk-dafny
   build:
     commands:
-      - make release
+      - dotnet test
