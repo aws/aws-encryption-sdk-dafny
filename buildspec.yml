@@ -24,7 +24,7 @@ phases:
       - cp -r z3* dafny/Binaries/z3
       - cd aws-encryption-sdk-dafny
       # Check AWS config
-      - aws kms generate-data-key --key-id "arn:aws:kms:us-west-2:658956600833:key/b3537ef1-d8dc-4780-9f5a-55776cbb2f7f" --region "us-west-2" --key-spec AES_256
+      - aws configure get default.aws_access_key_id
   build:
     commands:
       - make release
