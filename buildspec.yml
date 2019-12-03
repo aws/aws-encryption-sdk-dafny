@@ -6,6 +6,7 @@ phases:
     commands:
       - cd ..
       - yum install -y nuget
+      - yum install -y which
       - pip install --no-cache-dir lit OutputCheck pyyaml
       - mozroots --import --sync
       # Get Boogie
