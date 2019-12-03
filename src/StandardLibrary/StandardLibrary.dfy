@@ -352,4 +352,25 @@ module {:extern "STL"} StandardLibrary {
         assert LexicographicLessOrEqualAux(b, a, less, m);
     }
   }
+
+  function method Filter<T>(s: seq<T>, f: T -> bool): seq<T>
+    ensures forall i :: 0 <= i < |s| && f(s[i]) ==> s[i] in Filter(s, f)
+    ensures forall i :: 0 <= i < |Filter(s,f)| ==> Filter(s,f)[i] in s
+  {
+    if |s| == 0 then []
+    else if f(s[0]) then ([s[0]] + Filter(s[1..], f))
+    else Filter(s[1..], f)
+  }
+
+  lemma FilterIsDistributive<T>(s: seq<T>, s': seq<T>, f: T -> bool)
+    ensures Filter(s+s', f) == Filter(s,f) + Filter(s',f)
+  {
+    if s == [] {
+      assert s + s' == s';
+    } else {
+      FilterIsDistributive<T>(s[1..], s', f);
+      assert s + s' == [s[0]] + (s[1..] + s');
+      assert Filter(s+s', f) == Filter(s,f) + Filter(s',f);
+    }
+  }
 }
