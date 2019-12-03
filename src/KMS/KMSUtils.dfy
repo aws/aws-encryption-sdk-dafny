@@ -11,9 +11,9 @@ module {:extern "KMSUtils"} KMSUtils {
 
   const MAX_GRANT_TOKENS := 10
 
-  //FIXME: Figure out why this keeps timing out.
-  type CustomerMasterKey = s: string | ValidFormatCMK(s) witness "alias/ExampleAlias"
-  //type CustomerMasterKey = string
+  //FIXME: Ideally, we would use this restrictive subtype definition. Right now though, it results in verification timeouts.
+  //type CustomerMasterKey = s: string | ValidFormatCMK(s) witness "alias/ExampleAlias"
+  type CustomerMasterKey = string
 
   predicate method ValidFormatCMK(cmk: string) {
     ValidFormatCMKKeyARN(cmk) || ValidFormatCMKAlias(cmk) || ValidFormatCMKAliasARN(cmk)
