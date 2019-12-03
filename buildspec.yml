@@ -23,6 +23,8 @@ phases:
       - unzip z3*.zip && rm *.zip
       - cp -r z3* dafny/Binaries/z3
       - cd aws-encryption-sdk-dafny
+      # Check AWS config
+      - aws configure list
   build:
     commands:
       - make release
