@@ -32,7 +32,7 @@ module TestRSAKeyring {
     var keyIDs := new [][child2Keyring];
     var multiKeyring := new MultiKeyringDef.MultiKeyring(child1Keyring, keyIDs);
 
-    var res := multiKeyring.OnEncrypt(AlgorithmSuite.AES_256_GCM_IV12_TAG16_HKDF_SHA384_ECDSA_P384, encryptionContext, None);
+    var onEncryptResult := multiKeyring.OnEncrypt(AlgorithmSuite.AES_256_GCM_IV12_TAG16_HKDF_SHA384_ECDSA_P384, encryptionContext, None);
     if onEncryptResult.Failure? || onEncryptResult.value.None? || |onEncryptResult.value.get.encryptedDataKeys| != 2 {
       print "NOT CORRECT\n";
       return;
