@@ -21,7 +21,9 @@ module TestRSAKeyring {
   const name := UTF8.Encode("test Name").value;
   const namespace := UTF8.Encode("test Namespace").value;
 
-  method TestOnEncryptOnDecryptGenerateDataKey(rawRSAKeyring: RawRSAKeyringDef.RawRSAKeyring) {
+  method TestOnEncryptOnDecryptGenerateDataKey(rawRSAKeyring: RawRSAKeyringDef.RawRSAKeyring) 
+    requires rawRSAKeyring.Valid()
+  {
     var keyA, valA := UTF8.Encode("keyA").value, UTF8.Encode("valA").value;
     var encryptionContext := [(keyA, valA)];
     var onEncryptResult := rawRSAKeyring.OnEncrypt(AlgorithmSuite.AES_256_GCM_IV12_TAG16_HKDF_SHA384_ECDSA_P384, encryptionContext, None);
@@ -41,7 +43,9 @@ module TestRSAKeyring {
     }
   }
 
-  method TestOnEncryptOnDecryptSuppliedDataKey(rawRSAKeyring: RawRSAKeyringDef.RawRSAKeyring) {
+  method TestOnEncryptOnDecryptSuppliedDataKey(rawRSAKeyring: RawRSAKeyringDef.RawRSAKeyring)
+    requires rawRSAKeyring.Valid()
+  {
     var keyA, valA := UTF8.Encode("keyA").value, UTF8.Encode("valA").value;
     var encryptionContext := [(keyA, valA)];
     var pdk := seq(32, i => 0);

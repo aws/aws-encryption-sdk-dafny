@@ -21,7 +21,9 @@ module TestAESKeyring {
   const name := UTF8.Encode("test Name").value;
   const namespace := UTF8.Encode("test Namespace").value;
 
-  method TestOnEncryptOnDecryptGenerateDataKey(rawAESKeyring: RawAESKeyring.RawAESKeyring) {
+  method TestOnEncryptOnDecryptGenerateDataKey(rawAESKeyring: RawAESKeyring.RawAESKeyring)
+    requires rawAESKeyring.Valid()
+  {
     var keyA, valA := UTF8.Encode("keyA").value, UTF8.Encode("valA").value;
     var encryptionContext := [(keyA, valA)];
     var onEncryptResult := rawAESKeyring.OnEncrypt(AlgorithmSuite.AES_256_GCM_IV12_TAG16_HKDF_SHA384_ECDSA_P384, encryptionContext, None);
@@ -41,7 +43,9 @@ module TestAESKeyring {
     }
   }
 
-  method TestOnEncryptOnDecryptSuppliedDataKey(rawAESKeyring: RawAESKeyring.RawAESKeyring) {
+  method TestOnEncryptOnDecryptSuppliedDataKey(rawAESKeyring: RawAESKeyring.RawAESKeyring)
+    requires rawAESKeyring.Valid()
+  {
     var keyA, valA := UTF8.Encode("keyA").value, UTF8.Encode("valA").value;
     var encryptionContext := [(keyA, valA)];
     var pdk := seq(32, i => 0);
