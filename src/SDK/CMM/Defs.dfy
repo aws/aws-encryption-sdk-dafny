@@ -23,7 +23,7 @@ module CMMDefs {
       requires Valid()
       requires ValidAAD(encCtx) && Materials.GetKeysFromEncryptionContext(encCtx) !! Materials.ReservedKeyValues
       ensures Valid()
-      ensures res.Success? ==> |res.value.dataKeyMaterials.plaintextDataKey| == res.value.dataKeyMaterials.algorithmSuiteID.KDFInputKeyLength()
+      ensures res.Success? ==> res.value.dataKeyMaterials.algorithmSuiteID.ValidPlaintextDataKey(res.value.dataKeyMaterials.plaintextDataKey)
       ensures res.Success? ==> |res.value.dataKeyMaterials.encryptedDataKeys| > 0
       ensures res.Success? ==> ValidAAD(res.value.encryptionContext)
       ensures res.Success? ==>
@@ -46,8 +46,7 @@ module CMMDefs {
       requires |edks| > 0
       requires Valid()
       ensures Valid()
-      ensures res.Success? ==>
-        |res.value.plaintextDataKey| == res.value.algorithmSuiteID.KeyLength()
+      ensures res.Success? ==> res.value.algorithmSuiteID.ValidPlaintextDataKey(res.value.plaintextDataKey)
       ensures res.Success? && res.value.algorithmSuiteID.SignatureType().Some? ==> res.value.verificationKey.Some?
   }
 }

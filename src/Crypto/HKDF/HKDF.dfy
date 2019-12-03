@@ -69,11 +69,13 @@ module HKDF {
     s := s + TiArr[..];
 
     var i := 1;
+
+    // The following invariant simplifies the proof obligation needed to establish the precondition of Arrays.Array.copyTo
+    // Before adding it, z3's outcome was unstable
+    // TODO: Identify a way to make this less brittle (https://github.com/awslabs/aws-encryption-sdk-dafny/issues/99)
+    assert hmac.getMacSize() + (n-1)*TiArr.Length == a.Length;
     while i < n
       invariant 1 <= i <= n
-      // The following invariant simplifies the proof obligation needed to establish the precondition of Arrays.Array.copyTo
-      // Before adding it, z3's outcome was unstable
-      invariant i*hmac.getMacSize() <= a.Length
       invariant TiArr.Length == HashLength(which_sha)
       invariant TiArr[..] == Ti(which_sha, prk[..], info[..], i)[..]
       invariant HashLength(which_sha) <= prk.Length
