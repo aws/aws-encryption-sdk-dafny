@@ -10,6 +10,10 @@ phases:
       - yum install -y which
       - pip install --no-cache-dir lit OutputCheck pyyaml
       - mozroots --import --sync
+      # Check AWS config
+      - aws configure list
+      - aws configure get default.aws_access_key_id
+      - echo $AWS_CONTAINER_CREDENTIALS_RELATIVE_URI
       # Get Boogie
       - git clone https://github.com/boogie-org/boogie.git
       - nuget restore boogie/Source/Boogie.sln
@@ -23,8 +27,6 @@ phases:
       - unzip z3*.zip && rm *.zip
       - cp -r z3* dafny/Binaries/z3
       - cd aws-encryption-sdk-dafny
-      # Check AWS config
-      - aws configure get default.aws_access_key_id
   build:
     commands:
       - make release
