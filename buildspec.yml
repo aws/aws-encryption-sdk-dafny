@@ -12,8 +12,8 @@ phases:
       - mozroots --import --sync
       # Check AWS config
       - aws configure list
-      - aws configure get default.aws_access_key_id
       - echo $AWS_CONTAINER_CREDENTIALS_RELATIVE_URI
+      - aws configure get default.aws_access_key_id
       # Get Boogie
       - git clone https://github.com/boogie-org/boogie.git
       - nuget restore boogie/Source/Boogie.sln
