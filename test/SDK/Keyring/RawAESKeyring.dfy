@@ -24,9 +24,10 @@ module TestAESKeyring {
   method TestOnEncryptOnDecryptGenerateDataKey(rawAESKeyring: RawAESKeyring.RawAESKeyring) {
     var keyA, valA := UTF8.Encode("keyA").value, UTF8.Encode("valA").value;
     var encryptionContext := [(keyA, valA)];
-    var res := rawAESKeyring.OnEncrypt(AlgorithmSuite.AES_256_GCM_IV12_TAG16_HKDF_SHA384_ECDSA_P384, encryptionContext, None);
+    var onEncryptResult := rawAESKeyring.OnEncrypt(AlgorithmSuite.AES_256_GCM_IV12_TAG16_HKDF_SHA384_ECDSA_P384, encryptionContext, None);
     if onEncryptResult.Failure? || onEncryptResult.value.None? || |onEncryptResult.value.get.encryptedDataKeys| != 1 {
       print "NOT CORRECT\n";
+      return;
     }
 
     var pdk := onEncryptResult.value.get.plaintextDataKey;
