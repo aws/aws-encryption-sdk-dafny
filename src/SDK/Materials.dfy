@@ -108,6 +108,26 @@ module Materials {
     r
   }
 
+  datatype OnDecryptResult = OnDecryptResult(algorithmSuiteID: AlgorithmSuite.ID,
+                                             plaintextDataKey: seq<uint8>,
+                                             keyringTrace: seq<KeyringTraceEntry>)
+  {
+    predicate Valid() {
+      && algorithmSuiteID.ValidPlaintextDataKey(plaintextDataKey)
+      && (forall entry :: entry in keyringTrace ==> entry.flags <= ValidDecryptionMaterialFlags)
+    }
+
+    static function method ValidWitness(): OnDecryptResult {
+      var pdk := seq(32, i => 0);
+      var entry := KeyringTraceEntry([], [], {DECRYPTED_DATA_KEY});
+      var r := OnDecryptResult(AlgorithmSuite.AES_256_GCM_IV12_TAG16_HKDF_SHA384_ECDSA_P384,
+                      pdk, [entry]);
+      r
+    }
+  }
+
+  type ValidOnDecryptResult = i: OnDecryptResult | i.Valid() witness OnDecryptResult.ValidWitness()
+
   datatype EncryptionMaterials = EncryptionMaterials(encryptionContext: EncryptionContext,
                                                      dataKeyMaterials: ValidDataKeyMaterials,
                                                      signingKey: Option<seq<uint8>>)

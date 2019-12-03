@@ -76,10 +76,7 @@ module MultiKeyringDef {
             while i < children.Length
                 invariant algorithmSuiteID == resultMaterials.algorithmSuiteID
                 invariant plaintextDataKey.Some? ==> plaintextDataKey.get == resultMaterials.plaintextDataKey
-                invariant
-                    var generateTraces := Filter(resultMaterials.keyringTrace, Mat.IsGenerateTraceEntry);
-                    && (plaintextDataKey.Some? ==> |generateTraces| == 0)
-                    && (plaintextDataKey.None? ==> |generateTraces| == 1);
+                invariant |Filter(resultMaterials.keyringTrace, Mat.IsGenerateTraceEntry)| == if plaintextDataKey.None? then 1 else 0
                 decreases children.Length - i 
             {
                 var childResult :- children[i].OnEncrypt(resultMaterials.algorithmSuiteID, encryptionContext, Some(resultMaterials.plaintextDataKey));
@@ -93,7 +90,7 @@ module MultiKeyringDef {
         }
         method OnDecrypt(algorithmSuiteID: AlgorithmSuite.ID,
                          encryptionContext: Mat.EncryptionContext,
-                         edks: seq<Mat.EncryptedDataKey>) returns (res: Result<Option<KeyringDefs.ValidOnDecryptResult>>)
+                         edks: seq<Mat.EncryptedDataKey>) returns (res: Result<Option<Materials.ValidOnDecryptResult>>)
             requires Valid()
             ensures Valid()
             ensures |edks| == 0 ==> res.Success? && res.value.None?
@@ -124,7 +121,7 @@ module MultiKeyringDef {
                                     algorithmSuiteID: AlgorithmSuite.ID,
                                     encryptionContext: Mat.EncryptionContext,
                                     edks: seq<Mat.EncryptedDataKey>)
-            returns (res: Option<KeyringDefs.ValidOnDecryptResult>)
+            returns (res: Option<Mat.ValidOnDecryptResult>)
             requires Valid()
             requires keyring.Valid()
             ensures Valid()

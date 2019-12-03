@@ -9,26 +9,6 @@ module KeyringDefs {
   import Materials
   import AlgorithmSuite
 
-  datatype OnDecryptResult = OnDecryptResult(algorithmSuiteID: AlgorithmSuite.ID,
-                                             plaintextDataKey: seq<uint8>,
-                                             keyringTrace: seq<Materials.KeyringTraceEntry>)
-  {
-    predicate Valid() {
-      && algorithmSuiteID.ValidPlaintextDataKey(plaintextDataKey)
-      && (forall entry :: entry in keyringTrace ==> entry.flags <= Materials.ValidDecryptionMaterialFlags)
-    }
-
-    static function method ValidWitness(): OnDecryptResult {
-      var pdk := seq(32, i => 0);
-      var entry := Materials.KeyringTraceEntry([], [], {Materials.DECRYPTED_DATA_KEY});
-      var r := OnDecryptResult(AlgorithmSuite.AES_256_GCM_IV12_TAG16_HKDF_SHA384_ECDSA_P384,
-                      pdk, [entry]);
-      r
-    }
-  }
-
-  type ValidOnDecryptResult = i: OnDecryptResult | i.Valid() witness OnDecryptResult.ValidWitness()
-
   trait {:termination false} Keyring {
     ghost var Repr : set<object>
     predicate Valid() reads this, Repr
@@ -49,7 +29,7 @@ module KeyringDefs {
 
     method OnDecrypt(algorithmSuiteID: AlgorithmSuite.ID,
                      encryptionContext: Materials.EncryptionContext,
-                     edks: seq<Materials.EncryptedDataKey>) returns (res: Result<Option<ValidOnDecryptResult>>)
+                     edks: seq<Materials.EncryptedDataKey>) returns (res: Result<Option<Materials.ValidOnDecryptResult>>)
       requires Valid()
       ensures Valid()
       ensures |edks| == 0 ==> res.Success? && res.value.None?

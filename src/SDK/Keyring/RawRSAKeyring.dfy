@@ -62,6 +62,7 @@ module RawRSAKeyringDef {
       requires Valid()
       requires plaintextDataKey.Some? ==> algorithmSuiteID.ValidPlaintextDataKey(plaintextDataKey.get)
       ensures Valid()
+      ensures unchanged(Repr)
       ensures res.Success? && res.value.Some? ==> 
         algorithmSuiteID == res.value.get.algorithmSuiteID
       ensures res.Success? && res.value.Some? && plaintextDataKey.Some? ==> 
@@ -104,7 +105,7 @@ module RawRSAKeyringDef {
 
     method OnDecrypt(algorithmSuiteID: AlgorithmSuite.ID, 
                      encryptionContext: Materials.EncryptionContext, 
-                     edks: seq<Materials.EncryptedDataKey>) returns (res: Result<Option<KeyringDefs.ValidOnDecryptResult>>)
+                     edks: seq<Materials.EncryptedDataKey>) returns (res: Result<Option<Materials.ValidOnDecryptResult>>)
       requires Valid() 
       ensures Valid()
       ensures |edks| == 0 ==> res.Success? && res.value.None?
@@ -132,7 +133,7 @@ module RawRSAKeyringDef {
           case Some(k) =>
             if algorithmSuiteID.ValidPlaintextDataKey(k) { // check for correct key length
               var decryptTraceEntry := Materials.KeyringTraceEntry(keyNamespace, keyName, {Materials.DECRYPTED_DATA_KEY, Materials.VERIFIED_ENCRYPTION_CONTEXT});
-              return Success(Some(KeyringDefs.OnDecryptResult(algorithmSuiteID, k, [decryptTraceEntry])));
+              return Success(Some(Materials.OnDecryptResult(algorithmSuiteID, k, [decryptTraceEntry])));
             } else {
               return Failure(("Bad key length!"));
             }
