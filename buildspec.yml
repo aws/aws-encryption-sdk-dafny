@@ -5,6 +5,7 @@ phases:
       dotnet: 2.2
     commands:
       - cd ..
+      - yum install -y which
       - yum install -y nuget
       - pip install --no-cache-dir lit OutputCheck pyyaml
       - mozroots --import --sync
