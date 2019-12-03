@@ -2,9 +2,10 @@ version: 0.2
 phases:
   install:
     runtime-versions:
-      dotnet: 2.2
+      dotnet: 3.0
     commands:
       - cd ..
+      - yum install -y which
       - yum install -y nuget
       - yum install -y which
       - pip install --no-cache-dir lit OutputCheck pyyaml
