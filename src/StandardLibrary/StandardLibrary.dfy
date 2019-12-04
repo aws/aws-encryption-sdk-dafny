@@ -66,6 +66,37 @@ module {:extern "STL"} StandardLibrary {
     if i.Some? then [s[..i.get]] + Split(s[i.get+1..], delim) else [s]
   }
 
+  lemma AboutSplit0<T>(s: seq<T>, delim: T, head: seq<T>)
+    requires head < s  // head is a prefix of s
+    requires delim !in head && s[|head|] == delim
+    ensures Split(s, delim) == [head] + Split(s[|head|+1..], delim)
+  {
+    calc {
+      Split(s, delim);
+    ==  // def. Split
+      var i := Find(s, delim, 0);
+      if i.Some? then [s[..i.get]] + Split(s[i.get+1..], delim) else [s];
+    ==  { AboutFind(s, delim, 0, |head|); }
+      [s[..|head|]] + Split(s[|head|+1..], delim);
+    ==  { assert s[..|head|] == head; }
+      [head] + Split(s[|head|+1..], delim);
+    }
+  }
+
+  lemma AboutSplit1<T>(s: seq<T>, delim: T)
+    requires delim !in s
+    ensures Split(s, delim) == [s]
+  {
+    calc {
+      Split(s, delim);
+    ==  // def. Split
+      var i := Find(s, delim, 0);
+      if i.Some? then [s[..i.get]] + Split(s[i.get+1..], delim) else [s];
+    ==  { AboutFind(s, delim, 0, |s|); }
+      [s];
+    }
+  }
+
   function method Find<T(==)>(s: seq<T>, c: T, i: nat): (index: Option<nat>)
     requires i <= |s|
     ensures index.Some? ==> i <= index.get
@@ -77,6 +108,15 @@ module {:extern "STL"} StandardLibrary {
     if i == |s| then None
     else if s[i] == c then Some(i)
     else Find(s, c, i + 1)
+  }
+
+  lemma AboutFind<T>(s: seq<T>, c: T, start: nat, hereItIs: nat)
+    requires start <= hereItIs <= |s|
+    requires forall i :: start <= i < hereItIs ==> s[i] != c
+    requires hereItIs == |s| || s[hereItIs] == c
+    ensures Find(s, c, start) == if hereItIs == |s| then None else Some(hereItIs)
+    decreases hereItIs - start
+  {
   }
 
   predicate StringIs8Bit(s: string) {
