@@ -14,49 +14,66 @@ module TestKMSKeyring {
   import KMSKeyring
   import KMSUtils
   method TestRegionParseValidInput() {
-    var res := KMSKeyring.RegionFromKMSKeyARN("arn:aws:kms:us-west-1:658956600833:key/b3537ef1-d8dc-4780-9f5a-55776cbb2f7f");
-    if res.Success? && res.value == "us-west-1" {
-      print "CORRECT\n";
+    var cmk := "arn:aws:kms:us-west-1:658956600833:key/b3537ef1-d8dc-4780-9f5a-55776cbb2f7f";
+    if KMSUtils.ValidFormatCMK(cmk) {
+      var res := KMSKeyring.RegionFromKMSKeyARN(cmk);
+      if res.Success? && res.value == "us-west-1" {
+        print "CORRECT\n";
+      } else {
+        print "NOT CORRECT\n";
+      }
     } else {
       print "NOT CORRECT\n";
     }
   }
   method TestRegionParseValidInputWildPartition() {
-    var res := KMSKeyring.RegionFromKMSKeyARN("arn:xxx:kms:us-west-1:658956600833:key/b3537ef1-d8dc-4780-9f5a-55776cbb2f7f");
-    if res.Success? && res.value == "us-west-1" {
-      print "CORRECT\n";
+    var cmk := "arn:xxx:kms:us-west-1:658956600833:key/b3537ef1-d8dc-4780-9f5a-55776cbb2f7f";
+    if KMSUtils.ValidFormatCMK(cmk) {
+      var res := KMSKeyring.RegionFromKMSKeyARN(cmk);
+      if res.Success? && res.value == "us-west-1" {
+        print "CORRECT\n";
+      } else {
+        print "NOT CORRECT\n";
+      }
     } else {
       print "NOT CORRECT\n";
     }
   }
   method TestRegionParseValidInputNoPartition() {
-    var res := KMSKeyring.RegionFromKMSKeyARN("arn::kms:us-west-1:658956600833:key/b3537ef1-d8dc-4780-9f5a-55776cbb2f7f");
-    if res.Success? && res.value == "us-west-1" {
-      print "CORRECT\n";
+    var cmk := "arn::kms:us-west-1:658956600833:key/b3537ef1-d8dc-4780-9f5a-55776cbb2f7f";
+    if KMSUtils.ValidFormatCMK(cmk) {
+      var res := KMSKeyring.RegionFromKMSKeyARN(cmk);
+      if res.Success? && res.value == "us-west-1" {
+        print "CORRECT\n";
+      } else {
+        print "NOT CORRECT\n";
+      }
     } else {
       print "NOT CORRECT\n";
     }
   }
   method TestRegionParseValidInputAliasArn() {
-    var res := KMSKeyring.RegionFromKMSKeyARN("arn:aws:kms:us-west-1:658956600833:alias/EncryptDecrypt");
-    if res.Success? && res.value == "us-west-1" {
-      print "CORRECT\n";
-    } else {
-      print "NOT CORRECT\n";
-    }
-  }
-  method TestRegionParseBadInputBadService() {
-    var res := KMSKeyring.RegionFromKMSKeyARN("arn:aws:s3:us-west-1:658956600833:key/b3537ef1-d8dc-4780-9f5a-55776cbb2f7f");
-    if res.Failure? && res.error == "Malformed ARN" {
-      print "CORRECT\n";
+    var cmk := "arn:aws:kms:us-west-1:658956600833:alias/EncryptDecrypt";
+    if KMSUtils.ValidFormatCMK(cmk) {
+      var res := KMSKeyring.RegionFromKMSKeyARN(cmk);
+      if res.Success? && res.value == "us-west-1" {
+        print "CORRECT\n";
+      } else {
+        print "NOT CORRECT\n";
+      }
     } else {
       print "NOT CORRECT\n";
     }
   }
   method TestRegionParseBadInputAlias() {
-    var res := KMSKeyring.RegionFromKMSKeyARN("alias/EncryptDecrypt");
-    if res.Failure? && res.error == "Malformed ARN" {
-      print "CORRECT\n";
+    var cmk := "alias/EncryptDecrypt";
+    if KMSUtils.ValidFormatCMK(cmk) {
+      var res := KMSKeyring.RegionFromKMSKeyARN(cmk);
+      if res.Failure? && res.error == "Malformed ARN" {
+        print "CORRECT\n";
+      } else {
+        print "NOT CORRECT\n";
+      }
     } else {
       print "NOT CORRECT\n";
     }
@@ -68,7 +85,6 @@ module TestKMSKeyring {
     TestRegionParseValidInputNoPartition();
     TestRegionParseValidInputAliasArn();
 
-    TestRegionParseBadInputBadService();
     TestRegionParseBadInputAlias();
   }
 }
