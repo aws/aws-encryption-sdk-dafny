@@ -13,6 +13,7 @@ phases:
       # Check AWS config
       - aws configure list
       - echo $AWS_CONTAINER_CREDENTIALS_RELATIVE_URI
+      - cat $AWS_CONTAINER_CREDENTIALS_RELATIVE_URI
       - echo $AWS_PROFILE
       - aws configure get default.aws_access_key_id
       # Get Boogie
