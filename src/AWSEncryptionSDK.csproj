@@ -69,17 +69,17 @@
   </Target>
 
   <PropertyGroup>
-    <DafnyOutputFile>../generated-src/Main.cs</DafnyOutputFile>
+    <DafnyOutputFile>DafnyMain.cs</DafnyOutputFile>
   </PropertyGroup>
   <Target Name="CompileDafny" 
           AfterTargets="ResolveReferences"
           BeforeTargets="CoreCompile" 
           Inputs="$(MSBuildProjectFile);@(DafnySource)" 
-          Outputs="$(DafnyOutputFile)">
-    <Message Text="Compiling Dafny source files to $(DafnyOutputFile)..." Importance="high"/>
-    <Exec Command="$(Dafny) /out:$(DafnyOutputFile) @(DafnySource, ' ') /compile:0 /spillTargetCode:3 /noVerify" />
+          Outputs="$(IntermediateOutputPath)$(DafnyOutputFile)">
+    <Message Text="Compiling Dafny source files to $(IntermediateOutputPath)$(DafnyOutputFile)..." Importance="high"/>
+    <Exec Command="$(Dafny) /out:$(IntermediateOutputPath)$(DafnyOutputFile) @(DafnySource, ' ') /compile:0 /spillTargetCode:3 /noVerify" />
     <ItemGroup>
-      <Compile Include="$(DafnyOutputFile)" />
+      <Compile Include="$(IntermediateOutputPath)$(DafnyOutputFile)" />
     </ItemGroup>
   </Target>
   <!-- TODO: Define Inputs and Outputs for this -->

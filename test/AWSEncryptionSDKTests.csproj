@@ -19,8 +19,8 @@
     TODO: We should be able to just reference the source project, but that doesn't work
     well for Dafny yet: external C# code will be compiled and referrable, but the way we
     are currently writing external code requires that the external C# code is actually compiled
-    together with the C# code generated from Dafny. For now we just inline the referenced project's
-    source and dependencies.
+    together with the C# code generated from Dafny at the same time. 
+    For now we just inline the referenced project's source and dependencies.
 
   <ItemGroup>
     <ProjectReference Include="../src/AWSEncryptionSDK.csproj" />
@@ -30,7 +30,7 @@
     <DafnySource Include="../src/**/*.dfy" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="../src/**/*.cs" />
+    <Compile Include="../src/**/*.cs" Exclude="../src/obj/**/*.cs"/>
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="Portable.BouncyCastle" Version="1.8.5.2" />
@@ -48,17 +48,13 @@
   </PropertyGroup>
 
   <PropertyGroup>
-    <DafnyOutputFile>../generated-test/Main.cs</DafnyOutputFile>
+    <DafnyOutputFile>DafnyMain.cs</DafnyOutputFile>
   </PropertyGroup>
-  <Target Name="CompileDafny" 
-          AfterTargets="ResolveReferences"
-          BeforeTargets="CoreCompile"
-          Inputs="$(MSBuildProjectFile);@(DafnySource)" 
-          Outputs="$(DafnyOutputFile)">
-    <Message Text="Compiling Dafny source files to $(DafnyOutputFile)..." Importance="high"/>
-    <Exec Command="$(Dafny) /out:$(DafnyOutputFile) @(DafnySource, ' ') /compile:0 /spillTargetCode:3 /noVerify" />
+  <Target Name="CompileDafny" AfterTargets="ResolveReferences" BeforeTargets="CoreCompile" Inputs="$(MSBuildProjectFile);@(DafnySource)" Outputs="$(IntermediateOutputPath)/$(DafnyOutputFile)">
+    <Message Text="Compiling Dafny source files to $(IntermediateOutputPath)/$(DafnyOutputFile)..." Importance="high" />
+    <Exec Command="$(Dafny) /out:$(IntermediateOutputPath)/$(DafnyOutputFile) @(DafnySource, ' ') /compile:0 /spillTargetCode:3 /noVerify" />
     <ItemGroup>
-      <Compile Include="$(DafnyOutputFile)" />
+      <Compile Include="$(IntermediateOutputPath)/$(DafnyOutputFile)" />
     </ItemGroup>
   </Target>
 </Project>
