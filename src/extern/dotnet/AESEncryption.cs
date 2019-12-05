@@ -26,7 +26,7 @@ namespace AESEncryption {
                 byte[] c = new byte[cipher.GetOutputSize(msg.Elements.Length)];
                 var len = cipher.ProcessBytes(msg.Elements, 0, msg.Elements.Length, c, 0);
                 cipher.DoFinal(c, len); //Append authentication tag to `c`
-                return new STL.Result_Success<EncryptionOutput>(__default.EncryptionOutputFromByteSeq(byteseq.FromElements(c), encAlg));
+                return new STL.Result_Success<EncryptionOutput>(__default.EncryptionOutputFromByteSeq(byteseq.FromArray(c), encAlg));
             }
             catch {
                 return new STL.Result_Failure<EncryptionOutput>(charseq.FromArray("aes encrypt err".ToCharArray()));
