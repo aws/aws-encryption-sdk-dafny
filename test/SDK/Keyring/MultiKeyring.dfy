@@ -1,8 +1,3 @@
-// RUN: %dafny /out:Output/MultiKeyring.exe "./MultiKeyring.dfy" ../../../src/extern/dotnet/UTF8.cs ../../../src/extern/dotnet/Random.cs ../../../src/extern/dotnet/AESEncryption.cs ../%bclib /compile:2
-// RUN: cp ../%bclib Output/
-// RUN: %mono ./Output/MultiKeyring.exe > "%t"
-// RUN: %diff "%s.expect" "%t"
-
 include "../../../src/SDK/Keyring/MultiKeyring.dfy"
 include "../../../src/SDK/Keyring/RawAESKeyring.dfy"
 include "../../../src/SDK/AlgorithmSuite.dfy"
@@ -11,7 +6,7 @@ include "../../../src/StandardLibrary/StandardLibrary.dfy"
 include "../../../src/StandardLibrary/UInt.dfy"
 include "../../../src/Util/UTF8.dfy"
 
-module TestRSAKeyring {
+module TestMultiKeying {
   import opened StandardLibrary
   import opened UInt = StandardLibrary.UInt
   import RawAESKeyring
@@ -23,7 +18,7 @@ module TestRSAKeyring {
   const name := UTF8.Encode("test Name").value;
   const namespace := UTF8.Encode("test Namespace").value;
 
-  method TestOnEncryptOnDecryptWithGenerator() {
+  method {:test} TestOnEncryptOnDecryptWithGenerator() returns (r: Result<()>) {
     // TODO: mock children keyrings
     var keyA, valA := UTF8.Encode("keyA").value, UTF8.Encode("valA").value;
     var encryptionContext := [(keyA, valA)];
@@ -32,32 +27,21 @@ module TestRSAKeyring {
     var keyIDs := new [][child2Keyring];
     var multiKeyring := new MultiKeyringDef.MultiKeyring(child1Keyring, keyIDs);
 
-    var onEncryptResult := multiKeyring.OnEncrypt(AlgorithmSuite.AES_256_GCM_IV12_TAG16_HKDF_SHA384_ECDSA_P384, encryptionContext, None);
-    if onEncryptResult.Failure? || onEncryptResult.value.None? || |onEncryptResult.value.get.encryptedDataKeys| != 2 {
-      print "NOT CORRECT\n";
-      return;
-    }
+    var onEncryptResult :- multiKeyring.OnEncrypt(AlgorithmSuite.AES_256_GCM_IV12_TAG16_HKDF_SHA384_ECDSA_P384, encryptionContext, None);
+    var _ :- Require(onEncryptResult.Some? && |onEncryptResult.get.encryptedDataKeys| == 2);
 
-    var pdk := onEncryptResult.value.get.plaintextDataKey;
-    var edk1 := onEncryptResult.value.get.encryptedDataKeys[0];
-    var edk2 := onEncryptResult.value.get.encryptedDataKeys[1];
+    var pdk := onEncryptResult.get.plaintextDataKey;
+    var edk1 := onEncryptResult.get.encryptedDataKeys[0];
+    var edk2 := onEncryptResult.get.encryptedDataKeys[1];
 
-    var res := multiKeyring.OnDecrypt(AlgorithmSuite.AES_256_GCM_IV12_TAG16_HKDF_SHA384_ECDSA_P384, encryptionContext, [edk1]);
-    if res.Success? && res.value.Some? && res.value.get.plaintextDataKey == pdk {
-      print "CORRECT\n";
-    } else {
-      print "NOT CORRECT\n";
-    }
+    var res :- multiKeyring.OnDecrypt(AlgorithmSuite.AES_256_GCM_IV12_TAG16_HKDF_SHA384_ECDSA_P384, encryptionContext, [edk1]);
+    var _ :- Require(res.Some? && res.get.plaintextDataKey == pdk);
 
-    res := multiKeyring.OnDecrypt(AlgorithmSuite.AES_256_GCM_IV12_TAG16_HKDF_SHA384_ECDSA_P384, encryptionContext, [edk2]);
-    if res.Success? && res.value.Some? && res.value.get.plaintextDataKey == pdk {
-      print "CORRECT\n";
-    } else {
-      print "NOT CORRECT\n";
-    }
+    res :- multiKeyring.OnDecrypt(AlgorithmSuite.AES_256_GCM_IV12_TAG16_HKDF_SHA384_ECDSA_P384, encryptionContext, [edk2]);
+    r := Require(res.Some? && res.get.plaintextDataKey == pdk);
   }
 
-  method TestOnEncryptOnDecryptWithoutGenerator() {
+  method {:test} TestOnEncryptOnDecryptWithoutGenerator() returns (r: Result<()>) {
     // TODO: mock children keyrings and move encrypt <-> decrypt test into new test
     var keyA, valA := UTF8.Encode("keyA").value, UTF8.Encode("valA").value;
     var encryptionContext := [(keyA, valA)];
@@ -68,32 +52,16 @@ module TestRSAKeyring {
 
     var pdk := seq(32, i => 0);
 
-    var onEncryptResult := multiKeyring.OnEncrypt(AlgorithmSuite.AES_256_GCM_IV12_TAG16_HKDF_SHA384_ECDSA_P384, encryptionContext, Some(pdk));
-    if onEncryptResult.Failure? || onEncryptResult.value.None? || |onEncryptResult.value.get.encryptedDataKeys| != 2 {
-      print "NOT CORRECT\n";
-      return;
-    }
+    var onEncryptResult :- multiKeyring.OnEncrypt(AlgorithmSuite.AES_256_GCM_IV12_TAG16_HKDF_SHA384_ECDSA_P384, encryptionContext, Some(pdk));
+    var _ :- Require(onEncryptResult.Some? && |onEncryptResult.get.encryptedDataKeys| == 2);
 
-    var edk1 := onEncryptResult.value.get.encryptedDataKeys[0];
-    var edk2 := onEncryptResult.value.get.encryptedDataKeys[1];
+    var edk1 := onEncryptResult.get.encryptedDataKeys[0];
+    var edk2 := onEncryptResult.get.encryptedDataKeys[1];
 
-    var res := multiKeyring.OnDecrypt(AlgorithmSuite.AES_256_GCM_IV12_TAG16_HKDF_SHA384_ECDSA_P384, encryptionContext, [edk1]);
-    if res.Success? && res.value.Some? && res.value.get.plaintextDataKey == pdk {
-      print "CORRECT\n";
-    } else {
-      print "NOT CORRECT\n";
-    }
+    var res :- multiKeyring.OnDecrypt(AlgorithmSuite.AES_256_GCM_IV12_TAG16_HKDF_SHA384_ECDSA_P384, encryptionContext, [edk1]);
+    var _ :- Require(res.Some? && res.get.plaintextDataKey == pdk);
 
-    res := multiKeyring.OnDecrypt(AlgorithmSuite.AES_256_GCM_IV12_TAG16_HKDF_SHA384_ECDSA_P384, encryptionContext, [edk2]);
-    if res.Success? && res.value.Some? && res.value.get.plaintextDataKey == pdk {
-      print "CORRECT\n";
-    } else {
-      print "NOT CORRECT\n";
-    }
-  }
-
-  method Main() {
-    TestOnEncryptOnDecryptWithGenerator();
-    TestOnEncryptOnDecryptWithoutGenerator();
+    res :- multiKeyring.OnDecrypt(AlgorithmSuite.AES_256_GCM_IV12_TAG16_HKDF_SHA384_ECDSA_P384, encryptionContext, [edk2]);
+    r := Require(res.Some? && res.get.plaintextDataKey == pdk);
   }
 }

@@ -1,16 +1,16 @@
-include "../../../src/SDK/Keyring/RawRSAKeyring.dfy"
-include "../../../src/SDK/Materials.dfy"
-include "../../../src/StandardLibrary/StandardLibrary.dfy"
-include "../../../src/StandardLibrary/UInt.dfy"
-include "../../../src/SDK/CMM/Defs.dfy"
-include "../../../src/SDK/CMM/DefaultCMM.dfy"
-include "../../../src/SDK/Client.dfy"
-include "../../../src/SDK/MessageHeader.dfy"
-include "../../../src/Crypto/RSAEncryption.dfy"
-include "../../../src/Util/UTF8.dfy"
-include "../../../src/StandardLibrary/Base64.dfy"
+include "../../src/SDK/Keyring/RawRSAKeyring.dfy"
+include "../../src/SDK/Materials.dfy"
+include "../../src/StandardLibrary/StandardLibrary.dfy"
+include "../../src/StandardLibrary/UInt.dfy"
+include "../../src/SDK/CMM/Defs.dfy"
+include "../../src/SDK/CMM/DefaultCMM.dfy"
+include "../../src/SDK/Client.dfy"
+include "../../src/SDK/MessageHeader.dfy"
+include "../../src/Crypto/RSAEncryption.dfy"
+include "../../src/Util/UTF8.dfy"
+include "../../src/StandardLibrary/Base64.dfy"
 
-module {:extern "RSAKeyringTest"} RSAKeyringTest {
+module {:extern "TestClient"} TestClient {
   import opened StandardLibrary
   import opened UInt = StandardLibrary.UInt
   import CMMDefs

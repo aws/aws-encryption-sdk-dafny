@@ -4,13 +4,10 @@
     <OutputType>Library</OutputType>
     <TargetFramework>netcoreapp3.0</TargetFramework>
     <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
-    <!-- 
-    TODO: This is to avoid lots of warnings from the Dafny-generated code
-    for things like unused variables and unreachable code. It's unfortunate
-    that we then won't get these warnings for hand-written C# code either, though.
-     -->
-    <NoWarn>0164;0219;1717;0162;0168</NoWarn>
   </PropertyGroup>
+
+  <Import Project="../../dafny/Source/DafnyMSBuildTasks/build/DafnyMSBuildTasks.props" />
+  <Import Project="../../dafny/Source/DafnyMSBuildTasks/build/DafnyMSBuildTasks.targets" />
 
   <!--
     TODO: Temporary subset of files to build and verify.
@@ -18,6 +15,8 @@
     Eventually this can be a wildcard pattern.
   -->
   <ItemGroup>
+    <DafnySource Remove="@(DafnySource)" />
+
     <DafnySource Include="Crypto/AESEncryption.dfy" />
     <DafnySource Include="Crypto/EncryptionSuites.dfy" />
     <DafnySource Include="Crypto/Digests.dfy" />
@@ -48,42 +47,9 @@
     <DafnySource Include="Util/Streams.dfy" />
     <DafnySource Include="Util/UTF8.dfy" />
   </ItemGroup>
+  
   <ItemGroup>
     <PackageReference Include="Portable.BouncyCastle" Version="1.8.5.2" />
   </ItemGroup>
   
-  <!-- TODO: extract generic Dafny tasks that can be shared as part of Dafny itself -->
-  
-  <PropertyGroup>
-    <Dafny Condition="'$(OS)' == 'Windows_NT'">Dafny.exe</Dafny>
-    <Dafny Condition="'$(OS)' != 'Windows_NT'">dafny</Dafny>
-  </PropertyGroup>
-
-  <Target Name="Verify" 
-          Inputs="@(DafnySource)" 
-          Outputs="@(DafnySource->'obj/Verification/%(Identity).verified')">
-    <Message Text="Verifying %(DafnySource.Identity)..." Importance="high"/>
-    <Exec Command="$(Dafny) %(DafnySource.Identity) /compile:0"/>
-    <Exec Command="mkdir -p `dirname obj/Verification/%(DafnySource.Identity).verified`" />
-    <Exec Command="touch obj/Verification/%(DafnySource.Identity).verified" />
-  </Target>
-
-  <PropertyGroup>
-    <DafnyOutputFile>DafnyMain.cs</DafnyOutputFile>
-  </PropertyGroup>
-  <Target Name="CompileDafny" 
-          AfterTargets="ResolveReferences"
-          BeforeTargets="CoreCompile" 
-          Inputs="$(MSBuildProjectFile);@(DafnySource)" 
-          Outputs="$(IntermediateOutputPath)$(DafnyOutputFile)">
-    <Message Text="Compiling Dafny source files to $(IntermediateOutputPath)$(DafnyOutputFile)..." Importance="high"/>
-    <Exec Command="$(Dafny) /out:$(IntermediateOutputPath)$(DafnyOutputFile) @(DafnySource, ' ') /compile:0 /spillTargetCode:3 /noVerify" />
-    <ItemGroup>
-      <Compile Include="$(IntermediateOutputPath)$(DafnyOutputFile)" />
-    </ItemGroup>
-  </Target>
-  <!-- TODO: Define Inputs and Outputs for this -->
-  <Target Name="CompileDafnyToJS">
-    <Exec Command="$(Dafny) /out:build/Main @(DafnySource, ' ') /compile:2 /noVerify /noIncludes /compileTarget:js /spillTargetCode:1" />
-  </Target>
 </Project>

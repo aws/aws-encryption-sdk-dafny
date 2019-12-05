@@ -4,8 +4,6 @@
     <TargetFramework>netcoreapp3.0</TargetFramework>
     <IsPackable>false</IsPackable>
     <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
-    <!-- TODO: See comment in AWSEncryptionSDK.csproj -->
-    <NoWarn>0164;0219;1717;0162;0168</NoWarn>
   </PropertyGroup>
 
   <ItemGroup>
@@ -14,6 +12,9 @@
     <PackageReference Include="xunit.runner.visualstudio" Version="2.4.0" />
     <PackageReference Include="coverlet.collector" Version="1.0.1" />
   </ItemGroup>
+
+  <Import Project="../../dafny/Source/DafnyMSBuildTasks/build/DafnyMSBuildTasks.props" />
+  <Import Project="../../dafny/Source/DafnyMSBuildTasks/build/DafnyMSBuildTasks.targets" />
 
   <!-- 
     TODO: We should be able to just reference the source project, but that doesn't work
@@ -35,26 +36,5 @@
   <ItemGroup>
     <PackageReference Include="Portable.BouncyCastle" Version="1.8.5.2" />
   </ItemGroup>
-
-  <ItemGroup>
-    <DafnySource Include="**/*.dfy" />
-  </ItemGroup>
-
-  <!-- TODO: extract generic Dafny tasks that can be shared as part of Dafny itself -->
-
-  <PropertyGroup>
-    <Dafny Condition="'$(OS)' == 'Windows_NT'">Dafny.exe</Dafny>
-    <Dafny Condition="'$(OS)' != 'Windows_NT'">dafny</Dafny>
-  </PropertyGroup>
-
-  <PropertyGroup>
-    <DafnyOutputFile>DafnyMain.cs</DafnyOutputFile>
-  </PropertyGroup>
-  <Target Name="CompileDafny" AfterTargets="ResolveReferences" BeforeTargets="CoreCompile" Inputs="$(MSBuildProjectFile);@(DafnySource)" Outputs="$(IntermediateOutputPath)/$(DafnyOutputFile)">
-    <Message Text="Compiling Dafny source files to $(IntermediateOutputPath)/$(DafnyOutputFile)..." Importance="high" />
-    <Exec Command="$(Dafny) /out:$(IntermediateOutputPath)/$(DafnyOutputFile) @(DafnySource, ' ') /compile:0 /spillTargetCode:3 /noVerify" />
-    <ItemGroup>
-      <Compile Include="$(IntermediateOutputPath)/$(DafnyOutputFile)" />
-    </ItemGroup>
-  </Target>
+  
 </Project>
