@@ -80,13 +80,21 @@ module RawAESKeyring{
       ensures res.Success? && res.value.Some? ==>
         var generateTraces := Filter(res.value.get.keyringTrace, Mat.IsGenerateTraceEntry);
         |generateTraces| == if plaintextDataKey.None? then 1 else 0
+      ensures res.Success? && res.value.Some? ==>
+        if plaintextDataKey.None? then
+          && |res.value.get.keyringTrace| == 2
+          && res.value.get.keyringTrace[0] == GenerateTraceEntry()
+          && res.value.get.keyringTrace[1] == EncryptTraceEntry()
+        else
+          && |res.value.get.keyringTrace| == 1
+          && res.value.get.keyringTrace[0] == EncryptTraceEntry()
     {
       var keyringTrace := [];
       var plaintextDataKey := plaintextDataKey;
       if plaintextDataKey.None? {
         var k := Random.GenerateBytes(algorithmSuiteID.KeyLength() as int32);
         plaintextDataKey := Some(k);
-        var generateTraceEntry := Mat.KeyringTraceEntry(keyNamespace, keyName, {Mat.GENERATED_DATA_KEY});
+        var generateTraceEntry := GenerateTraceEntry();
         keyringTrace := keyringTrace + [generateTraceEntry];
       }
 
@@ -103,7 +111,7 @@ module RawAESKeyring{
       }
       var edk := Mat.EncryptedDataKey(keyNamespace, providerInfo, encryptedKey);
 
-      var encryptTraceEntry := Mat.KeyringTraceEntry(keyNamespace, keyName, {Mat.ENCRYPTED_DATA_KEY, Mat.SIGNED_ENCRYPTION_CONTEXT});
+      var encryptTraceEntry := EncryptTraceEntry();
       FilterIsDistributive(keyringTrace, [encryptTraceEntry], Mat.IsGenerateTraceEntry);
       FilterIsDistributive(keyringTrace, [encryptTraceEntry], Mat.IsEncryptTraceEntry);
       keyringTrace := keyringTrace + [encryptTraceEntry];
@@ -111,7 +119,40 @@ module RawAESKeyring{
       res := Success(Some(Mat.DataKeyMaterials(algorithmSuiteID, plaintextDataKey.get, [edk], keyringTrace)));
     }
 
-    // TODO prove providerInfo serializses/deserializes correctly
+    method OnDecrypt(algorithmSuiteID: AlgorithmSuite.ID,
+                     encryptionContext: Mat.EncryptionContext,
+                     edks: seq<Mat.EncryptedDataKey>) returns (res: Result<Option<Mat.ValidOnDecryptResult>>)
+      requires Valid()
+      ensures Valid()
+      ensures |edks| == 0 ==> res.Success? && res.value.None?
+      ensures res.Success? && res.value.Some? ==> res.value.get.algorithmSuiteID == algorithmSuiteID
+      // TODO: ensure non-None when input edk list has edk with valid provider info
+      ensures res.Success? && res.value.Some? ==> |res.value.get.keyringTrace| == 1 && res.value.get.keyringTrace[0] == DecryptTraceEntry()
+    {
+      var i := 0;
+      while i < |edks|
+      {
+        if edks[i].providerID == keyNamespace && ValidProviderInfo(edks[i].providerInfo) && wrappingAlgorithm.tagLen as int <= |edks[i].ciphertext| {
+          var iv := GetIvFromProvInfo(edks[i].providerInfo);
+          var flatEncCtx: seq<uint8> := Mat.FlattenSortEncCtx(encryptionContext);
+          //TODO: #68
+          var encryptedKeyLength := |edks[i].ciphertext| - wrappingAlgorithm.tagLen as int;
+          // TODO: specify Raw AES EDK ciphertext serialization
+          var encryptedKey, authTag := edks[i].ciphertext[.. encryptedKeyLength], edks[i].ciphertext[encryptedKeyLength ..];
+          var ptKey :- AESEncryption.AESDecrypt(wrappingAlgorithm, wrappingKey, encryptedKey, authTag, iv, flatEncCtx);
+          var decryptTraceEntry := DecryptTraceEntry();
+          if algorithmSuiteID.ValidPlaintextDataKey(ptKey) { // check for correct key length
+            return Success(Some(Mat.OnDecryptResult(algorithmSuiteID, ptKey, [decryptTraceEntry])));
+          } else {
+            return Failure("Decryption failed: bad datakey length.");
+          }
+        }
+        i := i + 1;
+      }
+      return Success(None);
+    }
+
+    // TODO prove providerInfo serializes/deserializes correctly
     predicate method ValidProviderInfo(info: seq<uint8>)
     {
       |info| == |keyName| + AUTH_TAG_LEN_LEN + IV_LEN_LEN + wrappingAlgorithm.ivLen as int &&
@@ -126,36 +167,19 @@ module RawAESKeyring{
       info[|keyName| + AUTH_TAG_LEN_LEN + IV_LEN_LEN ..]
     }
 
-    method OnDecrypt(algorithmSuiteID: AlgorithmSuite.ID,
-                     encryptionContext: Mat.EncryptionContext,
-                     edks: seq<Mat.EncryptedDataKey>) returns (res: Result<Option<Mat.ValidOnDecryptResult>>)
-      requires Valid()
-      ensures Valid()
-      ensures |edks| == 0 ==> res.Success? && res.value.None?
-      ensures res.Success? && res.value.Some? ==> res.value.get.algorithmSuiteID == algorithmSuiteID
-      // TODO: ensure non-None when input edk list has edk with valid provider info
+    function method GenerateTraceEntry(): Mat.KeyringTraceEntry
     {
-      var i := 0;
-      while i < |edks|
-      {
-        if edks[i].providerID == keyNamespace && ValidProviderInfo(edks[i].providerInfo) && wrappingAlgorithm.tagLen as int <= |edks[i].ciphertext| {
-          var iv := GetIvFromProvInfo(edks[i].providerInfo);
-          var flatEncCtx: seq<uint8> := Mat.FlattenSortEncCtx(encryptionContext);
-          //TODO: #68
-          var encryptedKeyLength := |edks[i].ciphertext| - wrappingAlgorithm.tagLen as int;
-          // TODO: specify Raw AES EDK ciphertext serialization
-          var encryptedKey, authTag := edks[i].ciphertext[.. encryptedKeyLength], edks[i].ciphertext[encryptedKeyLength ..];
-          var ptKey :- AESEncryption.AESDecrypt(wrappingAlgorithm, wrappingKey, encryptedKey, authTag, iv, flatEncCtx);
-          var decryptTraceEntry := Mat.KeyringTraceEntry(keyNamespace, keyName, {Mat.DECRYPTED_DATA_KEY, Mat.VERIFIED_ENCRYPTION_CONTEXT});
-          if algorithmSuiteID.ValidPlaintextDataKey(ptKey) { // check for correct key length
-            return Success(Some(Mat.OnDecryptResult(algorithmSuiteID, ptKey, [decryptTraceEntry])));
-          } else {
-            return Failure("Decryption failed: bad datakey length.");
-          }
-        }
-        i := i + 1;
-      }
-      return Success(None);
+      Mat.KeyringTraceEntry(keyNamespace, keyName, {Mat.GENERATED_DATA_KEY})
+    }
+
+    function method EncryptTraceEntry(): Mat.KeyringTraceEntry
+    {
+      Mat.KeyringTraceEntry(keyNamespace, keyName, {Mat.ENCRYPTED_DATA_KEY, Mat.SIGNED_ENCRYPTION_CONTEXT})
+    }
+
+    function method DecryptTraceEntry(): Mat.KeyringTraceEntry
+    {
+      Mat.KeyringTraceEntry(keyNamespace, keyName, {Mat.DECRYPTED_DATA_KEY, Mat.VERIFIED_ENCRYPTION_CONTEXT})
     }
   }
 }
