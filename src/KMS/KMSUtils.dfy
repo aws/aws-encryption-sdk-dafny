@@ -32,6 +32,7 @@ module {:extern "KMSUtils"} KMSUtils {
     UTF8.IsASCIIString(cmk) && 0 < |cmk| <= 2048 && |components| == 6 && components[0] == "arn" && components[2] == "kms" && Split(components[5], '/')[0] == "alias"
   }
   /*
+   * This code creates valid CMK strings. They are commented out because they are not used, and may slow down, or cause the verifier to fail.
 
   function method CreateValidFormatCMKAlias(y: string): (s: string)
     requires UTF8.IsASCIIString(y)

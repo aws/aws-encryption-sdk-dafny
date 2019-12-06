@@ -125,17 +125,13 @@ module KMSKeyring {
         ptdk := plaintextDataKey.get;
       }
 
-      ghost var generateTraces := Filter(keyringTrace, Mat.IsGenerateTraceEntry);
       var i := 0;
       while i < |encryptCMKs|
-        //invariant generateTraces == Filter(keyringTrace, Mat.IsGenerateTraceEntry)
-        invariant |Filter(keyringTrace, Mat.IsGenerateTraceEntry)| <= 1
         invariant forall entry :: entry in keyringTrace ==> entry.flags <= Mat.ValidEncryptionMaterialFlags
         invariant forall entry :: entry in keyringTrace ==> Mat.IsGenerateTraceEntry(entry) || Mat.IsEncryptTraceEntry(entry)
         invariant |edks| == |Filter(keyringTrace, Mat.IsEncryptTraceEntry)|
-        invariant Filter(keyringTrace, Mat.IsGenerateTraceEntry) == generateTraces
-        invariant |generateTraces| == 1 ==> keyringTrace[0] == generateTraces[0]
-        invariant |generateTraces| == if plaintextDataKey.None? then 1 else 0;
+        invariant |Filter(keyringTrace, Mat.IsGenerateTraceEntry)| == 1 ==> keyringTrace[0] == Filter(keyringTrace, Mat.IsGenerateTraceEntry)[0]
+        invariant |Filter(keyringTrace, Mat.IsGenerateTraceEntry)| == if plaintextDataKey.None? then 1 else 0;
       {
         var encryptRequest := KMSUtils.EncryptRequest(encryptionContext, grantTokens, encryptCMKs[i], ptdk);
         var regionRes := RegionFromKMSKeyARN(encryptCMKs[i]);
@@ -153,7 +149,6 @@ module KMSKeyring {
           FilterIsDistributive(keyringTrace, [encryptTraceEntry], Mat.IsGenerateTraceEntry);
           FilterIsDistributive(keyringTrace, [encryptTraceEntry], Mat.IsEncryptTraceEntry);
           keyringTrace := keyringTrace + [encryptTraceEntry];
-          generateTraces := Filter(keyringTrace, Mat.IsGenerateTraceEntry);
         } else {
           return Failure("Invalid response from KMS Encrypt");
         }

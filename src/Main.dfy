@@ -66,15 +66,16 @@ module Main {
     }
 
     var generatorStr := "arn:aws:kms:us-west-2:658956600833:key/b3537ef1-d8dc-4780-9f5a-55776cbb2f7f";
-    if KMSUtils.ValidFormatCMK(generatorStr) {
+    if !KMSUtils.ValidFormatCMK(generatorStr) {
+      print "Bad CMK format";
+      return;
+    } else {
       var generator: KMSUtils.CustomerMasterKey := generatorStr;
       var clientSupplier := new KMSUtils.DefaultClientSupplier();
       var keyring := new KMSKeyring.KMSKeyring(clientSupplier, [], Some(generator), []);
       var cmm := new DefaultCMMDef.DefaultCMM.OfKeyring(keyring);
 
       EncryptDecryptTest(cmm);
-    } else {
-      print "Bad CMK format";
     }
   }
 }
