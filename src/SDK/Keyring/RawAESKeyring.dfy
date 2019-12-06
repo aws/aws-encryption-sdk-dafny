@@ -73,16 +73,23 @@ module RawAESKeyring{
       requires plaintextDataKey.Some? ==> algorithmSuiteID.ValidPlaintextDataKey(plaintextDataKey.get)
       ensures Valid()
       ensures unchanged(Repr)
-      ensures res.Success? && res.value.Some? ==> 
-          algorithmSuiteID == res.value.get.algorithmSuiteID
-      ensures res.Success? && res.value.Some? && plaintextDataKey.Some? ==> 
-          plaintextDataKey.get == res.value.get.plaintextDataKey
+      ensures res.Success? && res.value.Some? ==>
+        algorithmSuiteID == res.value.get.algorithmSuiteID
+      ensures res.Success? && res.value.Some? && plaintextDataKey.Some? ==>
+        plaintextDataKey.get == res.value.get.plaintextDataKey
+      ensures res.Success? && res.value.Some? ==>
+        var generateTraces := Filter(res.value.get.keyringTrace, Mat.IsGenerateTraceEntry);
+        |generateTraces| == if plaintextDataKey.None? then 1 else 0
     {
+      var keyringTrace := [];
       var plaintextDataKey := plaintextDataKey;
       if plaintextDataKey.None? {
         var k := Random.GenerateBytes(algorithmSuiteID.KeyLength() as int32);
         plaintextDataKey := Some(k);
+        var generateTraceEntry := Mat.KeyringTraceEntry(keyNamespace, keyName, {Mat.GENERATED_DATA_KEY});
+        keyringTrace := keyringTrace + [generateTraceEntry];
       }
+
       var iv := Random.GenerateBytes(wrappingAlgorithm.ivLen as int32);
       var aad := Mat.FlattenSortEncCtx(encryptionContext);
       var encryptResult :- AESEncryption.AESEncrypt(wrappingAlgorithm, iv, wrappingKey, plaintextDataKey.get, aad);
@@ -95,16 +102,21 @@ module RawAESKeyring{
         return Failure("Encrypted data key too long.");
       }
       var edk := Mat.EncryptedDataKey(keyNamespace, providerInfo, encryptedKey);
-      var dataKey := Mat.DataKeyMaterials(algorithmSuiteID, plaintextDataKey.get, [edk]);
-      assert dataKey.algorithmSuiteID.ValidPlaintextDataKey(dataKey.plaintextDataKey);
-      return Success(Some(dataKey));
+
+      var encryptTraceEntry := Mat.KeyringTraceEntry(keyNamespace, keyName, {Mat.ENCRYPTED_DATA_KEY, Mat.SIGNED_ENCRYPTION_CONTEXT});
+      FilterIsDistributive(keyringTrace, [encryptTraceEntry], Mat.IsGenerateTraceEntry);
+      FilterIsDistributive(keyringTrace, [encryptTraceEntry], Mat.IsEncryptTraceEntry);
+      keyringTrace := keyringTrace + [encryptTraceEntry];
+
+      res := Success(Some(Mat.DataKeyMaterials(algorithmSuiteID, plaintextDataKey.get, [edk], keyringTrace)));
     }
 
+    // TODO prove providerInfo serializses/deserializes correctly
     predicate method ValidProviderInfo(info: seq<uint8>)
     {
       |info| == |keyName| + AUTH_TAG_LEN_LEN + IV_LEN_LEN + wrappingAlgorithm.ivLen as int &&
       info[0..|keyName|] == keyName &&
-      SeqToUInt32(info[|keyName|..|keyName| + AUTH_TAG_LEN_LEN]) == wrappingAlgorithm.tagLen as uint32 &&
+      SeqToUInt32(info[|keyName|..|keyName| + AUTH_TAG_LEN_LEN]) == wrappingAlgorithm.tagLen as uint32 * 8 &&
       SeqToUInt32(info[|keyName| + AUTH_TAG_LEN_LEN .. |keyName| + AUTH_TAG_LEN_LEN + IV_LEN_LEN]) == wrappingAlgorithm.ivLen as uint32
     }
 
@@ -116,12 +128,12 @@ module RawAESKeyring{
 
     method OnDecrypt(algorithmSuiteID: AlgorithmSuite.ID,
                      encryptionContext: Mat.EncryptionContext,
-                     edks: seq<Mat.EncryptedDataKey>) returns (res: Result<Option<seq<uint8>>>)
-      requires Valid() 
+                     edks: seq<Mat.EncryptedDataKey>) returns (res: Result<Option<Mat.ValidOnDecryptResult>>)
+      requires Valid()
       ensures Valid()
       ensures |edks| == 0 ==> res.Success? && res.value.None?
-      ensures res.Success? && res.value.Some? ==> 
-          algorithmSuiteID.ValidPlaintextDataKey(res.value.get)
+      ensures res.Success? && res.value.Some? ==> res.value.get.algorithmSuiteID == algorithmSuiteID
+      // TODO: ensure non-None when input edk list has edk with valid provider info
     {
       var i := 0;
       while i < |edks|
@@ -130,10 +142,13 @@ module RawAESKeyring{
           var iv := GetIvFromProvInfo(edks[i].providerInfo);
           var flatEncCtx: seq<uint8> := Mat.FlattenSortEncCtx(encryptionContext);
           //TODO: #68
-          var cipherText, authTag := edks[i].ciphertext[wrappingAlgorithm.tagLen ..], edks[i].ciphertext[.. wrappingAlgorithm.tagLen];
-          var ptKey :- AESEncryption.AESDecrypt(wrappingAlgorithm, wrappingKey, cipherText, authTag, iv, flatEncCtx);
+          var encryptedKeyLength := |edks[i].ciphertext| - wrappingAlgorithm.tagLen as int;
+          // TODO: specify Raw AES EDK ciphertext serialization
+          var encryptedKey, authTag := edks[i].ciphertext[.. encryptedKeyLength], edks[i].ciphertext[encryptedKeyLength ..];
+          var ptKey :- AESEncryption.AESDecrypt(wrappingAlgorithm, wrappingKey, encryptedKey, authTag, iv, flatEncCtx);
+          var decryptTraceEntry := Mat.KeyringTraceEntry(keyNamespace, keyName, {Mat.DECRYPTED_DATA_KEY, Mat.VERIFIED_ENCRYPTION_CONTEXT});
           if algorithmSuiteID.ValidPlaintextDataKey(ptKey) { // check for correct key length
-            return Success(Some(ptKey));
+            return Success(Some(Mat.OnDecryptResult(algorithmSuiteID, ptKey, [decryptTraceEntry])));
           } else {
             return Failure("Decryption failed: bad datakey length.");
           }

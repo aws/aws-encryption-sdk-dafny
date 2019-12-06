@@ -11,7 +11,7 @@ module {:extern "KMSUtils"} KMSUtils {
 
   const MAX_GRANT_TOKENS := 10
 
-  type CustomerMasterKey = s: string | ValidFormatCMK(s) witness CreateValidFormatCMKAlias("ExampleAlias")
+  type CustomerMasterKey = s: string | ValidFormatCMK(s) witness "alias/ExampleAlias"
 
   predicate method ValidFormatCMK(cmk: string) {
     ValidFormatCMKKeyARN(cmk) || ValidFormatCMKAlias(cmk) || ValidFormatCMKAliasARN(cmk)
@@ -19,20 +19,22 @@ module {:extern "KMSUtils"} KMSUtils {
 
   predicate method ValidFormatCMKKeyARN(cmk: string) {
     var components := Split(cmk, ':');
-    0 < |cmk| <= 2048 && |components| == 6 && components[0] == "arn" && components[2] == "kms" && Split(components[5], '/')[0] == "key"
+    UTF8.IsASCIIString(cmk) && 0 < |cmk| <= 2048 && |components| == 6 && components[0] == "arn" && components[2] == "kms" && Split(components[5], '/')[0] == "key"
   }
 
   predicate method ValidFormatCMKAlias(cmk: string) {
     var components := Split(cmk, '/');
-    0 < |cmk| <= 2048 && |components| == 2 && components[0] == "alias"
+    UTF8.IsASCIIString(cmk) && 0 < |cmk| <= 2048 && |components| == 2 && components[0] == "alias"
   }
 
   predicate method ValidFormatCMKAliasARN(cmk: string) {
     var components := Split(cmk, ':');
-    0 < |cmk| <= 2048 && |components| == 6 && components[0] == "arn" && components[2] == "kms" && Split(components[5], '/')[0] == "alias"
+    UTF8.IsASCIIString(cmk) && 0 < |cmk| <= 2048 && |components| == 6 && components[0] == "arn" && components[2] == "kms" && Split(components[5], '/')[0] == "alias"
   }
+  /*
 
   function method CreateValidFormatCMKAlias(y: string): (s: string)
+    requires UTF8.IsASCIIString(y)
     requires |"alias/"| + |y| <= 2048 && '/' !in y
     ensures s == "alias/" + y && ValidFormatCMKAlias(s)
   {
@@ -53,8 +55,8 @@ module {:extern "KMSUtils"} KMSUtils {
   }
 
   //TODO: CreateValidFormatCMKAliasARN
-
   function method CreateValidFormatCMKKeyARN(aws: string, region: string, account_id: string, y: string): (s: CustomerMasterKey)
+    requires UTF8.IsASCIIString(aws) && UTF8.IsASCIIString(region) && UTF8.IsASCIIString(account_id) && UTF8.IsASCIIString(y)
     requires ':' !in aws && ':' !in region && ':' !in account_id && ':' !in y
     requires |aws| <= 10 && |region| <= 1000 && |account_id| == 12 && |y| == 36
     ensures s == "arn:" + aws + ":kms:" + region + ":" + account_id + ":key/" + y
@@ -109,6 +111,7 @@ module {:extern "KMSUtils"} KMSUtils {
     // so we are ready to return it:
     s
   }
+  */
   
   type GrantToken = s: string | 0 < |s| <= 8192 witness "witness"
 

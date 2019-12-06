@@ -72,27 +72,27 @@ module IntegTestKMS {
       print "Failure: hardcoded name/namespace cannot be utf8 encoded";
       return;
     }
+    var generatorStr := "arn:aws:kms:us-west-2:658956600833:key/b3537ef1-d8dc-4780-9f5a-55776cbb2f7f";
+    if KMSUtils.ValidFormatCMK(generatorStr) {
+      var generator: KMSUtils.CustomerMasterKey := generatorStr;
+      var clientSupplier := new KMSUtils.DefaultClientSupplier();
+      var keyring := new KMSKeyring.KMSKeyring(clientSupplier, [], Some(generator), []);
+      var cmm := new DefaultCMMDef.DefaultCMM.OfKeyring(keyring);
 
-    var cmk := "arn:aws:kms:us-west-2:658956600833:key/b3537ef1-d8dc-4780-9f5a-55776cbb2f7f";
-    assert cmk == KMSUtils.CreateValidFormatCMKKeyARN("aws", "us-west-2", "658956600833", "b3537ef1-d8dc-4780-9f5a-55776cbb2f7f");
-    var generator: KMSUtils.CustomerMasterKey := cmk;
-    var clientSupplier := new KMSUtils.DefaultClientSupplier();
-    var keyring := new KMSKeyring.KMSKeyring(clientSupplier, [], Some(generator), []);
-    var cmm := new DefaultCMMDef.DefaultCMM.OfKeyring(keyring);
-
-    var message := "Hello, World!";
-
-    var result := EncryptDecryptTest(cmm, message);
-
-    if result.Success? && result.value == message {
-      print "CORRECT\n";
-    } else {
-      print "NOT CORRECT\n";
-      if result.Failure? {
-        print result.error;
+      var message := "Hello, World!!";
+      var result := EncryptDecryptTest(cmm, message);
+      if result.Success? && result.value == message {
+        print "CORRECT\n";
       } else {
-        print "Wrong message value: ", result.value;
+        print "NOT CORRECT\n";
+        if result.Failure? {
+          print result.error;
+        } else {
+          print "Wrong message value: ", result.value;
+        }
       }
+    } else {
+      print "Bad CMK format";
     }
   }
 }

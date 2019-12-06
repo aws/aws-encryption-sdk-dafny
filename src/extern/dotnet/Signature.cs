@@ -15,7 +15,6 @@ using Org.BouncyCastle.Asn1.X9;
 using Org.BouncyCastle.Asn1;
 
 using byteseq = Dafny.Sequence<byte>;
-using bytearrayseq = Dafny.ArraySequence<byte>;
 
 namespace Signature {
     public partial class ECDSA {
@@ -33,8 +32,8 @@ namespace Signature {
                 }
                 AsymmetricCipherKeyPair kp = g.GenerateKeyPair();
                 ECPoint pt = ((ECPublicKeyParameters)kp.Public).Q;
-                byteseq vk = new bytearrayseq(pt.GetEncoded());
-                byteseq sk = new bytearrayseq(((ECPrivateKeyParameters)kp.Private).D.ToByteArray());
+                byteseq vk = byteseq.FromArray(pt.GetEncoded());
+                byteseq sk = byteseq.FromArray(((ECPrivateKeyParameters)kp.Private).D.ToByteArray());
                 return new STL.Option_Some<_System.Tuple2<byteseq, byteseq>>(new _System.Tuple2<byteseq, byteseq>(vk, sk));
             } catch {
                 return new STL.Option_None<_System.Tuple2<byteseq, byteseq>>();
@@ -85,7 +84,7 @@ namespace Signature {
                     if (bytes.Length == x.SignatureLength()) {
                         // This will meet the method postcondition, which says that a Some? return must
                         // contain a sequence of bytes whose length is x.SignatureLength().
-                        return new STL.Option_Some<byteseq>(new bytearrayseq(bytes));
+                        return new STL.Option_Some<byteseq>(byteseq.FromArray(bytes));
                     }
                     // We only get here with low probability, so try again (forever, if we have really bad luck).
                 } while (true);
@@ -102,7 +101,7 @@ namespace Signature {
                 alg = System.Security.Cryptography.SHA256.Create();
             }
             byte[] digest = alg.ComputeHash(msg.Elements);
-            return new bytearrayseq(digest);
+            return byteseq.FromArray(digest);
         }
 
         private static byte[] DERSerialize(BigInteger r, BigInteger s) {

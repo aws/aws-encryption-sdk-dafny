@@ -427,6 +427,7 @@ module {:extern "STL"} StandardLibrary {
   function method Filter<T>(s: seq<T>, f: T -> bool): (res: seq<T>)
     ensures forall i :: 0 <= i < |s| && f(s[i]) ==> s[i] in res
     ensures forall i :: 0 <= i < |res| ==> res[i] in s && f(res[i])
+    ensures |res| <= |s|
   {
     if |s| == 0 then []
     else if f(s[0]) then ([s[0]] + Filter(s[1..], f))

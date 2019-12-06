@@ -23,7 +23,7 @@ module {:extern "UTF8"} UTF8 {
   // Issue #81
   function method {:extern "Decode"} Decode(s: ValidUTF8Bytes): Result<string>
 
-  predicate IsASCIIString(s: string) {
+  predicate method IsASCIIString(s: string) {
     forall i :: 0 <= i < |s| ==> s[i] as int < 128
   }
 

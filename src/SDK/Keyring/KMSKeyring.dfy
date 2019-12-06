@@ -56,7 +56,8 @@ module KMSKeyring {
       requires !isDiscovery
       ensures Valid()
       ensures res.Success? ==> res.value.algorithmSuiteID == algorithmSuiteID
-      // TODO: ensure GENERATED_DATA_KEY flag
+                               && |res.value.keyringTrace| == 1
+                               && res.value.keyringTrace[0].flags == {Mat.GENERATED_DATA_KEY, Mat.ENCRYPTED_DATA_KEY, Mat.SIGNED_ENCRYPTION_CONTEXT}
     {
       var generatorRequest := KMSUtils.GenerateDataKeyRequest(encryptionContext, grantTokens, generator.get, algorithmSuiteID.KDFInputKeyLength() as int32);
       var regionRes := RegionFromKMSKeyARN(generator.get);
@@ -78,7 +79,10 @@ module KMSKeyring {
         return Failure("Invalid response from KMS GenerateDataKey: Invalid key");
       }
 
-      return Success(Mat.DataKeyMaterials(algorithmSuiteID, plaintextDataKey, [encryptedDataKey]));
+      var generateTraceEntry := Mat.KeyringTraceEntry(PROVIDER_ID, UTF8.Encode(generator.get).value, {Mat.GENERATED_DATA_KEY, Mat.ENCRYPTED_DATA_KEY, Mat.SIGNED_ENCRYPTION_CONTEXT});
+      var datakeyMaterials := Mat.DataKeyMaterials(algorithmSuiteID, plaintextDataKey, [encryptedDataKey], [generateTraceEntry]);
+      assert datakeyMaterials.Valid();
+      return Success(datakeyMaterials);
     }
 
     method OnEncrypt(algorithmSuiteID: AlgorithmSuite.ID,
@@ -92,8 +96,9 @@ module KMSKeyring {
           algorithmSuiteID == res.value.get.algorithmSuiteID
       ensures res.Success? && res.value.Some? && plaintextDataKey.Some? ==>
           plaintextDataKey.get == res.value.get.plaintextDataKey
-      // TODO: keyring trace GENERATED_DATA_KEY flag assurance
-      // TODO: keyring trace ENCRYPTED_DATA_KEY flag assurance
+      ensures res.Success? && res.value.Some? ==>
+        var generateTraces := Filter(res.value.get.keyringTrace, Mat.IsGenerateTraceEntry);
+        |generateTraces| == if plaintextDataKey.None? then 1 else 0
     {
       if isDiscovery {
         return Success(None);
@@ -103,6 +108,7 @@ module KMSKeyring {
 
       var encryptCMKs := keyIDs;
       var edks: seq<Mat.ValidEncryptedDataKey> := [];
+      var keyringTrace := [];
       var ptdk: seq<uint8>;
 
       if generator.Some? {
@@ -110,6 +116,7 @@ module KMSKeyring {
           var generatedMaterials :- Generate(algorithmSuiteID, encryptionContext);
           ptdk := generatedMaterials.plaintextDataKey;
           edks := generatedMaterials.encryptedDataKeys;
+          keyringTrace := generatedMaterials.keyringTrace;
         } else {
           ptdk := plaintextDataKey.get;
           encryptCMKs := encryptCMKs + [generator.get];
@@ -118,8 +125,17 @@ module KMSKeyring {
         ptdk := plaintextDataKey.get;
       }
 
+      ghost var generateTraces := Filter(keyringTrace, Mat.IsGenerateTraceEntry);
       var i := 0;
       while i < |encryptCMKs|
+        //invariant generateTraces == Filter(keyringTrace, Mat.IsGenerateTraceEntry)
+        invariant |Filter(keyringTrace, Mat.IsGenerateTraceEntry)| <= 1
+        invariant forall entry :: entry in keyringTrace ==> entry.flags <= Mat.ValidEncryptionMaterialFlags
+        invariant forall entry :: entry in keyringTrace ==> Mat.IsGenerateTraceEntry(entry) || Mat.IsEncryptTraceEntry(entry)
+        invariant |edks| == |Filter(keyringTrace, Mat.IsEncryptTraceEntry)|
+        invariant Filter(keyringTrace, Mat.IsGenerateTraceEntry) == generateTraces
+        invariant |generateTraces| == 1 ==> keyringTrace[0] == generateTraces[0]
+        invariant |generateTraces| == if plaintextDataKey.None? then 1 else 0;
       {
         var encryptRequest := KMSUtils.EncryptRequest(encryptionContext, grantTokens, encryptCMKs[i], ptdk);
         var regionRes := RegionFromKMSKeyARN(encryptCMKs[i]);
@@ -132,13 +148,18 @@ module KMSKeyring {
             return Failure("providerInfo exceeds maximum length");
           }
           var edk := Mat.EncryptedDataKey(PROVIDER_ID, providerInfo, encryptResponse.ciphertextBlob);
+          var encryptTraceEntry := Mat.KeyringTraceEntry(PROVIDER_ID, UTF8.Encode(encryptCMKs[i]).value, {Mat.ENCRYPTED_DATA_KEY, Mat.SIGNED_ENCRYPTION_CONTEXT});
           edks := edks + [edk];
+          FilterIsDistributive(keyringTrace, [encryptTraceEntry], Mat.IsGenerateTraceEntry);
+          FilterIsDistributive(keyringTrace, [encryptTraceEntry], Mat.IsEncryptTraceEntry);
+          keyringTrace := keyringTrace + [encryptTraceEntry];
+          generateTraces := Filter(keyringTrace, Mat.IsGenerateTraceEntry);
         } else {
           return Failure("Invalid response from KMS Encrypt");
         }
         i := i + 1;
       }
-      var datakeyMat := Mat.DataKeyMaterials(algorithmSuiteID, ptdk, edks);
+      var datakeyMat := Mat.DataKeyMaterials(algorithmSuiteID, ptdk, edks, keyringTrace);
       assert datakeyMat.Valid();
       return Success(Some(datakeyMat));
     }
@@ -154,11 +175,11 @@ module KMSKeyring {
 
     method OnDecrypt(algorithmSuiteID: AlgorithmSuite.ID,
                      encryptionContext: Mat.EncryptionContext,
-                     edks: seq<Mat.EncryptedDataKey>) returns (res: Result<Option<seq<uint8>>>)
+                     edks: seq<Mat.EncryptedDataKey>) returns (res: Result<Option<Mat.ValidOnDecryptResult>>)
       requires Valid()
       ensures Valid()
       ensures |edks| == 0 ==> res.Success? && res.value.None?
-      ensures res.Success? && res.value.Some? ==> algorithmSuiteID.ValidPlaintextDataKey(res.value.get)
+      ensures res.Success? && res.value.Some? ==> res.value.get.algorithmSuiteID == algorithmSuiteID
       // TODO: keyring trace DECRYPTED_DATA_KEY flag assurance
     {
       if |edks| == 0 {
@@ -182,7 +203,8 @@ module KMSKeyring {
                   || !algorithmSuiteID.ValidPlaintextDataKey(decryptResponse.plaintext) {
                 return Failure("Invalid response from KMS Decrypt");
               } else {
-                return Success(Some(decryptResponse.plaintext));
+                var decryptTraceEntry := Mat.KeyringTraceEntry(PROVIDER_ID, edk.providerInfo, {Mat.DECRYPTED_DATA_KEY, Mat.VERIFIED_ENCRYPTION_CONTEXT});
+                return Success(Some(Mat.OnDecryptResult(algorithmSuiteID, decryptResponse.plaintext, [decryptTraceEntry])));
               }
             }
           }
