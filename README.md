@@ -6,7 +6,7 @@ AWS Encryption SDK for Dafny
 
 ## Building
 
-To build, the AWS Encryption SDK requires the most up to date version of [dafny](https://github.com/dafny-lang/dafny) cloned as a sibling directory of this one.
+To build, the AWS Encryption SDK requires the most up to date version of [dafny](https://github.com/dafny-lang/dafny), cloned and built (as described [here](https://github.com/dafny-lang/dafny/blob/master/INSTALL.md)) as a sibling directory of this one.
 
 Building and verifying also requires [dotnet 3.0](https://dotnet.microsoft.com/download/dotnet-core/3.0).
 
