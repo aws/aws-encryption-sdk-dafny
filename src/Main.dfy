@@ -69,13 +69,12 @@ module Main {
     if !KMSUtils.ValidFormatCMK(generatorStr) {
       print "Bad CMK format";
       return;
-    } else {
-      var generator: KMSUtils.CustomerMasterKey := generatorStr;
-      var clientSupplier := new KMSUtils.DefaultClientSupplier();
-      var keyring := new KMSKeyring.KMSKeyring(clientSupplier, [], Some(generator), []);
-      var cmm := new DefaultCMMDef.DefaultCMM.OfKeyring(keyring);
-
-      EncryptDecryptTest(cmm);
     }
+    var generator: KMSUtils.CustomerMasterKey := generatorStr;
+    var clientSupplier := new KMSUtils.DefaultClientSupplier();
+    var keyring := new KMSKeyring.KMSKeyring(clientSupplier, [], Some(generator), []);
+    var cmm := new DefaultCMMDef.DefaultCMM.OfKeyring(keyring);
+
+    EncryptDecryptTest(cmm);
   }
 }
