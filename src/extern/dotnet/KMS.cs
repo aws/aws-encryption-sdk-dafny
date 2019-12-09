@@ -38,15 +38,11 @@ namespace KMSUtils {
     }
     public partial class DefaultClientSupplier : ClientSupplier {
         public STL.Result<KMSClient> GetClient(STL.Option<DString> region) {
-            try {
-                if (region.is_Some) {
-                    DString neverUsed = DString.FromString("".ToString());
-                    return new STL.Result_Success<KMSClient>(new KMSClient(new KMS.AmazonKeyManagementServiceClient(RegionEndpoint.GetBySystemName(region.GetOrElse(neverUsed).ToString()))));
-                } else {
-                    return new STL.Result_Failure<KMSClient>(DString.FromString("Client Supplier does not have default region.".ToString()));
-                }
-            } catch (System.Exception exception) {
-                return new STL.Result_Failure<KMSClient>(DString.FromString(exception.ToString()));
+            if (region.is_Some) {
+                DString neverUsed = DString.FromString("".ToString());
+                return new STL.Result_Success<KMSClient>(new KMSClient(new KMS.AmazonKeyManagementServiceClient(RegionEndpoint.GetBySystemName(region.GetOrElse(neverUsed).ToString()))));
+            } else {
+                return new STL.Result_Failure<KMSClient>(DString.FromString("Client Supplier does not have default region.".ToString()));
             }
         }
     }
@@ -76,8 +72,10 @@ namespace KMSUtils {
                     byteseq.FromArray(response.Plaintext.ToArray()),
                     __default.ConvertMetaData(response.ResponseMetadata)
                     ));
-            } catch (System.Exception exception) {
-                return new STL.Result_Failure<GenerateDataKeyResponse>(DString.FromString(exception.ToString()));
+            } catch (Amazon.Runtime.AmazonServiceException amzEx) {
+                return new STL.Result_Failure<GenerateDataKeyResponse>(DString.FromString(amzEx.ToString()));
+            } catch (DecoderFallbackException decodeEx) {
+                return new STL.Result_Failure<GenerateDataKeyResponse>(DString.FromString(decodeEx.ToString()));
             }
         }
 
@@ -98,8 +96,10 @@ namespace KMSUtils {
                             DString.FromString(response.KeyId.ToString()),
                             __default.ConvertMetaData(response.ResponseMetadata)
                             ));
-            } catch (System.Exception exception) {
-                return new STL.Result_Failure<EncryptResponse>(DString.FromString(exception.ToString()));
+            } catch (Amazon.Runtime.AmazonServiceException amzEx) {
+                return new STL.Result_Failure<EncryptResponse>(DString.FromString(amzEx.ToString()));
+            } catch (DecoderFallbackException decodeEx) {
+                return new STL.Result_Failure<EncryptResponse>(DString.FromString(decodeEx.ToString()));
             }
         }
 
@@ -119,8 +119,10 @@ namespace KMSUtils {
                             byteseq.FromArray(response.Plaintext.ToArray()),
                             __default.ConvertMetaData(response.ResponseMetadata)
                             ));
-            } catch (System.Exception exception) {
-                return new STL.Result_Failure<DecryptResponse>(DString.FromString(exception.ToString()));
+            } catch (Amazon.Runtime.AmazonServiceException amzEx) {
+                return new STL.Result_Failure<DecryptResponse>(DString.FromString(amzEx.ToString()));
+            } catch (DecoderFallbackException decodeEx) {
+                return new STL.Result_Failure<DecryptResponse>(DString.FromString(decodeEx.ToString()));
             }
         }
     }
