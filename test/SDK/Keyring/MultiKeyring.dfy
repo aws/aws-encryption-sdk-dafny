@@ -56,7 +56,7 @@ module TestMultiKeying {
     // Second edk decryption
     onDecryptResult :- multiKeyring.OnDecrypt(AlgorithmSuite.AES_256_GCM_IV12_TAG16_HKDF_SHA384_ECDSA_P384, encryptionContext, [edk2]);
     // Check plaintextDataKey is as expected
-    var _ :- Require(onEncryptResult.Some? && |onEncryptResult.get.encryptedDataKeys| == 2);
+    var _ :- Require(onDecryptResult.Some? && onDecryptResult.get.plaintextDataKey == pdk);
     // Check keyringTrace is as expected
     r := Require(
        && |onDecryptResult.get.keyringTrace| == 1
