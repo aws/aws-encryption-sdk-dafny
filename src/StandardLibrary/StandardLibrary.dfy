@@ -66,7 +66,7 @@ module {:extern "STL"} StandardLibrary {
     if i.Some? then [s[..i.get]] + Split(s[i.get+1..], delim) else [s]
   }
 
-  lemma AboutSplit0<T>(s: seq<T>, delim: T, head: seq<T>)
+  lemma WillSplitOnDelim<T>(s: seq<T>, delim: T, head: seq<T>)
     requires head < s  // head is a prefix of s
     requires delim !in head && s[|head|] == delim
     ensures Split(s, delim) == [head] + Split(s[|head|+1..], delim)
@@ -76,14 +76,14 @@ module {:extern "STL"} StandardLibrary {
     ==  // def. Split
       var i := Find(s, delim, 0);
       if i.Some? then [s[..i.get]] + Split(s[i.get+1..], delim) else [s];
-    ==  { AboutFind(s, delim, 0, |head|); }
+    ==  { FindLocatesElem(s, delim, 0, |head|); }
       [s[..|head|]] + Split(s[|head|+1..], delim);
     ==  { assert s[..|head|] == head; }
       [head] + Split(s[|head|+1..], delim);
     }
   }
 
-  lemma AboutSplit1<T>(s: seq<T>, delim: T)
+  lemma WillNotSplitWithOutDelim<T>(s: seq<T>, delim: T)
     requires delim !in s
     ensures Split(s, delim) == [s]
   {
@@ -92,7 +92,7 @@ module {:extern "STL"} StandardLibrary {
     ==  // def. Split
       var i := Find(s, delim, 0);
       if i.Some? then [s[..i.get]] + Split(s[i.get+1..], delim) else [s];
-    ==  { AboutFind(s, delim, 0, |s|); }
+    ==  { FindLocatesElem(s, delim, 0, |s|); }
       [s];
     }
   }
@@ -110,7 +110,7 @@ module {:extern "STL"} StandardLibrary {
     else Find(s, c, i + 1)
   }
 
-  lemma AboutFind<T>(s: seq<T>, c: T, start: nat, hereItIs: nat)
+  lemma FindLocatesElem<T>(s: seq<T>, c: T, start: nat, hereItIs: nat)
     requires start <= hereItIs <= |s|
     requires forall i :: start <= i < hereItIs ==> s[i] != c
     requires hereItIs == |s| || s[hereItIs] == c
