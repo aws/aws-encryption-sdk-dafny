@@ -95,6 +95,6 @@ module {:extern "KMSUtils"} KMSUtils {
       //TODO mmtj: Should this be marked as modifying all of request's fields?
 
     method {:extern} Decrypt(request: DecryptRequest) returns (res: Result<DecryptResponse>)
-      // TODO mmtj: Should this be marked as modifying all of request's fields?
+      //TODO mmtj: Should this be marked as modifying all of request's fields?
   }
 }
