@@ -48,11 +48,6 @@ module {:extern "STL"} StandardLibrary {
     }
   }
 
-  function method Base64LengthToByteLength(len: nat): nat {
-    // This function does NOT account for padding characters.
-    (len * 6) / 8
-  }
-
   function method Join<T>(ss: seq<seq<T>>, joiner: seq<T>): (s: seq<T>)
     requires 0 < |ss|
   {

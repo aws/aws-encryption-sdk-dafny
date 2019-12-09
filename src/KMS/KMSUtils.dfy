@@ -57,28 +57,28 @@ module {:extern "KMSUtils"} KMSUtils {
   datatype GenerateDataKeyResponse = GenerateDataKeyResponse(ciphertextBlob: seq<uint8>, contentLength: int, httpStatusCode: HttpStatusCode, keyID: string, plaintext: seq<uint8>, responseMetadata: ResponseMetadata)
   {
     predicate method IsWellFormed() {
-      ValidFormatCMKKeyARN(keyID) && |ciphertextBlob| == contentLength && 1 <= |ciphertextBlob| <= Base64LengthToByteLength(6144)
+      |keyID| < UINT16_LIMIT && |ciphertextBlob| < UINT16_LIMIT
     }
   }
 
   datatype EncryptRequest = EncryptRequest(encryptionContext: Mat.EncryptionContext, grantTokens: seq<GrantToken>, keyID: CustomerMasterKey, plaintext: seq<uint8>)
   {
     predicate Valid() {
-      0 <= |grantTokens| <= MAX_GRANT_TOKENS && 1 <= |plaintext| <= Base64LengthToByteLength(4096)
+      0 <= |grantTokens| <= MAX_GRANT_TOKENS
     }
   }
 
   datatype EncryptResponse = EncryptResponse(ciphertextBlob: seq<uint8>, contentLength: int, httpStatusCode: HttpStatusCode, keyID: string, responseMetadata: ResponseMetadata)
   {
     predicate method IsWellFormed() {
-      ValidFormatCMKKeyARN(keyID) && |ciphertextBlob| == contentLength && 1 <= |ciphertextBlob| <= Base64LengthToByteLength(6144)
+      |keyID| < UINT16_LIMIT && |ciphertextBlob| < UINT16_LIMIT
     }
   }
 
   datatype DecryptRequest = DecryptRequest(ciphertextBlob: seq<uint8>, encryptionContext: Mat.EncryptionContext, grantTokens: seq<GrantToken>)
   {
     predicate Valid() {
-      0 <= |grantTokens| <= MAX_GRANT_TOKENS && 1 <= |ciphertextBlob| <= Base64LengthToByteLength(6144)
+      0 <= |grantTokens| <= MAX_GRANT_TOKENS
     }
   }
 
