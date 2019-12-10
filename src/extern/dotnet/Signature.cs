@@ -32,8 +32,13 @@ namespace Signature {
                 }
                 AsymmetricCipherKeyPair kp = g.GenerateKeyPair();
                 ECPoint pt = ((ECPublicKeyParameters)kp.Public).Q;
-                byteseq vk = byteseq.FromArray(pt.GetEncoded());
-                byteseq sk = byteseq.FromArray(((ECPrivateKeyParameters)kp.Private).D.ToByteArray());
+                var xBytes = pt.AffineXCoord.GetEncoded();
+                var y = pt.AffineYCoord.ToBigInteger();
+                byte compressedY = y.Mod(BigInteger.ValueOf(2)).Equals(BigInteger.ValueOf(0)) ? (byte)2 : (byte)3;
+                var yBytes = new byte[] { compressedY };
+                // Set vk := yBytes + xBytes:
+                var vk = byteseq.FromArray(yBytes).Concat(byteseq.FromArray(xBytes));
+                var sk = byteseq.FromArray(((ECPrivateKeyParameters)kp.Private).D.ToByteArray());
                 return new STL.Option_Some<_System.Tuple2<byteseq, byteseq>>(new _System.Tuple2<byteseq, byteseq>(vk, sk));
             } catch {
                 return new STL.Option_None<_System.Tuple2<byteseq, byteseq>>();
