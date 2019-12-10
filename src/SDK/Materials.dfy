@@ -3,7 +3,7 @@ include "../StandardLibrary/UInt.dfy"
 include "./AlgorithmSuite.dfy"
 include "../Util/UTF8.dfy"
 
-module Materials {
+module {:extern "Materials"} Materials {
   import opened StandardLibrary
   import opened UInt = StandardLibrary.UInt
   import UTF8

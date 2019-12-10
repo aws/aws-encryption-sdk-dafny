@@ -18,15 +18,17 @@ SRCS = \
 	   src/Crypto/Random.dfy \
 	   src/Crypto/RSAEncryption.dfy \
 	   src/Crypto/Signature.dfy \
+	   src/KMS/KMSUtils.dfy \
 	   src/Main.dfy \
 	   src/SDK/AlgorithmSuite.dfy \
 	   src/SDK/Client.dfy \
 	   src/SDK/CMM/DefaultCMM.dfy \
 	   src/SDK/CMM/Defs.dfy \
 	   src/SDK/Deserialize.dfy \
-	   src/SDK/Keyring/RawAESKeyring.dfy \
 	   src/SDK/Keyring/Defs.dfy \
+	   src/SDK/Keyring/KMSKeyring.dfy \
 	   src/SDK/Keyring/MultiKeyring.dfy \
+	   src/SDK/Keyring/RawAESKeyring.dfy \
 	   src/SDK/Keyring/RawRSAKeyring.dfy \
 	   src/SDK/Materials.dfy \
 	   src/SDK/MessageBody.dfy \
@@ -46,9 +48,12 @@ DEPS_CS = $(wildcard src/extern/dotnet/*.cs)
 
 BCDLL = lib/BouncyCastle.1.8.5/lib/BouncyCastle.Crypto.dll
 
-DEPS = $(DEPS_CS) $(BCDLL)
+AWSDLLS = lib/AWSSDK.KeyManagementService.3.3.101.83/lib/net45/AWSSDK.KeyManagementService.dll \
+		  lib/AWSSDK.Core.3.3.103.62/lib/net45/AWSSDK.Core.dll
 
-.PHONY: all release build verify buildcs hkdf test clean-build clean
+DEPS = $(DEPS_CS) $(BCDLL) $(AWSDLLS)
+
+.PHONY: all release build verify buildcs hkdf test clean-test clean-build clean
 
 all: verify build test
 
@@ -59,10 +64,10 @@ build: build/Main.exe
 verify: clean-build $(SRCV)
 
 build/%.dfy.verified: src/%.dfy
-	$(DAFNY) $(patsubst build/%.dfy.verified, src/%.dfy, $@) /compile:0 && mkdir -p $(dir $@) && touch $@
+	$(DAFNY) $(patsubst build/%.dfy.verified, src/%.dfy, $@) /timeLimit:30 /compile:0 && mkdir -p $(dir $@) && touch $@
 
 build/Main.exe: $(SRCS) $(DEPS)
-	$(DAFNY) /out:build/Main $(SRCS) $(DEPS) /compile:2 /noVerify /noIncludes && cp $(BCDLL) build/
+	$(DAFNY) /out:build/Main $(SRCS) $(DEPS) /compile:2 /noVerify /noIncludes && cp $(DEPS) build/
 
 buildjs: $(SRCS)
 	$(DAFNY) /out:build/Main $(SRCS) /compile:2 /noVerify /noIncludes /compileTarget:js /spillTargetCode:1
@@ -82,11 +87,14 @@ buildcs: build/Main.cs
 lib/%.dll:
 	nuget install
 
-test: $(DEPS)
+test: $(DEPS) clean-test
 	lit test -q -v
+
+clean-test:
+	$(RM) test/**/Output/*
 
 clean-build:
 	$(RM) -r build/*
 
-clean: clean-build
+clean: clean-build clean-test
 	$(RM) -r lib/*
