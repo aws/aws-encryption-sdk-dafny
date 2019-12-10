@@ -6,7 +6,7 @@ When attempting to run `test/KMS/Integration.dfy`, you may encounter an error:
 Amazon.Runtime.AmazonServiceException: Unable to get IAM security credentials from EC2 Instance Metadata Service.
 ```
 
-This means you don't have the correct credentials to make the KMS calls required for the KMS integration test. To give your environment the correct permissions, you must create an IAM user, and add it's credentials to your environment.
+This means you don't have the correct credentials to make the KMS calls required for the KMS integration test. To give your environment the correct permissions, you must add credentials to your environment.
 
 ### Outside of EC2
 
