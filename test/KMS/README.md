@@ -6,34 +6,47 @@ When attempting to run `test/KMS/Integration.dfy`, you may encounter an error:
 Amazon.Runtime.AmazonServiceException: Unable to get IAM security credentials from EC2 Instance Metadata Service.
 ```
 
-This is because the test environment does not have access to KMS permissions. Here is how to configure you credentials.
+This means you don't have the correct credentials to make the KMS calls required for the KMS integration test. To give your environment the correct permissions, you must create an IAM user, and add it's credentials to your environment.
 
-- Open the AWS console, and navigate to IAM
-- Create an IAM user
-    - Give the user a name (i.e. “ESDK-Dafny-user”)
-    - Programatic access
-    - Next
-    - Attach existing policy
-        - Create new policy
-            - KMS
-            - Write
-                - Generate datakey
-                - Encrypt
-                - Decrypt
-            - All resources
-            - Give the policy a name (I.e. “ESDK-minimum”)
-        - Go back to last browser tab
-        - Refresh the policy menu (not the page)
-        - Attach the policy you made
-    - Tags
-    - Review
-    - Create User
-        - Save the Copy Access Key, Secret Key
+### Outside of EC2
 
-Create a file in `~/.aws/credentials`, and write your keys to it so it looks like this:
-
+1. [Create an IAM user](https://docs.aws.amazon.com/IAM/latest/UserGuide/id_users_create.html) with programmatic access, and the following policy:
 ```
-[default]
-aws_access_key_id=YOUR_ACCESS_KEY
-aws_secret_access_key=YOUR_SECRET_KEY
+{
+    "Version": "2012-10-17",
+    "Statement": [
+        {
+            "Sid": "VisualEditor0",
+            "Effect": "Allow",
+            "Action": [
+                "kms:Decrypt",
+                "kms:Encrypt",
+                "kms:GenerateDataKey"
+            ],
+            "Resource": "*"
+        }
+    ]
+}
+```
+2. Add the nely created credentials to your evironment using [`aws configure`](https://docs.aws.amazon.com/cli/latest/userguide/cli-chap-configure.html).
+
+### Inside EC2
+
+1. [Create and attach an IAM role](https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/iam-roles-for-amazon-ec2.html) wit the following policy:
+```
+{
+    "Version": "2012-10-17",
+    "Statement": [
+        {
+            "Sid": "VisualEditor0",
+            "Effect": "Allow",
+            "Action": [
+                "kms:Decrypt",
+                "kms:Encrypt",
+                "kms:GenerateDataKey"
+            ],
+            "Resource": "*"
+        }
+    ]
+}
 ```
