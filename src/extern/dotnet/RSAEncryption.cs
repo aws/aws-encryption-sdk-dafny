@@ -13,7 +13,6 @@ using Org.BouncyCastle.Security;
 using Org.BouncyCastle.Asn1.X9;
 
 using byteseq = Dafny.Sequence<byte>;
-using bytearrayseq = Dafny.ArraySequence<byte>;
 
 namespace RSAEncryption {
 
@@ -44,8 +43,8 @@ namespace RSAEncryption {
                 byte[] e;
                 byte[] d;
                 get_pem(kp, out e, out d);
-                ek = new bytearrayseq(e);
-                dk = new bytearrayseq(d);
+                ek = byteseq.FromArray(e);
+                dk = byteseq.FromArray(d);
         }
 
         public static STL.Option<byteseq> RSAEncrypt(int bits, RSAPaddingMode padding, byteseq ek, byteseq msg) {
@@ -70,7 +69,7 @@ namespace RSAEncryption {
                 }
 
                 engine.Init(true, pub);
-                return new STL.Option_Some<byteseq>(new bytearrayseq(engine.ProcessBlock(msg.Elements, 0, msg.Elements.Length)));
+                return new STL.Option_Some<byteseq>(byteseq.FromArray(engine.ProcessBlock(msg.Elements, 0, msg.Elements.Length)));
             }
             catch {
                 return new STL.Option_None<byteseq>();
@@ -99,7 +98,7 @@ namespace RSAEncryption {
                     keyPair = (AsymmetricCipherKeyPair) new PemReader(txtreader).ReadObject();
                     engine.Init(false, keyPair.Private);
                 }
-                return new STL.Option_Some<byteseq>(new bytearrayseq(engine.ProcessBlock(ctx.Elements, 0, ctx.Elements.Length)));
+                return new STL.Option_Some<byteseq>(byteseq.FromArray(engine.ProcessBlock(ctx.Elements, 0, ctx.Elements.Length)));
             }
             catch {
                 return new STL.Option_None<byteseq>();

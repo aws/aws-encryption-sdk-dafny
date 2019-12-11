@@ -48,6 +48,77 @@ module {:extern "STL"} StandardLibrary {
     }
   }
 
+  function method Join<T>(ss: seq<seq<T>>, joiner: seq<T>): (s: seq<T>)
+    requires 0 < |ss|
+  {
+    if |ss| == 1 then ss[0] else ss[0] + joiner + Join(ss[1..], joiner)
+  }
+
+  function method Split<T(==)>(s: seq<T>, delim: T): (res: seq<seq<T>>)
+    ensures delim !in s ==> res == [s]
+    ensures s == [] ==> res == [[]]
+    ensures 0 < |res|
+    ensures forall i :: 0 <= i < |res| ==> delim !in res[i]
+    ensures Join(res, [delim]) == s
+    decreases |s|
+  {
+    var i := Find(s, delim, 0);
+    if i.Some? then [s[..i.get]] + Split(s[i.get+1..], delim) else [s]
+  }
+
+  lemma WillSplitOnDelim<T>(s: seq<T>, delim: T, head: seq<T>)
+    requires head < s  // head is a prefix of s
+    requires delim !in head && s[|head|] == delim
+    ensures Split(s, delim) == [head] + Split(s[|head|+1..], delim)
+  {
+    calc {
+      Split(s, delim);
+    ==  // def. Split
+      var i := Find(s, delim, 0);
+      if i.Some? then [s[..i.get]] + Split(s[i.get+1..], delim) else [s];
+    ==  { FindLocatesElem(s, delim, 0, |head|); }
+      [s[..|head|]] + Split(s[|head|+1..], delim);
+    ==  { assert s[..|head|] == head; }
+      [head] + Split(s[|head|+1..], delim);
+    }
+  }
+
+  lemma WillNotSplitWithOutDelim<T>(s: seq<T>, delim: T)
+    requires delim !in s
+    ensures Split(s, delim) == [s]
+  {
+    calc {
+      Split(s, delim);
+    ==  // def. Split
+      var i := Find(s, delim, 0);
+      if i.Some? then [s[..i.get]] + Split(s[i.get+1..], delim) else [s];
+    ==  { FindLocatesElem(s, delim, 0, |s|); }
+      [s];
+    }
+  }
+
+  function method Find<T(==)>(s: seq<T>, c: T, i: nat): (index: Option<nat>)
+    requires i <= |s|
+    ensures index.Some? ==> i <= index.get
+                         && index.get < |s| && s[index.get] == c
+                         && c !in s[i..index.get]
+    ensures index.None? ==> c !in s[i..]
+    decreases |s| - i
+  {
+    if i == |s| then None
+    else if s[i] == c then Some(i)
+    else Find(s, c, i + 1)
+  }
+
+  lemma FindLocatesElem<T>(s: seq<T>, c: T, start: nat, hereItIs: nat)
+    requires start <= hereItIs <= |s|
+    requires forall i :: start <= i < hereItIs ==> s[i] != c
+    requires hereItIs == |s| || s[hereItIs] == c
+    ensures Find(s, c, start) == if hereItIs == |s| then None else Some(hereItIs)
+    decreases hereItIs - start
+  {
+  }
+
   predicate StringIs8Bit(s: string) {
     forall i :: 0 <= i < |s| ==> s[i] < 256 as char
   }
@@ -350,6 +421,28 @@ module {:extern "STL"} StandardLibrary {
         assert LexicographicLessOrEqualAux(a, b, less, m);
       case less(b[m], a[m]) =>
         assert LexicographicLessOrEqualAux(b, a, less, m);
+    }
+  }
+
+  function method Filter<T>(s: seq<T>, f: T -> bool): (res: seq<T>)
+    ensures forall i :: 0 <= i < |s| && f(s[i]) ==> s[i] in res
+    ensures forall i :: 0 <= i < |res| ==> res[i] in s && f(res[i])
+    ensures |res| <= |s|
+  {
+    if |s| == 0 then []
+    else if f(s[0]) then ([s[0]] + Filter(s[1..], f))
+    else Filter(s[1..], f)
+  }
+
+  lemma FilterIsDistributive<T>(s: seq<T>, s': seq<T>, f: T -> bool)
+    ensures Filter(s+s', f) == Filter(s,f) + Filter(s',f)
+  {
+    if s == [] {
+      assert s + s' == s';
+    } else {
+      FilterIsDistributive<T>(s[1..], s', f);
+      assert s + s' == [s[0]] + (s[1..] + s');
+      assert Filter(s+s', f) == Filter(s,f) + Filter(s',f);
     }
   }
 }
