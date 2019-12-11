@@ -24,5 +24,6 @@ phases:
       - cd aws-encryption-sdk-dafny
   build:
     commands:
-      - dotnet build -t:VerifyDafny
+      - dotnet build -t:VerifyDafny src
+      - dotnet build -t:VerifyDafny test
       - dotnet test
