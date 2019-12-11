@@ -35,6 +35,8 @@
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="Portable.BouncyCastle" Version="1.8.5.2" />
+    <PackageReference Include="AWSSDK.KeyManagementService" Version="3.3.103" />
+    <PackageReference Include="Portable.BouncyCastle" Version="1.8.5.2" />
   </ItemGroup>
   
 </Project>
