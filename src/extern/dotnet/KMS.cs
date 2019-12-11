@@ -63,7 +63,7 @@ namespace KMSUtils {
                 KeyId = request.keyID.ToString(),
                 NumberOfBytes = request.numberOfBytes
             };
-            KMS.Model.GenerateDataKeyResponse response = this.client.GenerateDataKey(kmsRequest);
+            KMS.Model.GenerateDataKeyResponse response = this.client.GenerateDataKeyAsync(kmsRequest).Result;
             return new STL.Result_Success<GenerateDataKeyResponse>(new GenerateDataKeyResponse(
                     byteseq.FromArray(response.CiphertextBlob.ToArray()),
                     response.ContentLength,
@@ -88,7 +88,7 @@ namespace KMSUtils {
                     KeyId = request.keyID.ToString(),
                     Plaintext = new MemoryStream(__default.ConvertByteSeq(request.plaintext))
                 };
-                KMS.Model.EncryptResponse response = this.client.Encrypt(kmsRequest);
+                KMS.Model.EncryptResponse response = this.client.EncryptAsync(kmsRequest).Result;
                 return new STL.Result_Success<EncryptResponse>(new EncryptResponse(
                             byteseq.FromArray(response.CiphertextBlob.ToArray()),
                             response.ContentLength,
@@ -111,7 +111,7 @@ namespace KMSUtils {
                     EncryptionContext = __default.EncryptionContextToString(request.encryptionContext),
                     GrantTokens = request.grantTokens.Elements.Select(element => element.ToString()).ToList(),
                 };
-                KMS.Model.DecryptResponse response = this.client.Decrypt(kmsRequest);
+                KMS.Model.DecryptResponse response = this.client.DecryptAsync(kmsRequest).Result;
                 return new STL.Result_Success<DecryptResponse>(new DecryptResponse(
                             response.ContentLength,
                             (int)response.HttpStatusCode,
