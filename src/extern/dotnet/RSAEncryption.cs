@@ -90,7 +90,7 @@ namespace RSAEncryption {
                 } else if (padding.is_OAEP__SHA1) {
                     engine = new OaepEncoding(new RsaEngine(), new Sha1Digest(), null);
                 }
-                else { // paddingi_is_OAEP__SHA256
+                else { // padding._is_OAEP__SHA256
                     engine = new OaepEncoding(new RsaEngine(), new Sha256Digest(), null);
                 }
 

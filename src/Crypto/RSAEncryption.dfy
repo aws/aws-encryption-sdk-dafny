@@ -5,6 +5,7 @@ module {:extern "RSAEncryption"} RSAEncryption {
     import opened StandardLibrary
     import opened UInt = StandardLibrary.UInt
 
+    // TODO: Add support for OAEP_SHA384 and OAEP_SHA512
     datatype {:extern "RSAPaddingMode"} RSAPaddingMode = PKCS1 | OAEP_SHA1 | OAEP_SHA256
 
     // const UINT32_MAX := 0x1_0000_0000 - 1
