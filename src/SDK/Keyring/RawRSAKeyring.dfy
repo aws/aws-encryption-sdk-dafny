@@ -136,11 +136,8 @@ module RawRSAKeyringDef {
         invariant  0 <= i <= |encryptedDataKeys|
       {
         var encryptedDataKey := encryptedDataKeys[i];
-        if encryptedDataKey.providerID != keyNamespace || encryptedDataKey.providerInfo != keyName {
-          // Required for decryption, continue to next encrypted data key
-        } else {
-          var optionalPlaintextDataKey := RSA.RSA.RSADecrypt(paddingMode, privateKey.get,
-            encryptedDataKey.ciphertext);
+        if encryptedDataKey.providerID == keyNamespace && encryptedDataKey.providerInfo == keyName {
+          var optionalPlaintextDataKey := RSA.RSA.RSADecrypt(paddingMode, privateKey.get, encryptedDataKey.ciphertext);
           match optionalPlaintextDataKey
           case None =>
             // Continue, since nothing was returned
