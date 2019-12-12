@@ -31,21 +31,21 @@ module RawRSAKeyringDef {
     {
       Repr == {this} &&
         (publicKey.Some? || privateKey.Some?) &&
-        (publicKey.Some? ==> RSA.RSA.RSAWfEK(bitLength, paddingMode, publicKey.get)) &&
-        (privateKey.Some? ==> RSA.RSA.RSAWfDK(bitLength, paddingMode, privateKey.get)) &&
-        (|keyNamespace| < UINT16_LIMIT) &&
-        (|keyName| < UINT16_LIMIT)
+        publicKey.Some? ==> RSA.RSA.RSAWfEK(bitLength, paddingMode, publicKey.get) &&
+        privateKey.Some? ==> RSA.RSA.RSAWfDK(bitLength, paddingMode, privateKey.get) &&
+        |keyNamespace| < UINT16_LIMIT &&
+        |keyName| < UINT16_LIMIT
     }
 
     constructor(namespace: UTF8.ValidUTF8Bytes,name: UTF8.ValidUTF8Bytes, padding: RSA.RSAPaddingMode,
                 bits: RSA.RSABitLength, encryptionKey: Option<seq<uint8>>, decryptionKey: Option<seq<uint8>>)
       requires (encryptionKey.Some? || decryptionKey.Some?) &&
-        (encryptionKey.Some? ==> RSA.RSA.RSAWfEK(bits, padding, encryptionKey.get)) &&
-        (decryptionKey.Some? ==> RSA.RSA.RSAWfDK(bits, padding, decryptionKey.get))
+        encryptionKey.Some? ==> RSA.RSA.RSAWfEK(bits, padding, encryptionKey.get) &&
+        decryptionKey.Some? ==> RSA.RSA.RSAWfDK(bits, padding, decryptionKey.get)
       requires |namespace| < UINT16_LIMIT && |name| < UINT16_LIMIT
-      ensures (keyNamespace == namespace) && (keyName == name) &&
-        (paddingMode == padding) && (bitLength == bits) &&
-        (publicKey == encryptionKey) && (privateKey == decryptionKey)
+      ensures keyNamespace == namespace && keyName == name &&
+        paddingMode == padding && bitLength == bits &&
+        publicKey == encryptionKey && privateKey == decryptionKey
       ensures Valid()
     {
       keyNamespace, keyName := namespace, name;
@@ -69,7 +69,7 @@ module RawRSAKeyringDef {
         plaintextDataKey.get == res.value.get.plaintextDataKey
       ensures res.Success? && res.value.Some? ==>
         var generateTraces := Filter(res.value.get.keyringTrace, Materials.IsGenerateTraceEntry);
-        |generateTraces| == (if plaintextDataKey.None? then 1 else 0)
+        |generateTraces| == if plaintextDataKey.None? then 1 else 0
       ensures res.Success? && res.value.Some? ==>
         if plaintextDataKey.None? then
           && |res.value.get.keyringTrace| == 2
@@ -137,20 +137,21 @@ module RawRSAKeyringDef {
         invariant  0 <= i <= |encryptedDataKeys|
       {
         var encryptedDataKey := encryptedDataKeys[i];
-        if (encryptedDataKey.providerID != keyNamespace) || (encryptedDataKey.providerInfo != keyName) {
+        if encryptedDataKey.providerID != keyNamespace || encryptedDataKey.providerInfo != keyName {
           // Required for decryption, continue to next encrypted data key
         } else {
-          var octxt := RSA.RSA.RSADecrypt(bitLength, paddingMode, privateKey.get, encryptedDataKey.ciphertext);
-          match octxt
+          var optionalPlaintextDataKey := RSA.RSA.RSADecrypt(bitLength, paddingMode, privateKey.get,
+            encryptedDataKey.ciphertext);
+          match optionalPlaintextDataKey
           case None =>
             // Continue, since nothing was returned
-          case Some(k) =>
+          case Some(plaintextDataKey) =>
             // Validate the key length before returning
-            if algorithmSuiteID.ValidPlaintextDataKey(k) {
+            if algorithmSuiteID.ValidPlaintextDataKey(plaintextDataKey) {
               var decryptTraceEntry := DecryptTraceEntry();
-              return Success(Some(Materials.OnDecryptResult(algorithmSuiteID, k, [decryptTraceEntry])));
+              return Success(Some(Materials.OnDecryptResult(algorithmSuiteID, plaintextDataKey, [decryptTraceEntry])));
             } else {
-              return Failure(("Bad key length!"));
+              return Failure("Bad key length!");
             }
         }
         i := i + 1;

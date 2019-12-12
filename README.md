@@ -19,7 +19,7 @@ dotnet build
 To run the dafny verifier across all files:
 
 ```
-dotnet build -t:Verify
+dotnet build -t:VerifyDafny
 ```
 
 ## Testing
