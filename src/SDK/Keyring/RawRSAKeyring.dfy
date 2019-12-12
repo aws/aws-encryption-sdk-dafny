@@ -22,7 +22,6 @@ module RawRSAKeyringDef {
     const keyNamespace: UTF8.ValidUTF8Bytes
     const keyName: UTF8.ValidUTF8Bytes
     const paddingMode: RSA.RSAPaddingMode
-    const bitLength: RSA.RSABitLength
     const publicKey: Option<seq<uint8>>
     const privateKey: Option<seq<uint8>>
 
@@ -31,25 +30,25 @@ module RawRSAKeyringDef {
     {
       Repr == {this} &&
         (publicKey.Some? || privateKey.Some?) &&
-        publicKey.Some? ==> RSA.RSA.RSAWfEK(bitLength, paddingMode, publicKey.get) &&
-        privateKey.Some? ==> RSA.RSA.RSAWfDK(bitLength, paddingMode, privateKey.get) &&
+        (publicKey.Some? ==> RSA.RSA.RSAWfEK(paddingMode, publicKey.get)) &&
+        (privateKey.Some? ==> RSA.RSA.RSAWfDK(paddingMode, privateKey.get)) &&
         |keyNamespace| < UINT16_LIMIT &&
         |keyName| < UINT16_LIMIT
     }
 
     constructor(namespace: UTF8.ValidUTF8Bytes,name: UTF8.ValidUTF8Bytes, padding: RSA.RSAPaddingMode,
-                bits: RSA.RSABitLength, encryptionKey: Option<seq<uint8>>, decryptionKey: Option<seq<uint8>>)
+                encryptionKey: Option<seq<uint8>>, decryptionKey: Option<seq<uint8>>)
       requires (encryptionKey.Some? || decryptionKey.Some?) &&
-        encryptionKey.Some? ==> RSA.RSA.RSAWfEK(bits, padding, encryptionKey.get) &&
-        decryptionKey.Some? ==> RSA.RSA.RSAWfDK(bits, padding, decryptionKey.get)
+        (encryptionKey.Some? ==> RSA.RSA.RSAWfEK(padding, encryptionKey.get)) &&
+        (decryptionKey.Some? ==> RSA.RSA.RSAWfDK(padding, decryptionKey.get))
       requires |namespace| < UINT16_LIMIT && |name| < UINT16_LIMIT
       ensures keyNamespace == namespace && keyName == name &&
-        paddingMode == padding && bitLength == bits &&
+        paddingMode == padding &&
         publicKey == encryptionKey && privateKey == decryptionKey
       ensures Valid()
     {
       keyNamespace, keyName := namespace, name;
-      paddingMode, bitLength := padding, bits;
+      paddingMode := padding;
       publicKey, privateKey := encryptionKey, decryptionKey;
       Repr := {this};
     }
@@ -95,14 +94,14 @@ module RawRSAKeyringDef {
         }
 
         // Attempt to encrypt and construct the encrypted data key
-        var encryptedCiphertext := RSA.RSA.RSAEncrypt(bitLength, paddingMode, publicKey.get, plaintextDataKey.get);
+        var encryptedCiphertext := RSA.RSA.RSAEncrypt(paddingMode, publicKey.get, plaintextDataKey.get);
         if encryptedCiphertext.None? {
           return Failure("Error on encrypt!");
         } else if UINT16_LIMIT <= |encryptedCiphertext.get| {
           return Failure("Encrypted data key too long.");
         }
         var encryptedDataKey := Materials.EncryptedDataKey(keyNamespace, keyName, encryptedCiphertext.get);
-        
+
         // Construct the necessary trace
         var encryptTraceEntry := EncryptTraceEntry();
         FilterIsDistributive(keyringTrace, [encryptTraceEntry], Materials.IsGenerateTraceEntry);
@@ -140,7 +139,7 @@ module RawRSAKeyringDef {
         if encryptedDataKey.providerID != keyNamespace || encryptedDataKey.providerInfo != keyName {
           // Required for decryption, continue to next encrypted data key
         } else {
-          var optionalPlaintextDataKey := RSA.RSA.RSADecrypt(bitLength, paddingMode, privateKey.get,
+          var optionalPlaintextDataKey := RSA.RSA.RSADecrypt(paddingMode, privateKey.get,
             encryptedDataKey.ciphertext);
           match optionalPlaintextDataKey
           case None =>

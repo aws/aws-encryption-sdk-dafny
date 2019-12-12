@@ -47,7 +47,7 @@ namespace RSAEncryption {
                 dk = byteseq.FromArray(d);
         }
 
-        public static STL.Option<byteseq> RSAEncrypt(int bits, RSAPaddingMode padding, byteseq ek, byteseq msg) {
+        public static STL.Option<byteseq> RSAEncrypt(RSAPaddingMode padding, byteseq ek, byteseq msg) {
             try {
                 AsymmetricKeyParameter pub;
                 using (var stringReader = new StringReader(Encoding.UTF8.GetString(ek.Elements)))
@@ -79,7 +79,7 @@ namespace RSAEncryption {
 
         // https://stackoverflow.com/questions/28086321/c-sharp-bouncycastle-rsa-encryption-with-public-private-keys
 
-        public static STL.Option<byteseq> RSADecrypt(int bits, RSAPaddingMode padding, byteseq dk, byteseq ctx) {
+        public static STL.Option<byteseq> RSADecrypt(RSAPaddingMode padding, byteseq dk, byteseq ctx) {
             try {
                 AsymmetricCipherKeyPair keyPair;
 
