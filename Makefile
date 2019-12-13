@@ -39,38 +39,9 @@ LIBSRCS = \
 	   src/Util/Streams.dfy \
 	   src/Util/UTF8.dfy \
 
-SRCS = $(LIBSRCS) \
-	   src/Main.dfy
-
 BENCHSRCS = $(LIBSRCS) \
 			src/Bench.dfy
 
-SRCV = $(patsubst src/%.dfy, build/%.dfy.verified, $(SRCS))
-
-DEPS_CS = $(wildcard src/extern/dotnet/*.cs)
-
-BCDLL = lib/BouncyCastle.1.8.5/lib/BouncyCastle.Crypto.dll
-
-DEPS = $(DEPS_CS) $(BCDLL)
-
-.PHONY: all release build verify buildcs hkdf test clean-build clean
-
-all: verify build test
-
-release: all
-
-build: build/Main.exe
-
-verify: clean-build $(SRCV)
-
-build/%.dfy.verified: src/%.dfy
-	$(DAFNY) $(patsubst build/%.dfy.verified, src/%.dfy, $@) /compile:0 && mkdir -p $(dir $@) && touch $@
-
-build/Main.exe: $(SRCS) $(DEPS)
-	$(DAFNY) /out:build/Main $(SRCS) $(DEPS) /compile:2 /noVerify /noIncludes /spillTargetCode:1 && cp $(BCDLL) build/
-
-build/Bench.exe: $(BENCHSRCS) $(DEPS)
-	$(DAFNY) /out:build/Bench $(BENCHSRCS) $(DEPS) /compile:2 /noVerify /noIncludes /spillTargetCode:1 && cp $(BCDLL) build/
 
 build/java/src/bench/bench.java: $(BENCHSRCS)
 	$(DAFNY) /out:build/java/src/bench $(BENCHSRCS) /compile:0 /noVerify /noIncludes /spillTargetCode:3 /compileTarget:java
@@ -79,29 +50,3 @@ build/java/bench.jar: $(BENCHSRCS) build/java/src/bench/bench.java
 	mvn -f bench.pom.xml package
 	cp build/java/aws-encryption-sdk-dafny-benchmarks-1.0-SNAPSHOT-jar-with-dependencies.jar build/java/bench.jar
 
-buildjs: $(SRCS)
-	$(DAFNY) /out:build/Main $(SRCS) /compile:2 /noVerify /noIncludes /compileTarget:js /spillTargetCode:1
-
-buildcs: build/Main.cs
-	csc /r:System.Numerics.dll /r:$(BCDLL) /target:exe /debug /nowarn:0164 /nowarn:0219 /nowarn:1717 /nowarn:0162 /nowarn:0168 build/Main.cs $(DEPS_CS) /out:build/Main.exe
-
-# TODO: HKDF.dfy hasn't been reviewed yet.
-# Once it is, re-add:
-#
-# OTHERSRCS = $(filter-out src/Crypto/HKDF/HKDF.dfy,$(SRCS))
-# build/HKDF.dll: $(SRCV) $(DEPS)
-# 	$(DAFNY) /out:build/HKDF src/Crypto/HKDF/HKDF.dfy $(OTHERSRCS) $(DEPS) /compile:2 /noVerify /noIncludes && cp $(BCDLL) build/
-#
-# hkdf: build/HKDF.dll
-
-lib/%.dll:
-	nuget install
-
-test: $(DEPS)
-	lit test -q -v
-
-clean-build:
-	$(RM) -r build/*
-
-clean: clean-build
-	$(RM) -r lib/*

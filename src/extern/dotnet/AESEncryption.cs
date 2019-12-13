@@ -6,7 +6,7 @@ using Org.BouncyCastle.Crypto.Modes;
 using Org.BouncyCastle.Crypto.Parameters;
 
 using byteseq = Dafny.Sequence<byte>;
-using bytearrayseq = Dafny.ArraySequence<byte>;
+using charseq = Dafny.Sequence<char>;
 
 
 namespace AESEncryption {
@@ -26,10 +26,10 @@ namespace AESEncryption {
                 byte[] c = new byte[cipher.GetOutputSize(msg.Elements.Length)];
                 var len = cipher.ProcessBytes(msg.Elements, 0, msg.Elements.Length, c, 0);
                 cipher.DoFinal(c, len); //Append authentication tag to `c`
-                return new STL.Result_Success<EncryptionOutput>(__default.EncryptionOutputFromByteSeq(byteseq.FromElements(c), encAlg));
+                return new STL.Result_Success<EncryptionOutput>(__default.EncryptionOutputFromByteSeq(byteseq.FromArray(c), encAlg));
             }
             catch {
-                return new STL.Result_Failure<EncryptionOutput>(new Dafny.ArraySequence<char>("aes encrypt err".ToCharArray()));
+                return new STL.Result_Failure<EncryptionOutput>(charseq.FromArray("aes encrypt err".ToCharArray()));
             }
         }
 
@@ -42,11 +42,11 @@ namespace AESEncryption {
                 var pt = new byte[cipher.GetOutputSize(ctx.Elements.Length)];
                 var len = cipher.ProcessBytes(ctx.Elements, 0, ctx.Elements.Length, pt, 0);
                 cipher.DoFinal(pt, len); //Check message authentication tag
-                return new STL.Result_Success<byteseq>(new bytearrayseq(pt));
+                return new STL.Result_Success<byteseq>(byteseq.FromArray(pt));
             } catch(InvalidCipherTextException macEx) {
-                return new STL.Result_Failure<byteseq>(new Dafny.ArraySequence<char>(macEx.ToString().ToCharArray()));
+                return new STL.Result_Failure<byteseq>(charseq.FromArray(macEx.ToString().ToCharArray()));
             } catch {
-                return new STL.Result_Failure<byteseq>(new Dafny.ArraySequence<char>("aes decrypt err".ToCharArray()));
+                return new STL.Result_Failure<byteseq>(charseq.FromArray("aes decrypt err".ToCharArray()));
             }
         }
     }

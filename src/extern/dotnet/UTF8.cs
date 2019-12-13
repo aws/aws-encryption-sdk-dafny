@@ -2,7 +2,7 @@ using System;
 using System.Text;
 
 using byteseq = Dafny.Sequence<byte>;
-using bytearrayseq = Dafny.ArraySequence<byte>;
+using charseq = Dafny.Sequence<char>;
 
 namespace UTF8 {
   public partial class __default {
@@ -10,9 +10,9 @@ namespace UTF8 {
         UTF8Encoding utf8 = new UTF8Encoding(false, true);
         try {
             byte[] utf8Bytes = utf8.GetBytes(str.Elements);
-            return new STL.Result_Success<byteseq>(new bytearrayseq(utf8Bytes));
+            return new STL.Result_Success<byteseq>(byteseq.FromArray(utf8Bytes));
         } catch(EncoderFallbackException e) {
-            return new STL.Result_Failure<byteseq>(new Dafny.ArraySequence<char>("Input contains invalid Unicode characters".ToCharArray()));
+            return new STL.Result_Failure<byteseq>(charseq.FromArray("Input contains invalid Unicode characters".ToCharArray()));
         }
     }
 
@@ -20,9 +20,9 @@ namespace UTF8 {
         UTF8Encoding utf8 = new UTF8Encoding(false, true);
         try {
             string decoded = utf8.GetString(bytes.Elements);
-            return new STL.Result_Success<Dafny.Sequence<char>>(new Dafny.ArraySequence<char>(decoded.ToCharArray()));
+            return new STL.Result_Success<Dafny.Sequence<char>>(charseq.FromArray(decoded.ToCharArray()));
         } catch(DecoderFallbackException e) {
-            return new STL.Result_Failure<Dafny.Sequence<char>>(new Dafny.ArraySequence<char>("Input contains an invalid Unicode code point".ToCharArray()));
+            return new STL.Result_Failure<Dafny.Sequence<char>>(charseq.FromArray("Input contains an invalid Unicode code point".ToCharArray()));
         }
     }
   }

@@ -2,9 +2,10 @@ version: 0.2
 phases:
   install:
     runtime-versions:
-      dotnet: 2.2
+      dotnet: 3.0
     commands:
       - cd ..
+      - yum install -y which
       - yum install -y nuget
       - pip install --no-cache-dir lit OutputCheck pyyaml
       - mozroots --import --sync
@@ -23,4 +24,6 @@ phases:
       - cd aws-encryption-sdk-dafny
   build:
     commands:
-      - make release
+      - dotnet build -t:VerifyDafny src
+      - dotnet build -t:VerifyDafny test
+      - dotnet test

@@ -64,18 +64,32 @@ module RawRSAKeyringDef {
       ensures Valid()
       ensures unchanged(Repr)
       ensures res.Success? && res.value.Some? ==> 
-          algorithmSuiteID == res.value.get.algorithmSuiteID
+        algorithmSuiteID == res.value.get.algorithmSuiteID
       ensures res.Success? && res.value.Some? && plaintextDataKey.Some? ==> 
-          plaintextDataKey.get == res.value.get.plaintextDataKey
+        plaintextDataKey.get == res.value.get.plaintextDataKey
+      ensures res.Success? && res.value.Some? ==>
+        var generateTraces := Filter(res.value.get.keyringTrace, Materials.IsGenerateTraceEntry);
+        |generateTraces| == if plaintextDataKey.None? then 1 else 0
+      ensures res.Success? && res.value.Some? ==>
+        if plaintextDataKey.None? then
+          && |res.value.get.keyringTrace| == 2
+          && res.value.get.keyringTrace[0] == GenerateTraceEntry()
+          && res.value.get.keyringTrace[1] == EncryptTraceEntry()
+        else
+          && |res.value.get.keyringTrace| == 1
+          && res.value.get.keyringTrace[0] == EncryptTraceEntry()
     {
       if encryptionKey.None? {
         return Failure("Encryption key undefined");
       } else {
         var plaintextDataKey := plaintextDataKey;
         var algorithmID := algorithmSuiteID;
+        var keyringTrace := [];
         if plaintextDataKey.None? {
           var k := Random.GenerateBytes(algorithmID.KDFInputKeyLength() as int32);
           plaintextDataKey := Some(k);
+          var generateTraceEntry := GenerateTraceEntry();
+          keyringTrace := keyringTrace + [generateTraceEntry];
         }
         var aad := Materials.FlattenSortEncCtx(encryptionContext);
         var edkCiphertext := RSA.RSA.RSAEncrypt(bitLength, paddingMode, encryptionKey.get, plaintextDataKey.get);
@@ -85,7 +99,13 @@ module RawRSAKeyringDef {
           return Failure("Encrypted data key too long.");
         }
         var edk := Materials.EncryptedDataKey(keyNamespace, keyName, edkCiphertext.get);
-        var dataKey := Materials.DataKeyMaterials(algorithmSuiteID, plaintextDataKey.get, [edk]);
+        
+        var encryptTraceEntry := EncryptTraceEntry();
+        FilterIsDistributive(keyringTrace, [encryptTraceEntry], Materials.IsGenerateTraceEntry);
+        FilterIsDistributive(keyringTrace, [encryptTraceEntry], Materials.IsEncryptTraceEntry);
+        keyringTrace := keyringTrace + [encryptTraceEntry];
+        
+        var dataKey := Materials.DataKeyMaterials(algorithmSuiteID, plaintextDataKey.get, [edk], keyringTrace);
         assert dataKey.algorithmSuiteID.ValidPlaintextDataKey(dataKey.plaintextDataKey);
         return Success(Some(dataKey));
       }
@@ -93,13 +113,12 @@ module RawRSAKeyringDef {
 
     method OnDecrypt(algorithmSuiteID: AlgorithmSuite.ID, 
                      encryptionContext: Materials.EncryptionContext, 
-                     edks: seq<Materials.EncryptedDataKey>)
-      returns (res: Result<Option<seq<uint8>>>)
+                     edks: seq<Materials.EncryptedDataKey>) returns (res: Result<Option<Materials.ValidOnDecryptResult>>)
       requires Valid() 
       ensures Valid()
       ensures |edks| == 0 ==> res.Success? && res.value.None?
-      ensures res.Success? && res.value.Some? ==> 
-          algorithmSuiteID.ValidPlaintextDataKey(res.value.get)
+      ensures res.Success? && res.value.Some? ==> res.value.get.algorithmSuiteID == algorithmSuiteID
+      ensures res.Success? && res.value.Some? ==> |res.value.get.keyringTrace| == 1 && res.value.get.keyringTrace[0] == DecryptTraceEntry()
     {
       if |edks| == 0 {
         return Success(None);
@@ -122,7 +141,8 @@ module RawRSAKeyringDef {
             // continue with the next EDK
           case Some(k) =>
             if algorithmSuiteID.ValidPlaintextDataKey(k) { // check for correct key length
-              return Success(Some(k));
+              var decryptTraceEntry := DecryptTraceEntry();
+              return Success(Some(Materials.OnDecryptResult(algorithmSuiteID, k, [decryptTraceEntry])));
             } else {
               return Failure(("Bad key length!"));
             }
@@ -130,6 +150,21 @@ module RawRSAKeyringDef {
         i := i + 1;
       }
       return Success(None);
+    }
+
+    function method GenerateTraceEntry(): Materials.KeyringTraceEntry
+    {
+      Materials.KeyringTraceEntry(keyNamespace, keyName, {Materials.GENERATED_DATA_KEY})
+    }
+
+    function method EncryptTraceEntry(): Materials.KeyringTraceEntry
+    {
+      Materials.KeyringTraceEntry(keyNamespace, keyName, {Materials.ENCRYPTED_DATA_KEY})
+    }
+
+    function method DecryptTraceEntry(): Materials.KeyringTraceEntry
+    {
+      Materials.KeyringTraceEntry(keyNamespace, keyName, {Materials.DECRYPTED_DATA_KEY})
     }
   }
 }
