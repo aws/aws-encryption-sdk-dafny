@@ -29,11 +29,11 @@ module RawRSAKeyringDef {
       reads this
     {
       Repr == {this} &&
-        (publicKey.Some? || privateKey.Some?) &&
-        (publicKey.Some? ==> RSA.RSA.RSAWfEK(paddingMode, publicKey.get)) &&
-        (privateKey.Some? ==> RSA.RSA.RSAWfDK(paddingMode, privateKey.get)) &&
-        |keyNamespace| < UINT16_LIMIT &&
-        |keyName| < UINT16_LIMIT
+      (publicKey.Some? || privateKey.Some?) &&
+      (publicKey.Some? ==> RSA.RSA.RSAWfEK(paddingMode, publicKey.get)) &&
+      (privateKey.Some? ==> RSA.RSA.RSAWfDK(paddingMode, privateKey.get)) &&
+      |keyNamespace| < UINT16_LIMIT &&
+      |keyName| < UINT16_LIMIT
     }
 
     constructor(namespace: UTF8.ValidUTF8Bytes,name: UTF8.ValidUTF8Bytes, padding: RSA.RSAPaddingMode,
