@@ -138,7 +138,7 @@ module RawRSAKeyringDef {
           var potentialPlaintextDataKey := RSA.RSA.RSADecrypt(paddingMode, privateKey.get, encryptedDataKey.ciphertext);
           match potentialPlaintextDataKey
           case Failure(_) =>
-            // Continue, since nothing was returned
+            // Try to decrypt using another encryptedDataKey
           case Success(plaintextDataKey) =>
             // Validate the key length before returning
             if algorithmSuiteID.ValidPlaintextDataKey(plaintextDataKey) {
