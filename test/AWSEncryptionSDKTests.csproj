@@ -7,7 +7,10 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="dafny.msbuild" Version="0.1.1" />
+    <PackageReference Include="dafny.msbuild" Version="0.1.1-build20191211-2242" />
+    <Reference Include="DafnyRuntime">
+      <HintPath>..\..\dafny\Binaries\DafnyRuntime.dll</HintPath>
+    </Reference>
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="16.2.0" />
     <PackageReference Include="xunit" Version="2.4.0" />
     <PackageReference Include="xunit.runner.visualstudio" Version="2.4.0" />
@@ -20,11 +23,10 @@
     are currently writing external code requires that the external C# code is actually compiled
     together with the C# code generated from Dafny at the same time. 
     For now we just inline the referenced project's source and dependencies.
-
-  <ItemGroup>
-    <ProjectReference Include="../src/AWSEncryptionSDK.csproj" />
-  </ItemGroup>
   -->
+<!--  <ItemGroup>-->
+<!--    <ProjectReference Include="../src/AWSEncryptionSDK.csproj" />-->
+<!--  </ItemGroup>-->
   <ItemGroup>
     <DafnySource Include="../src/**/*.dfy" />
   </ItemGroup>
