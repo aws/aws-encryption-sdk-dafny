@@ -1,7 +1,13 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
+using System.Text;
+using _System;
 using Dafny;
+
+using byteseq = Dafny.Sequence<byte>;
+using charseq = Dafny.Sequence<char>;
 
 public class DafnyFFI {
   
@@ -17,16 +23,25 @@ public class DafnyFFI {
         return Sequence<byte>.FromArray(bytes.ToArray());
     }
   
-    public static Dafny.Sequence<_System.Tuple2<Sequence<byte>,Sequence<byte>>> 
-        SeqOfPairsFromDictionary(Dictionary<string, string> bytes) {
-        // TODO: Similar implementation to the above methods.
-        // Can we find a more general way to map to and from Dafny.Sequence and IEnumerable?
-        throw new NotImplementedException();
+    public static Dafny.Sequence<_System.Tuple2<byteseq, byteseq>> 
+        SeqOfPairsFromDictionary(Dictionary<string, string> dictionary)
+    {
+        IEnumerable<Tuple2<byteseq, byteseq>> e = dictionary.Select(entry
+            => new Tuple2<byteseq, byteseq>(DafnyUTF8BytesFromString(entry.Key), DafnyUTF8BytesFromString(entry.Value)));
+        return Sequence<Tuple2<byteseq, byteseq>>.FromElements(e.ToArray());
     }
 
-    public static string StringFromDafnyString(Dafny.Sequence<char> dafnyString) {
+    public static string StringFromDafnyString(charseq dafnyString) {
         // This is safe under the assumption that nothing modifies the wrapped array
         return new string(dafnyString.Elements);
+    }
+    
+    public static charseq DafnyStringFromString(string s) {
+        return charseq.FromArray(s.ToCharArray());
+    }
+    
+    public static byteseq DafnyUTF8BytesFromString(string s) {
+        return byteseq.FromArray(Encoding.UTF8.GetBytes(s));
     }
   
     public static T GetResult<T>(STL.Result<T> result) {

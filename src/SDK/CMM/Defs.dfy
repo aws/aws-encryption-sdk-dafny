@@ -4,7 +4,7 @@ include "../../StandardLibrary/UInt.dfy"
 include "../../Crypto/Signature.dfy"
 include "../MessageHeader.dfy"
 
-module CMMDefs {
+module {:extern "CMMDefs"} CMMDefs {
   import opened StandardLibrary
   import opened UInt = StandardLibrary.UInt
   import Materials
