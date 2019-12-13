@@ -94,13 +94,11 @@ module RawRSAKeyringDef {
         }
 
         // Attempt to encrypt and construct the encrypted data key
-        var encryptedCiphertext := RSA.RSA.RSAEncrypt(paddingMode, publicKey.get, plaintextDataKey.get);
-        if encryptedCiphertext.None? {
-          return Failure("Error on encrypt!");
-        } else if UINT16_LIMIT <= |encryptedCiphertext.get| {
+        var encryptedCiphertext :- RSA.RSA.RSAEncrypt(paddingMode, publicKey.get, plaintextDataKey.get);
+        if UINT16_LIMIT <= |encryptedCiphertext| {
           return Failure("Encrypted data key too long.");
         }
-        var encryptedDataKey := Materials.EncryptedDataKey(keyNamespace, keyName, encryptedCiphertext.get);
+        var encryptedDataKey := Materials.EncryptedDataKey(keyNamespace, keyName, encryptedCiphertext);
 
         // Construct the necessary trace
         var encryptTraceEntry := EncryptTraceEntry();
@@ -137,11 +135,11 @@ module RawRSAKeyringDef {
       {
         var encryptedDataKey := encryptedDataKeys[i];
         if encryptedDataKey.providerID == keyNamespace && encryptedDataKey.providerInfo == keyName {
-          var optionalPlaintextDataKey := RSA.RSA.RSADecrypt(paddingMode, privateKey.get, encryptedDataKey.ciphertext);
-          match optionalPlaintextDataKey
-          case None =>
+          var potentialPlaintextDataKey := RSA.RSA.RSADecrypt(paddingMode, privateKey.get, encryptedDataKey.ciphertext);
+          match potentialPlaintextDataKey
+          case Failure(_) =>
             // Continue, since nothing was returned
-          case Some(plaintextDataKey) =>
+          case Success(plaintextDataKey) =>
             // Validate the key length before returning
             if algorithmSuiteID.ValidPlaintextDataKey(plaintextDataKey) {
               var decryptTraceEntry := DecryptTraceEntry();
