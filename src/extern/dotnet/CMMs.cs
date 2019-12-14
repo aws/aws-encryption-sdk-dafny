@@ -1,5 +1,5 @@
 using CMMDefs;
-using ESDK;
+using DefaultCMMDef;
 using KeyringDefs;
 
 namespace AWSEncryptionSDK
