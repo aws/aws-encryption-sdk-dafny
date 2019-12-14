@@ -2,30 +2,46 @@
 using System;
 using System.IO;
 using System.Collections.Generic;
+using System.Linq;
+using _System;
 using CMMDefs;
+using Dafny;
 using byteseq = Dafny.Sequence<byte>;
 using charseq = Dafny.Sequence<char>;
 
-// Sample of a top-level AWS Encryption SDK client method.
-public class Client {
+namespace AWSEncryptionSDK
+{
+    // TODO: What to name this?
+    public class Client {
   
-  public static MemoryStream Encrypt(MemoryStream plaintext, CMM cmm, Dictionary<string, string> encryptionContext) {
-    byteseq dafnyPlaintext = DafnyFFI.SequenceFromMemoryStream(plaintext);
-    Dafny.Sequence<_System.Tuple2<byteseq, byteseq>> dafnyEC = 
-        DafnyFFI.SeqOfPairsFromDictionary(encryptionContext);
+        // TODO: Proper documentation
+        public static MemoryStream Encrypt(MemoryStream plaintext, CMM cmm, Dictionary<string, string> encryptionContext) {
+            byteseq dafnyPlaintext = DafnyFFI.SequenceFromMemoryStream(plaintext);
+            Sequence<Tuple2<byteseq, byteseq>> dafnyEncryptionContext = 
+                ToDafnyEncryptionContext(encryptionContext);
     
-    // TODO: Might need a lock here if ANYTHING in the Dafny runtime isn't threadsafe!
-    STL.Result<byteseq> result = ESDKClient.__default.Encrypt(dafnyPlaintext, cmm, dafnyEC);
+            // TODO: Might need a lock here if ANYTHING in the Dafny runtime isn't threadsafe!
+            STL.Result<byteseq> result = ESDKClient.__default.Encrypt(dafnyPlaintext, cmm, dafnyEncryptionContext);
     
-    return DafnyFFI.MemoryStreamFromSequence(DafnyFFI.GetResult<byteseq>(result));
-  }
+            return DafnyFFI.MemoryStreamFromSequence(DafnyFFI.ExtractResult(result));
+        }
   
-  public static MemoryStream Decrypt(MemoryStream cyphertext, CMM cmm) {
-      byteseq dafnyPlaintext = DafnyFFI.SequenceFromMemoryStream(cyphertext);
+        // TODO: Proper documentation
+        public static MemoryStream Decrypt(MemoryStream cyphertext, CMM cmm) {
+            byteseq dafnyPlaintext = DafnyFFI.SequenceFromMemoryStream(cyphertext);
     
-      // TODO: Might need a lock here if ANYTHING in the Dafny runtime isn't threadsafe!
-      STL.Result<byteseq> result = ESDKClient.__default.Decrypt(dafnyPlaintext, cmm);
+            // TODO: Might need a lock here if ANYTHING in the Dafny runtime isn't threadsafe!
+            STL.Result<byteseq> result = ESDKClient.__default.Decrypt(dafnyPlaintext, cmm);
     
-      return DafnyFFI.MemoryStreamFromSequence(DafnyFFI.GetResult<byteseq>(result));
-  }
+            return DafnyFFI.MemoryStreamFromSequence(DafnyFFI.ExtractResult(result));
+        }
+  
+        private static Sequence<Tuple2<byteseq, byteseq>> 
+            ToDafnyEncryptionContext(Dictionary<string, string> encryptionContext)
+        {
+            IEnumerable<Tuple2<byteseq, byteseq>> e = encryptionContext.Select(entry
+                => new Tuple2<byteseq, byteseq>(DafnyFFI.DafnyUTF8BytesFromString(entry.Key), DafnyFFI.DafnyUTF8BytesFromString(entry.Value)));
+            return Sequence<Tuple2<byteseq, byteseq>>.FromElements(e.ToArray());
+        }
+    }
 }
