@@ -17,7 +17,7 @@ namespace AWSEncryptionSDKTests
         [Fact]
         public void RoundTripHappyPath()
         {
-            String keyArn = "arn:aws:kms:us-west-2:658956600833:key/b3537ef1-d8dc-4780-9f5a-55776cbb2f7f";
+            String keyArn = DafnyFFI.StringFromDafnyString(TestUtils.__default.SHARED__TEST__KEY__ARN);
             
             ClientSupplier clientSupplier = new DefaultClientSupplier();
             

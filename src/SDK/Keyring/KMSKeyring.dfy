@@ -5,7 +5,7 @@ include "../../StandardLibrary/StandardLibrary.dfy"
 include "../../KMS/KMSUtils.dfy"
 include "../../Util/UTF8.dfy"
 
-module {:extern "KMSKeyringDefs"} KMSKeyring {
+module {:extern "KMSKeyringDefs"} KMSKeyringDefs {
   import opened StandardLibrary
   import opened UInt = StandardLibrary.UInt
   import AlgorithmSuite
@@ -20,17 +20,6 @@ module {:extern "KMSKeyringDefs"} KMSKeyring {
   {
     var components := Split(arn, ':');
     if 6 <= |components| && components[0] == "arn" && components[2] == "kms" then Success(components[3]) else Failure("Malformed ARN")
-  }
-
-  method MakeKMSKeyring(clientSupplier: KMSUtils.ClientSupplier, 
-                        keyIDs: seq<KMSUtils.CustomerMasterKey>, 
-                        generator: Option<KMSUtils.CustomerMasterKey>, 
-                        grantTokens: seq<KMSUtils.GrantToken>)
-      returns (r: KMSKeyring) 
-      requires 0 <= |grantTokens| <= KMSUtils.MAX_GRANT_TOKENS
-      ensures r.Valid()
-  {
-    return new KMSKeyring(clientSupplier, keyIDs, generator, grantTokens);
   }
 
   class KMSKeyring extends KeyringDefs.Keyring {

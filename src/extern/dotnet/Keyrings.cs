@@ -16,6 +16,8 @@ namespace AWSEncryptionSDK
                                              IEnumerable<string> grantTokens)
         {
             KMSKeyring result = new KMSKeyring();
+            // TODO: The Dafny constructor shouldn't be directly callable from C# code!
+            // This isn't checking for nulls or any other requirements.
             result.__ctor(
                 clientSupplier, 
                 Dafny.Sequence<charseq>.FromElements(keyIDs.Select(DafnyFFI.DafnyStringFromString).ToArray()),

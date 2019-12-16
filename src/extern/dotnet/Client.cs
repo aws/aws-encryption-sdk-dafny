@@ -20,6 +20,8 @@ namespace AWSEncryptionSDK
             Sequence<Tuple2<byteseq, byteseq>> dafnyEncryptionContext = 
                 ToDafnyEncryptionContext(encryptionContext);
     
+            // TODO: This isn't checking for nulls or any of the requirements on the Dafny method.
+            // See https://github.com/dafny-lang/dafny/issues/461.
             // TODO: Might need a lock here if ANYTHING in the Dafny runtime isn't threadsafe!
             STL.Result<byteseq> result = ESDKClient.__default.Encrypt(dafnyPlaintext, cmm, dafnyEncryptionContext);
     
