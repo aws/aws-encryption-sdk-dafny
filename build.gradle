@@ -1,0 +1,123 @@
+// TODO: This build awkwardly generates all Java sources twice, once for the
+// library and once for the benchmark suite, where just one .dfy file differs
+// between the two runs.  It works, but there's probably a better way.
+
+plugins {
+    id 'java'
+    id 'maven-publish'
+}
+
+repositories {
+    mavenLocal()
+    mavenCentral()
+}
+
+group = 'com.example'
+version = '1.0-SNAPSHOT'
+sourceCompatibility = '1.8'
+
+project.buildDir = 'build/java'
+
+sourceSets {
+    main {
+        java {
+            srcDirs = ['src/extern/java', 'build/java/src/main']
+        }
+    }
+    bench {
+        java {
+            srcDirs = ['src/extern/java', 'build/java/src/bench']
+        }
+    }
+}
+
+dependencies {
+    implementation 'org.bouncycastle:bcprov-jdk16:1.46'
+    implementation 'dafny.lang:DafnyRuntime:1'
+
+    benchImplementation 'org.bouncycastle:bcprov-jdk16:1.46'
+    benchImplementation 'dafny.lang:DafnyRuntime:1'
+}
+
+
+def libSrcs = [
+    'src/Crypto/AESEncryption.dfy',
+    'src/Crypto/EncryptionSuites.dfy',
+    'src/Crypto/Digests.dfy',
+    'src/Crypto/HKDF/CryptoMac.dfy',
+    'src/Crypto/HKDF/HKDF.dfy',
+    'src/Crypto/HKDF/HKDFSpec.dfy',
+    'src/Crypto/Random.dfy',
+    'src/Crypto/RSAEncryption.dfy',
+    'src/Crypto/Signature.dfy',
+    'src/SDK/AlgorithmSuite.dfy',
+    'src/SDK/Client.dfy',
+    'src/SDK/CMM/DefaultCMM.dfy',
+    'src/SDK/CMM/Defs.dfy',
+    'src/SDK/Deserialize.dfy',
+    'src/SDK/Keyring/RawAESKeyring.dfy',
+    'src/SDK/Keyring/Defs.dfy',
+    'src/SDK/Keyring/MultiKeyring.dfy',
+    'src/SDK/Keyring/RawRSAKeyring.dfy',
+    'src/SDK/Materials.dfy',
+    'src/SDK/MessageBody.dfy',
+    'src/SDK/MessageHeader.dfy',
+    'src/SDK/Serialize.dfy',
+    'src/SDK/ToyClient.dfy',
+    'src/StandardLibrary/Base64.dfy',
+    'src/StandardLibrary/StandardLibrary.dfy',
+    'src/StandardLibrary/UInt.dfy',
+    'src/Util/Arrays.dfy',
+    'src/Util/Streams.dfy',
+    'src/Util/UTF8.dfy',
+]
+
+def dafnyOpts = [
+    '/compile:0',
+    '/noVerify',
+    '/noIncludes',
+    '/spillTargetCode:3',
+    '/compileTarget:java',
+]
+
+// TODO: This should be using a custom task type so that (a) there's less
+// duplication and (b) we can let Gradle know what the output directory is
+// so that we can avoid regenerating sources.
+
+task genSources(type: Exec) {
+    executable = 'dafny'
+    args "/out:$buildDir/src/main"
+    args libSrcs
+    args 'test/SDK/Client.dfy'
+    args dafnyOpts
+}
+
+task genBenchSources(type: Exec) {
+    executable = 'dafny'
+    args "/out:$buildDir/src/bench"
+    args libSrcs
+    args 'test/SDK/Bench.dfy'
+    args dafnyOpts
+}
+
+gradle.projectsEvaluated {
+    compileJava.dependsOn genSources
+    compileBenchJava.dependsOn genBenchSources
+}
+
+publishing {
+    publications {
+        maven(MavenPublication) {
+            from(components.java)
+        }
+    }
+}
+
+tasks.withType(JavaCompile) {
+    options.encoding = 'UTF-8'
+}
+
+task bench(type: JavaExec) {
+    classpath = sourceSets.bench.runtimeClasspath
+    main = 'bench'
+}
