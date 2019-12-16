@@ -1,59 +1,63 @@
 include "../StandardLibrary/StandardLibrary.dfy"
 
-//This code must be reviewed, see #18
 module {:extern "RSAEncryption"} RSAEncryption {
     import opened StandardLibrary
     import opened UInt = StandardLibrary.UInt
 
-    // TODO: Add support for OAEP_SHA384 and OAEP_SHA512
-    datatype {:extern "RSAPaddingMode"} RSAPaddingMode = PKCS1 | OAEP_SHA1 | OAEP_SHA256
+    datatype {:extern "PaddingMode"} PaddingMode = PKCS1 | OAEP_SHA1 | OAEP_SHA256 | OAEP_SHA384 | OAEP_SHA512
 
-    // const UINT32_MAX := 0x1_0000_0000 - 1
-    newtype {:nativeType "int"} RSABitLength = x | 521 <= x < (0x8000_0000) witness 521 // 521 = lowest bit size to make msg_len_of_rsa_params nonnegative
+    // The smallest allowed bit lenght represents PKCS1, where modulus octets >= 11, which implies 11 * 8 - 7 = min bits
+    newtype {:nativeType "int"} BitLength = x | 81 <= x < (0x8000_0000) witness 81
 
-    // From Bouncy Castle, in RSACoreEngine.cs
-    function method RSACoreMsgLen(bits : RSABitLength) : nat {
-        (bits as nat - 1) / 8
+    // Represents the length in bytes of the hash function output
+    const SHA1_HASH_BYTES := 20
+    const SHA256_HASH_BYTES := 32
+    const SHA384_HASH_BYTES := 48
+    const SHA512_HASH_BYTES := 64
+
+    // GetOctet converts the given number of bits to the octet (byte) size that includes all bits
+    function method GetOctet(bits : BitLength) : nat {
+      (bits as nat + 7) / 8
     }
 
-    const SHA1_DIGEST_LEN := 20
-    const SHA256_DIGEST_LEN := 32
-
-    class {:extern "RSA"} RSA {
-
-        static function method msg_len_of_rsa_params(padding : RSAPaddingMode, bits : RSABitLength) : Option<nat> {
-                match padding {
-                    // From Bouncy Castle, Pkcs1Encoding.cs
-                    case PKCS1 => Some(RSACoreMsgLen(bits) - 10)
-                    // From Bouncy Castle, OaepEncoding.cs
-                    case OAEP_SHA1 => Some(RSACoreMsgLen(bits) - 1 - 2 * SHA1_DIGEST_LEN)
-                    case OAEP_SHA256 => Some(RSACoreMsgLen(bits) - 1 - 2 * SHA256_DIGEST_LEN)
-                }
-            }
-
-        // TODO: make externs to test below predicates
-
-        static predicate method {:axiom} RSAWfCtx (padding: RSAPaddingMode, c : seq<uint8>) // should correspond to a valid RSA ciphertext
-
-        static predicate method {:axiom} RSAWfEK (padding : RSAPaddingMode, ek : seq<uint8>) // should correspond to a valid PEM-encoded encryption key
-
-        static predicate method {:axiom} RSAWfDK (padding : RSAPaddingMode, dk : seq<uint8>) // should correspond to a valid PEM-encoded decryption key
-
-        static predicate method {:axiom} IsRSAKeypair(padding: RSAPaddingMode, ek : seq<uint8>, dk :seq<uint8>) // dk's public key is ek
-
-        // TODO: below should return an option if anything throws.
-        static method {:extern "RSAKeygen"} RSAKeygen(bits : RSABitLength, padding: RSAPaddingMode) returns (ek : seq<uint8>, dk : seq<uint8>)
-            ensures RSAWfEK(padding, ek)
-            ensures RSAWfDK(padding, dk)
-            ensures IsRSAKeypair(padding, ek, dk)
-
-        static function method {:extern "RSADecrypt"} RSADecrypt(padding : RSAPaddingMode, dk : seq<uint8>, c : seq<uint8>) : Result<seq<uint8>>
-            // requires RSAWfCtx(padding, c) -- there should be a runtime way to establish this. or maybe not?
-
-        static method {:extern "RSAEncrypt"} RSAEncrypt(padding: RSAPaddingMode, ek : seq<uint8>, msg : seq<uint8>) returns (res : Result<seq<uint8>>)
-            ensures res.Success? ==> RSAWfCtx(padding, res.value)
-            ensures res.Success? ==> forall dk :: IsRSAKeypair(padding, ek, dk) ==> RSAWfDK(padding, dk) ==> RSADecrypt(padding, dk, res.value) == Success(msg)
-
+    // MinRSAModulusOctets represents the minimum RSA public modulus octets that is usable for a given padding mode
+    function method MinRSAModulusOctets(padding : PaddingMode) : nat {
+      match padding {
+        // 0 = minOctets - 11 ==> minOctets = 11
+        case PKCS1 => 11
+        // 0 = minOctets - 2 * hashLengthBytes - 2 ==> minModulus = 2 + 2 * hashLengthBytes
+        case OAEP_SHA1 => 2 * SHA1_HASH_BYTES + 2
+        case OAEP_SHA256 => 2 * SHA256_HASH_BYTES + 2
+        case OAEP_SHA384 => 2 * SHA384_HASH_BYTES + 2
+        case OAEP_SHA512 => 2 * SHA512_HASH_BYTES + 2
+        }
     }
 
+    // MaxEncryptionBytes represents the maximum size (in bytes) that plaintextData can be for a given BitLength and
+    // padding mode
+    function method MaxEncryptionBytes(padding : PaddingMode, n : BitLength) : nat
+      requires GetOctet(n) >= MinRSAModulusOctets(padding)
+    {
+      match padding {
+        // mLen <= GetOctet(n) - 11
+        case PKCS1 => GetOctet(n) - 11
+        // Per  mLen <= GetOctet(n) - 2 * hashLengthBytes - 2
+        case OAEP_SHA1 => GetOctet(n) - 2 * SHA1_HASH_BYTES - 2
+        case OAEP_SHA256 => GetOctet(n) - 2 * SHA256_HASH_BYTES - 2
+        case OAEP_SHA384 => GetOctet(n) - 2 * SHA384_HASH_BYTES - 2
+        case OAEP_SHA512 => GetOctet(n) - 2 * SHA512_HASH_BYTES - 2
+        }
+    }
+
+    method {:extern "RSAEncryption", "GenerateKeyPair"} GenerateKeyPair(bits : BitLength, padding: PaddingMode)
+        returns (publicKey : seq<uint8>, privateKey : seq<uint8>)
+      requires GetOctet(bits) >= MinRSAModulusOctets(padding)
+
+    method {:extern "RSAEncryption", "Decrypt"} Decrypt(padding : PaddingMode, privateKey : seq<uint8>,
+                                                                  cipherText : seq<uint8>)
+        returns (res : Result<seq<uint8>>)
+
+    method {:extern "RSAEncryption", "Encrypt"} Encrypt(padding: PaddingMode, publicKey : seq<uint8>,
+                                                                  plaintextData : seq<uint8>)
+        returns (res : Result<seq<uint8>>)
 }

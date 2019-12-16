@@ -7,7 +7,7 @@ include "../../Crypto/Random.dfy"
 include "../../Crypto/RSAEncryption.dfy"
 include "../../Util/UTF8.dfy"
 
-module RawRSAKeyringDef {
+module RawRSAKeyring {
   import opened StandardLibrary
   import opened UInt = StandardLibrary.UInt
 
@@ -21,7 +21,7 @@ module RawRSAKeyringDef {
   class RawRSAKeyring extends KeyringDefs.Keyring {
     const keyNamespace: UTF8.ValidUTF8Bytes
     const keyName: UTF8.ValidUTF8Bytes
-    const paddingMode: RSA.RSAPaddingMode
+    const paddingMode: RSA.PaddingMode
     const publicKey: Option<seq<uint8>>
     const privateKey: Option<seq<uint8>>
 
@@ -34,7 +34,7 @@ module RawRSAKeyringDef {
       |keyName| < UINT16_LIMIT
     }
 
-    constructor(namespace: UTF8.ValidUTF8Bytes, name: UTF8.ValidUTF8Bytes, padding: RSA.RSAPaddingMode,
+    constructor(namespace: UTF8.ValidUTF8Bytes, name: UTF8.ValidUTF8Bytes, padding: RSA.PaddingMode,
                 publicKey: Option<seq<uint8>>, privateKey: Option<seq<uint8>>)
       requires publicKey.Some? || privateKey.Some?
       requires |namespace| < UINT16_LIMIT
@@ -98,7 +98,7 @@ module RawRSAKeyringDef {
       }
 
       // Attempt to encrypt and construct the encrypted data key
-      var encryptedCiphertext :- RSA.RSA.RSAEncrypt(paddingMode, publicKey.get, plaintextDataKey.get);
+      var encryptedCiphertext :- RSA.Encrypt(paddingMode, publicKey.get, plaintextDataKey.get);
       if UINT16_LIMIT <= |encryptedCiphertext| {
         return Failure("Encrypted data key too long.");
       }
@@ -139,7 +139,7 @@ module RawRSAKeyringDef {
       {
         var encryptedDataKey := encryptedDataKeys[i];
         if encryptedDataKey.providerID == keyNamespace && encryptedDataKey.providerInfo == keyName {
-          var potentialPlaintextDataKey := RSA.RSA.RSADecrypt(paddingMode, privateKey.get, encryptedDataKey.ciphertext);
+          var potentialPlaintextDataKey := RSA.Decrypt(paddingMode, privateKey.get, encryptedDataKey.ciphertext);
           match potentialPlaintextDataKey
           case Failure(_) =>
             // Try to decrypt using another encryptedDataKey
