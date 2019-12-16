@@ -1,17 +1,17 @@
-include "../../src/StandardLibrary/StandardLibrary.dfy"
-include "../../src/StandardLibrary/UInt.dfy"
-include "../../src/Util/UTF8.dfy"
-include "../../src/SDK/Keyring/RawAESKeyring.dfy"
-include "../../src/SDK/Keyring/RawRSAKeyring.dfy"
-include "../../src/Crypto/EncryptionSuites.dfy"
-include "../../src/Crypto/RSAEncryption.dfy"
-include "../../src/SDK/CMM/DefaultCMM.dfy"
-include "../../src/SDK/Client.dfy"
-include "../../src/StandardLibrary/Base64.dfy"
-include "../../src/KMS/KMSUtils.dfy"
-include "../../src/SDK/Keyring/KMSKeyring.dfy"
+include "../src/StandardLibrary/StandardLibrary.dfy"
+include "../src/StandardLibrary/UInt.dfy"
+include "../src/Util/UTF8.dfy"
+include "../src/SDK/Keyring/RawAESKeyring.dfy"
+include "../src/SDK/Keyring/RawRSAKeyring.dfy"
+include "../src/Crypto/EncryptionSuites.dfy"
+include "../src/Crypto/RSAEncryption.dfy"
+include "../src/SDK/CMM/DefaultCMM.dfy"
+include "../src/SDK/Client.dfy"
+include "../src/StandardLibrary/Base64.dfy"
+include "../src/KMS/KMSUtils.dfy"
+include "../src/SDK/Keyring/KMSKeyring.dfy"
 
-module {:extern "TestVectorExterns"} TestVectorModels {
+module {:extern "TestVectorExterns"} TestVectors {
   import opened StandardLibrary
   import opened UInt = StandardLibrary.UInt
   import UTF8

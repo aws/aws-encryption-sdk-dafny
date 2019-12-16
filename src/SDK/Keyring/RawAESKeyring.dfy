@@ -7,21 +7,17 @@ include "../../Crypto/Random.dfy"
 include "../../Crypto/AESEncryption.dfy"
 include "../Materials.dfy"
 include "../../Util/UTF8.dfy"
-include "../../Util/Streams.dfy"
-include "../../SDK/Serialize.dfy"
 
 module RawAESKeyring{
   import opened StandardLibrary
   import opened UInt = StandardLibrary.UInt
   import EncryptionSuites
-  import Streams
   import AlgorithmSuite
   import Random
   import KeyringDefs
   import AESEncryption
   import Mat = Materials
   import UTF8
-  import Serialize
 
   const AUTH_TAG_LEN_LEN := 4;
   const IV_LEN_LEN       := 4;
@@ -138,17 +134,13 @@ module RawAESKeyring{
       {
         if edks[i].providerID == keyNamespace && ValidProviderInfo(edks[i].providerInfo) && wrappingAlgorithm.tagLen as int <= |edks[i].ciphertext| {
           var iv := GetIvFromProvInfo(edks[i].providerInfo);
-          var wr := new Streams.StringWriter();
-          var foo :- Serialize.SerializeAAD(wr, encryptionContext);
-          var encCtx := wr.data[2..];
+          var flatEncCtx: seq<uint8> := Mat.FlattenSortEncCtx(encryptionContext);
           //TODO: #68
           var encryptedKeyLength := |edks[i].ciphertext| - wrappingAlgorithm.tagLen as int;
           // TODO: specify Raw AES EDK ciphertext serialization
           var encryptedKey, authTag := edks[i].ciphertext[.. encryptedKeyLength], edks[i].ciphertext[encryptedKeyLength ..];
 
-
-
-          var ptKey :- AESEncryption.AESDecrypt(wrappingAlgorithm, wrappingKey, encryptedKey, authTag, iv, encCtx);
+          var ptKey :- AESEncryption.AESDecrypt(wrappingAlgorithm, wrappingKey, encryptedKey, authTag, iv, flatEncCtx);
           var decryptTraceEntry := DecryptTraceEntry();
           if algorithmSuiteID.ValidPlaintextDataKey(ptKey) { // check for correct key length
             return Success(Some(Mat.OnDecryptResult(algorithmSuiteID, ptKey, [decryptTraceEntry])));
