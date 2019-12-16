@@ -54,7 +54,8 @@ module {:extern "RSAEncryption"} RSAEncryption {
             requires RSAWfEK(bits, padding, ek) // todo: be able to validate this at runtime
             ensures c.Some? ==> RSAWfCtx(bits,padding, c.get)
             ensures c.Some? ==> forall dk :: IsRSAKeypair(bits,padding,ek, dk) ==> RSAWfDK(bits,padding,dk) ==> RSADecrypt(bits, padding, dk, c.get) == Some(msg)
-
+        
+        static method {:extern "StringToPEM"} StringToPEM(privatePEM: string, publicPEM: string) returns (ek : seq<uint8>, dk : seq<uint8>)
     }
 
 }

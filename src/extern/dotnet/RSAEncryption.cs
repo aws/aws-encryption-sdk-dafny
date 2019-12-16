@@ -1,4 +1,5 @@
 using System.Text;
+using System;
 using System.IO;
 using Org.BouncyCastle.Crypto;
 using Org.BouncyCastle.Crypto.Digests;
@@ -44,6 +45,34 @@ namespace RSAEncryption {
                 byte[] d;
                 get_pem(kp, out e, out d);
                 ek = byteseq.FromArray(e);
+                dk = byteseq.FromArray(d);
+        }
+
+        public static void StringToPEM(Dafny.Sequence<char> privatePEM, Dafny.Sequence<char> publicPEM, out byteseq ek, out byteseq dk) {
+                PemReader pr1 = new PemReader(new StringReader(new string(privatePEM.Elements)));
+                Console.WriteLine(new string(privatePEM.Elements));
+                AsymmetricKeyParameter privateKey = (AsymmetricKeyParameter) pr1.ReadObject();
+                                    Console.WriteLine("foo");
+
+                PemReader pr2 = new PemReader(new StringReader(new string(privatePEM.Elements)));
+                AsymmetricKeyParameter publicKey = (AsymmetricKeyParameter)pr2.ReadObject();
+                    Console.WriteLine("foo");
+                    Console.WriteLine(publicKey);
+                byte[] e;
+                using (var stringWriter = new StringWriter()) {
+
+                    var pemWriter = new PemWriter(stringWriter);
+                    pemWriter.WriteObject(publicKey);
+                    e = Encoding.UTF8.GetBytes(stringWriter.ToString());
+                }
+                ek = byteseq.FromArray(e);
+
+                byte[] d;
+                using (var stringWriter = new StringWriter()) {
+                    var pemWriter = new PemWriter(stringWriter);
+                    pemWriter.WriteObject(privateKey);
+                    d = Encoding.UTF8.GetBytes(stringWriter.ToString());
+                }
                 dk = byteseq.FromArray(d);
         }
 
