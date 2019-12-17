@@ -20,8 +20,8 @@ module {:extern "RSAEncryption"} RSAEncryption {
       (bits as nat + 7) / 8
     }
 
-    // MinRSAModulusOctets represents the minimum RSA public modulus octets that is usable for a given padding mode
-    function method MinRSAModulusOctets(padding : PaddingMode) : nat {
+    // MinModulusOctets represents the minimum RSA public modulus octets that is usable for a given padding mode
+    function method MinModulusOctets(padding : PaddingMode) : nat {
       match padding {
         // 0 = minOctets - 11 ==> minOctets = 11
         case PKCS1 => 11
@@ -36,7 +36,7 @@ module {:extern "RSAEncryption"} RSAEncryption {
     // MaxEncryptionBytes represents the maximum size (in bytes) that plaintextData can be for a given BitLength and
     // padding mode
     function method MaxEncryptionBytes(padding : PaddingMode, n : BitLength) : nat
-      requires GetOctet(n) >= MinRSAModulusOctets(padding)
+      requires GetOctet(n) >= MinModulusOctets(padding)
     {
       match padding {
         // mLen <= GetOctet(n) - 11
@@ -49,15 +49,15 @@ module {:extern "RSAEncryption"} RSAEncryption {
         }
     }
 
-    method {:extern "RSAEncryption", "GenerateKeyPair"} GenerateKeyPair(bits : BitLength, padding: PaddingMode)
+    method {:extern "RSAEncryption.RSA", "GenerateKeyPair"} GenerateKeyPair(bits : BitLength, padding: PaddingMode)
         returns (publicKey : seq<uint8>, privateKey : seq<uint8>)
-      requires GetOctet(bits) >= MinRSAModulusOctets(padding)
+      requires GetOctet(bits) >= MinModulusOctets(padding)
 
-    method {:extern "RSAEncryption", "Decrypt"} Decrypt(padding : PaddingMode, privateKey : seq<uint8>,
-                                                                  cipherText : seq<uint8>)
+    method {:extern "RSAEncryption.RSA", "Decrypt"} Decrypt(padding : PaddingMode, privateKey : seq<uint8>,
+                                                            cipherText : seq<uint8>)
         returns (res : Result<seq<uint8>>)
 
-    method {:extern "RSAEncryption", "Encrypt"} Encrypt(padding: PaddingMode, publicKey : seq<uint8>,
-                                                                  plaintextData : seq<uint8>)
+    method {:extern "RSAEncryption.RSA", "Encrypt"} Encrypt(padding: PaddingMode, publicKey : seq<uint8>,
+                                                            plaintextData : seq<uint8>)
         returns (res : Result<seq<uint8>>)
 }
