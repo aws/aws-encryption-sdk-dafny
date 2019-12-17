@@ -23,7 +23,9 @@ public class DafnyFFI {
     }
   
     public static string StringFromDafnyString(charseq dafnyString) {
-        // This is safe under the assumption that nothing modifies the wrapped array
+        // TODO: Find a way to safely avoid copying.
+        // The contents of a Dafny.Sequence should never change, but since a Dafny.ArraySequence
+        // currently allows direct access to its array we can't assume that's true.
         return new string(dafnyString.Elements);
     }
     
