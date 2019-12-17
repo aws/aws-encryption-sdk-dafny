@@ -32,16 +32,16 @@ namespace RSAEncryption {
 
         // GetPemBytes represents a helper method that takes an AsymmetricCipherKeyPair and returns the corresponding
         // private and public keys as UTF-8 byte arrays
-        private static void GetPemBytes(AsymmetricCipherKeyPair keygenPair, out byte[] publicKeyBytes, out byte[] privateKeyBytes) {
+        private static void GetPemBytes(AsymmetricCipherKeyPair keyPair, out byte[] publicKeyBytes, out byte[] privateKeyBytes) {
             using (var stringWriter = new StringWriter()) {
                 var pemWriter = new PemWriter(stringWriter);
-                pemWriter.WriteObject(keygenPair.Public);
+                pemWriter.WriteObject(keyPair.Public);
                 publicKeyBytes = Encoding.UTF8.GetBytes(stringWriter.ToString());
             }
 
             using (var stringWriter = new StringWriter()) {
                 var pemWriter = new PemWriter(stringWriter);
-                pemWriter.WriteObject(keygenPair.Private);
+                pemWriter.WriteObject(keyPair.Private);
                 privateKeyBytes = Encoding.UTF8.GetBytes(stringWriter.ToString());
             }
         }
@@ -65,9 +65,9 @@ namespace RSAEncryption {
             }
         }
 
-        // GetAsymmetricKeyParameter represents a helper method that takes in a byteseq representing a public or private
-        // key and returns the AsymmetricKeyParameter for that key, encoded using UTF-8
-        private static AsymmetricKeyParameter GetAsymmetricKeyParameter(byteseq key) {
+        // GetPublicKeyFromByteSeq represents a helper method that takes in a byteseq representing a public
+        // key and returns the AsymmetricKeyParameter for that public key, encoded using UTF-8
+        private static AsymmetricKeyParameter GetPublicKeyFromByteSeq(byteseq key) {
             AsymmetricKeyParameter keyParam;
             using (var stringReader = new StringReader(Encoding.UTF8.GetString(key.Elements))) {
                 return (AsymmetricKeyParameter) new PemReader(stringReader).ReadObject();
@@ -75,7 +75,7 @@ namespace RSAEncryption {
         }
 
         public static BigInteger GetPublicModulusFromRSAPublicKey(byteseq publicKey) {
-            RsaKeyParameters publicKeyParam = (RsaKeyParameters) GetAsymmetricKeyParameter(publicKey);
+            RsaKeyParameters publicKeyParam = (RsaKeyParameters) GetPublicKeyFromByteSeq(publicKey);
             return publicKeyParam.Modulus;
         }
 
@@ -95,7 +95,7 @@ namespace RSAEncryption {
         public static STL.Result<byteseq> Encrypt(PaddingMode padding, byteseq publicKey, byteseq plaintextMessage) {
             try {
                 IAsymmetricBlockCipher engine = GetEngineForPadding(padding);
-                AsymmetricKeyParameter publicKeyParam = GetAsymmetricKeyParameter(publicKey);
+                AsymmetricKeyParameter publicKeyParam = GetPublicKeyFromByteSeq(publicKey);
                 engine.Init(true, publicKeyParam);
                 return new STL.Result_Success<byteseq>(byteseq.FromArray(
                     engine.ProcessBlock(plaintextMessage.Elements, 0, plaintextMessage.Elements.Length)));
@@ -108,8 +108,13 @@ namespace RSAEncryption {
         public static STL.Result<byteseq> Decrypt(PaddingMode padding, byteseq privateKey, byteseq cipherText) {
             try {
                 IAsymmetricBlockCipher engine = GetEngineForPadding(padding);
-                AsymmetricKeyParameter privateKeyParam = GetAsymmetricKeyParameter(privateKey);
-                engine.Init(false, privateKeyParam);
+                AsymmetricCipherKeyPair keyPair;
+                using ( var stringReader = new StringReader(Encoding.UTF8.GetString(privateKey.Elements))) {
+                    // This needs to be read as an AsymmetricCipherKeyPair and cannot be read directly as a
+                    // AsymmetricKeyParameter like the public key can
+                    keyPair = (AsymmetricCipherKeyPair) new PemReader(stringReader).ReadObject();
+                }
+                engine.Init(false, keyPair.Private);
                 return new STL.Result_Success<byteseq>(byteseq.FromArray(
                     engine.ProcessBlock(cipherText.Elements, 0, cipherText.Elements.Length)));
             }
