@@ -74,6 +74,11 @@ namespace RSAEncryption {
             }
         }
 
+        public static BigInteger GetPublicModulusFromRSAPublicKey(byteseq publicKey) {
+            RsaKeyParameters publicKeyParam = (RsaKeyParameters) GetAsymmetricKeyParameter(publicKey);
+            return publicKeyParam.Modulus;
+        }
+
         public static void GenerateKeyPair(int strength, PaddingMode padding, out byteseq publicKey, out byteseq privateKey) {
                 RsaKeyPairGenerator keygen = new RsaKeyPairGenerator();
                 SecureRandom secureRandom = new SecureRandom();
