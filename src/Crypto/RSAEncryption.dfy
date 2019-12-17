@@ -49,15 +49,15 @@ module {:extern "RSAEncryption"} RSAEncryption {
         }
     }
 
-    method {:extern "RSAEncryption.RSA", "GenerateKeyPair"} GenerateKeyPair(bits : BitLength, padding: PaddingMode)
-        returns (publicKey : seq<uint8>, privateKey : seq<uint8>)
-      requires GetOctet(bits) >= MinModulusOctets(padding)
+    class {:extern} RSA {
+      static method {:extern} GenerateKeyPair(bits : BitLength, padding: PaddingMode)
+          returns (publicKey : seq<uint8>, privateKey : seq<uint8>)
+        requires GetOctet(bits) >= MinModulusOctets(padding)
 
-    method {:extern "RSAEncryption.RSA", "Decrypt"} Decrypt(padding : PaddingMode, privateKey : seq<uint8>,
-                                                            cipherText : seq<uint8>)
-        returns (res : Result<seq<uint8>>)
+      static method {:extern} Decrypt(padding : PaddingMode, privateKey : seq<uint8>, cipherText : seq<uint8>)
+          returns (res : Result<seq<uint8>>)
 
-    method {:extern "RSAEncryption.RSA", "Encrypt"} Encrypt(padding: PaddingMode, publicKey : seq<uint8>,
-                                                            plaintextData : seq<uint8>)
-        returns (res : Result<seq<uint8>>)
+      static method {:extern} Encrypt(padding: PaddingMode, publicKey : seq<uint8>, plaintextData : seq<uint8>)
+          returns (res : Result<seq<uint8>>)
+    }
 }

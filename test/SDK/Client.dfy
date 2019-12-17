@@ -52,7 +52,7 @@ module {:extern "TestClient"} TestClient {
     var namespace :- UTF8.Encode("namespace");
     var name :- UTF8.Encode("MyKeyring");
 
-    var ek, dk := RSAEncryption.GenerateKeyPair(2048, RSAEncryption.PKCS1);
+    var ek, dk := RSAEncryption.RSA.GenerateKeyPair(2048, RSAEncryption.PKCS1);
     var keyring := new RawRSAKeyring.RawRSAKeyring(namespace, name, RSAEncryption.PaddingMode.PKCS1, Some(ek), Some(dk));
     var cmm := new DefaultCMMDef.DefaultCMM.OfKeyring(keyring);
 

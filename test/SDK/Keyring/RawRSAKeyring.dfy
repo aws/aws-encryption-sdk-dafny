@@ -18,7 +18,7 @@ module TestRSAKeyring {
 
   method {:test} TestOnEncryptOnDecryptGenerateDataKey() returns (r: Result<()>)
   {
-    var ek, dk := RSAEncryption.GenerateKeyPair(2048, RSAEncryption.PKCS1);
+    var ek, dk := RSAEncryption.RSA.GenerateKeyPair(2048, RSAEncryption.PKCS1);
     var rawRSAKeyring := new RawRSAKeyring.RawRSAKeyring(name, namespace, RSAEncryption.PaddingMode.PKCS1, Some(ek), Some(dk));
     
     var keyA, valA := UTF8.Encode("keyA").value, UTF8.Encode("valA").value;
@@ -35,7 +35,7 @@ module TestRSAKeyring {
 
   method {:test} TestOnEncryptOnDecryptSuppliedDataKey() returns (r: Result<()>)
   {
-    var ek, dk := RSAEncryption.GenerateKeyPair(2048, RSAEncryption.PKCS1);
+    var ek, dk := RSAEncryption.RSA.GenerateKeyPair(2048, RSAEncryption.PKCS1);
     var rawRSAKeyring := new RawRSAKeyring.RawRSAKeyring(name, namespace, RSAEncryption.PaddingMode.PKCS1, Some(ek), Some(dk));
     
     var keyA, valA := UTF8.Encode("keyA").value, UTF8.Encode("valA").value;

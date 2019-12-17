@@ -15,13 +15,13 @@ module RawRSAKeyring {
   import KeyringDefs
   import Materials
   import Random
-  import RSA = RSAEncryption
+  import RSAEncryption
   import UTF8
 
   class RawRSAKeyring extends KeyringDefs.Keyring {
     const keyNamespace: UTF8.ValidUTF8Bytes
     const keyName: UTF8.ValidUTF8Bytes
-    const paddingMode: RSA.PaddingMode
+    const paddingMode: RSAEncryption.PaddingMode
     const publicKey: Option<seq<uint8>>
     const privateKey: Option<seq<uint8>>
 
@@ -34,7 +34,7 @@ module RawRSAKeyring {
       |keyName| < UINT16_LIMIT
     }
 
-    constructor(namespace: UTF8.ValidUTF8Bytes, name: UTF8.ValidUTF8Bytes, padding: RSA.PaddingMode,
+    constructor(namespace: UTF8.ValidUTF8Bytes, name: UTF8.ValidUTF8Bytes, padding: RSAEncryption.PaddingMode,
                 publicKey: Option<seq<uint8>>, privateKey: Option<seq<uint8>>)
       requires publicKey.Some? || privateKey.Some?
       requires |namespace| < UINT16_LIMIT
@@ -98,7 +98,7 @@ module RawRSAKeyring {
       }
 
       // Attempt to encrypt and construct the encrypted data key
-      var encryptedCiphertext :- RSA.Encrypt(paddingMode, publicKey.get, plaintextDataKey.get);
+      var encryptedCiphertext :- RSAEncryption.RSA.Encrypt(paddingMode, publicKey.get, plaintextDataKey.get);
       if UINT16_LIMIT <= |encryptedCiphertext| {
         return Failure("Encrypted data key too long.");
       }
@@ -139,7 +139,7 @@ module RawRSAKeyring {
       {
         var encryptedDataKey := encryptedDataKeys[i];
         if encryptedDataKey.providerID == keyNamespace && encryptedDataKey.providerInfo == keyName {
-          var potentialPlaintextDataKey := RSA.Decrypt(paddingMode, privateKey.get, encryptedDataKey.ciphertext);
+          var potentialPlaintextDataKey := RSAEncryption.RSA.Decrypt(paddingMode, privateKey.get, encryptedDataKey.ciphertext);
           match potentialPlaintextDataKey
           case Failure(_) =>
             // Try to decrypt using another encryptedDataKey
