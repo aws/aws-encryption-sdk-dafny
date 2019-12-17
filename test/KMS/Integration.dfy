@@ -18,7 +18,7 @@ module IntegTestKMS {
   import CMMDefs
   import DefaultCMMDef
   import KMSUtils
-  import KMSKeyringDefs
+  import KMSKeyringDef
   import Materials
   import Client = ESDKClient
   import Msg = MessageHeader
@@ -69,7 +69,7 @@ module IntegTestKMS {
     var _ :- Require(KMSUtils.ValidFormatCMK(generatorStr));
     var generator: KMSUtils.CustomerMasterKey := generatorStr;
     var clientSupplier := new KMSUtils.DefaultClientSupplier();
-    var keyring := new KMSKeyringDefs.KMSKeyring(clientSupplier, [], Some(generator), []);
+    var keyring := new KMSKeyringDef.KMSKeyring(clientSupplier, [], Some(generator), []);
     var cmm := new DefaultCMMDef.DefaultCMM.OfKeyring(keyring);
 
     var message := "Hello, World!!";

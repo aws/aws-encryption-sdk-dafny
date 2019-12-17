@@ -5,7 +5,7 @@ include "../../StandardLibrary/StandardLibrary.dfy"
 include "../../KMS/KMSUtils.dfy"
 include "../../Util/UTF8.dfy"
 
-module {:extern "KMSKeyringDefs"} KMSKeyringDefs {
+module {:extern "KMSKeyringDef"} KMSKeyringDef {
   import opened StandardLibrary
   import opened UInt = StandardLibrary.UInt
   import AlgorithmSuite

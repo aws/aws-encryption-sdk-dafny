@@ -1,7 +1,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using KeyringDefs;
-using KMSKeyringDefs;
+using KMSKeyringDef;
 using KMSUtils;
 using STL;
 using charseq = Dafny.Sequence<char>;
