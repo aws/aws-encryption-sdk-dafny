@@ -49,10 +49,8 @@ module {:extern "RSAEncryption"} RSAEncryption {
 
         static function method {:extern "RSADecrypt"} RSADecrypt(padding : RSAPaddingMode, dk : seq<uint8>, c : seq<uint8>) : Result<seq<uint8>>
             // requires RSAWfCtx(padding, c) -- there should be a runtime way to establish this. or maybe not?
-            requires RSAWfDK(padding, dk) // similarly how should I validate the key is well formed
 
         static method {:extern "RSAEncrypt"} RSAEncrypt(padding: RSAPaddingMode, ek : seq<uint8>, msg : seq<uint8>) returns (res : Result<seq<uint8>>)
-            requires RSAWfEK(padding, ek) // todo: be able to validate this at runtime
             ensures res.Success? ==> RSAWfCtx(padding, res.value)
             ensures res.Success? ==> forall dk :: IsRSAKeypair(padding, ek, dk) ==> RSAWfDK(padding, dk) ==> RSADecrypt(padding, dk, res.value) == Success(msg)
 

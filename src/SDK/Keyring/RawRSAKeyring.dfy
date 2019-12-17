@@ -30,26 +30,25 @@ module RawRSAKeyringDef {
     {
       Repr == {this} &&
       (publicKey.Some? || privateKey.Some?) &&
-      (publicKey.Some? ==> RSA.RSA.RSAWfEK(paddingMode, publicKey.get)) &&
-      (privateKey.Some? ==> RSA.RSA.RSAWfDK(paddingMode, privateKey.get)) &&
       |keyNamespace| < UINT16_LIMIT &&
       |keyName| < UINT16_LIMIT
     }
 
     constructor(namespace: UTF8.ValidUTF8Bytes,name: UTF8.ValidUTF8Bytes, padding: RSA.RSAPaddingMode,
-                encryptionKey: Option<seq<uint8>>, decryptionKey: Option<seq<uint8>>)
-      requires (encryptionKey.Some? || decryptionKey.Some?) &&
-        (encryptionKey.Some? ==> RSA.RSA.RSAWfEK(padding, encryptionKey.get)) &&
-        (decryptionKey.Some? ==> RSA.RSA.RSAWfDK(padding, decryptionKey.get))
-      requires |namespace| < UINT16_LIMIT && |name| < UINT16_LIMIT
-      ensures keyNamespace == namespace && keyName == name &&
-        paddingMode == padding &&
-        publicKey == encryptionKey && privateKey == decryptionKey
+                publicKey: Option<seq<uint8>>, privateKey: Option<seq<uint8>>)
+      requires publicKey.Some? || privateKey.Some?
+      requires |namespace| < UINT16_LIMIT
+      requires |name| < UINT16_LIMIT
+      ensures keyNamespace == namespace
+      ensures keyName == name
+      ensures paddingMode == padding
+      ensures this.publicKey == publicKey
+      ensures this.privateKey == privateKey
       ensures Valid()
     {
       keyNamespace, keyName := namespace, name;
       paddingMode := padding;
-      publicKey, privateKey := encryptionKey, decryptionKey;
+      this.publicKey, this.privateKey := publicKey, privateKey;
       Repr := {this};
     }
 
@@ -66,6 +65,9 @@ module RawRSAKeyringDef {
         algorithmSuiteID == res.value.get.algorithmSuiteID
       ensures res.Success? && res.value.Some? && plaintextDataKey.Some? ==> 
         plaintextDataKey.get == res.value.get.plaintextDataKey
+      ensures res.Success? && res.value.Some? ==>
+        (forall encryptedDataKey :: encryptedDataKey in res.value.get.encryptedDataKeys ==>
+        encryptedDataKey.providerID == keyNamespace && encryptedDataKey.providerInfo == keyName)
       ensures res.Success? && res.value.Some? ==>
         var generateTraces := Filter(res.value.get.keyringTrace, Materials.IsGenerateTraceEntry);
         |generateTraces| == if plaintextDataKey.None? then 1 else 0
@@ -107,9 +109,9 @@ module RawRSAKeyringDef {
         keyringTrace := keyringTrace + [encryptTraceEntry];
         
         // Finally return the dataKey
-        var dataKey := Materials.DataKeyMaterials(algorithmID, plaintextDataKey.get, [encryptedDataKey], keyringTrace);
-        assert dataKey.algorithmSuiteID.ValidPlaintextDataKey(dataKey.plaintextDataKey);
-        return Success(Some(dataKey));
+        var materials := Materials.DataKeyMaterials(algorithmID, plaintextDataKey.get, [encryptedDataKey], keyringTrace);
+        assert materials.algorithmSuiteID.ValidPlaintextDataKey(materials.plaintextDataKey);
+        return Success(Some(materials));
       }
     }
 
