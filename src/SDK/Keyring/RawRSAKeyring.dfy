@@ -81,7 +81,7 @@ module RawRSAKeyring {
           && |res.value.get.keyringTrace| == 1
           && res.value.get.keyringTrace[0] == EncryptTraceEntry()
     {
-      if publicKey.None? {
+      if publicKey.None? || (|publicKey.get| == 0) {
         return Failure("Encryption key undefined");
       }
 
@@ -130,7 +130,7 @@ module RawRSAKeyring {
     {
       if |encryptedDataKeys| == 0 {
         return Success(None);
-      } else if privateKey.None? {
+      } else if privateKey.None? || (|privateKey.get| == 0) {
         return Failure("Decryption key undefined");
       }
       var i := 0;
@@ -138,7 +138,9 @@ module RawRSAKeyring {
         invariant  0 <= i <= |encryptedDataKeys|
       {
         var encryptedDataKey := encryptedDataKeys[i];
-        if encryptedDataKey.providerID == keyNamespace && encryptedDataKey.providerInfo == keyName {
+        if encryptedDataKey.providerID == keyNamespace &&
+          encryptedDataKey.providerInfo == keyName &&
+          (|encryptedDataKey.ciphertext| != 0) {
           var potentialPlaintextDataKey := RSAEncryption.RSA.Decrypt(paddingMode, privateKey.get, encryptedDataKey.ciphertext);
           match potentialPlaintextDataKey
           case Failure(_) =>
