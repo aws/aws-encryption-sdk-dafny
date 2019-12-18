@@ -53,7 +53,7 @@ module {:extern "TestClient"} TestClient {
     var name :- UTF8.Encode("MyKeyring");
 
     var ek, dk := RSAEncryption.RSA.RSAKeygen(2048, RSAEncryption.PKCS1);
-    var keyring := new RawRSAKeyringDef.RawRSAKeyring(namespace, name, RSAEncryption.RSAPaddingMode.PKCS1, 2048, Some(ek), Some(dk));
+    var keyring := new RawRSAKeyringDef.RawRSAKeyring(namespace, name, RSAEncryption.RSAPaddingMode.PKCS1, Some(ek), Some(dk));
     var cmm := new DefaultCMMDef.DefaultCMM.OfKeyring(keyring);
 
     r := EncryptDecryptTest(cmm);
