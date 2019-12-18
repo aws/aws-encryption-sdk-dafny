@@ -8,7 +8,7 @@ include "../../../src/Util/UTF8.dfy"
 module TestAESKeyring {
   import opened StandardLibrary
   import opened UInt = StandardLibrary.UInt
-  import RawAESKeyring
+  import RawAESKeyringDef
   import EncryptionSuites
   import AlgorithmSuite
   import UTF8
@@ -18,7 +18,7 @@ module TestAESKeyring {
 
   method {:test} TestOnEncryptOnDecryptGenerateDataKey() returns (r: Result<()>)
   {
-    var rawAESKeyring := new RawAESKeyring.RawAESKeyring(name, namespace, seq(32, i => 0), EncryptionSuites.AES_GCM_256);
+    var rawAESKeyring := new RawAESKeyringDef.RawAESKeyring(name, namespace, seq(32, i => 0), EncryptionSuites.AES_GCM_256);
     var keyA, valA := UTF8.Encode("keyA").value, UTF8.Encode("valA").value;
     var encryptionContext := [(keyA, valA)];
     var onEncryptResult :- rawAESKeyring.OnEncrypt(AlgorithmSuite.AES_256_GCM_IV12_TAG16_HKDF_SHA384_ECDSA_P384, encryptionContext, None);
@@ -33,7 +33,7 @@ module TestAESKeyring {
 
   method {:test} TestOnEncryptOnDecryptSuppliedDataKey() returns (r: Result<()>)
   {
-    var rawAESKeyring := new RawAESKeyring.RawAESKeyring(name, namespace, seq(32, i => 0), EncryptionSuites.AES_GCM_256);
+    var rawAESKeyring := new RawAESKeyringDef.RawAESKeyring(name, namespace, seq(32, i => 0), EncryptionSuites.AES_GCM_256);
     var keyA, valA := UTF8.Encode("keyA").value, UTF8.Encode("valA").value;
     var encryptionContext := [(keyA, valA)];
     var pdk := seq(32, i => 0);

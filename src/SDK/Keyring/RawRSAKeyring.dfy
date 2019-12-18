@@ -7,7 +7,7 @@ include "../../Crypto/Random.dfy"
 include "../../Crypto/RSAEncryption.dfy"
 include "../../Util/UTF8.dfy"
 
-module RawRSAKeyring {
+module RawRSAKeyringDef {
   import opened StandardLibrary
   import opened UInt = StandardLibrary.UInt
 
