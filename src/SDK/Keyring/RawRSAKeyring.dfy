@@ -34,7 +34,7 @@ module RawRSAKeyringDef {
       |keyName| < UINT16_LIMIT
     }
 
-    constructor(namespace: UTF8.ValidUTF8Bytes,name: UTF8.ValidUTF8Bytes, padding: RSA.RSAPaddingMode,
+    constructor(namespace: UTF8.ValidUTF8Bytes, name: UTF8.ValidUTF8Bytes, padding: RSA.RSAPaddingMode,
                 publicKey: Option<seq<uint8>>, privateKey: Option<seq<uint8>>)
       requires publicKey.Some? || privateKey.Some?
       requires |namespace| < UINT16_LIMIT
@@ -112,7 +112,7 @@ module RawRSAKeyringDef {
 
       // Finally return the dataKey
       var materials := Materials.DataKeyMaterials(algorithmID, plaintextDataKey.get, [encryptedDataKey], keyringTrace);
-      assert materials.algorithmSuiteID.ValidPlaintextDataKey(materials.plaintextDataKey);
+      assert materials.Valid();
       return Success(Some(materials));
     }
 
