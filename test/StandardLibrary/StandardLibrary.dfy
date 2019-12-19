@@ -1,121 +1,59 @@
-// RUN: %dafny %s /compile:3 > "%t"
-// RUN: %diff "%s.expect" "%t"
-
 include "../../src/StandardLibrary/StandardLibrary.dfy"
 
 module TestStdLib {
   import opened StandardLibrary
 
-  method TestSplit0() {
+  function method {:test} TestSplit0(): Result<()> {
     var input := "Comma,seperated,list";
     var output := Split(input, ',');
-    if output == ["Comma", "seperated", "list"] {
-      print "CORRECT\n";
-    } else {
-      print "NOT CORRECT\n";
-      print output;
-    }
+    RequireEqual(["Comma", "seperated", "list"], output)
   }
 
-  method TestSplit1() {
+  function method {:test} TestSplit1(): Result<()> {
     var input := [1,2,3,0,1,2,3];
     var output := Split(input, 0);
-    if output == [[1,2,3], [1,2,3]] {
-      print "CORRECT\n";
-    } else {
-      print "NOT CORRECT\n";
-      print output;
-    }
+    RequireEqual([[1,2,3], [1,2,3]], output)
   }
 
-  method TestSplit2() {
+  function method {:test} TestSplit2(): Result<()> {
     var input := "one,";
     var output := Split(input, ',');
-    if output == ["one", ""] {
-      print "CORRECT\n";
-    } else {
-      print "NOT CORRECT\n";
-      print output;
-    }
+    RequireEqual(["one", ""], output)
   }
 
-  method TestSplit3() {
+  function method {:test} TestSplit3(): Result<()> {
     var input := "no comma";
     var output := Split(input, ',');
-    if output == ["no comma"] {
-      print "CORRECT\n";
-    } else {
-      print "NOT CORRECT\n";
-      print output;
-    }
+    RequireEqual(["no comma"], output)
   }
 
-  method TestSplit4() {
+  function method {:test} TestSplit4(): Result<()> {
     var input := "";
     var output := Split(input, ',');
-    if output == [""] {
-      print "CORRECT\n";
-    } else {
-      print "NOT CORRECT\n";
-      print output;
-    }
+    RequireEqual([""], output)
   }
 
-  method TestJoin0() {
+  function method {:test} TestJoin0(): Result<()> {
     var input := ["Comma", "seperated", "list"];
     var output := Join(input, ",");
-    if output == "Comma,seperated,list" {
-      print "CORRECT\n";
-    } else {
-      print "NOT CORRECT\n";
-      print output;
-    }
+    RequireEqual("Comma,seperated,list", output)
   }
 
-  method TestJoin1() {
+  function method {:test} TestJoin1(): Result<()> {
     var input := ["one"];
     var output := Join(input, ",");
-    if output == "one" {
-      print "CORRECT\n";
-    } else {
-      print "NOT CORRECT\n";
-      print output;
-    }
+    RequireEqual("one", output)
   }
 
-  method TestSplitJoin() {
+  function method {:test} TestSplitJoin(): Result<()> {
     var input := "Comma,seperated,list";
     var output := Join(Split(input, ','), ",");
-    if output == input {
-      print "CORRECT\n";
-    } else {
-      print "NOT CORRECT\n";
-      print output;
-    }
+    RequireEqual(input, output)
   }
 
-  method TestJoinSplit() {
+  function method {:test} TestJoinSplit(): Result<()> {
     var input := ["Comma", "seperated", "list"];
     var output := Split(Join(input, ","), ',');
-    if output == input {
-      print "CORRECT\n";
-    } else {
-      print "NOT CORRECT\n";
-      print output;
-    }
-  }
-
-  method Main() {
-    TestSplit0();
-    TestSplit1();
-    TestSplit2();
-    TestSplit3();
-    TestSplit4();
-
-    TestJoin0();
-    TestJoin1();
-
-    TestSplitJoin();
-    TestJoinSplit();
+    RequireEqual(input, output)
   }
 }
