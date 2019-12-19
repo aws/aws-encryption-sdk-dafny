@@ -78,7 +78,7 @@ module RawAESKeyring{
       ensures res.Success? && res.value.Some? && plaintextDataKey.Some? ==>
         plaintextDataKey.get == res.value.get.plaintextDataKey
       ensures res.Success? && res.value.Some? ==>
-        var generateTraces := Filter(res.value.get.keyringTrace, Mat.IsGenerateTraceEntry);
+        var generateTraces: seq<Mat.KeyringTraceEntry> := Filter(res.value.get.keyringTrace, Mat.IsGenerateTraceEntry);
         |generateTraces| == if plaintextDataKey.None? then 1 else 0
       ensures res.Success? && res.value.Some? ==>
         if plaintextDataKey.None? then
