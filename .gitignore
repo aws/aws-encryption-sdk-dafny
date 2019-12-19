@@ -15,4 +15,6 @@ test/**/Output/*
 /test/bin
 /test/obj
 /generated-test
+/bench/bin
+/bench/obj
 .gradle/*

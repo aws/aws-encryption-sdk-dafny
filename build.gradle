@@ -80,24 +80,28 @@ def dafnyOpts = [
     '/compileTarget:java',
 ]
 
-// TODO: This should be using a custom task type so that (a) there's less
-// duplication and (b) we can let Gradle know what the output directory is
-// so that we can avoid regenerating sources.
+// TODO: Make a custom task type to avoid duplication.
 
 task genSources(type: Exec) {
     executable = 'dafny'
-    args "/out:$buildDir/src/main"
+    args "/out:build/java/src/main" // Must be relative path (Dafny bug?)
     args libSrcs
     args 'test/SDK/Client.dfy'
     args dafnyOpts
+    inputs.files(libSrcs)
+    inputs.file('test/SDK/Client.dfy')
+    outputs.dir("$buildDir/src/main")
 }
 
 task genBenchSources(type: Exec) {
     executable = 'dafny'
-    args "/out:$buildDir/src/bench"
+    args "/out:build/java/src/bench" // Must be relative path (Dafny bug?)
     args libSrcs
-    args 'test/SDK/Bench.dfy'
+    args 'bench/SDK/Bench.dfy'
     args dafnyOpts
+    inputs.files(libSrcs)
+    inputs.file('bench/SDK/Bench.dfy')
+    outputs.dir("$buildDir/src/bench")
 }
 
 gradle.projectsEvaluated {

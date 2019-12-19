@@ -1,16 +1,16 @@
-include "SDK/Keyring/RawRSAKeyring.dfy"
-include "SDK/Materials.dfy"
-include "StandardLibrary/StandardLibrary.dfy"
-include "StandardLibrary/UInt.dfy"
-include "SDK/CMM/Defs.dfy"
-include "SDK/CMM/DefaultCMM.dfy"
-include "SDK/Client.dfy"
-include "SDK/MessageHeader.dfy"
-include "Crypto/RSAEncryption.dfy"
-include "Util/UTF8.dfy"
-include "StandardLibrary/Base64.dfy"
+include "../../src/SDK/Keyring/RawRSAKeyring.dfy"
+include "../../src/SDK/Materials.dfy"
+include "../../src/StandardLibrary/StandardLibrary.dfy"
+include "../../src/StandardLibrary/UInt.dfy"
+include "../../src/SDK/CMM/Defs.dfy"
+include "../../src/SDK/CMM/DefaultCMM.dfy"
+include "../../src/SDK/Client.dfy"
+include "../../src/SDK/MessageHeader.dfy"
+include "../../src/Crypto/RSAEncryption.dfy"
+include "../../src/Util/UTF8.dfy"
+include "../../src/StandardLibrary/Base64.dfy"
 
-module Main {
+module {:extern "Bench"} Bench {
   import opened StandardLibrary
   import opened UInt = StandardLibrary.UInt
   import CMMDefs
@@ -45,7 +45,6 @@ module Main {
   }
 
   module {:extern "Time"} Time {
-	//method {:extern} CurrentTimeMillis() returns (a : nat)
 	class {:extern "Timer"} Timer {
 	  constructor {:extern} () { }
       method {:extern} ElapsedMilliseconds() returns (a : nat)

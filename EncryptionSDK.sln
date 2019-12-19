@@ -7,6 +7,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AWSEncryptionSDK", "src\AWS
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AWSEncryptionSDKTests", "test\AWSEncryptionSDKTests.csproj", "{6605AED7-ADFF-4F81-9DE4-44AD3E80B0F2}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AWSEncryptionSDKBench", "bench\AWSEncryptionSDKBench.csproj", "{D105B491-CA9D-4EF1-8A1D-EF17AB0A5876}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -44,5 +46,17 @@ Global
 		{6605AED7-ADFF-4F81-9DE4-44AD3E80B0F2}.Release|x64.Build.0 = Release|Any CPU
 		{6605AED7-ADFF-4F81-9DE4-44AD3E80B0F2}.Release|x86.ActiveCfg = Release|Any CPU
 		{6605AED7-ADFF-4F81-9DE4-44AD3E80B0F2}.Release|x86.Build.0 = Release|Any CPU
+		{D105B491-CA9D-4EF1-8A1D-EF17AB0A5876}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D105B491-CA9D-4EF1-8A1D-EF17AB0A5876}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D105B491-CA9D-4EF1-8A1D-EF17AB0A5876}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{D105B491-CA9D-4EF1-8A1D-EF17AB0A5876}.Debug|x64.Build.0 = Debug|Any CPU
+		{D105B491-CA9D-4EF1-8A1D-EF17AB0A5876}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{D105B491-CA9D-4EF1-8A1D-EF17AB0A5876}.Debug|x86.Build.0 = Debug|Any CPU
+		{D105B491-CA9D-4EF1-8A1D-EF17AB0A5876}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D105B491-CA9D-4EF1-8A1D-EF17AB0A5876}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D105B491-CA9D-4EF1-8A1D-EF17AB0A5876}.Release|x64.ActiveCfg = Release|Any CPU
+		{D105B491-CA9D-4EF1-8A1D-EF17AB0A5876}.Release|x64.Build.0 = Release|Any CPU
+		{D105B491-CA9D-4EF1-8A1D-EF17AB0A5876}.Release|x86.ActiveCfg = Release|Any CPU
+		{D105B491-CA9D-4EF1-8A1D-EF17AB0A5876}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal
