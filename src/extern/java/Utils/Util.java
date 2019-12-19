@@ -37,25 +37,7 @@ public class Util {
         return ans;
     }
 
-    public static DafnySequence<UByte> bytesToUByteSequence(byte[] bytes) {
-        return DafnySequence.fromArray(bytesToUBytes(bytes));
-    }
-
-    public static byte[] uByteSequenceToBytes(DafnySequence<UByte> seq) {
-        int len = seq.length();
-        byte[] ans = new byte[len];
-        int i = 0;
-        for (UByte b : seq) {
-            ans[i++] = b.byteValue();
-        }
-        return ans;
-    }
-
-    public static DafnySequence<UByte> stringToUByteSequence(String string) {
-        return bytesToUByteSequence(string.getBytes(StandardCharsets.UTF_8));
-    }
-
     public static String uByteSequenceToString(DafnySequence<UByte> uBytes) {
-        return new String(uByteSequenceToBytes(uBytes), StandardCharsets.UTF_8);
+        return new String(DafnySequence.toByteArrayUnsigned(uBytes), StandardCharsets.UTF_8);
     }
 }

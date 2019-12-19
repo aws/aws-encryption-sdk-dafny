@@ -4,7 +4,6 @@ import Utils.BouncyCastleUtils;
 import dafny.DafnySequence;
 import dafny.Tuple2;
 import dafny.UByte;
-import org.bouncycastle.jce.provider.BouncyCastleProvider;
 import org.bouncycastle.openssl.PEMReader;
 import org.bouncycastle.openssl.PEMWriter;
 
@@ -84,7 +83,7 @@ public class RSA {
             Cipher engine = createEngine(padding);
 
             engine.init(Cipher.ENCRYPT_MODE, pub);
-            return new STL.Option_Some<>(bytesToUByteSequence(engine.doFinal(uByteSequenceToBytes(msg))));
+            return new STL.Option_Some<>(DafnySequence.fromBytesUnsigned(engine.doFinal(DafnySequence.toByteArrayUnsigned(msg))));
         }
         catch (IOException | InvalidKeyException | IllegalBlockSizeException | BadPaddingException e){
             return new STL.Option_None<>();
@@ -101,7 +100,7 @@ public class RSA {
             Reader txtreader = new StringReader(uByteSequenceToString(dk));
             keyPair = (KeyPair) new PEMReader(txtreader).readObject();
             engine.init(Cipher.DECRYPT_MODE, keyPair.getPrivate());
-            return new STL.Option_Some<>(bytesToUByteSequence(engine.doFinal(uByteSequenceToBytes(ctx))));
+            return new STL.Option_Some<>(DafnySequence.fromBytesUnsigned(engine.doFinal(DafnySequence.toByteArrayUnsigned(ctx))));
         }
         catch (IOException | InvalidKeyException | IllegalBlockSizeException | BadPaddingException e){
             return new STL.Option_None<>();

@@ -1,6 +1,5 @@
 package Signature;
 
-import Utils.Util;
 import dafny.DafnySequence;
 import dafny.Tuple2;
 import dafny.UByte;
@@ -22,9 +21,6 @@ import java.math.BigInteger;
 import java.security.MessageDigest;
 import java.security.SecureRandom;
 
-import static Utils.Util.bytesToUByteSequence;
-import static Utils.Util.uByteSequenceToBytes;
-
 public class ECDSA {
     public static STL.Option<Tuple2<DafnySequence<UByte>, DafnySequence<UByte>>> KeyGen(ECDSAParams x) {
         try {
@@ -40,8 +36,8 @@ public class ECDSA {
             }
             AsymmetricCipherKeyPair kp = g.generateKeyPair();
             ECPoint pt = ((ECPublicKeyParameters)kp.getPublic()).getQ();
-            DafnySequence<UByte> vk = bytesToUByteSequence(pt.getEncoded());
-            DafnySequence<UByte> sk = bytesToUByteSequence(((ECPrivateKeyParameters)kp.getPrivate()).getD().toByteArray());
+            DafnySequence<UByte> vk = DafnySequence.fromBytesUnsigned(pt.getEncoded());
+            DafnySequence<UByte> sk = DafnySequence.fromBytesUnsigned(((ECPrivateKeyParameters) kp.getPrivate()).getD().toByteArray());
             return new STL.Option_Some<>(new Tuple2<>(vk, sk));
         } catch (RuntimeException e) {
             return new STL.Option_None<>();
@@ -57,13 +53,13 @@ public class ECDSA {
                 p = ECNamedCurveTable.getParameterSpec("secp256r1");
             }
             ECDomainParameters dp = new ECDomainParameters(p.getCurve(), p.getG(), p.getN(), p.getH());
-            ECPoint pt = p.getCurve().decodePoint(uByteSequenceToBytes(vk));
+            ECPoint pt = p.getCurve().decodePoint(DafnySequence.toByteArrayUnsigned(vk));
             ECPublicKeyParameters vkp = new ECPublicKeyParameters(pt, dp);
             ECDSASigner sign = new ECDSASigner();
             sign.init(false, vkp);
             BigInteger r, s;
-            Tuple2<BigInteger, BigInteger> pair = DERDeserialize(uByteSequenceToBytes(sig));
-            return sign.verifySignature(uByteSequenceToBytes(digest), pair.dtor__0(), pair.dtor__1());
+            Tuple2<BigInteger, BigInteger> pair = DERDeserialize(DafnySequence.toByteArrayUnsigned(sig));
+            return sign.verifySignature(DafnySequence.toByteArrayUnsigned(digest), pair.dtor__0(), pair.dtor__1());
         } catch (Exception e) {
             return false;
         }
@@ -78,11 +74,11 @@ public class ECDSA {
                 p = ECNamedCurveTable.getParameterSpec("secp256r1");
             }
             ECDomainParameters dp = new ECDomainParameters(p.getCurve(), p.getG(), p.getN(), p.getH());
-            ECPrivateKeyParameters skp = new ECPrivateKeyParameters(new BigInteger(uByteSequenceToBytes(sk)), dp);
+            ECPrivateKeyParameters skp = new ECPrivateKeyParameters(new BigInteger(DafnySequence.toByteArrayUnsigned(sk)), dp);
             ECDSASigner sign = new ECDSASigner();
             sign.init(true, skp);
             do {
-                BigInteger[] sig = sign.generateSignature(uByteSequenceToBytes(digest));
+                BigInteger[] sig = sign.generateSignature(DafnySequence.toByteArrayUnsigned(digest));
                 byte[] bytes = DERSerialize(sig[0], sig[1]);
                 if (bytes.length != x.SignatureLength().intValue()) {
                     // Most of the time, a signature of the wrong length can be fixed
@@ -92,7 +88,7 @@ public class ECDSA {
                 if (bytes.length == x.SignatureLength().intValue()) {
                     // This will meet the method postcondition, which says that a Some? return must
                     // contain a sequence of bytes whose length is x.SignatureLength().
-                    return new STL.Option_Some<>(bytesToUByteSequence(bytes));
+                    return new STL.Option_Some<>(DafnySequence.fromBytesUnsigned(bytes));
                 }
                 // We only get here with low probability, so try again (forever, if we have really bad luck).
             } while (true);
@@ -108,8 +104,8 @@ public class ECDSA {
         } else {
             alg = new JDKMessageDigest.SHA256();
         }
-        byte[] digest = alg.digest(uByteSequenceToBytes(msg));
-        return bytesToUByteSequence(digest);
+        byte[] digest = alg.digest(DafnySequence.toByteArrayUnsigned(msg));
+        return DafnySequence.fromBytesUnsigned(digest);
     }
 
     private static byte[] DERSerialize(BigInteger r, BigInteger s) {

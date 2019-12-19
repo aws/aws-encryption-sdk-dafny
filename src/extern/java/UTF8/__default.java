@@ -1,6 +1,5 @@
 package UTF8;
 
-import Utils.Util;
 import dafny.DafnySequence;
 import dafny.UByte;
 
@@ -17,7 +16,7 @@ public class __default extends _ExternBase___default {
             ByteBuffer utf8Buf = utf8.encode(CharBuffer.wrap(str.verbatimString()));
             byte[] utf8Bytes = new byte[utf8Buf.limit()];
             utf8Buf.get(utf8Bytes);
-            return new STL.Result_Success<>(Util.bytesToUByteSequence(utf8Bytes));
+            return new STL.Result_Success<>(DafnySequence.fromBytesUnsigned(utf8Bytes));
         } catch (CharacterCodingException e) {
             return new STL.Result_Failure<>(DafnySequence.asString("Input contains invalid Unicode characters"));
         }
@@ -28,7 +27,7 @@ public class __default extends _ExternBase___default {
         utf8.onMalformedInput(CodingErrorAction.REPORT);
         utf8.onUnmappableCharacter(CodingErrorAction.REPORT);
         try {
-            String decoded = utf8.decode(ByteBuffer.wrap(Util.uByteSequenceToBytes(bytes))).toString();
+            String decoded = utf8.decode(ByteBuffer.wrap(DafnySequence.toByteArrayUnsigned(bytes))).toString();
             return new STL.Result_Success<>(DafnySequence.asString(decoded));
         } catch (CharacterCodingException e) {
             return new STL.Result_Failure<>(DafnySequence.asString("Input contains an invalid Unicode code point"));

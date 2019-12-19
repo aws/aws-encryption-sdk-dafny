@@ -1,6 +1,5 @@
 package Random;
 
-import Utils.Util;
 import dafny.DafnySequence;
 import dafny.UByte;
 
@@ -11,6 +10,6 @@ public class __default {
         Random rng = new Random();
         byte[] z = new byte[i];
         rng.nextBytes(z);
-        return Util.bytesToUByteSequence(z);
+        return DafnySequence.fromBytesUnsigned(z);
     }
 }
