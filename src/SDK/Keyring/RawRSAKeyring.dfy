@@ -15,13 +15,13 @@ module RawRSAKeyringDef {
   import KeyringDefs
   import Materials
   import Random
-  import RSAEncryption
+  import RSA = RSAEncryptionDef
   import UTF8
 
   class RawRSAKeyring extends KeyringDefs.Keyring {
     const keyNamespace: UTF8.ValidUTF8Bytes
     const keyName: UTF8.ValidUTF8Bytes
-    const paddingMode: RSAEncryption.PaddingMode
+    const paddingMode: RSA.PaddingMode
     const publicKey: Option<seq<uint8>>
     const privateKey: Option<seq<uint8>>
 
@@ -30,13 +30,17 @@ module RawRSAKeyringDef {
     {
       Repr == {this} &&
       (publicKey.Some? || privateKey.Some?) &&
+      (publicKey.Some? ==> |publicKey.get| > 0) &&
+      (privateKey.Some? ==> |privateKey.get| > 0) &&
       |keyNamespace| < UINT16_LIMIT &&
       |keyName| < UINT16_LIMIT
     }
 
-    constructor(namespace: UTF8.ValidUTF8Bytes, name: UTF8.ValidUTF8Bytes, padding: RSAEncryption.PaddingMode,
+    constructor(namespace: UTF8.ValidUTF8Bytes, name: UTF8.ValidUTF8Bytes, padding: RSA.PaddingMode,
                 publicKey: Option<seq<uint8>>, privateKey: Option<seq<uint8>>)
       requires publicKey.Some? || privateKey.Some?
+      requires publicKey.Some? ==> |publicKey.get| > 0
+      requires privateKey.Some? ==> |privateKey.get| > 0
       requires |namespace| < UINT16_LIMIT
       requires |name| < UINT16_LIMIT
       ensures keyNamespace == namespace
@@ -81,7 +85,7 @@ module RawRSAKeyringDef {
           && |res.value.get.keyringTrace| == 1
           && res.value.get.keyringTrace[0] == EncryptTraceEntry()
     {
-      if publicKey.None? || (|publicKey.get| == 0) {
+      if publicKey.None? {
         return Failure("Encryption key undefined");
       }
 
@@ -98,7 +102,7 @@ module RawRSAKeyringDef {
       }
 
       // Attempt to encrypt and construct the encrypted data key
-      var encryptedCiphertext :- RSAEncryption.RSA.Encrypt(paddingMode, publicKey.get, plaintextDataKey.get);
+      var encryptedCiphertext :- RSA.Encrypt(paddingMode, publicKey.get, plaintextDataKey.get);
       if UINT16_LIMIT <= |encryptedCiphertext| {
         return Failure("Encrypted data key too long.");
       }
@@ -130,7 +134,7 @@ module RawRSAKeyringDef {
     {
       if |encryptedDataKeys| == 0 {
         return Success(None);
-      } else if privateKey.None? || (|privateKey.get| == 0) {
+      } else if privateKey.None? {
         return Failure("Decryption key undefined");
       }
       var i := 0;
@@ -141,7 +145,7 @@ module RawRSAKeyringDef {
         if encryptedDataKey.providerID == keyNamespace &&
           encryptedDataKey.providerInfo == keyName &&
           (|encryptedDataKey.ciphertext| != 0) {
-          var potentialPlaintextDataKey := RSAEncryption.RSA.Decrypt(paddingMode, privateKey.get, encryptedDataKey.ciphertext);
+          var potentialPlaintextDataKey := RSA.Decrypt(paddingMode, privateKey.get, encryptedDataKey.ciphertext);
           match potentialPlaintextDataKey
           case Failure(_) =>
             // Try to decrypt using another encryptedDataKey

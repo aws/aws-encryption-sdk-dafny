@@ -18,7 +18,6 @@ namespace RSAEncryption {
 
     public class RSAUnsupportedPaddingSchemeException : Exception
     {
-
         public RSAUnsupportedPaddingSchemeException(string paddingScheme)
             : base(String.Format("Invalid RSA Padding Scheme: {0}", paddingScheme))
         {
@@ -75,16 +74,16 @@ namespace RSAEncryption {
         }
 
         public static void GenerateKeyPair(int strength, PaddingMode padding, out byteseq publicKey, out byteseq privateKey) {
-                RsaKeyPairGenerator keygen = new RsaKeyPairGenerator();
-                SecureRandom secureRandom = new SecureRandom();
-                keygen.Init(new RsaKeyGenerationParameters(
-                    BigInteger.ValueOf(RSA_PUBLIC_EXPONENT), secureRandom, strength, RSA_CERTAINTY));
-                AsymmetricCipherKeyPair keygenPair = keygen.GenerateKeyPair();
-                byte[] publicKeyBytes;
-                byte[] privateKeyBytes;
-                GetPemBytes(keygenPair, out publicKeyBytes, out privateKeyBytes);
-                publicKey = byteseq.FromArray(publicKeyBytes);
-                privateKey = byteseq.FromArray(privateKeyBytes);
+            RsaKeyPairGenerator keygen = new RsaKeyPairGenerator();
+            SecureRandom secureRandom = new SecureRandom();
+            keygen.Init(new RsaKeyGenerationParameters(
+                BigInteger.ValueOf(RSA_PUBLIC_EXPONENT), secureRandom, strength, RSA_CERTAINTY));
+            AsymmetricCipherKeyPair keygenPair = keygen.GenerateKeyPair();
+            byte[] publicKeyBytes;
+            byte[] privateKeyBytes;
+            GetPemBytes(keygenPair, out publicKeyBytes, out privateKeyBytes);
+            publicKey = byteseq.FromArray(publicKeyBytes);
+            privateKey = byteseq.FromArray(privateKeyBytes);
         }
 
         public static STL.Result<byteseq> Encrypt(PaddingMode padding, byteseq publicKey, byteseq plaintextMessage) {

@@ -1,6 +1,6 @@
 include "../StandardLibrary/StandardLibrary.dfy"
 
-module {:extern "RSAEncryption"} RSAEncryption {
+module {:extern "RSAEncryption"} RSAEncryptionDef {
     import opened StandardLibrary
     import opened UInt = StandardLibrary.UInt
 
@@ -52,21 +52,24 @@ module {:extern "RSAEncryption"} RSAEncryption {
         }
     }
 
-    class {:extern} RSA {
-      static method {:extern} GenerateKeyPair(strength : Strength, padding: PaddingMode)
-          returns (publicKey : seq<uint8>, privateKey : seq<uint8>)
-        requires GetOctet(strength as nat) >= MinModulusOctets(padding)
+    // The full extern name needs to be specified here (and below) to prevent conflicts when resolving the extern
+    method {:extern "RSAEncryption.RSA", "GenerateKeyPair"} GenerateKeyPair(strength : Strength, padding: PaddingMode)
+        returns (publicKey : seq<uint8>, privateKey : seq<uint8>)
+      requires GetOctet(strength as nat) >= MinModulusOctets(padding)
+      ensures |publicKey| > 0
+      ensures |privateKey| > 0
 
-      static method {:extern} Decrypt(padding : PaddingMode, privateKey : seq<uint8>, cipherText : seq<uint8>)
-          returns (res : Result<seq<uint8>>)
-        requires |privateKey| > 0
-        requires |cipherText| > 0
-        // TODO: Validate that the cipherText length == k, the length in octets of the modulus n
+    method {:extern "RSAEncryption.RSA", "Decrypt"} Decrypt(padding : PaddingMode, privateKey : seq<uint8>,
+                                                            cipherText : seq<uint8>)
+        returns (res : Result<seq<uint8>>)
+      requires |privateKey| > 0
+      requires |cipherText| > 0
+      // TODO: Validate that the cipherText length == k, the length in octets of the modulus n
 
-      static method {:extern} Encrypt(padding: PaddingMode, publicKey : seq<uint8>, plaintextData : seq<uint8>)
-          returns (res : Result<seq<uint8>>)
-        requires |publicKey| > 0
-        requires |plaintextData| > 0
-        // TODO: Validate that the plaintextData length <= MaxEncryptionBytes(padding, modulus from public key)
-    }
+    method {:extern "RSAEncryption.RSA", "Encrypt"} Encrypt(padding: PaddingMode, publicKey : seq<uint8>,
+                                                            plaintextData : seq<uint8>)
+        returns (res : Result<seq<uint8>>)
+      requires |publicKey| > 0
+      requires |plaintextData| > 0
+      // TODO: Validate that the plaintextData length <= MaxEncryptionBytes(padding, modulus from public key)
 }

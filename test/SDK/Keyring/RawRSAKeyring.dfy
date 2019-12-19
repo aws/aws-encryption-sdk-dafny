@@ -8,7 +8,7 @@ include "../../../src/Util/UTF8.dfy"
 module TestRSAKeyring {
   import opened StandardLibrary
   import opened UInt = StandardLibrary.UInt
-  import RSAEncryption
+  import RSA = RSAEncryptionDef
   import RawRSAKeyringDef
   import AlgorithmSuite
   import UTF8
@@ -18,8 +18,8 @@ module TestRSAKeyring {
 
   method {:test} TestOnEncryptOnDecryptGenerateDataKey() returns (r: Result<()>)
   {
-    var ek, dk := RSAEncryption.RSA.GenerateKeyPair(2048, RSAEncryption.PKCS1);
-    var rawRSAKeyring := new RawRSAKeyringDef.RawRSAKeyring(name, namespace, RSAEncryption.PaddingMode.PKCS1, Some(ek), Some(dk));
+    var ek, dk := RSA.GenerateKeyPair(2048, RSA.PKCS1);
+    var rawRSAKeyring := new RawRSAKeyringDef.RawRSAKeyring(name, namespace, RSA.PaddingMode.PKCS1, Some(ek), Some(dk));
     
     var keyA, valA := UTF8.Encode("keyA").value, UTF8.Encode("valA").value;
     var encryptionContext := [(keyA, valA)];
@@ -35,8 +35,8 @@ module TestRSAKeyring {
 
   method {:test} TestOnEncryptOnDecryptSuppliedDataKey() returns (r: Result<()>)
   {
-    var ek, dk := RSAEncryption.RSA.GenerateKeyPair(2048, RSAEncryption.PKCS1);
-    var rawRSAKeyring := new RawRSAKeyringDef.RawRSAKeyring(name, namespace, RSAEncryption.PaddingMode.PKCS1, Some(ek), Some(dk));
+    var ek, dk := RSA.GenerateKeyPair(2048, RSA.PKCS1);
+    var rawRSAKeyring := new RawRSAKeyringDef.RawRSAKeyring(name, namespace, RSA.PaddingMode.PKCS1, Some(ek), Some(dk));
     
     var keyA, valA := UTF8.Encode("keyA").value, UTF8.Encode("valA").value;
     var encryptionContext := [(keyA, valA)];
