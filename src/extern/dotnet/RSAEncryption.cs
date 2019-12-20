@@ -1,5 +1,4 @@
 using System.Text;
-using System;
 using System.IO;
 using Org.BouncyCastle.Crypto;
 using Org.BouncyCastle.Crypto.Digests;
@@ -36,29 +35,12 @@ namespace RSAEncryption {
 
         const int RSA_PUBLIC_EXPONENT = (65537);
         const int RSA_CERTAINTY = 256;
-
-        public static void RSAKeygen(int bits, RSAPaddingMode padding, out byteseq ek, out byteseq dk) {
-                RsaKeyPairGenerator gen = new RsaKeyPairGenerator();
-                SecureRandom rng = new SecureRandom();
-                gen.Init(new RsaKeyGenerationParameters(BigInteger.ValueOf(RSA_PUBLIC_EXPONENT), rng, bits, RSA_CERTAINTY));
-                AsymmetricCipherKeyPair kp = gen.GenerateKeyPair();
-                byte[] e;
-                byte[] d;
-                get_pem(kp, out e, out d);
-                ek = byteseq.FromArray(e);
-                dk = byteseq.FromArray(d);
-        }
-
         public static void StringToPEM(Dafny.Sequence<char> privatePEM, Dafny.Sequence<char> publicPEM, out byteseq ek, out byteseq dk) {
                 PemReader pr1 = new PemReader(new StringReader(new string(privatePEM.Elements)));
-                Console.WriteLine(new string(privatePEM.Elements));
                 AsymmetricKeyParameter privateKey = (AsymmetricKeyParameter) pr1.ReadObject();
-                                    Console.WriteLine("foo");
 
                 PemReader pr2 = new PemReader(new StringReader(new string(privatePEM.Elements)));
                 AsymmetricKeyParameter publicKey = (AsymmetricKeyParameter)pr2.ReadObject();
-                    Console.WriteLine("foo");
-                    Console.WriteLine(publicKey);
                 byte[] e;
                 using (var stringWriter = new StringWriter()) {
 
@@ -77,7 +59,19 @@ namespace RSAEncryption {
                 dk = byteseq.FromArray(d);
         }
 
-        public static STL.Option<byteseq> RSAEncrypt(int bits, RSAPaddingMode padding, byteseq ek, byteseq msg) {
+        public static void RSAKeygen(int bits, RSAPaddingMode padding, out byteseq ek, out byteseq dk) {
+                RsaKeyPairGenerator gen = new RsaKeyPairGenerator();
+                SecureRandom rng = new SecureRandom();
+                gen.Init(new RsaKeyGenerationParameters(BigInteger.ValueOf(RSA_PUBLIC_EXPONENT), rng, bits, RSA_CERTAINTY));
+                AsymmetricCipherKeyPair kp = gen.GenerateKeyPair();
+                byte[] e;
+                byte[] d;
+                get_pem(kp, out e, out d);
+                ek = byteseq.FromArray(e);
+                dk = byteseq.FromArray(d);
+        }
+
+        public static STL.Result<byteseq> RSAEncrypt(RSAPaddingMode padding, byteseq ek, byteseq msg) {
             try {
                 AsymmetricKeyParameter pub;
                 using (var stringReader = new StringReader(Encoding.UTF8.GetString(ek.Elements)))
