@@ -14,6 +14,7 @@ using Org.BouncyCastle.Security;
 using Org.BouncyCastle.Asn1.X9;
 
 using byteseq = Dafny.Sequence<byte>;
+using charseq = Dafny.Sequence<char>;
 
 namespace RSAEncryption {
 
@@ -93,22 +94,22 @@ namespace RSAEncryption {
                 } else if (padding.is_OAEP__SHA1) {
                     engine = new OaepEncoding(new RsaEngine(), new Sha1Digest());
                 }
-                else { // paddingi_is_OAEP__SHA256
+                else { // padding._is_OAEP__SHA256
                     engine = new OaepEncoding(new RsaEngine(), new Sha256Digest());
                 }
 
                 engine.Init(true, pub);
-                return new STL.Option_Some<byteseq>(byteseq.FromArray(engine.ProcessBlock(msg.Elements, 0, msg.Elements.Length)));
+                return new STL.Result_Success<byteseq>(byteseq.FromArray(engine.ProcessBlock(msg.Elements, 0, msg.Elements.Length)));
             }
             catch {
-                return new STL.Option_None<byteseq>();
+                return new STL.Result_Failure<byteseq>(charseq.FromArray("RSA Encryption Error".ToCharArray()));
             }
 
         }
 
         // https://stackoverflow.com/questions/28086321/c-sharp-bouncycastle-rsa-encryption-with-public-private-keys
 
-        public static STL.Option<byteseq> RSADecrypt(int bits, RSAPaddingMode padding, byteseq dk, byteseq ctx) {
+        public static STL.Result<byteseq> RSADecrypt(RSAPaddingMode padding, byteseq dk, byteseq ctx) {
             try {
                 AsymmetricCipherKeyPair keyPair;
 
@@ -119,7 +120,7 @@ namespace RSAEncryption {
                 } else if (padding.is_OAEP__SHA1) {
                     engine = new OaepEncoding(new RsaEngine(), new Sha1Digest(), null);
                 }
-                else { // paddingi_is_OAEP__SHA256
+                else { // padding._is_OAEP__SHA256
                     engine = new OaepEncoding(new RsaEngine(), new Sha256Digest(), null);
                 }
 
@@ -127,10 +128,10 @@ namespace RSAEncryption {
                     keyPair = (AsymmetricCipherKeyPair) new PemReader(txtreader).ReadObject();
                     engine.Init(false, keyPair.Private);
                 }
-                return new STL.Option_Some<byteseq>(byteseq.FromArray(engine.ProcessBlock(ctx.Elements, 0, ctx.Elements.Length)));
+                return new STL.Result_Success<byteseq>(byteseq.FromArray(engine.ProcessBlock(ctx.Elements, 0, ctx.Elements.Length)));
             }
             catch {
-                return new STL.Option_None<byteseq>();
+                return new STL.Result_Failure<byteseq>(charseq.FromArray("RSA Decryption Error".ToCharArray()));
             }
         }
     }

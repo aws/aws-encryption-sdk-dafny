@@ -5,6 +5,7 @@ module {:extern "RSAEncryption"} RSAEncryption {
     import opened StandardLibrary
     import opened UInt = StandardLibrary.UInt
 
+    // TODO: Add support for OAEP_SHA384 and OAEP_SHA512
     datatype {:extern "RSAPaddingMode"} RSAPaddingMode = PKCS1 | OAEP_SHA1 | OAEP_SHA256
 
     // const UINT32_MAX := 0x1_0000_0000 - 1
@@ -32,13 +33,13 @@ module {:extern "RSAEncryption"} RSAEncryption {
 
         // TODO: make externs to test below predicates
 
-        static predicate method {:axiom} RSAWfCtx (bits : RSABitLength, padding: RSAPaddingMode, c : seq<uint8>) // should correspond to a valid RSA ciphertext
+        static predicate method {:axiom} RSAWfCtx (padding: RSAPaddingMode, c : seq<uint8>) // should correspond to a valid RSA ciphertext
 
-        static predicate method {:axiom} RSAWfEK (bits : RSABitLength, padding : RSAPaddingMode, ek : seq<uint8>) // should correspond to a valid PEM-encoded encryption key
+        static predicate method {:axiom} RSAWfEK (padding : RSAPaddingMode, ek : seq<uint8>) // should correspond to a valid PEM-encoded encryption key
 
-        static predicate method {:axiom} RSAWfDK (bits : RSABitLength, padding : RSAPaddingMode, dk : seq<uint8>) // should correspond to a valid PEM-encoded decryption key
+        static predicate method {:axiom} RSAWfDK (padding : RSAPaddingMode, dk : seq<uint8>) // should correspond to a valid PEM-encoded decryption key
 
-        static predicate method {:axiom} IsRSAKeypair(bits : RSABitLength, padding: RSAPaddingMode, ek : seq<uint8>, dk :seq<uint8>) // dk's public key is ek
+        static predicate method {:axiom} IsRSAKeypair(padding: RSAPaddingMode, ek : seq<uint8>, dk :seq<uint8>) // dk's public key is ek
 
         // TODO: below should return an option if anything throws.
         static method {:extern "RSAKeygen"} RSAKeygen(bits : RSABitLength, padding: RSAPaddingMode) returns (ek : seq<uint8>, dk : seq<uint8>)
@@ -56,6 +57,9 @@ module {:extern "RSAEncryption"} RSAEncryption {
             ensures c.Some? ==> forall dk :: IsRSAKeypair(bits,padding,ek, dk) ==> RSAWfDK(bits,padding,dk) ==> RSADecrypt(bits, padding, dk, c.get) == Some(msg)
         
         static method {:extern "StringToPEM"} StringToPEM(privatePEM: string, publicPEM: string) returns (ek : seq<uint8>, dk : seq<uint8>)
+            ensures RSAWfEK(padding, ek)
+            ensures RSAWfDK(padding, dk)
+            ensures IsRSAKeypair(padding, ek, dk)
     }
 
 }
