@@ -39,7 +39,9 @@ module {:extern "Signature"} Signature {
             ensures res.Some? ==> WfVK(s, res.get.0)
             ensures res.Some? ==> IsSignKeypair(s, res.get.1, res.get.0)
 //            ensures VKOfSK(s, sk) == vk
-
+            ensures res.Some? ==> var (public, secret) := res.get;
+              0 < |public| && 0 < |secret| &&
+              (public[0] == 2 || public[0] == 3)  // public key uses y compression
     }
 
     method {:extern "Signature.ECDSA", "Sign"} Sign(s: ECDSAParams, key: seq<uint8>, digest: seq<uint8>) returns (sig: Option<seq<uint8>>)
