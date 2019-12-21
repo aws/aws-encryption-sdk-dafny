@@ -22,25 +22,29 @@ module RawRSAKeyringDef {
     const keyNamespace: UTF8.ValidUTF8Bytes
     const keyName: UTF8.ValidUTF8Bytes
     const paddingMode: RSA.PaddingMode
-    const publicKey: Option<seq<uint8>>
-    const privateKey: Option<seq<uint8>>
+    const publicKey: Option<RSA.PublicKey>
+    const privateKey: Option<RSA.PrivateKey>
 
     predicate Valid()
-      reads this
+      reads this, Repr
     {
-      Repr == {this} &&
+      this in Repr &&
       (publicKey.Some? || privateKey.Some?) &&
-      (publicKey.Some? ==> |publicKey.get| > 0) &&
-      (privateKey.Some? ==> |privateKey.get| > 0) &&
+      (publicKey.Some? ==> publicKey.get in Repr && publicKey.get.Repr <= Repr && publicKey.get.Valid()) &&
+      (publicKey.Some? ==> publicKey.get.padding == paddingMode) &&
+      (privateKey.Some? ==> privateKey.get in Repr && privateKey.get.Repr <= Repr && privateKey.get.Valid()) &&
+      (privateKey.Some? ==> privateKey.get.padding == paddingMode) &&
       |keyNamespace| < UINT16_LIMIT &&
       |keyName| < UINT16_LIMIT
     }
 
     constructor(namespace: UTF8.ValidUTF8Bytes, name: UTF8.ValidUTF8Bytes, padding: RSA.PaddingMode,
-                publicKey: Option<seq<uint8>>, privateKey: Option<seq<uint8>>)
+                publicKey: Option<RSA.PublicKey>, privateKey: Option<RSA.PrivateKey>)
       requires publicKey.Some? || privateKey.Some?
-      requires publicKey.Some? ==> |publicKey.get| > 0
-      requires privateKey.Some? ==> |privateKey.get| > 0
+      requires publicKey.Some? ==> publicKey.get.Valid()
+      requires publicKey.Some? ==> publicKey.get.padding == padding
+      requires privateKey.Some? ==> privateKey.get.Valid()
+      requires privateKey.Some? ==> privateKey.get.padding == padding
       requires |namespace| < UINT16_LIMIT
       requires |name| < UINT16_LIMIT
       ensures keyNamespace == namespace
@@ -52,8 +56,10 @@ module RawRSAKeyringDef {
     {
       keyNamespace, keyName := namespace, name;
       paddingMode := padding;
-      this.publicKey, this.privateKey := publicKey, privateKey;
-      Repr := {this};
+      this.publicKey := publicKey;
+      this.privateKey := privateKey;
+      Repr := {this} + (if publicKey.Some? then {publicKey.get} + publicKey.get.Repr else {}) +
+        (if privateKey.Some? then {privateKey.get} + privateKey.get.Repr else {});
     }
 
     method OnEncrypt(algorithmSuiteID: Materials.AlgorithmSuite.ID,
@@ -144,7 +150,7 @@ module RawRSAKeyringDef {
         var encryptedDataKey := encryptedDataKeys[i];
         if encryptedDataKey.providerID == keyNamespace &&
           encryptedDataKey.providerInfo == keyName &&
-          (|encryptedDataKey.ciphertext| != 0) {
+          (0 < |encryptedDataKey.ciphertext|) {
           var potentialPlaintextDataKey := RSA.Decrypt(paddingMode, privateKey.get, encryptedDataKey.ciphertext);
           match potentialPlaintextDataKey
           case Failure(_) =>

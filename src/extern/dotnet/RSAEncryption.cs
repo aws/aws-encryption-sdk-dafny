@@ -26,6 +26,8 @@ namespace RSAEncryption {
 
     public partial class RSA {
 
+        // The following represent common, recommended RSA constants
+        // TODO: Should these be customizable or based on the bit strength?
         const int RSA_PUBLIC_EXPONENT = (65537);
         const int RSA_CERTAINTY = 256;
 
@@ -45,7 +47,7 @@ namespace RSAEncryption {
             }
         }
 
-        // IAsymmetricBlockCipher represents a helper method that takes in an PaddingMode and returns a
+        // GetEngineForPadding represents a helper method that takes in an PaddingMode and returns a
         // IAsymmetricBlockCipher for the RsaBlindedEngine that uses the appropriate digest or throws a
         // RSAUnsupportedPaddingSchemeException if no valid padding exists
         private static IAsymmetricBlockCipher GetEngineForPadding(PaddingMode padding) {
@@ -73,7 +75,7 @@ namespace RSAEncryption {
             }
         }
 
-        public static void GenerateKeyPair(int strength, PaddingMode padding, out byteseq publicKey, out byteseq privateKey) {
+        public static void GenerateKeyPairExtern(int strength, PaddingMode padding, out byteseq publicKey, out byteseq privateKey) {
             RsaKeyPairGenerator keygen = new RsaKeyPairGenerator();
             SecureRandom secureRandom = new SecureRandom();
             keygen.Init(new RsaKeyGenerationParameters(
@@ -86,7 +88,7 @@ namespace RSAEncryption {
             privateKey = byteseq.FromArray(privateKeyBytes);
         }
 
-        public static STL.Result<byteseq> Encrypt(PaddingMode padding, byteseq publicKey, byteseq plaintextMessage) {
+        public static STL.Result<byteseq> EncryptExtern(PaddingMode padding, byteseq publicKey, byteseq plaintextMessage) {
             try {
                 IAsymmetricBlockCipher engine = GetEngineForPadding(padding);
                 AsymmetricKeyParameter publicKeyParam = GetPublicKeyFromByteSeq(publicKey);
@@ -99,7 +101,7 @@ namespace RSAEncryption {
             }
         }
 
-        public static STL.Result<byteseq> Decrypt(PaddingMode padding, byteseq privateKey, byteseq cipherText) {
+        public static STL.Result<byteseq> DecryptExtern(PaddingMode padding, byteseq privateKey, byteseq cipherText) {
             try {
                 IAsymmetricBlockCipher engine = GetEngineForPadding(padding);
                 AsymmetricCipherKeyPair keyPair;
