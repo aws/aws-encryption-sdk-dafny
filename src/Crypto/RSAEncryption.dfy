@@ -6,11 +6,12 @@ module {:extern "RSAEncryption"} RSAEncryptionDef {
 
     datatype {:extern "PaddingMode"} PaddingMode = PKCS1 | OAEP_SHA1 | OAEP_SHA256 | OAEP_SHA384 | OAEP_SHA512
 
-    // The smallest ciphertext length is defined using PKCS1, where mLen <= k - 11. If mLen == 0 ==> k >= 11
-    // k represents the modulus n in octets, so the min value of the modulus n is (strength + 7) / 8 == 11 ==> 81
-    // In practice, this number should realistically be 1024 or, more likely, 2048.
-    // TODO: Determine if we want to enforce a min value of 2048 (requires updating the SDK specifications)
-    newtype {:nativeType "int"} Strength = x | 81 <= x < (0x8000_0000) witness 81
+    // The smallest ciphertext length is defined using PKCS1, where messageLength <= k - 11 and k represents the length
+    // in octets (bytes) of the modulus n. This means that the minimum possible strength in bits can be calculated as:
+    // (strength + 7) / 8 - 11 == 0 ==> min strength == 81 in this scenario (where messageLength == 0). In practice,
+    // this number should be much higher (at least 1024 or, better, 2048).
+    // TODO: Determine if we want to enforce a min value of 2048 bits as the min strength (requires updating the spec)
+    newtype {:nativeType "int"} StrengthBits = x | 81 <= x < (0x8000_0000) witness 81
 
     // Represents the length in octets (bytes) of the hash function output
     const SHA1_HASH_BYTES := 20
@@ -18,13 +19,13 @@ module {:extern "RSAEncryption"} RSAEncryptionDef {
     const SHA384_HASH_BYTES := 48
     const SHA512_HASH_BYTES := 64
 
-    // GetOctet converts the given number of bits to the octet (byte) size that can include all bits
-    function method GetOctet(bits : nat) : nat {
+    // GetBytes converts the given number of bits to the octet (byte) size that can include all bits
+    function method GetBytes(bits : nat) : nat {
       (bits + 7) / 8
     }
 
-    // MinModulusOctets represents the minimum RSA public modulus n in octets (k) that is usable for a given padding
-    function method MinModulusOctets(padding : PaddingMode) : nat {
+    // MinStrengthBytes represents the minimum strength (in bytes) required for a given padding
+    function method MinStrengthBytes(padding : PaddingMode) : nat {
       match padding {
         // 0 = k - 11 ==> k = 11
         case PKCS1 => 11
@@ -36,33 +37,36 @@ module {:extern "RSAEncryption"} RSAEncryptionDef {
         }
     }
 
-    // MaxEncryptionBytes represents the maximum size (in bytes) that plaintextData can be for a given modulus n and
-    // padding mode
-    function method MaxEncryptionBytes(padding : PaddingMode, modulusN : nat) : nat
-      requires GetOctet(modulusN) >= MinModulusOctets(padding)
+    // MaxPlaintextBytes represents the maximum size (in bytes) that the plaintext data can be for a given strength
+    // (in bits) and padding mode
+    function method MaxPlaintextBytes(padding : PaddingMode, strength : nat) : nat
+      requires GetBytes(strength) >= MinStrengthBytes(padding)
     {
       match padding {
         // mLen <= k - 11
-        case PKCS1 => GetOctet(modulusN) - 11
+        case PKCS1 => GetBytes(strength) - 11
         // Per  mLen <= k - 2 * hashLengthBytes - 2
-        case OAEP_SHA1 => GetOctet(modulusN) - 2 * SHA1_HASH_BYTES - 2
-        case OAEP_SHA256 => GetOctet(modulusN) - 2 * SHA256_HASH_BYTES - 2
-        case OAEP_SHA384 => GetOctet(modulusN) - 2 * SHA384_HASH_BYTES - 2
-        case OAEP_SHA512 => GetOctet(modulusN) - 2 * SHA512_HASH_BYTES - 2
+        case OAEP_SHA1 => GetBytes(strength) - 2 * SHA1_HASH_BYTES - 2
+        case OAEP_SHA256 => GetBytes(strength) - 2 * SHA256_HASH_BYTES - 2
+        case OAEP_SHA384 => GetBytes(strength) - 2 * SHA384_HASH_BYTES - 2
+        case OAEP_SHA512 => GetBytes(strength) - 2 * SHA512_HASH_BYTES - 2
         }
     }
 
     // The full extern name needs to be specified here (and below) to prevent conflicts when resolving the extern
-    method {:extern "RSAEncryption.RSA", "GenerateKeyPair"} GenerateKeyPair(strength : Strength, padding: PaddingMode)
+    method {:extern "RSAEncryption.RSA", "GenerateKeyPair"} GenerateKeyPair(strength : StrengthBits, padding: PaddingMode)
         returns (publicKey : seq<uint8>, privateKey : seq<uint8>)
-      requires GetOctet(strength as nat) >= MinModulusOctets(padding)
+      requires GetBytes(strength as nat) >= MinStrengthBytes(padding)
       ensures |publicKey| > 0
       ensures |privateKey| > 0
+      //ensures |privateKey.pem| > 0
+      //ensures privateKey.strength = strength
 
     method {:extern "RSAEncryption.RSA", "Decrypt"} Decrypt(padding : PaddingMode, privateKey : seq<uint8>,
                                                             cipherText : seq<uint8>)
         returns (res : Result<seq<uint8>>)
       requires |privateKey| > 0
+      // requires GetBytes(privateKey.strength) >= |cipherText|
       requires |cipherText| > 0
       // TODO: Validate that the cipherText length == k, the length in octets of the modulus n
 
@@ -71,5 +75,6 @@ module {:extern "RSAEncryption"} RSAEncryptionDef {
         returns (res : Result<seq<uint8>>)
       requires |publicKey| > 0
       requires |plaintextData| > 0
-      // TODO: Validate that the plaintextData length <= MaxEncryptionBytes(padding, modulus from public key)
+     // requires |plaintextData| <= MaxPlaintextBytes(publicKey.strength, padding)
+      // TODO: Validate that the plaintextData length <= MaxPlaintextBytes(padding, modulus from public key)
 }

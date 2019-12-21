@@ -46,19 +46,19 @@ namespace RSAEncryption {
         }
 
         // IAsymmetricBlockCipher represents a helper method that takes in an PaddingMode and returns a
-        // IAsymmetricBlockCipher for the RSAEngine that uses the appropriate digest or throws a
+        // IAsymmetricBlockCipher for the RsaBlindedEngine that uses the appropriate digest or throws a
         // RSAUnsupportedPaddingSchemeException if no valid padding exists
         private static IAsymmetricBlockCipher GetEngineForPadding(PaddingMode padding) {
             if (padding.is_PKCS1) {
-                return new Pkcs1Encoding(new RsaEngine());
+                return new Pkcs1Encoding(new RsaBlindedEngine());
             } else if (padding.is_OAEP__SHA1) {
-                return new OaepEncoding(new RsaEngine(), new Sha1Digest());
+                return new OaepEncoding(new RsaBlindedEngine(), new Sha1Digest());
             } else if (padding.is_OAEP__SHA256) {
-                return new OaepEncoding(new RsaEngine(), new Sha256Digest());
+                return new OaepEncoding(new RsaBlindedEngine(), new Sha256Digest());
             } else if (padding.is_OAEP__SHA384) {
-                return new OaepEncoding(new RsaEngine(), new Sha384Digest());
+                return new OaepEncoding(new RsaBlindedEngine(), new Sha384Digest());
             } else if (padding.is_OAEP__SHA512) {
-                return new OaepEncoding(new RsaEngine(), new Sha512Digest());
+                return new OaepEncoding(new RsaBlindedEngine(), new Sha512Digest());
             } else {
                 throw new RSAUnsupportedPaddingSchemeException(padding.ToString());
             }
