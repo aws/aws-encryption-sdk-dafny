@@ -8,7 +8,7 @@ include "../../Crypto/AESEncryption.dfy"
 include "../Materials.dfy"
 include "../../Util/UTF8.dfy"
 
-module RawAESKeyring{
+module {:extern "RawAESKeyringDef"} RawAESKeyringDef {
   import opened StandardLibrary
   import opened UInt = StandardLibrary.UInt
   import EncryptionSuites
