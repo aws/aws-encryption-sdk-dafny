@@ -22,7 +22,7 @@ namespace AWSEncryptionSDKTests
             ClientSupplier clientSupplier = new DefaultClientSupplier();
             
             Keyring keyring = AWSEncryptionSDK.Keyrings.MakeKMSKeyring(
-                clientSupplier, Enumerable.Empty<String>(), keyArn,Enumerable.Empty<String>());
+                clientSupplier, Enumerable.Empty<String>(), keyArn, Enumerable.Empty<String>());
 
             CMMDefs.CMM cmm = AWSEncryptionSDK.CMMs.MakeDefaultCMM(keyring);
 

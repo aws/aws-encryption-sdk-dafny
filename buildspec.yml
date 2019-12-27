@@ -27,3 +27,6 @@ phases:
       - dotnet build -t:VerifyDafny src
       - dotnet build -t:VerifyDafny test
       - dotnet test
+      - cd testVectors
+      - dotnet run decrypt -d .
+      - dotnet run encrypt -d . -o "http://xi1mwx3ttb.execute-api.us-west-2.amazonaws.com/api/v0/decrypt"

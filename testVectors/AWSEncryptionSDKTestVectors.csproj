@@ -38,6 +38,7 @@
     <PackageReference Include="AWSSDK.KeyManagementService" Version="3.3.103" />
     <PackageReference Include="Portable.BouncyCastle" Version="1.8.5.2" />
     <PackageReference Include="Newtonsoft.Json" Version="12.0.3" />
+    <PackageReference Include="CommandLineParser" Version="2.6.0" />
   </ItemGroup>
   <PropertyGroup>
     <DafnyVerificationTimeLimit>60</DafnyVerificationTimeLimit>
