@@ -287,12 +287,16 @@ namespace TestVectors {
                 .WithParsed<EncryptOptions>(encOpt => {
                         Tuple<int, int, int> result = IntegrationEncryptTestVectors(encOpt);
                         Console.WriteLine(String.Format("pass: {0}, skip: {1}, fail: {2}", result.Item1, result.Item2, result.Item3));
-                        returnCode = result.Item3 < encOpt.tolerateFailures ? 0 : 1;
+                        if (tolerateFailures > 0 && result.Item3 >= encOpt.tolerateFailures) {
+                            returnCode = 1;
+                        }
                         })
                 .WithParsed<DecryptOptions>(decOpt => {
                         Tuple<int, int, int> result = IntegrationDecryptTestVectors(decOpt);
                         Console.WriteLine(String.Format("pass: {0}, skip: {1}, fail: {2}", result.Item1, result.Item2, result.Item3));
-                        returnCode = result.Item3 < decOpt.tolerateFailures ? 0 : 1;
+                        if (tolerateFailures > 0 && result.Item3 >= encOpt.tolerateFailures) {
+                            returnCode = 1;
+                        }
                         });
             return returnCode;
         }
