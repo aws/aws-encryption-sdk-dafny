@@ -15,6 +15,7 @@ using MultiKeyringDef;
 using RawAESKeyringDef;
 using RawRSAKeyringDef;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Converters;
 
 namespace TestVectors {
 
@@ -63,6 +64,35 @@ namespace TestVectors {
         public IList<MasterKey> masterKeys { get; set; }
     }
 
+    public abstract class TestResult {
+        public string testID;
+
+        public class Success : TestResult {
+            public string status = "Success";
+            public Success(string testID) {
+                this.testID = testID;
+            }
+        }
+
+        public class Skip : TestResult {
+            public string status = "Skip";
+            public string reason;
+            public Skip(string testID, string reason) {
+                this.testID = testID;
+                this.reason = reason;
+            }
+        }
+
+        public class Failure : TestResult {
+            public string status = "Failure";
+            public string reason;
+            public Failure(string testID, string reason) {
+                this.testID = testID;
+                this.reason = reason;
+            }
+        }
+    }
+
     public partial class __default {
 
         public static Dictionary<string, Key> ParseKeys(string path) {
@@ -81,29 +111,23 @@ namespace TestVectors {
             // TODO clean up. currently assumes starts with file://
             return uri.Substring(7);
         }
-        private static MultiKeyring CreateEncryptKeyring(TestVector vector, Dictionary<string, Key> keys)
-        {
+        private static MultiKeyring CreateEncryptKeyring(TestVector vector, Dictionary<string, Key> keys) {
             Keyring generator = CreateKeyring(vector.masterKeys[0], keys[vector.masterKeys[0].key]);
             IList<Keyring> children = vector.masterKeys.Skip(1).Select<MasterKey, Keyring>(keyInfo => CreateKeyring(keyInfo, keys[keyInfo.key])).ToList();
             return Keyrings.MakeMultiKeyring(generator, children.ToArray());
         }
-        private static MultiKeyring CreateDecryptKeyring(TestVector vector, Dictionary<string, Key> keys)
-        {
+        private static MultiKeyring CreateDecryptKeyring(TestVector vector, Dictionary<string, Key> keys) {
             IList<Keyring> children = vector.masterKeys.Select<MasterKey, Keyring>(keyInfo => CreateKeyring(keyInfo, keys[keyInfo.key])).ToList();
             return Keyrings.MakeMultiKeyring(null, children.ToArray());
         }
-        private static Keyring CreateKeyring(MasterKey keyInfo, Key key)
-        {
-            if (keyInfo.type == "aws-kms" && key.type == "aws-kms")
-            {
+        private static Keyring CreateKeyring(MasterKey keyInfo, Key key) {
+            if (keyInfo.type == "aws-kms" && key.type == "aws-kms") {
                 ClientSupplier clientSupplier = new DefaultClientSupplier();
                 return Keyrings.MakeKMSKeyring(clientSupplier, Enumerable.Empty<String>(), key.ID, Enumerable.Empty<String>());
             }
-            else if (keyInfo.type == "raw" && keyInfo.encryptionAlgorithm == "aes" && key.type == "symmetric")
-            {
+            else if (keyInfo.type == "raw" && keyInfo.encryptionAlgorithm == "aes" && key.type == "symmetric") {
                 EncryptionSuites.EncryptionSuite wrappingAlgorithm = BitsToAESWrappingSuite(key.bits);
-                if (key.encoding != "base64")
-                {
+                if (key.encoding != "base64") {
                     throw new Exception("Unsupported AES material encoding.");
                 }
                 return Keyrings.MakeRawAESKeyring(
@@ -113,8 +137,7 @@ namespace TestVectors {
                         BitsToAESWrappingSuite(key.bits)
                         );
             }
-            else if (keyInfo.type == "raw" && keyInfo.encryptionAlgorithm == "rsa" && (key.type == "public" || key.type == "private"))
-            {
+            else if (keyInfo.type == "raw" && keyInfo.encryptionAlgorithm == "rsa" && (key.type == "public" || key.type == "private")) {
                 //Do we need to do anything with the key.bits field?
                 return Keyrings.MakeRawRSAKeyring(
                         Encoding.UTF8.GetBytes(keyInfo.providerID),
@@ -124,25 +147,21 @@ namespace TestVectors {
                         key.type == "private" ? Encoding.UTF8.GetBytes(key.material) : null
                         );
             }
-            else
-            {
+            else {
                 throw new Exception("Unsupported keyring type!");
             }
         }
-        private static DafnyFFI.RSAPaddingModes RSAPAddingFromStrings(string strAlg, string strHash)
-        {
-            return (strAlg, strHash) switch
-            {
+        private static DafnyFFI.RSAPaddingModes RSAPAddingFromStrings(string strAlg, string strHash) {
+            return (strAlg, strHash) switch {
                 ("pkcs1", _) => DafnyFFI.RSAPaddingModes.PKCS1,
                     ("oaep-mgf1", "sha1") => DafnyFFI.RSAPaddingModes.OAEP_SHA1,
                     ("oaep-mgf1", "sha256") => DafnyFFI.RSAPaddingModes.OAEP_SHA256,
-                    ("oaep-mgf1", "sha384") => throw new NotYetSupportedException("sha382"), //Dafny.RSAPaddingModes.OAEP_SHA384,
-                    ("oaep-mgf1", "sha512") => throw new NotYetSupportedException("sha512"), //Dafny.RSAPaddingModes.OAEP_SHA512,
+                    ("oaep-mgf1", "sha384") => throw new NotYetSupportedException("sha382"), //DafnyFFI.RSAPaddingModes.OAEP_SHA384,
+                    ("oaep-mgf1", "sha512") => throw new NotYetSupportedException("sha512"), //DafnyFFI.RSAPaddingModes.OAEP_SHA512,
                     _ => throw new Exception("Unspoorted RSA Padding " + strAlg + strHash)
             };
         }
-        private static EncryptionSuites.EncryptionSuite BitsToAESWrappingSuite(ushort bits)
-        {
+        private static EncryptionSuites.EncryptionSuite BitsToAESWrappingSuite(ushort bits) {
             switch(bits) {
                 case 128: return DafnyFFI.EncryptionSuiteProvider.AES_GCM_128;
                 case 192: return DafnyFFI.EncryptionSuiteProvider.AES_GCM_192;
@@ -162,6 +181,9 @@ namespace TestVectors {
 
             [Option('f', "tolerateFailures", Required = false, HelpText = "Maximum acceptable number of failures")]
             public int tolerateFailures {get; set;}
+
+            [Option('v', "verbose", Required = false, HelpText = "Enable verbose output")]
+            public bool verbose {get; set;}
         }
 
         [Verb("decrypt", HelpText = "Test decrypt against test vectors")]
@@ -171,10 +193,47 @@ namespace TestVectors {
 
             [Option('f', "tolerateFailures", Required = false, HelpText = "Maximum acceptable number of failures")]
             public int tolerateFailures {get; set;}
+
+            [Option('v', "verbose", Required = false, HelpText = "Enable verbose output")]
+            public bool verbose {get; set;}
         }
 
-        private static Tuple<int, int, int> IntegrationEncryptTestVectors(EncryptOptions options)
-        {
+        private static TestResult EncryptTest(string testName, TestVector vector, Dictionary<string, Key> keyMap, string decryptOracle, string vectorDir) {
+            byte[] plaintext = System.IO.File.ReadAllBytes(Path.Combine(vectorDir, TestURIToPath(vector.plaintext))); //TODO Randomly generate this?
+            Keyring keyring;
+            try {
+                keyring = CreateEncryptKeyring(vector, keyMap);
+            } catch(NotYetSupportedException e) {
+                return new TestResult.Skip(testName, e.ToString());
+            }
+
+            Uri uri = new Uri(decryptOracle);
+            HttpClient client = new HttpClient();
+            client.DefaultRequestHeaders.Add("Accept", "application/octet-stream");
+
+            CMMDefs.CMM cmm = AWSEncryptionSDK.CMMs.MakeDefaultCMM(keyring);
+            MemoryStream plaintextStream = new MemoryStream(plaintext);
+
+            try{
+                MemoryStream ciphertext = AWSEncryptionSDK.Client.Encrypt(plaintextStream, cmm, new Dictionary<string, string>());
+
+                var content = new StreamContent(ciphertext);
+                content.Headers.Add("Content-Type", "application/octet-stream");
+
+                var response = client.PostAsync(uri, content).Result;
+                if (response.StatusCode != HttpStatusCode.OK) {
+                    return new TestResult.Failure(testName, response.ToString());
+                } else if (!response.Content.ReadAsByteArrayAsync().Result.SequenceEqual(plaintext)) {
+                    return new TestResult.Failure(testName, "Plaintext does not match.");
+                } else {
+                    return new TestResult.Success(testName);
+                }
+            } catch (DafnyException e) {
+                return new TestResult.Failure(testName, e.ToString());
+            }
+        }
+
+        private static IList<TestResult> IntegrationEncryptTestVectors(EncryptOptions options) {
             string vectorDir = options.vectorDir;
             string decryptOracle = options.decryptOracle;
             int tolerateFailures = options.tolerateFailures;
@@ -182,102 +241,90 @@ namespace TestVectors {
             Dictionary<string, Key> keyMap = ParseKeys(Path.Combine(vectorDir, "keys.json")); //TODO should get this from manifest
             Dictionary<string, TestVector> vectorMap = ParseVectorsFromManifest(Path.Combine(vectorDir, "manifest.json"));
 
-            Uri uri = new Uri(decryptOracle);
-            HttpClient client = new HttpClient();
-            client.DefaultRequestHeaders.Add("Accept", "application/octet-stream");
-
-            int passCount = 0;
-            int skipCount = 0;
+            // Since we know the final length of the list, we could use an array here instead, but that might get weird if we hit unexpected errors?
+            IList<TestResult> results = new List<TestResult>();
             int failCount = 0;
 
             //TODO Parallelize this
             foreach(var vectorEntry in vectorMap) {
-                TestVector vector = vectorEntry.Value;
+                TestResult result = EncryptTest(vectorEntry.Key, vectorEntry.Value, keyMap, decryptOracle, vectorDir);
+                results.Add(result);
 
-                byte[] plaintext = System.IO.File.ReadAllBytes(TestURIToPath(vector.plaintext)); //TODO Randomly generate this?
-                Keyring keyring;
-                try {
-                    keyring = CreateEncryptKeyring(vector, keyMap);
-                } catch(NotYetSupportedException e) {
-                    skipCount++;
-                    continue;
-                }
-
-                CMMDefs.CMM cmm = AWSEncryptionSDK.CMMs.MakeDefaultCMM(keyring);
-                MemoryStream plaintextStream = new MemoryStream(plaintext);
-
-                try{
-                    MemoryStream ciphertext = AWSEncryptionSDK.Client.Encrypt(plaintextStream, cmm, new Dictionary<string, string>());
-
-                    var content = new StreamContent(ciphertext);
-                    content.Headers.Add("Content-Type", "application/octet-stream");
-
-                    var response = client.PostAsync(uri, content).Result;
-                    if (response.StatusCode != HttpStatusCode.OK) {
-                        failCount++;
-                    } else if (!response.Content.ReadAsByteArrayAsync().Result.SequenceEqual(plaintext)) {
-                        failCount++;
-                    } else {
-                        passCount++;
-                    }
-                } catch (DafnyException e) {
-                    // TODO Log this error?
+                if (result is TestResult.Failure _) {
                     failCount++;
-                }
-                if (tolerateFailures != 0 && failCount >= tolerateFailures) {
-                    break;
+                    if (tolerateFailures != 0 && failCount >= tolerateFailures) {
+                        break;
+                    }
                 }
             }
-            return Tuple.Create(passCount, skipCount, failCount);
+            return results;
         }
 
-        private static Tuple<int, int, int> IntegrationDecryptTestVectors(DecryptOptions options)
-        {
+        private static TestResult DecryptTest(string testName, TestVector vector, Dictionary<string, Key> keyMap, string vectorDir) {
+            byte[] plaintext = System.IO.File.ReadAllBytes(Path.Combine(vectorDir, TestURIToPath(vector.plaintext)));
+            byte[] ciphertext = System.IO.File.ReadAllBytes(Path.Combine(vectorDir, TestURIToPath(vector.ciphertext)));
+
+            Keyring keyring;
+            try {
+                keyring = CreateDecryptKeyring(vector, keyMap);
+            } catch(NotYetSupportedException e) {
+                return new TestResult.Skip(testName, e.ToString());
+            }
+
+            CMMDefs.CMM cmm = AWSEncryptionSDK.CMMs.MakeDefaultCMM(keyring);
+            MemoryStream ciphertextStream = new MemoryStream(ciphertext);
+
+            try {
+                MemoryStream decodedStream = AWSEncryptionSDK.Client.Decrypt(ciphertextStream, cmm);
+                byte[] result = decodedStream.ToArray();
+                if (result.SequenceEqual(plaintext)) {
+                    return new TestResult.Success(testName);
+                } else {
+                    return new TestResult.Failure(testName, "Plaintext does not match.");
+                }
+            } catch (DafnyException e) {
+                return new TestResult.Failure(testName, e.ToString());
+            }
+        }
+
+        private static IList<TestResult> IntegrationDecryptTestVectors(DecryptOptions options) {
             string vectorDir = options.vectorDir;
             int tolerateFailures = options.tolerateFailures;
 
             Dictionary<string, Key> keyMap = ParseKeys(Path.Combine(vectorDir, "keys.json")); //TODO should get this from manifest
             Dictionary<string, TestVector> vectorMap = ParseVectorsFromManifest(Path.Combine(vectorDir, "manifest.json"));
 
-            int passCount = 0;
-            int skipCount = 0;
+            // Since we know the final length of the list, we could use an array here instead, but that might get weird if we hit unexpected errors?
+            IList<TestResult> results = new List<TestResult>();
             int failCount = 0;
 
             foreach(var vectorEntry in vectorMap) {
-                TestVector vector = vectorEntry.Value;
+                TestResult result = DecryptTest(vectorEntry.Key, vectorEntry.Value, keyMap, vectorDir);
+                results.Add(result);
 
-                byte[] plaintext = System.IO.File.ReadAllBytes(TestURIToPath(vector.plaintext));
-                byte[] ciphertext = System.IO.File.ReadAllBytes(TestURIToPath(vector.ciphertext));
-
-                Keyring keyring;
-                try {
-                    keyring = CreateDecryptKeyring(vector, keyMap);
-                } catch(NotYetSupportedException e) {
-                    // TODO Should we log this error?
-                    skipCount++;
-                    continue;
-                }
-
-                CMMDefs.CMM cmm = AWSEncryptionSDK.CMMs.MakeDefaultCMM(keyring);
-				MemoryStream ciphertextStream = new MemoryStream(ciphertext);
-
-                try {
-                    MemoryStream decodedStream = AWSEncryptionSDK.Client.Decrypt(ciphertextStream, cmm);
-                    byte[] result = decodedStream.ToArray();
-                    if (result.SequenceEqual(plaintext)) {
-                        passCount++;
-                    } else {
-                        failCount++;
-                    }
-                } catch (DafnyException e) {
-                    // TODO Log this error?
+                if (result is TestResult.Failure _) {
                     failCount++;
-                }
-                if (tolerateFailures != 0 && failCount >= tolerateFailures) {
-                    break;
+                    if (tolerateFailures != 0 && failCount >= tolerateFailures) {
+                        break;
+                    }
                 }
             }
-            return Tuple.Create(passCount, skipCount, failCount);
+            return results;
+        }
+
+        private static void VerbosePrintTestResults(IList<TestResult> result) {
+            Console.WriteLine(JsonConvert.SerializeObject(result, Formatting.Indented, new JsonConverter[] {new StringEnumConverter()}));
+        }
+
+        private static void SimplePrintTestResults(IList<TestResult> result) {
+            Console.WriteLine(
+                    String.Format(
+                        "pass: {0}, skip: {1}, fail: {2}",
+                        result.OfType<TestResult.Success>().Count(),
+                        result.OfType<TestResult.Skip>().Count(),
+                        result.OfType<TestResult.Failure>().Count()
+                        )
+                    );
         }
 
         // TODO sane error handling
@@ -285,16 +332,24 @@ namespace TestVectors {
             int returnCode = 0;
             Parser.Default.ParseArguments<EncryptOptions, DecryptOptions>(args)
                 .WithParsed<EncryptOptions>(encOpt => {
-                        Tuple<int, int, int> result = IntegrationEncryptTestVectors(encOpt);
-                        Console.WriteLine(String.Format("pass: {0}, skip: {1}, fail: {2}", result.Item1, result.Item2, result.Item3));
-                        if (encOpt.tolerateFailures > 0 && result.Item3 >= encOpt.tolerateFailures) {
+                        IList<TestResult> result = IntegrationEncryptTestVectors(encOpt);
+                        if (encOpt.verbose) {
+                            VerbosePrintTestResults(result);
+                        } else {
+                            SimplePrintTestResults(result);
+                        }
+                        if (encOpt.tolerateFailures > 0 && result.OfType<TestResult.Failure>().Count() >= encOpt.tolerateFailures) {
                             returnCode = 1;
                         }
                         })
                 .WithParsed<DecryptOptions>(decOpt => {
-                        Tuple<int, int, int> result = IntegrationDecryptTestVectors(decOpt);
-                        Console.WriteLine(String.Format("pass: {0}, skip: {1}, fail: {2}", result.Item1, result.Item2, result.Item3));
-                        if (decOpt.tolerateFailures > 0 && result.Item3 >= decOpt.tolerateFailures) {
+                        IList<TestResult> result = IntegrationDecryptTestVectors(decOpt);
+                        if (decOpt.verbose) {
+                            VerbosePrintTestResults(result);
+                        } else {
+                            SimplePrintTestResults(result);
+                        }
+                        if (decOpt.tolerateFailures > 0 && result.OfType<TestResult.Failure>().Count() >= decOpt.tolerateFailures) {
                             returnCode = 1;
                         }
                         });
