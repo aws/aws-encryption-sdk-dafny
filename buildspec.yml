@@ -1,4 +1,8 @@
 version: 0.2
+env:
+  variables:
+    VECTOR_URL: "https://github.com/awslabs/aws-encryption-sdk-test-vectors/raw/a28851a188163e45b8cbf94c1d5a1e67e9622aa8/vectors/awses-decrypt/python-1.3.8.zip"
+    ORACLE_URL: "http://xi1mwx3ttb.execute-api.us-west-2.amazonaws.com/api/v0/decrypt"
 phases:
   install:
     runtime-versions:
@@ -24,7 +28,7 @@ phases:
       - cp -r z3* dafny/Binaries/z3
       - cd aws-encryption-sdk-dafny
       # Get test vectors
-      - wget https://github.com/awslabs/aws-encryption-sdk-test-vectors/raw/a28851a188163e45b8cbf94c1d5a1e67e9622aa8/vectors/awses-decrypt/python-1.3.8.zip
+      - wget $VECTOR_URL
   build:
     commands:
       - dotnet build -t:VerifyDafny src
@@ -32,5 +36,5 @@ phases:
       - dotnet test
       - cd testVectors
       - unzip ../python-1.3.8.zip
-      - dotnet run decrypt -d .
-      - dotnet run encrypt -d . -o "http://xi1mwx3ttb.execute-api.us-west-2.amazonaws.com/api/v0/decrypt"
+      - dotnet run decrypt --vectorDir .
+      - dotnet run encrypt --vectorDir . -o $ORACLE_URL
