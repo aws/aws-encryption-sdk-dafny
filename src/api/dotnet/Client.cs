@@ -31,7 +31,7 @@ namespace AWSEncryptionSDK
         // TODO: Proper documentation
         public static MemoryStream Decrypt(MemoryStream cyphertext, CMM cmm) {
             byteseq dafnyPlaintext = DafnyFFI.SequenceFromMemoryStream(cyphertext);
-      
+    
             // TODO: Might need a lock here if ANYTHING in the Dafny runtime isn't threadsafe!
             STL.Result<byteseq> result = ESDKClient.__default.Decrypt(dafnyPlaintext, cmm);
     

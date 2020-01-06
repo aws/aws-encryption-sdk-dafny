@@ -53,6 +53,7 @@ module {:extern "RSAEncryption"} RSAEncryption {
         static method {:extern "RSAEncrypt"} RSAEncrypt(padding: RSAPaddingMode, ek : seq<uint8>, msg : seq<uint8>) returns (res : Result<seq<uint8>>)
             ensures res.Success? ==> RSAWfCtx(padding, res.value)
             ensures res.Success? ==> forall dk :: IsRSAKeypair(padding, ek, dk) ==> RSAWfDK(padding, dk) ==> RSADecrypt(padding, dk, res.value) == Success(msg)
+
     }
 
 }
