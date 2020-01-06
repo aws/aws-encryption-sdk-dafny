@@ -8,7 +8,7 @@ include "../MessageHeader.dfy"
 include "../../Util/UTF8.dfy"
 include "../Deserialize.dfy"
 
-module DefaultCMMDef {
+module {:extern "DefaultCMMDef"} DefaultCMMDef {
   import opened StandardLibrary
   import opened UInt = StandardLibrary.UInt
   import Materials

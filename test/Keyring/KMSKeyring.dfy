@@ -1,90 +1,43 @@
-// RUN: %dafny /out:Output/KMSKeyring.exe "./KMSKeyring.dfy" ../../src/extern/dotnet/KMS.cs ../../src/extern/dotnet/UTF8.cs "%kmslib" "%awslib" /compile:2
-// RUN: cp %awslib %kmslib Output/
-// RUN: %mono ./Output/KMSKeyring.exe > "%t"
-// RUN: %diff "%s.expect" "%t"
-
 include "../../src/SDK/Keyring/KMSKeyring.dfy"
 include "../../src/KMS/KMSUtils.dfy"
 include "../../src/StandardLibrary/StandardLibrary.dfy"
 include "../../src/StandardLibrary/UInt.dfy"
+include "../Util/TestUtils.dfy"
+
 
 module TestKMSKeyring {
   import opened StandardLibrary
   import opened UInt = StandardLibrary.UInt
-  import KMSKeyring
+  import KMSKeyringDef
   import KMSUtils
-  method TestRegionParseValidInput() {
+  method {:test} TestRegionParseValidInput() returns (r: Result<()>) {
     var cmk := "arn:aws:kms:us-west-1:658956600833:key/b3537ef1-d8dc-4780-9f5a-55776cbb2f7f";
-    if KMSUtils.ValidFormatCMK(cmk) {
-      var res := KMSKeyring.RegionFromKMSKeyARN(cmk);
-      if res.Success? && res.value == "us-west-1" {
-        print "CORRECT\n";
-      } else {
-        print "NOT CORRECT\n";
-      }
-    } else {
-      print "NOT CORRECT\n";
-    }
+    var _ :- Require(KMSUtils.ValidFormatCMK(cmk));
+    var res :- KMSKeyringDef.RegionFromKMSKeyARN(cmk);
+    r := RequireEqual("us-west-1", res);
   }
-  method TestRegionParseValidInputWildPartition() {
+  method {:test} TestRegionParseValidInputWildPartition() returns (r: Result<()>) {
     var cmk := "arn:xxx:kms:us-west-1:658956600833:key/b3537ef1-d8dc-4780-9f5a-55776cbb2f7f";
-    if KMSUtils.ValidFormatCMK(cmk) {
-      var res := KMSKeyring.RegionFromKMSKeyARN(cmk);
-      if res.Success? && res.value == "us-west-1" {
-        print "CORRECT\n";
-      } else {
-        print "NOT CORRECT\n";
-      }
-    } else {
-      print "NOT CORRECT\n";
-    }
+    var _ :- Require(KMSUtils.ValidFormatCMK(cmk));
+    var res :- KMSKeyringDef.RegionFromKMSKeyARN(cmk);
+    r := RequireEqual("us-west-1", res);
   }
-  method TestRegionParseValidInputNoPartition() {
+  method {:test} TestRegionParseValidInputNoPartition() returns (r: Result<()>) {
     var cmk := "arn::kms:us-west-1:658956600833:key/b3537ef1-d8dc-4780-9f5a-55776cbb2f7f";
-    if KMSUtils.ValidFormatCMK(cmk) {
-      var res := KMSKeyring.RegionFromKMSKeyARN(cmk);
-      if res.Success? && res.value == "us-west-1" {
-        print "CORRECT\n";
-      } else {
-        print "NOT CORRECT\n";
-      }
-    } else {
-      print "NOT CORRECT\n";
-    }
+    var _ :- Require(KMSUtils.ValidFormatCMK(cmk));
+    var res :- KMSKeyringDef.RegionFromKMSKeyARN(cmk);
+    r := RequireEqual("us-west-1", res);
   }
-  method TestRegionParseValidInputAliasArn() {
+  method {:test} TestRegionParseValidInputAliasArn() returns (r: Result<()>) {
     var cmk := "arn:aws:kms:us-west-1:658956600833:alias/EncryptDecrypt";
-    if KMSUtils.ValidFormatCMK(cmk) {
-      var res := KMSKeyring.RegionFromKMSKeyARN(cmk);
-      if res.Success? && res.value == "us-west-1" {
-        print "CORRECT\n";
-      } else {
-        print "NOT CORRECT\n";
-      }
-    } else {
-      print "NOT CORRECT\n";
-    }
+    var _ :- Require(KMSUtils.ValidFormatCMK(cmk));
+    var res :- KMSKeyringDef.RegionFromKMSKeyARN(cmk);
+    r := RequireEqual("us-west-1", res);
   }
-  method TestRegionParseBadInputAlias() {
+  method {:test} TestRegionParseBadInputAlias() returns (r: Result<()>) {
     var cmk := "alias/EncryptDecrypt";
-    if KMSUtils.ValidFormatCMK(cmk) {
-      var res := KMSKeyring.RegionFromKMSKeyARN(cmk);
-      if res.Failure? && res.error == "Malformed ARN" {
-        print "CORRECT\n";
-      } else {
-        print "NOT CORRECT\n";
-      }
-    } else {
-      print "NOT CORRECT\n";
-    }
-  }
-
-  method Main() {
-    TestRegionParseValidInput();
-    TestRegionParseValidInputWildPartition();
-    TestRegionParseValidInputNoPartition();
-    TestRegionParseValidInputAliasArn();
-
-    TestRegionParseBadInputAlias();
+    var _ :- Require(KMSUtils.ValidFormatCMK(cmk));
+    var res := KMSKeyringDef.RegionFromKMSKeyARN(cmk);
+    r := Require(res.Failure? && res.error == "Malformed ARN");
   }
 }

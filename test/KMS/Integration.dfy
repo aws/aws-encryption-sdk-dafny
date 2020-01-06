@@ -1,8 +1,3 @@
-// RUN: %dafny /out:Output/Integration.exe "./Integration.dfy" ../../src/extern/dotnet/KMS.cs ../../src/extern/dotnet/UTF8.cs ../../src/extern/dotnet/Arrays-extern.cs ../../src/extern/dotnet/HKDF-extern.cs ../../src/extern/dotnet/AESEncryption.cs ../../src/extern/dotnet/Random.cs ../../src/extern/dotnet/Signature.cs "%kmslib" "%awslib" "%bclib" /compile:2
-// RUN: cp %awslib %kmslib %bclib Output/
-// RUN: %mono ./Output/Integration.exe > "%t"
-// RUN: %diff "%s.expect" "%t"
-
 include "../../src/SDK/Keyring/KMSKeyring.dfy"
 include "../../src/SDK/Materials.dfy"
 include "../../src/StandardLibrary/StandardLibrary.dfy"
@@ -14,14 +9,16 @@ include "../../src/SDK/MessageHeader.dfy"
 include "../../src/KMS/KMSUtils.dfy"
 include "../../src/Util/UTF8.dfy"
 include "../../src/StandardLibrary/Base64.dfy"
+include "../Util/TestUtils.dfy"
 
 module IntegTestKMS {
   import opened StandardLibrary
   import opened UInt = StandardLibrary.UInt
+  import opened TestUtils
   import CMMDefs
   import DefaultCMMDef
   import KMSUtils
-  import KMSKeyring
+  import KMSKeyringDef
   import Materials
   import Client = ESDKClient
   import Msg = MessageHeader
@@ -65,34 +62,18 @@ module IntegTestKMS {
     }
   }
 
-  method Main() {
-    var namespace := UTF8.Encode("namespace");
-    var name := UTF8.Encode("MyKeyring");
-    if name.Failure? || namespace.Failure? {
-      print "Failure: hardcoded name/namespace cannot be utf8 encoded";
-      return;
-    }
-    var generatorStr := "arn:aws:kms:us-west-2:658956600833:key/b3537ef1-d8dc-4780-9f5a-55776cbb2f7f";
-    if !KMSUtils.ValidFormatCMK(generatorStr) {
-      print "Bad CMK format";
-      return;
-    }
+  method {:test} TestEndToEnd() returns (r: Result<()>) {
+    var namespace :- UTF8.Encode("namespace");
+    var name :- UTF8.Encode("MyKeyring");
+    var generatorStr := SHARED_TEST_KEY_ARN;
+    var _ :- Require(KMSUtils.ValidFormatCMK(generatorStr));
     var generator: KMSUtils.CustomerMasterKey := generatorStr;
     var clientSupplier := new KMSUtils.DefaultClientSupplier();
-    var keyring := new KMSKeyring.KMSKeyring(clientSupplier, [], Some(generator), []);
+    var keyring := new KMSKeyringDef.KMSKeyring(clientSupplier, [], Some(generator), []);
     var cmm := new DefaultCMMDef.DefaultCMM.OfKeyring(keyring);
 
     var message := "Hello, World!!";
-    var result := EncryptDecryptTest(cmm, message);
-    if result.Success? && result.value == message {
-      print "CORRECT\n";
-    } else {
-      print "NOT CORRECT\n";
-      if result.Failure? {
-        print result.error;
-      } else {
-        print "Wrong message value: ", result.value;
-      }
-    }
+    var result :- EncryptDecryptTest(cmm, message);
+    r := RequireEqual(message, result);
   }
 }

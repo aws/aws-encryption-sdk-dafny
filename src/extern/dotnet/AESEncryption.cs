@@ -6,6 +6,7 @@ using Org.BouncyCastle.Crypto.Modes;
 using Org.BouncyCastle.Crypto.Parameters;
 
 using byteseq = Dafny.Sequence<byte>;
+using charseq = Dafny.Sequence<char>;
 
 
 namespace AESEncryption {
@@ -28,7 +29,7 @@ namespace AESEncryption {
                 return new STL.Result_Success<EncryptionOutput>(__default.EncryptionOutputFromByteSeq(byteseq.FromArray(c), encAlg));
             }
             catch {
-                return new STL.Result_Failure<EncryptionOutput>(Dafny.Sequence<char>.FromString("aes encrypt err"));
+                return new STL.Result_Failure<EncryptionOutput>(charseq.FromArray("aes encrypt err".ToCharArray()));
             }
         }
 
@@ -43,9 +44,9 @@ namespace AESEncryption {
                 cipher.DoFinal(pt, len); //Check message authentication tag
                 return new STL.Result_Success<byteseq>(byteseq.FromArray(pt));
             } catch(InvalidCipherTextException macEx) {
-                return new STL.Result_Failure<byteseq>(Dafny.Sequence<char>.FromString(macEx.ToString()));
+                return new STL.Result_Failure<byteseq>(charseq.FromArray(macEx.ToString().ToCharArray()));
             } catch {
-                return new STL.Result_Failure<byteseq>(Dafny.Sequence<char>.FromString("aes decrypt err"));
+                return new STL.Result_Failure<byteseq>(charseq.FromArray("aes decrypt err".ToCharArray()));
             }
         }
     }

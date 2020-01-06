@@ -13,7 +13,7 @@ include "../Crypto/HKDF/HKDF.dfy"
 include "../Crypto/AESEncryption.dfy"
 include "../Crypto/Signature.dfy"
 
-module ESDKClient {
+module {:extern "ESDKClient"} ESDKClient {
   import opened StandardLibrary
   import opened UInt = StandardLibrary.UInt
   import Materials
