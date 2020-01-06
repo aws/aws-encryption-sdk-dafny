@@ -1,4 +1,3 @@
-
 include "../StandardLibrary/StandardLibrary.dfy"
 
 //This code must be reviewed, see #18
@@ -54,8 +53,6 @@ module {:extern "RSAEncryption"} RSAEncryption {
         static method {:extern "RSAEncrypt"} RSAEncrypt(padding: RSAPaddingMode, ek : seq<uint8>, msg : seq<uint8>) returns (res : Result<seq<uint8>>)
             ensures res.Success? ==> RSAWfCtx(padding, res.value)
             ensures res.Success? ==> forall dk :: IsRSAKeypair(padding, ek, dk) ==> RSAWfDK(padding, dk) ==> RSADecrypt(padding, dk, res.value) == Success(msg)
-
-        static method {:extern "StringToPEM"} StringToPEM(privatePEM: string, publicPEM: string) returns (ek : seq<uint8>, dk : seq<uint8>)
     }
 
 }

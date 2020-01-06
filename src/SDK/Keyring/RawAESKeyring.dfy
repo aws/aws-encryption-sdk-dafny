@@ -139,7 +139,6 @@ module RawAESKeyring{
           var encryptedKeyLength := |edks[i].ciphertext| - wrappingAlgorithm.tagLen as int;
           // TODO: specify Raw AES EDK ciphertext serialization
           var encryptedKey, authTag := edks[i].ciphertext[.. encryptedKeyLength], edks[i].ciphertext[encryptedKeyLength ..];
-
           var ptKey :- AESEncryption.AESDecrypt(wrappingAlgorithm, wrappingKey, encryptedKey, authTag, iv, flatEncCtx);
           var decryptTraceEntry := DecryptTraceEntry();
           if algorithmSuiteID.ValidPlaintextDataKey(ptKey) { // check for correct key length

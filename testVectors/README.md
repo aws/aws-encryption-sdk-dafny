@@ -4,5 +4,5 @@ To run the tests, download and unzip a set of vectors in this directory.
 Then run the following commands:
 
 ```
-dotnet run
+dotnet test
 ```

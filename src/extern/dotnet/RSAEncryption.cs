@@ -35,29 +35,6 @@ namespace RSAEncryption {
 
         const int RSA_PUBLIC_EXPONENT = (65537);
         const int RSA_CERTAINTY = 256;
-        public static void StringToPEM(Dafny.Sequence<char> privatePEM, Dafny.Sequence<char> publicPEM, out byteseq ek, out byteseq dk) {
-                PemReader pr1 = new PemReader(new StringReader(new string(privatePEM.Elements)));
-                AsymmetricKeyParameter privateKey = (AsymmetricKeyParameter) pr1.ReadObject();
-
-                PemReader pr2 = new PemReader(new StringReader(new string(privatePEM.Elements)));
-                AsymmetricKeyParameter publicKey = (AsymmetricKeyParameter)pr2.ReadObject();
-                byte[] e;
-                using (var stringWriter = new StringWriter()) {
-
-                    var pemWriter = new PemWriter(stringWriter);
-                    pemWriter.WriteObject(publicKey);
-                    e = Encoding.UTF8.GetBytes(stringWriter.ToString());
-                }
-                ek = byteseq.FromArray(e);
-
-                byte[] d;
-                using (var stringWriter = new StringWriter()) {
-                    var pemWriter = new PemWriter(stringWriter);
-                    pemWriter.WriteObject(privateKey);
-                    d = Encoding.UTF8.GetBytes(stringWriter.ToString());
-                }
-                dk = byteseq.FromArray(d);
-        }
 
         public static void RSAKeygen(int bits, RSAPaddingMode padding, out byteseq ek, out byteseq dk) {
                 RsaKeyPairGenerator gen = new RsaKeyPairGenerator();
