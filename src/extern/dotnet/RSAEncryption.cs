@@ -27,7 +27,6 @@ namespace RSAEncryption {
     public partial class RSA {
 
         // The following represent common, recommended RSA constants
-        // TODO: Should these be customizable or based on the bit strength?
         const int RSA_PUBLIC_EXPONENT = (65537);
         const int RSA_CERTAINTY = 256;
 
