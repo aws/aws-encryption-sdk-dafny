@@ -2,10 +2,15 @@ This directory holds dafny and C# code which decrypts the kms test vectors in ht
 
 To run the tests, download and unzip a set of vectors into the `data` directory.
 
-Then run the following command:
+Set the relative path to the manifest to use as part as the DAFNY_AWS_ESDK_TEST_VECTOR_MANIFEST_PATH environment variable.
+This file must be located within the `data` directory, and all files referenced in the manifest must also exist in the `data` directory.
+
+```
+export DAFNY_AWS_ESDK_TEST_VECTOR_MANIFEST_PATH="data/manifest.json"
+```
+
+To run the test vectors, run the following command:
 
 ```
 dotnet test
 ```
-
-In order to run the test vectors, the test vector manifest must exist at `data/manifest.json`, and all files referenced in the manifest must be relative to the `data` directory.

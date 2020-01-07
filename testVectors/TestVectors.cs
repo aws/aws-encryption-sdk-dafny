@@ -16,43 +16,62 @@ namespace TestVectorTests {
 
         // TODO let user specify manifest location
         const string DATA_DIR = "data";
-        const string MANIFEST_FILENAME = "manifest.json";
 
         public static Dictionary<string, Key> ParseKeys(string path) {
+            if (!File.Exists(path)) {
+                throw new ArgumentException($"Could not find keys file at path: {path}");
+            }
             string contents = System.IO.File.ReadAllText(path);
             JObject keyManifest = JObject.Parse(contents);
             return keyManifest["keys"].ToObject<Dictionary<string, Key>>();
         }
 
         public static Manifest ParseManifest(string path) {
+            if (!File.Exists(path)) {
+                throw new ArgumentException($"Could not find manifest file at path: {path}");
+            }
             string contents = System.IO.File.ReadAllText(path);
             JObject manifest = JObject.Parse(contents);
             return new Manifest(manifest["tests"].ToObject<Dictionary<string, TestVector>>(), manifest["keys"].ToString());
         }
 
-        public static string TestURIToPath(string uri) {
+        public static string ManifestURIToPath(string uri, string parentDir) {
             // Assumes files referenced in manifests starts with 'file://'
             if (!string.Equals(uri.Substring(0, 7), "file://")) {
-                throw new ArgumentException($"manifest file malformed (needs to start with 'file://'): {uri}");
+                throw new ArgumentException($"Manifest file malformed (needs to start with 'file://'): {uri}");
             }
-            return Path.Combine(DATA_DIR, uri.Substring(7));
+
+            return Path.Combine(parentDir, uri.Substring(7));
         }
 
         public IEnumerator<object[]> GetEnumerator() {
-            string manifestURI = Path.Combine(DATA_DIR, MANIFEST_FILENAME);
+            string manifestPath = Environment.GetEnvironmentVariable("DAFNY_AWS_ESDK_TEST_VECTOR_MANIFEST_PATH");
+            if (manifestPath == null) {
+                throw new ArgumentException($"Environment Variable DAFNY_AWS_ESDK_TEST_VECTOR_MANIFEST_PATH must be set");
+            }
 
-            Manifest manifest = ParseManifest(manifestURI);
+            Manifest manifest = ParseManifest(manifestPath);
             Dictionary<string, TestVector> vectorMap = manifest.vectorMap;
 
-            string keysURI = TestURIToPath(manifest.keysURI);
-            Dictionary<string, Key> keyMap = ParseKeys(keysURI);
+            string manifestParentDir = Directory.GetParent(manifestPath).ToString();
+            string keysPath = ManifestURIToPath(manifest.keys, manifestParentDir);
+            Dictionary<string, Key> keyMap = ParseKeys(keysPath);
 
             foreach(var vectorEntry in vectorMap) {
                 string vectorID = vectorEntry.Key;
                 TestVector vector = vectorEntry.Value;
+                
+                string plaintextPath = ManifestURIToPath(vector.plaintext, manifestParentDir);
+                if (!File.Exists(plaintextPath)) {
+                    throw new ArgumentException($"Could not find plaintext file at path: {plaintextPath}");
+                }
+                byte[] plaintext = System.IO.File.ReadAllBytes(plaintextPath);
 
-                byte[] plaintext = System.IO.File.ReadAllBytes(TestURIToPath(vector.plaintext));
-                byte[] ciphertext = System.IO.File.ReadAllBytes(TestURIToPath(vector.ciphertext));
+                string ciphertextPath = ManifestURIToPath(vector.ciphertext, manifestParentDir);
+                if (!File.Exists(plaintextPath)) {
+                    throw new ArgumentException($"Could not find ciphertext file at path: {plaintextPath}");
+                }
+                byte[] ciphertext = System.IO.File.ReadAllBytes(ManifestURIToPath(vector.ciphertext, manifestParentDir));
 
                 // TODO This is temporary logic to skip non-KMS test cases. Remove once testing all vectors.
                 bool isKMSTestVector = true;
@@ -119,11 +138,11 @@ namespace TestVectorTests {
 
     public class Manifest {
         public Dictionary<string, TestVector> vectorMap { get; set; }
-        public string keysURI { get; set; }
+        public string keys { get; set; }
 
-        public Manifest(Dictionary<string, TestVector> vectorMap, string keysURI) {
+        public Manifest(Dictionary<string, TestVector> vectorMap, string keys) {
             this.vectorMap = vectorMap;
-            this.keysURI = keysURI;
+            this.keys = keys;
         }
     } 
 
