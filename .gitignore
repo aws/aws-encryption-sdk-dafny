@@ -19,6 +19,4 @@ test/**/Output/*
 
 /testVectors/bin
 /testVectors/obj
-/testVectors/ciphertexts
-/testVectors/plaintexts
-/testVectors/**/*.json
+/testVectors/data

@@ -14,26 +14,38 @@ namespace TestVectorTests {
 
     public class TestVectorData : IEnumerable<object[]> {
 
+        // TODO let user specify manifest location
+        const string DATA_DIR = "data";
+        const string MANIFEST_FILENAME = "manifest.json";
+
         public static Dictionary<string, Key> ParseKeys(string path) {
             string contents = System.IO.File.ReadAllText(path);
             JObject keyManifest = JObject.Parse(contents);
             return keyManifest["keys"].ToObject<Dictionary<string, Key>>();
         }
 
-        public static Dictionary<string, TestVector> ParseVectors(string path) {
+        public static Manifest ParseManifest(string path) {
             string contents = System.IO.File.ReadAllText(path);
             JObject manifest = JObject.Parse(contents);
-            return manifest["tests"].ToObject<Dictionary<string, TestVector>>();
+            return new Manifest(manifest["tests"].ToObject<Dictionary<string, TestVector>>(), manifest["keys"].ToString());
         }
 
         public static string TestURIToPath(string uri) {
-            // TODO clean up. Currently assumes starts with 'file://' and is relative from bin/Debug/netcoreapp3.0/
-            return "../../../" + uri.Substring(7);
+            // Assumes files referenced in manifests starts with 'file://'
+            if (!string.Equals(uri.Substring(0, 7), "file://")) {
+                throw new ArgumentException($"manifest file malformed (needs to start with 'file://'): {uri}");
+            }
+            return Path.Combine(DATA_DIR, uri.Substring(7));
         }
 
         public IEnumerator<object[]> GetEnumerator() {
-            Dictionary<string, Key> keyMap = ParseKeys("../../../keys.json"); // TODO should get this from manifest
-            Dictionary<string, TestVector> vectorMap = ParseVectors("../../../manifest.json"); // TODO should get this from command line
+            string manifestURI = Path.Combine(DATA_DIR, MANIFEST_FILENAME);
+
+            Manifest manifest = ParseManifest(manifestURI);
+            Dictionary<string, TestVector> vectorMap = manifest.vectorMap;
+
+            string keysURI = TestURIToPath(manifest.keysURI);
+            Dictionary<string, Key> keyMap = ParseKeys(keysURI);
 
             foreach(var vectorEntry in vectorMap) {
                 string vectorID = vectorEntry.Key;
@@ -104,6 +116,16 @@ namespace TestVectorTests {
         [JsonProperty("master-keys")]
         public IList<MasterKey> masterKeys { get; set; }
     }
+
+    public class Manifest {
+        public Dictionary<string, TestVector> vectorMap { get; set; }
+        public string keysURI { get; set; }
+
+        public Manifest(Dictionary<string, TestVector> vectorMap, string keysURI) {
+            this.vectorMap = vectorMap;
+            this.keysURI = keysURI;
+        }
+    } 
 
     public class TestVectorDecryptTests {
         [SkippableTheory]
