@@ -21,12 +21,13 @@ project.buildDir = 'build/java'
 sourceSets {
     main {
         java {
-            srcDirs = ['src/extern/java', 'build/java/src/main']
+            // TODO: Properly split things out into main and test
+            srcDirs = ['src/extern/java', 'test/extern/java', 'build/java/src/main']
         }
     }
     bench {
         java {
-            srcDirs = ['src/extern/java', 'build/java/src/bench']
+            srcDirs = ['src/extern/java', 'bench/extern/java', 'build/java/src/bench']
         }
     }
 }

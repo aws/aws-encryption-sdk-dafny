@@ -2,7 +2,6 @@ package Signature;
 
 import dafny.DafnySequence;
 import dafny.Tuple2;
-import dafny.UByte;
 import org.bouncycastle.asn1.*;
 import org.bouncycastle.crypto.AsymmetricCipherKeyPair;
 import org.bouncycastle.crypto.generators.ECKeyPairGenerator;
@@ -22,7 +21,7 @@ import java.security.MessageDigest;
 import java.security.SecureRandom;
 
 public class ECDSA {
-    public static STL.Option<Tuple2<DafnySequence<UByte>, DafnySequence<UByte>>> KeyGen(ECDSAParams x) {
+    public static STL.Option<Tuple2<DafnySequence<Byte>, DafnySequence<Byte>>> KeyGen(ECDSAParams x) {
         try {
             ECKeyPairGenerator g = new ECKeyPairGenerator();
             SecureRandom rng = new SecureRandom();
@@ -36,15 +35,15 @@ public class ECDSA {
             }
             AsymmetricCipherKeyPair kp = g.generateKeyPair();
             ECPoint pt = ((ECPublicKeyParameters)kp.getPublic()).getQ();
-            DafnySequence<UByte> vk = DafnySequence.fromBytesUnsigned(pt.getEncoded());
-            DafnySequence<UByte> sk = DafnySequence.fromBytesUnsigned(((ECPrivateKeyParameters) kp.getPrivate()).getD().toByteArray());
+            DafnySequence<Byte> vk = DafnySequence.fromBytes(pt.getEncoded());
+            DafnySequence<Byte> sk = DafnySequence.fromBytes(((ECPrivateKeyParameters) kp.getPrivate()).getD().toByteArray());
             return new STL.Option_Some<>(new Tuple2<>(vk, sk));
         } catch (RuntimeException e) {
             return new STL.Option_None<>();
         }
     }
 
-    public static boolean Verify(ECDSAParams x, DafnySequence<UByte> vk, DafnySequence<UByte> digest, DafnySequence<UByte> sig) {
+    public static boolean Verify(ECDSAParams x, DafnySequence<Byte> vk, DafnySequence<Byte> digest, DafnySequence<Byte> sig) {
         try {
             ECNamedCurveParameterSpec p;
             if (x.is_ECDSA__P384()) {
@@ -53,19 +52,19 @@ public class ECDSA {
                 p = ECNamedCurveTable.getParameterSpec("secp256r1");
             }
             ECDomainParameters dp = new ECDomainParameters(p.getCurve(), p.getG(), p.getN(), p.getH());
-            ECPoint pt = p.getCurve().decodePoint(DafnySequence.toByteArrayUnsigned(vk));
+            ECPoint pt = p.getCurve().decodePoint(DafnySequence.toByteArray(vk));
             ECPublicKeyParameters vkp = new ECPublicKeyParameters(pt, dp);
             ECDSASigner sign = new ECDSASigner();
             sign.init(false, vkp);
             BigInteger r, s;
-            Tuple2<BigInteger, BigInteger> pair = DERDeserialize(DafnySequence.toByteArrayUnsigned(sig));
-            return sign.verifySignature(DafnySequence.toByteArrayUnsigned(digest), pair.dtor__0(), pair.dtor__1());
+            Tuple2<BigInteger, BigInteger> pair = DERDeserialize(DafnySequence.toByteArray(sig));
+            return sign.verifySignature(DafnySequence.toByteArray(digest), pair.dtor__0(), pair.dtor__1());
         } catch (Exception e) {
             return false;
         }
     }
 
-    public static STL.Option<DafnySequence<UByte>> Sign(ECDSAParams x, DafnySequence<UByte> sk, DafnySequence<UByte> digest) {
+    public static STL.Option<DafnySequence<Byte>> Sign(ECDSAParams x, DafnySequence<Byte> sk, DafnySequence<Byte> digest) {
         try {
             ECNamedCurveParameterSpec p;
             if (x.is_ECDSA__P384()) {
@@ -74,21 +73,21 @@ public class ECDSA {
                 p = ECNamedCurveTable.getParameterSpec("secp256r1");
             }
             ECDomainParameters dp = new ECDomainParameters(p.getCurve(), p.getG(), p.getN(), p.getH());
-            ECPrivateKeyParameters skp = new ECPrivateKeyParameters(new BigInteger(DafnySequence.toByteArrayUnsigned(sk)), dp);
+            ECPrivateKeyParameters skp = new ECPrivateKeyParameters(new BigInteger(DafnySequence.toByteArray(sk)), dp);
             ECDSASigner sign = new ECDSASigner();
             sign.init(true, skp);
             do {
-                BigInteger[] sig = sign.generateSignature(DafnySequence.toByteArrayUnsigned(digest));
+                BigInteger[] sig = sign.generateSignature(DafnySequence.toByteArray(digest));
                 byte[] bytes = DERSerialize(sig[0], sig[1]);
-                if (bytes.length != x.SignatureLength().intValue()) {
+                if (bytes.length != x.SignatureLength()) {
                     // Most of the time, a signature of the wrong length can be fixed
                     // by negating s in the signature relative to the group order.
                     bytes = DERSerialize(sig[0], p.getN().subtract(sig[1]));
                 }
-                if (bytes.length == x.SignatureLength().intValue()) {
+                if (bytes.length == x.SignatureLength()) {
                     // This will meet the method postcondition, which says that a Some? return must
                     // contain a sequence of bytes whose length is x.SignatureLength().
-                    return new STL.Option_Some<>(DafnySequence.fromBytesUnsigned(bytes));
+                    return new STL.Option_Some<>(DafnySequence.fromBytes(bytes));
                 }
                 // We only get here with low probability, so try again (forever, if we have really bad luck).
             } while (true);
@@ -97,15 +96,15 @@ public class ECDSA {
         }
     }
 
-    public static DafnySequence<UByte> Digest(ECDSAParams x, DafnySequence<UByte> msg) {
+    public static DafnySequence<Byte> Digest(ECDSAParams x, DafnySequence<Byte> msg) {
         MessageDigest alg;
         if (x.is_ECDSA__P384()) {
             alg = new JDKMessageDigest.SHA384();
         } else {
             alg = new JDKMessageDigest.SHA256();
         }
-        byte[] digest = alg.digest(DafnySequence.toByteArrayUnsigned(msg));
-        return DafnySequence.fromBytesUnsigned(digest);
+        byte[] digest = alg.digest(DafnySequence.toByteArray(msg));
+        return DafnySequence.fromBytes(digest);
     }
 
     private static byte[] DERSerialize(BigInteger r, BigInteger s) {

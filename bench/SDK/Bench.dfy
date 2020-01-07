@@ -63,7 +63,7 @@ module {:extern "Bench"} Bench {
     var keyring := new RawRSAKeyringDef.RawRSAKeyring(namespace.value, name.value, RSAEncryption.RSAPaddingMode.PKCS1, 2048, Some(ek), Some(dk));
     var cmm := new DefaultCMMDef.DefaultCMM.OfKeyring(keyring);
 
-    var n := 200 * 1024;
+    var n := 1024 * 1024;
 
     var msg := Replicate("lorem ipsum dolor sit amet ", n);
     var originalPlaintext := UTF8.Encode(msg).value;
