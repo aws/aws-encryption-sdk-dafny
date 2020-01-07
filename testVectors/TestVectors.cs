@@ -94,7 +94,6 @@ namespace TestVectorTests {
                 CMMDefs.CMM cmm = AWSEncryptionSDK.CMMs.MakeDefaultCMM(keyring);
                 MemoryStream ciphertextStream = new MemoryStream(ciphertext);
 
-                // TODO check all independent
                 yield return new object[] { cmm, plaintext, ciphertextStream };
             }
         }
