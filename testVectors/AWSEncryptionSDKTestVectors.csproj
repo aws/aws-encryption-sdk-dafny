@@ -38,13 +38,6 @@
     <PackageReference Include="Portable.BouncyCastle" Version="1.8.5.2" />
     <PackageReference Include="Newtonsoft.Json" Version="12.0.3" />
   </ItemGroup>
-  
-  <!--
-    This requires that the manifest and all related files exist in the data directory
-  -->
-  <ItemGroup>
-    <None Update="data/**" CopyToOutputDirectory="PreserveNewest" />
-  </ItemGroup>
 
   <PropertyGroup>
     <DafnyVerificationTimeLimit>60</DafnyVerificationTimeLimit>

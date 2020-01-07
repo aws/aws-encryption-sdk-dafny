@@ -35,11 +35,12 @@ namespace TestVectorTests {
             return new Manifest(manifest["tests"].ToObject<Dictionary<string, TestVector>>(), manifest["keys"].ToString());
         }
 
-        public static string ManifestURIToPath(string uri, string parentDir) {
+        public static string ManifestURIToPath(string uri, string manifestPath) {
             // Assumes files referenced in manifests starts with 'file://'
             if (!string.Equals(uri.Substring(0, 7), "file://")) {
                 throw new ArgumentException($"Manifest file malformed (needs to start with 'file://'): {uri}");
             }
+            string parentDir = Directory.GetParent(manifestPath).ToString();
 
             return Path.Combine(parentDir, uri.Substring(7));
         }
@@ -53,25 +54,24 @@ namespace TestVectorTests {
             Manifest manifest = ParseManifest(manifestPath);
             Dictionary<string, TestVector> vectorMap = manifest.vectorMap;
 
-            string manifestParentDir = Directory.GetParent(manifestPath).ToString();
-            string keysPath = ManifestURIToPath(manifest.keys, manifestParentDir);
+            string keysPath = ManifestURIToPath(manifest.keys, manifestPath);
             Dictionary<string, Key> keyMap = ParseKeys(keysPath);
 
             foreach(var vectorEntry in vectorMap) {
                 string vectorID = vectorEntry.Key;
                 TestVector vector = vectorEntry.Value;
                 
-                string plaintextPath = ManifestURIToPath(vector.plaintext, manifestParentDir);
+                string plaintextPath = ManifestURIToPath(vector.plaintext, manifestPath);
                 if (!File.Exists(plaintextPath)) {
                     throw new ArgumentException($"Could not find plaintext file at path: {plaintextPath}");
                 }
                 byte[] plaintext = System.IO.File.ReadAllBytes(plaintextPath);
 
-                string ciphertextPath = ManifestURIToPath(vector.ciphertext, manifestParentDir);
+                string ciphertextPath = ManifestURIToPath(vector.ciphertext, manifestPath);
                 if (!File.Exists(plaintextPath)) {
                     throw new ArgumentException($"Could not find ciphertext file at path: {plaintextPath}");
                 }
-                byte[] ciphertext = System.IO.File.ReadAllBytes(ManifestURIToPath(vector.ciphertext, manifestParentDir));
+                byte[] ciphertext = System.IO.File.ReadAllBytes(ManifestURIToPath(vector.ciphertext, manifestPath));
 
                 // TODO This is temporary logic to skip non-KMS test cases. Remove once testing all vectors.
                 bool isKMSTestVector = true;
