@@ -14,16 +14,17 @@ namespace TestVectorTests {
 
     public class TestVectorData : IEnumerable<object[]> {
 
-        // TODO let user specify manifest location
-        const string DATA_DIR = "data";
-
         public static Dictionary<string, Key> ParseKeys(string path) {
             if (!File.Exists(path)) {
                 throw new ArgumentException($"Could not find keys file at path: {path}");
             }
             string contents = System.IO.File.ReadAllText(path);
             JObject keyManifest = JObject.Parse(contents);
-            return keyManifest["keys"].ToObject<Dictionary<string, Key>>();
+            JToken keys = keyManifest["keys"];
+            if (keys == null) {
+                throw new ArgumentException($"Key file malformed: missing \"keys\" field");
+            } 
+            return keys.ToObject<Dictionary<string, Key>>();
         }
 
         public static Manifest ParseManifest(string path) {
@@ -32,13 +33,24 @@ namespace TestVectorTests {
             }
             string contents = System.IO.File.ReadAllText(path);
             JObject manifest = JObject.Parse(contents);
-            return new Manifest(manifest["tests"].ToObject<Dictionary<string, TestVector>>(), manifest["keys"].ToString());
+            
+            JToken tests = manifest["tests"];
+            if (tests == null) {
+                throw new ArgumentException($"Manifest file malformed: missing \"tests\" field");
+            } 
+
+            JToken keys = manifest["keys"];
+            if (keys == null) {
+                throw new ArgumentException($"Manifest file malformed: missing \"manifest\" field");
+            } 
+
+            return new Manifest(tests.ToObject<Dictionary<string, TestVector>>(), keys.ToString());
         }
 
         public static string ManifestURIToPath(string uri, string manifestPath) {
             // Assumes files referenced in manifests starts with 'file://'
             if (!string.Equals(uri.Substring(0, 7), "file://")) {
-                throw new ArgumentException($"Manifest file malformed (needs to start with 'file://'): {uri}");
+                throw new ArgumentException($"Malformed filepath in manifest (needs to start with 'file://'): {uri}");
             }
             string parentDir = Directory.GetParent(manifestPath).ToString();
 
@@ -74,10 +86,11 @@ namespace TestVectorTests {
                 byte[] ciphertext = System.IO.File.ReadAllBytes(ManifestURIToPath(vector.ciphertext, manifestPath));
 
                 // TODO This is temporary logic to skip non-KMS test cases. Remove once testing all vectors.
-                bool isKMSTestVector = true;
+                bool isKMSTestVector = false;
                 foreach(var masterKey in vector.masterKeys) {
-                    if (keyMap[masterKey.key].type != "aws-kms") {
-                        isKMSTestVector = false;
+                    if (keyMap[masterKey.key].type == "aws-kms") {
+                        isKMSTestVector = true;
+                        break;
                     }
                 }
 
