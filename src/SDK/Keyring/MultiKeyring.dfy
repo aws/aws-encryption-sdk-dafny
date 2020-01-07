@@ -3,7 +3,6 @@ include "../../StandardLibrary/UInt.dfy"
 include "../AlgorithmSuite.dfy"
 include "./Defs.dfy"
 include "../../Crypto/Random.dfy"
-include "../../Crypto/RSAEncryption.dfy"
 include "../Materials.dfy"
 
 module MultiKeyringDef {
@@ -11,7 +10,6 @@ module MultiKeyringDef {
     import opened StandardLibrary
     import opened UInt = StandardLibrary.UInt
     import AlgorithmSuite
-    import RSA = RSAEncryption
     import Mat = Materials
 
     function childrenRepr (xs : seq<Keyring>) : (res : set<object>) reads (set i | 0 <= i < |xs| :: xs[i])
