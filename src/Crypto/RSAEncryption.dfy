@@ -23,15 +23,24 @@ module {:extern "RSAEncryption"} RSAEncryption {
     {
       Repr == {this} &&
       |pem| > 0 &&
-      GetBytes(strength) >= MinStrengthBytes(padding)
+      GetBytes(strength) >= MinStrengthBytes(padding) &&
+      PEMGeneratedWithStrength(pem, strength) &&
+      PEMGeneratedWithPadding(pem, padding)
     }
   }
+
+  // These predicates are used to ensure that the pem is tied to a specific strength and padding and will fail if
+  // the pem is created with a strength/ padding and any component is then changed
+  predicate {:axiom} PEMGeneratedWithStrength(pem: seq<uint8>, strength: StrengthBits)
+  predicate {:axiom} PEMGeneratedWithPadding(pem: seq<uint8>, padding: PaddingMode)
 
   // PrivateKey represents an extension of Key for RSA private keys to aid with type safety
   class PrivateKey extends Key {
     constructor(pem: seq<uint8>, strength: StrengthBits, padding: PaddingMode)
     requires |pem| > 0
     requires GetBytes(strength) >= MinStrengthBytes(padding)
+    requires PEMGeneratedWithStrength(pem, strength)
+    requires PEMGeneratedWithPadding(pem, padding)
     ensures this.pem == pem
     ensures this.strength == strength
     ensures this.padding == padding
@@ -49,6 +58,8 @@ module {:extern "RSAEncryption"} RSAEncryption {
     constructor(pem: seq<uint8>, strength: StrengthBits, padding: PaddingMode)
     requires |pem| > 0
     requires GetBytes(strength) >= MinStrengthBytes(padding)
+    requires PEMGeneratedWithStrength(pem, strength)
+    requires PEMGeneratedWithPadding(pem, padding)
     ensures this.pem == pem
     ensures this.strength == strength
     ensures this.padding == padding
@@ -121,9 +132,18 @@ module {:extern "RSAEncryption"} RSAEncryption {
   method Decrypt(padding: PaddingMode, privateKey: PrivateKey, cipherText: seq<uint8>) returns (res: Result<seq<uint8>>)
     requires privateKey.Valid()
     requires 0 < |cipherText|
-    // TODO: Is there a way to enable this without making strength non-ghost for the RawRSAKeyring
-    // requires|cipherText| <= GetBytes(privateKey.strength)
     requires padding == privateKey.padding
+    // Ideally, we'd be able to make a statement like "requires|cipherText| <= GetBytes(privateKey.strength)", which
+    // corresponds to a valid requirement for RSA decryption. However, the expectation for Decrypt is that it can be
+    // called in other cases, and error handling needs to be performed for failures. The only way to properly validate
+    // this requirement would be to:
+    // 1. Make privateKey.strength non-ghost and only call Decrypt inside an if statement when this case is true
+    // 2. Pass the requirement up the call chain to the initial user input, ensuring the cipherText size is valid before
+    //    even attempting any keychain OnDecrypt operations
+    // 3. Turn this requirement into a post-condition similar to "ensures res.Success? => |cipherText| <= GetBytes(privateKey.strength)"
+    //    This, in turn, cannot be properly validated because the action is being performed by an extern and provides
+    //    minimal value to a customer interacting with this method
+    // Therefore, we are intentionally excluding this statement
     ensures privateKey.Valid()
   {
     res := DecryptExtern(padding, privateKey.pem, cipherText);
@@ -133,9 +153,19 @@ module {:extern "RSAEncryption"} RSAEncryption {
     requires publicKey.Valid()
     requires GetBytes(publicKey.strength) >= MinStrengthBytes(padding)
     requires 0 < |plaintextData|
-    // TODO: Is there a way to enable this without making strength non-ghost for the RawRSAKeyring
-    // requires |plaintextData| <= MaxPlaintextBytes(padding, publicKey.strength)
     requires padding == publicKey.padding
+    // Ideally, we'd be able to make a statement like "|plaintextData| <= MaxPlaintextBytes(padding, publicKey.strength)",
+    // which corresponds to a valid requirement for RSA encryption. However, the expectation for Encrypt is that it can be
+    // called in other cases, and error handling needs to be performed for failures. The only way to properly validate
+    // this requirement would be to:
+    // 1. Make publicKey.strength non-ghost and only call Encrypt inside an if statement when this case is true
+    // 2. Pass the requirement up the call chain to the initial user input, ensuring the plaintextData size is valid before
+    //    even attempting any keychain OnEncrypt operations
+    // 3. Turn this requirement into a post-condition similar to
+    //    "ensures res.Success? => |plaintextData| <= MaxPlaintextBytes(padding, publicKey.strength)"
+    //    This, in turn, cannot be properly validated because the action is being performed by an extern and provides
+    //    minimal value to a customer interacting with this method
+    // Therefore, we are intentionally excluding this statement
     ensures publicKey.Valid()
   {
     res := EncryptExtern(padding, publicKey.pem, plaintextData);
@@ -150,6 +180,11 @@ module {:extern "RSAEncryption"} RSAEncryption {
     requires GetBytes(strength) >= MinStrengthBytes(padding)
     ensures |publicKey| > 0
     ensures |privateKey| > 0
+    // Tie the public and private keys to a strength and padding to ensure validation fails if they are later changed
+    ensures PEMGeneratedWithStrength(publicKey, strength)
+    ensures PEMGeneratedWithStrength(privateKey, strength)
+    ensures PEMGeneratedWithPadding(publicKey, padding)
+    ensures PEMGeneratedWithPadding(privateKey, padding)
 
   // Note: Customers should call Decrypt instead of DecryptExtern to ensure type safety and additional
   // verification
