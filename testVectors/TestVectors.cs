@@ -1,14 +1,13 @@
 using System;
-using System.Text;
-using Newtonsoft.Json.Linq;
 using System.Linq;
+using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using KeyringDefs;
 using KMSUtils;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 using Xunit;
-using System.Collections;
 
 namespace TestVectorTests {
 
@@ -41,7 +40,7 @@ namespace TestVectorTests {
 
             JToken keys = manifest["keys"];
             if (keys == null) {
-                throw new ArgumentException($"Manifest file malformed: missing \"manifest\" field");
+                throw new ArgumentException($"Manifest file malformed: missing \"keys\" field");
             } 
 
             return new Manifest(tests.ToObject<Dictionary<string, TestVector>>(), keys.ToString());
