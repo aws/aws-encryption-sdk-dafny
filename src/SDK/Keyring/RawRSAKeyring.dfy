@@ -15,7 +15,7 @@ module RawRSAKeyringDef {
   import KeyringDefs
   import Materials
   import Random
-  import RSA = RSAEncryptionDef
+  import RSA = RSAEncryption
   import UTF8
 
   class RawRSAKeyring extends KeyringDefs.Keyring {

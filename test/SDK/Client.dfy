@@ -15,7 +15,7 @@ module {:extern "TestClient"} TestClient {
   import opened UInt = StandardLibrary.UInt
   import CMMDefs
   import DefaultCMMDef
-  import RSA = RSAEncryptionDef
+  import RSA = RSAEncryption
   import RawRSAKeyringDef
   import Materials
   import Client = ESDKClient

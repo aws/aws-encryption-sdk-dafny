@@ -1,6 +1,6 @@
 include "../StandardLibrary/StandardLibrary.dfy"
 
-module {:extern "RSAEncryption"} RSAEncryptionDef {
+module {:extern "RSAEncryption"} RSAEncryption {
   import opened StandardLibrary
   import opened UInt = StandardLibrary.UInt
 
@@ -15,10 +15,10 @@ module {:extern "RSAEncryption"} RSAEncryptionDef {
 
   // This trait represents the parent for RSA public and private keys
   trait {:termination false} Key {
-    ghost var Repr : set<object>
-    ghost const strength : StrengthBits
-    ghost const padding : PaddingMode
-    const pem : seq<uint8>
+    ghost var Repr: set<object>
+    ghost const strength: StrengthBits
+    ghost const padding: PaddingMode
+    const pem: seq<uint8>
     predicate Valid() reads this, Repr
     {
       Repr == {this} &&
@@ -68,12 +68,12 @@ module {:extern "RSAEncryption"} RSAEncryptionDef {
   const SHA512_HASH_BYTES := 64
 
   // GetBytes converts a bit strength into the octet (byte) size that can include all bits
-  function method GetBytes(bits : StrengthBits) : nat {
+  function GetBytes(bits: StrengthBits): nat {
     (bits as nat + 7) / 8
   }
 
   // MinStrengthBytes represents the minimum strength (in bytes) required for a given padding
-  function method MinStrengthBytes(padding : PaddingMode) : nat {
+  function MinStrengthBytes(padding: PaddingMode): nat {
     match padding {
       // 0 = k - 11 ==> k = 11
       case PKCS1 => 11
@@ -87,7 +87,7 @@ module {:extern "RSAEncryption"} RSAEncryptionDef {
 
   // MaxPlaintextBytes represents the maximum size (in bytes) that the plaintext data can be for a given strength
   // (in bits) and padding mode
-  function method MaxPlaintextBytes(padding : PaddingMode, strength : StrengthBits) : nat
+  function MaxPlaintextBytes(padding: PaddingMode, strength: StrengthBits): nat
     requires GetBytes(strength) >= MinStrengthBytes(padding)
   {
     match padding {
@@ -101,8 +101,8 @@ module {:extern "RSAEncryption"} RSAEncryptionDef {
       }
   }
 
-  method GenerateKeyPair(strength : StrengthBits, padding: PaddingMode)
-      returns (publicKey : PublicKey, privateKey : PrivateKey)
+  method GenerateKeyPair(strength: StrengthBits, padding: PaddingMode)
+      returns (publicKey: PublicKey, privateKey: PrivateKey)
     requires GetBytes(strength) >= MinStrengthBytes(padding)
     ensures privateKey.Valid()
     ensures privateKey.strength == strength
@@ -118,7 +118,7 @@ module {:extern "RSAEncryption"} RSAEncryptionDef {
     publicKey := new PublicKey(pemPublic, strength, padding);
   }
 
-  method Decrypt(padding : PaddingMode, privateKey : PrivateKey, cipherText : seq<uint8>) returns (res : Result<seq<uint8>>)
+  method Decrypt(padding: PaddingMode, privateKey: PrivateKey, cipherText: seq<uint8>) returns (res: Result<seq<uint8>>)
     requires privateKey.Valid()
     requires 0 < |cipherText|
     // TODO: Is there a way to enable this without making strength non-ghost for the RawRSAKeyring
@@ -129,7 +129,7 @@ module {:extern "RSAEncryption"} RSAEncryptionDef {
     res := DecryptExtern(padding, privateKey.pem, cipherText);
   }
 
-  method Encrypt(padding: PaddingMode, publicKey : PublicKey, plaintextData : seq<uint8>) returns (res : Result<seq<uint8>>)
+  method Encrypt(padding: PaddingMode, publicKey: PublicKey, plaintextData: seq<uint8>) returns (res: Result<seq<uint8>>)
     requires publicKey.Valid()
     requires GetBytes(publicKey.strength) >= MinStrengthBytes(padding)
     requires 0 < |plaintextData|
@@ -144,27 +144,27 @@ module {:extern "RSAEncryption"} RSAEncryptionDef {
   // The full extern name needs to be specified here (and below) to prevent conflicts when resolving the extern
   // Note: Customers should call GenerateKeyPair instead of GenerateKeyPairExtern to ensure type safety and additional
   // verification
-  method {:extern "RSAEncryption.RSA", "GenerateKeyPairExtern"} GenerateKeyPairExtern(strength : StrengthBits,
+  method {:extern "RSAEncryption.RSA", "GenerateKeyPairExtern"} GenerateKeyPairExtern(strength: StrengthBits,
                                                                                       padding: PaddingMode)
-      returns (publicKey : seq<uint8>, privateKey : seq<uint8>)
+      returns (publicKey: seq<uint8>, privateKey: seq<uint8>)
     requires GetBytes(strength) >= MinStrengthBytes(padding)
     ensures |publicKey| > 0
     ensures |privateKey| > 0
 
   // Note: Customers should call Decrypt instead of DecryptExtern to ensure type safety and additional
   // verification
-  method {:extern "RSAEncryption.RSA", "DecryptExtern"} DecryptExtern(padding : PaddingMode, privateKey : seq<uint8>,
-                                                                      cipherText : seq<uint8>)
-      returns (res : Result<seq<uint8>>)
+  method {:extern "RSAEncryption.RSA", "DecryptExtern"} DecryptExtern(padding: PaddingMode, privateKey: seq<uint8>,
+                                                                      cipherText: seq<uint8>)
+      returns (res: Result<seq<uint8>>)
     requires |privateKey| > 0
     requires |cipherText| > 0
 
 
   // Note: Customers should call Encrypt instead of EncryptExtern to ensure type safety and additional
   // verification
-  method {:extern "RSAEncryption.RSA", "EncryptExtern"} EncryptExtern(padding: PaddingMode, publicKey : seq<uint8>,
-                                                                      plaintextData : seq<uint8>)
-      returns (res : Result<seq<uint8>>)
+  method {:extern "RSAEncryption.RSA", "EncryptExtern"} EncryptExtern(padding: PaddingMode, publicKey: seq<uint8>,
+                                                                      plaintextData: seq<uint8>)
+      returns (res: Result<seq<uint8>>)
     requires |publicKey| > 0
     requires |plaintextData| > 0
 }

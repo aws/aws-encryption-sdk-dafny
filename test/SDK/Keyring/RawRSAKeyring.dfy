@@ -8,7 +8,7 @@ include "../../../src/Util/UTF8.dfy"
 module TestRSAKeyring {
   import opened StandardLibrary
   import opened UInt = StandardLibrary.UInt
-  import RSA = RSAEncryptionDef
+  import RSA = RSAEncryption
   import RawRSAKeyringDef
   import AlgorithmSuite
   import UTF8
