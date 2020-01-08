@@ -165,13 +165,10 @@ namespace TestVectorTests {
                 MemoryStream decodedStream = AWSEncryptionSDK.Client.Decrypt(ciphertextStream, cmm);
                 byte[] result = decodedStream.ToArray();
                 Assert.Equal(expectedPlaintext, result);
-            } catch (Exception e) {
+            } catch (Exception e) when (string.Equals(e.Message, "Unframed Message Decryption Unimplemented")) {
                 // TODO While unframed message deserialization is unimplemented, test that the correct error is thrown
                 // TODO Ideally we would check against a specific, user-exposed Error class here
-                Skip.If(string.Equals(e.Message, "Unframed Message Decryption Unimplemented"));
-
-                // In the case this isn't the skippable error, we still want the error to bubble up
-                throw e;
+                Skip.If(true);
             }
         }
     }
