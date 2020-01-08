@@ -167,6 +167,7 @@ namespace TestVectorTests {
                 Assert.Equal(expectedPlaintext, result);
             } catch (Exception e) {
                 // TODO While unframed message deserialization is unimplemented, test that the correct error is thrown
+                // TODO Ideally we would check against a specific, user-exposed Error class here
                 Skip.If(string.Equals(e.Message, "Unframed Message Decryption Unimplemented"));
 
                 // In the case this isn't the skippable error, we still want the error to bubble up
