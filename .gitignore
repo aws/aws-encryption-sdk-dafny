@@ -16,3 +16,6 @@ test/**/Output/*
 /test/bin
 /test/obj
 /generated-test
+
+/testVectors/bin
+/testVectors/obj
