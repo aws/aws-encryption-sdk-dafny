@@ -3,6 +3,7 @@ include "UInt.dfy"
 module {:extern "STL"} StandardLibrary {
   import opened U = UInt
 
+  // TODO: Depend on types defined in dafny-lang/libraries instead
   datatype Option<T> = None | Some(get: T)
   {
     function method ToResult(): Result<T> {
@@ -16,10 +17,6 @@ module {:extern "STL"} StandardLibrary {
       case None => default
     }
   }
-
-  datatype Either<S,T> = Left(left: S) | Right(right: T)
-
-  datatype Error = IOError(msg: string) | DeserializationError(msg: string) | SerializationError(msg: string) | Error(msg : string)
 
   datatype Result<T> = Success(value: T) | Failure(error: string)
   {
