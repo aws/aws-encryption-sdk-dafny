@@ -256,9 +256,9 @@ module Deserialize {
       && Msg.SortedKVPairs(kvPairs')
   {
     var n := |kvPairs|;
-    while 0 < n && LexicographicLessOrEqual(key, kvPairs[n - 1].0, UInt8Less)
+    while 0 < n && LexicographicLessOrEqual(key, kvPairs[n - 1].0, UInt.UInt8Less)
       invariant 0 <= n <= |kvPairs|
-      invariant forall i :: n <= i < |kvPairs| ==> LexicographicLessOrEqual(key, kvPairs[i].0, UInt8Less)
+      invariant forall i :: n <= i < |kvPairs| ==> LexicographicLessOrEqual(key, kvPairs[i].0, UInt.UInt8Less)
     {
       n := n - 1;
     }
@@ -267,7 +267,7 @@ module Deserialize {
     } else {
       var kvPairs' := kvPairs[..n] + [(key, value)] + kvPairs[n..];
       if 0 < n {
-        LexPreservesTrichotomy(kvPairs'[n - 1].0, kvPairs'[n].0, UInt8Less);
+        LexPreservesTrichotomy(kvPairs'[n - 1].0, kvPairs'[n].0, UInt.UInt8Less);
       }
       return Some(kvPairs'), n;
     }

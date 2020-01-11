@@ -1,59 +1,65 @@
 include "../../src/StandardLibrary/StandardLibrary.dfy"
 
-module TestStdLib {
+module TestStandardLibrary {
   import opened StandardLibrary
 
-  function method {:test} TestSplit0(): Result<()> {
-    var input := "Comma,seperated,list";
-    var output := Split(input, ',');
-    RequireEqual(["Comma", "seperated", "list"], output)
-  }
-
-  function method {:test} TestSplit1(): Result<()> {
-    var input := [1,2,3,0,1,2,3];
-    var output := Split(input, 0);
-    RequireEqual([[1,2,3], [1,2,3]], output)
-  }
-
-  function method {:test} TestSplit2(): Result<()> {
-    var input := "one,";
-    var output := Split(input, ',');
-    RequireEqual(["one", ""], output)
-  }
-
-  function method {:test} TestSplit3(): Result<()> {
-    var input := "no comma";
-    var output := Split(input, ',');
-    RequireEqual(["no comma"], output)
-  }
-
-  function method {:test} TestSplit4(): Result<()> {
-    var input := "";
-    var output := Split(input, ',');
-    RequireEqual([""], output)
-  }
-
-  function method {:test} TestJoin0(): Result<()> {
-    var input := ["Comma", "seperated", "list"];
+  method {:test} TestJoinMultiElementSeq() returns (ret: Result<()>) {
+    var input := ["comma", "separated", "list"];
     var output := Join(input, ",");
-    RequireEqual("Comma,seperated,list", output)
+    ret := RequireEqual("comma,separated,list", output);
   }
 
-  function method {:test} TestJoin1(): Result<()> {
+  method {:test} TestJoinSingleElementSeq() returns (ret: Result<()>) {
     var input := ["one"];
     var output := Join(input, ",");
-    RequireEqual("one", output)
+    ret := RequireEqual("one", output);
   }
 
-  function method {:test} TestSplitJoin(): Result<()> {
-    var input := "Comma,seperated,list";
+  method {:test} TestJoinSplit() returns (ret: Result<()>) {
+    var input := "comma,separated,list";
     var output := Join(Split(input, ','), ",");
-    RequireEqual(input, output)
+    ret := RequireEqual(input, output);
   }
 
-  function method {:test} TestJoinSplit(): Result<()> {
-    var input := ["Comma", "seperated", "list"];
+  method {:test} TestSplitJoin() returns (ret: Result<()>) {
+    var input := ["comma", "separated", "list"];
     var output := Split(Join(input, ","), ',');
-    RequireEqual(input, output)
+    ret := RequireEqual(input, output);
+  }
+
+  method {:test} TestSplitByteSeq() returns (ret: Result<()>) {
+    var input := "comma,separated,list";
+    var output := Split(input, ',');
+    ret := RequireEqual(["comma", "separated", "list"], output);
+  }
+
+  method {:test} TestSplitNumSeq() returns (ret: Result<()>) {
+    var input := [1, 2, 3, 0, 1, 2, 3];
+    var output := Split(input, 0);
+    ret := RequireEqual([[1, 2, 3], [1, 2, 3]], output);
+  }
+
+  method {:test} TestSplitFinalElementDelim() returns (ret: Result<()>) {
+    var input := "one,";
+    var output := Split(input, ',');
+    ret := RequireEqual(["one", ""], output);
+  }
+
+  method {:test} TestSplitNoDelim() returns (ret: Result<()>) {
+    var input := "no comma";
+    var output := Split(input, ',');
+    ret := RequireEqual(["no comma"], output);
+  }
+
+  method {:test} TestSplitOnlyElemIsDelim() returns (ret: Result<()>) {
+    var input := ",";
+    var output := Split(input, ',');
+    ret := RequireEqual(["", ""], output);
+  }
+
+  method {:test} TestSplitEmpty() returns (ret: Result<()>) {
+    var input := "";
+    var output := Split(input, ',');
+    ret := RequireEqual([""], output);
   }
 }

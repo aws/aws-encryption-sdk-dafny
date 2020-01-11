@@ -11,6 +11,8 @@ module StandardLibrary.UInt {
   const UINT16_LIMIT := 0x1_0000
   const UINT32_LIMIT := 0x1_0000_0000
 
+  predicate method UInt8Less(a: uint8, b: uint8) { a < b }
+
   function method UInt16ToSeq(x: uint16): (ret: seq<uint8>)
     ensures |ret| == 2
     ensures 0x100 * ret[0] as uint16 + ret[1] as uint16 == x
@@ -55,7 +57,7 @@ module StandardLibrary.UInt {
 
   function method UInt64ToSeq(x: uint64): (ret: seq<uint8>)
     ensures |ret| == 8
-    // TODO: Verify response using a lemma. Otherwise, this times out
+    // TODO: Add postcondition. Both of these post conditions should be correct but require multiple lemmas to verify
     //ensures ((ret[0] as bv64) << 56) as uint64 + ((ret[1] as bv64) << 48) as uint64 + ((ret[2] as bv64) << 40) as uint64 +
     //  ((ret[3] as bv64) << 32) as uint64 + ((ret[4] as bv64) << 24) as uint64 + ((ret[5] as bv64) << 16) as uint64 +
     //  ((ret[6] as bv64) << 8) as uint64 + ret[7] as uint64 == x

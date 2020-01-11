@@ -1,7 +1,7 @@
 include "../../src/StandardLibrary/UInt.dfy"
 include "../../src/StandardLibrary/StandardLibrary.dfy"
 
-module TestUInt  {
+module TestUInt {
   import opened StandardLibrary
   import opened UInt = StandardLibrary.UInt
 
