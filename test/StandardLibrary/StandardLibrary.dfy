@@ -130,4 +130,27 @@ module TestStandardLibrary {
   method {:test} TestMinDuplicateNumber() returns (ret: Result<()>) {
     ret := RequireEqual(0, Min(0, 0));
   }
+
+  method {:test} TestSeqToArray() returns (ret: Result<()>) {
+    var input: seq<int> := [1, 2, 3];
+    var output := SeqToArray(input);
+
+    var expected := new int[3];
+    expected[0] := 1;
+    expected[1] := 2;
+    expected[2] := 3;
+
+    var allResults: seq<Result<()>> := [];
+    allResults := allResults + [RequireEqual(expected.Length, output.Length)];
+    allResults := allResults + [RequireEqual(expected[0], output[0])];
+    allResults := allResults + [RequireEqual(expected[1], output[1])];
+    allResults := allResults + [RequireEqual(expected[2], output[2])];
+    ret := Require(|allResults| == 4 && forall result :: result in allResults ==> result.Success?);
+  }
+
+  method {:test} TestSeqToArrayEmpty() returns (ret: Result<()>) {
+    var input: seq<char> := [];
+    var output := SeqToArray(input);
+    ret := RequireEqual(0, output.Length);
+  }
 }
