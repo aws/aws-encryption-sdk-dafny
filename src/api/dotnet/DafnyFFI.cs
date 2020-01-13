@@ -21,6 +21,10 @@ public class DafnyFFI {
         // TODO: Find a way to safely avoid copying 
         return byteseq.FromArray(bytes.ToArray());
     }
+
+    public static byteseq SequenceFromByteArray(byte[] bytearray) {
+        return byteseq.FromArray(bytearray);
+    }
   
     public static string StringFromDafnyString(charseq dafnyString) {
         // TODO: Find a way to safely avoid copying.
@@ -54,9 +58,38 @@ public class DafnyFFI {
     {
         return t == null ? Option<T>.create_None() : Option<T>.create_Some(t);
     }
+
+    //TODO-mmtj these might belong in its own file.
+    public class EncryptionSuiteProvider {
+        //Let the user define their own?
+        public static EncryptionSuites.EncryptionSuite AES_GCM_128 {
+            get {
+                return EncryptionSuites.__default.AES__GCM__128;
+            }
+        }
+        public static EncryptionSuites.EncryptionSuite AES_GCM_192 {
+            get {
+                return EncryptionSuites.__default.AES__GCM__192;
+            }
+        }
+        public static EncryptionSuites.EncryptionSuite AES_GCM_256 {
+            get {
+                return EncryptionSuites.__default.AES__GCM__256;
+            }
+        }
+    }
+
+    public enum RSAPaddingModes {
+        PKCS1, OAEP_SHA1, OAEP_SHA256, OAEP_SHA384, OAEP_SHA512
+    }
 }
 
 public class DafnyException : Exception {
     public DafnyException(string message) : base(message) {
+    }
+}
+
+public class NotYetSupportedException : Exception {
+    public NotYetSupportedException(string message) : base(message) {
     }
 }
