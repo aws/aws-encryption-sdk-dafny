@@ -93,23 +93,34 @@ module {:extern "STL"} StandardLibrary {
     else Find(s, c, i + 1)
   }
 
-  function Fill<T>(value: T, n: nat): seq<T>
+  function method Filter<T>(s: seq<T>, f: T -> bool): (res: seq<T>)
+    ensures forall i :: 0 <= i < |s| && f(s[i]) ==> s[i] in res
+    ensures forall i :: 0 <= i < |res| ==> res[i] in s && f(res[i])
+    ensures |res| <= |s|
+  {
+    if |s| == 0 then []
+    else if f(s[0]) then ([s[0]] + Filter(s[1..], f))
+    else Filter(s[1..], f)
+  }
+
+  function method Fill<T>(value: T, n: nat): seq<T>
     ensures |Fill(value, n)| == n
     ensures forall i :: 0 <= i < n ==> Fill(value, n)[i] == value
   {
     seq(n, _ => value)
   }
 
-  method SeqToArray<T>(s: seq)  returns (a: array)
+  function method Min(a: int, b: int): int {
+    if a < b then a else b
+  }
+
+  method SeqToArray<T>(s: seq) returns (a: array)
+    // Fresh expressions require editing memory
     ensures fresh(a)
     ensures a.Length == |s|
     ensures forall i :: 0 <= i < |s| ==> a[i] == s[i]
   {
     a := new T[|s|](i requires 0 <= i < |s| => s[i]);
-  }
-
-  function method min(a: int, b: int): int {
-    if a < b then a else b
   }
 
   /*
@@ -185,16 +196,6 @@ module {:extern "STL"} StandardLibrary {
       case less(b[m], a[m]) =>
         assert LexicographicLessOrEqualAux(b, a, less, m);
     }
-  }
-
-  function method Filter<T>(s: seq<T>, f: T -> bool): (res: seq<T>)
-    ensures forall i :: 0 <= i < |s| && f(s[i]) ==> s[i] in res
-    ensures forall i :: 0 <= i < |res| ==> res[i] in s && f(res[i])
-    ensures |res| <= |s|
-  {
-    if |s| == 0 then []
-    else if f(s[0]) then ([s[0]] + Filter(s[1..], f))
-    else Filter(s[1..], f)
   }
 
   lemma FilterIsDistributive<T>(s: seq<T>, s': seq<T>, f: T -> bool)

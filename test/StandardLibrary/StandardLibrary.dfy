@@ -62,4 +62,72 @@ module TestStandardLibrary {
     var output := Split(input, ',');
     ret := RequireEqual([""], output);
   }
+
+    method {:test} TestFindSimple() returns (ret: Result<()>) {
+    var input := "abcd";
+    var output := Find(input, 'c', 0);
+    ret := RequireEqual(Some(2), output);
+  }
+
+  method {:test} TestFindDuplicates() returns (ret: Result<()>) {
+    var input := "abcdc";
+    var output := Find(input, 'c', 0);
+    ret := RequireEqual(Some(2), output);
+  }
+
+  method {:test} TestFindNone() returns (ret: Result<()>) {
+    var input := "abcd";
+    var output := Find(input, 'e', 0);
+    ret := RequireEqual(None, output);
+  }
+
+  predicate method TestFilterPredicate(entry: seq<char>) {
+    entry in ["a"]
+  }
+
+  method {:test} TestFilterSomeValid() returns (ret: Result<()>) {
+    var input := ["a", "b", "a"];
+    var output := Filter(input, TestFilterPredicate);
+    ret := RequireEqual(["a", "a"], output);
+  }
+
+  method {:test} TestFilterNomneValid() returns (ret: Result<()>) {
+    var input := ["c", "b", "c"];
+    var output := Filter(input, TestFilterPredicate);
+    ret := RequireEqual([], output);
+  }
+
+  method {:test} TestFilterNothing() returns (ret: Result<()>) {
+    var input := [];
+    var output := Filter(input, TestFilterPredicate);
+    ret := RequireEqual([], output);
+  }
+
+  method {:test} TestFill() returns (ret: Result<()>) {
+    var input := "a";
+    var output := Fill(input, 5);
+    ret := RequireEqual(["a","a","a", "a", "a"], output);
+  }
+
+  method {:test} TestFillNothing() returns (ret: Result<()>) {
+    var input := "a";
+    var output := Fill(input, 0);
+    ret := RequireEqual([], output);
+  }
+
+  method {:test} TestMinPositives() returns (ret: Result<()>) {
+    ret := RequireEqual(1, Min(1, 2));
+  }
+
+  method {:test} TestMinNegatives() returns (ret: Result<()>) {
+    ret := RequireEqual(-2, Min(-1, -2));
+  }
+
+  method {:test} TestMinPositivesNegatives() returns (ret: Result<()>) {
+    ret := RequireEqual(-1, Min(-1, 1));
+  }
+
+  method {:test} TestMinDuplicateNumber() returns (ret: Result<()>) {
+    ret := RequireEqual(0, Min(0, 0));
+  }
 }

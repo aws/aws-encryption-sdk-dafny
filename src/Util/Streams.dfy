@@ -48,13 +48,13 @@ module Streams {
       requires off + req <= arr.Length
       modifies this, arr
       ensures Valid()
-      ensures var n := min(req, old(Available()));
+      ensures var n := Min(req, old(Available()));
         arr[..] == arr[..off] + data[old(pos) .. (old(pos) + n)] + arr[off + n ..]
       ensures match res
-        case Success(lengthRead) => lengthRead == min(req, old(Available()))
+        case Success(lengthRead) => lengthRead == Min(req, old(Available()))
         case Failure(e) => unchanged(this) && unchanged(arr)
     {
-      var n := min(req, Available());
+      var n := Min(req, Available());
       forall i | 0 <= i < n {
         arr[off + i] := data[pos + i];
       }
@@ -66,9 +66,9 @@ module Streams {
       requires Valid()
       modifies this
       ensures Valid()
-      ensures bytes == data[old(pos)..][..min(desiredByteCount, old(Available()))]
+      ensures bytes == data[old(pos)..][..Min(desiredByteCount, old(Available()))]
     {
-      var n := min(desiredByteCount, Available());
+      var n := Min(desiredByteCount, Available());
       bytes := seq(n, i requires 0 <= i < n && pos + n <= data.Length reads this, data => data[pos + i]);
       pos := pos + n;
     }
