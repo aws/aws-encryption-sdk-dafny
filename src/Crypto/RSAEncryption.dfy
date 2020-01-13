@@ -36,7 +36,7 @@ module {:extern "RSAEncryption"} RSAEncryption {
 
   // PrivateKey represents an extension of Key for RSA private keys to aid with type safety
   class PrivateKey extends Key {
-    constructor(pem: seq<uint8>, strength: StrengthBits, padding: PaddingMode)
+    constructor(pem: seq<uint8>, ghost strength: StrengthBits, ghost padding: PaddingMode)
     requires |pem| > 0
     requires GetBytes(strength) >= MinStrengthBytes(padding)
     requires PEMGeneratedWithStrength(pem, strength)
@@ -55,7 +55,7 @@ module {:extern "RSAEncryption"} RSAEncryption {
 
   // PublicKey represents an extension of Key for RSA public keys to aid with type safety
   class PublicKey extends Key {
-    constructor(pem: seq<uint8>, strength: StrengthBits, padding: PaddingMode)
+    constructor(pem: seq<uint8>, ghost strength: StrengthBits, ghost padding: PaddingMode)
     requires |pem| > 0
     requires GetBytes(strength) >= MinStrengthBytes(padding)
     requires PEMGeneratedWithStrength(pem, strength)
