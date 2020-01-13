@@ -1,4 +1,4 @@
-module StandardLibrary.UInt {
+module {:extern "STLUInt"} StandardLibrary.UInt {
 
   // TODO: Depend on types defined in dafny-lang/libraries instead
   newtype uint8 = x | 0 <= x < 0x100
