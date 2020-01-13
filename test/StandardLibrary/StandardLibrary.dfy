@@ -91,7 +91,7 @@ module TestStandardLibrary {
     ret := RequireEqual(["a", "a"], output);
   }
 
-  method {:test} TestFilterNomneValid() returns (ret: Result<()>) {
+  method {:test} TestFilterNoneValid() returns (ret: Result<()>) {
     var input := ["c", "b", "c"];
     var output := Filter(input, TestFilterPredicate);
     ret := RequireEqual([], output);
@@ -152,5 +152,37 @@ module TestStandardLibrary {
     var input: seq<char> := [];
     var output := SeqToArray(input);
     ret := RequireEqual(0, output.Length);
+  }
+
+  predicate method TestStandardLibraryLessPredicate(a: int, b: int) { a < b }
+
+  method {:test} TestLexicographicLessOrEqualTrue() returns (ret: Result<()>) {
+    var a: seq<int> := [1, 2, 3];
+    var b: seq<int> := [1, 2, 4];
+    ret := RequireEqual(true, LexicographicLessOrEqual(a, b, TestStandardLibraryLessPredicate));
+  }
+
+  method {:test} TestLexicographicLessOrEqualFalse() returns (ret: Result<()>) {
+    var a: seq<int> := [1, 2, 3];
+    var b: seq<int> := [1, 2, 4];
+    ret := RequireEqual(false, LexicographicLessOrEqual(b, a, TestStandardLibraryLessPredicate));
+  }
+
+  method {:test} TestLexicographicLessOrEqualAllEqual() returns (ret: Result<()>) {
+    var a: seq<int> := [1, 2, 3];
+    var b: seq<int> := [1, 2, 3];
+    ret := RequireEqual(true, LexicographicLessOrEqual(a, b, TestStandardLibraryLessPredicate));
+  }
+
+  method {:test} TestLexicographicLessOrEqualNoneEqual() returns (ret: Result<()>) {
+    var a: seq<int> := [1];
+    var b: seq<int> := [2];
+    ret := RequireEqual(true, LexicographicLessOrEqual(a, b, TestStandardLibraryLessPredicate));
+  }
+
+  method {:test} TestLexicographicLessOrEqualEmpty() returns (ret: Result<()>) {
+    var a: seq<int> := [];
+    var b: seq<int> := [];
+    ret := RequireEqual(true, LexicographicLessOrEqual(a, b, TestStandardLibraryLessPredicate));
   }
 }

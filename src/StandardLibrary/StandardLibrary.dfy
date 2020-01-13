@@ -115,7 +115,7 @@ module {:extern "STL"} StandardLibrary {
   }
 
   method SeqToArray<T>(s: seq) returns (a: array)
-    // Fresh expressions require editing memory
+    // "Fresh" expressions require editing memory
     ensures fresh(a)
     ensures a.Length == |s|
     ensures forall i :: 0 <= i < |s| ==> a[i] == s[i]
