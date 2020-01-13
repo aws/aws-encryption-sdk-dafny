@@ -28,7 +28,7 @@ namespace AWSEncryptionSDK
                 Dafny.Sequence<charseq>.FromElements(grantTokens.Select(DafnyFFI.DafnyStringFromString).ToArray()));
             return result;
         }
-        // TODO: Eventually the MultiKeyring will take a seqence instead of an array.
+        // TODO: Eventually the MultiKeyring will take a sequence instead of an array.
         public static MultiKeyring MakeMultiKeyring(Keyring generator, Keyring[] children)
         {
             // TODO: Check for null value etc.

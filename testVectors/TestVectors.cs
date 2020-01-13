@@ -205,7 +205,7 @@ namespace TestVectorTests {
                     ("oaep-mgf1", "sha256") => DafnyFFI.RSAPaddingModes.OAEP_SHA256,
                     ("oaep-mgf1", "sha384") => DafnyFFI.RSAPaddingModes.OAEP_SHA384,
                     ("oaep-mgf1", "sha512") => DafnyFFI.RSAPaddingModes.OAEP_SHA512,
-                    _ => throw new Exception("Unspoorted RSA Padding " + strAlg + strHash)
+                    _ => throw new Exception("Unsupported RSA Padding " + strAlg + strHash)
             };
         }
         private static EncryptionSuites.EncryptionSuite BitsToAESWrappingSuite(ushort bits) {
