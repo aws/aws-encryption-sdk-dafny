@@ -36,18 +36,6 @@ namespace AWSEncryptionSDK
             result.__ctor(generator, children);
             return result;
         }
-        public static RawAESKeyring MakeRawAESKeyring(byte[] nameSpace, byte[] name, byte[] wrappingKey, EncryptionSuites.EncryptionSuite wrappingAlg)
-        {
-            // TODO: Check for null values, valid wrapping value, etc.
-            RawAESKeyring result = new RawAESKeyring();
-            result.__ctor(
-                    DafnyFFI.SequenceFromByteArray(nameSpace),
-                    DafnyFFI.SequenceFromByteArray(name),
-                    DafnyFFI.SequenceFromByteArray(wrappingKey),
-                    wrappingAlg
-                    );
-            return result;
-        }
         public static RawRSAKeyring MakeRawRSAKeyring(byte[] nameSpace, byte[] name, DafnyFFI.RSAPaddingModes paddingMode, byte[] publicKey, byte[] privateKey)
         {
             // TODO: check for null values, ensure at least one key is non-null.

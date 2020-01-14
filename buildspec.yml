@@ -26,7 +26,7 @@ phases:
       - wget https://github.com/awslabs/aws-encryption-sdk-test-vectors/raw/master/vectors/awses-decrypt/python-1.3.8.zip
       - unzip python-1.3.8.zip && rm python-1.3.8.zip
       - export DAFNY_AWS_ESDK_TEST_VECTOR_MANIFEST_PATH="${PWD}/manifest.json"
-      - export DAFNY_AWS_ESDK_DECRYPT_ORACLE_URL=""http://xi1mwx3ttb.execute-api.us-west-2.amazonaws.com/api/v0/decrypt""
+      - export DAFNY_AWS_ESDK_DECRYPT_ORACLE_URL="http://xi1mwx3ttb.execute-api.us-west-2.amazonaws.com/api/v0/decrypt"
   build:
     commands:
       - dotnet build -t:VerifyDafny src

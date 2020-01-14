@@ -30,6 +30,11 @@ namespace RSAEncryption {
         const int RSA_PUBLIC_EXPONENT = (65537);
         const int RSA_CERTAINTY = 256;
 
+        public static byte[] ParsePEMString(string pem) {
+            AsymmetricKeyParameter key = (AsymmetricKeyParameter) new PemReader(new StringReader(pem)).ReadObject();
+            return Encoding.UTF8.GetBytes(key.ToString());
+        }
+
         // GetPemBytes represents a helper method that takes an AsymmetricCipherKeyPair and returns the corresponding
         // private and public keys as UTF-8 byte arrays
         private static void GetPemBytes(AsymmetricCipherKeyPair keyPair, out byte[] publicKeyBytes, out byte[] privateKeyBytes) {

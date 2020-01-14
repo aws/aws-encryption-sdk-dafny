@@ -8,11 +8,13 @@ using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Text;
 using AWSEncryptionSDK;
+using DefaultCMMDef;
 using KeyringDefs;
 using KMSUtils;
 using MultiKeyringDef;
 using RawAESKeyringDef;
 using RawRSAKeyringDef;
+using RSAEncryption;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using Xunit;
@@ -40,7 +42,7 @@ namespace TestVectorTests {
             return nullableResult;
         }
 
-        public static Dictionary<string, Key> ParseKeys(string path) {
+        protected static Dictionary<string, Key> ParseKeys(string path) {
             if (!File.Exists(path)) {
                 throw new ArgumentException($"Could not find keys file at path: {path}");
             }
@@ -53,7 +55,7 @@ namespace TestVectorTests {
             return keys.ToObject<Dictionary<string, Key>>();
         }
 
-        public static Manifest ParseManifest(string path) {
+        protected static Manifest ParseManifest(string path) {
             if (!File.Exists(path)) {
                 throw new ArgumentException($"Could not find manifest file at path: {path}");
             }
@@ -73,7 +75,7 @@ namespace TestVectorTests {
             return new Manifest(tests.ToObject<Dictionary<string, TestVector>>(), keys.ToString());
         }
 
-        public static string ManifestURIToPath(string uri, string manifestPath) {
+        protected static string ManifestURIToPath(string uri, string manifestPath) {
             // Assumes files referenced in manifests starts with 'file://'
             if (!string.Equals(uri.Substring(0, 7), "file://")) {
                 throw new ArgumentException($"Malformed filepath in manifest (needs to start with 'file://'): {uri}");
@@ -81,6 +83,24 @@ namespace TestVectorTests {
             string parentDir = Directory.GetParent(manifestPath).ToString();
 
             return Path.Combine(parentDir, uri.Substring(7));
+        }
+
+        protected bool VectorContainsMasterkeyOfType(TestVector vector, string typeOfKey) {
+            foreach(MasterKey masterKey in vector.masterKeys) {
+                if (masterKey.type == typeOfKey) {
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        protected bool VectorContainsRawAESKey(TestVector vector) {
+            foreach(MasterKey masterKey in vector.masterKeys) {
+                if (keyMap[masterKey.key].algorithm == "aes") {
+                    return true;
+                }
+            }
+            return false;
         }
 
         public abstract IEnumerator<object[]> GetEnumerator();
@@ -94,6 +114,12 @@ namespace TestVectorTests {
                 string vectorID = vectorEntry.Key;
                 TestVector vector = vectorEntry.Value;
                 
+                // TODO: Once we can test the RawRSAKeyring, this should be replaced with VectorContainsRawAESKey.
+                // Once we can test the RawAESKeyring, this should be removed.
+                if (VectorContainsMasterkeyOfType(vector, "raw")) {
+                    continue;
+                }
+
                 string plaintextPath = ManifestURIToPath(vector.plaintext, vectorRoot);
                 if (!File.Exists(plaintextPath)) {
                     throw new ArgumentException($"Could not find plaintext file at path: {plaintextPath}");
@@ -106,13 +132,8 @@ namespace TestVectorTests {
                 }
                 byte[] ciphertext = System.IO.File.ReadAllBytes(ManifestURIToPath(vector.ciphertext, vectorRoot));
 
-                CMMDefs.CMM cmm;
-                try {
-                    cmm = CMMFactory.DecryptCMM(vector, keyMap);
-                } catch (NotYetSupportedException) {
-                    // TODO This is temporary logic to skip non-KMS test cases. Remove once testing all vectors.
-                    continue;
-                }
+                DefaultCMM cmm = CMMFactory.DecryptCMM(vector, keyMap);
+
                 MemoryStream ciphertextStream = new MemoryStream(ciphertext);
 
                 yield return new object[] { vectorID, cmm, plaintext, ciphertextStream };
@@ -129,19 +150,17 @@ namespace TestVectorTests {
                 string vectorID = vectorEntry.Key;
                 TestVector vector = vectorEntry.Value;
 
+                if (VectorContainsMasterkeyOfType(vector, "raw")) {
+                    continue;
+                }
+
                 string plaintextPath = ManifestURIToPath(vector.plaintext, vectorRoot);
                 if (!File.Exists(plaintextPath)) {
                     throw new ArgumentException($"Could not find plaintext file at path: {plaintextPath}");
                 }
                 byte[] plaintext = System.IO.File.ReadAllBytes(plaintextPath);
 
-                CMMDefs.CMM cmm;
-                try {
-                    cmm = CMMFactory.EncryptCMM(vector, keyMap);
-                } catch (NotYetSupportedException) {
-                    // TODO This is temporary logic to skip non-KMS test cases. Remove once testing all vectors.
-                    continue;
-                }
+                DefaultCMM cmm = CMMFactory.EncryptCMM(vector, keyMap);
 
                 yield return new object[] { vectorEntry.Key, cmm, plaintext, client, decryptOracle };
             }
@@ -150,11 +169,11 @@ namespace TestVectorTests {
 
     public class CMMFactory {
 
-        public static CMMDefs.CMM DecryptCMM(TestVector vector, Dictionary<string, Key> keys) {
+        public static DefaultCMM DecryptCMM(TestVector vector, Dictionary<string, Key> keys) {
             return AWSEncryptionSDK.CMMs.MakeDefaultCMM(CreateDecryptKeyring(vector, keys));
         }
 
-        public static CMMDefs.CMM EncryptCMM(TestVector vector, Dictionary<string, Key> keys) {
+        public static DefaultCMM EncryptCMM(TestVector vector, Dictionary<string, Key> keys) {
             return AWSEncryptionSDK.CMMs.MakeDefaultCMM(CreateEncryptKeyring(vector, keys));
         }
 
@@ -168,30 +187,19 @@ namespace TestVectorTests {
             return Keyrings.MakeMultiKeyring(null, children.ToArray());
         }
         private static Keyring CreateKeyring(MasterKey keyInfo, Key key) {
-            if (keyInfo.type == "aws-kms" && key.type == "aws-kms") {
+            if (keyInfo.type == "aws-kms") {
                 ClientSupplier clientSupplier = new DefaultClientSupplier();
                 return Keyrings.MakeKMSKeyring(clientSupplier, Enumerable.Empty<String>(), key.ID, Enumerable.Empty<String>());
-            } else if (keyInfo.type == "raw" && keyInfo.encryptionAlgorithm == "aes" && key.type == "symmetric") {
-                throw new NotYetSupportedException("Only KMS");
-                EncryptionSuites.EncryptionSuite wrappingAlgorithm = BitsToAESWrappingSuite(key.bits);
-                if (key.encoding != "base64") {
-                    throw new Exception("Unsupported AES material encoding.");
-                }
-                return Keyrings.MakeRawAESKeyring(
-                        Encoding.UTF8.GetBytes(keyInfo.providerID),
-                        Encoding.UTF8.GetBytes(key.ID),
-                        Encoding.UTF8.GetBytes(key.material),
-                        BitsToAESWrappingSuite(key.bits)
-                        );
-            } else if (keyInfo.type == "raw" && keyInfo.encryptionAlgorithm == "rsa" && (key.type == "public" || key.type == "private")) {
-                throw new NotYetSupportedException("Only KMS");
+            } else if (keyInfo.type == "raw" && keyInfo.encryptionAlgorithm == "aes") {
+                throw new NotYetSupportedException("Cannot test AES keys");
+            } else if (keyInfo.type == "raw" && keyInfo.encryptionAlgorithm == "rsa") {
                 //Do we need to do anything with the key.bits field?
                 return Keyrings.MakeRawRSAKeyring(
                         Encoding.UTF8.GetBytes(keyInfo.providerID),
                         Encoding.UTF8.GetBytes(key.ID),
                         RSAPAddingFromStrings(keyInfo.paddingAlgorithm, keyInfo.paddingHash),
-                        key.type == "public" ? Encoding.UTF8.GetBytes(key.material) : null,
-                        key.type == "private" ? Encoding.UTF8.GetBytes(key.material) : null
+                        key.type == "public" ? RSA.ParsePEMString(key.material) : null,
+                        key.type == "private" ? RSA.ParsePEMString(key.material) : null
                         );
             }
             else {
@@ -208,15 +216,6 @@ namespace TestVectorTests {
                     _ => throw new Exception("Unsupported RSA Padding " + strAlg + strHash)
             };
         }
-        private static EncryptionSuites.EncryptionSuite BitsToAESWrappingSuite(ushort bits) {
-            switch(bits) {
-                case 128: return DafnyFFI.EncryptionSuiteProvider.AES_GCM_128;
-                case 192: return DafnyFFI.EncryptionSuiteProvider.AES_GCM_192;
-                case 256: return DafnyFFI.EncryptionSuiteProvider.AES_GCM_256;
-                default: throw new Exception("Unsupported AES Wrapping algorithm");
-            }
-        }
-
     }
 
     // TODO Need to use some enums for various fields, possibly subtypes to represent RSA vs AES having different params?
@@ -266,7 +265,7 @@ namespace TestVectorTests {
     public class TestVectorDecryptTests {
         [SkippableTheory]
         [ClassData (typeof(DecryptTestVectors))]
-        public void CanDecryptTestVector(string vectorID, CMMDefs.CMM cmm, byte[] expectedPlaintext, MemoryStream ciphertextStream) {
+        public void CanDecryptTestVector(string vectorID, DefaultCMM cmm, byte[] expectedPlaintext, MemoryStream ciphertextStream) {
             try {
                 MemoryStream decodedStream = AWSEncryptionSDK.Client.Decrypt(ciphertextStream, cmm);
                 byte[] result = decodedStream.ToArray();
@@ -278,9 +277,9 @@ namespace TestVectorTests {
             }
         }
 
-        [SkippableTheory]
+        [Theory]
         [ClassData (typeof(EncryptTestVectors))]
-        public void CanEncryptTestVector(string vectorID, CMMDefs.CMM cmm, byte[] plaintext, HttpClient client, string decryptOracle) {
+        public void CanEncryptTestVector(string vectorID, DefaultCMM cmm, byte[] plaintext, HttpClient client, string decryptOracle) {
             MemoryStream ciphertext = AWSEncryptionSDK.Client.Encrypt(new MemoryStream(plaintext), cmm, new Dictionary<string, string>());
 
             StreamContent content = new StreamContent(ciphertext);

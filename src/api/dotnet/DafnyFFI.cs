@@ -59,26 +59,6 @@ public class DafnyFFI {
         return t == null ? Option<T>.create_None() : Option<T>.create_Some(t);
     }
 
-    //TODO-mmtj these might belong in its own file.
-    public class EncryptionSuiteProvider {
-        //Let the user define their own?
-        public static EncryptionSuites.EncryptionSuite AES_GCM_128 {
-            get {
-                return EncryptionSuites.__default.AES__GCM__128;
-            }
-        }
-        public static EncryptionSuites.EncryptionSuite AES_GCM_192 {
-            get {
-                return EncryptionSuites.__default.AES__GCM__192;
-            }
-        }
-        public static EncryptionSuites.EncryptionSuite AES_GCM_256 {
-            get {
-                return EncryptionSuites.__default.AES__GCM__256;
-            }
-        }
-    }
-
     public enum RSAPaddingModes {
         PKCS1, OAEP_SHA1, OAEP_SHA256, OAEP_SHA384, OAEP_SHA512
     }
