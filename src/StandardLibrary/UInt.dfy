@@ -104,7 +104,7 @@ module {:extern "STLUInt"} StandardLibrary.UInt {
 
   function method SeqToUInt64(s: seq<uint8>): (x: uint64)
     requires |s| == 8
-    // ensures UInt64ToSeq(x) == s
+    ensures UInt64ToSeq(x) == s
   {
     var x0 := s[0] as uint64 * 0x100_0000_0000_0000;
     var x1 := x0 + s[1] as uint64 * 0x1_0000_0000_0000;
@@ -113,19 +113,25 @@ module {:extern "STLUInt"} StandardLibrary.UInt {
     var x4 := x3 + s[4] as uint64 * 0x100_0000;
     var x5 := x4 + s[5] as uint64 * 0x1_0000;
     var x6 := x5 + s[6] as uint64 * 0x100;
-    x6 + s[7] as uint64
+    var x := x6 + s[7] as uint64;
+    UInt64SeqSerialize(x, s);
+    x
   }
 
-  lemma UInt64SeqSerializeDeserialize(x: uint64)
-    ensures SeqToUInt64(UInt64ToSeq(x)) == x
-  {}
-
-  lemma UInt64SeqDeserializeSerialize(s: seq<uint8>)
+  lemma UInt64SeqSerialize(x: uint64, s: seq<uint8>)
     requires |s| == 8
-    ensures UInt64ToSeq(SeqToUInt64(s)) == s
+    requires 0x100_0000_0000_0000 * s[0] as uint64
+      + 0x1_0000_0000_0000 * s[1] as uint64
+      + 0x100_0000_0000 * s[2] as uint64
+      + 0x1_0000_0000 * s[3] as uint64
+      + 0x100_0000 * s[4] as uint64
+      + 0x1_0000 * s[5] as uint64
+      + 0x100 * s[6] as uint64
+      + s[7] as uint64 == x
+    ensures UInt64ToSeq(x) == s
   {
     calc {
-      UInt64ToSeq(SeqToUInt64(s));
+      UInt64ToSeq(x);
     ==
       UInt64ToSeq(s[0] as uint64 * 0x100_0000_0000_0000
       + s[1] as uint64 * 0x1_0000_0000_0000
@@ -211,6 +217,15 @@ module {:extern "STLUInt"} StandardLibrary.UInt {
       s;
     }
   }
+
+  lemma UInt64SeqSerializeDeserialize(x: uint64)
+    ensures SeqToUInt64(UInt64ToSeq(x)) == x
+  {}
+
+  lemma UInt64SeqDeserializeSerialize(s: seq<uint8>)
+    requires |s| == 8
+    ensures UInt64ToSeq(SeqToUInt64(s)) == s
+  {}
 
   function SeqToNat(s: seq<uint8>): nat {
     if s == [] then
