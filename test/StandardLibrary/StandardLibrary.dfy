@@ -103,18 +103,6 @@ module TestStandardLibrary {
     ret := RequireEqual([], output);
   }
 
-  method {:test} TestFill() returns (ret: Result<()>) {
-    var input := "a";
-    var output := Fill(input, 5);
-    ret := RequireEqual(["a","a","a", "a", "a"], output);
-  }
-
-  method {:test} TestFillNothing() returns (ret: Result<()>) {
-    var input := "a";
-    var output := Fill(input, 0);
-    ret := RequireEqual([], output);
-  }
-
   method {:test} TestMinPositives() returns (ret: Result<()>) {
     ret := RequireEqual(1, Min(1, 2));
   }

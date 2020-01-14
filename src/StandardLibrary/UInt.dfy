@@ -84,7 +84,6 @@ module {:extern "STLUInt"} StandardLibrary.UInt {
     [b0, b1, b2, b3, b4, b5, b6, b7]
   }
 
-  // This function is used in the lemma proofs below
   function SeqToNat(s: seq<uint8>): nat {
     if s == [] then
       0
@@ -131,13 +130,23 @@ module {:extern "STLUInt"} StandardLibrary.UInt {
       calc {
         SeqToNat(s);
       ==
-        SeqToNat(s[..3]) * 0x100 + s[3] as nat;
+        SeqToNat(s[..3])
+          * 0x100 + s[3] as nat;
       ==  { assert s[..3][..2] == s[..2] && s[..3][2] == s[2]; }
-        (SeqToNat(s[..2]) * 0x100 + s[2] as nat) * 0x100 + s[3] as nat;
+        (SeqToNat(s[..2])
+          * 0x100 + s[2] as nat)
+          * 0x100 + s[3] as nat;
       ==  { assert s[..2][..1] == s[..1] && s[..2][1] == s[1]; }
-        ((SeqToNat(s[..1]) * 0x100 + s[1] as nat) * 0x100 + s[2] as nat) * 0x100 + s[3] as nat;
+        ((SeqToNat(s[..1])
+          * 0x100 + s[1] as nat)
+          * 0x100 + s[2] as nat)
+          * 0x100 + s[3] as nat;
       ==  { assert s[..1][..0] == s[..0] && s[..1][0] == s[0]; }
-        (((SeqToNat(s[..0]) * 0x100 + s[0] as nat) * 0x100 + s[1] as nat) * 0x100 + s[2] as nat) * 0x100 + s[3] as nat;
+        (((SeqToNat(s[..0])
+          * 0x100 + s[0] as nat)
+          * 0x100 + s[1] as nat)
+          * 0x100 + s[2] as nat)
+          * 0x100 + s[3] as nat;
       ==
         n;
       }

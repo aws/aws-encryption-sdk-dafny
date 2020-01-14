@@ -49,6 +49,7 @@ module {:extern "STL"} StandardLibrary {
       ensures r.Success? ==> expected == actual
   {
     // TODO: Report message similar to "Expected ___ but got ___"
+    // Blocked on https://github.com/dafny-lang/dafny/issues/450
     RequireWithMessage(expected == actual, "Failed equality")
   }
   
@@ -82,6 +83,47 @@ module {:extern "STL"} StandardLibrary {
     if i.Some? then [s[..i.get]] + Split(s[(i.get + 1)..], delim) else [s]
   }
 
+  lemma WillSplitOnDelim<T>(s: seq<T>, delim: T, prefix: seq<T>)
+    requires |prefix| < |s|
+    requires forall i :: 0 <= i < |prefix| ==> prefix[i] == s[i]
+    requires delim !in prefix && s[|prefix|] == delim
+    ensures Split(s, delim) == [prefix] + Split(s[|prefix| + 1..], delim)
+  {
+    calc {
+      Split(s, delim);
+    ==
+      var i := Find(s, delim, 0);
+      if i.Some? then [s[..i.get]] + Split(s[i.get + 1..], delim) else [s];
+    ==  { FindLocatesElem(s, delim, 0, |prefix|); }
+      [s[..|prefix|]] + Split(s[|prefix| + 1..], delim);
+    ==  { assert s[..|prefix|] == prefix; }
+      [prefix] + Split(s[|prefix| + 1..], delim);
+    }
+  }
+
+  lemma WillNotSplitWithOutDelim<T>(s: seq<T>, delim: T)
+    requires delim !in s
+    ensures Split(s, delim) == [s]
+  {
+    calc {
+      Split(s, delim);
+    ==
+      var i := Find(s, delim, 0);
+      if i.Some? then [s[..i.get]] + Split(s[i.get+1..], delim) else [s];
+    ==  { FindLocatesElem(s, delim, 0, |s|); }
+      [s];
+    }
+  }
+
+  lemma FindLocatesElem<T>(s: seq<T>, c: T, start: nat, elemIndex: nat)
+    requires start <= elemIndex <= |s|
+    requires forall i :: start <= i < elemIndex ==> s[i] != c
+    requires elemIndex == |s| || s[elemIndex] == c
+    ensures Find(s, c, start) == if elemIndex == |s| then None else Some(elemIndex)
+    decreases elemIndex - start
+    {
+    }
+
   function method Find<T(==)>(s: seq<T>, c: T, i: nat): (index: Option<nat>)
     requires i <= |s|
     ensures index.Some? ==>  i <= index.get < |s| && s[index.get] == c && c !in s[i..index.get]
@@ -103,15 +145,27 @@ module {:extern "STL"} StandardLibrary {
     else Filter(s[1..], f)
   }
 
-  function method Fill<T>(value: T, n: nat): seq<T>
-    ensures |Fill(value, n)| == n
-    ensures forall i :: 0 <= i < n ==> Fill(value, n)[i] == value
+  lemma FilterIsDistributive<T>(s: seq<T>, s': seq<T>, f: T -> bool)
+    ensures Filter(s + s', f) == Filter(s, f) + Filter(s', f)
   {
-    seq(n, _ => value)
+    if s == [] {
+      assert s + s' == s';
+    } else {
+      FilterIsDistributive<T>(s[1..], s', f);
+      assert s + s' == [s[0]] + (s[1..] + s');
+      assert Filter(s + s', f) == Filter(s, f) + Filter(s', f);
+    }
   }
 
   function method Min(a: int, b: int): int {
     if a < b then a else b
+  }
+
+  function Fill<T>(value: T, n: nat): seq<T>
+    ensures |Fill(value, n)| == n
+    ensures forall i :: 0 <= i < n ==> Fill(value, n)[i] == value
+  {
+    seq(n, _ => value)
   }
 
   method SeqToArray<T>(s: seq) returns (a: array)
@@ -145,8 +199,9 @@ module {:extern "STL"} StandardLibrary {
   predicate method LexicographicLessOrEqualAux<T(==)>(a: seq<T>, b: seq<T>, less: (T, T) -> bool, lengthOfCommonPrefix: nat)
     requires 0 <= lengthOfCommonPrefix <= |a|
   {
-    lengthOfCommonPrefix <= |b| && (forall i :: 0 <= i < lengthOfCommonPrefix ==> a[i] == b[i]) &&
-      (lengthOfCommonPrefix == |a| || (lengthOfCommonPrefix < |b| && less(a[lengthOfCommonPrefix], b[lengthOfCommonPrefix])))
+    lengthOfCommonPrefix <= |b|
+    && (forall i :: 0 <= i < lengthOfCommonPrefix ==> a[i] == b[i])
+    && (lengthOfCommonPrefix == |a| || (lengthOfCommonPrefix < |b| && less(a[lengthOfCommonPrefix], b[lengthOfCommonPrefix])))
   }
 
   /*
@@ -195,18 +250,6 @@ module {:extern "STL"} StandardLibrary {
         assert LexicographicLessOrEqualAux(a, b, less, m);
       case less(b[m], a[m]) =>
         assert LexicographicLessOrEqualAux(b, a, less, m);
-    }
-  }
-
-  lemma FilterIsDistributive<T>(s: seq<T>, s': seq<T>, f: T -> bool)
-    ensures Filter(s + s', f) == Filter(s, f) + Filter(s', f)
-  {
-    if s == [] {
-      assert s + s' == s';
-    } else {
-      FilterIsDistributive<T>(s[1..], s', f);
-      assert s + s' == [s[0]] + (s[1..] + s');
-      assert Filter(s + s', f) == Filter(s, f) + Filter(s', f);
     }
   }
 }
