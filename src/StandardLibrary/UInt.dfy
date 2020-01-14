@@ -30,6 +30,15 @@ module {:extern "STLUInt"} StandardLibrary.UInt {
     x0 + s[1] as uint16
   }
 
+  lemma UInt16SeqSerializeDeserialize(x: uint16)
+    ensures SeqToUInt16(UInt16ToSeq(x)) == x
+  {}
+
+  lemma UInt16SeqDeserializeSerialize(s: seq<uint8>)
+    requires |s| == 2
+    ensures UInt16ToSeq(SeqToUInt16(s)) == s
+  {}
+
   function method UInt32ToSeq(x: uint32): (ret: seq<uint8>)
     ensures |ret| == 4
     ensures 0x100_0000 * ret[0] as uint32 + 0x1_0000 * ret[1] as uint32 + 0x100 * ret[2] as uint32 + ret[3] as uint32 == x
@@ -55,33 +64,152 @@ module {:extern "STLUInt"} StandardLibrary.UInt {
     x2 + s[3] as uint32
   }
 
+  lemma UInt32SeqSerializeDeserialize(x: uint32)
+    ensures SeqToUInt32(UInt32ToSeq(x)) == x
+  {}
+
+  lemma UInt32SeqDeserializeSerialize(s: seq<uint8>)
+    requires |s| == 4
+    ensures UInt32ToSeq(SeqToUInt32(s)) == s
+  {}
+
   function method UInt64ToSeq(x: uint64): (ret: seq<uint8>)
     ensures |ret| == 8
-    // TODO: Add postcondition. Both of these post conditions should be correct but require multiple lemmas to verify
-    //ensures ((ret[0] as bv64) << 56) as uint64 + ((ret[1] as bv64) << 48) as uint64 + ((ret[2] as bv64) << 40) as uint64 +
-    //  ((ret[3] as bv64) << 32) as uint64 + ((ret[4] as bv64) << 24) as uint64 + ((ret[5] as bv64) << 16) as uint64 +
-    //  ((ret[6] as bv64) << 8) as uint64 + ret[7] as uint64 == x
-    //ensures 0x100_0000_0000_0000 * ret[0] as uint64 + 0x1_0000_0000_0000 * ret[1] as uint64 +
-    //  0x100_0000_0000 * ret[2] as uint64 + 0x1_0000_0000 * ret[3] as uint64 + 0x100_0000 * ret[4] as uint64 +
-    //  0x1_0000 * ret[5] as uint64 + 0x100 * ret[6] as uint64 + ret[7] as uint64 == x
+    ensures 0x100_0000_0000_0000 * ret[0] as uint64 + 0x1_0000_0000_0000 * ret[1] as uint64 +
+      0x100_0000_0000 * ret[2] as uint64 + 0x1_0000_0000 * ret[3] as uint64 + 0x100_0000 * ret[4] as uint64 +
+      0x1_0000 * ret[5] as uint64 + 0x100 * ret[6] as uint64 + ret[7] as uint64 == x
   {
-    // Convert the uint64 to a bitvector. The bitvector can then be shifted right by some number of bits, and "& 0xFF"
-    // can be performed to mask everything except the last 8 bits. This allows us to break up the 64 bit vector into
-    // 8 uint8 portions.
-    var bv := x as bv64;
-    // Shift right and then take the final 8 bits. This means b0 represents the first (left-most) 8 bits of the uint64,
-    // b1 represents the next 8 bits, etc.
-    // b0 does not use "& 0xFF" since 64 bits shift 56 bits is the final 8 bits (so masking would just be redundant)
-    var b0 := (bv >> 56) as uint8;
-    var b1 := ((bv >> 48) & 0xFF) as uint8;
-    var b2 := ((bv >> 40) & 0xFF) as uint8;
-    var b3 := ((bv >> 32) & 0xFF) as uint8;
-    var b4 := ((bv >> 24) & 0xFF) as uint8;
-    var b5 := ((bv >> 16) & 0xFF) as uint8;
-    var b6 := ((bv >>  8) & 0xFF) as uint8;
-    // Do not shift at all, the masking handles the final 8 bits
-    var b7 := (bv & 0xFF) as uint8;
+    var b0 := (x / 0x100_0000_0000_0000) as uint8;
+    var x0 := x - (b0 as uint64 * 0x100_0000_0000_0000);
+
+    var b1 := (x0 / 0x1_0000_0000_0000) as uint8;
+    var x1 := x0 - (b1 as uint64 * 0x1_0000_0000_0000);
+
+    var b2 := (x1 / 0x100_0000_0000) as uint8;
+    var x2 := x1 - (b2 as uint64 * 0x100_0000_0000);
+
+    var b3 := (x2 / 0x1_0000_0000) as uint8;
+    var x3 := x2 - (b3 as uint64 * 0x1_0000_0000);
+
+    var b4 := (x3 / 0x100_0000) as uint8;
+    var x4 := x3 - (b4 as uint64 * 0x100_0000);
+
+    var b5 := (x4 / 0x1_0000) as uint8;
+    var x5 := x4 - (b5 as uint64 * 0x1_0000);
+
+    var b6 := (x5 / 0x100) as uint8;
+    var b7 := (x5 % 0x100) as uint8;
     [b0, b1, b2, b3, b4, b5, b6, b7]
+  }
+
+  function method SeqToUInt64(s: seq<uint8>): (x: uint64)
+    requires |s| == 8
+    // ensures UInt64ToSeq(x) == s
+  {
+    var x0 := s[0] as uint64 * 0x100_0000_0000_0000;
+    var x1 := x0 + s[1] as uint64 * 0x1_0000_0000_0000;
+    var x2 := x1 + s[2] as uint64 * 0x100_0000_0000;
+    var x3 := x2 + s[3] as uint64 * 0x1_0000_0000;
+    var x4 := x3 + s[4] as uint64 * 0x100_0000;
+    var x5 := x4 + s[5] as uint64 * 0x1_0000;
+    var x6 := x5 + s[6] as uint64 * 0x100;
+    x6 + s[7] as uint64
+  }
+
+  lemma UInt64SeqSerializeDeserialize(x: uint64)
+    ensures SeqToUInt64(UInt64ToSeq(x)) == x
+  {}
+
+  lemma UInt64SeqDeserializeSerialize(s: seq<uint8>)
+    requires |s| == 8
+    ensures UInt64ToSeq(SeqToUInt64(s)) == s
+  {
+    calc {
+      UInt64ToSeq(SeqToUInt64(s));
+    ==
+      UInt64ToSeq(s[0] as uint64 * 0x100_0000_0000_0000
+      + s[1] as uint64 * 0x1_0000_0000_0000
+      + s[2] as uint64 * 0x100_0000_0000
+      + s[3] as uint64 * 0x1_0000_0000
+      + s[4] as uint64 * 0x100_0000
+      + s[5] as uint64 * 0x1_0000
+      + s[6] as uint64 * 0x100
+      + s[7] as uint64);
+    ==
+      var b0 := ((s[0] as uint64 * 0x100_0000_0000_0000
+        + s[1] as uint64 * 0x1_0000_0000_0000
+        + s[2] as uint64 * 0x100_0000_0000
+        + s[3] as uint64 * 0x1_0000_0000
+        + s[4] as uint64 * 0x100_0000
+        + s[5] as uint64 * 0x1_0000
+        + s[6] as uint64 * 0x100
+        + s[7] as uint64) / 0x100_0000_0000_0000) as uint8;
+      assert b0 == s[0];
+      var x0 := (s[0] as uint64 * 0x100_0000_0000_0000
+        + s[1] as uint64 * 0x1_0000_0000_0000
+        + s[2] as uint64 * 0x100_0000_0000
+        + s[3] as uint64 * 0x1_0000_0000
+        + s[4] as uint64 * 0x100_0000
+        + s[5] as uint64 * 0x1_0000
+        + s[6] as uint64 * 0x100
+        + s[7] as uint64) - (b0 as uint64 * 0x100_0000_0000_0000);
+      assert x0 == (s[1] as uint64 * 0x1_0000_0000_0000
+        + s[2] as uint64 * 0x100_0000_0000
+        + s[3] as uint64 * 0x1_0000_0000
+        + s[4] as uint64 * 0x100_0000
+        + s[5] as uint64 * 0x1_0000
+        + s[6] as uint64 * 0x100
+        + s[7] as uint64);
+
+      var b1 := (x0 / 0x1_0000_0000_0000) as uint8;
+      assert b1 == s[1];
+      var x1 := x0 - (b1 as uint64 * 0x1_0000_0000_0000);
+      assert x1 == (s[2] as uint64 * 0x100_0000_0000
+        + s[3] as uint64 * 0x1_0000_0000
+        + s[4] as uint64 * 0x100_0000
+        + s[5] as uint64 * 0x1_0000
+        + s[6] as uint64 * 0x100
+        + s[7] as uint64);
+
+      var b2 := (x1 / 0x100_0000_0000) as uint8;
+      assert b2 == s[2];
+      var x2 := x1 - (b2 as uint64 * 0x100_0000_0000);
+      assert x2 == (s[3] as uint64 * 0x1_0000_0000
+        + s[4] as uint64 * 0x100_0000
+        + s[5] as uint64 * 0x1_0000
+        + s[6] as uint64 * 0x100
+        + s[7] as uint64);
+
+      var b3 := (x2 / 0x1_0000_0000) as uint8;
+      assert b3 == s[3];
+      var x3 := x2 - (b3 as uint64 * 0x1_0000_0000);
+      assert x3 == (s[4] as uint64 * 0x100_0000
+        + s[5] as uint64 * 0x1_0000
+        + s[6] as uint64 * 0x100
+        + s[7] as uint64);
+
+      var b4 := (x3 / 0x100_0000) as uint8;
+      assert b4 == s[4];
+      var x4 := x3 - (b4 as uint64 * 0x100_0000);
+      assert x4 == (s[5] as uint64 * 0x1_0000
+        + s[6] as uint64 * 0x100
+        + s[7] as uint64);
+
+      var b5 := (x4 / 0x1_0000) as uint8;
+      assert b5 == s[5];
+      var x5 := x4 - (b5 as uint64 * 0x1_0000);
+      assert x5 == (s[6] as uint64 * 0x100 + s[7] as uint64);
+
+      var b6 := (x5 / 0x100) as uint8;
+      assert b6 == s[6];
+      var b7 := (x5 % 0x100) as uint8;
+      assert b7 == s[7];
+      [b0, b1, b2, b3, b4, b5, b6, b7];
+    ==
+      [s[0], s[1], s[2], s[3], s[4], s[5], s[6], s[7]];
+    ==
+      s;
+    }
   }
 
   function SeqToNat(s: seq<uint8>): nat {

@@ -29,4 +29,9 @@ module TestUInt {
     var x: uint64 := 0x0102304455667788;
     r := RequireEqual([0x01, 0x02, 0x30, 0x44, 0x55, 0x66, 0x77, 0x88], UInt64ToSeq(x));
   }
+
+  method {:test} TestSeqToUInt64() returns (r: Result<()>) {
+    var s := [0x01, 0x02, 0x30, 0x44, 0x55, 0x66, 0x77, 0x88];
+    r := RequireEqual(0x0102304455667788 as uint64, SeqToUInt64(s));
+  }
 }

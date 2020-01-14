@@ -121,8 +121,7 @@ module {:extern "STL"} StandardLibrary {
     requires elemIndex == |s| || s[elemIndex] == c
     ensures Find(s, c, start) == if elemIndex == |s| then None else Some(elemIndex)
     decreases elemIndex - start
-    {
-    }
+    {}
 
   function method Find<T(==)>(s: seq<T>, c: T, i: nat): (index: Option<nat>)
     requires i <= |s|
