@@ -149,9 +149,10 @@ namespace TestVectorTests {
             foreach(var vectorEntry in vectorMap) {
                 string vectorID = vectorEntry.Key;
                 TestVector vector = vectorEntry.Value;
+                bool shouldSkip = false;
 
                 if (VectorContainsMasterkeyOfType(vector, "raw")) {
-                    continue;
+                    shouldSkip = true;
                 }
 
                 string plaintextPath = ManifestURIToPath(vector.plaintext, vectorRoot);
@@ -162,7 +163,7 @@ namespace TestVectorTests {
 
                 DefaultCMM cmm = CMMFactory.EncryptCMM(vector, keyMap);
 
-                yield return new object[] { vectorEntry.Key, cmm, plaintext, client, decryptOracle };
+                yield return new object[] { vectorEntry.Key, cmm, plaintext, client, decryptOracle, shouldSkip };
             }
         }
     }
@@ -191,7 +192,8 @@ namespace TestVectorTests {
                 ClientSupplier clientSupplier = new DefaultClientSupplier();
                 return Keyrings.MakeKMSKeyring(clientSupplier, Enumerable.Empty<String>(), key.ID, Enumerable.Empty<String>());
             } else if (keyInfo.type == "raw" && keyInfo.encryptionAlgorithm == "aes") {
-                throw new NotYetSupportedException("Cannot test AES keys");
+                //TODO: Once RawAESKeyring is read for tests, add it here.
+                return new MultiKeyring();
             } else if (keyInfo.type == "raw" && keyInfo.encryptionAlgorithm == "rsa") {
                 //TODO: Do we need to do anything with the key.bits field?
                 return Keyrings.MakeRawRSAKeyring(
@@ -277,9 +279,10 @@ namespace TestVectorTests {
             }
         }
 
-        [Theory]
+        [SkippableTheory]
         [ClassData (typeof(EncryptTestVectors))]
-        public void CanEncryptTestVector(string vectorID, DefaultCMM cmm, byte[] plaintext, HttpClient client, string decryptOracle) {
+        public void CanEncryptTestVector(string vectorID, DefaultCMM cmm, byte[] plaintext, HttpClient client, string decryptOracle, bool shouldSkip) {
+            Skip.If(shouldSkip);
             MemoryStream ciphertext = AWSEncryptionSDK.Client.Encrypt(new MemoryStream(plaintext), cmm, new Dictionary<string, string>());
 
             StreamContent content = new StreamContent(ciphertext);
