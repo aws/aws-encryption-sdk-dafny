@@ -116,7 +116,7 @@ namespace TestVectorTests {
                 
                 // TODO: Once we can test the RawRSAKeyring, this should be replaced with VectorContainsRawAESKey.
                 // Once we can test the RawAESKeyring, this should be removed.
-                if (VectorContainsMasterkeyOfType(vector, "raw")) {
+                if (VectorContainsRawAESKey(vector)) {
                     continue;
                 }
 
@@ -193,7 +193,7 @@ namespace TestVectorTests {
             } else if (keyInfo.type == "raw" && keyInfo.encryptionAlgorithm == "aes") {
                 throw new NotYetSupportedException("Cannot test AES keys");
             } else if (keyInfo.type == "raw" && keyInfo.encryptionAlgorithm == "rsa") {
-                //Do we need to do anything with the key.bits field?
+                //TODO: Do we need to do anything with the key.bits field?
                 return Keyrings.MakeRawRSAKeyring(
                         Encoding.UTF8.GetBytes(keyInfo.providerID),
                         Encoding.UTF8.GetBytes(key.ID),

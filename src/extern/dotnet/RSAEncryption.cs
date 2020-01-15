@@ -32,7 +32,11 @@ namespace RSAEncryption {
 
         public static byte[] ParsePEMString(string pem) {
             AsymmetricKeyParameter key = (AsymmetricKeyParameter) new PemReader(new StringReader(pem)).ReadObject();
-            return Encoding.UTF8.GetBytes(key.ToString());
+            using (StringWriter stringWriter = new StringWriter()) {
+                PemWriter pemWriter = new PemWriter(stringWriter);
+                pemWriter.WriteObject(key);
+                return Encoding.UTF8.GetBytes(stringWriter.ToString());
+            }
         }
 
         // GetPemBytes represents a helper method that takes an AsymmetricCipherKeyPair and returns the corresponding
@@ -100,8 +104,8 @@ namespace RSAEncryption {
                 return new STL.Result_Success<byteseq>(byteseq.FromArray(
                     engine.ProcessBlock(plaintextMessage.Elements, 0, plaintextMessage.Elements.Length)));
             }
-            catch {
-                return new STL.Result_Failure<byteseq>(charseq.FromArray("rsa encrypt error".ToCharArray()));
+            catch (Exception encryptEx) {
+                return new STL.Result_Failure<byteseq>(charseq.FromArray(encryptEx.ToString().ToCharArray()));
             }
         }
 
@@ -118,8 +122,8 @@ namespace RSAEncryption {
                 return new STL.Result_Success<byteseq>(byteseq.FromArray(
                     engine.ProcessBlock(cipherText.Elements, 0, cipherText.Elements.Length)));
             }
-            catch {
-                return new STL.Result_Failure<byteseq>(charseq.FromArray("rsa decrypt error".ToCharArray()));
+            catch (Exception decryptEx) {
+                return new STL.Result_Failure<byteseq>(charseq.FromArray(decryptEx.ToString().ToCharArray()));
             }
         }
     }
