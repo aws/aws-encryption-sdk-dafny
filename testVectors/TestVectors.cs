@@ -114,8 +114,7 @@ namespace TestVectorTests {
                 string vectorID = vectorEntry.Key;
                 TestVector vector = vectorEntry.Value;
                 
-                // TODO: Once we can test the RawRSAKeyring, this should be replaced with VectorContainsRawAESKey.
-                // Once we can test the RawAESKeyring, this should be removed.
+                //TODO: Remove this if-block once we can test the RawAESKeyring.
                 if (VectorContainsRawAESKey(vector)) {
                     continue;
                 }
@@ -195,7 +194,6 @@ namespace TestVectorTests {
                 //TODO: Once RawAESKeyring is read for tests, add it here.
                 return new MultiKeyring();
             } else if (keyInfo.type == "raw" && keyInfo.encryptionAlgorithm == "rsa") {
-                //TODO: Do we need to do anything with the key.bits field?
                 return Keyrings.MakeRawRSAKeyring(
                         Encoding.UTF8.GetBytes(keyInfo.providerID),
                         Encoding.UTF8.GetBytes(key.ID),
@@ -265,6 +263,7 @@ namespace TestVectorTests {
     } 
 
     public class TestVectorDecryptTests {
+        #pragma warning disable xUnit1026
         [SkippableTheory]
         [ClassData (typeof(DecryptTestVectors))]
         public void CanDecryptTestVector(string vectorID, DefaultCMM cmm, byte[] expectedPlaintext, MemoryStream ciphertextStream) {
@@ -279,6 +278,7 @@ namespace TestVectorTests {
             }
         }
 
+        #pragma warning disable xUnit1026
         [SkippableTheory]
         [ClassData (typeof(EncryptTestVectors))]
         public void CanEncryptTestVector(string vectorID, DefaultCMM cmm, byte[] plaintext, HttpClient client, string decryptOracle, bool shouldSkip) {
