@@ -9,14 +9,16 @@ include "../../src/SDK/MessageHeader.dfy"
 include "../../src/KMS/KMSUtils.dfy"
 include "../../src/Util/UTF8.dfy"
 include "../../src/StandardLibrary/Base64.dfy"
+include "../Util/TestUtils.dfy"
 
 module IntegTestKMS {
   import opened StandardLibrary
   import opened UInt = StandardLibrary.UInt
+  import opened TestUtils
   import CMMDefs
   import DefaultCMMDef
   import KMSUtils
-  import KMSKeyring
+  import KMSKeyringDef
   import Materials
   import Client = ESDKClient
   import Msg = MessageHeader
@@ -63,11 +65,11 @@ module IntegTestKMS {
   method {:test} TestEndToEnd() returns (r: Result<()>) {
     var namespace :- UTF8.Encode("namespace");
     var name :- UTF8.Encode("MyKeyring");
-    var generatorStr := "arn:aws:kms:us-west-2:658956600833:key/b3537ef1-d8dc-4780-9f5a-55776cbb2f7f";
+    var generatorStr := SHARED_TEST_KEY_ARN;
     var _ :- Require(KMSUtils.ValidFormatCMK(generatorStr));
     var generator: KMSUtils.CustomerMasterKey := generatorStr;
     var clientSupplier := new KMSUtils.DefaultClientSupplier();
-    var keyring := new KMSKeyring.KMSKeyring(clientSupplier, [], Some(generator), []);
+    var keyring := new KMSKeyringDef.KMSKeyring(clientSupplier, [], Some(generator), []);
     var cmm := new DefaultCMMDef.DefaultCMM.OfKeyring(keyring);
 
     var message := "Hello, World!!";

@@ -218,6 +218,10 @@ module Base64 {
         if IsBase64String(s) then Success(DecodeValid(s)) else Failure("The encoding is malformed")
     }
 
+    predicate StringIs8Bit(s: string) {
+        forall i :: 0 <= i < |s| ==> s[i] < 256 as char
+    }
+
     function method Encode(b: seq<uint8>): (s: seq<char>)
         ensures Decode(s) == Success(b)
         ensures StringIs8Bit(s)

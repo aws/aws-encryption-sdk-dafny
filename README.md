@@ -19,7 +19,7 @@ dotnet build
 To run the dafny verifier across all files:
 
 ```
-dotnet build -t:Verify
+dotnet build -t:VerifyDafny
 ```
 
 ## Testing
@@ -34,6 +34,12 @@ You can see more detail about what test cases are being run by increasing the ve
 
 ```
 dotnet test --logger:"console;verbosity=normal"
+```
+
+Run the test vector suite after [set up](testVector/README.md) with:
+
+```
+dotnet test testVectors
 ```
 
 ## License
