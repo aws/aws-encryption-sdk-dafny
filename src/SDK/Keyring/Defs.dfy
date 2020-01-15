@@ -3,7 +3,7 @@ include "../../StandardLibrary/UInt.dfy"
 include "../Materials.dfy"
 include "../AlgorithmSuite.dfy"
 
-module KeyringDefs {
+module {:extern "KeyringDefs"} KeyringDefs {
   import opened StandardLibrary
   import opened UInt = StandardLibrary.UInt
   import Materials
@@ -24,7 +24,7 @@ module KeyringDefs {
       ensures res.Success? && res.value.Some? && plaintextDataKey.Some? ==> 
         plaintextDataKey.get == res.value.get.plaintextDataKey
       ensures res.Success? && res.value.Some? ==>
-        var generateTraces := Filter(res.value.get.keyringTrace, Materials.IsGenerateTraceEntry);
+        var generateTraces: seq<Materials.KeyringTraceEntry> := Filter(res.value.get.keyringTrace, Materials.IsGenerateTraceEntry);
         |generateTraces| == if plaintextDataKey.None? then 1 else 0
 
     method OnDecrypt(algorithmSuiteID: AlgorithmSuite.ID,

@@ -15,7 +15,7 @@ module {:extern "TestClient"} TestClient {
   import opened UInt = StandardLibrary.UInt
   import CMMDefs
   import DefaultCMMDef
-  import RSAEncryption
+  import RSA = RSAEncryption
   import RawRSAKeyringDef
   import Materials
   import Client = ESDKClient
@@ -52,8 +52,8 @@ module {:extern "TestClient"} TestClient {
     var namespace :- UTF8.Encode("namespace");
     var name :- UTF8.Encode("MyKeyring");
 
-    var ek, dk := RSAEncryption.RSA.RSAKeygen(2048, RSAEncryption.PKCS1);
-    var keyring := new RawRSAKeyringDef.RawRSAKeyring(namespace, name, RSAEncryption.RSAPaddingMode.PKCS1, 2048, Some(ek), Some(dk));
+    var ek, dk := RSA.GenerateKeyPair(2048, RSA.PKCS1);
+    var keyring := new RawRSAKeyringDef.RawRSAKeyring(namespace, name, RSA.PaddingMode.PKCS1, Some(ek), Some(dk));
     var cmm := new DefaultCMMDef.DefaultCMM.OfKeyring(keyring);
 
     r := EncryptDecryptTest(cmm);

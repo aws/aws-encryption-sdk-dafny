@@ -59,8 +59,8 @@ module {:extern "Bench"} Bench {
       return;
     }
 
-    var ek, dk := RSAEncryption.RSA.RSAKeygen(2048, RSAEncryption.PKCS1);
-    var keyring := new RawRSAKeyringDef.RawRSAKeyring(namespace.value, name.value, RSAEncryption.RSAPaddingMode.PKCS1, 2048, Some(ek), Some(dk));
+    var ek, dk := RSAEncryption.GenerateKeyPair(2048, RSAEncryption.PKCS1);
+    var keyring := new RawRSAKeyringDef.RawRSAKeyring(namespace.value, name.value, RSAEncryption.PaddingMode.PKCS1, Some(ek), Some(dk));
     var cmm := new DefaultCMMDef.DefaultCMM.OfKeyring(keyring);
 
     var n := 1024 * 1024;

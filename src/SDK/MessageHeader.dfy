@@ -208,7 +208,7 @@ module MessageHeader {
   predicate SortedKVPairsUpTo(a: seq<(UTF8.ValidUTF8Bytes, UTF8.ValidUTF8Bytes)>, n: nat)
     requires n <= |a|
   {
-    forall j :: 0 < j < n ==> LexicographicLessOrEqual(a[j-1].0, a[j].0, UInt8Less)
+    forall j :: 0 < j < n ==> LexicographicLessOrEqual(a[j-1].0, a[j].0, UInt.UInt8Less)
   }
 
   predicate SortedKVPairs(a: seq<(UTF8.ValidUTF8Bytes, UTF8.ValidUTF8Bytes)>)

@@ -13,7 +13,7 @@ include "../Crypto/HKDF/HKDF.dfy"
 include "../Crypto/AESEncryption.dfy"
 include "../Crypto/Signature.dfy"
 
-module ESDKClient {
+module {:extern "ESDKClient"} ESDKClient {
   import opened StandardLibrary
   import opened UInt = StandardLibrary.UInt
   import Materials
@@ -149,7 +149,7 @@ module ESDKClient {
     var plaintext;
     match header.body.contentType {
       case NonFramed =>
-        // TODO
+        return Failure("Unframed Message Decryption Unimplemented");
       case Framed =>
         plaintext :- MessageBody.DecryptFramedMessageBody(rd, decMat.algorithmSuiteID, decryptionKey, header.body.frameLength as int, header.body.messageID);
     }

@@ -3,7 +3,6 @@ include "../../StandardLibrary/UInt.dfy"
 include "../AlgorithmSuite.dfy"
 include "./Defs.dfy"
 include "../../Crypto/Random.dfy"
-include "../../Crypto/RSAEncryption.dfy"
 include "../Materials.dfy"
 
 module MultiKeyringDef {
@@ -11,7 +10,6 @@ module MultiKeyringDef {
     import opened StandardLibrary
     import opened UInt = StandardLibrary.UInt
     import AlgorithmSuite
-    import RSA = RSAEncryption
     import Mat = Materials
 
     function childrenRepr (xs : seq<Keyring>) : (res : set<object>) reads (set i | 0 <= i < |xs| :: xs[i])
@@ -54,7 +52,7 @@ module MultiKeyringDef {
             ensures res.Success? && res.value.Some? && plaintextDataKey.Some? ==>
                 plaintextDataKey.get == res.value.get.plaintextDataKey
             ensures res.Success? && res.value.Some? ==>
-                var generateTraces := Filter(res.value.get.keyringTrace, Mat.IsGenerateTraceEntry);
+                var generateTraces: seq<Mat.KeyringTraceEntry> := Filter(res.value.get.keyringTrace, Mat.IsGenerateTraceEntry);
                 |generateTraces| == if plaintextDataKey.None? then 1 else 0
         {
             // First pass on or generate the plaintext data key

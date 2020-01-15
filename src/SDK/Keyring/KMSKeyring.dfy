@@ -5,7 +5,7 @@ include "../../StandardLibrary/StandardLibrary.dfy"
 include "../../KMS/KMSUtils.dfy"
 include "../../Util/UTF8.dfy"
 
-module KMSKeyring {
+module {:extern "KMSKeyringDef"} KMSKeyringDef {
   import opened StandardLibrary
   import opened UInt = StandardLibrary.UInt
   import AlgorithmSuite
@@ -97,7 +97,7 @@ module KMSKeyring {
       ensures res.Success? && res.value.Some? && plaintextDataKey.Some? ==>
           plaintextDataKey.get == res.value.get.plaintextDataKey
       ensures res.Success? && res.value.Some? ==>
-        var generateTraces := Filter(res.value.get.keyringTrace, Mat.IsGenerateTraceEntry);
+        var generateTraces: seq<Mat.KeyringTraceEntry> := Filter(res.value.get.keyringTrace, Mat.IsGenerateTraceEntry);
         |generateTraces| == if plaintextDataKey.None? then 1 else 0
     {
       if isDiscovery {
@@ -127,8 +127,8 @@ module KMSKeyring {
 
       var i := 0;
       while i < |encryptCMKs|
-        invariant forall entry :: entry in keyringTrace ==> entry.flags <= Mat.ValidEncryptionMaterialFlags
-        invariant forall entry :: entry in keyringTrace ==> Mat.IsGenerateTraceEntry(entry) || Mat.IsEncryptTraceEntry(entry)
+        invariant forall entry: Mat.KeyringTraceEntry :: entry in keyringTrace ==> entry.flags <= Mat.ValidEncryptionMaterialFlags
+        invariant forall entry: Mat.KeyringTraceEntry :: entry in keyringTrace ==> Mat.IsGenerateTraceEntry(entry) || Mat.IsEncryptTraceEntry(entry)
         invariant |edks| == |Filter(keyringTrace, Mat.IsEncryptTraceEntry)|
         invariant |Filter(keyringTrace, Mat.IsGenerateTraceEntry)| == 1 ==> keyringTrace[0] == Filter(keyringTrace, Mat.IsGenerateTraceEntry)[0]
         invariant |Filter(keyringTrace, Mat.IsGenerateTraceEntry)| == if plaintextDataKey.None? then 1 else 0;

@@ -54,7 +54,7 @@ public class RSA {
     @SuppressWarnings("unused")
     public static final int RSA_CERTAINTY = 256;
 
-    public static Tuple2<DafnySequence<Byte>, DafnySequence<Byte>> RSAKeygen(int bits, RSAPaddingMode padding) {
+    public static Tuple2<DafnySequence<Byte>, DafnySequence<Byte>> GenerateKeyPairExtern(int bits, PaddingMode padding) {
         KeyPairGenerator gen;
         try {
             gen = KeyPairGenerator.getInstance("RSA", BouncyCastleUtils.getProvider());
@@ -72,25 +72,25 @@ public class RSA {
         return new Tuple2<>(DafnySequence.fromBytes(pair.dtor__0()), DafnySequence.fromBytes(pair.dtor__1()));
     }
 
-    public static STL.Option<DafnySequence<Byte>> RSAEncrypt(int bits, RSAPaddingMode padding, DafnySequence<Byte> ek, DafnySequence<Byte> msg) {
+    public static STL.Result<DafnySequence<Byte>> EncryptExtern(PaddingMode padding, DafnySequence<Byte> ek, DafnySequence<Byte> msg) {
         try {
-            PublicKey pub;
+            java.security.PublicKey pub;
             PEMReader pemReader = new PEMReader(new StringReader(byteSequenceToString(ek)));
             Object pemObject = pemReader.readObject();
-            pub = ((PublicKey)pemObject);
+            pub = ((java.security.PublicKey)pemObject);
 
             Cipher engine = createEngine(padding);
 
             engine.init(Cipher.ENCRYPT_MODE, pub);
-            return new STL.Option_Some<>(DafnySequence.fromBytes(engine.doFinal(DafnySequence.toByteArray(msg))));
+            return new STL.Result_Success<>(DafnySequence.fromBytes(engine.doFinal(DafnySequence.toByteArray(msg))));
         }
         catch (IOException | InvalidKeyException | IllegalBlockSizeException | BadPaddingException e){
-            return new STL.Option_None<>();
+            return new STL.Result_Failure<>(DafnySequence.asString("rsa encrypt error"));
         }
 
     }
 
-    public static STL.Option<DafnySequence<Byte>> RSADecrypt(int bits, RSAPaddingMode padding, DafnySequence<Byte> dk, DafnySequence<Byte> ctx) {
+    public static STL.Result<DafnySequence<Byte>> DecryptExtern(PaddingMode padding, DafnySequence<Byte> dk, DafnySequence<Byte> ctx) {
         try {
             KeyPair keyPair;
 
@@ -99,14 +99,14 @@ public class RSA {
             Reader txtreader = new StringReader(byteSequenceToString(dk));
             keyPair = (KeyPair) new PEMReader(txtreader).readObject();
             engine.init(Cipher.DECRYPT_MODE, keyPair.getPrivate());
-            return new STL.Option_Some<>(DafnySequence.fromBytes(engine.doFinal(DafnySequence.toByteArray(ctx))));
+            return new STL.Result_Success<>(DafnySequence.fromBytes(engine.doFinal(DafnySequence.toByteArray(ctx))));
         }
         catch (IOException | InvalidKeyException | IllegalBlockSizeException | BadPaddingException e){
-            return new STL.Option_None<>();
+            return new STL.Result_Failure<>(DafnySequence.asString("rsa decrypt error"));
         }
     }
 
-    public static Cipher createEngine(RSAPaddingMode padding) {
+    public static Cipher createEngine(PaddingMode padding) {
         String alg;
 
         if (padding.is_PKCS1()) {
