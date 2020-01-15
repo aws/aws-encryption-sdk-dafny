@@ -6,6 +6,7 @@ include "../../Crypto/EncryptionSuites.dfy"
 include "../../Crypto/Random.dfy"
 include "../../Crypto/AESEncryption.dfy"
 include "../Materials.dfy"
+include "../MessageHeader.dfy"
 include "../../Util/UTF8.dfy"
 
 module {:extern "RawAESKeyringDef"} RawAESKeyringDef {
@@ -18,6 +19,7 @@ module {:extern "RawAESKeyringDef"} RawAESKeyringDef {
   import AESEncryption
   import Mat = Materials
   import UTF8
+  import MessageHeader
 
   const AUTH_TAG_LEN_LEN := 4;
   const IV_LEN_LEN       := 4;
@@ -66,9 +68,30 @@ module {:extern "RawAESKeyringDef"} RawAESKeyringDef {
         iv
     }
 
+    function method DeserializeEDKCiphertext(ciphertext: seq<uint8>, tagLen: nat): (encOutput: AESEncryption.EncryptionOutput)
+      requires tagLen <= |ciphertext|
+    {
+        var encryptedKeyLength := |ciphertext| - tagLen as int;
+        AESEncryption.EncryptionOutput(ciphertext[.. encryptedKeyLength], ciphertext[encryptedKeyLength ..])
+    }
+
+    function method SerializeEDKCiphertext(encOutput: AESEncryption.EncryptionOutput): (ciphertext: seq<uint8>) {
+      encOutput.cipherText + encOutput.authTag
+    }
+
+    lemma EDKSerializeDeserialize(encOutput: AESEncryption.EncryptionOutput)
+      ensures DeserializeEDKCiphertext(SerializeEDKCiphertext(encOutput), |encOutput.authTag|) == encOutput
+    {}
+
+    lemma EDKDeserializeSerialze(ciphertext: seq<uint8>, tagLen: nat)
+      requires tagLen <= |ciphertext|
+      ensures SerializeEDKCiphertext(DeserializeEDKCiphertext(ciphertext, tagLen)) == ciphertext
+    {}
+
     method OnEncrypt(algorithmSuiteID: Mat.AlgorithmSuite.ID,
                      encryptionContext: Mat.EncryptionContext,
                      plaintextDataKey: Option<seq<uint8>>) returns (res: Result<Option<Mat.ValidDataKeyMaterials>>)
+      // Keyring Trait conditions
       requires Valid()
       requires plaintextDataKey.Some? ==> algorithmSuiteID.ValidPlaintextDataKey(plaintextDataKey.get)
       ensures Valid()
@@ -80,6 +103,22 @@ module {:extern "RawAESKeyringDef"} RawAESKeyringDef {
       ensures res.Success? && res.value.Some? ==>
         var generateTraces: seq<Mat.KeyringTraceEntry> := Filter(res.value.get.keyringTrace, Mat.IsGenerateTraceEntry);
         |generateTraces| == if plaintextDataKey.None? then 1 else 0
+
+      // EDK created using expected AAD
+      ensures res.Success? && res.value.Some? ==>
+        && |res.value.get.encryptedDataKeys| == 1
+        && MessageHeader.ValidKVPairs(encryptionContext)
+        && wrappingAlgorithm.tagLen as nat <= |res.value.get.encryptedDataKeys[0].ciphertext| && // TODO this trailing
+        var encOutput := DeserializeEDKCiphertext(res.value.get.encryptedDataKeys[0].ciphertext, wrappingAlgorithm.tagLen as nat);
+        AESEncryption.EncryptionOutputEncryptedWithAAD(encOutput, MessageHeader.KVPairsToSeq(encryptionContext))
+
+      // EDK created has expected providerID and valid providerInfo
+      ensures res.Success? && res.value.Some? ==>
+        && |res.value.get.encryptedDataKeys| == 1
+        && res.value.get.encryptedDataKeys[0].providerID == keyNamespace &&
+        ValidProviderInfo(res.value.get.encryptedDataKeys[0].providerInfo)
+
+      // KeyringTrace generated as expected
       ensures res.Success? && res.value.Some? ==>
         if plaintextDataKey.None? then
           && |res.value.get.keyringTrace| == 2
@@ -88,7 +127,15 @@ module {:extern "RawAESKeyringDef"} RawAESKeyringDef {
         else
           && |res.value.get.keyringTrace| == 1
           && res.value.get.keyringTrace[0] == EncryptTraceEntry()
+
+      // If input EC cannot be serialized, returns a Failure
+      ensures !MessageHeader.ValidKVPairs(encryptionContext) ==> res.Failure?
     {
+      // Check that the encryption context can be serialized correctly
+      if !(MessageHeader.ValidKVPairs(encryptionContext)) {
+        return Failure("Unable to serialize encryption context");
+      }
+
       var keyringTrace := [];
       var plaintextDataKey := plaintextDataKey;
       if plaintextDataKey.None? {
@@ -99,10 +146,13 @@ module {:extern "RawAESKeyringDef"} RawAESKeyringDef {
       }
 
       var iv := Random.GenerateBytes(wrappingAlgorithm.ivLen as int32);
-      var aad := Mat.FlattenSortEncCtx(encryptionContext);
-      var encryptResult :- AESEncryption.AESEncrypt(wrappingAlgorithm, iv, wrappingKey, plaintextDataKey.get, aad);
-      var encryptedKey := encryptResult.cipherText + encryptResult.authTag;
       var providerInfo := SerializeProviderInfo(iv);
+
+      var aad := MessageHeader.KVPairsToSeq(encryptionContext);
+
+      var encryptResult :- AESEncryption.AESEncrypt(wrappingAlgorithm, iv, wrappingKey, plaintextDataKey.get, aad);
+      var encryptedKey := SerializeEDKCiphertext(encryptResult);
+
       if UINT16_LIMIT <= |providerInfo| {
         return Failure("Serialized provider info too long.");
       }
@@ -122,24 +172,40 @@ module {:extern "RawAESKeyringDef"} RawAESKeyringDef {
     method OnDecrypt(algorithmSuiteID: AlgorithmSuite.ID,
                      encryptionContext: Mat.EncryptionContext,
                      edks: seq<Mat.EncryptedDataKey>) returns (res: Result<Option<Mat.ValidOnDecryptResult>>)
+      // Keyring trait conditions
       requires Valid()
       ensures Valid()
       ensures |edks| == 0 ==> res.Success? && res.value.None?
       ensures res.Success? && res.value.Some? ==> res.value.get.algorithmSuiteID == algorithmSuiteID
+
       // TODO: ensure non-None when input edk list has edk with valid provider info
+
+      // Plaintext decrypted using expected AAD
+      ensures res.Success? && res.value.Some? ==>
+        && MessageHeader.ValidKVPairs(encryptionContext)
+        && AESEncryption.PlaintextDecryptedWithAAD(res.value.get.plaintextDataKey, MessageHeader.KVPairsToSeq(encryptionContext))
+
+      // KeyringTrace generated as expected
       ensures res.Success? && res.value.Some? ==> |res.value.get.keyringTrace| == 1 && res.value.get.keyringTrace[0] == DecryptTraceEntry()
+
+      // If attempts to decrypt an EDK and the input EC cannot be serialized, return a Failure
+      ensures !MessageHeader.ValidKVPairs(encryptionContext) && (exists i :: 0 <= i < |edks| && ShouldDecryptEDK(edks[i])) ==> res.Failure?
     {
       var i := 0;
       while i < |edks|
+        invariant forall prevIndex :: 0 <= prevIndex < i ==> prevIndex < |edks| && !(ShouldDecryptEDK(edks[prevIndex]))
       {
-        if edks[i].providerID == keyNamespace && ValidProviderInfo(edks[i].providerInfo) && wrappingAlgorithm.tagLen as int <= |edks[i].ciphertext| {
+        if ShouldDecryptEDK(edks[i]) {
+          // Check that the encryption context can be serialized correctly
+          if !(MessageHeader.ValidKVPairs(encryptionContext)) {
+              return Failure("Unable to serialize encryption context");
+          }
+
+          var aad := MessageHeader.KVPairsToSeq(encryptionContext);
           var iv := GetIvFromProvInfo(edks[i].providerInfo);
-          var flatEncCtx: seq<uint8> := Mat.FlattenSortEncCtx(encryptionContext);
-          //TODO: #68
-          var encryptedKeyLength := |edks[i].ciphertext| - wrappingAlgorithm.tagLen as int;
-          // TODO: specify Raw AES EDK ciphertext serialization
-          var encryptedKey, authTag := edks[i].ciphertext[.. encryptedKeyLength], edks[i].ciphertext[encryptedKeyLength ..];
-          var ptKey :- AESEncryption.AESDecrypt(wrappingAlgorithm, wrappingKey, encryptedKey, authTag, iv, flatEncCtx);
+          var encryptionOutput := DeserializeEDKCiphertext(edks[i].ciphertext, wrappingAlgorithm.tagLen as nat);
+          var ptKey :- AESEncryption.AESDecrypt(wrappingAlgorithm, wrappingKey, encryptionOutput.cipherText, encryptionOutput.authTag, iv, aad);
+
           var decryptTraceEntry := DecryptTraceEntry();
           if algorithmSuiteID.ValidPlaintextDataKey(ptKey) { // check for correct key length
             return Success(Some(Mat.OnDecryptResult(algorithmSuiteID, ptKey, [decryptTraceEntry])));
@@ -152,7 +218,12 @@ module {:extern "RawAESKeyringDef"} RawAESKeyringDef {
       return Success(None);
     }
 
-    // TODO prove providerInfo serializes/deserializes correctly
+    // TODO: Should we continue or immediately error in the case of wrappingAlgorithm.tagLen as int <= |edk.ciphertext| ?
+    predicate method ShouldDecryptEDK(edk: Mat.EncryptedDataKey) {
+      edk.providerID == keyNamespace && ValidProviderInfo(edk.providerInfo) && wrappingAlgorithm.tagLen as int <= |edk.ciphertext|
+    }
+
+    // TODO #68: prove providerInfo serializes/deserializes correctly
     predicate method ValidProviderInfo(info: seq<uint8>)
     {
       |info| == |keyName| + AUTH_TAG_LEN_LEN + IV_LEN_LEN + wrappingAlgorithm.ivLen as int &&
