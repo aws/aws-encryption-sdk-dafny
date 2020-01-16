@@ -245,7 +245,7 @@ module Base64 {
     IsBase64Char(s[0]) &&
     IsBase64Char(s[1]) &&
     IsBase64Char(s[2]) &&
-    // TODO: Why is this required?
+    // This is a result of the padded 0's in the sextet in the final element before the =
     CharToIndex(s[2]) % 0x4 == 0 &&
     s[3] == '='
   }
@@ -284,7 +284,7 @@ module Base64 {
     |s| == 4 &&
     IsBase64Char(s[0]) &&
     IsBase64Char(s[1]) &&
-    // TODO: Why is this required?
+    // This is a result of the padded 0's in the sextet in the final element before the two =
     CharToIndex(s[1]) % 0x10 == 0 &&
     s[2] == '=' &&
     s[3] == '='
@@ -331,6 +331,10 @@ module Base64 {
 
   function method DecodeValid(s: seq<char>): (b: seq<uint8>)
     requires IsBase64String(s)
+    ensures s == [] ==> b == []
+    ensures |s| >= 4 && Is1Padding(s[(|s| - 4)..]) ==> b == (UnpaddedBase64StringDecode(s[..(|s| - 4)]) + Decode1Padding(s[(|s| - 4)..]))
+    ensures |s| >= 4 && Is2Padding(s[(|s| - 4)..]) ==> b == (UnpaddedBase64StringDecode(s[..(|s| - 4)]) + Decode2Padding(s[(|s| - 4)..]))
+    ensures |s| >= 4 && !Is1Padding(s[(|s| - 4)..]) && !Is2Padding(s[(|s| - 4)..]) ==> b == UnpaddedBase64StringDecode(s)
   {
     var finalBlockStart := |s| - 4;
     if s == [] then []
@@ -353,6 +357,9 @@ module Base64 {
     ensures StringIs8Bit(s)
     ensures IsBase64String(s)
     ensures Decode(s) == Success(b)
+    ensures |b| % 3 == 0 ==> s == UnpaddedBase64StringEncode(b)
+    ensures |b| % 3 == 1 ==> s == (UnpaddedBase64StringEncode(b[..(|b| - 1)]) + Encode2Padding(b[(|b| - 1)..]))
+    ensures |b| % 3 == 2 ==> s == (UnpaddedBase64StringEncode(b[..(|b| - 2)]) + Encode1Padding(b[(|b| - 2)..]))
   {
     var res := (
       if |b| % 3 == 0 then UnpaddedBase64StringEncode(b)
@@ -363,12 +370,30 @@ module Base64 {
     res
   }
 
-  lemma DecodeEncode(s: seq<char>)
-    requires IsBase64String(s)
+  lemma DecodeValidEncodeEmpty(s: seq<char>)
+    requires s == []
     ensures Encode(DecodeValid(s)) == s
   {}
 
-  lemma EncodeDecode(b: seq<uint8>)
+  lemma DecodeValidEncodeUnpadded(s: seq<char>)
+    requires IsBase64String(s)
+    requires |s| >= 4
+    requires !Is1Padding(s[(|s| - 4)..])
+    requires !Is2Padding(s[(|s| - 4)..])
+    ensures Encode(DecodeValid(s)) == s
+  {
+    calc {
+      Encode(DecodeValid(s));
+    ==
+      Encode(UnpaddedBase64StringDecode(s));
+    ==
+      UnpaddedBase64StringEncode(UnpaddedBase64StringDecode(s));
+    == { UnpaddedBase64StringDecodeEncode(s); }
+      s;
+    }
+  }
+
+  lemma EncodeDecodeValid(b: seq<uint8>)
     ensures DecodeValid(Encode(b)) == b
   {}
 }
