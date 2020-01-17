@@ -344,8 +344,7 @@ module Base64 {
   }
 
   function method Decode(s: seq<char>): (b: Result<seq<uint8>>)
-    ensures IsBase64String(s) ==> b.Success?
-    ensures !IsBase64String(s) ==> b.Failure?
+    ensures IsBase64String(s) ==> b.Success? == true
   {
     if IsBase64String(s) then Success(DecodeValid(s)) else Failure("The encoding is malformed")
   }
