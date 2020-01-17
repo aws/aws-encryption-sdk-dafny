@@ -344,7 +344,8 @@ module Base64 {
   }
 
   function method Decode(s: seq<char>): (b: Result<seq<uint8>>)
-    ensures IsBase64String(s) ==> b.Success? == true
+    ensures IsBase64String(s) ==> b.Success?
+    ensures !IsBase64String(s) ==> b.Failure?
   {
     if IsBase64String(s) then Success(DecodeValid(s)) else Failure("The encoding is malformed")
   }
@@ -502,5 +503,20 @@ module Base64 {
 
   lemma EncodeDecodeValid(b: seq<uint8>)
     ensures DecodeValid(Encode(b)) == b
+  {}
+
+  lemma DecodeEncode(s: seq<char>)
+    requires IsBase64String(s)
+    ensures Encode(Decode(s).value) == s
+  {
+    calc {
+      Encode(Decode(s).value);
+    == { DecodeValidEncode(s); }
+      s;
+    }
+  }
+
+  lemma EncodeDecode(b: seq<uint8>)
+    ensures Decode(Encode(b)) == Success(b)
   {}
 }
