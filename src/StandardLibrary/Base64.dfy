@@ -11,7 +11,6 @@ module Base64 {
   newtype base64 = x | 0 <= x < 0x100_0000
 
   predicate method IsBase64Char(c: char) {
-    var i := c as int;
     c == '+' || c == '/' || '0' <= c <= '9' || 'A' <= c <= 'Z' || 'a' <= c <= 'z'
   }
 
