@@ -80,7 +80,7 @@ module RawRSAKeyringDef {
         (forall encryptedDataKey :: encryptedDataKey in res.value.get.encryptedDataKeys ==>
         encryptedDataKey.providerID == keyNamespace && encryptedDataKey.providerInfo == keyName)
       ensures res.Success? && res.value.Some? ==>
-        var generateTraces := Filter(res.value.get.keyringTrace, Materials.IsGenerateTraceEntry);
+        var generateTraces: seq<Materials.KeyringTraceEntry> := Filter(res.value.get.keyringTrace, Materials.IsGenerateTraceEntry);
         |generateTraces| == if plaintextDataKey.None? then 1 else 0
       ensures res.Success? && res.value.Some? ==>
         if plaintextDataKey.None? then
