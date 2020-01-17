@@ -424,7 +424,7 @@ module Base64 {
       s[..(|s| - 4)] + Encode1Padding(DecodeValid(s)[(|DecodeValid(s)| - 2)..]);
     == { DecodeValid1PaddedPartialFrom1PaddedSeq(s); }
       s[..(|s| - 4)] + Encode1Padding(Decode1Padding(s[(|s| - 4)..]));
-    == { DecodeEncode1Padding(s); }
+    == { DecodeEncode1Padding(s[(|s| - 4)..]); }
       s[..(|s| - 4)] + s[(|s| - 4)..];
     ==
       s;
@@ -462,10 +462,41 @@ module Base64 {
       s[..(|s| - 4)] + Encode2Padding(DecodeValid(s)[(|DecodeValid(s)| - 1)..]);
     == { DecodeValid2PaddedPartialFrom2PaddedSeq(s); }
       s[..(|s| - 4)] + Encode2Padding(Decode2Padding(s[(|s| - 4)..]));
-    == { DecodeEncode2Padding(s); }
+    == { DecodeEncode2Padding(s[(|s| - 4)..]); }
       s[..(|s| - 4)] + s[(|s| - 4)..];
     ==
       s;
+    }
+  }
+
+  lemma DecodeValidEncode(s: seq<char>)
+    requires IsBase64String(s)
+    ensures Encode(DecodeValid(s)) == s
+  {
+    if s == [] {
+      calc {
+        Encode(DecodeValid(s));
+      == { DecodeValidEncodeEmpty(s); }
+        s;
+      }
+    } else if |s| >= 4 && Is1Padding(s[(|s| - 4)..]) {
+      calc {
+        Encode(DecodeValid(s));
+      == { DecodeValidEncode1Padding(s); }
+        s;
+      }
+    } else if |s| >= 4 && Is2Padding(s[(|s| - 4)..]) {
+      calc {
+        Encode(DecodeValid(s));
+      == { DecodeValidEncode2Padding(s); }
+        s;
+      }
+    } else {
+      calc {
+        Encode(DecodeValid(s));
+      == { DecodeValidEncodeUnpadded(s); }
+        s;
+      }
     }
   }
 
