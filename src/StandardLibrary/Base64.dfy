@@ -333,8 +333,11 @@ module Base64 {
     requires IsBase64String(s)
     ensures s == [] ==> b == []
     ensures |s| >= 4 && Is1Padding(s[(|s| - 4)..]) ==> b == (DecodeUnpadded(s[..(|s| - 4)]) + Decode1Padding(s[(|s| - 4)..]))
+    ensures |s| >= 4 && Is1Padding(s[(|s| - 4)..]) ==> |b| % 3 == 2;
     ensures |s| >= 4 && Is2Padding(s[(|s| - 4)..]) ==> b == (DecodeUnpadded(s[..(|s| - 4)]) + Decode2Padding(s[(|s| - 4)..]))
+    ensures |s| >= 4 && Is2Padding(s[(|s| - 4)..]) ==> |b| % 3 == 1;
     ensures |s| >= 4 && !Is1Padding(s[(|s| - 4)..]) && !Is2Padding(s[(|s| - 4)..]) ==> b == DecodeUnpadded(s)
+    ensures |s| >= 4 && !Is1Padding(s[(|s| - 4)..]) && !Is2Padding(s[(|s| - 4)..]) ==> |b| % 3 == 0;
   {
     var finalBlockStart := |s| - 4;
     if s == [] then []
@@ -344,7 +347,8 @@ module Base64 {
   }
 
   function method Decode(s: seq<char>): (b: Result<seq<uint8>>)
-    ensures IsBase64String(s) ==> b.Success? == true
+    ensures IsBase64String(s) ==> b.Success?
+    ensures !IsBase64String(s) ==> b.Failure?
   {
     if IsBase64String(s) then Success(DecodeValid(s)) else Failure("The encoding is malformed")
   }
@@ -426,7 +430,7 @@ module Base64 {
       s[..(|s| - 4)] + Encode1Padding(Decode1Padding(s[(|s| - 4)..]));
     == { DecodeEncode1Padding(s[(|s| - 4)..]); }
       s[..(|s| - 4)] + s[(|s| - 4)..];
-    ==
+    == { SeqPartsMakeWhole(s); }
       s;
     }
   }
@@ -464,7 +468,7 @@ module Base64 {
       s[..(|s| - 4)] + Encode2Padding(Decode2Padding(s[(|s| - 4)..]));
     == { DecodeEncode2Padding(s[(|s| - 4)..]); }
       s[..(|s| - 4)] + s[(|s| - 4)..];
-    ==
+    == { SeqPartsMakeWhole(s); }
       s;
     }
   }

@@ -176,6 +176,10 @@ module {:extern "STL"} StandardLibrary {
     a := new T[|s|](i requires 0 <= i < |s| => s[i]);
   }
 
+  lemma SeqPartsMakeWhole<T>(s: seq<T>)
+    ensures forall i :: 0 <= i <= |s| ==> s[..i] + s[i..] == s
+  {}
+
   /*
    * Lexicographic comparison of sequences.
    *
