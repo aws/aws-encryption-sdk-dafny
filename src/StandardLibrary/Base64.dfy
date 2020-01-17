@@ -210,12 +210,12 @@ module Base64 {
     FromIndicesToChars(EncodeRecursively(b))
   }
 
-  lemma EncodeUnpaddedDecode(b: seq<uint8>)
+  lemma EncodeDecodeUnpadded(b: seq<uint8>)
     requires |b| % 3 == 0
     ensures DecodeUnpadded(EncodeUnpadded(b)) == b
   {}
 
-  lemma DecodeUnpaddedEncode(s: seq<char>)
+  lemma DecodeEncodeUnpadded(s: seq<char>)
     requires |s| % 4 == 0
     requires IsUnpaddedString(s)
     ensures EncodeUnpadded(DecodeUnpadded(s)) == s
@@ -388,7 +388,7 @@ module Base64 {
       Encode(DecodeUnpadded(s));
     ==
       EncodeUnpadded(DecodeUnpadded(s));
-    == { DecodeUnpaddedEncode(s); }
+    == { DecodeEncodeUnpadded(s); }
       s;
     }
   }
@@ -407,6 +407,30 @@ module Base64 {
     ensures DecodeValid(s)[(|DecodeValid(s)| - 2)..] == Decode1Padding(s[(|s| - 4)..])
   {}
 
+  lemma DecodeValidEncode1Padding(s: seq<char>)
+    requires IsBase64String(s)
+    requires |s| >= 4
+    requires Is1Padding(s[(|s| - 4)..])
+    ensures Encode(DecodeValid(s)) == s
+  {
+    calc {
+      Encode(DecodeValid(s));
+    ==
+      assert |DecodeValid(s)| % 3 == 2;
+      EncodeUnpadded(DecodeValid(s)[..(|DecodeValid(s)| - 2)]) + Encode1Padding(DecodeValid(s)[(|DecodeValid(s)| - 2)..]);
+    == { DecodeValidUnpaddedPartialFrom1PaddedSeq(s); }
+      EncodeUnpadded(DecodeUnpadded(s[..(|s| - 4)])) + Encode1Padding(DecodeValid(s)[(|DecodeValid(s)| - 2)..]);
+    == { DecodeEncodeUnpadded(s[..(|s| - 4)]); }
+      s[..(|s| - 4)] + Encode1Padding(DecodeValid(s)[(|DecodeValid(s)| - 2)..]);
+    == { DecodeValid1PaddedPartialFrom1PaddedSeq(s); }
+      s[..(|s| - 4)] + Encode1Padding(Decode1Padding(s[(|s| - 4)..]));
+    == { DecodeEncode1Padding(s); }
+      s[..(|s| - 4)] + s[(|s| - 4)..];
+    ==
+      s;
+    }
+  }
+
   lemma DecodeValidUnpaddedPartialFrom2PaddedSeq(s: seq<char>)
     requires IsBase64String(s)
     requires |s| >= 4
@@ -420,6 +444,30 @@ module Base64 {
     requires Is2Padding(s[(|s| - 4)..])
     ensures DecodeValid(s)[(|DecodeValid(s)| - 1)..] == Decode2Padding(s[(|s| - 4)..])
   {}
+
+  lemma DecodeValidEncode2Padding(s: seq<char>)
+    requires IsBase64String(s)
+    requires |s| >= 4
+    requires Is2Padding(s[(|s| - 4)..])
+    ensures Encode(DecodeValid(s)) == s
+  {
+    calc {
+      Encode(DecodeValid(s));
+    ==
+      assert |DecodeValid(s)| % 3 == 1;
+      EncodeUnpadded(DecodeValid(s)[..(|DecodeValid(s)| - 1)]) + Encode2Padding(DecodeValid(s)[(|DecodeValid(s)| - 1)..]);
+    == { DecodeValidUnpaddedPartialFrom2PaddedSeq(s); }
+      EncodeUnpadded(DecodeUnpadded(s[..(|s| - 4)])) + Encode2Padding(DecodeValid(s)[(|DecodeValid(s)| - 1)..]);
+    == { DecodeEncodeUnpadded(s[..(|s| - 4)]); }
+      s[..(|s| - 4)] + Encode2Padding(DecodeValid(s)[(|DecodeValid(s)| - 1)..]);
+    == { DecodeValid2PaddedPartialFrom2PaddedSeq(s); }
+      s[..(|s| - 4)] + Encode2Padding(Decode2Padding(s[(|s| - 4)..]));
+    == { DecodeEncode2Padding(s); }
+      s[..(|s| - 4)] + s[(|s| - 4)..];
+    ==
+      s;
+    }
+  }
 
   lemma EncodeDecodeValid(b: seq<uint8>)
     ensures DecodeValid(Encode(b)) == b
