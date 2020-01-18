@@ -125,13 +125,121 @@ module TestBse64 {
 
   method {:test} TestFromCharsToIndices() returns (r: Result<()>) {
     var input := "aA1+/";
-    var output := [26, 0, 53, 62, 63];
+    var output := [0x1A, 0x0, 0x35, 0x3E, 0x3F];
     r := RequireEqual(output, FromCharsToIndices(input));
   }
 
   method {:test} TestFromIndicesToChars() returns (r: Result<()>) {
-    var input := [26, 0, 53, 62, 63];
+    var input := [0x1A, 0x0, 0x35, 0x3E, 0x3F];
     var output := "aA1+/";
     r := RequireEqual(output, FromIndicesToChars(input));
+  }
+
+  method {:test} TestDecodeUnpadded() returns (r: Result<()>) {
+    var input := "Zm9vYmFy";
+    var output := [0x66, 0x6F, 0x6F, 0x62, 0x61, 0x72];
+    r := RequireEqual(output, DecodeUnpadded(input));
+  }
+
+  method {:test} TestEncodeUnpadded() returns (r: Result<()>) {
+    var input := [0x66, 0x6F, 0x6F, 0x62, 0x61, 0x72];
+    var output := "Zm9vYmFy";
+    r := RequireEqual(output, EncodeUnpadded(input));
+  }
+
+  method {:test} TestDecodeUnpaddedEmpty() returns (r: Result<()>) {
+    r := RequireEqual([], DecodeUnpadded([]));
+  }
+
+  method {:test} TestEncodeUnpaddedEmpty() returns (r: Result<()>) {
+    r := RequireEqual([], EncodeUnpadded([]));
+  }
+
+  method {:test} TestIs1PaddingSuccess() returns (r: Result<()>) {
+    r := Require(Is1Padding("Zm8="));
+  }
+
+  method {:test} TestIs1PaddingTooShort() returns (r: Result<()>) {
+    r := Require(!Is1Padding("Zm="));
+  }
+
+  method {:test} TestIs1PaddingTooLong() returns (r: Result<()>) {
+    r := Require(!Is1Padding("Zm88="));
+  }
+
+  method {:test} TestIs1PaddingInvalidChar0() returns (r: Result<()>) {
+    r := Require(!Is1Padding("$m8="));
+  }
+
+  method {:test} TestIs1PaddingInvalidChar1() returns (r: Result<()>) {
+    r := Require(!Is1Padding("Z$8="));
+  }
+
+  method {:test} TestIs1PaddingInvalidChar2() returns (r: Result<()>) {
+    r := Require(!Is1Padding("Zm$="));
+  }
+
+  method {:test} TestIs1PaddingInvalidChar3() returns (r: Result<()>) {
+    r := Require(!Is1Padding("Zm8Z"));
+  }
+
+  method {:test} TestIs1PaddingInvalidChar2Modulus() returns (r: Result<()>) {
+    r := Require(!Is1Padding("Zm9="));
+  }
+
+  method {:test} TestDecode1Padding() returns (r: Result<()>) {
+    var input := "Zm8=";
+    var output := [0x66, 0x6F];
+    r := RequireEqual(output, Decode1Padding(input));
+  }
+
+  method {:test} TestEncode1Padding() returns (r: Result<()>) {
+    var input := [0x66, 0x6F];
+    var output := "Zm8=";
+    r := RequireEqual(output, Encode1Padding(input));
+  }
+
+  method {:test} TestIs2PaddingSuccess() returns (r: Result<()>) {
+    r := Require(Is2Padding("Zg=="));
+  }
+
+  method {:test} TestIs2PaddingTooShort() returns (r: Result<()>) {
+    r := Require(!Is2Padding("Zg="));
+  }
+
+  method {:test} TestIs2PaddingTooLong() returns (r: Result<()>) {
+    r := Require(!Is2Padding("Zgg=="));
+  }
+
+  method {:test} TestIs2PaddingInvalidChar0() returns (r: Result<()>) {
+    r := Require(!Is2Padding("$g=="));
+  }
+
+  method {:test} TestIs2PaddingInvalidChar1() returns (r: Result<()>) {
+    r := Require(!Is2Padding("Z$=="));
+  }
+
+  method {:test} TestIs2PaddingInvalidChar2() returns (r: Result<()>) {
+    r := Require(!Is2Padding("Zgg="));
+  }
+
+  method {:test} TestIs2PaddingInvalidChar3() returns (r: Result<()>) {
+    r := Require(!Is2Padding("Zg=g"));
+  }
+
+  method {:test} TestIs2PaddingInvalidChar1Modulus() returns (r: Result<()>) {
+    r := Require(!Is2Padding("ZR=="));
+  }
+
+  method {:test} TestDecode2Padding() returns (r: Result<()>) {
+    var input := "Zg==";
+    var output := [0x66];
+    r := RequireEqual(output, Decode2Padding(input));
+  }
+
+  method {:test} TestEncode2Padding() returns (r: Result<()>) {
+    var input := [0x66];
+    var output := "Zg==";
+    r := RequireEqual(output, Encode2Padding(input));
   }
 }

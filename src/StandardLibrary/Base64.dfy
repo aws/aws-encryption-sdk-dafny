@@ -254,8 +254,7 @@ module Base64 {
     // Padding with 1 = implies the sequence represents 2 bytes
     ensures |b| == 2
   {
-    // CharToIndex('A') == 0, so 'A' ensures the final element doesn't affect the DecodeBlock conversion for s
-    var d := DecodeBlock([CharToIndex(s[0]), CharToIndex(s[1]), CharToIndex(s[2]), CharToIndex('A')]);
+    var d := DecodeBlock([CharToIndex(s[0]), CharToIndex(s[1]), CharToIndex(s[2]), 0]);
     [d[0], d[1]]
   }
 
@@ -294,8 +293,7 @@ module Base64 {
     // Padding with 2 = implies the sequence represents 1 byte
     ensures |b| == 1
   {
-    // CharToIndex('A') == 0, so 'A' ensures the final two elements don't affect the DecodeBlock conversion for s
-    var d := DecodeBlock([CharToIndex(s[0]), CharToIndex(s[1]), CharToIndex('A'), CharToIndex('A')]);
+    var d := DecodeBlock([CharToIndex(s[0]), CharToIndex(s[1]), 0, 0]);
     [d[0]]
   }
 
