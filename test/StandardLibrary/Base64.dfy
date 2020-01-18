@@ -17,16 +17,16 @@ module TestBse64 {
     r := Require(forall c :: c !in allBase64Chars ==> !IsBase64Char(c));
   }
 
-  method {:test} TestIsUnpaddedStringSuccess() returns (r: Result<()>) {
-    r := Require(IsUnpaddedString("+0aA"));
+  method {:test} TestIsUnpaddedBase64StringSuccess() returns (r: Result<()>) {
+    r := Require(IsUnpaddedBase64String("+0aA"));
   }
 
-  method {:test} TestIsUnpaddedStringTooShort() returns (r: Result<()>) {
-    r := Require(!IsUnpaddedString("+0a"));
+  method {:test} TestIsUnpaddedBase64StringTooShort() returns (r: Result<()>) {
+    r := Require(!IsUnpaddedBase64String("+0a"));
   }
 
-  method {:test} TestIsUnpaddedStringNotBase64() returns (r: Result<()>) {
-    r := Require(!IsUnpaddedString("+0a$"));
+  method {:test} TestIsUnpaddedBase64StringNotBase64() returns (r: Result<()>) {
+    r := Require(!IsUnpaddedBase64String("+0a$"));
   }
 
   method {:test} TestIndexToChar63() returns (r: Result<()>) {
@@ -75,16 +75,16 @@ module TestBse64 {
     r := Require(forall i :: 0 <= i < |uppercase| ==> CharToIndex(uppercase[i]) == (i as index));
   }
 
-  method {:test} TestBase64ToSeq() returns (r: Result<()>) {
+  method {:test} TestBase64ToByteSeq() returns (r: Result<()>) {
     var input: base64 := 0x100101;
     var output := [0x10, 0x1, 0x1];
-    r := RequireEqual(output, Base64ToSeq(input));
+    r := RequireEqual(output, Base64ToByteSeq(input));
   }
 
-  method {:test} TestSeqToBase64() returns (r: Result<()>) {
+  method {:test} TestByteSeqToBase64() returns (r: Result<()>) {
     var input := [0x10, 0x1, 0x1];
     var output: base64 := 0x100101;
-    r := RequireEqual(output, SeqToBase64(input));
+    r := RequireEqual(output, ByteSeqToBase64(input));
   }
 
   method {:test} TestBase64ToIndexSeq() returns (r: Result<()>) {

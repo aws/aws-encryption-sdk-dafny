@@ -11,10 +11,12 @@ module Base64 {
   newtype base64 = x | 0 <= x < 0x100_0000
 
   predicate method IsBase64Char(c: char) {
+    // char values can be compared using standard relational operators
+    // http://leino.science/papers/krml243.html#sec-char
     c == '+' || c == '/' || '0' <= c <= '9' || 'A' <= c <= 'Z' || 'a' <= c <= 'z'
   }
 
-  predicate method IsUnpaddedString(s: string) {
+  predicate method IsUnpaddedBase64String(s: string) {
     // A Base64 encoded string will use 4 ASCII characters for every 3 bytes of data ==> length is divisible by 4
     |s| % 4 == 0 && forall k :: k in s ==> IsBase64Char(k)
   }
@@ -25,6 +27,8 @@ module Base64 {
     // Based on the Base64 index table
     if i == 63 then '/'
     else if i == 62 then '+'
+    // Dafny 1.9.9 added support for char to int conversion
+    // https://github.com/dafny-lang/dafny/releases/tag/v1.9.9
     // 0 - 9
     else if 52 <= i <= 61 then (i - 4) as char
     // a - z
@@ -45,7 +49,16 @@ module Base64 {
     else (c - 65 as char) as index
   }
 
-  function method Base64ToSeq(x: base64): (ret: seq<uint8>)
+  lemma CharToIndexToChar(x: char)
+    requires IsBase64Char(x)
+    ensures IndexToChar(CharToIndex(x)) == x;
+  {}
+
+  lemma IndexToCharToIndex(x: index)
+    ensures CharToIndex(IndexToChar(x)) == x
+  {}
+
+  function method Base64ToByteSeq(x: base64): (ret: seq<uint8>)
     ensures |ret| == 3
     ensures ret[0] as base64 * 0x1_0000 + ret[1] as base64 * 0x100 + ret[2] as base64 == x
   {
@@ -57,20 +70,20 @@ module Base64 {
     [b0, b1, b2]
   }
 
-  function method SeqToBase64(s: seq<uint8>): (x: base64)
+  function method ByteSeqToBase64(s: seq<uint8>): (x: base64)
     requires |s| == 3
-    ensures Base64ToSeq(x) == s
+    ensures Base64ToByteSeq(x) == s
   {
     s[0] as base64 * 0x1_0000 + s[1] as base64 * 0x100 + s[2] as base64
   }
 
-  lemma Base64SeqSerializeDeserialize(x: base64)
-    ensures SeqToBase64(Base64ToSeq(x)) == x
+  lemma Base64ToByteSeqToBase64(x: base64)
+    ensures ByteSeqToBase64(Base64ToByteSeq(x)) == x
   {}
 
-  lemma Base64SeqDeserializeSerialize(s: seq<uint8>)
+  lemma ByteSeqToBase64ToByteSeq(s: seq<uint8>)
     requires |s| == 3
-    ensures Base64ToSeq(SeqToBase64(s)) == s
+    ensures Base64ToByteSeq(ByteSeqToBase64(s)) == s
   {}
 
   function method Base64ToIndexSeq(x: base64): (ret: seq<index>)
@@ -98,11 +111,11 @@ module Base64 {
     s[0] as base64 * 0x4_0000 + s[1] as base64 * 0x1000 + s[2] as base64 * 0x40 + s[3] as base64
   }
 
-  lemma IndexSeqSerializeDeserialize(x: base64)
+  lemma Base64ToIndexSeqToBase64(x: base64)
     ensures IndexSeqToBase64(Base64ToIndexSeq(x)) == x
   {}
 
-  lemma IndexSeqDeserializeSerialize(s: seq<index>)
+  lemma IndexSeqToBase64ToIndexSeq(s: seq<index>)
     requires |s| == 4
     ensures Base64ToIndexSeq(IndexSeqToBase64(s)) == s
   {}
@@ -110,18 +123,18 @@ module Base64 {
   function method DecodeBlock(s: seq<index>): (ret: seq<uint8>)
     requires |s| == 4
     ensures |ret| == 3
-    ensures Base64ToIndexSeq(SeqToBase64(ret)) == s
+    ensures Base64ToIndexSeq(ByteSeqToBase64(ret)) == s
   {
-    Base64ToSeq(IndexSeqToBase64(s))
+    Base64ToByteSeq(IndexSeqToBase64(s))
   }
 
   function method EncodeBlock(s: seq<uint8>): (ret: seq<index>)
     requires |s| == 3
     ensures |ret| == 4
-    ensures Base64ToSeq(IndexSeqToBase64(ret)) == s
+    ensures Base64ToByteSeq(IndexSeqToBase64(ret)) == s
     ensures DecodeBlock(ret) == s
   {
-    Base64ToIndexSeq(SeqToBase64(s))
+    Base64ToIndexSeq(ByteSeqToBase64(s))
   }
 
   lemma EncodeDecodeBlock(s: seq<uint8>)
@@ -193,7 +206,7 @@ module Base64 {
   {}
 
   function method DecodeUnpadded(s: seq<char>): (b: seq<uint8>)
-    requires IsUnpaddedString(s)
+    requires IsUnpaddedBase64String(s)
     ensures |b| == |s| / 4 * 3
     ensures |b| % 3 == 0
   {
@@ -202,7 +215,7 @@ module Base64 {
 
   function method EncodeUnpadded(b: seq<uint8>): (s: seq<char>)
     requires |b| % 3 == 0
-    ensures IsUnpaddedString(s)
+    ensures IsUnpaddedBase64String(s)
     ensures |s| == |b| / 3 * 4
     ensures DecodeUnpadded(s) == b
   {
@@ -216,7 +229,7 @@ module Base64 {
 
   lemma DecodeEncodeUnpadded(s: seq<char>)
     requires |s| % 4 == 0
-    requires IsUnpaddedString(s)
+    requires IsUnpaddedBase64String(s)
     ensures EncodeUnpadded(DecodeUnpadded(s)) == s
   {
     var fromCharsToIndicesS := FromCharsToIndices(s);
@@ -322,8 +335,8 @@ module Base64 {
     // All Base64 strings are unpadded until the final block of 4 elements, where a padded seq could exist
     var finalBlockStart := |s| - 4;
     (|s| % 4 == 0) &&
-      (IsUnpaddedString(s) ||
-      (IsUnpaddedString(s[..finalBlockStart]) && (Is1Padding(s[finalBlockStart..]) || Is2Padding(s[finalBlockStart..]))))
+      (IsUnpaddedBase64String(s) ||
+      (IsUnpaddedBase64String(s[..finalBlockStart]) && (Is1Padding(s[finalBlockStart..]) || Is2Padding(s[finalBlockStart..]))))
   }
 
   function method DecodeValid(s: seq<char>): (b: seq<uint8>)
