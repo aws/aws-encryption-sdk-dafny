@@ -7,6 +7,14 @@ module TestBse64 {
   import opened UInt = StandardLibrary.UInt
   import opened Base64 = Base64
 
+  // Test vector sample encode/decode strings from https://tools.ietf.org/rfc/rfc4648.txt
+  const BASE64_TEST_VECTORS_ENCODED := ["", "Zg==", "Zm8=", "Zm9v", "Zm9vYg==", "Zm9vYmE=", "Zm9vYmFy"];
+  const BASE64_TEST_VECTORS_DECODED := ["", "f", "fo", "foo", "foob", "fooba", "foobar"];
+
+  const BASE64_TEST_VECTORS_DECODED_UINT8: seq<seq<uint8>> :=
+    [[], [0x66], [0x66, 0x6F], [0x66, 0x6F, 0x6F], [0x66, 0x6F, 0x6F, 0x62],
+    [0x66, 0x6F, 0x6F, 0x62, 0x61], [0x66, 0x6F, 0x6F, 0x62, 0x61, 0x72]];
+
   method {:test} TestIsBase64CharSuccess() returns (r: Result<()>) {
     var allBase64Chars := "+/0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
     r := Require(forall c :: c in allBase64Chars ==> IsBase64Char(c));
@@ -241,5 +249,70 @@ module TestBse64 {
     var input := [0x66];
     var output := "Zg==";
     r := RequireEqual(output, Encode2Padding(input));
+  }
+
+  method {:test} TestIsBase64StringTestVectors() returns (r: Result<()>) {
+    r := Require(forall i :: i in BASE64_TEST_VECTORS_ENCODED ==> IsBase64String(i) == true);
+  }
+
+  method {:test} TestIsBase64StringBadLength() returns (r: Result<()>) {
+    r := Require(!IsBase64String("Zg="));
+  }
+
+  method {:test} TestIsBase64StringBadString() returns (r: Result<()>) {
+    r := Require(!IsBase64String("Z1=="));
+  }
+
+  method {:test} TestSanityCheckDecodedTestVectors() returns (r: Result<()>) {
+    var allResults: seq<Result<()>> := [];
+
+    var testVectorIndex := 0;
+    while testVectorIndex < |BASE64_TEST_VECTORS_DECODED|
+      invariant 0 <= testVectorIndex <= |BASE64_TEST_VECTORS_DECODED|
+    {
+      var uint8Message: seq<uint8> := [];
+      var strMessage := BASE64_TEST_VECTORS_DECODED[testVectorIndex];
+      var msgIndex := 0;
+      while msgIndex < |strMessage|
+        invariant 0 <= msgIndex <= |strMessage|
+      {
+        uint8Message := uint8Message + [strMessage[msgIndex] as uint8];
+        msgIndex := msgIndex + 1;
+      }
+      allResults := allResults + [RequireEqual(BASE64_TEST_VECTORS_DECODED_UINT8[testVectorIndex], uint8Message)];
+      testVectorIndex := testVectorIndex + 1;
+    }
+    r := Require(|allResults| == |BASE64_TEST_VECTORS_DECODED|
+      && forall result :: result in allResults ==> result.Success?);
+  }
+
+  method {:test} TestDecodeValidTestVectors() returns (r: Result<()>) {
+    r := Require(forall i :: 0 <= i < |BASE64_TEST_VECTORS_ENCODED| ==>
+      DecodeValid(BASE64_TEST_VECTORS_ENCODED[i]) == BASE64_TEST_VECTORS_DECODED_UINT8[i]);
+  }
+
+  method {:test} TestDecodeTestVectors() returns (r: Result<()>) {
+    r := Require(forall i :: 0 <= i < |BASE64_TEST_VECTORS_ENCODED| ==>
+      Decode(BASE64_TEST_VECTORS_ENCODED[i]) == Success(BASE64_TEST_VECTORS_DECODED_UINT8[i]));
+  }
+
+  method {:test} TestDecodeFailure() returns (r: Result<()>) {
+    r := RequireEqual(Failure("The encoding is malformed"), Decode("$"));
+  }
+
+  method {:test} TestEncode() returns (r: Result<()>) {
+    r := Require(forall i :: 0 <= i < |BASE64_TEST_VECTORS_DECODED_UINT8| ==>
+      Encode(BASE64_TEST_VECTORS_DECODED_UINT8[i]) == BASE64_TEST_VECTORS_ENCODED[i]);
+  }
+
+  method {:test} TestEncodeDecode() returns (r: Result<()>) {
+    r := Require(forall i :: 0 <= i < |BASE64_TEST_VECTORS_DECODED_UINT8| ==>
+      Decode(Encode(BASE64_TEST_VECTORS_DECODED_UINT8[i])) == Success(BASE64_TEST_VECTORS_DECODED_UINT8[i]));
+  }
+
+  method {:test} TestDecodeEncode() returns (r: Result<()>) {
+    r := Require(forall i :: 0 <= i < |BASE64_TEST_VECTORS_ENCODED| ==>
+      (Decode(BASE64_TEST_VECTORS_ENCODED[i]).Success?
+      && Encode(Decode(BASE64_TEST_VECTORS_ENCODED[i]).value) == BASE64_TEST_VECTORS_ENCODED[i]));
   }
 }
