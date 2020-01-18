@@ -75,28 +75,28 @@ module TestBse64 {
     r := Require(forall i :: 0 <= i < |uppercase| ==> CharToIndex(uppercase[i]) == (i as index));
   }
 
-  method {:test} TestBase64ToByteSeq() returns (r: Result<()>) {
-    var input: base64 := 0x100101;
+  method {:test} TestUInt24ToSeq() returns (r: Result<()>) {
+    var input: uint24 := 0x100101;
     var output := [0x10, 0x1, 0x1];
-    r := RequireEqual(output, Base64ToByteSeq(input));
+    r := RequireEqual(output, UInt24ToSeq(input));
   }
 
-  method {:test} TestByteSeqToBase64() returns (r: Result<()>) {
+  method {:test} TestSeqToUInt24() returns (r: Result<()>) {
     var input := [0x10, 0x1, 0x1];
-    var output: base64 := 0x100101;
-    r := RequireEqual(output, ByteSeqToBase64(input));
+    var output: uint24 := 0x100101;
+    r := RequireEqual(output, SeqToUInt24(input));
   }
 
-  method {:test} TestBase64ToIndexSeq() returns (r: Result<()>) {
-    var input: base64 := 0x100101;
+  method {:test} TestUInt24ToIndexSeq() returns (r: Result<()>) {
+    var input: uint24 := 0x100101;
     var output := [0x4, 0x0, 0x4, 0x1];
-    r := RequireEqual(output, Base64ToIndexSeq(input));
+    r := RequireEqual(output, UInt24ToIndexSeq(input));
   }
 
-  method {:test} TestIndexSeqToBase64() returns (r: Result<()>) {
+  method {:test} TestIndexSeqToUInt24() returns (r: Result<()>) {
     var input := [0x4, 0x0, 0x4, 0x1];
-    var output: base64 := 0x100101;
-    r := RequireEqual(output, IndexSeqToBase64(input));
+    var output: uint24 := 0x100101;
+    r := RequireEqual(output, IndexSeqToUInt24(input));
   }
 
   method {:test} TestDecodeBlock() returns (r: Result<()>) {

@@ -8,7 +8,8 @@ module Base64 {
   // The maximum index for Base64 is less than 64 (0x40)
   newtype index = x | 0 <= x < 0x40
 
-  newtype base64 = x | 0 <= x < 0x100_0000
+  // Encoding to Base64 is represented using 24-bit groups
+  newtype uint24 = x | 0 <= x < 0x100_0000
 
   predicate method IsBase64Char(c: char) {
     // char values can be compared using standard relational operators
@@ -58,45 +59,45 @@ module Base64 {
     ensures CharToIndex(IndexToChar(x)) == x
   {}
 
-  function method Base64ToByteSeq(x: base64): (ret: seq<uint8>)
+  function method UInt24ToSeq(x: uint24): (ret: seq<uint8>)
     ensures |ret| == 3
-    ensures ret[0] as base64 * 0x1_0000 + ret[1] as base64 * 0x100 + ret[2] as base64 == x
+    ensures ret[0] as uint24 * 0x1_0000 + ret[1] as uint24 * 0x100 + ret[2] as uint24 == x
   {
     var b0 := (x / 0x1_0000) as uint8;
-    var x0 := x - (b0 as base64 * 0x1_0000);
+    var x0 := x - (b0 as uint24 * 0x1_0000);
 
     var b1 := (x0 / 0x100) as uint8;
     var b2 := (x0 % 0x100) as uint8;
     [b0, b1, b2]
   }
 
-  function method ByteSeqToBase64(s: seq<uint8>): (x: base64)
+  function method SeqToUInt24(s: seq<uint8>): (x: uint24)
     requires |s| == 3
-    ensures Base64ToByteSeq(x) == s
+    ensures UInt24ToSeq(x) == s
   {
-    s[0] as base64 * 0x1_0000 + s[1] as base64 * 0x100 + s[2] as base64
+    s[0] as uint24 * 0x1_0000 + s[1] as uint24 * 0x100 + s[2] as uint24
   }
 
-  lemma Base64ToByteSeqToBase64(x: base64)
-    ensures ByteSeqToBase64(Base64ToByteSeq(x)) == x
+  lemma UInt24ToSeqToUInt24(x: uint24)
+    ensures SeqToUInt24(UInt24ToSeq(x)) == x
   {}
 
-  lemma ByteSeqToBase64ToByteSeq(s: seq<uint8>)
+  lemma SeqToUInt24ToSeq(s: seq<uint8>)
     requires |s| == 3
-    ensures Base64ToByteSeq(ByteSeqToBase64(s)) == s
+    ensures UInt24ToSeq(SeqToUInt24(s)) == s
   {}
 
-  function method Base64ToIndexSeq(x: base64): (ret: seq<index>)
+  function method UInt24ToIndexSeq(x: uint24): (ret: seq<index>)
     ensures |ret| == 4
-    ensures ret[0] as base64 * 0x4_0000 + ret[1] as base64 * 0x1000 + ret[2] as base64 * 0x40 + ret[3] as base64 == x
+    ensures ret[0] as uint24 * 0x4_0000 + ret[1] as uint24 * 0x1000 + ret[2] as uint24 * 0x40 + ret[3] as uint24 == x
   {
     // 0x4_0000 represents 64^3
     var b0 := (x / 0x4_0000) as index;
-    var x0 := x - (b0 as base64 * 0x4_0000);
+    var x0 := x - (b0 as uint24 * 0x4_0000);
 
     // 0x1000 represents 64^2
     var b1 := (x0 / 0x1000) as index;
-    var x1 := x0 - (b1 as base64 * 0x1000);
+    var x1 := x0 - (b1 as uint24 * 0x1000);
 
     // 0x40 represents 64^1
     var b2 := (x1 / 0x40) as index;
@@ -104,37 +105,37 @@ module Base64 {
     [b0, b1, b2, b3]
   }
 
-  function method IndexSeqToBase64(s: seq<index>): (x: base64)
+  function method IndexSeqToUInt24(s: seq<index>): (x: uint24)
     requires |s| == 4
-    ensures Base64ToIndexSeq(x) == s
+    ensures UInt24ToIndexSeq(x) == s
   {
-    s[0] as base64 * 0x4_0000 + s[1] as base64 * 0x1000 + s[2] as base64 * 0x40 + s[3] as base64
+    s[0] as uint24 * 0x4_0000 + s[1] as uint24 * 0x1000 + s[2] as uint24 * 0x40 + s[3] as uint24
   }
 
-  lemma Base64ToIndexSeqToBase64(x: base64)
-    ensures IndexSeqToBase64(Base64ToIndexSeq(x)) == x
+  lemma UInt24ToIndexSeqToUInt24(x: uint24)
+    ensures IndexSeqToUInt24(UInt24ToIndexSeq(x)) == x
   {}
 
-  lemma IndexSeqToBase64ToIndexSeq(s: seq<index>)
+  lemma IndexSeqToUInt24ToIndexSeq(s: seq<index>)
     requires |s| == 4
-    ensures Base64ToIndexSeq(IndexSeqToBase64(s)) == s
+    ensures UInt24ToIndexSeq(IndexSeqToUInt24(s)) == s
   {}
 
   function method DecodeBlock(s: seq<index>): (ret: seq<uint8>)
     requires |s| == 4
     ensures |ret| == 3
-    ensures Base64ToIndexSeq(ByteSeqToBase64(ret)) == s
+    ensures UInt24ToIndexSeq(SeqToUInt24(ret)) == s
   {
-    Base64ToByteSeq(IndexSeqToBase64(s))
+    UInt24ToSeq(IndexSeqToUInt24(s))
   }
 
   function method EncodeBlock(s: seq<uint8>): (ret: seq<index>)
     requires |s| == 3
     ensures |ret| == 4
-    ensures Base64ToByteSeq(IndexSeqToBase64(ret)) == s
+    ensures UInt24ToSeq(IndexSeqToUInt24(ret)) == s
     ensures DecodeBlock(ret) == s
   {
-    Base64ToIndexSeq(ByteSeqToBase64(s))
+    UInt24ToIndexSeq(SeqToUInt24(s))
   }
 
   lemma EncodeDecodeBlock(s: seq<uint8>)
