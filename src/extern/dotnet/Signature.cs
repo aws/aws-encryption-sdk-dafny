@@ -33,7 +33,7 @@ namespace Signature {
                 AsymmetricCipherKeyPair kp = g.GenerateKeyPair();
                 ECPoint pt = ((ECPublicKeyParameters)kp.Public).Q;
                 // serialize the public and private keys, and then return them
-                var vk = SerializeECPoint(pt);
+                var vk = SerializePublicKey((ECPublicKeyParameters)kp.Public);
                 var sk = byteseq.FromArray(((ECPrivateKeyParameters)kp.Private).D.ToByteArray());
                 return new STL.Option_Some<_System.Tuple2<byteseq, byteseq>>(new _System.Tuple2<byteseq, byteseq>(vk, sk));
             } catch {
@@ -41,19 +41,34 @@ namespace Signature {
             }
         }
 
-
         /// <summary>
-        /// Compresses and encodes an elliptic curve point as described in SEC-1 v2 section 2.3.3,
-        /// see http://www.secg.org/sec1-v2.pdf, which says:
+        /// Compresses and encodes the elliptic curve point corresponding to the given public key.
+        /// See SEC-1 v2 (http://www.secg.org/sec1-v2.pdf), sections 2.3.3 and 2.3.5. For
+        /// example, note:
         ///     the compressed y-coordinate is placed in the leftmost octet of the octet string
         ///     along with an indication that point compression is on, and the x-coordinate is
         ///     placed in the remainder of the octet string
         /// </summary>
-        public static byteseq SerializeECPoint(ECPoint pt) {
+        public static byteseq SerializePublicKey(ECPublicKeyParameters keyParams) {
+            ECPoint pt = keyParams.Q;
+
+            // zero-pad x coordinate
             var xBytes = pt.AffineXCoord.GetEncoded();
+            var curve = (FpCurve)keyParams.Parameters.Curve;
+            int fieldByteSize = (curve.FieldSize + 7) / 8;
+            if (xBytes.Length < fieldByteSize) {
+                var paddingLength = fieldByteSize - xBytes.Length;
+                var paddedX = new byte[fieldByteSize];
+                System.Array.Fill(paddedX, (byte)0, 0, paddingLength);
+                xBytes.CopyTo(paddedX, paddingLength);
+                xBytes = paddedX;
+            }
+
+            // compress y coordinate
             var y = pt.AffineYCoord.ToBigInteger();
             byte compressedY = y.Mod(BigInteger.ValueOf(2)).Equals(BigInteger.ValueOf(0)) ? (byte)2 : (byte)3;
             var yBytes = new byte[] { compressedY };
+
             // return yBytes + xBytes:
             return byteseq.FromArray(yBytes).Concat(byteseq.FromArray(xBytes));
         }
