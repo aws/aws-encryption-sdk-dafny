@@ -48,6 +48,7 @@ namespace Signature {
         ///     the compressed y-coordinate is placed in the leftmost octet of the octet string
         ///     along with an indication that point compression is on, and the x-coordinate is
         ///     placed in the remainder of the octet string
+        /// Requires: keyParams.Parameters.Curve is a prime curve (if not, a cast exception will be thrown)
         /// </summary>
         public static byteseq SerializePublicKey(ECPublicKeyParameters keyParams) {
             ECPoint pt = keyParams.Q;
