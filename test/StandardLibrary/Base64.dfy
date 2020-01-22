@@ -15,14 +15,14 @@ module TestBse64 {
     [[], [0x66], [0x66, 0x6F], [0x66, 0x6F, 0x6F], [0x66, 0x6F, 0x6F, 0x62],
     [0x66, 0x6F, 0x6F, 0x62, 0x61], [0x66, 0x6F, 0x6F, 0x62, 0x61, 0x72]];
 
+  const BASE64_CHARS := "+/0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
+
   method {:test} TestIsBase64CharSuccess() returns (r: Result<()>) {
-    var allBase64Chars := "+/0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
-    r := Require(forall c :: c in allBase64Chars ==> IsBase64Char(c));
+    r := Require(forall c :: c in BASE64_CHARS ==> IsBase64Char(c));
   }
 
   method {:test} TestIsBase64CharFailure() returns (r: Result<()>) {
-    var allBase64Chars := "+/0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
-    r := Require(forall c :: c !in allBase64Chars ==> !IsBase64Char(c));
+    r := Require(forall c :: c !in BASE64_CHARS ==> !IsBase64Char(c));
   }
 
   method {:test} TestIsUnpaddedBase64StringSuccess() returns (r: Result<()>) {
@@ -264,7 +264,6 @@ module TestBse64 {
   }
 
   method {:test} TestSanityCheckDecodedTestVectors() returns (r: Result<()>) {
-    var allResults: seq<Result<()>> := [];
 
     var testVectorIndex := 0;
     while testVectorIndex < |BASE64_TEST_VECTORS_DECODED|
@@ -279,11 +278,10 @@ module TestBse64 {
         uint8Message := uint8Message + [strMessage[msgIndex] as uint8];
         msgIndex := msgIndex + 1;
       }
-      allResults := allResults + [RequireEqual(BASE64_TEST_VECTORS_DECODED_UINT8[testVectorIndex], uint8Message)];
+      var _ :- RequireEqual(BASE64_TEST_VECTORS_DECODED_UINT8[testVectorIndex], uint8Message);
       testVectorIndex := testVectorIndex + 1;
     }
-    r := Require(|allResults| == |BASE64_TEST_VECTORS_DECODED|
-      && forall result :: result in allResults ==> result.Success?);
+    r := Require(true);
   }
 
   method {:test} TestDecodeValidTestVectors() returns (r: Result<()>) {

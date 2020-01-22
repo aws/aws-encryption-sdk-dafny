@@ -128,12 +128,11 @@ module TestStandardLibrary {
     expected[1] := 2;
     expected[2] := 3;
 
-    var allResults: seq<Result<()>> := [];
-    allResults := allResults + [RequireEqual(expected.Length, output.Length)];
-    allResults := allResults + [RequireEqual(expected[0], output[0])];
-    allResults := allResults + [RequireEqual(expected[1], output[1])];
-    allResults := allResults + [RequireEqual(expected[2], output[2])];
-    ret := Require(|allResults| == 4 && forall result :: result in allResults ==> result.Success?);
+    var _ :- RequireEqual(expected.Length, output.Length);
+    var _ :- RequireEqual(expected[0], output[0]);
+    var _ :- RequireEqual(expected[1], output[1]);
+    var _ :- RequireEqual(expected[2], output[2]);
+    ret := Require(true);
   }
 
   method {:test} TestSeqToArrayEmpty() returns (ret: Result<()>) {

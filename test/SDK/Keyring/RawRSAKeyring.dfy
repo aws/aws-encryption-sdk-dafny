@@ -20,9 +20,7 @@ module TestRSAKeyring {
   method {:test} TestOnEncryptOnDecryptGenerateDataKey() returns (r: Result<()>)
   {
     var remainingPaddingModes := allPaddingModes;
-    var allResults: seq<Result<()>> := [];
     while remainingPaddingModes != {}
-      invariant |remainingPaddingModes| + |allResults| == |allPaddingModes|
       decreases remainingPaddingModes
     {
       var paddingMode :| paddingMode in remainingPaddingModes;
@@ -43,18 +41,15 @@ module TestRSAKeyring {
 
       // Verify decoding
       var res :- rawRSAKeyring.OnDecrypt(AlgorithmSuite.AES_256_GCM_IV12_TAG16_HKDF_SHA384_ECDSA_P384, encryptionContext, [encryptedDataKey]);
-      var newResultVerification := Require(res.Some? && res.get.plaintextDataKey == plaintextDataKey);
-      allResults := allResults + [newResultVerification];
+      var _ :- Require(res.Some? && res.get.plaintextDataKey == plaintextDataKey);
     }
-    r := Require(|allResults| == |allPaddingModes| && forall result :: result in allResults ==> result.Success?);
+    r := Require(true);
   }
 
   method {:test} TestOnEncryptOnDecryptSuppliedDataKey() returns (r: Result<()>)
   {
     var remainingPaddingModes := allPaddingModes;
-    var allResults: seq<Result<()>> := [];
     while remainingPaddingModes != {}
-      invariant |remainingPaddingModes| + |allResults| == |allPaddingModes|
       decreases remainingPaddingModes
     {
       var paddingMode :| paddingMode in remainingPaddingModes;
@@ -76,9 +71,7 @@ module TestRSAKeyring {
 
       // Verify decoding
       var res :- rawRSAKeyring.OnDecrypt(AlgorithmSuite.AES_256_GCM_IV12_TAG16_HKDF_SHA384_ECDSA_P384, encryptionContext, [encryptedDataKey]);
-      var newResultVerification := Require(res.Some? && res.get.plaintextDataKey == plaintextDataKey);
-      allResults := allResults + [newResultVerification];
+      r := Require(res.Some? && res.get.plaintextDataKey == plaintextDataKey);
     }
-    r := Require(|allResults| == |allPaddingModes| && forall result :: result in allResults ==> result.Success?);
   }
 }

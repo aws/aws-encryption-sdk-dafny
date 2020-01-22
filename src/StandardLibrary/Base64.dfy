@@ -441,7 +441,7 @@ module Base64 {
       s[..(|s| - 4)] + Encode1Padding(Decode1Padding(s[(|s| - 4)..]));
     == { DecodeEncode1Padding(s[(|s| - 4)..]); }
       s[..(|s| - 4)] + s[(|s| - 4)..];
-    == { SeqPartsMakeWhole(s); }
+    == { SeqPartsMakeWhole(s, (|s| - 4)); }
       s;
     }
   }
@@ -479,7 +479,7 @@ module Base64 {
       s[..(|s| - 4)] + Encode2Padding(Decode2Padding(s[(|s| - 4)..]));
     == { DecodeEncode2Padding(s[(|s| - 4)..]); }
       s[..(|s| - 4)] + s[(|s| - 4)..];
-    == { SeqPartsMakeWhole(s); }
+    == { SeqPartsMakeWhole(s, (|s| - 4)); }
       s;
     }
   }
