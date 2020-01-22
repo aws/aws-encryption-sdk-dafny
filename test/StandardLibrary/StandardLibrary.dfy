@@ -131,8 +131,7 @@ module TestStandardLibrary {
     var _ :- RequireEqual(expected.Length, output.Length);
     var _ :- RequireEqual(expected[0], output[0]);
     var _ :- RequireEqual(expected[1], output[1]);
-    var _ :- RequireEqual(expected[2], output[2]);
-    ret := Require(true);
+    ret := RequireEqual(expected[2], output[2]);
   }
 
   method {:test} TestSeqToArrayEmpty() returns (ret: Result<()>) {
