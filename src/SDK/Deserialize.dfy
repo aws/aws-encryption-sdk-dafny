@@ -14,7 +14,7 @@ include "../Util/UTF8.dfy"
  */
 module Deserialize {
   export
-    provides DeserializeHeader
+    provides DeserializeHeader, Materials
     provides Streams, StandardLibrary, UInt, AlgorithmSuite, Msg
     provides InsertNewEntry, UTF8
 
@@ -244,8 +244,8 @@ module Deserialize {
     return Success(kvPairs);
   }
 
-  method InsertNewEntry(kvPairs: seq<(UTF8.ValidUTF8Bytes, UTF8.ValidUTF8Bytes)>, key: UTF8.ValidUTF8Bytes, value: UTF8.ValidUTF8Bytes)
-      returns (res: Option<seq<(seq<uint8>, seq<uint8>)>>, ghost insertionPoint: nat)
+  method InsertNewEntry(kvPairs: Materials.EncryptionContext, key: UTF8.ValidUTF8Bytes, value: UTF8.ValidUTF8Bytes)
+      returns (res: Option<Materials.EncryptionContext>, ghost insertionPoint: nat)
     requires Msg.SortedKVPairs(kvPairs)
     ensures match res
     case None =>
