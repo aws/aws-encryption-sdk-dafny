@@ -1,12 +1,13 @@
 using System;
-using System.Linq;
 using System.Collections;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Text;
+
 using AWSEncryptionSDK;
 using DefaultCMMDef;
 using KeyringDefs;
@@ -15,6 +16,7 @@ using MultiKeyringDef;
 using RawAESKeyringDef;
 using RawRSAKeyringDef;
 using RSAEncryption;
+
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using Xunit;
@@ -148,11 +150,8 @@ namespace TestVectorTests {
             foreach(var vectorEntry in vectorMap) {
                 string vectorID = vectorEntry.Key;
                 TestVector vector = vectorEntry.Value;
-                bool shouldSkip = false;
 
-                if (VectorContainsMasterkeyOfType(vector, "raw")) {
-                    shouldSkip = true;
-                }
+                bool shouldSkip = VectorContainsMasterkeyOfType(vector, "raw");
 
                 string plaintextPath = ManifestURIToPath(vector.plaintext, vectorRoot);
                 if (!File.Exists(plaintextPath)) {
@@ -191,7 +190,7 @@ namespace TestVectorTests {
                 ClientSupplier clientSupplier = new DefaultClientSupplier();
                 return Keyrings.MakeKMSKeyring(clientSupplier, Enumerable.Empty<String>(), key.ID, Enumerable.Empty<String>());
             } else if (keyInfo.type == "raw" && keyInfo.encryptionAlgorithm == "aes") {
-                //TODO: Once RawAESKeyring is read for tests, add it here.
+                //TODO: Once RawAESKeyring is ready for tests, add it here.
                 return new MultiKeyring();
             } else if (keyInfo.type == "raw" && keyInfo.encryptionAlgorithm == "rsa") {
                 return Keyrings.MakeRawRSAKeyring(
@@ -209,11 +208,11 @@ namespace TestVectorTests {
         private static DafnyFFI.RSAPaddingModes RSAPAddingFromStrings(string strAlg, string strHash) {
             return (strAlg, strHash) switch {
                 ("pkcs1", _) => DafnyFFI.RSAPaddingModes.PKCS1,
-                    ("oaep-mgf1", "sha1") => DafnyFFI.RSAPaddingModes.OAEP_SHA1,
-                    ("oaep-mgf1", "sha256") => DafnyFFI.RSAPaddingModes.OAEP_SHA256,
-                    ("oaep-mgf1", "sha384") => DafnyFFI.RSAPaddingModes.OAEP_SHA384,
-                    ("oaep-mgf1", "sha512") => DafnyFFI.RSAPaddingModes.OAEP_SHA512,
-                    _ => throw new Exception("Unsupported RSA Padding " + strAlg + strHash)
+                ("oaep-mgf1", "sha1") => DafnyFFI.RSAPaddingModes.OAEP_SHA1,
+                ("oaep-mgf1", "sha256") => DafnyFFI.RSAPaddingModes.OAEP_SHA256,
+                ("oaep-mgf1", "sha384") => DafnyFFI.RSAPaddingModes.OAEP_SHA384,
+                ("oaep-mgf1", "sha512") => DafnyFFI.RSAPaddingModes.OAEP_SHA512,
+                _ => throw new Exception("Unsupported RSA Padding " + strAlg + strHash)
             };
         }
     }
@@ -263,7 +262,7 @@ namespace TestVectorTests {
     } 
 
     public class TestVectorDecryptTests {
-        #pragma warning disable xUnit1026
+        #pragma warning disable xUnit1026 // Suppress Unused argument warnings for vectorID.
         [SkippableTheory]
         [ClassData (typeof(DecryptTestVectors))]
         public void CanDecryptTestVector(string vectorID, DefaultCMM cmm, byte[] expectedPlaintext, MemoryStream ciphertextStream) {
@@ -278,7 +277,7 @@ namespace TestVectorTests {
             }
         }
 
-        #pragma warning disable xUnit1026
+        #pragma warning disable xUnit1026 // Suppress Unused argument warnings for vectorID.
         [SkippableTheory]
         [ClassData (typeof(EncryptTestVectors))]
         public void CanEncryptTestVector(string vectorID, DefaultCMM cmm, byte[] plaintext, HttpClient client, string decryptOracle, bool shouldSkip) {

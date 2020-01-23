@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using KeyringDefs;
@@ -46,7 +47,7 @@ namespace AWSEncryptionSDK
                 DafnyFFI.RSAPaddingModes.OAEP_SHA256 => RSAEncryption.PaddingMode.create_OAEP__SHA256(),
                 DafnyFFI.RSAPaddingModes.OAEP_SHA384 => RSAEncryption.PaddingMode.create_OAEP__SHA384(),
                 DafnyFFI.RSAPaddingModes.OAEP_SHA512 => RSAEncryption.PaddingMode.create_OAEP__SHA512(),
-                _ => throw new NotYetSupportedException("Unsupported RSA Padding Mode")
+                _ => throw new ArgumentException("Unsupported RSA Padding Mode")
             };
             RSAEncryption.PublicKey publicKeyWrapper = null;
             RSAEncryption.PrivateKey privateKeyWrapper = null;

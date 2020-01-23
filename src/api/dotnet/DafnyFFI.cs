@@ -68,8 +68,3 @@ public class DafnyException : Exception {
     public DafnyException(string message) : base(message) {
     }
 }
-
-public class NotYetSupportedException : Exception {
-    public NotYetSupportedException(string message) : base(message) {
-    }
-}
