@@ -5,7 +5,7 @@ include "./Defs.dfy"
 include "../../Crypto/Random.dfy"
 include "../Materials.dfy"
 
-module MultiKeyringDef {
+module {:extern "MultiKeyringDef"} MultiKeyringDef {
     import opened KeyringDefs
     import opened StandardLibrary
     import opened UInt = StandardLibrary.UInt
