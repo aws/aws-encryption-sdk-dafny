@@ -281,7 +281,7 @@ module TestBse64 {
       var _ :- RequireEqual(BASE64_TEST_VECTORS_DECODED_UINT8[testVectorIndex], uint8Message);
       testVectorIndex := testVectorIndex + 1;
     }
-    r := Require(true);
+    return Success(());
   }
 
   method {:test} TestDecodeValidTestVectors() returns (r: Result<()>) {

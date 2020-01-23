@@ -43,7 +43,7 @@ module TestRSAKeyring {
       var res :- rawRSAKeyring.OnDecrypt(AlgorithmSuite.AES_256_GCM_IV12_TAG16_HKDF_SHA384_ECDSA_P384, encryptionContext, [encryptedDataKey]);
       var _ :- Require(res.Some? && res.get.plaintextDataKey == plaintextDataKey);
     }
-    r := Require(true);
+    return Success(());
   }
 
   method {:test} TestOnEncryptOnDecryptSuppliedDataKey() returns (r: Result<()>)
