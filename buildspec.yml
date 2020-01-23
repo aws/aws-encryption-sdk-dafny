@@ -15,6 +15,7 @@ phases:
       - msbuild boogie/Source/Boogie.sln
       # Get Dafny
       - git clone https://github.com/microsoft/dafny.git
+      - nuget restore dafny/Source/Dafny.sln
       - msbuild dafny/Source/Dafny.sln
       - export PATH="$PWD/dafny/Binaries:$PATH"
       # Get Z3
