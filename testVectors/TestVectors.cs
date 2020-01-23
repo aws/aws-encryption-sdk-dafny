@@ -9,7 +9,7 @@ using System.Net.Http.Headers;
 using System.Text;
 
 using AWSEncryptionSDK;
-using DefaultCMMDef;
+using CMMDefs;
 using KeyringDefs;
 using KMSUtils;
 using MultiKeyringDef;
@@ -133,7 +133,7 @@ namespace TestVectorTests {
                 }
                 byte[] ciphertext = System.IO.File.ReadAllBytes(ManifestURIToPath(vector.ciphertext, vectorRoot));
 
-                DefaultCMM cmm = CMMFactory.DecryptCMM(vector, keyMap);
+                CMM cmm = CMMFactory.DecryptCMM(vector, keyMap);
 
                 MemoryStream ciphertextStream = new MemoryStream(ciphertext);
 
@@ -159,7 +159,7 @@ namespace TestVectorTests {
                 }
                 byte[] plaintext = System.IO.File.ReadAllBytes(plaintextPath);
 
-                DefaultCMM cmm = CMMFactory.EncryptCMM(vector, keyMap);
+                CMM cmm = CMMFactory.EncryptCMM(vector, keyMap);
 
                 yield return new object[] { vectorEntry.Key, cmm, plaintext, client, decryptOracle, shouldSkip };
             }
@@ -168,11 +168,11 @@ namespace TestVectorTests {
 
     public class CMMFactory {
 
-        public static DefaultCMM DecryptCMM(TestVector vector, Dictionary<string, Key> keys) {
+        public static CMM DecryptCMM(TestVector vector, Dictionary<string, Key> keys) {
             return AWSEncryptionSDK.CMMs.MakeDefaultCMM(CreateDecryptKeyring(vector, keys));
         }
 
-        public static DefaultCMM EncryptCMM(TestVector vector, Dictionary<string, Key> keys) {
+        public static CMM EncryptCMM(TestVector vector, Dictionary<string, Key> keys) {
             return AWSEncryptionSDK.CMMs.MakeDefaultCMM(CreateEncryptKeyring(vector, keys));
         }
 
@@ -265,7 +265,7 @@ namespace TestVectorTests {
         #pragma warning disable xUnit1026 // Suppress Unused argument warnings for vectorID.
         [SkippableTheory]
         [ClassData (typeof(DecryptTestVectors))]
-        public void CanDecryptTestVector(string vectorID, DefaultCMM cmm, byte[] expectedPlaintext, MemoryStream ciphertextStream) {
+        public void CanDecryptTestVector(string vectorID, CMM cmm, byte[] expectedPlaintext, MemoryStream ciphertextStream) {
             try {
                 MemoryStream decodedStream = AWSEncryptionSDK.Client.Decrypt(ciphertextStream, cmm);
                 byte[] result = decodedStream.ToArray();
@@ -280,7 +280,7 @@ namespace TestVectorTests {
         #pragma warning disable xUnit1026 // Suppress Unused argument warnings for vectorID.
         [SkippableTheory]
         [ClassData (typeof(EncryptTestVectors))]
-        public void CanEncryptTestVector(string vectorID, DefaultCMM cmm, byte[] plaintext, HttpClient client, string decryptOracle, bool shouldSkip) {
+        public void CanEncryptTestVector(string vectorID, CMM cmm, byte[] plaintext, HttpClient client, string decryptOracle, bool shouldSkip) {
             Skip.If(shouldSkip);
             MemoryStream ciphertext = AWSEncryptionSDK.Client.Encrypt(new MemoryStream(plaintext), cmm, new Dictionary<string, string>());
 
