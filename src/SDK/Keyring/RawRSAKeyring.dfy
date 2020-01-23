@@ -21,22 +21,30 @@ module RawRSAKeyringDef {
   class RawRSAKeyring extends KeyringDefs.Keyring {
     const keyNamespace: UTF8.ValidUTF8Bytes
     const keyName: UTF8.ValidUTF8Bytes
-    const paddingMode: RSA.RSAPaddingMode
-    const publicKey: Option<seq<uint8>>
-    const privateKey: Option<seq<uint8>>
+    const paddingMode: RSA.PaddingMode
+    const publicKey: Option<RSA.PublicKey>
+    const privateKey: Option<RSA.PrivateKey>
 
     predicate Valid()
-      reads this
+      reads this, Repr
     {
-      Repr == {this} &&
+      this in Repr &&
       (publicKey.Some? || privateKey.Some?) &&
+      (publicKey.Some? ==> publicKey.get in Repr && publicKey.get.Repr <= Repr && publicKey.get.Valid()) &&
+      (publicKey.Some? ==> publicKey.get.padding == paddingMode) &&
+      (privateKey.Some? ==> privateKey.get in Repr && privateKey.get.Repr <= Repr && privateKey.get.Valid()) &&
+      (privateKey.Some? ==> privateKey.get.padding == paddingMode) &&
       |keyNamespace| < UINT16_LIMIT &&
       |keyName| < UINT16_LIMIT
     }
 
-    constructor(namespace: UTF8.ValidUTF8Bytes, name: UTF8.ValidUTF8Bytes, padding: RSA.RSAPaddingMode,
-                publicKey: Option<seq<uint8>>, privateKey: Option<seq<uint8>>)
+    constructor(namespace: UTF8.ValidUTF8Bytes, name: UTF8.ValidUTF8Bytes, padding: RSA.PaddingMode,
+                publicKey: Option<RSA.PublicKey>, privateKey: Option<RSA.PrivateKey>)
       requires publicKey.Some? || privateKey.Some?
+      requires publicKey.Some? ==> publicKey.get.Valid()
+      requires publicKey.Some? ==> publicKey.get.padding == padding
+      requires privateKey.Some? ==> privateKey.get.Valid()
+      requires privateKey.Some? ==> privateKey.get.padding == padding
       requires |namespace| < UINT16_LIMIT
       requires |name| < UINT16_LIMIT
       ensures keyNamespace == namespace
@@ -48,8 +56,10 @@ module RawRSAKeyringDef {
     {
       keyNamespace, keyName := namespace, name;
       paddingMode := padding;
-      this.publicKey, this.privateKey := publicKey, privateKey;
-      Repr := {this};
+      this.publicKey := publicKey;
+      this.privateKey := privateKey;
+      Repr := {this} + (if publicKey.Some? then {publicKey.get} + publicKey.get.Repr else {}) +
+        (if privateKey.Some? then {privateKey.get} + privateKey.get.Repr else {});
     }
 
     method OnEncrypt(algorithmSuiteID: Materials.AlgorithmSuite.ID,
@@ -70,7 +80,7 @@ module RawRSAKeyringDef {
         (forall encryptedDataKey :: encryptedDataKey in res.value.get.encryptedDataKeys ==>
         encryptedDataKey.providerID == keyNamespace && encryptedDataKey.providerInfo == keyName)
       ensures res.Success? && res.value.Some? ==>
-        var generateTraces := Filter(res.value.get.keyringTrace, Materials.IsGenerateTraceEntry);
+        var generateTraces: seq<Materials.KeyringTraceEntry> := Filter(res.value.get.keyringTrace, Materials.IsGenerateTraceEntry);
         |generateTraces| == if plaintextDataKey.None? then 1 else 0
       ensures res.Success? && res.value.Some? ==>
         if plaintextDataKey.None? then
@@ -98,7 +108,7 @@ module RawRSAKeyringDef {
       }
 
       // Attempt to encrypt and construct the encrypted data key
-      var encryptedCiphertext :- RSA.RSA.RSAEncrypt(paddingMode, publicKey.get, plaintextDataKey.get);
+      var encryptedCiphertext :- RSA.Encrypt(paddingMode, publicKey.get, plaintextDataKey.get);
       if UINT16_LIMIT <= |encryptedCiphertext| {
         return Failure("Encrypted data key too long.");
       }
@@ -138,8 +148,10 @@ module RawRSAKeyringDef {
         invariant  0 <= i <= |encryptedDataKeys|
       {
         var encryptedDataKey := encryptedDataKeys[i];
-        if encryptedDataKey.providerID == keyNamespace && encryptedDataKey.providerInfo == keyName {
-          var potentialPlaintextDataKey := RSA.RSA.RSADecrypt(paddingMode, privateKey.get, encryptedDataKey.ciphertext);
+        if encryptedDataKey.providerID == keyNamespace &&
+          encryptedDataKey.providerInfo == keyName &&
+          (0 < |encryptedDataKey.ciphertext|) {
+          var potentialPlaintextDataKey := RSA.Decrypt(paddingMode, privateKey.get, encryptedDataKey.ciphertext);
           match potentialPlaintextDataKey
           case Failure(_) =>
             // Try to decrypt using another encryptedDataKey
