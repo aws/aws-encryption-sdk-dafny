@@ -104,36 +104,12 @@ module Serialize {
     var len := wr.WriteUInt16(kvPairsLength as uint16);
 
     totalWritten := totalWritten + len;
-
+    if aadLength == 0 {
+      return Success(totalWritten);
+    }
 
     len :- SerializeKVPairs(wr, kvPairs);
     totalWritten := totalWritten + len;
-
-    var j := 0;
-    ghost var n := |kvPairs|;
-    while j < |kvPairs|
-      invariant j <= n == |kvPairs|
-      invariant wr.GetDataWritten() ==
-        old(wr.GetDataWritten()) +
-        UInt16ToSeq(kvPairsLength as uint16) +
-        UInt16ToSeq(n as uint16) +
-        Msg.KVPairEntriesToSeq(kvPairs, 0, j)
-      invariant totalWritten == 4 + |Msg.KVPairEntriesToSeq(kvPairs, 0, j)|
-    {
-      len := wr.WriteUInt16(|kvPairs[j].0| as uint16);
-      totalWritten := totalWritten + len;
-
-      len := wr.WriteBytes(kvPairs[j].0);
-      totalWritten := totalWritten + len;
-
-      len := wr.WriteUInt16(|kvPairs[j].1| as uint16);
-      totalWritten := totalWritten + len;
-
-      len := wr.WriteBytes(kvPairs[j].1);
-      totalWritten := totalWritten + len;
-
-      j := j + 1;
-    }
     
     return Success(totalWritten);
   }
