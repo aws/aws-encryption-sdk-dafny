@@ -166,7 +166,7 @@ module {:extern "STL"} StandardLibrary {
     if a < b then a else b
   }
 
-  function Fill<T>(value: T, n: nat): seq<T>
+  function method Fill<T>(value: T, n: nat): seq<T>
     ensures |Fill(value, n)| == n
     ensures forall i :: 0 <= i < n ==> Fill(value, n)[i] == value
   {

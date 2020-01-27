@@ -25,6 +25,27 @@ module {:extern "RawAESKeyringDef"} RawAESKeyringDef {
   const IV_LEN_LEN       := 4;
   const VALID_ALGORITHMS := {EncryptionSuites.AES_GCM_128, EncryptionSuites.AES_GCM_192, EncryptionSuites.AES_GCM_256}
 
+  function method DeserializeEDKCiphertext(ciphertext: seq<uint8>, tagLen: nat): (encOutput: AESEncryption.EncryptionOutput)
+    requires tagLen <= |ciphertext|
+    ensures |encOutput.authTag| == tagLen
+  {
+      var encryptedKeyLength := |ciphertext| - tagLen as int;
+      AESEncryption.EncryptionOutput(ciphertext[.. encryptedKeyLength], ciphertext[encryptedKeyLength ..])
+  }
+
+  function method SerializeEDKCiphertext(encOutput: AESEncryption.EncryptionOutput): (ciphertext: seq<uint8>) {
+    encOutput.cipherText + encOutput.authTag
+  }
+
+  lemma EDKSerializeDeserialize(encOutput: AESEncryption.EncryptionOutput)
+    ensures DeserializeEDKCiphertext(SerializeEDKCiphertext(encOutput), |encOutput.authTag|) == encOutput
+  {}
+
+  lemma EDKDeserializeSerialze(ciphertext: seq<uint8>, tagLen: nat)
+    requires tagLen <= |ciphertext|
+    ensures SerializeEDKCiphertext(DeserializeEDKCiphertext(ciphertext, tagLen)) == ciphertext
+  {}
+
   class RawAESKeyring extends KeyringDefs.Keyring {
     const keyNamespace: UTF8.ValidUTF8Bytes
     const keyName: UTF8.ValidUTF8Bytes
@@ -67,26 +88,6 @@ module {:extern "RawAESKeyringDef"} RawAESKeyringDef {
         [0, 0, 0, wrappingAlgorithm.ivLen] + // IV length in bytes
         iv
     }
-
-    function method DeserializeEDKCiphertext(ciphertext: seq<uint8>, tagLen: nat): (encOutput: AESEncryption.EncryptionOutput)
-      requires tagLen <= |ciphertext|
-    {
-        var encryptedKeyLength := |ciphertext| - tagLen as int;
-        AESEncryption.EncryptionOutput(ciphertext[.. encryptedKeyLength], ciphertext[encryptedKeyLength ..])
-    }
-
-    function method SerializeEDKCiphertext(encOutput: AESEncryption.EncryptionOutput): (ciphertext: seq<uint8>) {
-      encOutput.cipherText + encOutput.authTag
-    }
-
-    lemma EDKSerializeDeserialize(encOutput: AESEncryption.EncryptionOutput)
-      ensures DeserializeEDKCiphertext(SerializeEDKCiphertext(encOutput), |encOutput.authTag|) == encOutput
-    {}
-
-    lemma EDKDeserializeSerialze(ciphertext: seq<uint8>, tagLen: nat)
-      requires tagLen <= |ciphertext|
-      ensures SerializeEDKCiphertext(DeserializeEDKCiphertext(ciphertext, tagLen)) == ciphertext
-    {}
 
     method OnEncrypt(algorithmSuiteID: Mat.AlgorithmSuite.ID,
                      encryptionContext: Mat.EncryptionContext,
