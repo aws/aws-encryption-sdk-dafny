@@ -131,7 +131,8 @@ module {:extern "ESDKClient"} ESDKClient {
      * Parse the message header to obtain: algorithm suite ID, encrypted data keys, and encryption context.
      */
 
-    var rd := new Streams.StringReader.FromSeq(message);
+    var mr := new Streams.MemoryReader<uint8>(message);
+    var rd := new Streams.ByteReader(mr);
     var header :- Deserialize.DeserializeHeader(rd);
 
     /*
@@ -158,10 +159,12 @@ module {:extern "ESDKClient"} ESDKClient {
       case None =>
         // there's no footer
       case Some(ecdsaParams) =>
-        var msg := message[..rd.pos];  // unauthenticatedHeader + authTag + body  // TODO: there should be a better way to get this
+        var usedCapacity := rd.GetUsedCapacity();
+        assert usedCapacity <= |message|;
+        var msg := message[..usedCapacity];  // unauthenticatedHeader + authTag + body  // TODO: there should be a better way to get this
         // read signature
         var signatureLength :- rd.ReadUInt16();
-        var sig :- rd.ReadExact(signatureLength as nat);
+        var sig :- rd.ReadBytes(signatureLength as nat);
         // verify signature
         var digest := Signature.Digest(ecdsaParams, msg);
         var signatureVerified := Signature.Verify(ecdsaParams, decMat.verificationKey.get, digest, sig);
@@ -170,7 +173,7 @@ module {:extern "ESDKClient"} ESDKClient {
         }
     }
 
-    if rd.Available() != 0 {
+    if rd.GetRemainingCapacity() > 0 {
       return Failure("message contains additional bytes at end");
     }
 

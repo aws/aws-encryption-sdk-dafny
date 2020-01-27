@@ -4,123 +4,150 @@ module Streams {
   import opened StandardLibrary
   import opened UInt = StandardLibrary.UInt
 
-  class StringReader {
-    const data: array<uint8>
+  class MemoryReader<T> {
+    ghost var Repr: set<object>
+    const data: seq<T>
     var pos: nat
 
-    ghost var Repr: set<object>
-
-    predicate Valid()
-      reads this
+    predicate Valid() reads this, Repr
     {
-      this in Repr &&
-      data in Repr &&
-      pos <= data.Length
+      Repr == {this} &&
+      pos <= |data|
     }
 
-    function method Available(): nat  // An upper bound on the amount of data the stream can deliver on Read
-      requires Valid()
-      reads this
-    {
-      data.Length - pos
-    }
-
-    constructor(d: array<uint8>)
-      ensures Valid()
-    {
-      Repr := {this, d};
-      data := d;
-      pos := 0;
-    }
-
-    constructor FromSeq(s: seq<uint8>)
-      ensures Valid()
+    constructor(s: seq<T>)
+      ensures pos == 0
       ensures data[..] == s
-    {
-      var d := new uint8[|s|](i requires 0 <= i < |s| => s[i]);
-      Repr := {this, d};
-      data := d;
-      pos := 0;
-    }
-
-    method Read(arr: array<uint8>, off: nat, req: nat) returns (res: Result<nat>)
-      requires Valid() && arr != data
-      requires off + req <= arr.Length
-      modifies this, arr
       ensures Valid()
-      ensures var n := Min(req, old(Available()));
-        arr[..] == arr[..off] + data[old(pos) .. (old(pos) + n)] + arr[off + n ..]
-      ensures match res
-        case Success(lengthRead) => lengthRead == Min(req, old(Available()))
-        case Failure(e) => unchanged(this) && unchanged(arr)
+      ensures fresh(Repr - {this})
     {
-      var n := Min(req, Available());
-      forall i | 0 <= i < n {
-        arr[off + i] := data[pos + i];
-      }
-      pos := pos + n;
-      return Success(n);
+      this.data := s;
+      this.pos := 0;
+      Repr := {this};
     }
 
-    method ReadSeq(desiredByteCount: nat) returns (bytes: seq<uint8>)
+    method ReadBytes(byteCount: nat) returns (bytes: seq<T>)
+      requires byteCount + pos <= |data|
       requires Valid()
-      modifies this
+      modifies Repr
+      ensures byteCount == 0 ==> bytes == []
+      ensures byteCount > 0 ==> bytes == data[old(pos)..][..byteCount]
+      ensures pos == old(pos) + byteCount
       ensures Valid()
-      ensures bytes == data[old(pos)..][..Min(desiredByteCount, old(Available()))]
+      ensures fresh(Repr - old(Repr))
     {
-      var n := Min(desiredByteCount, Available());
-      bytes := seq(n, i requires 0 <= i < n && pos + n <= data.Length reads this, data => data[pos + i]);
-      pos := pos + n;
+      bytes := data[pos..][..byteCount];
+      pos := pos + byteCount;
+      Repr := {this};
+      return bytes;
     }
 
-    // Read exactly `n` bytes, if possible; otherwise, fail.
-    method ReadExact(n: nat) returns (res: Result<seq<uint8>>)
+    method ReadExact(n: nat) returns (res: Result<seq<T>>)
       requires Valid()
-      modifies this
+      modifies Repr
+      ensures res.Success? ==> |res.value| == n
+      ensures res.Failure? ==> n > |data| - pos
       ensures Valid()
-      ensures match res
-        case Success(bytes) => |bytes| == n
-        case Failure(_) => true
+      ensures fresh(Repr - old(Repr))
     {
-      var bytes := ReadSeq(n);
-      if |bytes| != n {
+      if n > |data| - pos {
         return Failure("IO Error: Not enough bytes left on stream.");
       } else {
+        var bytes := ReadBytes(n);
+        Repr := {this};
         return Success(bytes);
       }
     }
+  }
 
-    // Read exactly 1 byte, if possible, and return as a uint8; otherwise, fail.
+  class ByteReader {
+    ghost var Repr: set<object>
+    var memReader: MemoryReader<uint8>
+
+    predicate Valid()
+      reads this, Repr
+    {
+      this in Repr &&
+      (memReader in Repr && memReader.Repr <= Repr && memReader.Valid())
+    }
+
+    constructor(m: MemoryReader<uint8>)
+      requires m.Valid()
+      ensures memReader == m
+      ensures Valid()
+    {
+      memReader := m;
+      Repr := {this} + {m} + m.Repr;
+    }
+
     method ReadByte() returns (res: Result<uint8>)
       requires Valid()
-      modifies this
+      modifies Repr
+      ensures res.Failure? ==> |memReader.data| - memReader.pos < 1
       ensures Valid()
+      ensures fresh(Repr - old(Repr))
     {
-      var bytes :- ReadExact(1);
-      var n := bytes[0];
-      return Success(n);
+      var bytes :- memReader.ReadExact(1);
+      assert |bytes| == 1;
+      Repr := Repr + {memReader} + memReader.Repr;
+      return Success(bytes[0]);
     }
 
-    // Read exactly 2 bytes, if possible, and return as a uint16; otherwise, fail.
+    method ReadBytes(n: nat) returns (res: Result<seq<uint8>>)
+      requires Valid()
+      modifies Repr
+      ensures res.Failure? ==> |memReader.data| - memReader.pos < n
+      ensures res.Success? ==> |res.value| == n
+      ensures Valid()
+      ensures fresh(Repr - old(Repr))
+    {
+      var bytes :- memReader.ReadExact(n);
+      Repr := Repr + {memReader} + memReader.Repr;
+      return Success(bytes);
+    }
+
     method ReadUInt16() returns (res: Result<uint16>)
       requires Valid()
-      modifies this
+      modifies Repr
+      ensures res.Failure? ==> |memReader.data| - memReader.pos < 2
       ensures Valid()
+      ensures fresh(Repr - old(Repr))
     {
-      var bytes :- ReadExact(2);
+      var bytes :- memReader.ReadExact(2);
       var n := SeqToUInt16(bytes);
+      Repr := Repr + {memReader} + memReader.Repr;
       return Success(n);
     }
 
-    // Read exactly 4 bytes, if possible, and return as a uint32; otherwise, fail.
     method ReadUInt32() returns (res: Result<uint32>)
       requires Valid()
-      modifies this
+      modifies Repr
+      ensures res.Failure? ==> |memReader.data| - memReader.pos < 4
       ensures Valid()
+      ensures fresh(Repr - old(Repr))
     {
-      var bytes :- ReadExact(4);
+      var bytes :- memReader.ReadExact(4);
       var n := SeqToUInt32(bytes);
+      Repr := Repr + {memReader} + memReader.Repr;
       return Success(n);
+    }
+
+    function method GetRemainingCapacity(): (n: nat)
+      reads Repr
+      requires Valid()
+      ensures Valid()
+      ensures n == |memReader.data| - memReader.pos
+    {
+      |memReader.data| - memReader.pos
+    }
+
+    function method GetUsedCapacity(): (n: nat)
+      reads Repr
+      requires Valid()
+      ensures Valid()
+      ensures n == memReader.pos
+    {
+      memReader.pos
     }
   }
 
@@ -148,26 +175,6 @@ module Streams {
     {
       data := [];
       Repr := {this};
-    }
-
-    method Write(a: array<uint8>, off: nat, len: nat) returns (res: Result<nat>)
-      requires Valid() && a !in Repr
-      requires off + len <= a.Length
-      modifies `data
-      ensures Valid()
-      ensures match res
-        case Success(lengthWritten) =>
-          && old(HasRemainingCapacity(len))
-          && lengthWritten == len
-          && data == old(data) + a[off..][..len]
-        case Failure(e) => unchanged(`data)
-    {
-      if HasRemainingCapacity(len) {
-        data := data + a[off..off + len];
-        return Success(len);
-      } else {
-        return Failure("IO Error: Stream capacity exceeded.");
-      }
     }
 
     method WriteSeq(bytes: seq<uint8>) returns (res: Result<nat>)
