@@ -65,10 +65,11 @@ module {:extern "ESDKClient"} ESDKClient {
       Msg.ContentType.Framed,
       dataKeyMaterials.algorithmSuiteID.IVLength() as uint8,
       frameLength);
-    var wr := new Streams.StringWriter();
+    // TODO: Update with an actual calculation here
+    var wr := new Streams.ByteWriter(0x1_0000);
 
     var _ :- Serialize.SerializeHeaderBody(wr, headerBody);
-    var unauthenticatedHeader := wr.data;
+    var unauthenticatedHeader := wr.writer.data;
 
     var iv: seq<uint8> := seq(dataKeyMaterials.algorithmSuiteID.IVLength(), _ => 0);
     var encryptionOutput :- AESEncryption.AESEncrypt(dataKeyMaterials.algorithmSuiteID.EncryptionSuite(), iv, derivedDataKey, [], unauthenticatedHeader);
@@ -85,7 +86,7 @@ module {:extern "ESDKClient"} ESDKClient {
      * Add footer with signature, if required.
      */
 
-    var msg := wr.data + body;
+    var msg := wr.writer.data + body;
 
     match dataKeyMaterials.algorithmSuiteID.SignatureType() {
       case None =>

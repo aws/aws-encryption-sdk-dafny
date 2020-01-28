@@ -166,106 +166,145 @@ module Streams {
     }
   }
 
-  class StringWriter {
-    var data: seq<uint8>  // TODO: make "data" ghost and provide an implementation that writes to an array
-
+  class MemoryWriter<T> {
     ghost var Repr: set<object>
+    const maxSize: nat
+    // Ideally, we should not even use a seq for this, since a stream might come from a large file/ network call, and
+    // we might not want to fully load everything into memory prior to operating/ reading the stream
+    var data: seq<T>
 
-    predicate Valid()
-      reads this
+    predicate Valid() reads this, Repr
     {
-      this in Repr
+      Repr == {this} &&
+      |data| <= maxSize
     }
 
-    predicate method HasRemainingCapacity(n: nat)  // Compare with an upper bound on the amount of data the stream can accept on Write
-      requires Valid()
-      reads this
+    constructor(n: nat)
+      ensures maxSize == n
+      ensures data == []
+      ensures Valid()
     {
-      // TODO: revisit this definition if we change the backing store of the StringWriter to be something with limited capacity
-      true
-    }
-
-    constructor()
-      ensures Valid() && fresh(Repr)
-    {
+      maxSize := n;
       data := [];
       Repr := {this};
     }
 
-    method WriteSeq(bytes: seq<uint8>) returns (res: Result<nat>)
+    method WriteElements(elems: seq<T>) returns (n: nat)
+      requires Valid()
+      requires maxSize >= (|elems| + |data|)
+      modifies `data
+      ensures n == |data| - |old(data)| == |elems|
+      ensures |elems| == 0 ==> data == old(data)
+      ensures |elems| > 0 ==> data == old(data) + elems
+      ensures elems == data[(|data| - |elems|)..]
+      ensures Valid()
+    {
+      data := data + elems;
+      return |elems|;
+    }
+
+    method WriteExact(elems: seq<T>) returns (res: Result<nat>)
       requires Valid()
       modifies `data
+      ensures res.Success? ==> res.value == |data| - |old(data)| == |elems|
+      ensures res.Success? ==> data == old(data) + elems
+      ensures res.Success? && |elems| > 0 ==> !unchanged(`data)
+      ensures res.Success? && |elems| == 0 ==> unchanged(`data)
+      ensures res.Failure? ==> maxSize < (|elems| + |data|)
+      ensures res.Failure? ==> unchanged(`data)
+      ensures maxSize == old(maxSize)
       ensures Valid()
-      ensures match res
-        case Success(lengthWritten) =>
-          && old(HasRemainingCapacity(|bytes|))
-          && lengthWritten == |bytes|
-          && data == old(data) + bytes
-        case Failure(e) => unchanged(`data)
     {
-      if HasRemainingCapacity(|bytes|) {
-        data := data + bytes;
-        return Success(|bytes|);
-      } else {
+      if maxSize < (|elems| + |data|) {
         return Failure("IO Error: Stream capacity exceeded.");
+      } else {
+        var totalWritten := WriteElements(elems);
+        return Success(totalWritten);
       }
+    }
+  }
+
+  class ByteWriter {
+    ghost var Repr: set<object>
+    var writer: MemoryWriter<uint8>
+
+    predicate Valid()
+      reads this, Repr
+    {
+      this in Repr &&
+      (writer in Repr && writer.Repr <= Repr && writer.Valid())
+    }
+
+    constructor(n: nat)
+      ensures writer.maxSize == n
+      ensures n == old(n)
+      ensures fresh(Repr - {this})
+      ensures Valid()
+    {
+      var mw := new MemoryWriter<uint8>(n);
+      writer := mw;
+      Repr := {this} + {writer} + mw.Repr;
     }
 
     method WriteByte(n: uint8) returns (res: Result<nat>)
       requires Valid()
-      modifies `data
+      modifies writer`data
+      ensures res.Failure? ==> |writer.data| + 1 > writer.maxSize
+      ensures res.Failure? ==> unchanged(writer)
+      ensures res.Success? ==> !unchanged(writer`data)
+      ensures res.Success? ==> writer.data == old(writer.data) + [n]
+      ensures res.Success? ==> res.value == 1
+      ensures writer.maxSize == old(writer.maxSize)
       ensures Valid()
-      ensures match res
-        case Success(lengthWritten) =>
-          && old(HasRemainingCapacity(1))
-          && lengthWritten == 1
-          && data == old(data) + [n]
-        case Failure(e) => unchanged(`data)
     {
-      if HasRemainingCapacity(1) {
-        data := data + [n];
-        return Success(1);
-      } else {
-        return Failure("IO Error: Stream capacity exceeded.");
-      }
+      var written :- writer.WriteExact([n]);
+      return Success(written);
+    }
+
+    method WriteBytes(s: seq<uint8>) returns (res: Result<nat>)
+      requires Valid()
+      modifies writer`data
+      ensures res.Failure? ==> |writer.data| + |s| > writer.maxSize
+      ensures res.Failure? ==> unchanged(writer)
+      ensures res.Success? && |s| == 0 ==> unchanged(writer)
+      ensures res.Success? && |s| > 0 ==> !unchanged(writer`data)
+      ensures res.Success? ==> writer.data == old(writer.data) + s
+      ensures res.Success? ==> res.value == |s|
+      ensures writer.maxSize == old(writer.maxSize)
+      ensures Valid()
+    {
+      var written :- writer.WriteExact(s);
+      return Success(written);
     }
 
     method WriteUInt16(n: uint16) returns (res: Result<nat>)
       requires Valid()
-      modifies `data
+      modifies writer`data
+      ensures res.Failure? ==> |writer.data| + 2 > writer.maxSize
+      ensures res.Failure? ==> unchanged(writer)
+      ensures res.Success? ==> !unchanged(writer`data)
+      ensures res.Success? ==> writer.data == old(writer.data) + UInt16ToSeq(n)
+      ensures res.Success? ==> res.value == 2
+      ensures writer.maxSize == old(writer.maxSize)
       ensures Valid()
-      ensures match res
-        case Success(lengthWritten) =>
-          && old(HasRemainingCapacity(2))
-          && lengthWritten == 2
-          && data == old(data) + UInt16ToSeq(n)
-        case Failure(e) => unchanged(`data)
     {
-      if HasRemainingCapacity(2) {
-        data := data + UInt16ToSeq(n);
-        return Success(2);
-      } else {
-        return Failure("IO Error: Stream capacity exceeded.");
-      }
+      var written :- writer.WriteExact(UInt16ToSeq(n));
+      return Success(written);
     }
 
     method WriteUInt32(n: uint32) returns (res: Result<nat>)
       requires Valid()
-      modifies `data
+      modifies writer`data
+      ensures res.Failure? ==> |writer.data| + 4 > writer.maxSize
+      ensures res.Failure? ==> unchanged(writer)
+      ensures res.Success? ==> !unchanged(writer`data)
+      ensures res.Success? ==> writer.data == old(writer.data) + UInt32ToSeq(n)
+      ensures res.Success? ==> res.value == 4
+      ensures writer.maxSize == old(writer.maxSize)
       ensures Valid()
-      ensures match res
-        case Success(lengthWritten) =>
-          && old(HasRemainingCapacity(4))
-          && lengthWritten == 4
-          && data == old(data) + UInt32ToSeq(n)
-        case Failure(e) => unchanged(`data)
     {
-      if HasRemainingCapacity(4) {
-        data := data + UInt32ToSeq(n);
-        return Success(4);
-      } else {
-        return Failure("IO Error: Stream capacity exceeded.");
-      }
+      var written :- writer.WriteExact(UInt32ToSeq(n));
+      return Success(written);
     }
   }
 }

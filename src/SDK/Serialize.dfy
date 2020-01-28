@@ -14,17 +14,17 @@ module Serialize {
   import opened UInt = StandardLibrary.UInt
   import Materials
 
-  method SerializeHeaderBody(wr: Streams.StringWriter, hb: Msg.HeaderBody) returns (ret: Result<nat>)
+  method SerializeHeaderBody(wr: Streams.ByteWriter, hb: Msg.HeaderBody) returns (ret: Result<nat>)
     requires wr.Valid() && hb.Valid()
-    modifies wr`data
+    modifies wr.writer`data
     ensures wr.Valid()
     ensures match ret
       case Success(totalWritten) =>
         var serHb := (reveal Msg.HeaderBodyToSeq(); Msg.HeaderBodyToSeq(hb));
-        var initLen := old(|wr.data|);
+        var initLen := old(|wr.writer.data|);
         && totalWritten == |serHb|
-        && initLen + totalWritten == |wr.data|
-        && serHb == wr.data[initLen..initLen + totalWritten]
+        && initLen + totalWritten == |wr.writer.data|
+        && serHb == wr.writer.data[initLen..initLen + totalWritten]
       case Failure(e) => true
   {
     var totalWritten := 0;
@@ -38,7 +38,7 @@ module Serialize {
     len :- wr.WriteUInt16(hb.algorithmSuiteID as uint16);
     totalWritten := totalWritten + len;
 
-    len :- wr.WriteSeq(hb.messageID);
+    len :- wr.WriteBytes(hb.messageID);
     totalWritten := totalWritten + len;
 
     len :- SerializeAAD(wr, hb.aad);
@@ -51,7 +51,7 @@ module Serialize {
     len :- wr.WriteByte(contentType);
     totalWritten := totalWritten + len;
 
-    len :- wr.WriteSeq(Msg.Reserved);
+    len :- wr.WriteBytes(Msg.Reserved);
     totalWritten := totalWritten + len;
 
     len :- wr.WriteByte(hb.ivLength);
@@ -64,37 +64,37 @@ module Serialize {
     return Success(totalWritten);
   }
 
-  method SerializeHeaderAuthentication(wr: Streams.StringWriter, ha: Msg.HeaderAuthentication, ghost algorithmSuiteID: AlgorithmSuite.ID) returns (ret: Result<nat>)
+  method SerializeHeaderAuthentication(wr: Streams.ByteWriter, ha: Msg.HeaderAuthentication, ghost algorithmSuiteID: AlgorithmSuite.ID) returns (ret: Result<nat>)
     requires wr.Valid()
-    modifies wr`data
+    modifies wr.writer`data
     ensures wr.Valid()
     ensures match ret
       case Success(totalWritten) =>
         var serHa := ha.iv + ha.authenticationTag;
-        var initLen := old(|wr.data|);
-        && initLen + totalWritten == |wr.data|
-        && serHa == wr.data[initLen..initLen + totalWritten]
+        var initLen := old(|wr.writer.data|);
+        && initLen + totalWritten == |wr.writer.data|
+        && serHa == wr.writer.data[initLen..initLen + totalWritten]
         && totalWritten == |serHa|
       case Failure(e) => true
   {
-    var m :- wr.WriteSeq(ha.iv);
-    var n :- wr.WriteSeq(ha.authenticationTag);
+    var m :- wr.WriteBytes(ha.iv);
+    var n :- wr.WriteBytes(ha.authenticationTag);
     return Success(m + n);
   }
 
   // ----- SerializeAAD -----
 
-  method SerializeAAD(wr: Streams.StringWriter, kvPairs: Materials.EncryptionContext) returns (ret: Result<nat>)
+  method SerializeAAD(wr: Streams.ByteWriter, kvPairs: Materials.EncryptionContext) returns (ret: Result<nat>)
     requires wr.Valid() && Msg.ValidAAD(kvPairs)
-    modifies wr`data
+    modifies wr.writer`data
     ensures wr.Valid() && Msg.ValidAAD(kvPairs)
     ensures match ret
       case Success(totalWritten) =>
         var serAAD := Msg.AADToSeq(kvPairs);
-        var initLen := old(|wr.data|);
+        var initLen := old(|wr.writer.data|);
         && totalWritten == |serAAD|
-        && initLen + totalWritten == |wr.data|
-        && wr.data == old(wr.data) + serAAD
+        && initLen + totalWritten == |wr.writer.data|
+        && wr.writer.data == old(wr.writer.data) + serAAD
       case Failure(e) => true
   {
     reveal Msg.ValidAAD();
@@ -115,8 +115,8 @@ module Serialize {
     ghost var n := |kvPairs|;
     while j < |kvPairs|
       invariant j <= n == |kvPairs|
-      invariant wr.data ==
-        old(wr.data) +
+      invariant wr.writer.data ==
+        old(wr.writer.data) +
         UInt16ToSeq(aadLength) +
         UInt16ToSeq(n as uint16) +
         Msg.KVPairsToSeq(kvPairs, 0, j)
@@ -125,13 +125,13 @@ module Serialize {
       len :- wr.WriteUInt16(|kvPairs[j].0| as uint16);
       totalWritten := totalWritten + len;
 
-      len :- wr.WriteSeq(kvPairs[j].0);
+      len :- wr.WriteBytes(kvPairs[j].0);
       totalWritten := totalWritten + len;
 
       len :- wr.WriteUInt16(|kvPairs[j].1| as uint16);
       totalWritten := totalWritten + len;
 
-      len :- wr.WriteSeq(kvPairs[j].1);
+      len :- wr.WriteBytes(kvPairs[j].1);
       totalWritten := totalWritten + len;
 
       j := j + 1;
@@ -171,17 +171,17 @@ module Serialize {
 
   // ----- SerializeEDKs -----
 
-  method SerializeEDKs(wr: Streams.StringWriter, encryptedDataKeys: Msg.EncryptedDataKeys) returns (ret: Result<nat>)
+  method SerializeEDKs(wr: Streams.ByteWriter, encryptedDataKeys: Msg.EncryptedDataKeys) returns (ret: Result<nat>)
     requires wr.Valid() && encryptedDataKeys.Valid()
-    modifies wr`data
+    modifies wr.writer`data
     ensures wr.Valid() && encryptedDataKeys.Valid()
     ensures match ret
       case Success(totalWritten) =>
         var serEDK := Msg.EDKsToSeq(encryptedDataKeys);
-        var initLen := old(|wr.data|);
+        var initLen := old(|wr.writer.data|);
         && totalWritten == |serEDK|
-        && initLen + totalWritten == |wr.data|
-        && wr.data == old(wr.data) + serEDK
+        && initLen + totalWritten == |wr.writer.data|
+        && wr.writer.data == old(wr.writer.data) + serEDK
       case Failure(e) => true
   {
     var totalWritten := 0;
@@ -193,8 +193,8 @@ module Serialize {
     ghost var n := |encryptedDataKeys.entries|;
     while j < |encryptedDataKeys.entries|
       invariant j <= n == |encryptedDataKeys.entries|
-      invariant wr.data ==
-        old(wr.data) +
+      invariant wr.writer.data ==
+        old(wr.writer.data) +
         UInt16ToSeq(n as uint16) +
         Msg.EDKEntriesToSeq(encryptedDataKeys.entries, 0, j);
       invariant totalWritten == 2 + |Msg.EDKEntriesToSeq(encryptedDataKeys.entries, 0, j)|
@@ -204,19 +204,19 @@ module Serialize {
       len :- wr.WriteUInt16(|entry.providerID| as uint16);
       totalWritten := totalWritten + len;
 
-      len :- wr.WriteSeq(entry.providerID);
+      len :- wr.WriteBytes(entry.providerID);
       totalWritten := totalWritten + len;
 
       len :- wr.WriteUInt16(|entry.providerInfo| as uint16);
       totalWritten := totalWritten + len;
 
-      len :- wr.WriteSeq(entry.providerInfo);
+      len :- wr.WriteBytes(entry.providerInfo);
       totalWritten := totalWritten + len;
 
       len :- wr.WriteUInt16(|entry.ciphertext| as uint16);
       totalWritten := totalWritten + len;
 
-      len :- wr.WriteSeq(entry.ciphertext);
+      len :- wr.WriteBytes(entry.ciphertext);
       totalWritten := totalWritten + len;
 
       j := j + 1;
