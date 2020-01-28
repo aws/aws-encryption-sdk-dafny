@@ -4,10 +4,8 @@ module Streams {
   import opened StandardLibrary
   import opened UInt = StandardLibrary.UInt
 
-  class MemoryReader<T> {
+  class SeqReader<T> {
     ghost var Repr: set<object>
-    // Ideally, we should not even use a seq for this, since a stream might come from a large file/ network call, and
-    // we might not want to fully load everything into memory prior to operating/ reading the stream
     const data: seq<T>
     var pos: nat
 
@@ -63,7 +61,7 @@ module Streams {
 
   class ByteReader {
     ghost var Repr: set<object>
-    var reader: MemoryReader<uint8>
+    var reader: SeqReader<uint8>
 
     predicate Valid()
       reads this, Repr
@@ -78,7 +76,7 @@ module Streams {
       ensures fresh(Repr - {this})
       ensures Valid()
     {
-      var mr := new MemoryReader<uint8>(s);
+      var mr := new SeqReader<uint8>(s);
       reader := mr;
       Repr := {this} + {reader} + mr.Repr;
     }
@@ -166,11 +164,9 @@ module Streams {
     }
   }
 
-  class MemoryWriter<T> {
+  class SeqWriter<T> {
     ghost var Repr: set<object>
     const maxSize: nat
-    // Ideally, we should not even use a seq for this, since a stream might come from a large file/ network call, and
-    // we might not want to fully load everything into memory prior to operating/ reading the stream
     var data: seq<T>
 
     predicate Valid() reads this, Repr
@@ -226,7 +222,7 @@ module Streams {
 
   class ByteWriter {
     ghost var Repr: set<object>
-    var writer: MemoryWriter<uint8>
+    var writer: SeqWriter<uint8>
 
     predicate Valid()
       reads this, Repr
@@ -241,7 +237,7 @@ module Streams {
       ensures fresh(Repr - {this})
       ensures Valid()
     {
-      var mw := new MemoryWriter<uint8>(n);
+      var mw := new SeqWriter<uint8>(n);
       writer := mw;
       Repr := {this} + {writer} + mw.Repr;
     }
