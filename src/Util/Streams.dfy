@@ -6,6 +6,8 @@ module Streams {
 
   class MemoryReader<T> {
     ghost var Repr: set<object>
+    // Ideally, we should not even use a seq for this, since a stream might come from a large file/ network call, and
+    // we might not want to fully load everything into memory prior to operating/ reading the stream
     const data: seq<T>
     var pos: nat
 
