@@ -21,6 +21,10 @@ public class DafnyFFI {
         // TODO: Find a way to safely avoid copying 
         return byteseq.FromArray(bytes.ToArray());
     }
+
+    public static byteseq SequenceFromByteArray(byte[] bytearray) {
+        return byteseq.FromArray(bytearray);
+    }
   
     public static string StringFromDafnyString(charseq dafnyString) {
         // TODO: Find a way to safely avoid copying.
@@ -53,6 +57,10 @@ public class DafnyFFI {
     public static Option<T> NullableToOption<T>(T t)
     {
         return t == null ? Option<T>.create_None() : Option<T>.create_Some(t);
+    }
+
+    public enum RSAPaddingModes {
+        PKCS1, OAEP_SHA1, OAEP_SHA256, OAEP_SHA384, OAEP_SHA512
     }
 }
 

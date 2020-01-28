@@ -8,6 +8,13 @@ Set the DAFNY_AWS_ESDK_TEST_VECTOR_MANIFEST_PATH environment variable as the abs
 export DAFNY_AWS_ESDK_TEST_VECTOR_MANIFEST_PATH="<absolute_path_to_manifest>"
 ```
 
+Set the DAFNY_AWS_ESDK_DECRYPT_ORACLE_URL environment variable to the Crypto-tools provided api endpoint.
+
+```
+export DAFNY_AWS_ESDK_DECRYPT_ORACLE_URL="http://xi1mwx3ttb.execute-api.us-west-2.amazonaws.com/api/v0/decrypt"
+```
+
+
 To run the test vectors from this directory, run the following command:
 
 ```
