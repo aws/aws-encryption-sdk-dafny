@@ -166,28 +166,23 @@ module Streams {
 
   class SeqWriter<T> {
     ghost var Repr: set<object>
-    const maxSize: nat
     var data: seq<T>
 
     predicate Valid() reads this, Repr
     {
-      Repr == {this} &&
-      |data| <= maxSize
+      Repr == {this}
     }
 
-    constructor(n: nat)
-      ensures maxSize == n
+    constructor()
       ensures data == []
       ensures Valid()
     {
-      maxSize := n;
       data := [];
       Repr := {this};
     }
 
     method WriteElements(elems: seq<T>) returns (n: nat)
       requires Valid()
-      requires maxSize >= (|elems| + |data|)
       modifies `data
       ensures n == |data| - |old(data)| == |elems|
       ensures |elems| == 0 ==> data == old(data)
@@ -197,26 +192,6 @@ module Streams {
     {
       data := data + elems;
       return |elems|;
-    }
-
-    method WriteExact(elems: seq<T>) returns (res: Result<nat>)
-      requires Valid()
-      modifies `data
-      ensures res.Success? ==> res.value == |data| - |old(data)| == |elems|
-      ensures res.Success? ==> data == old(data) + elems
-      ensures res.Success? && |elems| > 0 ==> !unchanged(`data)
-      ensures res.Success? && |elems| == 0 ==> unchanged(`data)
-      ensures res.Failure? ==> maxSize < (|elems| + |data|)
-      ensures res.Failure? ==> unchanged(`data)
-      ensures maxSize == old(maxSize)
-      ensures Valid()
-    {
-      if maxSize < (|elems| + |data|) {
-        return Failure("IO Error: Stream capacity exceeded.");
-      } else {
-        var totalWritten := WriteElements(elems);
-        return Success(totalWritten);
-      }
     }
   }
 
@@ -231,13 +206,12 @@ module Streams {
       (writer in Repr && writer.Repr <= Repr && writer.Valid())
     }
 
-    constructor(n: nat)
-      ensures writer.maxSize == n
-      ensures n == old(n)
+    constructor()
+      ensures writer.data == []
       ensures fresh(Repr - {this})
       ensures Valid()
     {
-      var mw := new SeqWriter<uint8>(n);
+      var mw := new SeqWriter<uint8>();
       writer := mw;
       Repr := {this} + {writer} + mw.Repr;
     }
@@ -245,61 +219,49 @@ module Streams {
     method WriteByte(n: uint8) returns (res: Result<nat>)
       requires Valid()
       modifies writer`data
-      ensures res.Failure? ==> |writer.data| + 1 > writer.maxSize
-      ensures res.Failure? ==> unchanged(writer)
-      ensures res.Success? ==> !unchanged(writer`data)
-      ensures res.Success? ==> writer.data == old(writer.data) + [n]
-      ensures res.Success? ==> res.value == 1
-      ensures writer.maxSize == old(writer.maxSize)
+      ensures !unchanged(writer`data)
+      ensures writer.data == old(writer.data) + [n]
+      ensures res.Success? && res.value == 1
       ensures Valid()
     {
-      var written :- writer.WriteExact([n]);
+      var written := writer.WriteElements([n]);
       return Success(written);
     }
 
     method WriteBytes(s: seq<uint8>) returns (res: Result<nat>)
       requires Valid()
       modifies writer`data
-      ensures res.Failure? ==> |writer.data| + |s| > writer.maxSize
-      ensures res.Failure? ==> unchanged(writer)
-      ensures res.Success? && |s| == 0 ==> unchanged(writer)
-      ensures res.Success? && |s| > 0 ==> !unchanged(writer`data)
-      ensures res.Success? ==> writer.data == old(writer.data) + s
-      ensures res.Success? ==> res.value == |s|
-      ensures writer.maxSize == old(writer.maxSize)
+      ensures |s| == 0 ==> unchanged(writer)
+      ensures |s| > 0 ==> !unchanged(writer`data)
+      ensures writer.data == old(writer.data) + s
+      ensures res.Success? && res.value == |s|
       ensures Valid()
     {
-      var written :- writer.WriteExact(s);
+      var written := writer.WriteElements(s);
       return Success(written);
     }
 
     method WriteUInt16(n: uint16) returns (res: Result<nat>)
       requires Valid()
       modifies writer`data
-      ensures res.Failure? ==> |writer.data| + 2 > writer.maxSize
-      ensures res.Failure? ==> unchanged(writer)
-      ensures res.Success? ==> !unchanged(writer`data)
-      ensures res.Success? ==> writer.data == old(writer.data) + UInt16ToSeq(n)
-      ensures res.Success? ==> res.value == 2
-      ensures writer.maxSize == old(writer.maxSize)
+      ensures !unchanged(writer`data)
+      ensures writer.data == old(writer.data) + UInt16ToSeq(n)
+      ensures res.Success? && res.value == 2
       ensures Valid()
     {
-      var written :- writer.WriteExact(UInt16ToSeq(n));
+      var written := writer.WriteElements(UInt16ToSeq(n));
       return Success(written);
     }
 
     method WriteUInt32(n: uint32) returns (res: Result<nat>)
       requires Valid()
       modifies writer`data
-      ensures res.Failure? ==> |writer.data| + 4 > writer.maxSize
-      ensures res.Failure? ==> unchanged(writer)
-      ensures res.Success? ==> !unchanged(writer`data)
-      ensures res.Success? ==> writer.data == old(writer.data) + UInt32ToSeq(n)
-      ensures res.Success? ==> res.value == 4
-      ensures writer.maxSize == old(writer.maxSize)
+      ensures !unchanged(writer`data)
+      ensures writer.data == old(writer.data) + UInt32ToSeq(n)
+      ensures res.Success? && res.value == 4
       ensures Valid()
     {
-      var written :- writer.WriteExact(UInt32ToSeq(n));
+      var written := writer.WriteElements(UInt32ToSeq(n));
       return Success(written);
     }
   }

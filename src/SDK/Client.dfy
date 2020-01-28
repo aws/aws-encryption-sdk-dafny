@@ -65,8 +65,7 @@ module {:extern "ESDKClient"} ESDKClient {
       Msg.ContentType.Framed,
       dataKeyMaterials.algorithmSuiteID.IVLength() as uint8,
       frameLength);
-    // TODO: Update with an actual calculation here
-    var wr := new Streams.ByteWriter(0x1_0000);
+    var wr := new Streams.ByteWriter();
 
     var _ :- Serialize.SerializeHeaderBody(wr, headerBody);
     var unauthenticatedHeader := wr.writer.data;
