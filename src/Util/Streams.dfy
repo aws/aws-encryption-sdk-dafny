@@ -19,135 +19,148 @@ module Streams {
       ensures pos == 0
       ensures data[..] == s
       ensures Valid()
-      ensures fresh(Repr - {this})
     {
-      this.data := s;
-      this.pos := 0;
+      data := s;
+      pos := 0;
       Repr := {this};
     }
 
-    method ReadBytes(byteCount: nat) returns (bytes: seq<T>)
-      requires byteCount + pos <= |data|
+    method ReadElements(n: nat) returns (elems: seq<T>)
       requires Valid()
-      modifies Repr
-      ensures byteCount == 0 ==> bytes == []
-      ensures byteCount > 0 ==> bytes == data[old(pos)..][..byteCount]
-      ensures pos == old(pos) + byteCount
+      requires n + pos <= |data|
+      modifies `pos
+      ensures n == 0 ==> elems == []
+      ensures n > 0 ==> elems == data[old(pos)..][..n]
+      ensures pos == old(pos) + n
+      ensures data == old(data)
       ensures Valid()
-      ensures fresh(Repr - old(Repr))
     {
-      bytes := data[pos..][..byteCount];
-      pos := pos + byteCount;
-      Repr := {this};
-      return bytes;
+      elems := data[pos..][..n];
+      pos := pos + n;
+      return elems;
     }
 
     method ReadExact(n: nat) returns (res: Result<seq<T>>)
       requires Valid()
-      modifies Repr
+      modifies `pos
       ensures res.Success? ==> |res.value| == n
+      ensures res.Success? ==> pos == old(pos) + n
       ensures res.Failure? ==> n > |data| - pos
+      ensures res.Failure? ==> pos == old(pos)
+      ensures data == old(data)
       ensures Valid()
-      ensures fresh(Repr - old(Repr))
     {
       if n > |data| - pos {
-        return Failure("IO Error: Not enough bytes left on stream.");
+        return Failure("IO Error: Not enough elements left on stream.");
       } else {
-        var bytes := ReadBytes(n);
-        Repr := {this};
-        return Success(bytes);
+        var elements := ReadElements(n);
+        return Success(elements);
       }
     }
   }
 
   class ByteReader {
     ghost var Repr: set<object>
-    var memReader: MemoryReader<uint8>
+    var reader: MemoryReader<uint8>
 
     predicate Valid()
       reads this, Repr
     {
       this in Repr &&
-      (memReader in Repr && memReader.Repr <= Repr && memReader.Valid())
+      (reader in Repr && reader.Repr <= Repr && reader.Valid())
     }
 
-    constructor(m: MemoryReader<uint8>)
-      requires m.Valid()
-      ensures memReader == m
+    constructor(s: seq<uint8>)
+      ensures reader.data == s
+      ensures s == old(s)
+      ensures fresh(Repr - {this})
       ensures Valid()
     {
-      memReader := m;
-      Repr := {this} + {m} + m.Repr;
+      var mr := new MemoryReader<uint8>(s);
+      reader := mr;
+      Repr := {this} + {reader} + mr.Repr;
     }
 
     method ReadByte() returns (res: Result<uint8>)
       requires Valid()
-      modifies Repr
-      ensures res.Failure? ==> |memReader.data| - memReader.pos < 1
+      modifies reader`pos
+      ensures res.Failure? ==> |reader.data| - reader.pos < 1
+      ensures res.Failure? ==> unchanged(reader)
+      ensures res.Success? ==> !unchanged(reader`pos)
+      ensures res.Success? ==> reader.pos == old(reader.pos) + 1
+      ensures reader.data == old(reader.data)
       ensures Valid()
-      ensures fresh(Repr - old(Repr))
     {
-      var bytes :- memReader.ReadExact(1);
+      var bytes :- reader.ReadExact(1);
       assert |bytes| == 1;
-      Repr := Repr + {memReader} + memReader.Repr;
       return Success(bytes[0]);
     }
 
     method ReadBytes(n: nat) returns (res: Result<seq<uint8>>)
       requires Valid()
-      modifies Repr
-      ensures res.Failure? ==> |memReader.data| - memReader.pos < n
+      modifies reader`pos
+      ensures res.Failure? ==> |reader.data| - reader.pos < n
+      ensures res.Failure? ==> unchanged(reader)
       ensures res.Success? ==> |res.value| == n
+      ensures res.Success? && |res.value| == 0 ==> unchanged(reader)
+      ensures res.Success? && |res.value| > 0 ==> !unchanged(reader`pos)
+      ensures res.Success? ==> reader.pos == old(reader.pos) + n
+      ensures reader.data == old(reader.data)
       ensures Valid()
-      ensures fresh(Repr - old(Repr))
     {
-      var bytes :- memReader.ReadExact(n);
-      Repr := Repr + {memReader} + memReader.Repr;
+      var bytes :- reader.ReadExact(n);
+      assert |bytes| == n;
       return Success(bytes);
     }
 
     method ReadUInt16() returns (res: Result<uint16>)
       requires Valid()
-      modifies Repr
-      ensures res.Failure? ==> |memReader.data| - memReader.pos < 2
+      modifies reader`pos
+      ensures res.Failure? ==> |reader.data| - reader.pos < 2
+      ensures res.Failure? ==> unchanged(reader)
+      ensures res.Success? ==> !unchanged(reader`pos)
+      ensures res.Success? ==> reader.pos == old(reader.pos) + 2
+      ensures reader.data == old(reader.data)
       ensures Valid()
-      ensures fresh(Repr - old(Repr))
     {
-      var bytes :- memReader.ReadExact(2);
+      var bytes :- reader.ReadExact(2);
+      assert |bytes| == 2;
       var n := SeqToUInt16(bytes);
-      Repr := Repr + {memReader} + memReader.Repr;
       return Success(n);
     }
 
     method ReadUInt32() returns (res: Result<uint32>)
       requires Valid()
-      modifies Repr
-      ensures res.Failure? ==> |memReader.data| - memReader.pos < 4
+      modifies reader`pos
+      ensures res.Failure? ==> |reader.data| - reader.pos < 4
+      ensures res.Failure? ==> unchanged(reader)
+      ensures res.Success? ==> !unchanged(reader`pos)
+      ensures res.Success? ==> reader.pos == old(reader.pos) + 4
+      ensures reader.data == old(reader.data)
       ensures Valid()
-      ensures fresh(Repr - old(Repr))
     {
-      var bytes :- memReader.ReadExact(4);
+      var bytes :- reader.ReadExact(4);
+      assert |bytes| == 4;
       var n := SeqToUInt32(bytes);
-      Repr := Repr + {memReader} + memReader.Repr;
       return Success(n);
     }
 
     function method GetRemainingCapacity(): (n: nat)
       reads Repr
       requires Valid()
+      ensures n == |reader.data| - reader.pos
       ensures Valid()
-      ensures n == |memReader.data| - memReader.pos
     {
-      |memReader.data| - memReader.pos
+      |reader.data| - reader.pos
     }
 
     function method GetUsedCapacity(): (n: nat)
       reads Repr
       requires Valid()
+      ensures n == reader.pos
       ensures Valid()
-      ensures n == memReader.pos
     {
-      memReader.pos
+      reader.pos
     }
   }
 

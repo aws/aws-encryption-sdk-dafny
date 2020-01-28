@@ -108,7 +108,7 @@ module MessageBody {
     requires rd.Valid()
     requires |key| == algorithmSuiteID.KeyLength()
     requires 0 < frameLength < UINT32_LIMIT
-    modifies rd.memReader
+    modifies rd.reader`pos
     ensures rd.Valid()
   {
     var plaintext := [];
@@ -134,7 +134,7 @@ module MessageBody {
     requires rd.Valid()
     requires |key| == algorithmSuiteID.KeyLength()
     requires 0 < frameLength < UINT32_LIMIT
-    modifies rd.memReader
+    modifies rd.reader`pos
     ensures rd.Valid()
     ensures match res
       case Success((plaintext, final)) =>

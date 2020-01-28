@@ -30,7 +30,7 @@ module Deserialize {
 
   method DeserializeHeader(rd: Streams.ByteReader) returns (res: Result<Msg.Header>)
     requires rd.Valid()
-    modifies rd.Repr
+    modifies rd.reader`pos
     ensures rd.Valid()
     ensures match res
       case Success(header) => header.Valid()
@@ -47,7 +47,7 @@ module Deserialize {
   */
   method DeserializeHeaderBody(rd: Streams.ByteReader) returns (ret: Result<Msg.HeaderBody>)
     requires rd.Valid()
-    modifies rd.Repr
+    modifies rd.reader`pos
     ensures rd.Valid()
     ensures match ret
       case Success(hb) => hb.Valid()
@@ -93,7 +93,7 @@ module Deserialize {
   method DeserializeHeaderAuthentication(rd: Streams.ByteReader, algorithmSuiteID: AlgorithmSuite.ID) returns (ret: Result<Msg.HeaderAuthentication>)
     requires rd.Valid()
     requires algorithmSuiteID in AlgorithmSuite.Suite.Keys
-    modifies rd.Repr
+    modifies rd.reader`pos
     ensures rd.Valid()
     ensures match ret
       case Success(ha) =>
@@ -112,7 +112,7 @@ module Deserialize {
 
   method DeserializeVersion(rd: Streams.ByteReader) returns (ret: Result<Msg.Version>)
     requires rd.Valid()
-    modifies rd.Repr
+    modifies rd.reader`pos
     ensures rd.Valid()
   {
     var version :- rd.ReadByte();
@@ -125,7 +125,7 @@ module Deserialize {
 
   method DeserializeType(rd: Streams.ByteReader) returns (ret: Result<Msg.Type>)
     requires rd.Valid()
-    modifies rd.Repr
+    modifies rd.reader`pos
     ensures rd.Valid()
   {
     var typ :- rd.ReadByte();
@@ -138,7 +138,7 @@ module Deserialize {
 
   method DeserializeAlgorithmSuiteID(rd: Streams.ByteReader) returns (ret: Result<AlgorithmSuite.ID>)
     requires rd.Valid()
-    modifies rd.Repr
+    modifies rd.reader`pos
     ensures rd.Valid()
   {
     var algorithmSuiteID :- rd.ReadUInt16();
@@ -151,7 +151,7 @@ module Deserialize {
 
   method DeserializeMsgID(rd: Streams.ByteReader) returns (ret: Result<Msg.MessageID>)
     requires rd.Valid()
-    modifies rd.Repr
+    modifies rd.reader`pos
     ensures rd.Valid()
   {
     var msgID: seq<uint8> :- rd.ReadBytes(Msg.MESSAGE_ID_LEN);
@@ -160,7 +160,7 @@ module Deserialize {
 
   method DeserializeUTF8(rd: Streams.ByteReader, n: nat) returns (ret: Result<seq<uint8>>)
     requires rd.Valid()
-    modifies rd.Repr
+    modifies rd.reader`pos
     ensures rd.Valid()
     ensures match ret
       case Success(bytes) =>
@@ -178,7 +178,7 @@ module Deserialize {
 
   method DeserializeAAD(rd: Streams.ByteReader) returns (ret: Result<Materials.EncryptionContext>)
     requires rd.Valid()
-    modifies rd.Repr
+    modifies rd.reader`pos
     ensures rd.Valid()
     ensures match ret
       case Success(aad) => Msg.ValidAAD(aad)
@@ -275,7 +275,7 @@ module Deserialize {
 
   method DeserializeEncryptedDataKeys(rd: Streams.ByteReader) returns (ret: Result<Msg.EncryptedDataKeys>)
     requires rd.Valid()
-    modifies rd.Repr
+    modifies rd.reader`pos
     ensures rd.Valid()
     ensures match ret
       case Success(edks) => edks.Valid()
@@ -317,7 +317,7 @@ module Deserialize {
 
   method DeserializeContentType(rd: Streams.ByteReader) returns (ret: Result<Msg.ContentType>)
     requires rd.Valid()
-    modifies rd.Repr
+    modifies rd.reader`pos
     ensures rd.Valid()
   {
     var byte :- rd.ReadByte();
@@ -330,7 +330,7 @@ module Deserialize {
 
   method DeserializeReserved(rd: Streams.ByteReader) returns (ret: Result<seq<uint8>>)
     requires rd.Valid()
-    modifies rd.Repr
+    modifies rd.reader`pos
     ensures rd.Valid()
   {
     var reserved :- rd.ReadBytes(4);

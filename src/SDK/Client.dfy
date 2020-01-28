@@ -131,8 +131,7 @@ module {:extern "ESDKClient"} ESDKClient {
      * Parse the message header to obtain: algorithm suite ID, encrypted data keys, and encryption context.
      */
 
-    var mr := new Streams.MemoryReader<uint8>(message);
-    var rd := new Streams.ByteReader(mr);
+    var rd := new Streams.ByteReader(message);
     var header :- Deserialize.DeserializeHeader(rd);
 
     /*
