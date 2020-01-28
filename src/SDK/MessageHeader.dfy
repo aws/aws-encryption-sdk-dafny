@@ -98,7 +98,7 @@ module MessageHeader {
    * Validity predicates -- predicates that say when the data structures above are in a good state.
    */
 
-  predicate ValidKVPair(kvPair: (UTF8.ValidUTF8Bytes, UTF8.ValidUTF8Bytes)) {
+  predicate method ValidKVPair(kvPair: (UTF8.ValidUTF8Bytes, UTF8.ValidUTF8Bytes)) {
     && |kvPair.0| < UINT16_LIMIT
     && |kvPair.1| < UINT16_LIMIT
     && UTF8.ValidUTF8Seq(kvPair.0)
@@ -269,13 +269,13 @@ module MessageHeader {
     case Framed => frameLength != 0
   }
 
-  predicate SortedKVPairsUpTo(a: seq<(UTF8.ValidUTF8Bytes, UTF8.ValidUTF8Bytes)>, n: nat)
+  predicate method SortedKVPairsUpTo(a: seq<(UTF8.ValidUTF8Bytes, UTF8.ValidUTF8Bytes)>, n: nat)
     requires n <= |a|
   {
     forall j :: 0 < j < n ==> LexicographicLessOrEqual(a[j-1].0, a[j].0, UInt.UInt8Less)
   }
 
-  predicate SortedKVPairs(a: seq<(UTF8.ValidUTF8Bytes, UTF8.ValidUTF8Bytes)>)
+  predicate method SortedKVPairs(a: seq<(UTF8.ValidUTF8Bytes, UTF8.ValidUTF8Bytes)>)
   {
     SortedKVPairsUpTo(a, |a|)
   }
@@ -323,7 +323,7 @@ module MessageHeader {
     if lo == hi then [] else KVPairEntriesToSeq(kvPairs, lo, hi - 1) + KVPairToSeq(kvPairs[hi - 1])
   }
 
-  function KVPairToSeq(kvPair: (UTF8.ValidUTF8Bytes, UTF8.ValidUTF8Bytes)): seq<uint8>
+  function method KVPairToSeq(kvPair: (UTF8.ValidUTF8Bytes, UTF8.ValidUTF8Bytes)): seq<uint8>
     requires ValidKVPair(kvPair)
   {
     UInt16ToSeq(|kvPair.0| as uint16) + kvPair.0 +
