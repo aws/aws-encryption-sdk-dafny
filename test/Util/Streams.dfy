@@ -93,4 +93,71 @@ module TestStreams {
     var _ :- RequireEqual(9, sizeRead);
     r := Require(isDoneReading);
   }
+
+  method {:test} TestSeqWriter() returns (r: Result<()>) {
+    var writer := new Streams.SeqWriter<nat>();
+    var _ :- RequireEqual([], writer.data);
+
+    var elemSize := writer.WriteElements([]);
+    var _ :- RequireEqual(0, elemSize);
+    var _ :- RequireEqual([], writer.data);
+
+    elemSize := writer.WriteElements([100, 200]);
+    var _ :- RequireEqual(2, elemSize);
+    var _ :- RequireEqual([100, 200], writer.data);
+
+    elemSize := writer.WriteElements([300, 400, 500]);
+    var _ :- RequireEqual(3, elemSize);
+    r := RequireEqual([100, 200, 300, 400, 500], writer.data);
+  }
+
+  method {:test} TestByteWriter() returns (r: Result<()>) {
+    var writer := new Streams.ByteWriter();
+    var dataWritten := writer.GetDataWritten();
+    var _ :- RequireEqual([], dataWritten);
+    var sizeWritten := writer.GetSizeWritten();
+    var _ :- RequireEqual(0, sizeWritten);
+
+    var res := writer.WriteByte(5);
+    var _ :- Require(res.Success?);
+    var _ :- RequireEqual(1, res.value);
+    dataWritten := writer.GetDataWritten();
+    var _ :- RequireEqual([5], dataWritten);
+    sizeWritten := writer.GetSizeWritten();
+    var _ :- RequireEqual(1, sizeWritten);
+
+    res := writer.WriteBytes([]);
+    var _ :- Require(res.Success?);
+    var _ :- RequireEqual(0, res.value);
+    dataWritten := writer.GetDataWritten();
+    var _ :- RequireEqual([5], dataWritten);
+    sizeWritten := writer.GetSizeWritten();
+    var _ :- RequireEqual(1, sizeWritten);
+
+    res := writer.WriteBytes([50, 100]);
+    var _ :- Require(res.Success?);
+    var _ :- RequireEqual(2, res.value);
+    dataWritten := writer.GetDataWritten();
+    var _ :- RequireEqual([5, 50, 100], dataWritten);
+    sizeWritten := writer.GetSizeWritten();
+    var _ :- RequireEqual(3, sizeWritten);
+
+    var uint16Written := SeqToUInt16([150, 200]);
+    res := writer.WriteUInt16(uint16Written);
+    var _ :- Require(res.Success?);
+    var _ :- RequireEqual(2, res.value);
+    dataWritten := writer.GetDataWritten();
+    var _ :- RequireEqual([5, 50, 100, 150, 200], dataWritten);
+    sizeWritten := writer.GetSizeWritten();
+    var _ :- RequireEqual(5, sizeWritten);
+
+    var uint32Written := SeqToUInt32([50, 150, 200, 255]);
+    res := writer.WriteUInt32(uint32Written);
+    var _ :- Require(res.Success?);
+    var _ :- RequireEqual(4, res.value);
+    dataWritten := writer.GetDataWritten();
+    var _ :- RequireEqual([5, 50, 100, 150, 200, 50, 150, 200, 255], dataWritten);
+    sizeWritten := writer.GetSizeWritten();
+    r := RequireEqual(9, sizeWritten);
+  }
 }
