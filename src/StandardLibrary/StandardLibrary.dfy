@@ -59,7 +59,7 @@ module {:extern "STL"} StandardLibrary {
     RequireWithMessage(b, "Failed requirement")
   }
 
-  function method RequireFailure(x: Result<()>): (r: Result<()>)
+  function method RequireFailure<T>(x: Result<T>): (r: Result<()>)
       ensures r.Success? ==> x.Failure?
   {
     RequireWithMessage(x.Failure?, "Expected failure, but got success")

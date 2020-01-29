@@ -4,7 +4,8 @@ module TestStandardLibrary {
   import opened StandardLibrary
 
   method {:test} TestRequireFailure() returns (ret: Result<()>) {
-    var _ :- RequireFailure(Failure("Some failure"));
+    var failure: Result<string> := Failure("Some failure");
+    var _ :- RequireFailure(failure);
 
     var requireFailureGivenSuccess := RequireFailure(Success(()));
     var _ :- Require(requireFailureGivenSuccess.Failure?);
