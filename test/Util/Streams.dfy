@@ -78,10 +78,31 @@ module TestStreams {
     var _ :- RequireEqual(10, sizeRead);
     var _ :- Require(isDoneReading);
 
-    var isFailure := reader.ReadByte();
+    var isByteFailure := reader.ReadByte();
     sizeRead := reader.GetSizeRead();
     isDoneReading := reader.IsDoneReading();
-    var _ :- RequireFailure(isFailure);
+    var _ :- RequireFailure(isByteFailure);
+    var _ :- RequireEqual(10, sizeRead);
+    var _ :- Require(isDoneReading);
+
+    var isBytesFailure := reader.ReadBytes(1);
+    sizeRead := reader.GetSizeRead();
+    isDoneReading := reader.IsDoneReading();
+    var _ :- RequireFailure(isBytesFailure);
+    var _ :- RequireEqual(10, sizeRead);
+    var _ :- Require(isDoneReading);
+
+    var isUint16Failure := reader.ReadUInt16();
+    sizeRead := reader.GetSizeRead();
+    isDoneReading := reader.IsDoneReading();
+    var _ :- RequireFailure(isUint16Failure);
+    var _ :- RequireEqual(10, sizeRead);
+    var _ :- Require(isDoneReading);
+
+    var isUint32Failure := reader.ReadUInt32();
+    sizeRead := reader.GetSizeRead();
+    isDoneReading := reader.IsDoneReading();
+    var _ :- RequireFailure(isUint32Failure);
     var _ :- RequireEqual(10, sizeRead);
     r := Require(isDoneReading);
   }

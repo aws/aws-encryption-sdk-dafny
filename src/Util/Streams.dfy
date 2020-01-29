@@ -72,7 +72,6 @@ module Streams {
 
     constructor(s: seq<uint8>)
       ensures reader.data == s
-      ensures s == old(s)
       ensures fresh(Repr - {this})
       ensures Valid()
     {
