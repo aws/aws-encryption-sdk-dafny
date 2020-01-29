@@ -232,8 +232,7 @@ module MessageHeader {
     var i := 0;
     while i < |kvPairs|
       invariant i <= |kvPairs|
-      invariant i > 1 ==> SortedKVPairsUpTo(kvPairs, i)
-      invariant forall j :: 0 < j < i ==> LexicographicLessOrEqual(kvPairs[j-1].0, kvPairs[j].0, UInt.UInt8Less)
+      invariant SortedKVPairsUpTo(kvPairs, i)
       invariant forall k :: 0 <= k < i ==> ValidKVPair(kvPairs[k])
       invariant KVPairEntriesLength(kvPairs, 0, i as int) == kvPairEntriesLen as int < kvPairEntriesLenLimit
     {
