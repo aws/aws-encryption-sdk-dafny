@@ -145,22 +145,20 @@ module Streams {
       return Success(n);
     }
 
-    function method GetRemainingCapacity(): (n: nat)
-      reads Repr
+    method IsDoneReading() returns (b: bool)
       requires Valid()
-      ensures n == |reader.data| - reader.pos
+      ensures (b && |reader.data| - reader.pos == 0) || (!b && |reader.data| - reader.pos > 0)
       ensures Valid()
     {
-      |reader.data| - reader.pos
+      return |reader.data| == reader.pos;
     }
 
-    function method GetUsedCapacity(): (n: nat)
-      reads Repr
+    method GetSizeRead() returns (n: nat)
       requires Valid()
       ensures n == reader.pos
       ensures Valid()
     {
-      reader.pos
+      return reader.pos;
     }
   }
 
@@ -263,6 +261,24 @@ module Streams {
     {
       var written := writer.WriteElements(UInt32ToSeq(n));
       return Success(written);
+    }
+
+    function method GetDataWritten(): (s: seq<uint8>)
+      reads Repr
+      requires Valid()
+      ensures s == writer.data
+      ensures Valid()
+    {
+      writer.data
+    }
+
+    function method GetSizeWritten(): (n: nat)
+      reads Repr
+      requires Valid()
+      ensures n == |writer.data|
+      ensures Valid()
+    {
+      |writer.data|
     }
   }
 }

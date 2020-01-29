@@ -68,7 +68,7 @@ module {:extern "ESDKClient"} ESDKClient {
     var wr := new Streams.ByteWriter();
 
     var _ :- Serialize.SerializeHeaderBody(wr, headerBody);
-    var unauthenticatedHeader := wr.writer.data;
+    var unauthenticatedHeader := wr.GetDataWritten();
 
     var iv: seq<uint8> := seq(dataKeyMaterials.algorithmSuiteID.IVLength(), _ => 0);
     var encryptionOutput :- AESEncryption.AESEncrypt(dataKeyMaterials.algorithmSuiteID.EncryptionSuite(), iv, derivedDataKey, [], unauthenticatedHeader);
@@ -85,7 +85,7 @@ module {:extern "ESDKClient"} ESDKClient {
      * Add footer with signature, if required.
      */
 
-    var msg := wr.writer.data + body;
+    var msg := wr.GetDataWritten() + body;
 
     match dataKeyMaterials.algorithmSuiteID.SignatureType() {
       case None =>
@@ -158,7 +158,7 @@ module {:extern "ESDKClient"} ESDKClient {
       case None =>
         // there's no footer
       case Some(ecdsaParams) =>
-        var usedCapacity := rd.GetUsedCapacity();
+        var usedCapacity := rd.GetSizeRead();
         assert usedCapacity <= |message|;
         var msg := message[..usedCapacity];  // unauthenticatedHeader + authTag + body  // TODO: there should be a better way to get this
         // read signature
@@ -172,7 +172,8 @@ module {:extern "ESDKClient"} ESDKClient {
         }
     }
 
-    if rd.GetRemainingCapacity() > 0 {
+    var isDone := rd.IsDoneReading();
+    if !isDone {
       return Failure("message contains additional bytes at end");
     }
 

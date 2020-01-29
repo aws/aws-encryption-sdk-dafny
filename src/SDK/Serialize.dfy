@@ -21,10 +21,10 @@ module Serialize {
     ensures match ret
       case Success(totalWritten) =>
         var serHb := (reveal Msg.HeaderBodyToSeq(); Msg.HeaderBodyToSeq(hb));
-        var initLen := old(|wr.writer.data|);
+        var initLen := old(wr.GetSizeWritten());
         && totalWritten == |serHb|
-        && initLen + totalWritten == |wr.writer.data|
-        && serHb == wr.writer.data[initLen..initLen + totalWritten]
+        && initLen + totalWritten == wr.GetSizeWritten()
+        && serHb == wr.GetDataWritten()[initLen..initLen + totalWritten]
       case Failure(e) => true
   {
     var totalWritten := 0;
@@ -71,9 +71,9 @@ module Serialize {
     ensures match ret
       case Success(totalWritten) =>
         var serHa := ha.iv + ha.authenticationTag;
-        var initLen := old(|wr.writer.data|);
-        && initLen + totalWritten == |wr.writer.data|
-        && serHa == wr.writer.data[initLen..initLen + totalWritten]
+        var initLen := old(wr.GetSizeWritten());
+        && initLen + totalWritten == wr.GetSizeWritten()
+        && serHa == wr.GetDataWritten()[initLen..initLen + totalWritten]
         && totalWritten == |serHa|
       case Failure(e) => true
   {
@@ -91,10 +91,10 @@ module Serialize {
     ensures match ret
       case Success(totalWritten) =>
         var serAAD := Msg.AADToSeq(kvPairs);
-        var initLen := old(|wr.writer.data|);
+        var initLen := old(wr.GetSizeWritten());
         && totalWritten == |serAAD|
-        && initLen + totalWritten == |wr.writer.data|
-        && wr.writer.data == old(wr.writer.data) + serAAD
+        && initLen + totalWritten == wr.GetSizeWritten()
+        && wr.GetDataWritten() == old(wr.GetDataWritten()) + serAAD
       case Failure(e) => true
   {
     reveal Msg.ValidAAD();
@@ -115,8 +115,8 @@ module Serialize {
     ghost var n := |kvPairs|;
     while j < |kvPairs|
       invariant j <= n == |kvPairs|
-      invariant wr.writer.data ==
-        old(wr.writer.data) +
+      invariant wr.GetDataWritten() ==
+        old(wr.GetDataWritten()) +
         UInt16ToSeq(aadLength) +
         UInt16ToSeq(n as uint16) +
         Msg.KVPairsToSeq(kvPairs, 0, j)
@@ -178,10 +178,10 @@ module Serialize {
     ensures match ret
       case Success(totalWritten) =>
         var serEDK := Msg.EDKsToSeq(encryptedDataKeys);
-        var initLen := old(|wr.writer.data|);
+        var initLen := old(wr.GetSizeWritten());
         && totalWritten == |serEDK|
-        && initLen + totalWritten == |wr.writer.data|
-        && wr.writer.data == old(wr.writer.data) + serEDK
+        && initLen + totalWritten == wr.GetSizeWritten()
+        && wr.GetDataWritten() == old(wr.GetDataWritten()) + serEDK
       case Failure(e) => true
   {
     var totalWritten := 0;
@@ -193,8 +193,8 @@ module Serialize {
     ghost var n := |encryptedDataKeys.entries|;
     while j < |encryptedDataKeys.entries|
       invariant j <= n == |encryptedDataKeys.entries|
-      invariant wr.writer.data ==
-        old(wr.writer.data) +
+      invariant wr.GetDataWritten() ==
+        old(wr.GetDataWritten()) +
         UInt16ToSeq(n as uint16) +
         Msg.EDKEntriesToSeq(encryptedDataKeys.entries, 0, j);
       invariant totalWritten == 2 + |Msg.EDKEntriesToSeq(encryptedDataKeys.entries, 0, j)|
