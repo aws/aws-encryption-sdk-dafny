@@ -371,18 +371,14 @@ module Base64 {
   function method Encode(b: seq<uint8>): (s: seq<char>)
     ensures StringIs8Bit(s)
     ensures IsBase64String(s)
-    ensures Decode(s) == Success(b)
+    // Rather than ensure Decode(s) == Success(b) directly, lemmas are used to verify this property
     ensures |b| % 3 == 0 ==> s == EncodeUnpadded(b)
     ensures |b| % 3 == 1 ==> s == (EncodeUnpadded(b[..(|b| - 1)]) + Encode2Padding(b[(|b| - 1)..]))
     ensures |b| % 3 == 2 ==> s == (EncodeUnpadded(b[..(|b| - 2)]) + Encode1Padding(b[(|b| - 2)..]))
   {
-    var res := (
-      if |b| % 3 == 0 then EncodeUnpadded(b)
-      else if |b| % 3 == 1 then EncodeUnpadded(b[..(|b| - 1)]) + Encode2Padding(b[(|b| - 1)..])
-      else EncodeUnpadded(b[..(|b| - 2)]) + Encode1Padding(b[(|b| - 2)..])
-    );
-    assert DecodeValid(res) == b;
-    res
+    if |b| % 3 == 0 then EncodeUnpadded(b)
+    else if |b| % 3 == 1 then EncodeUnpadded(b[..(|b| - 1)]) + Encode2Padding(b[(|b| - 1)..])
+    else EncodeUnpadded(b[..(|b| - 2)]) + Encode1Padding(b[(|b| - 2)..])
   }
 
   lemma DecodeValidEncodeEmpty(s: seq<char>)
@@ -532,5 +528,13 @@ module Base64 {
 
   lemma EncodeDecode(b: seq<uint8>)
     ensures Decode(Encode(b)) == Success(b)
-  {}
+  {
+    calc {
+      Decode(Encode(b));
+    == { assert IsBase64String(Encode(b)); }
+      Success(DecodeValid(Encode(b)));
+    == { EncodeDecodeValid(b); }
+      Success(b);
+    }
+  }
 }
