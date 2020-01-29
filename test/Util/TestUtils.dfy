@@ -13,6 +13,6 @@ module {:extern "TestUtils"} TestUtils {
   // This axiom should only be used by tests to skip UTF8 verification of long sequences
   // long to be serialized in 16 bytes, in order to avoid a false negative for from verification.
   lemma {:axiom} AssumeLongSeqIsValidUTF8(s: seq<uint8>)
-    requires |s| >= 0x1_0000
+    requires |s| >= 0x1000
     ensures UTF8.ValidUTF8Seq(s)
 }

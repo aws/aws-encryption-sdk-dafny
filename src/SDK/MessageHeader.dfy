@@ -98,14 +98,14 @@ module MessageHeader {
    * Validity predicates -- predicates that say when the data structures above are in a good state.
    */
 
-  predicate method ValidKVPair(kvPair: (UTF8.ValidUTF8Bytes, UTF8.ValidUTF8Bytes)) {
+  predicate ValidKVPair(kvPair: (UTF8.ValidUTF8Bytes, UTF8.ValidUTF8Bytes)) {
     && |kvPair.0| < UINT16_LIMIT
     && |kvPair.1| < UINT16_LIMIT
     && UTF8.ValidUTF8Seq(kvPair.0)
     && UTF8.ValidUTF8Seq(kvPair.1)
   }
 
-  function method KVPairEntriesLength(kvPairs: Materials.EncryptionContext, lo: nat, hi: nat): nat
+  function KVPairEntriesLength(kvPairs: Materials.EncryptionContext, lo: nat, hi: nat): nat
     requires lo <= hi <= |kvPairs|
   {
     if lo == hi then 0 else
@@ -184,18 +184,78 @@ module MessageHeader {
     }
   }
 
-  function method KVPairsLength(kvPairs: Materials.EncryptionContext): nat {
+  function KVPairsLength(kvPairs: Materials.EncryptionContext): nat 
+  {
     if |kvPairs| == 0 then 0 else
       2 + KVPairEntriesLength(kvPairs, 0, |kvPairs|)
   }
 
-  predicate method {:opaque} ValidAAD(kvPairs: Materials.EncryptionContext) {
-    reveal ValidKVPairs();
+  method ComputeKVPairsLength(kvPairs: Materials.EncryptionContext) returns (res: nat)
+    ensures res as nat == KVPairsLength(kvPairs)
+  {
+    reveal ValidAAD();
+    if |kvPairs| == 0 {
+      return 0;
+    }
+
+    var len := 2;
+    var i := 0;
+    while i < |kvPairs|
+      invariant i <= |kvPairs|
+      invariant 2 + KVPairEntriesLength(kvPairs, 0, i as int) == len as int
+    {
+      var kvPair := kvPairs[i];
+      len := len + 4 + |kvPair.0| + |kvPair.1|;
+      KVPairEntriesLengthSplit(kvPairs, 0, i + 1, |kvPairs| as int);
+      i := i + 1;
+    }
+
+    return len;
+  }
+
+  predicate {:opaque} ValidAAD(kvPairs: Materials.EncryptionContext) {
     && KVPairsLength(kvPairs) < UINT16_LIMIT
     && ValidKVPairs(kvPairs)
   }
 
-  predicate method {:opaque} ValidKVPairs(kvPairs: Materials.EncryptionContext) {
+  method ComputeValidAAD(kvPairs: Materials.EncryptionContext) returns (res: bool)
+    ensures res == ValidAAD(kvPairs)
+  {
+    reveal ValidAAD();
+
+    if |kvPairs| >= UINT16_LIMIT {
+      return false;
+    }
+
+    var kvPairEntriesLenLimit := UINT16_LIMIT - 2; // 2 bytes are reserved for kvPair count field
+    var kvPairEntriesLen := 0;
+    var i := 0;
+    while i < |kvPairs|
+      invariant i <= |kvPairs|
+      invariant i > 1 ==> SortedKVPairsUpTo(kvPairs, i)
+      invariant forall j :: 0 < j < i ==> LexicographicLessOrEqual(kvPairs[j-1].0, kvPairs[j].0, UInt.UInt8Less)
+      invariant forall k :: 0 <= k < i ==> ValidKVPair(kvPairs[k])
+      invariant KVPairEntriesLength(kvPairs, 0, i as int) == kvPairEntriesLen as int < kvPairEntriesLenLimit
+    {
+      var kvPair := kvPairs[i];
+      kvPairEntriesLen := kvPairEntriesLen + 4 + |kvPair.0| + |kvPair.1|;
+      KVPairEntriesLengthSplit(kvPairs, 0, i as int + 1, |kvPairs| as int);
+
+      // Check that AAD is still valid with this pair
+      if !(|kvPair.0| < UINT16_LIMIT && |kvPair.1| < UINT16_LIMIT) {
+        return false; // Invalid key value pair
+      } else if i > 0 && !LexicographicLessOrEqual(kvPairs[i-1].0, kvPair.0, UInt.UInt8Less) {
+        return false; // Unsorted
+      } else if kvPairEntriesLen >= kvPairEntriesLenLimit {
+        return false; // Over size limit
+      }
+      i := i + 1;
+    }
+
+    return true;
+  }
+
+  predicate ValidKVPairs(kvPairs: Materials.EncryptionContext) {
     && |kvPairs| < UINT16_LIMIT
     && (forall i :: 0 <= i < |kvPairs| ==> ValidKVPair(kvPairs[i]))
     && SortedKVPairs(kvPairs)
@@ -210,13 +270,13 @@ module MessageHeader {
     case Framed => frameLength != 0
   }
 
-  predicate method SortedKVPairsUpTo(a: seq<(UTF8.ValidUTF8Bytes, UTF8.ValidUTF8Bytes)>, n: nat)
+  predicate SortedKVPairsUpTo(a: seq<(UTF8.ValidUTF8Bytes, UTF8.ValidUTF8Bytes)>, n: nat)
     requires n <= |a|
   {
     forall j :: 0 < j < n ==> LexicographicLessOrEqual(a[j-1].0, a[j].0, UInt.UInt8Less)
   }
 
-  predicate method SortedKVPairs(a: seq<(UTF8.ValidUTF8Bytes, UTF8.ValidUTF8Bytes)>)
+  predicate SortedKVPairs(a: seq<(UTF8.ValidUTF8Bytes, UTF8.ValidUTF8Bytes)>)
   {
     SortedKVPairsUpTo(a, |a|)
   }
@@ -248,24 +308,23 @@ module MessageHeader {
     KVPairsToSeq(kvPairs)
   }
 
-  function method KVPairsToSeq(kvPairs: Materials.EncryptionContext): seq<uint8>
+  function KVPairsToSeq(kvPairs: Materials.EncryptionContext): seq<uint8>
     requires ValidKVPairs(kvPairs)
   {
-    reveal ValidKVPairs();
     var n := |kvPairs|;
     if n == 0 then [] else
       UInt16ToSeq(n as uint16) +
       KVPairEntriesToSeq(kvPairs, 0, n)
   }
 
-  function method KVPairEntriesToSeq(kvPairs: Materials.EncryptionContext, lo: nat, hi: nat): seq<uint8>
+  function KVPairEntriesToSeq(kvPairs: Materials.EncryptionContext, lo: nat, hi: nat): seq<uint8>
     requires forall i :: 0 <= i < |kvPairs| ==> ValidKVPair(kvPairs[i])
     requires lo <= hi <= |kvPairs|
   {
     if lo == hi then [] else KVPairEntriesToSeq(kvPairs, lo, hi - 1) + KVPairToSeq(kvPairs[hi - 1])
   }
 
-  function method KVPairToSeq(kvPair: (UTF8.ValidUTF8Bytes, UTF8.ValidUTF8Bytes)): seq<uint8>
+  function KVPairToSeq(kvPair: (UTF8.ValidUTF8Bytes, UTF8.ValidUTF8Bytes)): seq<uint8>
     requires ValidKVPair(kvPair)
   {
     UInt16ToSeq(|kvPair.0| as uint16) + kvPair.0 +
