@@ -44,7 +44,7 @@ module Serialize {
     len :- SerializeAAD(wr, hb.aad);
     totalWritten := totalWritten + len;
 
-    len :- SerializeEDKs(wr, hb.encryptedDataKeys);
+    len := SerializeEDKs(wr, hb.encryptedDataKeys);
     totalWritten := totalWritten + len;
 
     var contentType := Msg.ContentTypeToUInt8(hb.contentType);
@@ -171,18 +171,13 @@ module Serialize {
 
   // ----- SerializeEDKs -----
 
-  method SerializeEDKs(wr: Streams.ByteWriter, encryptedDataKeys: Msg.EncryptedDataKeys) returns (ret: Result<nat>)
+  method SerializeEDKs(wr: Streams.ByteWriter, encryptedDataKeys: Msg.EncryptedDataKeys) returns (ret: nat)
     requires wr.Valid() && encryptedDataKeys.Valid()
     modifies wr.writer`data
     ensures wr.Valid() && encryptedDataKeys.Valid()
-    ensures match ret
-      case Success(totalWritten) =>
-        var serEDK := Msg.EDKsToSeq(encryptedDataKeys);
-        var initLen := old(wr.GetSizeWritten());
-        && totalWritten == |serEDK|
-        && initLen + totalWritten == wr.GetSizeWritten()
-        && wr.GetDataWritten() == old(wr.GetDataWritten()) + serEDK
-      case Failure(e) => true
+    ensures ret == |Msg.EDKsToSeq(encryptedDataKeys)|
+    ensures old(wr.GetSizeWritten()) + ret == wr.GetSizeWritten()
+    ensures wr.GetDataWritten() == old(wr.GetDataWritten()) + Msg.EDKsToSeq(encryptedDataKeys)
   {
     var totalWritten := 0;
 
@@ -222,6 +217,6 @@ module Serialize {
       j := j + 1;
     }
 
-    return Success(totalWritten);
+    return totalWritten;
   }
 }
