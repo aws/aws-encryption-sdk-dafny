@@ -34,7 +34,7 @@ module TestStreams {
     var _ :- RequireEqual([300, 400], res);
 
     var isFailure := reader.ReadExact(1);
-    r := Require(isFailure.Failure?);
+    r := RequireFailure(isFailure);
   }
 
   method {:test} TestByteReader() returns (r: Result<()>) {
@@ -81,7 +81,7 @@ module TestStreams {
     var isFailure := reader.ReadByte();
     sizeRead := reader.GetSizeRead();
     isDoneReading := reader.IsDoneReading();
-    var _ :- Require(isFailure.Failure?);
+    var _ :- RequireFailure(isFailure);
     var _ :- RequireEqual(10, sizeRead);
     r := Require(isDoneReading);
   }
