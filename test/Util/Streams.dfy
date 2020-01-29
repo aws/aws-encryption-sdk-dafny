@@ -131,21 +131,21 @@ module TestStreams {
     var sizeWritten := writer.GetSizeWritten();
     var _ :- RequireEqual(0, sizeWritten);
 
-    var res :- writer.WriteByte(0);
+    var res := writer.WriteByte(0);
     var _ :- RequireEqual(1, res);
     dataWritten := writer.GetDataWritten();
     var _ :- RequireEqual([0], dataWritten);
     sizeWritten := writer.GetSizeWritten();
     var _ :- RequireEqual(1, sizeWritten);
 
-    res :- writer.WriteBytes([]);
+    res := writer.WriteBytes([]);
     var _ :- RequireEqual(0, res);
     dataWritten := writer.GetDataWritten();
     var _ :- RequireEqual([0], dataWritten);
     sizeWritten := writer.GetSizeWritten();
     var _ :- RequireEqual(1, sizeWritten);
 
-    res :- writer.WriteBytes([5, 50, 100]);
+    res := writer.WriteBytes([5, 50, 100]);
     var _ :- RequireEqual(3, res);
     dataWritten := writer.GetDataWritten();
     var _ :- RequireEqual([0, 5, 50, 100], dataWritten);
@@ -153,7 +153,7 @@ module TestStreams {
     var _ :- RequireEqual(4, sizeWritten);
 
     var uint16Written := SeqToUInt16([150, 200]);
-    res :- writer.WriteUInt16(uint16Written);
+    res := writer.WriteUInt16(uint16Written);
     var _ :- RequireEqual(2, res);
     dataWritten := writer.GetDataWritten();
     var _ :- RequireEqual([0, 5, 50, 100, 150, 200], dataWritten);
@@ -161,7 +161,7 @@ module TestStreams {
     var _ :- RequireEqual(6, sizeWritten);
 
     var uint32Written := SeqToUInt32([50, 150, 200, 255]);
-    res :- writer.WriteUInt32(uint32Written);
+    res := writer.WriteUInt32(uint32Written);
     var _ :- RequireEqual(4, res);
     dataWritten := writer.GetDataWritten();
     var _ :- RequireEqual([0, 5, 50, 100, 150, 200, 50, 150, 200, 255], dataWritten);

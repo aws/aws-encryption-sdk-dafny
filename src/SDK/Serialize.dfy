@@ -29,16 +29,16 @@ module Serialize {
   {
     var totalWritten := 0;
 
-    var len :- wr.WriteByte(hb.version as uint8);
+    var len := wr.WriteByte(hb.version as uint8);
     totalWritten := totalWritten + len;
 
-    len :- wr.WriteByte(hb.typ as uint8);
+    len := wr.WriteByte(hb.typ as uint8);
     totalWritten := totalWritten + len;
 
-    len :- wr.WriteUInt16(hb.algorithmSuiteID as uint16);
+    len := wr.WriteUInt16(hb.algorithmSuiteID as uint16);
     totalWritten := totalWritten + len;
 
-    len :- wr.WriteBytes(hb.messageID);
+    len := wr.WriteBytes(hb.messageID);
     totalWritten := totalWritten + len;
 
     len :- SerializeAAD(wr, hb.aad);
@@ -48,16 +48,16 @@ module Serialize {
     totalWritten := totalWritten + len;
 
     var contentType := Msg.ContentTypeToUInt8(hb.contentType);
-    len :- wr.WriteByte(contentType);
+    len := wr.WriteByte(contentType);
     totalWritten := totalWritten + len;
 
-    len :- wr.WriteBytes(Msg.Reserved);
+    len := wr.WriteBytes(Msg.Reserved);
     totalWritten := totalWritten + len;
 
-    len :- wr.WriteByte(hb.ivLength);
+    len := wr.WriteByte(hb.ivLength);
     totalWritten := totalWritten + len;
 
-    len :- wr.WriteUInt32(hb.frameLength);
+    len := wr.WriteUInt32(hb.frameLength);
     totalWritten := totalWritten + len;
 
     reveal Msg.HeaderBodyToSeq();
@@ -77,8 +77,8 @@ module Serialize {
         && totalWritten == |serHa|
       case Failure(e) => true
   {
-    var m :- wr.WriteBytes(ha.iv);
-    var n :- wr.WriteBytes(ha.authenticationTag);
+    var m := wr.WriteBytes(ha.iv);
+    var n := wr.WriteBytes(ha.authenticationTag);
     return Success(m + n);
   }
 
@@ -102,13 +102,13 @@ module Serialize {
 
     // Key Value Pairs Length (number of bytes of total AAD)
     var aadLength :- ComputeAADLength(kvPairs);
-    var len :- wr.WriteUInt16(aadLength);
+    var len := wr.WriteUInt16(aadLength);
     totalWritten := totalWritten + len;
     if aadLength == 0 {
       return Success(totalWritten);
     }
 
-    len :- wr.WriteUInt16(|kvPairs| as uint16);
+    len := wr.WriteUInt16(|kvPairs| as uint16);
     totalWritten := totalWritten + len;
 
     var j := 0;
@@ -122,16 +122,16 @@ module Serialize {
         Msg.KVPairsToSeq(kvPairs, 0, j)
       invariant totalWritten == 4 + |Msg.KVPairsToSeq(kvPairs, 0, j)|
     {
-      len :- wr.WriteUInt16(|kvPairs[j].0| as uint16);
+      len := wr.WriteUInt16(|kvPairs[j].0| as uint16);
       totalWritten := totalWritten + len;
 
-      len :- wr.WriteBytes(kvPairs[j].0);
+      len := wr.WriteBytes(kvPairs[j].0);
       totalWritten := totalWritten + len;
 
-      len :- wr.WriteUInt16(|kvPairs[j].1| as uint16);
+      len := wr.WriteUInt16(|kvPairs[j].1| as uint16);
       totalWritten := totalWritten + len;
 
-      len :- wr.WriteBytes(kvPairs[j].1);
+      len := wr.WriteBytes(kvPairs[j].1);
       totalWritten := totalWritten + len;
 
       j := j + 1;
@@ -186,7 +186,7 @@ module Serialize {
   {
     var totalWritten := 0;
 
-    var len :- wr.WriteUInt16(|encryptedDataKeys.entries| as uint16);
+    var len := wr.WriteUInt16(|encryptedDataKeys.entries| as uint16);
     totalWritten := totalWritten + len;
 
     var j := 0;
@@ -201,22 +201,22 @@ module Serialize {
     {
       var entry := encryptedDataKeys.entries[j];
 
-      len :- wr.WriteUInt16(|entry.providerID| as uint16);
+      len := wr.WriteUInt16(|entry.providerID| as uint16);
       totalWritten := totalWritten + len;
 
-      len :- wr.WriteBytes(entry.providerID);
+      len := wr.WriteBytes(entry.providerID);
       totalWritten := totalWritten + len;
 
-      len :- wr.WriteUInt16(|entry.providerInfo| as uint16);
+      len := wr.WriteUInt16(|entry.providerInfo| as uint16);
       totalWritten := totalWritten + len;
 
-      len :- wr.WriteBytes(entry.providerInfo);
+      len := wr.WriteBytes(entry.providerInfo);
       totalWritten := totalWritten + len;
 
-      len :- wr.WriteUInt16(|entry.ciphertext| as uint16);
+      len := wr.WriteUInt16(|entry.ciphertext| as uint16);
       totalWritten := totalWritten + len;
 
-      len :- wr.WriteBytes(entry.ciphertext);
+      len := wr.WriteBytes(entry.ciphertext);
       totalWritten := totalWritten + len;
 
       j := j + 1;

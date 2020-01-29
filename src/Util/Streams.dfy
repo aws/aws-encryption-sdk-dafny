@@ -213,53 +213,49 @@ module Streams {
       Repr := {this} + {writer} + mw.Repr;
     }
 
-    method WriteByte(n: uint8) returns (res: Result<nat>)
+    method WriteByte(n: uint8) returns (r: nat)
       requires Valid()
       modifies writer`data
       ensures !unchanged(writer`data)
       ensures writer.data == old(writer.data) + [n]
-      ensures res.Success? && res.value == 1
+      ensures r == 1
       ensures Valid()
     {
-      var written := writer.WriteElements([n]);
-      return Success(written);
+      r := writer.WriteElements([n]);
     }
 
-    method WriteBytes(s: seq<uint8>) returns (res: Result<nat>)
+    method WriteBytes(s: seq<uint8>) returns (r: nat)
       requires Valid()
       modifies writer`data
       ensures |s| == 0 ==> unchanged(writer)
       ensures |s| > 0 ==> !unchanged(writer`data)
       ensures writer.data == old(writer.data) + s
-      ensures res.Success? && res.value == |s|
+      ensures r == |s|
       ensures Valid()
     {
-      var written := writer.WriteElements(s);
-      return Success(written);
+      r := writer.WriteElements(s);
     }
 
-    method WriteUInt16(n: uint16) returns (res: Result<nat>)
+    method WriteUInt16(n: uint16) returns (r: nat)
       requires Valid()
       modifies writer`data
       ensures !unchanged(writer`data)
       ensures writer.data == old(writer.data) + UInt16ToSeq(n)
-      ensures res.Success? && res.value == 2
+      ensures r == 2
       ensures Valid()
     {
-      var written := writer.WriteElements(UInt16ToSeq(n));
-      return Success(written);
+      r := writer.WriteElements(UInt16ToSeq(n));
     }
 
-    method WriteUInt32(n: uint32) returns (res: Result<nat>)
+    method WriteUInt32(n: uint32) returns (r: nat)
       requires Valid()
       modifies writer`data
       ensures !unchanged(writer`data)
       ensures writer.data == old(writer.data) + UInt32ToSeq(n)
-      ensures res.Success? && res.value == 4
+      ensures r == 4
       ensures Valid()
     {
-      var written := writer.WriteElements(UInt32ToSeq(n));
-      return Success(written);
+      r := writer.WriteElements(UInt32ToSeq(n));
     }
 
     function method GetDataWritten(): (s: seq<uint8>)
