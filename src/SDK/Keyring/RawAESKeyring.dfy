@@ -7,7 +7,9 @@ include "../../Crypto/Random.dfy"
 include "../../Crypto/AESEncryption.dfy"
 include "../Materials.dfy"
 include "../MessageHeader.dfy"
+include "../Serialize.dfy"
 include "../../Util/UTF8.dfy"
+include "../../Util/Streams.dfy"
 
 module {:extern "RawAESKeyringDef"} RawAESKeyringDef {
   import opened StandardLibrary
@@ -20,6 +22,8 @@ module {:extern "RawAESKeyringDef"} RawAESKeyringDef {
   import Mat = Materials
   import UTF8
   import MessageHeader
+  import Serialize
+  import Streams
 
   const AUTH_TAG_LEN_LEN := 4;
   const IV_LEN_LEN       := 4;
@@ -108,7 +112,7 @@ module {:extern "RawAESKeyringDef"} RawAESKeyringDef {
       // EDK created using expected AAD
       ensures res.Success? && res.value.Some? ==>
         && |res.value.get.encryptedDataKeys| == 1
-        && MessageHeader.ValidKVPairs(encryptionContext)
+        && MessageHeader.ValidAAD(encryptionContext)
         && wrappingAlgorithm.tagLen as nat <= |res.value.get.encryptedDataKeys[0].ciphertext| && // TODO this trailing
         var encOutput := DeserializeEDKCiphertext(res.value.get.encryptedDataKeys[0].ciphertext, wrappingAlgorithm.tagLen as nat);
         AESEncryption.EncryptionOutputEncryptedWithAAD(encOutput, MessageHeader.KVPairsToSeq(encryptionContext))
@@ -130,10 +134,11 @@ module {:extern "RawAESKeyringDef"} RawAESKeyringDef {
           && res.value.get.keyringTrace[0] == EncryptTraceEntry()
 
       // If input EC cannot be serialized, returns a Failure
-      ensures !MessageHeader.ValidKVPairs(encryptionContext) ==> res.Failure?
+      ensures !MessageHeader.ValidAAD(encryptionContext) ==> res.Failure?
     {
       // Check that the encryption context can be serialized correctly
-      if !(MessageHeader.ValidKVPairs(encryptionContext)) {
+      var valid := MessageHeader.ComputeValidAAD(encryptionContext);
+      if !valid {
         return Failure("Unable to serialize encryption context");
       }
 
@@ -149,7 +154,9 @@ module {:extern "RawAESKeyringDef"} RawAESKeyringDef {
       var iv := Random.GenerateBytes(wrappingAlgorithm.ivLen as int32);
       var providerInfo := SerializeProviderInfo(iv);
 
-      var aad := MessageHeader.KVPairsToSeq(encryptionContext);
+      var wr := new Streams.ByteWriter();
+      var _ :- Serialize.SerializeAAD(wr, encryptionContext);
+      var aad := wr.GetDataWritten();
 
       var encryptResult :- AESEncryption.AESEncrypt(wrappingAlgorithm, iv, wrappingKey, plaintextDataKey.get, aad);
       var encryptedKey := SerializeEDKCiphertext(encryptResult);
@@ -183,14 +190,14 @@ module {:extern "RawAESKeyringDef"} RawAESKeyringDef {
 
       // Plaintext decrypted using expected AAD
       ensures res.Success? && res.value.Some? ==>
-        && MessageHeader.ValidKVPairs(encryptionContext)
+        && MessageHeader.ValidAAD(encryptionContext)
         && AESEncryption.PlaintextDecryptedWithAAD(res.value.get.plaintextDataKey, MessageHeader.KVPairsToSeq(encryptionContext))
 
       // KeyringTrace generated as expected
       ensures res.Success? && res.value.Some? ==> |res.value.get.keyringTrace| == 1 && res.value.get.keyringTrace[0] == DecryptTraceEntry()
 
       // If attempts to decrypt an EDK and the input EC cannot be serialized, return a Failure
-      ensures !MessageHeader.ValidKVPairs(encryptionContext) && (exists i :: 0 <= i < |edks| && ShouldDecryptEDK(edks[i])) ==> res.Failure?
+      ensures !MessageHeader.ValidAAD(encryptionContext) && (exists i :: 0 <= i < |edks| && ShouldDecryptEDK(edks[i])) ==> res.Failure?
     {
       var i := 0;
       while i < |edks|
@@ -198,11 +205,14 @@ module {:extern "RawAESKeyringDef"} RawAESKeyringDef {
       {
         if ShouldDecryptEDK(edks[i]) {
           // Check that the encryption context can be serialized correctly
-          if !(MessageHeader.ValidKVPairs(encryptionContext)) {
-              return Failure("Unable to serialize encryption context");
+          var valid := MessageHeader.ComputeValidAAD(encryptionContext);
+          if !valid {
+            return Failure("Unable to serialize encryption context");
           }
-
-          var aad := MessageHeader.KVPairsToSeq(encryptionContext);
+          var wr := new Streams.ByteWriter();
+          var _ :- Serialize.SerializeAAD(wr, encryptionContext);
+          var aad := wr.GetDataWritten();
+          
           var iv := GetIvFromProvInfo(edks[i].providerInfo);
           var encryptionOutput := DeserializeEDKCiphertext(edks[i].ciphertext, wrappingAlgorithm.tagLen as nat);
           var ptKey :- AESEncryption.AESDecrypt(wrappingAlgorithm, wrappingKey, encryptionOutput.cipherText, encryptionOutput.authTag, iv, aad);

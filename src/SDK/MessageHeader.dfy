@@ -98,7 +98,7 @@ module MessageHeader {
    * Validity predicates -- predicates that say when the data structures above are in a good state.
    */
 
-  predicate method ValidKVPair(kvPair: (UTF8.ValidUTF8Bytes, UTF8.ValidUTF8Bytes)) {
+  predicate ValidKVPair(kvPair: (UTF8.ValidUTF8Bytes, UTF8.ValidUTF8Bytes)) {
     && |kvPair.0| < UINT16_LIMIT
     && |kvPair.1| < UINT16_LIMIT
     && UTF8.ValidUTF8Seq(kvPair.0)

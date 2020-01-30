@@ -8,8 +8,8 @@ module TestSerialize {
   import UTF8
   import MessageHeader
 
-  method {:test} TestSerializeAADHappy() returns (ret: Result<()>) {
-    var wr := new Streams.StringWriter();
+  method {:test} TestSerializeAAD() returns (ret: Result<()>) {
+    var wr := new Streams.ByteWriter();
     var keyA, valA := UTF8.Encode("keyA").value, UTF8.Encode("valA").value;
     var encryptionContext := [(keyA, valA)];
     MessageHeader.AssumeValidAAD(encryptionContext);
@@ -17,17 +17,40 @@ module TestSerialize {
     var expectedSerializedAAD := [0, 14, 0, 1, 0, 4, 107, 101, 121, 65, 0, 4, 118, 97, 108, 65];
   
     var len :- SerializeAAD(wr, encryptionContext);
-    ret := RequireEqual(wr.data, expectedSerializedAAD);
+    ret := RequireEqual(wr.GetDataWritten(), expectedSerializedAAD);
   }
 
   method {:test} TestSerializeAADEmpty() returns (ret: Result<()>) {
     reveal MessageHeader.ValidAAD();
-    var wr := new Streams.StringWriter();
+    var wr := new Streams.ByteWriter();
     var encryptionContext := [];
 
     var expectedSerializedAAD := [0, 0];
   
     var len :- SerializeAAD(wr, encryptionContext);
-    ret := RequireEqual(wr.data, expectedSerializedAAD);
+    ret := RequireEqual(wr.GetDataWritten(), expectedSerializedAAD);
+  }
+
+  method {:test} TestSerializeKVPairs() returns (ret: Result<()>) {
+    var wr := new Streams.ByteWriter();
+    var keyA, valA := UTF8.Encode("keyA").value, UTF8.Encode("valA").value;
+    var encryptionContext := [(keyA, valA)];
+    MessageHeader.AssumeValidAAD(encryptionContext);
+
+    var expectedSerializedAAD := [0, 1, 0, 4, 107, 101, 121, 65, 0, 4, 118, 97, 108, 65];
+  
+    var len :- SerializeKVPairs(wr, encryptionContext);
+    ret := RequireEqual(wr.GetDataWritten(), expectedSerializedAAD);
+  }
+
+  method {:test} TestSerializeKVPairsEmpty() returns (ret: Result<()>) {
+    reveal MessageHeader.ValidAAD();
+    var wr := new Streams.ByteWriter();
+    var encryptionContext := [];
+
+    var expectedSerializedAAD := [];
+  
+    var len :- SerializeKVPairs(wr, encryptionContext);
+    ret := RequireEqual(wr.GetDataWritten(), expectedSerializedAAD);
   }
 }
