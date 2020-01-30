@@ -14,7 +14,7 @@ module {:extern "AESEncryption"} AESEncryption {
   datatype EncryptionOutput = EncryptionOutput(cipherText: seq<uint8>, authTag: seq<uint8>)
 
   // The following are used to tie plaintext and ciphertext with the AAD that was used to produce them.
-  // These are assumptions which should ultimately come from our externs, which can be referenced elsewhere
+  // These assumptions can be used in the postconditions of externs, and be referenced elsewhere
   // in order to ensure that the AAD used is as expected.
   predicate {:axiom} PlaintextDecryptedWithAAD(plaintext: seq<uint8>, aad: seq<uint8>)
   predicate {:axiom} EncryptionOutputEncryptedWithAAD(ciphertext: EncryptionOutput, aad: seq<uint8>)
