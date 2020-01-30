@@ -3,6 +3,15 @@ include "../../src/StandardLibrary/StandardLibrary.dfy"
 module TestStandardLibrary {
   import opened StandardLibrary
 
+  method {:test} TestRequireFailure() returns (ret: Result<()>) {
+    var failure: Result<string> := Failure("Some failure");
+    var _ :- RequireFailure(failure);
+
+    var requireFailureGivenSuccess := RequireFailure(Success(()));
+    var _ :- Require(requireFailureGivenSuccess.Failure?);
+    ret := RequireFailure(requireFailureGivenSuccess);
+  }
+
   method {:test} TestJoinMultiElementSeq() returns (ret: Result<()>) {
     var input := ["comma", "separated", "list"];
     var output := Join(input, ",");

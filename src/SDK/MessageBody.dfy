@@ -104,11 +104,11 @@ module MessageBody {
     return Success(unauthenticatedFrame);
   }
 
-  method DecryptFramedMessageBody(rd: Streams.StringReader, algorithmSuiteID: AlgorithmSuite.ID, key: seq<uint8>, frameLength: int, messageID: Msg.MessageID) returns (res: Result<seq<uint8>>)
+  method DecryptFramedMessageBody(rd: Streams.ByteReader, algorithmSuiteID: AlgorithmSuite.ID, key: seq<uint8>, frameLength: int, messageID: Msg.MessageID) returns (res: Result<seq<uint8>>)
     requires rd.Valid()
     requires |key| == algorithmSuiteID.KeyLength()
     requires 0 < frameLength < UINT32_LIMIT
-    modifies rd
+    modifies rd.reader`pos
     ensures rd.Valid()
   {
     var plaintext := [];
@@ -128,13 +128,13 @@ module MessageBody {
     return Success(plaintext);
   }
 
-  method DecryptFrame(rd: Streams.StringReader, algorithmSuiteID: AlgorithmSuite.ID, key: seq<uint8>, frameLength: int, messageID: Msg.MessageID,
+  method DecryptFrame(rd: Streams.ByteReader, algorithmSuiteID: AlgorithmSuite.ID, key: seq<uint8>, frameLength: int, messageID: Msg.MessageID,
                       expectedSequenceNumber: uint32)
       returns (res: Result<(seq<uint8>, bool)>)
     requires rd.Valid()
     requires |key| == algorithmSuiteID.KeyLength()
     requires 0 < frameLength < UINT32_LIMIT
-    modifies rd
+    modifies rd.reader`pos
     ensures rd.Valid()
     ensures match res
       case Success((plaintext, final)) =>
@@ -151,7 +151,7 @@ module MessageBody {
       return Failure("unexpected frame sequence number");
     }
 
-    var iv :- rd.ReadExact(algorithmSuiteID.IVLength());
+    var iv :- rd.ReadBytes(algorithmSuiteID.IVLength());
 
     var len := frameLength as uint32;
     if final {
@@ -160,8 +160,8 @@ module MessageBody {
 
     var aad := BodyAAD(messageID, final, sequenceNumber, len as uint64);
 
-    var ciphertext :- rd.ReadExact(len as nat);
-    var authTag :- rd.ReadExact(algorithmSuiteID.TagLength());
+    var ciphertext :- rd.ReadBytes(len as nat);
+    var authTag :- rd.ReadBytes(algorithmSuiteID.TagLength());
     var plaintext :- Decrypt(ciphertext, authTag, algorithmSuiteID, iv, key, aad);
 
     return Success((plaintext, final));
