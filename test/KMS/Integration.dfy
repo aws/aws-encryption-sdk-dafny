@@ -38,13 +38,13 @@ module IntegTestKMS {
     assert Msg.ValidAAD(encryptionContext) by {
       // To prove ValidAAD, we need to reveal the definition of ValidAAD:
       reveal Msg.ValidAAD();
-      // We also need to help the verifier with proving the AADLength is small:
+      // We also need to help the verifier with proving the KVPairsLength is small:
       calc {
-        Msg.AADLength(encryptionContext);
-        2 + Msg.KVPairsLength(encryptionContext, 0, 1);
+        Msg.KVPairsLength(encryptionContext);
+        2 + Msg.KVPairEntriesLength(encryptionContext, 0, 1);
         2 + 2 + |keyA| + 2 + |valA|;
       }
-      assert Msg.AADLength(encryptionContext) < UINT16_LIMIT;
+      assert Msg.KVPairsLength(encryptionContext) < UINT16_LIMIT;
     }
     var e := Client.Encrypt(encodedMsg, cmm, encryptionContext);
     if e.Failure? {

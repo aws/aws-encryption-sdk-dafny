@@ -186,10 +186,10 @@ module Deserialize {
   {
     reveal Msg.ValidAAD();
 
-    var aadLength :- rd.ReadUInt16();
-    if aadLength == 0 {
+    var kvPairsLength :- rd.ReadUInt16();
+    if kvPairsLength == 0 {
       return Success([]);
-    } else if aadLength < 2 {
+    } else if kvPairsLength < 2 {
       return Failure("Deserialization Error: The number of bytes in encryption context exceeds the given length.");
     }
     var totalBytesRead := 0;
@@ -206,7 +206,7 @@ module Deserialize {
       invariant rd.Valid()
       invariant |kvPairs| == i as int
       invariant i <= kvPairsCount
-      invariant totalBytesRead == 2 + Msg.KVPairsLength(kvPairs, 0, i as nat) <= aadLength as nat
+      invariant totalBytesRead == 2 + Msg.KVPairEntriesLength(kvPairs, 0, i as nat) <= kvPairsLength as nat
       invariant Msg.ValidAAD(kvPairs)
     {
       var keyLength :- rd.ReadUInt16();
@@ -218,7 +218,7 @@ module Deserialize {
       var valueLength :- rd.ReadUInt16();
       totalBytesRead := totalBytesRead + 2;
       // check that we're not exceeding the stated AAD length
-      if aadLength as nat < totalBytesRead + valueLength as nat {
+      if kvPairsLength as nat < totalBytesRead + valueLength as nat {
         return Failure("Deserialization Error: The number of bytes in encryption context exceeds the given length.");
       }
 
@@ -230,7 +230,7 @@ module Deserialize {
       var opt, insertionPoint := InsertNewEntry(kvPairs, key, value);
       match opt {
         case Some(kvPairs_) =>
-          Msg.KVPairsLengthInsert(kvPairs, insertionPoint, key, value);
+          Msg.KVPairEntriesLengthInsert(kvPairs, insertionPoint, key, value);
           kvPairs := kvPairs_;
         case None =>
           return Failure("Deserialization Error: Duplicate key.");
@@ -238,7 +238,7 @@ module Deserialize {
 
       i := i + 1;
     }
-    if aadLength as nat != totalBytesRead {
+    if kvPairsLength as nat != totalBytesRead {
       return Failure("Deserialization Error: Bytes actually read differs from bytes supposed to be read.");
     }
     return Success(kvPairs);

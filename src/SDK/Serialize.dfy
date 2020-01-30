@@ -100,11 +100,11 @@ module Serialize {
     reveal Msg.ValidAAD();
     var totalWritten := 0;
 
-    // Key Value Pairs Length (number of bytes of total AAD)
-    var aadLength :- ComputeAADLength(kvPairs);
-    var len := wr.WriteUInt16(aadLength);
+    var kvPairsLength := Msg.ComputeKVPairsLength(kvPairs);
+    var len := wr.WriteUInt16(kvPairsLength as uint16);
+
     totalWritten := totalWritten + len;
-    if aadLength == 0 {
+    if kvPairsLength == 0 {
       return Success(totalWritten);
     }
 
@@ -117,10 +117,10 @@ module Serialize {
       invariant j <= n == |kvPairs|
       invariant wr.GetDataWritten() ==
         old(wr.GetDataWritten()) +
-        UInt16ToSeq(aadLength) +
+        UInt16ToSeq(kvPairsLength as uint16) +
         UInt16ToSeq(n as uint16) +
-        Msg.KVPairsToSeq(kvPairs, 0, j)
-      invariant totalWritten == 4 + |Msg.KVPairsToSeq(kvPairs, 0, j)|
+        Msg.KVPairEntriesToSeq(kvPairs, 0, j)
+      invariant totalWritten == 4 + |Msg.KVPairEntriesToSeq(kvPairs, 0, j)|
     {
       len := wr.WriteUInt16(|kvPairs[j].0| as uint16);
       totalWritten := totalWritten + len;
@@ -138,35 +138,6 @@ module Serialize {
     }
     
     return Success(totalWritten);
-  }
-
-  method ComputeAADLength(kvPairs: Materials.EncryptionContext) returns (res: Result<uint16>)
-    requires |kvPairs| < UINT16_LIMIT
-    requires forall i :: 0 <= i < |kvPairs| ==> Msg.ValidKVPair(kvPairs[i])
-    ensures match res
-      case Success(len) => len as int == Msg.AADLength(kvPairs)
-      case Failure(_) => UINT16_LIMIT <= Msg.AADLength(kvPairs)
-  {
-    var n: int32 := |kvPairs| as int32;
-    if n == 0 {
-      return Success(0);
-    } else {
-      var len: int32, limit: int32 := 2, UINT16_LIMIT as int32;
-      var i: int32 := 0;
-      while i < n
-        invariant i <= n
-        invariant 2 + Msg.KVPairsLength(kvPairs, 0, i as int) == len as int < UINT16_LIMIT
-      {
-        var kvPair := kvPairs[i];
-        len := len + 4 + |kvPair.0| as int32 + |kvPair.1| as int32;
-        Msg.KVPairsLengthSplit(kvPairs, 0, i as int + 1, n as int);
-        if limit <= len {
-          return Failure("The number of bytes in encryption context exceeds the allowed maximum");
-        }
-        i := i + 1;
-      }
-      return Success(len as uint16);
-    }
   }
 
   // ----- SerializeEDKs -----
