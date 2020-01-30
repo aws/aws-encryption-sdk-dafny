@@ -115,15 +115,9 @@ module Serialize {
     ghost var n := |kvPairs|;
     while j < |kvPairs|
       invariant j <= n == |kvPairs|
-<<<<<<< HEAD
-      invariant wr.data ==
-        old(wr.data) +
-        UInt16ToSeq(kvPairsLength as uint16) +
-=======
       invariant wr.GetDataWritten() ==
         old(wr.GetDataWritten()) +
-        UInt16ToSeq(aadLength) +
->>>>>>> 1aec3219506ea6ba10c870bb80ff26d88f4c3938
+        UInt16ToSeq(kvPairsLength as uint16) +
         UInt16ToSeq(n as uint16) +
         Msg.KVPairEntriesToSeq(kvPairs, 0, j)
       invariant totalWritten == 4 + |Msg.KVPairEntriesToSeq(kvPairs, 0, j)|
