@@ -235,7 +235,7 @@ module {:extern "RawAESKeyringDef"} RawAESKeyringDef {
       return Success(None);
     }
 
-    // TODO: Should we continue or immediately error in the case of wrappingAlgorithm.tagLen as int <= |edk.ciphertext| ?
+    // TODO: Should we continue or immediately error in the case of wrappingAlgorithm.tagLen as int > |edk.ciphertext| ?
     predicate method ShouldDecryptEDK(edk: Mat.EncryptedDataKey) {
       edk.providerID == keyNamespace && ValidProviderInfo(edk.providerInfo) && wrappingAlgorithm.tagLen as int <= |edk.ciphertext|
     }

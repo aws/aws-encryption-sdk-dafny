@@ -100,7 +100,6 @@ module Serialize {
     reveal Msg.ValidAAD();
     var totalWritten := 0;
 
-    // Key Value Pairs Length (number of bytes of total AAD)
     var kvPairsLength := Msg.ComputeKVPairsLength(kvPairs);
     var len := wr.WriteUInt16(kvPairsLength as uint16);
 
@@ -140,8 +139,8 @@ module Serialize {
     ghost var n := |kvPairs|;
     while j < |kvPairs|
       invariant j <= n == |kvPairs|
-      invariant wr.writer.data ==
-        old(wr.writer.data) +
+      invariant wr.GetDataWritten() ==
+        old(wr.GetDataWritten()) +
         UInt16ToSeq(n as uint16) +
         Msg.KVPairEntriesToSeq(kvPairs, 0, j)
       invariant totalWritten == 2 + |Msg.KVPairEntriesToSeq(kvPairs, 0, j)|

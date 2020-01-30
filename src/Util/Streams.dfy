@@ -171,8 +171,8 @@ module Streams {
     }
 
     constructor()
-      ensures Valid() && fresh(Repr)
       ensures data == []
+      ensures Valid()
     {
       data := [];
       Repr := {this};
