@@ -114,9 +114,9 @@ module {:extern "RawAESKeyringDef"} RawAESKeyringDef {
         var encCtxSerializable := (reveal MessageHeader.ValidAAD(); MessageHeader.ValidAAD(encryptionContext));
         && |res.value.get.encryptedDataKeys| == 1
         && encCtxSerializable
-        && wrappingAlgorithm.tagLen as nat <= |res.value.get.encryptedDataKeys[0].ciphertext| && // TODO this trailing
-        var encOutput := DeserializeEDKCiphertext(res.value.get.encryptedDataKeys[0].ciphertext, wrappingAlgorithm.tagLen as nat);
-        AESEncryption.EncryptionOutputEncryptedWithAAD(encOutput, MessageHeader.KVPairsToSeq(encryptionContext))
+        && wrappingAlgorithm.tagLen as nat <= |res.value.get.encryptedDataKeys[0].ciphertext|
+        && var encOutput := DeserializeEDKCiphertext(res.value.get.encryptedDataKeys[0].ciphertext, wrappingAlgorithm.tagLen as nat);
+        && AESEncryption.EncryptionOutputEncryptedWithAAD(encOutput, MessageHeader.KVPairsToSeq(encryptionContext))
 
       // EDK created has expected providerID and valid providerInfo
       ensures res.Success? && res.value.Some? ==>

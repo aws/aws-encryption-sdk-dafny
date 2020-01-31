@@ -35,10 +35,7 @@ module TestAESKeyring {
     var wrappingAlgorithmID := AlgorithmSuite.AES_256_GCM_IV12_TAG16_HKDF_SHA384_ECDSA_P384;
 
     var onEncryptResult :- rawAESKeyring.OnEncrypt(wrappingAlgorithmID, encryptionContext, None);
-    var _ :- Require(onEncryptResult.Some?);
-    var _ :- Require(|onEncryptResult.get.encryptedDataKeys| == 1);
-    var _ :- Require(wrappingAlgorithmID.TagLength() as nat <= |onEncryptResult.get.encryptedDataKeys[0].ciphertext|);
-    var encOutput := RawAESKeyringDef.DeserializeEDKCiphertext(onEncryptResult.get.encryptedDataKeys[0].ciphertext, wrappingAlgorithmID.TagLength() as nat);
+    var _ :- Require(onEncryptResult.Some? && |onEncryptResult.get.encryptedDataKeys| == 1);
 
     var pdk := onEncryptResult.get.plaintextDataKey;
     var edk := onEncryptResult.get.encryptedDataKeys[0];
@@ -60,10 +57,8 @@ module TestAESKeyring {
     var wrappingAlgorithmID := AlgorithmSuite.AES_256_GCM_IV12_TAG16_HKDF_SHA384_ECDSA_P384;
 
     var onEncryptResult :- rawAESKeyring.OnEncrypt(wrappingAlgorithmID, encryptionContext, Some(pdk));
-    var _ :- Require(onEncryptResult.Some?);
-    var _ :- Require(|onEncryptResult.get.encryptedDataKeys| == 1);
-    var _ :- Require(wrappingAlgorithmID.TagLength() as nat <= |onEncryptResult.get.encryptedDataKeys[0].ciphertext|);
-    var encOutput := RawAESKeyringDef.DeserializeEDKCiphertext(onEncryptResult.get.encryptedDataKeys[0].ciphertext, wrappingAlgorithmID.TagLength() as nat);
+    var _ :- Require(onEncryptResult.Some? && |onEncryptResult.get.encryptedDataKeys| == 1);
+
     var edk := onEncryptResult.get.encryptedDataKeys[0];
 
     var res :- rawAESKeyring.OnDecrypt(wrappingAlgorithmID, encryptionContext, [edk]);
@@ -113,6 +108,25 @@ module TestAESKeyring {
 
     var onDecryptResult := rawAESKeyring.OnDecrypt(wrappingAlgorithmID, unserializableEncryptionContext, [edk]);
     r := Require(onDecryptResult.Failure?);
+  }
+
+  method {:test} TestDeserializeEDKCiphertext() returns (r: Result<()>) {
+    var ciphertext := [0, 1, 2, 3];
+    var authTag := [4, 5, 6, 7];
+    var serializedEDKCiphertext := ciphertext + authTag;
+    var encOutput := RawAESKeyringDef.DeserializeEDKCiphertext(serializedEDKCiphertext, |authTag|);
+
+    var _ :- RequireEqual(encOutput.cipherText, ciphertext);
+    r := RequireEqual(encOutput.authTag, authTag);
+  }
+
+  method {:test} TestSerializeEDKCiphertext() returns (r: Result<()>) {
+    var ciphertext := [0, 1, 2, 3];
+    var authTag := [4, 5, 6, 7];
+    var encOutput := AESEncryption.EncryptionOutput(ciphertext, authTag); // TODO do we need to test upper bounds of this??
+    var serializedEDKCiphertext := RawAESKeyringDef.SerializeEDKCiphertext(encOutput);
+
+    r := RequireEqual(serializedEDKCiphertext, ciphertext + authTag);
   }
 
   method generateUnserializableEncryptionContext() returns (encCtx: Materials.EncryptionContext)
