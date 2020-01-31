@@ -17,89 +17,65 @@ module {:extern "UTF8"} UTF8 {
 
   type ValidUTF8Bytes = i: seq<uint8> | ValidUTF8Seq(i) witness []
 
-  function method {:extern "Encode"} Encode(s: string): Result<ValidUTF8Bytes>
-    ensures IsASCIIString(s) ==> Encode(s).Success? && |Encode(s).value| == |s|
+  function method {:extern "Encode"} Encode(s: string): (res: Result<ValidUTF8Bytes>)
+    // US-ASCII only needs a single UTF-8 byte per character
+    ensures IsASCIIString(s) ==> res.Success? && |res.value| == |s|
 
-  // Issue #81
-  function method {:extern "Decode"} Decode(s: ValidUTF8Bytes): Result<string>
+  function method {:extern "Decode"} Decode(b: ValidUTF8Bytes): Result<string>
 
   predicate method IsASCIIString(s: string) {
     forall i :: 0 <= i < |s| ==> s[i] as int < 128
   }
 
-  // Returns the value of the idx'th bit, from least to most significant bit (0- indexed)
-  function method BitAt(x: uint8, idx: uint8): bool
-    requires idx < 8
+  predicate method Uses1Byte(s: seq<uint8>)
+    requires |s| >= 1
   {
-    var w := x as bv8;
-    (w >> idx) & 1 == 1
+    0x00 <= s[0] <= 0x7F
   }
 
-  // Checks if a[offset] is a valid continuation uint8.
-  predicate method ValidUTF8Continuation(a: seq<uint8>, offset: nat)
-    requires offset < |a|
+  predicate method Uses2Bytes(s: seq<uint8>)
+    requires |s| >= 2
   {
-    BitAt(a[offset], 7) && !BitAt(a[offset], 6)
+    (0xC2 <= s[0] <= 0xDF) && (0x80 <= s[1] <= 0xBF)
   }
 
-  // Returns which leading uint8 is at a[offset], or 0 if it is not a leading uint8.
-  function method CodePointCase(a: seq<uint8>, offset: nat): uint8
-    requires offset < |a|
+  predicate method Uses3Bytes(s: seq<uint8>)
+    requires |s| >= 3
   {
-    if BitAt(a[offset], 7) then // 1xxx xxxx
-      if BitAt(a[offset], 6) then //11xx xxxx
-        if BitAt(a[offset], 5) then // 111x xxxx
-          if BitAt(a[offset], 4) then // 1111 xxxx
-            if BitAt(a[offset], 3) then // 1111 1xxx
-              0 // Error case
-            else // 1111 0xxx
-              4
-          else // 1110 xxxx
-            3
-        else // 110x xxxx
-          2
-      else //10xx xxxx
-        0 // Error case
-    else //0xxxxxxx
-      1
+    ((s[0] == 0xE0) && (0xA0 <= s[1] <= 0xBF) && (0x80 <= s[2] <= 0xBF))
+      || ((0xE1 <= s[0] <= 0xEC) && (0x80 <= s[1] <= 0xBF) && (0x80 <= s[2] <= 0xBF))
+      || ((s[0] == 0xED) && (0x80 <= s[1] <= 0x9F) && (0x80 <= s[2] <= 0xBF))
+      || ((0xEE <= s[0] <= 0xEF) && (0x80 <= s[1] <= 0xBF) && (0x80 <= s[2] <= 0xBF))
+  }
+
+  predicate method Uses4Bytes(s: seq<uint8>)
+    requires |s| >= 4
+  {
+    ((s[0] == 0xF0) && (0x90 <= s[1] <= 0xBF) && (0x80 <= s[2] <= 0xBF) && (0x80 <= s[3] <= 0xBF))
+      || ((0xF1 <= s[0] <= 0xF3) && (0x80 <= s[1] <= 0xBF) && (0x80 <= s[2] <= 0xBF) && (0x80 <= s[3] <= 0xBF))
+      || ((s[0] == 0xF4) && (0x80 <= s[1] <= 0x8F) && (0x80 <= s[2] <= 0xBF) && (0x80 <= s[3] <= 0xBF))
   }
 
   predicate method ValidUTF8_at(a: seq<uint8>, offset: nat)
     requires offset <= |a|
     decreases |a| - offset
   {
-    if offset == |a|
-    then true
+    var remaining := |a| - offset;
+    if remaining == 0 then
+      true
     else
-      var c := CodePointCase(a, offset);
-      if c == 1 then
+      if Uses1Byte(a[offset..]) then
         ValidUTF8_at(a, offset + 1)
-      else if c == 2 then
-        offset + 2 <= |a| &&
-        ValidUTF8Continuation(a, offset + 1) &&
+      else if remaining >= 2 && Uses2Bytes(a[offset..]) then
         ValidUTF8_at(a, offset + 2)
-      else if c == 3 then
-        offset + 3 <= |a| &&
-        ValidUTF8Continuation(a, offset + 1) &&
-        ValidUTF8Continuation(a, offset + 2) &&
+      else if remaining >= 3 && Uses3Bytes(a[offset..]) then
         ValidUTF8_at(a, offset + 3)
-      else if c == 4 then
-        offset + 4 <= |a| &&
-        ValidUTF8Continuation(a, offset + 1) &&
-        ValidUTF8Continuation(a, offset + 2) &&
-        ValidUTF8Continuation(a, offset + 3) &&
+      else if remaining >= 4 && Uses4Bytes(a[offset..]) then
         ValidUTF8_at(a, offset + 4)
       else
         false
   }
 
-  predicate method ValidUTF8(a: array<uint8>)
-    reads a
-  {
-    ValidUTF8_at(a[..], 0)
-  }
-
-  // Issue #82
   predicate method ValidUTF8Seq(s: seq<uint8>) {
     ValidUTF8_at(s, 0)
   }
