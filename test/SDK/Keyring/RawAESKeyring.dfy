@@ -123,7 +123,7 @@ module TestAESKeyring {
   method {:test} TestSerializeEDKCiphertext() returns (r: Result<()>) {
     var ciphertext := [0, 1, 2, 3];
     var authTag := [4, 5, 6, 7];
-    var encOutput := AESEncryption.EncryptionOutput(ciphertext, authTag); // TODO do we need to test upper bounds of this??
+    var encOutput := AESEncryption.EncryptionOutput(ciphertext, authTag);
     var serializedEDKCiphertext := RawAESKeyringDef.SerializeEDKCiphertext(encOutput);
 
     r := RequireEqual(serializedEDKCiphertext, ciphertext + authTag);

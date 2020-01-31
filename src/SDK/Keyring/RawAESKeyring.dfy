@@ -121,8 +121,8 @@ module {:extern "RawAESKeyringDef"} RawAESKeyringDef {
       // EDK created has expected providerID and valid providerInfo
       ensures res.Success? && res.value.Some? ==>
         && |res.value.get.encryptedDataKeys| == 1
-        && res.value.get.encryptedDataKeys[0].providerID == keyNamespace &&
-        ValidProviderInfo(res.value.get.encryptedDataKeys[0].providerInfo)
+        && res.value.get.encryptedDataKeys[0].providerID == keyNamespace
+        && ValidProviderInfo(res.value.get.encryptedDataKeys[0].providerInfo)
 
       // KeyringTrace generated as expected
       ensures res.Success? && res.value.Some? ==>
