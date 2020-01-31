@@ -13,13 +13,13 @@ module TestRSAKeyring {
   import AlgorithmSuite
   import UTF8
 
-  const name := UTF8.Encode("test Name").value;
-  const namespace := UTF8.Encode("test Namespace").value;
   const allPaddingModes := {RSA.PKCS1, RSA.OAEP_SHA1, RSA.OAEP_SHA256, RSA.OAEP_SHA384, RSA.OAEP_SHA512}
 
   method {:test} TestOnEncryptOnDecryptGenerateDataKey() returns (r: Result<()>)
   {
     var remainingPaddingModes := allPaddingModes;
+    var name := UTF8.Encode("test Name");
+    var namespace := UTF8.Encode("test Namespace");
     while remainingPaddingModes != {}
       decreases remainingPaddingModes
     {
@@ -30,7 +30,8 @@ module TestRSAKeyring {
       var rawRSAKeyring := new RawRSAKeyringDef.RawRSAKeyring(name, namespace, paddingMode, Some(publicKey), Some(privateKey));
 
       // Verify encoding
-      var keyA, valA := UTF8.Encode("keyA").value, UTF8.Encode("valA").value;
+      var keyA := UTF8.Encode("keyA");
+      var valA := UTF8.Encode("valA");
       var encryptionContext := [(keyA, valA)];
       var onEncryptResult :- rawRSAKeyring.OnEncrypt(AlgorithmSuite.AES_256_GCM_IV12_TAG16_HKDF_SHA384_ECDSA_P384, encryptionContext, None);
       var _ :- Require(onEncryptResult.Some? &&
@@ -49,6 +50,8 @@ module TestRSAKeyring {
   method {:test} TestOnEncryptOnDecryptSuppliedDataKey() returns (r: Result<()>)
   {
     var remainingPaddingModes := allPaddingModes;
+    var name := UTF8.Encode("test Name");
+    var namespace := UTF8.Encode("test Namespace");
     while remainingPaddingModes != {}
       decreases remainingPaddingModes
     {
@@ -59,7 +62,8 @@ module TestRSAKeyring {
       var rawRSAKeyring := new RawRSAKeyringDef.RawRSAKeyring(name, namespace, paddingMode, Some(publicKey), Some(privateKey));
 
       // Verify encoding
-      var keyA, valA := UTF8.Encode("keyA").value, UTF8.Encode("valA").value;
+      var keyA := UTF8.Encode("keyA");
+      var valA := UTF8.Encode("valA");
       var encryptionContext := [(keyA, valA)];
       var plaintextDataKey := seq(32, i => 0);
       var onEncryptResult :- rawRSAKeyring.OnEncrypt(AlgorithmSuite.AES_256_GCM_IV12_TAG16_HKDF_SHA384_ECDSA_P384, encryptionContext, Some(plaintextDataKey));

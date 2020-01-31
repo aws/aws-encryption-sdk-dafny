@@ -21,13 +21,13 @@ module TestAESKeyring {
   import UTF8
   import TestUtils
 
-  const name := UTF8.Encode("test Name").value;
-  const namespace := UTF8.Encode("test Namespace").value;
-
   method {:test} TestOnEncryptOnDecryptGenerateDataKey() returns (r: Result<()>)
   {
+    var name := UTF8.Encode("test Name");
+    var namespace := UTF8.Encode("test Namespace");
     var rawAESKeyring := new RawAESKeyringDef.RawAESKeyring(name, namespace, seq(32, i => 0), EncryptionSuites.AES_GCM_256);
-    var keyA, valA := UTF8.Encode("keyA").value, UTF8.Encode("valA").value;
+    var keyA := UTF8.Encode("keyA");
+    var valA := UTF8.Encode("valA");
     var encryptionContext := [(keyA, valA)];
     var isValidAAD := MessageHeader.ComputeValidAAD(encryptionContext);
     var _ :- Require(isValidAAD);
@@ -46,8 +46,11 @@ module TestAESKeyring {
 
   method {:test} TestOnEncryptOnDecryptSuppliedDataKey() returns (r: Result<()>)
   {
+    var name := UTF8.Encode("test Name");
+    var namespace := UTF8.Encode("test Namespace");
     var rawAESKeyring := new RawAESKeyringDef.RawAESKeyring(name, namespace, seq(32, i => 0), EncryptionSuites.AES_GCM_256);
-    var keyA, valA := UTF8.Encode("keyA").value, UTF8.Encode("valA").value;
+    var keyA := UTF8.Encode("keyA");
+    var valA := UTF8.Encode("valA");
     var encryptionContext := [(keyA, valA)];
     var isValidAAD := MessageHeader.ComputeValidAAD(encryptionContext);
     var _ :- Require(isValidAAD);

@@ -17,11 +17,11 @@ module {:extern "UTF8"} UTF8 {
 
   type ValidUTF8Bytes = i: seq<uint8> | ValidUTF8Seq(i) witness []
 
-  function method {:extern "Encode"} Encode(s: string): (res: Result<ValidUTF8Bytes>)
+  method {:extern "Encode"} Encode(s: string) returns (res: ValidUTF8Bytes)
     // US-ASCII only needs a single UTF-8 byte per character
-    ensures IsASCIIString(s) ==> res.Success? && |res.value| == |s|
+    ensures IsASCIIString(s) ==> |res| == |s|
 
-  function method {:extern "Decode"} Decode(b: ValidUTF8Bytes): Result<string>
+  method {:extern "Decode"} Decode(b: ValidUTF8Bytes) returns (res: string)
 
   predicate method IsASCIIString(s: string) {
     forall i :: 0 <= i < |s| ==> s[i] as int < 128

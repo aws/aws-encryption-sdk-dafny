@@ -67,7 +67,7 @@ module {:extern "DefaultCMMDef"} DefaultCMMDef {
             case None => return Failure("Keygen error");
             case Some(ab) =>
               enc_sk := Some(ab.1);
-              var enc_vk :- UTF8.Encode(Base64.Encode(ab.0));
+              var enc_vk := UTF8.Encode(Base64.Encode(ab.0));
               var reservedField := Materials.EC_PUBLIC_KEY_FIELD;
               assert reservedField in Materials.ReservedKeyValues;
               assert forall i | 0 <= i < |ec| :: ec[i].0 != reservedField;
@@ -107,7 +107,7 @@ module {:extern "DefaultCMMDef"} DefaultCMMDef {
         if encodedVKey == None {
           return Failure("Could not get materials required for decryption.");
         }
-        var utf8Decoded :- UTF8.Decode(encodedVKey.get);
+        var utf8Decoded := UTF8.Decode(encodedVKey.get);
         var base64Decoded :- Base64.Decode(utf8Decoded);
         vkey := Some(base64Decoded);
       }

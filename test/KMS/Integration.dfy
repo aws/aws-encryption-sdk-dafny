@@ -28,12 +28,9 @@ module IntegTestKMS {
   method EncryptDecryptTest(cmm: CMMDefs.CMM, message: string) returns (res: Result<string>)
     requires cmm.Valid()
   {
-    var encodedMsg: seq<uint8>;
-    var encodeResult := UTF8.Encode(message);
-    if encodeResult.Success? {
-      encodedMsg := encodeResult.value;
-    }
-    var keyA, valA := UTF8.Encode("keyA").value, UTF8.Encode("valA").value;
+    var encodedMsg := UTF8.Encode(message);
+    var keyA := UTF8.Encode("keyA");
+    var valA := UTF8.Encode("valA");
     var encryptionContext := [(keyA, valA)];
     assert Msg.ValidAAD(encryptionContext) by {
       // To prove ValidAAD, we need to reveal the definition of ValidAAD:
@@ -56,15 +53,16 @@ module IntegTestKMS {
       return Failure("bad decryption: " + d.error + "\n");
     }
     if UTF8.ValidUTF8Seq(d.value) {
-      return UTF8.Decode(d.value);
+      var utf8Encoded := UTF8.Decode(d.value);
+      return Success(utf8Encoded);
     } else {
       return Failure("Could not decode Encryption output");
     }
   }
 
   method {:test} TestEndToEnd() returns (r: Result<()>) {
-    var namespace :- UTF8.Encode("namespace");
-    var name :- UTF8.Encode("MyKeyring");
+    var namespace := UTF8.Encode("namespace");
+    var name := UTF8.Encode("MyKeyring");
     var generatorStr := SHARED_TEST_KEY_ARN;
     var _ :- Require(KMSUtils.ValidFormatCMK(generatorStr));
     var generator: KMSUtils.CustomerMasterKey := generatorStr;

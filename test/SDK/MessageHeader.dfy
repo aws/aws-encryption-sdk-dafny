@@ -21,14 +21,15 @@ module TestMessageHeader {
   }
 
   method {:test} TestComputeValidAADOnePair() returns (r: Result<()>) {
-    var keyA, valA := UTF8.Encode("keyA").value, UTF8.Encode("valA").value;
+    var keyA := UTF8.Encode("keyA");
+    var valA := UTF8.Encode("valA");
     var kvPairs := [(keyA, valA)];
     var valid := MessageHeader.ComputeValidAAD(kvPairs);
     r := Require(valid);
   }
 
   method {:test} TestComputeValidAADOnePairMaxSize() returns (r: Result<()>) {
-    var keyA := UTF8.Encode("A").value;
+    var keyA := UTF8.Encode("A");
     // (2^16 - 1) - 2 => 65533 what we want the size of the key value pair to fill
     // 65533 - 2 - 1 - 2 => 65528 is the size that we want the value to fill
     var largeVal := seq(65528, _ => 0);
@@ -39,7 +40,8 @@ module TestMessageHeader {
   }
 
   method {:test} TestComputeValidAADMaxPairs() returns (r: Result<()>) {
-    var keyA, valA := UTF8.Encode("A").value, UTF8.Encode("A").value;
+    var keyA := UTF8.Encode("A");
+    var valA := UTF8.Encode("A");
     // (2^16 - 1) / (minimum kvPair size) => (2^16 - 1) / 6 => 10922 is the max
     // number of pairs you can stuff into a valid AAD
     var kvPairs := seq(10922, _ => (keyA, valA));
@@ -48,21 +50,23 @@ module TestMessageHeader {
   }
 
   method {:test} TestComputeValidAADTooManyEntries() returns (r: Result<()>) {
-    var keyA, valA := UTF8.Encode("keyA").value, UTF8.Encode("valA").value;
+    var keyA := UTF8.Encode("keyA");
+    var valA := UTF8.Encode("valA");
     var kvPairs := seq(0x1_0000, _ => (keyA, valA));
     var valid := MessageHeader.ComputeValidAAD(kvPairs);
     r := Require(!valid);
   }
 
   method {:test} TestComputeValidAADTooLarge() returns (r: Result<()>) {
-    var keyA, valA := UTF8.Encode("keyA").value, UTF8.Encode("valA").value;
+    var keyA := UTF8.Encode("keyA");
+    var valA := UTF8.Encode("valA");
     var kvPairs := seq(0x1_FFFF, _ => (keyA, valA));
     var valid := MessageHeader.ComputeValidAAD(kvPairs);
     r := Require(!valid);
   }
 
   method {:test} TestComputeValidAADPairTooBig() returns (r: Result<()>) {
-    var keyA := UTF8.Encode("keyA").value;
+    var keyA := UTF8.Encode("keyA");
     var invalidVal := seq(0x1_0000, _ => 0);
     var kvPairs :=[(keyA, invalidVal)];
     TestUtils.AssumeLongSeqIsValidUTF8(invalidVal);
@@ -71,8 +75,10 @@ module TestMessageHeader {
   }
 
   method {:test} TestComputeValidAADUnsorted() returns (r: Result<()>) {
-    var keyA, valA := UTF8.Encode("keyA").value, UTF8.Encode("valA").value;
-    var keyB, valB := UTF8.Encode("keyB").value, UTF8.Encode("valB").value;
+    var keyA := UTF8.Encode("keyA");
+    var valA := UTF8.Encode("valA");
+    var keyB := UTF8.Encode("keyB");
+    var valB := UTF8.Encode("valB");
     var kvPairs := [(keyB, valB), (keyA, valA)];
     var valid := MessageHeader.ComputeValidAAD(kvPairs);
     r := Require(!valid);
@@ -86,7 +92,8 @@ module TestMessageHeader {
   }
 
   method {:test} TestComputeKVPairsLengthOnePair() returns (r: Result<()>) {
-    var keyA, valA := UTF8.Encode("keyA").value, UTF8.Encode("valA").value;
+    var keyA := UTF8.Encode("keyA");
+    var valA := UTF8.Encode("valA");
     var kvPairs := [(keyA, valA)];
 
     var expectedSerialization := [0, 1, 0, 4, 107, 101, 121, 65, 0, 4, 118, 97, 108, 65];
@@ -95,7 +102,7 @@ module TestMessageHeader {
   }
 
   method {:test} TestComputeKVPairsLengthLong() returns (r: Result<()>) {
-    var keyA := UTF8.Encode("A").value;
+    var keyA := UTF8.Encode("A");
     var largeVal := seq(0x1_0000, _ => 0);
     TestUtils.AssumeLongSeqIsValidUTF8(largeVal);
     var kvPairs :=[(keyA, largeVal)];
