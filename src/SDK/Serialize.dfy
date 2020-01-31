@@ -104,11 +104,35 @@ module Serialize {
     var len := wr.WriteUInt16(kvPairsLength as uint16);
 
     totalWritten := totalWritten + len;
-    if kvPairsLength == 0 {
+
+    len :- SerializeKVPairs(wr, kvPairs);
+    totalWritten := totalWritten + len;
+
+    return Success(totalWritten);
+  }
+
+  // ----- SerializeKVPairs -----
+
+  method SerializeKVPairs(wr: Streams.ByteWriter, kvPairs: Materials.EncryptionContext) returns (ret: Result<nat>)
+    requires wr.Valid() && Msg.ValidKVPairs(kvPairs)
+    modifies wr.writer`data
+    ensures wr.Valid() && Msg.ValidKVPairs(kvPairs)
+    ensures match ret
+      case Success(totalWritten) =>
+        var serAAD := Msg.KVPairsToSeq(kvPairs);
+        var initLen := old(wr.GetSizeWritten());
+        && totalWritten == |serAAD|
+        && initLen + totalWritten == wr.GetSizeWritten()
+        && wr.GetDataWritten() == old(wr.GetDataWritten()) + serAAD
+      case Failure(e) => true
+  {
+    var totalWritten := 0;
+
+    if |kvPairs| == 0 {
       return Success(totalWritten);
     }
 
-    len := wr.WriteUInt16(|kvPairs| as uint16);
+    var len := wr.WriteUInt16(|kvPairs| as uint16);
     totalWritten := totalWritten + len;
 
     var j := 0;
@@ -117,10 +141,9 @@ module Serialize {
       invariant j <= n == |kvPairs|
       invariant wr.GetDataWritten() ==
         old(wr.GetDataWritten()) +
-        UInt16ToSeq(kvPairsLength as uint16) +
         UInt16ToSeq(n as uint16) +
         Msg.KVPairEntriesToSeq(kvPairs, 0, j)
-      invariant totalWritten == 4 + |Msg.KVPairEntriesToSeq(kvPairs, 0, j)|
+      invariant totalWritten == 2 + |Msg.KVPairEntriesToSeq(kvPairs, 0, j)|
     {
       len := wr.WriteUInt16(|kvPairs[j].0| as uint16);
       totalWritten := totalWritten + len;
@@ -136,7 +159,7 @@ module Serialize {
 
       j := j + 1;
     }
-    
+
     return Success(totalWritten);
   }
 
