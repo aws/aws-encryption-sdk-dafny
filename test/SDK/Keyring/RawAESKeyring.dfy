@@ -70,9 +70,12 @@ module TestAESKeyring {
 
   method {:test} TestOnDecryptNoEDKs() returns (r: Result<()>)
   {
+    var name := UTF8.Encode("test Name");
+    var namespace := UTF8.Encode("test Namespace");
     var rawAESKeyring := new RawAESKeyringDef.RawAESKeyring(name, namespace, seq(32, i => 0), EncryptionSuites.AES_GCM_256);
     var wrappingAlgorithmID := AlgorithmSuite.AES_256_GCM_IV12_TAG16_HKDF_SHA384_ECDSA_P384;
-    var keyA, valA := UTF8.Encode("keyA").value, UTF8.Encode("valA").value;
+    var keyA := UTF8.Encode("keyA");
+    var valA := UTF8.Encode("valA");
     var encryptionContext := [(keyA, valA)];
 
     var res :- rawAESKeyring.OnDecrypt(wrappingAlgorithmID, encryptionContext, []);
@@ -81,6 +84,8 @@ module TestAESKeyring {
 
   method {:test} TestOnEncryptUnserializableEC() returns (r: Result<()>)
   {
+    var name := UTF8.Encode("test Name");
+    var namespace := UTF8.Encode("test Namespace");
     var rawAESKeyring := new RawAESKeyringDef.RawAESKeyring(name, namespace, seq(32, i => 0), EncryptionSuites.AES_GCM_256);
     
     var unserializableEncryptionContext := generateUnserializableEncryptionContext();
@@ -95,8 +100,11 @@ module TestAESKeyring {
   method {:test} TestOnDecryptUnserializableEC() returns (r: Result<()>)
   {
     // Set up valid EDK for decryption
+    var name := UTF8.Encode("test Name");
+    var namespace := UTF8.Encode("test Namespace");
     var rawAESKeyring := new RawAESKeyringDef.RawAESKeyring(name, namespace, seq(32, i => 0), EncryptionSuites.AES_GCM_256);
-    var keyA, valA := UTF8.Encode("keyA").value, UTF8.Encode("valA").value;
+    var keyA := UTF8.Encode("keyA");
+    var valA := UTF8.Encode("valA");
     var encryptionContext := [(keyA, valA)];
     var wrappingAlgorithmID := AlgorithmSuite.AES_256_GCM_IV12_TAG16_HKDF_SHA384_ECDSA_P384;
     var onEncryptResult :- rawAESKeyring.OnEncrypt(wrappingAlgorithmID, encryptionContext, None);
@@ -134,7 +142,7 @@ module TestAESKeyring {
 
   method generateUnserializableEncryptionContext() returns (encCtx: Materials.EncryptionContext)
   {
-    var keyA := UTF8.Encode("keyA").value;
+    var keyA := UTF8.Encode("keyA");
     var invalidVal := seq(0x1_0000, _ => 0);
     TestUtils.AssumeLongSeqIsValidUTF8(invalidVal);
     return [(keyA, invalidVal)];
