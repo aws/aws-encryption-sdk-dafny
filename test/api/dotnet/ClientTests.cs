@@ -14,28 +14,52 @@ namespace AWSEncryptionSDKTests
 {
     public class ClientTests
     {
+        
+        
         [Fact]
         public void RoundTripHappyPath()
         {
-            String keyArn = DafnyFFI.StringFromDafnyString(TestUtils.__default.SHARED__TEST__KEY__ARN);
+            var keyArn = DafnyFFI.StringFromDafnyString(TestUtils.__default.SHARED__TEST__KEY__ARN);
             
             ClientSupplier clientSupplier = new DefaultClientSupplier();
             
-            Keyring keyring = AWSEncryptionSDK.Keyrings.MakeKMSKeyring(
+            var keyring = AWSEncryptionSDK.Keyrings.MakeKMSKeyring(
                 clientSupplier, Enumerable.Empty<String>(), keyArn,Enumerable.Empty<String>());
 
-            CMMDefs.CMM cmm = AWSEncryptionSDK.CMMs.MakeDefaultCMM(keyring);
+            var cmm = AWSEncryptionSDK.CMMs.MakeDefaultCMM(keyring);
 
-            String plaintext = "Hello";
-            MemoryStream plaintextStream = new MemoryStream(Encoding.UTF8.GetBytes(plaintext));
+            var plaintext = "Hello";
+            var plaintextStream = new MemoryStream(Encoding.UTF8.GetBytes(plaintext));
             
-            MemoryStream ciphertext = AWSEncryptionSDK.Client.Encrypt(plaintextStream, cmm, new Dictionary<string, string>());
+            var ciphertext = AWSEncryptionSDK.Client.Encrypt(plaintextStream, cmm, new Dictionary<string, string>());
             
-            MemoryStream decodedStream = AWSEncryptionSDK.Client.Decrypt(ciphertext, cmm);
-            StreamReader reader = new StreamReader(decodedStream, Encoding.UTF8);
-            String decoded = reader.ReadToEnd();
+            var decodedStream = AWSEncryptionSDK.Client.Decrypt(ciphertext, cmm);
+            var reader = new StreamReader(decodedStream, Encoding.UTF8);
+            var decoded = reader.ReadToEnd();
             
             Assert.Equal(plaintext, decoded);
+        } 
+        
+        [Fact]
+        public void NullPlaintext()
+        {
+            var keyArn = DafnyFFI.StringFromDafnyString(TestUtils.__default.SHARED__TEST__KEY__ARN);
+            
+            ClientSupplier clientSupplier = new DefaultClientSupplier();
+            
+            var keyring = AWSEncryptionSDK.Keyrings.MakeKMSKeyring(
+                clientSupplier, Enumerable.Empty<String>(), keyArn,Enumerable.Empty<String>());
+
+            var cmm = AWSEncryptionSDK.CMMs.MakeDefaultCMM(keyring);
+
+            Assert.Throws<NullReferenceException>(() =>
+                    AWSEncryptionSDK.Client.Encrypt(null, cmm, new Dictionary<string, string>()));
+        } 
+        
+        [Fact]
+        public void NullKeyring()
+        {
+            Assert.Throws<NullReferenceException>(() => AWSEncryptionSDK.CMMs.MakeDefaultCMM(null));
         } 
     }
 }

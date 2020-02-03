@@ -35,4 +35,37 @@ module {:extern "KeyringDefs"} KeyringDefs {
       ensures |edks| == 0 ==> res.Success? && res.value.None?
       ensures res.Success? && res.value.Some? ==> res.value.get.algorithmSuiteID == algorithmSuiteID
   }
+
+  trait {:extern} ExternalKeyring {
+    method OnEncrypt(algorithmSuiteID: Materials.AlgorithmSuite.ID,
+                     encryptionContext: Materials.EncryptionContext,
+                     plaintextDataKey: Option<seq<uint8>>) returns (res: Result<Option<Materials.ValidDataKeyMaterials>>)
+
+    method OnDecrypt(algorithmSuiteID: AlgorithmSuite.ID,
+                     encryptionContext: Materials.EncryptionContext,
+                     edks: seq<Materials.EncryptedDataKey>) returns (res: Result<Option<Materials.ValidOnDecryptResult>>)
+  }
+
+  class AsExternalKeyring extends ExternalKeyring {
+    const wrapped: Keyring;
+
+    constructor(wrapped: Keyring) {
+      this.wrapped := wrapped;
+    }
+
+    method OnEncrypt(algorithmSuiteID: Materials.AlgorithmSuite.ID,
+                     encryptionContext: Materials.EncryptionContext,
+                     plaintextDataKey: Option<seq<uint8>>) returns (res: Result<Option<Materials.ValidDataKeyMaterials>>) {
+      var _ :- Require(plaintextDataKey.Some? ==> algorithmSuiteID.ValidPlaintextDataKey(plaintextDataKey.get));
+      var _ :- Require(wrapped.Valid());
+      res := wrapped.OnEncrypt(algorithmSuiteID, encryptionContext, plaintextDataKey);
+    }
+
+    method OnDecrypt(algorithmSuiteID: AlgorithmSuite.ID,
+                     encryptionContext: Materials.EncryptionContext,
+                     edks: seq<Materials.EncryptedDataKey>) returns (res: Result<Option<Materials.ValidOnDecryptResult>>) {
+      var _ :- Require(wrapped.Valid());
+      res := wrapped.OnDecrypt(algorithmSuiteID, encryptionContext, edks);
+    }
+  }
 }
