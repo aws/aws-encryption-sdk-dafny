@@ -135,9 +135,18 @@ module {:extern "STL"} StandardLibrary {
     ensures index.None? ==> c !in s[i..]
     decreases |s| - i
   {
+    FunctionFind(s, x => x == c, i)
+  }
+
+  function method FunctionFind<T>(s: seq<T>, f: T -> bool, i: nat): (index: Option<nat>)
+    requires i <= |s|
+    ensures index.Some? ==> i <= index.get < |s| && f(s[index.get]) && (forall j :: i <= j < index.get ==> !f(s[j]))
+    ensures index.None? ==> forall j :: i <= j < |s| ==> !f(s[j])
+    decreases |s| - i
+  {
     if i == |s| then None
-    else if s[i] == c then Some(i)
-    else Find(s, c, i + 1)
+    else if f(s[i]) then Some(i)
+    else FunctionFind(s, f, i + 1)
   }
 
   function method Filter<T>(s: seq<T>, f: T -> bool): (res: seq<T>)

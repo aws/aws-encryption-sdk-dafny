@@ -72,7 +72,7 @@ module TestStandardLibrary {
     ret := RequireEqual([""], output);
   }
 
-    method {:test} TestFindSimple() returns (ret: Result<()>) {
+  method {:test} TestFindSimple() returns (ret: Result<()>) {
     var input := "abcd";
     var output := Find(input, 'c', 0);
     ret := RequireEqual(Some(2), output);
@@ -87,6 +87,34 @@ module TestStandardLibrary {
   method {:test} TestFindNone() returns (ret: Result<()>) {
     var input := "abcd";
     var output := Find(input, 'e', 0);
+    ret := RequireEqual(None, output);
+  }
+
+  method {:test} TestFunctionFindSimple() returns (ret: Result<()>)
+  {
+    var input := "abcd";
+    var output := FunctionFind(input, x => x == 'c', 0);
+    ret := RequireEqual(Some(2), output);
+  }
+
+  method {:test} TestFunctionFindComplex() returns (ret: Result<()>)
+  {
+    var input := "abcd";
+    var output := FunctionFind(input, x => x in "crepe", 0);
+    ret := RequireEqual(Some(2), output);
+  }
+
+  method {:test} TestFunctionFindDuplicates() returns (ret: Result<()>)
+  {
+    var input := "abcdc";
+    var output := FunctionFind(input, x => x == 'c', 0);
+    ret := RequireEqual(Some(2), output);
+  }
+
+  method {:test} TestFunctionFindNone() returns (ret: Result<()>)
+  {
+    var input := "abcd";
+    var output := FunctionFind(input, x => false, 0);
     ret := RequireEqual(None, output);
   }
 
