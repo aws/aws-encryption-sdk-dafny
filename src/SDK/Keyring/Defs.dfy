@@ -9,9 +9,9 @@ module {:extern "KeyringDefs"} KeyringDefs {
   import Materials
   import AlgorithmSuite
 
-  trait {:termination false} Keyring {
+  trait {:termination false} {:extern} Keyring {
     ghost var Repr : set<object>
-    predicate Valid() reads this, Repr
+    predicate {:extern} Valid() reads this, Repr
 
     method OnEncrypt(algorithmSuiteID: Materials.AlgorithmSuite.ID,
                      encryptionContext: Materials.EncryptionContext,
@@ -55,9 +55,15 @@ module {:extern "KeyringDefs"} KeyringDefs {
 
     method OnEncrypt(algorithmSuiteID: Materials.AlgorithmSuite.ID,
                      encryptionContext: Materials.EncryptionContext,
-                     plaintextDataKey: Option<seq<uint8>>) returns (res: Result<Option<Materials.ValidDataKeyMaterials>>) {
-      var _ :- Require(plaintextDataKey.Some? ==> algorithmSuiteID.ValidPlaintextDataKey(plaintextDataKey.get));
-      var _ :- Require(wrapped.Valid());
+                     plaintextDataKey: Option<seq<uint8>>) returns (res: Result<Option<Materials.ValidDataKeyMaterials>>) 
+      ensures res.Success? && res.value.Some? ==> 
+        algorithmSuiteID == res.value.get.algorithmSuiteID
+      ensures res.Success? && res.value.Some? && plaintextDataKey.Some? ==> 
+        plaintextDataKey.get == res.value.get.plaintextDataKey
+      ensures res.Success? && res.value.Some? ==>
+        var generateTraces: seq<Materials.KeyringTraceEntry> := Filter(res.value.get.keyringTrace, Materials.IsGenerateTraceEntry);
+        |generateTraces| == if plaintextDataKey.None? then 1 else 0
+    {
       res := wrapped.OnEncrypt(algorithmSuiteID, encryptionContext, plaintextDataKey);
     }
 
@@ -65,6 +71,29 @@ module {:extern "KeyringDefs"} KeyringDefs {
                      encryptionContext: Materials.EncryptionContext,
                      edks: seq<Materials.EncryptedDataKey>) returns (res: Result<Option<Materials.ValidOnDecryptResult>>) {
       var _ :- Require(wrapped.Valid());
+      res := wrapped.OnDecrypt(algorithmSuiteID, encryptionContext, edks);
+    }
+  }
+
+  class AsKeyring extends Keyring {
+    const wrapped: ExternalKeyring;
+
+    constructor(wrapped: ExternalKeyring) {
+      this.wrapped := wrapped;
+    }
+
+    predicate Valid() reads this, Repr { true }
+
+    method OnEncrypt(algorithmSuiteID: Materials.AlgorithmSuite.ID,
+                     encryptionContext: Materials.EncryptionContext,
+                     plaintextDataKey: Option<seq<uint8>>) returns (res: Result<Option<Materials.ValidDataKeyMaterials>>) {
+      var _ :- Require(plaintextDataKey.Some? ==> algorithmSuiteID.ValidPlaintextDataKey(plaintextDataKey.get));
+      res := wrapped.OnEncrypt(algorithmSuiteID, encryptionContext, plaintextDataKey);
+    }
+
+    method OnDecrypt(algorithmSuiteID: AlgorithmSuite.ID,
+                     encryptionContext: Materials.EncryptionContext,
+                     edks: seq<Materials.EncryptedDataKey>) returns (res: Result<Option<Materials.ValidOnDecryptResult>>) {
       res := wrapped.OnDecrypt(algorithmSuiteID, encryptionContext, edks);
     }
   }
