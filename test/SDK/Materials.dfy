@@ -8,7 +8,7 @@ module {:extern "TestMaterials"} TestMaterials {
   import opened Materials
   import AlgorithmSuite
 
-  method {:test} TestEncryptionContextGetHappyUTF8() returns (res: Result<()>)
+  method {:test} TestEncryptionContextGetHappy() returns (res: Result<()>)
   {
     var keyA, valA := UTF8.Encode("keyA").value, UTF8.Encode("valA").value;
     var keyB, valB := UTF8.Encode("keyB").value, UTF8.Encode("valB").value;
@@ -21,7 +21,7 @@ module {:extern "TestMaterials"} TestMaterials {
     res := RequireEqual(val, valB);
   }
 
-  method {:test} TestEncryptionContextGetSadUTF8() returns (res: Result<()>)
+  method {:test} TestEncryptionContextGetSad() returns (res: Result<()>)
   {
     var keyA, valA := UTF8.Encode("keyA").value, UTF8.Encode("valA").value;
     var keyB, valB := UTF8.Encode("keyB").value, UTF8.Encode("valB").value;
