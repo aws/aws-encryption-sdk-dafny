@@ -31,6 +31,19 @@ module {:extern "TestMaterials"} TestMaterials {
     res := RequireFailure(methodCall);
   }
 
+  method {:test} TestEncryptionContextGetLarge() returns (res: Result<()>)
+  {
+    var keyA, valA := UTF8.Encode("A").value, UTF8.Encode("A").value;
+    var keyB, valB := UTF8.Encode("keyB").value, UTF8.Encode("valB").value;
+    // (2^16 - 1) / (minimum kvPair size) => (2^16 - 1) / 6 => 10922 is the max
+    // number of pairs you can stuff into a valid AAD
+    // We leave space for just one at the end.
+    var encCtx := seq(10921, _ => (keyA, valA)) + [(keyB, valB)];
+
+    var val :- EncryptionContextGet(encCtx, keyB);
+    res := RequireEqual(valB, val);
+  }
+
   method {:test} TestConcatDataKeyMaterialsHappy() returns (res: Result<()>)
   {
     var edk1 := EncryptedDataKey(UTF8.Encode("EDK1").value, [1], [1]);
