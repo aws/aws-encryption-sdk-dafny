@@ -26,10 +26,9 @@ module {:extern "TestClient"} TestClient {
   method EncryptDecryptTest(cmm: CMMDefs.CMM) returns (r: Result<()>)
     requires cmm.Valid()
   {
-    var msg := UTF8.Encode("hello");
-
-    var keyA := UTF8.Encode("keyA");
-    var valA := UTF8.Encode("valA");
+    var msg :- UTF8.Encode("hello");
+    var keyA :- UTF8.Encode("keyA");
+    var valA :- UTF8.Encode("valA");
     var encryptionContext := [(keyA, valA)];
     assert Msg.ValidAAD(encryptionContext) by {
       // To prove ValidAAD, we need to reveal the definition of ValidAAD:
@@ -50,8 +49,8 @@ module {:extern "TestClient"} TestClient {
   }
 
   method {:test} HappyPath() returns (r: Result<()>) {
-    var namespace := UTF8.Encode("namespace");
-    var name := UTF8.Encode("MyKeyring");
+    var namespace :- UTF8.Encode("namespace");
+    var name :- UTF8.Encode("MyKeyring");
 
     var ek, dk := RSA.GenerateKeyPair(2048, RSA.PKCS1);
     var keyring := new RawRSAKeyringDef.RawRSAKeyring(namespace, name, RSA.PaddingMode.PKCS1, Some(ek), Some(dk));

@@ -17,11 +17,11 @@ module {:extern "UTF8"} UTF8 {
 
   type ValidUTF8Bytes = i: seq<uint8> | ValidUTF8Seq(i) witness []
 
-  method {:extern "Encode"} Encode(s: string) returns (res: ValidUTF8Bytes)
+  method {:extern "Encode"} Encode(s: string) returns (res: Result<ValidUTF8Bytes>)
     // US-ASCII only needs a single UTF-8 byte per character
-    ensures IsASCIIString(s) ==> |res| == |s|
+    ensures IsASCIIString(s) ==> res.Success? && |res.value| == |s|
 
-  method {:extern "Decode"} Decode(b: ValidUTF8Bytes) returns (res: string)
+  method {:extern "Decode"} Decode(b: ValidUTF8Bytes) returns (res: Result<string>)
 
   predicate method IsASCIIString(s: string) {
     forall i :: 0 <= i < |s| ==> s[i] as int < 128
@@ -30,18 +30,21 @@ module {:extern "UTF8"} UTF8 {
   predicate method Uses1Byte(s: seq<uint8>)
     requires |s| >= 1
   {
+    // Based on syntax detailed on https://tools.ietf.org/html/rfc3629#section-4
     0x00 <= s[0] <= 0x7F
   }
 
   predicate method Uses2Bytes(s: seq<uint8>)
     requires |s| >= 2
   {
+    // Based on syntax detailed on https://tools.ietf.org/html/rfc3629#section-4
     (0xC2 <= s[0] <= 0xDF) && (0x80 <= s[1] <= 0xBF)
   }
 
   predicate method Uses3Bytes(s: seq<uint8>)
     requires |s| >= 3
   {
+    // Based on syntax detailed on https://tools.ietf.org/html/rfc3629#section-4
     ((s[0] == 0xE0) && (0xA0 <= s[1] <= 0xBF) && (0x80 <= s[2] <= 0xBF))
       || ((0xE1 <= s[0] <= 0xEC) && (0x80 <= s[1] <= 0xBF) && (0x80 <= s[2] <= 0xBF))
       || ((s[0] == 0xED) && (0x80 <= s[1] <= 0x9F) && (0x80 <= s[2] <= 0xBF))
@@ -51,6 +54,7 @@ module {:extern "UTF8"} UTF8 {
   predicate method Uses4Bytes(s: seq<uint8>)
     requires |s| >= 4
   {
+    // Based on syntax detailed on https://tools.ietf.org/html/rfc3629#section-4
     ((s[0] == 0xF0) && (0x90 <= s[1] <= 0xBF) && (0x80 <= s[2] <= 0xBF) && (0x80 <= s[3] <= 0xBF))
       || ((0xF1 <= s[0] <= 0xF3) && (0x80 <= s[1] <= 0xBF) && (0x80 <= s[2] <= 0xBF) && (0x80 <= s[3] <= 0xBF))
       || ((s[0] == 0xF4) && (0x80 <= s[1] <= 0x8F) && (0x80 <= s[2] <= 0xBF) && (0x80 <= s[3] <= 0xBF))

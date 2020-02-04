@@ -10,8 +10,8 @@ module TestSerialize {
 
   method {:test} TestSerializeAAD() returns (ret: Result<()>) {
     var wr := new Streams.ByteWriter();
-    var keyA := UTF8.Encode("keyA");
-    var valA := UTF8.Encode("valA");
+    var keyA :- UTF8.Encode("keyA");
+    var valA :- UTF8.Encode("valA");
     var encryptionContext := [(keyA, valA)];
     MessageHeader.AssumeValidAAD(encryptionContext);
 
@@ -34,8 +34,8 @@ module TestSerialize {
 
   method {:test} TestSerializeKVPairs() returns (ret: Result<()>) {
     var wr := new Streams.ByteWriter();
-    var keyA := UTF8.Encode("keyA");
-    var valA := UTF8.Encode("valA");
+    var keyA :- UTF8.Encode("keyA");
+    var valA :- UTF8.Encode("valA");
     var encryptionContext := [(keyA, valA)];
     MessageHeader.AssumeValidAAD(encryptionContext);
 

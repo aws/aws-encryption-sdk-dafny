@@ -28,14 +28,14 @@ module MessageBody {
   method GetBodyAADContentRegularFrame() returns (res: UTF8.ValidUTF8Bytes)
   {
     var encoded := UTF8.Encode(AWS_KMS_ENCRYPTION_CLIENT_REGULAR_FRAME);
-    return encoded;
+    return encoded.value;
   }
 
   const AWS_KMS_ENCRYPTION_CLIENT_FINAL_FRAME := "AWSKMSEncryptionClient Final Frame";
   method GetBodyAADContentFinalFrame() returns (res: UTF8.ValidUTF8Bytes)
   {
     var encoded := UTF8.Encode(AWS_KMS_ENCRYPTION_CLIENT_FINAL_FRAME);
-    return encoded;
+    return encoded.value;
   }
 
   const START_SEQUENCE_NUMBER: uint32 := 1

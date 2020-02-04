@@ -17,13 +17,13 @@ module TestMultiKeying {
 
   method {:test} TestOnEncryptOnDecryptWithGenerator() returns (r: Result<()>) {
     // TODO: mock children keyrings
-    var keyA := UTF8.Encode("keyA");
-    var valA := UTF8.Encode("valA");
+    var keyA :- UTF8.Encode("keyA");
+    var valA :- UTF8.Encode("valA");
     var encryptionContext := [(keyA, valA)];
-    var child1Name := UTF8.Encode("child1 Name");
-    var child1Namespace := UTF8.Encode("child1 Namespace");
-    var child2Name := UTF8.Encode("child2 Name");
-    var child2namespace := UTF8.Encode("child2 Namespace");
+    var child1Name :- UTF8.Encode("child1 Name");
+    var child1Namespace :- UTF8.Encode("child1 Namespace");
+    var child2Name :- UTF8.Encode("child2 Name");
+    var child2namespace :- UTF8.Encode("child2 Namespace");
     var child1Keyring := new RawAESKeyringDef.RawAESKeyring(child1Name, child1Namespace, seq(32, i => 0), EncryptionSuites.AES_GCM_256);
     var child2Keyring := new RawAESKeyringDef.RawAESKeyring(child2Name, child2namespace, seq(32, i => 0), EncryptionSuites.AES_GCM_256);
     var keyIDs := new [][child2Keyring];
@@ -68,13 +68,13 @@ module TestMultiKeying {
 
   method {:test} TestOnEncryptOnDecryptWithoutGenerator() returns (r: Result<()>) {
     // TODO: mock children keyrings and move encrypt <-> decrypt test into new test
-    var keyA := UTF8.Encode("keyA");
-    var valA := UTF8.Encode("valA");
+    var keyA :- UTF8.Encode("keyA");
+    var valA :- UTF8.Encode("valA");
     var encryptionContext := [(keyA, valA)];
-    var child1Name := UTF8.Encode("child1 Name");
-    var child1Namespace := UTF8.Encode("child1 Namespace");
-    var child2Name := UTF8.Encode("child2 Name");
-    var child2namespace := UTF8.Encode("child2 Namespace");
+    var child1Name :- UTF8.Encode("child1 Name");
+    var child1Namespace :- UTF8.Encode("child1 Namespace");
+    var child2Name :- UTF8.Encode("child2 Name");
+    var child2namespace :- UTF8.Encode("child2 Namespace");
     var child1Keyring := new RawAESKeyringDef.RawAESKeyring(child1Name, child1Namespace, seq(32, i => 0), EncryptionSuites.AES_GCM_256);
     var child2Keyring := new RawAESKeyringDef.RawAESKeyring(child2Name, child2namespace, seq(32, i => 0), EncryptionSuites.AES_GCM_256);
     var keyIDs := new [][child1Keyring, child2Keyring];

@@ -18,8 +18,8 @@ module TestRSAKeyring {
   method {:test} TestOnEncryptOnDecryptGenerateDataKey() returns (r: Result<()>)
   {
     var remainingPaddingModes := allPaddingModes;
-    var name := UTF8.Encode("test Name");
-    var namespace := UTF8.Encode("test Namespace");
+    var name :- UTF8.Encode("test Name");
+    var namespace :- UTF8.Encode("test Namespace");
     while remainingPaddingModes != {}
       decreases remainingPaddingModes
     {
@@ -30,8 +30,8 @@ module TestRSAKeyring {
       var rawRSAKeyring := new RawRSAKeyringDef.RawRSAKeyring(name, namespace, paddingMode, Some(publicKey), Some(privateKey));
 
       // Verify encoding
-      var keyA := UTF8.Encode("keyA");
-      var valA := UTF8.Encode("valA");
+      var keyA :- UTF8.Encode("keyA");
+      var valA :- UTF8.Encode("valA");
       var encryptionContext := [(keyA, valA)];
       var onEncryptResult :- rawRSAKeyring.OnEncrypt(AlgorithmSuite.AES_256_GCM_IV12_TAG16_HKDF_SHA384_ECDSA_P384, encryptionContext, None);
       var _ :- Require(onEncryptResult.Some? &&
@@ -50,8 +50,8 @@ module TestRSAKeyring {
   method {:test} TestOnEncryptOnDecryptSuppliedDataKey() returns (r: Result<()>)
   {
     var remainingPaddingModes := allPaddingModes;
-    var name := UTF8.Encode("test Name");
-    var namespace := UTF8.Encode("test Namespace");
+    var name :- UTF8.Encode("test Name");
+    var namespace :- UTF8.Encode("test Namespace");
     while remainingPaddingModes != {}
       decreases remainingPaddingModes
     {
@@ -62,8 +62,8 @@ module TestRSAKeyring {
       var rawRSAKeyring := new RawRSAKeyringDef.RawRSAKeyring(name, namespace, paddingMode, Some(publicKey), Some(privateKey));
 
       // Verify encoding
-      var keyA := UTF8.Encode("keyA");
-      var valA := UTF8.Encode("valA");
+      var keyA :- UTF8.Encode("keyA");
+      var valA :- UTF8.Encode("valA");
       var encryptionContext := [(keyA, valA)];
       var plaintextDataKey := seq(32, i => 0);
       var onEncryptResult :- rawRSAKeyring.OnEncrypt(AlgorithmSuite.AES_256_GCM_IV12_TAG16_HKDF_SHA384_ECDSA_P384, encryptionContext, Some(plaintextDataKey));
