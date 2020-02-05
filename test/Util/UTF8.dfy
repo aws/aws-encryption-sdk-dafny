@@ -113,5 +113,45 @@ module TestUTF8 {
     r := RequireEqual(decoded, redecoded);
   }
 
+  method {:test} Test3Bytes() returns (r: Result<()>) {
+    // Enter symbol
+    var decoded := "\u2386";
+    var encoded :- UTF8.Encode(decoded);
+    var _ :- RequireEqual([0xE2, 0x8E, 0x86], encoded);
+    var _ :- Require(Uses3Bytes(encoded));
+    var redecoded :- UTF8.Decode(encoded);
+    var _ :- RequireEqual(decoded, redecoded);
 
+    // Alternative key
+    decoded := "\u2387";
+    encoded :- UTF8.Encode(decoded);
+    var _ :- RequireEqual([0xE2, 0x8E, 0x87], encoded);
+    var _ :- Require(Uses3Bytes(encoded));
+    redecoded :- UTF8.Decode(encoded);
+    var _ :- RequireEqual(decoded, redecoded);
+
+    // Hourglass emoji
+    decoded := "\u231B";
+    encoded :- UTF8.Encode(decoded);
+    var _ :- RequireEqual([0xE2, 0x8C, 0x9B], encoded);
+    var _ :- Require(Uses3Bytes(encoded));
+    redecoded :- UTF8.Decode(encoded);
+    var _ :- RequireEqual(decoded, redecoded);
+
+    // Modifier letter cyrillic EN
+    decoded := "\u1D78";
+    encoded :- UTF8.Encode(decoded);
+    var _ :- RequireEqual([0xE1, 0xB5, 0xB8], encoded);
+    var _ :- Require(Uses3Bytes(encoded));
+    redecoded :- UTF8.Decode(encoded);
+    var _ :- RequireEqual(decoded, redecoded);
+
+    // Chinese cat (mao)
+    decoded := "\u732B";
+    encoded :- UTF8.Encode(decoded);
+    var _ :- RequireEqual([0xE7, 0x8C, 0xAB], encoded);
+    var _ :- Require(Uses3Bytes(encoded));
+    redecoded :- UTF8.Decode(encoded);
+    r := RequireEqual(decoded, redecoded);
+  }
 }
