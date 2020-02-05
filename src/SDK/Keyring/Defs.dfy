@@ -39,7 +39,8 @@ module {:extern "KeyringDefs"} KeyringDefs {
   }
 
   trait {:extern} ExternalKeyring {
-    ghost const Repr : set<object>
+    ghost var Repr : set<object>;
+
     method OnEncrypt(algorithmSuiteID: Materials.AlgorithmSuite.ID,
                      encryptionContext: Materials.EncryptionContext,
                      plaintextDataKey: Option<seq<uint8>>) returns (res: Result<Option<Materials.ValidDataKeyMaterials>>)
@@ -98,12 +99,16 @@ module {:extern "KeyringDefs"} KeyringDefs {
     }
 
     predicate Valid() reads this, Repr {
-       true 
+      && this in Repr 
+      && wrapped in Repr 
+      && wrapped.Repr <= Repr 
+      && this !in wrapped.Repr
     }
 
     method OnEncrypt(algorithmSuiteID: Materials.AlgorithmSuite.ID,
                      encryptionContext: Materials.EncryptionContext,
                      plaintextDataKey: Option<seq<uint8>>) returns (res: Result<Option<Materials.ValidDataKeyMaterials>>) 
+      requires Valid()
       ensures res.Success? && res.value.Some? ==> 
         algorithmSuiteID == res.value.get.algorithmSuiteID
       ensures res.Success? && res.value.Some? && plaintextDataKey.Some? ==> 
@@ -126,6 +131,7 @@ module {:extern "KeyringDefs"} KeyringDefs {
     method OnDecrypt(algorithmSuiteID: AlgorithmSuite.ID,
                      encryptionContext: Materials.EncryptionContext,
                      edks: seq<Materials.EncryptedDataKey>) returns (res: Result<Option<Materials.ValidOnDecryptResult>>) 
+      requires Valid()
       ensures |edks| == 0 ==> res.Success? && res.value.None?
       ensures res.Success? && res.value.Some? ==> res.value.get.algorithmSuiteID == algorithmSuiteID
       decreases Repr
