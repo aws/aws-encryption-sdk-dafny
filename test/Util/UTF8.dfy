@@ -154,4 +154,22 @@ module TestUTF8 {
     redecoded :- UTF8.Decode(encoded);
     r := RequireEqual(decoded, redecoded);
   }
+
+  method {:test} Test4Bytes() returns (r: Result<()>) {
+    // Cuneiform Sign A - represented as a surrogate of U+12000
+    var decoded := "\uD808\uDC00";
+    var encoded :- UTF8.Encode(decoded);
+    var _ :- RequireEqual([0xF0, 0x92, 0x80, 0x80], encoded);
+    var _ :- Require(Uses4Bytes(encoded));
+    var redecoded :- UTF8.Decode(encoded);
+    var _ :- RequireEqual(decoded, redecoded);
+
+    // Mathematical Sans-Serif Bold Italic Small Psi - represented as a surrogate of U+1D7C1
+    decoded := "\uD835\uDFC1";
+    encoded :- UTF8.Encode(decoded);
+    var _ :- RequireEqual([0xF0, 0x9D, 0x9F, 0x81], encoded);
+    var _ :- Require(Uses4Bytes(encoded));
+    redecoded :- UTF8.Decode(encoded);
+    r := RequireEqual(decoded, redecoded);
+  }
 }
