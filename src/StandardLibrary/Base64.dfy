@@ -1,6 +1,9 @@
 include "StandardLibrary.dfy"
 include "UInt.dfy"
 
+/*
+ * Note that additional lemmas for this module are in Base64Lemmas.dfy.
+ */
 module Base64 {
   import opened StandardLibrary
   import opened UInt = StandardLibrary.UInt
