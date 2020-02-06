@@ -267,7 +267,7 @@ module Deserialize {
     } else {
       var kvPairs' := kvPairs[..n] + [(key, value)] + kvPairs[n..];
       if 0 < n {
-        LexPreservesTrichotomy(kvPairs'[n - 1].0, kvPairs'[n].0, UInt.UInt8Less);
+        LexIsTotal(kvPairs'[n - 1].0, kvPairs'[n].0, UInt.UInt8Less);
       }
       return Some(kvPairs'), n;
     }
