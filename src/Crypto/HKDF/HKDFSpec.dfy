@@ -7,7 +7,7 @@ module HKDFSpec {
   import opened Digests
 
   // return T(i)
-  function Ti(algorithm: HMAC_ALGORITHM, key: seq<uint8>, info: seq<uint8>, i: nat): seq<uint8>
+  function Ti(algorithm: KEY_DERIVATION_ALGORITHM, key: seq<uint8>, info: seq<uint8>, i: nat): seq<uint8>
     requires 0 <= i < 256
     requires HashLength(algorithm) <= |key|
     decreases i, 1
@@ -17,7 +17,7 @@ module HKDFSpec {
   }
 
   // return T(i-1) | info | i
-  function PreTi(algorithm: HMAC_ALGORITHM, key: seq<uint8>, info: seq<uint8>, i: nat): seq<uint8>
+  function PreTi(algorithm: KEY_DERIVATION_ALGORITHM, key: seq<uint8>, info: seq<uint8>, i: nat): seq<uint8>
     requires 1 <= i < 256
     requires HashLength(algorithm) <= |key|
     decreases i, 0
@@ -26,7 +26,7 @@ module HKDFSpec {
   }
 
   // return T(1) | T(2) | ... | T(n)
-  function T(algorithm: HMAC_ALGORITHM, key: seq<uint8>, info: seq<uint8>, n: nat): seq<uint8>
+  function T(algorithm: KEY_DERIVATION_ALGORITHM, key: seq<uint8>, info: seq<uint8>, n: nat): seq<uint8>
     requires 0 <= n < 256
     requires HashLength(algorithm) <= |key|
     decreases n
@@ -35,14 +35,14 @@ module HKDFSpec {
       T(algorithm, key, info, n-1) + Ti(algorithm, key, info, n)
   }
 
-  lemma TLength(algorithm: HMAC_ALGORITHM, key: seq<uint8>, info: seq<uint8>, n: nat)
+  lemma TLength(algorithm: KEY_DERIVATION_ALGORITHM, key: seq<uint8>, info: seq<uint8>, n: nat)
     requires 0 <= n < 256
     requires HashLength(algorithm) <= |key|
     ensures |T(algorithm, key, info, n)| == n * HashLength(algorithm)
   {
   }
 
-  lemma TPrefix(algorithm: HMAC_ALGORITHM, key: seq<uint8>, info: seq<uint8>, m: nat, n: nat)
+  lemma TPrefix(algorithm: KEY_DERIVATION_ALGORITHM, key: seq<uint8>, info: seq<uint8>, m: nat, n: nat)
     requires 0 <= m <= n < 256
     requires HashLength(algorithm) <= |key|
     ensures T(algorithm, key, info, m) <= T(algorithm, key, info, n)
@@ -53,7 +53,7 @@ module HKDFSpec {
     }
   }
 
-  function TMaxLength(algorithm: HMAC_ALGORITHM, key: seq<uint8>, info: seq<uint8>): (result: seq<uint8>)
+  function TMaxLength(algorithm: KEY_DERIVATION_ALGORITHM, key: seq<uint8>, info: seq<uint8>): (result: seq<uint8>)
     requires HashLength(algorithm) <= |key|
     ensures |result| == 255 * HashLength(algorithm)
   {

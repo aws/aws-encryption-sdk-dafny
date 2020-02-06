@@ -13,10 +13,10 @@ module {:extern "BouncyCastleCryptoMac"} BouncyCastleCryptoMac {
 
     // The algorithm of a Mac object never changes. This is modeled by a constant ghost field.
     // The name of the algorithm can be retrieved by the "getAlgorithm" method.
-    const {:extern "algorithm"} algorithm: HMAC_ALGORITHM
+    const {:extern "algorithm"} algorithm: KEY_DERIVATION_ALGORITHM
     function method {:extern "getAlgorithmName"} getAlgorithmName(): string
-      ensures this.algorithm == HmacSHA256 ==> getAlgorithmName() == "SHA256"
-      ensures this.algorithm == HmacSHA384 ==> getAlgorithmName() == "SHA384"
+      ensures this.algorithm == HKDF_WITH_SHA_256 ==> getAlgorithmName() == "SHA256"
+      ensures this.algorithm == HKDF_WITH_SHA_384 ==> getAlgorithmName() == "SHA384"
 
     // I'm guessing that the algorithm determines the length of the hash-function output once
     // and for all.
@@ -93,12 +93,12 @@ module {:extern "BouncyCastleCryptoMac"} BouncyCastleCryptoMac {
      * Beginning of BouncyCastle library functions
      */
 
-    constructor {:extern} (algorithm: HMAC_ALGORITHM)
+    constructor {:extern} (algorithm: KEY_DERIVATION_ALGORITHM)
       ensures this.algorithm == algorithm
 
     function method {:extern "getAlgorithmName"} getAlgorithmName(): string
-      ensures this.algorithm == HmacSHA256 ==> getAlgorithmName() == "SHA256"
-      ensures this.algorithm == HmacSHA384 ==> getAlgorithmName() == "SHA384"
+      ensures this.algorithm == HKDF_WITH_SHA_256 ==> getAlgorithmName() == "SHA256"
+      ensures this.algorithm == HKDF_WITH_SHA_384 ==> getAlgorithmName() == "SHA384"
 
     // I'm guessing that the algorithm determines the length of the hash-function output once
     // and for all.
@@ -150,7 +150,7 @@ module {:extern "BouncyCastleCryptoMac"} BouncyCastleCryptoMac {
       ensures output.Length == old(output.Length)
       ensures InputSoFar == []
 
-    function method {:extern "getUnderlyingDigest"} getUnderlyingDigest(): HMAC_ALGORITHM
+    function method {:extern "getUnderlyingDigest"} getUnderlyingDigest(): KEY_DERIVATION_ALGORITHM
       ensures getUnderlyingDigest() == algorithm
 
     /*

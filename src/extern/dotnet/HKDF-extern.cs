@@ -32,12 +32,12 @@ namespace BouncyCastleCryptoMac {
 
     private Org.BouncyCastle.Crypto.Macs.HMac bcHMac;
 
-    public HMac(Digests.HMAC_ALGORITHM algorithm) {
+    public HMac(Digests.KEY_DERIVATION_ALGORITHM algorithm) {
       Org.BouncyCastle.Crypto.IDigest digest;
-      if(algorithm.is_HmacSHA256) {
+      if(algorithm.is_HKDF__WITH__SHA__256) {
         digest = new Org.BouncyCastle.Crypto.Digests.Sha256Digest();
         bcHMac = new Org.BouncyCastle.Crypto.Macs.HMac(digest);
-      } else if(algorithm.is_HmacSHA384) {
+      } else if(algorithm.is_HKDF__WITH__SHA__384) {
         digest = new Org.BouncyCastle.Crypto.Digests.Sha384Digest();
         bcHMac = new Org.BouncyCastle.Crypto.Macs.HMac(digest);
       } else {
