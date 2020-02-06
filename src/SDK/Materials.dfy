@@ -45,7 +45,7 @@ module {:extern "Materials"} Materials {
 
   function EncCtxIndexLookup(x: EncryptionContext, k: UTF8.ValidUTF8Bytes): (opt: Option<nat>)
   {
-    FunctionFind(x, (y: (UTF8.ValidUTF8Bytes, UTF8.ValidUTF8Bytes)) => y.0 == k, 0)
+    FindIndex(x, (y: (UTF8.ValidUTF8Bytes, UTF8.ValidUTF8Bytes)) => y.0 == k, 0)
   }
 
   const EC_PUBLIC_KEY_FIELD := UTF8.Encode("aws-crypto-public-key").value
