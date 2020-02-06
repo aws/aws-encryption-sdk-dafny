@@ -6,11 +6,11 @@ module {:extern "Digests"} Digests {
 
     datatype {:extern "HMAC_ALGORITHM"} HMAC_ALGORITHM = HmacSHA256 | HmacSHA384 | HmacNOSHA
 
-    // Hash length in octets, e.g. HashLength(SHA256) = 256 = 32 * 8
-    function {:axiom} HashLength(algorithm: HMAC_ALGORITHM): nat
-        ensures algorithm == HmacSHA256 ==> HashLength(algorithm) == 32
-        ensures algorithm == HmacSHA384 ==> HashLength(algorithm) == 48
+    // Hash length in octets (bytes), e.g. HashLength(SHA256) = 256 = 32 * 8
+    function {:axiom} HashLength(algorithm: HMAC_ALGORITHM): (n: nat)
+        ensures algorithm == HmacSHA256 ==> n == 32
+        ensures algorithm == HmacSHA384 ==> n == 48
 
-    function {:axiom} Hash(algorithm: HMAC_ALGORITHM, key: seq<uint8>, message: seq<uint8>): seq<uint8>
-        ensures |Hash(algorithm, key, message)| == HashLength(algorithm)
+    function {:axiom} Hash(algorithm: HMAC_ALGORITHM, key: seq<uint8>, message: seq<uint8>): (s: seq<uint8>)
+        ensures |s| == HashLength(algorithm)
 }
