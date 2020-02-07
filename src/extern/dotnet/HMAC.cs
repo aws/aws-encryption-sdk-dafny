@@ -53,9 +53,5 @@ namespace HMAC {
         public int DoFinal(byte[] output, int outOff) {
             return hmac.DoFinal(output, outOff);
         }
-
-        public Org.BouncyCastle.Crypto.IDigest GetUnderlyingDigest() {
-            return hmac.GetUnderlyingDigest();
-        }
     }
 }

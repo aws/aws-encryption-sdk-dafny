@@ -67,13 +67,6 @@ module {:extern "HMAC"} HMAC {
       ensures output.Length == old(output.Length)
       ensures InputSoFar == []
 
-    function method {:extern "GetUnderlyingDigest"} getUnderlyingDigest(): KEY_DERIVATION_ALGORITHM
-      ensures getUnderlyingDigest() == algorithm
-
-    /*
-     * Derived methods:
-     * These might have "simpler" post-conditions that have better verification behaviour
-     */
     method updateAll(input: array<uint8>)
       requires initialized.Some?
       requires input.Length < 0x8000_0000
