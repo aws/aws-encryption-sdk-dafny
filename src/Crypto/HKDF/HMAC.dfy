@@ -8,37 +8,18 @@ module {:extern "HMAC"} HMAC {
 
   datatype {:extern "CipherParameters"} CipherParameters = KeyParameter(key: array<uint8>)
 
-  // https://people.eecs.berkeley.edu/~jonah/bc/org/bouncycastle/crypto/HMac.html
   class {:extern "HMac"} HMac {
 
     const algorithm: KEY_DERIVATION_ALGORITHM
-    // To be useful, a Mac object must be associated with a key. This association is performed
-    // by the "init" method.  The "init" method can be called at any time to reset the state of
-    // the object and associate it with a new key.
-    // Ghost field "initialized" keeps track of whether or not the Mac object has been initialized
-    // and, if so, which key material is associated with it.
     ghost var initialized: Option<seq<uint8>>
 
-    // Once a key has been associated with the Mac object, calls to "update*" start
-    // accumulating input that can be used to produce a MAC.  The accumulated input is modeled by
-    // the ghost field "InputSoFar".
-    // The act of resetting the object (which is done by the method "reset") is
-    // to clear out any previous MAC computation. In other words, resetting the object sets "InputSoFar"
-    // to the empty sequence (but leaves unchanged the key and algorithm of the Mac object).
-    // The method  "doFinal" outputs the hash of the accumulated input and resets the accumulated
-    // input "InputSoFar" to the empty sequence (but leaves unchanged the key and algorithm of the Mac
-    // object).
+    // InputSoFar represents the accumulated input as Update calls are made. It is cleared by Reset and DoFinal, though
+    // DoFinal additionally outputs the hash of the accumulated input.
     ghost var InputSoFar: seq<uint8>
-
-    /*
-     * Beginning of BouncyCastle library functions
-     */
 
     constructor {:extern} (algorithm: KEY_DERIVATION_ALGORITHM)
       ensures this.algorithm == algorithm
 
-    // I'm guessing that the algorithm determines the length of the hash-function output once
-    // and for all.
     function method {:extern "GetMacSize"} getMacSize(): int32
       ensures getMacSize() == HashLength(algorithm)
 
@@ -56,10 +37,6 @@ module {:extern "HMAC"} HMAC {
       ensures InputSoFar == []
 
     method {:extern "Reset"} reset()
-      // BouncyCastle's documentation doesn't mention the following precondition, and it doesn't
-      // admit to any exception ever being thrown by the "reset" method. However, the documentation
-      // of "reset" talks about the "previously initialized" state of the object, which suggests
-      // that the object must already be initialized.
       requires initialized.Some?
       modifies `InputSoFar
       ensures InputSoFar == []
@@ -79,7 +56,6 @@ module {:extern "HMAC"} HMAC {
       modifies `InputSoFar
       ensures InputSoFar == old(InputSoFar) + input[inOff..inOff+len]
 
-    // returns an int, but it is not specified, what that int stands for
     method {:extern "DoFinal"} doFinal(output: array<uint8>, outOff: int32) returns (retVal: int32)
       requires initialized.Some?
       requires outOff >= 0
@@ -93,10 +69,6 @@ module {:extern "HMAC"} HMAC {
 
     function method {:extern "GetUnderlyingDigest"} getUnderlyingDigest(): KEY_DERIVATION_ALGORITHM
       ensures getUnderlyingDigest() == algorithm
-
-    /*
-     * End of BouncyCastle library functions
-     */
 
     /*
      * Derived methods:
