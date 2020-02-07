@@ -15,15 +15,17 @@ module TestMultiKeying {
   import AlgorithmSuite
   import UTF8
 
-  const name := UTF8.Encode("test Name").value;
-  const namespace := UTF8.Encode("test Namespace").value;
-
   method {:test} TestOnEncryptOnDecryptWithGenerator() returns (r: Result<()>) {
     // TODO: mock children keyrings
-    var keyA, valA := UTF8.Encode("keyA").value, UTF8.Encode("valA").value;
+    var keyA :- UTF8.Encode("keyA");
+    var valA :- UTF8.Encode("valA");
     var encryptionContext := [(keyA, valA)];
-    var child1Keyring := new RawAESKeyringDef.RawAESKeyring(UTF8.Encode("child1 Name").value, UTF8.Encode("child1 Namespace").value, seq(32, i => 0), EncryptionSuites.AES_GCM_256);
-    var child2Keyring := new RawAESKeyringDef.RawAESKeyring(UTF8.Encode("child2 Name").value, UTF8.Encode("child2 Namespace").value, seq(32, i => 0), EncryptionSuites.AES_GCM_256);
+    var child1Name :- UTF8.Encode("child1 Name");
+    var child1Namespace :- UTF8.Encode("child1 Namespace");
+    var child2Name :- UTF8.Encode("child2 Name");
+    var child2namespace :- UTF8.Encode("child2 Namespace");
+    var child1Keyring := new RawAESKeyringDef.RawAESKeyring(child1Name, child1Namespace, seq(32, i => 0), EncryptionSuites.AES_GCM_256);
+    var child2Keyring := new RawAESKeyringDef.RawAESKeyring(child2Name, child2namespace, seq(32, i => 0), EncryptionSuites.AES_GCM_256);
     var keyIDs := new [][child2Keyring];
     var multiKeyring := new MultiKeyringDef.MultiKeyring(child1Keyring, keyIDs);
 
@@ -66,10 +68,15 @@ module TestMultiKeying {
 
   method {:test} TestOnEncryptOnDecryptWithoutGenerator() returns (r: Result<()>) {
     // TODO: mock children keyrings and move encrypt <-> decrypt test into new test
-    var keyA, valA := UTF8.Encode("keyA").value, UTF8.Encode("valA").value;
+    var keyA :- UTF8.Encode("keyA");
+    var valA :- UTF8.Encode("valA");
     var encryptionContext := [(keyA, valA)];
-    var child1Keyring := new RawAESKeyringDef.RawAESKeyring(UTF8.Encode("child1 Name").value, UTF8.Encode("child1 Namespace").value, seq(32, i => 0), EncryptionSuites.AES_GCM_256);
-    var child2Keyring := new RawAESKeyringDef.RawAESKeyring(UTF8.Encode("child2 Name").value, UTF8.Encode("child2 Namespace").value, seq(32, i => 0), EncryptionSuites.AES_GCM_256);
+    var child1Name :- UTF8.Encode("child1 Name");
+    var child1Namespace :- UTF8.Encode("child1 Namespace");
+    var child2Name :- UTF8.Encode("child2 Name");
+    var child2namespace :- UTF8.Encode("child2 Namespace");
+    var child1Keyring := new RawAESKeyringDef.RawAESKeyring(child1Name, child1Namespace, seq(32, i => 0), EncryptionSuites.AES_GCM_256);
+    var child2Keyring := new RawAESKeyringDef.RawAESKeyring(child2Name, child2namespace, seq(32, i => 0), EncryptionSuites.AES_GCM_256);
     var keyIDs := new [][child1Keyring, child2Keyring];
     var multiKeyring := new MultiKeyringDef.MultiKeyring(null, keyIDs);
 

@@ -24,9 +24,8 @@ module MessageBody {
   import EncryptionSuites
   import UTF8
 
-  const BODY_AAD_CONTENT_REGULAR_FRAME := UTF8.Encode("AWSKMSEncryptionClient Frame").value
-  const BODY_AAD_CONTENT_FINAL_FRAME := UTF8.Encode("AWSKMSEncryptionClient Final Frame").value
-
+  const BODY_AAD_CONTENT_REGULAR_FRAME: string := "AWSKMSEncryptionClient Frame";
+  const BODY_AAD_CONTENT_FINAL_FRAME: string := "AWSKMSEncryptionClient Final Frame";
   const START_SEQUENCE_NUMBER: uint32 := 1
   const ENDFRAME_SEQUENCE_NUMBER: uint32 := 0xFFFF_FFFF
 
@@ -168,7 +167,11 @@ module MessageBody {
   }
 
   method BodyAAD(messageID: seq<uint8>, final: bool, sequenceNumber: uint32, length: uint64) returns (aad: seq<uint8>) {
-    var contentAAD := if final then BODY_AAD_CONTENT_FINAL_FRAME else BODY_AAD_CONTENT_REGULAR_FRAME;
+    var encodedRegularFrame := UTF8.Encode(BODY_AAD_CONTENT_REGULAR_FRAME);
+    assert encodedRegularFrame.Success?;
+    var encodedFinalFrame := UTF8.Encode(BODY_AAD_CONTENT_FINAL_FRAME);
+    assert encodedFinalFrame.Success?;
+    var contentAAD := if final then encodedFinalFrame.value else encodedRegularFrame.value;
     aad := messageID + contentAAD + UInt32ToSeq(sequenceNumber) + UInt64ToSeq(length);
   }
 

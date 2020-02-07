@@ -26,9 +26,9 @@ module {:extern "TestClient"} TestClient {
   method EncryptDecryptTest(cmm: CMMDefs.CMM) returns (r: Result<()>)
     requires cmm.Valid()
   {
-    var msg := UTF8.Encode("hello").value;
-
-    var keyA, valA := UTF8.Encode("keyA").value, UTF8.Encode("valA").value;
+    var msg :- UTF8.Encode("hello");
+    var keyA :- UTF8.Encode("keyA");
+    var valA :- UTF8.Encode("valA");
     var encryptionContext := [(keyA, valA)];
     assert Msg.ValidAAD(encryptionContext) by {
       // To prove ValidAAD, we need to reveal the definition of ValidAAD:

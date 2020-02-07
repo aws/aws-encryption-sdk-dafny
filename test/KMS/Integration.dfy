@@ -33,7 +33,8 @@ module IntegTestKMS {
     if encodeResult.Success? {
       encodedMsg := encodeResult.value;
     }
-    var keyA, valA := UTF8.Encode("keyA").value, UTF8.Encode("valA").value;
+    var keyA :- UTF8.Encode("keyA");
+    var valA :- UTF8.Encode("valA");
     var encryptionContext := [(keyA, valA)];
     assert Msg.ValidAAD(encryptionContext) by {
       // To prove ValidAAD, we need to reveal the definition of ValidAAD:
@@ -56,7 +57,7 @@ module IntegTestKMS {
       return Failure("bad decryption: " + d.error + "\n");
     }
     if UTF8.ValidUTF8Seq(d.value) {
-      return UTF8.Decode(d.value);
+      res := UTF8.Decode(d.value);
     } else {
       return Failure("Could not decode Encryption output");
     }
