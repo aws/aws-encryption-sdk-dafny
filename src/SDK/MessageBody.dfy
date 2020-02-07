@@ -24,20 +24,8 @@ module MessageBody {
   import EncryptionSuites
   import UTF8
 
-  const AWS_KMS_ENCRYPTION_CLIENT_REGULAR_FRAME := "AWSKMSEncryptionClient Frame";
-  method GetBodyAADContentRegularFrame() returns (res: UTF8.ValidUTF8Bytes)
-  {
-    var encoded := UTF8.Encode(AWS_KMS_ENCRYPTION_CLIENT_REGULAR_FRAME);
-    return encoded.value;
-  }
-
-  const AWS_KMS_ENCRYPTION_CLIENT_FINAL_FRAME := "AWSKMSEncryptionClient Final Frame";
-  method GetBodyAADContentFinalFrame() returns (res: UTF8.ValidUTF8Bytes)
-  {
-    var encoded := UTF8.Encode(AWS_KMS_ENCRYPTION_CLIENT_FINAL_FRAME);
-    return encoded.value;
-  }
-
+  const BODY_AAD_CONTENT_REGULAR_FRAME: string := "AWSKMSEncryptionClient Frame";
+  const BODY_AAD_CONTENT_FINAL_FRAME: string := "AWSKMSEncryptionClient Final Frame";
   const START_SEQUENCE_NUMBER: uint32 := 1
   const ENDFRAME_SEQUENCE_NUMBER: uint32 := 0xFFFF_FFFF
 
@@ -179,9 +167,11 @@ module MessageBody {
   }
 
   method BodyAAD(messageID: seq<uint8>, final: bool, sequenceNumber: uint32, length: uint64) returns (aad: seq<uint8>) {
-    var bodyAADFinalFrame := GetBodyAADContentFinalFrame();
-    var bodyAADRegularFrame := GetBodyAADContentRegularFrame();
-    var contentAAD := if final then bodyAADFinalFrame else bodyAADRegularFrame;
+    var encodedRegularFrame := UTF8.Encode(BODY_AAD_CONTENT_REGULAR_FRAME);
+    assert encodedRegularFrame.Success?;
+    var encodedFinalFrame := UTF8.Encode(BODY_AAD_CONTENT_FINAL_FRAME);
+    assert encodedFinalFrame.Success?;
+    var contentAAD := if final then encodedFinalFrame.value else encodedRegularFrame.value;
     aad := messageID + contentAAD + UInt32ToSeq(sequenceNumber) + UInt64ToSeq(length);
   }
 
