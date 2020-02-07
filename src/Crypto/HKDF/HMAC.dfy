@@ -20,7 +20,7 @@ module {:extern "HMAC"} HMAC {
 
     // I'm guessing that the algorithm determines the length of the hash-function output once
     // and for all.
-    function method {:extern "GetMacSize"} getMacSize(): nat
+    function method {:extern "GetMacSize"} getMacSize(): int32
       reads this  // allow the implementation to read fields of the object
       ensures getMacSize() == HashLength(algorithm)
 
@@ -69,17 +69,22 @@ module {:extern "HMAC"} HMAC {
       modifies `InputSoFar
       ensures InputSoFar == old(InputSoFar) + [input]
 
-    method {:extern "BlockUpdate"} update(input: array<uint8>, inOff: nat, len: nat)
+    method {:extern "BlockUpdate"} update(input: array<uint8>, inOff: int32, len: int32)
       requires initialized.Some?
-      requires inOff + len <= input.Length
+      requires inOff >= 0
+      requires len >= 0
+      requires inOff as int + len as int <= input.Length
+      requires input.Length < 0x8000_0000
       modifies `InputSoFar
       ensures InputSoFar == old(InputSoFar) + input[inOff..inOff+len]
 
     // returns an int, but it is not specified, what that int stands for
-    method {:extern "DoFinal"} doFinal(output: array<uint8>, outOff: nat) returns (retVal: int)
+    method {:extern "DoFinal"} doFinal(output: array<uint8>, outOff: int32) returns (retVal: int32)
       requires initialized.Some?
-      requires outOff + getMacSize() <= output.Length
-      requires |Hash(algorithm, initialized.get, InputSoFar)| == getMacSize()
+      requires outOff >= 0
+      requires outOff as int + getMacSize() as int <= output.Length
+      requires output.Length < 0x8000_0000
+      requires |Hash(algorithm, initialized.get, InputSoFar)| == getMacSize() as int
       modifies `InputSoFar, output
       ensures output[..] == old(output[..outOff]) + old(Hash(algorithm, initialized.get, InputSoFar)) + old(output[outOff + getMacSize()..])
       ensures output.Length == old(output.Length)
@@ -102,7 +107,7 @@ module {:extern "HMAC"} HMAC {
 
     // I'm guessing that the algorithm determines the length of the hash-function output once
     // and for all.
-    function method {:extern "GetMacSize"} getMacSize(): nat
+    function method {:extern "GetMacSize"} getMacSize(): int32
       reads this  // allow the implementation to read fields of the object
       ensures getMacSize() == HashLength(algorithm)
 
@@ -134,17 +139,22 @@ module {:extern "HMAC"} HMAC {
       ensures unchanged(`initialized)
       ensures InputSoFar == old(InputSoFar) + [input]
 
-    method {:extern "BlockUpdate"} update(input: array<uint8>, inOff: nat, len: nat)
+    method {:extern "BlockUpdate"} update(input: array<uint8>, inOff: int32, len: int32)
       requires initialized.Some?
-      requires inOff + len <= input.Length
+      requires inOff >= 0
+      requires len >= 0
+      requires input.Length < 0x8000_0000
+      requires inOff as int + len as int <= input.Length
       modifies `InputSoFar
       ensures InputSoFar == old(InputSoFar) + input[inOff..inOff+len]
 
     // returns an int, but it is not specified, what that int stands for
-    method {:extern "DoFinal"} doFinal(output: array<uint8>, outOff: nat) returns (retVal: int)
+    method {:extern "DoFinal"} doFinal(output: array<uint8>, outOff: int32) returns (retVal: int32)
       requires initialized.Some?
-      requires outOff + getMacSize() <= output.Length
-      requires |Hash(algorithm, initialized.get, InputSoFar)| == getMacSize()
+      requires outOff >= 0
+      requires outOff as int + getMacSize() as int <= output.Length
+      requires |Hash(algorithm, initialized.get, InputSoFar)| == getMacSize() as int
+      requires output.Length < 0x8000_0000
       modifies `InputSoFar, output
       ensures output[..] == old(output[..outOff]) + old(Hash(algorithm, initialized.get, InputSoFar)) + old(output[outOff + getMacSize()..])
       ensures output.Length == old(output.Length)
@@ -163,10 +173,11 @@ module {:extern "HMAC"} HMAC {
      */
     method updateAll(input: array<uint8>)
       requires initialized.Some?
+      requires input.Length < 0x8000_0000
       modifies `InputSoFar
       ensures InputSoFar == old(InputSoFar) + input[..]
     {
-      update(input, 0, input.Length);
+      update(input, 0, input.Length as int32);
     }
   }
 }

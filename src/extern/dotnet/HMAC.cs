@@ -31,8 +31,8 @@ namespace HMAC {
             return Dafny.Sequence<char>.FromString(hmac.AlgorithmName);
         }
 
-        public BigInteger GetMacSize() {
-            return new BigInteger(hmac.GetMacSize());
+        public int GetMacSize() {
+            return hmac.GetMacSize();
         }
 
         public void Init(CipherParameters ps) {
@@ -50,21 +50,16 @@ namespace HMAC {
             hmac.Update(input);
         }
 
-        public void BlockUpdate(byte[] input , BigInteger inOff, BigInteger len) {
-            hmac.BlockUpdate(input, BigIntegerToInt(inOff), BigIntegerToInt(len));
+        public void BlockUpdate(byte[] input , int inOff, int len) {
+            hmac.BlockUpdate(input, inOff, len);
         }
 
-        public BigInteger DoFinal(byte[] output, BigInteger outOff) {
-            return new BigInteger(hmac.DoFinal(output, BigIntegerToInt(outOff)));
+        public int DoFinal(byte[] output, int outOff) {
+            return hmac.DoFinal(output, outOff);
         }
 
         public Org.BouncyCastle.Crypto.IDigest GetUnderlyingDigest() {
             return hmac.GetUnderlyingDigest();
-        }
-
-        private int BigIntegerToInt(BigInteger x) {
-            // TODO: Error handling?
-            return (int) x;
         }
     }
 }
