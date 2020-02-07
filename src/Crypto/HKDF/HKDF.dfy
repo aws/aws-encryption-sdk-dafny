@@ -15,7 +15,7 @@
 */
 
 include "../../Util/Arrays.dfy"
-include "CryptoMac.dfy"
+include "HMAC.dfy"
 include "../Digests.dfy"
 include "HKDFSpec.dfy"
 include "../../StandardLibrary/StandardLibrary.dfy"
@@ -25,7 +25,7 @@ include "../../StandardLibrary/StandardLibrary.dfy"
   */
 module HKDF {
   import Arrays
-  import opened BouncyCastleCryptoMac
+  import opened HMAC
   import opened Digests
   import opened HKDFSpec
   import opened StandardLibrary

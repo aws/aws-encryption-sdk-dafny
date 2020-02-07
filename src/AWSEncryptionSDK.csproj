@@ -17,7 +17,7 @@
     <DafnySource Include="Crypto/AESEncryption.dfy" />
     <DafnySource Include="Crypto/EncryptionSuites.dfy" />
     <DafnySource Include="Crypto/Digests.dfy" />
-    <DafnySource Include="Crypto/HKDF/CryptoMac.dfy" />
+    <DafnySource Include="Crypto/HKDF/HMAC.dfy" />
     <DafnySource Include="Crypto/HKDF/HKDF.dfy" />
     <DafnySource Include="Crypto/HKDF/HKDFSpec.dfy" />
     <DafnySource Include="Crypto/Random.dfy" />

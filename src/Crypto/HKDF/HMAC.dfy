@@ -1,7 +1,7 @@
 include "../Digests.dfy"
 include "../../StandardLibrary/StandardLibrary.dfy"
 
-module {:extern "BouncyCastleCryptoMac"} BouncyCastleCryptoMac {
+module {:extern "HMAC"} HMAC {
   import opened Digests
   import opened StandardLibrary
   import opened UInt = StandardLibrary.UInt

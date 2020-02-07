@@ -25,7 +25,7 @@ namespace Utils {
 }
 
 
-namespace BouncyCastleCryptoMac {
+namespace HMAC {
 
   using Utils;
   public partial class HMac {
