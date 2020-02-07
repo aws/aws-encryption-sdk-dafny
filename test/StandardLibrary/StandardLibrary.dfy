@@ -72,21 +72,49 @@ module TestStandardLibrary {
     ret := RequireEqual([""], output);
   }
 
-    method {:test} TestFindSimple() returns (ret: Result<()>) {
+  method {:test} TestFindIndexMatchingSimple() returns (ret: Result<()>) {
     var input := "abcd";
-    var output := Find(input, 'c', 0);
+    var output := FindIndexMatching(input, 'c', 0);
     ret := RequireEqual(Some(2), output);
   }
 
-  method {:test} TestFindDuplicates() returns (ret: Result<()>) {
+  method {:test} TestFindIndexMatchingDuplicates() returns (ret: Result<()>) {
     var input := "abcdc";
-    var output := Find(input, 'c', 0);
+    var output := FindIndexMatching(input, 'c', 0);
     ret := RequireEqual(Some(2), output);
   }
 
-  method {:test} TestFindNone() returns (ret: Result<()>) {
+  method {:test} TestFindIndexMatchingNone() returns (ret: Result<()>) {
     var input := "abcd";
-    var output := Find(input, 'e', 0);
+    var output := FindIndexMatching(input, 'e', 0);
+    ret := RequireEqual(None, output);
+  }
+
+  method {:test} TestFindIndexSimple() returns (ret: Result<()>)
+  {
+    var input := "abcd";
+    var output := FindIndex(input, x => x == 'c', 0);
+    ret := RequireEqual(Some(2), output);
+  }
+
+  method {:test} TestFindIndexComplex() returns (ret: Result<()>)
+  {
+    var input := "abcd";
+    var output := FindIndex(input, x => x in "crepe", 0);
+    ret := RequireEqual(Some(2), output);
+  }
+
+  method {:test} TestFindIndexDuplicates() returns (ret: Result<()>)
+  {
+    var input := "abcdc";
+    var output := FindIndex(input, x => x == 'c', 0);
+    ret := RequireEqual(Some(2), output);
+  }
+
+  method {:test} TestFindIndexNone() returns (ret: Result<()>)
+  {
+    var input := "abcd";
+    var output := FindIndex(input, x => false, 0);
     ret := RequireEqual(None, output);
   }
 

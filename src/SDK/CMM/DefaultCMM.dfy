@@ -103,11 +103,11 @@ module {:extern "DefaultCMMDef"} DefaultCMMDef {
       var vkey := None;
       if alg_id.SignatureType().Some? {
         var reservedField := Materials.EC_PUBLIC_KEY_FIELD;
-        var encodedVKey := Materials.EncCtxLookup(enc_ctx, reservedField);
-        if encodedVKey == None {
+        var encodedVKey := Materials.EncryptionContextGet(enc_ctx, reservedField);
+        if encodedVKey.Failure? {
           return Failure("Could not get materials required for decryption.");
         }
-        var utf8Decoded :- UTF8.Decode(encodedVKey.get);
+        var utf8Decoded :- UTF8.Decode(encodedVKey.value);
         var base64Decoded :- Base64.Decode(utf8Decoded);
         vkey := Some(base64Decoded);
       }
