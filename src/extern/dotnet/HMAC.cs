@@ -27,10 +27,6 @@ namespace HMAC {
             hmac = new Org.BouncyCastle.Crypto.Macs.HMac(digest);
         }
 
-        public Dafny.Sequence<char> GetAlgorithmName() {
-            return Dafny.Sequence<char>.FromString(hmac.AlgorithmName);
-        }
-
         public int GetMacSize() {
             return hmac.GetMacSize();
         }
