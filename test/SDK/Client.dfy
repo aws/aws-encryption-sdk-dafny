@@ -23,7 +23,7 @@ module {:extern "TestClient"} TestClient {
   import UTF8
   import Base64
 
-  method EncryptDecryptTest(cmm: CMMDefs.CMM) returns (r: Result<()>)
+  method EncryptDecryptTest(cmm: CMMDefs.CMM) returns (r: TestResult)
     requires cmm.Valid()
   {
     var msg :- UTF8.Encode("hello");
@@ -48,7 +48,7 @@ module {:extern "TestClient"} TestClient {
     r := RequireEqual(msg, d);
   }
 
-  method {:test} HappyPath() returns (r: Result<()>) {
+  method {:test} HappyPath() returns (r: TestResult) {
     var namespace :- UTF8.Encode("namespace");
     var name :- UTF8.Encode("MyKeyring");
 

@@ -15,7 +15,7 @@ module TestRSAKeyring {
 
   const allPaddingModes := {RSA.PKCS1, RSA.OAEP_SHA1, RSA.OAEP_SHA256, RSA.OAEP_SHA384, RSA.OAEP_SHA512}
 
-  method {:test} TestOnEncryptOnDecryptGenerateDataKey() returns (r: Result<()>)
+  method {:test} TestOnEncryptOnDecryptGenerateDataKey() returns (r: TestResult)
   {
     var remainingPaddingModes := allPaddingModes;
     var name :- UTF8.Encode("test Name");
@@ -34,7 +34,7 @@ module TestRSAKeyring {
       var valA :- UTF8.Encode("valA");
       var encryptionContext := [(keyA, valA)];
       var onEncryptResult :- rawRSAKeyring.OnEncrypt(AlgorithmSuite.AES_256_GCM_IV12_TAG16_HKDF_SHA384_ECDSA_P384, encryptionContext, None);
-      var _ :- Require(onEncryptResult.Some? &&
+      :- Require(onEncryptResult.Some? &&
         |onEncryptResult.get.encryptedDataKeys| == 1 &&
         |onEncryptResult.get.keyringTrace| == 2);
       var plaintextDataKey := onEncryptResult.get.plaintextDataKey;
@@ -42,12 +42,12 @@ module TestRSAKeyring {
 
       // Verify decoding
       var res :- rawRSAKeyring.OnDecrypt(AlgorithmSuite.AES_256_GCM_IV12_TAG16_HKDF_SHA384_ECDSA_P384, encryptionContext, [encryptedDataKey]);
-      var _ :- Require(res.Some? && res.get.plaintextDataKey == plaintextDataKey);
+      :- Require(res.Some? && res.get.plaintextDataKey == plaintextDataKey);
     }
-    return Success(());
+    return TestSuccess;
   }
 
-  method {:test} TestOnEncryptOnDecryptSuppliedDataKey() returns (r: Result<()>)
+  method {:test} TestOnEncryptOnDecryptSuppliedDataKey() returns (r: TestResult)
   {
     var remainingPaddingModes := allPaddingModes;
     var name :- UTF8.Encode("test Name");
@@ -67,7 +67,7 @@ module TestRSAKeyring {
       var encryptionContext := [(keyA, valA)];
       var plaintextDataKey := seq(32, i => 0);
       var onEncryptResult :- rawRSAKeyring.OnEncrypt(AlgorithmSuite.AES_256_GCM_IV12_TAG16_HKDF_SHA384_ECDSA_P384, encryptionContext, Some(plaintextDataKey));
-      var _ :- Require(onEncryptResult.Some? &&
+      :- Require(onEncryptResult.Some? &&
         |onEncryptResult.get.encryptedDataKeys| == 1 &&
         onEncryptResult.get.plaintextDataKey == plaintextDataKey &&
         |onEncryptResult.get.keyringTrace| == 1);

@@ -15,7 +15,7 @@ module TestMultiKeying {
   import AlgorithmSuite
   import UTF8
 
-  method {:test} TestOnEncryptOnDecryptWithGenerator() returns (r: Result<()>) {
+  method {:test} TestOnEncryptOnDecryptWithGenerator() returns (r: TestResult) {
     // TODO: mock children keyrings
     var keyA :- UTF8.Encode("keyA");
     var valA :- UTF8.Encode("valA");
@@ -32,9 +32,9 @@ module TestMultiKeying {
     // Encryption
     var onEncryptResult :- multiKeyring.OnEncrypt(AlgorithmSuite.AES_256_GCM_IV12_TAG16_HKDF_SHA384_ECDSA_P384, encryptionContext, None);
     // Check EDK list is as expected
-    var _ :- Require(onEncryptResult.Some? && |onEncryptResult.get.encryptedDataKeys| == 2);
+    :- Require(onEncryptResult.Some? && |onEncryptResult.get.encryptedDataKeys| == 2);
     // Check keyringTrace is as expected
-    var _ :- Require(
+    :- Require(
        && |onEncryptResult.get.keyringTrace| == 3
        && onEncryptResult.get.keyringTrace[0] == child1Keyring.GenerateTraceEntry()
        && onEncryptResult.get.keyringTrace[1] == child1Keyring.EncryptTraceEntry()
@@ -48,9 +48,9 @@ module TestMultiKeying {
     // First edk decryption
     var onDecryptResult :- multiKeyring.OnDecrypt(AlgorithmSuite.AES_256_GCM_IV12_TAG16_HKDF_SHA384_ECDSA_P384, encryptionContext, [edk1]);
     // Check plaintextDataKey is as expected
-    var _ :- Require(onDecryptResult.Some? && onDecryptResult.get.plaintextDataKey == pdk);
+    :- Require(onDecryptResult.Some? && onDecryptResult.get.plaintextDataKey == pdk);
     // Check keyringTrace is as expected
-    var _ :- Require(
+    :- Require(
        && |onDecryptResult.get.keyringTrace| == 1
        && onDecryptResult.get.keyringTrace[0] == child1Keyring.DecryptTraceEntry()
     );
@@ -58,7 +58,7 @@ module TestMultiKeying {
     // Second edk decryption
     onDecryptResult :- multiKeyring.OnDecrypt(AlgorithmSuite.AES_256_GCM_IV12_TAG16_HKDF_SHA384_ECDSA_P384, encryptionContext, [edk2]);
     // Check plaintextDataKey is as expected
-    var _ :- Require(onDecryptResult.Some? && onDecryptResult.get.plaintextDataKey == pdk);
+    :- Require(onDecryptResult.Some? && onDecryptResult.get.plaintextDataKey == pdk);
     // Check keyringTrace is as expected
     r := Require(
        && |onDecryptResult.get.keyringTrace| == 1
@@ -66,7 +66,7 @@ module TestMultiKeying {
     );
   }
 
-  method {:test} TestOnEncryptOnDecryptWithoutGenerator() returns (r: Result<()>) {
+  method {:test} TestOnEncryptOnDecryptWithoutGenerator() returns (r: TestResult) {
     // TODO: mock children keyrings and move encrypt <-> decrypt test into new test
     var keyA :- UTF8.Encode("keyA");
     var valA :- UTF8.Encode("valA");
@@ -85,9 +85,9 @@ module TestMultiKeying {
     // Encryption
     var onEncryptResult :- multiKeyring.OnEncrypt(AlgorithmSuite.AES_256_GCM_IV12_TAG16_HKDF_SHA384_ECDSA_P384, encryptionContext, Some(pdk));
     // Check plaintextDataKey is as expected
-    var _ :- Require(onEncryptResult.Some? && onEncryptResult.get.plaintextDataKey == pdk);
+    :- Require(onEncryptResult.Some? && onEncryptResult.get.plaintextDataKey == pdk);
     // Check keyringTrace is as expected
-    var _ :- Require(
+    :- Require(
        && |onEncryptResult.get.keyringTrace| == 2
        && onEncryptResult.get.keyringTrace[0] == child1Keyring.EncryptTraceEntry()
        && onEncryptResult.get.keyringTrace[1] == child2Keyring.EncryptTraceEntry()
@@ -99,9 +99,9 @@ module TestMultiKeying {
     // First EDK decryption
     var onDecryptResult :- multiKeyring.OnDecrypt(AlgorithmSuite.AES_256_GCM_IV12_TAG16_HKDF_SHA384_ECDSA_P384, encryptionContext, [edk1]);
     // Check plaintextDataKey is as expected
-    var _ :- Require(onDecryptResult.Some? && onDecryptResult.get.plaintextDataKey == pdk);
+    :- Require(onDecryptResult.Some? && onDecryptResult.get.plaintextDataKey == pdk);
     // Check keyringTrace is as expected
-    var _ :- Require(
+    :- Require(
        && |onDecryptResult.get.keyringTrace| == 1
        && onDecryptResult.get.keyringTrace[0] == child1Keyring.DecryptTraceEntry()
     );
@@ -109,7 +109,7 @@ module TestMultiKeying {
     // Second EDK decryption
     onDecryptResult :- multiKeyring.OnDecrypt(AlgorithmSuite.AES_256_GCM_IV12_TAG16_HKDF_SHA384_ECDSA_P384, encryptionContext, [edk2]);
     // Check plaintextDataKey is as expected
-    var _ :- Require(onDecryptResult.Some? && onDecryptResult.get.plaintextDataKey == pdk);
+    :- Require(onDecryptResult.Some? && onDecryptResult.get.plaintextDataKey == pdk);
     // Check keyringTrace is as expected
     r := Require(
       && |onDecryptResult.get.keyringTrace| == 1

@@ -8,7 +8,7 @@ module TestSerialize {
   import UTF8
   import MessageHeader
 
-  method {:test} TestSerializeAAD() returns (ret: Result<()>) {
+  method {:test} TestSerializeAAD() returns (ret: TestResult) {
     var wr := new Streams.ByteWriter();
     var keyA :- UTF8.Encode("keyA");
     var valA :- UTF8.Encode("valA");
@@ -21,7 +21,7 @@ module TestSerialize {
     ret := RequireEqual(wr.GetDataWritten(), expectedSerializedAAD);
   }
 
-  method {:test} TestSerializeAADEmpty() returns (ret: Result<()>) {
+  method {:test} TestSerializeAADEmpty() returns (ret: TestResult) {
     reveal MessageHeader.ValidAAD();
     var wr := new Streams.ByteWriter();
     var encryptionContext := [];
@@ -32,7 +32,7 @@ module TestSerialize {
     ret := RequireEqual(wr.GetDataWritten(), expectedSerializedAAD);
   }
 
-  method {:test} TestSerializeKVPairs() returns (ret: Result<()>) {
+  method {:test} TestSerializeKVPairs() returns (ret: TestResult) {
     var wr := new Streams.ByteWriter();
     var keyA :- UTF8.Encode("keyA");
     var valA :- UTF8.Encode("valA");
@@ -45,7 +45,7 @@ module TestSerialize {
     ret := RequireEqual(wr.GetDataWritten(), expectedSerializedAAD);
   }
 
-  method {:test} TestSerializeKVPairsEmpty() returns (ret: Result<()>) {
+  method {:test} TestSerializeKVPairsEmpty() returns (ret: TestResult) {
     reveal MessageHeader.ValidAAD();
     var wr := new Streams.ByteWriter();
     var encryptionContext := [];

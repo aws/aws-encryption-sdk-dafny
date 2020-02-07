@@ -8,7 +8,7 @@ module {:extern "TestHKDF"} TestHKDF {
   import opened HKDF
   import opened Digests
 
-  method {:test} Test0() returns (r: Result<()>) {
+  method {:test} Test0() returns (r: TestResult) {
     // Test vector 0: Basic test case with SHA-256
     var tv_ikm  := new [][ 0x0b, 0x0b, 0x0b, 0x0b, 0x0b, 0x0b, 0x0b, 0x0b, 0x0b, 0x0b, 0x0b,
                              0x0b, 0x0b, 0x0b, 0x0b, 0x0b, 0x0b, 0x0b, 0x0b, 0x0b, 0x0b, 0x0b ];
@@ -26,7 +26,7 @@ module {:extern "TestHKDF"} TestHKDF {
     return RequireEqual(tv_okm_desired[..], okm[..]);
   }
 
-  method {:test} Test1() returns (r: Result<()>) {
+  method {:test} Test1() returns (r: TestResult) {
     // Test vector 1:  Test with SHA-256 and longer inputs/outputs
     var tv_ikm  := new [][ 0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08, 0x09, 0x0a, 0x0b, 0x0c, 0x0d,
                            0x0e, 0x0f, 0x10, 0x11, 0x12, 0x13, 0x14, 0x15, 0x16, 0x17, 0x18, 0x19, 0x1a, 0x1b,
@@ -61,7 +61,7 @@ module {:extern "TestHKDF"} TestHKDF {
     return RequireEqual(tv_okm_desired[..], okm[..]);
   }
 
-  method {:test} Test2() returns (r: Result<()>) {
+  method {:test} Test2() returns (r: TestResult) {
     // Test vector 2: Test with SHA-256 and zero-length salt/info
     var tv_salt := None;
 
@@ -79,7 +79,7 @@ module {:extern "TestHKDF"} TestHKDF {
     return RequireEqual(tv_okm_desired[..], okm[..]);
   }
 
-  method {:test} Test3() returns (r: Result<()>) {
+  method {:test} Test3() returns (r: TestResult) {
     // Test vector 3: Basic test case with SHA-384
     var tv_salt := new [][ 0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08, 0x09, 0x0a, 0x0b, 0x0c ];
 
@@ -97,7 +97,7 @@ module {:extern "TestHKDF"} TestHKDF {
     return RequireEqual(tv_okm_desired[..], okm[..]);
   }
 
-  method {:test} Test4() returns (r: Result<()>) {
+  method {:test} Test4() returns (r: TestResult) {
     // Test vector 4:  Test with SHA-384 and longer inputs/outputs
     var tv_salt := new [][ 0x60, 0x61, 0x62, 0x63, 0x64, 0x65, 0x66, 0x67, 0x68, 0x69, 0x6a, 0x6b, 0x6c, 0x6d,
                            0x6e, 0x6f, 0x70, 0x71, 0x72, 0x73, 0x74, 0x75, 0x76, 0x77, 0x78, 0x79, 0x7a, 0x7b,
@@ -132,7 +132,7 @@ module {:extern "TestHKDF"} TestHKDF {
     return RequireEqual(tv_okm_desired[..], okm[..]);
   }
 
-  method {:test} Test5() returns (r: Result<()>) {
+  method {:test} Test5() returns (r: TestResult) {
     // Test vector 5: Test with SHA-384 and zero-length salt/info
     var tv_salt := None;
 
@@ -150,7 +150,7 @@ module {:extern "TestHKDF"} TestHKDF {
     return RequireEqual(tv_okm_desired[..], okm[..]);
   }
 
-  method {:test} Test7() returns (r: Result<()>) {
+  method {:test} Test7() returns (r: TestResult) {
     // Test vector 7: Test with SHA-256 for N = ceil(L/HashLen) = 255
     var tv_ikm  := new [][ 0x0b, 0x0b, 0x0b, 0x0b, 0x0b, 0x0b, 0x0b, 0x0b, 0x0b, 0x0b, 0x0b,
                            0x0b, 0x0b, 0x0b, 0x0b, 0x0b, 0x0b, 0x0b, 0x0b, 0x0b, 0x0b, 0x0b ];

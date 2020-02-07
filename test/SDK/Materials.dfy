@@ -8,7 +8,7 @@ module {:extern "TestMaterials"} TestMaterials {
   import opened Materials
   import AlgorithmSuite
 
-  method {:test} TestEncryptionContextGetHappy() returns (res: Result<()>)
+  method {:test} TestEncryptionContextGetHappy() returns (res: TestResult)
   {
     var keyA :- UTF8.Encode("keyA");
     var valA :- UTF8.Encode("valA");
@@ -18,13 +18,13 @@ module {:extern "TestMaterials"} TestMaterials {
     var encCtx := [(keyA, valA), (keyB, valB)];
 
     var val :- EncryptionContextGet(encCtx, keyA);
-    var _ :- RequireEqual(val, valA);
+    :- RequireEqual(val, valA);
 
     val :- EncryptionContextGet(encCtx, keyB);
     res := RequireEqual(val, valB);
   }
 
-  method {:test} TestEncryptionContextGetSad() returns (res: Result<()>)
+  method {:test} TestEncryptionContextGetSad() returns (res: TestResult)
   {
     var keyA :- UTF8.Encode("keyA");
     var valA :- UTF8.Encode("valA");
@@ -39,7 +39,7 @@ module {:extern "TestMaterials"} TestMaterials {
     res := RequireFailure(methodCall);
   }
 
-  method {:test} TestEncryptionContextGetLarge() returns (res: Result<()>)
+  method {:test} TestEncryptionContextGetLarge() returns (res: TestResult)
   {
     var keyA :- UTF8.Encode("keyA");
     var valA :- UTF8.Encode("valA");
@@ -55,7 +55,7 @@ module {:extern "TestMaterials"} TestMaterials {
     res := RequireEqual(valB, val);
   }
 
-  method {:test} TestConcatDataKeyMaterialsHappy() returns (res: Result<()>)
+  method {:test} TestConcatDataKeyMaterialsHappy() returns (res: TestResult)
   {
     var edk1 := EncryptedDataKey([], [1], [1]);
     var pdk := seq(32, i => 0);
@@ -68,9 +68,9 @@ module {:extern "TestMaterials"} TestMaterials {
 
     var concatenated := ConcatDataKeyMaterials(datakeyMat1, datakeyMat2);
 
-    var _ :- Require(pdk == datakeyMat1.plaintextDataKey == datakeyMat2.plaintextDataKey == concatenated.plaintextDataKey);
-    var _ :- Require(datakeyMat1.algorithmSuiteID == datakeyMat2.algorithmSuiteID == concatenated.algorithmSuiteID);
-    var _ :- RequireEqual(datakeyMat1.encryptedDataKeys + datakeyMat2.encryptedDataKeys, concatenated.encryptedDataKeys);
+    :- Require(pdk == datakeyMat1.plaintextDataKey == datakeyMat2.plaintextDataKey == concatenated.plaintextDataKey);
+    :- Require(datakeyMat1.algorithmSuiteID == datakeyMat2.algorithmSuiteID == concatenated.algorithmSuiteID);
+    :- RequireEqual(datakeyMat1.encryptedDataKeys + datakeyMat2.encryptedDataKeys, concatenated.encryptedDataKeys);
     res :=  RequireEqual(datakeyMat1.keyringTrace + datakeyMat2.keyringTrace, concatenated.keyringTrace);
   }
 }

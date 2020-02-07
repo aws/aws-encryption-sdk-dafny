@@ -63,11 +63,11 @@ module IntegTestKMS {
     }
   }
 
-  method {:test} TestEndToEnd() returns (r: Result<()>) {
+  method {:test} TestEndToEnd() returns (r: TestResult) {
     var namespace :- UTF8.Encode("namespace");
     var name :- UTF8.Encode("MyKeyring");
     var generatorStr := SHARED_TEST_KEY_ARN;
-    var _ :- Require(KMSUtils.ValidFormatCMK(generatorStr));
+    :- Require(KMSUtils.ValidFormatCMK(generatorStr));
     var generator: KMSUtils.CustomerMasterKey := generatorStr;
     var clientSupplier := new KMSUtils.DefaultClientSupplier();
     var keyring := new KMSKeyringDef.KMSKeyring(clientSupplier, [], Some(generator), []);
