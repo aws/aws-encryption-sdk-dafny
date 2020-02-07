@@ -17,6 +17,10 @@ module TestBse64 {
 
   const BASE64_CHARS := "+/0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
 
+  lemma TestVectorsValidLemma()
+    ensures forall i :: 0 <= i < |BASE64_TEST_VECTORS_ENCODED| ==> IsBase64String(BASE64_TEST_VECTORS_ENCODED[i])
+  {}
+
   method {:test} TestIsBase64CharSuccess() returns (r: Result<()>) {
     r := Require(forall c :: c in BASE64_CHARS ==> IsBase64Char(c));
   }

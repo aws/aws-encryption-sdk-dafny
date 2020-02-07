@@ -373,6 +373,7 @@ module Base64 {
 
   function method Encode(b: seq<uint8>): (s: seq<char>)
     ensures StringIs8Bit(s)
+    ensures |s| % 4 == 0
     ensures IsBase64String(s)
     // Rather than ensure Decode(s) == Success(b) directly, lemmas are used to verify this property
     ensures |b| % 3 == 0 ==> s == EncodeUnpadded(b)
