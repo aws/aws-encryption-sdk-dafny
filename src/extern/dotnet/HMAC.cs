@@ -1,84 +1,70 @@
 using System;
 using System.Numerics;
 
-namespace Utils {
-
-  public static class Util {
-    public static int BigIntegerToInt(BigInteger x) {
-      try {
-        return (int) x;
-      } catch(OverflowException e) {
-        // TODO: error handling
-        Console.WriteLine(e.ToString());
-        throw e;
-      }
-    }
-  }
-
-  public class AlgorithmNotSupportedException : Exception
-  {
-      public AlgorithmNotSupportedException(string message)
-          : base(message)
-      {
-      }
-  }
-}
-
-
 namespace HMAC {
 
-  using Utils;
-  public partial class HMac {
-
-    private Org.BouncyCastle.Crypto.Macs.HMac bcHMac;
-
-    public HMac(Digests.KEY_DERIVATION_ALGORITHM algorithm) {
-      Org.BouncyCastle.Crypto.IDigest digest;
-      if(algorithm.is_HKDF__WITH__SHA__256) {
-        digest = new Org.BouncyCastle.Crypto.Digests.Sha256Digest();
-        bcHMac = new Org.BouncyCastle.Crypto.Macs.HMac(digest);
-      } else if(algorithm.is_HKDF__WITH__SHA__384) {
-        digest = new Org.BouncyCastle.Crypto.Digests.Sha384Digest();
-        bcHMac = new Org.BouncyCastle.Crypto.Macs.HMac(digest);
-      } else {
-        throw new AlgorithmNotSupportedException(algorithm.ToString() + " not supported.");
-      }
+    public class UnsupportedKeyDerivationAlgorithException : Exception
+    {
+        public UnsupportedKeyDerivationAlgorithException(Digests.KEY_DERIVATION_ALGORITHM algorithm)
+            : base(String.Format("Invalid Key Derivation Algorithm: {0}", algorithm.ToString()))
+        {
+        }
     }
 
-    public Dafny.Sequence<char> getAlgorithmName() {
-      return Dafny.Sequence<char>.FromString(bcHMac.AlgorithmName);
-    }
+    public partial class HMac {
 
-    public BigInteger getMacSize() {
-      return new BigInteger(bcHMac.GetMacSize());
-    }
+        private Org.BouncyCastle.Crypto.Macs.HMac hmac;
 
-    public void init(CipherParameters ps) {
-      if(ps.is_KeyParameter) {
-        var bcKeyParameter = new Org.BouncyCastle.Crypto.Parameters.KeyParameter(ps.key);
-        bcHMac.Init(bcKeyParameter);
-      }
-    }
+        public HMac(Digests.KEY_DERIVATION_ALGORITHM algorithm) {
+            Org.BouncyCastle.Crypto.IDigest digest;
+            if(algorithm.is_HKDF__WITH__SHA__256) {
+                digest = new Org.BouncyCastle.Crypto.Digests.Sha256Digest();
+            } else if(algorithm.is_HKDF__WITH__SHA__384) {
+                digest = new Org.BouncyCastle.Crypto.Digests.Sha384Digest();
+            } else {
+                throw new UnsupportedKeyDerivationAlgorithException(algorithm);
+            }
+            hmac = new Org.BouncyCastle.Crypto.Macs.HMac(digest);
+        }
 
-    public void reset() {
-      bcHMac.Reset();
-    }
+        public Dafny.Sequence<char> GetAlgorithmName() {
+            return Dafny.Sequence<char>.FromString(hmac.AlgorithmName);
+        }
 
-    public void updateSingle(byte input) {
-      bcHMac.Update(input);
-    }
+        public BigInteger GetMacSize() {
+            return new BigInteger(hmac.GetMacSize());
+        }
 
-    public void update(byte[] input , BigInteger inOff, BigInteger len) {
-      bcHMac.BlockUpdate(input, Util.BigIntegerToInt(inOff), Util.BigIntegerToInt(len));
-    }
+        public void Init(CipherParameters ps) {
+            if(ps.is_KeyParameter) {
+                var keyParams = new Org.BouncyCastle.Crypto.Parameters.KeyParameter(ps.key);
+                hmac.Init(keyParams);
+            }
+        }
 
-    public BigInteger doFinal(byte[] output, BigInteger outOff) {
-      return new BigInteger(bcHMac.DoFinal(output, Util.BigIntegerToInt(outOff)));
-    }
+        public void Reset() {
+            hmac.Reset();
+        }
 
-    public Org.BouncyCastle.Crypto.IDigest getUnderlyingDigest() {
-      return bcHMac.GetUnderlyingDigest();
-    }
+        public void Update(byte input) {
+            hmac.Update(input);
+        }
 
-  }
+        public void BlockUpdate(byte[] input , BigInteger inOff, BigInteger len) {
+            hmac.BlockUpdate(input, BigIntegerToInt(inOff), BigIntegerToInt(len));
+        }
+
+        public BigInteger DoFinal(byte[] output, BigInteger outOff) {
+            return new BigInteger(hmac.DoFinal(output, BigIntegerToInt(outOff)));
+        }
+
+        public Org.BouncyCastle.Crypto.IDigest GetUnderlyingDigest() {
+            return hmac.GetUnderlyingDigest();
+        }
+
+        private int BigIntegerToInt(BigInteger x) {
+            // TODO: Error handling?
+            return (int) x;
+        }
+    }
 }

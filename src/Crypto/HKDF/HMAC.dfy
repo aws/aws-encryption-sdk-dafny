@@ -14,13 +14,13 @@ module {:extern "HMAC"} HMAC {
     // The algorithm of a Mac object never changes. This is modeled by a constant ghost field.
     // The name of the algorithm can be retrieved by the "getAlgorithm" method.
     const {:extern "algorithm"} algorithm: KEY_DERIVATION_ALGORITHM
-    function method {:extern "getAlgorithmName"} getAlgorithmName(): string
+    function method {:extern "GetAlgorithmName"} getAlgorithmName(): string
       ensures this.algorithm == HKDF_WITH_SHA_256 ==> getAlgorithmName() == "SHA256"
       ensures this.algorithm == HKDF_WITH_SHA_384 ==> getAlgorithmName() == "SHA384"
 
     // I'm guessing that the algorithm determines the length of the hash-function output once
     // and for all.
-    function method {:extern "getMacSize"} getMacSize(): nat
+    function method {:extern "GetMacSize"} getMacSize(): nat
       reads this  // allow the implementation to read fields of the object
       ensures getMacSize() == HashLength(algorithm)
 
@@ -34,7 +34,7 @@ module {:extern "HMAC"} HMAC {
 
     predicate {:axiom} validKey(key: seq<uint8>)
 
-    method {:extern "init"} init(params: CipherParameters)
+    method {:extern "Init"} init(params: CipherParameters)
       // The documentation says it can throw "InvalidKeyException - if the given key is inappropriate for
       // initializing this MAC", which I have interpreted to mean the following precondition:
       requires params.KeyParameter?
@@ -55,7 +55,7 @@ module {:extern "HMAC"} HMAC {
     // object).
     ghost var InputSoFar: seq<uint8>
 
-    method {:extern "reset"} reset()
+    method {:extern "Reset"} reset()
       // BouncyCastle's documentation doesn't mention the following precondition, and it doesn't
       // admit to any exception ever being thrown by the "reset" method. However, the documentation
       // of "reset" talks about the "previously initialized" state of the object, which suggests
@@ -64,19 +64,19 @@ module {:extern "HMAC"} HMAC {
       modifies `InputSoFar
       ensures InputSoFar == []
 
-    method {:extern "updateSingle"} updateSingle(input: uint8)
+    method {:extern "Update"} updateSingle(input: uint8)
       requires initialized.Some?
       modifies `InputSoFar
       ensures InputSoFar == old(InputSoFar) + [input]
 
-    method {:extern "update"} update(input: array<uint8>, inOff: nat, len: nat)
+    method {:extern "BlockUpdate"} update(input: array<uint8>, inOff: nat, len: nat)
       requires initialized.Some?
       requires inOff + len <= input.Length
       modifies `InputSoFar
       ensures InputSoFar == old(InputSoFar) + input[inOff..inOff+len]
 
     // returns an int, but it is not specified, what that int stands for
-    method {:extern "doFinal"} doFinal(output: array<uint8>, outOff: nat) returns (retVal: int)
+    method {:extern "DoFinal"} doFinal(output: array<uint8>, outOff: nat) returns (retVal: int)
       requires initialized.Some?
       requires outOff + getMacSize() <= output.Length
       requires |Hash(algorithm, initialized.get, InputSoFar)| == getMacSize()
@@ -96,19 +96,19 @@ module {:extern "HMAC"} HMAC {
     constructor {:extern} (algorithm: KEY_DERIVATION_ALGORITHM)
       ensures this.algorithm == algorithm
 
-    function method {:extern "getAlgorithmName"} getAlgorithmName(): string
+    function method {:extern "GetAlgorithmName"} getAlgorithmName(): string
       ensures this.algorithm == HKDF_WITH_SHA_256 ==> getAlgorithmName() == "SHA256"
       ensures this.algorithm == HKDF_WITH_SHA_384 ==> getAlgorithmName() == "SHA384"
 
     // I'm guessing that the algorithm determines the length of the hash-function output once
     // and for all.
-    function method {:extern "getMacSize"} getMacSize(): nat
+    function method {:extern "GetMacSize"} getMacSize(): nat
       reads this  // allow the implementation to read fields of the object
       ensures getMacSize() == HashLength(algorithm)
 
     predicate {:axiom} validKey(key: seq<uint8>)
 
-    method {:extern "init"} init(params: CipherParameters)
+    method {:extern "Init"} init(params: CipherParameters)
       // The documentation says it can throw "InvalidKeyException - if the given key is inappropriate for
       // initializing this MAC", which I have interpreted to mean the following precondition:
       //requires key.algorithm == algorithm
@@ -119,7 +119,7 @@ module {:extern "HMAC"} HMAC {
         match initialized { case Some(k) => validKey(k) && key[..] == k case None => false }
       ensures InputSoFar == []
 
-    method {:extern "reset"} reset()
+    method {:extern "Reset"} reset()
       // BouncyCastle's documentation doesn't mention the following precondition, and it doesn't
       // admit to any exception ever being thrown by the "reset" method. However, the documentation
       // of "reset" talks about the "previously initialized" state of the object, which suggests
@@ -128,20 +128,20 @@ module {:extern "HMAC"} HMAC {
       modifies `InputSoFar
       ensures InputSoFar == []
 
-    method {:extern "updateSingle"} updateSingle(input: uint8)
+    method {:extern "Update"} updateSingle(input: uint8)
       requires initialized.Some?
       modifies this
       ensures unchanged(`initialized)
       ensures InputSoFar == old(InputSoFar) + [input]
 
-    method {:extern "update"} update(input: array<uint8>, inOff: nat, len: nat)
+    method {:extern "BlockUpdate"} update(input: array<uint8>, inOff: nat, len: nat)
       requires initialized.Some?
       requires inOff + len <= input.Length
       modifies `InputSoFar
       ensures InputSoFar == old(InputSoFar) + input[inOff..inOff+len]
 
     // returns an int, but it is not specified, what that int stands for
-    method {:extern "doFinal"} doFinal(output: array<uint8>, outOff: nat) returns (retVal: int)
+    method {:extern "DoFinal"} doFinal(output: array<uint8>, outOff: nat) returns (retVal: int)
       requires initialized.Some?
       requires outOff + getMacSize() <= output.Length
       requires |Hash(algorithm, initialized.get, InputSoFar)| == getMacSize()
@@ -150,7 +150,7 @@ module {:extern "HMAC"} HMAC {
       ensures output.Length == old(output.Length)
       ensures InputSoFar == []
 
-    function method {:extern "getUnderlyingDigest"} getUnderlyingDigest(): KEY_DERIVATION_ALGORITHM
+    function method {:extern "GetUnderlyingDigest"} getUnderlyingDigest(): KEY_DERIVATION_ALGORITHM
       ensures getUnderlyingDigest() == algorithm
 
     /*
