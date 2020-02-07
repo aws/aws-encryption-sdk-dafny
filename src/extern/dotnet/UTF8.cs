@@ -23,7 +23,7 @@ namespace UTF8 {
             UTF8Encoding utf8 = new UTF8Encoding(false, true);
             try {
                 string decoded = utf8.GetString(bytes.Elements);
-                return new STL.Result_Success<Dafny.Sequence<char>>(charseq.FromArray(decoded.ToCharArray()));
+                return new STL.Result_Success<charseq>(charseq.FromString(decoded));
             } catch(ArgumentException e) {
                 // GetString is defined as returning ArgumentException, ArgumentNullException, DecoderFallbackException
                 // Both ArgumentNullException and DecoderFallbackException are children of ArgumentException

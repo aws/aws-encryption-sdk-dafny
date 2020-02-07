@@ -162,14 +162,12 @@ module {:extern "KMSKeyringDef"} KMSKeyringDef {
       return Success(Some(datakeyMat));
     }
 
-    predicate method ShouldAttemptDecryption(providerInfo: Result<string>)
+    predicate method ShouldAttemptDecryption(providerInfo: string)
     {
       var keys := if generator.Some? then keyIDs + [generator.get] else keyIDs;
-      providerInfo.Success?
-        && KMSUtils.ValidFormatCMK(providerInfo.value)
-        && (isDiscovery || providerInfo.value in keys)
+      KMSUtils.ValidFormatCMK(providerInfo)
+        && (isDiscovery || providerInfo in keys)
     }
-
 
     method OnDecrypt(algorithmSuiteID: AlgorithmSuite.ID,
                      encryptionContext: Mat.EncryptionContext,
@@ -190,7 +188,7 @@ module {:extern "KMSKeyringDef"} KMSKeyringDef {
         if UTF8.ValidUTF8Seq(edk.providerInfo) && edk.providerID == PROVIDER_ID {
           providerInfo := UTF8.Decode(edk.providerInfo);
         }
-        if ShouldAttemptDecryption(providerInfo) {
+        if providerInfo.Success? && ShouldAttemptDecryption(providerInfo.value) {
           var decryptRequest := KMSUtils.DecryptRequest(edk.ciphertext, encryptionContext, grantTokens);
           var regionRes := RegionFromKMSKeyARN(providerInfo.value);
           var regionOpt := regionRes.ToOption();
