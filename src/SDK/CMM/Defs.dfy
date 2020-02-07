@@ -30,8 +30,7 @@ module {:extern "CMMDefs"} CMMDefs {
         match res.value.dataKeyMaterials.algorithmSuiteID.SignatureType()
           case None => true
           case Some(sigType) =>
-            res.value.signingKey.Some? &&
-            Signature.ECDSA.WfSK(sigType, res.value.signingKey.get)
+            res.value.signingKey.Some?
 
     // The following predicate is a synonym for MessageHeader.ValidAAD and provides a workaround for a translation bug
     // of "fuel" in trait-override checks in Dafny. https://github.com/dafny-lang/dafny/issues/422

@@ -8,11 +8,8 @@ module TestSignature {
   import Signature
 
   method YCompression(s: Signature.ECDSAParams, fieldSize: nat) returns (r: Result<()>) {
-    var res := Signature.ECDSA.KeyGen(s);
-    if res == None {
-      return Failure("KeyGen failed");
-    }
-    var (public, secret) := res.get;
+    var res :- Signature.KeyGen(s);
+    var public, secret := res.verificationKey, res.signingKey;
     // This is the declared postcondition of the natively implemented KenGen method, plus a condition
     // about zero-padding:
     var _ :- Require(0 < |secret|);
