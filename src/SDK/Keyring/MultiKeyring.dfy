@@ -54,6 +54,7 @@ module {:extern "MultiKeyringDef"} MultiKeyringDef {
             ensures res.Success? && res.value.Some? ==>
                 var generateTraces: seq<Mat.KeyringTraceEntry> := Filter(res.value.get.keyringTrace, Mat.IsGenerateTraceEntry);
                 |generateTraces| == if plaintextDataKey.None? then 1 else 0
+            decreases Repr
         {
             // First pass on or generate the plaintext data key
             var initialMaterials: Option<Mat.ValidDataKeyMaterials> := None;
@@ -93,6 +94,7 @@ module {:extern "MultiKeyringDef"} MultiKeyringDef {
             ensures Valid()
             ensures |edks| == 0 ==> res.Success? && res.value.None?
             ensures res.Success? && res.value.Some? ==> res.value.get.algorithmSuiteID == algorithmSuiteID
+            decreases Repr
         {
             res := Success(None);
             if generator != null {

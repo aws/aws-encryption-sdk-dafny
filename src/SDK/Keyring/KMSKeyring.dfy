@@ -22,6 +22,30 @@ module {:extern "KMSKeyringDef"} KMSKeyringDef {
     if 6 <= |components| && components[0] == "arn" && components[2] == "kms" then Success(components[3]) else Failure("Malformed ARN")
   }
 
+  method {:extern} MakeKMSKeyring(clientSupplier: KMSUtils.ClientSupplier?, 
+                                  keyIDs: seq<string>,
+                                  generator: string,
+                                  grantTokens: seq<string>) returns (result: Result<KeyringDefs.Keyring>)
+  {
+    var _ :- RequireWithMessage(clientSupplier != null, "Client supplier is required");
+    var _ :- RequireWithMessage(|grantTokens| <= KMSUtils.MAX_GRANT_TOKENS, "Too many grant tokens");
+    var keyIDsNoBlanks := Filter(keyIDs, keyID => keyID != "");
+    var _ :- Require(forall keyID :: keyID in keyIDsNoBlanks ==> KMSUtils.ValidFormatCMK(keyID));
+    var generatorOption: Option<KMSUtils.CustomerMasterKey>;
+    if |generator| == 0 {
+      generatorOption := None;
+    } else {
+      var _ :- Require(KMSUtils.ValidFormatCMK(generator));
+      generatorOption := Some(generator);
+    }
+    var _ :- Require(forall grantToken :: grantToken in grantTokens ==> 0 < |grantToken| <= 8192);
+    var k := new KMSKeyring(clientSupplier,
+                            keyIDsNoBlanks,
+                            generatorOption,
+                            grantTokens);
+    result := Success(k);
+  }
+
   class KMSKeyring extends KeyringDefs.Keyring {
 
     const clientSupplier: KMSUtils.ClientSupplier
@@ -99,6 +123,7 @@ module {:extern "KMSKeyringDef"} KMSKeyringDef {
       ensures res.Success? && res.value.Some? ==>
         var generateTraces: seq<Mat.KeyringTraceEntry> := Filter(res.value.get.keyringTrace, Mat.IsGenerateTraceEntry);
         |generateTraces| == if plaintextDataKey.None? then 1 else 0
+      decreases Repr
     {
       if isDiscovery {
         return Success(None);
@@ -175,6 +200,7 @@ module {:extern "KMSKeyringDef"} KMSKeyringDef {
       ensures Valid()
       ensures |edks| == 0 ==> res.Success? && res.value.None?
       ensures res.Success? && res.value.Some? ==> res.value.get.algorithmSuiteID == algorithmSuiteID
+      decreases Repr
       // TODO: keyring trace DECRYPTED_DATA_KEY flag assurance
     {
       if |edks| == 0 {
