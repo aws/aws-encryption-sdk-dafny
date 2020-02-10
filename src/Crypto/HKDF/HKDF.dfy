@@ -33,7 +33,7 @@ module HKDF {
 
   method extract(which_sha: KeyDerivationAlgorithm, hmac: HMac, salt: array<uint8>, ikm: array<uint8>) returns (prk: array<uint8>)
     requires hmac.algorithm == which_sha && salt.Length != 0
-    requires ikm.Length < 0x8000_0000
+    requires ikm.Length < POS_INT32_LIMIT
     modifies hmac
     ensures prk[..] == Hash(which_sha, salt[..], ikm[..])
   {
@@ -49,7 +49,7 @@ module HKDF {
   method expand(which_sha: KeyDerivationAlgorithm, hmac: HMac, prk: array<uint8>, info: array<uint8>, n: int) returns (a: array<uint8>)
     requires hmac.algorithm == which_sha && 1 <= n <= 255
     requires 0 != prk.Length && HashLength(which_sha) as int <= prk.Length
-    requires info.Length < 0x8000_0000
+    requires info.Length < POS_INT32_LIMIT
     modifies hmac
     ensures fresh(a)
     ensures a[..] == T(which_sha, prk[..], info[..], n)
@@ -106,8 +106,8 @@ module HKDF {
     requires which_sha == HKDF_WITH_SHA_256 || which_sha == HKDF_WITH_SHA_384
     requires 0 <= L <= 255 * HashLength(which_sha) as int
     requires salt.None? || salt.get.Length != 0
-    requires info.Length < 0x8000_0000
-    requires ikm.Length < 0x8000_0000
+    requires info.Length < POS_INT32_LIMIT
+    requires ikm.Length < POS_INT32_LIMIT
     ensures fresh(okm)
     ensures okm.Length == L
     ensures
