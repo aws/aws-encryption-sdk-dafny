@@ -1,16 +1,26 @@
 include "../StandardLibrary/StandardLibrary.dfy"
 
 module {:extern "Digests"} Digests {
-    import opened StandardLibrary
-    import opened UInt = StandardLibrary.UInt
+  import opened StandardLibrary
+  import opened UInt = StandardLibrary.UInt
 
-    datatype {:extern "HMAC_ALGORITHM"} HMAC_ALGORITHM = HmacSHA256 | HmacSHA384 | HmacNOSHA
+  // See Key Derivation Algorithm
+  // https://docs.aws.amazon.com/encryption-sdk/latest/developer-guide/algorithms-reference.html
+  datatype {:extern "KeyDerivationAlgorithm"} KeyDerivationAlgorithm = HKDF_WITH_SHA_384 | HKDF_WITH_SHA_256 | IDENTITY
 
-    // Hash length in octets, e.g. HashLength(SHA256) = 256 = 32 * 8
-    function {:axiom} HashLength(algorithm: HMAC_ALGORITHM): nat
-        ensures algorithm == HmacSHA256 ==> HashLength(algorithm) == 32
-        ensures algorithm == HmacSHA384 ==> HashLength(algorithm) == 48
+  // Hash length in octets (bytes), e.g. HashLength(SHA256) = 256 = 32 * 8
+  function HashLength(algorithm: KeyDerivationAlgorithm): (n: int32)
+    requires algorithm != IDENTITY
+    ensures algorithm == HKDF_WITH_SHA_256 ==> n == 32
+    ensures algorithm == HKDF_WITH_SHA_384 ==> n == 48
+  {
+    match algorithm {
+      case HKDF_WITH_SHA_256 => 32
+      case HKDF_WITH_SHA_384 => 48
+    }
+  }
 
-    function {:axiom} Hash(algorithm: HMAC_ALGORITHM, key: seq<uint8>, message: seq<uint8>): seq<uint8>
-        ensures |Hash(algorithm, key, message)| == HashLength(algorithm)
+    function {:axiom} Hash(algorithm: KeyDerivationAlgorithm, key: seq<uint8>, message: seq<uint8>): (s: seq<uint8>)
+      requires algorithm != IDENTITY
+      ensures |s| == HashLength(algorithm) as int
 }
