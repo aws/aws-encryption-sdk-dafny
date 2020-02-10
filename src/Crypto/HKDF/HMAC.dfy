@@ -10,14 +10,14 @@ module {:extern "HMAC"} HMAC {
 
   class {:extern "HMac"} HMac {
 
-    const algorithm: KEY_DERIVATION_ALGORITHM
+    const algorithm: KeyDerivationAlgorithm
     ghost var initialized: Option<seq<uint8>>
 
     // InputSoFar represents the accumulated input as Update calls are made. It is cleared by Reset and DoFinal, though
     // DoFinal additionally outputs the hash of the accumulated input.
     ghost var InputSoFar: seq<uint8>
 
-    constructor {:extern} (algorithm: KEY_DERIVATION_ALGORITHM)
+    constructor {:extern} (algorithm: KeyDerivationAlgorithm)
       ensures this.algorithm == algorithm
 
     function method {:extern "GetMacSize"} getMacSize(): int32
@@ -51,7 +51,7 @@ module {:extern "HMAC"} HMAC {
       requires initialized.Some?
       requires inOff >= 0
       requires len >= 0
-      requires input.Length < 0x8000_0000
+      requires input.Length < POS_INT32_LIMIT
       requires inOff as int + len as int <= input.Length
       modifies `InputSoFar
       ensures InputSoFar == old(InputSoFar) + input[inOff..inOff+len]
@@ -61,7 +61,7 @@ module {:extern "HMAC"} HMAC {
       requires outOff >= 0
       requires outOff as int + getMacSize() as int <= output.Length
       requires |Hash(algorithm, initialized.get, InputSoFar)| == getMacSize() as int
-      requires output.Length < 0x8000_0000
+      requires output.Length < POS_INT32_LIMIT
       modifies `InputSoFar, output
       ensures output[..] == old(output[..outOff]) + old(Hash(algorithm, initialized.get, InputSoFar)) + old(output[outOff + getMacSize()..])
       ensures output.Length == old(output.Length)
@@ -69,7 +69,7 @@ module {:extern "HMAC"} HMAC {
 
     method updateAll(input: array<uint8>)
       requires initialized.Some?
-      requires input.Length < 0x8000_0000
+      requires input.Length < POS_INT32_LIMIT
       modifies `InputSoFar
       ensures InputSoFar == old(InputSoFar) + input[..]
     {

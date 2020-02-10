@@ -31,7 +31,7 @@ module HKDF {
   import opened StandardLibrary
   import opened UInt = StandardLibrary.UInt
 
-  method extract(which_sha: KEY_DERIVATION_ALGORITHM, hmac: HMac, salt: array<uint8>, ikm: array<uint8>) returns (prk: array<uint8>)
+  method extract(which_sha: KeyDerivationAlgorithm, hmac: HMac, salt: array<uint8>, ikm: array<uint8>) returns (prk: array<uint8>)
     requires hmac.algorithm == which_sha && salt.Length != 0
     requires ikm.Length < 0x8000_0000
     modifies hmac
@@ -46,7 +46,7 @@ module HKDF {
     return prk;
   }
 
-  method expand(which_sha: KEY_DERIVATION_ALGORITHM, hmac: HMac, prk: array<uint8>, info: array<uint8>, n: int) returns (a: array<uint8>)
+  method expand(which_sha: KeyDerivationAlgorithm, hmac: HMac, prk: array<uint8>, info: array<uint8>, n: int) returns (a: array<uint8>)
     requires hmac.algorithm == which_sha && 1 <= n <= 255
     requires 0 != prk.Length && HashLength(which_sha) as int <= prk.Length
     requires info.Length < 0x8000_0000
@@ -102,7 +102,7 @@ module HKDF {
   /**
    * The RFC 5869 KDF. Outputs L bytes of output key material.
    **/
-  method hkdf(which_sha: KEY_DERIVATION_ALGORITHM, salt: Option<array<uint8>>, ikm: array<uint8>, info: array<uint8>, L: int) returns (okm: array<uint8>)
+  method hkdf(which_sha: KeyDerivationAlgorithm, salt: Option<array<uint8>>, ikm: array<uint8>, info: array<uint8>, L: int) returns (okm: array<uint8>)
     requires which_sha == HKDF_WITH_SHA_256 || which_sha == HKDF_WITH_SHA_384
     requires 0 <= L <= 255 * HashLength(which_sha) as int
     requires salt.None? || salt.get.Length != 0

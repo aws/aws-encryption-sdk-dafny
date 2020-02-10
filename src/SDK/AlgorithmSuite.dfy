@@ -57,7 +57,7 @@ module AlgorithmSuite {
   const AES_192_GCM_IV12_TAG16_KDFNONE_SIGNONE:        ID := 0x0046
   const AES_128_GCM_IV12_TAG16_KDFNONE_SIGNONE:        ID := 0x0014
 
-  datatype AlgSuite = AlgSuite(algorithm: EncryptionSuites.EncryptionSuite, hkdf: Digests.KEY_DERIVATION_ALGORITHM, sign: Option<S.ECDSAParams>)
+  datatype AlgSuite = AlgSuite(algorithm: EncryptionSuites.EncryptionSuite, hkdf: Digests.KeyDerivationAlgorithm, sign: Option<S.ECDSAParams>)
 
   const Suite := map [
     AES_256_GCM_IV12_TAG16_HKDF_SHA384_ECDSA_P384 := AlgSuite(EncryptionSuites.AES_GCM_256, Digests.HKDF_WITH_SHA_384, Some(S.ECDSA_P384)),
