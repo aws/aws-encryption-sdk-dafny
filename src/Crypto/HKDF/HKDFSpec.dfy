@@ -9,6 +9,7 @@ module HKDFSpec {
   // return T(i)
   function Ti(algorithm: KeyDerivationAlgorithm, key: seq<uint8>, info: seq<uint8>, i: nat): seq<uint8>
     requires 0 <= i < 256
+    requires algorithm != IDENTITY
     requires HashLength(algorithm) as int <= |key|
     decreases i, 1
   {
@@ -19,6 +20,7 @@ module HKDFSpec {
   // return T(i-1) | info | i
   function PreTi(algorithm: KeyDerivationAlgorithm, key: seq<uint8>, info: seq<uint8>, i: nat): seq<uint8>
     requires 1 <= i < 256
+    requires algorithm != IDENTITY
     requires HashLength(algorithm) as int <= |key|
     decreases i, 0
   {
@@ -28,6 +30,7 @@ module HKDFSpec {
   // return T(1) | T(2) | ... | T(n)
   function T(algorithm: KeyDerivationAlgorithm, key: seq<uint8>, info: seq<uint8>, n: nat): seq<uint8>
     requires 0 <= n < 256
+    requires algorithm != IDENTITY
     requires HashLength(algorithm) as int <= |key|
     decreases n
   {
@@ -37,6 +40,7 @@ module HKDFSpec {
 
   lemma TLength(algorithm: KeyDerivationAlgorithm, key: seq<uint8>, info: seq<uint8>, n: nat)
     requires 0 <= n < 256
+    requires algorithm != IDENTITY
     requires HashLength(algorithm) as int <= |key|
     ensures |T(algorithm, key, info, n)| == n * HashLength(algorithm) as int
   {
@@ -44,6 +48,7 @@ module HKDFSpec {
 
   lemma TPrefix(algorithm: KeyDerivationAlgorithm, key: seq<uint8>, info: seq<uint8>, m: nat, n: nat)
     requires 0 <= m <= n < 256
+    requires algorithm != IDENTITY
     requires HashLength(algorithm) as int <= |key|
     ensures T(algorithm, key, info, m) <= T(algorithm, key, info, n)
   {
@@ -54,6 +59,7 @@ module HKDFSpec {
   }
 
   function TMaxLength(algorithm: KeyDerivationAlgorithm, key: seq<uint8>, info: seq<uint8>): (result: seq<uint8>)
+    requires algorithm != IDENTITY
     requires HashLength(algorithm) as int <= |key|
     ensures |result| == 255 * HashLength(algorithm) as int
   {

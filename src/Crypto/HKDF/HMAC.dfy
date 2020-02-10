@@ -18,9 +18,11 @@ module {:extern "HMAC"} HMAC {
     ghost var InputSoFar: seq<uint8>
 
     constructor {:extern} (algorithm: KeyDerivationAlgorithm)
+      requires algorithm != IDENTITY
       ensures this.algorithm == algorithm
 
     function method {:extern "GetMacSize"} getMacSize(): int32
+      requires algorithm != IDENTITY
       ensures getMacSize() == HashLength(algorithm)
 
     predicate {:axiom} validKey(key: seq<uint8>)
@@ -58,6 +60,7 @@ module {:extern "HMAC"} HMAC {
 
     method {:extern "DoFinal"} doFinal(output: array<uint8>, outOff: int32) returns (retVal: int32)
       requires initialized.Some?
+      requires algorithm != IDENTITY
       requires outOff >= 0
       requires outOff as int + getMacSize() as int <= output.Length
       requires |Hash(algorithm, initialized.get, InputSoFar)| == getMacSize() as int
