@@ -53,7 +53,7 @@ module {:extern "HMAC"} HMAC {
       requires initialized.Some?
       requires inOff >= 0
       requires len >= 0
-      requires input.Length < POS_INT32_LIMIT
+      requires input.Length < INT32_MAX_LIMIT
       requires inOff as int + len as int <= input.Length
       modifies `InputSoFar
       ensures InputSoFar == old(InputSoFar) + input[inOff..inOff+len]
@@ -64,7 +64,7 @@ module {:extern "HMAC"} HMAC {
       requires outOff >= 0
       requires outOff as int + getMacSize() as int <= output.Length
       requires |Hash(algorithm, initialized.get, InputSoFar)| == getMacSize() as int
-      requires output.Length < POS_INT32_LIMIT
+      requires output.Length < INT32_MAX_LIMIT
       modifies `InputSoFar, output
       ensures output[..] == old(output[..outOff]) + old(Hash(algorithm, initialized.get, InputSoFar)) + old(output[outOff + getMacSize()..])
       ensures output.Length == old(output.Length)
@@ -72,7 +72,7 @@ module {:extern "HMAC"} HMAC {
 
     method updateAll(input: array<uint8>)
       requires initialized.Some?
-      requires input.Length < POS_INT32_LIMIT
+      requires input.Length < INT32_MAX_LIMIT
       modifies `InputSoFar
       ensures InputSoFar == old(InputSoFar) + input[..]
     {
