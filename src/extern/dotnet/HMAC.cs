@@ -29,19 +29,11 @@ namespace HMAC {
             hmac = new Org.BouncyCastle.Crypto.Macs.HMac(digest);
         }
 
-        public int GetMacSize() {
-            return hmac.GetMacSize();
-        }
-
         public void Init(CipherParameters ps) {
             if(ps.is_KeyParameter) {
                 var keyParams = new Org.BouncyCastle.Crypto.Parameters.KeyParameter(ps.key.Elements);
                 hmac.Init(keyParams);
             }
-        }
-
-        public void Reset() {
-            hmac.Reset();
         }
 
         public void Update(byte input) {
@@ -52,8 +44,11 @@ namespace HMAC {
             hmac.BlockUpdate(input.Elements, inOff, len);
         }
 
-        public int DoFinal(byteseq output, int outOff) {
-            return hmac.DoFinal(output.Elements, outOff);
+        public byteseq DoFinal(byteseq output, int outOff) {
+            byte[] lstCopy = new byte[output.Elements.Length];
+            System.Array.Copy(output.Elements, lstCopy, output.Elements.Length);
+            hmac.DoFinal(lstCopy, outOff);
+            return byteseq.FromArray(lstCopy);
         }
     }
 }

@@ -9,7 +9,7 @@ module {:extern "Digests"} Digests {
   datatype {:extern "KeyDerivationAlgorithm"} KeyDerivationAlgorithm = HKDF_WITH_SHA_384 | HKDF_WITH_SHA_256 | IDENTITY
 
   // Hash length in octets (bytes), e.g. HashLength(SHA256) = 256 = 32 * 8
-  function HashLength(algorithm: KeyDerivationAlgorithm): (n: int32)
+  function method HashLength(algorithm: KeyDerivationAlgorithm): (n: int32)
     requires algorithm != IDENTITY
     ensures algorithm == HKDF_WITH_SHA_256 ==> n == 32
     ensures algorithm == HKDF_WITH_SHA_384 ==> n == 48

@@ -41,7 +41,7 @@ module HKDF {
     assert hmac.InputSoFar + ikm == ikm; // nfv
     hmac.updateAll(ikm);
     prk := seq(hmac.getMacSize() as int, _ => 0);
-    var _ := hmac.doFinal(prk, 0);
+    prk := hmac.doFinal(prk, 0);
     return prk;
   }
 
@@ -66,7 +66,7 @@ module HKDF {
     // T(1)
     hmac.updateAll(info);
     hmac.updateSingle(1 as uint8);
-    var _ := hmac.doFinal(TiArr, 0);
+    TiArr := hmac.doFinal(TiArr, 0);
     a := TiArr + a[|TiArr|..];
     s := s + TiArr;
 
@@ -90,7 +90,7 @@ module HKDF {
       hmac.updateSingle((i+1) as uint8);
       assert (i+1) <= 255;
       assert hmac.InputSoFar == TiArr + info + [((i+1) as uint8)]; // nfv
-      var _ := hmac.doFinal(TiArr, 0);
+      TiArr := hmac.doFinal(TiArr, 0);
       var offset := i * hmac.getMacSize() as int;
       assert offset < n * hmac.getMacSize() as int;
       assert offset < |a|;

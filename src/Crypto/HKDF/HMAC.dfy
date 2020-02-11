@@ -21,9 +21,13 @@ module {:extern "HMAC"} HMAC {
       requires algorithm != IDENTITY
       ensures this.algorithm == algorithm
 
-    function method {:extern "GetMacSize"} getMacSize(): int32
+    function method getMacSize(): (n: int32)
       requires algorithm != IDENTITY
-      ensures getMacSize() == HashLength(algorithm)
+      ensures algorithm == HKDF_WITH_SHA_256 ==> n == 32
+      ensures algorithm == HKDF_WITH_SHA_384 ==> n == 48
+      {
+        HashLength(algorithm)
+      }
 
     predicate {:axiom} validKey(key: seq<uint8>)
 
@@ -36,11 +40,6 @@ module {:extern "HMAC"} HMAC {
       ensures
         var key := match params case KeyParameter(key) => key;
         match initialized { case Some(k) => validKey(k) && key == k case None => false }
-      ensures InputSoFar == []
-
-    method {:extern "Reset"} reset()
-      requires initialized.Some?
-      modifies `InputSoFar
       ensures InputSoFar == []
 
     method {:extern "Update"} updateSingle(input: uint8)
@@ -58,7 +57,7 @@ module {:extern "HMAC"} HMAC {
       modifies `InputSoFar
       ensures InputSoFar == old(InputSoFar) + input[inOff..(inOff + len)]
 
-    method {:extern "DoFinal"} doFinal(output: seq<uint8>, outOff: int32) returns (retVal: int32)
+    method {:extern "DoFinal"} doFinal(output: seq<uint8>, outOff: int32) returns (s: seq<uint8>)
       requires initialized.Some?
       requires algorithm != IDENTITY
       requires outOff >= 0
@@ -66,8 +65,9 @@ module {:extern "HMAC"} HMAC {
       requires |Hash(algorithm, initialized.get, InputSoFar)| == getMacSize() as int
       requires |output| < INT32_MAX_LIMIT
       modifies `InputSoFar
-      ensures output == old(output[..outOff]) + old(Hash(algorithm, initialized.get, InputSoFar)) + old(output[(outOff + getMacSize())..])
+      ensures s == old(output[..outOff]) + old(Hash(algorithm, initialized.get, InputSoFar)) + old(output[(outOff + getMacSize())..])
       ensures InputSoFar == []
+      ensures |output| == |s|
 
     method updateAll(input: seq<uint8>)
       requires initialized.Some?
