@@ -2,9 +2,10 @@ version: 0.2
 phases:
   install:
     runtime-versions:
-      dotnet: 2.2
+      dotnet: 3.0
     commands:
       - cd ..
+      - yum install -y which
       - yum install -y nuget
       - pip install --no-cache-dir lit OutputCheck pyyaml
       - mozroots --import --sync
@@ -14,6 +15,7 @@ phases:
       - msbuild boogie/Source/Boogie.sln
       # Get Dafny
       - git clone https://github.com/microsoft/dafny.git
+      - nuget restore dafny/Source/Dafny.sln
       - msbuild dafny/Source/Dafny.sln
       - export PATH="$PWD/dafny/Binaries:$PATH"
       # Get Z3
@@ -21,6 +23,14 @@ phases:
       - unzip z3*.zip && rm *.zip
       - cp -r z3* dafny/Binaries/z3
       - cd aws-encryption-sdk-dafny
+      # Set up environment for running test vectors
+      - wget https://github.com/awslabs/aws-encryption-sdk-test-vectors/raw/master/vectors/awses-decrypt/python-1.3.8.zip
+      - unzip python-1.3.8.zip && rm python-1.3.8.zip
+      - export DAFNY_AWS_ESDK_TEST_VECTOR_MANIFEST_PATH="${PWD}/manifest.json"
+      - export DAFNY_AWS_ESDK_DECRYPT_ORACLE_URL="http://xi1mwx3ttb.execute-api.us-west-2.amazonaws.com/api/v0/decrypt"
   build:
     commands:
-      - make release
+      - dotnet build -t:VerifyDafny src
+      - dotnet build -t:VerifyDafny test
+      - dotnet test
+      - dotnet test testVectors

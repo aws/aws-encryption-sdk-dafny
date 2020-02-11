@@ -1,53 +1,37 @@
-// RUN: %dafny "./UInt.dfy" /compile:3 > "%t"
-// RUN: %diff "%s.expect" "%t"
-
 include "../../src/StandardLibrary/UInt.dfy"
+include "../../src/StandardLibrary/StandardLibrary.dfy"
 
 module TestUInt {
-  import StandardLibrary
+  import opened StandardLibrary
   import opened UInt = StandardLibrary.UInt
 
-  method TestSeqToUInt32() {
-    var s := [0x01, 0x02, 0x30, 0x44];
-    if SeqToUInt32(s) == 0x01023044 as uint32 {
-      print "CORRECT\n";
-    } else {
-      print "NOT CORRECT\n";
-    }
+  method {:test} TestUInt16ToSeq() returns (r: Result<()>) {
+    var x: uint16 := 0x0122;
+    r := RequireEqual([0x01, 0x22], UInt16ToSeq(x));
   }
 
-  method TestUInt32ToSeq() {
-    var x := 0x01023044;
-    if UInt32ToSeq(x) == [0x01, 0x02, 0x30, 0x44] {
-      print "CORRECT\n";
-    } else {
-      print "NOT CORRECT\n";
-    }
-  }
-
-  method TestSeqToUInt16() {
+  method {:test} TestSeqToUInt16() returns (r: Result<()>) {
     var s := [0x01, 0x22];
-    if SeqToUInt16(s) == 0x0122 as uint16 {
-      print "CORRECT\n";
-    } else {
-      print "NOT CORRECT\n";
-    }
+    r := RequireEqual(0x0122 as uint16, SeqToUInt16(s));
   }
 
-  method TestUInt16ToSeq() {
-    var x := 0x0122;
-    if UInt16ToSeq(x) == [0x01, 0x22] {
-      print "CORRECT\n";
-    } else {
-      print "NOT CORRECT\n";
-    }
+  method {:test} TestUInt32ToSeq() returns (r: Result<()>) {
+    var x := 0x01023044;
+    r := RequireEqual([0x01, 0x02, 0x30, 0x44], UInt32ToSeq(x));
   }
 
-  method Main() {
-    TestSeqToUInt32();
-    TestUInt32ToSeq();
+  method {:test} TestSeqToUInt32() returns (r: Result<()>) {
+    var s := [0x01, 0x02, 0x30, 0x44];
+    r := RequireEqual(0x01023044 as uint32, SeqToUInt32(s));
+  }
 
-    TestSeqToUInt16();
-    TestUInt16ToSeq();
+  method {:test} TestUInt64ToSeq() returns (r: Result<()>) {
+    var x: uint64 := 0x0102304455667788;
+    r := RequireEqual([0x01, 0x02, 0x30, 0x44, 0x55, 0x66, 0x77, 0x88], UInt64ToSeq(x));
+  }
+
+  method {:test} TestSeqToUInt64() returns (r: Result<()>) {
+    var s := [0x01, 0x02, 0x30, 0x44, 0x55, 0x66, 0x77, 0x88];
+    r := RequireEqual(0x0102304455667788 as uint64, SeqToUInt64(s));
   }
 }

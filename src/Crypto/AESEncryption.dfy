@@ -8,10 +8,16 @@ module {:extern "AESEncryption"} AESEncryption {
   import opened UInt = StandardLibrary.UInt
 
   export
-    provides AESDecrypt, AESEncrypt, EncryptionSuites, StandardLibrary, UInt
+    provides AESDecrypt, AESEncrypt, EncryptionSuites, StandardLibrary, UInt, PlaintextDecryptedWithAAD, EncryptionOutputEncryptedWithAAD
     reveals EncryptionOutput
 
   datatype EncryptionOutput = EncryptionOutput(cipherText: seq<uint8>, authTag: seq<uint8>)
+
+  // The following are used to tie plaintext and ciphertext with the AAD that was used to produce them.
+  // These assumptions can be used in the postconditions of externs, and be referenced elsewhere
+  // in order to ensure that the AAD used is as expected.
+  predicate {:axiom} PlaintextDecryptedWithAAD(plaintext: seq<uint8>, aad: seq<uint8>)
+  predicate {:axiom} EncryptionOutputEncryptedWithAAD(ciphertext: EncryptionOutput, aad: seq<uint8>)
 
   function method EncryptionOutputFromByteSeq(s: seq<uint8>, encAlg: EncryptionSuites.EncryptionSuite): (encArt: EncryptionOutput)
     requires encAlg.Valid()
@@ -31,6 +37,7 @@ module {:extern "AESEncryption"} AESEncryption {
     requires |key| == encAlg.keyLen as int
     ensures res.Success? ==>
       |res.value.cipherText| == |msg| && |res.value.authTag| == encAlg.tagLen as int
+    ensures res.Success? ==> EncryptionOutputEncryptedWithAAD(res.value, aad)
 
   method {:extern "AESEncryption.AES_GCM", "AESDecrypt"} AESDecrypt(encAlg: EncryptionSuites.EncryptionSuite, key: seq<uint8>, cipherTxt: seq<uint8>, authTag: seq<uint8>, iv: seq<uint8>, aad: seq<uint8>)
       returns (res: Result<seq<uint8>>)
@@ -40,4 +47,5 @@ module {:extern "AESEncryption"} AESEncryption {
     requires |key| == encAlg.keyLen as int
     requires |iv| == encAlg.ivLen as int
     requires |authTag| == encAlg.tagLen as int
+    ensures res.Success? ==> PlaintextDecryptedWithAAD(res.value, aad)
 }

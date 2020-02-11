@@ -3,15 +3,13 @@ include "../../StandardLibrary/UInt.dfy"
 include "../AlgorithmSuite.dfy"
 include "./Defs.dfy"
 include "../../Crypto/Random.dfy"
-include "../../Crypto/RSAEncryption.dfy"
 include "../Materials.dfy"
 
-module MultiKeyringDef {
+module {:extern "MultiKeyringDef"} MultiKeyringDef {
     import opened KeyringDefs
     import opened StandardLibrary
     import opened UInt = StandardLibrary.UInt
     import AlgorithmSuite
-    import RSA = RSAEncryption
     import Mat = Materials
 
     function childrenRepr (xs : seq<Keyring>) : (res : set<object>) reads (set i | 0 <= i < |xs| :: xs[i])
@@ -49,15 +47,18 @@ module MultiKeyringDef {
             requires plaintextDataKey.Some? ==> algorithmSuiteID.ValidPlaintextDataKey(plaintextDataKey.get)
             ensures Valid()
             ensures unchanged(Repr)
-            ensures res.Success? && res.value.Some? && plaintextDataKey.Some? ==> 
-                plaintextDataKey.get == res.value.get.plaintextDataKey
             ensures res.Success? && res.value.Some? ==> 
                 algorithmSuiteID == res.value.get.algorithmSuiteID
+            ensures res.Success? && res.value.Some? && plaintextDataKey.Some? ==>
+                plaintextDataKey.get == res.value.get.plaintextDataKey
+            ensures res.Success? && res.value.Some? ==>
+                var generateTraces: seq<Mat.KeyringTraceEntry> := Filter(res.value.get.keyringTrace, Mat.IsGenerateTraceEntry);
+                |generateTraces| == if plaintextDataKey.None? then 1 else 0
         {
             // First pass on or generate the plaintext data key
             var initialMaterials: Option<Mat.ValidDataKeyMaterials> := None;
             if plaintextDataKey.Some? {
-                initialMaterials := Some(Mat.DataKeyMaterials(algorithmSuiteID, plaintextDataKey.get, []));
+                initialMaterials := Some(Mat.DataKeyMaterials(algorithmSuiteID, plaintextDataKey.get, [], []));
             }
             if generator != null {
                 initialMaterials :- generator.OnEncrypt(algorithmSuiteID, encryptionContext, plaintextDataKey);
@@ -70,14 +71,16 @@ module MultiKeyringDef {
             // TODO-RS: Use folding here instead
             var resultMaterials := initialMaterials.get;
             var i := 0;
-            while (i < children.Length) 
+            while i < children.Length
                 invariant algorithmSuiteID == resultMaterials.algorithmSuiteID
                 invariant plaintextDataKey.Some? ==> plaintextDataKey.get == resultMaterials.plaintextDataKey
+                invariant |Filter(resultMaterials.keyringTrace, Mat.IsGenerateTraceEntry)| == if plaintextDataKey.None? then 1 else 0
                 decreases children.Length - i 
             {
                 var childResult :- children[i].OnEncrypt(resultMaterials.algorithmSuiteID, encryptionContext, Some(resultMaterials.plaintextDataKey));
                 if childResult.Some? {
-                    resultMaterials := Mat.MergeDataKeyMaterials(resultMaterials, childResult.get);
+                    FilterIsDistributive(resultMaterials.keyringTrace, childResult.get.keyringTrace, Mat.IsGenerateTraceEntry);
+                    resultMaterials := Mat.ConcatDataKeyMaterials(resultMaterials, childResult.get);
                 }
                 i := i + 1;
             }
@@ -85,31 +88,28 @@ module MultiKeyringDef {
         }
         method OnDecrypt(algorithmSuiteID: AlgorithmSuite.ID,
                          encryptionContext: Mat.EncryptionContext,
-                         edks: seq<Mat.EncryptedDataKey>) 
-            returns (res: Result<Option<seq<uint8>>>)
-            requires Valid() 
+                         edks: seq<Mat.EncryptedDataKey>) returns (res: Result<Option<Materials.ValidOnDecryptResult>>)
+            requires Valid()
             ensures Valid()
             ensures |edks| == 0 ==> res.Success? && res.value.None?
-            ensures res.Success? && res.value.Some? ==> 
-                algorithmSuiteID.ValidPlaintextDataKey(res.value.get)
+            ensures res.Success? && res.value.Some? ==> res.value.get.algorithmSuiteID == algorithmSuiteID
         {
             res := Success(None);
             if generator != null {
-                var plaintextDataKey := TryDecryptForKeyring(generator, algorithmSuiteID, encryptionContext, edks);
-                if plaintextDataKey.Some? {
-                    res := Success(plaintextDataKey);
+                var onDecryptResult := TryDecryptForKeyring(generator, algorithmSuiteID, encryptionContext, edks);
+                if onDecryptResult.Some? {
+                    res := Success(onDecryptResult);
                 }
             }
             var i := 0;
-            while (i < children.Length) 
+            while i < children.Length
                 invariant |edks| == 0 ==> res.Success? && res.value.None?
-                invariant res.Success? && res.value.Some? ==> 
-                    algorithmSuiteID.ValidPlaintextDataKey(res.value.get)
+                invariant res.Success? && res.value.Some? ==> res.value.get.algorithmSuiteID == algorithmSuiteID
                 decreases children.Length - i
             {
-                var plaintextDataKey := TryDecryptForKeyring(children[i], algorithmSuiteID, encryptionContext, edks);
-                if plaintextDataKey.Some? {
-                    res := Success(plaintextDataKey);
+                var onDecryptResult := TryDecryptForKeyring(children[i], algorithmSuiteID, encryptionContext, edks);
+                if onDecryptResult.Some? {
+                    res := Success(onDecryptResult);
                 }
                 i := i + 1;
             }
@@ -119,12 +119,12 @@ module MultiKeyringDef {
                                     algorithmSuiteID: AlgorithmSuite.ID,
                                     encryptionContext: Mat.EncryptionContext,
                                     edks: seq<Mat.EncryptedDataKey>)
-            returns (res: Option<seq<uint8>>)
+            returns (res: Option<Mat.ValidOnDecryptResult>)
             requires Valid()
             requires keyring.Valid()
             ensures Valid()
             ensures |edks| == 0 ==> res.None?
-            ensures res.Some? ==> algorithmSuiteID.ValidPlaintextDataKey(res.get)
+            ensures res.Some? ==> res.get.algorithmSuiteID == algorithmSuiteID
         {
             var y := keyring.OnDecrypt(algorithmSuiteID, encryptionContext, edks);
             return match y {

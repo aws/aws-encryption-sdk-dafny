@@ -3,7 +3,7 @@ include "../../StandardLibrary/UInt.dfy"
 include "../Materials.dfy"
 include "../AlgorithmSuite.dfy"
 
-module KeyringDefs {
+module {:extern "KeyringDefs"} KeyringDefs {
   import opened StandardLibrary
   import opened UInt = StandardLibrary.UInt
   import Materials
@@ -20,21 +20,19 @@ module KeyringDefs {
       requires plaintextDataKey.Some? ==> algorithmSuiteID.ValidPlaintextDataKey(plaintextDataKey.get)
       ensures Valid()
       ensures res.Success? && res.value.Some? ==> 
-          algorithmSuiteID == res.value.get.algorithmSuiteID
+        algorithmSuiteID == res.value.get.algorithmSuiteID
       ensures res.Success? && res.value.Some? && plaintextDataKey.Some? ==> 
-          plaintextDataKey.get == res.value.get.plaintextDataKey
-
-      // TODO: keyring trace GENERATED_DATA_KEY flag assurance
-      // TODO: keyring trace ENCRYPTED_DATA_KEY flag assurance
+        plaintextDataKey.get == res.value.get.plaintextDataKey
+      ensures res.Success? && res.value.Some? ==>
+        var generateTraces: seq<Materials.KeyringTraceEntry> := Filter(res.value.get.keyringTrace, Materials.IsGenerateTraceEntry);
+        |generateTraces| == if plaintextDataKey.None? then 1 else 0
 
     method OnDecrypt(algorithmSuiteID: AlgorithmSuite.ID,
                      encryptionContext: Materials.EncryptionContext,
-                     edks: seq<Materials.EncryptedDataKey>) returns (res: Result<Option<seq<uint8>>>)
+                     edks: seq<Materials.EncryptedDataKey>) returns (res: Result<Option<Materials.ValidOnDecryptResult>>)
       requires Valid()
       ensures Valid()
       ensures |edks| == 0 ==> res.Success? && res.value.None?
-      ensures res.Success? && res.value.Some? ==> 
-          algorithmSuiteID.ValidPlaintextDataKey(res.value.get)
-      // TODO: keyring trace DECRYPTED_DATA_KEY flag assurance
+      ensures res.Success? && res.value.Some? ==> res.value.get.algorithmSuiteID == algorithmSuiteID
   }
 }

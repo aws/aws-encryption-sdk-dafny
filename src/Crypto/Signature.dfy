@@ -39,14 +39,9 @@ module {:extern "Signature"} Signature {
             ensures res.Some? ==> WfVK(s, res.get.0)
             ensures res.Some? ==> IsSignKeypair(s, res.get.1, res.get.0)
 //            ensures VKOfSK(s, sk) == vk
-
-
-      // TODO: This function should be moved out to the module level, like method "Sign". But apparently :extern in Dafny doesn't yet do this for functions.
-      // See https://github.com/dafny-lang/dafny/issues/423
-      static function method {:extern "Verify"} Verify(s: ECDSAParams, key: seq<uint8>, msg: seq<uint8>, sig: seq<uint8>): bool
-        // requires ECDSA.WfVK(s, key)
-        // requires MaxMsgLen(s).Some? ==> |msg| <= MaxMsgLen(s).get
-        // requires WfSig(s, sig)
+            ensures res.Some? ==> var (public, secret) := res.get;
+              0 < |public| && 0 < |secret| &&
+              (public[0] == 2 || public[0] == 3)  // public key uses y compression
     }
 
     method {:extern "Signature.ECDSA", "Sign"} Sign(s: ECDSAParams, key: seq<uint8>, digest: seq<uint8>) returns (sig: Option<seq<uint8>>)
@@ -54,6 +49,11 @@ module {:extern "Signature"} Signature {
       ensures sig.Some? ==> |sig.get| == s.SignatureLength() as int
       // ensures sig.Some? ==> WfSig(s, sig.get)
       // ensures sig.Some? ==> forall vk :: WfVK(s, vk) ==> IsSignKeypair(s, sk, vk) ==> Verify(s, vk, m, sig.get) == true
+
+    function method {:extern "Signature.ECDSA", "Verify"} Verify(s: ECDSAParams, key: seq<uint8>, msg: seq<uint8>, sig: seq<uint8>): bool
+      // requires ECDSA.WfVK(s, key)
+      // requires MaxMsgLen(s).Some? ==> |msg| <= MaxMsgLen(s).get
+      // requires WfSig(s, sig)
 
     method {:extern "Signature.ECDSA", "Digest"} Digest(s: ECDSAParams, msg: seq<uint8>) returns (digest: seq<uint8>)
 }

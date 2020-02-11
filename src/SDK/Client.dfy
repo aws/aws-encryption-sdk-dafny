@@ -13,7 +13,7 @@ include "../Crypto/HKDF/HKDF.dfy"
 include "../Crypto/AESEncryption.dfy"
 include "../Crypto/Signature.dfy"
 
-module ESDKClient {
+module {:extern "ESDKClient"} ESDKClient {
   import opened StandardLibrary
   import opened UInt = StandardLibrary.UInt
   import Materials
@@ -65,10 +65,10 @@ module ESDKClient {
       Msg.ContentType.Framed,
       dataKeyMaterials.algorithmSuiteID.IVLength() as uint8,
       frameLength);
-    var wr := new Streams.StringWriter();
+    var wr := new Streams.ByteWriter();
 
     var _ :- Serialize.SerializeHeaderBody(wr, headerBody);
-    var unauthenticatedHeader := wr.data;
+    var unauthenticatedHeader := wr.GetDataWritten();
 
     var iv: seq<uint8> := seq(dataKeyMaterials.algorithmSuiteID.IVLength(), _ => 0);
     var encryptionOutput :- AESEncryption.AESEncrypt(dataKeyMaterials.algorithmSuiteID.EncryptionSuite(), iv, derivedDataKey, [], unauthenticatedHeader);
@@ -85,7 +85,7 @@ module ESDKClient {
      * Add footer with signature, if required.
      */
 
-    var msg := wr.data + body;
+    var msg := wr.GetDataWritten() + body;
 
     match dataKeyMaterials.algorithmSuiteID.SignatureType() {
       case None =>
@@ -109,7 +109,7 @@ module ESDKClient {
     ensures |derivedDataKey| == algorithmSuiteID.KeyLength()
   {
     var whichSHA := AlgorithmSuite.Suite[algorithmSuiteID].hkdf;
-    if whichSHA == Digests.HmacNOSHA {
+    if whichSHA == Digests.IDENTITY {
       return plaintextDataKey;
     }
 
@@ -131,7 +131,7 @@ module ESDKClient {
      * Parse the message header to obtain: algorithm suite ID, encrypted data keys, and encryption context.
      */
 
-    var rd := new Streams.StringReader.FromSeq(message);
+    var rd := new Streams.ByteReader(message);
     var header :- Deserialize.DeserializeHeader(rd);
 
     /*
@@ -158,19 +158,22 @@ module ESDKClient {
       case None =>
         // there's no footer
       case Some(ecdsaParams) =>
-        var msg := message[..rd.pos];  // unauthenticatedHeader + authTag + body  // TODO: there should be a better way to get this
+        var usedCapacity := rd.GetSizeRead();
+        assert usedCapacity <= |message|;
+        var msg := message[..usedCapacity];  // unauthenticatedHeader + authTag + body  // TODO: there should be a better way to get this
         // read signature
         var signatureLength :- rd.ReadUInt16();
-        var sig :- rd.ReadExact(signatureLength as nat);
+        var sig :- rd.ReadBytes(signatureLength as nat);
         // verify signature
         var digest := Signature.Digest(ecdsaParams, msg);
-        var signatureVerified := Signature.ECDSA.Verify(ecdsaParams, decMat.verificationKey.get, digest, sig);
+        var signatureVerified := Signature.Verify(ecdsaParams, decMat.verificationKey.get, digest, sig);
         if !signatureVerified {
           return Failure("signature not verified");
         }
     }
 
-    if rd.Available() != 0 {
+    var isDone := rd.IsDoneReading();
+    if !isDone {
       return Failure("message contains additional bytes at end");
     }
 

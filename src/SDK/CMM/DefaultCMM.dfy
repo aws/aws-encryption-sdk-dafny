@@ -8,7 +8,7 @@ include "../MessageHeader.dfy"
 include "../../Util/UTF8.dfy"
 include "../Deserialize.dfy"
 
-module DefaultCMMDef {
+module {:extern "DefaultCMMDef"} DefaultCMMDef {
   import opened StandardLibrary
   import opened UInt = StandardLibrary.UInt
   import Materials
@@ -45,7 +45,7 @@ module DefaultCMMDef {
       requires Valid()
       requires ValidAAD(ec) && Materials.GetKeysFromEncryptionContext(ec) !! Materials.ReservedKeyValues
       ensures Valid()
-      ensures res.Success? ==> |res.value.dataKeyMaterials.plaintextDataKey| == res.value.dataKeyMaterials.algorithmSuiteID.KDFInputKeyLength()
+      ensures res.Success? ==> res.value.dataKeyMaterials.algorithmSuiteID.ValidPlaintextDataKey(res.value.dataKeyMaterials.plaintextDataKey)
       ensures res.Success? ==> |res.value.dataKeyMaterials.encryptedDataKeys| > 0
       ensures res.Success? ==> ValidAAD(res.value.encryptionContext)
       ensures res.Success? ==>
@@ -96,29 +96,28 @@ module DefaultCMMDef {
       requires |edks| > 0
       requires Valid()
       ensures Valid()
-      ensures res.Success? ==>
-        |res.value.plaintextDataKey| == res.value.algorithmSuiteID.KeyLength()
+      ensures res.Success? ==> res.value.algorithmSuiteID.ValidPlaintextDataKey(res.value.plaintextDataKey)
       ensures res.Success? && res.value.algorithmSuiteID.SignatureType().Some? ==> res.value.verificationKey.Some?
     {
       // Retrieve and decode verification key from encryption context if using signing algorithm
       var vkey := None;
       if alg_id.SignatureType().Some? {
         var reservedField := Materials.EC_PUBLIC_KEY_FIELD;
-        var encodedVKey := Materials.EncCtxLookup(enc_ctx, reservedField);
-        if encodedVKey == None {
+        var encodedVKey := Materials.EncryptionContextGet(enc_ctx, reservedField);
+        if encodedVKey.Failure? {
           return Failure("Could not get materials required for decryption.");
         }
-        var utf8Decoded :- UTF8.Decode(encodedVKey.get);
+        var utf8Decoded :- UTF8.Decode(encodedVKey.value);
         var base64Decoded :- Base64.Decode(utf8Decoded);
         vkey := Some(base64Decoded);
       }
 
-      var dm :- kr.OnDecrypt(alg_id, enc_ctx, edks);
-      if dm.None? {
-        return Failure("Could not get materials required for decryption.");
+      var onDecryptResult :- kr.OnDecrypt(alg_id, enc_ctx, edks);
+      if onDecryptResult.None? {
+        return Failure("Keyring.OnDecrypt did not return a value.");
       }
 
-      return Success(Materials.DecryptionMaterials(alg_id, enc_ctx, dm.get, vkey));
+      return Success(Materials.DecryptionMaterials(alg_id, enc_ctx, onDecryptResult.get.plaintextDataKey, vkey, onDecryptResult.get.keyringTrace));
     }
   }
 }
