@@ -24,9 +24,8 @@ module MessageBody {
   import EncryptionSuites
   import UTF8
 
-  const BODY_AAD_CONTENT_REGULAR_FRAME := UTF8.Encode("AWSKMSEncryptionClient Frame").value
-  const BODY_AAD_CONTENT_FINAL_FRAME := UTF8.Encode("AWSKMSEncryptionClient Final Frame").value
-
+  const BODY_AAD_CONTENT_REGULAR_FRAME: string := "AWSKMSEncryptionClient Frame";
+  const BODY_AAD_CONTENT_FINAL_FRAME: string := "AWSKMSEncryptionClient Final Frame";
   const START_SEQUENCE_NUMBER: uint32 := 1
   const ENDFRAME_SEQUENCE_NUMBER: uint32 := 0xFFFF_FFFF
 
@@ -104,11 +103,11 @@ module MessageBody {
     return Success(unauthenticatedFrame);
   }
 
-  method DecryptFramedMessageBody(rd: Streams.StringReader, algorithmSuiteID: AlgorithmSuite.ID, key: seq<uint8>, frameLength: int, messageID: Msg.MessageID) returns (res: Result<seq<uint8>>)
+  method DecryptFramedMessageBody(rd: Streams.ByteReader, algorithmSuiteID: AlgorithmSuite.ID, key: seq<uint8>, frameLength: int, messageID: Msg.MessageID) returns (res: Result<seq<uint8>>)
     requires rd.Valid()
     requires |key| == algorithmSuiteID.KeyLength()
     requires 0 < frameLength < UINT32_LIMIT
-    modifies rd
+    modifies rd.reader`pos
     ensures rd.Valid()
   {
     var plaintext := [];
@@ -128,13 +127,13 @@ module MessageBody {
     return Success(plaintext);
   }
 
-  method DecryptFrame(rd: Streams.StringReader, algorithmSuiteID: AlgorithmSuite.ID, key: seq<uint8>, frameLength: int, messageID: Msg.MessageID,
+  method DecryptFrame(rd: Streams.ByteReader, algorithmSuiteID: AlgorithmSuite.ID, key: seq<uint8>, frameLength: int, messageID: Msg.MessageID,
                       expectedSequenceNumber: uint32)
       returns (res: Result<(seq<uint8>, bool)>)
     requires rd.Valid()
     requires |key| == algorithmSuiteID.KeyLength()
     requires 0 < frameLength < UINT32_LIMIT
-    modifies rd
+    modifies rd.reader`pos
     ensures rd.Valid()
     ensures match res
       case Success((plaintext, final)) =>
@@ -151,7 +150,7 @@ module MessageBody {
       return Failure("unexpected frame sequence number");
     }
 
-    var iv :- rd.ReadExact(algorithmSuiteID.IVLength());
+    var iv :- rd.ReadBytes(algorithmSuiteID.IVLength());
 
     var len := frameLength as uint32;
     if final {
@@ -160,15 +159,19 @@ module MessageBody {
 
     var aad := BodyAAD(messageID, final, sequenceNumber, len as uint64);
 
-    var ciphertext :- rd.ReadExact(len as nat);
-    var authTag :- rd.ReadExact(algorithmSuiteID.TagLength());
+    var ciphertext :- rd.ReadBytes(len as nat);
+    var authTag :- rd.ReadBytes(algorithmSuiteID.TagLength());
     var plaintext :- Decrypt(ciphertext, authTag, algorithmSuiteID, iv, key, aad);
 
     return Success((plaintext, final));
   }
 
   method BodyAAD(messageID: seq<uint8>, final: bool, sequenceNumber: uint32, length: uint64) returns (aad: seq<uint8>) {
-    var contentAAD := if final then BODY_AAD_CONTENT_FINAL_FRAME else BODY_AAD_CONTENT_REGULAR_FRAME;
+    var encodedRegularFrame := UTF8.Encode(BODY_AAD_CONTENT_REGULAR_FRAME);
+    assert encodedRegularFrame.Success?;
+    var encodedFinalFrame := UTF8.Encode(BODY_AAD_CONTENT_FINAL_FRAME);
+    assert encodedFinalFrame.Success?;
+    var contentAAD := if final then encodedFinalFrame.value else encodedRegularFrame.value;
     aad := messageID + contentAAD + UInt32ToSeq(sequenceNumber) + UInt64ToSeq(length);
   }
 

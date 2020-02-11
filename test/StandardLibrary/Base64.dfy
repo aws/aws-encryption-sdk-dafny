@@ -2,20 +2,26 @@ include "../../src/StandardLibrary/UInt.dfy"
 include "../../src/StandardLibrary/StandardLibrary.dfy"
 include "../../src/StandardLibrary/Base64.dfy"
 
-module TestBse64 {
+module TestBase64 {
   import opened StandardLibrary
   import opened UInt = StandardLibrary.UInt
   import opened Base64 = Base64
 
-  // Test vector sample encode/decode strings from https://tools.ietf.org/rfc/rfc4648.txt
-  const BASE64_TEST_VECTORS_ENCODED := ["", "Zg==", "Zm8=", "Zm9v", "Zm9vYg==", "Zm9vYmE=", "Zm9vYmFy"];
-  const BASE64_TEST_VECTORS_DECODED := ["", "f", "fo", "foo", "foob", "fooba", "foobar"];
+  const BASE64_TEST_VECTORS_ENCODED := ["", "VA==", "VGU=", "VGVz", "VGVzdA==", "VGVzdGk=", "VGVzdGlu", "VGVzdGluZw==",
+    "VGVzdGluZys=", "VGVzdGluZysx"];
+  const BASE64_TEST_VECTORS_DECODED := ["", "T", "Te", "Tes", "Test", "Testi", "Testin", "Testing", "Testing+",
+    "Testing+1"];
 
   const BASE64_TEST_VECTORS_DECODED_UINT8: seq<seq<uint8>> :=
-    [[], [0x66], [0x66, 0x6F], [0x66, 0x6F, 0x6F], [0x66, 0x6F, 0x6F, 0x62],
-    [0x66, 0x6F, 0x6F, 0x62, 0x61], [0x66, 0x6F, 0x6F, 0x62, 0x61, 0x72]];
+    [[], [0x54], [0x54, 0x65], [0x54, 0x65, 0x73], [0x54, 0x65, 0x73, 0x74], [0x54, 0x65, 0x73, 0x74, 0x69],
+    [0x54, 0x65, 0x73, 0x74, 0x69, 0x6E], [0x54, 0x65, 0x73, 0x74, 0x69, 0x6E, 0x67],
+    [0x54, 0x65, 0x73, 0x74, 0x69, 0x6E, 0x67, 0x2B], [0x54, 0x65, 0x73, 0x74, 0x69, 0x6E, 0x67, 0x2B, 0x31]];
 
   const BASE64_CHARS := "+/0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
+
+  lemma {:axiom} Base64TestVectorIsValid(i: int)
+    requires 0 <= i < |BASE64_TEST_VECTORS_ENCODED|
+    ensures IsBase64String(BASE64_TEST_VECTORS_ENCODED[i])
 
   method {:test} TestIsBase64CharSuccess() returns (r: Result<()>) {
     r := Require(forall c :: c in BASE64_CHARS ==> IsBase64Char(c));
@@ -26,15 +32,15 @@ module TestBse64 {
   }
 
   method {:test} TestIsUnpaddedBase64StringSuccess() returns (r: Result<()>) {
-    r := Require(IsUnpaddedBase64String("+0aA"));
+    r := Require(IsUnpaddedBase64String("VGVz"));
   }
 
   method {:test} TestIsUnpaddedBase64StringTooShort() returns (r: Result<()>) {
-    r := Require(!IsUnpaddedBase64String("+0a"));
+    r := Require(!IsUnpaddedBase64String("VGV"));
   }
 
   method {:test} TestIsUnpaddedBase64StringNotBase64() returns (r: Result<()>) {
-    r := Require(!IsUnpaddedBase64String("+0a$"));
+    r := Require(!IsUnpaddedBase64String("VGV$"));
   }
 
   method {:test} TestIndexToChar63() returns (r: Result<()>) {
@@ -85,73 +91,73 @@ module TestBse64 {
 
   method {:test} TestUInt24ToSeq() returns (r: Result<()>) {
     var input: uint24 := 0x100101;
-    var output := [0x10, 0x1, 0x1];
+    var output := [0x10, 0x01, 0x01];
     r := RequireEqual(output, UInt24ToSeq(input));
   }
 
   method {:test} TestSeqToUInt24() returns (r: Result<()>) {
-    var input := [0x10, 0x1, 0x1];
+    var input := [0x10, 0x01, 0x01];
     var output: uint24 := 0x100101;
     r := RequireEqual(output, SeqToUInt24(input));
   }
 
   method {:test} TestUInt24ToIndexSeq() returns (r: Result<()>) {
     var input: uint24 := 0x100101;
-    var output := [0x4, 0x0, 0x4, 0x1];
+    var output := [0x04, 0x00, 0x04, 0x01];
     r := RequireEqual(output, UInt24ToIndexSeq(input));
   }
 
   method {:test} TestIndexSeqToUInt24() returns (r: Result<()>) {
-    var input := [0x4, 0x0, 0x4, 0x1];
+    var input := [0x04, 0x00, 0x04, 0x01];
     var output: uint24 := 0x100101;
     r := RequireEqual(output, IndexSeqToUInt24(input));
   }
 
   method {:test} TestDecodeBlock() returns (r: Result<()>) {
-    var input := [0x4, 0x0, 0x4, 0x1];
-    var output := [0x10, 0x1, 0x1];
+    var input := [0x04, 0x00, 0x04, 0x01];
+    var output := [0x10, 0x01, 0x01];
     r := RequireEqual(output, DecodeBlock(input));
   }
 
   method {:test} TestEncodeBlock() returns (r: Result<()>) {
-    var input := [0x10, 0x1, 0x1];
-    var output := [0x4, 0x0, 0x4, 0x1];
+    var input := [0x10, 0x01, 0x01];
+    var output := [0x04, 0x00, 0x04, 0x01];
     r := RequireEqual(output, EncodeBlock(input));
   }
 
   method {:test} TestDecodeRecursively() returns (r: Result<()>) {
-    var input := [0x4, 0x0, 0x4, 0x1, 0x4, 0x0, 0x4, 0x1];
-    var output := [0x10, 0x1, 0x1, 0x10, 0x1, 0x1];
+    var input := [0x04, 0x00, 0x04, 0x01, 0x04, 0x00, 0x04, 0x01];
+    var output := [0x10, 0x01, 0x01, 0x10, 0x01, 0x01];
     r := RequireEqual(output, DecodeRecursively(input));
   }
 
   method {:test} TestEncodeRecursively() returns (r: Result<()>) {
-    var input := [0x10, 0x1, 0x1, 0x10, 0x1, 0x1];
-    var output := [0x4, 0x0, 0x4, 0x1, 0x4, 0x0, 0x4, 0x1];
+    var input := [0x10, 0x01, 0x01, 0x10, 0x01, 0x01];
+    var output := [0x04, 0x00, 0x04, 0x01, 0x04, 0x00, 0x04, 0x01];
     r := RequireEqual(output, EncodeRecursively(input));
   }
 
   method {:test} TestFromCharsToIndices() returns (r: Result<()>) {
     var input := "aA1+/";
-    var output := [0x1A, 0x0, 0x35, 0x3E, 0x3F];
+    var output := [0x1A, 0x00, 0x35, 0x3E, 0x3F];
     r := RequireEqual(output, FromCharsToIndices(input));
   }
 
   method {:test} TestFromIndicesToChars() returns (r: Result<()>) {
-    var input := [0x1A, 0x0, 0x35, 0x3E, 0x3F];
+    var input := [0x1A, 0x00, 0x35, 0x3E, 0x3F];
     var output := "aA1+/";
     r := RequireEqual(output, FromIndicesToChars(input));
   }
 
   method {:test} TestDecodeUnpadded() returns (r: Result<()>) {
-    var input := "Zm9vYmFy";
-    var output := [0x66, 0x6F, 0x6F, 0x62, 0x61, 0x72];
+    var input := "VGVzdGluZysx";
+    var output := [0x54, 0x65, 0x73, 0x74, 0x69, 0x6E, 0x67, 0x2B, 0x31];
     r := RequireEqual(output, DecodeUnpadded(input));
   }
 
   method {:test} TestEncodeUnpadded() returns (r: Result<()>) {
-    var input := [0x66, 0x6F, 0x6F, 0x62, 0x61, 0x72];
-    var output := "Zm9vYmFy";
+    var input := [0x54, 0x65, 0x73, 0x74, 0x69, 0x6E, 0x67, 0x2B, 0x31];
+    var output := "VGVzdGluZysx";
     r := RequireEqual(output, EncodeUnpadded(input));
   }
 
@@ -164,90 +170,90 @@ module TestBse64 {
   }
 
   method {:test} TestIs1PaddingSuccess() returns (r: Result<()>) {
-    r := Require(Is1Padding("Zm8="));
+    r := Require(Is1Padding("VGU="));
   }
 
   method {:test} TestIs1PaddingTooShort() returns (r: Result<()>) {
-    r := Require(!Is1Padding("Zm="));
+    r := Require(!Is1Padding("VG="));
   }
 
   method {:test} TestIs1PaddingTooLong() returns (r: Result<()>) {
-    r := Require(!Is1Padding("Zm88="));
+    r := Require(!Is1Padding("VGUU="));
   }
 
   method {:test} TestIs1PaddingInvalidChar0() returns (r: Result<()>) {
-    r := Require(!Is1Padding("$m8="));
+    r := Require(!Is1Padding("$GU="));
   }
 
   method {:test} TestIs1PaddingInvalidChar1() returns (r: Result<()>) {
-    r := Require(!Is1Padding("Z$8="));
+    r := Require(!Is1Padding("V$U="));
   }
 
   method {:test} TestIs1PaddingInvalidChar2() returns (r: Result<()>) {
-    r := Require(!Is1Padding("Zm$="));
+    r := Require(!Is1Padding("VG$="));
   }
 
   method {:test} TestIs1PaddingInvalidChar3() returns (r: Result<()>) {
-    r := Require(!Is1Padding("Zm8Z"));
+    r := Require(!Is1Padding("VGVz"));
   }
 
   method {:test} TestIs1PaddingInvalidChar2Modulus() returns (r: Result<()>) {
-    r := Require(!Is1Padding("Zm9="));
+    r := Require(!Is1Padding("VGV="));
   }
 
   method {:test} TestDecode1Padding() returns (r: Result<()>) {
-    var input := "Zm8=";
-    var output := [0x66, 0x6F];
+    var input := "VGU=";
+    var output := [0x54, 0x65];
     r := RequireEqual(output, Decode1Padding(input));
   }
 
   method {:test} TestEncode1Padding() returns (r: Result<()>) {
-    var input := [0x66, 0x6F];
-    var output := "Zm8=";
+    var input := [0x54, 0x65];
+    var output := "VGU=";
     r := RequireEqual(output, Encode1Padding(input));
   }
 
   method {:test} TestIs2PaddingSuccess() returns (r: Result<()>) {
-    r := Require(Is2Padding("Zg=="));
+    r := Require(Is2Padding("VA=="));
   }
 
   method {:test} TestIs2PaddingTooShort() returns (r: Result<()>) {
-    r := Require(!Is2Padding("Zg="));
+    r := Require(!Is2Padding("VA="));
   }
 
   method {:test} TestIs2PaddingTooLong() returns (r: Result<()>) {
-    r := Require(!Is2Padding("Zgg=="));
+    r := Require(!Is2Padding("VAA=="));
   }
 
   method {:test} TestIs2PaddingInvalidChar0() returns (r: Result<()>) {
-    r := Require(!Is2Padding("$g=="));
+    r := Require(!Is2Padding("$A=="));
   }
 
   method {:test} TestIs2PaddingInvalidChar1() returns (r: Result<()>) {
-    r := Require(!Is2Padding("Z$=="));
+    r := Require(!Is2Padding("V$=="));
   }
 
   method {:test} TestIs2PaddingInvalidChar2() returns (r: Result<()>) {
-    r := Require(!Is2Padding("Zgg="));
+    r := Require(!Is2Padding("VAA="));
   }
 
   method {:test} TestIs2PaddingInvalidChar3() returns (r: Result<()>) {
-    r := Require(!Is2Padding("Zg=g"));
+    r := Require(!Is2Padding("VA=A"));
   }
 
   method {:test} TestIs2PaddingInvalidChar1Modulus() returns (r: Result<()>) {
-    r := Require(!Is2Padding("ZR=="));
+    r := Require(!Is2Padding("VB=="));
   }
 
   method {:test} TestDecode2Padding() returns (r: Result<()>) {
-    var input := "Zg==";
-    var output := [0x66];
+    var input := "VA==";
+    var output := [0x54];
     r := RequireEqual(output, Decode2Padding(input));
   }
 
   method {:test} TestEncode2Padding() returns (r: Result<()>) {
-    var input := [0x66];
-    var output := "Zg==";
+    var input := [0x54];
+    var output := "VA==";
     r := RequireEqual(output, Encode2Padding(input));
   }
 
@@ -256,11 +262,11 @@ module TestBse64 {
   }
 
   method {:test} TestIsBase64StringBadLength() returns (r: Result<()>) {
-    r := Require(!IsBase64String("Zg="));
+    r := Require(!IsBase64String("VG="));
   }
 
   method {:test} TestIsBase64StringBadString() returns (r: Result<()>) {
-    r := Require(!IsBase64String("Z1=="));
+    r := Require(!IsBase64String("VC=="));
   }
 
   method {:test} TestSanityCheckDecodedTestVectors() returns (r: Result<()>) {

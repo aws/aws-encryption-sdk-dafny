@@ -14,7 +14,8 @@ module {:extern "KMSKeyringDef"} KMSKeyringDef {
   import KMSUtils
   import UTF8
 
-  const PROVIDER_ID := UTF8.Encode("aws-kms").value
+  // UTF-8 encoded "aws-kms"
+  const PROVIDER_ID: UTF8.ValidUTF8Bytes := [0x61, 0x77, 0x73, 0x2D, 0x6B, 0x6D, 0x73];
 
   function method RegionFromKMSKeyARN(arn: KMSUtils.CustomerMasterKey): Result<string>
   {
@@ -103,7 +104,8 @@ module {:extern "KMSKeyringDef"} KMSKeyringDef {
         return Failure("Invalid response from KMS GenerateDataKey: Invalid key");
       }
 
-      var generateTraceEntry := Mat.KeyringTraceEntry(PROVIDER_ID, UTF8.Encode(generator.get).value, {Mat.GENERATED_DATA_KEY, Mat.ENCRYPTED_DATA_KEY, Mat.SIGNED_ENCRYPTION_CONTEXT});
+      var encodedGenerator :- UTF8.Encode(generator.get);
+      var generateTraceEntry := Mat.KeyringTraceEntry(PROVIDER_ID, encodedGenerator, {Mat.GENERATED_DATA_KEY, Mat.ENCRYPTED_DATA_KEY, Mat.SIGNED_ENCRYPTION_CONTEXT});
       var datakeyMaterials := Mat.DataKeyMaterials(algorithmSuiteID, plaintextDataKey, [encryptedDataKey], [generateTraceEntry]);
       assert datakeyMaterials.Valid();
       return Success(datakeyMaterials);
@@ -169,7 +171,8 @@ module {:extern "KMSKeyringDef"} KMSKeyringDef {
             return Failure("providerInfo exceeds maximum length");
           }
           var edk := Mat.EncryptedDataKey(PROVIDER_ID, providerInfo, encryptResponse.ciphertextBlob);
-          var encryptTraceEntry := Mat.KeyringTraceEntry(PROVIDER_ID, UTF8.Encode(encryptCMKs[i]).value, {Mat.ENCRYPTED_DATA_KEY, Mat.SIGNED_ENCRYPTION_CONTEXT});
+          var encodedEncryptCMK :- UTF8.Encode(encryptCMKs[i]);
+          var encryptTraceEntry := Mat.KeyringTraceEntry(PROVIDER_ID, encodedEncryptCMK, {Mat.ENCRYPTED_DATA_KEY, Mat.SIGNED_ENCRYPTION_CONTEXT});
           edks := edks + [edk];
           FilterIsDistributive(keyringTrace, [encryptTraceEntry], Mat.IsGenerateTraceEntry);
           FilterIsDistributive(keyringTrace, [encryptTraceEntry], Mat.IsEncryptTraceEntry);
@@ -184,13 +187,11 @@ module {:extern "KMSKeyringDef"} KMSKeyringDef {
       return Success(Some(datakeyMat));
     }
 
-    predicate method ShouldAttemptDecryption(edk: Mat.EncryptedDataKey)
+    predicate method ShouldAttemptDecryption(providerInfo: string)
     {
       var keys := if generator.Some? then keyIDs + [generator.get] else keyIDs;
-      edk.providerID == PROVIDER_ID &&
-      UTF8.ValidUTF8Seq(edk.providerInfo) && UTF8.Decode(edk.providerInfo).Success? &&
-      KMSUtils.ValidFormatCMK(UTF8.Decode(edk.providerInfo).value) &&
-      (isDiscovery || UTF8.Decode(edk.providerInfo).value in keys)
+      KMSUtils.ValidFormatCMK(providerInfo)
+        && (isDiscovery || providerInfo in keys)
     }
 
     method OnDecrypt(algorithmSuiteID: AlgorithmSuite.ID,
@@ -209,10 +210,13 @@ module {:extern "KMSKeyringDef"} KMSKeyringDef {
       var i := 0;
       while i < |edks| {
         var edk := edks[i];
-        if ShouldAttemptDecryption(edk) {
+        var providerInfo := Failure("Not UTF8");
+        if UTF8.ValidUTF8Seq(edk.providerInfo) && edk.providerID == PROVIDER_ID {
+          providerInfo := UTF8.Decode(edk.providerInfo);
+        }
+        if providerInfo.Success? && ShouldAttemptDecryption(providerInfo.value) {
           var decryptRequest := KMSUtils.DecryptRequest(edk.ciphertext, encryptionContext, grantTokens);
-          var providerInfo := UTF8.Decode(edk.providerInfo).value;
-          var regionRes := RegionFromKMSKeyARN(providerInfo);
+          var regionRes := RegionFromKMSKeyARN(providerInfo.value);
           var regionOpt := regionRes.ToOption();
           var clientRes := clientSupplier.GetClient(regionOpt);
           if clientRes.Success? {
@@ -220,7 +224,7 @@ module {:extern "KMSKeyringDef"} KMSKeyringDef {
             var decryptResponseResult := client.Decrypt(decryptRequest);
             if decryptResponseResult.Success? {
               var decryptResponse := decryptResponseResult.value;
-              if (decryptResponse.keyID != UTF8.Decode(edk.providerInfo).value)
+              if (decryptResponse.keyID != providerInfo.value)
                   || !algorithmSuiteID.ValidPlaintextDataKey(decryptResponse.plaintext) {
                 return Failure("Invalid response from KMS Decrypt");
               } else {
