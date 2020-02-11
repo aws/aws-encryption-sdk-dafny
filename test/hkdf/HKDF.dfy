@@ -5,7 +5,6 @@ include "../../src/Crypto/HKDF/HKDFSpec.dfy"
 module {:extern "TestHKDF"} TestHKDF {
 
   import opened StandardLibrary
-  import opened UInt = StandardLibrary.UInt
   import opened HKDF
   import opened Digests
 

@@ -92,7 +92,7 @@ module HKDF {
       assert hmac.InputSoFar == TiArr + info + [((i+1) as uint8)]; // nfv
       var _ := hmac.doFinal(TiArr, 0);
       var offset := i * hmac.getMacSize() as int;
-      assert offset <  n * hmac.getMacSize() as int;
+      assert offset < n * hmac.getMacSize() as int;
       assert offset < |a|;
       a := a[..offset] + TiArr + a[(|TiArr| + offset)..];
       s := s + TiArr; // s == T(1) | ... | T(i) | T(i+1)
