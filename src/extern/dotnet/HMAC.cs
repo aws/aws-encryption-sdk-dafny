@@ -1,6 +1,8 @@
 using System;
 using System.Numerics;
 
+using byteseq = Dafny.Sequence<byte>;
+
 namespace HMAC {
 
     public class UnsupportedKeyDerivationAlgorithException : Exception
@@ -33,7 +35,7 @@ namespace HMAC {
 
         public void Init(CipherParameters ps) {
             if(ps.is_KeyParameter) {
-                var keyParams = new Org.BouncyCastle.Crypto.Parameters.KeyParameter(ps.key);
+                var keyParams = new Org.BouncyCastle.Crypto.Parameters.KeyParameter(ps.key.Elements);
                 hmac.Init(keyParams);
             }
         }
@@ -46,12 +48,12 @@ namespace HMAC {
             hmac.Update(input);
         }
 
-        public void BlockUpdate(byte[] input , int inOff, int len) {
-            hmac.BlockUpdate(input, inOff, len);
+        public void BlockUpdate(byteseq input , int inOff, int len) {
+            hmac.BlockUpdate(input.Elements, inOff, len);
         }
 
-        public int DoFinal(byte[] output, int outOff) {
-            return hmac.DoFinal(output, outOff);
+        public int DoFinal(byteseq output, int outOff) {
+            return hmac.DoFinal(output.Elements, outOff);
         }
     }
 }

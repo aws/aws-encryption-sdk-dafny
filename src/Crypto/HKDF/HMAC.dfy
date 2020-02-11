@@ -6,7 +6,7 @@ module {:extern "HMAC"} HMAC {
   import opened StandardLibrary
   import opened UInt = StandardLibrary.UInt
 
-  datatype {:extern "CipherParameters"} CipherParameters = KeyParameter(key: array<uint8>)
+  datatype {:extern "CipherParameters"} CipherParameters = KeyParameter(key: seq<uint8>)
 
   class {:extern "HMac"} HMac {
 
@@ -49,34 +49,33 @@ module {:extern "HMAC"} HMAC {
       ensures unchanged(`initialized)
       ensures InputSoFar == old(InputSoFar) + [input]
 
-    method {:extern "BlockUpdate"} update(input: array<uint8>, inOff: int32, len: int32)
+    method {:extern "BlockUpdate"} update(input: seq<uint8>, inOff: int32, len: int32)
       requires initialized.Some?
       requires inOff >= 0
       requires len >= 0
-      requires input.Length < INT32_MAX_LIMIT
-      requires inOff as int + len as int <= input.Length
+      requires |input| < INT32_MAX_LIMIT
+      requires inOff as int + len as int <= |input|
       modifies `InputSoFar
       ensures InputSoFar == old(InputSoFar) + input[inOff..inOff+len]
 
-    method {:extern "DoFinal"} doFinal(output: array<uint8>, outOff: int32) returns (retVal: int32)
+    method {:extern "DoFinal"} doFinal(output: seq<uint8>, outOff: int32) returns (retVal: int32)
       requires initialized.Some?
       requires algorithm != IDENTITY
       requires outOff >= 0
-      requires outOff as int + getMacSize() as int <= output.Length
+      requires outOff as int + getMacSize() as int <= |output|
       requires |Hash(algorithm, initialized.get, InputSoFar)| == getMacSize() as int
-      requires output.Length < INT32_MAX_LIMIT
-      modifies `InputSoFar, output
+      requires |output| < INT32_MAX_LIMIT
+      modifies `InputSoFar
       ensures output[..] == old(output[..outOff]) + old(Hash(algorithm, initialized.get, InputSoFar)) + old(output[outOff + getMacSize()..])
-      ensures output.Length == old(output.Length)
       ensures InputSoFar == []
 
-    method updateAll(input: array<uint8>)
+    method updateAll(input: seq<uint8>)
       requires initialized.Some?
-      requires input.Length < INT32_MAX_LIMIT
+      requires |input| < INT32_MAX_LIMIT
       modifies `InputSoFar
       ensures InputSoFar == old(InputSoFar) + input[..]
     {
-      update(input, 0, input.Length as int32);
+      update(input, 0, |input| as int32);
     }
   }
 }
