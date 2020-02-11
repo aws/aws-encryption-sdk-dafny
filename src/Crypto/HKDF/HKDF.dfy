@@ -34,13 +34,13 @@ module HKDF {
     requires which_sha != IDENTITY
     requires |ikm| < INT32_MAX_LIMIT
     modifies hmac
-    ensures prk[..] == Hash(which_sha, salt[..], ikm[..])
+    ensures prk == Hash(which_sha, salt, ikm)
   {
     var params: CipherParameters := KeyParameter(salt);
     hmac.init(params);
-    assert hmac.InputSoFar + ikm[..] == ikm[..]; // nfv
+    assert hmac.InputSoFar + ikm == ikm; // nfv
     hmac.updateAll(ikm);
-    prk := seq(hmac.getMacSize() as int, i => 0);
+    prk := seq(hmac.getMacSize() as int, _ => 0);
     var _ := hmac.doFinal(prk, 0);
     return prk;
   }
@@ -51,7 +51,7 @@ module HKDF {
     requires 0 != |prk| && HashLength(which_sha) as int <= |prk|
     requires |info| < INT32_MAX_LIMIT
     modifies hmac
-    ensures a[..] == T(which_sha, prk[..], info[..], n)
+    ensures a == T(which_sha, prk, info, n)
     ensures |a| == n * hmac.getMacSize() as int;
   {
     var params: CipherParameters := KeyParameter(prk);
@@ -60,15 +60,15 @@ module HKDF {
 
     ghost var s: seq<uint8> := [];  // s == T(0)
 
-    a := seq(n * hmac.getMacSize() as int, i => 0);
-    var TiArr: seq<uint8> := seq(hmac.getMacSize() as int, i => 0);
+    a := seq(n * hmac.getMacSize() as int, _ => 0);
+    var TiArr: seq<uint8> := seq(hmac.getMacSize() as int, _ => 0);
 
     // T(1)
     hmac.updateAll(info);
     hmac.updateSingle(1 as uint8);
     var _ := hmac.doFinal(TiArr, 0);
-    a := a[..0] + TiArr[..] + a[|TiArr|..];
-    s := s + TiArr[..];
+    a := TiArr + a[|TiArr|..];
+    s := s + TiArr;
 
     var i := 1;
 
@@ -76,11 +76,11 @@ module HKDF {
     while i < n
       invariant 1 <= i <= n
       invariant |TiArr| == HashLength(which_sha) as int
-      invariant TiArr[..] == Ti(which_sha, prk[..], info[..], i)[..]
+      invariant TiArr == Ti(which_sha, prk, info, i)
       invariant HashLength(which_sha) as int <= |prk|
-      invariant s == T(which_sha, prk[..], info[..], i)     // s == T(1) | ... | T(i)
+      invariant s == T(which_sha, prk, info, i)     // s == T(1) | ... | T(i)
       invariant |a| == n * hmac.getMacSize() as int;
-      invariant s == a[..i * hmac.getMacSize() as int]
+      invariant s == a[..(i * hmac.getMacSize() as int)]
       invariant hmac.initialized.Some? && hmac.initialized.get == gKey
       invariant hmac.InputSoFar == []
     {
@@ -89,13 +89,13 @@ module HKDF {
       hmac.updateAll(info);
       hmac.updateSingle((i+1) as uint8);
       assert (i+1) <= 255;
-      assert hmac.InputSoFar[..] == TiArr[..] + info[..] + [((i+1) as uint8)]; // nfv
+      assert hmac.InputSoFar == TiArr + info + [((i+1) as uint8)]; // nfv
       var _ := hmac.doFinal(TiArr, 0);
       var offset := i * hmac.getMacSize() as int;
       assert offset <  n * hmac.getMacSize() as int;
       assert offset < |a|;
-      a := a[..offset] + TiArr[..] + a[(|TiArr| + offset)..];
-      s := s + TiArr[..]; // s == T(1) | ... | T(i) | T(i+1)
+      a := a[..offset] + TiArr + a[(|TiArr| + offset)..];
+      s := s + TiArr; // s == T(1) | ... | T(i) | T(i+1)
       i := i + 1;
     }
   }
@@ -112,9 +112,9 @@ module HKDF {
     ensures |okm| == L
     ensures
       // Extract:
-      var prk := Hash(which_sha, if salt.None? then Fill(0, HashLength(which_sha) as int) else salt.get[..], ikm[..]);
+      var prk := Hash(which_sha, if salt.None? then Fill(0, HashLength(which_sha) as int) else salt.get, ikm);
       // Expand:
-      okm[..L] == TMaxLength(which_sha, prk, info[..])[..L]
+      okm[..L] == TMaxLength(which_sha, prk, info)[..L]
   {
     if L == 0 {
       return [];
@@ -128,7 +128,7 @@ module HKDF {
       case Some(s) =>
         saltNonEmpty := s;
     }
-    assert saltNonEmpty[..] == if salt.None? then Fill(0, hmac.getMacSize() as int) else salt.get[..]; // nfv
+    assert saltNonEmpty == if salt.None? then Fill(0, hmac.getMacSize() as int) else salt.get; // nfv
 
     var n := 1 + (L-1) / hmac.getMacSize() as int;  // note, since L and HMAC_SIZE are strictly positive, this gives the same result in Java as in Dafny
     assert n * hmac.getMacSize() as int >= L;
@@ -143,9 +143,9 @@ module HKDF {
     calc {
       okm[..L];
     ==
-      T(which_sha, prk[..], info[..], n)[..L];
-    ==  { TPrefix(which_sha, prk[..], info[..], n, 255); }
-      TMaxLength(which_sha, prk[..], info[..])[..L];
+      T(which_sha, prk, info, n)[..L];
+    ==  { TPrefix(which_sha, prk, info, n, 255); }
+      TMaxLength(which_sha, prk, info)[..L];
     }
   }
 }

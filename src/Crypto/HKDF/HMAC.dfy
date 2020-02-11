@@ -35,7 +35,7 @@ module {:extern "HMAC"} HMAC {
       modifies this
       ensures
         var key := match params case KeyParameter(key) => key;
-        match initialized { case Some(k) => validKey(k) && key[..] == k case None => false }
+        match initialized { case Some(k) => validKey(k) && key == k case None => false }
       ensures InputSoFar == []
 
     method {:extern "Reset"} reset()
@@ -56,7 +56,7 @@ module {:extern "HMAC"} HMAC {
       requires |input| < INT32_MAX_LIMIT
       requires inOff as int + len as int <= |input|
       modifies `InputSoFar
-      ensures InputSoFar == old(InputSoFar) + input[inOff..inOff+len]
+      ensures InputSoFar == old(InputSoFar) + input[inOff..(inOff + len)]
 
     method {:extern "DoFinal"} doFinal(output: seq<uint8>, outOff: int32) returns (retVal: int32)
       requires initialized.Some?
@@ -66,14 +66,14 @@ module {:extern "HMAC"} HMAC {
       requires |Hash(algorithm, initialized.get, InputSoFar)| == getMacSize() as int
       requires |output| < INT32_MAX_LIMIT
       modifies `InputSoFar
-      ensures output[..] == old(output[..outOff]) + old(Hash(algorithm, initialized.get, InputSoFar)) + old(output[outOff + getMacSize()..])
+      ensures output == old(output[..outOff]) + old(Hash(algorithm, initialized.get, InputSoFar)) + old(output[(outOff + getMacSize())..])
       ensures InputSoFar == []
 
     method updateAll(input: seq<uint8>)
       requires initialized.Some?
       requires |input| < INT32_MAX_LIMIT
       modifies `InputSoFar
-      ensures InputSoFar == old(InputSoFar) + input[..]
+      ensures InputSoFar == old(InputSoFar) + input
     {
       update(input, 0, |input| as int32);
     }
