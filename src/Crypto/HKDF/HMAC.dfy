@@ -21,13 +21,8 @@ module {:extern "HMAC"} HMAC {
       requires algorithm != IDENTITY
       ensures this.algorithm == algorithm
 
-    function method getMacSize(): (n: int32)
+    function method {:extern "GetMacSize"} getMacSize(): int32
       requires algorithm != IDENTITY
-      ensures algorithm == HKDF_WITH_SHA_256 ==> n == 32
-      ensures algorithm == HKDF_WITH_SHA_384 ==> n == 48
-      {
-        HashLength(algorithm)
-      }
 
     predicate {:axiom} validKey(key: seq<uint8>)
 

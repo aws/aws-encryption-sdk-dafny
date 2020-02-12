@@ -124,7 +124,7 @@ module HKDF {
     var saltNonEmpty: seq<uint8>;
     match salt {
       case None =>
-        saltNonEmpty := seq(hmac.getMacSize(), _ => 0);
+        saltNonEmpty := seq(hmac.getMacSize() as int, _ => 0);
       case Some(s) =>
         saltNonEmpty := s;
     }

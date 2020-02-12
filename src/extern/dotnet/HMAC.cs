@@ -29,9 +29,16 @@ namespace HMAC {
             hmac = new Org.BouncyCastle.Crypto.Macs.HMac(digest);
         }
 
+        public int GetMacSize() {
+            return hmac.GetMacSize();
+        }
+
         public void Init(CipherParameters ps) {
             if(ps.is_KeyParameter) {
-                var keyParams = new Org.BouncyCastle.Crypto.Parameters.KeyParameter(ps.key.Elements);
+                // lstCopy should not be mutated, but this is safer than using ps.key.Elements directly
+                byte[] lstCopy = new byte[ps.key.Count];
+                System.Array.Copy(ps.key.Elements, lstCopy, ps.key.Count);
+                var keyParams = new Org.BouncyCastle.Crypto.Parameters.KeyParameter(lstCopy);
                 hmac.Init(keyParams);
             }
         }
@@ -41,12 +48,16 @@ namespace HMAC {
         }
 
         public void BlockUpdate(byteseq input , int inOff, int len) {
-            hmac.BlockUpdate(input.Elements, inOff, len);
+            // lstCopy should not be mutated, but this is safer than using input.Elements directly
+            byte[] lstCopy = new byte[input.Count];
+            System.Array.Copy(input.Elements, lstCopy, input.Count);
+            hmac.BlockUpdate(lstCopy, inOff, len);
         }
 
         public byteseq DoFinal(byteseq output, int outOff) {
-            byte[] lstCopy = new byte[output.Elements.Length];
-            System.Array.Copy(output.Elements, lstCopy, output.Elements.Length);
+            // lstCopy is mutated here; This prevents unintended mutations to output
+            byte[] lstCopy = new byte[output.Count];
+            System.Array.Copy(output.Elements, lstCopy, output.Count);
             hmac.DoFinal(lstCopy, outOff);
             return byteseq.FromArray(lstCopy);
         }
