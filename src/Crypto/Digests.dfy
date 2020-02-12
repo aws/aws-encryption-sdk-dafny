@@ -7,16 +7,4 @@ module {:extern "Digests"} Digests {
   // See Key Derivation Algorithm
   // https://docs.aws.amazon.com/encryption-sdk/latest/developer-guide/algorithms-reference.html
   datatype {:extern "KeyDerivationAlgorithm"} KeyDerivationAlgorithm = HKDF_WITH_SHA_384 | HKDF_WITH_SHA_256 | IDENTITY
-
-  // Hash length in octets (bytes), e.g. HashLength(SHA256) = 256 = 32 * 8
-  function HashLength(algorithm: KeyDerivationAlgorithm): (n: int32)
-    requires algorithm != IDENTITY
-    ensures algorithm == HKDF_WITH_SHA_256 ==> n == 32
-    ensures algorithm == HKDF_WITH_SHA_384 ==> n == 48
-  {
-    match algorithm {
-      case HKDF_WITH_SHA_256 => 32
-      case HKDF_WITH_SHA_384 => 48
-    }
-  }
 }

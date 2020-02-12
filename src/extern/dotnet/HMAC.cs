@@ -29,10 +29,6 @@ namespace HMAC {
             hmac = new Org.BouncyCastle.Crypto.Macs.HMac(digest);
         }
 
-        public int GetMacSize() {
-            return hmac.GetMacSize();
-        }
-
         public void Init(CipherParameters ps) {
             if(ps.is_KeyParameter) {
                 // KeyParameter/ Init should not mutate ps, but this is safer than using ps.key.Elements directly

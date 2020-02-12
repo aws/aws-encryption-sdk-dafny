@@ -115,7 +115,7 @@ module {:extern "ESDKClient"} ESDKClient {
 
     var infoSeq := UInt16ToSeq(algorithmSuiteID as uint16) + messageID;
     var len := algorithmSuiteID.KeyLength();
-    var derivedKey := HKDF.hkdf(whichSHA, None, plaintextDataKey, infoSeq, len);
+    var derivedKey := HKDF.Hkdf(whichSHA, None, plaintextDataKey, infoSeq, len);
     return derivedKey;
   }
 
