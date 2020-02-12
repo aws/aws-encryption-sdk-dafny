@@ -27,7 +27,9 @@
   -->
   <ItemGroup>
     <DafnySource Include="../src/**/*.dfy" />
+    <!-- While a file is being edited in emacs, emacs spills out a .# copy of the file -->
     <DafnySource Remove="**/.#*.dfy" />
+    <!-- While a file is being verified in emacs, the Dafny plug-in spills out a flycheck_ copy of the file -->
     <DafnySource Remove="**/flycheck_*.dfy" />
   </ItemGroup>
   <ItemGroup>
