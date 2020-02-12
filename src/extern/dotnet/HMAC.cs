@@ -54,12 +54,10 @@ namespace HMAC {
             hmac.BlockUpdate(lstCopy, inOff, len);
         }
 
-        public byteseq DoFinal(byteseq output, int outOff) {
-            // lstCopy is mutated here; This prevents unintended mutations to output
-            byte[] lstCopy = new byte[output.Count];
-            System.Array.Copy(output.Elements, lstCopy, output.Count);
-            hmac.DoFinal(lstCopy, outOff);
-            return byteseq.FromArray(lstCopy);
+        public byteseq GetResult(int length) {
+            byte[] output = new byte[length];
+            hmac.DoFinal(output, 0);
+            return byteseq.FromArray(output);
         }
     }
 }

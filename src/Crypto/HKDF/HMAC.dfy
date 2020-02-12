@@ -53,17 +53,14 @@ module {:extern "HMAC"} HMAC {
       modifies `InputSoFar
       ensures InputSoFar == old(InputSoFar) + input[inOff..(inOff + len)]
 
-    method {:extern "DoFinal"} doFinal(output: seq<uint8>, outOff: int32) returns (s: seq<uint8>)
+    method {:extern "GetResult"} getResult(length: int32) returns (s: seq<uint8>)
       requires initialized.Some?
       requires algorithm != IDENTITY
-      requires outOff >= 0
-      requires outOff as int + getMacSize() as int <= |output|
+      requires length >= 0
       requires |Hash(algorithm, initialized.get, InputSoFar)| == getMacSize() as int
-      requires |output| < INT32_MAX_LIMIT
       modifies `InputSoFar
-      ensures s == old(output[..outOff]) + old(Hash(algorithm, initialized.get, InputSoFar)) + old(output[(outOff + getMacSize())..])
       ensures InputSoFar == []
-      ensures |output| == |s|
+      ensures |s| == length as int
 
     method updateAll(input: seq<uint8>)
       requires initialized.Some?

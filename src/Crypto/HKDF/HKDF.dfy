@@ -40,8 +40,7 @@ module HKDF {
     hmac.init(params);
     assert hmac.InputSoFar + ikm == ikm; // nfv
     hmac.updateAll(ikm);
-    prk := seq(hmac.getMacSize() as int, _ => 0);
-    prk := hmac.doFinal(prk, 0);
+    prk := hmac.getResult(hmac.getMacSize());
     return prk;
   }
 
@@ -61,23 +60,22 @@ module HKDF {
     ghost var s: seq<uint8> := [];  // s == T(0)
 
     a := seq(n * hmac.getMacSize() as int, _ => 0);
-    var TiArr: seq<uint8> := seq(hmac.getMacSize() as int, _ => 0);
 
     // T(1)
     hmac.updateAll(info);
     hmac.updateSingle(1 as uint8);
-    TiArr := hmac.doFinal(TiArr, 0);
-    a := TiArr + a[|TiArr|..];
-    s := s + TiArr;
+    var TiSeq := hmac.getResult(hmac.getMacSize());
+    a := TiSeq + a[|TiSeq|..];
+    s := s + TiSeq;
 
     var i := 1;
 
-    assert hmac.getMacSize() as int + (n-1) * |TiArr| == |a|;
+    assert hmac.getMacSize() as int + (n-1) * |TiSeq| == |a|;
     while i < n
       invariant 1 <= i <= n
-      invariant |TiArr| == HashLength(which_sha) as int
-      invariant TiArr == Ti(which_sha, prk, info, i)
-      invariant HashLength(which_sha) as int <= |prk|
+      invariant |TiSeq| == hmac.getMacSize() as int
+      invariant TiSeq == Ti(which_sha, prk, info, i)
+      invariant hmac.getMacSize() as int <= |prk|
       invariant s == T(which_sha, prk, info, i)     // s == T(1) | ... | T(i)
       invariant |a| == n * hmac.getMacSize() as int;
       invariant s == a[..(i * hmac.getMacSize() as int)]
@@ -85,17 +83,17 @@ module HKDF {
       invariant hmac.InputSoFar == []
     {
       // T(i+1)
-      hmac.updateAll(TiArr);
+      hmac.updateAll(TiSeq);
       hmac.updateAll(info);
       hmac.updateSingle((i+1) as uint8);
       assert (i+1) <= 255;
-      assert hmac.InputSoFar == TiArr + info + [((i+1) as uint8)]; // nfv
-      TiArr := hmac.doFinal(TiArr, 0);
+      assert hmac.InputSoFar == TiSeq + info + [((i+1) as uint8)]; // nfv
+      TiSeq := hmac.getResult(hmac.getMacSize());
       var offset := i * hmac.getMacSize() as int;
       assert offset < n * hmac.getMacSize() as int;
       assert offset < |a|;
-      a := a[..offset] + TiArr + a[(|TiArr| + offset)..];
-      s := s + TiArr; // s == T(1) | ... | T(i) | T(i+1)
+      a := a[..offset] + TiSeq + a[(|TiSeq| + offset)..];
+      s := s + TiSeq; // s == T(1) | ... | T(i) | T(i+1)
       i := i + 1;
     }
   }
