@@ -38,7 +38,7 @@ module HKDF {
     hmac.init(params);
     assert hmac.InputSoFar + ikm == ikm;
     hmac.updateAll(ikm);
-    prk := hmac.getResult(hmac.getMacSize());
+    prk := hmac.getResult();
     return prk;
   }
 
@@ -54,25 +54,17 @@ module HKDF {
     hmac.init(params);
     ghost var gKey := hmac.initialized.get;
 
-    ghost var s: seq<uint8> := [];
-
-    a := seq(n * hmac.getMacSize() as int, _ => 0);
-
     hmac.updateAll(info);
     hmac.updateSingle(1 as uint8);
-    var TiSeq := hmac.getResult(hmac.getMacSize());
-    a := TiSeq + a[|TiSeq|..];
-    s := s + TiSeq;
+    var TiSeq := hmac.getResult();
+    a := TiSeq;
 
     var i := 1;
-
-    assert hmac.getMacSize() as int + (n-1) * |TiSeq| == |a|;
     while i < n
       invariant 1 <= i <= n
       invariant |TiSeq| == hmac.getMacSize() as int
       invariant hmac.getMacSize() as int <= |prk|
-      invariant |a| == n * hmac.getMacSize() as int;
-      invariant s == a[..(i * hmac.getMacSize() as int)]
+      invariant |a| == i * hmac.getMacSize() as int;
       invariant hmac.initialized.Some? && hmac.initialized.get == gKey
       invariant hmac.InputSoFar == []
     {
@@ -81,12 +73,8 @@ module HKDF {
       hmac.updateSingle((i+1) as uint8);
       assert (i+1) <= 255;
       assert hmac.InputSoFar == TiSeq + info + [((i+1) as uint8)];
-      TiSeq := hmac.getResult(hmac.getMacSize());
-      var offset := i * hmac.getMacSize() as int;
-      assert offset < n * hmac.getMacSize() as int;
-      assert offset < |a|;
-      a := a[..offset] + TiSeq + a[(|TiSeq| + offset)..];
-      s := s + TiSeq;
+      TiSeq := hmac.getResult();
+      a := a + TiSeq;
       i := i + 1;
     }
   }

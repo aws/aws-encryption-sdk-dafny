@@ -49,13 +49,12 @@ module {:extern "HMAC"} HMAC {
       modifies `InputSoFar
       ensures InputSoFar == old(InputSoFar) + input[inOff..(inOff + len)]
 
-    method {:extern "GetResult"} getResult(length: int32) returns (s: seq<uint8>)
+    method {:extern "GetResult"} getResult() returns (s: seq<uint8>)
       requires initialized.Some?
       requires algorithm != IDENTITY
-      requires length >= 0
       modifies `InputSoFar
       ensures InputSoFar == []
-      ensures |s| == length as int
+      ensures |s| == HashLength(algorithm) as int
 
     method updateAll(input: seq<uint8>)
       requires initialized.Some?

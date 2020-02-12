@@ -52,8 +52,8 @@ namespace HMAC {
             hmac.BlockUpdate(elemCopy, inOff, len);
         }
 
-        public byteseq GetResult(int length) {
-            byte[] output = new byte[length];
+        public byteseq GetResult() {
+            byte[] output = new byte[hmac.GetMacSize()];
             hmac.DoFinal(output, 0);
             return byteseq.FromArray(output);
         }
