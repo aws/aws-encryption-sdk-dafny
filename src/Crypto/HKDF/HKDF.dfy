@@ -35,7 +35,6 @@ module HKDF {
     ensures |prk| > 0 && GetHashLength(algorithm) as int <= |prk|
   {
     var params: CipherParameters := KeyParameter(salt);
-
     hmac.Init(params);
     hmac.Update(ikm, 0, |ikm| as int32);
     prk := hmac.GetResult();
@@ -52,8 +51,8 @@ module HKDF {
   {
     var params: CipherParameters := KeyParameter(prk);
     hmac.Init(params);
-
     var hashLength := GetHashLength(algorithm);
+
     hmac.Update(info, 0, |info| as int32);
     hmac.UpdateSingle(1 as uint8);
     var TiSeq := hmac.GetResult();
@@ -73,9 +72,6 @@ module HKDF {
       assert (i+1) <= 255;
 
       TiSeq := hmac.GetResult();
-      var offset := i * hashLength as int;
-      assert offset < n * hashLength as int;
-      assert offset < |a|;
       a := a + TiSeq;
       i := i + 1;
     }
@@ -105,9 +101,9 @@ module HKDF {
       case Some(s) =>
         saltNonEmpty := s;
     }
-    assert saltNonEmpty == if salt.None? then Fill(0, hashLength as int) else salt.get; // nfv
+    assert saltNonEmpty == if salt.None? then Fill(0, hashLength as int) else salt.get;
 
-    var n := 1 + (L-1) / hashLength as int;  // note, since L and HMAC_SIZE are strictly positive, this gives the same result in Java as in Dafny
+    var n := 1 + (L-1) / hashLength as int;
     assert n * hashLength as int >= L;
     var prk := Extract(algorithm, hmac, saltNonEmpty, ikm);
     okm := Expand(algorithm, hmac, prk, info, n);
