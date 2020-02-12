@@ -4,9 +4,9 @@ module {:extern "Signature"} Signature {
     import opened StandardLibrary
     import opened UInt = StandardLibrary.UInt
 
-    datatype {:extern "SignatureKeyPair"} SignatureKeyPair = SignatureKeyPair(verificationKey: seq<uint8>, signingKey: seq<uint8>)
+    datatype SignatureKeyPair = SignatureKeyPair(verificationKey: seq<uint8>, signingKey: seq<uint8>)
 
-    datatype {:extern "ECDSAParams"} ECDSAParams = ECDSA_P384 | ECDSA_P256
+    datatype ECDSAParams = ECDSA_P384 | ECDSA_P256
     {
       function method SignatureLength(): uint16 {
         match this

@@ -46,9 +46,9 @@ namespace Signature {
                 // serialize the public and private keys, and then return them
                 var vk = SerializePublicKey((ECPublicKeyParameters)kp.Public);
                 var sk = byteseq.FromArray(((ECPrivateKeyParameters)kp.Private).D.ToByteArray());
-                return new STL.Result_Success<SignatureKeyPair>(new SignatureKeyPair(vk, sk));
+                return STL.Result<SignatureKeyPair>.create_Success(new SignatureKeyPair(vk, sk));
             } catch (Exception e) {
-                return new STL.Result_Failure<SignatureKeyPair>(Dafny.Sequence<char>.FromString(e.ToString()));
+                return STL.Result<SignatureKeyPair>.create_Failure(Dafny.Sequence<char>.FromString(e.ToString()));
             }
         }
 
@@ -102,9 +102,9 @@ namespace Signature {
                 sign.Init(false, vkp);
                 BigInteger r, s;
                 DERDeserialize(sig.Elements, out r, out s);
-                return new STL.Result_Success<bool>(sign.VerifySignature(digest.Elements, r, s));
+                return STL.Result<bool>.create_Success(sign.VerifySignature(digest.Elements, r, s));
             } catch (Exception e) {
-                return new STL.Result_Failure<bool>(Dafny.Sequence<char>.FromString(e.ToString()));
+                return STL.Result<bool>.create_Failure(Dafny.Sequence<char>.FromString(e.ToString()));
             }
         }
 
@@ -134,12 +134,12 @@ namespace Signature {
                     if (bytes.Length == x.SignatureLength()) {
                         // This will meet the method postcondition, which says that a Some? return must
                         // contain a sequence of bytes whose length is x.SignatureLength().
-                        return new STL.Result_Success<byteseq>(byteseq.FromArray(bytes));
+                        return STL.Result<byteseq>.create_Success(byteseq.FromArray(bytes));
                     }
                     // We only get here with low probability, so try again (forever, if we have really bad luck).
                 } while (true);
             } catch (Exception e) {
-                return new STL.Result_Failure<byteseq>(Dafny.Sequence<char>.FromString(e.ToString()));
+                return STL.Result<byteseq>.create_Failure(Dafny.Sequence<char>.FromString(e.ToString()));
             }
         }
 
@@ -154,9 +154,9 @@ namespace Signature {
                     throw new ECDSAUnsupportedParametersException(x);
                 }
                 byte[] digest = alg.ComputeHash(msg.Elements);
-                return new STL.Result_Success<byteseq>(byteseq.FromArray(digest));
+                return STL.Result<byteseq>.create_Success(byteseq.FromArray(digest));
             } catch (Exception e) {
-                return new STL.Result_Failure<byteseq>(Dafny.Sequence<char>.FromString(e.ToString()));
+                return STL.Result<byteseq>.create_Failure(Dafny.Sequence<char>.FromString(e.ToString()));
             }
         }
 
