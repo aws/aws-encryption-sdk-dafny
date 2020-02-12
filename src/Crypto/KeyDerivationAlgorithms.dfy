@@ -1,6 +1,6 @@
 include "../StandardLibrary/StandardLibrary.dfy"
 
-module {:extern "Digests"} Digests {
+module {:extern "KeyDerivationAlgorithms"} KeyDerivationAlgorithms {
   import opened StandardLibrary
   import opened UInt = StandardLibrary.UInt
 

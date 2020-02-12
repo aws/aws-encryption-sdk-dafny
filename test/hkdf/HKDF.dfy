@@ -1,11 +1,12 @@
 include "../../src/StandardLibrary/StandardLibrary.dfy"
 include "../../src/Crypto/HKDF/HKDF.dfy"
+include "../../src/Crypto/KeyDerivationAlgorithms.dfy"
 
 module {:extern "TestHKDF"} TestHKDF {
 
   import opened StandardLibrary
   import opened HKDF
-  import opened Digests
+  import opened KeyDerivationAlgorithms
 
   // NOTE: All inputs/ expected output vars below are treated as arrays instead of sequences. This is to prevent a bug
   // in the C# transpiler that leads to long build times when creating long sequences.

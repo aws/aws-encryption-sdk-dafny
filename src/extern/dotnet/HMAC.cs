@@ -7,7 +7,7 @@ namespace HMAC {
 
     public class UnsupportedKeyDerivationAlgorithException : Exception
     {
-        public UnsupportedKeyDerivationAlgorithException(Digests.KeyDerivationAlgorithm algorithm)
+        public UnsupportedKeyDerivationAlgorithException(KeyDerivationAlgorithms.KeyDerivationAlgorithm algorithm)
             : base(String.Format("Invalid Key Derivation Algorithm: {0}", algorithm.ToString()))
         {
         }
@@ -17,7 +17,7 @@ namespace HMAC {
 
         private Org.BouncyCastle.Crypto.Macs.HMac hmac;
 
-        public HMac(Digests.KeyDerivationAlgorithm algorithm) {
+        public HMac(KeyDerivationAlgorithms.KeyDerivationAlgorithm algorithm) {
             Org.BouncyCastle.Crypto.IDigest digest;
             if(algorithm.is_HKDF__WITH__SHA__256) {
                 digest = new Org.BouncyCastle.Crypto.Digests.Sha256Digest();

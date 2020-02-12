@@ -8,7 +8,7 @@ include "Serialize.dfy"
 include "Deserialize.dfy"
 include "../Crypto/Random.dfy"
 include "../Util/Streams.dfy"
-include "../Crypto/Digests.dfy"
+include "../Crypto/KeyDerivationAlgorithms.dfy"
 include "../Crypto/HKDF/HKDF.dfy"
 include "../Crypto/AESEncryption.dfy"
 include "../Crypto/Signature.dfy"
@@ -23,7 +23,7 @@ module {:extern "ESDKClient"} ESDKClient {
   import MessageBody
   import Serialize
   import Random
-  import Digests
+  import KeyDerivationAlgorithms
   import Streams
   import HKDF
   import AESEncryption
@@ -108,14 +108,14 @@ module {:extern "ESDKClient"} ESDKClient {
     requires |plaintextDataKey| == algorithmSuiteID.KDFInputKeyLength()
     ensures |derivedDataKey| == algorithmSuiteID.KeyLength()
   {
-    var whichSHA := AlgorithmSuite.Suite[algorithmSuiteID].hkdf;
-    if whichSHA == Digests.IDENTITY {
+    var algorithm := AlgorithmSuite.Suite[algorithmSuiteID].hkdf;
+    if algorithm == KeyDerivationAlgorithms.IDENTITY {
       return plaintextDataKey;
     }
 
     var infoSeq := UInt16ToSeq(algorithmSuiteID as uint16) + messageID;
     var len := algorithmSuiteID.KeyLength();
-    var derivedKey := HKDF.Hkdf(whichSHA, None, plaintextDataKey, infoSeq, len);
+    var derivedKey := HKDF.Hkdf(algorithm, None, plaintextDataKey, infoSeq, len);
     return derivedKey;
   }
 

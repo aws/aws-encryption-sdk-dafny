@@ -15,7 +15,7 @@
 */
 
 include "HMAC.dfy"
-include "../Digests.dfy"
+include "../KeyDerivationAlgorithms.dfy"
 include "../../StandardLibrary/StandardLibrary.dfy"
 
 /**
@@ -23,7 +23,7 @@ include "../../StandardLibrary/StandardLibrary.dfy"
   */
 module HKDF {
   import opened HMAC
-  import opened Digests
+  import opened KeyDerivationAlgorithms
   import opened StandardLibrary
   import opened UInt = StandardLibrary.UInt
 
