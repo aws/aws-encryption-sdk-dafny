@@ -19,7 +19,7 @@ module {:extern "Signature"} Signature {
 
     method {:extern "Signature.ECDSA", "Sign"} Sign(s: ECDSAParams, key: seq<uint8>, digest: seq<uint8>) returns (sig: Result<seq<uint8>>)
 
-    method {:extern "Signature.ECDSA", "Verify"} Verify(s: ECDSAParams, key: seq<uint8>, msg: seq<uint8>, sig: seq<uint8>) returns (res: Result<bool>)
+    method {:extern "Signature.ECDSA", "Verify"} Verify(s: ECDSAParams, key: seq<uint8>, digest: seq<uint8>, sig: seq<uint8>) returns (res: Result<bool>)
 
     method {:extern "Signature.ECDSA", "Digest"} Digest(s: ECDSAParams, msg: seq<uint8>) returns (digest: Result<seq<uint8>>)
 }
