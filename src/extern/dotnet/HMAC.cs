@@ -35,10 +35,9 @@ namespace HMAC {
 
         public void Init(CipherParameters ps) {
             if(ps.is_KeyParameter) {
-                // lstCopy should not be mutated, but this is safer than using ps.key.Elements directly
-                byte[] lstCopy = new byte[ps.key.Count];
-                System.Array.Copy(ps.key.Elements, lstCopy, ps.key.Count);
-                var keyParams = new Org.BouncyCastle.Crypto.Parameters.KeyParameter(lstCopy);
+                // KeyParameter/ Init should not mutate ps, but this is safer than using ps.key.Elements directly
+                byte[] elemCopy = (byte[]) ps.key.Elements.Clone();
+                var keyParams = new Org.BouncyCastle.Crypto.Parameters.KeyParameter(elemCopy);
                 hmac.Init(keyParams);
             }
         }
@@ -48,10 +47,9 @@ namespace HMAC {
         }
 
         public void BlockUpdate(byteseq input , int inOff, int len) {
-            // lstCopy should not be mutated, but this is safer than using input.Elements directly
-            byte[] lstCopy = new byte[input.Count];
-            System.Array.Copy(input.Elements, lstCopy, input.Count);
-            hmac.BlockUpdate(lstCopy, inOff, len);
+            // BlockUpdate should not mutate input, but this is safer than using input.Elements directly
+            byte[] elemCopy = (byte[]) input.Elements.Clone();
+            hmac.BlockUpdate(elemCopy, inOff, len);
         }
 
         public byteseq GetResult(int length) {
