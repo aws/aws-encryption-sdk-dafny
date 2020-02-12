@@ -15,7 +15,7 @@
 */
 
 include "../../Util/Arrays.dfy"
-include "CryptoMac.dfy"
+include "HMAC.dfy"
 include "../Digests.dfy"
 include "HKDFSpec.dfy"
 include "../../StandardLibrary/StandardLibrary.dfy"
@@ -25,14 +25,16 @@ include "../../StandardLibrary/StandardLibrary.dfy"
   */
 module HKDF {
   import Arrays
-  import opened BouncyCastleCryptoMac
+  import opened HMAC
   import opened Digests
   import opened HKDFSpec
   import opened StandardLibrary
   import opened UInt = StandardLibrary.UInt
 
-  method extract(which_sha: HMAC_ALGORITHM, hmac: HMac, salt: array<uint8>, ikm: array<uint8>) returns (prk: array<uint8>)
+  method extract(which_sha: KeyDerivationAlgorithm, hmac: HMac, salt: array<uint8>, ikm: array<uint8>) returns (prk: array<uint8>)
     requires hmac.algorithm == which_sha && salt.Length != 0
+    requires which_sha != IDENTITY
+    requires ikm.Length < INT32_MAX_LIMIT
     modifies hmac
     ensures prk[..] == Hash(which_sha, salt[..], ikm[..])
   {
@@ -45,20 +47,22 @@ module HKDF {
     return prk;
   }
 
-  method expand(which_sha: HMAC_ALGORITHM, hmac: HMac, prk: array<uint8>, info: array<uint8>, n: int) returns (a: array<uint8>)
+  method expand(which_sha: KeyDerivationAlgorithm, hmac: HMac, prk: array<uint8>, info: array<uint8>, n: int) returns (a: array<uint8>)
     requires hmac.algorithm == which_sha && 1 <= n <= 255
-    requires 0 != prk.Length && HashLength(which_sha) <= prk.Length
+    requires which_sha != IDENTITY
+    requires 0 != prk.Length && HashLength(which_sha) as int <= prk.Length
+    requires info.Length < INT32_MAX_LIMIT
     modifies hmac
     ensures fresh(a)
     ensures a[..] == T(which_sha, prk[..], info[..], n)
-    ensures a.Length == n * hmac.getMacSize();
+    ensures a.Length == n * hmac.getMacSize() as int;
   {
     var params: CipherParameters := KeyParameter(prk);
     hmac.init(params);
     ghost var gKey := hmac.initialized.get;
 
     ghost var s: seq<uint8> := [];  // s == T(0)
-    a := new uint8[n * hmac.getMacSize()];
+    a := new uint8[n * hmac.getMacSize() as int];
     var TiArr: array<uint8> := new uint8[hmac.getMacSize()];
 
     // T(1)
@@ -73,14 +77,14 @@ module HKDF {
     // The following invariant simplifies the proof obligation needed to establish the precondition of Arrays.Array.copyTo
     // Before adding it, z3's outcome was unstable
     // TODO: Identify a way to make this less brittle (https://github.com/awslabs/aws-encryption-sdk-dafny/issues/99)
-    assert hmac.getMacSize() + (n-1)*TiArr.Length == a.Length;
+    assert hmac.getMacSize() as int + (n-1)*TiArr.Length == a.Length;
     while i < n
       invariant 1 <= i <= n
-      invariant TiArr.Length == HashLength(which_sha)
+      invariant TiArr.Length == HashLength(which_sha) as int
       invariant TiArr[..] == Ti(which_sha, prk[..], info[..], i)[..]
-      invariant HashLength(which_sha) <= prk.Length
+      invariant HashLength(which_sha) as int <= prk.Length
       invariant s == T(which_sha, prk[..], info[..], i)     // s == T(1) | ... | T(i)
-      invariant s == a[..i * hmac.getMacSize()]
+      invariant s == a[..i * hmac.getMacSize() as int]
       invariant hmac.initialized.Some? && hmac.initialized.get == gKey
       invariant hmac.InputSoFar == []
     {
@@ -91,7 +95,7 @@ module HKDF {
       assert (i+1) <= 255;
       assert hmac.InputSoFar[..] == TiArr[..] + info[..] + [((i+1) as uint8)]; // nfv
       var _ := hmac.doFinal(TiArr, 0);
-      Arrays.Array.copyTo(TiArr, a, i*hmac.getMacSize());
+      Arrays.Array.copyTo(TiArr, a, i*hmac.getMacSize() as int);
       s := s + TiArr[..]; // s == T(1) | ... | T(i) | T(i+1)
       i := i + 1;
     }
@@ -100,15 +104,17 @@ module HKDF {
   /**
    * The RFC 5869 KDF. Outputs L bytes of output key material.
    **/
-  method hkdf(which_sha: HMAC_ALGORITHM, salt: Option<array<uint8>>, ikm: array<uint8>, info: array<uint8>, L: int) returns (okm: array<uint8>)
-    requires which_sha == HmacSHA256 || which_sha == HmacSHA384
-    requires 0 <= L <= 255 * HashLength(which_sha)
+  method hkdf(which_sha: KeyDerivationAlgorithm, salt: Option<array<uint8>>, ikm: array<uint8>, info: array<uint8>, L: int) returns (okm: array<uint8>)
+    requires which_sha != IDENTITY
+    requires 0 <= L <= 255 * HashLength(which_sha) as int
     requires salt.None? || salt.get.Length != 0
+    requires info.Length < INT32_MAX_LIMIT
+    requires ikm.Length < INT32_MAX_LIMIT
     ensures fresh(okm)
     ensures okm.Length == L
     ensures
       // Extract:
-      var prk := Hash(which_sha, if salt.None? then Fill(0, HashLength(which_sha)) else salt.get[..], ikm[..]);
+      var prk := Hash(which_sha, if salt.None? then Fill(0, HashLength(which_sha) as int) else salt.get[..], ikm[..]);
       // Expand:
       okm[..L] == TMaxLength(which_sha, prk, info[..])[..L]
   {
@@ -120,14 +126,14 @@ module HKDF {
     var saltNonEmpty: array<uint8>;
     match salt {
       case None =>
-        saltNonEmpty := new uint8[hmac.getMacSize()](_ => 0);
+        saltNonEmpty := new uint8[hmac.getMacSize() as int](_ => 0);
       case Some(s) =>
         saltNonEmpty := s;
     }
-    assert saltNonEmpty[..] == if salt.None? then Fill(0, hmac.getMacSize()) else salt.get[..]; // nfv
+    assert saltNonEmpty[..] == if salt.None? then Fill(0, hmac.getMacSize() as int) else salt.get[..]; // nfv
 
-    var n := 1 + (L-1) / hmac.getMacSize();  // note, since L and HMAC_SIZE are strictly positive, this gives the same result in Java as in Dafny
-    assert n * hmac.getMacSize() >= L;
+    var n := 1 + (L-1) / hmac.getMacSize() as int;  // note, since L and HMAC_SIZE are strictly positive, this gives the same result in Java as in Dafny
+    assert n * hmac.getMacSize() as int >= L;
     var prk := extract(which_sha, hmac, saltNonEmpty, ikm);
 
     okm := expand(which_sha, hmac, prk, info, n);

@@ -107,7 +107,7 @@ module {:extern "ESDKClient"} ESDKClient {
     ensures |derivedDataKey| == algorithmSuiteID.KeyLength()
   {
     var whichSHA := AlgorithmSuite.Suite[algorithmSuiteID].hkdf;
-    if whichSHA == Digests.HmacNOSHA {
+    if whichSHA == Digests.IDENTITY {
       return plaintextDataKey;
     }
 
