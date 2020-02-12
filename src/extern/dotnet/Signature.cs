@@ -123,7 +123,7 @@ namespace Signature {
                 ECDsaSigner sign = new ECDsaSigner();
                 sign.Init(true, skp);
                 do {
-                    // sig is array of two integers: r and, s
+                    // sig is array of two integers: r and s
                     BigInteger[] sig = sign.GenerateSignature((byte[])digest.Elements.Clone());
                     byte[] bytes = DERSerialize(sig[0], sig[1]);
                     if (bytes.Length != x.SignatureLength()) {
@@ -148,8 +148,10 @@ namespace Signature {
                 System.Security.Cryptography.HashAlgorithm alg;
                 if (x.is_ECDSA__P384) {
                     alg = System.Security.Cryptography.SHA384.Create();
-                } else {
+                } else if (x.is_ECDSA__P256) {
                     alg = System.Security.Cryptography.SHA256.Create();
+                } else {
+                    throw new ECDSAUnsupportedParametersException(x);
                 }
                 byte[] digest = alg.ComputeHash(msg.Elements);
                 return new STL.Result_Success<byteseq>(byteseq.FromArray(digest));
