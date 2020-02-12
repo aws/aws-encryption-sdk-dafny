@@ -1,6 +1,5 @@
 include "../../src/StandardLibrary/StandardLibrary.dfy"
 include "../../src/Crypto/HKDF/HKDF.dfy"
-include "../../src/Crypto/HKDF/HKDFSpec.dfy"
 
 module {:extern "TestHKDF"} TestHKDF {
 

@@ -16,7 +16,6 @@
 
 include "HMAC.dfy"
 include "../Digests.dfy"
-include "HKDFSpec.dfy"
 include "../../StandardLibrary/StandardLibrary.dfy"
 
 /**
@@ -25,43 +24,40 @@ include "../../StandardLibrary/StandardLibrary.dfy"
 module HKDF {
   import opened HMAC
   import opened Digests
-  import opened HKDFSpec
   import opened StandardLibrary
   import opened UInt = StandardLibrary.UInt
 
-  method extract(which_sha: KeyDerivationAlgorithm, hmac: HMac, salt: seq<uint8>, ikm: seq<uint8>) returns (prk: seq<uint8>)
-    requires hmac.algorithm == which_sha && |salt| != 0
-    requires which_sha != IDENTITY
+  method extract(algorithm: KeyDerivationAlgorithm, hmac: HMac, salt: seq<uint8>, ikm: seq<uint8>) returns (prk: seq<uint8>)
+    requires hmac.algorithm == algorithm && |salt| != 0
+    requires algorithm != IDENTITY
     requires |ikm| < INT32_MAX_LIMIT
     modifies hmac
-    ensures prk == Hash(which_sha, salt, ikm)
+    ensures |prk| > 0 && HashLength(algorithm) as int <= |prk|
   {
     var params: CipherParameters := KeyParameter(salt);
     hmac.init(params);
-    assert hmac.InputSoFar + ikm == ikm; // nfv
+    assert hmac.InputSoFar + ikm == ikm;
     hmac.updateAll(ikm);
     prk := hmac.getResult(hmac.getMacSize());
     return prk;
   }
 
-  method expand(which_sha: KeyDerivationAlgorithm, hmac: HMac, prk: seq<uint8>, info: seq<uint8>, n: int) returns (a: seq<uint8>)
-    requires hmac.algorithm == which_sha && 1 <= n <= 255
-    requires which_sha != IDENTITY
-    requires 0 != |prk| && HashLength(which_sha) as int <= |prk|
+  method expand(algorithm: KeyDerivationAlgorithm, hmac: HMac, prk: seq<uint8>, info: seq<uint8>, n: int) returns (a: seq<uint8>)
+    requires hmac.algorithm == algorithm && 1 <= n <= 255
+    requires algorithm != IDENTITY
+    requires 0 != |prk| && HashLength(algorithm) as int <= |prk|
     requires |info| < INT32_MAX_LIMIT
     modifies hmac
-    ensures a == T(which_sha, prk, info, n)
     ensures |a| == n * hmac.getMacSize() as int;
   {
     var params: CipherParameters := KeyParameter(prk);
     hmac.init(params);
     ghost var gKey := hmac.initialized.get;
 
-    ghost var s: seq<uint8> := [];  // s == T(0)
+    ghost var s: seq<uint8> := [];
 
     a := seq(n * hmac.getMacSize() as int, _ => 0);
 
-    // T(1)
     hmac.updateAll(info);
     hmac.updateSingle(1 as uint8);
     var TiSeq := hmac.getResult(hmac.getMacSize());
@@ -74,26 +70,23 @@ module HKDF {
     while i < n
       invariant 1 <= i <= n
       invariant |TiSeq| == hmac.getMacSize() as int
-      invariant TiSeq == Ti(which_sha, prk, info, i)
       invariant hmac.getMacSize() as int <= |prk|
-      invariant s == T(which_sha, prk, info, i)     // s == T(1) | ... | T(i)
       invariant |a| == n * hmac.getMacSize() as int;
       invariant s == a[..(i * hmac.getMacSize() as int)]
       invariant hmac.initialized.Some? && hmac.initialized.get == gKey
       invariant hmac.InputSoFar == []
     {
-      // T(i+1)
       hmac.updateAll(TiSeq);
       hmac.updateAll(info);
       hmac.updateSingle((i+1) as uint8);
       assert (i+1) <= 255;
-      assert hmac.InputSoFar == TiSeq + info + [((i+1) as uint8)]; // nfv
+      assert hmac.InputSoFar == TiSeq + info + [((i+1) as uint8)];
       TiSeq := hmac.getResult(hmac.getMacSize());
       var offset := i * hmac.getMacSize() as int;
       assert offset < n * hmac.getMacSize() as int;
       assert offset < |a|;
       a := a[..offset] + TiSeq + a[(|TiSeq| + offset)..];
-      s := s + TiSeq; // s == T(1) | ... | T(i) | T(i+1)
+      s := s + TiSeq;
       i := i + 1;
     }
   }
@@ -101,23 +94,18 @@ module HKDF {
   /**
    * The RFC 5869 KDF. Outputs L bytes of output key material.
    **/
-  method hkdf(which_sha: KeyDerivationAlgorithm, salt: Option<seq<uint8>>, ikm: seq<uint8>, info: seq<uint8>, L: int) returns (okm: seq<uint8>)
-    requires which_sha != IDENTITY
-    requires 0 <= L <= 255 * HashLength(which_sha) as int
+  method hkdf(algorithm: KeyDerivationAlgorithm, salt: Option<seq<uint8>>, ikm: seq<uint8>, info: seq<uint8>, L: int) returns (okm: seq<uint8>)
+    requires algorithm != IDENTITY
+    requires 0 <= L <= 255 * HashLength(algorithm) as int
     requires salt.None? || |salt.get| != 0
     requires |info| < INT32_MAX_LIMIT
     requires |ikm| < INT32_MAX_LIMIT
     ensures |okm| == L
-    ensures
-      // Extract:
-      var prk := Hash(which_sha, if salt.None? then Fill(0, HashLength(which_sha) as int) else salt.get, ikm);
-      // Expand:
-      okm[..L] == TMaxLength(which_sha, prk, info)[..L]
   {
     if L == 0 {
       return [];
     }
-    var hmac := new HMac(which_sha);
+    var hmac := new HMac(algorithm);
 
     var saltNonEmpty: seq<uint8>;
     match salt {
@@ -130,20 +118,12 @@ module HKDF {
 
     var n := 1 + (L-1) / hmac.getMacSize() as int;  // note, since L and HMAC_SIZE are strictly positive, this gives the same result in Java as in Dafny
     assert n * hmac.getMacSize() as int >= L;
-    var prk := extract(which_sha, hmac, saltNonEmpty, ikm);
-
-    okm := expand(which_sha, hmac, prk, info, n);
+    var prk := extract(algorithm, hmac, saltNonEmpty, ikm);
+    okm := expand(algorithm, hmac, prk, info, n);
 
     // if necessary, trim padding
     if |okm| > L {
       okm := okm[..L];
-    }
-    calc {
-      okm[..L];
-    ==
-      T(which_sha, prk, info, n)[..L];
-    ==  { TPrefix(which_sha, prk, info, n, 255); }
-      TMaxLength(which_sha, prk, info)[..L];
     }
   }
 }

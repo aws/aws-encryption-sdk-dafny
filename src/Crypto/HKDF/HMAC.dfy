@@ -12,9 +12,6 @@ module {:extern "HMAC"} HMAC {
 
     const algorithm: KeyDerivationAlgorithm
     ghost var initialized: Option<seq<uint8>>
-
-    // InputSoFar represents the accumulated input as Update calls are made. It is cleared by Reset and DoFinal, though
-    // DoFinal additionally outputs the hash of the accumulated input.
     ghost var InputSoFar: seq<uint8>
 
     constructor {:extern} (algorithm: KeyDerivationAlgorithm)
@@ -30,7 +27,6 @@ module {:extern "HMAC"} HMAC {
     method {:extern "Init"} init(params: CipherParameters)
       // The documentation says it can throw "InvalidKeyException - if the given key is inappropriate for
       // initializing this MAC", which I have interpreted to mean the following precondition:
-      //requires key.algorithm == algorithm
       requires params.KeyParameter?
       modifies this
       ensures
@@ -57,7 +53,6 @@ module {:extern "HMAC"} HMAC {
       requires initialized.Some?
       requires algorithm != IDENTITY
       requires length >= 0
-      requires |Hash(algorithm, initialized.get, InputSoFar)| == getMacSize() as int
       modifies `InputSoFar
       ensures InputSoFar == []
       ensures |s| == length as int
