@@ -266,15 +266,9 @@ namespace TestVectorTests {
         [SkippableTheory]
         [ClassData (typeof(DecryptTestVectors))]
         public void CanDecryptTestVector(string vectorID, CMM cmm, byte[] expectedPlaintext, MemoryStream ciphertextStream) {
-            try {
-                MemoryStream decodedStream = AWSEncryptionSDK.Client.Decrypt(ciphertextStream, cmm);
-                byte[] result = decodedStream.ToArray();
-                Assert.Equal(expectedPlaintext, result);
-            } catch (Exception e) when (string.Equals(e.Message, "Unframed Message Decryption Unimplemented")) {
-                // TODO While unframed message deserialization is unimplemented, test that the correct error is thrown
-                // TODO Ideally we would check against a specific, user-exposed Error class here
-                Skip.If(true);
-            }
+            MemoryStream decodedStream = AWSEncryptionSDK.Client.Decrypt(ciphertextStream, cmm);
+            byte[] result = decodedStream.ToArray();
+            Assert.Equal(expectedPlaintext, result);
         }
 
         #pragma warning disable xUnit1026 // Suppress Unused argument warnings for vectorID.
