@@ -23,6 +23,7 @@ module {:extern "HMAC"} HMAC {
 
     function method {:extern "GetMacSize"} getMacSize(): int32
       requires algorithm != IDENTITY
+      ensures getMacSize() == HashLength(algorithm)
 
     predicate {:axiom} validKey(key: seq<uint8>)
 
