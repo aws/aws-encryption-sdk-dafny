@@ -27,6 +27,8 @@
   -->
   <ItemGroup>
     <DafnySource Include="../src/**/*.dfy" />
+    <DafnySource Remove="**/.#*.dfy" />
+    <DafnySource Remove="**/flycheck_*.dfy" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="../src/**/*.cs" Exclude="../src/obj/**/*.cs" />
