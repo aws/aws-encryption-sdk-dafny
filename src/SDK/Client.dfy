@@ -111,12 +111,10 @@ module {:extern "ESDKClient"} ESDKClient {
       return plaintextDataKey;
     }
 
-    var inputKeyMaterials := SeqToArray(plaintextDataKey);
     var infoSeq := UInt16ToSeq(algorithmSuiteID as uint16) + messageID;
-    var info := SeqToArray(infoSeq);
     var len := algorithmSuiteID.KeyLength();
-    var derivedKey := HKDF.hkdf(whichSHA, None, inputKeyMaterials, info, len);
-    return derivedKey[..];
+    var derivedKey := HKDF.hkdf(whichSHA, None, plaintextDataKey, infoSeq, len);
+    return derivedKey;
   }
 
   /*
@@ -147,7 +145,7 @@ module {:extern "ESDKClient"} ESDKClient {
     var plaintext;
     match header.body.contentType {
       case NonFramed =>
-        return Failure("Unframed Message Decryption Unimplemented");
+        plaintext :- MessageBody.DecryptNonFramedMessageBody(rd, decMat.algorithmSuiteID, decryptionKey, header.body.messageID);
       case Framed =>
         plaintext :- MessageBody.DecryptFramedMessageBody(rd, decMat.algorithmSuiteID, decryptionKey, header.body.frameLength as int, header.body.messageID);
     }

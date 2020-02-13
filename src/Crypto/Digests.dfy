@@ -19,8 +19,4 @@ module {:extern "Digests"} Digests {
       case HKDF_WITH_SHA_384 => 48
     }
   }
-
-    function {:axiom} Hash(algorithm: KeyDerivationAlgorithm, key: seq<uint8>, message: seq<uint8>): (s: seq<uint8>)
-      requires algorithm != IDENTITY
-      ensures |s| == HashLength(algorithm) as int
 }
