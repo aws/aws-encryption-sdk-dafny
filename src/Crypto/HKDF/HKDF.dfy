@@ -35,29 +35,26 @@ module HKDF {
   {
     var params: CipherParameters := KeyParameter(prk);
     hmac.Init(params);
-    var hashLength := GetHashLength(algorithm);
+    ghost var hashLength := GetHashLength(algorithm);
 
-    hmac.Update(info, 0, |info| as int32);
-    hmac.UpdateSingle(1 as uint8);
-    var TiSeq := hmac.GetResult();
-    a := TiSeq;
-
-    var i := 1;
+    a := [];
+    var i := 0;
     while i < n
-      invariant 1 <= i <= n
-      invariant |TiSeq| == hashLength as int
-      invariant hashLength as int <= |prk|
+      invariant 0 <= i <= n
+      invariant hashLength as int == |prk|
       invariant |a| == i * hashLength as int;
       invariant hmac.initialized.Some?
     {
-      hmac.Update(TiSeq, 0, |TiSeq| as int32);
       hmac.Update(info, 0, |info| as int32);
-      hmac.UpdateSingle((i+1) as uint8);
-      assert (i+1) <= 255;
-
-      TiSeq := hmac.GetResult();
+      hmac.UpdateSingle((i + 1) as uint8);
+      var TiSeq := hmac.GetResult();
       a := a + TiSeq;
       i := i + 1;
+      assert i <= 255;
+      // Don't update if this was the final loop (since we won't update a again anyways)
+      if i != n {
+        hmac.Update(TiSeq, 0, |TiSeq| as int32);
+      }
     }
   }
 
