@@ -1,24 +1,8 @@
-/* HKDF.dfy
-* Rustan Leino, 28 Dec 2017.
-* Matthias Schlaipfer, 11 June 2019
-* This is a transcription of David Cok's HmacSha256Kdf.java into Dafny.
-* There are three major parts:
-*   0. Basic library stuff
-*      Routine definitions and specifications. (Feel free to skip reading this part.)
-*   1. Crypto library stuff
-*      Formalizes the Extract-and-Expand HKDF specifications and models the Mac class
-*      in the Java library.
-*   2. The code to be verified
-*      The hkdf routine and its correctness proof.
-*
-* "nfv" stands for necessary for verification
-*/
-
 include "HMAC.dfy"
 include "../KeyDerivationAlgorithms.dfy"
 include "../../StandardLibrary/StandardLibrary.dfy"
 
-/**
+ /*
   * Implementation of the https://tools.ietf.org/html/rfc5869 HMAC-based key derivation function
   */
 module HKDF {
@@ -28,11 +12,11 @@ module HKDF {
   import opened UInt = StandardLibrary.UInt
 
   method Extract(algorithm: KeyDerivationAlgorithm, hmac: HMac, salt: seq<uint8>, ikm: seq<uint8>) returns (prk: seq<uint8>)
-    requires |salt| != 0
+    requires hmac.algorithm == algorithm && |salt| != 0
     requires algorithm != IDENTITY
     requires |ikm| < INT32_MAX_LIMIT
     modifies hmac
-    ensures |prk| > 0 && GetHashLength(algorithm) as int <= |prk|
+    ensures |prk| > 0 && GetHashLength(algorithm) as int == |prk|
   {
     var params: CipherParameters := KeyParameter(salt);
     hmac.Init(params);
@@ -42,9 +26,9 @@ module HKDF {
   }
 
   method Expand(algorithm: KeyDerivationAlgorithm, hmac: HMac, prk: seq<uint8>, info: seq<uint8>, n: int) returns (a: seq<uint8>)
-    requires 1 <= n <= 255
+    requires hmac.algorithm == algorithm && 1 <= n <= 255
     requires algorithm != IDENTITY
-    requires 0 != |prk| && GetHashLength(algorithm) as int <= |prk|
+    requires 0 != |prk| && GetHashLength(algorithm) as int == |prk|
     requires |info| < INT32_MAX_LIMIT
     modifies hmac
     ensures |a| == n * GetHashLength(algorithm) as int;
@@ -77,9 +61,9 @@ module HKDF {
     }
   }
 
-  /**
+  /*
    * The RFC 5869 KDF. Outputs L bytes of output key material.
-   **/
+   */
   method Hkdf(algorithm: KeyDerivationAlgorithm, salt: Option<seq<uint8>>, ikm: seq<uint8>, info: seq<uint8>, L: int) returns (okm: seq<uint8>)
     requires algorithm != IDENTITY
     requires 0 <= L <= 255 * GetHashLength(algorithm) as int
@@ -92,8 +76,8 @@ module HKDF {
       return [];
     }
     var hmac := new HMac(algorithm);
-
     var hashLength := GetHashLength(algorithm);
+
     var saltNonEmpty: seq<uint8>;
     match salt {
       case None =>

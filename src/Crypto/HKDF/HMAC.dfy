@@ -23,9 +23,11 @@ module {:extern "HMAC"} HMAC {
   class {:extern "HMac"} HMac {
 
     ghost var initialized: Option<seq<uint8>>
+    ghost const algorithm: KeyDerivationAlgorithm
 
     constructor {:extern} (algorithm: KeyDerivationAlgorithm)
       requires algorithm != IDENTITY
+      ensures this.algorithm == algorithm
 
     predicate {:axiom} ValidKey(key: seq<uint8>)
 
@@ -47,5 +49,7 @@ module {:extern "HMAC"} HMAC {
 
     method {:extern "GetResult"} GetResult() returns (s: seq<uint8>)
       requires initialized.Some?
+      requires algorithm != IDENTITY
+      ensures |s| == GetHashLength(algorithm) as int
   }
 }
