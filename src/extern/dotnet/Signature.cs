@@ -123,7 +123,8 @@ namespace Signature {
                 ECDsaSigner sign = new ECDsaSigner();
                 sign.Init(true, skp);
                 byte[] serializedSignature;
-                // Consider imposing a limit on the number of attempts here.
+                // This loop can in theory run forever, but the chances of that are negligible.
+                // We may want to consider failing, after some number of loops, if we can do so in a way consistent with other ESDKs.
                 do {
                     // sig is array of two integers: r and s
                     BigInteger[] sig = sign.GenerateSignature((byte[])digest.Elements.Clone());
