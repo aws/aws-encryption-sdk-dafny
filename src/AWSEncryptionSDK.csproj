@@ -17,9 +17,8 @@
     <DafnySource Include="Crypto/AESEncryption.dfy" />
     <DafnySource Include="Crypto/EncryptionSuites.dfy" />
     <DafnySource Include="Crypto/Digests.dfy" />
-    <DafnySource Include="Crypto/HKDF/CryptoMac.dfy" />
+    <DafnySource Include="Crypto/HKDF/HMAC.dfy" />
     <DafnySource Include="Crypto/HKDF/HKDF.dfy" />
-    <DafnySource Include="Crypto/HKDF/HKDFSpec.dfy" />
     <DafnySource Include="Crypto/Random.dfy" />
     <DafnySource Include="Crypto/RSAEncryption.dfy" />
     <DafnySource Include="Crypto/Signature.dfy" />
@@ -42,7 +41,6 @@
     <DafnySource Include="StandardLibrary/Base64.dfy" />
     <DafnySource Include="StandardLibrary/StandardLibrary.dfy" />
     <DafnySource Include="StandardLibrary/UInt.dfy" />
-    <DafnySource Include="Util/Arrays.dfy" />
     <DafnySource Include="Util/Streams.dfy" />
     <DafnySource Include="Util/UTF8.dfy" />
   </ItemGroup>
