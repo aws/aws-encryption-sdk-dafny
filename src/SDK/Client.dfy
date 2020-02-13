@@ -147,7 +147,7 @@ module {:extern "ESDKClient"} ESDKClient {
     var plaintext;
     match header.body.contentType {
       case NonFramed =>
-        return Failure("Unframed Message Decryption Unimplemented");
+        plaintext :- MessageBody.DecryptNonFramedMessageBody(rd, decMat.algorithmSuiteID, decryptionKey, header.body.messageID);
       case Framed =>
         plaintext :- MessageBody.DecryptFramedMessageBody(rd, decMat.algorithmSuiteID, decryptionKey, header.body.frameLength as int, header.body.messageID);
     }
