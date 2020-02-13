@@ -165,9 +165,23 @@ module {:extern "STL"} StandardLibrary {
     if s == [] {
       assert s + s' == s';
     } else {
-      FilterIsDistributive<T>(s[1..], s', f);
-      assert s + s' == [s[0]] + (s[1..] + s');
-      assert Filter(s + s', f) == Filter(s, f) + Filter(s', f);
+      var S := s + s';
+      var s1 := s[1..];
+      calc {
+        Filter(S, f);
+      ==  // def. Filter
+        if f(S[0]) then [S[0]] + Filter(S[1..], f) else Filter(S[1..], f);
+      ==  { assert S[0] == s[0] && S[1..] == s1 + s'; }
+        if f(s[0]) then [s[0]] + Filter(s1 + s', f) else Filter(s1 + s', f);
+      ==  { FilterIsDistributive(s1, s', f); }
+        if f(s[0]) then [s[0]] + (Filter(s1, f) + Filter(s', f)) else Filter(s1, f) + Filter(s', f);
+      ==  // associativity of +
+        if f(s[0]) then ([s[0]] + Filter(s1, f)) + Filter(s', f) else Filter(s1, f) + Filter(s', f);
+      ==  // distribute + over if-then-else
+        (if f(s[0]) then [s[0]] + Filter(s1, f) else Filter(s1, f)) + Filter(s', f);
+      ==  // def. Filter
+        Filter(s, f) + Filter(s', f);
+      }
     }
   }
 
