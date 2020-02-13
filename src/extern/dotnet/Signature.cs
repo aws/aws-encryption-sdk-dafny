@@ -122,22 +122,19 @@ namespace Signature {
                 ECPrivateKeyParameters skp = new ECPrivateKeyParameters(new BigInteger(sk.Elements), dp);
                 ECDsaSigner sign = new ECDsaSigner();
                 sign.Init(true, skp);
+                byte[] serializedSignature;
+                // Consider imposing a limit on the number of attempts here.
                 do {
                     // sig is array of two integers: r and s
                     BigInteger[] sig = sign.GenerateSignature((byte[])digest.Elements.Clone());
-                    byte[] bytes = DERSerialize(sig[0], sig[1]);
-                    if (bytes.Length != x.SignatureLength()) {
+                    serializedSignature = DERSerialize(sig[0], sig[1]);
+                    if (serializedSignature.Length != x.SignatureLength()) {
                         // Most of the time, a signature of the wrong length can be fixed
                         // by negating s in the signature relative to the group order.
-                        bytes = DERSerialize(sig[0], p.N.Subtract(sig[1]));
+                        serializedSignature = DERSerialize(sig[0], p.N.Subtract(sig[1]));
                     }
-                    if (bytes.Length == x.SignatureLength()) {
-                        // This will meet the method postcondition, which says that a Some? return must
-                        // contain a sequence of bytes whose length is x.SignatureLength().
-                        return STL.Result<byteseq>.create_Success(byteseq.FromArray(bytes));
-                    }
-                    // We only get here with low probability, so try again (forever, if we have really bad luck).
-                } while (true);
+                } while (serializedSignature.Length != x.SignatureLength());
+                return STL.Result<byteseq>.create_Success(byteseq.FromArray(serializedSignature));
             } catch (Exception e) {
                 return STL.Result<byteseq>.create_Failure(Dafny.Sequence<char>.FromString(e.ToString()));
             }
