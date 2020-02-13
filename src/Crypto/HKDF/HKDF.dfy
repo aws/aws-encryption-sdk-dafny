@@ -15,7 +15,7 @@ module HKDF {
     requires |salt| != 0
     requires |ikm| < INT32_MAX_LIMIT
     ensures GetHashLength(hmac.algorithm) as int == |prk|
-    ensures hmac.initialized.Some?
+    ensures hmac.initialized.Some? && hmac.initialized.get == salt
   {
     var params: CipherParameters := KeyParameter(salt);
     hmac.Init(params);
@@ -24,12 +24,13 @@ module HKDF {
     return prk;
   }
 
-  method Expand(hmac: HMac, prk: seq<uint8>, info: seq<uint8>, n: int) returns (a: seq<uint8>)
+  method Expand(hmac: HMac, prk: seq<uint8>, info: seq<uint8>, n: int, ghost salt: seq<uint8>) returns (a: seq<uint8>)
     requires 1 <= n <= 255
-    requires hmac.initialized.Some?
+    requires hmac.initialized.Some? && hmac.initialized.get == salt
     requires |info| < INT32_MAX_LIMIT
     requires GetHashLength(hmac.algorithm) as int == |prk|
     ensures |a| == n * GetHashLength(hmac.algorithm) as int;
+    ensures hmac.initialized.Some? && hmac.initialized.get == prk
   {
     var params: CipherParameters := KeyParameter(prk);
     hmac.Init(params);
@@ -84,7 +85,7 @@ module HKDF {
     var n := 1 + (L - 1) / hashLength as int;
     assert n * hashLength as int >= L;
     var prk := Extract(hmac, saltNonEmpty, ikm);
-    okm := Expand(hmac, prk, info, n);
+    okm := Expand(hmac, prk, info, n, saltNonEmpty);
 
     // if necessary, trim padding
     if |okm| > L {
