@@ -11,9 +11,8 @@ module HKDF {
   import opened StandardLibrary
   import opened UInt = StandardLibrary.UInt
 
-  method Extract(algorithm: KeyDerivationAlgorithm, hmac: HMac, salt: seq<uint8>, ikm: seq<uint8>) returns (prk: seq<uint8>)
+  method Extract(algorithm: HKDFAlgorithms, hmac: HMac, salt: seq<uint8>, ikm: seq<uint8>) returns (prk: seq<uint8>)
     requires hmac.algorithm == algorithm && |salt| != 0
-    requires algorithm != IDENTITY
     requires |ikm| < INT32_MAX_LIMIT
     modifies hmac
     ensures |prk| > 0 && GetHashLength(algorithm) as int == |prk|
@@ -25,9 +24,8 @@ module HKDF {
     return prk;
   }
 
-  method Expand(algorithm: KeyDerivationAlgorithm, hmac: HMac, prk: seq<uint8>, info: seq<uint8>, n: int) returns (a: seq<uint8>)
+  method Expand(algorithm: HKDFAlgorithms, hmac: HMac, prk: seq<uint8>, info: seq<uint8>, n: int) returns (a: seq<uint8>)
     requires hmac.algorithm == algorithm && 1 <= n <= 255
-    requires algorithm != IDENTITY
     requires 0 != |prk| && GetHashLength(algorithm) as int == |prk|
     requires |info| < INT32_MAX_LIMIT
     modifies hmac
@@ -61,8 +59,7 @@ module HKDF {
   /*
    * The RFC 5869 KDF. Outputs L bytes of output key material.
    */
-  method Hkdf(algorithm: KeyDerivationAlgorithm, salt: Option<seq<uint8>>, ikm: seq<uint8>, info: seq<uint8>, L: int) returns (okm: seq<uint8>)
-    requires algorithm != IDENTITY
+  method Hkdf(algorithm: HKDFAlgorithms, salt: Option<seq<uint8>>, ikm: seq<uint8>, info: seq<uint8>, L: int) returns (okm: seq<uint8>)
     requires 0 <= L <= 255 * GetHashLength(algorithm) as int
     requires salt.None? || |salt.get| != 0
     requires |info| < INT32_MAX_LIMIT

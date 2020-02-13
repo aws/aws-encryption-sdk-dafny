@@ -9,8 +9,7 @@ module {:extern "HMAC"} HMAC {
   datatype {:extern "CipherParameters"} CipherParameters = KeyParameter(key: seq<uint8>)
 
   // Hash length in octets (bytes), e.g. GetHashLength(SHA256) ==> 256 bits = 32 bytes ==> n = 32
-  function method GetHashLength(algorithm: KeyDerivationAlgorithm): (n: int32)
-    requires algorithm != IDENTITY
+  function method GetHashLength(algorithm: HKDFAlgorithms): (n: int32)
     ensures algorithm == HKDF_WITH_SHA_256 ==> n == 32
     ensures algorithm == HKDF_WITH_SHA_384 ==> n == 48
   {
@@ -23,10 +22,9 @@ module {:extern "HMAC"} HMAC {
   class {:extern "HMac"} HMac {
 
     ghost var initialized: Option<seq<uint8>>
-    ghost const algorithm: KeyDerivationAlgorithm
+    ghost const algorithm: HKDFAlgorithms
 
-    constructor {:extern} (algorithm: KeyDerivationAlgorithm)
-      requires algorithm != IDENTITY
+    constructor {:extern} (algorithm: HKDFAlgorithms)
       ensures this.algorithm == algorithm
 
     predicate {:axiom} ValidKey(key: seq<uint8>)
@@ -49,7 +47,6 @@ module {:extern "HMAC"} HMAC {
 
     method {:extern "GetResult"} GetResult() returns (s: seq<uint8>)
       requires initialized.Some?
-      requires algorithm != IDENTITY
       ensures |s| == GetHashLength(algorithm) as int
   }
 }
