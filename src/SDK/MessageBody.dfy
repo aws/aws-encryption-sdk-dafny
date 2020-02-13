@@ -11,7 +11,7 @@ include "../Util/UTF8.dfy"
 module MessageBody {
   export
     provides EncryptMessageBody
-    provides DecryptFramedMessageBody
+    provides DecryptFramedMessageBody, DecryptNonFramedMessageBody
     provides StandardLibrary, UInt, Msg, AlgorithmSuite, Materials, Streams
 
   import opened StandardLibrary
@@ -24,10 +24,22 @@ module MessageBody {
   import EncryptionSuites
   import UTF8
 
-  const BODY_AAD_CONTENT_REGULAR_FRAME: string := "AWSKMSEncryptionClient Frame";
-  const BODY_AAD_CONTENT_FINAL_FRAME: string := "AWSKMSEncryptionClient Final Frame";
+  datatype BodyAADContent = RegularFrame | FinalFrame | SingleBlock
+
+  const BODY_AAD_CONTENT_REGULAR_FRAME: string := "AWSKMSEncryptionClient Frame"
+  const BODY_AAD_CONTENT_FINAL_FRAME: string := "AWSKMSEncryptionClient Final Frame"
+  const BODY_AAD_CONTENT_SINGLE_BLOCK: string := "AWSKMSEncryptionClient Single Block"
+
+  function method BodyAADContentTypeString(bc: BodyAADContent): string {
+    match bc
+    case RegularFrame => BODY_AAD_CONTENT_REGULAR_FRAME
+    case FinalFrame => BODY_AAD_CONTENT_FINAL_FRAME
+    case SingleBlock => BODY_AAD_CONTENT_SINGLE_BLOCK
+  }
+
   const START_SEQUENCE_NUMBER: uint32 := 1
   const ENDFRAME_SEQUENCE_NUMBER: uint32 := 0xFFFF_FFFF
+  const NONFRAMED_SEQUENCE_NUMBER: uint32 := 1
 
   method EncryptMessageBody(plaintext: seq<uint8>, frameLength: int, messageID: Msg.MessageID, key: seq<uint8>, algorithmSuiteID: AlgorithmSuite.ID) returns (res: Result<seq<uint8>>)
     requires |key| == algorithmSuiteID.KeyLength()
@@ -68,7 +80,7 @@ module MessageBody {
     SeqWithUInt32Suffix(iv, sequenceNumber as nat);  // this proves SeqToNat(iv) == sequenceNumber as nat
     unauthenticatedFrame := unauthenticatedFrame + iv;
 
-    var aad := BodyAAD(messageID, false, sequenceNumber, |plaintext| as uint64);
+    var aad := BodyAAD(messageID, RegularFrame, sequenceNumber, |plaintext| as uint64);
 
     var encryptionOutput :- AESEncryption.AESEncrypt(algorithmSuiteID.EncryptionSuite(), iv, key, plaintext, aad);
     unauthenticatedFrame := unauthenticatedFrame + encryptionOutput.cipherText + encryptionOutput.authTag;
@@ -95,7 +107,7 @@ module MessageBody {
 
     unauthenticatedFrame := unauthenticatedFrame + UInt32ToSeq(|plaintext| as uint32);
 
-    var aad := BodyAAD(messageID, true, sequenceNumber, |plaintext| as uint64);
+    var aad := BodyAAD(messageID, FinalFrame, sequenceNumber, |plaintext| as uint64);
 
     var encryptionOutput :- AESEncryption.AESEncrypt(algorithmSuiteID.EncryptionSuite(), iv, key, plaintext, aad);
     unauthenticatedFrame := unauthenticatedFrame + encryptionOutput.cipherText + encryptionOutput.authTag;
@@ -157,7 +169,7 @@ module MessageBody {
       len :- rd.ReadUInt32();
     }
 
-    var aad := BodyAAD(messageID, final, sequenceNumber, len as uint64);
+    var aad := BodyAAD(messageID, if final then FinalFrame else RegularFrame, sequenceNumber, len as uint64);
 
     var ciphertext :- rd.ReadBytes(len as nat);
     var authTag :- rd.ReadBytes(algorithmSuiteID.TagLength());
@@ -166,13 +178,9 @@ module MessageBody {
     return Success((plaintext, final));
   }
 
-  method BodyAAD(messageID: seq<uint8>, final: bool, sequenceNumber: uint32, length: uint64) returns (aad: seq<uint8>) {
-    var encodedRegularFrame := UTF8.Encode(BODY_AAD_CONTENT_REGULAR_FRAME);
-    assert encodedRegularFrame.Success?;
-    var encodedFinalFrame := UTF8.Encode(BODY_AAD_CONTENT_FINAL_FRAME);
-    assert encodedFinalFrame.Success?;
-    var contentAAD := if final then encodedFinalFrame.value else encodedRegularFrame.value;
-    aad := messageID + contentAAD + UInt32ToSeq(sequenceNumber) + UInt64ToSeq(length);
+  method BodyAAD(messageID: seq<uint8>, bc: BodyAADContent, sequenceNumber: uint32, length: uint64) returns (aad: seq<uint8>) {
+    var contentAAD := UTF8.Encode(BodyAADContentTypeString(bc));
+    aad := messageID + contentAAD.value + UInt32ToSeq(sequenceNumber) + UInt64ToSeq(length);
   }
 
   method Decrypt(ciphertext: seq<uint8>, authTag: seq<uint8>, algorithmSuiteID: AlgorithmSuite.ID, iv: seq<uint8>, key: seq<uint8>, aad: seq<uint8>) returns (res: Result<seq<uint8>>)
@@ -182,5 +190,22 @@ module MessageBody {
   {
     var encAlg := algorithmSuiteID.EncryptionSuite();
     res := AESEncryption.AESDecrypt(encAlg, key, ciphertext, authTag, iv, aad);
+  }
+
+  method DecryptNonFramedMessageBody(rd: Streams.ByteReader, algorithmSuiteID: AlgorithmSuite.ID, key: seq<uint8>, messageID: Msg.MessageID) returns (res: Result<seq<uint8>>)
+    requires rd.Valid()
+    requires |key| == algorithmSuiteID.KeyLength()
+    modifies rd.reader`pos
+    ensures rd.Valid()
+  {
+    var iv :- rd.ReadBytes(algorithmSuiteID.IVLength());
+    var contentLength :- rd.ReadUInt64();
+    var ciphertext :- rd.ReadBytes(contentLength as nat);
+    var authTag :- rd.ReadBytes(algorithmSuiteID.TagLength());
+
+    var aad := BodyAAD(messageID, SingleBlock, NONFRAMED_SEQUENCE_NUMBER, contentLength);
+
+    var plaintext :- Decrypt(ciphertext, authTag, algorithmSuiteID, iv, key, aad);
+    return Success(plaintext);
   }
 }
