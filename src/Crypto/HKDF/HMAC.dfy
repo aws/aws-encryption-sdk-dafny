@@ -41,21 +41,11 @@ module {:extern "HMAC"} HMAC {
       ensures this.getAlgorithm() == old(this.getAlgorithm())
       ensures this.getInputSoFar() == []
 
-    method {:extern "Update"} UpdateSingle(input: uint8)
+    method {:extern "BlockUpdate"} Update(input: seq<uint8>)
       requires this.getKey().Some?
-      modifies this
-      ensures this.getInputSoFar() == old(this.getInputSoFar()) + [input]
-      ensures this.getAlgorithm() == old(this.getAlgorithm())
-      ensures this.getKey() == old(this.getKey())
-
-    method {:extern "BlockUpdate"} Update(input: seq<uint8>, inOff: int32, len: int32)
-      requires this.getKey().Some?
-      requires inOff >= 0
-      requires len >= 0
       requires |input| < INT32_MAX_LIMIT
-      requires inOff as int + len as int <= |input|
       modifies this
-      ensures this.getInputSoFar() == old(this.getInputSoFar()) + input[inOff..(inOff + len)]
+      ensures this.getInputSoFar() == old(this.getInputSoFar()) + input
       ensures this.getAlgorithm() == old(this.getAlgorithm())
       ensures this.getKey() == old(this.getKey())
 

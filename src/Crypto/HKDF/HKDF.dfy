@@ -23,7 +23,7 @@ module HKDF {
     // prk = HMAC-Hash(salt, ikm)
     var params: CipherParameters := KeyParameter(salt);
     hmac.Init(params);
-    hmac.Update(ikm, 0, |ikm| as int32);
+    hmac.Update(ikm);
     assert hmac.getInputSoFar() == ikm;
 
     prk := hmac.GetResult();
@@ -66,20 +66,20 @@ module HKDF {
       invariant hmac.getAlgorithm() == algorithm
       invariant hmac.getInputSoFar() == []
     {
-      hmac.Update(t_last, 0, |t_last| as int32);
-      hmac.Update(info, 0, |info| as int32);
-      hmac.UpdateSingle(i as uint8);
+      hmac.Update(t_last);
+      hmac.Update(info);
+      hmac.Update([i as uint8]);
       assert hmac.getInputSoFar() == t_last + info + [(i as uint8)];
 
       t_last := hmac.GetResult();
       assert hmac.getInputSoFar() == [];
 
-      // Add additional verification for t: github.com/awslabs/aws-encryption-sdk-dafny/issues/177
+      // Add additional verification for T(n): github.com/awslabs/aws-encryption-sdk-dafny/issues/177
       t_n := t_n + t_last;
       i := i + 1;
     }
 
-    // okm = first L octets of T
+    // okm = first L bytes of T(n)
     okm := t_n;
     if |okm| > L {
       okm := okm[..L];

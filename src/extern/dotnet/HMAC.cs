@@ -38,14 +38,10 @@ namespace HMAC {
             }
         }
 
-        public void Update(byte input) {
-            hmac.Update(input);
-        }
-
-        public void BlockUpdate(byteseq input , int inOff, int len) {
+        public void BlockUpdate(byteseq input) {
             // BlockUpdate should not mutate input, but this is safer than using input.Elements directly
             byte[] elemCopy = (byte[]) input.Elements.Clone();
-            hmac.BlockUpdate(elemCopy, inOff, len);
+            hmac.BlockUpdate(elemCopy, 0, elemCopy.Length);
         }
 
         public byteseq GetResult() {
