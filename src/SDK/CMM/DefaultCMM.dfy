@@ -15,7 +15,7 @@ module {:extern "DefaultCMMDef"} DefaultCMMDef {
   import CMMDefs
   import KeyringDefs
   import AlgorithmSuite
-  import S = Signature
+  import Signature
   import Base64
   import MessageHeader
   import UTF8
@@ -52,8 +52,7 @@ module {:extern "DefaultCMMDef"} DefaultCMMDef {
         match res.value.dataKeyMaterials.algorithmSuiteID.SignatureType()
           case None => true
           case Some(sigType) =>
-            res.value.signingKey.Some? &&
-            S.ECDSA.WfSK(sigType, res.value.signingKey.get)
+            res.value.signingKey.Some?
     {
       var id := if alg_id.Some? then alg_id.get else AlgorithmSuite.AES_256_GCM_IV12_TAG16_HKDF_SHA384_ECDSA_P384;
       var enc_sk := None;
@@ -62,24 +61,21 @@ module {:extern "DefaultCMMDef"} DefaultCMMDef {
       match id.SignatureType() {
         case None =>
         case Some(param) =>
-          var oab := S.ECDSA.KeyGen(param);
-          match oab
-            case None => return Failure("Keygen error");
-            case Some(ab) =>
-              enc_sk := Some(ab.1);
-              var enc_vk :- UTF8.Encode(Base64.Encode(ab.0));
-              var reservedField := Materials.EC_PUBLIC_KEY_FIELD;
-              assert reservedField in Materials.ReservedKeyValues;
-              assert forall i | 0 <= i < |ec| :: ec[i].0 != reservedField;
-              assert MessageHeader.SortedKVPairs(enc_ctx) by { // this is a precondition of InsertNewEntry
-                assert MessageHeader.ValidAAD(enc_ctx);
-                reveal MessageHeader.ValidAAD();
-              }
-              // The following 3 lines should be combined into one, once this gets fixed: https://github.com/dafny-lang/dafny/issues/425
-              var optionResult;
-              ghost var insertionPoint;
-              optionResult, insertionPoint := Deserialize.InsertNewEntry(enc_ctx, reservedField, enc_vk);
-              enc_ctx := optionResult.get;
+          var signatureKeys :- Signature.KeyGen(param);
+          enc_sk := Some(signatureKeys.signingKey);
+          var enc_vk :- UTF8.Encode(Base64.Encode(signatureKeys.verificationKey));
+          var reservedField := Materials.EC_PUBLIC_KEY_FIELD;
+          assert reservedField in Materials.ReservedKeyValues;
+          assert forall i | 0 <= i < |ec| :: ec[i].0 != reservedField;
+          assert MessageHeader.SortedKVPairs(enc_ctx) by { // this is a precondition of InsertNewEntry
+            assert MessageHeader.ValidAAD(enc_ctx);
+            reveal MessageHeader.ValidAAD();
+          }
+          // The following 3 lines should be combined into one, once this gets fixed: https://github.com/dafny-lang/dafny/issues/425
+          var optionResult;
+          ghost var insertionPoint;
+          optionResult, insertionPoint := Deserialize.InsertNewEntry(enc_ctx, reservedField, enc_vk);
+          enc_ctx := optionResult.get;
       }
 
       MessageHeader.AssumeValidAAD(enc_ctx);  // TODO: we should check this (https://github.com/awslabs/aws-encryption-sdk-dafny/issues/79)
