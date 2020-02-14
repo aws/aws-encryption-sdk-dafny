@@ -27,7 +27,6 @@ module HKDF {
     assert hmac.getInputSoFar() == ikm;
 
     prk := hmac.GetResult();
-    assert hmac.getInputSoFar() == [];
     return prk;
   }
 
@@ -71,10 +70,8 @@ module HKDF {
       hmac.Update([i as uint8]);
       assert hmac.getInputSoFar() == t_last + info + [(i as uint8)];
 
-      t_last := hmac.GetResult();
-      assert hmac.getInputSoFar() == [];
-
       // Add additional verification for T(n): github.com/awslabs/aws-encryption-sdk-dafny/issues/177
+      t_last := hmac.GetResult();
       t_n := t_n + t_last;
       i := i + 1;
     }
@@ -100,20 +97,17 @@ module HKDF {
       return [];
     }
     var hmac := new HMac(algorithm);
-    assert hmac.getAlgorithm() == algorithm;
     var hashLength := GetHashLength(algorithm);
 
     var saltNonEmpty: seq<uint8>;
     match salt {
       case None =>
-        saltNonEmpty := seq(hashLength as int, _ => 0);
+        saltNonEmpty := Fill(0, hashLength as int);
       case Some(s) =>
         saltNonEmpty := s;
     }
-    assert saltNonEmpty == if salt.None? then Fill(0, hashLength as int) else salt.get;
 
     var prk := Extract(hmac, saltNonEmpty, ikm, algorithm);
-    assert hmac.getAlgorithm() == algorithm;
     okm := Expand(hmac, prk, info, L, algorithm, saltNonEmpty);
   }
 }
