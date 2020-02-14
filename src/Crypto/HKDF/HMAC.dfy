@@ -21,32 +21,50 @@ module {:extern "HMAC"} HMAC {
 
   class {:extern "HMac"} HMac {
 
-    ghost var initialized: Option<seq<uint8>>
-    ghost const algorithm: HKDFAlgorithms
-
-    constructor {:extern} (algorithm: HKDFAlgorithms)
-      ensures this.algorithm == algorithm
-
     predicate {:axiom} ValidKey(key: seq<uint8>)
 
+    // These functions are used to model the extern state
+    // https://github.com/dafny-lang/dafny/wiki/Modeling-External-State-Correctly
+    function {:extern} getKey(): Option<seq<uint8>> reads this
+    function {:extern} getAlgorithm(): HKDFAlgorithms reads this
+    function {:extern} getInputSoFar(): seq<uint8> reads this
+
+    constructor {:extern} (algorithm: HKDFAlgorithms)
+      ensures this.getAlgorithm() == algorithm
+      ensures this.getInputSoFar() == []
+
     method {:extern "Init"} Init(params: CipherParameters)
-      requires params.KeyParameter?
+      modifies this
       ensures
         var key := match params case KeyParameter(key) => key;
-        match initialized { case Some(k) => ValidKey(k) && key == k case None => false }
+        match this.getKey() { case Some(k) => ValidKey(k) && key == k case None => false }
+      ensures this.getAlgorithm() == old(this.getAlgorithm())
+      ensures this.getInputSoFar() == []
 
     method {:extern "Update"} UpdateSingle(input: uint8)
-      requires initialized.Some?
+      requires this.getKey().Some?
+      modifies this
+      ensures this.getInputSoFar() == old(this.getInputSoFar()) + [input]
+      ensures this.getAlgorithm() == old(this.getAlgorithm())
+      ensures this.getKey() == old(this.getKey())
 
     method {:extern "BlockUpdate"} Update(input: seq<uint8>, inOff: int32, len: int32)
-      requires initialized.Some?
+      requires this.getKey().Some?
       requires inOff >= 0
       requires len >= 0
       requires |input| < INT32_MAX_LIMIT
       requires inOff as int + len as int <= |input|
+      modifies this
+      ensures this.getInputSoFar() == old(this.getInputSoFar()) + input[inOff..(inOff + len)]
+      ensures this.getAlgorithm() == old(this.getAlgorithm())
+      ensures this.getKey() == old(this.getKey())
 
     method {:extern "GetResult"} GetResult() returns (s: seq<uint8>)
-      requires initialized.Some?
-      ensures |s| == GetHashLength(algorithm) as int
+      requires this.getKey().Some?
+      modifies this
+      ensures |s| == GetHashLength(this.getAlgorithm()) as int
+      ensures this.getInputSoFar() == []
+      ensures this.getAlgorithm() == old(this.getAlgorithm())
+      ensures this.getKey() == old(this.getKey())
   }
 }

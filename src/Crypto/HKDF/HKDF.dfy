@@ -11,49 +11,78 @@ module HKDF {
   import opened StandardLibrary
   import opened UInt = StandardLibrary.UInt
 
-  method Extract(hmac: HMac, salt: seq<uint8>, ikm: seq<uint8>) returns (prk: seq<uint8>)
+  method Extract(hmac: HMac, salt: seq<uint8>, ikm: seq<uint8>, ghost algorithm: HKDFAlgorithms) returns (prk: seq<uint8>)
+    requires hmac.getAlgorithm() == algorithm
     requires |salt| != 0
     requires |ikm| < INT32_MAX_LIMIT
-    ensures GetHashLength(hmac.algorithm) as int == |prk|
-    ensures hmac.initialized.Some? && hmac.initialized.get == salt
+    modifies hmac
+    ensures GetHashLength(hmac.getAlgorithm()) as int == |prk|
+    ensures hmac.getKey().Some? && hmac.getKey().get == salt
+    ensures hmac.getAlgorithm() == algorithm
   {
+    // prk = HMAC-Hash(salt, ikm)
     var params: CipherParameters := KeyParameter(salt);
     hmac.Init(params);
     hmac.Update(ikm, 0, |ikm| as int32);
+    assert hmac.getInputSoFar() == ikm;
+
     prk := hmac.GetResult();
+    assert hmac.getInputSoFar() == [];
     return prk;
   }
 
-  method Expand(hmac: HMac, prk: seq<uint8>, info: seq<uint8>, n: int, ghost salt: seq<uint8>) returns (a: seq<uint8>)
-    requires 1 <= n <= 255
-    requires hmac.initialized.Some? && hmac.initialized.get == salt
+  method Expand(hmac: HMac, prk: seq<uint8>, info: seq<uint8>, L: int, algorithm: HKDFAlgorithms, ghost salt: seq<uint8>) returns (okm: seq<uint8>)
+    requires hmac.getAlgorithm() == algorithm
+    requires 1 <= L <= 255 * GetHashLength(hmac.getAlgorithm()) as int
+    requires hmac.getKey().Some? && hmac.getKey().get == salt
     requires |info| < INT32_MAX_LIMIT
-    requires GetHashLength(hmac.algorithm) as int == |prk|
-    ensures |a| == n * GetHashLength(hmac.algorithm) as int;
-    ensures hmac.initialized.Some? && hmac.initialized.get == prk
+    requires GetHashLength(hmac.getAlgorithm()) as int == |prk|
+    modifies hmac
+    ensures |okm| == L
+    ensures hmac.getKey().Some? && hmac.getKey().get == prk
   {
+    // N = ceil(L / Hash Length)
+    var hashLength := GetHashLength(algorithm);
+    var n := 1 + (L - 1) / hashLength as int;
+
+    // T(0) = empty string (zero length)
     var params: CipherParameters := KeyParameter(prk);
     hmac.Init(params);
-    ghost var hashLength := GetHashLength(hmac.algorithm);
+    var t_last := [];
+    var t_n := t_last;
 
-    a := [];
-    var i := 0;
-    while i < n
-      invariant 0 <= i <= n
+    // T = T(0) + T (1) + T(2) + ... T(n)
+    // T(1) = HMAC-Hash(PRK, T(1) | info | 0x01)
+    // ...
+    // T(n) = HMAC-Hash(prk, T(n - 1) | info | 0x0n)
+    var i := 1;
+    while i <= n
+      invariant 1 <= i <= n + 1
+      invariant i == 1 ==> |t_last| == 0
+      invariant i > 1 ==> |t_last| == hashLength as int
       invariant hashLength as int == |prk|
-      invariant |a| == i * hashLength as int;
-      invariant hmac.initialized.Some?
+      invariant |t_n| == (i - 1) * hashLength as int;
+      invariant hmac.getKey().Some? && hmac.getKey().get == prk
+      invariant hmac.getAlgorithm() == algorithm
+      invariant hmac.getInputSoFar() == []
     {
+      hmac.Update(t_last, 0, |t_last| as int32);
       hmac.Update(info, 0, |info| as int32);
-      hmac.UpdateSingle((i + 1) as uint8);
-      var TiSeq := hmac.GetResult();
-      a := a + TiSeq;
+      hmac.UpdateSingle(i as uint8);
+      assert hmac.getInputSoFar() == t_last + info + [(i as uint8)];
+
+      t_last := hmac.GetResult();
+      assert hmac.getInputSoFar() == [];
+
+      // Add additional verification for t: github.com/awslabs/aws-encryption-sdk-dafny/issues/177
+      t_n := t_n + t_last;
       i := i + 1;
-      assert i <= 255;
-      // Don't update if this was the final loop (since we won't update a again anyways)
-      if i != n {
-        hmac.Update(TiSeq, 0, |TiSeq| as int32);
-      }
+    }
+
+    // okm = first L octets of T
+    okm := t_n;
+    if |okm| > L {
+      okm := okm[..L];
     }
   }
 
@@ -71,6 +100,7 @@ module HKDF {
       return [];
     }
     var hmac := new HMac(algorithm);
+    assert hmac.getAlgorithm() == algorithm;
     var hashLength := GetHashLength(algorithm);
 
     var saltNonEmpty: seq<uint8>;
@@ -82,14 +112,8 @@ module HKDF {
     }
     assert saltNonEmpty == if salt.None? then Fill(0, hashLength as int) else salt.get;
 
-    var n := 1 + (L - 1) / hashLength as int;
-    assert n * hashLength as int >= L;
-    var prk := Extract(hmac, saltNonEmpty, ikm);
-    okm := Expand(hmac, prk, info, n, saltNonEmpty);
-
-    // if necessary, trim padding
-    if |okm| > L {
-      okm := okm[..L];
-    }
+    var prk := Extract(hmac, saltNonEmpty, ikm, algorithm);
+    assert hmac.getAlgorithm() == algorithm;
+    okm := Expand(hmac, prk, info, L, algorithm, saltNonEmpty);
   }
 }
