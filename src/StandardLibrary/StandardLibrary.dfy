@@ -85,7 +85,7 @@ module {:extern "STL"} StandardLibrary {
     ensures Join(res, [delim]) == s
     decreases |s|
   {
-    var i := Find(s, delim, 0);
+    var i := FindIndexMatching(s, delim, 0);
     if i.Some? then [s[..i.get]] + Split(s[(i.get + 1)..], delim) else [s]
   }
 
@@ -98,9 +98,9 @@ module {:extern "STL"} StandardLibrary {
     calc {
       Split(s, delim);
     ==
-      var i := Find(s, delim, 0);
+      var i := FindIndexMatching(s, delim, 0);
       if i.Some? then [s[..i.get]] + Split(s[i.get + 1..], delim) else [s];
-    ==  { FindLocatesElem(s, delim, 0, |prefix|); }
+    ==  { FindIndexMatchingLocatesElem(s, delim, 0, |prefix|); }
       [s[..|prefix|]] + Split(s[|prefix| + 1..], delim);
     ==  { assert s[..|prefix|] == prefix; }
       [prefix] + Split(s[|prefix| + 1..], delim);
@@ -114,30 +114,39 @@ module {:extern "STL"} StandardLibrary {
     calc {
       Split(s, delim);
     ==
-      var i := Find(s, delim, 0);
+      var i := FindIndexMatching(s, delim, 0);
       if i.Some? then [s[..i.get]] + Split(s[i.get+1..], delim) else [s];
-    ==  { FindLocatesElem(s, delim, 0, |s|); }
+    ==  { FindIndexMatchingLocatesElem(s, delim, 0, |s|); }
       [s];
     }
   }
 
-  lemma FindLocatesElem<T>(s: seq<T>, c: T, start: nat, elemIndex: nat)
+  lemma FindIndexMatchingLocatesElem<T>(s: seq<T>, c: T, start: nat, elemIndex: nat)
     requires start <= elemIndex <= |s|
     requires forall i :: start <= i < elemIndex ==> s[i] != c
     requires elemIndex == |s| || s[elemIndex] == c
-    ensures Find(s, c, start) == if elemIndex == |s| then None else Some(elemIndex)
+    ensures FindIndexMatching(s, c, start) == if elemIndex == |s| then None else Some(elemIndex)
     decreases elemIndex - start
     {}
 
-  function method Find<T(==)>(s: seq<T>, c: T, i: nat): (index: Option<nat>)
+  function method FindIndexMatching<T(==)>(s: seq<T>, c: T, i: nat): (index: Option<nat>)
     requires i <= |s|
     ensures index.Some? ==>  i <= index.get < |s| && s[index.get] == c && c !in s[i..index.get]
     ensures index.None? ==> c !in s[i..]
     decreases |s| - i
   {
+    FindIndex(s, x => x == c, i)
+  }
+
+  function method FindIndex<T>(s: seq<T>, f: T -> bool, i: nat): (index: Option<nat>)
+    requires i <= |s|
+    ensures index.Some? ==> i <= index.get < |s| && f(s[index.get]) && (forall j :: i <= j < index.get ==> !f(s[j]))
+    ensures index.None? ==> forall j :: i <= j < |s| ==> !f(s[j])
+    decreases |s| - i
+  {
     if i == |s| then None
-    else if s[i] == c then Some(i)
-    else Find(s, c, i + 1)
+    else if f(s[i]) then Some(i)
+    else FindIndex(s, f, i + 1)
   }
 
   function method Filter<T>(s: seq<T>, f: T -> bool): (res: seq<T>)
@@ -156,9 +165,23 @@ module {:extern "STL"} StandardLibrary {
     if s == [] {
       assert s + s' == s';
     } else {
-      FilterIsDistributive<T>(s[1..], s', f);
-      assert s + s' == [s[0]] + (s[1..] + s');
-      assert Filter(s + s', f) == Filter(s, f) + Filter(s', f);
+      var S := s + s';
+      var s1 := s[1..];
+      calc {
+        Filter(S, f);
+      ==  // def. Filter
+        if f(S[0]) then [S[0]] + Filter(S[1..], f) else Filter(S[1..], f);
+      ==  { assert S[0] == s[0] && S[1..] == s1 + s'; }
+        if f(s[0]) then [s[0]] + Filter(s1 + s', f) else Filter(s1 + s', f);
+      ==  { FilterIsDistributive(s1, s', f); }
+        if f(s[0]) then [s[0]] + (Filter(s1, f) + Filter(s', f)) else Filter(s1, f) + Filter(s', f);
+      ==  // associativity of +
+        if f(s[0]) then ([s[0]] + Filter(s1, f)) + Filter(s', f) else Filter(s1, f) + Filter(s', f);
+      ==  // distribute + over if-then-else
+        (if f(s[0]) then [s[0]] + Filter(s1, f) else Filter(s1, f)) + Filter(s', f);
+      ==  // def. Filter
+        Filter(s, f) + Filter(s', f);
+      }
     }
   }
 

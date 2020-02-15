@@ -91,14 +91,12 @@ module {:extern "ESDKClient"} ESDKClient {
       case None =>
         // don't use a footer
       case Some(ecdsaParams) =>
-        var digest := Signature.Digest(ecdsaParams, msg);
-        var signResult := Signature.Sign(ecdsaParams, encMat.signingKey.get, digest);
-        match signResult {
-          case None =>
-            return Failure("Message signing failed");
-          case Some(bytes) =>
-            msg := msg + UInt16ToSeq(|bytes| as uint16) + bytes;
+        var digest :- Signature.Digest(ecdsaParams, msg);
+        var bytes :- Signature.Sign(ecdsaParams, encMat.signingKey.get, digest);
+        if |bytes| != ecdsaParams.SignatureLength() as int {
+          return Failure("Malformed response from Sign().");
         }
+        msg := msg + UInt16ToSeq(|bytes| as uint16) + bytes;
     }
 
     return Success(msg);
@@ -109,16 +107,14 @@ module {:extern "ESDKClient"} ESDKClient {
     ensures |derivedDataKey| == algorithmSuiteID.KeyLength()
   {
     var whichSHA := AlgorithmSuite.Suite[algorithmSuiteID].hkdf;
-    if whichSHA == Digests.HmacNOSHA {
+    if whichSHA == Digests.IDENTITY {
       return plaintextDataKey;
     }
 
-    var inputKeyMaterials := SeqToArray(plaintextDataKey);
     var infoSeq := UInt16ToSeq(algorithmSuiteID as uint16) + messageID;
-    var info := SeqToArray(infoSeq);
     var len := algorithmSuiteID.KeyLength();
-    var derivedKey := HKDF.hkdf(whichSHA, None, inputKeyMaterials, info, len);
-    return derivedKey[..];
+    var derivedKey := HKDF.hkdf(whichSHA, None, plaintextDataKey, infoSeq, len);
+    return derivedKey;
   }
 
   /*
@@ -149,7 +145,7 @@ module {:extern "ESDKClient"} ESDKClient {
     var plaintext;
     match header.body.contentType {
       case NonFramed =>
-        return Failure("Unframed Message Decryption Unimplemented");
+        plaintext :- MessageBody.DecryptNonFramedMessageBody(rd, decMat.algorithmSuiteID, decryptionKey, header.body.messageID);
       case Framed =>
         plaintext :- MessageBody.DecryptFramedMessageBody(rd, decMat.algorithmSuiteID, decryptionKey, header.body.frameLength as int, header.body.messageID);
     }
@@ -165,8 +161,8 @@ module {:extern "ESDKClient"} ESDKClient {
         var signatureLength :- rd.ReadUInt16();
         var sig :- rd.ReadBytes(signatureLength as nat);
         // verify signature
-        var digest := Signature.Digest(ecdsaParams, msg);
-        var signatureVerified := Signature.Verify(ecdsaParams, decMat.verificationKey.get, digest, sig);
+        var digest :- Signature.Digest(ecdsaParams, msg);
+        var signatureVerified :- Signature.Verify(ecdsaParams, decMat.verificationKey.get, digest, sig);
         if !signatureVerified {
           return Failure("signature not verified");
         }

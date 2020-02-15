@@ -144,6 +144,22 @@ module Streams {
       return Success(n);
     }
 
+    method ReadUInt64() returns (res: Result<uint64>)
+      requires Valid()
+      modifies reader`pos
+      ensures res.Failure? ==> |reader.data| - reader.pos < 8
+      ensures res.Failure? ==> unchanged(reader)
+      ensures res.Success? ==> !unchanged(reader`pos)
+      ensures res.Success? ==> reader.pos == old(reader.pos) + 8
+      ensures reader.data == old(reader.data)
+      ensures Valid()
+    {
+      var bytes :- reader.ReadExact(8);
+      assert |bytes| == 8;
+      var n := SeqToUInt64(bytes);
+      return Success(n);
+    }
+
     method IsDoneReading() returns (b: bool)
       requires Valid()
       ensures (b && |reader.data| - reader.pos == 0) || (!b && |reader.data| - reader.pos > 0)
