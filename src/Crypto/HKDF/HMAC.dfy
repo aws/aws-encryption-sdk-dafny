@@ -21,6 +21,8 @@ module {:extern "HMAC"} HMAC {
 
   class {:extern "HMac"} HMac {
 
+    predicate {:axiom} ValidKey(key: seq<uint8>)
+
     // These functions are used to model the extern state
     // https://github.com/dafny-lang/dafny/wiki/Modeling-External-State-Correctly
     function {:extern} getKey(): Option<seq<uint8>> reads this
@@ -35,7 +37,7 @@ module {:extern "HMAC"} HMAC {
       modifies this
       ensures
         var key := match params case KeyParameter(key) => key;
-        match this.getKey() { case Some(k) => key == k case None => false }
+        match this.getKey() { case Some(k) => ValidKey(k) && key == k case None => false }
       ensures this.getAlgorithm() == old(this.getAlgorithm())
       ensures this.getInputSoFar() == []
 
