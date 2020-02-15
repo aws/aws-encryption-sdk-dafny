@@ -30,19 +30,19 @@ module HKDF {
     return prk;
   }
 
-  method Expand(hmac: HMac, prk: seq<uint8>, info: seq<uint8>, L: int, algorithm: HKDFAlgorithms, ghost salt: seq<uint8>) returns (okm: seq<uint8>)
+  method Expand(hmac: HMac, prk: seq<uint8>, info: seq<uint8>, expectedLength: int, algorithm: HKDFAlgorithms, ghost salt: seq<uint8>) returns (okm: seq<uint8>)
     requires hmac.getAlgorithm() == algorithm
-    requires 1 <= L <= 255 * GetHashLength(hmac.getAlgorithm()) as int
+    requires 1 <= expectedLength <= 255 * GetHashLength(hmac.getAlgorithm()) as int
     requires hmac.getKey().Some? && hmac.getKey().get == salt
     requires |info| < INT32_MAX_LIMIT
     requires GetHashLength(hmac.getAlgorithm()) as int == |prk|
     modifies hmac
-    ensures |okm| == L
+    ensures |okm| == expectedLength
     ensures hmac.getKey().Some? && hmac.getKey().get == prk
   {
     // N = ceil(L / Hash Length)
     var hashLength := GetHashLength(algorithm);
-    var n := 1 + (L - 1) / hashLength as int;
+    var n := 1 + (expectedLength - 1) / hashLength as int;
 
     // T(0) = empty string (zero length)
     var params: CipherParameters := KeyParameter(prk);
@@ -78,8 +78,8 @@ module HKDF {
 
     // okm = first L bytes of T(n)
     okm := t_n;
-    if |okm| > L {
-      okm := okm[..L];
+    if |okm| > expectedLength {
+      okm := okm[..expectedLength];
     }
   }
 
