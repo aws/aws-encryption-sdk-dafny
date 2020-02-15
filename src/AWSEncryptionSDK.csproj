@@ -18,7 +18,7 @@
     <DafnySource Include="Crypto/EncryptionSuites.dfy" />
     <DafnySource Include="Crypto/KeyDerivationAlgorithms.dfy" />
     <DafnySource Include="Crypto/HKDF/HMAC.dfy" />
-    <DafnySource Include="Crypto/HKDF/HMAC_feasability.dfy" />
+    <DafnySource Include="Crypto/HKDF/HMAC_feasibility.dfy" />
     <DafnySource Include="Crypto/HKDF/HKDF.dfy" />
     <DafnySource Include="Crypto/Random.dfy" />
     <DafnySource Include="Crypto/RSAEncryption.dfy" />

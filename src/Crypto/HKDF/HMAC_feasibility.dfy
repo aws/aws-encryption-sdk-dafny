@@ -1,7 +1,7 @@
 include "HMAC.dfy"
 include "../../StandardLibrary/StandardLibrary.dfy"
 
-module HMAC_Feasability refines HMAC {
+module HMAC_Feasibility refines HMAC {
 
   class HMac {
     var key: Option<seq<uint8>>
