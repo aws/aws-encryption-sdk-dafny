@@ -367,16 +367,17 @@ module {:extern "STL"} StandardLibrary {
   }
 
   /*
-   * SetToSequence(s, less) takes a set of T-strings and returns them as a sequence,
+   * SetToOrderedSequence(s, less) takes a set of T-strings and returns them as a sequence,
    * ordered by the lexicographic ordering whose underlying irreflexive ordering is "less".
    * The function is compilable, but will not exhibit enviable performance.
    */
 
-  function method SetToSequence<T(!new,==)>(s: set<seq<T>>, less: (T, T) -> bool): seq<seq<T>>
+  function method SetToOrderedSequence<T(!new,==)>(s: set<seq<T>>, less: (T, T) -> bool): (q: seq<seq<T>>)
     requires Trichotomous(less) && Transitive(less)
-    ensures var q := SetToSequence(s, less);
-      |s| == |q| &&
-      forall i :: 0 <= i < |q| ==> q[i] in s
+    ensures |s| == |q|
+    ensures forall i :: 0 <= i < |q| ==> q[i] in s
+    ensures forall k :: k in s ==> k in q
+    ensures forall i :: 0 < i < |q| ==> LexicographicLessOrEqual(q[i-1], q[i], less)
   {
     if s == {} then
       []
@@ -402,7 +403,7 @@ module {:extern "STL"} StandardLibrary {
       // is logically redundant. However, it is needed to convince the compiler
       // that the assign-such-that statement is compilable.
       var a :| a in s && IsMinimum(a, s, less);
-      [a] + SetToSequence(s - {a}, less)
+      [a] + SetToOrderedSequence(s - {a}, less)
   }
 
   predicate method IsMinimum<T(==)>(a: seq<T>, s: set<seq<T>>, less: (T, T) -> bool) {

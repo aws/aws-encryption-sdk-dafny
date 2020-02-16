@@ -43,7 +43,7 @@ module {:extern "DefaultCMMDef"} DefaultCMMDef {
 
     method GetEncryptionMaterials(ec: Materials.EncryptionContext, alg_id: Option<AlgorithmSuite.ID>, pt_len: Option<nat>) returns (res: Result<Materials.ValidEncryptionMaterials>)
       requires Valid()
-      requires ValidAAD(ec) && Materials.GetKeysFromEncryptionContext(ec) !! Materials.ReservedKeyValues
+      requires ValidAAD(ec) && ec.Keys !! Materials.ReservedKeyValues
       ensures Valid()
       ensures res.Success? ==> res.value.dataKeyMaterials.algorithmSuiteID.ValidPlaintextDataKey(res.value.dataKeyMaterials.plaintextDataKey)
       ensures res.Success? ==> |res.value.dataKeyMaterials.encryptedDataKeys| > 0
@@ -66,16 +66,8 @@ module {:extern "DefaultCMMDef"} DefaultCMMDef {
           var enc_vk :- UTF8.Encode(Base64.Encode(signatureKeys.verificationKey));
           var reservedField := Materials.EC_PUBLIC_KEY_FIELD;
           assert reservedField in Materials.ReservedKeyValues;
-          assert forall i | 0 <= i < |ec| :: ec[i].0 != reservedField;
-          assert MessageHeader.SortedKVPairs(enc_ctx) by { // this is a precondition of InsertNewEntry
-            assert MessageHeader.ValidAAD(enc_ctx);
-            reveal MessageHeader.ValidAAD();
-          }
-          // The following 3 lines should be combined into one, once this gets fixed: https://github.com/dafny-lang/dafny/issues/425
-          var optionResult;
-          ghost var insertionPoint;
-          optionResult, insertionPoint := Deserialize.InsertNewEntry(enc_ctx, reservedField, enc_vk);
-          enc_ctx := optionResult.get;
+          assert forall i :: i in ec.Keys ==> i != reservedField;
+          enc_ctx := enc_ctx[reservedField:=enc_vk];
       }
 
       MessageHeader.AssumeValidAAD(enc_ctx);  // TODO: we should check this (https://github.com/awslabs/aws-encryption-sdk-dafny/issues/79)
@@ -99,11 +91,11 @@ module {:extern "DefaultCMMDef"} DefaultCMMDef {
       var vkey := None;
       if alg_id.SignatureType().Some? {
         var reservedField := Materials.EC_PUBLIC_KEY_FIELD;
-        var encodedVKey := Materials.EncryptionContextGet(enc_ctx, reservedField);
-        if encodedVKey.Failure? {
+        if !(reservedField in enc_ctx) {
           return Failure("Could not get materials required for decryption.");
         }
-        var utf8Decoded :- UTF8.Decode(encodedVKey.value);
+        var encodedVKey := enc_ctx[reservedField];
+        var utf8Decoded :- UTF8.Decode(encodedVKey);
         var base64Decoded :- Base64.Decode(utf8Decoded);
         vkey := Some(base64Decoded);
       }

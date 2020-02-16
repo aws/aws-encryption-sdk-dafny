@@ -1,6 +1,9 @@
 include "MessageHeader.dfy"
 include "Materials.dfy"
 include "AlgorithmSuite.dfy"
+include "../Util/UTF8.dfy"
+include "../Util/Sets.dfy"
+
 
 include "../Util/Streams.dfy"
 include "../StandardLibrary/StandardLibrary.dfy"
@@ -13,6 +16,8 @@ module Serialize {
   import opened StandardLibrary
   import opened UInt = StandardLibrary.UInt
   import Materials
+  import UTF8
+  import Sets
 
   method SerializeHeaderBody(wr: Streams.ByteWriter, hb: Msg.HeaderBody) returns (ret: Result<nat>)
     requires wr.Valid() && hb.Valid()
@@ -113,13 +118,13 @@ module Serialize {
 
   // ----- SerializeKVPairs -----
 
-  method SerializeKVPairs(wr: Streams.ByteWriter, kvPairs: Materials.EncryptionContext) returns (ret: Result<nat>)
-    requires wr.Valid() && Msg.ValidKVPairs(kvPairs)
+  method SerializeKVPairs(wr: Streams.ByteWriter, encryptionContext: Materials.EncryptionContext) returns (ret: Result<nat>)
+    requires wr.Valid() && Msg.ValidKVPairs(encryptionContext)
     modifies wr.writer`data
-    ensures wr.Valid() && Msg.ValidKVPairs(kvPairs)
+    ensures wr.Valid() && Msg.ValidKVPairs(encryptionContext)
     ensures match ret
       case Success(totalWritten) =>
-        var serAAD := Msg.KVPairsToSeq(kvPairs);
+        var serAAD := Msg.KVPairsToSeq(encryptionContext);
         var initLen := old(wr.GetSizeWritten());
         && totalWritten == |serAAD|
         && initLen + totalWritten == wr.GetSizeWritten()
@@ -128,12 +133,17 @@ module Serialize {
   {
     var totalWritten := 0;
 
-    if |kvPairs| == 0 {
+    if |encryptionContext| == 0 {
       return Success(totalWritten);
     }
 
-    var len := wr.WriteUInt16(|kvPairs| as uint16);
+    var len := wr.WriteUInt16(|encryptionContext| as uint16);
     totalWritten := totalWritten + len;
+
+    // Serialization is easier to implement and verify by first converting the map to
+    // a sequence of pairs.
+    var keys : seq<UTF8.ValidUTF8Bytes> := Sets.ComputeSetToOrderedSequence(encryptionContext.Keys, UInt.UInt8Less);
+    var kvPairs := seq(|keys|, i requires 0 <= i < |keys| => (keys[i], encryptionContext[keys[i]]));
 
     var j := 0;
     ghost var n := |kvPairs|;

@@ -29,14 +29,16 @@ module {:extern "TestClient"} TestClient {
     var msg :- UTF8.Encode("hello");
     var keyA :- UTF8.Encode("keyA");
     var valA :- UTF8.Encode("valA");
-    var encryptionContext := [(keyA, valA)];
+    var encryptionContext := map[keyA := valA];
     assert Msg.ValidAAD(encryptionContext) by {
       // To prove ValidAAD, we need to reveal the definition of ValidAAD:
       reveal Msg.ValidAAD();
       // We also need to help the verifier with proving the KVPairsLength is small:
       calc {
         Msg.KVPairsLength(encryptionContext);
-        2 + Msg.KVPairEntriesLength(encryptionContext, 0, 1);
+        var keys : seq<UTF8.ValidUTF8Bytes> := SetToOrderedSequence<uint8>(encryptionContext.Keys, UInt.UInt8Less);
+        var kvPairsSeq := seq(|keys|, i requires 0 <= i < |keys| => (keys[i], encryptionContext[keys[i]]));
+        2 + Msg.KVPairEntriesLength(kvPairsSeq, 0, |kvPairsSeq|);
         2 + 2 + |keyA| + 2 + |valA|;
       }
       assert Msg.KVPairsLength(encryptionContext) < UINT16_LIMIT;

@@ -9,14 +9,14 @@ using Amazon;
 using KMS = Amazon.KeyManagementService;
 using DString = Dafny.Sequence<char>;
 using byteseq = Dafny.Sequence<byte>;
-using EncryptionContext = Dafny.Sequence<_System.Tuple2<Dafny.Sequence<byte>,Dafny.Sequence<byte>>>;
+using EncryptionContext = Dafny.Map<Dafny.Sequence<byte>, Dafny.Sequence<byte>>;
 
 namespace KMSUtils {
     public partial class __default {
         //TODO: Issue #54
         public static Dictionary<String, String> EncryptionContextToString(EncryptionContext encContext) {
             UTF8Encoding utf8 = new UTF8Encoding(false, true);
-            Dictionary<string, string> strDict = encContext.Elements.ToDictionary(
+            Dictionary<string, string> strDict = encContext.Items.Elements.ToDictionary(
                     strKey => utf8.GetString(ConvertByteSeq(strKey._0)),
                     strElm => utf8.GetString(ConvertByteSeq(strElm._1))
                     );
