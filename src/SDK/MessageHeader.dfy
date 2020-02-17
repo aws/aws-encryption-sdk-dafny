@@ -339,7 +339,7 @@ module {:extern "MessageHeader"} MessageHeader {
     if n == 0 then [] else
       // Defining and reasoning about order at this level is simplified by using a sequence of
       // key value pairs instead of a map.
-      // Pairs are ordered lexicographically by their UTF8 encoding, which equivalent to code
+      // Pairs are ordered lexicographically by their UTF8 encoding, which is equivalent to code
       // point ordering.
       var keys : seq<UTF8.ValidUTF8Bytes> := SetToOrderedSequence<uint8>(kvPairs.Keys, UInt.UInt8Less);
       var kvPairsSeq := seq(|keys|, i requires 0 <= i < |keys| => (keys[i], kvPairs[keys[i]]));

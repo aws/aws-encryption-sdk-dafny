@@ -24,7 +24,7 @@ module {:extern "TestUtils"} TestUtils {
   method GenerateLargeValidEncryptionContext() returns (r: Result<Materials.EncryptionContext>) {
     // KVPairsMaxSize - KVPairsLenLen / KVPairLen ==> 
     // (2^16 - 1 - 2) / (2 + 2 + 2 + 1) ==> (2^16 - 3) / 7 ==> 9361
-    // is close to the max number of pairs you can stuff into a valid AAD.
+    // which is close to the max number of pairs you can stuff into a valid AAD.
     // We look for 9361 valid 2 byte UTF8 sequences (sticking to 2 bytes for simplicity).
     var numMaxPairs := 9361;
     var val :- UTF8.Encode("a");
@@ -38,7 +38,7 @@ module {:extern "TestUtils"} TestUtils {
     {
       var key := UInt16ToSeq(i as uint16);
       if UTF8.ValidUTF8Seq(key) {
-        encCtx := encCtx[key:=val];
+        encCtx := encCtx[key := val];
       }
       i := i + 1;
     }

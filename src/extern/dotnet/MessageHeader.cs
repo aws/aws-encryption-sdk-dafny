@@ -13,8 +13,7 @@ namespace MessageHeader {
             item => item._1);
         List<Dafny.Pair<byteseq, byteseq>> pairs = new List<Dafny.Pair<byteseq, byteseq>>();
 
-        foreach(KeyValuePair<byteseq, byteseq> entry in dict)
-        {
+        foreach(KeyValuePair<byteseq, byteseq> entry in dict) ß{
             pairs.Add(new Dafny.Pair<byteseq, byteseq>(entry.Key, entry.Value));
         }
         return Dafny.Map<byteseq,byteseq>.FromCollection(pairs);

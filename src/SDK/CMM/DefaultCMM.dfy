@@ -91,7 +91,7 @@ module {:extern "DefaultCMMDef"} DefaultCMMDef {
       var vkey := None;
       if alg_id.SignatureType().Some? {
         var reservedField := Materials.EC_PUBLIC_KEY_FIELD;
-        if !(reservedField in enc_ctx) {
+        if reservedField !in enc_ctx {
           return Failure("Could not get materials required for decryption.");
         }
         var encodedVKey := enc_ctx[reservedField];

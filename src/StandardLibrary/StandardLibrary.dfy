@@ -305,8 +305,8 @@ module {:extern "STL"} StandardLibrary {
     ==>  { reveal AA, BB; }
       (k0 == |a| || (k0 < |b| && less(a[k0], b[k0]))) && (k1 == |b| || (k1 < |a| && less(b[k1], a[k1])));
     ==  // distribute && and ||
-      (k0 == |a| &&                     k1 == |b|) ||
-      (k0 == |a| &&                     k1 < |a| && less(b[k1], a[k1])) ||
+      (k0 == |a| && k1 == |b|) ||
+      (k0 == |a| && k1 < |a| && less(b[k1], a[k1])) ||
       (k0 < |b| && less(a[k0], b[k0]) && k1 == |b|) ||
       (k0 < |b| && less(a[k0], b[k0]) && k1 < |a| && less(b[k1], a[k1]));
     ==  { reveal LessIrreflexive, SameUntilMax; }
