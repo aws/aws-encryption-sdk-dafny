@@ -101,7 +101,7 @@ module {:extern "RawRSAKeyringDef"} RawRSAKeyringDef {
 
       // If no plaintext data key exists, generate a random plaintext data key
       if plaintextDataKey.None? {
-        var k := Random.GenerateBytes(algorithmID.KDFInputKeyLength() as int32);
+        var k :- Random.GenerateBytes(algorithmID.KDFInputKeyLength() as int32);
         plaintextDataKey := Some(k);
         var generateTraceEntry := GenerateTraceEntry();
         keyringTrace := keyringTrace + [generateTraceEntry];

@@ -75,7 +75,7 @@ module ToyClientDef {
       ensures res.Success? ==> |res.value.iv| == ALGORITHM.ivLen as int
     {
       var em :- GetEncMaterials(ec);
-      var iv := Random.GenerateBytes(ALGORITHM.ivLen as int32);
+      var iv :- Random.GenerateBytes(ALGORITHM.ivLen as int32);
       var ciphertext :- AESEncryption.AESEncrypt(ALGORITHM, iv, em.dataKeyMaterials.plaintextDataKey, pt, []);
       return Success(Encryption(em.encryptionContext, em.dataKeyMaterials.encryptedDataKeys, 
                                 iv, ciphertext.cipherText, ciphertext.authTag));

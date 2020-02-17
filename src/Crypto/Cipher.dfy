@@ -44,14 +44,4 @@ module {:extern "Cipher"} Cipher {
             case AES128 =>
     }
     */
-
-    method GenIV(m : CipherParams) returns (s : seq<uint8>) ensures |s| == m.ivLen as int {
-            s := Random.GenerateBytes(m.ivLen as int32);
-    }
-
-    method GenKey(m : CipherParams) returns (s : seq<uint8>) ensures |s| == KeyLengthOfCipher(m) as int {
-            s := Random.GenerateBytes(KeyLengthOfCipher(m) as int32);
-    }
-
-
 }
