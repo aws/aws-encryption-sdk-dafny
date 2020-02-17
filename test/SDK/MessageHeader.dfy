@@ -108,7 +108,7 @@ module TestMessageHeader {
     var encCtx :- TestUtils.GenerateLargeValidEncryptionContext();
 
     var len := MessageHeader.ComputeKVPairsLength(encCtx);
-    var _ := RequireEqual(len as int, 2 + |encCtx| as int * 7);
+    var _ :- RequireEqual(len as int, 2 + |encCtx| as int * 7);
 
     var valid := MessageHeader.ComputeValidAAD(encCtx);
     r := Require(valid);
