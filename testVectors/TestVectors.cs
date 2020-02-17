@@ -116,11 +116,6 @@ namespace TestVectorTests {
                 string vectorID = vectorEntry.Key;
                 TestVector vector = vectorEntry.Value;
                 
-                //TODO: Remove this if-block once we can test the RawAESKeyring.
-                if (VectorContainsRawAESKey(vector)) {
-                    continue;
-                }
-
                 string plaintextPath = ManifestURIToPath(vector.plaintext, vectorRoot);
                 if (!File.Exists(plaintextPath)) {
                     throw new ArgumentException($"Could not find plaintext file at path: {plaintextPath}");
@@ -190,8 +185,12 @@ namespace TestVectorTests {
                 ClientSupplier clientSupplier = new DefaultClientSupplier();
                 return Keyrings.MakeKMSKeyring(clientSupplier, Enumerable.Empty<String>(), key.ID, Enumerable.Empty<String>());
             } else if (keyInfo.type == "raw" && keyInfo.encryptionAlgorithm == "aes") {
-                //TODO: Once RawAESKeyring is ready for tests, add it here.
-                return new MultiKeyring();
+                return Keyrings.MakeRawAESKeyring(
+                        Encoding.UTF8.GetBytes(keyInfo.providerID),
+                        Encoding.UTF8.GetBytes(key.ID),
+                        Convert.FromBase64String(key.material),
+                        AESAlgorithmFromBits(key.bits)
+                        );
             } else if (keyInfo.type == "raw" && keyInfo.encryptionAlgorithm == "rsa") {
                 return Keyrings.MakeRawRSAKeyring(
                         Encoding.UTF8.GetBytes(keyInfo.providerID),
@@ -204,6 +203,14 @@ namespace TestVectorTests {
             else {
                 throw new Exception("Unsupported keyring type!");
             }
+        }
+        private static DafnyFFI.AESWrappingAlgorithm AESAlgorithmFromBits(ushort bits) {
+            return bits switch {
+                128 => DafnyFFI.AESWrappingAlgorithm.AES_GCM_128,
+                192 => DafnyFFI.AESWrappingAlgorithm.AES_GCM_192,
+                256 => DafnyFFI.AESWrappingAlgorithm.AES_GCM_256,
+                _ => throw new Exception("Unsupported AES wrapping algorithm")
+            };
         }
         private static DafnyFFI.RSAPaddingModes RSAPAddingFromStrings(string strAlg, string strHash) {
             return (strAlg, strHash) switch {
