@@ -17,12 +17,11 @@ module HKDF {
     requires |ikm| < INT32_MAX_LIMIT
     modifies hmac
     ensures GetHashLength(hmac.getAlgorithm()) as int == |prk|
-    ensures hmac.getKey().Some? && hmac.getKey().get == salt
+    ensures hmac.getKey() == salt
     ensures hmac.getAlgorithm() == algorithm
   {
     // prk = HMAC-Hash(salt, ikm)
-    var params: CipherParameters := KeyParameter(salt);
-    hmac.Init(params);
+    hmac.Init(salt);
     hmac.Update(ikm);
     assert hmac.getInputSoFar() == ikm;
 
@@ -33,20 +32,20 @@ module HKDF {
   method Expand(hmac: HMac, prk: seq<uint8>, info: seq<uint8>, expectedLength: int, algorithm: HKDFAlgorithms, ghost salt: seq<uint8>) returns (okm: seq<uint8>)
     requires hmac.getAlgorithm() == algorithm
     requires 1 <= expectedLength <= 255 * GetHashLength(hmac.getAlgorithm()) as int
-    requires hmac.getKey().Some? && hmac.getKey().get == salt
+    requires |salt| != 0
+    requires hmac.getKey() == salt
     requires |info| < INT32_MAX_LIMIT
     requires GetHashLength(hmac.getAlgorithm()) as int == |prk|
     modifies hmac
     ensures |okm| == expectedLength
-    ensures hmac.getKey().Some? && hmac.getKey().get == prk
+    ensures hmac.getKey() == prk
   {
     // N = ceil(L / Hash Length)
     var hashLength := GetHashLength(algorithm);
     var n := 1 + (expectedLength - 1) / hashLength as int;
 
     // T(0) = empty string (zero length)
-    var params: CipherParameters := KeyParameter(prk);
-    hmac.Init(params);
+    hmac.Init(prk);
     var t_last := [];
     var t_n := t_last;
 
@@ -61,7 +60,7 @@ module HKDF {
       invariant i > 1 ==> |t_last| == hashLength as int
       invariant hashLength as int == |prk|
       invariant |t_n| == (i - 1) * hashLength as int;
-      invariant hmac.getKey().Some? && hmac.getKey().get == prk
+      invariant hmac.getKey() == prk
       invariant hmac.getAlgorithm() == algorithm
       invariant hmac.getInputSoFar() == []
     {

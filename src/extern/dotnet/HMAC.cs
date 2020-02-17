@@ -29,13 +29,11 @@ namespace HMAC {
             hmac = new Org.BouncyCastle.Crypto.Macs.HMac(digest);
         }
 
-        public void Init(CipherParameters ps) {
-            if(ps.is_KeyParameter) {
-                // KeyParameter/ Init should not mutate ps, but this is safer than using ps.key.Elements directly
-                byte[] elemCopy = (byte[]) ps.key.Elements.Clone();
-                var keyParams = new Org.BouncyCastle.Crypto.Parameters.KeyParameter(elemCopy);
-                hmac.Init(keyParams);
-            }
+        public void Init(byteseq input) {
+            // KeyParameter/ Init should not mutate input, but this is safer than using input.Elements directly
+            byte[] elemCopy = (byte[]) input.Elements.Clone();
+            var keyParams = new Org.BouncyCastle.Crypto.Parameters.KeyParameter(elemCopy);
+            hmac.Init(keyParams);
         }
 
         public void BlockUpdate(byteseq input) {
