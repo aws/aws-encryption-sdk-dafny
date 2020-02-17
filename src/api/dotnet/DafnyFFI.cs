@@ -62,6 +62,9 @@ public class DafnyFFI {
     public enum RSAPaddingModes {
         PKCS1, OAEP_SHA1, OAEP_SHA256, OAEP_SHA384, OAEP_SHA512
     }
+    public enum AESWrappingAlgorithm {
+        AES_GCM_128, AES_GCM_192, AES_GCM_256
+    }
 }
 
 public class DafnyException : Exception {
