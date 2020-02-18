@@ -43,6 +43,7 @@
     <DafnySource Include="StandardLibrary/UInt.dfy" />
     <DafnySource Include="Util/Streams.dfy" />
     <DafnySource Include="Util/UTF8.dfy" />
+    <DafnySource Include="Util/Sets.dfy" />
   </ItemGroup>
   
   <ItemGroup>

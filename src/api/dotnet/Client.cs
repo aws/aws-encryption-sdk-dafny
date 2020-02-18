@@ -17,7 +17,7 @@ namespace AWSEncryptionSDK
         // TODO: Proper documentation
         public static MemoryStream Encrypt(MemoryStream plaintext, CMM cmm, Dictionary<string, string> encryptionContext) {
             byteseq dafnyPlaintext = DafnyFFI.SequenceFromMemoryStream(plaintext);
-            Sequence<Tuple2<byteseq, byteseq>> dafnyEncryptionContext = 
+            Map<Sequence<byte>, Sequence<byte>> dafnyEncryptionContext = 
                 ToDafnyEncryptionContext(encryptionContext);
     
             // TODO: This isn't checking for nulls or any of the requirements on the Dafny method.
@@ -38,12 +38,12 @@ namespace AWSEncryptionSDK
             return DafnyFFI.MemoryStreamFromSequence(DafnyFFI.ExtractResult(result));
         }
   
-        private static Sequence<Tuple2<byteseq, byteseq>> 
+        private static Map<Sequence<byte>, Sequence<byte>> 
             ToDafnyEncryptionContext(Dictionary<string, string> encryptionContext)
         {
-            IEnumerable<Tuple2<byteseq, byteseq>> e = encryptionContext.Select(entry
-                => new Tuple2<byteseq, byteseq>(DafnyFFI.DafnyUTF8BytesFromString(entry.Key), DafnyFFI.DafnyUTF8BytesFromString(entry.Value)));
-            return Sequence<Tuple2<byteseq, byteseq>>.FromElements(e.ToArray());
+            IEnumerable<Pair<byteseq, byteseq>> e = encryptionContext.Select(entry
+                => new Pair<byteseq, byteseq>(DafnyFFI.DafnyUTF8BytesFromString(entry.Key), DafnyFFI.DafnyUTF8BytesFromString(entry.Value)));
+            return Map<Sequence<byte>, Sequence<byte>>.FromElements(e.ToArray());
         }
     }
 }

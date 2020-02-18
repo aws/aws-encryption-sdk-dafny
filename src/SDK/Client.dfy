@@ -34,7 +34,7 @@ module {:extern "ESDKClient"} ESDKClient {
    * Encrypt a plaintext and serialize it into a message.
    */
   method Encrypt(plaintext: seq<uint8>, cmm: CMMDefs.CMM, encryptionContext: Materials.EncryptionContext) returns (res: Result<seq<uint8>>)
-    requires Materials.GetKeysFromEncryptionContext(encryptionContext) !! Materials.ReservedKeyValues
+    requires encryptionContext.Keys !! Materials.ReservedKeyValues
     requires cmm.Valid() && Msg.ValidAAD(encryptionContext)
   {
     /*
