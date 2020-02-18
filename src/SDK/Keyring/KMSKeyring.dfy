@@ -23,10 +23,12 @@ module {:extern "KMSKeyringDef"} KMSKeyringDef {
     if 6 <= |components| && components[0] == "arn" && components[2] == "kms" then Success(components[3]) else Failure("Malformed ARN")
   }
 
-  method {:extern} MakeKMSKeyring(clientSupplier: KMSUtils.ClientSupplier?, 
-                                  keyIDs: seq<string>,
-                                  generator: string,
-                                  grantTokens: seq<string>) returns (result: Result<KeyringDefs.Keyring>)
+  // TODO-RS: This should be marked {:extern}, but that's currently interpreted as "externally implemented"
+  // and omits the body when compiled.
+  method MakeKMSKeyring(clientSupplier: KMSUtils.ClientSupplier?, 
+                        keyIDs: seq<string>,
+                        generator: string,
+                        grantTokens: seq<string>) returns (result: Result<KMSKeyring>)
   {
     var _ :- RequireWithMessage(clientSupplier != null, "Client supplier is required");
     var _ :- RequireWithMessage(|grantTokens| <= KMSUtils.MAX_GRANT_TOKENS, "Too many grant tokens");
@@ -55,7 +57,7 @@ module {:extern "KMSKeyringDef"} KMSKeyringDef {
     const grantTokens: seq<KMSUtils.GrantToken>
     const isDiscovery: bool
 
-    predicate Valid() reads this, Repr {
+    predicate Valid() {
       && Repr == {this}
       && (0 <= |grantTokens| <= KMSUtils.MAX_GRANT_TOKENS)
       && (|keyIDs| == 0 && generator.None? ==> isDiscovery)

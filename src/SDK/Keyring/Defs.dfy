@@ -10,8 +10,8 @@ module {:extern "KeyringDefs"} KeyringDefs {
   import AlgorithmSuite
 
   trait {:termination false} Keyring {
-    ghost var Repr : set<object>
-    predicate {:extern} Valid() reads this, Repr
+    ghost const Repr : set<object>
+    predicate Valid()
 
     method OnEncrypt(algorithmSuiteID: Materials.AlgorithmSuite.ID,
                      encryptionContext: Materials.EncryptionContext,
@@ -36,10 +36,13 @@ module {:extern "KeyringDefs"} KeyringDefs {
       ensures |edks| == 0 ==> res.Success? && res.value.None?
       ensures res.Success? && res.value.Some? ==> res.value.get.algorithmSuiteID == algorithmSuiteID
       decreases Repr
+
   }
 
+  type ValidKeyring? = k: Keyring? | k == null || k.Valid()
+
   trait {:extern} ExternalKeyring {
-    ghost var Repr : set<object>;
+    ghost const Repr : set<object>;
 
     method OnEncrypt(algorithmSuiteID: Materials.AlgorithmSuite.ID,
                      encryptionContext: Materials.EncryptionContext,
@@ -53,9 +56,9 @@ module {:extern "KeyringDefs"} KeyringDefs {
   }
 
   class AsExternalKeyring extends ExternalKeyring {
-    const wrapped: Keyring;
-    constructor(wrapped: Keyring) 
-        requires wrapped.Valid() 
+    const wrapped: ValidKeyring?;
+    constructor(wrapped: ValidKeyring?) 
+        requires wrapped != null
         ensures Valid() 
         ensures fresh(Repr - {wrapped} - wrapped.Repr)
     {
@@ -63,7 +66,7 @@ module {:extern "KeyringDefs"} KeyringDefs {
       this.Repr := {this, wrapped} + wrapped.Repr;
     }
 
-    predicate Valid() reads this, Repr {
+    predicate Valid() {
         && this in Repr 
         && wrapped in Repr 
         && wrapped.Repr <= Repr 
@@ -76,7 +79,7 @@ module {:extern "KeyringDefs"} KeyringDefs {
                      plaintextDataKey: Option<seq<uint8>>) returns (res: Result<Option<Materials.ValidDataKeyMaterials>>) 
       decreases Repr
     {
-      var _ :- Require(Valid());
+      var _ :- Require(wrapped != null);
       var _ :- Require(plaintextDataKey.Some? ==> algorithmSuiteID.ValidPlaintextDataKey(plaintextDataKey.get));
       res := wrapped.OnEncrypt(algorithmSuiteID, encryptionContext, plaintextDataKey);
     }
@@ -86,7 +89,7 @@ module {:extern "KeyringDefs"} KeyringDefs {
                      edks: seq<Materials.EncryptedDataKey>) returns (res: Result<Option<Materials.ValidOnDecryptResult>>)
       decreases Repr 
     {
-      var _ :- Require(Valid());
+      var _ :- Require(wrapped != null);
       res := wrapped.OnDecrypt(algorithmSuiteID, encryptionContext, edks);
     }
   }
@@ -98,7 +101,7 @@ module {:extern "KeyringDefs"} KeyringDefs {
       this.wrapped := wrapped;
     }
 
-    predicate Valid() reads this, Repr {
+    predicate Valid() {
       && this in Repr 
       && wrapped in Repr 
       && wrapped.Repr <= Repr 
