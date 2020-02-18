@@ -85,7 +85,7 @@ module HKDF {
       i := i + 1;
     }
 
-    // okm = first L bytes of T(n)
+    // okm = first L (expectedLength) bytes of T(n)
     okm := t_n;
     if |okm| > expectedLength {
       okm := okm[..expectedLength];
@@ -95,29 +95,29 @@ module HKDF {
   /*
    * The RFC 5869 KDF. Outputs L bytes of output key material.
    */
-  method Hkdf(algorithm: HKDFAlgorithms, salt: Option<seq<uint8>>, ikm: seq<uint8>, info: seq<uint8>, expectedLength: int) returns (okm: seq<uint8>)
-    requires 0 <= expectedLength <= 255 * GetHashLength(GetHMACDigestFromHKDFAlgorithm(algorithm))
+  method Hkdf(algorithm: HKDFAlgorithms, salt: Option<seq<uint8>>, ikm: seq<uint8>, info: seq<uint8>, L: int) returns (okm: seq<uint8>)
+    requires 0 <= L <= 255 * GetHashLength(GetHMACDigestFromHKDFAlgorithm(algorithm))
     requires salt.None? || |salt.get| != 0
     requires |info| < INT32_MAX_LIMIT
     requires |ikm| < INT32_MAX_LIMIT
-    ensures |okm| == expectedLength
+    ensures |okm| == L
   {
-    if expectedLength == 0 {
+    if L == 0 {
       return [];
     }
     var digest := GetHMACDigestFromHKDFAlgorithm(algorithm);
     var hmac := new HMac(digest);
     var hashLength := GetHashLength(digest);
 
-    var saltNonEmpty: seq<uint8>;
+    var nonEmptySalt: seq<uint8>;
     match salt {
       case None =>
-        saltNonEmpty := Fill(0, hashLength);
+        nonEmptySalt := Fill(0, hashLength);
       case Some(s) =>
-        saltNonEmpty := s;
+        nonEmptySalt := s;
     }
 
-    var prk := Extract(hmac, saltNonEmpty, ikm, digest);
-    okm := Expand(hmac, prk, info, expectedLength, digest, saltNonEmpty);
+    var prk := Extract(hmac, nonEmptySalt, ikm, digest);
+    okm := Expand(hmac, prk, info, L, digest, nonEmptySalt);
   }
 }
