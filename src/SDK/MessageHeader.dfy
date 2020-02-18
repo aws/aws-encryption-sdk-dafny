@@ -2,13 +2,24 @@ include "AlgorithmSuite.dfy"
 include "../StandardLibrary/StandardLibrary.dfy"
 include "Materials.dfy"
 include "../Util/UTF8.dfy"
+include "../Util/Sets.dfy"
 
-module MessageHeader {
+module {:extern "MessageHeader"} MessageHeader {
   import AlgorithmSuite
+  import Sets
   import opened StandardLibrary
   import opened UInt = StandardLibrary.UInt
   import Materials
   import UTF8
+
+
+  // To make verification and working with iterating through the encryption context
+  // simpler, here we define a specific type to represent a sequence of key-value tuples.
+  type EncryptionContextSeq = seq<(UTF8.ValidUTF8Bytes, UTF8.ValidUTF8Bytes)>
+
+  // There isn't an efficient way to build a map from a sequence in dafny, so this
+  // extern is used specifically to convert a sequence of key value pairs to a map
+  method {:extern "KVPairSequenceToMap"} KVPairSequenceToMap(kvPairs: EncryptionContextSeq) returns (res: Materials.EncryptionContext)
 
   /*
    * Definition of the message header, i.e., the header body and the header authentication
@@ -105,7 +116,8 @@ module MessageHeader {
     && UTF8.ValidUTF8Seq(kvPair.1)
   }
 
-  function KVPairEntriesLength(kvPairs: Materials.EncryptionContext, lo: nat, hi: nat): nat
+  // Length of KVPairEntries is defined in terms of a seq of tuples, which is easier to reason about
+  function KVPairEntriesLength(kvPairs: EncryptionContextSeq, lo: nat, hi: nat): nat
     requires lo <= hi <= |kvPairs|
   {
     if lo == hi then 0 else
@@ -114,14 +126,14 @@ module MessageHeader {
       2 + |kvPairs[hi - 1].1|
   }
 
-  lemma KVPairEntriesLengthSplit(kvPairs: Materials.EncryptionContext, lo: nat, mid: nat, hi: nat)
+  lemma KVPairEntriesLengthSplit(kvPairs: EncryptionContextSeq, lo: nat, mid: nat, hi: nat)
     requires lo <= mid <= hi <= |kvPairs|
     ensures KVPairEntriesLength(kvPairs, lo, hi)
          == KVPairEntriesLength(kvPairs, lo, mid) + KVPairEntriesLength(kvPairs, mid, hi)
   {
   }
 
-  lemma KVPairEntriesLengthPrefix(kvPairs: Materials.EncryptionContext, more: Materials.EncryptionContext)
+  lemma KVPairEntriesLengthPrefix(kvPairs: EncryptionContextSeq, more: EncryptionContextSeq)
     ensures KVPairEntriesLength(kvPairs + more, 0, |kvPairs|) == KVPairEntriesLength(kvPairs, 0, |kvPairs|)
   {
     var n := |kvPairs|;
@@ -146,14 +158,14 @@ module MessageHeader {
     }
   }
 
-  lemma KVPairEntriesLengthExtend(kvPairs: Materials.EncryptionContext, key: UTF8.ValidUTF8Bytes, value: UTF8.ValidUTF8Bytes)
+  lemma KVPairEntriesLengthExtend(kvPairs: EncryptionContextSeq, key: UTF8.ValidUTF8Bytes, value: UTF8.ValidUTF8Bytes)
     ensures KVPairEntriesLength(kvPairs + [(key, value)], 0, |kvPairs| + 1)
          == KVPairEntriesLength(kvPairs, 0, |kvPairs|) + 4 + |key| + |value|
   {
     KVPairEntriesLengthPrefix(kvPairs, [(key, value)]);
   }
 
-  lemma KVPairEntriesLengthInsert(kvPairs: Materials.EncryptionContext, insertionPoint: nat, key: UTF8.ValidUTF8Bytes, value: UTF8.ValidUTF8Bytes)
+  lemma KVPairEntriesLengthInsert(kvPairs: EncryptionContextSeq, insertionPoint: nat, key: UTF8.ValidUTF8Bytes, value: UTF8.ValidUTF8Bytes)
     requires insertionPoint <= |kvPairs|
     ensures var kvPairs' := kvPairs[..insertionPoint] + [(key, value)] + kvPairs[insertionPoint..];
       KVPairEntriesLength(kvPairs', 0, |kvPairs'|) == KVPairEntriesLength(kvPairs, 0, |kvPairs|) + 4 + |key| + |value|
@@ -184,19 +196,28 @@ module MessageHeader {
     }
   }
 
-  function KVPairsLength(kvPairs: Materials.EncryptionContext): nat 
+  function KVPairsLength(encryptionContext: Materials.EncryptionContext): nat 
   {
-    if |kvPairs| == 0 then 0 else
+    if |encryptionContext| == 0 then 0 else
+      // Defining and reasoning about order at this level is simplified by using a sequence of
+      // key value pairs instead of a map.
+      var keys: seq<UTF8.ValidUTF8Bytes> := SetToOrderedSequence(encryptionContext.Keys, UInt.UInt8Less);
+      var kvPairs := seq(|keys|, i requires 0 <= i < |keys| => (keys[i], encryptionContext[keys[i]]));
       2 + KVPairEntriesLength(kvPairs, 0, |kvPairs|)
   }
 
-  method ComputeKVPairsLength(kvPairs: Materials.EncryptionContext) returns (res: nat)
-    ensures res as nat == KVPairsLength(kvPairs)
+  method ComputeKVPairsLength(encryptionContext: Materials.EncryptionContext) returns (res: nat)
+    ensures res as nat == KVPairsLength(encryptionContext)
   {
     reveal ValidAAD();
-    if |kvPairs| == 0 {
+    if |encryptionContext| == 0 {
       return 0;
     }
+
+    // Iterating through a map isn't feasbile in dafny for large maps, so instead
+    // convert the map to a sequence of key pairs and iterate through the sequence
+    var keys: seq<UTF8.ValidUTF8Bytes> := Sets.ComputeSetToOrderedSequence(encryptionContext.Keys, UInt.UInt8Less);
+    var kvPairs := seq(|keys|, i requires 0 <= i < |keys| => (keys[i], encryptionContext[keys[i]]));
 
     var len := 2;
     var i := 0;
@@ -210,58 +231,67 @@ module MessageHeader {
       i := i + 1;
     }
 
+    assert len == 2 + KVPairEntriesLength(kvPairs, 0, |kvPairs|);
+    assert len == KVPairsLength(encryptionContext);
+
     return len;
   }
 
-  predicate {:opaque} ValidAAD(kvPairs: Materials.EncryptionContext) {
-    && KVPairsLength(kvPairs) < UINT16_LIMIT
-    && ValidKVPairs(kvPairs)
+  predicate {:opaque} ValidAAD(encryptionContext: Materials.EncryptionContext) {
+    && KVPairsLength(encryptionContext) < UINT16_LIMIT
+    && ValidKVPairs(encryptionContext)
   }
 
-  method ComputeValidAAD(kvPairs: Materials.EncryptionContext) returns (res: bool)
-    ensures res == ValidAAD(kvPairs)
+  method ComputeValidAAD(encryptionContext: Materials.EncryptionContext) returns (res: bool)
+    ensures res == ValidAAD(encryptionContext)
   {
     reveal ValidAAD();
 
-    if |kvPairs| >= UINT16_LIMIT {
+    if |encryptionContext| == 0 {
+      return true;
+    } else if |encryptionContext| >= UINT16_LIMIT {
       return false;
     }
+    
+    // Iterating through a map isn't feasbile in dafny for large maps, so instead
+    // convert the map to a sequence of key pairs and iterate through the sequence
+    var keys: seq<UTF8.ValidUTF8Bytes> := Sets.ComputeSetToOrderedSequence<uint8>(encryptionContext.Keys, UInt.UInt8Less);
+    var kvPairs := seq(|keys|, i requires 0 <= i < |keys| => (keys[i], encryptionContext[keys[i]]));
+    assert forall i :: 0 <= i < |keys| ==> kvPairs[i] == (keys[i], encryptionContext[keys[i]]);
 
-    var kvPairEntriesLenLimit := UINT16_LIMIT - 2; // 2 bytes are reserved for kvPair count field
-    var kvPairEntriesLen := 0;
+    var kvPairsLen := 2;
     var i := 0;
     while i < |kvPairs|
       invariant i <= |kvPairs|
-      invariant SortedKVPairsUpTo(kvPairs, i)
       invariant forall k :: 0 <= k < i ==> ValidKVPair(kvPairs[k])
-      invariant KVPairEntriesLength(kvPairs, 0, i as int) == kvPairEntriesLen as int < kvPairEntriesLenLimit
+      invariant 2 + KVPairEntriesLength(kvPairs, 0, i as int) == kvPairsLen as int < UINT16_LIMIT
     {
       var kvPair := kvPairs[i];
-      kvPairEntriesLen := kvPairEntriesLen + 4 + |kvPair.0| + |kvPair.1|;
+      kvPairsLen := kvPairsLen + 4 + |kvPair.0| + |kvPair.1|;
       KVPairEntriesLengthSplit(kvPairs, 0, i as int + 1, |kvPairs| as int);
 
       // Check that AAD is still valid with this pair
       if !(|kvPair.0| < UINT16_LIMIT && |kvPair.1| < UINT16_LIMIT) {
+        assert kvPair.0 in encryptionContext.Keys;
         return false; // Invalid key value pair
-      } else if i > 0 && !LexicographicLessOrEqual(kvPairs[i-1].0, kvPair.0, UInt.UInt8Less) {
-        return false; // Unsorted
-      } else if kvPairEntriesLen >= kvPairEntriesLenLimit {
+      } else if kvPairsLen >= UINT16_LIMIT {
         return false; // Over size limit
       }
+      assert forall k :: 0 <= k < i ==> ValidKVPair(kvPairs[k]);
+      assert kvPairsLen < UINT16_LIMIT;
       i := i + 1;
     }
 
     return true;
   }
 
-  predicate ValidKVPairs(kvPairs: Materials.EncryptionContext) {
-    && |kvPairs| < UINT16_LIMIT
-    && (forall i :: 0 <= i < |kvPairs| ==> ValidKVPair(kvPairs[i]))
-    && SortedKVPairs(kvPairs)
+  predicate ValidKVPairs(encryptionContext: Materials.EncryptionContext) {
+    && |encryptionContext| < UINT16_LIMIT
+    && (forall key :: key in encryptionContext.Keys ==> ValidKVPair((key, encryptionContext[key])))
   }
 
-  lemma {:axiom} AssumeValidAAD(kvPairs: Materials.EncryptionContext)  // TODO: this should be removed and replaced by something usable
-    ensures ValidAAD(kvPairs)
+  lemma {:axiom} AssumeValidAAD(encryptionContext: Materials.EncryptionContext)  // TODO: this should be removed and replaced by something usable
+    ensures ValidAAD(encryptionContext)
 
   predicate ValidFrameLength(frameLength: uint32, contentType: ContentType) {
     match contentType
@@ -269,15 +299,15 @@ module MessageHeader {
     case Framed => frameLength != 0
   }
 
-  predicate SortedKVPairsUpTo(a: seq<(UTF8.ValidUTF8Bytes, UTF8.ValidUTF8Bytes)>, n: nat)
+  predicate SortedKVPairsUpTo(a: EncryptionContextSeq, n: nat)
     requires n <= |a|
   {
     forall j :: 0 < j < n ==> LexicographicLessOrEqual(a[j-1].0, a[j].0, UInt.UInt8Less)
   }
 
-  predicate SortedKVPairs(a: seq<(UTF8.ValidUTF8Bytes, UTF8.ValidUTF8Bytes)>)
+  predicate SortedKVPairs(kvPairs: EncryptionContextSeq)
   {
-    SortedKVPairsUpTo(a, |a|)
+    SortedKVPairsUpTo(kvPairs, |kvPairs|)
   }
 
   /*
@@ -312,12 +342,21 @@ module MessageHeader {
   {
     var n := |kvPairs|;
     if n == 0 then [] else
+      // Defining and reasoning about order at this level is simplified by using a sequence of
+      // key value pairs instead of a map.
+      // Pairs are ordered lexicographically by their UTF8 encoding, which is equivalent to code
+      // point ordering.
+      var keys: seq<UTF8.ValidUTF8Bytes> := SetToOrderedSequence<uint8>(kvPairs.Keys, UInt.UInt8Less);
+      var kvPairsSeq := seq(|keys|, i requires 0 <= i < |keys| => (keys[i], kvPairs[keys[i]]));
       UInt16ToSeq(n as uint16) +
-      KVPairEntriesToSeq(kvPairs, 0, n)
+      KVPairEntriesToSeq(kvPairsSeq, 0, |kvPairsSeq|)
   }
 
-  function KVPairEntriesToSeq(kvPairs: Materials.EncryptionContext, lo: nat, hi: nat): seq<uint8>
+  // Serialization of KVPairEntries is defined in terms of a seq of tuples, which is easier to reason about
+  function KVPairEntriesToSeq(kvPairs: EncryptionContextSeq, lo: nat, hi: nat): seq<uint8>
     requires forall i :: 0 <= i < |kvPairs| ==> ValidKVPair(kvPairs[i])
+    requires |kvPairs| < UINT16_LIMIT
+    requires SortedKVPairs(kvPairs)
     requires lo <= hi <= |kvPairs|
   {
     if lo == hi then [] else KVPairEntriesToSeq(kvPairs, lo, hi - 1) + KVPairToSeq(kvPairs[hi - 1])
@@ -358,11 +397,13 @@ module MessageHeader {
    * that the two definitions correspond.
    */
 
-  lemma ADDLengthCorrect(kvPairs: Materials.EncryptionContext)
-    requires ValidAAD(kvPairs)
-    ensures |AADToSeq(kvPairs)| == 2 + KVPairsLength(kvPairs)
+  lemma ADDLengthCorrect(encryptionContext: Materials.EncryptionContext)
+    requires ValidAAD(encryptionContext)
+    ensures |AADToSeq(encryptionContext)| == 2 + KVPairsLength(encryptionContext)
   {
     reveal ValidAAD();
+    var keys: seq<UTF8.ValidUTF8Bytes> := SetToOrderedSequence(encryptionContext.Keys, UInt.UInt8Less);
+    var kvPairs := seq(|keys|, i requires 0 <= i < |keys| => (keys[i], encryptionContext[keys[i]]));
     KVPairEntriesLengthCorrect(kvPairs, 0, |kvPairs|);
     /**** Here's a more detailed proof:
     var n := |kvPairs|;
@@ -381,10 +422,12 @@ module MessageHeader {
     ****/
   }
 
-  lemma KVPairEntriesLengthCorrect(kvPairs: Materials.EncryptionContext, lo: nat, hi: nat)
-    requires forall i :: 0 <= i < |kvPairs| ==> ValidKVPair(kvPairs[i])
-    requires lo <= hi <= |kvPairs|
-    ensures |KVPairEntriesToSeq(kvPairs, lo, hi)| == KVPairEntriesLength(kvPairs, lo, hi)
+  lemma KVPairEntriesLengthCorrect(encryptionContext: EncryptionContextSeq, lo: nat, hi: nat)
+    requires forall i :: 0 <= i < |encryptionContext| ==> ValidKVPair(encryptionContext[i])
+    requires lo <= hi <= |encryptionContext|
+    requires |encryptionContext| < UINT16_LIMIT
+    requires SortedKVPairs(encryptionContext)
+    ensures |KVPairEntriesToSeq(encryptionContext, lo, hi)| == KVPairEntriesLength(encryptionContext, lo, hi)
   {
     /**** Here's a more detailed proof:
     if lo < hi {

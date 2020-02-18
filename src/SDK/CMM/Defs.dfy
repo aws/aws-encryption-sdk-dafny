@@ -21,7 +21,7 @@ module {:extern "CMMDefs"} CMMDefs {
                                   plaintextLen: Option<nat>)
                                   returns (res: Result<Materials.ValidEncryptionMaterials>)
       requires Valid()
-      requires ValidAAD(encCtx) && Materials.GetKeysFromEncryptionContext(encCtx) !! Materials.ReservedKeyValues
+      requires ValidAAD(encCtx) && encCtx.Keys !! Materials.ReservedKeyValues
       ensures Valid()
       ensures res.Success? ==> res.value.dataKeyMaterials.algorithmSuiteID.ValidPlaintextDataKey(res.value.dataKeyMaterials.plaintextDataKey)
       ensures res.Success? ==> |res.value.dataKeyMaterials.encryptedDataKeys| > 0

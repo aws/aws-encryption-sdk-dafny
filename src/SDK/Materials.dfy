@@ -9,44 +9,8 @@ module {:extern "Materials"} Materials {
   import UTF8
   import AlgorithmSuite
 
-  // TODO: Update EncryptionContext structure to a map structure.
-  // https://github.com/awslabs/aws-encryption-sdk-dafny/issues/50
-  type EncryptionContext = seq<(UTF8.ValidUTF8Bytes, UTF8.ValidUTF8Bytes)>
 
-  function method GetKeysFromEncryptionContext(encryptionContext: EncryptionContext): set<UTF8.ValidUTF8Bytes> {
-    set i | 0 <= i < |encryptionContext| :: encryptionContext[i].0
-  }
-
-  method EncryptionContextGet(encryptionContext: EncryptionContext, key: UTF8.ValidUTF8Bytes) returns (res: Result<UTF8.ValidUTF8Bytes>)
-    ensures match EncCtxLookup(encryptionContext, key)
-            case Some(value) => res.Success? && res.value == value
-            case None => res.Failure? && res.error == "Key not found."
-  {
-    res := Failure("Key not found.");
-    var i := 0;
-    while i < |encryptionContext|
-      invariant i <= |encryptionContext|
-      invariant forall j :: 0 <= j < i ==> encryptionContext[j].0 != key
-    {
-      if encryptionContext[i].0 == key {
-        res := Success(encryptionContext[i].1);
-        return res;
-      }
-      i := i + 1;
-    }
-  }
-
-  function EncCtxLookup(x: EncryptionContext, k: UTF8.ValidUTF8Bytes): Option<UTF8.ValidUTF8Bytes>
-  {
-    match EncCtxIndexLookup(x, k)
-    case Some(i) => Some(x[i].1)
-    case None => None
-  }
-
-  function EncCtxIndexLookup(x: EncryptionContext, k: UTF8.ValidUTF8Bytes): (opt: Option<nat>)
-  {
-    FindIndex(x, (y: (UTF8.ValidUTF8Bytes, UTF8.ValidUTF8Bytes)) => y.0 == k, 0)
-  }
+  type EncryptionContext = map<UTF8.ValidUTF8Bytes, UTF8.ValidUTF8Bytes>
 
   // UTF-8 encoded "aws-crypto-public-key"
   const EC_PUBLIC_KEY_FIELD: UTF8.ValidUTF8Bytes :=
@@ -174,7 +138,7 @@ module {:extern "Materials"} Materials {
     }
 
     static function method ValidWitness(): EncryptionMaterials {
-      EncryptionMaterials([], DataKeyMaterials.ValidWitness(), Some(seq(32, i => 0)))
+      EncryptionMaterials(map[], DataKeyMaterials.ValidWitness(), Some(seq(32, i => 0)))
     }
   }
 
@@ -195,7 +159,7 @@ module {:extern "Materials"} Materials {
 
     static function method ValidWitness(): DecryptionMaterials {
       DecryptionMaterials(AlgorithmSuite.AES_256_GCM_IV12_TAG16_HKDF_SHA384_ECDSA_P384,
-                          [], seq(32, i => 0), Some(seq(32, i => 0)),
+                          map[], seq(32, i => 0), Some(seq(32, i => 0)),
                           [KeyringTraceEntry([], [], {DECRYPTED_DATA_KEY})])
     }
   }

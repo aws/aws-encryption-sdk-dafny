@@ -32,7 +32,7 @@ module TestRSAKeyring {
       // Verify encoding
       var keyA :- UTF8.Encode("keyA");
       var valA :- UTF8.Encode("valA");
-      var encryptionContext := [(keyA, valA)];
+      var encryptionContext := map[keyA := valA];
       var onEncryptResult :- rawRSAKeyring.OnEncrypt(AlgorithmSuite.AES_256_GCM_IV12_TAG16_HKDF_SHA384_ECDSA_P384, encryptionContext, None);
       var _ :- Require(onEncryptResult.Some? &&
         |onEncryptResult.get.encryptedDataKeys| == 1 &&
@@ -64,7 +64,7 @@ module TestRSAKeyring {
       // Verify encoding
       var keyA :- UTF8.Encode("keyA");
       var valA :- UTF8.Encode("valA");
-      var encryptionContext := [(keyA, valA)];
+      var encryptionContext := map[keyA := valA];
       var plaintextDataKey := seq(32, i => 0);
       var onEncryptResult :- rawRSAKeyring.OnEncrypt(AlgorithmSuite.AES_256_GCM_IV12_TAG16_HKDF_SHA384_ECDSA_P384, encryptionContext, Some(plaintextDataKey));
       var _ :- Require(onEncryptResult.Some? &&

@@ -188,7 +188,7 @@ module Deserialize {
 
     var kvPairsLength :- rd.ReadUInt16();
     if kvPairsLength == 0 {
-      return Success([]);
+      return Success(map[]);
     } else if kvPairsLength < 2 {
       return Failure("Deserialization Error: The number of bytes in encryption context exceeds the given length.");
     }
@@ -200,14 +200,16 @@ module Deserialize {
       return Failure("Deserialization Error: Key value pairs count is 0.");
     }
 
-    var kvPairs: seq<(UTF8.ValidUTF8Bytes, UTF8.ValidUTF8Bytes)> := [];
+    // Building a map item by item is expensive in dafny, so
+    // instead we first read the key value pairs into a sequence
+    var kvPairs: Msg.EncryptionContextSeq := [];
     var i := 0;
     while i < kvPairsCount
       invariant rd.Valid()
       invariant |kvPairs| == i as int
       invariant i <= kvPairsCount
       invariant totalBytesRead == 2 + Msg.KVPairEntriesLength(kvPairs, 0, i as nat) <= kvPairsLength as nat
-      invariant Msg.ValidAAD(kvPairs)
+      invariant Msg.SortedKVPairs(kvPairs)
     {
       var keyLength :- rd.ReadUInt16();
       totalBytesRead := totalBytesRead + 2;
@@ -241,11 +243,22 @@ module Deserialize {
     if kvPairsLength as nat != totalBytesRead {
       return Failure("Deserialization Error: Bytes actually read differs from bytes supposed to be read.");
     }
-    return Success(kvPairs);
+
+    // Since we are using an extern to convert the sequence to a map,
+    // we must check after the extern call that the map is valid for AAD.
+    // If not valid, then something was wrong with the conversion, as
+    // failures for invalid serializations should be caught earlier.
+    var encryptionContext : map<UTF8.ValidUTF8Bytes, UTF8.ValidUTF8Bytes> := Msg.KVPairSequenceToMap(kvPairs);
+    var isValid := Msg.ComputeValidAAD(encryptionContext);
+    if !isValid {
+      return Failure("Deserialization Error: Failed to parse encryption context.");
+    }
+
+    return Success(encryptionContext);
   }
 
-  method InsertNewEntry(kvPairs: Materials.EncryptionContext, key: UTF8.ValidUTF8Bytes, value: UTF8.ValidUTF8Bytes)
-      returns (res: Option<Materials.EncryptionContext>, ghost insertionPoint: nat)
+  method InsertNewEntry(kvPairs: Msg.EncryptionContextSeq, key: UTF8.ValidUTF8Bytes, value: UTF8.ValidUTF8Bytes)
+      returns (res: Option<Msg.EncryptionContextSeq>, ghost insertionPoint: nat)
     requires Msg.SortedKVPairs(kvPairs)
     ensures match res
     case None =>
@@ -267,7 +280,7 @@ module Deserialize {
     } else {
       var kvPairs' := kvPairs[..n] + [(key, value)] + kvPairs[n..];
       if 0 < n {
-        LexPreservesTrichotomy(kvPairs'[n - 1].0, kvPairs'[n].0, UInt.UInt8Less);
+        LexIsTotal(kvPairs'[n - 1].0, kvPairs'[n].0, UInt.UInt8Less);
       }
       return Some(kvPairs'), n;
     }

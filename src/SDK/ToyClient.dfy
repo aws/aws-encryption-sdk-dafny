@@ -55,7 +55,7 @@ module ToyClientDef {
 
     method GetEncMaterials(ec: Materials.EncryptionContext) returns (res: Result<Materials.ValidEncryptionMaterials>)
       requires Valid()
-      requires MessageHeader.ValidAAD(ec) && Materials.GetKeysFromEncryptionContext(ec) !! Materials.ReservedKeyValues
+      requires MessageHeader.ValidAAD(ec) && ec.Keys !! Materials.ReservedKeyValues
       ensures Valid()
       ensures res.Success? ==> 
         res.value.dataKeyMaterials.algorithmSuiteID == AlgorithmSuite.AES_256_GCM_IV12_TAG16_HKDF_SHA384_ECDSA_P384
@@ -69,7 +69,7 @@ module ToyClientDef {
 
     method Encrypt(pt: seq<uint8>, ec: Materials.EncryptionContext) returns (res: Result<Encryption>)
       requires Valid()
-      requires MessageHeader.ValidAAD(ec) && Materials.GetKeysFromEncryptionContext(ec) !! Materials.ReservedKeyValues
+      requires MessageHeader.ValidAAD(ec) && ec.Keys !! Materials.ReservedKeyValues
       ensures Valid()
       ensures res.Success? ==> |res.value.authTag| == ALGORITHM.tagLen as int
       ensures res.Success? ==> |res.value.iv| == ALGORITHM.ivLen as int
