@@ -8,53 +8,6 @@ module {:extern "TestMaterials"} TestMaterials {
   import opened Materials
   import AlgorithmSuite
 
-  method {:test} TestEncryptionContextGetHappy() returns (res: Result<()>)
-  {
-    var keyA :- UTF8.Encode("keyA");
-    var valA :- UTF8.Encode("valA");
-
-    var keyB :- UTF8.Encode("keyB");
-    var valB :- UTF8.Encode("valB");
-    var encCtx := [(keyA, valA), (keyB, valB)];
-
-    var val :- EncryptionContextGet(encCtx, keyA);
-    var _ :- RequireEqual(val, valA);
-
-    val :- EncryptionContextGet(encCtx, keyB);
-    res := RequireEqual(val, valB);
-  }
-
-  method {:test} TestEncryptionContextGetSad() returns (res: Result<()>)
-  {
-    var keyA :- UTF8.Encode("keyA");
-    var valA :- UTF8.Encode("valA");
-
-    var keyB :- UTF8.Encode("keyB");
-    var valB :- UTF8.Encode("valB");
-
-    var badKey :- UTF8.Encode("Not a key");
-    var encCtx := [(keyA, valA), (keyB, valB)];
-
-    var methodCall := EncryptionContextGet(encCtx, badKey);
-    res := RequireFailure(methodCall);
-  }
-
-  method {:test} TestEncryptionContextGetLarge() returns (res: Result<()>)
-  {
-    var keyA :- UTF8.Encode("keyA");
-    var valA :- UTF8.Encode("valA");
-
-    var keyB :- UTF8.Encode("keyB");
-    var valB :- UTF8.Encode("valB");
-    // (2^16 - 1) / (minimum kvPair size) => (2^16 - 1) / 6 => 10922 is the max
-    // number of pairs you can stuff into a valid AAD
-    // We leave space for just one at the end.
-    var encCtx := seq(10921, _ => (keyA, valA)) + [(keyB, valB)];
-
-    var val :- EncryptionContextGet(encCtx, keyB);
-    res := RequireEqual(valB, val);
-  }
-
   method {:test} TestConcatDataKeyMaterialsHappy() returns (res: Result<()>)
   {
     var edk1 := EncryptedDataKey([], [1], [1]);

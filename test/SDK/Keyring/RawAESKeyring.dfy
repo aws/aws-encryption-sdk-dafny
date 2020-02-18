@@ -28,7 +28,7 @@ module TestAESKeyring {
     var rawAESKeyring := new RawAESKeyringDef.RawAESKeyring(name, namespace, seq(32, i => 0), EncryptionSuites.AES_GCM_256);
     var keyA :- UTF8.Encode("keyA");
     var valA :- UTF8.Encode("valA");
-    var encryptionContext := [(keyA, valA)];
+    var encryptionContext := map[keyA := valA];
     var isValidAAD := MessageHeader.ComputeValidAAD(encryptionContext);
     var _ :- Require(isValidAAD);
 
@@ -51,7 +51,7 @@ module TestAESKeyring {
     var rawAESKeyring := new RawAESKeyringDef.RawAESKeyring(name, namespace, seq(32, i => 0), EncryptionSuites.AES_GCM_256);
     var keyA :- UTF8.Encode("keyA");
     var valA :- UTF8.Encode("valA");
-    var encryptionContext := [(keyA, valA)];
+    var encryptionContext := map[keyA := valA];
     var isValidAAD := MessageHeader.ComputeValidAAD(encryptionContext);
     var _ :- Require(isValidAAD);
 
@@ -76,7 +76,7 @@ module TestAESKeyring {
     var wrappingAlgorithmID := AlgorithmSuite.AES_256_GCM_IV12_TAG16_HKDF_SHA384_ECDSA_P384;
     var keyA :- UTF8.Encode("keyA");
     var valA :- UTF8.Encode("valA");
-    var encryptionContext := [(keyA, valA)];
+    var encryptionContext := map[keyA := valA];
 
     var res :- rawAESKeyring.OnDecrypt(wrappingAlgorithmID, encryptionContext, []);
     r := Require(res.None?);
@@ -105,7 +105,7 @@ module TestAESKeyring {
     var rawAESKeyring := new RawAESKeyringDef.RawAESKeyring(name, namespace, seq(32, i => 0), EncryptionSuites.AES_GCM_256);
     var keyA :- UTF8.Encode("keyA");
     var valA :- UTF8.Encode("valA");
-    var encryptionContext := [(keyA, valA)];
+    var encryptionContext := map[keyA := valA];
     var wrappingAlgorithmID := AlgorithmSuite.AES_256_GCM_IV12_TAG16_HKDF_SHA384_ECDSA_P384;
     var onEncryptResult :- rawAESKeyring.OnEncrypt(wrappingAlgorithmID, encryptionContext, None);
     var _ :- Require(onEncryptResult.Some?);
@@ -144,6 +144,6 @@ module TestAESKeyring {
   {
     var invalidVal := seq(0x1_0000, _ => 0);
     TestUtils.AssumeLongSeqIsValidUTF8(invalidVal);
-    return [(keyA, invalidVal)];
+    return map[keyA:=invalidVal];
   }
 }
