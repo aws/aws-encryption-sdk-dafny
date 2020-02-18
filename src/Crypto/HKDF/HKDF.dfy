@@ -11,14 +11,24 @@ module HKDF {
   import opened StandardLibrary
   import opened UInt = StandardLibrary.UInt
 
-  method Extract(hmac: HMac, salt: seq<uint8>, ikm: seq<uint8>, ghost algorithm: HKDFAlgorithms) returns (prk: seq<uint8>)
-    requires hmac.getAlgorithm() == algorithm
+  function method GetHMACDigestFromHKDFAlgorithm(algorithm: HKDFAlgorithms): (digest: Digests)
+    ensures algorithm == HKDF_WITH_SHA_256 ==> digest == SHA_256
+    ensures algorithm == HKDF_WITH_SHA_384 ==> digest == SHA_384
+  {
+    match algorithm {
+      case HKDF_WITH_SHA_256 => SHA_256
+      case HKDF_WITH_SHA_384 => SHA_384
+    }
+  }
+
+  method Extract(hmac: HMac, salt: seq<uint8>, ikm: seq<uint8>, ghost digest: Digests) returns (prk: seq<uint8>)
+    requires hmac.getDigest() == digest
     requires |salt| != 0
     requires |ikm| < INT32_MAX_LIMIT
     modifies hmac
-    ensures GetHashLength(hmac.getAlgorithm()) as int == |prk|
+    ensures GetHashLength(hmac.getDigest()) == |prk|
     ensures hmac.getKey() == salt
-    ensures hmac.getAlgorithm() == algorithm
+    ensures hmac.getDigest() == digest
   {
     // prk = HMAC-Hash(salt, ikm)
     hmac.Init(salt);
@@ -29,20 +39,20 @@ module HKDF {
     return prk;
   }
 
-  method Expand(hmac: HMac, prk: seq<uint8>, info: seq<uint8>, expectedLength: int, algorithm: HKDFAlgorithms, ghost salt: seq<uint8>) returns (okm: seq<uint8>)
-    requires hmac.getAlgorithm() == algorithm
-    requires 1 <= expectedLength <= 255 * GetHashLength(hmac.getAlgorithm()) as int
+  method Expand(hmac: HMac, prk: seq<uint8>, info: seq<uint8>, expectedLength: int, digest: Digests, ghost salt: seq<uint8>) returns (okm: seq<uint8>)
+    requires hmac.getDigest() == digest
+    requires 1 <= expectedLength <= 255 * GetHashLength(hmac.getDigest())
     requires |salt| != 0
     requires hmac.getKey() == salt
     requires |info| < INT32_MAX_LIMIT
-    requires GetHashLength(hmac.getAlgorithm()) as int == |prk|
+    requires GetHashLength(hmac.getDigest()) == |prk|
     modifies hmac
     ensures |okm| == expectedLength
     ensures hmac.getKey() == prk
   {
     // N = ceil(L / Hash Length)
-    var hashLength := GetHashLength(algorithm);
-    var n := 1 + (expectedLength - 1) / hashLength as int;
+    var hashLength := GetHashLength(digest);
+    var n := 1 + (expectedLength - 1) / hashLength;
 
     // T(0) = empty string (zero length)
     hmac.Init(prk);
@@ -57,11 +67,11 @@ module HKDF {
     while i <= n
       invariant 1 <= i <= n + 1
       invariant i == 1 ==> |t_last| == 0
-      invariant i > 1 ==> |t_last| == hashLength as int
-      invariant hashLength as int == |prk|
-      invariant |t_n| == (i - 1) * hashLength as int;
+      invariant i > 1 ==> |t_last| == hashLength
+      invariant hashLength == |prk|
+      invariant |t_n| == (i - 1) * hashLength
       invariant hmac.getKey() == prk
-      invariant hmac.getAlgorithm() == algorithm
+      invariant hmac.getDigest() == digest
       invariant hmac.getInputSoFar() == []
     {
       hmac.Update(t_last);
@@ -85,28 +95,29 @@ module HKDF {
   /*
    * The RFC 5869 KDF. Outputs L bytes of output key material.
    */
-  method Hkdf(algorithm: HKDFAlgorithms, salt: Option<seq<uint8>>, ikm: seq<uint8>, info: seq<uint8>, L: int) returns (okm: seq<uint8>)
-    requires 0 <= L <= 255 * GetHashLength(algorithm) as int
+  method Hkdf(algorithm: HKDFAlgorithms, salt: Option<seq<uint8>>, ikm: seq<uint8>, info: seq<uint8>, expectedLength: int) returns (okm: seq<uint8>)
+    requires 0 <= expectedLength <= 255 * GetHashLength(GetHMACDigestFromHKDFAlgorithm(algorithm))
     requires salt.None? || |salt.get| != 0
     requires |info| < INT32_MAX_LIMIT
     requires |ikm| < INT32_MAX_LIMIT
-    ensures |okm| == L
+    ensures |okm| == expectedLength
   {
-    if L == 0 {
+    if expectedLength == 0 {
       return [];
     }
-    var hmac := new HMac(algorithm);
-    var hashLength := GetHashLength(algorithm);
+    var digest := GetHMACDigestFromHKDFAlgorithm(algorithm);
+    var hmac := new HMac(digest);
+    var hashLength := GetHashLength(digest);
 
     var saltNonEmpty: seq<uint8>;
     match salt {
       case None =>
-        saltNonEmpty := Fill(0, hashLength as int);
+        saltNonEmpty := Fill(0, hashLength);
       case Some(s) =>
         saltNonEmpty := s;
     }
 
-    var prk := Extract(hmac, saltNonEmpty, ikm, algorithm);
-    okm := Expand(hmac, prk, info, L, algorithm, saltNonEmpty);
+    var prk := Extract(hmac, saltNonEmpty, ikm, digest);
+    okm := Expand(hmac, prk, info, expectedLength, digest, saltNonEmpty);
   }
 }

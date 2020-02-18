@@ -5,10 +5,10 @@ using byteseq = Dafny.Sequence<byte>;
 
 namespace HMAC {
 
-    public class UnsupportedKeyDerivationAlgorithException : Exception
+    public class UnsupportedDigestException : Exception
     {
-        public UnsupportedKeyDerivationAlgorithException(KeyDerivationAlgorithms.KeyDerivationAlgorithm algorithm)
-            : base(String.Format("Invalid Key Derivation Algorithm: {0}", algorithm.ToString()))
+        public UnsupportedDigestException(Digests digest)
+            : base(String.Format("Unsupported digest: {0}", digest.ToString()))
         {
         }
     }
@@ -17,16 +17,16 @@ namespace HMAC {
 
         private Org.BouncyCastle.Crypto.Macs.HMac hmac;
 
-        public HMac(KeyDerivationAlgorithms.KeyDerivationAlgorithm algorithm) {
-            Org.BouncyCastle.Crypto.IDigest digest;
-            if(algorithm.is_HKDF__WITH__SHA__256) {
-                digest = new Org.BouncyCastle.Crypto.Digests.Sha256Digest();
-            } else if(algorithm.is_HKDF__WITH__SHA__384) {
-                digest = new Org.BouncyCastle.Crypto.Digests.Sha384Digest();
+        public HMac(Digests digest) {
+            Org.BouncyCastle.Crypto.IDigest bouncyCastleDigest;
+            if(digest.is_SHA__256) {
+                bouncyCastleDigest = new Org.BouncyCastle.Crypto.Digests.Sha256Digest();
+            } else if(digest.is_SHA__384) {
+                bouncyCastleDigest = new Org.BouncyCastle.Crypto.Digests.Sha384Digest();
             } else {
-                throw new UnsupportedKeyDerivationAlgorithException(algorithm);
+                throw new UnsupportedDigestException(digest);
             }
-            hmac = new Org.BouncyCastle.Crypto.Macs.HMac(digest);
+            hmac = new Org.BouncyCastle.Crypto.Macs.HMac(bouncyCastleDigest);
         }
 
         public void Init(byteseq input) {
