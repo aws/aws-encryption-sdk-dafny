@@ -16,6 +16,10 @@ phases:
       - msbuild boogie/Source/Boogie.sln
       # Get Dafny
       - git clone https://github.com/microsoft/dafny.git
+      # Dafny does not currently use tags/ have release branches. Lock down to a specific commit.
+      - cd dafny
+      - git reset --hard 3f31d66499ab5e2e5d9a7b21f541de5b1d3eb585
+      - cd ..
       - nuget restore dafny/Source/Dafny.sln
       - msbuild dafny/Source/Dafny.sln
       - export PATH="$PWD/dafny/Binaries:$PATH"
