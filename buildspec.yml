@@ -7,7 +7,6 @@ phases:
       - cd ..
       - yum install -y which
       - yum install -y nuget
-      - pip install --no-cache-dir lit OutputCheck pyyaml
       - mozroots --import --sync
       # Get Boogie
       # Multiple Boogie commits have broken our build or test cases. Locking down Boogie.
