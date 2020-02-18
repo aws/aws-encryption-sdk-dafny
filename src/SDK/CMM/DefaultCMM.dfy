@@ -67,7 +67,7 @@ module {:extern "DefaultCMMDef"} DefaultCMMDef {
           var reservedField := Materials.EC_PUBLIC_KEY_FIELD;
           assert reservedField in Materials.ReservedKeyValues;
           assert forall i :: i in ec.Keys ==> i != reservedField;
-          enc_ctx := enc_ctx[reservedField:=enc_vk];
+          enc_ctx := enc_ctx[reservedField := enc_vk];
       }
 
       MessageHeader.AssumeValidAAD(enc_ctx);  // TODO: we should check this (https://github.com/awslabs/aws-encryption-sdk-dafny/issues/79)

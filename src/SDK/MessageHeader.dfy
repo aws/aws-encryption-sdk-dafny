@@ -12,9 +12,14 @@ module {:extern "MessageHeader"} MessageHeader {
   import Materials
   import UTF8
 
+
+  // To make verification and working with iterating through the encryption context
+  // simpler, here we define a specific type to represent a sequence of key-value tuples.
+  type EncryptionContextSeq = seq<(UTF8.ValidUTF8Bytes, UTF8.ValidUTF8Bytes)>
+
   // There isn't an efficient way to build a map from a sequence in dafny, so this
   // extern is used specifically to convert a sequence of key value pairs to a map
-  method {:extern "KVPairSequenceToMap"} KVPairSequenceToMap(kvPairs: seq<(UTF8.ValidUTF8Bytes, UTF8.ValidUTF8Bytes)>) returns (res: Materials.EncryptionContext)
+  method {:extern "KVPairSequenceToMap"} KVPairSequenceToMap(kvPairs: EncryptionContextSeq) returns (res: Materials.EncryptionContext)
 
   /*
    * Definition of the message header, i.e., the header body and the header authentication
@@ -112,7 +117,7 @@ module {:extern "MessageHeader"} MessageHeader {
   }
 
   // Length of KVPairEntries is defined in terms of a seq of tuples, which is easier to reason about
-  function KVPairEntriesLength(kvPairs: seq<(UTF8.ValidUTF8Bytes, UTF8.ValidUTF8Bytes)>, lo: nat, hi: nat): nat
+  function KVPairEntriesLength(kvPairs: EncryptionContextSeq, lo: nat, hi: nat): nat
     requires lo <= hi <= |kvPairs|
   {
     if lo == hi then 0 else
@@ -121,14 +126,14 @@ module {:extern "MessageHeader"} MessageHeader {
       2 + |kvPairs[hi - 1].1|
   }
 
-  lemma KVPairEntriesLengthSplit(kvPairs: seq<(UTF8.ValidUTF8Bytes, UTF8.ValidUTF8Bytes)>, lo: nat, mid: nat, hi: nat)
+  lemma KVPairEntriesLengthSplit(kvPairs: EncryptionContextSeq, lo: nat, mid: nat, hi: nat)
     requires lo <= mid <= hi <= |kvPairs|
     ensures KVPairEntriesLength(kvPairs, lo, hi)
          == KVPairEntriesLength(kvPairs, lo, mid) + KVPairEntriesLength(kvPairs, mid, hi)
   {
   }
 
-  lemma KVPairEntriesLengthPrefix(kvPairs: seq<(UTF8.ValidUTF8Bytes, UTF8.ValidUTF8Bytes)>, more: seq<(UTF8.ValidUTF8Bytes, UTF8.ValidUTF8Bytes)>)
+  lemma KVPairEntriesLengthPrefix(kvPairs: EncryptionContextSeq, more: EncryptionContextSeq)
     ensures KVPairEntriesLength(kvPairs + more, 0, |kvPairs|) == KVPairEntriesLength(kvPairs, 0, |kvPairs|)
   {
     var n := |kvPairs|;
@@ -153,14 +158,14 @@ module {:extern "MessageHeader"} MessageHeader {
     }
   }
 
-  lemma KVPairEntriesLengthExtend(kvPairs: seq<(UTF8.ValidUTF8Bytes, UTF8.ValidUTF8Bytes)>, key: UTF8.ValidUTF8Bytes, value: UTF8.ValidUTF8Bytes)
+  lemma KVPairEntriesLengthExtend(kvPairs: EncryptionContextSeq, key: UTF8.ValidUTF8Bytes, value: UTF8.ValidUTF8Bytes)
     ensures KVPairEntriesLength(kvPairs + [(key, value)], 0, |kvPairs| + 1)
          == KVPairEntriesLength(kvPairs, 0, |kvPairs|) + 4 + |key| + |value|
   {
     KVPairEntriesLengthPrefix(kvPairs, [(key, value)]);
   }
 
-  lemma KVPairEntriesLengthInsert(kvPairs: seq<(UTF8.ValidUTF8Bytes, UTF8.ValidUTF8Bytes)>, insertionPoint: nat, key: UTF8.ValidUTF8Bytes, value: UTF8.ValidUTF8Bytes)
+  lemma KVPairEntriesLengthInsert(kvPairs: EncryptionContextSeq, insertionPoint: nat, key: UTF8.ValidUTF8Bytes, value: UTF8.ValidUTF8Bytes)
     requires insertionPoint <= |kvPairs|
     ensures var kvPairs' := kvPairs[..insertionPoint] + [(key, value)] + kvPairs[insertionPoint..];
       KVPairEntriesLength(kvPairs', 0, |kvPairs'|) == KVPairEntriesLength(kvPairs, 0, |kvPairs|) + 4 + |key| + |value|
@@ -196,7 +201,7 @@ module {:extern "MessageHeader"} MessageHeader {
     if |encryptionContext| == 0 then 0 else
       // Defining and reasoning about order at this level is simplified by using a sequence of
       // key value pairs instead of a map.
-      var keys : seq<UTF8.ValidUTF8Bytes> := SetToOrderedSequence(encryptionContext.Keys, UInt.UInt8Less);
+      var keys: seq<UTF8.ValidUTF8Bytes> := SetToOrderedSequence(encryptionContext.Keys, UInt.UInt8Less);
       var kvPairs := seq(|keys|, i requires 0 <= i < |keys| => (keys[i], encryptionContext[keys[i]]));
       2 + KVPairEntriesLength(kvPairs, 0, |kvPairs|)
   }
@@ -211,7 +216,7 @@ module {:extern "MessageHeader"} MessageHeader {
 
     // Iterating through a map isn't feasbile in dafny for large maps, so instead
     // convert the map to a sequence of key pairs and iterate through the sequence
-    var keys : seq<UTF8.ValidUTF8Bytes> := Sets.ComputeSetToOrderedSequence(encryptionContext.Keys, UInt.UInt8Less);
+    var keys: seq<UTF8.ValidUTF8Bytes> := Sets.ComputeSetToOrderedSequence(encryptionContext.Keys, UInt.UInt8Less);
     var kvPairs := seq(|keys|, i requires 0 <= i < |keys| => (keys[i], encryptionContext[keys[i]]));
 
     var len := 2;
@@ -250,7 +255,7 @@ module {:extern "MessageHeader"} MessageHeader {
     
     // Iterating through a map isn't feasbile in dafny for large maps, so instead
     // convert the map to a sequence of key pairs and iterate through the sequence
-    var keys : seq<UTF8.ValidUTF8Bytes> := Sets.ComputeSetToOrderedSequence<uint8>(encryptionContext.Keys, UInt.UInt8Less);
+    var keys: seq<UTF8.ValidUTF8Bytes> := Sets.ComputeSetToOrderedSequence<uint8>(encryptionContext.Keys, UInt.UInt8Less);
     var kvPairs := seq(|keys|, i requires 0 <= i < |keys| => (keys[i], encryptionContext[keys[i]]));
     assert forall i :: 0 <= i < |keys| ==> kvPairs[i] == (keys[i], encryptionContext[keys[i]]);
 
@@ -294,13 +299,13 @@ module {:extern "MessageHeader"} MessageHeader {
     case Framed => frameLength != 0
   }
 
-  predicate SortedKVPairsUpTo(a: seq<(UTF8.ValidUTF8Bytes, UTF8.ValidUTF8Bytes)>, n: nat)
+  predicate SortedKVPairsUpTo(a: EncryptionContextSeq, n: nat)
     requires n <= |a|
   {
     forall j :: 0 < j < n ==> LexicographicLessOrEqual(a[j-1].0, a[j].0, UInt.UInt8Less)
   }
 
-  predicate SortedKVPairs(kvPairs: seq<(UTF8.ValidUTF8Bytes, UTF8.ValidUTF8Bytes)>)
+  predicate SortedKVPairs(kvPairs: EncryptionContextSeq)
   {
     SortedKVPairsUpTo(kvPairs, |kvPairs|)
   }
@@ -341,14 +346,14 @@ module {:extern "MessageHeader"} MessageHeader {
       // key value pairs instead of a map.
       // Pairs are ordered lexicographically by their UTF8 encoding, which is equivalent to code
       // point ordering.
-      var keys : seq<UTF8.ValidUTF8Bytes> := SetToOrderedSequence<uint8>(kvPairs.Keys, UInt.UInt8Less);
+      var keys: seq<UTF8.ValidUTF8Bytes> := SetToOrderedSequence<uint8>(kvPairs.Keys, UInt.UInt8Less);
       var kvPairsSeq := seq(|keys|, i requires 0 <= i < |keys| => (keys[i], kvPairs[keys[i]]));
       UInt16ToSeq(n as uint16) +
       KVPairEntriesToSeq(kvPairsSeq, 0, |kvPairsSeq|)
   }
 
   // Serialization of KVPairEntries is defined in terms of a seq of tuples, which is easier to reason about
-  function KVPairEntriesToSeq(kvPairs: seq<(UTF8.ValidUTF8Bytes, UTF8.ValidUTF8Bytes)>, lo: nat, hi: nat): seq<uint8>
+  function KVPairEntriesToSeq(kvPairs: EncryptionContextSeq, lo: nat, hi: nat): seq<uint8>
     requires forall i :: 0 <= i < |kvPairs| ==> ValidKVPair(kvPairs[i])
     requires |kvPairs| < UINT16_LIMIT
     requires SortedKVPairs(kvPairs)
@@ -397,7 +402,7 @@ module {:extern "MessageHeader"} MessageHeader {
     ensures |AADToSeq(encryptionContext)| == 2 + KVPairsLength(encryptionContext)
   {
     reveal ValidAAD();
-    var keys : seq<UTF8.ValidUTF8Bytes> := SetToOrderedSequence(encryptionContext.Keys, UInt.UInt8Less);
+    var keys: seq<UTF8.ValidUTF8Bytes> := SetToOrderedSequence(encryptionContext.Keys, UInt.UInt8Less);
     var kvPairs := seq(|keys|, i requires 0 <= i < |keys| => (keys[i], encryptionContext[keys[i]]));
     KVPairEntriesLengthCorrect(kvPairs, 0, |kvPairs|);
     /**** Here's a more detailed proof:
@@ -417,7 +422,7 @@ module {:extern "MessageHeader"} MessageHeader {
     ****/
   }
 
-  lemma KVPairEntriesLengthCorrect(encryptionContext: seq<(UTF8.ValidUTF8Bytes, UTF8.ValidUTF8Bytes)>, lo: nat, hi: nat)
+  lemma KVPairEntriesLengthCorrect(encryptionContext: EncryptionContextSeq, lo: nat, hi: nat)
     requires forall i :: 0 <= i < |encryptionContext| ==> ValidKVPair(encryptionContext[i])
     requires lo <= hi <= |encryptionContext|
     requires |encryptionContext| < UINT16_LIMIT

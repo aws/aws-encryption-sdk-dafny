@@ -26,6 +26,7 @@ module {:extern "TestUtils"} TestUtils {
     // (2^16 - 1 - 2) / (2 + 2 + 2 + 1) ==> (2^16 - 3) / 7 ==> 9361
     // which is close to the max number of pairs you can stuff into a valid AAD.
     // We look for 9361 valid 2 byte UTF8 sequences (sticking to 2 bytes for simplicity).
+    assert (0x1_0000 - 1 - 2) / (2 + 2 + 2 + 1) == (0x1_0000 - 3) / 7 == 9361;
     var numMaxPairs := 9361;
     var val :- UTF8.Encode("a");
     var encCtx : map<UTF8.ValidUTF8Bytes, UTF8.ValidUTF8Bytes> := map[];

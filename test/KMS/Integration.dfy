@@ -42,7 +42,7 @@ module IntegTestKMS {
       // We also need to help the verifier with proving the KVPairsLength is small:
       calc {
         Msg.KVPairsLength(encryptionContext);
-        var keys : seq<UTF8.ValidUTF8Bytes> := SetToOrderedSequence<uint8>(encryptionContext.Keys, UInt.UInt8Less);
+        var keys: seq<UTF8.ValidUTF8Bytes> := SetToOrderedSequence<uint8>(encryptionContext.Keys, UInt.UInt8Less);
         var kvPairsSeq := seq(|keys|, i requires 0 <= i < |keys| => (keys[i], encryptionContext[keys[i]]));
         2 + Msg.KVPairEntriesLength(kvPairsSeq, 0, |kvPairsSeq|); // 2 bytes for the kvPairsCount field
         2 + 2 + |keyA| + 2 + |valA|; // 2 bytes required for keyLength and valueLength fields

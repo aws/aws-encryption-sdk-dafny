@@ -202,7 +202,7 @@ module Deserialize {
 
     // Building a map item by item is expensive in dafny, so
     // instead we first read the key value pairs into a sequence
-    var kvPairs: seq<(UTF8.ValidUTF8Bytes, UTF8.ValidUTF8Bytes)> := [];
+    var kvPairs: Msg.EncryptionContextSeq := [];
     var i := 0;
     while i < kvPairsCount
       invariant rd.Valid()
@@ -257,8 +257,8 @@ module Deserialize {
     return Success(encryptionContext);
   }
 
-  method InsertNewEntry(kvPairs: seq<(UTF8.ValidUTF8Bytes, UTF8.ValidUTF8Bytes)>, key: UTF8.ValidUTF8Bytes, value: UTF8.ValidUTF8Bytes)
-      returns (res: Option<seq<(UTF8.ValidUTF8Bytes, UTF8.ValidUTF8Bytes)>>, ghost insertionPoint: nat)
+  method InsertNewEntry(kvPairs: Msg.EncryptionContextSeq, key: UTF8.ValidUTF8Bytes, value: UTF8.ValidUTF8Bytes)
+      returns (res: Option<Msg.EncryptionContextSeq>, ghost insertionPoint: nat)
     requires Msg.SortedKVPairs(kvPairs)
     ensures match res
     case None =>
