@@ -2,62 +2,59 @@ include "HMAC.dfy"
 include "../KeyDerivationAlgorithms.dfy"
 include "../../StandardLibrary/StandardLibrary.dfy"
 
- /*
-  * Implementation of the https://tools.ietf.org/html/rfc5869 HMAC-based key derivation function
-  */
+/*
+ * Implementation of the https://tools.ietf.org/html/rfc5869 HMAC-based key derivation function
+ */
 module HKDF {
   import opened HMAC
   import opened KeyDerivationAlgorithms
   import opened StandardLibrary
   import opened UInt = StandardLibrary.UInt
 
-  function method GetHMACDigestFromHKDFAlgorithm(algorithm: HKDFAlgorithms): (digest: Digests)
-    ensures algorithm == HKDF_WITH_SHA_256 ==> digest == SHA_256
-    ensures algorithm == HKDF_WITH_SHA_384 ==> digest == SHA_384
+  function method GetHMACDigestFromHKDFAlgorithm(algorithm: HKDFAlgorithms): Digests
   {
-    match algorithm {
-      case HKDF_WITH_SHA_256 => SHA_256
-      case HKDF_WITH_SHA_384 => SHA_384
-    }
+    match algorithm
+    case HKDF_WITH_SHA_256 => SHA_256
+    case HKDF_WITH_SHA_384 => SHA_384
   }
 
   method Extract(hmac: HMac, salt: seq<uint8>, ikm: seq<uint8>, ghost digest: Digests) returns (prk: seq<uint8>)
-    requires hmac.getDigest() == digest
+    requires hmac.GetDigest() == digest
     requires |salt| != 0
     requires |ikm| < INT32_MAX_LIMIT
     modifies hmac
-    ensures GetHashLength(hmac.getDigest()) == |prk|
-    ensures hmac.getKey() == salt
-    ensures hmac.getDigest() == digest
+    ensures GetHashLength(hmac.GetDigest()) == |prk|
+    ensures hmac.GetKey() == salt
+    ensures hmac.GetDigest() == digest
   {
     // prk = HMAC-Hash(salt, ikm)
     hmac.Init(salt);
     hmac.Update(ikm);
-    assert hmac.getInputSoFar() == ikm;
+    assert hmac.GetInputSoFar() == ikm;
 
     prk := hmac.GetResult();
     return prk;
   }
 
   method Expand(hmac: HMac, prk: seq<uint8>, info: seq<uint8>, expectedLength: int, digest: Digests, ghost salt: seq<uint8>) returns (okm: seq<uint8>)
-    requires hmac.getDigest() == digest
-    requires 1 <= expectedLength <= 255 * GetHashLength(hmac.getDigest())
+    requires hmac.GetDigest() == digest
+    requires 1 <= expectedLength <= 255 * GetHashLength(hmac.GetDigest())
     requires |salt| != 0
-    requires hmac.getKey() == salt
+    requires hmac.GetKey() == salt
     requires |info| < INT32_MAX_LIMIT
-    requires GetHashLength(hmac.getDigest()) == |prk|
+    requires GetHashLength(hmac.GetDigest()) == |prk|
     modifies hmac
     ensures |okm| == expectedLength
-    ensures hmac.getKey() == prk
+    ensures hmac.GetKey() == prk
   {
     // N = ceil(L / Hash Length)
     var hashLength := GetHashLength(digest);
-    var n := 1 + (expectedLength - 1) / hashLength;
+    var n := (hashLength + expectedLength - 1) / hashLength;
 
     // T(0) = empty string (zero length)
     hmac.Init(prk);
-    var t_last := [];
-    var t_n := t_last;
+    var t_prev := [];
+    var t_n := t_prev;
 
     // T = T(0) + T (1) + T(2) + ... T(n)
     // T(1) = HMAC-Hash(PRK, T(1) | info | 0x01)
@@ -66,22 +63,21 @@ module HKDF {
     var i := 1;
     while i <= n
       invariant 1 <= i <= n + 1
-      invariant i == 1 ==> |t_last| == 0
-      invariant i > 1 ==> |t_last| == hashLength
+      invariant |t_prev| == if i == 1 then 0 else hashLength
       invariant hashLength == |prk|
       invariant |t_n| == (i - 1) * hashLength
-      invariant hmac.getKey() == prk
-      invariant hmac.getDigest() == digest
-      invariant hmac.getInputSoFar() == []
+      invariant hmac.GetKey() == prk
+      invariant hmac.GetDigest() == digest
+      invariant hmac.GetInputSoFar() == []
     {
-      hmac.Update(t_last);
+      hmac.Update(t_prev);
       hmac.Update(info);
       hmac.Update([i as uint8]);
-      assert hmac.getInputSoFar() == t_last + info + [(i as uint8)];
+      assert hmac.GetInputSoFar() == t_prev + info + [i as uint8];
 
       // Add additional verification for T(n): github.com/awslabs/aws-encryption-sdk-dafny/issues/177
-      t_last := hmac.GetResult();
-      t_n := t_n + t_last;
+      t_prev := hmac.GetResult();
+      t_n := t_n + t_prev;
       i := i + 1;
     }
 
