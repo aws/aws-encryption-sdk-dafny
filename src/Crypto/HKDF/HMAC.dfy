@@ -1,68 +1,53 @@
-include "../Digests.dfy"
+include "../KeyDerivationAlgorithms.dfy"
 include "../../StandardLibrary/StandardLibrary.dfy"
 
 module {:extern "HMAC"} HMAC {
-  import opened Digests
+  import opened KeyDerivationAlgorithms
   import opened StandardLibrary
   import opened UInt = StandardLibrary.UInt
 
-  datatype {:extern "CipherParameters"} CipherParameters = KeyParameter(key: seq<uint8>)
+  datatype {:extern "Digests"} Digests = SHA_256 | SHA_384
+
+  // Hash length in octets (bytes), e.g. GetHashLength(SHA_256) ==> 256 bits = 32 bytes ==> n = 32
+  function method GetHashLength(digest: Digests): int
+  {
+    match digest
+    case SHA_256 => 32
+    case SHA_384 => 48
+  }
 
   class {:extern "HMac"} HMac {
 
-    const algorithm: KeyDerivationAlgorithm
-    ghost var initialized: Option<seq<uint8>>
-    ghost var InputSoFar: seq<uint8>
+    // These functions are used to model the extern state
+    // https://github.com/dafny-lang/dafny/wiki/Modeling-External-State-Correctly
+    function {:extern} GetKey(): seq<uint8> reads this
+    function {:extern} GetDigest(): Digests reads this
+    function {:extern} GetInputSoFar(): seq<uint8> reads this
 
-    constructor {:extern} (algorithm: KeyDerivationAlgorithm)
-      requires algorithm != IDENTITY
-      ensures this.algorithm == algorithm
+    constructor {:extern} (digest: Digests)
+      ensures this.GetDigest() == digest
+      ensures this.GetInputSoFar() == []
 
-    function method {:extern "GetMacSize"} getMacSize(): int32
-      requires algorithm != IDENTITY
-      ensures getMacSize() == HashLength(algorithm)
-
-    predicate {:axiom} validKey(key: seq<uint8>)
-
-    method {:extern "Init"} init(params: CipherParameters)
-      // The documentation says it can throw "InvalidKeyException - if the given key is inappropriate for
-      // initializing this MAC", which I have interpreted to mean the following precondition:
-      requires params.KeyParameter?
+    method {:extern "Init"} Init(key: seq<uint8>)
       modifies this
-      ensures
-        var key := match params case KeyParameter(key) => key;
-        match initialized { case Some(k) => validKey(k) && key == k case None => false }
-      ensures InputSoFar == []
+      ensures this.GetKey() == key;
+      ensures this.GetDigest() == old(this.GetDigest())
+      ensures this.GetInputSoFar() == []
 
-    method {:extern "Update"} updateSingle(input: uint8)
-      requires initialized.Some?
+    method {:extern "BlockUpdate"} Update(input: seq<uint8>)
+      requires |this.GetKey()| > 0
+      requires |input| < INT32_MAX_LIMIT
       modifies this
-      ensures unchanged(`initialized)
-      ensures InputSoFar == old(InputSoFar) + [input]
+      ensures this.GetInputSoFar() == old(this.GetInputSoFar()) + input
+      ensures this.GetDigest() == old(this.GetDigest())
+      ensures this.GetKey() == old(this.GetKey())
 
-    method {:extern "BlockUpdate"} update(input: seq<uint8>, inOff: int32, len: int32)
-      requires initialized.Some?
-      requires inOff >= 0
-      requires len >= 0
-      requires |input| < INT32_MAX_LIMIT
-      requires inOff as int + len as int <= |input|
-      modifies `InputSoFar
-      ensures InputSoFar == old(InputSoFar) + input[inOff..(inOff + len)]
-
-    method {:extern "GetResult"} getResult() returns (s: seq<uint8>)
-      requires initialized.Some?
-      requires algorithm != IDENTITY
-      modifies `InputSoFar
-      ensures InputSoFar == []
-      ensures |s| == HashLength(algorithm) as int
-
-    method updateAll(input: seq<uint8>)
-      requires initialized.Some?
-      requires |input| < INT32_MAX_LIMIT
-      modifies `InputSoFar
-      ensures InputSoFar == old(InputSoFar) + input
-    {
-      update(input, 0, |input| as int32);
-    }
+    method {:extern "GetResult"} GetResult() returns (s: seq<uint8>)
+      requires |this.GetKey()| > 0
+      modifies this
+      ensures |s| == GetHashLength(this.GetDigest())
+      ensures this.GetInputSoFar() == []
+      ensures this.GetDigest() == old(this.GetDigest())
+      ensures this.GetKey() == old(this.GetKey())
   }
 }
