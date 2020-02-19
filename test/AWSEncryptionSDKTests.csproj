@@ -41,7 +41,7 @@
     <PackageReference Include="Portable.BouncyCastle" Version="1.8.5.2" />
   </ItemGroup>
   <PropertyGroup>
-    <DafnyVerificationTimeLimit>120</DafnyVerificationTimeLimit>
+    <DafnyVerificationTimeLimit>300</DafnyVerificationTimeLimit>
   </PropertyGroup>
 
   <!--
