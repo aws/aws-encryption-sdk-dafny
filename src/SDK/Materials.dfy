@@ -163,13 +163,4 @@ module {:extern "Materials"} Materials {
   }
 
   type ValidDecryptionMaterials = i: DecryptionMaterials | i.Valid() witness DecryptionMaterials.ValidWitness()
-
-  predicate method CompatibleDecryptionMaterials(m1: ValidDecryptionMaterials, m2: ValidDecryptionMaterials) {
-    var generateTraces := Filter(m1.keyringTrace + m2.keyringTrace, IsGenerateTraceEntry);
-    && m1.encryptionContext == m2.encryptionContext
-    && m1.algorithmSuiteID == m2.algorithmSuiteID && m1.plaintextDataKey == m2.plaintextDataKey
-    && |generateTraces| <= 1
-    && (|generateTraces| == 1 ==> |m1.keyringTrace| > 0 && generateTraces[0] == m1.keyringTrace[0])
-    && m1.verificationKey == m2.verificationKey
-  }
 }
