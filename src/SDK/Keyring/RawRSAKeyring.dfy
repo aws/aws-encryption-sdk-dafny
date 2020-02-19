@@ -62,53 +62,47 @@ module {:extern "RawRSAKeyringDef"} RawRSAKeyringDef {
         (if privateKey.Some? then {privateKey.get} + privateKey.get.Repr else {});
     }
 
-    method OnEncrypt(algorithmSuiteID: Materials.AlgorithmSuite.ID,
-                     encryptionContext: Materials.EncryptionContext,
-                     plaintextDataKey: Option<seq<uint8>>)
-      returns (res: Result<Option<Materials.ValidDataKeyMaterials>>)
+    method OnEncrypt(materials: Materials.ValidEncryptionMaterials) returns (res: Result<Materials.ValidEncryptionMaterials>)
       requires Valid()
-      requires plaintextDataKey.Some? ==> algorithmSuiteID.ValidPlaintextDataKey(plaintextDataKey.get)
       // NOTE: encryptionContext is intentionally unused
       ensures Valid()
       ensures unchanged(Repr)
       ensures publicKey.None? ==> res.Failure?
-      ensures res.Success? && res.value.Some? ==> 
-        algorithmSuiteID == res.value.get.algorithmSuiteID
-      ensures res.Success? && res.value.Some? && plaintextDataKey.Some? ==> 
-        plaintextDataKey.get == res.value.get.plaintextDataKey
-      ensures res.Success? && res.value.Some? ==>
-        (forall encryptedDataKey :: encryptedDataKey in res.value.get.encryptedDataKeys ==>
-        encryptedDataKey.providerID == keyNamespace && encryptedDataKey.providerInfo == keyName)
-      ensures res.Success? && res.value.Some? ==>
-        var generateTraces: seq<Materials.KeyringTraceEntry> := Filter(res.value.get.keyringTrace, Materials.IsGenerateTraceEntry);
-        |generateTraces| == if plaintextDataKey.None? then 1 else 0
-      ensures res.Success? && res.value.Some? ==>
-        if plaintextDataKey.None? then
-          && |res.value.get.keyringTrace| == 2
-          && res.value.get.keyringTrace[0] == GenerateTraceEntry()
-          && res.value.get.keyringTrace[1] == EncryptTraceEntry()
+      ensures res.Success? ==> 
+          && materials.encryptionContext == res.value.encryptionContext
+          && materials.algorithmSuiteID == res.value.algorithmSuiteID 
+          && (materials.plaintextDataKey.Some? ==> res.value.plaintextDataKey == materials.plaintextDataKey)
+          && materials.keyringTrace <= res.value.keyringTrace
+          && materials.encryptedDataKeys <= res.value.encryptedDataKeys
+          && materials.signingKey == res.value.signingKey
+      ensures res.Success? ==>
+        (forall i :: |materials.encryptedDataKeys| <= i < |res.value.encryptedDataKeys| ==>
+        res.value.encryptedDataKeys[i].providerID == keyNamespace && res.value.encryptedDataKeys[i].providerInfo == keyName)
+      ensures res.Success? && materials.plaintextDataKey.None? && res.value.plaintextDataKey.Some? ==>
+        var generateTraces: seq<Materials.KeyringTraceEntry> := Filter(res.value.keyringTrace, Materials.IsGenerateTraceEntry);
+        |generateTraces| == if materials.plaintextDataKey.None? then 1 else 0
+      ensures res.Success? ==>
+        if materials.plaintextDataKey.None? then
+          && |res.value.keyringTrace| == 2
+          && res.value.keyringTrace[|materials.keyringTrace|] == GenerateTraceEntry()
+          && res.value.keyringTrace[|materials.keyringTrace| + 1] == EncryptTraceEntry()
         else
-          && |res.value.get.keyringTrace| == 1
-          && res.value.get.keyringTrace[0] == EncryptTraceEntry()
+          && |res.value.keyringTrace| == |materials.keyringTrace| + 1
+          && res.value.keyringTrace[|materials.keyringTrace|] == EncryptTraceEntry()
     {
       if publicKey.None? {
         return Failure("Encryption key undefined");
       }
 
-      var plaintextDataKey := plaintextDataKey;
-      var algorithmID := algorithmSuiteID;
-      var keyringTrace := [];
-
       // If no plaintext data key exists, generate a random plaintext data key
-      if plaintextDataKey.None? {
-        var k := Random.GenerateBytes(algorithmID.KDFInputKeyLength() as int32);
-        plaintextDataKey := Some(k);
-        var generateTraceEntry := GenerateTraceEntry();
-        keyringTrace := keyringTrace + [generateTraceEntry];
+      var materialsWithDataKey := materials;
+      if materials.plaintextDataKey.None? {
+        var k := Random.GenerateBytes(materialsWithDataKey.algorithmSuiteID.KDFInputKeyLength() as int32);
+        materialsWithDataKey := materials.WithKeys(Some(k), [], [GenerateTraceEntry()]);
       }
 
       // Attempt to encrypt and construct the encrypted data key
-      var encryptedCiphertext :- RSA.Encrypt(paddingMode, publicKey.get, plaintextDataKey.get);
+      var encryptedCiphertext :- RSA.Encrypt(paddingMode, publicKey.get, materialsWithDataKey.plaintextDataKey.get);
       if UINT16_LIMIT <= |encryptedCiphertext| {
         return Failure("Encrypted data key too long.");
       }
@@ -116,30 +110,31 @@ module {:extern "RawRSAKeyringDef"} RawRSAKeyringDef {
 
       // Construct the necessary trace
       var encryptTraceEntry := EncryptTraceEntry();
-      FilterIsDistributive(keyringTrace, [encryptTraceEntry], Materials.IsGenerateTraceEntry);
-      FilterIsDistributive(keyringTrace, [encryptTraceEntry], Materials.IsEncryptTraceEntry);
-      keyringTrace := keyringTrace + [encryptTraceEntry];
+      FilterIsDistributive(materialsWithDataKey.keyringTrace, [encryptTraceEntry], Materials.IsGenerateTraceEntry);
 
       // Finally return the dataKey
-      var materials := Materials.DataKeyMaterials(algorithmID, plaintextDataKey.get, [encryptedDataKey], keyringTrace);
+      var materials := materialsWithDataKey.WithKeys(materialsWithDataKey.plaintextDataKey, [encryptedDataKey], [encryptTraceEntry]);
       assert materials.Valid();
-      return Success(Some(materials));
+      return Success(materials);
     }
 
-    method OnDecrypt(algorithmSuiteID: AlgorithmSuite.ID, 
-                     encryptionContext: Materials.EncryptionContext, 
-                     encryptedDataKeys: seq<Materials.EncryptedDataKey>)
-      returns (res: Result<Option<Materials.ValidOnDecryptResult>>)
+    method OnDecrypt(materials: Materials.ValidDecryptionMaterials,
+                     encryptedDataKeys: seq<Materials.EncryptedDataKey>) returns (res: Result<Materials.ValidDecryptionMaterials>)
       requires Valid()
       ensures Valid()
-      ensures |encryptedDataKeys| == 0 ==> res.Success? && res.value.None?
-      ensures privateKey.None? && |encryptedDataKeys| > 0 ==> res.Failure?
-      ensures res.Success? && res.value.Some? ==> res.value.get.algorithmSuiteID == algorithmSuiteID
-      ensures res.Success? && res.value.Some? ==> |res.value.get.keyringTrace| == 1
-        && res.value.get.keyringTrace[0] == DecryptTraceEntry()
+      ensures |encryptedDataKeys| == 0 ==> res.Success? && materials == res.value
+      ensures res.Success? ==>
+        && materials.encryptionContext == res.value.encryptionContext
+        && materials.algorithmSuiteID == res.value.algorithmSuiteID
+        && (materials.plaintextDataKey.Some? ==> res.value.plaintextDataKey == materials.plaintextDataKey)
+        && materials.keyringTrace <= res.value.keyringTrace
+        && res.value.verificationKey == materials.verificationKey
+      ensures privateKey.None? && materials.plaintextDataKey.None? && |encryptedDataKeys| > 0 ==> res.Failure?
+      ensures res.Success? && materials.plaintextDataKey.None? && res.value.plaintextDataKey.Some? ==> |res.value.keyringTrace| == |materials.keyringTrace| + 1
+        && res.value.keyringTrace[|materials.keyringTrace|] == DecryptTraceEntry()
     {
-      if |encryptedDataKeys| == 0 {
-        return Success(None);
+      if materials.plaintextDataKey.Some? || |encryptedDataKeys| == 0 {
+        return Success(materials);
       } else if privateKey.None? {
         return Failure("Decryption key undefined");
       }
@@ -157,16 +152,16 @@ module {:extern "RawRSAKeyringDef"} RawRSAKeyringDef {
             // Try to decrypt using another encryptedDataKey
           case Success(plaintextDataKey) =>
             // Validate the key length before returning
-            if algorithmSuiteID.ValidPlaintextDataKey(plaintextDataKey) {
+            if materials.algorithmSuiteID.ValidPlaintextDataKey(plaintextDataKey) {
               var decryptTraceEntry := DecryptTraceEntry();
-              return Success(Some(Materials.OnDecryptResult(algorithmSuiteID, plaintextDataKey, [decryptTraceEntry])));
+              return Success(materials.WithPlaintextDataKey(plaintextDataKey, [decryptTraceEntry]));
             } else {
               return Failure("Bad key length!");
             }
         }
         i := i + 1;
       }
-      return Success(None);
+      return Success(materials);
     }
 
     function method GenerateTraceEntry(): Materials.KeyringTraceEntry
