@@ -146,7 +146,10 @@ namespace TestVectorTests {
                 string vectorID = vectorEntry.Key;
                 TestVector vector = vectorEntry.Value;
 
-                bool shouldSkip = VectorContainsMasterkeyOfType(vector, "raw");
+                // We are unable to test Raw Keyrings untill #137 is resolved.
+                if (VectorContainsMasterkeyOfType(vector, "raw")) {
+                    continue;
+                }
 
                 string plaintextPath = ManifestURIToPath(vector.plaintext, vectorRoot);
                 if (!File.Exists(plaintextPath)) {
@@ -156,7 +159,7 @@ namespace TestVectorTests {
 
                 CMM cmm = CMMFactory.EncryptCMM(vector, keyMap);
 
-                yield return new object[] { vectorEntry.Key, cmm, plaintext, client, decryptOracle, shouldSkip };
+                yield return new object[] { vectorEntry.Key, cmm, plaintext, client, decryptOracle };
             }
         }
     }
@@ -279,10 +282,9 @@ namespace TestVectorTests {
         }
 
         #pragma warning disable xUnit1026 // Suppress Unused argument warnings for vectorID.
-        [SkippableTheory]
+        [Theory]
         [ClassData (typeof(EncryptTestVectors))]
-        public void CanEncryptTestVector(string vectorID, CMM cmm, byte[] plaintext, HttpClient client, string decryptOracle, bool shouldSkip) {
-            Skip.If(shouldSkip);
+        public void CanEncryptTestVector(string vectorID, CMM cmm, byte[] plaintext, HttpClient client, string decryptOracle) {
             MemoryStream ciphertext = AWSEncryptionSDK.Client.Encrypt(new MemoryStream(plaintext), cmm, new Dictionary<string, string>());
 
             StreamContent content = new StreamContent(ciphertext);
