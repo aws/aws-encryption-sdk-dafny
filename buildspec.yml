@@ -16,7 +16,8 @@ phases:
       - msbuild boogie/Source/Boogie.sln
       # Get Dafny
       - git clone https://github.com/microsoft/dafny.git
-      # Dafny does not currently use tags/ have release branches. Lock down to a specific commit.
+      # Although Dafny does has releases, we often need a newer hash than the latest release, while still needing the
+      # the security of reproducible builds.
       - cd dafny
       - git reset --hard 3f31d66499ab5e2e5d9a7b21f541de5b1d3eb585
       - cd ..
