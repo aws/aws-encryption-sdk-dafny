@@ -5,10 +5,10 @@ using byteseq = Dafny.Sequence<byte>;
 
 namespace HMAC {
 
-    public class UnsupportedKeyDerivationAlgorithException : Exception
+    public class UnsupportedDigestException : Exception
     {
-        public UnsupportedKeyDerivationAlgorithException(Digests.KeyDerivationAlgorithm algorithm)
-            : base(String.Format("Invalid Key Derivation Algorithm: {0}", algorithm.ToString()))
+        public UnsupportedDigestException(Digests digest)
+            : base(String.Format("Unsupported digest: {0}", digest.ToString()))
         {
         }
     }
@@ -17,39 +17,29 @@ namespace HMAC {
 
         private Org.BouncyCastle.Crypto.Macs.HMac hmac;
 
-        public HMac(Digests.KeyDerivationAlgorithm algorithm) {
-            Org.BouncyCastle.Crypto.IDigest digest;
-            if(algorithm.is_HKDF__WITH__SHA__256) {
-                digest = new Org.BouncyCastle.Crypto.Digests.Sha256Digest();
-            } else if(algorithm.is_HKDF__WITH__SHA__384) {
-                digest = new Org.BouncyCastle.Crypto.Digests.Sha384Digest();
+        public HMac(Digests digest) {
+            Org.BouncyCastle.Crypto.IDigest bouncyCastleDigest;
+            if(digest.is_SHA__256) {
+                bouncyCastleDigest = new Org.BouncyCastle.Crypto.Digests.Sha256Digest();
+            } else if(digest.is_SHA__384) {
+                bouncyCastleDigest = new Org.BouncyCastle.Crypto.Digests.Sha384Digest();
             } else {
-                throw new UnsupportedKeyDerivationAlgorithException(algorithm);
+                throw new UnsupportedDigestException(digest);
             }
-            hmac = new Org.BouncyCastle.Crypto.Macs.HMac(digest);
+            hmac = new Org.BouncyCastle.Crypto.Macs.HMac(bouncyCastleDigest);
         }
 
-        public int GetMacSize() {
-            return hmac.GetMacSize();
+        public void Init(byteseq input) {
+            // KeyParameter/ Init should not mutate input, but this is safer than using input.Elements directly
+            byte[] elemCopy = (byte[]) input.Elements.Clone();
+            var keyParams = new Org.BouncyCastle.Crypto.Parameters.KeyParameter(elemCopy);
+            hmac.Init(keyParams);
         }
 
-        public void Init(CipherParameters ps) {
-            if(ps.is_KeyParameter) {
-                // KeyParameter/ Init should not mutate ps, but this is safer than using ps.key.Elements directly
-                byte[] elemCopy = (byte[]) ps.key.Elements.Clone();
-                var keyParams = new Org.BouncyCastle.Crypto.Parameters.KeyParameter(elemCopy);
-                hmac.Init(keyParams);
-            }
-        }
-
-        public void Update(byte input) {
-            hmac.Update(input);
-        }
-
-        public void BlockUpdate(byteseq input , int inOff, int len) {
+        public void BlockUpdate(byteseq input) {
             // BlockUpdate should not mutate input, but this is safer than using input.Elements directly
             byte[] elemCopy = (byte[]) input.Elements.Clone();
-            hmac.BlockUpdate(elemCopy, inOff, len);
+            hmac.BlockUpdate(elemCopy, 0, elemCopy.Length);
         }
 
         public byteseq GetResult() {
