@@ -33,15 +33,16 @@ module TestAESKeyring {
     var _ :- Require(isValidAAD);
 
     var wrappingAlgorithmID := AlgorithmSuite.AES_256_GCM_IV12_TAG16_HKDF_SHA384_ECDSA_P384;
-    var _ :- Require(wrappingAlgorithmID.SignatureType().None?);
-    var encryptionMaterialsIn := Materials.EncryptionMaterials.WithoutDataKeys(encryptionContext, wrappingAlgorithmID, None);
+    var signingKey := seq(32, i => 0);
+    var encryptionMaterialsIn := Materials.EncryptionMaterials.WithoutDataKeys(encryptionContext, wrappingAlgorithmID, Some(signingKey));
     var encryptionMaterialsOut :- rawAESKeyring.OnEncrypt(encryptionMaterialsIn);
     var _ :- Require(|encryptionMaterialsOut.encryptedDataKeys| == 1);
 
     var pdk := encryptionMaterialsOut.plaintextDataKey;
     var edk := encryptionMaterialsOut.encryptedDataKeys[0];
+    var verificationKey := seq(32, i => 0);
 
-    var decryptionMaterialsIn := Materials.DecryptionMaterials.WithoutPlaintextDataKey(encryptionContext, wrappingAlgorithmID, None);
+    var decryptionMaterialsIn := Materials.DecryptionMaterials.WithoutPlaintextDataKey(encryptionContext, wrappingAlgorithmID, Some(verificationKey));
     var decryptionMaterialsOut :- rawAESKeyring.OnDecrypt(decryptionMaterialsIn, [edk]);
     r := Require(encryptionMaterialsOut.plaintextDataKey == pdk);
   }
@@ -60,16 +61,17 @@ module TestAESKeyring {
     var pdk := seq(32, i => 0);
 
     var wrappingAlgorithmID := AlgorithmSuite.AES_256_GCM_IV12_TAG16_HKDF_SHA384_ECDSA_P384;
-    var _ :- Require(wrappingAlgorithmID.SignatureType().None?);
+    var signingKey := seq(32, i => 0);
     
-    var encryptionMaterialsIn := Materials.EncryptionMaterials.WithoutDataKeys(encryptionContext, wrappingAlgorithmID, None)
+    var encryptionMaterialsIn := Materials.EncryptionMaterials.WithoutDataKeys(encryptionContext, wrappingAlgorithmID, Some(signingKey))
                                                               .WithKeys(Some(pdk), [], []);
     var encryptionMaterialsOut :- rawAESKeyring.OnEncrypt(encryptionMaterialsIn);
     var _ :- Require(|encryptionMaterialsOut.encryptedDataKeys| == 1);
 
     var edk := encryptionMaterialsOut.encryptedDataKeys[0];
+    var verificationKey := seq(32, i => 0);
 
-    var decryptionMaterialsIn := Materials.DecryptionMaterials.WithoutPlaintextDataKey(encryptionContext, wrappingAlgorithmID, None);
+    var decryptionMaterialsIn := Materials.DecryptionMaterials.WithoutPlaintextDataKey(encryptionContext, wrappingAlgorithmID, Some(verificationKey));
     var decryptionMaterialsOut :- rawAESKeyring.OnDecrypt(decryptionMaterialsIn, [edk]);
     r := Require(decryptionMaterialsOut.plaintextDataKey.get == pdk);
   }
@@ -80,12 +82,12 @@ module TestAESKeyring {
     var namespace :- UTF8.Encode("test Namespace");
     var rawAESKeyring := new RawAESKeyringDef.RawAESKeyring(name, namespace, seq(32, i => 0), EncryptionSuites.AES_GCM_256);
     var wrappingAlgorithmID := AlgorithmSuite.AES_256_GCM_IV12_TAG16_HKDF_SHA384_ECDSA_P384;
-    var _ :- Require(wrappingAlgorithmID.SignatureType().None?);
     var keyA :- UTF8.Encode("keyA");
     var valA :- UTF8.Encode("valA");
     var encryptionContext := map[keyA := valA];
+    var verificationKey := seq(32, i => 0);
 
-    var decryptionMaterialsIn := Materials.DecryptionMaterials.WithoutPlaintextDataKey(encryptionContext, wrappingAlgorithmID, None);
+    var decryptionMaterialsIn := Materials.DecryptionMaterials.WithoutPlaintextDataKey(encryptionContext, wrappingAlgorithmID, Some(verificationKey));
     var decryptionMaterialsOut :- rawAESKeyring.OnDecrypt(decryptionMaterialsIn, []);
     r := Require(decryptionMaterialsOut.plaintextDataKey.None?);
   }
@@ -101,8 +103,8 @@ module TestAESKeyring {
     var _ :- Require(!isValidAAD);
 
     var wrappingAlgorithmID := AlgorithmSuite.AES_256_GCM_IV12_TAG16_HKDF_SHA384_ECDSA_P384;
-    var _ :- Require(wrappingAlgorithmID.SignatureType().None?);
-    var encryptionMaterialsIn := Materials.EncryptionMaterials.WithoutDataKeys(unserializableEncryptionContext, wrappingAlgorithmID, None);
+    var signingKey := seq(32, i => 0);
+    var encryptionMaterialsIn := Materials.EncryptionMaterials.WithoutDataKeys(unserializableEncryptionContext, wrappingAlgorithmID, Some(signingKey));
     var encryptionMaterialsOut := rawAESKeyring.OnEncrypt(encryptionMaterialsIn);
     r := Require(encryptionMaterialsOut.Failure?);
   }
@@ -117,8 +119,8 @@ module TestAESKeyring {
     var valA :- UTF8.Encode("valA");
     var encryptionContext := map[keyA := valA];
     var wrappingAlgorithmID := AlgorithmSuite.AES_256_GCM_IV12_TAG16_HKDF_SHA384_ECDSA_P384;
-    var _ :- Require(wrappingAlgorithmID.SignatureType().None?);
-    var encryptionMaterialsIn := Materials.EncryptionMaterials.WithoutDataKeys(encryptionContext, wrappingAlgorithmID, None);
+    var signingKey := seq(32, i => 0);
+    var encryptionMaterialsIn := Materials.EncryptionMaterials.WithoutDataKeys(encryptionContext, wrappingAlgorithmID, Some(signingKey));
     var encryptionMaterialsOut :- rawAESKeyring.OnEncrypt(encryptionMaterialsIn);
     var _ :- Require(encryptionMaterialsOut.plaintextDataKey.Some?);
     var _ :- Require(|encryptionMaterialsOut.encryptedDataKeys| == 1);
@@ -128,8 +130,9 @@ module TestAESKeyring {
     var unserializableEncryptionContext := generateUnserializableEncryptionContext(keyA);
     var isValidAAD := MessageHeader.ComputeValidAAD(unserializableEncryptionContext);
     var _ :- Require(!isValidAAD);
+    var verificationKey := seq(32, i => 0);
 
-    var decryptionMaterialsIn := Materials.DecryptionMaterials.WithoutPlaintextDataKey(unserializableEncryptionContext, wrappingAlgorithmID, None);
+    var decryptionMaterialsIn := Materials.DecryptionMaterials.WithoutPlaintextDataKey(unserializableEncryptionContext, wrappingAlgorithmID, Some(verificationKey));
     var decryptionMaterialsOut := rawAESKeyring.OnDecrypt(decryptionMaterialsIn, [edk]);
     r := Require(decryptionMaterialsOut.Failure?);
   }

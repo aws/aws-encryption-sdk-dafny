@@ -11,20 +11,20 @@ module {:extern "TestMaterials"} TestMaterials {
   method {:test} TestWithKeysSettingPlaintextDataKey() returns (res: Result<()>)
   {
     var encryptionContext := map[];
-    var krTrace1 := KeyringTraceEntry([1], [1], {ENCRYPTED_DATA_KEY, SIGNED_ENCRYPTION_CONTEXT, GENERATED_DATA_KEY});
     var algorithmSuiteID := AlgorithmSuite.AES_256_GCM_IV12_TAG16_HKDF_SHA384_ECDSA_P384;
-    var _ :- Require(algorithmSuiteID.SignatureType().None?);
-    var encryptionMaterials1 := EncryptionMaterials(encryptionContext, algorithmSuiteID, None, [], [], None);
+    var signingKey := seq(32, i => 0);
+    var encryptionMaterials1 := EncryptionMaterials(encryptionContext, algorithmSuiteID, None, [], [], Some(signingKey));
 
     var pdk := seq(32, i => 0);
     var edk := EncryptedDataKey([], [2], [2]);
-    var krTrace := KeyringTraceEntry([2], [2], {ENCRYPTED_DATA_KEY, SIGNED_ENCRYPTION_CONTEXT});
+    var krTrace := KeyringTraceEntry([2], [2], {ENCRYPTED_DATA_KEY, SIGNED_ENCRYPTION_CONTEXT, GENERATED_DATA_KEY});
+    assert Materials.IsGenerateTraceEntry(krTrace);
     var encryptionMaterials2 := encryptionMaterials1.WithKeys(Some(pdk), [edk], [krTrace]);
 
-    var _ :- Require(Some(pdk) == encryptionMaterials1.plaintextDataKey == encryptionMaterials2.plaintextDataKey);
+    var _ :- Require(Some(pdk) == encryptionMaterials2.plaintextDataKey);
     var _ :- Require(encryptionMaterials1.algorithmSuiteID == encryptionMaterials2.algorithmSuiteID);
     var _ :- RequireEqual([edk], encryptionMaterials2.encryptedDataKeys);
-    res :=  RequireEqual([krTrace], encryptionMaterials2.keyringTrace);
+    res := RequireEqual([krTrace], encryptionMaterials2.keyringTrace);
   }
 
   method {:test} TestWithKeysKeepingPlaintextDataKey() returns (res: Result<()>)
@@ -34,8 +34,8 @@ module {:extern "TestMaterials"} TestMaterials {
     var pdk := seq(32, i => 0);
     var krTrace1 := KeyringTraceEntry([1], [1], {ENCRYPTED_DATA_KEY, SIGNED_ENCRYPTION_CONTEXT, GENERATED_DATA_KEY});
     var algorithmSuiteID := AlgorithmSuite.AES_256_GCM_IV12_TAG16_HKDF_SHA384_ECDSA_P384;
-    var _ :- Require(algorithmSuiteID.SignatureType().None?);
-    var encryptionMaterials1 := EncryptionMaterials(encryptionContext, algorithmSuiteID, Some(pdk), [edk1], [krTrace1], None);
+    var signingKey := seq(32, i => 0);
+    var encryptionMaterials1 := EncryptionMaterials(encryptionContext, algorithmSuiteID, Some(pdk), [edk1], [krTrace1], Some(signingKey));
 
     var edk2 := EncryptedDataKey([], [2], [2]);
     var krTrace2 := KeyringTraceEntry([2], [2], {ENCRYPTED_DATA_KEY, SIGNED_ENCRYPTION_CONTEXT});
@@ -44,6 +44,6 @@ module {:extern "TestMaterials"} TestMaterials {
     var _ :- Require(Some(pdk) == encryptionMaterials1.plaintextDataKey == encryptionMaterials2.plaintextDataKey);
     var _ :- Require(encryptionMaterials1.algorithmSuiteID == encryptionMaterials2.algorithmSuiteID);
     var _ :- RequireEqual(encryptionMaterials1.encryptedDataKeys + [edk2], encryptionMaterials2.encryptedDataKeys);
-    res :=  RequireEqual(encryptionMaterials1.keyringTrace + [krTrace2], encryptionMaterials2.keyringTrace);
+    res := RequireEqual(encryptionMaterials1.keyringTrace + [krTrace2], encryptionMaterials2.keyringTrace);
   }
 }

@@ -29,6 +29,7 @@ module {:extern "KeyringDefs"} KeyringDefs {
       requires Valid()
       ensures Valid()
       ensures |encryptedDataKeys| == 0 ==> res.Success? && materials == res.value
+      ensures materials.plaintextDataKey.Some? ==> res.Success? && materials == res.value
       ensures res.Success? ==>
           && materials.encryptionContext == res.value.encryptionContext
           && materials.algorithmSuiteID == res.value.algorithmSuiteID

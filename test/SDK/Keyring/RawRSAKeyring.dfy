@@ -35,8 +35,8 @@ module TestRSAKeyring {
       var valA :- UTF8.Encode("valA");
       var encryptionContext := map[keyA := valA];
       var algorithmSuiteID := AlgorithmSuite.AES_256_GCM_IV12_TAG16_HKDF_SHA384_ECDSA_P384;
-      var _ :- Require(algorithmSuiteID.SignatureType().None?);
-      var encryptionMaterialsIn := Materials.EncryptionMaterials.WithoutDataKeys(encryptionContext, algorithmSuiteID, None);
+      var signingKey := seq(32, i => 0);
+      var encryptionMaterialsIn := Materials.EncryptionMaterials.WithoutDataKeys(encryptionContext, algorithmSuiteID, Some(signingKey));
       var encryptionMaterialsOut :- rawRSAKeyring.OnEncrypt(encryptionMaterialsIn);
       var _ :- Require(encryptionMaterialsOut.plaintextDataKey.Some? &&
         |encryptionMaterialsOut.encryptedDataKeys| == 1 &&
@@ -45,7 +45,8 @@ module TestRSAKeyring {
       var encryptedDataKey := encryptionMaterialsOut.encryptedDataKeys[0];
 
       // Verify decoding
-      var decryptionMaterialsIn := Materials.DecryptionMaterials.WithoutPlaintextDataKey(encryptionContext, algorithmSuiteID, None);
+      var verificationKey := seq(32, i => 0);
+      var decryptionMaterialsIn := Materials.DecryptionMaterials.WithoutPlaintextDataKey(encryptionContext, algorithmSuiteID, Some(verificationKey));
       var decryptionMaterialsOut :- rawRSAKeyring.OnDecrypt(decryptionMaterialsIn, [encryptedDataKey]);
       var _ :- Require(encryptionMaterialsOut.plaintextDataKey == plaintextDataKey);
     }
@@ -72,8 +73,8 @@ module TestRSAKeyring {
       var encryptionContext := map[keyA := valA];
       var plaintextDataKey := seq(32, i => 0);
       var algorithmSuiteID := AlgorithmSuite.AES_256_GCM_IV12_TAG16_HKDF_SHA384_ECDSA_P384;
-      var _ :- Require(algorithmSuiteID.SignatureType().None?);
-      var encryptionMaterialsIn := Materials.EncryptionMaterials.WithoutDataKeys(encryptionContext, algorithmSuiteID, None)
+      var signingKey := seq(32, i => 0);
+      var encryptionMaterialsIn := Materials.EncryptionMaterials.WithoutDataKeys(encryptionContext, algorithmSuiteID, Some(signingKey))
                                                                 .WithKeys(Some(plaintextDataKey), [], []);
       var encryptionMaterialsOut :- rawRSAKeyring.OnEncrypt(encryptionMaterialsIn);
       var _ :- Require(encryptionMaterialsOut.plaintextDataKey.Some? &&
@@ -83,7 +84,8 @@ module TestRSAKeyring {
       var encryptedDataKey := encryptionMaterialsOut.encryptedDataKeys[0];
 
       // Verify decoding
-      var decryptionMaterialsIn := Materials.DecryptionMaterials.WithoutPlaintextDataKey(encryptionContext, algorithmSuiteID, None);
+      var verificationKey := seq(32, i => 0);
+      var decryptionMaterialsIn := Materials.DecryptionMaterials.WithoutPlaintextDataKey(encryptionContext, algorithmSuiteID, Some(verificationKey));
       var decryptionMaterialsOut :- rawRSAKeyring.OnDecrypt(decryptionMaterialsIn, [encryptedDataKey]);
       r := Require(decryptionMaterialsOut.plaintextDataKey.Some? && decryptionMaterialsOut.plaintextDataKey.get == plaintextDataKey);
     }

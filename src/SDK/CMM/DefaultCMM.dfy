@@ -72,7 +72,7 @@ module {:extern "DefaultCMMDef"} DefaultCMMDef {
 
       MessageHeader.AssumeValidAAD(enc_ctx);  // TODO: we should check this (https://github.com/awslabs/aws-encryption-sdk-dafny/issues/79)
 
-      var materials := Materials.EncryptionMaterials(enc_ctx, id, None, [], [], enc_sk);
+      var materials := Materials.EncryptionMaterials.WithoutDataKeys(enc_ctx, id, enc_sk);
       assert materials.encryptionContext == enc_ctx;
       materials :- kr.OnEncrypt(materials);
       if materials.plaintextDataKey.None? || |materials.encryptedDataKeys| == 0 {
@@ -103,7 +103,7 @@ module {:extern "DefaultCMMDef"} DefaultCMMDef {
         vkey := Some(base64Decoded);
       }
 
-      var materials := Materials.DecryptionMaterials(alg_id, enc_ctx, None, vkey, []);
+      var materials := Materials.DecryptionMaterials.WithoutPlaintextDataKey(enc_ctx, alg_id, vkey);
       materials :- kr.OnDecrypt(materials, edks);
       if materials.plaintextDataKey.None? {
         return Failure("Keyring.OnDecrypt failed to decrypt the plaintext data key.");

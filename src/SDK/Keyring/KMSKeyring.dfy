@@ -176,6 +176,7 @@ module {:extern "KMSKeyringDef"} KMSKeyringDef {
       requires Valid()
       ensures Valid()
       ensures |edks| == 0 ==> res.Success? && materials == res.value
+      ensures materials.plaintextDataKey.Some? ==> res.Success? && materials == res.value
       ensures res.Success? ==>
           && materials.encryptionContext == res.value.encryptionContext
           && materials.algorithmSuiteID == res.value.algorithmSuiteID
