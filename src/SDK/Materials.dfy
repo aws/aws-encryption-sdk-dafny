@@ -88,12 +88,17 @@ module {:extern "Materials"} Materials {
     }
 
     static function method ValidWitness(): EncryptionMaterials {
-      EncryptionMaterials(map[], 
-                          AlgorithmSuite.AES_256_GCM_IV12_TAG16_HKDF_SHA384_ECDSA_P384,
-                          None,
-                          [],
-                          [], 
-                          Some(seq(32, i => 0)))
+      EncryptionMaterials(map[], AlgorithmSuite.AES_256_GCM_IV12_TAG16_HKDF_SHA384_ECDSA_P384, None, [], [], Some(seq(32, i => 0)))
+    }
+
+    static function method WithoutDataKeys(encryptionContext: EncryptionContext,
+                                           algorithmSuiteID: AlgorithmSuite.ID,
+                                           signingKey: Option<seq<uint8>>): ValidEncryptionMaterials 
+      requires algorithmSuiteID.SignatureType().Some? ==> signingKey.Some?
+    {
+      var m := EncryptionMaterials(encryptionContext, algorithmSuiteID, None, [], [], signingKey);
+      assert m.Valid();
+      m
     }
 
     function method WithKeys(newPlaintextDataKey: Option<seq<uint8>>, 
@@ -144,6 +149,16 @@ module {:extern "Materials"} Materials {
                           [KeyringTraceEntry([], [], {DECRYPTED_DATA_KEY})])
     }
 
+    static function method WithoutPlaintextDataKey(encryptionContext: EncryptionContext,
+                                                   algorithmSuiteID: AlgorithmSuite.ID,
+                                                   verificationKey: Option<seq<uint8>>): ValidDecryptionMaterials 
+      requires algorithmSuiteID.SignatureType().Some? ==> verificationKey.Some?
+    {
+      var m := DecryptionMaterials(algorithmSuiteID, encryptionContext, None, verificationKey, []);
+      assert m.Valid();
+      m
+    }
+
     function method WithPlaintextDataKey(plaintextDataKey: seq<uint8>, newTraceEntries: seq<KeyringTraceEntry>): (res: ValidDecryptionMaterials)
       requires Valid()
       requires this.plaintextDataKey.None?
@@ -163,13 +178,4 @@ module {:extern "Materials"} Materials {
   }
 
   type ValidDecryptionMaterials = i: DecryptionMaterials | i.Valid() witness DecryptionMaterials.ValidWitness()
-
-  predicate method CompatibleDecryptionMaterials(m1: ValidDecryptionMaterials, m2: ValidDecryptionMaterials) {
-    var generateTraces := Filter(m1.keyringTrace + m2.keyringTrace, IsGenerateTraceEntry);
-    && m1.encryptionContext == m2.encryptionContext
-    && m1.algorithmSuiteID == m2.algorithmSuiteID && m1.plaintextDataKey == m2.plaintextDataKey
-    && |generateTraces| <= 1
-    && (|generateTraces| == 1 ==> |m1.keyringTrace| > 0 && generateTraces[0] == m1.keyringTrace[0])
-    && m1.verificationKey == m2.verificationKey
-  }
 }

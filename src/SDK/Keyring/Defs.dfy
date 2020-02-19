@@ -16,7 +16,7 @@ module {:extern "KeyringDefs"} KeyringDefs {
     method OnEncrypt(materials: Materials.ValidEncryptionMaterials) returns (res: Result<Materials.ValidEncryptionMaterials>)
       requires Valid()
       ensures Valid()
-      ensures res.Success? ==> 
+      ensures res.Success? ==>
           && materials.encryptionContext == res.value.encryptionContext
           && materials.algorithmSuiteID == res.value.algorithmSuiteID 
           && (materials.plaintextDataKey.Some? ==> res.value.plaintextDataKey == materials.plaintextDataKey)

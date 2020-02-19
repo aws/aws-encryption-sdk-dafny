@@ -12,6 +12,7 @@ module TestRSAKeyring {
   import RawRSAKeyringDef
   import AlgorithmSuite
   import UTF8
+  import Materials
 
   const allPaddingModes := {RSA.PKCS1, RSA.OAEP_SHA1, RSA.OAEP_SHA256, RSA.OAEP_SHA384, RSA.OAEP_SHA512}
 
@@ -33,16 +34,19 @@ module TestRSAKeyring {
       var keyA :- UTF8.Encode("keyA");
       var valA :- UTF8.Encode("valA");
       var encryptionContext := map[keyA := valA];
-      var onEncryptResult :- rawRSAKeyring.OnEncrypt(AlgorithmSuite.AES_256_GCM_IV12_TAG16_HKDF_SHA384_ECDSA_P384, encryptionContext, None);
-      var _ :- Require(onEncryptResult.Some? &&
-        |onEncryptResult.get.encryptedDataKeys| == 1 &&
-        |onEncryptResult.get.keyringTrace| == 2);
-      var plaintextDataKey := onEncryptResult.get.plaintextDataKey;
-      var encryptedDataKey := onEncryptResult.get.encryptedDataKeys[0];
+      var algorithmSuiteID := AlgorithmSuite.AES_256_GCM_IV12_TAG16_HKDF_SHA384_ECDSA_P384;
+      var encryptionMaterialsIn := Materials.EncryptionMaterials.WithoutDataKeys(encryptionContext, algorithmSuiteID, None);
+      var encryptionMaterialsOut :- rawRSAKeyring.OnEncrypt(encryptionMaterialsIn);
+      var _ :- Require(encryptionMaterialsOut.plaintextDataKey.Some? &&
+        |encryptionMaterialsOut.encryptedDataKeys| == 1 &&
+        |encryptionMaterialsOut.keyringTrace| == 2);
+      var plaintextDataKey := encryptionMaterialsOut.plaintextDataKey;
+      var encryptedDataKey := encryptionMaterialsOut.encryptedDataKeys[0];
 
       // Verify decoding
-      var res :- rawRSAKeyring.OnDecrypt(AlgorithmSuite.AES_256_GCM_IV12_TAG16_HKDF_SHA384_ECDSA_P384, encryptionContext, [encryptedDataKey]);
-      var _ :- Require(res.Some? && res.get.plaintextDataKey == plaintextDataKey);
+      var decryptionMaterialsIn := Materials.DecryptionMaterials.WithoutPlaintextDataKey(encryptionContext, algorithmSuiteID, None);
+      var decryptionMaterialsOut :- rawRSAKeyring.OnDecrypt(decryptionMaterialsIn, [encryptedDataKey]);
+      var _ :- Require(encryptionMaterialsOut.plaintextDataKey == plaintextDataKey);
     }
     return Success(());
   }
@@ -66,16 +70,20 @@ module TestRSAKeyring {
       var valA :- UTF8.Encode("valA");
       var encryptionContext := map[keyA := valA];
       var plaintextDataKey := seq(32, i => 0);
-      var onEncryptResult :- rawRSAKeyring.OnEncrypt(AlgorithmSuite.AES_256_GCM_IV12_TAG16_HKDF_SHA384_ECDSA_P384, encryptionContext, Some(plaintextDataKey));
-      var _ :- Require(onEncryptResult.Some? &&
-        |onEncryptResult.get.encryptedDataKeys| == 1 &&
-        onEncryptResult.get.plaintextDataKey == plaintextDataKey &&
-        |onEncryptResult.get.keyringTrace| == 1);
-      var encryptedDataKey := onEncryptResult.get.encryptedDataKeys[0];
+      var algorithmSuiteID := AlgorithmSuite.AES_256_GCM_IV12_TAG16_HKDF_SHA384_ECDSA_P384;
+      var encryptionMaterialsIn := Materials.EncryptionMaterials.WithoutDataKeys(encryptionContext, algorithmSuiteID, None)
+                                                                .WithKeys(Some(plaintextDataKey), [], []);
+      var encryptionMaterialsOut :- rawRSAKeyring.OnEncrypt(encryptionMaterialsIn);
+      var _ :- Require(encryptionMaterialsOut.plaintextDataKey.Some? &&
+        |encryptionMaterialsOut.encryptedDataKeys| == 1 &&
+        encryptionMaterialsOut.plaintextDataKey.get == plaintextDataKey &&
+        |encryptionMaterialsOut.keyringTrace| == 1);
+      var encryptedDataKey := encryptionMaterialsOut.encryptedDataKeys[0];
 
       // Verify decoding
-      var res :- rawRSAKeyring.OnDecrypt(AlgorithmSuite.AES_256_GCM_IV12_TAG16_HKDF_SHA384_ECDSA_P384, encryptionContext, [encryptedDataKey]);
-      r := Require(res.Some? && res.get.plaintextDataKey == plaintextDataKey);
+      var decryptionMaterialsIn := Materials.DecryptionMaterials.WithoutPlaintextDataKey(encryptionContext, algorithmSuiteID, None);
+      var decryptionMaterialsOut :- rawRSAKeyring.OnDecrypt(decryptionMaterialsIn, [encryptedDataKey]);
+      r := Require(decryptionMaterialsOut.plaintextDataKey.Some? && decryptionMaterialsOut.plaintextDataKey.get == plaintextDataKey);
     }
   }
 }
