@@ -53,6 +53,6 @@
   </ItemGroup>
 
   <PropertyGroup>
-    <DafnyVerificationTimeLimit>120</DafnyVerificationTimeLimit>
+    <DafnyVerificationTimeLimit>300</DafnyVerificationTimeLimit>
   </PropertyGroup>
 </Project>
