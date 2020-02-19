@@ -27,7 +27,13 @@ module AlgorithmSuite {
     function method KDFInputKeyLength(): nat
       ensures Suite[this].hkdf == KeyDerivationAlgorithms.IDENTITY ==> KDFInputKeyLength() == KeyLength()
     {
-      KeyLength()
+      // We're intentionally using a match here so additional Key Derivation Algorithms force us to revisit this logic
+      // and we don't accidentally use Suite[this].algorithm.keyLen by default. Also, prevent or KDFInputKeyLength from
+      // being tied to KeyLength().
+      match Suite[this].hkdf
+      case HKDF_WITH_SHA_384 => Suite[this].algorithm.keyLen as nat
+      case HKDF_WITH_SHA_256 => Suite[this].algorithm.keyLen as nat
+      case IDENTITY => Suite[this].algorithm.keyLen as nat
     }
 
     function method IVLength(): nat {
@@ -72,7 +78,7 @@ module AlgorithmSuite {
   ]
 
   /* Suite is intended to have an entry for each possible value of ID. This is stated and checked in three ways.
-   *   - lemma SuiteIsCompletes states and proves the connection between type ID and Suite.Keys
+   *   - lemma SuiteIsComplete states and proves the connection between type ID and Suite.Keys
    *   - lemma ValidIDsAreSuiteKeys states and proves the connected between predicate ValidIDs and Suite.Keys
    *   - the member functions of ID use the expression `Suite[this]`, whose well-formedness relies on every
    *     ID being in Suite.Keys
