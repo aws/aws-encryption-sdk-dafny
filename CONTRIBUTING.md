@@ -34,8 +34,8 @@ To send us a pull request, please:
 3. Ensure local tests pass.
 4. Commit to your fork using clear commit messages.
    Your commit tile and message and pull request title and description must adhere to
-   [conventional commits](https://www.conventionalcommits.org/). Title must begin with `feat(module): title`,
-   `fix(module): title`, `docs(module): title`, `test(module): title`, `chore(module): title`.
+   [conventional commits](https://www.conventionalcommits.org/). Title must begin with `feat: title`,
+   `fix: title`, `docs: title`, `test: title`, `chore: title`.
    Title should be lowercase and not period at the end of it. If the commit includes
    a breaking change, the commit message must end with a single paragraph: `BREAKING CHANGE: a description of what broke`
 5. Send us a pull request, answering any default questions in the pull request interface.
