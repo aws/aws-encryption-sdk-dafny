@@ -29,9 +29,11 @@ module TestMultiKeying {
     var child2Keyring := new RawAESKeyringDef.RawAESKeyring(child2Name, child2namespace, seq(32, i => 0), EncryptionSuites.AES_GCM_256);
     var keyIDs := new [][child2Keyring];
     var multiKeyring := new MultiKeyringDef.MultiKeyring(child1Keyring, keyIDs);
-
+    var algorithmSuiteID := AlgorithmSuite.AES_256_GCM_IV12_TAG16_HKDF_SHA384_ECDSA_P384;
+    var _ :- Require(algorithmSuiteID.SignatureType().None?);
+    
     // Encryption
-    var encryptionMaterialsIn := Materials.EncryptionMaterials.WithoutDataKeys(encryptionContext, AlgorithmSuite.AES_256_GCM_IV12_TAG16_HKDF_SHA384_ECDSA_P384, None);
+    var encryptionMaterialsIn := Materials.EncryptionMaterials.WithoutDataKeys(encryptionContext, algorithmSuiteID, None);
     var encryptionMaterialsOut :- multiKeyring.OnEncrypt(encryptionMaterialsIn);
     // Check EDK list is as expected
     var _ :- Require(|encryptionMaterialsOut.encryptedDataKeys| == 2);
@@ -48,7 +50,7 @@ module TestMultiKeying {
     var edk2 := encryptionMaterialsOut.encryptedDataKeys[1];
 
     // First edk decryption
-    var decryptionMaterialsIn := Materials.DecryptionMaterials.WithoutPlaintextDataKey(encryptionContext, AlgorithmSuite.AES_256_GCM_IV12_TAG16_HKDF_SHA384_ECDSA_P384, None);
+    var decryptionMaterialsIn := Materials.DecryptionMaterials.WithoutPlaintextDataKey(encryptionContext, algorithmSuiteID, None);
     var decryptionMaterialsOut :- multiKeyring.OnDecrypt(decryptionMaterialsIn, [edk1]);
     // Check plaintextDataKey is as expected
     var _ :- Require(decryptionMaterialsOut.plaintextDataKey == pdk);
@@ -80,14 +82,17 @@ module TestMultiKeying {
     var child2namespace :- UTF8.Encode("child2 Namespace");
     var child1Keyring := new RawAESKeyringDef.RawAESKeyring(child1Name, child1Namespace, seq(32, i => 0), EncryptionSuites.AES_GCM_256);
     var child2Keyring := new RawAESKeyringDef.RawAESKeyring(child2Name, child2namespace, seq(32, i => 0), EncryptionSuites.AES_GCM_256);
-
+      
+    var algorithmSuiteID := AlgorithmSuite.AES_256_GCM_IV12_TAG16_HKDF_SHA384_ECDSA_P384;
+    var _ :- Require(algorithmSuiteID.SignatureType().None?);
+    
     var keyIDs := new [][child1Keyring, child2Keyring];
     var multiKeyring := new MultiKeyringDef.MultiKeyring(null, keyIDs);
 
     var pdk := seq(32, i => 0);
 
     // Encryption
-    var encryptionMaterialsIn := Materials.EncryptionMaterials.WithoutDataKeys(encryptionContext, AlgorithmSuite.AES_256_GCM_IV12_TAG16_HKDF_SHA384_ECDSA_P384, None);
+    var encryptionMaterialsIn := Materials.EncryptionMaterials.WithoutDataKeys(encryptionContext, algorithmSuiteID, None);
     var encryptionMaterialsOut :- multiKeyring.OnEncrypt(encryptionMaterialsIn);
     // Check plaintextDataKey is as expected
     var _ :- Require(encryptionMaterialsOut.plaintextDataKey.get == pdk);
@@ -102,7 +107,7 @@ module TestMultiKeying {
     var edk2 := encryptionMaterialsOut.encryptedDataKeys[1];
 
     // First EDK decryption
-    var materialsIn := Materials.DecryptionMaterials.WithoutPlaintextDataKey(encryptionContext, AlgorithmSuite.AES_256_GCM_IV12_TAG16_HKDF_SHA384_ECDSA_P384, None);
+    var materialsIn := Materials.DecryptionMaterials.WithoutPlaintextDataKey(encryptionContext, algorithmSuiteID, None);
     var materialsOut :- multiKeyring.OnDecrypt(materialsIn, [edk1]);
     // Check plaintextDataKey is as expected
     var _ :- Require(materialsOut.plaintextDataKey.get == pdk);
@@ -113,7 +118,7 @@ module TestMultiKeying {
     );
 
     // Second EDK decryption
-    materialsIn := Materials.DecryptionMaterials.WithoutPlaintextDataKey(encryptionContext, AlgorithmSuite.AES_256_GCM_IV12_TAG16_HKDF_SHA384_ECDSA_P384, None);
+    materialsIn := Materials.DecryptionMaterials.WithoutPlaintextDataKey(encryptionContext, algorithmSuiteID, None);
     materialsOut :- multiKeyring.OnDecrypt(materialsIn, [edk2]);
     // Check plaintextDataKey is as expected
     var _ :- Require(materialsOut.plaintextDataKey.get == pdk);

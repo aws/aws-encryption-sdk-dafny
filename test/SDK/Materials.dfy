@@ -12,7 +12,9 @@ module {:extern "TestMaterials"} TestMaterials {
   {
     var encryptionContext := map[];
     var krTrace1 := KeyringTraceEntry([1], [1], {ENCRYPTED_DATA_KEY, SIGNED_ENCRYPTION_CONTEXT, GENERATED_DATA_KEY});
-    var encryptionMaterials1 := EncryptionMaterials(encryptionContext, AlgorithmSuite.AES_256_GCM_IV12_TAG16_HKDF_SHA384_ECDSA_P384, None, [], [], None);
+    var algorithmSuiteID := AlgorithmSuite.AES_256_GCM_IV12_TAG16_HKDF_SHA384_ECDSA_P384;
+    var _ :- Require(algorithmSuiteID.SignatureType().None?);
+    var encryptionMaterials1 := EncryptionMaterials(encryptionContext, algorithmSuiteID, None, [], [], None);
 
     var pdk := seq(32, i => 0);
     var edk := EncryptedDataKey([], [2], [2]);
@@ -31,7 +33,9 @@ module {:extern "TestMaterials"} TestMaterials {
     var edk1 := EncryptedDataKey([], [1], [1]);
     var pdk := seq(32, i => 0);
     var krTrace1 := KeyringTraceEntry([1], [1], {ENCRYPTED_DATA_KEY, SIGNED_ENCRYPTION_CONTEXT, GENERATED_DATA_KEY});
-    var encryptionMaterials1 := EncryptionMaterials(encryptionContext, AlgorithmSuite.AES_256_GCM_IV12_TAG16_HKDF_SHA384_ECDSA_P384, Some(pdk), [edk1], [krTrace1], None);
+    var algorithmSuiteID := AlgorithmSuite.AES_256_GCM_IV12_TAG16_HKDF_SHA384_ECDSA_P384;
+    var _ :- Require(algorithmSuiteID.SignatureType().None?);
+    var encryptionMaterials1 := EncryptionMaterials(encryptionContext, algorithmSuiteID, Some(pdk), [edk1], [krTrace1], None);
 
     var edk2 := EncryptedDataKey([], [2], [2]);
     var krTrace2 := KeyringTraceEntry([2], [2], {ENCRYPTED_DATA_KEY, SIGNED_ENCRYPTION_CONTEXT});

@@ -35,6 +35,7 @@ module TestRSAKeyring {
       var valA :- UTF8.Encode("valA");
       var encryptionContext := map[keyA := valA];
       var algorithmSuiteID := AlgorithmSuite.AES_256_GCM_IV12_TAG16_HKDF_SHA384_ECDSA_P384;
+      var _ :- Require(algorithmSuiteID.SignatureType().None?);
       var encryptionMaterialsIn := Materials.EncryptionMaterials.WithoutDataKeys(encryptionContext, algorithmSuiteID, None);
       var encryptionMaterialsOut :- rawRSAKeyring.OnEncrypt(encryptionMaterialsIn);
       var _ :- Require(encryptionMaterialsOut.plaintextDataKey.Some? &&
@@ -71,6 +72,7 @@ module TestRSAKeyring {
       var encryptionContext := map[keyA := valA];
       var plaintextDataKey := seq(32, i => 0);
       var algorithmSuiteID := AlgorithmSuite.AES_256_GCM_IV12_TAG16_HKDF_SHA384_ECDSA_P384;
+      var _ :- Require(algorithmSuiteID.SignatureType().None?);
       var encryptionMaterialsIn := Materials.EncryptionMaterials.WithoutDataKeys(encryptionContext, algorithmSuiteID, None)
                                                                 .WithKeys(Some(plaintextDataKey), [], []);
       var encryptionMaterialsOut :- rawRSAKeyring.OnEncrypt(encryptionMaterialsIn);
