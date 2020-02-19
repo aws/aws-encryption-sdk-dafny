@@ -146,7 +146,7 @@ namespace TestVectorTests {
                 string vectorID = vectorEntry.Key;
                 TestVector vector = vectorEntry.Value;
 
-                // We are unable to test Raw Keyrings untill #137 is resolved.
+                // We are unable to test Raw Keyrings until #137 is resolved.
                 if (VectorContainsMasterkeyOfType(vector, "raw")) {
                     continue;
                 }
