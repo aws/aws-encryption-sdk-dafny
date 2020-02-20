@@ -37,7 +37,6 @@
     <DafnySource Include="SDK/MessageBody.dfy" />
     <DafnySource Include="SDK/MessageHeader.dfy" />
     <DafnySource Include="SDK/Serialize.dfy" />
-    <DafnySource Include="SDK/ToyClient.dfy" />
     <DafnySource Include="StandardLibrary/Base64.dfy" />
     <DafnySource Include="StandardLibrary/StandardLibrary.dfy" />
     <DafnySource Include="StandardLibrary/UInt.dfy" />
@@ -54,6 +53,6 @@
   </ItemGroup>
 
   <PropertyGroup>
-    <DafnyVerificationTimeLimit>120</DafnyVerificationTimeLimit>
+    <DafnyVerificationTimeLimit>300</DafnyVerificationTimeLimit>
   </PropertyGroup>
 </Project>

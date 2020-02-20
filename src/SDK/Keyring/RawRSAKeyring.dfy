@@ -97,7 +97,7 @@ module {:extern "RawRSAKeyringDef"} RawRSAKeyringDef {
       // If no plaintext data key exists, generate a random plaintext data key
       var materialsWithDataKey := materials;
       if materials.plaintextDataKey.None? {
-        var k := Random.GenerateBytes(materialsWithDataKey.algorithmSuiteID.KDFInputKeyLength() as int32);
+        var k :- Random.GenerateBytes(materialsWithDataKey.algorithmSuiteID.KDFInputKeyLength() as int32);
         materialsWithDataKey := materials.WithKeys(Some(k), [], [GenerateTraceEntry()]);
       }
 
