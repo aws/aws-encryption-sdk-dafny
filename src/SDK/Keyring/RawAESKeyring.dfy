@@ -147,13 +147,13 @@ module {:extern "RawAESKeyringDef"} RawAESKeyringDef {
       var keyringTrace := [];
       var plaintextDataKey := plaintextDataKey;
       if plaintextDataKey.None? {
-        var k := Random.GenerateBytes(algorithmSuiteID.KeyLength() as int32);
+        var k :- Random.GenerateBytes(algorithmSuiteID.KeyLength() as int32);
         plaintextDataKey := Some(k);
         var generateTraceEntry := GenerateTraceEntry();
         keyringTrace := keyringTrace + [generateTraceEntry];
       }
 
-      var iv := Random.GenerateBytes(wrappingAlgorithm.ivLen as int32);
+      var iv :- Random.GenerateBytes(wrappingAlgorithm.ivLen as int32);
       var providerInfo := SerializeProviderInfo(iv);
 
       var wr := new Streams.ByteWriter();

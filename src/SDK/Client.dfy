@@ -43,7 +43,7 @@ module {:extern "ESDKClient"} ESDKClient {
       return Failure("Number of EDKs exceeds the allowed maximum.");
     }
 
-    var messageID: Msg.MessageID := Random.GenerateBytes(Msg.MESSAGE_ID_LEN as int32);
+    var messageID: Msg.MessageID :- Random.GenerateBytes(Msg.MESSAGE_ID_LEN as int32);
     var derivedDataKey := DeriveKey(dataKeyMaterials.plaintextDataKey, dataKeyMaterials.algorithmSuiteID, messageID);
 
     // Assemble and serialize the header and its authentication tag
