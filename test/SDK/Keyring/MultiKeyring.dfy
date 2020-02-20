@@ -6,12 +6,15 @@ include "../../../src/StandardLibrary/StandardLibrary.dfy"
 include "../../../src/StandardLibrary/UInt.dfy"
 include "../../../src/Util/UTF8.dfy"
 
+include "./TestKeyrings.dfy"
+
 module TestMultiKeying {
   import opened StandardLibrary
   import opened UInt = StandardLibrary.UInt
   import RawAESKeyringDef
   import EncryptionSuites
   import MultiKeyringDef
+  import TestKeyrings
   import AlgorithmSuite
   import Materials
   import UTF8
@@ -131,5 +134,55 @@ module TestMultiKeying {
       && |materialsOut.keyringTrace| == 1
       && materialsOut.keyringTrace[0] == child2Keyring.DecryptTraceEntry()
     );
+  }
+
+  method {:test} TestOnEncryptChildKeyringFailure() returns (r: Result<()>) {
+    var keyA :- UTF8.Encode("keyA");
+    var valA :- UTF8.Encode("valA");
+    var encryptionContext := map[keyA := valA];
+    var child1Name :- UTF8.Encode("child1 Name");
+    var child1Namespace :- UTF8.Encode("child1 Namespace");
+    var child1Keyring := new RawAESKeyringDef.RawAESKeyring(child1Name, child1Namespace, seq(32, i => 0), EncryptionSuites.AES_GCM_256);
+    var child2Keyring := new TestKeyrings.AlwaysFailingKeyring();
+    var keyIDs := new [][child2Keyring];
+    var multiKeyring := new MultiKeyringDef.MultiKeyring(child1Keyring, keyIDs);
+    var algorithmSuiteID := AlgorithmSuite.AES_256_GCM_IV12_TAG16_HKDF_SHA384_ECDSA_P384;
+    var signingKey := seq(32, i => 0);
+    
+    // Encryption
+    var encryptionMaterialsIn := Materials.EncryptionMaterials.WithoutDataKeys(encryptionContext, algorithmSuiteID, Some(signingKey));
+    var encryptionMaterialsOut := multiKeyring.OnEncrypt(encryptionMaterialsIn);
+    r := RequireFailure(encryptionMaterialsOut);
+  }
+
+  method {:test} TestOnDecryptNoChildDecryptsAndAtLeastOneFails() returns (r: Result<()>) {
+    var encryptionContext := map[];
+    var algorithmSuiteID := AlgorithmSuite.AES_256_GCM_IV12_TAG16_HKDF_SHA384_ECDSA_P384;
+    var edk := Materials.EncryptedDataKey.ValidWitness();
+    var verificationKey := seq(32, i => 0);
+
+    var childKeyring1 := new TestKeyrings.AlwaysFailingKeyring();
+    var childKeyring2 := new TestKeyrings.NoOpKeyring();
+    var children := new [][childKeyring1, childKeyring2];
+    var multiKeyring := new MultiKeyringDef.MultiKeyring(childKeyring2, children);
+
+    var decryptionMaterialsIn := Materials.DecryptionMaterials.WithoutPlaintextDataKey(encryptionContext, algorithmSuiteID, Some(verificationKey));
+    var decryptionMaterialsOut := multiKeyring.OnDecrypt(decryptionMaterialsIn, [edk]);
+    r := RequireFailure(decryptionMaterialsOut);
+  }
+
+  method {:test} TestOnDecryptAllChildKeyringsDontDecrypt() returns (r: Result<()>) {
+    var encryptionContext := map[];
+    var algorithmSuiteID := AlgorithmSuite.AES_256_GCM_IV12_TAG16_HKDF_SHA384_ECDSA_P384;
+    var edk := Materials.EncryptedDataKey.ValidWitness();
+    var verificationKey := seq(32, i => 0);
+
+    var childKeyring := new TestKeyrings.NoOpKeyring();
+    var children := new [][childKeyring, childKeyring];
+    var multiKeyring := new MultiKeyringDef.MultiKeyring(null, children);
+
+    var decryptionMaterialsIn := Materials.DecryptionMaterials.WithoutPlaintextDataKey(encryptionContext, algorithmSuiteID, Some(verificationKey));
+    var decryptionMaterialsOut :- multiKeyring.OnDecrypt(decryptionMaterialsIn, [edk]);
+    r := Require(decryptionMaterialsOut.plaintextDataKey.None?);
   }
 }

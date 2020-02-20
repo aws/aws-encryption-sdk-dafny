@@ -96,27 +96,28 @@ module {:extern "MultiKeyringDef"} MultiKeyringDef {
                 return res;
             }
             if generator != null {
-                res := generator.OnDecrypt(materials, edks);
-                // TODO-RS: If all keyrings fail, pass on at least one of the errors,
-                // preferrably all of them in a chain of some kind.
-                if res.Success? && res.value.plaintextDataKey.Some? {
-                    return res;
+                var onDecryptResult := generator.OnDecrypt(materials, edks);
+                if onDecryptResult.Failure? {
+                    res := onDecryptResult;
+                } else if onDecryptResult.value.plaintextDataKey.Some? {
+                    return onDecryptResult;
                 }
             }
             var i := 0;
             while i < children.Length
-                invariant |edks| == 0 ==> res.Success? && res.value == materials
                 invariant res.Success? ==> 
                         && materials.encryptionContext == res.value.encryptionContext
                         && materials.algorithmSuiteID == res.value.algorithmSuiteID 
-                        && materials.plaintextDataKey.Some? ==> res.value.plaintextDataKey == materials.plaintextDataKey
+                        && (materials.plaintextDataKey.Some? ==> res.value.plaintextDataKey == materials.plaintextDataKey)
                         && materials.keyringTrace <= res.value.keyringTrace
                         && materials.verificationKey == res.value.verificationKey
                 decreases children.Length - i
             {
-                var res := children[i].OnDecrypt(materials, edks);
-                if res.Success? && res.value.plaintextDataKey.Some? {
-                    return res;
+                var onDecryptResult := children[i].OnDecrypt(materials, edks);
+                if onDecryptResult.Failure? {
+                    res := onDecryptResult;
+                } else if onDecryptResult.value.plaintextDataKey.Some? {
+                    return onDecryptResult;
                 }
                 i := i + 1;
             }
