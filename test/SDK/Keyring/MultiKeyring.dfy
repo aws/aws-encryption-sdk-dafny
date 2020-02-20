@@ -91,18 +91,19 @@ module TestMultiKeying {
     var multiKeyring := new MultiKeyringDef.MultiKeyring(null, keyIDs);
 
     var pdk := seq(32, i => 0);
-
+    var traceEntry := Materials.KeyringTraceEntry([], [], {Materials.GENERATED_DATA_KEY});
+    
     // Encryption
     var encryptionMaterialsIn := Materials.EncryptionMaterials.WithoutDataKeys(encryptionContext, algorithmSuiteID, Some(signingKey))
-                                                              .WithKeys(Some(pdk), [], []);
+                                                              .WithKeys(Some(pdk), [], [traceEntry]);
     var encryptionMaterialsOut :- multiKeyring.OnEncrypt(encryptionMaterialsIn);
     // Check plaintextDataKey is as expected
     var _ :- Require(encryptionMaterialsOut.plaintextDataKey == Some(pdk));
     // Check keyringTrace is as expected
     var _ :- Require(
-       && |encryptionMaterialsOut.keyringTrace| == 2
-       && encryptionMaterialsOut.keyringTrace[0] == child1Keyring.EncryptTraceEntry()
-       && encryptionMaterialsOut.keyringTrace[1] == child2Keyring.EncryptTraceEntry()
+       && |encryptionMaterialsOut.keyringTrace| == 3
+       && encryptionMaterialsOut.keyringTrace[1] == child1Keyring.EncryptTraceEntry()
+       && encryptionMaterialsOut.keyringTrace[2] == child2Keyring.EncryptTraceEntry()
     );
 
     var edk1 := encryptionMaterialsOut.encryptedDataKeys[0];

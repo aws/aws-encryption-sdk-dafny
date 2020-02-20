@@ -74,13 +74,14 @@ module TestRSAKeyring {
       var plaintextDataKey := seq(32, i => 0);
       var algorithmSuiteID := AlgorithmSuite.AES_256_GCM_IV12_TAG16_HKDF_SHA384_ECDSA_P384;
       var signingKey := seq(32, i => 0);
+      var traceEntry := Materials.KeyringTraceEntry([], [], {Materials.GENERATED_DATA_KEY});
       var encryptionMaterialsIn := Materials.EncryptionMaterials.WithoutDataKeys(encryptionContext, algorithmSuiteID, Some(signingKey))
-                                                                .WithKeys(Some(plaintextDataKey), [], []);
+                                                                .WithKeys(Some(plaintextDataKey), [], [traceEntry]);
       var encryptionMaterialsOut :- rawRSAKeyring.OnEncrypt(encryptionMaterialsIn);
       var _ :- Require(encryptionMaterialsOut.plaintextDataKey.Some? &&
         |encryptionMaterialsOut.encryptedDataKeys| == 1 &&
         encryptionMaterialsOut.plaintextDataKey.get == plaintextDataKey &&
-        |encryptionMaterialsOut.keyringTrace| == 1);
+        |encryptionMaterialsOut.keyringTrace| == 2);
       var encryptedDataKey := encryptionMaterialsOut.encryptedDataKeys[0];
 
       // Verify decoding
