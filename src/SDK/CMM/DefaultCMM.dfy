@@ -45,11 +45,11 @@ module {:extern "DefaultCMMDef"} DefaultCMMDef {
       requires Valid()
       requires ValidAAD(ec) && ec.Keys !! Materials.ReservedKeyValues
       ensures Valid()
-      ensures res.Success? ==> res.value.dataKeyMaterials.algorithmSuiteID.ValidPlaintextDataKey(res.value.dataKeyMaterials.plaintextDataKey)
-      ensures res.Success? ==> |res.value.dataKeyMaterials.encryptedDataKeys| > 0
+      ensures res.Success? ==> res.value.plaintextDataKey.Some? && res.value.algorithmSuiteID.ValidPlaintextDataKey(res.value.plaintextDataKey.get)
+      ensures res.Success? ==> |res.value.encryptedDataKeys| > 0
       ensures res.Success? ==> ValidAAD(res.value.encryptionContext)
       ensures res.Success? ==>
-        match res.value.dataKeyMaterials.algorithmSuiteID.SignatureType()
+        match res.value.algorithmSuiteID.SignatureType()
           case None => true
           case Some(sigType) =>
             res.value.signingKey.Some?
@@ -72,11 +72,14 @@ module {:extern "DefaultCMMDef"} DefaultCMMDef {
 
       MessageHeader.AssumeValidAAD(enc_ctx);  // TODO: we should check this (https://github.com/awslabs/aws-encryption-sdk-dafny/issues/79)
 
-      var dataKeyMaterials :- kr.OnEncrypt(id, enc_ctx, None);
-      if dataKeyMaterials.None? || |dataKeyMaterials.get.encryptedDataKeys| == 0 {
+      var materials := Materials.EncryptionMaterials.WithoutDataKeys(enc_ctx, id, enc_sk);
+      assert materials.encryptionContext == enc_ctx;
+      materials :- kr.OnEncrypt(materials);
+      if materials.plaintextDataKey.None? || |materials.encryptedDataKeys| == 0 {
         return Failure("Could not retrieve materials required for encryption");
       }
-      return Success(Materials.EncryptionMaterials(enc_ctx, dataKeyMaterials.get, enc_sk));
+      assert materials.Valid();
+      return Success(materials);
     }
 
     method DecryptMaterials(alg_id: AlgorithmSuite.ID, edks: seq<Materials.EncryptedDataKey>, enc_ctx: Materials.EncryptionContext) 
@@ -84,7 +87,7 @@ module {:extern "DefaultCMMDef"} DefaultCMMDef {
       requires |edks| > 0
       requires Valid()
       ensures Valid()
-      ensures res.Success? ==> res.value.algorithmSuiteID.ValidPlaintextDataKey(res.value.plaintextDataKey)
+      ensures res.Success? ==> res.value.plaintextDataKey.Some? && res.value.algorithmSuiteID.ValidPlaintextDataKey(res.value.plaintextDataKey.get)
       ensures res.Success? && res.value.algorithmSuiteID.SignatureType().Some? ==> res.value.verificationKey.Some?
     {
       // Retrieve and decode verification key from encryption context if using signing algorithm
@@ -100,12 +103,13 @@ module {:extern "DefaultCMMDef"} DefaultCMMDef {
         vkey := Some(base64Decoded);
       }
 
-      var onDecryptResult :- kr.OnDecrypt(alg_id, enc_ctx, edks);
-      if onDecryptResult.None? {
-        return Failure("Keyring.OnDecrypt did not return a value.");
+      var materials := Materials.DecryptionMaterials.WithoutPlaintextDataKey(enc_ctx, alg_id, vkey);
+      materials :- kr.OnDecrypt(materials, edks);
+      if materials.plaintextDataKey.None? {
+        return Failure("Keyring.OnDecrypt failed to decrypt the plaintext data key.");
       }
 
-      return Success(Materials.DecryptionMaterials(alg_id, enc_ctx, onDecryptResult.get.plaintextDataKey, vkey, onDecryptResult.get.keyringTrace));
+      return Success(materials);
     }
   }
 }
