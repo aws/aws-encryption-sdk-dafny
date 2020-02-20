@@ -67,8 +67,8 @@ module {:extern "Materials"} Materials {
 
   predicate GenerateTraceEntriesConsistent(plaintextDataKey: Option<seq<uint8>>, keyringTrace: seq<KeyringTraceEntry>) {
     var generateTraces := Filter(keyringTrace, IsGenerateTraceEntry);
-    && |generateTraces| <= 1 
-    && (|generateTraces| == 1 ==> plaintextDataKey.Some? && |keyringTrace| >= 1 && keyringTrace[0] == generateTraces[0])
+    && (|generateTraces| == if plaintextDataKey.Some? then 1 else 0)
+    && (|generateTraces| == 1 ==> |keyringTrace| >= 1 && keyringTrace[0] == generateTraces[0])
     && (plaintextDataKey.None? ==> |keyringTrace| == 0)
   }
 

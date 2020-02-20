@@ -91,15 +91,16 @@ module {:extern "MultiKeyringDef"} MultiKeyringDef {
                 && materials.keyringTrace <= res.value.keyringTrace
                 && materials.verificationKey == res.value.verificationKey
         {
+            res := Success(materials);
             if |edks| == 0 || materials.plaintextDataKey.Some? {
-                return Success(materials);
+                return res;
             }
             if generator != null {
-                var onDecryptResult := generator.OnDecrypt(materials, edks);
+                res := generator.OnDecrypt(materials, edks);
                 // TODO-RS: If all keyrings fail, pass on at least one of the errors,
                 // preferrably all of them in a chain of some kind.
-                if onDecryptResult.Success? && onDecryptResult.value.plaintextDataKey.Some? {
-                    return onDecryptResult;
+                if res.Success? && res.value.plaintextDataKey.Some? {
+                    return res;
                 }
             }
             var i := 0;
@@ -113,13 +114,13 @@ module {:extern "MultiKeyringDef"} MultiKeyringDef {
                         && materials.verificationKey == res.value.verificationKey
                 decreases children.Length - i
             {
-                var onDecryptResult := children[i].OnDecrypt(materials, edks);
-                if onDecryptResult.Success? && onDecryptResult.value.plaintextDataKey.Some? {
-                    return onDecryptResult;
+                var res := children[i].OnDecrypt(materials, edks);
+                if res.Success? && res.value.plaintextDataKey.Some? {
+                    return res;
                 }
                 i := i + 1;
             }
-            return Success(materials);
+            return res;
         }
     }
 }

@@ -69,12 +69,12 @@ module {:extern "RawRSAKeyringDef"} RawRSAKeyringDef {
       ensures unchanged(Repr)
       ensures publicKey.None? ==> res.Failure?
       ensures res.Success? ==> 
-          && materials.encryptionContext == res.value.encryptionContext
-          && materials.algorithmSuiteID == res.value.algorithmSuiteID 
-          && (materials.plaintextDataKey.Some? ==> res.value.plaintextDataKey == materials.plaintextDataKey)
-          && materials.keyringTrace <= res.value.keyringTrace
-          && materials.encryptedDataKeys <= res.value.encryptedDataKeys
-          && materials.signingKey == res.value.signingKey
+        && materials.encryptionContext == res.value.encryptionContext
+        && materials.algorithmSuiteID == res.value.algorithmSuiteID 
+        && (materials.plaintextDataKey.Some? ==> res.value.plaintextDataKey == materials.plaintextDataKey)
+        && materials.keyringTrace <= res.value.keyringTrace
+        && materials.encryptedDataKeys <= res.value.encryptedDataKeys
+        && materials.signingKey == res.value.signingKey
       ensures res.Success? ==>
         (forall i :: |materials.encryptedDataKeys| <= i < |res.value.encryptedDataKeys| ==>
         res.value.encryptedDataKeys[i].providerID == keyNamespace && res.value.encryptedDataKeys[i].providerInfo == keyName)

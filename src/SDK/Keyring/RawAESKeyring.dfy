@@ -144,7 +144,7 @@ module {:extern "RawAESKeyringDef"} RawAESKeyringDef {
       var materialsWithDataKey := materials;
       if materialsWithDataKey.plaintextDataKey.None? {
         var k :- Random.GenerateBytes(materials.algorithmSuiteID.KeyLength() as int32);
-        materialsWithDataKey := materials.WithKeys(Some(k), [], [GenerateTraceEntry()]);
+        materialsWithDataKey := materialsWithDataKey.WithKeys(Some(k), [], [GenerateTraceEntry()]);
       }
 
       var iv :- Random.GenerateBytes(wrappingAlgorithm.ivLen as int32);
