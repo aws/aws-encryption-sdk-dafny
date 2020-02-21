@@ -13,9 +13,18 @@ module {:extern "Signature"} Signature {
         case ECDSA_P256 => 71
         case ECDSA_P384 => 103
       }
+
+      function method FieldSize(): nat {
+        match this
+        case ECDSA_P256 => assert 1 + (256 + 7) / 8 == 33; 33
+        case ECDSA_P384 => assert 1 + (384 + 7) / 8 == 49; 49
+      }
     }
 
-    method {:extern "Signature.ECDSA", "KeyGen"} KeyGen(s : ECDSAParams) returns (res: Result<SignatureKeyPair>)
+    method {:extern "Signature.ECDSA", "KeyGen"} KeyGen(s: ECDSAParams) returns (res: Result<SignatureKeyPair>)
+      ensures match res
+        case Success(sigKeyPair) => |sigKeyPair.verificationKey| == s.FieldSize()
+        case Failure(_) => true
 
     method {:extern "Signature.ECDSA", "Sign"} Sign(s: ECDSAParams, key: seq<uint8>, digest: seq<uint8>) returns (sig: Result<seq<uint8>>)
 
