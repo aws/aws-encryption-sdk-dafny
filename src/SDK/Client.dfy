@@ -30,17 +30,13 @@ module {:extern "ESDKClient"} ESDKClient {
   import Signature
   import Deserialize
 
-  /*
-   * Encrypt a plaintext and serialize it into a message.
-   */
+ /*
+  * Encrypt a plaintext and serialize it into a message.
+  */
   method Encrypt(plaintext: seq<uint8>, cmm: CMMDefs.CMM, encryptionContext: Materials.EncryptionContext) returns (res: Result<seq<uint8>>)
     requires encryptionContext.Keys !! Materials.ReservedKeyValues
     requires cmm.Valid() && Msg.ValidAAD(encryptionContext)
   {
-    /*
-     * What's needed for the encryption: encryption materials, message ID, and derived data key.
-     */
-
     var encMat :- cmm.GetEncryptionMaterials(encryptionContext, None, Some(|plaintext|));
     var dataKeyMaterials := encMat.dataKeyMaterials;
     if UINT16_LIMIT <= |dataKeyMaterials.encryptedDataKeys| {
@@ -50,10 +46,7 @@ module {:extern "ESDKClient"} ESDKClient {
     var messageID: Msg.MessageID := Random.GenerateBytes(Msg.MESSAGE_ID_LEN as int32);
     var derivedDataKey := DeriveKey(dataKeyMaterials.plaintextDataKey, dataKeyMaterials.algorithmSuiteID, messageID);
 
-    /*
-     * Assemble and serialize the header and its authentication tag.
-     */
-
+    // Assemble and serialize the header and its authentication tag
     var frameLength := 4096;
     var headerBody := Msg.HeaderBody(
       Msg.VERSION_1,
@@ -75,16 +68,8 @@ module {:extern "ESDKClient"} ESDKClient {
     var headerAuthentication := Msg.HeaderAuthentication(iv, encryptionOutput.authTag);
     var _ :- Serialize.SerializeHeaderAuthentication(wr, headerAuthentication, dataKeyMaterials.algorithmSuiteID);
 
-    /*
-     * Encrypt the given plaintext into the message body.
-     */
-
+    // Encrypt the given plaintext into the message body and add a footer with a signature, if required
     var body :- MessageBody.EncryptMessageBody(plaintext, frameLength as int, messageID, derivedDataKey, dataKeyMaterials.algorithmSuiteID);
-
-    /*
-     * Add footer with signature, if required.
-     */
-
     var msg := wr.GetDataWritten() + body;
 
     match dataKeyMaterials.algorithmSuiteID.SignatureType() {
@@ -117,31 +102,18 @@ module {:extern "ESDKClient"} ESDKClient {
     return derivedKey;
   }
 
-  /*
-   * Deserialize a message and decrypt into a plaintext.
-   */
+ /*
+  * Deserialize a message and decrypt into a plaintext.
+  */
   method Decrypt(message: seq<uint8>, cmm: CMMDefs.CMM) returns (res: Result<seq<uint8>>)
     requires cmm.Valid()
   {
-    /*
-     * Parse the message header to obtain: algorithm suite ID, encrypted data keys, and encryption context.
-     */
-
     var rd := new Streams.ByteReader(message);
     var header :- Deserialize.DeserializeHeader(rd);
-
-    /*
-     * What's needed for the decryption: decryption materials, decryption key.
-     */
-
     var decMat :- cmm.DecryptMaterials(header.body.algorithmSuiteID, header.body.encryptedDataKeys.entries, header.body.aad);
-
     var decryptionKey := DeriveKey(decMat.plaintextDataKey, decMat.algorithmSuiteID, header.body.messageID);
 
-    /*
-     * Parse and decrypt message body.
-     */
-
+    // Parse and decrypt the message body
     var plaintext;
     match header.body.contentType {
       case NonFramed =>
