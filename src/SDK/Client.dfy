@@ -38,41 +38,40 @@ module {:extern "ESDKClient"} ESDKClient {
     requires cmm.Valid() && Msg.ValidAAD(encryptionContext)
   {
     var encMat :- cmm.GetEncryptionMaterials(encryptionContext, None, Some(|plaintext|));
-    var dataKeyMaterials := encMat.dataKeyMaterials;
-    if UINT16_LIMIT <= |dataKeyMaterials.encryptedDataKeys| {
+    if UINT16_LIMIT <= |encMat.encryptedDataKeys| {
       return Failure("Number of EDKs exceeds the allowed maximum.");
     }
 
-    var messageID: Msg.MessageID := Random.GenerateBytes(Msg.MESSAGE_ID_LEN as int32);
-    var derivedDataKey := DeriveKey(dataKeyMaterials.plaintextDataKey, dataKeyMaterials.algorithmSuiteID, messageID);
+    var messageID: Msg.MessageID :- Random.GenerateBytes(Msg.MESSAGE_ID_LEN as int32);
+    var derivedDataKey := DeriveKey(encMat.plaintextDataKey.get, encMat.algorithmSuiteID, messageID);
 
     // Assemble and serialize the header and its authentication tag
     var frameLength := 4096;
     var headerBody := Msg.HeaderBody(
       Msg.VERSION_1,
       Msg.TYPE_CUSTOMER_AED,
-      dataKeyMaterials.algorithmSuiteID,
+      encMat.algorithmSuiteID,
       messageID,
       encMat.encryptionContext,
-      Msg.EncryptedDataKeys(dataKeyMaterials.encryptedDataKeys),
+      Msg.EncryptedDataKeys(encMat.encryptedDataKeys),
       Msg.ContentType.Framed,
-      dataKeyMaterials.algorithmSuiteID.IVLength() as uint8,
+      encMat.algorithmSuiteID.IVLength() as uint8,
       frameLength);
     var wr := new Streams.ByteWriter();
 
     var _ :- Serialize.SerializeHeaderBody(wr, headerBody);
     var unauthenticatedHeader := wr.GetDataWritten();
 
-    var iv: seq<uint8> := seq(dataKeyMaterials.algorithmSuiteID.IVLength(), _ => 0);
-    var encryptionOutput :- AESEncryption.AESEncrypt(dataKeyMaterials.algorithmSuiteID.EncryptionSuite(), iv, derivedDataKey, [], unauthenticatedHeader);
+    var iv: seq<uint8> := seq(encMat.algorithmSuiteID.IVLength(), _ => 0);
+    var encryptionOutput :- AESEncryption.AESEncrypt(encMat.algorithmSuiteID.EncryptionSuite(), iv, derivedDataKey, [], unauthenticatedHeader);
     var headerAuthentication := Msg.HeaderAuthentication(iv, encryptionOutput.authTag);
-    var _ :- Serialize.SerializeHeaderAuthentication(wr, headerAuthentication, dataKeyMaterials.algorithmSuiteID);
+    var _ :- Serialize.SerializeHeaderAuthentication(wr, headerAuthentication, encMat.algorithmSuiteID);
 
     // Encrypt the given plaintext into the message body and add a footer with a signature, if required
-    var body :- MessageBody.EncryptMessageBody(plaintext, frameLength as int, messageID, derivedDataKey, dataKeyMaterials.algorithmSuiteID);
+    var body :- MessageBody.EncryptMessageBody(plaintext, frameLength as int, messageID, derivedDataKey, encMat.algorithmSuiteID);
     var msg := wr.GetDataWritten() + body;
 
-    match dataKeyMaterials.algorithmSuiteID.SignatureType() {
+    match encMat.algorithmSuiteID.SignatureType() {
       case None =>
         // don't use a footer
       case Some(ecdsaParams) =>
@@ -111,7 +110,8 @@ module {:extern "ESDKClient"} ESDKClient {
     var rd := new Streams.ByteReader(message);
     var header :- Deserialize.DeserializeHeader(rd);
     var decMat :- cmm.DecryptMaterials(header.body.algorithmSuiteID, header.body.encryptedDataKeys.entries, header.body.aad);
-    var decryptionKey := DeriveKey(decMat.plaintextDataKey, decMat.algorithmSuiteID, header.body.messageID);
+
+    var decryptionKey := DeriveKey(decMat.plaintextDataKey.get, decMat.algorithmSuiteID, header.body.messageID);
 
     // Parse and decrypt the message body
     var plaintext;
