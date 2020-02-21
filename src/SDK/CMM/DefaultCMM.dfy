@@ -22,23 +22,23 @@ module {:extern "DefaultCMMDef"} DefaultCMMDef {
   import Deserialize
 
   class DefaultCMM extends CMMDefs.CMM {
-    const kr: KeyringDefs.Keyring
+    const keyring: KeyringDefs.Keyring
 
     predicate Valid()
       reads this, Repr
     {
-      kr in Repr &&
-      Repr == {this, kr} + kr.Repr &&
-      kr.Valid()
+      keyring in Repr &&
+      Repr == {this, keyring} + keyring.Repr &&
+      keyring.Valid()
     }
 
     constructor OfKeyring(k: KeyringDefs.Keyring)
       requires k.Valid()
-      ensures kr == k
+      ensures keyring == k
       ensures Valid()
     {
-      kr := k;
-      Repr := {this, kr} + k.Repr;
+      keyring := k;
+      Repr := {this, keyring} + k.Repr;
     }
 
     method GetEncryptionMaterials(ec: Materials.EncryptionContext, alg_id: Option<AlgorithmSuite.ID>, pt_len: Option<nat>) returns (res: Result<Materials.ValidEncryptionMaterials>)
@@ -48,6 +48,10 @@ module {:extern "DefaultCMMDef"} DefaultCMMDef {
       ensures res.Success? ==> res.value.plaintextDataKey.Some? && res.value.algorithmSuiteID.ValidPlaintextDataKey(res.value.plaintextDataKey.get)
       ensures res.Success? ==> |res.value.encryptedDataKeys| > 0
       ensures res.Success? ==> ValidAAD(res.value.encryptionContext)
+      ensures res.Success? ==>
+        match alg_id
+        case Some(id) => res.value.algorithmSuiteID == id
+        case None => res.value.algorithmSuiteID == 0x0378
       ensures res.Success? ==>
         match res.value.algorithmSuiteID.SignatureType()
           case None => true
@@ -74,7 +78,7 @@ module {:extern "DefaultCMMDef"} DefaultCMMDef {
 
       var materials := Materials.EncryptionMaterials.WithoutDataKeys(enc_ctx, id, enc_sk);
       assert materials.encryptionContext == enc_ctx;
-      materials :- kr.OnEncrypt(materials);
+      materials :- keyring.OnEncrypt(materials);
       if materials.plaintextDataKey.None? || |materials.encryptedDataKeys| == 0 {
         return Failure("Could not retrieve materials required for encryption");
       }
@@ -104,7 +108,7 @@ module {:extern "DefaultCMMDef"} DefaultCMMDef {
       }
 
       var materials := Materials.DecryptionMaterials.WithoutPlaintextDataKey(enc_ctx, alg_id, vkey);
-      materials :- kr.OnDecrypt(materials, edks);
+      materials :- keyring.OnDecrypt(materials, edks);
       if materials.plaintextDataKey.None? {
         return Failure("Keyring.OnDecrypt failed to decrypt the plaintext data key.");
       }
@@ -113,4 +117,3 @@ module {:extern "DefaultCMMDef"} DefaultCMMDef {
     }
   }
 }
-
