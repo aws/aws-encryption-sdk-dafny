@@ -39,6 +39,7 @@ namespace AWSEncryptionSDK
         }
         public static RawAESKeyring MakeRawAESKeyring(byte[] nameSpace, byte[] name, byte[] wrappingKey, DafnyFFI.AESWrappingAlgorithm wrappingAlgorithm)
         {
+            // TODO: Check for null values
             RawAESKeyring result = new RawAESKeyring();
             EncryptionSuites.EncryptionSuite wrappingAlgDafny = wrappingAlgorithm switch {
                 DafnyFFI.AESWrappingAlgorithm.AES_GCM_128 => EncryptionSuites.__default.AES__GCM__128,
