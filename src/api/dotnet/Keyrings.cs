@@ -68,6 +68,26 @@ namespace AWSEncryptionSDK
             result.__ctor(AsInternalKeyring(generator), Array.ConvertAll(children, AsInternalKeyring));
             return AsExternalKeyring(result);
         }
+
+        public static RawAESKeyring MakeRawAESKeyring(byte[] nameSpace, byte[] name, byte[] wrappingKey, DafnyFFI.AESWrappingAlgorithm wrappingAlgorithm)
+        {
+            // TODO: Check for null values, consider taking a CipherParams class instead of enum.
+            RawAESKeyring result = new RawAESKeyring();
+            EncryptionSuites.EncryptionSuite wrappingAlgDafny = wrappingAlgorithm switch {
+                DafnyFFI.AESWrappingAlgorithm.AES_GCM_128 => EncryptionSuites.__default.AES__GCM__128,
+                DafnyFFI.AESWrappingAlgorithm.AES_GCM_192 => EncryptionSuites.__default.AES__GCM__192,
+                DafnyFFI.AESWrappingAlgorithm.AES_GCM_256 => EncryptionSuites.__default.AES__GCM__256,
+                _ => throw new ArgumentException("Unsupported AES Wrapping Algorithm")
+            };
+            result.__ctor(
+                    DafnyFFI.SequenceFromByteArray(nameSpace),
+                    DafnyFFI.SequenceFromByteArray(name),
+                    DafnyFFI.SequenceFromByteArray(wrappingKey),
+                    wrappingAlgDafny
+                    );
+            return result;
+        }
+
         public static ExternalKeyring MakeRawRSAKeyring(byte[] nameSpace, byte[] name, DafnyFFI.RSAPaddingModes paddingMode, byte[] publicKey, byte[] privateKey)
         {
             // TODO: check for null values, ensure at least one key is non-null.

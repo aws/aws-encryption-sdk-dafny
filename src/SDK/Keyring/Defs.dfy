@@ -13,30 +13,31 @@ module {:extern "KeyringDefs"} KeyringDefs {
     ghost const Repr : set<object>
     predicate Valid()
 
-    method OnEncrypt(algorithmSuiteID: Materials.AlgorithmSuite.ID,
-                     encryptionContext: Materials.EncryptionContext,
-                     plaintextDataKey: Option<seq<uint8>>) returns (res: Result<Option<Materials.ValidDataKeyMaterials>>)
-      requires Valid()
-      requires plaintextDataKey.Some? ==> algorithmSuiteID.ValidPlaintextDataKey(plaintextDataKey.get)
-      ensures Valid()
-      ensures res.Success? && res.value.Some? ==> 
-        algorithmSuiteID == res.value.get.algorithmSuiteID
-      ensures res.Success? && res.value.Some? && plaintextDataKey.Some? ==> 
-        plaintextDataKey.get == res.value.get.plaintextDataKey
-      ensures res.Success? && res.value.Some? ==>
-        var generateTraces: seq<Materials.KeyringTraceEntry> := Filter(res.value.get.keyringTrace, Materials.IsGenerateTraceEntry);
-        |generateTraces| == if plaintextDataKey.None? then 1 else 0
-      decreases Repr
-
-    method OnDecrypt(algorithmSuiteID: AlgorithmSuite.ID,
-                     encryptionContext: Materials.EncryptionContext,
-                     edks: seq<Materials.EncryptedDataKey>) returns (res: Result<Option<Materials.ValidOnDecryptResult>>)
+    method OnEncrypt(materials: Materials.ValidEncryptionMaterials) returns (res: Result<Materials.ValidEncryptionMaterials>)
       requires Valid()
       ensures Valid()
-      ensures |edks| == 0 ==> res.Success? && res.value.None?
-      ensures res.Success? && res.value.Some? ==> res.value.get.algorithmSuiteID == algorithmSuiteID
+      ensures res.Success? ==>
+          && materials.encryptionContext == res.value.encryptionContext
+          && materials.algorithmSuiteID == res.value.algorithmSuiteID 
+          && (materials.plaintextDataKey.Some? ==> res.value.plaintextDataKey == materials.plaintextDataKey)
+          && materials.keyringTrace <= res.value.keyringTrace
+          && materials.encryptedDataKeys <= res.value.encryptedDataKeys
+          && materials.signingKey == res.value.signingKey
       decreases Repr
 
+    method OnDecrypt(materials: Materials.ValidDecryptionMaterials,
+                     encryptedDataKeys: seq<Materials.EncryptedDataKey>) returns (res: Result<Materials.ValidDecryptionMaterials>)
+      requires Valid()
+      ensures Valid()
+      ensures |encryptedDataKeys| == 0 ==> res.Success? && materials == res.value
+      ensures materials.plaintextDataKey.Some? ==> res.Success? && materials == res.value
+      ensures res.Success? ==>
+          && materials.encryptionContext == res.value.encryptionContext
+          && materials.algorithmSuiteID == res.value.algorithmSuiteID
+          && (materials.plaintextDataKey.Some? ==> res.value.plaintextDataKey == materials.plaintextDataKey)
+          && materials.keyringTrace <= res.value.keyringTrace
+          && res.value.verificationKey == materials.verificationKey
+      decreases Repr
   }
 
   type ValidKeyring? = k: Keyring? | k == null || k.Valid()
@@ -44,15 +45,12 @@ module {:extern "KeyringDefs"} KeyringDefs {
   trait {:extern} ExternalKeyring {
     ghost const Repr : set<object>;
 
-    method OnEncrypt(algorithmSuiteID: Materials.AlgorithmSuite.ID,
-                     encryptionContext: Materials.EncryptionContext,
-                     plaintextDataKey: Option<seq<uint8>>) returns (res: Result<Option<Materials.ValidDataKeyMaterials>>)
-        decreases Repr
+    method OnEncrypt(materials: Materials.EncryptionMaterials) returns (res: Result<Materials.EncryptionMaterials>)
+      decreases Repr
 
-    method OnDecrypt(algorithmSuiteID: AlgorithmSuite.ID,
-                     encryptionContext: Materials.EncryptionContext,
-                     edks: seq<Materials.EncryptedDataKey>) returns (res: Result<Option<Materials.ValidOnDecryptResult>>)
-        decreases Repr
+    method OnDecrypt(materials: Materials.DecryptionMaterials,
+                     encryptedDataKeys: seq<Materials.EncryptedDataKey>) returns (res: Result<Materials.DecryptionMaterials>)
+      decreases Repr
   }
 
   class AsExternalKeyring extends ExternalKeyring {
@@ -74,23 +72,19 @@ module {:extern "KeyringDefs"} KeyringDefs {
         && wrapped.Valid()
     }
 
-    method OnEncrypt(algorithmSuiteID: Materials.AlgorithmSuite.ID,
-                     encryptionContext: Materials.EncryptionContext,
-                     plaintextDataKey: Option<seq<uint8>>) returns (res: Result<Option<Materials.ValidDataKeyMaterials>>) 
-      decreases Repr
+    method OnEncrypt(materials: Materials.EncryptionMaterials) returns (res: Result<Materials.EncryptionMaterials>)
     {
       var _ :- Require(wrapped != null);
-      var _ :- Require(plaintextDataKey.Some? ==> algorithmSuiteID.ValidPlaintextDataKey(plaintextDataKey.get));
-      res := wrapped.OnEncrypt(algorithmSuiteID, encryptionContext, plaintextDataKey);
+      var _ :- Require(materials.Valid());
+      res := wrapped.OnEncrypt(materials);
     }
 
-    method OnDecrypt(algorithmSuiteID: AlgorithmSuite.ID,
-                     encryptionContext: Materials.EncryptionContext,
-                     edks: seq<Materials.EncryptedDataKey>) returns (res: Result<Option<Materials.ValidOnDecryptResult>>)
-      decreases Repr 
+    method OnDecrypt(materials: Materials.DecryptionMaterials,
+                     encryptedDataKeys: seq<Materials.EncryptedDataKey>) returns (res: Result<Materials.DecryptionMaterials>)
     {
       var _ :- Require(wrapped != null);
-      res := wrapped.OnDecrypt(algorithmSuiteID, encryptionContext, edks);
+      var _ :- Require(materials.Valid());
+      res := wrapped.OnDecrypt(materials, encryptedDataKeys);
     }
   }
 
@@ -108,42 +102,55 @@ module {:extern "KeyringDefs"} KeyringDefs {
       && this !in wrapped.Repr
     }
 
-    method OnEncrypt(algorithmSuiteID: Materials.AlgorithmSuite.ID,
-                     encryptionContext: Materials.EncryptionContext,
-                     plaintextDataKey: Option<seq<uint8>>) returns (res: Result<Option<Materials.ValidDataKeyMaterials>>) 
+    method OnEncrypt(materials: Materials.ValidEncryptionMaterials) returns (res: Result<Materials.ValidEncryptionMaterials>)
       requires Valid()
-      ensures res.Success? && res.value.Some? ==> 
-        algorithmSuiteID == res.value.get.algorithmSuiteID
-      ensures res.Success? && res.value.Some? && plaintextDataKey.Some? ==> 
-        plaintextDataKey.get == res.value.get.plaintextDataKey
-      ensures res.Success? && res.value.Some? ==>
-        var generateTraces: seq<Materials.KeyringTraceEntry> := Filter(res.value.get.keyringTrace, Materials.IsGenerateTraceEntry);
-        |generateTraces| == if plaintextDataKey.None? then 1 else 0
+      ensures res.Success? ==>
+          && materials.encryptionContext == res.value.encryptionContext
+          && materials.algorithmSuiteID == res.value.algorithmSuiteID 
+          && (materials.plaintextDataKey.Some? ==> res.value.plaintextDataKey == materials.plaintextDataKey)
+          && materials.keyringTrace <= res.value.keyringTrace
+          && materials.encryptedDataKeys <= res.value.encryptedDataKeys
+          && materials.signingKey == res.value.signingKey
       decreases Repr
     {
-      res := wrapped.OnEncrypt(algorithmSuiteID, encryptionContext, plaintextDataKey);
-      var _ :- Require(res.Success? && res.value.Some? ==> 
-          algorithmSuiteID == res.value.get.algorithmSuiteID);
-      var _ :- Require(res.Success? && res.value.Some? && plaintextDataKey.Some? ==> 
-          plaintextDataKey.get == res.value.get.plaintextDataKey);
-      var _ :- Require(res.Success? && res.value.Some? ==>
-        var generateTraces: seq<Materials.KeyringTraceEntry> := Filter(res.value.get.keyringTrace, Materials.IsGenerateTraceEntry);
-        |generateTraces| == if plaintextDataKey.None? then 1 else 0);
+      var result := wrapped.OnEncrypt(materials);
+      var _ :- Require(result.Success? ==> result.value.Valid());
+      res := result;
+      var _ :- Require(res.Success? ==>
+          && materials.encryptionContext == res.value.encryptionContext
+          && materials.algorithmSuiteID == res.value.algorithmSuiteID 
+          && (materials.plaintextDataKey.Some? ==> res.value.plaintextDataKey == materials.plaintextDataKey)
+          && materials.keyringTrace <= res.value.keyringTrace
+          && materials.encryptedDataKeys <= res.value.encryptedDataKeys
+          && materials.signingKey == res.value.signingKey);
     }
 
-    method OnDecrypt(algorithmSuiteID: AlgorithmSuite.ID,
-                     encryptionContext: Materials.EncryptionContext,
-                     edks: seq<Materials.EncryptedDataKey>) returns (res: Result<Option<Materials.ValidOnDecryptResult>>) 
+    method OnDecrypt(materials: Materials.ValidDecryptionMaterials,
+                     encryptedDataKeys: seq<Materials.EncryptedDataKey>) returns (res: Result<Materials.ValidDecryptionMaterials>)
       requires Valid()
-      ensures |edks| == 0 ==> res.Success? && res.value.None?
-      ensures res.Success? && res.value.Some? ==> res.value.get.algorithmSuiteID == algorithmSuiteID
+      ensures |encryptedDataKeys| == 0 ==> res.Success? && materials == res.value
+      ensures materials.plaintextDataKey.Some? ==> res.Success? && materials == res.value
+      ensures res.Success? ==>
+          && materials.encryptionContext == res.value.encryptionContext
+          && materials.algorithmSuiteID == res.value.algorithmSuiteID
+          && (materials.plaintextDataKey.Some? ==> res.value.plaintextDataKey == materials.plaintextDataKey)
+          && materials.keyringTrace <= res.value.keyringTrace
+          && res.value.verificationKey == materials.verificationKey
       decreases Repr
     {
-      if |edks| == 0 {
-        return Success(None);
+      if |encryptedDataKeys| == 0 || materials.plaintextDataKey.Some? {
+        return Success(materials);
       }
-      res := wrapped.OnDecrypt(algorithmSuiteID, encryptionContext, edks);
-      var _ :- Require(res.Success? && res.value.Some? ==> res.value.get.algorithmSuiteID == algorithmSuiteID);
+      var result := wrapped.OnDecrypt(materials, encryptedDataKeys);
+      var _ :- Require(result.Success? ==> result.value.Valid());
+      res := result;
+      var _ :- Require(res.Success? ==>
+            && materials.encryptionContext == res.value.encryptionContext
+            && materials.algorithmSuiteID == res.value.algorithmSuiteID
+            && (materials.plaintextDataKey.Some? ==> res.value.plaintextDataKey == materials.plaintextDataKey)
+            && materials.keyringTrace <= res.value.keyringTrace
+            && res.value.verificationKey == materials.verificationKey);
     }
+
   }
 }

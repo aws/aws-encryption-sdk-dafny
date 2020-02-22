@@ -116,11 +116,6 @@ namespace TestVectorTests {
                 string vectorID = vectorEntry.Key;
                 TestVector vector = vectorEntry.Value;
                 
-                //TODO: Remove this if-block once we can test the RawAESKeyring.
-                if (VectorContainsRawAESKey(vector)) {
-                    continue;
-                }
-
                 string plaintextPath = ManifestURIToPath(vector.plaintext, vectorRoot);
                 if (!File.Exists(plaintextPath)) {
                     throw new ArgumentException($"Could not find plaintext file at path: {plaintextPath}");
@@ -151,7 +146,10 @@ namespace TestVectorTests {
                 string vectorID = vectorEntry.Key;
                 TestVector vector = vectorEntry.Value;
 
-                bool shouldSkip = VectorContainsMasterkeyOfType(vector, "raw");
+                // We are unable to test Raw Keyrings until #137 is resolved.
+                if (VectorContainsMasterkeyOfType(vector, "raw")) {
+                    continue;
+                }
 
                 string plaintextPath = ManifestURIToPath(vector.plaintext, vectorRoot);
                 if (!File.Exists(plaintextPath)) {
@@ -161,7 +159,7 @@ namespace TestVectorTests {
 
                 CMM cmm = CMMFactory.EncryptCMM(vector, keyMap);
 
-                yield return new object[] { vectorEntry.Key, cmm, plaintext, client, decryptOracle, shouldSkip };
+                yield return new object[] { vectorEntry.Key, cmm, plaintext, client, decryptOracle };
             }
         }
     }
@@ -190,8 +188,12 @@ namespace TestVectorTests {
                 ClientSupplier clientSupplier = new DefaultClientSupplier();
                 return Keyrings.MakeKMSKeyring(clientSupplier, Enumerable.Empty<String>(), key.ID, Enumerable.Empty<String>());
             } else if (keyInfo.type == "raw" && keyInfo.encryptionAlgorithm == "aes") {
-                //TODO: Once RawAESKeyring is ready for tests, add it here.
-                return new MultiKeyring();
+                return Keyrings.MakeRawAESKeyring(
+                        Encoding.UTF8.GetBytes(keyInfo.providerID),
+                        Encoding.UTF8.GetBytes(key.ID),
+                        Convert.FromBase64String(key.material),
+                        AESAlgorithmFromBits(key.bits)
+                        );
             } else if (keyInfo.type == "raw" && keyInfo.encryptionAlgorithm == "rsa") {
                 return Keyrings.MakeRawRSAKeyring(
                         Encoding.UTF8.GetBytes(keyInfo.providerID),
@@ -204,6 +206,14 @@ namespace TestVectorTests {
             else {
                 throw new Exception("Unsupported keyring type!");
             }
+        }
+        private static DafnyFFI.AESWrappingAlgorithm AESAlgorithmFromBits(ushort bits) {
+            return bits switch {
+                128 => DafnyFFI.AESWrappingAlgorithm.AES_GCM_128,
+                192 => DafnyFFI.AESWrappingAlgorithm.AES_GCM_192,
+                256 => DafnyFFI.AESWrappingAlgorithm.AES_GCM_256,
+                _ => throw new Exception("Unsupported AES wrapping algorithm")
+            };
         }
         private static DafnyFFI.RSAPaddingModes RSAPAddingFromStrings(string strAlg, string strHash) {
             return (strAlg, strHash) switch {
@@ -266,22 +276,15 @@ namespace TestVectorTests {
         [SkippableTheory]
         [ClassData (typeof(DecryptTestVectors))]
         public void CanDecryptTestVector(string vectorID, CMM cmm, byte[] expectedPlaintext, MemoryStream ciphertextStream) {
-            try {
-                MemoryStream decodedStream = AWSEncryptionSDK.Client.Decrypt(ciphertextStream, cmm);
-                byte[] result = decodedStream.ToArray();
-                Assert.Equal(expectedPlaintext, result);
-            } catch (Exception e) when (string.Equals(e.Message, "Unframed Message Decryption Unimplemented")) {
-                // TODO While unframed message deserialization is unimplemented, test that the correct error is thrown
-                // TODO Ideally we would check against a specific, user-exposed Error class here
-                Skip.If(true);
-            }
+            MemoryStream decodedStream = AWSEncryptionSDK.Client.Decrypt(ciphertextStream, cmm);
+            byte[] result = decodedStream.ToArray();
+            Assert.Equal(expectedPlaintext, result);
         }
 
         #pragma warning disable xUnit1026 // Suppress Unused argument warnings for vectorID.
-        [SkippableTheory]
+        [Theory]
         [ClassData (typeof(EncryptTestVectors))]
-        public void CanEncryptTestVector(string vectorID, CMM cmm, byte[] plaintext, HttpClient client, string decryptOracle, bool shouldSkip) {
-            Skip.If(shouldSkip);
+        public void CanEncryptTestVector(string vectorID, CMM cmm, byte[] plaintext, HttpClient client, string decryptOracle) {
             MemoryStream ciphertext = AWSEncryptionSDK.Client.Encrypt(new MemoryStream(plaintext), cmm, new Dictionary<string, string>());
 
             StreamContent content = new StreamContent(ciphertext);
