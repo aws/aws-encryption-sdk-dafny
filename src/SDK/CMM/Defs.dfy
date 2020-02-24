@@ -23,11 +23,11 @@ module {:extern "CMMDefs"} CMMDefs {
       requires Valid()
       requires ValidAAD(encCtx) && encCtx.Keys !! Materials.ReservedKeyValues
       ensures Valid()
-      ensures res.Success? ==> res.value.dataKeyMaterials.algorithmSuiteID.ValidPlaintextDataKey(res.value.dataKeyMaterials.plaintextDataKey)
-      ensures res.Success? ==> |res.value.dataKeyMaterials.encryptedDataKeys| > 0
+      ensures res.Success? ==> res.value.plaintextDataKey.Some? && res.value.algorithmSuiteID.ValidPlaintextDataKey(res.value.plaintextDataKey.get)
+      ensures res.Success? ==> |res.value.encryptedDataKeys| > 0
       ensures res.Success? ==> ValidAAD(res.value.encryptionContext)
       ensures res.Success? ==>
-        match res.value.dataKeyMaterials.algorithmSuiteID.SignatureType()
+        match res.value.algorithmSuiteID.SignatureType()
           case None => true
           case Some(sigType) =>
             res.value.signingKey.Some?
@@ -45,7 +45,7 @@ module {:extern "CMMDefs"} CMMDefs {
       requires |edks| > 0
       requires Valid()
       ensures Valid()
-      ensures res.Success? ==> res.value.algorithmSuiteID.ValidPlaintextDataKey(res.value.plaintextDataKey)
+      ensures res.Success? ==> res.value.plaintextDataKey.Some? && res.value.algorithmSuiteID.ValidPlaintextDataKey(res.value.plaintextDataKey.get)
       ensures res.Success? && res.value.algorithmSuiteID.SignatureType().Some? ==> res.value.verificationKey.Some?
   }
 }

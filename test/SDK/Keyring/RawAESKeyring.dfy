@@ -33,15 +33,18 @@ module TestAESKeyring {
     var _ :- Require(isValidAAD);
 
     var wrappingAlgorithmID := AlgorithmSuite.AES_256_GCM_IV12_TAG16_HKDF_SHA384_ECDSA_P384;
+    var signingKey := seq(32, i => 0);
+    var encryptionMaterialsIn := Materials.EncryptionMaterials.WithoutDataKeys(encryptionContext, wrappingAlgorithmID, Some(signingKey));
+    var encryptionMaterialsOut :- rawAESKeyring.OnEncrypt(encryptionMaterialsIn);
+    var _ :- Require(|encryptionMaterialsOut.encryptedDataKeys| == 1);
 
-    var onEncryptResult :- rawAESKeyring.OnEncrypt(wrappingAlgorithmID, encryptionContext, None);
-    var _ :- Require(onEncryptResult.Some? && |onEncryptResult.get.encryptedDataKeys| == 1);
+    var pdk := encryptionMaterialsOut.plaintextDataKey;
+    var edk := encryptionMaterialsOut.encryptedDataKeys[0];
+    var verificationKey := seq(32, i => 0);
 
-    var pdk := onEncryptResult.get.plaintextDataKey;
-    var edk := onEncryptResult.get.encryptedDataKeys[0];
-
-    var res :- rawAESKeyring.OnDecrypt(wrappingAlgorithmID, encryptionContext, [edk]);
-    r := Require(res.Some? && res.get.plaintextDataKey == pdk);
+    var decryptionMaterialsIn := Materials.DecryptionMaterials.WithoutPlaintextDataKey(encryptionContext, wrappingAlgorithmID, Some(verificationKey));
+    var decryptionMaterialsOut :- rawAESKeyring.OnDecrypt(decryptionMaterialsIn, [edk]);
+    r := Require(encryptionMaterialsOut.plaintextDataKey == pdk);
   }
 
   method {:test} TestOnEncryptOnDecryptSuppliedDataKey() returns (r: Result<()>)
@@ -56,16 +59,22 @@ module TestAESKeyring {
     var _ :- Require(isValidAAD);
 
     var pdk := seq(32, i => 0);
-
+    var traceEntry := Materials.KeyringTraceEntry([], [], {Materials.GENERATED_DATA_KEY});
+    
     var wrappingAlgorithmID := AlgorithmSuite.AES_256_GCM_IV12_TAG16_HKDF_SHA384_ECDSA_P384;
+    var signingKey := seq(32, i => 0);
+    
+    var encryptionMaterialsIn := Materials.EncryptionMaterials.WithoutDataKeys(encryptionContext, wrappingAlgorithmID, Some(signingKey))
+                                                              .WithKeys(Some(pdk), [], [traceEntry]);
+    var encryptionMaterialsOut :- rawAESKeyring.OnEncrypt(encryptionMaterialsIn);
+    var _ :- Require(|encryptionMaterialsOut.encryptedDataKeys| == 1);
 
-    var onEncryptResult :- rawAESKeyring.OnEncrypt(wrappingAlgorithmID, encryptionContext, Some(pdk));
-    var _ :- Require(onEncryptResult.Some? && |onEncryptResult.get.encryptedDataKeys| == 1);
+    var edk := encryptionMaterialsOut.encryptedDataKeys[0];
+    var verificationKey := seq(32, i => 0);
 
-    var edk := onEncryptResult.get.encryptedDataKeys[0];
-
-    var res :- rawAESKeyring.OnDecrypt(wrappingAlgorithmID, encryptionContext, [edk]);
-    r := Require(res.Some? && res.get.plaintextDataKey == pdk);
+    var decryptionMaterialsIn := Materials.DecryptionMaterials.WithoutPlaintextDataKey(encryptionContext, wrappingAlgorithmID, Some(verificationKey));
+    var decryptionMaterialsOut :- rawAESKeyring.OnDecrypt(decryptionMaterialsIn, [edk]);
+    r := Require(decryptionMaterialsOut.plaintextDataKey == Some(pdk));
   }
 
   method {:test} TestOnDecryptNoEDKs() returns (r: Result<()>)
@@ -77,9 +86,11 @@ module TestAESKeyring {
     var keyA :- UTF8.Encode("keyA");
     var valA :- UTF8.Encode("valA");
     var encryptionContext := map[keyA := valA];
+    var verificationKey := seq(32, i => 0);
 
-    var res :- rawAESKeyring.OnDecrypt(wrappingAlgorithmID, encryptionContext, []);
-    r := Require(res.None?);
+    var decryptionMaterialsIn := Materials.DecryptionMaterials.WithoutPlaintextDataKey(encryptionContext, wrappingAlgorithmID, Some(verificationKey));
+    var decryptionMaterialsOut :- rawAESKeyring.OnDecrypt(decryptionMaterialsIn, []);
+    r := Require(decryptionMaterialsOut.plaintextDataKey.None?);
   }
 
   method {:test} TestOnEncryptUnserializableEC() returns (r: Result<()>)
@@ -93,8 +104,10 @@ module TestAESKeyring {
     var _ :- Require(!isValidAAD);
 
     var wrappingAlgorithmID := AlgorithmSuite.AES_256_GCM_IV12_TAG16_HKDF_SHA384_ECDSA_P384;
-    var onEncryptResult := rawAESKeyring.OnEncrypt(wrappingAlgorithmID, unserializableEncryptionContext, None);
-    r := Require(onEncryptResult.Failure?);
+    var signingKey := seq(32, i => 0);
+    var encryptionMaterialsIn := Materials.EncryptionMaterials.WithoutDataKeys(unserializableEncryptionContext, wrappingAlgorithmID, Some(signingKey));
+    var encryptionMaterialsOut := rawAESKeyring.OnEncrypt(encryptionMaterialsIn);
+    r := Require(encryptionMaterialsOut.Failure?);
   }
 
   method {:test} TestOnDecryptUnserializableEC() returns (r: Result<()>)
@@ -107,18 +120,22 @@ module TestAESKeyring {
     var valA :- UTF8.Encode("valA");
     var encryptionContext := map[keyA := valA];
     var wrappingAlgorithmID := AlgorithmSuite.AES_256_GCM_IV12_TAG16_HKDF_SHA384_ECDSA_P384;
-    var onEncryptResult :- rawAESKeyring.OnEncrypt(wrappingAlgorithmID, encryptionContext, None);
-    var _ :- Require(onEncryptResult.Some?);
-    var _ :- Require(|onEncryptResult.get.encryptedDataKeys| == 1);
-    var edk := onEncryptResult.get.encryptedDataKeys[0];
+    var signingKey := seq(32, i => 0);
+    var encryptionMaterialsIn := Materials.EncryptionMaterials.WithoutDataKeys(encryptionContext, wrappingAlgorithmID, Some(signingKey));
+    var encryptionMaterialsOut :- rawAESKeyring.OnEncrypt(encryptionMaterialsIn);
+    var _ :- Require(encryptionMaterialsOut.plaintextDataKey.Some?);
+    var _ :- Require(|encryptionMaterialsOut.encryptedDataKeys| == 1);
+    var edk := encryptionMaterialsOut.encryptedDataKeys[0];
 
     // Set up EC that can't be serialized
     var unserializableEncryptionContext := generateUnserializableEncryptionContext(keyA);
     var isValidAAD := MessageHeader.ComputeValidAAD(unserializableEncryptionContext);
     var _ :- Require(!isValidAAD);
+    var verificationKey := seq(32, i => 0);
 
-    var onDecryptResult := rawAESKeyring.OnDecrypt(wrappingAlgorithmID, unserializableEncryptionContext, [edk]);
-    r := Require(onDecryptResult.Failure?);
+    var decryptionMaterialsIn := Materials.DecryptionMaterials.WithoutPlaintextDataKey(unserializableEncryptionContext, wrappingAlgorithmID, Some(verificationKey));
+    var decryptionMaterialsOut := rawAESKeyring.OnDecrypt(decryptionMaterialsIn, [edk]);
+    r := Require(decryptionMaterialsOut.Failure?);
   }
 
   method {:test} TestDeserializeEDKCiphertext() returns (r: Result<()>) {
