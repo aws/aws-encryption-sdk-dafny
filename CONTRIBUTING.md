@@ -34,7 +34,7 @@ To send us a pull request, please:
 3. Ensure local tests pass.
 4. Commit to your fork using clear commit messages.
    Your commit tile and message and pull request title and description must adhere to
-   [conventional commits](https://www.conventionalcommits.org/). Title must begin with `feat: title`,
+   [conventional commits](https://www.conventionalcommits.org/).
 5. Send us a pull request, answering any default questions in the pull request interface.
 6. Pay attention to any automated CI failures reported in the pull request, and stay involved in the conversation.
 
