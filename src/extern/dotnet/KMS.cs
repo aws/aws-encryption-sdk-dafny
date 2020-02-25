@@ -40,9 +40,12 @@ namespace KMSUtils {
         public STL.Result<KMSClient> GetClient(STL.Option<DString> region) {
             if (region.is_Some) {
                 DString neverUsed = DString.FromString("".ToString());
-                return new STL.Result_Success<KMSClient>(new KMSClient(new KMS.AmazonKeyManagementServiceClient(RegionEndpoint.GetBySystemName(region.GetOrElse(neverUsed).ToString()))));
+                RegionEndpoint regionEndpoint = RegionEndpoint.GetBySystemName(region.GetOrElse(neverUsed).ToString());
+                KMS.AmazonKeyManagementServiceClient amazonKeyManagementServiceClient = new KMS.AmazonKeyManagementServiceClient(regionEndpoint);
+                KMSClient kmsClient = new KMSClient(amazonKeyManagementServiceClient);
+                return STL.Result<KMSClient>.create_Success(kmsClient);
             } else {
-                return new STL.Result_Failure<KMSClient>(DString.FromString("Client Supplier does not have default region.".ToString()));
+                return STL.Result<KMSClient>.create_Failure(DString.FromString("Client Supplier does not have default region.".ToString()));
             }
         }
     }
@@ -63,19 +66,19 @@ namespace KMSUtils {
                 KeyId = request.keyID.ToString(),
                 NumberOfBytes = request.numberOfBytes
             };
-            KMS.Model.GenerateDataKeyResponse response = this.client.GenerateDataKeyAsync(kmsRequest).Result;
-            return new STL.Result_Success<GenerateDataKeyResponse>(new GenerateDataKeyResponse(
-                    byteseq.FromArray(response.CiphertextBlob.ToArray()),
-                    response.ContentLength,
-                    (int)response.HttpStatusCode,
-                    DString.FromString(response.KeyId.ToString()),
-                    byteseq.FromArray(response.Plaintext.ToArray()),
-                    __default.ConvertMetaData(response.ResponseMetadata)
-                    ));
+            KMS.Model.GenerateDataKeyResponse generateDataKeyResponse = this.client.GenerateDataKeyAsync(kmsRequest).Result;
+            GenerateDataKeyResponse response = new GenerateDataKeyResponse(
+                byteseq.FromArray(generateDataKeyResponse.CiphertextBlob.ToArray()),
+                generateDataKeyResponse.ContentLength,
+                (int) generateDataKeyResponse.HttpStatusCode,
+                DString.FromString(generateDataKeyResponse.KeyId.ToString()),
+                byteseq.FromArray(generateDataKeyResponse.Plaintext.ToArray()),
+                __default.ConvertMetaData(generateDataKeyResponse.ResponseMetadata));
+            return STL.Result<GenerateDataKeyResponse>.create_Success(response);
             } catch (Amazon.Runtime.AmazonServiceException amzEx) {
-                return new STL.Result_Failure<GenerateDataKeyResponse>(DString.FromString(amzEx.ToString()));
+                return STL.Result<GenerateDataKeyResponse>.create_Failure(DString.FromString(amzEx.ToString()));
             } catch (DecoderFallbackException decodeEx) {
-                return new STL.Result_Failure<GenerateDataKeyResponse>(DString.FromString(decodeEx.ToString()));
+                return STL.Result<GenerateDataKeyResponse>.create_Failure(DString.FromString(decodeEx.ToString()));
             }
         }
 
@@ -88,18 +91,18 @@ namespace KMSUtils {
                     KeyId = request.keyID.ToString(),
                     Plaintext = new MemoryStream(__default.ConvertByteSeq(request.plaintext))
                 };
-                KMS.Model.EncryptResponse response = this.client.EncryptAsync(kmsRequest).Result;
-                return new STL.Result_Success<EncryptResponse>(new EncryptResponse(
-                            byteseq.FromArray(response.CiphertextBlob.ToArray()),
-                            response.ContentLength,
-                            (int)response.HttpStatusCode,
-                            DString.FromString(response.KeyId.ToString()),
-                            __default.ConvertMetaData(response.ResponseMetadata)
-                            ));
+                KMS.Model.EncryptResponse encryptResponse = this.client.EncryptAsync(kmsRequest).Result;
+                EncryptResponse response = new EncryptResponse(
+                    byteseq.FromArray(encryptResponse.CiphertextBlob.ToArray()),
+                    encryptResponse.ContentLength,
+                    (int) encryptResponse.HttpStatusCode,
+                    DString.FromString(encryptResponse.KeyId.ToString()),
+                    __default.ConvertMetaData(encryptResponse.ResponseMetadata));
+                return STL.Result<EncryptResponse>.create_Success(response);
             } catch (Amazon.Runtime.AmazonServiceException amzEx) {
-                return new STL.Result_Failure<EncryptResponse>(DString.FromString(amzEx.ToString()));
+                return STL.Result<EncryptResponse>.create_Failure(DString.FromString(amzEx.ToString()));
             } catch (DecoderFallbackException decodeEx) {
-                return new STL.Result_Failure<EncryptResponse>(DString.FromString(decodeEx.ToString()));
+                return STL.Result<EncryptResponse>.create_Failure(DString.FromString(decodeEx.ToString()));
             }
         }
 
@@ -111,18 +114,18 @@ namespace KMSUtils {
                     EncryptionContext = __default.EncryptionContextToString(request.encryptionContext),
                     GrantTokens = request.grantTokens.Elements.Select(element => element.ToString()).ToList(),
                 };
-                KMS.Model.DecryptResponse response = this.client.DecryptAsync(kmsRequest).Result;
-                return new STL.Result_Success<DecryptResponse>(new DecryptResponse(
-                            response.ContentLength,
-                            (int)response.HttpStatusCode,
-                            DString.FromString(response.KeyId.ToString()),
-                            byteseq.FromArray(response.Plaintext.ToArray()),
-                            __default.ConvertMetaData(response.ResponseMetadata)
-                            ));
+                KMS.Model.DecryptResponse decryptResponse = this.client.DecryptAsync(kmsRequest).Result;
+                DecryptResponse response = new DecryptResponse(
+                    decryptResponse.ContentLength,
+                    (int) decryptResponse.HttpStatusCode,
+                    DString.FromString(decryptResponse.KeyId.ToString()),
+                    byteseq.FromArray(decryptResponse.Plaintext.ToArray()),
+                    __default.ConvertMetaData(decryptResponse.ResponseMetadata));
+                return STL.Result<DecryptResponse>.create_Success(response);
             } catch (Amazon.Runtime.AmazonServiceException amzEx) {
-                return new STL.Result_Failure<DecryptResponse>(DString.FromString(amzEx.ToString()));
+                return STL.Result<DecryptResponse>.create_Failure(DString.FromString(amzEx.ToString()));
             } catch (DecoderFallbackException decodeEx) {
-                return new STL.Result_Failure<DecryptResponse>(DString.FromString(decodeEx.ToString()));
+                return STL.Result<DecryptResponse>.create_Failure(DString.FromString(decodeEx.ToString()));
             }
         }
     }

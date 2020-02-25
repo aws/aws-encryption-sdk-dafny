@@ -101,11 +101,11 @@ namespace RSAEncryption {
                 IAsymmetricBlockCipher engine = GetEngineForPadding(padding);
                 AsymmetricKeyParameter publicKeyParam = GetPublicKeyFromByteSeq(publicKey);
                 engine.Init(true, publicKeyParam);
-                return new STL.Result_Success<byteseq>(byteseq.FromArray(
+                return STL.Result<byteseq>.create_Success(byteseq.FromArray(
                     engine.ProcessBlock(plaintextMessage.Elements, 0, plaintextMessage.Elements.Length)));
             }
             catch (Exception encryptEx) {
-                return new STL.Result_Failure<byteseq>(charseq.FromArray(encryptEx.ToString().ToCharArray()));
+                return STL.Result<byteseq>.create_Failure(charseq.FromArray(encryptEx.ToString().ToCharArray()));
             }
         }
 
@@ -119,11 +119,11 @@ namespace RSAEncryption {
                     keyPair = (AsymmetricCipherKeyPair) new PemReader(stringReader).ReadObject();
                 }
                 engine.Init(false, keyPair.Private);
-                return new STL.Result_Success<byteseq>(byteseq.FromArray(
+                return STL.Result<byteseq>.create_Success(byteseq.FromArray(
                     engine.ProcessBlock(cipherText.Elements, 0, cipherText.Elements.Length)));
             }
             catch (Exception decryptEx) {
-                return new STL.Result_Failure<byteseq>(charseq.FromArray(decryptEx.ToString().ToCharArray()));
+                return STL.Result<byteseq>.create_Failure(charseq.FromArray(decryptEx.ToString().ToCharArray()));
             }
         }
     }
