@@ -39,8 +39,8 @@ namespace KMSUtils {
     public partial class DefaultClientSupplier : ClientSupplier {
         public STL.Result<KMSClient> GetClient(STL.Option<DString> region) {
             if (region.is_Some) {
-                DString neverUsed = DString.FromString("".ToString());
-                RegionEndpoint regionEndpoint = RegionEndpoint.GetBySystemName(region.GetOrElse(neverUsed).ToString());
+                string regionString = ((STL.Option_Some<DString>) region).get.ToString();
+                RegionEndpoint regionEndpoint = RegionEndpoint.GetBySystemName(regionString);
                 KMS.AmazonKeyManagementServiceClient amazonKeyManagementServiceClient = new KMS.AmazonKeyManagementServiceClient(regionEndpoint);
                 KMSClient kmsClient = new KMSClient(amazonKeyManagementServiceClient);
                 return STL.Result<KMSClient>.create_Success(kmsClient);
