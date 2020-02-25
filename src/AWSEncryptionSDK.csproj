@@ -16,7 +16,7 @@
 
     <DafnySource Include="Crypto/AESEncryption.dfy" />
     <DafnySource Include="Crypto/EncryptionSuites.dfy" />
-    <DafnySource Include="Crypto/Digests.dfy" />
+    <DafnySource Include="Crypto/KeyDerivationAlgorithms.dfy" />
     <DafnySource Include="Crypto/HKDF/HMAC.dfy" />
     <DafnySource Include="Crypto/HKDF/HKDF.dfy" />
     <DafnySource Include="Crypto/Random.dfy" />
@@ -37,7 +37,6 @@
     <DafnySource Include="SDK/MessageBody.dfy" />
     <DafnySource Include="SDK/MessageHeader.dfy" />
     <DafnySource Include="SDK/Serialize.dfy" />
-    <DafnySource Include="SDK/ToyClient.dfy" />
     <DafnySource Include="StandardLibrary/Base64.dfy" />
     <DafnySource Include="StandardLibrary/StandardLibrary.dfy" />
     <DafnySource Include="StandardLibrary/UInt.dfy" />
@@ -54,6 +53,6 @@
   </ItemGroup>
 
   <PropertyGroup>
-    <DafnyVerificationTimeLimit>120</DafnyVerificationTimeLimit>
+    <DafnyVerificationTimeLimit>300</DafnyVerificationTimeLimit>
   </PropertyGroup>
 </Project>
