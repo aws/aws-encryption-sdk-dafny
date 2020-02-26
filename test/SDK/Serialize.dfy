@@ -18,7 +18,7 @@ module TestSerialize {
     var keyB :- UTF8.Encode("keyB");
     var valB :- UTF8.Encode("valB");
     var encryptionContext := map[keyB := valB, keyA := valA];
-    MessageHeader.AssumeValidAAD(encryptionContext);
+    TestUtils.ValidSmallEncryptionContext(encryptionContext);
 
     var expectedSerializedAAD := [0, 26, 0, 2, 0, 4, 107, 101, 121, 65, 0, 4, 118, 97, 108, 65, 0, 4, 107, 101, 121, 66, 0, 4, 118, 97, 108, 66];
   
@@ -40,7 +40,6 @@ module TestSerialize {
   method {:test} TestSerializeLargeValidEC() returns (r: Result<()>) {   
     var wr := new Streams.ByteWriter();
     var encCtx :- TestUtils.GenerateLargeValidEncryptionContext();
-    MessageHeader.AssumeValidAAD(encCtx);
 
     var len :- SerializeAAD(wr, encCtx);
     r := RequireEqual(len, 4 + |encCtx| as int * 7);
@@ -53,7 +52,7 @@ module TestSerialize {
     var keyB :- UTF8.Encode("keyB");
     var valB :- UTF8.Encode("valB");
     var encryptionContext := map[keyB := valB, keyA := valA];
-    MessageHeader.AssumeValidAAD(encryptionContext);
+    TestUtils.ValidSmallEncryptionContext(encryptionContext);
 
     var expectedSerializedAAD := [0, 2, 0, 4, 107, 101, 121, 65, 0, 4, 118, 97, 108, 65, 0, 4, 107, 101, 121, 66, 0, 4, 118, 97, 108, 66];
   
