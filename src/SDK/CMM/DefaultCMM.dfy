@@ -79,7 +79,7 @@ module {:extern "DefaultCMMDef"} DefaultCMMDef {
           assert forall i :: i in ec.Keys ==> i != reservedField;
           enc_ctx := enc_ctx[reservedField := enc_vk];
           var len := MessageHeader.ComputeKVPairsLength(enc_ctx);
-          if |enc_ctx| == UINT16_LIMIT {
+          if UINT16_LIMIT <= |enc_ctx| {
             return Failure("encryption context has too many entries");
           }
           if UINT16_LIMIT <= len {
