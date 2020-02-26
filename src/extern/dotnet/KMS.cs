@@ -45,7 +45,7 @@ namespace KMSUtils {
                 KMSClient kmsClient = new KMSClient(amazonKeyManagementServiceClient);
                 return STL.Result<KMSClient>.create_Success(kmsClient);
             } else {
-                return STL.Result<KMSClient>.create_Failure(DString.FromString("Client Supplier does not have default region.".ToString()));
+                return STL.Result<KMSClient>.create_Failure(DString.FromString("Client Supplier does not have default region."));
             }
         }
     }
