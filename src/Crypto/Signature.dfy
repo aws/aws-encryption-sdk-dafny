@@ -21,10 +21,20 @@ module {:extern "Signature"} Signature {
       }
     }
 
-    method {:extern "Signature.ECDSA", "KeyGen"} KeyGen(s: ECDSAParams) returns (res: Result<SignatureKeyPair>)
+    method KeyGen(s: ECDSAParams) returns (res: Result<SignatureKeyPair>)
       ensures match res
         case Success(sigKeyPair) => |sigKeyPair.verificationKey| == s.FieldSize()
         case Failure(_) => true
+    {
+      var sigKeyPair :- ExternKeyGen(s);
+      if |sigKeyPair.verificationKey| == s.FieldSize() {
+        return Success(sigKeyPair);
+      } else {
+        return Failure("Incorrect verification-key length from ExternKeyGen.");
+      }
+    }
+
+    method {:extern "Signature.ECDSA", "ExternKeyGen"} ExternKeyGen(s: ECDSAParams) returns (res: Result<SignatureKeyPair>)
 
     method {:extern "Signature.ECDSA", "Sign"} Sign(s: ECDSAParams, key: seq<uint8>, digest: seq<uint8>) returns (sig: Result<seq<uint8>>)
 
