@@ -39,19 +39,29 @@ module {:extern "KeyringDefs"} KeyringDefs {
           && res.value.verificationKey == materials.verificationKey
       decreases Repr
   }
-
+ 
   type ValidKeyring? = k: Keyring? | k == null || k.Valid()
 
-  trait {:extern} ExternalKeyring {
+  trait {:extern "AWSEncryptionSDK.Keyring"} ExternalKeyring {
     ghost const Repr : set<object>;
 
+    predicate Valid()
+
     method OnEncrypt(materials: Materials.EncryptionMaterials) returns (res: Result<Materials.EncryptionMaterials>)
+      // TODO-RS: Unsound!
+      requires Valid()
+      requires materials.Valid()
       decreases Repr
 
     method OnDecrypt(materials: Materials.DecryptionMaterials,
                      encryptedDataKeys: seq<Materials.EncryptedDataKey>) returns (res: Result<Materials.DecryptionMaterials>)
+      // TODO-RS: Unsound!
+      requires Valid()
+      requires materials.Valid()
       decreases Repr
   }
+
+  type ValidExternalKeyring? = k: ExternalKeyring? | k == null || k.Valid()
 
   class AsExternalKeyring extends ExternalKeyring {
     const wrapped: ValidKeyring?;
@@ -72,29 +82,29 @@ module {:extern "KeyringDefs"} KeyringDefs {
     }
 
     method OnEncrypt(materials: Materials.EncryptionMaterials) returns (res: Result<Materials.EncryptionMaterials>)
+      requires Valid()
+      requires materials.Valid()
       decreases Repr
     {
       var _ :- Require(wrapped != null);
-      var _ :- Require(Valid());
-      var _ :- Require(materials.Valid());
       res := wrapped.OnEncrypt(materials);
     }
 
     method OnDecrypt(materials: Materials.DecryptionMaterials,
                      encryptedDataKeys: seq<Materials.EncryptedDataKey>) returns (res: Result<Materials.DecryptionMaterials>)
+      requires Valid()
+      requires materials.Valid()
       decreases Repr
     {
       var _ :- Require(wrapped != null);
-      var _ :- Require(Valid());
-      var _ :- Require(materials.Valid());
       res := wrapped.OnDecrypt(materials, encryptedDataKeys);
     }
   }
 
   class AsKeyring extends Keyring {
-    const wrapped: ExternalKeyring;
+    const wrapped: ValidExternalKeyring?;
 
-    constructor(wrapped: ExternalKeyring) {
+    constructor(wrapped: ValidExternalKeyring?) {
       this.wrapped := wrapped;
     }
 
@@ -103,6 +113,7 @@ module {:extern "KeyringDefs"} KeyringDefs {
       && wrapped in Repr 
       && wrapped.Repr <= Repr 
       && this !in wrapped.Repr
+      && wrapped.Valid()
     }
 
     method OnEncrypt(materials: Materials.ValidEncryptionMaterials) returns (res: Result<Materials.ValidEncryptionMaterials>)
@@ -116,6 +127,7 @@ module {:extern "KeyringDefs"} KeyringDefs {
           && materials.signingKey == res.value.signingKey
       decreases Repr
     {
+      var _ :- Require(wrapped != null);
       var result := wrapped.OnEncrypt(materials);
       var _ :- Require(result.Success? ==> result.value.Valid());
       res := result;
@@ -144,6 +156,7 @@ module {:extern "KeyringDefs"} KeyringDefs {
       if |encryptedDataKeys| == 0 || materials.plaintextDataKey.Some? {
         return Success(materials);
       }
+      var _ :- Require(wrapped != null);
       var result := wrapped.OnDecrypt(materials, encryptedDataKeys);
       var _ :- Require(result.Success? ==> result.value.Valid());
       res := result;
