@@ -39,14 +39,12 @@ module TestMultiKeying {
     var encryptionMaterialsIn := Materials.EncryptionMaterials.WithoutDataKeys(encryptionContext, algorithmSuiteID, Some(signingKey));
     var encryptionMaterialsOut :- multiKeyring.OnEncrypt(encryptionMaterialsIn);
     // Check EDK list is as expected
-    var _ :- Require(|encryptionMaterialsOut.encryptedDataKeys| == 2);
+    expect |encryptionMaterialsOut.encryptedDataKeys| == 2;
     // Check keyringTrace is as expected
-    var _ :- Require(
-       && |encryptionMaterialsOut.keyringTrace| == 3
-       && encryptionMaterialsOut.keyringTrace[0] == child1Keyring.GenerateTraceEntry()
-       && encryptionMaterialsOut.keyringTrace[1] == child1Keyring.EncryptTraceEntry()
-       && encryptionMaterialsOut.keyringTrace[2] == child2Keyring.EncryptTraceEntry()
-    );
+    expect |encryptionMaterialsOut.keyringTrace| == 3;
+    expect encryptionMaterialsOut.keyringTrace[0] == child1Keyring.GenerateTraceEntry();
+    expect encryptionMaterialsOut.keyringTrace[1] == child1Keyring.EncryptTraceEntry();
+    expect encryptionMaterialsOut.keyringTrace[2] == child2Keyring.EncryptTraceEntry();
 
     var pdk := encryptionMaterialsOut.plaintextDataKey;
     var edk1 := encryptionMaterialsOut.encryptedDataKeys[0];
@@ -57,22 +55,18 @@ module TestMultiKeying {
     var decryptionMaterialsIn := Materials.DecryptionMaterials.WithoutPlaintextDataKey(encryptionContext, algorithmSuiteID, Some(verificationKey));
     var decryptionMaterialsOut :- multiKeyring.OnDecrypt(decryptionMaterialsIn, [edk1]);
     // Check plaintextDataKey is as expected
-    var _ :- Require(decryptionMaterialsOut.plaintextDataKey == pdk);
+    expect decryptionMaterialsOut.plaintextDataKey == pdk;
     // Check keyringTrace is as expected
-    var _ :- Require(
-       && |decryptionMaterialsOut.keyringTrace| == 1
-       && decryptionMaterialsOut.keyringTrace[0] == child1Keyring.DecryptTraceEntry()
-    );
+    expect |decryptionMaterialsOut.keyringTrace| == 1;
+    expect decryptionMaterialsOut.keyringTrace[0] == child1Keyring.DecryptTraceEntry();
 
     // Second edk decryption
     decryptionMaterialsOut :- multiKeyring.OnDecrypt(decryptionMaterialsIn, [edk2]);
     // Check plaintextDataKey is as expected
-    var _ :- Require(decryptionMaterialsOut.plaintextDataKey == pdk);
+    expect decryptionMaterialsOut.plaintextDataKey == pdk;
     // Check keyringTrace is as expected
-    r := Require(
-       && |decryptionMaterialsOut.keyringTrace| == 1
-       && decryptionMaterialsOut.keyringTrace[0] == child2Keyring.DecryptTraceEntry()
-    );
+    expect |decryptionMaterialsOut.keyringTrace| == 1;
+    expect decryptionMaterialsOut.keyringTrace[0] == child2Keyring.DecryptTraceEntry();
   }
 
   method {:test} TestOnEncryptOnDecryptWithoutGenerator() returns (r: Result<()>) {
@@ -101,13 +95,11 @@ module TestMultiKeying {
                                                               .WithKeys(Some(pdk), [], [traceEntry]);
     var encryptionMaterialsOut :- multiKeyring.OnEncrypt(encryptionMaterialsIn);
     // Check plaintextDataKey is as expected
-    var _ :- Require(encryptionMaterialsOut.plaintextDataKey == Some(pdk));
+    expect encryptionMaterialsOut.plaintextDataKey == Some(pdk);
     // Check keyringTrace is as expected
-    var _ :- Require(
-       && |encryptionMaterialsOut.keyringTrace| == 3
-       && encryptionMaterialsOut.keyringTrace[1] == child1Keyring.EncryptTraceEntry()
-       && encryptionMaterialsOut.keyringTrace[2] == child2Keyring.EncryptTraceEntry()
-    );
+    expect |encryptionMaterialsOut.keyringTrace| == 3;
+    expect encryptionMaterialsOut.keyringTrace[1] == child1Keyring.EncryptTraceEntry();
+    expect encryptionMaterialsOut.keyringTrace[2] == child2Keyring.EncryptTraceEntry();
 
     var edk1 := encryptionMaterialsOut.encryptedDataKeys[0];
     var edk2 := encryptionMaterialsOut.encryptedDataKeys[1];
@@ -117,23 +109,19 @@ module TestMultiKeying {
     var materialsIn := Materials.DecryptionMaterials.WithoutPlaintextDataKey(encryptionContext, algorithmSuiteID, Some(verificationKey));
     var materialsOut :- multiKeyring.OnDecrypt(materialsIn, [edk1]);
     // Check plaintextDataKey is as expected
-    var _ :- Require(materialsOut.plaintextDataKey == Some(pdk));
+    expect materialsOut.plaintextDataKey == Some(pdk);
     // Check keyringTrace is as expected
-    var _ :- Require(
-       && |materialsOut.keyringTrace| == 1
-       && materialsOut.keyringTrace[0] == child1Keyring.DecryptTraceEntry()
-    );
+    expect |materialsOut.keyringTrace| == 1;
+    expect && materialsOut.keyringTrace[0] == child1Keyring.DecryptTraceEntry();
 
     // Second EDK decryption
     materialsIn := Materials.DecryptionMaterials.WithoutPlaintextDataKey(encryptionContext, algorithmSuiteID, Some(verificationKey));
     materialsOut :- multiKeyring.OnDecrypt(materialsIn, [edk2]);
     // Check plaintextDataKey is as expected
-    var _ :- Require(materialsOut.plaintextDataKey == Some(pdk));
+    expect materialsOut.plaintextDataKey == Some(pdk);
     // Check keyringTrace is as expected
-    r := Require(
-      && |materialsOut.keyringTrace| == 1
-      && materialsOut.keyringTrace[0] == child2Keyring.DecryptTraceEntry()
-    );
+    expect |materialsOut.keyringTrace| == 1;
+    expect materialsOut.keyringTrace[0] == child2Keyring.DecryptTraceEntry();
   }
 
   method {:test} TestOnEncryptChildKeyringFailure() returns (r: Result<()>) {
@@ -152,7 +140,7 @@ module TestMultiKeying {
     // Encryption
     var encryptionMaterialsIn := Materials.EncryptionMaterials.WithoutDataKeys(encryptionContext, algorithmSuiteID, Some(signingKey));
     var encryptionMaterialsOut := multiKeyring.OnEncrypt(encryptionMaterialsIn);
-    r := RequireFailure(encryptionMaterialsOut);
+    expect encryptionMaterialsOut.Failure?;
   }
 
   method {:test} TestOnDecryptNoChildDecryptsAndAtLeastOneFails() returns (r: Result<()>) {
@@ -168,7 +156,7 @@ module TestMultiKeying {
 
     var decryptionMaterialsIn := Materials.DecryptionMaterials.WithoutPlaintextDataKey(encryptionContext, algorithmSuiteID, Some(verificationKey));
     var decryptionMaterialsOut := multiKeyring.OnDecrypt(decryptionMaterialsIn, [edk]);
-    r := RequireFailure(decryptionMaterialsOut);
+    expect decryptionMaterialsOut.Failure?;
   }
 
   method {:test} TestOnDecryptAllChildKeyringsDontDecrypt() returns (r: Result<()>) {
@@ -183,6 +171,6 @@ module TestMultiKeying {
 
     var decryptionMaterialsIn := Materials.DecryptionMaterials.WithoutPlaintextDataKey(encryptionContext, algorithmSuiteID, Some(verificationKey));
     var decryptionMaterialsOut :- multiKeyring.OnDecrypt(decryptionMaterialsIn, [edk]);
-    r := Require(decryptionMaterialsOut.plaintextDataKey.None?);
+    expect decryptionMaterialsOut.plaintextDataKey.None?;
   }
 }
