@@ -37,7 +37,8 @@ module {:extern "ESDKClient"} ESDKClient {
     requires encryptionContext.Keys !! Materials.ReservedKeyValues
     requires cmm.Valid() && Msg.ValidAAD(encryptionContext)
   {
-    var encMat :- cmm.GetEncryptionMaterials(encryptionContext, None, Some(|plaintext|));
+    var encMatRequest := Materials.EncryptionMaterialsRequest(encryptionContext, None, Some(|plaintext|));
+    var encMat :- cmm.GetEncryptionMaterials(encMatRequest);
     if UINT16_LIMIT <= |encMat.encryptedDataKeys| {
       return Failure("Number of EDKs exceeds the allowed maximum.");
     }
@@ -109,7 +110,8 @@ module {:extern "ESDKClient"} ESDKClient {
   {
     var rd := new Streams.ByteReader(message);
     var header :- Deserialize.DeserializeHeader(rd);
-    var decMat :- cmm.DecryptMaterials(header.body.algorithmSuiteID, header.body.encryptedDataKeys.entries, header.body.aad);
+    var decMatRequest := Materials.DecryptionMaterialsRequest(header.body.algorithmSuiteID, header.body.encryptedDataKeys.entries, header.body.aad);
+    var decMat :- cmm.DecryptMaterials(decMatRequest);
 
     var decryptionKey := DeriveKey(decMat.plaintextDataKey.get, decMat.algorithmSuiteID, header.body.messageID);
 

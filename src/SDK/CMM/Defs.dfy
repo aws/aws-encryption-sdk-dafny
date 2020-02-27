@@ -16,12 +16,11 @@ module {:extern "CMMDefs"} CMMDefs {
     ghost var Repr : set<object>
     predicate Valid() reads this, Repr
 
-    method GetEncryptionMaterials(encCtx: Materials.EncryptionContext,
-                                  algSuiteID: Option<AlgorithmSuite.ID>,
-                                  plaintextLen: Option<nat>)
+    method GetEncryptionMaterials(materialsRequest: Materials.EncryptionMaterialsRequest)
                                   returns (res: Result<Materials.ValidEncryptionMaterials>)
       requires Valid()
-      requires ValidAAD(encCtx) && encCtx.Keys !! Materials.ReservedKeyValues
+      requires ValidAAD(materialsRequest.encryptionContext)
+      requires materialsRequest.encryptionContext.Keys !! Materials.ReservedKeyValues
       ensures Valid()
       ensures res.Success? ==> res.value.plaintextDataKey.Some? && res.value.algorithmSuiteID.ValidPlaintextDataKey(res.value.plaintextDataKey.get)
       ensures res.Success? ==> |res.value.encryptedDataKeys| > 0
@@ -38,11 +37,8 @@ module {:extern "CMMDefs"} CMMDefs {
       MessageHeader.ValidAAD(encryptionContext)
     }
 
-    method DecryptMaterials(algSuiteID: AlgorithmSuite.ID,
-                            edks: seq<Materials.EncryptedDataKey>,
-                            encCtx: Materials.EncryptionContext)
+    method DecryptMaterials(materialsRequest: Materials.ValidDecryptionMaterialsRequest)
                             returns (res: Result<Materials.ValidDecryptionMaterials>)
-      requires |edks| > 0
       requires Valid()
       ensures Valid()
       ensures res.Success? ==> res.value.plaintextDataKey.Some? && res.value.algorithmSuiteID.ValidPlaintextDataKey(res.value.plaintextDataKey.get)
