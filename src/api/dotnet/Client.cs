@@ -17,7 +17,7 @@ namespace AWSEncryptionSDK
         // TODO: Proper documentation
         public static MemoryStream Encrypt(MemoryStream plaintext, CMM cmm) {
             byteseq dafnyPlaintext = DafnyFFI.SequenceFromMemoryStream(plaintext);
-            //
+
             // TODO: This isn't checking for nulls or any of the requirements on the Dafny method.
             // See https://github.com/dafny-lang/dafny/issues/461.
             // TODO: Might need a lock here if ANYTHING in the Dafny runtime isn't threadsafe!
