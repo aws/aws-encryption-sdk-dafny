@@ -36,8 +36,8 @@ To send us a pull request, please:
    Your commit title and message must adhere to
    [conventional commits](https://www.conventionalcommits.org/).
 5. Send us a pull request, answering any default questions in the pull request interface.
-   Your pull request title must adhere to conventional commits.
-   If you pull request must be merged,
+   Your pull request title must adhere to conventional commit guidance for commit title.
+   If you pull request is squashed and merged,
    the merge commit title and message must adhere to conventional commits.
 6. Pay attention to any automated CI failures reported in the pull request, and stay involved in the conversation.
 
