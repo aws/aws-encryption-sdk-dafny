@@ -37,7 +37,7 @@ module TestSerialize {
     expect wr.GetDataWritten() == expectedSerializedAAD;
   }
 
-  method {:test} TestSerializeLargeValidEC() returns (r: Result<()>) {   
+  method {:test} TestSerializeLargeValidEC() {   
     var wr := new Streams.ByteWriter();
     var encCtx := TestUtils.GenerateLargeValidEncryptionContext();
     MessageHeader.AssumeValidAAD(encCtx);

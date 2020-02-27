@@ -8,7 +8,7 @@ module {:extern "TestMaterials"} TestMaterials {
   import opened Materials
   import AlgorithmSuite
 
-  method {:test} TestWithKeysSettingPlaintextDataKey() returns (res: Result<()>)
+  method {:test} TestWithKeysSettingPlaintextDataKey()
   {
     var encryptionContext := map[];
     var algorithmSuiteID := AlgorithmSuite.AES_256_GCM_IV12_TAG16_HKDF_SHA384_ECDSA_P384;
@@ -27,7 +27,7 @@ module {:extern "TestMaterials"} TestMaterials {
     expect [krTrace] == encryptionMaterials2.keyringTrace;
   }
 
-  method {:test} TestWithKeysKeepingPlaintextDataKey() returns (res: Result<()>)
+  method {:test} TestWithKeysKeepingPlaintextDataKey()
   {
     var encryptionContext := map[];
     var edk1 := EncryptedDataKey([], [1], [1]);
