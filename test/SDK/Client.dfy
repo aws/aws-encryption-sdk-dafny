@@ -43,7 +43,7 @@ module {:extern "TestClient"} TestClient {
       }
       assert Msg.KVPairsLength(encryptionContext) < UINT16_LIMIT;
     }
-    var e :- Client.Encrypt(msg, cmm, encryptionContext);
+    var e :- Client.Encrypt(msg, cmm, None, None, Some(encryptionContext));
 
     var d :- Client.Decrypt(e, cmm);
 
