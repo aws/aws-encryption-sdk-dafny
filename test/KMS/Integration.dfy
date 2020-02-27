@@ -49,7 +49,7 @@ module IntegTestKMS {
       }
       assert Msg.KVPairsLength(encryptionContext) < UINT16_LIMIT;
     }
-    var e := Client.Encrypt(encodedMsg, cmm, encryptionContext);
+    var e := Client.Encrypt(encodedMsg, cmm, Some(encryptionContext), None, None);
     expect e.Success?, "Bad encryption :( " + e.error + "\n";
 
     var d := Client.Decrypt(e.value, cmm);

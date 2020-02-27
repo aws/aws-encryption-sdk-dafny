@@ -3,7 +3,7 @@ include "../Crypto/KeyDerivationAlgorithms.dfy"
 include "../Crypto/Signature.dfy"
 include "../StandardLibrary/StandardLibrary.dfy"
 
-module AlgorithmSuite {
+module {:extern "AlgorithmSuite"} AlgorithmSuite {
   import opened StandardLibrary
   import opened UInt = StandardLibrary.UInt
   import EncryptionSuites
