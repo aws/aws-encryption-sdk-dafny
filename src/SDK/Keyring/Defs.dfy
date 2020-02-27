@@ -69,20 +69,23 @@ module {:extern "KeyringDefs"} KeyringDefs {
         && wrapped in Repr 
         && wrapped.Repr <= Repr 
         && this !in wrapped.Repr
-        && wrapped.Valid()
     }
 
     method OnEncrypt(materials: Materials.EncryptionMaterials) returns (res: Result<Materials.EncryptionMaterials>)
+      decreases Repr
     {
       var _ :- Require(wrapped != null);
+      var _ :- Require(Valid());
       var _ :- Require(materials.Valid());
       res := wrapped.OnEncrypt(materials);
     }
 
     method OnDecrypt(materials: Materials.DecryptionMaterials,
                      encryptedDataKeys: seq<Materials.EncryptedDataKey>) returns (res: Result<Materials.DecryptionMaterials>)
+      decreases Repr
     {
       var _ :- Require(wrapped != null);
+      var _ :- Require(Valid());
       var _ :- Require(materials.Valid());
       res := wrapped.OnDecrypt(materials, encryptedDataKeys);
     }
