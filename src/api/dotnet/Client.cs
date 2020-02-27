@@ -15,7 +15,7 @@ namespace AWSEncryptionSDK
     public class Client {
 
         // TODO: Proper documentation
-        public static MemoryStream Encrypt(MemoryStream plaintext, CMM cmm, ushort? algorithmSuiteID = null, uint? frameLength = null, Dictionary<string, string> encryptionContext = null) {
+        public static MemoryStream Encrypt(MemoryStream plaintext, CMM cmm, Dictionary<string, string> encryptionContext = null, ushort? algorithmSuiteID = null, uint? frameLength = null) {
             if (algorithmSuiteID != null && !AlgorithmSuite.__default.VALID__IDS.Elements.Contains((ushort)algorithmSuiteID)) {
                 throw new ArgumentException("Invalid algorithmSuiteID: " + algorithmSuiteID.ToString());
             }
@@ -30,9 +30,9 @@ namespace AWSEncryptionSDK
             STL.Result<byteseq> result = ESDKClient.__default.Encrypt(
                     dafnyPlaintext,
                     cmm,
+                    dafnyEncryptionContext,
                     optAlgorithmSuiteID,
-                    optFrameLength,
-                    dafnyEncryptionContext
+                    optFrameLength
                     );
     
             return DafnyFFI.MemoryStreamFromSequence(DafnyFFI.ExtractResult(result));

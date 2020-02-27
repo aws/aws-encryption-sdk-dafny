@@ -53,7 +53,7 @@ namespace AWSEncryptionSDKTests
             String plaintext = "Hello";
             MemoryStream plaintextStream = new MemoryStream(Encoding.UTF8.GetBytes(plaintext));
 
-            MemoryStream ciphertext = AWSEncryptionSDK.Client.Encrypt(plaintextStream, cmm, 0x0346, 2048, new Dictionary<string, string>());
+            MemoryStream ciphertext = AWSEncryptionSDK.Client.Encrypt(plaintextStream, cmm, new Dictionary<string, string>(), 0x0346, 2048);
 
             MemoryStream decodedStream = AWSEncryptionSDK.Client.Decrypt(ciphertext, cmm);
             StreamReader reader = new StreamReader(decodedStream, Encoding.UTF8);
