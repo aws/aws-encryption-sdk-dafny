@@ -15,40 +15,24 @@ namespace AWSEncryptionSDK
     public class Client {
 
         // TODO: Proper documentation
-        public static MemoryStream Encrypt(MemoryStream plaintext, CMM cmm) {
-            byteseq dafnyPlaintext = DafnyFFI.SequenceFromMemoryStream(plaintext);
-
-            // TODO: This isn't checking for nulls or any of the requirements on the Dafny method.
-            // See https://github.com/dafny-lang/dafny/issues/461.
-            // TODO: Might need a lock here if ANYTHING in the Dafny runtime isn't threadsafe!
-            STL.Result<byteseq> result = ESDKClient.__default.Encrypt(
-                    dafnyPlaintext,
-                    cmm,
-                    STL.Option<ushort>.create_None(),
-                    STL.Option<uint>.create_None(),
-                    STL.Option<Map<Sequence<byte>, Sequence<byte>>>.create_None()
-                    );
-            return DafnyFFI.MemoryStreamFromSequence(DafnyFFI.ExtractResult(result));
-        }
-  
-        // TODO: Proper documentation
-        public static MemoryStream Encrypt(MemoryStream plaintext, CMM cmm, ushort algorithmSuiteID, uint frameLength, Dictionary<string, string> encryptionContext) {
-            if (!AlgorithmSuite.__default.VALID__IDS.Elements.Contains(algorithmSuiteID)) {
+        public static MemoryStream Encrypt(MemoryStream plaintext, CMM cmm, ushort? algorithmSuiteID = null, uint? frameLength = null, Dictionary<string, string> encryptionContext = null) {
+            if (algorithmSuiteID != null && !AlgorithmSuite.__default.VALID__IDS.Elements.Contains((ushort)algorithmSuiteID)) {
                 throw new ArgumentException("Invalid algorithmSuiteID: " + algorithmSuiteID.ToString());
             }
             byteseq dafnyPlaintext = DafnyFFI.SequenceFromMemoryStream(plaintext);
-            Map<Sequence<byte>, Sequence<byte>> dafnyEncryptionContext = 
-                ToDafnyEncryptionContext(encryptionContext);
     
             // TODO: This isn't checking for nulls or any of the requirements on the Dafny method.
             // See https://github.com/dafny-lang/dafny/issues/461.
             // TODO: Might need a lock here if ANYTHING in the Dafny runtime isn't threadsafe!
+            var optAlgorithmSuiteID = algorithmSuiteID != null ? STL.Option<ushort>.create_Some((ushort)algorithmSuiteID) : STL.Option<ushort>.create_None();
+            var optFrameLength = frameLength != null ? STL.Option<uint>.create_Some((uint)frameLength) : STL.Option<uint>.create_None();
+            var dafnyEncryptionContext = encryptionContext != null ? STL.Option<Map<Sequence<byte>, Sequence<byte>>>.create_Some(ToDafnyEncryptionContext(encryptionContext)) : STL.Option<Map<Sequence<byte>, Sequence<byte>>>.create_None();
             STL.Result<byteseq> result = ESDKClient.__default.Encrypt(
                     dafnyPlaintext,
                     cmm,
-                    STL.Option<ushort>.create_Some(algorithmSuiteID),
-                    STL.Option<uint>.create_Some(frameLength),
-                    STL.Option<Map<Sequence<byte>, Sequence<byte>>>.create_Some(dafnyEncryptionContext)
+                    optAlgorithmSuiteID,
+                    optFrameLength,
+                    dafnyEncryptionContext
                     );
     
             return DafnyFFI.MemoryStreamFromSequence(DafnyFFI.ExtractResult(result));
