@@ -12,7 +12,7 @@ module TestMessageHeader {
   import Materials
   import UTF8
   import MessageHeader
-  import TestUtils
+  import opened TestUtils
 
   method {:test} TestKVPairSequenceToMapEmpty() {
     var kvPairs := [];
@@ -30,16 +30,6 @@ module TestMessageHeader {
     var output := MessageHeader.KVPairSequenceToMap(kvPairs);
     var expected := map[keyA := valA, keyB := valB];
     expect output == expected;
-  }
-
-  method ExpectValidAAD(encCtx: Materials.EncryptionContext) {
-    var valid := MessageHeader.ComputeValidAAD(encCtx);
-    expect valid;
-  }
-
-  method ExpectInvalidAAD(encCtx: Materials.EncryptionContext) {
-    var valid := MessageHeader.ComputeValidAAD(encCtx);
-    expect !valid;
   }
 
   method {:test} TestComputeValidAADEmpty() {
@@ -115,7 +105,6 @@ module TestMessageHeader {
     var len := MessageHeader.ComputeKVPairsLength(encCtx);
     expect len as int == 2 + |encCtx| as int * 7;
 
-    var valid := MessageHeader.ComputeValidAAD(encCtx);
-    expect valid;
+    ExpectValidAAD(encCtx);
   }
 }

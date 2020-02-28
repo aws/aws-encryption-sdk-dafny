@@ -2,12 +2,14 @@ include "../../src/StandardLibrary/StandardLibrary.dfy"
 include "../../src/StandardLibrary/UInt.dfy"
 include "../../src/Util/UTF8.dfy"
 include "../../src/SDK/Materials.dfy"
+include "../../src/SDK/MessageHeader.dfy"
 
 module {:extern "TestUtils"} TestUtils {
   import opened StandardLibrary
   import opened UInt = StandardLibrary.UInt
   import UTF8
   import Materials
+  import MessageHeader
 
   const SHARED_TEST_KEY_ARN := "arn:aws:kms:us-west-2:658956600833:key/b3537ef1-d8dc-4780-9f5a-55776cbb2f7f";
 
@@ -47,5 +49,15 @@ module {:extern "TestUtils"} TestUtils {
     expect |encCtx| == numMaxPairs;
 
     return encCtx;
+  }
+
+  method ExpectValidAAD(encCtx: Materials.EncryptionContext) {
+    var valid := MessageHeader.ComputeValidAAD(encCtx);
+    expect valid;
+  }
+
+  method ExpectInvalidAAD(encCtx: Materials.EncryptionContext) {
+    var valid := MessageHeader.ComputeValidAAD(encCtx);
+    expect !valid;
   }
 }
