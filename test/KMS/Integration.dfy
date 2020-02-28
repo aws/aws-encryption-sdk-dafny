@@ -25,7 +25,7 @@ module IntegTestKMS {
   import UTF8
   import Base64
 
-  method EncryptDecryptTest(cmm: CMMDefs.CMM, message: string) returns (res: Result<string>)
+  method EncryptDecryptTest(cmm: CMMDefs.CMM, message: string) returns (res: string)
     requires cmm.Valid()
   {
     var encodedMsg: seq<uint8>;
@@ -33,8 +33,8 @@ module IntegTestKMS {
     if encodeResult.Success? {
       encodedMsg := encodeResult.value;
     }
-    var keyA :- UTF8.Encode("keyA");
-    var valA :- UTF8.Encode("valA");
+    var keyA :- expect UTF8.Encode("keyA");
+    var valA :- expect UTF8.Encode("valA");
     var encryptionContext := map[keyA := valA];
     assert Msg.ValidAAD(encryptionContext) by {
       // To prove ValidAAD, we need to reveal the definition of ValidAAD:
@@ -50,33 +50,27 @@ module IntegTestKMS {
       assert Msg.KVPairsLength(encryptionContext) < UINT16_LIMIT;
     }
     var e := Client.Encrypt(encodedMsg, cmm, Some(encryptionContext), None, None);
-    if e.Failure? {
-      return Failure("Bad encryption :( " + e.error + "\n");
-    }
+    expect e.Success?, "Bad encryption :( " + e.error + "\n";
 
     var d := Client.Decrypt(e.value, cmm);
-    if d.Failure? {
-      return Failure("bad decryption: " + d.error + "\n");
-    }
-    if UTF8.ValidUTF8Seq(d.value) {
-      res := UTF8.Decode(d.value);
-    } else {
-      return Failure("Could not decode Encryption output");
-    }
+    expect d.Success?, "bad decryption: " + d.error + "\n";
+
+    expect UTF8.ValidUTF8Seq(d.value), "Could not decode Encryption output";
+    res :- expect UTF8.Decode(d.value);
   }
 
-  method {:test} TestEndToEnd() returns (r: Result<()>) {
-    var namespace :- UTF8.Encode("namespace");
-    var name :- UTF8.Encode("MyKeyring");
+  method {:test} TestEndToEnd() {
+    var namespace :- expect UTF8.Encode("namespace");
+    var name :- expect UTF8.Encode("MyKeyring");
     var generatorStr := SHARED_TEST_KEY_ARN;
-    var _ :- Require(KMSUtils.ValidFormatCMK(generatorStr));
+    expect KMSUtils.ValidFormatCMK(generatorStr);
     var generator: KMSUtils.CustomerMasterKey := generatorStr;
     var clientSupplier := new KMSUtils.DefaultClientSupplier();
     var keyring := new KMSKeyringDef.KMSKeyring(clientSupplier, [], Some(generator), []);
     var cmm := new DefaultCMMDef.DefaultCMM.OfKeyring(keyring);
 
     var message := "Hello, World!!";
-    var result :- EncryptDecryptTest(cmm, message);
-    r := RequireEqual(message, result);
+    var result := EncryptDecryptTest(cmm, message);
+    expect message == result;
   }
 }

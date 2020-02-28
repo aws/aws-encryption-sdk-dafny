@@ -10,7 +10,7 @@ module {:extern "TestHKDF"} TestHKDF {
 
   // NOTE: All inputs/ expected output vars below are treated as arrays instead of sequences. This is to prevent a bug
   // in the C# transpiler that leads to long build times when creating long sequences.
-  method {:test} Test0() returns (r: Result<()>) {
+  method {:test} Test0() {
     // Test vector 0: Basic test case with SHA-256
     var tv_ikm := new [][ 0x0b, 0x0b, 0x0b, 0x0b, 0x0b, 0x0b, 0x0b, 0x0b, 0x0b, 0x0b, 0x0b,
                           0x0b, 0x0b, 0x0b, 0x0b, 0x0b, 0x0b, 0x0b, 0x0b, 0x0b, 0x0b, 0x0b ];
@@ -25,10 +25,10 @@ module {:extern "TestHKDF"} TestHKDF {
                                   0x00, 0x72, 0x08, 0xd5, 0xb8, 0x87, 0x18, 0x58, 0x65 ];
 
     var okm := Hkdf(HKDF_WITH_SHA_256, Some(tv_salt[..]), tv_ikm[..], tv_info[..], 42);
-    return RequireEqual(tv_okm_desired[..], okm);
+    expect tv_okm_desired[..] == okm;
   }
 
-  method {:test} Test1() returns (r: Result<()>) {
+  method {:test} Test1() {
     // Test vector 1:  Test with SHA-256 and longer inputs/outputs
     var tv_ikm := new [][ 0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08, 0x09, 0x0a, 0x0b, 0x0c, 0x0d,
                           0x0e, 0x0f, 0x10, 0x11, 0x12, 0x13, 0x14, 0x15, 0x16, 0x17, 0x18, 0x19, 0x1a, 0x1b,
@@ -60,10 +60,10 @@ module {:extern "TestHKDF"} TestHKDF {
                                   0x58, 0x9e, 0xcf, 0x0f, 0x71, 0x0b, 0xdf, 0x2b, 0x15, 0x39 ];
 
     var okm := Hkdf(HKDF_WITH_SHA_256, Some(tv_salt[..]), tv_ikm[..], tv_info[..], 82);
-    return RequireEqual(tv_okm_desired[..], okm);
+    expect tv_okm_desired[..] == okm;
   }
 
-  method {:test} Test2() returns (r: Result<()>) {
+  method {:test} Test2() {
     // Test vector 2: Test with SHA-256 and zero-length salt/info
     var tv_salt := None;
 
@@ -78,10 +78,10 @@ module {:extern "TestHKDF"} TestHKDF {
                                   0x20, 0x13, 0x95, 0xfa, 0xa4, 0xb6, 0x1a, 0x96, 0xc8 ];
 
     var okm := Hkdf(HKDF_WITH_SHA_256, tv_salt, tv_ikm[..], tv_info[..], 42);
-    return RequireEqual(tv_okm_desired[..], okm);
+    expect tv_okm_desired[..] == okm;
   }
 
-  method {:test} Test3() returns (r: Result<()>) {
+  method {:test} Test3() {
     // Test vector 3: Basic test case with SHA-384
     var tv_salt := new [][ 0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08, 0x09, 0x0a, 0x0b, 0x0c ];
 
@@ -96,10 +96,10 @@ module {:extern "TestHKDF"} TestHKDF {
                                   0xb6, 0x45, 0x77, 0x63, 0xe4, 0xf0, 0x20, 0x4f, 0xc5 ];
 
     var okm := Hkdf(HKDF_WITH_SHA_384, Some(tv_salt[..]), tv_ikm[..], tv_info[..], 42);
-    return RequireEqual(tv_okm_desired[..], okm);
+    expect tv_okm_desired[..] == okm;
   }
 
-  method {:test} Test4() returns (r: Result<()>) {
+  method {:test} Test4() {
     // Test vector 4:  Test with SHA-384 and longer inputs/outputs
     var tv_salt := new [][ 0x60, 0x61, 0x62, 0x63, 0x64, 0x65, 0x66, 0x67, 0x68, 0x69, 0x6a, 0x6b, 0x6c, 0x6d,
                            0x6e, 0x6f, 0x70, 0x71, 0x72, 0x73, 0x74, 0x75, 0x76, 0x77, 0x78, 0x79, 0x7a, 0x7b,
@@ -131,10 +131,10 @@ module {:extern "TestHKDF"} TestHKDF {
                                   0x56, 0x22, 0x2f, 0xea, 0x53, 0xd8, 0x96, 0x7a, 0x8b, 0x2e ];
 
     var okm := Hkdf(HKDF_WITH_SHA_384, Some(tv_salt[..]), tv_ikm[..], tv_info[..], 82);
-    return RequireEqual(tv_okm_desired[..], okm);
+    expect tv_okm_desired[..] == okm;
   }
 
-  method {:test} Test5() returns (r: Result<()>) {
+  method {:test} Test5() {
     // Test vector 5: Test with SHA-384 and zero-length salt/info
     var tv_salt := None;
 
@@ -149,10 +149,10 @@ module {:extern "TestHKDF"} TestHKDF {
                                   0x1c, 0xea, 0x56, 0x70, 0x41, 0x5b, 0x52, 0x84, 0x9c ];
 
     var okm := Hkdf(HKDF_WITH_SHA_384, tv_salt, tv_ikm[..], tv_info[..], 42);
-    return RequireEqual(tv_okm_desired[..], okm);
+    expect tv_okm_desired[..] == okm;
   }
 
-  method {:test} Test7() returns (r: Result<()>) {
+  method {:test} Test7() {
     // Test vector 7: Test with SHA-256 for N = ceil(L/HashLen) = 255
     var tv_ikm := new [][ 0x0b, 0x0b, 0x0b, 0x0b, 0x0b, 0x0b, 0x0b, 0x0b, 0x0b, 0x0b, 0x0b,
                           0x0b, 0x0b, 0x0b, 0x0b, 0x0b, 0x0b, 0x0b, 0x0b, 0x0b, 0x0b, 0x0b ];
@@ -592,6 +592,6 @@ module {:extern "TestHKDF"} TestHKDF {
       0xbb, 0x65, 0xc3, 0x9f, 0xcf, 0x3e, 0xe3, 0x99, 0x89, 0x33, 0x61, 0x46, 0xdc, 0xb7, 0xba, 0x76 ];
 
     var okm := Hkdf(HKDF_WITH_SHA_256, Some(tv_salt[..]), tv_ikm[..], tv_info[..], 8129);
-    return RequireEqual(tv_okm_desired[..], okm);
+    expect tv_okm_desired[..] == okm;
   }
 }
