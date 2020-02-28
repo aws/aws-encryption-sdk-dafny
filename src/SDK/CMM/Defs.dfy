@@ -39,6 +39,7 @@ module {:extern "CMMDefs"} CMMDefs {
 
     method DecryptMaterials(materialsRequest: Materials.ValidDecryptionMaterialsRequest)
                             returns (res: Result<Materials.ValidDecryptionMaterials>)
+      requires |edks| > 0
       requires Valid()
       ensures Valid()
       ensures res.Success? ==> res.value.plaintextDataKey.Some? && res.value.algorithmSuiteID.ValidPlaintextDataKey(res.value.plaintextDataKey.get)

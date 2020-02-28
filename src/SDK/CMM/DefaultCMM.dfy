@@ -43,6 +43,7 @@ module {:extern "DefaultCMMDef"} DefaultCMMDef {
 
     method GetEncryptionMaterials(materialsRequest: Materials.EncryptionMaterialsRequest)
                                   returns (res: Result<Materials.ValidEncryptionMaterials>)
+      requires |edks| > 0
       requires Valid()
       requires ValidAAD(materialsRequest.encryptionContext)
       requires materialsRequest.encryptionContext.Keys !! Materials.ReservedKeyValues
