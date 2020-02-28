@@ -6,45 +6,45 @@ module TestSeqReaderReadElements {
   import opened UInt = StandardLibrary.UInt
   import opened Sets
 
-  method {:test} TestSetToOrderedSequenceEmpty() returns (r: Result<()>) {
+  method {:test} TestSetToOrderedSequenceEmpty() {
     var output := ComputeSetToOrderedSequence({}, UInt8Less);
     var expected := [];
-    r := RequireEqual(output, expected);
+    expect output == expected;
   }
 
-  method {:test} TestSetToOrderedSequenceOneItem() returns (r: Result<()>) {
+  method {:test} TestSetToOrderedSequenceOneItem() {
     var a := {[0]};
     var output := ComputeSetToOrderedSequence(a, UInt8Less);
     var expected := [[0]];
-    r := RequireEqual(output, expected);
+    expect output == expected;
   }
 
-  method {:test} TestSetToOrderedSequenceSimple() returns (r: Result<()>) {
+  method {:test} TestSetToOrderedSequenceSimple() {
     var a := {[0, 2], [0, 1]};
     var output := ComputeSetToOrderedSequence(a, UInt8Less);
     var expected := [[0, 1], [0, 2]];
-    r := RequireEqual(output, expected);
+    expect output == expected;
   }
 
-  method {:test} TestSetToOrderedSequencePrefix() returns (r: Result<()>) {
+  method {:test} TestSetToOrderedSequencePrefix() {
     var a := {[0, 1, 2], [0, 1]};
     var output := ComputeSetToOrderedSequence(a, UInt8Less);
     var expected := [[0, 1], [0, 1, 2]];
-    r := RequireEqual(output, expected);
+    expect output == expected;
   }
 
-  method {:test} TestSetToOrderedSequenceComplex() returns (r: Result<()>) {
+  method {:test} TestSetToOrderedSequenceComplex() {
     var a := {[0, 1, 2], [1, 1, 2], [0, 1]};
     var output := ComputeSetToOrderedSequence(a, UInt8Less);
     var expected := [[0, 1], [0, 1, 2], [1, 1, 2]];
-    r := RequireEqual(output, expected);
+    expect output == expected;
   }
 
-  method {:test} TestSetToOrderedSequenceManyItems() returns (r: Result<()>) {
+  method {:test} TestSetToOrderedSequenceManyItems() {
     var a := set x:uint16 | 0 <= x < 0xFFFF :: UInt16ToSeq(x);
     var output := ComputeSetToOrderedSequence(a, UInt8Less);
     var expected : seq<seq<uint8>> := seq(0xFFFF, i requires 0 <= i < 0xFFFF => UInt16ToSeq(i as uint16));
-    r := RequireEqual(output, expected);
+    expect output == expected;
   }
 
 }

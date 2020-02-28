@@ -6,166 +6,166 @@ module TestStreams {
   import opened UInt = StandardLibrary.UInt
   import opened Streams
 
-  method {:test} TestSeqReaderReadElements() returns (r: Result<()>) {
+  method {:test} TestSeqReaderReadElements() {
     var s: seq<nat> := [0, 100, 200, 300, 400];
     var reader := new Streams.SeqReader<nat>(s);
 
     var res := reader.ReadElements(3);
-    var _ :- RequireEqual([0, 100, 200], res);
+    expect [0, 100, 200] == res;
 
     res := reader.ReadElements(0);
-    var _ :- RequireEqual([], res);
+    expect [] == res;
 
     res := reader.ReadElements(2);
-    r := RequireEqual([300, 400], res);
+    expect [300, 400] == res;
   }
 
-  method {:test} TestSeqReaderReadExact() returns (r: Result<()>) {
+  method {:test} TestSeqReaderReadExact() {
     var s: seq<nat> := [0, 100, 200, 300, 400];
     var reader := new Streams.SeqReader<nat>(s);
 
-    var res :- reader.ReadExact(3);
-    var _ :- RequireEqual([0, 100, 200], res);
+    var res :- expect reader.ReadExact(3);
+    expect [0, 100, 200] == res;
 
-    res :- reader.ReadExact(0);
-    var _ :- RequireEqual([], res);
+    res :- expect reader.ReadExact(0);
+    expect [] == res;
 
-    res :- reader.ReadExact(2);
-    var _ :- RequireEqual([300, 400], res);
+    res :- expect reader.ReadExact(2);
+    expect [300, 400] == res;
 
     var isFailure := reader.ReadExact(1);
-    r := RequireFailure(isFailure);
+    expect isFailure.Failure?;
   }
 
-  method {:test} TestByteReader() returns (r: Result<()>) {
+  method {:test} TestByteReader() {
     var s: seq<uint8> := [0, 3, 10, 20, 50, 100, 150, 200, 250, 255];
     var reader := new Streams.ByteReader(s);
 
-    var uint8Res :- reader.ReadByte();
+    var uint8Res :- expect reader.ReadByte();
     var sizeRead := reader.GetSizeRead();
     var isDoneReading := reader.IsDoneReading();
-    var _ :- RequireEqual(0, uint8Res);
-    var _ :- RequireEqual(1, sizeRead);
-    var _ :- Require(!isDoneReading);
+    expect 0 == uint8Res;
+    expect 1 == sizeRead;
+    expect !isDoneReading;
 
-    var sRes :- reader.ReadBytes(0);
+    var sRes :- expect reader.ReadBytes(0);
     sizeRead := reader.GetSizeRead();
     isDoneReading := reader.IsDoneReading();
-    var _ :- RequireEqual([], sRes);
-    var _ :- RequireEqual(1, sizeRead);
-    var _ :- Require(!isDoneReading);
+    expect [] == sRes;
+    expect 1 == sizeRead;
+    expect !isDoneReading;
 
-    sRes :- reader.ReadBytes(3);
+    sRes :- expect reader.ReadBytes(3);
     sizeRead := reader.GetSizeRead();
     isDoneReading := reader.IsDoneReading();
-    var _ :- RequireEqual([3, 10, 20], sRes);
-    var _ :- RequireEqual(4, sizeRead);
-    var _ :- Require(!isDoneReading);
+    expect [3, 10, 20] == sRes;
+    expect 4 == sizeRead;
+    expect !isDoneReading;
 
-    var uint16 :- reader.ReadUInt16();
+    var uint16 :- expect reader.ReadUInt16();
     var expectedUint16 := SeqToUInt16([50, 100]);
     sizeRead := reader.GetSizeRead();
     isDoneReading := reader.IsDoneReading();
-    var _ :- RequireEqual(expectedUint16, uint16);
-    var _ :- RequireEqual(6, sizeRead);
-    var _ :- Require(!isDoneReading);
+    expect expectedUint16 == uint16;
+    expect 6 == sizeRead;
+    expect !isDoneReading;
 
-    var uint32 :- reader.ReadUInt32();
+    var uint32 :- expect reader.ReadUInt32();
     var expectedUint32 := SeqToUInt32([150, 200, 250, 255]);
     sizeRead := reader.GetSizeRead();
     isDoneReading := reader.IsDoneReading();
-    var _ :- RequireEqual(expectedUint32, uint32);
-    var _ :- RequireEqual(10, sizeRead);
-    var _ :- Require(isDoneReading);
+    expect expectedUint32 == uint32;
+    expect 10 == sizeRead;
+    expect isDoneReading;
 
     var isByteFailure := reader.ReadByte();
     sizeRead := reader.GetSizeRead();
     isDoneReading := reader.IsDoneReading();
-    var _ :- RequireFailure(isByteFailure);
-    var _ :- RequireEqual(10, sizeRead);
-    var _ :- Require(isDoneReading);
+    expect isByteFailure.Failure?;
+    expect 10 == sizeRead;
+    expect isDoneReading;
 
     var isBytesFailure := reader.ReadBytes(1);
     sizeRead := reader.GetSizeRead();
     isDoneReading := reader.IsDoneReading();
-    var _ :- RequireFailure(isBytesFailure);
-    var _ :- RequireEqual(10, sizeRead);
-    var _ :- Require(isDoneReading);
+    expect isBytesFailure.Failure?;
+    expect 10 == sizeRead;
+    expect isDoneReading;
 
     var isUint16Failure := reader.ReadUInt16();
     sizeRead := reader.GetSizeRead();
     isDoneReading := reader.IsDoneReading();
-    var _ :- RequireFailure(isUint16Failure);
-    var _ :- RequireEqual(10, sizeRead);
-    var _ :- Require(isDoneReading);
+    expect isUint16Failure.Failure?;
+    expect 10 == sizeRead;
+    expect isDoneReading;
 
     var isUint32Failure := reader.ReadUInt32();
     sizeRead := reader.GetSizeRead();
     isDoneReading := reader.IsDoneReading();
-    var _ :- RequireFailure(isUint32Failure);
-    var _ :- RequireEqual(10, sizeRead);
-    r := Require(isDoneReading);
+    expect isUint32Failure.Failure?;
+    expect 10 == sizeRead;
+    expect isDoneReading;
   }
 
-  method {:test} TestSeqWriter() returns (r: Result<()>) {
+  method {:test} TestSeqWriter() {
     var writer := new Streams.SeqWriter<nat>();
-    var _ :- RequireEqual([], writer.data);
+    expect [] == writer.data;
 
     var elemSize := writer.WriteElements([]);
-    var _ :- RequireEqual(0, elemSize);
-    var _ :- RequireEqual([], writer.data);
+    expect 0 == elemSize;
+    expect [] == writer.data;
 
     elemSize := writer.WriteElements([0, 100, 200]);
-    var _ :- RequireEqual(3, elemSize);
-    var _ :- RequireEqual([0, 100, 200], writer.data);
+    expect 3 == elemSize;
+    expect [0, 100, 200] == writer.data;
 
     elemSize := writer.WriteElements([300, 400, 500, 600]);
-    var _ :- RequireEqual(4, elemSize);
-    r := RequireEqual([0, 100, 200, 300, 400, 500, 600], writer.data);
+    expect 4 == elemSize;
+    expect [0, 100, 200, 300, 400, 500, 600] == writer.data;
   }
 
-  method {:test} TestByteWriter() returns (r: Result<()>) {
+  method {:test} TestByteWriter() {
     var writer := new Streams.ByteWriter();
     var dataWritten := writer.GetDataWritten();
-    var _ :- RequireEqual([], dataWritten);
+    expect [] == dataWritten;
     var sizeWritten := writer.GetSizeWritten();
-    var _ :- RequireEqual(0, sizeWritten);
+    expect 0 == sizeWritten;
 
     var res := writer.WriteByte(0);
-    var _ :- RequireEqual(1, res);
+    expect 1 == res;
     dataWritten := writer.GetDataWritten();
-    var _ :- RequireEqual([0], dataWritten);
+    expect [0] == dataWritten;
     sizeWritten := writer.GetSizeWritten();
-    var _ :- RequireEqual(1, sizeWritten);
+    expect 1 == sizeWritten;
 
     res := writer.WriteBytes([]);
-    var _ :- RequireEqual(0, res);
+    expect 0 == res;
     dataWritten := writer.GetDataWritten();
-    var _ :- RequireEqual([0], dataWritten);
+    expect [0] == dataWritten;
     sizeWritten := writer.GetSizeWritten();
-    var _ :- RequireEqual(1, sizeWritten);
+    expect 1 == sizeWritten;
 
     res := writer.WriteBytes([5, 50, 100]);
-    var _ :- RequireEqual(3, res);
+    expect 3 == res;
     dataWritten := writer.GetDataWritten();
-    var _ :- RequireEqual([0, 5, 50, 100], dataWritten);
+    expect [0, 5, 50, 100] == dataWritten;
     sizeWritten := writer.GetSizeWritten();
-    var _ :- RequireEqual(4, sizeWritten);
+    expect 4 == sizeWritten;
 
     var uint16Written := SeqToUInt16([150, 200]);
     res := writer.WriteUInt16(uint16Written);
-    var _ :- RequireEqual(2, res);
+    expect 2 == res;
     dataWritten := writer.GetDataWritten();
-    var _ :- RequireEqual([0, 5, 50, 100, 150, 200], dataWritten);
+    expect [0, 5, 50, 100, 150, 200] == dataWritten;
     sizeWritten := writer.GetSizeWritten();
-    var _ :- RequireEqual(6, sizeWritten);
+    expect 6 == sizeWritten;
 
     var uint32Written := SeqToUInt32([50, 150, 200, 255]);
     res := writer.WriteUInt32(uint32Written);
-    var _ :- RequireEqual(4, res);
+    expect 4 == res;
     dataWritten := writer.GetDataWritten();
-    var _ :- RequireEqual([0, 5, 50, 100, 150, 200, 50, 150, 200, 255], dataWritten);
+    expect [0, 5, 50, 100, 150, 200, 50, 150, 200, 255] == dataWritten;
     sizeWritten := writer.GetSizeWritten();
-    r := RequireEqual(10, sizeWritten);
+    expect 10 == sizeWritten;
   }
 }
