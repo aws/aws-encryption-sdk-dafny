@@ -290,9 +290,6 @@ module {:extern "MessageHeader"} MessageHeader {
     && (forall key :: key in encryptionContext.Keys ==> ValidKVPair((key, encryptionContext[key])))
   }
 
-  lemma {:axiom} AssumeValidAAD(encryptionContext: Materials.EncryptionContext)  // TODO: this should be removed and replaced by something usable
-    ensures ValidAAD(encryptionContext)
-
   predicate ValidFrameLength(frameLength: uint32, contentType: ContentType) {
     match contentType
     case NonFramed => frameLength == 0

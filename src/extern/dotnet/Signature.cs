@@ -28,7 +28,7 @@ namespace Signature {
     }
 
     public partial class ECDSA {
-        public static STL.Result<SignatureKeyPair> KeyGen(ECDSAParams x) {
+        public static STL.Result<SignatureKeyPair> ExternKeyGen(ECDSAParams x) {
             try {
                 ECKeyPairGenerator generator = new ECKeyPairGenerator();
                 SecureRandom rng = new SecureRandom();

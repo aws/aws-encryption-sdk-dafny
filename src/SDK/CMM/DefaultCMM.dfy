@@ -69,13 +69,31 @@ module {:extern "DefaultCMMDef"} DefaultCMMDef {
           var signatureKeys :- Signature.KeyGen(param);
           enc_sk := Some(signatureKeys.signingKey);
           var enc_vk :- UTF8.Encode(Base64.Encode(signatureKeys.verificationKey));
+          calc {
+            |enc_vk|;
+          ==  { assert UTF8.IsASCIIString(Base64.Encode(signatureKeys.verificationKey)); }
+            |Base64.Encode(signatureKeys.verificationKey)|;
+          <=  { Base64.EncodeLengthBound(signatureKeys.verificationKey); }
+            |signatureKeys.verificationKey| / 3 * 4 + 4;
+          <  { assert |signatureKeys.verificationKey| <= 3000; }
+            UINT16_LIMIT;
+          }
+
           var reservedField := Materials.EC_PUBLIC_KEY_FIELD;
           assert reservedField in Materials.ReservedKeyValues;
           assert forall i :: i in materialsRequest.encryptionContext.Keys ==> i != reservedField;
           enc_ctx := enc_ctx[reservedField := enc_vk];
+          var len := MessageHeader.ComputeKVPairsLength(enc_ctx);
+          if UINT16_LIMIT <= |enc_ctx| {
+            return Failure("encryption context has too many entries");
+          }
+          if UINT16_LIMIT <= len {
+            return Failure("encryption context too big");
+          }
+          assert ValidAAD(enc_ctx) by {
+            reveal MessageHeader.ValidAAD();
+          }
       }
-
-      MessageHeader.AssumeValidAAD(enc_ctx);  // TODO: we should check this (https://github.com/awslabs/aws-encryption-sdk-dafny/issues/79)
 
       var materials := Materials.EncryptionMaterials.WithoutDataKeys(enc_ctx, id, enc_sk);
       assert materials.encryptionContext == enc_ctx;

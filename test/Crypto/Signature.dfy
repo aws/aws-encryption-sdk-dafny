@@ -9,8 +9,14 @@ module TestSignature {
   import Signature
   import UTF8
 
+  method RequireGoodKeyLengths(s: Signature.ECDSAParams, sigKeyPair: Signature.SignatureKeyPair) {
+    // The following is a declared postcondition of the KeyGen method:
+    expect |sigKeyPair.verificationKey| == s.FieldSize();
+  }
+
   method YCompression(s: Signature.ECDSAParams, fieldSize: nat) {
     var res :- expect Signature.KeyGen(s);
+    RequireGoodKeyLengths(s, res);
     var public, secret := res.verificationKey, res.signingKey;
     // This is the declared postcondition of the natively implemented KenGen method, plus a condition
     // about zero-padding:
@@ -30,6 +36,7 @@ module TestSignature {
   method VerifyMessage(params: Signature.ECDSAParams) {
     var message :- expect UTF8.Encode("Hello, World!");
     var keys :- expect Signature.KeyGen(params);
+    RequireGoodKeyLengths(params, keys);
 
     var digest :- expect Signature.Digest(params, message);
     var signature :- expect Signature.Sign(params, keys.signingKey, digest);
