@@ -9,44 +9,50 @@ module TestSignature {
   import Signature
   import UTF8
 
-  method YCompression(s: Signature.ECDSAParams, fieldSize: nat) returns (r: Result<()>) {
-    var res :- Signature.KeyGen(s);
+  method RequireGoodKeyLengths(s: Signature.ECDSAParams, sigKeyPair: Signature.SignatureKeyPair) {
+    // The following is a declared postcondition of the KeyGen method:
+    expect |sigKeyPair.verificationKey| == s.FieldSize();
+  }
+
+  method YCompression(s: Signature.ECDSAParams, fieldSize: nat) {
+    var res :- expect Signature.KeyGen(s);
+    RequireGoodKeyLengths(s, res);
     var public, secret := res.verificationKey, res.signingKey;
     // This is the declared postcondition of the natively implemented KenGen method, plus a condition
     // about zero-padding:
-    var _ :- Require(0 < |secret|);
-    var _ :- Require(|public| == 1 + (fieldSize + 7) / 8);  // 1 byte for y; x zero-padded up to the field size
-    var _ :- Require(public[0] == 2 || public[0] == 3);  // public key uses y compression
-    return Success(());
+    expect 0 < |secret|;
+    expect |public| == 1 + (fieldSize + 7) / 8;  // 1 byte for y; x zero-padded up to the field size
+    expect public[0] == 2 || public[0] == 3;  // public key uses y compression
   }
 
-  method {:test} YCompression384() returns (r: Result<()>) {
-    r := YCompression(Signature.ECDSA_P384, 384);
+  method {:test} YCompression384() {
+    YCompression(Signature.ECDSA_P384, 384);
   }
 
-  method {:test} YCompression256() returns (r: Result<()>) {
-    r := YCompression(Signature.ECDSA_P256, 256);
+  method {:test} YCompression256() {
+    YCompression(Signature.ECDSA_P256, 256);
   }
 
-  method VerifyMessage(params: Signature.ECDSAParams) returns (r: Result<()>){
-    var message :- UTF8.Encode("Hello, World!");
-    var keys :- Signature.KeyGen(params);
+  method VerifyMessage(params: Signature.ECDSAParams) {
+    var message :- expect UTF8.Encode("Hello, World!");
+    var keys :- expect Signature.KeyGen(params);
+    RequireGoodKeyLengths(params, keys);
 
-    var digest :- Signature.Digest(params, message);
-    var signature :- Signature.Sign(params, keys.signingKey, digest);
-    var shouldBeTrue :- Signature.Verify(params, keys.verificationKey, digest, signature);
-    var _ :- Require(shouldBeTrue);
-    var badDigest :- Signature.Digest(params, message + [1]);
-    var shouldBeFalse :- Signature.Verify(params, keys.verificationKey, badDigest, signature);
-    var _ :- Require(!shouldBeFalse);
-    return Success(());
+    var digest :- expect Signature.Digest(params, message);
+    var signature :- expect Signature.Sign(params, keys.signingKey, digest);
+    var shouldBeTrue :- expect Signature.Verify(params, keys.verificationKey, digest, signature);
+    expect shouldBeTrue;
+
+    var badDigest :- expect Signature.Digest(params, message + [1]);
+    var shouldBeFalse :- expect Signature.Verify(params, keys.verificationKey, badDigest, signature);
+    expect !shouldBeFalse;
   }
 
-  method {:test} VerifyMessage384() returns (r: Result<()>) {
-    r := VerifyMessage(Signature.ECDSA_P384);
+  method {:test} VerifyMessage384() {
+    VerifyMessage(Signature.ECDSA_P384);
   }
 
-  method {:test} VerifyMessage256() returns (r: Result<()>) {
-    r := VerifyMessage(Signature.ECDSA_P256);
+  method {:test} VerifyMessage256() {
+    VerifyMessage(Signature.ECDSA_P256);
   }
 }

@@ -45,32 +45,6 @@ module {:extern "STL"} StandardLibrary {
     }
   }
 
-  function method RequireEqual<T(==)>(expected: T, actual: T): (r: Result<()>)
-      ensures r.Success? ==> expected == actual
-  {
-    // TODO: Report message similar to "Expected ___ but got ___"
-    // Blocked on https://github.com/dafny-lang/dafny/issues/450
-    RequireWithMessage(expected == actual, "Failed equality")
-  }
-  
-  function method Require(b: bool): (r: Result<()>)
-      ensures r.Success? ==> b
-  {
-    RequireWithMessage(b, "Failed requirement")
-  }
-
-  function method RequireFailure<T>(x: Result<T>): (r: Result<()>)
-      ensures r.Success? ==> x.Failure?
-  {
-    RequireWithMessage(x.Failure?, "Expected failure, but got success")
-  }
-
-  function method RequireWithMessage(b: bool, message: string): (r: Result<()>)
-      ensures r.Success? ==> b
-  {
-    if b then Success(()) else Failure(message)
-  }
-
   function method Join<T>(ss: seq<seq<T>>, joiner: seq<T>): (s: seq<T>)
     requires 0 < |ss|
   {

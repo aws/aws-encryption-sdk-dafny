@@ -19,10 +19,34 @@ namespace AWSEncryptionSDKTests
         [Fact]
         public void RoundTripHappyPath()
         {
-            var keyArn = DafnyFFI.StringFromDafnyString(TestUtils.__default.SHARED__TEST__KEY__ARN);
-            
+            String keyArn = DafnyFFI.StringFromDafnyString(TestUtils.__default.SHARED__TEST__KEY__ARN);
+
             ClientSupplier clientSupplier = new DefaultClientSupplier();
-            
+
+            var keyring = AWSEncryptionSDK.Keyrings.MakeKMSKeyring(
+                clientSupplier, Enumerable.Empty<String>(), keyArn,Enumerable.Empty<String>());
+
+            CMMDefs.CMM cmm = AWSEncryptionSDK.CMMs.MakeDefaultCMM(keyring);
+
+            String plaintext = "Hello";
+            MemoryStream plaintextStream = new MemoryStream(Encoding.UTF8.GetBytes(plaintext));
+
+            MemoryStream ciphertext = AWSEncryptionSDK.Client.Encrypt(plaintextStream, cmm);
+
+            MemoryStream decodedStream = AWSEncryptionSDK.Client.Decrypt(ciphertext, cmm);
+            StreamReader reader = new StreamReader(decodedStream, Encoding.UTF8);
+            String decoded = reader.ReadToEnd();
+
+            Assert.Equal(plaintext, decoded);
+        }
+
+        [Fact]
+        public void RoundTripHappyPathWithParams()
+        {
+            String keyArn = DafnyFFI.StringFromDafnyString(TestUtils.__default.SHARED__TEST__KEY__ARN);
+
+            ClientSupplier clientSupplier = new DefaultClientSupplier();
+
             var keyring = AWSEncryptionSDK.Keyrings.MakeKMSKeyring(
                 clientSupplier, Enumerable.Empty<String>(), keyArn,Enumerable.Empty<String>());
 
