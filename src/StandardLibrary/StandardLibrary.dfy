@@ -45,6 +45,14 @@ module {:extern "STL"} StandardLibrary {
     }
   }
 
+  method FailUnless(p: bool, message: string) returns (r: Result<()>) ensures r.Success? ==> p {
+    if p {
+      r := Success(());
+    } else {
+      r := Failure(message);
+    }
+  }
+
   function method Join<T>(ss: seq<seq<T>>, joiner: seq<T>): (s: seq<T>)
     requires 0 < |ss|
   {

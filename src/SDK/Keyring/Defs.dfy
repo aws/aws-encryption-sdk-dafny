@@ -73,13 +73,12 @@ module {:extern "KeyringDefs"} KeyringDefs {
         && wrapped.Repr <= Repr 
         && this !in wrapped.Repr
     }
-    lemma AlwaysValid(k: AsExternalKeyring) ensures k.Valid()
+    lemma AlwaysValid(k: AsExternalKeyring) ensures k.Valid()    
 
     method OnEncrypt(materials: Materials.EncryptionMaterials) returns (res: Result<Materials.EncryptionMaterials>)
       requires materials.Valid()
       decreases Repr
     {
-      var _ :- Require(wrapped != null);
       AlwaysValid(this);
       res := wrapped.OnEncrypt(materials);
     }
@@ -89,7 +88,6 @@ module {:extern "KeyringDefs"} KeyringDefs {
       requires materials.Valid()
       decreases Repr
     {
-      var _ :- Require(wrapped != null);
       AlwaysValid(this);
       res := wrapped.OnDecrypt(materials, encryptedDataKeys);
     }
@@ -122,15 +120,15 @@ module {:extern "KeyringDefs"} KeyringDefs {
     {
       AlwaysValid(this);
       var result := wrapped.OnEncrypt(materials);
-      var _ :- Require(result.Success? ==> result.value.Valid());
+      var _ :- FailUnless(result.Success? ==> result.value.Valid(), "Invalid result");
       res := result;
-      var _ :- Require(res.Success? ==>
+      expect res.Success? ==>
           && materials.encryptionContext == res.value.encryptionContext
           && materials.algorithmSuiteID == res.value.algorithmSuiteID 
           && (materials.plaintextDataKey.Some? ==> res.value.plaintextDataKey == materials.plaintextDataKey)
           && materials.keyringTrace <= res.value.keyringTrace
           && materials.encryptedDataKeys <= res.value.encryptedDataKeys
-          && materials.signingKey == res.value.signingKey);
+          && materials.signingKey == res.value.signingKey;
     }
 
     method OnDecrypt(materials: Materials.ValidDecryptionMaterials,
@@ -150,14 +148,14 @@ module {:extern "KeyringDefs"} KeyringDefs {
       }
       AlwaysValid(this);
       var result := wrapped.OnDecrypt(materials, encryptedDataKeys);
-      var _ :- Require(result.Success? ==> result.value.Valid());
+      var _ :- FailUnless(result.Success? ==> result.value.Valid(), "Invalid result");
       res := result;
-      var _ :- Require(res.Success? ==>
+      expect res.Success? ==>
             && materials.encryptionContext == res.value.encryptionContext
             && materials.algorithmSuiteID == res.value.algorithmSuiteID
             && (materials.plaintextDataKey.Some? ==> res.value.plaintextDataKey == materials.plaintextDataKey)
             && materials.keyringTrace <= res.value.keyringTrace
-            && res.value.verificationKey == materials.verificationKey);
+            && res.value.verificationKey == materials.verificationKey;
     }
   }
 }
