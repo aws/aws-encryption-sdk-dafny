@@ -18,6 +18,8 @@ module {:extern "STL"} StandardLibrary {
     }
   }
 
+  method {:extern} As<T>(x: object) returns (r: Option<T>)
+
   datatype Result<T> = Success(value: T) | Failure(error: string)
   {
     predicate method IsFailure() {

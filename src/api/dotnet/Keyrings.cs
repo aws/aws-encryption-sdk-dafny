@@ -65,7 +65,7 @@ namespace AWSEncryptionSDK
         {
             // TODO: Check for null value etc.
             MultiKeyring result = new MultiKeyring();
-            result.__ctor(AsInternalKeyring(generator), Array.ConvertAll(children, AsInternalKeyring));
+            result.__ctor(AsInternalKeyring(generator), Dafny.Sequence<Keyring>.FromArray(Array.ConvertAll(children, AsInternalKeyring)));
             return AsExternalKeyring(result);
         }
 

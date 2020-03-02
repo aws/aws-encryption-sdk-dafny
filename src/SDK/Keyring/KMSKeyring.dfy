@@ -30,18 +30,18 @@ module {:extern "KMSKeyringDef"} KMSKeyringDef {
                         generator: string,
                         grantTokens: seq<string>) returns (result: Result<KMSKeyring>)
   {
-    var _ :- RequireWithMessage(clientSupplier != null, "Client supplier is required");
-    var _ :- RequireWithMessage(|grantTokens| <= KMSUtils.MAX_GRANT_TOKENS, "Too many grant tokens");
+    var _ :- FailUnless(clientSupplier != null, "Client supplier is required");
+    var _ :- FailUnless(|grantTokens| <= KMSUtils.MAX_GRANT_TOKENS, "Too many grant tokens");
     var keyIDsNoBlanks := Filter(keyIDs, keyID => keyID != "");
-    var _ :- Require(forall keyID :: keyID in keyIDsNoBlanks ==> KMSUtils.ValidFormatCMK(keyID));
+    var _ :- FailUnless(forall keyID :: keyID in keyIDsNoBlanks ==> KMSUtils.ValidFormatCMK(keyID), "Invalid CMK(s)");
     var generatorOption: Option<KMSUtils.CustomerMasterKey>;
     if |generator| == 0 {
       generatorOption := None;
     } else {
-      var _ :- Require(KMSUtils.ValidFormatCMK(generator));
+      var _ :- FailUnless(KMSUtils.ValidFormatCMK(generator), "Invalid generator CMK(s)");
       generatorOption := Some(generator);
     }
-    var _ :- Require(forall grantToken :: grantToken in grantTokens ==> 0 < |grantToken| <= 8192);
+    var _ :- FailUnless(forall grantToken :: grantToken in grantTokens ==> 0 < |grantToken| <= 8192, "Invalid grant token(s)");
     var k := new KMSKeyring(clientSupplier,
                             keyIDsNoBlanks,
                             generatorOption,
