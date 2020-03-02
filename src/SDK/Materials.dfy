@@ -178,4 +178,25 @@ module {:extern "Materials"} Materials {
   }
 
   type ValidDecryptionMaterials = i: DecryptionMaterials | i.Valid() witness DecryptionMaterials.ValidWitness()
+
+  datatype EncryptionMaterialsRequest = EncryptionMaterialsRequest(encryptionContext: EncryptionContext,
+                                                                   algorithmSuiteID: Option<AlgorithmSuite.ID>,
+                                                                   plaintextLength: Option<nat>)
+
+  datatype DecryptionMaterialsRequest = DecryptionMaterialsRequest(algorithmSuiteID: AlgorithmSuite.ID,
+                                                                   encryptedDataKeys: seq<ValidEncryptedDataKey>,
+                                                                   encryptionContext: EncryptionContext)
+  {
+    predicate Valid() {
+      |encryptedDataKeys| > 0
+    }
+
+    static function method ValidWitness(): DecryptionMaterialsRequest {
+      DecryptionMaterialsRequest(AlgorithmSuite.AES_256_GCM_IV12_TAG16_HKDF_SHA384_ECDSA_P384,
+                                 [EncryptedDataKey.ValidWitness()],
+                                 map[])
+    }
+  }
+
+  type ValidDecryptionMaterialsRequest = i: DecryptionMaterialsRequest | i.Valid() witness DecryptionMaterialsRequest.ValidWitness()
 }

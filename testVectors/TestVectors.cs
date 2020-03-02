@@ -285,7 +285,7 @@ namespace TestVectorTests {
         [Theory]
         [ClassData (typeof(EncryptTestVectors))]
         public void CanEncryptTestVector(string vectorID, CMM cmm, byte[] plaintext, HttpClient client, string decryptOracle) {
-            MemoryStream ciphertext = AWSEncryptionSDK.Client.Encrypt(new MemoryStream(plaintext), cmm, new Dictionary<string, string>());
+            MemoryStream ciphertext = AWSEncryptionSDK.Client.Encrypt(new MemoryStream(plaintext), cmm);
 
             StreamContent content = new StreamContent(ciphertext);
             content.Headers.Add("Content-Type", "application/octet-stream");

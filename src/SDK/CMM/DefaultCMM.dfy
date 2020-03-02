@@ -41,15 +41,19 @@ module {:extern "DefaultCMMDef"} DefaultCMMDef {
       Repr := {this, keyring} + k.Repr;
     }
 
-    method GetEncryptionMaterials(ec: Materials.EncryptionContext, alg_id: Option<AlgorithmSuite.ID>, pt_len: Option<nat>) returns (res: Result<Materials.ValidEncryptionMaterials>)
+    method GetEncryptionMaterials(materialsRequest: Materials.EncryptionMaterialsRequest)
+                                  returns (res: Result<Materials.ValidEncryptionMaterials>)
       requires Valid()
-      requires ValidAAD(ec) && ec.Keys !! Materials.ReservedKeyValues
+      requires ValidAAD(materialsRequest.encryptionContext)
       ensures Valid()
+      ensures Materials.EC_PUBLIC_KEY_FIELD in materialsRequest.encryptionContext ==> res.Failure?
+      ensures res.Success? && (materialsRequest.algorithmSuiteID.None? || materialsRequest.algorithmSuiteID.get.SignatureType().Some?) ==>
+        Materials.EC_PUBLIC_KEY_FIELD in res.value.encryptionContext
       ensures res.Success? ==> res.value.plaintextDataKey.Some? && res.value.algorithmSuiteID.ValidPlaintextDataKey(res.value.plaintextDataKey.get)
       ensures res.Success? ==> |res.value.encryptedDataKeys| > 0
       ensures res.Success? ==> ValidAAD(res.value.encryptionContext)
       ensures res.Success? ==>
-        match alg_id
+        match materialsRequest.algorithmSuiteID
         case Some(id) => res.value.algorithmSuiteID == id
         case None => res.value.algorithmSuiteID == 0x0378
       ensures res.Success? ==>
@@ -58,9 +62,14 @@ module {:extern "DefaultCMMDef"} DefaultCMMDef {
           case Some(sigType) =>
             res.value.signingKey.Some?
     {
-      var id := if alg_id.Some? then alg_id.get else AlgorithmSuite.AES_256_GCM_IV12_TAG16_HKDF_SHA384_ECDSA_P384;
+      var reservedField := Materials.EC_PUBLIC_KEY_FIELD;
+      assert reservedField in Materials.ReservedKeyValues;
+      if reservedField in materialsRequest.encryptionContext.Keys {
+        return Failure("Reserved Field found in EncryptionContext keys.");
+      }
+      var id := materialsRequest.algorithmSuiteID.GetOrElse(AlgorithmSuite.AES_256_GCM_IV12_TAG16_HKDF_SHA384_ECDSA_P384);
       var enc_sk := None;
-      var enc_ctx := ec;
+      var enc_ctx := materialsRequest.encryptionContext;
 
       match id.SignatureType() {
         case None =>
@@ -68,13 +77,28 @@ module {:extern "DefaultCMMDef"} DefaultCMMDef {
           var signatureKeys :- Signature.KeyGen(param);
           enc_sk := Some(signatureKeys.signingKey);
           var enc_vk :- UTF8.Encode(Base64.Encode(signatureKeys.verificationKey));
-          var reservedField := Materials.EC_PUBLIC_KEY_FIELD;
-          assert reservedField in Materials.ReservedKeyValues;
-          assert forall i :: i in ec.Keys ==> i != reservedField;
-          enc_ctx := enc_ctx[reservedField := enc_vk];
-      }
+          calc {
+            |enc_vk|;
+          ==  { assert UTF8.IsASCIIString(Base64.Encode(signatureKeys.verificationKey)); }
+            |Base64.Encode(signatureKeys.verificationKey)|;
+          <=  { Base64.EncodeLengthBound(signatureKeys.verificationKey); }
+            |signatureKeys.verificationKey| / 3 * 4 + 4;
+          <  { assert |signatureKeys.verificationKey| <= 3000; }
+            UINT16_LIMIT;
+          }
 
-      MessageHeader.AssumeValidAAD(enc_ctx);  // TODO: we should check this (https://github.com/awslabs/aws-encryption-sdk-dafny/issues/79)
+          enc_ctx := enc_ctx[reservedField := enc_vk];
+          var len := MessageHeader.ComputeKVPairsLength(enc_ctx);
+          if UINT16_LIMIT <= |enc_ctx| {
+            return Failure("encryption context has too many entries");
+          }
+          if UINT16_LIMIT <= len {
+            return Failure("encryption context too big");
+          }
+          assert ValidAAD(enc_ctx) by {
+            reveal MessageHeader.ValidAAD();
+          }
+      }
 
       var materials := Materials.EncryptionMaterials.WithoutDataKeys(enc_ctx, id, enc_sk);
       assert materials.encryptionContext == enc_ctx;
@@ -86,9 +110,8 @@ module {:extern "DefaultCMMDef"} DefaultCMMDef {
       return Success(materials);
     }
 
-    method DecryptMaterials(alg_id: AlgorithmSuite.ID, edks: seq<Materials.EncryptedDataKey>, enc_ctx: Materials.EncryptionContext) 
-      returns (res: Result<Materials.ValidDecryptionMaterials>)
-      requires |edks| > 0
+    method DecryptMaterials(materialsRequest: Materials.ValidDecryptionMaterialsRequest)
+                            returns (res: Result<Materials.ValidDecryptionMaterials>)
       requires Valid()
       ensures Valid()
       ensures res.Success? ==> res.value.plaintextDataKey.Some? && res.value.algorithmSuiteID.ValidPlaintextDataKey(res.value.plaintextDataKey.get)
@@ -96,19 +119,22 @@ module {:extern "DefaultCMMDef"} DefaultCMMDef {
     {
       // Retrieve and decode verification key from encryption context if using signing algorithm
       var vkey := None;
-      if alg_id.SignatureType().Some? {
+      var algID := materialsRequest.algorithmSuiteID;
+      var encCtx := materialsRequest.encryptionContext;
+
+      if algID.SignatureType().Some? {
         var reservedField := Materials.EC_PUBLIC_KEY_FIELD;
-        if reservedField !in enc_ctx {
+        if reservedField !in encCtx {
           return Failure("Could not get materials required for decryption.");
         }
-        var encodedVKey := enc_ctx[reservedField];
+        var encodedVKey := encCtx[reservedField];
         var utf8Decoded :- UTF8.Decode(encodedVKey);
         var base64Decoded :- Base64.Decode(utf8Decoded);
         vkey := Some(base64Decoded);
       }
 
-      var materials := Materials.DecryptionMaterials.WithoutPlaintextDataKey(enc_ctx, alg_id, vkey);
-      materials :- keyring.OnDecrypt(materials, edks);
+      var materials := Materials.DecryptionMaterials.WithoutPlaintextDataKey(encCtx, algID, vkey);
+      materials :- keyring.OnDecrypt(materials, materialsRequest.encryptedDataKeys);
       if materials.plaintextDataKey.None? {
         return Failure("Keyring.OnDecrypt failed to decrypt the plaintext data key.");
       }
