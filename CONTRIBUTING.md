@@ -38,7 +38,7 @@ To send us a pull request, please:
 5. Send us a pull request, answering any default questions in the pull request interface.
    Your pull request title must adhere to conventional commit guidance for commit title.
    If your pull request is squashed and merged,
-   the merge commit title and message must adhere to conventional commits.
+   the resulting commit title and message must adhere to conventional commits.
 6. Pay attention to any automated CI failures reported in the pull request, and stay involved in the conversation.
 
 GitHub provides additional document on [forking a repository](https://help.github.com/articles/fork-a-repo/) and 
