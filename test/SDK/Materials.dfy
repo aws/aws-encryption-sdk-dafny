@@ -8,7 +8,7 @@ module {:extern "TestMaterials"} TestMaterials {
   import opened Materials
   import AlgorithmSuite
 
-  method {:test} TestWithKeysSettingPlaintextDataKey() returns (res: Result<()>)
+  method {:test} TestWithKeysSettingPlaintextDataKey()
   {
     var encryptionContext := map[];
     var algorithmSuiteID := AlgorithmSuite.AES_256_GCM_IV12_TAG16_HKDF_SHA384_ECDSA_P384;
@@ -21,13 +21,13 @@ module {:extern "TestMaterials"} TestMaterials {
     assert Materials.IsGenerateTraceEntry(krTrace);
     var encryptionMaterials2 := encryptionMaterials1.WithKeys(Some(pdk), [edk], [krTrace]);
 
-    var _ :- Require(Some(pdk) == encryptionMaterials2.plaintextDataKey);
-    var _ :- Require(encryptionMaterials1.algorithmSuiteID == encryptionMaterials2.algorithmSuiteID);
-    var _ :- RequireEqual([edk], encryptionMaterials2.encryptedDataKeys);
-    res := RequireEqual([krTrace], encryptionMaterials2.keyringTrace);
+    expect Some(pdk) == encryptionMaterials2.plaintextDataKey;
+    expect encryptionMaterials1.algorithmSuiteID == encryptionMaterials2.algorithmSuiteID;
+    expect [edk] == encryptionMaterials2.encryptedDataKeys;
+    expect [krTrace] == encryptionMaterials2.keyringTrace;
   }
 
-  method {:test} TestWithKeysKeepingPlaintextDataKey() returns (res: Result<()>)
+  method {:test} TestWithKeysKeepingPlaintextDataKey()
   {
     var encryptionContext := map[];
     var edk1 := EncryptedDataKey([], [1], [1]);
@@ -41,9 +41,9 @@ module {:extern "TestMaterials"} TestMaterials {
     var krTrace2 := KeyringTraceEntry([2], [2], {ENCRYPTED_DATA_KEY, SIGNED_ENCRYPTION_CONTEXT});
     var encryptionMaterials2 := encryptionMaterials1.WithKeys(Some(pdk), [edk2], [krTrace2]);
 
-    var _ :- Require(Some(pdk) == encryptionMaterials1.plaintextDataKey == encryptionMaterials2.plaintextDataKey);
-    var _ :- Require(encryptionMaterials1.algorithmSuiteID == encryptionMaterials2.algorithmSuiteID);
-    var _ :- RequireEqual(encryptionMaterials1.encryptedDataKeys + [edk2], encryptionMaterials2.encryptedDataKeys);
-    res := RequireEqual(encryptionMaterials1.keyringTrace + [krTrace2], encryptionMaterials2.keyringTrace);
+    expect Some(pdk) == encryptionMaterials1.plaintextDataKey == encryptionMaterials2.plaintextDataKey;
+    expect encryptionMaterials1.algorithmSuiteID == encryptionMaterials2.algorithmSuiteID;
+    expect encryptionMaterials1.encryptedDataKeys + [edk2] == encryptionMaterials2.encryptedDataKeys;
+    expect encryptionMaterials1.keyringTrace + [krTrace2] == encryptionMaterials2.keyringTrace;
   }
 }

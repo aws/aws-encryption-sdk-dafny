@@ -14,103 +14,103 @@ module TestMessageHeader {
   import MessageHeader
   import TestUtils
 
-  method {:test} TestKVPairSequenceToMapEmpty() returns (r: Result<()>) {
+  method {:test} TestKVPairSequenceToMapEmpty() {
     var kvPairs := [];
     var output := MessageHeader.KVPairSequenceToMap(kvPairs);
     var expected := map[];
-    r := RequireEqual(output, expected);
+    expect output == expected;
   }
 
-  method {:test} TestKVPairSequenceToMap() returns (r: Result<()>) {
-    var keyA :- UTF8.Encode("keyA");
-    var valA :- UTF8.Encode("valA");
-    var keyB :- UTF8.Encode("keyB");
-    var valB :- UTF8.Encode("valB");
+  method {:test} TestKVPairSequenceToMap() {
+    var keyA :- expect UTF8.Encode("keyA");
+    var valA :- expect UTF8.Encode("valA");
+    var keyB :- expect UTF8.Encode("keyB");
+    var valB :- expect UTF8.Encode("valB");
     var kvPairs := [(keyA, valA), (keyB, valB)];
     var output := MessageHeader.KVPairSequenceToMap(kvPairs);
     var expected := map[keyA := valA, keyB := valB];
-    r := RequireEqual(output, expected);
+    expect output == expected;
   }
 
-  method {:test} TestComputeValidAADEmpty() returns (r: Result<()>) {
+  method {:test} TestComputeValidAADEmpty() {
     var encCtx := map[];
     var valid := MessageHeader.ComputeValidAAD(encCtx);
-    r := Require(valid);
+    expect valid;
   }
 
-  method {:test} TestComputeValidAADOnePair() returns (r: Result<()>) {
-    var keyA :- UTF8.Encode("keyA");
-    var valA :- UTF8.Encode("valA");
+  method {:test} TestComputeValidAADOnePair() {
+    var keyA :- expect UTF8.Encode("keyA");
+    var valA :- expect UTF8.Encode("valA");
     var encCtx := map[keyA := valA];
     var valid := MessageHeader.ComputeValidAAD(encCtx);
-    r := Require(valid);
+    expect valid;
   }
 
-  method {:test} TestComputeValidAADOnePairMaxSize() returns (r: Result<()>) {
-    var keyA :- UTF8.Encode("A");
+  method {:test} TestComputeValidAADOnePairMaxSize() {
+    var keyA :- expect UTF8.Encode("A");
     // (2^16 - 1) - 2 => 65533 is the size that we want the key value pairs to fill
     // 65533 - 2 - 1 - 2 => 65528 is the size that we want the value to fill
     var largeVal := seq(65528, _ => 0);
     var encCtx := map[keyA := largeVal];
     TestUtils.AssumeLongSeqIsValidUTF8(largeVal);
     var valid := MessageHeader.ComputeValidAAD(encCtx);
-    r := Require(valid);
+    expect valid;
   }
 
-  method {:test} TestComputeValidAADTooLarge() returns (r: Result<()>) {
-    var keyA :- UTF8.Encode("keyA");
-    var keyB :- UTF8.Encode("keyB");
+  method {:test} TestComputeValidAADTooLarge() {
+    var keyA :- expect UTF8.Encode("keyA");
+    var keyB :- expect UTF8.Encode("keyB");
     var invalidVal := seq(65528, _ => 0);
     TestUtils.AssumeLongSeqIsValidUTF8(invalidVal);
     var encCtx := map[keyA := invalidVal, keyB := invalidVal];
 
     var valid := MessageHeader.ComputeValidAAD(encCtx);
-    r := Require(!valid);
+    expect !valid;
   }
 
-  method {:test} TestComputeValidAADPairTooBig() returns (r: Result<()>) {
-    var key :- UTF8.Encode("keyA");
+  method {:test} TestComputeValidAADPairTooBig() {
+    var key :- expect UTF8.Encode("keyA");
     var invalidVal := seq(0x1_0000, _ => 0);
     var encCtx := map[key := invalidVal];
     TestUtils.AssumeLongSeqIsValidUTF8(invalidVal);
     var valid := MessageHeader.ComputeValidAAD(encCtx);
-    r := Require(!valid);
+    expect !valid;
   }
 
-  method {:test} TestComputeKVPairsLengthEmpty() returns (r: Result<()>) {
+  method {:test} TestComputeKVPairsLengthEmpty() {
     var encCtx := map[];
 
     var len := MessageHeader.ComputeKVPairsLength(encCtx);
-    r := RequireEqual(len as int, 0);
+    expect len as int == 0;
   }
 
-  method {:test} TestComputeKVPairsLengthOnePair() returns (r: Result<()>) {
-    var keyA :- UTF8.Encode("keyA");
-    var valA :- UTF8.Encode("valA");
+  method {:test} TestComputeKVPairsLengthOnePair() {
+    var keyA :- expect UTF8.Encode("keyA");
+    var valA :- expect UTF8.Encode("valA");
     var encCtx := map[keyA := valA];
 
     var expectedSerialization := [0, 1, 0, 4, 107, 101, 121, 65, 0, 4, 118, 97, 108, 65];
     var len := MessageHeader.ComputeKVPairsLength(encCtx);
-    r := RequireEqual(len as int, |expectedSerialization|);
+    expect len as int == |expectedSerialization|;
   }
 
-  method {:test} TestComputeKVPairsLengthLong() returns (r: Result<()>) {
-    var keyA :- UTF8.Encode("A");
+  method {:test} TestComputeKVPairsLengthLong() {
+    var keyA :- expect UTF8.Encode("A");
     var largeVal := seq(0x1_0000, _ => 0);
     TestUtils.AssumeLongSeqIsValidUTF8(largeVal);
     var encCtx := map[keyA := largeVal];
     
     var len := MessageHeader.ComputeKVPairsLength(encCtx);
-    r := RequireEqual(len as int, 7 + |largeVal|); // 7 bytes needed for kvPairs count, key size, and key
+    expect len as int == 7 + |largeVal|; // 7 bytes needed for kvPairs count, key size, and key
   }
 
-  method {:test} TestComputeOpoerationsOnLargeValidEC() returns (r: Result<()>) {
-    var encCtx :- TestUtils.GenerateLargeValidEncryptionContext();
+  method {:test} TestComputeOpoerationsOnLargeValidEC() {
+    var encCtx := TestUtils.GenerateLargeValidEncryptionContext();
 
     var len := MessageHeader.ComputeKVPairsLength(encCtx);
-    var _ :- RequireEqual(len as int, 2 + |encCtx| as int * 7);
+    expect len as int == 2 + |encCtx| as int * 7;
 
     var valid := MessageHeader.ComputeValidAAD(encCtx);
-    r := Require(valid);
+    expect valid;
   }
 }

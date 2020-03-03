@@ -30,14 +30,25 @@ module {:extern "ESDKClient"} ESDKClient {
   import Signature
   import Deserialize
 
+  const DEFAULT_FRAME_LENGTH: uint32 := 4096
+
  /*
   * Encrypt a plaintext and serialize it into a message.
   */
-  method Encrypt(plaintext: seq<uint8>, cmm: CMMDefs.CMM, encryptionContext: Materials.EncryptionContext) returns (res: Result<seq<uint8>>)
-    requires encryptionContext.Keys !! Materials.ReservedKeyValues
-    requires cmm.Valid() && Msg.ValidAAD(encryptionContext)
+  method Encrypt(plaintext: seq<uint8>, cmm: CMMDefs.CMM, optEncryptionContext: Option<Materials.EncryptionContext>, algorithmSuiteID: Option<AlgorithmSuite.ID>, optFrameLength: Option<uint32>) returns (res: Result<seq<uint8>>)
+    requires cmm.Valid()
+    requires optFrameLength.Some? ==> optFrameLength.get != 0
+    requires optEncryptionContext.Some? ==> optEncryptionContext.get.Keys !! Materials.ReservedKeyValues && Msg.ValidAAD(optEncryptionContext.get)
   {
-    var encMat :- cmm.GetEncryptionMaterials(encryptionContext, None, Some(|plaintext|));
+    var encryptionContext := optEncryptionContext.GetOrElse(map[]);
+    assert Msg.ValidAAD(encryptionContext) by {
+      reveal Msg.ValidAAD();
+      assert Msg.ValidAAD(encryptionContext);
+    }
+    var frameLength := if optFrameLength.Some? then optFrameLength.get else DEFAULT_FRAME_LENGTH;
+    
+    var encMatRequest := Materials.EncryptionMaterialsRequest(encryptionContext, algorithmSuiteID, Some(|plaintext|));
+    var encMat :- cmm.GetEncryptionMaterials(encMatRequest);
     if UINT16_LIMIT <= |encMat.encryptedDataKeys| {
       return Failure("Number of EDKs exceeds the allowed maximum.");
     }
@@ -46,7 +57,6 @@ module {:extern "ESDKClient"} ESDKClient {
     var derivedDataKey := DeriveKey(encMat.plaintextDataKey.get, encMat.algorithmSuiteID, messageID);
 
     // Assemble and serialize the header and its authentication tag
-    var frameLength := 4096;
     var headerBody := Msg.HeaderBody(
       Msg.VERSION_1,
       Msg.TYPE_CUSTOMER_AED,
@@ -109,7 +119,8 @@ module {:extern "ESDKClient"} ESDKClient {
   {
     var rd := new Streams.ByteReader(message);
     var header :- Deserialize.DeserializeHeader(rd);
-    var decMat :- cmm.DecryptMaterials(header.body.algorithmSuiteID, header.body.encryptedDataKeys.entries, header.body.aad);
+    var decMatRequest := Materials.DecryptionMaterialsRequest(header.body.algorithmSuiteID, header.body.encryptedDataKeys.entries, header.body.aad);
+    var decMat :- cmm.DecryptMaterials(decMatRequest);
 
     var decryptionKey := DeriveKey(decMat.plaintextDataKey.get, decMat.algorithmSuiteID, header.body.messageID);
 
