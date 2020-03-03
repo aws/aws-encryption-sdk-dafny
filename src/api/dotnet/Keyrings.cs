@@ -41,11 +41,19 @@ namespace AWSEncryptionSDK
         {
             // TODO: Check for null values
             RawAESKeyring result = new RawAESKeyring();
-            EncryptionSuites.EncryptionSuite wrappingAlgDafny = wrappingAlgorithm switch {
-                DafnyFFI.AESWrappingAlgorithm.AES_GCM_128 => EncryptionSuites.__default.AES__GCM__128,
-                DafnyFFI.AESWrappingAlgorithm.AES_GCM_192 => EncryptionSuites.__default.AES__GCM__192,
-                DafnyFFI.AESWrappingAlgorithm.AES_GCM_256 => EncryptionSuites.__default.AES__GCM__256,
-                _ => throw new ArgumentException("Unsupported AES Wrapping Algorithm")
+            EncryptionSuites.EncryptionSuite wrappingAlgDafny;
+            switch(wrappingAlgorithm) {
+                case DafnyFFI.AESWrappingAlgorithm.AES_GCM_128:
+                    wrappingAlgDafny = EncryptionSuites.__default.AES__GCM__128;
+                    break;
+                case DafnyFFI.AESWrappingAlgorithm.AES_GCM_192:
+                    wrappingAlgDafny = EncryptionSuites.__default.AES__GCM__192;
+                    break;
+                case DafnyFFI.AESWrappingAlgorithm.AES_GCM_256:
+                    wrappingAlgDafny = EncryptionSuites.__default.AES__GCM__256;
+                    break;
+                default:
+                    throw new ArgumentException("Unsupported AES Wrapping Algorithm");
             };
             result.__ctor(
                     DafnyFFI.SequenceFromByteArray(nameSpace),
@@ -59,13 +67,25 @@ namespace AWSEncryptionSDK
         {
             // TODO: check for null values, ensure at least one key is non-null.
             RawRSAKeyring result = new RawRSAKeyring();
-            RSAEncryption.PaddingMode paddingModeDafny = paddingMode switch {
-                DafnyFFI.RSAPaddingModes.PKCS1 => RSAEncryption.PaddingMode.create_PKCS1(),
-                DafnyFFI.RSAPaddingModes.OAEP_SHA1 => RSAEncryption.PaddingMode.create_OAEP__SHA1(),
-                DafnyFFI.RSAPaddingModes.OAEP_SHA256 => RSAEncryption.PaddingMode.create_OAEP__SHA256(),
-                DafnyFFI.RSAPaddingModes.OAEP_SHA384 => RSAEncryption.PaddingMode.create_OAEP__SHA384(),
-                DafnyFFI.RSAPaddingModes.OAEP_SHA512 => RSAEncryption.PaddingMode.create_OAEP__SHA512(),
-                _ => throw new ArgumentException("Unsupported RSA Padding Mode")
+            RSAEncryption.PaddingMode paddingModeDafny;
+            switch(paddingMode) {
+                case DafnyFFI.RSAPaddingModes.PKCS1:
+                    paddingModeDafny = RSAEncryption.PaddingMode.create_PKCS1();
+                    break;
+                case DafnyFFI.RSAPaddingModes.OAEP_SHA1:
+                    paddingModeDafny = RSAEncryption.PaddingMode.create_OAEP__SHA1();
+                    break;
+                case DafnyFFI.RSAPaddingModes.OAEP_SHA256:
+                    paddingModeDafny = RSAEncryption.PaddingMode.create_OAEP__SHA256();
+                    break;
+                case DafnyFFI.RSAPaddingModes.OAEP_SHA384:
+                    paddingModeDafny = RSAEncryption.PaddingMode.create_OAEP__SHA384();
+                    break;
+                case DafnyFFI.RSAPaddingModes.OAEP_SHA512:
+                    paddingModeDafny = RSAEncryption.PaddingMode.create_OAEP__SHA512();
+                    break;
+                default:
+                    throw new ArgumentException("Unsupported RSA Padding Mode");
             };
             RSAEncryption.PublicKey publicKeyWrapper = null;
             RSAEncryption.PrivateKey privateKeyWrapper = null;
