@@ -3,7 +3,7 @@ include "../Crypto/KeyDerivationAlgorithms.dfy"
 include "../Crypto/Signature.dfy"
 include "../StandardLibrary/StandardLibrary.dfy"
 
-module AlgorithmSuite {
+module {:extern "AlgorithmSuite"} AlgorithmSuite {
   import opened StandardLibrary
   import opened UInt = StandardLibrary.UInt
   import EncryptionSuites
@@ -53,28 +53,29 @@ module AlgorithmSuite {
     }
   }
 
-  const AES_256_GCM_IV12_TAG16_HKDF_SHA384_ECDSA_P384: ID := 0x0378
-  const AES_192_GCM_IV12_TAG16_HKDF_SHA384_ECDSA_P384: ID := 0x0346
-  const AES_128_GCM_IV12_TAG16_HKDF_SHA256_ECDSA_P256: ID := 0x0214
-  const AES_256_GCM_IV12_TAG16_HKDF_SHA256_SIGNONE:    ID := 0x0178
-  const AES_192_GCM_IV12_TAG16_HKDF_SHA256_SIGNONE:    ID := 0x0146
-  const AES_128_GCM_IV12_TAG16_HKDF_SHA256_SIGNONE:    ID := 0x0114
-  const AES_256_GCM_IV12_TAG16_KDFNONE_SIGNONE:        ID := 0x0078
-  const AES_192_GCM_IV12_TAG16_KDFNONE_SIGNONE:        ID := 0x0046
-  const AES_128_GCM_IV12_TAG16_KDFNONE_SIGNONE:        ID := 0x0014
+  // https://docs.aws.amazon.com/encryption-sdk/latest/developer-guide/algorithms-reference.html
+  const AES_256_GCM_IV12_TAG16_HKDF_SHA384_ECDSA_P384:        ID := 0x0378
+  const AES_192_GCM_IV12_TAG16_HKDF_SHA384_ECDSA_P384:        ID := 0x0346
+  const AES_128_GCM_IV12_TAG16_HKDF_SHA256_ECDSA_P256:        ID := 0x0214
+  const AES_256_GCM_IV12_TAG16_HKDF_SHA256_NO_SIGNATURE_ALG:  ID := 0x0178
+  const AES_192_GCM_IV12_TAG16_HKDF_SHA256_NO_SIGNATURE_ALG:  ID := 0x0146
+  const AES_128_GCM_IV12_TAG16_HKDF_SHA256_NO_SIGNATURE_ALG:  ID := 0x0114
+  const AES_256_GCM_IV12_TAG16_IDENTITY_NO_SIGNATURE_ALG:     ID := 0x0078
+  const AES_192_GCM_IV12_TAG16_IDENTITY_NO_SIGNATURE_ALG:     ID := 0x0046
+  const AES_128_GCM_IV12_TAG16_IDENTITY_NO_SIGNATURE_ALG:     ID := 0x0014
 
   datatype AlgSuite = AlgSuite(algorithm: EncryptionSuites.EncryptionSuite, hkdf: KeyDerivationAlgorithms.KeyDerivationAlgorithm, sign: Option<S.ECDSAParams>)
 
   const Suite := map [
-    AES_256_GCM_IV12_TAG16_HKDF_SHA384_ECDSA_P384 := AlgSuite(EncryptionSuites.AES_GCM_256, KeyDerivationAlgorithms.HKDF_WITH_SHA_384, Some(S.ECDSA_P384)),
-    AES_192_GCM_IV12_TAG16_HKDF_SHA384_ECDSA_P384 := AlgSuite(EncryptionSuites.AES_GCM_192, KeyDerivationAlgorithms.HKDF_WITH_SHA_384, Some(S.ECDSA_P384)),
-    AES_128_GCM_IV12_TAG16_HKDF_SHA256_ECDSA_P256 := AlgSuite(EncryptionSuites.AES_GCM_128, KeyDerivationAlgorithms.HKDF_WITH_SHA_256, Some(S.ECDSA_P256)),
-    AES_256_GCM_IV12_TAG16_HKDF_SHA256_SIGNONE    := AlgSuite(EncryptionSuites.AES_GCM_256, KeyDerivationAlgorithms.HKDF_WITH_SHA_256, None),
-    AES_192_GCM_IV12_TAG16_HKDF_SHA256_SIGNONE    := AlgSuite(EncryptionSuites.AES_GCM_192, KeyDerivationAlgorithms.HKDF_WITH_SHA_256, None),
-    AES_128_GCM_IV12_TAG16_HKDF_SHA256_SIGNONE    := AlgSuite(EncryptionSuites.AES_GCM_128, KeyDerivationAlgorithms.HKDF_WITH_SHA_256, None),
-    AES_256_GCM_IV12_TAG16_KDFNONE_SIGNONE        := AlgSuite(EncryptionSuites.AES_GCM_256, KeyDerivationAlgorithms.IDENTITY,  None),
-    AES_192_GCM_IV12_TAG16_KDFNONE_SIGNONE        := AlgSuite(EncryptionSuites.AES_GCM_192, KeyDerivationAlgorithms.IDENTITY,  None),
-    AES_128_GCM_IV12_TAG16_KDFNONE_SIGNONE        := AlgSuite(EncryptionSuites.AES_GCM_128, KeyDerivationAlgorithms.IDENTITY,  None)
+    AES_256_GCM_IV12_TAG16_HKDF_SHA384_ECDSA_P384       := AlgSuite(EncryptionSuites.AES_GCM_256, KeyDerivationAlgorithms.HKDF_WITH_SHA_384, Some(S.ECDSA_P384)),
+    AES_192_GCM_IV12_TAG16_HKDF_SHA384_ECDSA_P384       := AlgSuite(EncryptionSuites.AES_GCM_192, KeyDerivationAlgorithms.HKDF_WITH_SHA_384, Some(S.ECDSA_P384)),
+    AES_128_GCM_IV12_TAG16_HKDF_SHA256_ECDSA_P256       := AlgSuite(EncryptionSuites.AES_GCM_128, KeyDerivationAlgorithms.HKDF_WITH_SHA_256, Some(S.ECDSA_P256)),
+    AES_256_GCM_IV12_TAG16_HKDF_SHA256_NO_SIGNATURE_ALG := AlgSuite(EncryptionSuites.AES_GCM_256, KeyDerivationAlgorithms.HKDF_WITH_SHA_256, None),
+    AES_192_GCM_IV12_TAG16_HKDF_SHA256_NO_SIGNATURE_ALG := AlgSuite(EncryptionSuites.AES_GCM_192, KeyDerivationAlgorithms.HKDF_WITH_SHA_256, None),
+    AES_128_GCM_IV12_TAG16_HKDF_SHA256_NO_SIGNATURE_ALG := AlgSuite(EncryptionSuites.AES_GCM_128, KeyDerivationAlgorithms.HKDF_WITH_SHA_256, None),
+    AES_256_GCM_IV12_TAG16_IDENTITY_NO_SIGNATURE_ALG    := AlgSuite(EncryptionSuites.AES_GCM_256, KeyDerivationAlgorithms.IDENTITY,  None),
+    AES_192_GCM_IV12_TAG16_IDENTITY_NO_SIGNATURE_ALG    := AlgSuite(EncryptionSuites.AES_GCM_192, KeyDerivationAlgorithms.IDENTITY,  None),
+    AES_128_GCM_IV12_TAG16_IDENTITY_NO_SIGNATURE_ALG    := AlgSuite(EncryptionSuites.AES_GCM_128, KeyDerivationAlgorithms.IDENTITY,  None)
   ]
 
   /* Suite is intended to have an entry for each possible value of ID. This is stated and checked in three ways.

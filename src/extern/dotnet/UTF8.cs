@@ -10,12 +10,12 @@ namespace UTF8 {
             UTF8Encoding utf8 = new UTF8Encoding(false, true);
             try {
                 byte[] utf8Bytes = utf8.GetBytes(str.Elements);
-                return new STL.Result_Success<byteseq>(byteseq.FromArray(utf8Bytes));
+                return STL.Result<byteseq>.create_Success(byteseq.FromArray(utf8Bytes));
             } catch(EncoderFallbackException e) {
-                return new STL.Result_Failure<byteseq>(charseq.FromArray(
+                return STL.Result<byteseq>.create_Failure(charseq.FromArray(
                     "Input contains invalid Unicode characters".ToCharArray()));
             } catch(ArgumentNullException e) {
-                return new STL.Result_Failure<byteseq>(charseq.FromArray("Input is null".ToCharArray()));
+                return STL.Result<byteseq>.create_Failure(charseq.FromArray("Input is null".ToCharArray()));
             }
         }
 
@@ -23,11 +23,11 @@ namespace UTF8 {
             UTF8Encoding utf8 = new UTF8Encoding(false, true);
             try {
                 string decoded = utf8.GetString(bytes.Elements);
-                return new STL.Result_Success<charseq>(charseq.FromString(decoded));
+                return STL.Result<charseq>.create_Success(charseq.FromString(decoded));
             } catch(ArgumentException e) {
                 // GetString is defined as returning ArgumentException, ArgumentNullException, DecoderFallbackException
                 // Both ArgumentNullException and DecoderFallbackException are children of ArgumentException
-                return new STL.Result_Failure<Dafny.Sequence<char>>(charseq.FromArray(
+                return STL.Result<Dafny.Sequence<char>>.create_Failure(charseq.FromArray(
                     "Input contains an invalid Unicode code point".ToCharArray()));
             }
         }
