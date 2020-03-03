@@ -367,12 +367,12 @@ module Base64 {
     if IsBase64String(s) then Success(DecodeValid(s)) else Failure("The encoding is malformed")
   }
 
-  predicate StringIs8Bit(s: string) {
-    forall i :: 0 <= i < |s| ==> s[i] < 256 as char
+  predicate StringIs7Bit(s: string) {
+    forall i :: 0 <= i < |s| ==> s[i] < 128 as char
   }
 
   function method Encode(b: seq<uint8>): (s: seq<char>)
-    ensures StringIs8Bit(s)
+    ensures StringIs7Bit(s)
     ensures |s| % 4 == 0
     ensures IsBase64String(s)
     // Rather than ensure Decode(s) == Success(b) directly, lemmas are used to verify this property
@@ -383,5 +383,54 @@ module Base64 {
     if |b| % 3 == 0 then EncodeUnpadded(b)
     else if |b| % 3 == 1 then EncodeUnpadded(b[..(|b| - 1)]) + Encode2Padding(b[(|b| - 1)..])
     else EncodeUnpadded(b[..(|b| - 2)]) + Encode1Padding(b[(|b| - 2)..])
+  }
+
+  lemma EncodeLengthExact(b: seq<uint8>)
+    ensures var s := Encode(b);
+      && (|b| % 3 == 0 ==> |s| == |b| / 3 * 4)
+      && (|b| % 3 != 0 ==> |s| == |b| / 3 * 4 + 4)
+  {
+    var s := Encode(b);
+    if |b| % 3 == 0 {
+      assert s == EncodeUnpadded(b);
+      assert |s| == |b| / 3 * 4;
+    } else if |b| % 3 == 1 {
+      assert s == EncodeUnpadded(b[..(|b| - 1)]) + Encode2Padding(b[(|b| - 1)..]);
+      calc {
+        |s|;
+      ==
+        |EncodeUnpadded(b[..(|b| - 1)])| + |Encode2Padding(b[(|b| - 1)..])|;
+      ==  { assert |Encode2Padding(b[(|b| - 1)..])| == 4; }
+        |EncodeUnpadded(b[..(|b| - 1)])| + 4;
+      ==  { assert |EncodeUnpadded(b[..(|b| - 1)])| == |b[..(|b| - 1)]| / 3 * 4; }
+        |b[..(|b| - 1)]| / 3 * 4 + 4;
+      ==  { assert |b[..(|b| - 1)]| == |b| - 1; }
+        (|b| - 1) / 3 * 4 + 4;
+      ==  { assert (|b| - 1) / 3 == |b| / 3; }
+        |b| / 3 * 4 + 4;
+      }
+    } else {
+      assert s == EncodeUnpadded(b[..(|b| - 2)]) + Encode1Padding(b[(|b| - 2)..]);
+      calc {
+        |s|;
+      ==
+        |EncodeUnpadded(b[..(|b| - 2)])| + |Encode1Padding(b[(|b| - 2)..])|;
+      ==  { assert |Encode1Padding(b[(|b| - 2)..])| == 4; }
+        |EncodeUnpadded(b[..(|b| - 2)])| + 4;
+      ==  { assert |EncodeUnpadded(b[..(|b| - 2)])| == |b[..(|b| - 2)]| / 3 * 4; }
+        |b[..(|b| - 2)]| / 3 * 4 + 4;
+      ==  { assert |b[..(|b| - 2)]| == |b| - 2; }
+        (|b| - 2) / 3 * 4 + 4;
+      ==  { assert (|b| - 2) / 3 == |b| / 3; }
+        |b| / 3 * 4 + 4;
+      }
+    }
+  }
+
+  lemma EncodeLengthBound(b: seq<uint8>)
+    ensures var s := Encode(b);
+      |s| <= |b| / 3 * 4 + 4
+  {
+    EncodeLengthExact(b);
   }
 }
