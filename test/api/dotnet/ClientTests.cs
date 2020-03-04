@@ -1,9 +1,10 @@
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
-using System.Threading.Tasks.Dataflow;
+using System.Threading.Tasks;
 using KeyringDefs;
 using KMSUtils;
 using Xunit;
@@ -64,18 +65,14 @@ namespace AWSEncryptionSDKTests
 
         private void TestEncryptDecryptMultiThreaded(CMMDefs.CMM cmm)
         {
-            var maxDegreeOfParallelism = Environment.ProcessorCount * 4;
-            var transformBlock = new TransformBlock<int, string>(
-                id => EncryptDecryptThread(cmm, id),
-                new ExecutionDataflowBlockOptions { MaxDegreeOfParallelism = maxDegreeOfParallelism }
+            var totalIds = Environment.ProcessorCount * 4;
+            var concurrentBag = new ConcurrentBag<String>();
+            Parallel.For(
+                0, totalIds,
+                id => { concurrentBag.Add(EncryptDecryptThread(cmm, id)); }
             );
-
-            for (int i = 0; i < maxDegreeOfParallelism; i++) {
-                transformBlock.Post(i);
-            }
-
-            for (int i = 0; i < maxDegreeOfParallelism; i++) {
-                Assert.StartsWith("Hello", transformBlock.Receive());
+            foreach (string decoded in concurrentBag) {
+                Assert.StartsWith("Hello", decoded);
             }
         }
 
