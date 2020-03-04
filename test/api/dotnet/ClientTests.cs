@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
-using System.Threading;
+using System.Threading.Tasks.Dataflow;
 using KeyringDefs;
 using KMSUtils;
 using Xunit;
@@ -53,40 +53,29 @@ namespace AWSEncryptionSDKTests
             Assert.Equal("Hello", decoded);
         }
 
-        private void EncryptDecryptThread(CMMDefs.CMM cmm, int threadNum, Dictionary<int, string> results, String plainText)
+        private string EncryptDecryptThread(CMMDefs.CMM cmm, int id)
         {
-            MemoryStream plaintextStream = new MemoryStream(Encoding.UTF8.GetBytes(plainText));
+            var plaintext = String.Format("Hello from id {0}", id);
+            MemoryStream plaintextStream = new MemoryStream(Encoding.UTF8.GetBytes(plaintext));
             MemoryStream ciphertext = AWSEncryptionSDK.Client.Encrypt(plaintextStream, cmm);
             String decoded = DecodeMemoryStream(ciphertext, cmm);
-            lock (results) {
-                results.Add(threadNum, decoded);
-            }
+            return (plaintext == decoded) ? decoded : String.Format("Id: {0} failed, decoded: {1}", id, decoded);
         }
 
         private void TestEncryptDecryptMultiThreaded(CMMDefs.CMM cmm)
         {
-            var totalThreads = 100;
-            var threadTimeout = TimeSpan.FromSeconds(30);
-            var plainTextTemplate = "Hello from thread {0}";
+            var maxDegreeOfParallelism = Environment.ProcessorCount * 4;
+            var transformBlock = new TransformBlock<int, string>(
+                id => EncryptDecryptThread(cmm, id),
+                new ExecutionDataflowBlockOptions { MaxDegreeOfParallelism = maxDegreeOfParallelism }
+            );
 
-            var threads = new List<Thread>();
-            var results = new Dictionary<int, string>();
-
-            // Create threads, run them, and ensure we don't terminate until all threads terminate (or timeout occurs)
-            for (int x = 0; x < totalThreads; x++) {
-                // x is not used directly in EncryptDecryptThread because this would cause x = totalThreads for all theads
-                var threadNum = x;
-                var plaintext = String.Format(plainTextTemplate, threadNum);
-                threads.Add(new Thread(() => EncryptDecryptThread(cmm, threadNum, results, plaintext))); 
+            for (int i = 0; i < maxDegreeOfParallelism; i++) {
+                transformBlock.Post(i);
             }
-            foreach (var thread in threads) { thread.Start(); }
-            foreach (var thread in threads) { thread.Join(threadTimeout); }
 
-            // Verify all responses
-            for (int x = 0; x < totalThreads; x++) {
-                Assert.True(results.ContainsKey(x));
-                var expected = String.Format(plainTextTemplate, x);
-                Assert.Equal(expected, results[x]);
+            for (int i = 0; i < maxDegreeOfParallelism; i++) {
+                Assert.StartsWith("Hello", transformBlock.Receive());
             }
         }
 
