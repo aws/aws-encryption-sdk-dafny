@@ -17,6 +17,7 @@ namespace AWSEncryptionSDKTests
 
         private static string SUCCESS = "SUCCESS";
 
+        // MakeDefaultCMMWithKMSKeyring is a helper method that creates a default CMM using a KMS Keyring for unit testing
         private CMMDefs.CMM MakeDefaultCMMWithKMSKeyring()
         {
             String keyArn = DafnyFFI.StringFromDafnyString(TestUtils.__default.SHARED__TEST__KEY__ARN);
@@ -26,6 +27,7 @@ namespace AWSEncryptionSDKTests
             return AWSEncryptionSDK.CMMs.MakeDefaultCMM(keyring);
         }
 
+        // MakeDefaultCMMWithRSAKeyring is a helper method that creates a default CMM using a RSA Keyring for unit testing
         private CMMDefs.CMM MakeDefaultCMMWithRSAKeyring(DafnyFFI.RSAPaddingModes paddingMode)
         {
             ClientSupplier clientSupplier = new DefaultClientSupplier();
@@ -53,6 +55,7 @@ namespace AWSEncryptionSDKTests
             return AWSEncryptionSDK.CMMs.MakeDefaultCMM(keyring);
         }
 
+        // MakeDefaultCMMWithAESKeyring is a helper method that creates a default CMM using an AES Keyring for unit testing
         private CMMDefs.CMM MakeDefaultCMMWithAESKeyring(DafnyFFI.AESWrappingAlgorithm wrappingAlgorithm)
         {
             ClientSupplier clientSupplier = new DefaultClientSupplier();
@@ -69,6 +72,7 @@ namespace AWSEncryptionSDKTests
             return AWSEncryptionSDK.CMMs.MakeDefaultCMM(keyring);
         }
 
+        // DecodeMemoryStream is a helper method that takes a MemoryStream ciphertext and decrypts it
         private String DecodeMemoryStream(MemoryStream ciphertext, CMMDefs.CMM cmm)
         {
             MemoryStream decodedStream = AWSEncryptionSDK.Client.Decrypt(ciphertext, cmm);
@@ -109,18 +113,21 @@ namespace AWSEncryptionSDKTests
         // 4 * the number of processors on the machine
         private void EncryptDecryptMultiThreaded(CMMDefs.CMM cmm, bool withParams)
         {
-            var totalIds = Environment.ProcessorCount * 4;
             var concurrentBag = new ConcurrentBag<String>();
+            var totalIds = Environment.ProcessorCount * 4;
+            // Sanity check that the total number of ids is valid
+            Assert.True(totalIds >= 4);
+
             Parallel.For(
                 0, totalIds,
                 id => { concurrentBag.Add(EncryptDecrypt(cmm, id, withParams)); }
             );
+
             var totalDecoded = 0;
             foreach (string decoded in concurrentBag) {
                 Assert.Equal(SUCCESS, decoded);
                 totalDecoded += 1;
             }
-            // Sanity check the total number of ids processed
             Assert.Equal(totalIds, totalDecoded);
         }
 
