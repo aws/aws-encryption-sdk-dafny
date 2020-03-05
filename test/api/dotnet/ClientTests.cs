@@ -87,7 +87,7 @@ namespace AWSEncryptionSDKTests
                 ? AWSEncryptionSDK.Client.Encrypt(plaintextStream, cmm, new Dictionary<string, string>(), 0x0346, 2048)
                 : AWSEncryptionSDK.Client.Encrypt(plaintextStream, cmm);
             String decoded = DecodeMemoryStream(ciphertext, cmm);
-            return (plaintext == decoded) ? decoded : String.Format("Id: {0} failed, decoded: {1}", id, decoded);
+            return (plaintext == decoded) ? "SUCCESS" : String.Format("Id: {0} failed, decoded: {1}", id, decoded);
         }
 
         private void TestEncryptDecryptMultiThreaded(CMMDefs.CMM cmm, bool withParams)
@@ -98,9 +98,13 @@ namespace AWSEncryptionSDKTests
                 0, totalIds,
                 id => { concurrentBag.Add(EncryptDecryptThread(cmm, id, withParams)); }
             );
+            var totalDecoded = 0;
             foreach (string decoded in concurrentBag) {
-                Assert.StartsWith("Hello", decoded);
+                Assert.Equal("SUCCESS", decoded);
+                totalDecoded += 1;
             }
+            // Sanity check the total number of ids processed
+            Assert.Equal(totalIds, totalDecoded);
         }
 
         [Fact]
