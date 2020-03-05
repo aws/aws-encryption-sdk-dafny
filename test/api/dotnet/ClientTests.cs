@@ -38,14 +38,7 @@ namespace AWSEncryptionSDKTests
         {
             // MakeRawRSAKeyring expects DafnyFFI.RSAPaddingModes while GenerateKeyPairBytes expects
             // RSAEncryption.PaddingMode
-            RSAEncryption.PaddingMode paddingModeDafny = paddingMode switch {
-                DafnyFFI.RSAPaddingModes.PKCS1 => RSAEncryption.PaddingMode.create_PKCS1(),
-                DafnyFFI.RSAPaddingModes.OAEP_SHA1 => RSAEncryption.PaddingMode.create_OAEP__SHA1(),
-                DafnyFFI.RSAPaddingModes.OAEP_SHA256 => RSAEncryption.PaddingMode.create_OAEP__SHA256(),
-                DafnyFFI.RSAPaddingModes.OAEP_SHA384 => RSAEncryption.PaddingMode.create_OAEP__SHA384(),
-                DafnyFFI.RSAPaddingModes.OAEP_SHA512 => RSAEncryption.PaddingMode.create_OAEP__SHA512(),
-                _ => throw new ArgumentException("Unsupported RSA Padding Mode")
-            };
+            RSAEncryption.PaddingMode paddingModeDafny = DafnyFFI.RSAPaddingModesToDafnyPaddingMode(paddingMode);
             byte[] publicKey;
             byte[] privateKey;
             RSAEncryption.RSA.GenerateKeyPairBytes(2048, paddingModeDafny, out publicKey, out privateKey);
@@ -105,14 +98,6 @@ namespace AWSEncryptionSDKTests
             return AWSEncryptionSDK.CMMs.MakeDefaultCMM(keyring);
         }
 
-        // DecodeMemoryStream is a helper method that takes a MemoryStream ciphertext and decrypts it
-        private String DecodeMemoryStream(MemoryStream ciphertext, CMMDefs.CMM cmm)
-        {
-            MemoryStream decodedStream = AWSEncryptionSDK.Client.Decrypt(ciphertext, cmm);
-            StreamReader reader = new StreamReader(decodedStream, Encoding.UTF8);
-            return reader.ReadToEnd();
-        }
-
         // EncryptDecrypt is a helper method that performs an encrypt and then a decrypt on a plaintext that is
         // formatted using a given id. withParams dictates whether Encrypt should use any additional encryption parameters
         private string EncryptDecrypt(CMMDefs.CMM cmm, int id, bool withParams)
@@ -122,37 +107,23 @@ namespace AWSEncryptionSDKTests
             MemoryStream ciphertext = withParams
                 ? AWSEncryptionSDK.Client.Encrypt(plaintextStream, cmm, new Dictionary<string, string>(), 0x0346, 2048)
                 : AWSEncryptionSDK.Client.Encrypt(plaintextStream, cmm);
-            String decoded = DecodeMemoryStream(ciphertext, cmm);
+            MemoryStream decodedStream = AWSEncryptionSDK.Client.Decrypt(ciphertext, cmm);
+            StreamReader reader = new StreamReader(decodedStream, Encoding.UTF8);
+            String decoded = reader.ReadToEnd();
             return (plaintext == decoded) ? SUCCESS : String.Format("Id: {0} failed, decoded: {1}", id, decoded);
         }
 
-        [Fact]
-        public void RoundTripHappyPath()
-        {
-            CMMDefs.CMM cmm = MakeDefaultCMMWithKMSKeyring();
-            String response = EncryptDecrypt(cmm, 0, false);
-            Assert.Equal(SUCCESS, response);
-        }
-
-        [Fact]
-        public void RoundTripHappyPathWithParams()
-        {
-            CMMDefs.CMM cmm = MakeDefaultCMMWithKMSKeyring();
-            String response = EncryptDecrypt(cmm, 0, true);
-            Assert.Equal(SUCCESS, response);
-        }
-
-        // EncryptDecryptMultiThreaded is a helper method that calls EncryptDecrypt in a threaded manner using
-        // 4 * the number of processors on the machine
-        private void EncryptDecryptMultiThreaded(CMMDefs.CMM cmm, bool withParams)
+        // EncryptDecryptThreaded is a helper method that calls EncryptDecrypt in a threaded manner using either 1 thread
+        // if multithreading is disabled or 4 * the number of processors on the machine if it is enabled
+        private void EncryptDecryptThreaded(CMMDefs.CMM cmm, bool isMultithreaded, bool withParams)
         {
             var concurrentBag = new ConcurrentBag<String>();
-            var totalIds = Environment.ProcessorCount * 4;
+            var totalIds = isMultithreaded ? Environment.ProcessorCount * 4 : 1;
             // Sanity check that the total number of ids is valid
-            Assert.True(totalIds >= 4);
+            Assert.True(isMultithreaded ? totalIds >= 4 : totalIds == 1);
 
             Parallel.For(
-                0, totalIds,
+                0, totalIds, new ParallelOptions { MaxDegreeOfParallelism = totalIds },
                 id => { concurrentBag.Add(EncryptDecrypt(cmm, id, withParams)); }
             );
 
@@ -164,160 +135,80 @@ namespace AWSEncryptionSDKTests
             Assert.Equal(totalIds, totalDecoded);
         }
 
-        [Fact]
-        public void RoundTripHappyPathThreaded_KMS()
+        // DefaultClientTests represents an enumerator that can be used for simple client tests that do not require
+        // additional parameters outside of whether the test should be multithreaded and whether it should use params for
+        // encrypt
+        public static IEnumerable<object[]> DefaultClientTests()
+        {
+            var multithreadedList = new bool[] { true, false };
+            var withParamsList = new bool[] { true, false };
+            foreach (bool isMultithreaded in multithreadedList) {
+                foreach (bool withParams in withParamsList) {
+                    yield return new object[] { isMultithreaded, withParams};
+                }
+            }
+        }
+
+        [Theory]
+        [MemberData(nameof(DefaultClientTests))]
+        public void RoundTripHappyPath_KMS(bool isMultithreaded, bool withParams)
         {
             CMMDefs.CMM cmm = MakeDefaultCMMWithKMSKeyring();
-            EncryptDecryptMultiThreaded(cmm, false);
+            EncryptDecryptThreaded(cmm, isMultithreaded, withParams);
         }
 
-        [Fact]
-        public void RoundTripHappyPathThreaded_KMS_Params()
+        // RSAClientTests represents an enumerator that can be used for simple RSA client tests that check all
+        // combinations of RSAPaddingModes, multithreading, and using additional params for encrypt
+        public static IEnumerable<object[]> RSAClientTests()
         {
-            CMMDefs.CMM cmm = MakeDefaultCMMWithKMSKeyring();
-            EncryptDecryptMultiThreaded(cmm, true);
+            var multithreadedList = new bool[] { true, false };
+            var withParamsList = new bool[] { true, false };
+            foreach (DafnyFFI.RSAPaddingModes paddingMode in Enum.GetValues(typeof(DafnyFFI.RSAPaddingModes))) {
+                foreach (bool isMultithreaded in multithreadedList) {
+                    foreach (bool withParams in withParamsList) {
+                        yield return new object[] { paddingMode, isMultithreaded, withParams};
+                    }
+                }
+            }
         }
 
-        [Fact]
-        public void RoundTripHappyPathThreaded_RSA_PKCS1()
+        [Theory]
+        [MemberData(nameof(RSAClientTests))]
+        public void RoundTripHappyPath_RSA(DafnyFFI.RSAPaddingModes paddingMode, bool isMultithreaded, bool withParams)
         {
-            DafnyFFI.RSAPaddingModes paddingMode = DafnyFFI.RSAPaddingModes.PKCS1;
             CMMDefs.CMM cmm = MakeDefaultCMMWithRSAKeyring(paddingMode);
-            EncryptDecryptMultiThreaded(cmm, false);
+            EncryptDecryptThreaded(cmm, isMultithreaded, withParams);
         }
 
-        [Fact]
-        public void RoundTripHappyPathThreaded_RSA_PKCS1_Params()
+        // AESClientTests represents an enumerator that can be used for simple AES client tests that check all
+        // combinations of AESWrappingAlgorithm, multithreading, and using additional params for encrypt
+        public static IEnumerable<object[]> AESClientTests()
         {
-            DafnyFFI.RSAPaddingModes paddingMode = DafnyFFI.RSAPaddingModes.PKCS1;
-            CMMDefs.CMM cmm = MakeDefaultCMMWithRSAKeyring(paddingMode);
-            EncryptDecryptMultiThreaded(cmm, true);
+            var multithreadedList = new bool[] { true, false };
+            var withParamsList = new bool[] { true, false };
+            foreach (DafnyFFI.AESWrappingAlgorithm wrappingAlgorithm in Enum.GetValues(typeof(DafnyFFI.AESWrappingAlgorithm))) {
+                foreach (bool isMultithreaded in multithreadedList) {
+                    foreach (bool withParams in withParamsList) {
+                        yield return new object[] { wrappingAlgorithm, isMultithreaded, withParams};
+                    }
+                }
+            }
         }
 
-        [Fact]
-        public void RoundTripHappyPathThreaded_RSA_OAEP_SHA1()
+        [Theory]
+        [MemberData(nameof(AESClientTests))]
+        public void RoundTripHappyPath_AES(DafnyFFI.AESWrappingAlgorithm wrappingAlgorithm, bool isMultithreaded, bool withParams)
         {
-            DafnyFFI.RSAPaddingModes paddingMode = DafnyFFI.RSAPaddingModes.OAEP_SHA1;
-            CMMDefs.CMM cmm = MakeDefaultCMMWithRSAKeyring(paddingMode);
-            EncryptDecryptMultiThreaded(cmm, false);
-        }
-
-        [Fact]
-        public void RoundTripHappyPathThreaded_RSA_OAEP_SHA1_Params()
-        {
-            DafnyFFI.RSAPaddingModes paddingMode = DafnyFFI.RSAPaddingModes.OAEP_SHA1;
-            CMMDefs.CMM cmm = MakeDefaultCMMWithRSAKeyring(paddingMode);
-            EncryptDecryptMultiThreaded(cmm, true);
-        }
-
-        [Fact]
-        public void RoundTripHappyPathThreaded_RSA_OAEP_SHA256()
-        {
-            DafnyFFI.RSAPaddingModes paddingMode = DafnyFFI.RSAPaddingModes.OAEP_SHA256;
-            CMMDefs.CMM cmm = MakeDefaultCMMWithRSAKeyring(paddingMode);
-            EncryptDecryptMultiThreaded(cmm, false);
-        }
-
-        [Fact]
-        public void RoundTripHappyPathThreaded_RSA_OAEP_SHA256_Params()
-        {
-            DafnyFFI.RSAPaddingModes paddingMode = DafnyFFI.RSAPaddingModes.OAEP_SHA256;
-            CMMDefs.CMM cmm = MakeDefaultCMMWithRSAKeyring(paddingMode);
-            EncryptDecryptMultiThreaded(cmm, true);
-        }
-
-        [Fact]
-        public void RoundTripHappyPathThreaded_RSA_OAEP_SHA384()
-        {
-            DafnyFFI.RSAPaddingModes paddingMode = DafnyFFI.RSAPaddingModes.OAEP_SHA384;
-            CMMDefs.CMM cmm = MakeDefaultCMMWithRSAKeyring(paddingMode);
-            EncryptDecryptMultiThreaded(cmm, false);
-        }
-
-        [Fact]
-        public void RoundTripHappyPathThreaded_RSA_OAEP_SHA384_Params()
-        {
-            DafnyFFI.RSAPaddingModes paddingMode = DafnyFFI.RSAPaddingModes.OAEP_SHA384;
-            CMMDefs.CMM cmm = MakeDefaultCMMWithRSAKeyring(paddingMode);
-            EncryptDecryptMultiThreaded(cmm, true);
-        }
-
-        [Fact]
-        public void RoundTripHappyPathThreaded_RSA_OAEP_SHA512()
-        {
-            DafnyFFI.RSAPaddingModes paddingMode = DafnyFFI.RSAPaddingModes.OAEP_SHA512;
-            CMMDefs.CMM cmm = MakeDefaultCMMWithRSAKeyring(paddingMode);
-            EncryptDecryptMultiThreaded(cmm, false);
-        }
-
-        [Fact]
-        public void RoundTripHappyPathThreaded_RSA_OAEP_SHA512_Params()
-        {
-            DafnyFFI.RSAPaddingModes paddingMode = DafnyFFI.RSAPaddingModes.OAEP_SHA512;
-            CMMDefs.CMM cmm = MakeDefaultCMMWithRSAKeyring(paddingMode);
-            EncryptDecryptMultiThreaded(cmm, true);
-        }
-
-        [Fact]
-        public void RoundTripHappyPathThreaded_AES_GCM_128()
-        {
-            DafnyFFI.AESWrappingAlgorithm wrappingAlgorithm = DafnyFFI.AESWrappingAlgorithm.AES_GCM_128;
             CMMDefs.CMM cmm = MakeDefaultCMMWithAESKeyring(wrappingAlgorithm);
-            EncryptDecryptMultiThreaded(cmm, false);
+            EncryptDecryptThreaded(cmm, isMultithreaded, withParams);
         }
 
-        [Fact]
-        public void RoundTripHappyPathThreaded_AES_GCM_128_Params()
-        {
-            DafnyFFI.AESWrappingAlgorithm wrappingAlgorithm = DafnyFFI.AESWrappingAlgorithm.AES_GCM_128;
-            CMMDefs.CMM cmm = MakeDefaultCMMWithAESKeyring(wrappingAlgorithm);
-            EncryptDecryptMultiThreaded(cmm, true);
-        }
-
-        [Fact]
-        public void RoundTripHappyPathThreaded_AES_GCM_192()
-        {
-            DafnyFFI.AESWrappingAlgorithm wrappingAlgorithm = DafnyFFI.AESWrappingAlgorithm.AES_GCM_192;
-            CMMDefs.CMM cmm = MakeDefaultCMMWithAESKeyring(wrappingAlgorithm);
-            EncryptDecryptMultiThreaded(cmm, false);
-        }
-
-        [Fact]
-        public void RoundTripHappyPathThreaded_AES_GCM_192_Params()
-        {
-            DafnyFFI.AESWrappingAlgorithm wrappingAlgorithm = DafnyFFI.AESWrappingAlgorithm.AES_GCM_192;
-            CMMDefs.CMM cmm = MakeDefaultCMMWithAESKeyring(wrappingAlgorithm);
-            EncryptDecryptMultiThreaded(cmm, true);
-        }
-
-        [Fact]
-        public void RoundTripHappyPathThreaded_AES_GCM_256()
-        {
-            DafnyFFI.AESWrappingAlgorithm wrappingAlgorithm = DafnyFFI.AESWrappingAlgorithm.AES_GCM_256;
-            CMMDefs.CMM cmm = MakeDefaultCMMWithAESKeyring(wrappingAlgorithm);
-            EncryptDecryptMultiThreaded(cmm, false);
-        }
-
-        [Fact]
-        public void RoundTripHappyPathThreaded_AES_GCM_256_Params()
-        {
-            DafnyFFI.AESWrappingAlgorithm wrappingAlgorithm = DafnyFFI.AESWrappingAlgorithm.AES_GCM_256;
-            CMMDefs.CMM cmm = MakeDefaultCMMWithAESKeyring(wrappingAlgorithm);
-            EncryptDecryptMultiThreaded(cmm, true);
-        }
-
-        [Fact]
-        public void RoundTripHappyPathThreaded_MultiKeyring()
+        [Theory]
+        [MemberData(nameof(DefaultClientTests))]
+        public void RoundTripHappyPath_MultiKeyring(bool isMultithreaded, bool withParams)
         {
             CMMDefs.CMM cmm = MakeDefaultCMMWithMultiKeyring();
-            EncryptDecryptMultiThreaded(cmm, false);
-        }
-
-        [Fact]
-        public void RoundTripHappyPathThreaded_MultiKeyring_Params()
-        {
-            CMMDefs.CMM cmm = MakeDefaultCMMWithMultiKeyring();
-            EncryptDecryptMultiThreaded(cmm, true);
+            EncryptDecryptThreaded(cmm, isMultithreaded, withParams);
         }
     }
 }

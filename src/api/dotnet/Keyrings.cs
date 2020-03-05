@@ -59,14 +59,7 @@ namespace AWSEncryptionSDK
         {
             // TODO: check for null values, ensure at least one key is non-null.
             RawRSAKeyring result = new RawRSAKeyring();
-            RSAEncryption.PaddingMode paddingModeDafny = paddingMode switch {
-                DafnyFFI.RSAPaddingModes.PKCS1 => RSAEncryption.PaddingMode.create_PKCS1(),
-                DafnyFFI.RSAPaddingModes.OAEP_SHA1 => RSAEncryption.PaddingMode.create_OAEP__SHA1(),
-                DafnyFFI.RSAPaddingModes.OAEP_SHA256 => RSAEncryption.PaddingMode.create_OAEP__SHA256(),
-                DafnyFFI.RSAPaddingModes.OAEP_SHA384 => RSAEncryption.PaddingMode.create_OAEP__SHA384(),
-                DafnyFFI.RSAPaddingModes.OAEP_SHA512 => RSAEncryption.PaddingMode.create_OAEP__SHA512(),
-                _ => throw new ArgumentException("Unsupported RSA Padding Mode")
-            };
+            RSAEncryption.PaddingMode paddingModeDafny = DafnyFFI.RSAPaddingModesToDafnyPaddingMode(paddingMode);
             RSAEncryption.PublicKey publicKeyWrapper = null;
             RSAEncryption.PrivateKey privateKeyWrapper = null;
             if (publicKey != null) {
