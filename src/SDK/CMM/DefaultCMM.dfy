@@ -44,7 +44,6 @@ module {:extern "DefaultCMMDef"} DefaultCMMDef {
     method GetEncryptionMaterials(materialsRequest: Materials.EncryptionMaterialsRequest)
                                   returns (res: Result<Materials.ValidEncryptionMaterials>)
       requires Valid()
-      requires ValidAAD(materialsRequest.encryptionContext)
       ensures Valid()
       ensures Materials.EC_PUBLIC_KEY_FIELD in materialsRequest.encryptionContext ==> res.Failure?
       ensures res.Success? && (materialsRequest.algorithmSuiteID.None? || materialsRequest.algorithmSuiteID.get.SignatureType().Some?) ==>
@@ -86,19 +85,20 @@ module {:extern "DefaultCMMDef"} DefaultCMMDef {
           <  { assert |signatureKeys.verificationKey| <= 3000; }
             UINT16_LIMIT;
           }
-
           enc_ctx := enc_ctx[reservedField := enc_vk];
-          var len := MessageHeader.ComputeKVPairsLength(enc_ctx);
-          if UINT16_LIMIT <= |enc_ctx| {
-            return Failure("encryption context has too many entries");
-          }
-          if UINT16_LIMIT <= len {
-            return Failure("encryption context too big");
-          }
-          assert ValidAAD(enc_ctx) by {
-            reveal MessageHeader.ValidAAD();
-          }
       }
+
+      // Check validity of the encryption context at runtime.
+      var len := MessageHeader.ComputeKVPairsLength(enc_ctx);
+      var validAAD := MessageHeader.ComputeValidAAD(enc_ctx);
+      if UINT16_LIMIT <= |enc_ctx| {
+        return Failure("encryption context has too many entries");
+      } else if UINT16_LIMIT <= len {
+        return Failure("encryption context too big");
+      } else if !validAAD {
+        return Failure("encryption context has invalid key-value pairs");
+      }
+      assert MessageHeader.ValidAAD(enc_ctx);
 
       var materials := Materials.EncryptionMaterials.WithoutDataKeys(enc_ctx, id, enc_sk);
       assert materials.encryptionContext == enc_ctx;
