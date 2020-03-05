@@ -17,21 +17,25 @@ namespace AWSEncryptionSDKTests
 
         private static string SUCCESS = "SUCCESS";
 
-        // MakeDefaultCMMWithKMSKeyring is a helper method that creates a default CMM using a KMS Keyring for unit testing
-        private CMMDefs.CMM MakeDefaultCMMWithKMSKeyring()
+        // MakeKMSKeyring is a helper method that creates a KMS Keyring for unit testing
+        private Keyring MakeKMSKeyring()
         {
             String keyArn = DafnyFFI.StringFromDafnyString(TestUtils.__default.SHARED__TEST__KEY__ARN);
             ClientSupplier clientSupplier = new DefaultClientSupplier();
-            Keyring keyring = AWSEncryptionSDK.Keyrings.MakeKMSKeyring(
+            return AWSEncryptionSDK.Keyrings.MakeKMSKeyring(
                 clientSupplier, Enumerable.Empty<String>(), keyArn,Enumerable.Empty<String>());
+        }
+
+        // MakeDefaultCMMWithKMSKeyring is a helper method that creates a default CMM using a KMS Keyring for unit testing
+        private CMMDefs.CMM MakeDefaultCMMWithKMSKeyring()
+        {
+            Keyring keyring = MakeKMSKeyring();
             return AWSEncryptionSDK.CMMs.MakeDefaultCMM(keyring);
         }
 
-        // MakeDefaultCMMWithRSAKeyring is a helper method that creates a default CMM using a RSA Keyring for unit testing
-        private CMMDefs.CMM MakeDefaultCMMWithRSAKeyring(DafnyFFI.RSAPaddingModes paddingMode)
+        // MakeRSAKeyring is a helper method that creates a RSA Keyring for unit testing
+        private Keyring MakeRSAKeyring(DafnyFFI.RSAPaddingModes paddingMode)
         {
-            ClientSupplier clientSupplier = new DefaultClientSupplier();
-
             // MakeRawRSAKeyring expects DafnyFFI.RSAPaddingModes while GenerateKeyPairBytes expects
             // RSAEncryption.PaddingMode
             RSAEncryption.PaddingMode paddingModeDafny = paddingMode switch {
@@ -46,29 +50,58 @@ namespace AWSEncryptionSDKTests
             byte[] privateKey;
             RSAEncryption.RSA.GenerateKeyPairBytes(2048, paddingModeDafny, out publicKey, out privateKey);
 
-            Keyring keyring = AWSEncryptionSDK.Keyrings.MakeRawRSAKeyring(
+            return AWSEncryptionSDK.Keyrings.MakeRawRSAKeyring(
                 Encoding.UTF8.GetBytes("namespace"),
                 Encoding.UTF8.GetBytes("myKeyring"),
                 paddingMode,
                 publicKey,
                 privateKey);
+        }
+
+        // MakeDefaultCMMWithRSAKeyring is a helper method that creates a default CMM using a RSA Keyring for unit testing
+        private CMMDefs.CMM MakeDefaultCMMWithRSAKeyring(DafnyFFI.RSAPaddingModes paddingMode)
+        {
+            Keyring keyring = MakeRSAKeyring(paddingMode);
             return AWSEncryptionSDK.CMMs.MakeDefaultCMM(keyring);
+        }
+
+        // MakeAESKeyring is a helper method that creates an AES Keyring for unit testing
+        private Keyring MakeAESKeyring(DafnyFFI.AESWrappingAlgorithm wrappingAlgorithm)
+        {
+            // For our unit tests, we can just generate an AES 256 key
+            var keygen = GeneratorUtilities.GetKeyGenerator("AES256");
+            var wrappingKey = keygen.GenerateKey();
+
+            return AWSEncryptionSDK.Keyrings.MakeRawAESKeyring(
+                Encoding.UTF8.GetBytes("namespace"),
+                Encoding.UTF8.GetBytes("myKeyring"),
+                wrappingKey,
+                wrappingAlgorithm);
         }
 
         // MakeDefaultCMMWithAESKeyring is a helper method that creates a default CMM using an AES Keyring for unit testing
         private CMMDefs.CMM MakeDefaultCMMWithAESKeyring(DafnyFFI.AESWrappingAlgorithm wrappingAlgorithm)
         {
-            ClientSupplier clientSupplier = new DefaultClientSupplier();
+            Keyring keyring = MakeAESKeyring(wrappingAlgorithm);
+            return AWSEncryptionSDK.CMMs.MakeDefaultCMM(keyring);
+        }
 
-            // For our unit tests, we can just generate an AES 256 key
-            var keygen = GeneratorUtilities.GetKeyGenerator("AES256");
-            var wrappingKey = keygen.GenerateKey();
+        // MakeDefaultCMMWithMultiKeyring is a helper method that creates a default CMM using a Multi-Keyring for unit testing
+        private CMMDefs.CMM MakeDefaultCMMWithMultiKeyring()
+        {
+            Keyring generator = MakeKMSKeyring();
+            Keyring[] children = new Keyring[] {
+                MakeRSAKeyring(DafnyFFI.RSAPaddingModes.PKCS1),
+                MakeRSAKeyring(DafnyFFI.RSAPaddingModes.OAEP_SHA1),
+                MakeRSAKeyring(DafnyFFI.RSAPaddingModes.OAEP_SHA256),
+                MakeRSAKeyring(DafnyFFI.RSAPaddingModes.OAEP_SHA384),
+                MakeRSAKeyring(DafnyFFI.RSAPaddingModes.OAEP_SHA512),
+                MakeAESKeyring(DafnyFFI.AESWrappingAlgorithm.AES_GCM_128),
+                MakeAESKeyring(DafnyFFI.AESWrappingAlgorithm.AES_GCM_192),
+                MakeAESKeyring(DafnyFFI.AESWrappingAlgorithm.AES_GCM_256)
+            };
 
-            Keyring keyring = AWSEncryptionSDK.Keyrings.MakeRawAESKeyring(
-                Encoding.UTF8.GetBytes("namespace"),
-                Encoding.UTF8.GetBytes("myKeyring"),
-                wrappingKey,
-                wrappingAlgorithm);
+            Keyring keyring = AWSEncryptionSDK.Keyrings.MakeMultiKeyring(generator, children);
             return AWSEncryptionSDK.CMMs.MakeDefaultCMM(keyring);
         }
 
@@ -270,6 +303,20 @@ namespace AWSEncryptionSDKTests
         {
             DafnyFFI.AESWrappingAlgorithm wrappingAlgorithm = DafnyFFI.AESWrappingAlgorithm.AES_GCM_256;
             CMMDefs.CMM cmm = MakeDefaultCMMWithAESKeyring(wrappingAlgorithm);
+            EncryptDecryptMultiThreaded(cmm, true);
+        }
+
+        [Fact]
+        public void RoundTripHappyPathThreaded_MultiKeyring()
+        {
+            CMMDefs.CMM cmm = MakeDefaultCMMWithMultiKeyring();
+            EncryptDecryptMultiThreaded(cmm, false);
+        }
+
+        [Fact]
+        public void RoundTripHappyPathThreaded_MultiKeyring_Params()
+        {
+            CMMDefs.CMM cmm = MakeDefaultCMMWithMultiKeyring();
             EncryptDecryptMultiThreaded(cmm, true);
         }
     }
