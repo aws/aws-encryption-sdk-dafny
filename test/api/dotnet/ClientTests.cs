@@ -14,6 +14,8 @@ namespace AWSEncryptionSDKTests
     public class ClientTests
     {
 
+        private static string SUCCESS = "SUCCESS";
+
         private CMMDefs.CMM MakeDefaultCMMWithKMSKeyring()
         {
             String keyArn = DafnyFFI.StringFromDafnyString(TestUtils.__default.SHARED__TEST__KEY__ARN);
@@ -55,31 +57,9 @@ namespace AWSEncryptionSDKTests
             return reader.ReadToEnd();
         }
 
-        [Fact]
-        public void RoundTripHappyPath()
-        {
-            CMMDefs.CMM cmm = MakeDefaultCMMWithKMSKeyring();
-            MemoryStream plaintextStream = new MemoryStream(Encoding.UTF8.GetBytes("Hello"));
-
-            MemoryStream ciphertext = AWSEncryptionSDK.Client.Encrypt(plaintextStream, cmm);
-
-            String decoded = DecodeMemoryStream(ciphertext, cmm);
-            Assert.Equal("Hello", decoded);
-        }
-
-        [Fact]
-        public void RoundTripHappyPathWithParams()
-        {
-            CMMDefs.CMM cmm = MakeDefaultCMMWithKMSKeyring();
-            MemoryStream plaintextStream = new MemoryStream(Encoding.UTF8.GetBytes("Hello"));
-
-            MemoryStream ciphertext = AWSEncryptionSDK.Client.Encrypt(plaintextStream, cmm, new Dictionary<string, string>(), 0x0346, 2048);
-
-            String decoded = DecodeMemoryStream(ciphertext, cmm);
-            Assert.Equal("Hello", decoded);
-        }
-
-        private string EncryptDecryptThread(CMMDefs.CMM cmm, int id, bool withParams)
+        // EncryptDecrypt is a helper method that performs an encrypt and then a decrypt on a plaintext that is
+        // formatted using a given id. withParams dictates whether Encrypt should use any additional encryption parameters
+        private string EncryptDecrypt(CMMDefs.CMM cmm, int id, bool withParams)
         {
             var plaintext = String.Format("Hello from id {0}", id);
             MemoryStream plaintextStream = new MemoryStream(Encoding.UTF8.GetBytes(plaintext));
@@ -87,20 +67,38 @@ namespace AWSEncryptionSDKTests
                 ? AWSEncryptionSDK.Client.Encrypt(plaintextStream, cmm, new Dictionary<string, string>(), 0x0346, 2048)
                 : AWSEncryptionSDK.Client.Encrypt(plaintextStream, cmm);
             String decoded = DecodeMemoryStream(ciphertext, cmm);
-            return (plaintext == decoded) ? "SUCCESS" : String.Format("Id: {0} failed, decoded: {1}", id, decoded);
+            return (plaintext == decoded) ? SUCCESS : String.Format("Id: {0} failed, decoded: {1}", id, decoded);
         }
 
-        private void TestEncryptDecryptMultiThreaded(CMMDefs.CMM cmm, bool withParams)
+        [Fact]
+        public void RoundTripHappyPath()
+        {
+            CMMDefs.CMM cmm = MakeDefaultCMMWithKMSKeyring();
+            String response = EncryptDecrypt(cmm, 0, false);
+            Assert.Equal(SUCCESS, response);
+        }
+
+        [Fact]
+        public void RoundTripHappyPathWithParams()
+        {
+            CMMDefs.CMM cmm = MakeDefaultCMMWithKMSKeyring();
+            String response = EncryptDecrypt(cmm, 0, true);
+            Assert.Equal(SUCCESS, response);
+        }
+
+        // EncryptDecryptMultiThreaded is a helper method that calls EncryptDecrypt in a threaded manner using
+        // 4 * the number of processors on the machine
+        private void EncryptDecryptMultiThreaded(CMMDefs.CMM cmm, bool withParams)
         {
             var totalIds = Environment.ProcessorCount * 4;
             var concurrentBag = new ConcurrentBag<String>();
             Parallel.For(
                 0, totalIds,
-                id => { concurrentBag.Add(EncryptDecryptThread(cmm, id, withParams)); }
+                id => { concurrentBag.Add(EncryptDecrypt(cmm, id, withParams)); }
             );
             var totalDecoded = 0;
             foreach (string decoded in concurrentBag) {
-                Assert.Equal("SUCCESS", decoded);
+                Assert.Equal(SUCCESS, decoded);
                 totalDecoded += 1;
             }
             // Sanity check the total number of ids processed
@@ -111,14 +109,14 @@ namespace AWSEncryptionSDKTests
         public void RoundTripHappyPathThreaded_KMS()
         {
             CMMDefs.CMM cmm = MakeDefaultCMMWithKMSKeyring();
-            TestEncryptDecryptMultiThreaded(cmm, false);
+            EncryptDecryptMultiThreaded(cmm, false);
         }
 
         [Fact]
         public void RoundTripHappyPathThreaded_KMS_Params()
         {
             CMMDefs.CMM cmm = MakeDefaultCMMWithKMSKeyring();
-            TestEncryptDecryptMultiThreaded(cmm, true);
+            EncryptDecryptMultiThreaded(cmm, true);
         }
 
         [Fact]
@@ -126,7 +124,7 @@ namespace AWSEncryptionSDKTests
         {
             DafnyFFI.RSAPaddingModes paddingMode = DafnyFFI.RSAPaddingModes.PKCS1;
             CMMDefs.CMM cmm = MakeDefaultCMMWithRSAKeyring(paddingMode);
-            TestEncryptDecryptMultiThreaded(cmm, false);
+            EncryptDecryptMultiThreaded(cmm, false);
         }
 
         [Fact]
@@ -134,7 +132,7 @@ namespace AWSEncryptionSDKTests
         {
             DafnyFFI.RSAPaddingModes paddingMode = DafnyFFI.RSAPaddingModes.PKCS1;
             CMMDefs.CMM cmm = MakeDefaultCMMWithRSAKeyring(paddingMode);
-            TestEncryptDecryptMultiThreaded(cmm, true);
+            EncryptDecryptMultiThreaded(cmm, true);
         }
 
         [Fact]
@@ -142,7 +140,7 @@ namespace AWSEncryptionSDKTests
         {
             DafnyFFI.RSAPaddingModes paddingMode = DafnyFFI.RSAPaddingModes.OAEP_SHA1;
             CMMDefs.CMM cmm = MakeDefaultCMMWithRSAKeyring(paddingMode);
-            TestEncryptDecryptMultiThreaded(cmm, false);
+            EncryptDecryptMultiThreaded(cmm, false);
         }
 
         [Fact]
@@ -150,7 +148,7 @@ namespace AWSEncryptionSDKTests
         {
             DafnyFFI.RSAPaddingModes paddingMode = DafnyFFI.RSAPaddingModes.OAEP_SHA1;
             CMMDefs.CMM cmm = MakeDefaultCMMWithRSAKeyring(paddingMode);
-            TestEncryptDecryptMultiThreaded(cmm, true);
+            EncryptDecryptMultiThreaded(cmm, true);
         }
 
         [Fact]
@@ -158,7 +156,7 @@ namespace AWSEncryptionSDKTests
         {
             DafnyFFI.RSAPaddingModes paddingMode = DafnyFFI.RSAPaddingModes.OAEP_SHA256;
             CMMDefs.CMM cmm = MakeDefaultCMMWithRSAKeyring(paddingMode);
-            TestEncryptDecryptMultiThreaded(cmm, false);
+            EncryptDecryptMultiThreaded(cmm, false);
         }
 
         [Fact]
@@ -166,7 +164,7 @@ namespace AWSEncryptionSDKTests
         {
             DafnyFFI.RSAPaddingModes paddingMode = DafnyFFI.RSAPaddingModes.OAEP_SHA256;
             CMMDefs.CMM cmm = MakeDefaultCMMWithRSAKeyring(paddingMode);
-            TestEncryptDecryptMultiThreaded(cmm, true);
+            EncryptDecryptMultiThreaded(cmm, true);
         }
 
         [Fact]
@@ -174,7 +172,7 @@ namespace AWSEncryptionSDKTests
         {
             DafnyFFI.RSAPaddingModes paddingMode = DafnyFFI.RSAPaddingModes.OAEP_SHA384;
             CMMDefs.CMM cmm = MakeDefaultCMMWithRSAKeyring(paddingMode);
-            TestEncryptDecryptMultiThreaded(cmm, false);
+            EncryptDecryptMultiThreaded(cmm, false);
         }
 
         [Fact]
@@ -182,7 +180,7 @@ namespace AWSEncryptionSDKTests
         {
             DafnyFFI.RSAPaddingModes paddingMode = DafnyFFI.RSAPaddingModes.OAEP_SHA384;
             CMMDefs.CMM cmm = MakeDefaultCMMWithRSAKeyring(paddingMode);
-            TestEncryptDecryptMultiThreaded(cmm, true);
+            EncryptDecryptMultiThreaded(cmm, true);
         }
 
         [Fact]
@@ -190,7 +188,7 @@ namespace AWSEncryptionSDKTests
         {
             DafnyFFI.RSAPaddingModes paddingMode = DafnyFFI.RSAPaddingModes.OAEP_SHA512;
             CMMDefs.CMM cmm = MakeDefaultCMMWithRSAKeyring(paddingMode);
-            TestEncryptDecryptMultiThreaded(cmm, false);
+            EncryptDecryptMultiThreaded(cmm, false);
         }
 
         [Fact]
@@ -198,7 +196,7 @@ namespace AWSEncryptionSDKTests
         {
             DafnyFFI.RSAPaddingModes paddingMode = DafnyFFI.RSAPaddingModes.OAEP_SHA512;
             CMMDefs.CMM cmm = MakeDefaultCMMWithRSAKeyring(paddingMode);
-            TestEncryptDecryptMultiThreaded(cmm, true);
+            EncryptDecryptMultiThreaded(cmm, true);
         }
     }
 }
