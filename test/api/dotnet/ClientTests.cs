@@ -7,6 +7,7 @@ using System.Text;
 using System.Threading.Tasks;
 using KeyringDefs;
 using KMSUtils;
+using Org.BouncyCastle.Security;
 using Xunit;
 
 namespace AWSEncryptionSDKTests
@@ -28,6 +29,7 @@ namespace AWSEncryptionSDKTests
         private CMMDefs.CMM MakeDefaultCMMWithRSAKeyring(DafnyFFI.RSAPaddingModes paddingMode)
         {
             ClientSupplier clientSupplier = new DefaultClientSupplier();
+
             // MakeRawRSAKeyring expects DafnyFFI.RSAPaddingModes while GenerateKeyPairBytes expects
             // RSAEncryption.PaddingMode
             RSAEncryption.PaddingMode paddingModeDafny = paddingMode switch {
@@ -41,12 +43,29 @@ namespace AWSEncryptionSDKTests
             byte[] publicKey;
             byte[] privateKey;
             RSAEncryption.RSA.GenerateKeyPairBytes(2048, paddingModeDafny, out publicKey, out privateKey);
+
             Keyring keyring = AWSEncryptionSDK.Keyrings.MakeRawRSAKeyring(
                 Encoding.UTF8.GetBytes("namespace"),
                 Encoding.UTF8.GetBytes("myKeyring"),
                 paddingMode,
                 publicKey,
                 privateKey);
+            return AWSEncryptionSDK.CMMs.MakeDefaultCMM(keyring);
+        }
+
+        private CMMDefs.CMM MakeDefaultCMMWithAESKeyring(DafnyFFI.AESWrappingAlgorithm wrappingAlgorithm)
+        {
+            ClientSupplier clientSupplier = new DefaultClientSupplier();
+
+            // For our unit tests, we can just generate an AES 256 key
+            var keygen = GeneratorUtilities.GetKeyGenerator("AES256");
+            var wrappingKey = keygen.GenerateKey();
+
+            Keyring keyring = AWSEncryptionSDK.Keyrings.MakeRawAESKeyring(
+                Encoding.UTF8.GetBytes("namespace"),
+                Encoding.UTF8.GetBytes("myKeyring"),
+                wrappingKey,
+                wrappingAlgorithm);
             return AWSEncryptionSDK.CMMs.MakeDefaultCMM(keyring);
         }
 
@@ -196,6 +215,54 @@ namespace AWSEncryptionSDKTests
         {
             DafnyFFI.RSAPaddingModes paddingMode = DafnyFFI.RSAPaddingModes.OAEP_SHA512;
             CMMDefs.CMM cmm = MakeDefaultCMMWithRSAKeyring(paddingMode);
+            EncryptDecryptMultiThreaded(cmm, true);
+        }
+
+        [Fact]
+        public void RoundTripHappyPathThreaded_AES_GCM_128()
+        {
+            DafnyFFI.AESWrappingAlgorithm wrappingAlgorithm = DafnyFFI.AESWrappingAlgorithm.AES_GCM_128;
+            CMMDefs.CMM cmm = MakeDefaultCMMWithAESKeyring(wrappingAlgorithm);
+            EncryptDecryptMultiThreaded(cmm, false);
+        }
+
+        [Fact]
+        public void RoundTripHappyPathThreaded_AES_GCM_128_Params()
+        {
+            DafnyFFI.AESWrappingAlgorithm wrappingAlgorithm = DafnyFFI.AESWrappingAlgorithm.AES_GCM_128;
+            CMMDefs.CMM cmm = MakeDefaultCMMWithAESKeyring(wrappingAlgorithm);
+            EncryptDecryptMultiThreaded(cmm, true);
+        }
+
+        [Fact]
+        public void RoundTripHappyPathThreaded_AES_GCM_192()
+        {
+            DafnyFFI.AESWrappingAlgorithm wrappingAlgorithm = DafnyFFI.AESWrappingAlgorithm.AES_GCM_192;
+            CMMDefs.CMM cmm = MakeDefaultCMMWithAESKeyring(wrappingAlgorithm);
+            EncryptDecryptMultiThreaded(cmm, false);
+        }
+
+        [Fact]
+        public void RoundTripHappyPathThreaded_AES_GCM_192_Params()
+        {
+            DafnyFFI.AESWrappingAlgorithm wrappingAlgorithm = DafnyFFI.AESWrappingAlgorithm.AES_GCM_192;
+            CMMDefs.CMM cmm = MakeDefaultCMMWithAESKeyring(wrappingAlgorithm);
+            EncryptDecryptMultiThreaded(cmm, true);
+        }
+
+        [Fact]
+        public void RoundTripHappyPathThreaded_AES_GCM_256()
+        {
+            DafnyFFI.AESWrappingAlgorithm wrappingAlgorithm = DafnyFFI.AESWrappingAlgorithm.AES_GCM_256;
+            CMMDefs.CMM cmm = MakeDefaultCMMWithAESKeyring(wrappingAlgorithm);
+            EncryptDecryptMultiThreaded(cmm, false);
+        }
+
+        [Fact]
+        public void RoundTripHappyPathThreaded_AES_GCM_256_Params()
+        {
+            DafnyFFI.AESWrappingAlgorithm wrappingAlgorithm = DafnyFFI.AESWrappingAlgorithm.AES_GCM_256;
+            CMMDefs.CMM cmm = MakeDefaultCMMWithAESKeyring(wrappingAlgorithm);
             EncryptDecryptMultiThreaded(cmm, true);
         }
     }
