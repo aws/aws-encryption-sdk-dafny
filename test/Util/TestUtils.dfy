@@ -63,6 +63,16 @@ module {:extern "TestUtils"} TestUtils {
     return encCtx;
   }
 
+  method ExpectValidAAD(encCtx: Materials.EncryptionContext) {
+    var valid := MessageHeader.ComputeValidAAD(encCtx);
+    expect valid;
+  }
+
+  method ExpectInvalidAAD(encCtx: Materials.EncryptionContext) {
+    var valid := MessageHeader.ComputeValidAAD(encCtx);
+    expect !valid;
+  }
+  
   lemma ValidSmallEncryptionContext(encryptionContext: Materials.EncryptionContext)
     requires |encryptionContext| <= 5
     requires forall k :: k in encryptionContext.Keys ==> |k| < 100 && |encryptionContext[k]| < 100

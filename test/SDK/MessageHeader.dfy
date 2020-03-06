@@ -12,7 +12,7 @@ module TestMessageHeader {
   import Materials
   import UTF8
   import MessageHeader
-  import TestUtils
+  import opened TestUtils
 
   method {:test} TestKVPairSequenceToMapEmpty() {
     var kvPairs := [];
@@ -34,16 +34,14 @@ module TestMessageHeader {
 
   method {:test} TestComputeValidAADEmpty() {
     var encCtx := map[];
-    var valid := MessageHeader.ComputeValidAAD(encCtx);
-    expect valid;
+    ExpectValidAAD(encCtx);
   }
 
   method {:test} TestComputeValidAADOnePair() {
     var keyA :- expect UTF8.Encode("keyA");
     var valA :- expect UTF8.Encode("valA");
     var encCtx := map[keyA := valA];
-    var valid := MessageHeader.ComputeValidAAD(encCtx);
-    expect valid;
+    ExpectValidAAD(encCtx);
   }
 
   method {:test} TestComputeValidAADOnePairMaxSize() {
@@ -53,8 +51,7 @@ module TestMessageHeader {
     var largeVal := seq(65528, _ => 0);
     var encCtx := map[keyA := largeVal];
     TestUtils.AssumeLongSeqIsValidUTF8(largeVal);
-    var valid := MessageHeader.ComputeValidAAD(encCtx);
-    expect valid;
+    ExpectValidAAD(encCtx);
   }
 
   method {:test} TestComputeValidAADTooLarge() {
@@ -64,8 +61,7 @@ module TestMessageHeader {
     TestUtils.AssumeLongSeqIsValidUTF8(invalidVal);
     var encCtx := map[keyA := invalidVal, keyB := invalidVal];
 
-    var valid := MessageHeader.ComputeValidAAD(encCtx);
-    expect !valid;
+    ExpectInvalidAAD(encCtx);
   }
 
   method {:test} TestComputeValidAADPairTooBig() {
@@ -73,8 +69,7 @@ module TestMessageHeader {
     var invalidVal := seq(0x1_0000, _ => 0);
     var encCtx := map[key := invalidVal];
     TestUtils.AssumeLongSeqIsValidUTF8(invalidVal);
-    var valid := MessageHeader.ComputeValidAAD(encCtx);
-    expect !valid;
+    ExpectInvalidAAD(encCtx);
   }
 
   method {:test} TestComputeKVPairsLengthEmpty() {
@@ -110,7 +105,6 @@ module TestMessageHeader {
     var len := MessageHeader.ComputeKVPairsLength(encCtx);
     expect len as int == 2 + |encCtx| as int * 7;
 
-    var valid := MessageHeader.ComputeValidAAD(encCtx);
-    expect valid;
+    ExpectValidAAD(encCtx);
   }
 }

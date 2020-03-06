@@ -35,7 +35,7 @@ phases:
       - export DAFNY_AWS_ESDK_DECRYPT_ORACLE_URL="http://xi1mwx3ttb.execute-api.us-west-2.amazonaws.com/api/v0/decrypt"
   build:
     commands:
-      - dotnet build -t:VerifyDafny src
+      # Currently, test depends on src, so verifying test will also verify src
       - dotnet build -t:VerifyDafny test
       - dotnet test
       - dotnet test testVectors
