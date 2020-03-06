@@ -11,7 +11,9 @@ using Org.BouncyCastle.Math;
 using Org.BouncyCastle.OpenSsl;
 using Org.BouncyCastle.Security;
 
+using ibyteseq = Dafny.ISequence<byte>;
 using byteseq = Dafny.Sequence<byte>;
+using icharseq = Dafny.ISequence<char>;
 using charseq = Dafny.Sequence<char>;
 
 namespace RSAEncryption {
@@ -76,14 +78,14 @@ namespace RSAEncryption {
 
         // GetPublicKeyFromByteSeq represents a helper method that takes in a byteseq representing a public
         // key and returns the AsymmetricKeyParameter for that public key, encoded using UTF-8
-        private static AsymmetricKeyParameter GetPublicKeyFromByteSeq(byteseq key) {
+        private static AsymmetricKeyParameter GetPublicKeyFromByteSeq(ibyteseq key) {
             AsymmetricKeyParameter keyParam;
             using (var stringReader = new StringReader(Encoding.UTF8.GetString(key.Elements))) {
                 return (AsymmetricKeyParameter) new PemReader(stringReader).ReadObject();
             }
         }
 
-        public static void GenerateKeyPairExtern(int strength, PaddingMode padding, out byteseq publicKey, out byteseq privateKey) {
+        public static void GenerateKeyPairExtern(int strength, PaddingMode padding, out ibyteseq publicKey, out ibyteseq privateKey) {
             RsaKeyPairGenerator keygen = new RsaKeyPairGenerator();
             SecureRandom secureRandom = new SecureRandom();
             keygen.Init(new RsaKeyGenerationParameters(
@@ -96,20 +98,20 @@ namespace RSAEncryption {
             privateKey = byteseq.FromArray(privateKeyBytes);
         }
 
-        public static STL.Result<byteseq> EncryptExtern(PaddingMode padding, byteseq publicKey, byteseq plaintextMessage) {
+        public static STL.Result<ibyteseq> EncryptExtern(PaddingMode padding, ibyteseq publicKey, ibyteseq plaintextMessage) {
             try {
                 IAsymmetricBlockCipher engine = GetEngineForPadding(padding);
                 AsymmetricKeyParameter publicKeyParam = GetPublicKeyFromByteSeq(publicKey);
                 engine.Init(true, publicKeyParam);
-                return STL.Result<byteseq>.create_Success(byteseq.FromArray(
+                return STL.Result<ibyteseq>.create_Success(byteseq.FromArray(
                     engine.ProcessBlock(plaintextMessage.Elements, 0, plaintextMessage.Elements.Length)));
             }
             catch (Exception encryptEx) {
-                return STL.Result<byteseq>.create_Failure(charseq.FromArray(encryptEx.ToString().ToCharArray()));
+                return STL.Result<ibyteseq>.create_Failure(charseq.FromArray(encryptEx.ToString().ToCharArray()));
             }
         }
 
-        public static STL.Result<byteseq> DecryptExtern(PaddingMode padding, byteseq privateKey, byteseq cipherText) {
+        public static STL.Result<ibyteseq> DecryptExtern(PaddingMode padding, ibyteseq privateKey, ibyteseq cipherText) {
             try {
                 IAsymmetricBlockCipher engine = GetEngineForPadding(padding);
                 AsymmetricCipherKeyPair keyPair;
@@ -119,11 +121,11 @@ namespace RSAEncryption {
                     keyPair = (AsymmetricCipherKeyPair) new PemReader(stringReader).ReadObject();
                 }
                 engine.Init(false, keyPair.Private);
-                return STL.Result<byteseq>.create_Success(byteseq.FromArray(
+                return STL.Result<ibyteseq>.create_Success(byteseq.FromArray(
                     engine.ProcessBlock(cipherText.Elements, 0, cipherText.Elements.Length)));
             }
             catch (Exception decryptEx) {
-                return STL.Result<byteseq>.create_Failure(charseq.FromArray(decryptEx.ToString().ToCharArray()));
+                return STL.Result<ibyteseq>.create_Failure(charseq.FromArray(decryptEx.ToString().ToCharArray()));
             }
         }
     }
