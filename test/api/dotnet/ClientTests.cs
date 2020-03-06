@@ -135,68 +135,78 @@ namespace AWSEncryptionSDKTests
             Assert.Equal(totalIds, totalDecoded);
         }
 
-        // DefaultClientTests represents an enumerator that can be used for simple client tests that do not require
-        // additional parameters outside of whether the test should be multithreaded and whether it should use params for
-        // encrypt
-        public static IEnumerable<object[]> DefaultClientTests()
+        // DefaultClientTestData represents simple client test data that does not require additional parameters outside of
+        // whether the test should be multithreaded and whether it should use additional params for encrypt
+        public static TheoryData<bool, bool> DefaultClientTestData
         {
-            var multithreadedList = new bool[] { true, false };
-            var withParamsList = new bool[] { true, false };
-            foreach (bool isMultithreaded in multithreadedList) {
-                foreach (bool withParams in withParamsList) {
-                    yield return new object[] { isMultithreaded, withParams};
+            get
+            {
+                var data = new TheoryData<bool, bool>();
+                var multithreadedList = new bool[] { true, false };
+                var withParamsList = new bool[] { true, false };
+                foreach (bool isMultithreaded in multithreadedList) {
+                    foreach (bool withParams in withParamsList) {
+                        data.Add(isMultithreaded, withParams);
+                    }
                 }
+                return data;
             }
         }
 
         [Theory]
-        [MemberData(nameof(DefaultClientTests))]
+        [MemberData(nameof(DefaultClientTestData))]
         public void RoundTripHappyPath_KMS(bool isMultithreaded, bool withParams)
         {
             CMMDefs.CMM cmm = MakeDefaultCMMWithKMSKeyring();
             EncryptDecryptThreaded(cmm, isMultithreaded, withParams);
         }
 
-        // RSAClientTests represents an enumerator that can be used for simple RSA client tests that check all
-        // combinations of RSAPaddingModes, multithreading, and using additional params for encrypt
-        public static IEnumerable<object[]> RSAClientTests()
+        // RSAClientTestData represents client test data that can be used for simple RSA client tests that check all
+        // combinations of RSAPaddingModes and DefaultClientTestData
+        public static TheoryData<DafnyFFI.RSAPaddingModes, bool, bool> RSAClientTestData
         {
-            var multithreadedList = new bool[] { true, false };
-            var withParamsList = new bool[] { true, false };
-            foreach (DafnyFFI.RSAPaddingModes paddingMode in Enum.GetValues(typeof(DafnyFFI.RSAPaddingModes))) {
-                foreach (bool isMultithreaded in multithreadedList) {
-                    foreach (bool withParams in withParamsList) {
-                        yield return new object[] { paddingMode, isMultithreaded, withParams};
+            get
+            {
+                var data = new TheoryData<DafnyFFI.RSAPaddingModes, bool, bool>();
+                foreach (DafnyFFI.RSAPaddingModes paddingMode in Enum.GetValues(typeof(DafnyFFI.RSAPaddingModes))) {
+                    foreach (var item in DefaultClientTestData) {
+                        // Since this is just being used for unit tests, and we know DefaultClientTestData is
+                        // TheoryData<bool, bool>, cast object to bool directly
+                        data.Add(paddingMode, (bool) item[0], (bool) item[1]);
                     }
                 }
+                return data;
             }
         }
 
         [Theory]
-        [MemberData(nameof(RSAClientTests))]
+        [MemberData(nameof(RSAClientTestData))]
         public void RoundTripHappyPath_RSA(DafnyFFI.RSAPaddingModes paddingMode, bool isMultithreaded, bool withParams)
         {
             CMMDefs.CMM cmm = MakeDefaultCMMWithRSAKeyring(paddingMode);
             EncryptDecryptThreaded(cmm, isMultithreaded, withParams);
         }
 
-        // AESClientTests represents an enumerator that can be used for simple AES client tests that check all
-        // combinations of AESWrappingAlgorithm, multithreading, and using additional params for encrypt
-        public static IEnumerable<object[]> AESClientTests()
+        // AESClientTestData represents client test data that can be used for simple AES client tests that check all
+        // combinations of AESWrappingAlgorithm and DefaultClientTestData
+        public static TheoryData<DafnyFFI.AESWrappingAlgorithm, bool, bool> AESClientTestData
         {
-            var multithreadedList = new bool[] { true, false };
-            var withParamsList = new bool[] { true, false };
-            foreach (DafnyFFI.AESWrappingAlgorithm wrappingAlgorithm in Enum.GetValues(typeof(DafnyFFI.AESWrappingAlgorithm))) {
-                foreach (bool isMultithreaded in multithreadedList) {
-                    foreach (bool withParams in withParamsList) {
-                        yield return new object[] { wrappingAlgorithm, isMultithreaded, withParams};
+            get
+            {
+                var data = new TheoryData<DafnyFFI.AESWrappingAlgorithm, bool, bool>();
+                foreach (DafnyFFI.AESWrappingAlgorithm wrappingAlgorithm in Enum.GetValues(typeof(DafnyFFI.AESWrappingAlgorithm))) {
+                    foreach (var item in DefaultClientTestData) {
+                        // Since this is just being used for unit tests, and we know DefaultClientTestData is
+                        // TheoryData<bool, bool>, cast object to bool directly
+                        data.Add(wrappingAlgorithm, (bool) item[0], (bool) item[1]);
                     }
                 }
+                return data;
             }
         }
 
         [Theory]
-        [MemberData(nameof(AESClientTests))]
+        [MemberData(nameof(AESClientTestData))]
         public void RoundTripHappyPath_AES(DafnyFFI.AESWrappingAlgorithm wrappingAlgorithm, bool isMultithreaded, bool withParams)
         {
             CMMDefs.CMM cmm = MakeDefaultCMMWithAESKeyring(wrappingAlgorithm);
@@ -204,7 +214,7 @@ namespace AWSEncryptionSDKTests
         }
 
         [Theory]
-        [MemberData(nameof(DefaultClientTests))]
+        [MemberData(nameof(DefaultClientTestData))]
         public void RoundTripHappyPath_MultiKeyring(bool isMultithreaded, bool withParams)
         {
             CMMDefs.CMM cmm = MakeDefaultCMMWithMultiKeyring();
