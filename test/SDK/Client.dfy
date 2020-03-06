@@ -25,6 +25,7 @@ module {:extern "TestClient"} TestClient {
 
   method EncryptDecryptTest(cmm: CMMDefs.CMM)
     requires cmm.Valid()
+    decreases *
   {
     var msg :- expect UTF8.Encode("hello");
     var keyA :- expect UTF8.Encode("keyA");
@@ -50,7 +51,7 @@ module {:extern "TestClient"} TestClient {
     expect msg == d;
   }
 
-  method {:test} HappyPath() {
+  method {:test} HappyPath() decreases * {
     var namespace :- expect UTF8.Encode("namespace");
     var name :- expect UTF8.Encode("MyKeyring");
 

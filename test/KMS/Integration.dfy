@@ -27,6 +27,7 @@ module IntegTestKMS {
 
   method EncryptDecryptTest(cmm: CMMDefs.CMM, message: string) returns (res: string)
     requires cmm.Valid()
+    decreases *
   {
     var encodedMsg: seq<uint8>;
     var encodeResult := UTF8.Encode(message);
@@ -59,7 +60,7 @@ module IntegTestKMS {
     res :- expect UTF8.Decode(d.value);
   }
 
-  method {:test} TestEndToEnd() {
+  method {:test} TestEndToEnd() decreases * {
     var namespace :- expect UTF8.Encode("namespace");
     var name :- expect UTF8.Encode("MyKeyring");
     var generatorStr := SHARED_TEST_KEY_ARN;
