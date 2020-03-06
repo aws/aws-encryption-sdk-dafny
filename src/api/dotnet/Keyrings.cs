@@ -61,12 +61,11 @@ namespace AWSEncryptionSDK
                 Dafny.Sequence<icharseq>.FromElements(grantTokens.Select(DafnyFFI.DafnyStringFromString).ToArray()));
             return AsExternalKeyring(result);
         }
-        // TODO: Eventually the MultiKeyring will take a sequence instead of an array.
-        public static ExternalKeyring MakeMultiKeyring(ExternalKeyring generator, ExternalKeyring[] children)
+        public static ExternalKeyring MakeMultiKeyring(ExternalKeyring generator, IList<ExternalKeyring> children)
         {
             // TODO: Check for null value etc.
             MultiKeyring result = new MultiKeyring();
-            result.__ctor(AsInternalKeyring(generator), Dafny.Sequence<Keyring>.FromArray(Array.ConvertAll(children, AsInternalKeyring)));
+            result.__ctor(AsInternalKeyring(generator), Dafny.Sequence<Keyring>.FromElements(children.Select(AsInternalKeyring).ToArray()));
             return AsExternalKeyring(result);
         }
 
