@@ -26,7 +26,6 @@ module {:extern "RawRSAKeyringDef"} RawRSAKeyringDef {
     const privateKey: Option<RSA.PrivateKey>
 
     predicate Valid()
-      reads this, Repr
     {
       this in Repr &&
       (publicKey.Some? || privateKey.Some?) &&

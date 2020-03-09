@@ -15,11 +15,11 @@ module {:extern "RSAEncryption"} RSAEncryption {
 
   // This trait represents the parent for RSA public and private keys
   trait {:termination false} Key {
-    ghost var Repr: set<object>
+    ghost const Repr: set<object>
     ghost const strength: StrengthBits
     ghost const padding: PaddingMode
     const pem: seq<uint8>
-    predicate Valid() reads this, Repr
+    predicate Valid()
     {
       Repr == {this} &&
       |pem| > 0 &&
