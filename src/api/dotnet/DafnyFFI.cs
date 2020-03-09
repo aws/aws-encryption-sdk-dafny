@@ -2,6 +2,7 @@ using System;
 using System.IO;
 using System.Text;
 using STL;
+using Streams;
 
 using ibyteseq = Dafny.ISequence<byte>;
 using byteseq = Dafny.Sequence<byte>;
@@ -18,10 +19,34 @@ public class DafnyFFI {
         Array.Copy(seq.Elements, 0, copy, 0, seq.Elements.Length);
         return new MemoryStream(copy);
     }
+
+    public static InputStream InputStreamFromStream(Stream s) {
+        // TODO I should not be able to directly use the constructor here...
+        InputStream result = new InputStream(s);
+        //result.__ctor(s);
+        return result;
+    }
   
-    public static ibyteseq SequenceFromMemoryStream(MemoryStream bytes) {
-        // TODO: Find a way to safely avoid copying 
-        return byteseq.FromArray(bytes.ToArray());
+    public static ibyteseq SequenceFromStream(Stream s) {
+        // TODO: Find a way to safely avoid copying
+        // Read the source file into a byte array.
+        // TODO: check Readable
+        byte[] bytes = new byte[s.Length];
+        int numBytesToRead = (int)s.Length;
+        int numBytesRead = 0;
+        while (numBytesToRead > 0)
+        {
+            // Read may return anything from 0 to numBytesToRead.
+            int n = s.Read(bytes, numBytesRead, numBytesToRead);
+
+            // Break when the end of the file is reached.
+            if (n == 0)
+                break;
+
+            numBytesRead += n;
+            numBytesToRead -= n;
+        }
+        return byteseq.FromArray(bytes);
     }
 
     public static ibyteseq SequenceFromByteArray(byte[] bytearray) {

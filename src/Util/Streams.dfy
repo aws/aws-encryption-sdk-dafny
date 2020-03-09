@@ -1,8 +1,14 @@
 include "../StandardLibrary/StandardLibrary.dfy"
 
-module Streams {
+module {:extern "Streams"} Streams {
   import opened StandardLibrary
   import opened UInt = StandardLibrary.UInt
+
+  class InputStream {
+    //constructor() {}
+    method {:extern "Read"} Read(bytes: seq<uint8>, offset: int32, count: int32) returns (n: int32)
+    method {:extern "Length"} Length() returns (n: int32)
+  }
 
   class SeqReader<T> {
     ghost var Repr: set<object>
