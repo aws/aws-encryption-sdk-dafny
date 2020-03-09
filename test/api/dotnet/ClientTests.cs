@@ -5,6 +5,7 @@ using System.Linq;
 using System.Text;
 using KeyringDefs;
 using KMSUtils;
+using Org.BouncyCastle.Crypto.Engines;
 using Xunit;
 
 using charseq = Dafny.Sequence<char>;
@@ -80,10 +81,6 @@ namespace AWSEncryptionSDKTests
                     AWSEncryptionSDK.Client.Encrypt(null, cmm, new Dictionary<string, string>()));
         } 
         
-        [Fact]
-        public void NullKeyring()
-        {
-            Assert.Throws<NullReferenceException>(() => AWSEncryptionSDK.CMMs.MakeDefaultCMM(null));
-        } 
+        // TODO-RS: Test for nulls and other Dafny requirement violations
     }
 }

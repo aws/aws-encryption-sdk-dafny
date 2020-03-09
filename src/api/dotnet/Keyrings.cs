@@ -15,38 +15,7 @@ namespace AWSEncryptionSDK
 {
     public class Keyrings
     {
-        public static Keyring AsInternalKeyring(ExternalKeyring keyring) {
-            // TODO-RS: This feels correct because we want to catch incoming nulls
-            // from external client code, but I'm not 100% confident because
-            // we also want to accept nullable Keyring? values too (e.g. a MultiKeyring's generator)
-            if (keyring == null) {
-                throw new NullReferenceException();
-            }
-            if (keyring is AsExternalKeyring k2) {
-                return k2.wrapped;
-            } else {
-                AsKeyring result = new AsKeyring();
-                result.__ctor(keyring);
-                return result;
-            }
-        }
-        
-        public static ExternalKeyring AsExternalKeyring(Keyring keyring) {
-            // TODO-RS: This is intended to support mapping a "Keyring?" value,
-            // but I'm not confident that always makes sense.
-            if (keyring == null) {
-                return null;
-            }
-            if (keyring is AsKeyring k2) {
-                return k2.wrapped;
-            } else {
-                AsExternalKeyring result = new AsExternalKeyring();
-                result.__ctor(keyring);
-                return result;
-            }
-        }
-        
-        public static ExternalKeyring MakeKMSKeyring(ClientSupplier clientSupplier,
+        public static Keyring MakeKMSKeyring(ClientSupplier clientSupplier,
                                              IEnumerable<string> keyIDs,
                                              string generator,
                                              IEnumerable<string> grantTokens)
@@ -59,16 +28,16 @@ namespace AWSEncryptionSDK
                 Dafny.Sequence<icharseq>.FromElements(keyIDs.Select(DafnyFFI.DafnyStringFromString).ToArray()),
                 DafnyFFI.NullableToOption(generator != null ? DafnyFFI.DafnyStringFromString(generator) : null),
                 Dafny.Sequence<icharseq>.FromElements(grantTokens.Select(DafnyFFI.DafnyStringFromString).ToArray()));
-            return AsExternalKeyring(result);
+            return result;
         }
-        public static ExternalKeyring MakeMultiKeyring(ExternalKeyring generator, IList<ExternalKeyring> children)
+        // TODO: Eventually the MultiKeyring will take a sequence instead of an array.
+        public static MultiKeyring MakeMultiKeyring(Keyring generator, IList<Keyring> children)
         {
             // TODO: Check for null value etc.
             MultiKeyring result = new MultiKeyring();
-            result.__ctor(AsInternalKeyring(generator), Dafny.Sequence<Keyring>.FromElements(children.Select(AsInternalKeyring).ToArray()));
-            return AsExternalKeyring(result);
+            result.__ctor(generator, Dafny.Sequence<Keyring>.FromArray(children.ToArray()));
+            return result;
         }
-
         public static RawAESKeyring MakeRawAESKeyring(byte[] nameSpace, byte[] name, byte[] wrappingKey, DafnyFFI.AESWrappingAlgorithm wrappingAlgorithm)
         {
             // TODO: Check for null values
@@ -87,8 +56,7 @@ namespace AWSEncryptionSDK
                     );
             return result;
         }
-
-        public static ExternalKeyring MakeRawRSAKeyring(byte[] nameSpace, byte[] name, DafnyFFI.RSAPaddingModes paddingMode, byte[] publicKey, byte[] privateKey)
+        public static RawRSAKeyring MakeRawRSAKeyring(byte[] nameSpace, byte[] name, DafnyFFI.RSAPaddingModes paddingMode, byte[] publicKey, byte[] privateKey)
         {
             // TODO: check for null values, ensure at least one key is non-null.
             RawRSAKeyring result = new RawRSAKeyring();
@@ -117,7 +85,7 @@ namespace AWSEncryptionSDK
                     DafnyFFI.NullableToOption(publicKeyWrapper),
                     DafnyFFI.NullableToOption(privateKeyWrapper)
                     );
-            return AsExternalKeyring(result);
+            return result;
         }
     }
 }
