@@ -56,7 +56,7 @@ module {:extern "RawAESKeyringDef"} RawAESKeyringDef {
     const wrappingKey: seq<uint8>
     const wrappingAlgorithm: EncryptionSuites.EncryptionSuite
 
-    predicate Valid() reads this {
+    predicate Valid() {
       && Repr == {this}
       && |wrappingKey| == wrappingAlgorithm.keyLen as int
       && wrappingAlgorithm in VALID_ALGORITHMS

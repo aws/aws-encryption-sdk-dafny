@@ -11,7 +11,7 @@ module TestKeyrings {
 
     constructor() {}
 
-    predicate Valid() reads this, Repr { true }
+    predicate Valid() { true }
 
     method OnEncrypt(materials: Materials.ValidEncryptionMaterials) returns (res: Result<Materials.ValidEncryptionMaterials>)
       requires Valid()
@@ -48,7 +48,7 @@ module TestKeyrings {
 
     constructor() {}
     
-    predicate Valid() reads this, Repr { true }
+    predicate Valid() { true }
 
     method OnEncrypt(materials: Materials.ValidEncryptionMaterials) returns (res: Result<Materials.ValidEncryptionMaterials>)
       requires Valid()
