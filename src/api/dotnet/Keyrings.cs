@@ -41,11 +41,19 @@ namespace AWSEncryptionSDK
         {
             // TODO: Check for null values
             RawAESKeyring result = new RawAESKeyring();
-            EncryptionSuites.EncryptionSuite wrappingAlgDafny = wrappingAlgorithm switch {
-                DafnyFFI.AESWrappingAlgorithm.AES_GCM_128 => EncryptionSuites.__default.AES__GCM__128,
-                DafnyFFI.AESWrappingAlgorithm.AES_GCM_192 => EncryptionSuites.__default.AES__GCM__192,
-                DafnyFFI.AESWrappingAlgorithm.AES_GCM_256 => EncryptionSuites.__default.AES__GCM__256,
-                _ => throw new ArgumentException("Unsupported AES Wrapping Algorithm")
+            EncryptionSuites.EncryptionSuite wrappingAlgDafny;
+            switch (wrappingAlgorithm) {
+                case DafnyFFI.AESWrappingAlgorithm.AES_GCM_128:
+                    wrappingAlgDafny = EncryptionSuites.__default.AES__GCM__128;
+                    break;
+                case DafnyFFI.AESWrappingAlgorithm.AES_GCM_192:
+                    wrappingAlgDafny = EncryptionSuites.__default.AES__GCM__192;
+                    break;
+                case DafnyFFI.AESWrappingAlgorithm.AES_GCM_256:
+                    wrappingAlgDafny = EncryptionSuites.__default.AES__GCM__256;
+                    break;
+                default:
+                    throw new ArgumentException("Unsupported AES Wrapping Algorithm");
             };
             result.__ctor(
                     DafnyFFI.SequenceFromByteArray(nameSpace),

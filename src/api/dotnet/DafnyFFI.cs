@@ -65,15 +65,20 @@ public class DafnyFFI {
 
     public static RSAEncryption.PaddingMode RSAPaddingModesToDafnyPaddingMode(RSAPaddingModes paddingModes)
     {
-        RSAEncryption.PaddingMode paddingModeDafny = paddingModes switch {
-            DafnyFFI.RSAPaddingModes.PKCS1 => RSAEncryption.PaddingMode.create_PKCS1(),
-            DafnyFFI.RSAPaddingModes.OAEP_SHA1 => RSAEncryption.PaddingMode.create_OAEP__SHA1(),
-            DafnyFFI.RSAPaddingModes.OAEP_SHA256 => RSAEncryption.PaddingMode.create_OAEP__SHA256(),
-            DafnyFFI.RSAPaddingModes.OAEP_SHA384 => RSAEncryption.PaddingMode.create_OAEP__SHA384(),
-            DafnyFFI.RSAPaddingModes.OAEP_SHA512 => RSAEncryption.PaddingMode.create_OAEP__SHA512(),
-            _ => throw new ArgumentException("Unsupported RSA Padding Mode")
+        switch (paddingModes) {
+            case DafnyFFI.RSAPaddingModes.PKCS1:
+                return RSAEncryption.PaddingMode.create_PKCS1();
+            case DafnyFFI.RSAPaddingModes.OAEP_SHA1:
+                return RSAEncryption.PaddingMode.create_OAEP__SHA1();
+            case DafnyFFI.RSAPaddingModes.OAEP_SHA256:
+                return RSAEncryption.PaddingMode.create_OAEP__SHA256();
+            case DafnyFFI.RSAPaddingModes.OAEP_SHA384:
+                return RSAEncryption.PaddingMode.create_OAEP__SHA384();
+            case DafnyFFI.RSAPaddingModes.OAEP_SHA512:
+                return RSAEncryption.PaddingMode.create_OAEP__SHA512();
+            default:
+                throw new ArgumentException("Unsupported RSA Padding Mode");
         };
-        return paddingModeDafny;
     }
 
     public enum AESWrappingAlgorithm {
