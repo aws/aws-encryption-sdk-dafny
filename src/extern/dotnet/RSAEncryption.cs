@@ -83,15 +83,19 @@ namespace RSAEncryption {
             }
         }
 
-        public static void GenerateKeyPairExtern(int strength, PaddingMode padding, out byteseq publicKey, out byteseq privateKey) {
+        public static void GenerateKeyPairBytes(int strength, PaddingMode padding, out byte[] publicKeyBytes, out byte[] privateKeyBytes) {
             RsaKeyPairGenerator keygen = new RsaKeyPairGenerator();
             SecureRandom secureRandom = new SecureRandom();
             keygen.Init(new RsaKeyGenerationParameters(
                 BigInteger.ValueOf(RSA_PUBLIC_EXPONENT), secureRandom, strength, RSA_CERTAINTY));
             AsymmetricCipherKeyPair keygenPair = keygen.GenerateKeyPair();
+            GetPemBytes(keygenPair, out publicKeyBytes, out privateKeyBytes);
+        }
+
+        public static void GenerateKeyPairExtern(int strength, PaddingMode padding, out byteseq publicKey, out byteseq privateKey) {
             byte[] publicKeyBytes;
             byte[] privateKeyBytes;
-            GetPemBytes(keygenPair, out publicKeyBytes, out privateKeyBytes);
+            GenerateKeyPairBytes(strength, padding, out publicKeyBytes, out privateKeyBytes);
             publicKey = byteseq.FromArray(publicKeyBytes);
             privateKey = byteseq.FromArray(privateKeyBytes);
         }
