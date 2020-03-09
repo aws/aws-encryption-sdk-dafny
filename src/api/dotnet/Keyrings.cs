@@ -42,7 +42,7 @@ namespace AWSEncryptionSDK
             // TODO: Check for null values
             RawAESKeyring result = new RawAESKeyring();
             EncryptionSuites.EncryptionSuite wrappingAlgDafny;
-            switch(wrappingAlgorithm) {
+            switch (wrappingAlgorithm) {
                 case DafnyFFI.AESWrappingAlgorithm.AES_GCM_128:
                     wrappingAlgDafny = EncryptionSuites.__default.AES__GCM__128;
                     break;
@@ -68,7 +68,7 @@ namespace AWSEncryptionSDK
             // TODO: check for null values, ensure at least one key is non-null.
             RawRSAKeyring result = new RawRSAKeyring();
             RSAEncryption.PaddingMode paddingModeDafny;
-            switch(paddingMode) {
+            switch (paddingMode) {
                 case DafnyFFI.RSAPaddingModes.PKCS1:
                     paddingModeDafny = RSAEncryption.PaddingMode.create_PKCS1();
                     break;
