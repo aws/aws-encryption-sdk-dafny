@@ -62,6 +62,20 @@ public class DafnyFFI {
     public enum RSAPaddingModes {
         PKCS1, OAEP_SHA1, OAEP_SHA256, OAEP_SHA384, OAEP_SHA512
     }
+
+    public static RSAEncryption.PaddingMode RSAPaddingModesToDafnyPaddingMode(RSAPaddingModes paddingModes)
+    {
+        RSAEncryption.PaddingMode paddingModeDafny = paddingModes switch {
+            DafnyFFI.RSAPaddingModes.PKCS1 => RSAEncryption.PaddingMode.create_PKCS1(),
+            DafnyFFI.RSAPaddingModes.OAEP_SHA1 => RSAEncryption.PaddingMode.create_OAEP__SHA1(),
+            DafnyFFI.RSAPaddingModes.OAEP_SHA256 => RSAEncryption.PaddingMode.create_OAEP__SHA256(),
+            DafnyFFI.RSAPaddingModes.OAEP_SHA384 => RSAEncryption.PaddingMode.create_OAEP__SHA384(),
+            DafnyFFI.RSAPaddingModes.OAEP_SHA512 => RSAEncryption.PaddingMode.create_OAEP__SHA512(),
+            _ => throw new ArgumentException("Unsupported RSA Padding Mode")
+        };
+        return paddingModeDafny;
+    }
+
     public enum AESWrappingAlgorithm {
         AES_GCM_128, AES_GCM_192, AES_GCM_256
     }
