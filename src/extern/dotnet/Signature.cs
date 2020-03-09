@@ -72,7 +72,7 @@ namespace Signature {
             if (xBytes.Length < fieldByteSize) {
                 var paddingLength = fieldByteSize - xBytes.Length;
                 var paddedX = new byte[fieldByteSize];
-                System.Array.Fill(paddedX, (byte)0, 0, paddingLength);
+                System.Array.Clear(paddedX, 0, paddingLength);
                 xBytes.CopyTo(paddedX, paddingLength);
                 xBytes = paddedX;
             }
