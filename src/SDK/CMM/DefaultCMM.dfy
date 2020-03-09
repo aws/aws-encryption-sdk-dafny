@@ -76,27 +76,14 @@ module {:extern "DefaultCMMDef"} DefaultCMMDef {
           var signatureKeys :- Signature.KeyGen(param);
           enc_sk := Some(signatureKeys.signingKey);
           var enc_vk :- UTF8.Encode(Base64.Encode(signatureKeys.verificationKey));
-          calc {
-            |enc_vk|;
-          ==  { assert UTF8.IsASCIIString(Base64.Encode(signatureKeys.verificationKey)); }
-            |Base64.Encode(signatureKeys.verificationKey)|;
-          <=  { Base64.EncodeLengthBound(signatureKeys.verificationKey); }
-            |signatureKeys.verificationKey| / 3 * 4 + 4;
-          <  { assert |signatureKeys.verificationKey| <= 3000; }
-            UINT16_LIMIT;
-          }
           enc_ctx := enc_ctx[reservedField := enc_vk];
       }
 
       // Check validity of the encryption context at runtime.
-      var len := MessageHeader.ComputeKVPairsLength(enc_ctx);
       var validAAD := MessageHeader.ComputeValidAAD(enc_ctx);
-      if UINT16_LIMIT <= |enc_ctx| {
-        return Failure("encryption context has too many entries");
-      } else if UINT16_LIMIT <= len {
-        return Failure("encryption context too big");
-      } else if !validAAD {
-        return Failure("encryption context has invalid key-value pairs");
+      if !validAAD {
+        //TODO: Provide a more specific error message here, depending on how the EncCtx spec was violated.
+        return Failure("Invalid Encryption Context");
       }
       assert MessageHeader.ValidAAD(enc_ctx);
 
