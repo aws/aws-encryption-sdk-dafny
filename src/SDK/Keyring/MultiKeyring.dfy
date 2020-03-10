@@ -12,6 +12,23 @@ module {:extern "MultiKeyringDef"} MultiKeyringDef {
     import AlgorithmSuite
     import Mat = Materials
 
+    method MakeMultiKeyring(externalGenerator : ExternalKeyring?, externalChildren : seq<ExternalKeyring?>) returns (res: Result<MultiKeyring>) {
+        var children := new ValidKeyring?[|externalChildren|];
+        var i := 0;
+        while (i < |externalChildren|)
+            invariant children.Length == |externalChildren|
+            invariant forall j :: 0 <= j < i ==> j < children.Length && children[j] != null
+            decreases |externalChildren| - i 
+        {
+            var _ :- FailUnless(externalChildren[i] != null, "Child keyrings of a MultiKeyring cannot be null");
+            children[i] := FromExternalKeyring(externalChildren[i]);
+            i := i + 1;
+        }
+        var generator := FromExternalKeyring(externalGenerator);
+        var multiKeyring := new MultiKeyring(generator, children[..]);
+        return Success(multiKeyring);
+    }
+
     function childrenRepr (xs : seq<Keyring>) : (res : set<object>) reads (set i | 0 <= i < |xs| :: xs[i])
         ensures forall i :: i in xs ==> i in res && i.Repr <= res
         decreases |xs|
