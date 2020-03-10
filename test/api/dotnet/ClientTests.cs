@@ -223,17 +223,17 @@ namespace AWSEncryptionSDKTests
         [Fact]
         public void NullPlaintext()
         {
-        var keyArn = DafnyFFI.StringFromDafnyString(TestUtils.__default.SHARED__TEST__KEY__ARN);
-            
-        ClientSupplier clientSupplier = new DefaultClientSupplier();
-            
-        var keyring = AWSEncryptionSDK.Keyrings.MakeKMSKeyring(
-            clientSupplier, Enumerable.Empty<String>(), keyArn,Enumerable.Empty<String>());
+            var keyArn = DafnyFFI.StringFromDafnyString(TestUtils.__default.SHARED__TEST__KEY__ARN);
+                
+            ClientSupplier clientSupplier = new DefaultClientSupplier();
+                
+            var keyring = AWSEncryptionSDK.Keyrings.MakeKMSKeyring(
+                clientSupplier, Enumerable.Empty<String>(), keyArn,Enumerable.Empty<String>());
 
-        var cmm = AWSEncryptionSDK.CMMs.MakeDefaultCMM(keyring);
+            var cmm = AWSEncryptionSDK.CMMs.MakeDefaultCMM(keyring);
 
-        Assert.Throws<NullReferenceException>(() =>
-        AWSEncryptionSDK.Client.Encrypt(null, cmm, new Dictionary<string, string>()));
+            Assert.Throws<NullReferenceException>(() =>
+            AWSEncryptionSDK.Client.Encrypt(null, cmm, new Dictionary<string, string>()));
         } 
         
         // TODO-RS: Test for nulls and other Dafny requirement violations
