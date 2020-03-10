@@ -6,7 +6,7 @@ namespace Random {
         // Normally we would include a try/catch block in any extern method,
         // to catch failures. In this case though, GetBytes will only error
         // if `z` is Null, which should never happen.
-        public static Dafny.Sequence<byte> ExternGenerateBytes(int i) {
+        public static Dafny.ISequence<byte> ExternGenerateBytes(int i) {
             RandomNumberGenerator rng = RandomNumberGenerator.Create();
             byte[] z = new byte[i];
             rng.GetBytes(z);

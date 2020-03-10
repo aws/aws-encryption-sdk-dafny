@@ -23,21 +23,20 @@ module {:extern "MultiKeyringDef"} MultiKeyringDef {
     class MultiKeyring extends Keyring {
         const generator : Keyring?
         // TODO-RS: Make this a seq<Keyring> once https://github.com/dafny-lang/dafny/issues/406 is addressed
-        const children : array<Keyring>
-        constructor (g : Keyring?, c : array<Keyring>) ensures generator == g ensures children == c
+        const children : seq<Keyring>
+        constructor (g : Keyring?, c : seq<Keyring>) ensures generator == g ensures children == c
             requires g != null ==> g.Valid()
-            requires forall i :: 0 <= i < c.Length ==> c[i].Valid()
+            requires forall i :: 0 <= i < |c| ==> c[i].Valid()
             ensures Valid()
         {
             generator := g;
             children := c;
-            Repr := {this} + (if g != null then {g} + g.Repr else {}) + {children} + childrenRepr(c[..]);
+            Repr := {this} + (if g != null then {g} + g.Repr else {}) + childrenRepr(c);
         }
 
         predicate Valid() reads this, Repr {
-            && children in Repr
             && (generator != null ==> generator in Repr && generator.Repr <= Repr && generator.Valid())
-            && (forall j :: 0 <= j < children.Length ==> children[j] in Repr && children[j].Repr <= Repr && children[j].Valid())
+            && (forall j :: 0 <= j < |children| ==> children[j] in Repr && children[j].Repr <= Repr && children[j].Valid())
         }
 
         method OnEncrypt(materials: Materials.ValidEncryptionMaterials) returns (res: Result<Materials.ValidEncryptionMaterials>)
@@ -63,7 +62,7 @@ module {:extern "MultiKeyringDef"} MultiKeyringDef {
             // Then apply each of the children in sequence
             // TODO-RS: Use folding here instead
             var i := 0;
-            while i < children.Length
+            while i < |children|
                 invariant resultMaterials.plaintextDataKey.Some?
                 invariant materials.encryptionContext == resultMaterials.encryptionContext
                 invariant materials.algorithmSuiteID == resultMaterials.algorithmSuiteID
@@ -71,7 +70,7 @@ module {:extern "MultiKeyringDef"} MultiKeyringDef {
                 invariant materials.keyringTrace <= resultMaterials.keyringTrace
                 invariant materials.encryptedDataKeys <= resultMaterials.encryptedDataKeys
                 invariant materials.signingKey == resultMaterials.signingKey
-                decreases children.Length - i 
+                decreases |children| - i 
             {
                 resultMaterials :- children[i].OnEncrypt(resultMaterials);
                 i := i + 1;
@@ -104,14 +103,14 @@ module {:extern "MultiKeyringDef"} MultiKeyringDef {
                 }
             }
             var i := 0;
-            while i < children.Length
+            while i < |children|
                 invariant res.Success? ==> 
                         && materials.encryptionContext == res.value.encryptionContext
                         && materials.algorithmSuiteID == res.value.algorithmSuiteID 
                         && (materials.plaintextDataKey.Some? ==> res.value.plaintextDataKey == materials.plaintextDataKey)
                         && materials.keyringTrace <= res.value.keyringTrace
                         && materials.verificationKey == res.value.verificationKey
-                decreases children.Length - i
+                decreases |children| - i
             {
                 var onDecryptResult := children[i].OnDecrypt(materials, edks);
                 if onDecryptResult.Failure? {
