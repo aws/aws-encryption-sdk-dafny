@@ -8,6 +8,7 @@ using RawAESKeyringDef;
 using RawRSAKeyringDef;
 using KMSUtils;
 using STL;
+using icharseq = Dafny.ISequence<char>;
 using charseq = Dafny.Sequence<char>;
 
 namespace AWSEncryptionSDK
@@ -24,17 +25,17 @@ namespace AWSEncryptionSDK
             // This isn't checking for nulls or any other requirements.
             result.__ctor(
                 clientSupplier, 
-                Dafny.Sequence<charseq>.FromElements(keyIDs.Select(DafnyFFI.DafnyStringFromString).ToArray()),
+                Dafny.Sequence<icharseq>.FromElements(keyIDs.Select(DafnyFFI.DafnyStringFromString).ToArray()),
                 DafnyFFI.NullableToOption(generator != null ? DafnyFFI.DafnyStringFromString(generator) : null),
-                Dafny.Sequence<charseq>.FromElements(grantTokens.Select(DafnyFFI.DafnyStringFromString).ToArray()));
+                Dafny.Sequence<icharseq>.FromElements(grantTokens.Select(DafnyFFI.DafnyStringFromString).ToArray()));
             return result;
         }
         // TODO: Eventually the MultiKeyring will take a sequence instead of an array.
-        public static MultiKeyring MakeMultiKeyring(Keyring generator, Keyring[] children)
+        public static MultiKeyring MakeMultiKeyring(Keyring generator, IList<Keyring> children)
         {
             // TODO: Check for null value etc.
             MultiKeyring result = new MultiKeyring();
-            result.__ctor(generator, children);
+            result.__ctor(generator, Dafny.Sequence<Keyring>.FromArray(children.ToArray()));
             return result;
         }
         public static RawAESKeyring MakeRawAESKeyring(byte[] nameSpace, byte[] name, byte[] wrappingKey, DafnyFFI.AESWrappingAlgorithm wrappingAlgorithm)

@@ -1,3 +1,5 @@
+include "../../src/SDK/Keyring/RawRSAKeyring.dfy"
+include "../../src/Crypto/RSAEncryption.dfy"
 include "../../src/StandardLibrary/StandardLibrary.dfy"
 include "../../src/StandardLibrary/UInt.dfy"
 include "../../src/Util/UTF8.dfy"
@@ -10,6 +12,8 @@ module {:extern "TestUtils"} TestUtils {
   import UTF8
   import Materials
   import MessageHeader
+  import RSA = RSAEncryption
+  import RawRSAKeyringDef
 
   const SHARED_TEST_KEY_ARN := "arn:aws:kms:us-west-2:658956600833:key/b3537ef1-d8dc-4780-9f5a-55776cbb2f7f";
 
@@ -92,5 +96,15 @@ module {:extern "TestUtils"} TestUtils {
     requires forall i :: 0 <= i < n ==> |kvPairs[i].0| + |kvPairs[i].1| <= kvBound
     ensures MessageHeader.KVPairEntriesLength(kvPairs, 0, n) <= n * (4 + kvBound)
   {
+  }
+
+  method MakeRSAKeyring() returns (res: Result<RawRSAKeyringDef.RawRSAKeyring>)
+    ensures res.Success? ==> res.value.Valid()
+  {
+    var namespace :- UTF8.Encode("namespace");
+    var name :- UTF8.Encode("MyKeyring");
+    var ek, dk := RSA.GenerateKeyPair(2048, RSA.PKCS1);
+    var keyring := new RawRSAKeyringDef.RawRSAKeyring(namespace, name, RSA.PaddingMode.PKCS1, Some(ek), Some(dk));
+    return Success(keyring);
   }
 }

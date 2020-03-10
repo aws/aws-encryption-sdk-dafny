@@ -18,7 +18,7 @@ phases:
       # Although Dafny does have releases, we often need a newer hash than the latest release, while still needing the
       # the security of reproducible builds.
       - cd dafny
-      - git reset --hard 4ecab36652adc9ad67294e2232f1b763453c0de0
+      - git reset --hard 9d79b3cdfdaf8bea4b1455186eceeeca1c65fed1
       - cd ..
       - nuget restore dafny/Source/Dafny.sln
       - msbuild dafny/Source/Dafny.sln

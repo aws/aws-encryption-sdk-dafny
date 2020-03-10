@@ -5,24 +5,24 @@ using System.Collections.Generic;
 namespace Sets {
 
   public partial class __default {
-      public static Dafny.Sequence<Dafny.Sequence<T>> SetToOrderedSequence<T>(Dafny.Set<Dafny.Sequence<T>> set, Func<T,T,bool> less) {
-          Dafny.Sequence<T>[] itemArray = set.Elements.ToArray();
-          IComparer<Dafny.Sequence<T>> lexicographicComapre = new LexicographicComparer<T>(less);
+      public static Dafny.ISequence<Dafny.ISequence<T>> SetToOrderedSequence<T>(Dafny.Set<Dafny.ISequence<T>> set, Func<T,T,bool> less) {
+          Dafny.ISequence<T>[] itemArray = set.Elements.ToArray();
+          IComparer<Dafny.ISequence<T>> lexicographicComapre = new LexicographicComparer<T>(less);
           Array.Sort(itemArray, lexicographicComapre);
-          return Dafny.Sequence<Dafny.Sequence<T>>.FromElements(itemArray);
+          return Dafny.Sequence<Dafny.ISequence<T>>.FromElements(itemArray);
       }
   }
 
   // Lexicographically compares two dafny sequences according to a given
   // isLessThan function
-  public class LexicographicComparer<T> : Comparer<Dafny.Sequence<T>>  {
+  public class LexicographicComparer<T> : Comparer<Dafny.ISequence<T>>  {
       private Func<T,T,bool> isLessThan;
 
       public LexicographicComparer(Func<T,T,bool> isLessThan) {
         this.isLessThan = isLessThan;
       }
 
-      public override int Compare(Dafny.Sequence<T> x, Dafny.Sequence<T> y)  {
+      public override int Compare(Dafny.ISequence<T> x, Dafny.ISequence<T> y)  {
           if (x == null || y == null)
               return Default.Compare(x, y);
           T[] xArr = x.Elements;

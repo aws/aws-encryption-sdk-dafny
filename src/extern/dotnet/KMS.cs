@@ -7,9 +7,11 @@ using System.Text;
 using Amazon;
 
 using KMS = Amazon.KeyManagementService;
+using IDString = Dafny.ISequence<char>;
 using DString = Dafny.Sequence<char>;
+using ibyteseq = Dafny.ISequence<byte>;
 using byteseq = Dafny.Sequence<byte>;
-using EncryptionContext = Dafny.Map<Dafny.Sequence<byte>, Dafny.Sequence<byte>>;
+using EncryptionContext = Dafny.Map<Dafny.ISequence<byte>, Dafny.ISequence<byte>>;
 
 namespace KMSUtils {
     public partial class __default {
@@ -25,21 +27,21 @@ namespace KMSUtils {
 
         //TODO: Issue #54
         public static ResponseMetadata ConvertMetaData(Amazon.Runtime.ResponseMetadata rmd) {
-            Dafny.Map<DString, DString> metadata = Dafny.Map<DString, DString>
+            Dafny.Map<IDString, IDString> metadata = Dafny.Map<IDString, IDString>
                 .FromCollection(rmd.Metadata.Select(
-                            kvp => new Dafny.Pair<DString, DString>((DString.FromString(kvp.Key.ToString())), (DString.FromString(kvp.Value.ToString())))
+                            kvp => new Dafny.Pair<IDString, IDString>((DString.FromString(kvp.Key.ToString())), (DString.FromString(kvp.Value.ToString())))
                             ).ToList());
-            DString requestID = DString.FromString(rmd.RequestId.ToString());
+            IDString requestID = DString.FromString(rmd.RequestId.ToString());
             return new ResponseMetadata(metadata, requestID);
         }
-        public static byte[] ConvertByteSeq(byteseq bytes) {
+        public static byte[] ConvertByteSeq(ibyteseq bytes) {
             return (byte[])bytes.Elements.Clone();
         }
     }
     public partial class DefaultClientSupplier : ClientSupplier {
-        public STL.Result<KMSClient> GetClient(STL.Option<DString> region) {
+        public STL.Result<KMSClient> GetClient(STL.Option<IDString> region) {
             if (region.is_Some) {
-                string regionString = ((STL.Option_Some<DString>) region).get.ToString();
+                string regionString = ((STL.Option_Some<IDString>) region).get.ToString();
                 RegionEndpoint regionEndpoint = RegionEndpoint.GetBySystemName(regionString);
                 KMS.AmazonKeyManagementServiceClient amazonKeyManagementServiceClient = new KMS.AmazonKeyManagementServiceClient(regionEndpoint);
                 KMSClient kmsClient = new KMSClient(amazonKeyManagementServiceClient);
