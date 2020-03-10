@@ -3,15 +3,13 @@ include "../../StandardLibrary/UInt.dfy"
 include "../AlgorithmSuite.dfy"
 include "./Defs.dfy"
 include "../../Crypto/Random.dfy"
-include "../../Crypto/RSAEncryption.dfy"
 include "../Materials.dfy"
 
-module MultiKeyringDef {
+module {:extern "MultiKeyringDef"} MultiKeyringDef {
     import opened KeyringDefs
     import opened StandardLibrary
     import opened UInt = StandardLibrary.UInt
     import AlgorithmSuite
-    import RSA = RSAEncryption
     import Mat = Materials
 
     function childrenRepr (xs : seq<Keyring>) : (res : set<object>) reads (set i | 0 <= i < |xs| :: xs[i])
@@ -42,97 +40,88 @@ module MultiKeyringDef {
             && (forall j :: 0 <= j < children.Length ==> children[j] in Repr && children[j].Repr <= Repr && children[j].Valid())
         }
 
-        method OnEncrypt(algorithmSuiteID: Mat.AlgorithmSuite.ID,
-                         encryptionContext: Mat.EncryptionContext,
-                         plaintextDataKey: Option<seq<uint8>>) returns (res: Result<Option<Mat.ValidDataKeyMaterials>>)
+        method OnEncrypt(materials: Materials.ValidEncryptionMaterials) returns (res: Result<Materials.ValidEncryptionMaterials>)
             requires Valid()
-            requires plaintextDataKey.Some? ==> algorithmSuiteID.ValidPlaintextDataKey(plaintextDataKey.get)
             ensures Valid()
-            ensures unchanged(Repr)
-            ensures res.Success? && res.value.Some? && plaintextDataKey.Some? ==> 
-                plaintextDataKey.get == res.value.get.plaintextDataKey
-            ensures res.Success? && res.value.Some? ==> 
-                algorithmSuiteID == res.value.get.algorithmSuiteID
+            ensures res.Success? ==> 
+                    && materials.encryptionContext == res.value.encryptionContext
+                    && materials.algorithmSuiteID == res.value.algorithmSuiteID 
+                    && (materials.plaintextDataKey.Some? ==> res.value.plaintextDataKey == materials.plaintextDataKey)
+                    && materials.keyringTrace <= res.value.keyringTrace
+                    && materials.encryptedDataKeys <= res.value.encryptedDataKeys
+                    && materials.signingKey == res.value.signingKey
         {
             // First pass on or generate the plaintext data key
-            var initialMaterials: Option<Mat.ValidDataKeyMaterials> := None;
-            if plaintextDataKey.Some? {
-                initialMaterials := Some(Mat.DataKeyMaterials(algorithmSuiteID, plaintextDataKey.get, []));
-            }
+            var resultMaterials := materials;
             if generator != null {
-                initialMaterials :- generator.OnEncrypt(algorithmSuiteID, encryptionContext, plaintextDataKey);
+                resultMaterials :- generator.OnEncrypt(resultMaterials);
             }
-            if initialMaterials.None? {
+            if resultMaterials.plaintextDataKey.None? {
                 return Failure("Bad state: data key not found");
             }
 
             // Then apply each of the children in sequence
             // TODO-RS: Use folding here instead
-            var resultMaterials := initialMaterials.get;
             var i := 0;
-            while (i < children.Length) 
-                invariant algorithmSuiteID == resultMaterials.algorithmSuiteID
-                invariant plaintextDataKey.Some? ==> plaintextDataKey.get == resultMaterials.plaintextDataKey
+            while i < children.Length
+                invariant resultMaterials.plaintextDataKey.Some?
+                invariant materials.encryptionContext == resultMaterials.encryptionContext
+                invariant materials.algorithmSuiteID == resultMaterials.algorithmSuiteID
+                invariant materials.plaintextDataKey.Some? ==> resultMaterials.plaintextDataKey == materials.plaintextDataKey
+                invariant materials.keyringTrace <= resultMaterials.keyringTrace
+                invariant materials.encryptedDataKeys <= resultMaterials.encryptedDataKeys
+                invariant materials.signingKey == resultMaterials.signingKey
                 decreases children.Length - i 
             {
-                var childResult :- children[i].OnEncrypt(resultMaterials.algorithmSuiteID, encryptionContext, Some(resultMaterials.plaintextDataKey));
-                if childResult.Some? {
-                    resultMaterials := Mat.MergeDataKeyMaterials(resultMaterials, childResult.get);
-                }
+                resultMaterials :- children[i].OnEncrypt(resultMaterials);
                 i := i + 1;
             }
-            res := Success(Some(resultMaterials));
+            res := Success(resultMaterials);
         }
-        method OnDecrypt(algorithmSuiteID: AlgorithmSuite.ID,
-                         encryptionContext: Mat.EncryptionContext,
-                         edks: seq<Mat.EncryptedDataKey>) 
-            returns (res: Result<Option<seq<uint8>>>)
-            requires Valid() 
+        method OnDecrypt(materials: Materials.ValidDecryptionMaterials,
+                         edks: seq<Materials.EncryptedDataKey>) returns (res: Result<Materials.ValidDecryptionMaterials>)
+            requires Valid()
             ensures Valid()
-            ensures |edks| == 0 ==> res.Success? && res.value.None?
-            ensures res.Success? && res.value.Some? ==> 
-                algorithmSuiteID.ValidPlaintextDataKey(res.value.get)
+            ensures |edks| == 0 ==> res.Success? && materials == res.value
+            ensures materials.plaintextDataKey.Some? ==> res.Success? && materials == res.value
+            ensures res.Success? ==>
+                && materials.encryptionContext == res.value.encryptionContext
+                && materials.algorithmSuiteID == res.value.algorithmSuiteID
+                && (materials.plaintextDataKey.Some? ==> res.value.plaintextDataKey == materials.plaintextDataKey)
+                && materials.keyringTrace <= res.value.keyringTrace
+                && materials.verificationKey == res.value.verificationKey
         {
-            res := Success(None);
+            res := Success(materials);
+            if |edks| == 0 || materials.plaintextDataKey.Some? {
+                return res;
+            }
             if generator != null {
-                var plaintextDataKey := TryDecryptForKeyring(generator, algorithmSuiteID, encryptionContext, edks);
-                if plaintextDataKey.Some? {
-                    res := Success(plaintextDataKey);
+                var onDecryptResult := generator.OnDecrypt(materials, edks);
+                if onDecryptResult.Failure? {
+                    res := onDecryptResult;
+                } else if onDecryptResult.value.plaintextDataKey.Some? {
+                    return onDecryptResult;
                 }
             }
             var i := 0;
-            while (i < children.Length) 
-                invariant |edks| == 0 ==> res.Success? && res.value.None?
-                invariant res.Success? && res.value.Some? ==> 
-                    algorithmSuiteID.ValidPlaintextDataKey(res.value.get)
+            while i < children.Length
+                invariant res.Success? ==> 
+                        && materials.encryptionContext == res.value.encryptionContext
+                        && materials.algorithmSuiteID == res.value.algorithmSuiteID 
+                        && (materials.plaintextDataKey.Some? ==> res.value.plaintextDataKey == materials.plaintextDataKey)
+                        && materials.keyringTrace <= res.value.keyringTrace
+                        && materials.verificationKey == res.value.verificationKey
                 decreases children.Length - i
             {
-                var plaintextDataKey := TryDecryptForKeyring(children[i], algorithmSuiteID, encryptionContext, edks);
-                if plaintextDataKey.Some? {
-                    res := Success(plaintextDataKey);
+                var onDecryptResult := children[i].OnDecrypt(materials, edks);
+                if onDecryptResult.Failure? {
+                    res := onDecryptResult;
+                } else if onDecryptResult.value.plaintextDataKey.Some? {
+                    return onDecryptResult;
                 }
                 i := i + 1;
             }
-        }
-
-        method TryDecryptForKeyring(keyring: Keyring,
-                                    algorithmSuiteID: AlgorithmSuite.ID,
-                                    encryptionContext: Mat.EncryptionContext,
-                                    edks: seq<Mat.EncryptedDataKey>)
-            returns (res: Option<seq<uint8>>)
-            requires Valid()
-            requires keyring.Valid()
-            ensures Valid()
-            ensures |edks| == 0 ==> res.None?
-            ensures res.Some? ==> algorithmSuiteID.ValidPlaintextDataKey(res.get)
-        {
-            var y := keyring.OnDecrypt(algorithmSuiteID, encryptionContext, edks);
-            return match y {
-                case Success(plaintextDataKey) => plaintextDataKey
-                // TODO-RS: If all keyrings fail, pass on at least one of the errors,
-                // preferrably all of them in a chain of some kind.
-                case Failure(_) => None
-            };
+            return res;
         }
     }
 }

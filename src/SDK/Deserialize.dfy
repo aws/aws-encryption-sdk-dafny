@@ -14,7 +14,7 @@ include "../Util/UTF8.dfy"
  */
 module Deserialize {
   export
-    provides DeserializeHeader
+    provides DeserializeHeader, Materials
     provides Streams, StandardLibrary, UInt, AlgorithmSuite, Msg
     provides InsertNewEntry, UTF8
 
@@ -28,9 +28,9 @@ module Deserialize {
   import Materials
 
 
-  method DeserializeHeader(rd: Streams.StringReader) returns (res: Result<Msg.Header>)
+  method DeserializeHeader(rd: Streams.ByteReader) returns (res: Result<Msg.Header>)
     requires rd.Valid()
-    modifies rd
+    modifies rd.reader`pos
     ensures rd.Valid()
     ensures match res
       case Success(header) => header.Valid()
@@ -45,9 +45,9 @@ module Deserialize {
   * Reads raw header data from the input stream and populates the header with all of the information about the
   * message.
   */
-  method DeserializeHeaderBody(rd: Streams.StringReader) returns (ret: Result<Msg.HeaderBody>)
+  method DeserializeHeaderBody(rd: Streams.ByteReader) returns (ret: Result<Msg.HeaderBody>)
     requires rd.Valid()
-    modifies rd
+    modifies rd.reader`pos
     ensures rd.Valid()
     ensures match ret
       case Success(hb) => hb.Valid()
@@ -90,10 +90,10 @@ module Deserialize {
   /*
    * Reads IV length and auth tag of the lengths specified by algorithmSuiteID.
    */
-  method DeserializeHeaderAuthentication(rd: Streams.StringReader, algorithmSuiteID: AlgorithmSuite.ID) returns (ret: Result<Msg.HeaderAuthentication>)
+  method DeserializeHeaderAuthentication(rd: Streams.ByteReader, algorithmSuiteID: AlgorithmSuite.ID) returns (ret: Result<Msg.HeaderAuthentication>)
     requires rd.Valid()
     requires algorithmSuiteID in AlgorithmSuite.Suite.Keys
-    modifies rd
+    modifies rd.reader`pos
     ensures rd.Valid()
     ensures match ret
       case Success(ha) =>
@@ -101,8 +101,8 @@ module Deserialize {
         && |ha.authenticationTag| == algorithmSuiteID.TagLength()
       case Failure(_) => true
   {
-    var iv :- rd.ReadExact(algorithmSuiteID.IVLength());
-    var authenticationTag :- rd.ReadExact(algorithmSuiteID.TagLength());
+    var iv :- rd.ReadBytes(algorithmSuiteID.IVLength());
+    var authenticationTag :- rd.ReadBytes(algorithmSuiteID.TagLength());
     return Success(Msg.HeaderAuthentication(iv, authenticationTag));
   }
 
@@ -110,9 +110,9 @@ module Deserialize {
    * Methods for deserializing pieces of the message header.
    */
 
-  method DeserializeVersion(rd: Streams.StringReader) returns (ret: Result<Msg.Version>)
+  method DeserializeVersion(rd: Streams.ByteReader) returns (ret: Result<Msg.Version>)
     requires rd.Valid()
-    modifies rd
+    modifies rd.reader`pos
     ensures rd.Valid()
   {
     var version :- rd.ReadByte();
@@ -123,9 +123,9 @@ module Deserialize {
     }
   }
 
-  method DeserializeType(rd: Streams.StringReader) returns (ret: Result<Msg.Type>)
+  method DeserializeType(rd: Streams.ByteReader) returns (ret: Result<Msg.Type>)
     requires rd.Valid()
-    modifies rd
+    modifies rd.reader`pos
     ensures rd.Valid()
   {
     var typ :- rd.ReadByte();
@@ -136,9 +136,9 @@ module Deserialize {
     }
   }
 
-  method DeserializeAlgorithmSuiteID(rd: Streams.StringReader) returns (ret: Result<AlgorithmSuite.ID>)
+  method DeserializeAlgorithmSuiteID(rd: Streams.ByteReader) returns (ret: Result<AlgorithmSuite.ID>)
     requires rd.Valid()
-    modifies rd
+    modifies rd.reader`pos
     ensures rd.Valid()
   {
     var algorithmSuiteID :- rd.ReadUInt16();
@@ -149,18 +149,18 @@ module Deserialize {
     }
   }
 
-  method DeserializeMsgID(rd: Streams.StringReader) returns (ret: Result<Msg.MessageID>)
+  method DeserializeMsgID(rd: Streams.ByteReader) returns (ret: Result<Msg.MessageID>)
     requires rd.Valid()
-    modifies rd
+    modifies rd.reader`pos
     ensures rd.Valid()
   {
-    var msgID: seq<uint8> :- rd.ReadExact(Msg.MESSAGE_ID_LEN);
+    var msgID: seq<uint8> :- rd.ReadBytes(Msg.MESSAGE_ID_LEN);
     return Success(msgID);
   }
 
-  method DeserializeUTF8(rd: Streams.StringReader, n: nat) returns (ret: Result<seq<uint8>>)
+  method DeserializeUTF8(rd: Streams.ByteReader, n: nat) returns (ret: Result<seq<uint8>>)
     requires rd.Valid()
-    modifies rd
+    modifies rd.reader`pos
     ensures rd.Valid()
     ensures match ret
       case Success(bytes) =>
@@ -168,7 +168,7 @@ module Deserialize {
         && UTF8.ValidUTF8Seq(bytes)
       case Failure(_) => true
   {
-    var bytes :- rd.ReadExact(n);
+    var bytes :- rd.ReadBytes(n);
     if UTF8.ValidUTF8Seq(bytes) {
       return Success(bytes);
     } else {
@@ -176,9 +176,9 @@ module Deserialize {
     }
   }
 
-  method DeserializeAAD(rd: Streams.StringReader) returns (ret: Result<Materials.EncryptionContext>)
+  method DeserializeAAD(rd: Streams.ByteReader) returns (ret: Result<Materials.EncryptionContext>)
     requires rd.Valid()
-    modifies rd
+    modifies rd.reader`pos
     ensures rd.Valid()
     ensures match ret
       case Success(aad) => Msg.ValidAAD(aad)
@@ -186,10 +186,10 @@ module Deserialize {
   {
     reveal Msg.ValidAAD();
 
-    var aadLength :- rd.ReadUInt16();
-    if aadLength == 0 {
-      return Success([]);
-    } else if aadLength < 2 {
+    var kvPairsLength :- rd.ReadUInt16();
+    if kvPairsLength == 0 {
+      return Success(map[]);
+    } else if kvPairsLength < 2 {
       return Failure("Deserialization Error: The number of bytes in encryption context exceeds the given length.");
     }
     var totalBytesRead := 0;
@@ -200,14 +200,16 @@ module Deserialize {
       return Failure("Deserialization Error: Key value pairs count is 0.");
     }
 
-    var kvPairs: seq<(UTF8.ValidUTF8Bytes, UTF8.ValidUTF8Bytes)> := [];
+    // Building a map item by item is expensive in dafny, so
+    // instead we first read the key value pairs into a sequence
+    var kvPairs: Msg.EncryptionContextSeq := [];
     var i := 0;
     while i < kvPairsCount
       invariant rd.Valid()
       invariant |kvPairs| == i as int
       invariant i <= kvPairsCount
-      invariant totalBytesRead == 2 + Msg.KVPairsLength(kvPairs, 0, i as nat) <= aadLength as nat
-      invariant Msg.ValidAAD(kvPairs)
+      invariant totalBytesRead == 2 + Msg.KVPairEntriesLength(kvPairs, 0, i as nat) <= kvPairsLength as nat
+      invariant Msg.SortedKVPairs(kvPairs)
     {
       var keyLength :- rd.ReadUInt16();
       totalBytesRead := totalBytesRead + 2;
@@ -218,7 +220,7 @@ module Deserialize {
       var valueLength :- rd.ReadUInt16();
       totalBytesRead := totalBytesRead + 2;
       // check that we're not exceeding the stated AAD length
-      if aadLength as nat < totalBytesRead + valueLength as nat {
+      if kvPairsLength as nat < totalBytesRead + valueLength as nat {
         return Failure("Deserialization Error: The number of bytes in encryption context exceeds the given length.");
       }
 
@@ -230,7 +232,7 @@ module Deserialize {
       var opt, insertionPoint := InsertNewEntry(kvPairs, key, value);
       match opt {
         case Some(kvPairs_) =>
-          Msg.KVPairsLengthInsert(kvPairs, insertionPoint, key, value);
+          Msg.KVPairEntriesLengthInsert(kvPairs, insertionPoint, key, value);
           kvPairs := kvPairs_;
         case None =>
           return Failure("Deserialization Error: Duplicate key.");
@@ -238,14 +240,25 @@ module Deserialize {
 
       i := i + 1;
     }
-    if aadLength as nat != totalBytesRead {
+    if kvPairsLength as nat != totalBytesRead {
       return Failure("Deserialization Error: Bytes actually read differs from bytes supposed to be read.");
     }
-    return Success(kvPairs);
+
+    // Since we are using an extern to convert the sequence to a map,
+    // we must check after the extern call that the map is valid for AAD.
+    // If not valid, then something was wrong with the conversion, as
+    // failures for invalid serializations should be caught earlier.
+    var encryptionContext : map<UTF8.ValidUTF8Bytes, UTF8.ValidUTF8Bytes> := Msg.KVPairSequenceToMap(kvPairs);
+    var isValid := Msg.ComputeValidAAD(encryptionContext);
+    if !isValid {
+      return Failure("Deserialization Error: Failed to parse encryption context.");
+    }
+
+    return Success(encryptionContext);
   }
 
-  method InsertNewEntry(kvPairs: seq<(UTF8.ValidUTF8Bytes, UTF8.ValidUTF8Bytes)>, key: UTF8.ValidUTF8Bytes, value: UTF8.ValidUTF8Bytes)
-      returns (res: Option<seq<(seq<uint8>, seq<uint8>)>>, ghost insertionPoint: nat)
+  method InsertNewEntry(kvPairs: Msg.EncryptionContextSeq, key: UTF8.ValidUTF8Bytes, value: UTF8.ValidUTF8Bytes)
+      returns (res: Option<Msg.EncryptionContextSeq>, ghost insertionPoint: nat)
     requires Msg.SortedKVPairs(kvPairs)
     ensures match res
     case None =>
@@ -256,9 +269,9 @@ module Deserialize {
       && Msg.SortedKVPairs(kvPairs')
   {
     var n := |kvPairs|;
-    while 0 < n && LexicographicLessOrEqual(key, kvPairs[n - 1].0, UInt8Less)
+    while 0 < n && LexicographicLessOrEqual(key, kvPairs[n - 1].0, UInt.UInt8Less)
       invariant 0 <= n <= |kvPairs|
-      invariant forall i :: n <= i < |kvPairs| ==> LexicographicLessOrEqual(key, kvPairs[i].0, UInt8Less)
+      invariant forall i :: n <= i < |kvPairs| ==> LexicographicLessOrEqual(key, kvPairs[i].0, UInt.UInt8Less)
     {
       n := n - 1;
     }
@@ -267,15 +280,15 @@ module Deserialize {
     } else {
       var kvPairs' := kvPairs[..n] + [(key, value)] + kvPairs[n..];
       if 0 < n {
-        LexPreservesTrichotomy(kvPairs'[n - 1].0, kvPairs'[n].0, UInt8Less);
+        LexIsTotal(kvPairs'[n - 1].0, kvPairs'[n].0, UInt.UInt8Less);
       }
       return Some(kvPairs'), n;
     }
   }
 
-  method DeserializeEncryptedDataKeys(rd: Streams.StringReader) returns (ret: Result<Msg.EncryptedDataKeys>)
+  method DeserializeEncryptedDataKeys(rd: Streams.ByteReader) returns (ret: Result<Msg.EncryptedDataKeys>)
     requires rd.Valid()
-    modifies rd
+    modifies rd.reader`pos
     ensures rd.Valid()
     ensures match ret
       case Success(edks) => edks.Valid()
@@ -301,11 +314,11 @@ module Deserialize {
 
       // Key provider info
       var keyProviderInfoLength :- rd.ReadUInt16();
-      var keyProviderInfo :- rd.ReadExact(keyProviderInfoLength as nat);
+      var keyProviderInfo :- rd.ReadBytes(keyProviderInfoLength as nat);
 
       // Encrypted data key
       var edkLength :- rd.ReadUInt16();
-      var edk :- rd.ReadExact(edkLength as nat);
+      var edk :- rd.ReadBytes(edkLength as nat);
 
       edkEntries := edkEntries + [Materials.EncryptedDataKey(keyProviderID, keyProviderInfo, edk)];
       i := i + 1;
@@ -315,9 +328,9 @@ module Deserialize {
     return Success(edks);
   }
 
-  method DeserializeContentType(rd: Streams.StringReader) returns (ret: Result<Msg.ContentType>)
+  method DeserializeContentType(rd: Streams.ByteReader) returns (ret: Result<Msg.ContentType>)
     requires rd.Valid()
-    modifies rd
+    modifies rd.reader`pos
     ensures rd.Valid()
   {
     var byte :- rd.ReadByte();
@@ -328,12 +341,12 @@ module Deserialize {
       return Success(contentType);
   }
 
-  method DeserializeReserved(rd: Streams.StringReader) returns (ret: Result<seq<uint8>>)
+  method DeserializeReserved(rd: Streams.ByteReader) returns (ret: Result<seq<uint8>>)
     requires rd.Valid()
-    modifies rd
+    modifies rd.reader`pos
     ensures rd.Valid()
   {
-    var reserved :- rd.ReadExact(4);
+    var reserved :- rd.ReadBytes(4);
     if reserved == Msg.Reserved {
       return Success(reserved);
     } else {

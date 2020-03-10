@@ -1,3 +1,5 @@
+using System;
+
 using Org.BouncyCastle.Crypto;
 using Org.BouncyCastle.Crypto.Digests;
 using Org.BouncyCastle.Crypto.EC;
@@ -15,94 +17,145 @@ using Org.BouncyCastle.Asn1.X9;
 using Org.BouncyCastle.Asn1;
 
 using byteseq = Dafny.Sequence<byte>;
-using bytearrayseq = Dafny.ArraySequence<byte>;
 
 namespace Signature {
+    public class ECDSAUnsupportedParametersException : Exception
+    {
+        public ECDSAUnsupportedParametersException(ECDSAParams parameters)
+            : base(String.Format("Unsupported ECDSA parameters: {0}", parameters))
+        {
+        }
+    }
+
     public partial class ECDSA {
-        public static STL.Option<_System.Tuple2<byteseq, byteseq>> KeyGen(ECDSAParams x) {
+        public static STL.Result<SignatureKeyPair> ExternKeyGen(ECDSAParams x) {
             try {
-                ECKeyPairGenerator g = new ECKeyPairGenerator();
+                ECKeyPairGenerator generator = new ECKeyPairGenerator();
                 SecureRandom rng = new SecureRandom();
                 X9ECParameters p;
                 if (x.is_ECDSA__P384) {
                     p = ECNamedCurveTable.GetByName("secp384r1");
-                    g.Init(new ECKeyGenerationParameters(new ECDomainParameters(p.Curve, p.G, p.N, p.H), rng));
-                } else { // x is ECDSA__P256
+                } else if (x.is_ECDSA__P256) {
                     p = ECNamedCurveTable.GetByName("secp256r1");
-                    g.Init(new ECKeyGenerationParameters(new ECDomainParameters(p.Curve, p.G, p.N, p.H), rng));
+                } else {
+                    throw new ECDSAUnsupportedParametersException(x);
                 }
-                AsymmetricCipherKeyPair kp = g.GenerateKeyPair();
+                generator.Init(new ECKeyGenerationParameters(new ECDomainParameters(p.Curve, p.G, p.N, p.H), rng));
+                AsymmetricCipherKeyPair kp = generator.GenerateKeyPair();
                 ECPoint pt = ((ECPublicKeyParameters)kp.Public).Q;
-                byteseq vk = new bytearrayseq(pt.GetEncoded());
-                byteseq sk = new bytearrayseq(((ECPrivateKeyParameters)kp.Private).D.ToByteArray());
-                return new STL.Option_Some<_System.Tuple2<byteseq, byteseq>>(new _System.Tuple2<byteseq, byteseq>(vk, sk));
-            } catch {
-                return new STL.Option_None<_System.Tuple2<byteseq, byteseq>>();
+                // serialize the public and private keys, and then return them
+                var vk = SerializePublicKey((ECPublicKeyParameters)kp.Public);
+                var sk = byteseq.FromArray(((ECPrivateKeyParameters)kp.Private).D.ToByteArray());
+                return STL.Result<SignatureKeyPair>.create_Success(new SignatureKeyPair(vk, sk));
+            } catch (Exception e) {
+                return STL.Result<SignatureKeyPair>.create_Failure(Dafny.Sequence<char>.FromString(e.ToString()));
             }
         }
 
-        public static bool Verify(ECDSAParams x, byteseq vk, byteseq digest, byteseq sig) {
+        /// <summary>
+        /// Compresses and encodes the elliptic curve point corresponding to the given public key.
+        /// See SEC-1 v2 (http://www.secg.org/sec1-v2.pdf), sections 2.3.3 and 2.3.5. For
+        /// example, note:
+        ///     the compressed y-coordinate is placed in the leftmost octet of the octet string
+        ///     along with an indication that point compression is on, and the x-coordinate is
+        ///     placed in the remainder of the octet string
+        /// Requires: keyParams.Parameters.Curve is a prime curve (if not, a cast exception will be thrown)
+        /// </summary>
+        public static byteseq SerializePublicKey(ECPublicKeyParameters keyParams) {
+            ECPoint pt = keyParams.Q;
+
+            // zero-pad x coordinate
+            var xBytes = pt.AffineXCoord.GetEncoded();
+            var curve = (FpCurve)keyParams.Parameters.Curve;
+            int fieldByteSize = (curve.FieldSize + 7) / 8;
+            if (xBytes.Length < fieldByteSize) {
+                var paddingLength = fieldByteSize - xBytes.Length;
+                var paddedX = new byte[fieldByteSize];
+                System.Array.Clear(paddedX, 0, paddingLength);
+                xBytes.CopyTo(paddedX, paddingLength);
+                xBytes = paddedX;
+            }
+
+            // compress y coordinate
+            var y = pt.AffineYCoord.ToBigInteger();
+            byte compressedY = y.Mod(BigInteger.ValueOf(2)).Equals(BigInteger.ValueOf(0)) ? (byte)2 : (byte)3;
+            var yBytes = new byte[] { compressedY };
+
+            // return yBytes + xBytes:
+            return byteseq.FromArray(yBytes).Concat(byteseq.FromArray(xBytes));
+        }
+
+        public static STL.Result<bool> Verify(ECDSAParams x, byteseq vk, byteseq digest, byteseq sig) {
             try {
-                X9ECParameters p;
+                X9ECParameters parameters;
                 if (x.is_ECDSA__P384) {
-                    p = ECNamedCurveTable.GetByName("secp384r1");
+                    parameters = ECNamedCurveTable.GetByName("secp384r1");
+                } else if (x.is_ECDSA__P256) {
+                    parameters = ECNamedCurveTable.GetByName("secp256r1");
                 } else {
-                    p = ECNamedCurveTable.GetByName("secp256r1");
+                    throw new ECDSAUnsupportedParametersException(x);
                 }
-                ECDomainParameters dp = new ECDomainParameters(p.Curve, p.G, p.N, p.H);
-                ECPoint pt = p.Curve.DecodePoint(vk.Elements);
+                ECDomainParameters dp = new ECDomainParameters(parameters.Curve, parameters.G, parameters.N, parameters.H);
+                ECPoint pt = parameters.Curve.DecodePoint((byte[])vk.Elements.Clone());
                 ECPublicKeyParameters vkp = new ECPublicKeyParameters(pt, dp);
                 ECDsaSigner sign = new ECDsaSigner();
                 sign.Init(false, vkp);
                 BigInteger r, s;
                 DERDeserialize(sig.Elements, out r, out s);
-                return sign.VerifySignature(digest.Elements, r, s);
-            } catch {
-                return false;
+                return STL.Result<bool>.create_Success(sign.VerifySignature(digest.Elements, r, s));
+            } catch (Exception e) {
+                return STL.Result<bool>.create_Failure(Dafny.Sequence<char>.FromString(e.ToString()));
             }
         }
 
-        public static STL.Option<byteseq> Sign(ECDSAParams x, byteseq sk, byteseq digest) {
+        public static STL.Result<byteseq> Sign(ECDSAParams x, byteseq sk, byteseq digest) {
             try {
                 X9ECParameters p;
                 if (x.is_ECDSA__P384) {
                     p = ECNamedCurveTable.GetByName("secp384r1");
-                } else {
+                } else if (x.is_ECDSA__P256) {
                     p = ECNamedCurveTable.GetByName("secp256r1");
+                } else {
+                    throw new ECDSAUnsupportedParametersException(x);
                 }
                 ECDomainParameters dp = new ECDomainParameters(p.Curve, p.G, p.N, p.H);
                 ECPrivateKeyParameters skp = new ECPrivateKeyParameters(new BigInteger(sk.Elements), dp);
                 ECDsaSigner sign = new ECDsaSigner();
                 sign.Init(true, skp);
+                byte[] serializedSignature;
+                // This loop can in theory run forever, but the chances of that are negligible.
+                // We may want to consider failing, after some number of loops, if we can do so in a way consistent with other ESDKs.
                 do {
-                    BigInteger[] sig = sign.GenerateSignature(digest.Elements);
-                    byte[] bytes = DERSerialize(sig[0], sig[1]);
-                    if (bytes.Length != x.SignatureLength()) {
+                    // sig is array of two integers: r and s
+                    BigInteger[] sig = sign.GenerateSignature((byte[])digest.Elements.Clone());
+                    serializedSignature = DERSerialize(sig[0], sig[1]);
+                    if (serializedSignature.Length != x.SignatureLength()) {
                         // Most of the time, a signature of the wrong length can be fixed
                         // by negating s in the signature relative to the group order.
-                        bytes = DERSerialize(sig[0], p.N.Subtract(sig[1]));
+                        serializedSignature = DERSerialize(sig[0], p.N.Subtract(sig[1]));
                     }
-                    if (bytes.Length == x.SignatureLength()) {
-                        // This will meet the method postcondition, which says that a Some? return must
-                        // contain a sequence of bytes whose length is x.SignatureLength().
-                        return new STL.Option_Some<byteseq>(new bytearrayseq(bytes));
-                    }
-                    // We only get here with low probability, so try again (forever, if we have really bad luck).
-                } while (true);
-            } catch {
-                return new STL.Option_None<byteseq>();
+                } while (serializedSignature.Length != x.SignatureLength());
+                return STL.Result<byteseq>.create_Success(byteseq.FromArray(serializedSignature));
+            } catch (Exception e) {
+                return STL.Result<byteseq>.create_Failure(Dafny.Sequence<char>.FromString(e.ToString()));
             }
         }
 
-        public static byteseq Digest(ECDSAParams x, byteseq msg) {
-            System.Security.Cryptography.HashAlgorithm alg;
-            if (x.is_ECDSA__P384) {
-                alg = System.Security.Cryptography.SHA384.Create();
-            } else {
-                alg = System.Security.Cryptography.SHA256.Create();
+        public static STL.Result<byteseq> Digest(ECDSAParams x, byteseq msg) {
+            try {
+                System.Security.Cryptography.HashAlgorithm alg;
+                if (x.is_ECDSA__P384) {
+                    alg = System.Security.Cryptography.SHA384.Create();
+                } else if (x.is_ECDSA__P256) {
+                    alg = System.Security.Cryptography.SHA256.Create();
+                } else {
+                    throw new ECDSAUnsupportedParametersException(x);
+                }
+                byte[] digest = alg.ComputeHash(msg.Elements);
+                return STL.Result<byteseq>.create_Success(byteseq.FromArray(digest));
+            } catch (Exception e) {
+                return STL.Result<byteseq>.create_Failure(Dafny.Sequence<char>.FromString(e.ToString()));
             }
-            byte[] digest = alg.ComputeHash(msg.Elements);
-            return new bytearrayseq(digest);
         }
 
         private static byte[] DERSerialize(BigInteger r, BigInteger s) {

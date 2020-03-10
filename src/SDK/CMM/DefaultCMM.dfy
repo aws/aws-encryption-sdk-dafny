@@ -8,14 +8,14 @@ include "../MessageHeader.dfy"
 include "../../Util/UTF8.dfy"
 include "../Deserialize.dfy"
 
-module DefaultCMMDef {
+module {:extern "DefaultCMMDef"} DefaultCMMDef {
   import opened StandardLibrary
   import opened UInt = StandardLibrary.UInt
   import Materials
   import CMMDefs
   import KeyringDefs
   import AlgorithmSuite
-  import S = Signature
+  import Signature
   import Base64
   import MessageHeader
   import UTF8
@@ -42,84 +42,100 @@ module DefaultCMMDef {
       Repr := {this, kr} + k.Repr;
     }
 
-    method GetEncryptionMaterials(ec: Materials.EncryptionContext, alg_id: Option<AlgorithmSuite.ID>, pt_len: Option<nat>) returns (res: Result<Materials.ValidEncryptionMaterials>)
+    method GetEncryptionMaterials(materialsRequest: Materials.EncryptionMaterialsRequest)
+                                  returns (res: Result<Materials.ValidEncryptionMaterials>)
       requires Valid()
-      requires ValidAAD(ec) && Materials.GetKeysFromEncryptionContext(ec) !! Materials.ReservedKeyValues
+      requires ValidAAD(materialsRequest.encryptionContext)
+      requires materialsRequest.encryptionContext.Keys !! Materials.ReservedKeyValues
       ensures Valid()
-      ensures res.Success? ==> |res.value.dataKeyMaterials.plaintextDataKey| == res.value.dataKeyMaterials.algorithmSuiteID.KDFInputKeyLength()
-      ensures res.Success? ==> |res.value.dataKeyMaterials.encryptedDataKeys| > 0
+      ensures res.Success? ==> res.value.plaintextDataKey.Some? && res.value.algorithmSuiteID.ValidPlaintextDataKey(res.value.plaintextDataKey.get)
+      ensures res.Success? ==> |res.value.encryptedDataKeys| > 0
       ensures res.Success? ==> ValidAAD(res.value.encryptionContext)
       ensures res.Success? ==>
-        match res.value.dataKeyMaterials.algorithmSuiteID.SignatureType()
+        match res.value.algorithmSuiteID.SignatureType()
           case None => true
           case Some(sigType) =>
-            res.value.signingKey.Some? &&
-            S.ECDSA.WfSK(sigType, res.value.signingKey.get)
+            res.value.signingKey.Some?
     {
-      var id := if alg_id.Some? then alg_id.get else AlgorithmSuite.AES_256_GCM_IV12_TAG16_HKDF_SHA384_ECDSA_P384;
+      var id := if materialsRequest.algorithmSuiteID.Some? then
+        materialsRequest.algorithmSuiteID.get
+      else
+        AlgorithmSuite.AES_256_GCM_IV12_TAG16_HKDF_SHA384_ECDSA_P384;
       var enc_sk := None;
-      var enc_ctx := ec;
+      var enc_ctx := materialsRequest.encryptionContext;
 
       match id.SignatureType() {
         case None =>
         case Some(param) =>
-          var oab := S.ECDSA.KeyGen(param);
-          match oab
-            case None => return Failure("Keygen error");
-            case Some(ab) =>
-              enc_sk := Some(ab.1);
-              var enc_vk :- UTF8.Encode(Base64.Encode(ab.0));
-              var reservedField := Materials.EC_PUBLIC_KEY_FIELD;
-              assert reservedField in Materials.ReservedKeyValues;
-              assert forall i | 0 <= i < |ec| :: ec[i].0 != reservedField;
-              assert MessageHeader.SortedKVPairs(enc_ctx) by { // this is a precondition of InsertNewEntry
-                assert MessageHeader.ValidAAD(enc_ctx);
-                reveal MessageHeader.ValidAAD();
-              }
-              // The following 3 lines should be combined into one, once this gets fixed: https://github.com/dafny-lang/dafny/issues/425
-              var optionResult;
-              ghost var insertionPoint;
-              optionResult, insertionPoint := Deserialize.InsertNewEntry(enc_ctx, reservedField, enc_vk);
-              enc_ctx := optionResult.get;
+          var signatureKeys :- Signature.KeyGen(param);
+          enc_sk := Some(signatureKeys.signingKey);
+          var enc_vk :- UTF8.Encode(Base64.Encode(signatureKeys.verificationKey));
+          calc {
+            |enc_vk|;
+          ==  { assert UTF8.IsASCIIString(Base64.Encode(signatureKeys.verificationKey)); }
+            |Base64.Encode(signatureKeys.verificationKey)|;
+          <=  { Base64.EncodeLengthBound(signatureKeys.verificationKey); }
+            |signatureKeys.verificationKey| / 3 * 4 + 4;
+          <  { assert |signatureKeys.verificationKey| <= 3000; }
+            UINT16_LIMIT;
+          }
+
+          var reservedField := Materials.EC_PUBLIC_KEY_FIELD;
+          assert reservedField in Materials.ReservedKeyValues;
+          assert forall i :: i in materialsRequest.encryptionContext.Keys ==> i != reservedField;
+          enc_ctx := enc_ctx[reservedField := enc_vk];
+          var len := MessageHeader.ComputeKVPairsLength(enc_ctx);
+          if UINT16_LIMIT <= |enc_ctx| {
+            return Failure("encryption context has too many entries");
+          }
+          if UINT16_LIMIT <= len {
+            return Failure("encryption context too big");
+          }
+          assert ValidAAD(enc_ctx) by {
+            reveal MessageHeader.ValidAAD();
+          }
       }
 
-      MessageHeader.AssumeValidAAD(enc_ctx);  // TODO: we should check this (https://github.com/awslabs/aws-encryption-sdk-dafny/issues/79)
-
-      var dataKeyMaterials :- kr.OnEncrypt(id, enc_ctx, None);
-      if dataKeyMaterials.None? || |dataKeyMaterials.get.encryptedDataKeys| == 0 {
+      var materials := Materials.EncryptionMaterials.WithoutDataKeys(enc_ctx, id, enc_sk);
+      assert materials.encryptionContext == enc_ctx;
+      materials :- kr.OnEncrypt(materials);
+      if materials.plaintextDataKey.None? || |materials.encryptedDataKeys| == 0 {
         return Failure("Could not retrieve materials required for encryption");
       }
-      return Success(Materials.EncryptionMaterials(enc_ctx, dataKeyMaterials.get, enc_sk));
+      assert materials.Valid();
+      return Success(materials);
     }
 
-    method DecryptMaterials(alg_id: AlgorithmSuite.ID, edks: seq<Materials.EncryptedDataKey>, enc_ctx: Materials.EncryptionContext) 
-      returns (res: Result<Materials.ValidDecryptionMaterials>)
-      requires |edks| > 0
+    method DecryptMaterials(materialsRequest: Materials.ValidDecryptionMaterialsRequest)
+                            returns (res: Result<Materials.ValidDecryptionMaterials>)
       requires Valid()
       ensures Valid()
-      ensures res.Success? ==>
-        |res.value.plaintextDataKey| == res.value.algorithmSuiteID.KeyLength()
+      ensures res.Success? ==> res.value.plaintextDataKey.Some? && res.value.algorithmSuiteID.ValidPlaintextDataKey(res.value.plaintextDataKey.get)
       ensures res.Success? && res.value.algorithmSuiteID.SignatureType().Some? ==> res.value.verificationKey.Some?
     {
       // Retrieve and decode verification key from encryption context if using signing algorithm
       var vkey := None;
-      if alg_id.SignatureType().Some? {
+      var algID := materialsRequest.algorithmSuiteID;
+      var encCtx := materialsRequest.encryptionContext;
+
+      if algID.SignatureType().Some? {
         var reservedField := Materials.EC_PUBLIC_KEY_FIELD;
-        var encodedVKey := Materials.EncCtxLookup(enc_ctx, reservedField);
-        if encodedVKey == None {
+        if reservedField !in encCtx {
           return Failure("Could not get materials required for decryption.");
         }
-        var utf8Decoded :- UTF8.Decode(encodedVKey.get);
+        var encodedVKey := encCtx[reservedField];
+        var utf8Decoded :- UTF8.Decode(encodedVKey);
         var base64Decoded :- Base64.Decode(utf8Decoded);
         vkey := Some(base64Decoded);
       }
 
-      var dm :- kr.OnDecrypt(alg_id, enc_ctx, edks);
-      if dm.None? {
-        return Failure("Could not get materials required for decryption.");
+      var materials := Materials.DecryptionMaterials.WithoutPlaintextDataKey(encCtx, algID, vkey);
+      materials :- kr.OnDecrypt(materials, materialsRequest.encryptedDataKeys);
+      if materials.plaintextDataKey.None? {
+        return Failure("Keyring.OnDecrypt failed to decrypt the plaintext data key.");
       }
 
-      return Success(Materials.DecryptionMaterials(alg_id, enc_ctx, dm.get, vkey));
+      return Success(materials);
     }
   }
 }

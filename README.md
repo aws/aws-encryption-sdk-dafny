@@ -8,28 +8,39 @@ AWS Encryption SDK for Dafny
 
 To build, the AWS Encryption SDK requires the most up to date version of [dafny](https://github.com/dafny-lang/dafny) on your PATH.
 
-Building and verifying also requires [nuget](https://www.nuget.org/) to retrieve some dependencies.
+Building and verifying also requires [dotnet 3.0](https://dotnet.microsoft.com/download/dotnet-core/3.0).
 
-To build all files into one main executable:
+To build all source files into one dll:
 
 ```
-make build
+dotnet build
 ```
 
 To run the dafny verifier across all files:
 
 ```
-make verify
+# Currently, test depends on src, so verifying test will also verify src
+dotnet build -t:VerifyDafny test
 ```
 
 ## Testing
 
-Requires install of the [LLVM Integrated Tester](https://llvm.org/docs/CommandGuide/lit.html (available through `pip install lit`).
-
 Run the test suite with:
 
 ```
-make test
+dotnet test
+```
+
+You can see more detail about what test cases are being run by increasing the verbosity:
+
+```
+dotnet test --logger:"console;verbosity=normal"
+```
+
+Run the test vector suite after [set up](testVector/README.md) with:
+
+```
+dotnet test testVectors
 ```
 
 ## License

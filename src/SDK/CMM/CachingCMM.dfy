@@ -3,7 +3,6 @@ include "../../StandardLibrary/UInt.dfy"
 include "Defs.dfy"
 include "../AlgorithmSuite.dfy"
 include "../Materials.dfy"
-include "../../Crypto/Digests.dfy"
 include "../../Crypto/Signature.dfy"
 include "../../Util/Streams.dfy"
 include "../Serialize.dfy"
@@ -16,7 +15,6 @@ module CachingCMMDef {
   import CMMDefs
   import AlgorithmSuite
   import Materials
-  import Digests
   import Signature
   import Streams
   import Serialize
@@ -89,40 +87,38 @@ module CachingCMMDef {
       Repr := {this} + cmm.Repr + cmc.Repr;
     }
 
-    method GetEncryptionMaterials(encCtx: Materials.EncryptionContext,
-                                  algSuiteID: Option<AlgorithmSuite.ID>,
-                                  plaintextLen: Option<nat>)
+    method GetEncryptionMaterials(materialsRequest: Materials.EncryptionMaterialsRequest)
                                   returns (res: Result<Materials.ValidEncryptionMaterials>)
       requires Valid()
-      requires ValidAAD(encCtx) && Materials.GetKeysFromEncryptionContext(encCtx) !! Materials.ReservedKeyValues
+      requires ValidAAD(materialsRequest.encryptionContext)
+      requires materialsRequest.encryptionContext.Keys !! Materials.ReservedKeyValues
       modifies Repr
       ensures Valid() && fresh(Repr - old(Repr))
-      ensures res.Success? ==> |res.value.dataKeyMaterials.plaintextDataKey| == res.value.dataKeyMaterials.algorithmSuiteID.KDFInputKeyLength()
-      ensures res.Success? ==> |res.value.dataKeyMaterials.encryptedDataKeys| > 0
+      ensures res.Success? ==> res.value.plaintextDataKey.Some? && res.value.algorithmSuiteID.ValidPlaintextDataKey(res.value.plaintextDataKey.get)
+      ensures res.Success? ==> |res.value.encryptedDataKeys| > 0
       ensures res.Success? ==> ValidAAD(res.value.encryptionContext)
       ensures res.Success? ==>
-        match res.value.dataKeyMaterials.algorithmSuiteID.SignatureType()
+        match res.value.algorithmSuiteID.SignatureType()
           case None => true
           case Some(sigType) =>
-            res.value.signingKey.Some? &&
-            Signature.ECDSA.WfSK(sigType, res.value.signingKey.get)
+            res.value.signingKey.Some?
     {
-      if plaintextLen.None?
-      || bytesLimit as int <= plaintextLen.get
-      || (algSuiteID.Some? && algSuiteID.get.ContainsIdentityKDF())
+      if materialsRequest.plaintextLength.None?
+      || bytesLimit as int <= materialsRequest.plaintextLength.get
+      || (materialsRequest.algorithmSuiteID.Some? && materialsRequest.algorithmSuiteID.get.ContainsIdentityKDF())
       {
         // So, get encryption materials from the underlying CMM.
-        res := cmm.GetEncryptionMaterials(encCtx, algSuiteID, plaintextLen);
+        res := cmm.GetEncryptionMaterials(materialsRequest);
         Repr := Repr + cmm.Repr;
         return;
       }
 
-      var cacheID :- ComputeCacheID(algSuiteID, encCtx);
+      var cacheID :- ComputeCacheID(materialsRequest.algorithmSuiteID, materialsRequest.encryptionContext);
 
       var entry := cmc.LookupEncrypt(cacheID);
       Repr := Repr + cmc.Repr;
       if entry != null {
-        entry.IncrementUse(plaintextLen.get, 1);
+        entry.IncrementUse(materialsRequest.plaintextLength.get, 1);
         var currentTime := Time.GetCurrent();
         if entry.expiryTime <= currentTime
         || bytesLimit as nat <= entry.bytesEncrypted
@@ -140,27 +136,25 @@ module CachingCMMDef {
       // Get encryption materials from the underlying CMM, but use None for the plaintext
       // length (since the caching returns encryption materials that are independent of
       // plaintext length).
-      res := cmm.GetEncryptionMaterials(encCtx, algSuiteID, None);
+      res := cmm.GetEncryptionMaterials(materialsRequest.(plaintextLength := None));
       Repr := Repr + cmm.Repr;
       var encMat :- res;
       // Add them to the cache.
       entry := cmc.AddEncrypt(cacheID, encMat, DEFAULT_TIME_TO_LIVE_LIMIT);
       Repr := Repr + cmc.Repr;
-      entry.IncrementUse(plaintextLen.get, 1);
+      entry.IncrementUse(materialsRequest.plaintextLength.get, 1);
       return Success(encMat);
     }
-    method DecryptMaterials(algSuiteID: AlgorithmSuite.ID,
-                            edks: seq<Materials.EncryptedDataKey>,
-                            encCtx: Materials.EncryptionContext)
+
+    method DecryptMaterials(materialsRequest: Materials.ValidDecryptionMaterialsRequest)
                             returns (res: Result<Materials.ValidDecryptionMaterials>)
-      requires Valid() && ValidAAD(encCtx) && |edks| > 0
+      requires Valid()
       modifies Repr
       ensures Valid() && fresh(Repr - old(Repr))
-      ensures res.Success? ==>
-        |res.value.plaintextDataKey| == res.value.algorithmSuiteID.KeyLength()
+      ensures res.Success? ==> res.value.plaintextDataKey.Some? && res.value.algorithmSuiteID.ValidPlaintextDataKey(res.value.plaintextDataKey.get)
       ensures res.Success? && res.value.algorithmSuiteID.SignatureType().Some? ==> res.value.verificationKey.Some?
     {
-      var cacheID :- ComputeCacheID(Some(algSuiteID), encCtx);
+      var cacheID :- ComputeCacheID(Some(materialsRequest.algorithmSuiteID), materialsRequest.encryptionContext);
 
       var entry := cmc.LookupDecrypt(cacheID);
       Repr := Repr + cmc.Repr;
@@ -175,7 +169,7 @@ module CachingCMMDef {
       }
 
       // Get decryption materials from the underlying CMM.
-      res := cmm.DecryptMaterials(algSuiteID, edks, encCtx);
+      res := cmm.DecryptMaterials(materialsRequest);
       Repr := Repr + cmm.Repr;
       var decMat :- res;
       // Add them to the cache.
@@ -189,39 +183,37 @@ module CachingCMMDef {
   method ComputeCacheID(algSuiteID: Option<AlgorithmSuite.ID>, encCtx: Materials.EncryptionContext) returns (res: Result<seq<uint8>>)
     requires MessageHeader.ValidAAD(encCtx)
   {
-    var wr := new Streams.StringWriter();
+    var wr := new Streams.ByteWriter();
 
     // Note, if a partition ID were used, write the partition ID hash to wr here
 
     match algSuiteID {
       case None =>
-        var _ :- wr.WriteByte(0);
+        var _ := wr.WriteByte(0);
       case Some(algID) =>
-        var _ :- wr.WriteByte(1);
-        var _ :- wr.WriteUInt16(algID as uint16);
+        var _ := wr.WriteByte(1);
+        var _ := wr.WriteUInt16(algID as uint16);
     }
 
-    var encCtxWr := new Streams.StringWriter();
+    var encCtxWr := new Streams.ByteWriter();
     var _ :- Serialize.SerializeAAD(encCtxWr, encCtx);
-    var encCtxEncoding := Signature.Digest(CACHE_ID_HASH_ALGORITHM, encCtxWr.data);
-    var _ :- wr.WriteSeq(encCtxEncoding);
+    var encCtxEncoding :- Signature.Digest(CACHE_ID_HASH_ALGORITHM, encCtxWr.GetDataWritten());
+    var _ := wr.WriteBytes(encCtxEncoding);
 
-    var cacheID := Signature.Digest(CACHE_ID_HASH_ALGORITHM, wr.data);
-    return Success(cacheID);
+    res := Signature.Digest(CACHE_ID_HASH_ALGORITHM, wr.GetDataWritten());
   }
 
   predicate GoodEncMat(encMat: Materials.EncryptionMaterials) {
-    |encMat.dataKeyMaterials.encryptedDataKeys| > 0 &&
+    |encMat.encryptedDataKeys| > 0 &&
     MessageHeader.ValidAAD(encMat.encryptionContext) &&
-    match encMat.dataKeyMaterials.algorithmSuiteID.SignatureType()
+    match encMat.algorithmSuiteID.SignatureType()
       case None => true
       case Some(sigType) =>
-        encMat.signingKey.Some? &&
-        Signature.ECDSA.WfSK(sigType, encMat.signingKey.get)
+        encMat.signingKey.Some?
   }
 
   predicate GoodDecMat(decMat: Materials.DecryptionMaterials) {
-    |decMat.plaintextDataKey| == decMat.algorithmSuiteID.KeyLength() &&
+    decMat.plaintextDataKey.Some? && |decMat.plaintextDataKey.get| == decMat.algorithmSuiteID.KeyLength() &&
     (decMat.algorithmSuiteID.SignatureType().Some? ==> decMat.verificationKey.Some?)
   }
 
