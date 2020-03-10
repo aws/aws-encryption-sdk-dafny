@@ -19,7 +19,8 @@ dotnet build
 To run the dafny verifier across all files:
 
 ```
-dotnet build -t:VerifyDafny
+# Currently, test depends on src, so verifying test will also verify src
+dotnet build -t:VerifyDafny test
 ```
 
 ## Testing

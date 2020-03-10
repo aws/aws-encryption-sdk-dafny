@@ -19,7 +19,7 @@ module TestAESKeyring {
   import EncryptionSuites
   import AlgorithmSuite
   import UTF8
-  import TestUtils
+  import opened TestUtils
 
   method {:test} TestOnEncryptOnDecryptGenerateDataKey()
   {
@@ -29,8 +29,7 @@ module TestAESKeyring {
     var keyA :- expect UTF8.Encode("keyA");
     var valA :- expect UTF8.Encode("valA");
     var encryptionContext := map[keyA := valA];
-    var isValidAAD := MessageHeader.ComputeValidAAD(encryptionContext);
-    expect isValidAAD;
+    ExpectValidAAD(encryptionContext);
 
     var wrappingAlgorithmID := AlgorithmSuite.AES_256_GCM_IV12_TAG16_HKDF_SHA384_ECDSA_P384;
     var signingKey := seq(32, i => 0);
@@ -55,8 +54,7 @@ module TestAESKeyring {
     var keyA :- expect UTF8.Encode("keyA");
     var valA :- expect UTF8.Encode("valA");
     var encryptionContext := map[keyA := valA];
-    var isValidAAD := MessageHeader.ComputeValidAAD(encryptionContext);
-    expect isValidAAD;
+    ExpectValidAAD(encryptionContext);
 
     var pdk := seq(32, i => 0);
     var traceEntry := Materials.KeyringTraceEntry([], [], {Materials.GENERATED_DATA_KEY});
@@ -100,8 +98,7 @@ module TestAESKeyring {
     var rawAESKeyring := new RawAESKeyringDef.RawAESKeyring(name, namespace, seq(32, i => 0), EncryptionSuites.AES_GCM_256);
     var keyA :- expect UTF8.Encode("keyA");
     var unserializableEncryptionContext := generateUnserializableEncryptionContext(keyA);
-    var isValidAAD := MessageHeader.ComputeValidAAD(unserializableEncryptionContext);
-    expect !isValidAAD;
+    ExpectInvalidAAD(unserializableEncryptionContext);
 
     var wrappingAlgorithmID := AlgorithmSuite.AES_256_GCM_IV12_TAG16_HKDF_SHA384_ECDSA_P384;
     var signingKey := seq(32, i => 0);
@@ -129,8 +126,7 @@ module TestAESKeyring {
 
     // Set up EC that can't be serialized
     var unserializableEncryptionContext := generateUnserializableEncryptionContext(keyA);
-    var isValidAAD := MessageHeader.ComputeValidAAD(unserializableEncryptionContext);
-    expect !isValidAAD;
+    ExpectInvalidAAD(unserializableEncryptionContext);
     var verificationKey := seq(32, i => 0);
 
     var decryptionMaterialsIn := Materials.DecryptionMaterials.WithoutPlaintextDataKey(unserializableEncryptionContext, wrappingAlgorithmID, Some(verificationKey));
@@ -160,7 +156,7 @@ module TestAESKeyring {
   method generateUnserializableEncryptionContext(keyA: UTF8.ValidUTF8Bytes) returns (encCtx: Materials.EncryptionContext)
   {
     var invalidVal := seq(0x1_0000, _ => 0);
-    TestUtils.AssumeLongSeqIsValidUTF8(invalidVal);
+    AssumeLongSeqIsValidUTF8(invalidVal);
     return map[keyA:=invalidVal];
   }
 }
