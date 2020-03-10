@@ -19,7 +19,7 @@ module TestMultiKeying {
   import Materials
   import UTF8
 
-  method {:test} TestOnEncryptOnDecryptWithGenerator() decreases * {
+  method {:test} TestOnEncryptOnDecryptWithGenerator() {
     // TODO: mock children keyrings
     var keyA :- expect UTF8.Encode("keyA");
     var valA :- expect UTF8.Encode("valA");
@@ -68,7 +68,7 @@ module TestMultiKeying {
     expect decryptionMaterialsOut.keyringTrace[0] == child2Keyring.DecryptTraceEntry();
   }
 
-  method {:test} TestOnEncryptOnDecryptWithoutGenerator() decreases * {
+  method {:test} TestOnEncryptOnDecryptWithoutGenerator() {
     // TODO: mock children keyrings and move encrypt <-> decrypt test into new test
     var keyA :- expect UTF8.Encode("keyA");
     var valA :- expect UTF8.Encode("valA");
@@ -122,7 +122,7 @@ module TestMultiKeying {
     expect materialsOut.keyringTrace[0] == child2Keyring.DecryptTraceEntry();
   }
 
-  method {:test} TestOnEncryptChildKeyringFailure() decreases * {
+  method {:test} TestOnEncryptChildKeyringFailure() {
     var keyA :- expect UTF8.Encode("keyA");
     var valA :- expect UTF8.Encode("valA");
     var encryptionContext := map[keyA := valA];
@@ -140,7 +140,7 @@ module TestMultiKeying {
     expect encryptionMaterialsOut.Failure?;
   }
 
-  method {:test} TestOnDecryptNoChildDecryptsAndAtLeastOneFails() decreases * {
+  method {:test} TestOnDecryptNoChildDecryptsAndAtLeastOneFails() {
     var encryptionContext := map[];
     var algorithmSuiteID := AlgorithmSuite.AES_256_GCM_IV12_TAG16_HKDF_SHA384_ECDSA_P384;
     var edk := Materials.EncryptedDataKey.ValidWitness();
@@ -155,7 +155,7 @@ module TestMultiKeying {
     expect decryptionMaterialsOut.Failure?;
   }
 
-  method {:test} TestOnDecryptAllChildKeyringsDontDecrypt() decreases * {
+  method {:test} TestOnDecryptAllChildKeyringsDontDecrypt() {
     var encryptionContext := map[];
     var algorithmSuiteID := AlgorithmSuite.AES_256_GCM_IV12_TAG16_HKDF_SHA384_ECDSA_P384;
     var edk := Materials.EncryptedDataKey.ValidWitness();

@@ -39,8 +39,6 @@ module {:extern "ESDKClient"} ESDKClient {
     requires cmm.Valid()
     requires optFrameLength.Some? ==> optFrameLength.get != 0
     requires optEncryptionContext.Some? ==> optEncryptionContext.get.Keys !! Materials.ReservedKeyValues && Msg.ValidAAD(optEncryptionContext.get)
-    // TODO-RS: Temporary to let everything compile, hoping to not have to do this permanently.
-    decreases *
   {
     var encryptionContext := optEncryptionContext.GetOrElse(map[]);
     assert Msg.ValidAAD(encryptionContext) by {
@@ -101,8 +99,6 @@ module {:extern "ESDKClient"} ESDKClient {
   method DeriveKey(plaintextDataKey: seq<uint8>, algorithmSuiteID: AlgorithmSuite.ID, messageID: Msg.MessageID) returns (derivedDataKey: seq<uint8>)
     requires |plaintextDataKey| == algorithmSuiteID.KDFInputKeyLength()
     ensures |derivedDataKey| == algorithmSuiteID.KeyLength()
-    // TODO-RS: Temporary to let everything compile, hoping to not have to do this permanently.
-    decreases *
   {
     var algorithm := AlgorithmSuite.Suite[algorithmSuiteID].hkdf;
     if algorithm == KeyDerivationAlgorithms.IDENTITY {
@@ -120,8 +116,6 @@ module {:extern "ESDKClient"} ESDKClient {
   */
   method Decrypt(message: seq<uint8>, cmm: CMMDefs.CMM) returns (res: Result<seq<uint8>>)
     requires cmm.Valid()
-    // TODO-RS: Temporary to let everything compile, hoping to not have to do this permanently.
-    decreases *
   {
     var rd := new Streams.ByteReader(message);
     var header :- Deserialize.DeserializeHeader(rd);

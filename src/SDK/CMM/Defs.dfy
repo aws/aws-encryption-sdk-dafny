@@ -30,8 +30,6 @@ module {:extern "CMMDefs"} CMMDefs {
           case None => true
           case Some(sigType) =>
             res.value.signingKey.Some?
-      // TODO-RS: Temporary to let everything compile, hoping to not have to do this permanently.
-      decreases *
 
     // The following predicate is a synonym for MessageHeader.ValidAAD and provides a workaround for a translation bug
     // of "fuel" in trait-override checks in Dafny. https://github.com/dafny-lang/dafny/issues/422
@@ -45,7 +43,5 @@ module {:extern "CMMDefs"} CMMDefs {
       ensures Valid()
       ensures res.Success? ==> res.value.plaintextDataKey.Some? && res.value.algorithmSuiteID.ValidPlaintextDataKey(res.value.plaintextDataKey.get)
       ensures res.Success? && res.value.algorithmSuiteID.SignatureType().Some? ==> res.value.verificationKey.Some?
-      // TODO-RS: Temporary to let everything compile, hoping to not have to do this permanently.
-      decreases *
   }
 }

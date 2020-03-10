@@ -34,7 +34,7 @@ module {:extern "MultiKeyringDef"} MultiKeyringDef {
             Repr := {this} + (if g != null then {g} + g.Repr else {}) + childrenRepr(c);
         }
 
-        predicate Valid() {
+        predicate Valid() reads this, Repr {
             && (generator != null ==> generator in Repr && generator.Repr <= Repr && generator.Valid())
             && (forall j :: 0 <= j < |children| ==> children[j] in Repr && children[j].Repr <= Repr && children[j].Valid())
         }
@@ -49,8 +49,6 @@ module {:extern "MultiKeyringDef"} MultiKeyringDef {
                     && materials.keyringTrace <= res.value.keyringTrace
                     && materials.encryptedDataKeys <= res.value.encryptedDataKeys
                     && materials.signingKey == res.value.signingKey
-            // TODO-RS: Temporary to let everything compile, hoping to not have to do this permanently.
-            decreases *
         {
             // First pass on or generate the plaintext data key
             var resultMaterials := materials;
@@ -91,8 +89,6 @@ module {:extern "MultiKeyringDef"} MultiKeyringDef {
                 && (materials.plaintextDataKey.Some? ==> res.value.plaintextDataKey == materials.plaintextDataKey)
                 && materials.keyringTrace <= res.value.keyringTrace
                 && materials.verificationKey == res.value.verificationKey
-            // TODO-RS: Temporary to let everything compile, hoping to not have to do this permanently.
-            decreases *
         {
             res := Success(materials);
             if |edks| == 0 || materials.plaintextDataKey.Some? {

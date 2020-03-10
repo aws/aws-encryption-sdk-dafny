@@ -23,32 +23,6 @@ module {:extern "KMSKeyringDef"} KMSKeyringDef {
     if 6 <= |components| && components[0] == "arn" && components[2] == "kms" then Success(components[3]) else Failure("Malformed ARN")
   }
 
-  // TODO-RS: This should be marked {:extern}, but that's currently interpreted as "externally implemented"
-  // and omits the body when compiled.
-  method MakeKMSKeyring(clientSupplier: KMSUtils.ClientSupplier?, 
-                        keyIDs: seq<string>,
-                        generator: string,
-                        grantTokens: seq<string>) returns (result: Result<KMSKeyring>)
-  {
-    var _ :- FailUnless(clientSupplier != null, "Client supplier is required");
-    var _ :- FailUnless(|grantTokens| <= KMSUtils.MAX_GRANT_TOKENS, "Too many grant tokens");
-    var keyIDsNoBlanks := Filter(keyIDs, keyID => keyID != "");
-    var _ :- FailUnless(forall keyID :: keyID in keyIDsNoBlanks ==> KMSUtils.ValidFormatCMK(keyID), "Invalid CMK(s)");
-    var generatorOption: Option<KMSUtils.CustomerMasterKey>;
-    if |generator| == 0 {
-      generatorOption := None;
-    } else {
-      var _ :- FailUnless(KMSUtils.ValidFormatCMK(generator), "Invalid generator CMK(s)");
-      generatorOption := Some(generator);
-    }
-    var _ :- FailUnless(forall grantToken :: grantToken in grantTokens ==> 0 < |grantToken| <= 8192, "Invalid grant token(s)");
-    var k := new KMSKeyring(clientSupplier,
-                            keyIDsNoBlanks,
-                            generatorOption,
-                            grantTokens);
-    result := Success(k);
-  }
-
   class KMSKeyring extends KeyringDefs.Keyring {
 
     const clientSupplier: KMSUtils.ClientSupplier
@@ -57,7 +31,7 @@ module {:extern "KMSKeyringDef"} KMSKeyringDef {
     const grantTokens: seq<KMSUtils.GrantToken>
     const isDiscovery: bool
 
-    predicate Valid() {
+    predicate Valid() reads this, Repr {
       && Repr == {this}
       && (0 <= |grantTokens| <= KMSUtils.MAX_GRANT_TOKENS)
       && (|keyIDs| == 0 && generator.None? ==> isDiscovery)
@@ -135,7 +109,6 @@ module {:extern "KMSKeyringDef"} KMSKeyringDef {
           && materials.encryptedDataKeys <= res.value.encryptedDataKeys
           && materials.signingKey == res.value.signingKey
       ensures isDiscovery ==> res.Success? && res.value == materials
-      decreases Repr
     {
       if isDiscovery {
         return Success(materials);
@@ -210,7 +183,6 @@ module {:extern "KMSKeyringDef"} KMSKeyringDef {
           && (materials.plaintextDataKey.Some? ==> res.value.plaintextDataKey == materials.plaintextDataKey)
           && materials.keyringTrace <= res.value.keyringTrace
           && materials.verificationKey == res.value.verificationKey
-      decreases Repr
       // TODO: keyring trace DECRYPTED_DATA_KEY flag assurance
     {
       if |edks| == 0 || materials.plaintextDataKey.Some? {

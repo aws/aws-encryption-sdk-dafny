@@ -17,7 +17,7 @@ namespace AWSEncryptionSDKTests
         private static string SUCCESS = "SUCCESS";
 
         // MakeKMSKeyring is a helper method that creates a KMS Keyring for unit testing
-        private Keyring MakeKMSKeyring() 
+        private Keyring MakeKMSKeyring()
         {
             String keyArn = DafnyFFI.StringFromDafnyString(TestUtils.__default.SHARED__TEST__KEY__ARN);
             ClientSupplier clientSupplier = new DefaultClientSupplier();

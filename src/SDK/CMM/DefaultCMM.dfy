@@ -55,7 +55,6 @@ module {:extern "DefaultCMMDef"} DefaultCMMDef {
           case None => true
           case Some(sigType) =>
             res.value.signingKey.Some?
-      decreases *
     {
       var id := if materialsRequest.algorithmSuiteID.Some? then
         materialsRequest.algorithmSuiteID.get
@@ -112,8 +111,6 @@ module {:extern "DefaultCMMDef"} DefaultCMMDef {
       ensures Valid()
       ensures res.Success? ==> res.value.plaintextDataKey.Some? && res.value.algorithmSuiteID.ValidPlaintextDataKey(res.value.plaintextDataKey.get)
       ensures res.Success? && res.value.algorithmSuiteID.SignatureType().Some? ==> res.value.verificationKey.Some?
-      // TODO-RS: Temporary to let everything compile, hoping to not have to do this permanently.
-      decreases *
     {
       // Retrieve and decode verification key from encryption context if using signing algorithm
       var vkey := None;

@@ -3,13 +3,10 @@ using System;
 using System.IO;
 using System.Collections.Generic;
 using System.Linq;
-using _System;
 using CMMDefs;
 using Dafny;
 using ibyteseq = Dafny.ISequence<byte>;
-using byteseq = Dafny.Sequence<byte>;
 using icharseq = Dafny.ISequence<char>;
-using charseq = Dafny.Sequence<char>;
 using encryptioncontext = Dafny.Map<Dafny.ISequence<byte>, Dafny.ISequence<byte>>;
 
 namespace AWSEncryptionSDK

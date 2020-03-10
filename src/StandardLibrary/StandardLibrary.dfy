@@ -18,8 +18,6 @@ module {:extern "STL"} StandardLibrary {
     }
   }
 
-  method {:extern} As<T>(x: object) returns (r: Option<T>)
-
   datatype Result<T> = Success(value: T) | Failure(error: string)
   {
     predicate method IsFailure() {
@@ -44,14 +42,6 @@ module {:extern "STL"} StandardLibrary {
       match this
       case Success(s) => s
       case Failure(e) => default
-    }
-  }
-
-  method FailUnless(p: bool, message: string) returns (r: Result<()>) ensures r.Success? ==> p {
-    if p {
-      r := Success(());
-    } else {
-      r := Failure(message);
     }
   }
 

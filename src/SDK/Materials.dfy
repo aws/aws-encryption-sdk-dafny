@@ -131,13 +131,6 @@ module {:extern "Materials"} Materials {
 
   type ValidEncryptionMaterials = i: EncryptionMaterials | i.Valid() witness EncryptionMaterials.ValidWitness()
 
-  class {:extern} ExternalEncryptionMaterials {
-    const wrapped: ValidEncryptionMaterials
-    constructor(wrapped: ValidEncryptionMaterials) {
-      this.wrapped := wrapped;
-    }
-  }
-
   datatype DecryptionMaterials = DecryptionMaterials(algorithmSuiteID: AlgorithmSuite.ID,
                                                      encryptionContext: EncryptionContext,
                                                      plaintextDataKey: Option<seq<uint8>>,
@@ -185,13 +178,6 @@ module {:extern "Materials"} Materials {
   }
 
   type ValidDecryptionMaterials = i: DecryptionMaterials | i.Valid() witness DecryptionMaterials.ValidWitness()
-
-  class {:extern} ExternalDecryptionMaterials {
-    const wrapped: ValidDecryptionMaterials
-    constructor(wrapped: ValidDecryptionMaterials) {
-      this.wrapped := wrapped;
-    }
-  }
 
   datatype EncryptionMaterialsRequest = EncryptionMaterialsRequest(encryptionContext: EncryptionContext,
                                                                    algorithmSuiteID: Option<AlgorithmSuite.ID>,
