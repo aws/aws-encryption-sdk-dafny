@@ -22,34 +22,39 @@ module {:extern "DefaultCMMDef"} DefaultCMMDef {
   import Deserialize
 
   class DefaultCMM extends CMMDefs.CMM {
-    const kr: KeyringDefs.Keyring
+    const keyring: KeyringDefs.Keyring
 
     predicate Valid()
       reads this, Repr
     {
-      kr in Repr &&
-      Repr == {this, kr} + kr.Repr &&
-      kr.Valid()
+      keyring in Repr &&
+      Repr == {this, keyring} + keyring.Repr &&
+      keyring.Valid()
     }
 
     constructor OfKeyring(k: KeyringDefs.Keyring)
       requires k.Valid()
-      ensures kr == k
+      ensures keyring == k
       ensures Valid()
     {
-      kr := k;
-      Repr := {this, kr} + k.Repr;
+      keyring := k;
+      Repr := {this, keyring} + k.Repr;
     }
 
     method GetEncryptionMaterials(materialsRequest: Materials.EncryptionMaterialsRequest)
                                   returns (res: Result<Materials.ValidEncryptionMaterials>)
       requires Valid()
-      requires ValidAAD(materialsRequest.encryptionContext)
-      requires materialsRequest.encryptionContext.Keys !! Materials.ReservedKeyValues
       ensures Valid()
+      ensures Materials.EC_PUBLIC_KEY_FIELD in materialsRequest.encryptionContext ==> res.Failure?
+      ensures res.Success? && (materialsRequest.algorithmSuiteID.None? || materialsRequest.algorithmSuiteID.get.SignatureType().Some?) ==>
+        Materials.EC_PUBLIC_KEY_FIELD in res.value.encryptionContext
       ensures res.Success? ==> res.value.plaintextDataKey.Some? && res.value.algorithmSuiteID.ValidPlaintextDataKey(res.value.plaintextDataKey.get)
       ensures res.Success? ==> |res.value.encryptedDataKeys| > 0
       ensures res.Success? ==> ValidAAD(res.value.encryptionContext)
+      ensures res.Success? ==>
+        match materialsRequest.algorithmSuiteID
+        case Some(id) => res.value.algorithmSuiteID == id
+        case None => res.value.algorithmSuiteID == 0x0378
       ensures res.Success? ==>
         match res.value.algorithmSuiteID.SignatureType()
           case None => true
@@ -57,10 +62,12 @@ module {:extern "DefaultCMMDef"} DefaultCMMDef {
             res.value.signingKey.Some?
       decreases *
     {
-      var id := if materialsRequest.algorithmSuiteID.Some? then
-        materialsRequest.algorithmSuiteID.get
-      else
-        AlgorithmSuite.AES_256_GCM_IV12_TAG16_HKDF_SHA384_ECDSA_P384;
+      var reservedField := Materials.EC_PUBLIC_KEY_FIELD;
+      assert reservedField in Materials.ReservedKeyValues;
+      if reservedField in materialsRequest.encryptionContext.Keys {
+        return Failure("Reserved Field found in EncryptionContext keys.");
+      }
+      var id := materialsRequest.algorithmSuiteID.GetOrElse(AlgorithmSuite.AES_256_GCM_IV12_TAG16_HKDF_SHA384_ECDSA_P384);
       var enc_sk := None;
       var enc_ctx := materialsRequest.encryptionContext;
 
@@ -70,35 +77,20 @@ module {:extern "DefaultCMMDef"} DefaultCMMDef {
           var signatureKeys :- Signature.KeyGen(param);
           enc_sk := Some(signatureKeys.signingKey);
           var enc_vk :- UTF8.Encode(Base64.Encode(signatureKeys.verificationKey));
-          calc {
-            |enc_vk|;
-          ==  { assert UTF8.IsASCIIString(Base64.Encode(signatureKeys.verificationKey)); }
-            |Base64.Encode(signatureKeys.verificationKey)|;
-          <=  { Base64.EncodeLengthBound(signatureKeys.verificationKey); }
-            |signatureKeys.verificationKey| / 3 * 4 + 4;
-          <  { assert |signatureKeys.verificationKey| <= 3000; }
-            UINT16_LIMIT;
-          }
-
-          var reservedField := Materials.EC_PUBLIC_KEY_FIELD;
-          assert reservedField in Materials.ReservedKeyValues;
-          assert forall i :: i in materialsRequest.encryptionContext.Keys ==> i != reservedField;
           enc_ctx := enc_ctx[reservedField := enc_vk];
-          var len := MessageHeader.ComputeKVPairsLength(enc_ctx);
-          if UINT16_LIMIT <= |enc_ctx| {
-            return Failure("encryption context has too many entries");
-          }
-          if UINT16_LIMIT <= len {
-            return Failure("encryption context too big");
-          }
-          assert ValidAAD(enc_ctx) by {
-            reveal MessageHeader.ValidAAD();
-          }
       }
+
+      // Check validity of the encryption context at runtime.
+      var validAAD := MessageHeader.ComputeValidAAD(enc_ctx);
+      if !validAAD {
+        //TODO: Provide a more specific error message here, depending on how the EncCtx spec was violated.
+        return Failure("Invalid Encryption Context");
+      }
+      assert MessageHeader.ValidAAD(enc_ctx);
 
       var materials := Materials.EncryptionMaterials.WithoutDataKeys(enc_ctx, id, enc_sk);
       assert materials.encryptionContext == enc_ctx;
-      materials :- kr.OnEncrypt(materials);
+      materials :- keyring.OnEncrypt(materials);
       if materials.plaintextDataKey.None? || |materials.encryptedDataKeys| == 0 {
         return Failure("Could not retrieve materials required for encryption");
       }
@@ -132,7 +124,7 @@ module {:extern "DefaultCMMDef"} DefaultCMMDef {
       }
 
       var materials := Materials.DecryptionMaterials.WithoutPlaintextDataKey(encCtx, algID, vkey);
-      materials :- kr.OnDecrypt(materials, materialsRequest.encryptedDataKeys);
+      materials :- keyring.OnDecrypt(materials, materialsRequest.encryptedDataKeys);
       if materials.plaintextDataKey.None? {
         return Failure("Keyring.OnDecrypt failed to decrypt the plaintext data key.");
       }
@@ -141,4 +133,3 @@ module {:extern "DefaultCMMDef"} DefaultCMMDef {
     }
   }
 }
-

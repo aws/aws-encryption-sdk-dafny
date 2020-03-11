@@ -30,6 +30,7 @@ namespace AWSEncryptionSDK
                 Dafny.Sequence<icharseq>.FromElements(grantTokens.Select(DafnyFFI.DafnyStringFromString).ToArray()));
             return result;
         }
+       
         public static MultiKeyring MakeMultiKeyring(Keyring generator, IList<Keyring> children)
         {
             // TODO: Check for null value etc.
