@@ -52,7 +52,18 @@ public class DafnyFFI {
             // can throw specific exception types.
             throw new DafnyException(StringFromDafnyString(f.error));
         } else {
-            throw new ArgumentException(message: "Unrecognized STL.Result constructor");
+            throw new Dafny.HaltException(message: "Unrecognized STL.Result constructor");
+        }
+    }
+
+    public static Result<R> InvokeToResult<R>(Func<R> f) {
+        try {
+            var output = f.Invoke();
+            return Result<R>.create_Success(output);
+        } catch (Exception e) {
+            // TODO-RS: Need to map at least some exception types to 
+            // specific types of Failure values.
+            return Result<R>.create_Failure(DafnyStringFromString(e.ToString()));
         }
     }
 

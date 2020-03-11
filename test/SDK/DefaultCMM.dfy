@@ -18,7 +18,7 @@ module {:extern "DefaultCMMTests"} DefaultCMMTests {
   import UTF8
   import TestUtils
 
-  method {:test} TestDefaultCMMNoAlg() returns (res: Result<()>) {
+  method {:test} TestDefaultCMMNoAlg() returns (res: Result<()>) decreases * {
     var keyring :- TestUtils.MakeRSAKeyring();
     var cmm := new DefaultCMMDef.DefaultCMM.OfKeyring(keyring);
     var encCtx: Materials.EncryptionContext := map[];
@@ -39,7 +39,7 @@ module {:extern "DefaultCMMTests"} DefaultCMMTests {
     return Success(());
   }
 
-  method {:test} TestDefaultCMMWithAlg() returns (res: Result<()>) {
+  method {:test} TestDefaultCMMWithAlg() returns (res: Result<()>) decreases * {
     var keyring :- TestUtils.MakeRSAKeyring();
     var cmm := new DefaultCMMDef.DefaultCMM.OfKeyring(keyring);
     var encCtx: Materials.EncryptionContext := map[];
@@ -61,7 +61,7 @@ module {:extern "DefaultCMMTests"} DefaultCMMTests {
     return Success(());
   }
 
-  method {:test} TestDefaultCMMWithAlgNoSig() returns (res: Result<()>) {
+  method {:test} TestDefaultCMMWithAlgNoSig() returns (res: Result<()>) decreases * {
     var keyring :- TestUtils.MakeRSAKeyring();
     var cmm := new DefaultCMMDef.DefaultCMM.OfKeyring(keyring);
 
@@ -84,7 +84,7 @@ module {:extern "DefaultCMMTests"} DefaultCMMTests {
     return Success(());
   }
 
-  method {:test} TestDefaultCMMRejectsBadEncCtx() returns (res: Result<()>) {
+  method {:test} TestDefaultCMMRejectsBadEncCtx() returns (res: Result<()>) decreases * {
     var keyring :- TestUtils.MakeRSAKeyring();
     var cmm := new DefaultCMMDef.DefaultCMM.OfKeyring(keyring);
     var encCtx: Materials.EncryptionContext := map[];
