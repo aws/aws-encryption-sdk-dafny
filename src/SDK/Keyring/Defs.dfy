@@ -113,15 +113,12 @@ module {:extern "KeyringDefs"} KeyringDefs {
   class AsKeyring extends Keyring {
     const wrapped: ExternalKeyring;
 
-    constructor(wrapped: ExternalKeyring) {
+    constructor(wrapped: ExternalKeyring) ensures Valid() {
       this.wrapped := wrapped;
     }
 
     predicate Valid() {
-      && this in Repr 
-      && wrapped in Repr 
-      && wrapped.Repr <= Repr 
-      && this !in wrapped.Repr
+      true
     }
 
     method OnEncrypt(materials: Materials.ValidEncryptionMaterials) returns (res: Result<Materials.ValidEncryptionMaterials>)
@@ -138,7 +135,7 @@ module {:extern "KeyringDefs"} KeyringDefs {
     {
       var externalMaterials := new Materials.ExternalEncryptionMaterials(materials);
       var result :- wrapped.OnEncrypt(externalMaterials);
-      res := Success(result.wrapped);
+      res := Success(result.wrapped); // TODO-RS: Exception handling!
       expect res.Success? ==>
           && materials.encryptionContext == res.value.encryptionContext
           && materials.algorithmSuiteID == res.value.algorithmSuiteID 
@@ -186,6 +183,7 @@ module {:extern "KeyringDefs"} KeyringDefs {
       var casted := As<AsKeyring>(k);
       match casted {
         case Some(keyring) => 
+          assert keyring.Valid();
           res := keyring;
         case None =>
           res := new AsKeyring(k);
