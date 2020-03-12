@@ -2,69 +2,62 @@
 include "../StandardLibrary/StandardLibrary.dfy"
 include "../StandardLibrary/UInt.dfy"
 
-
-
 module Collections {
   import opened StandardLibrary
   import opened UInt = StandardLibrary.UInt
 
   trait ByteProducer {
-    predicate Valid() reads this
-    predicate method HasNext()
+    var Repr: set<object>
+    predicate Valid() reads this, Repr
+    predicate method HasNext() reads this, Repr
       requires Valid() 
       ensures Valid()
-      reads this
+      
     method Next() returns (res: uint8)
       requires Valid()
       requires HasNext()
       ensures Valid()
       modifies this
 
-    method ForEachRemaining(consumer: ByteConsumer)
-      requires Valid()
-      ensures Valid()
-      modifies this, consumer
-      decreases *
     method TryForEachRemaining(consumer: ByteConsumer) returns (consumed: int)
       requires Valid()
+      requires consumer.Valid()
+      requires Repr !! consumer.Repr
       ensures Valid()
       modifies this, consumer
       decreases *
   }
 
   trait ByteConsumer {
-    predicate method CanAccept()
-    method Accept(b: uint8) returns (res: bool)
-  }
-
-  method DefaultForEachRemaining(producer: ByteProducer, consumer: ByteConsumer)
-    requires producer.Valid()
-    ensures producer.Valid()
-    modifies producer, consumer
-    decreases *
-  {
-    while producer.HasNext() 
-      invariant producer.Valid()
-      decreases * 
-    {
-      var byte := producer.Next();
-      var _ := consumer.Accept(byte);
-    }
+    var Repr: set<object>
+    predicate Valid() reads this, Repr
+    predicate method CanAccept() reads this, Repr
+      requires Valid()
+      ensures Valid()
+    method Accept(b: uint8)
+      requires Valid()
+      requires CanAccept()
+      ensures Valid()
+      modifies this, Repr
   }
 
   method DefaultTryForEachRemaining(producer: ByteProducer, consumer: ByteConsumer) returns (consumed: int) 
     requires producer.Valid()
+    requires consumer.Valid()
+    requires producer.Repr !! consumer.Repr
     ensures producer.Valid()
+    ensures consumer.Valid()
     modifies producer, consumer
     decreases *
   {
     consumed := 0;
     while producer.HasNext() && consumer.CanAccept()
       invariant producer.Valid()
+      invariant consumer.Valid()
       decreases * 
     {
       var byte := producer.Next();
-      var _ := consumer.Accept(byte);
+      consumer.Accept(byte);
       consumed := consumed + 1;
     }
   }
@@ -95,16 +88,10 @@ module Collections {
       res := bytes[index];
       index := index + 1;
     }
-    method ForEachRemaining(consumer: ByteConsumer) 
-      requires Valid()
-      ensures Valid()
-      modifies this, consumer
-      decreases *
-    {
-      DefaultForEachRemaining(this, consumer);
-    }
     method TryForEachRemaining(consumer: ByteConsumer) returns (consumed: int) 
       requires Valid()
+      requires consumer.Valid()
+      requires Repr !! consumer.Repr
       ensures Valid()
       modifies this, consumer
       decreases *
@@ -129,21 +116,45 @@ module Collections {
       res := bytesRemaining[0];
       bytesRemaining := bytesRemaining[1..];
     }
-    method ForEachRemaining(consumer: ByteConsumer) 
-      requires Valid()
-      ensures Valid()
-      modifies this, consumer
-      decreases *
-    {
-      DefaultForEachRemaining(this, consumer);
-    }
     method TryForEachRemaining(consumer: ByteConsumer) returns (consumed: int) 
       requires Valid()
+      requires consumer.Valid()
+      requires Repr !! consumer.Repr
       ensures Valid()
       modifies this, consumer
       decreases *
     {
       consumed := DefaultTryForEachRemaining(this, consumer);
+    }
+  }
+
+  class ArrayWritingByteConsumer extends ByteConsumer {
+    const bytes: array<uint8>
+    var index: int
+    var maxIndex: int
+    predicate Valid() reads this {
+      && 0 <= index <= maxIndex <= bytes.Length
+      && Repr == {this, bytes}
+    }
+    constructor(bytes: array<uint8>) 
+      ensures Valid()
+    {
+      this.bytes := bytes;
+      this.index := 0;
+      this.maxIndex := bytes.Length;
+      this.Repr := {this, bytes};
+    }
+    predicate method CanAccept() reads this requires Valid() ensures Valid() {
+      index < maxIndex
+    }
+    method Accept(b: uint8)
+      requires Valid()
+      requires CanAccept()
+      ensures Valid()
+      modifies this, Repr
+    {
+      bytes[index] := b;
+      index := index + 1;
     }
   }
 }
