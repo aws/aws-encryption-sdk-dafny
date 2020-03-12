@@ -17,9 +17,12 @@ module CollectionsTests {
     bytes[4] := 5;
 
     var producer := new ArrayByteProducer(bytes);
-    expect producer.HasNext();
-    var byte := producer.Next();
-    expect byte == 1;
+    ExpectNext(producer, 1);
+    ExpectNext(producer, 2);
+    ExpectNext(producer, 3);
+    ExpectNext(producer, 4);
+    ExpectNext(producer, 5);
+    expect !producer.HasNext();
   }
 
   method ExpectNext(producer: ByteProducer, expected: uint8) 
@@ -29,6 +32,6 @@ module CollectionsTests {
   {
     expect producer.HasNext();
     var byte := producer.Next();
-    expect byte == 1;
+    expect byte == expected;
   }
 }
