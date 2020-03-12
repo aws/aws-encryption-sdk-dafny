@@ -7,8 +7,8 @@ module Collections {
   import opened UInt = StandardLibrary.UInt
 
   trait ByteProducer {
-    var Repr: set<object>
-    predicate Valid() reads this, Repr
+    ghost const Repr: set<object>
+    predicate Valid() reads this, Repr ensures Valid() ==> this in Repr
     predicate method HasNext() reads this, Repr
       requires Valid() 
       ensures Valid()
@@ -19,17 +19,21 @@ module Collections {
       ensures Valid()
       modifies this
 
-    method TryForEachRemaining(consumer: ByteConsumer) returns (consumed: int)
+    method Siphon(consumer: ByteConsumer) returns (siphoned: int)
       requires Valid()
       requires consumer.Valid()
       requires Repr !! consumer.Repr
+      // TODO-RS: These two should follow from the disjointness requirement
+      // above and `Valid() ==> this in Repr`
+      requires this !in consumer.Repr
+      requires consumer !in Repr
       ensures Valid()
-      modifies this, consumer
+      modifies this, Repr, consumer, consumer.Repr
       decreases *
   }
 
   trait ByteConsumer {
-    var Repr: set<object>
+    ghost const Repr: set<object>
     predicate Valid() reads this, Repr
     predicate method CanAccept() reads this, Repr
       requires Valid()
@@ -38,19 +42,22 @@ module Collections {
       requires Valid()
       requires CanAccept()
       ensures Valid()
+      ensures Repr == old(Repr)
       modifies this, Repr
   }
 
-  method DefaultTryForEachRemaining(producer: ByteProducer, consumer: ByteConsumer) returns (consumed: int) 
+  method DefaultSiphon(producer: ByteProducer, consumer: ByteConsumer) returns (siphoned: int) 
     requires producer.Valid()
     requires consumer.Valid()
+    requires producer !in consumer.Repr
+    requires consumer !in producer.Repr
     requires producer.Repr !! consumer.Repr
     ensures producer.Valid()
     ensures consumer.Valid()
-    modifies producer, consumer
+    modifies producer, producer.Repr, consumer, consumer.Repr
     decreases *
   {
-    consumed := 0;
+    siphoned := 0;
     while producer.HasNext() && consumer.CanAccept()
       invariant producer.Valid()
       invariant consumer.Valid()
@@ -58,7 +65,7 @@ module Collections {
     {
       var byte := producer.Next();
       consumer.Accept(byte);
-      consumed := consumed + 1;
+      siphoned := siphoned + 1;
     }
   }
 
@@ -66,15 +73,18 @@ module Collections {
     const bytes: array<uint8>
     var index: int
     var maxIndex: int
-    predicate Valid() reads this {
-      0 <= index <= maxIndex <= bytes.Length
+    predicate Valid() reads this ensures Valid() ==> this in Repr {
+      && 0 <= index <= maxIndex <= bytes.Length
+      && this in Repr
     }
     constructor(bytes: array<uint8>) 
       ensures Valid()
+      ensures fresh(Repr - {this, bytes})
     {
       this.bytes := bytes;
       this.index := 0;
       this.maxIndex := bytes.Length;
+      this.Repr := {this, bytes};
     }
     predicate method HasNext() reads this requires Valid() ensures Valid() {
       index < maxIndex
@@ -88,22 +98,24 @@ module Collections {
       res := bytes[index];
       index := index + 1;
     }
-    method TryForEachRemaining(consumer: ByteConsumer) returns (consumed: int) 
+    method Siphon(consumer: ByteConsumer) returns (siphoned: int) 
       requires Valid()
       requires consumer.Valid()
+      requires this !in consumer.Repr
+      requires consumer !in Repr
       requires Repr !! consumer.Repr
       ensures Valid()
-      modifies this, consumer
+      modifies this, Repr, consumer, consumer.Repr
       decreases *
     {
-      consumed := DefaultTryForEachRemaining(this, consumer);
+      siphoned := DefaultSiphon(this, consumer);
     }
   }
 
   class SequenceByteProducer extends ByteProducer {
     var bytesRemaining: seq<uint8>
-    predicate Valid() reads this {
-      true
+    predicate Valid() reads this ensures Valid() ==> this in Repr {
+      this in Repr
     }
     predicate method HasNext() reads this {
       |bytesRemaining| > 0
@@ -116,15 +128,17 @@ module Collections {
       res := bytesRemaining[0];
       bytesRemaining := bytesRemaining[1..];
     }
-    method TryForEachRemaining(consumer: ByteConsumer) returns (consumed: int) 
+    method Siphon(consumer: ByteConsumer) returns (siphoned: int) 
       requires Valid()
       requires consumer.Valid()
+      requires this !in consumer.Repr
+      requires consumer !in Repr
       requires Repr !! consumer.Repr
       ensures Valid()
-      modifies this, consumer
+      modifies this, Repr, consumer, consumer.Repr
       decreases *
     {
-      consumed := DefaultTryForEachRemaining(this, consumer);
+      siphoned := DefaultSiphon(this, consumer);
     }
   }
 
@@ -138,6 +152,7 @@ module Collections {
     }
     constructor(bytes: array<uint8>) 
       ensures Valid()
+      ensures fresh(Repr - {this, bytes})
     {
       this.bytes := bytes;
       this.index := 0;

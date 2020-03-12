@@ -8,7 +8,7 @@ module CollectionsTests {
   import opened UInt = StandardLibrary.UInt
   import opened Collections
 
-  method {:test} ArrayByteProducer() {
+  method {:test} ArrayByteProducerNext() {
     var bytes := new uint8[5];
     bytes[0] := 1;
     bytes[1] := 2;
@@ -23,6 +23,38 @@ module CollectionsTests {
     ExpectNext(producer, 4);
     ExpectNext(producer, 5);
     expect !producer.HasNext();
+  }
+
+  method {:test} ArrayByteProducerSiphonToArrayWithCapacity() decreases * {
+    var bytes := new uint8[5];
+    bytes[0] := 1;
+    bytes[1] := 2;
+    bytes[2] := 3;
+    bytes[3] := 4;
+    bytes[4] := 5;
+    var bytesOut := new uint8[10];
+
+    var producer := new ArrayByteProducer(bytes);
+    var consumer := new ArrayWritingByteConsumer(bytesOut);
+    var siphoned := producer.Siphon(consumer);
+    expect siphoned == 5;
+    expect bytesOut[..] == [1, 2, 3, 4, 5, 0, 0, 0, 0, 0];
+  }
+
+  method {:test} ArrayByteProducerSiphonToArrayWithoutCapacity() decreases * {
+    var bytes := new uint8[5];
+    bytes[0] := 1;
+    bytes[1] := 2;
+    bytes[2] := 3;
+    bytes[3] := 4;
+    bytes[4] := 5;
+    var bytesOut := new uint8[3];
+
+    var producer := new ArrayByteProducer(bytes);
+    var consumer := new ArrayWritingByteConsumer(bytesOut);
+    var siphoned := producer.Siphon(consumer);
+    expect siphoned == 3;
+    expect bytesOut[..] == [1, 2, 3];
   }
 
   method ExpectNext(producer: ByteProducer, expected: uint8) 
