@@ -39,6 +39,8 @@ module {:extern "ESDKClient"} ESDKClient {
     requires cmm.Valid()
     requires optFrameLength.Some? ==> optFrameLength.get != 0
     requires optEncryptionContext.Some? ==> optEncryptionContext.get.Keys !! Materials.ReservedKeyValues && Msg.ValidAAD(optEncryptionContext.get)
+    modifies cmm.Repr
+    ensures cmm.Valid() && fresh(cmm.Repr - old(cmm.Repr))
   {
     var encryptionContext := optEncryptionContext.GetOrElse(map[]);
     assert Msg.ValidAAD(encryptionContext) by {
