@@ -18,7 +18,8 @@ module {:extern "STL"} StandardLibrary {
     }
   }
 
-  method {:extern} Cast<T>(x: object) returns (r: Option<T>)
+  method {:extern} Cast<T>(x: object, ghost ensured: (T) --> bool) returns (r: Option<T>)
+    ensures r.Some? && ensured.requires(r.get) ==> ensured(r.get)
 
   datatype Result<T> = Success(value: T) | Failure(error: string)
   {
@@ -161,7 +162,10 @@ module {:extern "STL"} StandardLibrary {
     }
   }
 
-  function method Min(a: int, b: int): int {
+  function method Min(a: int, b: int): int 
+    ensures Min(a, b) <= a
+    ensures Min(a, b) <= b
+  {
     if a < b then a else b
   }
 
@@ -179,6 +183,29 @@ module {:extern "STL"} StandardLibrary {
     ensures forall i :: 0 <= i < |s| ==> a[i] == s[i]
   {
     a := new T[|s|](i requires 0 <= i < |s| => s[i]);
+  }
+
+  // TODO-RS: This will have much faster implementations in the target languages.
+  // Potentially add a new update statement flavour for this, for e.g.:
+  // a[i..j] := values; // requires j - i == |values|
+  method UpdateRange<T>(a: array<T>, offset: int, values: seq<T>) 
+    requires 0 <= offset < a.Length - |values|
+    ensures var j := offset + |values|;
+      && a[..offset] == old(a[..offset])
+      // && a[offset..j] == values
+      && a[j..] == old(a[j..])
+    modifies a
+  {
+    var i := 0; 
+    ghost var j := offset + |values|;
+    while i < |values|
+      invariant a[..offset] == old(a[..offset])
+      invariant i < |values| ==> a[offset..(offset + i)] == values[..i]
+      invariant a[j..] == old(a[j..])
+    {
+      a[offset + i] := values[i];
+      i := i + 1; 
+    }
   }
 
   lemma SeqPartsMakeWhole<T>(s: seq<T>, i: nat)

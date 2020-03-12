@@ -42,7 +42,6 @@ module Collections {
       requires Valid()
       requires CanAccept()
       ensures Valid()
-      ensures Repr == old(Repr)
       modifies this, Repr
   }
 
@@ -108,7 +107,23 @@ module Collections {
       modifies this, Repr, consumer, consumer.Repr
       decreases *
     {
-      siphoned := DefaultSiphon(this, consumer);
+      var asArrayWriter := Cast<ArrayWritingByteConsumer>(consumer, (w: ArrayWritingByteConsumer) => w.Valid());
+      if asArrayWriter.Some? {
+        assume asArrayWriter.get.Valid();
+        siphoned := Min(Remaining(), asArrayWriter.get.Capacity());
+        // TODO-RS: Prove. Cast<A>(x) doesn't realize that Valid() should still be true, which would help.
+        // Perhaps we can have a Validatable trait?
+        expect 0 <= asArrayWriter.get.index < asArrayWriter.get.bytes.Length - siphoned;
+        expect index + siphoned <= bytes.Length;
+        assume asArrayWriter.get.bytes in consumer.Repr;
+        UpdateRange(asArrayWriter.get.bytes, asArrayWriter.get.index, bytes[index..(index + siphoned)]);
+        index := index + siphoned;
+      } else {
+        siphoned := DefaultSiphon(this, consumer);
+      }
+    }
+    function method Remaining(): nat reads this requires Valid() {
+      maxIndex - index
     }
   }
 
@@ -170,6 +185,10 @@ module Collections {
     {
       bytes[index] := b;
       index := index + 1;
+    }
+
+    function method Capacity(): nat reads this requires Valid() {
+      maxIndex - index
     }
   }
 }
