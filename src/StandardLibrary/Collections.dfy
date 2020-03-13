@@ -6,6 +6,9 @@ module Collections {
   import opened StandardLibrary
   import opened UInt = StandardLibrary.UInt
 
+  // TODO-RS: This should REALLY be Producer<T>, and similarly for all the
+  // other interfaces defined here, but unfortunately Dafny
+  // does not support type parameterization on traits.
   trait ByteProducer {
     ghost const Repr: set<object>
     predicate Valid() reads this, Repr ensures Valid() ==> this in Repr
@@ -111,9 +114,6 @@ module Collections {
           w.Valid() && w.Repr == consumer.Repr);
       if asArrayWriter.Some? {
         siphoned := Min(Remaining(), asArrayWriter.get.Capacity());
-        // TODO-RS: Prove instead of dynamically checking
-        expect 0 <= asArrayWriter.get.index < asArrayWriter.get.bytes.Length - siphoned;
-        expect index + siphoned <= bytes.Length;
         UpdateRange(asArrayWriter.get.bytes, asArrayWriter.get.index, bytes[index..(index + siphoned)]);
         index := index + siphoned;
       } else {

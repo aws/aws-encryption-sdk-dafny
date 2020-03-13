@@ -189,10 +189,10 @@ module {:extern "STL"} StandardLibrary {
   // Potentially add a new update statement flavour for this, for e.g.:
   // a[i..j] := values; // requires j - i == |values|
   method UpdateRange<T>(a: array<T>, offset: int, values: seq<T>) 
-    requires 0 <= offset < a.Length - |values|
+    requires 0 <= offset <= a.Length - |values|
     ensures var j := offset + |values|;
       && a[..offset] == old(a[..offset])
-      // && a[offset..j] == values
+      && a[offset..j] == values
       && a[j..] == old(a[j..])
     modifies a
   {

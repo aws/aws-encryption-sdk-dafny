@@ -3,7 +3,7 @@ include "../../src/StandardLibrary/StandardLibrary.dfy"
 include "../../src/StandardLibrary/UInt.dfy"
 include "../../src/StandardLibrary/Collections.dfy"
 
-module CollectionsTests {
+module TestCollection {
   import opened StandardLibrary
   import opened UInt = StandardLibrary.UInt
   import opened Collections
