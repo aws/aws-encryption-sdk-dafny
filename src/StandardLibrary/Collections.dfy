@@ -107,15 +107,13 @@ module Collections {
       modifies this, Repr, consumer, consumer.Repr
       decreases *
     {
-      var asArrayWriter := Cast<ArrayWritingByteConsumer>(consumer, (w: ArrayWritingByteConsumer) => w.Valid());
+      var asArrayWriter := Cast<ArrayWritingByteConsumer>(consumer, (w: ArrayWritingByteConsumer) reads w, w.Repr => 
+          w.Valid() && w.Repr == consumer.Repr);
       if asArrayWriter.Some? {
-        assume asArrayWriter.get.Valid();
         siphoned := Min(Remaining(), asArrayWriter.get.Capacity());
-        // TODO-RS: Prove. Cast<A>(x) doesn't realize that Valid() should still be true, which would help.
-        // Perhaps we can have a Validatable trait?
+        // TODO-RS: Prove instead of dynamically checking
         expect 0 <= asArrayWriter.get.index < asArrayWriter.get.bytes.Length - siphoned;
         expect index + siphoned <= bytes.Length;
-        assume asArrayWriter.get.bytes in consumer.Repr;
         UpdateRange(asArrayWriter.get.bytes, asArrayWriter.get.index, bytes[index..(index + siphoned)]);
         index := index + siphoned;
       } else {
