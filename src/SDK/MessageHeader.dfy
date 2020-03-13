@@ -109,7 +109,7 @@ module {:extern "MessageHeader"} MessageHeader {
    * Validity predicates -- predicates that say when the data structures above are in a good state.
    */
 
-  predicate ValidKVPair(kvPair: (UTF8.ValidUTF8Bytes, UTF8.ValidUTF8Bytes)) {
+  predicate method ValidKVPair(kvPair: (UTF8.ValidUTF8Bytes, UTF8.ValidUTF8Bytes)) {
     && |kvPair.0| < UINT16_LIMIT
     && |kvPair.1| < UINT16_LIMIT
     && UTF8.ValidUTF8Seq(kvPair.0)
@@ -285,7 +285,7 @@ module {:extern "MessageHeader"} MessageHeader {
     return true;
   }
 
-  predicate ValidKVPairs(encryptionContext: Materials.EncryptionContext) {
+  predicate method ValidKVPairs(encryptionContext: Materials.EncryptionContext) {
     && |encryptionContext| < UINT16_LIMIT
     && (forall key :: key in encryptionContext.Keys ==> ValidKVPair((key, encryptionContext[key])))
   }

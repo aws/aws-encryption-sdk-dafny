@@ -154,6 +154,16 @@ module CachingCMMDef {
       ensures res.Success? ==> res.value.plaintextDataKey.Some? && res.value.algorithmSuiteID.ValidPlaintextDataKey(res.value.plaintextDataKey.get)
       ensures res.Success? && res.value.algorithmSuiteID.SignatureType().Some? ==> res.value.verificationKey.Some?
     {
+      var kvPairsLength := MessageHeader.ComputeKVPairsLength(materialsRequest.encryptionContext);
+      if UINT16_LIMIT <= kvPairsLength {
+        return Failure("encryption context too large");
+      } else if !MessageHeader.ValidKVPairs(materialsRequest.encryptionContext) {
+        return Failure("malformed encryption context");
+      }
+      assert MessageHeader.ValidAAD(materialsRequest.encryptionContext) by {
+        reveal MessageHeader.ValidAAD();
+      }
+
       var cacheID :- ComputeCacheID(Some(materialsRequest.algorithmSuiteID), materialsRequest.encryptionContext);
 
       var entry := cmc.LookupDecrypt(cacheID);
