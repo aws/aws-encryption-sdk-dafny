@@ -31,7 +31,10 @@ module {:extern "TestClient"} TestClient {
     import UTF8
     import Client = ESDKClient
   
-    method EncryptDecryptTest(cmm: CMMDefs.CMM) requires cmm.Valid()
+    method EncryptDecryptTest(cmm: CMMDefs.CMM)
+      requires cmm.Valid()
+      modifies cmm.Repr
+      ensures cmm.Valid() && fresh(cmm.Repr - old(cmm.Repr))
     {
       var msg :- expect UTF8.Encode("hello");
       var keyA :- expect UTF8.Encode("keyA");
