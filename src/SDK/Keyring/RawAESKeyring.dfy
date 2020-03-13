@@ -73,7 +73,7 @@ module {:extern "RawAESKeyringDef"} RawAESKeyringDef {
       ensures keyName == name
       ensures wrappingKey == key
       ensures wrappingAlgorithm == wrappingAlg
-      ensures Valid()
+      ensures Valid() && fresh(Repr)
     {
       keyNamespace := namespace;
       keyName := name;

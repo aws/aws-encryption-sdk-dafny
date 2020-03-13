@@ -39,7 +39,7 @@ module {:extern "KMSKeyringDef"} KMSKeyringDef {
 
     constructor(clientSupplier: KMSUtils.ClientSupplier, keyIDs: seq<KMSUtils.CustomerMasterKey>, generator: Option<KMSUtils.CustomerMasterKey>, grantTokens: seq<KMSUtils.GrantToken>)
       requires 0 <= |grantTokens| <= KMSUtils.MAX_GRANT_TOKENS
-      ensures Valid()
+      ensures Valid() && fresh(Repr)
     {
       Repr := {this};
 

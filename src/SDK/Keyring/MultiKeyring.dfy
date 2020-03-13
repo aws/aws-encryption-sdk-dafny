@@ -27,11 +27,11 @@ module {:extern "MultiKeyringDef"} MultiKeyringDef {
         constructor (g : Keyring?, c : seq<Keyring>) ensures generator == g ensures children == c
             requires g != null ==> g.Valid()
             requires forall i :: 0 <= i < |c| ==> c[i].Valid()
-            ensures Valid()
+            ensures Valid() && fresh(Repr - (if g != null then g.Repr else {}) - childrenRepr(c))
         {
             generator := g;
             children := c;
-            Repr := {this} + (if g != null then {g} + g.Repr else {}) + childrenRepr(c);
+            Repr := {this} + (if g != null then g.Repr else {}) + childrenRepr(c);
         }
 
         predicate Valid() reads this, Repr {

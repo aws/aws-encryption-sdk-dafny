@@ -27,6 +27,8 @@ module IntegTestKMS {
 
   method EncryptDecryptTest(cmm: CMMDefs.CMM, message: string) returns (res: string)
     requires cmm.Valid()
+    modifies cmm.Repr
+    ensures cmm.Valid() && fresh(cmm.Repr - old(cmm.Repr))
   {
     var encodedMsg: seq<uint8>;
     var encodeResult := UTF8.Encode(message);

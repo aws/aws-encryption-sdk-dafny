@@ -36,7 +36,7 @@ module {:extern "DefaultCMMDef"} DefaultCMMDef {
     constructor OfKeyring(k: KeyringDefs.Keyring)
       requires k.Valid()
       ensures keyring == k
-      ensures Valid()
+      ensures Valid() && fresh(Repr - k.Repr)
     {
       keyring := k;
       Repr := {this, keyring} + k.Repr;

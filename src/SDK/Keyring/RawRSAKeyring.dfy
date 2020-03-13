@@ -52,14 +52,19 @@ module {:extern "RawRSAKeyringDef"} RawRSAKeyringDef {
       ensures paddingMode == padding
       ensures this.publicKey == publicKey
       ensures this.privateKey == privateKey
-      ensures Valid()
+      ensures Valid() && fresh(Repr - KeyRepr(publicKey) - KeyRepr(privateKey))
     {
       keyNamespace, keyName := namespace, name;
       paddingMode := padding;
       this.publicKey := publicKey;
       this.privateKey := privateKey;
-      Repr := {this} + (if publicKey.Some? then {publicKey.get} + publicKey.get.Repr else {}) +
-        (if privateKey.Some? then {privateKey.get} + privateKey.get.Repr else {});
+      Repr := {this} + KeyRepr(publicKey) + KeyRepr(privateKey);
+    }
+
+    static function KeyRepr(key: Option<RSA.Key>): set<object>
+      reads if key.Some? then {key.get} else {}
+    {
+      if key.Some? then key.get.Repr else {}
     }
 
     method OnEncrypt(materials: Materials.ValidEncryptionMaterials) returns (res: Result<Materials.ValidEncryptionMaterials>)
