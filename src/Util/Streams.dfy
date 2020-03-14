@@ -8,6 +8,7 @@ module {:extern "Streams"} Streams {
     //constructor() {}
     method {:extern "Read"} Read(bytes: seq<uint8>, offset: int32, count: int32) returns (n: int32)
     method {:extern "Length"} Length() returns (n: int32)
+    method {:extern "Position"} Position() returns (n: int32)
   }
 
   class SeqReader<T> {

@@ -6,20 +6,22 @@ module Collections {
   import opened StandardLibrary
   import opened UInt = StandardLibrary.UInt
 
-  trait ByteProducer {
+  trait {:termination false} ByteProducer {
     ghost const Repr: set<object>
     predicate Valid() reads this, Repr ensures Valid() ==> this in Repr
-    predicate method HasNext() reads this, Repr
+    // TODO do I have to change this to pure method?
+    method HasNext() returns (b: bool)
       requires Valid() 
       ensures Valid()
       
-    method Next() returns (res: uint8)
+    method Next() returns (res: Result<uint8>) 
       requires Valid()
-      requires HasNext()
+      // TODO :(
+      //requires HasNext()
       ensures Valid()
       modifies this
 
-    method Siphon(consumer: ByteConsumer) returns (siphoned: int)
+    method Siphon(consumer: ByteConsumer) returns (siphoned: Result<int>)
       requires Valid()
       requires consumer.Valid()
       requires Repr !! consumer.Repr
@@ -45,7 +47,11 @@ module Collections {
       modifies this, Repr
   }
 
-  method DefaultSiphon(producer: ByteProducer, consumer: ByteConsumer) returns (siphoned: int) 
+  // Updating this to siphon one byte per call, in order to interface better with chunking for now
+  // TODO: How do we want to approach this generally? Can we build off of this case? Or do we
+  // need to update how we're handling this?
+  // TODO how do we indicate end of stream?
+  method DefaultSiphon(producer: ByteProducer, consumer: ByteConsumer) returns (res: Result<int>) 
     requires producer.Valid()
     requires consumer.Valid()
     requires producer !in consumer.Repr
@@ -56,18 +62,22 @@ module Collections {
     modifies producer, producer.Repr, consumer, consumer.Repr
     decreases *
   {
-    siphoned := 0;
-    while producer.HasNext() && consumer.CanAccept()
-      invariant producer.Valid()
-      invariant consumer.Valid()
-      decreases * 
+    var siphoned := 0;
+    // TODO HasNext not being a predicate method makes me sad
+    var hasNext := producer.HasNext();
+    var canAccept := consumer.CanAccept();
+    if hasNext && canAccept
     {
-      var byte := producer.Next();
+      var byte :- producer.Next();
       consumer.Accept(byte);
       siphoned := siphoned + 1;
+      hasNext := producer.HasNext();
+      canAccept := consumer.CanAccept();
+      res := Success(siphoned);
     }
+    return Failure("consumer can't accept or producer doesn't have next");
   }
-
+/*
   class ArrayByteProducer extends ByteProducer {
     const bytes: array<uint8>
     var index: int
@@ -85,12 +95,15 @@ module Collections {
       this.maxIndex := bytes.Length;
       this.Repr := {this, bytes};
     }
-    predicate method HasNext() reads this requires Valid() ensures Valid() {
-      index < maxIndex
+    method HasNext() returns (b: bool)
+      requires Valid() 
+      ensures Valid()      
+    {
+      b := index < maxIndex;
     }
-    method Next() returns (res: uint8) 
+    method Next() returns (res: Result<uint8>) 
       requires Valid()
-      requires HasNext()
+      //requires HasNext()
       ensures Valid()
       modifies this
     {
@@ -130,12 +143,15 @@ module Collections {
     predicate Valid() reads this ensures Valid() ==> this in Repr {
       this in Repr
     }
-    predicate method HasNext() reads this {
-      |bytesRemaining| > 0
+    method HasNext() returns (b: bool)
+      requires Valid() 
+      ensures Valid()      
+    {      
+      b := |bytesRemaining| > 0;
     }
-    method Next() returns (res: uint8)
+    method Next() returns (res: Result<uint8>) 
       requires Valid()
-      requires HasNext()
+      //requires HasNext()
       modifies this
     {
       res := bytesRemaining[0];
@@ -189,4 +205,5 @@ module Collections {
       maxIndex - index
     }
   }
+  */
 }

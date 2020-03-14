@@ -12,6 +12,7 @@ include "../Crypto/KeyDerivationAlgorithms.dfy"
 include "../Crypto/HKDF/HKDF.dfy"
 include "../Crypto/AESEncryption.dfy"
 include "../Crypto/Signature.dfy"
+include "../StandardLibrary/Collections.dfy"
 
 module {:extern "ESDKClient"} ESDKClient {
   import opened StandardLibrary
@@ -29,16 +30,17 @@ module {:extern "ESDKClient"} ESDKClient {
   import AESEncryption
   import Signature
   import Deserialize
+  import Collections
 
   const DEFAULT_FRAME_LENGTH: uint32 := 4096
 
-  class EncryptorStream {
+  class EncryptorStream extends Collections.ByteProducer {
     // TODO having issues with extern constructors
     //constructor(bytes: seq<uint8>) {}
     // The top level one shouldn't actually have to deal with internal buffers
     var inStream: Streams.InputStream
-    var inBuffer: seq<uint8> // Use the byteReader/Writer?
-    var outBuffer: seq<uint8>
+    var index: int
+    // TODO have to declare here if we want verification around it. Brittle.
     var cmm: CMMDefs.CMM
     var optEncryptionContext: Option<Materials.EncryptionContext>
     var algorithmSuiteID: Option<AlgorithmSuite.ID>
@@ -46,26 +48,63 @@ module {:extern "ESDKClient"} ESDKClient {
     var length: int32
     var downStream: MessageHeaderStream
 
-    constructor(inStream: Streams.InputStream, cmm: CMMDefs.CMM, optEncryptionContext: Option<Materials.EncryptionContext>, algorithmSuiteID: Option<AlgorithmSuite.ID>, optFrameLength: Option<uint32>) {
+    predicate Valid() reads this ensures Valid() ==> this in Repr {
+      // TODO check downstream is valid?
+      && this in Repr
+    }
+
+    constructor(inStream: Streams.InputStream, cmm: CMMDefs.CMM, optEncryptionContext: Option<Materials.EncryptionContext>, algorithmSuiteID: Option<AlgorithmSuite.ID>, optFrameLength: Option<uint32>)
+      ensures fresh(Repr - {this})
+    {
+      // TODO most all of this stuff is just needed to pass down to MessageHeaderStream.
+      // It would be better to create that outside this and compose them together?
+      // Or should this be responsible for creating and composing all sub streams?
+      this.Repr := {this};
       this.inStream := inStream;
       this.cmm := cmm;
       this.optEncryptionContext := optEncryptionContext;
       this.algorithmSuiteID := algorithmSuiteID;
       this.optFrameLength := optFrameLength;
-      this.inBuffer := [];
-      this.outBuffer := [];
       this.downStream := new MessageHeaderStream(inStream, cmm, optEncryptionContext, algorithmSuiteID, optFrameLength);
     }
 
-    // TODO This should compose several straems. Instead it just calls the first
-    // and relies on that one to call the others :/
-    method ReadByte() returns (res: Result<Option<uint8>>) {
-      var byte :- downStream.ReadByte();
-      return Success(byte);
+    // TODO Not sure how this should fit together...
+    method HasNext() returns (b: bool)
+      requires Valid()
+      ensures Valid()
+    {
+      b := downStream.HasNext();
+    }
+
+    method Next() returns (res: Result<uint8>) 
+      requires Valid()
+      //requires HasNext()
+      ensures Valid()
+      modifies this
+    {
+      // TODO This is brittle, HasNext can't guarantee that this will succeed,
+      // especially since we might experience a failure in a transformation done
+      // in the downstream. Right now failures and EOF are propogating up as 0.
+      res := downStream.Next();
+    }
+
+    method Siphon(consumer: Collections.ByteConsumer) returns (siphoned: Result<int>) 
+      requires Valid()
+      requires consumer.Valid()
+      requires this !in consumer.Repr
+      requires consumer !in Repr
+      requires Repr !! consumer.Repr
+      ensures Valid()
+      modifies this, Repr, consumer, consumer.Repr
+      decreases *
+    {
+      // Use default siphon. Is there a subtype check we could be making here
+      // to improve performance in certain cases?
+      siphoned := Collections.DefaultSiphon(this, consumer);
     }
   }
 
-  class MessageHeaderStream {
+  class MessageHeaderStream extends Collections.ByteProducer {
     // TODO having issues with extern constructors
     //constructor(bytes: seq<uint8>) {}
     var inStream: Streams.InputStream
@@ -79,6 +118,11 @@ module {:extern "ESDKClient"} ESDKClient {
     var didTheThing: bool
     var downStream: EncryptTheRestStream
 
+    predicate Valid() reads this ensures Valid() ==> this in Repr {
+      // TODO check downstream Valid?
+      && this in Repr
+    }
+
     constructor(inStream: Streams.InputStream, cmm: CMMDefs.CMM, optEncryptionContext: Option<Materials.EncryptionContext>, algorithmSuiteID: Option<AlgorithmSuite.ID>, optFrameLength: Option<uint32>) {
       this.inStream := inStream;
       this.cmm := cmm;
@@ -88,6 +132,56 @@ module {:extern "ESDKClient"} ESDKClient {
       this.inBuffer := [];
       this.outBuffer := [];
       this.didTheThing := false;
+      this.downStream := new EncryptTheRestStream(inStream, cmm, optEncryptionContext, algorithmSuiteID, optFrameLength);
+    }
+
+    // TODO Not sure how this should fit together...
+    method HasNext() returns (b: bool)
+      requires Valid()
+      ensures Valid()
+    {
+      b := downStream.HasNext();
+    }
+
+    method Next() returns (res: Result<uint8>) 
+      requires Valid()
+      //requires HasNext()
+      ensures Valid()
+      modifies this
+    {
+      // serialize the message header with our info on first read.
+      if !didTheThing {
+        var _ :- FillOutBuffer();
+        // we did the thing, so flip the bool so we don't do it again.
+        didTheThing := true;
+        expect |outBuffer| > 0;
+      }
+      // if we have stuff in the outBuffer. Take from that.
+      if |outBuffer| > 0 {
+        var byte := outBuffer[0];
+        // TODO will this grab correctly in the case that |outBuffer| == 1?
+        outBuffer := outBuffer[1..];
+        return Success(byte);
+      }
+      // if we don't have anything in the outBuffer and we did the thing, then
+      // that means we need to send to the next streaming interface in order
+      // to deal with the actual encryption
+      res := downStream.Next();
+    }
+
+    method Siphon(consumer: Collections.ByteConsumer) returns (siphoned: Result<int>) 
+      requires Valid()
+      requires consumer.Valid()
+      requires this !in consumer.Repr
+      requires consumer !in Repr
+      requires Repr !! consumer.Repr
+      ensures Valid()
+      modifies this, Repr, consumer, consumer.Repr
+      decreases *
+    {
+      // Use default siphon. Is there a subtype check we could be making here
+      // to improve performance in certain cases?
+      siphoned := Collections.DefaultSiphon(this, consumer);
     }
 
     // We don't actually have to read anything from the input stream
@@ -136,37 +230,9 @@ module {:extern "ESDKClient"} ESDKClient {
       var _ :- Serialize.SerializeHeaderAuthentication(wr, headerAuthentication, encMat.algorithmSuiteID);
       outBuffer := wr.GetDataWritten();
 
-      // Now that we have the serialized header, we can initialize the next stream
-      // this is brittle and sad and we need to think about how we can compose these
-      // streams in a way that makes sense
-      this.downStream := new EncryptTheRestStream(inStream, cmm, optEncryptionContext, algorithmSuiteID, optFrameLength, outBuffer, headerBody, derivedDataKey, encMat);
+      // TODO better way to do this
+      downStream.SetDerivedValues(outBuffer, headerBody, derivedDataKey, encMat);
       return Success(true);
-    }
-
-    method ReadByte() returns (res: Result<Option<uint8>>)
-      requires cmm.Valid()
-      requires optFrameLength.Some? ==> optFrameLength.get != 0
-      requires optEncryptionContext.Some? ==> optEncryptionContext.get.Keys !! Materials.ReservedKeyValues && Msg.ValidAAD(optEncryptionContext.get)
-    {
-      // serialize the message header with our info on first read.
-      if !didTheThing {
-        var _ :- FillOutBuffer();
-        // we did the thing, so flip the bool so we don't do it again.
-        didTheThing := true;
-        expect |outBuffer| > 0;
-      }
-      // if we have stuff in the outBuffer. Take from that.
-      if |outBuffer| > 0 {
-        var byte := outBuffer[0];
-        // TODO will this grab correctly in the case that |outBuffer| == 1?
-        outBuffer := outBuffer[1..];
-        return Success(Some(byte));
-      }
-      // if we don't have anything in the outBuffer and we did the thing, then
-      // that means we need to send to the next streaming interface in order
-      // to deal with the actual encryption
-      var byte :- downStream.ReadByte();
-      return Success(byte);
     }
   }
 
@@ -175,7 +241,7 @@ module {:extern "ESDKClient"} ESDKClient {
   // This should be broken into parts so that it is not necessary to fill then entire
   // plaintext/ciphertext into memory. But right now we're focusing on the streaming
   // interface.
-  class EncryptTheRestStream {
+  class EncryptTheRestStream extends Collections.ByteProducer {
     // TODO having issues with extern constructors
     //constructor(bytes: seq<uint8>) {}
     var inStream: Streams.InputStream
@@ -191,8 +257,13 @@ module {:extern "ESDKClient"} ESDKClient {
     var dataKey: seq<uint8>
     var encMat: Materials.EncryptionMaterials
 
+    predicate Valid() reads this ensures Valid() ==> this in Repr {
+      // TODO check downstream Valid?
+      && this in Repr
+    }
+
     // more woof.
-    constructor(inStream: Streams.InputStream, cmm: CMMDefs.CMM, optEncryptionContext: Option<Materials.EncryptionContext>, algorithmSuiteID: Option<AlgorithmSuite.ID>, optFrameLength: Option<uint32>, serHeader: seq<uint8>, header: Msg.HeaderBody, dataKey: seq<uint8>, encMat: Materials.EncryptionMaterials) {
+    constructor(inStream: Streams.InputStream, cmm: CMMDefs.CMM, optEncryptionContext: Option<Materials.EncryptionContext>, algorithmSuiteID: Option<AlgorithmSuite.ID>, optFrameLength: Option<uint32>) {
       this.inStream := inStream;
       this.cmm := cmm;
       this.optEncryptionContext := optEncryptionContext;
@@ -200,23 +271,39 @@ module {:extern "ESDKClient"} ESDKClient {
       this.optFrameLength := optFrameLength;
       this.inBuffer := [];
       this.outBuffer := [];
-      this.serHeader := serHeader;
-      this.header := header;
-      this.dataKey := dataKey;
-      this.encMat := encMat;
     }
 
-    method ReadByte() returns (res: Result<Option<uint8>>)
-      requires cmm.Valid()
-      requires optFrameLength.Some? ==> optFrameLength.get != 0
-      requires optEncryptionContext.Some? ==> optEncryptionContext.get.Keys !! Materials.ReservedKeyValues && Msg.ValidAAD(optEncryptionContext.get)
+    method SetDerivedValues(serHeader: seq<uint8>, header: Msg.HeaderBody, dataKey: seq<uint8>, encMat: Materials.EncryptionMaterials)
+    {
+      this.serHeader := serHeader;
+      this.header := header;
+      this.encMat := encMat;
+      this.dataKey := dataKey;
+    }
+
+    // TODO Better way to do this...
+    method HasNext() returns (b: bool)
+      requires Valid()
+      ensures Valid()
+    {
+      // :'(
+      var pos := inStream.Position();
+      var len := inStream.Length();
+      return !(pos == len && |outBuffer| == 0);
+    }
+
+    method Next() returns (res: Result<uint8>) 
+      requires Valid()
+      //requires HasNext()
+      ensures Valid()
+      modifies this
     {
       // if we have stuff in the outBuffer. Take from that.
       if |outBuffer| > 0 {
         var byte := outBuffer[0];
         // TODO will this grab correctly in the case that |outBuffer| == 1?
         outBuffer := outBuffer[1..];
-        return Success(Some(byte));
+        return Success(byte);
       }
       // Read from input stream until we get enough where we can output something
       // (which right now means read everything :P)
@@ -228,10 +315,11 @@ module {:extern "ESDKClient"} ESDKClient {
         // we've reached the end of the input stream! This shouldn't happen unless we were wrong
         // about len :/
         if n == 0 {
-          // So we should also return empty. Some way is needed to signify that this is the end
-          // just passing bytes makes this bad. Look into Robin's pattern.
-          // For now, assume that None == end of this stream.
-          return Success(None());
+          // This shouldn't happen because this method can only be called
+          // if inStream.Position != inStream.Length
+          // If it does anyway, :shrug: return 0.
+          // FIXME
+          return Success(0);
         }
         // If not 0 it MUST be 1
         expect n == 1;
@@ -246,9 +334,6 @@ module {:extern "ESDKClient"} ESDKClient {
       // if we're going byte by byte this MUST be true
       // we've loaded all the plaintext into the inBuffer
       expect |inBuffer| == len as int;
-
-      // Get these in a better way. Don't recalculate.
-      var frameLength := if optFrameLength.Some? then optFrameLength.get else DEFAULT_FRAME_LENGTH;
 
       // Time to do the actual encryption
       // Encrypt the given plaintext into the message body and add a footer with a signature, if required
@@ -275,7 +360,22 @@ module {:extern "ESDKClient"} ESDKClient {
       outBuffer := body[1..];
       // consume the inputBuffer
       inBuffer := [];
-      return Success(Some(byte)); 
+      return Success(byte); 
+    }
+
+    method Siphon(consumer: Collections.ByteConsumer) returns (siphoned: Result<int>) 
+      requires Valid()
+      requires consumer.Valid()
+      requires this !in consumer.Repr
+      requires consumer !in Repr
+      requires Repr !! consumer.Repr
+      ensures Valid()
+      modifies this, Repr, consumer, consumer.Repr
+      decreases *
+    {
+      // Use default siphon. Is there a subtype check we could be making here
+      // to improve performance in certain cases?
+      siphoned := Collections.DefaultSiphon(this, consumer);
     }
   }
 
@@ -285,6 +385,7 @@ module {:extern "ESDKClient"} ESDKClient {
     requires optEncryptionContext.Some? ==> optEncryptionContext.get.Keys !! Materials.ReservedKeyValues && Msg.ValidAAD(optEncryptionContext.get)
     decreases *
   {
+    // This should be a composition of them, not some noop stream wrapping them in a stack
     var outStream := new EncryptorStream(inStream, cmm, optEncryptionContext, algorithmSuiteID, optFrameLength);
     //var _ := outStream.FillBuffer(ciphertext);
 

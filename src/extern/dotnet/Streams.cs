@@ -68,19 +68,13 @@ namespace Streams {
         public override int Read(byte[] buffer, int offset, int count)
         {
             int n = 0;
-            while (n < count) {
-                Option<byte> readByte = DafnyFFI.ExtractResult(stream.ReadByte());
-                // Replace with Dafny FFI helper
-                if (readByte is Option_None<byte> none) {
-                    // we've reached the end and can't read any more
-                    return n;
-                } else if (readByte is Option_Some<byte> some) {
-                    // Oof, this is dangerous. Use a helper.
-                    buffer[offset+n] = some.get;
-                    n += 1;
-                } else {
-                    throw new ArgumentException(message: "Unrecognized STL.Option constructor");
-                }
+            while (stream.HasNext() && n < count) {
+                byte readByte = DafnyFFI.ExtractResult(stream.Next());
+
+                // TODO 0 could be a failure or EOF, which is unfortunate.
+                // For now just read it as is. Implement proper failures later.
+                buffer[offset+n] = readByte;
+                n += 1;
             }
             return n;
         }
@@ -117,6 +111,11 @@ namespace Streams {
         public int Length() {
             // TODO cutting off int sizes
             return (int)stream.Length;
+        }
+
+        public int Position() {
+            // TODO cutting off int sizes
+            return (int)stream.Position;
         }
     }
 }
