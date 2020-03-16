@@ -9,73 +9,69 @@ module Collections {
   trait {:termination false} ByteProducer {
     ghost const Repr: set<object>
     predicate Valid() reads this, Repr ensures Valid() ==> this in Repr
-    // TODO do I have to change this to pure method?
-    method HasNext() returns (b: bool)
+    predicate method HasNext() reads this, Repr
       requires Valid() 
       ensures Valid()
       
     method Next() returns (res: Result<uint8>) 
       requires Valid()
-      // TODO :(
-      //requires HasNext()
+      requires HasNext()
       ensures Valid()
       modifies this
 
     method Siphon(consumer: ByteConsumer) returns (siphoned: Result<int>)
       requires Valid()
       requires consumer.Valid()
-      requires Repr !! consumer.Repr
+      requires Repr !! consumer.Repr2
       // TODO-RS: These two should follow from the disjointness requirement
       // above and `Valid() ==> this in Repr`
-      requires this !in consumer.Repr
+      requires this !in consumer.Repr2
       requires consumer !in Repr
       ensures Valid()
-      modifies this, Repr, consumer, consumer.Repr
+      modifies this, Repr, consumer, consumer.Repr2
       decreases *
   }
 
-  trait ByteConsumer {
-    ghost const Repr: set<object>
-    predicate Valid() reads this, Repr
-    predicate method CanAccept() reads this, Repr
+  trait {:termination false} ByteConsumer {
+    // TODO Something can't be both a consumer and a provider and both have a repr >:(
+    ghost const Repr2: set<object>
+    predicate Valid() reads this, Repr2
+    predicate method CanAccept() reads this, Repr2
       requires Valid()
       ensures Valid()
-    method Accept(b: uint8)
+    method Accept(b: uint8) returns (res: Result<()>)
       requires Valid()
       requires CanAccept()
       ensures Valid()
-      modifies this, Repr
+      modifies this, Repr2
   }
 
   // Updating this to siphon one byte per call, in order to interface better with chunking for now
   // TODO: How do we want to approach this generally? Can we build off of this case? Or do we
   // need to update how we're handling this?
   // TODO how do we indicate end of stream?
+  // TODO update to siphon up to count?
   method DefaultSiphon(producer: ByteProducer, consumer: ByteConsumer) returns (res: Result<int>) 
     requires producer.Valid()
     requires consumer.Valid()
-    requires producer !in consumer.Repr
+    requires producer !in consumer.Repr2
     requires consumer !in producer.Repr
-    requires producer.Repr !! consumer.Repr
+    requires producer.Repr !! consumer.Repr2
     ensures producer.Valid()
     ensures consumer.Valid()
-    modifies producer, producer.Repr, consumer, consumer.Repr
+    modifies producer, producer.Repr, consumer, consumer.Repr2
     decreases *
   {
     var siphoned := 0;
-    // TODO HasNext not being a predicate method makes me sad
-    var hasNext := producer.HasNext();
-    var canAccept := consumer.CanAccept();
-    if hasNext && canAccept
+    if producer.HasNext() && consumer.CanAccept()
     {
       var byte :- producer.Next();
-      consumer.Accept(byte);
+      var _ :- consumer.Accept(byte);
       siphoned := siphoned + 1;
-      hasNext := producer.HasNext();
-      canAccept := consumer.CanAccept();
       res := Success(siphoned);
+      return res;
     }
-    return Failure("consumer can't accept or producer doesn't have next");
+    return Success(siphoned);
   }
 /*
   class ArrayByteProducer extends ByteProducer {
@@ -95,7 +91,7 @@ module Collections {
       this.maxIndex := bytes.Length;
       this.Repr := {this, bytes};
     }
-    method HasNext() returns (b: bool)
+    method HasNext()
       requires Valid() 
       ensures Valid()      
     {
@@ -151,7 +147,7 @@ module Collections {
     }
     method Next() returns (res: Result<uint8>) 
       requires Valid()
-      //requires HasNext()
+      requires HasNext()
       modifies this
     {
       res := bytesRemaining[0];

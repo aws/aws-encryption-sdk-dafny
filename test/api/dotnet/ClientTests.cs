@@ -10,6 +10,7 @@ using KMSUtils;
 using Org.BouncyCastle.Security;
 using Xunit;
 using Streams;
+using EncryptionStreams;
 
 namespace AWSEncryptionSDKTests
 {
@@ -130,7 +131,7 @@ namespace AWSEncryptionSDKTests
             using (FileStream fsSource = new FileStream("../../../tmp/test-input.txt",
                 FileMode.Open, FileAccess.Read))
             {
-                OutputStream ciphertext = AWSEncryptionSDK.Client.Encrypt(fsSource, cmm);
+                EncryptionStream ciphertext = AWSEncryptionSDK.Client.Encrypt(fsSource, cmm);
                 // Write what we get to a file.
                 using (FileStream file = File.Create("../../../tmp/test-output-encrypt.txt"))
                 {
