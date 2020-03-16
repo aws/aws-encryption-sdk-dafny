@@ -155,6 +155,8 @@ module Serialize {
         Msg.KVPairEntriesToSeq(kvPairs, 0, j)
       invariant totalWritten == 2 + |Msg.KVPairEntriesToSeq(kvPairs, 0, j)|
     {
+      ghost var previouslyWritten := wr.GetDataWritten();
+
       len := wr.WriteUInt16(|kvPairs[j].0| as uint16);
       totalWritten := totalWritten + len;
 
@@ -166,6 +168,18 @@ module Serialize {
 
       len := wr.WriteBytes(kvPairs[j].1);
       totalWritten := totalWritten + len;
+
+      calc {
+        wr.GetDataWritten();
+      ==  // the four writes in this loop iteration write Msg.KVPairToSeq(kvPairs[j])
+        previouslyWritten + Msg.KVPairToSeq(kvPairs[j]);
+      ==  // loop invariant on entry to loop
+        (old(wr.GetDataWritten()) + UInt16ToSeq(n as uint16) + Msg.KVPairEntriesToSeq(kvPairs, 0, j)) + Msg.KVPairToSeq(kvPairs[j]);
+      ==  // + is associative
+        old(wr.GetDataWritten()) + UInt16ToSeq(n as uint16) + (Msg.KVPairEntriesToSeq(kvPairs, 0, j) + Msg.KVPairToSeq(kvPairs[j]));
+      ==  { assert Msg.KVPairEntriesToSeq(kvPairs, 0, j) + Msg.KVPairToSeq(kvPairs[j]) == Msg.KVPairEntriesToSeq(kvPairs, 0, j + 1); }
+        old(wr.GetDataWritten()) + UInt16ToSeq(n as uint16) + Msg.KVPairEntriesToSeq(kvPairs, 0, j + 1);
+      }
 
       j := j + 1;
     }

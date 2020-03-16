@@ -10,7 +10,7 @@ module {:extern "KeyringDefs"} KeyringDefs {
   import AlgorithmSuite
 
   trait {:termination false} Keyring {
-    ghost var Repr : set<object>
+    ghost var Repr: set<object>
     predicate Valid()
       reads this, Repr
       ensures Valid() ==> this in Repr

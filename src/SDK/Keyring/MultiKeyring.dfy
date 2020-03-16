@@ -34,7 +34,11 @@ module {:extern "MultiKeyringDef"} MultiKeyringDef {
             Repr := {this} + (if g != null then g.Repr else {}) + childrenRepr(c);
         }
 
-        predicate Valid() reads this, Repr {
+        predicate Valid()
+          reads this, Repr
+          ensures Valid() ==> this in Repr
+        {
+            && this in Repr
             && (generator != null ==> generator in Repr && generator.Repr <= Repr && generator.Valid())
             && (forall j :: 0 <= j < |children| ==> children[j] in Repr && children[j].Repr <= Repr && children[j].Valid())
         }

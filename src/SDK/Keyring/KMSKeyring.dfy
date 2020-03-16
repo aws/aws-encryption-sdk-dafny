@@ -31,13 +31,16 @@ module {:extern "KMSKeyringDef"} KMSKeyringDef {
     const grantTokens: seq<KMSUtils.GrantToken>
     const isDiscovery: bool
 
-    predicate Valid() reads this, Repr {
-      && Repr == {this}
-      && (0 <= |grantTokens| <= KMSUtils.MAX_GRANT_TOKENS)
+    predicate Valid()
+      reads this, Repr
+      ensures Valid() ==> this in Repr
+    {
+      && this in Repr
+      && 0 <= |grantTokens| <= KMSUtils.MAX_GRANT_TOKENS
       && (|keyIDs| == 0 && generator.None? ==> isDiscovery)
     }
 
-    constructor(clientSupplier: KMSUtils.ClientSupplier, keyIDs: seq<KMSUtils.CustomerMasterKey>, generator: Option<KMSUtils.CustomerMasterKey>, grantTokens: seq<KMSUtils.GrantToken>)
+    constructor (clientSupplier: KMSUtils.ClientSupplier, keyIDs: seq<KMSUtils.CustomerMasterKey>, generator: Option<KMSUtils.CustomerMasterKey>, grantTokens: seq<KMSUtils.GrantToken>)
       requires 0 <= |grantTokens| <= KMSUtils.MAX_GRANT_TOKENS
       ensures Valid() && fresh(Repr)
     {

@@ -23,7 +23,7 @@ module {:extern "RSAEncryption"} RSAEncryption {
       reads this, Repr
       ensures Valid() ==> this in Repr
     {
-      Repr == {this} &&
+      this in Repr &&
       |pem| > 0 &&
       GetBytes(strength) >= MinStrengthBytes(padding) &&
       PEMGeneratedWithStrength(pem, strength) &&

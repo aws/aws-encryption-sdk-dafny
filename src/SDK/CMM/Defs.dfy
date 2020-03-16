@@ -13,7 +13,7 @@ module {:extern "CMMDefs"} CMMDefs {
   import MessageHeader
 
   trait {:termination false} CMM {
-    ghost var Repr : set<object>
+    ghost var Repr: set<object>
     predicate Valid()
       reads this, Repr
       ensures Valid() ==> this in Repr
