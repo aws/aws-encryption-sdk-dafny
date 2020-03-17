@@ -9,7 +9,7 @@ using ibyteseq = Dafny.ISequence<byte>;
 using icharseq = Dafny.ISequence<char>;
 using encryptioncontext = Dafny.Map<Dafny.ISequence<byte>, Dafny.ISequence<byte>>;
 using EncryptionStreams;
-using Streams;
+using Collections;
 using byteseq = Dafny.Sequence<byte>;
 using charseq = Dafny.Sequence<char>;
 using ESDKClient;
@@ -26,8 +26,8 @@ namespace AWSEncryptionSDK
             if (algorithmSuiteID != null && !AlgorithmSuite.__default.VALID__IDS.Elements.Contains((ushort)algorithmSuiteID)) {
                 throw new ArgumentException("Invalid algorithmSuiteID: " + algorithmSuiteID.ToString());
             }
-            // TODO need to convert Stream to Dafny InputStream
-            InputStream dafnyStream = DafnyFFI.InputStreamFromStream(plaintext);
+            ExternByteProducer input = new ExternByteProducer();
+            input.SetInputStream(plaintext);
     
             // TODO: This isn't checking for nulls or any of the requirements on the Dafny method.
             // See https://github.com/dafny-lang/dafny/issues/461.
@@ -38,14 +38,12 @@ namespace AWSEncryptionSDK
             
             // THese two shuould be encapsulated by one object in dafny
             STL.Result<ESDKClient.EncryptTheRestStream> result = ESDKClient.__default.StreamEncrypt(
-                    dafnyStream,
+                    input,
                     cmm,
                     dafnyEncryptionContext,
                     optAlgorithmSuiteID,
                     optFrameLength
                     );
-            ESDKClient.EncryptInputStream input = new ESDKClient.EncryptInputStream();
-            input.__ctor(dafnyStream);
 
             return new EncryptionStream(input, DafnyFFI.ExtractResult(result));
         }

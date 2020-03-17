@@ -34,73 +34,11 @@ module {:extern "ESDKClient"} ESDKClient {
 
   const DEFAULT_FRAME_LENGTH: uint32 := 4096
 
-  // This is just a transformation of the C# stream interface with the Dafny producer interface
-  // TODO move this encapsulation into the api/extern layer
-  class EncryptInputStream extends Collections.ByteProducer {
-    var inStream: Streams.InputStream
-
-    predicate Valid() reads this ensures Valid() ==> this in Repr {
-      && this in Repr
-    }
-
-    constructor(inStream: Streams.InputStream)
-      ensures fresh(Repr - {this})
-    {
-      this.Repr := {this};
-      this.inStream := inStream;
-    }
-
-    predicate method HasNext()
-      requires Valid()
-      ensures Valid()
-    {
-      // :'(
-      var pos := inStream.Position();
-      var len := inStream.Length();
-      pos != len
-    }
-
-    method Next() returns (res: Result<uint8>) 
-      requires Valid()
-      requires HasNext()
-      ensures Valid()
-      modifies this
-    {
-      var buffer: seq<uint8> := seq(1, _ => 0);
-      // This is assuming inStream is a C# streaming interface
-      // As stated above, the transformation between C# and Dafny streaming interfaces
-      // must exist in the extern/api layer
-      // TODO This is brittle, and we don't even have HasNext guarantee anymore
-      var n := inStream.Read(buffer, 0, 1);
-      if n == 0 {
-        return Failure("Tried to read from input stream when nothing there");
-      }
-      // This MUST be true or the API contract has been broken
-      expect n == 1;
-      return Success(buffer[0]);
-    }
-
-    method Siphon(consumer: Collections.ByteConsumer) returns (siphoned: Result<int>) 
-      requires Valid()
-      requires consumer.Valid()
-      requires this !in consumer.Repr2
-      requires consumer !in Repr
-      requires Repr !! consumer.Repr2
-      ensures Valid()
-      modifies this, Repr, consumer, consumer.Repr2
-      decreases *
-    {
-      // Use default siphon. Is there a subtype check we could be making here
-      // to improve performance in certain cases?
-      siphoned := Collections.DefaultSiphon(this, consumer);
-    }
-  }
-
   // passes through the header and encrypts the plaintext
   // This will read all of the plaintext into memory before
   // performing the encryption because this is a proof of concept
   // for the streaming interface.
-  class EncryptTheRestStream extends Collections.ByteProducer, Collections.ByteConsumer {
+  class EncryptTheRestStream extends Collections.ByteConsumer {
     var inBuffer: seq<uint8> // Use the byteReader/Writer?
     var outBuffer: seq<uint8>
     var cmm: CMMDefs.CMM
@@ -118,6 +56,8 @@ module {:extern "ESDKClient"} ESDKClient {
     var totalLength: int
     var curLength: int
     var toSign: seq<uint8>
+
+    ghost const Repr: set<object>
 
     predicate Valid() reads this ensures Valid() ==> this in Repr {
       // TODO check downstream Valid?
@@ -202,7 +142,6 @@ module {:extern "ESDKClient"} ESDKClient {
       }
     }
 
-    // TODO Better way to do this...
     predicate method HasNext()
       reads this
       requires Valid()
@@ -225,24 +164,9 @@ module {:extern "ESDKClient"} ESDKClient {
         return Success(byte);
       }
     }
-
-    method Siphon(consumer: Collections.ByteConsumer) returns (siphoned: Result<int>) 
-      requires Valid()
-      requires consumer.Valid()
-      requires this !in consumer.Repr2
-      requires consumer !in Repr
-      requires Repr !! consumer.Repr2
-      ensures Valid()
-      modifies this, Repr, consumer, consumer.Repr2
-      decreases *
-    {
-      // Use default siphon. Is there a subtype check we could be making here
-      // to improve performance in certain cases?
-      siphoned := Collections.DefaultSiphon(this, consumer);
-    }
   }
 
-  method StreamEncrypt(inStream: Streams.InputStream, cmm: CMMDefs.CMM, optEncryptionContext: Option<Materials.EncryptionContext>, algorithmSuiteID: Option<AlgorithmSuite.ID>, optFrameLength: Option<uint32>) returns (res: Result<EncryptTheRestStream>)
+  method StreamEncrypt(inStream: Collections.ExternByteProducer, cmm: CMMDefs.CMM, optEncryptionContext: Option<Materials.EncryptionContext>, algorithmSuiteID: Option<AlgorithmSuite.ID>, optFrameLength: Option<uint32>) returns (res: Result<EncryptTheRestStream>)
     requires cmm.Valid()
     requires optFrameLength.Some? ==> optFrameLength.get != 0
     requires optEncryptionContext.Some? ==> optEncryptionContext.get.Keys !! Materials.ReservedKeyValues && Msg.ValidAAD(optEncryptionContext.get)
@@ -300,15 +224,6 @@ module {:extern "ESDKClient"} ESDKClient {
     return Success(finalStream);
     // TODO convert to output stream
   }
-
-/*
-  method StreamDecrypt(in: InputStream, cmm: CMMDefs.CMM) returns (res: Result<seq<uint8>>)
-  {
-    // convert in to message
-    return Decrypt(message, cmm);
-    // TODO convert to output stream
-  }
-*/
 
  /*
   * Encrypt a plaintext and serialize it into a message.

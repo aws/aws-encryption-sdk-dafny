@@ -2,7 +2,7 @@
 include "../StandardLibrary/StandardLibrary.dfy"
 include "../StandardLibrary/UInt.dfy"
 
-module Collections {
+module {:extern "Collections"} Collections {
   import opened StandardLibrary
   import opened UInt = StandardLibrary.UInt
 
@@ -44,6 +44,52 @@ module Collections {
       requires CanAccept()
       ensures Valid()
       modifies this, Repr2
+  }
+
+  class ExternByteProducer extends ByteProducer {
+    constructor() {}
+
+    predicate Valid() reads this ensures Valid() ==> this in Repr {
+      && this in Repr
+    }
+
+    // TODO this is an extern function :(
+    predicate method {:extern} ExternHasNext()
+
+    method {:extern} ExternNext() returns (res: Result<uint8>)
+
+    method {:extern} Length() returns (len: int)
+
+    predicate method HasNext()
+      requires Valid()
+      ensures Valid()
+    {
+      ExternHasNext()
+    }
+
+    method Next() returns (res: Result<uint8>) 
+      requires Valid()
+      requires HasNext()
+      ensures Valid()
+      modifies this
+    {
+      res := ExternNext();
+    }
+
+    method Siphon(consumer: ByteConsumer) returns (siphoned: Result<int>) 
+      requires Valid()
+      requires consumer.Valid()
+      requires this !in consumer.Repr2
+      requires consumer !in Repr
+      requires Repr !! consumer.Repr2
+      ensures Valid()
+      modifies this, Repr, consumer, consumer.Repr2
+      decreases *
+    {
+      // Use default siphon. Is there a subtype check we could be making here
+      // to improve performance in certain cases?
+      siphoned := DefaultSiphon(this, consumer);
+    }
   }
 
   // Updating this to siphon one byte per call, in order to interface better with chunking for now

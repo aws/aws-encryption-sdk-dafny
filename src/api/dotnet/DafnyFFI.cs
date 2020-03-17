@@ -19,13 +19,6 @@ public class DafnyFFI {
         Array.Copy(seq.Elements, 0, copy, 0, seq.Elements.Length);
         return new MemoryStream(copy);
     }
-
-    public static InputStream InputStreamFromStream(Stream s) {
-        // TODO I should not be able to directly use the constructor here...
-        InputStream result = new InputStream(s);
-        //result.__ctor(s);
-        return result;
-    }
   
     public static ibyteseq SequenceFromStream(Stream s) {
         // TODO: Find a way to safely avoid copying

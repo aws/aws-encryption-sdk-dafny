@@ -4,14 +4,6 @@ module {:extern "Streams"} Streams {
   import opened StandardLibrary
   import opened UInt = StandardLibrary.UInt
 
-  class InputStream {
-    //constructor() {}
-    method {:extern "Read"} Read(bytes: seq<uint8>, offset: int32, count: int32) returns (n: int32)
-    // TODO function method here is a lie :'(
-    function method {:extern "Length"} Length(): (n: int32)
-    function method {:extern "Position"} Position(): (n: int32)
-  }
-
   class SeqReader<T> {
     ghost var Repr: set<object>
     const data: seq<T>

@@ -11,12 +11,12 @@ namespace EncryptionStreams {
     public partial class EncryptionStream : Stream {
         // TODO what should the underlying stream actually be?
         // TODO should be readonly
-        private ESDKClient.EncryptTheRestStream encryptorStream;
-        private ESDKClient.EncryptInputStream inputStream;
+        private ESDKClient.EncryptTheRestStream consumer;
+        private Collections.ExternByteProducer producer;
 
-        public EncryptionStream(ESDKClient.EncryptInputStream inputStream, ESDKClient.EncryptTheRestStream encryptorStream) {
-            this.inputStream = inputStream;
-            this.encryptorStream = encryptorStream;
+        public EncryptionStream(Collections.ExternByteProducer producer, ESDKClient.EncryptTheRestStream consumer) {
+            this.producer = producer;
+            this.consumer = consumer;
         }
 
         public override bool CanRead
@@ -76,16 +76,17 @@ namespace EncryptionStreams {
 
             // Need to abstract more so that we do not have to byte by byte HasNext()
             while (n < count) {
-                while (!encryptorStream.HasNext()) {
+                while (!consumer.HasNext()) {
                     // TODO annoying BigInteger >:(
-                    System.Numerics.BigInteger siphoned = DafnyFFI.ExtractResult(inputStream.Siphon(encryptorStream));
+                    Result<System.Numerics.BigInteger> foo = producer.Siphon(consumer);
+                    System.Numerics.BigInteger siphoned = DafnyFFI.ExtractResult(foo);
                     // there is no more to siphon. End of composite stream.
                     if (siphoned == 0) {
                         return n;
                     }
                     // assert HasNext()?
                 }
-                byte readByte = DafnyFFI.ExtractResult(encryptorStream.Next());
+                byte readByte = DafnyFFI.ExtractResult(consumer.Next());
 
                 // TODO 0 could be a failure or EOF, which is unfortunate.
                 // For now just read it as is. Implement proper failures later.
