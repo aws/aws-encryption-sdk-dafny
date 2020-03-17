@@ -11,7 +11,7 @@ module {:extern "RSAEncryption"} RSAEncryption {
   // can be calculated as: (strength + 7) / 8 - 11 == 0 ==> min strength == 81 in this scenario
   // (where messageLength == 0). In practice, this number should be much higher (at least 1024 or, better, 2048).
   // TODO: Determine if we want to enforce a min value of 2048 bits as the min strength (requires updating the spec)
-  newtype {:nativeType "int"} StrengthBits = x | 81 <= x < (0x8000_0000) witness 81
+  newtype {:nativeType "int", "number"} StrengthBits = x | 81 <= x < (0x8000_0000) witness 81
 
   // This trait represents the parent for RSA public and private keys
   trait {:termination false} Key {
