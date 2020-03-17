@@ -56,15 +56,18 @@ module {:extern "RawAESKeyringDef"} RawAESKeyringDef {
     const wrappingKey: seq<uint8>
     const wrappingAlgorithm: EncryptionSuites.EncryptionSuite
 
-    predicate Valid() reads this {
-      && Repr == {this}
+    predicate Valid()
+      reads this, Repr
+      ensures Valid() ==> this in Repr
+    {
+      && this in Repr
       && |wrappingKey| == wrappingAlgorithm.keyLen as int
       && wrappingAlgorithm in VALID_ALGORITHMS
       && wrappingAlgorithm.Valid()
       && |keyNamespace| < UINT16_LIMIT
     }
 
-    constructor(namespace: UTF8.ValidUTF8Bytes, name: UTF8.ValidUTF8Bytes, key: seq<uint8>, wrappingAlg: EncryptionSuites.EncryptionSuite)
+    constructor (namespace: UTF8.ValidUTF8Bytes, name: UTF8.ValidUTF8Bytes, key: seq<uint8>, wrappingAlg: EncryptionSuites.EncryptionSuite)
       requires |namespace| < UINT16_LIMIT
       requires wrappingAlg in VALID_ALGORITHMS
       requires wrappingAlg.Valid()
@@ -73,7 +76,7 @@ module {:extern "RawAESKeyringDef"} RawAESKeyringDef {
       ensures keyName == name
       ensures wrappingKey == key
       ensures wrappingAlgorithm == wrappingAlg
-      ensures Valid()
+      ensures Valid() && fresh(Repr)
     {
       keyNamespace := namespace;
       keyName := name;
@@ -85,7 +88,7 @@ module {:extern "RawAESKeyringDef"} RawAESKeyringDef {
     function method SerializeProviderInfo(iv: seq<uint8>): seq<uint8>
       requires Valid()
       requires |iv| == wrappingAlgorithm.ivLen as int
-      reads this
+      reads Repr
     {
         keyName +
         [0, 0, 0, wrappingAlgorithm.tagLen * 8] + // tag length in bits
@@ -96,8 +99,6 @@ module {:extern "RawAESKeyringDef"} RawAESKeyringDef {
     method OnEncrypt(materials: Mat.ValidEncryptionMaterials) returns (res: Result<Mat.ValidEncryptionMaterials>)
       // Keyring Trait conditions
       requires Valid()
-      ensures Valid()
-      ensures unchanged(Repr)
       ensures res.Success? ==> 
         && materials.encryptionContext == res.value.encryptionContext
         && materials.algorithmSuiteID == res.value.algorithmSuiteID 

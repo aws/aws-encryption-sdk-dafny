@@ -26,19 +26,19 @@ module {:extern "DefaultCMMDef"} DefaultCMMDef {
 
     predicate Valid()
       reads this, Repr
+      ensures Valid() ==> this in Repr
     {
-      keyring in Repr &&
-      Repr == {this, keyring} + keyring.Repr &&
-      keyring.Valid()
+      this in Repr &&
+      keyring in Repr && keyring.Repr <= Repr && this !in keyring.Repr && keyring.Valid()
     }
 
     constructor OfKeyring(k: KeyringDefs.Keyring)
       requires k.Valid()
       ensures keyring == k
-      ensures Valid()
+      ensures Valid() && fresh(Repr - k.Repr)
     {
       keyring := k;
-      Repr := {this, keyring} + k.Repr;
+      Repr := {this} + k.Repr;
     }
 
     method GetEncryptionMaterials(materialsRequest: Materials.EncryptionMaterialsRequest)
