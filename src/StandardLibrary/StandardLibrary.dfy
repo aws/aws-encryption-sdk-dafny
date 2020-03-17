@@ -4,7 +4,7 @@ module {:extern "STL"} StandardLibrary {
   import opened U = UInt
 
   // TODO: Depend on types defined in dafny-lang/libraries instead
-  datatype Option<T> = None | Some(get: T)
+  datatype Option<+T> = None | Some(get: T)
   {
     function method ToResult(): Result<T> {
       match this
