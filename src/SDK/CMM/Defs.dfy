@@ -36,7 +36,7 @@ module {:extern "CMMDefs"} CMMDefs {
 
     // The following predicate is a synonym for MessageHeader.ValidAAD and provides a workaround for a translation bug
     // of "fuel" in trait-override checks in Dafny. https://github.com/dafny-lang/dafny/issues/422
-    predicate ValidAAD(encryptionContext: Materials.EncryptionContext) {
+    static predicate ValidAAD(encryptionContext: Materials.EncryptionContext) {
       MessageHeader.ValidAAD(encryptionContext)
     }
 

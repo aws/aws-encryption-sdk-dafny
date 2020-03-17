@@ -87,6 +87,23 @@ module CachingCMMDef {
       Repr := {this} + cmm.Repr + cmc.Repr;
     }
 
+    constructor WithLimits(cmm: CMMDefs.CMM, timeToLiveLimit: nat, bytesLimit: uint64, messagesLimit: uint64)
+      requires cmm.Valid()
+      ensures Valid() && fresh(Repr - old(cmm.Repr))
+      ensures this.cmm == cmm
+      ensures this.timeToLiveLimit == timeToLiveLimit && this.bytesLimit == bytesLimit && this.messagesLimit == messagesLimit
+    {
+      this.timeToLiveLimit := timeToLiveLimit;
+      this.bytesLimit := bytesLimit;
+      this.messagesLimit := messagesLimit;
+
+      this.cmm := cmm;
+      var cmc := new CryptographicMaterialsCache();
+      assert cmc in cmc.Repr;
+      this.cmc := cmc;
+      Repr := {this} + cmm.Repr + cmc.Repr;
+    }
+
     method GetEncryptionMaterials(materialsRequest: Materials.EncryptionMaterialsRequest)
                                   returns (res: Result<Materials.ValidEncryptionMaterials>)
       requires Valid()
@@ -140,7 +157,7 @@ module CachingCMMDef {
       Repr := Repr + cmm.Repr;
       var encMat :- res;
       // Add them to the cache.
-      entry := cmc.AddEncrypt(cacheID, encMat, DEFAULT_TIME_TO_LIVE_LIMIT);
+      entry := cmc.AddEncrypt(cacheID, encMat, timeToLiveLimit);
       Repr := Repr + cmc.Repr;
       entry.IncrementUse(materialsRequest.plaintextLength.get, 1);
       return Success(encMat);
@@ -183,7 +200,7 @@ module CachingCMMDef {
       Repr := Repr + cmm.Repr;
       var decMat :- res;
       // Add them to the cache.
-      entry := cmc.AddDecrypt(cacheID, decMat, DEFAULT_TIME_TO_LIVE_LIMIT);
+      entry := cmc.AddDecrypt(cacheID, decMat, timeToLiveLimit);
       Repr := Repr + cmc.Repr;
       return Success(decMat);
     }
@@ -266,7 +283,7 @@ module CachingCMMDef {
     // Adds an entry [cacheID := encMat] to the cache, replacing any previous encrypt entry for cacheID
     // and initializing usage limits to (currentTime + timeToLiveLimit, 0, 0). Returns the resulting entry.
     method AddEncrypt(cacheID: seq<uint8>, encMat: Materials.ValidEncryptionMaterials, timeToLiveLimit: nat) returns (entry: CacheEntryEncrypt)
-      requires Valid() && GoodEncMat(encMat) && 0 < timeToLiveLimit
+      requires Valid() && GoodEncMat(encMat)
       modifies Repr
       ensures Valid() && fresh(Repr - old(Repr)) && entry in Repr
     {
@@ -278,7 +295,7 @@ module CachingCMMDef {
     // Adds an entry [cacheID := decMat] to the cache, replacing any previous decrypt entry for cacheID
     // and initializing usage limits to (currentTime + timeToLiveLimit). Returns the resulting entry.
     method AddDecrypt(cacheID: seq<uint8>, decMat: Materials.ValidDecryptionMaterials, timeToLiveLimit: nat) returns (entry: CacheEntryDecrypt)
-      requires Valid() && GoodDecMat(decMat) && 0 < timeToLiveLimit
+      requires Valid() && GoodDecMat(decMat)
       modifies Repr
       ensures Valid() && fresh(Repr - old(Repr)) && entry in Repr
     {
@@ -324,11 +341,11 @@ module CachingCMMDef {
 
     method IncrementUse(byteCount: nat, useCount: nat)
       modifies this
-      ensures messagesEncrypted == old(messagesEncrypted) + byteCount
-      ensures bytesEncrypted == old(bytesEncrypted) + useCount
+      ensures messagesEncrypted == old(messagesEncrypted) + useCount
+      ensures bytesEncrypted == old(bytesEncrypted) + byteCount
     {
-      messagesEncrypted := messagesEncrypted + byteCount;
-      bytesEncrypted := bytesEncrypted + useCount;
+      messagesEncrypted := messagesEncrypted + useCount;
+      bytesEncrypted := bytesEncrypted + byteCount;
     }
   }
 
