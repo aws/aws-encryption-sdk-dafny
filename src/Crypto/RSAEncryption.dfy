@@ -19,9 +19,11 @@ module {:extern "RSAEncryption"} RSAEncryption {
     ghost const strength: StrengthBits
     ghost const padding: PaddingMode
     const pem: seq<uint8>
-    predicate Valid() reads this, Repr
+    predicate Valid()
+      reads this, Repr
+      ensures Valid() ==> this in Repr
     {
-      Repr == {this} &&
+      this in Repr &&
       |pem| > 0 &&
       GetBytes(strength) >= MinStrengthBytes(padding) &&
       PEMGeneratedWithStrength(pem, strength) &&
@@ -44,7 +46,7 @@ module {:extern "RSAEncryption"} RSAEncryption {
     ensures this.pem == pem
     ensures this.strength == strength
     ensures this.padding == padding
-    ensures Valid()
+    ensures Valid() && fresh(Repr)
     {
       this.pem := pem;
       this.strength := strength;
@@ -63,7 +65,7 @@ module {:extern "RSAEncryption"} RSAEncryption {
     ensures this.pem == pem
     ensures this.strength == strength
     ensures this.padding == padding
-    ensures Valid()
+    ensures Valid() && fresh(Repr)
     {
       this.pem := pem;
       this.strength := strength;
@@ -115,10 +117,10 @@ module {:extern "RSAEncryption"} RSAEncryption {
   method GenerateKeyPair(strength: StrengthBits, padding: PaddingMode)
       returns (publicKey: PublicKey, privateKey: PrivateKey)
     requires GetBytes(strength) >= MinStrengthBytes(padding)
-    ensures privateKey.Valid()
+    ensures privateKey.Valid() && fresh(privateKey.Repr)
     ensures privateKey.strength == strength
     ensures privateKey.padding == padding
-    ensures publicKey.Valid()
+    ensures publicKey.Valid() && fresh(publicKey.Repr)
     ensures publicKey.strength == strength
     ensures publicKey.padding == padding
     ensures GetBytes(publicKey.strength) >= MinStrengthBytes(publicKey.padding)

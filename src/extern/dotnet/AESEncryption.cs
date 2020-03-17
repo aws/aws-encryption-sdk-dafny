@@ -5,7 +5,9 @@ using Org.BouncyCastle.Crypto.Generators;
 using Org.BouncyCastle.Crypto.Modes;
 using Org.BouncyCastle.Crypto.Parameters;
 
+using ibyteseq = Dafny.ISequence<byte>;
 using byteseq = Dafny.Sequence<byte>;
+using icharseq = Dafny.ISequence<char>;
 using charseq = Dafny.Sequence<char>;
 
 
@@ -14,10 +16,10 @@ namespace AESEncryption {
     public partial class AES_GCM {
 
         public static STL.Result<EncryptionOutput> AESEncrypt(EncryptionSuites.EncryptionSuite encAlg,
-                                                      byteseq iv,
-                                                      byteseq key,
-                                                      byteseq msg,
-                                                      byteseq aad) {
+                                                      ibyteseq iv,
+                                                      ibyteseq key,
+                                                      ibyteseq msg,
+                                                      ibyteseq aad) {
             try {
                 var cipher = new GcmBlockCipher(new AesEngine());
                 var param = new AeadParameters(new KeyParameter(key.Elements), (int)encAlg.tagLen * 8, iv.Elements, aad.Elements);
@@ -33,20 +35,20 @@ namespace AESEncryption {
             }
         }
 
-        public static STL.Result<byteseq> AESDecrypt(EncryptionSuites.EncryptionSuite encAlg, byteseq key, byteseq cipherText, byteseq authTag, byteseq iv, byteseq aad) {
+        public static STL.Result<ibyteseq> AESDecrypt(EncryptionSuites.EncryptionSuite encAlg, ibyteseq key, ibyteseq cipherText, ibyteseq authTag, ibyteseq iv, ibyteseq aad) {
             try {
                 var cipher = new GcmBlockCipher(new AesEngine());
                 var param = new AeadParameters(new KeyParameter(key.Elements), encAlg.tagLen * 8, iv.Elements, aad.Elements);
                 cipher.Init(false, param);
-                var ctx = cipherText.Concat(authTag);
+                var ctx = byteseq.Concat(cipherText, authTag);
                 var pt = new byte[cipher.GetOutputSize(ctx.Elements.Length)];
                 var len = cipher.ProcessBytes(ctx.Elements, 0, ctx.Elements.Length, pt, 0);
                 cipher.DoFinal(pt, len); //Check message authentication tag
-                return STL.Result<byteseq>.create_Success(byteseq.FromArray(pt));
+                return STL.Result<ibyteseq>.create_Success(byteseq.FromArray(pt));
             } catch(InvalidCipherTextException macEx) {
-                return STL.Result<byteseq>.create_Failure(charseq.FromArray(macEx.ToString().ToCharArray()));
+                return STL.Result<ibyteseq>.create_Failure(charseq.FromArray(macEx.ToString().ToCharArray()));
             } catch {
-                return STL.Result<byteseq>.create_Failure(charseq.FromArray("aes decrypt err".ToCharArray()));
+                return STL.Result<ibyteseq>.create_Failure(charseq.FromArray("aes decrypt err".ToCharArray()));
             }
         }
     }

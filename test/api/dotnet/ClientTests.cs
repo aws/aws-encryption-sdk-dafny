@@ -14,7 +14,6 @@ namespace AWSEncryptionSDKTests
 {
     public class ClientTests
     {
-
         private static string SUCCESS = "SUCCESS";
 
         // MakeKMSKeyring is a helper method that creates a KMS Keyring for unit testing
@@ -220,5 +219,23 @@ namespace AWSEncryptionSDKTests
             CMMDefs.CMM cmm = MakeDefaultCMMWithMultiKeyring();
             EncryptDecryptThreaded(cmm, isMultithreaded, withParams);
         }
+        
+        [Fact]
+        public void NullPlaintext()
+        {
+            var keyArn = DafnyFFI.StringFromDafnyString(TestUtils.__default.SHARED__TEST__KEY__ARN);
+                
+            ClientSupplier clientSupplier = new DefaultClientSupplier();
+                
+            var keyring = AWSEncryptionSDK.Keyrings.MakeKMSKeyring(
+                clientSupplier, Enumerable.Empty<String>(), keyArn,Enumerable.Empty<String>());
+
+            var cmm = AWSEncryptionSDK.CMMs.MakeDefaultCMM(keyring);
+
+            Assert.Throws<NullReferenceException>(() =>
+            AWSEncryptionSDK.Client.Encrypt(null, cmm, new Dictionary<string, string>()));
+        } 
+        
+        // TODO-RS: Test for nulls and other Dafny requirement violations
     }
 }
