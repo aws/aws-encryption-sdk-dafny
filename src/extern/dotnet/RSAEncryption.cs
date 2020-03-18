@@ -13,7 +13,6 @@ using Org.BouncyCastle.Security;
 
 using ibyteseq = Dafny.ISequence<byte>;
 using byteseq = Dafny.Sequence<byte>;
-using icharseq = Dafny.ISequence<char>;
 using charseq = Dafny.Sequence<char>;
 
 namespace RSAEncryption {
