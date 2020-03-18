@@ -34,6 +34,38 @@ module {:extern "ESDKClient"} ESDKClient {
 
   const DEFAULT_FRAME_LENGTH: uint32 := 4096
 
+  // TODO This should probably implement a more generic Stream trait
+  class EncryptorStream {
+    var producer: Collections.ByteProducer
+    // TODO If this implements a generic trait, this would have to be the generic
+    // ByteConsumer. However, we don't have a good way to get the bits Accepted
+    // by a ByteConsumer. For now, explicitly use The EncryptionConsumer which
+    // has methods equivalent to Next()
+    var consumer: EncryptTheRestStream
+
+    constructor(producer: Collections.ByteProducer, consumer: EncryptTheRestStream) {
+      this.producer := producer;
+      this.consumer := consumer;
+    }
+
+    // TODO define what this should return
+    // This is like Next()... Should return multiple bytes.
+    method GetByte() returns (res: Result<Option<uint8>>)
+      decreases *
+    {
+      while !consumer.HasNext()
+      {
+        var siphoned :- producer.Siphon(consumer);
+        if siphoned == 0 {
+          // None means end of stream
+          return Success(None());
+        }
+      }
+      var nextByte :- consumer.Next();
+      return Success(Some(nextByte));
+    }
+  }
+
   // passes through the header and encrypts the plaintext
   // This will read all of the plaintext into memory before
   // performing the encryption because this is a proof of concept
@@ -166,7 +198,7 @@ module {:extern "ESDKClient"} ESDKClient {
     }
   }
 
-  method StreamEncrypt(inStream: Collections.ExternByteProducer, cmm: CMMDefs.CMM, optEncryptionContext: Option<Materials.EncryptionContext>, algorithmSuiteID: Option<AlgorithmSuite.ID>, optFrameLength: Option<uint32>) returns (res: Result<EncryptTheRestStream>)
+  method StreamEncrypt(inStream: Collections.ExternByteProducer, cmm: CMMDefs.CMM, optEncryptionContext: Option<Materials.EncryptionContext>, algorithmSuiteID: Option<AlgorithmSuite.ID>, optFrameLength: Option<uint32>) returns (res: Result<EncryptorStream>)
     requires cmm.Valid()
     requires optFrameLength.Some? ==> optFrameLength.get != 0
     requires optEncryptionContext.Some? ==> optEncryptionContext.get.Keys !! Materials.ReservedKeyValues && Msg.ValidAAD(optEncryptionContext.get)
@@ -216,13 +248,10 @@ module {:extern "ESDKClient"} ESDKClient {
     var data := wr.GetDataWritten();
     // This should be a composition of them, not some noop stream wrapping them in a stack
     // Should have header be ingested into finalStream, right now just passing it to constructor :/
-    var finalStream := new EncryptTheRestStream(cmm, optEncryptionContext, algorithmSuiteID, optFrameLength, data, headerBody, derivedDataKey, encMat, len as int);
-    //var _ := outStream.FillBuffer(ciphertext);
-    
-    // TODO some way to have a "composed" stream
+    var consumer := new EncryptTheRestStream(cmm, optEncryptionContext, algorithmSuiteID, optFrameLength, data, headerBody, derivedDataKey, encMat, len as int);
+    var stream := new EncryptorStream(inStream, consumer);
 
-    return Success(finalStream);
-    // TODO convert to output stream
+    return Success(stream);
   }
 
  /*

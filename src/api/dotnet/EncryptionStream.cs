@@ -11,12 +11,10 @@ namespace EncryptionStreams {
     public partial class EncryptionStream : Stream {
         // TODO what should the underlying stream actually be?
         // TODO should be readonly
-        private ESDKClient.EncryptTheRestStream consumer;
-        private Collections.ExternByteProducer producer;
+        private ESDKClient.EncryptorStream stream;
 
-        public EncryptionStream(Collections.ExternByteProducer producer, ESDKClient.EncryptTheRestStream consumer) {
-            this.producer = producer;
-            this.consumer = consumer;
+        public EncryptionStream(ESDKClient.EncryptorStream stream) {
+            this.stream = stream;
         }
 
         public override bool CanRead
@@ -76,22 +74,18 @@ namespace EncryptionStreams {
 
             // Need to abstract more so that we do not have to byte by byte HasNext()
             while (n < count) {
-                while (!consumer.HasNext()) {
-                    // TODO annoying BigInteger >:(
-                    Result<System.Numerics.BigInteger> foo = producer.Siphon(consumer);
-                    System.Numerics.BigInteger siphoned = DafnyFFI.ExtractResult(foo);
-                    // there is no more to siphon. End of composite stream.
-                    if (siphoned == 0) {
-                        return n;
-                    }
-                    // assert HasNext()?
+                Option<byte> readByteOpt = DafnyFFI.ExtractResult(stream.GetByte());
+                // TODO generalize Option
+                if (readByteOpt is Option_None<byte> none) {
+                    // None means we've reached the end of the stream. no more to read.
+                    break;
+                } else if (readByteOpt is Option_Some<byte> some) {
+                    byte readByte = some.get;
+                    buffer[offset+n] = readByte;
+                    n += 1;
+                } else {
+                    throw new ArgumentException(message: "Unrecognized STL.Option constructor");
                 }
-                byte readByte = DafnyFFI.ExtractResult(consumer.Next());
-
-                // TODO 0 could be a failure or EOF, which is unfortunate.
-                // For now just read it as is. Implement proper failures later.
-                buffer[offset+n] = readByte;
-                n += 1;
             }
             return n;
         }

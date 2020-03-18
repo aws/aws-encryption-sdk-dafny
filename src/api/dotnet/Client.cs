@@ -37,7 +37,7 @@ namespace AWSEncryptionSDK
             var dafnyEncryptionContext = encryptionContext != null ? STL.Option<encryptioncontext>.create_Some(ToDafnyEncryptionContext(encryptionContext)) : STL.Option<encryptioncontext>.create_None();
             
             // THese two shuould be encapsulated by one object in dafny
-            STL.Result<ESDKClient.EncryptTheRestStream> result = ESDKClient.__default.StreamEncrypt(
+            STL.Result<ESDKClient.EncryptorStream> result = ESDKClient.__default.StreamEncrypt(
                     input,
                     cmm,
                     dafnyEncryptionContext,
@@ -45,7 +45,7 @@ namespace AWSEncryptionSDK
                     optFrameLength
                     );
 
-            return new EncryptionStream(input, DafnyFFI.ExtractResult(result));
+            return new EncryptionStream(DafnyFFI.ExtractResult(result));
         }
   
         // TODO: Proper documentation
