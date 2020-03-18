@@ -1,6 +1,7 @@
 include "../StandardLibrary/StandardLibrary.dfy"
 include "../StandardLibrary/UInt.dfy"
 include "Materials.dfy"
+include "EncryptionStreams.dfy"
 include "CMM/Defs.dfy"
 include "MessageHeader.dfy"
 include "MessageBody.dfy"
@@ -31,180 +32,20 @@ module {:extern "ESDKClient"} ESDKClient {
   import Signature
   import Deserialize
   import Collections
+  import EncryptionStreams
 
   const DEFAULT_FRAME_LENGTH: uint32 := 4096
 
-  // TODO This should probably implement a more generic Stream trait
-  class EncryptorStream {
-    var producer: Collections.ByteProducer
-    // TODO If this implements a generic trait, this would have to be the generic
-    // ByteConsumer. However, we don't have a good way to get the bits Accepted
-    // by a ByteConsumer. For now, explicitly use The EncryptionConsumer which
-    // has methods equivalent to Next()
-    var consumer: EncryptTheRestStream
-
-    constructor(producer: Collections.ByteProducer, consumer: EncryptTheRestStream) {
-      this.producer := producer;
-      this.consumer := consumer;
-    }
-
-    // TODO define what this should return
-    // This is like Next()... Should return multiple bytes.
-    method GetByte() returns (res: Result<Option<uint8>>)
-      decreases *
-    {
-      while !consumer.HasNext()
-      {
-        var siphoned :- producer.Siphon(consumer);
-        if siphoned == 0 {
-          // None means end of stream
-          return Success(None());
-        }
-      }
-      var nextByte :- consumer.Next();
-      return Success(Some(nextByte));
-    }
-  }
-
-  // passes through the header and encrypts the plaintext
-  // This will read all of the plaintext into memory before
-  // performing the encryption because this is a proof of concept
-  // for the streaming interface.
-  class EncryptTheRestStream extends Collections.ByteConsumer {
-    var inBuffer: seq<uint8> // Use the byteReader/Writer?
-    var outBuffer: seq<uint8>
-    var cmm: CMMDefs.CMM
-    var optEncryptionContext: Option<Materials.EncryptionContext>
-    var algorithmSuiteID: Option<AlgorithmSuite.ID>
-    var optFrameLength: Option<uint32>
-    var length: int32
-    var serHeader: seq<uint8>
-    var header: Msg.HeaderBody
-    var dataKey: seq<uint8>
-    var encMat: Materials.EncryptionMaterials
-    var seqNum: uint32
-    var isFinalFrame: bool
-    var finished: bool
-    var totalLength: int
-    var curLength: int
-    var toSign: seq<uint8>
-
-    ghost const Repr: set<object>
-
-    predicate Valid() reads this ensures Valid() ==> this in Repr {
-      // TODO check downstream Valid?
-      && this in Repr
-    }
-
-    // more woof.
-    constructor(cmm: CMMDefs.CMM, optEncryptionContext: Option<Materials.EncryptionContext>, algorithmSuiteID: Option<AlgorithmSuite.ID>, optFrameLength: Option<uint32>, serHeader: seq<uint8>, header: Msg.HeaderBody, dataKey: seq<uint8>, encMat: Materials.EncryptionMaterials, totalLength: int) {
-      this.cmm := cmm;
-      this.optEncryptionContext := optEncryptionContext;
-      this.algorithmSuiteID := algorithmSuiteID;
-      this.optFrameLength := optFrameLength;
-      this.inBuffer := [];
-      this.outBuffer := serHeader;
-      this.serHeader := serHeader;
-      this.header := header;
-      this.encMat := encMat;
-      this.dataKey := dataKey;
-      this.seqNum := 1;
-      this.isFinalFrame := false;
-      this.finished := false;
-      this.totalLength := totalLength;
-      this.curLength := 0;
-      // TODO :(
-      this.toSign := serHeader;
-    }
-
-    predicate method CanAccept() reads this, Repr
-      requires Valid()
-      ensures Valid()
-    {
-      !finished
-    }
-    
-    method Accept(b: uint8) returns (res: Result<()>)
-      requires Valid()
-      requires CanAccept()
-      ensures Valid()
-      modifies this, Repr
-    {
-      // Add to inBuffer
-
-      inBuffer := inBuffer + [b];
-
-      // TODO update total Length
-      curLength := curLength + 1;
-
-      var frameLength := header.frameLength;
-
-      // TODO This is the only way we can know when to encrypt the final frame right now :(
-      if totalLength == curLength {
-        var frameToProcess := inBuffer;
-        inBuffer := [];
-        var encryptedFrame :- MessageBody.EncryptFinalFrame(encMat.algorithmSuiteID, dataKey, frameLength as int, header.messageID, frameToProcess, seqNum);
-        finished := true;
-        outBuffer := outBuffer + encryptedFrame;
-        toSign := toSign + encryptedFrame;
-        var res :- AddSignatureToOutBuffer();
-      } else if |inBuffer| >= frameLength as int {
-        var frameToProcess := inBuffer[..frameLength];
-        inBuffer := inBuffer[frameLength..];
-        var encryptedFrame :- MessageBody.EncryptRegularFrame(encMat.algorithmSuiteID, dataKey, frameLength as int, header.messageID, frameToProcess, seqNum);
-        outBuffer := outBuffer + encryptedFrame;
-        toSign := toSign + encryptedFrame;
-      }
-      return Success(());
-    }
-
-    method AddSignatureToOutBuffer() returns (res: Result<bool>) {
-      match encMat.algorithmSuiteID.SignatureType() {
-        case None =>
-        return Success(true);
-          // don't use a footer
-        case Some(ecdsaParams) =>
-          var digest :- Signature.Digest(ecdsaParams, toSign);
-          var bytes :- Signature.Sign(ecdsaParams, encMat.signingKey.get, digest);
-          if |bytes| != ecdsaParams.SignatureLength() as int {
-            return Failure("Malformed response from Sign().");
-          }
-          outBuffer := outBuffer + UInt16ToSeq(|bytes| as uint16) + bytes;
-          return Success(true);
-      }
-    }
-
-    predicate method HasNext()
-      reads this
-      requires Valid()
-      ensures Valid()
-    {
-      |outBuffer| > 0
-    }
-
-    method Next() returns (res: Result<uint8>) 
-      requires Valid()
-      //requires HasNext()
-      ensures Valid()
-      modifies this
-    {
-      // if we have stuff in the outBuffer. Take from that.
-      if |outBuffer| > 0 {
-        var byte := outBuffer[0];
-        // TODO will this grab correctly in the case that |outBuffer| == 1?
-        outBuffer := outBuffer[1..];
-        return Success(byte);
-      }
-    }
-  }
-
-  method StreamEncrypt(inStream: Collections.ExternByteProducer, cmm: CMMDefs.CMM, optEncryptionContext: Option<Materials.EncryptionContext>, algorithmSuiteID: Option<AlgorithmSuite.ID>, optFrameLength: Option<uint32>) returns (res: Result<EncryptorStream>)
+ /*
+  * Return an Encryption stream that encrypts plaintext and serializes it into a message.
+  */
+  method StreamEncrypt(producer: Collections.InputStreamByteProducer, cmm: CMMDefs.CMM, optEncryptionContext: Option<Materials.EncryptionContext>, algorithmSuiteID: Option<AlgorithmSuite.ID>, optFrameLength: Option<uint32>) returns (res: Result<EncryptionStreams.EncryptionStream>)
     requires cmm.Valid()
     requires optFrameLength.Some? ==> optFrameLength.get != 0
     requires optEncryptionContext.Some? ==> optEncryptionContext.get.Keys !! Materials.ReservedKeyValues && Msg.ValidAAD(optEncryptionContext.get)
     decreases *
   {
-    // create  header and related values
+    // TODO A lot of this is copied over from Encrypt. Pull similar logic into a place both can use.
     var encryptionContext := optEncryptionContext.GetOrElse(map[]);
     assert Msg.ValidAAD(encryptionContext) by {
       reveal Msg.ValidAAD();
@@ -212,10 +53,10 @@ module {:extern "ESDKClient"} ESDKClient {
     }
     var frameLength := if optFrameLength.Some? then optFrameLength.get else DEFAULT_FRAME_LENGTH;
       
-    // This assumes inStream is seekable :/
-    // Should return None if not seekable?
-    var len := inStream.Length();
-    var encMatRequest := Materials.EncryptionMaterialsRequest(encryptionContext, algorithmSuiteID, Some(len as nat));
+    // TODO We assume here that the input stream used in producer is seekable.
+    // We need to update the logic here if it is not.
+    var len := producer.Length();
+    var encMatRequest := Materials.EncryptionMaterialsRequest(encryptionContext, algorithmSuiteID, Some(len));
     var encMat :- cmm.GetEncryptionMaterials(encMatRequest);
     if UINT16_LIMIT <= |encMat.encryptedDataKeys| {
       return Failure("Number of EDKs exceeds the allowed maximum.");
@@ -244,12 +85,15 @@ module {:extern "ESDKClient"} ESDKClient {
     var encryptionOutput :- AESEncryption.AESEncrypt(encMat.algorithmSuiteID.EncryptionSuite(), iv, derivedDataKey, [], unauthenticatedHeader);
     var headerAuthentication := Msg.HeaderAuthentication(iv, encryptionOutput.authTag);
     var _ :- Serialize.SerializeHeaderAuthentication(wr, headerAuthentication, encMat.algorithmSuiteID);
+    
+    // TODO here we use the old ByteWrite to serialize the header into a sequence
+    // and then later pass that sequence to the EncryptionStream constructor to be
+    // used as the EncryptionStream's output buffer. Ideally EncryptionStream can just
+    // Accept these bytes directly and pass them through.
+    var serializedHeader := wr.GetDataWritten();
 
-    var data := wr.GetDataWritten();
-    // This should be a composition of them, not some noop stream wrapping them in a stack
-    // Should have header be ingested into finalStream, right now just passing it to constructor :/
-    var consumer := new EncryptTheRestStream(cmm, optEncryptionContext, algorithmSuiteID, optFrameLength, data, headerBody, derivedDataKey, encMat, len as int);
-    var stream := new EncryptorStream(inStream, consumer);
+    var consumer := new EncryptionStreams.EncryptionConsumer(serializedHeader, headerBody, derivedDataKey, encMat, len as int);
+    var stream := new EncryptionStreams.EncryptionStream(producer, consumer);
 
     return Success(stream);
   }

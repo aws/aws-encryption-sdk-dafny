@@ -1,20 +1,19 @@
 using System;
 using System.IO;
-using ESDKClient;
+using EncryptionStreams;
 using STL;
 
-// TODO I can't name this EncryptionStream :'(
-namespace EncryptionStreams {
-    // What's used internally and exposes externally should be different... Right now the C# interface
-    // is used for both
-    // TODO implement Disposable, wrap stream in friendly handlers
-    public partial class EncryptionStream : Stream {
-        // TODO what should the underlying stream actually be?
-        // TODO should be readonly
-        private ESDKClient.EncryptorStream stream;
+namespace ESDKClientStreams {
+    // This wraps a readable C# Stream around the Dafny EncryptionStream.
+    // Right now this relies on Encryption Stream having a Next() method
+    // in order to get the underlying 'Accept'-ed bytes.
+    // TODO: Implement IDisposable interface
+    public class ClientEncryptionStream : Stream {
 
-        public EncryptionStream(ESDKClient.EncryptorStream stream) {
-            this.stream = stream;
+        readonly private EncryptionStream encryptor;
+
+        public ClientEncryptionStream(EncryptionStream encryptor) {
+            this.encryptor = encryptor;
         }
 
         public override bool CanRead
@@ -43,7 +42,8 @@ namespace EncryptionStreams {
 
         public override void Flush()
         {
-          // Do nothing. Docs say to do this instead of throw because it should be valid to flush a readonly stream
+          // Do nothing. Docs say to do this instead of throw because
+          // it should be valid to flush a readonly stream
         }
 
         public override long Length
@@ -69,15 +69,12 @@ namespace EncryptionStreams {
         public override int Read(byte[] buffer, int offset, int count)
         {
             int n = 0;
-            // FIXME currently initializing buffer fo revery read. obvi fix this
-            // also naming collision
-
-            // Need to abstract more so that we do not have to byte by byte HasNext()
             while (n < count) {
-                Option<byte> readByteOpt = DafnyFFI.ExtractResult(stream.GetByte());
-                // TODO generalize Option
+                // TODO This is byte by byte currently. EncryptionStream needs to enable
+                // getting bytes in chunks.
+                Option<byte> readByteOpt = DafnyFFI.ExtractResult(encryptor.GetByte());
+                // TODO generalize Option check
                 if (readByteOpt is Option_None<byte> none) {
-                    // None means we've reached the end of the stream. no more to read.
                     break;
                 } else if (readByteOpt is Option_Some<byte> some) {
                     byte readByte = some.get;

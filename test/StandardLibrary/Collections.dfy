@@ -7,6 +7,7 @@ module CollectionsTests {
   import opened StandardLibrary
   import opened UInt = StandardLibrary.UInt
   import opened Collections
+  // TODO reintroduce once specific producer/consumer implementations are back in
   /*
 
   method {:test} ArrayByteProducerNext() {

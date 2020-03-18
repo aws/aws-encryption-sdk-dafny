@@ -19,7 +19,14 @@ public class DafnyFFI {
         Array.Copy(seq.Elements, 0, copy, 0, seq.Elements.Length);
         return new MemoryStream(copy);
     }
+
+    public static ibyteseq SequenceFromMemoryStream(MemoryStream bytes) {
+        // TODO: Find a way to safely avoid copying 
+        return byteseq.FromArray(bytes.ToArray());
+    }
   
+    // TODO Hacky way to read all bytes of Readable C# stream into
+    // memory.
     public static ibyteseq SequenceFromStream(Stream s) {
         // TODO: Find a way to safely avoid copying
         // Read the source file into a byte array.
