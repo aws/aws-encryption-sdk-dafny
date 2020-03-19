@@ -115,6 +115,7 @@ module Collections {
       if asArrayWriter.Some? {
         siphoned := Min(Remaining(), asArrayWriter.get.Capacity());
         UpdateRange(asArrayWriter.get.bytes, asArrayWriter.get.index, bytes[index..(index + siphoned)]);
+        asArrayWriter.get.index := asArrayWriter.get.index + siphoned;
         index := index + siphoned;
       } else {
         siphoned := DefaultSiphon(this, consumer);
