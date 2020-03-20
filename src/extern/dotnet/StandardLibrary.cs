@@ -9,5 +9,9 @@ namespace STL {
         return Option<T>.create_None();
       }
     }
+
+    public static Dafny.ISequence<char> FromExternalString(string s) {
+      return DafnyFFI.DafnyStringFromString(s);
+    }
   }
 }

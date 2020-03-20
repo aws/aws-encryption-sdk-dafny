@@ -1,7 +1,14 @@
 include "UInt.dfy"
 
+// TODO-RS: Figure out how to map this to different types for
+// different target languages.
+module {:extern "System"} System {
+  class {:extern "String"} ExternalString {}
+}
+
 module {:extern "STL"} StandardLibrary {
   import opened U = UInt
+  import opened System
 
   // TODO: Depend on types defined in dafny-lang/libraries instead
   datatype Option<T> = None | Some(get: T)
@@ -18,9 +25,14 @@ module {:extern "STL"} StandardLibrary {
     }
   }
 
-  class {:extern "System.string"} ExternalString {
+  function method {:extern} FromExternalString(s: ExternalString): string
 
-  } 
+  function method FailOnNullExternalString(s: ExternalString?, name: string): Result<string> {
+    if s == null then
+      Failure(name + " must not be null")
+    else
+      Success(FromExternalString(s))
+  }
 
   method {:extern} Cast<T>(x: object, ghost ensured: T ~> bool) returns (r: Option<T>)
     ensures r.Some? && ensured.requires(r.get) ==> ensured(r.get)
@@ -58,6 +70,22 @@ module {:extern "STL"} StandardLibrary {
     } else {
       r := Failure(message);
     }
+  }
+
+  method FailUnlessEach<T>(s: seq<T>, p: T -> bool, message: string) returns (r: Result<()>) 
+    ensures r.Success? ==> forall i :: 0 <= i < |s| ==> p(s[i]) 
+  {
+    var i := 0;
+    while i < |s| 
+      invariant i <= |s|
+      invariant forall k :: 0 <= k < i ==> p(s[k])
+    {
+      if !p(s[i]) {
+        return Failure(message);
+      }
+      i := i + 1;
+    }
+    return Success(());
   }
 
   function method Join<T>(ss: seq<seq<T>>, joiner: seq<T>): (s: seq<T>)
@@ -136,6 +164,31 @@ module {:extern "STL"} StandardLibrary {
     if i == |s| then None
     else if f(s[i]) then Some(i)
     else FindIndex(s, f, i + 1)
+  }
+
+  function method Map<T, R>(s: seq<T>, f: T --> R): (res: seq<R>)
+    requires forall x :: x in s ==> f.requires(x)
+    ensures |s| == |res|
+  {
+    seq(|s|, i requires 0 <= i < |s| => f(s[i]))
+  }
+
+  // TODO-RS: Make this tail-recursive
+  function method TryMap<T, R>(s: seq<T>, f: T -> Result<R>): (res: Result<seq<R>>)
+    ensures res.Success? ==> |s| == |res.value|
+  {
+    if s == [] then
+      Success([])
+    else
+      var firstResult := f(s[0]);
+      if firstResult.Failure? then
+        firstResult.PropagateFailure()
+      else
+        var restResult := TryMap(s[1..], f);
+        if restResult.Failure? then
+          restResult
+        else
+          Success([firstResult.value] + restResult.value)
   }
 
   function method Filter<T>(s: seq<T>, f: T -> bool): (res: seq<T>)

@@ -20,12 +20,12 @@ namespace AWSEncryptionSDK
                                                      string generator,
                                                      IEnumerable<string> grantTokens)
         {
-            // TODO-RS: Check for null strings
+            // TODO-RS: Check for null enumerables
             var internalKeyring = DafnyFFI.ExtractResult(KMSKeyringDef.__default.MakeKMSKeyring(
                 clientSupplier, 
-                Dafny.Sequence<icharseq>.FromElements(keyIDs.Select(DafnyFFI.DafnyStringFromString).ToArray()),
-                DafnyFFI.DafnyStringFromString(generator),
-                Dafny.Sequence<icharseq>.FromElements(grantTokens.Select(DafnyFFI.DafnyStringFromString).ToArray())));
+                Dafny.Sequence<string>.FromElements(keyIDs.ToArray()),
+                generator,
+                Dafny.Sequence<string>.FromElements(grantTokens.ToArray())));
             return KeyringDefs.__default.ToExternalKeyring(internalKeyring);
         }
        

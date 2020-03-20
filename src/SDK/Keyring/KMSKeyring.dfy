@@ -7,6 +7,7 @@ include "../../Util/UTF8.dfy"
 
 module {:extern "KMSKeyringDef"} KMSKeyringDef {
   import opened StandardLibrary
+  import opened System
   import opened UInt = StandardLibrary.UInt
   import AlgorithmSuite
   import KeyringDefs
@@ -25,27 +26,31 @@ module {:extern "KMSKeyringDef"} KMSKeyringDef {
 
   // TODO-RS: This should be marked {:extern}, but that's currently interpreted as "externally implemented"
   // and omits the body when compiled.
+  // TODO-RS: Replace seq with ExternalSequence or something like that (which should map to IEnumerable in C#)
   method MakeKMSKeyring(clientSupplier: KMSUtils.ClientSupplier?, 
-                        keyIDs: seq<string>,
-                        generator: string,
-                        grantTokens: seq<string>) returns (result: Result<KMSKeyring>)
+                        keyIDs: seq<ExternalString?>,
+                        generator: ExternalString?,
+                        grantTokens: seq<ExternalString?>) returns (result: Result<KMSKeyring>)
   {
     var _ :- FailUnless(clientSupplier != null, "Client supplier is required");
     var _ :- FailUnless(|grantTokens| <= KMSUtils.MAX_GRANT_TOKENS, "Too many grant tokens");
-    var keyIDsNoBlanks := Filter(keyIDs, keyID => keyID != "");
-    var _ :- FailUnless(forall keyID :: keyID in keyIDsNoBlanks ==> KMSUtils.ValidFormatCMK(keyID), "Invalid CMK(s)");
+    var internalKeyIDs :- TryMap(keyIDs, k => FailOnNullExternalString(k, "CMK"));
+    var _ :- FailUnless(forall keyID :: keyID in internalKeyIDs ==> KMSUtils.ValidFormatCMK(keyID), "Invalid CMK(s)");
     var generatorOption: Option<KMSUtils.CustomerMasterKey>;
-    if |generator| == 0 {
+    if generator == null {
       generatorOption := None;
     } else {
-      var _ :- FailUnless(KMSUtils.ValidFormatCMK(generator), "Invalid generator CMK(s)");
-      generatorOption := Some(generator);
+      var internalGenerator := FromExternalString(generator);
+      var _ :- FailUnless(KMSUtils.ValidFormatCMK(internalGenerator), "Invalid generator CMK(s)");
+      var validInternalGenerator: KMSUtils.CustomerMasterKey := internalGenerator;
+      generatorOption := Some(validInternalGenerator);
     }
-    var _ :- FailUnless(forall grantToken :: grantToken in grantTokens ==> 0 < |grantToken| <= 8192, "Invalid grant token(s)");
+    var internalGrantTokens :- TryMap(grantTokens, t => FailOnNullExternalString(t, "Grant token"));
+    var _ :- FailUnless(forall grantToken :: grantToken in internalGrantTokens ==> 0 < |grantToken| <= 8192, "Invalid grant token(s)");
     var k := new KMSKeyring(clientSupplier,
-                            keyIDsNoBlanks,
+                            internalKeyIDs,
                             generatorOption,
-                            grantTokens);
+                            internalGrantTokens);
     result := Success(k);
   }
 
