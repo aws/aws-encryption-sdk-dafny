@@ -18,7 +18,12 @@ module {:extern "STL"} StandardLibrary {
     }
   }
 
-  method {:extern} As<T>(x: object) returns (r: Option<T>)
+  class {:extern "System.string"} ExternalString {
+
+  } 
+
+  method {:extern} Cast<T>(x: object, ghost ensured: T ~> bool) returns (r: Option<T>)
+    ensures r.Some? && ensured.requires(r.get) ==> ensured(r.get)
 
   datatype Result<T> = Success(value: T) | Failure(error: string)
   {

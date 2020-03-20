@@ -17,7 +17,7 @@ namespace AWSEncryptionSDKTests
         private static string SUCCESS = "SUCCESS";
 
         // MakeKMSKeyring is a helper method that creates a KMS Keyring for unit testing
-        private Keyring MakeKMSKeyring() 
+        private ExternalKeyring MakeKMSKeyring() 
         {
             String keyArn = DafnyFFI.StringFromDafnyString(TestUtils.__default.SHARED__TEST__KEY__ARN);
             ClientSupplier clientSupplier = new DefaultClientSupplier();
@@ -28,12 +28,12 @@ namespace AWSEncryptionSDKTests
         // MakeDefaultCMMWithKMSKeyring is a helper method that creates a default CMM using a KMS Keyring for unit testing
         private CMMDefs.CMM MakeDefaultCMMWithKMSKeyring()
         {
-            Keyring keyring = MakeKMSKeyring();
+            ExternalKeyring keyring = MakeKMSKeyring();
             return AWSEncryptionSDK.CMMs.MakeDefaultCMM(keyring);
         }
 
         // MakeRSAKeyring is a helper method that creates a RSA Keyring for unit testing
-        private Keyring MakeRSAKeyring(DafnyFFI.RSAPaddingModes paddingMode)
+        private ExternalKeyring MakeRSAKeyring(DafnyFFI.RSAPaddingModes paddingMode)
         {
             // MakeRawRSAKeyring expects DafnyFFI.RSAPaddingModes while GenerateKeyPairBytes expects
             // RSAEncryption.PaddingMode
@@ -53,12 +53,12 @@ namespace AWSEncryptionSDKTests
         // MakeDefaultCMMWithRSAKeyring is a helper method that creates a default CMM using a RSA Keyring for unit testing
         private CMMDefs.CMM MakeDefaultCMMWithRSAKeyring(DafnyFFI.RSAPaddingModes paddingMode)
         {
-            Keyring keyring = MakeRSAKeyring(paddingMode);
+            var keyring = MakeRSAKeyring(paddingMode);
             return AWSEncryptionSDK.CMMs.MakeDefaultCMM(keyring);
         }
 
         // MakeAESKeyring is a helper method that creates an AES Keyring for unit testing
-        private Keyring MakeAESKeyring(DafnyFFI.AESWrappingAlgorithm wrappingAlgorithm)
+        private ExternalKeyring MakeAESKeyring(DafnyFFI.AESWrappingAlgorithm wrappingAlgorithm)
         {
             // For our unit tests, we can just generate an AES 256 key
             var keygen = GeneratorUtilities.GetKeyGenerator("AES256");
@@ -74,15 +74,15 @@ namespace AWSEncryptionSDKTests
         // MakeDefaultCMMWithAESKeyring is a helper method that creates a default CMM using an AES Keyring for unit testing
         private CMMDefs.CMM MakeDefaultCMMWithAESKeyring(DafnyFFI.AESWrappingAlgorithm wrappingAlgorithm)
         {
-            Keyring keyring = MakeAESKeyring(wrappingAlgorithm);
+            var keyring = MakeAESKeyring(wrappingAlgorithm);
             return AWSEncryptionSDK.CMMs.MakeDefaultCMM(keyring);
         }
 
         // MakeDefaultCMMWithMultiKeyring is a helper method that creates a default CMM using a Multi-Keyring for unit testing
         private CMMDefs.CMM MakeDefaultCMMWithMultiKeyring()
         {
-            Keyring generator = MakeKMSKeyring();
-            Keyring[] children = new Keyring[] {
+            ExternalKeyring generator = MakeKMSKeyring();
+            ExternalKeyring[] children = new ExternalKeyring[] {
                 MakeRSAKeyring(DafnyFFI.RSAPaddingModes.PKCS1),
                 MakeRSAKeyring(DafnyFFI.RSAPaddingModes.OAEP_SHA1),
                 MakeRSAKeyring(DafnyFFI.RSAPaddingModes.OAEP_SHA256),
@@ -93,7 +93,7 @@ namespace AWSEncryptionSDKTests
                 MakeAESKeyring(DafnyFFI.AESWrappingAlgorithm.AES_GCM_256)
             };
 
-            Keyring keyring = AWSEncryptionSDK.Keyrings.MakeMultiKeyring(generator, children);
+            var keyring = AWSEncryptionSDK.Keyrings.MakeMultiKeyring(generator, children);
             return AWSEncryptionSDK.CMMs.MakeDefaultCMM(keyring);
         }
 

@@ -6,12 +6,12 @@ namespace AWSEncryptionSDK
 {
     public class CMMs
     {
-        public static CMM MakeDefaultCMM(Keyring keyring)
+        public static CMM MakeDefaultCMM(ExternalKeyring keyring)
         {
             DefaultCMM result = new DefaultCMM();
             // TODO: The Dafny constructor shouldn't be directly callable from C# code!
             // In particular, this isn't checking for a null keyring.
-            result.OfKeyring(keyring);
+            result.OfExternalKeyring(keyring);
             return result;
         }
     }

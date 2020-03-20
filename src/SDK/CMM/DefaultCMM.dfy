@@ -22,23 +22,31 @@ module {:extern "DefaultCMMDef"} DefaultCMMDef {
   import Deserialize
 
   class DefaultCMM extends CMMDefs.CMM {
-    const keyring: KeyringDefs.Keyring
+    const keyring: KeyringDefs.ValidKeyring?
 
     predicate Valid()
       reads this, Repr
     {
       keyring in Repr &&
-      Repr == {this, keyring} + keyring.Repr &&
-      keyring.Valid()
+      Repr == {this, keyring} + keyring.Repr
     }
 
-    constructor OfKeyring(k: KeyringDefs.Keyring)
-      requires k.Valid()
-      ensures keyring == k
+    constructor OfExternalKeyring(k: KeyringDefs.ExternalKeyring)
+      ensures Valid()
+    {
+      var internalKeyring := KeyringDefs.FromExternalKeyring(k);
+      keyring := internalKeyring;
+      new;
+      Repr := {this, keyring} + keyring.Repr;
+    }
+
+    constructor OfKeyring(k: KeyringDefs.ValidKeyring?)
+      requires k != null
       ensures Valid()
     {
       keyring := k;
-      Repr := {this, keyring} + k.Repr;
+      new;
+      Repr := {this, keyring} + keyring.Repr;
     }
 
     method GetEncryptionMaterials(materialsRequest: Materials.EncryptionMaterialsRequest)

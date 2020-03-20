@@ -15,30 +15,27 @@ namespace AWSEncryptionSDK
 {
     public class Keyrings
     {
-        public static Keyring MakeKMSKeyring(ClientSupplier clientSupplier,
-                                             IEnumerable<string> keyIDs,
-                                             string generator,
-                                             IEnumerable<string> grantTokens)
+        public static ExternalKeyring MakeKMSKeyring(ClientSupplier clientSupplier,
+                                                     IEnumerable<string> keyIDs,
+                                                     string generator,
+                                                     IEnumerable<string> grantTokens)
         {
-            KMSKeyring result = new KMSKeyring();
-            // TODO: The Dafny constructor shouldn't be directly callable from C# code!
-            // This isn't checking for nulls or any other requirements.
-            result.__ctor(
+            // TODO-RS: Check for null strings
+            var internalKeyring = DafnyFFI.ExtractResult(KMSKeyringDef.__default.MakeKMSKeyring(
                 clientSupplier, 
                 Dafny.Sequence<icharseq>.FromElements(keyIDs.Select(DafnyFFI.DafnyStringFromString).ToArray()),
-                DafnyFFI.NullableToOption(generator != null ? DafnyFFI.DafnyStringFromString(generator) : null),
-                Dafny.Sequence<icharseq>.FromElements(grantTokens.Select(DafnyFFI.DafnyStringFromString).ToArray()));
-            return result;
+                DafnyFFI.DafnyStringFromString(generator),
+                Dafny.Sequence<icharseq>.FromElements(grantTokens.Select(DafnyFFI.DafnyStringFromString).ToArray())));
+            return KeyringDefs.__default.ToExternalKeyring(internalKeyring);
         }
        
-        public static MultiKeyring MakeMultiKeyring(Keyring generator, IList<Keyring> children)
+        public static ExternalKeyring MakeMultiKeyring(ExternalKeyring generator, IList<ExternalKeyring> children)
         {
-            // TODO: Check for null value etc.
-            MultiKeyring result = new MultiKeyring();
-            result.__ctor(generator, Dafny.Sequence<Keyring>.FromArray(children.ToArray()));
-            return result;
+            var childrenSequence = Dafny.Sequence<ExternalKeyring>.FromArray(children.ToArray());
+            var internalKeyring = DafnyFFI.ExtractResult(MultiKeyringDef.__default.MakeMultiKeyring(generator, childrenSequence));
+            return KeyringDefs.__default.ToExternalKeyring(internalKeyring);
         }
-        public static RawAESKeyring MakeRawAESKeyring(byte[] nameSpace, byte[] name, byte[] wrappingKey, DafnyFFI.AESWrappingAlgorithm wrappingAlgorithm)
+        public static ExternalKeyring MakeRawAESKeyring(byte[] nameSpace, byte[] name, byte[] wrappingKey, DafnyFFI.AESWrappingAlgorithm wrappingAlgorithm)
         {
             // TODO: Check for null values
             RawAESKeyring result = new RawAESKeyring();
@@ -62,9 +59,10 @@ namespace AWSEncryptionSDK
                     DafnyFFI.SequenceFromByteArray(wrappingKey),
                     wrappingAlgDafny
                     );
-            return result;
+            // TODO-RS: Move into Dafny
+            return KeyringDefs.__default.ToExternalKeyring(result);
         }
-        public static RawRSAKeyring MakeRawRSAKeyring(byte[] nameSpace, byte[] name, DafnyFFI.RSAPaddingModes paddingMode, byte[] publicKey, byte[] privateKey)
+        public static ExternalKeyring MakeRawRSAKeyring(byte[] nameSpace, byte[] name, DafnyFFI.RSAPaddingModes paddingMode, byte[] publicKey, byte[] privateKey)
         {
             // TODO: check for null values, ensure at least one key is non-null.
             RawRSAKeyring result = new RawRSAKeyring();
@@ -86,7 +84,8 @@ namespace AWSEncryptionSDK
                     DafnyFFI.NullableToOption(publicKeyWrapper),
                     DafnyFFI.NullableToOption(privateKeyWrapper)
                     );
-            return result;
+            // TODO-RS: Move this into Dafny
+            return KeyringDefs.__default.ToExternalKeyring(result);
         }
     }
 }

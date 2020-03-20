@@ -100,7 +100,7 @@ module {:extern "KeyringDefs"} KeyringDefs {
     if k == null {
       res := null;
     } else {
-      var casted := As<AsExternalKeyring>(k);
+      var casted := Cast<AsExternalKeyring>(k, _ => true);
       match casted {
         case Some(keyring) => 
           res := keyring;
@@ -180,7 +180,7 @@ module {:extern "KeyringDefs"} KeyringDefs {
     if k == null {
       res := null;
     } else {
-      var casted := As<AsKeyring>(k);
+      var casted := Cast<AsKeyring>(k, _ => true);
       match casted {
         case Some(keyring) => 
           assert keyring.Valid();
