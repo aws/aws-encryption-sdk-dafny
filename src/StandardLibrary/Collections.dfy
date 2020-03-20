@@ -20,7 +20,7 @@ module Collections {
       requires Valid()
       requires HasNext()
       ensures Valid()
-      modifies this
+      modifies this, Repr
 
     method Siphon(consumer: ByteConsumer) returns (siphoned: int)
       requires Valid()
@@ -39,8 +39,8 @@ module Collections {
 
   trait {:extern} ExternalByteProducer {
     ghost const Repr: set<object>
-    predicate method HasNext()
-    method Next() returns (res: uint8)
+    predicate method HasNext() reads this, Repr decreases Repr
+    method Next() returns (res: uint8) modifies this, Repr decreases Repr
     method Siphon(consumer: ExternalByteConsumer) returns (siphoned: int) decreases *
   }
 
@@ -48,15 +48,42 @@ module Collections {
     const wrapped: ExternalByteProducer
     constructor(wrapped: ExternalByteProducer) {
       this.wrapped := wrapped;
+      this.Repr := {this, wrapped} + wrapped.Repr;
     }
-    predicate Valid() { true }
-    predicate method HasNext() {
+    predicate Valid() reads this, Repr ensures Valid() ==> this in Repr {
+        && this in Repr 
+        && wrapped in Repr 
+        && wrapped.Repr < Repr 
+        && this !in wrapped.Repr
+    }
+    predicate method HasNext() 
+      reads this, Repr 
+      requires Valid() 
+      ensures Valid() 
+      decreases Repr 
+    {
       wrapped.HasNext()
     }
-    method Next() returns (res: uint8) {
+    method Next() returns (res: uint8) 
+      requires Valid()
+      ensures Valid()
+      modifies this, Repr
+      decreases Repr 
+    {
       res := wrapped.Next();
     }
-    method Siphon(consumer: ByteConsumer) returns (siphoned: int) decreases * {
+    method Siphon(consumer: ByteConsumer) returns (siphoned: int)
+      requires Valid()
+      requires consumer.Valid()
+      requires Repr !! consumer.Repr
+      // TODO-RS: These two should follow from the disjointness requirement
+      // above and `Valid() ==> this in Repr`
+      requires this !in consumer.Repr
+      requires consumer !in Repr
+      ensures Valid()
+      modifies this, Repr, consumer, consumer.Repr
+      decreases *
+    {
       var externalConsumer := ToExternalByteConsumer(consumer);
       siphoned := wrapped.Siphon(externalConsumer);
     }
@@ -66,12 +93,15 @@ module Collections {
     const wrapped: ValidByteProducer?
     constructor(wrapped: ValidByteProducer?) requires wrapped != null {
       this.wrapped := wrapped;
+      this.Repr := {this, wrapped} + wrapped.Repr;
     }
-    predicate Valid() { true }
-    predicate method HasNext() {
+    predicate method HasNext() 
+      reads this, Repr 
+      decreases Repr
+    {
       if wrapped != null then wrapped.HasNext() else false
     }
-    method Next() returns (res: uint8) {
+    method Next() returns (res: uint8) modifies this, Repr decreases Repr {
       expect wrapped != null;
       res := wrapped.Next();
     }
@@ -98,19 +128,21 @@ module Collections {
   type ValidByteConsumer? = c: ByteConsumer? | c == null || c.Valid()
 
   trait {:extern} ExternalByteConsumer {
-    predicate method CanAccept()
-    method Accept(b: uint8)
+    ghost const Repr: set<object>
+    predicate method CanAccept() reads this, Repr
+    method Accept(b: uint8) modifies this, Repr
   }
 
   class AsExternalByteConsumer extends ExternalByteConsumer {
     const wrapped: ValidByteConsumer?
     constructor(wrapped: ValidByteConsumer?) requires wrapped != null {
       this.wrapped := wrapped;
+      this.Repr := {this, wrapped} + wrapped.Repr;
     }
-    predicate method CanAccept() {
+    predicate method CanAccept() reads this, Repr {
       if wrapped != null then wrapped.CanAccept() else false
     }
-    method Accept(b: uint8) {
+    method Accept(b: uint8) modifies this, Repr {
       expect wrapped != null;
       wrapped.Accept(b);
     }
@@ -120,9 +152,19 @@ module Collections {
     const wrapped: ExternalByteConsumer
     constructor(wrapped: ExternalByteConsumer) ensures Valid() {
       this.wrapped := wrapped;
+      this.Repr := {this, wrapped} + wrapped.Repr;
     }
-    predicate Valid() { true }
-    predicate method CanAccept() {
+    predicate Valid() reads this, Repr ensures Valid() ==> this in Repr {
+      && this in Repr 
+      && wrapped in Repr 
+      && wrapped.Repr < Repr 
+      && this !in wrapped.Repr
+    }
+    predicate method CanAccept() reads this, Repr
+      requires Valid()
+      ensures Valid()
+      decreases Repr
+    {
       wrapped.CanAccept()
     }
     method Accept(b: uint8) {
@@ -130,7 +172,9 @@ module Collections {
     }
   }
 
-  method ToExternalByteConsumer(c: ValidByteConsumer?) returns (res: ExternalByteConsumer?) {
+  method ToExternalByteConsumer(c: ValidByteConsumer?) returns (res: ExternalByteConsumer?)
+    ensures c != null <==> res != null
+  {
     if c == null {
       res := null;
     } else {
@@ -144,15 +188,20 @@ module Collections {
     }
   }
 
-  method FromExternalByteConsumer(c: ExternalByteConsumer) returns (res: ValidByteConsumer?) 
-    ensures res != null
+  method FromExternalByteConsumer(c: ExternalByteConsumer?) returns (res: ValidByteConsumer?) 
+    ensures c != null <==> res != null
   {
-    var result := Cast<AsExternalByteConsumer>(c, _ => true);
-    match result {
-      case Some(adaptor) => 
-        res := adaptor.wrapped; 
-      case None =>
-        res := new AsByteConsumer(c);
+    if c == null {
+      res := null;
+    } else {
+      var result := Cast<AsExternalByteConsumer>(c, _ => true);
+      match result {
+        case Some(adaptor) =>
+          expect adaptor.wrapped != null;
+          res := adaptor.wrapped; 
+        case None =>
+          res := new AsByteConsumer(c);
+      }
     }
   }
 
