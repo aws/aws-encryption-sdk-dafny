@@ -38,6 +38,7 @@ module Collections {
   type ValidByteProducer? = p: ByteProducer? | p == null || p.Valid()
 
   trait {:extern} ExternalByteProducer {
+    ghost const Repr: set<object>
     predicate method HasNext()
     method Next() returns (res: uint8)
     method Siphon(consumer: ExternalByteConsumer) returns (siphoned: int) decreases *
@@ -107,16 +108,17 @@ module Collections {
       this.wrapped := wrapped;
     }
     predicate method CanAccept() {
-      wrapped.CanAccept()
+      if wrapped != null then wrapped.CanAccept() else false
     }
     method Accept(b: uint8) {
+      expect wrapped != null;
       wrapped.Accept(b);
     }
   }
 
   class AsByteConsumer extends ByteConsumer {
     const wrapped: ExternalByteConsumer
-    constructor(wrapped: ExternalByteConsumer) {
+    constructor(wrapped: ExternalByteConsumer) ensures Valid() {
       this.wrapped := wrapped;
     }
     predicate Valid() { true }
@@ -128,17 +130,23 @@ module Collections {
     }
   }
 
-  method ToExternalByteConsumer(c: ByteConsumer) returns (res: ExternalByteConsumer) requires c.Valid() {
-    var result := Cast<AsByteConsumer>(c, _ => true);
-    match result {
-      case Some(adaptor) => 
-        res := adaptor.wrapped; 
-      case None =>
-        res := new AsExternalByteConsumer(c);
+  method ToExternalByteConsumer(c: ValidByteConsumer?) returns (res: ExternalByteConsumer?) {
+    if c == null {
+      res := null;
+    } else {
+      var result := Cast<AsByteConsumer>(c, _ => true);
+      match result {
+        case Some(adaptor) => 
+          res := adaptor.wrapped; 
+        case None =>
+          res := new AsExternalByteConsumer(c);
+      }
     }
   }
 
-  method FromExternalByteConsumer(c: ExternalByteConsumer) returns (res: ByteConsumer) {
+  method FromExternalByteConsumer(c: ExternalByteConsumer) returns (res: ValidByteConsumer?) 
+    ensures res != null
+  {
     var result := Cast<AsExternalByteConsumer>(c, _ => true);
     match result {
       case Some(adaptor) => 
