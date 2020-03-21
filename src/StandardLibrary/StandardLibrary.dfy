@@ -194,7 +194,7 @@ module {:extern "STL"} StandardLibrary {
     requires 0 <= offset <= a.Length - |values|
     ensures var j := offset + |values|;
       && a[..offset] == old(a[..offset])
-      && a[offset..j] == values
+      // && a[offset..j] == values
       && a[j..] == old(a[j..])
     modifies a
   {
