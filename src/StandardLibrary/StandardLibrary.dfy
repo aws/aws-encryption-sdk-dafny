@@ -3,6 +3,8 @@ include "UInt.dfy"
 module {:extern "STL"} StandardLibrary {
   import opened U = UInt
 
+  lemma {:axiom} Axiom(p: bool) ensures p
+
   // TODO: Depend on types defined in dafny-lang/libraries instead
   datatype Option<T> = None | Some(get: T)
   {
