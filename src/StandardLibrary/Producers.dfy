@@ -35,9 +35,11 @@ module Producers {
       // above and `Valid() ==> this in Repr`
       requires this !in consumer.Repr
       requires consumer !in Repr
-      ensures Valid()
       modifies this, Repr, consumer, consumer.Repr
       decreases *
+      ensures Valid()
+      ensures Repr == old(Repr)
+      ensures consumer.Repr == old(consumer.Repr)
   }
 
   trait {:extern} ExternalByteProducer {
@@ -53,8 +55,9 @@ module Producers {
       ensures Valid() 
       ensures Repr == old(Repr)
     method Siphon(consumer: ExternalByteConsumer) returns (siphoned: int) 
+      requires consumer.Valid()
       ensures Valid()
-      modifies this, Repr 
+      modifies this, Repr, consumer, consumer.Repr
       decreases *
   }
 
@@ -97,9 +100,11 @@ module Producers {
       // above and `Valid() ==> this in Repr`
       requires this !in consumer.Repr
       requires consumer !in Repr
-      ensures Valid()
       modifies this, Repr, consumer, consumer.Repr
       decreases *
+      ensures Valid()
+      ensures Repr == old(Repr)
+      ensures consumer.Repr == old(consumer.Repr)
     {
       var externalConsumer := ToExternalByteConsumer(consumer);
       siphoned := wrapped.Siphon(externalConsumer);
@@ -139,11 +144,14 @@ module Producers {
       res := wrapped.Next();
     }
     method Siphon(consumer: ExternalByteConsumer) returns (siphoned: int) 
+      requires consumer.Valid()
       modifies this, Repr, consumer, consumer.Repr
       decreases * 
       ensures Valid()
     {
       Axiom(Valid());
+      Axiom(Repr !! consumer.Repr);
+
       var externalConsumer := FromExternalByteConsumer(consumer);
       siphoned := wrapped.Siphon(externalConsumer);
     }
@@ -214,12 +222,13 @@ module Producers {
       requires this !in consumer.Repr
       requires consumer !in Repr
       requires Repr !! consumer.Repr
-      ensures Valid()
       modifies this, Repr, consumer, consumer.Repr
       decreases *
+      ensures Valid()
+      ensures consumer.Valid()
     {
       var asArrayWriter := Cast<ArrayWritingByteConsumer>(consumer, (w: ArrayWritingByteConsumer) reads w, w.Repr => 
-          w.Valid() && w.Repr == consumer.Repr);
+          (var o: object := w; o) == (var o: object := consumer; o));
       if asArrayWriter.Some? {
         siphoned := Min(Remaining(), asArrayWriter.get.Capacity());
         UpdateRange(asArrayWriter.get.bytes, asArrayWriter.get.index, bytes[index..(index + siphoned)]);
@@ -258,9 +267,10 @@ module Producers {
       requires this !in consumer.Repr
       requires consumer !in Repr
       requires Repr !! consumer.Repr
-      ensures Valid()
       modifies this, Repr, consumer, consumer.Repr
       decreases *
+      ensures Valid()
+      ensures consumer.Valid()
     {
       siphoned := DefaultSiphon(this, consumer);
     }

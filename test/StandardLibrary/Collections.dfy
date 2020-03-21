@@ -1,12 +1,13 @@
 
 include "../../src/StandardLibrary/StandardLibrary.dfy"
 include "../../src/StandardLibrary/UInt.dfy"
-include "../../src/StandardLibrary/Collections.dfy"
+include "../../src/StandardLibrary/Producers.dfy"
 
 module TestCollection {
   import opened StandardLibrary
   import opened UInt = StandardLibrary.UInt
-  import opened Collections
+  import opened Producers
+  import opened Consumers
 
   method {:test} ArrayByteProducerNext() {
     var bytes := new uint8[5];
@@ -60,7 +61,7 @@ module TestCollection {
   method ExpectNext(producer: ByteProducer, expected: uint8) 
     requires producer.Valid()
     ensures producer.Valid()
-    modifies producer
+    modifies producer, producer.Repr
   {
     expect producer.HasNext();
     var byte := producer.Next();
