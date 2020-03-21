@@ -7,9 +7,7 @@ using MultiKeyringDef;
 using RawAESKeyringDef;
 using RawRSAKeyringDef;
 using KMSUtils;
-using STL;
 using icharseq = Dafny.ISequence<char>;
-using charseq = Dafny.Sequence<char>;
 
 namespace AWSEncryptionSDK
 {

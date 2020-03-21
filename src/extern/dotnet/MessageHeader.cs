@@ -1,8 +1,6 @@
-using System;
 using System.Linq;
 using System.Collections.Generic;
 using ibyteseq = Dafny.ISequence<byte>;
-using byteseq = Dafny.Sequence<byte>;
 
 namespace MessageHeader {
 
