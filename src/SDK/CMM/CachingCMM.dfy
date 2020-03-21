@@ -231,15 +231,13 @@ module CachingCMMDef {
   }
 
   predicate GoodEncMat(encMat: Materials.EncryptionMaterials) {
+    encMat.Valid() &&
     |encMat.encryptedDataKeys| > 0 &&
-    MessageHeader.ValidAAD(encMat.encryptionContext) &&
-    match encMat.algorithmSuiteID.SignatureType()
-      case None => true
-      case Some(sigType) =>
-        encMat.signingKey.Some?
+    MessageHeader.ValidAAD(encMat.encryptionContext)
   }
 
   predicate GoodDecMat(decMat: Materials.DecryptionMaterials) {
+    decMat.Valid() &&
     decMat.plaintextDataKey.Some? && |decMat.plaintextDataKey.get| == decMat.algorithmSuiteID.KeyLength() &&
     (decMat.algorithmSuiteID.SignatureType().Some? ==> decMat.verificationKey.Some?)
   }
