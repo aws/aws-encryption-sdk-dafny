@@ -31,7 +31,7 @@ module TestCachingCMM {
     var tcmm := new TestCMM();
     var bytesLimit := 100;
     var messagesLimit := 4;
-    var ccmm := new CachingCMMDef.CachingCMM.WithLimits(tcmm, CachingCMMDef.DEFAULT_TIME_TO_LIVE_LIMIT, bytesLimit, messagesLimit);
+    var ccmm := new CachingCMMDef.CachingCMM.WithLimits(tcmm, CachingCMMDef.DEFAULT_SECONDS_TO_LIVE_LIMIT, bytesLimit, messagesLimit);
 
     var keyA :- expect UTF8.Encode("keyA");
     var valA :- expect UTF8.Encode("valA");
@@ -51,7 +51,7 @@ module TestCachingCMM {
     var tcmm := new TestCMM();
     var bytesLimit := 100;
     var messagesLimit := 1_000_000;
-    var ccmm := new CachingCMMDef.CachingCMM.WithLimits(tcmm, CachingCMMDef.DEFAULT_TIME_TO_LIVE_LIMIT, bytesLimit, messagesLimit);
+    var ccmm := new CachingCMMDef.CachingCMM.WithLimits(tcmm, CachingCMMDef.DEFAULT_SECONDS_TO_LIVE_LIMIT, bytesLimit, messagesLimit);
 
     var keyA :- expect UTF8.Encode("keyA");
     var valA :- expect UTF8.Encode("valA");
@@ -149,7 +149,7 @@ module TestCachingCMM {
     var tcmm := new TestCMM();
     var bytesLimit := 100;
     var messagesLimit := 2;
-    var ccmm := new CachingCMMDef.CachingCMM.WithLimits(tcmm, CachingCMMDef.DEFAULT_TIME_TO_LIVE_LIMIT, bytesLimit, messagesLimit);
+    var ccmm := new CachingCMMDef.CachingCMM.WithLimits(tcmm, CachingCMMDef.DEFAULT_SECONDS_TO_LIVE_LIMIT, bytesLimit, messagesLimit);
 
     var encryptionContext := map[];
     TestUtils.ValidSmallEncryptionContext(encryptionContext);

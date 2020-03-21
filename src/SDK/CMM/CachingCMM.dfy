@@ -25,7 +25,7 @@ module CachingCMMDef {
   //  -- the default bytes limit must not exceed 2^63 - 1
   //  -- the default message limit is 2^32
   //  -- nothing about the default time-to-live limit
-  const DEFAULT_TIME_TO_LIVE_LIMIT: nat := 3600  // in seconds
+  const DEFAULT_SECONDS_TO_LIVE_LIMIT: nat := 3600
   const DEFAULT_BYTE_USE_LIMIT: uint64 := 0x7FFF_FFFF_FFFF_FFFF  // 2^63 - 1
   const DEFAULT_MESSAGE_USE_LIMIT: uint64 := 0x1_0000_0000  // 2^32
 
@@ -57,7 +57,7 @@ module CachingCMMDef {
   class CachingCMM extends CMMDefs.CMM {
     const cmm: CMMDefs.CMM
     const cmc: CryptographicMaterialsCache
-    const timeToLiveLimit: nat  // in seconds
+    const secondsToLiveLimit: nat
     const bytesLimit: uint64
     const messagesLimit: uint64
 
@@ -76,7 +76,7 @@ module CachingCMMDef {
       ensures Valid() && fresh(Repr - old(cmm.Repr))
       ensures this.cmm == cmm
     {
-      this.timeToLiveLimit := DEFAULT_TIME_TO_LIVE_LIMIT;
+      this.secondsToLiveLimit := DEFAULT_SECONDS_TO_LIVE_LIMIT;
       this.bytesLimit := DEFAULT_BYTE_USE_LIMIT;
       this.messagesLimit := DEFAULT_MESSAGE_USE_LIMIT;
 
@@ -87,13 +87,13 @@ module CachingCMMDef {
       Repr := {this} + cmm.Repr + cmc.Repr;
     }
 
-    constructor WithLimits(cmm: CMMDefs.CMM, timeToLiveLimit: nat, bytesLimit: uint64, messagesLimit: uint64)
+    constructor WithLimits(cmm: CMMDefs.CMM, secondsToLiveLimit: nat, bytesLimit: uint64, messagesLimit: uint64)
       requires cmm.Valid()
       ensures Valid() && fresh(Repr - old(cmm.Repr))
       ensures this.cmm == cmm
-      ensures this.timeToLiveLimit == timeToLiveLimit && this.bytesLimit == bytesLimit && this.messagesLimit == messagesLimit
+      ensures this.secondsToLiveLimit == secondsToLiveLimit && this.bytesLimit == bytesLimit && this.messagesLimit == messagesLimit
     {
-      this.timeToLiveLimit := timeToLiveLimit;
+      this.secondsToLiveLimit := secondsToLiveLimit;
       this.bytesLimit := bytesLimit;
       this.messagesLimit := messagesLimit;
 
@@ -157,7 +157,7 @@ module CachingCMMDef {
       Repr := Repr + cmm.Repr;
       var encMat :- res;
       // Add them to the cache.
-      entry := cmc.AddEncrypt(cacheID, encMat, timeToLiveLimit);
+      entry := cmc.AddEncrypt(cacheID, encMat, secondsToLiveLimit);
       Repr := Repr + cmc.Repr;
       entry.IncrementUse(materialsRequest.plaintextLength.get, 1);
       return Success(encMat);
@@ -200,7 +200,7 @@ module CachingCMMDef {
       Repr := Repr + cmm.Repr;
       var decMat :- res;
       // Add them to the cache.
-      entry := cmc.AddDecrypt(cacheID, decMat, timeToLiveLimit);
+      entry := cmc.AddDecrypt(cacheID, decMat, secondsToLiveLimit);
       Repr := Repr + cmc.Repr;
       return Success(decMat);
     }
@@ -279,25 +279,25 @@ module CachingCMMDef {
     }
 
     // Adds an entry [cacheID := encMat] to the cache, replacing any previous encrypt entry for cacheID
-    // and initializing usage limits to (currentTime + timeToLiveLimit, 0, 0). Returns the resulting entry.
-    method AddEncrypt(cacheID: seq<uint8>, encMat: Materials.ValidEncryptionMaterials, timeToLiveLimit: nat) returns (entry: CacheEntryEncrypt)
+    // and initializing usage limits to (currentTime + secondsToLiveLimit, 0, 0). Returns the resulting entry.
+    method AddEncrypt(cacheID: seq<uint8>, encMat: Materials.ValidEncryptionMaterials, secondsToLiveLimit: nat) returns (entry: CacheEntryEncrypt)
       requires Valid() && GoodEncMat(encMat)
       modifies Repr
       ensures Valid() && fresh(Repr - old(Repr)) && entry in Repr
     {
-      entry := new CacheEntryEncrypt(encMat, timeToLiveLimit);
+      entry := new CacheEntryEncrypt(encMat, secondsToLiveLimit);
       Repr := Repr + {entry};
       EM := EM[cacheID := entry];
     }
 
     // Adds an entry [cacheID := decMat] to the cache, replacing any previous decrypt entry for cacheID
-    // and initializing usage limits to (currentTime + timeToLiveLimit). Returns the resulting entry.
-    method AddDecrypt(cacheID: seq<uint8>, decMat: Materials.ValidDecryptionMaterials, timeToLiveLimit: nat) returns (entry: CacheEntryDecrypt)
+    // and initializing usage limits to (currentTime + secondsToLiveLimit). Returns the resulting entry.
+    method AddDecrypt(cacheID: seq<uint8>, decMat: Materials.ValidDecryptionMaterials, secondsToLiveLimit: nat) returns (entry: CacheEntryDecrypt)
       requires Valid() && GoodDecMat(decMat)
       modifies Repr
       ensures Valid() && fresh(Repr - old(Repr)) && entry in Repr
     {
-      entry := new CacheEntryDecrypt(decMat, timeToLiveLimit);
+      entry := new CacheEntryDecrypt(decMat, secondsToLiveLimit);
       Repr := Repr + {entry};
       DM := DM[cacheID := entry];
     }
@@ -327,13 +327,13 @@ module CachingCMMDef {
     var messagesEncrypted: nat
     var bytesEncrypted: nat
 
-    constructor (encMat: Materials.ValidEncryptionMaterials, timeToLiveLimit: nat)
+    constructor (encMat: Materials.ValidEncryptionMaterials, secondsToLiveLimit: nat)
       ensures messagesEncrypted == bytesEncrypted == 0
       ensures this.encMat == encMat
     {
       this.encMat := encMat;
       var currentTime := Time.GetCurrent();
-      expiryTime := currentTime + timeToLiveLimit;
+      expiryTime := currentTime + secondsToLiveLimit;
       messagesEncrypted, bytesEncrypted := 0, 0;
     }
 
@@ -352,12 +352,12 @@ module CachingCMMDef {
     const decMat: Materials.ValidDecryptionMaterials
     const expiryTime: nat
 
-    constructor (decMat: Materials.ValidDecryptionMaterials, timeToLiveLimit: nat)
+    constructor (decMat: Materials.ValidDecryptionMaterials, secondsToLiveLimit: nat)
       ensures this.decMat == decMat
     {
       this.decMat := decMat;
       var currentTime := Time.GetCurrent();
-      expiryTime := currentTime + timeToLiveLimit;
+      expiryTime := currentTime + secondsToLiveLimit;
     }
   }
 }
