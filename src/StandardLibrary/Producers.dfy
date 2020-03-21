@@ -31,10 +31,6 @@ module Producers {
       requires Valid()
       requires consumer.Valid()
       requires Repr !! consumer.Repr
-      // TODO-RS: These two should follow from the disjointness requirement
-      // above and `Valid() ==> this in Repr`
-      requires this !in consumer.Repr
-      requires consumer !in Repr
       modifies this, Repr, consumer, consumer.Repr
       decreases *
       ensures Valid()
@@ -97,10 +93,6 @@ module Producers {
       requires Valid()
       requires consumer.Valid()
       requires Repr !! consumer.Repr
-      // TODO-RS: These two should follow from the disjointness requirement
-      // above and `Valid() ==> this in Repr`
-      requires this !in consumer.Repr
-      requires consumer !in Repr
       modifies this, Repr, consumer, consumer.Repr
       decreases *
       ensures Valid()
@@ -167,8 +159,6 @@ module Producers {
   method DefaultSiphon(producer: ByteProducer, consumer: ByteConsumer) returns (siphoned: int) 
     requires producer.Valid()
     requires consumer.Valid()
-    requires producer !in consumer.Repr
-    requires consumer !in producer.Repr
     requires producer.Repr !! consumer.Repr
     ensures producer.Valid()
     ensures consumer.Valid()
@@ -226,8 +216,6 @@ module Producers {
     method Siphon(consumer: ByteConsumer) returns (siphoned: int) 
       requires Valid()
       requires consumer.Valid()
-      requires this !in consumer.Repr
-      requires consumer !in Repr
       requires Repr !! consumer.Repr
       modifies this, Repr, consumer, consumer.Repr
       decreases *
@@ -271,8 +259,6 @@ module Producers {
     method Siphon(consumer: ByteConsumer) returns (siphoned: int) 
       requires Valid()
       requires consumer.Valid()
-      requires this !in consumer.Repr
-      requires consumer !in Repr
       requires Repr !! consumer.Repr
       modifies this, Repr, consumer, consumer.Repr
       decreases *
