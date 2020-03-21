@@ -38,6 +38,7 @@ module Producers {
       modifies this, Repr, consumer, consumer.Repr
       decreases *
       ensures Valid()
+      ensures consumer.Valid()
       ensures Repr == old(Repr)
       ensures consumer.Repr == old(consumer.Repr)
   }
@@ -56,9 +57,10 @@ module Producers {
       ensures Repr == old(Repr)
     method Siphon(consumer: ExternalByteConsumer) returns (siphoned: int) 
       requires consumer.Valid()
-      ensures Valid()
       modifies this, Repr, consumer, consumer.Repr
       decreases *
+      ensures Valid()
+      ensures consumer.Valid()
   }
 
   class AsByteProducer extends ByteProducer {
@@ -90,7 +92,6 @@ module Producers {
       ensures Repr == old(Repr)
     {
       res := wrapped.Next();
-      assert wrapped.Valid();
     }
     method Siphon(consumer: ByteConsumer) returns (siphoned: int)
       requires Valid()
@@ -103,11 +104,14 @@ module Producers {
       modifies this, Repr, consumer, consumer.Repr
       decreases *
       ensures Valid()
+      ensures consumer.Valid()
       ensures Repr == old(Repr)
       ensures consumer.Repr == old(consumer.Repr)
     {
       var externalConsumer := ToExternalByteConsumer(consumer);
       siphoned := wrapped.Siphon(externalConsumer);
+      // TODO-RS: Not sure how to connect the external and internal versions yet
+      Axiom(consumer.Valid());
     }
   }
 
@@ -148,12 +152,15 @@ module Producers {
       modifies this, Repr, consumer, consumer.Repr
       decreases * 
       ensures Valid()
+      ensures consumer.Valid()
     {
       Axiom(Valid());
       Axiom(Repr !! consumer.Repr);
 
       var externalConsumer := FromExternalByteConsumer(consumer);
       siphoned := wrapped.Siphon(externalConsumer);
+      // TODO-RS: Not sure how to connect the external and internal versions yet
+      Axiom(consumer.Valid());
     }
   }
 

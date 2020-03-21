@@ -22,7 +22,10 @@ module Consumers {
 
   trait {:extern} ExternalByteConsumer {
     ghost const Repr: set<object>
-    predicate Valid() reads this, Repr ensures Valid() ==> this in Repr decreases this, Repr
+    predicate Valid() 
+      reads this, Repr
+      decreases this, Repr
+      ensures Valid() ==> this in Repr
     predicate method CanAccept() reads this, Repr decreases Repr
     method Accept(b: uint8) 
       modifies this, Repr 
@@ -41,7 +44,11 @@ module Consumers {
       this.wrapped := wrapped;
       this.Repr := {this, wrapped} + wrapped.Repr;
     }
-    predicate Valid() reads this, Repr ensures Valid() ==> this in Repr decreases this, Repr {
+    predicate Valid() 
+      reads this, Repr 
+      decreases this, Repr 
+      ensures Valid() ==> this in Repr
+    {
       && this in Repr 
       && wrapped in Repr 
       && wrapped.Repr < Repr 
