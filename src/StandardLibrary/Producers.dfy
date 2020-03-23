@@ -3,7 +3,7 @@ include "../StandardLibrary/StandardLibrary.dfy"
 include "../StandardLibrary/UInt.dfy"
 include "../StandardLibrary/Consumers.dfy"
 
-module Producers {
+module {:extern} Producers {
   import opened StandardLibrary
   import opened UInt = StandardLibrary.UInt
   import opened Consumers

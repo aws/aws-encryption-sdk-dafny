@@ -38,6 +38,8 @@
     <DafnySource Include="SDK/MessageHeader.dfy" />
     <DafnySource Include="SDK/Serialize.dfy" />
     <DafnySource Include="StandardLibrary/Base64.dfy" />
+    <DafnySource Include="StandardLibrary/Consumers.dfy" />
+    <DafnySource Include="StandardLibrary/Producers.dfy" />
     <DafnySource Include="StandardLibrary/StandardLibrary.dfy" />
     <DafnySource Include="StandardLibrary/UInt.dfy" />
     <DafnySource Include="Util/Streams.dfy" />

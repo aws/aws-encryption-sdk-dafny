@@ -1,7 +1,7 @@
 include "../StandardLibrary/StandardLibrary.dfy"
 include "../StandardLibrary/UInt.dfy"
 
-module Consumers {
+module {:extern} Consumers {
   import opened StandardLibrary
   import opened UInt = StandardLibrary.UInt
 
