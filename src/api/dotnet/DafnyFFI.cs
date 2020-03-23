@@ -68,15 +68,15 @@ public class DafnyFFI {
     public static RSAEncryption.PaddingMode RSAPaddingModesToDafnyPaddingMode(RSAPaddingModes paddingModes)
     {
         switch (paddingModes) {
-            case DafnyFFI.RSAPaddingModes.PKCS1:
+            case RSAPaddingModes.PKCS1:
                 return RSAEncryption.PaddingMode.create_PKCS1();
-            case DafnyFFI.RSAPaddingModes.OAEP_SHA1:
+            case RSAPaddingModes.OAEP_SHA1:
                 return RSAEncryption.PaddingMode.create_OAEP__SHA1();
-            case DafnyFFI.RSAPaddingModes.OAEP_SHA256:
+            case RSAPaddingModes.OAEP_SHA256:
                 return RSAEncryption.PaddingMode.create_OAEP__SHA256();
-            case DafnyFFI.RSAPaddingModes.OAEP_SHA384:
+            case RSAPaddingModes.OAEP_SHA384:
                 return RSAEncryption.PaddingMode.create_OAEP__SHA384();
-            case DafnyFFI.RSAPaddingModes.OAEP_SHA512:
+            case RSAPaddingModes.OAEP_SHA512:
                 return RSAEncryption.PaddingMode.create_OAEP__SHA512();
             default:
                 throw new ArgumentException("Unsupported RSA Padding Mode");
@@ -85,6 +85,34 @@ public class DafnyFFI {
 
     public enum AESWrappingAlgorithm {
         AES_GCM_128, AES_GCM_192, AES_GCM_256
+    }
+
+    public static string AESWrappingAlgorithmToGeneratorUtilitiesAlgorithm(AESWrappingAlgorithm wrappingAlgorithm)
+    {
+        switch (wrappingAlgorithm) {
+            case AESWrappingAlgorithm.AES_GCM_128:
+                return "AES128";
+            case AESWrappingAlgorithm.AES_GCM_192:
+                return "AES192";
+            case AESWrappingAlgorithm.AES_GCM_256:
+                return "AES256";
+            default:
+                throw new ArgumentException("Unsupported AES Wrapping Algorithm");
+        };
+    }
+
+    public static EncryptionSuites.EncryptionSuite AESWrappingAlgorithmToDafnyWrappingAlgorithm(AESWrappingAlgorithm wrappingAlgorithm)
+    {
+        switch (wrappingAlgorithm) {
+            case AESWrappingAlgorithm.AES_GCM_128:
+                return EncryptionSuites.__default.AES__GCM__128;
+            case AESWrappingAlgorithm.AES_GCM_192:
+                return EncryptionSuites.__default.AES__GCM__192;
+            case AESWrappingAlgorithm.AES_GCM_256:
+                return EncryptionSuites.__default.AES__GCM__256;
+            default:
+                throw new ArgumentException("Unsupported AES Wrapping Algorithm");
+        };
     }
 }
 

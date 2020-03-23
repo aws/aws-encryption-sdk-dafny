@@ -60,8 +60,8 @@ namespace AWSEncryptionSDKTests
         // MakeAESKeyring is a helper method that creates an AES Keyring for unit testing
         private Keyring MakeAESKeyring(DafnyFFI.AESWrappingAlgorithm wrappingAlgorithm)
         {
-            // For our unit tests, we can just generate an AES 256 key
-            var keygen = GeneratorUtilities.GetKeyGenerator("AES256");
+            var algorithm = DafnyFFI.AESWrappingAlgorithmToGeneratorUtilitiesAlgorithm(wrappingAlgorithm);
+            var keygen = GeneratorUtilities.GetKeyGenerator(algorithm);
             var wrappingKey = keygen.GenerateKey();
 
             return AWSEncryptionSDK.Keyrings.MakeRawAESKeyring(

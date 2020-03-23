@@ -31,29 +31,28 @@ namespace AWSEncryptionSDK
         // TODO: Eventually the MultiKeyring will take a sequence instead of an array.
         public static MultiKeyring MakeMultiKeyring(Keyring generator, IList<Keyring> children)
         {
-            // TODO: Check for null value etc.
+            foreach (Keyring child in children) {
+                if (child == null) {
+                    throw new ArgumentException("Multikeyring given null child keyring");
+                }
+            }
             MultiKeyring result = new MultiKeyring();
             result.__ctor(generator, Dafny.Sequence<Keyring>.FromArray(children.ToArray()));
             return result;
         }
         public static RawAESKeyring MakeRawAESKeyring(byte[] nameSpace, byte[] name, byte[] wrappingKey, DafnyFFI.AESWrappingAlgorithm wrappingAlgorithm)
         {
-            // TODO: Check for null values
+            if (nameSpace == null || nameSpace.Length == 0) {
+                throw new ArgumentException("AES Keyring Key Namespace Required");
+            }
+            if (name == null || name.Length == 0) {
+                throw new ArgumentException("AES Keyring Key Name Required");
+            }
             RawAESKeyring result = new RawAESKeyring();
-            EncryptionSuites.EncryptionSuite wrappingAlgDafny;
-            switch (wrappingAlgorithm) {
-                case DafnyFFI.AESWrappingAlgorithm.AES_GCM_128:
-                    wrappingAlgDafny = EncryptionSuites.__default.AES__GCM__128;
-                    break;
-                case DafnyFFI.AESWrappingAlgorithm.AES_GCM_192:
-                    wrappingAlgDafny = EncryptionSuites.__default.AES__GCM__192;
-                    break;
-                case DafnyFFI.AESWrappingAlgorithm.AES_GCM_256:
-                    wrappingAlgDafny = EncryptionSuites.__default.AES__GCM__256;
-                    break;
-                default:
-                    throw new ArgumentException("Unsupported AES Wrapping Algorithm");
-            };
+            EncryptionSuites.EncryptionSuite wrappingAlgDafny = DafnyFFI.AESWrappingAlgorithmToDafnyWrappingAlgorithm(wrappingAlgorithm);
+            if (wrappingKey.Length != wrappingAlgDafny.keyLen) {
+                throw new ArgumentException("AES wrapping key has incorrect length given wrapping algorithm");
+            }
             result.__ctor(
                     DafnyFFI.SequenceFromByteArray(nameSpace),
                     DafnyFFI.SequenceFromByteArray(name),
@@ -64,7 +63,12 @@ namespace AWSEncryptionSDK
         }
         public static RawRSAKeyring MakeRawRSAKeyring(byte[] nameSpace, byte[] name, DafnyFFI.RSAPaddingModes paddingMode, byte[] publicKey, byte[] privateKey)
         {
-            // TODO: check for null values, ensure at least one key is non-null.
+            if (nameSpace == null || nameSpace.Length == 0) {
+                throw new ArgumentException("RSA Keyring Key Namespace Required");
+            }
+            if (name == null || name.Length == 0) {
+                throw new ArgumentException("RSA Keyring Key Name Required");
+            }
             RawRSAKeyring result = new RawRSAKeyring();
             RSAEncryption.PaddingMode paddingModeDafny = DafnyFFI.RSAPaddingModesToDafnyPaddingMode(paddingMode);
             RSAEncryption.PublicKey publicKeyWrapper = null;
@@ -76,6 +80,9 @@ namespace AWSEncryptionSDK
             if (privateKey != null) {
                 privateKeyWrapper = new RSAEncryption.PrivateKey();
                 privateKeyWrapper.__ctor(DafnyFFI.SequenceFromByteArray(privateKey));
+            }
+            if (publicKeyWrapper == null && privateKeyWrapper == null) {
+                throw new ArgumentException("RSA Keyring requires at least one of: public key or private key");
             }
             result.__ctor(
                     DafnyFFI.SequenceFromByteArray(nameSpace),
