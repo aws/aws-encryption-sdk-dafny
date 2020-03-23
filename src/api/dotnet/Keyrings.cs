@@ -50,7 +50,7 @@ namespace AWSEncryptionSDK
             }
             RawAESKeyring result = new RawAESKeyring();
             EncryptionSuites.EncryptionSuite wrappingAlgDafny = DafnyFFI.AESWrappingAlgorithmToDafnyWrappingAlgorithm(wrappingAlgorithm);
-            if (wrappingKey.Length != wrappingAlgDafny.keyLen) {
+            if (wrappingKey == null || wrappingKey.Length != wrappingAlgDafny.keyLen) {
                 throw new ArgumentException("AES wrapping key has incorrect length given wrapping algorithm");
             }
             result.__ctor(

@@ -15,6 +15,8 @@ namespace AWSEncryptionSDKTests
     public class ClientTests
     {
         private static string SUCCESS = "SUCCESS";
+        private static string KEYRING_NAMESPACE = "namespace";
+        private static string KEYRING_NAME = "myKeyring";
 
         // MakeKMSKeyring is a helper method that creates a KMS Keyring for unit testing
         private Keyring MakeKMSKeyring()
@@ -33,7 +35,7 @@ namespace AWSEncryptionSDKTests
         }
 
         // MakeRSAKeyring is a helper method that creates a RSA Keyring for unit testing
-        private Keyring MakeRSAKeyring(DafnyFFI.RSAPaddingModes paddingMode)
+        private Keyring MakeRSAKeyring(DafnyFFI.RSAPaddingModes paddingMode, String nameSpace, String name)
         {
             // MakeRawRSAKeyring expects DafnyFFI.RSAPaddingModes while GenerateKeyPairBytes expects
             // RSAEncryption.PaddingMode
@@ -41,10 +43,10 @@ namespace AWSEncryptionSDKTests
             byte[] publicKey;
             byte[] privateKey;
             RSAEncryption.RSA.GenerateKeyPairBytes(2048, paddingModeDafny, out publicKey, out privateKey);
-
+            // If namespace or name is null, just pass null into the constructor to properly test this behavior
             return AWSEncryptionSDK.Keyrings.MakeRawRSAKeyring(
-                Encoding.UTF8.GetBytes("namespace"),
-                Encoding.UTF8.GetBytes("myKeyring"),
+                nameSpace == null ? null : Encoding.UTF8.GetBytes(nameSpace),
+                name == null ? null : Encoding.UTF8.GetBytes(name),
                 paddingMode,
                 publicKey,
                 privateKey);
@@ -53,20 +55,20 @@ namespace AWSEncryptionSDKTests
         // MakeDefaultCMMWithRSAKeyring is a helper method that creates a default CMM using a RSA Keyring for unit testing
         private CMMDefs.CMM MakeDefaultCMMWithRSAKeyring(DafnyFFI.RSAPaddingModes paddingMode)
         {
-            Keyring keyring = MakeRSAKeyring(paddingMode);
+            Keyring keyring = MakeRSAKeyring(paddingMode, KEYRING_NAMESPACE, KEYRING_NAME);
             return AWSEncryptionSDK.CMMs.MakeDefaultCMM(keyring);
         }
 
         // MakeAESKeyring is a helper method that creates an AES Keyring for unit testing
-        private Keyring MakeAESKeyring(DafnyFFI.AESWrappingAlgorithm wrappingAlgorithm)
+        private Keyring MakeAESKeyring(DafnyFFI.AESWrappingAlgorithm wrappingAlgorithm, String nameSpace, String name)
         {
             var algorithm = DafnyFFI.AESWrappingAlgorithmToGeneratorUtilitiesAlgorithm(wrappingAlgorithm);
             var keygen = GeneratorUtilities.GetKeyGenerator(algorithm);
             var wrappingKey = keygen.GenerateKey();
-
+            // If namespace or name is null, just pass null into the constructor to properly test this behavior
             return AWSEncryptionSDK.Keyrings.MakeRawAESKeyring(
-                Encoding.UTF8.GetBytes("namespace"),
-                Encoding.UTF8.GetBytes("myKeyring"),
+                nameSpace == null ? null : Encoding.UTF8.GetBytes(nameSpace),
+                name == null ? null : Encoding.UTF8.GetBytes(name),
                 wrappingKey,
                 wrappingAlgorithm);
         }
@@ -74,7 +76,7 @@ namespace AWSEncryptionSDKTests
         // MakeDefaultCMMWithAESKeyring is a helper method that creates a default CMM using an AES Keyring for unit testing
         private CMMDefs.CMM MakeDefaultCMMWithAESKeyring(DafnyFFI.AESWrappingAlgorithm wrappingAlgorithm)
         {
-            Keyring keyring = MakeAESKeyring(wrappingAlgorithm);
+            Keyring keyring = MakeAESKeyring(wrappingAlgorithm, KEYRING_NAMESPACE, KEYRING_NAME);
             return AWSEncryptionSDK.CMMs.MakeDefaultCMM(keyring);
         }
 
@@ -83,14 +85,14 @@ namespace AWSEncryptionSDKTests
         {
             Keyring generator = MakeKMSKeyring();
             Keyring[] children = new Keyring[] {
-                MakeRSAKeyring(DafnyFFI.RSAPaddingModes.PKCS1),
-                MakeRSAKeyring(DafnyFFI.RSAPaddingModes.OAEP_SHA1),
-                MakeRSAKeyring(DafnyFFI.RSAPaddingModes.OAEP_SHA256),
-                MakeRSAKeyring(DafnyFFI.RSAPaddingModes.OAEP_SHA384),
-                MakeRSAKeyring(DafnyFFI.RSAPaddingModes.OAEP_SHA512),
-                MakeAESKeyring(DafnyFFI.AESWrappingAlgorithm.AES_GCM_128),
-                MakeAESKeyring(DafnyFFI.AESWrappingAlgorithm.AES_GCM_192),
-                MakeAESKeyring(DafnyFFI.AESWrappingAlgorithm.AES_GCM_256)
+                MakeRSAKeyring(DafnyFFI.RSAPaddingModes.PKCS1, KEYRING_NAMESPACE, KEYRING_NAME),
+                MakeRSAKeyring(DafnyFFI.RSAPaddingModes.OAEP_SHA1, KEYRING_NAMESPACE, KEYRING_NAME),
+                MakeRSAKeyring(DafnyFFI.RSAPaddingModes.OAEP_SHA256, KEYRING_NAMESPACE, KEYRING_NAME),
+                MakeRSAKeyring(DafnyFFI.RSAPaddingModes.OAEP_SHA384, KEYRING_NAMESPACE, KEYRING_NAME),
+                MakeRSAKeyring(DafnyFFI.RSAPaddingModes.OAEP_SHA512, KEYRING_NAMESPACE, KEYRING_NAME),
+                MakeAESKeyring(DafnyFFI.AESWrappingAlgorithm.AES_GCM_128, KEYRING_NAMESPACE, KEYRING_NAME),
+                MakeAESKeyring(DafnyFFI.AESWrappingAlgorithm.AES_GCM_192, KEYRING_NAMESPACE, KEYRING_NAME),
+                MakeAESKeyring(DafnyFFI.AESWrappingAlgorithm.AES_GCM_256, KEYRING_NAMESPACE, KEYRING_NAME),
             };
 
             Keyring keyring = AWSEncryptionSDK.Keyrings.MakeMultiKeyring(generator, children);
@@ -186,6 +188,35 @@ namespace AWSEncryptionSDKTests
             EncryptDecryptThreaded(cmm, isMultithreaded, withParams);
         }
 
+        [Fact]
+        public void BadConstructor_NoKeys_RSA()
+        {
+            Assert.Throws<ArgumentException>(() => {
+                AWSEncryptionSDK.Keyrings.MakeRawRSAKeyring(
+                Encoding.UTF8.GetBytes(KEYRING_NAMESPACE),
+                Encoding.UTF8.GetBytes(KEYRING_NAME),
+                DafnyFFI.RSAPaddingModes.OAEP_SHA512,
+                null,
+                null);
+            });
+        }
+
+        [Fact]
+        public void BadConstructor_Namespace_RSA()
+        {
+            Assert.Throws<ArgumentException>(() => {
+                MakeRSAKeyring(DafnyFFI.RSAPaddingModes.OAEP_SHA512, null, KEYRING_NAME);
+            });
+        }
+
+        [Fact]
+        public void BadConstructor_Name_RSA()
+        {
+            Assert.Throws<ArgumentException>(() => {
+                MakeRSAKeyring(DafnyFFI.RSAPaddingModes.OAEP_SHA512, KEYRING_NAMESPACE, null);
+            });
+        }
+
         // AESClientTestData represents client test data that can be used for simple AES client tests that check all
         // combinations of AESWrappingAlgorithm and DefaultClientTestData
         public static TheoryData<DafnyFFI.AESWrappingAlgorithm, bool, bool> AESClientTestData
@@ -212,6 +243,48 @@ namespace AWSEncryptionSDKTests
             EncryptDecryptThreaded(cmm, isMultithreaded, withParams);
         }
 
+        [Fact]
+        public void BadConstructor_MismatchedWrappingAlgorithm_AES()
+        {
+            var keygen = GeneratorUtilities.GetKeyGenerator("AES128");
+            var wrappingKey = keygen.GenerateKey();
+            Assert.Throws<ArgumentException>(() => {
+                AWSEncryptionSDK.Keyrings.MakeRawAESKeyring(
+                    Encoding.UTF8.GetBytes("namespace"),
+                    Encoding.UTF8.GetBytes("myKeyring"),
+                    wrappingKey,
+                    DafnyFFI.AESWrappingAlgorithm.AES_GCM_192);
+            });
+        }
+
+        [Fact]
+        public void BadConstructor_Namespace_AES()
+        {
+            Assert.Throws<ArgumentException>(() => {
+                MakeAESKeyring(DafnyFFI.AESWrappingAlgorithm.AES_GCM_128, null, KEYRING_NAME);
+            });
+        }
+
+        [Fact]
+        public void BadConstructor_Name_AES()
+        {
+            Assert.Throws<ArgumentException>(() => {
+                MakeAESKeyring(DafnyFFI.AESWrappingAlgorithm.AES_GCM_128, KEYRING_NAMESPACE, null);
+            });
+        }
+
+        [Fact]
+        public void BadConstructor_WrappingKey_AES()
+        {
+            Assert.Throws<ArgumentException>(() => {
+                AWSEncryptionSDK.Keyrings.MakeRawAESKeyring(
+                    Encoding.UTF8.GetBytes("namespace"),
+                    Encoding.UTF8.GetBytes("myKeyring"),
+                    null,
+                    DafnyFFI.AESWrappingAlgorithm.AES_GCM_128);
+            });
+        }
+
         [Theory]
         [MemberData(nameof(DefaultClientTestData))]
         public void RoundTripHappyPath_MultiKeyring(bool isMultithreaded, bool withParams)
@@ -219,7 +292,21 @@ namespace AWSEncryptionSDKTests
             CMMDefs.CMM cmm = MakeDefaultCMMWithMultiKeyring();
             EncryptDecryptThreaded(cmm, isMultithreaded, withParams);
         }
-        
+
+        [Fact]
+        public void BadConstructor_NullChild_MultiKeyring()
+        {
+            Keyring generator = MakeKMSKeyring();
+            Keyring[] children = new Keyring[] {
+                MakeRSAKeyring(DafnyFFI.RSAPaddingModes.PKCS1, KEYRING_NAMESPACE, KEYRING_NAME),
+                null,
+                MakeRSAKeyring(DafnyFFI.RSAPaddingModes.OAEP_SHA256, KEYRING_NAMESPACE, KEYRING_NAME)
+            };
+            Assert.Throws<ArgumentException>(() => {
+                AWSEncryptionSDK.Keyrings.MakeMultiKeyring(generator, children);
+            });
+        }
+
         [Fact]
         public void NullPlaintext()
         {
