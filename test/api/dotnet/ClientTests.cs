@@ -207,6 +207,9 @@ namespace AWSEncryptionSDKTests
             Assert.Throws<ArgumentException>(() => {
                 MakeRSAKeyring(DafnyFFI.RSAPaddingModes.OAEP_SHA512, null, KEYRING_NAME);
             });
+            Assert.Throws<ArgumentException>(() => {
+                MakeRSAKeyring(DafnyFFI.RSAPaddingModes.OAEP_SHA512, "", KEYRING_NAME);
+            });
         }
 
         [Fact]
@@ -215,6 +218,30 @@ namespace AWSEncryptionSDKTests
             Assert.Throws<ArgumentException>(() => {
                 MakeRSAKeyring(DafnyFFI.RSAPaddingModes.OAEP_SHA512, KEYRING_NAMESPACE, null);
             });
+            Assert.Throws<ArgumentException>(() => {
+                MakeRSAKeyring(DafnyFFI.RSAPaddingModes.OAEP_SHA512, KEYRING_NAMESPACE, "");
+            });
+        }
+
+        // TODO: Fix This
+        [Theory]
+        [MemberData(nameof(DefaultClientTestData))]
+        public void BadConstructor_MismatchedPaddingMode_RSA(bool isMultithreaded, bool withParams)
+        {
+            // Make the public/private keys use a different padding mode than the one that is passed into the RSA keyring
+            DafnyFFI.RSAPaddingModes paddingMode = DafnyFFI.RSAPaddingModes.OAEP_SHA512;
+            RSAEncryption.PaddingMode paddingModeDafny = DafnyFFI.RSAPaddingModesToDafnyPaddingMode(DafnyFFI.RSAPaddingModes.OAEP_SHA256);
+            byte[] publicKey;
+            byte[] privateKey;
+            RSAEncryption.RSA.GenerateKeyPairBytes(2048, paddingModeDafny, out publicKey, out privateKey);
+            Keyring keyring = AWSEncryptionSDK.Keyrings.MakeRawRSAKeyring(
+                Encoding.UTF8.GetBytes(KEYRING_NAMESPACE),
+                Encoding.UTF8.GetBytes(KEYRING_NAME),
+                DafnyFFI.RSAPaddingModes.OAEP_SHA512,
+                publicKey,
+                privateKey);
+            CMMDefs.CMM cmm = AWSEncryptionSDK.CMMs.MakeDefaultCMM(keyring);
+            EncryptDecryptThreaded(cmm, isMultithreaded, withParams);
         }
 
         // AESClientTestData represents client test data that can be used for simple AES client tests that check all
@@ -246,12 +273,13 @@ namespace AWSEncryptionSDKTests
         [Fact]
         public void BadConstructor_MismatchedWrappingAlgorithm_AES()
         {
+            // Make the keygen use a different wrapping algorithm than the one that is passed into the AES Keyring
             var keygen = GeneratorUtilities.GetKeyGenerator("AES128");
             var wrappingKey = keygen.GenerateKey();
             Assert.Throws<ArgumentException>(() => {
                 AWSEncryptionSDK.Keyrings.MakeRawAESKeyring(
-                    Encoding.UTF8.GetBytes("namespace"),
-                    Encoding.UTF8.GetBytes("myKeyring"),
+                    Encoding.UTF8.GetBytes(KEYRING_NAMESPACE),
+                    Encoding.UTF8.GetBytes(KEYRING_NAME),
                     wrappingKey,
                     DafnyFFI.AESWrappingAlgorithm.AES_GCM_192);
             });
@@ -263,6 +291,9 @@ namespace AWSEncryptionSDKTests
             Assert.Throws<ArgumentException>(() => {
                 MakeAESKeyring(DafnyFFI.AESWrappingAlgorithm.AES_GCM_128, null, KEYRING_NAME);
             });
+            Assert.Throws<ArgumentException>(() => {
+                MakeAESKeyring(DafnyFFI.AESWrappingAlgorithm.AES_GCM_128, "", KEYRING_NAME);
+            });
         }
 
         [Fact]
@@ -271,6 +302,9 @@ namespace AWSEncryptionSDKTests
             Assert.Throws<ArgumentException>(() => {
                 MakeAESKeyring(DafnyFFI.AESWrappingAlgorithm.AES_GCM_128, KEYRING_NAMESPACE, null);
             });
+            Assert.Throws<ArgumentException>(() => {
+                MakeAESKeyring(DafnyFFI.AESWrappingAlgorithm.AES_GCM_128, KEYRING_NAMESPACE, "");
+            });
         }
 
         [Fact]
@@ -278,9 +312,16 @@ namespace AWSEncryptionSDKTests
         {
             Assert.Throws<ArgumentException>(() => {
                 AWSEncryptionSDK.Keyrings.MakeRawAESKeyring(
-                    Encoding.UTF8.GetBytes("namespace"),
-                    Encoding.UTF8.GetBytes("myKeyring"),
+                    Encoding.UTF8.GetBytes(KEYRING_NAMESPACE),
+                    Encoding.UTF8.GetBytes(KEYRING_NAME),
                     null,
+                    DafnyFFI.AESWrappingAlgorithm.AES_GCM_128);
+            });
+            Assert.Throws<ArgumentException>(() => {
+                AWSEncryptionSDK.Keyrings.MakeRawAESKeyring(
+                    Encoding.UTF8.GetBytes(KEYRING_NAMESPACE),
+                    Encoding.UTF8.GetBytes(KEYRING_NAME),
+                    Encoding.UTF8.GetBytes(""),
                     DafnyFFI.AESWrappingAlgorithm.AES_GCM_128);
             });
         }
