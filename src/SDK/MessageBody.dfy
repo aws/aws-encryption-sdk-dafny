@@ -104,7 +104,7 @@ module MessageBody {
   }
 
   //Converts Frame to a sequence encoding a frame
-  function FrameToSubsequence(frame : Frame): seq<uint8>
+  function FrameToSubsequence(frame: Frame): seq<uint8>
     requires frame.Valid()
   {
     match frame 
@@ -118,7 +118,8 @@ module MessageBody {
         seqNumbEndSeq + seqNumbSeq + iv + encContentLengthSeq + encContent + authTag
   }
 
-  method EncryptMessageBody(plaintext: seq<uint8>, frameLength: int, messageID: Msg.MessageID, key: seq<uint8>, algorithmSuiteID: AlgorithmSuite.ID) returns (result: Result<seq<uint8>>)
+  method EncryptMessageBody(plaintext: seq<uint8>, frameLength: int, messageID: Msg.MessageID, key: seq<uint8>, algorithmSuiteID: AlgorithmSuite.ID)
+      returns (result: Result<seq<uint8>>)
     requires |key| == algorithmSuiteID.KeyLength()
     requires 0 < frameLength < UINT32_LIMIT
     requires |plaintext| < UINT32_LIMIT*frameLength
@@ -129,7 +130,6 @@ module MessageBody {
   { 
     var body := [];
     var n : int, sequenceNumber := 0, START_SEQUENCE_NUMBER;
-    
     ghost var frames : seq<Frame> := [];
     
     while n + frameLength < |plaintext|
@@ -214,6 +214,7 @@ lemma IVDependsOnSequenceNumber(frames: seq<Frame>, algorithmSuiteID: AlgorithmS
     }
   }
 
+  //Adds assumption that the size of the encrypted content isn't above the allowed limit. 
   lemma LimmitSize(unauthenticatedFrame: seq<uint8>)
     ensures |unauthenticatedFrame| < UINT32_LIMIT
 
