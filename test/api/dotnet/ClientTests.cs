@@ -37,12 +37,9 @@ namespace AWSEncryptionSDKTests
         // MakeRSAKeyring is a helper method that creates a RSA Keyring for unit testing
         private Keyring MakeRSAKeyring(DafnyFFI.RSAPaddingModes paddingMode, String nameSpace, String name)
         {
-            // MakeRawRSAKeyring expects DafnyFFI.RSAPaddingModes while GenerateKeyPairBytes expects
-            // RSAEncryption.PaddingMode
-            RSAEncryption.PaddingMode paddingModeDafny = DafnyFFI.RSAPaddingModesToDafnyPaddingMode(paddingMode);
             byte[] publicKey;
             byte[] privateKey;
-            RSAEncryption.RSA.GenerateKeyPairBytes(2048, paddingModeDafny, out publicKey, out privateKey);
+            RSAEncryption.RSA.GenerateKeyPairBytes(2048, out publicKey, out privateKey);
             // If namespace or name is null, just pass null into the constructor to properly test this behavior
             return AWSEncryptionSDK.Keyrings.MakeRawRSAKeyring(
                 nameSpace == null ? null : Encoding.UTF8.GetBytes(nameSpace),
@@ -253,26 +250,6 @@ namespace AWSEncryptionSDKTests
             Assert.Throws<ArgumentException>(() => {
                 MakeRSAKeyring(DafnyFFI.RSAPaddingModes.OAEP_SHA512, KEYRING_NAMESPACE, "");
             });
-        }
-
-        // TODO: Determine if there are checks that should fail here
-        [Theory]
-        [MemberData(nameof(DefaultClientTestData))]
-        public void BadConstructor_MismatchedPaddingMode_RSA(bool isMultithreaded, bool withParams)
-        {
-            // Make the public/private keys use a different padding mode than the one that is passed into the RSA keyring
-            RSAEncryption.PaddingMode paddingModeDafny = DafnyFFI.RSAPaddingModesToDafnyPaddingMode(DafnyFFI.RSAPaddingModes.OAEP_SHA512);
-            byte[] publicKey;
-            byte[] privateKey;
-            RSAEncryption.RSA.GenerateKeyPairBytes(2048, paddingModeDafny, out publicKey, out privateKey);
-            Keyring keyring = AWSEncryptionSDK.Keyrings.MakeRawRSAKeyring(
-                Encoding.UTF8.GetBytes(KEYRING_NAMESPACE),
-                Encoding.UTF8.GetBytes(KEYRING_NAME),
-                DafnyFFI.RSAPaddingModes.OAEP_SHA256,
-                publicKey,
-                privateKey);
-            CMMDefs.CMM cmm = AWSEncryptionSDK.CMMs.MakeDefaultCMM(keyring);
-            EncryptDecryptThreaded(cmm, isMultithreaded, withParams);
         }
 
         // AESClientTestData represents client test data that can be used for simple AES client tests that check all
