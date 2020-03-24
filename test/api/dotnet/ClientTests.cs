@@ -24,7 +24,7 @@ namespace AWSEncryptionSDKTests
             String keyArn = DafnyFFI.StringFromDafnyString(TestUtils.__default.SHARED__TEST__KEY__ARN);
             ClientSupplier clientSupplier = new DefaultClientSupplier();
             return AWSEncryptionSDK.Keyrings.MakeKMSKeyring(
-                clientSupplier, Enumerable.Empty<String>(), keyArn,Enumerable.Empty<String>());
+                clientSupplier, Enumerable.Empty<String>(), keyArn, Enumerable.Empty<String>());
         }
 
         // MakeDefaultCMMWithKMSKeyring is a helper method that creates a default CMM using a KMS Keyring for unit testing
@@ -162,6 +162,38 @@ namespace AWSEncryptionSDKTests
             EncryptDecryptThreaded(cmm, isMultithreaded, withParams);
         }
 
+        [Fact]
+        public void BadConstructor_ClientSupplier_KMS()
+        {
+            String keyArn = DafnyFFI.StringFromDafnyString(TestUtils.__default.SHARED__TEST__KEY__ARN);
+            Assert.Throws<ArgumentException>(() => {
+                AWSEncryptionSDK.Keyrings.MakeKMSKeyring(
+                    null, Enumerable.Empty<String>(), keyArn, Enumerable.Empty<String>());
+            });
+        }
+
+        [Fact]
+        public void BadConstructor_KeyIds_KMS()
+        {
+            String keyArn = DafnyFFI.StringFromDafnyString(TestUtils.__default.SHARED__TEST__KEY__ARN);
+            ClientSupplier clientSupplier = new DefaultClientSupplier();
+            Assert.Throws<ArgumentException>(() => {
+                AWSEncryptionSDK.Keyrings.MakeKMSKeyring(
+                    clientSupplier, null, keyArn, Enumerable.Empty<String>());
+            });
+        }
+
+        [Fact]
+        public void BadConstructor_GrantTokens_KMS()
+        {
+            String keyArn = DafnyFFI.StringFromDafnyString(TestUtils.__default.SHARED__TEST__KEY__ARN);
+            ClientSupplier clientSupplier = new DefaultClientSupplier();
+            Assert.Throws<ArgumentException>(() => {
+                AWSEncryptionSDK.Keyrings.MakeKMSKeyring(
+                    clientSupplier, Enumerable.Empty<String>(), keyArn, null);
+            });
+        }
+
         // RSAClientTestData represents client test data that can be used for simple RSA client tests that check all
         // combinations of RSAPaddingModes and DefaultClientTestData
         public static TheoryData<DafnyFFI.RSAPaddingModes, bool, bool> RSAClientTestData
@@ -223,21 +255,20 @@ namespace AWSEncryptionSDKTests
             });
         }
 
-        // TODO: Fix This
+        // TODO: Determine if there are checks that should fail here
         [Theory]
         [MemberData(nameof(DefaultClientTestData))]
         public void BadConstructor_MismatchedPaddingMode_RSA(bool isMultithreaded, bool withParams)
         {
             // Make the public/private keys use a different padding mode than the one that is passed into the RSA keyring
-            DafnyFFI.RSAPaddingModes paddingMode = DafnyFFI.RSAPaddingModes.OAEP_SHA512;
-            RSAEncryption.PaddingMode paddingModeDafny = DafnyFFI.RSAPaddingModesToDafnyPaddingMode(DafnyFFI.RSAPaddingModes.OAEP_SHA256);
+            RSAEncryption.PaddingMode paddingModeDafny = DafnyFFI.RSAPaddingModesToDafnyPaddingMode(DafnyFFI.RSAPaddingModes.OAEP_SHA512);
             byte[] publicKey;
             byte[] privateKey;
             RSAEncryption.RSA.GenerateKeyPairBytes(2048, paddingModeDafny, out publicKey, out privateKey);
             Keyring keyring = AWSEncryptionSDK.Keyrings.MakeRawRSAKeyring(
                 Encoding.UTF8.GetBytes(KEYRING_NAMESPACE),
                 Encoding.UTF8.GetBytes(KEYRING_NAME),
-                DafnyFFI.RSAPaddingModes.OAEP_SHA512,
+                DafnyFFI.RSAPaddingModes.OAEP_SHA256,
                 publicKey,
                 privateKey);
             CMMDefs.CMM cmm = AWSEncryptionSDK.CMMs.MakeDefaultCMM(keyring);

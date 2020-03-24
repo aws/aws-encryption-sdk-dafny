@@ -13,19 +13,29 @@ namespace AWSEncryptionSDK
 {
     public class Keyrings
     {
+        private static int KMS_GRANT_TOKEN_LIMIT = 10;
+
         public static Keyring MakeKMSKeyring(ClientSupplier clientSupplier,
                                              IEnumerable<string> keyIDs,
                                              string generator,
                                              IEnumerable<string> grantTokens)
         {
+            var convertedTokens = grantTokens == null ? null : grantTokens.Select(DafnyFFI.DafnyStringFromString).ToArray();
+            if (convertedTokens == null || convertedTokens.Length > KMS_GRANT_TOKEN_LIMIT) {
+                throw new ArgumentException("KMS Keyring grant tokens required, must be between 0 and 10 elements");
+            }
+            if (keyIDs == null) {
+                throw new ArgumentException("KMS Keyring key ids required, though can be empty");
+            }
+            if (clientSupplier == null) {
+                throw new ArgumentException("KMS Keyring client supplier required");
+            }
             KMSKeyring result = new KMSKeyring();
-            // TODO: The Dafny constructor shouldn't be directly callable from C# code!
-            // This isn't checking for nulls or any other requirements.
             result.__ctor(
                 clientSupplier, 
                 Dafny.Sequence<icharseq>.FromElements(keyIDs.Select(DafnyFFI.DafnyStringFromString).ToArray()),
                 DafnyFFI.NullableToOption(generator != null ? DafnyFFI.DafnyStringFromString(generator) : null),
-                Dafny.Sequence<icharseq>.FromElements(grantTokens.Select(DafnyFFI.DafnyStringFromString).ToArray()));
+                Dafny.Sequence<icharseq>.FromElements(convertedTokens));
             return result;
         }
         // TODO: Eventually the MultiKeyring will take a sequence instead of an array.
