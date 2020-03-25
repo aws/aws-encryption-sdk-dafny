@@ -14,24 +14,21 @@ module {:extern} Producers {
   trait ByteProducer {
     ghost const Repr: set<object>
     predicate Valid() reads this, Repr ensures Valid() ==> this in Repr decreases this, Repr
-    predicate method HasNext() reads this, Repr
-      requires Valid() 
-      ensures Valid()
-      decreases this, Repr
+    predicate method HasNext() reads Repr requires Valid() 
       
     method Next() returns (res: uint8)
       requires Valid()
       requires HasNext()
-      modifies this, Repr
-      decreases this, Repr
+      modifies Repr
+      decreases Repr
       ensures Valid()
-      ensures Repr == old(Repr)
+      ensures fresh(Repr - old(Repr))
 
     method Siphon(consumer: ByteConsumer) returns (siphoned: int)
       requires Valid()
       requires consumer.Valid()
       requires Repr !! consumer.Repr
-      modifies this, Repr, consumer, consumer.Repr
+      modifies Repr, consumer.Repr
       decreases *
       ensures Valid()
       ensures consumer.Valid()
@@ -43,18 +40,22 @@ module {:extern} Producers {
     ghost const Repr: set<object>
     predicate Valid() reads this, Repr ensures Valid() ==> this in Repr decreases this, Repr
     predicate method HasNext() 
-      reads this, Repr
-      decreases this, Repr
+      requires Valid() // TODO-RS: unsound
+      reads Repr
+      decreases Repr
       ensures Valid()
     method Next() returns (res: uint8)
-      modifies this, Repr 
-      decreases this, Repr
+      requires Valid() // TODO-RS: unsound
+      modifies Repr 
+      decreases Repr
       ensures Valid() 
       ensures Repr == old(Repr)
     method Siphon(consumer: ExternalByteConsumer) returns (siphoned: int) 
+      requires Valid() // TODO-RS: unsound
       requires consumer.Valid()
-      modifies this, Repr, consumer, consumer.Repr
-      decreases *
+      requires Repr !! consumer.Repr  // TODO-RS: unsound
+      modifies Repr, consumer.Repr
+      decreases * 
       ensures Valid()
       ensures consumer.Valid()
   }
@@ -73,19 +74,19 @@ module {:extern} Producers {
       && wrapped.Valid()
     }
     predicate method HasNext() 
-      reads this, Repr 
+      reads Repr 
       requires Valid() 
       ensures Valid() 
-      decreases this, Repr 
+      decreases Repr 
     {
       wrapped.HasNext()
     }
     method Next() returns (res: uint8) 
       requires Valid()
-      modifies this, Repr
-      decreases this, Repr 
+      modifies Repr
+      decreases Repr 
       ensures Valid()
-      ensures Repr == old(Repr)
+      ensures fresh(Repr - old(Repr))
     {
       res := wrapped.Next();
     }
@@ -121,27 +122,28 @@ module {:extern} Producers {
       && wrapped.Valid()
     }
     
-    predicate method HasNext() 
-      reads this, Repr 
-      decreases this, Repr
+    predicate method HasNext()
+      requires Valid() // TODO-RS: unsound
+      reads Repr 
       ensures Valid()
     {
-      Axiom(Valid());
       wrapped.HasNext()
     }
     method Next() returns (res: uint8)
-      modifies this, Repr 
-      decreases this, Repr 
+      requires Valid() // TODO-RS: unsound
+      modifies Repr 
+      decreases Repr 
       ensures Valid()
-      ensures Repr == old(Repr)
+      ensures fresh(Repr - old(Repr))
     {
-      Axiom(Valid());
       expect HasNext();
       res := wrapped.Next();
     }
     method Siphon(consumer: ExternalByteConsumer) returns (siphoned: int) 
+      requires Valid() // TODO-RS: unsound
       requires consumer.Valid()
-      modifies this, Repr, consumer, consumer.Repr
+      requires Repr !! consumer.Repr  // TODO-RS: unsound
+      modifies Repr, consumer.Repr
       decreases * 
       ensures Valid()
       ensures consumer.Valid()
@@ -197,7 +199,6 @@ module {:extern} Producers {
     predicate method HasNext() 
       requires Valid()
       reads this
-      decreases this, Repr
       ensures Valid()
     {
       index < maxIndex
@@ -206,9 +207,9 @@ module {:extern} Producers {
       requires Valid()
       requires HasNext()
       modifies this
-      decreases this, Repr
+      decreases Repr
       ensures Valid()
-      ensures Repr == old(Repr)
+      ensures fresh(Repr - old(Repr))
     {
       res := bytes[index];
       index := index + 1;
@@ -243,14 +244,14 @@ module {:extern} Producers {
     predicate Valid() reads this ensures Valid() ==> this in Repr decreases this, Repr {
       this in Repr
     }
-    predicate method HasNext() reads this decreases this, Repr {
+    predicate method HasNext() reads this decreases Repr {
       |bytesRemaining| > 0
     }
     method Next() returns (res: uint8)
       requires Valid()
       requires HasNext()
       modifies this
-      decreases this, Repr
+      decreases Repr
       ensures Valid()
     {
       res := bytesRemaining[0];

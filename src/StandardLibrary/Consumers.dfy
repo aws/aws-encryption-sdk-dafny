@@ -7,28 +7,28 @@ module {:extern} Consumers {
 
   trait ByteConsumer {
     ghost const Repr: set<object>
-    predicate Valid() reads this, Repr ensures Valid() ==> this in Repr decreases this, Repr
-    predicate method CanAccept() reads this, Repr
+    predicate Valid() reads this, Repr ensures Valid() ==> this in Repr decreases Repr
+    predicate method CanAccept() reads Repr
       requires Valid()
       ensures Valid()
     method Accept(b: uint8)
       requires Valid()
       requires CanAccept()
-      modifies this, Repr
+      modifies Repr
       decreases Repr
       ensures Valid()
-      ensures Repr == old(Repr)
+      ensures fresh(Repr - old(Repr))
   }
 
   trait {:extern} ExternalByteConsumer {
     ghost const Repr: set<object>
     predicate Valid() 
-      reads this, Repr
-      decreases this, Repr
+      reads Repr
+      decreases Repr
       ensures Valid() ==> this in Repr
-    predicate method CanAccept() reads this, Repr decreases Repr
+    predicate method CanAccept() reads Repr decreases Repr
     method Accept(b: uint8) 
-      modifies this, Repr 
+      modifies Repr 
       decreases Repr 
       ensures Valid()
       ensures Repr == old(Repr)
@@ -45,22 +45,22 @@ module {:extern} Consumers {
       this.Repr := {this, wrapped} + wrapped.Repr;
     }
     predicate Valid() 
-      reads this, Repr 
-      decreases this, Repr 
+      reads Repr 
+      decreases Repr 
       ensures Valid() ==> this in Repr
     {
       && this in Repr 
       && wrapped in Repr 
-      && wrapped.Repr < Repr 
+      && wrapped.Repr <= Repr 
       && this !in wrapped.Repr
       && wrapped.Valid()
     }
-    predicate method CanAccept() reads this, Repr decreases Repr {
+    predicate method CanAccept() reads Repr decreases Repr {
       Axiom(Valid());
       wrapped.CanAccept()
     }
     method Accept(b: uint8) 
-      modifies this, Repr 
+      modifies Repr 
       decreases Repr 
       ensures Valid()
       ensures Repr == old(Repr)
@@ -80,14 +80,14 @@ module {:extern} Consumers {
       this.wrapped := wrapped;
       this.Repr := {this, wrapped} + wrapped.Repr;
     }
-    predicate Valid() reads this, Repr ensures Valid() ==> this in Repr decreases this, Repr {
+    predicate Valid() reads Repr ensures Valid() ==> this in Repr decreases Repr {
       && this in Repr 
       && wrapped in Repr 
       && wrapped.Repr < Repr 
       && this !in wrapped.Repr
       && wrapped.Valid()
     }
-    predicate method CanAccept() reads this, Repr
+    predicate method CanAccept() reads Repr
       requires Valid()
       ensures Valid()
       decreases Repr
@@ -96,7 +96,7 @@ module {:extern} Consumers {
     }
     method Accept(b: uint8) 
       requires Valid()
-      modifies this, Repr
+      modifies Repr
       decreases Repr
       ensures Valid()
       ensures Repr == old(Repr)
@@ -108,7 +108,6 @@ module {:extern} Consumers {
   method ToExternalByteConsumer(c: ByteConsumer) returns (res: ExternalByteConsumer)
     requires c.Valid()
     ensures res.Valid()
-    ensures (res.Repr - {res}) <= c.Repr
     ensures fresh(res.Repr - c.Repr)
   {
     var result := Cast<AsByteConsumer>(c, (casted: AsByteConsumer) => casted.Repr == c.Repr);
@@ -124,7 +123,6 @@ module {:extern} Consumers {
   method FromExternalByteConsumer(c: ExternalByteConsumer) returns (res: ByteConsumer) 
     requires c.Valid()
     ensures res.Valid()
-    ensures (res.Repr - {res}) <= c.Repr
     ensures fresh(res.Repr - c.Repr)
   {
     var result := Cast<AsExternalByteConsumer>(c, (casted: AsExternalByteConsumer) => casted.Repr == c.Repr);
@@ -141,7 +139,7 @@ module {:extern} Consumers {
     const bytes: array<uint8>
     var index: int
     var maxIndex: int
-    predicate Valid() reads this decreases this, Repr {
+    predicate Valid() reads this decreases Repr {
       && 0 <= index <= maxIndex <= bytes.Length
       && Repr == {this, bytes}
     }
