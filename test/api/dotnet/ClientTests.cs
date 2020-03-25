@@ -163,7 +163,7 @@ namespace AWSEncryptionSDKTests
         public void BadConstructor_ClientSupplier_KMS()
         {
             String keyArn = DafnyFFI.StringFromDafnyString(TestUtils.__default.SHARED__TEST__KEY__ARN);
-            Assert.Throws<ArgumentException>(() => {
+            Assert.Throws<ArgumentNullException>(() => {
                 AWSEncryptionSDK.Keyrings.MakeKMSKeyring(
                     null, Enumerable.Empty<String>(), keyArn, Enumerable.Empty<String>());
             });
@@ -174,9 +174,17 @@ namespace AWSEncryptionSDKTests
         {
             String keyArn = DafnyFFI.StringFromDafnyString(TestUtils.__default.SHARED__TEST__KEY__ARN);
             ClientSupplier clientSupplier = new DefaultClientSupplier();
-            Assert.Throws<ArgumentException>(() => {
+            // Try when keyIds is null
+            Assert.Throws<ArgumentNullException>(() => {
                 AWSEncryptionSDK.Keyrings.MakeKMSKeyring(
                     clientSupplier, null, keyArn, Enumerable.Empty<String>());
+            });
+
+            // Try when keyIds contains null elements
+            List<String> keyIds = new List<String>() { "keyId1", null, "keyId2" };
+            Assert.Throws<ArgumentException>(() => {
+                AWSEncryptionSDK.Keyrings.MakeKMSKeyring(
+                    clientSupplier, keyIds, keyArn, Enumerable.Empty<String>());
             });
         }
 
@@ -185,9 +193,27 @@ namespace AWSEncryptionSDKTests
         {
             String keyArn = DafnyFFI.StringFromDafnyString(TestUtils.__default.SHARED__TEST__KEY__ARN);
             ClientSupplier clientSupplier = new DefaultClientSupplier();
-            Assert.Throws<ArgumentException>(() => {
+            // Try when grantTokens is null
+            Assert.Throws<ArgumentNullException>(() => {
                 AWSEncryptionSDK.Keyrings.MakeKMSKeyring(
                     clientSupplier, Enumerable.Empty<String>(), keyArn, null);
+            });
+
+            // Try when grantTokens contains null elements
+            List<String> grantTokensWithNull = new List<String>() { "grantToken1", null, "grantToken2" };
+            Assert.Throws<ArgumentException>(() => {
+                AWSEncryptionSDK.Keyrings.MakeKMSKeyring(
+                    clientSupplier, Enumerable.Empty<String>(), keyArn, grantTokensWithNull);
+            });
+
+            // Try when grantTokens has too many elements
+            List<String> grantTokensTooLong = new List<String>();
+            for (int i = 0; i < 11; i++) {
+                grantTokensTooLong.Add(String.Format("grantToken%s", i));
+            }
+            Assert.Throws<ArgumentException>(() => {
+                AWSEncryptionSDK.Keyrings.MakeKMSKeyring(
+                    clientSupplier, Enumerable.Empty<String>(), keyArn, grantTokensTooLong);
             });
         }
 
@@ -233,9 +259,12 @@ namespace AWSEncryptionSDKTests
         [Fact]
         public void BadConstructor_Namespace_RSA()
         {
-            Assert.Throws<ArgumentException>(() => {
+            // Try when namespace is null
+            Assert.Throws<ArgumentNullException>(() => {
                 MakeRSAKeyring(DafnyFFI.RSAPaddingModes.OAEP_SHA512, null, KEYRING_NAME);
             });
+
+            // Try when namespace is empty
             Assert.Throws<ArgumentException>(() => {
                 MakeRSAKeyring(DafnyFFI.RSAPaddingModes.OAEP_SHA512, "", KEYRING_NAME);
             });
@@ -244,9 +273,12 @@ namespace AWSEncryptionSDKTests
         [Fact]
         public void BadConstructor_Name_RSA()
         {
-            Assert.Throws<ArgumentException>(() => {
+            // Try when name is null
+            Assert.Throws<ArgumentNullException>(() => {
                 MakeRSAKeyring(DafnyFFI.RSAPaddingModes.OAEP_SHA512, KEYRING_NAMESPACE, null);
             });
+
+            // Try when name is empty
             Assert.Throws<ArgumentException>(() => {
                 MakeRSAKeyring(DafnyFFI.RSAPaddingModes.OAEP_SHA512, KEYRING_NAMESPACE, "");
             });
@@ -296,9 +328,12 @@ namespace AWSEncryptionSDKTests
         [Fact]
         public void BadConstructor_Namespace_AES()
         {
-            Assert.Throws<ArgumentException>(() => {
+            // Try when namespace is null
+            Assert.Throws<ArgumentNullException>(() => {
                 MakeAESKeyring(DafnyFFI.AESWrappingAlgorithm.AES_GCM_128, null, KEYRING_NAME);
             });
+
+            // Try when namespace is empty
             Assert.Throws<ArgumentException>(() => {
                 MakeAESKeyring(DafnyFFI.AESWrappingAlgorithm.AES_GCM_128, "", KEYRING_NAME);
             });
@@ -307,9 +342,12 @@ namespace AWSEncryptionSDKTests
         [Fact]
         public void BadConstructor_Name_AES()
         {
-            Assert.Throws<ArgumentException>(() => {
+            // Try when name is null
+            Assert.Throws<ArgumentNullException>(() => {
                 MakeAESKeyring(DafnyFFI.AESWrappingAlgorithm.AES_GCM_128, KEYRING_NAMESPACE, null);
             });
+
+            // Try when name is empty
             Assert.Throws<ArgumentException>(() => {
                 MakeAESKeyring(DafnyFFI.AESWrappingAlgorithm.AES_GCM_128, KEYRING_NAMESPACE, "");
             });
@@ -318,13 +356,16 @@ namespace AWSEncryptionSDKTests
         [Fact]
         public void BadConstructor_WrappingKey_AES()
         {
-            Assert.Throws<ArgumentException>(() => {
+            // Try when the wrapping key is null
+            Assert.Throws<ArgumentNullException>(() => {
                 AWSEncryptionSDK.Keyrings.MakeRawAESKeyring(
                     Encoding.UTF8.GetBytes(KEYRING_NAMESPACE),
                     Encoding.UTF8.GetBytes(KEYRING_NAME),
                     null,
                     DafnyFFI.AESWrappingAlgorithm.AES_GCM_128);
             });
+
+            // Try when the wrapping key is empty
             Assert.Throws<ArgumentException>(() => {
                 AWSEncryptionSDK.Keyrings.MakeRawAESKeyring(
                     Encoding.UTF8.GetBytes(KEYRING_NAMESPACE),
@@ -343,9 +384,10 @@ namespace AWSEncryptionSDKTests
         }
 
         [Fact]
-        public void BadConstructor_NullChild_MultiKeyring()
+        public void BadConstructor_Children_MultiKeyring()
         {
             Keyring generator = MakeKMSKeyring();
+            // Try when children contains null elements
             Keyring[] children = new Keyring[] {
                 MakeRSAKeyring(DafnyFFI.RSAPaddingModes.PKCS1, KEYRING_NAMESPACE, KEYRING_NAME),
                 null,
@@ -353,6 +395,11 @@ namespace AWSEncryptionSDKTests
             };
             Assert.Throws<ArgumentException>(() => {
                 AWSEncryptionSDK.Keyrings.MakeMultiKeyring(generator, children);
+            });
+
+            // Try when children is null
+            Assert.Throws<ArgumentNullException>(() => {
+                AWSEncryptionSDK.Keyrings.MakeMultiKeyring(generator, null);
             });
         }
 

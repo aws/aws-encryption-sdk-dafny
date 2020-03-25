@@ -13,27 +13,24 @@ namespace AWSEncryptionSDK
 {
     public class Keyrings
     {
-        private static int KMS_GRANT_TOKEN_LIMIT = 10;
-
         public static Keyring MakeKMSKeyring(ClientSupplier clientSupplier,
                                              IEnumerable<string> keyIDs,
                                              string generator,
                                              IEnumerable<string> grantTokens)
         {
-            var convertedTokens = grantTokens == null ? null : grantTokens.Select(DafnyFFI.DafnyStringFromString).ToArray();
-            if (convertedTokens == null || convertedTokens.Length > KMS_GRANT_TOKEN_LIMIT) {
-                throw new ArgumentException("KMS Keyring grant tokens required, must be between 0 and 10 elements");
+            CheckEnumerableStringNotNullOrContainingNullElements(grantTokens, "KMS Keyring grantTokens");
+            var convertedTokens = grantTokens.Select(DafnyFFI.DafnyStringFromString).ToArray();
+            if (convertedTokens.Length > KMSUtils.__default.MAX__GRANT__TOKENS) {
+                throw new ArgumentException("KMS Keyring grantTokens given more than 10 grant tokens");
             }
-            if (keyIDs == null) {
-                throw new ArgumentException("KMS Keyring key ids required, though can be empty");
-            }
+            CheckEnumerableStringNotNullOrContainingNullElements(keyIDs, "KMS Keyring keyIDs");
             if (clientSupplier == null) {
-                throw new ArgumentException("KMS Keyring client supplier required");
+                throw new ArgumentNullException("clientSupplier");
             }
             KMSKeyring result = new KMSKeyring();
             result.__ctor(
                 clientSupplier, 
-                Dafny.Sequence<icharseq>.FromElements(keyIDs.Select(DafnyFFI.DafnyStringFromString).ToArray()),
+                Dafny.Sequence<icharseq>.FromElements(),
                 DafnyFFI.NullableToOption(generator != null ? DafnyFFI.DafnyStringFromString(generator) : null),
                 Dafny.Sequence<icharseq>.FromElements(convertedTokens));
             return result;
@@ -41,10 +38,11 @@ namespace AWSEncryptionSDK
         // TODO: Eventually the MultiKeyring will take a sequence instead of an array.
         public static MultiKeyring MakeMultiKeyring(Keyring generator, IList<Keyring> children)
         {
-            foreach (Keyring child in children) {
-                if (child == null) {
-                    throw new ArgumentException("Multikeyring given null child keyring");
-                }
+            if (children == null) {
+                throw new ArgumentNullException("Multikeyring children");
+            }
+            if (children.Contains(null)) {
+                throw new ArgumentException("Multikeyring children given null element");
             }
             MultiKeyring result = new MultiKeyring();
             result.__ctor(generator, Dafny.Sequence<Keyring>.FromArray(children.ToArray()));
@@ -52,16 +50,15 @@ namespace AWSEncryptionSDK
         }
         public static RawAESKeyring MakeRawAESKeyring(byte[] nameSpace, byte[] name, byte[] wrappingKey, DafnyFFI.AESWrappingAlgorithm wrappingAlgorithm)
         {
-            if (nameSpace == null || nameSpace.Length == 0) {
-                throw new ArgumentException("AES Keyring Key Namespace Required");
-            }
-            if (name == null || name.Length == 0) {
-                throw new ArgumentException("AES Keyring Key Name Required");
-            }
+            CheckArrayNotNullOrEmpty(nameSpace, "AES Keyring nameSpace");
+            CheckArrayNotNullOrEmpty(name, "AES Keyring name");
             RawAESKeyring result = new RawAESKeyring();
             EncryptionSuites.EncryptionSuite wrappingAlgDafny = DafnyFFI.AESWrappingAlgorithmToDafnyWrappingAlgorithm(wrappingAlgorithm);
-            if (wrappingKey == null || wrappingKey.Length != wrappingAlgDafny.keyLen) {
-                throw new ArgumentException("AES wrapping key has incorrect length given wrapping algorithm");
+            if (wrappingKey == null) {
+                throw new ArgumentNullException("AES Keyring wrappingKey");
+            }
+            if (wrappingKey.Length != wrappingAlgDafny.keyLen) {
+                throw new ArgumentException("AES Keyring wrappingKey has incorrect length given wrapping algorithm");
             }
             result.__ctor(
                     DafnyFFI.SequenceFromByteArray(nameSpace),
@@ -73,12 +70,8 @@ namespace AWSEncryptionSDK
         }
         public static RawRSAKeyring MakeRawRSAKeyring(byte[] nameSpace, byte[] name, DafnyFFI.RSAPaddingModes paddingMode, byte[] publicKey, byte[] privateKey)
         {
-            if (nameSpace == null || nameSpace.Length == 0) {
-                throw new ArgumentException("RSA Keyring Key Namespace Required");
-            }
-            if (name == null || name.Length == 0) {
-                throw new ArgumentException("RSA Keyring Key Name Required");
-            }
+            CheckArrayNotNullOrEmpty(nameSpace, "RSA Keyring nameSpace");
+            CheckArrayNotNullOrEmpty(name, "RSA Keyring name");
             RawRSAKeyring result = new RawRSAKeyring();
             RSAEncryption.PaddingMode paddingModeDafny = DafnyFFI.RSAPaddingModesToDafnyPaddingMode(paddingMode);
             RSAEncryption.PublicKey publicKeyWrapper = null;
@@ -102,6 +95,26 @@ namespace AWSEncryptionSDK
                     DafnyFFI.NullableToOption(privateKeyWrapper)
                     );
             return result;
+        }
+
+        private static void CheckArrayNotNullOrEmpty<T>(T[] array, string name)
+        {
+            if (array == null) {
+                throw new ArgumentNullException(name);
+            }
+            if (array.Length == 0) {
+                throw new ArgumentException(String.Format("%s is empty", name));
+            }
+        }
+
+        private static void CheckEnumerableStringNotNullOrContainingNullElements(IEnumerable<string> enumerable, string name)
+        {
+            if (enumerable == null) {
+                throw new ArgumentNullException(name);
+            }
+            if (enumerable.Contains(null)) {
+                throw new ArgumentException(String.Format("%s given null element", name));
+            }
         }
     }
 }
