@@ -9,12 +9,12 @@ include "../Crypto/EncryptionSuites.dfy"
 include "../Util/UTF8.dfy"
 
 module MessageBody {
-  export
-    provides EncryptMessageBody
-    provides DecryptFramedMessageBody, DecryptNonFramedMessageBody
-    provides StandardLibrary, UInt, Msg, AlgorithmSuite, Materials, Streams
-    provides FramesToSequence, FrameToSubsequence, ValidFrames
-    reveals Frame
+  // export
+  //   provides EncryptMessageBody
+  //   provides DecryptFramedMessageBody, DecryptNonFramedMessageBody
+  //   provides StandardLibrary, UInt, Msg, AlgorithmSuite, Materials, Streams
+  //   provides FramesToSequence, FrameToSubsequence, ValidFrames
+  //   reveals Frame
     
   import opened StandardLibrary
   import opened UInt = StandardLibrary.UInt
@@ -39,7 +39,8 @@ module MessageBody {
     }
 
   datatype Frame = RegularFrameConstructor(seqNumb: uint32, iv: seq<uint8>, encContent: seq<uint8>, authTag: seq<uint8>) |
-                   FinalFrameConstructor(seqNumb: uint32, iv: seq<uint8>, encContent: seq<uint8>, authTag: seq<uint8>){
+                   FinalFrameConstructor(seqNumb: uint32, iv: seq<uint8>, encContent: seq<uint8>, authTag: seq<uint8>)
+  {
     predicate Valid() {
       |encContent| < UINT32_LIMIT   
     }
@@ -215,7 +216,7 @@ lemma IVDependsOnSequenceNumber(frames: seq<Frame>, algorithmSuiteID: AlgorithmS
   }
 
   //Adds assumption that the size of the encrypted content isn't above the allowed limit. 
-  lemma LimmitSize(unauthenticatedFrame: seq<uint8>)
+  lemma {:axiom} LimitSize (unauthenticatedFrame: seq<uint8>)
     ensures |unauthenticatedFrame| < UINT32_LIMIT
 
   method EncryptRegularFrame(algorithmSuiteID: AlgorithmSuite.ID, key: seq<uint8>, ghost frameLength: int,
@@ -235,7 +236,7 @@ lemma IVDependsOnSequenceNumber(frames: seq<Frame>, algorithmSuiteID: AlgorithmS
         var encContent := resultSuccess[4 + algorithmSuiteID.IVLength()..|resultSuccess| - 1 - algorithmSuiteID.TagLength()];
         var authTag := resultSuccess[|resultSuccess| - 1 - algorithmSuiteID.TagLength()..];
         var frame := RegularFrameConstructor(sequenceNumber, iv, encContent, authTag);
-        frame == SubsequenceToRegularFrame(resultSuccess, algorithmSuiteID);
+        FrameToSubsequence(frame) == resultSuccess;
   {
     var seqNumSeq := UInt32ToSeq(sequenceNumber);
     var unauthenticatedFrame := seqNumSeq;
@@ -247,7 +248,7 @@ lemma IVDependsOnSequenceNumber(frames: seq<Frame>, algorithmSuiteID: AlgorithmS
     SeqWithUInt32Suffix(iv, sequenceNumber as nat);  // this proves SeqToNat(iv) == sequenceNumber as nat
     unauthenticatedFrame := unauthenticatedFrame + iv;
     unauthenticatedFrame := unauthenticatedFrame + encryptionOutput.cipherText + encryptionOutput.authTag;
-    LimmitSize(unauthenticatedFrame);
+    LimitSize(unauthenticatedFrame);
     
     return Success(unauthenticatedFrame);
   }
@@ -287,7 +288,7 @@ lemma IVDependsOnSequenceNumber(frames: seq<Frame>, algorithmSuiteID: AlgorithmS
     
     var encryptionOutput :- AESEncryption.AESEncrypt(algorithmSuiteID.EncryptionSuite(), iv, key, plaintext, aad);
     unauthenticatedFrame := unauthenticatedFrame + encryptionOutput.cipherText + encryptionOutput.authTag;
-    LimmitSize(unauthenticatedFrame);
+    LimitSize(unauthenticatedFrame);
     return Success(unauthenticatedFrame);
   }
 
