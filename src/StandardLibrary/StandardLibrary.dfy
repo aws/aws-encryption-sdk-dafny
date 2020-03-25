@@ -75,17 +75,11 @@ module {:extern "STL"} StandardLibrary {
   method FailUnlessEach<T>(s: seq<T>, p: T -> bool, message: string) returns (r: Result<()>) 
     ensures r.Success? ==> forall i :: 0 <= i < |s| ==> p(s[i]) 
   {
-    var i := 0;
-    while i < |s| 
-      invariant i <= |s|
-      invariant forall k :: 0 <= k < i ==> p(s[k])
-    {
-      if !p(s[i]) {
-        return Failure(message);
-      }
-      i := i + 1;
+    if forall i :: 0 <= i < |s| ==> p(s[i]) {
+      return Success(());
+    } else {
+      return Failure(message);
     }
-    return Success(());
   }
 
   function method Join<T>(ss: seq<seq<T>>, joiner: seq<T>): (s: seq<T>)
