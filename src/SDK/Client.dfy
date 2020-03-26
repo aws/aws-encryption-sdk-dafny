@@ -2,10 +2,12 @@ include "../StandardLibrary/StandardLibrary.dfy"
 include "../StandardLibrary/UInt.dfy"
 include "Materials.dfy"
 include "CMM/Defs.dfy"
+include "CMM/DefaultCMM.dfy"
 include "MessageHeader.dfy"
 include "MessageBody.dfy"
 include "Serialize.dfy"
 include "Deserialize.dfy"
+include "Keyring/Defs.dfy"
 include "../Crypto/Random.dfy"
 include "../Util/Streams.dfy"
 include "../Crypto/KeyDerivationAlgorithms.dfy"
@@ -16,39 +18,153 @@ include "../Crypto/Signature.dfy"
 module {:extern "ESDKClient"} ESDKClient {
   import opened StandardLibrary
   import opened UInt = StandardLibrary.UInt
-  import Materials
   import AlgorithmSuite
+  import AESEncryption
   import CMMDefs
+  import DefaultCMMDef
+  import Deserialize
+  import HKDF
+  import KeyringDefs
+  import KeyDerivationAlgorithms
+  import Materials
   import Msg = MessageHeader
   import MessageBody
-  import Serialize
   import Random
-  import KeyDerivationAlgorithms
-  import Streams
-  import HKDF
-  import AESEncryption
+  import Serialize
   import Signature
-  import Deserialize
+  import Streams
 
   const DEFAULT_FRAME_LENGTH: uint32 := 4096
+
+  datatype SequenceStreamUnion = NonStream(bytes: seq<uint8>) // | Stream(\* Stream Object *\)
+
+  class EncryptRequest {
+    var plaintext: SequenceStreamUnion
+    var cmm: CMMDefs.CMM
+    var plaintextLength: nat //PR QUESTION: Should we impose a limit here?
+    var encryptionContext: Materials.EncryptionContext
+    var algorithmSuiteID: Option<AlgorithmSuite.ID>
+    var frameLength: Option<uint32>
+
+    constructor NonStreamWithKeyring(plaintext: seq<uint8>, keyring: KeyringDefs.Keyring)
+      requires keyring.Valid()
+      ensures this.plaintext.NonStream? && |this.plaintext.bytes| == this.plaintextLength
+      ensures this.cmm.Valid()
+      ensures this.encryptionContext == map[]
+      ensures this.algorithmSuiteID.None?
+      ensures this.frameLength.None?
+    {
+      this.plaintext := NonStream(plaintext);
+      this.cmm := new DefaultCMMDef.DefaultCMM.OfKeyring(keyring);
+      this.plaintextLength := |plaintext|;
+      this.encryptionContext := map[];
+      this.algorithmSuiteID := None;
+      this.frameLength := None;
+    }
+
+    constructor NonStreamWithCMM(plaintext: seq<uint8>, cmm: CMMDefs.CMM)
+      requires cmm.Valid()
+      ensures this.plaintext.NonStream? && |this.plaintext.bytes| == this.plaintextLength
+      ensures this.cmm == cmm && this.cmm.Valid()
+      ensures this.encryptionContext == map[]
+      ensures this.algorithmSuiteID.None?
+      ensures this.frameLength.None?
+    {
+      this.plaintext := NonStream(plaintext);
+      this.cmm := cmm;
+      this.plaintextLength := |plaintext|;
+      this.encryptionContext := map[];
+      this.algorithmSuiteID := None;
+      this.frameLength := None;
+    }
+
+    /*
+    constructor StreamWithKeyring(stream: ???, plaintextLength: uint32, keyring: KeyringDefs.Keyring)
+      requires keyring.Valid()
+      ensures this.plaintext.Stream?
+      ensures this.cmm.Valid()
+      ensures this.plaintextLength == plaintextLength
+      ensures this.encryptionContext == map[]
+      ensures this.algorithmSuiteID.None?
+      ensures this.frameLength == DEFAULT_FRAME_LENGTH
+    {
+      this.plaintext := NonStream(plaintext);
+      this.cmm := new DefaultCMMDef.DefaultCMM.OfKeyring(keyring);
+      this.plaintextLength := plaintextLength;
+      this.encryptionContext := map[];
+      this.algorithmSuiteID := None;
+      this.frameLength := DEFAULT_FRAME_LENGTH;
+    }
+  */
+
+    method EncryptionContext(encryptionContext: Materials.EncryptionContext)
+      modifies `encryptionContext
+      ensures this.encryptionContext == encryptionContext
+    {
+      this.encryptionContext := encryptionContext;
+    }
+
+    method AlgorithmSuiteID(algorithmSuiteID: AlgorithmSuite.ID)
+      modifies `algorithmSuiteID
+      ensures this.algorithmSuiteID == Some(algorithmSuiteID)
+    {
+      this.algorithmSuiteID := Some(algorithmSuiteID);
+    }
+
+    method FrameLength(frameLength: uint32)
+      modifies `frameLength
+      ensures this.frameLength == Some(frameLength)
+    {
+      this.frameLength := Some(frameLength);
+    }
+  }
+
+  class DecryptRequest {
+    var message: SequenceStreamUnion
+    var cmm: CMMDefs.CMM
+
+    constructor NonStreamWithCMM(message: seq<uint8>, cmm: CMMDefs.CMM)
+      requires cmm.Valid()
+      ensures this.message.bytes == message
+      ensures this.cmm == cmm
+    {
+      this.message := NonStream(message);
+      this.cmm := cmm;
+    }
+
+    constructor NonStreamWithKeyring(message: seq<uint8>, keyring: KeyringDefs.Keyring)
+      requires keyring.Valid()
+      ensures this.message.bytes == message
+      ensures this.cmm.Valid()
+    {
+      this.message := NonStream(message);
+      this.cmm := new DefaultCMMDef.DefaultCMM.OfKeyring(keyring);
+    }
+  }
 
  /*
   * Encrypt a plaintext and serialize it into a message.
   */
-  method Encrypt(plaintext: seq<uint8>, cmm: CMMDefs.CMM, optEncryptionContext: Option<Materials.EncryptionContext>, algorithmSuiteID: Option<AlgorithmSuite.ID>, optFrameLength: Option<uint32>) returns (res: Result<seq<uint8>>)
-    requires cmm.Valid()
-    requires optFrameLength.Some? ==> optFrameLength.get != 0
-    requires optEncryptionContext.Some? ==> optEncryptionContext.get.Keys !! Materials.ReservedKeyValues && Msg.ValidAAD(optEncryptionContext.get)
+  method Encrypt(request: EncryptRequest) returns (res: Result<seq<uint8>>)
+    requires request.cmm.Valid()
+    modifies request.cmm.Repr
+    ensures request.cmm.Valid() && fresh(request.cmm.Repr - old(request.cmm.Repr))
   {
-    var encryptionContext := optEncryptionContext.GetOrElse(map[]);
-    assert Msg.ValidAAD(encryptionContext) by {
-      reveal Msg.ValidAAD();
-      assert Msg.ValidAAD(encryptionContext);
+    if request.frameLength.Some? && request.frameLength.get == 0 {
+      return Failure("Request frameLength must be > 0");
+    } else if !(request.encryptionContext.Keys !! Materials.ReservedKeyValues) {
+      return Failure("Invalid encryption context keys.");
+    } else {
+      var validEncCtx := Msg.ComputeValidAAD(request.encryptionContext);
+      if !validEncCtx {
+        return Failure("Invalid encryption context.");
+      }
     }
-    var frameLength := if optFrameLength.Some? then optFrameLength.get else DEFAULT_FRAME_LENGTH;
-    
-    var encMatRequest := Materials.EncryptionMaterialsRequest(encryptionContext, algorithmSuiteID, Some(|plaintext|));
-    var encMat :- cmm.GetEncryptionMaterials(encMatRequest);
+
+    var frameLength := if request.frameLength.Some? then request.frameLength.get else DEFAULT_FRAME_LENGTH;
+
+    var encMatRequest := Materials.EncryptionMaterialsRequest(request.encryptionContext, request.algorithmSuiteID, Some(request.plaintextLength as nat));
+    var encMat :- request.cmm.GetEncryptionMaterials(encMatRequest);
     if UINT16_LIMIT <= |encMat.encryptedDataKeys| {
       return Failure("Number of EDKs exceeds the allowed maximum.");
     }
@@ -78,7 +194,8 @@ module {:extern "ESDKClient"} ESDKClient {
     var _ :- Serialize.SerializeHeaderAuthentication(wr, headerAuthentication, encMat.algorithmSuiteID);
 
     // Encrypt the given plaintext into the message body and add a footer with a signature, if required
-    var body :- MessageBody.EncryptMessageBody(plaintext, frameLength as int, messageID, derivedDataKey, encMat.algorithmSuiteID);
+    //TODO The logic here will have to change once streams are implemented.
+    var body :- MessageBody.EncryptMessageBody(request.plaintext.bytes, frameLength as int, messageID, derivedDataKey, encMat.algorithmSuiteID);
     var msg := wr.GetDataWritten() + body;
 
     match encMat.algorithmSuiteID.SignatureType() {
@@ -114,13 +231,14 @@ module {:extern "ESDKClient"} ESDKClient {
  /*
   * Deserialize a message and decrypt into a plaintext.
   */
-  method Decrypt(message: seq<uint8>, cmm: CMMDefs.CMM) returns (res: Result<seq<uint8>>)
-    requires cmm.Valid()
+  method Decrypt(request: DecryptRequest) returns (res: Result<seq<uint8>>)
+    requires request.cmm.Valid()
   {
-    var rd := new Streams.ByteReader(message);
+    //TODO Once Streams have been implemented, check request.message.Stream? here.
+    var rd := new Streams.ByteReader(request.message.bytes);
     var header :- Deserialize.DeserializeHeader(rd);
     var decMatRequest := Materials.DecryptionMaterialsRequest(header.body.algorithmSuiteID, header.body.encryptedDataKeys.entries, header.body.aad);
-    var decMat :- cmm.DecryptMaterials(decMatRequest);
+    var decMat :- request.cmm.DecryptMaterials(decMatRequest);
 
     var decryptionKey := DeriveKey(decMat.plaintextDataKey.get, decMat.algorithmSuiteID, header.body.messageID);
 
@@ -138,8 +256,9 @@ module {:extern "ESDKClient"} ESDKClient {
         // there's no footer
       case Some(ecdsaParams) =>
         var usedCapacity := rd.GetSizeRead();
-        assert usedCapacity <= |message|;
-        var msg := message[..usedCapacity];  // unauthenticatedHeader + authTag + body  // TODO: there should be a better way to get this
+        //TODO Again, once streams are implemented, we'll need a check here.
+        assert usedCapacity <= |request.message.bytes|;
+        var msg := request.message.bytes[..usedCapacity];  // unauthenticatedHeader + authTag + body  // TODO: there should be a better way to get this
         // read signature
         var signatureLength :- rd.ReadUInt16();
         var sig :- rd.ReadBytes(signatureLength as nat);

@@ -1,18 +1,14 @@
 using Org.BouncyCastle.Crypto;
 using Org.BouncyCastle.Crypto.Engines;
-using Org.BouncyCastle.Crypto.Encodings;
-using Org.BouncyCastle.Crypto.Generators;
 using Org.BouncyCastle.Crypto.Modes;
 using Org.BouncyCastle.Crypto.Parameters;
 
 using ibyteseq = Dafny.ISequence<byte>;
 using byteseq = Dafny.Sequence<byte>;
-using icharseq = Dafny.ISequence<char>;
 using charseq = Dafny.Sequence<char>;
 
 
 namespace AESEncryption {
-    //TODO This code has yet to be reviewed. See issue #36
     public partial class AES_GCM {
 
         public static STL.Result<EncryptionOutput> AESEncrypt(EncryptionSuites.EncryptionSuite encAlg,

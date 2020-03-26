@@ -1,5 +1,4 @@
 using System;
-using System.Numerics;
 
 using ibyteseq = Dafny.ISequence<byte>;
 using byteseq = Dafny.Sequence<byte>;

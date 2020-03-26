@@ -27,6 +27,8 @@ module IntegTestKMS {
 
   method EncryptDecryptTest(cmm: CMMDefs.CMM, message: string) returns (res: string)
     requires cmm.Valid()
+    modifies cmm.Repr
+    ensures cmm.Valid() && fresh(cmm.Repr - old(cmm.Repr))
   {
     var encodedMsg: seq<uint8>;
     var encodeResult := UTF8.Encode(message);
@@ -49,10 +51,13 @@ module IntegTestKMS {
       }
       assert Msg.KVPairsLength(encryptionContext) < UINT16_LIMIT;
     }
-    var e := Client.Encrypt(encodedMsg, cmm, Some(encryptionContext), None, None);
+    var encryptRequest := new Client.EncryptRequest.NonStreamWithCMM(encodedMsg, cmm);
+    encryptRequest.EncryptionContext(encryptionContext);
+    var e := Client.Encrypt(encryptRequest);
     expect e.Success?, "Bad encryption :( " + e.error + "\n";
 
-    var d := Client.Decrypt(e.value, cmm);
+    var decryptRequest := new Client.DecryptRequest.NonStreamWithCMM(e.value, cmm);
+    var d := Client.Decrypt(decryptRequest);
     expect d.Success?, "bad decryption: " + d.error + "\n";
 
     expect UTF8.ValidUTF8Seq(d.value), "Could not decode Encryption output";
