@@ -6,7 +6,6 @@ using System.Linq;
 using CMMDefs;
 using Dafny;
 using ibyteseq = Dafny.ISequence<byte>;
-using icharseq = Dafny.ISequence<char>;
 using encryptioncontext = Dafny.Map<Dafny.ISequence<byte>, Dafny.ISequence<byte>>;
 
 namespace AWSEncryptionSDK
