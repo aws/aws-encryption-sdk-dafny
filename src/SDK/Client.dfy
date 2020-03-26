@@ -194,7 +194,6 @@ module {:extern "ESDKClient"} ESDKClient {
     var _ :- Serialize.SerializeHeaderAuthentication(wr, headerAuthentication, encMat.algorithmSuiteID);
 
     // Encrypt the given plaintext into the message body and add a footer with a signature, if required
-    //TODO The logic here will have to change once streams are implemented.
     var body :- MessageBody.EncryptMessageBody(request.plaintext.bytes, frameLength as int, messageID, derivedDataKey, encMat.algorithmSuiteID);
     var msg := wr.GetDataWritten() + body;
 
@@ -234,7 +233,6 @@ module {:extern "ESDKClient"} ESDKClient {
   method Decrypt(request: DecryptRequest) returns (res: Result<seq<uint8>>)
     requires request.cmm.Valid()
   {
-    //TODO Once Streams have been implemented, check request.message.Stream? here.
     var rd := new Streams.ByteReader(request.message.bytes);
     var header :- Deserialize.DeserializeHeader(rd);
     var decMatRequest := Materials.DecryptionMaterialsRequest(header.body.algorithmSuiteID, header.body.encryptedDataKeys.entries, header.body.aad);
@@ -256,7 +254,6 @@ module {:extern "ESDKClient"} ESDKClient {
         // there's no footer
       case Some(ecdsaParams) =>
         var usedCapacity := rd.GetSizeRead();
-        //TODO Again, once streams are implemented, we'll need a check here.
         assert usedCapacity <= |request.message.bytes|;
         var msg := request.message.bytes[..usedCapacity];  // unauthenticatedHeader + authTag + body  // TODO: there should be a better way to get this
         // read signature
