@@ -18,12 +18,12 @@ namespace AWSEncryptionSDK
                                              string generator,
                                              IEnumerable<string> grantTokens)
         {
-            CheckEnumerableStringNotNullOrContainingNullElements(grantTokens, "KMS Keyring grantTokens");
+            CheckEnumerableNotNullOrContainingNullElements(grantTokens, "KMS Keyring grantTokens");
             var convertedTokens = grantTokens.Select(DafnyFFI.DafnyStringFromString).ToArray();
             if (convertedTokens.Length > KMSUtils.__default.MAX__GRANT__TOKENS) {
                 throw new ArgumentException("KMS Keyring grantTokens given more than 10 grant tokens");
             }
-            CheckEnumerableStringNotNullOrContainingNullElements(keyIDs, "KMS Keyring keyIDs");
+            CheckEnumerableNotNullOrContainingNullElements(keyIDs, "KMS Keyring keyIDs");
             if (clientSupplier == null) {
                 throw new ArgumentNullException("clientSupplier");
             }
@@ -38,12 +38,7 @@ namespace AWSEncryptionSDK
         // TODO: Eventually the MultiKeyring will take a sequence instead of an array.
         public static MultiKeyring MakeMultiKeyring(Keyring generator, IList<Keyring> children)
         {
-            if (children == null) {
-                throw new ArgumentNullException("Multikeyring children");
-            }
-            if (children.Contains(null)) {
-                throw new ArgumentException("Multikeyring children given null element");
-            }
+            CheckEnumerableNotNullOrContainingNullElements(children, "Multikeyring children");
             MultiKeyring result = new MultiKeyring();
             result.__ctor(generator, Dafny.Sequence<Keyring>.FromArray(children.ToArray()));
             return result;
@@ -103,17 +98,17 @@ namespace AWSEncryptionSDK
                 throw new ArgumentNullException(name);
             }
             if (array.Length == 0) {
-                throw new ArgumentException(String.Format("%s is empty", name));
+                throw new ArgumentException(String.Format("{0} is empty", name));
             }
         }
 
-        private static void CheckEnumerableStringNotNullOrContainingNullElements(IEnumerable<string> enumerable, string name)
+        private static void CheckEnumerableNotNullOrContainingNullElements<T>(IEnumerable<T> enumerable, string name) where T : class
         {
             if (enumerable == null) {
                 throw new ArgumentNullException(name);
             }
             if (enumerable.Contains(null)) {
-                throw new ArgumentException(String.Format("%s given null element", name));
+                throw new ArgumentException(String.Format("{0} given null element", name));
             }
         }
     }
