@@ -69,6 +69,7 @@ module Streams {
 
     predicate Valid()
       reads this, Repr
+      ensures Valid() ==> this in Repr
     {
       this in Repr &&
       reader in Repr && reader.Repr <= Repr && this !in reader.Repr && reader.Valid()
@@ -76,8 +77,7 @@ module Streams {
 
     constructor (s: seq<uint8>)
       ensures reader.data == s
-      ensures fresh(Repr - {this})
-      ensures Valid()
+      ensures Valid() && fresh(Repr)
     {
       var mr := new SeqReader<uint8>(s);
       reader := mr;
@@ -221,7 +221,7 @@ module Streams {
 
   class ByteWriter {
     ghost var Repr: set<object>
-    var writer: SeqWriter<uint8>
+    const writer: SeqWriter<uint8>
 
     predicate Valid()
       reads this, Repr
