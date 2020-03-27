@@ -138,7 +138,6 @@ module Streams {
     method ReadUInt32() returns (res: Result<uint32>)
       requires Valid()
       modifies reader`pos
-      ensures res.Failure? ==> |reader.data| - reader.pos < 4
       ensures res.Failure? ==> unchanged(reader)
       ensures res.Success? ==> reader.pos == old(reader.pos) + 4
       ensures 4 <= |old(reader.data)| - old(reader.pos) <==> res.Success?
