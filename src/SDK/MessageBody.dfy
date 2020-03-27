@@ -317,52 +317,39 @@ module MessageBody {
       case Failure(_) => true
   {    
     var final := false;
-    var sequenceNumber :- rd.ReadUInt32();
+    var sequenceNumber :- rd.ReadUInt32(); 
     ghost var sequence := UInt32ToSeq(sequenceNumber);
-    assert sequence[..4] == rd.reader.data[old(rd.reader.pos)..rd.reader.pos][..4];
-    
     
     if sequenceNumber == ENDFRAME_SEQUENCE_NUMBER {
       final := true;
       sequenceNumber :- rd.ReadUInt32();
       sequence := sequence + UInt32ToSeq(sequenceNumber);
     }
-    assert final ==> sequence[..4] == rd.reader.data[old(rd.reader.pos)..rd.reader.pos][..4];
-    assert final ==> sequence[4..8] == rd.reader.data[old(rd.reader.pos)..rd.reader.pos][4..8];
     
     if sequenceNumber != expectedSequenceNumber {
       return Failure("unexpected frame sequence number");
     }
 
     
-    assert final ==> sequence[4..8] == rd.reader.data[old(rd.reader.pos)..rd.reader.pos][4..8];
-
-    ghost var temp := sequence;
-
+    
+    ghost var oldSequence := sequence;
     var iv :- rd.ReadBytes(algorithmSuiteID.IVLength());
     sequence := sequence + iv;
-
-    assert sequence[..|temp|] == temp;
-    
-    assert final ==> sequence[4..8] == rd.reader.data[old(rd.reader.pos)..rd.reader.pos][4..8];
-    
-    
     var len := frameLength as uint32;
     if final {
       len :- rd.ReadUInt32();
       sequence := sequence + UInt32ToSeq(len);
     }
-    assert final ==> sequence[4..8] == rd.reader.data[old(rd.reader.pos)..rd.reader.pos][4..8];
     
     var aad := BodyAAD(messageID, if final then FinalFrame else RegularFrame, sequenceNumber, len as uint64);
 
     var ciphertext :- rd.ReadBytes(len as nat);
     sequence := sequence + ciphertext;
-    assert final ==> ciphertext  == rd.reader.data[old(rd.reader.pos)..rd.reader.pos][4..8];
+    
     var authTag :- rd.ReadBytes(algorithmSuiteID.TagLength());
     sequence := sequence + authTag;
-    assert final ==> sequence[4..8] == rd.reader.data[old(rd.reader.pos)..rd.reader.pos][4..8];
 
+    
     var plaintext :- Decrypt(ciphertext, authTag, algorithmSuiteID, iv, key, aad);
     isEncrypted(plaintext, ciphertext);
     
@@ -379,12 +366,10 @@ module MessageBody {
     assert old(rd.reader.pos) < rd.reader.pos <= |rd.reader.data|;    
     assert sequence == FrameToSubsequence(encryptedFrame);
 
-    assert final ==> sequence[..4] == rd.reader.data[old(rd.reader.pos)..rd.reader.pos][..4];
-    assert final ==> sequence[4..8] == rd.reader.data[old(rd.reader.pos)..rd.reader.pos][4..8];
-    assert final ==> sequence[8..8+algorithmSuiteID.IVLength()] == rd.reader.data[old(rd.reader.pos)..rd.reader.pos][8..8+algorithmSuiteID.IVLength()];
-    assert final ==> sequence[8+algorithmSuiteID.IVLength()..8+algorithmSuiteID.IVLength()+4] == rd.reader.data[old(rd.reader.pos)..rd.reader.pos][8+algorithmSuiteID.IVLength()..8+algorithmSuiteID.IVLength()+4];
-    assert final ==> sequence[12+algorithmSuiteID.IVLength()..12+algorithmSuiteID.IVLength()+|ciphertext|] == rd.reader.data[old(rd.reader.pos)..rd.reader.pos][12+algorithmSuiteID.IVLength()..12+algorithmSuiteID.IVLength()+|ciphertext|] ;
-    assert final ==> sequence[12+algorithmSuiteID.IVLength()+|ciphertext|..] == rd.reader.data[old(rd.reader.pos)..rd.reader.pos][12+algorithmSuiteID.IVLength()+|ciphertext|..];
+    assert !final ==> sequence[..4] == rd.reader.data[old(rd.reader.pos)..][..4];
+    assert !final ==> sequence[4..][..algorithmSuiteID.IVLength()] == rd.reader.data[old(rd.reader.pos)..][4..][..algorithmSuiteID.IVLength()];
+    assert !final ==> sequence[4+algorithmSuiteID.IVLength()..][..frameLength] == rd.reader.data[old(rd.reader.pos)..][4+algorithmSuiteID.IVLength()..][..frameLength];
+    assert !final ==> sequence[4+frameLength+algorithmSuiteID.IVLength()..] == rd.reader.data[old(rd.reader.pos)..][4+frameLength+algorithmSuiteID.IVLength()..];
 
     assert rd.reader.data[old(rd.reader.pos)..rd.reader.pos] == sequence;
     
