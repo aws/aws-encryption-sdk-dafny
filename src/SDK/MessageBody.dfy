@@ -329,11 +329,9 @@ module MessageBody {
     if sequenceNumber != expectedSequenceNumber {
       return Failure("unexpected frame sequence number");
     }
-
-    
-    
-    ghost var oldSequence := sequence;
+  
     var iv :- rd.ReadBytes(algorithmSuiteID.IVLength());
+
     sequence := sequence + iv;
     var len := frameLength as uint32;
     if final {
@@ -358,19 +356,34 @@ module MessageBody {
       else 
         RegularFrameConstructor(sequenceNumber, iv, plaintext, authTag);
 
-    var encryptedFrame := if final then
+    ghost var encryptedFrame := if final then
         FinalFrameConstructor(sequenceNumber, iv, ciphertext, authTag)
       else 
         RegularFrameConstructor(sequenceNumber, iv, ciphertext, authTag);    
     
-    assert old(rd.reader.pos) < rd.reader.pos <= |rd.reader.data|;    
+    //Feed dafny facts about the content of the stream
+    //Show dafny that the serialized frame is sequence
     assert sequence == FrameToSubsequence(encryptedFrame);
+    
+    //Give dafny information about the content of the stream
+    assert !final ==> UInt32ToSeq(sequenceNumber) == rd.reader.data[old(rd.reader.pos)..][..4];
+    assert !final ==> iv == rd.reader.data[old(rd.reader.pos)..][4..][..algorithmSuiteID.IVLength()];
+    assert !final ==> ciphertext == rd.reader.data[old(rd.reader.pos)..][4+algorithmSuiteID.IVLength()..][..frameLength];
+    assert !final ==> authTag == rd.reader.data[old(rd.reader.pos)..][4+frameLength+algorithmSuiteID.IVLength()..][..algorithmSuiteID.TagLength()];
+    assert final ==> UInt32ToSeq(ENDFRAME_SEQUENCE_NUMBER) == rd.reader.data[old(rd.reader.pos)..][..4];
+    assert final ==> UInt32ToSeq(sequenceNumber) == rd.reader.data[old(rd.reader.pos)..][4..][..4];
+    assert final ==> iv == rd.reader.data[old(rd.reader.pos)..][8..][..algorithmSuiteID.IVLength()];
+    assert final ==> UInt32ToSeq(len) == rd.reader.data[old(rd.reader.pos)..][8+algorithmSuiteID.IVLength()..][..4];
+    assert final ==> ciphertext == rd.reader.data[old(rd.reader.pos)..][12+algorithmSuiteID.IVLength()..][..len as int];
+    assert final ==> authTag == rd.reader.data[old(rd.reader.pos)..][12+algorithmSuiteID.IVLength()+len as int..][..algorithmSuiteID.TagLength()];
 
+    //Prove equivalence read stream and sequence normal case 
     assert !final ==> sequence[..4] == rd.reader.data[old(rd.reader.pos)..][..4];
     assert !final ==> sequence[4..][..algorithmSuiteID.IVLength()] == rd.reader.data[old(rd.reader.pos)..][4..][..algorithmSuiteID.IVLength()];
     assert !final ==> sequence[4+algorithmSuiteID.IVLength()..][..frameLength] == rd.reader.data[old(rd.reader.pos)..][4+algorithmSuiteID.IVLength()..][..frameLength];
-    assert !final ==> sequence[4+frameLength+algorithmSuiteID.IVLength()..] == rd.reader.data[old(rd.reader.pos)..][4+frameLength+algorithmSuiteID.IVLength()..];
+    assert !final ==> sequence[4+frameLength+algorithmSuiteID.IVLength()..] == rd.reader.data[old(rd.reader.pos)..][4+frameLength+algorithmSuiteID.IVLength()..][..algorithmSuiteID.TagLength()];
 
+    //Prove equivalence sequence and content read on the stream
     assert rd.reader.data[old(rd.reader.pos)..rd.reader.pos] == sequence;
     
     return Success(frame);
