@@ -266,7 +266,6 @@ module MessageBody {
     return Success(unauthenticatedFrame);
   }
    */
-   datatype TuppleWithGhost<A,B,C> = TuppleWithGhost(a: A, b: B, ghost c: C)
 
   method DecryptFramedMessageBody(rd: Streams.ByteReader, algorithmSuiteID: AlgorithmSuite.ID, key: seq<uint8>, frameLength: int, messageID: Msg.MessageID) returns (res: Result<seq<uint8>>)
     requires rd.Valid()
@@ -281,8 +280,8 @@ module MessageBody {
       invariant rd.Valid()
       decreases ENDFRAME_SEQUENCE_NUMBER - n
     {
-      var tupple :- DecryptFrame(rd, algorithmSuiteID, key, frameLength, messageID, n);
-      var (framePlaintext, final) := (tupple.a, tupple.b);
+      var frame :- DecryptFrame(rd, algorithmSuiteID, key, frameLength, messageID, n);
+      var (framePlaintext, final) := (frame.encContent, frame.FinalFrameConstructor?);
       plaintext := plaintext + framePlaintext;
       if final {
         break;
@@ -294,99 +293,102 @@ module MessageBody {
 
   method DecryptFrame(rd: Streams.ByteReader, algorithmSuiteID: AlgorithmSuite.ID, key: seq<uint8>, frameLength: int, messageID: Msg.MessageID,
                       expectedSequenceNumber: uint32)
-      returns (res: Result<TuppleWithGhost<seq<uint8>, bool, Frame>>)
+      returns (res: Result<Frame>)
     requires rd.Valid()
     requires |key| == algorithmSuiteID.KeyLength()
     requires 0 < frameLength < UINT32_LIMIT
     modifies rd.reader`pos
     ensures rd.Valid()
     ensures match res
-      case Success(TuppleWithGhost) =>
-        expectedSequenceNumber == ENDFRAME_SEQUENCE_NUMBER ==> TuppleWithGhost.b  // but "final" may come up before this
+      case Success(frame) =>
+        expectedSequenceNumber == ENDFRAME_SEQUENCE_NUMBER ==> frame.FinalFrameConstructor?  // but "final" may come up before this
       case Failure(_) => true
     ensures match res
-      case Success(TuppleWithGhost) =>
-        TuppleWithGhost.c.Valid() && 
-        var decryptedFrame := TuppleWithGhost.c;
-        var encryptedFrame := if decryptedFrame.FinalFrameConstructor? then
-            FinalFrameConstructor(decryptedFrame.seqNumb, decryptedFrame.iv, EncryptMock(decryptedFrame.encContent),decryptedFrame.authTag)
-          else
-            RegularFrameConstructor(decryptedFrame.seqNumb, decryptedFrame.iv, EncryptMock(decryptedFrame.encContent),decryptedFrame.authTag);
-        var subsequence := FrameToSubsequence(encryptedFrame);
-          DecryptMock(decryptedFrame.encContent) == encryptedFrame.encContent &&
-          decryptedFrame.encContent == EncryptMock(encryptedFrame.encContent) &&
-          
-        
-         |rd.reader.data| >= old(rd.reader.pos) + |subsequence| && 
-          rd.reader.data[old(rd.reader.pos)..old(rd.reader.pos) + |subsequence|] == subsequence 
-          
-          &&
-       if TuppleWithGhost.b then
-          var readerStart := old(rd.reader.pos);
-            |rd.reader.data| >= readerStart + 12 + algorithmSuiteID.IVLength() 
-       && var contentLength := SeqToUInt32(rd.reader.data[readerStart + 8 + algorithmSuiteID.IVLength()..readerStart + 12 + algorithmSuiteID.IVLength()]) as int;
-          var frameSize := 4 + 4 + algorithmSuiteID.IVLength() + 4 + algorithmSuiteID.TagLength() + contentLength;
-            |rd.reader.data| >= readerStart + frameSize
-       && var subSequence := rd.reader.data[readerStart..readerStart + frameSize];
-            4 + 4 + algorithmSuiteID.IVLength() + 4 + algorithmSuiteID.TagLength() <= |subSequence|
-       && var contentLengthNew := SeqToUInt32(subSequence[4+4+algorithmSuiteID.IVLength()..4+4+algorithmSuiteID.IVLength()+4]) as int;
-              |subSequence| == 4 + 4 + algorithmSuiteID.IVLength() + 4 + contentLengthNew + algorithmSuiteID.TagLength()
-          &&  subSequence[..4] == UInt32ToSeq(ENDFRAME_SEQUENCE_NUMBER) 
-       && var decryptedFrame := SubsequenceToFinalFrame(subSequence, algorithmSuiteID, contentLengthNew).encContent;
-            DecryptMock(decryptedFrame) == TuppleWithGhost.a
-        else
-          var readerStart := old(rd.reader.pos);
-          var frameSize := 4 + algorithmSuiteID.IVLength() + algorithmSuiteID.TagLength() + frameLength;
-            |rd.reader.data| >= readerStart + frameSize 
-       && var subSequence := rd.reader.data[readerStart..readerStart + frameSize];
-            DecryptMock(SubsequenceToRegularFrame(subSequence, algorithmSuiteID, frameLength).encContent) == TuppleWithGhost.a
-        
+      case Success(decryptedFrame) =>
+           decryptedFrame.Valid() 
+        && var encryptedFrame := if decryptedFrame.FinalFrameConstructor? then
+             FinalFrameConstructor(decryptedFrame.seqNumb, decryptedFrame.iv, EncryptMock(decryptedFrame.encContent),decryptedFrame.authTag)
+           else
+             RegularFrameConstructor(decryptedFrame.seqNumb, decryptedFrame.iv, EncryptMock(decryptedFrame.encContent),decryptedFrame.authTag);
+        && old(rd.reader.pos) < rd.reader.pos <= |rd.reader.data|   
+        && rd.reader.data[old(rd.reader.pos)..rd.reader.pos] == FrameToSubsequence(encryptedFrame)   
+        && EncryptMock(decryptedFrame.encContent) == encryptedFrame.encContent
+        && decryptedFrame.encContent == DecryptMock(encryptedFrame.encContent)
       case Failure(_) => true
-  {
-    ghost var subSequence := [];
-    ghost var readerStart := old(rd.reader.pos);
-
+  {    
     var final := false;
     var sequenceNumber :- rd.ReadUInt32();
-    subSequence := subSequence + UInt32ToSeq(sequenceNumber);
+    ghost var sequence := UInt32ToSeq(sequenceNumber);
+    assert sequence[..4] == rd.reader.data[old(rd.reader.pos)..rd.reader.pos][..4];
+    
+    
     if sequenceNumber == ENDFRAME_SEQUENCE_NUMBER {
       final := true;
       sequenceNumber :- rd.ReadUInt32();
-      subSequence := subSequence + UInt32ToSeq(sequenceNumber);
+      sequence := sequence + UInt32ToSeq(sequenceNumber);
     }
+    assert final ==> sequence[..4] == rd.reader.data[old(rd.reader.pos)..rd.reader.pos][..4];
+    assert final ==> sequence[4..8] == rd.reader.data[old(rd.reader.pos)..rd.reader.pos][4..8];
+    
     if sequenceNumber != expectedSequenceNumber {
       return Failure("unexpected frame sequence number");
     }
 
-    var iv :- rd.ReadBytes(algorithmSuiteID.IVLength());
-    subSequence := subSequence + iv;
+    
+    assert final ==> sequence[4..8] == rd.reader.data[old(rd.reader.pos)..rd.reader.pos][4..8];
 
+    ghost var temp := sequence;
+
+    var iv :- rd.ReadBytes(algorithmSuiteID.IVLength());
+    sequence := sequence + iv;
+
+    assert sequence[..|temp|] == temp;
+    
+    assert final ==> sequence[4..8] == rd.reader.data[old(rd.reader.pos)..rd.reader.pos][4..8];
+    
+    
     var len := frameLength as uint32;
     if final {
       len :- rd.ReadUInt32();
-      subSequence := subSequence + UInt32ToSeq(len);
+      sequence := sequence + UInt32ToSeq(len);
     }
-    ghost var realLength := len;
-
+    assert final ==> sequence[4..8] == rd.reader.data[old(rd.reader.pos)..rd.reader.pos][4..8];
+    
     var aad := BodyAAD(messageID, if final then FinalFrame else RegularFrame, sequenceNumber, len as uint64);
 
     var ciphertext :- rd.ReadBytes(len as nat);
+    sequence := sequence + ciphertext;
+    assert final ==> ciphertext  == rd.reader.data[old(rd.reader.pos)..rd.reader.pos][4..8];
     var authTag :- rd.ReadBytes(algorithmSuiteID.TagLength());
-    subSequence := subSequence + ciphertext + authTag;
+    sequence := sequence + authTag;
+    assert final ==> sequence[4..8] == rd.reader.data[old(rd.reader.pos)..rd.reader.pos][4..8];
+
     var plaintext :- Decrypt(ciphertext, authTag, algorithmSuiteID, iv, key, aad);
     isEncrypted(plaintext, ciphertext);
     
-    if final {
-      assert DecryptMock(SubsequenceToFinalFrame(subSequence, algorithmSuiteID, len as int).encContent) == plaintext;
-    } else {
-      assert DecryptMock(SubsequenceToRegularFrame(subSequence, algorithmSuiteID, frameLength).encContent) == plaintext;
-    }
-    
-    ghost var frame := if final then
+    var frame := if final then
         FinalFrameConstructor(sequenceNumber, iv, plaintext, authTag)
       else 
         RegularFrameConstructor(sequenceNumber, iv, plaintext, authTag);
-    return Success(TuppleWithGhost(plaintext, final, frame));
+
+    var encryptedFrame := if final then
+        FinalFrameConstructor(sequenceNumber, iv, ciphertext, authTag)
+      else 
+        RegularFrameConstructor(sequenceNumber, iv, ciphertext, authTag);    
+    
+    assert old(rd.reader.pos) < rd.reader.pos <= |rd.reader.data|;    
+    assert sequence == FrameToSubsequence(encryptedFrame);
+
+    assert final ==> sequence[..4] == rd.reader.data[old(rd.reader.pos)..rd.reader.pos][..4];
+    assert final ==> sequence[4..8] == rd.reader.data[old(rd.reader.pos)..rd.reader.pos][4..8];
+    assert final ==> sequence[8..8+algorithmSuiteID.IVLength()] == rd.reader.data[old(rd.reader.pos)..rd.reader.pos][8..8+algorithmSuiteID.IVLength()];
+    assert final ==> sequence[8+algorithmSuiteID.IVLength()..8+algorithmSuiteID.IVLength()+4] == rd.reader.data[old(rd.reader.pos)..rd.reader.pos][8+algorithmSuiteID.IVLength()..8+algorithmSuiteID.IVLength()+4];
+    assert final ==> sequence[12+algorithmSuiteID.IVLength()..12+algorithmSuiteID.IVLength()+|ciphertext|] == rd.reader.data[old(rd.reader.pos)..rd.reader.pos][12+algorithmSuiteID.IVLength()..12+algorithmSuiteID.IVLength()+|ciphertext|] ;
+    assert final ==> sequence[12+algorithmSuiteID.IVLength()+|ciphertext|..] == rd.reader.data[old(rd.reader.pos)..rd.reader.pos][12+algorithmSuiteID.IVLength()+|ciphertext|..];
+
+    assert rd.reader.data[old(rd.reader.pos)..rd.reader.pos] == sequence;
+    
+    return Success(frame);
   }
 
   method BodyAAD(messageID: seq<uint8>, bc: BodyAADContent, sequenceNumber: uint32, length: uint64) returns (aad: seq<uint8>) {
