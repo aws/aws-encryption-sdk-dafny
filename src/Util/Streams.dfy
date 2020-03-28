@@ -9,16 +9,18 @@ module Streams {
     const data: seq<T>
     var pos: nat
 
-    predicate Valid() reads this, Repr
+    predicate Valid()
+      reads this, Repr
+      ensures Valid() ==> this in Repr
     {
-      Repr == {this} &&
+      this in Repr &&
       pos <= |data|
     }
 
-    constructor(s: seq<T>)
+    constructor (s: seq<T>)
       ensures pos == 0
       ensures data[..] == s
-      ensures Valid()
+      ensures Valid() && fresh(Repr)
     {
       data := s;
       pos := 0;
@@ -63,23 +65,23 @@ module Streams {
 
   class ByteReader {
     ghost var Repr: set<object>
-    var reader: SeqReader<uint8>
+    const reader: SeqReader<uint8>
 
     predicate Valid()
       reads this, Repr
+      ensures Valid() ==> this in Repr
     {
       this in Repr &&
-      (reader in Repr && reader.Repr <= Repr && reader.Valid())
+      reader in Repr && reader.Repr <= Repr && this !in reader.Repr && reader.Valid()
     }
 
-    constructor(s: seq<uint8>)
+    constructor (s: seq<uint8>)
       ensures reader.data == s
-      ensures fresh(Repr - {this})
-      ensures Valid()
+      ensures Valid() && fresh(Repr)
     {
       var mr := new SeqReader<uint8>(s);
       reader := mr;
-      Repr := {this} + {reader} + mr.Repr;
+      Repr := {this} + mr.Repr;
     }
 
     method ReadByte() returns (res: Result<uint8>)
@@ -88,16 +90,13 @@ module Streams {
       ensures res.Failure? ==> |reader.data| - reader.pos < 1
       ensures res.Failure? ==> unchanged(reader)
       ensures res.Success? ==> reader.pos == old(reader.pos) + 1
-      ensures 1 <= |old(reader.data)| - old(reader.pos) <==> res.Success?
+      ensures old(reader.pos) + 1 <= |old(reader.data)| <==> res.Success?
       ensures res.Success? ==> res.value == reader.data[old(reader.pos)]
       ensures reader.data == old(reader.data)
       ensures Valid()
     {
-      assert reader == old(reader);
       var bytes :- reader.ReadExact(1);
-      assert reader.data == old(reader.data);
       assert |bytes| == 1;
-      assert old(reader.pos) + 1 <= |reader.data|;
       return Success(bytes[0]);
     }
 
@@ -109,7 +108,7 @@ module Streams {
       ensures res.Success? ==> |res.value| == n
       ensures res.Success? && |res.value| == 0 ==> unchanged(reader)
       ensures res.Success? ==> reader.pos == old(reader.pos) + n
-      ensures n <= |old(reader.data)| - old(reader.pos) <==> res.Success?
+      ensures old(reader.pos) + n <= |old(reader.data)| <==> res.Success?
       ensures res.Success? ==> res.value == reader.data[old(reader.pos)..old(reader.pos) + n]
       ensures reader.data == old(reader.data)
       ensures Valid()
@@ -125,7 +124,7 @@ module Streams {
       ensures res.Failure? ==> |reader.data| - reader.pos < 2
       ensures res.Failure? ==> unchanged(reader)
       ensures res.Success? ==> reader.pos == old(reader.pos) + 2
-      ensures 2 <= |old(reader.data)| - old(reader.pos) <==> res.Success?
+      ensures old(reader.pos) + 2 <= |old(reader.data)| <==> res.Success?
       ensures res.Success? ==> res.value == SeqToUInt16(reader.data[old(reader.pos)..old(reader.pos) + 2])
       ensures reader.data == old(reader.data)
       ensures Valid()
@@ -139,11 +138,9 @@ module Streams {
     method ReadUInt32() returns (res: Result<uint32>)
       requires Valid()
       modifies reader`pos
-      ensures res.Failure? ==> |reader.data| - reader.pos < 4
       ensures res.Failure? ==> unchanged(reader)
-      ensures res.Success? ==> !unchanged(reader)
       ensures res.Success? ==> reader.pos == old(reader.pos) + 4
-      ensures 4 <= |old(reader.data)| - old(reader.pos) <==> res.Success?
+      ensures old(reader.pos) + 4 <= |old(reader.data)| <==> res.Success?
       ensures res.Success? ==> res.value == SeqToUInt32(reader.data[old(reader.pos)..old(reader.pos) + 4])
       ensures reader.data == old(reader.data)
       ensures Valid()
@@ -160,7 +157,7 @@ module Streams {
       ensures res.Failure? ==> |reader.data| - reader.pos < 8
       ensures res.Failure? ==> unchanged(reader)
       ensures res.Success? ==> reader.pos == old(reader.pos) + 8
-      ensures 8 <= |old(reader.data)| - old(reader.pos) <==> res.Success?
+      ensures old(reader.pos) + 8 <= |old(reader.data)| <==> res.Success?
       ensures res.Success? ==> res.value == SeqToUInt64(reader.data[old(reader.pos)..old(reader.pos) + 8])
       ensures reader.data == old(reader.data)
       ensures Valid()
@@ -192,14 +189,16 @@ module Streams {
     ghost var Repr: set<object>
     var data: seq<T>
 
-    predicate Valid() reads this, Repr
+    predicate Valid()
+      reads this, Repr
+      ensures Valid() ==> this in Repr
     {
-      Repr == {this}
+      this in Repr
     }
 
     constructor()
       ensures data == []
-      ensures Valid()
+      ensures Valid() && fresh(Repr)
     {
       data := [];
       Repr := {this};
@@ -221,23 +220,23 @@ module Streams {
 
   class ByteWriter {
     ghost var Repr: set<object>
-    var writer: SeqWriter<uint8>
+    const writer: SeqWriter<uint8>
 
     predicate Valid()
       reads this, Repr
+      ensures Valid() ==> this in Repr
     {
       this in Repr &&
-      (writer in Repr && writer.Repr <= Repr && writer.Valid())
+      writer in Repr && writer.Repr <= Repr && this !in writer.Repr && writer.Valid()
     }
 
     constructor()
       ensures writer.data == []
-      ensures fresh(Repr - {this})
-      ensures Valid()
+      ensures Valid() && fresh(Repr)
     {
       var mw := new SeqWriter<uint8>();
       writer := mw;
-      Repr := {this} + {writer} + mw.Repr;
+      Repr := {this} + mw.Repr;
     }
 
     method WriteByte(n: uint8) returns (r: nat)
