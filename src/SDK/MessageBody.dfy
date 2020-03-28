@@ -13,7 +13,7 @@ module MessageBody {
     //provides EncryptMessageBody
     provides DecryptFramedMessageBody, DecryptNonFramedMessageBody
     provides StandardLibrary, UInt, Msg, AlgorithmSuite, Materials, Streams
-    provides FramesToSequence, FrameToSubsequence, ValidFrames
+    provides FramesToSequence, FrameToSubsequence, ValidFrames, EncryptedFramesToPlaintext
     reveals Frame
     
   import opened StandardLibrary
@@ -134,7 +134,14 @@ module MessageBody {
   function DecryptMock (input: seq<uint8>): (output: seq<uint8>)
     ensures |input| == |output|
 
-/**
+  function EncryptedFramesToPlaintext(frames: seq<Frame>): (plaintext: seq<uint8>)
+  {
+    if frames == [] then
+      []
+    else
+      EncryptedFramesToPlaintext(frames[..|frames|-1]) + DecryptMock(frames[|frames|-1].encContent)
+  }
+
   method EncryptMessageBody(plaintext: seq<uint8>, frameLength: int, messageID: Msg.MessageID, key: seq<uint8>, algorithmSuiteID: AlgorithmSuite.ID)
       returns (result: Result<seq<uint8>>)
     requires |key| == algorithmSuiteID.KeyLength()
@@ -241,7 +248,7 @@ module MessageBody {
         && resultSuccess[..4] == UInt32ToSeq(ENDFRAME_SEQUENCE_NUMBER)
         && |plaintext| == SeqToUInt32(resultSuccess[4 + 4 + algorithmSuiteID.IVLength()..4 + 4 + algorithmSuiteID.IVLength() + 4]) as int &&
            var iv := seq(algorithmSuiteID.IVLength() - 4, _ => 0) + UInt32ToSeq(sequenceNumber);
-           var encContent := resultSuccess[4 + 4 + algorithmSuiteID.IVLength() + 4 .. 4 + 4 + algorithmSuiteID.IVLength() + 4 + |plaintext|]; //Is there a better way to do this
+           var encContent := resultSuccess[4 + 4 + algorithmSuiteID.IVLength() + 4..][..|plaintext|]; //Is there a better way to do this
            var authTag := resultSuccess[4 + 4 + algorithmSuiteID.IVLength() + 4 + |plaintext|..];
            var frame := FinalFrameConstructor(sequenceNumber, iv, encContent, authTag);
            FrameToSubsequence(frame) == resultSuccess
@@ -263,31 +270,63 @@ module MessageBody {
     isEncrypted(plaintext, encryptionOutput.cipherText);
     assert |plaintext| == |encryptionOutput.cipherText|;
 
+    ghost var frame := FinalFrameConstructor(sequenceNumber, iv, encryptionOutput.cipherText, encryptionOutput.authTag);
+    assert FrameToSubsequence(frame) == unauthenticatedFrame;
+    assert SubsequenceToFinalFrame(unauthenticatedFrame, algorithmSuiteID, frameLength) == frame;
+
     return Success(unauthenticatedFrame);
   }
-   */
 
-  method DecryptFramedMessageBody(rd: Streams.ByteReader, algorithmSuiteID: AlgorithmSuite.ID, key: seq<uint8>, frameLength: int, messageID: Msg.MessageID) returns (res: Result<seq<uint8>>)
+  method DecryptFramedMessageBody(rd: Streams.ByteReader, algorithmSuiteID: AlgorithmSuite.ID, key: seq<uint8>, frameLength: int, messageID: Msg.MessageID) 
+      returns (res: Result<seq<uint8>>)
     requires rd.Valid()
     requires |key| == algorithmSuiteID.KeyLength()
     requires 0 < frameLength < UINT32_LIMIT
     modifies rd.reader`pos
     ensures rd.Valid()
+    ensures match res
+      case Failure(_) => true
+      case Success(plaintext) => 
+        old(rd.reader.pos) <= rd.reader.pos <= |rd.reader.data| &&
+        exists frames: seq<Frame> | 
+           |frames| < UINT32_LIMIT 
+        && (forall frame | frame in frames :: frame.Valid()) 
+        && FramesToSequence(frames) == rd.reader.data[old(rd.reader.pos)..rd.reader.pos] :: 
+            EncryptedFramesToPlaintext(frames) == plaintext
   {
     var plaintext := [];
-    var n := 1;
+    var n: uint32 := 1;
+    ghost var frames: seq<Frame> := []; 
     while true
-      invariant rd.Valid()
       decreases ENDFRAME_SEQUENCE_NUMBER - n
+      invariant rd.Valid()
+      invariant n as int - 1 == |frames|
+      invariant n <= ENDFRAME_SEQUENCE_NUMBER
+      invariant forall frame | frame in frames :: frame.Valid()
+      invariant old(rd.reader.pos) <= rd.reader.pos <= |rd.reader.data|
+      invariant FramesToSequence(frames) == rd.reader.data[old(rd.reader.pos)..rd.reader.pos]
+      invariant EncryptedFramesToPlaintext(frames) == plaintext
     {
-      var frame :- DecryptFrame(rd, algorithmSuiteID, key, frameLength, messageID, n);
-      var (framePlaintext, final) := (frame.encContent, frame.FinalFrameConstructor?);
+      var decryptedFrame :- DecryptFrame(rd, algorithmSuiteID, key, frameLength, messageID, n);
+      ghost var encryptedFrame := if decryptedFrame.FinalFrameConstructor? then
+        FinalFrameConstructor(decryptedFrame.seqNumb, decryptedFrame.iv, EncryptMock(decryptedFrame.encContent),decryptedFrame.authTag)
+      else
+        RegularFrameConstructor(decryptedFrame.seqNumb, decryptedFrame.iv, EncryptMock(decryptedFrame.encContent),decryptedFrame.authTag);
+      frames := frames + [encryptedFrame];
+      var (framePlaintext, final) := (decryptedFrame.encContent, decryptedFrame.FinalFrameConstructor?);
+
+      assert framePlaintext == DecryptMock(encryptedFrame.encContent);
+
       plaintext := plaintext + framePlaintext;
       if final {
         break;
       }
       n := n + 1;
     }
+    assert |frames| < UINT32_LIMIT ;
+    assert (forall frame | frame in frames :: frame.Valid()) ;
+    assert FramesToSequence(frames) == rd.reader.data[old(rd.reader.pos)..rd.reader.pos]; 
+    assert EncryptedFramesToPlaintext(frames) == plaintext;
     return Success(plaintext);
   }
 
@@ -420,50 +459,49 @@ module MessageBody {
     return Success(plaintext);
   }
 
-  // lemma IVDependsOnSequenceNumber(frames: seq<Frame>, algorithmSuiteID: AlgorithmSuite.ID)
-  // requires forall frame | frame in frames :: frame.iv == seq(algorithmSuiteID.IVLength() - 4, _ => 0) + UInt32ToSeq(frame.seqNumb)
-  // requires forall i | 0 <= i < |frames| :: frames[i].seqNumb as int == i + 1
-  // ensures forall frame1, frame2 | frame1 in frames && frame2 in frames && frame1 != frame2 :: frame1.iv != frame2.iv
-  // {
-  //   if(|frames| < 2){
+  lemma IVDependsOnSequenceNumber(frames: seq<Frame>, algorithmSuiteID: AlgorithmSuite.ID)
+  requires forall frame | frame in frames :: frame.iv == seq(algorithmSuiteID.IVLength() - 4, _ => 0) + UInt32ToSeq(frame.seqNumb)
+  requires forall i | 0 <= i < |frames| :: frames[i].seqNumb as int == i + 1
+  ensures forall frame1, frame2 | frame1 in frames && frame2 in frames && frame1 != frame2 :: frame1.iv != frame2.iv
+  {
+    if(|frames| < 2){
 
-  //   }else{
-  //     var front := seq(algorithmSuiteID.IVLength() - 4, _ => 0);
-  //     calc{
-  //         forall i,j | 0 <= i < j < |frames| :: frames[i].seqNumb != frames[j].seqNumb;
-  //       <==>
-  //         forall i,j | 0 <= i < j < |frames| :: UInt32ToSeq(frames[i].seqNumb) != UInt32ToSeq(frames[j].seqNumb);
-  //       <==> { forall back1: seq<uint8>, back2: seq<uint8>, front: seq<uint8> | back1 != back2
-  //             {
-  //               PrependPreservesInequality(back1, back2, front);
-  //             }
-  //           }
-  //           forall i, j | 0 <= i < j < |frames| :: front + UInt32ToSeq(frames[i].seqNumb) != front + UInt32ToSeq(frames[j].seqNumb);
-  //       <==> {assert forall i | 0 <= i < |frames| :: frames[i].iv == front + UInt32ToSeq(frames[i].seqNumb);}
-  //         forall i, j | 0 <= i < j < |frames| :: frames[i].iv != frames[j].iv;
-  //     }
-  //   }
-  // }
+    }else{
+      var front := seq(algorithmSuiteID.IVLength() - 4, _ => 0);
+      calc{
+          forall i,j | 0 <= i < j < |frames| :: frames[i].seqNumb != frames[j].seqNumb;
+        <==>
+          forall i,j | 0 <= i < j < |frames| :: UInt32ToSeq(frames[i].seqNumb) != UInt32ToSeq(frames[j].seqNumb);
+        <==> { forall back1: seq<uint8>, back2: seq<uint8>, front: seq<uint8> | back1 != back2
+              {
+                PrependPreservesInequality(back1, back2, front);
+              }
+            }
+            forall i, j | 0 <= i < j < |frames| :: front + UInt32ToSeq(frames[i].seqNumb) != front + UInt32ToSeq(frames[j].seqNumb);
+        <==> {assert forall i | 0 <= i < |frames| :: frames[i].iv == front + UInt32ToSeq(frames[i].seqNumb);}
+          forall i, j | 0 <= i < j < |frames| :: frames[i].iv != frames[j].iv;
+      }
+    }
+  }
 
-  // lemma PrependPreservesInequality(back1: seq<uint8>, back2: seq<uint8>, front: seq<uint8>)
-  //   requires back1 != back2
-  //   ensures front + back1 != front + back2
-  // {
-  //   if(front + back1 == front + back2){
-  //     calc{
-  //       front + back1 == front + back2;
-  //     <==> 
-  //       (front + back1)[|front|..] == (front + back2)[|front|..];
-  //     <==>
-  //       back1 == back2;
-  //     }
-  //   }else{
+  lemma PrependPreservesInequality(back1: seq<uint8>, back2: seq<uint8>, front: seq<uint8>)
+    requires back1 != back2
+    ensures front + back1 != front + back2
+  {
+    if(front + back1 == front + back2){
+      calc{
+        front + back1 == front + back2;
+      <==> 
+        (front + back1)[|front|..] == (front + back2)[|front|..];
+      <==>
+        back1 == back2;
+      }
+    }else{
         
-  //   }
-  // }
+    }
+  }
 
   lemma {:axiom} isEncrypted(plaintext: seq<uint8>, encContent: seq<uint8>)
     ensures EncryptMock(plaintext) == encContent
     ensures DecryptMock(encContent) == plaintext
-
 }
