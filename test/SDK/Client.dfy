@@ -54,11 +54,11 @@ module {:extern "TestClient"} TestClient {
         assert Msg.KVPairsLength(encryptionContext) < UINT16_LIMIT;
       }
 
-      var encryptRequest := new Client.EncryptRequest.NonStreamWithCMM(msg, cmm);
+      var encryptRequest := new Client.EncryptRequest.WithCMM(msg, cmm);
       encryptRequest.EncryptionContext(encryptionContext);
       var e :- expect Client.Encrypt(encryptRequest);
 
-      var decryptRequest := new Client.DecryptRequest.NonStreamWithCMM(e, cmm);
+      var decryptRequest := new Client.DecryptRequest.WithCMM(e, cmm);
       var d :- expect Client.Decrypt(decryptRequest);
 
       expect msg == d;

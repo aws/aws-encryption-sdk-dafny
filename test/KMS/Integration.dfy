@@ -51,12 +51,12 @@ module IntegTestKMS {
       }
       assert Msg.KVPairsLength(encryptionContext) < UINT16_LIMIT;
     }
-    var encryptRequest := new Client.EncryptRequest.NonStreamWithCMM(encodedMsg, cmm);
+    var encryptRequest := new Client.EncryptRequest.WithCMM(encodedMsg, cmm);
     encryptRequest.EncryptionContext(encryptionContext);
     var e := Client.Encrypt(encryptRequest);
     expect e.Success?, "Bad encryption :( " + e.error + "\n";
 
-    var decryptRequest := new Client.DecryptRequest.NonStreamWithCMM(e.value, cmm);
+    var decryptRequest := new Client.DecryptRequest.WithCMM(e.value, cmm);
     var d := Client.Decrypt(decryptRequest);
     expect d.Success?, "bad decryption: " + d.error + "\n";
 
