@@ -62,7 +62,7 @@ module {:extern "DefaultCMMDef"} DefaultCMMDef {
             res.value.signingKey.Some?
     {
       var reservedField := Materials.EC_PUBLIC_KEY_FIELD;
-      assert reservedField in Materials.ReservedKeyValues;
+      assert reservedField in Materials.RESERVED_KEY_VALUES;
       if reservedField in materialsRequest.encryptionContext.Keys {
         return Failure("Reserved Field found in EncryptionContext keys.");
       }

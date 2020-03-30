@@ -129,7 +129,7 @@ module {:extern "ESDKClient"} ESDKClient {
     modifies request.cmm.Repr
     ensures request.cmm.Valid() && fresh(request.cmm.Repr - old(request.cmm.Repr))
     ensures request.frameLength.Some? && request.frameLength.get == 0 ==> res.Failure?
-    ensures request.encryptionContext.Keys * Materials.RESERVED_KEY_VALUES == {} ==> res.Failure?
+    ensures request.encryptionContext.Keys * Materials.RESERVED_KEY_VALUES != {} ==> res.Failure?
     ensures !Msg.ValidAAD(request.encryptionContext) ==> res.Failure?
   {
     if request.frameLength.Some? && request.frameLength.get == 0 {

@@ -22,7 +22,7 @@ module {:extern "CMMDefs"} CMMDefs {
                                   returns (res: Result<Materials.ValidEncryptionMaterials>)
       requires Valid()
       requires ValidAAD(materialsRequest.encryptionContext)
-      requires materialsRequest.encryptionContext.Keys !! Materials.ReservedKeyValues
+      requires materialsRequest.encryptionContext.Keys !! Materials.RESERVED_KEY_VALUES
       ensures Valid()
       ensures res.Success? ==> res.value.plaintextDataKey.Some? && res.value.algorithmSuiteID.ValidPlaintextDataKey(res.value.plaintextDataKey.get)
       ensures res.Success? ==> |res.value.encryptedDataKeys| > 0
