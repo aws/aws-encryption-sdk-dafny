@@ -151,6 +151,7 @@ module MessageBody {
       case Failure(e) => true
       case Success(resultSuccess) => exists frames: seq<Frame> | ValidFrames(frames)::
         && FramesToSequence(frames) == resultSuccess
+        && EncryptedFramesToPlaintext(frames) == plaintext
   { 
     var body := [];
     var n : int, sequenceNumber := 0, START_SEQUENCE_NUMBER;
@@ -166,6 +167,7 @@ module MessageBody {
       invariant forall frame | frame in frames :: frame.RegularFrameConstructor?
       invariant forall i | 0 <= i < |frames| :: frames[i].seqNumb as int == i + START_SEQUENCE_NUMBER as int
       invariant forall frame | frame in frames :: frame.iv == seq(algorithmSuiteID.IVLength() - 4, _ => 0) + UInt32ToSeq(frame.seqNumb)
+      invariant EncryptedFramesToPlaintext(frames) == plaintext[..n]
     {
       if sequenceNumber == ENDFRAME_SEQUENCE_NUMBER {
         return Failure("too many frames");
@@ -212,7 +214,8 @@ module MessageBody {
         var encContent := resultSuccess[4 + algorithmSuiteID.IVLength()..4 + algorithmSuiteID.IVLength() + frameLength];
         var authTag := resultSuccess[4 + algorithmSuiteID.IVLength() + frameLength..];
         var frame := RegularFrameConstructor(sequenceNumber, iv, encContent, authTag);
-        FrameToSubsequence(frame) == resultSuccess;
+        FrameToSubsequence(frame) == resultSuccess &&
+        plaintext == DecryptMock(frame.encContent)
   {
     var seqNumSeq := UInt32ToSeq(sequenceNumber);
     var unauthenticatedFrame := seqNumSeq;
@@ -248,11 +251,12 @@ module MessageBody {
         && resultSuccess[..4] == UInt32ToSeq(ENDFRAME_SEQUENCE_NUMBER)
         && |plaintext| == SeqToUInt32(resultSuccess[4 + 4 + algorithmSuiteID.IVLength()..4 + 4 + algorithmSuiteID.IVLength() + 4]) as int &&
            var iv := seq(algorithmSuiteID.IVLength() - 4, _ => 0) + UInt32ToSeq(sequenceNumber);
-           var encContent := resultSuccess[4 + 4 + algorithmSuiteID.IVLength() + 4..][..|plaintext|]; //Is there a better way to do this
+           var encContent := resultSuccess[4 + 4 + algorithmSuiteID.IVLength() + 4..][..|plaintext|];
            var authTag := resultSuccess[4 + 4 + algorithmSuiteID.IVLength() + 4 + |plaintext|..];
            var frame := FinalFrameConstructor(sequenceNumber, iv, encContent, authTag);
            FrameToSubsequence(frame) == resultSuccess
         && SubsequenceToFinalFrame(resultSuccess, algorithmSuiteID, frameLength) == frame
+        && plaintext == DecryptMock(frame.encContent)
   {
     var unauthenticatedFrame := UInt32ToSeq(ENDFRAME_SEQUENCE_NUMBER);
     var seqNumSeq := UInt32ToSeq(sequenceNumber);
@@ -273,6 +277,7 @@ module MessageBody {
     ghost var frame := FinalFrameConstructor(sequenceNumber, iv, encryptionOutput.cipherText, encryptionOutput.authTag);
     assert FrameToSubsequence(frame) == unauthenticatedFrame;
     assert SubsequenceToFinalFrame(unauthenticatedFrame, algorithmSuiteID, frameLength) == frame;
+    assert unauthenticatedFrame[4 + 4 + algorithmSuiteID.IVLength() + 4..][..|plaintext|] == encryptionOutput.cipherText;
 
     return Success(unauthenticatedFrame);
   }
