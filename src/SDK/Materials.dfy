@@ -16,7 +16,7 @@ module {:extern "Materials"} Materials {
   const EC_PUBLIC_KEY_FIELD: UTF8.ValidUTF8Bytes :=
     [0x61, 0x77, 0x73, 0x2D, 0x63, 0x72, 0x79, 0x70, 0x74, 0x6F, 0x2D, 0x70,
     0x75, 0x62, 0x6C, 0x69, 0x63, 0x2D, 0x6B, 0x65, 0x79];
-  const ReservedKeyValues := { EC_PUBLIC_KEY_FIELD }
+  const RESERVED_KEY_VALUES := { EC_PUBLIC_KEY_FIELD }
 
   datatype EncryptedDataKey = EncryptedDataKey(providerID: UTF8.ValidUTF8Bytes,
                                                providerInfo: seq<uint8>,

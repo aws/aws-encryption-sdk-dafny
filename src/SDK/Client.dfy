@@ -131,7 +131,7 @@ module {:extern "ESDKClient"} ESDKClient {
   {
     if request.frameLength.Some? && request.frameLength.get == 0 {
       return Failure("Request frameLength must be > 0");
-    } else if !(request.encryptionContext.Keys !! Materials.ReservedKeyValues) {
+    } else if !(request.encryptionContext.Keys !! Materials.RESERVED_KEY_VALUES) {
       return Failure("Invalid encryption context keys.");
     } else {
       var validEncCtx := Msg.ComputeValidAAD(request.encryptionContext);
