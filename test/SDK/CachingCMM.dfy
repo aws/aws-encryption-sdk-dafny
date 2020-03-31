@@ -6,7 +6,7 @@ include "../../src/SDK/Materials.dfy"
 include "../../src/Crypto/Signature.dfy"
 include "../../src/Util/Streams.dfy"
 include "../../src/SDK/Serialize.dfy"
-include "../../src/SDK/MessageHeader.dfy"
+include "../../src/SDK/EncryptionContext.dfy"
 include "../../src/Util/Time.dfy"
 include "../../src/SDK/CMM/CachingCMM.dfy"
 include "../Util/TestUtils.dfy"
@@ -19,7 +19,7 @@ module TestCachingCMM {
   import CachingCMMDef
   import Materials
   import AlgorithmSuite
-  import MessageHeader
+  import EncryptionContext
   import TestUtils
   import UTF8
 
@@ -130,7 +130,7 @@ module TestCachingCMM {
   // Call ccmm.GetEncryptionMaterial and report whether or not there was a cache hit
   method CallGetEM(ccmm: CachingCMMDef.CachingCMM, tcmm: TestCMM, request: Materials.EncryptionMaterialsRequest, expectCacheHit: bool)
     requires ccmm.Valid() && ccmm.cmm == tcmm
-    requires MessageHeader.ValidAAD(request.encryptionContext)
+    requires EncryptionContext.ValidAAD(request.encryptionContext)
     requires request.encryptionContext.Keys !! Materials.ReservedKeyValues
     modifies ccmm.Repr
     ensures ccmm.Valid() && fresh(ccmm.Repr - old(ccmm.Repr))

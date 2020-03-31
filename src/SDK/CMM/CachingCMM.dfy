@@ -3,10 +3,10 @@ include "../../StandardLibrary/UInt.dfy"
 include "Defs.dfy"
 include "../AlgorithmSuite.dfy"
 include "../Materials.dfy"
+include "../EncryptionContext.dfy"
 include "../../Crypto/Signature.dfy"
 include "../../Util/Streams.dfy"
 include "../Serialize.dfy"
-include "../MessageHeader.dfy"
 include "../../Util/Time.dfy"
 
 module CachingCMMDef {
@@ -15,10 +15,10 @@ module CachingCMMDef {
   import CMMDefs
   import AlgorithmSuite
   import Materials
+  import EncryptionContext
   import Signature
   import Streams
   import Serialize
-  import MessageHeader
   import Time
 
   // The specification says:
@@ -124,7 +124,7 @@ module CachingCMMDef {
       || bytesLimit as int <= materialsRequest.plaintextLength.get
       || (materialsRequest.algorithmSuiteID.Some? && materialsRequest.algorithmSuiteID.get.ContainsIdentityKDF())
       {
-        // So, get encryption materials from the underlying CMM.
+        // Get encryption materials from the underlying CMM.
         res := cmm.GetEncryptionMaterials(materialsRequest);
         Repr := Repr + cmm.Repr;
         return;
@@ -171,14 +171,14 @@ module CachingCMMDef {
       ensures res.Success? ==> res.value.plaintextDataKey.Some? && res.value.algorithmSuiteID.ValidPlaintextDataKey(res.value.plaintextDataKey.get)
       ensures res.Success? && res.value.algorithmSuiteID.SignatureType().Some? ==> res.value.verificationKey.Some?
     {
-      var kvPairsLength := MessageHeader.ComputeKVPairsLength(materialsRequest.encryptionContext);
+      var kvPairsLength := EncryptionContext.ComputeKVPairsLength(materialsRequest.encryptionContext);
       if UINT16_LIMIT <= kvPairsLength {
         return Failure("encryption context too large");
-      } else if !MessageHeader.ValidKVPairs(materialsRequest.encryptionContext) {
+      } else if !EncryptionContext.ValidKVPairs(materialsRequest.encryptionContext) {
         return Failure("malformed encryption context");
       }
-      assert MessageHeader.ValidAAD(materialsRequest.encryptionContext) by {
-        reveal MessageHeader.ValidAAD();
+      assert EncryptionContext.ValidAAD(materialsRequest.encryptionContext) by {
+        reveal EncryptionContext.ValidAAD();
       }
 
       var cacheID :- ComputeCacheID(Some(materialsRequest.algorithmSuiteID), materialsRequest.encryptionContext);
@@ -207,8 +207,8 @@ module CachingCMMDef {
   }
 
 
-  method ComputeCacheID(algSuiteID: Option<AlgorithmSuite.ID>, encCtx: Materials.EncryptionContext) returns (res: Result<seq<uint8>>)
-    requires MessageHeader.ValidAAD(encCtx)
+  method ComputeCacheID(algSuiteID: Option<AlgorithmSuite.ID>, encCtx: EncryptionContext.T) returns (res: Result<seq<uint8>>)
+    requires EncryptionContext.ValidAAD(encCtx)
   {
     var wr := new Streams.ByteWriter();
 
@@ -233,7 +233,7 @@ module CachingCMMDef {
   predicate GoodEncMat(encMat: Materials.EncryptionMaterials) {
     encMat.Valid() &&
     |encMat.encryptedDataKeys| > 0 &&
-    MessageHeader.ValidAAD(encMat.encryptionContext)
+    EncryptionContext.ValidAAD(encMat.encryptionContext)
   }
 
   predicate GoodDecMat(decMat: Materials.DecryptionMaterials) {

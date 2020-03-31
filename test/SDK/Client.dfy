@@ -5,7 +5,7 @@ include "../../src/StandardLibrary/UInt.dfy"
 include "../../src/SDK/CMM/Defs.dfy"
 include "../../src/SDK/CMM/DefaultCMM.dfy"
 include "../../src/SDK/Client.dfy"
-include "../../src/SDK/MessageHeader.dfy"
+include "../../src/SDK/EncryptionContext.dfy"
 include "../../src/Crypto/RSAEncryption.dfy"
 include "../../src/Util/UTF8.dfy"
 include "../../src/StandardLibrary/Base64.dfy"
@@ -27,7 +27,7 @@ module {:extern "TestClient"} TestClient {
     import opened UInt = StandardLibrary.UInt
     import CMMDefs
     import DefaultCMMDef
-    import Msg = MessageHeader
+    import EncryptionContext
     import UTF8
     import Client = ESDKClient
   
@@ -40,18 +40,18 @@ module {:extern "TestClient"} TestClient {
       var keyA :- expect UTF8.Encode("keyA");
       var valA :- expect UTF8.Encode("valA");
       var encryptionContext := map[keyA := valA];
-      assert Msg.ValidAAD(encryptionContext) by {
+      assert EncryptionContext.ValidAAD(encryptionContext) by {
         // To prove ValidAAD, we need to reveal the definition of ValidAAD:
-        reveal Msg.ValidAAD();
+        reveal EncryptionContext.ValidAAD();
         // We also need to help the verifier with proving the KVPairsLength is small:
         calc {
-          Msg.KVPairsLength(encryptionContext);
+          EncryptionContext.KVPairsLength(encryptionContext);
           var keys: seq<UTF8.ValidUTF8Bytes> := SetToOrderedSequence<uint8>(encryptionContext.Keys, UInt.UInt8Less);
           var kvPairsSeq := seq(|keys|, i requires 0 <= i < |keys| => (keys[i], encryptionContext[keys[i]]));
-          2 + Msg.KVPairEntriesLength(kvPairsSeq, 0, |kvPairsSeq|); // 2 bytes for the kvPairsCount field
+          2 + EncryptionContext.KVPairEntriesLength(kvPairsSeq, 0, |kvPairsSeq|); // 2 bytes for the kvPairsCount field
           2 + 2 + |keyA| + 2 + |valA|; // 2 bytes required for keyLength and valueLength fields
         }
-        assert Msg.KVPairsLength(encryptionContext) < UINT16_LIMIT;
+        assert EncryptionContext.KVPairsLength(encryptionContext) < UINT16_LIMIT;
       }
       var e :- expect Client.Encrypt(msg, cmm, Some(encryptionContext), None, None);
 

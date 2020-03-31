@@ -1,5 +1,5 @@
 include "../../src/SDK/Serialize.dfy"
-include "../../src/SDK/MessageHeader.dfy"
+include "../../src/SDK/EncryptionContext.dfy"
 include "../../src/StandardLibrary/StandardLibrary.dfy"
 include "../Util/TestUtils.dfy"
 
@@ -8,7 +8,7 @@ module TestSerialize {
   import opened UInt = StandardLibrary.UInt
   import opened Serialize
   import UTF8
-  import MessageHeader
+  import EncryptionContext
   import TestUtils
 
   method {:test} TestSerializeAAD() {
@@ -27,7 +27,7 @@ module TestSerialize {
   }
 
   method {:test} TestSerializeAADEmpty() {
-    reveal MessageHeader.ValidAAD();
+    reveal EncryptionContext.ValidAAD();
     var wr := new Streams.ByteWriter();
     var encryptionContext := map[];
 
@@ -61,7 +61,7 @@ module TestSerialize {
   }
 
   method {:test} TestSerializeKVPairsEmpty() {
-    reveal MessageHeader.ValidAAD();
+    reveal EncryptionContext.ValidAAD();
     var wr := new Streams.ByteWriter();
     var encryptionContext := map[];
 

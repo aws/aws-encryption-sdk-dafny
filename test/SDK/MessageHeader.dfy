@@ -2,7 +2,7 @@ include "../../src/SDK/AlgorithmSuite.dfy"
 include "../../src/StandardLibrary/StandardLibrary.dfy"
 include "../../src/SDK/Materials.dfy"
 include "../../src/Util/UTF8.dfy"
-include "../../src/SDK/MessageHeader.dfy"
+include "../../src/SDK/EncryptionContext.dfy"
 include "../Util/TestUtils.dfy"
 
 module TestMessageHeader {
@@ -11,12 +11,12 @@ module TestMessageHeader {
   import opened UInt = StandardLibrary.UInt
   import Materials
   import UTF8
-  import MessageHeader
+  import EncryptionContext
   import opened TestUtils
 
   method {:test} TestKVPairSequenceToMapEmpty() {
     var kvPairs := [];
-    var output := MessageHeader.KVPairSequenceToMap(kvPairs);
+    var output := EncryptionContext.KVPairSequenceToMap(kvPairs);
     var expected := map[];
     expect output == expected;
   }
@@ -27,7 +27,7 @@ module TestMessageHeader {
     var keyB :- expect UTF8.Encode("keyB");
     var valB :- expect UTF8.Encode("valB");
     var kvPairs := [(keyA, valA), (keyB, valB)];
-    var output := MessageHeader.KVPairSequenceToMap(kvPairs);
+    var output := EncryptionContext.KVPairSequenceToMap(kvPairs);
     var expected := map[keyA := valA, keyB := valB];
     expect output == expected;
   }
@@ -75,7 +75,7 @@ module TestMessageHeader {
   method {:test} TestComputeKVPairsLengthEmpty() {
     var encCtx := map[];
 
-    var len := MessageHeader.ComputeKVPairsLength(encCtx);
+    var len := EncryptionContext.ComputeKVPairsLength(encCtx);
     expect len as int == 0;
   }
 
@@ -85,7 +85,7 @@ module TestMessageHeader {
     var encCtx := map[keyA := valA];
 
     var expectedSerialization := [0, 1, 0, 4, 107, 101, 121, 65, 0, 4, 118, 97, 108, 65];
-    var len := MessageHeader.ComputeKVPairsLength(encCtx);
+    var len := EncryptionContext.ComputeKVPairsLength(encCtx);
     expect len as int == |expectedSerialization|;
   }
 
@@ -95,14 +95,14 @@ module TestMessageHeader {
     TestUtils.AssumeLongSeqIsValidUTF8(largeVal);
     var encCtx := map[keyA := largeVal];
     
-    var len := MessageHeader.ComputeKVPairsLength(encCtx);
+    var len := EncryptionContext.ComputeKVPairsLength(encCtx);
     expect len as int == 7 + |largeVal|; // 7 bytes needed for kvPairs count, key size, and key
   }
 
   method {:test} TestComputeOpoerationsOnLargeValidEC() {
     var encCtx := TestUtils.GenerateLargeValidEncryptionContext();
 
-    var len := MessageHeader.ComputeKVPairsLength(encCtx);
+    var len := EncryptionContext.ComputeKVPairsLength(encCtx);
     expect len as int == 2 + |encCtx| as int * 7;
 
     ExpectValidAAD(encCtx);

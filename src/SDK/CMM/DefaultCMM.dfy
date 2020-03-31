@@ -2,6 +2,7 @@ include "../../StandardLibrary/StandardLibrary.dfy"
 include "../../StandardLibrary/UInt.dfy"
 include "../../StandardLibrary/Base64.dfy"
 include "../Materials.dfy"
+include "../EncryptionContext.dfy"
 include "Defs.dfy"
 include "../Keyring/Defs.dfy"
 include "../MessageHeader.dfy"
@@ -12,6 +13,7 @@ module {:extern "DefaultCMMDef"} DefaultCMMDef {
   import opened StandardLibrary
   import opened UInt = StandardLibrary.UInt
   import Materials
+  import EncryptionContext
   import CMMDefs
   import KeyringDefs
   import AlgorithmSuite
@@ -80,12 +82,12 @@ module {:extern "DefaultCMMDef"} DefaultCMMDef {
       }
 
       // Check validity of the encryption context at runtime.
-      var validAAD := MessageHeader.ComputeValidAAD(enc_ctx);
+      var validAAD := EncryptionContext.ComputeValidAAD(enc_ctx);
       if !validAAD {
         //TODO: Provide a more specific error message here, depending on how the EncCtx spec was violated.
         return Failure("Invalid Encryption Context");
       }
-      assert MessageHeader.ValidAAD(enc_ctx);
+      assert EncryptionContext.ValidAAD(enc_ctx);
 
       var materials := Materials.EncryptionMaterials.WithoutDataKeys(enc_ctx, id, enc_sk);
       assert materials.encryptionContext == enc_ctx;

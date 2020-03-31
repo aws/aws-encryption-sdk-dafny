@@ -1,5 +1,6 @@
 include "MessageHeader.dfy"
 include "Materials.dfy"
+include "EncryptionContext.dfy"
 include "AlgorithmSuite.dfy"
 
 include "../Util/Streams.dfy"
@@ -16,7 +17,7 @@ module Deserialize {
   export
     provides DeserializeHeader, Materials
     provides Streams, StandardLibrary, UInt, AlgorithmSuite, Msg
-    provides InsertNewEntry, UTF8
+    provides InsertNewEntry, UTF8, EncryptionContext
 
   import Msg = MessageHeader
 
@@ -26,6 +27,7 @@ module Deserialize {
   import opened UInt = StandardLibrary.UInt
   import UTF8
   import Materials
+  import EncryptionContext
 
 
   method DeserializeHeader(rd: Streams.ByteReader) returns (res: Result<Msg.Header>)
@@ -176,15 +178,15 @@ module Deserialize {
     }
   }
 
-  method DeserializeAAD(rd: Streams.ByteReader) returns (ret: Result<Materials.EncryptionContext>)
+  method DeserializeAAD(rd: Streams.ByteReader) returns (ret: Result<EncryptionContext.T>)
     requires rd.Valid()
     modifies rd.reader`pos
     ensures rd.Valid()
     ensures match ret
-      case Success(aad) => Msg.ValidAAD(aad)
+      case Success(aad) => EncryptionContext.ValidAAD(aad)
       case Failure(_) => true
   {
-    reveal Msg.ValidAAD();
+    reveal EncryptionContext.ValidAAD();
 
     var kvPairsLength :- rd.ReadUInt16();
     if kvPairsLength == 0 {
@@ -202,14 +204,14 @@ module Deserialize {
 
     // Building a map item by item is expensive in dafny, so
     // instead we first read the key value pairs into a sequence
-    var kvPairs: Msg.EncryptionContextSeq := [];
+    var kvPairs: EncryptionContext.Linear := [];
     var i := 0;
     while i < kvPairsCount
       invariant rd.Valid()
       invariant |kvPairs| == i as int
       invariant i <= kvPairsCount
-      invariant totalBytesRead == 2 + Msg.KVPairEntriesLength(kvPairs, 0, i as nat) <= kvPairsLength as nat
-      invariant Msg.SortedKVPairs(kvPairs)
+      invariant totalBytesRead == 2 + EncryptionContext.KVPairEntriesLength(kvPairs, 0, i as nat) <= kvPairsLength as nat
+      invariant EncryptionContext.SortedKVPairs(kvPairs)
     {
       var keyLength :- rd.ReadUInt16();
       totalBytesRead := totalBytesRead + 2;
@@ -232,7 +234,7 @@ module Deserialize {
       var opt, insertionPoint := InsertNewEntry(kvPairs, key, value);
       match opt {
         case Some(kvPairs_) =>
-          Msg.KVPairEntriesLengthInsert(kvPairs, insertionPoint, key, value);
+          EncryptionContext.KVPairEntriesLengthInsert(kvPairs, insertionPoint, key, value);
           kvPairs := kvPairs_;
         case None =>
           return Failure("Deserialization Error: Duplicate key.");
@@ -248,8 +250,8 @@ module Deserialize {
     // we must check after the extern call that the map is valid for AAD.
     // If not valid, then something was wrong with the conversion, as
     // failures for invalid serializations should be caught earlier.
-    var encryptionContext : map<UTF8.ValidUTF8Bytes, UTF8.ValidUTF8Bytes> := Msg.KVPairSequenceToMap(kvPairs);
-    var isValid := Msg.ComputeValidAAD(encryptionContext);
+    var encryptionContext : map<UTF8.ValidUTF8Bytes, UTF8.ValidUTF8Bytes> := EncryptionContext.KVPairSequenceToMap(kvPairs);
+    var isValid := EncryptionContext.ComputeValidAAD(encryptionContext);
     if !isValid {
       return Failure("Deserialization Error: Failed to parse encryption context.");
     }
@@ -257,16 +259,16 @@ module Deserialize {
     return Success(encryptionContext);
   }
 
-  method InsertNewEntry(kvPairs: Msg.EncryptionContextSeq, key: UTF8.ValidUTF8Bytes, value: UTF8.ValidUTF8Bytes)
-      returns (res: Option<Msg.EncryptionContextSeq>, ghost insertionPoint: nat)
-    requires Msg.SortedKVPairs(kvPairs)
+  method InsertNewEntry(kvPairs: EncryptionContext.Linear, key: UTF8.ValidUTF8Bytes, value: UTF8.ValidUTF8Bytes)
+      returns (res: Option<EncryptionContext.Linear>, ghost insertionPoint: nat)
+    requires EncryptionContext.SortedKVPairs(kvPairs)
     ensures match res
     case None =>
       exists i :: 0 <= i < |kvPairs| && kvPairs[i].0 == key  // key already exists
     case Some(kvPairs') =>
       && insertionPoint <= |kvPairs|
       && kvPairs' == kvPairs[..insertionPoint] + [(key, value)] + kvPairs[insertionPoint..]
-      && Msg.SortedKVPairs(kvPairs')
+      && EncryptionContext.SortedKVPairs(kvPairs')
   {
     var n := |kvPairs|;
     while 0 < n && LexicographicLessOrEqual(key, kvPairs[n - 1].0, UInt.UInt8Less)
