@@ -10,7 +10,7 @@ include "../Util/UTF8.dfy"
 
 module MessageBody {
   export
-    //provides EncryptMessageBody
+    provides EncryptMessageBody
     provides DecryptFramedMessageBody, DecryptNonFramedMessageBody
     provides StandardLibrary, UInt, Msg, AlgorithmSuite, Materials, Streams
     provides FramesToSequence, FrameToSubsequence, ValidFrames, EncryptedFramesToPlaintext
