@@ -127,19 +127,12 @@ module MessageBody {
   }
 
   //Adds assumption that the size of the encrypted content isn't above the allowed limit. 
-  function EncryptMock (input: seq<uint8>):  (output: seq<uint8>)
-    ensures |input| == |output|
-    ensures DecryptMock(EncryptMock(input)) == input;
-
-  function DecryptMock (input: seq<uint8>): (output: seq<uint8>)
-    ensures |input| == |output|
-
   function EncryptedFramesToPlaintext(frames: seq<Frame>): (plaintext: seq<uint8>)
   {
     if frames == [] then
       []
     else
-      EncryptedFramesToPlaintext(frames[..|frames|-1]) + DecryptMock(frames[|frames|-1].encContent)
+      EncryptedFramesToPlaintext(frames[..|frames|-1]) + AESEncryption.DecryptMock(frames[|frames|-1].encContent)
   }
 
   method EncryptMessageBody(plaintext: seq<uint8>, frameLength: int, messageID: Msg.MessageID, key: seq<uint8>, algorithmSuiteID: AlgorithmSuite.ID)
@@ -215,14 +208,13 @@ module MessageBody {
         var authTag := resultSuccess[4 + algorithmSuiteID.IVLength() + frameLength..];
         var frame := RegularFrameConstructor(sequenceNumber, iv, encContent, authTag);
         FrameToSubsequence(frame) == resultSuccess &&
-        plaintext == DecryptMock(frame.encContent)
+        plaintext == AESEncryption.DecryptMock(frame.encContent)
   {
     var seqNumSeq := UInt32ToSeq(sequenceNumber);
     var unauthenticatedFrame := seqNumSeq;
     var iv := seq(algorithmSuiteID.IVLength() - 4, _ => 0) + UInt32ToSeq(sequenceNumber);
     var aad := BodyAAD(messageID, RegularFrame, sequenceNumber, |plaintext| as uint64);
     var encryptionOutput :- AESEncryption.AESEncrypt(algorithmSuiteID.EncryptionSuite(), iv, key, plaintext, aad);
-    isEncrypted(plaintext, encryptionOutput.cipherText);
     
     ghost var frame := RegularFrameConstructor(sequenceNumber, iv, encryptionOutput.cipherText, encryptionOutput.authTag);
 
@@ -256,7 +248,7 @@ module MessageBody {
            var frame := FinalFrameConstructor(sequenceNumber, iv, encContent, authTag);
            FrameToSubsequence(frame) == resultSuccess
         && SubsequenceToFinalFrame(resultSuccess, algorithmSuiteID, frameLength) == frame
-        && plaintext == DecryptMock(frame.encContent)
+        && plaintext == AESEncryption.DecryptMock(frame.encContent)
   {
     var unauthenticatedFrame := UInt32ToSeq(ENDFRAME_SEQUENCE_NUMBER);
     var seqNumSeq := UInt32ToSeq(sequenceNumber);
@@ -271,7 +263,6 @@ module MessageBody {
     
     var encryptionOutput :- AESEncryption.AESEncrypt(algorithmSuiteID.EncryptionSuite(), iv, key, plaintext, aad);
     unauthenticatedFrame := unauthenticatedFrame + encryptionOutput.cipherText + encryptionOutput.authTag;
-    isEncrypted(plaintext, encryptionOutput.cipherText);
     assert |plaintext| == |encryptionOutput.cipherText|;
 
     ghost var frame := FinalFrameConstructor(sequenceNumber, iv, encryptionOutput.cipherText, encryptionOutput.authTag);
@@ -314,13 +305,13 @@ module MessageBody {
     {
       var decryptedFrame :- DecryptFrame(rd, algorithmSuiteID, key, frameLength, messageID, n);
       ghost var encryptedFrame := if decryptedFrame.FinalFrameConstructor? then
-        FinalFrameConstructor(decryptedFrame.seqNumb, decryptedFrame.iv, EncryptMock(decryptedFrame.encContent),decryptedFrame.authTag)
+        FinalFrameConstructor(decryptedFrame.seqNumb, decryptedFrame.iv, AESEncryption.EncryptMock(decryptedFrame.encContent),decryptedFrame.authTag)
       else
-        RegularFrameConstructor(decryptedFrame.seqNumb, decryptedFrame.iv, EncryptMock(decryptedFrame.encContent),decryptedFrame.authTag);
+        RegularFrameConstructor(decryptedFrame.seqNumb, decryptedFrame.iv, AESEncryption.EncryptMock(decryptedFrame.encContent),decryptedFrame.authTag);
       frames := frames + [encryptedFrame];
       var (framePlaintext, final) := (decryptedFrame.encContent, decryptedFrame.FinalFrameConstructor?);
 
-      assert framePlaintext == DecryptMock(encryptedFrame.encContent);
+      assert framePlaintext == AESEncryption.DecryptMock(encryptedFrame.encContent);
 
       plaintext := plaintext + framePlaintext;
       if final {
@@ -351,50 +342,56 @@ module MessageBody {
       case Success(decryptedFrame) =>
            decryptedFrame.Valid() 
         && var encryptedFrame := if decryptedFrame.FinalFrameConstructor? then
-             FinalFrameConstructor(decryptedFrame.seqNumb, decryptedFrame.iv, EncryptMock(decryptedFrame.encContent),decryptedFrame.authTag)
+             FinalFrameConstructor(decryptedFrame.seqNumb, decryptedFrame.iv, AESEncryption.EncryptMock(decryptedFrame.encContent),decryptedFrame.authTag)
            else
-             RegularFrameConstructor(decryptedFrame.seqNumb, decryptedFrame.iv, EncryptMock(decryptedFrame.encContent),decryptedFrame.authTag);
+             RegularFrameConstructor(decryptedFrame.seqNumb, decryptedFrame.iv, AESEncryption.EncryptMock(decryptedFrame.encContent),decryptedFrame.authTag);
         && old(rd.reader.pos) < rd.reader.pos <= |rd.reader.data|   
         && rd.reader.data[old(rd.reader.pos)..rd.reader.pos] == FrameToSubsequence(encryptedFrame)   
-        && EncryptMock(decryptedFrame.encContent) == encryptedFrame.encContent
-        && decryptedFrame.encContent == DecryptMock(encryptedFrame.encContent)
+        && decryptedFrame.encContent == AESEncryption.DecryptMock(encryptedFrame.encContent)
       case Failure(_) => true
   {    
     var final := false;
     var sequenceNumber :- rd.ReadUInt32(); 
     ghost var sequence := UInt32ToSeq(sequenceNumber);
+    assert rd.reader.data[old(rd.reader.pos)..rd.reader.pos] == sequence;
     
     if sequenceNumber == ENDFRAME_SEQUENCE_NUMBER {
       final := true;
       sequenceNumber :- rd.ReadUInt32();
       sequence := sequence + UInt32ToSeq(sequenceNumber);
+      assert rd.reader.data[old(rd.reader.pos)..rd.reader.pos] == sequence;
     }
     
     if sequenceNumber != expectedSequenceNumber {
       return Failure("unexpected frame sequence number");
     }
-  
-    var iv :- rd.ReadBytes(algorithmSuiteID.IVLength());
 
+    var iv :- rd.ReadBytes(algorithmSuiteID.IVLength());
     sequence := sequence + iv;
+    assert rd.reader.data[old(rd.reader.pos)..rd.reader.pos] == sequence;
+
     var len := frameLength as uint32;
     if final {
       len :- rd.ReadUInt32();
       sequence := sequence + UInt32ToSeq(len);
+      assert rd.reader.data[old(rd.reader.pos)..rd.reader.pos] == sequence;
     }
     
     var aad := BodyAAD(messageID, if final then FinalFrame else RegularFrame, sequenceNumber, len as uint64);
 
     var ciphertext :- rd.ReadBytes(len as nat);
     sequence := sequence + ciphertext;
+    assert rd.reader.data[old(rd.reader.pos)..rd.reader.pos] == sequence;
     
     var authTag :- rd.ReadBytes(algorithmSuiteID.TagLength());
     sequence := sequence + authTag;
+    assert rd.reader.data[old(rd.reader.pos)..rd.reader.pos] == sequence;
 
     
     var plaintext :- Decrypt(ciphertext, authTag, algorithmSuiteID, iv, key, aad);
-    isEncrypted(plaintext, ciphertext);
-    
+    assert plaintext == AESEncryption.DecryptMock(ciphertext);
+    assert rd.reader.data[old(rd.reader.pos)..rd.reader.pos] == sequence;
+
     var frame := if final then
         FinalFrameConstructor(sequenceNumber, iv, plaintext, authTag)
       else 
@@ -430,6 +427,8 @@ module MessageBody {
     //Prove equivalence sequence and content read on the stream
     assert rd.reader.data[old(rd.reader.pos)..rd.reader.pos] == sequence;
     
+    assert old(rd.reader.pos) < rd.reader.pos <= |rd.reader.data|;     
+    
     return Success(frame);
   }
 
@@ -442,6 +441,8 @@ module MessageBody {
     requires |iv| == algorithmSuiteID.IVLength()
     requires |key| == algorithmSuiteID.KeyLength()
     requires |authTag| == algorithmSuiteID.TagLength()
+    ensures res.Success? ==> AESEncryption.DecryptMock(ciphertext) == res.value
+    ensures res.Success? ==> ciphertext == AESEncryption.EncryptMock(res.value)
   {
     var encAlg := algorithmSuiteID.EncryptionSuite();
     res := AESEncryption.AESDecrypt(encAlg, key, ciphertext, authTag, iv, aad);
@@ -505,8 +506,4 @@ module MessageBody {
         
     }
   }
-
-  lemma {:axiom} isEncrypted(plaintext: seq<uint8>, encContent: seq<uint8>)
-    ensures EncryptMock(plaintext) == encContent
-    ensures DecryptMock(encContent) == plaintext
 }

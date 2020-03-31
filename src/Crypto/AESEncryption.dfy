@@ -9,6 +9,7 @@ module {:extern "AESEncryption"} AESEncryption {
 
   export
     provides AESDecrypt, AESEncrypt, EncryptionSuites, StandardLibrary, UInt, PlaintextDecryptedWithAAD, EncryptionOutputEncryptedWithAAD
+    provides DecryptMock, EncryptMock
     reveals EncryptionOutput
 
   datatype EncryptionOutput = EncryptionOutput(cipherText: seq<uint8>, authTag: seq<uint8>)
@@ -28,6 +29,13 @@ module {:extern "AESEncryption"} AESEncryption {
     EncryptionOutput(s[.. |s| - encAlg.tagLen as int], s[|s| - encAlg.tagLen as int ..])
   }
 
+  function DecryptMock (input: seq<uint8>):  (output: seq<uint8>)
+    ensures |input| == |output|
+  
+  function EncryptMock (input: seq<uint8>):  (output: seq<uint8>)
+    ensures DecryptMock(EncryptMock(input)) == input;
+    ensures |input| == |output|
+
   method {:extern "AESEncryption.AES_GCM", "AESEncrypt"} AESEncrypt(encAlg: EncryptionSuites.EncryptionSuite, iv: seq<uint8>, key: seq<uint8>, msg: seq<uint8>, aad: seq<uint8>)
       returns (res : Result<EncryptionOutput>)
     requires encAlg.Valid()
@@ -38,6 +46,8 @@ module {:extern "AESEncryption"} AESEncryption {
     ensures res.Success? ==>
       |res.value.cipherText| == |msg| && |res.value.authTag| == encAlg.tagLen as int
     ensures res.Success? ==> EncryptionOutputEncryptedWithAAD(res.value, aad)
+    ensures res.Success? ==> DecryptMock(res.value.cipherText) == msg
+    ensures res.Success? ==> res.value.cipherText == EncryptMock(msg)
 
   method {:extern "AESEncryption.AES_GCM", "AESDecrypt"} AESDecrypt(encAlg: EncryptionSuites.EncryptionSuite, key: seq<uint8>, cipherTxt: seq<uint8>, authTag: seq<uint8>, iv: seq<uint8>, aad: seq<uint8>)
       returns (res: Result<seq<uint8>>)
@@ -48,4 +58,7 @@ module {:extern "AESEncryption"} AESEncryption {
     requires |iv| == encAlg.ivLen as int
     requires |authTag| == encAlg.tagLen as int
     ensures res.Success? ==> PlaintextDecryptedWithAAD(res.value, aad)
+    ensures res.Success? ==> DecryptMock(cipherTxt) == res.value
+    ensures res.Success? ==> cipherTxt == EncryptMock(res.value)
+
 }
