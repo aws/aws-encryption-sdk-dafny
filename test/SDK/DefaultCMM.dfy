@@ -21,7 +21,7 @@ module {:extern "DefaultCMMTests"} DefaultCMMTests {
   method {:test} TestDefaultCMMNoAlg() returns (res: Result<()>) {
     var keyring :- TestUtils.MakeRSAKeyring();
     var cmm := new DefaultCMMDef.DefaultCMM.OfKeyring(keyring);
-    var encCtx: EncryptionContext.T := map[];
+    var encCtx: EncryptionContext.Map := map[];
     var getEncMatOutput :- cmm.GetEncryptionMaterials(Materials.EncryptionMaterialsRequest(encCtx, None, None));
 
     expect getEncMatOutput.algorithmSuiteID == 0x0378, "GetEncryptionMaterials returned unexpected algorithm id";
@@ -42,7 +42,7 @@ module {:extern "DefaultCMMTests"} DefaultCMMTests {
   method {:test} TestDefaultCMMWithAlg() returns (res: Result<()>) {
     var keyring :- TestUtils.MakeRSAKeyring();
     var cmm := new DefaultCMMDef.DefaultCMM.OfKeyring(keyring);
-    var encCtx: EncryptionContext.T := map[];
+    var encCtx: EncryptionContext.Map := map[];
     var getEncMatOutput :- cmm.GetEncryptionMaterials(Materials.EncryptionMaterialsRequest(encCtx, Some(AlgorithmSuite.AES_256_GCM_IV12_TAG16_HKDF_SHA384_ECDSA_P384), None));
 
     expect getEncMatOutput.algorithmSuiteID == AlgorithmSuite.AES_256_GCM_IV12_TAG16_HKDF_SHA384_ECDSA_P384,
@@ -65,7 +65,7 @@ module {:extern "DefaultCMMTests"} DefaultCMMTests {
     var keyring :- TestUtils.MakeRSAKeyring();
     var cmm := new DefaultCMMDef.DefaultCMM.OfKeyring(keyring);
 
-    var encCtx: EncryptionContext.T := map[];
+    var encCtx: EncryptionContext.Map := map[];
     var getEncMatOutput :- cmm.GetEncryptionMaterials(Materials.EncryptionMaterialsRequest(encCtx, Some(AlgorithmSuite.AES_256_GCM_IV12_TAG16_HKDF_SHA256_NO_SIGNATURE_ALG), None));
 
     expect getEncMatOutput.algorithmSuiteID == AlgorithmSuite.AES_256_GCM_IV12_TAG16_HKDF_SHA256_NO_SIGNATURE_ALG,
@@ -87,7 +87,7 @@ module {:extern "DefaultCMMTests"} DefaultCMMTests {
   method {:test} TestDefaultCMMRejectsBadEncCtx() returns (res: Result<()>) {
     var keyring :- TestUtils.MakeRSAKeyring();
     var cmm := new DefaultCMMDef.DefaultCMM.OfKeyring(keyring);
-    var encCtx: EncryptionContext.T := map[];
+    var encCtx: EncryptionContext.Map := map[];
     encCtx := encCtx[Materials.EC_PUBLIC_KEY_FIELD := [0x00]];
     var shouldBeFail := cmm.GetEncryptionMaterials(Materials.EncryptionMaterialsRequest(encCtx, None, None));
 

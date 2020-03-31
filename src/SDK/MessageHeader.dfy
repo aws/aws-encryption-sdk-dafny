@@ -79,14 +79,14 @@ module {:extern "MessageHeader"} MessageHeader {
                           typ: Type,
                           algorithmSuiteID: AlgorithmSuite.ID,
                           messageID: MessageID,
-                          aad: EncryptionContext.T,
+                          aad: EncryptionContext.Map,
                           encryptedDataKeys: EncryptedDataKeys,
                           contentType: ContentType,
                           ivLength: uint8,
                           frameLength: uint32)
   {
     predicate Valid() {
-      && EncryptionContext.ValidAAD(aad)
+      && EncryptionContext.Valid(aad)
       && encryptedDataKeys.Valid()
       && algorithmSuiteID.IVLength() == ivLength as nat
       && ValidFrameLength(frameLength, contentType)
@@ -116,7 +116,7 @@ module {:extern "MessageHeader"} MessageHeader {
     [hb.typ as uint8] +
     UInt16ToSeq(hb.algorithmSuiteID as uint16) +
     hb.messageID +
-    EncryptionContext.AADToSeq(hb.aad) +
+    EncryptionContext.MapToLinear(hb.aad) +
     EDKsToSeq(hb.encryptedDataKeys) +
     [ContentTypeToUInt8(hb.contentType)] +
     Reserved +

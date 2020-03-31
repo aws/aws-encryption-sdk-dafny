@@ -111,12 +111,12 @@ module {:extern "RawAESKeyringDef"} RawAESKeyringDef {
 
       // EDK created using expected AAD
       ensures res.Success? ==>
-        && var encCtxSerializable := (reveal EncryptionContext.ValidAAD(); EncryptionContext.ValidAAD(materials.encryptionContext));
+        && var encCtxSerializable := (reveal EncryptionContext.Valid(); EncryptionContext.Valid(materials.encryptionContext));
         && |res.value.encryptedDataKeys| == |materials.encryptedDataKeys| + 1
         && encCtxSerializable
         && wrappingAlgorithm.tagLen as nat <= |res.value.encryptedDataKeys[|materials.encryptedDataKeys|].ciphertext|
         && var encOutput := DeserializeEDKCiphertext(res.value.encryptedDataKeys[|materials.encryptedDataKeys|].ciphertext, wrappingAlgorithm.tagLen as nat);
-        && AESEncryption.EncryptionOutputEncryptedWithAAD(encOutput, EncryptionContext.KVPairsToSeq(materials.encryptionContext))
+        && AESEncryption.EncryptionOutputEncryptedWithAAD(encOutput, EncryptionContext.MapToSeq(materials.encryptionContext))
 
       // EDK created has expected providerID and valid providerInfo
       ensures res.Success? ==>
@@ -135,11 +135,11 @@ module {:extern "RawAESKeyringDef"} RawAESKeyringDef {
           && res.value.keyringTrace[|materials.keyringTrace|] == EncryptTraceEntry()
 
       // If input EC cannot be serialized, returns a Failure
-      ensures !EncryptionContext.ValidAAD(materials.encryptionContext) ==> res.Failure?
+      ensures !EncryptionContext.Valid(materials.encryptionContext) ==> res.Failure?
     {
       // Check that the encryption context can be serialized correctly
-      reveal EncryptionContext.ValidAAD();
-      var valid := EncryptionContext.ComputeValidAAD(materials.encryptionContext);
+      reveal EncryptionContext.Valid();
+      var valid := EncryptionContext.ComputeValid(materials.encryptionContext);
       if !valid {
         return Failure("Unable to serialize encryption context");
       }
@@ -156,7 +156,7 @@ module {:extern "RawAESKeyringDef"} RawAESKeyringDef {
       var wr := new Streams.ByteWriter();
       var _ :- Serialize.SerializeKVPairs(wr, materials.encryptionContext);
       var aad := wr.GetDataWritten();
-      assert aad == EncryptionContext.KVPairsToSeq(materials.encryptionContext);
+      assert aad == EncryptionContext.MapToSeq(materials.encryptionContext);
 
       var encryptResult :- AESEncryption.AESEncrypt(wrappingAlgorithm, iv, wrappingKey, materialsWithDataKey.plaintextDataKey.get, aad);
       var encryptedKey := SerializeEDKCiphertext(encryptResult);
@@ -192,16 +192,16 @@ module {:extern "RawAESKeyringDef"} RawAESKeyringDef {
 
       // Plaintext decrypted using expected AAD
       ensures res.Success? && materials.plaintextDataKey.None? && res.value.plaintextDataKey.Some? ==>
-        var encCtxSerializable := (reveal EncryptionContext.ValidAAD(); EncryptionContext.ValidAAD(materials.encryptionContext));
+        var encCtxSerializable := (reveal EncryptionContext.Valid(); EncryptionContext.Valid(materials.encryptionContext));
         && encCtxSerializable
-        && AESEncryption.PlaintextDecryptedWithAAD(res.value.plaintextDataKey.get, EncryptionContext.KVPairsToSeq(materials.encryptionContext))
+        && AESEncryption.PlaintextDecryptedWithAAD(res.value.plaintextDataKey.get, EncryptionContext.MapToSeq(materials.encryptionContext))
 
       // KeyringTrace generated as expected
       ensures res.Success? && materials.plaintextDataKey.None? && res.value.plaintextDataKey.Some? ==> 
           |res.value.keyringTrace| == |materials.keyringTrace| + 1 && res.value.keyringTrace[|materials.keyringTrace|] == DecryptTraceEntry()
 
       // If attempts to decrypt an EDK and the input EC cannot be serialized, return a Failure
-      ensures materials.plaintextDataKey.None? && !EncryptionContext.ValidAAD(materials.encryptionContext) && (exists i :: 0 <= i < |edks| && ShouldDecryptEDK(edks[i])) ==> res.Failure?
+      ensures materials.plaintextDataKey.None? && !EncryptionContext.Valid(materials.encryptionContext) && (exists i :: 0 <= i < |edks| && ShouldDecryptEDK(edks[i])) ==> res.Failure?
     {
       if materials.plaintextDataKey.Some? {
         return Success(materials);
@@ -212,15 +212,15 @@ module {:extern "RawAESKeyringDef"} RawAESKeyringDef {
       {
         if ShouldDecryptEDK(edks[i]) {
           // Check that the encryption context can be serialized correctly
-          reveal EncryptionContext.ValidAAD();
-          var valid := EncryptionContext.ComputeValidAAD(materials.encryptionContext);
+          reveal EncryptionContext.Valid();
+          var valid := EncryptionContext.ComputeValid(materials.encryptionContext);
           if !valid {
             return Failure("Unable to serialize encryption context");
           }
           var wr := new Streams.ByteWriter();
           var _ :- Serialize.SerializeKVPairs(wr, materials.encryptionContext);
           var aad := wr.GetDataWritten();
-          assert aad == EncryptionContext.KVPairsToSeq(materials.encryptionContext);
+          assert aad == EncryptionContext.MapToSeq(materials.encryptionContext);
           
           var iv := GetIvFromProvInfo(edks[i].providerInfo);
           var encryptionOutput := DeserializeEDKCiphertext(edks[i].ciphertext, wrappingAlgorithm.tagLen as nat);

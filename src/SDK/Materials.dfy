@@ -71,7 +71,7 @@ module {:extern "Materials"} Materials {
     && (plaintextDataKey.None? ==> |keyringTrace| == 0)
   }
 
-  datatype EncryptionMaterials = EncryptionMaterials(encryptionContext: EncryptionContext.T,
+  datatype EncryptionMaterials = EncryptionMaterials(encryptionContext: EncryptionContext.Map,
                                                      algorithmSuiteID: AlgorithmSuite.ID,
                                                      plaintextDataKey: Option<seq<uint8>>,
                                                      encryptedDataKeys: seq<ValidEncryptedDataKey>,
@@ -92,7 +92,7 @@ module {:extern "Materials"} Materials {
       EncryptionMaterials(map[], AlgorithmSuite.AES_256_GCM_IV12_TAG16_HKDF_SHA384_ECDSA_P384, None, [], [], Some(seq(32, i => 0)))
     }
 
-    static function method WithoutDataKeys(encryptionContext: EncryptionContext.T,
+    static function method WithoutDataKeys(encryptionContext: EncryptionContext.Map,
                                            algorithmSuiteID: AlgorithmSuite.ID,
                                            signingKey: Option<seq<uint8>>): ValidEncryptionMaterials 
       requires algorithmSuiteID.SignatureType().Some? ==> signingKey.Some?
@@ -133,7 +133,7 @@ module {:extern "Materials"} Materials {
   type ValidEncryptionMaterials = i: EncryptionMaterials | i.Valid() witness EncryptionMaterials.ValidWitness()
 
   datatype DecryptionMaterials = DecryptionMaterials(algorithmSuiteID: AlgorithmSuite.ID,
-                                                     encryptionContext: EncryptionContext.T,
+                                                     encryptionContext: EncryptionContext.Map,
                                                      plaintextDataKey: Option<seq<uint8>>,
                                                      verificationKey: Option<seq<uint8>>,
                                                      keyringTrace: seq<KeyringTraceEntry>)
@@ -150,7 +150,7 @@ module {:extern "Materials"} Materials {
                           [KeyringTraceEntry([], [], {DECRYPTED_DATA_KEY})])
     }
 
-    static function method WithoutPlaintextDataKey(encryptionContext: EncryptionContext.T,
+    static function method WithoutPlaintextDataKey(encryptionContext: EncryptionContext.Map,
                                                    algorithmSuiteID: AlgorithmSuite.ID,
                                                    verificationKey: Option<seq<uint8>>): ValidDecryptionMaterials 
       requires algorithmSuiteID.SignatureType().Some? ==> verificationKey.Some?
@@ -180,13 +180,13 @@ module {:extern "Materials"} Materials {
 
   type ValidDecryptionMaterials = i: DecryptionMaterials | i.Valid() witness DecryptionMaterials.ValidWitness()
 
-  datatype EncryptionMaterialsRequest = EncryptionMaterialsRequest(encryptionContext: EncryptionContext.T,
+  datatype EncryptionMaterialsRequest = EncryptionMaterialsRequest(encryptionContext: EncryptionContext.Map,
                                                                    algorithmSuiteID: Option<AlgorithmSuite.ID>,
                                                                    plaintextLength: Option<nat>)
 
   datatype DecryptionMaterialsRequest = DecryptionMaterialsRequest(algorithmSuiteID: AlgorithmSuite.ID,
                                                                    encryptedDataKeys: seq<ValidEncryptedDataKey>,
-                                                                   encryptionContext: EncryptionContext.T)
+                                                                   encryptionContext: EncryptionContext.Map)
   {
     predicate Valid() {
       |encryptedDataKeys| > 0

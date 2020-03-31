@@ -11,12 +11,12 @@ using IDString = Dafny.ISequence<char>;
 using DString = Dafny.Sequence<char>;
 using ibyteseq = Dafny.ISequence<byte>;
 using byteseq = Dafny.Sequence<byte>;
-using EncryptionContextT = Dafny.Map<Dafny.ISequence<byte>, Dafny.ISequence<byte>>;
+using EncryptionContextMap = Dafny.Map<Dafny.ISequence<byte>, Dafny.ISequence<byte>>;
 
 namespace KMSUtils {
     public partial class __default {
         //TODO: Issue #54
-        public static Dictionary<String, String> EncryptionContextToString(EncryptionContextT encContext) {
+        public static Dictionary<String, String> EncryptionContextToString(EncryptionContextMap encContext) {
             UTF8Encoding utf8 = new UTF8Encoding(false, true);
             Dictionary<string, string> strDict = encContext.Items.Elements.ToDictionary(
                     strKey => utf8.GetString(ConvertByteSeq(strKey._0)),

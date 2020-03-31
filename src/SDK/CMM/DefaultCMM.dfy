@@ -82,12 +82,12 @@ module {:extern "DefaultCMMDef"} DefaultCMMDef {
       }
 
       // Check validity of the encryption context at runtime.
-      var validAAD := EncryptionContext.ComputeValidAAD(enc_ctx);
+      var validAAD := EncryptionContext.ComputeValid(enc_ctx);
       if !validAAD {
         //TODO: Provide a more specific error message here, depending on how the EncCtx spec was violated.
         return Failure("Invalid Encryption Context");
       }
-      assert EncryptionContext.ValidAAD(enc_ctx);
+      assert EncryptionContext.Valid(enc_ctx);
 
       var materials := Materials.EncryptionMaterials.WithoutDataKeys(enc_ctx, id, enc_sk);
       assert materials.encryptionContext == enc_ctx;

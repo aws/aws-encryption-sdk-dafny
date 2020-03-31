@@ -178,15 +178,15 @@ module Deserialize {
     }
   }
 
-  method DeserializeAAD(rd: Streams.ByteReader) returns (ret: Result<EncryptionContext.T>)
+  method DeserializeAAD(rd: Streams.ByteReader) returns (ret: Result<EncryptionContext.Map>)
     requires rd.Valid()
     modifies rd.reader`pos
     ensures rd.Valid()
     ensures match ret
-      case Success(aad) => EncryptionContext.ValidAAD(aad)
+      case Success(aad) => EncryptionContext.Valid(aad)
       case Failure(_) => true
   {
-    reveal EncryptionContext.ValidAAD();
+    reveal EncryptionContext.Valid();
 
     var kvPairsLength :- rd.ReadUInt16();
     if kvPairsLength == 0 {
@@ -210,8 +210,8 @@ module Deserialize {
       invariant rd.Valid()
       invariant |kvPairs| == i as int
       invariant i <= kvPairsCount
-      invariant totalBytesRead == 2 + EncryptionContext.KVPairEntriesLength(kvPairs, 0, i as nat) <= kvPairsLength as nat
-      invariant EncryptionContext.SortedKVPairs(kvPairs)
+      invariant totalBytesRead == 2 + EncryptionContext.LinearLength(kvPairs, 0, i as nat) <= kvPairsLength as nat
+      invariant EncryptionContext.LinearSorted(kvPairs)
     {
       var keyLength :- rd.ReadUInt16();
       totalBytesRead := totalBytesRead + 2;
@@ -234,7 +234,7 @@ module Deserialize {
       var opt, insertionPoint := InsertNewEntry(kvPairs, key, value);
       match opt {
         case Some(kvPairs_) =>
-          EncryptionContext.KVPairEntriesLengthInsert(kvPairs, insertionPoint, key, value);
+          EncryptionContext.LinearInsert(kvPairs, insertionPoint, key, value);
           kvPairs := kvPairs_;
         case None =>
           return Failure("Deserialization Error: Duplicate key.");
@@ -250,8 +250,8 @@ module Deserialize {
     // we must check after the extern call that the map is valid for AAD.
     // If not valid, then something was wrong with the conversion, as
     // failures for invalid serializations should be caught earlier.
-    var encryptionContext : map<UTF8.ValidUTF8Bytes, UTF8.ValidUTF8Bytes> := EncryptionContext.KVPairSequenceToMap(kvPairs);
-    var isValid := EncryptionContext.ComputeValidAAD(encryptionContext);
+    var encryptionContext: map<UTF8.ValidUTF8Bytes, UTF8.ValidUTF8Bytes> := EncryptionContext.LinearToMap(kvPairs);
+    var isValid := EncryptionContext.ComputeValid(encryptionContext);
     if !isValid {
       return Failure("Deserialization Error: Failed to parse encryption context.");
     }
@@ -261,14 +261,14 @@ module Deserialize {
 
   method InsertNewEntry(kvPairs: EncryptionContext.Linear, key: UTF8.ValidUTF8Bytes, value: UTF8.ValidUTF8Bytes)
       returns (res: Option<EncryptionContext.Linear>, ghost insertionPoint: nat)
-    requires EncryptionContext.SortedKVPairs(kvPairs)
+    requires EncryptionContext.LinearSorted(kvPairs)
     ensures match res
     case None =>
       exists i :: 0 <= i < |kvPairs| && kvPairs[i].0 == key  // key already exists
     case Some(kvPairs') =>
       && insertionPoint <= |kvPairs|
       && kvPairs' == kvPairs[..insertionPoint] + [(key, value)] + kvPairs[insertionPoint..]
-      && EncryptionContext.SortedKVPairs(kvPairs')
+      && EncryptionContext.LinearSorted(kvPairs')
   {
     var n := |kvPairs|;
     while 0 < n && LexicographicLessOrEqual(key, kvPairs[n - 1].0, UInt.UInt8Less)

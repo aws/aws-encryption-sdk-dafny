@@ -38,18 +38,18 @@ module IntegTestKMS {
     var keyA :- expect UTF8.Encode("keyA");
     var valA :- expect UTF8.Encode("valA");
     var encryptionContext := map[keyA := valA];
-    assert EncryptionContext.ValidAAD(encryptionContext) by {
+    assert EncryptionContext.Valid(encryptionContext) by {
       // To prove ValidAAD, we need to reveal the definition of ValidAAD:
-      reveal EncryptionContext.ValidAAD();
+      reveal EncryptionContext.Valid();
       // We also need to help the verifier with proving the KVPairsLength is small:
       calc {
-        EncryptionContext.KVPairsLength(encryptionContext);
+        EncryptionContext.Length(encryptionContext);
         var keys: seq<UTF8.ValidUTF8Bytes> := SetToOrderedSequence<uint8>(encryptionContext.Keys, UInt.UInt8Less);
         var kvPairsSeq := seq(|keys|, i requires 0 <= i < |keys| => (keys[i], encryptionContext[keys[i]]));
-        2 + EncryptionContext.KVPairEntriesLength(kvPairsSeq, 0, |kvPairsSeq|); // 2 bytes for the kvPairsCount field
+        2 + EncryptionContext.LinearLength(kvPairsSeq, 0, |kvPairsSeq|); // 2 bytes for the kvPairsCount field
         2 + 2 + |keyA| + 2 + |valA|; // 2 bytes required for keyLength and valueLength fields
       }
-      assert EncryptionContext.KVPairsLength(encryptionContext) < UINT16_LIMIT;
+      assert EncryptionContext.Length(encryptionContext) < UINT16_LIMIT;
     }
     var e := Client.Encrypt(encodedMsg, cmm, Some(encryptionContext), None, None);
     expect e.Success?, "Bad encryption :( " + e.error + "\n";

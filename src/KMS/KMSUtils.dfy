@@ -47,7 +47,7 @@ module {:extern "KMSUtils"} KMSUtils {
 
   type HttpStatusCode = int //FIXME: Restrict this
 
-  datatype GenerateDataKeyRequest = GenerateDataKeyRequest(encryptionContext: EncryptionContext.T, grantTokens: seq<GrantToken>, keyID: CustomerMasterKey, numberOfBytes: int32)
+  datatype GenerateDataKeyRequest = GenerateDataKeyRequest(encryptionContext: EncryptionContext.Map, grantTokens: seq<GrantToken>, keyID: CustomerMasterKey, numberOfBytes: int32)
   {
     predicate Valid() {
       0 <= |grantTokens| <= MAX_GRANT_TOKENS && 0 < numberOfBytes <= 1024
@@ -61,7 +61,7 @@ module {:extern "KMSUtils"} KMSUtils {
     }
   }
 
-  datatype EncryptRequest = EncryptRequest(encryptionContext: EncryptionContext.T, grantTokens: seq<GrantToken>, keyID: CustomerMasterKey, plaintext: seq<uint8>)
+  datatype EncryptRequest = EncryptRequest(encryptionContext: EncryptionContext.Map, grantTokens: seq<GrantToken>, keyID: CustomerMasterKey, plaintext: seq<uint8>)
   {
     predicate Valid() {
       0 <= |grantTokens| <= MAX_GRANT_TOKENS
@@ -75,7 +75,7 @@ module {:extern "KMSUtils"} KMSUtils {
     }
   }
 
-  datatype DecryptRequest = DecryptRequest(ciphertextBlob: seq<uint8>, encryptionContext: EncryptionContext.T, grantTokens: seq<GrantToken>)
+  datatype DecryptRequest = DecryptRequest(ciphertextBlob: seq<uint8>, encryptionContext: EncryptionContext.Map, grantTokens: seq<GrantToken>)
   {
     predicate Valid() {
       0 <= |grantTokens| <= MAX_GRANT_TOKENS

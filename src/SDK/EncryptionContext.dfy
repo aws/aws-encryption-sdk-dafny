@@ -13,18 +13,18 @@ module {:extern "EncryptionContext"} EncryptionContext {
    * The main type of encryption context
    */
 
-  type T = map<UTF8.ValidUTF8Bytes, UTF8.ValidUTF8Bytes>
+  type Map = map<UTF8.ValidUTF8Bytes, UTF8.ValidUTF8Bytes>
 
-  predicate {:opaque} ValidAAD(encryptionContext: T) {
-    && KVPairsLength(encryptionContext) < UINT16_LIMIT
+  predicate {:opaque} Valid(encryptionContext: Map) {  // TODO: remove :opaque, export as provided, add lemma that gives definition
     && ValidKVPairs(encryptionContext)
+    && Length(encryptionContext) < UINT16_LIMIT
   }
 
   /*
    * Validity of key-value pairs in the encryption context
    */
 
-  predicate method ValidKVPairs(encryptionContext: T) {
+  predicate method ValidKVPairs(encryptionContext: Map) {
     && |encryptionContext| < UINT16_LIMIT
     && (forall key :: key in encryptionContext.Keys ==> ValidKVPair((key, encryptionContext[key])))
   }
@@ -40,14 +40,14 @@ module {:extern "EncryptionContext"} EncryptionContext {
    * Length properties
    */
 
-  function KVPairsLength(encryptionContext: T): nat
+  function Length(encryptionContext: Map): nat
   {
     if |encryptionContext| == 0 then 0 else
       // Defining and reasoning about order at this level is simplified by using a sequence of
       // key value pairs instead of a map.
       var keys: seq<UTF8.ValidUTF8Bytes> := SetToOrderedSequence(encryptionContext.Keys, UInt.UInt8Less);
       var kvPairs := seq(|keys|, i requires 0 <= i < |keys| => (keys[i], encryptionContext[keys[i]]));
-      2 + KVPairEntriesLength(kvPairs, 0, |kvPairs|)
+      2 + LinearLength(kvPairs, 0, |kvPairs|)
   }
 
   /*
@@ -59,72 +59,72 @@ module {:extern "EncryptionContext"} EncryptionContext {
   type Linear = seq<(UTF8.ValidUTF8Bytes, UTF8.ValidUTF8Bytes)>
 
   // Length of KVPairEntries is defined in terms of a seq of tuples, which is easier to reason about
-  function KVPairEntriesLength(kvPairs: Linear, lo: nat, hi: nat): nat
+  function LinearLength(kvPairs: Linear, lo: nat, hi: nat): nat
     requires lo <= hi <= |kvPairs|
   {
     if lo == hi then 0 else
-      KVPairEntriesLength(kvPairs, lo, hi - 1) +
+      LinearLength(kvPairs, lo, hi - 1) +
       2 + |kvPairs[hi - 1].0| +
       2 + |kvPairs[hi - 1].1|
   }
 
   // There isn't an efficient way to build a map from a sequence in dafny, so this
   // extern is used specifically to convert a sequence of key value pairs to a map
-  method {:extern "KVPairSequenceToMap"} KVPairSequenceToMap(kvPairs: Linear) returns (res: T)  // TODO: FromLinear
+  method {:extern "LinearToMap"} LinearToMap(kvPairs: Linear) returns (res: Map)
 
   /*
    * Useful lemmas about key-value pairs
    */
 
-  lemma KVPairEntriesLengthSplit(kvPairs: Linear, lo: nat, mid: nat, hi: nat)
+  lemma LinearSplit(kvPairs: Linear, lo: nat, mid: nat, hi: nat)
     requires lo <= mid <= hi <= |kvPairs|
-    ensures KVPairEntriesLength(kvPairs, lo, hi)
-         == KVPairEntriesLength(kvPairs, lo, mid) + KVPairEntriesLength(kvPairs, mid, hi)
+    ensures LinearLength(kvPairs, lo, hi)
+         == LinearLength(kvPairs, lo, mid) + LinearLength(kvPairs, mid, hi)
   {
   }
 
-  lemma KVPairEntriesLengthPrefix(kvPairs: Linear, more: Linear)
-    ensures KVPairEntriesLength(kvPairs + more, 0, |kvPairs|) == KVPairEntriesLength(kvPairs, 0, |kvPairs|)
+  lemma LinearPrefix(kvPairs: Linear, more: Linear)
+    ensures LinearLength(kvPairs + more, 0, |kvPairs|) == LinearLength(kvPairs, 0, |kvPairs|)
   {
     var n := |kvPairs|;
     if n == 0 {
     } else {
       var last := kvPairs[n - 1];
       calc {
-        KVPairEntriesLength(kvPairs + more, 0, n);
-      ==  // def. KVPairEntriesLength
-        KVPairEntriesLength(kvPairs + more, 0, n - 1) + 4 + |last.0| + |last.1|;
+        LinearLength(kvPairs + more, 0, n);
+      ==  // def. LinearLength
+        LinearLength(kvPairs + more, 0, n - 1) + 4 + |last.0| + |last.1|;
       ==  { assert kvPairs + more == kvPairs[..n - 1] + ([last] + more); }
-        KVPairEntriesLength(kvPairs[..n - 1] + ([last] + more), 0, n - 1) + 4 + |last.0| + |last.1|;
-      ==  { KVPairEntriesLengthPrefix(kvPairs[..n - 1], [last] + more); }
-        KVPairEntriesLength(kvPairs[..n - 1], 0, n - 1) + 4 + |last.0| + |last.1|;
-      ==  { KVPairEntriesLengthPrefix(kvPairs[..n - 1], [last] + more); }
-        KVPairEntriesLength(kvPairs[..n - 1] + [last], 0, n - 1) + 4 + |last.0| + |last.1|;
+        LinearLength(kvPairs[..n - 1] + ([last] + more), 0, n - 1) + 4 + |last.0| + |last.1|;
+      ==  { LinearPrefix(kvPairs[..n - 1], [last] + more); }
+        LinearLength(kvPairs[..n - 1], 0, n - 1) + 4 + |last.0| + |last.1|;
+      ==  { LinearPrefix(kvPairs[..n - 1], [last] + more); }
+        LinearLength(kvPairs[..n - 1] + [last], 0, n - 1) + 4 + |last.0| + |last.1|;
       ==  { assert kvPairs[..n - 1] + [last] == kvPairs; }
-        KVPairEntriesLength(kvPairs, 0, n - 1) + 4 + |last.0| + |last.1|;
-      ==  // def. KVPairEntriesLength
-        KVPairEntriesLength(kvPairs, 0, n);
+        LinearLength(kvPairs, 0, n - 1) + 4 + |last.0| + |last.1|;
+      ==  // def. LinearLength
+        LinearLength(kvPairs, 0, n);
       }
     }
   }
 
-  lemma KVPairEntriesLengthExtend(kvPairs: Linear, key: UTF8.ValidUTF8Bytes, value: UTF8.ValidUTF8Bytes)
-    ensures KVPairEntriesLength(kvPairs + [(key, value)], 0, |kvPairs| + 1)
-         == KVPairEntriesLength(kvPairs, 0, |kvPairs|) + 4 + |key| + |value|
+  lemma LinearExtend(kvPairs: Linear, key: UTF8.ValidUTF8Bytes, value: UTF8.ValidUTF8Bytes)
+    ensures LinearLength(kvPairs + [(key, value)], 0, |kvPairs| + 1)
+         == LinearLength(kvPairs, 0, |kvPairs|) + 4 + |key| + |value|
   {
-    KVPairEntriesLengthPrefix(kvPairs, [(key, value)]);
+    LinearPrefix(kvPairs, [(key, value)]);
   }
 
-  lemma KVPairEntriesLengthInsert(kvPairs: Linear, insertionPoint: nat, key: UTF8.ValidUTF8Bytes, value: UTF8.ValidUTF8Bytes)
+  lemma LinearInsert(kvPairs: Linear, insertionPoint: nat, key: UTF8.ValidUTF8Bytes, value: UTF8.ValidUTF8Bytes)
     requires insertionPoint <= |kvPairs|
     ensures var kvPairs' := kvPairs[..insertionPoint] + [(key, value)] + kvPairs[insertionPoint..];
-      KVPairEntriesLength(kvPairs', 0, |kvPairs'|) == KVPairEntriesLength(kvPairs, 0, |kvPairs|) + 4 + |key| + |value|
+      LinearLength(kvPairs', 0, |kvPairs'|) == LinearLength(kvPairs, 0, |kvPairs|) + 4 + |key| + |value|
     decreases |kvPairs|
   {
     var kvPairs' := kvPairs[..insertionPoint] + [(key, value)] + kvPairs[insertionPoint..];
     if |kvPairs| == insertionPoint {
       assert kvPairs' == kvPairs + [(key, value)];
-      KVPairEntriesLengthExtend(kvPairs, key, value);
+      LinearExtend(kvPairs, key, value);
     } else {
       var m := |kvPairs| - 1;
       var (d0, d1) := kvPairs[m];
@@ -134,14 +134,14 @@ module {:extern "EncryptionContext"} EncryptionContext {
       var ac := a + c;
       var abc := a + b + c;
       calc {
-        KVPairEntriesLength(kvPairs', 0, |kvPairs'|);
-        KVPairEntriesLength(abc + [(d0, d1)], 0, |abc| + 1);
-      ==  { KVPairEntriesLengthExtend(abc, d0, d1); }
-        KVPairEntriesLength(abc, 0, |abc|) + 4 + |d0| + |d1|;
-      ==  { KVPairEntriesLengthInsert(ac, insertionPoint, key, value); }
-        KVPairEntriesLength(ac, 0, |ac|) + 4 + |key| + |value| + 4 + |d0| + |d1|;
-      ==  { KVPairEntriesLengthExtend(ac, d0, d1); }
-        KVPairEntriesLength(kvPairs, 0, |kvPairs|) + 4 + |key| + |value|;
+        LinearLength(kvPairs', 0, |kvPairs'|);
+        LinearLength(abc + [(d0, d1)], 0, |abc| + 1);
+      ==  { LinearExtend(abc, d0, d1); }
+        LinearLength(abc, 0, |abc|) + 4 + |d0| + |d1|;
+      ==  { LinearInsert(ac, insertionPoint, key, value); }
+        LinearLength(ac, 0, |ac|) + 4 + |key| + |value| + 4 + |d0| + |d1|;
+      ==  { LinearExtend(ac, d0, d1); }
+        LinearLength(kvPairs, 0, |kvPairs|) + 4 + |key| + |value|;
       }
     }
   }
@@ -150,10 +150,10 @@ module {:extern "EncryptionContext"} EncryptionContext {
    * Methods that compute properties of encryption contexts
    */
 
-  method ComputeKVPairsLength(encryptionContext: T) returns (res: nat)
-    ensures res as nat == KVPairsLength(encryptionContext)
+  method ComputeLength(encryptionContext: Map) returns (res: nat)
+    ensures res as nat == Length(encryptionContext)
   {
-    reveal ValidAAD();
+    reveal Valid();
     if |encryptionContext| == 0 {
       return 0;
     }
@@ -167,24 +167,24 @@ module {:extern "EncryptionContext"} EncryptionContext {
     var i := 0;
     while i < |kvPairs|
       invariant i <= |kvPairs|
-      invariant 2 + KVPairEntriesLength(kvPairs, 0, i as int) == len as int
+      invariant 2 + LinearLength(kvPairs, 0, i as int) == len as int
     {
       var kvPair := kvPairs[i];
       len := len + 4 + |kvPair.0| + |kvPair.1|;
-      KVPairEntriesLengthSplit(kvPairs, 0, i + 1, |kvPairs| as int);
+      LinearSplit(kvPairs, 0, i + 1, |kvPairs| as int);
       i := i + 1;
     }
 
-    assert len == 2 + KVPairEntriesLength(kvPairs, 0, |kvPairs|);
-    assert len == KVPairsLength(encryptionContext);
+    assert len == 2 + LinearLength(kvPairs, 0, |kvPairs|);
+    assert len == Length(encryptionContext);
 
     return len;
   }
 
-  method ComputeValidAAD(encryptionContext: T) returns (res: bool)
-    ensures res == ValidAAD(encryptionContext)
+  method ComputeValid(encryptionContext: Map) returns (res: bool)
+    ensures res == Valid(encryptionContext)
   {
-    reveal ValidAAD();
+    reveal Valid();
 
     if |encryptionContext| == 0 {
       return true;
@@ -203,11 +203,11 @@ module {:extern "EncryptionContext"} EncryptionContext {
     while i < |kvPairs|
       invariant i <= |kvPairs|
       invariant forall k :: 0 <= k < i ==> ValidKVPair(kvPairs[k])
-      invariant 2 + KVPairEntriesLength(kvPairs, 0, i as int) == kvPairsLen as int < UINT16_LIMIT
+      invariant 2 + LinearLength(kvPairs, 0, i as int) == kvPairsLen as int < UINT16_LIMIT
     {
       var kvPair := kvPairs[i];
       kvPairsLen := kvPairsLen + 4 + |kvPair.0| + |kvPair.1|;
-      KVPairEntriesLengthSplit(kvPairs, 0, i as int + 1, |kvPairs| as int);
+      LinearSplit(kvPairs, 0, i as int + 1, |kvPairs| as int);
 
       // Check that AAD is still valid with this pair
       if !(|kvPair.0| < UINT16_LIMIT && |kvPair.1| < UINT16_LIMIT) {
@@ -228,26 +228,26 @@ module {:extern "EncryptionContext"} EncryptionContext {
    * Sortedness
    */
 
-  predicate SortedKVPairsUpTo(a: Linear, n: nat)
+  predicate LinearSortedUpTo(a: Linear, n: nat)
     requires n <= |a|
   {
     forall j :: 0 < j < n ==> LexicographicLessOrEqual(a[j-1].0, a[j].0, UInt.UInt8Less)
   }
 
-  predicate SortedKVPairs(kvPairs: Linear)
+  predicate LinearSorted(kvPairs: Linear)
   {
-    SortedKVPairsUpTo(kvPairs, |kvPairs|)
+    LinearSortedUpTo(kvPairs, |kvPairs|)
   }
 
-  function AADToSeq(kvPairs: T): seq<uint8>
-    requires ValidAAD(kvPairs)
+  function MapToLinear(kvPairs: Map): seq<uint8>
+    requires Valid(kvPairs)
   {
-    reveal ValidAAD();
-    UInt16ToSeq(KVPairsLength(kvPairs) as uint16) +
-    KVPairsToSeq(kvPairs)
+    reveal Valid();
+    UInt16ToSeq(Length(kvPairs) as uint16) +
+    MapToSeq(kvPairs)
   }
 
-  function KVPairsToSeq(kvPairs: T): seq<uint8>
+  function MapToSeq(kvPairs: Map): seq<uint8>
     requires ValidKVPairs(kvPairs)
   {
     var n := |kvPairs|;
@@ -259,17 +259,17 @@ module {:extern "EncryptionContext"} EncryptionContext {
       var keys: seq<UTF8.ValidUTF8Bytes> := SetToOrderedSequence<uint8>(kvPairs.Keys, UInt.UInt8Less);
       var kvPairsSeq := seq(|keys|, i requires 0 <= i < |keys| => (keys[i], kvPairs[keys[i]]));
       UInt16ToSeq(n as uint16) +
-      KVPairEntriesToSeq(kvPairsSeq, 0, |kvPairsSeq|)
+      LinearToSeq(kvPairsSeq, 0, |kvPairsSeq|)
   }
 
   // Serialization of KVPairEntries is defined in terms of a seq of tuples, which is easier to reason about
-  function KVPairEntriesToSeq(kvPairs: Linear, lo: nat, hi: nat): seq<uint8>
+  function LinearToSeq(kvPairs: Linear, lo: nat, hi: nat): seq<uint8>
     requires forall i :: 0 <= i < |kvPairs| ==> ValidKVPair(kvPairs[i])
     requires |kvPairs| < UINT16_LIMIT
-    requires SortedKVPairs(kvPairs)
+    requires LinearSorted(kvPairs)
     requires lo <= hi <= |kvPairs|
   {
-    if lo == hi then [] else KVPairEntriesToSeq(kvPairs, lo, hi - 1) + KVPairToSeq(kvPairs[hi - 1])
+    if lo == hi then [] else LinearToSeq(kvPairs, lo, hi - 1) + KVPairToSeq(kvPairs[hi - 1])
   }
 
   function KVPairToSeq(kvPair: (UTF8.ValidUTF8Bytes, UTF8.ValidUTF8Bytes)): seq<uint8>
@@ -279,61 +279,61 @@ module {:extern "EncryptionContext"} EncryptionContext {
     UInt16ToSeq(|kvPair.1| as uint16) + kvPair.1
   }
 
-  /* Function KVPairsLength is defined without referring to SerializeAAD (because then
-   * these two would be mutually recursive with ValidAAD). The following lemma proves
+  /* Function Length is defined without referring to SerializeAAD (because then
+   * these two would be mutually recursive with Valid). The following lemma proves
    * that the two definitions correspond.
    */
 
-  lemma ADDLengthCorrect(encryptionContext: T)
-    requires ValidAAD(encryptionContext)
-    ensures |AADToSeq(encryptionContext)| == 2 + KVPairsLength(encryptionContext)
+  lemma LengthCorrect(encryptionContext: Map)
+    requires Valid(encryptionContext)
+    ensures |MapToLinear(encryptionContext)| == 2 + Length(encryptionContext)
   {
-    reveal ValidAAD();
+    reveal Valid();
     var keys: seq<UTF8.ValidUTF8Bytes> := SetToOrderedSequence(encryptionContext.Keys, UInt.UInt8Less);
     var kvPairs := seq(|keys|, i requires 0 <= i < |keys| => (keys[i], encryptionContext[keys[i]]));
-    KVPairEntriesLengthCorrect(kvPairs, 0, |kvPairs|);
+    LinearLengthCorrect(kvPairs, 0, |kvPairs|);
     /**** Here's a more detailed proof:
     var n := |kvPairs|;
     if n != 0 {
-      var s := KVPairEntriesToSeq(kvPairs, 0, n);
+      var s := LinearToSeq(kvPairs, 0, n);
       calc {
-        |AADToSeq(kvPairs)|;
-      ==  // def. AADToSeq
-        |UInt16ToSeq(KVPairsLength(kvPairs) as uint16) + UInt16ToSeq(n as uint16) + s|;
+        |MapToLinear(kvPairs)|;
+      ==  // def. MapToLinear
+        |UInt16ToSeq(Length(kvPairs) as uint16) + UInt16ToSeq(n as uint16) + s|;
       ==  // UInt16ToSeq yields length-2 sequence
         2 + 2 + |s|;
-      ==  { KVPairEntriesLengthCorrect(kvPairs, 0, n); }
-        2 + 2 + KVPairEntriesLength(kvPairs, 0, n);
+      ==  { LinearLengthCorrect(kvPairs, 0, n); }
+        2 + 2 + LinearLength(kvPairs, 0, n);
       }
     }
     ****/
   }
 
-  lemma KVPairEntriesLengthCorrect(encryptionContext: Linear, lo: nat, hi: nat)
+  lemma LinearLengthCorrect(encryptionContext: Linear, lo: nat, hi: nat)
     requires forall i :: 0 <= i < |encryptionContext| ==> ValidKVPair(encryptionContext[i])
     requires lo <= hi <= |encryptionContext|
     requires |encryptionContext| < UINT16_LIMIT
-    requires SortedKVPairs(encryptionContext)
-    ensures |KVPairEntriesToSeq(encryptionContext, lo, hi)| == KVPairEntriesLength(encryptionContext, lo, hi)
+    requires LinearSorted(encryptionContext)
+    ensures |LinearToSeq(encryptionContext, lo, hi)| == LinearLength(encryptionContext, lo, hi)
   {
     /**** Here's a more detailed proof:
     if lo < hi {
       var kvPair := kvPairs[hi - 1];
       calc {
-        |KVPairEntriesToSeq(kvPairs, lo, hi)|;
-      ==  // def. KVPairEntriesToSeq
-        |KVPairEntriesToSeq(kvPairs, lo, hi - 1) + KVPairToSeq(kvPair)|;
+        |LinearToSeq(kvPairs, lo, hi)|;
+      ==  // def. LinearToSeq
+        |LinearToSeq(kvPairs, lo, hi - 1) + KVPairToSeq(kvPair)|;
       ==
-        |KVPairEntriesToSeq(kvPairs, lo, hi - 1)| + |KVPairToSeq(kvPair)|;
-      ==  { KVPairEntriesLengthCorrect(kvPairs, lo, hi - 1); }
-        KVPairEntriesLength(kvPairs, lo, hi - 1) + |KVPairToSeq(kvPair)|;
+        |LinearToSeq(kvPairs, lo, hi - 1)| + |KVPairToSeq(kvPair)|;
+      ==  { LinearLengthCorrect(kvPairs, lo, hi - 1); }
+        LinearLength(kvPairs, lo, hi - 1) + |KVPairToSeq(kvPair)|;
       ==  // def. KVPairToSeq
-        KVPairEntriesLength(kvPairs, lo, hi - 1) +
+        LinearLength(kvPairs, lo, hi - 1) +
         |UInt16ToSeq(|kvPair.0| as uint16) + kvPair.0 + UInt16ToSeq(|kvPair.1| as uint16) + kvPair.1|;
       ==
-        KVPairEntriesLength(kvPairs, lo, hi - 1) + 2 + |kvPair.0| + 2 + |kvPair.1|;
-      ==  // def. KVPairEntriesLength
-        KVPairEntriesLength(kvPairs, lo, hi);
+        LinearLength(kvPairs, lo, hi - 1) + 2 + |kvPair.0| + 2 + |kvPair.1|;
+      ==  // def. LinearLength
+        LinearLength(kvPairs, lo, hi);
       }
     }
     ****/

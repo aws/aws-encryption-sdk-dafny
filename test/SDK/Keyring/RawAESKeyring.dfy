@@ -155,7 +155,7 @@ module TestAESKeyring {
     expect serializedEDKCiphertext == ciphertext + authTag;
   }
 
-  method generateUnserializableEncryptionContext(keyA: UTF8.ValidUTF8Bytes) returns (encCtx: EncryptionContext.T)
+  method generateUnserializableEncryptionContext(keyA: UTF8.ValidUTF8Bytes) returns (encCtx: EncryptionContext.Map)
   {
     var invalidVal := seq(0x1_0000, _ => 0);
     AssumeLongSeqIsValidUTF8(invalidVal);

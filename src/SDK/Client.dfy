@@ -37,17 +37,17 @@ module {:extern "ESDKClient"} ESDKClient {
  /*
   * Encrypt a plaintext and serialize it into a message.
   */
-  method Encrypt(plaintext: seq<uint8>, cmm: CMMDefs.CMM, optEncryptionContext: Option<EncryptionContext.T>, algorithmSuiteID: Option<AlgorithmSuite.ID>, optFrameLength: Option<uint32>) returns (res: Result<seq<uint8>>)
+  method Encrypt(plaintext: seq<uint8>, cmm: CMMDefs.CMM, optEncryptionContext: Option<EncryptionContext.Map>, algorithmSuiteID: Option<AlgorithmSuite.ID>, optFrameLength: Option<uint32>) returns (res: Result<seq<uint8>>)
     requires cmm.Valid()
     requires optFrameLength.Some? ==> optFrameLength.get != 0
-    requires optEncryptionContext.Some? ==> optEncryptionContext.get.Keys !! Materials.ReservedKeyValues && EncryptionContext.ValidAAD(optEncryptionContext.get)
+    requires optEncryptionContext.Some? ==> optEncryptionContext.get.Keys !! Materials.ReservedKeyValues && EncryptionContext.Valid(optEncryptionContext.get)
     modifies cmm.Repr
     ensures cmm.Valid() && fresh(cmm.Repr - old(cmm.Repr))
   {
     var encryptionContext := optEncryptionContext.GetOrElse(map[]);
-    assert EncryptionContext.ValidAAD(encryptionContext) by {
-      reveal EncryptionContext.ValidAAD();
-      assert EncryptionContext.ValidAAD(encryptionContext);
+    assert EncryptionContext.Valid(encryptionContext) by {
+      reveal EncryptionContext.Valid();
+      assert EncryptionContext.Valid(encryptionContext);
     }
     var frameLength := if optFrameLength.Some? then optFrameLength.get else DEFAULT_FRAME_LENGTH;
     

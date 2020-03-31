@@ -171,14 +171,14 @@ module CachingCMMDef {
       ensures res.Success? ==> res.value.plaintextDataKey.Some? && res.value.algorithmSuiteID.ValidPlaintextDataKey(res.value.plaintextDataKey.get)
       ensures res.Success? && res.value.algorithmSuiteID.SignatureType().Some? ==> res.value.verificationKey.Some?
     {
-      var kvPairsLength := EncryptionContext.ComputeKVPairsLength(materialsRequest.encryptionContext);
+      var kvPairsLength := EncryptionContext.ComputeLength(materialsRequest.encryptionContext);
       if UINT16_LIMIT <= kvPairsLength {
         return Failure("encryption context too large");
       } else if !EncryptionContext.ValidKVPairs(materialsRequest.encryptionContext) {
         return Failure("malformed encryption context");
       }
-      assert EncryptionContext.ValidAAD(materialsRequest.encryptionContext) by {
-        reveal EncryptionContext.ValidAAD();
+      assert EncryptionContext.Valid(materialsRequest.encryptionContext) by {
+        reveal EncryptionContext.Valid();
       }
 
       var cacheID :- ComputeCacheID(Some(materialsRequest.algorithmSuiteID), materialsRequest.encryptionContext);
@@ -207,8 +207,8 @@ module CachingCMMDef {
   }
 
 
-  method ComputeCacheID(algSuiteID: Option<AlgorithmSuite.ID>, encCtx: EncryptionContext.T) returns (res: Result<seq<uint8>>)
-    requires EncryptionContext.ValidAAD(encCtx)
+  method ComputeCacheID(algSuiteID: Option<AlgorithmSuite.ID>, encCtx: EncryptionContext.Map) returns (res: Result<seq<uint8>>)
+    requires EncryptionContext.Valid(encCtx)
   {
     var wr := new Streams.ByteWriter();
 
@@ -233,7 +233,7 @@ module CachingCMMDef {
   predicate GoodEncMat(encMat: Materials.EncryptionMaterials) {
     encMat.Valid() &&
     |encMat.encryptedDataKeys| > 0 &&
-    EncryptionContext.ValidAAD(encMat.encryptionContext)
+    EncryptionContext.Valid(encMat.encryptionContext)
   }
 
   predicate GoodDecMat(decMat: Materials.DecryptionMaterials) {
