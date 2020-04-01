@@ -7,7 +7,6 @@ using CMMDefs;
 using KeyringDefs;
 using Dafny;
 using ibyteseq = Dafny.ISequence<byte>;
-using icharseq = Dafny.ISequence<char>;
 using encryptioncontext = Dafny.Map<Dafny.ISequence<byte>, Dafny.ISequence<byte>>;
 
 namespace AWSEncryptionSDK
