@@ -49,18 +49,8 @@ namespace AWSEncryptionSDK
             internal ESDKClient.EncryptRequest GetDafnyRequest() {
                 if (this.plaintext == null) {
                     throw new ArgumentNullException("EncryptRequest.plaintext must not be null.");
-                } else if (this.cmm == null && this.keyring == null) {
-                    throw new ArgumentNullException("EncryptRequest.cmm and EncryptRequest.keyring cannot both be null.");
-                } else if (this.cmm != null && this.keyring != null) {
-                    throw new ArgumentException("EncryptRequest.keyring OR EncryptRequest.cmm must be set (not both).");
                 } else if (this.encryptionContext == null) {
                     throw new ArgumentNullException("EncryptRequest.encryptionContext must not be null.");
-                } else if (this.algorithmSuiteID != null && !AlgorithmSuite.__default.VALID__IDS.Elements.Contains((ushort)this.algorithmSuiteID)) {
-                    throw new ArgumentException("Invalid algorithm suite.");
-                }
-
-                if (this.cmm == null) {
-                    this.cmm = CMMs.MakeDefaultCMM(this.keyring);
                 }
 
                 var dafnyPlaintext = DafnyFFI.SequenceFromMemoryStream(this.plaintext);
@@ -69,6 +59,7 @@ namespace AWSEncryptionSDK
                 return new ESDKClient.EncryptRequest{
                     plaintext = dafnyPlaintext,
                     cmm = this.cmm,
+                    keyring = this.keyring,
                     plaintextLength = new BigInteger(dafnyPlaintext.Count),
                     encryptionContext = ToDafnyEncryptionContext(this.encryptionContext),
                     algorithmSuiteID = optionalAlgID,
@@ -85,21 +76,14 @@ namespace AWSEncryptionSDK
             internal ESDKClient.DecryptRequest GetDafnyRequest() {
                 if (this.message == null) {
                     throw new ArgumentNullException("DecryptRequest.message must not be null.");
-                } else if (this.cmm == null && this.keyring == null) {
-                    throw new ArgumentNullException("DecryptRequest.cmm and DecryptRequest.keyring cannot both be null.");
-                } else if (this.cmm != null && this.keyring != null) {
-                    throw new ArgumentException("DecryptRequest.keyring OR DecryptRequest.cmm must be set (not both).");
-                }
-
-                if (this.cmm == null) {
-                    this.cmm = CMMs.MakeDefaultCMM(this.keyring);
                 }
 
                 var dafnyMessage = DafnyFFI.SequenceFromMemoryStream(this.message);
 
                 return new ESDKClient.DecryptRequest{
                     message = dafnyMessage,
-                    cmm = this.cmm
+                    cmm = this.cmm,
+                    keyring = this.keyring
                 };
             }
         }

@@ -38,22 +38,25 @@ module {:extern "ESDKClient"} ESDKClient {
 
   class EncryptRequest {
     var plaintext: seq<uint8>
-    var cmm: CMMDefs.CMM
+    var cmm: CMMDefs.CMM?
+    var keyring: KeyringDefs.Keyring?
     var plaintextLength: nat
     var encryptionContext: Materials.EncryptionContext
-    var algorithmSuiteID: Option<AlgorithmSuite.ID>
+    var algorithmSuiteID: Option<uint16>
     var frameLength: Option<uint32>
 
     constructor WithKeyring(plaintext: seq<uint8>, keyring: KeyringDefs.Keyring)
       requires keyring.Valid()
       ensures |this.plaintext| == this.plaintextLength
-      ensures this.cmm.Valid()
+      ensures this.keyring == keyring
       ensures this.encryptionContext == map[]
+      ensures this.cmm == null
       ensures this.algorithmSuiteID.None?
       ensures this.frameLength.None?
     {
       this.plaintext := plaintext;
-      this.cmm := new DefaultCMMDef.DefaultCMM.OfKeyring(keyring);
+      this.cmm := null;
+      this.keyring := keyring;
       this.plaintextLength := |plaintext|;
       this.encryptionContext := map[];
       this.algorithmSuiteID := None;
@@ -63,34 +66,36 @@ module {:extern "ESDKClient"} ESDKClient {
     constructor WithCMM(plaintext: seq<uint8>, cmm: CMMDefs.CMM)
       requires cmm.Valid()
       ensures |this.plaintext| == this.plaintextLength
-      ensures this.cmm == cmm && this.cmm.Valid()
+      ensures this.cmm == cmm
       ensures this.encryptionContext == map[]
+      ensures this.keyring == null
       ensures this.algorithmSuiteID.None?
       ensures this.frameLength.None?
     {
       this.plaintext := plaintext;
       this.cmm := cmm;
+      this.keyring := null;
       this.plaintextLength := |plaintext|;
       this.encryptionContext := map[];
       this.algorithmSuiteID := None;
       this.frameLength := None;
     }
 
-    method EncryptionContext(encryptionContext: Materials.EncryptionContext)
+    method SetEncryptionContext(encryptionContext: Materials.EncryptionContext)
       modifies `encryptionContext
       ensures this.encryptionContext == encryptionContext
     {
       this.encryptionContext := encryptionContext;
     }
 
-    method AlgorithmSuiteID(algorithmSuiteID: AlgorithmSuite.ID)
+    method SetAlgorithmSuiteID(algorithmSuiteID: uint16)
       modifies `algorithmSuiteID
       ensures this.algorithmSuiteID == Some(algorithmSuiteID)
     {
       this.algorithmSuiteID := Some(algorithmSuiteID);
     }
 
-    method FrameLength(frameLength: uint32)
+    method SetFrameLength(frameLength: uint32)
       modifies `frameLength
       ensures this.frameLength == Some(frameLength)
     {
@@ -100,24 +105,29 @@ module {:extern "ESDKClient"} ESDKClient {
 
   class DecryptRequest {
     var message: seq<uint8>
-    var cmm: CMMDefs.CMM
+    var cmm: CMMDefs.CMM?
+    var keyring: KeyringDefs.Keyring?
 
     constructor WithCMM(message: seq<uint8>, cmm: CMMDefs.CMM)
       requires cmm.Valid()
       ensures this.message== message
       ensures this.cmm == cmm
+      ensures this.keyring == null
     {
       this.message := message;
       this.cmm := cmm;
+      this.keyring := null;
     }
 
     constructor WithKeyring(message: seq<uint8>, keyring: KeyringDefs.Keyring)
       requires keyring.Valid()
-      ensures this.message== message
-      ensures this.cmm.Valid()
+      ensures this.message == message
+      ensures this.keyring == keyring
+      ensures this.cmm == null
     {
       this.message := message;
-      this.cmm := new DefaultCMMDef.DefaultCMM.OfKeyring(keyring);
+      this.cmm := null;
+      this.keyring := keyring;
     }
   }
 
@@ -125,14 +135,19 @@ module {:extern "ESDKClient"} ESDKClient {
   * Encrypt a plaintext and serialize it into a message.
   */
   method Encrypt(request: EncryptRequest) returns (res: Result<seq<uint8>>)
-    requires request.cmm.Valid()
-    modifies request.cmm.Repr
-    ensures request.cmm.Valid() && fresh(request.cmm.Repr - old(request.cmm.Repr))
+    requires request.cmm != null ==> request.cmm.Valid()
+    requires request.keyring != null ==> request.keyring.Valid()
     ensures request.frameLength.Some? && request.frameLength.get == 0 ==> res.Failure?
     ensures request.encryptionContext.Keys * Materials.RESERVED_KEY_VALUES != {} ==> res.Failure?
     ensures !Msg.ValidAAD(request.encryptionContext) ==> res.Failure?
   {
-    if request.frameLength.Some? && request.frameLength.get == 0 {
+    if request.cmm != null && request.keyring != null {
+      return Failure("EncryptRequest.keyring OR EncryptRequest.cmm must be set (not both).");
+    } else if request.cmm == null && request.keyring == null {
+      return Failure("EncryptRequest.cmm and EncryptRequest.keyring cannot both be null.");
+    } else if request.algorithmSuiteID.Some? && request.algorithmSuiteID.get !in AlgorithmSuite.VALID_IDS {
+      return Failure("Invalid algorithmSuiteID.");
+    } else if request.frameLength.Some? && request.frameLength.get == 0 {
       return Failure("Request frameLength must be > 0");
     } else if !(request.encryptionContext.Keys !! Materials.RESERVED_KEY_VALUES) {
       return Failure("Invalid encryption context keys.");
@@ -143,10 +158,19 @@ module {:extern "ESDKClient"} ESDKClient {
       }
     }
 
+    var cmm: CMMDefs.CMM;
+    if request.keyring == null {
+      cmm := request.cmm;
+    } else {
+      cmm := new DefaultCMMDef.DefaultCMM.OfKeyring(request.keyring);
+    }
+
     var frameLength := if request.frameLength.Some? then request.frameLength.get else DEFAULT_FRAME_LENGTH;
 
-    var encMatRequest := Materials.EncryptionMaterialsRequest(request.encryptionContext, request.algorithmSuiteID, Some(request.plaintextLength as nat));
-    var encMat :- request.cmm.GetEncryptionMaterials(encMatRequest);
+    var algorithmSuiteID := if request.algorithmSuiteID.Some? then Some(request.algorithmSuiteID.get as AlgorithmSuite.ID) else None;
+
+    var encMatRequest := Materials.EncryptionMaterialsRequest(request.encryptionContext, algorithmSuiteID, Some(request.plaintextLength as nat));
+    var encMat :- cmm.GetEncryptionMaterials(encMatRequest);
     if UINT16_LIMIT <= |encMat.encryptedDataKeys| {
       return Failure("Number of EDKs exceeds the allowed maximum.");
     }
@@ -213,12 +237,26 @@ module {:extern "ESDKClient"} ESDKClient {
   * Deserialize a message and decrypt into a plaintext.
   */
   method Decrypt(request: DecryptRequest) returns (res: Result<seq<uint8>>)
-    requires request.cmm.Valid()
+    requires request.cmm != null ==> request.cmm.Valid()
+    requires request.keyring != null ==> request.keyring.Valid()
   {
+    if request.cmm != null && request.keyring != null {
+      return Failure("DecryptRequest.keyring OR DecryptRequest.cmm must be set (not both).");
+    } else if request.cmm == null && request.keyring == null {
+      return Failure("DecryptRequest.cmm and DecryptRequest.keyring cannot both be null.");
+    }
+
+    var cmm: CMMDefs.CMM;
+    if request.keyring == null {
+      cmm := request.cmm;
+    } else {
+      cmm := new DefaultCMMDef.DefaultCMM.OfKeyring(request.keyring);
+    }
+
     var rd := new Streams.ByteReader(request.message);
     var header :- Deserialize.DeserializeHeader(rd);
     var decMatRequest := Materials.DecryptionMaterialsRequest(header.body.algorithmSuiteID, header.body.encryptedDataKeys.entries, header.body.aad);
-    var decMat :- request.cmm.DecryptMaterials(decMatRequest);
+    var decMat :- cmm.DecryptMaterials(decMatRequest);
 
     var decryptionKey := DeriveKey(decMat.plaintextDataKey.get, decMat.algorithmSuiteID, header.body.messageID);
 

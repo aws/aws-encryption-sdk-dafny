@@ -240,21 +240,10 @@ namespace AWSEncryptionSDKTests
         {
             var nullRequest = new AWSEncryptionSDK.Client.EncryptRequest{plaintext = new MemoryStream()};
 
-            Assert.Throws<ArgumentNullException>(() =>
+            var ex = Assert.Throws<DafnyException>(() =>
             AWSEncryptionSDK.Client.Encrypt(nullRequest));
-        }
 
-        [Fact]
-        public void EncryptCMMKeyringOverload()
-        {
-            var tooMuch = new AWSEncryptionSDK.Client.EncryptRequest{
-                plaintext = new MemoryStream(),
-                cmm = MakeDefaultCMMWithKMSKeyring(),
-                keyring = MakeKMSKeyring()
-            };
-
-            Assert.Throws<ArgumentException>(() =>
-            AWSEncryptionSDK.Client.Encrypt(tooMuch));
+            Assert.Equal("EncryptRequest.cmm and EncryptRequest.keyring cannot both be null.", ex.Message);
         }
 
         [Fact]
@@ -264,41 +253,6 @@ namespace AWSEncryptionSDKTests
 
             Assert.Throws<ArgumentNullException>(() =>
             AWSEncryptionSDK.Client.Encrypt(nullCtx));
-        }
-
-        [Fact]
-        public void EncryptBadAlgorithSuiteID()
-        {
-            var badRequest = new AWSEncryptionSDK.Client.EncryptRequest{plaintext = new MemoryStream(), keyring = MakeKMSKeyring(), algorithmSuiteID = 1};
-
-            Assert.Throws<ArgumentException>(() =>
-            AWSEncryptionSDK.Client.Encrypt(badRequest));
-        }
-
-        [Fact]
-        public void EncryptFrameLengthZero()
-        {
-            var badRequest = new AWSEncryptionSDK.Client.EncryptRequest{plaintext = new MemoryStream(), keyring = MakeKMSKeyring(), frameLength = 0};
-
-            var exception = Assert.Throws<DafnyException>(() =>
-            AWSEncryptionSDK.Client.Encrypt(badRequest));
-
-            Assert.Equal("Request frameLength must be > 0", exception.Message);
-        }
-
-        [Fact]
-        public void EncryptInvalidEncryptionContextKeys()
-        {
-            var badRequest = new AWSEncryptionSDK.Client.EncryptRequest{
-                plaintext = new MemoryStream(),
-                keyring = MakeKMSKeyring(),
-                encryptionContext = new Dictionary<string, string>(){{"aws-crypto-public-key", "this string does not matter"}}
-            };
-
-            var exception = Assert.Throws<DafnyException>(() =>
-            AWSEncryptionSDK.Client.Encrypt(badRequest));
-
-            Assert.Equal("Invalid encryption context keys.", exception.Message);
         }
 
         [Fact]
@@ -315,21 +269,10 @@ namespace AWSEncryptionSDKTests
         {
             var nullRequest = new AWSEncryptionSDK.Client.DecryptRequest{message = new MemoryStream()};
 
-            Assert.Throws<ArgumentNullException>(() =>
+            var ex = Assert.Throws<DafnyException>(() =>
             AWSEncryptionSDK.Client.Decrypt(nullRequest));
-        }
 
-        [Fact]
-        public void DecryptCMMKeyringOverload()
-        {
-            var tooMuch = new AWSEncryptionSDK.Client.DecryptRequest{
-                message = new MemoryStream(),
-                cmm = MakeDefaultCMMWithKMSKeyring(),
-                keyring = MakeKMSKeyring()
-            };
-
-            Assert.Throws<ArgumentException>(() =>
-            AWSEncryptionSDK.Client.Decrypt(tooMuch));
+            Assert.Equal("DecryptRequest.cmm and DecryptRequest.keyring cannot both be null.", ex.Message);
         }
 
         // TODO-RS: Test for nulls and other Dafny requirement violations
