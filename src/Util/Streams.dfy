@@ -45,8 +45,10 @@ module Streams {
     method ReadExact(n: nat) returns (res: Result<seq<T>>)
       requires Valid()
       modifies `pos
+      ensures n + old(pos) <= |data| <==> res.Success?
       ensures res.Success? ==> |res.value| == n
       ensures res.Success? ==> pos == old(pos) + n
+      ensures res.Success? ==> res.value == data[old(pos)..old(pos) + n]
       ensures res.Failure? ==> n > |data| - pos
       ensures res.Failure? ==> pos == old(pos)
       ensures data == old(data)
@@ -87,8 +89,9 @@ module Streams {
       modifies reader`pos
       ensures res.Failure? ==> |reader.data| - reader.pos < 1
       ensures res.Failure? ==> unchanged(reader)
-      ensures res.Success? ==> !unchanged(reader`pos)
       ensures res.Success? ==> reader.pos == old(reader.pos) + 1
+      ensures old(reader.pos) + 1 <= |old(reader.data)| <==> res.Success?
+      ensures res.Success? ==> res.value == reader.data[old(reader.pos)]
       ensures reader.data == old(reader.data)
       ensures Valid()
     {
@@ -104,8 +107,9 @@ module Streams {
       ensures res.Failure? ==> unchanged(reader)
       ensures res.Success? ==> |res.value| == n
       ensures res.Success? && |res.value| == 0 ==> unchanged(reader)
-      ensures res.Success? && |res.value| > 0 ==> !unchanged(reader`pos)
       ensures res.Success? ==> reader.pos == old(reader.pos) + n
+      ensures old(reader.pos) + n <= |old(reader.data)| <==> res.Success?
+      ensures res.Success? ==> res.value == reader.data[old(reader.pos)..old(reader.pos) + n]
       ensures reader.data == old(reader.data)
       ensures Valid()
     {
@@ -119,8 +123,9 @@ module Streams {
       modifies reader`pos
       ensures res.Failure? ==> |reader.data| - reader.pos < 2
       ensures res.Failure? ==> unchanged(reader)
-      ensures res.Success? ==> !unchanged(reader`pos)
       ensures res.Success? ==> reader.pos == old(reader.pos) + 2
+      ensures old(reader.pos) + 2 <= |old(reader.data)| <==> res.Success?
+      ensures res.Success? ==> res.value == SeqToUInt16(reader.data[old(reader.pos)..old(reader.pos) + 2])
       ensures reader.data == old(reader.data)
       ensures Valid()
     {
@@ -133,10 +138,10 @@ module Streams {
     method ReadUInt32() returns (res: Result<uint32>)
       requires Valid()
       modifies reader`pos
-      ensures res.Failure? ==> |reader.data| - reader.pos < 4
       ensures res.Failure? ==> unchanged(reader)
-      ensures res.Success? ==> !unchanged(reader`pos)
       ensures res.Success? ==> reader.pos == old(reader.pos) + 4
+      ensures old(reader.pos) + 4 <= |old(reader.data)| <==> res.Success?
+      ensures res.Success? ==> res.value == SeqToUInt32(reader.data[old(reader.pos)..old(reader.pos) + 4])
       ensures reader.data == old(reader.data)
       ensures Valid()
     {
@@ -151,8 +156,9 @@ module Streams {
       modifies reader`pos
       ensures res.Failure? ==> |reader.data| - reader.pos < 8
       ensures res.Failure? ==> unchanged(reader)
-      ensures res.Success? ==> !unchanged(reader`pos)
       ensures res.Success? ==> reader.pos == old(reader.pos) + 8
+      ensures old(reader.pos) + 8 <= |old(reader.data)| <==> res.Success?
+      ensures res.Success? ==> res.value == SeqToUInt64(reader.data[old(reader.pos)..old(reader.pos) + 8])
       ensures reader.data == old(reader.data)
       ensures Valid()
     {
