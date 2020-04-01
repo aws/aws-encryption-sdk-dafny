@@ -49,5 +49,9 @@ module {:extern "HMAC"} HMAC {
       ensures this.GetInputSoFar() == []
       ensures this.GetDigest() == old(this.GetDigest())
       ensures this.GetKey() == old(this.GetKey())
+      ensures this.HashMock(old(this.GetInputSoFar())) == s;
+
+    function {:axiom} HashMock(message: seq<uint8>): (s: seq<uint8>)
+      ensures |s| == GetHashLength(this.GetDigest())
   }
 }

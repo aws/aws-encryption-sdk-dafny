@@ -36,6 +36,30 @@ module HKDF {
     return prk;
   }
 
+  function T(hmac: HMac, info: seq<uint8>, n: nat): seq<uint8>
+    requires 0 <= n < 256	
+    decreases n
+  {	
+    if n == 0 then [] else	
+      T(hmac, info, n-1) + Ti(hmac, info, n)	
+  }
+
+  function Ti(hmac: HMac, info: seq<uint8>, n: nat): seq<uint8>
+    requires 0 <= n < 256
+    decreases n, 1
+  {
+    if n == 0 then [] else
+    hmac.HashMock(PreTi(hmac, info, n))
+  }
+
+    // return T (i)
+  function PreTi(hmac: HMac, info: seq<uint8>, n: nat): seq<uint8>
+    requires 1 <= n < 256
+    decreases n, 0
+  {
+    Ti(hmac, info, n-1) + info + [(n as uint8)]
+  }
+
   method Expand(hmac: HMac, prk: seq<uint8>, info: seq<uint8>, expectedLength: int, digest: Digests, ghost salt: seq<uint8>) returns (okm: seq<uint8>)
     requires hmac.GetDigest() == digest
     requires 1 <= expectedLength <= 255 * GetHashLength(hmac.GetDigest())
@@ -46,6 +70,11 @@ module HKDF {
     modifies hmac
     ensures |okm| == expectedLength
     ensures hmac.GetKey() == prk
+    ensures var n := (GetHashLength(hmac.GetDigest()) + expectedLength - 1) / GetHashLength(hmac.GetDigest());
+                0 <= n < 256 &&
+            var res := T(hmac, info, n);
+             && |res| <= expectedLength ==> okm == res
+             && |res| > expectedLength ==> okm == res[..expectedLength]
   {
     // N = ceil(L / Hash Length)
     var hashLength := GetHashLength(digest);
@@ -69,20 +98,27 @@ module HKDF {
       invariant hmac.GetKey() == prk
       invariant hmac.GetDigest() == digest
       invariant hmac.GetInputSoFar() == []
+      invariant Ti(hmac, info, i-1) == t_prev
+      invariant t_n == T(hmac, info, i-1)
     {
       hmac.Update(t_prev);
       hmac.Update(info);
       hmac.Update([i as uint8]);
       assert hmac.GetInputSoFar() == t_prev + info + [i as uint8];
+      
 
       // Add additional verification for T(n): github.com/awslabs/aws-encryption-sdk-dafny/issues/177
-      t_prev := hmac.GetResult();
+      t_prev := hmac.GetResult(); 
+      //t_n == T(i-1)
       t_n := t_n + t_prev;
+      //t_n == T(i) == T(i-1)+Ti(i) correct
       i := i + 1;
     }
 
     // okm = first L (expectedLength) bytes of T(n)
     okm := t_n;
+    assert okm == T(hmac, info, n);
+
     if |okm| > expectedLength {
       okm := okm[..expectedLength];
     }
