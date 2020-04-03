@@ -87,7 +87,7 @@ module {:extern "TestUtils"} TestUtils {
       var keys: seq<UTF8.ValidUTF8Bytes> := SetToOrderedSequence(encryptionContext.Keys, UInt.UInt8Less);
       var kvPairs := seq(|keys|, i requires 0 <= i < |keys| => (keys[i], encryptionContext[keys[i]]));
       KVPairsLengthBound(kvPairs, |kvPairs|, 200);
-      assert MessageHeader.KVPairEntriesLength(kvPairs, 0, |kvPairs|) <= 5 * 204;
+      assert MessageHeader.KVPairEntriesLength(kvPairs, 0, |kvPairs|) <= (5 * 204) as nat;
     }
   }
 
