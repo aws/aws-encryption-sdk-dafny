@@ -36,28 +36,32 @@ module HKDF {
     return prk;
   }
 
-  function T(hmac: HMac, info: seq<uint8>, n: nat): seq<uint8>
+  predicate T(hmac: HMac, info: seq<uint8>, n: nat, res: seq<uint8>)
     requires 0 <= n < 256	
     decreases n
   {	
-    if n == 0 then [] else	
-      T(hmac, info, n-1) + Ti(hmac, info, n)	
+    if n == 0 then 
+      [] == res
+    else 
+      exists prev1, prev2 :: T(hmac, info, n-1, prev1) && Ti(hmac, info, n, prev2) && prev1 + prev2 == res	
   }
 
-  function Ti(hmac: HMac, info: seq<uint8>, n: nat): seq<uint8>
+  predicate Ti(hmac: HMac, info: seq<uint8>, n: nat, res: seq<uint8>)
     requires 0 <= n < 256
     decreases n, 1
   {
-    if n == 0 then [] else
-    hmac.HashMock(PreTi(hmac, info, n))
+    if n == 0 then 
+      res == []
+    else
+      exists prev :: PreTi(hmac, info, n, prev) &&  hmac.HashSignature(prev, res)
   }
 
     // return T (i)
-  function PreTi(hmac: HMac, info: seq<uint8>, n: nat): seq<uint8>
+  predicate PreTi(hmac: HMac, info: seq<uint8>, n: nat, res: seq<uint8>)
     requires 1 <= n < 256
     decreases n, 0
   {
-    Ti(hmac, info, n-1) + info + [(n as uint8)]
+    exists prev | Ti(hmac, info, n-1, prev) :: res == prev + info + [(n as uint8)]
   }
 
   method Expand(hmac: HMac, prk: seq<uint8>, info: seq<uint8>, expectedLength: int, digest: Digests, ghost salt: seq<uint8>) returns (okm: seq<uint8>)
@@ -72,7 +76,8 @@ module HKDF {
     ensures hmac.GetKey() == prk
     ensures var n := (GetHashLength(hmac.GetDigest()) + expectedLength - 1) / GetHashLength(hmac.GetDigest());
                 0 <= n < 256 &&
-            var res := T(hmac, info, n);
+            exists res ::
+                T(hmac, info, n, res)
              && |res| <= expectedLength ==> okm == res
              && |res| > expectedLength ==> okm == res[..expectedLength]
   {
@@ -98,8 +103,8 @@ module HKDF {
       invariant hmac.GetKey() == prk
       invariant hmac.GetDigest() == digest
       invariant hmac.GetInputSoFar() == []
-      invariant Ti(hmac, info, i-1) == t_prev
-      invariant t_n == T(hmac, info, i-1)
+      invariant T(hmac, info, i-1, t_n)
+      invariant Ti(hmac, info, i-1, t_prev)
     {
       hmac.Update(t_prev);
       hmac.Update(info);
@@ -110,6 +115,9 @@ module HKDF {
       // Add additional verification for T(n): github.com/awslabs/aws-encryption-sdk-dafny/issues/177
       t_prev := hmac.GetResult(); 
       //t_n == T(i-1)
+      assert T(hmac, info, i-1, t_n); 
+      assert Ti(hmac, info, i, t_prev) ;
+
       t_n := t_n + t_prev;
       //t_n == T(i) == T(i-1)+Ti(i) correct
       i := i + 1;
@@ -117,7 +125,7 @@ module HKDF {
 
     // okm = first L (expectedLength) bytes of T(n)
     okm := t_n;
-    assert okm == T(hmac, info, n);
+    assert T(hmac, info, n, okm);
 
     if |okm| > expectedLength {
       okm := okm[..expectedLength];
