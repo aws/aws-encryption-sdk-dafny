@@ -84,10 +84,20 @@ module {:extern "TestUtils"} TestUtils {
   {
     reveal MessageHeader.ValidAAD();
     assert MessageHeader.KVPairsLength(encryptionContext) < UINT16_LIMIT by {
-      var keys: seq<UTF8.ValidUTF8Bytes> := SetToOrderedSequence(encryptionContext.Keys, UInt.UInt8Less);
-      var kvPairs := seq(|keys|, i requires 0 <= i < |keys| => (keys[i], encryptionContext[keys[i]]));
-      KVPairsLengthBound(kvPairs, |kvPairs|, 200);
-      assert MessageHeader.KVPairEntriesLength(kvPairs, 0, |kvPairs|) <= (5 * 204) as nat;
+      if |encryptionContext| != 0 {
+        var keys: seq<UTF8.ValidUTF8Bytes> := SetToOrderedSequence(encryptionContext.Keys, UInt.UInt8Less);
+        var kvPairs := seq(|keys|, i requires 0 <= i < |keys| => (keys[i], encryptionContext[keys[i]]));
+        assert MessageHeader.KVPairsLength(encryptionContext) ==
+          2 + MessageHeader.KVPairEntriesLength(kvPairs, 0, |kvPairs|);
+
+        var n := |kvPairs|;
+        assert n <= 5;
+        
+        assert MessageHeader.KVPairEntriesLength(kvPairs, 0, n) <= n * 204 by {
+          KVPairsLengthBound(kvPairs, |kvPairs|, 200);
+        }
+        assert n * 204 <= 1020 < UINT16_LIMIT;
+      }
     }
   }
 
