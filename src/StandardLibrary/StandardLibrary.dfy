@@ -45,13 +45,13 @@ module {:extern "STL"} StandardLibrary {
     }
   }
 
-  function method Join<T>(ss: seq<seq<T>>, joiner: seq<T>): (s: seq<T>)
+  function method {:tailrecursion} Join<T>(ss: seq<seq<T>>, joiner: seq<T>): (s: seq<T>)
     requires 0 < |ss|
   {
     if |ss| == 1 then ss[0] else ss[0] + joiner + Join(ss[1..], joiner)
   }
 
-  function method Split<T(==)>(s: seq<T>, delim: T): (res: seq<seq<T>>)
+  function method {:tailrecursion} Split<T(==)>(s: seq<T>, delim: T): (res: seq<seq<T>>)
     ensures delim !in s ==> res == [s]
     ensures s == [] ==> res == [[]]
     ensures 0 < |res|
@@ -112,7 +112,7 @@ module {:extern "STL"} StandardLibrary {
     FindIndex(s, x => x == c, i)
   }
 
-  function method FindIndex<T>(s: seq<T>, f: T -> bool, i: nat): (index: Option<nat>)
+  function method {:tailrecursion} FindIndex<T>(s: seq<T>, f: T -> bool, i: nat): (index: Option<nat>)
     requires i <= |s|
     ensures index.Some? ==> i <= index.get < |s| && f(s[index.get]) && (forall j :: i <= j < index.get ==> !f(s[j]))
     ensures index.None? ==> forall j :: i <= j < |s| ==> !f(s[j])
@@ -123,13 +123,13 @@ module {:extern "STL"} StandardLibrary {
     else FindIndex(s, f, i + 1)
   }
 
-  function method Filter<T>(s: seq<T>, f: T -> bool): (res: seq<T>)
+  function method {:tailrecursion} Filter<T>(s: seq<T>, f: T -> bool): (res: seq<T>)
     ensures forall i :: 0 <= i < |s| && f(s[i]) ==> s[i] in res
     ensures forall i :: 0 <= i < |res| ==> res[i] in s && f(res[i])
     ensures |res| <= |s|
   {
     if |s| == 0 then []
-    else if f(s[0]) then ([s[0]] + Filter(s[1..], f))
+    else if f(s[0]) then [s[0]] + Filter(s[1..], f)
     else Filter(s[1..], f)
   }
 
@@ -346,7 +346,7 @@ module {:extern "STL"} StandardLibrary {
    * The function is compilable, but will not exhibit enviable performance.
    */
 
-  function method SetToOrderedSequence<T(!new,==)>(s: set<seq<T>>, less: (T, T) -> bool): (q: seq<seq<T>>)
+  function method {:tailrecursion} SetToOrderedSequence<T(!new,==)>(s: set<seq<T>>, less: (T, T) -> bool): (q: seq<seq<T>>)
     requires Trichotomous(less) && Transitive(less)
     ensures |s| == |q|
     ensures forall i :: 0 <= i < |q| ==> q[i] in s
