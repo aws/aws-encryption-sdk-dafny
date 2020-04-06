@@ -92,5 +92,6 @@ module {:extern "DefaultCMMTests"} DefaultCMMTests {
     var shouldBeFail := cmm.GetEncryptionMaterials(Materials.EncryptionMaterialsRequest(encCtx, None, None));
 
     expect shouldBeFail.Failure?, "GetEncryptionMaterials returned Success with bad input";
+    return Success(());
   }
 }
