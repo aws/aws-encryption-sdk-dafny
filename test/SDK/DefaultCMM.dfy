@@ -84,12 +84,21 @@ module {:extern "DefaultCMMTests"} DefaultCMMTests {
     return Success(());
   }
 
-  method {:test} TestDefaultCMMRejectsBadEncCtx() returns (res: Result<()>) {
+  method {:test} TestDefaultCMMRejectsBadEncCtxReservedValue() returns (res: Result<()>) {
     var keyring :- TestUtils.MakeRSAKeyring();
     var cmm := new DefaultCMMDef.DefaultCMM.OfKeyring(keyring);
     var encCtx: Materials.EncryptionContext := map[];
     encCtx := encCtx[Materials.EC_PUBLIC_KEY_FIELD := [0x00]];
     var shouldBeFail := cmm.GetEncryptionMaterials(Materials.EncryptionMaterialsRequest(encCtx, None, None));
+
+    expect shouldBeFail.Failure?, "GetEncryptionMaterials returned Success with bad input";
+  }
+
+  method {:test} TestDefaultCMMRejectsBadEncCtxTooBig() returns (res: Result<()>) {
+    var keyring :- TestUtils.MakeRSAKeyring();
+    var cmm := new DefaultCMMDef.DefaultCMM.OfKeyring(keyring);
+    var encryptionContext := TestUtils.GenerateInvalidEncryptionContext();
+    var shouldBeFail := cmm.GetEncryptionMaterials(Materials.EncryptionMaterialsRequest(encryptionContext, None, None));
 
     expect shouldBeFail.Failure?, "GetEncryptionMaterials returned Success with bad input";
   }

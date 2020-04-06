@@ -40,7 +40,6 @@ namespace AWSEncryptionSDK
             public MemoryStream plaintext { get; set;}
             public CMM cmm { get; set;}
             public Keyring keyring { get; set;}
-            //public int? plaintextLength { get; set;}
             public Dictionary<string, string> encryptionContext{ get; set;} = new Dictionary<string, string>() ;
             public ushort? algorithmSuiteID { get; set;}
             public uint? frameLength { get; set;}

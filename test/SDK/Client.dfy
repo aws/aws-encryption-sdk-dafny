@@ -113,19 +113,6 @@ module {:extern "TestClient"} TestClient {
     expect result.error == "Request frameLength must be > 0";
   }
 
-  method {:test} EncryptInvalidEncryptionContextKeys() {
-    var kr :- expect TestUtils.MakeRSAKeyring();
-    var badRequest := new Client.EncryptRequest.WithKeyring([0], kr);
-    badRequest.SetEncryptionContext(map[Materials.EC_PUBLIC_KEY_FIELD := [0]]);
-
-    var result := Client.Encrypt(badRequest);
-
-    expect result.Failure?;
-    expect result.error == "Invalid encryption context keys.";
-  }
-
-  // TODO: Test invalid EncCtx
-
   method {:test} DecryptCMMKeyringOverload() {
     var kr :- expect TestUtils.MakeRSAKeyring();
     var cmm := new DefaultCMMDef.DefaultCMM.OfKeyring(kr);

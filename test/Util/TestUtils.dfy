@@ -23,6 +23,21 @@ module {:extern "TestUtils"} TestUtils {
   lemma {:axiom} AssumeLongSeqIsValidUTF8(s: seq<uint8>)
     requires |s| >= 0x1000
     ensures UTF8.ValidUTF8Seq(s)
+
+  method GenerateInvalidEncryptionContext() returns (encCtx: Materials.EncryptionContext)
+    ensures !MessageHeader.ValidAAD(encCtx)
+  {
+    var validUTF8char: UTF8.ValidUTF8Bytes :- expect UTF8.Encode("a");
+    var key: UTF8.ValidUTF8Bytes := [];
+    while |key| < UINT16_LIMIT {
+      key := key + validUTF8char;
+    }
+    encCtx := encCtx[key := [0]];
+    assert !MessageHeader.ValidKVPair((key, encCtx[key]));
+    assert !MessageHeader.ValidKVPairs(encCtx);
+    reveal MessageHeader.ValidAAD();
+    assert !MessageHeader.ValidAAD(encCtx);
+  }
   
   // Generates a large encryption context that approaches the upper bounds of
   // what is able to be serialized in the message format.

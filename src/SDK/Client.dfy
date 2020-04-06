@@ -137,9 +137,9 @@ module {:extern "ESDKClient"} ESDKClient {
   method Encrypt(request: EncryptRequest) returns (res: Result<seq<uint8>>)
     requires request.cmm != null ==> request.cmm.Valid()
     requires request.keyring != null ==> request.keyring.Valid()
+    modifies if request.cmm == null then {} else request.cmm.Repr
+    ensures request.cmm != null ==> request.cmm.Valid()
     ensures request.frameLength.Some? && request.frameLength.get == 0 ==> res.Failure?
-    ensures request.encryptionContext.Keys * Materials.RESERVED_KEY_VALUES != {} ==> res.Failure?
-    ensures !Msg.ValidAAD(request.encryptionContext) ==> res.Failure?
   {
     if request.cmm != null && request.keyring != null {
       return Failure("EncryptRequest.keyring OR EncryptRequest.cmm must be set (not both).");
@@ -149,13 +149,6 @@ module {:extern "ESDKClient"} ESDKClient {
       return Failure("Invalid algorithmSuiteID.");
     } else if request.frameLength.Some? && request.frameLength.get == 0 {
       return Failure("Request frameLength must be > 0");
-    } else if !(request.encryptionContext.Keys !! Materials.RESERVED_KEY_VALUES) {
-      return Failure("Invalid encryption context keys.");
-    } else {
-      var validEncCtx := Msg.ComputeValidAAD(request.encryptionContext);
-      if !validEncCtx {
-        return Failure("Invalid encryption context.");
-      }
     }
 
     var cmm: CMMDefs.CMM;
