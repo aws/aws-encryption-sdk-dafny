@@ -1,12 +1,14 @@
+using System;
 using System.Linq;
 using System.Collections.Generic;
 using ibyteseq = Dafny.ISequence<byte>;
+using byteseq = Dafny.Sequence<byte>;
 
-namespace MessageHeader {
+namespace EncryptionContext {
 
   public partial class __default {
 
-    public static Dafny.Map<ibyteseq,ibyteseq> KVPairSequenceToMap(Dafny.ISequence<_System.Tuple2<ibyteseq,ibyteseq>> kvPairs) {
+    public static Dafny.Map<ibyteseq,ibyteseq> LinearToMap(Dafny.ISequence<_System.Tuple2<ibyteseq,ibyteseq>> kvPairs) {
         Dictionary<ibyteseq, ibyteseq> dict = kvPairs.Elements.ToDictionary(
             item => item._0,
             item => item._1);

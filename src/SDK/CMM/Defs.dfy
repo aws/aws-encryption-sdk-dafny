@@ -2,7 +2,7 @@ include "../Materials.dfy"
 include "../../StandardLibrary/StandardLibrary.dfy"
 include "../../StandardLibrary/UInt.dfy"
 include "../../Crypto/Signature.dfy"
-include "../MessageHeader.dfy"
+include "../EncryptionContext.dfy"
 
 module {:extern "CMMDefs"} CMMDefs {
   import opened StandardLibrary
@@ -10,7 +10,7 @@ module {:extern "CMMDefs"} CMMDefs {
   import Materials
   import AlgorithmSuite
   import Signature
-  import MessageHeader
+  import EncryptionContext
 
   trait {:termination false} CMM {
     ghost var Repr: set<object>
@@ -33,10 +33,10 @@ module {:extern "CMMDefs"} CMMDefs {
           case Some(sigType) =>
             res.value.signingKey.Some?
 
-    // The following predicate is a synonym for MessageHeader.ValidAAD and provides a workaround for a translation bug
+    // The following predicate is a synonym for Encryption.ValidAAD and provides a workaround for a translation bug
     // of "fuel" in trait-override checks in Dafny. https://github.com/dafny-lang/dafny/issues/422
-    predicate ValidAAD(encryptionContext: Materials.EncryptionContext) {
-      MessageHeader.ValidAAD(encryptionContext)
+    static predicate ValidAAD(encryptionContext: EncryptionContext.Map) {
+      EncryptionContext.Valid(encryptionContext)
     }
 
     method DecryptMaterials(materialsRequest: Materials.ValidDecryptionMaterialsRequest)
