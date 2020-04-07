@@ -86,10 +86,20 @@ module {:extern "TestUtils"} TestUtils {
   {
     reveal EncryptionContext.Valid();
     assert EncryptionContext.Length(encryptionContext) < UINT16_LIMIT by {
-      var keys: seq<UTF8.ValidUTF8Bytes> := SetToOrderedSequence(encryptionContext.Keys, UInt.UInt8Less);
-      var kvPairs := seq(|keys|, i requires 0 <= i < |keys| => (keys[i], encryptionContext[keys[i]]));
-      KVPairsLengthBound(kvPairs, |kvPairs|, 200);
-      assert EncryptionContext.LinearLength(kvPairs, 0, |kvPairs|) <= 5 * 204;
+      if |encryptionContext| != 0 {
+        var keys: seq<UTF8.ValidUTF8Bytes> := SetToOrderedSequence(encryptionContext.Keys, UInt.UInt8Less);
+        var kvPairs := seq(|keys|, i requires 0 <= i < |keys| => (keys[i], encryptionContext[keys[i]]));
+        assert EncryptionContext.Length(encryptionContext) ==
+          2 + EncryptionContext.LinearLength(kvPairs, 0, |kvPairs|);
+
+        var n := |kvPairs|;
+        assert n <= 5;
+        
+        assert EncryptionContext.LinearLength(kvPairs, 0, n) <= n * 204 by {
+          KVPairsLengthBound(kvPairs, |kvPairs|, 200);
+        }
+        assert n * 204 <= 1020 < UINT16_LIMIT;
+      }
     }
   }
 

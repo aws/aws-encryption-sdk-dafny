@@ -161,10 +161,9 @@ module TestStandardLibrary {
     var input: seq<int> := [1, 2, 3];
     var output := SeqToArray(input);
 
-    var expected := new int[3];
-    expected[0] := 1;
-    expected[1] := 2;
-    expected[2] := 3;
+    // unless an initializer is provided for the array elements, a new array of 'int' must have empty size
+    // fill with values to start (1, 2, 3)
+    var expected := new int[3](i => i + 1);
 
     expect expected.Length == output.Length;
     expect expected[0] == output[0];

@@ -13,7 +13,6 @@ using Org.BouncyCastle.Security;
 
 using ibyteseq = Dafny.ISequence<byte>;
 using byteseq = Dafny.Sequence<byte>;
-using icharseq = Dafny.ISequence<char>;
 using charseq = Dafny.Sequence<char>;
 
 namespace RSAEncryption {
@@ -85,7 +84,7 @@ namespace RSAEncryption {
             }
         }
 
-        public static void GenerateKeyPairBytes(int strength, PaddingMode padding, out byte[] publicKeyBytes, out byte[] privateKeyBytes) {
+        public static void GenerateKeyPairBytes(int strength, out byte[] publicKeyBytes, out byte[] privateKeyBytes) {
             RsaKeyPairGenerator keygen = new RsaKeyPairGenerator();
             SecureRandom secureRandom = new SecureRandom();
             keygen.Init(new RsaKeyGenerationParameters(
@@ -97,7 +96,7 @@ namespace RSAEncryption {
         public static void GenerateKeyPairExtern(int strength, PaddingMode padding, out ibyteseq publicKey, out ibyteseq privateKey) {
             byte[] publicKeyBytes;
             byte[] privateKeyBytes;
-            GenerateKeyPairBytes(strength, padding, out publicKeyBytes, out privateKeyBytes);
+            GenerateKeyPairBytes(strength, out publicKeyBytes, out privateKeyBytes);
             publicKey = byteseq.FromArray(publicKeyBytes);
             privateKey = byteseq.FromArray(privateKeyBytes);
         }

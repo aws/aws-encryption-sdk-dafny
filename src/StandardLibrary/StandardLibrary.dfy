@@ -112,7 +112,7 @@ module {:extern "STL"} StandardLibrary {
     FindIndex(s, x => x == c, i)
   }
 
-  function method {:tailrecursive} FindIndex<T>(s: seq<T>, f: T -> bool, i: nat): (index: Option<nat>)
+  function method {:tailrecursion} FindIndex<T>(s: seq<T>, f: T -> bool, i: nat): (index: Option<nat>)
     requires i <= |s|
     ensures index.Some? ==> i <= index.get < |s| && f(s[index.get]) && (forall j :: i <= j < index.get ==> !f(s[j]))
     ensures index.None? ==> forall j :: i <= j < |s| ==> !f(s[j])
