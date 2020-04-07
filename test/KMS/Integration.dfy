@@ -38,7 +38,7 @@ module IntegTestKMS {
     var encryptionContext := map[keyA := valA];
     assert EncryptionContext.Serializable(encryptionContext) by {
       // To prove EncryptionContext.Serializable, we need to reveal the definition of that predicate:
-      reveal EncryptionContext.Serializable();
+      EncryptionContext.RevealSerializable(encryptionContext);
       // We also need to help the verifier with proving the KVPairsLength is small:
       calc {
         EncryptionContext.Length(encryptionContext);

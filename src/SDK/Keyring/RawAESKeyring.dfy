@@ -111,7 +111,9 @@ module {:extern "RawAESKeyringDef"} RawAESKeyringDef {
 
       // EDK created using expected AAD
       ensures res.Success? ==>
-        && var encCtxSerializable := (reveal EncryptionContext.Serializable(); EncryptionContext.Serializable(materials.encryptionContext));
+        && var encCtxSerializable :=
+            (EncryptionContext.RevealSerializable(materials.encryptionContext);
+            EncryptionContext.Serializable(materials.encryptionContext));
         && |res.value.encryptedDataKeys| == |materials.encryptedDataKeys| + 1
         && encCtxSerializable
         && wrappingAlgorithm.tagLen as nat <= |res.value.encryptedDataKeys[|materials.encryptedDataKeys|].ciphertext|
@@ -138,7 +140,7 @@ module {:extern "RawAESKeyringDef"} RawAESKeyringDef {
       ensures !EncryptionContext.Serializable(materials.encryptionContext) ==> res.Failure?
     {
       // Check that the encryption context can be serialized correctly
-      reveal EncryptionContext.Serializable();
+      EncryptionContext.RevealSerializable(materials.encryptionContext);
       var valid := EncryptionContext.CheckSerializable(materials.encryptionContext);
       if !valid {
         return Failure("Unable to serialize encryption context");
@@ -192,7 +194,9 @@ module {:extern "RawAESKeyringDef"} RawAESKeyringDef {
 
       // Plaintext decrypted using expected AAD
       ensures res.Success? && materials.plaintextDataKey.None? && res.value.plaintextDataKey.Some? ==>
-        var encCtxSerializable := (reveal EncryptionContext.Serializable(); EncryptionContext.Serializable(materials.encryptionContext));
+        var encCtxSerializable :=
+            (EncryptionContext.RevealSerializable(materials.encryptionContext);
+            EncryptionContext.Serializable(materials.encryptionContext));
         && encCtxSerializable
         && AESEncryption.PlaintextDecryptedWithAAD(res.value.plaintextDataKey.get, EncryptionContext.MapToSeq(materials.encryptionContext))
 
@@ -212,7 +216,7 @@ module {:extern "RawAESKeyringDef"} RawAESKeyringDef {
       {
         if ShouldDecryptEDK(edks[i]) {
           // Check that the encryption context can be serialized correctly
-          reveal EncryptionContext.Serializable();
+          EncryptionContext.RevealSerializable(materials.encryptionContext);
           var valid := EncryptionContext.CheckSerializable(materials.encryptionContext);
           if !valid {
             return Failure("Unable to serialize encryption context");

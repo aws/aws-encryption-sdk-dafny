@@ -52,7 +52,7 @@ module {:extern "DefaultCMMDef"} DefaultCMMDef {
         Materials.EC_PUBLIC_KEY_FIELD in res.value.encryptionContext
       ensures res.Success? ==> res.value.plaintextDataKey.Some? && res.value.algorithmSuiteID.ValidPlaintextDataKey(res.value.plaintextDataKey.get)
       ensures res.Success? ==> |res.value.encryptedDataKeys| > 0
-      ensures res.Success? ==> ValidAAD(res.value.encryptionContext)
+      ensures res.Success? ==> EncryptionContext.Serializable(res.value.encryptionContext)
       ensures res.Success? ==>
         match materialsRequest.algorithmSuiteID
         case Some(id) => res.value.algorithmSuiteID == id
@@ -82,8 +82,8 @@ module {:extern "DefaultCMMDef"} DefaultCMMDef {
       }
 
       // Check validity of the encryption context at runtime.
-      var validAAD := EncryptionContext.CheckSerializable(enc_ctx);
-      if !validAAD {
+      var serializableEncCtx := EncryptionContext.CheckSerializable(enc_ctx);
+      if !serializableEncCtx {
         //TODO: Provide a more specific error message here, depending on how the EncCtx spec was violated.
         return Failure("Invalid Encryption Context");
       }

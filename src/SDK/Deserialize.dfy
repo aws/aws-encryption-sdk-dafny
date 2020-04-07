@@ -186,10 +186,9 @@ module Deserialize {
       case Success(aad) => EncryptionContext.Serializable(aad)
       case Failure(_) => true
   {
-    reveal EncryptionContext.Serializable();
-
     var kvPairsLength :- rd.ReadUInt16();
     if kvPairsLength == 0 {
+      EncryptionContext.RevealSerializable(map[]);
       return Success(map[]);
     } else if kvPairsLength < 2 {
       return Failure("Deserialization Error: The number of bytes in encryption context exceeds the given length.");
@@ -256,6 +255,7 @@ module Deserialize {
       return Failure("Deserialization Error: Failed to parse encryption context.");
     }
 
+    EncryptionContext.RevealSerializable(encryptionContext);
     return Success(encryptionContext);
   }
 

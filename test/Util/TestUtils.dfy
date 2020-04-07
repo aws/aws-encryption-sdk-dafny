@@ -58,7 +58,7 @@ module {:extern "TestUtils"} TestUtils {
     expect |encCtx| == numMaxPairs;
 
     assert EncryptionContext.Serializable(encCtx) by {
-      reveal EncryptionContext.Serializable();
+      EncryptionContext.RevealSerializable(encCtx);
       assert EncryptionContext.Length(encCtx) < UINT16_LIMIT by {
         var keys: seq<UTF8.ValidUTF8Bytes> := SetToOrderedSequence(encCtx.Keys, UInt.UInt8Less);
         var kvPairs := seq(|keys|, i requires 0 <= i < |keys| => (keys[i], encCtx[keys[i]]));
@@ -84,7 +84,7 @@ module {:extern "TestUtils"} TestUtils {
     requires forall k :: k in encryptionContext.Keys ==> |k| < 100 && |encryptionContext[k]| < 100
     ensures EncryptionContext.Serializable(encryptionContext)
   {
-    reveal EncryptionContext.Serializable();
+    EncryptionContext.RevealSerializable(encryptionContext);
     assert EncryptionContext.Length(encryptionContext) < UINT16_LIMIT by {
       if |encryptionContext| != 0 {
         var keys: seq<UTF8.ValidUTF8Bytes> := SetToOrderedSequence(encryptionContext.Keys, UInt.UInt8Less);

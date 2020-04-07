@@ -9,6 +9,20 @@ module {:extern "EncryptionContext"} EncryptionContext {
   import UTF8
   import Sets
 
+  export
+    reveals Map, Linear
+    provides UTF8, StandardLibrary, UInt
+    provides Serializable, RevealSerializable, CheckSerializable
+    reveals SerializableAux
+    reveals SerializableKVPairs, SerializableKVPair
+    reveals Length, LinearLength
+    provides ComputeLength
+    reveals MapToLinear
+    provides LinearToMap
+    reveals MapToSeq, LinearToSeq, KVPairToSeq
+    reveals LinearSorted, LinearSortedUpTo
+    provides LinearInsert
+    
   /*
    * The main type of encryption context
    */
@@ -19,9 +33,22 @@ module {:extern "EncryptionContext"} EncryptionContext {
    * Serializability predicates
    */
 
-  predicate {:opaque} Serializable(encryptionContext: Map) {
+  predicate Serializable(encryptionContext: Map) {
+    SerializableAux(encryptionContext)
+  }
+
+  predicate SerializableAux(encryptionContext: Map) {
     && SerializableKVPairs(encryptionContext)
     && Length(encryptionContext) < UINT16_LIMIT
+  }
+
+  // It most places in the source, the precise definition of Serializable is not relevant.
+  // Therefore, predicate Serializable is only export-provided by this module. But to
+  // In the places where the definition is actually needed, the following lemma can be called:
+
+  lemma RevealSerializable(encryptionContext: Map)
+    ensures Serializable(encryptionContext) == SerializableAux(encryptionContext)
+  {
   }
 
   predicate method SerializableKVPairs(encryptionContext: Map) {
@@ -153,7 +180,6 @@ module {:extern "EncryptionContext"} EncryptionContext {
   method ComputeLength(encryptionContext: Map) returns (res: nat)
     ensures res as nat == Length(encryptionContext)
   {
-    reveal Serializable();
     if |encryptionContext| == 0 {
       return 0;
     }
@@ -184,8 +210,6 @@ module {:extern "EncryptionContext"} EncryptionContext {
   method CheckSerializable(encryptionContext: Map) returns (res: bool)
     ensures res == Serializable(encryptionContext)
   {
-    reveal Serializable();
-
     if |encryptionContext| == 0 {
       return true;
     } else if |encryptionContext| >= UINT16_LIMIT {
@@ -242,7 +266,6 @@ module {:extern "EncryptionContext"} EncryptionContext {
   function MapToLinear(kvPairs: Map): seq<uint8>
     requires Serializable(kvPairs)
   {
-    reveal Serializable();
     UInt16ToSeq(Length(kvPairs) as uint16) +
     MapToSeq(kvPairs)
   }
@@ -288,7 +311,6 @@ module {:extern "EncryptionContext"} EncryptionContext {
     requires Serializable(encryptionContext)
     ensures |MapToLinear(encryptionContext)| == 2 + Length(encryptionContext)
   {
-    reveal Serializable();
     var keys: seq<UTF8.ValidUTF8Bytes> := SetToOrderedSequence(encryptionContext.Keys, UInt.UInt8Less);
     var kvPairs := seq(|keys|, i requires 0 <= i < |keys| => (keys[i], encryptionContext[keys[i]]));
     LinearLengthCorrect(kvPairs, 0, |kvPairs|);

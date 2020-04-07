@@ -27,9 +27,9 @@ module TestSerialize {
   }
 
   method {:test} TestSerializeAADEmpty() {
-    reveal EncryptionContext.Serializable();
     var wr := new Streams.ByteWriter();
     var encryptionContext := map[];
+    EncryptionContext.RevealSerializable(encryptionContext);
 
     var expectedSerializedAAD := [0, 0];
   
@@ -61,9 +61,9 @@ module TestSerialize {
   }
 
   method {:test} TestSerializeKVPairsEmpty() {
-    reveal EncryptionContext.Serializable();
     var wr := new Streams.ByteWriter();
     var encryptionContext := map[];
+    EncryptionContext.RevealSerializable(encryptionContext);
 
     var expectedSerializedAAD := [];
   

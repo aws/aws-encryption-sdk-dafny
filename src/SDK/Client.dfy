@@ -46,7 +46,7 @@ module {:extern "ESDKClient"} ESDKClient {
   {
     var encryptionContext := optEncryptionContext.GetOrElse(map[]);
     assert EncryptionContext.Serializable(encryptionContext) by {
-      reveal EncryptionContext.Serializable();
+      EncryptionContext.RevealSerializable(encryptionContext);
       assert EncryptionContext.Serializable(encryptionContext);
     }
     var frameLength := if optFrameLength.Some? then optFrameLength.get else DEFAULT_FRAME_LENGTH;
