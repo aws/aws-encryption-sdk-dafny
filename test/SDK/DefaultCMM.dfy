@@ -95,8 +95,8 @@ module {:extern "DefaultCMMTests"} DefaultCMMTests {
     return Success(());
   }
 
-  method {:test} TestDefaultCMMRejectsBadEncCtxTooBig() returns (res: Result<()>) {
-    var keyring :- TestUtils.MakeRSAKeyring();
+  method {:test} TestDefaultCMMRejectsBadEncCtxTooBig() {
+    var keyring :- expect TestUtils.MakeRSAKeyring();
     var cmm := new DefaultCMMDef.DefaultCMM.OfKeyring(keyring);
     var encryptionContext := TestUtils.GenerateInvalidEncryptionContext();
     var shouldBeFail := cmm.GetEncryptionMaterials(Materials.EncryptionMaterialsRequest(encryptionContext, None, None));

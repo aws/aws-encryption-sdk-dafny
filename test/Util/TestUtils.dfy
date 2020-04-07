@@ -32,7 +32,7 @@ module {:extern "TestUtils"} TestUtils {
     while |key| < UINT16_LIMIT {
       key := key + validUTF8char;
     }
-    encCtx := encCtx[key := [0]];
+    encCtx := map[key := [0]];
     assert !MessageHeader.ValidKVPair((key, encCtx[key]));
     assert !MessageHeader.ValidKVPairs(encCtx);
     reveal MessageHeader.ValidAAD();
