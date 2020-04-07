@@ -15,21 +15,21 @@ module {:extern "EncryptionContext"} EncryptionContext {
 
   type Map = map<UTF8.ValidUTF8Bytes, UTF8.ValidUTF8Bytes>
 
-  predicate {:opaque} Valid(encryptionContext: Map) {
-    && ValidKVPairs(encryptionContext)
+  /*
+   * Serializability predicates
+   */
+
+  predicate {:opaque} Serializable(encryptionContext: Map) {
+    && SerializableKVPairs(encryptionContext)
     && Length(encryptionContext) < UINT16_LIMIT
   }
 
-  /*
-   * Validity of key-value pairs in the encryption context
-   */
-
-  predicate method ValidKVPairs(encryptionContext: Map) {
+  predicate method SerializableKVPairs(encryptionContext: Map) {
     && |encryptionContext| < UINT16_LIMIT
-    && (forall key :: key in encryptionContext.Keys ==> ValidKVPair((key, encryptionContext[key])))
+    && (forall key :: key in encryptionContext.Keys ==> SerializableKVPair((key, encryptionContext[key])))
   }
 
-  predicate method ValidKVPair(kvPair: (UTF8.ValidUTF8Bytes, UTF8.ValidUTF8Bytes)) {
+  predicate method SerializableKVPair(kvPair: (UTF8.ValidUTF8Bytes, UTF8.ValidUTF8Bytes)) {
     && |kvPair.0| < UINT16_LIMIT
     && |kvPair.1| < UINT16_LIMIT
     && UTF8.ValidUTF8Seq(kvPair.0)
@@ -153,7 +153,7 @@ module {:extern "EncryptionContext"} EncryptionContext {
   method ComputeLength(encryptionContext: Map) returns (res: nat)
     ensures res as nat == Length(encryptionContext)
   {
-    reveal Valid();
+    reveal Serializable();
     if |encryptionContext| == 0 {
       return 0;
     }
@@ -181,10 +181,10 @@ module {:extern "EncryptionContext"} EncryptionContext {
     return len;
   }
 
-  method ComputeValid(encryptionContext: Map) returns (res: bool)
-    ensures res == Valid(encryptionContext)
+  method CheckSerializable(encryptionContext: Map) returns (res: bool)
+    ensures res == Serializable(encryptionContext)
   {
-    reveal Valid();
+    reveal Serializable();
 
     if |encryptionContext| == 0 {
       return true;
@@ -202,7 +202,7 @@ module {:extern "EncryptionContext"} EncryptionContext {
     var i := 0;
     while i < |kvPairs|
       invariant i <= |kvPairs|
-      invariant forall k :: 0 <= k < i ==> ValidKVPair(kvPairs[k])
+      invariant forall k :: 0 <= k < i ==> SerializableKVPair(kvPairs[k])
       invariant 2 + LinearLength(kvPairs, 0, i as int) == kvPairsLen as int < UINT16_LIMIT
     {
       var kvPair := kvPairs[i];
@@ -216,7 +216,7 @@ module {:extern "EncryptionContext"} EncryptionContext {
       } else if kvPairsLen >= UINT16_LIMIT {
         return false; // Over size limit
       }
-      assert forall k :: 0 <= k < i ==> ValidKVPair(kvPairs[k]);
+      assert forall k :: 0 <= k < i ==> SerializableKVPair(kvPairs[k]);
       assert kvPairsLen < UINT16_LIMIT;
       i := i + 1;
     }
@@ -240,15 +240,15 @@ module {:extern "EncryptionContext"} EncryptionContext {
   }
 
   function MapToLinear(kvPairs: Map): seq<uint8>
-    requires Valid(kvPairs)
+    requires Serializable(kvPairs)
   {
-    reveal Valid();
+    reveal Serializable();
     UInt16ToSeq(Length(kvPairs) as uint16) +
     MapToSeq(kvPairs)
   }
 
   function MapToSeq(kvPairs: Map): seq<uint8>
-    requires ValidKVPairs(kvPairs)
+    requires SerializableKVPairs(kvPairs)
   {
     var n := |kvPairs|;
     if n == 0 then [] else
@@ -264,7 +264,7 @@ module {:extern "EncryptionContext"} EncryptionContext {
 
   // Serialization of KVPairEntries is defined in terms of a seq of tuples, which is easier to reason about
   function LinearToSeq(kvPairs: Linear, lo: nat, hi: nat): seq<uint8>
-    requires forall i :: 0 <= i < |kvPairs| ==> ValidKVPair(kvPairs[i])
+    requires forall i :: 0 <= i < |kvPairs| ==> SerializableKVPair(kvPairs[i])
     requires |kvPairs| < UINT16_LIMIT
     requires LinearSorted(kvPairs)
     requires lo <= hi <= |kvPairs|
@@ -273,7 +273,7 @@ module {:extern "EncryptionContext"} EncryptionContext {
   }
 
   function KVPairToSeq(kvPair: (UTF8.ValidUTF8Bytes, UTF8.ValidUTF8Bytes)): seq<uint8>
-    requires ValidKVPair(kvPair)
+    requires SerializableKVPair(kvPair)
   {
     UInt16ToSeq(|kvPair.0| as uint16) + kvPair.0 +
     UInt16ToSeq(|kvPair.1| as uint16) + kvPair.1
@@ -285,10 +285,10 @@ module {:extern "EncryptionContext"} EncryptionContext {
    */
 
   lemma LengthCorrect(encryptionContext: Map)
-    requires Valid(encryptionContext)
+    requires Serializable(encryptionContext)
     ensures |MapToLinear(encryptionContext)| == 2 + Length(encryptionContext)
   {
-    reveal Valid();
+    reveal Serializable();
     var keys: seq<UTF8.ValidUTF8Bytes> := SetToOrderedSequence(encryptionContext.Keys, UInt.UInt8Less);
     var kvPairs := seq(|keys|, i requires 0 <= i < |keys| => (keys[i], encryptionContext[keys[i]]));
     LinearLengthCorrect(kvPairs, 0, |kvPairs|);
@@ -310,7 +310,7 @@ module {:extern "EncryptionContext"} EncryptionContext {
   }
 
   lemma LinearLengthCorrect(encryptionContext: Linear, lo: nat, hi: nat)
-    requires forall i :: 0 <= i < |encryptionContext| ==> ValidKVPair(encryptionContext[i])
+    requires forall i :: 0 <= i < |encryptionContext| ==> SerializableKVPair(encryptionContext[i])
     requires lo <= hi <= |encryptionContext|
     requires |encryptionContext| < UINT16_LIMIT
     requires LinearSorted(encryptionContext)

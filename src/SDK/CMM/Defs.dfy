@@ -33,10 +33,10 @@ module {:extern "CMMDefs"} CMMDefs {
           case Some(sigType) =>
             res.value.signingKey.Some?
 
-    // The following predicate is a synonym for Encryption.ValidAAD and provides a workaround for a translation bug
+    // The following predicate is a synonym for Encryption.Serializable and provides a workaround for a translation bug
     // of "fuel" in trait-override checks in Dafny. https://github.com/dafny-lang/dafny/issues/422
     static predicate ValidAAD(encryptionContext: EncryptionContext.Map) {
-      EncryptionContext.Valid(encryptionContext)
+      EncryptionContext.Serializable(encryptionContext)
     }
 
     method DecryptMaterials(materialsRequest: Materials.ValidDecryptionMaterialsRequest)

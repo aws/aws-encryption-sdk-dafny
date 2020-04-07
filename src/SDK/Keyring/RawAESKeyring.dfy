@@ -111,7 +111,7 @@ module {:extern "RawAESKeyringDef"} RawAESKeyringDef {
 
       // EDK created using expected AAD
       ensures res.Success? ==>
-        && var encCtxSerializable := (reveal EncryptionContext.Valid(); EncryptionContext.Valid(materials.encryptionContext));
+        && var encCtxSerializable := (reveal EncryptionContext.Serializable(); EncryptionContext.Serializable(materials.encryptionContext));
         && |res.value.encryptedDataKeys| == |materials.encryptedDataKeys| + 1
         && encCtxSerializable
         && wrappingAlgorithm.tagLen as nat <= |res.value.encryptedDataKeys[|materials.encryptedDataKeys|].ciphertext|
@@ -135,11 +135,11 @@ module {:extern "RawAESKeyringDef"} RawAESKeyringDef {
           && res.value.keyringTrace[|materials.keyringTrace|] == EncryptTraceEntry()
 
       // If input EC cannot be serialized, returns a Failure
-      ensures !EncryptionContext.Valid(materials.encryptionContext) ==> res.Failure?
+      ensures !EncryptionContext.Serializable(materials.encryptionContext) ==> res.Failure?
     {
       // Check that the encryption context can be serialized correctly
-      reveal EncryptionContext.Valid();
-      var valid := EncryptionContext.ComputeValid(materials.encryptionContext);
+      reveal EncryptionContext.Serializable();
+      var valid := EncryptionContext.CheckSerializable(materials.encryptionContext);
       if !valid {
         return Failure("Unable to serialize encryption context");
       }
@@ -192,7 +192,7 @@ module {:extern "RawAESKeyringDef"} RawAESKeyringDef {
 
       // Plaintext decrypted using expected AAD
       ensures res.Success? && materials.plaintextDataKey.None? && res.value.plaintextDataKey.Some? ==>
-        var encCtxSerializable := (reveal EncryptionContext.Valid(); EncryptionContext.Valid(materials.encryptionContext));
+        var encCtxSerializable := (reveal EncryptionContext.Serializable(); EncryptionContext.Serializable(materials.encryptionContext));
         && encCtxSerializable
         && AESEncryption.PlaintextDecryptedWithAAD(res.value.plaintextDataKey.get, EncryptionContext.MapToSeq(materials.encryptionContext))
 
@@ -201,7 +201,7 @@ module {:extern "RawAESKeyringDef"} RawAESKeyringDef {
           |res.value.keyringTrace| == |materials.keyringTrace| + 1 && res.value.keyringTrace[|materials.keyringTrace|] == DecryptTraceEntry()
 
       // If attempts to decrypt an EDK and the input EC cannot be serialized, return a Failure
-      ensures materials.plaintextDataKey.None? && !EncryptionContext.Valid(materials.encryptionContext) && (exists i :: 0 <= i < |edks| && ShouldDecryptEDK(edks[i])) ==> res.Failure?
+      ensures materials.plaintextDataKey.None? && !EncryptionContext.Serializable(materials.encryptionContext) && (exists i :: 0 <= i < |edks| && ShouldDecryptEDK(edks[i])) ==> res.Failure?
     {
       if materials.plaintextDataKey.Some? {
         return Success(materials);
@@ -212,8 +212,8 @@ module {:extern "RawAESKeyringDef"} RawAESKeyringDef {
       {
         if ShouldDecryptEDK(edks[i]) {
           // Check that the encryption context can be serialized correctly
-          reveal EncryptionContext.Valid();
-          var valid := EncryptionContext.ComputeValid(materials.encryptionContext);
+          reveal EncryptionContext.Serializable();
+          var valid := EncryptionContext.CheckSerializable(materials.encryptionContext);
           if !valid {
             return Failure("Unable to serialize encryption context");
           }
