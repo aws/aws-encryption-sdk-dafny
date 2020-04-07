@@ -115,6 +115,7 @@ module {:extern "TestUtils"} TestUtils {
 
   method MakeRSAKeyring() returns (res: Result<RawRSAKeyringDef.RawRSAKeyring>)
     ensures res.Success? ==> res.value.Valid()
+    ensures res.Success? ==> fresh(res.value) && fresh(res.value.Repr)
   {
     var namespace :- UTF8.Encode("namespace");
     var name :- UTF8.Encode("MyKeyring");

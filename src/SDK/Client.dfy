@@ -139,6 +139,7 @@ module {:extern "ESDKClient"} ESDKClient {
     requires request.keyring != null ==> request.keyring.Valid()
     modifies if request.cmm == null then {} else request.cmm.Repr
     ensures request.cmm != null ==> request.cmm.Valid()
+    ensures request.cmm != null ==> fresh(request.cmm.Repr - old(request.cmm.Repr))
     ensures request.frameLength.Some? && request.frameLength.get == 0 ==> res.Failure?
   {
     if request.cmm != null && request.keyring != null {
