@@ -1,5 +1,5 @@
 include "MessageHeader.dfy"
-include "Materials.dfy"
+include "EncryptionContext.dfy"
 include "AlgorithmSuite.dfy"
 include "../Util/UTF8.dfy"
 include "../Util/Sets.dfy"
@@ -10,12 +10,12 @@ include "../StandardLibrary/StandardLibrary.dfy"
 
 module Serialize {
   import Msg = MessageHeader
+  import EncryptionContext
   import AlgorithmSuite
 
   import Streams
   import opened StandardLibrary
   import opened UInt = StandardLibrary.UInt
-  import Materials
   import UTF8
   import Sets
 
@@ -89,23 +89,23 @@ module Serialize {
 
   // ----- SerializeAAD -----
 
-  method SerializeAAD(wr: Streams.ByteWriter, kvPairs: Materials.EncryptionContext) returns (ret: Result<nat>)
-    requires wr.Valid() && Msg.ValidAAD(kvPairs)
+  method SerializeAAD(wr: Streams.ByteWriter, kvPairs: EncryptionContext.Map) returns (ret: Result<nat>)
+    requires wr.Valid() && EncryptionContext.Valid(kvPairs)
     modifies wr.writer`data
-    ensures wr.Valid() && Msg.ValidAAD(kvPairs)
+    ensures wr.Valid() && EncryptionContext.Valid(kvPairs)
     ensures match ret
       case Success(totalWritten) =>
-        var serAAD := Msg.AADToSeq(kvPairs);
+        var serAAD := EncryptionContext.MapToLinear(kvPairs);
         var initLen := old(wr.GetSizeWritten());
         && totalWritten == |serAAD|
         && initLen + totalWritten == wr.GetSizeWritten()
         && wr.GetDataWritten() == old(wr.GetDataWritten()) + serAAD
       case Failure(e) => true
   {
-    reveal Msg.ValidAAD();
+    reveal EncryptionContext.Valid();
     var totalWritten := 0;
 
-    var kvPairsLength := Msg.ComputeKVPairsLength(kvPairs);
+    var kvPairsLength := EncryptionContext.ComputeLength(kvPairs);
     var len := wr.WriteUInt16(kvPairsLength as uint16);
 
     totalWritten := totalWritten + len;
@@ -118,13 +118,13 @@ module Serialize {
 
   // ----- SerializeKVPairs -----
 
-  method SerializeKVPairs(wr: Streams.ByteWriter, encryptionContext: Materials.EncryptionContext) returns (ret: Result<nat>)
-    requires wr.Valid() && Msg.ValidKVPairs(encryptionContext)
+  method SerializeKVPairs(wr: Streams.ByteWriter, encryptionContext: EncryptionContext.Map) returns (ret: Result<nat>)
+    requires wr.Valid() && EncryptionContext.ValidKVPairs(encryptionContext)
     modifies wr.writer`data
-    ensures wr.Valid() && Msg.ValidKVPairs(encryptionContext)
+    ensures wr.Valid() && EncryptionContext.ValidKVPairs(encryptionContext)
     ensures match ret
       case Success(totalWritten) =>
-        var serAAD := Msg.KVPairsToSeq(encryptionContext);
+        var serAAD := EncryptionContext.MapToSeq(encryptionContext);
         var initLen := old(wr.GetSizeWritten());
         && totalWritten == |serAAD|
         && initLen + totalWritten == wr.GetSizeWritten()
@@ -152,8 +152,8 @@ module Serialize {
       invariant wr.GetDataWritten() ==
         old(wr.GetDataWritten()) +
         UInt16ToSeq(n as uint16) +
-        Msg.KVPairEntriesToSeq(kvPairs, 0, j)
-      invariant totalWritten == 2 + |Msg.KVPairEntriesToSeq(kvPairs, 0, j)|
+        EncryptionContext.LinearToSeq(kvPairs, 0, j)
+      invariant totalWritten == 2 + |EncryptionContext.LinearToSeq(kvPairs, 0, j)|
     {
       ghost var previouslyWritten := wr.GetDataWritten();
 
@@ -171,14 +171,14 @@ module Serialize {
 
       calc {
         wr.GetDataWritten();
-      ==  // the four writes in this loop iteration write Msg.KVPairToSeq(kvPairs[j])
-        previouslyWritten + Msg.KVPairToSeq(kvPairs[j]);
+      ==  // the four writes in this loop iteration write EncryptionContext.KVPairToSeq(kvPairs[j])
+        previouslyWritten + EncryptionContext.KVPairToSeq(kvPairs[j]);
       ==  // loop invariant on entry to loop
-        (old(wr.GetDataWritten()) + UInt16ToSeq(n as uint16) + Msg.KVPairEntriesToSeq(kvPairs, 0, j)) + Msg.KVPairToSeq(kvPairs[j]);
+        (old(wr.GetDataWritten()) + UInt16ToSeq(n as uint16) + EncryptionContext.LinearToSeq(kvPairs, 0, j)) + EncryptionContext.KVPairToSeq(kvPairs[j]);
       ==  // + is associative
-        old(wr.GetDataWritten()) + UInt16ToSeq(n as uint16) + (Msg.KVPairEntriesToSeq(kvPairs, 0, j) + Msg.KVPairToSeq(kvPairs[j]));
-      ==  { assert Msg.KVPairEntriesToSeq(kvPairs, 0, j) + Msg.KVPairToSeq(kvPairs[j]) == Msg.KVPairEntriesToSeq(kvPairs, 0, j + 1); }
-        old(wr.GetDataWritten()) + UInt16ToSeq(n as uint16) + Msg.KVPairEntriesToSeq(kvPairs, 0, j + 1);
+        old(wr.GetDataWritten()) + UInt16ToSeq(n as uint16) + (EncryptionContext.LinearToSeq(kvPairs, 0, j) + EncryptionContext.KVPairToSeq(kvPairs[j]));
+      ==  { assert EncryptionContext.LinearToSeq(kvPairs, 0, j) + EncryptionContext.KVPairToSeq(kvPairs[j]) == EncryptionContext.LinearToSeq(kvPairs, 0, j + 1); }
+        old(wr.GetDataWritten()) + UInt16ToSeq(n as uint16) + EncryptionContext.LinearToSeq(kvPairs, 0, j + 1);
       }
 
       j := j + 1;
