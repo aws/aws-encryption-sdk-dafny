@@ -9,12 +9,12 @@ include "../Crypto/EncryptionSuites.dfy"
 include "../Util/UTF8.dfy"
 
 module MessageBody {
-  // export
-  //   provides EncryptMessageBody
-  //   provides DecryptFramedMessageBody, DecryptNonFramedMessageBody
-  //   provides StandardLibrary, UInt, Msg, AlgorithmSuite, Materials, Streams
-  //   provides FramesToSequence, FrameToSubsequence, ValidFrames, FramesEncryptPlaintext
-  //   reveals Frame
+  export
+    provides EncryptMessageBody
+    provides DecryptFramedMessageBody, DecryptNonFramedMessageBody
+    provides StandardLibrary, UInt, Msg, AlgorithmSuite, Materials, Streams
+    provides FramesToSequence, FrameToSubsequence, ValidFrames, FramesEncryptPlaintext
+    reveals Frame
     
   import opened StandardLibrary
   import opened UInt = StandardLibrary.UInt
