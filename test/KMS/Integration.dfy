@@ -30,11 +30,9 @@ module IntegTestKMS {
     modifies cmm.Repr
     ensures cmm.Valid() && fresh(cmm.Repr - old(cmm.Repr))
   {
-    var encodedMsg: seq<uint8>;
     var encodeResult := UTF8.Encode(message);
-    if encodeResult.Success? {
-      encodedMsg := encodeResult.value;
-    }
+    expect encodeResult.Success?, "Failed to encode :( " + encodeResult.error + "\n";
+    var encodedMsg := encodeResult.value;
     var keyA :- expect UTF8.Encode("keyA");
     var valA :- expect UTF8.Encode("valA");
     var encryptionContext := map[keyA := valA];
