@@ -30,7 +30,7 @@ module {:extern "TestUtils"} TestUtils {
   // what is able to be serialized in the message format.
   // Building a map item by item is slow in dafny, so this method should be used sparingly.
   method GenerateLargeValidEncryptionContext() returns (r: EncryptionContext.Map)
-    ensures EncryptionContext.Valid(r)
+    ensures EncryptionContext.Serializable(r)
   {
     // KVPairsMaxSize - KVPairsLenLen / KVPairLen ==> 
     // (2^16 - 1 - 2) / (2 + 2 + 2 + 1) ==> (2^16 - 3) / 7 ==> 9361
@@ -57,8 +57,8 @@ module {:extern "TestUtils"} TestUtils {
     // Check that we actually built a encCtx of the correct size
     expect |encCtx| == numMaxPairs;
 
-    assert EncryptionContext.Valid(encCtx) by {
-      reveal EncryptionContext.Valid();
+    assert EncryptionContext.Serializable(encCtx) by {
+      reveal EncryptionContext.Serializable();
       assert EncryptionContext.Length(encCtx) < UINT16_LIMIT by {
         var keys: seq<UTF8.ValidUTF8Bytes> := SetToOrderedSequence(encCtx.Keys, UInt.UInt8Less);
         var kvPairs := seq(|keys|, i requires 0 <= i < |keys| => (keys[i], encCtx[keys[i]]));
@@ -69,22 +69,22 @@ module {:extern "TestUtils"} TestUtils {
     return encCtx;
   }
 
-  method ExpectValidAAD(encCtx: EncryptionContext.Map) {
-    var valid := EncryptionContext.ComputeValid(encCtx);
+  method ExpectSerializableEncryptionContext(encCtx: EncryptionContext.Map) {
+    var valid := EncryptionContext.CheckSerializable(encCtx);
     expect valid;
   }
 
-  method ExpectInvalidAAD(encCtx: EncryptionContext.Map) {
-    var valid := EncryptionContext.ComputeValid(encCtx);
+  method ExpectNonSerializableEncryptionContext(encCtx: EncryptionContext.Map) {
+    var valid := EncryptionContext.CheckSerializable(encCtx);
     expect !valid;
   }
   
   lemma ValidSmallEncryptionContext(encryptionContext: EncryptionContext.Map)
     requires |encryptionContext| <= 5
     requires forall k :: k in encryptionContext.Keys ==> |k| < 100 && |encryptionContext[k]| < 100
-    ensures EncryptionContext.Valid(encryptionContext)
+    ensures EncryptionContext.Serializable(encryptionContext)
   {
-    reveal EncryptionContext.Valid();
+    reveal EncryptionContext.Serializable();
     assert EncryptionContext.Length(encryptionContext) < UINT16_LIMIT by {
       if |encryptionContext| != 0 {
         var keys: seq<UTF8.ValidUTF8Bytes> := SetToOrderedSequence(encryptionContext.Keys, UInt.UInt8Less);

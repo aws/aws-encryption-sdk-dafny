@@ -90,9 +90,9 @@ module Serialize {
   // ----- SerializeAAD -----
 
   method SerializeAAD(wr: Streams.ByteWriter, kvPairs: EncryptionContext.Map) returns (ret: Result<nat>)
-    requires wr.Valid() && EncryptionContext.Valid(kvPairs)
+    requires wr.Valid() && EncryptionContext.Serializable(kvPairs)
     modifies wr.writer`data
-    ensures wr.Valid() && EncryptionContext.Valid(kvPairs)
+    ensures wr.Valid() && EncryptionContext.Serializable(kvPairs)
     ensures match ret
       case Success(totalWritten) =>
         var serAAD := EncryptionContext.MapToLinear(kvPairs);
@@ -102,7 +102,7 @@ module Serialize {
         && wr.GetDataWritten() == old(wr.GetDataWritten()) + serAAD
       case Failure(e) => true
   {
-    reveal EncryptionContext.Valid();
+    reveal EncryptionContext.Serializable();
     var totalWritten := 0;
 
     var kvPairsLength := EncryptionContext.ComputeLength(kvPairs);
@@ -119,9 +119,9 @@ module Serialize {
   // ----- SerializeKVPairs -----
 
   method SerializeKVPairs(wr: Streams.ByteWriter, encryptionContext: EncryptionContext.Map) returns (ret: Result<nat>)
-    requires wr.Valid() && EncryptionContext.ValidKVPairs(encryptionContext)
+    requires wr.Valid() && EncryptionContext.SerializableKVPairs(encryptionContext)
     modifies wr.writer`data
-    ensures wr.Valid() && EncryptionContext.ValidKVPairs(encryptionContext)
+    ensures wr.Valid() && EncryptionContext.SerializableKVPairs(encryptionContext)
     ensures match ret
       case Success(totalWritten) =>
         var serAAD := EncryptionContext.MapToSeq(encryptionContext);

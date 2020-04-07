@@ -32,44 +32,44 @@ module TestMessageHeader {
     expect output == expected;
   }
 
-  method {:test} TestComputeValidAADEmpty() {
+  method {:test} TestCheckSerializableEmpty() {
     var encCtx := map[];
-    ExpectValidAAD(encCtx);
+    ExpectSerializableEncryptionContext(encCtx);
   }
 
-  method {:test} TestComputeValidAADOnePair() {
+  method {:test} TestCheckSerializableOnePair() {
     var keyA :- expect UTF8.Encode("keyA");
     var valA :- expect UTF8.Encode("valA");
     var encCtx := map[keyA := valA];
-    ExpectValidAAD(encCtx);
+    ExpectSerializableEncryptionContext(encCtx);
   }
 
-  method {:test} TestComputeValidAADOnePairMaxSize() {
+  method {:test} TestCheckSerializableOnePairMaxSize() {
     var keyA :- expect UTF8.Encode("A");
     // (2^16 - 1) - 2 => 65533 is the size that we want the key value pairs to fill
     // 65533 - 2 - 1 - 2 => 65528 is the size that we want the value to fill
     var largeVal := seq(65528, _ => 0);
     var encCtx := map[keyA := largeVal];
     TestUtils.AssumeLongSeqIsValidUTF8(largeVal);
-    ExpectValidAAD(encCtx);
+    ExpectSerializableEncryptionContext(encCtx);
   }
 
-  method {:test} TestComputeValidAADTooLarge() {
+  method {:test} TestCheckSerializableTooLarge() {
     var keyA :- expect UTF8.Encode("keyA");
     var keyB :- expect UTF8.Encode("keyB");
     var invalidVal := seq(65528, _ => 0);
     TestUtils.AssumeLongSeqIsValidUTF8(invalidVal);
     var encCtx := map[keyA := invalidVal, keyB := invalidVal];
 
-    ExpectInvalidAAD(encCtx);
+    ExpectNonSerializableEncryptionContext(encCtx);
   }
 
-  method {:test} TestComputeValidAADPairTooBig() {
+  method {:test} TestCheckSerializablePairTooBig() {
     var key :- expect UTF8.Encode("keyA");
     var invalidVal := seq(0x1_0000, _ => 0);
     var encCtx := map[key := invalidVal];
     TestUtils.AssumeLongSeqIsValidUTF8(invalidVal);
-    ExpectInvalidAAD(encCtx);
+    ExpectNonSerializableEncryptionContext(encCtx);
   }
 
   method {:test} TestComputeKVPairsLengthEmpty() {
@@ -105,6 +105,6 @@ module TestMessageHeader {
     var len := EncryptionContext.ComputeLength(encCtx);
     expect len as int == 2 + |encCtx| as int * 7;
 
-    ExpectValidAAD(encCtx);
+    ExpectSerializableEncryptionContext(encCtx);
   }
 }
