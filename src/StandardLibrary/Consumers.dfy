@@ -1,9 +1,11 @@
 include "../StandardLibrary/StandardLibrary.dfy"
 include "../StandardLibrary/UInt.dfy"
+include "./Validatable.dfy"
 
 module {:extern} Consumers {
   import opened StandardLibrary
   import opened UInt = StandardLibrary.UInt
+  import opened ExternalInvariants
 
   trait ByteConsumer {
     ghost const Repr: set<object>
@@ -34,7 +36,7 @@ module {:extern} Consumers {
       ensures Repr == old(Repr)
   }
 
-  class AsExternalByteConsumer extends ExternalByteConsumer {
+  class AsExternalByteConsumer extends Validatable {
     const wrapped: ByteConsumer
     constructor(wrapped: ByteConsumer) 
       requires wrapped.Valid() 
@@ -55,6 +57,13 @@ module {:extern} Consumers {
       && this !in wrapped.Repr
       && wrapped.Valid()
     }
+    twostate lemma IndependentValidity()
+      requires old(Valid())
+      requires unchanged(this)
+      requires forall v :: v in Repr && v != this ==> v.Valid()
+      ensures Valid() {
+
+      }
     predicate method CanAccept() reads Repr decreases Repr {
       Axiom(Valid());
       wrapped.CanAccept()
@@ -83,7 +92,7 @@ module {:extern} Consumers {
     predicate Valid() reads Repr ensures Valid() ==> this in Repr decreases Repr {
       && this in Repr 
       && wrapped in Repr 
-      && wrapped.Repr < Repr 
+      && wrapped.Repr <= Repr 
       && this !in wrapped.Repr
       && wrapped.Valid()
     }
