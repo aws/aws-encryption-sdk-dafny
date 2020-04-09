@@ -158,7 +158,7 @@ module {:extern "RawAESKeyringDef"} RawAESKeyringDef {
       var aad := wr.GetDataWritten();
       assert aad == EncryptionContext.MapToSeq(materials.encryptionContext);
 
-      var encryptResult :- AESEncryption.AESEncrypt(wrappingAlgorithm, iv, wrappingKey, materialsWithDataKey.plaintextDataKey.get, aad);
+      var encryptResult :- AESEncryption.AESEncryptWrapper(wrappingAlgorithm, iv, wrappingKey, materialsWithDataKey.plaintextDataKey.get, aad);
       var encryptedKey := SerializeEDKCiphertext(encryptResult);
 
       if UINT16_LIMIT <= |providerInfo| {
