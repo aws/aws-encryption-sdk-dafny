@@ -4,6 +4,7 @@ include "../../src/StandardLibrary/StandardLibrary.dfy"
 include "../../src/StandardLibrary/UInt.dfy"
 include "../../src/Util/UTF8.dfy"
 include "../../src/SDK/Materials.dfy"
+include "../../src/SDK/EncryptionContext.dfy"
 include "../../src/SDK/MessageHeader.dfy"
 
 module {:extern "TestUtils"} TestUtils {
@@ -11,6 +12,7 @@ module {:extern "TestUtils"} TestUtils {
   import opened UInt = StandardLibrary.UInt
   import UTF8
   import Materials
+  import EncryptionContext
   import MessageHeader
   import RSA = RSAEncryption
   import RawRSAKeyringDef
@@ -27,8 +29,8 @@ module {:extern "TestUtils"} TestUtils {
   // Generates a large encryption context that approaches the upper bounds of
   // what is able to be serialized in the message format.
   // Building a map item by item is slow in dafny, so this method should be used sparingly.
-  method GenerateLargeValidEncryptionContext() returns (r: Materials.EncryptionContext)
-    ensures MessageHeader.ValidAAD(r)
+  method GenerateLargeValidEncryptionContext() returns (r: EncryptionContext.Map)
+    ensures EncryptionContext.Serializable(r)
   {
     // KVPairsMaxSize - KVPairsLenLen / KVPairLen ==> 
     // (2^16 - 1 - 2) / (2 + 2 + 2 + 1) ==> (2^16 - 3) / 7 ==> 9361
@@ -55,46 +57,56 @@ module {:extern "TestUtils"} TestUtils {
     // Check that we actually built a encCtx of the correct size
     expect |encCtx| == numMaxPairs;
 
-    assert MessageHeader.ValidAAD(encCtx) by {
-      reveal MessageHeader.ValidAAD();
-      assert MessageHeader.KVPairsLength(encCtx) < UINT16_LIMIT by {
+    assert EncryptionContext.Serializable(encCtx) by {
+      reveal EncryptionContext.Serializable();
+      assert EncryptionContext.Length(encCtx) < UINT16_LIMIT by {
         var keys: seq<UTF8.ValidUTF8Bytes> := SetToOrderedSequence(encCtx.Keys, UInt.UInt8Less);
         var kvPairs := seq(|keys|, i requires 0 <= i < |keys| => (keys[i], encCtx[keys[i]]));
         KVPairsLengthBound(kvPairs, |kvPairs|, 3);
-        assert MessageHeader.KVPairEntriesLength(kvPairs, 0, |kvPairs|) <= 2 + numMaxPairs * 7;
+        assert EncryptionContext.LinearLength(kvPairs, 0, |kvPairs|) <= 2 + numMaxPairs * 7;
       }
     }
     return encCtx;
   }
 
-  method ExpectValidAAD(encCtx: Materials.EncryptionContext) {
-    var valid := MessageHeader.ComputeValidAAD(encCtx);
+  method ExpectSerializableEncryptionContext(encCtx: EncryptionContext.Map) {
+    var valid := EncryptionContext.CheckSerializable(encCtx);
     expect valid;
   }
 
-  method ExpectInvalidAAD(encCtx: Materials.EncryptionContext) {
-    var valid := MessageHeader.ComputeValidAAD(encCtx);
+  method ExpectNonSerializableEncryptionContext(encCtx: EncryptionContext.Map) {
+    var valid := EncryptionContext.CheckSerializable(encCtx);
     expect !valid;
   }
   
-  lemma ValidSmallEncryptionContext(encryptionContext: Materials.EncryptionContext)
+  lemma ValidSmallEncryptionContext(encryptionContext: EncryptionContext.Map)
     requires |encryptionContext| <= 5
     requires forall k :: k in encryptionContext.Keys ==> |k| < 100 && |encryptionContext[k]| < 100
-    ensures MessageHeader.ValidAAD(encryptionContext)
+    ensures EncryptionContext.Serializable(encryptionContext)
   {
-    reveal MessageHeader.ValidAAD();
-    assert MessageHeader.KVPairsLength(encryptionContext) < UINT16_LIMIT by {
-      var keys: seq<UTF8.ValidUTF8Bytes> := SetToOrderedSequence(encryptionContext.Keys, UInt.UInt8Less);
-      var kvPairs := seq(|keys|, i requires 0 <= i < |keys| => (keys[i], encryptionContext[keys[i]]));
-      KVPairsLengthBound(kvPairs, |kvPairs|, 200);
-      assert MessageHeader.KVPairEntriesLength(kvPairs, 0, |kvPairs|) <= 5 * 204;
+    reveal EncryptionContext.Serializable();
+    assert EncryptionContext.Length(encryptionContext) < UINT16_LIMIT by {
+      if |encryptionContext| != 0 {
+        var keys: seq<UTF8.ValidUTF8Bytes> := SetToOrderedSequence(encryptionContext.Keys, UInt.UInt8Less);
+        var kvPairs := seq(|keys|, i requires 0 <= i < |keys| => (keys[i], encryptionContext[keys[i]]));
+        assert EncryptionContext.Length(encryptionContext) ==
+          2 + EncryptionContext.LinearLength(kvPairs, 0, |kvPairs|);
+
+        var n := |kvPairs|;
+        assert n <= 5;
+        
+        assert EncryptionContext.LinearLength(kvPairs, 0, n) <= n * 204 by {
+          KVPairsLengthBound(kvPairs, |kvPairs|, 200);
+        }
+        assert n * 204 <= 1020 < UINT16_LIMIT;
+      }
     }
   }
 
-  lemma KVPairsLengthBound(kvPairs: MessageHeader.EncryptionContextSeq, n: nat, kvBound: int)
+  lemma KVPairsLengthBound(kvPairs: EncryptionContext.Linear, n: nat, kvBound: int)
     requires n <= |kvPairs|
     requires forall i :: 0 <= i < n ==> |kvPairs[i].0| + |kvPairs[i].1| <= kvBound
-    ensures MessageHeader.KVPairEntriesLength(kvPairs, 0, n) <= n * (4 + kvBound)
+    ensures EncryptionContext.LinearLength(kvPairs, 0, n) <= n * (4 + kvBound)
   {
   }
 
