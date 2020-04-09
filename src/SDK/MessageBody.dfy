@@ -28,42 +28,6 @@ module MessageBody {
 
   datatype BodyAADContent = RegularFrame | FinalFrame | SingleBlock
 
-  /* Notes:
-   *   - Added parentheses to each quantifier in the definition of ValidFrames, so that they are not nested
-   *
-   *   - Removed the quantifier that said the same thing as the body of Valid
-   *
-   *   - Changed from "frame in frames" to using an index, including the one that said
-   *         frame in frames[..|frames| - 1]
-   *
-   *   - Added a function IVSeq that returns the value to be stored in .iv fields. This function
-   *     is used in invariants. Then, when it comes time to prove distinctness of .iv fields, the
-   *     IVSeqDistinct lemma is called. The proof of this lemma uses UInt32SeqSerializeDeserialize,
-   *     which I think is crucial. This lemma was not called in the previous version of this file,
-   *     so my guess is that this is where the verifier got bogged down.
-   *
-   *   - Added "ghost finalFrame: Frame" out-parameter to EncryptFinalFrame. It is easier for the
-   *     caller to state properties about finalFrame than to have to first turn EncryptFinalFrame's
-   *     return seq<uint8> back into a Frame object. Besides, the body of EncryptFinalFrame already
-   *     had the necessary frame value to return. Now,
-   *         ghost var frame := SubsequenceToFinalFrame(FinalFrame, algorithmSuiteID, frameLength);
-   *     is probably no longer needed in EncryptMessageBody.
-   *     An unfortunate consequence of this change is that the code can't make use of `:-` assignments.
-   *     We should change Dafny to allow this.
-   *
-   *   - Added three Extend* lemmas, which are applied after each update to "frames", "body", and
-   *     "plaintextSeg". These lemmas moves the reasoning about sequences into the lemmas.
-   *     This is useful, because the verifier is often weighed down with having to reason that
-   *         frames' == frames + [frame]
-   *     is the same as
-   *         frames'[..|frames'|-1] == frames && frames'[|frames'| - 1] == frame
-   *     Actually, I expected each of these lemmas to need a manual proof of:
-   *         var frames' := frames + [frame];
-   *         assert frames'[..|frames'|-1] == frames && frames'[|frames'| - 1] == frame
-   *     but in the context of these small lemmas, the verifier was apparently able to figure this
-   *     out by itself.
-   */
-
   predicate ValidFrames(frames: seq<Frame>) {
     0 < |frames| < UINT32_LIMIT &&
     forall i | 0 <= i < |frames| ::
