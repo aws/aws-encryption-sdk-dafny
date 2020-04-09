@@ -510,8 +510,11 @@ module MessageBody {
     var len := frameLength as uint32;
     if final {
       len :- rd.ReadUInt32();
+      if len > frameLength as uint32 {
+        return Failure("Final frame too long");
+      }
       sequence := sequence + UInt32ToSeq(len);
-      assert rd.reader.data[old(rd.reader.pos)..rd.reader.pos] == sequence;
+      //assert rd.reader.data[old(rd.reader.pos)..rd.reader.pos] == sequence;
     }
     
     var aad := BodyAAD(messageID, if final then FinalFrame else RegularFrame, sequenceNumber, len as uint64);
@@ -600,47 +603,5 @@ module MessageBody {
 
     var plaintext :- Decrypt(ciphertext, authTag, algorithmSuiteID, iv, key, aad);
     return Success(plaintext);
-  }
-  
-  lemma IVDependsOnSequenceNumber(frames: seq<Frame>, algorithmSuiteID: AlgorithmSuite.ID)
-  requires forall frame | frame in frames :: frame.iv == seq(algorithmSuiteID.IVLength() - 4, _ => 0) + UInt32ToSeq(frame.seqNumb)
-  requires forall i | 0 <= i < |frames| :: frames[i].seqNumb as int == i + 1
-  ensures forall frame1, frame2 | frame1 in frames && frame2 in frames && frame1 != frame2 :: frame1.iv != frame2.iv
-  {
-    if(|frames| < 2){
-
-    }else{
-      var front := seq(algorithmSuiteID.IVLength() - 4, _ => 0);
-      calc{
-          forall i,j | 0 <= i < j < |frames| :: frames[i].seqNumb != frames[j].seqNumb;
-        <==>
-          forall i,j | 0 <= i < j < |frames| :: UInt32ToSeq(frames[i].seqNumb) != UInt32ToSeq(frames[j].seqNumb);
-        <==> { forall back1: seq<uint8>, back2: seq<uint8>, front: seq<uint8> | back1 != back2
-              {
-                PrependPreservesInequality(back1, back2, front);
-              }
-            }
-            forall i, j | 0 <= i < j < |frames| :: front + UInt32ToSeq(frames[i].seqNumb) != front + UInt32ToSeq(frames[j].seqNumb);
-        <==> {assert forall i | 0 <= i < |frames| :: frames[i].iv == front + UInt32ToSeq(frames[i].seqNumb);}
-          forall i, j | 0 <= i < j < |frames| :: frames[i].iv != frames[j].iv;
-      }
-    }
-  }
-
-  lemma PrependPreservesInequality(back1: seq<uint8>, back2: seq<uint8>, front: seq<uint8>)
-    requires back1 != back2
-    ensures front + back1 != front + back2
-  {
-    if(front + back1 == front + back2){
-      calc{
-        front + back1 == front + back2;
-      <==> 
-        (front + back1)[|front|..] == (front + back2)[|front|..];
-      <==>
-        back1 == back2;
-      }
-    }else{
-        
-    }
   }
 }
