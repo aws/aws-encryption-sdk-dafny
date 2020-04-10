@@ -42,8 +42,8 @@ module {:extern "EncryptionContext"} EncryptionContext {
     && Length(encryptionContext) < UINT16_LIMIT
   }
 
-  // It most places in the source, the precise definition of Serializable is not relevant.
-  // Therefore, predicate Serializable is only export-provided by this module. But to
+  // In most places in the source, the precise definition of Serializable is not relevant.
+  // Therefore, predicate Serializable is only export-provided by this module.
   // In the places where the definition is actually needed, the following lemma can be called:
 
   lemma RevealSerializable(encryptionContext: Map)
