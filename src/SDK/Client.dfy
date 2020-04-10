@@ -83,7 +83,7 @@ module {:extern "ESDKClient"} ESDKClient {
       this.frameLength := None;
     }
 
-    method SetEncryptionContext(encryptionContext: EncryptionContext.Map
+    method SetEncryptionContext(encryptionContext: EncryptionContext.Map)
       modifies `encryptionContext
       ensures this.encryptionContext == encryptionContext
     {
@@ -142,6 +142,9 @@ module {:extern "ESDKClient"} ESDKClient {
     modifies if request.cmm == null then {} else request.cmm.Repr
     ensures request.cmm != null ==> request.cmm.Valid()
     ensures request.cmm != null ==> fresh(request.cmm.Repr - old(request.cmm.Repr))
+    ensures request.cmm == null && request.keyring == null ==> res.Failure?
+    ensures request.cmm != null && request.keyring != null ==> res.Failure?
+    ensures request.algorithmSuiteID.Some? && request.algorithmSuiteID.get !in AlgorithmSuite.VALID_IDS ==> res.Failure?
     ensures request.frameLength.Some? && request.frameLength.get == 0 ==> res.Failure?
   {
     if request.cmm != null && request.keyring != null {
@@ -235,6 +238,8 @@ module {:extern "ESDKClient"} ESDKClient {
   method Decrypt(request: DecryptRequest) returns (res: Result<seq<uint8>>)
     requires request.cmm != null ==> request.cmm.Valid()
     requires request.keyring != null ==> request.keyring.Valid()
+    ensures request.cmm == null && request.keyring == null ==> res.Failure?
+    ensures request.cmm != null && request.keyring != null ==> res.Failure?
   {
     if request.cmm != null && request.keyring != null {
       return Failure("DecryptRequest.keyring OR DecryptRequest.cmm must be set (not both).");
