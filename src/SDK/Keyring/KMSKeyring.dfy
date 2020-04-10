@@ -25,7 +25,7 @@ module {:extern "KMSKeyringDef"} KMSKeyringDef {
 
   class KMSKeyring extends KeyringDefs.Keyring {
 
-    const clientSupplier: KMSUtils.ClientSupplier
+    const clientSupplier: KMSUtils.KMSClientSupplier
     const keyIDs: seq<KMSUtils.CustomerMasterKey>
     const generator: Option<KMSUtils.CustomerMasterKey>
     const grantTokens: seq<KMSUtils.GrantToken>
@@ -40,7 +40,7 @@ module {:extern "KMSKeyringDef"} KMSKeyringDef {
       && (|keyIDs| == 0 && generator.None? ==> isDiscovery)
     }
 
-    constructor (clientSupplier: KMSUtils.ClientSupplier, keyIDs: seq<KMSUtils.CustomerMasterKey>, generator: Option<KMSUtils.CustomerMasterKey>, grantTokens: seq<KMSUtils.GrantToken>)
+    constructor (clientSupplier: KMSUtils.KMSClientSupplier, keyIDs: seq<KMSUtils.CustomerMasterKey>, generator: Option<KMSUtils.CustomerMasterKey>, grantTokens: seq<KMSUtils.GrantToken>)
       requires 0 <= |grantTokens| <= KMSUtils.MAX_GRANT_TOKENS
       ensures Valid() && fresh(Repr)
     {

@@ -34,15 +34,6 @@ module {:extern "KMSUtils"} KMSUtils {
   
   type GrantToken = s: string | 0 < |s| <= 8192 witness "witness"
 
-  trait ClientSupplier {
-    method GetClient(region: Option<string>) returns (res: Result<KMSClient>)
-  }
-
-  class DefaultClientSupplier extends ClientSupplier {
-    constructor() {}
-    method {:extern} GetClient(region: Option<string>) returns (res: Result<KMSClient>)
-  }
-
   datatype ResponseMetadata = ResponseMetadata(metadata: map<string, string>, requestID: string)
 
   type HttpStatusCode = int //FIXME: Restrict this
@@ -84,17 +75,36 @@ module {:extern "KMSUtils"} KMSUtils {
 
   datatype DecryptResponse = DecryptResponse(contentLength: int, httpStatusCode: HttpStatusCode, keyID: string, plaintext: seq<uint8>, responseMetadata: ResponseMetadata)
 
+  // TODO: Return Result<KMSClient>, Dafny does not currently support returning interfaces
+  trait KMSClientSupplier {
+    method GetClient(region: Option<string>) returns (res: Result<DefaultClient>)
+  }
+
+  class DefaultClientSupplier extends KMSClientSupplier {
+    constructor() {}
+    method {:extern} GetClient(region: Option<string>) returns (res: Result<DefaultClient>)
+  }
+
   // https://docs.aws.amazon.com/sdkfornet/v3/apidocs/items/KeyManagementService/TKeyManagementServiceClient.html
-  class KMSClient {
+  trait KMSClient {
+    method GenerateDataKey(request: GenerateDataKeyRequest) returns (res: Result<GenerateDataKeyResponse>)
+      requires request.Valid()
+
+	method Encrypt(request: EncryptRequest) returns (res: Result<EncryptResponse>)
+      requires request.Valid()
+
+    method Decrypt(request: DecryptRequest) returns (res: Result<DecryptResponse>)
+      requires request.Valid()
+  }
+
+  class DefaultClient extends KMSClient {
     method {:extern} GenerateDataKey(request: GenerateDataKeyRequest) returns (res: Result<GenerateDataKeyResponse>)
       requires request.Valid()
-      //TODO mmtj: Should this be marked as modifying all of request's fields?
 
 	method {:extern} Encrypt(request: EncryptRequest) returns (res: Result<EncryptResponse>)
       requires request.Valid()
-      //TODO mmtj: Should this be marked as modifying all of request's fields?
 
     method {:extern} Decrypt(request: DecryptRequest) returns (res: Result<DecryptResponse>)
-      //TODO mmtj: Should this be marked as modifying all of request's fields?
+      requires request.Valid()
   }
 }
