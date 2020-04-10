@@ -1,6 +1,7 @@
 include "../StandardLibrary/StandardLibrary.dfy"
 include "../StandardLibrary/UInt.dfy"
 include "Materials.dfy"
+include "EncryptionContext.dfy"
 include "CMM/Defs.dfy"
 include "CMM/DefaultCMM.dfy"
 include "MessageHeader.dfy"
@@ -18,6 +19,7 @@ include "../Crypto/Signature.dfy"
 module {:extern "ESDKClient"} ESDKClient {
   import opened StandardLibrary
   import opened UInt = StandardLibrary.UInt
+  import EncryptionContext
   import AlgorithmSuite
   import AESEncryption
   import CMMDefs
@@ -41,7 +43,7 @@ module {:extern "ESDKClient"} ESDKClient {
     var cmm: CMMDefs.CMM?
     var keyring: KeyringDefs.Keyring?
     var plaintextLength: nat
-    var encryptionContext: Materials.EncryptionContext
+    var encryptionContext: EncryptionContext.Map
     var algorithmSuiteID: Option<uint16>
     var frameLength: Option<uint32>
 
@@ -81,7 +83,7 @@ module {:extern "ESDKClient"} ESDKClient {
       this.frameLength := None;
     }
 
-    method SetEncryptionContext(encryptionContext: Materials.EncryptionContext)
+    method SetEncryptionContext(encryptionContext: EncryptionContext.Map
       modifies `encryptionContext
       ensures this.encryptionContext == encryptionContext
     {

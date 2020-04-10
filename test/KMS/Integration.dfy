@@ -5,7 +5,7 @@ include "../../src/StandardLibrary/UInt.dfy"
 include "../../src/SDK/CMM/Defs.dfy"
 include "../../src/SDK/CMM/DefaultCMM.dfy"
 include "../../src/SDK/Client.dfy"
-include "../../src/SDK/MessageHeader.dfy"
+include "../../src/SDK/EncryptionContext.dfy"
 include "../../src/KMS/KMSUtils.dfy"
 include "../../src/Util/UTF8.dfy"
 include "../../src/StandardLibrary/Base64.dfy"
@@ -21,7 +21,7 @@ module IntegTestKMS {
   import KMSKeyringDef
   import Materials
   import Client = ESDKClient
-  import Msg = MessageHeader
+  import EncryptionContext
   import UTF8
   import Base64
 
@@ -36,18 +36,18 @@ module IntegTestKMS {
     var keyA :- expect UTF8.Encode("keyA");
     var valA :- expect UTF8.Encode("valA");
     var encryptionContext := map[keyA := valA];
-    assert Msg.ValidAAD(encryptionContext) by {
-      // To prove ValidAAD, we need to reveal the definition of ValidAAD:
-      reveal Msg.ValidAAD();
+    assert EncryptionContext.Serializable(encryptionContext) by {
+      // To prove EncryptionContext.Serializable, we need to reveal the definition of that predicate:
+      reveal EncryptionContext.Serializable();
       // We also need to help the verifier with proving the KVPairsLength is small:
       calc {
-        Msg.KVPairsLength(encryptionContext);
+        EncryptionContext.Length(encryptionContext);
         var keys: seq<UTF8.ValidUTF8Bytes> := SetToOrderedSequence<uint8>(encryptionContext.Keys, UInt.UInt8Less);
         var kvPairsSeq := seq(|keys|, i requires 0 <= i < |keys| => (keys[i], encryptionContext[keys[i]]));
-        2 + Msg.KVPairEntriesLength(kvPairsSeq, 0, |kvPairsSeq|); // 2 bytes for the kvPairsCount field
+        2 + EncryptionContext.LinearLength(kvPairsSeq, 0, |kvPairsSeq|); // 2 bytes for the kvPairsCount field
         2 + 2 + |keyA| + 2 + |valA|; // 2 bytes required for keyLength and valueLength fields
       }
-      assert Msg.KVPairsLength(encryptionContext) < UINT16_LIMIT;
+      assert EncryptionContext.Length(encryptionContext) < UINT16_LIMIT;
     }
     var encryptRequest := new Client.EncryptRequest.WithCMM(encodedMsg, cmm);
     encryptRequest.SetEncryptionContext(encryptionContext);
