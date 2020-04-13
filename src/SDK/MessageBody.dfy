@@ -27,6 +27,25 @@ module MessageBody {
 
   datatype BodyAADContent = RegularFrame | FinalFrame | SingleBlock
 
+  /**
+    The behviour of the methods in this file are specified in https://github.com/awslabs/aws-encryption-sdk-specification/blob/master/data-format/message-body.md
+    The Frame datatype has been introduced in the validation of this file. This datatype is only used for the validation. 
+    The methods in this file serialize and deserialize some plaintext to frames. Frame are encoded in a sequence of bytes.
+    All frames beside the last frame are RegularFrames, the last frame is a FinalFrame. All frames have a unique iv and an incrementing sequence numbers. Sequence numbers
+    start from START_SEQUENCE_NUMBER and go up to ENDFRAME_SEQUENCE_NUMBER. Note that the final frame can occur before ENDFRAME_SEQUENCE_NUMBER is reached.
+
+    Regular frames always contain the same amount of data and contain 4 fields: RegularFrameConstructor(seqNumb, iv, encContent, authTag)
+    We know the length of serialized regular frames in advance. Every regular frame has size 4 + IV_Length + frameLength + authTag_Length.
+    Here framelength is the length of the encrypted content which is equal to the plaintext serialized in this frame.
+
+    Final frames have more data fields and contain a variable amount of encrypted content. When a final frame is serialized it has 6 fields:
+      FinalFrame(endFrameSeqNumb, seqNumb, iv, encryptedContentLength, encryptedContent, authtag)
+        Here endFrameSeqNumb is an identifier which tells the parser it is parsing a final frame. This variable is always equal to ENDFRAME_SEQUENCE_NUMBER
+        seqNumb is the actual sequence number of the final frame which does not have to be ENDFRAME_SEQUENCE_NUMBER.
+        encruptedContentLength is the length of the encrypted content which is an uint32. The encrypted content is at most equal to the framelength.
+    We know that the serialized final frame length is between 4 + 4 + IV_Length + 4 + 0 + authTag_Length and 4 + 4 + IV_Length + 4 + frameLength + authTag_Length
+  */
+
   predicate ValidFrames(frames: seq<Frame>) {
     0 < |frames| < UINT32_LIMIT &&
     forall i | 0 <= i < |frames| ::
