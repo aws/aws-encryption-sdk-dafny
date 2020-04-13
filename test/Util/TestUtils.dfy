@@ -25,6 +25,22 @@ module {:extern "TestUtils"} TestUtils {
   lemma {:axiom} AssumeLongSeqIsValidUTF8(s: seq<uint8>)
     requires |s| >= 0x1000
     ensures UTF8.ValidUTF8Seq(s)
+
+  method GenerateInvalidEncryptionContext() returns (encCtx: EncryptionContext.Map)
+    ensures !EncryptionContext.Serializable(encCtx)
+  {
+    var validUTF8char: UTF8.ValidUTF8Bytes :- expect UTF8.Encode("a");
+    var key: UTF8.ValidUTF8Bytes := [];
+    while |key| < UINT16_LIMIT {
+      key := key + validUTF8char;
+    }
+    encCtx := map[key := [0]];
+    //assert !MessageHeader.ValidKVPair((key, encCtx[key]));
+    //assert !MessageHeader.ValidKVPairs(encCtx);
+    //reveal MessageHeader.ValidAAD();
+    reveal EncryptionContext.Serializable();
+    assert !EncryptionContext.Serializable(encCtx);
+  }
   
   // Generates a large encryption context that approaches the upper bounds of
   // what is able to be serialized in the message format.
@@ -112,6 +128,7 @@ module {:extern "TestUtils"} TestUtils {
 
   method MakeRSAKeyring() returns (res: Result<RawRSAKeyringDef.RawRSAKeyring>)
     ensures res.Success? ==> res.value.Valid()
+    ensures res.Success? ==> fresh(res.value) && fresh(res.value.Repr)
   {
     var namespace :- UTF8.Encode("namespace");
     var name :- UTF8.Encode("MyKeyring");
