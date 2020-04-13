@@ -8,7 +8,7 @@ module {:extern "AESEncryption"} AESEncryption {
   import opened UInt = StandardLibrary.UInt
 
   export
-    provides AESDecrypt, AESEncrypt, AESDecrypt, AESEncrypt, EncryptionSuites, StandardLibrary, 
+    provides AESDecrypt, AESEncrypt, AESDecryptExtern, AESEncryptExtern, EncryptionSuites, StandardLibrary, 
       UInt, PlaintextDecryptedWithAAD, EncryptionOutputEncryptedWithAAD, CiphertextGeneratedWithPlaintext
     reveals EncryptionOutput
 
