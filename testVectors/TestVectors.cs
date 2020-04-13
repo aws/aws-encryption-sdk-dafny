@@ -276,7 +276,8 @@ namespace TestVectorTests {
         [SkippableTheory]
         [ClassData (typeof(DecryptTestVectors))]
         public void CanDecryptTestVector(string vectorID, CMM cmm, byte[] expectedPlaintext, MemoryStream ciphertextStream) {
-            MemoryStream decodedStream = AWSEncryptionSDK.Client.Decrypt(ciphertextStream, cmm);
+            var request = new AWSEncryptionSDK.Client.DecryptRequest{message = ciphertextStream, cmm = cmm};
+            MemoryStream decodedStream = AWSEncryptionSDK.Client.Decrypt(request);
             byte[] result = decodedStream.ToArray();
             Assert.Equal(expectedPlaintext, result);
         }
@@ -285,7 +286,8 @@ namespace TestVectorTests {
         [Theory]
         [ClassData (typeof(EncryptTestVectors))]
         public void CanEncryptTestVector(string vectorID, CMM cmm, byte[] plaintext, HttpClient client, string decryptOracle) {
-            MemoryStream ciphertext = AWSEncryptionSDK.Client.Encrypt(new MemoryStream(plaintext), cmm);
+            var request = new AWSEncryptionSDK.Client.EncryptRequest{plaintext = new MemoryStream(plaintext), cmm = cmm};
+            MemoryStream ciphertext = AWSEncryptionSDK.Client.Encrypt(request);
 
             StreamContent content = new StreamContent(ciphertext);
             content.Headers.Add("Content-Type", "application/octet-stream");

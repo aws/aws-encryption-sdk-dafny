@@ -21,8 +21,6 @@ module {:extern "CMMDefs"} CMMDefs {
     method GetEncryptionMaterials(materialsRequest: Materials.EncryptionMaterialsRequest)
                                   returns (res: Result<Materials.ValidEncryptionMaterials>)
       requires Valid()
-      requires ValidAAD(materialsRequest.encryptionContext)
-      requires materialsRequest.encryptionContext.Keys !! Materials.ReservedKeyValues
       ensures Valid()
       ensures res.Success? ==> res.value.plaintextDataKey.Some? && res.value.algorithmSuiteID.ValidPlaintextDataKey(res.value.plaintextDataKey.get)
       ensures res.Success? ==> |res.value.encryptedDataKeys| > 0
