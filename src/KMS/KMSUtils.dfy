@@ -75,8 +75,10 @@ module {:extern "KMSUtils"} KMSUtils {
 
   datatype DecryptResponse = DecryptResponse(contentLength: int, httpStatusCode: HttpStatusCode, keyID: string, plaintext: seq<uint8>, responseMetadata: ResponseMetadata)
 
+  method {:extern} GetClientExtern(region: Option<string>) returns (res: Result<DefaultClient>)
+
   // TODO: Return Result<KMSClient>, Dafny does not currently support returning Result<trait>
-  trait {:termination false} KMSClientSupplier {
+  trait KMSClientSupplier {
     ghost var Repr: set<object>
 
     predicate Valid()
@@ -84,6 +86,9 @@ module {:extern "KMSUtils"} KMSUtils {
       ensures Valid() ==> this in Repr
 
     method GetClient(region: Option<string>) returns (res: Result<DefaultClient>)
+      requires Valid()
+      ensures Valid()
+      decreases Repr
   }
 
   class DefaultClientSupplier extends KMSClientSupplier {
@@ -106,6 +111,9 @@ module {:extern "KMSUtils"} KMSUtils {
     }
 
     method GetClient(region: Option<string>) returns (res: Result<DefaultClient>)
+      requires Valid()
+      ensures Valid()
+      decreases Repr
     {
       var resClient := this.clientSupplier.GetClient(region);
       return resClient;
@@ -139,9 +147,13 @@ module {:extern "KMSUtils"} KMSUtils {
     }
 
     method GetClient(region: Option<string>) returns (res: Result<DefaultClient>)
+      requires Valid()
+      ensures Valid()
       ensures region.None? ==> res.Failure?
+      // Only add a post condition around failures, since (region.Some? && region.get in regions) could be a success
+      // or failure
       ensures region.Some? && !(region.get in regions) ==> res.Failure?
-      ensures region.Some? && region.get in regions ==> res.Success?
+      decreases Repr
     {
       // In order to limit regions, make sure our given region string exists and is a member of the regions to limit to
       if region.Some? && region.get in regions {
@@ -180,9 +192,12 @@ module {:extern "KMSUtils"} KMSUtils {
     }
 
     method GetClient(region: Option<string>) returns (res: Result<DefaultClient>)
-      ensures region.None? ==> res.Success?
-      ensures region.Some? && !(region.get in regions) ==> res.Success?
+      requires Valid()
+      ensures Valid()
+      // Only add a post condition around failures, since (region.None?) or (region.Some? && !(region.get in regions))
+      // could be a success or failure
       ensures region.Some? && region.get in regions ==> res.Failure?
+      decreases Repr
     {
       // Exclude if our regions is a member of the maintained regions
       if region.Some? && region.get in regions {
@@ -213,7 +228,15 @@ module {:extern "KMSUtils"} KMSUtils {
     }
 
     // Since this is the base client supplier, this just calls the extern GetClient method
-    method {:extern} GetClient(region: Option<string>) returns (res: Result<DefaultClient>)
+    method GetClient(region: Option<string>) returns (res: Result<DefaultClient>)
+      requires Valid()
+      ensures Valid()
+      decreases Repr
+    {
+        // Since this is the base client supplier, this just calls the extern GetClient method
+        var resClient := GetClientExtern(region);
+        return resClient;
+    }
   }
 
   // https://docs.aws.amazon.com/sdkfornet/v3/apidocs/items/KeyManagementService/TKeyManagementServiceClient.html
