@@ -75,9 +75,22 @@ module {:extern "KMSUtils"} KMSUtils {
 
   datatype DecryptResponse = DecryptResponse(contentLength: int, httpStatusCode: HttpStatusCode, keyID: string, plaintext: seq<uint8>, responseMetadata: ResponseMetadata)
 
-  method {:extern} GetClientExtern(region: Option<string>) returns (res: Result<DefaultClient>)
+  method {:extern} GetDefaultClientExtern(region: Option<string>) returns (res: Result<DefaultClient>)
+  // We require a new datatype and cannot use Result<KMSClient> since Dafny does not currently support returning Result<trait>
+  datatype KMSClientResult = KMSClientSuccess(client: KMSClient) | KMSClientFailure(error: string)
+  {
+    function method GetError(): string
+      requires KMSClientFailure?
+    {
+      this.error
+    }
+    function method Extract(): KMSClient
+      requires KMSClientSuccess?
+    {
+      this.client
+    }
+  }
 
-  // TODO: Return Result<KMSClient>, Dafny does not currently support returning Result<trait>
   trait KMSClientSupplier {
     ghost var Repr: set<object>
 
@@ -85,7 +98,7 @@ module {:extern "KMSUtils"} KMSUtils {
       reads this, Repr
       ensures Valid() ==> this in Repr
 
-    method GetClient(region: Option<string>) returns (res: Result<DefaultClient>)
+    method GetClient(region: Option<string>) returns (res: KMSClientResult)
       requires Valid()
       ensures Valid()
       decreases Repr
@@ -105,12 +118,13 @@ module {:extern "KMSUtils"} KMSUtils {
     constructor()
       ensures Valid()
     {
+      // TODO: This will be swapped for the caching client supplier
       var newClientSupplier := new BaseClientSupplier();
       this.clientSupplier := newClientSupplier;
       Repr := {this} + newClientSupplier.Repr;
     }
 
-    method GetClient(region: Option<string>) returns (res: Result<DefaultClient>)
+    method GetClient(region: Option<string>) returns (res: KMSClientResult)
       requires Valid()
       ensures Valid()
       decreases Repr
@@ -146,13 +160,13 @@ module {:extern "KMSUtils"} KMSUtils {
       Repr := {this} + clientSupplier.Repr;
     }
 
-    method GetClient(region: Option<string>) returns (res: Result<DefaultClient>)
+    method GetClient(region: Option<string>) returns (res: KMSClientResult)
       requires Valid()
       ensures Valid()
-      ensures region.None? ==> res.Failure?
+      ensures region.None? ==> res.KMSClientFailure?
       // Only add a post condition around failures, since (region.Some? && region.get in regions) could be a success
       // or failure
-      ensures region.Some? && !(region.get in regions) ==> res.Failure?
+      ensures region.Some? && !(region.get in regions) ==> res.KMSClientFailure?
       decreases Repr
     {
       // In order to limit regions, make sure our given region string exists and is a member of the regions to limit to
@@ -160,7 +174,7 @@ module {:extern "KMSUtils"} KMSUtils {
         var resClient := this.clientSupplier.GetClient(region);
         return resClient;
       } else {
-        return Failure("Given region not in regions maintained by LimitRegionsClientSupplier");
+        return KMSClientFailure("Given region not in regions maintained by LimitRegionsClientSupplier");
       }
     }
   }
@@ -191,17 +205,17 @@ module {:extern "KMSUtils"} KMSUtils {
       Repr := {this} + clientSupplier.Repr;
     }
 
-    method GetClient(region: Option<string>) returns (res: Result<DefaultClient>)
+    method GetClient(region: Option<string>) returns (res: KMSClientResult)
       requires Valid()
       ensures Valid()
       // Only add a post condition around failures, since (region.None?) or (region.Some? && !(region.get in regions))
       // could be a success or failure
-      ensures region.Some? && region.get in regions ==> res.Failure?
+      ensures region.Some? && region.get in regions ==> res.KMSClientFailure?
       decreases Repr
     {
       // Exclude if our regions is a member of the maintained regions
       if region.Some? && region.get in regions {
-        return Failure("Given region is in regions maintained by ExcludeRegionsClientSupplier");
+        return KMSClientFailure("Given region is in regions maintained by ExcludeRegionsClientSupplier");
       } else {
         var resClient := this.clientSupplier.GetClient(region);
         return resClient;
@@ -210,7 +224,6 @@ module {:extern "KMSUtils"} KMSUtils {
   }
 
   class BaseClientSupplier extends KMSClientSupplier {
-
     predicate Valid()
       reads this, Repr
       ensures Valid() ==> this in Repr
@@ -218,9 +231,7 @@ module {:extern "KMSUtils"} KMSUtils {
       this in Repr
     }
 
-    // TODO: This needs to take in a region, and creds
-    // What we really want to do is take in a AmazonKeyManagementServiceConfig
-    // and an AWSCredentials
+    // TODO: This needs to take in a region and creds, more likely: AmazonKeyManagementServiceConfig and AWSCredentials
     constructor()
       ensures Valid()
     {
@@ -228,14 +239,18 @@ module {:extern "KMSUtils"} KMSUtils {
     }
 
     // Since this is the base client supplier, this just calls the extern GetClient method
-    method GetClient(region: Option<string>) returns (res: Result<DefaultClient>)
+    method GetClient(region: Option<string>) returns (res: KMSClientResult)
       requires Valid()
       ensures Valid()
       decreases Repr
     {
-        // Since this is the base client supplier, this just calls the extern GetClient method
-        var resClient := GetClientExtern(region);
-        return resClient;
+        // Since this is the base client supplier, this obtains the extern client
+        var resClient := GetDefaultClientExtern(region);
+        if resClient.Success? {
+          return KMSClientSuccess(resClient.Extract());
+        }  else {
+          return KMSClientFailure(resClient.error);
+        }
     }
   }
 

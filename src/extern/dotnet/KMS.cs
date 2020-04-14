@@ -12,7 +12,8 @@ using EncryptionContextMap = Dafny.Map<Dafny.ISequence<byte>, Dafny.ISequence<by
 namespace KMSUtils {
 
     public partial class __default {
-        public static STL.Result<DefaultClient> GetClientExtern(STL.Option<IDString> region) {
+        public static STL.Result<DefaultClient> GetDefaultClientExtern(STL.Option<IDString> region) {
+            // TODO: Error handling
             DefaultClient kmsClient = new DefaultClient(region);
             return STL.Result<DefaultClient>.create_Success(kmsClient);
         }

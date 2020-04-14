@@ -76,7 +76,9 @@ module {:extern "KMSKeyringDef"} KMSKeyringDef {
       var generatorRequest := KMSUtils.GenerateDataKeyRequest(materials.encryptionContext, grantTokens, generator.get, materials.algorithmSuiteID.KDFInputKeyLength() as int32);
       var regionRes := RegionFromKMSKeyARN(generator.get);
       var regionOpt := regionRes.ToOption();
-      var client :- clientSupplier.GetClient(regionOpt);
+      var clientResult := clientSupplier.GetClient(regionOpt);
+      expect clientResult.KMSClientSuccess?, clientResult.GetError();
+      var client := clientResult.Extract();
       var generatorResponse :- client.GenerateDataKey(generatorRequest);
       if !generatorResponse.IsWellFormed() {
         return Failure("Invalid response from KMS GenerateDataKey");
@@ -148,7 +150,9 @@ module {:extern "KMSKeyringDef"} KMSKeyringDef {
         var encryptRequest := KMSUtils.EncryptRequest(materials.encryptionContext, grantTokens, encryptCMKs[i], resultMaterials.plaintextDataKey.get);
         var regionRes := RegionFromKMSKeyARN(encryptCMKs[i]);
         var regionOpt := regionRes.ToOption();
-        var client :- clientSupplier.GetClient(regionOpt);
+        var clientResult := clientSupplier.GetClient(regionOpt);
+        expect clientResult.KMSClientSuccess?, clientResult.GetError();
+        var client := clientResult.Extract();
         var encryptResponse :- client.Encrypt(encryptRequest);
         if encryptResponse.IsWellFormed() {
           var providerInfo :- UTF8.Encode(encryptResponse.keyID);
@@ -203,8 +207,8 @@ module {:extern "KMSKeyringDef"} KMSKeyringDef {
           var regionRes := RegionFromKMSKeyARN(providerInfo.value);
           var regionOpt := regionRes.ToOption();
           var clientRes := clientSupplier.GetClient(regionOpt);
-          if clientRes.Success? {
-            var client := clientRes.value;
+          if clientRes.KMSClientSuccess? {
+            var client := clientRes.Extract();
             var decryptResponseResult := client.Decrypt(decryptRequest);
             if decryptResponseResult.Success? {
               var decryptResponse := decryptResponseResult.value;
