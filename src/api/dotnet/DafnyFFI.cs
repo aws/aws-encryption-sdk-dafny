@@ -1,5 +1,7 @@
 using System;
+using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Text;
 using STL;
 
@@ -117,6 +119,44 @@ public class DafnyFFI {
             default:
                 throw new ArgumentException("Unsupported AES Wrapping Algorithm");
         };
+    }
+
+    public static KMSUtils.DefaultClientSupplier NewKMSDefaultClientSupplier()
+    {
+        // When transpiling Dafny code, new MyClass() does not actually call the constructor, so we need to
+        // instantiate the class and then manually call __ctor() to call the required constructor
+        KMSUtils.DefaultClientSupplier clientSupplier = new KMSUtils.DefaultClientSupplier();
+        clientSupplier.__ctor();
+        return clientSupplier;
+    }
+
+    public static KMSUtils.BaseClientSupplier NewKMSBaseClientSupplier()
+    {
+        // When transpiling Dafny code, new MyClass() does not actually call the constructor, so we need to
+        // instantiate the class and then manually call __ctor() to call the required constructor
+        KMSUtils.BaseClientSupplier clientSupplier = new KMSUtils.BaseClientSupplier();
+        clientSupplier.__ctor();
+        return clientSupplier;
+    }
+
+    public static KMSUtils.LimitRegionsClientSupplier NewKMSLimitRegionsClientSupplier(KMSUtils.KMSClientSupplier clientSupplier, IEnumerable<string> regions)
+    {
+        // When transpiling Dafny code, new MyClass() does not actually call the constructor, so we need to
+        // instantiate the class and then manually call __ctor() to call the required constructor
+        KMSUtils.LimitRegionsClientSupplier limitRegionsclientSupplier = new KMSUtils.LimitRegionsClientSupplier();
+        var convertedRegions = regions.Select(DafnyFFI.DafnyStringFromString).ToArray();
+        limitRegionsclientSupplier.__ctor(clientSupplier, Dafny.Sequence<icharseq>.FromElements(convertedRegions));
+        return limitRegionsclientSupplier;
+    }
+
+    public static KMSUtils.ExcludeRegionsClientSupplier NewKMSExcludeRegionsClientSupplier(KMSUtils.KMSClientSupplier clientSupplier, IEnumerable<string> regions)
+    {
+        // When transpiling Dafny code, new MyClass() does not actually call the constructor, so we need to
+        // instantiate the class and then manually call __ctor() to call the required constructor
+        KMSUtils.ExcludeRegionsClientSupplier excludeRegionsclientSupplier = new KMSUtils.ExcludeRegionsClientSupplier();
+        var convertedRegions = regions.Select(DafnyFFI.DafnyStringFromString).ToArray();
+        excludeRegionsclientSupplier.__ctor(clientSupplier, Dafny.Sequence<icharseq>.FromElements(convertedRegions));
+        return excludeRegionsclientSupplier;
     }
 }
 

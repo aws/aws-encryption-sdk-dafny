@@ -22,7 +22,7 @@ namespace AWSEncryptionSDKTests
         private Keyring MakeKMSKeyring()
         {
             String keyArn = DafnyFFI.StringFromDafnyString(TestUtils.__default.SHARED__TEST__KEY__ARN);
-            KMSClientSupplier clientSupplier = new DefaultClientSupplier();
+            KMSClientSupplier clientSupplier = DafnyFFI.NewKMSDefaultClientSupplier();
             return AWSEncryptionSDK.Keyrings.MakeKMSKeyring(
                 clientSupplier, Enumerable.Empty<String>(), keyArn, Enumerable.Empty<String>());
         }
@@ -173,7 +173,7 @@ namespace AWSEncryptionSDKTests
         public void BadConstructor_KeyIds_KMS()
         {
             String keyArn = DafnyFFI.StringFromDafnyString(TestUtils.__default.SHARED__TEST__KEY__ARN);
-            KMSClientSupplier clientSupplier = new DefaultClientSupplier();
+            KMSClientSupplier clientSupplier = DafnyFFI.NewKMSDefaultClientSupplier();
             // Try when keyIds is null
             ArgumentNullException nullKeyIdsException = Assert.Throws<ArgumentNullException>(() => {
                 AWSEncryptionSDK.Keyrings.MakeKMSKeyring(
@@ -194,7 +194,7 @@ namespace AWSEncryptionSDKTests
         public void BadConstructor_GrantTokens_KMS()
         {
             String keyArn = DafnyFFI.StringFromDafnyString(TestUtils.__default.SHARED__TEST__KEY__ARN);
-            KMSClientSupplier clientSupplier = new DefaultClientSupplier();
+            KMSClientSupplier clientSupplier = DafnyFFI.NewKMSDefaultClientSupplier();
             // Try when grantTokens is null
             ArgumentNullException nullGrantTokensException = Assert.Throws<ArgumentNullException>(() => {
                 AWSEncryptionSDK.Keyrings.MakeKMSKeyring(
@@ -422,7 +422,7 @@ namespace AWSEncryptionSDKTests
         {
             var keyArn = DafnyFFI.StringFromDafnyString(TestUtils.__default.SHARED__TEST__KEY__ARN);
                 
-            KMSClientSupplier clientSupplier = new DefaultClientSupplier();
+            KMSClientSupplier clientSupplier = DafnyFFI.NewKMSDefaultClientSupplier();
                 
             var keyring = AWSEncryptionSDK.Keyrings.MakeKMSKeyring(
                 clientSupplier, Enumerable.Empty<String>(), keyArn,Enumerable.Empty<String>());
