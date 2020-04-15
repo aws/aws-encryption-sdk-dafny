@@ -79,7 +79,9 @@ module {:extern "KMSKeyringDef"} KMSKeyringDef {
       var regionRes := RegionFromKMSKeyARN(generator.get);
       var regionOpt := regionRes.ToOption();
       var clientResult := clientSupplier.GetClient(regionOpt);
-      expect clientResult.KMSClientSuccess?, clientResult.GetError();
+      if clientResult.KMSClientFailure? {
+        return Failure(clientResult.GetError());
+      }
       var client := clientResult.Extract();
       var generatorResponse :- client.GenerateDataKey(generatorRequest);
       if !generatorResponse.IsWellFormed() {
@@ -153,7 +155,9 @@ module {:extern "KMSKeyringDef"} KMSKeyringDef {
         var regionRes := RegionFromKMSKeyARN(encryptCMKs[i]);
         var regionOpt := regionRes.ToOption();
         var clientResult := clientSupplier.GetClient(regionOpt);
-        expect clientResult.KMSClientSuccess?, clientResult.GetError();
+        if clientResult.KMSClientFailure? {
+          return Failure(clientResult.GetError());
+        }
         var client := clientResult.Extract();
         var encryptResponse :- client.Encrypt(encryptRequest);
         if encryptResponse.IsWellFormed() {

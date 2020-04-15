@@ -25,11 +25,12 @@ module IntegTestKMS {
   import UTF8
   import Base64
 
-  method EncryptDecryptTest(cmm: CMMDefs.CMM, message: string) returns (res: string)
+  method EncryptDecryptTest(cmm: CMMDefs.CMM, shouldFailGetClient: bool)
     requires cmm.Valid()
     modifies cmm.Repr
     ensures cmm.Valid() && fresh(cmm.Repr - old(cmm.Repr))
   {
+    var message := "Hello, World!!";
     var encodeResult := UTF8.Encode(message);
     expect encodeResult.Success?, "Failed to encode :( " + encodeResult.error + "\n";
     var encodedMsg := encodeResult.value;
@@ -52,6 +53,10 @@ module IntegTestKMS {
     var encryptRequest := new Client.EncryptRequest.WithCMM(encodedMsg, cmm);
     encryptRequest.SetEncryptionContext(encryptionContext);
     var e := Client.Encrypt(encryptRequest);
+    if shouldFailGetClient {
+      expect e.Failure?, "Successfully called GetClient when the call should have failed";
+      return;
+    }
     expect e.Success?, "Bad encryption :( " + e.error + "\n";
 
     var decryptRequest := new Client.DecryptRequest.WithCMM(e.value, cmm);
@@ -59,21 +64,123 @@ module IntegTestKMS {
     expect d.Success?, "bad decryption: " + d.error + "\n";
 
     expect UTF8.ValidUTF8Seq(d.value), "Could not decode Encryption output";
-    res :- expect UTF8.Decode(d.value);
+    var res :- expect UTF8.Decode(d.value);
+    expect message == res;
   }
 
-  method {:test} TestEndToEnd() {
+  method CreateTestingGenerator() returns (generator: KMSUtils.CustomerMasterKey)
+  {
     var namespace :- expect UTF8.Encode("namespace");
     var name :- expect UTF8.Encode("MyKeyring");
     var generatorStr := SHARED_TEST_KEY_ARN;
     expect KMSUtils.ValidFormatCMK(generatorStr);
-    var generator: KMSUtils.CustomerMasterKey := generatorStr;
+    generator := generatorStr;
+  }
+
+  method {:test} TestEndToEnd_DefaultClientSupplier() {
     var clientSupplier := new KMSUtils.DefaultClientSupplier();
+    var generator: KMSUtils.CustomerMasterKey := CreateTestingGenerator();
     var keyring := new KMSKeyringDef.KMSKeyring(clientSupplier, [], Some(generator), []);
     var cmm := new DefaultCMMDef.DefaultCMM.OfKeyring(keyring);
+    EncryptDecryptTest(cmm, false);
+  }
 
-    var message := "Hello, World!!";
-    var result := EncryptDecryptTest(cmm, message);
-    expect message == result;
+  method {:test} TestEndToEnd_BaseClientSupplier() {
+    var clientSupplier := new KMSUtils.BaseClientSupplier();
+    var generator: KMSUtils.CustomerMasterKey := CreateTestingGenerator();
+    var keyring := new KMSKeyringDef.KMSKeyring(clientSupplier, [], Some(generator), []);
+    var cmm := new DefaultCMMDef.DefaultCMM.OfKeyring(keyring);
+    EncryptDecryptTest(cmm, false);
+  }
+
+  method {:test} TestEndToEnd_ExcludeRegionsClientSupplier_UsingDefaultClientSupplier() {
+    var defaultClientSupplier := new KMSUtils.DefaultClientSupplier();
+    var regions: seq<string> := ["some-excluded-region"];
+    var excludeRegionsClientSupplier := new KMSUtils.ExcludeRegionsClientSupplier(defaultClientSupplier, regions);
+    var generator: KMSUtils.CustomerMasterKey := CreateTestingGenerator();
+    var keyring := new KMSKeyringDef.KMSKeyring(excludeRegionsClientSupplier, [], Some(generator), []);
+    var cmm := new DefaultCMMDef.DefaultCMM.OfKeyring(keyring);
+    EncryptDecryptTest(cmm, false);
+  }
+
+  method {:test} TestEndToEnd_ExcludeRegionsClientSupplier_UsingBaseClientSupplier() {
+    var baseClientSupplier := new KMSUtils.BaseClientSupplier();
+    var regions: seq<string> := ["some-excluded-region"];
+    var excludeRegionsClientSupplier := new KMSUtils.ExcludeRegionsClientSupplier(baseClientSupplier, regions);
+    var generator: KMSUtils.CustomerMasterKey := CreateTestingGenerator();
+    var keyring := new KMSKeyringDef.KMSKeyring(excludeRegionsClientSupplier, [], Some(generator), []);
+    var cmm := new DefaultCMMDef.DefaultCMM.OfKeyring(keyring);
+    EncryptDecryptTest(cmm, false);
+  }
+
+  method {:test} TestEndToEnd_ExcludeRegionsClientSupplier_NoRegions() {
+    var defaultClientSupplier := new KMSUtils.DefaultClientSupplier();
+    var regions: seq<string> := [];
+    var excludeRegionsClientSupplier := new KMSUtils.ExcludeRegionsClientSupplier(defaultClientSupplier, regions);
+    var generator: KMSUtils.CustomerMasterKey := CreateTestingGenerator();
+    var keyring := new KMSKeyringDef.KMSKeyring(excludeRegionsClientSupplier, [], Some(generator), []);
+    var cmm := new DefaultCMMDef.DefaultCMM.OfKeyring(keyring);
+    EncryptDecryptTest(cmm, false);
+  }
+
+  method {:test} TestEndToEnd_ExcludeRegionsClientSupplier_Failure() {
+    var defaultClientSupplier := new KMSUtils.DefaultClientSupplier();
+    var regions: seq<string> := ["us-west-2"];
+    var excludeRegionsClientSupplier := new KMSUtils.ExcludeRegionsClientSupplier(defaultClientSupplier, regions);
+    var generator: KMSUtils.CustomerMasterKey := CreateTestingGenerator();
+    var keyring := new KMSKeyringDef.KMSKeyring(excludeRegionsClientSupplier, [], Some(generator), []);
+    var cmm := new DefaultCMMDef.DefaultCMM.OfKeyring(keyring);
+    EncryptDecryptTest(cmm, true);
+  }
+
+  method {:test} TestEndToEnd_LimitRegionsClientSupplier_UsingDefaultClientSupplier() {
+    var defaultClientSupplier := new KMSUtils.DefaultClientSupplier();
+    var regions: seq<string> := ["us-west-2"];
+    var limitRegionsClientSupplier := new KMSUtils.LimitRegionsClientSupplier(defaultClientSupplier, regions);
+    var generator: KMSUtils.CustomerMasterKey := CreateTestingGenerator();
+    var keyring := new KMSKeyringDef.KMSKeyring(limitRegionsClientSupplier, [], Some(generator), []);
+    var cmm := new DefaultCMMDef.DefaultCMM.OfKeyring(keyring);
+    EncryptDecryptTest(cmm, false);
+  }
+
+  method {:test} TestEndToEnd_LimitRegionsClientSupplier_UsingBaseClientSupplier() {
+    var baseClientSupplier := new KMSUtils.BaseClientSupplier();
+    var regions: seq<string> := ["us-west-2"];
+    var limitRegionsClientSupplier := new KMSUtils.LimitRegionsClientSupplier(baseClientSupplier, regions);
+    var generator: KMSUtils.CustomerMasterKey := CreateTestingGenerator();
+    var keyring := new KMSKeyringDef.KMSKeyring(limitRegionsClientSupplier, [], Some(generator), []);
+    var cmm := new DefaultCMMDef.DefaultCMM.OfKeyring(keyring);
+    EncryptDecryptTest(cmm, false);
+  }
+
+  method {:test} TestEndToEnd_LimitRegionsClientSupplier_Failure_BadRegion() {
+    var defaultClientSupplier := new KMSUtils.DefaultClientSupplier();
+    var regions: seq<string> := ["another-region"];
+    var limitRegionsClientSupplier := new KMSUtils.LimitRegionsClientSupplier(defaultClientSupplier, regions);
+    var generator: KMSUtils.CustomerMasterKey := CreateTestingGenerator();
+    var keyring := new KMSKeyringDef.KMSKeyring(limitRegionsClientSupplier, [], Some(generator), []);
+    var cmm := new DefaultCMMDef.DefaultCMM.OfKeyring(keyring);
+    EncryptDecryptTest(cmm, true);
+  }
+
+  method {:test} TestEndToEnd_LimitRegionsClientSupplier_Failure_NoRegion() {
+    var defaultClientSupplier := new KMSUtils.DefaultClientSupplier();
+    var regions: seq<string> := [];
+    var limitRegionsClientSupplier := new KMSUtils.LimitRegionsClientSupplier(defaultClientSupplier, regions);
+    var generator: KMSUtils.CustomerMasterKey := CreateTestingGenerator();
+    var keyring := new KMSKeyringDef.KMSKeyring(limitRegionsClientSupplier, [], Some(generator), []);
+    var cmm := new DefaultCMMDef.DefaultCMM.OfKeyring(keyring);
+    EncryptDecryptTest(cmm, true);
+  }
+
+  method {:test} TestEndToEnd_LimitRegionsClientSupplier_Failure_ConflictingSuppliers() {
+    var defaultClientSupplier := new KMSUtils.DefaultClientSupplier();
+    var regions: seq<string> := [];
+    var limitRegionsClientSupplier := new KMSUtils.LimitRegionsClientSupplier(defaultClientSupplier, regions);
+    var excludeRegionsClientSupplier := new KMSUtils.ExcludeRegionsClientSupplier(limitRegionsClientSupplier, regions);
+    var generator: KMSUtils.CustomerMasterKey := CreateTestingGenerator();
+    var keyring := new KMSKeyringDef.KMSKeyring(limitRegionsClientSupplier, [], Some(generator), []);
+    var cmm := new DefaultCMMDef.DefaultCMM.OfKeyring(keyring);
+    EncryptDecryptTest(cmm, true);
   }
 }
