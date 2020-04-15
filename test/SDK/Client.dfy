@@ -40,9 +40,9 @@ module {:extern "TestClient"} TestClient {
       var keyA :- expect UTF8.Encode("keyA");
       var valA :- expect UTF8.Encode("valA");
       var encryptionContext := map[keyA := valA];
-      assert EncryptionContext.Valid(encryptionContext) by {
-        // To prove ValidAAD, we need to reveal the definition of ValidAAD:
-        reveal EncryptionContext.Valid();
+      assert EncryptionContext.Serializable(encryptionContext) by {
+        // To prove EncryptionContext.Serializable, we need to reveal the definition of that predicate:
+        reveal EncryptionContext.Serializable();
         // We also need to help the verifier with proving the KVPairsLength is small:
         calc {
           EncryptionContext.Length(encryptionContext);

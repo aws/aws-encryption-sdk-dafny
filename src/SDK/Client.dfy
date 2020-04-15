@@ -40,14 +40,14 @@ module {:extern "ESDKClient"} ESDKClient {
   method Encrypt(plaintext: seq<uint8>, cmm: CMMDefs.CMM, optEncryptionContext: Option<EncryptionContext.Map>, algorithmSuiteID: Option<AlgorithmSuite.ID>, optFrameLength: Option<uint32>) returns (res: Result<seq<uint8>>)
     requires cmm.Valid()
     requires optFrameLength.Some? ==> optFrameLength.get != 0
-    requires optEncryptionContext.Some? ==> optEncryptionContext.get.Keys !! Materials.ReservedKeyValues && EncryptionContext.Valid(optEncryptionContext.get)
+    requires optEncryptionContext.Some? ==> optEncryptionContext.get.Keys !! Materials.ReservedKeyValues && EncryptionContext.Serializable(optEncryptionContext.get)
     modifies cmm.Repr
     ensures cmm.Valid() && fresh(cmm.Repr - old(cmm.Repr))
   {
     var encryptionContext := optEncryptionContext.GetOrElse(map[]);
-    assert EncryptionContext.Valid(encryptionContext) by {
-      reveal EncryptionContext.Valid();
-      assert EncryptionContext.Valid(encryptionContext);
+    assert EncryptionContext.Serializable(encryptionContext) by {
+      reveal EncryptionContext.Serializable();
+      assert EncryptionContext.Serializable(encryptionContext);
     }
     var frameLength := if optFrameLength.Some? then optFrameLength.get else DEFAULT_FRAME_LENGTH;
     

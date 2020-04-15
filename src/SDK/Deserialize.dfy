@@ -183,10 +183,10 @@ module Deserialize {
     modifies rd.reader`pos
     ensures rd.Valid()
     ensures match ret
-      case Success(aad) => EncryptionContext.Valid(aad)
+      case Success(aad) => EncryptionContext.Serializable(aad)
       case Failure(_) => true
   {
-    reveal EncryptionContext.Valid();
+    reveal EncryptionContext.Serializable();
 
     var kvPairsLength :- rd.ReadUInt16();
     if kvPairsLength == 0 {
@@ -251,7 +251,7 @@ module Deserialize {
     // If not valid, then something was wrong with the conversion, as
     // failures for invalid serializations should be caught earlier.
     var encryptionContext: map<UTF8.ValidUTF8Bytes, UTF8.ValidUTF8Bytes> := EncryptionContext.LinearToMap(kvPairs);
-    var isValid := EncryptionContext.ComputeValid(encryptionContext);
+    var isValid := EncryptionContext.CheckSerializable(encryptionContext);
     if !isValid {
       return Failure("Deserialization Error: Failed to parse encryption context.");
     }

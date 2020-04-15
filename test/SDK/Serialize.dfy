@@ -27,7 +27,7 @@ module TestSerialize {
   }
 
   method {:test} TestSerializeAADEmpty() {
-    reveal EncryptionContext.Valid();
+    reveal EncryptionContext.Serializable();
     var wr := new Streams.ByteWriter();
     var encryptionContext := map[];
 
@@ -61,7 +61,7 @@ module TestSerialize {
   }
 
   method {:test} TestSerializeKVPairsEmpty() {
-    reveal EncryptionContext.Valid();
+    reveal EncryptionContext.Serializable();
     var wr := new Streams.ByteWriter();
     var encryptionContext := map[];
 
