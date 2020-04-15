@@ -228,8 +228,8 @@ module TestCachingCMM {
     // Call ccmm.GetEncryptionMaterial and report whether or not there was a cache hit
     method CallGetEM(ccmm: CachingCMMDef.CachingCMM, tcmm: TestCMM, request: Materials.EncryptionMaterialsRequest, expectCacheHit: bool)
       requires ccmm.Valid() && ccmm.cmm == tcmm
-      requires EncryptionContext.Valid(request.encryptionContext)
-      requires request.encryptionContext.Keys !! Materials.ReservedKeyValues
+      requires EncryptionContext.Serializable(request.encryptionContext)
+      requires request.encryptionContext.Keys !! Materials.RESERVED_KEY_VALUES
       modifies ccmm.Repr
       ensures ccmm.Valid() && fresh(ccmm.Repr - old(ccmm.Repr))
     {
@@ -278,7 +278,7 @@ module TestCachingCMM {
                                     returns (res: Result<Materials.ValidEncryptionMaterials>)
         requires Valid()
         requires ValidAAD(materialsRequest.encryptionContext)
-        requires materialsRequest.encryptionContext.Keys !! Materials.ReservedKeyValues
+        requires materialsRequest.encryptionContext.Keys !! Materials.RESERVED_KEY_VALUES
         modifies Repr
         ensures Valid() && fresh(Repr - old(Repr))
         ensures res.Success? ==> res.value.plaintextDataKey.Some? && res.value.algorithmSuiteID.ValidPlaintextDataKey(res.value.plaintextDataKey.get)

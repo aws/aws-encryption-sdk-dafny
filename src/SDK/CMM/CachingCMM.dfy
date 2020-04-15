@@ -108,7 +108,7 @@ module CachingCMMDef {
                                   returns (res: Result<Materials.ValidEncryptionMaterials>)
       requires Valid()
       requires ValidAAD(materialsRequest.encryptionContext)
-      requires materialsRequest.encryptionContext.Keys !! Materials.ReservedKeyValues
+      requires materialsRequest.encryptionContext.Keys !! Materials.RESERVED_KEY_VALUES
       modifies Repr
       ensures Valid() && fresh(Repr - old(Repr))
       ensures res.Success? ==> res.value.plaintextDataKey.Some? && res.value.algorithmSuiteID.ValidPlaintextDataKey(res.value.plaintextDataKey.get)
@@ -174,11 +174,11 @@ module CachingCMMDef {
       var kvPairsLength := EncryptionContext.ComputeLength(materialsRequest.encryptionContext);
       if UINT16_LIMIT <= kvPairsLength {
         return Failure("encryption context too large");
-      } else if !EncryptionContext.ValidKVPairs(materialsRequest.encryptionContext) {
+      } else if !EncryptionContext.SerializableKVPairs(materialsRequest.encryptionContext) {
         return Failure("malformed encryption context");
       }
-      assert EncryptionContext.Valid(materialsRequest.encryptionContext) by {
-        reveal EncryptionContext.Valid();
+      assert EncryptionContext.Serializable(materialsRequest.encryptionContext) by {
+        reveal EncryptionContext.Serializable();
       }
 
       var cacheID :- ComputeCacheID(Some(materialsRequest.algorithmSuiteID), materialsRequest.encryptionContext);
@@ -208,7 +208,7 @@ module CachingCMMDef {
 
 
   method ComputeCacheID(algSuiteID: Option<AlgorithmSuite.ID>, encCtx: EncryptionContext.Map) returns (res: Result<seq<uint8>>)
-    requires EncryptionContext.Valid(encCtx)
+    requires EncryptionContext.Serializable(encCtx)
   {
     var wr := new Streams.ByteWriter();
 
@@ -233,7 +233,7 @@ module CachingCMMDef {
   predicate GoodEncMat(encMat: Materials.EncryptionMaterials) {
     encMat.Valid() &&
     |encMat.encryptedDataKeys| > 0 &&
-    EncryptionContext.Valid(encMat.encryptionContext)
+    EncryptionContext.Serializable(encMat.encryptionContext)
   }
 
   predicate GoodDecMat(decMat: Materials.DecryptionMaterials) {
