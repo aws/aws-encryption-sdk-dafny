@@ -38,20 +38,22 @@ module {:extern "KMSKeyringDef"} KMSKeyringDef {
       && this in Repr
       && 0 <= |grantTokens| <= KMSUtils.MAX_GRANT_TOKENS
       && (|keyIDs| == 0 && generator.None? ==> isDiscovery)
+      && (clientSupplier in Repr && clientSupplier.Repr <= Repr && this !in clientSupplier.Repr && clientSupplier.Valid())
     }
 
     constructor (clientSupplier: KMSUtils.KMSClientSupplier, keyIDs: seq<KMSUtils.CustomerMasterKey>, generator: Option<KMSUtils.CustomerMasterKey>, grantTokens: seq<KMSUtils.GrantToken>)
+      requires clientSupplier.Valid()
       requires 0 <= |grantTokens| <= KMSUtils.MAX_GRANT_TOKENS
-      ensures Valid() && fresh(Repr)
+      ensures this.clientSupplier == clientSupplier
+      ensures Valid() && fresh(Repr - clientSupplier.Repr)
     {
-      Repr := {this};
-
       this.clientSupplier := clientSupplier;
       this.keyIDs         := keyIDs;
       this.generator      := generator;
       this.grantTokens    := grantTokens;
 
       this.isDiscovery    := |keyIDs| == 0 && generator.None?;
+      Repr := {this} + clientSupplier.Repr;
     }
 
     method Generate(materials: Mat.ValidEncryptionMaterials) returns (res: Result<Mat.ValidEncryptionMaterials>)

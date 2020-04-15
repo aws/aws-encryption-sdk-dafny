@@ -66,6 +66,7 @@ module IntegTestKMS {
     expect KMSUtils.ValidFormatCMK(generatorStr);
     var generator: KMSUtils.CustomerMasterKey := generatorStr;
     var clientSupplier := new KMSUtils.DefaultClientSupplier();
+    assert clientSupplier.Valid();
     var keyring := new KMSKeyringDef.KMSKeyring(clientSupplier, [], Some(generator), []);
     var cmm := new DefaultCMMDef.DefaultCMM.OfKeyring(keyring);
 

@@ -11,11 +11,11 @@ using EncryptionContextMap = Dafny.Map<Dafny.ISequence<byte>, Dafny.ISequence<by
 
 namespace KMSUtils {
 
-    public partial class __default {
-        public static STL.Result<DefaultClient> GetDefaultClientExtern(STL.Option<IDString> region) {
+    public partial class ClientHelper {
+        public static KMSClientResult GetDefaultClientExtern(STL.Option<IDString> region) {
             // TODO: Error handling
             DefaultClient kmsClient = new DefaultClient(region);
-            return STL.Result<DefaultClient>.create_Success(kmsClient);
+            return KMSClientResult.create_KMSClientSuccess(kmsClient);
         }
     }
 

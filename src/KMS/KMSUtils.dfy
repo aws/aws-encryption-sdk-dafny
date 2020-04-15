@@ -75,7 +75,6 @@ module {:extern "KMSUtils"} KMSUtils {
 
   datatype DecryptResponse = DecryptResponse(contentLength: int, httpStatusCode: HttpStatusCode, keyID: string, plaintext: seq<uint8>, responseMetadata: ResponseMetadata)
 
-  method {:extern} GetDefaultClientExtern(region: Option<string>) returns (res: Result<DefaultClient>)
   // We require a new datatype and cannot use Result<KMSClient> since Dafny does not currently support returning Result<trait>
   datatype KMSClientResult = KMSClientSuccess(client: KMSClient) | KMSClientFailure(error: string)
   {
@@ -90,6 +89,8 @@ module {:extern "KMSUtils"} KMSUtils {
       this.client
     }
   }
+
+  method {:extern "KMSUtils.ClientHelper", "GetDefaultClientExtern"} GetDefaultClientExtern(region: Option<string>) returns (res: KMSClientResult)
 
   trait KMSClientSupplier {
     ghost var Repr: set<object>
@@ -116,11 +117,12 @@ module {:extern "KMSUtils"} KMSUtils {
     }
 
     constructor()
-      ensures Valid()
+      ensures Valid() && fresh(Repr)
     {
-      // TODO: This will be swapped for the caching client supplier
+      // TODO awslabs/aws-encryption-sdk-dafny/issues/198: This will be swapped for the caching client supplier
       var newClientSupplier := new BaseClientSupplier();
-      this.clientSupplier := newClientSupplier;
+      assert newClientSupplier.Valid();
+      clientSupplier := newClientSupplier;
       Repr := {this} + newClientSupplier.Repr;
     }
 
@@ -129,7 +131,7 @@ module {:extern "KMSUtils"} KMSUtils {
       ensures Valid()
       decreases Repr
     {
-      var resClient := this.clientSupplier.GetClient(region);
+      var resClient := clientSupplier.GetClient(region);
       return resClient;
     }
   }
@@ -153,7 +155,7 @@ module {:extern "KMSUtils"} KMSUtils {
       requires clientSupplier.Valid()
       ensures this.clientSupplier == clientSupplier
       ensures this.regions == regions
-      ensures Valid()
+      ensures Valid() && fresh(Repr - clientSupplier.Repr)
     {
       this.clientSupplier := clientSupplier;
       this.regions := regions;
@@ -171,7 +173,7 @@ module {:extern "KMSUtils"} KMSUtils {
     {
       // In order to limit regions, make sure our given region string exists and is a member of the regions to limit to
       if region.Some? && region.get in regions {
-        var resClient := this.clientSupplier.GetClient(region);
+        var resClient := clientSupplier.GetClient(region);
         return resClient;
       } else {
         return KMSClientFailure("Given region not in regions maintained by LimitRegionsClientSupplier");
@@ -198,7 +200,7 @@ module {:extern "KMSUtils"} KMSUtils {
       requires clientSupplier.Valid()
       ensures this.clientSupplier == clientSupplier
       ensures this.regions == regions
-      ensures Valid()
+      ensures Valid() && fresh(Repr - clientSupplier.Repr)
     {
       this.clientSupplier := clientSupplier;
       this.regions := regions;
@@ -217,7 +219,7 @@ module {:extern "KMSUtils"} KMSUtils {
       if region.Some? && region.get in regions {
         return KMSClientFailure("Given region is in regions maintained by ExcludeRegionsClientSupplier");
       } else {
-        var resClient := this.clientSupplier.GetClient(region);
+        var resClient := clientSupplier.GetClient(region);
         return resClient;
       }
     }
@@ -231,9 +233,10 @@ module {:extern "KMSUtils"} KMSUtils {
       this in Repr
     }
 
-    // TODO: This needs to take in a region and creds, more likely: AmazonKeyManagementServiceConfig and AWSCredentials
+    // TODO awslabs/aws-encryption-sdk-dafny/issues/199: This needs to take in a region and creds
+    // Most likely: AmazonKeyManagementServiceConfig and AWSCredentials
     constructor()
-      ensures Valid()
+      ensures Valid() && fresh(Repr)
     {
        Repr := {this};
     }
@@ -246,11 +249,7 @@ module {:extern "KMSUtils"} KMSUtils {
     {
         // Since this is the base client supplier, this obtains the extern client
         var resClient := GetDefaultClientExtern(region);
-        if resClient.Success? {
-          return KMSClientSuccess(resClient.Extract());
-        }  else {
-          return KMSClientFailure(resClient.error);
-        }
+        return resClient;
     }
   }
 
@@ -263,17 +262,6 @@ module {:extern "KMSUtils"} KMSUtils {
       requires request.Valid()
 
     method Decrypt(request: DecryptRequest) returns (res: Result<DecryptResponse>)
-      requires request.Valid()
-  }
-
-  class DefaultClient extends KMSClient {
-    method {:extern} GenerateDataKey(request: GenerateDataKeyRequest) returns (res: Result<GenerateDataKeyResponse>)
-      requires request.Valid()
-
-	method {:extern} Encrypt(request: EncryptRequest) returns (res: Result<EncryptResponse>)
-      requires request.Valid()
-
-    method {:extern} Decrypt(request: DecryptRequest) returns (res: Result<DecryptResponse>)
       requires request.Valid()
   }
 }
