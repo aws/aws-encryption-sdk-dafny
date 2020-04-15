@@ -49,10 +49,13 @@ module IntegTestKMS {
       }
       assert EncryptionContext.Length(encryptionContext) < UINT16_LIMIT;
     }
-    var e := Client.Encrypt(encodedMsg, cmm, Some(encryptionContext), None, None);
+    var encryptRequest := new Client.EncryptRequest.WithCMM(encodedMsg, cmm);
+    encryptRequest.SetEncryptionContext(encryptionContext);
+    var e := Client.Encrypt(encryptRequest);
     expect e.Success?, "Bad encryption :( " + e.error + "\n";
 
-    var d := Client.Decrypt(e.value, cmm);
+    var decryptRequest := new Client.DecryptRequest.WithCMM(e.value, cmm);
+    var d := Client.Decrypt(decryptRequest);
     expect d.Success?, "bad decryption: " + d.error + "\n";
 
     expect UTF8.ValidUTF8Seq(d.value), "Could not decode Encryption output";
