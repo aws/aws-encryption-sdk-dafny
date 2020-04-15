@@ -167,22 +167,22 @@ module {:extern "STL"} StandardLibrary {
     seq(|s|, i requires 0 <= i < |s| => f(s[i]))
   }
 
-  // TODO-RS: Make this tail-recursive
-  function method TryMap<T, R>(s: seq<T>, f: T -> Result<R>): (res: Result<seq<R>>)
-    ensures res.Success? ==> |s| == |res.value|
+  function method TryMap<T, R>(s: seq<T>, f: T --> Result<R>): (res: Result<seq<R>>)
+    requires forall x :: x in s ==> f.requires(x)
+  {
+    TryMapHelper(s, f, [])
+  }
+  function method {:tailrecursion} TryMapHelper<T, R>(s: seq<T>, f: T --> Result<R>, ss: seq<R>): (res: Result<seq<R>>)
+    requires forall x :: x in s ==> f.requires(x)
   {
     if s == [] then
-      Success([])
+      Success(ss)
     else
       var firstResult := f(s[0]);
       if firstResult.Failure? then
         firstResult.PropagateFailure()
       else
-        var restResult := TryMap(s[1..], f);
-        if restResult.Failure? then
-          restResult
-        else
-          Success([firstResult.value] + restResult.value)
+        TryMapHelper(s[1..], f, ss + [firstResult.value])
   }
 
   function method Filter<T>(s: seq<T>, f: T -> bool): (res: seq<T>)
