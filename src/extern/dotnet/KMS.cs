@@ -13,7 +13,6 @@ namespace KMSUtils {
 
     public partial class ClientHelper {
         public static KMSClientResult GetDefaultClientExtern(STL.Option<IDString> region) {
-            // TODO: Error handling
             DefaultClient kmsClient = new DefaultClient(region);
             return KMSClientResult.create_KMSClientSuccess(kmsClient);
         }
