@@ -4,6 +4,7 @@ include "../../../src/Crypto/RSAEncryption.dfy"
 include "../../../src/StandardLibrary/StandardLibrary.dfy"
 include "../../../src/StandardLibrary/UInt.dfy"
 include "../../../src/Util/UTF8.dfy"
+include "../../Util/TestUtils.dfy"
 
 module TestRSAKeyring {
   import opened StandardLibrary
@@ -13,14 +14,14 @@ module TestRSAKeyring {
   import AlgorithmSuite
   import UTF8
   import Materials
+  import TestUtils
 
   const allPaddingModes := {RSA.PKCS1, RSA.OAEP_SHA1, RSA.OAEP_SHA256, RSA.OAEP_SHA384, RSA.OAEP_SHA512}
 
   method {:test} TestOnEncryptOnDecryptGenerateDataKey()
   {
     var remainingPaddingModes := allPaddingModes;
-    var name :- expect UTF8.Encode("test Name");
-    var namespace :- expect UTF8.Encode("test Namespace");
+    var namespace, name := TestUtils.NamespaceAndName(0);
     while remainingPaddingModes != {}
       decreases remainingPaddingModes
     {
@@ -28,12 +29,10 @@ module TestRSAKeyring {
       remainingPaddingModes := remainingPaddingModes - {paddingMode};
       // Verify key generation for a given padding mode
       var publicKey, privateKey := RSA.GenerateKeyPair(2048, paddingMode);
-      var rawRSAKeyring := new RawRSAKeyringDef.RawRSAKeyring(name, namespace, paddingMode, Some(publicKey), Some(privateKey));
+      var rawRSAKeyring := new RawRSAKeyringDef.RawRSAKeyring(namespace, name, paddingMode, Some(publicKey), Some(privateKey));
 
       // Verify encoding
-      var keyA :- expect UTF8.Encode("keyA");
-      var valA :- expect UTF8.Encode("valA");
-      var encryptionContext := map[keyA := valA];
+      var encryptionContext := TestUtils.SmallEncryptionContext(TestUtils.SmallEncryptionContextVariation.A);
       var algorithmSuiteID := AlgorithmSuite.AES_256_GCM_IV12_TAG16_HKDF_SHA384_ECDSA_P384;
       var signingKey := seq(32, i => 0);
       var encryptionMaterialsIn := Materials.EncryptionMaterials.WithoutDataKeys(encryptionContext, algorithmSuiteID, Some(signingKey));
@@ -55,8 +54,7 @@ module TestRSAKeyring {
   method {:test} TestOnEncryptOnDecryptSuppliedDataKey()
   {
     var remainingPaddingModes := allPaddingModes;
-    var name :- expect UTF8.Encode("test Name");
-    var namespace :- expect UTF8.Encode("test Namespace");
+    var namespace, name := TestUtils.NamespaceAndName(0);
     while remainingPaddingModes != {}
       decreases remainingPaddingModes
     {
@@ -64,12 +62,10 @@ module TestRSAKeyring {
       remainingPaddingModes := remainingPaddingModes - {paddingMode};
       // Verify key generation for a given padding mode
       var publicKey, privateKey := RSA.GenerateKeyPair(2048, paddingMode);
-      var rawRSAKeyring := new RawRSAKeyringDef.RawRSAKeyring(name, namespace, paddingMode, Some(publicKey), Some(privateKey));
+      var rawRSAKeyring := new RawRSAKeyringDef.RawRSAKeyring(namespace, name, paddingMode, Some(publicKey), Some(privateKey));
 
       // Verify encoding
-      var keyA :- expect UTF8.Encode("keyA");
-      var valA :- expect UTF8.Encode("valA");
-      var encryptionContext := map[keyA := valA];
+      var encryptionContext := TestUtils.SmallEncryptionContext(TestUtils.SmallEncryptionContextVariation.A);
       var plaintextDataKey := seq(32, i => 0);
       var algorithmSuiteID := AlgorithmSuite.AES_256_GCM_IV12_TAG16_HKDF_SHA384_ECDSA_P384;
       var signingKey := seq(32, i => 0);
