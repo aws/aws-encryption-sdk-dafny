@@ -21,7 +21,6 @@ module TestCachingCMM {
   import AlgorithmSuite
   import EncryptionContext
   import TestUtils
-  import UTF8
 
   /*
    * Tests of GetEncryptionMaterials
@@ -33,12 +32,7 @@ module TestCachingCMM {
     var messagesLimit := 4;
     var ccmm := new CachingCMMDef.CachingCMM.WithLimits(tcmm, CachingCMMDef.DEFAULT_SECONDS_TO_LIVE_LIMIT, bytesLimit, messagesLimit);
 
-    var keyA :- expect UTF8.Encode("keyA");
-    var valA :- expect UTF8.Encode("valA");
-    var keyB :- expect UTF8.Encode("keyB");
-    var valB :- expect UTF8.Encode("valB");
-    var encryptionContext := map[keyA := valA, keyB := valB];
-    TestUtils.ValidSmallEncryptionContext(encryptionContext);
+    var encryptionContext := TestUtils.SmallEncryptionContext(TestUtils.SmallEncryptionContextVariation.AB);
     var eRequest := Materials.EncryptionMaterialsRequest(encryptionContext, Some(AlgorithmSuite.AES_128_GCM_IV12_TAG16_HKDF_SHA256_ECDSA_P256), Some(5));
 
     Helpers.CallGetEM(ccmm, tcmm, eRequest, false);
@@ -53,12 +47,7 @@ module TestCachingCMM {
     var messagesLimit := 1_000_000;
     var ccmm := new CachingCMMDef.CachingCMM.WithLimits(tcmm, CachingCMMDef.DEFAULT_SECONDS_TO_LIVE_LIMIT, bytesLimit, messagesLimit);
 
-    var keyA :- expect UTF8.Encode("keyA");
-    var valA :- expect UTF8.Encode("valA");
-    var keyB :- expect UTF8.Encode("keyB");
-    var valB :- expect UTF8.Encode("valB");
-    var encryptionContext := map[keyA := valA, keyB := valB];
-    TestUtils.ValidSmallEncryptionContext(encryptionContext);
+    var encryptionContext := TestUtils.SmallEncryptionContext(TestUtils.SmallEncryptionContextVariation.AB);
     var eRequest := Materials.EncryptionMaterialsRequest(encryptionContext, Some(AlgorithmSuite.AES_128_GCM_IV12_TAG16_HKDF_SHA256_ECDSA_P256), Some(29));
 
     Helpers.CallGetEM(ccmm, tcmm, eRequest, false);  // cold cache, 29 bytes total
@@ -74,12 +63,7 @@ module TestCachingCMM {
     var messagesLimit := 1_000_000;
     var ccmm := new CachingCMMDef.CachingCMM.WithLimits(tcmm, timeToLiveLimit, bytesLimit, messagesLimit);
 
-    var keyA :- expect UTF8.Encode("keyA");
-    var valA :- expect UTF8.Encode("valA");
-    var keyB :- expect UTF8.Encode("keyB");
-    var valB :- expect UTF8.Encode("valB");
-    var encryptionContext := map[keyA := valA, keyB := valB];
-    TestUtils.ValidSmallEncryptionContext(encryptionContext);
+    var encryptionContext := TestUtils.SmallEncryptionContext(TestUtils.SmallEncryptionContextVariation.AB);
     var eRequest := Materials.EncryptionMaterialsRequest(encryptionContext, Some(AlgorithmSuite.AES_128_GCM_IV12_TAG16_HKDF_SHA256_ECDSA_P256), Some(29));
 
     // With a time-to-live limit of 0, everything will be a cache miss
@@ -96,22 +80,15 @@ module TestCachingCMM {
     var tcmm := new Helpers.TestCMM();
     var ccmm := new CachingCMMDef.CachingCMM(tcmm);
 
-    var keyA :- expect UTF8.Encode("keyA");
-    var valA :- expect UTF8.Encode("valA");
-    var keyB :- expect UTF8.Encode("keyB");
-    var valB :- expect UTF8.Encode("valB");
-    var encryptionContext := map[keyA := valA, keyB := valB];
-    TestUtils.ValidSmallEncryptionContext(encryptionContext);
+    var encryptionContext := TestUtils.SmallEncryptionContext(TestUtils.SmallEncryptionContextVariation.AB);
     var eRequest := Materials.EncryptionMaterialsRequest(encryptionContext, Some(AlgorithmSuite.AES_128_GCM_IV12_TAG16_HKDF_SHA256_ECDSA_P256), Some(5));
     Helpers.CallGetEM(ccmm, tcmm, eRequest, false);  // cold cache
 
-    encryptionContext := map[keyB := valB, keyA := valA];  // different order, shouldn't matter
-    TestUtils.ValidSmallEncryptionContext(encryptionContext);
+    encryptionContext := TestUtils.SmallEncryptionContext(TestUtils.SmallEncryptionContextVariation.BA);  // different order, shouldn't matter
     eRequest := Materials.EncryptionMaterialsRequest(encryptionContext, Some(AlgorithmSuite.AES_128_GCM_IV12_TAG16_HKDF_SHA256_ECDSA_P256), Some(5));
     Helpers.CallGetEM(ccmm, tcmm, eRequest, true);
 
-    var emptyEncryptionContext := map[];  // different map
-    TestUtils.ValidSmallEncryptionContext(emptyEncryptionContext);
+    var emptyEncryptionContext := TestUtils.SmallEncryptionContext(TestUtils.SmallEncryptionContextVariation.Empty);  // different map
     eRequest := Materials.EncryptionMaterialsRequest(emptyEncryptionContext, Some(AlgorithmSuite.AES_128_GCM_IV12_TAG16_HKDF_SHA256_ECDSA_P256), Some(5));
     Helpers.CallGetEM(ccmm, tcmm, eRequest, false);
 
@@ -137,8 +114,7 @@ module TestCachingCMM {
     var messagesLimit := 2;
     var ccmm := new CachingCMMDef.CachingCMM.WithLimits(tcmm, CachingCMMDef.DEFAULT_SECONDS_TO_LIVE_LIMIT, bytesLimit, messagesLimit);
 
-    var encryptionContext := map[];
-    TestUtils.ValidSmallEncryptionContext(encryptionContext);
+    var encryptionContext := TestUtils.SmallEncryptionContext(TestUtils.SmallEncryptionContextVariation.Empty);
     var edk: Materials.ValidEncryptedDataKey := Materials.EncryptedDataKey([], [], []);
     var dRequest := Materials.DecryptionMaterialsRequest(AlgorithmSuite.AES_128_GCM_IV12_TAG16_HKDF_SHA256_ECDSA_P256, [edk], encryptionContext);
     assert dRequest.Valid();
@@ -161,12 +137,7 @@ module TestCachingCMM {
     var messagesLimit := 1_000_000;
     var ccmm := new CachingCMMDef.CachingCMM.WithLimits(tcmm, timeToLiveLimit, bytesLimit, messagesLimit);
 
-    var keyA :- expect UTF8.Encode("keyA");
-    var valA :- expect UTF8.Encode("valA");
-    var keyB :- expect UTF8.Encode("keyB");
-    var valB :- expect UTF8.Encode("valB");
-    var encryptionContext := map[keyA := valA, keyB := valB];
-    TestUtils.ValidSmallEncryptionContext(encryptionContext);
+    var encryptionContext := TestUtils.SmallEncryptionContext(TestUtils.SmallEncryptionContextVariation.AB);
     var edk: Materials.ValidEncryptedDataKey := Materials.EncryptedDataKey([], [], []);
     var dRequest := Materials.DecryptionMaterialsRequest(AlgorithmSuite.AES_128_GCM_IV12_TAG16_HKDF_SHA256_ECDSA_P256, [edk], encryptionContext);
 
@@ -184,23 +155,16 @@ module TestCachingCMM {
     var tcmm := new Helpers.TestCMM();
     var ccmm := new CachingCMMDef.CachingCMM(tcmm);
 
-    var keyA :- expect UTF8.Encode("keyA");
-    var valA :- expect UTF8.Encode("valA");
-    var keyB :- expect UTF8.Encode("keyB");
-    var valB :- expect UTF8.Encode("valB");
-    var encryptionContext := map[keyA := valA, keyB := valB];
-    TestUtils.ValidSmallEncryptionContext(encryptionContext);
+    var encryptionContext := TestUtils.SmallEncryptionContext(TestUtils.SmallEncryptionContextVariation.AB);
     var edk: Materials.ValidEncryptedDataKey := Materials.EncryptedDataKey([], [], []);
     var dRequest := Materials.DecryptionMaterialsRequest(AlgorithmSuite.AES_128_GCM_IV12_TAG16_HKDF_SHA256_ECDSA_P256, [edk], encryptionContext);
     Helpers.CallDM(ccmm, tcmm, dRequest, false);  // cold cache
 
-    encryptionContext := map[keyB := valB, keyA := valA];  // different order, shouldn't matter
-    TestUtils.ValidSmallEncryptionContext(encryptionContext);
+    encryptionContext := TestUtils.SmallEncryptionContext(TestUtils.SmallEncryptionContextVariation.BA);  // different order, shouldn't matter
     dRequest := Materials.DecryptionMaterialsRequest(AlgorithmSuite.AES_128_GCM_IV12_TAG16_HKDF_SHA256_ECDSA_P256, [edk], encryptionContext);
     Helpers.CallDM(ccmm, tcmm, dRequest, true);
 
-    var emptyEncryptionContext := map[];  // different map
-    TestUtils.ValidSmallEncryptionContext(emptyEncryptionContext);
+    var emptyEncryptionContext := TestUtils.SmallEncryptionContext(TestUtils.SmallEncryptionContextVariation.Empty);  // different map
     dRequest := Materials.DecryptionMaterialsRequest(AlgorithmSuite.AES_128_GCM_IV12_TAG16_HKDF_SHA256_ECDSA_P256, [edk], emptyEncryptionContext);
     Helpers.CallDM(ccmm, tcmm, dRequest, false);
 
@@ -224,6 +188,8 @@ module TestCachingCMM {
     import Materials
     import EncryptionContext
     import AlgorithmSuite
+    import UTF8
+    import TestUtils
 
     // Call ccmm.GetEncryptionMaterial and report whether or not there was a cache hit
     method CallGetEM(ccmm: CachingCMMDef.CachingCMM, tcmm: TestCMM, request: Materials.EncryptionMaterialsRequest, expectCacheHit: bool)
@@ -291,7 +257,7 @@ module TestCachingCMM {
               res.value.signingKey.Some?
       {
         var algSuiteID := if materialsRequest.algorithmSuiteID == None then AlgorithmSuite.AES_256_GCM_IV12_TAG16_HKDF_SHA384_ECDSA_P384 else materialsRequest.algorithmSuiteID.get;
-        var edk: Materials.ValidEncryptedDataKey;// := EncryptedDataKey([], [], []);
+        var edk: Materials.ValidEncryptedDataKey := Materials.EncryptedDataKey([], [], []);
         var tr0 := Materials.KeyringTraceEntry([], [], {Materials.GENERATED_DATA_KEY});
         var tr1 := Materials.KeyringTraceEntry([], [], {Materials.ENCRYPTED_DATA_KEY});
         var em := Materials.EncryptionMaterials(
