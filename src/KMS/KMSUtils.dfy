@@ -258,7 +258,7 @@ module {:extern "KMSUtils"} KMSUtils {
     method GenerateDataKey(request: GenerateDataKeyRequest) returns (res: Result<GenerateDataKeyResponse>)
       requires request.Valid()
 
-	method Encrypt(request: EncryptRequest) returns (res: Result<EncryptResponse>)
+    method Encrypt(request: EncryptRequest) returns (res: Result<EncryptResponse>)
       requires request.Valid()
 
     method Decrypt(request: DecryptRequest) returns (res: Result<DecryptResponse>)
