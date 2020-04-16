@@ -78,11 +78,7 @@ module {:extern "KMSKeyringDef"} KMSKeyringDef {
       var generatorRequest := KMSUtils.GenerateDataKeyRequest(materials.encryptionContext, grantTokens, generator.get, materials.algorithmSuiteID.KDFInputKeyLength() as int32);
       var regionRes := RegionFromKMSKeyARN(generator.get);
       var regionOpt := regionRes.ToOption();
-      var clientResult := clientSupplier.GetClient(regionOpt);
-      if clientResult.KMSClientFailure? {
-        return Failure(clientResult.GetError());
-      }
-      var client := clientResult.Extract();
+      var client :- clientSupplier.GetClient(regionOpt);
       var generatorResponse :- client.GenerateDataKey(generatorRequest);
       if !generatorResponse.IsWellFormed() {
         return Failure("Invalid response from KMS GenerateDataKey");
@@ -154,11 +150,7 @@ module {:extern "KMSKeyringDef"} KMSKeyringDef {
         var encryptRequest := KMSUtils.EncryptRequest(materials.encryptionContext, grantTokens, encryptCMKs[i], resultMaterials.plaintextDataKey.get);
         var regionRes := RegionFromKMSKeyARN(encryptCMKs[i]);
         var regionOpt := regionRes.ToOption();
-        var clientResult := clientSupplier.GetClient(regionOpt);
-        if clientResult.KMSClientFailure? {
-          return Failure(clientResult.GetError());
-        }
-        var client := clientResult.Extract();
+        var client :- clientSupplier.GetClient(regionOpt);
         var encryptResponse :- client.Encrypt(encryptRequest);
         if encryptResponse.IsWellFormed() {
           var providerInfo :- UTF8.Encode(encryptResponse.keyID);

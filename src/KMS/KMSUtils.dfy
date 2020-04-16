@@ -78,21 +78,24 @@ module {:extern "KMSUtils"} KMSUtils {
   // We require a new datatype and cannot use Result<KMSClient> since Dafny does not currently support returning Result<trait>
   datatype KMSClientResult = KMSClientSuccess(client: KMSClient) | KMSClientFailure(error: string)
   {
-    function method GetError(): string
+    predicate method IsFailure() {
+      KMSClientFailure?
+    }
+    function method PropagateFailure<U>(): Result<U>
       requires KMSClientFailure?
     {
-      this.error
+      Failure(this.error)
     }
     function method Extract(): KMSClient
       requires KMSClientSuccess?
     {
-      this.client
+      client
     }
   }
 
   method {:extern "KMSUtils.ClientHelper", "GetDefaultClientExtern"} GetDefaultClientExtern(region: Option<string>) returns (res: KMSClientResult)
 
-  trait KMSClientSupplier {
+  trait {:extern "KMSClientSupplier"} KMSClientSupplier {
     ghost var Repr: set<object>
 
     predicate Valid()
@@ -121,7 +124,6 @@ module {:extern "KMSUtils"} KMSUtils {
     {
       // TODO awslabs/aws-encryption-sdk-dafny/issues/198: This will be swapped for the caching client supplier
       var newClientSupplier := new BaseClientSupplier();
-      assert newClientSupplier.Valid();
       clientSupplier := newClientSupplier;
       Repr := {this} + newClientSupplier.Repr;
     }
@@ -254,14 +256,14 @@ module {:extern "KMSUtils"} KMSUtils {
   }
 
   // https://docs.aws.amazon.com/sdkfornet/v3/apidocs/items/KeyManagementService/TKeyManagementServiceClient.html
-  trait KMSClient {
-    method GenerateDataKey(request: GenerateDataKeyRequest) returns (res: Result<GenerateDataKeyResponse>)
+  trait {:extern "KMSClient"} KMSClient {
+    method {:extern "GenerateDataKey"} GenerateDataKey(request: GenerateDataKeyRequest) returns (res: Result<GenerateDataKeyResponse>)
       requires request.Valid()
 
-    method Encrypt(request: EncryptRequest) returns (res: Result<EncryptResponse>)
+    method {:extern "Encrypt"} Encrypt(request: EncryptRequest) returns (res: Result<EncryptResponse>)
       requires request.Valid()
 
-    method Decrypt(request: DecryptRequest) returns (res: Result<DecryptResponse>)
+    method {:extern "Decrypt"} Decrypt(request: DecryptRequest) returns (res: Result<DecryptResponse>)
       requires request.Valid()
   }
 }
