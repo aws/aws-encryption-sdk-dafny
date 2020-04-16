@@ -222,14 +222,6 @@ module CachingCMMDef {
     res := Signature.Digest(CACHE_ID_HASH_ALGORITHM, wr.GetDataWritten());
   }
 
-  predicate GoodEncMat(encMat: Materials.EncryptionMaterials) {
-    encMat.Valid() && encMat.Serializable()
-  }
-
-  predicate GoodDecMat(decMat: Materials.DecryptionMaterials) {
-    decMat.Valid() && decMat.plaintextDataKey.Some?
-  }
-
   class CryptographicMaterialsCache {
     ghost var Repr: set<object>
     var EM: map<seq<uint8>, CacheEntryEncrypt>
@@ -240,8 +232,8 @@ module CachingCMMDef {
       ensures Valid() ==> this in Repr
     {
       this in Repr &&
-      (forall id :: id in EM.Keys ==> EM[id] in Repr && GoodEncMat(EM[id].encMat)) &&
-      (forall id :: id in DM.Keys ==> DM[id] in Repr && GoodDecMat(DM[id].decMat))
+      (forall id :: id in EM.Keys ==> EM[id] in Repr && EM[id].Valid()) &&
+      (forall id :: id in DM.Keys ==> DM[id] in Repr && DM[id].Valid())
     }
 
     constructor ()
@@ -253,7 +245,7 @@ module CachingCMMDef {
     function method LookupEncrypt(cacheID: seq<uint8>): (entry: CacheEntryEncrypt?)
       requires Valid()
       reads Repr
-      ensures entry != null ==> entry in Repr && GoodEncMat(entry.encMat)
+      ensures entry != null ==> entry in Repr && entry.Valid()
     {
       if cacheID in EM.Keys then EM[cacheID] else null
     }
@@ -261,7 +253,7 @@ module CachingCMMDef {
     function method LookupDecrypt(cacheID: seq<uint8>): (entry: CacheEntryDecrypt?)
       requires Valid()
       reads Repr
-      ensures entry != null ==> entry in Repr && GoodDecMat(entry.decMat)
+      ensures entry != null ==> entry in Repr && entry.Valid()
     {
       if cacheID in DM.Keys then DM[cacheID] else null
     }
@@ -269,7 +261,8 @@ module CachingCMMDef {
     // Adds an entry [cacheID := encMat] to the cache, replacing any previous encrypt entry for cacheID
     // and initializing usage limits to (currentTime + secondsToLiveLimit, 0, 0). Returns the resulting entry.
     method AddEncrypt(cacheID: seq<uint8>, encMat: Materials.ValidEncryptionMaterials, secondsToLiveLimit: nat) returns (entry: CacheEntryEncrypt)
-      requires Valid() && GoodEncMat(encMat)
+      requires Valid()
+      requires encMat.Serializable()
       modifies Repr
       ensures Valid() && fresh(Repr - old(Repr)) && entry in Repr
     {
@@ -281,7 +274,8 @@ module CachingCMMDef {
     // Adds an entry [cacheID := decMat] to the cache, replacing any previous decrypt entry for cacheID
     // and initializing usage limits to (currentTime + secondsToLiveLimit). Returns the resulting entry.
     method AddDecrypt(cacheID: seq<uint8>, decMat: Materials.ValidDecryptionMaterials, secondsToLiveLimit: nat) returns (entry: CacheEntryDecrypt)
-      requires Valid() && GoodDecMat(decMat)
+      requires Valid()
+      requires decMat.plaintextDataKey.Some?
       modifies Repr
       ensures Valid() && fresh(Repr - old(Repr)) && entry in Repr
     {
@@ -315,6 +309,10 @@ module CachingCMMDef {
     var messagesEncrypted: nat
     var bytesEncrypted: nat
 
+    predicate Valid() {
+      encMat.Serializable()
+    }
+    
     constructor (encMat: Materials.ValidEncryptionMaterials, secondsToLiveLimit: nat)
       ensures messagesEncrypted == bytesEncrypted == 0
       ensures this.encMat == encMat
@@ -340,6 +338,10 @@ module CachingCMMDef {
     const decMat: Materials.ValidDecryptionMaterials
     const expiryTime: nat
 
+    predicate Valid() {
+      decMat.plaintextDataKey.Some?
+    }
+    
     constructor (decMat: Materials.ValidDecryptionMaterials, secondsToLiveLimit: nat)
       ensures this.decMat == decMat
     {
