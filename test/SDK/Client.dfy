@@ -33,6 +33,7 @@ module {:extern "TestClient"} TestClient {
     import EncryptionContext
     import UTF8
     import Client = ESDKClient
+    import TestUtils
   
     method EncryptDecryptTest(cmm: CMMDefs.CMM)
       requires cmm.Valid()
@@ -40,22 +41,7 @@ module {:extern "TestClient"} TestClient {
       ensures cmm.Valid() && fresh(cmm.Repr - old(cmm.Repr))
     {
       var msg :- expect UTF8.Encode("hello");
-      var keyA :- expect UTF8.Encode("keyA");
-      var valA :- expect UTF8.Encode("valA");
-      var encryptionContext := map[keyA := valA];
-      assert EncryptionContext.Serializable(encryptionContext) by {
-        // To prove EncryptionContext.Serializable, we need to reveal the definition of that predicate:
-        reveal EncryptionContext.Serializable();
-        // We also need to help the verifier with proving the KVPairsLength is small:
-        calc {
-          EncryptionContext.Length(encryptionContext);
-          var keys: seq<UTF8.ValidUTF8Bytes> := SetToOrderedSequence<uint8>(encryptionContext.Keys, UInt.UInt8Less);
-          var kvPairsSeq := seq(|keys|, i requires 0 <= i < |keys| => (keys[i], encryptionContext[keys[i]]));
-          2 + EncryptionContext.LinearLength(kvPairsSeq, 0, |kvPairsSeq|); // 2 bytes for the kvPairsCount field
-          2 + 2 + |keyA| + 2 + |valA|; // 2 bytes required for keyLength and valueLength fields
-        }
-        assert EncryptionContext.Length(encryptionContext) < UINT16_LIMIT;
-      }
+      var encryptionContext := TestUtils.SmallEncryptionContext(TestUtils.SmallEncryptionContextVariation.A);
 
       var encryptRequest := new Client.EncryptRequest.WithCMM(msg, cmm);
       encryptRequest.SetEncryptionContext(encryptionContext);
@@ -69,9 +55,7 @@ module {:extern "TestClient"} TestClient {
   }
 
   method {:test} HappyPath() {
-    var namespace :- expect UTF8.Encode("namespace");
-    var name :- expect UTF8.Encode("MyKeyring");
-
+    var namespace, name := TestUtils.NamespaceAndName(0);
     var ek, dk := RSA.GenerateKeyPair(2048, RSA.PKCS1);
     var keyring := new RawRSAKeyringDef.RawRSAKeyring(namespace, name, RSA.PaddingMode.PKCS1, Some(ek), Some(dk));
     var cmm := new DefaultCMMDef.DefaultCMM.OfKeyring(keyring);
