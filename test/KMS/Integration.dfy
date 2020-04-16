@@ -63,8 +63,6 @@ module IntegTestKMS {
   }
 
   method {:test} TestEndToEnd() {
-    var namespace :- expect UTF8.Encode("namespace");
-    var name :- expect UTF8.Encode("MyKeyring");
     var generatorStr := SHARED_TEST_KEY_ARN;
     expect KMSUtils.ValidFormatCMK(generatorStr);
     var generator: KMSUtils.CustomerMasterKey := generatorStr;

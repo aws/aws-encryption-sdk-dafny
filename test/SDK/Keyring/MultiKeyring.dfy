@@ -25,9 +25,9 @@ module TestMultiKeying {
 
   method {:test} TestOnEncryptOnDecryptWithGenerator() {
     // TODO: mock children keyrings
-    var encryptionContext := Helpers.SmallEncryptionContext();
-    var child1Namespace, child1Name := Helpers.NameAndNamespace(1);
-    var child2namespace, child2Name := Helpers.NameAndNamespace(2);
+    var encryptionContext := TestUtils.SmallEncryptionContext(TestUtils.SmallEncryptionContextVariation.A);
+    var child1Namespace, child1Name := TestUtils.NamespaceAndName(1);
+    var child2namespace, child2Name := TestUtils.NamespaceAndName(2);
 
     var child1Keyring := new RawAESKeyringDef.RawAESKeyring(child1Namespace, child1Name, seq(32, i => 0), EncryptionSuites.AES_GCM_256);
     var child2Keyring := new RawAESKeyringDef.RawAESKeyring(child2namespace, child2Name, seq(32, i => 0), EncryptionSuites.AES_GCM_256);
@@ -71,9 +71,9 @@ module TestMultiKeying {
 
   method {:test} TestOnEncryptOnDecryptWithoutGenerator() {
     // TODO: mock children keyrings and move encrypt <-> decrypt test into new test
-    var encryptionContext := Helpers.SmallEncryptionContext();
-    var child1Namespace, child1Name := Helpers.NameAndNamespace(1);
-    var child2namespace, child2Name := Helpers.NameAndNamespace(2);
+    var encryptionContext := TestUtils.SmallEncryptionContext(TestUtils.SmallEncryptionContextVariation.A);
+    var child1Namespace, child1Name := TestUtils.NamespaceAndName(1);
+    var child2namespace, child2Name := TestUtils.NamespaceAndName(2);
     
     var child1Keyring := new RawAESKeyringDef.RawAESKeyring(child1Namespace, child1Name, seq(32, i => 0), EncryptionSuites.AES_GCM_256);
     var child2Keyring := new RawAESKeyringDef.RawAESKeyring(child2namespace, child2Name, seq(32, i => 0), EncryptionSuites.AES_GCM_256);
@@ -120,8 +120,8 @@ module TestMultiKeying {
   }
 
   method {:test} TestOnEncryptChildKeyringFailure() {
-    var encryptionContext := Helpers.SmallEncryptionContext();
-    var child1Namespace, child1Name := Helpers.NameAndNamespace(1);
+    var encryptionContext := TestUtils.SmallEncryptionContext(TestUtils.SmallEncryptionContextVariation.A);
+    var child1Namespace, child1Name := TestUtils.NamespaceAndName(1);
 
     var child1Keyring := new RawAESKeyringDef.RawAESKeyring(child1Namespace, child1Name, seq(32, i => 0), EncryptionSuites.AES_GCM_256);
     var child2Keyring := new TestKeyrings.AlwaysFailingKeyring();
@@ -162,25 +162,5 @@ module TestMultiKeying {
     var decryptionMaterialsIn := Materials.DecryptionMaterials.WithoutPlaintextDataKey(encryptionContext, algorithmSuiteID, Some(verificationKey));
     var decryptionMaterialsOut :- expect multiKeyring.OnDecrypt(decryptionMaterialsIn, [edk]);
     expect decryptionMaterialsOut.plaintextDataKey.None?;
-  }
-
-  class Helpers {
-    static method SmallEncryptionContext() returns (encryptionContext: EncryptionContext.Map)
-      ensures EncryptionContext.Serializable(encryptionContext)
-    {
-      var keyA :- expect UTF8.Encode("keyA");
-      var valA :- expect UTF8.Encode("valA");
-      encryptionContext := map[keyA := valA];
-      TestUtils.ValidSmallEncryptionContext(encryptionContext);
-    }
-
-    static method NameAndNamespace(n: nat) returns (namespace: UTF8.ValidUTF8Bytes, name: UTF8.ValidUTF8Bytes)
-      requires 0 <= n < 10
-      ensures |namespace| < UINT16_LIMIT
-    {
-      var s := "child" + [n as char + '0'];
-      name :- expect UTF8.Encode(s + " Name");
-      namespace :- expect UTF8.Encode(s + " Namespace");
-    }
   }
 }

@@ -95,6 +95,30 @@ module {:extern "TestUtils"} TestUtils {
     expect !valid;
   }
   
+  datatype SmallEncryptionContextVariation = Empty | A | AB | BA
+
+  method SmallEncryptionContext(v: SmallEncryptionContextVariation) returns (encryptionContext: EncryptionContext.Map)
+    ensures EncryptionContext.Serializable(encryptionContext)
+    ensures encryptionContext.Keys !! Materials.RESERVED_KEY_VALUES
+  {
+    var keyA :- expect UTF8.Encode("keyA");
+    var valA :- expect UTF8.Encode("valA");
+    var keyB :- expect UTF8.Encode("keyB");
+    var valB :- expect UTF8.Encode("valB");
+    match v {
+      case Empty =>
+        encryptionContext := map[];
+      case A =>
+        encryptionContext := map[keyA := valA];
+      case AB =>
+        encryptionContext := map[keyA := valA, keyB := valB];
+      case BA =>
+        // this is really the same as AB; this lets us test that this is also true at run time
+        encryptionContext := map[keyB := valB, keyA := valA];
+    }
+    ValidSmallEncryptionContext(encryptionContext);
+  }
+    
   lemma ValidSmallEncryptionContext(encryptionContext: EncryptionContext.Map)
     requires |encryptionContext| <= 5
     requires forall k :: k in encryptionContext.Keys ==> |k| < 100 && |encryptionContext[k]| < 100
@@ -135,5 +159,15 @@ module {:extern "TestUtils"} TestUtils {
     var ek, dk := RSA.GenerateKeyPair(2048, RSA.PKCS1);
     var keyring := new RawRSAKeyringDef.RawRSAKeyring(namespace, name, RSA.PaddingMode.PKCS1, Some(ek), Some(dk));
     return Success(keyring);
+  }
+
+  method NamespaceAndName(n: nat) returns (namespace: UTF8.ValidUTF8Bytes, name: UTF8.ValidUTF8Bytes)
+    requires 0 <= n < 10
+    ensures |namespace| < UINT16_LIMIT
+    ensures |name| < UINT16_LIMIT
+  {
+    var s := "child" + [n as char + '0'];
+    namespace :- expect UTF8.Encode(s + " Namespace");
+    name :- expect UTF8.Encode(s + " Name");
   }
 }
