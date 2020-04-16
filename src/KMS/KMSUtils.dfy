@@ -108,36 +108,6 @@ module {:extern "KMSUtils"} KMSUtils {
       decreases Repr
   }
 
-  class DefaultClientSupplier extends KMSClientSupplier {
-    const clientSupplier: KMSClientSupplier
-
-    predicate Valid()
-      reads this, Repr
-      ensures Valid() ==> this in Repr
-    {
-      this in Repr &&
-      clientSupplier in Repr && clientSupplier.Repr <= Repr && this !in clientSupplier.Repr && clientSupplier.Valid()
-    }
-
-    constructor()
-      ensures Valid() && fresh(Repr)
-    {
-      // TODO awslabs/aws-encryption-sdk-dafny/issues/198: This will be swapped for the caching client supplier
-      var newClientSupplier := new BaseClientSupplier();
-      clientSupplier := newClientSupplier;
-      Repr := {this} + newClientSupplier.Repr;
-    }
-
-    method GetClient(region: Option<string>) returns (res: KMSClientResult)
-      requires Valid()
-      ensures Valid()
-      decreases Repr
-    {
-      var resClient := clientSupplier.GetClient(region);
-      return resClient;
-    }
-  }
-
   // An implementation of a KMSClientSupplier that takes in an existing KMSClientSupplier as well as a seq of regions
   // (strings). The LimitRegionsClientSupplier will only return a KMSClient from the given KMSClientSupplier if the
   // region provided to GetClient(region) is in the list of regions associated with the LimitRegionsClientSupplier.
