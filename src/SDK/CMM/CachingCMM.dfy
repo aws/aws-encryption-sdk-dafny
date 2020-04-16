@@ -111,14 +111,7 @@ module CachingCMMDef {
       requires materialsRequest.encryptionContext.Keys !! Materials.RESERVED_KEY_VALUES
       modifies Repr
       ensures Valid() && fresh(Repr - old(Repr))
-      ensures res.Success? ==> res.value.plaintextDataKey.Some? && res.value.algorithmSuiteID.ValidPlaintextDataKey(res.value.plaintextDataKey.get)
-      ensures res.Success? ==> |res.value.encryptedDataKeys| > 0
-      ensures res.Success? ==> ValidAAD(res.value.encryptionContext)
-      ensures res.Success? ==>
-        match res.value.algorithmSuiteID.SignatureType()
-          case None => true
-          case Some(sigType) =>
-            res.value.signingKey.Some?
+      ensures res.Success? ==> res.value.plaintextDataKey.Some? && res.value.Serializable()
     {
       if materialsRequest.plaintextLength.None?
       || bytesLimit as int <= materialsRequest.plaintextLength.get
@@ -168,8 +161,7 @@ module CachingCMMDef {
       requires Valid()
       modifies Repr
       ensures Valid() && fresh(Repr - old(Repr))
-      ensures res.Success? ==> res.value.plaintextDataKey.Some? && res.value.algorithmSuiteID.ValidPlaintextDataKey(res.value.plaintextDataKey.get)
-      ensures res.Success? && res.value.algorithmSuiteID.SignatureType().Some? ==> res.value.verificationKey.Some?
+      ensures res.Success? ==> res.value.plaintextDataKey.Some?
     {
       var kvPairsLength := EncryptionContext.ComputeLength(materialsRequest.encryptionContext);
       if UINT16_LIMIT <= kvPairsLength {
@@ -231,15 +223,11 @@ module CachingCMMDef {
   }
 
   predicate GoodEncMat(encMat: Materials.EncryptionMaterials) {
-    encMat.Valid() &&
-    |encMat.encryptedDataKeys| > 0 &&
-    EncryptionContext.Serializable(encMat.encryptionContext)
+    encMat.Valid() && encMat.Serializable()
   }
 
   predicate GoodDecMat(decMat: Materials.DecryptionMaterials) {
-    decMat.Valid() &&
-    decMat.plaintextDataKey.Some? && |decMat.plaintextDataKey.get| == decMat.algorithmSuiteID.KeyLength() &&
-    (decMat.algorithmSuiteID.SignatureType().Some? ==> decMat.verificationKey.Some?)
+    decMat.Valid() && decMat.plaintextDataKey.Some?
   }
 
   class CryptographicMaterialsCache {

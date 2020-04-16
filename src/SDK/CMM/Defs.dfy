@@ -25,14 +25,7 @@ module {:extern "CMMDefs"} CMMDefs {
       requires materialsRequest.encryptionContext.Keys !! Materials.RESERVED_KEY_VALUES
       modifies Repr
       ensures Valid() && fresh(Repr - old(Repr))
-      ensures res.Success? ==> res.value.plaintextDataKey.Some? && res.value.algorithmSuiteID.ValidPlaintextDataKey(res.value.plaintextDataKey.get)
-      ensures res.Success? ==> |res.value.encryptedDataKeys| > 0
-      ensures res.Success? ==> ValidAAD(res.value.encryptionContext)
-      ensures res.Success? ==>
-        match res.value.algorithmSuiteID.SignatureType()
-          case None => true
-          case Some(sigType) =>
-            res.value.signingKey.Some?
+      ensures res.Success? ==> res.value.plaintextDataKey.Some? && res.value.Serializable()
 
     // The following predicate is a synonym for Encryption.Serializable and provides a workaround for a translation bug
     // of "fuel" in trait-override checks in Dafny. https://github.com/dafny-lang/dafny/issues/422
@@ -45,7 +38,6 @@ module {:extern "CMMDefs"} CMMDefs {
       requires Valid()
       modifies Repr
       ensures Valid() && fresh(Repr - old(Repr))
-      ensures res.Success? ==> res.value.plaintextDataKey.Some? && res.value.algorithmSuiteID.ValidPlaintextDataKey(res.value.plaintextDataKey.get)
-      ensures res.Success? && res.value.algorithmSuiteID.SignatureType().Some? ==> res.value.verificationKey.Some?
+      ensures res.Success? ==> res.value.plaintextDataKey.Some?
   }
 }

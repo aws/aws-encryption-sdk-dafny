@@ -50,18 +50,11 @@ module {:extern "DefaultCMMDef"} DefaultCMMDef {
       ensures Materials.EC_PUBLIC_KEY_FIELD in materialsRequest.encryptionContext ==> res.Failure?
       ensures res.Success? && (materialsRequest.algorithmSuiteID.None? || materialsRequest.algorithmSuiteID.get.SignatureType().Some?) ==>
         Materials.EC_PUBLIC_KEY_FIELD in res.value.encryptionContext
-      ensures res.Success? ==> res.value.plaintextDataKey.Some? && res.value.algorithmSuiteID.ValidPlaintextDataKey(res.value.plaintextDataKey.get)
-      ensures res.Success? ==> |res.value.encryptedDataKeys| > 0
-      ensures res.Success? ==> ValidAAD(res.value.encryptionContext)
+      ensures res.Success? ==> res.value.plaintextDataKey.Some? && res.value.Serializable()
       ensures res.Success? ==>
         match materialsRequest.algorithmSuiteID
         case Some(id) => res.value.algorithmSuiteID == id
         case None => res.value.algorithmSuiteID == 0x0378
-      ensures res.Success? ==>
-        match res.value.algorithmSuiteID.SignatureType()
-          case None => true
-          case Some(sigType) =>
-            res.value.signingKey.Some?
     {
       var reservedField := Materials.EC_PUBLIC_KEY_FIELD;
       assert reservedField in Materials.RESERVED_KEY_VALUES;
@@ -103,8 +96,7 @@ module {:extern "DefaultCMMDef"} DefaultCMMDef {
                             returns (res: Result<Materials.ValidDecryptionMaterials>)
       requires Valid()
       ensures Valid()
-      ensures res.Success? ==> res.value.plaintextDataKey.Some? && res.value.algorithmSuiteID.ValidPlaintextDataKey(res.value.plaintextDataKey.get)
-      ensures res.Success? && res.value.algorithmSuiteID.SignatureType().Some? ==> res.value.verificationKey.Some?
+      ensures res.Success? ==> res.value.plaintextDataKey.Some?
     {
       // Retrieve and decode verification key from encryption context if using signing algorithm
       var vkey := None;

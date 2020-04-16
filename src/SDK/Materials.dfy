@@ -84,8 +84,11 @@ module {:extern "Materials"} Materials {
       && GenerateTraceEntriesConsistent(plaintextDataKey, keyringTrace)
       && |Filter(keyringTrace, IsEncryptTraceEntry)| == |encryptedDataKeys|
       // TODO: Strongly tie each trace entry to it's corresponding EDK (https://github.com/awslabs/aws-encryption-sdk-dafny/issues/100)
-//      && |encryptedDataKeys| > 0 // KRML new
-//      && Context.ValidAAD(encryptionContext) // KRML new
+    }
+
+    predicate Serializable() {
+      && |encryptedDataKeys| > 0
+      && EncryptionContext.Serializable(encryptionContext)
     }
 
     static function method ValidWitness(): EncryptionMaterials {
