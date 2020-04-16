@@ -219,9 +219,9 @@ module {:extern "KMSUtils"} KMSUtils {
       ensures Valid()
       decreases Repr
     {
-        // Since this is the base client supplier, this obtains the extern client
-        var resClient := GetDefaultClientExtern(region);
-        return resClient;
+      // Since this is the base client supplier, this obtains the extern client
+      var resClient := GetDefaultClientExtern(region);
+      return resClient;
     }
   }
 

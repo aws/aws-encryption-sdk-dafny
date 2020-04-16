@@ -7,12 +7,8 @@ namespace AWSEncryptionSDK
     public class KMSClientSuppliers {
         public static KMSUtils.BaseClientSupplier NewKMSDefaultClientSupplier()
         {
-            // When transpiling Dafny code, new MyClass() does not actually call the constructor, so we need to
-            // instantiate the class and then manually call __ctor() to call the required constructor
             // TODO awslabs/aws-encryption-sdk-dafny/issues/198: This will be swapped for the caching client supplier
-            KMSUtils.BaseClientSupplier clientSupplier = new KMSUtils.BaseClientSupplier();
-            clientSupplier.__ctor();
-            return clientSupplier;
+            return NewKMSBaseClientSupplier();
         }
 
         public static KMSUtils.BaseClientSupplier NewKMSBaseClientSupplier()
