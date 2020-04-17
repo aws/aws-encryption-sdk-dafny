@@ -22,6 +22,14 @@ namespace Signature {
         }
     }
 
+    public class DigestUnsupportedException : Exception
+    {
+        public DigestUnsupportedException(DigestAlgorithm alg)
+            : base(String.Format("Unsupported digest parameter: {0}", alg))
+        {
+        }
+    }
+
     public partial class ECDSA {
         public static STL.Result<SignatureKeyPair> ExternKeyGen(ECDSAParams x) {
             try {
@@ -136,15 +144,17 @@ namespace Signature {
             }
         }
 
-        public static STL.Result<ibyteseq> Digest(ECDSAParams x, ibyteseq msg) {
+        public static STL.Result<ibyteseq> Digest(DigestAlgorithm x, ibyteseq msg) {
             try {
                 System.Security.Cryptography.HashAlgorithm alg;
-                if (x.is_ECDSA__P384) {
-                    alg = System.Security.Cryptography.SHA384.Create();
-                } else if (x.is_ECDSA__P256) {
+                if (x.is_SHA__256) {
                     alg = System.Security.Cryptography.SHA256.Create();
+                } else if (x.is_SHA__384) {
+                    alg = System.Security.Cryptography.SHA384.Create();
+                } else if (x.is_SHA__512) {
+                    alg = System.Security.Cryptography.SHA512.Create();
                 } else {
-                    throw new ECDSAUnsupportedParametersException(x);
+                    throw new DigestUnsupportedException(x);
                 }
                 byte[] digest = alg.ComputeHash(msg.Elements);
                 return STL.Result<ibyteseq>.create_Success(byteseq.FromArray(digest));
