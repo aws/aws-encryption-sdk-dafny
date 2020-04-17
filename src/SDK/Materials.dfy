@@ -86,6 +86,11 @@ module {:extern "Materials"} Materials {
       // TODO: Strongly tie each trace entry to it's corresponding EDK (https://github.com/awslabs/aws-encryption-sdk-dafny/issues/100)
     }
 
+    predicate Serializable() {
+      && |encryptedDataKeys| > 0
+      && EncryptionContext.Serializable(encryptionContext)
+    }
+
     static function method ValidWitness(): EncryptionMaterials {
       EncryptionMaterials(map[], AlgorithmSuite.AES_256_GCM_IV12_TAG16_HKDF_SHA384_ECDSA_P384, None, [], [], Some(seq(32, i => 0)))
     }
