@@ -118,7 +118,7 @@ module {:extern "CachingCMMDef"} CachingCMMDef {
       || (materialsRequest.algorithmSuiteID.Some? && materialsRequest.algorithmSuiteID.get.ContainsIdentityKDF())
       {
         // Get encryption materials from the underlying CMM.
-        res := cmm.GetEncryptionMaterials(materialsRequest);
+        res := cmm.GetEncryptionMaterials(materialsRequest.(plaintextLength := None));
         Repr := Repr + cmm.Repr;
         return;
       }
