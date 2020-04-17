@@ -12,13 +12,13 @@ using EncryptionContextMap = Dafny.Map<Dafny.ISequence<byte>, Dafny.ISequence<by
 namespace KMSUtils {
 
     public partial class ClientHelper {
-        public static KMSClientResult GetDefaultClientExtern(STL.Option<IDString> region) {
+        public static AWSKMSClientResult GetDefaultAWSKMSClientExtern(STL.Option<IDString> region) {
             DefaultClient kmsClient = new DefaultClient(region);
-            return KMSClientResult.create_KMSClientSuccess(kmsClient);
+            return AWSKMSClientResult.create_Success(kmsClient);
         }
     }
 
-    public partial class DefaultClient : KMSClient {
+    public partial class DefaultClient : AWSKMSClient {
 
         readonly private KMS.AmazonKeyManagementServiceClient client;
 

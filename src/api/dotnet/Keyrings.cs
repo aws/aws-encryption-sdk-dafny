@@ -13,7 +13,7 @@ namespace AWSEncryptionSDK
 {
     public class Keyrings
     {
-        public static Keyring MakeKMSKeyring(KMSClientSupplier clientSupplier,
+        public static Keyring MakeKMSKeyring(AWSKMSClientSupplier clientSupplier,
                                              IEnumerable<string> keyIDs,
                                              string generator,
                                              IEnumerable<string> grantTokens)

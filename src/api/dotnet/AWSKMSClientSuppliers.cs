@@ -4,7 +4,7 @@ using icharseq = Dafny.ISequence<char>;
 
 namespace AWSEncryptionSDK
 {
-    public class KMSClientSuppliers {
+    public class AWSKMSClientSuppliers {
         public static KMSUtils.BaseClientSupplier NewKMSDefaultClientSupplier()
         {
             // TODO awslabs/aws-encryption-sdk-dafny/issues/198: This will be swapped for the caching client supplier
@@ -20,7 +20,7 @@ namespace AWSEncryptionSDK
             return clientSupplier;
         }
 
-        public static KMSUtils.LimitRegionsClientSupplier NewKMSLimitRegionsClientSupplier(KMSUtils.KMSClientSupplier clientSupplier, IEnumerable<string> regions)
+        public static KMSUtils.LimitRegionsClientSupplier NewKMSLimitRegionsClientSupplier(KMSUtils.AWSKMSClientSupplier clientSupplier, IEnumerable<string> regions)
         {
             // When transpiling Dafny code, new MyClass() does not actually call the constructor, so we need to
             // instantiate the class and then manually call __ctor() to call the required constructor
@@ -30,7 +30,7 @@ namespace AWSEncryptionSDK
             return limitRegionsclientSupplier;
         }
 
-        public static KMSUtils.ExcludeRegionsClientSupplier NewKMSExcludeRegionsClientSupplier(KMSUtils.KMSClientSupplier clientSupplier, IEnumerable<string> regions)
+        public static KMSUtils.ExcludeRegionsClientSupplier NewKMSExcludeRegionsClientSupplier(KMSUtils.AWSKMSClientSupplier clientSupplier, IEnumerable<string> regions)
         {
             // When transpiling Dafny code, new MyClass() does not actually call the constructor, so we need to
             // instantiate the class and then manually call __ctor() to call the required constructor

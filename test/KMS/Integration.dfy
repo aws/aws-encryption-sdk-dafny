@@ -50,22 +50,7 @@ module IntegTestKMS {
       var encodeResult := UTF8.Encode(message);
       expect encodeResult.Success?, "Failed to encode :( " + encodeResult.error + "\n";
       var encodedMsg := encodeResult.value;
-      var keyA :- expect UTF8.Encode("keyA");
-      var valA :- expect UTF8.Encode("valA");
-      var encryptionContext := map[keyA := valA];
-      assert EncryptionContext.Serializable(encryptionContext) by {
-        // To prove EncryptionContext.Serializable, we need to reveal the definition of that predicate:
-        reveal EncryptionContext.Serializable();
-        // We also need to help the verifier with proving the KVPairsLength is small:
-        calc {
-          EncryptionContext.Length(encryptionContext);
-          var keys: seq<UTF8.ValidUTF8Bytes> := SetToOrderedSequence<uint8>(encryptionContext.Keys, UInt.UInt8Less);
-          var kvPairsSeq := seq(|keys|, i requires 0 <= i < |keys| => (keys[i], encryptionContext[keys[i]]));
-          2 + EncryptionContext.LinearLength(kvPairsSeq, 0, |kvPairsSeq|); // 2 bytes for the kvPairsCount field
-          2 + 2 + |keyA| + 2 + |valA|; // 2 bytes required for keyLength and valueLength fields
-        }
-        assert EncryptionContext.Length(encryptionContext) < UINT16_LIMIT;
-      }
+      var encryptionContext := SmallEncryptionContext(SmallEncryptionContextVariation.A);
       var encryptRequest := new Client.EncryptRequest.WithCMM(encodedMsg, cmm);
       encryptRequest.SetEncryptionContext(encryptionContext);
       var e := Client.Encrypt(encryptRequest);

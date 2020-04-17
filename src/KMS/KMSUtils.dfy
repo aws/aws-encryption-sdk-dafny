@@ -75,44 +75,45 @@ module {:extern "KMSUtils"} KMSUtils {
 
   datatype DecryptResponse = DecryptResponse(contentLength: int, httpStatusCode: HttpStatusCode, keyID: string, plaintext: seq<uint8>, responseMetadata: ResponseMetadata)
 
-  // We require a new datatype and cannot use Result<KMSClient> since Dafny does not currently support returning Result<trait>
-  datatype KMSClientResult = KMSClientSuccess(client: KMSClient) | KMSClientFailure(error: string)
+  // We require a new datatype and cannot use Result<AWSKMSClient> since Dafny does not currently support returning Result<trait>
+  // See: https://github.com/awslabs/aws-encryption-sdk-dafny/issues/273
+  datatype AWSKMSClientResult = Success(value: AWSKMSClient) | Failure(error: string)
   {
     predicate method IsFailure() {
-      KMSClientFailure?
+      Failure?
     }
     function method PropagateFailure<U>(): Result<U>
-      requires KMSClientFailure?
+      requires Failure?
     {
-      Failure(this.error)
+      Result.Failure(this.error)
     }
-    function method Extract(): KMSClient
-      requires KMSClientSuccess?
+    function method Extract(): AWSKMSClient
+      requires Success?
     {
-      client
+      value
     }
   }
 
-  method {:extern "KMSUtils.ClientHelper", "GetDefaultClientExtern"} GetDefaultClientExtern(region: Option<string>) returns (res: KMSClientResult)
+  method {:extern "KMSUtils.ClientHelper", "GetDefaultAWSKMSClientExtern"} GetDefaultAWSKMSClientExtern(region: Option<string>) returns (res: AWSKMSClientResult)
 
-  trait {:extern "KMSClientSupplier"} KMSClientSupplier {
+  trait {:extern "AWSKMSClientSupplier"} AWSKMSClientSupplier {
     ghost var Repr: set<object>
 
     predicate Valid()
       reads this, Repr
       ensures Valid() ==> this in Repr
 
-    method GetClient(region: Option<string>) returns (res: KMSClientResult)
+    method GetClient(region: Option<string>) returns (res: AWSKMSClientResult)
       requires Valid()
       ensures Valid()
       decreases Repr
   }
 
-  // An implementation of a KMSClientSupplier that takes in an existing KMSClientSupplier as well as a seq of regions
-  // (strings). The LimitRegionsClientSupplier will only return a KMSClient from the given KMSClientSupplier if the
+  // An implementation of an AWSKMSClientSupplier that takes in an existing AWSKMSClientSupplier as well as a seq of regions
+  // (strings). The LimitRegionsClientSupplier will only return an AWSKMSClient from the given AWSKMSClientSupplier if the
   // region provided to GetClient(region) is in the list of regions associated with the LimitRegionsClientSupplier.
-  class LimitRegionsClientSupplier extends KMSClientSupplier {
-    const clientSupplier: KMSClientSupplier
+  class LimitRegionsClientSupplier extends AWSKMSClientSupplier {
+    const clientSupplier: AWSKMSClientSupplier
     const regions: seq<string>
 
     predicate Valid()
@@ -123,7 +124,7 @@ module {:extern "KMSUtils"} KMSUtils {
       clientSupplier in Repr && clientSupplier.Repr <= Repr && this !in clientSupplier.Repr && clientSupplier.Valid()
     }
 
-    constructor(clientSupplier: KMSClientSupplier, regions: seq<string>)
+    constructor(clientSupplier: AWSKMSClientSupplier, regions: seq<string>)
       requires clientSupplier.Valid()
       ensures this.clientSupplier == clientSupplier
       ensures this.regions == regions
@@ -134,30 +135,32 @@ module {:extern "KMSUtils"} KMSUtils {
       Repr := {this} + clientSupplier.Repr;
     }
 
-    method GetClient(region: Option<string>) returns (res: KMSClientResult)
+    method GetClient(region: Option<string>) returns (res: AWSKMSClientResult)
       requires Valid()
       ensures Valid()
-      ensures region.None? ==> res.KMSClientFailure?
-      // Only add a post condition around failures, since (region.Some? && region.get in regions) could be a success
-      // or failure
-      ensures region.Some? && !(region.get in regions) ==> res.KMSClientFailure?
+      // Verify this behavior with the spec. See: https://github.com/awslabs/aws-encryption-sdk-dafny/issues/272
+      // Only add a post condition around failures, since the GetClient call could return a success or failure
+      ensures region.None? ==> res.Failure?
+      ensures region.Some? && !(region.get in regions) ==> res.Failure?
       decreases Repr
     {
       // In order to limit regions, make sure our given region string exists and is a member of the regions to limit to
       if region.Some? && region.get in regions {
         var resClient := clientSupplier.GetClient(region);
         return resClient;
-      } else {
-        return KMSClientFailure("Given region not in regions maintained by LimitRegionsClientSupplier");
+      } else if region.None? {
+        return AWSKMSClientResult.Failure("LimitRegionsClientSupplier GetClient requires a region");
       }
+      var failure := "Given region " + region.get + " not in regions maintained by LimitRegionsClientSupplier";
+      return AWSKMSClientResult.Failure(failure);
     }
   }
 
-  // An implementation of a KMSClientSupplier that takes in an existing KMSClientSupplier as well as a seq of regions
-  // (strings). The ExcludeRegionsClientSupplier will only return a KMSClient from the given KMSClientSupplier if the
+  // An implementation of an AWSKMSClientSupplier that takes in an existing AWSKMSClientSupplier as well as a seq of regions
+  // (strings). The ExcludeRegionsClientSupplier will only return an AWSKMSClient from the given AWSKMSClientSupplier if the
   // region provided to GetClient(region) is not in the list of regions associated with the ExcludeRegionsClientSupplier.
-  class ExcludeRegionsClientSupplier extends KMSClientSupplier {
-    const clientSupplier: KMSClientSupplier
+  class ExcludeRegionsClientSupplier extends AWSKMSClientSupplier {
+    const clientSupplier: AWSKMSClientSupplier
     const regions: seq<string>
 
     predicate Valid()
@@ -168,7 +171,7 @@ module {:extern "KMSUtils"} KMSUtils {
       clientSupplier in Repr && clientSupplier.Repr <= Repr && this !in clientSupplier.Repr && clientSupplier.Valid()
     }
 
-    constructor(clientSupplier: KMSClientSupplier, regions: seq<string>)
+    constructor(clientSupplier: AWSKMSClientSupplier, regions: seq<string>)
       requires clientSupplier.Valid()
       ensures this.clientSupplier == clientSupplier
       ensures this.regions == regions
@@ -179,25 +182,28 @@ module {:extern "KMSUtils"} KMSUtils {
       Repr := {this} + clientSupplier.Repr;
     }
 
-    method GetClient(region: Option<string>) returns (res: KMSClientResult)
+    method GetClient(region: Option<string>) returns (res: AWSKMSClientResult)
       requires Valid()
       ensures Valid()
-      // Only add a post condition around failures, since (region.None?) or (region.Some? && !(region.get in regions))
-      // could be a success or failure
-      ensures region.Some? && region.get in regions ==> res.KMSClientFailure?
+      // Verify this behavior with the spec. See: https://github.com/awslabs/aws-encryption-sdk-dafny/issues/272
+      // Only add a post condition around failures, since the GetClient call could return a success or failure
+      ensures region.None? ==> res.Failure?
+      ensures region.Some? && region.get in regions ==> res.Failure?
       decreases Repr
     {
-      // Exclude if our regions is a member of the maintained regions
-      if region.Some? && region.get in regions {
-        return KMSClientFailure("Given region is in regions maintained by ExcludeRegionsClientSupplier");
-      } else {
-        var resClient := clientSupplier.GetClient(region);
-        return resClient;
+      // In order to exclude regions, make sure our given region string exists and is not a member of the regions to exclude
+      if region.None? {
+        return AWSKMSClientResult.Failure("ExcludeRegionsClientSupplier GetClient requires a region");
+      } else if (region.Some? && region.get in regions) {
+        var failure := "Given region " + region.get + " is in regions maintained by ExcludeRegionsClientSupplier";
+        return AWSKMSClientResult.Failure(failure);
       }
+      var resClient := clientSupplier.GetClient(region);
+      return resClient;
     }
   }
 
-  class BaseClientSupplier extends KMSClientSupplier {
+  class BaseClientSupplier extends AWSKMSClientSupplier {
     predicate Valid()
       reads this, Repr
       ensures Valid() ==> this in Repr
@@ -205,7 +211,7 @@ module {:extern "KMSUtils"} KMSUtils {
       this in Repr
     }
 
-    // TODO awslabs/aws-encryption-sdk-dafny/issues/199: This needs to take in a region and creds
+    // TODO awslabs/aws-encryption-sdk-dafny/issues/199: This needs to support additional customization
     // Most likely: AmazonKeyManagementServiceConfig and AWSCredentials
     constructor()
       ensures Valid() && fresh(Repr)
@@ -214,19 +220,19 @@ module {:extern "KMSUtils"} KMSUtils {
     }
 
     // Since this is the base client supplier, this just calls the extern GetClient method
-    method GetClient(region: Option<string>) returns (res: KMSClientResult)
+    method GetClient(region: Option<string>) returns (res: AWSKMSClientResult)
       requires Valid()
       ensures Valid()
       decreases Repr
     {
       // Since this is the base client supplier, this obtains the extern client
-      var resClient := GetDefaultClientExtern(region);
+      var resClient := GetDefaultAWSKMSClientExtern(region);
       return resClient;
     }
   }
 
   // https://docs.aws.amazon.com/sdkfornet/v3/apidocs/items/KeyManagementService/TKeyManagementServiceClient.html
-  trait {:extern "KMSClient"} KMSClient {
+  trait {:extern "AWSKMSClient"} AWSKMSClient {
     method {:extern "GenerateDataKey"} GenerateDataKey(request: GenerateDataKeyRequest) returns (res: Result<GenerateDataKeyResponse>)
       requires request.Valid()
 
