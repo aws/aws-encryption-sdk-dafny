@@ -215,22 +215,23 @@ module {:extern "CachingCMMDef"} CachingCMMDef {
 
   class CryptographicMaterialsCache {
     ghost var Repr: set<object>
-    var EM: map<seq<uint8>, CacheEntryEncrypt>
-    var DM: map<seq<uint8>, CacheEntryDecrypt>
+    // The cache is split up into two independent maps, one for the encrypt path and one for the decrypt path.
+    var EncryptMap: map<seq<uint8>, CacheEntryEncrypt>
+    var DecryptMap: map<seq<uint8>, CacheEntryDecrypt>
 
     predicate Valid()
       reads this, Repr
       ensures Valid() ==> this in Repr
     {
       this in Repr &&
-      (forall id :: id in EM.Keys ==> EM[id] in Repr && EM[id].Valid()) &&
-      (forall id :: id in DM.Keys ==> DM[id] in Repr && DM[id].Valid())
+      (forall id :: id in EncryptMap.Keys ==> EncryptMap[id] in Repr && EncryptMap[id].Valid()) &&
+      (forall id :: id in DecryptMap.Keys ==> DecryptMap[id] in Repr && DecryptMap[id].Valid())
     }
 
     constructor ()
       ensures Valid() && fresh(Repr)
     {
-      Repr, EM, DM := {this}, map[], map[];
+      Repr, EncryptMap, DecryptMap := {this}, map[], map[];
     }
 
     function method LookupEncrypt(cacheID: seq<uint8>): (entry: CacheEntryEncrypt?)
@@ -238,7 +239,7 @@ module {:extern "CachingCMMDef"} CachingCMMDef {
       reads Repr
       ensures entry != null ==> entry in Repr && entry.Valid()
     {
-      if cacheID in EM.Keys then EM[cacheID] else null
+      if cacheID in EncryptMap.Keys then EncryptMap[cacheID] else null
     }
 
     function method LookupDecrypt(cacheID: seq<uint8>): (entry: CacheEntryDecrypt?)
@@ -246,7 +247,7 @@ module {:extern "CachingCMMDef"} CachingCMMDef {
       reads Repr
       ensures entry != null ==> entry in Repr && entry.Valid()
     {
-      if cacheID in DM.Keys then DM[cacheID] else null
+      if cacheID in DecryptMap.Keys then DecryptMap[cacheID] else null
     }
 
     // Adds an entry [cacheID := encMat] to the cache, replacing any previous encrypt entry for cacheID
@@ -259,7 +260,7 @@ module {:extern "CachingCMMDef"} CachingCMMDef {
     {
       entry := new CacheEntryEncrypt(encMat, secondsToLiveLimit);
       Repr := Repr + {entry};
-      EM := EM[cacheID := entry];
+      EncryptMap := EncryptMap[cacheID := entry];
     }
 
     // Adds an entry [cacheID := decMat] to the cache, replacing any previous decrypt entry for cacheID
@@ -272,7 +273,7 @@ module {:extern "CachingCMMDef"} CachingCMMDef {
     {
       entry := new CacheEntryDecrypt(decMat, secondsToLiveLimit);
       Repr := Repr + {entry};
-      DM := DM[cacheID := entry];
+      DecryptMap := DecryptMap[cacheID := entry];
     }
 
     // Removes any encrypt entry for cacheID.
@@ -281,7 +282,7 @@ module {:extern "CachingCMMDef"} CachingCMMDef {
       modifies Repr
       ensures Valid() && fresh(Repr - old(Repr))
     {
-      EM := map id | id in EM.Keys && id != cacheID :: EM[id];
+      EncryptMap := map id | id in EncryptMap.Keys && id != cacheID :: EncryptMap[id];
     }
 
     // Removes any decrypt entry for cacheID.
@@ -290,7 +291,7 @@ module {:extern "CachingCMMDef"} CachingCMMDef {
       modifies Repr
       ensures Valid() && fresh(Repr - old(Repr))
     {
-      DM := map id | id in DM.Keys && id != cacheID :: DM[id];
+      DecryptMap := map id | id in DecryptMap.Keys && id != cacheID :: DecryptMap[id];
     }
   }
 
