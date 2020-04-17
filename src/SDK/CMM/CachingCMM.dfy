@@ -128,7 +128,7 @@ module {:extern "CachingCMMDef"} CachingCMMDef {
       var entry := cmc.LookupEncrypt(cacheID);
       Repr := Repr + cmc.Repr;
       if entry != null {
-        entry.IncrementUse(materialsRequest.plaintextLength.get, 1);
+        entry.IncrementUse(materialsRequest.plaintextLength.get);
         var currentTime := Time.GetCurrent();
         if entry.expiryTime <= currentTime
         || bytesLimit as nat <= entry.bytesEncrypted
@@ -152,7 +152,7 @@ module {:extern "CachingCMMDef"} CachingCMMDef {
       // Add them to the cache.
       entry := cmc.AddEncrypt(cacheID, encMat, secondsToLiveLimit);
       Repr := Repr + cmc.Repr;
-      entry.IncrementUse(materialsRequest.plaintextLength.get, 1);
+      entry.IncrementUse(materialsRequest.plaintextLength.get);
       return Success(encMat);
     }
 
@@ -323,12 +323,13 @@ module {:extern "CachingCMMDef"} CachingCMMDef {
       messagesEncrypted, bytesEncrypted := 0, 0;
     }
 
-    method IncrementUse(byteCount: nat, useCount: nat)
+    // Increments use count by 1 and increments byte count by "byteCount".
+    method IncrementUse(byteCount: nat)
       modifies this
-      ensures messagesEncrypted == old(messagesEncrypted) + useCount
+      ensures messagesEncrypted == old(messagesEncrypted) + 1
       ensures bytesEncrypted == old(bytesEncrypted) + byteCount
     {
-      messagesEncrypted := messagesEncrypted + useCount;
+      messagesEncrypted := messagesEncrypted + 1;
       bytesEncrypted := bytesEncrypted + byteCount;
     }
   }
