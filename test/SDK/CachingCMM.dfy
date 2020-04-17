@@ -251,19 +251,12 @@ module TestCachingCMM {
       method GetEncryptionMaterials(materialsRequest: Materials.EncryptionMaterialsRequest)
                                     returns (res: Result<Materials.ValidEncryptionMaterials>)
         requires Valid()
-        requires ValidAAD(materialsRequest.encryptionContext)
-        requires materialsRequest.encryptionContext.Keys !! Materials.RESERVED_KEY_VALUES
         modifies Repr
         ensures Valid() && fresh(Repr - old(Repr))
-        ensures res.Success? ==> res.value.plaintextDataKey.Some? && res.value.algorithmSuiteID.ValidPlaintextDataKey(res.value.plaintextDataKey.get)
-        ensures res.Success? ==> |res.value.encryptedDataKeys| > 0
-        ensures res.Success? ==> ValidAAD(res.value.encryptionContext)
-        ensures res.Success? ==>
-          match res.value.algorithmSuiteID.SignatureType()
-            case None => true
-            case Some(sigType) =>
-              res.value.signingKey.Some?
+        ensures res.Success? ==> res.value.plaintextDataKey.Some? && res.value.Serializable()
       {
+        TestUtils.ExpectSerializableEncryptionContext(materialsRequest.encryptionContext);
+
         var algSuiteID := if materialsRequest.algorithmSuiteID == None then AlgorithmSuite.AES_256_GCM_IV12_TAG16_HKDF_SHA384_ECDSA_P384 else materialsRequest.algorithmSuiteID.get;
         var edk: Materials.ValidEncryptedDataKey := Materials.EncryptedDataKey([], [], []);
         var tr0 := Materials.KeyringTraceEntry([], [], {Materials.GENERATED_DATA_KEY});
@@ -296,8 +289,7 @@ module TestCachingCMM {
         requires Valid()
         modifies Repr
         ensures Valid() && fresh(Repr - old(Repr))
-        ensures res.Success? ==> res.value.plaintextDataKey.Some? && res.value.algorithmSuiteID.ValidPlaintextDataKey(res.value.plaintextDataKey.get)
-        ensures res.Success? && res.value.algorithmSuiteID.SignatureType().Some? ==> res.value.verificationKey.Some?
+        ensures res.Success? ==> res.value.plaintextDataKey.Some?
       {
         var dm := Materials.DecryptionMaterials(
           materialsRequest.algorithmSuiteID,

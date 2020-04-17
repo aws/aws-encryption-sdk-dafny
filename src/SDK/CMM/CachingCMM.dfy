@@ -100,8 +100,6 @@ module {:extern "CachingCMMDef"} CachingCMMDef {
     method GetEncryptionMaterials(materialsRequest: Materials.EncryptionMaterialsRequest)
                                   returns (res: Result<Materials.ValidEncryptionMaterials>)
       requires Valid()
-      requires ValidAAD(materialsRequest.encryptionContext)
-      requires materialsRequest.encryptionContext.Keys !! Materials.RESERVED_KEY_VALUES
       modifies Repr
       ensures Valid() && fresh(Repr - old(Repr))
       ensures res.Success? ==> res.value.plaintextDataKey.Some? && res.value.Serializable()
@@ -114,6 +112,11 @@ module {:extern "CachingCMMDef"} CachingCMMDef {
         res := cmm.GetEncryptionMaterials(materialsRequest.(plaintextLength := None));
         Repr := Repr + cmm.Repr;
         return;
+      }
+
+      var isSerializable := EncryptionContext.CheckSerializable(materialsRequest.encryptionContext);
+      if !isSerializable {
+        return Failure("Invalid Encryption Context");
       }
 
       var cacheID :- ComputeCacheID(materialsRequest.algorithmSuiteID, materialsRequest.encryptionContext);
@@ -156,14 +159,9 @@ module {:extern "CachingCMMDef"} CachingCMMDef {
       ensures Valid() && fresh(Repr - old(Repr))
       ensures res.Success? ==> res.value.plaintextDataKey.Some?
     {
-      var kvPairsLength := EncryptionContext.ComputeLength(materialsRequest.encryptionContext);
-      if UINT16_LIMIT <= kvPairsLength {
-        return Failure("encryption context too large");
-      } else if !EncryptionContext.SerializableKVPairs(materialsRequest.encryptionContext) {
-        return Failure("malformed encryption context");
-      }
-      assert EncryptionContext.Serializable(materialsRequest.encryptionContext) by {
-        reveal EncryptionContext.Serializable();
+      var isSerializable := EncryptionContext.CheckSerializable(materialsRequest.encryptionContext);
+      if !isSerializable {
+        return Failure("Invalid Encryption Context");
       }
 
       var cacheID :- ComputeCacheID(Some(materialsRequest.algorithmSuiteID), materialsRequest.encryptionContext);
