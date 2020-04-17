@@ -212,7 +212,7 @@ module {:extern "ESDKClient"} ESDKClient {
       case None =>
         // don't use a footer
       case Some(ecdsaParams) =>
-        var digest :- Signature.Digest(ecdsaParams, msg);
+        var digest :- Signature.Digest(ecdsaParams.DigestAlgorithm(), msg);
         var bytes :- Signature.Sign(ecdsaParams, encMat.signingKey.get, digest);
         if |bytes| != ecdsaParams.SignatureLength() as int {
           return Failure("Malformed response from Sign().");
@@ -292,7 +292,7 @@ module {:extern "ESDKClient"} ESDKClient {
         var signatureLength :- rd.ReadUInt16();
         var sig :- rd.ReadBytes(signatureLength as nat);
         // verify signature
-        var digest :- Signature.Digest(ecdsaParams, msg);
+        var digest :- Signature.Digest(ecdsaParams.DigestAlgorithm(), msg);
         var signatureVerified :- Signature.Verify(ecdsaParams, decMat.verificationKey.get, digest, sig);
         if !signatureVerified {
           return Failure("signature not verified");

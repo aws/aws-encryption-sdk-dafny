@@ -19,8 +19,16 @@ module {:extern "Signature"} Signature {
         case ECDSA_P256 => assert 1 + (256 + 7) / 8 == 33; 33
         case ECDSA_P384 => assert 1 + (384 + 7) / 8 == 49; 49
       }
+
+      function method DigestAlgorithm(): DigestAlgorithm {
+        match this
+        case ECDSA_P256 => SHA_256
+        case ECDSA_P384 => SHA_384
+      }
     }
 
+    datatype DigestAlgorithm = SHA_256 | SHA_384 | SHA_512
+      
     method KeyGen(s: ECDSAParams) returns (res: Result<SignatureKeyPair>)
       ensures match res
         case Success(sigKeyPair) => |sigKeyPair.verificationKey| == s.FieldSize()
@@ -40,5 +48,5 @@ module {:extern "Signature"} Signature {
 
     method {:extern "Signature.ECDSA", "Verify"} Verify(s: ECDSAParams, key: seq<uint8>, digest: seq<uint8>, sig: seq<uint8>) returns (res: Result<bool>)
 
-    method {:extern "Signature.ECDSA", "Digest"} Digest(s: ECDSAParams, msg: seq<uint8>) returns (digest: Result<seq<uint8>>)
+    method {:extern "Signature.ECDSA", "Digest"} Digest(alg: DigestAlgorithm, msg: seq<uint8>) returns (digest: Result<seq<uint8>>)
 }
