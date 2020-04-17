@@ -22,6 +22,8 @@ module TestCachingCMM {
   import EncryptionContext
   import TestUtils
 
+  const SECONDS_TO_LIVE_LIMIT: nat := 3600  // for the tests
+
   /*
    * Tests of GetEncryptionMaterials
    */
@@ -30,7 +32,7 @@ module TestCachingCMM {
     var tcmm := new Helpers.TestCMM();
     var bytesLimit := 100;
     var messagesLimit := 4;
-    var ccmm := new CachingCMMDef.CachingCMM.WithLimits(tcmm, CachingCMMDef.DEFAULT_SECONDS_TO_LIVE_LIMIT, bytesLimit, messagesLimit);
+    var ccmm := new CachingCMMDef.CachingCMM.WithLimits(tcmm, SECONDS_TO_LIVE_LIMIT, bytesLimit, messagesLimit);
 
     var encryptionContext := TestUtils.SmallEncryptionContext(TestUtils.SmallEncryptionContextVariation.AB);
     var eRequest := Materials.EncryptionMaterialsRequest(encryptionContext, Some(AlgorithmSuite.AES_128_GCM_IV12_TAG16_HKDF_SHA256_ECDSA_P256), Some(5));
@@ -45,7 +47,7 @@ module TestCachingCMM {
     var tcmm := new Helpers.TestCMM();
     var bytesLimit := 100;
     var messagesLimit := 1_000_000;
-    var ccmm := new CachingCMMDef.CachingCMM.WithLimits(tcmm, CachingCMMDef.DEFAULT_SECONDS_TO_LIVE_LIMIT, bytesLimit, messagesLimit);
+    var ccmm := new CachingCMMDef.CachingCMM.WithLimits(tcmm, SECONDS_TO_LIVE_LIMIT, bytesLimit, messagesLimit);
 
     var encryptionContext := TestUtils.SmallEncryptionContext(TestUtils.SmallEncryptionContextVariation.AB);
     var eRequest := Materials.EncryptionMaterialsRequest(encryptionContext, Some(AlgorithmSuite.AES_128_GCM_IV12_TAG16_HKDF_SHA256_ECDSA_P256), Some(29));
@@ -58,7 +60,7 @@ module TestCachingCMM {
 
   method {:test} TestGetEMTimeLimit() {
     var tcmm := new Helpers.TestCMM();
-    var timeToLiveLimit := 0;
+    var timeToLiveLimit := 1;
     var bytesLimit := 1_000_000;
     var messagesLimit := 1_000_000;
     var ccmm := new CachingCMMDef.CachingCMM.WithLimits(tcmm, timeToLiveLimit, bytesLimit, messagesLimit);
@@ -66,11 +68,12 @@ module TestCachingCMM {
     var encryptionContext := TestUtils.SmallEncryptionContext(TestUtils.SmallEncryptionContextVariation.AB);
     var eRequest := Materials.EncryptionMaterialsRequest(encryptionContext, Some(AlgorithmSuite.AES_128_GCM_IV12_TAG16_HKDF_SHA256_ECDSA_P256), Some(29));
 
-    // With a time-to-live limit of 0, everything will be a cache miss
+    // By waiting two seconds between the various requests, everything will be a cache miss
     var n := 0;
     while n < 12
       invariant ccmm.Valid() && fresh(ccmm.Repr)
     {
+      Helpers.Sleep(2000);
       Helpers.CallGetEM(ccmm, tcmm, eRequest, false);
       n := n + 1;
     }
@@ -78,7 +81,7 @@ module TestCachingCMM {
 
   method {:test} TestGetEMVariationsInParameters() {
     var tcmm := new Helpers.TestCMM();
-    var ccmm := new CachingCMMDef.CachingCMM(tcmm);
+    var ccmm := new CachingCMMDef.CachingCMM(tcmm, SECONDS_TO_LIVE_LIMIT);
 
     var encryptionContext := TestUtils.SmallEncryptionContext(TestUtils.SmallEncryptionContextVariation.AB);
     var eRequest := Materials.EncryptionMaterialsRequest(encryptionContext, Some(AlgorithmSuite.AES_128_GCM_IV12_TAG16_HKDF_SHA256_ECDSA_P256), Some(5));
@@ -112,7 +115,7 @@ module TestCachingCMM {
     var tcmm := new Helpers.TestCMM();
     var bytesLimit := 100;
     var messagesLimit := 2;
-    var ccmm := new CachingCMMDef.CachingCMM.WithLimits(tcmm, CachingCMMDef.DEFAULT_SECONDS_TO_LIVE_LIMIT, bytesLimit, messagesLimit);
+    var ccmm := new CachingCMMDef.CachingCMM.WithLimits(tcmm, SECONDS_TO_LIVE_LIMIT, bytesLimit, messagesLimit);
 
     var encryptionContext := TestUtils.SmallEncryptionContext(TestUtils.SmallEncryptionContextVariation.Empty);
     var edk: Materials.ValidEncryptedDataKey := Materials.EncryptedDataKey([], [], []);
@@ -132,7 +135,7 @@ module TestCachingCMM {
 
   method {:test} TestDMTimeLimit() {
     var tcmm := new Helpers.TestCMM();
-    var timeToLiveLimit := 0;
+    var timeToLiveLimit := 1;
     var bytesLimit := 1_000_000;
     var messagesLimit := 1_000_000;
     var ccmm := new CachingCMMDef.CachingCMM.WithLimits(tcmm, timeToLiveLimit, bytesLimit, messagesLimit);
@@ -141,11 +144,12 @@ module TestCachingCMM {
     var edk: Materials.ValidEncryptedDataKey := Materials.EncryptedDataKey([], [], []);
     var dRequest := Materials.DecryptionMaterialsRequest(AlgorithmSuite.AES_128_GCM_IV12_TAG16_HKDF_SHA256_ECDSA_P256, [edk], encryptionContext);
 
-    // With a time-to-live limit of 0, everything will be a cache miss
+    // By waiting two seconds between the various requests, everything will be a cache miss
     var n := 0;
     while n < 12
       invariant ccmm.Valid() && fresh(ccmm.Repr)
     {
+      Helpers.Sleep(2000);
       Helpers.CallDM(ccmm, tcmm, dRequest, false);
       n := n + 1;
     }
@@ -153,7 +157,7 @@ module TestCachingCMM {
 
   method {:test} TestDMVariationsInParameters() {
     var tcmm := new Helpers.TestCMM();
-    var ccmm := new CachingCMMDef.CachingCMM(tcmm);
+    var ccmm := new CachingCMMDef.CachingCMM(tcmm, SECONDS_TO_LIVE_LIMIT);
 
     var encryptionContext := TestUtils.SmallEncryptionContext(TestUtils.SmallEncryptionContextVariation.AB);
     var edk: Materials.ValidEncryptedDataKey := Materials.EncryptedDataKey([], [], []);
@@ -190,6 +194,10 @@ module TestCachingCMM {
     import AlgorithmSuite
     import UTF8
     import TestUtils
+
+    // This method waits "ms" milliseconds and then returns
+    method {:extern "System.Threading.Thread", "Sleep"} Sleep(ms: int32)
+      requires 0 <= ms
 
     // Call ccmm.GetEncryptionMaterial and report whether or not there was a cache hit
     method CallGetEM(ccmm: CachingCMMDef.CachingCMM, tcmm: TestCMM, request: Materials.EncryptionMaterialsRequest, expectCacheHit: bool)

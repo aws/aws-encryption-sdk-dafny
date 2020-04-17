@@ -25,9 +25,8 @@ module CachingCMMDef {
   //  -- the default bytes limit must not exceed 2^63 - 1
   //  -- the default message limit is 2^32
   //  -- nothing about the default time-to-live limit
-  const DEFAULT_SECONDS_TO_LIVE_LIMIT: nat := 3600
-  const DEFAULT_BYTE_USE_LIMIT: uint64 := 0x7FFF_FFFF_FFFF_FFFF  // 2^63 - 1
-  const DEFAULT_MESSAGE_USE_LIMIT: uint64 := 0x1_0000_0000  // 2^32
+  const DEFAULT_BYTE_USE_LIMIT_PER_CACHED_KEY: uint64 := 0x7FFF_FFFF_FFFF_FFFF  // 2^63 - 1
+  const DEFAULT_MESSAGE_USE_LIMIT_PER_CACHED_KEY: uint64 := 0x1_0000_0000  // 2^32
 
   const CACHE_ID_HASH_ALGORITHM := Signature.ECDSAParams.ECDSA_P384  // note, ESDK Java uses "SHA-512"
 
@@ -68,17 +67,18 @@ module CachingCMMDef {
       this in Repr &&
       cmm in Repr && cmm.Repr <= Repr && this !in cmm.Repr && cmm.Valid() &&
       cmc in Repr && cmc.Repr <= Repr && this !in cmc.Repr && cmc.Valid() &&
-      cmm.Repr !! cmc.Repr
+      cmm.Repr !! cmc.Repr &&
+      secondsToLiveLimit != 0
     }
 
-    constructor (cmm: CMMDefs.CMM)
-      requires cmm.Valid()
+    constructor (cmm: CMMDefs.CMM, secondsToLiveLimit: nat)
+      requires cmm.Valid() && secondsToLiveLimit != 0
       ensures Valid() && fresh(Repr - old(cmm.Repr))
       ensures this.cmm == cmm
     {
-      this.secondsToLiveLimit := DEFAULT_SECONDS_TO_LIVE_LIMIT;
-      this.bytesLimit := DEFAULT_BYTE_USE_LIMIT;
-      this.messagesLimit := DEFAULT_MESSAGE_USE_LIMIT;
+      this.secondsToLiveLimit := secondsToLiveLimit;
+      this.bytesLimit := DEFAULT_BYTE_USE_LIMIT_PER_CACHED_KEY;
+      this.messagesLimit := DEFAULT_MESSAGE_USE_LIMIT_PER_CACHED_KEY;
 
       this.cmm := cmm;
       var cmc := new CryptographicMaterialsCache();
@@ -88,7 +88,7 @@ module CachingCMMDef {
     }
 
     constructor WithLimits(cmm: CMMDefs.CMM, secondsToLiveLimit: nat, bytesLimit: uint64, messagesLimit: uint64)
-      requires cmm.Valid()
+      requires cmm.Valid() && secondsToLiveLimit != 0
       ensures Valid() && fresh(Repr - old(cmm.Repr))
       ensures this.cmm == cmm
       ensures this.secondsToLiveLimit == secondsToLiveLimit && this.bytesLimit == bytesLimit && this.messagesLimit == messagesLimit
