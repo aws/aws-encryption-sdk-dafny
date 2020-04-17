@@ -28,7 +28,7 @@ module {:extern "CachingCMMDef"} CachingCMMDef {
   const DEFAULT_BYTE_USE_LIMIT_PER_CACHED_KEY: uint64 := 0x7FFF_FFFF_FFFF_FFFF  // 2^63 - 1
   const DEFAULT_MESSAGE_USE_LIMIT_PER_CACHED_KEY: uint64 := 0x1_0000_0000  // 2^32
 
-  const CACHE_ID_HASH_ALGORITHM := Signature.ECDSAParams.ECDSA_P384  // note, ESDK Java uses "SHA-512"
+  const CACHE_ID_HASH_ALGORITHM := Signature.DigestAlgorithm.SHA_512
 
   /* Notes:
    *
