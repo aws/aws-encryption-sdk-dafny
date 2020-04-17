@@ -208,7 +208,7 @@ namespace AWSEncryptionSDKTests
                         AWSEncryptionSDK.KMSClientSuppliers.NewKMSExcludeRegionsClientSupplier(
                             AWSEncryptionSDK.KMSClientSuppliers.NewKMSDefaultClientSupplier(),
                             new List<string>() {}),
-                        new List<string>() { CURRENT_REGION, "another-region" }),
+                        new List<string>() { CURRENT_REGION, "another-region" })
                 };
                 foreach (KMSUtils.KMSClientSupplier clientSupplier in clientSuppliers) {
                     foreach (var item in DefaultClientTestData) {

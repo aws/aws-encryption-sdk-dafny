@@ -210,7 +210,7 @@ module {:extern "KMSUtils"} KMSUtils {
     constructor()
       ensures Valid() && fresh(Repr)
     {
-       Repr := {this};
+      Repr := {this};
     }
 
     // Since this is the base client supplier, this just calls the extern GetClient method
