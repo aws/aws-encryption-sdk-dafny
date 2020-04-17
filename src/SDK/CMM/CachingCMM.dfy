@@ -105,7 +105,7 @@ module {:extern "CachingCMMDef"} CachingCMMDef {
       ensures res.Success? ==> res.value.plaintextDataKey.Some? && res.value.Serializable()
     {
       if materialsRequest.plaintextLength.None?
-      || bytesLimit as int <= materialsRequest.plaintextLength.get
+      || bytesLimit as int < materialsRequest.plaintextLength.get
       || (materialsRequest.algorithmSuiteID.Some? && materialsRequest.algorithmSuiteID.get.ContainsIdentityKDF())
       {
         // Get encryption materials from the underlying CMM.
@@ -127,7 +127,7 @@ module {:extern "CachingCMMDef"} CachingCMMDef {
         entry.IncrementUse(materialsRequest.plaintextLength.get);
         var currentTime := Time.GetCurrent();
         if entry.expiryTime <= currentTime
-        || bytesLimit as nat <= entry.bytesEncrypted
+        || bytesLimit as nat < entry.bytesEncrypted
         || messagesLimit as nat <= entry.messagesEncrypted
         {
           // Note, the specification says to treat these numbers as uint64, but the Java ESDK
