@@ -44,13 +44,6 @@ module {:extern "CachingCMMDef"} CachingCMMDef {
    * The specification says a Caching CMM MUST have a partition ID, which avoids collisions
    * when several Caching CMMs share one CMC. This implementation never shares a CMC, so the
    * partition ID is omitted.
-   *
-   * The Java implementation bypasses the cache in several reasonable ways that are not mentioned
-   * in the specification:
-   *  - Bypass cache when performing streaming operations, unless the stream size is set before
-   *    writing any data.
-   *  - Bypass cache when "plaintextLen" is not specified.
-   * The implementation below also bypasses the cache when "plaintextLen" is not specified.
    */
 
   class CachingCMM extends CMMDefs.CMM {
