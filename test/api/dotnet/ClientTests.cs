@@ -34,6 +34,18 @@ namespace AWSEncryptionSDKTests
             return AWSEncryptionSDK.CMMs.MakeDefaultCMM(keyring);
         }
 
+        // MakeCachingCMMWithKMSKeyring is a helper method that creates a caching CMM around a default CMM that
+        // uses a KMS Keyring for unit testing
+        private CMMDefs.CMM MakeCachingCMMWithKMSKeyring()
+        {
+            Keyring keyring = MakeKMSKeyring();
+            CMMDefs.CMM cmm = AWSEncryptionSDK.CMMs.MakeDefaultCMM(keyring);
+            cmm = AWSEncryptionSDK.CMMs.MakeCachingCMM(cmm, 1,
+                                                       CachingCMMDef.__default.DEFAULT__BYTE__USE__LIMIT__PER__CACHED__KEY,
+                                                       CachingCMMDef.__default.DEFAULT__MESSAGE__USE__LIMIT__PER__CACHED__KEY);
+            return cmm;
+        }
+
         // MakeRSAKeyring is a helper method that creates a RSA Keyring for unit testing
         private Keyring MakeRSAKeyring(DafnyFFI.RSAPaddingModes paddingMode, String nameSpace, String name)
         {
@@ -161,6 +173,14 @@ namespace AWSEncryptionSDKTests
         public void RoundTripHappyPath_KMS(bool isMultithreaded, bool withParams)
         {
             CMMDefs.CMM cmm = MakeDefaultCMMWithKMSKeyring();
+            EncryptDecryptThreaded(cmm, isMultithreaded, withParams);
+        }
+
+        [Theory]
+        [MemberData(nameof(DefaultClientTestData))]
+        public void RoundTripHappyPath_KMS_CachingCMM(bool isMultithreaded, bool withParams)
+        {
+            CMMDefs.CMM cmm = MakeCachingCMMWithKMSKeyring();
             EncryptDecryptThreaded(cmm, isMultithreaded, withParams);
         }
 

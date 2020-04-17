@@ -9,7 +9,7 @@ include "../../Util/Streams.dfy"
 include "../Serialize.dfy"
 include "../../Util/Time.dfy"
 
-module CachingCMMDef {
+module {:extern "CachingCMMDef"} CachingCMMDef {
   import opened StandardLibrary
   import opened UInt = StandardLibrary.UInt
   import CMMDefs
