@@ -203,12 +203,18 @@ namespace AWSEncryptionSDKTests
                     AWSEncryptionSDK.AWSKMSClientSuppliers.NewKMSLimitRegionsClientSupplier(
                         AWSEncryptionSDK.AWSKMSClientSuppliers.NewKMSBaseClientSupplier(),
                         new List<string>() { CURRENT_REGION, "another-region" }),
-                    // LimitRegionsClientSupplier with ExcludeRegionsClientSupplier with no excluded regions
+                    // LimitRegionsClientSupplier with ExcludeRegionsClientSupplier
                     AWSEncryptionSDK.AWSKMSClientSuppliers.NewKMSLimitRegionsClientSupplier(
                         AWSEncryptionSDK.AWSKMSClientSuppliers.NewKMSExcludeRegionsClientSupplier(
                             AWSEncryptionSDK.AWSKMSClientSuppliers.NewKMSDefaultClientSupplier(),
-                            new List<string>() {}),
-                        new List<string>() { CURRENT_REGION, "another-region" })
+                            new List<string>() { "excluded-region" }),
+                        new List<string>() { CURRENT_REGION, "another-region" }),
+                    // ExcludeRegionsClientSupplier with LimitRegionsClientSupplier
+                    AWSEncryptionSDK.AWSKMSClientSuppliers.NewKMSExcludeRegionsClientSupplier(
+                        AWSEncryptionSDK.AWSKMSClientSuppliers.NewKMSLimitRegionsClientSupplier(
+                            AWSEncryptionSDK.AWSKMSClientSuppliers.NewKMSDefaultClientSupplier(),
+                            new List<string>() { CURRENT_REGION, "another-region" }),
+                        new List<string>() { "excluded-region" })
                 };
                 foreach (KMSUtils.AWSKMSClientSupplier clientSupplier in clientSuppliers) {
                     foreach (var item in DefaultClientTestData) {
@@ -288,6 +294,44 @@ namespace AWSEncryptionSDKTests
                 AWSEncryptionSDK.Client.Encrypt(encryptRequest);
             });
             Assert.Equal(String.Format("Given region {0} is in regions maintained by ExcludeRegionsClientSupplier", CURRENT_REGION), ex.Message);
+        }
+
+        [Fact]
+        public void BadConstructor_ClientSupplier_ExcludeRegions_LimitRegions_BadRegion()
+        {
+            // ExcludeRegionsClientSupplier with LimitRegionsClientSupplier with a region we are not in
+            KMSUtils.AWSKMSClientSupplier clientSupplier = AWSEncryptionSDK.AWSKMSClientSuppliers.NewKMSExcludeRegionsClientSupplier(
+                AWSEncryptionSDK.AWSKMSClientSuppliers.NewKMSLimitRegionsClientSupplier(
+                    AWSEncryptionSDK.AWSKMSClientSuppliers.NewKMSDefaultClientSupplier(),
+                    new List<string>() { "another-region" }),
+                new List<string>() { "excluded-region" });
+
+            CMMDefs.CMM cmm = MakeDefaultCMMWithKMSKeyringWithClientSupplier(clientSupplier);
+            MemoryStream plaintextStream = new MemoryStream(Encoding.UTF8.GetBytes("something"));
+            var encryptRequest = new AWSEncryptionSDK.Client.EncryptRequest{plaintext = plaintextStream, cmm = cmm};
+            DafnyException ex = Assert.Throws<DafnyException>(() => {
+                AWSEncryptionSDK.Client.Encrypt(encryptRequest);
+            });
+            Assert.Equal(String.Format("Given region {0} not in regions maintained by LimitRegionsClientSupplier", CURRENT_REGION), ex.Message);
+        }
+
+        [Fact]
+        public void ClientSupplier_NoRegion_GetClient_Failures()
+        {
+            // ExcludeRegionsClientSupplier GetClient being called with no region
+            KMSUtils.AWSKMSClientSupplier excludeRegionsClientSupplier = AWSEncryptionSDK.AWSKMSClientSuppliers.NewKMSExcludeRegionsClientSupplier(
+                AWSEncryptionSDK.AWSKMSClientSuppliers.NewKMSDefaultClientSupplier(), new List<string>() { });
+
+            KMSUtils.AWSKMSClientResult client = excludeRegionsClientSupplier.GetClient(DafnyFFI.NullableToOption<Dafny.ISequence<char>>(null));
+            Assert.True(client.IsFailure());
+            Assert.Equal("ExcludeRegionsClientSupplier GetClient requires a region", DafnyFFI.StringFromDafnyString(client.dtor_error));
+
+            // LimitRegionsClientSupplier GetClient being called with no region
+            KMSUtils.AWSKMSClientSupplier limitRegionsClientSupplier = AWSEncryptionSDK.AWSKMSClientSuppliers.NewKMSLimitRegionsClientSupplier(
+                AWSEncryptionSDK.AWSKMSClientSuppliers.NewKMSDefaultClientSupplier(), new List<string>() { });
+            client = limitRegionsClientSupplier.GetClient(DafnyFFI.NullableToOption<Dafny.ISequence<char>>(null));
+            Assert.True(client.IsFailure());
+            Assert.Equal("LimitRegionsClientSupplier GetClient requires a region", DafnyFFI.StringFromDafnyString(client.dtor_error));
         }
 
         [Fact]

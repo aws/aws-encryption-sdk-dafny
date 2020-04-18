@@ -25,6 +25,8 @@ module IntegTestKMS {
   import UTF8
   import Base64
 
+  const CURRENT_REGION := "us-west-2";
+
   // To avoid a "Public method '...' should be marked as a Theory" warning from xUnit, these helper methods are
   // declared in their own module.
   module Helpers {
@@ -107,7 +109,7 @@ module IntegTestKMS {
 
   method {:test} TestEndToEnd_ExcludeRegionsClientSupplier_Failure() {
     var baseClientSupplier := new KMSUtils.BaseClientSupplier();
-    var regions: seq<string> := ["us-west-2"];
+    var regions: seq<string> := [CURRENT_REGION];
     var excludeRegionsClientSupplier := new KMSUtils.ExcludeRegionsClientSupplier(baseClientSupplier, regions);
     var generator: KMSUtils.CustomerMasterKey := Helpers.CreateTestingGenerator();
     var keyring := new KMSKeyringDef.KMSKeyring(excludeRegionsClientSupplier, [], Some(generator), []);
@@ -117,8 +119,20 @@ module IntegTestKMS {
 
   method {:test} TestEndToEnd_LimitRegionsClientSupplier_UsingBaseClientSupplier() {
     var baseClientSupplier := new KMSUtils.BaseClientSupplier();
-    var regions: seq<string> := ["us-west-2"];
+    var regions: seq<string> := [CURRENT_REGION];
     var limitRegionsClientSupplier := new KMSUtils.LimitRegionsClientSupplier(baseClientSupplier, regions);
+    var generator: KMSUtils.CustomerMasterKey := Helpers.CreateTestingGenerator();
+    var keyring := new KMSKeyringDef.KMSKeyring(limitRegionsClientSupplier, [], Some(generator), []);
+    var cmm := new DefaultCMMDef.DefaultCMM.OfKeyring(keyring);
+    Helpers.EncryptDecryptTest(cmm, false);
+  }
+
+  method {:test} TestEndToEnd_LimitRegionsClientSupplier_UsingExcludeRegionsClientSupplier() {
+    var baseClientSupplier := new KMSUtils.BaseClientSupplier();
+    var excludedRegions: seq<string> := ["some-excluded-region", "another-excluded-region"];
+    var excludeRegionsClientSupplier := new KMSUtils.ExcludeRegionsClientSupplier(baseClientSupplier, excludedRegions);
+    var limitRegions: seq<string> := [CURRENT_REGION];
+    var limitRegionsClientSupplier := new KMSUtils.LimitRegionsClientSupplier(excludeRegionsClientSupplier, limitRegions);
     var generator: KMSUtils.CustomerMasterKey := Helpers.CreateTestingGenerator();
     var keyring := new KMSKeyringDef.KMSKeyring(limitRegionsClientSupplier, [], Some(generator), []);
     var cmm := new DefaultCMMDef.DefaultCMM.OfKeyring(keyring);
@@ -145,11 +159,34 @@ module IntegTestKMS {
     Helpers.EncryptDecryptTest(cmm, true);
   }
 
-  method {:test} TestEndToEnd_LimitRegionsClientSupplier_Failure_ConflictingSuppliers() {
+  method {:test} TestEndToEnd_LimitRegionsClientSupplier_Failure_ConflictingExcludeSuppliers() {
     var baseClientSupplier := new KMSUtils.BaseClientSupplier();
     var regions: seq<string> := [];
     var limitRegionsClientSupplier := new KMSUtils.LimitRegionsClientSupplier(baseClientSupplier, regions);
     var excludeRegionsClientSupplier := new KMSUtils.ExcludeRegionsClientSupplier(limitRegionsClientSupplier, regions);
+    var generator: KMSUtils.CustomerMasterKey := Helpers.CreateTestingGenerator();
+    var keyring := new KMSKeyringDef.KMSKeyring(limitRegionsClientSupplier, [], Some(generator), []);
+    var cmm := new DefaultCMMDef.DefaultCMM.OfKeyring(keyring);
+    Helpers.EncryptDecryptTest(cmm, true);
+  }
+
+  method {:test} TestEndToEnd_ExcludeRegionsClientSupplier_UsingLimitRegionsClientSupplier() {
+    var baseClientSupplier := new KMSUtils.BaseClientSupplier();
+    var limitRegions: seq<string> := [CURRENT_REGION];
+    var limitRegionsClientSupplier := new KMSUtils.LimitRegionsClientSupplier(baseClientSupplier, limitRegions);
+    var excludedRegions: seq<string> := ["some-excluded-region", "another-excluded-region"];
+    var excludeRegionsClientSupplier := new KMSUtils.ExcludeRegionsClientSupplier(limitRegionsClientSupplier, excludedRegions);
+    var generator: KMSUtils.CustomerMasterKey := Helpers.CreateTestingGenerator();
+    var keyring := new KMSKeyringDef.KMSKeyring(limitRegionsClientSupplier, [], Some(generator), []);
+    var cmm := new DefaultCMMDef.DefaultCMM.OfKeyring(keyring);
+    Helpers.EncryptDecryptTest(cmm, false);
+  }
+
+  method {:test} TestEndToEnd_ExcludeRegionsClientSupplier_Failure_ConflictingLimitSuppliers() {
+    var baseClientSupplier := new KMSUtils.BaseClientSupplier();
+    var regions: seq<string> := [CURRENT_REGION];
+    var excludeRegionsClientSupplier := new KMSUtils.ExcludeRegionsClientSupplier(baseClientSupplier, regions);
+    var limitRegionsClientSupplier := new KMSUtils.LimitRegionsClientSupplier(excludeRegionsClientSupplier, regions);
     var generator: KMSUtils.CustomerMasterKey := Helpers.CreateTestingGenerator();
     var keyring := new KMSKeyringDef.KMSKeyring(limitRegionsClientSupplier, [], Some(generator), []);
     var cmm := new DefaultCMMDef.DefaultCMM.OfKeyring(keyring);
