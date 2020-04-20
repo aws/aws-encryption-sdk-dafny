@@ -165,7 +165,7 @@ module IntegTestKMS {
     var limitRegionsClientSupplier := new KMSUtils.LimitRegionsClientSupplier(baseClientSupplier, regions);
     var excludeRegionsClientSupplier := new KMSUtils.ExcludeRegionsClientSupplier(limitRegionsClientSupplier, regions);
     var generator: KMSUtils.CustomerMasterKey := Helpers.CreateTestingGenerator();
-    var keyring := new KMSKeyringDef.KMSKeyring(limitRegionsClientSupplier, [], Some(generator), []);
+    var keyring := new KMSKeyringDef.KMSKeyring(excludeRegionsClientSupplier, [], Some(generator), []);
     var cmm := new DefaultCMMDef.DefaultCMM.OfKeyring(keyring);
     Helpers.EncryptDecryptTest(cmm, true);
   }
@@ -177,7 +177,7 @@ module IntegTestKMS {
     var excludedRegions: seq<string> := ["some-excluded-region", "another-excluded-region"];
     var excludeRegionsClientSupplier := new KMSUtils.ExcludeRegionsClientSupplier(limitRegionsClientSupplier, excludedRegions);
     var generator: KMSUtils.CustomerMasterKey := Helpers.CreateTestingGenerator();
-    var keyring := new KMSKeyringDef.KMSKeyring(limitRegionsClientSupplier, [], Some(generator), []);
+    var keyring := new KMSKeyringDef.KMSKeyring(excludeRegionsClientSupplier, [], Some(generator), []);
     var cmm := new DefaultCMMDef.DefaultCMM.OfKeyring(keyring);
     Helpers.EncryptDecryptTest(cmm, false);
   }
