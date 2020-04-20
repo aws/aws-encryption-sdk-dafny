@@ -8,7 +8,7 @@ This is somewhat uncharted territory for Dafny: it has excelled for years at ver
 
 The impact of unsoundness becomes severe in this case. If a Dafny method declares a parameter of type `Foo`, for example, where `Foo` is a Dafny class, then Dafny will not allow passing a `null` value as an argument. Once this method is compiled to a target language such as C#, however, C# will allow `null` to be passed. This can lead to errors and undefined behaviour deep within the Dafny runtime, potentially far from the source of the error if the `null` value is stored and referenced at a later time. These issues will lead to a bad customer experience as it will not be clear that their code is at fault, which in turn will lead to increased operational load for our team in order to support such customers. It also undermines customer trust to tout the advantages of applying formal verification to our code base, only to ship bugs in the shim code.
 
-Note that this problem is not unique to the ESDK, and I intend to present a large subset of this design to the Dafny community in the form of one or more RFCs, in order to motivate the Dafny changes that will be necessary to support this solutino.
+Note that this problem is not unique to the ESDK, and I intend to present a large subset of this design to the Dafny community in the form of one or more RFCs, in order to motivate the Dafny changes that will be necessary to support this solution.
 
 ## Requirements
 
