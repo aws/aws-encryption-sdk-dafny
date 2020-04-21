@@ -40,6 +40,7 @@
     <DafnySource Include="StandardLibrary/Base64.dfy" />
     <DafnySource Include="StandardLibrary/StandardLibrary.dfy" />
     <DafnySource Include="StandardLibrary/UInt.dfy" />
+    <DafnySource Include="StandardLibrary/IO.dfy" />
     <DafnySource Include="Util/Streams.dfy" />
     <DafnySource Include="Util/UTF8.dfy" />
     <DafnySource Include="Util/Sets.dfy" />
