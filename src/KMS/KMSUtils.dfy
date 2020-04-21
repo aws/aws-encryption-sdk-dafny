@@ -76,7 +76,7 @@ module {:extern "KMSUtils"} KMSUtils {
   datatype DecryptResponse = DecryptResponse(contentLength: int, httpStatusCode: HttpStatusCode, keyID: string, plaintext: seq<uint8>, responseMetadata: ResponseMetadata)
 
   // We require a new datatype and cannot use Result<AWSKMSClient> since Dafny does not currently support returning Result<trait>
-  // See: https://github.com/awslabs/aws-encryption-sdk-dafny/issues/273
+  // TODO: https://github.com/awslabs/aws-encryption-sdk-dafny/issues/273
   datatype AWSKMSClientResult = Success(value: AWSKMSClient) | Failure(error: string)
   {
     predicate method IsFailure() {
@@ -138,7 +138,7 @@ module {:extern "KMSUtils"} KMSUtils {
     method GetClient(region: Option<string>) returns (res: AWSKMSClientResult)
       requires Valid()
       ensures Valid()
-      // Verify this behavior with the spec. See: https://github.com/awslabs/aws-encryption-sdk-dafny/issues/272
+      // Verify this behavior with the spec. TODO: https://github.com/awslabs/aws-encryption-sdk-dafny/issues/272
       // Only add a post condition around failures, since the GetClient call could return a success or failure
       ensures region.None? ==> res.Failure?
       ensures region.Some? && !(region.get in regions) ==> res.Failure?
@@ -185,7 +185,7 @@ module {:extern "KMSUtils"} KMSUtils {
     method GetClient(region: Option<string>) returns (res: AWSKMSClientResult)
       requires Valid()
       ensures Valid()
-      // Verify this behavior with the spec. See: https://github.com/awslabs/aws-encryption-sdk-dafny/issues/272
+      // Verify this behavior with the spec. TODO: https://github.com/awslabs/aws-encryption-sdk-dafny/issues/272
       // Only add a post condition around failures, since the GetClient call could return a success or failure
       ensures region.None? ==> res.Failure?
       ensures region.Some? && region.get in regions ==> res.Failure?

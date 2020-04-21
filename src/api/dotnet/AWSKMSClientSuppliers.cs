@@ -7,7 +7,7 @@ namespace AWSEncryptionSDK
     public class AWSKMSClientSuppliers {
         public static KMSUtils.BaseClientSupplier NewKMSDefaultClientSupplier()
         {
-            // TODO awslabs/aws-encryption-sdk-dafny/issues/198: This will be swapped for the caching client supplier
+            // TODO: awslabs/aws-encryption-sdk-dafny/issues/198: This will be swapped for the caching client supplier
             return NewKMSBaseClientSupplier();
         }
 
@@ -20,6 +20,10 @@ namespace AWSEncryptionSDK
             return clientSupplier;
         }
 
+        // An implementation of an AWSKMSClientSupplier that takes in an existing AWSKMSClientSupplier as well as an
+        // enumerable of region strings. The LimitRegionsClientSupplier will only return an AWSKMSClient from the given
+        // AWSKMSClientSupplier if the region provided to GetClient(region) is in the list of regions associated with
+        // the LimitRegionsClientSupplier.
         public static KMSUtils.LimitRegionsClientSupplier NewKMSLimitRegionsClientSupplier(KMSUtils.AWSKMSClientSupplier clientSupplier, IEnumerable<string> regions)
         {
             // When transpiling Dafny code, new MyClass() does not actually call the constructor, so we need to
@@ -30,6 +34,10 @@ namespace AWSEncryptionSDK
             return limitRegionsclientSupplier;
         }
 
+        // An implementation of an AWSKMSClientSupplier that takes in an existing AWSKMSClientSupplier as well as an
+        // enumerable of region strings. The ExcludeRegionsClientSupplier will only return an AWSKMSClient from the given
+        // AWSKMSClientSupplier if the region provided to GetClient(region) is not in the list of regions associated with
+        // the ExcludeRegionsClientSupplier.
         public static KMSUtils.ExcludeRegionsClientSupplier NewKMSExcludeRegionsClientSupplier(KMSUtils.AWSKMSClientSupplier clientSupplier, IEnumerable<string> regions)
         {
             // When transpiling Dafny code, new MyClass() does not actually call the constructor, so we need to
