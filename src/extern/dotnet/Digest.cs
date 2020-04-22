@@ -26,11 +26,7 @@ namespace Digest {
         public static STL.Result<ibyteseq> Digest(Algorithm alg, ibyteseq msg) {
             try {
                 System.Security.Cryptography.HashAlgorithm hashAlgorithm;
-                if (alg.is_SHA__256) {
-                    hashAlgorithm = System.Security.Cryptography.SHA256.Create();
-                } else if (alg.is_SHA__384) {
-                    hashAlgorithm = System.Security.Cryptography.SHA384.Create();
-                } else if (alg.is_SHA__512) {
+                if (alg.is_SHA__512) {
                     hashAlgorithm = System.Security.Cryptography.SHA512.Create();
                 } else {
                     throw new DigestUnsupportedException(alg);

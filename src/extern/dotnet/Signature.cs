@@ -142,10 +142,12 @@ namespace Signature {
 
         private static byte[] InternalDigest(ECDSAParams x, ibyteseq msg) {
             System.Security.Cryptography.HashAlgorithm alg;
-            if (x.is_ECDSA__P256) {
+            if (x.is_ECDSA__P384) {
+                alg = System.Security.Cryptography.SHA384.Create();
+            } else if (x.is_ECDSA__P256) {
                 alg = System.Security.Cryptography.SHA256.Create();
             } else {
-                alg = System.Security.Cryptography.SHA384.Create();
+                throw new ECDSAUnsupportedParametersException(x);
             }
             return alg.ComputeHash(msg.Elements);
         }
