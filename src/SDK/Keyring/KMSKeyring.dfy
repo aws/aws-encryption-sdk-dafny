@@ -25,7 +25,7 @@ module {:extern "KMSKeyringDef"} KMSKeyringDef {
 
   class KMSKeyring extends KeyringDefs.Keyring {
 
-    const clientSupplier: KMSUtils.ClientSupplier
+    const clientSupplier: KMSUtils.AWSKMSClientSupplier
     const keyIDs: seq<KMSUtils.CustomerMasterKey>
     const generator: Option<KMSUtils.CustomerMasterKey>
     const grantTokens: seq<KMSUtils.GrantToken>
@@ -38,20 +38,22 @@ module {:extern "KMSKeyringDef"} KMSKeyringDef {
       && this in Repr
       && 0 <= |grantTokens| <= KMSUtils.MAX_GRANT_TOKENS
       && (|keyIDs| == 0 && generator.None? ==> isDiscovery)
+      && (clientSupplier in Repr && clientSupplier.Repr <= Repr && this !in clientSupplier.Repr && clientSupplier.Valid())
     }
 
-    constructor (clientSupplier: KMSUtils.ClientSupplier, keyIDs: seq<KMSUtils.CustomerMasterKey>, generator: Option<KMSUtils.CustomerMasterKey>, grantTokens: seq<KMSUtils.GrantToken>)
+    constructor (clientSupplier: KMSUtils.AWSKMSClientSupplier, keyIDs: seq<KMSUtils.CustomerMasterKey>, generator: Option<KMSUtils.CustomerMasterKey>, grantTokens: seq<KMSUtils.GrantToken>)
+      requires clientSupplier.Valid()
       requires 0 <= |grantTokens| <= KMSUtils.MAX_GRANT_TOKENS
-      ensures Valid() && fresh(Repr)
+      ensures this.clientSupplier == clientSupplier
+      ensures Valid() && fresh(Repr - clientSupplier.Repr)
     {
-      Repr := {this};
-
       this.clientSupplier := clientSupplier;
       this.keyIDs         := keyIDs;
       this.generator      := generator;
       this.grantTokens    := grantTokens;
 
       this.isDiscovery    := |keyIDs| == 0 && generator.None?;
+      Repr := {this} + clientSupplier.Repr;
     }
 
     method Generate(materials: Mat.ValidEncryptionMaterials) returns (res: Result<Mat.ValidEncryptionMaterials>)
