@@ -4,13 +4,13 @@ include "../../src/Crypto/Signature.dfy"
 include "../../src/Util/UTF8.dfy"
 
 module TestSignature {
-  import opened StandardLibrary
-  import opened UInt = StandardLibrary.UInt
   import Signature
     
   module Helpers {
     import Signature
     import UTF8
+    import opened StandardLibrary
+    import opened UInt = StandardLibrary.UInt
 
     method RequireGoodKeyLengths(s: Signature.ECDSAParams, sigKeyPair: Signature.SignatureKeyPair) {
       // The following is a declared postcondition of the KeyGen method:
@@ -33,13 +33,11 @@ module TestSignature {
       var keys :- expect Signature.KeyGen(params);
       RequireGoodKeyLengths(params, keys);
 
-      var digest :- expect Signature.Digest(params, message);
-      var signature :- expect Signature.Sign(params, keys.signingKey, digest);
-      var shouldBeTrue :- expect Signature.Verify(params, keys.verificationKey, digest, signature);
+      var signature :- expect Signature.Sign(params, keys.signingKey, message);
+      var shouldBeTrue :- expect Signature.Verify(params, keys.verificationKey, message, signature);
       expect shouldBeTrue;
 
-      var badDigest :- expect Signature.Digest(params, message + [1]);
-      var shouldBeFalse :- expect Signature.Verify(params, keys.verificationKey, badDigest, signature);
+      var shouldBeFalse :- expect Signature.Verify(params, keys.verificationKey, message + [1], signature);
       expect !shouldBeFalse;
     }
   }

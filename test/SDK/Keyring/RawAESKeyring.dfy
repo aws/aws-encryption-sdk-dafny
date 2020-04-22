@@ -25,12 +25,9 @@ module TestAESKeyring {
 
   method {:test} TestOnEncryptOnDecryptGenerateDataKey()
   {
-    var name :- expect UTF8.Encode("test Name");
-    var namespace :- expect UTF8.Encode("test Namespace");
-    var rawAESKeyring := new RawAESKeyringDef.RawAESKeyring(name, namespace, seq(32, i => 0), EncryptionSuites.AES_GCM_256);
-    var keyA :- expect UTF8.Encode("keyA");
-    var valA :- expect UTF8.Encode("valA");
-    var encryptionContext := map[keyA := valA];
+    var namespace, name := TestUtils.NamespaceAndName(0);
+    var rawAESKeyring := new RawAESKeyringDef.RawAESKeyring(namespace, name, seq(32, i => 0), EncryptionSuites.AES_GCM_256);
+    var encryptionContext := TestUtils.SmallEncryptionContext(TestUtils.SmallEncryptionContextVariation.A);
     ExpectSerializableEncryptionContext(encryptionContext);
 
     var wrappingAlgorithmID := AlgorithmSuite.AES_256_GCM_IV12_TAG16_HKDF_SHA384_ECDSA_P384;
@@ -50,12 +47,9 @@ module TestAESKeyring {
 
   method {:test} TestOnEncryptOnDecryptSuppliedDataKey()
   {
-    var name :- expect UTF8.Encode("test Name");
-    var namespace :- expect UTF8.Encode("test Namespace");
-    var rawAESKeyring := new RawAESKeyringDef.RawAESKeyring(name, namespace, seq(32, i => 0), EncryptionSuites.AES_GCM_256);
-    var keyA :- expect UTF8.Encode("keyA");
-    var valA :- expect UTF8.Encode("valA");
-    var encryptionContext := map[keyA := valA];
+    var namespace, name := TestUtils.NamespaceAndName(0);
+    var rawAESKeyring := new RawAESKeyringDef.RawAESKeyring(namespace, name, seq(32, i => 0), EncryptionSuites.AES_GCM_256);
+    var encryptionContext := TestUtils.SmallEncryptionContext(TestUtils.SmallEncryptionContextVariation.A);
     ExpectSerializableEncryptionContext(encryptionContext);
 
     var pdk := seq(32, i => 0);
@@ -79,13 +73,10 @@ module TestAESKeyring {
 
   method {:test} TestOnDecryptNoEDKs()
   {
-    var name :- expect UTF8.Encode("test Name");
-    var namespace :- expect UTF8.Encode("test Namespace");
-    var rawAESKeyring := new RawAESKeyringDef.RawAESKeyring(name, namespace, seq(32, i => 0), EncryptionSuites.AES_GCM_256);
+    var namespace, name := TestUtils.NamespaceAndName(0);
+    var rawAESKeyring := new RawAESKeyringDef.RawAESKeyring(namespace, name, seq(32, i => 0), EncryptionSuites.AES_GCM_256);
     var wrappingAlgorithmID := AlgorithmSuite.AES_256_GCM_IV12_TAG16_HKDF_SHA384_ECDSA_P384;
-    var keyA :- expect UTF8.Encode("keyA");
-    var valA :- expect UTF8.Encode("valA");
-    var encryptionContext := map[keyA := valA];
+    var encryptionContext := TestUtils.SmallEncryptionContext(TestUtils.SmallEncryptionContextVariation.A);
     var verificationKey := seq(32, i => 0);
 
     var decryptionMaterialsIn := Materials.DecryptionMaterials.WithoutPlaintextDataKey(encryptionContext, wrappingAlgorithmID, Some(verificationKey));
@@ -95,11 +86,9 @@ module TestAESKeyring {
 
   method {:test} TestOnEncryptUnserializableEC()
   {
-    var name :- expect UTF8.Encode("test Name");
-    var namespace :- expect UTF8.Encode("test Namespace");
-    var rawAESKeyring := new RawAESKeyringDef.RawAESKeyring(name, namespace, seq(32, i => 0), EncryptionSuites.AES_GCM_256);
-    var keyA :- expect UTF8.Encode("keyA");
-    var unserializableEncryptionContext := generateUnserializableEncryptionContext(keyA);
+    var namespace, name := TestUtils.NamespaceAndName(0);
+    var rawAESKeyring := new RawAESKeyringDef.RawAESKeyring(namespace, name, seq(32, i => 0), EncryptionSuites.AES_GCM_256);
+    var unserializableEncryptionContext := generateUnserializableEncryptionContext();
     ExpectNonSerializableEncryptionContext(unserializableEncryptionContext);
 
     var wrappingAlgorithmID := AlgorithmSuite.AES_256_GCM_IV12_TAG16_HKDF_SHA384_ECDSA_P384;
@@ -112,12 +101,9 @@ module TestAESKeyring {
   method {:test} TestOnDecryptUnserializableEC()
   {
     // Set up valid EDK for decryption
-    var name :- expect UTF8.Encode("test Name");
-    var namespace :- expect UTF8.Encode("test Namespace");
-    var rawAESKeyring := new RawAESKeyringDef.RawAESKeyring(name, namespace, seq(32, i => 0), EncryptionSuites.AES_GCM_256);
-    var keyA :- expect UTF8.Encode("keyA");
-    var valA :- expect UTF8.Encode("valA");
-    var encryptionContext := map[keyA := valA];
+    var encryptionContext := TestUtils.SmallEncryptionContext(TestUtils.SmallEncryptionContextVariation.A);
+    var namespace, name := TestUtils.NamespaceAndName(0);
+    var rawAESKeyring := new RawAESKeyringDef.RawAESKeyring(namespace, name, seq(32, i => 0), EncryptionSuites.AES_GCM_256);
     var wrappingAlgorithmID := AlgorithmSuite.AES_256_GCM_IV12_TAG16_HKDF_SHA384_ECDSA_P384;
     var signingKey := seq(32, i => 0);
     var encryptionMaterialsIn := Materials.EncryptionMaterials.WithoutDataKeys(encryptionContext, wrappingAlgorithmID, Some(signingKey));
@@ -127,7 +113,7 @@ module TestAESKeyring {
     var edk := encryptionMaterialsOut.encryptedDataKeys[0];
 
     // Set up EC that can't be serialized
-    var unserializableEncryptionContext := generateUnserializableEncryptionContext(keyA);
+    var unserializableEncryptionContext := generateUnserializableEncryptionContext();
     ExpectNonSerializableEncryptionContext(unserializableEncryptionContext);
     var verificationKey := seq(32, i => 0);
 
@@ -155,8 +141,9 @@ module TestAESKeyring {
     expect serializedEDKCiphertext == ciphertext + authTag;
   }
 
-  method generateUnserializableEncryptionContext(keyA: UTF8.ValidUTF8Bytes) returns (encCtx: EncryptionContext.Map)
+  method generateUnserializableEncryptionContext() returns (encCtx: EncryptionContext.Map)
   {
+    var keyA :- expect UTF8.Encode("keyA");
     var invalidVal := seq(0x1_0000, _ => 0);
     AssumeLongSeqIsValidUTF8(invalidVal);
     return map[keyA:=invalidVal];

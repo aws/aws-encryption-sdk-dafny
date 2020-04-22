@@ -49,5 +49,9 @@ module {:extern "HMAC"} HMAC {
       ensures this.GetInputSoFar() == []
       ensures this.GetDigest() == old(this.GetDigest())
       ensures this.GetKey() == old(this.GetKey())
+      ensures this.HashSignature(old(this.GetInputSoFar()), s);
+
+    predicate {:axiom} HashSignature(message: seq<uint8>, s: seq<uint8>)
+
   }
 }
