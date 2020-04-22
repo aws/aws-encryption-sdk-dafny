@@ -1,52 +1,48 @@
 include "../StandardLibrary/StandardLibrary.dfy"
 
 module {:extern "Signature"} Signature {
-    import opened StandardLibrary
-    import opened UInt = StandardLibrary.UInt
+  export
+    reveals SignatureKeyPair
+    reveals ECDSAParams, ECDSAParams.SignatureLength, ECDSAParams.FieldSize
+    provides KeyGen, Sign, Verify
+    provides StandardLibrary, UInt
 
-    datatype SignatureKeyPair = SignatureKeyPair(verificationKey: seq<uint8>, signingKey: seq<uint8>)
+  import opened StandardLibrary
+  import opened UInt = StandardLibrary.UInt
 
-    datatype ECDSAParams = ECDSA_P384 | ECDSA_P256
-    {
-      function method SignatureLength(): uint16 {
-        match this
-        case ECDSA_P256 => 71
-        case ECDSA_P384 => 103
-      }
+  datatype SignatureKeyPair = SignatureKeyPair(verificationKey: seq<uint8>, signingKey: seq<uint8>)
 
-      function method FieldSize(): nat {
-        match this
-        case ECDSA_P256 => assert 1 + (256 + 7) / 8 == 33; 33
-        case ECDSA_P384 => assert 1 + (384 + 7) / 8 == 49; 49
-      }
-
-      function method DigestAlgorithm(): DigestAlgorithm {
-        match this
-        case ECDSA_P256 => SHA_256
-        case ECDSA_P384 => SHA_384
-      }
+  datatype ECDSAParams = ECDSA_P384 | ECDSA_P256
+  {
+    function method SignatureLength(): uint16 {
+      match this
+      case ECDSA_P256 => 71
+      case ECDSA_P384 => 103
     }
 
-    datatype DigestAlgorithm = SHA_256 | SHA_384 | SHA_512
-      
-    method KeyGen(s: ECDSAParams) returns (res: Result<SignatureKeyPair>)
-      ensures match res
-        case Success(sigKeyPair) => |sigKeyPair.verificationKey| == s.FieldSize()
-        case Failure(_) => true
-    {
-      var sigKeyPair :- ExternKeyGen(s);
-      if |sigKeyPair.verificationKey| == s.FieldSize() {
-        return Success(sigKeyPair);
-      } else {
-        return Failure("Incorrect verification-key length from ExternKeyGen.");
-      }
+    function method FieldSize(): nat {
+      match this
+      case ECDSA_P256 => assert 1 + (256 + 7) / 8 == 33; 33
+      case ECDSA_P384 => assert 1 + (384 + 7) / 8 == 49; 49
     }
+  }
 
-    method {:extern "Signature.ECDSA", "ExternKeyGen"} ExternKeyGen(s: ECDSAParams) returns (res: Result<SignatureKeyPair>)
+  method KeyGen(s: ECDSAParams) returns (res: Result<SignatureKeyPair>)
+    ensures match res
+      case Success(sigKeyPair) => |sigKeyPair.verificationKey| == s.FieldSize()
+      case Failure(_) => true
+  {
+    var sigKeyPair :- ExternKeyGen(s);
+    if |sigKeyPair.verificationKey| == s.FieldSize() {
+      return Success(sigKeyPair);
+    } else {
+      return Failure("Incorrect verification-key length from ExternKeyGen.");
+    }
+  }
 
-    method {:extern "Signature.ECDSA", "Sign"} Sign(s: ECDSAParams, key: seq<uint8>, digest: seq<uint8>) returns (sig: Result<seq<uint8>>)
+  method {:extern "Signature.ECDSA", "ExternKeyGen"} ExternKeyGen(s: ECDSAParams) returns (res: Result<SignatureKeyPair>)
 
-    method {:extern "Signature.ECDSA", "Verify"} Verify(s: ECDSAParams, key: seq<uint8>, digest: seq<uint8>, sig: seq<uint8>) returns (res: Result<bool>)
+  method {:extern "Signature.ECDSA", "Sign"} Sign(s: ECDSAParams, key: seq<uint8>, msg: seq<uint8>) returns (sig: Result<seq<uint8>>)
 
-    method {:extern "Signature.ECDSA", "Digest"} Digest(alg: DigestAlgorithm, msg: seq<uint8>) returns (digest: Result<seq<uint8>>)
+  method {:extern "Signature.ECDSA", "Verify"} Verify(s: ECDSAParams, key: seq<uint8>, msg: seq<uint8>, sig: seq<uint8>) returns (res: Result<bool>)
 }
