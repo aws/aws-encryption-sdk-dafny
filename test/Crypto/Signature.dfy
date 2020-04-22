@@ -4,13 +4,13 @@ include "../../src/Crypto/Signature.dfy"
 include "../../src/Util/UTF8.dfy"
 
 module TestSignature {
-  import opened StandardLibrary
-  import opened UInt = StandardLibrary.UInt
   import Signature
     
   module Helpers {
     import Signature
     import UTF8
+    import opened StandardLibrary
+    import opened UInt = StandardLibrary.UInt
 
     method RequireGoodKeyLengths(s: Signature.ECDSAParams, sigKeyPair: Signature.SignatureKeyPair) {
       // The following is a declared postcondition of the KeyGen method:
@@ -33,13 +33,11 @@ module TestSignature {
       var keys :- expect Signature.KeyGen(params);
       RequireGoodKeyLengths(params, keys);
 
-      var digest :- expect Signature.Digest(params.DigestAlgorithm(), message);
-      var signature :- expect Signature.Sign(params, keys.signingKey, digest);
-      var shouldBeTrue :- expect Signature.Verify(params, keys.verificationKey, digest, signature);
+      var signature :- expect Signature.Sign(params, keys.signingKey, message);
+      var shouldBeTrue :- expect Signature.Verify(params, keys.verificationKey, message, signature);
       expect shouldBeTrue;
 
-      var badDigest :- expect Signature.Digest(params.DigestAlgorithm(), message + [1]);
-      var shouldBeFalse :- expect Signature.Verify(params, keys.verificationKey, badDigest, signature);
+      var shouldBeFalse :- expect Signature.Verify(params, keys.verificationKey, message + [1], signature);
       expect !shouldBeFalse;
     }
   }
@@ -58,14 +56,5 @@ module TestSignature {
 
   method {:test} VerifyMessage256() {
     Helpers.VerifyMessage(Signature.ECDSA_P256);
-  }
-
-  method {:test} DigestAlgorithmSelections() {
-    // Test that each of the digest algorithms is supported. This test does not look
-    // at the returned digests, but simply tests that nothing crashes in obtaining them.
-    var msg := seq(1000, i => ('a' + (i % 26) as char) as uint8);
-    var _ :- expect Signature.Digest(Signature.SHA_256, msg);
-    var _ :- expect Signature.Digest(Signature.SHA_384, msg);
-    var _ :- expect Signature.Digest(Signature.SHA_512, msg);
   }
 }

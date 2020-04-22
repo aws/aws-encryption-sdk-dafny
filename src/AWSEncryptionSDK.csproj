@@ -15,6 +15,7 @@
     <DafnySource Remove="@(DafnySource)" />
 
     <DafnySource Include="Crypto/AESEncryption.dfy" />
+    <DafnySource Include="Crypto/Digest.dfy" />
     <DafnySource Include="Crypto/EncryptionSuites.dfy" />
     <DafnySource Include="Crypto/KeyDerivationAlgorithms.dfy" />
     <DafnySource Include="Crypto/HKDF/HMAC.dfy" />

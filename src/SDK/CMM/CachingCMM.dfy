@@ -4,6 +4,7 @@ include "Defs.dfy"
 include "../AlgorithmSuite.dfy"
 include "../Materials.dfy"
 include "../EncryptionContext.dfy"
+include "../../Crypto/Digest.dfy"
 include "../../Crypto/Signature.dfy"
 include "../../Util/Streams.dfy"
 include "../Serialize.dfy"
@@ -16,6 +17,7 @@ module {:extern "CachingCMMDef"} CachingCMMDef {
   import AlgorithmSuite
   import Materials
   import EncryptionContext
+  import Digest
   import Signature
   import Streams
   import Serialize
@@ -28,7 +30,7 @@ module {:extern "CachingCMMDef"} CachingCMMDef {
   const DEFAULT_BYTE_USE_LIMIT_PER_CACHED_KEY: uint64 := 0x7FFF_FFFF_FFFF_FFFF  // 2^63 - 1
   const DEFAULT_MESSAGE_USE_LIMIT_PER_CACHED_KEY: uint64 := 0x1_0000_0000  // 2^32
 
-  const CACHE_ID_HASH_ALGORITHM := Signature.DigestAlgorithm.SHA_512
+  const CACHE_ID_HASH_ALGORITHM := Digest.Algorithm.SHA_512
 
   /* Notes:
    *
@@ -207,10 +209,10 @@ module {:extern "CachingCMMDef"} CachingCMMDef {
 
     var encCtxWr := new Streams.ByteWriter();
     var _ :- Serialize.SerializeAAD(encCtxWr, encCtx);
-    var encCtxEncoding :- Signature.Digest(CACHE_ID_HASH_ALGORITHM, encCtxWr.GetDataWritten());
+    var encCtxEncoding :- Digest.Digest(CACHE_ID_HASH_ALGORITHM, encCtxWr.GetDataWritten());
     var _ := wr.WriteBytes(encCtxEncoding);
 
-    res := Signature.Digest(CACHE_ID_HASH_ALGORITHM, wr.GetDataWritten());
+    res := Digest.Digest(CACHE_ID_HASH_ALGORITHM, wr.GetDataWritten());
   }
 
   class CryptographicMaterialsCache {

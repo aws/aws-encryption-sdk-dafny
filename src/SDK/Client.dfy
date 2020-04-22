@@ -137,13 +137,11 @@ module {:extern "ESDKClient"} ESDKClient {
   * Encrypt a plaintext and serialize it into a message.
   */
   method Encrypt(request: EncryptRequest) returns (res: Result<seq<uint8>>)
-    requires request.cmm != null ==> request.cmm.Valid() && request !in request.cmm.Repr
-    requires request.keyring != null ==> request.keyring.Valid() && request !in request.keyring.Repr
+    requires request.cmm != null ==> request.cmm.Valid()
+    requires request.keyring != null ==> request.keyring.Valid()
     modifies if request.cmm == null then {} else request.cmm.Repr
-    modifies if request.keyring == null then {} else request.keyring.Repr
-    ensures unchanged(request)
-    ensures request.cmm != null ==> request.cmm.Valid() && fresh(request.cmm.Repr - old(request.cmm.Repr))
-    ensures request.keyring != null ==> request.keyring.Valid() && fresh(request.keyring.Repr - old(request.keyring.Repr))
+    ensures request.cmm != null ==> request.cmm.Valid()
+    ensures request.cmm != null ==> fresh(request.cmm.Repr - old(request.cmm.Repr))
     ensures request.cmm == null && request.keyring == null ==> res.Failure?
     ensures request.cmm != null && request.keyring != null ==> res.Failure?
     ensures request.algorithmSuiteID.Some? && request.algorithmSuiteID.get !in AlgorithmSuite.VALID_IDS ==> res.Failure?
@@ -158,11 +156,7 @@ module {:extern "ESDKClient"} ESDKClient {
     } else if request.frameLength.Some? && request.frameLength.get == 0 {
       return Failure("Request frameLength must be > 0");
     }
-    var encCtxIsSerializable := EncryptionContext.CheckSerializable(request.encryptionContext);
-    if !encCtxIsSerializable || !(request.encryptionContext.Keys !! Materials.RESERVED_KEY_VALUES) {
-      return Failure("Encryption context malformed or too large.");
-    }
-    
+
     var cmm: CMMDefs.CMM;
     if request.keyring == null {
       cmm := request.cmm;
@@ -212,8 +206,7 @@ module {:extern "ESDKClient"} ESDKClient {
       case None =>
         // don't use a footer
       case Some(ecdsaParams) =>
-        var digest :- Signature.Digest(ecdsaParams.DigestAlgorithm(), msg);
-        var bytes :- Signature.Sign(ecdsaParams, encMat.signingKey.get, digest);
+        var bytes :- Signature.Sign(ecdsaParams, encMat.signingKey.get, msg);
         if |bytes| != ecdsaParams.SignatureLength() as int {
           return Failure("Malformed response from Sign().");
         }
@@ -242,13 +235,8 @@ module {:extern "ESDKClient"} ESDKClient {
   * Deserialize a message and decrypt into a plaintext.
   */
   method Decrypt(request: DecryptRequest) returns (res: Result<seq<uint8>>)
-    requires request.cmm != null ==> request.cmm.Valid() && request !in request.cmm.Repr
-    requires request.keyring != null ==> request.keyring.Valid() && request !in request.keyring.Repr
-    modifies if request.cmm == null then {} else request.cmm.Repr
-    modifies if request.keyring == null then {} else request.keyring.Repr
-    ensures unchanged(request)
-    ensures request.cmm != null ==> request.cmm.Valid() && fresh(request.cmm.Repr - old(request.cmm.Repr))
-    ensures request.keyring != null ==> request.keyring.Valid() && fresh(request.keyring.Repr - old(request.keyring.Repr))
+    requires request.cmm != null ==> request.cmm.Valid()
+    requires request.keyring != null ==> request.keyring.Valid()
     ensures request.cmm == null && request.keyring == null ==> res.Failure?
     ensures request.cmm != null && request.keyring != null ==> res.Failure?
   {
@@ -292,8 +280,7 @@ module {:extern "ESDKClient"} ESDKClient {
         var signatureLength :- rd.ReadUInt16();
         var sig :- rd.ReadBytes(signatureLength as nat);
         // verify signature
-        var digest :- Signature.Digest(ecdsaParams.DigestAlgorithm(), msg);
-        var signatureVerified :- Signature.Verify(ecdsaParams, decMat.verificationKey.get, digest, sig);
+        var signatureVerified :- Signature.Verify(ecdsaParams, decMat.verificationKey.get, msg, sig);
         if !signatureVerified {
           return Failure("signature not verified");
         }
