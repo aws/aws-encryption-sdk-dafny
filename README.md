@@ -43,6 +43,9 @@ Run the test vector suite after [set up](testVector/README.md) with:
 dotnet test testVectors
 ```
 
+Please note that tests and test vectors require internet access and valid AWS credentials, since calls to KMS are
+made as part of the test workflow.
+
 ## License
 
 This library is licensed under the Apache 2.0 License.
