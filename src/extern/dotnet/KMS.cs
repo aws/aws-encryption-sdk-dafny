@@ -13,110 +13,24 @@ namespace KMSUtils {
 
     // ClientHelper represents a class containing Dafny KMS extern functionality
     public partial class ClientHelper {
-        public static AWSKMSClientResult GetDefaultAWSKMSClientExtern(STL.Option<IDString> region) {
-            AWSKMSServiceClientWrapper kmsClient = new AWSKMSServiceClientWrapper(region);
-            return AWSKMSClientResult.create_Success(kmsClient);
-        }
-    }
-
-    public class AWSKMSClientSupplierException : Exception
-    {
-        public AWSKMSClientSupplierException(string region)
-            : base(String.Format("Unable to obtain client for region: {0}", region))
-        {
-        }
-    }
-
-    // DafnyAWSKMSClientSupplierWrapper is used to allow a Dafny AWSKMSClientSupplier to be used from a native context
-    // Essentially, DafnyAWSKMSClientSupplierWrapper acts as a wrapper of a Dafny AWSKMSClientSupplier
-    public partial class DafnyAWSKMSClientSupplierWrapper : AWSEncryptionSDK.AWSKMSClientSupplier {
-        readonly private AWSKMSClientSupplier clientSupplier;
-
-        public DafnyAWSKMSClientSupplierWrapper(AWSKMSClientSupplier clientSupplier) {
-            this.clientSupplier = clientSupplier;
-        }
-
-        public KMS.AmazonKeyManagementServiceClient GetClient(string region) {
-            // DafnyFFI.NullableToOption returns an optional of a given type, so we need to convert from an external
-            // string to a Dafny string in the case where region != null. We cannot just
-            // perform DafnyFFI.NullableToOption(region) directly
-            STL.Option<IDString> dafnyRegion = DafnyFFI.NullableToOption<Dafny.ISequence<char>>(
-                region == null ? null : DafnyFFI.DafnyStringFromString(region));
-            AWSKMSClientResult clientResult = this.clientSupplier.GetClient(dafnyRegion);
-            if (clientResult.is_Success) {
-                return new DafnyAWSKMSClientWrapper(clientResult.dtor_value);
-            } else {
-                throw new AWSKMSClientSupplierException(region);
-            }
-        }
-    }
-
-    // DafnyAWSKMSClientSupplierWrapper is used to allow a Dafny AWSKMSClientSupplier to be used from a native context
-    // Essentially, DafnyAWSKMSClientSupplierWrapper acts as a wrapper of a Dafny AWSKMSClientSupplier
-    public partial class DafnyAWSKMSClientWrapper : KMS.IAmazonKeyManagementService {
-        readonly private AWSKMSClient client;
-
-        public DafnyAWSKMSClientWrapper(AWSKMSClient client) {
-            this.client = client;
-        }
-    }
-
-    // AWSKMSClientSupplierWrapper is used to allow a native AWSKMSClientSupplier to be used from a Dafny context
-    // Essentially, AWSKMSClientSupplierWrapper acts a wrapper of AWSEncryptionSDK.AWSKMSClientSupplier
-    public partial class AWSKMSClientSupplierWrapper : AWSKMSClientSupplier {
-        readonly private AWSEncryptionSDK.AWSKMSClientSupplier clientSupplier;
-
-        public AWSKMSClientSupplierWrapper(AWSEncryptionSDK.AWSKMSClientSupplier clientSupplier) {
-            this.clientSupplier = clientSupplier;
-        }
-
-        public AWSKMSClientResult GetClient(STL.Option<IDString> region) {
-            try {
-                KMS.AmazonKeyManagementServiceClient client;
-                if (region.is_None) {
-                    client = clientSupplier.GetClient(null);
-                } else {
-                    string regionString = DafnyFFI.StringFromDafnyString(((STL.Option_Some<IDString>)region).get);
-                    client = clientSupplier.GetClient(regionString);
-                }
-                return (client != null)
-                    ? AWSKMSClientResult.create_Success(new AWSKMSServiceClientWrapper(client))
-                    : AWSKMSClientResult.create_Failure(DafnyFFI.DafnyStringFromString("Unable to obtain AmazonKeyManagementServiceClient"));
-            } catch(Exception e) {
-                // By catching Exception, Dafny can handle failures accordingly, using a Failure Result
-                return AWSKMSClientResult.create_Failure(DafnyFFI.DafnyStringFromString("Unable to obtain AmazonKeyManagementServiceClient"));
-            }
-        }
-    }
-
-    // AWSKMSServiceClientWrapper represents a default Dafny AWSKMSClient, which takes Dafny-based requests and converts them
-    // into usable KMS.AmazonKeyManagementServiceClient calls that use the related ASync KMS.AmazonKeyManagementServiceClient
-    // APIs (E.g. AWSKMSClient's GenerateDataKey method calls the KMS.AmazonKeyManagementServiceClient GenerateDataKeyAsync API)
-    // Essentially, AWSKMSServiceClientWrapper acts as a wrapper of KMS.AmazonKeyManagementServiceClient
-    public partial class AWSKMSServiceClientWrapper : AWSKMSClient {
-
-        readonly private KMS.AmazonKeyManagementServiceClient client;
-
-        // AWSKMSServiceClientWrapper can be created from an optional region when being invoked directly from Dafny
-        public AWSKMSServiceClientWrapper(STL.Option<IDString> region) {
+        // GetDefaultAWSKMSClientExtern get a KMS service client from an optional region
+        public static STL.Result<KMS.AmazonKeyManagementServiceClient> GetDefaultAWSKMSServiceClientExtern(STL.Option<IDString> region) {
+            KMS.AmazonKeyManagementServiceClient client;
             if (region.is_Some) {
                 string regionString = DafnyFFI.StringFromDafnyString(((STL.Option_Some<IDString>)region).get);
                 RegionEndpoint regionEndpoint = RegionEndpoint.GetBySystemName(regionString);
-                this.client = new KMS.AmazonKeyManagementServiceClient(regionEndpoint);
+                client = new KMS.AmazonKeyManagementServiceClient(regionEndpoint);
             } else {
-                this.client = new KMS.AmazonKeyManagementServiceClient();
+                client = new KMS.AmazonKeyManagementServiceClient();
             }
+            return STL.Result<KMS.AmazonKeyManagementServiceClient>.create_Success(client);
         }
 
-        // AWSKMSServiceClientWrapper can be created from an existing KMS.AmazonKeyManagementServiceClient when natively handled
-        // by a customer AWSKMSClientSupplier. In this case, we assume the customer provided AWSKMSClientSupplier
-        // determines the correct KMS.AmazonKeyManagementServiceClient to return, so this is converted to a Dafny
-        // AWSKMSClient
-        public AWSKMSServiceClientWrapper(KMS.AmazonKeyManagementServiceClient client) {
-            this.client = client;
-        }
-
-        public STL.Result<GenerateDataKeyResponse> GenerateDataKey(GenerateDataKeyRequest request) {
+        // GenerateDataKey calls the given KMS client's GenerateDataKeyAsync API
+        public static STL.Result<GenerateDataKeyResponse> GenerateDataKey(KMS.AmazonKeyManagementServiceClient client, GenerateDataKeyRequest request) {
+            if (client == null) {
+                return STL.Result<GenerateDataKeyResponse>.create_Failure(DafnyFFI.DafnyStringFromString("Null AmazonKeyManagementServiceClient provided"));
+            }
             try {
                 KMS.Model.GenerateDataKeyRequest kmsRequest = new KMS.Model.GenerateDataKeyRequest()
                 {
@@ -125,7 +39,7 @@ namespace KMSUtils {
                     KeyId = DafnyFFI.StringFromDafnyString(request.keyID),
                     NumberOfBytes = request.numberOfBytes
                 };
-                KMS.Model.GenerateDataKeyResponse generateDataKeyResponse = this.client.GenerateDataKeyAsync(kmsRequest).Result;
+                KMS.Model.GenerateDataKeyResponse generateDataKeyResponse = client.GenerateDataKeyAsync(kmsRequest).Result;
                 GenerateDataKeyResponse response = new GenerateDataKeyResponse(
                     DafnyFFI.SequenceFromMemoryStream(generateDataKeyResponse.CiphertextBlob),
                     generateDataKeyResponse.ContentLength,
@@ -145,7 +59,11 @@ namespace KMSUtils {
             }
         }
 
-        public STL.Result<EncryptResponse> Encrypt(EncryptRequest request) {
+        // Encrypt calls the given KMS client's EncryptAsync API
+        public static STL.Result<EncryptResponse> Encrypt(KMS.AmazonKeyManagementServiceClient client, EncryptRequest request) {
+            if (client == null) {
+                return STL.Result<EncryptResponse>.create_Failure(DafnyFFI.DafnyStringFromString("Null AmazonKeyManagementServiceClient provided"));
+            }
             try {
                 KMS.Model.EncryptRequest kmsRequest = new KMS.Model.EncryptRequest()
                 {
@@ -154,7 +72,7 @@ namespace KMSUtils {
                     KeyId = request.keyID.ToString(),
                     Plaintext = DafnyFFI.MemoryStreamFromSequence(request.plaintext)
                 };
-                KMS.Model.EncryptResponse encryptResponse = this.client.EncryptAsync(kmsRequest).Result;
+                KMS.Model.EncryptResponse encryptResponse = client.EncryptAsync(kmsRequest).Result;
                 EncryptResponse response = new EncryptResponse(
                     DafnyFFI.SequenceFromMemoryStream(encryptResponse.CiphertextBlob),
                     encryptResponse.ContentLength,
@@ -173,7 +91,11 @@ namespace KMSUtils {
             }
         }
 
-        public STL.Result<DecryptResponse> Decrypt(DecryptRequest request) {
+        // Decrypt calls the given KMS client's DecryptAsync API
+        public static STL.Result<DecryptResponse> Decrypt(KMS.AmazonKeyManagementServiceClient client, DecryptRequest request) {
+            if (client == null) {
+                return STL.Result<DecryptResponse>.create_Failure(DafnyFFI.DafnyStringFromString("Null AmazonKeyManagementServiceClient provided"));
+            }
             try {
                 KMS.Model.DecryptRequest kmsRequest = new KMS.Model.DecryptRequest()
                 {
@@ -181,7 +103,7 @@ namespace KMSUtils {
                     EncryptionContext = EncryptionContextToString(request.encryptionContext),
                     GrantTokens = request.grantTokens.Elements.Select(element => DafnyFFI.StringFromDafnyString(element)).ToList()
                 };
-                KMS.Model.DecryptResponse decryptResponse = this.client.DecryptAsync(kmsRequest).Result;
+                KMS.Model.DecryptResponse decryptResponse = client.DecryptAsync(kmsRequest).Result;
                 DecryptResponse response = new DecryptResponse(
                     decryptResponse.ContentLength,
                     (int)decryptResponse.HttpStatusCode,
@@ -215,6 +137,60 @@ namespace KMSUtils {
                 strKey => utf8.GetString(DafnyFFI.ByteArrayFromSequence(strKey._0)),
                 strElm => utf8.GetString(DafnyFFI.ByteArrayFromSequence(strElm._1)));
             return strDict;
+        }
+    }
+
+    // DafnyAWSKMSClientSupplierWrapper is used to allow a Dafny AWSKMSClientSupplier to be used from a native context
+    // Essentially, DafnyAWSKMSClientSupplierWrapper acts as a wrapper of a Dafny AWSKMSClientSupplier
+    public partial class DafnyAWSKMSClientSupplierWrapper : AWSEncryptionSDK.AWSKMSClientSupplier {
+        readonly private AWSKMSClientSupplier clientSupplier;
+
+        public DafnyAWSKMSClientSupplierWrapper(AWSKMSClientSupplier clientSupplier) {
+            this.clientSupplier = clientSupplier;
+        }
+
+        public KMS.AmazonKeyManagementServiceClient GetClient(string region) {
+            // DafnyFFI.NullableToOption returns an optional of a given type, so we need to convert from an external
+            // string to a Dafny string in the case where region != null. We cannot just
+            // perform DafnyFFI.NullableToOption(region) directly
+            STL.Option<IDString> dafnyRegion = DafnyFFI.NullableToOption<Dafny.ISequence<char>>(
+                region == null ? null : DafnyFFI.DafnyStringFromString(region));
+            STL.Result<KMS.AmazonKeyManagementServiceClient> clientResult = this.clientSupplier.GetClient(dafnyRegion);
+            if (clientResult.is_Success) {
+                return clientResult.dtor_value;
+            } else {
+                throw new AWSEncryptionSDK.AWSKMSClientSupplierException(DafnyFFI.StringFromDafnyString(clientResult.dtor_error));
+            }
+        }
+    }
+
+    // AWSKMSClientSupplierWrapper is used to allow a native AWSKMSClientSupplier to be used from a Dafny context
+    // Essentially, AWSKMSClientSupplierWrapper acts a wrapper of AWSEncryptionSDK.AWSKMSClientSupplier
+    public partial class AWSKMSClientSupplierWrapper : AWSKMSClientSupplier {
+        readonly private AWSEncryptionSDK.AWSKMSClientSupplier clientSupplier;
+
+        public AWSKMSClientSupplierWrapper(AWSEncryptionSDK.AWSKMSClientSupplier clientSupplier) {
+            this.clientSupplier = clientSupplier;
+        }
+
+        public STL.Result<KMS.AmazonKeyManagementServiceClient> GetClient(STL.Option<IDString> region) {
+            try {
+                KMS.AmazonKeyManagementServiceClient client;
+                if (region.is_None) {
+                    client = clientSupplier.GetClient(null);
+                } else {
+                    string regionString = DafnyFFI.StringFromDafnyString(((STL.Option_Some<IDString>)region).get);
+                    client = clientSupplier.GetClient(regionString);
+                }
+                return (client != null)
+                    ? STL.Result<KMS.AmazonKeyManagementServiceClient>.create_Success(client)
+                    : STL.Result<KMS.AmazonKeyManagementServiceClient>.create_Failure(
+                        DafnyFFI.DafnyStringFromString(
+                            String.Format("Unable to obtain AmazonKeyManagementServiceClient for region: {0}", region)));
+            } catch(Exception e) {
+                // By catching Exception, Dafny can handle failures accordingly, using a Failure Result
+                return STL.Result<KMS.AmazonKeyManagementServiceClient>.create_Failure(DafnyFFI.DafnyStringFromString(e.Message));
+            }
         }
     }
 }

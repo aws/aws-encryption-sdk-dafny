@@ -3,8 +3,14 @@ include "../StandardLibrary/StandardLibrary.dfy"
 include "../StandardLibrary/UInt.dfy"
 include "../Util/UTF8.dfy"
 
+// Add extern reference for a native AWS KMS service client
+module {:extern "Amazon.KeyManagementService"} AmazonKeyManagementService {
+  class {:extern "AmazonKeyManagementServiceClient"} AmazonKeyManagementServiceClient {}
+}
+
 module {:extern "KMSUtils"} KMSUtils {
   import EncryptionContext
+  import opened AmazonKeyManagementService
   import opened StandardLibrary
   import opened UInt = StandardLibrary.UInt
   import UTF8
@@ -75,26 +81,16 @@ module {:extern "KMSUtils"} KMSUtils {
 
   datatype DecryptResponse = DecryptResponse(contentLength: int, httpStatusCode: HttpStatusCode, keyID: string, plaintext: seq<uint8>, responseMetadata: ResponseMetadata)
 
-  // We require a new datatype and cannot use Result<AWSKMSClient> since Dafny does not currently support returning Result<trait>
-  // TODO: https://github.com/awslabs/aws-encryption-sdk-dafny/issues/273
-  datatype AWSKMSClientResult = Success(value: AWSKMSClient) | Failure(error: string)
-  {
-    predicate method IsFailure() {
-      Failure?
-    }
-    function method PropagateFailure<U>(): Result<U>
-      requires Failure?
-    {
-      Result.Failure(this.error)
-    }
-    function method Extract(): AWSKMSClient
-      requires Success?
-    {
-      value
-    }
-  }
+  method {:extern "KMSUtils.ClientHelper", "GetDefaultAWSKMSServiceClientExtern"} GetDefaultAWSKMSServiceClientExtern(region: Option<string>) returns (res: Result<AmazonKeyManagementServiceClient>)
 
-  method {:extern "KMSUtils.ClientHelper", "GetDefaultAWSKMSClientExtern"} GetDefaultAWSKMSClientExtern(region: Option<string>) returns (res: AWSKMSClientResult)
+  method {:extern "KMSUtils.ClientHelper", "GenerateDataKey"} GenerateDataKey(client: AmazonKeyManagementServiceClient, request: GenerateDataKeyRequest) returns (res: Result<GenerateDataKeyResponse>)
+    requires request.Valid()
+
+  method {:extern "KMSUtils.ClientHelper", "Encrypt"} Encrypt(client: AmazonKeyManagementServiceClient, request: EncryptRequest) returns (res: Result<EncryptResponse>)
+    requires request.Valid()
+
+  method {:extern "KMSUtils.ClientHelper", "Decrypt"} Decrypt(client: AmazonKeyManagementServiceClient, request: DecryptRequest) returns (res: Result<DecryptResponse>)
+    requires request.Valid()
 
   trait {:extern "AWSKMSClientSupplier"} AWSKMSClientSupplier {
     ghost var Repr: set<object>
@@ -103,15 +99,16 @@ module {:extern "KMSUtils"} KMSUtils {
       reads this, Repr
       ensures Valid() ==> this in Repr
 
-    method GetClient(region: Option<string>) returns (res: AWSKMSClientResult)
+    method GetClient(region: Option<string>) returns (res: Result<AmazonKeyManagementServiceClient>)
       requires Valid()
       ensures Valid()
       decreases Repr
   }
 
   // An implementation of an AWSKMSClientSupplier that takes in an existing AWSKMSClientSupplier as well as a seq of regions
-  // (strings). The LimitRegionsClientSupplier will only return an AWSKMSClient from the given AWSKMSClientSupplier if the
-  // region provided to GetClient(region) is in the list of regions associated with the LimitRegionsClientSupplier.
+  // (strings). The LimitRegionsClientSupplier will only return an AWS KMS service client from the given
+  // AWSKMSClientSupplier if the region provided to GetClient(region) is in the list of regions associated with the
+  // LimitRegionsClientSupplier.
   class LimitRegionsClientSupplier extends AWSKMSClientSupplier {
     const clientSupplier: AWSKMSClientSupplier
     const regions: seq<string>
@@ -135,7 +132,7 @@ module {:extern "KMSUtils"} KMSUtils {
       Repr := {this} + clientSupplier.Repr;
     }
 
-    method GetClient(region: Option<string>) returns (res: AWSKMSClientResult)
+    method GetClient(region: Option<string>) returns (res: Result<AmazonKeyManagementServiceClient>)
       requires Valid()
       ensures Valid()
       // Verify this behavior with the spec. TODO: https://github.com/awslabs/aws-encryption-sdk-dafny/issues/272
@@ -149,16 +146,17 @@ module {:extern "KMSUtils"} KMSUtils {
         var resClient := clientSupplier.GetClient(region);
         return resClient;
       } else if region.None? {
-        return AWSKMSClientResult.Failure("LimitRegionsClientSupplier GetClient requires a region");
+        return Result.Failure("LimitRegionsClientSupplier GetClient requires a region");
       }
       var failure := "Given region " + region.get + " not in regions maintained by LimitRegionsClientSupplier";
-      return AWSKMSClientResult.Failure(failure);
+      return Result.Failure(failure);
     }
   }
 
   // An implementation of an AWSKMSClientSupplier that takes in an existing AWSKMSClientSupplier as well as a seq of regions
-  // (strings). The ExcludeRegionsClientSupplier will only return an AWSKMSClient from the given AWSKMSClientSupplier if the
-  // region provided to GetClient(region) is not in the list of regions associated with the ExcludeRegionsClientSupplier.
+  // (strings). The ExcludeRegionsClientSupplier will only return an AWS KMS service client from the given
+  // AWSKMSClientSupplier if the region provided to GetClient(region) is not in the list of regions associated with the
+  // ExcludeRegionsClientSupplier.
   class ExcludeRegionsClientSupplier extends AWSKMSClientSupplier {
     const clientSupplier: AWSKMSClientSupplier
     const regions: seq<string>
@@ -182,7 +180,7 @@ module {:extern "KMSUtils"} KMSUtils {
       Repr := {this} + clientSupplier.Repr;
     }
 
-    method GetClient(region: Option<string>) returns (res: AWSKMSClientResult)
+    method GetClient(region: Option<string>) returns (res: Result<AmazonKeyManagementServiceClient>)
       requires Valid()
       ensures Valid()
       // Verify this behavior with the spec. TODO: https://github.com/awslabs/aws-encryption-sdk-dafny/issues/272
@@ -193,10 +191,10 @@ module {:extern "KMSUtils"} KMSUtils {
     {
       // In order to exclude regions, make sure our given region string exists and is not a member of the regions to exclude
       if region.None? {
-        return AWSKMSClientResult.Failure("ExcludeRegionsClientSupplier GetClient requires a region");
+        return Result.Failure("ExcludeRegionsClientSupplier GetClient requires a region");
       } else if (region.Some? && region.get in regions) {
         var failure := "Given region " + region.get + " is in regions maintained by ExcludeRegionsClientSupplier";
-        return AWSKMSClientResult.Failure(failure);
+        return Result.Failure(failure);
       }
       var resClient := clientSupplier.GetClient(region);
       return resClient;
@@ -211,8 +209,6 @@ module {:extern "KMSUtils"} KMSUtils {
       this in Repr
     }
 
-    // TODO awslabs/aws-encryption-sdk-dafny/issues/199: This needs to support additional customization
-    // Most likely: AmazonKeyManagementServiceConfig and AWSCredentials
     constructor()
       ensures Valid() && fresh(Repr)
     {
@@ -220,26 +216,14 @@ module {:extern "KMSUtils"} KMSUtils {
     }
 
     // Since this is the base client supplier, this just calls the extern GetClient method
-    method GetClient(region: Option<string>) returns (res: AWSKMSClientResult)
+    method GetClient(region: Option<string>) returns (res: Result<AmazonKeyManagementServiceClient>)
       requires Valid()
       ensures Valid()
       decreases Repr
     {
       // Since this is the base client supplier, this obtains the extern client
-      var resClient := GetDefaultAWSKMSClientExtern(region);
+      var resClient := GetDefaultAWSKMSServiceClientExtern(region);
       return resClient;
     }
-  }
-
-  // https://docs.aws.amazon.com/sdkfornet/v3/apidocs/items/KeyManagementService/TKeyManagementServiceClient.html
-  trait {:extern "AWSKMSClient"} AWSKMSClient {
-    method {:extern "GenerateDataKey"} GenerateDataKey(request: GenerateDataKeyRequest) returns (res: Result<GenerateDataKeyResponse>)
-      requires request.Valid()
-
-    method {:extern "Encrypt"} Encrypt(request: EncryptRequest) returns (res: Result<EncryptResponse>)
-      requires request.Valid()
-
-    method {:extern "Decrypt"} Decrypt(request: DecryptRequest) returns (res: Result<DecryptResponse>)
-      requires request.Valid()
   }
 }
