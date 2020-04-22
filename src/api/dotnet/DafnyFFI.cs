@@ -11,17 +11,21 @@ using charseq = Dafny.Sequence<char>;
 // General-purpose utilities for invoking Dafny from C#,
 // including converting between common Dafny and C# datatypes. 
 public class DafnyFFI {
-  
-    public static MemoryStream MemoryStreamFromSequence(ibyteseq seq) {
+
+    public static byte[] ByteArrayFromSequence(ibyteseq seq) {
         // TODO: Find a way to safely avoid copying 
         byte[] copy = new byte[seq.Elements.Length];
         Array.Copy(seq.Elements, 0, copy, 0, seq.Elements.Length);
-        return new MemoryStream(copy);
+        return copy;
+    }
+
+    public static MemoryStream MemoryStreamFromSequence(ibyteseq seq) {
+        return new MemoryStream(ByteArrayFromSequence(seq));
     }
   
     public static ibyteseq SequenceFromMemoryStream(MemoryStream bytes) {
         // TODO: Find a way to safely avoid copying 
-        return byteseq.FromArray(bytes.ToArray());
+        return SequenceFromByteArray(bytes.ToArray());
     }
 
     public static ibyteseq SequenceFromByteArray(byte[] bytearray) {

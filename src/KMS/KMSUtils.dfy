@@ -34,15 +34,6 @@ module {:extern "KMSUtils"} KMSUtils {
   
   type GrantToken = s: string | 0 < |s| <= 8192 witness "witness"
 
-  trait ClientSupplier {
-    method GetClient(region: Option<string>) returns (res: Result<KMSClient>)
-  }
-
-  class DefaultClientSupplier extends ClientSupplier {
-    constructor() {}
-    method {:extern} GetClient(region: Option<string>) returns (res: Result<KMSClient>)
-  }
-
   datatype ResponseMetadata = ResponseMetadata(metadata: map<string, string>, requestID: string)
 
   type HttpStatusCode = int //FIXME: Restrict this
@@ -84,17 +75,171 @@ module {:extern "KMSUtils"} KMSUtils {
 
   datatype DecryptResponse = DecryptResponse(contentLength: int, httpStatusCode: HttpStatusCode, keyID: string, plaintext: seq<uint8>, responseMetadata: ResponseMetadata)
 
+  // We require a new datatype and cannot use Result<AWSKMSClient> since Dafny does not currently support returning Result<trait>
+  // TODO: https://github.com/awslabs/aws-encryption-sdk-dafny/issues/273
+  datatype AWSKMSClientResult = Success(value: AWSKMSClient) | Failure(error: string)
+  {
+    predicate method IsFailure() {
+      Failure?
+    }
+    function method PropagateFailure<U>(): Result<U>
+      requires Failure?
+    {
+      Result.Failure(this.error)
+    }
+    function method Extract(): AWSKMSClient
+      requires Success?
+    {
+      value
+    }
+  }
+
+  method {:extern "KMSUtils.ClientHelper", "GetDefaultAWSKMSClientExtern"} GetDefaultAWSKMSClientExtern(region: Option<string>) returns (res: AWSKMSClientResult)
+
+  trait {:extern "AWSKMSClientSupplier"} AWSKMSClientSupplier {
+    ghost var Repr: set<object>
+
+    predicate Valid()
+      reads this, Repr
+      ensures Valid() ==> this in Repr
+
+    method GetClient(region: Option<string>) returns (res: AWSKMSClientResult)
+      requires Valid()
+      ensures Valid()
+      decreases Repr
+  }
+
+  // An implementation of an AWSKMSClientSupplier that takes in an existing AWSKMSClientSupplier as well as a seq of regions
+  // (strings). The LimitRegionsClientSupplier will only return an AWSKMSClient from the given AWSKMSClientSupplier if the
+  // region provided to GetClient(region) is in the list of regions associated with the LimitRegionsClientSupplier.
+  class LimitRegionsClientSupplier extends AWSKMSClientSupplier {
+    const clientSupplier: AWSKMSClientSupplier
+    const regions: seq<string>
+
+    predicate Valid()
+      reads this, Repr
+      ensures Valid() ==> this in Repr
+    {
+      this in Repr &&
+      clientSupplier in Repr && clientSupplier.Repr <= Repr && this !in clientSupplier.Repr && clientSupplier.Valid()
+    }
+
+    constructor(clientSupplier: AWSKMSClientSupplier, regions: seq<string>)
+      requires clientSupplier.Valid()
+      ensures this.clientSupplier == clientSupplier
+      ensures this.regions == regions
+      ensures Valid() && fresh(Repr - clientSupplier.Repr)
+    {
+      this.clientSupplier := clientSupplier;
+      this.regions := regions;
+      Repr := {this} + clientSupplier.Repr;
+    }
+
+    method GetClient(region: Option<string>) returns (res: AWSKMSClientResult)
+      requires Valid()
+      ensures Valid()
+      // Verify this behavior with the spec. TODO: https://github.com/awslabs/aws-encryption-sdk-dafny/issues/272
+      // Only add a post condition around failures, since the GetClient call could return a success or failure
+      ensures region.None? ==> res.Failure?
+      ensures region.Some? && !(region.get in regions) ==> res.Failure?
+      decreases Repr
+    {
+      // In order to limit regions, make sure our given region string exists and is a member of the regions to limit to
+      if region.Some? && region.get in regions {
+        var resClient := clientSupplier.GetClient(region);
+        return resClient;
+      } else if region.None? {
+        return AWSKMSClientResult.Failure("LimitRegionsClientSupplier GetClient requires a region");
+      }
+      var failure := "Given region " + region.get + " not in regions maintained by LimitRegionsClientSupplier";
+      return AWSKMSClientResult.Failure(failure);
+    }
+  }
+
+  // An implementation of an AWSKMSClientSupplier that takes in an existing AWSKMSClientSupplier as well as a seq of regions
+  // (strings). The ExcludeRegionsClientSupplier will only return an AWSKMSClient from the given AWSKMSClientSupplier if the
+  // region provided to GetClient(region) is not in the list of regions associated with the ExcludeRegionsClientSupplier.
+  class ExcludeRegionsClientSupplier extends AWSKMSClientSupplier {
+    const clientSupplier: AWSKMSClientSupplier
+    const regions: seq<string>
+
+    predicate Valid()
+      reads this, Repr
+      ensures Valid() ==> this in Repr
+    {
+      this in Repr &&
+      clientSupplier in Repr && clientSupplier.Repr <= Repr && this !in clientSupplier.Repr && clientSupplier.Valid()
+    }
+
+    constructor(clientSupplier: AWSKMSClientSupplier, regions: seq<string>)
+      requires clientSupplier.Valid()
+      ensures this.clientSupplier == clientSupplier
+      ensures this.regions == regions
+      ensures Valid() && fresh(Repr - clientSupplier.Repr)
+    {
+      this.clientSupplier := clientSupplier;
+      this.regions := regions;
+      Repr := {this} + clientSupplier.Repr;
+    }
+
+    method GetClient(region: Option<string>) returns (res: AWSKMSClientResult)
+      requires Valid()
+      ensures Valid()
+      // Verify this behavior with the spec. TODO: https://github.com/awslabs/aws-encryption-sdk-dafny/issues/272
+      // Only add a post condition around failures, since the GetClient call could return a success or failure
+      ensures region.None? ==> res.Failure?
+      ensures region.Some? && region.get in regions ==> res.Failure?
+      decreases Repr
+    {
+      // In order to exclude regions, make sure our given region string exists and is not a member of the regions to exclude
+      if region.None? {
+        return AWSKMSClientResult.Failure("ExcludeRegionsClientSupplier GetClient requires a region");
+      } else if (region.Some? && region.get in regions) {
+        var failure := "Given region " + region.get + " is in regions maintained by ExcludeRegionsClientSupplier";
+        return AWSKMSClientResult.Failure(failure);
+      }
+      var resClient := clientSupplier.GetClient(region);
+      return resClient;
+    }
+  }
+
+  class BaseClientSupplier extends AWSKMSClientSupplier {
+    predicate Valid()
+      reads this, Repr
+      ensures Valid() ==> this in Repr
+    {
+      this in Repr
+    }
+
+    // TODO awslabs/aws-encryption-sdk-dafny/issues/199: This needs to support additional customization
+    // Most likely: AmazonKeyManagementServiceConfig and AWSCredentials
+    constructor()
+      ensures Valid() && fresh(Repr)
+    {
+      Repr := {this};
+    }
+
+    // Since this is the base client supplier, this just calls the extern GetClient method
+    method GetClient(region: Option<string>) returns (res: AWSKMSClientResult)
+      requires Valid()
+      ensures Valid()
+      decreases Repr
+    {
+      // Since this is the base client supplier, this obtains the extern client
+      var resClient := GetDefaultAWSKMSClientExtern(region);
+      return resClient;
+    }
+  }
+
   // https://docs.aws.amazon.com/sdkfornet/v3/apidocs/items/KeyManagementService/TKeyManagementServiceClient.html
-  class KMSClient {
-    method {:extern} GenerateDataKey(request: GenerateDataKeyRequest) returns (res: Result<GenerateDataKeyResponse>)
+  trait {:extern "AWSKMSClient"} AWSKMSClient {
+    method {:extern "GenerateDataKey"} GenerateDataKey(request: GenerateDataKeyRequest) returns (res: Result<GenerateDataKeyResponse>)
       requires request.Valid()
-      //TODO mmtj: Should this be marked as modifying all of request's fields?
 
-	method {:extern} Encrypt(request: EncryptRequest) returns (res: Result<EncryptResponse>)
+    method {:extern "Encrypt"} Encrypt(request: EncryptRequest) returns (res: Result<EncryptResponse>)
       requires request.Valid()
-      //TODO mmtj: Should this be marked as modifying all of request's fields?
 
-    method {:extern} Decrypt(request: DecryptRequest) returns (res: Result<DecryptResponse>)
-      //TODO mmtj: Should this be marked as modifying all of request's fields?
+    method {:extern "Decrypt"} Decrypt(request: DecryptRequest) returns (res: Result<DecryptResponse>)
+      requires request.Valid()
   }
 }

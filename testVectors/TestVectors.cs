@@ -185,7 +185,7 @@ namespace TestVectorTests {
         }
         private static Keyring CreateKeyring(MasterKey keyInfo, Key key) {
             if (keyInfo.type == "aws-kms") {
-                ClientSupplier clientSupplier = new DefaultClientSupplier();
+                AWSKMSClientSupplier clientSupplier = AWSEncryptionSDK.AWSKMSClientSuppliers.NewKMSDefaultClientSupplier();
                 return Keyrings.MakeKMSKeyring(clientSupplier, Enumerable.Empty<String>(), key.ID, Enumerable.Empty<String>());
             } else if (keyInfo.type == "raw" && keyInfo.encryptionAlgorithm == "aes") {
                 return Keyrings.MakeRawAESKeyring(
