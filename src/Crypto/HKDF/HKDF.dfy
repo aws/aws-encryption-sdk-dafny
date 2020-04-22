@@ -45,12 +45,19 @@ module HKDF {
     if n == 0 then 
       [] == res
     else 
-      exists prev1, prev2 :: T(hmac, info, n-1, prev1) && Ti(hmac, info, n, prev2) && prev1 + prev2 == res	
+      exists prev1, prev2 :: TCall(hmac, info, n, res, prev1, prev2)	
   }
 
+  predicate TCall(hmac: HMac, info: seq<uint8>, n: nat, res: seq<uint8>, prev1: seq<uint8>, prev2: seq<uint8>)
+    requires 0 < n < 256	
+    decreases n, 3
+  {	
+    T(hmac, info, n-1, prev1) && Ti(hmac, info, n, prev2) && prev1 + prev2 == res
+  }
+  
   predicate Ti(hmac: HMac, info: seq<uint8>, n: nat, res: seq<uint8>)
     requires 0 <= n < 256
-    decreases n, 1
+    decreases n, 2
   {
     if n == 0 then 
       res == []
@@ -61,9 +68,16 @@ module HKDF {
     // return T (i)
   predicate PreTi(hmac: HMac, info: seq<uint8>, n: nat, res: seq<uint8>)
     requires 1 <= n < 256
+    decreases n, 1
+  {
+    exists prev :: PreTiCall(hmac, info, n, res, prev)
+  }
+
+  predicate PreTiCall(hmac: HMac, info: seq<uint8>, n: nat, res: seq<uint8>, prev: seq<uint8>)
+    requires 1 <= n < 256
     decreases n, 0
   {
-    exists prev | Ti(hmac, info, n - 1, prev) :: res == prev + info + [(n as uint8)]
+    Ti(hmac, info, n - 1, prev) && res == prev + info + [(n as uint8)]
   }
 
   method Expand(hmac: HMac, prk: seq<uint8>, info: seq<uint8>, expectedLength: int, digest: Digests, ghost salt: seq<uint8>) returns (okm: seq<uint8>)
@@ -114,10 +128,23 @@ module HKDF {
       assert hmac.GetInputSoFar() == t_prev + info + [i as uint8];  
 
       // Add additional verification for T(n): github.com/awslabs/aws-encryption-sdk-dafny/issues/177
+      ghost var old_t_prev := t_prev;
       t_prev := hmac.GetResult(); 
       // t_n == T(i - 1)
-      assert T(hmac, info, i - 1, t_n); 
-      assert Ti(hmac, info, i, t_prev) ;
+
+      //Gives values for which PreTi holds and for which PreTiCall holds
+      assert Ti(hmac, info, i, t_prev) by {
+        assert PreTi(hmac, info, i, old_t_prev + info + [i as uint8]) by {
+          assert PreTiCall(hmac, info, i, old_t_prev + info + [i as uint8], old_t_prev);
+        }
+        assert hmac.HashSignature(old_t_prev + info + [i as uint8], t_prev);
+      }
+
+      //Gives values for which TCall holds
+      assert T(hmac, info, i, t_n + t_prev) by {
+        assert TCall(hmac, info, i, t_n + t_prev, t_n, t_prev);
+        //T(hmac, info, n-1, t_n) && Ti(hmac, info, n, t_prev)
+      }
 
       t_n := t_n + t_prev;
       // t_n == T(i) == T(i - 1) + Ti(i)
