@@ -17,14 +17,29 @@ namespace AWSEncryptionSDKTests
         private static string SUCCESS = "SUCCESS";
         private static string KEYRING_NAMESPACE = "namespace";
         private static string KEYRING_NAME = "myKeyring";
+        private static string CURRENT_REGION = "us-west-2";
+
+        // MakeKMSKeyring is a helper method that creates a KMS Keyring for unit testing with a specific client supplier
+        private Keyring MakeKMSKeyringWithClientSupplier(KMSUtils.AWSKMSClientSupplier clientSupplier)
+        {
+            String keyArn = DafnyFFI.StringFromDafnyString(TestUtils.__default.SHARED__TEST__KEY__ARN);
+            return AWSEncryptionSDK.Keyrings.MakeKMSKeyring(
+                clientSupplier, Enumerable.Empty<String>(), keyArn, Enumerable.Empty<String>());
+        }
 
         // MakeKMSKeyring is a helper method that creates a KMS Keyring for unit testing
         private Keyring MakeKMSKeyring()
         {
-            String keyArn = DafnyFFI.StringFromDafnyString(TestUtils.__default.SHARED__TEST__KEY__ARN);
-            ClientSupplier clientSupplier = new DefaultClientSupplier();
-            return AWSEncryptionSDK.Keyrings.MakeKMSKeyring(
-                clientSupplier, Enumerable.Empty<String>(), keyArn, Enumerable.Empty<String>());
+            AWSKMSClientSupplier clientSupplier = AWSEncryptionSDK.AWSKMSClientSuppliers.NewKMSDefaultClientSupplier();
+            return MakeKMSKeyringWithClientSupplier(clientSupplier);
+        }
+
+        // MakeDefaultCMMWithKMSKeyring is a helper method that creates a default CMM using a KMS Keyring for unit testing
+        // with a specific client supplier
+        private CMMDefs.CMM MakeDefaultCMMWithKMSKeyringWithClientSupplier(KMSUtils.AWSKMSClientSupplier clientSupplier)
+        {
+            Keyring keyring = MakeKMSKeyringWithClientSupplier(clientSupplier);
+            return AWSEncryptionSDK.CMMs.MakeDefaultCMM(keyring);
         }
 
         // MakeDefaultCMMWithKMSKeyring is a helper method that creates a default CMM using a KMS Keyring for unit testing
@@ -156,11 +171,67 @@ namespace AWSEncryptionSDKTests
             }
         }
 
-        [Theory]
-        [MemberData(nameof(DefaultClientTestData))]
-        public void RoundTripHappyPath_KMS(bool isMultithreaded, bool withParams)
+        // AWSKMSClientTestData represents client test data that can be used for simple KMS client tests that check
+        // combinations of AWSKMSClientSupplier and DefaultClientTestData
+        public static TheoryData<KMSUtils.AWSKMSClientSupplier, bool, bool> AWSKMSClientTestData
         {
-            CMMDefs.CMM cmm = MakeDefaultCMMWithKMSKeyring();
+            get
+            {
+                var data = new TheoryData<KMSUtils.AWSKMSClientSupplier, bool, bool>();
+                var clientSuppliers = new List<KMSUtils.AWSKMSClientSupplier>() {
+                    // BaseClientSupplier
+                    AWSEncryptionSDK.AWSKMSClientSuppliers.NewKMSBaseClientSupplier(),
+                    // DefaultClientSupplier
+                    AWSEncryptionSDK.AWSKMSClientSuppliers.NewKMSDefaultClientSupplier(),
+                    // ExcludeRegionsClientSupplier with BaseClientSupplier
+                    AWSEncryptionSDK.AWSKMSClientSuppliers.NewKMSExcludeRegionsClientSupplier(
+                        AWSEncryptionSDK.AWSKMSClientSuppliers.NewKMSBaseClientSupplier(),
+                        new List<string>() { "us-east-1", "another-region" }),
+                    // ExcludeRegionsClientSupplier with DefaultClientSupplier
+                    AWSEncryptionSDK.AWSKMSClientSuppliers.NewKMSExcludeRegionsClientSupplier(
+                        AWSEncryptionSDK.AWSKMSClientSuppliers.NewKMSDefaultClientSupplier(),
+                        new List<string>() { "us-east-1", "another-region" }),
+                    // ExcludeRegionsClientSupplier with no excluded regions
+                    AWSEncryptionSDK.AWSKMSClientSuppliers.NewKMSExcludeRegionsClientSupplier(
+                        AWSEncryptionSDK.AWSKMSClientSuppliers.NewKMSDefaultClientSupplier(),
+                        new List<string>() {}),
+                    // LimitRegionsClientSupplier with DefaultClientSupplier
+                    AWSEncryptionSDK.AWSKMSClientSuppliers.NewKMSLimitRegionsClientSupplier(
+                        AWSEncryptionSDK.AWSKMSClientSuppliers.NewKMSDefaultClientSupplier(),
+                        new List<string>() { CURRENT_REGION, "another-region" }),
+                    // LimitRegionsClientSupplier with BaseClientSupplier
+                    AWSEncryptionSDK.AWSKMSClientSuppliers.NewKMSLimitRegionsClientSupplier(
+                        AWSEncryptionSDK.AWSKMSClientSuppliers.NewKMSBaseClientSupplier(),
+                        new List<string>() { CURRENT_REGION, "another-region" }),
+                    // LimitRegionsClientSupplier with ExcludeRegionsClientSupplier
+                    AWSEncryptionSDK.AWSKMSClientSuppliers.NewKMSLimitRegionsClientSupplier(
+                        AWSEncryptionSDK.AWSKMSClientSuppliers.NewKMSExcludeRegionsClientSupplier(
+                            AWSEncryptionSDK.AWSKMSClientSuppliers.NewKMSDefaultClientSupplier(),
+                            new List<string>() { "excluded-region" }),
+                        new List<string>() { CURRENT_REGION, "another-region" }),
+                    // ExcludeRegionsClientSupplier with LimitRegionsClientSupplier
+                    AWSEncryptionSDK.AWSKMSClientSuppliers.NewKMSExcludeRegionsClientSupplier(
+                        AWSEncryptionSDK.AWSKMSClientSuppliers.NewKMSLimitRegionsClientSupplier(
+                            AWSEncryptionSDK.AWSKMSClientSuppliers.NewKMSDefaultClientSupplier(),
+                            new List<string>() { CURRENT_REGION, "another-region" }),
+                        new List<string>() { "excluded-region" })
+                };
+                foreach (KMSUtils.AWSKMSClientSupplier clientSupplier in clientSuppliers) {
+                    foreach (var item in DefaultClientTestData) {
+                        // Since this is just being used for unit tests, and we know DefaultClientTestData is
+                        // TheoryData<bool, bool>, cast object to bool directly
+                        data.Add(clientSupplier, (bool) item[0], (bool) item[1]);
+                    }
+                }
+                return data;
+            }
+        }
+
+        [Theory]
+        [MemberData(nameof(AWSKMSClientTestData))]
+        public void RoundTripHappyPath_KMS(KMSUtils.AWSKMSClientSupplier clientSupplier, bool isMultithreaded, bool withParams)
+        {
+            CMMDefs.CMM cmm = MakeDefaultCMMWithKMSKeyringWithClientSupplier(clientSupplier);
             EncryptDecryptThreaded(cmm, isMultithreaded, withParams);
         }
 
@@ -175,10 +246,99 @@ namespace AWSEncryptionSDKTests
         }
 
         [Fact]
+        public void BadConstructor_ClientSupplier_LimitRegions_BadRegion()
+        {
+            // LimitRegionsClientSupplier with a region we are not in
+            KMSUtils.AWSKMSClientSupplier clientSupplier = AWSEncryptionSDK.AWSKMSClientSuppliers.NewKMSLimitRegionsClientSupplier(
+                AWSEncryptionSDK.AWSKMSClientSuppliers.NewKMSDefaultClientSupplier(), new List<string>() { "some-other-region" });
+
+            CMMDefs.CMM cmm = MakeDefaultCMMWithKMSKeyringWithClientSupplier(clientSupplier);
+            MemoryStream plaintextStream = new MemoryStream(Encoding.UTF8.GetBytes("something"));
+            var encryptRequest = new AWSEncryptionSDK.Client.EncryptRequest{plaintext = plaintextStream, cmm = cmm};
+            DafnyException ex = Assert.Throws<DafnyException>(() => {
+                AWSEncryptionSDK.Client.Encrypt(encryptRequest);
+            });
+            Assert.Equal(String.Format("Given region {0} not in regions maintained by LimitRegionsClientSupplier", CURRENT_REGION), ex.Message);
+        }
+
+        [Fact]
+        public void BadConstructor_ClientSupplier_ExcludeRegions_BadRegion()
+        {
+            // ExcludeRegionsClientSupplier with a region we are in
+            KMSUtils.AWSKMSClientSupplier clientSupplier = AWSEncryptionSDK.AWSKMSClientSuppliers.NewKMSExcludeRegionsClientSupplier(
+                AWSEncryptionSDK.AWSKMSClientSuppliers.NewKMSDefaultClientSupplier(), new List<string>() { CURRENT_REGION });
+
+            CMMDefs.CMM cmm = MakeDefaultCMMWithKMSKeyringWithClientSupplier(clientSupplier);
+            MemoryStream plaintextStream = new MemoryStream(Encoding.UTF8.GetBytes("something"));
+            var encryptRequest = new AWSEncryptionSDK.Client.EncryptRequest{plaintext = plaintextStream, cmm = cmm};
+            DafnyException ex = Assert.Throws<DafnyException>(() => {
+                AWSEncryptionSDK.Client.Encrypt(encryptRequest);
+            });
+            Assert.Equal(String.Format("Given region {0} is in regions maintained by ExcludeRegionsClientSupplier", CURRENT_REGION), ex.Message);
+        }
+
+        [Fact]
+        public void BadConstructor_ClientSupplier_LimitRegions_ExcludeRegions_BadRegion()
+        {
+            // LimitRegionsClientSupplier with ExcludeRegionsClientSupplier with a region we are in
+            KMSUtils.AWSKMSClientSupplier clientSupplier = AWSEncryptionSDK.AWSKMSClientSuppliers.NewKMSLimitRegionsClientSupplier(
+                AWSEncryptionSDK.AWSKMSClientSuppliers.NewKMSExcludeRegionsClientSupplier(
+                    AWSEncryptionSDK.AWSKMSClientSuppliers.NewKMSDefaultClientSupplier(),
+                    new List<string>() { CURRENT_REGION }),
+                new List<string>() { CURRENT_REGION });
+
+            CMMDefs.CMM cmm = MakeDefaultCMMWithKMSKeyringWithClientSupplier(clientSupplier);
+            MemoryStream plaintextStream = new MemoryStream(Encoding.UTF8.GetBytes("something"));
+            var encryptRequest = new AWSEncryptionSDK.Client.EncryptRequest{plaintext = plaintextStream, cmm = cmm};
+            DafnyException ex = Assert.Throws<DafnyException>(() => {
+                AWSEncryptionSDK.Client.Encrypt(encryptRequest);
+            });
+            Assert.Equal(String.Format("Given region {0} is in regions maintained by ExcludeRegionsClientSupplier", CURRENT_REGION), ex.Message);
+        }
+
+        [Fact]
+        public void BadConstructor_ClientSupplier_ExcludeRegions_LimitRegions_BadRegion()
+        {
+            // ExcludeRegionsClientSupplier with LimitRegionsClientSupplier with a region we are not in
+            KMSUtils.AWSKMSClientSupplier clientSupplier = AWSEncryptionSDK.AWSKMSClientSuppliers.NewKMSExcludeRegionsClientSupplier(
+                AWSEncryptionSDK.AWSKMSClientSuppliers.NewKMSLimitRegionsClientSupplier(
+                    AWSEncryptionSDK.AWSKMSClientSuppliers.NewKMSDefaultClientSupplier(),
+                    new List<string>() { "another-region" }),
+                new List<string>() { "excluded-region" });
+
+            CMMDefs.CMM cmm = MakeDefaultCMMWithKMSKeyringWithClientSupplier(clientSupplier);
+            MemoryStream plaintextStream = new MemoryStream(Encoding.UTF8.GetBytes("something"));
+            var encryptRequest = new AWSEncryptionSDK.Client.EncryptRequest{plaintext = plaintextStream, cmm = cmm};
+            DafnyException ex = Assert.Throws<DafnyException>(() => {
+                AWSEncryptionSDK.Client.Encrypt(encryptRequest);
+            });
+            Assert.Equal(String.Format("Given region {0} not in regions maintained by LimitRegionsClientSupplier", CURRENT_REGION), ex.Message);
+        }
+
+        [Fact]
+        public void ClientSupplier_NoRegion_GetClient_Failures()
+        {
+            // ExcludeRegionsClientSupplier GetClient being called with no region
+            KMSUtils.AWSKMSClientSupplier excludeRegionsClientSupplier = AWSEncryptionSDK.AWSKMSClientSuppliers.NewKMSExcludeRegionsClientSupplier(
+                AWSEncryptionSDK.AWSKMSClientSuppliers.NewKMSDefaultClientSupplier(), new List<string>() { });
+
+            KMSUtils.AWSKMSClientResult client = excludeRegionsClientSupplier.GetClient(DafnyFFI.NullableToOption<Dafny.ISequence<char>>(null));
+            Assert.True(client.IsFailure());
+            Assert.Equal("ExcludeRegionsClientSupplier GetClient requires a region", DafnyFFI.StringFromDafnyString(client.dtor_error));
+
+            // LimitRegionsClientSupplier GetClient being called with no region
+            KMSUtils.AWSKMSClientSupplier limitRegionsClientSupplier = AWSEncryptionSDK.AWSKMSClientSuppliers.NewKMSLimitRegionsClientSupplier(
+                AWSEncryptionSDK.AWSKMSClientSuppliers.NewKMSDefaultClientSupplier(), new List<string>() { });
+            client = limitRegionsClientSupplier.GetClient(DafnyFFI.NullableToOption<Dafny.ISequence<char>>(null));
+            Assert.True(client.IsFailure());
+            Assert.Equal("LimitRegionsClientSupplier GetClient requires a region", DafnyFFI.StringFromDafnyString(client.dtor_error));
+        }
+
+        [Fact]
         public void BadConstructor_KeyIds_KMS()
         {
             String keyArn = DafnyFFI.StringFromDafnyString(TestUtils.__default.SHARED__TEST__KEY__ARN);
-            ClientSupplier clientSupplier = new DefaultClientSupplier();
+            AWSKMSClientSupplier clientSupplier = AWSEncryptionSDK.AWSKMSClientSuppliers.NewKMSDefaultClientSupplier();
             // Try when keyIds is null
             ArgumentNullException nullKeyIdsException = Assert.Throws<ArgumentNullException>(() => {
                 AWSEncryptionSDK.Keyrings.MakeKMSKeyring(
@@ -199,7 +359,7 @@ namespace AWSEncryptionSDKTests
         public void BadConstructor_GrantTokens_KMS()
         {
             String keyArn = DafnyFFI.StringFromDafnyString(TestUtils.__default.SHARED__TEST__KEY__ARN);
-            ClientSupplier clientSupplier = new DefaultClientSupplier();
+            AWSKMSClientSupplier clientSupplier = AWSEncryptionSDK.AWSKMSClientSuppliers.NewKMSDefaultClientSupplier();
             // Try when grantTokens is null
             ArgumentNullException nullGrantTokensException = Assert.Throws<ArgumentNullException>(() => {
                 AWSEncryptionSDK.Keyrings.MakeKMSKeyring(
