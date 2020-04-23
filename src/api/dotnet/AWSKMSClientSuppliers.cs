@@ -31,23 +31,7 @@ namespace AWSEncryptionSDK
             // When transpiling Dafny code, new MyClass() does not actually call the constructor, so we need to
             // instantiate the class and then manually call __ctor() to call the required constructor
             KMSUtils.BaseClientSupplier clientSupplier = new KMSUtils.BaseClientSupplier();
-            clientSupplier.__ctor(
-                DafnyFFI.NullableToOption<Amazon.Runtime.AWSCredentials>(null),
-                DafnyFFI.NullableToOption<AmazonKeyManagementServiceConfig>(null));
-            return new KMSUtils.DafnyAWSKMSClientSupplierWrapper(clientSupplier);
-        }
-
-        // An implementation of an AWSKMSClientSupplier that takes in nullable AWSCredentials and AmazonKeyManagementServiceConfig
-        // and uses them to construct a new AmazonKeyManagementServiceClient.
-        public static AWSKMSClientSupplier NewKMSBaseClientSupplier(Amazon.Runtime.AWSCredentials creds, AmazonKeyManagementServiceConfig config)
-        {
-            // When transpiling Dafny code, new MyClass() does not actually call the constructor, so we need to
-            // instantiate the class and then manually call __ctor() to call the required constructor
-            KMSUtils.BaseClientSupplier clientSupplier = new KMSUtils.BaseClientSupplier();
-            clientSupplier.__ctor(
-                DafnyFFI.NullableToOption(creds),
-                DafnyFFI.NullableToOption(config)
-            );
+            clientSupplier.__ctor();
             return new KMSUtils.DafnyAWSKMSClientSupplierWrapper(clientSupplier);
         }
 

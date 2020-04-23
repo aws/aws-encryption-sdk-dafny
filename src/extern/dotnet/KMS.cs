@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
+using Amazon;
+
 using KMS = Amazon.KeyManagementService;
 using IDString = Dafny.ISequence<char>;
 using EncryptionContextMap = Dafny.Map<Dafny.ISequence<byte>, Dafny.ISequence<byte>>;
@@ -11,42 +13,15 @@ namespace KMSUtils {
 
     // ClientHelper represents a class containing Dafny KMS extern functionality
     public partial class ClientHelper {
-        // GetDefaultAWSKMSClientExtern gets a KMS service client from an optional region and optional customization options
-        public static STL.Result<KMS.AmazonKeyManagementServiceClient> GetDefaultAWSKMSServiceClientExtern(
-            STL.Option<IDString> region,
-            STL.Option<Amazon.Runtime.AWSCredentials> creds,
-            STL.Option<KMS.AmazonKeyManagementServiceConfig> config) {
+        // GetDefaultAWSKMSClientExtern get a KMS service client from an optional region
+        public static STL.Result<KMS.AmazonKeyManagementServiceClient> GetDefaultAWSKMSServiceClientExtern(STL.Option<IDString> region) {
             KMS.AmazonKeyManagementServiceClient client;
             if (region.is_Some) {
                 string regionString = DafnyFFI.StringFromDafnyString(((STL.Option_Some<IDString>)region).get);
-                Amazon.RegionEndpoint regionEndpoint = Amazon.RegionEndpoint.GetBySystemName(regionString);
-                if (config.is_Some && creds.is_Some) {
-                    // Use the config, but override the region with the provided region since you cannot pass both
-                    // a config and a region to the constructor
-                    KMS.AmazonKeyManagementServiceConfig obtainedConfig = config.dtor_get;
-                    obtainedConfig.RegionEndpoint = regionEndpoint;
-                    client = new KMS.AmazonKeyManagementServiceClient(creds.dtor_get, obtainedConfig);
-                } else if (config.is_Some) {
-                    // Use the config, but override the region with the provided region since you cannot pass both
-                    // a config and a region to the constructor
-                    KMS.AmazonKeyManagementServiceConfig obtainedConfig = config.dtor_get;
-                    obtainedConfig.RegionEndpoint = regionEndpoint;
-                    client = new KMS.AmazonKeyManagementServiceClient(obtainedConfig);
-                } else if (creds.is_Some) {
-                    client = new KMS.AmazonKeyManagementServiceClient(creds.dtor_get, regionEndpoint);
-                } else {
-                    client = new KMS.AmazonKeyManagementServiceClient(regionEndpoint);
-                }
+                RegionEndpoint regionEndpoint = RegionEndpoint.GetBySystemName(regionString);
+                client = new KMS.AmazonKeyManagementServiceClient(regionEndpoint);
             } else {
-                if (config.is_Some && creds.is_Some) {
-                    client = new KMS.AmazonKeyManagementServiceClient(creds.dtor_get, config.dtor_get);
-                } else if (config.is_Some) {
-                    client = new KMS.AmazonKeyManagementServiceClient(config.dtor_get);
-                } else if (creds.is_Some) {
-                    client = new KMS.AmazonKeyManagementServiceClient(creds.dtor_get);
-                } else {
-                    client = new KMS.AmazonKeyManagementServiceClient();
-                }
+                client = new KMS.AmazonKeyManagementServiceClient();
             }
             return STL.Result<KMS.AmazonKeyManagementServiceClient>.create_Success(client);
         }
