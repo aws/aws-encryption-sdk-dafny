@@ -3,14 +3,21 @@ include "../StandardLibrary/StandardLibrary.dfy"
 include "../StandardLibrary/UInt.dfy"
 include "../Util/UTF8.dfy"
 
-// Add extern reference for a native AWS KMS service client
+// Add extern reference for a native AWS KMS service client and config
 module {:extern "Amazon.KeyManagementService"} AmazonKeyManagementService {
   class {:extern "AmazonKeyManagementServiceClient"} AmazonKeyManagementServiceClient {}
+  class {:extern "AmazonKeyManagementServiceConfig"} AmazonKeyManagementServiceConfig {}
+}
+
+// Add extern reference for a native AWSCredentials class
+module {:extern "Amazon.Runtime"} AmazonRuntime {
+  class {:extern "AWSCredentials"} AWSCredentials {}
 }
 
 module {:extern "KMSUtils"} KMSUtils {
   import EncryptionContext
   import opened AmazonKeyManagementService
+  import opened AmazonRuntime
   import opened StandardLibrary
   import opened UInt = StandardLibrary.UInt
   import UTF8
@@ -81,7 +88,7 @@ module {:extern "KMSUtils"} KMSUtils {
 
   datatype DecryptResponse = DecryptResponse(contentLength: int, httpStatusCode: HttpStatusCode, keyID: string, plaintext: seq<uint8>, responseMetadata: ResponseMetadata)
 
-  method {:extern "KMSUtils.ClientHelper", "GetDefaultAWSKMSServiceClientExtern"} GetDefaultAWSKMSServiceClientExtern(region: Option<string>) returns (res: Result<AmazonKeyManagementServiceClient>)
+  method {:extern "KMSUtils.ClientHelper", "GetDefaultAWSKMSServiceClientExtern"} GetDefaultAWSKMSServiceClientExtern(region: Option<string>, creds: Option<AWSCredentials>, config: Option<AmazonKeyManagementServiceConfig>) returns (res: Result<AmazonKeyManagementServiceClient>)
 
   method {:extern "KMSUtils.ClientHelper", "GenerateDataKey"} GenerateDataKey(client: AmazonKeyManagementServiceClient, request: GenerateDataKeyRequest) returns (res: Result<GenerateDataKeyResponse>)
     requires request.Valid()
@@ -202,6 +209,9 @@ module {:extern "KMSUtils"} KMSUtils {
   }
 
   class BaseClientSupplier extends AWSKMSClientSupplier {
+    const creds: Option<AWSCredentials>
+    const config: Option<AmazonKeyManagementServiceConfig>
+
     predicate Valid()
       reads this, Repr
       ensures Valid() ==> this in Repr
@@ -209,9 +219,13 @@ module {:extern "KMSUtils"} KMSUtils {
       this in Repr
     }
 
-    constructor()
+    constructor(creds: Option<AWSCredentials>, config: Option<AmazonKeyManagementServiceConfig>)
+      ensures this.creds == creds
+      ensures this.config == config
       ensures Valid() && fresh(Repr)
     {
+      this.creds := creds;
+      this.config := config;
       Repr := {this};
     }
 
@@ -222,7 +236,7 @@ module {:extern "KMSUtils"} KMSUtils {
       decreases Repr
     {
       // Since this is the base client supplier, this obtains the extern client
-      var resClient := GetDefaultAWSKMSServiceClientExtern(region);
+      var resClient := GetDefaultAWSKMSServiceClientExtern(region, creds, config);
       return resClient;
     }
   }

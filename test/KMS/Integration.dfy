@@ -80,7 +80,7 @@ module IntegTestKMS {
   }
 
   method {:test} TestEndToEnd_BaseClientSupplier() {
-    var clientSupplier := new KMSUtils.BaseClientSupplier();
+    var clientSupplier := new KMSUtils.BaseClientSupplier(Option.None, Option.None);
     var generator: KMSUtils.CustomerMasterKey := Helpers.CreateTestingGenerator();
     var keyring := new KMSKeyringDef.KMSKeyring(clientSupplier, [], Some(generator), []);
     var cmm := new DefaultCMMDef.DefaultCMM.OfKeyring(keyring);
@@ -88,7 +88,7 @@ module IntegTestKMS {
   }
 
   method {:test} TestEndToEnd_ExcludeRegionsClientSupplier_UsingBaseClientSupplier() {
-    var baseClientSupplier := new KMSUtils.BaseClientSupplier();
+    var baseClientSupplier := new KMSUtils.BaseClientSupplier(Option.None, Option.None);
     var regions: seq<string> := ["some-excluded-region"];
     var excludeRegionsClientSupplier := new KMSUtils.ExcludeRegionsClientSupplier(baseClientSupplier, regions);
     var generator: KMSUtils.CustomerMasterKey := Helpers.CreateTestingGenerator();
@@ -98,7 +98,7 @@ module IntegTestKMS {
   }
 
   method {:test} TestEndToEnd_ExcludeRegionsClientSupplier_NoRegions() {
-    var baseClientSupplier := new KMSUtils.BaseClientSupplier();
+    var baseClientSupplier := new KMSUtils.BaseClientSupplier(Option.None, Option.None);
     var regions: seq<string> := [];
     var excludeRegionsClientSupplier := new KMSUtils.ExcludeRegionsClientSupplier(baseClientSupplier, regions);
     var generator: KMSUtils.CustomerMasterKey := Helpers.CreateTestingGenerator();
@@ -108,7 +108,7 @@ module IntegTestKMS {
   }
 
   method {:test} TestEndToEnd_ExcludeRegionsClientSupplier_Failure() {
-    var baseClientSupplier := new KMSUtils.BaseClientSupplier();
+    var baseClientSupplier := new KMSUtils.BaseClientSupplier(Option.None, Option.None);
     var regions: seq<string> := [CURRENT_REGION];
     var excludeRegionsClientSupplier := new KMSUtils.ExcludeRegionsClientSupplier(baseClientSupplier, regions);
     var generator: KMSUtils.CustomerMasterKey := Helpers.CreateTestingGenerator();
@@ -118,7 +118,7 @@ module IntegTestKMS {
   }
 
   method {:test} TestEndToEnd_LimitRegionsClientSupplier_UsingBaseClientSupplier() {
-    var baseClientSupplier := new KMSUtils.BaseClientSupplier();
+    var baseClientSupplier := new KMSUtils.BaseClientSupplier(Option.None, Option.None);
     var regions: seq<string> := [CURRENT_REGION];
     var limitRegionsClientSupplier := new KMSUtils.LimitRegionsClientSupplier(baseClientSupplier, regions);
     var generator: KMSUtils.CustomerMasterKey := Helpers.CreateTestingGenerator();
@@ -128,7 +128,7 @@ module IntegTestKMS {
   }
 
   method {:test} TestEndToEnd_LimitRegionsClientSupplier_UsingExcludeRegionsClientSupplier() {
-    var baseClientSupplier := new KMSUtils.BaseClientSupplier();
+    var baseClientSupplier := new KMSUtils.BaseClientSupplier(Option.None, Option.None);
     var excludedRegions: seq<string> := ["some-excluded-region", "another-excluded-region"];
     var excludeRegionsClientSupplier := new KMSUtils.ExcludeRegionsClientSupplier(baseClientSupplier, excludedRegions);
     var limitRegions: seq<string> := [CURRENT_REGION];
@@ -140,7 +140,7 @@ module IntegTestKMS {
   }
 
   method {:test} TestEndToEnd_LimitRegionsClientSupplier_Failure_BadRegion() {
-    var baseClientSupplier := new KMSUtils.BaseClientSupplier();
+    var baseClientSupplier := new KMSUtils.BaseClientSupplier(Option.None, Option.None);
     var regions: seq<string> := ["another-region"];
     var limitRegionsClientSupplier := new KMSUtils.LimitRegionsClientSupplier(baseClientSupplier, regions);
     var generator: KMSUtils.CustomerMasterKey := Helpers.CreateTestingGenerator();
@@ -150,7 +150,7 @@ module IntegTestKMS {
   }
 
   method {:test} TestEndToEnd_LimitRegionsClientSupplier_Failure_NoRegion() {
-    var baseClientSupplier := new KMSUtils.BaseClientSupplier();
+    var baseClientSupplier := new KMSUtils.BaseClientSupplier(Option.None, Option.None);
     var regions: seq<string> := [];
     var limitRegionsClientSupplier := new KMSUtils.LimitRegionsClientSupplier(baseClientSupplier, regions);
     var generator: KMSUtils.CustomerMasterKey := Helpers.CreateTestingGenerator();
@@ -160,7 +160,7 @@ module IntegTestKMS {
   }
 
   method {:test} TestEndToEnd_LimitRegionsClientSupplier_Failure_ConflictingExcludeSuppliers() {
-    var baseClientSupplier := new KMSUtils.BaseClientSupplier();
+    var baseClientSupplier := new KMSUtils.BaseClientSupplier(Option.None, Option.None);
     var regions: seq<string> := [];
     var limitRegionsClientSupplier := new KMSUtils.LimitRegionsClientSupplier(baseClientSupplier, regions);
     var excludeRegionsClientSupplier := new KMSUtils.ExcludeRegionsClientSupplier(limitRegionsClientSupplier, regions);
@@ -171,7 +171,7 @@ module IntegTestKMS {
   }
 
   method {:test} TestEndToEnd_ExcludeRegionsClientSupplier_UsingLimitRegionsClientSupplier() {
-    var baseClientSupplier := new KMSUtils.BaseClientSupplier();
+    var baseClientSupplier := new KMSUtils.BaseClientSupplier(Option.None, Option.None);
     var limitRegions: seq<string> := [CURRENT_REGION];
     var limitRegionsClientSupplier := new KMSUtils.LimitRegionsClientSupplier(baseClientSupplier, limitRegions);
     var excludedRegions: seq<string> := ["some-excluded-region", "another-excluded-region"];
@@ -183,7 +183,7 @@ module IntegTestKMS {
   }
 
   method {:test} TestEndToEnd_ExcludeRegionsClientSupplier_Failure_ConflictingLimitSuppliers() {
-    var baseClientSupplier := new KMSUtils.BaseClientSupplier();
+    var baseClientSupplier := new KMSUtils.BaseClientSupplier(Option.None, Option.None);
     var regions: seq<string> := [CURRENT_REGION];
     var excludeRegionsClientSupplier := new KMSUtils.ExcludeRegionsClientSupplier(baseClientSupplier, regions);
     var limitRegionsClientSupplier := new KMSUtils.LimitRegionsClientSupplier(excludeRegionsClientSupplier, regions);
