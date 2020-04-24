@@ -105,10 +105,9 @@ module {:extern "KMSUtils"} KMSUtils {
       decreases Repr
   }
 
-  // An implementation of an AWSKMSClientSupplier that takes in an existing AWSKMSClientSupplier as well as a seq of regions
-  // (strings). The LimitRegionsClientSupplier will only return an AWS KMS service client from the given
-  // AWSKMSClientSupplier if the region provided to GetClient(region) is in the list of regions associated with the
-  // LimitRegionsClientSupplier.
+  // An implementation of an AWSKMSClientSupplier that takes in an existing AWSKMSClientSupplier as well as a seq of regions (strings).
+  // The LimitRegionsClientSupplier will only return an AWS KMS service client from the given AWSKMSClientSupplier
+  // if the region provided to GetClient(region) is in the list of regions associated with the LimitRegionsClientSupplier.
   class LimitRegionsClientSupplier extends AWSKMSClientSupplier {
     const clientSupplier: AWSKMSClientSupplier
     const regions: seq<string>
@@ -153,10 +152,9 @@ module {:extern "KMSUtils"} KMSUtils {
     }
   }
 
-  // An implementation of an AWSKMSClientSupplier that takes in an existing AWSKMSClientSupplier as well as a seq of regions
-  // (strings). The ExcludeRegionsClientSupplier will only return an AWS KMS service client from the given
-  // AWSKMSClientSupplier if the region provided to GetClient(region) is not in the list of regions associated with the
-  // ExcludeRegionsClientSupplier.
+  // An implementation of an AWSKMSClientSupplier that takes in an existing AWSKMSClientSupplier as well as a seq of regions (strings).
+  // The ExcludeRegionsClientSupplier will only return an AWS KMS service client from the given AWSKMSClientSupplier
+  // if the region provided to GetClient(region) is not in the list of regions associated with the ExcludeRegionsClientSupplier.
   class ExcludeRegionsClientSupplier extends AWSKMSClientSupplier {
     const clientSupplier: AWSKMSClientSupplier
     const regions: seq<string>
