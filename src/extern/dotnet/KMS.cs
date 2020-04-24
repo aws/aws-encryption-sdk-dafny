@@ -150,9 +150,8 @@ namespace KMSUtils {
         }
 
         public KMS.AmazonKeyManagementServiceClient GetClient(string region) {
-            // DafnyFFI.NullableToOption returns an optional of a given type, so we need to convert from an external
-            // string to a Dafny string in the case where region != null. We cannot just
-            // perform DafnyFFI.NullableToOption(region) directly
+            // DafnyFFI.NullableToOption returns an optional of a given type, so we need to convert from an external string to a Dafny string in the case where region != null.
+            // We cannot just perform DafnyFFI.NullableToOption(region) directly
             STL.Option<IDString> dafnyRegion = DafnyFFI.NullableToOption<Dafny.ISequence<char>>(
                 region == null ? null : DafnyFFI.DafnyStringFromString(region));
             STL.Result<KMS.AmazonKeyManagementServiceClient> clientResult = this.clientSupplier.GetClient(dafnyRegion);
