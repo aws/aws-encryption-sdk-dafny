@@ -1,12 +1,8 @@
+include "AmazonKeyManagementService.dfy"
 include "../SDK/EncryptionContext.dfy"
 include "../StandardLibrary/StandardLibrary.dfy"
 include "../StandardLibrary/UInt.dfy"
 include "../Util/UTF8.dfy"
-
-// Add extern reference for a native AWS KMS service client
-module {:extern "Amazon.KeyManagementService"} AmazonKeyManagementService {
-  class {:extern "AmazonKeyManagementServiceClient"} AmazonKeyManagementServiceClient {}
-}
 
 module {:extern "KMSUtils"} KMSUtils {
   import EncryptionContext
