@@ -1,14 +1,26 @@
-# AWS Encryption SDK Dafny
+# AWS Encryption SDK Written in Dafny
 
 ![Build Status - master branch](https://codebuild.us-west-2.amazonaws.com/badges?uuid=eyJlbmNyeXB0ZWREYXRhIjoiVmIzeGwwQmY5bXdMQXg2aVBneWtDc3FHSWRHTjYrNnVUem9nNXJFUmY2Rk1yRnJvSjJvK3JCL2RScFRjSVF1UjA1elR3L0xpTVpiNmRZS0RyWjJpTnBFPSIsIml2UGFyYW1ldGVyU3BlYyI6InBBQm1tT1BPNjB3RU9XUS8iLCJtYXRlcmlhbFNldFNlcmlhbCI6MX0%3D&branch=master)
 
-AWS Encryption SDK for Dafny
+AWS Encryption SDK Written in Dafny for .NET
 
-## Building
+## Using the AWS Encryption SDK for .NET
+The AWS Encryption SDK is available on [NuGet](https://www.nuget.org/) and can referenced from an existing `.csproj` through typical ways.
+
+```
+<!-- TODO: Update with actual NuGet package name, the name below is just an example -->
+<PackageReference Include="AWS.EncryptionSDK" />
+```
+
+The Encryption SDK source has a target framework of [netstandard2.0](https://docs.microsoft.com/en-us/dotnet/standard/net-standard).
+
+## Building the AWS Encryption SDK Written in Dafny
 
 To build, the AWS Encryption SDK requires the most up to date version of [dafny](https://github.com/dafny-lang/dafny) on your PATH.
 
-Building and verifying also requires [dotnet 3.0](https://dotnet.microsoft.com/download/dotnet-core/3.0).
+The Encryption SDK source has a target framework of [netstandard2.0](https://docs.microsoft.com/en-us/dotnet/standard/net-standard).
+Tests and test vectors have a target framework of `netcoreapp3.0`, which is required for properly building and running tests.
+Therefore, building and verifying requires [dotnet 3.0](https://dotnet.microsoft.com/download/dotnet-core/3.0).
 
 To build all source files into one dll:
 
@@ -23,7 +35,7 @@ To run the dafny verifier across all files:
 dotnet build -t:VerifyDafny test
 ```
 
-## Testing
+## Testing the AWS Encryption SDK Written in Dafny
 
 Run the test suite with:
 
