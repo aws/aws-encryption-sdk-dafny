@@ -39,3 +39,4 @@ phases:
       - dotnet build -t:VerifyDafny test
       - dotnet test
       - dotnet test testVectors
+      - dotnet test examples/dotnet
