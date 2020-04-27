@@ -30,9 +30,9 @@ module TestCachingCMM {
   
   method {:test} TestGetEMMessagesLimit() {
     var tcmm := new Helpers.TestCMM();
-    var bytesLimit := 100;
-    var messagesLimit := 4;
-    var ccmm := new CachingCMMDef.CachingCMM.WithLimits(tcmm, SECONDS_TO_LIVE_LIMIT, bytesLimit, messagesLimit);
+    var messageLimit := 4;
+    var byteLimit := 100;
+    var ccmm := new CachingCMMDef.CachingCMM.WithLimits(tcmm, SECONDS_TO_LIVE_LIMIT, messageLimit, byteLimit);
 
     var encryptionContext := TestUtils.SmallEncryptionContext(TestUtils.SmallEncryptionContextVariation.AB);
     var eRequest := Materials.EncryptionMaterialsRequest(encryptionContext, Some(AlgorithmSuite.AES_128_GCM_IV12_TAG16_HKDF_SHA256_ECDSA_P256), Some(5));
@@ -40,14 +40,14 @@ module TestCachingCMM {
     Helpers.CallGetEM(ccmm, tcmm, eRequest, false);
     Helpers.CallGetEM(ccmm, tcmm, eRequest, true);
     Helpers.CallGetEM(ccmm, tcmm, eRequest, true);
-    Helpers.CallGetEM(ccmm, tcmm, eRequest, false);  // cache hit at first, but entry gets evicted due to messagesLimit, so it's effectively a miss
+    Helpers.CallGetEM(ccmm, tcmm, eRequest, false);  // cache hit at first, but entry gets evicted due to messageLimit, so it's effectively a miss
   }
 
   method {:test} TestGetEMBytesLimit() {
     var tcmm := new Helpers.TestCMM();
-    var bytesLimit := 100;
-    var messagesLimit := 1_000_000;
-    var ccmm := new CachingCMMDef.CachingCMM.WithLimits(tcmm, SECONDS_TO_LIVE_LIMIT, bytesLimit, messagesLimit);
+    var messageLimit := 1_000_000;
+    var byteLimit := 100;
+    var ccmm := new CachingCMMDef.CachingCMM.WithLimits(tcmm, SECONDS_TO_LIVE_LIMIT, messageLimit, byteLimit);
 
     var encryptionContext := TestUtils.SmallEncryptionContext(TestUtils.SmallEncryptionContextVariation.AB);
     var eRequest := Materials.EncryptionMaterialsRequest(encryptionContext, Some(AlgorithmSuite.AES_128_GCM_IV12_TAG16_HKDF_SHA256_ECDSA_P256), Some(29));
@@ -55,15 +55,14 @@ module TestCachingCMM {
     Helpers.CallGetEM(ccmm, tcmm, eRequest, false);  // cold cache, 29 bytes total
     Helpers.CallGetEM(ccmm, tcmm, eRequest, true);  // 58 bytes total
     Helpers.CallGetEM(ccmm, tcmm, eRequest, true);  // 87 bytes total
-    Helpers.CallGetEM(ccmm, tcmm, eRequest, false);  // cache hit, but entry gets evicted due to bytesLimit, so tcmm is called again
+    Helpers.CallGetEM(ccmm, tcmm, eRequest, false);  // cache hit, but entry gets evicted due to byteLimit, so tcmm is called again
   }
 
   method {:test} TestGetEMTimeLimit() {
     var tcmm := new Helpers.TestCMM();
     var timeToLiveLimit := 1;
-    var bytesLimit := 1_000_000;
-    var messagesLimit := 1_000_000;
-    var ccmm := new CachingCMMDef.CachingCMM.WithLimits(tcmm, timeToLiveLimit, bytesLimit, messagesLimit);
+    var messageLimit := 1_000_000;
+    var ccmm := new CachingCMMDef.CachingCMM.WithMessageLimit(tcmm, timeToLiveLimit, messageLimit);
 
     var encryptionContext := TestUtils.SmallEncryptionContext(TestUtils.SmallEncryptionContextVariation.AB);
     var eRequest := Materials.EncryptionMaterialsRequest(encryptionContext, Some(AlgorithmSuite.AES_128_GCM_IV12_TAG16_HKDF_SHA256_ECDSA_P256), Some(29));
@@ -113,9 +112,9 @@ module TestCachingCMM {
   
   method {:test} TestDMFlowLimit() {
     var tcmm := new Helpers.TestCMM();
-    var bytesLimit := 100;
-    var messagesLimit := 2;
-    var ccmm := new CachingCMMDef.CachingCMM.WithLimits(tcmm, SECONDS_TO_LIVE_LIMIT, bytesLimit, messagesLimit);
+    var messageLimit := 2;
+    var byteLimit := 100;
+    var ccmm := new CachingCMMDef.CachingCMM.WithLimits(tcmm, SECONDS_TO_LIVE_LIMIT, messageLimit, byteLimit);
 
     var encryptionContext := TestUtils.SmallEncryptionContext(TestUtils.SmallEncryptionContextVariation.Empty);
     var edk: Materials.ValidEncryptedDataKey := Materials.EncryptedDataKey([], [], []);
@@ -136,9 +135,8 @@ module TestCachingCMM {
   method {:test} TestDMTimeLimit() {
     var tcmm := new Helpers.TestCMM();
     var timeToLiveLimit := 1;
-    var bytesLimit := 1_000_000;
-    var messagesLimit := 1_000_000;
-    var ccmm := new CachingCMMDef.CachingCMM.WithLimits(tcmm, timeToLiveLimit, bytesLimit, messagesLimit);
+    var messageLimit := 1_000_000;
+    var ccmm := new CachingCMMDef.CachingCMM.WithMessageLimit(tcmm, timeToLiveLimit, messageLimit);
 
     var encryptionContext := TestUtils.SmallEncryptionContext(TestUtils.SmallEncryptionContextVariation.AB);
     var edk: Materials.ValidEncryptedDataKey := Materials.EncryptedDataKey([], [], []);

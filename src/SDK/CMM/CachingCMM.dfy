@@ -52,8 +52,8 @@ module {:extern "CachingCMMDef"} CachingCMMDef {
     const cmm: CMMDefs.CMM
     const cmc: CryptographicMaterialsCache
     const secondsToLiveLimit: nat
-    const bytesLimit: uint64
-    const messagesLimit: uint64
+    const messageLimit: uint64
+    const byteLimit: uint64
 
     predicate Valid()
       reads this, Repr
@@ -72,8 +72,8 @@ module {:extern "CachingCMMDef"} CachingCMMDef {
       ensures this.cmm == cmm
     {
       this.secondsToLiveLimit := secondsToLiveLimit;
-      this.bytesLimit := DEFAULT_BYTE_USE_LIMIT_PER_CACHED_KEY;
-      this.messagesLimit := DEFAULT_MESSAGE_USE_LIMIT_PER_CACHED_KEY;
+      this.messageLimit := DEFAULT_MESSAGE_USE_LIMIT_PER_CACHED_KEY;
+      this.byteLimit := DEFAULT_BYTE_USE_LIMIT_PER_CACHED_KEY;
 
       this.cmm := cmm;
       var cmc := new CryptographicMaterialsCache();
@@ -82,15 +82,32 @@ module {:extern "CachingCMMDef"} CachingCMMDef {
       Repr := {this} + cmm.Repr + cmc.Repr;
     }
 
-    constructor WithLimits(cmm: CMMDefs.CMM, secondsToLiveLimit: nat, bytesLimit: uint64, messagesLimit: uint64)
+    constructor WithMessageLimit(cmm: CMMDefs.CMM, secondsToLiveLimit: nat, messageLimit: uint64)
       requires cmm.Valid() && secondsToLiveLimit != 0
       ensures Valid() && fresh(Repr - old(cmm.Repr))
       ensures this.cmm == cmm
-      ensures this.secondsToLiveLimit == secondsToLiveLimit && this.bytesLimit == bytesLimit && this.messagesLimit == messagesLimit
+      ensures this.secondsToLiveLimit == secondsToLiveLimit && this.messageLimit == messageLimit
     {
       this.secondsToLiveLimit := secondsToLiveLimit;
-      this.bytesLimit := bytesLimit;
-      this.messagesLimit := messagesLimit;
+      this.messageLimit := messageLimit;
+      this.byteLimit := DEFAULT_BYTE_USE_LIMIT_PER_CACHED_KEY;
+
+      this.cmm := cmm;
+      var cmc := new CryptographicMaterialsCache();
+      assert cmc in cmc.Repr;
+      this.cmc := cmc;
+      Repr := {this} + cmm.Repr + cmc.Repr;
+    }
+
+    constructor WithLimits(cmm: CMMDefs.CMM, secondsToLiveLimit: nat, messageLimit: uint64, byteLimit: uint64)
+      requires cmm.Valid() && secondsToLiveLimit != 0
+      ensures Valid() && fresh(Repr - old(cmm.Repr))
+      ensures this.cmm == cmm
+      ensures this.secondsToLiveLimit == secondsToLiveLimit && this.messageLimit == messageLimit && this.byteLimit == byteLimit
+    {
+      this.secondsToLiveLimit := secondsToLiveLimit;
+      this.messageLimit := messageLimit;
+      this.byteLimit := byteLimit;
 
       this.cmm := cmm;
       var cmc := new CryptographicMaterialsCache();
@@ -107,7 +124,7 @@ module {:extern "CachingCMMDef"} CachingCMMDef {
       ensures res.Success? ==> res.value.plaintextDataKey.Some? && res.value.Serializable()
     {
       if materialsRequest.plaintextLength.None?
-      || bytesLimit as int < materialsRequest.plaintextLength.get
+      || byteLimit as int < materialsRequest.plaintextLength.get
       || (materialsRequest.algorithmSuiteID.Some? && materialsRequest.algorithmSuiteID.get.ContainsIdentityKDF())
       {
         // Get encryption materials from the underlying CMM.
@@ -129,8 +146,8 @@ module {:extern "CachingCMMDef"} CachingCMMDef {
         entry.IncrementUse(materialsRequest.plaintextLength.get);
         var currentTime := Time.GetCurrent();
         if entry.expiryTime <= currentTime
-        || bytesLimit as nat < entry.bytesEncrypted
-        || messagesLimit as nat <= entry.messagesEncrypted
+        || messageLimit as nat <= entry.messagesEncrypted
+        || byteLimit as nat < entry.bytesEncrypted
         {
           // Note, the specification says to treat these numbers as uint64, but the Java ESDK
           // treats them as signed int64.
