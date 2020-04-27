@@ -31,7 +31,7 @@ module {:extern "KMSUtils"} KMSUtils {
     var components := Split(cmk, ':');
     UTF8.IsASCIIString(cmk) && 0 < |cmk| <= 2048 && |components| == 6 && components[0] == "arn" && components[2] == "kms" && Split(components[5], '/')[0] == "alias"
   }
-  
+
   type GrantToken = s: string | 0 < |s| <= 8192 witness "witness"
 
   datatype ResponseMetadata = ResponseMetadata(metadata: map<string, string>, requestID: string)

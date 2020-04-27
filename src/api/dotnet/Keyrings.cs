@@ -29,7 +29,7 @@ namespace AWSEncryptionSDK
             }
             KMSKeyring result = new KMSKeyring();
             result.__ctor(
-                clientSupplier, 
+                clientSupplier,
                 Dafny.Sequence<icharseq>.FromElements(),
                 DafnyFFI.NullableToOption(generator != null ? DafnyFFI.DafnyStringFromString(generator) : null),
                 Dafny.Sequence<icharseq>.FromElements(convertedTokens));

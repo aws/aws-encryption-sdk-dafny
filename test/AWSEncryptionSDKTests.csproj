@@ -14,11 +14,11 @@
     <PackageReference Include="coverlet.collector" Version="1.0.1" />
   </ItemGroup>
 
-  <!-- 
+  <!--
     TODO: We should be able to just reference the source project, but that doesn't work
     well for Dafny yet: external C# code will be compiled and referrable, but the way we
     are currently writing external code requires that the external C# code is actually compiled
-    together with the C# code generated from Dafny at the same time. 
+    together with the C# code generated from Dafny at the same time.
     For now we just inline the referenced project's source and dependencies.
 
   <ItemGroup>
@@ -56,5 +56,5 @@
   <Target Name="CleanLitOutput" BeforeTargets="CoreCompile">
     <Delete Files="@(LitOutputFiles)" />
   </Target>
-  
+
 </Project>

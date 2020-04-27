@@ -37,22 +37,22 @@ module HKDF {
   }
 
   // T is relational since the external hashMethod hmac.GetKey() ensures that the input and output of the hash method are in the relation hmac.HashSignature
-  // T depends on Ti and Ti depends on hmac.HashSignature 
+  // T depends on Ti and Ti depends on hmac.HashSignature
   predicate T(hmac: HMac, info: seq<uint8>, n: nat, res: seq<uint8>)
-    requires 0 <= n < 256	
+    requires 0 <= n < 256
     decreases n
-  {	
-    if n == 0 then 
+  {
+    if n == 0 then
       [] == res
-    else 
-      exists prev1, prev2 :: T(hmac, info, n-1, prev1) && Ti(hmac, info, n, prev2) && prev1 + prev2 == res	
+    else
+      exists prev1, prev2 :: T(hmac, info, n-1, prev1) && Ti(hmac, info, n, prev2) && prev1 + prev2 == res
   }
 
   predicate Ti(hmac: HMac, info: seq<uint8>, n: nat, res: seq<uint8>)
     requires 0 <= n < 256
     decreases n, 1
   {
-    if n == 0 then 
+    if n == 0 then
       res == []
     else
       exists prev :: PreTi(hmac, info, n, prev) &&  hmac.HashSignature(prev, res)
@@ -111,12 +111,12 @@ module HKDF {
       hmac.Update(t_prev);
       hmac.Update(info);
       hmac.Update([i as uint8]);
-      assert hmac.GetInputSoFar() == t_prev + info + [i as uint8];  
+      assert hmac.GetInputSoFar() == t_prev + info + [i as uint8];
 
       // Add additional verification for T(n): github.com/awslabs/aws-encryption-sdk-dafny/issues/177
-      t_prev := hmac.GetResult(); 
+      t_prev := hmac.GetResult();
       // t_n == T(i - 1)
-      assert T(hmac, info, i - 1, t_n); 
+      assert T(hmac, info, i - 1, t_n);
       assert Ti(hmac, info, i, t_prev) ;
 
       t_n := t_n + t_prev;

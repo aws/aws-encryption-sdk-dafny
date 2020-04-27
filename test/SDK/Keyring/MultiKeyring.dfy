@@ -74,7 +74,7 @@ module TestMultiKeying {
     var encryptionContext := TestUtils.SmallEncryptionContext(TestUtils.SmallEncryptionContextVariation.A);
     var child1Namespace, child1Name := TestUtils.NamespaceAndName(1);
     var child2namespace, child2Name := TestUtils.NamespaceAndName(2);
-    
+
     var child1Keyring := new RawAESKeyringDef.RawAESKeyring(child1Namespace, child1Name, seq(32, i => 0), EncryptionSuites.AES_GCM_256);
     var child2Keyring := new RawAESKeyringDef.RawAESKeyring(child2namespace, child2Name, seq(32, i => 0), EncryptionSuites.AES_GCM_256);
     var algorithmSuiteID := AlgorithmSuite.AES_256_GCM_IV12_TAG16_HKDF_SHA384_ECDSA_P384;
@@ -84,7 +84,7 @@ module TestMultiKeying {
 
     var pdk := seq(32, i => 0);
     var traceEntry := Materials.KeyringTraceEntry([], [], {Materials.GENERATED_DATA_KEY});
-    
+
     // Encryption
     var encryptionMaterialsIn := Materials.EncryptionMaterials.WithoutDataKeys(encryptionContext, algorithmSuiteID, Some(signingKey))
                                                               .WithKeys(Some(pdk), [], [traceEntry]);
@@ -128,7 +128,7 @@ module TestMultiKeying {
     var multiKeyring := new MultiKeyringDef.MultiKeyring(child1Keyring, [child2Keyring]);
     var algorithmSuiteID := AlgorithmSuite.AES_256_GCM_IV12_TAG16_HKDF_SHA384_ECDSA_P384;
     var signingKey := seq(32, i => 0);
-    
+
     // Encryption
     var encryptionMaterialsIn := Materials.EncryptionMaterials.WithoutDataKeys(encryptionContext, algorithmSuiteID, Some(signingKey));
     var encryptionMaterialsOut := multiKeyring.OnEncrypt(encryptionMaterialsIn);

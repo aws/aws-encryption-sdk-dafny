@@ -53,7 +53,7 @@ namespace TestVectorTests {
             JToken keys = keyManifest["keys"];
             if (keys == null) {
                 throw new ArgumentException($"Key file malformed: missing \"keys\" field");
-            } 
+            }
             return keys.ToObject<Dictionary<string, Key>>();
         }
 
@@ -63,16 +63,16 @@ namespace TestVectorTests {
             }
             string contents = System.IO.File.ReadAllText(path);
             JObject manifest = JObject.Parse(contents);
-            
+
             JToken tests = manifest["tests"];
             if (tests == null) {
                 throw new ArgumentException($"Manifest file malformed: missing \"tests\" field");
-            } 
+            }
 
             JToken keys = manifest["keys"];
             if (keys == null) {
                 throw new ArgumentException($"Manifest file malformed: missing \"keys\" field");
-            } 
+            }
 
             return new Manifest(tests.ToObject<Dictionary<string, TestVector>>(), keys.ToString());
         }
@@ -115,7 +115,7 @@ namespace TestVectorTests {
             foreach(var vectorEntry in vectorMap) {
                 string vectorID = vectorEntry.Key;
                 TestVector vector = vectorEntry.Value;
-                
+
                 string plaintextPath = ManifestURIToPath(vector.plaintext, vectorRoot);
                 if (!File.Exists(plaintextPath)) {
                     throw new ArgumentException($"Could not find plaintext file at path: {plaintextPath}");
@@ -269,7 +269,7 @@ namespace TestVectorTests {
             this.vectorMap = vectorMap;
             this.keys = keys;
         }
-    } 
+    }
 
     public class TestVectorDecryptTests {
         #pragma warning disable xUnit1026 // Suppress Unused argument warnings for vectorID.
