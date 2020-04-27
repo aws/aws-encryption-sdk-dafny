@@ -14,7 +14,7 @@ namespace KMSUtils {
     // ClientHelper represents a class containing Dafny KMS extern functionality
     public partial class ClientHelper {
         // GetDefaultAWSKMSClientExtern get a KMS service client from an optional region
-        public static STL.Result<KMS.AmazonKeyManagementServiceClient> GetDefaultAWSKMSServiceClientExtern(STL.Option<IDString> region) {
+        public static STL.Result<KMS.IAmazonKeyManagementService> GetDefaultAWSKMSServiceClientExtern(STL.Option<IDString> region) {
             KMS.AmazonKeyManagementServiceClient client;
             if (region.is_Some) {
                 string regionString = DafnyFFI.StringFromDafnyString(((STL.Option_Some<IDString>)region).get);
@@ -23,11 +23,11 @@ namespace KMSUtils {
             } else {
                 client = new KMS.AmazonKeyManagementServiceClient();
             }
-            return STL.Result<KMS.AmazonKeyManagementServiceClient>.create_Success(client);
+            return STL.Result<KMS.IAmazonKeyManagementService>.create_Success(client);
         }
 
         // GenerateDataKey calls the given KMS client's GenerateDataKeyAsync API
-        public static STL.Result<GenerateDataKeyResponse> GenerateDataKey(KMS.AmazonKeyManagementServiceClient client, GenerateDataKeyRequest request) {
+        public static STL.Result<GenerateDataKeyResponse> GenerateDataKey(KMS.IAmazonKeyManagementService client, GenerateDataKeyRequest request) {
             if (client == null) {
                 return STL.Result<GenerateDataKeyResponse>.create_Failure(DafnyFFI.DafnyStringFromString("Null AmazonKeyManagementServiceClient provided"));
             }
@@ -60,7 +60,7 @@ namespace KMSUtils {
         }
 
         // Encrypt calls the given KMS client's EncryptAsync API
-        public static STL.Result<EncryptResponse> Encrypt(KMS.AmazonKeyManagementServiceClient client, EncryptRequest request) {
+        public static STL.Result<EncryptResponse> Encrypt(KMS.IAmazonKeyManagementService client, EncryptRequest request) {
             if (client == null) {
                 return STL.Result<EncryptResponse>.create_Failure(DafnyFFI.DafnyStringFromString("Null AmazonKeyManagementServiceClient provided"));
             }
@@ -92,7 +92,7 @@ namespace KMSUtils {
         }
 
         // Decrypt calls the given KMS client's DecryptAsync API
-        public static STL.Result<DecryptResponse> Decrypt(KMS.AmazonKeyManagementServiceClient client, DecryptRequest request) {
+        public static STL.Result<DecryptResponse> Decrypt(KMS.IAmazonKeyManagementService client, DecryptRequest request) {
             if (client == null) {
                 return STL.Result<DecryptResponse>.create_Failure(DafnyFFI.DafnyStringFromString("Null AmazonKeyManagementServiceClient provided"));
             }
@@ -149,12 +149,12 @@ namespace KMSUtils {
             this.clientSupplier = clientSupplier;
         }
 
-        public KMS.AmazonKeyManagementServiceClient GetClient(string region) {
+        public KMS.IAmazonKeyManagementService GetClient(string region) {
             // DafnyFFI.NullableToOption returns an optional of a given type, so we need to convert from an external string to a Dafny string in the case where region != null.
             // We cannot just perform DafnyFFI.NullableToOption(region) directly
             STL.Option<IDString> dafnyRegion = DafnyFFI.NullableToOption<Dafny.ISequence<char>>(
                 region == null ? null : DafnyFFI.DafnyStringFromString(region));
-            STL.Result<KMS.AmazonKeyManagementServiceClient> clientResult = this.clientSupplier.GetClient(dafnyRegion);
+            STL.Result<KMS.IAmazonKeyManagementService> clientResult = this.clientSupplier.GetClient(dafnyRegion);
             if (clientResult.is_Success) {
                 return clientResult.dtor_value;
             } else {
@@ -172,9 +172,9 @@ namespace KMSUtils {
             this.clientSupplier = clientSupplier;
         }
 
-        public STL.Result<KMS.AmazonKeyManagementServiceClient> GetClient(STL.Option<IDString> region) {
+        public STL.Result<KMS.IAmazonKeyManagementService> GetClient(STL.Option<IDString> region) {
             try {
-                KMS.AmazonKeyManagementServiceClient client;
+                KMS.IAmazonKeyManagementService client;
                 if (region.is_None) {
                     client = clientSupplier.GetClient(null);
                 } else {
@@ -182,13 +182,13 @@ namespace KMSUtils {
                     client = clientSupplier.GetClient(regionString);
                 }
                 return (client != null)
-                    ? STL.Result<KMS.AmazonKeyManagementServiceClient>.create_Success(client)
-                    : STL.Result<KMS.AmazonKeyManagementServiceClient>.create_Failure(
+                    ? STL.Result<KMS.IAmazonKeyManagementService>.create_Success(client)
+                    : STL.Result<KMS.IAmazonKeyManagementService>.create_Failure(
                         DafnyFFI.DafnyStringFromString(
                             String.Format("Unable to obtain AmazonKeyManagementServiceClient for region: {0}", region)));
             } catch(Exception e) {
                 // By catching Exception, Dafny can handle failures accordingly, using a Failure Result
-                return STL.Result<KMS.AmazonKeyManagementServiceClient>.create_Failure(DafnyFFI.DafnyStringFromString(e.Message));
+                return STL.Result<KMS.IAmazonKeyManagementService>.create_Failure(DafnyFFI.DafnyStringFromString(e.Message));
             }
         }
     }

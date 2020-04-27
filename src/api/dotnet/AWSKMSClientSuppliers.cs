@@ -8,7 +8,7 @@ using Amazon.KeyManagementService;
 namespace AWSEncryptionSDK
 {
     public interface AWSKMSClientSupplier {
-        AmazonKeyManagementServiceClient GetClient(string region);
+        IAmazonKeyManagementService GetClient(string region);
     }
 
     public class AWSKMSClientSupplierException : Exception

@@ -77,15 +77,15 @@ module {:extern "KMSUtils"} KMSUtils {
 
   datatype DecryptResponse = DecryptResponse(contentLength: int, httpStatusCode: HttpStatusCode, keyID: string, plaintext: seq<uint8>, responseMetadata: ResponseMetadata)
 
-  method {:extern "KMSUtils.ClientHelper", "GetDefaultAWSKMSServiceClientExtern"} GetDefaultAWSKMSServiceClientExtern(region: Option<string>) returns (res: Result<AmazonKeyManagementServiceClient>)
+  method {:extern "KMSUtils.ClientHelper", "GetDefaultAWSKMSServiceClientExtern"} GetDefaultAWSKMSServiceClientExtern(region: Option<string>) returns (res: Result<IAmazonKeyManagementService>)
 
-  method {:extern "KMSUtils.ClientHelper", "GenerateDataKey"} GenerateDataKey(client: AmazonKeyManagementServiceClient, request: GenerateDataKeyRequest) returns (res: Result<GenerateDataKeyResponse>)
+  method {:extern "KMSUtils.ClientHelper", "GenerateDataKey"} GenerateDataKey(client: IAmazonKeyManagementService, request: GenerateDataKeyRequest) returns (res: Result<GenerateDataKeyResponse>)
     requires request.Valid()
 
-  method {:extern "KMSUtils.ClientHelper", "Encrypt"} Encrypt(client: AmazonKeyManagementServiceClient, request: EncryptRequest) returns (res: Result<EncryptResponse>)
+  method {:extern "KMSUtils.ClientHelper", "Encrypt"} Encrypt(client: IAmazonKeyManagementService, request: EncryptRequest) returns (res: Result<EncryptResponse>)
     requires request.Valid()
 
-  method {:extern "KMSUtils.ClientHelper", "Decrypt"} Decrypt(client: AmazonKeyManagementServiceClient, request: DecryptRequest) returns (res: Result<DecryptResponse>)
+  method {:extern "KMSUtils.ClientHelper", "Decrypt"} Decrypt(client: IAmazonKeyManagementService, request: DecryptRequest) returns (res: Result<DecryptResponse>)
     requires request.Valid()
 
   trait {:extern "AWSKMSClientSupplier"} AWSKMSClientSupplier {
@@ -95,7 +95,7 @@ module {:extern "KMSUtils"} KMSUtils {
       reads this, Repr
       ensures Valid() ==> this in Repr
 
-    method GetClient(region: Option<string>) returns (res: Result<AmazonKeyManagementServiceClient>)
+    method GetClient(region: Option<string>) returns (res: Result<IAmazonKeyManagementService>)
       requires Valid()
       ensures Valid()
       decreases Repr
@@ -127,7 +127,7 @@ module {:extern "KMSUtils"} KMSUtils {
       Repr := {this} + clientSupplier.Repr;
     }
 
-    method GetClient(region: Option<string>) returns (res: Result<AmazonKeyManagementServiceClient>)
+    method GetClient(region: Option<string>) returns (res: Result<IAmazonKeyManagementService>)
       requires Valid()
       ensures Valid()
       // Verify this behavior with the spec. TODO: https://github.com/awslabs/aws-encryption-sdk-dafny/issues/272
@@ -174,7 +174,7 @@ module {:extern "KMSUtils"} KMSUtils {
       Repr := {this} + clientSupplier.Repr;
     }
 
-    method GetClient(region: Option<string>) returns (res: Result<AmazonKeyManagementServiceClient>)
+    method GetClient(region: Option<string>) returns (res: Result<IAmazonKeyManagementService>)
       requires Valid()
       ensures Valid()
       // Verify this behavior with the spec. TODO: https://github.com/awslabs/aws-encryption-sdk-dafny/issues/272
@@ -210,7 +210,7 @@ module {:extern "KMSUtils"} KMSUtils {
     }
 
     // Since this is the base client supplier, this just calls the extern GetClient method
-    method GetClient(region: Option<string>) returns (res: Result<AmazonKeyManagementServiceClient>)
+    method GetClient(region: Option<string>) returns (res: Result<IAmazonKeyManagementService>)
       requires Valid()
       ensures Valid()
       decreases Repr
