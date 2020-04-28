@@ -88,7 +88,7 @@ module {:extern "KMSUtils"} KMSUtils {
   method {:extern "KMSUtils.ClientHelper", "Decrypt"} Decrypt(client: IAmazonKeyManagementService, request: DecryptRequest) returns (res: Result<DecryptResponse>)
     requires request.Valid()
 
-  trait {:extern "AWSKMSClientSupplier"} AWSKMSClientSupplier {
+  trait {:extern "DafnyAWSKMSClientSupplier"} DafnyAWSKMSClientSupplier {
     ghost var Repr: set<object>
 
     predicate Valid()
@@ -101,11 +101,11 @@ module {:extern "KMSUtils"} KMSUtils {
       decreases Repr
   }
 
-  // An implementation of an AWSKMSClientSupplier that takes in an existing AWSKMSClientSupplier as well as a seq of regions (strings).
-  // The LimitRegionsClientSupplier will only return an AWS KMS service client from the given AWSKMSClientSupplier
+  // An implementation of a DafnyAWSKMSClientSupplier that takes in an existing DafnyAWSKMSClientSupplier as well as a seq of regions (strings).
+  // The LimitRegionsClientSupplier will only return an AWS KMS service client from the given DafnyAWSKMSClientSupplier
   // if the region provided to GetClient(region) is in the list of regions associated with the LimitRegionsClientSupplier.
-  class LimitRegionsClientSupplier extends AWSKMSClientSupplier {
-    const clientSupplier: AWSKMSClientSupplier
+  class LimitRegionsClientSupplier extends DafnyAWSKMSClientSupplier {
+    const clientSupplier: DafnyAWSKMSClientSupplier
     const regions: seq<string>
 
     predicate Valid()
@@ -116,7 +116,7 @@ module {:extern "KMSUtils"} KMSUtils {
       clientSupplier in Repr && clientSupplier.Repr <= Repr && this !in clientSupplier.Repr && clientSupplier.Valid()
     }
 
-    constructor(clientSupplier: AWSKMSClientSupplier, regions: seq<string>)
+    constructor(clientSupplier: DafnyAWSKMSClientSupplier, regions: seq<string>)
       requires clientSupplier.Valid()
       ensures this.clientSupplier == clientSupplier
       ensures this.regions == regions
@@ -148,11 +148,11 @@ module {:extern "KMSUtils"} KMSUtils {
     }
   }
 
-  // An implementation of an AWSKMSClientSupplier that takes in an existing AWSKMSClientSupplier as well as a seq of regions (strings).
-  // The ExcludeRegionsClientSupplier will only return an AWS KMS service client from the given AWSKMSClientSupplier
+  // An implementation of a DafnyAWSKMSClientSupplier that takes in an existing DafnyAWSKMSClientSupplier as well as a seq of regions (strings).
+  // The ExcludeRegionsClientSupplier will only return an AWS KMS service client from the given DafnyAWSKMSClientSupplier
   // if the region provided to GetClient(region) is not in the list of regions associated with the ExcludeRegionsClientSupplier.
-  class ExcludeRegionsClientSupplier extends AWSKMSClientSupplier {
-    const clientSupplier: AWSKMSClientSupplier
+  class ExcludeRegionsClientSupplier extends DafnyAWSKMSClientSupplier {
+    const clientSupplier: DafnyAWSKMSClientSupplier
     const regions: seq<string>
 
     predicate Valid()
@@ -163,7 +163,7 @@ module {:extern "KMSUtils"} KMSUtils {
       clientSupplier in Repr && clientSupplier.Repr <= Repr && this !in clientSupplier.Repr && clientSupplier.Valid()
     }
 
-    constructor(clientSupplier: AWSKMSClientSupplier, regions: seq<string>)
+    constructor(clientSupplier: DafnyAWSKMSClientSupplier, regions: seq<string>)
       requires clientSupplier.Valid()
       ensures this.clientSupplier == clientSupplier
       ensures this.regions == regions
@@ -195,7 +195,7 @@ module {:extern "KMSUtils"} KMSUtils {
     }
   }
 
-  class BaseClientSupplier extends AWSKMSClientSupplier {
+  class BaseClientSupplier extends DafnyAWSKMSClientSupplier {
     predicate Valid()
       reads this, Repr
       ensures Valid() ==> this in Repr

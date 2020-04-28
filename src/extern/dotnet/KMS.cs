@@ -140,12 +140,12 @@ namespace KMSUtils {
         }
     }
 
-    // DafnyAWSKMSClientSupplierWrapper is used to allow a Dafny AWSKMSClientSupplier to be used from a native context
-    // Essentially, DafnyAWSKMSClientSupplierWrapper acts as a wrapper of a Dafny AWSKMSClientSupplier
-    public partial class DafnyAWSKMSClientSupplierWrapper : AWSEncryptionSDK.AWSKMSClientSupplier {
-        readonly private AWSKMSClientSupplier clientSupplier;
+    // DafnyAWSKMSClientSupplierAsNative is used to allow a DafnyAWSKMSClientSupplier to be used from a native context (implement AWSKMSClientSupplier)
+    // Essentially, DafnyAWSKMSClientSupplierAsNative acts as a wrapper of a DafnyAWSKMSClientSupplier
+    public partial class DafnyAWSKMSClientSupplierAsNative : AWSEncryptionSDK.AWSKMSClientSupplier {
+        readonly private DafnyAWSKMSClientSupplier clientSupplier;
 
-        public DafnyAWSKMSClientSupplierWrapper(AWSKMSClientSupplier clientSupplier) {
+        public DafnyAWSKMSClientSupplierAsNative(DafnyAWSKMSClientSupplier clientSupplier) {
             this.clientSupplier = clientSupplier;
         }
 
@@ -163,12 +163,12 @@ namespace KMSUtils {
         }
     }
 
-    // AWSKMSClientSupplierWrapper is used to allow a native AWSKMSClientSupplier to be used from a Dafny context
-    // Essentially, AWSKMSClientSupplierWrapper acts a wrapper of AWSEncryptionSDK.AWSKMSClientSupplier
-    public partial class AWSKMSClientSupplierWrapper : AWSKMSClientSupplier {
+    // AWSKMSClientSupplierAsDafny is used to allow a native AWSKMSClientSupplier to be used from a Dafny context (implement DafnyAWSKMSClientSupplier)
+    // Essentially, AWSKMSClientSupplierAsDafny acts a wrapper of AWSEncryptionSDK.AWSKMSClientSupplier
+    public partial class AWSKMSClientSupplierAsDafny : DafnyAWSKMSClientSupplier {
         readonly private AWSEncryptionSDK.AWSKMSClientSupplier clientSupplier;
 
-        public AWSKMSClientSupplierWrapper(AWSEncryptionSDK.AWSKMSClientSupplier clientSupplier) {
+        public AWSKMSClientSupplierAsDafny(AWSEncryptionSDK.AWSKMSClientSupplier clientSupplier) {
             this.clientSupplier = clientSupplier;
         }
 

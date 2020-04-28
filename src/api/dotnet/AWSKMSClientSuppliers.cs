@@ -32,7 +32,7 @@ namespace AWSEncryptionSDK
             // and then manually call __ctor() to call the required constructor
             KMSUtils.BaseClientSupplier clientSupplier = new KMSUtils.BaseClientSupplier();
             clientSupplier.__ctor();
-            return new KMSUtils.DafnyAWSKMSClientSupplierWrapper(clientSupplier);
+            return new KMSUtils.DafnyAWSKMSClientSupplierAsNative(clientSupplier);
         }
 
         // An implementation of an AWSKMSClientSupplier that takes in an existing AWSKMSClientSupplier as well as an enumerable of region strings.
@@ -45,9 +45,9 @@ namespace AWSEncryptionSDK
             KMSUtils.LimitRegionsClientSupplier limitRegionsclientSupplier = new KMSUtils.LimitRegionsClientSupplier();
             var convertedRegions = regions.Select(DafnyFFI.DafnyStringFromString).ToArray();
             limitRegionsclientSupplier.__ctor(
-                new KMSUtils.AWSKMSClientSupplierWrapper(clientSupplier),
+                new KMSUtils.AWSKMSClientSupplierAsDafny(clientSupplier),
                 Dafny.Sequence<icharseq>.FromElements(convertedRegions));
-            return new KMSUtils.DafnyAWSKMSClientSupplierWrapper(limitRegionsclientSupplier);
+            return new KMSUtils.DafnyAWSKMSClientSupplierAsNative(limitRegionsclientSupplier);
         }
 
         // An implementation of an AWSKMSClientSupplier that takes in an existing AWSKMSClientSupplier as well as an enumerable of region strings.
@@ -60,9 +60,9 @@ namespace AWSEncryptionSDK
             KMSUtils.ExcludeRegionsClientSupplier excludeRegionsclientSupplier = new KMSUtils.ExcludeRegionsClientSupplier();
             var convertedRegions = regions.Select(DafnyFFI.DafnyStringFromString).ToArray();
             excludeRegionsclientSupplier.__ctor(
-                new KMSUtils.AWSKMSClientSupplierWrapper(clientSupplier),
+                new KMSUtils.AWSKMSClientSupplierAsDafny(clientSupplier),
                 Dafny.Sequence<icharseq>.FromElements(convertedRegions));
-            return new KMSUtils.DafnyAWSKMSClientSupplierWrapper(excludeRegionsclientSupplier);
+            return new KMSUtils.DafnyAWSKMSClientSupplierAsNative(excludeRegionsclientSupplier);
         }
     }
 }

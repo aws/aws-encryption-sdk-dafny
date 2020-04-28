@@ -25,7 +25,7 @@ module {:extern "KMSKeyringDef"} KMSKeyringDef {
 
   class KMSKeyring extends KeyringDefs.Keyring {
 
-    const clientSupplier: KMSUtils.AWSKMSClientSupplier
+    const clientSupplier: KMSUtils.DafnyAWSKMSClientSupplier
     const keyIDs: seq<KMSUtils.CustomerMasterKey>
     const generator: Option<KMSUtils.CustomerMasterKey>
     const grantTokens: seq<KMSUtils.GrantToken>
@@ -41,7 +41,7 @@ module {:extern "KMSKeyringDef"} KMSKeyringDef {
       && (clientSupplier in Repr && clientSupplier.Repr <= Repr && this !in clientSupplier.Repr && clientSupplier.Valid())
     }
 
-    constructor (clientSupplier: KMSUtils.AWSKMSClientSupplier, keyIDs: seq<KMSUtils.CustomerMasterKey>, generator: Option<KMSUtils.CustomerMasterKey>, grantTokens: seq<KMSUtils.GrantToken>)
+    constructor (clientSupplier: KMSUtils.DafnyAWSKMSClientSupplier, keyIDs: seq<KMSUtils.CustomerMasterKey>, generator: Option<KMSUtils.CustomerMasterKey>, grantTokens: seq<KMSUtils.GrantToken>)
       requires clientSupplier.Valid()
       requires 0 <= |grantTokens| <= KMSUtils.MAX_GRANT_TOKENS
       ensures this.clientSupplier == clientSupplier
