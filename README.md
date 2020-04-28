@@ -37,6 +37,17 @@ Instructions for setting up AWS credentials are available in the AWS Docs for th
 
 ## Testing
 
+### Configure AWS credentials
+
+To run the test suite you must first set up AWS credentials for use with the AWS SDK.
+This is required in order to run the integration tests, which use a KMS Keyring against a publicaly accessible KMS CMK.
+
+Instructions for setting up AWS credentials are available in the AWS Docs for the AWS SDK in your language:
+
+- [.NET](https://docs.aws.amazon.com/sdk-for-net/v3/developer-guide/net-dg-config-creds.html)
+
+### Run the tests
+
 Run the test suite with:
 
 ```
