@@ -170,12 +170,11 @@ module TestCachingCMM {
     dRequest := Materials.DecryptionMaterialsRequest(AlgorithmSuite.AES_128_GCM_IV12_TAG16_HKDF_SHA256_ECDSA_P256, [edk], emptyEncryptionContext);
     Helpers.CallDM(ccmm, tcmm, dRequest, false);
 
-    // going back to a previous request
-    dRequest := Materials.DecryptionMaterialsRequest(AlgorithmSuite.AES_128_GCM_IV12_TAG16_HKDF_SHA256_ECDSA_P256, [edk], encryptionContext);
-    Helpers.CallDM(ccmm, tcmm, dRequest, true);
+    var edk' := Materials.EncryptedDataKey([], [82, 83], [84, 85]);  // different EDK
+    dRequest := Materials.DecryptionMaterialsRequest(AlgorithmSuite.AES_128_GCM_IV12_TAG16_HKDF_SHA256_ECDSA_P256, [edk'], encryptionContext);
+    Helpers.CallDM(ccmm, tcmm, dRequest, false);
 
-    // the cache is insensitive to the given list of EDKs, so changing the EDK should still give a cache hit
-    edk := Materials.EncryptedDataKey([], [82, 83], [84, 85]);
+    // going back to a previous request
     dRequest := Materials.DecryptionMaterialsRequest(AlgorithmSuite.AES_128_GCM_IV12_TAG16_HKDF_SHA256_ECDSA_P256, [edk], encryptionContext);
     Helpers.CallDM(ccmm, tcmm, dRequest, true);
   }

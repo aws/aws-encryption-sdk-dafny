@@ -8,7 +8,9 @@ include "../../Crypto/Digest.dfy"
 include "../../Crypto/Signature.dfy"
 include "../../Util/Streams.dfy"
 include "../Serialize.dfy"
+include "../MessageHeader.dfy"
 include "../../Util/Time.dfy"
+include "../../Util/Sorting.dfy"
 
 module {:extern "CachingCMMDef"} CachingCMMDef {
   import opened StandardLibrary
@@ -21,7 +23,9 @@ module {:extern "CachingCMMDef"} CachingCMMDef {
   import Signature
   import Streams
   import Serialize
+  import MessageHeader
   import Time
+  import Sorting
 
   // The specification says:
   //  -- the default bytes limit must not exceed 2^63 - 1
@@ -138,7 +142,7 @@ module {:extern "CachingCMMDef"} CachingCMMDef {
         return Failure("Invalid Encryption Context");
       }
 
-      var cacheID :- ComputeCacheID(materialsRequest.algorithmSuiteID, materialsRequest.encryptionContext);
+      var cacheID :- ComputeCacheIDForEncrypt(materialsRequest.algorithmSuiteID, materialsRequest.encryptionContext);
 
       var entry := cmc.LookupEncrypt(cacheID);
       Repr := Repr + cmc.Repr;
@@ -183,7 +187,7 @@ module {:extern "CachingCMMDef"} CachingCMMDef {
         return Failure("Invalid Encryption Context");
       }
 
-      var cacheID :- ComputeCacheID(Some(materialsRequest.algorithmSuiteID), materialsRequest.encryptionContext);
+      var cacheID :- ComputeCacheIDForDecrypt(materialsRequest);
 
       var entry := cmc.LookupDecrypt(cacheID);
       Repr := Repr + cmc.Repr;
@@ -208,8 +212,7 @@ module {:extern "CachingCMMDef"} CachingCMMDef {
     }
   }
 
-
-  method ComputeCacheID(algSuiteID: Option<AlgorithmSuite.ID>, encCtx: EncryptionContext.Map) returns (res: Result<seq<uint8>>)
+  method ComputeCacheIDForEncrypt(algSuiteID: Option<AlgorithmSuite.ID>, encCtx: EncryptionContext.Map) returns (res: Result<seq<uint8>>)
     requires EncryptionContext.Serializable(encCtx)
   {
     var wr := new Streams.ByteWriter();
@@ -226,6 +229,46 @@ module {:extern "CachingCMMDef"} CachingCMMDef {
 
     var encCtxWr := new Streams.ByteWriter();
     var _ :- Serialize.SerializeAAD(encCtxWr, encCtx);
+    var encCtxEncoding :- Digest.Digest(CACHE_ID_HASH_ALGORITHM, encCtxWr.GetDataWritten());
+    var _ := wr.WriteBytes(encCtxEncoding);
+
+    res := Digest.Digest(CACHE_ID_HASH_ALGORITHM, wr.GetDataWritten());
+  }
+
+  method ComputeCacheIDForDecrypt(materialsRequest: Materials.ValidDecryptionMaterialsRequest) returns (res: Result<seq<uint8>>)
+    requires EncryptionContext.Serializable(materialsRequest.encryptionContext)
+  {
+    // compute a digest for each EDK
+    var i := 0;
+    var edkHashes := new seq<uint8>[|materialsRequest.encryptedDataKeys|](_ => []);
+    while i < |materialsRequest.encryptedDataKeys| {
+      var edk := materialsRequest.encryptedDataKeys[i];
+      edkHashes[i] :- Digest.Digest(CACHE_ID_HASH_ALGORITHM, MessageHeader.EDKEntryToSeq(edk));
+      i := i + 1;
+    }
+    // sort these digests
+    Sorting.AboutLexicographicByteSeqBelow();
+    Sorting.SelectionSort(edkHashes, Sorting.LexicographicByteSeqBelow);
+
+    var wr := new Streams.ByteWriter();
+
+    // Note, if a partition ID were used, write the partition ID hash to wr here
+
+    var _ := wr.WriteUInt16(materialsRequest.algorithmSuiteID as uint16);
+
+    i := 0;
+    while i < edkHashes.Length
+      invariant wr.Valid()
+    {
+      var _ := wr.WriteBytes(edkHashes[i]);
+      i := i + 1;
+    }
+
+    var zeros := seq<uint8>(Digest.Length(CACHE_ID_HASH_ALGORITHM), _ => 0);
+    var _ := wr.WriteBytes(zeros);
+
+    var encCtxWr := new Streams.ByteWriter();
+    var _ :- Serialize.SerializeAAD(encCtxWr, materialsRequest.encryptionContext);
     var encCtxEncoding :- Digest.Digest(CACHE_ID_HASH_ALGORITHM, encCtxWr.GetDataWritten());
     var _ := wr.WriteBytes(encCtxEncoding);
 
