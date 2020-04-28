@@ -4,7 +4,7 @@ module Streams {
   import opened StandardLibrary
   import opened UInt = StandardLibrary.UInt
 
-  class SeqReader<T> {
+  class SeqReader<T>  {
     ghost var Repr: set<object>
     const data: seq<T>
     var pos: nat

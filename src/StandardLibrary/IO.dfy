@@ -1,75 +1,39 @@
 include "StandardLibrary.dfy"
 include "UInt.dfy"
+include "Collections.dfy"
 
+// Provides extern hookins for reading bytes from and writing bytes to
+// operating system constructs such as files, TCP/IP sockets, and stdin/stdout.
 module {:extern "IO"} IO {
   import opened StandardLibrary
   import opened UInt = StandardLibrary.UInt
+  import Collections
 
-  trait BytesEnumerator {
-    var signaledEOF: bool
-    var hasFailed: bool
-    ghost const Repr: set<object>
-
-    predicate Valid() reads this, Repr ensures Valid() ==> this in Repr decreases this, Repr
-
-    method Next() returns (element: Result<Option<seq<uint8>>>)
-      requires Valid()
-      modifies this, Repr
-      decreases this, Repr
-      ensures Valid()
-      ensures Repr == old(Repr)
-      ensures old(signaledEOF) || old(hasFailed) ==> element.Failure?
-      ensures element.Failure? ==> hasFailed // hasFailed can include an EOF error?
-      ensures element.Success? && element.value.None? ==> signaledEOF // Cannot indicate EOF with data, has to be seperate call  }
-  }
-
-/*
-  TODO
-  trait Aggregator<T> {
-
-    ghost const Repr: set<object> // const?
-
-    predicate Valid() reads this, Repr ensures Valid() ==> this in Repr decreases this, Repr
-
-    method Accept(element: T) returns (res: Result<bool>)
-      requires Valid()
-      modifies this, Repr
-      decreases this, Repr
-      ensures Valid()
-      ensures Repr == old(Repr)
-      ensures old(signaledEOF) || old(hasFailed) ==> res.Failure?
-      ensures res.Failure? ==> hasFailed // hasFailed can include an EOF error? 
-
-    // TOOD: if T is not a seq, this means that you can only send one element as part of End
-    method End(element: T) returns (res: Result<bool>)
-      requires Valid()
-      modifies this, Repr
-      decreases this, Repr
-      ensures Valid()
-      ensures Repr == old(Repr)
-      ensures old(signaledEOF) || old(hasFailed) ==> res.Failure?
-      ensures res.Failure? ==> hasFailed // hasFailed can include an EOF error?
-      ensures res.Success? && res.value ==> signaledEOF
-  }
-*/
-
-  class ExternBytesEnumerator extends BytesEnumerator {
-    predicate Valid() reads this, Repr ensures Valid() ==> this in Repr decreases this, Repr
+  // ExternBytesEnumerator provides a Dafny Enumerator interface hooked up
+  // to a extern implementation of a blocking read to some native source.
+  class ExternBytesEnumerator extends Collections.Enumerator<seq<uint8>> {
+    predicate Valid() reads this, Repr ensures Valid() ==> this in Repr
     {
       && this in Repr 
     }
 
+    // Next reads sequential bytes from this Enumerator's native source.
+    // This call blocks until at least one byte of data is read,
+    // Success(None) (signalling Done) is returned, or a Failure is returned.
     method Next() returns (element: Result<Option<seq<uint8>>>)
       requires Valid()
-      modifies this, Repr
-      decreases this, Repr
+      modifies Repr
       ensures Valid()
       ensures Repr == old(Repr)
-      ensures old(signaledEOF) || old(hasFailed) ==> element.Failure?
-      ensures element.Failure? ==> hasFailed // hasFailed can include an EOF error?
-      ensures element.Success? && element.value.None? ==> signaledEOF // Cannot indicate EOF with data, has to be seperate call
+      ensures old(signaledDone) || old(hasFailed) ==> element.Failure?
+      ensures element.Failure? ==> hasFailed
+      ensures element.Success? && element.value.None? ==> signaledDone 
+      /* ExternBytesEnumerator class specification */
+      // All successful Nexts on this Enuemrator that don't signal Done
+      // must return some bytes.
+      ensures element.Success? && element.value.Some? ==> |element.value.get| > 0
     {
-      if signaledEOF {
+      if signaledDone {
         hasFailed := true;
         return Failure("Enumerator is at EOF and cannot be read.");
       } else if hasFailed {
@@ -79,7 +43,10 @@ module {:extern "IO"} IO {
       if externRes.Failure? {
         hasFailed := true;
       } else if externRes.value.None? {
-        signaledEOF := true;
+        signaledDone := true;
+      } else if |externRes.value.get| <= 0 {
+        hasFailed := true;
+        return Failure("Extern Next() implementation violated API contract.");
       }
       return externRes;
     }
@@ -87,136 +54,75 @@ module {:extern "IO"} IO {
     method {:extern "NextExtern"} NextExtern() returns (element: Result<Option<seq<uint8>>>)
   }
 
-  // TODO Move this
-  // Wraps and operates on an ExternBytesEnumerator
-  class EncryptEnumerator extends BytesEnumerator {
-    var source: ExternBytesEnumerator
-    var inBuffer: seq<uint8>
-
-    predicate Valid() reads this, Repr ensures Valid() ==> this in Repr decreases this, Repr
+  // ExternBytesAggregator provides a Dafny Aggregator interface hooked up
+  // to a extern implementation of a blocking write to some native sink.
+  class ExternBytesAggregator extends Collections.Aggregator<seq<uint8>> {
+    predicate Valid() reads this, Repr ensures Valid() ==> this in Repr
     {
       && this in Repr 
-      && source in Repr && source.Repr <= Repr && this !in source.Repr
-      && source.Valid()
     }
 
-    constructor (source: ExternBytesEnumerator)
-      requires source.Valid() 
-      ensures this.source == source
-      ensures !hasFailed
-      ensures !signaledEOF
-      ensures inBuffer == []
-      ensures Valid() && fresh(Repr - source.Repr)
-    {
-      this.source := source;
-      this.hasFailed := false;
-      this.signaledEOF := false;
-      this.inBuffer := [];
-      this.Repr := {this} + source.Repr;
-    }
-
-    method Next() returns (element: Result<Option<seq<uint8>>>)
+    // Accept writes bytes sequentially to this Aggregator's native sink.
+    // This call blocks until all input bytes are considered processed, or a Failure is returned.
+    method Accept(element: seq<uint8>) returns (res: Result<bool>)
       requires Valid()
-      modifies this, Repr
-      decreases this, Repr
+      modifies Repr
       ensures Valid()
       ensures Repr == old(Repr)
-      ensures old(signaledEOF) || old(hasFailed) ==> element.Failure?
-      ensures element.Failure? ==> hasFailed // hasFailed can include an EOF error?
-      ensures element.Success? && element.value.None? ==> signaledEOF // Cannot indicate EOF with data, has to be seperate call
+      ensures old(signaledDone) || old(hasFailed) ==> res.Failure?
+      ensures res.Failure? ==> hasFailed
+      ensures res.Success? ==> res.value
     {
-      if signaledEOF {
+      if signaledDone {
         hasFailed := true;
-        return Failure("Enumerator is at EOF and cannot be read.");
+        return Failure("Aggregator is at EOF and cannot be written to.");
       } else if hasFailed {
-        return Failure("Enumerator is in a failed state.");
+        return Failure("Aggregator is in a failed state.");
       }
-
-      // right now just pass through data
-
-      // will never be true while we're passing through data
-      if |inBuffer| < 0 {
-        element := Success(Some(inBuffer));
-        inBuffer := [];
-        return element;
-      }
-      
-      var res := source.Next();
-      if res.Failure? {
+      var externRes := AcceptExtern(element);
+      if externRes.Failure? {
         hasFailed := true;
-        return res;
-      } else if res.value.None? {
-        signaledEOF := true;
-        return res;
+        return Failure("Aggregator native sink failed to Accept bytes.");
+      } else if !externRes.value {
+        return Failure("Extern implementation of Accept violated API contract.");
       }
-
-      return res;
-    }
-  }
-
-  // Native Enumerator implementation for enumerating bytes from a particular seq<uint8>
-  // in a specified chunk size
-  class BytesSeqEnumerator extends BytesEnumerator {
-    const s: seq<uint8>
-    const chunkSize: nat
-    var i: nat
-
-    predicate Valid() reads this, Repr ensures Valid() ==> this in Repr decreases this, Repr
-    {
-      && i <= |s|
-      && chunkSize > 0
-      && this in Repr 
+      return externRes;
     }
 
-    constructor (data: seq<uint8>, chunkSize: nat)
-      requires chunkSize > 0
-      ensures s == data
-      ensures !signaledEOF
-      ensures !hasFailed
-      ensures i == 0
-      ensures this.chunkSize == chunkSize
-      ensures Valid()
-    {
-        s := data;
-        signaledEOF := false;
-        hasFailed := false;
-        i := 0;
-        this.chunkSize := chunkSize;
-        Repr := {this};
-    }
-    
-    method Next() returns (element: Result<Option<seq<uint8>>>)
+    // End signals to this Aggregator's native sink the end of sequential byte input, and finishes
+    // writing all remaining inputted bytes to the native sink.
+    // This call blocks until all user inputted bytes are written to the native sink,
+    // or a Failure is returned.
+    method End() returns (res: Result<bool>)
       requires Valid()
-      modifies this, Repr
-      decreases this, Repr
+      modifies Repr
       ensures Valid()
       ensures Repr == old(Repr)
-      ensures old(signaledEOF) || old(hasFailed) ==> element.Failure?
-      ensures element.Failure? ==> hasFailed // Should hasFailed include EOF error?
-      ensures element.Success? && element.value.None? ==> signaledEOF // Cannot indicate EOF with data, has to be seperate call
+      ensures old(signaledDone) || old(hasFailed) ==> res.Failure?
+      ensures res.Failure? ==> hasFailed
+      ensures res.Success? ==> res.value && signaledDone
 
-      /* Postconditions specific to SeqEnumerator */
-      ensures
-        var endSlice := Min(|s|, old(i)+chunkSize);
-        element.Success? && element.value.Some? ==> element.value.get == s[old(i)..endSlice]
-        && i == endSlice
     {
-      if signaledEOF {
+      if signaledDone {
         hasFailed := true;
-        return Failure("Enumerator is at EOF and cannot be read.");
+        return Failure("Aggregator is already at EOF");
       } else if hasFailed {
-        return Failure("Enumerator is in a failed state.");
-      } else if i >= |s| {
-        //EOF
-        signaledEOF := true;
-        return Success(None());
+        return Failure("Aggregator is in a failed state.");
       }
 
-        
-      var endSlice := Min(|s|, i+chunkSize);
-      var data := s[i..endSlice];
-      i := endSlice;
-      return Success(Some(data));
+      var externRes := EndExtern();
+      if externRes.Failure? {
+        hasFailed := true;
+        return Failure("Aggregator native sink failed to End.");
+      } else if !externRes.value {
+        hasFailed := true;
+        return Failure("Extern End() implementation violated API contract");
+      }
+      signaledDone := true;
+      return externRes;
     }
+
+    method {:extern "AcceptExtern"} AcceptExtern(element: seq<uint8>) returns (res: Result<bool>)
+    method {:extern "EndExtern"} EndExtern() returns (res: Result<bool>)
   }
 }

@@ -27,6 +27,11 @@ public class DafnyFFI {
     public static ibyteseq SequenceFromByteArray(byte[] bytearray) {
         return byteseq.FromArray(bytearray);
     }
+
+    public static ibyteseq SequenceFromByteArray(byte[] bytearray, int index, int len) {
+        // TODO: This requires two copies. It would be better for Dafny to support a FromArraySubsequence
+        return byteseq.FromArray(bytearray).Subsequence(index, index+len);
+    }
   
     public static string StringFromDafnyString(icharseq dafnyString) {
         // TODO: Find a way to safely avoid copying.

@@ -7,11 +7,11 @@ module TestIO {
   import opened UInt = StandardLibrary.UInt
   import opened IO
 
-  method {:test} BytesSeqEnumerator() {
+  method {:test} IntSeqEnumerator() {
     var testSeq := [1, 2, 3, 4, 5];
-    var seqEnum := new BytesSeqEnumerator(testSeq, 2);
+    var seqEnum := new SeqEnumerator<int>(testSeq, 2);
       
-    var res := seqEnum.Next(); // TODO: call may violate context's modifies clause
+    var res := seqEnum.Next();
     expect res.Success? && res.value.Some? && res.value.get == [1, 2];
     res := seqEnum.Next();
     expect res.Success? && res.value.Some? && res.value.get == [3, 4];
@@ -21,5 +21,20 @@ module TestIO {
     expect res.Success? && res.value == None();
     res := seqEnum.Next();
     expect res.Failure?;
+  }
+
+  method {:test} IntSeqAggregator() {
+    var seqAgg := new SeqAggregator<int>();
+
+    var res2 := seqAgg.Accept([1,2,3]);
+    expect res2.Success? && res2.value && seqAgg.s == [1,2,3];
+    res2 := seqAgg.Accept([4,5]);
+    expect res2.Success? && res2.value && seqAgg.s == [1,2,3,4,5];
+    res2 := seqAgg.End();
+    expect res2.Success? && res2.value;
+    res2 := seqAgg.Accept([1]);
+    expect res2.Failure?;
+    res2 := seqAgg.End();
+    expect res2.Failure?;
   }
 }

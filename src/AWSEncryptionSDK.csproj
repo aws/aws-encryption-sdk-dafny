@@ -44,6 +44,7 @@
     <DafnySource Include="Util/Streams.dfy" />
     <DafnySource Include="Util/UTF8.dfy" />
     <DafnySource Include="Util/Sets.dfy" />
+    <DafnySource Include="Util/ToyUTF8Transform.dfy" />
   </ItemGroup>
   
   <ItemGroup>
