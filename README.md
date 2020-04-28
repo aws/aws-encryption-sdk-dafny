@@ -26,7 +26,7 @@ dotnet build -t:VerifyDafny test
 ### (Optional) Set up the AWS Encryption SDK to work with AWS KMS
 
 If you set up the AWS Encryption SDK to use the AWS KMS Keyring,
-the AWS Encryption SDK will make calls to AWS KSM on your behalf,
+the AWS Encryption SDK will make calls to AWS KMS on your behalf,
 using the appropriate AWS SDK.
 
 However, you must first set up AWS credentials for use with the AWS SDK.
