@@ -25,7 +25,7 @@ module {:extern "KMSKeyringDef"} KMSKeyringDef {
 
   class KMSKeyring extends KeyringDefs.Keyring {
 
-    const clientSupplier: KMSUtils.AWSKMSClientSupplier
+    const clientSupplier: KMSUtils.DafnyAWSKMSClientSupplier
     const keyIDs: seq<KMSUtils.CustomerMasterKey>
     const generator: Option<KMSUtils.CustomerMasterKey>
     const grantTokens: seq<KMSUtils.GrantToken>
@@ -41,7 +41,7 @@ module {:extern "KMSKeyringDef"} KMSKeyringDef {
       && (clientSupplier in Repr && clientSupplier.Repr <= Repr && this !in clientSupplier.Repr && clientSupplier.Valid())
     }
 
-    constructor (clientSupplier: KMSUtils.AWSKMSClientSupplier, keyIDs: seq<KMSUtils.CustomerMasterKey>, generator: Option<KMSUtils.CustomerMasterKey>, grantTokens: seq<KMSUtils.GrantToken>)
+    constructor (clientSupplier: KMSUtils.DafnyAWSKMSClientSupplier, keyIDs: seq<KMSUtils.CustomerMasterKey>, generator: Option<KMSUtils.CustomerMasterKey>, grantTokens: seq<KMSUtils.GrantToken>)
       requires clientSupplier.Valid()
       requires 0 <= |grantTokens| <= KMSUtils.MAX_GRANT_TOKENS
       ensures this.clientSupplier == clientSupplier
@@ -79,7 +79,7 @@ module {:extern "KMSKeyringDef"} KMSKeyringDef {
       var regionRes := RegionFromKMSKeyARN(generator.get);
       var regionOpt := regionRes.ToOption();
       var client :- clientSupplier.GetClient(regionOpt);
-      var generatorResponse :- client.GenerateDataKey(generatorRequest);
+      var generatorResponse :- KMSUtils.GenerateDataKey(client, generatorRequest);
       if !generatorResponse.IsWellFormed() {
         return Failure("Invalid response from KMS GenerateDataKey");
       }
@@ -151,7 +151,7 @@ module {:extern "KMSKeyringDef"} KMSKeyringDef {
         var regionRes := RegionFromKMSKeyARN(encryptCMKs[i]);
         var regionOpt := regionRes.ToOption();
         var client :- clientSupplier.GetClient(regionOpt);
-        var encryptResponse :- client.Encrypt(encryptRequest);
+        var encryptResponse :- KMSUtils.Encrypt(client, encryptRequest);
         if encryptResponse.IsWellFormed() {
           var providerInfo :- UTF8.Encode(encryptResponse.keyID);
           if UINT16_LIMIT <= |providerInfo| {
@@ -207,7 +207,7 @@ module {:extern "KMSKeyringDef"} KMSKeyringDef {
           var clientRes := clientSupplier.GetClient(regionOpt);
           if clientRes.Success? {
             var client := clientRes.value;
-            var decryptResponseResult := client.Decrypt(decryptRequest);
+            var decryptResponseResult := KMSUtils.Decrypt(client, decryptRequest);
             if decryptResponseResult.Success? {
               var decryptResponse := decryptResponseResult.value;
               if (decryptResponse.keyID != providerInfo.value)
