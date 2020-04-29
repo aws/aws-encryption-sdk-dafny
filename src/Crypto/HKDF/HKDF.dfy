@@ -45,7 +45,8 @@ module HKDF {
     if n == 0 then
       [] == res
     else
-      exists prev1, prev2 :: T(hmac, info, n-1, prev1) && Ti(hmac, info, n, prev2) && prev1 + prev2 == res
+      var nMinusOne := n - 1;
+      exists prev1, prev2 :: T(hmac, info, nMinusOne, prev1) && Ti(hmac, info, n, prev2) && prev1 + prev2 == res
   }
 
   predicate Ti(hmac: HMac, info: seq<uint8>, n: nat, res: seq<uint8>)
@@ -63,10 +64,11 @@ module HKDF {
     requires 1 <= n < 256
     decreases n, 0
   {
-    exists prev | Ti(hmac, info, n - 1, prev) :: res == prev + info + [(n as uint8)]
+    var nMinusOne := n - 1;
+    exists prev | Ti(hmac, info, nMinusOne, prev) :: res == prev + info + [(n as uint8)]
   }
 
-  method Expand(hmac: HMac, prk: seq<uint8>, info: seq<uint8>, expectedLength: int, digest: Digests, ghost salt: seq<uint8>) returns (okm: seq<uint8>)
+  method Expand(hmac: HMac, prk: seq<uint8>, info: seq<uint8>, expectedLength: int, digest: Digests, ghost salt: seq<uint8>) returns (okm: seq<uint8>, ghost okmUnabridged: seq<uint8>)
     requires hmac.GetDigest() == digest
     requires 1 <= expectedLength <= 255 * GetHashLength(hmac.GetDigest())
     requires |salt| != 0
@@ -76,16 +78,15 @@ module HKDF {
     modifies hmac
     ensures |okm| == expectedLength
     ensures hmac.GetKey() == prk
-    ensures var n := (GetHashLength(hmac.GetDigest()) + expectedLength - 1) / GetHashLength(hmac.GetDigest());
-                0 <= n < 256 &&
-            exists res ::
-                T(hmac, info, n, res)
-             && (|res| <= expectedLength ==> okm == res)
-             && (expectedLength < |res| ==> okm == res[..expectedLength])
+    ensures var n := (GetHashLength(digest) + expectedLength - 1) / GetHashLength(digest);
+      && T(hmac, info, n, okmUnabridged)
+      && (|okmUnabridged| <= expectedLength ==> okm == okmUnabridged)
+      && (expectedLength < |okmUnabridged| ==> okm == okmUnabridged[..expectedLength])
   {
     // N = ceil(L / Hash Length)
     var hashLength := GetHashLength(digest);
     var n := (hashLength + expectedLength - 1) / hashLength;
+    assert 0 <= n < 256;
 
     // T(0) = empty string (zero length)
     hmac.Init(prk);
@@ -117,7 +118,7 @@ module HKDF {
       t_prev := hmac.GetResult();
       // t_n == T(i - 1)
       assert T(hmac, info, i - 1, t_n);
-      assert Ti(hmac, info, i, t_prev) ;
+      assert Ti(hmac, info, i, t_prev);
 
       t_n := t_n + t_prev;
       // t_n == T(i) == T(i - 1) + Ti(i)
@@ -126,9 +127,10 @@ module HKDF {
 
     // okm = first L (expectedLength) bytes of T(n)
     okm := t_n;
-    assert T(hmac, info, n, okm);
+    okmUnabridged := okm;
+    assert T(hmac, info, n, okmUnabridged);
 
-    if |okm| > expectedLength {
+    if expectedLength < |okm| {
       okm := okm[..expectedLength];
     }
   }
@@ -159,6 +161,7 @@ module HKDF {
     }
 
     var prk := Extract(hmac, nonEmptySalt, ikm, digest);
-    okm := Expand(hmac, prk, info, L, digest, nonEmptySalt);
+    ghost var okmUnabridged;
+    okm, okmUnabridged := Expand(hmac, prk, info, L, digest, nonEmptySalt);
   }
 }
