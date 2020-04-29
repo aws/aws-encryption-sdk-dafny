@@ -53,8 +53,12 @@ module {:extern "AESEncryption"} AESEncryption {
     ensures res.Success? ==> CiphertextGeneratedWithPlaintext(res.value.cipherText, msg)
     {
       res := AESEncryptExtern(encAlg, iv, key, msg, aad);
-      expect res.Success? ==> |res.value.cipherText| == |msg|;
-      expect res.Success? ==> |res.value.authTag| == encAlg.tagLen as int;
+      if (res.Success? && |res.value.cipherText| != |msg|){
+        res := Failure("AESEncrypt did not return cipherText of expected length");  
+      }
+      if (res.Success? && |res.value.authTag| != encAlg.tagLen as int){
+        res := Failure("AESEncryption did not return valid tag");
+      }
     }
 
   method {:extern "AESEncryption.AES_GCM", "AESDecryptExtern"} AESDecryptExtern(encAlg: EncryptionSuites.EncryptionSuite, key: seq<uint8>, cipherTxt: seq<uint8>, authTag: seq<uint8>, iv: seq<uint8>, aad: seq<uint8>)
@@ -81,7 +85,9 @@ module {:extern "AESEncryption"} AESEncryption {
     ensures res.Success? ==> CiphertextGeneratedWithPlaintext(cipherTxt, res.value)
     {
       res := AESDecryptExtern(encAlg, key, cipherTxt, authTag, iv, aad);
-      expect res.Success? ==> |cipherTxt| == |res.value|;
+      if (res.Success? && |cipherTxt| != |res.value|){
+        res := Failure("AESDecrypt did not return plaintext of expected length");
+      }
     }
 
 }
