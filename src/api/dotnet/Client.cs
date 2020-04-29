@@ -20,15 +20,15 @@ namespace AWSEncryptionSDK
             STL.Result<ibyteseq> result = ESDKClient.__default.Encrypt(request.GetDafnyRequest());
             return DafnyFFI.MemoryStreamFromSequence(DafnyFFI.ExtractResult(result));
         }
-  
+
         // TODO: Proper documentation
         public static MemoryStream Decrypt(DecryptRequest request) {
             // TODO: Might need a lock here if ANYTHING in the Dafny runtime isn't threadsafe!
             STL.Result<ibyteseq> result = ESDKClient.__default.Decrypt(request.GetDafnyRequest());
-    
+
             return DafnyFFI.MemoryStreamFromSequence(DafnyFFI.ExtractResult(result));
         }
-  
+
         private static encryptioncontext ToDafnyEncryptionContext(Dictionary<string, string> encryptionContext)
         {
             IEnumerable<Pair<ibyteseq, ibyteseq>> e = encryptionContext.Select(entry
@@ -65,7 +65,7 @@ namespace AWSEncryptionSDK
                 };
             }
         }
-        
+
         public class DecryptRequest {
             public MemoryStream message { get; set;}
             public CMM cmm { get; set;}

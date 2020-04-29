@@ -1,5 +1,5 @@
 FROM ubuntu:18.04
- 
+
 USER root
 
 ENV DEBIAN_FRONTEND=noninteractive

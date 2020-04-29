@@ -46,7 +46,7 @@
     <DafnySource Include="Util/UTF8.dfy" />
     <DafnySource Include="Util/Sets.dfy" />
   </ItemGroup>
-  
+
   <ItemGroup>
     <PackageReference Include="dafny.msbuild" Version="1.0.0" />
     <PackageReference Include="AWSSDK.Core" Version="3.3.104.1" />

@@ -590,7 +590,7 @@ namespace AWSEncryptionSDKTests
 
             Assert.Throws<ArgumentNullException>(() =>
             AWSEncryptionSDK.Client.Encrypt(nullRequest));
-        } 
+        }
 
         [Fact]
         public void EncryptNullCMMKeyring()
@@ -620,7 +620,7 @@ namespace AWSEncryptionSDKTests
             Assert.Throws<ArgumentNullException>(() =>
             AWSEncryptionSDK.Client.Decrypt(badRequest));
         }
-        
+
         [Fact]
         public void DecryptNullCMMKeyring()
         {
