@@ -74,6 +74,7 @@ module {:extern "CachingCMMDef"} CachingCMMDef {
       requires cmm.Valid() && secondsToLiveLimit != 0
       ensures Valid() && fresh(Repr - old(cmm.Repr))
       ensures this.cmm == cmm
+      ensures this.secondsToLiveLimit == secondsToLiveLimit
     {
       this.secondsToLiveLimit := secondsToLiveLimit;
       this.messageLimit := DEFAULT_MESSAGE_USE_LIMIT_PER_CACHED_KEY;
