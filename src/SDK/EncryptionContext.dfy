@@ -191,7 +191,7 @@ module {:extern "EncryptionContext"} EncryptionContext {
     } else if |encryptionContext| >= UINT16_LIMIT {
       return false;
     }
-    
+
     // Iterating through a map isn't feasbile in dafny for large maps, so instead
     // convert the map to a sequence of key pairs and iterate through the sequence
     var keys: seq<UTF8.ValidUTF8Bytes> := Sets.ComputeSetToOrderedSequence<uint8>(encryptionContext.Keys, UInt.UInt8Less);

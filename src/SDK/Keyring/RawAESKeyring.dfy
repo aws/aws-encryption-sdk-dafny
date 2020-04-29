@@ -101,9 +101,9 @@ module {:extern "RawAESKeyringDef"} RawAESKeyringDef {
     method OnEncrypt(materials: Mat.ValidEncryptionMaterials) returns (res: Result<Mat.ValidEncryptionMaterials>)
       // Keyring Trait conditions
       requires Valid()
-      ensures res.Success? ==> 
+      ensures res.Success? ==>
         && materials.encryptionContext == res.value.encryptionContext
-        && materials.algorithmSuiteID == res.value.algorithmSuiteID 
+        && materials.algorithmSuiteID == res.value.algorithmSuiteID
         && (materials.plaintextDataKey.Some? ==> res.value.plaintextDataKey == materials.plaintextDataKey)
         && materials.keyringTrace <= res.value.keyringTrace
         && materials.encryptedDataKeys <= res.value.encryptedDataKeys
@@ -197,7 +197,7 @@ module {:extern "RawAESKeyringDef"} RawAESKeyringDef {
         && AESEncryption.PlaintextDecryptedWithAAD(res.value.plaintextDataKey.get, EncryptionContext.MapToSeq(materials.encryptionContext))
 
       // KeyringTrace generated as expected
-      ensures res.Success? && materials.plaintextDataKey.None? && res.value.plaintextDataKey.Some? ==> 
+      ensures res.Success? && materials.plaintextDataKey.None? && res.value.plaintextDataKey.Some? ==>
           |res.value.keyringTrace| == |materials.keyringTrace| + 1 && res.value.keyringTrace[|materials.keyringTrace|] == DecryptTraceEntry()
 
       // If attempts to decrypt an EDK and the input EC cannot be serialized, return a Failure
@@ -221,7 +221,7 @@ module {:extern "RawAESKeyringDef"} RawAESKeyringDef {
           var _ :- Serialize.SerializeKVPairs(wr, materials.encryptionContext);
           var aad := wr.GetDataWritten();
           assert aad == EncryptionContext.MapToSeq(materials.encryptionContext);
-          
+
           var iv := GetIvFromProvInfo(edks[i].providerInfo);
           var encryptionOutput := DeserializeEDKCiphertext(edks[i].ciphertext, wrappingAlgorithm.tagLen as nat);
           var ptKey :- AESEncryption.AESDecrypt(wrappingAlgorithm, wrappingKey, encryptionOutput.cipherText, encryptionOutput.authTag, iv, aad);

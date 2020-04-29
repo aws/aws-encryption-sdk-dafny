@@ -74,9 +74,9 @@ module {:extern "RawRSAKeyringDef"} RawRSAKeyringDef {
       requires Valid()
       // NOTE: encryptionContext is intentionally unused
       ensures publicKey.None? ==> res.Failure?
-      ensures res.Success? ==> 
+      ensures res.Success? ==>
         && materials.encryptionContext == res.value.encryptionContext
-        && materials.algorithmSuiteID == res.value.algorithmSuiteID 
+        && materials.algorithmSuiteID == res.value.algorithmSuiteID
         && (materials.plaintextDataKey.Some? ==> res.value.plaintextDataKey == materials.plaintextDataKey)
         && materials.keyringTrace <= res.value.keyringTrace
         && materials.encryptedDataKeys <= res.value.encryptedDataKeys
