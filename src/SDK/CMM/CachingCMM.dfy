@@ -163,10 +163,10 @@ module {:extern "CachingCMMDef"} CachingCMMDef {
         }
       }
 
-      // Get encryption materials from the underlying CMM, but use None for the plaintext
-      // length (since the caching returns encryption materials that are independent of
+      // Get encryption materials from the underlying CMM, but use the byte-use limit for the
+      // plaintext length (since the caching returns encryption materials that are independent of
       // plaintext length).
-      res := cmm.GetEncryptionMaterials(materialsRequest.(plaintextLength := None));
+      res := cmm.GetEncryptionMaterials(materialsRequest.(plaintextLength := Some(byteLimit as nat)));
       Repr := Repr + cmm.Repr;
       var encMat :- res;
       // Add them to the cache.
@@ -388,7 +388,6 @@ module {:extern "CachingCMMDef"} CachingCMMDef {
       bytesEncrypted := bytesEncrypted + byteCount;
     }
   }
-
 
   class CacheEntryDecrypt {
     const decMat: Materials.ValidDecryptionMaterials
