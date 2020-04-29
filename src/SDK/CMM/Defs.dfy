@@ -23,7 +23,7 @@ module {:extern "CMMDefs"} CMMDefs {
       requires Valid()
       modifies Repr
       ensures Valid() && fresh(Repr - old(Repr))
-      ensures res.Success? ==> res.value.plaintextDataKey.Some? && res.value.Serializable()
+      ensures res.Success? ==> res.value.Serializable()
 
     // The following predicate is a synonym for Encryption.Serializable and provides a workaround for a translation bug
     // of "fuel" in trait-override checks in Dafny. https://github.com/dafny-lang/dafny/issues/422
