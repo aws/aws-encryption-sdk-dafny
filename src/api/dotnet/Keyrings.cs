@@ -6,7 +6,6 @@ using KMSKeyringDef;
 using MultiKeyringDef;
 using RawAESKeyringDef;
 using RawRSAKeyringDef;
-using KMSUtils;
 using icharseq = Dafny.ISequence<char>;
 
 namespace AWSEncryptionSDK
@@ -29,7 +28,7 @@ namespace AWSEncryptionSDK
             }
             KMSKeyring result = new KMSKeyring();
             result.__ctor(
-                clientSupplier,
+                new KMSUtils.AWSKMSClientSupplierAsDafny(clientSupplier),
                 Dafny.Sequence<icharseq>.FromElements(),
                 DafnyFFI.NullableToOption(generator != null ? DafnyFFI.DafnyStringFromString(generator) : null),
                 Dafny.Sequence<icharseq>.FromElements(convertedTokens));
