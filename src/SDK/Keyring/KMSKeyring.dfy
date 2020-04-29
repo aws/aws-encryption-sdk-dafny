@@ -64,9 +64,9 @@ module {:extern "KMSKeyringDef"} KMSKeyringDef {
       requires |materials.encryptedDataKeys| == 0
       requires !isDiscovery
       ensures Valid()
-      ensures res.Success? ==> 
+      ensures res.Success? ==>
           && materials.encryptionContext == res.value.encryptionContext
-          && materials.algorithmSuiteID == res.value.algorithmSuiteID 
+          && materials.algorithmSuiteID == res.value.algorithmSuiteID
           && res.value.plaintextDataKey.Some?
           && materials.keyringTrace <= res.value.keyringTrace
           && materials.encryptedDataKeys <= res.value.encryptedDataKeys
@@ -106,9 +106,9 @@ module {:extern "KMSKeyringDef"} KMSKeyringDef {
     method OnEncrypt(materials: Mat.ValidEncryptionMaterials) returns (res: Result<Mat.ValidEncryptionMaterials>)
       requires Valid()
       ensures Valid()
-      ensures res.Success? ==> 
+      ensures res.Success? ==>
           && materials.encryptionContext == res.value.encryptionContext
-          && materials.algorithmSuiteID == res.value.algorithmSuiteID 
+          && materials.algorithmSuiteID == res.value.algorithmSuiteID
           && (materials.plaintextDataKey.Some? ==> res.value.plaintextDataKey == materials.plaintextDataKey)
           && materials.keyringTrace <= res.value.keyringTrace
           && materials.encryptedDataKeys <= res.value.encryptedDataKeys
@@ -128,7 +128,7 @@ module {:extern "KMSKeyringDef"} KMSKeyringDef {
           resultMaterials :- Generate(materials);
           assert resultMaterials.plaintextDataKey.Some?;
         } else {
-          resultMaterials := materials; 
+          resultMaterials := materials;
           encryptCMKs := encryptCMKs + [generator.get];
         }
       } else {
@@ -138,7 +138,7 @@ module {:extern "KMSKeyringDef"} KMSKeyringDef {
       assert materials.plaintextDataKey.Some? ==> resultMaterials.plaintextDataKey == materials.plaintextDataKey;
 
       var i := 0;
-      while i < |encryptCMKs| 
+      while i < |encryptCMKs|
           invariant resultMaterials.plaintextDataKey.Some?
           invariant materials.encryptionContext == resultMaterials.encryptionContext
           invariant materials.algorithmSuiteID == resultMaterials.algorithmSuiteID

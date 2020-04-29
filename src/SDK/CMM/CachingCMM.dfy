@@ -367,7 +367,7 @@ module {:extern "CachingCMMDef"} CachingCMMDef {
     predicate Valid() {
       encMat.Serializable()
     }
-    
+
     constructor (encMat: Materials.ValidEncryptionMaterials, secondsToLiveLimit: nat)
       ensures messagesEncrypted == bytesEncrypted == 0
       ensures this.encMat == encMat
@@ -397,7 +397,7 @@ module {:extern "CachingCMMDef"} CachingCMMDef {
     predicate Valid() {
       decMat.plaintextDataKey.Some?
     }
-    
+
     constructor (decMat: Materials.ValidDecryptionMaterials, secondsToLiveLimit: nat)
       ensures this.decMat == decMat
     {

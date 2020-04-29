@@ -16,7 +16,7 @@ namespace AWSEncryptionSDK
             result.OfKeyring(keyring);
             return result;
         }
-        
+
         public static CMM MakeCachingCMM(CMM cmm, ulong secondsToLiveLimit, ulong bytesLimit, ulong messagesLimit)
         {
             var result = new CachingCMM();

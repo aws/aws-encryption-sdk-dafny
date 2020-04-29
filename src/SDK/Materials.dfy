@@ -97,7 +97,7 @@ module {:extern "Materials"} Materials {
 
     static function method WithoutDataKeys(encryptionContext: EncryptionContext.Map,
                                            algorithmSuiteID: AlgorithmSuite.ID,
-                                           signingKey: Option<seq<uint8>>): ValidEncryptionMaterials 
+                                           signingKey: Option<seq<uint8>>): ValidEncryptionMaterials
       requires algorithmSuiteID.SignatureType().Some? ==> signingKey.Some?
     {
       var m := EncryptionMaterials(encryptionContext, algorithmSuiteID, None, [], [], signingKey);
@@ -105,7 +105,7 @@ module {:extern "Materials"} Materials {
       m
     }
 
-    function method WithKeys(newPlaintextDataKey: Option<seq<uint8>>, 
+    function method WithKeys(newPlaintextDataKey: Option<seq<uint8>>,
                              newEncryptedDataKeys: seq<ValidEncryptedDataKey>,
                              newTraceEntries: seq<KeyringTraceEntry>): (res: ValidEncryptionMaterials)
       requires Valid()
@@ -117,13 +117,13 @@ module {:extern "Materials"} Materials {
       requires (newPlaintextDataKey == this.plaintextDataKey) ==> (forall entry :: entry in newTraceEntries ==> !IsGenerateTraceEntry(entry))
       requires |Filter(newTraceEntries, IsEncryptTraceEntry)| == |newEncryptedDataKeys|
       ensures this.encryptionContext == res.encryptionContext
-      ensures this.algorithmSuiteID == res.algorithmSuiteID 
+      ensures this.algorithmSuiteID == res.algorithmSuiteID
       ensures newPlaintextDataKey == res.plaintextDataKey
       ensures this.keyringTrace + newTraceEntries == res.keyringTrace
       ensures this.encryptedDataKeys + newEncryptedDataKeys == res.encryptedDataKeys
       ensures this.signingKey == res.signingKey
     {
-        var r := this.(plaintextDataKey := newPlaintextDataKey, 
+        var r := this.(plaintextDataKey := newPlaintextDataKey,
                        encryptedDataKeys := encryptedDataKeys + newEncryptedDataKeys,
                        keyringTrace := keyringTrace + newTraceEntries);
         FilterIsDistributive(keyringTrace, newTraceEntries, IsEncryptTraceEntry);
@@ -155,7 +155,7 @@ module {:extern "Materials"} Materials {
 
     static function method WithoutPlaintextDataKey(encryptionContext: EncryptionContext.Map,
                                                    algorithmSuiteID: AlgorithmSuite.ID,
-                                                   verificationKey: Option<seq<uint8>>): ValidDecryptionMaterials 
+                                                   verificationKey: Option<seq<uint8>>): ValidDecryptionMaterials
       requires algorithmSuiteID.SignatureType().Some? ==> verificationKey.Some?
     {
       var m := DecryptionMaterials(algorithmSuiteID, encryptionContext, None, verificationKey, []);
@@ -174,7 +174,7 @@ module {:extern "Materials"} Materials {
       ensures this.keyringTrace <= res.keyringTrace
       ensures this.verificationKey == res.verificationKey
     {
-      var m := this.(plaintextDataKey := Some(plaintextDataKey), 
+      var m := this.(plaintextDataKey := Some(plaintextDataKey),
                      keyringTrace := this.keyringTrace + newTraceEntries);
       assert m.Valid();
       m

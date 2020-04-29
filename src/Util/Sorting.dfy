@@ -1,6 +1,6 @@
 include "../StandardLibrary/StandardLibrary.dfy"
 include "../StandardLibrary/UInt.dfy"
-  
+
 module Sorting {
   export
     reveals Reflexive, AntiSymmetric, Connected, TotalOrdering
@@ -8,18 +8,18 @@ module Sorting {
     provides AboutLexicographicByteSeqBelow
     provides SelectionSort
     provides StandardLibrary, UInt
-    
+
   import StandardLibrary
   import opened UInt = StandardLibrary.UInt
 
   /*
    * Properties of relations
    */
-  
+
   predicate Reflexive<T(!new)>(R: (T, T) -> bool) {
     forall x :: R(x, x)
   }
-  
+
   predicate AntiSymmetric<T(!new)>(R: (T, T) -> bool) {
     forall x, y :: R(x, y) && R(y, x) ==> x == y
   }
@@ -43,7 +43,7 @@ module Sorting {
   predicate method LexicographicByteSeqBelow(x: seq<uint8>, y: seq<uint8>) {
     LexicographicByteSeqBelowAux(x, y, 0)
   }
-  
+
   predicate method LexicographicByteSeqBelowAux(x: seq<uint8>, y: seq<uint8>, n: nat)
     requires n <= |x| && n <= |y|
     decreases |x| - n
@@ -59,7 +59,7 @@ module Sorting {
     assert Reflexive(LexicographicByteSeqBelow) by {
       forall x, n | 0 <= n <= |x| {
         AboutLexicographicByteSeqBelowAux_Reflexive(x, n);
-      }      
+      }
     }
     assert AntiSymmetric(LexicographicByteSeqBelow) by {
       forall x, y, n: nat |
@@ -83,7 +83,7 @@ module Sorting {
       }
     }
   }
-  
+
   lemma AboutLexicographicByteSeqBelowAux_Reflexive(x: seq<uint8>, n: nat)
     requires n <= |x|
     ensures LexicographicByteSeqBelowAux(x, x, n)
@@ -118,7 +118,7 @@ module Sorting {
   /*
    * Sorting routines
    */
-  
+
   method SelectionSort<Data>(a: array<Data>, below: (Data, Data) -> bool)
     requires StandardLibrary.Transitive(below)
     requires Connected(below)

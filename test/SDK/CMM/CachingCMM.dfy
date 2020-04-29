@@ -27,7 +27,7 @@ module TestCachingCMM {
   /*
    * Tests of GetEncryptionMaterials
    */
-  
+
   method {:test} TestGetEMMessagesLimit() {
     var tcmm := new Helpers.TestCMM();
     var messageLimit := 4;
@@ -109,7 +109,7 @@ module TestCachingCMM {
   /*
    * Tests of DecryptMaterials
    */
-  
+
   method {:test} TestDMFlowLimit() {
     var tcmm := new Helpers.TestCMM();
     var messageLimit := 2;
