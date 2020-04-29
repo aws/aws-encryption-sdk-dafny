@@ -88,6 +88,8 @@ module {:extern "KMSUtils"} KMSUtils {
   method {:extern "KMSUtils.ClientHelper", "Decrypt"} Decrypt(client: IAmazonKeyManagementService, request: DecryptRequest) returns (res: Result<DecryptResponse>)
     requires request.Valid()
 
+  method {:extern "KMSUtils.ClientHelper", "AddCachingClientCallback"} AddCachingClientCallback(client: IAmazonKeyManagementService, region: Option<string>, cache: CachingClientSupplierCache)
+
   trait {:extern "DafnyAWSKMSClientSupplier"} DafnyAWSKMSClientSupplier {
     ghost var Repr: set<object>
 
@@ -192,6 +194,90 @@ module {:extern "KMSUtils"} KMSUtils {
       }
       var resClient := clientSupplier.GetClient(region);
       return resClient;
+    }
+  }
+
+  class CachingClientSupplierCache {
+    ghost var Repr: set<object>
+    var cache: map<Option<string>, IAmazonKeyManagementService>
+
+    predicate Valid()
+      reads this, Repr
+      ensures Valid() ==> this in Repr
+    {
+      this in Repr &&
+      (forall region :: region in cache.Keys ==> cache[region] in Repr)
+    }
+
+    constructor ()
+      ensures cache == map[]
+      ensures Valid() && fresh(Repr)
+    {
+      cache := map[];
+      Repr := {this};
+    }
+
+    function method LookupClient(region: Option<string>): (client: IAmazonKeyManagementService?)
+      requires Valid()
+      reads Repr
+      ensures client != null ==> region in cache.Keys && client in Repr
+    {
+      if region in cache.Keys then cache[region] else null
+    }
+
+    method AddClient(region: Option<string>, client: IAmazonKeyManagementService)
+      requires Valid()
+      modifies Repr
+      ensures Valid()
+    {
+      Repr := Repr + {client};
+      cache := cache[region := client];
+    }
+  }
+
+  class CachingClientSupplier extends DafnyAWSKMSClientSupplier {
+    const clientSupplier: DafnyAWSKMSClientSupplier
+    const clientCache: CachingClientSupplierCache
+
+    predicate Valid()
+      reads this, Repr
+      ensures Valid() ==> this in Repr
+    {
+      this in Repr &&
+      clientSupplier in Repr && clientSupplier.Repr <= Repr && this !in clientSupplier.Repr && clientSupplier.Valid() &&
+      clientCache in Repr && clientCache.Repr <= Repr && this !in clientCache.Repr && clientCache.Valid()
+    }
+
+    constructor(clientSupplier: DafnyAWSKMSClientSupplier)
+      requires clientSupplier.Valid()
+      ensures this.clientSupplier == clientSupplier
+      ensures Valid() && fresh(Repr - clientSupplier.Repr)
+    {
+      this.clientSupplier := clientSupplier;
+      // Establish the cache
+      var clientCache := new CachingClientSupplierCache();
+      assert clientCache in clientCache.Repr;
+      this.clientCache := clientCache;
+      Repr := {this} + clientSupplier.Repr + clientCache.Repr;
+    }
+
+    method GetClient(region: Option<string>) returns (res: Result<IAmazonKeyManagementService>)
+      requires Valid()
+      ensures Valid()
+      ensures clientCache.LookupClient(region) != null ==> res.Success? && clientCache.LookupClient(region) == res.value
+      decreases Repr
+    {
+      var potentialClient := clientCache.LookupClient(region);
+      if potentialClient != null {
+        return Result.Success(potentialClient);
+      } else  {
+        var resClient := clientSupplier.GetClient(region);
+        if resClient.Success? {
+          // Call extern method to create callback for adding client to cache on first network call that shows a valid endpoint
+          AddCachingClientCallback(resClient.value, region, clientCache);
+        }
+        return resClient;
+      }
     }
   }
 

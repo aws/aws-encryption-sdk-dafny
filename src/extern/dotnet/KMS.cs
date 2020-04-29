@@ -16,7 +16,7 @@ namespace KMSUtils {
         // GetDefaultAWSKMSClientExtern get a KMS service client from an optional region
         public static STL.Result<KMS.IAmazonKeyManagementService> GetDefaultAWSKMSServiceClientExtern(STL.Option<IDString> region) {
             KMS.AmazonKeyManagementServiceClient client;
-            if (region.is_Some) {
+            if (region != null && region.is_Some) {
                 string regionString = DafnyFFI.StringFromDafnyString(((STL.Option_Some<IDString>)region).get);
                 RegionEndpoint regionEndpoint = RegionEndpoint.GetBySystemName(regionString);
                 client = new KMS.AmazonKeyManagementServiceClient(regionEndpoint);
@@ -30,6 +30,9 @@ namespace KMSUtils {
         public static STL.Result<GenerateDataKeyResponse> GenerateDataKey(KMS.IAmazonKeyManagementService client, GenerateDataKeyRequest request) {
             if (client == null) {
                 return STL.Result<GenerateDataKeyResponse>.create_Failure(DafnyFFI.DafnyStringFromString("Null AmazonKeyManagementServiceClient provided"));
+            }
+            if (request == null) {
+                return STL.Result<GenerateDataKeyResponse>.create_Failure(DafnyFFI.DafnyStringFromString("Null request provided"));
             }
             try {
                 KMS.Model.GenerateDataKeyRequest kmsRequest = new KMS.Model.GenerateDataKeyRequest()
@@ -64,6 +67,9 @@ namespace KMSUtils {
             if (client == null) {
                 return STL.Result<EncryptResponse>.create_Failure(DafnyFFI.DafnyStringFromString("Null AmazonKeyManagementServiceClient provided"));
             }
+            if (request == null) {
+                return STL.Result<EncryptResponse>.create_Failure(DafnyFFI.DafnyStringFromString("Null request provided"));
+            }
             try {
                 KMS.Model.EncryptRequest kmsRequest = new KMS.Model.EncryptRequest()
                 {
@@ -96,6 +102,9 @@ namespace KMSUtils {
             if (client == null) {
                 return STL.Result<DecryptResponse>.create_Failure(DafnyFFI.DafnyStringFromString("Null AmazonKeyManagementServiceClient provided"));
             }
+            if (request == null) {
+                return STL.Result<DecryptResponse>.create_Failure(DafnyFFI.DafnyStringFromString("Null request provided"));
+            }
             try {
                 KMS.Model.DecryptRequest kmsRequest = new KMS.Model.DecryptRequest()
                 {
@@ -120,6 +129,23 @@ namespace KMSUtils {
             } catch (System.AggregateException aggregateEx) {
                 return STL.Result<DecryptResponse>.create_Failure(DafnyFFI.DafnyStringFromString(aggregateEx.Message));
             }
+        }
+
+        // AddCachingClientCallback adds a callback to the given client so that the client is added to the given cache on the first network call that confirms a valid endpoint.
+        // The call does not need to return a successful response, it just needs to validate that the endpoint represents a valid AWS KMS endpoint in order for the client to be cached.
+        // The client is cached as (key, value) = (region, client)
+        public static void AddCachingClientCallback(KMS.IAmazonKeyManagementService client, STL.Option<IDString> region, CachingClientSupplierCache cache) {
+            if (client == null || region == null || cache == null) {
+                return;
+            }
+            // TODO: Make this a callback
+            // Double check the client does not already exist
+            // AddClient overrides the existing client if it's there anyways
+            KMS.IAmazonKeyManagementService cachedClient = cache.LookupClient(region);
+            if (cachedClient == null) {
+                cache.AddClient(region, client);
+            }
+            return;
         }
 
         private static ResponseMetadata ConvertMetaData(Amazon.Runtime.ResponseMetadata rmd) {
@@ -175,7 +201,7 @@ namespace KMSUtils {
         public STL.Result<KMS.IAmazonKeyManagementService> GetClient(STL.Option<IDString> region) {
             try {
                 KMS.IAmazonKeyManagementService client;
-                if (region.is_None) {
+                if (region == null || region.is_None) {
                     client = clientSupplier.GetClient(null);
                 } else {
                     string regionString = DafnyFFI.StringFromDafnyString(((STL.Option_Some<IDString>)region).get);
