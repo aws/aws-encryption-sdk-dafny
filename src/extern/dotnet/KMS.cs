@@ -138,14 +138,34 @@ namespace KMSUtils {
             if (client == null || region == null || cache == null) {
                 return;
             }
-            // TODO: Make this a callback
-            // Double check the client does not already exist
-            // AddClient overrides the existing client if it's there anyways
-            KMS.IAmazonKeyManagementService cachedClient = cache.LookupClient(region);
-            if (cachedClient == null) {
-                cache.AddClient(region, client);
-            }
-            return;
+
+            // Create a handler to cache the client after a network call is made a set of conditions is met
+            Amazon.Runtime.ResponseEventHandler cacheClientEvent = ( _, e) =>
+            {
+                // Cast the response as a web service response
+                // This allows us to check the response code
+                Amazon.Runtime.WebServiceResponseEventArgs responseEvent = (Amazon.Runtime.WebServiceResponseEventArgs)e;
+
+                // If there is no response, do not cache
+                if (responseEvent == null || responseEvent.Response == null) {
+                    return;
+                }
+
+                // Otherwise, we got a response from *some* endpoint, which means we can cache regardless of what that response was.
+                // Double check the client does not already exist.
+                // AddClient overrides the existing client if it's there anyways.
+                KMS.IAmazonKeyManagementService cachedClient = cache.LookupClient(region);
+                if (cachedClient == null) {
+                    cache.AddClient(region, client);
+                }
+                return;
+            };
+            // A cast needs to be performed so that we can properly use AfterResponseEvent, which is not part of the interface
+            Amazon.Runtime.AmazonServiceClient castClient = (Amazon.Runtime.AmazonServiceClient)client;
+
+            // Add the ResponseEventHandler to the AfterResponseEvent handlers
+            // so the handler runs after a network call is made and a response is obtained
+            castClient.AfterResponseEvent += cacheClientEvent;
         }
 
         private static ResponseMetadata ConvertMetaData(Amazon.Runtime.ResponseMetadata rmd) {
