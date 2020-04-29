@@ -46,9 +46,9 @@ module {:extern "MultiKeyringDef"} MultiKeyringDef {
         method OnEncrypt(materials: Materials.ValidEncryptionMaterials) returns (res: Result<Materials.ValidEncryptionMaterials>)
             requires Valid()
             ensures Valid()
-            ensures res.Success? ==> 
+            ensures res.Success? ==>
                     && materials.encryptionContext == res.value.encryptionContext
-                    && materials.algorithmSuiteID == res.value.algorithmSuiteID 
+                    && materials.algorithmSuiteID == res.value.algorithmSuiteID
                     && (materials.plaintextDataKey.Some? ==> res.value.plaintextDataKey == materials.plaintextDataKey)
                     && materials.keyringTrace <= res.value.keyringTrace
                     && materials.encryptedDataKeys <= res.value.encryptedDataKeys
@@ -74,7 +74,7 @@ module {:extern "MultiKeyringDef"} MultiKeyringDef {
                 invariant materials.keyringTrace <= resultMaterials.keyringTrace
                 invariant materials.encryptedDataKeys <= resultMaterials.encryptedDataKeys
                 invariant materials.signingKey == resultMaterials.signingKey
-                decreases |children| - i 
+                decreases |children| - i
             {
                 resultMaterials :- children[i].OnEncrypt(resultMaterials);
                 i := i + 1;
@@ -108,9 +108,9 @@ module {:extern "MultiKeyringDef"} MultiKeyringDef {
             }
             var i := 0;
             while i < |children|
-                invariant res.Success? ==> 
+                invariant res.Success? ==>
                         && materials.encryptionContext == res.value.encryptionContext
-                        && materials.algorithmSuiteID == res.value.algorithmSuiteID 
+                        && materials.algorithmSuiteID == res.value.algorithmSuiteID
                         && (materials.plaintextDataKey.Some? ==> res.value.plaintextDataKey == materials.plaintextDataKey)
                         && materials.keyringTrace <= res.value.keyringTrace
                         && materials.verificationKey == res.value.verificationKey

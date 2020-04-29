@@ -24,7 +24,7 @@ module {:extern "TestClient"} TestClient {
   import UTF8
 
   import TestUtils
-    
+
   module Helpers {
     import opened StandardLibrary
     import opened UInt = StandardLibrary.UInt
@@ -34,7 +34,7 @@ module {:extern "TestClient"} TestClient {
     import UTF8
     import Client = ESDKClient
     import TestUtils
-  
+
     method EncryptDecryptTest(cmm: CMMDefs.CMM)
       requires cmm.Valid()
       modifies cmm.Repr

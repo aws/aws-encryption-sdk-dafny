@@ -172,7 +172,7 @@ module Base64 {
     if |b| == 0 then []
     else EncodeBlock(b[..3]) + EncodeRecursively(b[3..])
   }
-  
+
   lemma DecodeEncodeRecursively(s: seq<index>)
     requires |s| % 4 == 0
     ensures EncodeRecursively(DecodeRecursively(s)) == s
