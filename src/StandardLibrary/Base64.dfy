@@ -172,7 +172,7 @@ module Base64 {
     if |b| == 0 then []
     else EncodeBlock(b[..3]) + EncodeRecursively(b[3..])
   }
-  
+
   lemma DecodeEncodeRecursively(s: seq<index>)
     requires |s| % 4 == 0
     ensures EncodeRecursively(DecodeRecursively(s)) == s
@@ -345,19 +345,35 @@ module Base64 {
 
   function method DecodeValid(s: seq<char>): (b: seq<uint8>)
     requires IsBase64String(s)
-    ensures s == [] ==> b == []
-    ensures |s| >= 4 && Is1Padding(s[(|s| - 4)..]) ==> b == (DecodeUnpadded(s[..(|s| - 4)]) + Decode1Padding(s[(|s| - 4)..]))
-    ensures |s| >= 4 && Is1Padding(s[(|s| - 4)..]) ==> |b| % 3 == 2;
-    ensures |s| >= 4 && Is2Padding(s[(|s| - 4)..]) ==> b == (DecodeUnpadded(s[..(|s| - 4)]) + Decode2Padding(s[(|s| - 4)..]))
-    ensures |s| >= 4 && Is2Padding(s[(|s| - 4)..]) ==> |b| % 3 == 1;
-    ensures |s| >= 4 && !Is1Padding(s[(|s| - 4)..]) && !Is2Padding(s[(|s| - 4)..]) ==> b == DecodeUnpadded(s)
-    ensures |s| >= 4 && !Is1Padding(s[(|s| - 4)..]) && !Is2Padding(s[(|s| - 4)..]) ==> |b| % 3 == 0;
+  {
+    if s == [] then [] else
+      var finalBlockStart := |s| - 4;
+      var prefix, suffix := s[..finalBlockStart], s[finalBlockStart..];
+      if Is1Padding(suffix) then
+        DecodeUnpadded(prefix) + Decode1Padding(suffix)
+      else if Is2Padding(suffix) then
+        DecodeUnpadded(prefix) + Decode2Padding(suffix)
+      else
+        DecodeUnpadded(s)
+  }
+
+  lemma AboutDecodeValid(s: seq<char>, b: seq<uint8>)
+    requires IsBase64String(s) && b == DecodeValid(s)
+    ensures 4 <= |s| ==> var finalBlockStart := |s| - 4;
+      var prefix, suffix := s[..finalBlockStart], s[finalBlockStart..];
+      && (Is1Padding(suffix) ==> |b| % 3 == 2)
+      && (Is2Padding(suffix) ==> |b| % 3 == 1)
+      && (!Is1Padding(suffix) && !Is2Padding(suffix) ==> |b| % 3 == 0)
   {
     var finalBlockStart := |s| - 4;
-    if s == [] then []
-    else if Is1Padding(s[finalBlockStart..]) then DecodeUnpadded(s[..finalBlockStart]) + Decode1Padding(s[finalBlockStart..])
-    else if Is2Padding(s[finalBlockStart..]) then DecodeUnpadded(s[..finalBlockStart]) + Decode2Padding(s[finalBlockStart..])
-    else DecodeUnpadded(s)
+    if s == [] {
+    } else if Is1Padding(s[finalBlockStart..]) {
+      assert b == DecodeUnpadded(s[..finalBlockStart]) + Decode1Padding(s[finalBlockStart..]);
+    } else if Is2Padding(s[finalBlockStart..]) {
+      assert b == DecodeUnpadded(s[..finalBlockStart]) + Decode2Padding(s[finalBlockStart..]);
+    } else {
+      assert b == DecodeUnpadded(s);
+    }
   }
 
   function method Decode(s: seq<char>): (b: Result<seq<uint8>>)
@@ -376,9 +392,6 @@ module Base64 {
     ensures |s| % 4 == 0
     ensures IsBase64String(s)
     // Rather than ensure Decode(s) == Success(b) directly, lemmas are used to verify this property
-    ensures |b| % 3 == 0 ==> s == EncodeUnpadded(b)
-    ensures |b| % 3 == 1 ==> s == (EncodeUnpadded(b[..(|b| - 1)]) + Encode2Padding(b[(|b| - 1)..]))
-    ensures |b| % 3 == 2 ==> s == (EncodeUnpadded(b[..(|b| - 2)]) + Encode1Padding(b[(|b| - 2)..]))
   {
     if |b| % 3 == 0 then EncodeUnpadded(b)
     else if |b| % 3 == 1 then EncodeUnpadded(b[..(|b| - 1)]) + Encode2Padding(b[(|b| - 1)..])

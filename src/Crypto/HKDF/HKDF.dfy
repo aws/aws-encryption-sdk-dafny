@@ -36,7 +36,39 @@ module HKDF {
     return prk;
   }
 
-  method Expand(hmac: HMac, prk: seq<uint8>, info: seq<uint8>, expectedLength: int, digest: Digests, ghost salt: seq<uint8>) returns (okm: seq<uint8>)
+  // T is relational since the external hashMethod hmac.GetKey() ensures that the input and output of the hash method are in the relation hmac.HashSignature
+  // T depends on Ti and Ti depends on hmac.HashSignature
+  predicate T(hmac: HMac, info: seq<uint8>, n: nat, res: seq<uint8>)
+    requires 0 <= n < 256
+    decreases n
+  {
+    if n == 0 then
+      [] == res
+    else
+      var nMinusOne := n - 1;
+      exists prev1, prev2 :: T(hmac, info, nMinusOne, prev1) && Ti(hmac, info, n, prev2) && prev1 + prev2 == res
+  }
+
+  predicate Ti(hmac: HMac, info: seq<uint8>, n: nat, res: seq<uint8>)
+    requires 0 <= n < 256
+    decreases n, 1
+  {
+    if n == 0 then
+      res == []
+    else
+      exists prev :: PreTi(hmac, info, n, prev) &&  hmac.HashSignature(prev, res)
+  }
+
+    // return T (i)
+  predicate PreTi(hmac: HMac, info: seq<uint8>, n: nat, res: seq<uint8>)
+    requires 1 <= n < 256
+    decreases n, 0
+  {
+    var nMinusOne := n - 1;
+    exists prev | Ti(hmac, info, nMinusOne, prev) :: res == prev + info + [(n as uint8)]
+  }
+
+  method Expand(hmac: HMac, prk: seq<uint8>, info: seq<uint8>, expectedLength: int, digest: Digests, ghost salt: seq<uint8>) returns (okm: seq<uint8>, ghost okmUnabridged: seq<uint8>)
     requires hmac.GetDigest() == digest
     requires 1 <= expectedLength <= 255 * GetHashLength(hmac.GetDigest())
     requires |salt| != 0
@@ -46,10 +78,15 @@ module HKDF {
     modifies hmac
     ensures |okm| == expectedLength
     ensures hmac.GetKey() == prk
+    ensures var n := (GetHashLength(digest) + expectedLength - 1) / GetHashLength(digest);
+      && T(hmac, info, n, okmUnabridged)
+      && (|okmUnabridged| <= expectedLength ==> okm == okmUnabridged)
+      && (expectedLength < |okmUnabridged| ==> okm == okmUnabridged[..expectedLength])
   {
     // N = ceil(L / Hash Length)
     var hashLength := GetHashLength(digest);
     var n := (hashLength + expectedLength - 1) / hashLength;
+    assert 0 <= n < 256;
 
     // T(0) = empty string (zero length)
     hmac.Init(prk);
@@ -59,7 +96,7 @@ module HKDF {
     // T = T(0) + T (1) + T(2) + ... T(n)
     // T(1) = HMAC-Hash(PRK, T(1) | info | 0x01)
     // ...
-    // T(n) = HMAC-Hash(prk, T(n - 1) | info | 0x0n)
+    // T(n) = HMAC- Hash(prk, T(n - 1) | info | 0x0n)
     var i := 1;
     while i <= n
       invariant 1 <= i <= n + 1
@@ -69,6 +106,8 @@ module HKDF {
       invariant hmac.GetKey() == prk
       invariant hmac.GetDigest() == digest
       invariant hmac.GetInputSoFar() == []
+      invariant T(hmac, info, i - 1, t_n)
+      invariant Ti(hmac, info, i - 1, t_prev)
     {
       hmac.Update(t_prev);
       hmac.Update(info);
@@ -77,13 +116,21 @@ module HKDF {
 
       // Add additional verification for T(n): github.com/awslabs/aws-encryption-sdk-dafny/issues/177
       t_prev := hmac.GetResult();
+      // t_n == T(i - 1)
+      assert T(hmac, info, i - 1, t_n);
+      assert Ti(hmac, info, i, t_prev);
+
       t_n := t_n + t_prev;
+      // t_n == T(i) == T(i - 1) + Ti(i)
       i := i + 1;
     }
 
     // okm = first L (expectedLength) bytes of T(n)
     okm := t_n;
-    if |okm| > expectedLength {
+    okmUnabridged := okm;
+    assert T(hmac, info, n, okmUnabridged);
+
+    if expectedLength < |okm| {
       okm := okm[..expectedLength];
     }
   }
@@ -114,6 +161,7 @@ module HKDF {
     }
 
     var prk := Extract(hmac, nonEmptySalt, ikm, digest);
-    okm := Expand(hmac, prk, info, L, digest, nonEmptySalt);
+    ghost var okmUnabridged;
+    okm, okmUnabridged := Expand(hmac, prk, info, L, digest, nonEmptySalt);
   }
 }

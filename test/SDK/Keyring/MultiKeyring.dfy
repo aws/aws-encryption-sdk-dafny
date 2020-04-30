@@ -1,10 +1,12 @@
 include "../../../src/SDK/Keyring/MultiKeyring.dfy"
 include "../../../src/SDK/Keyring/RawAESKeyring.dfy"
 include "../../../src/SDK/AlgorithmSuite.dfy"
+include "../../../src/SDK/EncryptionContext.dfy"
 include "../../../src/Crypto/EncryptionSuites.dfy"
 include "../../../src/StandardLibrary/StandardLibrary.dfy"
 include "../../../src/StandardLibrary/UInt.dfy"
 include "../../../src/Util/UTF8.dfy"
+include "../../Util/TestUtils.dfy"
 
 include "./TestKeyrings.dfy"
 
@@ -12,29 +14,27 @@ module TestMultiKeying {
   import opened StandardLibrary
   import opened UInt = StandardLibrary.UInt
   import RawAESKeyringDef
+  import EncryptionContext
   import EncryptionSuites
   import MultiKeyringDef
   import TestKeyrings
   import AlgorithmSuite
   import Materials
+  import TestUtils
   import UTF8
 
   method {:test} TestOnEncryptOnDecryptWithGenerator() {
     // TODO: mock children keyrings
-    var keyA :- expect UTF8.Encode("keyA");
-    var valA :- expect UTF8.Encode("valA");
-    var encryptionContext := map[keyA := valA];
-    var child1Name :- expect UTF8.Encode("child1 Name");
-    var child1Namespace :- expect UTF8.Encode("child1 Namespace");
-    var child2Name :- expect UTF8.Encode("child2 Name");
-    var child2namespace :- expect UTF8.Encode("child2 Namespace");
-    var child1Keyring := new RawAESKeyringDef.RawAESKeyring(child1Name, child1Namespace, seq(32, i => 0), EncryptionSuites.AES_GCM_256);
-    var child2Keyring := new RawAESKeyringDef.RawAESKeyring(child2Name, child2namespace, seq(32, i => 0), EncryptionSuites.AES_GCM_256);
-    var keyIDs := new [][child2Keyring];
-    var multiKeyring := new MultiKeyringDef.MultiKeyring(child1Keyring, keyIDs);
+    var encryptionContext := TestUtils.SmallEncryptionContext(TestUtils.SmallEncryptionContextVariation.A);
+    var child1Namespace, child1Name := TestUtils.NamespaceAndName(1);
+    var child2namespace, child2Name := TestUtils.NamespaceAndName(2);
+
+    var child1Keyring := new RawAESKeyringDef.RawAESKeyring(child1Namespace, child1Name, seq(32, i => 0), EncryptionSuites.AES_GCM_256);
+    var child2Keyring := new RawAESKeyringDef.RawAESKeyring(child2namespace, child2Name, seq(32, i => 0), EncryptionSuites.AES_GCM_256);
+    var multiKeyring := new MultiKeyringDef.MultiKeyring(child1Keyring, [child2Keyring]);
     var algorithmSuiteID := AlgorithmSuite.AES_256_GCM_IV12_TAG16_HKDF_SHA384_ECDSA_P384;
     var signingKey := seq(32, i => 0);
-    
+
     // Encryption
     var encryptionMaterialsIn := Materials.EncryptionMaterials.WithoutDataKeys(encryptionContext, algorithmSuiteID, Some(signingKey));
     var encryptionMaterialsOut :- expect multiKeyring.OnEncrypt(encryptionMaterialsIn);
@@ -71,25 +71,20 @@ module TestMultiKeying {
 
   method {:test} TestOnEncryptOnDecryptWithoutGenerator() {
     // TODO: mock children keyrings and move encrypt <-> decrypt test into new test
-    var keyA :- expect UTF8.Encode("keyA");
-    var valA :- expect UTF8.Encode("valA");
-    var encryptionContext := map[keyA := valA];
-    var child1Name :- expect UTF8.Encode("child1 Name");
-    var child1Namespace :- expect UTF8.Encode("child1 Namespace");
-    var child2Name :- expect UTF8.Encode("child2 Name");
-    var child2namespace :- expect UTF8.Encode("child2 Namespace");
-    var child1Keyring := new RawAESKeyringDef.RawAESKeyring(child1Name, child1Namespace, seq(32, i => 0), EncryptionSuites.AES_GCM_256);
-    var child2Keyring := new RawAESKeyringDef.RawAESKeyring(child2Name, child2namespace, seq(32, i => 0), EncryptionSuites.AES_GCM_256);
-      
+    var encryptionContext := TestUtils.SmallEncryptionContext(TestUtils.SmallEncryptionContextVariation.A);
+    var child1Namespace, child1Name := TestUtils.NamespaceAndName(1);
+    var child2namespace, child2Name := TestUtils.NamespaceAndName(2);
+
+    var child1Keyring := new RawAESKeyringDef.RawAESKeyring(child1Namespace, child1Name, seq(32, i => 0), EncryptionSuites.AES_GCM_256);
+    var child2Keyring := new RawAESKeyringDef.RawAESKeyring(child2namespace, child2Name, seq(32, i => 0), EncryptionSuites.AES_GCM_256);
     var algorithmSuiteID := AlgorithmSuite.AES_256_GCM_IV12_TAG16_HKDF_SHA384_ECDSA_P384;
     var signingKey := seq(32, i => 0);
 
-    var keyIDs := new [][child1Keyring, child2Keyring];
-    var multiKeyring := new MultiKeyringDef.MultiKeyring(null, keyIDs);
+    var multiKeyring := new MultiKeyringDef.MultiKeyring(null, [child1Keyring, child2Keyring]);
 
     var pdk := seq(32, i => 0);
     var traceEntry := Materials.KeyringTraceEntry([], [], {Materials.GENERATED_DATA_KEY});
-    
+
     // Encryption
     var encryptionMaterialsIn := Materials.EncryptionMaterials.WithoutDataKeys(encryptionContext, algorithmSuiteID, Some(signingKey))
                                                               .WithKeys(Some(pdk), [], [traceEntry]);
@@ -125,18 +120,15 @@ module TestMultiKeying {
   }
 
   method {:test} TestOnEncryptChildKeyringFailure() {
-    var keyA :- expect UTF8.Encode("keyA");
-    var valA :- expect UTF8.Encode("valA");
-    var encryptionContext := map[keyA := valA];
-    var child1Name :- expect UTF8.Encode("child1 Name");
-    var child1Namespace :- expect UTF8.Encode("child1 Namespace");
-    var child1Keyring := new RawAESKeyringDef.RawAESKeyring(child1Name, child1Namespace, seq(32, i => 0), EncryptionSuites.AES_GCM_256);
+    var encryptionContext := TestUtils.SmallEncryptionContext(TestUtils.SmallEncryptionContextVariation.A);
+    var child1Namespace, child1Name := TestUtils.NamespaceAndName(1);
+
+    var child1Keyring := new RawAESKeyringDef.RawAESKeyring(child1Namespace, child1Name, seq(32, i => 0), EncryptionSuites.AES_GCM_256);
     var child2Keyring := new TestKeyrings.AlwaysFailingKeyring();
-    var keyIDs := new [][child2Keyring];
-    var multiKeyring := new MultiKeyringDef.MultiKeyring(child1Keyring, keyIDs);
+    var multiKeyring := new MultiKeyringDef.MultiKeyring(child1Keyring, [child2Keyring]);
     var algorithmSuiteID := AlgorithmSuite.AES_256_GCM_IV12_TAG16_HKDF_SHA384_ECDSA_P384;
     var signingKey := seq(32, i => 0);
-    
+
     // Encryption
     var encryptionMaterialsIn := Materials.EncryptionMaterials.WithoutDataKeys(encryptionContext, algorithmSuiteID, Some(signingKey));
     var encryptionMaterialsOut := multiKeyring.OnEncrypt(encryptionMaterialsIn);
@@ -151,8 +143,7 @@ module TestMultiKeying {
 
     var childKeyring1 := new TestKeyrings.AlwaysFailingKeyring();
     var childKeyring2 := new TestKeyrings.NoOpKeyring();
-    var children := new [][childKeyring1, childKeyring2];
-    var multiKeyring := new MultiKeyringDef.MultiKeyring(childKeyring2, children);
+    var multiKeyring := new MultiKeyringDef.MultiKeyring(childKeyring2, [childKeyring1, childKeyring2]);
 
     var decryptionMaterialsIn := Materials.DecryptionMaterials.WithoutPlaintextDataKey(encryptionContext, algorithmSuiteID, Some(verificationKey));
     var decryptionMaterialsOut := multiKeyring.OnDecrypt(decryptionMaterialsIn, [edk]);
@@ -166,8 +157,7 @@ module TestMultiKeying {
     var verificationKey := seq(32, i => 0);
 
     var childKeyring := new TestKeyrings.NoOpKeyring();
-    var children := new [][childKeyring, childKeyring];
-    var multiKeyring := new MultiKeyringDef.MultiKeyring(null, children);
+    var multiKeyring := new MultiKeyringDef.MultiKeyring(null, [childKeyring, childKeyring]);
 
     var decryptionMaterialsIn := Materials.DecryptionMaterials.WithoutPlaintextDataKey(encryptionContext, algorithmSuiteID, Some(verificationKey));
     var decryptionMaterialsOut :- expect multiKeyring.OnDecrypt(decryptionMaterialsIn, [edk]);

@@ -1,6 +1,6 @@
 using System;
-using System.Numerics;
 
+using ibyteseq = Dafny.ISequence<byte>;
 using byteseq = Dafny.Sequence<byte>;
 
 namespace HMAC {
@@ -29,20 +29,20 @@ namespace HMAC {
             hmac = new Org.BouncyCastle.Crypto.Macs.HMac(bouncyCastleDigest);
         }
 
-        public void Init(byteseq input) {
+        public void Init(ibyteseq input) {
             // KeyParameter/ Init should not mutate input, but this is safer than using input.Elements directly
             byte[] elemCopy = (byte[]) input.Elements.Clone();
             var keyParams = new Org.BouncyCastle.Crypto.Parameters.KeyParameter(elemCopy);
             hmac.Init(keyParams);
         }
 
-        public void BlockUpdate(byteseq input) {
+        public void BlockUpdate(ibyteseq input) {
             // BlockUpdate should not mutate input, but this is safer than using input.Elements directly
             byte[] elemCopy = (byte[]) input.Elements.Clone();
             hmac.BlockUpdate(elemCopy, 0, elemCopy.Length);
         }
 
-        public byteseq GetResult() {
+        public ibyteseq GetResult() {
             byte[] output = new byte[hmac.GetMacSize()];
             hmac.DoFinal(output, 0);
             return byteseq.FromArray(output);

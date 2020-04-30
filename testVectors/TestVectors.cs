@@ -53,7 +53,7 @@ namespace TestVectorTests {
             JToken keys = keyManifest["keys"];
             if (keys == null) {
                 throw new ArgumentException($"Key file malformed: missing \"keys\" field");
-            } 
+            }
             return keys.ToObject<Dictionary<string, Key>>();
         }
 
@@ -63,16 +63,16 @@ namespace TestVectorTests {
             }
             string contents = System.IO.File.ReadAllText(path);
             JObject manifest = JObject.Parse(contents);
-            
+
             JToken tests = manifest["tests"];
             if (tests == null) {
                 throw new ArgumentException($"Manifest file malformed: missing \"tests\" field");
-            } 
+            }
 
             JToken keys = manifest["keys"];
             if (keys == null) {
                 throw new ArgumentException($"Manifest file malformed: missing \"keys\" field");
-            } 
+            }
 
             return new Manifest(tests.ToObject<Dictionary<string, TestVector>>(), keys.ToString());
         }
@@ -115,7 +115,7 @@ namespace TestVectorTests {
             foreach(var vectorEntry in vectorMap) {
                 string vectorID = vectorEntry.Key;
                 TestVector vector = vectorEntry.Value;
-                
+
                 string plaintextPath = ManifestURIToPath(vector.plaintext, vectorRoot);
                 if (!File.Exists(plaintextPath)) {
                     throw new ArgumentException($"Could not find plaintext file at path: {plaintextPath}");
@@ -185,7 +185,7 @@ namespace TestVectorTests {
         }
         private static Keyring CreateKeyring(MasterKey keyInfo, Key key) {
             if (keyInfo.type == "aws-kms") {
-                ClientSupplier clientSupplier = new DefaultClientSupplier();
+                AWSEncryptionSDK.AWSKMSClientSupplier clientSupplier = AWSEncryptionSDK.AWSKMSClientSuppliers.NewKMSDefaultClientSupplier();
                 return Keyrings.MakeKMSKeyring(clientSupplier, Enumerable.Empty<String>(), key.ID, Enumerable.Empty<String>());
             } else if (keyInfo.type == "raw" && keyInfo.encryptionAlgorithm == "aes") {
                 return Keyrings.MakeRawAESKeyring(
@@ -269,14 +269,15 @@ namespace TestVectorTests {
             this.vectorMap = vectorMap;
             this.keys = keys;
         }
-    } 
+    }
 
     public class TestVectorDecryptTests {
         #pragma warning disable xUnit1026 // Suppress Unused argument warnings for vectorID.
         [SkippableTheory]
         [ClassData (typeof(DecryptTestVectors))]
         public void CanDecryptTestVector(string vectorID, CMM cmm, byte[] expectedPlaintext, MemoryStream ciphertextStream) {
-            MemoryStream decodedStream = AWSEncryptionSDK.Client.Decrypt(ciphertextStream, cmm);
+            var request = new AWSEncryptionSDK.Client.DecryptRequest{message = ciphertextStream, cmm = cmm};
+            MemoryStream decodedStream = AWSEncryptionSDK.Client.Decrypt(request);
             byte[] result = decodedStream.ToArray();
             Assert.Equal(expectedPlaintext, result);
         }
@@ -285,7 +286,8 @@ namespace TestVectorTests {
         [Theory]
         [ClassData (typeof(EncryptTestVectors))]
         public void CanEncryptTestVector(string vectorID, CMM cmm, byte[] plaintext, HttpClient client, string decryptOracle) {
-            MemoryStream ciphertext = AWSEncryptionSDK.Client.Encrypt(new MemoryStream(plaintext), cmm);
+            var request = new AWSEncryptionSDK.Client.EncryptRequest{plaintext = new MemoryStream(plaintext), cmm = cmm};
+            MemoryStream ciphertext = AWSEncryptionSDK.Client.Encrypt(request);
 
             StreamContent content = new StreamContent(ciphertext);
             content.Headers.Add("Content-Type", "application/octet-stream");

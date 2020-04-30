@@ -1,21 +1,16 @@
 using System;
 
 using Org.BouncyCastle.Crypto;
-using Org.BouncyCastle.Crypto.Digests;
-using Org.BouncyCastle.Crypto.EC;
-using Org.BouncyCastle.Crypto.Engines;
-using Org.BouncyCastle.Crypto.Encodings;
 using Org.BouncyCastle.Crypto.Generators;
 using Org.BouncyCastle.Crypto.Parameters;
-using Org.BouncyCastle.Crypto.Prng;
 using Org.BouncyCastle.Crypto.Signers;
 using Org.BouncyCastle.Math;
 using Org.BouncyCastle.Math.EC;
-using Org.BouncyCastle.OpenSsl;
 using Org.BouncyCastle.Security;
 using Org.BouncyCastle.Asn1.X9;
 using Org.BouncyCastle.Asn1;
 
+using ibyteseq = Dafny.ISequence<byte>;
 using byteseq = Dafny.Sequence<byte>;
 
 namespace Signature {
@@ -61,7 +56,7 @@ namespace Signature {
         ///     placed in the remainder of the octet string
         /// Requires: keyParams.Parameters.Curve is a prime curve (if not, a cast exception will be thrown)
         /// </summary>
-        public static byteseq SerializePublicKey(ECPublicKeyParameters keyParams) {
+        public static ibyteseq SerializePublicKey(ECPublicKeyParameters keyParams) {
             ECPoint pt = keyParams.Q;
 
             // zero-pad x coordinate
@@ -71,7 +66,7 @@ namespace Signature {
             if (xBytes.Length < fieldByteSize) {
                 var paddingLength = fieldByteSize - xBytes.Length;
                 var paddedX = new byte[fieldByteSize];
-                System.Array.Fill(paddedX, (byte)0, 0, paddingLength);
+                System.Array.Clear(paddedX, 0, paddingLength);
                 xBytes.CopyTo(paddedX, paddingLength);
                 xBytes = paddedX;
             }
@@ -82,11 +77,13 @@ namespace Signature {
             var yBytes = new byte[] { compressedY };
 
             // return yBytes + xBytes:
-            return byteseq.FromArray(yBytes).Concat(byteseq.FromArray(xBytes));
+            return byteseq.Concat(byteseq.FromArray(yBytes), (byteseq.FromArray(xBytes)));
         }
 
-        public static STL.Result<bool> Verify(ECDSAParams x, byteseq vk, byteseq digest, byteseq sig) {
+        public static STL.Result<bool> Verify(ECDSAParams x, ibyteseq vk, ibyteseq msg, ibyteseq sig) {
             try {
+                byte[] digest = InternalDigest(x, msg);
+
                 X9ECParameters parameters;
                 if (x.is_ECDSA__P384) {
                     parameters = ECNamedCurveTable.GetByName("secp384r1");
@@ -102,23 +99,25 @@ namespace Signature {
                 sign.Init(false, vkp);
                 BigInteger r, s;
                 DERDeserialize(sig.Elements, out r, out s);
-                return STL.Result<bool>.create_Success(sign.VerifySignature(digest.Elements, r, s));
+                return STL.Result<bool>.create_Success(sign.VerifySignature(digest, r, s));
             } catch (Exception e) {
                 return STL.Result<bool>.create_Failure(Dafny.Sequence<char>.FromString(e.ToString()));
             }
         }
 
-        public static STL.Result<byteseq> Sign(ECDSAParams x, byteseq sk, byteseq digest) {
+        public static STL.Result<ibyteseq> Sign(ECDSAParams x, ibyteseq sk, ibyteseq msg) {
             try {
-                X9ECParameters p;
+                byte[] digest = InternalDigest(x, msg);
+
+                X9ECParameters parameters;
                 if (x.is_ECDSA__P384) {
-                    p = ECNamedCurveTable.GetByName("secp384r1");
+                    parameters = ECNamedCurveTable.GetByName("secp384r1");
                 } else if (x.is_ECDSA__P256) {
-                    p = ECNamedCurveTable.GetByName("secp256r1");
+                    parameters = ECNamedCurveTable.GetByName("secp256r1");
                 } else {
                     throw new ECDSAUnsupportedParametersException(x);
                 }
-                ECDomainParameters dp = new ECDomainParameters(p.Curve, p.G, p.N, p.H);
+                ECDomainParameters dp = new ECDomainParameters(parameters.Curve, parameters.G, parameters.N, parameters.H);
                 ECPrivateKeyParameters skp = new ECPrivateKeyParameters(new BigInteger(sk.Elements), dp);
                 ECDsaSigner sign = new ECDsaSigner();
                 sign.Init(true, skp);
@@ -127,35 +126,30 @@ namespace Signature {
                 // We may want to consider failing, after some number of loops, if we can do so in a way consistent with other ESDKs.
                 do {
                     // sig is array of two integers: r and s
-                    BigInteger[] sig = sign.GenerateSignature((byte[])digest.Elements.Clone());
+                    BigInteger[] sig = sign.GenerateSignature(digest);
                     serializedSignature = DERSerialize(sig[0], sig[1]);
                     if (serializedSignature.Length != x.SignatureLength()) {
                         // Most of the time, a signature of the wrong length can be fixed
                         // by negating s in the signature relative to the group order.
-                        serializedSignature = DERSerialize(sig[0], p.N.Subtract(sig[1]));
+                        serializedSignature = DERSerialize(sig[0], parameters.N.Subtract(sig[1]));
                     }
                 } while (serializedSignature.Length != x.SignatureLength());
-                return STL.Result<byteseq>.create_Success(byteseq.FromArray(serializedSignature));
+                return STL.Result<ibyteseq>.create_Success(byteseq.FromArray(serializedSignature));
             } catch (Exception e) {
-                return STL.Result<byteseq>.create_Failure(Dafny.Sequence<char>.FromString(e.ToString()));
+                return STL.Result<ibyteseq>.create_Failure(Dafny.Sequence<char>.FromString(e.ToString()));
             }
         }
 
-        public static STL.Result<byteseq> Digest(ECDSAParams x, byteseq msg) {
-            try {
-                System.Security.Cryptography.HashAlgorithm alg;
-                if (x.is_ECDSA__P384) {
-                    alg = System.Security.Cryptography.SHA384.Create();
-                } else if (x.is_ECDSA__P256) {
-                    alg = System.Security.Cryptography.SHA256.Create();
-                } else {
-                    throw new ECDSAUnsupportedParametersException(x);
-                }
-                byte[] digest = alg.ComputeHash(msg.Elements);
-                return STL.Result<byteseq>.create_Success(byteseq.FromArray(digest));
-            } catch (Exception e) {
-                return STL.Result<byteseq>.create_Failure(Dafny.Sequence<char>.FromString(e.ToString()));
+        private static byte[] InternalDigest(ECDSAParams x, ibyteseq msg) {
+            System.Security.Cryptography.HashAlgorithm alg;
+            if (x.is_ECDSA__P384) {
+                alg = System.Security.Cryptography.SHA384.Create();
+            } else if (x.is_ECDSA__P256) {
+                alg = System.Security.Cryptography.SHA256.Create();
+            } else {
+                throw new ECDSAUnsupportedParametersException(x);
             }
+            return alg.ComputeHash(msg.Elements);
         }
 
         private static byte[] DERSerialize(BigInteger r, BigInteger s) {

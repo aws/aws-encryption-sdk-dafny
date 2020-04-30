@@ -27,19 +27,22 @@ module {:extern "RawRSAKeyringDef"} RawRSAKeyringDef {
 
     predicate Valid()
       reads this, Repr
+      ensures Valid() ==> this in Repr
     {
       this in Repr &&
       (publicKey.Some? || privateKey.Some?) &&
-      (publicKey.Some? ==> publicKey.get in Repr && publicKey.get.Repr <= Repr && publicKey.get.Valid()) &&
+      (publicKey.Some? ==>
+        publicKey.get in Repr && publicKey.get.Repr <= Repr && this !in publicKey.get.Repr && publicKey.get.Valid()) &&
       (publicKey.Some? ==> publicKey.get.padding == paddingMode) &&
-      (privateKey.Some? ==> privateKey.get in Repr && privateKey.get.Repr <= Repr && privateKey.get.Valid()) &&
+      (privateKey.Some? ==>
+        privateKey.get in Repr && privateKey.get.Repr <= Repr && this !in privateKey.get.Repr && privateKey.get.Valid()) &&
       (privateKey.Some? ==> privateKey.get.padding == paddingMode) &&
       |keyNamespace| < UINT16_LIMIT &&
       |keyName| < UINT16_LIMIT
     }
 
-    constructor(namespace: UTF8.ValidUTF8Bytes, name: UTF8.ValidUTF8Bytes, padding: RSA.PaddingMode,
-                publicKey: Option<RSA.PublicKey>, privateKey: Option<RSA.PrivateKey>)
+    constructor (namespace: UTF8.ValidUTF8Bytes, name: UTF8.ValidUTF8Bytes, padding: RSA.PaddingMode,
+                 publicKey: Option<RSA.PublicKey>, privateKey: Option<RSA.PrivateKey>)
       requires publicKey.Some? || privateKey.Some?
       requires publicKey.Some? ==> publicKey.get.Valid()
       requires publicKey.Some? ==> publicKey.get.padding == padding
@@ -52,25 +55,28 @@ module {:extern "RawRSAKeyringDef"} RawRSAKeyringDef {
       ensures paddingMode == padding
       ensures this.publicKey == publicKey
       ensures this.privateKey == privateKey
-      ensures Valid()
+      ensures Valid() && fresh(Repr - KeyRepr(publicKey) - KeyRepr(privateKey))
     {
       keyNamespace, keyName := namespace, name;
       paddingMode := padding;
       this.publicKey := publicKey;
       this.privateKey := privateKey;
-      Repr := {this} + (if publicKey.Some? then {publicKey.get} + publicKey.get.Repr else {}) +
-        (if privateKey.Some? then {privateKey.get} + privateKey.get.Repr else {});
+      Repr := {this} + KeyRepr(publicKey) + KeyRepr(privateKey);
+    }
+
+    static function KeyRepr(key: Option<RSA.Key>): set<object>
+      reads if key.Some? then {key.get} else {}
+    {
+      if key.Some? then key.get.Repr else {}
     }
 
     method OnEncrypt(materials: Materials.ValidEncryptionMaterials) returns (res: Result<Materials.ValidEncryptionMaterials>)
       requires Valid()
       // NOTE: encryptionContext is intentionally unused
-      ensures Valid()
-      ensures unchanged(Repr)
       ensures publicKey.None? ==> res.Failure?
-      ensures res.Success? ==> 
+      ensures res.Success? ==>
         && materials.encryptionContext == res.value.encryptionContext
-        && materials.algorithmSuiteID == res.value.algorithmSuiteID 
+        && materials.algorithmSuiteID == res.value.algorithmSuiteID
         && (materials.plaintextDataKey.Some? ==> res.value.plaintextDataKey == materials.plaintextDataKey)
         && materials.keyringTrace <= res.value.keyringTrace
         && materials.encryptedDataKeys <= res.value.encryptedDataKeys

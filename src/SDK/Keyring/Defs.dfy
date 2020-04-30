@@ -10,15 +10,17 @@ module {:extern "KeyringDefs"} KeyringDefs {
   import AlgorithmSuite
 
   trait {:termination false} Keyring {
-    ghost var Repr : set<object>
-    predicate Valid() reads this, Repr
+    ghost var Repr: set<object>
+    predicate Valid()
+      reads this, Repr
+      ensures Valid() ==> this in Repr
 
     method OnEncrypt(materials: Materials.ValidEncryptionMaterials) returns (res: Result<Materials.ValidEncryptionMaterials>)
       requires Valid()
       ensures Valid()
       ensures res.Success? ==>
           && materials.encryptionContext == res.value.encryptionContext
-          && materials.algorithmSuiteID == res.value.algorithmSuiteID 
+          && materials.algorithmSuiteID == res.value.algorithmSuiteID
           && (materials.plaintextDataKey.Some? ==> res.value.plaintextDataKey == materials.plaintextDataKey)
           && materials.keyringTrace <= res.value.keyringTrace
           && materials.encryptedDataKeys <= res.value.encryptedDataKeys
