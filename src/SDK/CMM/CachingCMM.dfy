@@ -66,8 +66,7 @@ module {:extern "CachingCMMDef"} CachingCMMDef {
       this in Repr &&
       cmm in Repr && cmm.Repr <= Repr && this !in cmm.Repr && cmm.Valid() &&
       cmc in Repr && cmc.Repr <= Repr && this !in cmc.Repr && cmc.Valid() &&
-      cmm.Repr !! cmc.Repr &&
-      secondsToLiveLimit != 0
+      cmm.Repr !! cmc.Repr
     }
 
     constructor (cmm: CMMDefs.CMM, secondsToLiveLimit: nat)
@@ -113,6 +112,23 @@ module {:extern "CachingCMMDef"} CachingCMMDef {
       this.secondsToLiveLimit := secondsToLiveLimit;
       this.messageLimit := messageLimit;
       this.byteLimit := byteLimit;
+
+      this.cmm := cmm;
+      var cmc := new CryptographicMaterialsCache();
+      assert cmc in cmc.Repr;
+      this.cmc := cmc;
+      Repr := {this} + cmm.Repr + cmc.Repr;
+    }
+
+    constructor ForTestingOnly_WithZeroTimeToLive(cmm: CMMDefs.CMM)
+      requires cmm.Valid()
+      ensures Valid() && fresh(Repr - old(cmm.Repr))
+      ensures this.cmm == cmm
+      ensures this.secondsToLiveLimit == 0
+    {
+      this.secondsToLiveLimit := 0;
+      this.messageLimit := DEFAULT_MESSAGE_USE_LIMIT_PER_CACHED_KEY;
+      this.byteLimit := DEFAULT_BYTE_USE_LIMIT_PER_CACHED_KEY;
 
       this.cmm := cmm;
       var cmc := new CryptographicMaterialsCache();

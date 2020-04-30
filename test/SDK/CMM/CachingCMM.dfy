@@ -60,19 +60,16 @@ module TestCachingCMM {
 
   method {:test} TestGetEMTimeLimit() {
     var tcmm := new Helpers.TestCMM();
-    var timeToLiveLimit := 1;
-    var messageLimit := 1_000_000;
-    var ccmm := new CachingCMMDef.CachingCMM.WithMessageLimit(tcmm, timeToLiveLimit, messageLimit);
+    var ccmm := new CachingCMMDef.CachingCMM.ForTestingOnly_WithZeroTimeToLive(tcmm);
 
     var encryptionContext := TestUtils.SmallEncryptionContext(TestUtils.SmallEncryptionContextVariation.AB);
     var eRequest := Materials.EncryptionMaterialsRequest(encryptionContext, Some(AlgorithmSuite.AES_128_GCM_IV12_TAG16_HKDF_SHA256_ECDSA_P256), Some(29));
 
-    // By waiting two seconds between the various requests, everything will be a cache miss
+    // With a 0 time-to-live limit, everything will be a cache miss
     var n := 0;
     while n < 12
       invariant ccmm.Valid() && fresh(ccmm.Repr)
     {
-      Helpers.Sleep(2000);
       Helpers.CallGetEM(ccmm, tcmm, eRequest, false);
       n := n + 1;
     }
@@ -135,19 +132,17 @@ module TestCachingCMM {
   method {:test} TestDMTimeLimit() {
     var tcmm := new Helpers.TestCMM();
     var timeToLiveLimit := 1;
-    var messageLimit := 1_000_000;
-    var ccmm := new CachingCMMDef.CachingCMM.WithMessageLimit(tcmm, timeToLiveLimit, messageLimit);
+    var ccmm := new CachingCMMDef.CachingCMM.ForTestingOnly_WithZeroTimeToLive(tcmm);
 
     var encryptionContext := TestUtils.SmallEncryptionContext(TestUtils.SmallEncryptionContextVariation.AB);
     var edk: Materials.ValidEncryptedDataKey := Materials.EncryptedDataKey([], [], []);
     var dRequest := Materials.DecryptionMaterialsRequest(AlgorithmSuite.AES_128_GCM_IV12_TAG16_HKDF_SHA256_ECDSA_P256, [edk], encryptionContext);
 
-    // By waiting two seconds between the various requests, everything will be a cache miss
+    // With a 0 time-to-live limit, everything will be a cache miss
     var n := 0;
     while n < 12
       invariant ccmm.Valid() && fresh(ccmm.Repr)
     {
-      Helpers.Sleep(2000);
       Helpers.CallDM(ccmm, tcmm, dRequest, false);
       n := n + 1;
     }
@@ -191,10 +186,6 @@ module TestCachingCMM {
     import AlgorithmSuite
     import UTF8
     import TestUtils
-
-    // This method waits "ms" milliseconds and then returns
-    method {:extern "System.Threading.Thread", "Sleep"} Sleep(ms: int32)
-      requires 0 <= ms
 
     // Call ccmm.GetEncryptionMaterial and report whether or not there was a cache hit
     method CallGetEM(ccmm: CachingCMMDef.CachingCMM, tcmm: TestCMM, request: Materials.EncryptionMaterialsRequest, expectCacheHit: bool)
