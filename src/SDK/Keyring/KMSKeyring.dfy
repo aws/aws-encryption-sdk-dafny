@@ -25,7 +25,7 @@ module {:extern "KMSKeyringDef"} KMSKeyringDef {
 
   class KMSKeyring extends KeyringDefs.Keyring {
 
-    const clientSupplier: KMSUtils.AWSKMSClientSupplier
+    const clientSupplier: KMSUtils.DafnyAWSKMSClientSupplier
     const keyIDs: seq<KMSUtils.CustomerMasterKey>
     const generator: Option<KMSUtils.CustomerMasterKey>
     const grantTokens: seq<KMSUtils.GrantToken>
@@ -41,7 +41,7 @@ module {:extern "KMSKeyringDef"} KMSKeyringDef {
       && (clientSupplier in Repr && clientSupplier.Repr <= Repr && this !in clientSupplier.Repr && clientSupplier.Valid())
     }
 
-    constructor (clientSupplier: KMSUtils.AWSKMSClientSupplier, keyIDs: seq<KMSUtils.CustomerMasterKey>, generator: Option<KMSUtils.CustomerMasterKey>, grantTokens: seq<KMSUtils.GrantToken>)
+    constructor (clientSupplier: KMSUtils.DafnyAWSKMSClientSupplier, keyIDs: seq<KMSUtils.CustomerMasterKey>, generator: Option<KMSUtils.CustomerMasterKey>, grantTokens: seq<KMSUtils.GrantToken>)
       requires clientSupplier.Valid()
       requires 0 <= |grantTokens| <= KMSUtils.MAX_GRANT_TOKENS
       ensures this.clientSupplier == clientSupplier
@@ -64,9 +64,9 @@ module {:extern "KMSKeyringDef"} KMSKeyringDef {
       requires |materials.encryptedDataKeys| == 0
       requires !isDiscovery
       ensures Valid()
-      ensures res.Success? ==> 
+      ensures res.Success? ==>
           && materials.encryptionContext == res.value.encryptionContext
-          && materials.algorithmSuiteID == res.value.algorithmSuiteID 
+          && materials.algorithmSuiteID == res.value.algorithmSuiteID
           && res.value.plaintextDataKey.Some?
           && materials.keyringTrace <= res.value.keyringTrace
           && materials.encryptedDataKeys <= res.value.encryptedDataKeys
@@ -79,7 +79,7 @@ module {:extern "KMSKeyringDef"} KMSKeyringDef {
       var regionRes := RegionFromKMSKeyARN(generator.get);
       var regionOpt := regionRes.ToOption();
       var client :- clientSupplier.GetClient(regionOpt);
-      var generatorResponse :- client.GenerateDataKey(generatorRequest);
+      var generatorResponse :- KMSUtils.GenerateDataKey(client, generatorRequest);
       if !generatorResponse.IsWellFormed() {
         return Failure("Invalid response from KMS GenerateDataKey");
       }
@@ -106,9 +106,9 @@ module {:extern "KMSKeyringDef"} KMSKeyringDef {
     method OnEncrypt(materials: Mat.ValidEncryptionMaterials) returns (res: Result<Mat.ValidEncryptionMaterials>)
       requires Valid()
       ensures Valid()
-      ensures res.Success? ==> 
+      ensures res.Success? ==>
           && materials.encryptionContext == res.value.encryptionContext
-          && materials.algorithmSuiteID == res.value.algorithmSuiteID 
+          && materials.algorithmSuiteID == res.value.algorithmSuiteID
           && (materials.plaintextDataKey.Some? ==> res.value.plaintextDataKey == materials.plaintextDataKey)
           && materials.keyringTrace <= res.value.keyringTrace
           && materials.encryptedDataKeys <= res.value.encryptedDataKeys
@@ -128,7 +128,7 @@ module {:extern "KMSKeyringDef"} KMSKeyringDef {
           resultMaterials :- Generate(materials);
           assert resultMaterials.plaintextDataKey.Some?;
         } else {
-          resultMaterials := materials; 
+          resultMaterials := materials;
           encryptCMKs := encryptCMKs + [generator.get];
         }
       } else {
@@ -138,7 +138,7 @@ module {:extern "KMSKeyringDef"} KMSKeyringDef {
       assert materials.plaintextDataKey.Some? ==> resultMaterials.plaintextDataKey == materials.plaintextDataKey;
 
       var i := 0;
-      while i < |encryptCMKs| 
+      while i < |encryptCMKs|
           invariant resultMaterials.plaintextDataKey.Some?
           invariant materials.encryptionContext == resultMaterials.encryptionContext
           invariant materials.algorithmSuiteID == resultMaterials.algorithmSuiteID
@@ -151,7 +151,7 @@ module {:extern "KMSKeyringDef"} KMSKeyringDef {
         var regionRes := RegionFromKMSKeyARN(encryptCMKs[i]);
         var regionOpt := regionRes.ToOption();
         var client :- clientSupplier.GetClient(regionOpt);
-        var encryptResponse :- client.Encrypt(encryptRequest);
+        var encryptResponse :- KMSUtils.Encrypt(client, encryptRequest);
         if encryptResponse.IsWellFormed() {
           var providerInfo :- UTF8.Encode(encryptResponse.keyID);
           if UINT16_LIMIT <= |providerInfo| {
@@ -207,7 +207,7 @@ module {:extern "KMSKeyringDef"} KMSKeyringDef {
           var clientRes := clientSupplier.GetClient(regionOpt);
           if clientRes.Success? {
             var client := clientRes.value;
-            var decryptResponseResult := client.Decrypt(decryptRequest);
+            var decryptResponseResult := KMSUtils.Decrypt(client, decryptRequest);
             if decryptResponseResult.Success? {
               var decryptResponse := decryptResponseResult.value;
               if (decryptResponse.keyID != providerInfo.value)

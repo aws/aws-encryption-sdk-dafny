@@ -54,10 +54,10 @@ module TestAESKeyring {
 
     var pdk := seq(32, i => 0);
     var traceEntry := Materials.KeyringTraceEntry([], [], {Materials.GENERATED_DATA_KEY});
-    
+
     var wrappingAlgorithmID := AlgorithmSuite.AES_256_GCM_IV12_TAG16_HKDF_SHA384_ECDSA_P384;
     var signingKey := seq(32, i => 0);
-    
+
     var encryptionMaterialsIn := Materials.EncryptionMaterials.WithoutDataKeys(encryptionContext, wrappingAlgorithmID, Some(signingKey))
                                                               .WithKeys(Some(pdk), [], [traceEntry]);
     var encryptionMaterialsOut :- expect rawAESKeyring.OnEncrypt(encryptionMaterialsIn);

@@ -83,7 +83,7 @@ namespace Signature {
         public static STL.Result<bool> Verify(ECDSAParams x, ibyteseq vk, ibyteseq msg, ibyteseq sig) {
             try {
                 byte[] digest = InternalDigest(x, msg);
-                
+
                 X9ECParameters parameters;
                 if (x.is_ECDSA__P384) {
                     parameters = ECNamedCurveTable.GetByName("secp384r1");
@@ -108,7 +108,7 @@ namespace Signature {
         public static STL.Result<ibyteseq> Sign(ECDSAParams x, ibyteseq sk, ibyteseq msg) {
             try {
                 byte[] digest = InternalDigest(x, msg);
-                
+
                 X9ECParameters parameters;
                 if (x.is_ECDSA__P384) {
                     parameters = ECNamedCurveTable.GetByName("secp384r1");
