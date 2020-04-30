@@ -199,39 +199,41 @@ module {:extern "KMSUtils"} KMSUtils {
 
   class CachingClientSupplierCache {
     ghost var Repr: set<object>
-    var cache: map<Option<string>, IAmazonKeyManagementService>
+    var ClientCache: map<Option<string>, IAmazonKeyManagementService>
 
     predicate Valid()
       reads this, Repr
       ensures Valid() ==> this in Repr
     {
       this in Repr &&
-      (forall region :: region in cache.Keys ==> cache[region] in Repr)
+      (forall region :: region in ClientCache.Keys ==> ClientCache[region] in Repr)
     }
 
     constructor ()
-      ensures cache == map[]
+      ensures ClientCache == map[]
       ensures Valid() && fresh(Repr)
     {
-      cache := map[];
+      ClientCache := map[];
       Repr := {this};
     }
 
     function method LookupClient(region: Option<string>): (client: IAmazonKeyManagementService?)
       requires Valid()
+      ensures Valid()
+      ensures client != null ==> region in ClientCache.Keys && client in Repr
       reads Repr
-      ensures client != null ==> region in cache.Keys && client in Repr
     {
-      if region in cache.Keys then cache[region] else null
+      if region in ClientCache.Keys then ClientCache[region] else null
     }
 
     method AddClient(region: Option<string>, client: IAmazonKeyManagementService)
       requires Valid()
-      modifies Repr
       ensures Valid()
+      ensures region in ClientCache.Keys && ClientCache[region] == client && client in Repr
+      modifies Repr
     {
       Repr := Repr + {client};
-      cache := cache[region := client];
+      ClientCache := ClientCache[region := client];
     }
   }
 
@@ -245,7 +247,8 @@ module {:extern "KMSUtils"} KMSUtils {
     {
       this in Repr &&
       clientSupplier in Repr && clientSupplier.Repr <= Repr && this !in clientSupplier.Repr && clientSupplier.Valid() &&
-      clientCache in Repr && clientCache.Repr <= Repr && this !in clientCache.Repr && clientCache.Valid()
+      clientCache in Repr && clientCache.Repr <= Repr && this !in clientCache.Repr && clientCache.Valid() &&
+      clientSupplier.Repr !! clientCache.Repr
     }
 
     constructor(clientSupplier: DafnyAWSKMSClientSupplier)
