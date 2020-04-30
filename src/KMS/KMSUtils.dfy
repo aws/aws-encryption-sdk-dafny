@@ -276,7 +276,7 @@ module {:extern "KMSUtils"} KMSUtils {
       } else  {
         var resClient := clientSupplier.GetClient(region);
         if resClient.Success? {
-          // Call extern method to create callback for adding client to cache on first network call that shows a valid endpoint
+          // Call the extern method to create a callback for adding the client to the cache
           AddCachingClientCallback(resClient.value, region, clientCache);
         }
         return resClient;
