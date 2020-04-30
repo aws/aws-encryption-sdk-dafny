@@ -1,4 +1,5 @@
 include "UInt.dfy"
+include "Orders.dfy"
 
 module {:extern "STL"} StandardLibrary {
   import opened U = UInt
@@ -197,6 +198,9 @@ module {:extern "STL"} StandardLibrary {
    *   - either:
    *      -- `a` has length `k` (that is, `a` is a prefix of `b`)
    *      -- `a[k]` is strictly less (using `less`) than `b[k]`
+   *
+   * As we shall see, in order for the lexicographic ordering to have the expected
+   * properties, the relation `less` must be trichotomous and transitive.
    */
 
   predicate method LexicographicLessOrEqual<T(==)>(a: seq<T>, b: seq<T>, less: (T, T) -> bool) {
@@ -211,39 +215,6 @@ module {:extern "STL"} StandardLibrary {
     && (lengthOfCommonPrefix == |a| || (lengthOfCommonPrefix < |b| && less(a[lengthOfCommonPrefix], b[lengthOfCommonPrefix])))
   }
 
-   /*
-    * In order for the lexicographic ordering above to have the expected properties, the
-    * relation "less" must be trichotomous and transitive.
-    *
-    * For an ordering `less` to be _trichotomous_ means that for any two `x` and `y`,
-    * EXACTLY one of the following three conditions holds:
-    *   - less(x, y)
-    *   - x == y
-    *   - less(y, x)
-    * Note that being trichotomous implies being irreflexive.
-    */
-
-  predicate Trichotomous<T(!new)>(less: (T, T) -> bool) {
-    (forall x, y :: less(x, y) || x == y || less(y, x)) &&  // at least one of the three
-    (forall x, y :: less(x, y) && less(y, x) ==> false) &&  // not both of the less's
-    (forall x, y :: less(x, y) ==> x != y)  // not a less and the equality
-  }
-
-  predicate Transitive<T(!new)>(R: (T, T) -> bool) {
-    forall x, y, z :: R(x, y) && R(y, z) ==> R(x, z)
-  }
-
-  /*
-   * Here is an example relation and a lemma that says the relation is appropriate for use in
-   * lexicographic orderings.
-   */
-
-  lemma UInt8LessIsTrichotomousTransitive()
-    ensures Trichotomous(UInt8Less)
-    ensures Transitive(UInt8Less)
-  {
-  }
-
   /*
    * As the following lemmas show, the lexicographic ordering is reflexive, antisymmetric, transitive, and total.
    * The proofs are a bit pedantic and include steps that can be automated.
@@ -256,7 +227,7 @@ module {:extern "STL"} StandardLibrary {
   }
 
   lemma LexIsAntisymmetric<T(==)>(a: seq<T>, b: seq<T>, less: (T, T) -> bool)
-    requires Trich: Trichotomous(less)
+    requires Trich: Orders.Trichotomous(less)
     requires LexicographicLessOrEqual(a, b, less)
     requires LexicographicLessOrEqual(b, a, less)
     ensures a == b
@@ -299,7 +270,7 @@ module {:extern "STL"} StandardLibrary {
   }
 
   lemma LexIsTransitive<T(==)>(a: seq<T>, b: seq<T>, c: seq<T>, less: (T, T) -> bool)
-    requires Transitive(less)
+    requires Orders.Transitive(less)
     requires LexicographicLessOrEqual(a, b, less)
     requires LexicographicLessOrEqual(b, c, less)
     ensures LexicographicLessOrEqual(a, c, less)
@@ -311,7 +282,7 @@ module {:extern "STL"} StandardLibrary {
   }
 
   lemma LexIsTotal<T(==)>(a: seq<T>, b: seq<T>, less: (T, T) -> bool)
-    requires Trich: Trichotomous(less)
+    requires Trich: Orders.Trichotomous(less)
     ensures LexicographicLessOrEqual(a, b, less) || LexicographicLessOrEqual(b, a, less)
   {
     var m := 0;
@@ -347,7 +318,7 @@ module {:extern "STL"} StandardLibrary {
    */
 
   function method {:tailrecursion} SetToOrderedSequence<T(!new,==)>(s: set<seq<T>>, less: (T, T) -> bool): (q: seq<seq<T>>)
-    requires Trichotomous(less) && Transitive(less)
+    requires Orders.Trichotomous(less) && Orders.Transitive(less)
     ensures |s| == |q|
     ensures forall i :: 0 <= i < |q| ==> q[i] in s
     ensures forall k :: k in s ==> k in q
@@ -387,7 +358,7 @@ module {:extern "STL"} StandardLibrary {
 
   lemma ThereIsAMinimum<T>(s: set<seq<T>>, less: (T, T) -> bool)
     requires s != {}
-    requires Trichotomous(less) && Transitive(less)
+    requires Orders.Trichotomous(less) && Orders.Transitive(less)
     ensures exists a :: IsMinimum(a, s, less)
   {
     var a := FindMinimum(s, less);
@@ -395,7 +366,7 @@ module {:extern "STL"} StandardLibrary {
 
   lemma MinimumIsUnique<T>(a: seq<T>, b: seq<T>, s: set<seq<T>>, less: (T, T) -> bool)
     requires IsMinimum(a, s, less) && IsMinimum(b, s, less)
-    requires Trichotomous(less)
+    requires Orders.Trichotomous(less)
     ensures a == b
   {
     LexIsAntisymmetric(a, b, less);
@@ -403,7 +374,7 @@ module {:extern "STL"} StandardLibrary {
 
   lemma FindMinimum<T>(s: set<seq<T>>, less: (T, T) -> bool) returns (a: seq<T>)
     requires s != {}
-    requires Trichotomous(less) && Transitive(less)
+    requires Orders.Trichotomous(less) && Orders.Transitive(less)
     ensures IsMinimum(a, s, less)
   {
     a :| a in s;
