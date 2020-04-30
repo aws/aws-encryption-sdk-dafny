@@ -94,7 +94,7 @@ module TestMessageHeader {
     var largeVal := seq(0x1_0000, _ => 0);
     TestUtils.AssumeLongSeqIsValidUTF8(largeVal);
     var encCtx := map[keyA := largeVal];
-    
+
     var len := EncryptionContext.ComputeLength(encCtx);
     expect len as int == 7 + |largeVal|; // 7 bytes needed for kvPairs count, key size, and key
   }
