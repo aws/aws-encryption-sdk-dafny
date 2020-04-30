@@ -4,6 +4,8 @@
 
 AWS Encryption SDK Written in Dafny for .NET
 
+[Security issue notifications](./CONTRIBUTING.md#security-issue-notifications)
+
 ## Using the AWS Encryption SDK for .NET
 The AWS Encryption SDK is available on [NuGet](https://www.nuget.org/) and can referenced from an existing `.csproj` through typical ways.
 
