@@ -166,7 +166,7 @@ module {:extern "CachingCMMDef"} CachingCMMDef {
       if entry != null {
         entry.IncrementUse(materialsRequest.plaintextLength.get);
         var currentTime := Time.GetCurrent();
-        if entry.expiryTime <= currentTime
+        if entry.expiryTime <= currentTime as nat
         || messageLimit as nat <= entry.messagesEncrypted
         || byteLimit as nat < entry.bytesEncrypted
         {
@@ -210,7 +210,7 @@ module {:extern "CachingCMMDef"} CachingCMMDef {
       Repr := Repr + cmc.Repr;
       if entry != null {
         var currentTime := Time.GetCurrent();
-        if entry.expiryTime <= currentTime {
+        if entry.expiryTime <= currentTime as nat {
           cmc.EvictDecrypt(cacheID);
           Repr := Repr + cmc.Repr;
         } else {
@@ -390,7 +390,7 @@ module {:extern "CachingCMMDef"} CachingCMMDef {
     {
       this.encMat := encMat;
       var currentTime := Time.GetCurrent();
-      expiryTime := currentTime + secondsToLiveLimit;
+      expiryTime := currentTime as nat + secondsToLiveLimit;
       messagesEncrypted, bytesEncrypted := 0, 0;
     }
 
@@ -418,7 +418,7 @@ module {:extern "CachingCMMDef"} CachingCMMDef {
     {
       this.decMat := decMat;
       var currentTime := Time.GetCurrent();
-      expiryTime := currentTime + secondsToLiveLimit;
+      expiryTime := currentTime as nat + secondsToLiveLimit;
     }
   }
 }
