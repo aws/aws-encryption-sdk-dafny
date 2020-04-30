@@ -150,8 +150,10 @@ namespace KMSUtils {
                 if (responseEvent == null || responseEvent.Response == null) {
                     return;
                 }
+                // Otherwise, we got a response, which means we can cache regardless of what that response was.
+                // This is because errors from an AWS KMS contact still mean that the region is "live".
+                // Therefore, the client can be cached because the request itself might be wrong, not necessarily the client.
 
-                // Otherwise, we got a response from *some* endpoint, which means we can cache regardless of what that response was.
                 // Double check the client does not already exist.
                 // AddClient overrides the existing client if it's there anyways.
                 KMS.IAmazonKeyManagementService cachedClient = cache.LookupClient(region);

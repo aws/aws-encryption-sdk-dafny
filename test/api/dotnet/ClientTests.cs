@@ -213,7 +213,20 @@ namespace AWSEncryptionSDKTests
                         AWSEncryptionSDK.AWSKMSClientSuppliers.NewKMSLimitRegionsClientSupplier(
                             AWSEncryptionSDK.AWSKMSClientSuppliers.NewKMSDefaultClientSupplier(),
                             new List<string>() { CURRENT_REGION, "another-region" }),
-                        new List<string>() { "excluded-region" })
+                        new List<string>() { "excluded-region" }),
+                    // CachingClientSupplier with BaseClientSupplier
+                    AWSEncryptionSDK.AWSKMSClientSuppliers.NewKMSCachingClientSupplier(
+                        AWSEncryptionSDK.AWSKMSClientSuppliers.NewKMSDefaultClientSupplier()),
+                    // CachingClientSupplier with ExcludeRegionsClientSupplier
+                    AWSEncryptionSDK.AWSKMSClientSuppliers.NewKMSCachingClientSupplier(
+                        AWSEncryptionSDK.AWSKMSClientSuppliers.NewKMSExcludeRegionsClientSupplier(
+                            AWSEncryptionSDK.AWSKMSClientSuppliers.NewKMSBaseClientSupplier(),
+                            new List<string>() { "us-east-1", "another-region" })),
+                    // CachingClientSupplier with LimitRegionsClientSupplier
+                    AWSEncryptionSDK.AWSKMSClientSuppliers.NewKMSCachingClientSupplier(
+                        AWSEncryptionSDK.AWSKMSClientSuppliers.NewKMSLimitRegionsClientSupplier(
+                            AWSEncryptionSDK.AWSKMSClientSuppliers.NewKMSBaseClientSupplier(),
+                            new List<string>() { CURRENT_REGION, "another-region" }))
                 };
                 foreach (AWSEncryptionSDK.AWSKMSClientSupplier clientSupplier in clientSuppliers) {
                     foreach (var item in DefaultClientTestData) {
@@ -258,6 +271,39 @@ namespace AWSEncryptionSDKTests
                 AWSEncryptionSDK.Client.Encrypt(encryptRequest);
             });
             Assert.Equal(String.Format("Given region {0} not in regions maintained by LimitRegionsClientSupplier", CURRENT_REGION), ex.Message);
+        }
+
+        [Fact]
+        public void BadConstructor_ClientSupplier_Caching_Composable_BadRegion()
+        {
+            // LimitRegionsClientSupplier with a region we are not in
+            AWSEncryptionSDK.AWSKMSClientSupplier limitRegionsClientSupplier = AWSEncryptionSDK.AWSKMSClientSuppliers.NewKMSLimitRegionsClientSupplier(
+                AWSEncryptionSDK.AWSKMSClientSuppliers.NewKMSDefaultClientSupplier(), new List<string>() { "some-other-region" });
+
+            // CachingClientSupplier using the LimitRegionsClientSupplier
+            AWSEncryptionSDK.AWSKMSClientSupplier cachingClientSupplier = AWSEncryptionSDK.AWSKMSClientSuppliers.NewKMSCachingClientSupplier(
+                limitRegionsClientSupplier);
+
+            CMMDefs.CMM cmm = MakeDefaultCMMWithKMSKeyringWithClientSupplier(cachingClientSupplier);
+            MemoryStream plaintextStream = new MemoryStream(Encoding.UTF8.GetBytes("something"));
+            var encryptRequest = new AWSEncryptionSDK.Client.EncryptRequest{plaintext = plaintextStream, cmm = cmm};
+            DafnyException ex = Assert.Throws<DafnyException>(() => {
+                AWSEncryptionSDK.Client.Encrypt(encryptRequest);
+            });
+            Assert.Equal(String.Format("Given region {0} not in regions maintained by LimitRegionsClientSupplier", CURRENT_REGION), ex.Message);
+
+            // ExcludeRegionsClientSupplier with a region we are in
+            AWSEncryptionSDK.AWSKMSClientSupplier excludeRegionsClientSupplier = AWSEncryptionSDK.AWSKMSClientSuppliers.NewKMSExcludeRegionsClientSupplier(
+                AWSEncryptionSDK.AWSKMSClientSuppliers.NewKMSDefaultClientSupplier(), new List<string>() { CURRENT_REGION });
+
+            // Update the CachingClientSupplier and make a new call
+            cachingClientSupplier = AWSEncryptionSDK.AWSKMSClientSuppliers.NewKMSCachingClientSupplier(excludeRegionsClientSupplier);
+            cmm = MakeDefaultCMMWithKMSKeyringWithClientSupplier(cachingClientSupplier);
+            encryptRequest = new AWSEncryptionSDK.Client.EncryptRequest{plaintext = plaintextStream, cmm = cmm};
+            ex = Assert.Throws<DafnyException>(() => {
+                AWSEncryptionSDK.Client.Encrypt(encryptRequest);
+            });
+            Assert.Equal(String.Format("Given region {0} is in regions maintained by ExcludeRegionsClientSupplier", CURRENT_REGION), ex.Message);
         }
 
         [Fact]

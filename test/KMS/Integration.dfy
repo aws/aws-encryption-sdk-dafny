@@ -192,4 +192,79 @@ module IntegTestKMS {
     var cmm := new DefaultCMMDef.DefaultCMM.OfKeyring(keyring);
     Helpers.EncryptDecryptTest(cmm, true);
   }
+
+  method {:test} TestEndToEnd_CachingClientSupplier() {
+    var baseClientSupplier := new KMSUtils.BaseClientSupplier();
+    var cachingClientSupplier := new KMSUtils.CachingClientSupplier(baseClientSupplier);
+    var generator: KMSUtils.CustomerMasterKey := Helpers.CreateTestingGenerator();
+    var keyring := new KMSKeyringDef.KMSKeyring(cachingClientSupplier, [], Some(generator), []);
+    var cmm := new DefaultCMMDef.DefaultCMM.OfKeyring(keyring);
+    Helpers.EncryptDecryptTest(cmm, false);
+    expect |cachingClientSupplier.clientCache.cache| == 1;
+    expect cachingClientSupplier.clientCache.LookupClient(Some(CURRENT_REGION)) != null;
+  }
+
+  method {:test} TestEndToEnd_CachingClientSupplier_ExcludeRegionsClientSupplier() {
+    var baseClientSupplier := new KMSUtils.BaseClientSupplier();
+    var regions: seq<string> := ["another-region"];
+    var excludeRegionsClientSupplier := new KMSUtils.ExcludeRegionsClientSupplier(baseClientSupplier, regions);
+    var cachingClientSupplier := new KMSUtils.CachingClientSupplier(excludeRegionsClientSupplier);
+    var generator: KMSUtils.CustomerMasterKey := Helpers.CreateTestingGenerator();
+    var keyring := new KMSKeyringDef.KMSKeyring(cachingClientSupplier, [], Some(generator), []);
+    var cmm := new DefaultCMMDef.DefaultCMM.OfKeyring(keyring);
+    Helpers.EncryptDecryptTest(cmm, false);
+    expect |cachingClientSupplier.clientCache.cache| == 1;
+    expect cachingClientSupplier.clientCache.LookupClient(Some(CURRENT_REGION)) != null;
+  }
+
+  method {:test} TestEndToEnd_CachingClientSupplier_LimitRegionsClientSupplier() {
+    var baseClientSupplier := new KMSUtils.BaseClientSupplier();
+    var regions: seq<string> := [CURRENT_REGION];
+    var limitRegionsClientSupplier := new KMSUtils.LimitRegionsClientSupplier(baseClientSupplier, regions);
+    var cachingClientSupplier := new KMSUtils.CachingClientSupplier(limitRegionsClientSupplier);
+    var generator: KMSUtils.CustomerMasterKey := Helpers.CreateTestingGenerator();
+    var keyring := new KMSKeyringDef.KMSKeyring(cachingClientSupplier, [], Some(generator), []);
+    var cmm := new DefaultCMMDef.DefaultCMM.OfKeyring(keyring);
+    Helpers.EncryptDecryptTest(cmm, false);
+    expect |cachingClientSupplier.clientCache.cache| == 1;
+    expect cachingClientSupplier.clientCache.LookupClient(Some(CURRENT_REGION)) != null;
+  }
+
+  method {:test} TestEndToEnd_CachingClientSupplier_CachingClientSupplier() {
+    var baseClientSupplier := new KMSUtils.BaseClientSupplier();
+    var baseCachingClientSupplier := new KMSUtils.CachingClientSupplier(baseClientSupplier);
+    var cachingClientSupplier := new KMSUtils.CachingClientSupplier(baseCachingClientSupplier);
+    var generator: KMSUtils.CustomerMasterKey := Helpers.CreateTestingGenerator();
+    var keyring := new KMSKeyringDef.KMSKeyring(cachingClientSupplier, [], Some(generator), []);
+    var cmm := new DefaultCMMDef.DefaultCMM.OfKeyring(keyring);
+    Helpers.EncryptDecryptTest(cmm, false);
+    expect |cachingClientSupplier.clientCache.cache| == 1;
+    expect cachingClientSupplier.clientCache.LookupClient(Some(CURRENT_REGION)) != null;
+    expect |baseCachingClientSupplier.clientCache.cache| == 1;
+    expect baseCachingClientSupplier.clientCache.LookupClient(Some(CURRENT_REGION)) != null;
+  }
+
+  method {:test} TestEndToEnd_CachingClientSupplier_ExcludeRegionsClientSupplier_Failure() {
+    var baseClientSupplier := new KMSUtils.BaseClientSupplier();
+    var regions: seq<string> := [CURRENT_REGION];
+    var excludeRegionsClientSupplier := new KMSUtils.ExcludeRegionsClientSupplier(baseClientSupplier, regions);
+    var cachingClientSupplier := new KMSUtils.CachingClientSupplier(excludeRegionsClientSupplier);
+    var generator: KMSUtils.CustomerMasterKey := Helpers.CreateTestingGenerator();
+    var keyring := new KMSKeyringDef.KMSKeyring(cachingClientSupplier, [], Some(generator), []);
+    var cmm := new DefaultCMMDef.DefaultCMM.OfKeyring(keyring);
+    Helpers.EncryptDecryptTest(cmm, true);
+    expect cachingClientSupplier.clientCache.cache == map[];
+  }
+
+  method {:test} TestEndToEnd_CachingClientSupplier_LimitRegionsClientSupplier_Failure() {
+    var baseClientSupplier := new KMSUtils.BaseClientSupplier();
+    var regions: seq<string> := ["another-region"];
+    var limitRegionsClientSupplier := new KMSUtils.LimitRegionsClientSupplier(baseClientSupplier, regions);
+    var cachingClientSupplier := new KMSUtils.CachingClientSupplier(limitRegionsClientSupplier);
+    var generator: KMSUtils.CustomerMasterKey := Helpers.CreateTestingGenerator();
+    var keyring := new KMSKeyringDef.KMSKeyring(cachingClientSupplier, [], Some(generator), []);
+    var cmm := new DefaultCMMDef.DefaultCMM.OfKeyring(keyring);
+    Helpers.EncryptDecryptTest(cmm, true);
+    expect cachingClientSupplier.clientCache.cache == map[];
+  }
 }

@@ -23,7 +23,7 @@ namespace AWSEncryptionSDK
         public static AWSKMSClientSupplier NewKMSDefaultClientSupplier()
         {
             AWSKMSClientSupplier baseClientSupplier = NewKMSBaseClientSupplier();
-            return NewCachingClientSupplier(baseClientSupplier);
+            return NewKMSCachingClientSupplier(baseClientSupplier);
         }
 
         public static AWSKMSClientSupplier NewKMSBaseClientSupplier()
@@ -74,7 +74,7 @@ namespace AWSEncryptionSDK
         // An implementation of an AWSKMSClientSupplier that takes in an existing AWSKMSClientSupplier.
         // The CachingClientSupplier will return an AWS KMS service client from the given AWSKMSClientSupplier and cache the client for the given region
         // once a network call shows that the client's KMS endpoints are valid.
-        public static AWSKMSClientSupplier NewCachingClientSupplier(AWSKMSClientSupplier clientSupplier)
+        public static AWSKMSClientSupplier NewKMSCachingClientSupplier(AWSKMSClientSupplier clientSupplier)
         {
             // When transpiling Dafny code, new MyClass() does not actually call the constructor, so we need to instantiate the class
             // and then manually call __ctor() to call the required constructor
