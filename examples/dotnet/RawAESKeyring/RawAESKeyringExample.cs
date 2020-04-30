@@ -1,3 +1,8 @@
+// This example shows how to configure and use a raw AES keyring.
+//
+// https://docs.aws.amazon.com/encryption-sdk/latest/developer-guide/choose-keyring.html#use-raw-aes-keyring
+//
+// In this example, we use the encrypt and decrypt APIs.
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -7,17 +12,30 @@ using AWSEncryptionSDK;
 using KeyringDefs;
 using RawAESKeyringDef;
 
-using ExampleUtils;
+using Org.BouncyCastle.Security; // In this example, we use BouncyCastle to generate a wrapping key.
 
-using Org.BouncyCastle.Security;
+using ExampleUtils;
 using Xunit;
 
 namespace RawAESKeyringExample {
     public class RawAESKeyringExample {
         static void Run(MemoryStream plaintext) {
 
+            // Create your encryption context.
+            // Remember that you encryption context is NOT SECRET.
+            // https://docs.aws.amazon.com/encryption-sdk/latest/developer-guide/concepts.html#encryption-context
+            IDictionary<string, string> encryptionContext = new Dictionary<string, string>() {
+                {"encryption", "context"},
+                {"is not", "secret"},
+                {"but adds", "useful metadata"},
+                {"that can help you", "be confident that"},
+                {"the data you are handling", "is what you think it is"}
+            };
+
             // Generate a 256-bit AES key to use with your keyring.
             // Here we use BouncyCastle, but you don't have to.
+            //
+            // In practice, you should get this key from a secure key management system such as an HSM.
             byte[] key = GeneratorUtilities.GetKeyGenerator("AES256").GenerateKey();
 
             // Key name, and key namespace are defined by you,
@@ -34,17 +52,7 @@ namespace RawAESKeyringExample {
                     DafnyFFI.AESWrappingAlgorithm.AES_GCM_256
                     );
 
-            // Create your encryption context.
-            // Remember that you encryption context is NOT SECRET.
-            IDictionary<string, string> encryptionContext = new Dictionary<string, string>() {
-                {"encryption", "context"},
-                {"is not", "secret"},
-                {"but adds", "useful metadata"},
-                {"that can help you", "be confident that"},
-                {"the data you are handling", "is what you think it is"}
-            };
-
-            // Encrypt your data.
+            // Encrypt your plaintext data.
             MemoryStream ciphertext = AWSEncryptionSDK.Client.Encrypt(new AWSEncryptionSDK.Client.EncryptRequest{
                     plaintext = plaintext,
                     keyring = keyring,
@@ -54,7 +62,7 @@ namespace RawAESKeyringExample {
             // Demonstrate that the ciphertext and plaintext are different.
             Assert.NotEqual(ciphertext.ToArray(), plaintext.ToArray());
 
-            // Decrypt your data.
+            // Decrypt your encrypted data using the same keyring you used on encrypt.
             // 
             // Your encryption context is contained in the header of the ciphertext,
             // so you don't need to provide it again.
@@ -66,7 +74,7 @@ namespace RawAESKeyringExample {
             Assert.Equal(decrypted.ToArray(), plaintext.ToArray());
         }
 
-        // Test examples to ensure they remain up-to-date.
+        // We test examples to ensure they remain up-to-date.
         [Fact]
         public void TestRawAESKeyringExample() {
             Run(ExampleUtils.ExampleUtils.GetPlaintextStream());
