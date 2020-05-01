@@ -10,7 +10,7 @@ phases:
       - mozroots --import --sync
       # Get Boogie
       # Multiple Boogie commits have broken our build or test cases. Locking down Boogie.
-      - git clone --branch v2.4.2 https://github.com/boogie-org/boogie.git
+      - git clone --branch v2.4.21 https://github.com/boogie-org/boogie.git
       - nuget restore boogie/Source/Boogie.sln
       - msbuild boogie/Source/Boogie.sln
       # Get Dafny
