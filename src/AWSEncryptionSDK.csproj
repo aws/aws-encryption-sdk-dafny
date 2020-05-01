@@ -27,6 +27,7 @@
     <DafnySource Include="KMS/KMSUtils.dfy" />
     <DafnySource Include="SDK/AlgorithmSuite.dfy" />
     <DafnySource Include="SDK/Client.dfy" />
+    <DafnySource Include="SDK/CMM/CachingCMM.dfy" />
     <DafnySource Include="SDK/CMM/DefaultCMM.dfy" />
     <DafnySource Include="SDK/CMM/Defs.dfy" />
     <DafnySource Include="SDK/Deserialize.dfy" />

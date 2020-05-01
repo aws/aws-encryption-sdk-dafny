@@ -7,5 +7,10 @@ module {:extern "Digest"} Digest {
 
   datatype Algorithm = SHA_512
 
+  function method Length(alg: Algorithm): nat {
+    match alg
+    case SHA_512 => 64
+  }
+
   method {:extern "Digest.SHA", "Digest"} Digest(alg: Algorithm, msg: seq<uint8>) returns (digest: Result<seq<uint8>>)
 }
