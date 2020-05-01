@@ -10,7 +10,8 @@ include "../../Util/Streams.dfy"
 include "../Serialize.dfy"
 include "../MessageHeader.dfy"
 include "../../Util/Time.dfy"
-include "../../Util/Sorting.dfy"
+include "../../StandardLibrary/Sorting.dfy"
+include "../../StandardLibrary/Orders.dfy"
 
 module {:extern "CachingCMMDef"} CachingCMMDef {
   import opened StandardLibrary
@@ -25,7 +26,8 @@ module {:extern "CachingCMMDef"} CachingCMMDef {
   import Serialize
   import MessageHeader
   import Time
-  import Sorting
+  import Sorting = StandardLibrary.Sorting
+  import Orders = StandardLibrary.Orders
 
   // The specification says:
   //  -- the default bytes limit must not exceed 2^63 - 1
@@ -264,8 +266,8 @@ module {:extern "CachingCMMDef"} CachingCMMDef {
       i := i + 1;
     }
     // sort these digests
-    Sorting.AboutLexicographicByteSeqBelow();
-    Sorting.SelectionSort(edkHashes, Sorting.LexicographicByteSeqBelow);
+    Orders.AboutLexicographicByteSeqBelow();
+    Sorting.SelectionSort(edkHashes, Orders.LexicographicByteSeqBelow);
 
     var wr := new Streams.ByteWriter();
 
