@@ -133,6 +133,58 @@ module {:extern "ESDKClient"} ESDKClient {
     }
   }
 
+  predicate ValidHeaderBody(headerBody: Msg.HeaderBody)
+  {
+    headerBody.Valid()
+    // && headerBody.version == Msg.VERSION_1
+    // && headerBody.typ == Msg.TYPE_CUSTOMER_AED
+    // TODO add constraint: Algorithm Suite ID: MUST be the algorithm suite used in this behavior (Note AlgID does not have to be the same as the Alg id from the request)
+    // TODO add constraint: AAD: MUST be the serialization of the encryption context in the encryption materials
+    // TODO add constraint: Encrypted Data Keys: MUST be the serialization of the encrypted data keys in the encryption materials
+    // && headerBody.contentType == Msg.ContentType.Framed
+    // TODO add constraint: IV Length: MUST match the IV length specified by the algorithm suite
+    // && headerBody.frameLength == if request.frameLength.Some? then request.frameLength.get else DEFAULT_FRAME_LENGTH
+  }
+
+  predicate ValidHeaderAuthentication(headerAuthentication: Msg.HeaderAuthentication, headerBody: Msg.HeaderBody)
+  {
+    var serializedHeaderBody := (reveal Msg.HeaderBodyToSeq(); Msg.HeaderBodyToSeq(headerBody));
+    headerAuthentication.iv == seq(headerBody.algorithmSuiteID.IVLength(), _ => 0)        
+    && exists encryptionOutput | 
+      AESEncryption.EncryptionOutputEncryptedWithAAD(encryptionOutput, serializedHeaderBody) 
+      //&& AESEncryption.CiphertextGeneratedWithPlaintext(encryptionOutput.cipherText, [])
+      // TODO add constraint: The IV is the IV specified above
+      // TODO add constraint: The cipherkey is the derived data key
+      ::
+        encryptionOutput.authTag == headerAuthentication.authenticationTag
+  }
+
+  predicate ValidFrames(frames: seq<MessageBody.Frame>)
+  {
+    MessageBody.ValidFrames(frames)
+    && |frames| < UINT32_LIMIT
+    && forall frame: MessageBody.Frame | frame in frames :: frame.Valid()
+    //&& MessageBody.FramesEncryptPlaintext(frames, request.plaintext) // This requirement is missing in spec but needed  
+    /**
+    TODO: Add the following postconditions to MessageBody 
+    IV: MUST be the sequence number used in the message body AAD for this frame.
+    Encrypted Content: MUST be the output of the authenticated encryption algorithm specified by the algorithm suite, with the following inputs:
+      The AAD is the serialized message body AAD
+      The IV is the IV specified for this frame above.
+      The cipherkey is the derived data key
+      The plaintext contains part of the input plaintext this frame is encrypting.
+      Authentication Tag: MUST be the authentication tag outputted by the above encryption.
+                  */
+  }
+
+  predicate ValidSignature(signature: seq<uint8>)
+  {
+    |signature| < UINT16_LIMIT 
+    // TODO add constraint: Signature: MUST be the output of the signature algorithm specified by the algorithm suite, with the following input:
+      // TODO add constraint: the signature key is the signing key in the encryption materials
+      // TODO add constraint: the input to sign is the concatenation of the serialization of the message header and message body
+  }
+
  /*
   * Encrypt a plaintext and serialize it into a message.
   */
@@ -149,57 +201,25 @@ module {:extern "ESDKClient"} ESDKClient {
     ensures match res 
       case Failure(e) => true
       case Success(encryptedSequence) =>
-        // Result consists of a headerBody with the following constraints
-        exists headerBody: Msg.HeaderBody  | 
-          headerBody.Valid()
-          // && headerBody.version == Msg.VERSION_1
-          // && headerBody.typ == Msg.TYPE_CUSTOMER_AED
-          // TODO add constraint: Algorithm Suite ID: MUST be the algorithm suite used in this behavior (Note AlgID does not have to be the same as the Alg id from the request)
-          // TODO add constraint: AAD: MUST be the serialization of the encryption context in the encryption materials
-          // TODO add constraint: Encrypted Data Keys: MUST be the serialization of the encrypted data keys in the encryption materials
-          // && headerBody.contentType == Msg.ContentType.Framed
-          // TODO add constraint: IV Length: MUST match the IV length specified by the algorithm suite
-          // && headerBody.frameLength == if request.frameLength.Some? then request.frameLength.get else DEFAULT_FRAME_LENGTH 
-          ::
-            var iv: seq<uint8> := seq(headerBody.algorithmSuiteID.IVLength(), _ => 0);
-            var serializedHeaderBody := (reveal Msg.HeaderBodyToSeq(); Msg.HeaderBodyToSeq(headerBody));
-            
-            // Headerbody is encrypted to some encryption output
-            exists encryptionOutput | 
-              AESEncryption.EncryptionOutputEncryptedWithAAD(encryptionOutput, serializedHeaderBody) 
-              //&& AESEncryption.CiphertextGeneratedWithPlaintext(encryptionOutput.cipherText, [])
-              // TODO add constraint: The IV is the IV specified above
-              // TODO add constraint: The cipherkey is the derived data key
-              ::
-                var headerAuthentication := Msg.HeaderAuthentication(iv, encryptionOutput.authTag);
-                var serialaziedHeaderAuthentication := headerAuthentication.iv + headerAuthentication.authenticationTag;
-                exists frames | 
-                  MessageBody.ValidFrames(frames)
-                  && |frames| < UINT32_LIMIT
-                  && forall frame: MessageBody.Frame | frame in frames :: frame.Valid()
-                  //&& MessageBody.FramesEncryptPlaintext(frames, request.plaintext) // This requirement is missing in spec but needed  
-                  /**
-                  TODO: Add the following postconditions to MessageBody 
-                  IV: MUST be the sequence number used in the message body AAD for this frame.
-                  Encrypted Content: MUST be the output of the authenticated encryption algorithm specified by the algorithm suite, with the following inputs:
-                    The AAD is the serialized message body AAD
-                    The IV is the IV specified for this frame above.
-                    The cipherkey is the derived data key
-                    The plaintext contains part of the input plaintext this frame is encrypting.
-                  Authentication Tag: MUST be the authentication tag outputted by the above encryption.
-                  */
-                ::
-                  if headerBody.algorithmSuiteID.SignatureType().Some? then
-                    encryptedSequence == serializedHeaderBody + serialaziedHeaderAuthentication + MessageBody.FramesToSequence(frames)
-                  else
-                    exists signature |
-                      |signature| < UINT16_LIMIT 
-                      // TODO add constraint: Signature: MUST be the output of the signature algorithm specified by the algorithm suite, with the following input:
-                        // TODO add constraint: the signature key is the signing key in the encryption materials
-                        // TODO add constraint: the input to sign is the concatenation of the serialization of the message header and message body
-                        ::
-                          encryptedSequence == serializedHeaderBody + serialaziedHeaderAuthentication + MessageBody.FramesToSequence(frames) 
-                            + UInt16ToSeq(|signature| as uint16) + signature;
+        // Result contains a valid serialized headerBody
+        exists headerBody: Msg.HeaderBody  | ValidHeaderBody(headerBody) ::
+          var serializedHeaderBody := (reveal Msg.HeaderBodyToSeq(); Msg.HeaderBodyToSeq(headerBody));
+          // Result contains of a valid serialized headerAuthentication
+          exists headerAuthentication | ValidHeaderAuthentication(headerAuthentication, headerBody) ::
+            var serializedHeaderAuthentication := headerAuthentication.iv + headerAuthentication.authenticationTag;
+            // Result contains of a valid sequence of frames
+            exists frames | ValidFrames(frames) ::
+              var serializedFrames := MessageBody.FramesToSequence(frames);
+
+              // If result does not need to be signed then the result is:  
+              headerBody.algorithmSuiteID.SignatureType().None? ==>
+                    encryptedSequence == serializedHeaderBody + serializedHeaderAuthentication + serializedFrames
+              
+              // If result needs to be signed then the result contains a signature:  
+              && headerBody.algorithmSuiteID.SignatureType().Some? ==> 
+                exists signature | ValidSignature(signature) ::
+                  var serializedSignature := UInt16ToSeq(|signature| as uint16) + signature;
+                          encryptedSequence == serializedHeaderBody + serializedHeaderAuthentication + serializedFrames + serializedSignature
   {
     if request.cmm != null && request.keyring != null {
       return Failure("EncryptRequest.keyring OR EncryptRequest.cmm must be set (not both).");
@@ -210,7 +230,6 @@ module {:extern "ESDKClient"} ESDKClient {
     } else if request.frameLength.Some? && request.frameLength.get == 0 {
       return Failure("Request frameLength must be > 0");
     }
-    ghost var encryptedSequence := [];
     var cmm: CMMDefs.CMM;
     if request.keyring == null {
       cmm := request.cmm;
@@ -244,46 +263,44 @@ module {:extern "ESDKClient"} ESDKClient {
       Msg.ContentType.Framed,
       encMat.algorithmSuiteID.IVLength() as uint8,
       frameLength);
-
+    assert ValidHeaderBody (headerBody);
+    ghost var serializedHeaderBody := (reveal Msg.HeaderBodyToSeq(); Msg.HeaderBodyToSeq(headerBody));
+    
     var wr := new Streams.ByteWriter();
-
     var _ :- Serialize.SerializeHeaderBody(wr, headerBody);
     var unauthenticatedHeader := wr.GetDataWritten();
-    encryptedSequence := encryptedSequence + unauthenticatedHeader;
-
-    assert headerBody.Valid();
-    assert unauthenticatedHeader == (reveal Msg.HeaderBodyToSeq(); Msg.HeaderBodyToSeq(headerBody));
-    assert encryptedSequence == (reveal Msg.HeaderBodyToSeq(); Msg.HeaderBodyToSeq(headerBody));
-
+    assert unauthenticatedHeader == serializedHeaderBody;
+    
     var iv: seq<uint8> := seq(encMat.algorithmSuiteID.IVLength(), _ => 0);
     var encryptionOutput :- AESEncryption.AESEncryptExtern(encMat.algorithmSuiteID.EncryptionSuite(), iv, derivedDataKey, [], unauthenticatedHeader);
     var headerAuthentication := Msg.HeaderAuthentication(iv, encryptionOutput.authTag);
-    ghost var initLen := wr.GetSizeWritten();
+    
+    assert ValidHeaderAuthentication(headerAuthentication, headerBody);
+    ghost var serializedHeaderAuthentication := headerAuthentication.iv + headerAuthentication.authenticationTag; 
+    
     var _ :- Serialize.SerializeHeaderAuthentication(wr, headerAuthentication, encMat.algorithmSuiteID);
-    assert AESEncryption.EncryptionOutputEncryptedWithAAD(encryptionOutput, unauthenticatedHeader);
-    assert encryptedSequence == wr.GetDataWritten()[..initLen];
-    assert wr.GetDataWritten()[initLen..] == headerAuthentication.iv + headerAuthentication.authenticationTag;
-
-    encryptedSequence := wr.GetDataWritten();
-    assert encryptedSequence == (reveal Msg.HeaderBodyToSeq(); Msg.HeaderBodyToSeq(headerBody)) + headerAuthentication.iv + headerAuthentication.authenticationTag;
-
+    assert wr.GetDataWritten() == serializedHeaderBody + serializedHeaderAuthentication;
+    
     // Encrypt the given plaintext into the message body and add a footer with a signature, if required
     var body :- MessageBody.EncryptMessageBody(request.plaintext, frameLength as int, messageID, derivedDataKey, encMat.algorithmSuiteID);
+    ghost var frames :| ValidFrames(frames) && body == MessageBody.FramesToSequence(frames);
+                
     var msg := wr.GetDataWritten() + body;
-    encryptedSequence := encryptedSequence + body;
-
-    match encMat.algorithmSuiteID.SignatureType() {
-      case None =>
-        // don't use a footer
-      case Some(ecdsaParams) =>
-        var bytes :- Signature.Sign(ecdsaParams, encMat.signingKey.get, msg);
-        if |bytes| != ecdsaParams.SignatureLength() as int {
-          return Failure("Malformed response from Sign().");
-        }
-        msg := msg + UInt16ToSeq(|bytes| as uint16) + bytes;
+    if encMat.algorithmSuiteID.SignatureType().None? {
+      // don't use a footer
+      return Success(msg);
+    } else {
+      var ecdsaParams := encMat.algorithmSuiteID.SignatureType().get;
+      var bytes :- Signature.Sign(ecdsaParams, encMat.signingKey.get, msg);
+      if |bytes| != ecdsaParams.SignatureLength() as int {
+        return Failure("Malformed response from Sign().");
+      }
+      var signature := UInt16ToSeq(|bytes| as uint16) + bytes; 
+      assert ValidSignature(signature);
+      msg := msg + signature; 
+      assert headerBody.algorithmSuiteID.SignatureType().Some?;
+      return Success(msg);
     }
-
-    return Success(msg);
   }
 
   method DeriveKey(plaintextDataKey: seq<uint8>, algorithmSuiteID: AlgorithmSuite.ID, messageID: Msg.MessageID) returns (derivedDataKey: seq<uint8>)
