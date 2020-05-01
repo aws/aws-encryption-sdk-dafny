@@ -85,7 +85,9 @@ module {:extern "TestUtils"} TestUtils {
     return encCtx;
   }
 
-  method ExpectSerializableEncryptionContext(encCtx: EncryptionContext.Map) {
+  method ExpectSerializableEncryptionContext(encCtx: EncryptionContext.Map)
+    ensures EncryptionContext.Serializable(encCtx)
+  {
     var valid := EncryptionContext.CheckSerializable(encCtx);
     expect valid;
   }
