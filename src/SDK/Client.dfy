@@ -134,6 +134,7 @@ module {:extern "ESDKClient"} ESDKClient {
   }
 
   predicate ValidHeaderBody(headerBody: Msg.HeaderBody, request: EncryptRequest)
+    reads request
   {
     headerBody.Valid()
     && headerBody.version == Msg.VERSION_1
@@ -147,6 +148,7 @@ module {:extern "ESDKClient"} ESDKClient {
   }
 
   predicate ValidHeaderAuthentication(headerAuthentication: Msg.HeaderAuthentication, headerBody: Msg.HeaderBody)
+    requires headerBody.Valid()
   {
     var serializedHeaderBody := (reveal Msg.HeaderBodyToSeq(); Msg.HeaderBodyToSeq(headerBody));
     headerAuthentication.iv == seq(headerBody.algorithmSuiteID.IVLength(), _ => 0)        
@@ -160,6 +162,7 @@ module {:extern "ESDKClient"} ESDKClient {
   }
 
   predicate ValidFrames(frames: seq<MessageBody.Frame>, request: EncryptRequest)
+    reads request
   {
     MessageBody.ValidFrames(frames)
     && |frames| < UINT32_LIMIT
