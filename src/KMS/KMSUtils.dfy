@@ -13,7 +13,8 @@ module {:extern "KMSUtils"} KMSUtils {
 
   const MAX_GRANT_TOKENS := 10
 
-  type CustomerMasterKey = s: string | ValidFormatCMK(s) witness "alias/ExampleAlias"
+  type CustomerMasterKey = s: string | ValidFormatCMK(s)
+    witness (ValidCMKAliasFromSuffix("ExampleAlias"); "alias/ExampleAlias")
 
   predicate method ValidFormatCMK(cmk: string) {
     ValidFormatCMKKeyARN(cmk) || ValidFormatCMKAlias(cmk) || ValidFormatCMKAliasARN(cmk)
@@ -27,6 +28,32 @@ module {:extern "KMSUtils"} KMSUtils {
   predicate method ValidFormatCMKAlias(cmk: string) {
     var components := Split(cmk, '/');
     UTF8.IsASCIIString(cmk) && 0 < |cmk| <= 2048 && |components| == 2 && components[0] == "alias"
+  }
+
+  lemma ValidCMKAliasFromSuffix(suffix: string)
+    requires UTF8.IsASCIIString(suffix) && |suffix| < 2042 && '/' !in suffix
+    ensures var cmk := "alias/" + suffix;
+      ValidFormatCMKAlias(cmk)
+  {
+    var alias := "alias";
+    assert UTF8.IsASCIIString(alias);
+    var cmk := alias + "/" + suffix;
+    assert UTF8.IsASCIIString(cmk);
+
+    var components := Split(cmk, '/');
+    calc {
+      components;
+    ==
+      Split(alias + "/" + suffix, '/');
+    ==  { WillSplitOnDelim(cmk, '/', alias); }
+      [alias] + Split(cmk[|alias| + 1..], '/');
+    ==  { assert cmk[|alias| + 1..] == suffix; }
+      [alias] + Split(suffix, '/');
+    ==  { WillNotSplitWithOutDelim(suffix, '/'); }
+      [alias] + [suffix];
+    ==
+      [alias, suffix];
+    }
   }
 
   predicate method ValidFormatCMKAliasARN(cmk: string) {
