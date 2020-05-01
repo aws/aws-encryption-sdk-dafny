@@ -244,13 +244,13 @@ module {:extern "KMSUtils"} KMSUtils {
       Repr := {this};
     }
 
-    function method LookupClient(region: Option<string>): (client: IAmazonKeyManagementService?)
+    function method LookupClient(region: Option<string>): (client: Option<IAmazonKeyManagementService>)
       requires Valid()
       ensures Valid()
-      ensures client != null ==> region in ClientCache.Keys && client in Repr
+      ensures client.Some? ==> region in ClientCache.Keys && client.get in Repr
       reads Repr
     {
-      if region in ClientCache.Keys then ClientCache[region] else null
+      if region in ClientCache.Keys then Some(ClientCache[region]) else None()
     }
 
     method AddClient(region: Option<string>, client: IAmazonKeyManagementService)
@@ -294,12 +294,12 @@ module {:extern "KMSUtils"} KMSUtils {
     method GetClient(region: Option<string>) returns (res: Result<IAmazonKeyManagementService>)
       requires Valid()
       ensures Valid()
-      ensures clientCache.LookupClient(region) != null ==> res.Success? && clientCache.LookupClient(region) == res.value
+      ensures clientCache.LookupClient(region).Some? ==> res.Success? && clientCache.LookupClient(region).get == res.value
       decreases Repr
     {
       var potentialClient := clientCache.LookupClient(region);
-      if potentialClient != null {
-        return Result.Success(potentialClient);
+      if potentialClient.Some? {
+        return Result.Success(potentialClient.get);
       } else  {
         var resClient := clientSupplier.GetClient(region);
         if resClient.Success? {

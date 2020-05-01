@@ -201,7 +201,7 @@ module IntegTestKMS {
     var cmm := new DefaultCMMDef.DefaultCMM.OfKeyring(keyring);
     Helpers.EncryptDecryptTest(cmm, false);
     expect |cachingClientSupplier.clientCache.ClientCache| == 1;
-    expect cachingClientSupplier.clientCache.LookupClient(Some(CURRENT_REGION)) != null;
+    expect cachingClientSupplier.clientCache.LookupClient(Some(CURRENT_REGION)).Some?;
   }
 
   method {:test} TestEndToEnd_CachingClientSupplier_ExcludeRegionsClientSupplier() {
@@ -214,7 +214,7 @@ module IntegTestKMS {
     var cmm := new DefaultCMMDef.DefaultCMM.OfKeyring(keyring);
     Helpers.EncryptDecryptTest(cmm, false);
     expect |cachingClientSupplier.clientCache.ClientCache| == 1;
-    expect cachingClientSupplier.clientCache.LookupClient(Some(CURRENT_REGION)) != null;
+    expect cachingClientSupplier.clientCache.LookupClient(Some(CURRENT_REGION)).Some?;
   }
 
   method {:test} TestEndToEnd_CachingClientSupplier_LimitRegionsClientSupplier() {
@@ -227,7 +227,7 @@ module IntegTestKMS {
     var cmm := new DefaultCMMDef.DefaultCMM.OfKeyring(keyring);
     Helpers.EncryptDecryptTest(cmm, false);
     expect |cachingClientSupplier.clientCache.ClientCache| == 1;
-    expect cachingClientSupplier.clientCache.LookupClient(Some(CURRENT_REGION)) != null;
+    expect cachingClientSupplier.clientCache.LookupClient(Some(CURRENT_REGION)).Some?;
   }
 
   method {:test} TestEndToEnd_CachingClientSupplier_CachingClientSupplier() {
@@ -240,7 +240,7 @@ module IntegTestKMS {
     Helpers.EncryptDecryptTest(cmm, false);
     var lookupRegion := Some(CURRENT_REGION);
     expect |cachingClientSupplier.clientCache.ClientCache| == 1;
-    expect cachingClientSupplier.clientCache.LookupClient(lookupRegion) != null;
+    expect cachingClientSupplier.clientCache.LookupClient(lookupRegion).Some?;
   }
 
   method {:test} TestEndToEnd_CachingClientSupplier_ExcludeRegionsClientSupplier_Failure() {
@@ -252,7 +252,9 @@ module IntegTestKMS {
     var keyring := new KMSKeyringDef.KMSKeyring(cachingClientSupplier, [], Some(generator), []);
     var cmm := new DefaultCMMDef.DefaultCMM.OfKeyring(keyring);
     Helpers.EncryptDecryptTest(cmm, true);
+    var lookupRegion := Some(CURRENT_REGION);
     expect cachingClientSupplier.clientCache.ClientCache == map[];
+    expect cachingClientSupplier.clientCache.LookupClient(lookupRegion).None?;
   }
 
   method {:test} TestEndToEnd_CachingClientSupplier_LimitRegionsClientSupplier_Failure() {
@@ -264,6 +266,8 @@ module IntegTestKMS {
     var keyring := new KMSKeyringDef.KMSKeyring(cachingClientSupplier, [], Some(generator), []);
     var cmm := new DefaultCMMDef.DefaultCMM.OfKeyring(keyring);
     Helpers.EncryptDecryptTest(cmm, true);
+    var lookupRegion := Some(CURRENT_REGION);
     expect cachingClientSupplier.clientCache.ClientCache == map[];
+    expect cachingClientSupplier.clientCache.LookupClient(lookupRegion).None?;
   }
 }
