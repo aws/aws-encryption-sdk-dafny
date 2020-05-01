@@ -14,10 +14,9 @@ namespace UTF8 {
                 byte[] utf8Bytes = utf8.GetBytes(str.Elements);
                 return STL.Result<ibyteseq>.create_Success(byteseq.FromArray(utf8Bytes));
             } catch(EncoderFallbackException e) {
-                return STL.Result<ibyteseq>.create_Failure(charseq.FromArray(
-                    "Input contains invalid Unicode characters".ToCharArray()));
+                return DafnyFFI.CreateFailure<ibyteseq>( "Input contains invalid Unicode characters");
             } catch(ArgumentNullException e) {
-                return STL.Result<ibyteseq>.create_Failure(charseq.FromArray("Input is null".ToCharArray()));
+                return DafnyFFI.CreateFailure<ibyteseq>("Input is null");
             }
         }
 
@@ -29,8 +28,7 @@ namespace UTF8 {
             } catch(ArgumentException e) {
                 // GetString is defined as returning ArgumentException, ArgumentNullException, DecoderFallbackException
                 // Both ArgumentNullException and DecoderFallbackException are children of ArgumentException
-                return STL.Result<icharseq>.create_Failure(charseq.FromArray(
-                    "Input contains an invalid Unicode code point".ToCharArray()));
+                return DafnyFFI.CreateFailure<icharseq>("Input contains an invalid Unicode code point");
             }
         }
     }
