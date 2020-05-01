@@ -9,7 +9,8 @@ module {:extern "AESEncryption"} AESEncryption {
 
   export
     provides AESDecrypt, AESEncrypt, AESDecryptExtern, AESEncryptExtern, EncryptionSuites, StandardLibrary, 
-      UInt, PlaintextDecryptedWithAAD, EncryptionOutputEncryptedWithAAD, CiphertextGeneratedWithPlaintext
+      UInt, PlaintextDecryptedWithAAD, EncryptionOutputEncryptedWithAAD, CiphertextGeneratedWithPlaintext,
+      EncryptedWithKey
     reveals EncryptionOutput
 
   datatype EncryptionOutput = EncryptionOutput(cipherText: seq<uint8>, authTag: seq<uint8>)
@@ -20,6 +21,7 @@ module {:extern "AESEncryption"} AESEncryption {
   predicate {:axiom} PlaintextDecryptedWithAAD(plaintext: seq<uint8>, aad: seq<uint8>)
   predicate {:axiom} EncryptionOutputEncryptedWithAAD(ciphertext: EncryptionOutput, aad: seq<uint8>)
   predicate {:axiom} CiphertextGeneratedWithPlaintext (ciphertext: seq<uint8>, plaintext: seq<uint8>)
+  predicate {:axiom} EncryptedWithKey (encryptionOutput: EncryptionOutput, key: seq<uint8>)
 
   function method EncryptionOutputFromByteSeq(s: seq<uint8>, encAlg: EncryptionSuites.EncryptionSuite): (encArt: EncryptionOutput)
     requires encAlg.Valid()
@@ -39,6 +41,7 @@ module {:extern "AESEncryption"} AESEncryption {
     requires |key| == encAlg.keyLen as int
     ensures res.Success? ==> EncryptionOutputEncryptedWithAAD(res.value, aad)
     ensures res.Success? ==> CiphertextGeneratedWithPlaintext(res.value.cipherText, msg)
+    ensures res.Success? ==> EncryptedWithKey(res.value, key)
 
   method AESEncrypt(encAlg: EncryptionSuites.EncryptionSuite, iv: seq<uint8>, key: seq<uint8>, msg: seq<uint8>, aad: seq<uint8>)
       returns (res : Result<EncryptionOutput>)
@@ -51,6 +54,7 @@ module {:extern "AESEncryption"} AESEncryption {
       |res.value.cipherText| == |msg| && |res.value.authTag| == encAlg.tagLen as int
     ensures res.Success? ==> EncryptionOutputEncryptedWithAAD(res.value, aad)
     ensures res.Success? ==> CiphertextGeneratedWithPlaintext(res.value.cipherText, msg)
+    ensures res.Success? ==> EncryptedWithKey(res.value, key)
     {
       res := AESEncryptExtern(encAlg, iv, key, msg, aad);
       if (res.Success? && |res.value.cipherText| != |msg|){

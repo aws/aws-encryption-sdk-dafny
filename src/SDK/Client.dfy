@@ -154,26 +154,25 @@ module {:extern "ESDKClient"} ESDKClient {
     headerAuthentication.iv == seq(headerBody.algorithmSuiteID.IVLength(), _ => 0)        
     && exists encryptionOutput | 
       AESEncryption.EncryptionOutputEncryptedWithAAD(encryptionOutput, serializedHeaderBody) 
-      && AESEncryption.CiphertextGeneratedWithPlaintext(encryptionOutput.cipherText, [])
-      // TODO add constraint: The IV is the IV specified above
-      // TODO add constraint: The cipherkey is the derived data key
-      ::
+      && AESEncryption.CiphertextGeneratedWithPlaintext(encryptionOutput.cipherText, []) ::
         encryptionOutput.authTag == headerAuthentication.authenticationTag
+        && (exists cipherkey | IsDerivedKey(cipherkey) :: AESEncryption.EncryptedWithKey(encryptionOutput, cipherkey))
+      
   }
 
-  predicate ValidFrames(frames: seq<MessageBody.Frame>, request: EncryptRequest)
+  predicate ValidFrames(frames: seq<MessageBody.Frame>, request: EncryptRequest, headerBody: Msg.HeaderBody)
     reads request
   {
     MessageBody.ValidFrames(frames)
     && |frames| < UINT32_LIMIT
-    && forall frame: MessageBody.Frame | frame in frames :: frame.Valid()
-    && MessageBody.FramesEncryptPlaintext(frames, request.plaintext) // This requirement is missing in spec but needed  
+    && (forall frame: MessageBody.Frame | frame in frames :: frame.Valid())
+    && MessageBody.FramesEncryptPlaintext(frames, request.plaintext) // This requirement is missing in spec but needed
+    && (forall frame: MessageBody.Frame | frame in frames :: |frame.iv| == headerBody.algorithmSuiteID.IVLength())
     /**
     TODO: Add the following postconditions to MessageBody 
     IV: MUST be the sequence number used in the message body AAD for this frame.
     Encrypted Content: MUST be the output of the authenticated encryption algorithm specified by the algorithm suite, with the following inputs:
       The AAD is the serialized message body AAD
-      The IV is the IV specified for this frame above.
       The cipherkey is the derived data key
       The plaintext contains part of the input plaintext this frame is encrypting.
       Authentication Tag: MUST be the authentication tag outputted by the above encryption.
@@ -211,18 +210,18 @@ module {:extern "ESDKClient"} ESDKClient {
           exists headerAuthentication | ValidHeaderAuthentication(headerAuthentication, headerBody) ::
             var serializedHeaderAuthentication := headerAuthentication.iv + headerAuthentication.authenticationTag;
             // Result contains of a valid sequence of frames
-            exists frames | ValidFrames(frames, request) ::
+            exists frames | ValidFrames(frames, request, headerBody) ::
               var serializedFrames := MessageBody.FramesToSequence(frames);
 
-              // If result does not need to be signed then the result is:  
-              headerBody.algorithmSuiteID.SignatureType().None? ==>
-                    encryptedSequence == serializedHeaderBody + serializedHeaderAuthentication + serializedFrames
-              
               // If result needs to be signed then the result contains a signature:  
-              && headerBody.algorithmSuiteID.SignatureType().Some? ==> 
+              headerBody.algorithmSuiteID.SignatureType().Some? ==> 
                 exists signature | ValidSignature(signature) ::
                   var serializedSignature := UInt16ToSeq(|signature| as uint16) + signature;
                           encryptedSequence == serializedHeaderBody + serializedHeaderAuthentication + serializedFrames + serializedSignature
+
+              // If result does not need to be signed then the result is:  
+              && headerBody.algorithmSuiteID.SignatureType().None? ==>
+                    encryptedSequence == serializedHeaderBody + serializedHeaderAuthentication + serializedFrames
   {
     if request.cmm != null && request.keyring != null {
       return Failure("EncryptRequest.keyring OR EncryptRequest.cmm must be set (not both).");
@@ -243,11 +242,11 @@ module {:extern "ESDKClient"} ESDKClient {
     var frameLength := if request.frameLength.Some? then request.frameLength.get else DEFAULT_FRAME_LENGTH;
 
     var algorithmSuiteID := if request.algorithmSuiteID.Some? then Some(request.algorithmSuiteID.get as AlgorithmSuite.ID) else None;
-    
+
     var encMatRequest := Materials.EncryptionMaterialsRequest(request.encryptionContext, algorithmSuiteID, Some(request.plaintextLength as nat));
-    
+
     var encMat :- cmm.GetEncryptionMaterials(encMatRequest);
-    
+
     if UINT16_LIMIT <= |encMat.encryptedDataKeys| {
       return Failure("Number of EDKs exceeds the allowed maximum.");
     }
@@ -286,13 +285,10 @@ module {:extern "ESDKClient"} ESDKClient {
     
     // Encrypt the given plaintext into the message body and add a footer with a signature, if required
     var body :- MessageBody.EncryptMessageBody(request.plaintext, frameLength as int, messageID, derivedDataKey, encMat.algorithmSuiteID);
-    ghost var frames :| ValidFrames(frames, request) && body == MessageBody.FramesToSequence(frames);
+    ghost var frames :| ValidFrames(frames, request, headerBody) && body == MessageBody.FramesToSequence(frames);
                 
     var msg := wr.GetDataWritten() + body;
-    if encMat.algorithmSuiteID.SignatureType().None? {
-      // don't use a footer
-      return Success(msg);
-    } else {
+    if encMat.algorithmSuiteID.SignatureType().Some? {
       var ecdsaParams := encMat.algorithmSuiteID.SignatureType().get;
       var bytes :- Signature.Sign(ecdsaParams, encMat.signingKey.get, msg);
       if |bytes| != ecdsaParams.SignatureLength() as int {
@@ -303,12 +299,16 @@ module {:extern "ESDKClient"} ESDKClient {
       msg := msg + signature; 
       assert headerBody.algorithmSuiteID.SignatureType().Some?;
       return Success(msg);
+    } else {
+      // don't use a footer
+      return Success(msg);
     }
   }
 
   method DeriveKey(plaintextDataKey: seq<uint8>, algorithmSuiteID: AlgorithmSuite.ID, messageID: Msg.MessageID) returns (derivedDataKey: seq<uint8>)
     requires |plaintextDataKey| == algorithmSuiteID.KDFInputKeyLength()
     ensures |derivedDataKey| == algorithmSuiteID.KeyLength()
+    ensures IsDerivedKey(derivedDataKey)
   {
     var algorithm := AlgorithmSuite.Suite[algorithmSuiteID].hkdf;
     if algorithm == KeyDerivationAlgorithms.IDENTITY {
@@ -320,6 +320,8 @@ module {:extern "ESDKClient"} ESDKClient {
     var derivedKey := HKDF.Hkdf(algorithm, None, plaintextDataKey, infoSeq, len);
     return derivedKey;
   }
+
+  predicate {:axiom} IsDerivedKey(derivedDataKey: seq<uint8>)
 
  /*
   * Deserialize a message and decrypt into a plaintext.

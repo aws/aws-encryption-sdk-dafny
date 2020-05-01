@@ -176,6 +176,7 @@ module MessageBody {
       case Success(resultSuccess) => exists frames: seq<Frame> | ValidFrames(frames) ::
         && |frames| < UINT32_LIMIT
         && (forall frame: Frame | frame in frames :: frame.Valid())
+        && (forall frame: Frame | frame in frames :: |frame.iv| == algorithmSuiteID.IVLength())
         && FramesToSequence(frames) == resultSuccess
         && FramesEncryptPlaintext(frames, plaintext)
   { 
