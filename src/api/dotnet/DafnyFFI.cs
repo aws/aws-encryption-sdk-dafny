@@ -121,7 +121,7 @@ public class DafnyFFI {
 
     public static STL.Result<T> CreateFailure<T>(string msg) where T : class
     {
-        return STL.Result<T>.create_Failure(DafnyFFI.DafnyStringFromString(msg));
+        return STL.Result<T>.create_Failure(DafnyStringFromString(msg));
     }
 }
 
