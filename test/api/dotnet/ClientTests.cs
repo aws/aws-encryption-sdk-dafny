@@ -357,13 +357,14 @@ namespace AWSEncryptionSDKTests
 
             // Manually call get client
             Amazon.KeyManagementService.IAmazonKeyManagementService obtainedClient = cachingClientSupplier.GetClient(CURRENT_REGION);
-            Assert.Equal((Amazon.KeyManagementService.AmazonKeyManagementServiceClient)obtainedClient, timeoutClient);
+            Assert.Equal(timeoutClient, (Amazon.KeyManagementService.AmazonKeyManagementServiceClient)obtainedClient);
 
             // Check the client is not cached
             var lookupRegion = DafnyFFI.NullableToOption<Dafny.ISequence<char>>(DafnyFFI.DafnyStringFromString(CURRENT_REGION));
             STL.Option<Amazon.KeyManagementService.IAmazonKeyManagementService> potentialClient = cachingDafnyClientSupplier._clientCache.LookupClient(lookupRegion);
             Assert.NotNull(potentialClient);
             Assert.True(potentialClient.is_None);
+            Assert.Equal(0, cachingDafnyClientSupplier._clientCache.ClientCache.Count);
 
             // Try to call Encrypt (expect an exception since a timeout will occur)
             CMMDefs.CMM cmm = MakeDefaultCMMWithKMSKeyringWithClientSupplier(cachingClientSupplier);
@@ -377,6 +378,7 @@ namespace AWSEncryptionSDKTests
             potentialClient = cachingDafnyClientSupplier._clientCache.LookupClient(lookupRegion);
             Assert.NotNull(potentialClient);
             Assert.True(potentialClient.is_None);
+            Assert.Equal(0, cachingDafnyClientSupplier._clientCache.ClientCache.Count);
         }
 
         [Fact]
