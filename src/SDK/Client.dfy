@@ -156,7 +156,7 @@ module {:extern "ESDKClient"} ESDKClient {
       AESEncryption.EncryptionOutputEncryptedWithAAD(encryptionOutput, serializedHeaderBody) 
       && AESEncryption.CiphertextGeneratedWithPlaintext(encryptionOutput.cipherText, []) ::
         encryptionOutput.authTag == headerAuthentication.authenticationTag
-        && (exists cipherkey | IsDerivedKey(cipherkey) :: AESEncryption.EncryptedWithKey(encryptionOutput, cipherkey))
+        && (exists cipherkey | IsDerivedKey(cipherkey) :: AESEncryption.EncryptedWithKey(encryptionOutput.cipherText, cipherkey))
       
   }
 
@@ -168,6 +168,8 @@ module {:extern "ESDKClient"} ESDKClient {
     && (forall frame: MessageBody.Frame | frame in frames :: frame.Valid())
     && MessageBody.FramesEncryptPlaintext(frames, request.plaintext) // This requirement is missing in spec but needed
     && (forall frame: MessageBody.Frame | frame in frames :: |frame.iv| == headerBody.algorithmSuiteID.IVLength())
+    && (exists cipherkey | IsDerivedKey(cipherkey) :: 
+       (forall frame: MessageBody.Frame | frame in frames :: AESEncryption.EncryptedWithKey(frame.encContent, cipherkey)))
     /**
     TODO: Add the following postconditions to MessageBody 
     IV: MUST be the sequence number used in the message body AAD for this frame.
@@ -284,9 +286,20 @@ module {:extern "ESDKClient"} ESDKClient {
     assert wr.GetDataWritten() == serializedHeaderBody + serializedHeaderAuthentication;
     
     // Encrypt the given plaintext into the message body and add a footer with a signature, if required
-    var body :- MessageBody.EncryptMessageBody(request.plaintext, frameLength as int, messageID, derivedDataKey, encMat.algorithmSuiteID);
-    ghost var frames :| ValidFrames(frames, request, headerBody) && body == MessageBody.FramesToSequence(frames);
-                
+    var seqWithGhostFrames :- MessageBody.EncryptMessageBody(request.plaintext, frameLength as int, messageID, derivedDataKey, encMat.algorithmSuiteID);
+    var body := seqWithGhostFrames.sequence;
+    ghost var frames := seqWithGhostFrames.frames;
+    
+    assert ValidFrames(frames, request, headerBody) && body == MessageBody.FramesToSequence(frames) by {
+      assert MessageBody.ValidFrames(frames);
+      assert |frames| < UINT32_LIMIT;
+      assert forall frame: MessageBody.Frame | frame in frames :: frame.Valid();
+      assert MessageBody.FramesEncryptPlaintext(frames, request.plaintext); // This requirement is missing in spec but needed
+      assert forall frame: MessageBody.Frame | frame in frames :: |frame.iv| == headerBody.algorithmSuiteID.IVLength();
+      assert IsDerivedKey(derivedDataKey); 
+      assert forall frame: MessageBody.Frame | frame in frames :: AESEncryption.EncryptedWithKey(frame.encContent, derivedDataKey);
+    }
+
     var msg := wr.GetDataWritten() + body;
     if encMat.algorithmSuiteID.SignatureType().Some? {
       var ecdsaParams := encMat.algorithmSuiteID.SignatureType().get;
@@ -312,16 +325,25 @@ module {:extern "ESDKClient"} ESDKClient {
   {
     var algorithm := AlgorithmSuite.Suite[algorithmSuiteID].hkdf;
     if algorithm == KeyDerivationAlgorithms.IDENTITY {
+      assert IsDerivedKey(plaintextDataKey) by {
+        reveal IsDerivedKey();
+      }
       return plaintextDataKey;
     }
 
     var infoSeq := UInt16ToSeq(algorithmSuiteID as uint16) + messageID;
     var len := algorithmSuiteID.KeyLength();
     var derivedKey := HKDF.Hkdf(algorithm, None, plaintextDataKey, infoSeq, len);
+    assert IsDerivedKey(derivedKey) by {
+      reveal IsDerivedKey();
+    }
     return derivedKey;
   }
 
-  predicate {:axiom} IsDerivedKey(derivedDataKey: seq<uint8>)
+  predicate {:opaque} IsDerivedKey(derivedDataKey: seq<uint8>)
+  {
+    true
+  }
 
  /*
   * Deserialize a message and decrypt into a plaintext.

@@ -21,7 +21,7 @@ module {:extern "AESEncryption"} AESEncryption {
   predicate {:axiom} PlaintextDecryptedWithAAD(plaintext: seq<uint8>, aad: seq<uint8>)
   predicate {:axiom} EncryptionOutputEncryptedWithAAD(ciphertext: EncryptionOutput, aad: seq<uint8>)
   predicate {:axiom} CiphertextGeneratedWithPlaintext (ciphertext: seq<uint8>, plaintext: seq<uint8>)
-  predicate {:axiom} EncryptedWithKey (encryptionOutput: EncryptionOutput, key: seq<uint8>)
+  predicate {:axiom} EncryptedWithKey(ciphertext: seq<uint8>, key: seq<uint8>)
 
   function method EncryptionOutputFromByteSeq(s: seq<uint8>, encAlg: EncryptionSuites.EncryptionSuite): (encArt: EncryptionOutput)
     requires encAlg.Valid()
@@ -41,7 +41,7 @@ module {:extern "AESEncryption"} AESEncryption {
     requires |key| == encAlg.keyLen as int
     ensures res.Success? ==> EncryptionOutputEncryptedWithAAD(res.value, aad)
     ensures res.Success? ==> CiphertextGeneratedWithPlaintext(res.value.cipherText, msg)
-    ensures res.Success? ==> EncryptedWithKey(res.value, key)
+    ensures res.Success? ==> EncryptedWithKey(res.value.cipherText, key)
 
   method AESEncrypt(encAlg: EncryptionSuites.EncryptionSuite, iv: seq<uint8>, key: seq<uint8>, msg: seq<uint8>, aad: seq<uint8>)
       returns (res : Result<EncryptionOutput>)
@@ -54,7 +54,7 @@ module {:extern "AESEncryption"} AESEncryption {
       |res.value.cipherText| == |msg| && |res.value.authTag| == encAlg.tagLen as int
     ensures res.Success? ==> EncryptionOutputEncryptedWithAAD(res.value, aad)
     ensures res.Success? ==> CiphertextGeneratedWithPlaintext(res.value.cipherText, msg)
-    ensures res.Success? ==> EncryptedWithKey(res.value, key)
+    ensures res.Success? ==> EncryptedWithKey(res.value.cipherText, key)
     {
       res := AESEncryptExtern(encAlg, iv, key, msg, aad);
       if (res.Success? && |res.value.cipherText| != |msg|){
