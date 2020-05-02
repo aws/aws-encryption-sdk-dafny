@@ -152,7 +152,7 @@ namespace KMSUtils {
 
                 // Double check the client does not already exist.
                 // AddClient overrides the existing client if it's there anyways.
-                 STL.Option<KMS.IAmazonKeyManagementService> alreadyCachedClient = cache.LookupClient(region);
+                STL.Option<KMS.IAmazonKeyManagementService> alreadyCachedClient = cache.LookupClient(region);
                 if (alreadyCachedClient.is_None) {
                     cache.AddClient(region, client);
                 }

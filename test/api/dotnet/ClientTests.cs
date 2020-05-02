@@ -18,6 +18,21 @@ namespace AWSEncryptionSDKTests
         private static string KEYRING_NAME = "myKeyring";
         private static string CURRENT_REGION = "us-west-2";
 
+        // This is a testing only client supplier that returns whatever client it was given in all cases, regardless of region
+        // For example, this is useful for testing cases where we always want a bad client
+        private partial class TestingOnlyClientSupplier : AWSEncryptionSDK.AWSKMSClientSupplier {
+            readonly private Amazon.KeyManagementService.IAmazonKeyManagementService client;
+
+            public TestingOnlyClientSupplier(Amazon.KeyManagementService.IAmazonKeyManagementService client) {
+                this.client = client;
+            }
+
+            public Amazon.KeyManagementService.IAmazonKeyManagementService GetClient(string region) {
+                // Ignore the region, just return the same client in all cases
+                return client;
+            }
+        }
+
         // MakeKMSKeyring is a helper method that creates a KMS Keyring for unit testing with a specific client supplier
         private Keyring MakeKMSKeyringWithClientSupplier(AWSEncryptionSDK.AWSKMSClientSupplier clientSupplier)
         {
@@ -324,6 +339,44 @@ namespace AWSEncryptionSDKTests
                 AWSEncryptionSDK.Client.Encrypt(encryptRequest);
             });
             Assert.Equal(String.Format("Given region {0} is in regions maintained by ExcludeRegionsClientSupplier", CURRENT_REGION), ex.Message);
+        }
+
+        [Fact]
+        public void BadConstructor_ClientSupplier_Caching_BadClient()
+        {
+            // Custom testing client supplier that always returns a bad client (a client that instantly has a timeout)
+            var timeoutConfig = new Amazon.KeyManagementService.AmazonKeyManagementServiceConfig { Timeout = TimeSpan.FromMilliseconds(1) };
+            var timeoutClient = new Amazon.KeyManagementService.AmazonKeyManagementServiceClient(timeoutConfig);
+            AWSEncryptionSDK.AWSKMSClientSupplier badClientSupplier = new TestingOnlyClientSupplier(timeoutClient);
+
+            // CachingClientSupplier using the TestingOnlyClientSupplier
+            // Manually construct this using Dafny structs to allow us to check the cache
+            KMSUtils.CachingClientSupplier cachingDafnyClientSupplier = new KMSUtils.CachingClientSupplier();
+            cachingDafnyClientSupplier.__ctor(new KMSUtils.AWSKMSClientSupplierAsDafny(badClientSupplier));
+            AWSEncryptionSDK.AWSKMSClientSupplier cachingClientSupplier = new KMSUtils.DafnyAWSKMSClientSupplierAsNative(cachingDafnyClientSupplier);
+
+            // Manually call get client
+            Amazon.KeyManagementService.IAmazonKeyManagementService obtainedClient = cachingClientSupplier.GetClient(CURRENT_REGION);
+            Assert.Equal((Amazon.KeyManagementService.AmazonKeyManagementServiceClient)obtainedClient, timeoutClient);
+
+            // Check the client is not cached
+            var lookupRegion = DafnyFFI.NullableToOption<Dafny.ISequence<char>>(DafnyFFI.DafnyStringFromString(CURRENT_REGION));
+            STL.Option<Amazon.KeyManagementService.IAmazonKeyManagementService> potentialClient = cachingDafnyClientSupplier._clientCache.LookupClient(lookupRegion);
+            Assert.NotNull(potentialClient);
+            Assert.True(potentialClient.is_None);
+
+            // Try to call Encrypt (expect an exception since a timeout will occur)
+            CMMDefs.CMM cmm = MakeDefaultCMMWithKMSKeyringWithClientSupplier(cachingClientSupplier);
+            MemoryStream plaintextStream = new MemoryStream(Encoding.UTF8.GetBytes("something"));
+            var encryptRequest = new AWSEncryptionSDK.Client.EncryptRequest{plaintext = plaintextStream, cmm = cmm};
+            DafnyException ex = Assert.Throws<DafnyException>(() => {
+                AWSEncryptionSDK.Client.Encrypt(encryptRequest);
+            });
+
+            // Check that the client is still not cached
+            potentialClient = cachingDafnyClientSupplier._clientCache.LookupClient(lookupRegion);
+            Assert.NotNull(potentialClient);
+            Assert.True(potentialClient.is_None);
         }
 
         [Fact]
