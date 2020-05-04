@@ -159,7 +159,10 @@ namespace KMSUtils {
                 return;
             };
             // A cast needs to be performed so that we can properly use AfterResponseEvent, which is not part of the interface
-            Amazon.Runtime.AmazonServiceClient castClient = (Amazon.Runtime.AmazonServiceClient)client;
+            Amazon.Runtime.AmazonServiceClient castClient = client as Amazon.Runtime.AmazonServiceClient;
+            if (castClient == null) {
+                throw new AWSEncryptionSDK.AWSKMSClientSupplierException("AWS KMS service client is not an AmazonServiceClient");
+            }
 
             // Add the ResponseEventHandler to the AfterResponseEvent handlers
             // so the handler runs after a network call is made and a response is obtained
