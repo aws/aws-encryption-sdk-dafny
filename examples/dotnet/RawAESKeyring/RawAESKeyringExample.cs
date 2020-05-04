@@ -76,6 +76,12 @@ namespace RawAESKeyringExample {
 
             // Demonstrate that the decrypted plaintext is identical to the original plaintext.
             Assert.Equal(decrypted.ToArray(), plaintext.ToArray());
+            // Verify that the encryption context used in the decrypt operation includes
+            // the encryption context that you specified when encrypting.
+            // The AWS Encryption SDK can add pairs, so don't require an exact match.
+            //
+            // In production, always use a meaningful encryption context.
+            // TODO: Add logic that checks the encryption context.
         }
 
         // We test examples to ensure they remain up-to-date.
