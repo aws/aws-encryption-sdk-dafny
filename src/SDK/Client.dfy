@@ -176,17 +176,17 @@ module {:extern "ESDKClient"} ESDKClient {
     Encrypted Content: MUST be the output of the authenticated encryption algorithm specified by the algorithm suite, with the following inputs:
       The AAD is the serialized message body AAD
       The cipherkey is the derived data key
-      The plaintext contains part of the input plaintext this frame is encrypting.
       Authentication Tag: MUST be the authentication tag outputted by the above encryption.
                   */
   }
 
-  predicate ValidSignature(signature: seq<uint8>)
+  predicate ValidSignature(signature: seq<uint8>, serializedMessage: seq<uint8>)
   {
-    |signature| < UINT16_LIMIT 
-    // TODO add constraint: Signature: MUST be the output of the signature algorithm specified by the algorithm suite, with the following input:
-      // TODO add constraint: the signature key is the signing key in the encryption materials
-      // TODO add constraint: the input to sign is the concatenation of the serialization of the message header and message body
+    |signature| < UINT16_LIMIT
+    // TODO: the signature key is the signing key in the encryption materials
+    && (exists cipherkey, partialSignature ::
+      signature == UInt16ToSeq(|partialSignature| as uint16) + partialSignature &&
+        Signature.IsSigned(cipherkey, serializedMessage, partialSignature))
   }
 
  /*
@@ -217,7 +217,7 @@ module {:extern "ESDKClient"} ESDKClient {
 
               // If result needs to be signed then the result contains a signature:  
               headerBody.algorithmSuiteID.SignatureType().Some? ==> 
-                exists signature | ValidSignature(signature) ::
+                exists signature | ValidSignature(signature, serializedHeaderBody + serializedHeaderAuthentication + serializedFrames) ::
                   var serializedSignature := UInt16ToSeq(|signature| as uint16) + signature;
                           encryptedSequence == serializedHeaderBody + serializedHeaderAuthentication + serializedFrames + serializedSignature
 
@@ -308,7 +308,11 @@ module {:extern "ESDKClient"} ESDKClient {
         return Failure("Malformed response from Sign().");
       }
       var signature := UInt16ToSeq(|bytes| as uint16) + bytes; 
-      assert ValidSignature(signature);
+      assert ValidSignature(signature, msg) by{
+        assert |signature| < UINT16_LIMIT;
+        assert signature == UInt16ToSeq(|bytes| as uint16) + bytes;
+        assert Signature.IsSigned(encMat.signingKey.get, msg, bytes);
+      }
       msg := msg + signature; 
       assert headerBody.algorithmSuiteID.SignatureType().Some?;
       return Success(msg);

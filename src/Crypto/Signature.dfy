@@ -4,13 +4,15 @@ module {:extern "Signature"} Signature {
   export
     reveals SignatureKeyPair
     reveals ECDSAParams, ECDSAParams.SignatureLength, ECDSAParams.FieldSize
-    provides KeyGen, Sign, Verify
+    provides KeyGen, Sign, Verify, IsSigned
     provides StandardLibrary, UInt
 
   import opened StandardLibrary
   import opened UInt = StandardLibrary.UInt
 
   datatype SignatureKeyPair = SignatureKeyPair(verificationKey: seq<uint8>, signingKey: seq<uint8>)
+  
+  predicate {:axiom} IsSigned(key: seq<uint8>, msg: seq<uint8>, signature: seq<uint8>)
 
   datatype ECDSAParams = ECDSA_P384 | ECDSA_P256
   {
@@ -43,6 +45,7 @@ module {:extern "Signature"} Signature {
   method {:extern "Signature.ECDSA", "ExternKeyGen"} ExternKeyGen(s: ECDSAParams) returns (res: Result<SignatureKeyPair>)
 
   method {:extern "Signature.ECDSA", "Sign"} Sign(s: ECDSAParams, key: seq<uint8>, msg: seq<uint8>) returns (sig: Result<seq<uint8>>)
+    ensures sig.Success? ==> IsSigned(key, msg, sig.value)
 
   method {:extern "Signature.ECDSA", "Verify"} Verify(s: ECDSAParams, key: seq<uint8>, msg: seq<uint8>, sig: seq<uint8>) returns (res: Result<bool>)
 }
