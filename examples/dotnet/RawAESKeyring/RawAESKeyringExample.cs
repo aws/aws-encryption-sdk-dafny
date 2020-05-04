@@ -18,11 +18,12 @@ using ExampleUtils;
 using Xunit;
 
 namespace RawAESKeyringExample {
+    /// Demonstrate an encrypt/decrypt cycle using a raw AES keyring.
     public class RawAESKeyringExample {
         static void Run(MemoryStream plaintext) {
 
             // Create your encryption context.
-            // Remember that you encryption context is NOT SECRET.
+            // Remember that your encryption context is NOT SECRET.
             // https://docs.aws.amazon.com/encryption-sdk/latest/developer-guide/concepts.html#encryption-context
             IDictionary<string, string> encryptionContext = new Dictionary<string, string>() {
                 {"encryption", "context"},
@@ -38,9 +39,11 @@ namespace RawAESKeyringExample {
             // In practice, you should get this key from a secure key management system such as an HSM.
             byte[] key = GeneratorUtilities.GetKeyGenerator("AES256").GenerateKey();
 
-            // Key name, and key namespace are defined by you,
+            // The key namespace and key name are defined by you
             // and are used by the raw AES keyring to determine
             // whether it should attempt to decrypt an encrypted data key.
+            //
+            // https://docs.aws.amazon.com/encryption-sdk/latest/developer-guide/choose-keyring.html#use-raw-aes-keyring
             byte[] keyName = Encoding.UTF8.GetBytes("My 256-bit AES wrapping key");
             byte[] keyNamespace = Encoding.UTF8.GetBytes("Some managed raw keys");
 
@@ -64,13 +67,14 @@ namespace RawAESKeyringExample {
 
             // Decrypt your encrypted data using the same keyring you used on encrypt.
             // 
-            // Your encryption context is contained in the header of the ciphertext,
-            // so you don't need to provide it again.
+            // You do not need to specify the encryption context on decrypt
+            // because the header of the encrypted message includes the encryption context.
             MemoryStream decrypted = AWSEncryptionSDK.Client.Decrypt(new AWSEncryptionSDK.Client.DecryptRequest{
                     message = ciphertext,
                     keyring = keyring
                     });
 
+            // Demonstrate that the decrypted plaintext is identical to the original plaintext.
             Assert.Equal(decrypted.ToArray(), plaintext.ToArray());
         }
 
