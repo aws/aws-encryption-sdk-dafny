@@ -21,7 +21,7 @@ module TestSerialize {
     TestUtils.ValidSmallEncryptionContext(encryptionContext);
 
     var expectedSerializedAAD := [0, 26, 0, 2, 0, 4, 107, 101, 121, 65, 0, 4, 118, 97, 108, 65, 0, 4, 107, 101, 121, 66, 0, 4, 118, 97, 108, 66];
-  
+
     var len :- expect SerializeAAD(wr, encryptionContext);
     expect wr.GetDataWritten() == expectedSerializedAAD;
   }
@@ -32,12 +32,12 @@ module TestSerialize {
     var encryptionContext := map[];
 
     var expectedSerializedAAD := [0, 0];
-  
+
     var len :- expect SerializeAAD(wr, encryptionContext);
     expect wr.GetDataWritten() == expectedSerializedAAD;
   }
 
-  method {:test} TestSerializeLargeValidEC() {   
+  method {:test} TestSerializeLargeValidEC() {
     var wr := new Streams.ByteWriter();
     var encCtx := TestUtils.GenerateLargeValidEncryptionContext();
 
@@ -55,7 +55,7 @@ module TestSerialize {
     TestUtils.ValidSmallEncryptionContext(encryptionContext);
 
     var expectedSerializedAAD := [0, 2, 0, 4, 107, 101, 121, 65, 0, 4, 118, 97, 108, 65, 0, 4, 107, 101, 121, 66, 0, 4, 118, 97, 108, 66];
-  
+
     var len :- expect SerializeKVPairs(wr, encryptionContext);
     expect wr.GetDataWritten() == expectedSerializedAAD;
   }
@@ -66,7 +66,7 @@ module TestSerialize {
     var encryptionContext := map[];
 
     var expectedSerializedAAD := [];
-  
+
     var len :- expect SerializeKVPairs(wr, encryptionContext);
     expect wr.GetDataWritten() == expectedSerializedAAD;
   }

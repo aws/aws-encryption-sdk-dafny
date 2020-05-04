@@ -41,14 +41,14 @@ module {:extern "TestUtils"} TestUtils {
     reveal EncryptionContext.Serializable();
     assert !EncryptionContext.Serializable(encCtx);
   }
-  
+
   // Generates a large encryption context that approaches the upper bounds of
   // what is able to be serialized in the message format.
   // Building a map item by item is slow in dafny, so this method should be used sparingly.
   method GenerateLargeValidEncryptionContext() returns (r: EncryptionContext.Map)
     ensures EncryptionContext.Serializable(r)
   {
-    // KVPairsMaxSize - KVPairsLenLen / KVPairLen ==> 
+    // KVPairsMaxSize - KVPairsLenLen / KVPairLen ==>
     // (2^16 - 1 - 2) / (2 + 2 + 2 + 1) ==> (2^16 - 3) / 7 ==> 9361
     // which is close to the max number of pairs you can stuff into a valid AAD.
     // We look for 9361 valid 2 byte UTF8 sequences (sticking to 2 bytes for simplicity).
@@ -85,7 +85,9 @@ module {:extern "TestUtils"} TestUtils {
     return encCtx;
   }
 
-  method ExpectSerializableEncryptionContext(encCtx: EncryptionContext.Map) {
+  method ExpectSerializableEncryptionContext(encCtx: EncryptionContext.Map)
+    ensures EncryptionContext.Serializable(encCtx)
+  {
     var valid := EncryptionContext.CheckSerializable(encCtx);
     expect valid;
   }
@@ -94,7 +96,7 @@ module {:extern "TestUtils"} TestUtils {
     var valid := EncryptionContext.CheckSerializable(encCtx);
     expect !valid;
   }
-  
+
   datatype SmallEncryptionContextVariation = Empty | A | AB | BA
 
   method SmallEncryptionContext(v: SmallEncryptionContextVariation) returns (encryptionContext: EncryptionContext.Map)
@@ -118,7 +120,7 @@ module {:extern "TestUtils"} TestUtils {
     }
     ValidSmallEncryptionContext(encryptionContext);
   }
-    
+
   lemma ValidSmallEncryptionContext(encryptionContext: EncryptionContext.Map)
     requires |encryptionContext| <= 5
     requires forall k :: k in encryptionContext.Keys ==> |k| < 100 && |encryptionContext[k]| < 100
@@ -134,7 +136,7 @@ module {:extern "TestUtils"} TestUtils {
 
         var n := |kvPairs|;
         assert n <= 5;
-        
+
         assert EncryptionContext.LinearLength(kvPairs, 0, n) <= n * 204 by {
           KVPairsLengthBound(kvPairs, |kvPairs|, 200);
         }

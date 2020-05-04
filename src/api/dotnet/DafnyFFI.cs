@@ -9,11 +9,11 @@ using icharseq = Dafny.ISequence<char>;
 using charseq = Dafny.Sequence<char>;
 
 // General-purpose utilities for invoking Dafny from C#,
-// including converting between common Dafny and C# datatypes. 
+// including converting between common Dafny and C# datatypes.
 public class DafnyFFI {
 
     public static byte[] ByteArrayFromSequence(ibyteseq seq) {
-        // TODO: Find a way to safely avoid copying 
+        // TODO: Find a way to safely avoid copying
         byte[] copy = new byte[seq.Elements.Length];
         Array.Copy(seq.Elements, 0, copy, 0, seq.Elements.Length);
         return copy;
@@ -22,32 +22,32 @@ public class DafnyFFI {
     public static MemoryStream MemoryStreamFromSequence(ibyteseq seq) {
         return new MemoryStream(ByteArrayFromSequence(seq));
     }
-  
+
     public static ibyteseq SequenceFromMemoryStream(MemoryStream bytes) {
-        // TODO: Find a way to safely avoid copying 
+        // TODO: Find a way to safely avoid copying
         return SequenceFromByteArray(bytes.ToArray());
     }
 
     public static ibyteseq SequenceFromByteArray(byte[] bytearray) {
         return byteseq.FromArray(bytearray);
     }
-  
+
     public static string StringFromDafnyString(icharseq dafnyString) {
         // TODO: Find a way to safely avoid copying.
         // The contents of a Dafny.Sequence should never change, but since a Dafny.ArraySequence
         // currently allows direct access to its array we can't assume that's true.
         return new string(dafnyString.Elements);
     }
-    
+
     public static icharseq DafnyStringFromString(string s) {
         // This is safe since string#ToCharArray() creates a fresh array
         return charseq.FromArray(s.ToCharArray());
     }
-    
+
     public static ibyteseq DafnyUTF8BytesFromString(string s) {
         return byteseq.FromArray(Encoding.UTF8.GetBytes(s));
     }
-  
+
     public static T ExtractResult<T>(Result<T> result) {
         if (result is Result_Success<T> s) {
             return s.value;

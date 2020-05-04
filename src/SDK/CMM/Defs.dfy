@@ -21,8 +21,9 @@ module {:extern "CMMDefs"} CMMDefs {
     method GetEncryptionMaterials(materialsRequest: Materials.EncryptionMaterialsRequest)
                                   returns (res: Result<Materials.ValidEncryptionMaterials>)
       requires Valid()
-      ensures Valid()
-      ensures res.Success? ==> res.value.plaintextDataKey.Some? && res.value.Serializable()
+      modifies Repr
+      ensures Valid() && fresh(Repr - old(Repr))
+      ensures res.Success? ==> res.value.Serializable()
 
     // The following predicate is a synonym for Encryption.Serializable and provides a workaround for a translation bug
     // of "fuel" in trait-override checks in Dafny. https://github.com/dafny-lang/dafny/issues/422
@@ -33,7 +34,8 @@ module {:extern "CMMDefs"} CMMDefs {
     method DecryptMaterials(materialsRequest: Materials.ValidDecryptionMaterialsRequest)
                             returns (res: Result<Materials.ValidDecryptionMaterials>)
       requires Valid()
-      ensures Valid()
+      modifies Repr
+      ensures Valid() && fresh(Repr - old(Repr))
       ensures res.Success? ==> res.value.plaintextDataKey.Some?
   }
 }

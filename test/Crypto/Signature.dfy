@@ -5,7 +5,7 @@ include "../../src/Util/UTF8.dfy"
 
 module TestSignature {
   import Signature
-    
+
   module Helpers {
     import Signature
     import UTF8

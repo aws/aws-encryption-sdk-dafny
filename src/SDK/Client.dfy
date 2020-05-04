@@ -112,7 +112,7 @@ module {:extern "ESDKClient"} ESDKClient {
 
     constructor WithCMM(message: seq<uint8>, cmm: CMMDefs.CMM)
       requires cmm.Valid()
-      ensures this.message== message
+      ensures this.message == message
       ensures this.cmm == cmm
       ensures this.keyring == null
     {
@@ -137,9 +137,10 @@ module {:extern "ESDKClient"} ESDKClient {
   * Encrypt a plaintext and serialize it into a message.
   */
   method Encrypt(request: EncryptRequest) returns (res: Result<seq<uint8>>)
-    requires request.cmm != null ==> request.cmm.Valid()
-    requires request.keyring != null ==> request.keyring.Valid()
+    requires request.cmm != null ==> request.cmm.Valid() && request !in request.cmm.Repr
+    requires request.keyring != null ==> request.keyring.Valid() && request !in request.keyring.Repr
     modifies if request.cmm == null then {} else request.cmm.Repr
+    modifies if request.keyring == null then {} else request.keyring.Repr
     ensures request.cmm != null ==> request.cmm.Valid()
     ensures request.cmm != null ==> fresh(request.cmm.Repr - old(request.cmm.Repr))
     ensures request.cmm == null && request.keyring == null ==> res.Failure?
@@ -194,7 +195,7 @@ module {:extern "ESDKClient"} ESDKClient {
     var unauthenticatedHeader := wr.GetDataWritten();
 
     var iv: seq<uint8> := seq(encMat.algorithmSuiteID.IVLength(), _ => 0);
-    var encryptionOutput :- AESEncryption.AESEncrypt(encMat.algorithmSuiteID.EncryptionSuite(), iv, derivedDataKey, [], unauthenticatedHeader);
+    var encryptionOutput :- AESEncryption.AESEncryptExtern(encMat.algorithmSuiteID.EncryptionSuite(), iv, derivedDataKey, [], unauthenticatedHeader);
     var headerAuthentication := Msg.HeaderAuthentication(iv, encryptionOutput.authTag);
     var _ :- Serialize.SerializeHeaderAuthentication(wr, headerAuthentication, encMat.algorithmSuiteID);
 
@@ -235,8 +236,12 @@ module {:extern "ESDKClient"} ESDKClient {
   * Deserialize a message and decrypt into a plaintext.
   */
   method Decrypt(request: DecryptRequest) returns (res: Result<seq<uint8>>)
-    requires request.cmm != null ==> request.cmm.Valid()
-    requires request.keyring != null ==> request.keyring.Valid()
+    requires request.cmm != null ==> request.cmm.Valid() && request !in request.cmm.Repr
+    requires request.keyring != null ==> request.keyring.Valid() && request !in request.keyring.Repr
+    modifies if request.cmm == null then {} else request.cmm.Repr
+    modifies if request.keyring == null then {} else request.keyring.Repr
+    ensures request.cmm != null ==> request.cmm.Valid()
+    ensures request.cmm != null ==> fresh(request.cmm.Repr - old(request.cmm.Repr))
     ensures request.cmm == null && request.keyring == null ==> res.Failure?
     ensures request.cmm != null && request.keyring != null ==> res.Failure?
   {
