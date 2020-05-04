@@ -54,15 +54,15 @@ namespace AWSEncryptionSDK
                 var dafnyPlaintext = DafnyFFI.SequenceFromMemoryStream(this.plaintext);
                 var optionalAlgID = this.algorithmSuiteID != null ? STL.Option<ushort>.create_Some((ushort)this.algorithmSuiteID) : STL.Option<ushort>.create_None();
 
-                return new ESDKClient.EncryptRequest{
-                    plaintext = dafnyPlaintext,
-                    cmm = this.cmm,
-                    keyring = this.keyring,
-                    plaintextLength = new BigInteger(dafnyPlaintext.Count),
-                    encryptionContext = ToDafnyEncryptionContext(this.encryptionContext),
-                    algorithmSuiteID = optionalAlgID,
-                    frameLength = this.frameLength != null ? STL.Option<uint>.create_Some((uint)this.frameLength) : STL.Option<uint>.create_None()
-                };
+                return ESDKClient.EncryptRequest.create(
+                    plaintext: dafnyPlaintext,
+                    cmm: this.cmm,
+                    keyring: this.keyring,
+                    plaintextLength: new BigInteger(dafnyPlaintext.Count),
+                    encryptionContext: ToDafnyEncryptionContext(this.encryptionContext),
+                    algorithmSuiteID: optionalAlgID,
+                    frameLength: this.frameLength != null ? STL.Option<uint>.create_Some((uint)this.frameLength) : STL.Option<uint>.create_None()
+                );
             }
         }
 
@@ -78,11 +78,11 @@ namespace AWSEncryptionSDK
 
                 var dafnyMessage = DafnyFFI.SequenceFromMemoryStream(this.message);
 
-                return new ESDKClient.DecryptRequest{
-                    message = dafnyMessage,
-                    cmm = this.cmm,
-                    keyring = this.keyring
-                };
+                return ESDKClient.DecryptRequest.create(
+                    message: dafnyMessage,
+                    cmm: this.cmm,
+                    keyring: this.keyring
+                );
             }
         }
     }
