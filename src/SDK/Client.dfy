@@ -133,6 +133,7 @@ module {:extern "ESDKClient"} ESDKClient {
     }
   }
 
+  // Specification of Encrypt with signature
   function SerializeMessageWithSignature(headerBody: Msg.HeaderBody, headerAuthentication: Msg.HeaderAuthentication, frames: seq<MessageBody.Frame>,
       signature: seq<uint8>): (message: seq<uint8>)
     requires forall frame: MessageBody.Frame | frame in frames :: frame.Valid()
@@ -143,7 +144,7 @@ module {:extern "ESDKClient"} ESDKClient {
       SerializeMessageWithoutSignature(headerBody, headerAuthentication, frames) + serializedSignature
   }
 
-
+  // Specification of Encrypt without signature
   function SerializeMessageWithoutSignature(headerBody: Msg.HeaderBody, headerAuthentication: Msg.HeaderAuthentication,frames: seq<MessageBody.Frame>): 
       (message: seq<uint8>)
     requires forall frame: MessageBody.Frame | frame in frames :: frame.Valid()
@@ -155,6 +156,7 @@ module {:extern "ESDKClient"} ESDKClient {
       serializedHeaderBody + serializedHeaderAuthentication + serializedFrames
   }
 
+  // Specification of headerBody in Encrypt
   predicate ValidHeaderBodyForRequest(headerBody: Msg.HeaderBody, request: EncryptRequest)
     reads request
   {
@@ -169,6 +171,7 @@ module {:extern "ESDKClient"} ESDKClient {
     && headerBody.frameLength == if request.frameLength.Some? then request.frameLength.get else DEFAULT_FRAME_LENGTH
   }
 
+  // Specification of headerAuthentication in Encrypt
   predicate ValidHeaderAuthenticationForRequest(headerAuthentication: Msg.HeaderAuthentication, headerBody: Msg.HeaderBody)
     requires headerBody.Valid()
   {
@@ -179,16 +182,18 @@ module {:extern "ESDKClient"} ESDKClient {
       IsDerivedKey(cipherkey) :: AESEncryption.EncryptedWithKey(encryptionOutput.cipherText, cipherkey)
   }
 
+  // Specification of the Frames used in Encrypt
   predicate ValidFramesForRequest(frames: seq<MessageBody.Frame>, request: EncryptRequest, headerBody: Msg.HeaderBody)
     reads request
   {
     (forall frame: MessageBody.Frame | frame in frames :: frame.Valid()) //This predicates ensure that the frame can be converted to a sequence
     && MessageBody.FramesEncryptPlaintext(frames, request.plaintext) // This requirement is missing in spec but needed for now needs to be addapted to match streaming
     && (forall frame: MessageBody.Frame | frame in frames :: |frame.iv| == headerBody.algorithmSuiteID.IVLength())
-    && (exists cipherkey | IsDerivedKey(cipherkey) :: 
+    && (exists cipherkey | IsDerivedKey(cipherkey) :: // The cipherkey used in the encryption is the derived key
        (forall frame: MessageBody.Frame | frame in frames :: AESEncryption.EncryptedWithKey(frame.encContent, cipherkey)))
   }
 
+  //Specification of the Signature used in Encrypt
   predicate ValidSignatureForRequest(signature: seq<uint8>, headerBody: Msg.HeaderBody, headerAuthentication: Msg.HeaderAuthentication,frames: seq<MessageBody.Frame>)
     requires forall frame: MessageBody.Frame | frame in frames :: frame.Valid()
     requires headerBody.Valid()
@@ -384,6 +389,17 @@ If the algorithm suite has a signature algorithm, decrypt MUST verify the messag
     requires request.keyring != null ==> request.keyring.Valid()
     ensures request.cmm == null && request.keyring == null ==> res.Failure?
     ensures request.cmm != null && request.keyring != null ==> res.Failure?
+    ensures match res 
+      case Failure(e) => true
+      case Success(encryptedSequence) =>
+        exists headerBody: Msg.HeaderBody, headerAuthentication, frames | 
+          (forall frame: MessageBody.Frame | frame in frames :: frame.Valid())
+          && headerBody.Valid() ::
+          (headerBody.algorithmSuiteID.SignatureType().Some? ==> // If the result needs to be signed then there exists a fourth item 
+            exists signature | |signature| < UINT16_LIMIT ::  
+              request.message == SerializeMessageWithSignature(headerBody, headerAuthentication, frames, signature)) // These items can be serialized to the output
+            && headerBody.algorithmSuiteID.SignatureType().None? ==> // if the result does not need to be signed
+              request.message == SerializeMessageWithoutSignature(headerBody, headerAuthentication, frames)
   {
     if request.cmm != null && request.keyring != null {
       return Failure("DecryptRequest.keyring OR DecryptRequest.cmm must be set (not both).");
