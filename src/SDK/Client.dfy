@@ -38,98 +38,56 @@ module {:extern "ESDKClient"} ESDKClient {
 
   const DEFAULT_FRAME_LENGTH: uint32 := 4096
 
-  class EncryptRequest {
-    var plaintext: seq<uint8>
-    var cmm: CMMDefs.CMM?
-    var keyring: KeyringDefs.Keyring?
-    var plaintextLength: nat
-    var encryptionContext: EncryptionContext.Map
-    var algorithmSuiteID: Option<uint16>
-    var frameLength: Option<uint32>
-
-    constructor WithKeyring(plaintext: seq<uint8>, keyring: KeyringDefs.Keyring)
-      requires keyring.Valid()
-      ensures |this.plaintext| == this.plaintextLength
-      ensures this.keyring == keyring
-      ensures this.encryptionContext == map[]
-      ensures this.cmm == null
-      ensures this.algorithmSuiteID.None?
-      ensures this.frameLength.None?
-    {
-      this.plaintext := plaintext;
-      this.cmm := null;
-      this.keyring := keyring;
-      this.plaintextLength := |plaintext|;
-      this.encryptionContext := map[];
-      this.algorithmSuiteID := None;
-      this.frameLength := None;
-    }
-
-    constructor WithCMM(plaintext: seq<uint8>, cmm: CMMDefs.CMM)
+  datatype EncryptRequest = EncryptRequest(
+    plaintext: seq<uint8>,
+    cmm: CMMDefs.CMM?,
+    keyring: KeyringDefs.Keyring?,
+    plaintextLength: nat,
+    encryptionContext: EncryptionContext.Map,
+    algorithmSuiteID: Option<uint16>,
+    frameLength: Option<uint32>)
+  {
+    static function method WithCMM(plaintext: seq<uint8>, cmm: CMMDefs.CMM): EncryptRequest
       requires cmm.Valid()
-      ensures |this.plaintext| == this.plaintextLength
-      ensures this.cmm == cmm
-      ensures this.encryptionContext == map[]
-      ensures this.keyring == null
-      ensures this.algorithmSuiteID.None?
-      ensures this.frameLength.None?
+      reads cmm.Repr
     {
-      this.plaintext := plaintext;
-      this.cmm := cmm;
-      this.keyring := null;
-      this.plaintextLength := |plaintext|;
-      this.encryptionContext := map[];
-      this.algorithmSuiteID := None;
-      this.frameLength := None;
+      EncryptRequest(plaintext, cmm, null, |plaintext|, map[], None, None)
     }
 
-    method SetEncryptionContext(encryptionContext: EncryptionContext.Map)
-      modifies `encryptionContext
-      ensures this.encryptionContext == encryptionContext
+    static function method WithKeyring(plaintext: seq<uint8>, keyring: KeyringDefs.Keyring): EncryptRequest
+      requires keyring.Valid()
+      reads keyring.Repr
     {
-      this.encryptionContext := encryptionContext;
+      EncryptRequest(plaintext, null, keyring, |plaintext|, map[], None, None)
     }
 
-    method SetAlgorithmSuiteID(algorithmSuiteID: uint16)
-      modifies `algorithmSuiteID
-      ensures this.algorithmSuiteID == Some(algorithmSuiteID)
-    {
-      this.algorithmSuiteID := Some(algorithmSuiteID);
+    function method SetEncryptionContext(encryptionContext: EncryptionContext.Map): EncryptRequest {
+      this.(encryptionContext := encryptionContext)
     }
 
-    method SetFrameLength(frameLength: uint32)
-      modifies `frameLength
-      ensures this.frameLength == Some(frameLength)
-    {
-      this.frameLength := Some(frameLength);
+    function method SetAlgorithmSuiteID(algorithmSuiteID: uint16): EncryptRequest {
+      this.(algorithmSuiteID := Some(algorithmSuiteID))
+    }
+
+    function method SetFrameLength(frameLength: uint32): EncryptRequest {
+      this.(frameLength := Some(frameLength))
     }
   }
 
-  class DecryptRequest {
-    var message: seq<uint8>
-    var cmm: CMMDefs.CMM?
-    var keyring: KeyringDefs.Keyring?
-
-    constructor WithCMM(message: seq<uint8>, cmm: CMMDefs.CMM)
+  datatype DecryptRequest = DecryptRequest(message: seq<uint8>, cmm: CMMDefs.CMM?, keyring: KeyringDefs.Keyring?)
+  {
+    static function method WithCMM(message: seq<uint8>, cmm: CMMDefs.CMM): DecryptRequest
       requires cmm.Valid()
-      ensures this.message == message
-      ensures this.cmm == cmm
-      ensures this.keyring == null
+      reads cmm.Repr
     {
-      this.message := message;
-      this.cmm := cmm;
-      this.keyring := null;
+      DecryptRequest(message, cmm, null)
     }
 
-    constructor WithKeyring(message: seq<uint8>, keyring: KeyringDefs.Keyring)
+    static function method WithKeyring(message: seq<uint8>, keyring: KeyringDefs.Keyring): DecryptRequest
       requires keyring.Valid()
-      ensures this.message == message
-      ensures this.keyring == keyring
-      ensures this.cmm == null
+      reads keyring.Repr
     {
-      this.message := message;
-      this.cmm := null;
-      this.keyring := keyring;
+      DecryptRequest(message, null, keyring)
     }
   }
 
@@ -137,8 +95,8 @@ module {:extern "ESDKClient"} ESDKClient {
   * Encrypt a plaintext and serialize it into a message.
   */
   method Encrypt(request: EncryptRequest) returns (res: Result<seq<uint8>>)
-    requires request.cmm != null ==> request.cmm.Valid() && request !in request.cmm.Repr
-    requires request.keyring != null ==> request.keyring.Valid() && request !in request.keyring.Repr
+    requires request.cmm != null ==> request.cmm.Valid()
+    requires request.keyring != null ==> request.keyring.Valid()
     modifies if request.cmm == null then {} else request.cmm.Repr
     modifies if request.keyring == null then {} else request.keyring.Repr
     ensures request.cmm != null ==> request.cmm.Valid()
@@ -236,8 +194,8 @@ module {:extern "ESDKClient"} ESDKClient {
   * Deserialize a message and decrypt into a plaintext.
   */
   method Decrypt(request: DecryptRequest) returns (res: Result<seq<uint8>>)
-    requires request.cmm != null ==> request.cmm.Valid() && request !in request.cmm.Repr
-    requires request.keyring != null ==> request.keyring.Valid() && request !in request.keyring.Repr
+    requires request.cmm != null ==> request.cmm.Valid()
+    requires request.keyring != null ==> request.keyring.Valid()
     modifies if request.cmm == null then {} else request.cmm.Repr
     modifies if request.keyring == null then {} else request.keyring.Repr
     ensures request.cmm != null ==> request.cmm.Valid()

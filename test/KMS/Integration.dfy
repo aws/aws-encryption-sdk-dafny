@@ -53,8 +53,7 @@ module IntegTestKMS {
       expect encodeResult.Success?, "Failed to encode :( " + encodeResult.error + "\n";
       var encodedMsg := encodeResult.value;
       var encryptionContext := SmallEncryptionContext(SmallEncryptionContextVariation.A);
-      var encryptRequest := new Client.EncryptRequest.WithCMM(encodedMsg, cmm);
-      encryptRequest.SetEncryptionContext(encryptionContext);
+      var encryptRequest := Client.EncryptRequest.WithCMM(encodedMsg, cmm).SetEncryptionContext(encryptionContext);
       var e := Client.Encrypt(encryptRequest);
       if shouldFailGetClient {
         expect e.Failure?, "Successfully called GetClient when the call should have failed";
@@ -62,7 +61,7 @@ module IntegTestKMS {
       }
       expect e.Success?, "Bad encryption :( " + e.error + "\n";
 
-      var decryptRequest := new Client.DecryptRequest.WithCMM(e.value, cmm);
+      var decryptRequest := Client.DecryptRequest.WithCMM(e.value, cmm);
       var d := Client.Decrypt(decryptRequest);
       expect d.Success?, "bad decryption: " + d.error + "\n";
 
