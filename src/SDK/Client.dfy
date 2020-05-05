@@ -133,6 +133,28 @@ module {:extern "ESDKClient"} ESDKClient {
     }
   }
 
+  function SerializeMessageWithSignature(headerBody: Msg.HeaderBody, headerAuthentication: Msg.HeaderAuthentication, frames: seq<MessageBody.Frame>,
+      signature: seq<uint8>): (message: seq<uint8>)
+    requires forall frame: MessageBody.Frame | frame in frames :: frame.Valid()
+    requires headerBody.Valid()
+    requires |signature| < UINT16_LIMIT
+  {
+      var serializedSignature := UInt16ToSeq(|signature| as uint16) + signature;
+      SerializeMessageWithoutSignature(headerBody, headerAuthentication, frames) + serializedSignature
+  }
+
+
+  function SerializeMessageWithoutSignature(headerBody: Msg.HeaderBody, headerAuthentication: Msg.HeaderAuthentication,frames: seq<MessageBody.Frame>): 
+      (message: seq<uint8>)
+    requires forall frame: MessageBody.Frame | frame in frames :: frame.Valid()
+    requires headerBody.Valid()
+  {
+      var serializedHeaderBody := (reveal Msg.HeaderBodyToSeq(); Msg.HeaderBodyToSeq(headerBody));
+      var serializedHeaderAuthentication := headerAuthentication.iv + headerAuthentication.authenticationTag;
+      var serializedFrames := MessageBody.FramesToSequence(frames);
+      serializedHeaderBody + serializedHeaderAuthentication + serializedFrames
+  }
+
   predicate ValidHeaderBodyForRequest(headerBody: Msg.HeaderBody, request: EncryptRequest)
     reads request
   {
@@ -160,16 +182,18 @@ module {:extern "ESDKClient"} ESDKClient {
   predicate ValidFramesForRequest(frames: seq<MessageBody.Frame>, request: EncryptRequest, headerBody: Msg.HeaderBody)
     reads request
   {
-    && |frames| < UINT32_LIMIT //The top 2 predicates ensure that the frame can be converted to a sequence
-    && (forall frame: MessageBody.Frame | frame in frames :: frame.Valid())
+    (forall frame: MessageBody.Frame | frame in frames :: frame.Valid()) //This predicates ensure that the frame can be converted to a sequence
     && MessageBody.FramesEncryptPlaintext(frames, request.plaintext) // This requirement is missing in spec but needed for now needs to be addapted to match streaming
     && (forall frame: MessageBody.Frame | frame in frames :: |frame.iv| == headerBody.algorithmSuiteID.IVLength())
     && (exists cipherkey | IsDerivedKey(cipherkey) :: 
        (forall frame: MessageBody.Frame | frame in frames :: AESEncryption.EncryptedWithKey(frame.encContent, cipherkey)))
   }
 
-  predicate ValidSignatureForRequest(signature: seq<uint8>, serializedMessage: seq<uint8>)
+  predicate ValidSignatureForRequest(signature: seq<uint8>, headerBody: Msg.HeaderBody, headerAuthentication: Msg.HeaderAuthentication,frames: seq<MessageBody.Frame>)
+    requires forall frame: MessageBody.Frame | frame in frames :: frame.Valid()
+    requires headerBody.Valid()
   {
+    var serializedMessage := SerializeMessageWithoutSignature(headerBody, headerAuthentication, frames);
     |signature| < UINT16_LIMIT
     && (exists material: Materials.ValidEncryptionMaterials | CMMDefs.EncryptionMaterialsSignature(material) && material.signingKey.Some? ::
         Signature.IsSigned(material.signingKey.get, serializedMessage, signature))
@@ -191,24 +215,16 @@ module {:extern "ESDKClient"} ESDKClient {
     ensures match res 
       case Failure(e) => true
       case Success(encryptedSequence) =>
-        // Result contains a valid serialized headerBody
-        exists headerBody: Msg.HeaderBody  | ValidHeaderBodyForRequest(headerBody, request) ::
-          var serializedHeaderBody := (reveal Msg.HeaderBodyToSeq(); Msg.HeaderBodyToSeq(headerBody));
-          // Result contains of a valid serialized headerAuthentication
-          exists headerAuthentication | ValidHeaderAuthenticationForRequest(headerAuthentication, headerBody) ::
-            var serializedHeaderAuthentication := headerAuthentication.iv + headerAuthentication.authenticationTag;
-            // Result contains of a valid sequence of frames
-            exists frames | ValidFramesForRequest(frames, request, headerBody) ::
-              var serializedFrames := MessageBody.FramesToSequence(frames); 
-              // If result needs to be signed then the result contains a signature:  
-              (headerBody.algorithmSuiteID.SignatureType().Some? ==> 
-                exists signature | ValidSignatureForRequest(signature, serializedHeaderBody + serializedHeaderAuthentication + serializedFrames) ::
-                  var serializedSignature := UInt16ToSeq(|signature| as uint16) + signature;
-                          encryptedSequence == serializedHeaderBody + serializedHeaderAuthentication + serializedFrames + serializedSignature)
-
-              // If result does not need to be signed then the result is:  
-              && headerBody.algorithmSuiteID.SignatureType().None? ==>
-                    encryptedSequence == serializedHeaderBody + serializedHeaderAuthentication + serializedFrames
+        // The result is a serialization of 3 items with a potential fourth item. Every item has to meet some specification which is specified in its respective section
+        exists headerBody, headerAuthentication, frames | // Some items exists
+          ValidHeaderBodyForRequest(headerBody, request) // Which meet their respecive specifications
+          && ValidHeaderAuthenticationForRequest(headerAuthentication, headerBody)
+          && ValidFramesForRequest(frames, request, headerBody) ::  
+            (headerBody.algorithmSuiteID.SignatureType().Some? ==> // If the result needs to be signed then there exists a fourth item 
+              exists signature | ValidSignatureForRequest(signature, headerBody, headerAuthentication, frames) :: // which meets its specification
+                encryptedSequence == SerializeMessageWithSignature(headerBody, headerAuthentication, frames, signature)) // These items can be serialized to the output
+            && headerBody.algorithmSuiteID.SignatureType().None? ==> // if the result does not need to be signed
+               encryptedSequence == SerializeMessageWithoutSignature(headerBody, headerAuthentication, frames) // Then these items can be serialized to the output
   {
     if request.cmm != null && request.keyring != null {
       return Failure("EncryptRequest.keyring OR EncryptRequest.cmm must be set (not both).");
@@ -280,8 +296,6 @@ module {:extern "ESDKClient"} ESDKClient {
     ghost var frames := seqWithGhostFrames.frames;
     
     assert ValidFramesForRequest(frames, request, headerBody) && body == MessageBody.FramesToSequence(frames) by {
-      assert MessageBody.ValidFrames(frames);
-      assert |frames| < UINT32_LIMIT;
       assert forall frame: MessageBody.Frame | frame in frames :: frame.Valid();
       assert MessageBody.FramesEncryptPlaintext(frames, request.plaintext); // This requirement is missing in spec but needed
       assert forall frame: MessageBody.Frame | frame in frames :: |frame.iv| == headerBody.algorithmSuiteID.IVLength();
@@ -297,7 +311,7 @@ module {:extern "ESDKClient"} ESDKClient {
         return Failure("Malformed response from Sign().");
       }
       var signature := UInt16ToSeq(|bytes| as uint16) + bytes; 
-      assert ValidSignatureForRequest(bytes, msg) by{
+      assert ValidSignatureForRequest(bytes, headerBody, headerAuthentication, frames) by{
         assert |signature| < UINT16_LIMIT;
         assert Signature.IsSigned(encMat.signingKey.get, msg, bytes)  ;
       }
@@ -339,6 +353,31 @@ module {:extern "ESDKClient"} ESDKClient {
 
  /*
   * Deserialize a message and decrypt into a plaintext.
+
+
+Cryptographic Materials Manager
+  This CMM MUST obtain the decryption materials required for decryption.
+
+Keyring
+  The client MUST construct a default CMM that uses this keyring
+  This default CMM MUST obtain the decryption materials required for decryption.
+
+  The call to CMM's Decrypt Materials behavior MUST include as the input the encryption context, if provided, the encrypted data keys and the algorithm suite ID, obtained from parsing the message header of the encrypted message inputted.
+  The decryption materials returned by the call to the CMM's Decrypt Materials behaviour MUST contain a valid plaintext data key, algorithm suite and an encryption context, if an encryption context was used during encryption.
+    Note: This encryption context MUST be the same encryption context that was used during encryption otherwise the decrypt operation will fail.
+  The decrypt behavior MUST then use this plaintext data key, algorithm suite and encryption context, if included, to decrypt the encrypted content and obtain the plaintext to be returned. The encrypted content to be decrypted is obtained by parsing the message body of the encrypted message inputted.
+  Decrypt MUST use the encryption algorithm obtained from the algorithm suite.
+  The cipher key used for decryption is the derived key outputted by the KDF algorithm specified by the algorithm suite.
+  The input to the KDF algorithm is the plaintext data key.
+
+  The AAD used in decryption is the Message Body AAD, constructed as follows:
+    Message ID: This value is the same as the message ID in the parsed message header.
+    Body AAD Content: This value depends on whether the encrypted content being decrypted is within a regular frame , a final frame or is non framed. Refer to Message Body AAD specification for more information.
+    Sequence Number: This value is the sequence number of the frame being decrypted, if the message contains framed data. If the message contains non framed data, then this value is 1.
+    Content Length: TODO
+
+If the algorithm suite has a signature algorithm, decrypt MUST verify the message footer using the specified signature algorithm, by using the verification key obtained from the decryption materials.
+
   */
   method Decrypt(request: DecryptRequest) returns (res: Result<seq<uint8>>)
     requires request.cmm != null ==> request.cmm.Valid()

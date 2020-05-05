@@ -84,7 +84,6 @@ module MessageBody {
 
   // Converts sequence of Frames to a sequence encoding all frames
   function FramesToSequence(frames : seq<Frame>): seq<uint8>
-    requires |frames| < UINT32_LIMIT
     requires forall frame | frame in frames :: frame.Valid()
   {
     if frames == [] then
