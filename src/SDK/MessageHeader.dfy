@@ -4,6 +4,7 @@ include "EncryptionContext.dfy"
 include "Materials.dfy"
 include "../Util/UTF8.dfy"
 include "../Util/Sets.dfy"
+include "../Crypto/AESEncryption.dfy"
 
 module {:extern "MessageHeader"} MessageHeader {
   import AlgorithmSuite
@@ -13,6 +14,7 @@ module {:extern "MessageHeader"} MessageHeader {
   import EncryptionContext
   import Materials
   import UTF8
+  import AESEncryption
 
 
   /*
@@ -96,8 +98,18 @@ module {:extern "MessageHeader"} MessageHeader {
   /*
    * Header authentication type definition
    */
-
   datatype HeaderAuthentication = HeaderAuthentication(iv: seq<uint8>, authenticationTag: seq<uint8>)
+
+  predicate HeaderAuthenticationMatchesHeaderBody(headerAuthentication: HeaderAuthentication, headerBody: HeaderBody)
+    requires headerBody.Valid()
+  {
+    var serializedHeaderBody := (reveal HeaderBodyToSeq(); HeaderBodyToSeq(headerBody));
+    headerAuthentication.iv == seq(headerBody.algorithmSuiteID.IVLength(), _ => 0)        
+    && exists encryptionOutput | 
+      AESEncryption.EncryptionOutputEncryptedWithAAD(encryptionOutput, serializedHeaderBody) 
+      && AESEncryption.CiphertextGeneratedWithPlaintext(encryptionOutput.cipherText, []) ::
+        encryptionOutput.authTag == headerAuthentication.authenticationTag
+  }
 
   predicate ValidFrameLength(frameLength: uint32, contentType: ContentType) {
     match contentType

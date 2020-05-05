@@ -47,6 +47,7 @@ module {:extern "DefaultCMMDef"} DefaultCMMDef {
                                   returns (res: Result<Materials.ValidEncryptionMaterials>)
       requires Valid()
       ensures Valid()
+      ensures res.Success? ==> CMMDefs.EncryptionMaterialsSignature(res.value)
       ensures Materials.EC_PUBLIC_KEY_FIELD in materialsRequest.encryptionContext ==> res.Failure?
       ensures res.Success? && (materialsRequest.algorithmSuiteID.None? || materialsRequest.algorithmSuiteID.get.SignatureType().Some?) ==>
         Materials.EC_PUBLIC_KEY_FIELD in res.value.encryptionContext
@@ -56,6 +57,7 @@ module {:extern "DefaultCMMDef"} DefaultCMMDef {
         case Some(id) => res.value.algorithmSuiteID == id
         case None => res.value.algorithmSuiteID == 0x0378
     {
+      reveal CMMDefs.EncryptionMaterialsSignature();
       var reservedField := Materials.EC_PUBLIC_KEY_FIELD;
       assert reservedField in Materials.RESERVED_KEY_VALUES;
       if reservedField in materialsRequest.encryptionContext.Keys {
