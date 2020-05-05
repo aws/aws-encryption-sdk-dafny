@@ -57,7 +57,7 @@ module {:extern "DefaultCMMDef"} DefaultCMMDef {
         case Some(id) => res.value.algorithmSuiteID == id
         case None => res.value.algorithmSuiteID == 0x0378
     {
-      reveal CMMDefs.EncryptionMaterialsSignature();
+      reveal CMMDefs.EncryptionMaterialsSignatureOpaque();
       var reservedField := Materials.EC_PUBLIC_KEY_FIELD;
       assert reservedField in Materials.RESERVED_KEY_VALUES;
       if reservedField in materialsRequest.encryptionContext.Keys {
