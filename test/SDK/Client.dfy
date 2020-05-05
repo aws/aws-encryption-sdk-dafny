@@ -43,11 +43,10 @@ module {:extern "TestClient"} TestClient {
       var msg :- expect UTF8.Encode("hello");
       var encryptionContext := TestUtils.SmallEncryptionContext(TestUtils.SmallEncryptionContextVariation.A);
 
-      var encryptRequest := new Client.EncryptRequest.WithCMM(msg, cmm);
-      encryptRequest.SetEncryptionContext(encryptionContext);
+      var encryptRequest := Client.EncryptRequest.WithCMM(msg, cmm).SetEncryptionContext(encryptionContext);
       var e :- expect Client.Encrypt(encryptRequest);
 
-      var decryptRequest := new Client.DecryptRequest.WithCMM(e, cmm);
+      var decryptRequest := Client.DecryptRequest.WithCMM(e, cmm);
       var d :- expect Client.Decrypt(decryptRequest);
 
       expect msg == d;
@@ -66,8 +65,7 @@ module {:extern "TestClient"} TestClient {
   method {:test} EncryptCMMKeyringOverload() {
     var kr :- expect TestUtils.MakeRSAKeyring();
     var cmm := new DefaultCMMDef.DefaultCMM.OfKeyring(kr);
-    var badRequest := new Client.EncryptRequest.WithCMM([0], cmm);
-    badRequest.keyring := kr;
+    var badRequest := Client.EncryptRequest.WithCMM([0], cmm).(keyring := kr);
 
     var result := Client.Encrypt(badRequest);
 
@@ -77,8 +75,7 @@ module {:extern "TestClient"} TestClient {
 
   method {:test} EncryptInvalidAlgID() {
     var kr :- expect TestUtils.MakeRSAKeyring();
-    var badRequest := new Client.EncryptRequest.WithKeyring([0], kr);
-    badRequest.SetAlgorithmSuiteID(0);
+    var badRequest := Client.EncryptRequest.WithKeyring([0], kr).SetAlgorithmSuiteID(0);
 
     var result := Client.Encrypt(badRequest);
 
@@ -88,8 +85,7 @@ module {:extern "TestClient"} TestClient {
 
   method {:test} EncryptFrameLengthZero() {
     var kr :- expect TestUtils.MakeRSAKeyring();
-    var badRequest := new Client.EncryptRequest.WithKeyring([0], kr);
-    badRequest.SetFrameLength(0);
+    var badRequest := Client.EncryptRequest.WithKeyring([0], kr).SetFrameLength(0);
 
     var result := Client.Encrypt(badRequest);
 
@@ -100,8 +96,7 @@ module {:extern "TestClient"} TestClient {
   method {:test} DecryptCMMKeyringOverload() {
     var kr :- expect TestUtils.MakeRSAKeyring();
     var cmm := new DefaultCMMDef.DefaultCMM.OfKeyring(kr);
-    var badRequest := new Client.DecryptRequest.WithCMM([0], cmm);
-    badRequest.keyring := kr;
+    var badRequest := Client.DecryptRequest.WithCMM([0], cmm).(keyring := kr);
 
     var result := Client.Decrypt(badRequest);
 
