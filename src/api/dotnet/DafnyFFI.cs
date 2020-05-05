@@ -118,6 +118,11 @@ public class DafnyFFI {
                 throw new ArgumentException("Unsupported AES Wrapping Algorithm");
         };
     }
+
+    public static STL.Result<T> CreateFailure<T>(string msg) where T : class
+    {
+        return STL.Result<T>.create_Failure(DafnyStringFromString(msg));
+    }
 }
 
 public class DafnyException : Exception {

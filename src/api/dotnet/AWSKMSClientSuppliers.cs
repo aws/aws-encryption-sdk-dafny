@@ -22,8 +22,8 @@ namespace AWSEncryptionSDK
     public class AWSKMSClientSuppliers {
         public static AWSKMSClientSupplier NewKMSDefaultClientSupplier()
         {
-            // TODO: awslabs/aws-encryption-sdk-dafny/issues/198: This will be swapped for the caching client supplier
-            return NewKMSBaseClientSupplier();
+            AWSKMSClientSupplier baseClientSupplier = NewKMSBaseClientSupplier();
+            return NewKMSCachingClientSupplier(baseClientSupplier);
         }
 
         public static AWSKMSClientSupplier NewKMSBaseClientSupplier()
@@ -40,6 +40,9 @@ namespace AWSEncryptionSDK
         // if the region provided to GetClient(region) is in the list of regions associated with the LimitRegionsClientSupplier.
         public static AWSKMSClientSupplier NewKMSLimitRegionsClientSupplier(AWSKMSClientSupplier clientSupplier, IEnumerable<string> regions)
         {
+            if (regions == null) {
+                throw new ArgumentNullException("regions");
+            }
             // When transpiling Dafny code, new MyClass() does not actually call the constructor, so we need to instantiate the class
             // and then manually call __ctor() to call the required constructor
             KMSUtils.LimitRegionsClientSupplier limitRegionsclientSupplier = new KMSUtils.LimitRegionsClientSupplier();
@@ -55,6 +58,9 @@ namespace AWSEncryptionSDK
         // if the region provided to GetClient(region) is not in the list of regions associated with the ExcludeRegionsClientSupplier.
         public static AWSKMSClientSupplier NewKMSExcludeRegionsClientSupplier(AWSKMSClientSupplier clientSupplier, IEnumerable<string> regions)
         {
+            if (regions == null) {
+                throw new ArgumentNullException("regions");
+            }
             // When transpiling Dafny code, new MyClass() does not actually call the constructor, so we need to instantiate the class
             // and then manually call __ctor() to call the required constructor
             KMSUtils.ExcludeRegionsClientSupplier excludeRegionsclientSupplier = new KMSUtils.ExcludeRegionsClientSupplier();
@@ -63,6 +69,18 @@ namespace AWSEncryptionSDK
                 new KMSUtils.AWSKMSClientSupplierAsDafny(clientSupplier),
                 Dafny.Sequence<icharseq>.FromElements(convertedRegions));
             return new KMSUtils.DafnyAWSKMSClientSupplierAsNative(excludeRegionsclientSupplier);
+        }
+
+        // An implementation of an AWSKMSClientSupplier that takes in an existing AWSKMSClientSupplier.
+        // The CachingClientSupplier will return an AWS KMS service client from the given AWSKMSClientSupplier and cache the client for the given region
+        // once a network call shows that the client's KMS endpoints are valid.
+        public static AWSKMSClientSupplier NewKMSCachingClientSupplier(AWSKMSClientSupplier clientSupplier)
+        {
+            // When transpiling Dafny code, new MyClass() does not actually call the constructor, so we need to instantiate the class
+            // and then manually call __ctor() to call the required constructor
+            KMSUtils.CachingClientSupplier cachingClientSupplier = new KMSUtils.CachingClientSupplier();
+            cachingClientSupplier.__ctor(new KMSUtils.AWSKMSClientSupplierAsDafny(clientSupplier));
+            return new KMSUtils.DafnyAWSKMSClientSupplierAsNative(cachingClientSupplier);
         }
     }
 }
