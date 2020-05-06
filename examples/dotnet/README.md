@@ -29,7 +29,7 @@ These examples will show you how to use the configuration tools that we include 
 and how to create some of your own.
 We start with AWS KMS examples, then show how to use other wrapping keys.
 
-* Using AWS Key Management Service (AWS KMS) Keyring
+* Using AWS Key Management Service (AWS KMS)
     * [How to use one AWS KMS CMK](./) *TODO*
     * [How to use multiple AWS KMS CMKs in different regions](./) *TODO*
     * [How to decrypt when you don't know the CMK](./) *TODO*
