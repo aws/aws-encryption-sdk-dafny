@@ -43,7 +43,7 @@ namespace Signature {
                 var sk = byteseq.FromArray(((ECPrivateKeyParameters)kp.Private).D.ToByteArray());
                 return STL.Result<SignatureKeyPair>.create_Success(new SignatureKeyPair(vk, sk));
             } catch (Exception e) {
-                return STL.Result<SignatureKeyPair>.create_Failure(Dafny.Sequence<char>.FromString(e.ToString()));
+                return DafnyFFI.CreateFailure<SignatureKeyPair>(e.ToString());
             }
         }
 
@@ -136,7 +136,7 @@ namespace Signature {
                 } while (serializedSignature.Length != x.SignatureLength());
                 return STL.Result<ibyteseq>.create_Success(byteseq.FromArray(serializedSignature));
             } catch (Exception e) {
-                return STL.Result<ibyteseq>.create_Failure(Dafny.Sequence<char>.FromString(e.ToString()));
+                return DafnyFFI.CreateFailure<ibyteseq>(e.ToString());
             }
         }
 
