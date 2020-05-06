@@ -82,6 +82,5 @@ please make sure that it meets the following requirements:
 1. Each example filename MUST be descriptive.
 1. Each example file MUST contain a public class matching the filename, 
    with a method called `Run` that runs the example.
-1. Each example MUST be exercised by a `[Fact]` test method within its class that
-   invokes `Run`, providing only the results of methods from the 
-   [`ExampleUtils`](./ExampleUtils/ExampleUtils.cs) class.
+1. Each example MUST be exercised by a `[Fact]` test method within its class that invokes `Run`,
+   providing only the results of methods from the [`ExampleUtils`](./ExampleUtils/ExampleUtils.cs) class.
