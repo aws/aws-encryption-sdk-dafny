@@ -52,7 +52,14 @@ module Deserialize {
     modifies rd.reader`pos
     ensures rd.Valid()
     ensures match ret
-      case Success(hb) => hb.Valid()
+      case Success(hb) => 
+        //var serHb := (reveal Msg.HeaderBodyToSeq(); Msg.HeaderBodyToSeq(hb));
+        //var initLen := old(rd.GetSizeWritten());
+        hb.Valid()
+        //&& totalWritten == |serHb|
+        //&& initLen + totalWritten == wr.GetSizeWritten()
+        //&& serHb == wr.GetDataWritten()[initLen..initLen + totalWritten]
+        
       case Failure(_) => true
   {
     var version :- DeserializeVersion(rd);
@@ -99,8 +106,12 @@ module Deserialize {
     ensures rd.Valid()
     ensures match ret
       case Success(ha) =>
+        var bytesRead := algorithmSuiteID.IVLength() + algorithmSuiteID.TagLength();
+        var serHa := ha.iv + ha.authenticationTag;
         && |ha.iv| == algorithmSuiteID.IVLength()
         && |ha.authenticationTag| == algorithmSuiteID.TagLength()
+        && old(rd.reader.pos) + bytesRead == rd.reader.pos
+        && serHa == rd.reader.data[old(rd.reader.pos)..rd.reader.pos]
       case Failure(_) => true
   {
     var iv :- rd.ReadBytes(algorithmSuiteID.IVLength());
@@ -111,11 +122,17 @@ module Deserialize {
   /*
    * Methods for deserializing pieces of the message header.
    */
-
   method DeserializeVersion(rd: Streams.ByteReader) returns (ret: Result<Msg.Version>)
     requires rd.Valid()
     modifies rd.reader`pos
     ensures rd.Valid()
+    ensures match ret
+      case Success(ver) =>
+        var bytesRead := 1;
+        var serVer := [ver as uint8];
+        && old(rd.reader.pos) + bytesRead == rd.reader.pos
+        && serVer == rd.reader.data[old(rd.reader.pos)..rd.reader.pos]
+      case Failure(_) => true
   {
     var version :- rd.ReadByte();
     if version == Msg.VERSION_1 {
@@ -129,6 +146,13 @@ module Deserialize {
     requires rd.Valid()
     modifies rd.reader`pos
     ensures rd.Valid()
+    ensures match ret
+      case Success(typ) =>
+        var bytesRead := 1;
+        var serTyp := [typ as uint8];
+        && old(rd.reader.pos) + bytesRead == rd.reader.pos
+        && serTyp == rd.reader.data[old(rd.reader.pos)..rd.reader.pos]
+      case Failure(_) => true
   {
     var typ :- rd.ReadByte();
     if typ == Msg.TYPE_CUSTOMER_AED {
@@ -142,6 +166,13 @@ module Deserialize {
     requires rd.Valid()
     modifies rd.reader`pos
     ensures rd.Valid()
+    ensures match ret
+      case Success(algID) =>
+        var bytesRead := 2;
+        var serAlgID := UInt16ToSeq(algID as uint16);
+        && old(rd.reader.pos) + bytesRead == rd.reader.pos
+        && serAlgID == rd.reader.data[old(rd.reader.pos)..rd.reader.pos]
+      case Failure(_) => true
   {
     var algorithmSuiteID :- rd.ReadUInt16();
     if algorithmSuiteID in AlgorithmSuite.VALID_IDS {
@@ -155,6 +186,14 @@ module Deserialize {
     requires rd.Valid()
     modifies rd.reader`pos
     ensures rd.Valid()
+    ensures match ret
+      case Success(messageID) =>
+        var bytesRead := |messageID|;
+        var sermessageID := messageID;
+        && old(rd.reader.pos) + bytesRead == rd.reader.pos
+        && sermessageID == rd.reader.data[old(rd.reader.pos)..rd.reader.pos]
+      case Failure(_) => true
+    
   {
     var msgID: seq<uint8> :- rd.ReadBytes(Msg.MESSAGE_ID_LEN);
     return Success(msgID);
@@ -166,8 +205,9 @@ module Deserialize {
     ensures rd.Valid()
     ensures match ret
       case Success(bytes) =>
-        && |bytes| == n
         && UTF8.ValidUTF8Seq(bytes)
+        && old(rd.reader.pos) + n == rd.reader.pos
+        && bytes == rd.reader.data[old(rd.reader.pos)..rd.reader.pos]
       case Failure(_) => true
   {
     var bytes :- rd.ReadBytes(n);
@@ -183,11 +223,17 @@ module Deserialize {
     modifies rd.reader`pos
     ensures rd.Valid()
     ensures match ret
-      case Success(aad) => EncryptionContext.Serializable(aad)
+      case Success(aad) => 
+        EncryptionContext.Serializable(aad) &&
+        var serAad := EncryptionContext.MapToLinear(aad);
+        var bytesRead := |serAad|;
+        && old(rd.reader.pos) + bytesRead == rd.reader.pos
+
+        && serAad == rd.reader.data[old(rd.reader.pos)..rd.reader.pos]
       case Failure(_) => true
   {
     reveal EncryptionContext.Serializable();
-
+    
     var kvPairsLength :- rd.ReadUInt16();
     if kvPairsLength == 0 {
       return Success(map[]);
@@ -205,14 +251,19 @@ module Deserialize {
     // Building a map item by item is expensive in dafny, so
     // instead we first read the key value pairs into a sequence
     var kvPairs: EncryptionContext.Linear := [];
+    ghost var kvSerialSegments: EncryptionContext.Linear := [];
     var i := 0;
     while i < kvPairsCount
       invariant rd.Valid()
       invariant |kvPairs| == i as int
+      invariant |unsortedkvPairs| == |kvPairs|
       invariant i <= kvPairsCount
       invariant totalBytesRead == 2 + EncryptionContext.LinearLength(kvPairs, 0, i as nat) <= kvPairsLength as nat
       invariant EncryptionContext.LinearSorted(kvPairs)
+      invariant forall i :: 0 <= i < |kvPairs| ==> EncryptionContext.SerializableKVPair(unsortedkvPairs[i])
+      invariant forall kvPair :: kvPair in kvPairs <==> kvPair in kvSerialSegments
     {
+      ghost var oldPos := rd.reader.pos; 
       var keyLength :- rd.ReadUInt16();
       totalBytesRead := totalBytesRead + 2;
 
@@ -228,12 +279,15 @@ module Deserialize {
 
       var value :- DeserializeUTF8(rd, valueLength as nat);
       totalBytesRead := totalBytesRead + |value|;
+      
+      assert rd.reader.data[oldPos..rd.reader.pos] == EncryptionContext.KVPairToSeq((key, value));
 
       // We want to keep entries sorted by key. We don't insist that the entries be sorted
       // already, but we do insist there are no duplicate keys.
       var opt, insertionPoint := InsertNewEntry(kvPairs, key, value);
       match opt {
         case Some(kvPairs_) =>
+          kvSerialSegments := kvSerialSegments + [(key, value)];
           EncryptionContext.LinearInsert(kvPairs, insertionPoint, key, value);
           kvPairs := kvPairs_;
         case None =>

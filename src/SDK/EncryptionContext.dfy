@@ -239,6 +239,87 @@ module {:extern "EncryptionContext"} EncryptionContext {
     LinearSortedUpTo(kvPairs, |kvPairs|)
   }
 
+  function LinearToMapFunc(sequence: seq<uint8>): Result<Map>
+  {
+    if |sequence| < 2 then 
+      Failure("to small")
+    else 
+      SeqToMap(sequence[2..])
+  }
+  
+  function SeqToMap(sequence: seq<uint8>): Result<Map>
+  {
+    if |sequence| < 2 then 
+      Failure("to small")
+    else 
+      var res := SeqToLinear(sequence[2..]);
+      if res.Success? then Success(LinearInMap(res.value)) else Failure("to small")
+  }
+  
+  function LinearInMap(linear: Linear): Map
+  {
+    if linear == [] then map[] else
+      LinearInMap(linear[1..])[linear[0].0 := linear[0].1]
+  }
+
+  function InsertPair (p: (UTF8.ValidUTF8Bytes, UTF8.ValidUTF8Bytes), ps: Linear): (ls: Linear)
+    requires LinearSorted(ps)
+    ensures forall i :: (i in ps || i == p) <==> i in ls
+    ensures LinearSorted(ls)
+  {
+    if ps == [] || LexicographicLessOrEqual(p.0, ps[0].0, UInt.UInt8Less) then
+        frontAppend(p, ps);
+        [p] + ps
+    else
+      LexIsTotal(p.0, ps[0].0, UInt.UInt8Less);
+      var tail := InsertPair(p,ps[1..]);
+      frontAppend(ps[0], tail);
+      [ps[0]] + tail
+  }
+
+  lemma frontAppend(p: (UTF8.ValidUTF8Bytes, UTF8.ValidUTF8Bytes), ps: Linear)
+    requires 0 < |ps| ==> LexicographicLessOrEqual(p.0, ps[0].0, UInt.UInt8Less)
+    requires LinearSorted(ps)
+    ensures LinearSorted([p] + ps)
+
+  function SeqToLinear(sequence: seq<uint8>): Result<Linear>
+    ensures var res := SeqToLinear(sequence);
+      res.Success? ==> LinearSorted(res.value)
+  {
+    var resHead := SeqToKVPair(sequence);
+    if resHead.Success? then 
+      var resTail: Result<Linear> := SeqToLinear(resHead.value.1);
+      if resTail.Success? then
+        Success(InsertPair(resHead.value.0, resTail.value))
+      else
+        Failure("too short")
+    else
+      Failure("Too short")
+  }
+
+  function SeqToKVPair(sequence: seq<uint8>): Result<((UTF8.ValidUTF8Bytes, UTF8.ValidUTF8Bytes), seq<uint8>)>
+  {
+    if |sequence| < 2 then
+      Failure("out of bounds")
+    else
+      var kvp0Length := SeqToUInt16(sequence[..2])  as int;
+      if |sequence| < kvp0Length + 4 then
+        Failure("out of bounds")
+      else
+        var kvp1Length := SeqToUInt16(sequence[2 + kvp0Length..4 + kvp0Length])  as int;
+        if |sequence| >= kvp0Length + kvp1Length + 8 then
+          var kvp0 := sequence[2..2 + kvp0Length];
+          var kvp1 := sequence[4 + kvp0Length..4 + kvp0Length];
+          if UTF8.ValidUTF8Seq(kvp0) && UTF8.ValidUTF8Seq(kvp1) then
+            var kvp0UTF: UTF8.ValidUTF8Bytes := kvp0;
+            var kvp1UTF: UTF8.ValidUTF8Bytes := kvp1;
+            Success(((kvp0UTF, kvp1UTF), sequence[kvp0Length + kvp1Length + 8..]))
+          else
+            Failure("sequence is maleformed")
+        else
+          Failure("out of bounds")
+  }
+
   function MapToLinear(kvPairs: Map): seq<uint8>
     requires Serializable(kvPairs)
   {
