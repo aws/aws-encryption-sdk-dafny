@@ -28,8 +28,8 @@ namespace AWSEncryptionSDK
 
             return DafnyFFI.MemoryStreamFromSequence(DafnyFFI.ExtractResult(result));
         }
-
-        private static encryptioncontext ToDafnyEncryptionContext(Dictionary<string, string> encryptionContext)
+  
+        private static encryptioncontext ToDafnyEncryptionContext(IDictionary<string, string> encryptionContext)
         {
             IEnumerable<Pair<ibyteseq, ibyteseq>> e = encryptionContext.Select(entry
                 => new Pair<ibyteseq, ibyteseq>(DafnyFFI.DafnyUTF8BytesFromString(entry.Key), DafnyFFI.DafnyUTF8BytesFromString(entry.Value)));
@@ -40,7 +40,7 @@ namespace AWSEncryptionSDK
             public MemoryStream plaintext { get; set;}
             public CMM cmm { get; set;}
             public Keyring keyring { get; set;}
-            public Dictionary<string, string> encryptionContext{ get; set;} = new Dictionary<string, string>() ;
+            public IDictionary<string, string> encryptionContext{ get; set;} = new Dictionary<string, string>() ;
             public ushort? algorithmSuiteID { get; set;}
             public uint? frameLength { get; set;}
 
