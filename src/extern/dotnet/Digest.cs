@@ -1,15 +1,5 @@
 using System;
 
-using Org.BouncyCastle.Crypto;
-using Org.BouncyCastle.Crypto.Generators;
-using Org.BouncyCastle.Crypto.Parameters;
-using Org.BouncyCastle.Crypto.Signers;
-using Org.BouncyCastle.Math;
-using Org.BouncyCastle.Math.EC;
-using Org.BouncyCastle.Security;
-using Org.BouncyCastle.Asn1.X9;
-using Org.BouncyCastle.Asn1;
-
 using ibyteseq = Dafny.ISequence<byte>;
 using byteseq = Dafny.Sequence<byte>;
 
@@ -34,7 +24,7 @@ namespace Digest {
                 byte[] digest = hashAlgorithm.ComputeHash(msg.Elements);
                 return STL.Result<ibyteseq>.create_Success(byteseq.FromArray(digest));
             } catch (Exception e) {
-                return STL.Result<ibyteseq>.create_Failure(Dafny.Sequence<char>.FromString(e.ToString()));
+                return DafnyFFI.CreateFailure<ibyteseq>(e.ToString());
             }
         }
     }
