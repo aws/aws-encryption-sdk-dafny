@@ -37,7 +37,7 @@ We start with AWS KMS examples, then show how to use other wrapping keys.
     * [How to decrypt with a preferred region but failover to others](./) *TODO*
     * [How to reproduce the behavior of an AWS KMS master key provider](./) *TODO*
 * Using raw wrapping keys
-    * [How to use a raw AES wrapping key](./keyrings/RawRSAKeyring/RawAESKeyringExample.cs)
+    * [How to use a raw AES wrapping key](./Keyring/RawRSAKeyring/RawAESKeyringExample.cs)
     * [How to use a raw RSA wrapping key](./) *TODO*
     * [How to use a raw RSA wrapping key when the key is PEM or DER encoded](./) *TODO*
     * [How to encrypt with a raw RSA public key wrapping key without access to the private key](./) *TODO*
@@ -54,7 +54,7 @@ We start with AWS KMS examples, then show how to use other wrapping keys.
 
 Keyrings are the most common way for you to configure the AWS Encryption SDK.
 They determine how the AWS Encryption SDK protects your data.
-You can find these examples in [`examples/dotnet/keyrings`](./keyring).
+You can find these examples in [`examples/dotnet/Keyring`](./Keyring).
 
 ### Cryptographic Materials Managers
 
@@ -76,10 +76,9 @@ If you want to contribute a new example, that's awesome!
 To make sure that your example is tested in our CI,
 please make sure that it meets the following requirements:
 
-1. The example MUST be a distinct module in the [`examples/dotnet/`](./) directory.
+1. The example MUST be a distinct subdirectory in the [`examples/dotnet/`](./) directory.
 1. The example MAY be nested arbitrarily deeply.
 1. Each example file MUST contain exactly one example.
 1. Each example filename MUST be descriptive.
 1. Each example file MUST contain a public class matching the filename.
-1. Each example file MUST contain a method called `run` that runs the example.
 1. Each example MUST be exercised by a `[Fact]` test method within its class.
