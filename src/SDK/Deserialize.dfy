@@ -250,27 +250,27 @@ module Deserialize {
     // Building a map item by item is expensive in dafny, so
     // instead we first read the key value pairs into a sequence
     var kvPairs: EncryptionContext.Linear := [];
-    ghost var unsortedkvPairs: EncryptionContext.Linear := [];
+    ghost var oldPosSeq := rd.reader.pos;
     var i := 0;
     while i < kvPairsCount
+      invariant oldPosSeq <= rd.reader.pos
       invariant rd.Valid()
       invariant |kvPairs| == i as int
-      invariant |unsortedkvPairs| == |kvPairs|
       invariant i <= kvPairsCount
       invariant totalBytesRead == 2 + EncryptionContext.LinearLength(kvPairs, 0, i as nat) <= kvPairsLength as nat
       invariant EncryptionContext.LinearSorted(kvPairs)
-      invariant forall i :: 0 <= i < |kvPairs| ==> EncryptionContext.SerializableKVPair(unsortedkvPairs[i])
-      invariant forall kvPair :: kvPair in kvPairs <==> kvPair in unsortedkvPairs
-      invariant EncryptionContext.SeqToMap(rd.reader.data[old(rd.reader.pos)..rd.reader.pos]) == kvPairs
+      invariant EncryptionContext.SeqToLinear(rd.reader.data[oldPosSeq..rd.reader.pos]) == Success(kvPairs)
     {
-      ghost var oldPos := rd.reader.pos; 
+      ghost var oldPosPair := rd.reader.pos; 
       var keyLength :- rd.ReadUInt16();
       totalBytesRead := totalBytesRead + 2;
 
       var key :- DeserializeUTF8(rd, keyLength as nat);
       totalBytesRead := totalBytesRead + |key|;
-
+      
       var valueLength :- rd.ReadUInt16();
+      assert valueLength == SeqToUInt16(rd.reader.data[oldPosPair + 2 + keyLength as int.. oldPosPair + 4 + keyLength as int]);
+          
       totalBytesRead := totalBytesRead + 2;
       // check that we're not exceeding the stated AAD length
       if kvPairsLength as nat < totalBytesRead + valueLength as nat {
@@ -279,22 +279,52 @@ module Deserialize {
 
       var value :- DeserializeUTF8(rd, valueLength as nat);
       totalBytesRead := totalBytesRead + |value|;
-      
-      assert rd.reader.data[oldPos..rd.reader.pos] == EncryptionContext.KVPairToSeq((key, value));
 
+      assert valueLength == SeqToUInt16(rd.reader.data[oldPosPair + 2 + keyLength as int.. oldPosPair + 4 + keyLength as int]);
+      
       // We want to keep entries sorted by key. We don't insist that the entries be sorted
       // already, but we do insist there are no duplicate keys.
       var opt, insertionPoint := InsertNewEntry(kvPairs, key, value);
       match opt {
         case Some(kvPairs_) =>
-          unsortedkvPairs := unsortedkvPairs + [(key, value)];
           EncryptionContext.LinearInsert(kvPairs, insertionPoint, key, value);
           kvPairs := kvPairs_;
         case None =>
           return Failure("Deserialization Error: Duplicate key.");
       }
-
+      assert valueLength == SeqToUInt16(rd.reader.data[oldPosPair + 2 + keyLength as int.. oldPosPair + 4 + keyLength as int]);
+      
       i := i + 1;
+      assert EncryptionContext.SeqToKVPair(rd.reader.data[oldPosPair..rd.reader.pos]) == Success(((key, value), [])) by
+      {
+        var res := EncryptionContext.SeqToKVPair(rd.reader.data[oldPosPair..rd.reader.pos]);
+        assert res.Success? by {
+          assert |rd.reader.data[oldPosPair..rd.reader.pos]| >= 2;
+          assert keyLength == SeqToUInt16(rd.reader.data[oldPosPair..oldPosPair + 2]);
+          assert |rd.reader.data[oldPosPair..rd.reader.pos]| >= 4 + keyLength as int;
+          assert valueLength == SeqToUInt16(rd.reader.data[oldPosPair + 2 + keyLength as int.. oldPosPair + 4 + keyLength as int]);
+          assert |rd.reader.data[oldPosPair..rd.reader.pos]| >= 4 + keyLength as int + valueLength as int;
+          assert key == rd.reader.data[oldPosPair + 2..oldPosPair + 2 + keyLength as int];
+          assert value == rd.reader.data[oldPosPair + 4 + keyLength as int..oldPosPair + 4 + keyLength as int + valueLength as int];
+          assert UTF8.ValidUTF8Seq(key) && UTF8.ValidUTF8Seq(value);
+
+          assert (|rd.reader.data[oldPosPair..rd.reader.pos]| >= 2
+            && var kvp0Length := keyLength as int;
+            keyLength == SeqToUInt16(rd.reader.data[oldPosPair..oldPosPair + 2])
+            && |rd.reader.data[oldPosPair..rd.reader.pos]| >= 4 + kvp0Length
+            && var kvp1Length := valueLength  as int;
+            valueLength == SeqToUInt16(rd.reader.data[oldPosPair + 2 + keyLength as int.. oldPosPair + 4 + keyLength as int])
+            && |rd.reader.data[oldPosPair..rd.reader.pos]| >= 4 + kvp0Length + kvp1Length
+            && var kvp0 := key;
+            key == rd.reader.data[oldPosPair + 2..oldPosPair + 2 + keyLength as int]
+            && var kvp1 := value;
+            value == rd.reader.data[oldPosPair + 4 + keyLength as int..oldPosPair + 4 + keyLength as int + valueLength as int]
+            && UTF8.ValidUTF8Seq(kvp0) && UTF8.ValidUTF8Seq(kvp1));
+        }
+        assert res.value.0.0 == key;
+        assert res.value.0.1 == value;
+        assert res.value.1 == [];
+      }
     }
     if kvPairsLength as nat != totalBytesRead {
       return Failure("Deserialization Error: Bytes actually read differs from bytes supposed to be read.");

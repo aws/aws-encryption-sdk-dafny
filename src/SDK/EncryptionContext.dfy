@@ -281,38 +281,59 @@ module {:extern "EncryptionContext"} EncryptionContext {
     ensures var res := SeqToLinear(sequence);
       res.Success? ==> LinearSorted(res.value)
   {
-    var resHead := SeqToKVPair(sequence);
-    if resHead.Success? then 
-      var resTail: Result<Linear> := SeqToLinear(resHead.value.1);
-      if resTail.Success? then
-        Success(InsertPair(resHead.value.0, resTail.value))
+    if sequence == [] then Success([]) else
+      var resHead := SeqToKVPair(sequence);
+      if resHead.Success? then 
+        var resTail: Result<Linear> := SeqToLinear(resHead.value.1);
+        if resTail.Success? then
+          Success(InsertPair(resHead.value.0, resTail.value))
+        else
+          Failure("too short")
       else
-        Failure("too short")
-    else
-      Failure("Too short")
+        Failure("Too short")
   }
 
-  function SeqToKVPair(sequence: seq<uint8>): Result<((UTF8.ValidUTF8Bytes, UTF8.ValidUTF8Bytes), seq<uint8>)>
+  function SeqToKVPair(sequence: seq<uint8>): (res: Result<((UTF8.ValidUTF8Bytes, UTF8.ValidUTF8Bytes), seq<uint8>)>)
+    ensures
+        (|sequence| >= 2
+        && var kvp0Length := SeqToUInt16(sequence[..2])  as int;
+        |sequence| >= 4 + kvp0Length
+        && var kvp1Length := SeqToUInt16(sequence[2 + kvp0Length..4 + kvp0Length])  as int;
+        |sequence| >= 4 + kvp0Length + kvp1Length
+        && var kvp0 := sequence[2..2 + kvp0Length];
+        var kvp1 := sequence[4 + kvp0Length..4 + kvp0Length + kvp1Length];
+        UTF8.ValidUTF8Seq(kvp0) && UTF8.ValidUTF8Seq(kvp1))
+      <==>
+        res.Success?
+    ensures match res 
+      case Success(((key, value), rem)) =>
+        |key| == SeqToUInt16(sequence[..2])  as int
+        && key == sequence[2..2 + |key|]
+        && |value| == SeqToUInt16(sequence[2 + |key|..4 + |key|])  as int
+        && value == sequence[4 + |key|..4 + |key| + |value|]
+        && rem == sequence[|key| + |value| + 4..]
+      case Failure(_) =>
+        true
   {
-    if |sequence| < 2 then
-      Failure("out of bounds")
-    else
+    if |sequence| >= 2 then
       var kvp0Length := SeqToUInt16(sequence[..2])  as int;
-      if |sequence| < kvp0Length + 4 then
-        Failure("out of bounds")
-      else
+      if |sequence| >= kvp0Length + 4 then
         var kvp1Length := SeqToUInt16(sequence[2 + kvp0Length..4 + kvp0Length])  as int;
-        if |sequence| >= kvp0Length + kvp1Length + 8 then
+        if |sequence| >= kvp0Length + kvp1Length + 4 then
           var kvp0 := sequence[2..2 + kvp0Length];
-          var kvp1 := sequence[4 + kvp0Length..4 + kvp0Length];
+          var kvp1 := sequence[4 + kvp0Length..4 + kvp0Length + kvp1Length];
           if UTF8.ValidUTF8Seq(kvp0) && UTF8.ValidUTF8Seq(kvp1) then
             var kvp0UTF: UTF8.ValidUTF8Bytes := kvp0;
             var kvp1UTF: UTF8.ValidUTF8Bytes := kvp1;
-            Success(((kvp0UTF, kvp1UTF), sequence[kvp0Length + kvp1Length + 8..]))
+            Success(((kvp0UTF, kvp1UTF), sequence[kvp0Length + kvp1Length + 4..]))
           else
             Failure("sequence is maleformed")
         else
           Failure("out of bounds")
+      else
+        Failure("out of bounds")
+    else
+      Failure("out of bounds")
   }
 
   function MapToLinear(kvPairs: Map): seq<uint8>
