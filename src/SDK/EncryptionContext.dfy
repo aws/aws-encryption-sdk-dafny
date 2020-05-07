@@ -268,19 +268,14 @@ module {:extern "EncryptionContext"} EncryptionContext {
     ensures LinearSorted(ls)
   {
     if ps == [] || LexicographicLessOrEqual(p.0, ps[0].0, UInt.UInt8Less) then
-        frontAppend(p, ps);
+        
         [p] + ps
     else
       LexIsTotal(p.0, ps[0].0, UInt.UInt8Less);
       var tail := InsertPair(p,ps[1..]);
-      frontAppend(ps[0], tail);
+     
       [ps[0]] + tail
   }
-
-  lemma frontAppend(p: (UTF8.ValidUTF8Bytes, UTF8.ValidUTF8Bytes), ps: Linear)
-    requires 0 < |ps| ==> LexicographicLessOrEqual(p.0, ps[0].0, UInt.UInt8Less)
-    requires LinearSorted(ps)
-    ensures LinearSorted([p] + ps)
 
   function SeqToLinear(sequence: seq<uint8>): Result<Linear>
     ensures var res := SeqToLinear(sequence);

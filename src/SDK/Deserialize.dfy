@@ -224,12 +224,11 @@ module Deserialize {
     ensures rd.Valid()
     ensures match ret
       case Success(aad) => 
-        EncryptionContext.Serializable(aad) &&
-        var serAad := EncryptionContext.MapToLinear(aad);
-        var bytesRead := |serAad|;
-        && old(rd.reader.pos) + bytesRead == rd.reader.pos
-
-        && serAad == rd.reader.data[old(rd.reader.pos)..rd.reader.pos]
+        EncryptionContext.Serializable(aad)
+        && old(rd.reader.pos) <= rd.reader.pos
+        && var mapRes := EncryptionContext.SeqToMap(rd.reader.data[old(rd.reader.pos)..rd.reader.pos]);
+        mapRes.Success?
+        && mapRes.value == aad 
       case Failure(_) => true
   {
     reveal EncryptionContext.Serializable();
@@ -251,7 +250,7 @@ module Deserialize {
     // Building a map item by item is expensive in dafny, so
     // instead we first read the key value pairs into a sequence
     var kvPairs: EncryptionContext.Linear := [];
-    ghost var kvSerialSegments: EncryptionContext.Linear := [];
+    ghost var unsortedkvPairs: EncryptionContext.Linear := [];
     var i := 0;
     while i < kvPairsCount
       invariant rd.Valid()
@@ -261,7 +260,8 @@ module Deserialize {
       invariant totalBytesRead == 2 + EncryptionContext.LinearLength(kvPairs, 0, i as nat) <= kvPairsLength as nat
       invariant EncryptionContext.LinearSorted(kvPairs)
       invariant forall i :: 0 <= i < |kvPairs| ==> EncryptionContext.SerializableKVPair(unsortedkvPairs[i])
-      invariant forall kvPair :: kvPair in kvPairs <==> kvPair in kvSerialSegments
+      invariant forall kvPair :: kvPair in kvPairs <==> kvPair in unsortedkvPairs
+      invariant EncryptionContext.SeqToMap(rd.reader.data[old(rd.reader.pos)..rd.reader.pos]) == kvPairs
     {
       ghost var oldPos := rd.reader.pos; 
       var keyLength :- rd.ReadUInt16();
@@ -287,7 +287,7 @@ module Deserialize {
       var opt, insertionPoint := InsertNewEntry(kvPairs, key, value);
       match opt {
         case Some(kvPairs_) =>
-          kvSerialSegments := kvSerialSegments + [(key, value)];
+          unsortedkvPairs := unsortedkvPairs + [(key, value)];
           EncryptionContext.LinearInsert(kvPairs, insertionPoint, key, value);
           kvPairs := kvPairs_;
         case None =>
