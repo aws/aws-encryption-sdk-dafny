@@ -37,7 +37,30 @@ To run the dafny verifier across all files:
 dotnet build -t:VerifyDafny test
 ```
 
+### (Optional) Set up the AWS Encryption SDK to work with AWS KMS
+
+If you set up the AWS Encryption SDK to use the AWS KMS Keyring,
+the AWS Encryption SDK will make calls to AWS KMS on your behalf,
+using the appropriate AWS SDK.
+
+However, you must first set up AWS credentials for use with the AWS SDK.
+
+Instructions for setting up AWS credentials are available in the AWS Docs for the AWS SDK in your language:
+
+- [.NET](https://docs.aws.amazon.com/sdk-for-net/v3/developer-guide/net-dg-config-creds.html)
+
 ## Testing the AWS Encryption SDK Written in Dafny
+
+### Configure AWS credentials
+
+To run the test suite you must first set up AWS credentials for use with the AWS SDK.
+This is required in order to run the integration tests, which use a KMS Keyring against a publicaly accessible KMS CMK.
+
+Instructions for setting up AWS credentials are available in the AWS Docs for the AWS SDK in your language:
+
+- [.NET](https://docs.aws.amazon.com/sdk-for-net/v3/developer-guide/net-dg-config-creds.html)
+
+### Run the tests
 
 Run the test suite with:
 
