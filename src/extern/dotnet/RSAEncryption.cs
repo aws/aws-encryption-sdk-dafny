@@ -13,7 +13,6 @@ using Org.BouncyCastle.Security;
 
 using ibyteseq = Dafny.ISequence<byte>;
 using byteseq = Dafny.Sequence<byte>;
-using charseq = Dafny.Sequence<char>;
 
 namespace RSAEncryption {
 
@@ -110,7 +109,7 @@ namespace RSAEncryption {
                     engine.ProcessBlock(plaintextMessage.Elements, 0, plaintextMessage.Elements.Length)));
             }
             catch (Exception encryptEx) {
-                return STL.Result<ibyteseq>.create_Failure(charseq.FromArray(encryptEx.ToString().ToCharArray()));
+                return DafnyFFI.CreateFailure<ibyteseq>(encryptEx.ToString());
             }
         }
 
@@ -128,7 +127,7 @@ namespace RSAEncryption {
                     engine.ProcessBlock(cipherText.Elements, 0, cipherText.Elements.Length)));
             }
             catch (Exception decryptEx) {
-                return STL.Result<ibyteseq>.create_Failure(charseq.FromArray(decryptEx.ToString().ToCharArray()));
+                return DafnyFFI.CreateFailure<ibyteseq>(decryptEx.ToString());
             }
         }
     }

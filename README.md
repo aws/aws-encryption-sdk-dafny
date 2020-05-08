@@ -4,6 +4,8 @@
 
 AWS Encryption SDK Written in Dafny for .NET
 
+[Security issue notifications](./CONTRIBUTING.md#security-issue-notifications)
+
 ## Using the AWS Encryption SDK for .NET
 The AWS Encryption SDK is available on [NuGet](https://www.nuget.org/) and can referenced from an existing `.csproj` through typical ways.
 
@@ -76,6 +78,12 @@ Run the test vector suite after [set up](testVector/README.md) with:
 
 ```
 dotnet test testVectors
+```
+
+Run tests on examples, to ensure they are up to date:
+
+```
+dotnet test examples/dotnet
 ```
 
 Please note that tests and test vectors require internet access and valid AWS credentials, since calls to KMS are made as part of the test workflow.

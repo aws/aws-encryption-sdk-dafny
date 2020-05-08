@@ -28,8 +28,8 @@ namespace AWSEncryptionSDK
 
             return DafnyFFI.MemoryStreamFromSequence(DafnyFFI.ExtractResult(result));
         }
-
-        private static encryptioncontext ToDafnyEncryptionContext(Dictionary<string, string> encryptionContext)
+  
+        private static encryptioncontext ToDafnyEncryptionContext(IDictionary<string, string> encryptionContext)
         {
             IEnumerable<Pair<ibyteseq, ibyteseq>> e = encryptionContext.Select(entry
                 => new Pair<ibyteseq, ibyteseq>(DafnyFFI.DafnyUTF8BytesFromString(entry.Key), DafnyFFI.DafnyUTF8BytesFromString(entry.Value)));
@@ -40,7 +40,7 @@ namespace AWSEncryptionSDK
             public MemoryStream plaintext { get; set;}
             public CMM cmm { get; set;}
             public Keyring keyring { get; set;}
-            public Dictionary<string, string> encryptionContext{ get; set;} = new Dictionary<string, string>() ;
+            public IDictionary<string, string> encryptionContext{ get; set;} = new Dictionary<string, string>() ;
             public ushort? algorithmSuiteID { get; set;}
             public uint? frameLength { get; set;}
 
@@ -54,15 +54,15 @@ namespace AWSEncryptionSDK
                 var dafnyPlaintext = DafnyFFI.SequenceFromMemoryStream(this.plaintext);
                 var optionalAlgID = this.algorithmSuiteID != null ? STL.Option<ushort>.create_Some((ushort)this.algorithmSuiteID) : STL.Option<ushort>.create_None();
 
-                return new ESDKClient.EncryptRequest{
-                    plaintext = dafnyPlaintext,
-                    cmm = this.cmm,
-                    keyring = this.keyring,
-                    plaintextLength = new BigInteger(dafnyPlaintext.Count),
-                    encryptionContext = ToDafnyEncryptionContext(this.encryptionContext),
-                    algorithmSuiteID = optionalAlgID,
-                    frameLength = this.frameLength != null ? STL.Option<uint>.create_Some((uint)this.frameLength) : STL.Option<uint>.create_None()
-                };
+                return ESDKClient.EncryptRequest.create(
+                    plaintext: dafnyPlaintext,
+                    cmm: this.cmm,
+                    keyring: this.keyring,
+                    plaintextLength: new BigInteger(dafnyPlaintext.Count),
+                    encryptionContext: ToDafnyEncryptionContext(this.encryptionContext),
+                    algorithmSuiteID: optionalAlgID,
+                    frameLength: this.frameLength != null ? STL.Option<uint>.create_Some((uint)this.frameLength) : STL.Option<uint>.create_None()
+                );
             }
         }
 
@@ -78,11 +78,11 @@ namespace AWSEncryptionSDK
 
                 var dafnyMessage = DafnyFFI.SequenceFromMemoryStream(this.message);
 
-                return new ESDKClient.DecryptRequest{
-                    message = dafnyMessage,
-                    cmm = this.cmm,
-                    keyring = this.keyring
-                };
+                return ESDKClient.DecryptRequest.create(
+                    message: dafnyMessage,
+                    cmm: this.cmm,
+                    keyring: this.keyring
+                );
             }
         }
     }
