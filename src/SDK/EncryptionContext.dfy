@@ -262,19 +262,48 @@ module {:extern "EncryptionContext"} EncryptionContext {
       LinearInMap(linear[1..])[linear[0].0 := linear[0].1]
   }
 
-  function InsertPair (p: (UTF8.ValidUTF8Bytes, UTF8.ValidUTF8Bytes), ps: Linear): (ls: Linear)
+  function InsertPair(p: (UTF8.ValidUTF8Bytes, UTF8.ValidUTF8Bytes), ps: Linear): (res: (Result<Linear>, nat))
     requires LinearSorted(ps)
-    ensures forall i :: (i in ps || i == p) <==> i in ls
-    ensures LinearSorted(ls)
+    ensures match res.0
+    case Failure(_) =>
+      res.1 < |ps|
+      && ps[res.1].0 == p.0  // key already exists
+    case Success(ls) =>
+      && res.1 <= |ps|
+      && ls == ps[..res.1] + [p] + ps[res.1..]
+      && LinearSorted(ls)
   {
     if ps == [] || LexicographicLessOrEqual(p.0, ps[0].0, UInt.UInt8Less) then
-        
-        [p] + ps
+      if 0 < |ps| && p.0 == ps[0].0 then
+        (Failure("Duplicate key"), 0)
+      else
+        (Success([p] + ps), 0)
     else
       LexIsTotal(p.0, ps[0].0, UInt.UInt8Less);
-      var tail := InsertPair(p,ps[1..]);
-     
-      [ps[0]] + tail
+      var res := InsertPair(p,ps[1..]);
+      if res.0.Success? then
+        (Success([ps[0]] + res.0.value), res.1 + 1)
+      else
+        (res.0, res.1 + 1)
+  }
+
+  lemma InsertFailsOnDuplicate(ls: Linear)
+    requires LinearSorted(ls)
+    ensures forall pair: (UTF8.ValidUTF8Bytes, UTF8.ValidUTF8Bytes) | (exists l | l in ls :: pair.0 == l.0) :: 
+      InsertPair(pair, ls).0.Failure?
+  {
+    if (exists l, pair: (UTF8.ValidUTF8Bytes, UTF8.ValidUTF8Bytes) | l in ls :: pair.0 == l.0) {
+      var pair: (UTF8.ValidUTF8Bytes, UTF8.ValidUTF8Bytes);
+      if ls[0].0 == pair.0 {
+        LexIsReflexive(pair.0, UInt.UInt8Less);
+        assert ls == [] || LexicographicLessOrEqual(pair.0, ls[0].0, UInt.UInt8Less);
+        assert 0 < |ls| && pair.0 == ls[0].0;
+      }else{
+        InsertFailsOnDuplicate(ls[1..]);
+      }
+    }else{
+
+    }
   }
 
   function SeqToLinear(sequence: seq<uint8>): Result<Linear>
@@ -286,52 +315,43 @@ module {:extern "EncryptionContext"} EncryptionContext {
       if resHead.Success? then 
         var resTail: Result<Linear> := SeqToLinear(resHead.value.1);
         if resTail.Success? then
-          Success(InsertPair(resHead.value.0, resTail.value))
+          var newLinear := InsertPair (resHead.value.0, resTail.value);
+          newLinear.0
         else
           Failure("too short")
       else
         Failure("Too short")
   }
 
-  function SeqToKVPair(sequence: seq<uint8>): (res: Result<((UTF8.ValidUTF8Bytes, UTF8.ValidUTF8Bytes), seq<uint8>)>)
-    ensures
-        (|sequence| >= 2
-        && var kvp0Length := SeqToUInt16(sequence[..2])  as int;
-        |sequence| >= 4 + kvp0Length
-        && var kvp1Length := SeqToUInt16(sequence[2 + kvp0Length..4 + kvp0Length])  as int;
-        |sequence| >= 4 + kvp0Length + kvp1Length
-        && var kvp0 := sequence[2..2 + kvp0Length];
-        var kvp1 := sequence[4 + kvp0Length..4 + kvp0Length + kvp1Length];
-        UTF8.ValidUTF8Seq(kvp0) && UTF8.ValidUTF8Seq(kvp1))
-      <==>
-        res.Success?
-    ensures match res 
-      case Success(((key, value), rem)) =>
-        |key| == SeqToUInt16(sequence[..2])  as int
-        && key == sequence[2..2 + |key|]
-        && |value| == SeqToUInt16(sequence[2 + |key|..4 + |key|])  as int
-        && value == sequence[4 + |key|..4 + |key| + |value|]
-        && rem == sequence[|key| + |value| + 4..]
-      case Failure(_) =>
-        true
+  function GetUTF8(sequence: seq<uint8>, length: nat): (res: Result<UTF8.ValidUTF8Bytes>)
+    ensures (|sequence| >= length && UTF8.ValidUTF8Seq(sequence[..length])) <==> res.Success?
+    ensures res.Success? ==> sequence[..length] == res.value
   {
-    if |sequence| >= 2 then
-      var kvp0Length := SeqToUInt16(sequence[..2])  as int;
-      if |sequence| >= kvp0Length + 4 then
-        var kvp1Length := SeqToUInt16(sequence[2 + kvp0Length..4 + kvp0Length])  as int;
-        if |sequence| >= kvp0Length + kvp1Length + 4 then
-          var kvp0 := sequence[2..2 + kvp0Length];
-          var kvp1 := sequence[4 + kvp0Length..4 + kvp0Length + kvp1Length];
-          if UTF8.ValidUTF8Seq(kvp0) && UTF8.ValidUTF8Seq(kvp1) then
-            var kvp0UTF: UTF8.ValidUTF8Bytes := kvp0;
-            var kvp1UTF: UTF8.ValidUTF8Bytes := kvp1;
-            Success(((kvp0UTF, kvp1UTF), sequence[kvp0Length + kvp1Length + 4..]))
-          else
-            Failure("sequence is maleformed")
+      if |sequence| >= length then
+        var utfSeq := sequence[..length];
+        if UTF8.ValidUTF8Seq(utfSeq) then
+          var utf: UTF8.ValidUTF8Bytes  := utfSeq;
+          Success(utf)
         else
-          Failure("out of bounds")
+          Failure("Invalid utf")
       else
         Failure("out of bounds")
+  }
+
+  function SeqToKVPair(sequence: seq<uint8>): (res: Result<((UTF8.ValidUTF8Bytes, UTF8.ValidUTF8Bytes), seq<uint8>)>)
+  {
+    if |sequence| >= 2 then
+      var keyLength := SeqToUInt16(sequence[..2])  as nat;  
+      var key := GetUTF8(sequence[2..], keyLength);
+      if key.Success? && |sequence| >= keyLength + 4 then
+        var valueLength := SeqToUInt16(sequence[keyLength + 2..keyLength + 4])  as nat;              
+        var value := GetUTF8(sequence[keyLength + 4 ..], valueLength);
+        if value.Success? then
+          Success(((key.value, value.value), sequence[4 + keyLength + valueLength..]))
+        else
+          Failure("Invalid utf")
+      else
+        Failure("Invalid utf or out of bounds")
     else
       Failure("out of bounds")
   }

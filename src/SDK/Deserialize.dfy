@@ -199,10 +199,11 @@ module Deserialize {
     return Success(msgID);
   }
 
-  method DeserializeUTF8(rd: Streams.ByteReader, n: nat) returns (ret: Result<seq<uint8>>)
+  method DeserializeUTF8(rd: Streams.ByteReader, n: nat) returns (ret: Result<UTF8.ValidUTF8Bytes>)
     requires rd.Valid()
     modifies rd.reader`pos
     ensures rd.Valid()
+    ensures ret.Success? ==> EncryptionContext.GetUTF8(rd.reader.data[old(rd.reader.pos)..], n) == ret
     ensures match ret
       case Success(bytes) =>
         && UTF8.ValidUTF8Seq(bytes)
@@ -212,7 +213,9 @@ module Deserialize {
   {
     var bytes :- rd.ReadBytes(n);
     if UTF8.ValidUTF8Seq(bytes) {
-      return Success(bytes);
+      var utf8: UTF8.ValidUTF8Bytes := bytes; 
+      assert bytes == rd.reader.data[old(rd.reader.pos)..][..n];
+      return Success(utf8);
     } else {
       return Failure("Deserialization Error: Not a valid UTF8 string.");
     }
@@ -267,9 +270,9 @@ module Deserialize {
 
       var key :- DeserializeUTF8(rd, keyLength as nat);
       totalBytesRead := totalBytesRead + |key|;
+      assert Success(key)  == EncryptionContext.GetUTF8(rd.reader.data[oldPosPair + 2..], keyLength as nat);
       
       var valueLength :- rd.ReadUInt16();
-      assert valueLength == SeqToUInt16(rd.reader.data[oldPosPair + 2 + keyLength as int.. oldPosPair + 4 + keyLength as int]);
           
       totalBytesRead := totalBytesRead + 2;
       // check that we're not exceeding the stated AAD length
@@ -277,10 +280,10 @@ module Deserialize {
         return Failure("Deserialization Error: The number of bytes in encryption context exceeds the given length.");
       }
 
-      var value :- DeserializeUTF8(rd, valueLength as nat);
+      var valueSeq :- DeserializeUTF8(rd, valueLength as nat);
+      var value: UTF8.ValidUTF8Bytes := valueSeq;
       totalBytesRead := totalBytesRead + |value|;
-
-      assert valueLength == SeqToUInt16(rd.reader.data[oldPosPair + 2 + keyLength as int.. oldPosPair + 4 + keyLength as int]);
+      assert Success(value) == EncryptionContext.GetUTF8(rd.reader.data[oldPosPair + 4 + keyLength as nat..], valueLength as nat);
       
       // We want to keep entries sorted by key. We don't insist that the entries be sorted
       // already, but we do insist there are no duplicate keys.
@@ -295,35 +298,21 @@ module Deserialize {
       assert valueLength == SeqToUInt16(rd.reader.data[oldPosPair + 2 + keyLength as int.. oldPosPair + 4 + keyLength as int]);
       
       i := i + 1;
-      assert EncryptionContext.SeqToKVPair(rd.reader.data[oldPosPair..rd.reader.pos]) == Success(((key, value), [])) by
+      ghost var assumedPair := EncryptionContext.SeqToKVPair(rd.reader.data[oldPosPair..]);
+      assert assumedPair == Success(((key, value), rd.reader.data[rd.reader.pos..])) by
       {
-        var res := EncryptionContext.SeqToKVPair(rd.reader.data[oldPosPair..rd.reader.pos]);
-        assert res.Success? by {
-          assert |rd.reader.data[oldPosPair..rd.reader.pos]| >= 2;
-          assert keyLength == SeqToUInt16(rd.reader.data[oldPosPair..oldPosPair + 2]);
-          assert |rd.reader.data[oldPosPair..rd.reader.pos]| >= 4 + keyLength as int;
-          assert valueLength == SeqToUInt16(rd.reader.data[oldPosPair + 2 + keyLength as int.. oldPosPair + 4 + keyLength as int]);
-          assert |rd.reader.data[oldPosPair..rd.reader.pos]| >= 4 + keyLength as int + valueLength as int;
-          assert key == rd.reader.data[oldPosPair + 2..oldPosPair + 2 + keyLength as int];
-          assert value == rd.reader.data[oldPosPair + 4 + keyLength as int..oldPosPair + 4 + keyLength as int + valueLength as int];
-          assert UTF8.ValidUTF8Seq(key) && UTF8.ValidUTF8Seq(value);
-
-          assert (|rd.reader.data[oldPosPair..rd.reader.pos]| >= 2
-            && var kvp0Length := keyLength as int;
-            keyLength == SeqToUInt16(rd.reader.data[oldPosPair..oldPosPair + 2])
-            && |rd.reader.data[oldPosPair..rd.reader.pos]| >= 4 + kvp0Length
-            && var kvp1Length := valueLength  as int;
-            valueLength == SeqToUInt16(rd.reader.data[oldPosPair + 2 + keyLength as int.. oldPosPair + 4 + keyLength as int])
-            && |rd.reader.data[oldPosPair..rd.reader.pos]| >= 4 + kvp0Length + kvp1Length
-            && var kvp0 := key;
-            key == rd.reader.data[oldPosPair + 2..oldPosPair + 2 + keyLength as int]
-            && var kvp1 := value;
-            value == rd.reader.data[oldPosPair + 4 + keyLength as int..oldPosPair + 4 + keyLength as int + valueLength as int]
-            && UTF8.ValidUTF8Seq(kvp0) && UTF8.ValidUTF8Seq(kvp1));
+        var sequence := rd.reader.data[oldPosPair..];
+        assert assumedPair.Success? by {
+          assert |sequence| >= 2;
+          assert keyLength== SeqToUInt16(sequence[..2]);  
+          assert Success(key) == EncryptionContext.GetUTF8(sequence[2..], keyLength as nat);
+          assert |sequence| >= keyLength as nat + 4;
+          assert valueLength == SeqToUInt16(sequence[keyLength as nat + 2..keyLength as nat + 4]);              
+          assert Success(value) == EncryptionContext.GetUTF8(sequence[keyLength as nat + 4 ..], valueLength as nat);
         }
-        assert res.value.0.0 == key;
-        assert res.value.0.1 == value;
-        assert res.value.1 == [];
+        assert assumedPair.value.0.0 == key;
+        assert assumedPair.value.0.1 == value;
+        assert assumedPair.value.1 == rd.reader.data[rd.reader.pos..];
       }
     }
     if kvPairsLength as nat != totalBytesRead {
@@ -348,8 +337,13 @@ module Deserialize {
     requires EncryptionContext.LinearSorted(kvPairs)
     ensures match res
     case None =>
-      exists i :: 0 <= i < |kvPairs| && kvPairs[i].0 == key  // key already exists
+      (exists i :: 0 <= i < |kvPairs| && kvPairs[i].0 == key)  // key already exists
+      && EncryptionContext.InsertPair((key, value), kvPairs).0.Failure?
     case Some(kvPairs') =>
+      var expectedRes := EncryptionContext.InsertPair((key, value), kvPairs);
+      expectedRes.0.Success?
+      && expectedRes.0.value == kvPairs'
+      && expectedRes.1 == insertionPoint
       && insertionPoint <= |kvPairs|
       && kvPairs' == kvPairs[..insertionPoint] + [(key, value)] + kvPairs[insertionPoint..]
       && EncryptionContext.LinearSorted(kvPairs')
