@@ -10,7 +10,7 @@ phases:
       - mozroots --import --sync
       # Get Boogie
       # Multiple Boogie commits have broken our build or test cases. Locking down Boogie.
-      - git clone --branch v2.4.2 https://github.com/boogie-org/boogie.git
+      - git clone --branch v2.4.21 https://github.com/boogie-org/boogie.git
       - nuget restore boogie/Source/Boogie.sln
       - msbuild boogie/Source/Boogie.sln
       # Get Dafny
@@ -18,7 +18,7 @@ phases:
       # Although Dafny does have releases, we often need a newer hash than the latest release, while still needing the
       # the security of reproducible builds.
       - cd dafny
-      - git reset --hard 5ca6ef8347c9675b6824e987967925b1208ca47c
+      - git reset --hard df707bc07e3c39390286dfd0c1576d0a3f556f8b
       - cd ..
       - nuget restore dafny/Source/Dafny.sln
       - msbuild dafny/Source/Dafny.sln
@@ -39,3 +39,4 @@ phases:
       - dotnet build -t:VerifyDafny test
       - dotnet test
       - dotnet test testVectors
+      - dotnet test examples/dotnet

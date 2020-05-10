@@ -27,7 +27,7 @@ namespace AESEncryption {
                 return STL.Result<EncryptionOutput>.create_Success(__default.EncryptionOutputFromByteSeq(byteseq.FromArray(c), encAlg));
             }
             catch {
-                return STL.Result<EncryptionOutput>.create_Failure(charseq.FromArray("aes encrypt err".ToCharArray()));
+                return DafnyFFI.CreateFailure<EncryptionOutput>("aes encrypt err");
             }
         }
 
@@ -42,9 +42,9 @@ namespace AESEncryption {
                 cipher.DoFinal(pt, len); //Check message authentication tag
                 return STL.Result<ibyteseq>.create_Success(byteseq.FromArray(pt));
             } catch(InvalidCipherTextException macEx) {
-                return STL.Result<ibyteseq>.create_Failure(charseq.FromArray(macEx.ToString().ToCharArray()));
+                return DafnyFFI.CreateFailure<ibyteseq>(macEx.ToString());
             } catch {
-                return STL.Result<ibyteseq>.create_Failure(charseq.FromArray("aes decrypt err".ToCharArray()));
+                return DafnyFFI.CreateFailure<ibyteseq>("aes decrypt err");
             }
         }
     }

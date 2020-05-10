@@ -29,7 +29,10 @@ namespace KMSUtils {
         // GenerateDataKey calls the given KMS client's GenerateDataKeyAsync API
         public static STL.Result<GenerateDataKeyResponse> GenerateDataKey(KMS.IAmazonKeyManagementService client, GenerateDataKeyRequest request) {
             if (client == null) {
-                return STL.Result<GenerateDataKeyResponse>.create_Failure(DafnyFFI.DafnyStringFromString("Null AmazonKeyManagementServiceClient provided"));
+                return DafnyFFI.CreateFailure<GenerateDataKeyResponse>("Null AmazonKeyManagementServiceClient provided");
+            }
+            if (request == null) {
+                return DafnyFFI.CreateFailure<GenerateDataKeyResponse>("Null request provided");
             }
             try {
                 KMS.Model.GenerateDataKeyRequest kmsRequest = new KMS.Model.GenerateDataKeyRequest()
@@ -49,20 +52,23 @@ namespace KMSUtils {
                     ConvertMetaData(generateDataKeyResponse.ResponseMetadata));
                 return STL.Result<GenerateDataKeyResponse>.create_Success(response);
             } catch (Amazon.Runtime.AmazonServiceException amzEx) {
-                return STL.Result<GenerateDataKeyResponse>.create_Failure(DafnyFFI.DafnyStringFromString(amzEx.Message));
+                return DafnyFFI.CreateFailure<GenerateDataKeyResponse>(amzEx.Message);
             } catch (Amazon.Runtime.Internal.HttpErrorResponseException httpEx) {
-                return STL.Result<GenerateDataKeyResponse>.create_Failure(DafnyFFI.DafnyStringFromString(httpEx.Message));
+                return DafnyFFI.CreateFailure<GenerateDataKeyResponse>(httpEx.Message);
             } catch (DecoderFallbackException decodeEx) {
-                return STL.Result<GenerateDataKeyResponse>.create_Failure(DafnyFFI.DafnyStringFromString(decodeEx.Message));
+                return DafnyFFI.CreateFailure<GenerateDataKeyResponse>(decodeEx.Message);
             } catch (System.AggregateException aggregateEx) {
-                return STL.Result<GenerateDataKeyResponse>.create_Failure(DafnyFFI.DafnyStringFromString(aggregateEx.Message));
+                return DafnyFFI.CreateFailure<GenerateDataKeyResponse>(aggregateEx.Message);
             }
         }
 
         // Encrypt calls the given KMS client's EncryptAsync API
         public static STL.Result<EncryptResponse> Encrypt(KMS.IAmazonKeyManagementService client, EncryptRequest request) {
             if (client == null) {
-                return STL.Result<EncryptResponse>.create_Failure(DafnyFFI.DafnyStringFromString("Null AmazonKeyManagementServiceClient provided"));
+                return DafnyFFI.CreateFailure<EncryptResponse>("Null AmazonKeyManagementServiceClient provided");
+            }
+            if (request == null) {
+                return DafnyFFI.CreateFailure<EncryptResponse>("Null request provided");
             }
             try {
                 KMS.Model.EncryptRequest kmsRequest = new KMS.Model.EncryptRequest()
@@ -81,20 +87,23 @@ namespace KMSUtils {
                     ConvertMetaData(encryptResponse.ResponseMetadata));
                 return STL.Result<EncryptResponse>.create_Success(response);
             } catch (Amazon.Runtime.AmazonServiceException amzEx) {
-                return STL.Result<EncryptResponse>.create_Failure(DafnyFFI.DafnyStringFromString(amzEx.Message));
+                return DafnyFFI.CreateFailure<EncryptResponse>(amzEx.Message);
             } catch (Amazon.Runtime.Internal.HttpErrorResponseException httpEx) {
-                return STL.Result<EncryptResponse>.create_Failure(DafnyFFI.DafnyStringFromString(httpEx.Message));
+                return DafnyFFI.CreateFailure<EncryptResponse>(httpEx.Message);
             } catch (DecoderFallbackException decodeEx) {
-                return STL.Result<EncryptResponse>.create_Failure(DafnyFFI.DafnyStringFromString(decodeEx.Message));
+                return DafnyFFI.CreateFailure<EncryptResponse>(decodeEx.Message);
             } catch (System.AggregateException aggregateEx) {
-                return STL.Result<EncryptResponse>.create_Failure(DafnyFFI.DafnyStringFromString(aggregateEx.Message));
+                return DafnyFFI.CreateFailure<EncryptResponse>(aggregateEx.Message);
             }
         }
 
         // Decrypt calls the given KMS client's DecryptAsync API
         public static STL.Result<DecryptResponse> Decrypt(KMS.IAmazonKeyManagementService client, DecryptRequest request) {
             if (client == null) {
-                return STL.Result<DecryptResponse>.create_Failure(DafnyFFI.DafnyStringFromString("Null AmazonKeyManagementServiceClient provided"));
+                return DafnyFFI.CreateFailure<DecryptResponse>("Null AmazonKeyManagementServiceClient provided");
+            }
+            if (request == null) {
+                return DafnyFFI.CreateFailure<DecryptResponse>("Null request provided");
             }
             try {
                 KMS.Model.DecryptRequest kmsRequest = new KMS.Model.DecryptRequest()
@@ -112,14 +121,52 @@ namespace KMSUtils {
                     ConvertMetaData(decryptResponse.ResponseMetadata));
                 return STL.Result<DecryptResponse>.create_Success(response);
             } catch (Amazon.Runtime.AmazonServiceException amzEx) {
-                return STL.Result<DecryptResponse>.create_Failure(DafnyFFI.DafnyStringFromString(amzEx.Message));
+                return DafnyFFI.CreateFailure<DecryptResponse>(amzEx.Message);
             } catch (Amazon.Runtime.Internal.HttpErrorResponseException httpEx) {
-                return STL.Result<DecryptResponse>.create_Failure(DafnyFFI.DafnyStringFromString(httpEx.Message));
+                return DafnyFFI.CreateFailure<DecryptResponse>(httpEx.Message);
             } catch (DecoderFallbackException decodeEx) {
-                return STL.Result<DecryptResponse>.create_Failure(DafnyFFI.DafnyStringFromString(decodeEx.Message));
+                return DafnyFFI.CreateFailure<DecryptResponse>(decodeEx.Message);
             } catch (System.AggregateException aggregateEx) {
-                return STL.Result<DecryptResponse>.create_Failure(DafnyFFI.DafnyStringFromString(aggregateEx.Message));
+                return DafnyFFI.CreateFailure<DecryptResponse>(aggregateEx.Message);
             }
+        }
+
+        // AddCachingClientCallback adds a callback to the given client so that the client is added to the given cache on the first network call that confirms a valid endpoint.
+        // The call does not need to return a successful response, it just needs to validate that the endpoint represents a valid AWS KMS endpoint in order for the client to be cached.
+        // The client is cached as (key, value) = (region, client)
+        public static void AddCachingClientCallback(KMS.IAmazonKeyManagementService client, STL.Option<IDString> region, CachingClientSupplierCache cache) {
+            // Create a handler to cache the client after a network call is made a set of conditions is met
+            Amazon.Runtime.ResponseEventHandler cacheClientEvent = ( _, e) =>
+            {
+                // Cast the response as a web service response
+                // This allows us to check the response code
+                Amazon.Runtime.WebServiceResponseEventArgs responseEvent = (Amazon.Runtime.WebServiceResponseEventArgs)e;
+
+                // If there is no response, do not cache
+                if (responseEvent == null || responseEvent.Response == null) {
+                    return;
+                }
+                // Otherwise, we got a response, which means we can cache regardless of what that response was.
+                // This is because errors from an AWS KMS contact still mean that the region is "live".
+                // Therefore, the client can be cached because the request itself might be wrong, not necessarily the client.
+
+                // Double check the client does not already exist.
+                // AddClient overrides the existing client if it's there anyways.
+                STL.Option<KMS.IAmazonKeyManagementService> alreadyCachedClient = cache.LookupClient(region);
+                if (alreadyCachedClient.is_None) {
+                    cache.AddClient(region, client);
+                }
+                return;
+            };
+            // A cast needs to be performed so that we can properly use AfterResponseEvent, which is not part of the interface
+            Amazon.Runtime.AmazonServiceClient castClient = client as Amazon.Runtime.AmazonServiceClient;
+            if (castClient == null) {
+                throw new AWSEncryptionSDK.AWSKMSClientSupplierException("AWS KMS service client is not an AmazonServiceClient");
+            }
+
+            // Add the ResponseEventHandler to the AfterResponseEvent handlers
+            // so the handler runs after a network call is made and a response is obtained
+            castClient.AfterResponseEvent += cacheClientEvent;
         }
 
         private static ResponseMetadata ConvertMetaData(Amazon.Runtime.ResponseMetadata rmd) {
@@ -183,12 +230,11 @@ namespace KMSUtils {
                 }
                 return (client != null)
                     ? STL.Result<KMS.IAmazonKeyManagementService>.create_Success(client)
-                    : STL.Result<KMS.IAmazonKeyManagementService>.create_Failure(
-                        DafnyFFI.DafnyStringFromString(
-                            String.Format("Unable to obtain AmazonKeyManagementServiceClient for region: {0}", region)));
+                    : DafnyFFI.CreateFailure<KMS.IAmazonKeyManagementService>(
+                        String.Format("Unable to obtain AmazonKeyManagementServiceClient for region: {0}", region));
             } catch(Exception e) {
                 // By catching Exception, Dafny can handle failures accordingly, using a Failure Result
-                return STL.Result<KMS.IAmazonKeyManagementService>.create_Failure(DafnyFFI.DafnyStringFromString(e.Message));
+                return DafnyFFI.CreateFailure<KMS.IAmazonKeyManagementService>(e.Message);
             }
         }
     }

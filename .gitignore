@@ -19,3 +19,6 @@ test/**/Output/*
 
 /testVectors/bin
 /testVectors/obj
+
+/examples/dotnet/bin
+/examples/dotnet/obj
