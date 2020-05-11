@@ -1,6 +1,16 @@
-// This examples shows how to configure and use a raw RSA keyring using a pre-loaded RSA keypair.
+// One of the benefits of asymmetric encryption
+// is that you can encrypt with just the public key.
+// This means that you can give someone the ability to encrypt
+// without giving them the ability to decrypt.
+//
+// The raw RSA keyring supports encrypt-only operations
+// when it only has access to a public key.
+//
+// This example shows how to construct and use the raw RSA keyring
+// to encrypt with only the public key and decrypt with the private key.
+//
 // If your RSA key is in PEM or DER format,
-// see the ``not yet created file`` example.
+// see the ``keyring/raw_rsa/private_key_only_from_pem`` example.
 //
 // https://docs.aws.amazon.com/encryption-sdk/latest/developer-guide/choose-keyring.html#use-raw-rsa-keyring
 //
@@ -24,8 +34,8 @@ using Org.BouncyCastle.OpenSsl;
 using ExampleUtils;
 using Xunit;
 
-// Demonstrate an encrypt/decrypt cycle using a raw RSA keyring.
-public class RawRSAKeyringKeypairExample {
+// Demonstrate an encrypt/decrypt cycle using separate public and private raw RSA keyrings.
+public class RawRSAKeyringPublicPrivateKeySeperateExample {
     static void Run(MemoryStream plaintext) {
 
         // Create your encryption context.
@@ -79,8 +89,10 @@ public class RawRSAKeyringKeypairExample {
             privateKeyBytes = Encoding.ASCII.GetBytes(stringWriter.ToString());
         }
 
-        // Create the keyring that determines how your data keys are protected.
-        RawRSAKeyring keyring = Keyrings.MakeRawRSAKeyring(
+        // The keyring determines how your data keys are protected.
+        //
+        // Create the encrypt keyring that only has access to the public key.
+        RawRSAKeyring publicKeyKeyring = Keyrings.MakeRawRSAKeyring(
                 keyNamespace,
                 keyName,
                 // The wrapping algorithm tells the raw RSA keyring
@@ -90,26 +102,45 @@ public class RawRSAKeyringKeypairExample {
                 // You should not use RSA_PKCS1 unless you require it for backwards compatibility.
                 DafnyFFI.RSAPaddingModes.OAEP_SHA256,
                 publicKeyBytes,
+                null
+                );
+
+        // Create the decrypt keyring that has access to the private key.
+        RawRSAKeyring privateKeyKeyring = Keyrings.MakeRawRSAKeyring(
+                // The key namespace and key name MUST match the encrypt keyring.
+                keyNamespace,
+                keyName,
+                // The wrapping algorithm MUST match the encrypt keyring.
+                DafnyFFI.RSAPaddingModes.OAEP_SHA256,
+                null,
                 privateKeyBytes
                 );
 
-        // Encrypt your plaintext data.
+        // Encrypt your plaintext data using the encrypt keyring.
         MemoryStream ciphertext = AWSEncryptionSDK.Client.Encrypt(new AWSEncryptionSDK.Client.EncryptRequest{
                 plaintext = plaintext,
-                keyring = keyring,
+                keyring = publicKeyKeyring,
                 encryptionContext = encryptionContext
                 });
 
         // Demonstrate that the ciphertext and plaintext are different.
         Assert.NotEqual(ciphertext.ToArray(), plaintext.ToArray());
 
-        // Decrypt your encrypted data using the same keyring you used on encrypt.
-        // 
+        // Try to decrypt your encrypted data using the *encrypt* keyring.
+        // This demonstrates that you cannot decrypt using the public key.
+        var exception = Assert.Throws<DafnyException>(() => AWSEncryptionSDK.Client.Decrypt(new AWSEncryptionSDK.Client.DecryptRequest{
+                message = ciphertext,
+                keyring = publicKeyKeyring
+                }));
+        Assert.Equal("Decryption key undefined", exception.Message);
+
+        // Decrypt your encrypted data using the decrypt keyring.
+        //
         // You do not need to specify the encryption context on decrypt
         // because the header of the encrypted message includes the encryption context.
         MemoryStream decrypted = AWSEncryptionSDK.Client.Decrypt(new AWSEncryptionSDK.Client.DecryptRequest{
                 message = ciphertext,
-                keyring = keyring
+                keyring = privateKeyKeyring
                 });
 
         // Demonstrate that the decrypted plaintext is identical to the original plaintext.
@@ -125,7 +156,7 @@ public class RawRSAKeyringKeypairExample {
 
     // We test examples to ensure they remain up-to-date.
     [Fact]
-    public void TestRawRSAKeyringKeypairExample() {
+    public void TestRawRSAKeyringPublicPrivateKeySeperateExample() {
         Run(ExampleUtils.ExampleUtils.GetPlaintextStream());
     }
 }

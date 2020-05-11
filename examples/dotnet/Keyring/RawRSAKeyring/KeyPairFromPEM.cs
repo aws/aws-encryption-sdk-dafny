@@ -1,6 +1,9 @@
-// This examples shows how to configure and use a raw RSA keyring using a pre-loaded RSA keypair.
-// If your RSA key is in PEM or DER format,
-// see the ``not yet created file`` example.
+// When you store RSA keys, you have to serialize them somehow.
+//
+// This example shows how to configure and use a raw RSA keyring using a PEM-encoded RSA keypair.
+//
+// The most commonly used encodings for RSA keys tend to be PEM and DER.
+// The raw RSA keyring supports loading both public and private keys from these encodings.
 //
 // https://docs.aws.amazon.com/encryption-sdk/latest/developer-guide/choose-keyring.html#use-raw-rsa-keyring
 //
@@ -15,7 +18,7 @@ using AWSEncryptionSDK;
 using KeyringDefs;
 using RawRSAKeyringDef;
 
-// In this example, we use BouncyCastle to generate a wrapping key, and handle conversions.
+// In this example we use Bouncy Castle to generate an serialize/deserialize our RSA key.
 using Org.BouncyCastle.Crypto;
 using Org.BouncyCastle.Crypto.Generators;
 using Org.BouncyCastle.Security;
@@ -24,8 +27,8 @@ using Org.BouncyCastle.OpenSsl;
 using ExampleUtils;
 using Xunit;
 
-// Demonstrate an encrypt/decrypt cycle using a raw RSA keyring.
-public class RawRSAKeyringKeypairExample {
+// Demonstrate an encrypt/decrypt cycle using a raw RSA keyring loaded from a PEM-encoded key.
+public class RawRSAKeyringKeypairFromPEMExample {
     static void Run(MemoryStream plaintext) {
 
         // Create your encryption context.
@@ -63,23 +66,26 @@ public class RawRSAKeyringKeypairExample {
         // Generate a key pair.
         AsymmetricCipherKeyPair keygenPair = keyGenerator.GenerateKeyPair();
 
-        // Extract the public key as a byte array.
-        byte[] publicKeyBytes;
+        // Serialize the RSA keypair to PEM encoding.
+        // This or DER encoding is likely to be what you get from your key management system in practice.
+        string publicKeyPEM;
         using (var stringWriter = new StringWriter()) {
             var pemWriter = new PemWriter(stringWriter);
             pemWriter.WriteObject(keygenPair.Public);
-            publicKeyBytes = Encoding.ASCII.GetBytes(stringWriter.ToString());
+            pemWriter.Writer.Flush();
+            publicKeyPEM = stringWriter.ToString();
         }
-
-        // Extract the private key as a byte array.
-        byte[] privateKeyBytes;
+        string privateKeyPEM;
         using (var stringWriter = new StringWriter()) {
             var pemWriter = new PemWriter(stringWriter);
             pemWriter.WriteObject(keygenPair.Private);
-            privateKeyBytes = Encoding.ASCII.GetBytes(stringWriter.ToString());
+            pemWriter.Writer.Flush();
+            privateKeyPEM = stringWriter.ToString();
         }
 
         // Create the keyring that determines how your data keys are protected.
+        //
+        // # If your key is encoded using DER, you can just pass it in.
         RawRSAKeyring keyring = Keyrings.MakeRawRSAKeyring(
                 keyNamespace,
                 keyName,
@@ -89,8 +95,8 @@ public class RawRSAKeyringKeypairExample {
                 // We recommend using RSA_OAEP_SHA256_MGF1.
                 // You should not use RSA_PKCS1 unless you require it for backwards compatibility.
                 DafnyFFI.RSAPaddingModes.OAEP_SHA256,
-                publicKeyBytes,
-                privateKeyBytes
+                Encoding.ASCII.GetBytes(publicKeyPEM),
+                Encoding.ASCII.GetBytes(privateKeyPEM)
                 );
 
         // Encrypt your plaintext data.
@@ -125,7 +131,7 @@ public class RawRSAKeyringKeypairExample {
 
     // We test examples to ensure they remain up-to-date.
     [Fact]
-    public void TestRawRSAKeyringKeypairExample() {
+    public void TestRawRSAKeyringKeypairFromPEMExample() {
         Run(ExampleUtils.ExampleUtils.GetPlaintextStream());
     }
 }

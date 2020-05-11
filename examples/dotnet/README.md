@@ -39,8 +39,8 @@ We start with AWS KMS examples, then show how to use other wrapping keys.
 * Using raw wrapping keys
     * [How to use a raw AES wrapping key](./Keyring/RawRSAKeyring/RawAESKeyringExample.cs)
     * [How to use a raw RSA wrapping key](./Keyring/RawRSAKeyring/KeyPair.cs)
-    * [How to use a raw RSA wrapping key when the key is PEM or DER encoded](./) *TODO*
-    * [How to encrypt with a raw RSA public key wrapping key without access to the private key](./) *TODO*
+    * [How to use a raw RSA wrapping key when the key is PEM or DER encoded](./Keyring/RawRSAKeyring/KeyPairFromPEM.cs)
+    * [How to encrypt with a raw RSA public key wrapping key without access to the private key](./Keyring/RawRSAKeyring/PublicPrivateKeySeperate.cs)
 * Combining wrapping keys
     * [How to combine AWS KMS with an offline escrow key](./) *TODO*
 * How to reuse data keys across multiple messages
