@@ -1,27 +1,29 @@
-include "../StandardLibrary/StandardLibrary.dfy"
-include "../StandardLibrary/UInt.dfy"
-
-module Sorting {
+include "UInt.dfy"
+  
+module {:extern "STLOrders"} StandardLibrary.Orders {
   export
-    reveals Reflexive, AntiSymmetric, Connected, TotalOrdering
+    reveals Reflexive, AntiSymmetric, Transitive, Connected, TotalOrdering, Trichotomous
     reveals LexicographicByteSeqBelow, LexicographicByteSeqBelowAux
     provides AboutLexicographicByteSeqBelow
-    provides SelectionSort
-    provides StandardLibrary, UInt
-
-  import StandardLibrary
-  import opened UInt = StandardLibrary.UInt
+    provides UInt
+    
+  import opened UInt
 
   /*
    * Properties of relations
+   *
    */
-
+  
   predicate Reflexive<T(!new)>(R: (T, T) -> bool) {
     forall x :: R(x, x)
   }
-
+  
   predicate AntiSymmetric<T(!new)>(R: (T, T) -> bool) {
     forall x, y :: R(x, y) && R(y, x) ==> x == y
+  }
+
+  predicate Transitive<T(!new)>(R: (T, T) -> bool) {
+    forall x, y, z :: R(x, y) && R(y, z) ==> R(x, z)
   }
 
   predicate Connected<T(!new)>(R: (T, T) -> bool) {
@@ -31,19 +33,51 @@ module Sorting {
   predicate TotalOrdering<T(!new)>(R: (T, T) -> bool) {
     && Reflexive(R)
     && AntiSymmetric(R)
-    && StandardLibrary.Transitive(R)
+    && Transitive(R)
     && Connected(R)
   }
 
   /*
+   * For an ordering "R" to be _trichotomous_ means that for any two "x" and "y",
+   * EXACTLY one of the following three conditions holds:
+   *   - R(x, y)
+   *   - x == y
+   *   - R(y, x)
+   * Note that being trichotomous implies being irreflexive.
+   */
+  predicate Trichotomous<T(!new)>(R: (T, T) -> bool) {
+    (forall x, y :: R(x, y) || x == y || R(y, x)) &&  // at least one of the three
+    (forall x, y :: R(x, y) && R(y, x) ==> false) &&  // not both of the R's
+    (forall x, y :: R(x, y) ==> x != y)  // not an R and the equality
+  }
+
+  /*
    * Useful orderings
+   *
+   * In what follows, the identifier "less" is used to denote a relation
+   * that is irreflexive, like "<" on numbers. The identifier "below" is used
+   * to denote a relation that is reflexive, like "<=" on numbers.
    */
 
-  // reflexivelexicographical comparison of byte sequences
+  /*
+   * Here is an example relation and a lemma that says the relation is appropriate for use in
+   * lexicographic orderings.
+   */
+
+  lemma UInt8LessIsTrichotomousTransitive()
+    ensures Trichotomous(UInt8Less)
+    ensures Transitive(UInt8Less)
+  {
+  }
+
+  /*
+   * Reflexive lexicographical comparison of byte sequences
+   */
+  
   predicate method LexicographicByteSeqBelow(x: seq<uint8>, y: seq<uint8>) {
     LexicographicByteSeqBelowAux(x, y, 0)
   }
-
+  
   predicate method LexicographicByteSeqBelowAux(x: seq<uint8>, y: seq<uint8>, n: nat)
     requires n <= |x| && n <= |y|
     decreases |x| - n
@@ -59,7 +93,7 @@ module Sorting {
     assert Reflexive(LexicographicByteSeqBelow) by {
       forall x, n | 0 <= n <= |x| {
         AboutLexicographicByteSeqBelowAux_Reflexive(x, n);
-      }
+      }      
     }
     assert AntiSymmetric(LexicographicByteSeqBelow) by {
       forall x, y, n: nat |
@@ -69,7 +103,7 @@ module Sorting {
         AboutLexicographicByteSeqBelowAux_AntiSymmetric(x, y, n);
       }
     }
-    assert StandardLibrary.Transitive(LexicographicByteSeqBelow) by {
+    assert Transitive(LexicographicByteSeqBelow) by {
       forall x, y, z, n: nat |
         n <= |x| && n <= |y| && n <= |z| &&
         LexicographicByteSeqBelowAux(x, y, n) && LexicographicByteSeqBelowAux(y, z, n)
@@ -83,7 +117,7 @@ module Sorting {
       }
     }
   }
-
+  
   lemma AboutLexicographicByteSeqBelowAux_Reflexive(x: seq<uint8>, n: nat)
     requires n <= |x|
     ensures LexicographicByteSeqBelowAux(x, x, n)
@@ -113,39 +147,5 @@ module Sorting {
     ensures LexicographicByteSeqBelowAux(x, y, n) || LexicographicByteSeqBelowAux(y, x, n)
     decreases |x| - n
   {
-  }
-
-  /*
-   * Sorting routines
-   */
-
-  method SelectionSort<Data>(a: array<Data>, below: (Data, Data) -> bool)
-    requires StandardLibrary.Transitive(below)
-    requires Connected(below)
-    modifies a
-    ensures multiset(a[..]) == old(multiset(a[..]))
-    ensures forall i, j :: 0 <= i < j < a.Length ==> below(a[i], a[j])
-  {
-    var m := 0;
-    while m < a.Length
-      invariant 0 <= m <= a.Length
-      invariant multiset(a[..]) == old(multiset(a[..]))
-      invariant forall i, j :: 0 <= i < j < m ==> below(a[i], a[j])
-      invariant forall i, j :: 0 <= i < m <= j < a.Length ==> below(a[i], a[j])
-    {
-      // pick mindex to be the index of the smallest element in a[m..]
-      var mindex, n := m, m + 1;
-      while n < a.Length
-        invariant m <= mindex < n <= a.Length
-        invariant forall i :: m <= i < n ==> below(a[mindex], a[i])
-      {
-        if !below(a[mindex], a[n]) {
-          mindex := n;
-        }
-        n := n + 1;
-      }
-      a[m], a[mindex] := a[mindex], a[m];
-      m := m + 1;
-    }
   }
 }

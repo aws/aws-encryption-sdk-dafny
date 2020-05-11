@@ -17,9 +17,9 @@
     <DafnySource Include="Crypto/AESEncryption.dfy" />
     <DafnySource Include="Crypto/Digest.dfy" />
     <DafnySource Include="Crypto/EncryptionSuites.dfy" />
-    <DafnySource Include="Crypto/KeyDerivationAlgorithms.dfy" />
-    <DafnySource Include="Crypto/HKDF/HMAC.dfy" />
     <DafnySource Include="Crypto/HKDF/HKDF.dfy" />
+    <DafnySource Include="Crypto/HKDF/HMAC.dfy" />
+    <DafnySource Include="Crypto/KeyDerivationAlgorithms.dfy" />
     <DafnySource Include="Crypto/Random.dfy" />
     <DafnySource Include="Crypto/RSAEncryption.dfy" />
     <DafnySource Include="Crypto/Signature.dfy" />
@@ -41,6 +41,8 @@
     <DafnySource Include="SDK/MessageHeader.dfy" />
     <DafnySource Include="SDK/Serialize.dfy" />
     <DafnySource Include="StandardLibrary/Base64.dfy" />
+    <DafnySource Include="StandardLibrary/Orders.dfy" />
+    <DafnySource Include="StandardLibrary/Sorting.dfy" />
     <DafnySource Include="StandardLibrary/StandardLibrary.dfy" />
     <DafnySource Include="StandardLibrary/UInt.dfy" />
     <DafnySource Include="Util/Streams.dfy" />
