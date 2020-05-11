@@ -203,7 +203,8 @@ module Deserialize {
     requires rd.Valid()
     modifies rd.reader`pos
     ensures rd.Valid()
-    ensures ret.Success? ==> EncryptionContext.GetUTF8(rd.reader.data[old(rd.reader.pos)..], n) == ret
+    ensures ret.Success? ==> var expectedRes := EncryptionContext.GetUTF8(rd.reader.data[old(rd.reader.pos)..], n);
+      expectedRes.Some? && expectedRes.get == ret.value
     ensures match ret
       case Success(bytes) =>
         && UTF8.ValidUTF8Seq(bytes)
@@ -230,8 +231,8 @@ module Deserialize {
         EncryptionContext.Serializable(aad)
         && old(rd.reader.pos) <= rd.reader.pos
         && var mapRes := EncryptionContext.SeqToMap(rd.reader.data[old(rd.reader.pos)..rd.reader.pos]);
-        mapRes.Success?
-        && mapRes.value == aad 
+        mapRes.Some?
+        && mapRes.get == aad 
       case Failure(_) => true
   {
     reveal EncryptionContext.Serializable();
@@ -262,7 +263,8 @@ module Deserialize {
       invariant i <= kvPairsCount
       invariant totalBytesRead == 2 + EncryptionContext.LinearLength(kvPairs, 0, i as nat) <= kvPairsLength as nat
       invariant EncryptionContext.LinearSorted(kvPairs)
-      invariant EncryptionContext.SeqToLinear(rd.reader.data[oldPosSeq..rd.reader.pos]) == Success(kvPairs)
+      invariant EncryptionContext.SeqToLinear(rd.reader.data[oldPosSeq..rd.reader.pos]) == Some(kvPairs)
+      invariant forall i, j | 0 <= i < j < |kvPairs| :: kvPairs[i].0 != kvPairs[j].0
     {
       ghost var oldPosPair := rd.reader.pos; 
       var keyLength :- rd.ReadUInt16();
@@ -270,7 +272,7 @@ module Deserialize {
 
       var key :- DeserializeUTF8(rd, keyLength as nat);
       totalBytesRead := totalBytesRead + |key|;
-      assert Success(key)  == EncryptionContext.GetUTF8(rd.reader.data[oldPosPair + 2..], keyLength as nat);
+      assert key  == EncryptionContext.GetUTF8(rd.reader.data[oldPosPair + 2..], keyLength as nat).get;
       
       var valueLength :- rd.ReadUInt16();
           
@@ -283,7 +285,7 @@ module Deserialize {
       var valueSeq :- DeserializeUTF8(rd, valueLength as nat);
       var value: UTF8.ValidUTF8Bytes := valueSeq;
       totalBytesRead := totalBytesRead + |value|;
-      assert Success(value) == EncryptionContext.GetUTF8(rd.reader.data[oldPosPair + 4 + keyLength as nat..], valueLength as nat);
+      assert value == EncryptionContext.GetUTF8(rd.reader.data[oldPosPair + 4 + keyLength as nat..], valueLength as nat).get;
       
       // We want to keep entries sorted by key. We don't insist that the entries be sorted
       // already, but we do insist there are no duplicate keys.
@@ -298,22 +300,29 @@ module Deserialize {
       assert valueLength == SeqToUInt16(rd.reader.data[oldPosPair + 2 + keyLength as int.. oldPosPair + 4 + keyLength as int]);
       
       i := i + 1;
-      ghost var assumedPair := EncryptionContext.SeqToKVPair(rd.reader.data[oldPosPair..]);
-      assert assumedPair == Success(((key, value), rd.reader.data[rd.reader.pos..])) by
-      {
-        var sequence := rd.reader.data[oldPosPair..];
-        assert assumedPair.Success? by {
-          assert |sequence| >= 2;
-          assert keyLength== SeqToUInt16(sequence[..2]);  
-          assert Success(key) == EncryptionContext.GetUTF8(sequence[2..], keyLength as nat);
-          assert |sequence| >= keyLength as nat + 4;
-          assert valueLength == SeqToUInt16(sequence[keyLength as nat + 2..keyLength as nat + 4]);              
-          assert Success(value) == EncryptionContext.GetUTF8(sequence[keyLength as nat + 4 ..], valueLength as nat);
-        }
-        assert assumedPair.value.0.0 == key;
-        assert assumedPair.value.0.1 == value;
-        assert assumedPair.value.1 == rd.reader.data[rd.reader.pos..];
-      }
+      
+      assert EncryptionContext.KVPairToSeq((key,value)) == rd.reader.data[oldPosPair .. rd.reader.pos];
+      EncryptionContext.KVPairToSeqIsDualSeqToKVPair((key,value), rd.reader.data[rd.reader.pos..]);
+      assert rd.reader.data[oldPosPair..] == EncryptionContext.KVPairToSeq((key,value)) + rd.reader.data[rd.reader.pos..];
+      assert EncryptionContext.SeqToKVPair(rd.reader.data[oldPosPair..]) == Some(((key, value), rd.reader.data[rd.reader.pos..]));
+      
+      // ghost var assumedPair := EncryptionContext.SeqToKVPair(rd.reader.data[oldPosPair..]);
+      // assert assumedPair == Some(((key, value), rd.reader.data[rd.reader.pos..])) by
+      // {
+      //   var sequence := rd.reader.data[oldPosPair..];
+      //   assert assumedPair.Some? by {
+      //     assert |sequence| >= 2;
+      //     assert keyLength == SeqToUInt16(sequence[..2]);  
+      //     assert Some(key) == EncryptionContext.GetUTF8(sequence[2..], keyLength as nat);
+      //     assert |sequence| >= keyLength as nat + 4;
+      //     assert valueLength == SeqToUInt16(sequence[keyLength as nat + 2..keyLength as nat + 4]);              
+      //     assert Some(value) == EncryptionContext.GetUTF8(sequence[keyLength as nat + 4 ..], valueLength as nat);
+      //   }
+      //   assert assumedPair.get.0.0 == key;
+      //   assert assumedPair.get.0.1 == value;
+      //   assert assumedPair.get.1 == rd.reader.data[rd.reader.pos..];
+      // }      
+
     }
     if kvPairsLength as nat != totalBytesRead {
       return Failure("Deserialization Error: Bytes actually read differs from bytes supposed to be read.");
@@ -335,35 +344,41 @@ module Deserialize {
   method InsertNewEntry(kvPairs: EncryptionContext.Linear, key: UTF8.ValidUTF8Bytes, value: UTF8.ValidUTF8Bytes)
       returns (res: Option<EncryptionContext.Linear>, ghost insertionPoint: nat)
     requires EncryptionContext.LinearSorted(kvPairs)
+    requires forall i, j | 0 <= i < j < |kvPairs| :: kvPairs[i].0 != kvPairs[j].0
+    ensures (exists l | l in kvPairs :: key == l.0) <==> res.None?
     ensures match res
-    case None =>
-      (exists i :: 0 <= i < |kvPairs| && kvPairs[i].0 == key)  // key already exists
-      && EncryptionContext.InsertPair((key, value), kvPairs).0.Failure?
-    case Some(kvPairs') =>
-      var expectedRes := EncryptionContext.InsertPair((key, value), kvPairs);
-      expectedRes.0.Success?
-      && expectedRes.0.value == kvPairs'
-      && expectedRes.1 == insertionPoint
-      && insertionPoint <= |kvPairs|
-      && kvPairs' == kvPairs[..insertionPoint] + [(key, value)] + kvPairs[insertionPoint..]
-      && EncryptionContext.LinearSorted(kvPairs')
+      case None =>
+        (exists i :: 0 <= i < |kvPairs| && kvPairs[i].0 == key)  // key already exists
+      case Some(kvPairs') =>
+        // Old spec
+        && insertionPoint <= |kvPairs|
+        && kvPairs' == kvPairs[..insertionPoint] + [(key, value)] + kvPairs[insertionPoint..]
+        && EncryptionContext.LinearSorted(kvPairs')
+        && (forall i, j | 0 <= i < j < |kvPairs'| :: kvPairs'[i].0 != kvPairs'[j].0)
+      // ensures EncryptionContext.InsertPairMock((key, value), kvPairs)
   {
     var n := |kvPairs|;
     while 0 < n && LexicographicLessOrEqual(key, kvPairs[n - 1].0, UInt.UInt8Less)
       invariant 0 <= n <= |kvPairs|
       invariant forall i :: n <= i < |kvPairs| ==> LexicographicLessOrEqual(key, kvPairs[i].0, UInt.UInt8Less)
+      invariant forall i | n < i < |kvPairs| :: kvPairs[i].0 != key
     {
       n := n - 1;
     }
-    if 0 < n && kvPairs[n - 1].0 == key {
+
+    EncryptionContext.LinearSortedImpliesStrongLinearSorted(kvPairs);
+    if kvPairs != [] && LexicographicLessOrEqual(key, kvPairs[|kvPairs| - 1].0, UInt.UInt8Less) && kvPairs[n].0 == key {
+      EncryptionContext.InsertFailsOnDuplicate(kvPairs, (key, value));
       return None, n;
     } else {
       var kvPairs' := kvPairs[..n] + [(key, value)] + kvPairs[n..];
+      
       if 0 < n {
         LexIsTotal(kvPairs'[n - 1].0, kvPairs'[n].0, UInt.UInt8Less);
       }
       return Some(kvPairs'), n;
     }
+
   }
 
   method DeserializeEncryptedDataKeys(rd: Streams.ByteReader) returns (ret: Result<Msg.EncryptedDataKeys>)

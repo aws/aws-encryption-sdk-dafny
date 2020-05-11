@@ -239,21 +239,50 @@ module {:extern "EncryptionContext"} EncryptionContext {
     LinearSortedUpTo(kvPairs, |kvPairs|)
   }
 
-  function LinearToMapFunc(sequence: seq<uint8>): Result<Map>
+  
+  predicate StrongLinearSorted(kvPairs: Linear)
+  {
+    forall i, j | 0 <= i < j < |kvPairs| :: LexicographicLessOrEqual(kvPairs[i].0, kvPairs[j].0, UInt.UInt8Less)
+  }
+
+  lemma LinearSortedImpliesStrongLinearSorted(ls: Linear)
+    requires LinearSorted(ls);
+    ensures StrongLinearSorted(ls);
+    {
+      if |ls| <= 1 {
+        // If ls is empty it is always sorted
+      }else{
+        forall i, j | 0 <= i < j < |ls| 
+          ensures LexicographicLessOrEqual(ls[i].0, ls[j].0, UInt.UInt8Less)
+        {
+          //Induction on i;
+          LinearSortedImpliesStrongLinearSorted(ls[1..]);
+          if i == 0 && 2 <= |ls| {
+            LexIsReflexive(ls[1].0, UInt.UInt8Less);
+            LexIsTransitive(ls[i].0, ls[1].0, ls[j].0, UInt.UInt8Less);
+            assert LexicographicLessOrEqual(ls[i].0, ls[j].0, UInt.UInt8Less);
+          }else{
+            assert LexicographicLessOrEqual(ls[i].0, ls[j].0, UInt.UInt8Less);
+          }
+        }
+      }
+    }
+
+  function LinearToMapFunc(sequence: seq<uint8>): Option<Map>
   {
     if |sequence| < 2 then 
-      Failure("to small")
+      None // too small
     else 
       SeqToMap(sequence[2..])
   }
   
-  function SeqToMap(sequence: seq<uint8>): Result<Map>
+  function SeqToMap(sequence: seq<uint8>): Option<Map>
   {
     if |sequence| < 2 then 
-      Failure("to small")
+      None // Too small
     else 
       var res := SeqToLinear(sequence[2..]);
-      if res.Success? then Success(LinearInMap(res.value)) else Failure("to small")
+      if res.Some? then Some(LinearInMap(res.get)) else None
   }
   
   function LinearInMap(linear: Linear): Map
@@ -262,99 +291,200 @@ module {:extern "EncryptionContext"} EncryptionContext {
       LinearInMap(linear[1..])[linear[0].0 := linear[0].1]
   }
 
-  function InsertPair(p: (UTF8.ValidUTF8Bytes, UTF8.ValidUTF8Bytes), ps: Linear): (res: (Result<Linear>, nat))
+  function InsertPair(p: (UTF8.ValidUTF8Bytes, UTF8.ValidUTF8Bytes), ps: Linear): (res: (Option<Linear>, nat))
     requires LinearSorted(ps)
     ensures match res.0
-    case Failure(_) =>
+    case None =>
       res.1 < |ps|
-      && ps[res.1].0 == p.0  // key already exists
-    case Success(ls) =>
+      && ps[res.1].0 == p.0  // Key already exists
+    case Some(ls) =>
       && res.1 <= |ps|
       && ls == ps[..res.1] + [p] + ps[res.1..]
       && LinearSorted(ls)
   {
     if ps == [] || LexicographicLessOrEqual(p.0, ps[0].0, UInt.UInt8Less) then
       if 0 < |ps| && p.0 == ps[0].0 then
-        (Failure("Duplicate key"), 0)
+        (None, 0) // Duplicate key
       else
-        (Success([p] + ps), 0)
+        (Some([p] + ps), 0)
     else
       LexIsTotal(p.0, ps[0].0, UInt.UInt8Less);
       var res := InsertPair(p,ps[1..]);
-      if res.0.Success? then
-        (Success([ps[0]] + res.0.value), res.1 + 1)
+      if res.0.Some? then
+        (Some([ps[0]] + res.0.get), res.1 + 1)
       else
         (res.0, res.1 + 1)
   }
 
-  lemma InsertFailsOnDuplicate(ls: Linear)
+  lemma InsertFailsOnDuplicate(ls: Linear, pair: (UTF8.ValidUTF8Bytes, UTF8.ValidUTF8Bytes))
     requires LinearSorted(ls)
-    ensures forall pair: (UTF8.ValidUTF8Bytes, UTF8.ValidUTF8Bytes) | (exists l | l in ls :: pair.0 == l.0) :: 
-      InsertPair(pair, ls).0.Failure?
+    requires exists l | l in ls :: pair.0 == l.0
+    ensures InsertPair(pair, ls).0.None?
   {
-    if (exists l, pair: (UTF8.ValidUTF8Bytes, UTF8.ValidUTF8Bytes) | l in ls :: pair.0 == l.0) {
-      var pair: (UTF8.ValidUTF8Bytes, UTF8.ValidUTF8Bytes);
-      if ls[0].0 == pair.0 {
-        LexIsReflexive(pair.0, UInt.UInt8Less);
-        assert ls == [] || LexicographicLessOrEqual(pair.0, ls[0].0, UInt.UInt8Less);
-        assert 0 < |ls| && pair.0 == ls[0].0;
-      }else{
-        InsertFailsOnDuplicate(ls[1..]);
-      }
+    if (ls[0].0 == pair.0) {
+      LexIsReflexive(pair.0, UInt.UInt8Less);
     }else{
-
+      InsertFailsOnDuplicate(ls[1..], pair);
+      LinearSortedImpliesStrongLinearSorted(ls);
     }
   }
 
-  function SeqToLinear(sequence: seq<uint8>): Result<Linear>
-    ensures var res := SeqToLinear(sequence);
-      res.Success? ==> LinearSorted(res.value)
+  // Proof that two sorted sequences with unique elements are the same if they contain the same elements
+  lemma SortedSequenceIsUnqiue(xs: Linear, ys: Linear)
+    requires LinearSorted(xs) && forall i, j | 0 <= i < j < |xs| :: xs[i].0 != xs[j].0
+    requires LinearSorted(ys) && forall i, j | 0 <= i < j < |ys| :: ys[i].0 != ys[j].0
+    requires forall p :: p in xs <==> p in ys;
+    ensures xs == ys
   {
-    if sequence == [] then Success([]) else
-      var resHead := SeqToKVPair(sequence);
-      if resHead.Success? then 
-        var resTail: Result<Linear> := SeqToLinear(resHead.value.1);
-        if resTail.Success? then
-          var newLinear := InsertPair (resHead.value.0, resTail.value);
-          newLinear.0
-        else
-          Failure("too short")
-      else
-        Failure("Too short")
+    LinearSortedImpliesStrongLinearSorted(xs); // Convert sorted to stronger definition
+    LinearSortedImpliesStrongLinearSorted(ys);
+
+    if xs != [] && ys != [] { // If the lists are not empty
+      assert xs[0] == ys[0] by { // Then the heads are the same
+        if xs[0] != ys[0]{ // Proof by contradiction
+          assert forall p | p in xs[1..] :: LexicographicLessOrEqual(xs[0].0, p.0, UInt.UInt8Less); // We know the head is the smallest element 
+          assert xs[0] in ys[1..] by { // So the smallest element of xs is in the tail of ys
+            assert xs[0] != ys[0] && !(xs[0] in ys[1..]) ==> xs[0] !in ys;
+          }
+        
+          assert forall p | p in ys[1..] :: LexicographicLessOrEqual(ys[0].0, p.0, UInt.UInt8Less); // Same for the head of ys
+          assert ys[0] in xs[1..]by {
+            assert ys[0] != xs[0] && !(ys[0] in xs[1..]) ==> ys[0] !in xs;
+          }
+          
+          assert LexicographicLessOrEqual(ys[0].0, xs[0].0, UInt.UInt8Less); // So the smallest element of ys is smaller equal the smallest element of ys
+          assert LexicographicLessOrEqual(xs[0].0, ys[0].0, UInt.UInt8Less); // The same the other way arround
+          assert false; //We assumed xs[0] != ys[0] so we arrive at a contradiction
+        }
+      }
+      
+      // Use structural induction on the tail
+      assert forall p :: p in xs[1..] <==> p in ys[1..] by{ // Proof Pre-conditions are maintained
+        if exists p :: p in xs[1..] && ! (p in ys[1..]){ // If the Pre-condition does not hold then there exist an elemnt in the tail of xs which is not in ys
+          var p :| p in xs[1..] && !(p in ys[1..]);
+          assert p != ys[0]; // Then this elemnt is not equal to the head of ys since all elements are unqiue
+          assert p in xs && !(p in ys);
+          assert false; // Then this element also does not exist in ys so we arrive at a contradiction
+        }else{
+          if exists p :: p in ys[1..] && ! (p in xs[1..]){// Same but with xs and ys switched which covers all cases
+            var p :| p in ys[1..] && !(p in xs[1..]);
+            assert p != xs[0];
+            assert p in xs && !(p in ys);
+            assert false;
+          }
+        }
+      }
+      SortedSequenceIsUnqiue(xs[1..], ys[1..]); // Step
+      
+    }else{ // If one of the list is empty then both are empty or we arrive at a trivial contradiction
+      if xs == [] && ys != []{
+        assert ys[0] in xs; 
+        assert false;
+      }
+      if ys == [] && xs != []{
+        assert xs[0] in ys; 
+        assert false;
+      }
+    }
   }
 
-  function GetUTF8(sequence: seq<uint8>, length: nat): (res: Result<UTF8.ValidUTF8Bytes>)
-    ensures (|sequence| >= length && UTF8.ValidUTF8Seq(sequence[..length])) <==> res.Success?
-    ensures res.Success? ==> sequence[..length] == res.value
+
+  function SeqToLinear(sequence: seq<uint8>): Option<Linear>
+    ensures var res := SeqToLinear(sequence);
+      res.Some? ==> LinearSorted(res.get)
+  {
+    if sequence == [] then Some([]) else
+      var resHead := SeqToKVPair(sequence);
+      if resHead.Some? then 
+        var resTail: Option<Linear> := SeqToLinear(resHead.get.1);
+        if resTail.Some? then
+          InsertPairMock (resHead.get.0, resTail.get)
+        else
+          None // Too short
+      else
+        None // Too short
+  }
+
+  function {:axiom } InsertPairMock(p: (UTF8.ValidUTF8Bytes, UTF8.ValidUTF8Bytes), ps: Linear): (res: Option<Linear>)
+    requires LinearSorted(ps)
+    requires forall i, j | 0 <= i < j < |ps| :: ps[i].0 != ps[j].0 
+    ensures (exists l | l in ps :: p.0 == l.0) <==> res.None?
+    ensures res.Some? ==> LinearSorted(res.get) &&
+      forall i, j | 0 <= i < j < |res.get| :: res.get[i].0 != res.get[j].0
+
+  function GetUTF8(sequence: seq<uint8>, length: nat): (res: Option<UTF8.ValidUTF8Bytes>)
+    ensures (|sequence| >= length && UTF8.ValidUTF8Seq(sequence[..length])) <==> res.Some?
+    ensures res.Some? ==> sequence[..length] == res.get
   {
       if |sequence| >= length then
         var utfSeq := sequence[..length];
         if UTF8.ValidUTF8Seq(utfSeq) then
           var utf: UTF8.ValidUTF8Bytes  := utfSeq;
-          Success(utf)
+          Some(utf)
         else
-          Failure("Invalid utf")
+          None // Invalid utf
       else
-        Failure("out of bounds")
+        None // out of bounds
   }
 
-  function SeqToKVPair(sequence: seq<uint8>): (res: Result<((UTF8.ValidUTF8Bytes, UTF8.ValidUTF8Bytes), seq<uint8>)>)
+  function SeqToKVPair(sequence: seq<uint8>): (res: Option<((UTF8.ValidUTF8Bytes, UTF8.ValidUTF8Bytes), seq<uint8>)>)
   {
     if |sequence| >= 2 then
       var keyLength := SeqToUInt16(sequence[..2])  as nat;  
       var key := GetUTF8(sequence[2..], keyLength);
-      if key.Success? && |sequence| >= keyLength + 4 then
+      if key.Some? && |sequence| >= keyLength + 4 then
         var valueLength := SeqToUInt16(sequence[keyLength + 2..keyLength + 4])  as nat;              
         var value := GetUTF8(sequence[keyLength + 4 ..], valueLength);
-        if value.Success? then
-          Success(((key.value, value.value), sequence[4 + keyLength + valueLength..]))
+        if value.Some? then
+          Some(((key.get, value.get), sequence[4 + keyLength + valueLength..]))
         else
-          Failure("Invalid utf")
+          None // "Invalid utf")
       else
-        Failure("Invalid utf or out of bounds")
+        None // Invalid utf or out of bounds
     else
-      Failure("out of bounds")
+      None // out of bounds
   }
+
+  lemma KVPairToSeqIsDualSeqToKVPair(kvPair: (UTF8.ValidUTF8Bytes, UTF8.ValidUTF8Bytes), remainder: seq<uint8>)
+    requires SerializableKVPair(kvPair); 
+    ensures var sequence := KVPairToSeq(kvPair);
+      SeqToKVPair(sequence + remainder) == Some((kvPair, remainder))
+    {
+      var sequence := KVPairToSeq(kvPair) + remainder;
+      var deserializedPair := SeqToKVPair(sequence);
+
+      assert deserializedPair.Some? by {
+        // Prove that the two calls deserializing the utf8 don't error 
+        assert UInt16ToSeq(|kvPair.0| as uint16) + kvPair.0 + sequence[2 + |kvPair.0|..] == sequence;
+        DualOfUTF8(kvPair.0, sequence[2 + |kvPair.0|..]);
+        assert Some(kvPair.0) == GetUTF8(sequence[2..], |kvPair.0|);
+        
+        assert sequence[..2 + |kvPair.0|] +  UInt16ToSeq(|kvPair.1| as uint16) + kvPair.1 + sequence[4 + |kvPair.0| + |kvPair.1 |..] == sequence;
+        DualOfUTF8(kvPair.1, sequence[2 + |kvPair.0| + 2 + |kvPair.1|..]);
+        assert sequence[2 + |kvPair.0|..] == UInt16ToSeq(|kvPair.1| as uint16) + kvPair.1 + sequence[2 + |kvPair.0| + 2 + |kvPair.1|..];
+        assert Some(kvPair.1) == GetUTF8(sequence[2 + |kvPair.0|..][2..], |kvPair.1|);
+      }
+      assert deserializedPair.get.0.0 == kvPair.0;
+      assert deserializedPair.get.0.1 == kvPair.1;
+      assert deserializedPair.get.1 == remainder;
+         
+    }
+
+    lemma DualOfUTF8(utf: UTF8.ValidUTF8Bytes, remainder: seq<uint8>)
+      requires |utf| < UINT16_LIMIT && UTF8.ValidUTF8Seq(utf)
+      ensures var serializedUtf := UInt16ToSeq(|utf| as uint16) + utf + remainder;
+        GetUTF8(serializedUtf[2..], |utf|) == Some(utf) 
+    {
+      var serializedUtf := UInt16ToSeq(|utf| as uint16) + utf + remainder;
+      var serial := serializedUtf[2..];
+      var deserializedUTF := GetUTF8(serial, |utf|);
+      // seq to UTF8 casting is not done automatically by Dafny and needs to be done manually
+      assert deserializedUTF.Some? by {
+        assert serial[..|utf|] == utf;
+        assert |serial| >= |utf| && UTF8.ValidUTF8Seq(serial[..|utf|]);
+      }
+    }
+    
 
   function MapToLinear(kvPairs: Map): seq<uint8>
     requires Serializable(kvPairs)
@@ -363,6 +493,7 @@ module {:extern "EncryptionContext"} EncryptionContext {
     UInt16ToSeq(Length(kvPairs) as uint16) +
     MapToSeq(kvPairs)
   }
+
 
   function MapToSeq(kvPairs: Map): seq<uint8>
     requires SerializableKVPairs(kvPairs)
