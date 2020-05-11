@@ -1,0 +1,17 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Library</OutputType>
+    <TargetFramework>netstandard2.0</TargetFramework>
+    <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="dafny.msbuild" Version="1.0.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <VerifyDafnyPassthrough Include="timeLimit:300" />
+    <VerifyDafnyPassthrough Include="definiteAssignment:3" />
+  </ItemGroup>
+</Project>
