@@ -1,6 +1,9 @@
-// This examples shows how to configure and use a raw RSA keyring using a pre-loaded RSA keypair.
-// If your RSA key is in PEM or DER format,
-// see the ``not yet created file`` example.
+// When you store RSA keys, you have to serialize them somehow.
+//
+// This example shows how to configure and use a raw RSA keyring using a DER-encoded RSA private key.
+//
+// The most commonly used encodings for RSA keys tend to be PEM and DER.
+// The raw RSA keyring supports loading both public and private keys from these encodings.
 //
 // https://docs.aws.amazon.com/encryption-sdk/latest/developer-guide/choose-keyring.html#use-raw-rsa-keyring
 //
@@ -24,7 +27,7 @@ using Org.BouncyCastle.OpenSsl;
 using ExampleUtils;
 using Xunit;
 
-// Demonstrate an encrypt/decrypt cycle using a raw RSA keyring.
+// Demonstrate an encrypt/decrypt cycle using a raw RSA keyring loaded from a DER-encoded key.
 public class RawRSAKeyringKeypairExample {
     static void Run(MemoryStream plaintext) {
 
@@ -63,16 +66,15 @@ public class RawRSAKeyringKeypairExample {
         // Generate a key pair.
         AsymmetricCipherKeyPair keygenPair = keyGenerator.GenerateKeyPair();
 
-        // Extract the public key as a byte array.
+        // Serialize the RSA keys to DER encoding.
+        // This or PEM encoding is likely to be what you get from your key management system in practice.
         byte[] publicKeyBytes;
+        byte[] privateKeyBytes;
         using (var stringWriter = new StringWriter()) {
             var pemWriter = new PemWriter(stringWriter);
             pemWriter.WriteObject(keygenPair.Public);
             publicKeyBytes = Encoding.ASCII.GetBytes(stringWriter.ToString());
         }
-
-        // Extract the private key as a byte array.
-        byte[] privateKeyBytes;
         using (var stringWriter = new StringWriter()) {
             var pemWriter = new PemWriter(stringWriter);
             pemWriter.WriteObject(keygenPair.Private);
