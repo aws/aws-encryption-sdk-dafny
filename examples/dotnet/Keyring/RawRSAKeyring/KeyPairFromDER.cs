@@ -28,7 +28,7 @@ using ExampleUtils;
 using Xunit;
 
 // Demonstrate an encrypt/decrypt cycle using a raw RSA keyring loaded from a DER-encoded key.
-public class RawRSAKeyringKeypairExample {
+public class RawRSAKeyringKeypairFromDERExample {
     static void Run(MemoryStream plaintext) {
 
         // Create your encryption context.
@@ -127,7 +127,7 @@ public class RawRSAKeyringKeypairExample {
 
     // We test examples to ensure they remain up-to-date.
     [Fact]
-    public void TestRawRSAKeyringKeypairExample() {
+    public void TestRawRSAKeyringKeypairFromDERExample() {
         Run(ExampleUtils.ExampleUtils.GetPlaintextStream());
     }
 }
