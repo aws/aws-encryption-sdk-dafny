@@ -281,7 +281,7 @@ module {:extern "EncryptionContext"} EncryptionContext {
     if |sequence| < 2 then 
       None // Too small
     else 
-      var res := SeqToLinear(sequence[2..]);
+      var res := SeqToLinear(sequence[2..], []);
       if res.Some? then Some(LinearInMap(res.get)) else None
   }
   
@@ -331,8 +331,8 @@ module {:extern "EncryptionContext"} EncryptionContext {
 
   // Proof that two sorted sequences with unique elements are the same if they contain the same elements
   lemma SortedSequenceIsUnqiue(xs: Linear, ys: Linear)
-    requires LinearSorted(xs) && forall i, j | 0 <= i < j < |xs| :: xs[i].0 != xs[j].0
-    requires LinearSorted(ys) && forall i, j | 0 <= i < j < |ys| :: ys[i].0 != ys[j].0
+    requires LinearSorted(xs) && LinearIsUnique(xs)
+    requires LinearSorted(ys) && LinearIsUnique(ys)
     requires forall p :: p in xs <==> p in ys;
     ensures xs == ys
   {
@@ -388,29 +388,127 @@ module {:extern "EncryptionContext"} EncryptionContext {
     }
   }
 
-
-  function SeqToLinear(sequence: seq<uint8>): Option<Linear>
-    ensures var res := SeqToLinear(sequence);
-      res.Some? ==> LinearSorted(res.get)
+  predicate LinearIsUnique(linear: Linear)
   {
-    if sequence == [] then Some([]) else
-      var resHead := SeqToKVPair(sequence);
+    forall i, j | 0 <= i < j < |linear| :: linear[i].0 != linear[j].0
+  }
+
+
+  function SeqToLinear(sequence: seq<uint8>, linear: Linear): Option<Linear>
+    requires LinearSorted(linear)
+    requires LinearIsUnique(linear)
+    ensures var res := SeqToLinear(sequence, linear);
+      res.Some? ==> LinearSorted(res.get)
+      && LinearIsUnique(res.get)
+  {
+    if sequence == [] then Some(linear) else
+      var resHead := SeqToKVPair(sequence); 
       if resHead.Some? then 
-        var resTail: Option<Linear> := SeqToLinear(resHead.get.1);
-        if resTail.Some? then
-          InsertPairMock (resHead.get.0, resTail.get)
+        var newLinear := InsertPairMock(resHead.get.0, linear);
+        if newLinear.Some? then
+          SeqToLinear(resHead.get.1, newLinear.get)
         else
-          None // Too short
+          None // Duplicate key
       else
         None // Too short
   }
 
+  lemma SeqToLinearSequentialReorder(seqHead: seq<uint8>, linHead: Linear, seqTail: seq<uint8>,  linTail: Linear)
+    requires SeqToLinear(seqHead, []) == Some(linHead)
+    requires SeqToLinear(seqTail, []) == Some(linTail)
+    ensures SeqToLinear(seqHead + seqTail, []) == SeqToLinear(seqTail + seqHead, [])
+  {
+    if exists p :: p in linHead && p in linTail {
+      assert SeqToLinear(seqHead + seqTail, []) == SeqToLinear(seqTail, linHead) by {
+
+      }
+      assert SeqToLinear(seqTail + seqHead, []).None?;
+    }else{
+      
+      assert SeqToLinear(seqHead + seqTail, []).Some?;
+      assert SeqToLinear(seqTail + seqHead, []).Some?;
+    }
+  }
+
+  // Simplified Function to get the content of Linear for proofs
+  function SeqToContentOfLinear(sequence: seq<uint8>, linear: Linear): Option<Linear>
+  {
+     if sequence == [] then Some(linear) else
+      var resHead := SeqToKVPair(sequence); 
+      if resHead.Some? then 
+        SeqToContentOfLinear(resHead.get.1, linear + [resHead.get.0])
+      else
+        None // Too short
+  }
+
+  // Links SeqToLinear with SeqToContentOfLinear
+  lemma SeqToLinearContent(sequence: seq<uint8>, linear: Linear, linearSorted: Linear)
+    requires LinearSorted(linearSorted) && LinearIsUnique(linearSorted)
+    requires SeqToLinear(sequence, linearSorted).Some?
+    requires forall p :: p in linear <==> p in linearSorted
+    ensures SeqToContentOfLinear(sequence, linear).Some?
+    ensures forall p :: p in SeqToContentOfLinear(sequence, linear).get <==> p in SeqToLinear(sequence, linearSorted).get
+  {
+
+  }
+
+  lemma SeqToLinearContentIsWeaker(sequence: seq<uint8>, linear: Linear, linearSorted: Linear)
+    requires LinearSorted(linearSorted) && LinearIsUnique(linearSorted)
+    requires forall p :: p in linear <==> p in linearSorted
+    requires SeqToLinear(sequence, linearSorted).Some?
+    ensures SeqToContentOfLinear(sequence, linear).Some?
+  {
+
+  }
+
+  lemma SeqToLinearToCall(seqHead: seq<uint8>, seqTail: seq<uint8>, linHead: Linear)
+    requires SeqToLinear(seqHead, []) == Some(linHead)
+    ensures SeqToLinear(seqHead + seqTail, []) == SeqToLinear(seqTail, linHead)
+  {
+    if linHead == [] {  
+      SeqToLinearContent(seqHead, [] , []);
+      assert SeqToContentOfLinear(seqHead, []) == Some([]) by {
+        calc{
+          forall p :: p in SeqToContentOfLinear(seqHead, []).get <==> p in SeqToLinear(seqHead, []).get;
+        <==>
+          forall p :: p in SeqToContentOfLinear(seqHead, []).get <==> p in Some([]).get;
+        <==>
+          forall p :: p in SeqToContentOfLinear(seqHead, []).get <==> p in [];
+        <==>
+          forall p :: !(p in SeqToContentOfLinear(seqHead, []).get);
+        <==>{ var lin := SeqToContentOfLinear(seqHead, []).get;
+              assert 0 < |lin| ==> lin[0] in []; }
+          SeqToContentOfLinear(seqHead, []).get == [];
+        <==>
+          SeqToContentOfLinear(seqHead, []) == Some([]);
+        }
+      }
+
+      assert seqHead == [] by {
+        if seqHead == [] {
+
+        }else{
+          assert SeqToContentOfLinear(seqHead, []).Some?;
+          var resHead := SeqToKVPair(seqHead);
+          assert resHead.Some?;
+          assert resHead.get.0 in SeqToContentOfLinear(seqHead, []).get;
+
+        }
+      }
+      assert seqHead + seqTail == seqTail;
+      assert SeqToLinear(seqHead + seqTail, []) == SeqToLinear(seqTail, linHead);
+    } else {
+      assert SeqToLinear(seqHead + seqTail, []) == SeqToLinear(seqTail, linHead);
+    }
+  }
+
+
   function {:axiom } InsertPairMock(p: (UTF8.ValidUTF8Bytes, UTF8.ValidUTF8Bytes), ps: Linear): (res: Option<Linear>)
     requires LinearSorted(ps)
-    requires forall i, j | 0 <= i < j < |ps| :: ps[i].0 != ps[j].0 
+    requires LinearIsUnique(ps) 
     ensures (exists l | l in ps :: p.0 == l.0) <==> res.None?
-    ensures res.Some? ==> LinearSorted(res.get) &&
-      forall i, j | 0 <= i < j < |res.get| :: res.get[i].0 != res.get[j].0
+    ensures res.Some? ==> LinearSorted(res.get) && LinearIsUnique(res.get)
+    ensures res.Some? ==> forall l :: (l in ps || l == p) <==> l in res.get
 
   function GetUTF8(sequence: seq<uint8>, length: nat): (res: Option<UTF8.ValidUTF8Bytes>)
     ensures (|sequence| >= length && UTF8.ValidUTF8Seq(sequence[..length])) <==> res.Some?
