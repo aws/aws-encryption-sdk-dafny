@@ -8,7 +8,9 @@ AWS Encryption SDK for Dafny
 
 ## Building the AWS Encryption SDK for Dafny
 
-To build, the AWS Encryption SDK requires the most up to date version of [dafny](https://github.com/dafny-lang/dafny) on your PATH. In addition, this project uses the parallel verification tasks provided by the [dafny.msbuild](https://github.com/dafny-lang/dafny.msbuild) MSBuild plugin, and thus requires [dotnet 3.0](https://dotnet.microsoft.com/download/dotnet-core/3.0).
+To build, the AWS Encryption SDK requires the most up to date version of [dafny](https://github.com/dafny-lang/dafny) on your PATH.
+In addition, this project uses the parallel verification tasks provided by the [dafny.msbuild](https://github.com/dafny-lang/dafny.msbuild) MSBuild plugin,
+and thus requires [dotnet 3.0](https://dotnet.microsoft.com/download/dotnet-core/3.0).
 
 To run the dafny verifier across all files:
 
@@ -17,7 +19,8 @@ To run the dafny verifier across all files:
 dotnet build -t:VerifyDafny test
 ```
 
-The tests currently require native implementations of cryptographic primitives and other methods, so they can only be run when embedding this library into one of the compilation target languages supported by Dafny:
+The tests currently require native implementations of cryptographic primitives and other methods, 
+so they can only be run when embedding this library into one of the compilation target languages supported by Dafny:
 
 - [.NET](https://github.com/awslabs/aws-encryption-sdk-net)
 
