@@ -352,6 +352,7 @@ module {:extern "STL"} StandardLibrary {
     ensures forall i :: 0 <= i < |q| ==> q[i] in s
     ensures forall k :: k in s ==> k in q
     ensures forall i :: 0 < i < |q| ==> LexicographicLessOrEqual(q[i-1], q[i], less)
+    ensures forall i, j | 0 <= i < j < |q| :: q[i] != q[j];
   {
     if s == {} then
       []

@@ -268,66 +268,91 @@ module {:extern "EncryptionContext"} EncryptionContext {
       }
     }
 
-  function LinearToMapFunc(sequence: seq<uint8>): Option<Map>
+  // function LinearToMapFunc(sequence: seq<uint8>): Option<Map>
+  // {
+  //   if |sequence| < 2 then 
+  //     None // too small
+  //   else 
+  //     SeqToMap(sequence[2..])
+  // }
+  
+  predicate LinearSeqToMap(sequence: seq<uint8>, resultMap: Map)
   {
-    if |sequence| < 2 then 
-      None // too small
-    else 
-      SeqToMap(sequence[2..])
+    if 2 <= |sequence| then
+      sequence[..2] == UInt16ToSeq(Length(resultMap) as uint16) && SeqToMap(sequence[2..], resultMap)
+    else
+      false
+  }
+
+
+  // Deserialization is a surjection. This predicate holds if a sequence can be deserialized to the result map
+  predicate SeqToMap(sequence: seq<uint8>, resultMap: Map)
+  {
+    if 2 <= |sequence| then
+      exists UnsortedkvPairs | // If there exists some sequence of kvPairs
+        (forall i :: 0 <= i < |UnsortedkvPairs| ==> SerializableKVPair(UnsortedkvPairs[i])) // Which have some desired properties
+        && |UnsortedkvPairs| < UINT16_LIMIT
+        && LinearIsUnique(UnsortedkvPairs)
+        && sequence[..2] == UInt16ToSeq(|UnsortedkvPairs| as uint16) // And the kvPairs can be serialized to the input sequence
+        && LinearToUnorderedSeq(UnsortedkvPairs, 0, |UnsortedkvPairs|) == sequence[2..] ::
+            && var kvPairs := InsertionSort(UnsortedkvPairs); // Then if we sort the list of kvPairs
+            var orderedSeq := LinearToSeq(kvPairs, 0, |kvPairs|); // And then serialize this sorted kvPairs
+            MapToSeq(resultMap) == sequence[..2] + orderedSeq // We obtain the sequence which we would have obtained if we serialized the map 
+    else
+      sequence == []
+  }
+
+  lemma MapToLinearIsLinearSeqToMap(resultMap: Map)
+    requires Serializable(resultMap)
+    ensures LinearSeqToMap(MapToLinear(resultMap), resultMap)
+  {
+    reveal Serializable();
+    MapToSeqIsDualSeqToMap(resultMap);
   }
   
-  function SeqToMap(sequence: seq<uint8>): Option<Map>
-  {
-    if |sequence| < 2 then 
-      None // Too small
-    else 
-      var res := SeqToLinear(sequence[2..], []);
-      if res.Some? then Some(LinearInMap(res.get)) else None
-  }
   
+  lemma MapToSeqIsDualSeqToMap(resultMap: Map)
+    requires SerializableKVPairs(resultMap)
+    ensures SeqToMap(MapToSeq(resultMap), resultMap)
+  {
+    var sequenceComplete := MapToSeq(resultMap);
+    if sequenceComplete != [] { // If the sequence is not empty
+      var sequence := sequenceComplete[2..];
+        var kvPairs :| // Then there exists a sequence of kvPairs which is deserialized to the output sequence of LinearToSeq
+          (forall i :: 0 <= i < |kvPairs| ==> SerializableKVPair(kvPairs[i]))
+          && |kvPairs| < UINT16_LIMIT
+          && LinearSorted(kvPairs)
+          && LinearIsUnique(kvPairs) 
+          && LinearToSeq(kvPairs, 0, |kvPairs|) == sequence
+          && sequenceComplete[..2] == UInt16ToSeq(|kvPairs| as uint16);
+
+      InsertionSortPreservesProperties(kvPairs); // We can sort the kvPairs which preserves all properties of the kvPairs
+      SortedSequenceIsUnqiue(kvPairs, InsertionSort(kvPairs)); // Two sorted sequences with unique elements are the same 
+      SortedLinearIsFixpointAADDuality(kvPairs); // And the weak and strong deserialization return the same value for sorted sequences
+      // From this we can conclude that SeqToMap hold (intuitively this is true since LinearToSeq and LiniearToUnordered seq are the same on ordered inputs) 
+    }else{
+      // Trivial case
+    }
+  }
+
   function LinearInMap(linear: Linear): Map
   {
     if linear == [] then map[] else
       LinearInMap(linear[1..])[linear[0].0 := linear[0].1]
   }
 
-  function InsertPair(p: (UTF8.ValidUTF8Bytes, UTF8.ValidUTF8Bytes), ps: Linear): (res: (Option<Linear>, nat))
-    requires LinearSorted(ps)
-    ensures match res.0
-    case None =>
-      res.1 < |ps|
-      && ps[res.1].0 == p.0  // Key already exists
-    case Some(ls) =>
-      && res.1 <= |ps|
-      && ls == ps[..res.1] + [p] + ps[res.1..]
-      && LinearSorted(ls)
-  {
-    if ps == [] || LexicographicLessOrEqual(p.0, ps[0].0, UInt.UInt8Less) then
-      if 0 < |ps| && p.0 == ps[0].0 then
-        (None, 0) // Duplicate key
-      else
-        (Some([p] + ps), 0)
-    else
-      LexIsTotal(p.0, ps[0].0, UInt.UInt8Less);
-      var res := InsertPair(p,ps[1..]);
-      if res.0.Some? then
-        (Some([ps[0]] + res.0.get), res.1 + 1)
-      else
-        (res.0, res.1 + 1)
-  }
-
-  lemma InsertFailsOnDuplicate(ls: Linear, pair: (UTF8.ValidUTF8Bytes, UTF8.ValidUTF8Bytes))
-    requires LinearSorted(ls)
-    requires exists l | l in ls :: pair.0 == l.0
-    ensures InsertPair(pair, ls).0.None?
-  {
-    if (ls[0].0 == pair.0) {
-      LexIsReflexive(pair.0, UInt.UInt8Less);
-    }else{
-      InsertFailsOnDuplicate(ls[1..], pair);
-      LinearSortedImpliesStrongLinearSorted(ls);
-    }
-  }
+  // lemma InsertFailsOnDuplicate(ls: Linear, pair: (UTF8.ValidUTF8Bytes, UTF8.ValidUTF8Bytes))
+  //   requires LinearSorted(ls)
+  //   requires exists l | l in ls :: pair.0 == l.0
+  //   ensures InsertPair(pair, ls)
+  // {
+  //   if (ls[0].0 == pair.0) {
+  //     LexIsReflexive(pair.0, UInt.UInt8Less);
+  //   }else{
+  //     InsertFailsOnDuplicate(ls[1..], pair);
+  //     LinearSortedImpliesStrongLinearSorted(ls);
+  //   }
+  // }
 
   // Proof that two sorted sequences with unique elements are the same if they contain the same elements
   lemma SortedSequenceIsUnqiue(xs: Linear, ys: Linear)
@@ -413,6 +438,119 @@ module {:extern "EncryptionContext"} EncryptionContext {
         None // Too short
   }
 
+  function MapToSeq(kvPairs: Map): seq<uint8>
+    requires SerializableKVPairs(kvPairs)
+  {
+    var n := |kvPairs|;
+    if n == 0 then [] else
+      // Defining and reasoning about order at this level is simplified by using a sequence of
+      // key value pairs instead of a map.
+      // Pairs are ordered lexicographically by their UTF8 encoding, which is equivalent to code
+      // point ordering.
+      var keys: seq<UTF8.ValidUTF8Bytes> := SetToOrderedSequence<uint8>(kvPairs.Keys, UInt.UInt8Less);
+      var kvPairsSeq := seq(|keys|, i requires 0 <= i < |keys| => (keys[i], kvPairs[keys[i]]));
+      UInt16ToSeq(n as uint16) +
+      LinearToSeq(kvPairsSeq, 0, |kvPairsSeq|)
+  }
+
+  function LinearToUnorderedSeq(kvPairs: Linear, lo: nat, hi: nat): seq<uint8>
+    requires forall i :: 0 <= i < |kvPairs| ==> SerializableKVPair(kvPairs[i])
+    requires |kvPairs| < UINT16_LIMIT
+    requires LinearIsUnique(kvPairs)
+    requires lo <= hi <= |kvPairs|
+  {
+    if lo == hi then [] else LinearToUnorderedSeq(kvPairs, lo, hi - 1) + KVPairToSeq(kvPairs[hi - 1])
+  }
+
+  lemma LinearToUnorderedSeqInductiveStep(kvHead: Linear, kvTail: Linear, lo: nat, hi: nat)
+    requires forall i :: 0 <= i < |kvHead + kvTail| ==> SerializableKVPair((kvHead + kvTail)[i])
+    requires |kvHead + kvTail| < UINT16_LIMIT
+    requires lo <= hi <= |kvHead|
+    requires LinearIsUnique(kvHead + kvTail)
+    ensures forall i :: 0 <= i < |kvHead| ==> SerializableKVPair(kvHead[i])
+    ensures LinearIsUnique(kvHead)
+    ensures LinearToUnorderedSeq(kvHead + kvTail, lo, hi) == LinearToUnorderedSeq(kvHead, lo, hi)
+  {
+
+  }
+
+  lemma SortedLinearIsFixpointAADDuality(linear: Linear)
+    requires forall p | p in linear :: SerializableKVPair(p)
+    requires |linear| < UINT16_LIMIT
+    requires LinearIsUnique(linear)
+    requires LinearSorted(linear)
+    ensures forall hi | 0 <= hi <= |linear| :: LinearToUnorderedSeq(linear, 0, hi) == LinearToSeq(linear, 0, hi) 
+  {
+    
+  }
+
+  function InsertionSort(linear: Linear): Linear
+    ensures var linearSorted := InsertionSort(linear);
+      (forall p :: p in linear <==> p in linearSorted)
+      && LinearSorted(linearSorted)
+  {
+    if linear == [] then [] else InsertPair(linear[0], InsertionSort(linear[1..]))
+  }
+
+  function InsertPair(p: (UTF8.ValidUTF8Bytes, UTF8.ValidUTF8Bytes), ps: Linear): Linear
+    requires LinearSorted(ps)
+    ensures var ls := InsertPair(p, ps);
+      LinearSorted(ls)
+      && forall l :: (l in ps || l == p) <==> l in ls
+  {
+    if ps == [] || LexicographicLessOrEqual(p.0, ps[0].0, UInt.UInt8Less) then
+      [p] + ps
+    else
+      LexIsTotal(p.0, ps[0].0, UInt.UInt8Less);
+      [ps[0]] + InsertPair(p, ps[1..])
+  }
+
+  // Lemma shows sorting preserves properties of ps
+  lemma InsertionSortPreservesProperties(ps: Linear)
+    requires LinearIsUnique(ps)
+    requires forall l | l in ps :: SerializableKVPair(l)
+    ensures LinearIsUnique(InsertionSort(ps))
+    ensures forall l | l in InsertionSort(ps) :: SerializableKVPair(l)
+    ensures |InsertionSort(ps)| == |ps|
+  {
+    if ps == [] {
+
+    } else {
+      var ls := InsertionSort(ps[1..]);
+      forall j | 0 <= j < |ls| // Proof that ps[0] is not contained in the sorted ps[1..]
+        ensures ps[0].0 != ls[j].0
+      {
+        assert ps[0].0 == ls[j].0 ==> ls[j] in ps[1..];
+        assert ps[0].0 == ls[j].0 ==> false;
+      }
+      InsertPairPreservesProperties(ps[0], ls);
+    }
+  }
+
+  // Lemma shows that inserting preserves properties of p and ps
+  lemma InsertPairPreservesProperties(p: (UTF8.ValidUTF8Bytes, UTF8.ValidUTF8Bytes), ps: Linear)
+    requires LinearSorted(ps)
+    requires LinearIsUnique(ps)
+    requires forall j | 0 <= j < |ps| :: p.0 != ps[j].0
+    requires forall l | l in ps :: SerializableKVPair(l)
+    requires SerializableKVPair(p);
+    ensures LinearIsUnique( InsertPair(p, ps))
+    ensures forall l | l in InsertPair(p, ps) :: SerializableKVPair(l)
+    ensures |InsertPair(p, ps)| == |ps| + 1 
+  {
+    if ps == [] || LexicographicLessOrEqual(p.0, ps[0].0, UInt.UInt8Less){  
+      
+    } else {
+      assert LinearIsUnique([ps[0]] + InsertPair(p, ps[1..])) by {
+        var ls := InsertPair(p, ps[1..]);
+        var l := ps[0];
+        assert !LinearIsUnique([l] + ls) ==> exists m | m in ls :: m.0 == l.0;
+      }
+    }
+  }
+       
+
+
   lemma SeqToLinearSequentialReorder(seqHead: seq<uint8>, linHead: Linear, seqTail: seq<uint8>,  linTail: Linear)
     requires SeqToLinear(seqHead, []) == Some(linHead)
     requires SeqToLinear(seqTail, []) == Some(linTail)
@@ -420,7 +558,6 @@ module {:extern "EncryptionContext"} EncryptionContext {
   {
     if exists p :: p in linHead && p in linTail {
       assert SeqToLinear(seqHead + seqTail, []) == SeqToLinear(seqTail, linHead) by {
-
       }
       assert SeqToLinear(seqTail + seqHead, []).None?;
     }else{
@@ -461,13 +598,30 @@ module {:extern "EncryptionContext"} EncryptionContext {
 
   }
 
-  lemma SeqToLinearToCall(seqHead: seq<uint8>, seqTail: seq<uint8>, linHead: Linear)
+  lemma SeqToLinearPreservesContent(sequence: seq<uint8>, linearSorted: Linear)
+    requires LinearSorted(linearSorted) && LinearIsUnique(linearSorted)
+    requires SeqToLinear(sequence, linearSorted).Some?
+    ensures forall p :: p in linearSorted ==> p in SeqToLinear(sequence, linearSorted).get
+  {
+
+  }
+
+  lemma SeqToContentOfLinearPreservesContent(sequence: seq<uint8>, linear: Linear)
+    requires SeqToContentOfLinear(sequence, linear).Some?
+    ensures forall p :: p in linear ==> p in SeqToContentOfLinear(sequence, linear).get
+  {
+
+  }
+  
+  /**
+  // Convert call of SeqToLinear to intermediate for to allow strong inducrion of SeqToLinear
+  lemma SeqToLinearRecursion(seqHead: seq<uint8>, seqTail: seq<uint8>, linHead: Linear)
     requires SeqToLinear(seqHead, []) == Some(linHead)
     ensures SeqToLinear(seqHead + seqTail, []) == SeqToLinear(seqTail, linHead)
   {
-    if linHead == [] {  
+    if linHead == [] { // Use induction on linHead we want to prove that linHead == [] implies seqHead == []  
       SeqToLinearContent(seqHead, [] , []);
-      assert SeqToContentOfLinear(seqHead, []) == Some([]) by {
+      assert SeqToContentOfLinear(seqHead, []) == Some([]) by { // We give this proof for the simpler SeqToContentOfLinear function 
         calc{
           forall p :: p in SeqToContentOfLinear(seqHead, []).get <==> p in SeqToLinear(seqHead, []).get;
         <==>
@@ -483,24 +637,29 @@ module {:extern "EncryptionContext"} EncryptionContext {
           SeqToContentOfLinear(seqHead, []) == Some([]);
         }
       }
-
-      assert seqHead == [] by {
+      assert seqHead == [] by { // We can now reach a "simple" contradiction
         if seqHead == [] {
 
-        }else{
+        }else{ // If seqHead is not empty then there is some pair in linear. We know that linear is empty
           assert SeqToContentOfLinear(seqHead, []).Some?;
+          var linContent := SeqToContentOfLinear(seqHead, []).get;
           var resHead := SeqToKVPair(seqHead);
           assert resHead.Some?;
-          assert resHead.get.0 in SeqToContentOfLinear(seqHead, []).get;
-
+          assert linContent == SeqToContentOfLinear(resHead.get.1, [] + [resHead.get.0]).get;
+          SeqToContentOfLinearPreservesContent(resHead.get.1, [] + [resHead.get.0]);
+          assert resHead.get.0 in linContent;
         }
       }
       assert seqHead + seqTail == seqTail;
       assert SeqToLinear(seqHead + seqTail, []) == SeqToLinear(seqTail, linHead);
     } else {
+      assert 
+      var resHead := SeqToKVPair(seqHead);
+      assert resHead.Some?;
       assert SeqToLinear(seqHead + seqTail, []) == SeqToLinear(seqTail, linHead);
     }
   }
+   */
 
 
   function {:axiom } InsertPairMock(p: (UTF8.ValidUTF8Bytes, UTF8.ValidUTF8Bytes), ps: Linear): (res: Option<Linear>)
@@ -591,28 +750,13 @@ module {:extern "EncryptionContext"} EncryptionContext {
     UInt16ToSeq(Length(kvPairs) as uint16) +
     MapToSeq(kvPairs)
   }
-
-
-  function MapToSeq(kvPairs: Map): seq<uint8>
-    requires SerializableKVPairs(kvPairs)
-  {
-    var n := |kvPairs|;
-    if n == 0 then [] else
-      // Defining and reasoning about order at this level is simplified by using a sequence of
-      // key value pairs instead of a map.
-      // Pairs are ordered lexicographically by their UTF8 encoding, which is equivalent to code
-      // point ordering.
-      var keys: seq<UTF8.ValidUTF8Bytes> := SetToOrderedSequence<uint8>(kvPairs.Keys, UInt.UInt8Less);
-      var kvPairsSeq := seq(|keys|, i requires 0 <= i < |keys| => (keys[i], kvPairs[keys[i]]));
-      UInt16ToSeq(n as uint16) +
-      LinearToSeq(kvPairsSeq, 0, |kvPairsSeq|)
-  }
-
+  
   // Serialization of KVPairEntries is defined in terms of a seq of tuples, which is easier to reason about
   function LinearToSeq(kvPairs: Linear, lo: nat, hi: nat): seq<uint8>
     requires forall i :: 0 <= i < |kvPairs| ==> SerializableKVPair(kvPairs[i])
     requires |kvPairs| < UINT16_LIMIT
     requires LinearSorted(kvPairs)
+    requires LinearIsUnique(kvPairs)
     requires lo <= hi <= |kvPairs|
   {
     if lo == hi then [] else LinearToSeq(kvPairs, lo, hi - 1) + KVPairToSeq(kvPairs[hi - 1])
@@ -625,11 +769,24 @@ module {:extern "EncryptionContext"} EncryptionContext {
     UInt16ToSeq(|kvPair.1| as uint16) + kvPair.1
   }
 
+    lemma LinearToSeqInductiveStep(kvHead: Linear, kvTail: Linear, lo: nat, hi: nat)
+    requires forall i :: 0 <= i < |kvHead + kvTail| ==> SerializableKVPair((kvHead + kvTail)[i])
+    requires |kvHead + kvTail| < UINT16_LIMIT
+    requires lo <= hi <= |kvHead|
+    requires LinearIsUnique(kvHead + kvTail)
+    requires LinearSorted(kvHead + kvTail)
+    requires LinearSorted(kvHead)
+    requires forall i :: 0 <= i < |kvHead| ==> SerializableKVPair(kvHead[i])
+    requires LinearIsUnique(kvHead)
+    ensures  LinearToSeq(kvHead + kvTail, lo, hi) == LinearToSeq(kvHead, lo, hi)
+  {
+    
+  }
+
   /* Function Length is defined without referring to SerializeAAD (because then
    * these two would be mutually recursive with Valid). The following lemma proves
    * that the two definitions correspond.
    */
-
   lemma LengthCorrect(encryptionContext: Map)
     requires Serializable(encryptionContext)
     ensures |MapToLinear(encryptionContext)| == 2 + Length(encryptionContext)
