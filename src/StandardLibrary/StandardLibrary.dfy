@@ -3,6 +3,45 @@ include "UInt.dfy"
 module {:extern "STL"} StandardLibrary {
   import opened U = UInt
 
+  // A trait for objects with a Valid() predicate. Necessary in order to
+  // generalize some proofs, but also useful for reducing the boilerplate
+  // that most such objects need to include.
+  trait {:termination false} Validatable {
+    // TODO-RS: The style guide actually implies this should be "repr",
+    // but the convention is well-established at this point.
+    ghost var Repr: set<object>
+
+    predicate Valid()
+      reads this, Repr
+      ensures Valid() ==> this in Repr
+
+    // Convenience predicate for when your object's validity depends on one
+    // or more other objects.
+    predicate ValidComponent(component: Validatable)
+      reads this, Repr 
+      ensures ValidComponent(component) ==> (
+        && component in Repr
+        && component.Repr <= Repr
+        && this !in component.Repr
+        && component.Valid())
+    {
+      && component in Repr
+      && component.Repr <= Repr
+      && this !in component.Repr
+      && component.Valid()
+    }
+
+    // Convenience predicate, since you often want to assert that 
+    // new objects in Repr are fresh as well.
+    // TODO-RS: Better name?
+    twostate predicate ValidAndFresh() 
+      reads this, Repr
+      ensures ValidAndFresh() ==> Valid() && fresh(Repr - old(Repr))
+    {
+      Valid() && fresh(Repr - old(Repr))
+    }
+  }
+
   // TODO: Depend on types defined in dafny-lang/libraries instead
   datatype Option<+T> = None | Some(get: T)
   {
