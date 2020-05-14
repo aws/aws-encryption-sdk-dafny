@@ -139,6 +139,23 @@ module {:extern "MessageHeader"} MessageHeader {
     if lo == hi then [] else EDKEntriesToSeq(entries, lo, hi - 1) + EDKEntryToSeq(entries[hi - 1])
   }
 
+  lemma EDKEntriesToSeqInductiveStep(entriesHead: seq<Materials.EncryptedDataKey>, entriesTail: seq<Materials.EncryptedDataKey>, lo: nat, hi: nat)
+    requires var entries := entriesHead + entriesTail;
+      forall i :: 0 <= i < |entries| ==> (entries)[i].Valid()
+    requires lo <= hi <= |entriesHead|
+    ensures forall i :: 0 <= i < |entriesHead| ==> entriesHead[i].Valid()
+    ensures var entries := entriesHead + entriesTail;
+      EDKEntriesToSeq(entriesHead + entriesTail, lo, hi) == EDKEntriesToSeq(entriesHead, lo, hi)
+  {
+    assert forall i :: 0 <= i < |entriesHead| ==> entriesHead[i].Valid() by {
+      if !(forall i :: 0 <= i < |entriesHead| ==> entriesHead[i].Valid()) {
+        var entrie :| entrie in entriesHead && !entrie.Valid();
+        assert entrie in (entriesHead + entriesTail);
+        assert false;
+      }
+    }
+  }
+
   function method EDKEntryToSeq(edk: Materials.EncryptedDataKey): seq<uint8>
     requires edk.Valid()
   {

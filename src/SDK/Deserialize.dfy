@@ -436,22 +436,30 @@ module Deserialize {
     modifies rd.reader`pos
     ensures rd.Valid()
     ensures match ret
-      case Success(edks) => edks.Valid()
+      case Success(edks) => 
+        edks.Valid()
+        && var n := |Msg.EDKsToSeq(edks)|;
+        old(rd.reader.pos) + n == rd.reader.pos
+        && Msg.EDKsToSeq(edks) == rd.reader.data[old(rd.reader.pos)..rd.reader.pos]
       case Failure(_) => true
   {
     var edkCount :- rd.ReadUInt16();
     if edkCount == 0 {
       return Failure("Deserialization Error: Encrypted data key count is 0.");
     }
-
+    
+    assert rd.reader.pos == old(rd.reader.pos) + 2;
     var edkEntries: seq<Materials.EncryptedDataKey> := [];
     var i := 0;
     while i < edkCount
+      invariant old(rd.reader.pos) + 2 <= rd.reader.pos
       invariant rd.Valid()
       invariant i <= edkCount
       invariant |edkEntries| == i as int
       invariant forall i :: 0 <= i < |edkEntries| ==> edkEntries[i].Valid()
+      invariant Msg.EDKEntriesToSeq(edkEntries, 0, |edkEntries|) == rd.reader.data[old(rd.reader.pos) + 2 .. rd.reader.pos]
     {
+      ghost var invStartPos := rd.reader.pos;
       // Key provider ID
       var keyProviderIDLength :- rd.ReadUInt16();
       var str :- DeserializeUTF8(rd, keyProviderIDLength as nat);
@@ -467,8 +475,14 @@ module Deserialize {
 
       edkEntries := edkEntries + [Materials.EncryptedDataKey(keyProviderID, keyProviderInfo, edk)];
       i := i + 1;
+      assert invStartPos < rd.reader.pos;
+      assert Msg.EDKEntriesToSeq(edkEntries, 0, |edkEntries|) == rd.reader.data[old(rd.reader.pos) + 2 .. rd.reader.pos] by {
+        assert Msg.EDKEntryToSeq(Materials.EncryptedDataKey(keyProviderID, keyProviderInfo, edk)) == rd.reader.data[invStartPos..rd.reader.pos];
+        Msg.EDKEntriesToSeqInductiveStep(edkEntries[..|edkEntries| - 1], 
+          [Materials.EncryptedDataKey(keyProviderID, keyProviderInfo, edk)], 0, |edkEntries[..|edkEntries| - 1]|); 
+      }
     }
-
+    assert |edkEntries| == edkCount as int; 
     var edks := Msg.EncryptedDataKeys(edkEntries);
     return Success(edks);
   }
