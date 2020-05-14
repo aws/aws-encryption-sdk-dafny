@@ -349,7 +349,7 @@ module Deserialize {
     return Success(encryptionContext);
   }
 
-  // Lemma used for validation speedup, Combines straightforward facts into the post condition (353)
+  // Lemma used for validation speedup, Combines straightforward facts into the post condition
   lemma SerializationIsValid(sequence: seq<uint8>, resultMap: EncryptionContext.Map, unsortedKvPairs: EncryptionContext.Linear, kvPairs: EncryptionContext.Linear)
     requires |resultMap| == 0 ==> |sequence| == 2
     requires |resultMap| != 0 ==> 4 <= |sequence|
@@ -403,12 +403,10 @@ module Deserialize {
       case None =>
         (exists i :: 0 <= i < |kvPairs| && kvPairs[i].0 == key)  // key already exists
       case Some(kvPairs') =>
-        // Old spec
         && insertionPoint <= |kvPairs|
         && kvPairs' == kvPairs[..insertionPoint] + [(key, value)] + kvPairs[insertionPoint..]
         && EncryptionContext.LinearSorted(kvPairs')
         && (forall i, j | 0 <= i < j < |kvPairs'| :: kvPairs'[i].0 != kvPairs'[j].0)
-      // ensures EncryptionContext.InsertPairMock((key, value), kvPairs)
   {
     var n := |kvPairs|;
     while 0 < n && LexicographicLessOrEqual(key, kvPairs[n - 1].0, UInt.UInt8Less)

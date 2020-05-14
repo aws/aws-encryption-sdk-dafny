@@ -517,7 +517,7 @@ module {:extern "EncryptionContext"} EncryptionContext {
       LinearToSeq(kvPairsSeq, 0, |kvPairsSeq|)
   }
 
-    // Serialization of KVPairEntries is defined in terms of a seq of tuples, which is easier to reason about
+  // Serialization of KVPairEntries is defined in terms of a seq of tuples, which is easier to reason about
   function LinearToSeq(kvPairs: Linear, lo: nat, hi: nat): seq<uint8>
     requires SerializableLinear(kvPairs)
     requires lo <= hi <= |kvPairs|
@@ -560,48 +560,6 @@ module {:extern "EncryptionContext"} EncryptionContext {
       LexIsTotal(p.0, ps[0].0, UInt.UInt8Less);
       [ps[0]] + InsertPair(p, ps[1..])
   }
-
-  // function SeqToKVPair(sequence: seq<uint8>): (res: Option<((UTF8.ValidUTF8Bytes, UTF8.ValidUTF8Bytes), seq<uint8>)>)
-  // {
-  //   if |sequence| >= 2 then
-  //     var keyLength := SeqToUInt16(sequence[..2])  as nat;  
-  //     var key := GetUTF8(sequence[2..], keyLength);
-  //     if key.Some? && |sequence| >= keyLength + 4 then
-  //       var valueLength := SeqToUInt16(sequence[keyLength + 2..keyLength + 4])  as nat;              
-  //       var value := GetUTF8(sequence[keyLength + 4 ..], valueLength);
-  //       if value.Some? then
-  //         Some(((key.get, value.get), sequence[4 + keyLength + valueLength..]))
-  //       else
-  //         None // "Invalid utf")
-  //     else
-  //       None // Invalid utf or out of bounds
-  //   else
-  //     None // out of bounds
-  // }
-
-  // lemma KVPairToSeqIsDualSeqToKVPair(kvPair: (UTF8.ValidUTF8Bytes, UTF8.ValidUTF8Bytes), remainder: seq<uint8>)
-  //   requires SerializableKVPair(kvPair); 
-  //   ensures var sequence := KVPairToSeq(kvPair);
-  //     SeqToKVPair(sequence + remainder) == Some((kvPair, remainder))
-  //   {
-  //     var sequence := KVPairToSeq(kvPair) + remainder;
-  //     var deserializedPair := SeqToKVPair(sequence);
-
-  //     assert deserializedPair.Some? by {
-  //       // Prove that the two calls deserializing the utf8 don't error 
-  //       assert UInt16ToSeq(|kvPair.0| as uint16) + kvPair.0 + sequence[2 + |kvPair.0|..] == sequence;
-  //       DualOfUTF8(kvPair.0, sequence[2 + |kvPair.0|..]);
-  //       assert Some(kvPair.0) == GetUTF8(sequence[2..], |kvPair.0|);
-        
-  //       assert sequence[..2 + |kvPair.0|] +  UInt16ToSeq(|kvPair.1| as uint16) + kvPair.1 + sequence[4 + |kvPair.0| + |kvPair.1 |..] == sequence;
-  //       DualOfUTF8(kvPair.1, sequence[2 + |kvPair.0| + 2 + |kvPair.1|..]);
-  //       assert sequence[2 + |kvPair.0|..] == UInt16ToSeq(|kvPair.1| as uint16) + kvPair.1 + sequence[2 + |kvPair.0| + 2 + |kvPair.1|..];
-  //       assert Some(kvPair.1) == GetUTF8(sequence[2 + |kvPair.0|..][2..], |kvPair.1|);
-  //     }
-  //     assert deserializedPair.get.0.0 == kvPair.0;
-  //     assert deserializedPair.get.0.1 == kvPair.1;
-  //     assert deserializedPair.get.1 == remainder;    
-  //   }
 
   function GetUTF8(sequence: seq<uint8>, length: nat): (res: Option<UTF8.ValidUTF8Bytes>)
     ensures (|sequence| >= length && UTF8.ValidUTF8Seq(sequence[..length])) <==> res.Some?
