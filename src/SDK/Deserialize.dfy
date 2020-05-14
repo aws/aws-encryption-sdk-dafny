@@ -477,6 +477,11 @@ module Deserialize {
     requires rd.Valid()
     modifies rd.reader`pos
     ensures rd.Valid()
+    ensures match ret
+      case Success(contentType) =>
+        old(rd.reader.pos) + 1 == rd.reader.pos
+        && [Msg.ContentTypeToUInt8(contentType)] == rd.reader.data[old(rd.reader.pos)..rd.reader.pos]
+      case Failure(_) => true
   {
     var byte :- rd.ReadByte();
     match Msg.UInt8ToContentType(byte)
@@ -490,6 +495,11 @@ module Deserialize {
     requires rd.Valid()
     modifies rd.reader`pos
     ensures rd.Valid()
+    ensures match ret
+      case Success(contnetType) =>
+        old(rd.reader.pos) + 4 == rd.reader.pos
+        && Msg.Reserved == rd.reader.data[old(rd.reader.pos)..rd.reader.pos]
+      case Failure(_) => true
   {
     var reserved :- rd.ReadBytes(4);
     if reserved == Msg.Reserved {
