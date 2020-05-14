@@ -222,6 +222,16 @@ module Deserialize {
     }
   }
 
+  /**
+    DeserializeAAD is not a perfect dual of SerializeAAD
+    A Map of key value pairs is deserialized. The map can only be created from a sequence of sorted and unqiue pairs
+    SerializeAAD creates a sequence of sorted unique pairs, Deserialize reads any sequence of pairs and sorts them before creating a Map
+    Deserialize is a surjective function so there is no inverse function (a Dual serialize).
+    To still prove a duality we could define a weaker Serialization which is not a function but a relation between Maps and sequences (EncryptionContext.LinearSeqToMap)
+    We now prove that EncryptionContext.LinearSeqToMap(DeserializeAAD(seq), seq) which means any map we deserialize from a sequence is in the weak serialize relation
+    Furthermore we prove that EncryptionContext.LinearSeqToMap(map, SerializeAAD(map)) which means that any map we serialize to a sequence is in the weak serialize relation 
+    From this we can conclude that DeserializeAAD(SerializeAAD(map)) == map
+   */
   method DeserializeAAD(rd: Streams.ByteReader) returns (ret: Result<EncryptionContext.Map>)
     requires rd.Valid()
     modifies rd.reader`pos
@@ -254,32 +264,30 @@ module Deserialize {
     var kvPairs: EncryptionContext.Linear := [];
     var i := 0;
     ghost var startKvPos := rd.reader.pos;
-    ghost var unOrderedKvPairs: EncryptionContext.Linear := [];
+    ghost var unsortedKvPairs: EncryptionContext.Linear := [];
 
     while i < kvPairsCount
       invariant startKvPos <= rd.reader.pos
       invariant rd.Valid()
       invariant |kvPairs| == i as int
-      invariant |kvPairs| == |unOrderedKvPairs|
-      invariant forall kvPair :: kvPair in kvPairs <==> kvPair in unOrderedKvPairs
-      invariant forall kvPair | kvPair in kvPairs :: EncryptionContext.SerializableKVPair(kvPair)
       invariant i <= kvPairsCount
+      invariant |kvPairs| == |unsortedKvPairs|
+      invariant forall kvPair :: kvPair in kvPairs <==> kvPair in unsortedKvPairs
       invariant totalBytesRead == 2 + EncryptionContext.LinearLength(kvPairs, 0, i as nat) <= kvPairsLength as nat
-      invariant EncryptionContext.LinearSorted(kvPairs)
-      invariant EncryptionContext.LinearIsUnique(kvPairs)
-      invariant EncryptionContext.LinearIsUnique(unOrderedKvPairs)
-      invariant rd.reader.data[startKvPos..rd.reader.pos] == EncryptionContext.LinearToUnorderedSeq(unOrderedKvPairs, 0, |unOrderedKvPairs|)
+      invariant totalBytesRead == |rd.reader.data[old(rd.reader.pos)..rd.reader.pos]| - 2
+      invariant EncryptionContext.SerializableLinear(kvPairs)
+      invariant EncryptionContext.SerializableUnsortedLinear(unsortedKvPairs)
+      invariant rd.reader.data[startKvPos..rd.reader.pos] == EncryptionContext.LinearToUnorderedSeq(unsortedKvPairs, 0, |unsortedKvPairs|)
     {
       ghost var oldPosPair := rd.reader.pos;
       ghost var oldKvPairs := kvPairs;
-      ghost var oldunOrderedKvPairs := unOrderedKvPairs;
+      ghost var oldunsortedKvPairs := unsortedKvPairs;
 
       var keyLength :- rd.ReadUInt16();
       totalBytesRead := totalBytesRead + 2;
 
       var key :- DeserializeUTF8(rd, keyLength as nat);
       totalBytesRead := totalBytesRead + |key|;
-      assert key  == EncryptionContext.GetUTF8(rd.reader.data[oldPosPair + 2..], keyLength as nat).get;
       
       var valueLength :- rd.ReadUInt16();
           
@@ -292,47 +300,33 @@ module Deserialize {
       var valueSeq :- DeserializeUTF8(rd, valueLength as nat);
       var value: UTF8.ValidUTF8Bytes := valueSeq;
       totalBytesRead := totalBytesRead + |value|;
-      assert value == EncryptionContext.GetUTF8(rd.reader.data[oldPosPair + 4 + keyLength as nat..], valueLength as nat).get;
       
       // We want to keep entries sorted by key. We don't insist that the entries be sorted
       // already, but we do insist there are no duplicate keys.
       var opt, insertionPoint := InsertNewEntry(kvPairs, key, value);
-      
-      assert EncryptionContext.InsertPairMock((key, value), kvPairs) == opt by {
-        var expectedOpt := EncryptionContext.InsertPairMock((key, value), kvPairs);
-        if opt.Some? {
-          assert expectedOpt.Some?;
-          EncryptionContext.SortedSequenceIsUnqiue(opt.get,expectedOpt.get);
-        }else{
-          assert expectedOpt.None?;
-        }
-      }
 
       match opt {
         case Some(kvPairs_) =>
           EncryptionContext.LinearInsert(kvPairs, insertionPoint, key, value);
           kvPairs := kvPairs_;
-          unOrderedKvPairs := unOrderedKvPairs + [(key, value)];
+          unsortedKvPairs := unsortedKvPairs + [(key, value)];
         case None =>
           return Failure("Deserialization Error: Duplicate key.");
       }
-      assert valueLength == SeqToUInt16(rd.reader.data[oldPosPair + 2 + keyLength as int.. oldPosPair + 4 + keyLength as int]);
-
+      
       i := i + 1;
       
       // Proof that a KVPair is deserialized correctly
       // Note: Proof that serializing the resulting pair is equal to the input is easier and more stable.
       assert EncryptionContext.KVPairToSeq((key, value)) == rd.reader.data[oldPosPair .. rd.reader.pos];
-      // EncryptionContext.KVPairToSeqIsDualSeqToKVPair((key, value), []);
-      // assert rd.reader.data[oldPosPair..rd.reader.pos] + [] == rd.reader.data[oldPosPair..rd.reader.pos]; // Statement is needed
-      // assert EncryptionContext.SeqToKVPair(rd.reader.data[oldPosPair..rd.reader.pos]) == Some(((key, value), []));
-
+      
       assert forall p :: (p in oldKvPairs || p == (key, value)) <==> p in kvPairs;
 
-      assert rd.reader.data[startKvPos..rd.reader.pos] == EncryptionContext.LinearToUnorderedSeq(unOrderedKvPairs, 0, |unOrderedKvPairs|) by {
-        EncryptionContext.LinearToUnorderedSeqInductiveStep(oldunOrderedKvPairs, [(key, value)], 0 , |oldunOrderedKvPairs|);
-        assert EncryptionContext.LinearToUnorderedSeq(unOrderedKvPairs, 0, |unOrderedKvPairs| - 1) == rd.reader.data[startKvPos..oldPosPair];
-        assert EncryptionContext.KVPairToSeq(unOrderedKvPairs[|unOrderedKvPairs| - 1]) == rd.reader.data[oldPosPair .. rd.reader.pos];
+      // The unsorted sequence of pairs can be serialized to the bytes read from the stream
+      assert rd.reader.data[startKvPos..rd.reader.pos] == EncryptionContext.LinearToUnorderedSeq(unsortedKvPairs, 0, |unsortedKvPairs|) by {
+        EncryptionContext.LinearToUnorderedSeqInductiveStep(oldunsortedKvPairs, [(key, value)], 0 , |oldunsortedKvPairs|);
+        assert EncryptionContext.LinearToUnorderedSeq(unsortedKvPairs, 0, |unsortedKvPairs| - 1) == rd.reader.data[startKvPos..oldPosPair];
+        assert EncryptionContext.KVPairToSeq(unsortedKvPairs[|unsortedKvPairs| - 1]) == rd.reader.data[oldPosPair .. rd.reader.pos];
           assert rd.reader.data[startKvPos..rd.reader.pos] == rd.reader.data[startKvPos..oldPosPair] + rd.reader.data[oldPosPair..rd.reader.pos];
       }  
     }
@@ -346,12 +340,59 @@ module Deserialize {
     // failures for invalid serializations should be caught earlier.
     var encryptionContext: map<UTF8.ValidUTF8Bytes, UTF8.ValidUTF8Bytes> := EncryptionContext.LinearToMap(kvPairs);
     var isValid := EncryptionContext.CheckSerializable(encryptionContext);
-    if !isValid {
+    if !isValid || |kvPairs| != |encryptionContext| {
       return Failure("Deserialization Error: Failed to parse encryption context.");
     }
-
+    
+    SerializationIsValid(rd.reader.data[old(rd.reader.pos)..rd.reader.pos], encryptionContext, unsortedKvPairs, kvPairs);
+    
     return Success(encryptionContext);
   }
+
+  // Lemma used for validation speedup, Combines straightforward facts into the post condition (353)
+  lemma SerializationIsValid(sequence: seq<uint8>, resultMap: EncryptionContext.Map, unsortedKvPairs: EncryptionContext.Linear, kvPairs: EncryptionContext.Linear)
+    requires |resultMap| == 0 ==> |sequence| == 2
+    requires |resultMap| != 0 ==> 4 <= |sequence|
+    requires EncryptionContext.Serializable(resultMap)
+    requires |resultMap| == |kvPairs| == |unsortedKvPairs|
+    requires forall kvPair :: kvPair in kvPairs <==> kvPair in unsortedKvPairs
+    requires EncryptionContext.SerializableUnsortedLinear(unsortedKvPairs)
+    requires EncryptionContext.SerializableLinear(kvPairs)
+    requires reveal EncryptionContext.Serializable(); EncryptionContext.Serializable(resultMap) && EncryptionContext.SerializableLinear(kvPairs) ==> 
+      EncryptionContext.MapToSeq(resultMap) == if |resultMap| == 0 then [] else UInt16ToSeq(|kvPairs| as uint16) + EncryptionContext.LinearToSeq(kvPairs, 0, |kvPairs|)
+    requires |sequence[2..]| < UINT16_LIMIT && sequence[..2] == UInt16ToSeq(|sequence[2..]| as uint16)
+    requires |resultMap| != 0 ==> sequence[2..][..2] == UInt16ToSeq(|resultMap| as uint16);
+    requires |resultMap| != 0 ==> sequence[4..] == EncryptionContext.LinearToUnorderedSeq(unsortedKvPairs, 0, |unsortedKvPairs|)   
+    ensures EncryptionContext.LinearSeqToMap(sequence, resultMap)
+  {
+    reveal EncryptionContext.Serializable();
+    if |resultMap| == 0 {
+      
+    } else {
+      assert EncryptionContext.LinearSeqToMap(sequence, resultMap) by {
+        assert EncryptionContext.SeqToMap(sequence[2..], resultMap) by {
+          EncryptionContext.InsertionSortPreservesProperties(unsortedKvPairs);
+          // This is the line which ties the kvPairs and unstoredkvPairs together, since all pairs are unqiue and they contain the same pairs
+          // There is only one sorted sequence, so sorting the unsorted pairs gives us kvPairs
+          EncryptionContext.SortedSequenceIsUnqiue(kvPairs, EncryptionContext.InsertionSort(unsortedKvPairs));
+          
+          assert EncryptionContext.SeqToLinearToMap(sequence[2..], resultMap, unsortedKvPairs, kvPairs) by 
+          { 
+            assert 2 <= |sequence[2..]|;
+            assert EncryptionContext.SerializableUnsortedLinear(unsortedKvPairs);
+            assert EncryptionContext.SerializableLinear(kvPairs);
+            assert EncryptionContext.SerializableKVPairs(resultMap);
+            assert sequence[2..][..2] == UInt16ToSeq(|resultMap| as uint16); 
+            assert EncryptionContext.LinearToUnorderedSeq(unsortedKvPairs, 0, |unsortedKvPairs|) == sequence[2..][2..];
+            assert kvPairs == EncryptionContext.InsertionSort(unsortedKvPairs);
+            assert EncryptionContext.MapToSeq(resultMap) == sequence[2..][..2] + EncryptionContext.LinearToSeq(kvPairs, 0, |kvPairs|);
+          }
+          assert sequence[..2] == UInt16ToSeq(|sequence[2..]| as uint16);
+        }
+      }
+    }
+  }
+
 
   method InsertNewEntry(kvPairs: EncryptionContext.Linear, key: UTF8.ValidUTF8Bytes, value: UTF8.ValidUTF8Bytes)
       returns (res: Option<EncryptionContext.Linear>, ghost insertionPoint: nat)
