@@ -9,6 +9,7 @@ module {:extern "KeyringDefs"} KeyringDefs {
   import Materials
   import AlgorithmSuite
 
+  // TODO-RS: extend Validatable once Dafny supports traits extending traits
   trait {:termination false} Keyring {
     ghost var Repr: set<object>
     predicate Valid()

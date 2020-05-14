@@ -292,8 +292,7 @@ module {:extern "CachingCMMDef"} CachingCMMDef {
     res := Digest.Digest(CACHE_ID_HASH_ALGORITHM, wr.GetDataWritten());
   }
 
-  class CryptographicMaterialsCache {
-    ghost var Repr: set<object>
+  class CryptographicMaterialsCache extends Validatable {
     // The cache is split up into two independent maps, one for the encrypt path and one for the decrypt path.
     var EncryptMap: map<seq<uint8>, CacheEntryEncrypt>
     var DecryptMap: map<seq<uint8>, CacheEntryDecrypt>
@@ -303,8 +302,8 @@ module {:extern "CachingCMMDef"} CachingCMMDef {
       ensures Valid() ==> this in Repr
     {
       this in Repr &&
-      (forall id :: id in EncryptMap.Keys ==> EncryptMap[id] in Repr && EncryptMap[id].Valid()) &&
-      (forall id :: id in DecryptMap.Keys ==> DecryptMap[id] in Repr && DecryptMap[id].Valid())
+      (forall id :: id in EncryptMap.Keys ==> ValidComponent(EncryptMap[id])) &&
+      (forall id :: id in DecryptMap.Keys ==> ValidComponent(DecryptMap[id]))
     }
 
     constructor ()
@@ -338,7 +337,7 @@ module {:extern "CachingCMMDef"} CachingCMMDef {
       ensures Valid() && fresh(Repr - old(Repr)) && entry in Repr
     {
       entry := new CacheEntryEncrypt(encMat, secondsToLiveLimit);
-      Repr := Repr + {entry};
+      Repr := Repr + entry.Repr;
       EncryptMap := EncryptMap[cacheID := entry];
     }
 
@@ -374,14 +373,14 @@ module {:extern "CachingCMMDef"} CachingCMMDef {
     }
   }
 
-  class CacheEntryEncrypt {
+  class CacheEntryEncrypt extends Validatable {
     const encMat: Materials.ValidEncryptionMaterials
     const expiryTime: nat
     var messagesEncrypted: nat
     var bytesEncrypted: nat
 
-    predicate Valid() {
-      encMat.Serializable()
+    predicate Valid() reads this, Repr ensures Valid() ==> this in Repr {
+      encMat.Serializable() && Repr == {this}
     }
 
     constructor (encMat: Materials.ValidEncryptionMaterials, secondsToLiveLimit: nat)
@@ -405,12 +404,12 @@ module {:extern "CachingCMMDef"} CachingCMMDef {
     }
   }
 
-  class CacheEntryDecrypt {
+  class CacheEntryDecrypt extends Validatable {
     const decMat: Materials.ValidDecryptionMaterials
     const expiryTime: nat
 
-    predicate Valid() {
-      decMat.plaintextDataKey.Some?
+    predicate Valid() reads this, Repr ensures Valid() ==> this in Repr {
+      decMat.plaintextDataKey.Some? && Repr == {this}
     }
 
     constructor (decMat: Materials.ValidDecryptionMaterials, secondsToLiveLimit: nat)

@@ -12,6 +12,7 @@ module {:extern "CMMDefs"} CMMDefs {
   import Signature
   import EncryptionContext
 
+  // TODO-RS: extend Validatable once Dafny supports traits extending traits
   trait {:termination false} CMM {
     ghost var Repr: set<object>
     predicate Valid()
