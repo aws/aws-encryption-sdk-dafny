@@ -36,6 +36,9 @@ module Deserialize {
     ensures rd.Valid()
     ensures match res
       case Success(header) => header.Valid()
+        && old(rd.reader.pos) <= rd.reader.pos <= |rd.reader.data|
+        && exists hbSeq | hbSeq + header.auth.iv + header.auth.authenticationTag == rd.reader.data[old(rd.reader.pos)..rd.reader.pos] ::
+          Msg.SeqToHeaderBody(hbSeq, header.body)
       case Failure(_) => true
   {
     var hb :- DeserializeHeaderBody(rd);
@@ -53,16 +56,12 @@ module Deserialize {
     ensures rd.Valid()
     ensures match ret
       case Success(hb) => 
-        //var serHb := (reveal Msg.HeaderBodyToSeq(); Msg.HeaderBodyToSeq(hb));
-        //var initLen := old(rd.GetSizeWritten());
-        hb.Valid()
-        //&& totalWritten == |serHb|
-        //&& initLen + totalWritten == wr.GetSizeWritten()
-        //&& serHb == wr.GetDataWritten()[initLen..initLen + totalWritten]
-        
+        && hb.Valid()
+        && old(rd.reader.pos) <= rd.reader.pos <= |rd.reader.data|
+        && Msg.SeqToHeaderBody(rd.reader.data[old(rd.reader.pos)..rd.reader.pos], hb)
       case Failure(_) => true
   {
-    var version :- DeserializeVersion(rd);
+    var version :- DeserializeVersion(rd); 
     var typ :- DeserializeType(rd);
     var algorithmSuiteID :- DeserializeAlgorithmSuiteID(rd);
     var messageID :- DeserializeMsgID(rd);
@@ -83,6 +82,7 @@ module Deserialize {
       return Failure("Deserialization Error: Frame length must be non-0 when content type is framed.");
     }
 
+    reveal Msg.SeqToHeaderBody();
     var hb := Msg.HeaderBody(
       version,
       typ,
@@ -93,6 +93,7 @@ module Deserialize {
       contentType,
       ivLength,
       frameLength);
+    assert Msg.SeqToHeaderBody(rd.reader.data[old(rd.reader.pos)..rd.reader.pos], hb);
     return Success(hb);
   }
 
@@ -239,7 +240,7 @@ module Deserialize {
     ensures match ret
       case Success(aad) => 
         EncryptionContext.Serializable(aad)
-        && old(rd.reader.pos) <= rd.reader.pos
+        && old(rd.reader.pos) <= rd.reader.pos <= |rd.reader.data|
         && EncryptionContext.LinearSeqToMap(rd.reader.data[old(rd.reader.pos)..rd.reader.pos], aad)
       case Failure(_) => true
   {
@@ -285,7 +286,7 @@ module Deserialize {
 
       var keyLength :- rd.ReadUInt16();
       totalBytesRead := totalBytesRead + 2;
-
+      
       var key :- DeserializeUTF8(rd, keyLength as nat);
       totalBytesRead := totalBytesRead + |key|;
       
@@ -297,8 +298,7 @@ module Deserialize {
         return Failure("Deserialization Error: The number of bytes in encryption context exceeds the given length.");
       }
 
-      var valueSeq :- DeserializeUTF8(rd, valueLength as nat);
-      var value: UTF8.ValidUTF8Bytes := valueSeq;
+      var value :- DeserializeUTF8(rd, valueLength as nat);
       totalBytesRead := totalBytesRead + |value|;
       
       // We want to keep entries sorted by key. We don't insist that the entries be sorted
@@ -318,7 +318,13 @@ module Deserialize {
       
       // Proof that a KVPair is deserialized correctly
       // Note: Proof that serializing the resulting pair is equal to the input is easier and more stable.
-      assert EncryptionContext.KVPairToSeq((key, value)) == rd.reader.data[oldPosPair .. rd.reader.pos];
+      assert EncryptionContext.KVPairToSeq((key, value)) == rd.reader.data[oldPosPair .. rd.reader.pos] by{
+        assert rd.reader.data[oldPosPair .. rd.reader.pos] == rd.reader.data[oldPosPair..oldPosPair + 4 + |key| + |value|];
+        assert UInt16ToSeq(|key| as uint16) == rd.reader.data[oldPosPair..oldPosPair + 2];
+        assert key == rd.reader.data[oldPosPair + 2..oldPosPair + 2 + |key|];
+        assert UInt16ToSeq(|value| as uint16) == rd.reader.data[oldPosPair + 2 + |key|..oldPosPair + 2 + |key| + 2];
+        assert value == rd.reader.data[oldPosPair + 4 + |key|..oldPosPair + 4 + |key| + |value|];
+      }
       
       assert forall p :: (p in oldKvPairs || p == (key, value)) <==> p in kvPairs;
 

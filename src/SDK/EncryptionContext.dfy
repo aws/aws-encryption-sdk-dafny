@@ -561,6 +561,10 @@ module {:extern "EncryptionContext"} EncryptionContext {
       [ps[0]] + InsertPair(p, ps[1..])
   }
 
+  /**
+   * UTF8 conversion section
+   * Note: that this definition is not used needed for the verification of the MessageHeader the serialize definition is used instead
+   */
   function GetUTF8(sequence: seq<uint8>, length: nat): (res: Option<UTF8.ValidUTF8Bytes>)
     ensures (|sequence| >= length && UTF8.ValidUTF8Seq(sequence[..length])) <==> res.Some?
     ensures res.Some? ==> sequence[..length] == res.get
