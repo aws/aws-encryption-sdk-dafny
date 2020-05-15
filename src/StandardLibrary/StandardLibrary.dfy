@@ -74,7 +74,7 @@ module {:extern "STL"} StandardLibrary {
     ==
       var i := FindIndexMatching(s, delim, 0);
       if i.Some? then [s[..i.get]] + Split(s[i.get + 1..], delim) else [s];
-    ==  { FindIndexMatchingLocatesElem(s, delim, 0, |prefix|); }
+    ==  { FindIndexMatchingLocatesElem(s, delim, 0, |prefix|); assert FindIndexMatching(s, delim, 0).Some?;}
       [s[..|prefix|]] + Split(s[|prefix| + 1..], delim);
     ==  { assert s[..|prefix|] == prefix; }
       [prefix] + Split(s[|prefix| + 1..], delim);
