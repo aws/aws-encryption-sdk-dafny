@@ -84,6 +84,7 @@ module {:extern "IO"} IO {
         hasFailed := true;
         return Failure("Aggregator native sink failed to Accept bytes.");
       } else if !externRes.value {
+        hasFailed := true;
         return Failure("Extern implementation of Accept violated API contract.");
       }
       return externRes;

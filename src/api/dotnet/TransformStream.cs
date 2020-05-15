@@ -7,19 +7,17 @@ using ibyteseq = Dafny.ISequence<byte>;
 
 namespace AWSEncryptionSDK
 {
-    // EncryptInStream maps a readable C# Stream to a Dafny BytesEnumerator
+    // UTF8TransformInStream maps a readable C# Stream to a Dafny BytesEnumerator
     // which wraps another readable C# Stream.
-    // TODO implement IDisposable
-    public class EncryptInStream : Stream {
-        // TODO: Implement ReadByte()
+    public class UTF8TransformInStream : Stream {
 
-        readonly private ToyEnumerator encryptor;
+        readonly private ToyEnumerator UTF8Transformer;
         readonly private Stream sourceStream;
         private MemoryStream outBuffer;
         // We ust maintain EOF state here if interface errors on read after EOF
         private bool atEOF;
 
-        public EncryptInStream(Stream sourceStream) {
+        public UTF8TransformInStream(Stream sourceStream) {
             if (!sourceStream.CanRead) {
                 throw new ArgumentException("Source stream supplied does not support reading");
             }
@@ -29,10 +27,10 @@ namespace AWSEncryptionSDK
             // The way we do this is weird, using a C# constructor for the extern and the generated constructor
             // for the ToyEnumerator, but I'm not sure if we'll be able to avoid it
             var externWrapper = new ExternBytesEnumerator(sourceStream);
-            var encryptor = new ToyEnumerator();
-            encryptor.__ctor(externWrapper);
+            var UTF8Transformer = new ToyEnumerator();
+            UTF8Transformer.__ctor(externWrapper);
 
-            this.encryptor = encryptor;
+            this.UTF8Transformer = UTF8Transformer;
             this.outBuffer = new MemoryStream(); // TODO the way I use MemoryStream is hacky, update to use byte[] efficiently?
             this.atEOF = false;
         }
@@ -96,7 +94,7 @@ namespace AWSEncryptionSDK
             
             // If outBuffer is empty, we should fill it
             if (outBuffer.Length - outBuffer.Position <= 0) {
-                Option<ibyteseq> opt = DafnyFFI.ExtractResult(encryptor.Next());
+                Option<ibyteseq> opt = DafnyFFI.ExtractResult(UTF8Transformer.Next());
                 if (opt is Option_None<ibyteseq> none) {
                     atEOF = true;
                     return 0;
@@ -107,10 +105,7 @@ namespace AWSEncryptionSDK
                     throw new ArgumentException(message: "Unrecognized STL.Option constructor");
                 }
             }
-            // TODO what error states might we want
-            // to handle when wrapping a C# Read?
             var readLen = outBuffer.Read(buffer, offset, count);
-            // TODO if readLen is 0 here something is v wrong
             return readLen;
         }
 
@@ -129,17 +124,13 @@ namespace AWSEncryptionSDK
             throw new NotSupportedException();
         }
 
+        // This does not manage the sinkStream and the user MUST appropriately close it. i.e. we do not assume
+        // that the sinkStream should close on this close.
         protected override void Dispose(bool disposing)
         {
-            // Note: the sinkStream is NOT dispoed if this object is, and anyone using this Stream must appropriately close it
-            // TODO any disposing specific logic?
-            // TODO what should we do if this closes early? Fail because they don't have a valid ciphertext?
-            // TODO should we also deallocate other managed resources, like the outBuffer?
             try {
-                // TODO even if not disposing?
                 if (!atEOF) {
-                    // TODO create the right exception for this
-                    throw new Exception("EncryptStream closed before encryption finished.");
+                    throw new Exception("UTF8TransformStream closed before UTF8Transformion finished.");
                 }
             }
             finally {
@@ -149,28 +140,24 @@ namespace AWSEncryptionSDK
 
     }
 
-    // EncryptOutStream maps a readable C# Stream to a Dafny BytesEnumerator
+    // UTF8TransformOutStream maps a readable C# Stream to a Dafny BytesEnumerator
     // which wraps another readable C# Stream.
-    // TODO implement IDisposable, should call End() on Dispose?
-    public class EncryptOutStream : Stream {
-        // TODO: Implement WriteByte()
+    public class UTF8TransformOutStream : Stream {
 
-        readonly private ToyAggregator encryptor;
+        readonly private ToyAggregator UTF8Transformer;
         readonly private Stream sinkStream;
 
-        public EncryptOutStream(Stream sinkStream) {
+        public UTF8TransformOutStream(Stream sinkStream) {
             if (!sinkStream.CanWrite) {
-                // TODO find the right or define new Exception type
-                throw new NotSupportedException("Source stream supplied does not support writing");
+                throw new ArgumentException("Source stream supplied does not support writing");
             }
             this.sinkStream = sinkStream;
 
-            // This is some weirdness, but I'm not sure if we'll be able to avoid it
             var externWrapper = new ExternBytesAggregator(sinkStream);
-            var encryptor = new ToyAggregator();
-            encryptor.__ctor(externWrapper);
+            var UTF8Transformer = new ToyAggregator();
+            UTF8Transformer.__ctor(externWrapper);
 
-            this.encryptor = encryptor;
+            this.UTF8Transformer = UTF8Transformer;
         }
 
         public override bool CanRead
@@ -199,12 +186,11 @@ namespace AWSEncryptionSDK
 
         public override void Flush()
         {
-          // MUST flush the underlying stream. This means that we must flush the underlying encryptor.
+          // MUST flush the underlying stream. This means that we must flush the underlying UTF8Transformer.
           // In our case, we need to indicate End, as having data buffered means that we require more
           // data in order to be valid. Without that data we are in a bad state. End() will appropraitely
           // return an error. Otherwise, this will signal end and flush the sink Stream.
-          // TODO: What would foo being false mean?
-          bool foo = DafnyFFI.ExtractResult(encryptor.End());
+          var _ = DafnyFFI.ExtractResult(UTF8Transformer.End());
           sinkStream.Flush();
         }
 
@@ -245,23 +231,17 @@ namespace AWSEncryptionSDK
 
         public override void Write(byte[] buffer, int offset, int count)
         {
-            // TODO what does false foo mean?
-            var foo = DafnyFFI.ExtractResult(encryptor.Accept(DafnyFFI.SequenceFromByteArray(buffer, offset, count)));
+            var _ = DafnyFFI.ExtractResult(UTF8Transformer.Accept(DafnyFFI.SequenceFromByteArray(buffer, offset, count)));
         }
         
-        // The sinkStream is NOT managed by this object, and anyone using this Stream must appropriately close it
+        // The sinkStream is NOT managed by this object,
+        // and anyone using this Stream must appropriately close it
         protected override void Dispose(bool disposing)
         {
             try {
-                // Release managed resources in encryptor by calling End(). In the ToyExample case, if
-                // there is anything in the buffer, we should error, because the bytes inputted
-                // were not valid UTF8. In the decrypt case, we want this sort of thing to happen
-                // if the user tries to end the stream before getting to the message signature. Ideally we
-                // would zero out the plaintext returned if we could, but in this case those bytes are out of
-                // our hands :( and into the outStream
-                // TODO disposing vs. not disposing?
-                // TODO: What would foo being false mean?
-                bool foo = DafnyFFI.ExtractResult(encryptor.End());
+                // Release managed resources in UTF8Transformer by calling End().
+                // In the ToyExample case, if there is anything in the buffer, we should error
+                var _ = DafnyFFI.ExtractResult(UTF8Transformer.End());
             } finally {
                 base.Dispose(disposing);
             }

@@ -13,19 +13,19 @@ namespace StreamingToyExample {
 
     class StreamingToyExample {
 
-        static public void RunEncryptInStreamExample() {
-            String fileInput = "tmp/streaming-encrypt-input.txt";
-            String fileExpected = "tmp/streaming-encrypt-expected.txt";
+        static public void RunUTF8TransformInStreamExample() {
+            String fileInput = "tmp/streaming-Transform-input.txt";
+            String fileExpected = "tmp/streaming-Transform-expected.txt";
 
             // Read input file and perform transformation using Dafny Enumerator
             // Note that in this example, we load all of the final message into memory
-            string encryptedMessage;
+            string transformedMessage;
             using (FileStream fsSource = new FileStream(fileInput, FileMode.Open, FileAccess.Read))
             {
-                using (EncryptInStream fileEncryptor = new EncryptInStream(fsSource))
+                using (UTF8TransformInStream utf8Transform = new UTF8TransformInStream(fsSource))
                 {
-                    using (StreamReader reader = new StreamReader(fileEncryptor)) {
-                        encryptedMessage = reader.ReadToEnd();
+                    using (StreamReader reader = new StreamReader(utf8Transform)) {
+                        transformedMessage = reader.ReadToEnd();
                     }
                 }
             }
@@ -41,29 +41,29 @@ namespace StreamingToyExample {
                 }
             }
 
-            Assert.Equal(expected, encryptedMessage);
+            Assert.Equal(expected, transformedMessage);
         }
 
-        static public void RunEncryptOutStreamExample() {
+        static public void RunUTF8TransformOutStreamExample() {
             // Hardcode a source file for now
-            String fileInput = "tmp/streaming-encrypt-input.txt";
-            String fileExpected = "tmp/streaming-encrypt-expected.txt";
+            String fileInput = "tmp/streaming-transform-input.txt";
+            String fileExpected = "tmp/streaming-transform-expected.txt";
 
             // Read input file and perform transformation using Dafny Enumerator
-            string encryptedMessage;
+            string transformedMessage;
             MemoryStream toTest = new MemoryStream();
             using (FileStream fsSource = new FileStream(fileInput, FileMode.Open, FileAccess.Read))
             {
-                using (EncryptOutStream fileEncryptor = new EncryptOutStream(toTest))
+                using (UTF8TransformOutStream utf8Transform = new UTF8TransformOutStream(toTest))
                 {
-                    // Encrypt the file and move output to the MemoryStream
-                    fsSource.CopyTo(fileEncryptor);
+                    // Transform the file and move output to the MemoryStream
+                    fsSource.CopyTo(utf8Transform);
                     // Read the MemoryStream as a string
                     using (StreamReader reader = new StreamReader(toTest))
                     {
                         // Reset position on MemoryStream so we can read
                         toTest.Position = 0;
-                        encryptedMessage = reader.ReadToEnd();
+                        transformedMessage = reader.ReadToEnd();
                     }
                 }
             }
@@ -79,12 +79,12 @@ namespace StreamingToyExample {
                 }
             }
 
-            Assert.Equal(expected, encryptedMessage);
+            Assert.Equal(expected, transformedMessage);
         }
 
         static void Main(string[] args) {
-            RunEncryptInStreamExample();
-            RunEncryptOutStreamExample();
+            RunUTF8TransformInStreamExample();
+            RunUTF8TransformOutStreamExample();
         }
     }
 }
