@@ -24,8 +24,12 @@ module {:extern "AlgorithmSuite"} AlgorithmSuite {
       Suite[this].algorithm.keyLen as nat
     }
 
+    predicate method ContainsIdentityKDF() {
+      Suite[this].hkdf == KeyDerivationAlgorithms.IDENTITY
+    }
+
     function method KDFInputKeyLength(): nat
-      ensures Suite[this].hkdf == KeyDerivationAlgorithms.IDENTITY ==> KDFInputKeyLength() == KeyLength()
+      ensures ContainsIdentityKDF() ==> KDFInputKeyLength() == KeyLength()
     {
       // We're intentionally using a match here so additional Key Derivation Algorithms force us to revisit this logic
       // and we don't accidentally use Suite[this].algorithm.keyLen by default. Also, prevent or KDFInputKeyLength from

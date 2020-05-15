@@ -151,7 +151,7 @@ module {:extern "MessageHeader"} MessageHeader {
     if lo == hi then [] else EDKEntriesToSeq(entries, lo, hi - 1) + EDKEntryToSeq(entries[hi - 1])
   }
 
-  function EDKEntryToSeq(edk: Materials.EncryptedDataKey): seq<uint8>
+  function method EDKEntryToSeq(edk: Materials.EncryptedDataKey): seq<uint8>
     requires edk.Valid()
   {
     UInt16ToSeq(|edk.providerID| as uint16)   + edk.providerID +

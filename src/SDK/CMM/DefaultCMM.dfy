@@ -51,7 +51,7 @@ module {:extern "DefaultCMMDef"} DefaultCMMDef {
       ensures Materials.EC_PUBLIC_KEY_FIELD in materialsRequest.encryptionContext ==> res.Failure?
       ensures res.Success? && (materialsRequest.algorithmSuiteID.None? || materialsRequest.algorithmSuiteID.get.SignatureType().Some?) ==>
         Materials.EC_PUBLIC_KEY_FIELD in res.value.encryptionContext
-      ensures res.Success? ==> res.value.plaintextDataKey.Some? && res.value.Serializable()
+      ensures res.Success? ==> res.value.Serializable()
       ensures res.Success? ==>
         match materialsRequest.algorithmSuiteID
         case Some(id) => res.value.algorithmSuiteID == id
