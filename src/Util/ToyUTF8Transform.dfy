@@ -10,20 +10,20 @@ module {:extern "ToyUTF8Transform"} ToyUTF8Transform {
   import Collections
   import UTF8
 
-  // ToyEnumerator wraps and operates on an ExternBytesEnumerator
+  // ToyEnumerator wraps and operates on an BlockingNativeEnumerator
   // Implements a toy example where we interpret read bytes as UTF8, duplicate
   // each character (e.g. "abc" -> "aabbcc"), reencode the UTF8, and return those bytes.
   class ToyEnumerator extends Collections.Enumerator<seq<uint8>> {
-    // Currently this specifies an ExternBytesEnumerator because we want to guarantee that
+    // Currently this specifies an BlockingNativeEnumerator because we want to guarantee that
     // we always get some bytes back on Next. This is needed in order to prove termination
     // in the Dafny code (note that this just moves the termination concern into the extern).
     // I see three possible paths forward here:
     //    1. Don't prove termination in the Dafny code (this is honest, though we lose out an verifiying that
     //       nothing specifically in the Dafny code results in some infinite loop)
     //    2. Define a slightly more restrictive trait that extends Enumerator<seq<T>> with this property and use that 
-    var source: IO.ExternBytesEnumerator 
+    var source: IO.BlockingNativeEnumerator 
     var utf8Transform: UTF8Transformer
-    var sourceAtEOF: bool
+    var sourceDone: bool
 
     predicate Valid() reads this, Repr ensures Valid() ==> this in Repr
     {
@@ -33,7 +33,7 @@ module {:extern "ToyUTF8Transform"} ToyUTF8Transform {
       && utf8Transform.Repr !! source.Repr
     }
 
-    constructor (source: IO.ExternBytesEnumerator)
+    constructor (source: IO.BlockingNativeEnumerator)
       requires source.Valid() 
       ensures this.source == source
       ensures !hasFailed
@@ -41,7 +41,7 @@ module {:extern "ToyUTF8Transform"} ToyUTF8Transform {
       ensures Valid() && fresh(Repr - source.Repr - utf8Transform.Repr)
     {
       this.source := source;
-      this.sourceAtEOF := false;
+      this.sourceDone := false;
       this.hasFailed := false;
       this.signaledDone := false;
       var utf8Transform := new UTF8Transformer();
@@ -75,16 +75,17 @@ module {:extern "ToyUTF8Transform"} ToyUTF8Transform {
       while true
         decreases 4 - |utf8Transform.inBuffer|;
         invariant Valid()
+        invariant old(Repr) == Repr
       {
         // Read from source
         var res := source.Next();
         if res.Failure? {
           hasFailed := true;
-          return Failure("Failed ot read source");
+          return Failure("Failed to read source");
         } else if res.value.None? {
           // Source is at EOF, we should trigger EOF through transformer
           // and return the result
-          sourceAtEOF := true;
+          sourceDone := true;
           var transformed := utf8Transform.Final();
           if transformed.Failure? {
             hasFailed := true;
@@ -110,7 +111,7 @@ module {:extern "ToyUTF8Transform"} ToyUTF8Transform {
   // Implements a toy example where we interpret input bytes as UTF8, duplicate
   // each character (e.g. "abc" -> "aabbcc"), reencode the UTF8, and write those bytes.
   class ToyAggregator extends Collections.Aggregator<seq<uint8>> {
-    // Again, we specify using ExternBytesAggregator instead of Aggregator
+    // Again, we specify using BlockingNativeAggregator instead of Aggregator
     // because we want to be able to prove termination, and that requires
     // restricting the interface from allowing "wait"s.
     // Couple other solutions:
@@ -118,7 +119,7 @@ module {:extern "ToyUTF8Transform"} ToyUTF8Transform {
     //    2. Remove termination requirement from interface
     //    3. Remove "wait" from interface
     //    4. Define new "blocking" trait with this property which extends Aggregator
-    var sink: IO.ExternBytesAggregator
+    var sink: IO.BlockingNativeAggregator
     var utf8Transform: UTF8Transformer
 
     predicate Valid() reads this, Repr ensures Valid() ==> this in Repr
@@ -129,16 +130,16 @@ module {:extern "ToyUTF8Transform"} ToyUTF8Transform {
       && utf8Transform.Repr !! sink.Repr
     }
 
-    constructor (sink: IO.ExternBytesAggregator)
+    constructor (sink: IO.BlockingNativeAggregator)
       requires sink.Valid() 
       ensures this.sink == sink
       ensures !hasFailed
-      ensures !signaledDone
+      ensures !done
       ensures Valid() && fresh(Repr - sink.Repr - utf8Transform.Repr)
     {
       this.sink := sink;
       this.hasFailed := false;
-      this.signaledDone := false;
+      this.done := false;
       var utf8Transform := new UTF8Transformer();
       this.utf8Transform := utf8Transform;
       this.Repr := {this} + sink.Repr + utf8Transform.Repr;
@@ -149,7 +150,7 @@ module {:extern "ToyUTF8Transform"} ToyUTF8Transform {
       modifies Repr
       ensures Valid()
       ensures Repr == old(Repr)
-      ensures old(signaledDone) || old(hasFailed) ==> res.Failure?
+      ensures old(done) || old(hasFailed) ==> res.Failure?
       ensures res.Failure? ==> hasFailed
       // Ideally we could have condition here that describe the
       // transformation we want, however we have no way to look
@@ -158,7 +159,7 @@ module {:extern "ToyUTF8Transform"} ToyUTF8Transform {
       // Therefore, we verify that the Transform by itself is correct.
       // Ideally we could leave less unspecified in this method
     {
-      if signaledDone {
+      if done {
         hasFailed := true;
         return Failure("Enumerator is at EOF and cannot be read.");
       } else if hasFailed {
@@ -194,11 +195,11 @@ module {:extern "ToyUTF8Transform"} ToyUTF8Transform {
       modifies Repr
       ensures Valid()
       ensures Repr == old(Repr)
-      ensures old(signaledDone) || old(hasFailed) ==> res.Failure?
+      ensures old(done) || old(hasFailed) ==> res.Failure?
       ensures res.Failure? ==> hasFailed
-      ensures res.Success? && res.value ==> signaledDone
+      ensures res.Success? && res.value ==> done
     {
-      if signaledDone {
+      if done {
         hasFailed := true;
         return Failure("The Aggregator has already completed.");
       } else if hasFailed {
@@ -230,7 +231,7 @@ module {:extern "ToyUTF8Transform"} ToyUTF8Transform {
       // TODO Same as above, this seems easy to not check
       assert res.Success? && res.value;
 
-      signaledDone := true;
+      done := true;
       return res;
     }
   }

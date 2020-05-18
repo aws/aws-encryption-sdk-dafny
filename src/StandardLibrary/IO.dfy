@@ -9,9 +9,35 @@ module {:extern "IO"} IO {
   import opened UInt = StandardLibrary.UInt
   import Collections
 
-  // ExternBytesEnumerator provides a Dafny Enumerator interface hooked up
+  // BlockingNativeEnumeratorExtern provides an extern implementation of a blocking read to some native source
+  class BlockingNativeEnumeratorExtern {
+    method {:extern "NextExtern"} NextExtern() returns (element: Result<Option<seq<uint8>>>)
+  }
+
+  // BlockingNativeAggregatorExtern provides an extern implementation of a blocking write to some native sink
+  class BlockingNativeAggregatorExtern {
+    method {:extern "AcceptExtern"} AcceptExtern(element: seq<uint8>) returns (res: Result<bool>)
+    method {:extern "EndExtern"} EndExtern() returns (res: Result<bool>)
+  }
+
+  // BlockingBytesEnumerator provides a Dafny Enumerator interface hooked up
   // to a extern implementation of a blocking read to some native source.
-  class ExternBytesEnumerator extends Collections.Enumerator<seq<uint8>> {
+  class BlockingNativeEnumerator extends Collections.Enumerator<seq<uint8>> {
+
+    const externEnumerator: BlockingNativeEnumeratorExtern
+
+    constructor (externEnumerator: BlockingNativeEnumeratorExtern)
+      ensures this.signaledDone == false
+      ensures this.hasFailed == false
+      ensures this.externEnumerator == externEnumerator
+      ensures Valid() && fresh(Repr);
+    {
+      this.signaledDone := false;
+      this.hasFailed := false;
+      this.externEnumerator := externEnumerator;
+      this.Repr := {this};
+    }
+
     predicate Valid() reads this, Repr ensures Valid() ==> this in Repr
     {
       && this in Repr 
@@ -28,7 +54,7 @@ module {:extern "IO"} IO {
       ensures old(signaledDone) || old(hasFailed) ==> element.Failure?
       ensures element.Failure? ==> hasFailed
       ensures element.Success? && element.value.None? ==> signaledDone 
-      /* ExternBytesEnumerator class specification */
+      /* BlockingNativeEnumerator class specification */
       // All successful Nexts on this Enuemrator that don't signal Done
       // must return some bytes.
       ensures element.Success? && element.value.Some? ==> |element.value.get| > 0
@@ -39,7 +65,7 @@ module {:extern "IO"} IO {
       } else if hasFailed {
         return Failure("Enumerator is in a failed state.");
       }
-      var externRes := NextExtern();
+      var externRes := externEnumerator.NextExtern();
       if externRes.Failure? {
         hasFailed := true;
       } else if externRes.value.None? {
@@ -50,13 +76,26 @@ module {:extern "IO"} IO {
       }
       return externRes;
     }
-
-    method {:extern "NextExtern"} NextExtern() returns (element: Result<Option<seq<uint8>>>)
   }
 
-  // ExternBytesAggregator provides a Dafny Aggregator interface hooked up
+  // BlockingNativeAggregator provides a Dafny Aggregator interface hooked up
   // to a extern implementation of a blocking write to some native sink.
-  class ExternBytesAggregator extends Collections.Aggregator<seq<uint8>> {
+  class BlockingNativeAggregator extends Collections.Aggregator<seq<uint8>> {
+
+    const externAggregator: BlockingNativeAggregatorExtern
+
+    constructor (externAggregator: BlockingNativeAggregatorExtern)
+      ensures this.done == false
+      ensures this.hasFailed == false
+      ensures this.externAggregator == externAggregator
+      ensures Valid() && fresh(Repr);
+    {
+      this.done := false;
+      this.hasFailed := false;
+      this.externAggregator := externAggregator;
+      this.Repr := {this};
+    }
+
     predicate Valid() reads this, Repr ensures Valid() ==> this in Repr
     {
       && this in Repr 
@@ -69,17 +108,17 @@ module {:extern "IO"} IO {
       modifies Repr
       ensures Valid()
       ensures Repr == old(Repr)
-      ensures old(signaledDone) || old(hasFailed) ==> res.Failure?
+      ensures old(done) || old(hasFailed) ==> res.Failure?
       ensures res.Failure? ==> hasFailed
       ensures res.Success? ==> res.value
     {
-      if signaledDone {
+      if done {
         hasFailed := true;
         return Failure("Aggregator is at EOF and cannot be written to.");
       } else if hasFailed {
         return Failure("Aggregator is in a failed state.");
       }
-      var externRes := AcceptExtern(element);
+      var externRes := externAggregator.AcceptExtern(element);
       if externRes.Failure? {
         hasFailed := true;
         return Failure("Aggregator native sink failed to Accept bytes.");
@@ -99,19 +138,19 @@ module {:extern "IO"} IO {
       modifies Repr
       ensures Valid()
       ensures Repr == old(Repr)
-      ensures old(signaledDone) || old(hasFailed) ==> res.Failure?
+      ensures old(done) || old(hasFailed) ==> res.Failure?
       ensures res.Failure? ==> hasFailed
-      ensures res.Success? ==> res.value && signaledDone
+      ensures res.Success? ==> res.value && done
 
     {
-      if signaledDone {
+      if done {
         hasFailed := true;
         return Failure("Aggregator is already at EOF");
       } else if hasFailed {
         return Failure("Aggregator is in a failed state.");
       }
 
-      var externRes := EndExtern();
+      var externRes := externAggregator.EndExtern();
       if externRes.Failure? {
         hasFailed := true;
         return Failure("Aggregator native sink failed to End.");
@@ -119,11 +158,8 @@ module {:extern "IO"} IO {
         hasFailed := true;
         return Failure("Extern End() implementation violated API contract");
       }
-      signaledDone := true;
+      done := true;
       return externRes;
     }
-
-    method {:extern "AcceptExtern"} AcceptExtern(element: seq<uint8>) returns (res: Result<bool>)
-    method {:extern "EndExtern"} EndExtern() returns (res: Result<bool>)
   }
 }

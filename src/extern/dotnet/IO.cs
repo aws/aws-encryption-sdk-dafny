@@ -5,12 +5,12 @@ using STL;
 using ibyteseq = Dafny.ISequence<byte>;
 
 namespace IO {
-    public partial class ExternBytesEnumerator {
+    public partial class BlockingNativeEnumeratorExtern {
         readonly private Stream inputStream;
 
         readonly int MAX_READ_LEN = 4096; // arbitrary, currently what the Java ESDK uses
 
-        public ExternBytesEnumerator(Stream inputStream) {
+        public BlockingNativeEnumeratorExtern(Stream inputStream) {
             this.inputStream = inputStream;
         }
 
@@ -33,10 +33,10 @@ namespace IO {
         }
     }
 
-    public partial class ExternBytesAggregator {
+    public partial class BlockingNativeAggregatorExtern {
         readonly private Stream outputStream;
 
-        public ExternBytesAggregator(Stream outputStream) {
+        public BlockingNativeAggregatorExtern(Stream outputStream) {
             this.outputStream = outputStream;
         }
 

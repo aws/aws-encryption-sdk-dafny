@@ -26,8 +26,10 @@ namespace AWSEncryptionSDK
             // Set up the ToyEnumerator to work with the source stream
             // The way we do this is weird, using a C# constructor for the extern and the generated constructor
             // for the ToyEnumerator, but I'm not sure if we'll be able to avoid it
-            var externWrapper = new ExternBytesEnumerator(sourceStream);
-            var UTF8Transformer = new ToyEnumerator();
+            var externSource = new BlockingNativeEnumeratorExtern(sourceStream); // native implementation for reading a native source using Next() interface
+            var externWrapper = new BlockingNativeEnumerator(); // dafny wrapper of above to provide proper dafny implementation of enumerator interface
+            externWrapper.__ctor(externSource);
+            var UTF8Transformer = new ToyEnumerator(); // dafny enumerator which provides specific logic for a transform on a blocking enumerator
             UTF8Transformer.__ctor(externWrapper);
 
             this.UTF8Transformer = UTF8Transformer;
@@ -153,8 +155,10 @@ namespace AWSEncryptionSDK
             }
             this.sinkStream = sinkStream;
 
-            var externWrapper = new ExternBytesAggregator(sinkStream);
-            var UTF8Transformer = new ToyAggregator();
+            var externSink = new BlockingNativeAggregatorExtern(sinkStream); // native implementation for reading a native sink using Accept()/End() interface
+            var externWrapper = new BlockingNativeAggregator(); // dafny wrapper around above to provide proper dafny implementation of aggregator interface
+            externWrapper.__ctor(externSink);
+            var UTF8Transformer = new ToyAggregator(); // dafny aggregator that provides specific transform logic on some blocking aggregator
             UTF8Transformer.__ctor(externWrapper);
 
             this.UTF8Transformer = UTF8Transformer;

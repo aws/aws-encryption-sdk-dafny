@@ -9,7 +9,7 @@ module {:extern "Collections"} Collections {
   trait {:termination false} Enumerator<T> {
     var signaledDone: bool
     var hasFailed: bool
-    ghost const Repr: set<object>
+    ghost var Repr: set<object>
 
     predicate Valid() reads this, Repr ensures Valid() ==> this in Repr
 
@@ -21,17 +21,11 @@ module {:extern "Collections"} Collections {
       ensures old(signaledDone) || old(hasFailed) ==> element.Failure?
       ensures element.Failure? ==> hasFailed
       ensures element.Success? && element.value.None? ==> signaledDone
-      // TODO If T is a seq, then whether it's interpreted as an element
-      // in some list of seq, or a chunk of a larger seq, depends on the
-      // implementation. There is a problem, however, where the latter
-      // is able to represent [] to mean "no data right now", while
-      // the former has no such mechanism. This feels like this interface
-      // half allows "no data right now", which seems bad.
   }
 
   trait {:termination false} Aggregator<T> {
-    ghost const Repr: set<object>
-    var signaledDone: bool
+    ghost var Repr: set<object>
+    var done: bool
     var hasFailed: bool
 
     predicate Valid() reads this, Repr ensures Valid() ==> this in Repr
@@ -41,7 +35,7 @@ module {:extern "Collections"} Collections {
       modifies Repr
       ensures Valid()
       ensures Repr == old(Repr)
-      ensures old(signaledDone) || old(hasFailed) ==> res.Failure?
+      ensures old(done) || old(hasFailed) ==> res.Failure?
       ensures res.Failure? ==> hasFailed
       // TODO: Still not sure about allowing Success(false) here
 
@@ -50,15 +44,82 @@ module {:extern "Collections"} Collections {
       modifies Repr
       ensures Valid()
       ensures Repr == old(Repr)
-      ensures old(signaledDone) || old(hasFailed) ==> res.Failure?
+      ensures old(done) || old(hasFailed) ==> res.Failure?
       ensures res.Failure? ==> hasFailed
-      ensures res.Success? && res.value ==> signaledDone
+      ensures res.Success? && res.value ==> done
       // TODO: Still not sure about allowing Success(false) here
   }
 
-  // Native Enumerator implementation for enumerating bytes from a particular seq<T>
-  // in a specified chunk size
-  class SeqEnumerator<T> extends Enumerator<seq<T>> {
+  // SeqEnumerator implements an enumerator which enumerates one T from an underlying seq<T> at a time
+  class SeqEnumerator<T> extends Enumerator<T> {
+    const s: seq<T>
+    ghost var enumerated: seq<T>
+    var i: nat
+
+    predicate Valid() reads this, Repr ensures Valid() ==> this in Repr
+    {
+      && i <= |s|
+      && enumerated == s[..i]
+      && this in Repr 
+    }
+
+    constructor (data: seq<T>)
+      ensures s == data
+      ensures enumerated == []
+      ensures !signaledDone
+      ensures !hasFailed
+      ensures i == 0
+      ensures Valid() && fresh(Repr)
+    {
+        s := data;
+        enumerated := [];
+        signaledDone := false;
+        hasFailed := false;
+        i := 0;
+        Repr := {this};
+    }
+    
+    method Next() returns (element: Result<Option<T>>)
+      requires Valid()
+      modifies Repr
+      ensures Valid()
+      ensures Repr == old(Repr)
+      ensures old(signaledDone) || old(hasFailed) ==> element.Failure?
+      ensures element.Failure? ==> hasFailed
+      ensures element.Success? && element.value.None? ==> signaledDone
+
+      /* Postconditions specific to SeqChunkEnumerator */
+      ensures !signaledDone && !hasFailed && old(i) < |s| ==>
+        && i == old(i) + 1
+        && element.Success?
+        && element.value.Some?
+        && element.value.get == s[old(i)]
+      ensures !signaledDone && !hasFailed && old(i) == |s| ==>
+        && i == |s|
+        && element.Success?
+        && element.value.None?
+    {
+      if signaledDone {
+        hasFailed := true;
+        return Failure("Enumerator has ended and cannot be read.");
+      } else if hasFailed {
+        return Failure("Enumerator is in a failed state.");
+      } else if i >= |s| {
+        signaledDone := true;
+        return Success(None());
+      }
+
+        
+      var data := s[i];
+      i := i + 1;
+      enumerated := enumerated + [data];
+      return Success(Some(data));
+    }
+  }
+
+  // SeqChunkEnumerator implements an enumerator which enumerates a seq<T> up to size chunkSize from
+  // an underlying seq<T>.
+  class SeqChunkEnumerator<T> extends Enumerator<seq<T>> {
     const s: seq<T>
     ghost var enumerated: seq<T>
     const chunkSize: nat
@@ -100,7 +161,7 @@ module {:extern "Collections"} Collections {
       ensures element.Failure? ==> hasFailed
       ensures element.Success? && element.value.None? ==> signaledDone
 
-      /* Postconditions specific to SeqEnumerator */
+      /* Postconditions specific to SeqChunkEnumerator */
       ensures element.Success? && element.value.None? ==> i == |s|
       ensures
         var endSlice := Min(|s|, old(i)+chunkSize);
@@ -109,11 +170,10 @@ module {:extern "Collections"} Collections {
     {
       if signaledDone {
         hasFailed := true;
-        return Failure("Enumerator is at EOF and cannot be read.");
+        return Failure("Enumerator has ended and cannot be read.");
       } else if hasFailed {
         return Failure("Enumerator is in a failed state.");
       } else if i >= |s| {
-        //EOF
         signaledDone := true;
         return Success(None());
       }
@@ -127,9 +187,8 @@ module {:extern "Collections"} Collections {
     }
   }
 
-  // Native Enumerator implementation for enumerating bytes from a particular seq<T>
-  // in a specified chunk size
-  class SeqAggregator<T> extends Aggregator<seq<T>> {
+  // SeqAggregator implements an aggregator that accepts one T at a time to an underlying seq<T>
+  class SeqAggregator<T> extends Aggregator<T> {
     var s: seq<T>
 
     predicate Valid() reads this, Repr ensures Valid() ==> this in Repr
@@ -138,12 +197,73 @@ module {:extern "Collections"} Collections {
     }
 
     constructor ()
-      ensures !signaledDone
+      ensures !done
       ensures !hasFailed
       ensures Valid() && fresh(Repr)
     {
         s := [];
-        signaledDone := false;
+        done := false;
+        hasFailed := false;
+        Repr := {this};
+    }
+
+    method Accept(element: T) returns (res: Result<bool>)
+      requires Valid()
+      modifies Repr
+      ensures Valid()
+      ensures Repr == old(Repr)
+      ensures old(done) || old(hasFailed) ==> res.Failure?
+      ensures res.Failure? ==> hasFailed
+      ensures !done && !hasFailed ==> res.Success? && res.value
+    {
+      if done {
+        hasFailed := true;
+        return Failure("Aggregator has been ended and cannot accept any more data");
+      } else if hasFailed {
+        return Failure("Aggregator is in a failed state.");
+      }
+      s := s + [element];
+      return Success(true);
+    }
+
+    method End() returns (res: Result<bool>)
+      requires Valid()
+      modifies Repr
+      ensures Valid()
+      ensures Repr == old(Repr)
+      ensures old(done) || old(hasFailed) ==> res.Failure?
+      ensures res.Failure? ==> hasFailed
+      ensures res.Success? && res.value ==> done
+      ensures !done && !hasFailed ==> res.Success? && res.value
+    {
+      if done {
+        hasFailed := true;
+        return Failure("Aggregator is already Ended.");
+      } else if hasFailed {
+        return Failure("Aggregator is in a failed state.");
+      }
+      done := true;
+      return Success(true);
+    }
+  }
+
+  // SeqChunkAggregator implements an aggregator that concatenates input seq<T> on Accept to an
+  // underlying seq<T>
+  class SeqChunkAggregator<T> extends Aggregator<seq<T>> {
+    var s: seq<T>
+
+    predicate Valid() reads this, Repr ensures Valid() ==> this in Repr
+    {
+      this in Repr 
+    }
+
+    constructor ()
+      ensures !done
+      ensures !hasFailed
+      ensures Valid() && fresh(Repr)
+    {
+        s := [];
+        done := false;
         hasFailed := false;
         Repr := {this};
     }
@@ -153,10 +273,11 @@ module {:extern "Collections"} Collections {
       modifies Repr
       ensures Valid()
       ensures Repr == old(Repr)
-      ensures old(signaledDone) || old(hasFailed) ==> res.Failure?
+      ensures old(done) || old(hasFailed) ==> res.Failure?
       ensures res.Failure? ==> hasFailed
+      ensures !done && !hasFailed ==> res.Success? && res.value
     {
-      if signaledDone {
+      if done {
         hasFailed := true;
         return Failure("Aggregator has been ended and cannot accept any more data");
       } else if hasFailed {
@@ -171,17 +292,18 @@ module {:extern "Collections"} Collections {
       modifies Repr
       ensures Valid()
       ensures Repr == old(Repr)
-      ensures old(signaledDone) || old(hasFailed) ==> res.Failure?
+      ensures old(done) || old(hasFailed) ==> res.Failure?
       ensures res.Failure? ==> hasFailed
-      ensures res.Success? && res.value ==> signaledDone
+      ensures res.Success? && res.value ==> done
+      ensures !done && !hasFailed ==> res.Success? && res.value
     {
-      if signaledDone {
+      if done {
         hasFailed := true;
-        return Failure("Aggregator is already at EOF");
+        return Failure("Aggregator is already Ended.");
       } else if hasFailed {
         return Failure("Aggregator is in a failed state.");
       }
-      signaledDone := true;
+      done := true;
       return Success(true);
     }
   }
