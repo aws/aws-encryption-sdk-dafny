@@ -1,3 +1,6 @@
+// Copyright Amazon.com Inc. or its affiliates. All Rights Reserved.
+// SPDX-License-Identifier: Apache-2.0
+
 include "../StandardLibrary/StandardLibrary.dfy"
 
 // Provides a function ValidUTF8 which checks if an array of bytes is a valid sequence of UTF8 code points.

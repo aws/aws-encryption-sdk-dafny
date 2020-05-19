@@ -1,3 +1,6 @@
+// Copyright Amazon.com Inc. or its affiliates. All Rights Reserved.
+// SPDX-License-Identifier: Apache-2.0
+
 include "../../src/SDK/Serialize.dfy"
 include "../../src/SDK/EncryptionContext.dfy"
 include "../../src/StandardLibrary/StandardLibrary.dfy"

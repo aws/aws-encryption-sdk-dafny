@@ -1,3 +1,6 @@
+// Copyright Amazon.com Inc. or its affiliates. All Rights Reserved.
+// SPDX-License-Identifier: Apache-2.0
+
 module {:extern "STLUInt"} StandardLibrary.UInt {
 
   // TODO: Depend on types defined in dafny-lang/libraries instead
