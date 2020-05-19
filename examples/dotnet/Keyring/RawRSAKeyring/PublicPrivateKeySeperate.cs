@@ -1,3 +1,5 @@
+// Copyright Amazon.com Inc. or its affiliates. All Rights Reserved.
+// SPDX-License-Identifier: Apache-2.0
 // One of the benefits of asymmetric encryption
 // is that you can encrypt with just the public key.
 // This means that you can give someone the ability to encrypt
@@ -25,7 +27,7 @@ using AWSEncryptionSDK;
 using KeyringDefs;
 using RawRSAKeyringDef;
 
-// In this example, we use BouncyCastle to generate a wrapping key, and handle conversions.
+// In this example, we use BouncyCastle to generate a wrapping key and handle conversions.
 using Org.BouncyCastle.Crypto;
 using Org.BouncyCastle.Crypto.Generators;
 using Org.BouncyCastle.Security;
@@ -38,7 +40,7 @@ using Xunit;
 public class RawRSAKeyringPublicPrivateKeySeperateExample {
     static void Run(MemoryStream plaintext) {
 
-        // Create your encryption context.
+        // Prepare your encryption context.
         // Remember that your encryption context is NOT SECRET.
         // https://docs.aws.amazon.com/encryption-sdk/latest/developer-guide/concepts.html#encryption-context
         IDictionary<string, string> encryptionContext = new Dictionary<string, string>() {
@@ -65,7 +67,6 @@ public class RawRSAKeyringPublicPrivateKeySeperateExample {
         int strength = 4096;
 
         // Create and initialize the key generator.
-        RsaKeyPairGenerator keygen = new RsaKeyPairGenerator();
         SecureRandom secureRandom = new SecureRandom();
         RsaKeyPairGenerator keyGenerator = new RsaKeyPairGenerator();
         keyGenerator.Init(new KeyGenerationParameters(secureRandom, strength));
@@ -97,7 +98,7 @@ public class RawRSAKeyringPublicPrivateKeySeperateExample {
                 keyName,
                 // The wrapping algorithm tells the raw RSA keyring
                 // how to use your wrapping key to encrypt data keys.
-				//
+                //
                 // We recommend using RSA_OAEP_SHA256_MGF1.
                 // You should not use RSA_PKCS1 unless you require it for backwards compatibility.
                 DafnyFFI.RSAPaddingModes.OAEP_SHA256,

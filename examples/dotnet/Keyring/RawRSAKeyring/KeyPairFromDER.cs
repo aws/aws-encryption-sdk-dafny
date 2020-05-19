@@ -1,3 +1,5 @@
+// Copyright Amazon.com Inc. or its affiliates. All Rights Reserved.
+// SPDX-License-Identifier: Apache-2.0
 // When you store RSA keys, you have to serialize them somehow.
 //
 // This example shows how to configure and use a raw RSA keyring using a DER-encoded RSA private key.
@@ -18,7 +20,7 @@ using AWSEncryptionSDK;
 using KeyringDefs;
 using RawRSAKeyringDef;
 
-// In this example, we use BouncyCastle to generate a wrapping key, and handle conversions.
+// In this example, we use BouncyCastle to generate a wrapping key and handle conversions.
 using Org.BouncyCastle.Crypto;
 using Org.BouncyCastle.Crypto.Generators;
 using Org.BouncyCastle.Security;
@@ -31,7 +33,7 @@ using Xunit;
 public class RawRSAKeyringKeypairFromDERExample {
     static void Run(MemoryStream plaintext) {
 
-        // Create your encryption context.
+        // Prepare your encryption context.
         // Remember that your encryption context is NOT SECRET.
         // https://docs.aws.amazon.com/encryption-sdk/latest/developer-guide/concepts.html#encryption-context
         IDictionary<string, string> encryptionContext = new Dictionary<string, string>() {
@@ -58,7 +60,6 @@ public class RawRSAKeyringKeypairFromDERExample {
         int strength = 4096;
 
         // Create and initialize the key generator.
-        RsaKeyPairGenerator keygen = new RsaKeyPairGenerator();
         SecureRandom secureRandom = new SecureRandom();
         RsaKeyPairGenerator keyGenerator = new RsaKeyPairGenerator();
         keyGenerator.Init(new KeyGenerationParameters(secureRandom, strength));
@@ -66,7 +67,7 @@ public class RawRSAKeyringKeypairFromDERExample {
         // Generate a key pair.
         AsymmetricCipherKeyPair keygenPair = keyGenerator.GenerateKeyPair();
 
-        // Serialize the RSA keys to DER encoding.
+        // Serialize the RSA keypair to DER encoding.
         // This or PEM encoding is likely to be what you get from your key management system in practice.
         byte[] publicKeyBytes;
         byte[] privateKeyBytes;
@@ -87,7 +88,7 @@ public class RawRSAKeyringKeypairFromDERExample {
                 keyName,
                 // The wrapping algorithm tells the raw RSA keyring
                 // how to use your wrapping key to encrypt data keys.
-				//
+		//
                 // We recommend using RSA_OAEP_SHA256_MGF1.
                 // You should not use RSA_PKCS1 unless you require it for backwards compatibility.
                 DafnyFFI.RSAPaddingModes.OAEP_SHA256,

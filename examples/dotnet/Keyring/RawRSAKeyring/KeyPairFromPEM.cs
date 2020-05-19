@@ -1,3 +1,5 @@
+// Copyright Amazon.com Inc. or its affiliates. All Rights Reserved.
+// SPDX-License-Identifier: Apache-2.0
 // When you store RSA keys, you have to serialize them somehow.
 //
 // This example shows how to configure and use a raw RSA keyring using a PEM-encoded RSA keypair.
@@ -31,7 +33,7 @@ using Xunit;
 public class RawRSAKeyringKeypairFromPEMExample {
     static void Run(MemoryStream plaintext) {
 
-        // Create your encryption context.
+        // Prepare your encryption context.
         // Remember that your encryption context is NOT SECRET.
         // https://docs.aws.amazon.com/encryption-sdk/latest/developer-guide/concepts.html#encryption-context
         IDictionary<string, string> encryptionContext = new Dictionary<string, string>() {
@@ -58,7 +60,6 @@ public class RawRSAKeyringKeypairFromPEMExample {
         int strength = 4096;
 
         // Create and initialize the key generator.
-        RsaKeyPairGenerator keygen = new RsaKeyPairGenerator();
         SecureRandom secureRandom = new SecureRandom();
         RsaKeyPairGenerator keyGenerator = new RsaKeyPairGenerator();
         keyGenerator.Init(new KeyGenerationParameters(secureRandom, strength));
@@ -85,13 +86,13 @@ public class RawRSAKeyringKeypairFromPEMExample {
 
         // Create the keyring that determines how your data keys are protected.
         //
-        // # If your key is encoded using DER, you can just pass it in.
+        // If your key is encoded using DER, you can just pass it in.
         RawRSAKeyring keyring = Keyrings.MakeRawRSAKeyring(
                 keyNamespace,
                 keyName,
                 // The wrapping algorithm tells the raw RSA keyring
                 // how to use your wrapping key to encrypt data keys.
-				//
+		//
                 // We recommend using RSA_OAEP_SHA256_MGF1.
                 // You should not use RSA_PKCS1 unless you require it for backwards compatibility.
                 DafnyFFI.RSAPaddingModes.OAEP_SHA256,
