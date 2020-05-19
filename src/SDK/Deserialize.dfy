@@ -18,6 +18,7 @@ module Deserialize {
     provides DeserializeHeader, Materials
     provides Streams, StandardLibrary, UInt, AlgorithmSuite, Msg
     provides InsertNewEntry, UTF8, EncryptionContext
+    reveals DeserializeHeaderResult
 
   import Msg = MessageHeader
 
@@ -30,21 +31,24 @@ module Deserialize {
   import EncryptionContext
 
 
-  method DeserializeHeader(rd: Streams.ByteReader) returns (res: Result<Msg.Header>)
+  method DeserializeHeader(rd: Streams.ByteReader) returns (res: Result<DeserializeHeaderResult>)
     requires rd.Valid()
     modifies rd.reader`pos
     ensures rd.Valid()
     ensures match res
-      case Success(header) => header.Valid()
+      case Success(desres) => desres.header.Valid()
         && old(rd.reader.pos) <= rd.reader.pos <= |rd.reader.data|
-        && exists hbSeq | hbSeq + header.auth.iv + header.auth.authenticationTag == rd.reader.data[old(rd.reader.pos)..rd.reader.pos] ::
-          Msg.SeqToHeaderBody(hbSeq, header.body)
+        && Msg.SeqToHeaderBody(desres.hbSeq, desres.header.body)
+        && desres.hbSeq + desres.header.auth.iv + desres.header.auth.authenticationTag == rd.reader.data[old(rd.reader.pos)..rd.reader.pos]          
       case Failure(_) => true
   {
     var hb :- DeserializeHeaderBody(rd);
+    ghost var hbSeq := rd.reader.data[old(rd.reader.pos)..rd.reader.pos];
     var auth :- DeserializeHeaderAuthentication(rd, hb.algorithmSuiteID);
-    return Success(Msg.Header(hb, auth));
+    return Success(DeserializeHeaderResult(Msg.Header(hb, auth), hbSeq));
   }
+
+  datatype DeserializeHeaderResult = DeserializeHeaderResult(header: Msg.Header, ghost hbSeq: seq<uint8>)  
 
   /**
   * Reads raw header data from the input stream and populates the header with all of the information about the

@@ -116,7 +116,6 @@ module {:extern "ESDKClient"} ESDKClient {
 
   // Specification of headerBody in Encrypt
   predicate ValidHeaderBodyForRequest(headerBody: Msg.HeaderBody, request: EncryptRequest)
-    reads request
   {
     headerBody.Valid()
     && headerBody.version == Msg.VERSION_1
@@ -142,7 +141,6 @@ module {:extern "ESDKClient"} ESDKClient {
 
   // Specification of the Frames used in Encrypt
   predicate ValidFramesForRequest(frames: seq<MessageBody.Frame>, request: EncryptRequest, headerBody: Msg.HeaderBody)
-    reads request
   {
     (forall frame: MessageBody.Frame | frame in frames :: frame.Valid()) //This predicates ensure that the frame can be converted to a sequence
     && MessageBody.FramesEncryptPlaintext(frames, request.plaintext) // This requirement is missing in spec but needed for now needs to be addapted to match streaming
@@ -355,14 +353,17 @@ If the algorithm suite has a signature algorithm, decrypt MUST verify the messag
     ensures match res 
       case Failure(e) => true
       case Success(encryptedSequence) =>
-        exists headerBody: Msg.HeaderBody, headerAuthentication, frames | 
-          (forall frame: MessageBody.Frame | frame in frames :: frame.Valid())
-          && headerBody.Valid() ::
-          (headerBody.algorithmSuiteID.SignatureType().Some? ==> // If the result needs to be signed then there exists a fourth item 
-            exists signature | |signature| < UINT16_LIMIT ::  
-              request.message == SerializeMessageWithSignature(headerBody, headerAuthentication, frames, signature)) // These items can be serialized to the output
-            && headerBody.algorithmSuiteID.SignatureType().None? ==> // if the result does not need to be signed
-              request.message == SerializeMessageWithoutSignature(headerBody, headerAuthentication, frames)
+        exists header: Msg.Header, hbSeq | 
+          && header.body.Valid()
+          && Msg.SeqToHeaderBody(hbSeq, header.body) ::
+          header.body.contentType.Framed? ==> // We only verify framed content for now
+            exists frames | (forall frame: MessageBody.Frame | frame in frames :: frame.Valid()) ::
+              && (header.body.algorithmSuiteID.SignatureType().Some? ==> // If the result needs to be signed then there exists a fourth item 
+                  exists signature | |signature| < UINT16_LIMIT ::  
+                    request.message == hbSeq + header.auth.iv + header.auth.authenticationTag 
+                      + MessageBody.FramesToSequence(frames) + UInt16ToSeq(|signature| as uint16) + signature) // These items can be serialized to the output
+              && header.body.algorithmSuiteID.SignatureType().None? ==> // if the result does not need to be signed
+                  request.message ==  hbSeq + header.auth.iv + header.auth.authenticationTag + MessageBody.FramesToSequence(frames)
   {
     if request.cmm != null && request.keyring != null {
       return Failure("DecryptRequest.keyring OR DecryptRequest.cmm must be set (not both).");
@@ -378,12 +379,17 @@ If the algorithm suite has a signature algorithm, decrypt MUST verify the messag
     }
 
     var rd := new Streams.ByteReader(request.message);
-    var header :- Deserialize.DeserializeHeader(rd);
+    var deserializeHeaderResult :- Deserialize.DeserializeHeader(rd);
+    var header := deserializeHeaderResult.header;
+    assert Msg.SeqToHeaderBody(deserializeHeaderResult.hbSeq, header.body);
+    assert deserializeHeaderResult.hbSeq + header.auth.iv + header.auth.authenticationTag == rd.reader.data[..rd.reader.pos];
+
     var decMatRequest := Materials.DecryptionMaterialsRequest(header.body.algorithmSuiteID, header.body.encryptedDataKeys.entries, header.body.aad);
     var decMat :- cmm.DecryptMaterials(decMatRequest);
 
     var decryptionKey := DeriveKey(decMat.plaintextDataKey.get, decMat.algorithmSuiteID, header.body.messageID);
 
+    ghost var oldReaderPos := rd.reader.pos;
     // Parse and decrypt the message body
     var plaintext;
     match header.body.contentType {
@@ -392,22 +398,51 @@ If the algorithm suite has a signature algorithm, decrypt MUST verify the messag
       case Framed =>
         plaintext :- MessageBody.DecryptFramedMessageBody(rd, decMat.algorithmSuiteID, decryptionKey, header.body.frameLength as int, header.body.messageID);
     }
+    assert header.body.contentType.Framed? ==> (
+      exists frames: seq<MessageBody.Frame> | |frames| < UINT32_LIMIT && (forall frame | frame in frames :: frame.Valid()) 
+        && MessageBody.FramesToSequence(frames) == rd.reader.data[oldReaderPos..rd.reader.pos] :: 
+          && MessageBody.FramesEncryptPlaintext(frames, plaintext));
+    ghost var frames: seq<MessageBody.Frame> :| header.body.contentType.Framed? ==> 
+        (|frames| < UINT32_LIMIT && (forall frame | frame in frames :: frame.Valid()) 
+        && MessageBody.FramesToSequence(frames) == rd.reader.data[oldReaderPos..rd.reader.pos] 
+        && MessageBody.FramesEncryptPlaintext(frames, plaintext));
+        
+    assert header.body.contentType.Framed? ==>
+          rd.reader.data[..rd.reader.pos] == deserializeHeaderResult.hbSeq + header.auth.iv + header.auth.authenticationTag + MessageBody.FramesToSequence(frames) by {
+            assert rd.reader.data[..oldReaderPos] + rd.reader.data[oldReaderPos..rd.reader.pos] == rd.reader.data[..rd.reader.pos];
+          }  
 
+    ghost var signature;
     match decMat.algorithmSuiteID.SignatureType() {
       case None =>
+        assert header.body.contentType.Framed? ==>
+          rd.reader.data[..rd.reader.pos] ==  deserializeHeaderResult.hbSeq + header.auth.iv + header.auth.authenticationTag + MessageBody.FramesToSequence(frames);
         // there's no footer
       case Some(ecdsaParams) =>
         var usedCapacity := rd.GetSizeRead();
         assert usedCapacity <= |request.message|;
         var msg := request.message[..usedCapacity];  // unauthenticatedHeader + authTag + body  // TODO: there should be a better way to get this
+        assert header.body.contentType.Framed? ==> 
+          msg == deserializeHeaderResult.hbSeq + header.auth.iv + header.auth.authenticationTag + MessageBody.FramesToSequence(frames);
         // read signature
+        assert usedCapacity == rd.reader.pos;
         var signatureLength :- rd.ReadUInt16();
+        assert UInt16ToSeq(signatureLength as uint16) == rd.reader.data[usedCapacity..usedCapacity + 2];
         var sig :- rd.ReadBytes(signatureLength as nat);
+        signature := sig;
+        assert rd.reader.data[usedCapacity..rd.reader.pos] == UInt16ToSeq(|sig| as uint16) + sig by {
+          assert signatureLength as int == |sig|;
+          assert UInt16ToSeq(|sig| as uint16) == rd.reader.data[usedCapacity..usedCapacity + 2];
+          assert sig == rd.reader.data[usedCapacity + 2..rd.reader.pos];
+        }
         // verify signature
         var signatureVerified :- Signature.Verify(ecdsaParams, decMat.verificationKey.get, msg, sig);
         if !signatureVerified {
           return Failure("signature not verified");
         }
+        assert header.body.contentType.Framed? ==>
+          rd.reader.data[..rd.reader.pos] == deserializeHeaderResult.hbSeq + header.auth.iv + header.auth.authenticationTag + MessageBody.FramesToSequence(frames)
+          + MessageBody.FramesToSequence(frames) + UInt16ToSeq(|sig| as uint16) + sig;
     }
 
     var isDone := rd.IsDoneReading();
@@ -415,6 +450,52 @@ If the algorithm suite has a signature algorithm, decrypt MUST verify the messag
       return Failure("message contains additional bytes at end");
     }
 
+    if header.body.contentType.Framed? {
+      if header.body.algorithmSuiteID.SignatureType().Some?{
+        HBandMBMatchSequence(header, deserializeHeaderResult.hbSeq, frames, request.message);
+      } else {
+        HBandMBwithSigMatchSequence(header, deserializeHeaderResult.hbSeq, frames, signature, request.message);
+      }
+    }
+    
     return Success(plaintext);
   }
+
+  lemma HBandMBMatchSequence(header: Msg.Header, hbSeq: seq<uint8>, frames: seq<MessageBody.Frame>, message: seq<uint8>)
+    requires forall frame: MessageBody.Frame | frame in frames :: frame.Valid()
+    requires header.body.contentType.Framed?
+    requires header.body.algorithmSuiteID.SignatureType().None?
+    requires header.body.Valid()
+    requires |message| == |hbSeq| + |header.auth.iv + header.auth.authenticationTag| + |MessageBody.FramesToSequence(frames)|
+    requires Msg.SeqToHeaderBody(hbSeq, header.body)
+    requires hbSeq == message[..|hbSeq|]
+    requires var headerLength := |hbSeq| + |header.auth.iv + header.auth.authenticationTag|;
+      message[|hbSeq|..headerLength] == header.auth.iv + header.auth.authenticationTag
+    requires var headerLength := |hbSeq| + |header.auth.iv + header.auth.authenticationTag|;
+      message[headerLength..] == MessageBody.FramesToSequence(frames);
+    ensures message == hbSeq + header.auth.iv + header.auth.authenticationTag + MessageBody.FramesToSequence(frames);
+  {
+
+  }
+
+  lemma HBandMBwithSigMatchSequence(header: Msg.Header, hbSeq: seq<uint8>, frames: seq<MessageBody.Frame>, signature: seq<uint8>, message: seq<uint8>)
+    requires forall frame: MessageBody.Frame | frame in frames :: frame.Valid()
+    requires header.body.contentType.Framed?
+    requires header.body.Valid()
+    requires header.body.algorithmSuiteID.SignatureType().Some?
+    requires |signature| < UINT16_LIMIT
+    requires |message| == |hbSeq| + |header.auth.iv + header.auth.authenticationTag| + |MessageBody.FramesToSequence(frames)| + 2 + |signature|
+    requires Msg.SeqToHeaderBody(hbSeq, header.body)
+    requires hbSeq == message[..|hbSeq|]
+    requires var headerLength := |hbSeq| + |header.auth.iv + header.auth.authenticationTag|;
+      message[|hbSeq|..headerLength] == header.auth.iv + header.auth.authenticationTag
+    requires var headerLength := |hbSeq| + |header.auth.iv + header.auth.authenticationTag|;
+      message[headerLength..][..|MessageBody.FramesToSequence(frames)|] == MessageBody.FramesToSequence(frames) + MessageBody.FramesToSequence(frames);
+    requires var MessageLength := |hbSeq| + |header.auth.iv + header.auth.authenticationTag|;
+      message[MessageLength..] == MessageBody.FramesToSequence(frames) + UInt16ToSeq(|signature| as uint16) + signature;
+    ensures message == hbSeq + header.auth.iv + header.auth.authenticationTag + MessageBody.FramesToSequence(frames) + UInt16ToSeq(|signature| as uint16) + signature;
+  {
+
+  }
+
 }
