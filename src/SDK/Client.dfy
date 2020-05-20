@@ -282,9 +282,11 @@ module {:extern "ESDKClient"} ESDKClient {
       }
       msg := msg + signature; 
       assert headerBody.algorithmSuiteID.SignatureType().Some?;
+      assert msg == SerializeMessageWithSignature(headerBody, headerAuthentication, frames, bytes);
       return Success(msg);
     } else {
       // don't use a footer
+      assert msg == SerializeMessageWithoutSignature(headerBody, headerAuthentication, frames);
       return Success(msg);
     }
   }
