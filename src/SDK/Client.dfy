@@ -386,9 +386,8 @@ If the algorithm suite has a signature algorithm, decrypt MUST verify the messag
     var rd := new Streams.ByteReader(request.message);
     var deserializeHeaderResult :- Deserialize.DeserializeHeader(rd);
     var header := deserializeHeaderResult.header;
-    assert Msg.SeqToHeaderBody(deserializeHeaderResult.hbSeq, header.body);
-    assert deserializeHeaderResult.hbSeq + header.auth.iv + header.auth.authenticationTag == rd.reader.data[..rd.reader.pos];
-
+    assert HeaderBySequence(header, deserializeHeaderResult.hbSeq, rd.reader.data[..rd.reader.pos]);
+    
     var decMatRequest := Materials.DecryptionMaterialsRequest(header.body.algorithmSuiteID, header.body.encryptedDataKeys.entries, header.body.aad);
     var decMat :- cmm.DecryptMaterials(decMatRequest);
 
@@ -412,38 +411,21 @@ If the algorithm suite has a signature algorithm, decrypt MUST verify the messag
         && MessageBody.FramesToSequence(frames) == rd.reader.data[oldReaderPos..rd.reader.pos] 
         && MessageBody.FramesEncryptPlaintext(frames, plaintext));
         
-    assert header.body.contentType.Framed? ==>
-      rd.reader.data[..rd.reader.pos] == deserializeHeaderResult.hbSeq + header.auth.iv + header.auth.authenticationTag + MessageBody.FramesToSequence(frames) by {
-        if header.body.contentType.Framed? {
-          concatSeq(rd.reader.data[..rd.reader.pos], oldReaderPos);
-        }
-      }  
+    assert header.body.contentType.Framed? ==> FramesBySequence(frames, rd.reader.data[oldReaderPos..rd.reader.pos]);  
 
     ghost var signature;
     match decMat.algorithmSuiteID.SignatureType() {
       case None =>
-        assert header.body.contentType.Framed? ==>
-          rd.reader.data[..rd.reader.pos] ==  deserializeHeaderResult.hbSeq + header.auth.iv + header.auth.authenticationTag + MessageBody.FramesToSequence(frames);
         // there's no footer
       case Some(ecdsaParams) =>
         var usedCapacity := rd.GetSizeRead();
-        assert usedCapacity <= |request.message|;
-        var msg := request.message[..usedCapacity];  // unauthenticatedHeader + authTag + body  // TODO: there should be a better way to get this
-        assert header.body.contentType.Framed? ==> 
-          msg == deserializeHeaderResult.hbSeq + header.auth.iv + header.auth.authenticationTag + MessageBody.FramesToSequence(frames);
-        // read signature
         assert usedCapacity == rd.reader.pos;
+        var msg := request.message[..usedCapacity];  // unauthenticatedHeader + authTag + body  // TODO: there should be a better way to get this
+        // read signature
         var signatureLength :- rd.ReadUInt16();
         var sig :- rd.ReadBytes(signatureLength as nat);
         signature := sig;
-        assert header.body.contentType.Framed? ==> rd.reader.data[usedCapacity..rd.reader.pos] == UInt16ToSeq(|sig| as uint16) + sig by {
-          assert UInt16ToSeq(signatureLength as uint16) == rd.reader.data[usedCapacity..usedCapacity + 2];
-          assert signatureLength as int == |sig|;
-          assert UInt16ToSeq(|sig| as uint16) == rd.reader.data[usedCapacity..usedCapacity + 2];
-          assert sig == rd.reader.data[usedCapacity + 2..rd.reader.pos];
-          concatSeq(rd.reader.data[..rd.reader.pos], usedCapacity);
-        }
-        assert header.body.contentType.Framed? ==> header.body.algorithmSuiteID.SignatureType().Some? ==> |signature| < UINT16_LIMIT;
+        assert header.body.contentType.Framed? ==> SignatureBySequence(signature,rd.reader.data[usedCapacity..rd.reader.pos]);
         // verify signature
         var signatureVerified :- Signature.Verify(ecdsaParams, decMat.verificationKey.get, msg, sig);
         if !signatureVerified {
@@ -467,38 +449,46 @@ If the algorithm suite has a signature algorithm, decrypt MUST verify the messag
     return Success(plaintext);
   }
 
+  predicate HeaderBySequence(header: Msg.Header, hbSeq: seq<uint8>, sequence: seq<uint8>)
+  {
+    header.body.contentType.Framed?
+    && header.body.algorithmSuiteID.SignatureType().None?
+    && header.body.Valid()
+    && Msg.SeqToHeaderBody(hbSeq, header.body)
+    && sequence == hbSeq + header.auth.iv + header.auth.authenticationTag
+  }
+
+  predicate FramesBySequence(frames: seq<MessageBody.Frame>, sequence: seq<uint8>)
+  {
+    (forall frame: MessageBody.Frame | frame in frames :: frame.Valid())
+    && sequence == MessageBody.FramesToSequence(frames)
+  }
+
+  predicate SignatureBySequence(signature: seq<uint8>, sequence: seq<uint8>)
+  {
+    |signature| < UINT16_LIMIT
+    && sequence == UInt16ToSeq(|signature| as uint16) + signature
+  }
+
   lemma HBandMBMatchSequence(header: Msg.Header, hbSeq: seq<uint8>, frames: seq<MessageBody.Frame>, message: seq<uint8>)
-    requires forall frame: MessageBody.Frame | frame in frames :: frame.Valid()
-    requires header.body.contentType.Framed?
     requires header.body.algorithmSuiteID.SignatureType().None?
-    requires header.body.Valid()
-    requires |message| == |hbSeq| + |header.auth.iv + header.auth.authenticationTag| + |MessageBody.FramesToSequence(frames)|
-    requires Msg.SeqToHeaderBody(hbSeq, header.body)
-    requires hbSeq == message[..|hbSeq|]
+    requires |message| >= |hbSeq| + |header.auth.iv + header.auth.authenticationTag|
     requires var headerLength := |hbSeq| + |header.auth.iv + header.auth.authenticationTag|;
-      message[|hbSeq|..headerLength] == header.auth.iv + header.auth.authenticationTag
-    requires var headerLength := |hbSeq| + |header.auth.iv + header.auth.authenticationTag|;
-      message[headerLength..] == MessageBody.FramesToSequence(frames);
+      HeaderBySequence(header, hbSeq, message[..headerLength])
+      && FramesBySequence(frames, message[headerLength..])
     ensures message == hbSeq + header.auth.iv + header.auth.authenticationTag + MessageBody.FramesToSequence(frames);
   {
 
   }
 
   lemma HBandMBwithSigMatchSequence(header: Msg.Header, hbSeq: seq<uint8>, frames: seq<MessageBody.Frame>, signature: seq<uint8>, message: seq<uint8>)
-    requires forall frame: MessageBody.Frame | frame in frames :: frame.Valid()
-    requires header.body.contentType.Framed?
-    requires header.body.Valid()
     requires header.body.algorithmSuiteID.SignatureType().Some?
-    requires |signature| < UINT16_LIMIT
-    requires |message| == |hbSeq| + |header.auth.iv + header.auth.authenticationTag| + |MessageBody.FramesToSequence(frames)| + 2 + |signature|
-    requires Msg.SeqToHeaderBody(hbSeq, header.body)
-    requires hbSeq == message[..|hbSeq|]
+    requires forall frame: MessageBody.Frame | frame in frames :: frame.Valid()
+    requires |message| >= |hbSeq| + |header.auth.iv + header.auth.authenticationTag| + |MessageBody.FramesToSequence(frames)|
     requires var headerLength := |hbSeq| + |header.auth.iv + header.auth.authenticationTag|;
-      message[|hbSeq|..headerLength] == header.auth.iv + header.auth.authenticationTag
-    requires var headerLength := |hbSeq| + |header.auth.iv + header.auth.authenticationTag|;
-      message[headerLength..][..|MessageBody.FramesToSequence(frames)|] == MessageBody.FramesToSequence(frames) + MessageBody.FramesToSequence(frames);
-    requires var MessageLength := |hbSeq| + |header.auth.iv + header.auth.authenticationTag|;
-      message[MessageLength..] == MessageBody.FramesToSequence(frames) + UInt16ToSeq(|signature| as uint16) + signature;
+      HeaderBySequence(header, hbSeq, message[..headerLength])
+      && FramesBySequence(frames, message[headerLength..headerLength + |MessageBody.FramesToSequence(frames)|])
+      && SignatureBySequence(signature, message[headerLength + |MessageBody.FramesToSequence(frames)|..])
     ensures message == hbSeq + header.auth.iv + header.auth.authenticationTag + MessageBody.FramesToSequence(frames) + UInt16ToSeq(|signature| as uint16) + signature;
   {
 
