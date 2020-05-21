@@ -15,7 +15,7 @@ module MessageBody {
   export
     provides EncryptMessageBody, DecryptFramedMessageBody, DecryptNonFramedMessageBody,
       StandardLibrary, UInt, Msg, AlgorithmSuite, Materials, Streams, FramesToSequence, 
-      FrameToSequence, ValidFrames, FramesEncryptPlaintext, AESEncryption
+      FrameToSequence, ValidFrames, FramesEncryptPlaintext, AESEncryption, DecryptedWithKey
     reveals Frame, Frame.Valid, SeqWithGhostFrames
     
   import opened StandardLibrary
@@ -365,6 +365,7 @@ module MessageBody {
     requires 0 < frameLength < UINT32_LIMIT
     modifies rd.reader`pos
     ensures rd.Valid()
+    ensures res.Success? ==> DecryptedWithKey(key, res.value)
     ensures match res
       case Failure(_) => true
       case Success(plaintext) => //Exists a sequence of frames which encrypts the plaintext and is serialized in the read section of the stream
@@ -388,7 +389,8 @@ module MessageBody {
       invariant FramesToSequence(frames) == rd.reader.data[old(rd.reader.pos)..rd.reader.pos]
       invariant rd.Valid()
       invariant FramesEncryptPlaintextSegments(frames, plaintextSeg) // All decrypted frames decrypt to the list of plaintext chuncks
-      invariant SumPlaintextSegments(plaintextSeg) == plaintext // The current decrypted frame is the sum of all decrypted chuncks 
+      invariant SumPlaintextSegments(plaintextSeg) == plaintext // The current decrypted frame is the sum of all decrypted chuncks
+      invariant plaintext != [] ==> DecryptedWithKey(key, plaintext) 
     {
       var frameWithGhostSeq :- DecryptFrame(rd, algorithmSuiteID, key, frameLength, messageID, n);
       assert |frameWithGhostSeq.sequence| < UINT32_LIMIT;
@@ -404,6 +406,11 @@ module MessageBody {
 
       var (decryptedFramePlaintext, final) := (decryptedFrame.encContent, decryptedFrame.FinalFrame?);
       
+      assert DecryptedWithKey(key, plaintext + decryptedFramePlaintext) by {
+        assert plaintext != [] ==> DecryptedWithKey(key, plaintext);
+        assert [] + decryptedFramePlaintext == decryptedFramePlaintext;
+        assert AESEncryption.DecryptedWithKey(key, decryptedFramePlaintext);
+      }
       plaintext := plaintext + decryptedFramePlaintext;
       plaintextSeg := plaintextSeg + [decryptedFramePlaintext];
       if final {
@@ -411,6 +418,7 @@ module MessageBody {
         assert SumPlaintextSegments(plaintextSeg) == plaintext;
         break;
       }
+     
       n := n + 1;
     }
     assert |frames| < UINT32_LIMIT ;
@@ -441,7 +449,8 @@ module MessageBody {
            var final := decryptedFrame.FinalFrame?;
            decryptedFrame.Valid()
         && old(rd.reader.pos) < rd.reader.pos <= |rd.reader.data|
-        && AESEncryption.CiphertextGeneratedWithPlaintext(ciphertext, decryptedFrame.encContent)      
+        && AESEncryption.CiphertextGeneratedWithPlaintext(ciphertext, decryptedFrame.encContent)
+        && AESEncryption.DecryptedWithKey(key, decryptedFrame.encContent) 
         && var encryptedFrame := (if decryptedFrame.FinalFrame? then
              FinalFrame(decryptedFrame.seqNum, decryptedFrame.iv, ciphertext, decryptedFrame.authTag)
            else
@@ -532,10 +541,18 @@ module MessageBody {
     requires |authTag| == algorithmSuiteID.TagLength()
     ensures res.Success? ==> AESEncryption.CiphertextGeneratedWithPlaintext(ciphertext, res.value)
     ensures res.Success? ==> |ciphertext| == |res.value|
+    ensures res.Success? ==> AESEncryption.DecryptedWithKey(key, res.value)
   {
     var encAlg := algorithmSuiteID.EncryptionSuite();
     res := AESEncryption.AESDecrypt(encAlg, key, ciphertext, authTag, iv, aad);
   }
+
+  predicate DecryptedWithKey(key: seq<uint8>, plaintext: seq<uint8>)
+  {
+    if AESEncryption.DecryptedWithKey(key, plaintext) then true else
+      exists oldPlaintext, plaintextSeg | plaintext == oldPlaintext + plaintextSeg ::
+        DecryptedWithKey(key, oldPlaintext) && AESEncryption.DecryptedWithKey(key, plaintextSeg)
+  } 
 
   method DecryptNonFramedMessageBody(rd: Streams.ByteReader, algorithmSuiteID: AlgorithmSuite.ID, key: seq<uint8>, messageID: Msg.MessageID) returns (res: Result<seq<uint8>>)
     requires rd.Valid()
