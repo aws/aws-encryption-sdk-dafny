@@ -1,3 +1,6 @@
+// Copyright Amazon.com Inc. or its affiliates. All Rights Reserved.
+// SPDX-License-Identifier: Apache-2.0
+
 include "AmazonKeyManagementService.dfy"
 include "../SDK/EncryptionContext.dfy"
 include "../StandardLibrary/StandardLibrary.dfy"

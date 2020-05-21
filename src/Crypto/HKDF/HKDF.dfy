@@ -1,3 +1,6 @@
+// Copyright Amazon.com Inc. or its affiliates. All Rights Reserved.
+// SPDX-License-Identifier: Apache-2.0
+
 include "HMAC.dfy"
 include "../KeyDerivationAlgorithms.dfy"
 include "../../StandardLibrary/StandardLibrary.dfy"
@@ -117,12 +120,12 @@ module HKDF {
       // Add additional verification for T(n): github.com/awslabs/aws-encryption-sdk-dafny/issues/177
       t_prev := hmac.GetResult();
       // t_n == T(i - 1)
-      assert T(hmac, info, i - 1, t_n);
       assert Ti(hmac, info, i, t_prev);
 
       t_n := t_n + t_prev;
       // t_n == T(i) == T(i - 1) + Ti(i)
       i := i + 1;
+      assert T(hmac, info, i - 1, t_n);
     }
 
     // okm = first L (expectedLength) bytes of T(n)
