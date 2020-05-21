@@ -2,6 +2,10 @@
 
 ![Build Status - master branch](https://codebuild.us-west-2.amazonaws.com/badges?uuid=eyJlbmNyeXB0ZWREYXRhIjoiVmIzeGwwQmY5bXdMQXg2aVBneWtDc3FHSWRHTjYrNnVUem9nNXJFUmY2Rk1yRnJvSjJvK3JCL2RScFRjSVF1UjA1elR3L0xpTVpiNmRZS0RyWjJpTnBFPSIsIml2UGFyYW1ldGVyU3BlYyI6InBBQm1tT1BPNjB3RU9XUS8iLCJtYXRlcmlhbFNldFNlcmlhbCI6MX0%3D&branch=master)
 
+[//]: # (Status for the static-analysis workflow on push events to the "develop" branch)
+
+![static analysis](https://github.com/awslabs/aws-encryption-sdk-dafny/workflows/static%20analysis/badge.svg?branch=develop&event=push)
+
 AWS Encryption SDK for Dafny
 
 [Security issue notifications](./CONTRIBUTING.md#security-issue-notifications)
