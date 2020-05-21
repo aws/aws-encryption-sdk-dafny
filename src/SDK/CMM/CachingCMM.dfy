@@ -305,8 +305,8 @@ module {:extern "CachingCMMDef"} CachingCMMDef {
       ensures Valid() ==> this in Repr
     {
       this in Repr &&
-      (forall id :: id in EncryptMap.Keys ==> ValidComponent(EncryptMap[id])) &&
-      (forall id :: id in DecryptMap.Keys ==> ValidComponent(DecryptMap[id]))
+      (forall id :: id in EncryptMap.Keys ==> EncryptMap[id] in Repr && EncryptMap[id].Valid()) &&
+      (forall id :: id in DecryptMap.Keys ==> DecryptMap[id] in Repr && DecryptMap[id].Valid())
     }
 
     constructor ()
@@ -340,7 +340,7 @@ module {:extern "CachingCMMDef"} CachingCMMDef {
       ensures Valid() && fresh(Repr - old(Repr)) && entry in Repr
     {
       entry := new CacheEntryEncrypt(encMat, secondsToLiveLimit);
-      Repr := Repr + entry.Repr;
+      Repr := Repr + {entry};
       EncryptMap := EncryptMap[cacheID := entry];
     }
 
@@ -376,14 +376,14 @@ module {:extern "CachingCMMDef"} CachingCMMDef {
     }
   }
 
-  class CacheEntryEncrypt extends Validatable {
+  class CacheEntryEncrypt {
     const encMat: Materials.ValidEncryptionMaterials
     const expiryTime: nat
     var messagesEncrypted: nat
     var bytesEncrypted: nat
 
-    predicate Valid() reads this, Repr ensures Valid() ==> this in Repr {
-      encMat.Serializable() && Repr == {this}
+    predicate Valid() {
+      encMat.Serializable()
     }
 
     constructor (encMat: Materials.ValidEncryptionMaterials, secondsToLiveLimit: nat)
@@ -407,12 +407,12 @@ module {:extern "CachingCMMDef"} CachingCMMDef {
     }
   }
 
-  class CacheEntryDecrypt extends Validatable {
+  class CacheEntryDecrypt {
     const decMat: Materials.ValidDecryptionMaterials
     const expiryTime: nat
 
-    predicate Valid() reads this, Repr ensures Valid() ==> this in Repr {
-      decMat.plaintextDataKey.Some? && Repr == {this}
+    predicate Valid() {
+      decMat.plaintextDataKey.Some?
     }
 
     constructor (decMat: Materials.ValidDecryptionMaterials, secondsToLiveLimit: nat)
