@@ -1,5 +1,4 @@
 [prefix]
-# Exclude the copies of msrcrypto included in examples packages.
 "**/*.dfy" = """
 // Copyright Amazon.com Inc. or its affiliates. All Rights Reserved.
 // SPDX-License-Identifier: Apache-2.0
