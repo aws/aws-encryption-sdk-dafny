@@ -41,7 +41,7 @@ module {:extern "KMSKeyringDef"} KMSKeyringDef {
       && this in Repr
       && 0 <= |grantTokens| <= KMSUtils.MAX_GRANT_TOKENS
       && (|keyIDs| == 0 && generator.None? ==> isDiscovery)
-      && (clientSupplier in Repr && clientSupplier.Repr <= Repr && this !in clientSupplier.Repr && clientSupplier.Valid())
+      && ValidComponent(clientSupplier)
     }
 
     constructor (clientSupplier: KMSUtils.DafnyAWSKMSClientSupplier, keyIDs: seq<KMSUtils.CustomerMasterKey>, generator: Option<KMSUtils.CustomerMasterKey>, grantTokens: seq<KMSUtils.GrantToken>)

@@ -67,8 +67,8 @@ module {:extern "CachingCMMDef"} CachingCMMDef {
       ensures Valid() ==> this in Repr
     {
       this in Repr &&
-      cmm in Repr && cmm.Repr <= Repr && this !in cmm.Repr && cmm.Valid() &&
-      cmc in Repr && cmc.Repr <= Repr && this !in cmc.Repr && cmc.Valid() &&
+      ValidComponent(cmm) &&
+      ValidComponent(cmc) &&
       cmm.Repr !! cmc.Repr
     }
 
@@ -144,7 +144,7 @@ module {:extern "CachingCMMDef"} CachingCMMDef {
                                   returns (res: Result<Materials.ValidEncryptionMaterials>)
       requires Valid()
       modifies Repr
-      ensures Valid() && fresh(Repr - old(Repr))
+      ensures ValidAndFresh()
       ensures res.Success? ==> res.value.Serializable()
     {
       if materialsRequest.plaintextLength.None?
@@ -199,7 +199,7 @@ module {:extern "CachingCMMDef"} CachingCMMDef {
                             returns (res: Result<Materials.ValidDecryptionMaterials>)
       requires Valid()
       modifies Repr
-      ensures Valid() && fresh(Repr - old(Repr))
+      ensures ValidAndFresh()
       ensures res.Success? ==> res.value.plaintextDataKey.Some?
     {
       var isSerializable := EncryptionContext.CheckSerializable(materialsRequest.encryptionContext);
@@ -337,7 +337,7 @@ module {:extern "CachingCMMDef"} CachingCMMDef {
       requires Valid()
       requires encMat.Serializable()
       modifies Repr
-      ensures Valid() && fresh(Repr - old(Repr)) && entry in Repr
+      ensures ValidAndFresh() && entry in Repr
     {
       entry := new CacheEntryEncrypt(encMat, secondsToLiveLimit);
       Repr := Repr + {entry};
@@ -350,7 +350,7 @@ module {:extern "CachingCMMDef"} CachingCMMDef {
       requires Valid()
       requires decMat.plaintextDataKey.Some?
       modifies Repr
-      ensures Valid() && fresh(Repr - old(Repr)) && entry in Repr
+      ensures ValidAndFresh() && entry in Repr
     {
       entry := new CacheEntryDecrypt(decMat, secondsToLiveLimit);
       Repr := Repr + {entry};
@@ -361,7 +361,7 @@ module {:extern "CachingCMMDef"} CachingCMMDef {
     method EvictEncrypt(cacheID: seq<uint8>)
       requires Valid()
       modifies Repr
-      ensures Valid() && fresh(Repr - old(Repr))
+      ensures ValidAndFresh()
     {
       EncryptMap := map id | id in EncryptMap.Keys && id != cacheID :: EncryptMap[id];
     }
@@ -370,7 +370,7 @@ module {:extern "CachingCMMDef"} CachingCMMDef {
     method EvictDecrypt(cacheID: seq<uint8>)
       requires Valid()
       modifies Repr
-      ensures Valid() && fresh(Repr - old(Repr))
+      ensures ValidAndFresh()
     {
       DecryptMap := map id | id in DecryptMap.Keys && id != cacheID :: DecryptMap[id];
     }

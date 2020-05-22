@@ -42,8 +42,8 @@ module {:extern "MultiKeyringDef"} MultiKeyringDef {
           ensures Valid() ==> this in Repr
         {
             && this in Repr
-            && (generator != null ==> generator in Repr && generator.Repr <= Repr && generator.Valid())
-            && (forall j :: 0 <= j < |children| ==> children[j] in Repr && children[j].Repr <= Repr && children[j].Valid())
+            && (generator == null || ValidComponent(generator))
+            && (forall j :: 0 <= j < |children| ==> ValidComponent(children[j]))
         }
 
         method OnEncrypt(materials: Materials.ValidEncryptionMaterials) returns (res: Result<Materials.ValidEncryptionMaterials>)

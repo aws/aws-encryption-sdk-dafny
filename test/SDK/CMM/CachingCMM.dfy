@@ -243,7 +243,7 @@ module TestCachingCMM {
                                     returns (res: Result<Materials.ValidEncryptionMaterials>)
         requires Valid()
         modifies Repr
-        ensures Valid() && fresh(Repr - old(Repr))
+        ensures ValidAndFresh()
         ensures res.Success? ==> res.value.plaintextDataKey.Some? && res.value.Serializable()
       {
         TestUtils.ExpectSerializableEncryptionContext(materialsRequest.encryptionContext);
@@ -279,7 +279,7 @@ module TestCachingCMM {
                               returns (res: Result<Materials.ValidDecryptionMaterials>)
         requires Valid()
         modifies Repr
-        ensures Valid() && fresh(Repr - old(Repr))
+        ensures ValidAndFresh()
         ensures res.Success? ==> res.value.plaintextDataKey.Some?
       {
         var dm := Materials.DecryptionMaterials(

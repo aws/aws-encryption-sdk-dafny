@@ -7,9 +7,7 @@ module Streams {
   import opened StandardLibrary
   import opened UInt = StandardLibrary.UInt
 
-  // TODO-RS: extend Validatable once Dafny supports parameterized classes extending traits
-  class SeqReader<T> {
-    ghost var Repr: set<object>
+  class SeqReader<T> extends Validatable {
     const data: seq<T>
     var pos: nat
 
@@ -74,8 +72,7 @@ module Streams {
       reads this, Repr
       ensures Valid() ==> this in Repr
     {
-      this in Repr &&
-      reader in Repr && reader.Repr <= Repr && this !in reader.Repr && reader.Valid()
+      this in Repr && ValidComponent(reader)
     }
 
     constructor (s: seq<uint8>)
@@ -189,8 +186,7 @@ module Streams {
   }
 
   // TODO-RS: extend Validatable once Dafny supports parameterized classes extending traits
-  class SeqWriter<T> {
-    ghost var Repr: set<object>
+  class SeqWriter<T> extends Validatable {
     var data: seq<T>
 
     predicate Valid()
@@ -229,8 +225,7 @@ module Streams {
       reads this, Repr
       ensures Valid() ==> this in Repr
     {
-      this in Repr &&
-      writer in Repr && writer.Repr <= Repr && this !in writer.Repr && writer.Valid()
+      this in Repr && ValidComponent(writer)
     }
 
     constructor()

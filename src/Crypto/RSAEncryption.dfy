@@ -17,8 +17,7 @@ module {:extern "RSAEncryption"} RSAEncryption {
   newtype {:nativeType "int", "number"} StrengthBits = x | 81 <= x < (0x8000_0000) witness 81
 
   // This trait represents the parent for RSA public and private keys
-  trait {:termination false} Key {
-    ghost var Repr: set<object>
+  trait {:termination false} Key extends Validatable {
     ghost const strength: StrengthBits
     ghost const padding: PaddingMode
     const pem: seq<uint8>

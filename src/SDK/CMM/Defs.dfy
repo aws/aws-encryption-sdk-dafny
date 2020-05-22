@@ -16,17 +16,13 @@ module {:extern "CMMDefs"} CMMDefs {
   import EncryptionContext
 
   // TODO-RS: extend Validatable once Dafny supports traits extending traits
-  trait {:termination false} CMM {
-    ghost var Repr: set<object>
-    predicate Valid()
-      reads this, Repr
-      ensures Valid() ==> this in Repr
+  trait {:termination false} CMM extends Validatable {
 
     method GetEncryptionMaterials(materialsRequest: Materials.EncryptionMaterialsRequest)
                                   returns (res: Result<Materials.ValidEncryptionMaterials>)
       requires Valid()
       modifies Repr
-      ensures Valid() && fresh(Repr - old(Repr))
+      ensures ValidAndFresh()
       ensures res.Success? ==> res.value.Serializable()
 
     // The following predicate is a synonym for Encryption.Serializable and provides a workaround for a translation bug
@@ -39,7 +35,7 @@ module {:extern "CMMDefs"} CMMDefs {
                             returns (res: Result<Materials.ValidDecryptionMaterials>)
       requires Valid()
       modifies Repr
-      ensures Valid() && fresh(Repr - old(Repr))
+      ensures ValidAndFresh()
       ensures res.Success? ==> res.value.plaintextDataKey.Some?
   }
 }

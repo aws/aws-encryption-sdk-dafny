@@ -34,11 +34,9 @@ module {:extern "RawRSAKeyringDef"} RawRSAKeyringDef {
     {
       this in Repr &&
       (publicKey.Some? || privateKey.Some?) &&
-      (publicKey.Some? ==>
-        publicKey.get in Repr && publicKey.get.Repr <= Repr && this !in publicKey.get.Repr && publicKey.get.Valid()) &&
+      (publicKey.Some? ==> ValidComponent(publicKey.get)) &&
       (publicKey.Some? ==> publicKey.get.padding == paddingMode) &&
-      (privateKey.Some? ==>
-        privateKey.get in Repr && privateKey.get.Repr <= Repr && this !in privateKey.get.Repr && privateKey.get.Valid()) &&
+      (privateKey.Some? ==> ValidComponent(privateKey.get)) &&
       (privateKey.Some? ==> privateKey.get.padding == paddingMode) &&
       |keyNamespace| < UINT16_LIMIT &&
       |keyName| < UINT16_LIMIT
