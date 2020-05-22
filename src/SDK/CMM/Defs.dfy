@@ -15,7 +15,6 @@ module {:extern "CMMDefs"} CMMDefs {
   import Signature
   import EncryptionContext
 
-  // TODO-RS: extend Validatable once Dafny supports traits extending traits
   trait {:termination false} CMM extends Validatable {
 
     method GetEncryptionMaterials(materialsRequest: Materials.EncryptionMaterialsRequest)

@@ -120,7 +120,6 @@ module {:extern "KMSUtils"} KMSUtils {
 
   method {:extern "KMSUtils.ClientHelper", "AddCachingClientCallback"} AddCachingClientCallback(client: IAmazonKeyManagementService, region: Option<string>, cache: CachingClientSupplierCache)
 
-  // TODO-RS: extend Validatable once Dafny supports traits extending traits
   trait {:extern "DafnyAWSKMSClientSupplier"} DafnyAWSKMSClientSupplier extends Validatable {
 
     method GetClient(region: Option<string>) returns (res: Result<IAmazonKeyManagementService>)

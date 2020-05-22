@@ -185,7 +185,6 @@ module Streams {
     }
   }
 
-  // TODO-RS: extend Validatable once Dafny supports parameterized classes extending traits
   class SeqWriter<T> extends Validatable {
     var data: seq<T>
 

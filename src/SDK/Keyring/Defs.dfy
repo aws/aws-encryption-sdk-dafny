@@ -12,7 +12,6 @@ module {:extern "KeyringDefs"} KeyringDefs {
   import Materials
   import AlgorithmSuite
 
-  // TODO-RS: extend Validatable once Dafny supports traits extending traits
   trait {:termination false} Keyring extends Validatable {
 
     method OnEncrypt(materials: Materials.ValidEncryptionMaterials) returns (res: Result<Materials.ValidEncryptionMaterials>)
