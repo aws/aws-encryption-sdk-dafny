@@ -408,6 +408,7 @@ If the algorithm suite has a signature algorithm, decrypt MUST verify the messag
     
     if header.body.contentType.Framed? {
       assert HeaderBySequence(header, deserializeHeaderResult.hbSeq, rd.reader.data[..rd.reader.pos]) by {
+        reveal HeaderBySequence();
         assert header.body.contentType.Framed?;
         assert header.body.Valid();
         assert Msg.SeqToHeaderBody(deserializeHeaderResult.hbSeq, header.body);
@@ -444,6 +445,7 @@ If the algorithm suite has a signature algorithm, decrypt MUST verify the messag
         && MessageBody.FramesEncryptPlaintext(frames, plaintext));
         
     assert header.body.contentType.Framed? ==> FramesBySequence(frames, rd.reader.data[endHeaderPos..rd.reader.pos]) by {
+      reveal FramesBySequence();
       assert header.body.contentType.Framed? ==> |frames| < UINT32_LIMIT;
       assert header.body.contentType.Framed? ==> forall frame | frame in frames :: frame.Valid();
       assert header.body.contentType.Framed? ==> rd.reader.data[endHeaderPos..rd.reader.pos] == MessageBody.FramesToSequence(frames);
@@ -473,13 +475,17 @@ If the algorithm suite has a signature algorithm, decrypt MUST verify the messag
       if !signatureVerified {
         return Failure("signature not verified");
       }
-      assert SignatureBySequence(signature, rd.reader.data[endFramePos..rd.reader.pos]) by {
-        assert signature == sig;
-        assert |signature| < UINT16_LIMIT;
-        assert UInt16ToSeq(|signature| as uint16) == rd.reader.data[endFramePos..endFramePos + 2];
-        assert sig == rd.reader.data[endFramePos + 2..endFramePos + 2 +  |signature|];
-        assert rd.reader.pos == endFramePos + 2 + |signature|;
-        assert rd.reader.data[endFramePos..rd.reader.pos] == UInt16ToSeq(|signature| as uint16) + signature;
+      if header.body.contentType.Framed? {
+        assert SignatureBySequence(signature, rd.reader.data[endFramePos..rd.reader.pos]) by {
+          reveal SignatureBySequence();
+          assert signature == sig;
+          assert |signature| < UINT16_LIMIT;
+          assert signatureLength as int == |signature|;
+          assert signatureLength == SeqToUInt16(rd.reader.data[endFramePos..endFramePos + 2]);
+          assert rd.reader.pos == endFramePos + 2 + |signature|;
+          assert rd.reader.data[endFramePos + 2..rd.reader.pos] == signature;
+          assert rd.reader.data[endFramePos..rd.reader.pos] == UInt16ToSeq(|signature| as uint16) + signature;
+        }
       }
     }
 
@@ -494,11 +500,19 @@ If the algorithm suite has a signature algorithm, decrypt MUST verify the messag
           && FramesBySequence(frames, request.message[endHeaderPos..endFramePos])
           && SignatureBySequence(signature, request.message[endFramePos..]) by {
             assert 0 <= endHeaderPos <= endFramePos <= |request.message|;
+
+          assert SignatureBySequence(signature, request.message[endFramePos..]) by {
             assert rd.reader.data[endFramePos..rd.reader.pos] == request.message[endFramePos..] by {
-              assert rd.reader.data == request.message;
-              assert |rd.reader.data| == rd.reader.pos;
+              calc {
+                rd.reader.data[endFramePos..rd.reader.pos];
+              == {upperBoundRemv(rd.reader.data, endFramePos); }
+                rd.reader.data[endFramePos..];
+              == {assert rd.reader.data == request.message; }
+                request.message[endFramePos..];
+              }
             }
-          assert SignatureBySequence(signature, request.message[endFramePos..]);
+            assert SignatureBySequence(signature, rd.reader.data[endFramePos..rd.reader.pos]);
+          }
         }
         HBandMBwithSigMatchSequence(header, deserializeHeaderResult.hbSeq, frames, signature, request.message);
       } else {
@@ -524,7 +538,7 @@ If the algorithm suite has a signature algorithm, decrypt MUST verify the messag
     return Success(plaintext);
   }
 
-  predicate HeaderBySequence(header: Msg.Header, hbSeq: seq<uint8>, sequence: seq<uint8>)
+  predicate {:opaque } HeaderBySequence(header: Msg.Header, hbSeq: seq<uint8>, sequence: seq<uint8>)
   {
     header.body.contentType.Framed?
     && header.body.Valid()
@@ -532,14 +546,14 @@ If the algorithm suite has a signature algorithm, decrypt MUST verify the messag
     && sequence == hbSeq + header.auth.iv + header.auth.authenticationTag
   }
 
-  predicate FramesBySequence(frames: seq<MessageBody.Frame>, sequence: seq<uint8>)
+  predicate {:opaque } FramesBySequence(frames: seq<MessageBody.Frame>, sequence: seq<uint8>)
   {
     |frames| < UINT32_LIMIT
     && (forall frame: MessageBody.Frame | frame in frames :: frame.Valid())
     && sequence == MessageBody.FramesToSequence(frames)
   }
 
-  predicate SignatureBySequence(signature: seq<uint8>, sequence: seq<uint8>)
+  predicate {:opaque } SignatureBySequence(signature: seq<uint8>, sequence: seq<uint8>)
   {
     |signature| < UINT16_LIMIT
     && sequence == UInt16ToSeq(|signature| as uint16) + signature
@@ -553,7 +567,7 @@ If the algorithm suite has a signature algorithm, decrypt MUST verify the messag
       && FramesBySequence(frames, message[headerLength..])
     ensures message == hbSeq + header.auth.iv + header.auth.authenticationTag + MessageBody.FramesToSequence(frames);
   {
-
+    reveal HeaderBySequence(), FramesBySequence();
   }
 
   lemma HBandMBwithSigMatchSequence(header: Msg.Header, hbSeq: seq<uint8>, frames: seq<MessageBody.Frame>, signature: seq<uint8>, message: seq<uint8>)
@@ -566,12 +580,19 @@ If the algorithm suite has a signature algorithm, decrypt MUST verify the messag
       && SignatureBySequence(signature, message[headerLength + |MessageBody.FramesToSequence(frames)|..])
     ensures message == hbSeq + header.auth.iv + header.auth.authenticationTag + MessageBody.FramesToSequence(frames) + UInt16ToSeq(|signature| as uint16) + signature;
   {
-
+    reveal HeaderBySequence(), FramesBySequence(), SignatureBySequence();
   }
 
   lemma concatSeq(sequence: seq<uint8>, i: nat)
     requires 0 <= i <= |sequence|
     ensures sequence[..i] + sequence[i..] == sequence
+  {
+
+  }
+
+  lemma upperBoundRemv(sequence: seq<uint8>, lo: int)
+    requires 0 <= lo <= |sequence|
+    ensures sequence[lo..|sequence|] == sequence[lo..]
   {
 
   }
