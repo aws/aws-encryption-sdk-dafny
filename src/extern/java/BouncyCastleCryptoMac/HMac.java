@@ -1,11 +1,9 @@
 package BouncyCastleCryptoMac;
 
-import BouncyCastleCryptoMac.CipherParameters;
 import Digests.HMAC_ALGORITHM;
 import Utils.AlgorithmNotSupportedException;
 import Utils.Util;
 import dafny.DafnySequence;
-import dafny.UByte;
 
 import java.math.BigInteger;
 
@@ -39,7 +37,7 @@ public class HMac extends _ExternBase_HMac {
   @Override
   public void init(CipherParameters ps) {
     if(ps.is_KeyParameter()) {
-      org.bouncycastle.crypto.params.KeyParameter bcKeyParameter = new org.bouncycastle.crypto.params.KeyParameter(Util.uBytesToBytes(ps.key));
+      org.bouncycastle.crypto.params.KeyParameter bcKeyParameter = new org.bouncycastle.crypto.params.KeyParameter(ps.key);
       bcHMac.init(bcKeyParameter);
     }
   }
@@ -50,20 +48,20 @@ public class HMac extends _ExternBase_HMac {
   }
 
   @Override
-  public void updateSingle(UByte input) {
-    bcHMac.update(input.byteValue());
+  public void updateSingle(byte input) {
+    bcHMac.update(input);
   }
 
   @Override
-  public void update(UByte[] input , BigInteger inOff, BigInteger len) {
-    bcHMac.update(Util.uBytesToBytes(input), Util.bigIntegerToInt(inOff), Util.bigIntegerToInt(len));
+  public void update(byte[] input , BigInteger inOff, BigInteger len) {
+    bcHMac.update(input, Util.bigIntegerToInt(inOff), Util.bigIntegerToInt(len));
   }
 
   @Override
-  public BigInteger doFinal(UByte[] output, BigInteger outOff) {
+  public BigInteger doFinal(byte[] output, BigInteger outOff) {
     byte[] bytes = new byte[output.length - Util.bigIntegerToInt(outOff)];
     BigInteger ans = BigInteger.valueOf(bcHMac.doFinal(bytes, 0));
-    System.arraycopy(Util.bytesToUBytes(bytes), 0, output, outOff.intValue(), bytes.length);
+    System.arraycopy(bytes, 0, output, outOff.intValue(), bytes.length);
     return ans;
   }
 

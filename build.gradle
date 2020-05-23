@@ -21,6 +21,7 @@ project.buildDir = 'build/java'
 sourceSets {
     main {
         java {
+            // TODO: Properly split things out into main and test
             srcDirs = ['src/extern/java', 'test/extern/java', 'build/java/src/main']
         }
     }

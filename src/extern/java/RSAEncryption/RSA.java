@@ -3,7 +3,6 @@ package RSAEncryption;
 import Utils.BouncyCastleUtils;
 import dafny.DafnySequence;
 import dafny.Tuple2;
-import dafny.UByte;
 import org.bouncycastle.openssl.PEMReader;
 import org.bouncycastle.openssl.PEMWriter;
 
@@ -23,7 +22,7 @@ import java.security.spec.RSAKeyGenParameterSpec;
 import static Utils.Util.*;
 
 public class RSA {
-    public static Tuple2<UByte[], UByte[]> get_pem(KeyPair kp) {
+    public static Tuple2<byte[], byte[]> get_pem(KeyPair kp) {
         try {
             byte[] pk;
             {
@@ -42,8 +41,8 @@ public class RSA {
                 pemWriter.flush();
                 sk = stringWriter.toString().getBytes(StandardCharsets.UTF_8);
             }
-            
-            return new Tuple2<>(bytesToUBytes(pk), bytesToUBytes(sk));
+
+            return new Tuple2<>(pk, sk);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
@@ -55,7 +54,7 @@ public class RSA {
     @SuppressWarnings("unused")
     public static final int RSA_CERTAINTY = 256;
 
-    public static Tuple2<DafnySequence<UByte>, DafnySequence<UByte>> GenerateKeyPairExtern(int bits, PaddingMode padding) {
+    public static Tuple2<DafnySequence<Byte>, DafnySequence<Byte>> GenerateKeyPairExtern(int bits, PaddingMode padding) {
         KeyPairGenerator gen;
         try {
             gen = KeyPairGenerator.getInstance("RSA", BouncyCastleUtils.getProvider());
@@ -69,21 +68,21 @@ public class RSA {
         }
 
         KeyPair kp = gen.generateKeyPair();
-        Tuple2<UByte[], UByte[]> pair = get_pem(kp);
-        return new Tuple2<>(DafnySequence.fromArray(pair.dtor__0()), DafnySequence.fromArray(pair.dtor__1()));
+        Tuple2<byte[], byte[]> pair = get_pem(kp);
+        return new Tuple2<>(DafnySequence.fromBytes(pair.dtor__0()), DafnySequence.fromBytes(pair.dtor__1()));
     }
 
-    public static STL.Result<DafnySequence<UByte>> EncryptExtern(PaddingMode padding, DafnySequence<UByte> ek, DafnySequence<UByte> msg) {
+    public static STL.Result<DafnySequence<Byte>> EncryptExtern(PaddingMode padding, DafnySequence<Byte> ek, DafnySequence<Byte> msg) {
         try {
             java.security.PublicKey pub;
-            PEMReader pemReader = new PEMReader(new StringReader(uByteSequenceToString(ek)));
+            PEMReader pemReader = new PEMReader(new StringReader(byteSequenceToString(ek)));
             Object pemObject = pemReader.readObject();
             pub = ((java.security.PublicKey)pemObject);
 
             Cipher engine = createEngine(padding);
 
             engine.init(Cipher.ENCRYPT_MODE, pub);
-            return new STL.Result_Success<>(bytesToUByteSequence(engine.doFinal(uByteSequenceToBytes(msg))));
+            return new STL.Result_Success<>(DafnySequence.fromBytes(engine.doFinal(DafnySequence.toByteArray(msg))));
         }
         catch (IOException | InvalidKeyException | IllegalBlockSizeException | BadPaddingException e){
             return new STL.Result_Failure<>(DafnySequence.asString("rsa encrypt error"));
@@ -91,16 +90,16 @@ public class RSA {
 
     }
 
-    public static STL.Result<DafnySequence<UByte>> DecryptExtern(PaddingMode padding, DafnySequence<UByte> dk, DafnySequence<UByte> ctx) {
+    public static STL.Result<DafnySequence<Byte>> DecryptExtern(PaddingMode padding, DafnySequence<Byte> dk, DafnySequence<Byte> ctx) {
         try {
             KeyPair keyPair;
 
             Cipher engine = createEngine(padding);
 
-            Reader txtreader = new StringReader(uByteSequenceToString(dk));
+            Reader txtreader = new StringReader(byteSequenceToString(dk));
             keyPair = (KeyPair) new PEMReader(txtreader).readObject();
             engine.init(Cipher.DECRYPT_MODE, keyPair.getPrivate());
-            return new STL.Result_Success<>(bytesToUByteSequence(engine.doFinal(uByteSequenceToBytes(ctx))));
+            return new STL.Result_Success<>(DafnySequence.fromBytes(engine.doFinal(DafnySequence.toByteArray(ctx))));
         }
         catch (IOException | InvalidKeyException | IllegalBlockSizeException | BadPaddingException e){
             return new STL.Result_Failure<>(DafnySequence.asString("rsa decrypt error"));
