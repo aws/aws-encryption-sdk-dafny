@@ -1,3 +1,6 @@
+// Copyright Amazon.com Inc. or its affiliates. All Rights Reserved.
+// SPDX-License-Identifier: Apache-2.0
+
 include "../../StandardLibrary/StandardLibrary.dfy"
 include "../../StandardLibrary/UInt.dfy"
 include "../Materials.dfy"
@@ -10,29 +13,33 @@ module {:extern "KeyringDefs"} KeyringDefs {
   import AlgorithmSuite
 
   trait {:termination false} Keyring {
-    ghost var Repr : set<object>
-    predicate Valid() reads this, Repr
+    ghost var Repr: set<object>
+    predicate Valid()
+      reads this, Repr
+      ensures Valid() ==> this in Repr
 
-    method OnEncrypt(algorithmSuiteID: Materials.AlgorithmSuite.ID,
-                     encryptionContext: Materials.EncryptionContext,
-                     plaintextDataKey: Option<seq<uint8>>) returns (res: Result<Option<Materials.ValidDataKeyMaterials>>)
-      requires Valid()
-      requires plaintextDataKey.Some? ==> algorithmSuiteID.ValidPlaintextDataKey(plaintextDataKey.get)
-      ensures Valid()
-      ensures res.Success? && res.value.Some? ==> 
-        algorithmSuiteID == res.value.get.algorithmSuiteID
-      ensures res.Success? && res.value.Some? && plaintextDataKey.Some? ==> 
-        plaintextDataKey.get == res.value.get.plaintextDataKey
-      ensures res.Success? && res.value.Some? ==>
-        var generateTraces: seq<Materials.KeyringTraceEntry> := Filter(res.value.get.keyringTrace, Materials.IsGenerateTraceEntry);
-        |generateTraces| == if plaintextDataKey.None? then 1 else 0
-
-    method OnDecrypt(algorithmSuiteID: AlgorithmSuite.ID,
-                     encryptionContext: Materials.EncryptionContext,
-                     edks: seq<Materials.EncryptedDataKey>) returns (res: Result<Option<Materials.ValidOnDecryptResult>>)
+    method OnEncrypt(materials: Materials.ValidEncryptionMaterials) returns (res: Result<Materials.ValidEncryptionMaterials>)
       requires Valid()
       ensures Valid()
-      ensures |edks| == 0 ==> res.Success? && res.value.None?
-      ensures res.Success? && res.value.Some? ==> res.value.get.algorithmSuiteID == algorithmSuiteID
+      ensures res.Success? ==>
+          && materials.encryptionContext == res.value.encryptionContext
+          && materials.algorithmSuiteID == res.value.algorithmSuiteID
+          && (materials.plaintextDataKey.Some? ==> res.value.plaintextDataKey == materials.plaintextDataKey)
+          && materials.keyringTrace <= res.value.keyringTrace
+          && materials.encryptedDataKeys <= res.value.encryptedDataKeys
+          && materials.signingKey == res.value.signingKey
+
+    method OnDecrypt(materials: Materials.ValidDecryptionMaterials,
+                     encryptedDataKeys: seq<Materials.EncryptedDataKey>) returns (res: Result<Materials.ValidDecryptionMaterials>)
+      requires Valid()
+      ensures Valid()
+      ensures |encryptedDataKeys| == 0 ==> res.Success? && materials == res.value
+      ensures materials.plaintextDataKey.Some? ==> res.Success? && materials == res.value
+      ensures res.Success? ==>
+          && materials.encryptionContext == res.value.encryptionContext
+          && materials.algorithmSuiteID == res.value.algorithmSuiteID
+          && (materials.plaintextDataKey.Some? ==> res.value.plaintextDataKey == materials.plaintextDataKey)
+          && materials.keyringTrace <= res.value.keyringTrace
+          && res.value.verificationKey == materials.verificationKey
   }
 }

@@ -1,14 +1,20 @@
+// Copyright Amazon.com Inc. or its affiliates. All Rights Reserved.
+// SPDX-License-Identifier: Apache-2.0
+
 include "../StandardLibrary/StandardLibrary.dfy"
 include "../StandardLibrary/UInt.dfy"
 include "Materials.dfy"
+include "EncryptionContext.dfy"
 include "CMM/Defs.dfy"
+include "CMM/DefaultCMM.dfy"
 include "MessageHeader.dfy"
 include "MessageBody.dfy"
 include "Serialize.dfy"
 include "Deserialize.dfy"
+include "Keyring/Defs.dfy"
 include "../Crypto/Random.dfy"
 include "../Util/Streams.dfy"
-include "../Crypto/Digests.dfy"
+include "../Crypto/KeyDerivationAlgorithms.dfy"
 include "../Crypto/HKDF/HKDF.dfy"
 include "../Crypto/AESEncryption.dfy"
 include "../Crypto/Signature.dfy"
@@ -16,89 +22,157 @@ include "../Crypto/Signature.dfy"
 module {:extern "ESDKClient"} ESDKClient {
   import opened StandardLibrary
   import opened UInt = StandardLibrary.UInt
-  import Materials
+  import EncryptionContext
   import AlgorithmSuite
+  import AESEncryption
   import CMMDefs
+  import DefaultCMMDef
+  import Deserialize
+  import HKDF
+  import KeyringDefs
+  import KeyDerivationAlgorithms
+  import Materials
   import Msg = MessageHeader
   import MessageBody
-  import Serialize
   import Random
-  import Digests
-  import Streams
-  import HKDF
-  import AESEncryption
+  import Serialize
   import Signature
-  import Deserialize
+  import Streams
 
-  /*
-   * Encrypt a plaintext and serialize it into a message.
-   */
-  method Encrypt(plaintext: seq<uint8>, cmm: CMMDefs.CMM, encryptionContext: Materials.EncryptionContext) returns (res: Result<seq<uint8>>)
-    requires Materials.GetKeysFromEncryptionContext(encryptionContext) !! Materials.ReservedKeyValues
-    requires cmm.Valid() && Msg.ValidAAD(encryptionContext)
+  const DEFAULT_FRAME_LENGTH: uint32 := 4096
+
+  datatype EncryptRequest = EncryptRequest(
+    plaintext: seq<uint8>,
+    cmm: CMMDefs.CMM?,
+    keyring: KeyringDefs.Keyring?,
+    plaintextLength: nat,
+    encryptionContext: EncryptionContext.Map,
+    algorithmSuiteID: Option<uint16>,
+    frameLength: Option<uint32>)
   {
-    /*
-     * What's needed for the encryption: encryption materials, message ID, and derived data key.
-     */
+    static function method WithCMM(plaintext: seq<uint8>, cmm: CMMDefs.CMM): EncryptRequest
+      requires cmm.Valid()
+      reads cmm.Repr
+    {
+      EncryptRequest(plaintext, cmm, null, |plaintext|, map[], None, None)
+    }
 
-    var encMat :- cmm.GetEncryptionMaterials(encryptionContext, None, Some(|plaintext|));
-    var dataKeyMaterials := encMat.dataKeyMaterials;
-    if UINT16_LIMIT <= |dataKeyMaterials.encryptedDataKeys| {
+    static function method WithKeyring(plaintext: seq<uint8>, keyring: KeyringDefs.Keyring): EncryptRequest
+      requires keyring.Valid()
+      reads keyring.Repr
+    {
+      EncryptRequest(plaintext, null, keyring, |plaintext|, map[], None, None)
+    }
+
+    function method SetEncryptionContext(encryptionContext: EncryptionContext.Map): EncryptRequest {
+      this.(encryptionContext := encryptionContext)
+    }
+
+    function method SetAlgorithmSuiteID(algorithmSuiteID: uint16): EncryptRequest {
+      this.(algorithmSuiteID := Some(algorithmSuiteID))
+    }
+
+    function method SetFrameLength(frameLength: uint32): EncryptRequest {
+      this.(frameLength := Some(frameLength))
+    }
+  }
+
+  datatype DecryptRequest = DecryptRequest(message: seq<uint8>, cmm: CMMDefs.CMM?, keyring: KeyringDefs.Keyring?)
+  {
+    static function method WithCMM(message: seq<uint8>, cmm: CMMDefs.CMM): DecryptRequest
+      requires cmm.Valid()
+      reads cmm.Repr
+    {
+      DecryptRequest(message, cmm, null)
+    }
+
+    static function method WithKeyring(message: seq<uint8>, keyring: KeyringDefs.Keyring): DecryptRequest
+      requires keyring.Valid()
+      reads keyring.Repr
+    {
+      DecryptRequest(message, null, keyring)
+    }
+  }
+
+ /*
+  * Encrypt a plaintext and serialize it into a message.
+  */
+  method Encrypt(request: EncryptRequest) returns (res: Result<seq<uint8>>)
+    requires request.cmm != null ==> request.cmm.Valid()
+    requires request.keyring != null ==> request.keyring.Valid()
+    modifies if request.cmm == null then {} else request.cmm.Repr
+    modifies if request.keyring == null then {} else request.keyring.Repr
+    ensures request.cmm != null ==> request.cmm.Valid()
+    ensures request.cmm != null ==> fresh(request.cmm.Repr - old(request.cmm.Repr))
+    ensures request.cmm == null && request.keyring == null ==> res.Failure?
+    ensures request.cmm != null && request.keyring != null ==> res.Failure?
+    ensures request.algorithmSuiteID.Some? && request.algorithmSuiteID.get !in AlgorithmSuite.VALID_IDS ==> res.Failure?
+    ensures request.frameLength.Some? && request.frameLength.get == 0 ==> res.Failure?
+  {
+    if request.cmm != null && request.keyring != null {
+      return Failure("EncryptRequest.keyring OR EncryptRequest.cmm must be set (not both).");
+    } else if request.cmm == null && request.keyring == null {
+      return Failure("EncryptRequest.cmm and EncryptRequest.keyring cannot both be null.");
+    } else if request.algorithmSuiteID.Some? && request.algorithmSuiteID.get !in AlgorithmSuite.VALID_IDS {
+      return Failure("Invalid algorithmSuiteID.");
+    } else if request.frameLength.Some? && request.frameLength.get == 0 {
+      return Failure("Request frameLength must be > 0");
+    }
+
+    var cmm: CMMDefs.CMM;
+    if request.keyring == null {
+      cmm := request.cmm;
+    } else {
+      cmm := new DefaultCMMDef.DefaultCMM.OfKeyring(request.keyring);
+    }
+
+    var frameLength := if request.frameLength.Some? then request.frameLength.get else DEFAULT_FRAME_LENGTH;
+
+    var algorithmSuiteID := if request.algorithmSuiteID.Some? then Some(request.algorithmSuiteID.get as AlgorithmSuite.ID) else None;
+
+    var encMatRequest := Materials.EncryptionMaterialsRequest(request.encryptionContext, algorithmSuiteID, Some(request.plaintextLength as nat));
+    var encMat :- cmm.GetEncryptionMaterials(encMatRequest);
+    if UINT16_LIMIT <= |encMat.encryptedDataKeys| {
       return Failure("Number of EDKs exceeds the allowed maximum.");
     }
 
-    var messageID: Msg.MessageID := Random.GenerateBytes(Msg.MESSAGE_ID_LEN as int32);
-    var derivedDataKey := DeriveKey(dataKeyMaterials.plaintextDataKey, dataKeyMaterials.algorithmSuiteID, messageID);
+    var messageID: Msg.MessageID :- Random.GenerateBytes(Msg.MESSAGE_ID_LEN as int32);
+    var derivedDataKey := DeriveKey(encMat.plaintextDataKey.get, encMat.algorithmSuiteID, messageID);
 
-    /*
-     * Assemble and serialize the header and its authentication tag.
-     */
-
-    var frameLength := 4096;
+    // Assemble and serialize the header and its authentication tag
     var headerBody := Msg.HeaderBody(
       Msg.VERSION_1,
       Msg.TYPE_CUSTOMER_AED,
-      dataKeyMaterials.algorithmSuiteID,
+      encMat.algorithmSuiteID,
       messageID,
       encMat.encryptionContext,
-      Msg.EncryptedDataKeys(dataKeyMaterials.encryptedDataKeys),
+      Msg.EncryptedDataKeys(encMat.encryptedDataKeys),
       Msg.ContentType.Framed,
-      dataKeyMaterials.algorithmSuiteID.IVLength() as uint8,
+      encMat.algorithmSuiteID.IVLength() as uint8,
       frameLength);
-    var wr := new Streams.StringWriter();
+    var wr := new Streams.ByteWriter();
 
     var _ :- Serialize.SerializeHeaderBody(wr, headerBody);
-    var unauthenticatedHeader := wr.data;
+    var unauthenticatedHeader := wr.GetDataWritten();
 
-    var iv: seq<uint8> := seq(dataKeyMaterials.algorithmSuiteID.IVLength(), _ => 0);
-    var encryptionOutput :- AESEncryption.AESEncrypt(dataKeyMaterials.algorithmSuiteID.EncryptionSuite(), iv, derivedDataKey, [], unauthenticatedHeader);
+    var iv: seq<uint8> := seq(encMat.algorithmSuiteID.IVLength(), _ => 0);
+    var encryptionOutput :- AESEncryption.AESEncryptExtern(encMat.algorithmSuiteID.EncryptionSuite(), iv, derivedDataKey, [], unauthenticatedHeader);
     var headerAuthentication := Msg.HeaderAuthentication(iv, encryptionOutput.authTag);
-    var _ :- Serialize.SerializeHeaderAuthentication(wr, headerAuthentication, dataKeyMaterials.algorithmSuiteID);
+    var _ :- Serialize.SerializeHeaderAuthentication(wr, headerAuthentication, encMat.algorithmSuiteID);
 
-    /*
-     * Encrypt the given plaintext into the message body.
-     */
+    // Encrypt the given plaintext into the message body and add a footer with a signature, if required
+    var body :- MessageBody.EncryptMessageBody(request.plaintext, frameLength as int, messageID, derivedDataKey, encMat.algorithmSuiteID);
+    var msg := wr.GetDataWritten() + body;
 
-    var body :- MessageBody.EncryptMessageBody(plaintext, frameLength as int, messageID, derivedDataKey, dataKeyMaterials.algorithmSuiteID);
-
-    /*
-     * Add footer with signature, if required.
-     */
-
-    var msg := wr.data + body;
-
-    match dataKeyMaterials.algorithmSuiteID.SignatureType() {
+    match encMat.algorithmSuiteID.SignatureType() {
       case None =>
         // don't use a footer
       case Some(ecdsaParams) =>
-        var digest := Signature.Digest(ecdsaParams, msg);
-        var signResult := Signature.Sign(ecdsaParams, encMat.signingKey.get, digest);
-        match signResult {
-          case None =>
-            return Failure("Message signing failed");
-          case Some(bytes) =>
-            msg := msg + UInt16ToSeq(|bytes| as uint16) + bytes;
+        var bytes :- Signature.Sign(ecdsaParams, encMat.signingKey.get, msg);
+        if |bytes| != ecdsaParams.SignatureLength() as int {
+          return Failure("Malformed response from Sign().");
         }
+        msg := msg + UInt16ToSeq(|bytes| as uint16) + bytes;
     }
 
     return Success(msg);
@@ -108,48 +182,55 @@ module {:extern "ESDKClient"} ESDKClient {
     requires |plaintextDataKey| == algorithmSuiteID.KDFInputKeyLength()
     ensures |derivedDataKey| == algorithmSuiteID.KeyLength()
   {
-    var whichSHA := AlgorithmSuite.Suite[algorithmSuiteID].hkdf;
-    if whichSHA == Digests.HmacNOSHA {
+    var algorithm := AlgorithmSuite.Suite[algorithmSuiteID].hkdf;
+    if algorithm == KeyDerivationAlgorithms.IDENTITY {
       return plaintextDataKey;
     }
 
-    var inputKeyMaterials := SeqToArray(plaintextDataKey);
     var infoSeq := UInt16ToSeq(algorithmSuiteID as uint16) + messageID;
-    var info := SeqToArray(infoSeq);
     var len := algorithmSuiteID.KeyLength();
-    var derivedKey := HKDF.hkdf(whichSHA, None, inputKeyMaterials, info, len);
-    return derivedKey[..];
+    var derivedKey := HKDF.Hkdf(algorithm, None, plaintextDataKey, infoSeq, len);
+    return derivedKey;
   }
 
-  /*
-   * Deserialize a message and decrypt into a plaintext.
-   */
-  method Decrypt(message: seq<uint8>, cmm: CMMDefs.CMM) returns (res: Result<seq<uint8>>)
-    requires cmm.Valid()
+ /*
+  * Deserialize a message and decrypt into a plaintext.
+  */
+  method Decrypt(request: DecryptRequest) returns (res: Result<seq<uint8>>)
+    requires request.cmm != null ==> request.cmm.Valid()
+    requires request.keyring != null ==> request.keyring.Valid()
+    modifies if request.cmm == null then {} else request.cmm.Repr
+    modifies if request.keyring == null then {} else request.keyring.Repr
+    ensures request.cmm != null ==> request.cmm.Valid()
+    ensures request.cmm != null ==> fresh(request.cmm.Repr - old(request.cmm.Repr))
+    ensures request.cmm == null && request.keyring == null ==> res.Failure?
+    ensures request.cmm != null && request.keyring != null ==> res.Failure?
   {
-    /*
-     * Parse the message header to obtain: algorithm suite ID, encrypted data keys, and encryption context.
-     */
+    if request.cmm != null && request.keyring != null {
+      return Failure("DecryptRequest.keyring OR DecryptRequest.cmm must be set (not both).");
+    } else if request.cmm == null && request.keyring == null {
+      return Failure("DecryptRequest.cmm and DecryptRequest.keyring cannot both be null.");
+    }
 
-    var rd := new Streams.StringReader.FromSeq(message);
+    var cmm: CMMDefs.CMM;
+    if request.keyring == null {
+      cmm := request.cmm;
+    } else {
+      cmm := new DefaultCMMDef.DefaultCMM.OfKeyring(request.keyring);
+    }
+
+    var rd := new Streams.ByteReader(request.message);
     var header :- Deserialize.DeserializeHeader(rd);
+    var decMatRequest := Materials.DecryptionMaterialsRequest(header.body.algorithmSuiteID, header.body.encryptedDataKeys.entries, header.body.aad);
+    var decMat :- cmm.DecryptMaterials(decMatRequest);
 
-    /*
-     * What's needed for the decryption: decryption materials, decryption key.
-     */
+    var decryptionKey := DeriveKey(decMat.plaintextDataKey.get, decMat.algorithmSuiteID, header.body.messageID);
 
-    var decMat :- cmm.DecryptMaterials(header.body.algorithmSuiteID, header.body.encryptedDataKeys.entries, header.body.aad);
-
-    var decryptionKey := DeriveKey(decMat.plaintextDataKey, decMat.algorithmSuiteID, header.body.messageID);
-
-    /*
-     * Parse and decrypt message body.
-     */
-
+    // Parse and decrypt the message body
     var plaintext;
     match header.body.contentType {
       case NonFramed =>
-        return Failure("Unframed Message Decryption Unimplemented");
+        plaintext :- MessageBody.DecryptNonFramedMessageBody(rd, decMat.algorithmSuiteID, decryptionKey, header.body.messageID);
       case Framed =>
         plaintext :- MessageBody.DecryptFramedMessageBody(rd, decMat.algorithmSuiteID, decryptionKey, header.body.frameLength as int, header.body.messageID);
     }
@@ -158,19 +239,21 @@ module {:extern "ESDKClient"} ESDKClient {
       case None =>
         // there's no footer
       case Some(ecdsaParams) =>
-        var msg := message[..rd.pos];  // unauthenticatedHeader + authTag + body  // TODO: there should be a better way to get this
+        var usedCapacity := rd.GetSizeRead();
+        assert usedCapacity <= |request.message|;
+        var msg := request.message[..usedCapacity];  // unauthenticatedHeader + authTag + body  // TODO: there should be a better way to get this
         // read signature
         var signatureLength :- rd.ReadUInt16();
-        var sig :- rd.ReadExact(signatureLength as nat);
+        var sig :- rd.ReadBytes(signatureLength as nat);
         // verify signature
-        var digest := Signature.Digest(ecdsaParams, msg);
-        var signatureVerified := Signature.Verify(ecdsaParams, decMat.verificationKey.get, digest, sig);
+        var signatureVerified :- Signature.Verify(ecdsaParams, decMat.verificationKey.get, msg, sig);
         if !signatureVerified {
           return Failure("signature not verified");
         }
     }
 
-    if rd.Available() != 0 {
+    var isDone := rd.IsDoneReading();
+    if !isDone {
       return Failure("message contains additional bytes at end");
     }
 

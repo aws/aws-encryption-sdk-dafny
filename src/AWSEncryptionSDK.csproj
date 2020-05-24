@@ -2,59 +2,16 @@
 
   <PropertyGroup>
     <OutputType>Library</OutputType>
-    <TargetFramework>netcoreapp3.0</TargetFramework>
+    <TargetFramework>netstandard2.0</TargetFramework>
     <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
   </PropertyGroup>
 
-  <!--
-    TODO: Temporary subset of files to build and verify.
-    Add to this as more files can be verified.
-    Eventually this can be a wildcard pattern.
-  -->
   <ItemGroup>
-    <DafnySource Remove="@(DafnySource)" />
-
-    <DafnySource Include="Crypto/AESEncryption.dfy" />
-    <DafnySource Include="Crypto/EncryptionSuites.dfy" />
-    <DafnySource Include="Crypto/Digests.dfy" />
-    <DafnySource Include="Crypto/HKDF/CryptoMac.dfy" />
-    <DafnySource Include="Crypto/HKDF/HKDF.dfy" />
-    <DafnySource Include="Crypto/HKDF/HKDFSpec.dfy" />
-    <DafnySource Include="Crypto/Random.dfy" />
-    <DafnySource Include="Crypto/RSAEncryption.dfy" />
-    <DafnySource Include="Crypto/Signature.dfy" />
-    <DafnySource Include="KMS/KMSUtils.dfy" />
-    <DafnySource Include="SDK/AlgorithmSuite.dfy" />
-    <DafnySource Include="SDK/Client.dfy" />
-    <DafnySource Include="SDK/CMM/DefaultCMM.dfy" />
-    <DafnySource Include="SDK/CMM/Defs.dfy" />
-    <DafnySource Include="SDK/Deserialize.dfy" />
-    <DafnySource Include="SDK/Keyring/Defs.dfy" />
-    <DafnySource Include="SDK/Keyring/KMSKeyring.dfy" />
-    <DafnySource Include="SDK/Keyring/MultiKeyring.dfy" />
-    <DafnySource Include="SDK/Keyring/RawAESKeyring.dfy" />
-    <DafnySource Include="SDK/Keyring/RawRSAKeyring.dfy" />
-    <DafnySource Include="SDK/Materials.dfy" />
-    <DafnySource Include="SDK/MessageBody.dfy" />
-    <DafnySource Include="SDK/MessageHeader.dfy" />
-    <DafnySource Include="SDK/Serialize.dfy" />
-    <DafnySource Include="SDK/ToyClient.dfy" />
-    <DafnySource Include="StandardLibrary/Base64.dfy" />
-    <DafnySource Include="StandardLibrary/StandardLibrary.dfy" />
-    <DafnySource Include="StandardLibrary/UInt.dfy" />
-    <DafnySource Include="Util/Arrays.dfy" />
-    <DafnySource Include="Util/Streams.dfy" />
-    <DafnySource Include="Util/UTF8.dfy" />
-  </ItemGroup>
-  
-  <ItemGroup>
-    <PackageReference Include="dafny.msbuild" Version="0.1.1" />
-    <PackageReference Include="AWSSDK.Core" Version="3.3.104.1" />
-    <PackageReference Include="AWSSDK.KeyManagementService" Version="3.3.103" />
-    <PackageReference Include="Portable.BouncyCastle" Version="1.8.5.2" />
+    <PackageReference Include="dafny.msbuild" Version="1.0.0" />
   </ItemGroup>
 
-  <PropertyGroup>
-    <DafnyVerificationTimeLimit>120</DafnyVerificationTimeLimit>
-  </PropertyGroup>
+  <ItemGroup>
+    <VerifyDafnyPassthrough Include="timeLimit:300" />
+    <VerifyDafnyPassthrough Include="definiteAssignment:3" />
+  </ItemGroup>
 </Project>

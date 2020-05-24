@@ -1,9 +1,13 @@
+// Copyright Amazon.com Inc. or its affiliates. All Rights Reserved.
+// SPDX-License-Identifier: Apache-2.0
+
 include "../../../src/SDK/Keyring/RawRSAKeyring.dfy"
 include "../../../src/SDK/AlgorithmSuite.dfy"
 include "../../../src/Crypto/RSAEncryption.dfy"
 include "../../../src/StandardLibrary/StandardLibrary.dfy"
 include "../../../src/StandardLibrary/UInt.dfy"
 include "../../../src/Util/UTF8.dfy"
+include "../../Util/TestUtils.dfy"
 
 module TestRSAKeyring {
   import opened StandardLibrary
@@ -12,73 +16,77 @@ module TestRSAKeyring {
   import RawRSAKeyringDef
   import AlgorithmSuite
   import UTF8
+  import Materials
+  import TestUtils
 
-  const name := UTF8.Encode("test Name").value;
-  const namespace := UTF8.Encode("test Namespace").value;
   const allPaddingModes := {RSA.PKCS1, RSA.OAEP_SHA1, RSA.OAEP_SHA256, RSA.OAEP_SHA384, RSA.OAEP_SHA512}
 
-  method {:test} TestOnEncryptOnDecryptGenerateDataKey() returns (r: Result<()>)
+  method {:test} TestOnEncryptOnDecryptGenerateDataKey()
   {
     var remainingPaddingModes := allPaddingModes;
-    var allResults: seq<Result<()>> := [];
+    var namespace, name := TestUtils.NamespaceAndName(0);
     while remainingPaddingModes != {}
-      invariant |remainingPaddingModes| + |allResults| == |allPaddingModes|
       decreases remainingPaddingModes
     {
       var paddingMode :| paddingMode in remainingPaddingModes;
       remainingPaddingModes := remainingPaddingModes - {paddingMode};
       // Verify key generation for a given padding mode
       var publicKey, privateKey := RSA.GenerateKeyPair(2048, paddingMode);
-      var rawRSAKeyring := new RawRSAKeyringDef.RawRSAKeyring(name, namespace, paddingMode, Some(publicKey), Some(privateKey));
+      var rawRSAKeyring := new RawRSAKeyringDef.RawRSAKeyring(namespace, name, paddingMode, Some(publicKey), Some(privateKey));
 
       // Verify encoding
-      var keyA, valA := UTF8.Encode("keyA").value, UTF8.Encode("valA").value;
-      var encryptionContext := [(keyA, valA)];
-      var onEncryptResult :- rawRSAKeyring.OnEncrypt(AlgorithmSuite.AES_256_GCM_IV12_TAG16_HKDF_SHA384_ECDSA_P384, encryptionContext, None);
-      var _ :- Require(onEncryptResult.Some? &&
-        |onEncryptResult.get.encryptedDataKeys| == 1 &&
-        |onEncryptResult.get.keyringTrace| == 2);
-      var plaintextDataKey := onEncryptResult.get.plaintextDataKey;
-      var encryptedDataKey := onEncryptResult.get.encryptedDataKeys[0];
+      var encryptionContext := TestUtils.SmallEncryptionContext(TestUtils.SmallEncryptionContextVariation.A);
+      var algorithmSuiteID := AlgorithmSuite.AES_256_GCM_IV12_TAG16_HKDF_SHA384_ECDSA_P384;
+      var signingKey := seq(32, i => 0);
+      var encryptionMaterialsIn := Materials.EncryptionMaterials.WithoutDataKeys(encryptionContext, algorithmSuiteID, Some(signingKey));
+      var encryptionMaterialsOut :- expect rawRSAKeyring.OnEncrypt(encryptionMaterialsIn);
+      expect encryptionMaterialsOut.plaintextDataKey.Some?;
+      expect |encryptionMaterialsOut.encryptedDataKeys| == 1;
+      expect |encryptionMaterialsOut.keyringTrace| == 2;
+      var plaintextDataKey := encryptionMaterialsOut.plaintextDataKey;
+      var encryptedDataKey := encryptionMaterialsOut.encryptedDataKeys[0];
 
       // Verify decoding
-      var res :- rawRSAKeyring.OnDecrypt(AlgorithmSuite.AES_256_GCM_IV12_TAG16_HKDF_SHA384_ECDSA_P384, encryptionContext, [encryptedDataKey]);
-      var newResultVerification := Require(res.Some? && res.get.plaintextDataKey == plaintextDataKey);
-      allResults := allResults + [newResultVerification];
+      var verificationKey := seq(32, i => 0);
+      var decryptionMaterialsIn := Materials.DecryptionMaterials.WithoutPlaintextDataKey(encryptionContext, algorithmSuiteID, Some(verificationKey));
+      var decryptionMaterialsOut :- expect rawRSAKeyring.OnDecrypt(decryptionMaterialsIn, [encryptedDataKey]);
+      expect encryptionMaterialsOut.plaintextDataKey == plaintextDataKey;
     }
-    r := Require(|allResults| == |allPaddingModes| && forall result :: result in allResults ==> result.Success?);
   }
 
-  method {:test} TestOnEncryptOnDecryptSuppliedDataKey() returns (r: Result<()>)
+  method {:test} TestOnEncryptOnDecryptSuppliedDataKey()
   {
     var remainingPaddingModes := allPaddingModes;
-    var allResults: seq<Result<()>> := [];
+    var namespace, name := TestUtils.NamespaceAndName(0);
     while remainingPaddingModes != {}
-      invariant |remainingPaddingModes| + |allResults| == |allPaddingModes|
       decreases remainingPaddingModes
     {
       var paddingMode :| paddingMode in remainingPaddingModes;
       remainingPaddingModes := remainingPaddingModes - {paddingMode};
       // Verify key generation for a given padding mode
       var publicKey, privateKey := RSA.GenerateKeyPair(2048, paddingMode);
-      var rawRSAKeyring := new RawRSAKeyringDef.RawRSAKeyring(name, namespace, paddingMode, Some(publicKey), Some(privateKey));
+      var rawRSAKeyring := new RawRSAKeyringDef.RawRSAKeyring(namespace, name, paddingMode, Some(publicKey), Some(privateKey));
 
       // Verify encoding
-      var keyA, valA := UTF8.Encode("keyA").value, UTF8.Encode("valA").value;
-      var encryptionContext := [(keyA, valA)];
+      var encryptionContext := TestUtils.SmallEncryptionContext(TestUtils.SmallEncryptionContextVariation.A);
       var plaintextDataKey := seq(32, i => 0);
-      var onEncryptResult :- rawRSAKeyring.OnEncrypt(AlgorithmSuite.AES_256_GCM_IV12_TAG16_HKDF_SHA384_ECDSA_P384, encryptionContext, Some(plaintextDataKey));
-      var _ :- Require(onEncryptResult.Some? &&
-        |onEncryptResult.get.encryptedDataKeys| == 1 &&
-        onEncryptResult.get.plaintextDataKey == plaintextDataKey &&
-        |onEncryptResult.get.keyringTrace| == 1);
-      var encryptedDataKey := onEncryptResult.get.encryptedDataKeys[0];
+      var algorithmSuiteID := AlgorithmSuite.AES_256_GCM_IV12_TAG16_HKDF_SHA384_ECDSA_P384;
+      var signingKey := seq(32, i => 0);
+      var traceEntry := Materials.KeyringTraceEntry([], [], {Materials.GENERATED_DATA_KEY});
+      var encryptionMaterialsIn := Materials.EncryptionMaterials.WithoutDataKeys(encryptionContext, algorithmSuiteID, Some(signingKey))
+                                                                .WithKeys(Some(plaintextDataKey), [], [traceEntry]);
+      var encryptionMaterialsOut :- expect rawRSAKeyring.OnEncrypt(encryptionMaterialsIn);
+      expect encryptionMaterialsOut.plaintextDataKey.Some?;
+      expect |encryptionMaterialsOut.encryptedDataKeys| == 1;
+      expect encryptionMaterialsOut.plaintextDataKey.get == plaintextDataKey;
+      expect |encryptionMaterialsOut.keyringTrace| == 2;
+      var encryptedDataKey := encryptionMaterialsOut.encryptedDataKeys[0];
 
       // Verify decoding
-      var res :- rawRSAKeyring.OnDecrypt(AlgorithmSuite.AES_256_GCM_IV12_TAG16_HKDF_SHA384_ECDSA_P384, encryptionContext, [encryptedDataKey]);
-      var newResultVerification := Require(res.Some? && res.get.plaintextDataKey == plaintextDataKey);
-      allResults := allResults + [newResultVerification];
+      var verificationKey := seq(32, i => 0);
+      var decryptionMaterialsIn := Materials.DecryptionMaterials.WithoutPlaintextDataKey(encryptionContext, algorithmSuiteID, Some(verificationKey));
+      var decryptionMaterialsOut :- expect rawRSAKeyring.OnDecrypt(decryptionMaterialsIn, [encryptedDataKey]);
+      expect decryptionMaterialsOut.plaintextDataKey.Some? && decryptionMaterialsOut.plaintextDataKey.get == plaintextDataKey;
     }
-    r := Require(|allResults| == |allPaddingModes| && forall result :: result in allResults ==> result.Success?);
   }
 }

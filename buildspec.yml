@@ -7,14 +7,19 @@ phases:
       - cd ..
       - yum install -y which
       - yum install -y nuget
-      - pip install --no-cache-dir lit OutputCheck pyyaml
       - mozroots --import --sync
       # Get Boogie
-      - git clone https://github.com/boogie-org/boogie.git
+      - git clone --branch v2.4.21 https://github.com/boogie-org/boogie.git
       - nuget restore boogie/Source/Boogie.sln
       - msbuild boogie/Source/Boogie.sln
       # Get Dafny
       - git clone https://github.com/microsoft/dafny.git
+      # Although Dafny does have releases, we often need a newer hash than the latest release, while still needing the
+      # the security of reproducible builds.
+      - cd dafny
+      - git reset --hard df707bc07e3c39390286dfd0c1576d0a3f556f8b
+      - cd ..
+      - nuget restore dafny/Source/Dafny.sln
       - msbuild dafny/Source/Dafny.sln
       - export PATH="$PWD/dafny/Binaries:$PATH"
       # Get Z3
@@ -22,10 +27,8 @@ phases:
       - unzip z3*.zip && rm *.zip
       - cp -r z3* dafny/Binaries/z3
       - cd aws-encryption-sdk-dafny
-      # Set up environment for running test vectors
-      - wget https://github.com/awslabs/aws-encryption-sdk-test-vectors/raw/master/vectors/awses-decrypt/python-1.3.8.zip
-      - unzip python-1.3.8.zip && rm python-1.3.8.zip
-      - export DAFNY_AWS_ESDK_TEST_VECTOR_MANIFEST_PATH="${PWD}/manifest.json"
   build:
     commands:
+      # Currently, test depends on src, so verifying test will also verify src
+      # TODO-RS: Move the parallel verification task into the dafny CLI itself
       - dotnet build -t:VerifyDafny test

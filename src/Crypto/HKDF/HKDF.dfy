@@ -1,147 +1,170 @@
-/* HKDF.dfy
-* Rustan Leino, 28 Dec 2017.
-* Matthias Schlaipfer, 11 June 2019
-* This is a transcription of David Cok's HmacSha256Kdf.java into Dafny.
-* There are three major parts:
-*   0. Basic library stuff
-*      Routine definitions and specifications. (Feel free to skip reading this part.)
-*   1. Crypto library stuff
-*      Formalizes the Extract-and-Expand HKDF specifications and models the Mac class
-*      in the Java library.
-*   2. The code to be verified
-*      The hkdf routine and its correctness proof.
-*
-* "nfv" stands for necessary for verification
-*/
+// Copyright Amazon.com Inc. or its affiliates. All Rights Reserved.
+// SPDX-License-Identifier: Apache-2.0
 
-include "../../Util/Arrays.dfy"
-include "CryptoMac.dfy"
-include "../Digests.dfy"
-include "HKDFSpec.dfy"
+include "HMAC.dfy"
+include "../KeyDerivationAlgorithms.dfy"
 include "../../StandardLibrary/StandardLibrary.dfy"
 
-/**
-  * Implementation of the https://tools.ietf.org/html/rfc5869 HMAC-based key derivation function
-  */
+/*
+ * Implementation of the https://tools.ietf.org/html/rfc5869 HMAC-based key derivation function
+ */
 module HKDF {
-  import Arrays
-  import opened BouncyCastleCryptoMac
-  import opened Digests
-  import opened HKDFSpec
+  import opened HMAC
+  import opened KeyDerivationAlgorithms
   import opened StandardLibrary
   import opened UInt = StandardLibrary.UInt
 
-  method extract(which_sha: HMAC_ALGORITHM, hmac: HMac, salt: array<uint8>, ikm: array<uint8>) returns (prk: array<uint8>)
-    requires hmac.algorithm == which_sha && salt.Length != 0
-    modifies hmac
-    ensures prk[..] == Hash(which_sha, salt[..], ikm[..])
+  function method GetHMACDigestFromHKDFAlgorithm(algorithm: HKDFAlgorithms): Digests
   {
-    var params: CipherParameters := KeyParameter(salt);
-    hmac.init(params);
-    assert hmac.InputSoFar + ikm[..] == ikm[..]; // nfv
-    hmac.updateAll(ikm);
-    prk := new uint8[hmac.getMacSize()];
-    var _ := hmac.doFinal(prk, 0);
+    match algorithm
+    case HKDF_WITH_SHA_256 => SHA_256
+    case HKDF_WITH_SHA_384 => SHA_384
+  }
+
+  method Extract(hmac: HMac, salt: seq<uint8>, ikm: seq<uint8>, ghost digest: Digests) returns (prk: seq<uint8>)
+    requires hmac.GetDigest() == digest
+    requires |salt| != 0
+    requires |ikm| < INT32_MAX_LIMIT
+    modifies hmac
+    ensures GetHashLength(hmac.GetDigest()) == |prk|
+    ensures hmac.GetKey() == salt
+    ensures hmac.GetDigest() == digest
+  {
+    // prk = HMAC-Hash(salt, ikm)
+    hmac.Init(salt);
+    hmac.Update(ikm);
+    assert hmac.GetInputSoFar() == ikm;
+
+    prk := hmac.GetResult();
     return prk;
   }
 
-  method expand(which_sha: HMAC_ALGORITHM, hmac: HMac, prk: array<uint8>, info: array<uint8>, n: int) returns (a: array<uint8>)
-    requires hmac.algorithm == which_sha && 1 <= n <= 255
-    requires 0 != prk.Length && HashLength(which_sha) <= prk.Length
-    modifies hmac
-    ensures fresh(a)
-    ensures a[..] == T(which_sha, prk[..], info[..], n)
-    ensures a.Length == n * hmac.getMacSize();
+  // T is relational since the external hashMethod hmac.GetKey() ensures that the input and output of the hash method are in the relation hmac.HashSignature
+  // T depends on Ti and Ti depends on hmac.HashSignature
+  predicate T(hmac: HMac, info: seq<uint8>, n: nat, res: seq<uint8>)
+    requires 0 <= n < 256
+    decreases n
   {
-    var params: CipherParameters := KeyParameter(prk);
-    hmac.init(params);
-    ghost var gKey := hmac.initialized.get;
+    if n == 0 then
+      [] == res
+    else
+      var nMinusOne := n - 1;
+      exists prev1, prev2 :: T(hmac, info, nMinusOne, prev1) && Ti(hmac, info, n, prev2) && prev1 + prev2 == res
+  }
 
-    ghost var s: seq<uint8> := [];  // s == T(0)
-    a := new uint8[n * hmac.getMacSize()];
-    var TiArr: array<uint8> := new uint8[hmac.getMacSize()];
+  predicate Ti(hmac: HMac, info: seq<uint8>, n: nat, res: seq<uint8>)
+    requires 0 <= n < 256
+    decreases n, 1
+  {
+    if n == 0 then
+      res == []
+    else
+      exists prev :: PreTi(hmac, info, n, prev) &&  hmac.HashSignature(prev, res)
+  }
 
-    // T(1)
-    hmac.updateAll(info);
-    hmac.updateSingle(1 as uint8);
-    var _ := hmac.doFinal(TiArr, 0);
-    Arrays.Array.copyTo(TiArr, a, 0);
-    s := s + TiArr[..];
+    // return T (i)
+  predicate PreTi(hmac: HMac, info: seq<uint8>, n: nat, res: seq<uint8>)
+    requires 1 <= n < 256
+    decreases n, 0
+  {
+    var nMinusOne := n - 1;
+    exists prev | Ti(hmac, info, nMinusOne, prev) :: res == prev + info + [(n as uint8)]
+  }
 
+  method Expand(hmac: HMac, prk: seq<uint8>, info: seq<uint8>, expectedLength: int, digest: Digests, ghost salt: seq<uint8>) returns (okm: seq<uint8>, ghost okmUnabridged: seq<uint8>)
+    requires hmac.GetDigest() == digest
+    requires 1 <= expectedLength <= 255 * GetHashLength(hmac.GetDigest())
+    requires |salt| != 0
+    requires hmac.GetKey() == salt
+    requires |info| < INT32_MAX_LIMIT
+    requires GetHashLength(hmac.GetDigest()) == |prk|
+    modifies hmac
+    ensures |okm| == expectedLength
+    ensures hmac.GetKey() == prk
+    ensures var n := (GetHashLength(digest) + expectedLength - 1) / GetHashLength(digest);
+      && T(hmac, info, n, okmUnabridged)
+      && (|okmUnabridged| <= expectedLength ==> okm == okmUnabridged)
+      && (expectedLength < |okmUnabridged| ==> okm == okmUnabridged[..expectedLength])
+  {
+    // N = ceil(L / Hash Length)
+    var hashLength := GetHashLength(digest);
+    var n := (hashLength + expectedLength - 1) / hashLength;
+    assert 0 <= n < 256;
+
+    // T(0) = empty string (zero length)
+    hmac.Init(prk);
+    var t_prev := [];
+    var t_n := t_prev;
+
+    // T = T(0) + T (1) + T(2) + ... T(n)
+    // T(1) = HMAC-Hash(PRK, T(1) | info | 0x01)
+    // ...
+    // T(n) = HMAC- Hash(prk, T(n - 1) | info | 0x0n)
     var i := 1;
-
-    // The following invariant simplifies the proof obligation needed to establish the precondition of Arrays.Array.copyTo
-    // Before adding it, z3's outcome was unstable
-    // TODO: Identify a way to make this less brittle (https://github.com/awslabs/aws-encryption-sdk-dafny/issues/99)
-    assert hmac.getMacSize() + (n-1)*TiArr.Length == a.Length;
-    while i < n
-      invariant 1 <= i <= n
-      invariant TiArr.Length == HashLength(which_sha)
-      invariant TiArr[..] == Ti(which_sha, prk[..], info[..], i)[..]
-      invariant HashLength(which_sha) <= prk.Length
-      invariant s == T(which_sha, prk[..], info[..], i)     // s == T(1) | ... | T(i)
-      invariant s == a[..i * hmac.getMacSize()]
-      invariant hmac.initialized.Some? && hmac.initialized.get == gKey
-      invariant hmac.InputSoFar == []
+    while i <= n
+      invariant 1 <= i <= n + 1
+      invariant |t_prev| == if i == 1 then 0 else hashLength
+      invariant hashLength == |prk|
+      invariant |t_n| == (i - 1) * hashLength
+      invariant hmac.GetKey() == prk
+      invariant hmac.GetDigest() == digest
+      invariant hmac.GetInputSoFar() == []
+      invariant T(hmac, info, i - 1, t_n)
+      invariant Ti(hmac, info, i - 1, t_prev)
     {
-      // T(i+1)
-      hmac.updateAll(TiArr);
-      hmac.updateAll(info);
-      hmac.updateSingle((i+1) as uint8);
-      assert (i+1) <= 255;
-      assert hmac.InputSoFar[..] == TiArr[..] + info[..] + [((i+1) as uint8)]; // nfv
-      var _ := hmac.doFinal(TiArr, 0);
-      Arrays.Array.copyTo(TiArr, a, i*hmac.getMacSize());
-      s := s + TiArr[..]; // s == T(1) | ... | T(i) | T(i+1)
+      hmac.Update(t_prev);
+      hmac.Update(info);
+      hmac.Update([i as uint8]);
+      assert hmac.GetInputSoFar() == t_prev + info + [i as uint8];
+
+      // Add additional verification for T(n): github.com/awslabs/aws-encryption-sdk-dafny/issues/177
+      t_prev := hmac.GetResult();
+      // t_n == T(i - 1)
+      assert Ti(hmac, info, i, t_prev);
+
+      t_n := t_n + t_prev;
+      // t_n == T(i) == T(i - 1) + Ti(i)
       i := i + 1;
+      assert T(hmac, info, i - 1, t_n);
+    }
+
+    // okm = first L (expectedLength) bytes of T(n)
+    okm := t_n;
+    okmUnabridged := okm;
+    assert T(hmac, info, n, okmUnabridged);
+
+    if expectedLength < |okm| {
+      okm := okm[..expectedLength];
     }
   }
 
-  /**
+  /*
    * The RFC 5869 KDF. Outputs L bytes of output key material.
-   **/
-  method hkdf(which_sha: HMAC_ALGORITHM, salt: Option<array<uint8>>, ikm: array<uint8>, info: array<uint8>, L: int) returns (okm: array<uint8>)
-    requires which_sha == HmacSHA256 || which_sha == HmacSHA384
-    requires 0 <= L <= 255 * HashLength(which_sha)
-    requires salt.None? || salt.get.Length != 0
-    ensures fresh(okm)
-    ensures okm.Length == L
-    ensures
-      // Extract:
-      var prk := Hash(which_sha, if salt.None? then Fill(0, HashLength(which_sha)) else salt.get[..], ikm[..]);
-      // Expand:
-      okm[..L] == TMaxLength(which_sha, prk, info[..])[..L]
+   */
+  method Hkdf(algorithm: HKDFAlgorithms, salt: Option<seq<uint8>>, ikm: seq<uint8>, info: seq<uint8>, L: int) returns (okm: seq<uint8>)
+    requires 0 <= L <= 255 * GetHashLength(GetHMACDigestFromHKDFAlgorithm(algorithm))
+    requires salt.None? || |salt.get| != 0
+    requires |info| < INT32_MAX_LIMIT
+    requires |ikm| < INT32_MAX_LIMIT
+    ensures |okm| == L
   {
     if L == 0 {
-      return new uint8[0];
+      return [];
     }
-    var hmac := new HMac(which_sha);
+    var digest := GetHMACDigestFromHKDFAlgorithm(algorithm);
+    var hmac := new HMac(digest);
+    var hashLength := GetHashLength(digest);
 
-    var saltNonEmpty: array<uint8>;
+    var nonEmptySalt: seq<uint8>;
     match salt {
       case None =>
-        saltNonEmpty := new uint8[hmac.getMacSize()](_ => 0);
+        nonEmptySalt := Fill(0, hashLength);
       case Some(s) =>
-        saltNonEmpty := s;
+        nonEmptySalt := s;
     }
-    assert saltNonEmpty[..] == if salt.None? then Fill(0, hmac.getMacSize()) else salt.get[..]; // nfv
 
-    var n := 1 + (L-1) / hmac.getMacSize();  // note, since L and HMAC_SIZE are strictly positive, this gives the same result in Java as in Dafny
-    assert n * hmac.getMacSize() >= L;
-    var prk := extract(which_sha, hmac, saltNonEmpty, ikm);
-
-    okm := expand(which_sha, hmac, prk, info, n);
-
-    // if necessary, trim padding
-    if okm.Length > L {
-      okm := Arrays.Array.copy(okm, L);
-    }
-    calc {
-      okm[..L];
-    ==
-      T(which_sha, prk[..], info[..], n)[..L];
-    ==  { TPrefix(which_sha, prk[..], info[..], n, 255); }
-      TMaxLength(which_sha, prk[..], info[..])[..L];
-    }
+    var prk := Extract(hmac, nonEmptySalt, ikm, digest);
+    ghost var okmUnabridged;
+    okm, okmUnabridged := Expand(hmac, prk, info, L, digest, nonEmptySalt);
   }
 }

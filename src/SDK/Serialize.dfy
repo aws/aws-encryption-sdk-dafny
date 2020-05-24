@@ -1,227 +1,270 @@
+// Copyright Amazon.com Inc. or its affiliates. All Rights Reserved.
+// SPDX-License-Identifier: Apache-2.0
+
 include "MessageHeader.dfy"
-include "Materials.dfy"
+include "EncryptionContext.dfy"
 include "AlgorithmSuite.dfy"
+include "../Util/UTF8.dfy"
+include "../Util/Sets.dfy"
+
 
 include "../Util/Streams.dfy"
 include "../StandardLibrary/StandardLibrary.dfy"
 
 module Serialize {
   import Msg = MessageHeader
+  import EncryptionContext
   import AlgorithmSuite
 
   import Streams
   import opened StandardLibrary
   import opened UInt = StandardLibrary.UInt
-  import Materials
+  import UTF8
+  import Sets
 
-  method SerializeHeaderBody(wr: Streams.StringWriter, hb: Msg.HeaderBody) returns (ret: Result<nat>)
+  method SerializeHeaderBody(wr: Streams.ByteWriter, hb: Msg.HeaderBody) returns (ret: Result<nat>)
     requires wr.Valid() && hb.Valid()
-    modifies wr`data
+    modifies wr.writer`data
     ensures wr.Valid()
     ensures match ret
       case Success(totalWritten) =>
         var serHb := (reveal Msg.HeaderBodyToSeq(); Msg.HeaderBodyToSeq(hb));
-        var initLen := old(|wr.data|);
+        var initLen := old(wr.GetSizeWritten());
         && totalWritten == |serHb|
-        && initLen + totalWritten == |wr.data|
-        && serHb == wr.data[initLen..initLen + totalWritten]
+        && initLen + totalWritten == wr.GetSizeWritten()
+        && serHb == wr.GetDataWritten()[initLen..initLen + totalWritten]
       case Failure(e) => true
   {
     var totalWritten := 0;
 
-    var len :- wr.WriteByte(hb.version as uint8);
+    var len := wr.WriteByte(hb.version as uint8);
     totalWritten := totalWritten + len;
 
-    len :- wr.WriteByte(hb.typ as uint8);
+    len := wr.WriteByte(hb.typ as uint8);
     totalWritten := totalWritten + len;
 
-    len :- wr.WriteUInt16(hb.algorithmSuiteID as uint16);
+    len := wr.WriteUInt16(hb.algorithmSuiteID as uint16);
     totalWritten := totalWritten + len;
 
-    len :- wr.WriteSeq(hb.messageID);
+    len := wr.WriteBytes(hb.messageID);
     totalWritten := totalWritten + len;
 
     len :- SerializeAAD(wr, hb.aad);
     totalWritten := totalWritten + len;
 
-    len :- SerializeEDKs(wr, hb.encryptedDataKeys);
+    len := SerializeEDKs(wr, hb.encryptedDataKeys);
     totalWritten := totalWritten + len;
 
     var contentType := Msg.ContentTypeToUInt8(hb.contentType);
-    len :- wr.WriteByte(contentType);
+    len := wr.WriteByte(contentType);
     totalWritten := totalWritten + len;
 
-    len :- wr.WriteSeq(Msg.Reserved);
+    len := wr.WriteBytes(Msg.Reserved);
     totalWritten := totalWritten + len;
 
-    len :- wr.WriteByte(hb.ivLength);
+    len := wr.WriteByte(hb.ivLength);
     totalWritten := totalWritten + len;
 
-    len :- wr.WriteUInt32(hb.frameLength);
+    len := wr.WriteUInt32(hb.frameLength);
     totalWritten := totalWritten + len;
 
     reveal Msg.HeaderBodyToSeq();
     return Success(totalWritten);
   }
 
-  method SerializeHeaderAuthentication(wr: Streams.StringWriter, ha: Msg.HeaderAuthentication, ghost algorithmSuiteID: AlgorithmSuite.ID) returns (ret: Result<nat>)
+  method SerializeHeaderAuthentication(wr: Streams.ByteWriter, ha: Msg.HeaderAuthentication, ghost algorithmSuiteID: AlgorithmSuite.ID) returns (ret: Result<nat>)
     requires wr.Valid()
-    modifies wr`data
+    modifies wr.writer`data
     ensures wr.Valid()
     ensures match ret
       case Success(totalWritten) =>
         var serHa := ha.iv + ha.authenticationTag;
-        var initLen := old(|wr.data|);
-        && initLen + totalWritten == |wr.data|
-        && serHa == wr.data[initLen..initLen + totalWritten]
+        var initLen := old(wr.GetSizeWritten());
+        && initLen + totalWritten == wr.GetSizeWritten()
+        && serHa == wr.GetDataWritten()[initLen..initLen + totalWritten]
         && totalWritten == |serHa|
       case Failure(e) => true
   {
-    var m :- wr.WriteSeq(ha.iv);
-    var n :- wr.WriteSeq(ha.authenticationTag);
+    var m := wr.WriteBytes(ha.iv);
+    var n := wr.WriteBytes(ha.authenticationTag);
     return Success(m + n);
   }
 
   // ----- SerializeAAD -----
 
-  method SerializeAAD(wr: Streams.StringWriter, kvPairs: Materials.EncryptionContext) returns (ret: Result<nat>)
-    requires wr.Valid() && Msg.ValidAAD(kvPairs)
-    modifies wr`data
-    ensures wr.Valid() && Msg.ValidAAD(kvPairs)
+  method SerializeAAD(wr: Streams.ByteWriter, kvPairs: EncryptionContext.Map) returns (ret: Result<nat>)
+    requires wr.Valid() && EncryptionContext.Serializable(kvPairs)
+    modifies wr.writer`data
+    ensures wr.Valid() && EncryptionContext.Serializable(kvPairs)
     ensures match ret
       case Success(totalWritten) =>
-        var serAAD := Msg.AADToSeq(kvPairs);
-        var initLen := old(|wr.data|);
+        var serAAD := EncryptionContext.MapToLinear(kvPairs);
+        var initLen := old(wr.GetSizeWritten());
         && totalWritten == |serAAD|
-        && initLen + totalWritten == |wr.data|
-        && wr.data == old(wr.data) + serAAD
+        && initLen + totalWritten == wr.GetSizeWritten()
+        && wr.GetDataWritten() == old(wr.GetDataWritten()) + serAAD
       case Failure(e) => true
   {
-    reveal Msg.ValidAAD();
+    reveal EncryptionContext.Serializable();
     var totalWritten := 0;
 
-    // Key Value Pairs Length (number of bytes of total AAD)
-    var aadLength :- ComputeAADLength(kvPairs);
-    var len :- wr.WriteUInt16(aadLength);
-    totalWritten := totalWritten + len;
-    if aadLength == 0 {
-      return Success(totalWritten);
-    }
+    var kvPairsLength := EncryptionContext.ComputeLength(kvPairs);
+    var len := wr.WriteUInt16(kvPairsLength as uint16);
 
-    len :- wr.WriteUInt16(|kvPairs| as uint16);
     totalWritten := totalWritten + len;
 
-    var j := 0;
-    ghost var n := |kvPairs|;
-    while j < |kvPairs|
-      invariant j <= n == |kvPairs|
-      invariant wr.data ==
-        old(wr.data) +
-        UInt16ToSeq(aadLength) +
-        UInt16ToSeq(n as uint16) +
-        Msg.KVPairsToSeq(kvPairs, 0, j)
-      invariant totalWritten == 4 + |Msg.KVPairsToSeq(kvPairs, 0, j)|
-    {
-      len :- wr.WriteUInt16(|kvPairs[j].0| as uint16);
-      totalWritten := totalWritten + len;
+    len :- SerializeKVPairs(wr, kvPairs);
+    totalWritten := totalWritten + len;
 
-      len :- wr.WriteSeq(kvPairs[j].0);
-      totalWritten := totalWritten + len;
-
-      len :- wr.WriteUInt16(|kvPairs[j].1| as uint16);
-      totalWritten := totalWritten + len;
-
-      len :- wr.WriteSeq(kvPairs[j].1);
-      totalWritten := totalWritten + len;
-
-      j := j + 1;
-    }
-    
     return Success(totalWritten);
   }
 
-  method ComputeAADLength(kvPairs: Materials.EncryptionContext) returns (res: Result<uint16>)
-    requires |kvPairs| < UINT16_LIMIT
-    requires forall i :: 0 <= i < |kvPairs| ==> Msg.ValidKVPair(kvPairs[i])
-    ensures match res
-      case Success(len) => len as int == Msg.AADLength(kvPairs)
-      case Failure(_) => UINT16_LIMIT <= Msg.AADLength(kvPairs)
+  // ----- SerializeKVPairs -----
+
+  method SerializeKVPairs(wr: Streams.ByteWriter, encryptionContext: EncryptionContext.Map) returns (ret: Result<nat>)
+    requires wr.Valid() && EncryptionContext.SerializableKVPairs(encryptionContext)
+    modifies wr.writer`data
+    ensures wr.Valid() && EncryptionContext.SerializableKVPairs(encryptionContext)
+    ensures match ret
+      case Success(newlyWritten) =>
+        var serAAD := EncryptionContext.MapToSeq(encryptionContext);
+        && newlyWritten == |serAAD|
+        && wr.GetSizeWritten() == old(wr.GetSizeWritten()) + newlyWritten
+        && wr.GetDataWritten() == old(wr.GetDataWritten()) + serAAD
+      case Failure(e) => true
   {
-    var n: int32 := |kvPairs| as int32;
-    if n == 0 {
-      return Success(0);
-    } else {
-      var len: int32, limit: int32 := 2, UINT16_LIMIT as int32;
-      var i: int32 := 0;
-      while i < n
-        invariant i <= n
-        invariant 2 + Msg.KVPairsLength(kvPairs, 0, i as int) == len as int < UINT16_LIMIT
-      {
-        var kvPair := kvPairs[i];
-        len := len + 4 + |kvPair.0| as int32 + |kvPair.1| as int32;
-        Msg.KVPairsLengthSplit(kvPairs, 0, i as int + 1, n as int);
-        if limit <= len {
-          return Failure("The number of bytes in encryption context exceeds the allowed maximum");
-        }
-        i := i + 1;
-      }
-      return Success(len as uint16);
+    var newlyWritten := 0;
+
+    if |encryptionContext| == 0 {
+      return Success(newlyWritten);
     }
+
+    var len := wr.WriteUInt16(|encryptionContext| as uint16);
+    newlyWritten := newlyWritten + len;
+
+    // Serialization is easier to implement and verify by first converting the map to
+    // a sequence of pairs.
+    var keys: seq<UTF8.ValidUTF8Bytes> := Sets.ComputeSetToOrderedSequence(encryptionContext.Keys, UInt.UInt8Less);
+    ghost var kvPairs := seq(|keys|, i requires 0 <= i < |keys| => (keys[i], encryptionContext[keys[i]]));
+
+    ghost var n := |keys|;
+    ghost var writtenBeforeLoop := wr.GetDataWritten();
+    assert writtenBeforeLoop == old(wr.GetDataWritten()) + UInt16ToSeq(n as uint16);
+
+    var j := 0;
+    while j < |keys|
+      invariant j <= n == |keys|
+      invariant wr.GetDataWritten() == writtenBeforeLoop + EncryptionContext.LinearToSeq(kvPairs, 0, j)
+      invariant wr.GetSizeWritten() == old(wr.GetSizeWritten()) + newlyWritten
+    {
+      len :- SerializeKVPair(wr, keys[j], encryptionContext[keys[j]]);
+      newlyWritten := newlyWritten + len;
+      assert wr.GetSizeWritten() == old(wr.GetSizeWritten()) + newlyWritten;
+
+      calc {
+        wr.GetDataWritten();
+      ==  // by the loop invariant and the postcondition of SerializeKVPair
+        writtenBeforeLoop + EncryptionContext.LinearToSeq(kvPairs, 0, j) + EncryptionContext.KVPairToSeq(kvPairs[j]);
+      ==  // + is associative
+        writtenBeforeLoop + (EncryptionContext.LinearToSeq(kvPairs, 0, j) + EncryptionContext.KVPairToSeq(kvPairs[j]));
+      ==  { assert EncryptionContext.LinearToSeq(kvPairs, 0, j) + EncryptionContext.KVPairToSeq(kvPairs[j]) == EncryptionContext.LinearToSeq(kvPairs, 0, j + 1); }
+        writtenBeforeLoop + EncryptionContext.LinearToSeq(kvPairs, 0, j + 1);
+      }
+
+      j := j + 1;
+    }
+
+    return Success(newlyWritten);
+  }
+
+  method SerializeKVPair(wr: Streams.ByteWriter, k: UTF8.ValidUTF8Bytes, v: UTF8.ValidUTF8Bytes) returns (ret: Result<nat>)
+    requires wr.Valid() && EncryptionContext.SerializableKVPair((k, v))
+    modifies wr.writer`data
+    ensures wr.Valid()
+    ensures match ret
+      case Success(newlyWritten) =>
+        var serKV := EncryptionContext.KVPairToSeq((k, v));
+        && newlyWritten == |serKV|
+        && wr.GetSizeWritten() == old(wr.GetSizeWritten()) + newlyWritten
+        && wr.GetDataWritten() == old(wr.GetDataWritten()) + serKV
+      case Failure(e) => true
+  {
+    ghost var previouslyWritten := wr.GetDataWritten();
+    var newlyWritten := 0;
+
+    var len := wr.WriteUInt16(|k| as uint16);
+    newlyWritten := newlyWritten + len;
+
+    len := wr.WriteBytes(k);
+    newlyWritten := newlyWritten + len;
+
+    len := wr.WriteUInt16(|v| as uint16);
+    newlyWritten := newlyWritten + len;
+
+    len := wr.WriteBytes(v);
+    newlyWritten := newlyWritten + len;
+
+    calc {
+      wr.GetDataWritten();
+    ==  // the four writes in the loop body
+      previouslyWritten + UInt16ToSeq(|k| as uint16) + k + UInt16ToSeq(|v| as uint16) + v;
+    ==  // associativity +
+      previouslyWritten + (UInt16ToSeq(|k| as uint16) + k + UInt16ToSeq(|v| as uint16) + v);
+    ==  // def. EncryptionContext.KVPairToSeq
+      previouslyWritten + EncryptionContext.KVPairToSeq((k, v));
+    }
+
+    return Success(newlyWritten);
   }
 
   // ----- SerializeEDKs -----
 
-  method SerializeEDKs(wr: Streams.StringWriter, encryptedDataKeys: Msg.EncryptedDataKeys) returns (ret: Result<nat>)
+  method SerializeEDKs(wr: Streams.ByteWriter, encryptedDataKeys: Msg.EncryptedDataKeys) returns (ret: nat)
     requires wr.Valid() && encryptedDataKeys.Valid()
-    modifies wr`data
+    modifies wr.writer`data
     ensures wr.Valid() && encryptedDataKeys.Valid()
-    ensures match ret
-      case Success(totalWritten) =>
-        var serEDK := Msg.EDKsToSeq(encryptedDataKeys);
-        var initLen := old(|wr.data|);
-        && totalWritten == |serEDK|
-        && initLen + totalWritten == |wr.data|
-        && wr.data == old(wr.data) + serEDK
-      case Failure(e) => true
+    ensures ret == |Msg.EDKsToSeq(encryptedDataKeys)|
+    ensures old(wr.GetSizeWritten()) + ret == wr.GetSizeWritten()
+    ensures wr.GetDataWritten() == old(wr.GetDataWritten()) + Msg.EDKsToSeq(encryptedDataKeys)
   {
     var totalWritten := 0;
 
-    var len :- wr.WriteUInt16(|encryptedDataKeys.entries| as uint16);
+    var len := wr.WriteUInt16(|encryptedDataKeys.entries| as uint16);
     totalWritten := totalWritten + len;
 
     var j := 0;
     ghost var n := |encryptedDataKeys.entries|;
     while j < |encryptedDataKeys.entries|
       invariant j <= n == |encryptedDataKeys.entries|
-      invariant wr.data ==
-        old(wr.data) +
+      invariant wr.GetDataWritten() ==
+        old(wr.GetDataWritten()) +
         UInt16ToSeq(n as uint16) +
         Msg.EDKEntriesToSeq(encryptedDataKeys.entries, 0, j);
       invariant totalWritten == 2 + |Msg.EDKEntriesToSeq(encryptedDataKeys.entries, 0, j)|
     {
       var entry := encryptedDataKeys.entries[j];
 
-      len :- wr.WriteUInt16(|entry.providerID| as uint16);
+      len := wr.WriteUInt16(|entry.providerID| as uint16);
       totalWritten := totalWritten + len;
 
-      len :- wr.WriteSeq(entry.providerID);
+      len := wr.WriteBytes(entry.providerID);
       totalWritten := totalWritten + len;
 
-      len :- wr.WriteUInt16(|entry.providerInfo| as uint16);
+      len := wr.WriteUInt16(|entry.providerInfo| as uint16);
       totalWritten := totalWritten + len;
 
-      len :- wr.WriteSeq(entry.providerInfo);
+      len := wr.WriteBytes(entry.providerInfo);
       totalWritten := totalWritten + len;
 
-      len :- wr.WriteUInt16(|entry.ciphertext| as uint16);
+      len := wr.WriteUInt16(|entry.ciphertext| as uint16);
       totalWritten := totalWritten + len;
 
-      len :- wr.WriteSeq(entry.ciphertext);
+      len := wr.WriteBytes(entry.ciphertext);
       totalWritten := totalWritten + len;
 
       j := j + 1;
     }
 
-    return Success(totalWritten);
+    return totalWritten;
   }
 }

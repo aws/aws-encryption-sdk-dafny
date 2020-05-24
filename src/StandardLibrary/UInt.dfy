@@ -1,3 +1,6 @@
+// Copyright Amazon.com Inc. or its affiliates. All Rights Reserved.
+// SPDX-License-Identifier: Apache-2.0
+
 module {:extern "STLUInt"} StandardLibrary.UInt {
 
   // TODO: Depend on types defined in dafny-lang/libraries instead
@@ -10,6 +13,7 @@ module {:extern "STLUInt"} StandardLibrary.UInt {
 
   const UINT16_LIMIT := 0x1_0000
   const UINT32_LIMIT := 0x1_0000_0000
+  const INT32_MAX_LIMIT := 0x8000_0000
 
   predicate method UInt8Less(a: uint8, b: uint8) { a < b }
 
