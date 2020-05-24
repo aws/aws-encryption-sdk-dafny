@@ -28,7 +28,4 @@ phases:
       - export DAFNY_AWS_ESDK_TEST_VECTOR_MANIFEST_PATH="${PWD}/manifest.json"
   build:
     commands:
-      - dotnet build -t:VerifyDafny src
       - dotnet build -t:VerifyDafny test
-      - dotnet test
-      - dotnet test testVectors
