@@ -61,7 +61,7 @@ module Deserialize {
         && Msg.SeqToHeaderBody(rd.reader.data[old(rd.reader.pos)..rd.reader.pos], hb)
       case Failure(_) => true
   {
-    var version :- DeserializeVersion(rd); 
+    var version :- DeserializeVersion(rd);
     var typ :- DeserializeType(rd);
     var algorithmSuiteID :- DeserializeAlgorithmSuiteID(rd);
     var messageID :- DeserializeMsgID(rd);
@@ -227,7 +227,7 @@ module Deserialize {
     DeserializeAAD is not a perfect dual of SerializeAAD
     A Map of key value pairs is deserialized. The map can only be created from a sequence of sorted and unqiue pairs
     SerializeAAD creates a sequence of sorted unique pairs, Deserialize reads any sequence of pairs and sorts them before creating a Map
-    Deserialize is a surjective function so there is no inverse function (a Dual serialize).
+    Deserialize is not an injective function so there is no inverse function (a Dual serialize).
     To still prove a duality we could define a weaker Serialization which is not a function but a relation between Maps and sequences (EncryptionContext.LinearSeqToMap)
     We now prove that EncryptionContext.LinearSeqToMap(DeserializeAAD(seq), seq) which means any map we deserialize from a sequence is in the weak serialize relation
     Furthermore we prove that EncryptionContext.LinearSeqToMap(map, SerializeAAD(map)) which means that any map we serialize to a sequence is in the weak serialize relation 
@@ -318,7 +318,7 @@ module Deserialize {
       
       // Proof that a KVPair is deserialized correctly
       // Note: Proof that serializing the resulting pair is equal to the input is easier and more stable.
-      assert EncryptionContext.KVPairToSeq((key, value)) == rd.reader.data[oldPosPair .. rd.reader.pos] by{
+      assert EncryptionContext.KVPairToSeq((key, value)) == rd.reader.data[oldPosPair .. rd.reader.pos] by {
         assert rd.reader.data[oldPosPair .. rd.reader.pos] == rd.reader.data[oldPosPair..oldPosPair + 4 + |key| + |value|];
         assert UInt16ToSeq(|key| as uint16) == rd.reader.data[oldPosPair..oldPosPair + 2];
         assert key == rd.reader.data[oldPosPair + 2..oldPosPair + 2 + |key|];

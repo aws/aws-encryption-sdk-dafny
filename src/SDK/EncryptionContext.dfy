@@ -19,7 +19,7 @@ module {:extern "EncryptionContext"} EncryptionContext {
    * Serializability predicates
    */
 
-  predicate {:opaque} Serializable(encryptionContext: Map) {
+  predicate {:opaque } Serializable(encryptionContext: Map) {
     && SerializableKVPairs(encryptionContext)
     && Length(encryptionContext) < UINT16_LIMIT
   }
@@ -38,14 +38,14 @@ module {:extern "EncryptionContext"} EncryptionContext {
 
   predicate SerializableUnsortedLinear(linear: Linear)
   {
-    |linear| < UINT16_LIMIT
+    && |linear| < UINT16_LIMIT
     && (forall i :: 0 <= i < |linear| ==> SerializableKVPair(linear[i]))
     && LinearIsUnique(linear)
   }
 
   predicate SerializableLinear(linear: Linear)
   {
-    LinearSorted(linear)
+    && LinearSorted(linear)
     && SerializableUnsortedLinear(linear) 
   }
 
@@ -272,7 +272,7 @@ module {:extern "EncryptionContext"} EncryptionContext {
     {
       if |ls| <= 1 {
         // If ls is empty it is always sorted
-      }else{
+      } else {
         forall i, j | 0 <= i < j < |ls| 
           ensures LexicographicLessOrEqual(ls[i].0, ls[j].0, UInt.UInt8Less)
         {
@@ -282,7 +282,7 @@ module {:extern "EncryptionContext"} EncryptionContext {
             LexIsReflexive(ls[1].0, UInt.UInt8Less);
             LexIsTransitive(ls[i].0, ls[1].0, ls[j].0, UInt.UInt8Less);
             assert LexicographicLessOrEqual(ls[i].0, ls[j].0, UInt.UInt8Less);
-          }else{
+          } else {
             assert LexicographicLessOrEqual(ls[i].0, ls[j].0, UInt.UInt8Less);
           }
         }
@@ -301,14 +301,14 @@ module {:extern "EncryptionContext"} EncryptionContext {
 
     if xs != [] && ys != [] { // If the lists are not empty
       assert xs[0] == ys[0] by { // Then the heads are the same
-        if xs[0] != ys[0]{ // Proof by contradiction
+        if xs[0] != ys[0] { // Proof by contradiction
           assert forall p | p in xs[1..] :: LexicographicLessOrEqual(xs[0].0, p.0, UInt.UInt8Less); // We know the head is the smallest element 
           assert xs[0] in ys[1..] by { // So the smallest element of xs is in the tail of ys
             assert xs[0] != ys[0] && !(xs[0] in ys[1..]) ==> xs[0] !in ys;
           }
         
           assert forall p | p in ys[1..] :: LexicographicLessOrEqual(ys[0].0, p.0, UInt.UInt8Less); // Same for the head of ys
-          assert ys[0] in xs[1..]by {
+          assert ys[0] in xs[1..] by {
             assert ys[0] != xs[0] && !(ys[0] in xs[1..]) ==> ys[0] !in xs;
           }
           
@@ -319,14 +319,14 @@ module {:extern "EncryptionContext"} EncryptionContext {
       }
       
       // Use structural induction on the tail
-      assert forall p :: p in xs[1..] <==> p in ys[1..] by{ // Proof Pre-conditions are maintained
-        if exists p :: p in xs[1..] && ! (p in ys[1..]){ // If the Pre-condition does not hold then there exist an elemnt in the tail of xs which is not in ys
+      assert forall p :: p in xs[1..] <==> p in ys[1..] by { // Proof Pre-conditions are maintained
+        if exists p :: p in xs[1..] && ! (p in ys[1..]) { // If the Pre-condition does not hold then there exist an elemnt in the tail of xs which is not in ys
           var p :| p in xs[1..] && !(p in ys[1..]);
           assert p != ys[0]; // Then this elemnt is not equal to the head of ys since all elements are unqiue
           assert p in xs && !(p in ys);
           assert false; // Then this element also does not exist in ys so we arrive at a contradiction
-        }else{
-          if exists p :: p in ys[1..] && ! (p in xs[1..]){// Same but with xs and ys switched which covers all cases
+        } else {
+          if exists p :: p in ys[1..] && ! (p in xs[1..]) {// Same but with xs and ys switched which covers all cases
             var p :| p in ys[1..] && !(p in xs[1..]);
             assert p != xs[0];
             assert p in xs && !(p in ys);
@@ -336,12 +336,12 @@ module {:extern "EncryptionContext"} EncryptionContext {
       }
       SortedSequenceIsUnqiue(xs[1..], ys[1..]); // Step
       
-    }else{ // If one of the list is empty then both are empty or we arrive at a trivial contradiction
-      if xs == [] && ys != []{
+    } else { // If one of the list is empty then both are empty or we arrive at a trivial contradiction
+      if xs == [] && ys != [] {
         assert ys[0] in xs; 
         assert false;
       }
-      if ys == [] && xs != []{
+      if ys == [] && xs != [] {
         assert xs[0] in ys; 
         assert false;
       }
@@ -440,7 +440,7 @@ module {:extern "EncryptionContext"} EncryptionContext {
       SortedSequenceIsUnqiue(kvPairs, InsertionSort(kvPairs)); // Two sorted sequences with unique elements are the same 
       SortedLinearIsFixpointAADDuality(kvPairs); // And the weak and strong deserialization return the same value for sorted sequences
       // From this we can conclude that SeqToMap hold (intuitively this is true since LinearToSeq and LiniearToUnordered seq are the same on ordered inputs) 
-    }else{
+    } else {
       // Trivial case
     }
   }
@@ -455,7 +455,7 @@ module {:extern "EncryptionContext"} EncryptionContext {
     
   }
 
-    // Lemma shows sorting preserves properties of ps
+  // Lemma shows sorting preserves properties of ps
   lemma InsertionSortPreservesProperties(ps: Linear)
     requires LinearIsUnique(ps)
     requires forall l | l in ps :: SerializableKVPair(l)
