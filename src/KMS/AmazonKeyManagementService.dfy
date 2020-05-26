@@ -1,3 +1,6 @@
+// Copyright Amazon.com Inc. or its affiliates. All Rights Reserved.
+// SPDX-License-Identifier: Apache-2.0
+
 // Add extern reference for a native AWS KMS service client
 module {:extern "Amazon.KeyManagementService"} AmazonKeyManagementService {
   // IAmazonKeyManagementService is an interface in target languages, but is listed as a class instead of a trait

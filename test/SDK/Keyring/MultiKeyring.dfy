@@ -1,3 +1,6 @@
+// Copyright Amazon.com Inc. or its affiliates. All Rights Reserved.
+// SPDX-License-Identifier: Apache-2.0
+
 include "../../../src/SDK/Keyring/MultiKeyring.dfy"
 include "../../../src/SDK/Keyring/RawAESKeyring.dfy"
 include "../../../src/SDK/AlgorithmSuite.dfy"
