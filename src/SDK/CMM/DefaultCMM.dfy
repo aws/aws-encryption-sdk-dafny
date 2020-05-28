@@ -109,6 +109,7 @@ module {:extern "DefaultCMMDef"} DefaultCMMDef {
       ensures res.Success? ==> res.value.plaintextDataKey.Some?
       ensures res.Success? ==> CMMDefs.DecryptionMaterialisFromCMM(res.value.plaintextDataKey.get)
       ensures res.Success? ==> DecryptionMaterialisFromDefaultCMM(res.value.plaintextDataKey.get)
+      ensures res.Success? ==> materialsRequest.algorithmSuiteID == res.value.algorithmSuiteID
     {
       // Retrieve and decode verification key from encryption context if using signing algorithm
       var vkey := None;
