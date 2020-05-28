@@ -370,24 +370,6 @@ If the algorithm suite has a signature algorithm, decrypt MUST verify the messag
     ensures request.cmm != null ==> fresh(request.cmm.Repr - old(request.cmm.Repr))
     ensures request.cmm == null && request.keyring == null ==> res.Failure?
     ensures request.cmm != null && request.keyring != null ==> res.Failure?
-    ensures request.cmm != null && res.Success? && DataIsFramed(request.message) ==> 
-      exists key :: KeyFromCMM(key) && MessageBody.DecryptedWithKey(key, res.value)
-    ensures request.keyring != null && res.Success? && DataIsFramed(request.message) ==> 
-      exists key :: KeyFromDefaultCMM(key) && MessageBody.DecryptedWithKey(key, res.value)
-    ensures match res 
-      case Failure(e) => true
-      case Success(encryptedSequence) =>
-        exists header: Msg.Header, hbSeq | 
-          && header.body.Valid()
-          && Msg.SeqToHeaderBody(hbSeq, header.body) ::
-          header.body.contentType.Framed? ==> // We only verify framed content for now
-            exists frames | (forall frame: MessageBody.Frame | frame in frames :: frame.Valid()) ::
-              && (header.body.algorithmSuiteID.SignatureType().Some? ==> // If the result needs to be signed then there exists a fourth item 
-                  exists signature | |signature| < UINT16_LIMIT ::  
-                    request.message == hbSeq + header.auth.iv + header.auth.authenticationTag 
-                      + MessageBody.FramesToSequence(frames) + UInt16ToSeq(|signature| as uint16) + signature) // These items can be serialized to the output
-              && header.body.algorithmSuiteID.SignatureType().None? ==> // if the result does not need to be signed
-                  request.message ==  hbSeq + header.auth.iv + header.auth.authenticationTag + MessageBody.FramesToSequence(frames)
   {
     var decryptWithVerificationInfo :- DecryptWithVerificationInfo(request);
     return Success(decryptWithVerificationInfo.plaintext);
