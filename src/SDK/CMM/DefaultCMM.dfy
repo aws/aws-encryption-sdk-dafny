@@ -26,6 +26,11 @@ module {:extern "DefaultCMMDef"} DefaultCMMDef {
   import UTF8
   import Deserialize
 
+  predicate {:opaque } DecryptionMaterialisFromDefaultCMM(key: seq<uint8>)
+  {
+    true
+  }
+    
   class DefaultCMM extends CMMDefs.CMM {
     const keyring: KeyringDefs.Keyring
 
@@ -102,6 +107,8 @@ module {:extern "DefaultCMMDef"} DefaultCMMDef {
       requires Valid()
       ensures Valid()
       ensures res.Success? ==> res.value.plaintextDataKey.Some?
+      ensures res.Success? ==> CMMDefs.DecryptionMaterialisFromCMM(res.value.plaintextDataKey.get)
+      ensures res.Success? ==> DecryptionMaterialisFromDefaultCMM(res.value.plaintextDataKey.get)
     {
       // Retrieve and decode verification key from encryption context if using signing algorithm
       var vkey := None;
@@ -125,6 +132,7 @@ module {:extern "DefaultCMMDef"} DefaultCMMDef {
         return Failure("Keyring.OnDecrypt failed to decrypt the plaintext data key.");
       }
 
+      reveal CMMDefs.DecryptionMaterialisFromCMMOpaque(), DecryptionMaterialisFromDefaultCMM();
       return Success(materials);
     }
   }
