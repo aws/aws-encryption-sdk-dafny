@@ -43,6 +43,7 @@ module {:extern "CMMDefs"} CMMDefs {
       ensures Valid() && fresh(Repr - old(Repr))
       ensures res.Success? ==> res.value.plaintextDataKey.Some?
       ensures res.Success? ==> DecryptionMaterialisFromCMM(res.value.plaintextDataKey.get)
+      ensures res.Success? ==> materialsRequest.algorithmSuiteID == res.value.algorithmSuiteID
   }
 
   // Predicate works arround a known error in Dafny: https://github.com/dafny-lang/dafny/issues/422 
