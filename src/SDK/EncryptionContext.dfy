@@ -22,7 +22,7 @@ module {:extern "EncryptionContext"} EncryptionContext {
    * Serializability predicates
    */
 
-  predicate {:opaque } Serializable(encryptionContext: Map) {
+  predicate {:opaque} Serializable(encryptionContext: Map) {
     && SerializableKVPairs(encryptionContext)
     && Length(encryptionContext) < UINT16_LIMIT
   }
@@ -658,4 +658,3 @@ module {:extern "EncryptionContext"} EncryptionContext {
     ****/
   }
 }
-
