@@ -332,8 +332,13 @@ module {:extern "ESDKClient"} ESDKClient {
     return Success(decryptWithVerificationInfo.plaintext);
   }
 
-  datatype DecryptResultWithVerificationInfo = 
-    DecryptResultWithVerificationInfo(plaintext: seq<uint8>, ghost header: Msg.Header, ghost hbSeq: seq<uint8>, ghost frames: seq<MessageBody.Frame>, ghost signature: seq<uint8>)
+  datatype DecryptResultWithVerificationInfo = DecryptResultWithVerificationInfo(
+          plaintext: seq<uint8>, 
+    ghost header: Msg.Header, 
+    ghost hbSeq: seq<uint8>,
+    ghost frames: seq<MessageBody.Frame>, 
+    ghost signature: Option<seq<uint8>>)
+
 
   // Verification of this method requires verification of the CMM to some extend, The verification of the Decrypt method should be extended after CMM is verified
   method DecryptWithVerificationInfo(request: DecryptRequest) returns (res: Result<DecryptResultWithVerificationInfo>)
@@ -345,24 +350,23 @@ module {:extern "ESDKClient"} ESDKClient {
     ensures request.cmm != null ==> fresh(request.cmm.Repr - old(request.cmm.Repr))
     ensures request.cmm == null && request.keyring == null ==> res.Failure?
     ensures request.cmm != null && request.keyring != null ==> res.Failure?
-    ensures match res 
+    ensures match res // Verify that if no error occurs the correct objects are deserialized from the stream
       case Failure(e) => true
       case Success(decryptResultWithVerificationInfo) =>
         var header := decryptResultWithVerificationInfo.header;
-        var hbSeq := decryptResultWithVerificationInfo.hbSeq;
+        var hbSeq := decryptResultWithVerificationInfo.hbSeq; // Sequence containing header body (is part of request.message)
         var frames := decryptResultWithVerificationInfo.frames;
         var signature := decryptResultWithVerificationInfo.signature;
         && header.body.Valid()
         && Msg.SeqToHeaderBody(hbSeq, header.body)
         && header.body.contentType.Framed? ==> // We only verify framed content for now
           && (forall frame: MessageBody.Frame | frame in frames :: frame.Valid())
-          && ((  
-            && |signature| < UINT16_LIMIT  
+          && signature.Some? ==> (
+            && |signature.get| < UINT16_LIMIT  
             && request.message == hbSeq + header.auth.iv + header.auth.authenticationTag // These items can be serialized to the output
-              + MessageBody.FramesToSequence(frames) + UInt16ToSeq(|signature| as uint16) + signature 
-          ) || ( // Weather a message should have a signature depends on the CMM this post condition should be strengthened in the future
+              + MessageBody.FramesToSequence(frames) + UInt16ToSeq(|signature.get| as uint16) + signature.get)
+          && signature.None? ==>
             request.message ==  hbSeq + header.auth.iv + header.auth.authenticationTag + MessageBody.FramesToSequence(frames) // if the result does not need to be signed
-          ))
   {
     if request.cmm != null && request.keyring != null {
       return Failure("DecryptRequest.keyring OR DecryptRequest.cmm must be set (not both).");
@@ -433,16 +437,16 @@ module {:extern "ESDKClient"} ESDKClient {
         assert header.body.contentType.Framed? ==> FramesBySequence(frames, rd.reader.data[endHeaderPos..rd.reader.pos]);
       }
 
-    ghost var signature;
+    ghost var signature: Option<seq<uint8>> := None;
     ghost var endFramePos := rd.reader.pos;
     assert header.body.contentType.Framed? ==> 0 <= endHeaderPos <= endFramePos <= |request.message|;
     if decMat.algorithmSuiteID.SignatureType().Some? {
       var verifyResult, locSig := VerifySignature(rd, decMat);
-      signature := locSig;
+      signature := Some(locSig);
       if verifyResult.Failure? {
         return Failure(verifyResult.error);
       }
-      assert SignatureBySequence(signature, rd.reader.data[endFramePos..rd.reader.pos]);
+      assert SignatureBySequence(signature.get, rd.reader.data[endFramePos..rd.reader.pos]);
     }
     
     var isDone := rd.IsDoneReading();
@@ -453,27 +457,29 @@ module {:extern "ESDKClient"} ESDKClient {
     // Combine gathered facts and convert to postcondition
     if header.body.contentType.Framed? { 
       if decMat.algorithmSuiteID.SignatureType().Some? { // Case with Signature
-        assert SignatureBySequence(signature, rd.reader.data[endFramePos..rd.reader.pos]); 
+        assert signature.Some?;
+        assert SignatureBySequence(signature.get, rd.reader.data[endFramePos..rd.reader.pos]); 
         assert HeaderBySequence(header, deserializeHeaderResult.hbSeq, request.message[..endHeaderPos])
           && FramesBySequence(frames, request.message[endHeaderPos..endFramePos])
-          && SignatureBySequence(signature, request.message[endFramePos..]) by {
+          && SignatureBySequence(signature.get, request.message[endFramePos..]) by {
             assert 0 <= endHeaderPos <= endFramePos <= |request.message|;
-            assert SignatureBySequence(signature, request.message[endFramePos..]) by {
-            assert header.body.contentType.Framed? ==> SignatureBySequence(signature, rd.reader.data[endFramePos..rd.reader.pos]);
+            assert SignatureBySequence(signature.get, request.message[endFramePos..]) by {
+            assert header.body.contentType.Framed? ==> SignatureBySequence(signature.get, rd.reader.data[endFramePos..rd.reader.pos]);
             assert rd.reader.data[endFramePos..rd.reader.pos] == request.message[endFramePos..] by {
               calc {
                 rd.reader.data[endFramePos..rd.reader.pos];
-              == {upperBoundRemv(rd.reader.data, endFramePos); }
+              == {upperBoundRemv(rd.reader.data, endFramePos); assert rd.reader.pos == |rd.reader.data|; }
                 rd.reader.data[endFramePos..];
               == {assert rd.reader.data == request.message; }
                 request.message[endFramePos..];
               }
             }
-            assert SignatureBySequence(signature, rd.reader.data[endFramePos..rd.reader.pos]);
+            assert SignatureBySequence(signature.get, rd.reader.data[endFramePos..rd.reader.pos]);
           }
         }
-        HBandMBwithSigMatchSequence(header, deserializeHeaderResult.hbSeq, frames, signature, request.message);
-      } else { // Case without signature  
+        HBandMBwithSigMatchSequence(header, deserializeHeaderResult.hbSeq, frames, signature.get, request.message);
+      } else { // Case without signature
+        assert signature.None?;
         assert 0 <= endHeaderPos <= |request.message| by {
           assert request.message == rd.reader.data;
         }
