@@ -167,7 +167,7 @@ module {:extern "MessageHeader"} MessageHeader {
     UInt16ToSeq(|edk.ciphertext| as uint16)   + edk.ciphertext
   }
 
-  predicate {:opaque} SeqToHeaderBody(sequence: seq<uint8>, hb: HeaderBody)
+  predicate {:opaque} IsSerializationOfHeaderBody(sequence: seq<uint8>, hb: HeaderBody)
     requires hb.Valid()
   {
     exists serializedAAD | EncryptionContext.LinearSeqToMap(serializedAAD, hb.aad) ::
@@ -184,11 +184,11 @@ module {:extern "MessageHeader"} MessageHeader {
         UInt32ToSeq(hb.frameLength)
   }
 
-  lemma SeqToHeaderBodyDuality(hb: HeaderBody)
+  lemma IsSerializationOfHeaderBodyDuality(hb: HeaderBody)
     requires hb.Valid()
-    ensures SeqToHeaderBody(HeaderBodyToSeq(hb), hb)
+    ensures IsSerializationOfHeaderBody(HeaderBodyToSeq(hb), hb)
   {
-    reveal HeaderBodyToSeq(), SeqToHeaderBody();
+    reveal HeaderBodyToSeq(), IsSerializationOfHeaderBody();
     EncryptionContext.MapToLinearIsDualLinearSeqToMap(hb.aad);
   }
 }
