@@ -72,10 +72,14 @@ module Deserialize {
     var typ :- DeserializeType(rd);
     var algorithmSuiteID :- DeserializeAlgorithmSuiteID(rd);
     var messageID :- DeserializeMsgID(rd);
+    ghost var aadStart := rd.reader.pos;
     var aad :- DeserializeAAD(rd);
+    ghost var aadEnd := rd.reader.pos;
     var encryptedDataKeys :- DeserializeEncryptedDataKeys(rd);
     var contentType :- DeserializeContentType(rd);
+    ghost var reserveStart := rd.reader.pos;
     var _ :- DeserializeReserved(rd);
+    ghost var reserveEnd := rd.reader.pos;
     var ivLength :- rd.ReadByte();
     var frameLength :- rd.ReadUInt32();
 
@@ -89,7 +93,6 @@ module Deserialize {
       return Failure("Deserialization Error: Frame length must be non-0 when content type is framed.");
     }
 
-    reveal Msg.SeqToHeaderBody();
     var hb := Msg.HeaderBody(
       version,
       typ,
@@ -100,7 +103,21 @@ module Deserialize {
       contentType,
       ivLength,
       frameLength);
-    assert Msg.SeqToHeaderBody(rd.reader.data[old(rd.reader.pos)..rd.reader.pos], hb);
+    assert Msg.SeqToHeaderBody(rd.reader.data[old(rd.reader.pos)..rd.reader.pos], hb) by {
+      reveal Msg.SeqToHeaderBody();
+      assert EncryptionContext.LinearSeqToMap(rd.reader.data[aadStart..aadEnd], aad);
+      assert rd.reader.data[old(rd.reader.pos)..rd.reader.pos] == 
+        [hb.version as uint8] +
+        [hb.typ as uint8] +
+        UInt16ToSeq(hb.algorithmSuiteID as uint16) +
+        hb.messageID +
+        rd.reader.data[aadStart..aadEnd] + // This field can be encrypted in multiple ways and prevents us from reusing HeaderBodyToSeq
+        Msg.EDKsToSeq(hb.encryptedDataKeys) +
+        [Msg.ContentTypeToUInt8(hb.contentType)] +
+        rd.reader.data[reserveStart..reserveEnd] +
+        [hb.ivLength] +
+        UInt32ToSeq(hb.frameLength);
+    }
     return Success(hb);
   }
 

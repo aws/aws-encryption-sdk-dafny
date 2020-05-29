@@ -180,9 +180,6 @@ module MessageBody {
       case Success(seqWithGhostFrames) => 
         var frames := seqWithGhostFrames.frames;
         ValidFrames(frames)
-        && |frames| < UINT32_LIMIT
-        && (forall frame: Frame | frame in frames :: frame.Valid())
-        && (forall frame: Frame | frame in frames :: |frame.iv| == algorithmSuiteID.IVLength())
         && FramesToSequence(frames) == seqWithGhostFrames.sequence
         && FramesEncryptPlaintext(frames, plaintext)
         && (forall frame: Frame | frame in frames :: AESEncryption.EncryptedWithKey(frame.encContent, key))
@@ -390,7 +387,8 @@ module MessageBody {
       invariant rd.Valid()
       invariant FramesEncryptPlaintextSegments(frames, plaintextSeg) // All decrypted frames decrypt to the list of plaintext chuncks
       invariant SumPlaintextSegments(plaintextSeg) == plaintext // The current decrypted frame is the sum of all decrypted chuncks
-      invariant plaintext != [] ==> DecryptedWithKey(key, plaintext) 
+      invariant DecryptedSegmentsWithKey(key, plaintextSeg)
+      invariant plaintext == SumPlaintextSegments(plaintextSeg)
     {
       var frameWithGhostSeq :- DecryptFrame(rd, algorithmSuiteID, key, frameLength, messageID, n);
       assert |frameWithGhostSeq.sequence| < UINT32_LIMIT;
@@ -406,11 +404,11 @@ module MessageBody {
 
       var (decryptedFramePlaintext, final) := (decryptedFrame.encContent, decryptedFrame.FinalFrame?);
       
-      assert DecryptedWithKey(key, plaintext + decryptedFramePlaintext) by {
-        assert plaintext != [] ==> DecryptedWithKey(key, plaintext);
-        assert [] + decryptedFramePlaintext == decryptedFramePlaintext;
-        assert AESEncryption.DecryptedWithKey(key, decryptedFramePlaintext);
-      }
+      // assert DecryptedWithKey(key, plaintext + decryptedFramePlaintext) by {
+      //   assert plaintext != [] ==> DecryptedWithKey(key, plaintext);
+      //   assert [] + decryptedFramePlaintext == decryptedFramePlaintext;
+      //   assert AESEncryption.DecryptedWithKey(key, decryptedFramePlaintext);
+      // }
       plaintext := plaintext + decryptedFramePlaintext;
       plaintextSeg := plaintextSeg + [decryptedFramePlaintext];
       if final {
@@ -545,13 +543,21 @@ module MessageBody {
   {
     var encAlg := algorithmSuiteID.EncryptionSuite();
     res := AESEncryption.AESDecrypt(encAlg, key, ciphertext, authTag, iv, aad);
+    assert res.Success? ==> AESEncryption.DecryptedWithKey(key, res.value);
   }
 
   predicate DecryptedWithKey(key: seq<uint8>, plaintext: seq<uint8>)
   {
     if AESEncryption.DecryptedWithKey(key, plaintext) then true else
-      exists oldPlaintext, plaintextSeg | plaintext == oldPlaintext + plaintextSeg ::
-        DecryptedWithKey(key, oldPlaintext) && AESEncryption.DecryptedWithKey(key, plaintextSeg)
+      exists plaintextSeg | SumPlaintextSegments(plaintextSeg) == plaintext ::
+        DecryptedSegmentsWithKey(key, plaintextSeg)
+  }
+
+  predicate DecryptedSegmentsWithKey(key: seq<uint8>, plaintextSeg: seq<seq<uint8>>)
+  {
+    if plaintextSeg == [] then true else
+      && DecryptedSegmentsWithKey(key, plaintextSeg[..|plaintextSeg| - 1]) 
+      && AESEncryption.DecryptedWithKey(key, plaintextSeg[|plaintextSeg| - 1])
   } 
 
   method DecryptNonFramedMessageBody(rd: Streams.ByteReader, algorithmSuiteID: AlgorithmSuite.ID, key: seq<uint8>, messageID: Msg.MessageID) returns (res: Result<seq<uint8>>)
