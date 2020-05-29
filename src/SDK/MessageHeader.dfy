@@ -152,8 +152,8 @@ module {:extern "MessageHeader"} MessageHeader {
   {
     assert forall i :: 0 <= i < |entriesHead| ==> entriesHead[i].Valid() by {
       if !(forall i :: 0 <= i < |entriesHead| ==> entriesHead[i].Valid()) {
-        var entrie :| entrie in entriesHead && !entrie.Valid();
-        assert entrie in (entriesHead + entriesTail);
+        var entry :| entry in entriesHead && !entry.Valid();
+        assert entry in (entriesHead + entriesTail);
         assert false;
       }
     }
