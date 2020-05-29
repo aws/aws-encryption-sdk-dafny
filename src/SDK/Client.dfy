@@ -295,11 +295,7 @@ module {:extern "ESDKClient"} ESDKClient {
     requires |plaintextDataKey| == algorithmSuiteID.KDFInputKeyLength()
     ensures |derivedDataKey| == algorithmSuiteID.KeyLength()
     ensures IsDerivedKey(derivedDataKey)
-    ensures CMMDefs.DecryptionMaterialisFromCMM(plaintextDataKey) ==> KeyFromCMM(derivedDataKey)
-    ensures CMMDefs.DecryptionMaterialisFromCMM(plaintextDataKey) && DefaultCMMDef.DecryptionMaterialisFromDefaultCMM(plaintextDataKey) 
-      ==> KeyFromDefaultCMM(derivedDataKey)
   {
-    reveal KeyFromCMM(), KeyFromDefaultCMM();
     var algorithm := AlgorithmSuite.Suite[algorithmSuiteID].hkdf;
     if algorithm == KeyDerivationAlgorithms.IDENTITY {
       assert IsDerivedKey(plaintextDataKey) by {
@@ -322,45 +318,6 @@ module {:extern "ESDKClient"} ESDKClient {
     true
   }
 
-  predicate {:opaque} KeyFromCMM(derivedDataKey: seq<uint8>)
-  {
-    exists key :: CMMDefs.DecryptionMaterialisFromCMM(key)
-  }
-
-  
-  predicate {:opaque} KeyFromDefaultCMM(derivedDataKey: seq<uint8>)
-  {
-    exists key :: CMMDefs.DecryptionMaterialisFromCMM(key) && DefaultCMMDef.DecryptionMaterialisFromDefaultCMM(key)
-  }
-
- /*
-  * Deserialize a message and decrypt into a plaintext.
-
-
-Cryptographic Materials Manager
-  This CMM MUST obtain the decryption materials required for decryption.
-
-Keyring
-  The client MUST construct a default CMM that uses this keyring
-  This default CMM MUST obtain the decryption materials required for decryption.
-
-  The call to CMM's Decrypt Materials behavior MUST include as the input the encryption context, if provided, the encrypted data keys and the algorithm suite ID, obtained from parsing the message header of the encrypted message inputted.
-  The decryption materials returned by the call to the CMM's Decrypt Materials behaviour MUST contain a valid plaintext data key, algorithm suite and an encryption context, if an encryption context was used during encryption.
-    Note: This encryption context MUST be the same encryption context that was used during encryption otherwise the decrypt operation will fail.
-  The decrypt behavior MUST then use this plaintext data key, algorithm suite and encryption context, if included, to decrypt the encrypted content and obtain the plaintext to be returned. The encrypted content to be decrypted is obtained by parsing the message body of the encrypted message inputted.
-  Decrypt MUST use the encryption algorithm obtained from the algorithm suite.
-  The cipher key used for decryption is the derived key outputted by the KDF algorithm specified by the algorithm suite.
-  The input to the KDF algorithm is the plaintext data key.
-
-  The AAD used in decryption is the Message Body AAD, constructed as follows:
-    Message ID: This value is the same as the message ID in the parsed message header.
-    Body AAD Content: This value depends on whether the encrypted content being decrypted is within a regular frame , a final frame or is non framed. Refer to Message Body AAD specification for more information.
-    Sequence Number: This value is the sequence number of the frame being decrypted, if the message contains framed data. If the message contains non framed data, then this value is 1.
-    Content Length: TODO
-
-If the algorithm suite has a signature algorithm, decrypt MUST verify the message footer using the specified signature algorithm, by using the verification key obtained from the decryption materials.
-
-  */
   method Decrypt(request: DecryptRequest) returns (res: Result<seq<uint8>>)
     requires request.cmm != null ==> request.cmm.Valid()
     requires request.keyring != null ==> request.keyring.Valid()
@@ -378,6 +335,7 @@ If the algorithm suite has a signature algorithm, decrypt MUST verify the messag
   datatype DecryptResultWithVerificationInfo = 
     DecryptResultWithVerificationInfo(plaintext: seq<uint8>, ghost header: Msg.Header, ghost hbSeq: seq<uint8>, ghost frames: seq<MessageBody.Frame>, ghost signature: seq<uint8>)
 
+  // Verification of this method requires verification of the CMM to some extend, The verification of the Decrypt method should be extended after CMM is verified
   method DecryptWithVerificationInfo(request: DecryptRequest) returns (res: Result<DecryptResultWithVerificationInfo>)
     requires request.cmm != null ==> request.cmm.Valid()
     requires request.keyring != null ==> request.keyring.Valid()
@@ -387,10 +345,6 @@ If the algorithm suite has a signature algorithm, decrypt MUST verify the messag
     ensures request.cmm != null ==> fresh(request.cmm.Repr - old(request.cmm.Repr))
     ensures request.cmm == null && request.keyring == null ==> res.Failure?
     ensures request.cmm != null && request.keyring != null ==> res.Failure?
-    // ensures request.cmm != null && res.Success? && DataIsFramed(request.message) ==> 
-    //   exists key :: KeyFromCMM(key) && MessageBody.DecryptedWithKey(key, res.value.plaintext)
-    // ensures request.keyring != null && res.Success? && DataIsFramed(request.message) ==> 
-    //   exists key :: KeyFromDefaultCMM(key) && MessageBody.DecryptedWithKey(key, res.value.plaintext)
     ensures match res 
       case Failure(e) => true
       case Success(decryptResultWithVerificationInfo) =>
@@ -402,12 +356,13 @@ If the algorithm suite has a signature algorithm, decrypt MUST verify the messag
         && Msg.SeqToHeaderBody(hbSeq, header.body)
         && header.body.contentType.Framed? ==> // We only verify framed content for now
           && (forall frame: MessageBody.Frame | frame in frames :: frame.Valid())
-          && (header.body.algorithmSuiteID.SignatureType().Some? ==>  
+          && ((  
             && |signature| < UINT16_LIMIT  
-            && request.message == hbSeq + header.auth.iv + header.auth.authenticationTag 
-              + MessageBody.FramesToSequence(frames) + UInt16ToSeq(|signature| as uint16) + signature) // These items can be serialized to the output
-          && header.body.algorithmSuiteID.SignatureType().None? ==> // if the result does not need to be signed
-            request.message ==  hbSeq + header.auth.iv + header.auth.authenticationTag + MessageBody.FramesToSequence(frames)
+            && request.message == hbSeq + header.auth.iv + header.auth.authenticationTag // These items can be serialized to the output
+              + MessageBody.FramesToSequence(frames) + UInt16ToSeq(|signature| as uint16) + signature 
+          ) || ( // Weather a message should have a signature depends on the CMM this post condition should be strengthened in the future
+            request.message ==  hbSeq + header.auth.iv + header.auth.authenticationTag + MessageBody.FramesToSequence(frames) // if the result does not need to be signed
+          ))
   {
     if request.cmm != null && request.keyring != null {
       return Failure("DecryptRequest.keyring OR DecryptRequest.cmm must be set (not both).");
@@ -443,10 +398,6 @@ If the algorithm suite has a signature algorithm, decrypt MUST verify the messag
 
     var decMatRequest := Materials.DecryptionMaterialsRequest(header.body.algorithmSuiteID, header.body.encryptedDataKeys.entries, header.body.aad);
     var decMat :- cmm.DecryptMaterials(decMatRequest);
-    assert decMat.algorithmSuiteID == header.body.algorithmSuiteID by {
-      assert decMatRequest.algorithmSuiteID == header.body.algorithmSuiteID;
-      assert decMatRequest.algorithmSuiteID == decMat.algorithmSuiteID ;
-    }
 
     var decryptionKey := DeriveKey(decMat.plaintextDataKey.get, decMat.algorithmSuiteID, header.body.messageID);
 
@@ -485,7 +436,7 @@ If the algorithm suite has a signature algorithm, decrypt MUST verify the messag
     ghost var signature;
     ghost var endFramePos := rd.reader.pos;
     assert header.body.contentType.Framed? ==> 0 <= endHeaderPos <= endFramePos <= |request.message|;
-    if header.body.algorithmSuiteID.SignatureType().Some? {
+    if decMat.algorithmSuiteID.SignatureType().Some? {
       var verifyResult, locSig := VerifySignature(rd, decMat);
       signature := locSig;
       if verifyResult.Failure? {
@@ -499,8 +450,9 @@ If the algorithm suite has a signature algorithm, decrypt MUST verify the messag
       return Failure("message contains additional bytes at end");
     }
 
+    // Combine gathered facts and convert to postcondition
     if header.body.contentType.Framed? { 
-      if header.body.algorithmSuiteID.SignatureType().Some? {
+      if decMat.algorithmSuiteID.SignatureType().Some? { // Case with Signature
         assert SignatureBySequence(signature, rd.reader.data[endFramePos..rd.reader.pos]); 
         assert HeaderBySequence(header, deserializeHeaderResult.hbSeq, request.message[..endHeaderPos])
           && FramesBySequence(frames, request.message[endHeaderPos..endFramePos])
@@ -521,15 +473,13 @@ If the algorithm suite has a signature algorithm, decrypt MUST verify the messag
           }
         }
         HBandMBwithSigMatchSequence(header, deserializeHeaderResult.hbSeq, frames, signature, request.message);
-      } else {
+      } else { // Case without signature  
         assert 0 <= endHeaderPos <= |request.message| by {
           assert request.message == rd.reader.data;
         }
         assert HeaderBySequence(header, deserializeHeaderResult.hbSeq, request.message[..endHeaderPos])
           && FramesBySequence(frames, request.message[endHeaderPos..]) by {
-            assert header.body.contentType.Framed? && !header.body.algorithmSuiteID.SignatureType().Some?;
-            assert header.body.contentType.Framed? && !header.body.algorithmSuiteID.SignatureType().Some?  ==> 
-              HeaderBySequence(header, deserializeHeaderResult.hbSeq, rd.reader.data[..endHeaderPos]) 
+            assert HeaderBySequence(header, deserializeHeaderResult.hbSeq, rd.reader.data[..endHeaderPos]) 
               && FramesBySequence(frames, rd.reader.data[endHeaderPos..rd.reader.pos]);
             assert rd.reader.data[endHeaderPos..rd.reader.pos] == request.message[endHeaderPos..] by {
               calc {
@@ -541,20 +491,9 @@ If the algorithm suite has a signature algorithm, decrypt MUST verify the messag
               }
             }
           }
+        assert 0 <= endHeaderPos <= |request.message|; 
         HBandMBMatchSequence(header, deserializeHeaderResult.hbSeq, frames, request.message);
       }
-
-      
-      // if request.cmm != null {
-      //   assert KeyFromDefaultCMM(decryptionKey) by {
-      //     reveal KeyFromDefaultCMM();
-      //   }
-      //   assert MessageBody.DecryptedWithKey(decryptionKey, plaintext);
-      // }  
-      // if request.keyring != null {
-      //   assert KeyFromDefaultCMM(decryptionKey);
-      //   assert MessageBody.DecryptedWithKey(decryptionKey, plaintext);  
-      // }
     }
     var decryptResultWithVerificationInfo := DecryptResultWithVerificationInfo(plaintext, header, deserializeHeaderResult.hbSeq, frames, signature);
     return Success(decryptResultWithVerificationInfo);
@@ -622,10 +561,9 @@ If the algorithm suite has a signature algorithm, decrypt MUST verify the messag
   }
 
   lemma HBandMBMatchSequence(header: Msg.Header, hbSeq: seq<uint8>, frames: seq<MessageBody.Frame>, message: seq<uint8>)
-    requires header.body.algorithmSuiteID.SignatureType().None?
     requires forall frame: MessageBody.Frame | frame in frames :: frame.Valid()
     requires |message| >= |hbSeq| + |header.auth.iv + header.auth.authenticationTag|
-    requires var headerLength := |hbSeq| + |header.auth.iv + header.auth.authenticationTag|;
+    requires exists headerLength | 0 <= headerLength <= |message| ::
       HeaderBySequence(header, hbSeq, message[..headerLength])
       && FramesBySequence(frames, message[headerLength..])
     ensures message == hbSeq + header.auth.iv + header.auth.authenticationTag + MessageBody.FramesToSequence(frames);
@@ -634,13 +572,12 @@ If the algorithm suite has a signature algorithm, decrypt MUST verify the messag
   }
 
   lemma HBandMBwithSigMatchSequence(header: Msg.Header, hbSeq: seq<uint8>, frames: seq<MessageBody.Frame>, signature: seq<uint8>, message: seq<uint8>)
-    requires header.body.algorithmSuiteID.SignatureType().Some?
     requires forall frame: MessageBody.Frame | frame in frames :: frame.Valid()
     requires |message| >= |hbSeq| + |header.auth.iv + header.auth.authenticationTag| + |MessageBody.FramesToSequence(frames)|
-    requires var headerLength := |hbSeq| + |header.auth.iv + header.auth.authenticationTag|;
+    requires exists headerLength, frameLength | 0 <= headerLength <= frameLength < |message| ::
       HeaderBySequence(header, hbSeq, message[..headerLength])
-      && FramesBySequence(frames, message[headerLength..headerLength + |MessageBody.FramesToSequence(frames)|])
-      && SignatureBySequence(signature, message[headerLength + |MessageBody.FramesToSequence(frames)|..])
+      && FramesBySequence(frames, message[headerLength..frameLength])
+      && SignatureBySequence(signature, message[frameLength..])
     ensures |signature| < UINT16_LIMIT &&
       message == hbSeq + header.auth.iv + header.auth.authenticationTag + MessageBody.FramesToSequence(frames) + UInt16ToSeq(|signature| as uint16) + signature;
   {

@@ -42,8 +42,6 @@ module {:extern "CMMDefs"} CMMDefs {
       modifies Repr
       ensures Valid() && fresh(Repr - old(Repr))
       ensures res.Success? ==> res.value.plaintextDataKey.Some?
-      ensures res.Success? ==> DecryptionMaterialisFromCMM(res.value.plaintextDataKey.get)
-      ensures res.Success? ==> materialsRequest.algorithmSuiteID == res.value.algorithmSuiteID
   }
 
   // Predicate works arround a known error in Dafny: https://github.com/dafny-lang/dafny/issues/422 
@@ -52,16 +50,6 @@ module {:extern "CMMDefs"} CMMDefs {
   }
 
   predicate {:opaque } EncryptionMaterialsSignatureOpaque(validEncryptionMaterials: Materials.ValidEncryptionMaterials)
-  {
-    true
-  }
-
-  predicate DecryptionMaterialisFromCMM(key: seq<uint8>)
-  {
-    DecryptionMaterialisFromCMMOpaque(key)
-  }
-
-  predicate {:opaque } DecryptionMaterialisFromCMMOpaque(key: seq<uint8>)
   {
     true
   }
