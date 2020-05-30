@@ -41,7 +41,7 @@ module Deserialize {
       case Success(header) => header.Valid()
         && old(rd.reader.pos) <= rd.reader.pos <= |rd.reader.data|
         && exists hbSeq | hbSeq + header.auth.iv + header.auth.authenticationTag == rd.reader.data[old(rd.reader.pos)..rd.reader.pos] ::
-          Msg.SeqToHeaderBody(hbSeq, header.body)
+          Msg.IsSerializationOfHeaderBody(hbSeq, header.body)
       case Failure(_) => true
   {
     var hb :- DeserializeHeaderBody(rd);
@@ -61,7 +61,7 @@ module Deserialize {
       case Success(hb) => 
         && hb.Valid()
         && old(rd.reader.pos) <= rd.reader.pos <= |rd.reader.data|
-        && Msg.SeqToHeaderBody(rd.reader.data[old(rd.reader.pos)..rd.reader.pos], hb)
+        && Msg.IsSerializationOfHeaderBody(rd.reader.data[old(rd.reader.pos)..rd.reader.pos], hb)
       case Failure(_) => true
   {
     var version :- DeserializeVersion(rd);
@@ -85,7 +85,7 @@ module Deserialize {
       return Failure("Deserialization Error: Frame length must be non-0 when content type is framed.");
     }
 
-    reveal Msg.SeqToHeaderBody();
+    reveal Msg.IsSerializationOfHeaderBody();
     var hb := Msg.HeaderBody(
       version,
       typ,
@@ -96,7 +96,7 @@ module Deserialize {
       contentType,
       ivLength,
       frameLength);
-    assert Msg.SeqToHeaderBody(rd.reader.data[old(rd.reader.pos)..rd.reader.pos], hb);
+    assert Msg.IsSerializationOfHeaderBody(rd.reader.data[old(rd.reader.pos)..rd.reader.pos], hb);
     return Success(hb);
   }
 
