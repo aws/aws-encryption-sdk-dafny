@@ -180,6 +180,7 @@ module MessageBody {
       case Success(seqWithGhostFrames) => 
         var frames := seqWithGhostFrames.frames;
         ValidFrames(frames)
+        && (forall frame | frame in frames :: frame.Valid())
         && FramesToSequence(frames) == seqWithGhostFrames.sequence
         && FramesEncryptPlaintext(frames, plaintext)
         && (forall frame: Frame | frame in frames :: AESEncryption.EncryptedWithKey(frame.encContent, key))

@@ -358,7 +358,7 @@ module {:extern "ESDKClient"} ESDKClient {
         var frames := decryptResultWithVerificationInfo.frames;
         var signature := decryptResultWithVerificationInfo.signature;
         && header.body.Valid()
-        && Msg.SeqToHeaderBody(hbSeq, header.body)
+        && Msg.IsSerializationOfHeaderBody(hbSeq, header.body)
         && header.body.contentType.Framed? ==> // We only verify framed content for now
           && (forall frame: MessageBody.Frame | frame in frames :: frame.Valid())
           && signature.Some? ==> (
@@ -390,7 +390,7 @@ module {:extern "ESDKClient"} ESDKClient {
         reveal HeaderBySequence();
         assert header.body.contentType.Framed?;
         assert header.body.Valid();
-        assert Msg.SeqToHeaderBody(deserializeHeaderResult.hbSeq, header.body);
+        assert Msg.IsSerializationOfHeaderBody(deserializeHeaderResult.hbSeq, header.body);
         assert rd.reader.data[..rd.reader.pos] == deserializeHeaderResult.hbSeq + header.auth.iv + header.auth.authenticationTag;
       }
       assert DataIsFramed(request.message) by {
@@ -549,7 +549,7 @@ module {:extern "ESDKClient"} ESDKClient {
   {
     header.body.contentType.Framed?
     && header.body.Valid()
-    && Msg.SeqToHeaderBody(hbSeq, header.body)
+    && Msg.IsSerializationOfHeaderBody(hbSeq, header.body)
     && sequence == hbSeq + header.auth.iv + header.auth.authenticationTag
   }
 

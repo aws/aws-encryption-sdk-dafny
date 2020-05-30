@@ -41,7 +41,7 @@ module Deserialize {
     ensures match res
       case Success(desres) => desres.header.Valid()
         && old(rd.reader.pos) <= rd.reader.pos <= |rd.reader.data|
-        && Msg.SeqToHeaderBody(desres.hbSeq, desres.header.body)
+        && Msg.IsSerializationOfHeaderBody(desres.hbSeq, desres.header.body)
         && desres.hbSeq + desres.header.auth.iv + desres.header.auth.authenticationTag == rd.reader.data[old(rd.reader.pos)..rd.reader.pos]          
       case Failure(_) => true
   {
@@ -65,7 +65,7 @@ module Deserialize {
       case Success(hb) => 
         && hb.Valid()
         && old(rd.reader.pos) <= rd.reader.pos <= |rd.reader.data|
-        && Msg.SeqToHeaderBody(rd.reader.data[old(rd.reader.pos)..rd.reader.pos], hb)
+        && Msg.IsSerializationOfHeaderBody(rd.reader.data[old(rd.reader.pos)..rd.reader.pos], hb)
       case Failure(_) => true
   {
     var version :- DeserializeVersion(rd);
@@ -103,8 +103,8 @@ module Deserialize {
       contentType,
       ivLength,
       frameLength);
-    assert Msg.SeqToHeaderBody(rd.reader.data[old(rd.reader.pos)..rd.reader.pos], hb) by {
-      reveal Msg.SeqToHeaderBody();
+    assert Msg.IsSerializationOfHeaderBody(rd.reader.data[old(rd.reader.pos)..rd.reader.pos], hb) by {
+      reveal Msg.IsSerializationOfHeaderBody();
       assert EncryptionContext.LinearSeqToMap(rd.reader.data[aadStart..aadEnd], aad);
       assert rd.reader.data[old(rd.reader.pos)..rd.reader.pos] == 
         [hb.version as uint8] +
