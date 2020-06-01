@@ -12,6 +12,7 @@ include "../../src/SDK/MessageHeader.dfy"
 include "../../src/Crypto/RSAEncryption.dfy"
 include "../../src/Util/UTF8.dfy"
 include "../../src/StandardLibrary/Base64.dfy"
+include "../../test/Util/TestUtils.dfy"
 
 module {:extern "Bench"} Bench {
   import opened StandardLibrary
@@ -25,85 +26,65 @@ module {:extern "Bench"} Bench {
   import Msg = MessageHeader
   import UTF8
   import Base64
+  import TestUtils
 
   method Replicate(s : string, n : UInt.uint32) returns (ret : string)
 	  requires |s| * n as int < UInt.UINT32_LIMIT
-	  ensures |ret| == |s| * n as int && forall i :: 0 <= i < |ret| ==> ret[i] == s[i % |s|] {
-	if n == 0 {
-	  return "";
-	}
+	  ensures |ret| == |s| * n as int && forall i :: 0 <= i < |ret| ==> ret[i] == s[i % |s|] 
+  {
+    if n == 0 {
+      return "";
+    }
 
-	var l := |s| as UInt.uint32;
-	var a := new char[l * n];
-	var i := 0 as UInt.uint32;
+    var l := |s| as UInt.uint32;
+    var a := new char[l * n];
+    var i := 0 as UInt.uint32;
 
-	while i < l * n invariant 0 <= i <= l * n && forall j :: 0 <= j < i ==> a[j] == s[j % l] {
-	  a[i] := s[i % l];
-	  i := i + 1;
-	}
+    while i < l * n invariant 0 <= i <= l * n && forall j :: 0 <= j < i ==> a[j] == s[j % l] {
+      a[i] := s[i % l];
+      i := i + 1;
+    }
 
-	assert forall i :: 0 <= i < l * n ==> a[i] == s[i % l];
+    assert forall i :: 0 <= i < l * n ==> a[i] == s[i % l];
 
-	return a[..];
+    return a[..];
   }
 
   module {:extern "Time"} Time {
-	class {:extern "Timer"} Timer {
-	  constructor {:extern} () { }
+    class {:extern "Timer"} Timer {
+      constructor {:extern} () { }
       method {:extern} ElapsedMilliseconds() returns (a : nat)
-	}
+    }
   }
 
   method Main() {
-    var namespace := UTF8.Encode("namespace");
-    var name := UTF8.Encode("MyKeyring");
-    if name.Failure? || namespace.Failure? {
-      print "Failure: hardcoded name/namespace cannot be utf8 encoded";
-      return;
-    }
+    var namespace :- expect UTF8.Encode("namespace");
+    var name :- expect UTF8.Encode("MyKeyring");
 
     var ek, dk := RSAEncryption.GenerateKeyPair(2048, RSAEncryption.PKCS1);
-    var keyring := new RawRSAKeyringDef.RawRSAKeyring(namespace.value, name.value, RSAEncryption.PaddingMode.PKCS1, Some(ek), Some(dk));
+    var keyring := new RawRSAKeyringDef.RawRSAKeyring(namespace, name, RSAEncryption.PaddingMode.PKCS1, Some(ek), Some(dk));
     var cmm := new DefaultCMMDef.DefaultCMM.OfKeyring(keyring);
 
     var n := 1024 * 1024;
 
     var msg := Replicate("lorem ipsum dolor sit amet ", n);
-    var originalPlaintext := UTF8.Encode(msg).value;
+    var msgBytes :- expect UTF8.Encode(msg);
+    var originalPlaintext :- expect UTF8.Encode(msg);
     print "Plaintext size: ", |originalPlaintext|, "\n";
 
-    var keyA, valA := UTF8.Encode("keyA").value, UTF8.Encode("valA").value;
-    var encryptionContext := [(keyA, valA)];
-    assert Msg.ValidAAD(encryptionContext) by {
-      // To proving ValidAAD, we need to reveal the definition of ValidAAD:
-      reveal Msg.ValidAAD();
-      // We also need to help the verifier with proving the AADLength is small:
-      calc {
-        Msg.AADLength(encryptionContext);
-        2 + Msg.KVPairsLength(encryptionContext, 0, 1);
-        2 + 2 + |keyA| + 2 + |valA|;
-      }
-      assert Msg.AADLength(encryptionContext) < UINT16_LIMIT;
-    }
+    var encryptionContext := TestUtils.SmallEncryptionContext(TestUtils.SmallEncryptionContextVariation.A);
 
     var timer := new Time.Timer();
 
-    var e := Client.Encrypt(originalPlaintext, cmm, encryptionContext);
-    if e.Failure? {
-      print "Bad encryption :( ", e.error, "\n";
-      return;
-    }
+    var encryptRequest := Client.EncryptRequest.WithCMM(msgBytes, cmm).SetEncryptionContext(encryptionContext);
+    var e :- expect Client.Encrypt(encryptRequest);
 
-    var d := Client.Decrypt(e.value, cmm);
-    if d.Failure? {
-      print "bad decryption: ", d.error, "\n";
-      return;
-    }
-    var finalPlaintext := d.value;
+    var decryptRequest := Client.DecryptRequest.WithCMM(e, cmm);
+    var finalPlaintext :- expect Client.Decrypt(decryptRequest);
 
     var elapsed := timer.ElapsedMilliseconds();
 
-	print elapsed, " ms\n";
-	print "Match? ", (originalPlaintext == finalPlaintext), "\n";
+    print elapsed, " ms\n";
+    print "Match? ", (originalPlaintext == finalPlaintext), "\n";
   }
 }
