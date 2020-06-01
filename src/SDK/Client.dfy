@@ -214,6 +214,7 @@ module {:extern "ESDKClient"} ESDKClient {
     var encMatRequest := Materials.EncryptionMaterialsRequest(request.encryptionContext, algorithmSuiteID, Some(request.plaintextLength as nat));
 
     var encMat :- cmm.GetEncryptionMaterials(encMatRequest);
+    
 
     if UINT16_LIMIT <= |encMat.encryptedDataKeys| {
       return Failure("Number of EDKs exceeds the allowed maximum.");
@@ -252,6 +253,7 @@ module {:extern "ESDKClient"} ESDKClient {
     }
     ghost var serializedHeaderAuthentication := headerAuthentication.iv + headerAuthentication.authenticationTag; 
     
+    assert request.cmm != null ==> request.cmm.Valid();
     var _ :- Serialize.SerializeHeaderAuthentication(wr, headerAuthentication, encMat.algorithmSuiteID);
     assert wr.GetDataWritten() == serializedHeaderBody + serializedHeaderAuthentication;
     
@@ -353,6 +355,7 @@ module {:extern "ESDKClient"} ESDKClient {
     ensures match res // Verify that if no error occurs the correct objects are deserialized from the stream
       case Failure(e) => true
       case Success(decryptResultWithVerificationInfo) =>
+        var plaintext := decryptResultWithVerificationInfo.plaintext;
         var header := decryptResultWithVerificationInfo.header;
         var hbSeq := decryptResultWithVerificationInfo.hbSeq; // Sequence containing header body (is part of request.message)
         var frames := decryptResultWithVerificationInfo.frames;
@@ -361,6 +364,7 @@ module {:extern "ESDKClient"} ESDKClient {
         && Msg.IsSerializationOfHeaderBody(hbSeq, header.body)
         && header.body.contentType.Framed? ==> // We only verify framed content for now
           && (forall frame: MessageBody.Frame | frame in frames :: frame.Valid())
+          && MessageBody.FramesEncryptPlaintext(frames, plaintext)
           && signature.Some? ==> (
             && |signature.get| < UINT16_LIMIT  
             && request.message == hbSeq + header.auth.iv + header.auth.authenticationTag // These items can be serialized to the output
