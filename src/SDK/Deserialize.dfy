@@ -197,7 +197,6 @@ module Deserialize {
         && old(rd.reader.pos) + bytesRead == rd.reader.pos
         && sermessageID == rd.reader.data[old(rd.reader.pos)..rd.reader.pos]
       case Failure(_) => true
-    
   {
     var msgID: seq<uint8> :- rd.ReadBytes(Msg.MESSAGE_ID_LEN);
     return Success(msgID);
@@ -242,13 +241,13 @@ module Deserialize {
     ensures rd.Valid()
     ensures match ret
       case Success(aad) => 
-        EncryptionContext.Serializable(aad)
+        && EncryptionContext.Serializable(aad)
         && old(rd.reader.pos) <= rd.reader.pos <= |rd.reader.data|
         && EncryptionContext.LinearSeqToMap(rd.reader.data[old(rd.reader.pos)..rd.reader.pos], aad)
       case Failure(_) => true
   {
     reveal EncryptionContext.Serializable();
-    
+
     var kvPairsLength :- rd.ReadUInt16();
     if kvPairsLength == 0 {
       return Success(map[]);
@@ -289,12 +288,12 @@ module Deserialize {
 
       var keyLength :- rd.ReadUInt16();
       totalBytesRead := totalBytesRead + 2;
-      
+
       var key :- DeserializeUTF8(rd, keyLength as nat);
       totalBytesRead := totalBytesRead + |key|;
-      
+
       var valueLength :- rd.ReadUInt16();
-          
+
       totalBytesRead := totalBytesRead + 2;
       // check that we're not exceeding the stated AAD length
       if kvPairsLength as nat < totalBytesRead + valueLength as nat {
@@ -316,9 +315,9 @@ module Deserialize {
         case None =>
           return Failure("Deserialization Error: Duplicate key.");
       }
-      
+
       i := i + 1;
-      
+
       // Proof that a KVPair is deserialized correctly
       // Note: Proof that serializing the resulting pair is equal to the input is easier and more stable.
       assert EncryptionContext.KVPairToSeq((key, value)) == rd.reader.data[oldPosPair .. rd.reader.pos] by {
@@ -328,7 +327,7 @@ module Deserialize {
         assert UInt16ToSeq(|value| as uint16) == rd.reader.data[oldPosPair + 2 + |key|..oldPosPair + 2 + |key| + 2];
         assert value == rd.reader.data[oldPosPair + 4 + |key|..oldPosPair + 4 + |key| + |value|];
       }
-      
+
       assert forall p :: (p in oldKvPairs || p == (key, value)) <==> p in kvPairs;
 
       // The unsorted sequence of pairs can be serialized to the bytes read from the stream
@@ -337,7 +336,7 @@ module Deserialize {
         assert EncryptionContext.LinearToUnorderedSeq(unsortedKvPairs, 0, |unsortedKvPairs| - 1) == rd.reader.data[startKvPos..oldPosPair];
         assert EncryptionContext.KVPairToSeq(unsortedKvPairs[|unsortedKvPairs| - 1]) == rd.reader.data[oldPosPair .. rd.reader.pos];
           assert rd.reader.data[startKvPos..rd.reader.pos] == rd.reader.data[startKvPos..oldPosPair] + rd.reader.data[oldPosPair..rd.reader.pos];
-      }  
+      }
     }
     if kvPairsLength as nat != totalBytesRead {
       return Failure("Deserialization Error: Bytes actually read differs from bytes supposed to be read.");
@@ -352,9 +351,7 @@ module Deserialize {
     if !isValid || |kvPairs| != |encryptionContext| {
       return Failure("Deserialization Error: Failed to parse encryption context.");
     }
-    
     SerializationIsValid(rd.reader.data[old(rd.reader.pos)..rd.reader.pos], encryptionContext, unsortedKvPairs, kvPairs);
-    
     return Success(encryptionContext);
   }
 
@@ -376,7 +373,7 @@ module Deserialize {
   {
     reveal EncryptionContext.Serializable();
     if |resultMap| == 0 {
-      
+
     } else {
       assert EncryptionContext.LinearSeqToMap(sequence, resultMap) by {
         assert EncryptionContext.SeqToMap(sequence[2..], resultMap) by {
@@ -384,7 +381,7 @@ module Deserialize {
           // This is the line which ties the kvPairs and unstoredkvPairs together, since all pairs are unqiue and they contain the same pairs
           // There is only one sorted sequence, so sorting the unsorted pairs gives us kvPairs
           EncryptionContext.SortedSequenceIsUnqiue(kvPairs, EncryptionContext.InsertionSort(unsortedKvPairs));
-          
+
           assert EncryptionContext.SeqToLinearToMap(sequence[2..], resultMap, unsortedKvPairs, kvPairs) by 
           { 
             assert 2 <= |sequence[2..]|;
@@ -502,7 +499,7 @@ module Deserialize {
     ensures rd.Valid()
     ensures match ret
       case Success(contentType) =>
-        old(rd.reader.pos) + 1 == rd.reader.pos
+        && old(rd.reader.pos) + 1 == rd.reader.pos
         && [Msg.ContentTypeToUInt8(contentType)] == rd.reader.data[old(rd.reader.pos)..rd.reader.pos]
       case Failure(_) => true
   {
@@ -520,7 +517,7 @@ module Deserialize {
     ensures rd.Valid()
     ensures match ret
       case Success(contnetType) =>
-        old(rd.reader.pos) + 4 == rd.reader.pos
+        && old(rd.reader.pos) + 4 == rd.reader.pos
         && Msg.Reserved == rd.reader.data[old(rd.reader.pos)..rd.reader.pos]
       case Failure(_) => true
   {
