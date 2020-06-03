@@ -77,7 +77,7 @@ module {:extern "STL"} StandardLibrary {
     ==
       var i := FindIndexMatching(s, delim, 0);
       if i.Some? then [s[..i.get]] + Split(s[i.get + 1..], delim) else [s];
-    ==  { FindIndexMatchingLocatesElem(s, delim, 0, |prefix|); }
+    ==  { FindIndexMatchingLocatesElem(s, delim, 0, |prefix|); assert FindIndexMatching(s, delim, 0).Some?; }
       [s[..|prefix|]] + Split(s[|prefix| + 1..], delim);
     ==  { assert s[..|prefix|] == prefix; }
       [prefix] + Split(s[|prefix| + 1..], delim);
@@ -355,6 +355,7 @@ module {:extern "STL"} StandardLibrary {
     ensures forall i :: 0 <= i < |q| ==> q[i] in s
     ensures forall k :: k in s ==> k in q
     ensures forall i :: 0 < i < |q| ==> LexicographicLessOrEqual(q[i-1], q[i], less)
+    ensures forall i, j | 0 <= i < j < |q| :: q[i] != q[j];
   {
     if s == {} then
       []
