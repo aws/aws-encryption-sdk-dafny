@@ -72,6 +72,9 @@ module Deserialize {
     var typ :- DeserializeType(rd);
     var algorithmSuiteID :- DeserializeAlgorithmSuiteID(rd);
     var messageID :- DeserializeMsgID(rd);
+    assert [version as uint8] + [typ as uint8] + UInt16ToSeq(algorithmSuiteID as uint16) + messageID ==
+      rd.reader.data[old(rd.reader.pos)..rd.reader.pos];
+
     ghost var aadStart := rd.reader.pos;
     var aad :- DeserializeAAD(rd);
     ghost var aadEnd := rd.reader.pos;
@@ -107,6 +110,12 @@ module Deserialize {
     assert Msg.IsSerializationOfHeaderBody(rd.reader.data[old(rd.reader.pos)..rd.reader.pos], hb) by {
       reveal Msg.IsSerializationOfHeaderBody();
       assert EncryptionContext.LinearSeqToMap(rd.reader.data[aadStart..aadEnd], aad);
+      assert [hb.version as uint8] + [hb.typ as uint8] + UInt16ToSeq(hb.algorithmSuiteID as uint16) + hb.messageID ==
+        rd.reader.data[old(rd.reader.pos)..aadStart];
+      assert rd.reader.data[old(rd.reader.pos)..aadEnd] + Msg.EDKsToSeq(hb.encryptedDataKeys) + [Msg.ContentTypeToUInt8(hb.contentType)] == 
+        rd.reader.data[old(rd.reader.pos)..reserveStart];
+      assert rd.reader.data[old(rd.reader.pos)..reserveEnd] + [hb.ivLength] + UInt32ToSeq(hb.frameLength) == 
+        rd.reader.data[old(rd.reader.pos)..rd.reader.pos];
       assert rd.reader.data[old(rd.reader.pos)..rd.reader.pos] == 
         [hb.version as uint8] +
         [hb.typ as uint8] +
@@ -269,7 +278,7 @@ module Deserialize {
       case Failure(_) => true
   {
     reveal EncryptionContext.Serializable();
-    
+
     var kvPairsLength :- rd.ReadUInt16();
     if kvPairsLength == 0 {
       return Success(map[]);
@@ -310,10 +319,10 @@ module Deserialize {
 
       var keyLength :- rd.ReadUInt16();
       totalBytesRead := totalBytesRead + 2;
-      
+
       var key :- DeserializeUTF8(rd, keyLength as nat);
       totalBytesRead := totalBytesRead + |key|;
-      
+
       var valueLength :- rd.ReadUInt16();
 
       totalBytesRead := totalBytesRead + 2;
@@ -337,7 +346,7 @@ module Deserialize {
         case None =>
           return Failure("Deserialization Error: Duplicate key.");
       }
-      
+
       i := i + 1;
 
       // Proof that a KVPair is deserialized correctly
@@ -358,6 +367,7 @@ module Deserialize {
         assert EncryptionContext.LinearToUnorderedSeq(unsortedKvPairs, 0, |unsortedKvPairs| - 1) == rd.reader.data[startKvPos..oldPosPair];
         assert EncryptionContext.KVPairToSeq(unsortedKvPairs[|unsortedKvPairs| - 1]) == rd.reader.data[oldPosPair .. rd.reader.pos];
           assert rd.reader.data[startKvPos..rd.reader.pos] == rd.reader.data[startKvPos..oldPosPair] + rd.reader.data[oldPosPair..rd.reader.pos];
+      }
 
     }
     if kvPairsLength as nat != totalBytesRead {
