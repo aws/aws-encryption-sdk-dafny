@@ -272,25 +272,25 @@ module {:extern "EncryptionContext"} EncryptionContext {
   lemma LinearSortedImpliesStrongLinearSorted(ls: Linear)
     requires LinearSorted(ls);
     ensures StrongLinearSorted(ls);
-    {
-      if |ls| <= 1 {
-        // If ls is empty it is always sorted
-      } else {
-        forall i, j | 0 <= i < j < |ls| 
-          ensures LexicographicLessOrEqual(ls[i].0, ls[j].0, UInt.UInt8Less)
-        {
-          //Induction on i;
-          LinearSortedImpliesStrongLinearSorted(ls[1..]);
-          if i == 0 && 2 <= |ls| {
-            LexIsReflexive(ls[1].0, UInt.UInt8Less);
-            LexIsTransitive(ls[i].0, ls[1].0, ls[j].0, UInt.UInt8Less);
-            assert LexicographicLessOrEqual(ls[i].0, ls[j].0, UInt.UInt8Less);
-          } else {
-            assert LexicographicLessOrEqual(ls[i].0, ls[j].0, UInt.UInt8Less);
-          }
+  {
+    if |ls| <= 1 {
+      // If ls is empty it is always sorted
+    } else {
+      forall i, j | 0 <= i < j < |ls| 
+        ensures LexicographicLessOrEqual(ls[i].0, ls[j].0, UInt.UInt8Less)
+      {
+        //Induction on i;
+        LinearSortedImpliesStrongLinearSorted(ls[1..]);
+        if i == 0 && 2 <= |ls| {
+          LexIsReflexive(ls[1].0, UInt.UInt8Less);
+          LexIsTransitive(ls[i].0, ls[1].0, ls[j].0, UInt.UInt8Less);
+          assert LexicographicLessOrEqual(ls[i].0, ls[j].0, UInt.UInt8Less);
+        } else {
+          assert LexicographicLessOrEqual(ls[i].0, ls[j].0, UInt.UInt8Less);
         }
       }
     }
+  }
 
   // Proof that two sorted sequences with unique elements are the same if they contain the same elements
   lemma SortedSequenceIsUnqiue(xs: Linear, ys: Linear)
@@ -432,7 +432,7 @@ module {:extern "EncryptionContext"} EncryptionContext {
     if sequenceComplete != [] { // If the sequence is not empty
       var sequence := sequenceComplete[2..];
         var kvPairs :| // Then there exists a sequence of kvPairs which is deserialized to the output sequence of LinearToSeq
-          (forall i :: 0 <= i < |kvPairs| ==> SerializableKVPair(kvPairs[i]))
+          && (forall i :: 0 <= i < |kvPairs| ==> SerializableKVPair(kvPairs[i]))
           && |kvPairs| < UINT16_LIMIT
           && LinearSorted(kvPairs)
           && LinearIsUnique(kvPairs) 
@@ -467,8 +467,8 @@ module {:extern "EncryptionContext"} EncryptionContext {
     ensures |InsertionSort(ps)| == |ps|
   {
     if ps == [] {
-
-    } else {
+      // Trivial base case
+    } else { // Inductive step
       var ls := InsertionSort(ps[1..]);
       forall j | 0 <= j < |ls| // Proof that ps[0] is not contained in the sorted ps[1..]
         ensures ps[0].0 != ls[j].0
