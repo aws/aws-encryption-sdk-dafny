@@ -405,12 +405,6 @@ module MessageBody {
       frames := frames + [encryptedFrame];
 
       var (decryptedFramePlaintext, final) := (decryptedFrame.encContent, decryptedFrame.FinalFrame?);
-      
-      // assert DecryptedWithKey(key, plaintext + decryptedFramePlaintext) by {
-      //   assert plaintext != [] ==> DecryptedWithKey(key, plaintext);
-      //   assert [] + decryptedFramePlaintext == decryptedFramePlaintext;
-      //   assert AESEncryption.DecryptedWithKey(key, decryptedFramePlaintext);
-      // }
       plaintext := plaintext + decryptedFramePlaintext;
       plaintextSeg := plaintextSeg + [decryptedFramePlaintext];
       if final {

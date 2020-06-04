@@ -101,8 +101,8 @@ module {:extern "ESDKClient"} ESDKClient {
     requires headerBody.Valid()
     requires |signature| < UINT16_LIMIT
   {
-      var serializedSignature := UInt16ToSeq(|signature| as uint16) + signature;
-      SerializeMessageWithoutSignature(headerBody, headerAuthentication, frames) + serializedSignature
+    var serializedSignature := UInt16ToSeq(|signature| as uint16) + signature;
+    SerializeMessageWithoutSignature(headerBody, headerAuthentication, frames) + serializedSignature
   }
 
   // Specification of Encrypt without signature
@@ -111,10 +111,10 @@ module {:extern "ESDKClient"} ESDKClient {
     requires forall frame: MessageBody.Frame | frame in frames :: frame.Valid()
     requires headerBody.Valid()
   {
-      var serializedHeaderBody := (reveal Msg.HeaderBodyToSeq(); Msg.HeaderBodyToSeq(headerBody));
-      var serializedHeaderAuthentication := headerAuthentication.iv + headerAuthentication.authenticationTag;
-      var serializedFrames := MessageBody.FramesToSequence(frames);
-      serializedHeaderBody + serializedHeaderAuthentication + serializedFrames
+    var serializedHeaderBody := (reveal Msg.HeaderBodyToSeq(); Msg.HeaderBodyToSeq(headerBody));
+    var serializedHeaderAuthentication := headerAuthentication.iv + headerAuthentication.authenticationTag;
+    var serializedFrames := MessageBody.FramesToSequence(frames);
+    serializedHeaderBody + serializedHeaderAuthentication + serializedFrames
   }
 
   // Specification of headerBody in Encrypt
@@ -354,23 +354,18 @@ module {:extern "ESDKClient"} ESDKClient {
     ensures request.cmm != null && request.keyring != null ==> res.Failure?
     ensures match res // Verify that if no error occurs the correct objects are deserialized from the stream
       case Failure(e) => true
-      case Success(decryptResultWithVerificationInfo) => // Unfold return value into seperate variables
-        var plaintext := decryptResultWithVerificationInfo.plaintext;
-        var header := decryptResultWithVerificationInfo.header;
-        var hbSeq := decryptResultWithVerificationInfo.hbSeq; // Sequence containing header body (is part of request.message)
-        var frames := decryptResultWithVerificationInfo.frames;
-        var signature := decryptResultWithVerificationInfo.signature;
-        && header.body.Valid()
-        && Msg.IsSerializationOfHeaderBody(hbSeq, header.body)
-        && header.body.contentType.Framed? ==> // We only verify framed content for now
-          && (forall frame: MessageBody.Frame | frame in frames :: frame.Valid())
-          && MessageBody.FramesEncryptPlaintext(frames, plaintext)
-          && signature.Some? ==> (
-            && |signature.get| < UINT16_LIMIT  
-            && request.message == hbSeq + header.auth.iv + header.auth.authenticationTag // These items can be serialized to the output
-              + MessageBody.FramesToSequence(frames) + UInt16ToSeq(|signature.get| as uint16) + signature.get)
-          && signature.None? ==>
-            request.message ==  hbSeq + header.auth.iv + header.auth.authenticationTag + MessageBody.FramesToSequence(frames) // if the result does not need to be signed
+      case Success(d) => // Unfold return value into seperate variables
+       && d.header.body.Valid()
+        && Msg.IsSerializationOfHeaderBody(d.hbSeq, d.header.body)
+        && d.header.body.contentType.Framed? ==> // We only verify framed content for now
+          && (forall frame: MessageBody.Frame | frame in d.frames :: frame.Valid())
+          && MessageBody.FramesEncryptPlaintext(d.frames, d.plaintext)
+          && d.signature.Some? ==> (
+            && |d.signature.get| < UINT16_LIMIT  
+            && request.message == d.hbSeq + d.header.auth.iv + d.header.auth.authenticationTag // These items can be serialized to the output
+              + MessageBody.FramesToSequence(d.frames) + UInt16ToSeq(|d.signature.get| as uint16) + d.signature.get)
+          && d.signature.None? ==> // if the result does not need to be signed
+            request.message == d.hbSeq + d.header.auth.iv + d.header.auth.authenticationTag + MessageBody.FramesToSequence(d.frames) 
   {
     if request.cmm != null && request.keyring != null {
       return Failure("DecryptRequest.keyring OR DecryptRequest.cmm must be set (not both).");
@@ -511,15 +506,14 @@ module {:extern "ESDKClient"} ESDKClient {
     return Success(decryptResultWithVerificationInfo);
   }
 
-  method VerifySignature(rd: Streams.ByteReader, decMat: Materials.ValidDecryptionMaterials) returns (res: Result<bool>, ghost signature: seq<uint8>) 
+  method VerifySignature(rd: Streams.ByteReader, decMat: Materials.ValidDecryptionMaterials) returns (res: Result<()>, ghost signature: seq<uint8>) 
     requires rd.Valid()
     requires decMat.algorithmSuiteID.SignatureType().Some?
     modifies rd.reader`pos
     ensures rd.Valid()
     ensures match res
       case Failure(_) => true
-      case Success(b) =>
-        && b
+      case Success(_) =>
         && 2 <= old(rd.reader.pos) + 2 <= rd.reader.pos
         && SignatureBySequence(signature, rd.reader.data[old(rd.reader.pos)..rd.reader.pos])
   {
@@ -539,7 +533,7 @@ module {:extern "ESDKClient"} ESDKClient {
     // verify signature
     var signatureVerifiedResult := Signature.Verify(ecdsaParams, decMat.verificationKey.get, msg, sigResult.value);
     if signatureVerifiedResult.Failure? {
-      return signatureVerifiedResult, [];
+      return Failure(signatureVerifiedResult.error), [];
     }
     if !signatureVerifiedResult.value {
       return Failure("signature not verified"), [];
@@ -548,7 +542,7 @@ module {:extern "ESDKClient"} ESDKClient {
     assert SignatureBySequence(sigResult.value, rd.reader.data[old(rd.reader.pos)..rd.reader.pos]) by {
       reveal SignatureBySequence(); 
     }
-    return Success(true), sigResult.value;
+    return Success(()), sigResult.value;
   }
 
   predicate {:opaque } HeaderBySequence(header: Msg.Header, hbSeq: seq<uint8>, sequence: seq<uint8>)
@@ -607,5 +601,4 @@ module {:extern "ESDKClient"} ESDKClient {
   {
     exists i, header, hbSeq | 0 <= i <= |sequence| :: HeaderBySequence(header, hbSeq, sequence[..i])
   }
-
 }

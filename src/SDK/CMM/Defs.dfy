@@ -24,10 +24,10 @@ module {:extern "CMMDefs"} CMMDefs {
     method GetEncryptionMaterials(materialsRequest: Materials.EncryptionMaterialsRequest)
                                   returns (res: Result<Materials.ValidEncryptionMaterials>)
       requires Valid()
+      modifies Repr
       ensures Valid()
       ensures res.Success? ==> EncryptionMaterialsSignature(res.value)
       ensures res.Success? ==> res.value.plaintextDataKey.Some? && res.value.Serializable()
-      modifies Repr
       ensures Valid() && fresh(Repr - old(Repr))
 
     // The following predicate is a synonym for Encryption.Serializable and provides a workaround for a translation bug
