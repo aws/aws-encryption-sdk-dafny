@@ -26,7 +26,7 @@ module {:extern "DefaultCMMDef"} DefaultCMMDef {
   import UTF8
   import Deserialize
 
-  predicate {:opaque } DecryptionMaterialisFromDefaultCMM(key: seq<uint8>)
+  predicate {:opaque } DecryptionMaterialsFromDefaultCMM(key: seq<uint8>)
   {
     true
   }
