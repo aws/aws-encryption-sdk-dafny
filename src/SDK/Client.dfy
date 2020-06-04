@@ -596,7 +596,7 @@ module {:extern "ESDKClient"} ESDKClient {
     reveal HeaderBySequence(), FramesBySequence(), SignatureBySequence();
   }
 
-  lemma upperBoundRemv(sequence: seq<uint8>, lo: int)
+  lemma UpperBoundRemv(sequence: seq<uint8>, lo: int)
     requires 0 <= lo <= |sequence|
     ensures sequence[lo..|sequence|] == sequence[lo..]
   {
