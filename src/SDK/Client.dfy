@@ -469,7 +469,7 @@ module {:extern "ESDKClient"} ESDKClient {
             assert rd.reader.data[endFramePos..rd.reader.pos] == request.message[endFramePos..] by {
               calc {
                 rd.reader.data[endFramePos..rd.reader.pos];
-              == {upperBoundRemv(rd.reader.data, endFramePos); assert rd.reader.pos == |rd.reader.data|; }
+              == {UpperBoundRemv(rd.reader.data, endFramePos); assert rd.reader.pos == |rd.reader.data|; }
                 rd.reader.data[endFramePos..];
               == {assert rd.reader.data == request.message; }
                 request.message[endFramePos..];
@@ -491,7 +491,7 @@ module {:extern "ESDKClient"} ESDKClient {
             assert rd.reader.data[endHeaderPos..rd.reader.pos] == request.message[endHeaderPos..] by {
               calc {
                 rd.reader.data[endHeaderPos..rd.reader.pos];
-              == {upperBoundRemv(rd.reader.data, endHeaderPos); }
+              == {UpperBoundRemv(rd.reader.data, endHeaderPos); }
                 rd.reader.data[endHeaderPos..];
               == {assert rd.reader.data == request.message; }
                 request.message[endHeaderPos..];
