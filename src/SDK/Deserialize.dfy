@@ -21,6 +21,7 @@ module Deserialize {
     provides DeserializeHeader, Materials
     provides Streams, StandardLibrary, UInt, AlgorithmSuite, Msg
     provides InsertNewEntry, UTF8, EncryptionContext
+    reveals DeserializeHeaderResult
 
   import Msg = MessageHeader
 
@@ -33,21 +34,24 @@ module Deserialize {
   import EncryptionContext
 
 
-  method DeserializeHeader(rd: Streams.ByteReader) returns (res: Result<Msg.Header>)
+  method DeserializeHeader(rd: Streams.ByteReader) returns (res: Result<DeserializeHeaderResult>)
     requires rd.Valid()
     modifies rd.reader`pos
     ensures rd.Valid()
     ensures match res
-      case Success(header) => header.Valid()
+      case Success(desres) => desres.header.Valid()
         && old(rd.reader.pos) <= rd.reader.pos <= |rd.reader.data|
-        && exists hbSeq | hbSeq + header.auth.iv + header.auth.authenticationTag == rd.reader.data[old(rd.reader.pos)..rd.reader.pos] ::
-          Msg.IsSerializationOfHeaderBody(hbSeq, header.body)
+        && Msg.IsSerializationOfHeaderBody(desres.hbSeq, desres.header.body)
+        && desres.hbSeq + desres.header.auth.iv + desres.header.auth.authenticationTag == rd.reader.data[old(rd.reader.pos)..rd.reader.pos]          
       case Failure(_) => true
   {
     var hb :- DeserializeHeaderBody(rd);
+    ghost var hbSeq := rd.reader.data[old(rd.reader.pos)..rd.reader.pos];
     var auth :- DeserializeHeaderAuthentication(rd, hb.algorithmSuiteID);
-    return Success(Msg.Header(hb, auth));
+    return Success(DeserializeHeaderResult(Msg.Header(hb, auth), hbSeq));
   }
+
+  datatype DeserializeHeaderResult = DeserializeHeaderResult(header: Msg.Header, ghost hbSeq: seq<uint8>)  
 
   /**
   * Reads raw header data from the input stream and populates the header with all of the information about the
@@ -68,10 +72,17 @@ module Deserialize {
     var typ :- DeserializeType(rd);
     var algorithmSuiteID :- DeserializeAlgorithmSuiteID(rd);
     var messageID :- DeserializeMsgID(rd);
+    assert [version as uint8] + [typ as uint8] + UInt16ToSeq(algorithmSuiteID as uint16) + messageID ==
+      rd.reader.data[old(rd.reader.pos)..rd.reader.pos];
+
+    ghost var aadStart := rd.reader.pos;
     var aad :- DeserializeAAD(rd);
+    ghost var aadEnd := rd.reader.pos;
     var encryptedDataKeys :- DeserializeEncryptedDataKeys(rd);
     var contentType :- DeserializeContentType(rd);
+    ghost var reserveStart := rd.reader.pos;
     var _ :- DeserializeReserved(rd);
+    ghost var reserveEnd := rd.reader.pos;
     var ivLength :- rd.ReadByte();
     var frameLength :- rd.ReadUInt32();
 
@@ -96,7 +107,27 @@ module Deserialize {
       contentType,
       ivLength,
       frameLength);
-    assert Msg.IsSerializationOfHeaderBody(rd.reader.data[old(rd.reader.pos)..rd.reader.pos], hb);
+    assert Msg.IsSerializationOfHeaderBody(rd.reader.data[old(rd.reader.pos)..rd.reader.pos], hb) by {
+      reveal Msg.IsSerializationOfHeaderBody();
+      assert EncryptionContext.LinearSeqToMap(rd.reader.data[aadStart..aadEnd], aad);
+      assert [hb.version as uint8] + [hb.typ as uint8] + UInt16ToSeq(hb.algorithmSuiteID as uint16) + hb.messageID ==
+        rd.reader.data[old(rd.reader.pos)..aadStart];
+      assert rd.reader.data[old(rd.reader.pos)..aadEnd] + Msg.EDKsToSeq(hb.encryptedDataKeys) + [Msg.ContentTypeToUInt8(hb.contentType)] == 
+        rd.reader.data[old(rd.reader.pos)..reserveStart];
+      assert rd.reader.data[old(rd.reader.pos)..reserveEnd] + [hb.ivLength] + UInt32ToSeq(hb.frameLength) == 
+        rd.reader.data[old(rd.reader.pos)..rd.reader.pos];
+      assert rd.reader.data[old(rd.reader.pos)..rd.reader.pos] == 
+        [hb.version as uint8] +
+        [hb.typ as uint8] +
+        UInt16ToSeq(hb.algorithmSuiteID as uint16) +
+        hb.messageID +
+        rd.reader.data[aadStart..aadEnd] + // This field can be encrypted in multiple ways and prevents us from reusing HeaderBodyToSeq
+        Msg.EDKsToSeq(hb.encryptedDataKeys) +
+        [Msg.ContentTypeToUInt8(hb.contentType)] +
+        rd.reader.data[reserveStart..reserveEnd] +
+        [hb.ivLength] +
+        UInt32ToSeq(hb.frameLength);
+    }
     return Success(hb);
   }
 
@@ -337,6 +368,7 @@ module Deserialize {
         assert EncryptionContext.KVPairToSeq(unsortedKvPairs[|unsortedKvPairs| - 1]) == rd.reader.data[oldPosPair .. rd.reader.pos];
           assert rd.reader.data[startKvPos..rd.reader.pos] == rd.reader.data[startKvPos..oldPosPair] + rd.reader.data[oldPosPair..rd.reader.pos];
       }
+
     }
     if kvPairsLength as nat != totalBytesRead {
       return Failure("Deserialization Error: Bytes actually read differs from bytes supposed to be read.");

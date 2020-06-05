@@ -145,8 +145,11 @@ module {:extern "CachingCMMDef"} CachingCMMDef {
       requires Valid()
       modifies Repr
       ensures Valid() && fresh(Repr - old(Repr))
+      ensures res.Success? ==> CMMDefs.EncryptionMaterialsSignature(res.value)
+      ensures res.Success? ==> res.value.plaintextDataKey.Some? && res.value.Serializable()
       ensures res.Success? ==> res.value.Serializable()
     {
+      reveal CMMDefs.EncryptionMaterialsSignatureOpaque();
       if materialsRequest.plaintextLength.None?
       || byteLimit as int < materialsRequest.plaintextLength.get
       || (materialsRequest.algorithmSuiteID.Some? && materialsRequest.algorithmSuiteID.get.ContainsIdentityKDF())
