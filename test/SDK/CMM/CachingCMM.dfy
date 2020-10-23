@@ -245,7 +245,9 @@ module TestCachingCMM {
         modifies Repr
         ensures Valid() && fresh(Repr - old(Repr))
         ensures res.Success? ==> res.value.plaintextDataKey.Some? && res.value.Serializable()
+        ensures res.Success? ==> CMMDefs.EncryptionMaterialsSignature(res.value)
       {
+        reveal CMMDefs.EncryptionMaterialsSignatureOpaque();
         TestUtils.ExpectSerializableEncryptionContext(materialsRequest.encryptionContext);
 
         var algSuiteID := if materialsRequest.algorithmSuiteID == None then AlgorithmSuite.AES_256_GCM_IV12_TAG16_HKDF_SHA384_ECDSA_P384 else materialsRequest.algorithmSuiteID.get;

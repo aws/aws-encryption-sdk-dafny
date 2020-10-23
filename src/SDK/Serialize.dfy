@@ -83,6 +83,7 @@ module Serialize {
         && initLen + totalWritten == wr.GetSizeWritten()
         && serHa == wr.GetDataWritten()[initLen..initLen + totalWritten]
         && totalWritten == |serHa|
+        && old(wr.GetDataWritten()) + serHa == wr.GetDataWritten()
       case Failure(e) => true
   {
     var m := wr.WriteBytes(ha.iv);

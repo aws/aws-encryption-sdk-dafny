@@ -80,6 +80,7 @@ module Streams {
 
     constructor (s: seq<uint8>)
       ensures reader.data == s
+      ensures reader.pos == 0
       ensures Valid() && fresh(Repr)
     {
       var mr := new SeqReader<uint8>(s);
