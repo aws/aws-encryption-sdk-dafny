@@ -286,6 +286,7 @@ module MessageBody {
     var encryptionOutputResult := AESEncryption.AESEncrypt(algorithmSuiteID.EncryptionSuite(), iv, key, plaintext, aad);
     if encryptionOutputResult.IsFailure() {
       res := encryptionOutputResult.PropagateFailure();
+      regFrame := RegularFrame(0, [], [], []); // irrelevant value supplied for the sake of determinism
       return;
     }
     var encryptionOutput := encryptionOutputResult.Extract();
@@ -340,6 +341,7 @@ module MessageBody {
     var encryptionOutputResult := AESEncryption.AESEncrypt(algorithmSuiteID.EncryptionSuite(), iv, key, plaintext, aad);
     if encryptionOutputResult.IsFailure() {
       res := encryptionOutputResult.PropagateFailure();
+      finalFrame := RegularFrame(0, [], [], []); // irrelevant value supplied for the sake of determinism
       return;
     }
     var encryptionOutput := encryptionOutputResult.Extract();
