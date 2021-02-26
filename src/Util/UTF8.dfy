@@ -63,27 +63,87 @@ module {:extern "UTF8"} UTF8 {
       || ((s[0] == 0xF4) && (0x80 <= s[1] <= 0x8F) && (0x80 <= s[2] <= 0xBF) && (0x80 <= s[3] <= 0xBF))
   }
 
-  predicate method ValidUTF8_at(a: seq<uint8>, offset: nat)
-    requires offset <= |a|
-    decreases |a| - offset
+  predicate method ValidUTF8Range(a: seq<uint8>, lo: nat, hi: nat)
+    requires lo <= hi <= |a|
+    decreases hi - lo
   {
-    var remaining := |a| - offset;
-    if remaining == 0 then
+    if lo == hi then
       true
     else
-      if Uses1Byte(a[offset..]) then
-        ValidUTF8_at(a, offset + 1)
-      else if remaining >= 2 && Uses2Bytes(a[offset..]) then
-        ValidUTF8_at(a, offset + 2)
-      else if remaining >= 3 && Uses3Bytes(a[offset..]) then
-        ValidUTF8_at(a, offset + 3)
-      else if remaining >= 4 && Uses4Bytes(a[offset..]) then
-        ValidUTF8_at(a, offset + 4)
+      var r := a[lo..hi];
+      if Uses1Byte(r) then
+        ValidUTF8Range(a, lo + 1, hi)
+      else if 2 <= |r| && Uses2Bytes(r) then
+        ValidUTF8Range(a, lo + 2, hi)
+      else if 3 <= |r| && Uses3Bytes(r) then
+        ValidUTF8Range(a, lo + 3, hi)
       else
-        false
+        4 <= |r| && Uses4Bytes(r) && ValidUTF8Range(a, lo + 4, hi)
+  }
+
+  lemma ValidUTF8Embed(a: seq<uint8>, b: seq<uint8>, c: seq<uint8>, lo: nat, hi: nat)
+    requires lo <= hi <= |b|
+    ensures ValidUTF8Range(b, lo, hi) == ValidUTF8Range(a + b + c, |a| + lo, |a| + hi)
+    decreases hi - lo
+  {
+    if lo == hi {
+    } else {
+      var r := b[lo..hi];
+      var r' := (a + b + c)[|a| + lo..|a| + hi];
+      assert r == r';
+      if Uses1Byte(r) {
+        ValidUTF8Embed(a, b, c, lo + 1, hi);
+      } else if 2 <= |r| && Uses2Bytes(r) {
+        ValidUTF8Embed(a, b, c, lo + 2, hi);
+      } else if 3 <= |r| && Uses3Bytes(r) {
+        ValidUTF8Embed(a, b, c, lo + 3, hi);
+      } else if 4 <= |r| && Uses4Bytes(r) {
+        ValidUTF8Embed(a, b, c, lo + 4, hi);
+      }
+    }
   }
 
   predicate method ValidUTF8Seq(s: seq<uint8>) {
-    ValidUTF8_at(s, 0)
+    ValidUTF8Range(s, 0, |s|)
+  }
+
+  lemma ValidUTF8Concat(s: seq<uint8>, t: seq<uint8>)
+    requires ValidUTF8Seq(s) && ValidUTF8Seq(t)
+    ensures ValidUTF8Seq(s + t)
+  {
+    var lo := 0;
+    while lo < |s|
+      invariant lo <= |s|
+      invariant ValidUTF8Range(s, lo, |s|)
+      invariant ValidUTF8Range(s + t, 0, |s + t|) == ValidUTF8Range(s + t, lo, |s + t|)
+    {
+      var r := (s + t)[lo..];
+      if Uses1Byte(r) {
+        lo := lo + 1;
+      } else if 2 <= |r| && Uses2Bytes(r) {
+        lo := lo + 2;
+      } else if 3 <= |r| && Uses3Bytes(r) {
+        lo := lo + 3;
+      } else if 4 <= |r| && Uses4Bytes(r) {
+        lo := lo + 4;
+      } else {
+        assert false;
+      }
+    }
+    calc {
+      ValidUTF8Seq(s + t);
+    ==  // def.ValidUTF8Seq
+      ValidUTF8Range(s + t, 0, |s + t|);
+    ==  // loop invariant
+      ValidUTF8Range(s + t, lo, |s + t|);
+    ==  { assert s + t == s + t + [] && lo == |s| && |s + t| == |s| + |t|; }
+      ValidUTF8Range(s + t + [], |s|, |s| + |t|);
+    ==  { ValidUTF8Embed(s, t, [], 0, |t|); }
+      ValidUTF8Range(t, 0, |t|);
+    ==  // def.ValidUTF8Seq
+      ValidUTF8Seq(t);
+    ==  // precondition
+      true;
+    }
   }
 }
