@@ -44,7 +44,7 @@ module {:extern "CMMDefs"} CMMDefs {
       ensures res.Success? ==> res.value.plaintextDataKey.Some?
   }
 
-  // Predicate works arround a known error in Dafny: https://github.com/dafny-lang/dafny/issues/422 
+  // Predicate works arround a known error in Dafny: https://github.com/dafny-lang/dafny/issues/422
   predicate EncryptionMaterialsSignature(validEncryptionMaterials: Materials.ValidEncryptionMaterials) {
     EncryptionMaterialsSignatureOpaque(validEncryptionMaterials)
   }
