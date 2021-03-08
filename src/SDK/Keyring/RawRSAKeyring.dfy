@@ -60,7 +60,7 @@ module {:extern "RawRSAKeyringDef"} RawRSAKeyringDef {
       ensures this.privateKey == privateKey
       ensures Valid() && fresh(Repr - KeyRepr(publicKey) - KeyRepr(privateKey))
     {
-      keyNamespace, keyName := namespace, name;
+      keyNamespace := namespace; keyName := name;  // TODO: switch back to simultaneous assignment once https://github.com/dafny-lang/dafny/issues/1111 has been fixed
       paddingMode := padding;
       this.publicKey := publicKey;
       this.privateKey := privateKey;
