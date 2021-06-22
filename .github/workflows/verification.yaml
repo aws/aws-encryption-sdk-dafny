@@ -1,0 +1,23 @@
+# This workflow performs static analysis checks.
+name: verification
+
+on: ["pull_request", "push"]
+
+jobs:
+  verification:
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Setup dotnet 5.0
+        uses: actions/setup-dotnet@v1.7.2
+        with:
+          dotnet-version: '5.0.x'
+      
+      - name: Setup Dafny
+        run: brew install dafny@3.1.0
+
+      - name: Verify Dafny code
+        # Currently, test depends on src, so verifying test will also verify src
+        # TODO-RS: Move the parallel verification task into the dafny CLI itself
+        run: dotnet build -t:VerifyDafny test
