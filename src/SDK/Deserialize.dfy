@@ -111,6 +111,9 @@ module Deserialize {
       var s := rd.reader.data[old(rd.reader.pos)..rd.reader.pos];
       var serializedAAD := rd.reader.data[aadStart..aadEnd];
       assert EncryptionContext.LinearSeqToMap(serializedAAD, aad);
+      // Without this assertion, the following assertion of IsSerializationOfHeaderBodyAux
+      // fails to verify on the latest Dafny (3.1).
+      assert s[0..1] == [hb.version as uint8];
       assert Msg.IsSerializationOfHeaderBodyAux(s, hb, serializedAAD);
       reveal Msg.IsSerializationOfHeaderBody();
     }
