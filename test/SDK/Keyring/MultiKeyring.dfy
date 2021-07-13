@@ -94,6 +94,8 @@ module TestMultiKeying {
     var encryptionMaterialsOut :- expect multiKeyring.OnEncrypt(encryptionMaterialsIn);
     // Check plaintextDataKey is as expected
     expect encryptionMaterialsOut.plaintextDataKey == Some(pdk);
+    // Check EDK list is as expected
+    expect |encryptionMaterialsOut.encryptedDataKeys| == 2;
     // Check keyringTrace is as expected
     expect |encryptionMaterialsOut.keyringTrace| == 3;
     expect encryptionMaterialsOut.keyringTrace[1] == child1Keyring.EncryptTraceEntry();
