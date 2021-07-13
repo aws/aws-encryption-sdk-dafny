@@ -9,13 +9,14 @@ jobs:
     steps:
       - uses: actions/checkout@v2
 
-      - name: Setup dotnet 5.0
-        uses: actions/setup-dotnet@v1.7.2
-        with:
-          dotnet-version: '5.0.x'
+      # Remove the existing dotnet alias, as suggested by homebrew
+      - name: Remove existing dotnet on GHA runner
+        run: rm /usr/local/bin/dotnet
       
       - name: Setup Dafny
-        run: brew install dafny@3.1.0
+        run: |
+          brew update
+          brew install dafny
 
       - name: Verify Dafny code
         # Currently, test depends on src, so verifying test will also verify src
