@@ -21,4 +21,4 @@ jobs:
       - name: Verify Dafny code
         # Currently, test depends on src, so verifying test will also verify src
         # TODO-RS: Move the parallel verification task into the dafny CLI itself
-        run: dotnet build -t:VerifyDafny test
+        run: dotnet build -t:VerifyDafny -p:VerifyDafnyJobs=1 test
