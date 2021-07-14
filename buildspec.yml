@@ -10,7 +10,7 @@ phases:
       # - mozroots --import --sync
       # Get Boogie
       - git clone --branch v2.4.21 https://github.com/boogie-org/boogie.git
-      - nuget restore boogie/Source/Boogie.sln
+      - dotnet restore boogie/Source/Boogie.sln
       - msbuild boogie/Source/Boogie.sln
       # Get Dafny
       - git clone https://github.com/microsoft/dafny.git
