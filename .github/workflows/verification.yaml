@@ -15,7 +15,7 @@ jobs:
       
       - name: Setup Dafny
         run: |
-          brew update
+          brew search dafny
           brew install dafny@3.1.0
 
       - name: Verify Dafny code
