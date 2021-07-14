@@ -1,7 +1,7 @@
 // Copyright Amazon.com Inc. or its affiliates. All Rights Reserved.
 // SPDX-License-Identifier: Apache-2.0
 
-module {:extern "STLUInt"} StandardLibrary.UInt {
+module StandardLibrary.UInt {
 
   // TODO: Depend on types defined in dafny-lang/libraries instead
   newtype uint8 = x | 0 <= x < 0x100

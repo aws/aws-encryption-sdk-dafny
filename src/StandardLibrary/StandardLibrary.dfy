@@ -3,7 +3,7 @@
 
 include "UInt.dfy"
 
-module {:extern "STL"} StandardLibrary {
+module StandardLibrary {
   import opened U = UInt
 
   // TODO: Depend on types defined in dafny-lang/libraries instead
