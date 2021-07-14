@@ -11,7 +11,7 @@ phases:
       # Get Boogie
       - git clone --branch v2.4.21 https://github.com/boogie-org/boogie.git
       - dotnet restore boogie/Source/Boogie.sln
-      - msbuild boogie/Source/Boogie.sln
+      - dotnet build boogie/Source/Boogie.sln
       # Get Dafny
       - git clone https://github.com/microsoft/dafny.git
       # Although Dafny does have releases, we often need a newer hash than the latest release, while still needing the
@@ -19,8 +19,8 @@ phases:
       - cd dafny
       - git reset --hard df707bc07e3c39390286dfd0c1576d0a3f556f8b
       - cd ..
-      - nuget restore dafny/Source/Dafny.sln
-      - msbuild dafny/Source/Dafny.sln
+      - dotnet restore dafny/Source/Dafny.sln
+      - dotnet dafny/Source/Dafny.sln
       - export PATH="$PWD/dafny/Binaries:$PATH"
       # Get Z3
       - wget https://github.com/Z3Prover/z3/releases/download/z3-4.8.4/z3-4.8.4.d6df51951f4c-x64-ubuntu-14.04.zip
