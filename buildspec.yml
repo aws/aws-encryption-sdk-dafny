@@ -5,8 +5,6 @@ phases:
       dotnet: 3.1
     commands:
       - cd ..
-      - yum install -y which
-      - yum install -y nuget
       - mozroots --import --sync
       # Get Boogie
       - git clone --branch v2.4.21 https://github.com/boogie-org/boogie.git
