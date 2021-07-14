@@ -16,7 +16,7 @@ jobs:
       - name: Setup Dafny
         run: |
           brew update
-          brew install dafny
+          brew install dafny@3.1.0
 
       - name: Verify Dafny code
         # Currently, test depends on src, so verifying test will also verify src
