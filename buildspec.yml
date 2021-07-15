@@ -10,6 +10,7 @@ phases:
       - unzip dafny.zip && rm dafny.zip
       - export PATH="$PWD/dafny/Binaries:$PATH"
       - cd aws-encryption-sdk-dafny
+      - dafny
   build:
     commands:
       # Currently, test depends on src, so verifying test will also verify src
