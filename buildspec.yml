@@ -6,9 +6,9 @@ phases:
     commands:
       - cd ..
       # Get Dafny
-      - curl https://github.com/dafny-lang/dafny/releases/download/v3.1.0/dafny-3.1.0-x64-osx-10.14.2.zip -L -o dafny
-      - unzip dafny-3.1.0-x64-osx-10.14.2.zip && rm dafny-3.1.0-x64-osx-10.14.2.zip
-      - export PATH="$PWD/dafny-3.1.0-x64-osx-10.14.2/Binaries:$PATH"
+      - curl https://github.com/dafny-lang/dafny/releases/download/v3.1.0/dafny-3.1.0-x64-osx-10.14.2.zip -L -o dafny.zip
+      - unzip dafny.zip && rm dafny.zip
+      - export PATH="$PWD/dafny/Binaries:$PATH"
       - cd aws-encryption-sdk-dafny
   build:
     commands:
