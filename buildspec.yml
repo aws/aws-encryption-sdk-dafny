@@ -8,9 +8,9 @@ phases:
       # Get Dafny
       - curl https://github.com/dafny-lang/dafny/releases/download/v3.1.0/dafny-3.1.0-x64-osx-10.14.2.zip -L -o dafny.zip
       - unzip dafny.zip && rm dafny.zip
-      - export PATH="$PWD/dafny/Binaries:$PATH"
+      - export PATH="$PWD/dafny:$PATH"
       - cd aws-encryption-sdk-dafny
-      - dafny
+      - dafny /version
   build:
     commands:
       # Currently, test depends on src, so verifying test will also verify src
