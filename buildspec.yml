@@ -5,23 +5,10 @@ phases:
       dotnet: 3.0
     commands:
       - cd ..
-      - yum install -y which
-      - yum install -y nuget
-      - mozroots --import --sync
       # Get Dafny
-      - git clone https://github.com/microsoft/dafny.git
-      # Although Dafny does have releases, we often need a newer hash than the latest release, while still needing the
-      # the security of reproducible builds.
-      - cd dafny
-      - git reset --hard a1a051abcb122c1e769b9ddbacdcda35f825bed9
-      - cd ..
-      - nuget restore dafny/Source/Dafny.sln
-      - msbuild dafny/Source/Dafny.sln
-      - export PATH="$PWD/dafny/Binaries:$PATH"
-      # Get Z3
-      - wget https://github.com/Z3Prover/z3/releases/download/Z3-4.8.5/z3-4.8.5-x64-ubuntu-14.04.zip
-      - unzip z3*.zip && rm *.zip
-      - cp -r z3* dafny/Binaries/z3
+      - curl https://github.com/dafny-lang/dafny/releases/download/v3.1.0/dafny-3.1.0-x64-osx-10.14.2.zip -L -o dafny
+      - unzip dafny-3.1.0-x64-osx-10.14.2.zip && rm dafny-3.1.0-x64-osx-10.14.2.zip
+      - export PATH="$PWD/dafny-3.1.0-x64-osx-10.14.2/Binaries:$PATH"
       - cd aws-encryption-sdk-dafny
   build:
     commands:
