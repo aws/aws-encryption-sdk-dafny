@@ -107,9 +107,9 @@ module {:extern "MessageHeader"} MessageHeader {
     requires headerBody.Valid()
   {
     var serializedHeaderBody := (reveal HeaderBodyToSeq(); HeaderBodyToSeq(headerBody));
-    headerAuthentication.iv == seq(headerBody.algorithmSuiteID.IVLength(), _ => 0)        
-    && exists encryptionOutput | 
-      AESEncryption.EncryptionOutputEncryptedWithAAD(encryptionOutput, serializedHeaderBody) 
+    headerAuthentication.iv == seq(headerBody.algorithmSuiteID.IVLength(), _ => 0)
+    && exists encryptionOutput |
+      AESEncryption.EncryptionOutputEncryptedWithAAD(encryptionOutput, serializedHeaderBody)
       && AESEncryption.CiphertextGeneratedWithPlaintext(encryptionOutput.cipherText, []) ::
         encryptionOutput.authTag == headerAuthentication.authenticationTag
   }
@@ -183,7 +183,7 @@ module {:extern "MessageHeader"} MessageHeader {
     requires hb.Valid()
   {
     exists serializedAAD | EncryptionContext.LinearSeqToMap(serializedAAD, hb.aad) ::
-      sequence == 
+      sequence ==
         [hb.version as uint8] +
         [hb.typ as uint8] +
         UInt16ToSeq(hb.algorithmSuiteID as uint16) +

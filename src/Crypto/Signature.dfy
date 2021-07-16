@@ -14,7 +14,7 @@ module {:extern "Signature"} Signature {
   import opened UInt = StandardLibrary.UInt
 
   datatype SignatureKeyPair = SignatureKeyPair(verificationKey: seq<uint8>, signingKey: seq<uint8>)
-  
+
   predicate {:axiom} IsSigned(key: seq<uint8>, msg: seq<uint8>, signature: seq<uint8>)
 
   datatype ECDSAParams = ECDSA_P384 | ECDSA_P256

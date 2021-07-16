@@ -42,7 +42,7 @@ module Deserialize {
       case Success(desres) => desres.header.Valid()
         && old(rd.reader.pos) <= rd.reader.pos <= |rd.reader.data|
         && Msg.IsSerializationOfHeaderBody(desres.hbSeq, desres.header.body)
-        && desres.hbSeq + desres.header.auth.iv + desres.header.auth.authenticationTag == rd.reader.data[old(rd.reader.pos)..rd.reader.pos]          
+        && desres.hbSeq + desres.header.auth.iv + desres.header.auth.authenticationTag == rd.reader.data[old(rd.reader.pos)..rd.reader.pos]
       case Failure(_) => true
   {
     var hb :- DeserializeHeaderBody(rd);
@@ -51,7 +51,7 @@ module Deserialize {
     return Success(DeserializeHeaderResult(Msg.Header(hb, auth), hbSeq));
   }
 
-  datatype DeserializeHeaderResult = DeserializeHeaderResult(header: Msg.Header, ghost hbSeq: seq<uint8>)  
+  datatype DeserializeHeaderResult = DeserializeHeaderResult(header: Msg.Header, ghost hbSeq: seq<uint8>)
 
   /**
   * Reads raw header data from the input stream and populates the header with all of the information about the
@@ -62,7 +62,7 @@ module Deserialize {
     modifies rd.reader`pos
     ensures rd.Valid()
     ensures match ret
-      case Success(hb) => 
+      case Success(hb) =>
         && hb.Valid()
         && old(rd.reader.pos) <= rd.reader.pos <= |rd.reader.data|
         && Msg.IsSerializationOfHeaderBody(rd.reader.data[old(rd.reader.pos)..rd.reader.pos], hb)
@@ -112,11 +112,11 @@ module Deserialize {
       assert EncryptionContext.LinearSeqToMap(rd.reader.data[aadStart..aadEnd], aad);
       assert [hb.version as uint8] + [hb.typ as uint8] + UInt16ToSeq(hb.algorithmSuiteID as uint16) + hb.messageID ==
         rd.reader.data[old(rd.reader.pos)..aadStart];
-      assert rd.reader.data[old(rd.reader.pos)..aadEnd] + Msg.EDKsToSeq(hb.encryptedDataKeys) + [Msg.ContentTypeToUInt8(hb.contentType)] == 
+      assert rd.reader.data[old(rd.reader.pos)..aadEnd] + Msg.EDKsToSeq(hb.encryptedDataKeys) + [Msg.ContentTypeToUInt8(hb.contentType)] ==
         rd.reader.data[old(rd.reader.pos)..reserveStart];
-      assert rd.reader.data[old(rd.reader.pos)..reserveEnd] + [hb.ivLength] + UInt32ToSeq(hb.frameLength) == 
+      assert rd.reader.data[old(rd.reader.pos)..reserveEnd] + [hb.ivLength] + UInt32ToSeq(hb.frameLength) ==
         rd.reader.data[old(rd.reader.pos)..rd.reader.pos];
-      assert rd.reader.data[old(rd.reader.pos)..rd.reader.pos] == 
+      assert rd.reader.data[old(rd.reader.pos)..rd.reader.pos] ==
         [hb.version as uint8] +
         [hb.typ as uint8] +
         UInt16ToSeq(hb.algorithmSuiteID as uint16) +
@@ -248,7 +248,7 @@ module Deserialize {
   {
     var bytes :- rd.ReadBytes(n);
     if UTF8.ValidUTF8Seq(bytes) {
-      var utf8: UTF8.ValidUTF8Bytes := bytes; 
+      var utf8: UTF8.ValidUTF8Bytes := bytes;
       assert bytes == rd.reader.data[old(rd.reader.pos)..][..n];
       return Success(utf8);
     } else {
@@ -263,7 +263,7 @@ module Deserialize {
     Deserialize is not an injective function so there is no inverse function (a Dual serialize).
     To still prove a duality we could define a weaker Serialization which is not a function but a relation between Maps and sequences (EncryptionContext.LinearSeqToMap)
     We now prove that EncryptionContext.LinearSeqToMap(DeserializeAAD(seq), seq) which means any map we deserialize from a sequence is in the weak serialize relation
-    Furthermore we prove that EncryptionContext.LinearSeqToMap(map, SerializeAAD(map)) which means that any map we serialize to a sequence is in the weak serialize relation 
+    Furthermore we prove that EncryptionContext.LinearSeqToMap(map, SerializeAAD(map)) which means that any map we serialize to a sequence is in the weak serialize relation
     From this we can conclude that DeserializeAAD(SerializeAAD(map)) == map
    */
   method DeserializeAAD(rd: Streams.ByteReader) returns (ret: Result<EncryptionContext.Map>)
@@ -271,7 +271,7 @@ module Deserialize {
     modifies rd.reader`pos
     ensures rd.Valid()
     ensures match ret
-      case Success(aad) => 
+      case Success(aad) =>
         && EncryptionContext.Serializable(aad)
         && old(rd.reader.pos) <= rd.reader.pos <= |rd.reader.data|
         && EncryptionContext.LinearSeqToMap(rd.reader.data[old(rd.reader.pos)..rd.reader.pos], aad)
@@ -333,7 +333,7 @@ module Deserialize {
 
       var value :- DeserializeUTF8(rd, valueLength as nat);
       totalBytesRead := totalBytesRead + |value|;
-      
+
       // We want to keep entries sorted by key. We don't insist that the entries be sorted
       // already, but we do insist there are no duplicate keys.
       var opt, insertionPoint := InsertNewEntry(kvPairs, key, value);
@@ -396,11 +396,11 @@ module Deserialize {
     requires forall kvPair :: kvPair in kvPairs <==> kvPair in unsortedKvPairs
     requires EncryptionContext.SerializableUnsortedLinear(unsortedKvPairs)
     requires EncryptionContext.SerializableLinear(kvPairs)
-    requires reveal EncryptionContext.Serializable(); EncryptionContext.Serializable(resultMap) && EncryptionContext.SerializableLinear(kvPairs) ==> 
+    requires reveal EncryptionContext.Serializable(); EncryptionContext.Serializable(resultMap) && EncryptionContext.SerializableLinear(kvPairs) ==>
       EncryptionContext.MapToSeq(resultMap) == if |resultMap| == 0 then [] else UInt16ToSeq(|kvPairs| as uint16) + EncryptionContext.LinearToSeq(kvPairs, 0, |kvPairs|)
     requires |sequence[2..]| < UINT16_LIMIT && sequence[..2] == UInt16ToSeq(|sequence[2..]| as uint16)
     requires |resultMap| != 0 ==> sequence[2..][..2] == UInt16ToSeq(|resultMap| as uint16);
-    requires |resultMap| != 0 ==> sequence[4..] == EncryptionContext.LinearToUnorderedSeq(unsortedKvPairs, 0, |unsortedKvPairs|)   
+    requires |resultMap| != 0 ==> sequence[4..] == EncryptionContext.LinearToUnorderedSeq(unsortedKvPairs, 0, |unsortedKvPairs|)
     ensures EncryptionContext.LinearSeqToMap(sequence, resultMap)
   {
     reveal EncryptionContext.Serializable();
@@ -414,13 +414,13 @@ module Deserialize {
           // There is only one sorted sequence, so sorting the unsorted pairs gives us kvPairs
           EncryptionContext.SortedSequenceIsUnqiue(kvPairs, EncryptionContext.InsertionSort(unsortedKvPairs));
 
-          assert EncryptionContext.SeqToLinearToMap(sequence[2..], resultMap, unsortedKvPairs, kvPairs) by 
-          { 
+          assert EncryptionContext.SeqToLinearToMap(sequence[2..], resultMap, unsortedKvPairs, kvPairs) by
+          {
             assert 2 <= |sequence[2..]|;
             assert EncryptionContext.SerializableUnsortedLinear(unsortedKvPairs);
             assert EncryptionContext.SerializableLinear(kvPairs);
             assert EncryptionContext.SerializableKVPairs(resultMap);
-            assert sequence[2..][..2] == UInt16ToSeq(|resultMap| as uint16); 
+            assert sequence[2..][..2] == UInt16ToSeq(|resultMap| as uint16);
             assert EncryptionContext.LinearToUnorderedSeq(unsortedKvPairs, 0, |unsortedKvPairs|) == sequence[2..][2..];
             assert kvPairs == EncryptionContext.InsertionSort(unsortedKvPairs);
             assert EncryptionContext.MapToSeq(resultMap) == sequence[2..][..2] + EncryptionContext.LinearToSeq(kvPairs, 0, |kvPairs|);
@@ -460,7 +460,7 @@ module Deserialize {
       return None, n;
     } else {
       var kvPairs' := kvPairs[..n] + [(key, value)] + kvPairs[n..];
-      
+
       if 0 < n {
         LexIsTotal(kvPairs'[n - 1].0, kvPairs'[n].0, UInt.UInt8Less);
       }
@@ -474,7 +474,7 @@ module Deserialize {
     modifies rd.reader`pos
     ensures rd.Valid()
     ensures match ret
-      case Success(edks) => 
+      case Success(edks) =>
         edks.Valid()
         && var n := |Msg.EDKsToSeq(edks)|;
         old(rd.reader.pos) + n == rd.reader.pos
@@ -485,7 +485,7 @@ module Deserialize {
     if edkCount == 0 {
       return Failure("Deserialization Error: Encrypted data key count is 0.");
     }
-    
+
     assert rd.reader.pos == old(rd.reader.pos) + 2;
     var edkEntries: seq<Materials.EncryptedDataKey> := [];
     var i := 0;
@@ -516,11 +516,11 @@ module Deserialize {
       assert invStartPos < rd.reader.pos;
       assert Msg.EDKEntriesToSeq(edkEntries, 0, |edkEntries|) == rd.reader.data[old(rd.reader.pos) + 2 .. rd.reader.pos] by {
         assert Msg.EDKEntryToSeq(Materials.EncryptedDataKey(keyProviderID, keyProviderInfo, edk)) == rd.reader.data[invStartPos..rd.reader.pos];
-        Msg.EDKEntriesToSeqInductiveStep(edkEntries[..|edkEntries| - 1], 
-          [Materials.EncryptedDataKey(keyProviderID, keyProviderInfo, edk)], 0, |edkEntries[..|edkEntries| - 1]|); 
+        Msg.EDKEntriesToSeqInductiveStep(edkEntries[..|edkEntries| - 1],
+          [Materials.EncryptedDataKey(keyProviderID, keyProviderInfo, edk)], 0, |edkEntries[..|edkEntries| - 1]|);
       }
     }
-    assert |edkEntries| == edkCount as int; 
+    assert |edkEntries| == edkCount as int;
     var edks := Msg.EncryptedDataKeys(edkEntries);
     return Success(edks);
   }
