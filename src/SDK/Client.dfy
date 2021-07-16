@@ -181,7 +181,7 @@ module {:extern "ESDKClient"} ESDKClient {
       case Failure(e) => true
       case Success(encryptedSequence) =>
         // The result is a serialization of 3 items with a potential fourth item. Every item has to meet some specification which is specified in its respective section
-        exists headerBody, headerAuthentication, frames | // Some items exists
+        exists headerBody, headerAuthentication, frames :: // Some items exists
           ValidHeaderBodyForRequest(headerBody, request) // Which meet their respecive specifications
           && ValidHeaderAuthenticationForRequest(headerAuthentication, headerBody)
           && ValidFramesForRequest(frames, request, headerBody)
