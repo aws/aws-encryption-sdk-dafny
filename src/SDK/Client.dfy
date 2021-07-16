@@ -181,17 +181,17 @@ module {:extern "ESDKClient"} ESDKClient {
       case Failure(e) => true
       case Success(encryptedSequence) =>
         // The result is a serialization of 3 items with a potential fourth item. Every item has to meet some specification which is specified in its respective section
-        exists headerBody, headerAuthentication, frames :: // Some items exists
-          && ValidHeaderBodyForRequest(headerBody, request) // Which meet their respecive specifications
+        exists headerBody, headerAuthentication, frames | // Some items exists
+          ValidHeaderBodyForRequest(headerBody, request) // Which meet their respecive specifications
           && ValidHeaderAuthenticationForRequest(headerAuthentication, headerBody)
           && ValidFramesForRequest(frames, request, headerBody)
           && match headerBody.algorithmSuiteID.SignatureType() {
-               case Some(_) => // If the result needs to be signed then there exists a fourth item
+              case Some(_) => // If the result needs to be signed then there exists a fourth item
                 exists signature | ValidSignatureForRequest(signature, headerBody, headerAuthentication, frames) :: // which meets its specification
                   encryptedSequence == SerializeMessageWithSignature(headerBody, headerAuthentication, frames, signature) // These items can be serialized to the output
               case None => // if the result does not need to be signed
-                 encryptedSequence == SerializeMessageWithoutSignature(headerBody, headerAuthentication, frames) // Then these items can be serialized to the output
-             }
+                encryptedSequence == SerializeMessageWithoutSignature(headerBody, headerAuthentication, frames) // Then these items can be serialized to the output
+            }
   {
     if request.cmm != null && request.keyring != null {
       return Failure("EncryptRequest.keyring OR EncryptRequest.cmm must be set (not both).");
