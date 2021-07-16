@@ -49,7 +49,7 @@ module {:extern "EncryptionContext"} EncryptionContext {
   predicate SerializableLinear(linear: Linear)
   {
     && LinearSorted(linear)
-    && SerializableUnsortedLinear(linear) 
+    && SerializableUnsortedLinear(linear)
   }
 
   predicate LinearIsUnique(linear: Linear)
@@ -92,7 +92,7 @@ module {:extern "EncryptionContext"} EncryptionContext {
   // There isn't an efficient way to build a map from a sequence in dafny, so this
   // extern is used specifically to convert a sequence of key value pairs to a map
   method {:extern "LinearToMap"} LinearToMap(kvPairs: Linear) returns (res: Map)
-    ensures reveal Serializable(); Serializable(res) && SerializableLinear(kvPairs) ==> // If the result is a map we can serialize 
+    ensures reveal Serializable(); Serializable(res) && SerializableLinear(kvPairs) ==> // If the result is a map we can serialize
       MapToSeq(res) == if |res| == 0 then [] else // then this function is the dual of MapToLinear
          UInt16ToSeq(|kvPairs| as uint16) + LinearToSeq(kvPairs, 0, |kvPairs|)
 
@@ -263,7 +263,7 @@ module {:extern "EncryptionContext"} EncryptionContext {
     LinearSortedUpTo(kvPairs, |kvPairs|)
   }
 
-  
+
   predicate StrongLinearSorted(kvPairs: Linear)
   {
     forall i, j | 0 <= i < j < |kvPairs| :: LexicographicLessOrEqual(kvPairs[i].0, kvPairs[j].0, UInt.UInt8Less)
@@ -276,7 +276,7 @@ module {:extern "EncryptionContext"} EncryptionContext {
     if |ls| <= 1 {
       // If ls is empty it is always sorted
     } else {
-      forall i, j | 0 <= i < j < |ls| 
+      forall i, j | 0 <= i < j < |ls|
         ensures LexicographicLessOrEqual(ls[i].0, ls[j].0, UInt.UInt8Less)
       {
         //Induction on i;
@@ -305,22 +305,22 @@ module {:extern "EncryptionContext"} EncryptionContext {
     if xs != [] && ys != [] { // If the lists are not empty
       assert xs[0] == ys[0] by { // Then the heads are the same
         if xs[0] != ys[0] { // Proof by contradiction
-          assert forall p | p in xs[1..] :: LexicographicLessOrEqual(xs[0].0, p.0, UInt.UInt8Less); // We know the head is the smallest element 
+          assert forall p | p in xs[1..] :: LexicographicLessOrEqual(xs[0].0, p.0, UInt.UInt8Less); // We know the head is the smallest element
           assert xs[0] in ys[1..] by { // So the smallest element of xs is in the tail of ys
             assert xs[0] != ys[0] && !(xs[0] in ys[1..]) ==> xs[0] !in ys;
           }
-        
+
           assert forall p | p in ys[1..] :: LexicographicLessOrEqual(ys[0].0, p.0, UInt.UInt8Less); // Same for the head of ys
           assert ys[0] in xs[1..] by {
             assert ys[0] != xs[0] && !(ys[0] in xs[1..]) ==> ys[0] !in xs;
           }
-          
+
           assert LexicographicLessOrEqual(ys[0].0, xs[0].0, UInt.UInt8Less); // So the smallest element of ys is smaller equal the smallest element of ys
           assert LexicographicLessOrEqual(xs[0].0, ys[0].0, UInt.UInt8Less); // The same the other way arround
           assert false; //We assumed xs[0] != ys[0] so we arrive at a contradiction
         }
       }
-      
+
       // Use structural induction on the tail
       assert forall p :: p in xs[1..] <==> p in ys[1..] by { // Proof Pre-conditions are maintained
         if exists p :: p in xs[1..] && ! (p in ys[1..]) { // If the Pre-condition does not hold then there exist an elemnt in the tail of xs which is not in ys
@@ -338,14 +338,14 @@ module {:extern "EncryptionContext"} EncryptionContext {
         }
       }
       SortedSequenceIsUnqiue(xs[1..], ys[1..]); // Step
-      
+
     } else { // If one of the list is empty then both are empty or we arrive at a trivial contradiction
       if xs == [] && ys != [] {
-        assert ys[0] in xs; 
+        assert ys[0] in xs;
         assert false;
       }
       if ys == [] && xs != [] {
-        assert xs[0] in ys; 
+        assert xs[0] in ys;
         assert false;
       }
     }
@@ -353,7 +353,7 @@ module {:extern "EncryptionContext"} EncryptionContext {
 
   /**
    * Definition of dual DeserializeAAD
-   */ 
+   */
 
   predicate LinearSeqToMap(sequence: seq<uint8>, resultMap: Map)
   {
@@ -368,13 +368,13 @@ module {:extern "EncryptionContext"} EncryptionContext {
   predicate SeqToMap(sequence: seq<uint8>, resultMap: Map)
   {
     if 2 <= |sequence| then
-      exists unsortedKvPairs :: SeqToLinearToMap(sequence, resultMap, unsortedKvPairs, InsertionSort(unsortedKvPairs)) 
+      exists unsortedKvPairs :: SeqToLinearToMap(sequence, resultMap, unsortedKvPairs, InsertionSort(unsortedKvPairs))
     else
       |resultMap| == 0
   }
 
   predicate SeqToLinearToMap(sequence: seq<uint8>, resultMap: Map, unsortedKvPairs: Linear, sortedKvPairs: Linear)
-  { 
+  {
     && 2 <= |sequence| // All inputs have a valid form
     && SerializableUnsortedLinear(unsortedKvPairs)
     && SerializableLinear(sortedKvPairs)
@@ -396,7 +396,7 @@ module {:extern "EncryptionContext"} EncryptionContext {
   }
 
   function LinearToUnorderedSeq(kvPairs: Linear, lo: nat, hi: nat): seq<uint8>
-    requires SerializableUnsortedLinear(kvPairs) 
+    requires SerializableUnsortedLinear(kvPairs)
     requires lo <= hi <= |kvPairs|
   {
     if lo == hi then [] else LinearToUnorderedSeq(kvPairs, lo, hi - 1) + KVPairToSeq(kvPairs[hi - 1])
@@ -418,12 +418,12 @@ module {:extern "EncryptionContext"} EncryptionContext {
       assert LinearIsUnique(kvHead) by {
         var kvPairs := kvHead + kvTail;
         assert forall i | 0 <= i < |kvHead| :: kvHead[i] == kvPairs[i];
-        assert (exists i, j | 0 <= i < j < |kvHead| :: kvHead[i] == kvHead[j]) ==> 
+        assert (exists i, j | 0 <= i < j < |kvHead| :: kvHead[i] == kvHead[j]) ==>
           (exists i, j | 0 <= i < j < |kvPairs| :: kvPairs[i] == kvPairs[j]);
       }
     }
   }
-  
+
   lemma MapToSeqIsDualSeqToMap(resultMap: Map)
     requires SerializableKVPairs(resultMap)
     ensures SeqToMap(MapToSeq(resultMap), resultMap)
@@ -435,14 +435,14 @@ module {:extern "EncryptionContext"} EncryptionContext {
           && (forall i :: 0 <= i < |kvPairs| ==> SerializableKVPair(kvPairs[i]))
           && |kvPairs| < UINT16_LIMIT
           && LinearSorted(kvPairs)
-          && LinearIsUnique(kvPairs) 
+          && LinearIsUnique(kvPairs)
           && LinearToSeq(kvPairs, 0, |kvPairs|) == sequence
           && sequenceComplete[..2] == UInt16ToSeq(|kvPairs| as uint16);
 
       InsertionSortPreservesProperties(kvPairs); // We can sort the kvPairs which preserves all properties of the kvPairs
-      SortedSequenceIsUnqiue(kvPairs, InsertionSort(kvPairs)); // Two sorted sequences with unique elements are the same 
+      SortedSequenceIsUnqiue(kvPairs, InsertionSort(kvPairs)); // Two sorted sequences with unique elements are the same
       SortedLinearIsFixpointAADDuality(kvPairs); // And the weak and strong deserialization return the same value for sorted sequences
-      // From this we can conclude that SeqToMap hold (intuitively this is true since LinearToSeq and LiniearToUnordered seq are the same on ordered inputs) 
+      // From this we can conclude that SeqToMap hold (intuitively this is true since LinearToSeq and LiniearToUnordered seq are the same on ordered inputs)
     } else {
       // Trivial case
     }
@@ -453,9 +453,9 @@ module {:extern "EncryptionContext"} EncryptionContext {
     requires |linear| < UINT16_LIMIT
     requires LinearIsUnique(linear)
     requires LinearSorted(linear)
-    ensures forall hi | 0 <= hi <= |linear| :: LinearToUnorderedSeq(linear, 0, hi) == LinearToSeq(linear, 0, hi) 
+    ensures forall hi | 0 <= hi <= |linear| :: LinearToUnorderedSeq(linear, 0, hi) == LinearToSeq(linear, 0, hi)
   {
-    
+
   }
 
   // Lemma shows sorting preserves properties of ps
@@ -489,10 +489,10 @@ module {:extern "EncryptionContext"} EncryptionContext {
     requires SerializableKVPair(p);
     ensures LinearIsUnique( InsertPair(p, ps))
     ensures forall l | l in InsertPair(p, ps) :: SerializableKVPair(l)
-    ensures |InsertPair(p, ps)| == |ps| + 1 
+    ensures |InsertPair(p, ps)| == |ps| + 1
   {
-    if ps == [] || LexicographicLessOrEqual(p.0, ps[0].0, UInt.UInt8Less){  
-      
+    if ps == [] || LexicographicLessOrEqual(p.0, ps[0].0, UInt.UInt8Less){
+
     } else {
       assert LinearIsUnique([ps[0]] + InsertPair(p, ps[1..])) by {
         var ls := InsertPair(p, ps[1..]);
@@ -582,11 +582,11 @@ module {:extern "EncryptionContext"} EncryptionContext {
       else
         None // out of bounds
   }
-  
+
   lemma DualOfUTF8(utf: UTF8.ValidUTF8Bytes, remainder: seq<uint8>)
     requires |utf| < UINT16_LIMIT && UTF8.ValidUTF8Seq(utf)
     ensures var serializedUtf := UInt16ToSeq(|utf| as uint16) + utf + remainder;
-      GetUTF8(serializedUtf[2..], |utf|) == Some(utf) 
+      GetUTF8(serializedUtf[2..], |utf|) == Some(utf)
   {
     var serializedUtf := UInt16ToSeq(|utf| as uint16) + utf + remainder;
     var serial := serializedUtf[2..];

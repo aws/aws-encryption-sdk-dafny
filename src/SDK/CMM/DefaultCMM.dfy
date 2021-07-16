@@ -30,7 +30,7 @@ module {:extern "DefaultCMMDef"} DefaultCMMDef {
   {
     true
   }
-    
+
   class DefaultCMM extends CMMDefs.CMM {
     const keyring: KeyringDefs.Keyring
 

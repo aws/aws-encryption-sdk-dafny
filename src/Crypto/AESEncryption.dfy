@@ -11,7 +11,7 @@ module {:extern "AESEncryption"} AESEncryption {
   import opened UInt = StandardLibrary.UInt
 
   export
-    provides AESDecrypt, AESEncrypt, AESDecryptExtern, AESEncryptExtern, EncryptionSuites, StandardLibrary, 
+    provides AESDecrypt, AESEncrypt, AESDecryptExtern, AESEncryptExtern, EncryptionSuites, StandardLibrary,
       UInt, PlaintextDecryptedWithAAD, EncryptionOutputEncryptedWithAAD, CiphertextGeneratedWithPlaintext,
       EncryptedWithKey, DecryptedWithKey
     reveals EncryptionOutput
@@ -62,7 +62,7 @@ module {:extern "AESEncryption"} AESEncryption {
     {
       res := AESEncryptExtern(encAlg, iv, key, msg, aad);
       if (res.Success? && |res.value.cipherText| != |msg|){
-        res := Failure("AESEncrypt did not return cipherText of expected length");  
+        res := Failure("AESEncrypt did not return cipherText of expected length");
       }
       if (res.Success? && |res.value.authTag| != encAlg.tagLen as int){
         res := Failure("AESEncryption did not return valid tag");
