@@ -12,7 +12,9 @@ module TestKeyrings {
 
   class NoOpKeyring extends Keyring {
 
-    constructor() {}
+    constructor() {
+      Repr := {};
+    }
 
     predicate Valid() reads this, Repr { true }
 
@@ -49,7 +51,9 @@ module TestKeyrings {
 
   class AlwaysFailingKeyring extends Keyring {
 
-    constructor() {}
+    constructor() {
+      Repr := {};
+    }
 
     predicate Valid() reads this, Repr { true }
 

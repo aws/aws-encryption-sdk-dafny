@@ -35,6 +35,7 @@ module {:extern "TestUtils"} TestUtils {
     var validUTF8char: UTF8.ValidUTF8Bytes :- expect UTF8.Encode("a");
     var key: UTF8.ValidUTF8Bytes := [];
     while |key| < UINT16_LIMIT {
+      UTF8.ValidUTF8Concat(key, validUTF8char);
       key := key + validUTF8char;
     }
     encCtx := map[key := [0]];

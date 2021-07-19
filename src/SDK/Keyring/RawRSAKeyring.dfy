@@ -60,7 +60,8 @@ module {:extern "RawRSAKeyringDef"} RawRSAKeyringDef {
       ensures this.privateKey == privateKey
       ensures Valid() && fresh(Repr - KeyRepr(publicKey) - KeyRepr(privateKey))
     {
-      keyNamespace, keyName := namespace, name;
+      keyNamespace := namespace;
+      keyName := name;
       paddingMode := padding;
       this.publicKey := publicKey;
       this.privateKey := privateKey;

@@ -252,13 +252,13 @@ module {:extern "STL"} StandardLibrary {
    * The proofs are a bit pedantic and include steps that can be automated.
    */
 
-  lemma LexIsReflexive<T(==)>(a: seq<T>, less: (T, T) -> bool)
+  lemma LexIsReflexive<T>(a: seq<T>, less: (T, T) -> bool)
     ensures LexicographicLessOrEqual(a, a, less)
   {
     assert LexicographicLessOrEqualAux(a, a, less, |a|);
   }
 
-  lemma LexIsAntisymmetric<T(==)>(a: seq<T>, b: seq<T>, less: (T, T) -> bool)
+  lemma LexIsAntisymmetric<T>(a: seq<T>, b: seq<T>, less: (T, T) -> bool)
     requires Trich: Trichotomous(less)
     requires LexicographicLessOrEqual(a, b, less)
     requires LexicographicLessOrEqual(b, a, less)
@@ -301,7 +301,7 @@ module {:extern "STL"} StandardLibrary {
     }
   }
 
-  lemma LexIsTransitive<T(==)>(a: seq<T>, b: seq<T>, c: seq<T>, less: (T, T) -> bool)
+  lemma LexIsTransitive<T>(a: seq<T>, b: seq<T>, c: seq<T>, less: (T, T) -> bool)
     requires Transitive(less)
     requires LexicographicLessOrEqual(a, b, less)
     requires LexicographicLessOrEqual(b, c, less)
@@ -313,7 +313,7 @@ module {:extern "STL"} StandardLibrary {
     assert LexicographicLessOrEqualAux(a, c, less, k);
   }
 
-  lemma LexIsTotal<T(==)>(a: seq<T>, b: seq<T>, less: (T, T) -> bool)
+  lemma LexIsTotal<T>(a: seq<T>, b: seq<T>, less: (T, T) -> bool)
     requires Trich: Trichotomous(less)
     ensures LexicographicLessOrEqual(a, b, less) || LexicographicLessOrEqual(b, a, less)
   {

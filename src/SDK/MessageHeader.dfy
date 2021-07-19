@@ -183,17 +183,23 @@ module {:extern "MessageHeader"} MessageHeader {
     requires hb.Valid()
   {
     exists serializedAAD | EncryptionContext.LinearSeqToMap(serializedAAD, hb.aad) ::
-      sequence ==
-        [hb.version as uint8] +
-        [hb.typ as uint8] +
-        UInt16ToSeq(hb.algorithmSuiteID as uint16) +
-        hb.messageID +
-        serializedAAD + // This field can be encrypted in multiple ways and prevents us from reusing HeaderBodyToSeq
-        EDKsToSeq(hb.encryptedDataKeys) +
-        [ContentTypeToUInt8(hb.contentType)] +
-        Reserved +
-        [hb.ivLength] +
-        UInt32ToSeq(hb.frameLength)
+      IsSerializationOfHeaderBodyAux(sequence, hb, serializedAAD)
+  }
+
+  predicate IsSerializationOfHeaderBodyAux(sequence: seq<uint8>, hb: HeaderBody, serializedAAD: seq<uint8>)
+    requires hb.Valid() && EncryptionContext.LinearSeqToMap(serializedAAD, hb.aad)
+  {
+    sequence ==
+      [hb.version as uint8] +
+      [hb.typ as uint8] +
+      UInt16ToSeq(hb.algorithmSuiteID as uint16) +
+      hb.messageID +
+      serializedAAD + // This field can be encrypted in multiple ways and prevents us from reusing HeaderBodyToSeq
+      EDKsToSeq(hb.encryptedDataKeys) +
+      [ContentTypeToUInt8(hb.contentType)] +
+      Reserved +
+      [hb.ivLength] +
+      UInt32ToSeq(hb.frameLength)
   }
 
   lemma IsSerializationOfHeaderBodyDuality(hb: HeaderBody)

@@ -108,25 +108,14 @@ module Deserialize {
       ivLength,
       frameLength);
     assert Msg.IsSerializationOfHeaderBody(rd.reader.data[old(rd.reader.pos)..rd.reader.pos], hb) by {
+      var s := rd.reader.data[old(rd.reader.pos)..rd.reader.pos];
+      var serializedAAD := rd.reader.data[aadStart..aadEnd];
+      assert EncryptionContext.LinearSeqToMap(serializedAAD, aad);
+      // Without this assertion, the following assertion of IsSerializationOfHeaderBodyAux
+      // fails to verify on the latest Dafny (3.1).
+      assert s[0..1] == [hb.version as uint8];
+      assert Msg.IsSerializationOfHeaderBodyAux(s, hb, serializedAAD);
       reveal Msg.IsSerializationOfHeaderBody();
-      assert EncryptionContext.LinearSeqToMap(rd.reader.data[aadStart..aadEnd], aad);
-      assert [hb.version as uint8] + [hb.typ as uint8] + UInt16ToSeq(hb.algorithmSuiteID as uint16) + hb.messageID ==
-        rd.reader.data[old(rd.reader.pos)..aadStart];
-      assert rd.reader.data[old(rd.reader.pos)..aadEnd] + Msg.EDKsToSeq(hb.encryptedDataKeys) + [Msg.ContentTypeToUInt8(hb.contentType)] ==
-        rd.reader.data[old(rd.reader.pos)..reserveStart];
-      assert rd.reader.data[old(rd.reader.pos)..reserveEnd] + [hb.ivLength] + UInt32ToSeq(hb.frameLength) ==
-        rd.reader.data[old(rd.reader.pos)..rd.reader.pos];
-      assert rd.reader.data[old(rd.reader.pos)..rd.reader.pos] ==
-        [hb.version as uint8] +
-        [hb.typ as uint8] +
-        UInt16ToSeq(hb.algorithmSuiteID as uint16) +
-        hb.messageID +
-        rd.reader.data[aadStart..aadEnd] + // This field can be encrypted in multiple ways and prevents us from reusing HeaderBodyToSeq
-        Msg.EDKsToSeq(hb.encryptedDataKeys) +
-        [Msg.ContentTypeToUInt8(hb.contentType)] +
-        rd.reader.data[reserveStart..reserveEnd] +
-        [hb.ivLength] +
-        UInt32ToSeq(hb.frameLength);
     }
     return Success(hb);
   }

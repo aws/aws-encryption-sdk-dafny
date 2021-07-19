@@ -455,7 +455,23 @@ module {:extern "EncryptionContext"} EncryptionContext {
     requires LinearSorted(linear)
     ensures forall hi | 0 <= hi <= |linear| :: LinearToUnorderedSeq(linear, 0, hi) == LinearToSeq(linear, 0, hi)
   {
+    SortedLinearIsFixpointAADDualityAux(linear, |linear|);
+  }
 
+  lemma SortedLinearIsFixpointAADDualityAux(linear: Linear, lim: nat)
+    requires forall p | p in linear :: SerializableKVPair(p)
+    requires |linear| < UINT16_LIMIT
+    requires LinearIsUnique(linear)
+    requires LinearSorted(linear)
+    requires lim <= |linear|
+    ensures forall hi | 0 <= hi <= lim :: LinearToUnorderedSeq(linear, 0, hi) == LinearToSeq(linear, 0, hi)
+  {
+    if lim == 0 {
+      assert LinearToUnorderedSeq(linear, 0, 0) == LinearToSeq(linear, 0, 0);
+    } else {
+      SortedLinearIsFixpointAADDualityAux(linear, lim - 1);
+      assert LinearToUnorderedSeq(linear, 0, lim) == LinearToSeq(linear, 0, lim);
+    }
   }
 
   // Lemma shows sorting preserves properties of ps
@@ -589,6 +605,7 @@ module {:extern "EncryptionContext"} EncryptionContext {
       GetUTF8(serializedUtf[2..], |utf|) == Some(utf)
   {
     var serializedUtf := UInt16ToSeq(|utf| as uint16) + utf + remainder;
+    assert serializedUtf[2..][..|utf|] == utf;
     var serial := serializedUtf[2..];
     var deserializedUTF := GetUTF8(serial, |utf|);
     // seq to UTF8 casting is not done automatically by Dafny and needs to be done manually
@@ -596,6 +613,7 @@ module {:extern "EncryptionContext"} EncryptionContext {
       assert serial[..|utf|] == utf;
       assert |serial| >= |utf| && UTF8.ValidUTF8Seq(serial[..|utf|]);
     }
+    assert deserializedUTF.get == serial[..|utf|];
   }
 
   /* Function Length is defined without referring to SerializeAAD (because then

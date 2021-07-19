@@ -368,15 +368,32 @@ module Base64 {
       && (Is2Padding(suffix) ==> |b| % 3 == 1)
       && (!Is1Padding(suffix) && !Is2Padding(suffix) ==> |b| % 3 == 0)
   {
-    var finalBlockStart := |s| - 4;
-    if s == [] {
-    } else if Is1Padding(s[finalBlockStart..]) {
-      assert b == DecodeUnpadded(s[..finalBlockStart]) + Decode1Padding(s[finalBlockStart..]);
-    } else if Is2Padding(s[finalBlockStart..]) {
-      assert b == DecodeUnpadded(s[..finalBlockStart]) + Decode2Padding(s[finalBlockStart..]);
-    } else {
-      assert b == DecodeUnpadded(s);
+    if 4 <= |s| {
+      var finalBlockStart := |s| - 4;
+      var prefix, suffix := s[..finalBlockStart], s[finalBlockStart..];
+
+      if s == [] {
+      } else if Is1Padding(suffix) {
+        assert !Is2Padding(suffix);
+        var x, y := DecodeUnpadded(prefix), Decode1Padding(suffix);
+        assert b == x + y;
+        assert |x| == |x| / 3 * 3 && |y| == 2;
+        Mod3(|x| / 3, |y|, |b|);
+      } else if Is2Padding(suffix) {
+        var x, y := DecodeUnpadded(prefix), Decode2Padding(suffix);
+        assert b == x + y;
+        assert |x| == |x| / 3 * 3 && |y| == 1;
+        Mod3(|x| / 3, |y|, |b|);
+      } else {
+        assert b == DecodeUnpadded(s);
+      }
     }
+  }
+
+  lemma Mod3(x: nat, k: nat, n: nat)
+    requires 0 <= k < 3 && n == 3 * x + k
+    ensures n % 3 == k
+  {
   }
 
   function method Decode(s: seq<char>): (b: Result<seq<uint8>>)
