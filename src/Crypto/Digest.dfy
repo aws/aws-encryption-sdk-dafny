@@ -7,33 +7,30 @@ include "../StandardLibrary/UInt.dfy"
 module Digest {
   import opened StandardLibrary
   import opened UInt = StandardLibrary.UInt
-  import DigestAlgo
+  import Hash
   import ExternDigest
 
-  function method Length(alg: DigestAlgo.Algorithm): nat {
+  function method Length(alg: Hash.Algorithm): nat {
     match alg
     case SHA_512 => 64
   }
 
-  method Digest(alg: DigestAlgo.Algorithm, msg: seq<uint8>) returns (res: Result<seq<uint8>>)
+  method Digest(alg: Hash.Algorithm, msg: seq<uint8>) returns (res: Result<seq<uint8>>)
     ensures res.Success? ==> |res.value| == Length(alg)
   {
     var digest := ExternDigest.Digest(alg, msg);
-    if |digest| == Length(alg) {
-        return Success(digest);
-    } else {
-        return Failure("Incorrect length digest from ExternDigest.");
-    }
+    return digest;
   }
 }
 
-module DigestAlgo {
+module Hash {
   datatype Algorithm = SHA_512
 }
 
 module {:extern "ExternDigest" } ExternDigest {
+  import opened StandardLibrary
   import opened UInt = StandardLibrary.UInt
-  import opened DigestAlgo = DigestAlgo
+  import opened Hash
 
-  method {:extern } Digest(alg: DigestAlgo.Algorithm, msg: seq<uint8>) returns (digest: seq<uint8>)
+  method {:extern } Digest(alg: Hash.Algorithm, msg: seq<uint8>) returns (digest: Result<seq<uint8>>)
 }
