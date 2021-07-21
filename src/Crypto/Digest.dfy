@@ -33,4 +33,5 @@ module {:extern "ExternDigest" } ExternDigest {
   import opened Hash
 
   method {:extern } Digest(alg: Hash.Algorithm, msg: seq<uint8>) returns (digest: Result<seq<uint8>>)
+    ensures res.Success? ==> |res.value| == Length(alg)
 }
