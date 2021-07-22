@@ -16,8 +16,11 @@ module Random {
     requires 0 <= i
     ensures res.Success? ==> |res.value| == i as int
   {
-    var randBytes := ExternRandom.GenerateBytes(i);
-    return randBytes;
+    var result := ExternRandom.GenerateBytes(i);
+    if result.Success? && |result.value| != i as int {
+        return Failure("Incorrect length from ExternRandom.");
+    }
+    return result;
   }
 }
 
@@ -25,6 +28,5 @@ module {:extern "ExternRandom"} ExternRandom {
   import opened StandardLibrary
   import opened UInt = StandardLibrary.UInt
 
-  method {:extern} GenerateBytes(i: int32) returns (o: Result<seq<uint8>>)
-    requires 0 <= i
+  method {:extern} GenerateBytes(i: int32) returns (res: Result<seq<uint8>>)
 }

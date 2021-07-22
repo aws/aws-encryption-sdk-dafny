@@ -18,8 +18,11 @@ module Digest {
   method Digest(alg: Hash.Algorithm, msg: seq<uint8>) returns (res: Result<seq<uint8>>)
     ensures res.Success? ==> |res.value| == Length(alg)
   {
-    var digest := ExternDigest.Digest(alg, msg);
-    return digest;
+    var result := ExternDigest.Digest(alg, msg);
+    if result.Success? && |result.value| != Length(alg) {
+        return Failure("Incorrect length digest from ExternDigest.");
+    }
+    return result;
   }
 }
 
@@ -32,6 +35,5 @@ module {:extern "ExternDigest" } ExternDigest {
   import opened UInt = StandardLibrary.UInt
   import opened Hash
 
-  method {:extern } Digest(alg: Hash.Algorithm, msg: seq<uint8>) returns (digest: Result<seq<uint8>>)
-    ensures res.Success? ==> |res.value| == Length(alg)
+  method {:extern } Digest(alg: Hash.Algorithm, msg: seq<uint8>) returns (res: Result<seq<uint8>>)
 }
