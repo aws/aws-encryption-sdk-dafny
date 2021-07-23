@@ -3,17 +3,34 @@
 
 include "../StandardLibrary/StandardLibrary.dfy"
 include "../StandardLibrary/UInt.dfy"
+include "./Datatypes.dfy"
 
-module {:extern "Digest"} Digest {
+module Digest {
   import opened StandardLibrary
   import opened UInt = StandardLibrary.UInt
+  import CryptoDatatypes
+  import ExternDigest
 
-  datatype Algorithm = SHA_512
-
-  function method Length(alg: Algorithm): nat {
+  function method Length(alg: CryptoDatatypes.DigestAlgorithm): nat {
     match alg
     case SHA_512 => 64
   }
 
-  method {:extern "Digest.SHA", "Digest"} Digest(alg: Algorithm, msg: seq<uint8>) returns (digest: Result<seq<uint8>>)
+  method Digest(alg: CryptoDatatypes.DigestAlgorithm, msg: seq<uint8>) returns (res: Result<seq<uint8>>)
+    ensures res.Success? ==> |res.value| == Length(alg)
+  {
+    var result := ExternDigest.Digest(alg, msg);
+    if result.Success? && |result.value| != Length(alg) {
+        return Failure("Incorrect length digest from ExternDigest.");
+    }
+    return result;
+  }
+}
+
+module {:extern "ExternDigest" } ExternDigest {
+  import opened StandardLibrary
+  import opened UInt = StandardLibrary.UInt
+  import opened CryptoDatatypes
+
+  method {:extern } Digest(alg: CryptoDatatypes.DigestAlgorithm, msg: seq<uint8>) returns (res: Result<seq<uint8>>)
 }

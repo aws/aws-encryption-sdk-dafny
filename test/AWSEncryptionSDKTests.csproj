@@ -32,7 +32,7 @@
     <DafnySource Remove="**/flycheck_*.dfy" />
   </ItemGroup>
   <ItemGroup>
-    <VerifyDafnyPassthrough Include="timeLimit:300" />
+    <VerifyDafnyPassthrough Include="timeLimit:600" />
     <!-- 
       TODO: This is important to enable, but Dafny 3.1 and on seems to not be able to
       verify the IsSerializationOfHeaderBody assertion in src/SDK/Deserialize.dfy with this

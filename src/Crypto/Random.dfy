@@ -4,25 +4,29 @@
 include "../StandardLibrary/StandardLibrary.dfy"
 include "../StandardLibrary/UInt.dfy"
 
-module {:extern "Random"} Random {
+module Random {
   export
     provides GenerateBytes, StandardLibrary, UInt
 
   import opened StandardLibrary
   import opened UInt = StandardLibrary.UInt
+  import ExternRandom
 
   method GenerateBytes(i: int32) returns (res: Result<seq<uint8>>)
     requires 0 <= i
     ensures res.Success? ==> |res.value| == i as int
   {
-    var randBytes := ExternGenerateBytes(i);
-    if |randBytes| == i as int {
-      return Success(randBytes);
-    } else {
-      return Failure("Incorrect length sequence from ExternGenerateBytes.");
+    var result := ExternRandom.GenerateBytes(i);
+    if result.Success? && |result.value| != i as int {
+        return Failure("Incorrect length from ExternRandom.");
     }
+    return result;
   }
+}
 
-  method {:extern} ExternGenerateBytes(i: int32) returns (o: seq<uint8>)
-    requires 0 <= i
+module {:extern "ExternRandom"} ExternRandom {
+  import opened StandardLibrary
+  import opened UInt = StandardLibrary.UInt
+
+  method {:extern} GenerateBytes(i: int32) returns (res: Result<seq<uint8>>)
 }

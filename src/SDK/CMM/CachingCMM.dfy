@@ -7,6 +7,7 @@ include "Defs.dfy"
 include "../AlgorithmSuite.dfy"
 include "../Materials.dfy"
 include "../EncryptionContext.dfy"
+include "../../Crypto/Datatypes.dfy"
 include "../../Crypto/Digest.dfy"
 include "../../Crypto/Signature.dfy"
 include "../../Util/Streams.dfy"
@@ -22,6 +23,7 @@ module {:extern "CachingCMMDef"} CachingCMMDef {
   import AlgorithmSuite
   import Materials
   import EncryptionContext
+  import CryptoDatatypes
   import Digest
   import Signature
   import Streams
@@ -37,7 +39,7 @@ module {:extern "CachingCMMDef"} CachingCMMDef {
   const DEFAULT_BYTE_USE_LIMIT_PER_CACHED_KEY: uint64 := 0x7FFF_FFFF_FFFF_FFFF  // 2^63 - 1
   const DEFAULT_MESSAGE_USE_LIMIT_PER_CACHED_KEY: uint64 := 0x1_0000_0000  // 2^32
 
-  const CACHE_ID_HASH_ALGORITHM := Digest.Algorithm.SHA_512
+  const CACHE_ID_HASH_ALGORITHM := CryptoDatatypes.SHA_512
 
   /* Notes:
    *
