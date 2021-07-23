@@ -3,19 +3,20 @@
 
 include "../StandardLibrary/StandardLibrary.dfy"
 include "../StandardLibrary/UInt.dfy"
+include "./Datatypes.dfy"
 
 module Digest {
   import opened StandardLibrary
   import opened UInt = StandardLibrary.UInt
-  import Hash
+  import CryptoDatatypes
   import ExternDigest
 
-  function method Length(alg: Hash.Algorithm): nat {
+  function method Length(alg: CryptoDatatypes.DigestAlgorithm): nat {
     match alg
     case SHA_512 => 64
   }
 
-  method Digest(alg: Hash.Algorithm, msg: seq<uint8>) returns (res: Result<seq<uint8>>)
+  method Digest(alg: CryptoDatatypes.DigestAlgorithm, msg: seq<uint8>) returns (res: Result<seq<uint8>>)
     ensures res.Success? ==> |res.value| == Length(alg)
   {
     var result := ExternDigest.Digest(alg, msg);
@@ -26,14 +27,10 @@ module Digest {
   }
 }
 
-module Hash {
-  datatype Algorithm = SHA_512
-}
-
 module {:extern "ExternDigest" } ExternDigest {
   import opened StandardLibrary
   import opened UInt = StandardLibrary.UInt
-  import opened Hash
+  import opened CryptoDatatypes
 
-  method {:extern } Digest(alg: Hash.Algorithm, msg: seq<uint8>) returns (res: Result<seq<uint8>>)
+  method {:extern } Digest(alg: CryptoDatatypes.DigestAlgorithm, msg: seq<uint8>) returns (res: Result<seq<uint8>>)
 }
