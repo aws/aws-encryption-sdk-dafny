@@ -12,7 +12,7 @@ include "../Crypto/AESEncryption.dfy"
 module {:extern "MessageHeader"} MessageHeader {
   import AlgorithmSuite
   import Sets
-  import opened StandardLibrary
+  import opened Wrappers
   import opened UInt = StandardLibrary.UInt
   import EncryptionContext
   import Materials
@@ -67,7 +67,7 @@ module {:extern "MessageHeader"} MessageHeader {
 
   lemma ContentTypeConversionsCorrect(contentType: ContentType, x: uint8)
     ensures UInt8ToContentType(ContentTypeToUInt8(contentType)) == Some(contentType)
-    ensures var opt := UInt8ToContentType(x); opt == None || ContentTypeToUInt8(opt.get) == x
+    ensures var opt := UInt8ToContentType(x); opt == None || ContentTypeToUInt8(opt.value) == x
   {
   }
 

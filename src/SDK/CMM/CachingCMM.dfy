@@ -17,7 +17,7 @@ include "../../Util/Time.dfy"
 include "../../Util/Sorting.dfy"
 
 module {:extern "CachingCMMDef"} CachingCMMDef {
-  import opened StandardLibrary
+  import opened Wrappers
   import opened UInt = StandardLibrary.UInt
   import CMMDefs
   import AlgorithmSuite
@@ -143,7 +143,7 @@ module {:extern "CachingCMMDef"} CachingCMMDef {
     }
 
     method GetEncryptionMaterials(materialsRequest: Materials.EncryptionMaterialsRequest)
-                                  returns (res: Result<Materials.ValidEncryptionMaterials>)
+                                  returns (res: Result<Materials.ValidEncryptionMaterials, string>)
       requires Valid()
       modifies Repr
       ensures Valid() && fresh(Repr - old(Repr))
@@ -153,8 +153,8 @@ module {:extern "CachingCMMDef"} CachingCMMDef {
     {
       reveal CMMDefs.EncryptionMaterialsSignatureOpaque();
       if materialsRequest.plaintextLength.None?
-      || byteLimit as int < materialsRequest.plaintextLength.get
-      || (materialsRequest.algorithmSuiteID.Some? && materialsRequest.algorithmSuiteID.get.ContainsIdentityKDF())
+      || byteLimit as int < materialsRequest.plaintextLength.value
+      || (materialsRequest.algorithmSuiteID.Some? && materialsRequest.algorithmSuiteID.value.ContainsIdentityKDF())
       {
         // Get encryption materials from the underlying CMM.
         res := cmm.GetEncryptionMaterials(materialsRequest);
@@ -172,7 +172,7 @@ module {:extern "CachingCMMDef"} CachingCMMDef {
       var entry := cmc.LookupEncrypt(cacheID);
       Repr := Repr + cmc.Repr;
       if entry != null {
-        entry.IncrementUse(materialsRequest.plaintextLength.get);
+        entry.IncrementUse(materialsRequest.plaintextLength.value);
         var currentTime := Time.GetCurrent();
         if entry.expiryTime <= currentTime as nat
         || messageLimit as nat <= entry.messagesEncrypted
@@ -196,12 +196,12 @@ module {:extern "CachingCMMDef"} CachingCMMDef {
       // Add them to the cache.
       entry := cmc.AddEncrypt(cacheID, encMat, secondsToLiveLimit);
       Repr := Repr + cmc.Repr;
-      entry.IncrementUse(materialsRequest.plaintextLength.get);
+      entry.IncrementUse(materialsRequest.plaintextLength.value);
       return Success(encMat);
     }
 
     method DecryptMaterials(materialsRequest: Materials.ValidDecryptionMaterialsRequest)
-                            returns (res: Result<Materials.ValidDecryptionMaterials>)
+                            returns (res: Result<Materials.ValidDecryptionMaterials, string>)
       requires Valid()
       modifies Repr
       ensures Valid() && fresh(Repr - old(Repr))
@@ -237,7 +237,7 @@ module {:extern "CachingCMMDef"} CachingCMMDef {
     }
   }
 
-  method ComputeCacheIDForEncrypt(algSuiteID: Option<AlgorithmSuite.ID>, encCtx: EncryptionContext.Map) returns (res: Result<seq<uint8>>)
+  method ComputeCacheIDForEncrypt(algSuiteID: Option<AlgorithmSuite.ID>, encCtx: EncryptionContext.Map) returns (res: Result<seq<uint8>, string>)
     requires EncryptionContext.Serializable(encCtx)
   {
     var wr := new Streams.ByteWriter();
@@ -260,7 +260,7 @@ module {:extern "CachingCMMDef"} CachingCMMDef {
     res := Digest.Digest(CACHE_ID_HASH_ALGORITHM, wr.GetDataWritten());
   }
 
-  method ComputeCacheIDForDecrypt(materialsRequest: Materials.ValidDecryptionMaterialsRequest) returns (res: Result<seq<uint8>>)
+  method ComputeCacheIDForDecrypt(materialsRequest: Materials.ValidDecryptionMaterialsRequest) returns (res: Result<seq<uint8>, string>)
     requires EncryptionContext.Serializable(materialsRequest.encryptionContext)
   {
     // compute a digest for each EDK

@@ -4,7 +4,6 @@
 include "../StandardLibrary/StandardLibrary.dfy"
 
 module {:extern "KeyDerivationAlgorithms"} KeyDerivationAlgorithms {
-  import opened StandardLibrary
   import opened UInt = StandardLibrary.UInt
 
   // See Key Derivation Algorithm

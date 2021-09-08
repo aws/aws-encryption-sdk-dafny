@@ -8,7 +8,7 @@ include "UInt.dfy"
  * Note that additional lemmas for this module are in Base64Lemmas.dfy.
  */
 module Base64 {
-  import opened StandardLibrary
+  import opened Wrappers
   import opened UInt = StandardLibrary.UInt
 
   // The maximum index for Base64 is less than 64 (0x40)
@@ -396,7 +396,7 @@ module Base64 {
   {
   }
 
-  function method Decode(s: seq<char>): (b: Result<seq<uint8>>)
+  function method Decode(s: seq<char>): (b: Result<seq<uint8>, string>)
     ensures IsBase64String(s) ==> b.Success?
     ensures !IsBase64String(s) ==> b.Failure?
   {

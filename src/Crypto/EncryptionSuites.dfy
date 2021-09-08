@@ -4,7 +4,6 @@
 include "../StandardLibrary/StandardLibrary.dfy"
 
 module {:extern "EncryptionSuites"} EncryptionSuites {
-  import opened StandardLibrary
   import opened UInt = StandardLibrary.UInt
 
   datatype EncryptionAlgorithm = AES(mode: AESMode)

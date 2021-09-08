@@ -8,6 +8,7 @@ include "../Util/Sets.dfy"
 
 module {:extern "EncryptionContext"} EncryptionContext {
   import opened StandardLibrary
+  import opened Wrappers
   import opened UInt = StandardLibrary.UInt
   import UTF8
   import Sets
@@ -586,7 +587,7 @@ module {:extern "EncryptionContext"} EncryptionContext {
    */
   function GetUTF8(sequence: seq<uint8>, length: nat): (res: Option<UTF8.ValidUTF8Bytes>)
     ensures (|sequence| >= length && UTF8.ValidUTF8Seq(sequence[..length])) <==> res.Some?
-    ensures res.Some? ==> sequence[..length] == res.get
+    ensures res.Some? ==> sequence[..length] == res.value
   {
       if |sequence| >= length then
         var utfSeq := sequence[..length];
@@ -613,7 +614,7 @@ module {:extern "EncryptionContext"} EncryptionContext {
       assert serial[..|utf|] == utf;
       assert |serial| >= |utf| && UTF8.ValidUTF8Seq(serial[..|utf|]);
     }
-    assert deserializedUTF.get == serial[..|utf|];
+    assert deserializedUTF.value == serial[..|utf|];
   }
 
   /* Function Length is defined without referring to SerializeAAD (because then

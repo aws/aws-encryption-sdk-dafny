@@ -7,7 +7,7 @@ include "../Crypto/Signature.dfy"
 include "../StandardLibrary/StandardLibrary.dfy"
 
 module {:extern "AlgorithmSuite"} AlgorithmSuite {
-  import opened StandardLibrary
+  import opened Wrappers
   import opened UInt = StandardLibrary.UInt
   import EncryptionSuites
   import S = Signature

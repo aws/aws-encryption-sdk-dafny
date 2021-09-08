@@ -19,7 +19,7 @@ include "../Util/UTF8.dfy"
 module Deserialize {
   export
     provides DeserializeHeader, Materials
-    provides Streams, StandardLibrary, UInt, AlgorithmSuite, Msg
+    provides Streams, StandardLibrary, Wrappers, UInt, AlgorithmSuite, Msg
     provides InsertNewEntry, UTF8, EncryptionContext
     reveals DeserializeHeaderResult
 
@@ -28,13 +28,14 @@ module Deserialize {
   import AlgorithmSuite
   import Streams
   import opened StandardLibrary
+  import opened Wrappers
   import opened UInt = StandardLibrary.UInt
   import UTF8
   import Materials
   import EncryptionContext
 
 
-  method DeserializeHeader(rd: Streams.ByteReader) returns (res: Result<DeserializeHeaderResult>)
+  method DeserializeHeader(rd: Streams.ByteReader) returns (res: Result<DeserializeHeaderResult, string>)
     requires rd.Valid()
     modifies rd.reader`pos
     ensures rd.Valid()
@@ -57,7 +58,7 @@ module Deserialize {
   * Reads raw header data from the input stream and populates the header with all of the information about the
   * message.
   */
-  method DeserializeHeaderBody(rd: Streams.ByteReader) returns (ret: Result<Msg.HeaderBody>)
+  method DeserializeHeaderBody(rd: Streams.ByteReader) returns (ret: Result<Msg.HeaderBody, string>)
     requires rd.Valid()
     modifies rd.reader`pos
     ensures rd.Valid()
@@ -123,7 +124,7 @@ module Deserialize {
   /*
    * Reads IV length and auth tag of the lengths specified by algorithmSuiteID.
    */
-  method DeserializeHeaderAuthentication(rd: Streams.ByteReader, algorithmSuiteID: AlgorithmSuite.ID) returns (ret: Result<Msg.HeaderAuthentication>)
+  method DeserializeHeaderAuthentication(rd: Streams.ByteReader, algorithmSuiteID: AlgorithmSuite.ID) returns (ret: Result<Msg.HeaderAuthentication, string>)
     requires rd.Valid()
     requires algorithmSuiteID in AlgorithmSuite.Suite.Keys
     modifies rd.reader`pos
@@ -146,7 +147,7 @@ module Deserialize {
   /*
    * Methods for deserializing pieces of the message header.
    */
-  method DeserializeVersion(rd: Streams.ByteReader) returns (ret: Result<Msg.Version>)
+  method DeserializeVersion(rd: Streams.ByteReader) returns (ret: Result<Msg.Version, string>)
     requires rd.Valid()
     modifies rd.reader`pos
     ensures rd.Valid()
@@ -166,7 +167,7 @@ module Deserialize {
     }
   }
 
-  method DeserializeType(rd: Streams.ByteReader) returns (ret: Result<Msg.Type>)
+  method DeserializeType(rd: Streams.ByteReader) returns (ret: Result<Msg.Type, string>)
     requires rd.Valid()
     modifies rd.reader`pos
     ensures rd.Valid()
@@ -186,7 +187,7 @@ module Deserialize {
     }
   }
 
-  method DeserializeAlgorithmSuiteID(rd: Streams.ByteReader) returns (ret: Result<AlgorithmSuite.ID>)
+  method DeserializeAlgorithmSuiteID(rd: Streams.ByteReader) returns (ret: Result<AlgorithmSuite.ID, string>)
     requires rd.Valid()
     modifies rd.reader`pos
     ensures rd.Valid()
@@ -206,7 +207,7 @@ module Deserialize {
     }
   }
 
-  method DeserializeMsgID(rd: Streams.ByteReader) returns (ret: Result<Msg.MessageID>)
+  method DeserializeMsgID(rd: Streams.ByteReader) returns (ret: Result<Msg.MessageID, string>)
     requires rd.Valid()
     modifies rd.reader`pos
     ensures rd.Valid()
@@ -222,12 +223,12 @@ module Deserialize {
     return Success(msgID);
   }
 
-  method DeserializeUTF8(rd: Streams.ByteReader, n: nat) returns (ret: Result<UTF8.ValidUTF8Bytes>)
+  method DeserializeUTF8(rd: Streams.ByteReader, n: nat) returns (ret: Result<UTF8.ValidUTF8Bytes, string>)
     requires rd.Valid()
     modifies rd.reader`pos
     ensures rd.Valid()
     ensures ret.Success? ==> var expectedRes := EncryptionContext.GetUTF8(rd.reader.data[old(rd.reader.pos)..], n);
-      expectedRes.Some? && expectedRes.get == ret.value
+      expectedRes.Some? && expectedRes.value == ret.value
     ensures match ret
       case Success(bytes) =>
         && UTF8.ValidUTF8Seq(bytes)
@@ -255,7 +256,7 @@ module Deserialize {
     Furthermore we prove that EncryptionContext.LinearSeqToMap(map, SerializeAAD(map)) which means that any map we serialize to a sequence is in the weak serialize relation
     From this we can conclude that DeserializeAAD(SerializeAAD(map)) == map
    */
-  method DeserializeAAD(rd: Streams.ByteReader) returns (ret: Result<EncryptionContext.Map>)
+  method DeserializeAAD(rd: Streams.ByteReader) returns (ret: Result<EncryptionContext.Map, string>)
     requires rd.Valid()
     modifies rd.reader`pos
     ensures rd.Valid()
@@ -458,7 +459,7 @@ module Deserialize {
 
   }
 
-  method DeserializeEncryptedDataKeys(rd: Streams.ByteReader) returns (ret: Result<Msg.EncryptedDataKeys>)
+  method DeserializeEncryptedDataKeys(rd: Streams.ByteReader) returns (ret: Result<Msg.EncryptedDataKeys, string>)
     requires rd.Valid()
     modifies rd.reader`pos
     ensures rd.Valid()
@@ -514,7 +515,7 @@ module Deserialize {
     return Success(edks);
   }
 
-  method DeserializeContentType(rd: Streams.ByteReader) returns (ret: Result<Msg.ContentType>)
+  method DeserializeContentType(rd: Streams.ByteReader) returns (ret: Result<Msg.ContentType, string>)
     requires rd.Valid()
     modifies rd.reader`pos
     ensures rd.Valid()
@@ -532,7 +533,7 @@ module Deserialize {
       return Success(contentType);
   }
 
-  method DeserializeReserved(rd: Streams.ByteReader) returns (ret: Result<seq<uint8>>)
+  method DeserializeReserved(rd: Streams.ByteReader) returns (ret: Result<seq<uint8>, string>)
     requires rd.Valid()
     modifies rd.reader`pos
     ensures rd.Valid()

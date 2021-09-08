@@ -4,7 +4,7 @@
 include "../StandardLibrary/StandardLibrary.dfy"
 
 module Streams {
-  import opened StandardLibrary
+  import opened Wrappers
   import opened UInt = StandardLibrary.UInt
 
   class SeqReader<T> {
@@ -45,7 +45,7 @@ module Streams {
       return elems;
     }
 
-    method ReadExact(n: nat) returns (res: Result<seq<T>>)
+    method ReadExact(n: nat) returns (res: Result<seq<T>, string>)
       requires Valid()
       modifies `pos
       ensures n + old(pos) <= |data| <==> res.Success?
@@ -88,7 +88,7 @@ module Streams {
       Repr := {this} + mr.Repr;
     }
 
-    method ReadByte() returns (res: Result<uint8>)
+    method ReadByte() returns (res: Result<uint8, string>)
       requires Valid()
       modifies reader`pos
       ensures res.Failure? ==> |reader.data| - reader.pos < 1
@@ -104,7 +104,7 @@ module Streams {
       return Success(bytes[0]);
     }
 
-    method ReadBytes(n: nat) returns (res: Result<seq<uint8>>)
+    method ReadBytes(n: nat) returns (res: Result<seq<uint8>, string>)
       requires Valid()
       modifies reader`pos
       ensures res.Failure? ==> |reader.data| - reader.pos < n
@@ -122,7 +122,7 @@ module Streams {
       return Success(bytes);
     }
 
-    method ReadUInt16() returns (res: Result<uint16>)
+    method ReadUInt16() returns (res: Result<uint16, string>)
       requires Valid()
       modifies reader`pos
       ensures res.Failure? ==> |reader.data| - reader.pos < 2
@@ -139,7 +139,7 @@ module Streams {
       return Success(n);
     }
 
-    method ReadUInt32() returns (res: Result<uint32>)
+    method ReadUInt32() returns (res: Result<uint32, string>)
       requires Valid()
       modifies reader`pos
       ensures res.Failure? ==> unchanged(reader)
@@ -155,7 +155,7 @@ module Streams {
       return Success(n);
     }
 
-    method ReadUInt64() returns (res: Result<uint64>)
+    method ReadUInt64() returns (res: Result<uint64, string>)
       requires Valid()
       modifies reader`pos
       ensures res.Failure? ==> |reader.data| - reader.pos < 8

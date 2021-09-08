@@ -7,6 +7,7 @@ include "Base64.dfy"
 
 module Base64Lemmas {
   import opened StandardLibrary
+  import opened Wrappers
   import opened UInt = StandardLibrary.UInt
   import opened Base64
 

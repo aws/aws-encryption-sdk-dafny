@@ -17,6 +17,7 @@ include "../../Util/Streams.dfy"
 
 module {:extern "RawAESKeyringDef"} RawAESKeyringDef {
   import opened StandardLibrary
+  import opened Wrappers
   import opened UInt = StandardLibrary.UInt
   import EncryptionSuites
   import AlgorithmSuite
@@ -101,7 +102,7 @@ module {:extern "RawAESKeyringDef"} RawAESKeyringDef {
         iv
     }
 
-    method OnEncrypt(materials: Mat.ValidEncryptionMaterials) returns (res: Result<Mat.ValidEncryptionMaterials>)
+    method OnEncrypt(materials: Mat.ValidEncryptionMaterials) returns (res: Result<Mat.ValidEncryptionMaterials, string>)
       // Keyring Trait conditions
       requires Valid()
       ensures res.Success? ==>
@@ -161,7 +162,7 @@ module {:extern "RawAESKeyringDef"} RawAESKeyringDef {
       var aad := wr.GetDataWritten();
       assert aad == EncryptionContext.MapToSeq(materials.encryptionContext);
 
-      var encryptResult :- AESEncryption.AESEncrypt(wrappingAlgorithm, iv, wrappingKey, materialsWithDataKey.plaintextDataKey.get, aad);
+      var encryptResult :- AESEncryption.AESEncrypt(wrappingAlgorithm, iv, wrappingKey, materialsWithDataKey.plaintextDataKey.value, aad);
       var encryptedKey := SerializeEDKCiphertext(encryptResult);
 
       if UINT16_LIMIT <= |providerInfo| {
@@ -178,7 +179,7 @@ module {:extern "RawAESKeyringDef"} RawAESKeyringDef {
     }
 
     method OnDecrypt(materials: Mat.ValidDecryptionMaterials,
-                     edks: seq<Mat.EncryptedDataKey>) returns (res: Result<Mat.ValidDecryptionMaterials>)
+                     edks: seq<Mat.EncryptedDataKey>) returns (res: Result<Mat.ValidDecryptionMaterials, string>)
       // Keyring Trait conditions
       requires Valid()
       ensures Valid()
@@ -197,7 +198,7 @@ module {:extern "RawAESKeyringDef"} RawAESKeyringDef {
       ensures res.Success? && materials.plaintextDataKey.None? && res.value.plaintextDataKey.Some? ==>
         var encCtxSerializable := (reveal EncryptionContext.Serializable(); EncryptionContext.Serializable(materials.encryptionContext));
         && encCtxSerializable
-        && AESEncryption.PlaintextDecryptedWithAAD(res.value.plaintextDataKey.get, EncryptionContext.MapToSeq(materials.encryptionContext))
+        && AESEncryption.PlaintextDecryptedWithAAD(res.value.plaintextDataKey.value, EncryptionContext.MapToSeq(materials.encryptionContext))
 
       // KeyringTrace generated as expected
       ensures res.Success? && materials.plaintextDataKey.None? && res.value.plaintextDataKey.Some? ==>

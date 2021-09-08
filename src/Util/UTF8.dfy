@@ -15,16 +15,16 @@ include "../StandardLibrary/StandardLibrary.dfy"
 // This does NOT perform any range checks on the values encoded.
 
 module {:extern "UTF8"} UTF8 {
-  import opened StandardLibrary
+  import opened Wrappers
   import opened UInt = StandardLibrary.UInt
 
   type ValidUTF8Bytes = i: seq<uint8> | ValidUTF8Seq(i) witness []
 
-  method {:extern "Encode"} Encode(s: string) returns (res: Result<ValidUTF8Bytes>)
+  method {:extern "Encode"} Encode(s: string) returns (res: Result<ValidUTF8Bytes, string>)
     // US-ASCII only needs a single UTF-8 byte per character
     ensures IsASCIIString(s) ==> res.Success? && |res.value| == |s|
 
-  method {:extern "Decode"} Decode(b: ValidUTF8Bytes) returns (res: Result<string>)
+  method {:extern "Decode"} Decode(b: ValidUTF8Bytes) returns (res: Result<string, string>)
 
   predicate method IsASCIIString(s: string) {
     forall i :: 0 <= i < |s| ==> s[i] as int < 128

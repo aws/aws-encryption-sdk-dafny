@@ -4,7 +4,7 @@
 include "../StandardLibrary/StandardLibrary.dfy"
 
 module {:extern "RSAEncryption"} RSAEncryption {
-  import opened StandardLibrary
+  import opened Wrappers
   import opened UInt = StandardLibrary.UInt
 
   datatype {:extern "PaddingMode"} PaddingMode = PKCS1 | OAEP_SHA1 | OAEP_SHA256 | OAEP_SHA384 | OAEP_SHA512
@@ -134,7 +134,7 @@ module {:extern "RSAEncryption"} RSAEncryption {
     publicKey := new PublicKey(pemPublic, strength, padding);
   }
 
-  method Decrypt(padding: PaddingMode, privateKey: PrivateKey, cipherText: seq<uint8>) returns (res: Result<seq<uint8>>)
+  method Decrypt(padding: PaddingMode, privateKey: PrivateKey, cipherText: seq<uint8>) returns (res: Result<seq<uint8>, string>)
     requires privateKey.Valid()
     requires 0 < |cipherText|
     requires padding == privateKey.padding
@@ -154,7 +154,7 @@ module {:extern "RSAEncryption"} RSAEncryption {
     res := DecryptExtern(padding, privateKey.pem, cipherText);
   }
 
-  method Encrypt(padding: PaddingMode, publicKey: PublicKey, plaintextData: seq<uint8>) returns (res: Result<seq<uint8>>)
+  method Encrypt(padding: PaddingMode, publicKey: PublicKey, plaintextData: seq<uint8>) returns (res: Result<seq<uint8>, string>)
     requires publicKey.Valid()
     requires GetBytes(publicKey.strength) >= MinStrengthBytes(padding)
     requires 0 < |plaintextData|
@@ -195,7 +195,7 @@ module {:extern "RSAEncryption"} RSAEncryption {
   // verification
   method {:extern "RSAEncryption.RSA", "DecryptExtern"} DecryptExtern(padding: PaddingMode, privateKey: seq<uint8>,
                                                                       cipherText: seq<uint8>)
-      returns (res: Result<seq<uint8>>)
+      returns (res: Result<seq<uint8>, string>)
     requires |privateKey| > 0
     requires |cipherText| > 0
 
@@ -204,7 +204,7 @@ module {:extern "RSAEncryption"} RSAEncryption {
   // verification
   method {:extern "RSAEncryption.RSA", "EncryptExtern"} EncryptExtern(padding: PaddingMode, publicKey: seq<uint8>,
                                                                       plaintextData: seq<uint8>)
-      returns (res: Result<seq<uint8>>)
+      returns (res: Result<seq<uint8>, string>)
     requires |publicKey| > 0
     requires |plaintextData| > 0
 }

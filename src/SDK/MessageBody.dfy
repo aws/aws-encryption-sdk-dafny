@@ -14,11 +14,11 @@ include "../Util/UTF8.dfy"
 module MessageBody {
   export
     provides EncryptMessageBody, DecryptFramedMessageBody, DecryptNonFramedMessageBody,
-      StandardLibrary, UInt, Msg, AlgorithmSuite, Materials, Streams, FramesToSequence,
+      Wrappers, UInt, Msg, AlgorithmSuite, Materials, Streams, FramesToSequence,
       FrameToSequence, ValidFrames, FramesEncryptPlaintext, AESEncryption, DecryptedWithKey
     reveals Frame, Frame.Valid, SeqWithGhostFrames
 
-  import opened StandardLibrary
+  import opened Wrappers
   import opened UInt = StandardLibrary.UInt
   import AlgorithmSuite
   import Msg = MessageHeader
@@ -172,7 +172,7 @@ module MessageBody {
   datatype SeqWithGhostFrames = SeqWithGhostFrames(sequence: seq<uint8>, ghost frames: seq<Frame>)
 
   method EncryptMessageBody(plaintext: seq<uint8>, frameLength: int, messageID: Msg.MessageID, key: seq<uint8>, algorithmSuiteID: AlgorithmSuite.ID)
-      returns (result: Result<SeqWithGhostFrames>)
+      returns (result: Result<SeqWithGhostFrames, string>)
     requires |key| == algorithmSuiteID.KeyLength()
     requires 0 < frameLength < UINT32_LIMIT
     ensures match result
@@ -258,7 +258,7 @@ module MessageBody {
 
   method EncryptRegularFrame(algorithmSuiteID: AlgorithmSuite.ID, key: seq<uint8>, ghost frameLength: int,
                              messageID: Msg.MessageID, plaintext: seq<uint8>, sequenceNumber: uint32)
-      returns (res: Result<seq<uint8>>, ghost regFrame: Frame)
+      returns (res: Result<seq<uint8>, string>, ghost regFrame: Frame)
     requires |key| == algorithmSuiteID.KeyLength()
     requires 0 < frameLength < UINT32_LIMIT && START_SEQUENCE_NUMBER <= sequenceNumber <= ENDFRAME_SEQUENCE_NUMBER
     requires |plaintext| < UINT32_LIMIT
@@ -301,7 +301,7 @@ module MessageBody {
 
   method EncryptFinalFrame(algorithmSuiteID: AlgorithmSuite.ID, key: seq<uint8>, frameLength: int,
                            messageID: Msg.MessageID, plaintext: seq<uint8>, sequenceNumber: uint32)
-      returns (res: Result<seq<uint8>>, ghost finalFrame: Frame)
+      returns (res: Result<seq<uint8>, string>, ghost finalFrame: Frame)
     requires |key| == algorithmSuiteID.KeyLength()
     requires START_SEQUENCE_NUMBER <= sequenceNumber <= ENDFRAME_SEQUENCE_NUMBER
     requires 0 <= |plaintext| < UINT32_LIMIT
@@ -360,7 +360,7 @@ module MessageBody {
   }
 
   method DecryptFramedMessageBody(rd: Streams.ByteReader, algorithmSuiteID: AlgorithmSuite.ID, key: seq<uint8>, frameLength: int, messageID: Msg.MessageID)
-      returns (res: Result<seq<uint8>>)
+      returns (res: Result<seq<uint8>, string>)
     requires rd.Valid()
     requires |key| == algorithmSuiteID.KeyLength()
     requires 0 < frameLength < UINT32_LIMIT
@@ -427,7 +427,7 @@ module MessageBody {
 
   method DecryptFrame(rd: Streams.ByteReader, algorithmSuiteID: AlgorithmSuite.ID, key: seq<uint8>, frameLength: int, messageID: Msg.MessageID,
                       expectedSequenceNumber: uint32)
-      returns (res: Result<FrameWithGhostSeq>)
+      returns (res: Result<FrameWithGhostSeq, string>)
     requires rd.Valid()
     requires |key| == algorithmSuiteID.KeyLength()
     requires 0 < frameLength < UINT32_LIMIT
@@ -531,7 +531,7 @@ module MessageBody {
     aad := messageID + contentAAD.value + UInt32ToSeq(sequenceNumber) + UInt64ToSeq(length);
   }
 
-  method Decrypt(ciphertext: seq<uint8>, authTag: seq<uint8>, algorithmSuiteID: AlgorithmSuite.ID, iv: seq<uint8>, key: seq<uint8>, aad: seq<uint8>) returns (res: Result<seq<uint8>>)
+  method Decrypt(ciphertext: seq<uint8>, authTag: seq<uint8>, algorithmSuiteID: AlgorithmSuite.ID, iv: seq<uint8>, key: seq<uint8>, aad: seq<uint8>) returns (res: Result<seq<uint8>, string>)
     requires |iv| == algorithmSuiteID.IVLength()
     requires |key| == algorithmSuiteID.KeyLength()
     requires |authTag| == algorithmSuiteID.TagLength()
@@ -558,7 +558,7 @@ module MessageBody {
       && AESEncryption.DecryptedWithKey(key, plaintextSeg[|plaintextSeg| - 1])
   }
 
-  method DecryptNonFramedMessageBody(rd: Streams.ByteReader, algorithmSuiteID: AlgorithmSuite.ID, key: seq<uint8>, messageID: Msg.MessageID) returns (res: Result<seq<uint8>>)
+  method DecryptNonFramedMessageBody(rd: Streams.ByteReader, algorithmSuiteID: AlgorithmSuite.ID, key: seq<uint8>, messageID: Msg.MessageID) returns (res: Result<seq<uint8>, string>)
     requires rd.Valid()
     requires |key| == algorithmSuiteID.KeyLength()
     modifies rd.reader`pos
