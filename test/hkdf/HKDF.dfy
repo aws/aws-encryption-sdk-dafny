@@ -7,7 +7,7 @@ include "../../src/Crypto/KeyDerivationAlgorithms.dfy"
 
 module {:extern "TestHKDF"} TestHKDF {
 
-  import opened StandardLibrary
+  import opened Wrappers
   import opened HKDF
   import opened KeyDerivationAlgorithms
 

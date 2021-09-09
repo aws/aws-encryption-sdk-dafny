@@ -12,6 +12,7 @@ include "../../src/SDK/MessageHeader.dfy"
 
 module {:extern "TestUtils"} TestUtils {
   import opened StandardLibrary
+  import opened Wrappers
   import opened UInt = StandardLibrary.UInt
   import UTF8
   import Materials
@@ -156,7 +157,7 @@ module {:extern "TestUtils"} TestUtils {
   {
   }
 
-  method MakeRSAKeyring() returns (res: Result<RawRSAKeyringDef.RawRSAKeyring>)
+  method MakeRSAKeyring() returns (res: Result<RawRSAKeyringDef.RawRSAKeyring, string>)
     ensures res.Success? ==> res.value.Valid()
     ensures res.Success? ==> fresh(res.value) && fresh(res.value.Repr)
   {

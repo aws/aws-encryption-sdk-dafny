@@ -14,7 +14,7 @@ include "../../Util/TestUtils.dfy"
 include "./TestKeyrings.dfy"
 
 module TestMultiKeying {
-  import opened StandardLibrary
+  import opened Wrappers
   import opened UInt = StandardLibrary.UInt
   import RawAESKeyringDef
   import EncryptionContext

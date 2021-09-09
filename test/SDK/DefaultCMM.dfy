@@ -12,7 +12,7 @@ include "../../src/SDK/EncryptionContext.dfy"
 include "../Util/TestUtils.dfy"
 
 module {:extern "DefaultCMMTests"} DefaultCMMTests {
-  import opened StandardLibrary
+  import opened Wrappers
   import opened UInt = StandardLibrary.UInt
   import AlgorithmSuite
   import DefaultCMMDef
@@ -21,7 +21,7 @@ module {:extern "DefaultCMMTests"} DefaultCMMTests {
   import UTF8
   import TestUtils
 
-  method {:test} TestDefaultCMMNoAlg() returns (res: Result<()>) {
+  method {:test} TestDefaultCMMNoAlg() returns (res: Result<(), string>) {
     var keyring :- TestUtils.MakeRSAKeyring();
     var cmm := new DefaultCMMDef.DefaultCMM.OfKeyring(keyring);
     var encCtx: EncryptionContext.Map := map[];
@@ -36,13 +36,13 @@ module {:extern "DefaultCMMTests"} DefaultCMMTests {
     var decMatOutput :- cmm.DecryptMaterials(decMatRequest);
 
     expect decMatOutput.plaintextDataKey.Some?, "DecryptMaterials did not return a plaintext datakey";
-    expect decMatOutput.algorithmSuiteID.ValidPlaintextDataKey(decMatOutput.plaintextDataKey.get), "DecryptMaterials returned invalid plaintext datakey";
+    expect decMatOutput.algorithmSuiteID.ValidPlaintextDataKey(decMatOutput.plaintextDataKey.value), "DecryptMaterials returned invalid plaintext datakey";
     expect decMatOutput.verificationKey.Some?, "DecryptMaterials did not return a verification key";
 
     return Success(());
   }
 
-  method {:test} TestDefaultCMMWithAlg() returns (res: Result<()>) {
+  method {:test} TestDefaultCMMWithAlg() returns (res: Result<(), string>) {
     var keyring :- TestUtils.MakeRSAKeyring();
     var cmm := new DefaultCMMDef.DefaultCMM.OfKeyring(keyring);
     var encCtx: EncryptionContext.Map := map[];
@@ -58,13 +58,13 @@ module {:extern "DefaultCMMTests"} DefaultCMMTests {
     var decMatOutput :- cmm.DecryptMaterials(decMatRequest);
 
     expect decMatOutput.plaintextDataKey.Some?, "DecryptMaterials did not return a plaintext datakey";
-    expect decMatOutput.algorithmSuiteID.ValidPlaintextDataKey(decMatOutput.plaintextDataKey.get), "DecryptMaterials returned invalid plaintext datakey";
+    expect decMatOutput.algorithmSuiteID.ValidPlaintextDataKey(decMatOutput.plaintextDataKey.value), "DecryptMaterials returned invalid plaintext datakey";
     expect decMatOutput.verificationKey.Some?, "DecryptMaterials did not return a verification key";
 
     return Success(());
   }
 
-  method {:test} TestDefaultCMMWithAlgNoSig() returns (res: Result<()>) {
+  method {:test} TestDefaultCMMWithAlgNoSig() returns (res: Result<(), string>) {
     var keyring :- TestUtils.MakeRSAKeyring();
     var cmm := new DefaultCMMDef.DefaultCMM.OfKeyring(keyring);
 
@@ -81,13 +81,13 @@ module {:extern "DefaultCMMTests"} DefaultCMMTests {
     var decMatOutput :- cmm.DecryptMaterials(decMatRequest);
 
     expect decMatOutput.plaintextDataKey.Some?, "DecryptMaterials did not return a plaintext datakey";
-    expect decMatOutput.algorithmSuiteID.ValidPlaintextDataKey(decMatOutput.plaintextDataKey.get), "DecryptMaterials returned invalid plaintext datakey";
+    expect decMatOutput.algorithmSuiteID.ValidPlaintextDataKey(decMatOutput.plaintextDataKey.value), "DecryptMaterials returned invalid plaintext datakey";
     expect decMatOutput.verificationKey.None?, "DecryptMaterials erroneously returned a verification key";
 
     return Success(());
   }
 
-  method {:test} TestDefaultCMMRejectsBadEncCtxReservedValue() returns (res: Result<()>) {
+  method {:test} TestDefaultCMMRejectsBadEncCtxReservedValue() returns (res: Result<(), string>) {
     var keyring :- TestUtils.MakeRSAKeyring();
     var cmm := new DefaultCMMDef.DefaultCMM.OfKeyring(keyring);
     var encCtx: EncryptionContext.Map := map[];

@@ -4,6 +4,7 @@
 include "../../src/StandardLibrary/StandardLibrary.dfy"
 
 module TestStandardLibrary {
+  import opened Wrappers
   import opened StandardLibrary
 
   method {:test} TestJoinMultiElementSeq() {

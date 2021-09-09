@@ -16,7 +16,7 @@ include "../../Util/TestUtils.dfy"
 include "../../../src/Util/UTF8.dfy"
 
 module TestCachingCMM {
-  import opened StandardLibrary
+  import opened Wrappers
   import opened UInt = StandardLibrary.UInt
   import CMMDefs
   import CachingCMMDef
@@ -181,6 +181,7 @@ module TestCachingCMM {
   // declared in their own module.
   module Helpers {
     import opened StandardLibrary
+    import opened Wrappers
     import opened UInt = StandardLibrary.UInt
     import CMMDefs
     import CachingCMMDef
@@ -240,7 +241,7 @@ module TestCachingCMM {
       }
 
       method GetEncryptionMaterials(materialsRequest: Materials.EncryptionMaterialsRequest)
-                                    returns (res: Result<Materials.ValidEncryptionMaterials>)
+                                    returns (res: Result<Materials.ValidEncryptionMaterials, string>)
         requires Valid()
         modifies Repr
         ensures Valid() && fresh(Repr - old(Repr))
@@ -250,7 +251,7 @@ module TestCachingCMM {
         reveal CMMDefs.EncryptionMaterialsSignatureOpaque();
         TestUtils.ExpectSerializableEncryptionContext(materialsRequest.encryptionContext);
 
-        var algSuiteID := if materialsRequest.algorithmSuiteID == None then AlgorithmSuite.AES_256_GCM_IV12_TAG16_HKDF_SHA384_ECDSA_P384 else materialsRequest.algorithmSuiteID.get;
+        var algSuiteID := if materialsRequest.algorithmSuiteID == None then AlgorithmSuite.AES_256_GCM_IV12_TAG16_HKDF_SHA384_ECDSA_P384 else materialsRequest.algorithmSuiteID.value;
         var edk: Materials.ValidEncryptedDataKey := Materials.EncryptedDataKey([], [], []);
         var tr0 := Materials.KeyringTraceEntry([], [], {Materials.GENERATED_DATA_KEY});
         var tr1 := Materials.KeyringTraceEntry([], [], {Materials.ENCRYPTED_DATA_KEY});
@@ -278,7 +279,7 @@ module TestCachingCMM {
       }
 
       method DecryptMaterials(materialsRequest: Materials.ValidDecryptionMaterialsRequest)
-                              returns (res: Result<Materials.ValidDecryptionMaterials>)
+                              returns (res: Result<Materials.ValidDecryptionMaterials, string>)
         requires Valid()
         modifies Repr
         ensures Valid() && fresh(Repr - old(Repr))

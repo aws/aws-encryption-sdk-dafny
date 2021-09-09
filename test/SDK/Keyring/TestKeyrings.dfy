@@ -6,7 +6,7 @@ include "../../../src/SDK/Materials.dfy"
 include "../../../src/SDK/Keyring/Defs.dfy"
 
 module TestKeyrings {
-  import opened StandardLibrary
+  import opened Wrappers
   import opened KeyringDefs
   import Materials
 
@@ -18,7 +18,7 @@ module TestKeyrings {
 
     predicate Valid() reads this, Repr { true }
 
-    method OnEncrypt(materials: Materials.ValidEncryptionMaterials) returns (res: Result<Materials.ValidEncryptionMaterials>)
+    method OnEncrypt(materials: Materials.ValidEncryptionMaterials) returns (res: Result<Materials.ValidEncryptionMaterials, string>)
       requires Valid()
       ensures Valid()
       ensures res.Success? ==>
@@ -33,7 +33,7 @@ module TestKeyrings {
     }
 
     method OnDecrypt(materials: Materials.ValidDecryptionMaterials,
-                     encryptedDataKeys: seq<Materials.EncryptedDataKey>) returns (res: Result<Materials.ValidDecryptionMaterials>)
+                     encryptedDataKeys: seq<Materials.EncryptedDataKey>) returns (res: Result<Materials.ValidDecryptionMaterials, string>)
       requires Valid()
       ensures Valid()
       ensures |encryptedDataKeys| == 0 ==> res.Success? && materials == res.value
@@ -57,7 +57,7 @@ module TestKeyrings {
 
     predicate Valid() reads this, Repr { true }
 
-    method OnEncrypt(materials: Materials.ValidEncryptionMaterials) returns (res: Result<Materials.ValidEncryptionMaterials>)
+    method OnEncrypt(materials: Materials.ValidEncryptionMaterials) returns (res: Result<Materials.ValidEncryptionMaterials, string>)
       requires Valid()
       ensures Valid()
       ensures res.Success? ==>
@@ -72,7 +72,7 @@ module TestKeyrings {
     }
 
     method OnDecrypt(materials: Materials.ValidDecryptionMaterials,
-                     encryptedDataKeys: seq<Materials.EncryptedDataKey>) returns (res: Result<Materials.ValidDecryptionMaterials>)
+                     encryptedDataKeys: seq<Materials.EncryptedDataKey>) returns (res: Result<Materials.ValidDecryptionMaterials, string>)
       requires Valid()
       ensures Valid()
       ensures |encryptedDataKeys| == 0 ==> res.Success? && materials == res.value

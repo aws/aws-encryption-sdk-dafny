@@ -14,7 +14,7 @@ include "../../../src/Util/UTF8.dfy"
 include "../../Util/TestUtils.dfy"
 
 module TestAESKeyring {
-  import opened StandardLibrary
+  import opened Wrappers
   import opened UInt = StandardLibrary.UInt
   import AESEncryption
   import RawAESKeyringDef

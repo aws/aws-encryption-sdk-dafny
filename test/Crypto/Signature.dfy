@@ -12,7 +12,7 @@ module TestSignature {
   module Helpers {
     import Signature
     import UTF8
-    import opened StandardLibrary
+    import opened Wrappers
     import opened UInt = StandardLibrary.UInt
 
     method RequireGoodKeyLengths(s: Signature.ECDSAParams, sigKeyPair: Signature.SignatureKeyPair) {
