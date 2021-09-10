@@ -6,7 +6,7 @@ include "../../src/StandardLibrary/StandardLibrary.dfy"
 include "../../src/StandardLibrary/Base64.dfy"
 
 module TestBase64 {
-  import opened StandardLibrary
+  import opened Wrappers
   import opened UInt = StandardLibrary.UInt
   import opened Base64 = Base64
 

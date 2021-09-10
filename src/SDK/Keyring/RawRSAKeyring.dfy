@@ -12,6 +12,7 @@ include "../../Util/UTF8.dfy"
 
 module {:extern "RawRSAKeyringDef"} RawRSAKeyringDef {
   import opened StandardLibrary
+  import opened Wrappers
   import opened UInt = StandardLibrary.UInt
 
   import AlgorithmSuite
@@ -35,11 +36,11 @@ module {:extern "RawRSAKeyringDef"} RawRSAKeyringDef {
       this in Repr &&
       (publicKey.Some? || privateKey.Some?) &&
       (publicKey.Some? ==>
-        publicKey.get in Repr && publicKey.get.Repr <= Repr && this !in publicKey.get.Repr && publicKey.get.Valid()) &&
-      (publicKey.Some? ==> publicKey.get.padding == paddingMode) &&
+        publicKey.value in Repr && publicKey.value.Repr <= Repr && this !in publicKey.value.Repr && publicKey.value.Valid()) &&
+      (publicKey.Some? ==> publicKey.value.padding == paddingMode) &&
       (privateKey.Some? ==>
-        privateKey.get in Repr && privateKey.get.Repr <= Repr && this !in privateKey.get.Repr && privateKey.get.Valid()) &&
-      (privateKey.Some? ==> privateKey.get.padding == paddingMode) &&
+        privateKey.value in Repr && privateKey.value.Repr <= Repr && this !in privateKey.value.Repr && privateKey.value.Valid()) &&
+      (privateKey.Some? ==> privateKey.value.padding == paddingMode) &&
       |keyNamespace| < UINT16_LIMIT &&
       |keyName| < UINT16_LIMIT
     }
@@ -47,10 +48,10 @@ module {:extern "RawRSAKeyringDef"} RawRSAKeyringDef {
     constructor (namespace: UTF8.ValidUTF8Bytes, name: UTF8.ValidUTF8Bytes, padding: RSA.PaddingMode,
                  publicKey: Option<RSA.PublicKey>, privateKey: Option<RSA.PrivateKey>)
       requires publicKey.Some? || privateKey.Some?
-      requires publicKey.Some? ==> publicKey.get.Valid()
-      requires publicKey.Some? ==> publicKey.get.padding == padding
-      requires privateKey.Some? ==> privateKey.get.Valid()
-      requires privateKey.Some? ==> privateKey.get.padding == padding
+      requires publicKey.Some? ==> publicKey.value.Valid()
+      requires publicKey.Some? ==> publicKey.value.padding == padding
+      requires privateKey.Some? ==> privateKey.value.Valid()
+      requires privateKey.Some? ==> privateKey.value.padding == padding
       requires |namespace| < UINT16_LIMIT
       requires |name| < UINT16_LIMIT
       ensures keyNamespace == namespace
@@ -69,12 +70,12 @@ module {:extern "RawRSAKeyringDef"} RawRSAKeyringDef {
     }
 
     static function KeyRepr(key: Option<RSA.Key>): set<object>
-      reads if key.Some? then {key.get} else {}
+      reads if key.Some? then {key.value} else {}
     {
-      if key.Some? then key.get.Repr else {}
+      if key.Some? then key.value.Repr else {}
     }
 
-    method OnEncrypt(materials: Materials.ValidEncryptionMaterials) returns (res: Result<Materials.ValidEncryptionMaterials>)
+    method OnEncrypt(materials: Materials.ValidEncryptionMaterials) returns (res: Result<Materials.ValidEncryptionMaterials, string>)
       requires Valid()
       // NOTE: encryptionContext is intentionally unused
       ensures publicKey.None? ==> res.Failure?
@@ -112,7 +113,7 @@ module {:extern "RawRSAKeyringDef"} RawRSAKeyringDef {
       }
 
       // Attempt to encrypt and construct the encrypted data key
-      var encryptedCiphertext :- RSA.Encrypt(paddingMode, publicKey.get, materialsWithDataKey.plaintextDataKey.get);
+      var encryptedCiphertext :- RSA.Encrypt(paddingMode, publicKey.value, materialsWithDataKey.plaintextDataKey.value);
       if UINT16_LIMIT <= |encryptedCiphertext| {
         return Failure("Encrypted data key too long.");
       }
@@ -129,7 +130,7 @@ module {:extern "RawRSAKeyringDef"} RawRSAKeyringDef {
     }
 
     method OnDecrypt(materials: Materials.ValidDecryptionMaterials,
-                     encryptedDataKeys: seq<Materials.EncryptedDataKey>) returns (res: Result<Materials.ValidDecryptionMaterials>)
+                     encryptedDataKeys: seq<Materials.EncryptedDataKey>) returns (res: Result<Materials.ValidDecryptionMaterials, string>)
       requires Valid()
       ensures Valid()
       ensures |encryptedDataKeys| == 0 ==> res.Success? && materials == res.value
@@ -157,7 +158,7 @@ module {:extern "RawRSAKeyringDef"} RawRSAKeyringDef {
         if encryptedDataKey.providerID == keyNamespace &&
           encryptedDataKey.providerInfo == keyName &&
           (0 < |encryptedDataKey.ciphertext|) {
-          var potentialPlaintextDataKey := RSA.Decrypt(paddingMode, privateKey.get, encryptedDataKey.ciphertext);
+          var potentialPlaintextDataKey := RSA.Decrypt(paddingMode, privateKey.value, encryptedDataKey.ciphertext);
           match potentialPlaintextDataKey
           case Failure(_) =>
             // Try to decrypt using another encryptedDataKey

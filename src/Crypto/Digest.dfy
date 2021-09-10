@@ -6,7 +6,7 @@ include "../StandardLibrary/UInt.dfy"
 include "./Datatypes.dfy"
 
 module Digest {
-  import opened StandardLibrary
+  import opened Wrappers
   import opened UInt = StandardLibrary.UInt
   import CryptoDatatypes
   import ExternDigest
@@ -16,7 +16,7 @@ module Digest {
     case SHA_512 => 64
   }
 
-  method Digest(alg: CryptoDatatypes.DigestAlgorithm, msg: seq<uint8>) returns (res: Result<seq<uint8>>)
+  method Digest(alg: CryptoDatatypes.DigestAlgorithm, msg: seq<uint8>) returns (res: Result<seq<uint8>, string>)
     ensures res.Success? ==> |res.value| == Length(alg)
   {
     var result := ExternDigest.Digest(alg, msg);
@@ -28,9 +28,9 @@ module Digest {
 }
 
 module {:extern "ExternDigest" } ExternDigest {
-  import opened StandardLibrary
+  import opened Wrappers
   import opened UInt = StandardLibrary.UInt
   import opened CryptoDatatypes
 
-  method {:extern } Digest(alg: CryptoDatatypes.DigestAlgorithm, msg: seq<uint8>) returns (res: Result<seq<uint8>>)
+  method {:extern } Digest(alg: CryptoDatatypes.DigestAlgorithm, msg: seq<uint8>) returns (res: Result<seq<uint8>, string>)
 }

@@ -7,7 +7,7 @@ include "../../src/StandardLibrary/StandardLibrary.dfy"
 include "../../src/StandardLibrary/UInt.dfy"
 
 module {:extern "TestMaterials"} TestMaterials {
-  import opened StandardLibrary
+  import opened Wrappers
   import opened Materials
   import AlgorithmSuite
 

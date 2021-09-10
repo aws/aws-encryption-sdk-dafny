@@ -2,16 +2,16 @@
 // SPDX-License-Identifier: Apache-2.0
 
 include "../SDK/AlgorithmSuite.dfy"
-include "../StandardLibrary/StandardLibrary.dfy"
+include "../../libraries/src/Wrappers.dfy"
 include "EncryptionSuites.dfy"
 
 module {:extern "AESEncryption"} AESEncryption {
   import EncryptionSuites
-  import opened StandardLibrary
+  import opened Wrappers
   import opened UInt = StandardLibrary.UInt
 
   export
-    provides AESDecrypt, AESEncrypt, AESDecryptExtern, AESEncryptExtern, EncryptionSuites, StandardLibrary,
+    provides AESDecrypt, AESEncrypt, AESDecryptExtern, AESEncryptExtern, EncryptionSuites, Wrappers,
       UInt, PlaintextDecryptedWithAAD, EncryptionOutputEncryptedWithAAD, CiphertextGeneratedWithPlaintext,
       EncryptedWithKey, DecryptedWithKey
     reveals EncryptionOutput
@@ -37,7 +37,7 @@ module {:extern "AESEncryption"} AESEncryption {
   }
 
   method {:extern "AESEncryption.AES_GCM", "AESEncryptExtern"} AESEncryptExtern(encAlg: EncryptionSuites.EncryptionSuite, iv: seq<uint8>, key: seq<uint8>, msg: seq<uint8>, aad: seq<uint8>)
-      returns (res : Result<EncryptionOutput>)
+      returns (res : Result<EncryptionOutput, string>)
     requires encAlg.Valid()
     requires encAlg.alg.AES?
     requires encAlg.alg.mode.GCM?
@@ -48,7 +48,7 @@ module {:extern "AESEncryption"} AESEncryption {
     ensures res.Success? ==> EncryptedWithKey(res.value.cipherText, key)
 
   method AESEncrypt(encAlg: EncryptionSuites.EncryptionSuite, iv: seq<uint8>, key: seq<uint8>, msg: seq<uint8>, aad: seq<uint8>)
-      returns (res : Result<EncryptionOutput>)
+      returns (res : Result<EncryptionOutput, string>)
     requires encAlg.Valid()
     requires encAlg.alg.AES?
     requires encAlg.alg.mode.GCM?
@@ -70,7 +70,7 @@ module {:extern "AESEncryption"} AESEncryption {
     }
 
   method {:extern "AESEncryption.AES_GCM", "AESDecryptExtern"} AESDecryptExtern(encAlg: EncryptionSuites.EncryptionSuite, key: seq<uint8>, cipherTxt: seq<uint8>, authTag: seq<uint8>, iv: seq<uint8>, aad: seq<uint8>)
-      returns (res: Result<seq<uint8>>)
+      returns (res: Result<seq<uint8>, string>)
     requires encAlg.Valid()
     requires encAlg.alg.AES?
     requires encAlg.alg.mode.GCM?
@@ -82,7 +82,7 @@ module {:extern "AESEncryption"} AESEncryption {
     ensures res.Success? ==> DecryptedWithKey(key, res.value)
 
   method AESDecrypt(encAlg: EncryptionSuites.EncryptionSuite, key: seq<uint8>, cipherTxt: seq<uint8>, authTag: seq<uint8>, iv: seq<uint8>, aad: seq<uint8>)
-      returns (res: Result<seq<uint8>>)
+      returns (res: Result<seq<uint8>, string>)
     requires encAlg.Valid()
     requires encAlg.alg.AES?
     requires encAlg.alg.mode.GCM?

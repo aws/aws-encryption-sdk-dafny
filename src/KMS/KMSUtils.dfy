@@ -11,6 +11,7 @@ module {:extern "KMSUtils"} KMSUtils {
   import EncryptionContext
   import opened AmazonKeyManagementService
   import opened StandardLibrary
+  import opened Wrappers
   import opened UInt = StandardLibrary.UInt
   import UTF8
 
@@ -107,15 +108,15 @@ module {:extern "KMSUtils"} KMSUtils {
 
   datatype DecryptResponse = DecryptResponse(contentLength: int, httpStatusCode: HttpStatusCode, keyID: string, plaintext: seq<uint8>, responseMetadata: ResponseMetadata)
 
-  method {:extern "KMSUtils.ClientHelper", "GetDefaultAWSKMSServiceClientExtern"} GetDefaultAWSKMSServiceClientExtern(region: Option<string>) returns (res: Result<IAmazonKeyManagementService>)
+  method {:extern "KMSUtils.ClientHelper", "GetDefaultAWSKMSServiceClientExtern"} GetDefaultAWSKMSServiceClientExtern(region: Option<string>) returns (res: Result<IAmazonKeyManagementService, string>)
 
-  method {:extern "KMSUtils.ClientHelper", "GenerateDataKey"} GenerateDataKey(client: IAmazonKeyManagementService, request: GenerateDataKeyRequest) returns (res: Result<GenerateDataKeyResponse>)
+  method {:extern "KMSUtils.ClientHelper", "GenerateDataKey"} GenerateDataKey(client: IAmazonKeyManagementService, request: GenerateDataKeyRequest) returns (res: Result<GenerateDataKeyResponse, string>)
     requires request.Valid()
 
-  method {:extern "KMSUtils.ClientHelper", "Encrypt"} Encrypt(client: IAmazonKeyManagementService, request: EncryptRequest) returns (res: Result<EncryptResponse>)
+  method {:extern "KMSUtils.ClientHelper", "Encrypt"} Encrypt(client: IAmazonKeyManagementService, request: EncryptRequest) returns (res: Result<EncryptResponse, string>)
     requires request.Valid()
 
-  method {:extern "KMSUtils.ClientHelper", "Decrypt"} Decrypt(client: IAmazonKeyManagementService, request: DecryptRequest) returns (res: Result<DecryptResponse>)
+  method {:extern "KMSUtils.ClientHelper", "Decrypt"} Decrypt(client: IAmazonKeyManagementService, request: DecryptRequest) returns (res: Result<DecryptResponse, string>)
     requires request.Valid()
 
   method {:extern "KMSUtils.ClientHelper", "AddCachingClientCallback"} AddCachingClientCallback(client: IAmazonKeyManagementService, region: Option<string>, cache: CachingClientSupplierCache)
@@ -127,7 +128,7 @@ module {:extern "KMSUtils"} KMSUtils {
       reads this, Repr
       ensures Valid() ==> this in Repr
 
-    method GetClient(region: Option<string>) returns (res: Result<IAmazonKeyManagementService>)
+    method GetClient(region: Option<string>) returns (res: Result<IAmazonKeyManagementService, string>)
       requires Valid()
       ensures Valid()
       decreases Repr
@@ -159,23 +160,23 @@ module {:extern "KMSUtils"} KMSUtils {
       Repr := {this} + clientSupplier.Repr;
     }
 
-    method GetClient(region: Option<string>) returns (res: Result<IAmazonKeyManagementService>)
+    method GetClient(region: Option<string>) returns (res: Result<IAmazonKeyManagementService, string>)
       requires Valid()
       ensures Valid()
       // Verify this behavior with the spec. TODO: https://github.com/awslabs/aws-encryption-sdk-dafny/issues/272
       // Only add a post condition around failures, since the GetClient call could return a success or failure
       ensures region.None? ==> res.Failure?
-      ensures region.Some? && !(region.get in regions) ==> res.Failure?
+      ensures region.Some? && !(region.value in regions) ==> res.Failure?
       decreases Repr
     {
       // In order to limit regions, make sure our given region string exists and is a member of the regions to limit to
-      if region.Some? && region.get in regions {
+      if region.Some? && region.value in regions {
         var resClient := clientSupplier.GetClient(region);
         return resClient;
       } else if region.None? {
         return Result.Failure("LimitRegionsClientSupplier GetClient requires a region");
       }
-      var failure := "Given region " + region.get + " not in regions maintained by LimitRegionsClientSupplier";
+      var failure := "Given region " + region.value + " not in regions maintained by LimitRegionsClientSupplier";
       return Result.Failure(failure);
     }
   }
@@ -206,20 +207,20 @@ module {:extern "KMSUtils"} KMSUtils {
       Repr := {this} + clientSupplier.Repr;
     }
 
-    method GetClient(region: Option<string>) returns (res: Result<IAmazonKeyManagementService>)
+    method GetClient(region: Option<string>) returns (res: Result<IAmazonKeyManagementService, string>)
       requires Valid()
       ensures Valid()
       // Verify this behavior with the spec. TODO: https://github.com/awslabs/aws-encryption-sdk-dafny/issues/272
       // Only add a post condition around failures, since the GetClient call could return a success or failure
       ensures region.None? ==> res.Failure?
-      ensures region.Some? && region.get in regions ==> res.Failure?
+      ensures region.Some? && region.value in regions ==> res.Failure?
       decreases Repr
     {
       // In order to exclude regions, make sure our given region string exists and is not a member of the regions to exclude
       if region.None? {
         return Result.Failure("ExcludeRegionsClientSupplier GetClient requires a region");
-      } else if (region.Some? && region.get in regions) {
-        var failure := "Given region " + region.get + " is in regions maintained by ExcludeRegionsClientSupplier";
+      } else if (region.Some? && region.value in regions) {
+        var failure := "Given region " + region.value + " is in regions maintained by ExcludeRegionsClientSupplier";
         return Result.Failure(failure);
       }
       var resClient := clientSupplier.GetClient(region);
@@ -250,7 +251,7 @@ module {:extern "KMSUtils"} KMSUtils {
     function method LookupClient(region: Option<string>): (client: Option<IAmazonKeyManagementService>)
       requires Valid()
       ensures Valid()
-      ensures client.Some? ==> region in ClientCache.Keys && client.get in Repr
+      ensures client.Some? ==> region in ClientCache.Keys && client.value in Repr
       reads Repr
     {
       if region in ClientCache.Keys then Some(ClientCache[region]) else None()
@@ -294,15 +295,15 @@ module {:extern "KMSUtils"} KMSUtils {
       Repr := {this} + clientSupplier.Repr + clientCache.Repr;
     }
 
-    method GetClient(region: Option<string>) returns (res: Result<IAmazonKeyManagementService>)
+    method GetClient(region: Option<string>) returns (res: Result<IAmazonKeyManagementService, string>)
       requires Valid()
       ensures Valid()
-      ensures clientCache.LookupClient(region).Some? ==> res.Success? && clientCache.LookupClient(region).get == res.value
+      ensures clientCache.LookupClient(region).Some? ==> res.Success? && clientCache.LookupClient(region).value == res.value
       decreases Repr
     {
       var potentialClient := clientCache.LookupClient(region);
       if potentialClient.Some? {
-        return Result.Success(potentialClient.get);
+        return Result.Success(potentialClient.value);
       } else  {
         var resClient := clientSupplier.GetClient(region);
         if resClient.Success? {
@@ -329,7 +330,7 @@ module {:extern "KMSUtils"} KMSUtils {
     }
 
     // Since this is the base client supplier, this just calls the extern GetClient method
-    method GetClient(region: Option<string>) returns (res: Result<IAmazonKeyManagementService>)
+    method GetClient(region: Option<string>) returns (res: Result<IAmazonKeyManagementService, string>)
       requires Valid()
       ensures Valid()
       decreases Repr

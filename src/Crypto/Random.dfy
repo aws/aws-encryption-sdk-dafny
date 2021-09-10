@@ -6,13 +6,13 @@ include "../StandardLibrary/UInt.dfy"
 
 module Random {
   export
-    provides GenerateBytes, StandardLibrary, UInt
+    provides GenerateBytes, Wrappers, UInt
 
-  import opened StandardLibrary
+  import opened Wrappers
   import opened UInt = StandardLibrary.UInt
   import ExternRandom
 
-  method GenerateBytes(i: int32) returns (res: Result<seq<uint8>>)
+  method GenerateBytes(i: int32) returns (res: Result<seq<uint8>, string>)
     requires 0 <= i
     ensures res.Success? ==> |res.value| == i as int
   {
@@ -25,8 +25,8 @@ module Random {
 }
 
 module {:extern "ExternRandom"} ExternRandom {
-  import opened StandardLibrary
+  import opened Wrappers
   import opened UInt = StandardLibrary.UInt
 
-  method {:extern} GenerateBytes(i: int32) returns (res: Result<seq<uint8>>)
+  method {:extern} GenerateBytes(i: int32) returns (res: Result<seq<uint8>, string>)
 }

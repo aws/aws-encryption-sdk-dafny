@@ -9,6 +9,7 @@ include "EncryptionContext.dfy"
 
 module {:extern "Materials"} Materials {
   import opened StandardLibrary
+  import opened Wrappers
   import opened UInt = StandardLibrary.UInt
   import UTF8
   import AlgorithmSuite
@@ -86,7 +87,7 @@ module {:extern "Materials"} Materials {
   {
     predicate Valid() {
       && (algorithmSuiteID.SignatureType().Some? ==> signingKey.Some?)
-      && (plaintextDataKey.Some? ==> algorithmSuiteID.ValidPlaintextDataKey(plaintextDataKey.get))
+      && (plaintextDataKey.Some? ==> algorithmSuiteID.ValidPlaintextDataKey(plaintextDataKey.value))
       && GenerateTraceEntriesConsistent(plaintextDataKey, keyringTrace)
       && |Filter(keyringTrace, IsEncryptTraceEntry)| == |encryptedDataKeys|
       // TODO: Strongly tie each trace entry to it's corresponding EDK (https://github.com/awslabs/aws-encryption-sdk-dafny/issues/100)
@@ -116,7 +117,7 @@ module {:extern "Materials"} Materials {
                              newTraceEntries: seq<KeyringTraceEntry>): (res: ValidEncryptionMaterials)
       requires Valid()
       requires this.plaintextDataKey.Some? ==> newPlaintextDataKey == this.plaintextDataKey
-      requires newPlaintextDataKey.Some? ==> this.algorithmSuiteID.ValidPlaintextDataKey(newPlaintextDataKey.get)
+      requires newPlaintextDataKey.Some? ==> this.algorithmSuiteID.ValidPlaintextDataKey(newPlaintextDataKey.value)
       requires (forall entry :: entry in newTraceEntries ==> IsEncryptionTraceEntry(entry))
       requires GenerateTraceEntriesConsistent(newPlaintextDataKey, keyringTrace + newTraceEntries)
       requires (newPlaintextDataKey != this.plaintextDataKey) <==> |Filter(newTraceEntries, IsGenerateTraceEntry)| == 1
@@ -148,7 +149,7 @@ module {:extern "Materials"} Materials {
                                                      keyringTrace: seq<KeyringTraceEntry>)
   {
     predicate Valid() {
-      && (plaintextDataKey.Some? ==> algorithmSuiteID.ValidPlaintextDataKey(plaintextDataKey.get))
+      && (plaintextDataKey.Some? ==> algorithmSuiteID.ValidPlaintextDataKey(plaintextDataKey.value))
       && (algorithmSuiteID.SignatureType().Some? ==> verificationKey.Some?)
       && (forall entry :: entry in keyringTrace ==> entry.flags <= ValidDecryptionMaterialFlags)
     }

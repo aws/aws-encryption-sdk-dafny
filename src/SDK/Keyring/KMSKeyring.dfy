@@ -10,6 +10,7 @@ include "../../Util/UTF8.dfy"
 
 module {:extern "KMSKeyringDef"} KMSKeyringDef {
   import opened StandardLibrary
+  import opened Wrappers
   import opened UInt = StandardLibrary.UInt
   import AlgorithmSuite
   import KeyringDefs
@@ -23,7 +24,7 @@ module {:extern "KMSKeyringDef"} KMSKeyringDef {
     assert UTF8.ValidUTF8Range(s, 0, 7);
     s
 
-  function method RegionFromKMSKeyARN(arn: KMSUtils.CustomerMasterKey): Result<string>
+  function method RegionFromKMSKeyARN(arn: KMSUtils.CustomerMasterKey): Result<string, string>
   {
     var components := Split(arn, ':');
     if 6 <= |components| && components[0] == "arn" && components[2] == "kms" then Success(components[3]) else Failure("Malformed ARN")
@@ -62,7 +63,7 @@ module {:extern "KMSKeyringDef"} KMSKeyringDef {
       Repr := {this} + clientSupplier.Repr;
     }
 
-    method Generate(materials: Mat.ValidEncryptionMaterials) returns (res: Result<Mat.ValidEncryptionMaterials>)
+    method Generate(materials: Mat.ValidEncryptionMaterials) returns (res: Result<Mat.ValidEncryptionMaterials, string>)
       requires Valid()
       requires generator.Some?
       requires materials.plaintextDataKey.None?
@@ -81,8 +82,8 @@ module {:extern "KMSKeyringDef"} KMSKeyringDef {
           && |res.value.keyringTrace| == |materials.keyringTrace| + 1
           && res.value.keyringTrace[|materials.keyringTrace|].flags == {Mat.GENERATED_DATA_KEY, Mat.ENCRYPTED_DATA_KEY, Mat.SIGNED_ENCRYPTION_CONTEXT}
     {
-      var generatorRequest := KMSUtils.GenerateDataKeyRequest(materials.encryptionContext, grantTokens, generator.get, materials.algorithmSuiteID.KDFInputKeyLength() as int32);
-      var regionRes := RegionFromKMSKeyARN(generator.get);
+      var generatorRequest := KMSUtils.GenerateDataKeyRequest(materials.encryptionContext, grantTokens, generator.value, materials.algorithmSuiteID.KDFInputKeyLength() as int32);
+      var regionRes := RegionFromKMSKeyARN(generator.value);
       var regionOpt := regionRes.ToOption();
       var client :- clientSupplier.GetClient(regionOpt);
       var generatorResponse :- KMSUtils.GenerateDataKey(client, generatorRequest);
@@ -101,7 +102,7 @@ module {:extern "KMSKeyringDef"} KMSKeyringDef {
         return Failure("Invalid response from KMS GenerateDataKey: Invalid key");
       }
 
-      var encodedGenerator :- UTF8.Encode(generator.get);
+      var encodedGenerator :- UTF8.Encode(generator.value);
       var generateTraceEntry := Mat.KeyringTraceEntry(PROVIDER_ID, encodedGenerator, {Mat.GENERATED_DATA_KEY, Mat.ENCRYPTED_DATA_KEY, Mat.SIGNED_ENCRYPTION_CONTEXT});
       var newTraceEntries := [generateTraceEntry];
       var newEncryptedDataKeys := [encryptedDataKey];
@@ -109,7 +110,7 @@ module {:extern "KMSKeyringDef"} KMSKeyringDef {
       return Success(result);
     }
 
-    method OnEncrypt(materials: Mat.ValidEncryptionMaterials) returns (res: Result<Mat.ValidEncryptionMaterials>)
+    method OnEncrypt(materials: Mat.ValidEncryptionMaterials) returns (res: Result<Mat.ValidEncryptionMaterials, string>)
       requires Valid()
       ensures Valid()
       ensures res.Success? ==>
@@ -135,7 +136,7 @@ module {:extern "KMSKeyringDef"} KMSKeyringDef {
           assert resultMaterials.plaintextDataKey.Some?;
         } else {
           resultMaterials := materials;
-          encryptCMKs := encryptCMKs + [generator.get];
+          encryptCMKs := encryptCMKs + [generator.value];
         }
       } else {
         resultMaterials := materials;
@@ -153,7 +154,7 @@ module {:extern "KMSKeyringDef"} KMSKeyringDef {
           invariant materials.encryptedDataKeys <= resultMaterials.encryptedDataKeys
           invariant materials.signingKey == resultMaterials.signingKey
       {
-        var encryptRequest := KMSUtils.EncryptRequest(materials.encryptionContext, grantTokens, encryptCMKs[i], resultMaterials.plaintextDataKey.get);
+        var encryptRequest := KMSUtils.EncryptRequest(materials.encryptionContext, grantTokens, encryptCMKs[i], resultMaterials.plaintextDataKey.value);
         var regionRes := RegionFromKMSKeyARN(encryptCMKs[i]);
         var regionOpt := regionRes.ToOption();
         var client :- clientSupplier.GetClient(regionOpt);
@@ -178,12 +179,12 @@ module {:extern "KMSKeyringDef"} KMSKeyringDef {
 
     predicate method ShouldAttemptDecryption(providerInfo: string)
     {
-      var keys := if generator.Some? then keyIDs + [generator.get] else keyIDs;
+      var keys := if generator.Some? then keyIDs + [generator.value] else keyIDs;
       KMSUtils.ValidFormatCMK(providerInfo)
         && (isDiscovery || providerInfo in keys)
     }
 
-    method OnDecrypt(materials: Mat.ValidDecryptionMaterials, edks: seq<Mat.EncryptedDataKey>) returns (res: Result<Mat.ValidDecryptionMaterials>)
+    method OnDecrypt(materials: Mat.ValidDecryptionMaterials, edks: seq<Mat.EncryptedDataKey>) returns (res: Result<Mat.ValidDecryptionMaterials, string>)
       requires Valid()
       ensures Valid()
       ensures |edks| == 0 ==> res.Success? && materials == res.value

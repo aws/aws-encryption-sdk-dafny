@@ -10,7 +10,7 @@ include "../Materials.dfy"
 
 module {:extern "MultiKeyringDef"} MultiKeyringDef {
     import opened KeyringDefs
-    import opened StandardLibrary
+    import opened Wrappers
     import opened UInt = StandardLibrary.UInt
     import AlgorithmSuite
     import Mat = Materials
@@ -46,7 +46,7 @@ module {:extern "MultiKeyringDef"} MultiKeyringDef {
             && (forall j :: 0 <= j < |children| ==> children[j] in Repr && children[j].Repr <= Repr && children[j].Valid())
         }
 
-        method OnEncrypt(materials: Materials.ValidEncryptionMaterials) returns (res: Result<Materials.ValidEncryptionMaterials>)
+        method OnEncrypt(materials: Materials.ValidEncryptionMaterials) returns (res: Result<Materials.ValidEncryptionMaterials, string>)
             requires Valid()
             ensures Valid()
             ensures res.Success? ==>
@@ -85,7 +85,7 @@ module {:extern "MultiKeyringDef"} MultiKeyringDef {
             res := Success(resultMaterials);
         }
         method OnDecrypt(materials: Materials.ValidDecryptionMaterials,
-                         edks: seq<Materials.EncryptedDataKey>) returns (res: Result<Materials.ValidDecryptionMaterials>)
+                         edks: seq<Materials.EncryptedDataKey>) returns (res: Result<Materials.ValidDecryptionMaterials, string>)
             requires Valid()
             ensures Valid()
             ensures |edks| == 0 ==> res.Success? && materials == res.value

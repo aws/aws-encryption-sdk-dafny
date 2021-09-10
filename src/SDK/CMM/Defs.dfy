@@ -8,7 +8,7 @@ include "../../Crypto/Signature.dfy"
 include "../EncryptionContext.dfy"
 
 module {:extern "CMMDefs"} CMMDefs {
-  import opened StandardLibrary
+  import opened Wrappers
   import opened UInt = StandardLibrary.UInt
   import Materials
   import AlgorithmSuite
@@ -22,7 +22,7 @@ module {:extern "CMMDefs"} CMMDefs {
       ensures Valid() ==> this in Repr
 
     method GetEncryptionMaterials(materialsRequest: Materials.EncryptionMaterialsRequest)
-                                  returns (res: Result<Materials.ValidEncryptionMaterials>)
+                                  returns (res: Result<Materials.ValidEncryptionMaterials, string>)
       requires Valid()
       modifies Repr
       ensures Valid()
@@ -37,7 +37,7 @@ module {:extern "CMMDefs"} CMMDefs {
     }
 
     method DecryptMaterials(materialsRequest: Materials.ValidDecryptionMaterialsRequest)
-                            returns (res: Result<Materials.ValidDecryptionMaterials>)
+                            returns (res: Result<Materials.ValidDecryptionMaterials, string>)
       requires Valid()
       modifies Repr
       ensures Valid() && fresh(Repr - old(Repr))

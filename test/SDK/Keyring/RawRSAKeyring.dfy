@@ -10,7 +10,7 @@ include "../../../src/Util/UTF8.dfy"
 include "../../Util/TestUtils.dfy"
 
 module TestRSAKeyring {
-  import opened StandardLibrary
+  import opened Wrappers
   import opened UInt = StandardLibrary.UInt
   import RSA = RSAEncryption
   import RawRSAKeyringDef
@@ -78,7 +78,7 @@ module TestRSAKeyring {
       var encryptionMaterialsOut :- expect rawRSAKeyring.OnEncrypt(encryptionMaterialsIn);
       expect encryptionMaterialsOut.plaintextDataKey.Some?;
       expect |encryptionMaterialsOut.encryptedDataKeys| == 1;
-      expect encryptionMaterialsOut.plaintextDataKey.get == plaintextDataKey;
+      expect encryptionMaterialsOut.plaintextDataKey.value == plaintextDataKey;
       expect |encryptionMaterialsOut.keyringTrace| == 2;
       var encryptedDataKey := encryptionMaterialsOut.encryptedDataKeys[0];
 
@@ -86,7 +86,7 @@ module TestRSAKeyring {
       var verificationKey := seq(32, i => 0);
       var decryptionMaterialsIn := Materials.DecryptionMaterials.WithoutPlaintextDataKey(encryptionContext, algorithmSuiteID, Some(verificationKey));
       var decryptionMaterialsOut :- expect rawRSAKeyring.OnDecrypt(decryptionMaterialsIn, [encryptedDataKey]);
-      expect decryptionMaterialsOut.plaintextDataKey.Some? && decryptionMaterialsOut.plaintextDataKey.get == plaintextDataKey;
+      expect decryptionMaterialsOut.plaintextDataKey.Some? && decryptionMaterialsOut.plaintextDataKey.value == plaintextDataKey;
     }
   }
 }

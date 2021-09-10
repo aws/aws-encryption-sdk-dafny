@@ -20,6 +20,7 @@ include "../Crypto/AESEncryption.dfy"
 include "../Crypto/Signature.dfy"
 
 module {:extern "ESDKClient"} ESDKClient {
+  import opened Wrappers
   import opened StandardLibrary
   import opened UInt = StandardLibrary.UInt
   import EncryptionContext
@@ -128,7 +129,7 @@ module {:extern "ESDKClient"} ESDKClient {
       && headerBody.aad == material.encryptionContext
       && headerBody.encryptedDataKeys == Msg.EncryptedDataKeys(material.encryptedDataKeys))
     && headerBody.contentType == Msg.ContentType.Framed
-    && headerBody.frameLength == if request.frameLength.Some? then request.frameLength.get else DEFAULT_FRAME_LENGTH
+    && headerBody.frameLength == if request.frameLength.Some? then request.frameLength.value else DEFAULT_FRAME_LENGTH
   }
 
   // Specification of headerAuthentication in Encrypt
@@ -160,13 +161,13 @@ module {:extern "ESDKClient"} ESDKClient {
     var serializedMessage := SerializeMessageWithoutSignature(headerBody, headerAuthentication, frames);
     |signature| < UINT16_LIMIT
     && (exists material: Materials.ValidEncryptionMaterials | CMMDefs.EncryptionMaterialsSignature(material) && material.signingKey.Some? ::
-        Signature.IsSigned(material.signingKey.get, serializedMessage, signature))
+        Signature.IsSigned(material.signingKey.value, serializedMessage, signature))
   }
 
  /*
   * Encrypt a plaintext and serialize it into a message.
   */
-  method Encrypt(request: EncryptRequest) returns (res: Result<seq<uint8>>)
+  method Encrypt(request: EncryptRequest) returns (res: Result<seq<uint8>, string>)
     requires request.cmm != null ==> request.cmm.Valid()
     requires request.keyring != null ==> request.keyring.Valid()
     modifies if request.cmm == null then {} else request.cmm.Repr
@@ -175,8 +176,8 @@ module {:extern "ESDKClient"} ESDKClient {
     ensures request.cmm != null ==> fresh(request.cmm.Repr - old(request.cmm.Repr))
     ensures request.cmm == null && request.keyring == null ==> res.Failure?
     ensures request.cmm != null && request.keyring != null ==> res.Failure?
-    ensures request.algorithmSuiteID.Some? && request.algorithmSuiteID.get !in AlgorithmSuite.VALID_IDS ==> res.Failure?
-    ensures request.frameLength.Some? && request.frameLength.get == 0 ==> res.Failure?
+    ensures request.algorithmSuiteID.Some? && request.algorithmSuiteID.value !in AlgorithmSuite.VALID_IDS ==> res.Failure?
+    ensures request.frameLength.Some? && request.frameLength.value == 0 ==> res.Failure?
     ensures match res
       case Failure(e) => true
       case Success(encryptedSequence) =>
@@ -197,9 +198,9 @@ module {:extern "ESDKClient"} ESDKClient {
       return Failure("EncryptRequest.keyring OR EncryptRequest.cmm must be set (not both).");
     } else if request.cmm == null && request.keyring == null {
       return Failure("EncryptRequest.cmm and EncryptRequest.keyring cannot both be null.");
-    } else if request.algorithmSuiteID.Some? && request.algorithmSuiteID.get !in AlgorithmSuite.VALID_IDS {
+    } else if request.algorithmSuiteID.Some? && request.algorithmSuiteID.value !in AlgorithmSuite.VALID_IDS {
       return Failure("Invalid algorithmSuiteID.");
-    } else if request.frameLength.Some? && request.frameLength.get == 0 {
+    } else if request.frameLength.Some? && request.frameLength.value == 0 {
       return Failure("Request frameLength must be > 0");
     }
     var cmm: CMMDefs.CMM;
@@ -209,9 +210,9 @@ module {:extern "ESDKClient"} ESDKClient {
       cmm := new DefaultCMMDef.DefaultCMM.OfKeyring(request.keyring);
     }
 
-    var frameLength := if request.frameLength.Some? then request.frameLength.get else DEFAULT_FRAME_LENGTH;
+    var frameLength := if request.frameLength.Some? then request.frameLength.value else DEFAULT_FRAME_LENGTH;
 
-    var algorithmSuiteID := if request.algorithmSuiteID.Some? then Some(request.algorithmSuiteID.get as AlgorithmSuite.ID) else None;
+    var algorithmSuiteID := if request.algorithmSuiteID.Some? then Some(request.algorithmSuiteID.value as AlgorithmSuite.ID) else None;
 
     var encMatRequest := Materials.EncryptionMaterialsRequest(request.encryptionContext, algorithmSuiteID, Some(request.plaintextLength as nat));
 
@@ -223,7 +224,7 @@ module {:extern "ESDKClient"} ESDKClient {
     }
 
     var messageID: Msg.MessageID :- Random.GenerateBytes(Msg.MESSAGE_ID_LEN as int32);
-    var derivedDataKey := DeriveKey(encMat.plaintextDataKey.get, encMat.algorithmSuiteID, messageID);
+    var derivedDataKey := DeriveKey(encMat.plaintextDataKey.value, encMat.algorithmSuiteID, messageID);
 
     // Assemble and serialize the header and its authentication tag
     var headerBody := Msg.HeaderBody(
@@ -274,15 +275,15 @@ module {:extern "ESDKClient"} ESDKClient {
 
     var msg := wr.GetDataWritten() + body;
     if encMat.algorithmSuiteID.SignatureType().Some? {
-      var ecdsaParams := encMat.algorithmSuiteID.SignatureType().get;
-      var bytes :- Signature.Sign(ecdsaParams, encMat.signingKey.get, msg);
+      var ecdsaParams := encMat.algorithmSuiteID.SignatureType().value;
+      var bytes :- Signature.Sign(ecdsaParams, encMat.signingKey.value, msg);
       if |bytes| != ecdsaParams.SignatureLength() as int {
         return Failure("Malformed response from Sign().");
       }
       var signature := UInt16ToSeq(|bytes| as uint16) + bytes;
       assert ValidSignatureForRequest(bytes, headerBody, headerAuthentication, frames) by{ // Signature confirms to specification
         assert |signature| < UINT16_LIMIT;
-        assert Signature.IsSigned(encMat.signingKey.get, msg, bytes)  ;
+        assert Signature.IsSigned(encMat.signingKey.value, msg, bytes)  ;
       }
       msg := msg + signature;
       assert headerBody.algorithmSuiteID.SignatureType().Some?;
@@ -322,7 +323,7 @@ module {:extern "ESDKClient"} ESDKClient {
     true
   }
 
-  method Decrypt(request: DecryptRequest) returns (res: Result<seq<uint8>>)
+  method Decrypt(request: DecryptRequest) returns (res: Result<seq<uint8>, string>)
     requires request.cmm != null ==> request.cmm.Valid()
     requires request.keyring != null ==> request.keyring.Valid()
     modifies if request.cmm == null then {} else request.cmm.Repr
@@ -345,7 +346,7 @@ module {:extern "ESDKClient"} ESDKClient {
 
 
   // Verification of this method requires verification of the CMM to some extent, The verification of the Decrypt method should be extended after CMM is verified
-  method DecryptWithVerificationInfo(request: DecryptRequest) returns (res: Result<DecryptResultWithVerificationInfo>)
+  method DecryptWithVerificationInfo(request: DecryptRequest) returns (res: Result<DecryptResultWithVerificationInfo, string>)
     requires request.cmm != null ==> request.cmm.Valid()
     requires request.keyring != null ==> request.keyring.Valid()
     modifies if request.cmm == null then {} else request.cmm.Repr
@@ -364,9 +365,9 @@ module {:extern "ESDKClient"} ESDKClient {
           && MessageBody.FramesEncryptPlaintext(d.frames, d.plaintext)
           && match d.signature {
                case Some(_) =>
-                 && |d.signature.get| < UINT16_LIMIT
+                 && |d.signature.value| < UINT16_LIMIT
                  && request.message == d.hbSeq + d.header.auth.iv + d.header.auth.authenticationTag // These items can be serialized to the output
-                   + MessageBody.FramesToSequence(d.frames) + UInt16ToSeq(|d.signature.get| as uint16) + d.signature.get
+                   + MessageBody.FramesToSequence(d.frames) + UInt16ToSeq(|d.signature.value| as uint16) + d.signature.value
                case None => // if the result does not need to be signed
                  request.message == d.hbSeq + d.header.auth.iv + d.header.auth.authenticationTag + MessageBody.FramesToSequence(d.frames)
              })
@@ -406,7 +407,7 @@ module {:extern "ESDKClient"} ESDKClient {
     var decMatRequest := Materials.DecryptionMaterialsRequest(header.body.algorithmSuiteID, header.body.encryptedDataKeys.entries, header.body.aad);
     var decMat :- cmm.DecryptMaterials(decMatRequest);
 
-    var decryptionKey := DeriveKey(decMat.plaintextDataKey.get, decMat.algorithmSuiteID, header.body.messageID);
+    var decryptionKey := DeriveKey(decMat.plaintextDataKey.value, decMat.algorithmSuiteID, header.body.messageID);
 
     ghost var endHeaderPos := rd.reader.pos;
     // Parse and decrypt the message body
@@ -452,7 +453,7 @@ module {:extern "ESDKClient"} ESDKClient {
       if verifyResult.Failure? {
         return Failure(verifyResult.error);
       }
-      assert SignatureBySequence(signature.get, rd.reader.data[endFramePos..rd.reader.pos]); // Read signature from the sequence
+      assert SignatureBySequence(signature.value, rd.reader.data[endFramePos..rd.reader.pos]); // Read signature from the sequence
     }
 
     var isDone := rd.IsDoneReading();
@@ -464,13 +465,13 @@ module {:extern "ESDKClient"} ESDKClient {
     if header.body.contentType.Framed? {
       if decMat.algorithmSuiteID.SignatureType().Some? { // Case with Signature
         assert signature.Some?;
-        assert SignatureBySequence(signature.get, rd.reader.data[endFramePos..rd.reader.pos]);
+        assert SignatureBySequence(signature.value, rd.reader.data[endFramePos..rd.reader.pos]);
         assert HeaderBySequence(header, deserializeHeaderResult.hbSeq, request.message[..endHeaderPos])
           && FramesBySequence(frames, request.message[endHeaderPos..endFramePos])
-          && SignatureBySequence(signature.get, request.message[endFramePos..]) by {
+          && SignatureBySequence(signature.value, request.message[endFramePos..]) by {
             assert 0 <= endHeaderPos <= endFramePos <= |request.message|;
-            assert SignatureBySequence(signature.get, request.message[endFramePos..]) by {
-            assert header.body.contentType.Framed? ==> SignatureBySequence(signature.get, rd.reader.data[endFramePos..rd.reader.pos]);
+            assert SignatureBySequence(signature.value, request.message[endFramePos..]) by {
+            assert header.body.contentType.Framed? ==> SignatureBySequence(signature.value, rd.reader.data[endFramePos..rd.reader.pos]);
             assert rd.reader.data[endFramePos..rd.reader.pos] == request.message[endFramePos..] by {
               calc {
                 rd.reader.data[endFramePos..rd.reader.pos];
@@ -480,10 +481,10 @@ module {:extern "ESDKClient"} ESDKClient {
                 request.message[endFramePos..];
               }
             }
-            assert SignatureBySequence(signature.get, rd.reader.data[endFramePos..rd.reader.pos]);
+            assert SignatureBySequence(signature.value, rd.reader.data[endFramePos..rd.reader.pos]);
           }
         }
-        HBandMBwithSigMatchSequence(header, deserializeHeaderResult.hbSeq, frames, signature.get, request.message);
+        HBandMBwithSigMatchSequence(header, deserializeHeaderResult.hbSeq, frames, signature.value, request.message);
       } else { // Case without signature
         assert signature.None?;
         assert 0 <= endHeaderPos <= |request.message| by {
@@ -511,7 +512,7 @@ module {:extern "ESDKClient"} ESDKClient {
     return Success(decryptResultWithVerificationInfo);
   }
 
-  method VerifySignature(rd: Streams.ByteReader, decMat: Materials.ValidDecryptionMaterials) returns (res: Result<()>, ghost signature: seq<uint8>)
+  method VerifySignature(rd: Streams.ByteReader, decMat: Materials.ValidDecryptionMaterials) returns (res: Result<(), string>, ghost signature: seq<uint8>)
     requires rd.Valid()
     requires decMat.algorithmSuiteID.SignatureType().Some?
     modifies rd.reader`pos
@@ -522,7 +523,7 @@ module {:extern "ESDKClient"} ESDKClient {
         && 2 <= old(rd.reader.pos) + 2 <= rd.reader.pos
         && SignatureBySequence(signature, rd.reader.data[old(rd.reader.pos)..rd.reader.pos])
   {
-    var ecdsaParams := decMat.algorithmSuiteID.SignatureType().get;
+    var ecdsaParams := decMat.algorithmSuiteID.SignatureType().value;
     var usedCapacity := rd.GetSizeRead();
     assert usedCapacity == rd.reader.pos;
     var msg := rd.reader.data[..usedCapacity];  // unauthenticatedHeader + authTag + body
@@ -536,7 +537,7 @@ module {:extern "ESDKClient"} ESDKClient {
       return Failure(sigResult.error), [];
     }
     // verify signature
-    var signatureVerifiedResult := Signature.Verify(ecdsaParams, decMat.verificationKey.get, msg, sigResult.value);
+    var signatureVerifiedResult := Signature.Verify(ecdsaParams, decMat.verificationKey.value, msg, sigResult.value);
     if signatureVerifiedResult.Failure? {
       return Failure(signatureVerifiedResult.error), [];
     }

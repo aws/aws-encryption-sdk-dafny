@@ -11,7 +11,7 @@ include "../../StandardLibrary/StandardLibrary.dfy"
 module HKDF {
   import opened HMAC
   import opened KeyDerivationAlgorithms
-  import opened StandardLibrary
+  import opened Wrappers
   import opened UInt = StandardLibrary.UInt
 
   function method GetHMACDigestFromHKDFAlgorithm(algorithm: HKDFAlgorithms): Digests
@@ -143,7 +143,7 @@ module HKDF {
    */
   method Hkdf(algorithm: HKDFAlgorithms, salt: Option<seq<uint8>>, ikm: seq<uint8>, info: seq<uint8>, L: int) returns (okm: seq<uint8>)
     requires 0 <= L <= 255 * GetHashLength(GetHMACDigestFromHKDFAlgorithm(algorithm))
-    requires salt.None? || |salt.get| != 0
+    requires salt.None? || |salt.value| != 0
     requires |info| < INT32_MAX_LIMIT
     requires |ikm| < INT32_MAX_LIMIT
     ensures |okm| == L
@@ -158,7 +158,7 @@ module HKDF {
     var nonEmptySalt: seq<uint8>;
     match salt {
       case None =>
-        nonEmptySalt := Fill(0, hashLength);
+        nonEmptySalt := StandardLibrary.Fill(0, hashLength);
       case Some(s) =>
         nonEmptySalt := s;
     }

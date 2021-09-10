@@ -15,7 +15,7 @@ include "../../src/StandardLibrary/Base64.dfy"
 include "../Util/TestUtils.dfy"
 
 module IntegTestKMS {
-  import opened StandardLibrary
+  import opened Wrappers
   import opened UInt = StandardLibrary.UInt
   import opened TestUtils
   import CMMDefs

@@ -18,11 +18,12 @@ module Serialize {
 
   import Streams
   import opened StandardLibrary
+  import opened Wrappers
   import opened UInt = StandardLibrary.UInt
   import UTF8
   import Sets
 
-  method SerializeHeaderBody(wr: Streams.ByteWriter, hb: Msg.HeaderBody) returns (ret: Result<nat>)
+  method SerializeHeaderBody(wr: Streams.ByteWriter, hb: Msg.HeaderBody) returns (ret: Result<nat, string>)
     requires wr.Valid() && hb.Valid()
     modifies wr.writer`data
     ensures wr.Valid()
@@ -72,7 +73,7 @@ module Serialize {
     return Success(totalWritten);
   }
 
-  method SerializeHeaderAuthentication(wr: Streams.ByteWriter, ha: Msg.HeaderAuthentication, ghost algorithmSuiteID: AlgorithmSuite.ID) returns (ret: Result<nat>)
+  method SerializeHeaderAuthentication(wr: Streams.ByteWriter, ha: Msg.HeaderAuthentication, ghost algorithmSuiteID: AlgorithmSuite.ID) returns (ret: Result<nat, string>)
     requires wr.Valid()
     modifies wr.writer`data
     ensures wr.Valid()
@@ -93,7 +94,7 @@ module Serialize {
 
   // ----- SerializeAAD -----
 
-  method SerializeAAD(wr: Streams.ByteWriter, kvPairs: EncryptionContext.Map) returns (ret: Result<nat>)
+  method SerializeAAD(wr: Streams.ByteWriter, kvPairs: EncryptionContext.Map) returns (ret: Result<nat, string>)
     requires wr.Valid() && EncryptionContext.Serializable(kvPairs)
     modifies wr.writer`data
     ensures wr.Valid() && EncryptionContext.Serializable(kvPairs)
@@ -122,7 +123,7 @@ module Serialize {
 
   // ----- SerializeKVPairs -----
 
-  method SerializeKVPairs(wr: Streams.ByteWriter, encryptionContext: EncryptionContext.Map) returns (ret: Result<nat>)
+  method SerializeKVPairs(wr: Streams.ByteWriter, encryptionContext: EncryptionContext.Map) returns (ret: Result<nat, string>)
     requires wr.Valid() && EncryptionContext.SerializableKVPairs(encryptionContext)
     modifies wr.writer`data
     ensures wr.Valid() && EncryptionContext.SerializableKVPairs(encryptionContext)
@@ -178,7 +179,7 @@ module Serialize {
     return Success(newlyWritten);
   }
 
-  method SerializeKVPair(wr: Streams.ByteWriter, k: UTF8.ValidUTF8Bytes, v: UTF8.ValidUTF8Bytes) returns (ret: Result<nat>)
+  method SerializeKVPair(wr: Streams.ByteWriter, k: UTF8.ValidUTF8Bytes, v: UTF8.ValidUTF8Bytes) returns (ret: Result<nat, string>)
     requires wr.Valid() && EncryptionContext.SerializableKVPair((k, v))
     modifies wr.writer`data
     ensures wr.Valid()

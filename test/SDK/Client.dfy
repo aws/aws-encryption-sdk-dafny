@@ -15,7 +15,7 @@ include "../../src/StandardLibrary/Base64.dfy"
 include "../Util/TestUtils.dfy"
 
 module {:extern "TestClient"} TestClient {
-  import opened StandardLibrary
+  import opened Wrappers
   import opened UInt = StandardLibrary.UInt
   import CMMDefs
   import DefaultCMMDef

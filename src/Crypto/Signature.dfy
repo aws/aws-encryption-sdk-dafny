@@ -8,9 +8,9 @@ module {:extern "Signature"} Signature {
     reveals SignatureKeyPair
     reveals ECDSAParams, ECDSAParams.SignatureLength, ECDSAParams.FieldSize
     provides KeyGen, Sign, Verify, IsSigned
-    provides StandardLibrary, UInt
+    provides Wrappers, UInt
 
-  import opened StandardLibrary
+  import opened Wrappers
   import opened UInt = StandardLibrary.UInt
 
   datatype SignatureKeyPair = SignatureKeyPair(verificationKey: seq<uint8>, signingKey: seq<uint8>)
@@ -32,7 +32,7 @@ module {:extern "Signature"} Signature {
     }
   }
 
-  method KeyGen(s: ECDSAParams) returns (res: Result<SignatureKeyPair>)
+  method KeyGen(s: ECDSAParams) returns (res: Result<SignatureKeyPair, string>)
     ensures match res
       case Success(sigKeyPair) => |sigKeyPair.verificationKey| == s.FieldSize()
       case Failure(_) => true
@@ -45,10 +45,10 @@ module {:extern "Signature"} Signature {
     }
   }
 
-  method {:extern "Signature.ECDSA", "ExternKeyGen"} ExternKeyGen(s: ECDSAParams) returns (res: Result<SignatureKeyPair>)
+  method {:extern "Signature.ECDSA", "ExternKeyGen"} ExternKeyGen(s: ECDSAParams) returns (res: Result<SignatureKeyPair, string>)
 
-  method {:extern "Signature.ECDSA", "Sign"} Sign(s: ECDSAParams, key: seq<uint8>, msg: seq<uint8>) returns (sig: Result<seq<uint8>>)
+  method {:extern "Signature.ECDSA", "Sign"} Sign(s: ECDSAParams, key: seq<uint8>, msg: seq<uint8>) returns (sig: Result<seq<uint8>, string>)
     ensures sig.Success? ==> IsSigned(key, msg, sig.value)
 
-  method {:extern "Signature.ECDSA", "Verify"} Verify(s: ECDSAParams, key: seq<uint8>, msg: seq<uint8>, sig: seq<uint8>) returns (res: Result<bool>)
+  method {:extern "Signature.ECDSA", "Verify"} Verify(s: ECDSAParams, key: seq<uint8>, msg: seq<uint8>, sig: seq<uint8>) returns (res: Result<bool, string>)
 }
