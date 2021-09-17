@@ -76,6 +76,9 @@ module IntegTestKMS {
     method CreateTestingGenerator() returns (generator: KMSUtils.CustomerMasterKey)
     {
       var generatorStr := SHARED_TEST_KEY_ARN;
+      //= compliance/framework/aws-kms/aws-kms-key-arn.txt#2.5
+      //= type=test
+      //# MUST start with string "arn"
       expect KMSUtils.ValidFormatCMK(generatorStr);
       generator := generatorStr;
     }

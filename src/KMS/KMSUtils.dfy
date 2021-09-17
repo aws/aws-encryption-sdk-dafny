@@ -62,6 +62,8 @@ module {:extern "KMSUtils"} KMSUtils {
 
   predicate method ValidFormatCMKAliasARN(cmk: string) {
     var components := Split(cmk, ':');
+    //= compliance/framework/aws-kms/aws-kms-key-arn.txt#2.5
+    //# MUST start with string "arn"
     UTF8.IsASCIIString(cmk) && 0 < |cmk| <= 2048 && |components| == 6 && components[0] == "arn" && components[2] == "kms" && Split(components[5], '/')[0] == "alias"
   }
 

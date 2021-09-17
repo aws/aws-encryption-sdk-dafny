@@ -1,3 +1,6 @@
 [submodule "libraries"]
 	path = libraries
 	url = https://github.com/dafny-lang/libraries.git
+[submodule "aws-encryption-sdk-specification"]
+	path = aws-encryption-sdk-specification
+	url = https://github.com/awslabs/private-aws-encryption-sdk-specification-staging.git
