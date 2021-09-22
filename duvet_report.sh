@@ -1,2 +1,3 @@
 #!/bin/sh
-./private-aws-encryption-sdk-specification-staging/util/report.js src/**/*.dfy test/**/*.dfy
+
+./aws-encryption-sdk-specification/util/report.js src/**/*.dfy test/**/*.dfy
