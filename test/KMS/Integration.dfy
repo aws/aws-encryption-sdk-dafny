@@ -81,6 +81,16 @@ module IntegTestKMS {
     }
   }
 
+  method {:test} TestValidFormatCMKKeyARN() {
+    var validArn := SHARED_TEST_KEY_ARN;
+
+    //= compliance/framework/aws-kms/aws-kms-key-arn.txt#2.5
+    //= type=test
+    //# MUST start with string "arn"
+    expect KMSUtils.ValidFormatCMK("arn:aws:kms:us-west-2:658956600833:key/b3537ef1-d8dc-4780-9f5a-55776cbb2f7f");
+    expect !KMSUtils.ValidFormatCMK("barn:aws:kms:us-west-2:658956600833:key/b3537ef1-d8dc-4780-9f5a-55776cbb2f7f");
+  }
+
   method {:test} TestEndToEnd_BaseClientSupplier() {
     var clientSupplier := new KMSUtils.BaseClientSupplier();
     var generator: KMSUtils.CustomerMasterKey := Helpers.CreateTestingGenerator();
