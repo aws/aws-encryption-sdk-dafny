@@ -99,7 +99,11 @@ module {:extern "KMSUtils"} KMSUtils {
     }
   }
 
-  datatype DecryptRequest = DecryptRequest(ciphertextBlob: seq<uint8>, encryptionContext: EncryptionContext.Map, grantTokens: seq<GrantToken>)
+  datatype DecryptRequest = DecryptRequest(
+    keyId: string,
+    ciphertextBlob: seq<uint8>,
+    encryptionContext: EncryptionContext.Map,
+    grantTokens: seq<GrantToken>)
   {
     predicate Valid() {
       0 <= |grantTokens| <= MAX_GRANT_TOKENS
@@ -116,7 +120,10 @@ module {:extern "KMSUtils"} KMSUtils {
   method {:extern "KMSUtils.ClientHelper", "Encrypt"} Encrypt(client: IAmazonKeyManagementService, request: EncryptRequest) returns (res: Result<EncryptResponse, string>)
     requires request.Valid()
 
-  method {:extern "KMSUtils.ClientHelper", "Decrypt"} Decrypt(client: IAmazonKeyManagementService, request: DecryptRequest) returns (res: Result<DecryptResponse, string>)
+  method {:extern "KMSUtils.ClientHelper", "Decrypt"} Decrypt(
+    client: IAmazonKeyManagementService,
+    request: DecryptRequest
+  ) returns (res: Result<DecryptResponse, string>)
     requires request.Valid()
 
   method {:extern "KMSUtils.ClientHelper", "AddCachingClientCallback"} AddCachingClientCallback(client: IAmazonKeyManagementService, region: Option<string>, cache: CachingClientSupplierCache)
