@@ -41,56 +41,15 @@ module {:extern "Materials"} Materials {
 
   type ValidEncryptedDataKey = i : EncryptedDataKey | i.Valid() witness EncryptedDataKey.ValidWitness()
 
-  datatype KeyringTraceFlag =
-  | GENERATED_DATA_KEY
-  | ENCRYPTED_DATA_KEY
-  | DECRYPTED_DATA_KEY
-  | SIGNED_ENCRYPTION_CONTEXT
-  | VERIFIED_ENCRYPTION_CONTEXT
-
-  datatype KeyringTraceEntry = KeyringTraceEntry(keyNamespace: UTF8.ValidUTF8Bytes,
-                                                 keyName: UTF8.ValidUTF8Bytes,
-                                                 flags: set<KeyringTraceFlag>)
-
-  predicate method IsGenerateTraceEntry(entry: KeyringTraceEntry) {
-    GENERATED_DATA_KEY in entry.flags
-  }
-
-  predicate method IsEncryptTraceEntry(entry: KeyringTraceEntry) {
-    ENCRYPTED_DATA_KEY in entry.flags
-  }
-
-  predicate method IsDecryptTraceEntry(entry: KeyringTraceEntry) {
-    DECRYPTED_DATA_KEY in entry.flags
-  }
-
-  predicate method IsEncryptionTraceEntry(entry: KeyringTraceEntry) {
-    entry.flags <= ValidEncryptionMaterialFlags && (IsGenerateTraceEntry(entry) || IsEncryptTraceEntry(entry))
-  }
-
-  const ValidEncryptionMaterialFlags: set<KeyringTraceFlag> := {ENCRYPTED_DATA_KEY, SIGNED_ENCRYPTION_CONTEXT, GENERATED_DATA_KEY};
-  const ValidDecryptionMaterialFlags: set<KeyringTraceFlag> := {DECRYPTED_DATA_KEY, VERIFIED_ENCRYPTION_CONTEXT};
-
-  predicate GenerateTraceEntriesConsistent(plaintextDataKey: Option<seq<uint8>>, keyringTrace: seq<KeyringTraceEntry>) {
-    var generateTraces := Filter(keyringTrace, IsGenerateTraceEntry);
-    && (|generateTraces| == if plaintextDataKey.Some? then 1 else 0)
-    && (|generateTraces| == 1 ==> |keyringTrace| >= 1 && keyringTrace[0] == generateTraces[0])
-    && (plaintextDataKey.None? ==> |keyringTrace| == 0)
-  }
-
   datatype EncryptionMaterials = EncryptionMaterials(encryptionContext: EncryptionContext.Map,
                                                      algorithmSuiteID: AlgorithmSuite.ID,
                                                      plaintextDataKey: Option<seq<uint8>>,
                                                      encryptedDataKeys: seq<ValidEncryptedDataKey>,
-                                                     keyringTrace: seq<KeyringTraceEntry>,
                                                      signingKey: Option<seq<uint8>>)
   {
     predicate Valid() {
       && (algorithmSuiteID.SignatureType().Some? ==> signingKey.Some?)
       && (plaintextDataKey.Some? ==> algorithmSuiteID.ValidPlaintextDataKey(plaintextDataKey.value))
-      && GenerateTraceEntriesConsistent(plaintextDataKey, keyringTrace)
-      && |Filter(keyringTrace, IsEncryptTraceEntry)| == |encryptedDataKeys|
-      // TODO: Strongly tie each trace entry to it's corresponding EDK (https://github.com/awslabs/aws-encryption-sdk-dafny/issues/100)
     }
 
     predicate Serializable() {
@@ -99,7 +58,7 @@ module {:extern "Materials"} Materials {
     }
 
     static function method ValidWitness(): EncryptionMaterials {
-      EncryptionMaterials(map[], AlgorithmSuite.AES_256_GCM_IV12_TAG16_HKDF_SHA384_ECDSA_P384, None, [], [], Some(seq(32, i => 0)))
+      EncryptionMaterials(map[], AlgorithmSuite.AES_256_GCM_IV12_TAG16_HKDF_SHA384_ECDSA_P384, None, [], Some(seq(32, i => 0)))
     }
 
     static function method WithoutDataKeys(encryptionContext: EncryptionContext.Map,
@@ -107,34 +66,24 @@ module {:extern "Materials"} Materials {
                                            signingKey: Option<seq<uint8>>): ValidEncryptionMaterials
       requires algorithmSuiteID.SignatureType().Some? ==> signingKey.Some?
     {
-      var m := EncryptionMaterials(encryptionContext, algorithmSuiteID, None, [], [], signingKey);
+      var m := EncryptionMaterials(encryptionContext, algorithmSuiteID, None, [], signingKey);
       assert m.Valid();
       m
     }
 
     function method WithKeys(newPlaintextDataKey: Option<seq<uint8>>,
-                             newEncryptedDataKeys: seq<ValidEncryptedDataKey>,
-                             newTraceEntries: seq<KeyringTraceEntry>): (res: ValidEncryptionMaterials)
+                             newEncryptedDataKeys: seq<ValidEncryptedDataKey>): (res: ValidEncryptionMaterials)
       requires Valid()
       requires this.plaintextDataKey.Some? ==> newPlaintextDataKey == this.plaintextDataKey
       requires newPlaintextDataKey.Some? ==> this.algorithmSuiteID.ValidPlaintextDataKey(newPlaintextDataKey.value)
-      requires (forall entry :: entry in newTraceEntries ==> IsEncryptionTraceEntry(entry))
-      requires GenerateTraceEntriesConsistent(newPlaintextDataKey, keyringTrace + newTraceEntries)
-      requires (newPlaintextDataKey != this.plaintextDataKey) <==> |Filter(newTraceEntries, IsGenerateTraceEntry)| == 1
-      requires (newPlaintextDataKey == this.plaintextDataKey) ==> (forall entry :: entry in newTraceEntries ==> !IsGenerateTraceEntry(entry))
-      requires |Filter(newTraceEntries, IsEncryptTraceEntry)| == |newEncryptedDataKeys|
       ensures this.encryptionContext == res.encryptionContext
       ensures this.algorithmSuiteID == res.algorithmSuiteID
       ensures newPlaintextDataKey == res.plaintextDataKey
-      ensures this.keyringTrace + newTraceEntries == res.keyringTrace
       ensures this.encryptedDataKeys + newEncryptedDataKeys == res.encryptedDataKeys
       ensures this.signingKey == res.signingKey
     {
         var r := this.(plaintextDataKey := newPlaintextDataKey,
-                       encryptedDataKeys := encryptedDataKeys + newEncryptedDataKeys,
-                       keyringTrace := keyringTrace + newTraceEntries);
-        FilterIsDistributive(keyringTrace, newTraceEntries, IsEncryptTraceEntry);
-        FilterIsDistributive(keyringTrace, newTraceEntries, IsGenerateTraceEntry);
+                       encryptedDataKeys := encryptedDataKeys + newEncryptedDataKeys);
         assert r.Valid();
         r
     }
@@ -145,19 +94,16 @@ module {:extern "Materials"} Materials {
   datatype DecryptionMaterials = DecryptionMaterials(algorithmSuiteID: AlgorithmSuite.ID,
                                                      encryptionContext: EncryptionContext.Map,
                                                      plaintextDataKey: Option<seq<uint8>>,
-                                                     verificationKey: Option<seq<uint8>>,
-                                                     keyringTrace: seq<KeyringTraceEntry>)
+                                                     verificationKey: Option<seq<uint8>>)
   {
     predicate Valid() {
       && (plaintextDataKey.Some? ==> algorithmSuiteID.ValidPlaintextDataKey(plaintextDataKey.value))
       && (algorithmSuiteID.SignatureType().Some? ==> verificationKey.Some?)
-      && (forall entry :: entry in keyringTrace ==> entry.flags <= ValidDecryptionMaterialFlags)
     }
 
     static function method ValidWitness(): DecryptionMaterials {
       DecryptionMaterials(AlgorithmSuite.AES_256_GCM_IV12_TAG16_HKDF_SHA384_ECDSA_P384,
-                          map[], Some(seq(32, i => 0)), Some(seq(32, i => 0)),
-                          [KeyringTraceEntry([], [], {DECRYPTED_DATA_KEY})])
+                          map[], Some(seq(32, i => 0)), Some(seq(32, i => 0)))
     }
 
     static function method WithoutPlaintextDataKey(encryptionContext: EncryptionContext.Map,
@@ -165,24 +111,21 @@ module {:extern "Materials"} Materials {
                                                    verificationKey: Option<seq<uint8>>): ValidDecryptionMaterials
       requires algorithmSuiteID.SignatureType().Some? ==> verificationKey.Some?
     {
-      var m := DecryptionMaterials(algorithmSuiteID, encryptionContext, None, verificationKey, []);
+      var m := DecryptionMaterials(algorithmSuiteID, encryptionContext, None, verificationKey);
       assert m.Valid();
       m
     }
 
-    function method WithPlaintextDataKey(plaintextDataKey: seq<uint8>, newTraceEntries: seq<KeyringTraceEntry>): (res: ValidDecryptionMaterials)
+    function method WithPlaintextDataKey(plaintextDataKey: seq<uint8>): (res: ValidDecryptionMaterials)
       requires Valid()
       requires this.plaintextDataKey.None?
       requires algorithmSuiteID.ValidPlaintextDataKey(plaintextDataKey)
-      requires forall entry :: entry in newTraceEntries ==> entry.flags <= ValidDecryptionMaterialFlags
       ensures this.encryptionContext == res.encryptionContext
       ensures this.algorithmSuiteID == res.algorithmSuiteID
       ensures res.plaintextDataKey.Some?
-      ensures this.keyringTrace <= res.keyringTrace
       ensures this.verificationKey == res.verificationKey
     {
-      var m := this.(plaintextDataKey := Some(plaintextDataKey),
-                     keyringTrace := this.keyringTrace + newTraceEntries);
+      var m := this.(plaintextDataKey := Some(plaintextDataKey));
       assert m.Valid();
       m
     }

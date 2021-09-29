@@ -109,7 +109,6 @@ module {:extern "RawAESKeyringDef"} RawAESKeyringDef {
         && materials.encryptionContext == res.value.encryptionContext
         && materials.algorithmSuiteID == res.value.algorithmSuiteID
         && (materials.plaintextDataKey.Some? ==> res.value.plaintextDataKey == materials.plaintextDataKey)
-        && materials.keyringTrace <= res.value.keyringTrace
         && materials.encryptedDataKeys <= res.value.encryptedDataKeys
         && materials.signingKey == res.value.signingKey
 
@@ -128,16 +127,6 @@ module {:extern "RawAESKeyringDef"} RawAESKeyringDef {
         && res.value.encryptedDataKeys[|materials.encryptedDataKeys|].providerID == keyNamespace
         && ValidProviderInfo(res.value.encryptedDataKeys[|materials.encryptedDataKeys|].providerInfo)
 
-      // KeyringTrace generated as expected
-      ensures res.Success? ==>
-        && if materials.plaintextDataKey.None? then
-          && |res.value.keyringTrace| == |materials.keyringTrace| + 2
-          && res.value.keyringTrace[|materials.keyringTrace|] == GenerateTraceEntry()
-          && res.value.keyringTrace[|materials.keyringTrace| + 1] == EncryptTraceEntry()
-        else
-          && |res.value.keyringTrace| == |materials.keyringTrace| + 1
-          && res.value.keyringTrace[|materials.keyringTrace|] == EncryptTraceEntry()
-
       // If input EC cannot be serialized, returns a Failure
       ensures !EncryptionContext.Serializable(materials.encryptionContext) ==> res.Failure?
     {
@@ -151,7 +140,7 @@ module {:extern "RawAESKeyringDef"} RawAESKeyringDef {
       var materialsWithDataKey := materials;
       if materialsWithDataKey.plaintextDataKey.None? {
         var k :- Random.GenerateBytes(materials.algorithmSuiteID.KeyLength() as int32);
-        materialsWithDataKey := materialsWithDataKey.WithKeys(Some(k), [], [GenerateTraceEntry()]);
+        materialsWithDataKey := materialsWithDataKey.WithKeys(Some(k), []);
       }
 
       var iv :- Random.GenerateBytes(wrappingAlgorithm.ivLen as int32);
@@ -173,9 +162,7 @@ module {:extern "RawAESKeyringDef"} RawAESKeyringDef {
       }
       var edk := Mat.EncryptedDataKey(keyNamespace, providerInfo, encryptedKey);
 
-      var encryptTraceEntry := EncryptTraceEntry();
-      FilterIsDistributive(materialsWithDataKey.keyringTrace, [encryptTraceEntry], Mat.IsGenerateTraceEntry);
-      res := Success(materialsWithDataKey.WithKeys(materialsWithDataKey.plaintextDataKey, [edk], [encryptTraceEntry]));
+      res := Success(materialsWithDataKey.WithKeys(materialsWithDataKey.plaintextDataKey, [edk]));
     }
 
     method OnDecrypt(materials: Mat.ValidDecryptionMaterials,
@@ -189,7 +176,6 @@ module {:extern "RawAESKeyringDef"} RawAESKeyringDef {
           && materials.encryptionContext == res.value.encryptionContext
           && materials.algorithmSuiteID == res.value.algorithmSuiteID
           && (materials.plaintextDataKey.Some? ==> res.value.plaintextDataKey == materials.plaintextDataKey)
-          && materials.keyringTrace <= res.value.keyringTrace
           && res.value.verificationKey == materials.verificationKey
 
       // TODO: ensure non-None when input edk list has edk with valid provider info
@@ -199,10 +185,6 @@ module {:extern "RawAESKeyringDef"} RawAESKeyringDef {
         var encCtxSerializable := (reveal EncryptionContext.Serializable(); EncryptionContext.Serializable(materials.encryptionContext));
         && encCtxSerializable
         && AESEncryption.PlaintextDecryptedWithAAD(res.value.plaintextDataKey.value, EncryptionContext.MapToSeq(materials.encryptionContext))
-
-      // KeyringTrace generated as expected
-      ensures res.Success? && materials.plaintextDataKey.None? && res.value.plaintextDataKey.Some? ==>
-          |res.value.keyringTrace| == |materials.keyringTrace| + 1 && res.value.keyringTrace[|materials.keyringTrace|] == DecryptTraceEntry()
 
       // If attempts to decrypt an EDK and the input EC cannot be serialized, return a Failure
       ensures materials.plaintextDataKey.None? && !EncryptionContext.Serializable(materials.encryptionContext) && (exists i :: 0 <= i < |edks| && ShouldDecryptEDK(edks[i])) ==> res.Failure?
@@ -230,9 +212,8 @@ module {:extern "RawAESKeyringDef"} RawAESKeyringDef {
           var encryptionOutput := DeserializeEDKCiphertext(edks[i].ciphertext, wrappingAlgorithm.tagLen as nat);
           var ptKey :- AESEncryption.AESDecrypt(wrappingAlgorithm, wrappingKey, encryptionOutput.cipherText, encryptionOutput.authTag, iv, aad);
 
-          var decryptTraceEntry := DecryptTraceEntry();
           if materials.algorithmSuiteID.ValidPlaintextDataKey(ptKey) { // check for correct key length
-            return Success(materials.WithPlaintextDataKey(ptKey, [decryptTraceEntry]));
+            return Success(materials.WithPlaintextDataKey(ptKey));
           } else {
             return Failure("Decryption failed: bad datakey length.");
           }
@@ -259,21 +240,6 @@ module {:extern "RawAESKeyringDef"} RawAESKeyringDef {
       requires ValidProviderInfo(info)
     {
       info[|keyName| + AUTH_TAG_LEN_LEN + IV_LEN_LEN ..]
-    }
-
-    function method GenerateTraceEntry(): Mat.KeyringTraceEntry
-    {
-      Mat.KeyringTraceEntry(keyNamespace, keyName, {Mat.GENERATED_DATA_KEY})
-    }
-
-    function method EncryptTraceEntry(): Mat.KeyringTraceEntry
-    {
-      Mat.KeyringTraceEntry(keyNamespace, keyName, {Mat.ENCRYPTED_DATA_KEY, Mat.SIGNED_ENCRYPTION_CONTEXT})
-    }
-
-    function method DecryptTraceEntry(): Mat.KeyringTraceEntry
-    {
-      Mat.KeyringTraceEntry(keyNamespace, keyName, {Mat.DECRYPTED_DATA_KEY, Mat.VERIFIED_ENCRYPTION_CONTEXT})
     }
   }
 }

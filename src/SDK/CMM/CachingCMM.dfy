@@ -183,6 +183,12 @@ module {:extern "CachingCMMDef"} CachingCMMDef {
           cmc.EvictEncrypt(cacheID);
           Repr := Repr + cmc.Repr;
         } else {
+          if (!entry.encMat.plaintextDataKey.Some?) {
+            // TODO: It seems like we should be able to set up pre- and post-conditions in this
+            // and the Cache methods to prevent the possibility of inserting an entry that has
+            // no plaintext data key.
+            return Failure("No plaintext datakey");
+          }
           return Success(entry.encMat);
         }
       }

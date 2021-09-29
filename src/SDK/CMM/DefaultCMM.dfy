@@ -56,6 +56,7 @@ module {:extern "DefaultCMMDef"} DefaultCMMDef {
       requires Valid()
       ensures Valid()
       ensures res.Success? ==> CMMDefs.EncryptionMaterialsSignature(res.value)
+      ensures res.Success? ==> res.value.plaintextDataKey.Some? && res.value.Serializable()
       ensures Materials.EC_PUBLIC_KEY_FIELD in materialsRequest.encryptionContext ==> res.Failure?
       ensures res.Success? && (materialsRequest.algorithmSuiteID.None? || materialsRequest.algorithmSuiteID.value.SignatureType().Some?) ==>
         Materials.EC_PUBLIC_KEY_FIELD in res.value.encryptionContext
