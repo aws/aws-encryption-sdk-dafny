@@ -124,9 +124,6 @@ module {:extern "KMSKeyringDef"} KMSKeyringDef {
       var resultMaterials: Mat.ValidEncryptionMaterials;
       if generator.Some? {
         if materials.plaintextDataKey.None? {
-          if (|materials.encryptedDataKeys| != 0) {
-            return Failure("Cannot create new plaintext data key if there are already encrypted keys");
-          }
           resultMaterials :- Generate(materials);
           assert resultMaterials.plaintextDataKey.Some?;
         } else {

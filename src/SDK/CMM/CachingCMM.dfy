@@ -183,12 +183,6 @@ module {:extern "CachingCMMDef"} CachingCMMDef {
           cmc.EvictEncrypt(cacheID);
           Repr := Repr + cmc.Repr;
         } else {
-          if (!entry.encMat.plaintextDataKey.Some?) {
-            // TODO: It seems like we should be able to set up pre- and post-conditions in this
-            // and the Cache methods to prevent the possibility of inserting an entry that has
-            // no plaintext data key.
-            return Failure("No plaintext datakey");
-          }
           return Success(entry.encMat);
         }
       }
@@ -347,7 +341,7 @@ module {:extern "CachingCMMDef"} CachingCMMDef {
     // and initializing usage limits to (currentTime + secondsToLiveLimit, 0, 0). Returns the resulting entry.
     method AddEncrypt(cacheID: seq<uint8>, encMat: Materials.ValidEncryptionMaterials, secondsToLiveLimit: nat) returns (entry: CacheEntryEncrypt)
       requires Valid()
-      requires encMat.Serializable()
+      requires encMat.Serializable() && encMat.plaintextDataKey.Some?
       modifies Repr
       ensures Valid() && fresh(Repr - old(Repr)) && entry in Repr
     {

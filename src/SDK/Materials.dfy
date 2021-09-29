@@ -50,6 +50,7 @@ module {:extern "Materials"} Materials {
     predicate Valid() {
       && (algorithmSuiteID.SignatureType().Some? ==> signingKey.Some?)
       && (plaintextDataKey.Some? ==> algorithmSuiteID.ValidPlaintextDataKey(plaintextDataKey.value))
+      && (plaintextDataKey.None? ==> |encryptedDataKeys| == 0)
     }
 
     predicate Serializable() {
@@ -76,6 +77,7 @@ module {:extern "Materials"} Materials {
       requires Valid()
       requires this.plaintextDataKey.Some? ==> newPlaintextDataKey == this.plaintextDataKey
       requires newPlaintextDataKey.Some? ==> this.algorithmSuiteID.ValidPlaintextDataKey(newPlaintextDataKey.value)
+      requires newPlaintextDataKey.None? ==> |newEncryptedDataKeys| == 0
       ensures this.encryptionContext == res.encryptionContext
       ensures this.algorithmSuiteID == res.algorithmSuiteID
       ensures newPlaintextDataKey == res.plaintextDataKey

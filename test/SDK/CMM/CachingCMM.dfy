@@ -259,7 +259,7 @@ module TestCachingCMM {
           Some(seq(algSuiteID.KDFInputKeyLength(), x => 70 + (x % 20) as uint8)), // plaintextDataKey
           [edk], // encryptedDataKeys
           if algSuiteID.SignatureType() == None then None else Some([52, 53, 54])); // signingKey
-        assert em.Valid(); // Maybe?
+        assert em.Valid();
         eCalls := eCalls + 1;
         return Success(em);
       }
