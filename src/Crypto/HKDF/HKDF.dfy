@@ -19,6 +19,7 @@ module HKDF {
     match algorithm
     case HKDF_WITH_SHA_256 => SHA_256
     case HKDF_WITH_SHA_384 => SHA_384
+    case HKDF_WITH_SHA_512 => SHA_512
   }
 
   method Extract(hmac: HMac, salt: seq<uint8>, ikm: seq<uint8>, ghost digest: Digests) returns (prk: seq<uint8>)

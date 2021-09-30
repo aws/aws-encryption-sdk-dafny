@@ -15,12 +15,14 @@ module {:extern "AlgorithmSuite"} AlgorithmSuite {
   import S = Signature
   import KeyDerivationAlgorithms
 
-
-
-  const VALID_IDS: set<uint16> := {0x0378, 0x0346, 0x0214, 0x0178, 0x0146, 0x0114, 0x0078, 0x0046, 0x0014};
+  const VALID_IDS: set<uint16> := {0x0578, 0x0478, 0x0378, 0x0346, 0x0214, 0x0178, 0x0146, 0x0114, 0x0078, 0x0046, 0x0014};
 
   newtype ID = x | x in VALID_IDS witness 0x0014
   {
+    function method MsgFormat(): MsgFormat {
+      Suite[this].msgFormat
+    }
+
     function method EncryptionSuite(): EncryptionSuites.EncryptionSuite
       ensures EncryptionSuite().Valid()
     {
@@ -42,9 +44,26 @@ module {:extern "AlgorithmSuite"} AlgorithmSuite {
       // and we don't accidentally use Suite[this].algorithm.keyLen by default. Also, prevent or KDFInputKeyLength from
       // being tied to KeyLength().
       match Suite[this].hkdf
+      case HKDF_WITH_SHA_512 => Suite[this].algorithm.keyLen as nat
       case HKDF_WITH_SHA_384 => Suite[this].algorithm.keyLen as nat
       case HKDF_WITH_SHA_256 => Suite[this].algorithm.keyLen as nat
       case IDENTITY => Suite[this].algorithm.keyLen as nat
+    }
+
+    function method CommitmentInputLength(): Option<nat> {
+      Suite[this].commitmentLength
+    }
+
+    function method CommitmentKdf(): Option<KeyDerivationAlgorithms.KeyDerivationAlgorithm> {
+      Suite[this].commitmentKdf
+    }
+
+    function method KDFInputSaltLength(): Option<nat> {
+      Suite[this].saltLength
+    }
+
+    function method SuiteDataLength(): Option<nat> {
+      Suite[this].dataLength
     }
 
     function method IVLength(): nat {
@@ -64,29 +83,46 @@ module {:extern "AlgorithmSuite"} AlgorithmSuite {
     }
   }
 
-  // https://docs.aws.amazon.com/encryption-sdk/latest/developer-guide/algorithms-reference.html
-  const AES_256_GCM_IV12_TAG16_HKDF_SHA384_ECDSA_P384:        ID := 0x0378
-  const AES_192_GCM_IV12_TAG16_HKDF_SHA384_ECDSA_P384:        ID := 0x0346
-  const AES_128_GCM_IV12_TAG16_HKDF_SHA256_ECDSA_P256:        ID := 0x0214
-  const AES_256_GCM_IV12_TAG16_HKDF_SHA256_NO_SIGNATURE_ALG:  ID := 0x0178
-  const AES_192_GCM_IV12_TAG16_HKDF_SHA256_NO_SIGNATURE_ALG:  ID := 0x0146
-  const AES_128_GCM_IV12_TAG16_HKDF_SHA256_NO_SIGNATURE_ALG:  ID := 0x0114
-  const AES_256_GCM_IV12_TAG16_IDENTITY_NO_SIGNATURE_ALG:     ID := 0x0078
-  const AES_192_GCM_IV12_TAG16_IDENTITY_NO_SIGNATURE_ALG:     ID := 0x0046
-  const AES_128_GCM_IV12_TAG16_IDENTITY_NO_SIGNATURE_ALG:     ID := 0x0014
+  const MsgFormatV1: uint8 := 0x01
+  const MsgFormatV2: uint8 := 0x02
+  type MsgFormat = x: uint8 | x == MsgFormatV1 || x == MsgFormatV2 witness MsgFormatV1
 
-  datatype AlgSuite = AlgSuite(algorithm: EncryptionSuites.EncryptionSuite, hkdf: KeyDerivationAlgorithms.KeyDerivationAlgorithm, sign: Option<S.ECDSAParams>)
+  // https://docs.aws.amazon.com/encryption-sdk/latest/developer-guide/algorithms-reference.html
+  const AES_256_GCM_IV12_TAG16_HKDF_SHA512_ECDSA_P384:       ID := 0x0578
+  const AES_256_GCM_IV12_TAG16_HKDF_SHA512_NO_SIGNATURE_ALG: ID := 0x0478
+  const AES_256_GCM_IV12_TAG16_HKDF_SHA384_ECDSA_P384:       ID := 0x0378
+  const AES_192_GCM_IV12_TAG16_HKDF_SHA384_ECDSA_P384:       ID := 0x0346
+  const AES_128_GCM_IV12_TAG16_HKDF_SHA256_ECDSA_P256:       ID := 0x0214
+  const AES_256_GCM_IV12_TAG16_HKDF_SHA256_NO_SIGNATURE_ALG: ID := 0x0178
+  const AES_192_GCM_IV12_TAG16_HKDF_SHA256_NO_SIGNATURE_ALG: ID := 0x0146
+  const AES_128_GCM_IV12_TAG16_HKDF_SHA256_NO_SIGNATURE_ALG: ID := 0x0114
+  const AES_256_GCM_IV12_TAG16_IDENTITY_NO_SIGNATURE_ALG:    ID := 0x0078
+  const AES_192_GCM_IV12_TAG16_IDENTITY_NO_SIGNATURE_ALG:    ID := 0x0046
+  const AES_128_GCM_IV12_TAG16_IDENTITY_NO_SIGNATURE_ALG:    ID := 0x0014
+
+  datatype AlgSuite = AlgSuite(
+    msgFormat: MsgFormat,
+    algorithm: EncryptionSuites.EncryptionSuite,
+    hkdf: KeyDerivationAlgorithms.KeyDerivationAlgorithm,
+    commitmentLength: Option<nat>,
+    commitmentKdf: Option<KeyDerivationAlgorithms.KeyDerivationAlgorithm>,
+    saltLength: Option<nat>,
+    dataLength: Option<nat>,
+    sign: Option<S.ECDSAParams>
+  )
 
   const Suite := map [
-    AES_256_GCM_IV12_TAG16_HKDF_SHA384_ECDSA_P384       := AlgSuite(EncryptionSuites.AES_GCM_256, KeyDerivationAlgorithms.HKDF_WITH_SHA_384, Some(S.ECDSA_P384)),
-    AES_192_GCM_IV12_TAG16_HKDF_SHA384_ECDSA_P384       := AlgSuite(EncryptionSuites.AES_GCM_192, KeyDerivationAlgorithms.HKDF_WITH_SHA_384, Some(S.ECDSA_P384)),
-    AES_128_GCM_IV12_TAG16_HKDF_SHA256_ECDSA_P256       := AlgSuite(EncryptionSuites.AES_GCM_128, KeyDerivationAlgorithms.HKDF_WITH_SHA_256, Some(S.ECDSA_P256)),
-    AES_256_GCM_IV12_TAG16_HKDF_SHA256_NO_SIGNATURE_ALG := AlgSuite(EncryptionSuites.AES_GCM_256, KeyDerivationAlgorithms.HKDF_WITH_SHA_256, None),
-    AES_192_GCM_IV12_TAG16_HKDF_SHA256_NO_SIGNATURE_ALG := AlgSuite(EncryptionSuites.AES_GCM_192, KeyDerivationAlgorithms.HKDF_WITH_SHA_256, None),
-    AES_128_GCM_IV12_TAG16_HKDF_SHA256_NO_SIGNATURE_ALG := AlgSuite(EncryptionSuites.AES_GCM_128, KeyDerivationAlgorithms.HKDF_WITH_SHA_256, None),
-    AES_256_GCM_IV12_TAG16_IDENTITY_NO_SIGNATURE_ALG    := AlgSuite(EncryptionSuites.AES_GCM_256, KeyDerivationAlgorithms.IDENTITY,  None),
-    AES_192_GCM_IV12_TAG16_IDENTITY_NO_SIGNATURE_ALG    := AlgSuite(EncryptionSuites.AES_GCM_192, KeyDerivationAlgorithms.IDENTITY,  None),
-    AES_128_GCM_IV12_TAG16_IDENTITY_NO_SIGNATURE_ALG    := AlgSuite(EncryptionSuites.AES_GCM_128, KeyDerivationAlgorithms.IDENTITY,  None)
+    AES_256_GCM_IV12_TAG16_HKDF_SHA512_ECDSA_P384       := AlgSuite(MsgFormatV2, EncryptionSuites.AES_GCM_256, KeyDerivationAlgorithms.HKDF_WITH_SHA_512, Some(256), Some(KeyDerivationAlgorithms.HKDF_WITH_SHA_512), Some(256), Some(32), Some(S.ECDSA_P384)),
+    AES_256_GCM_IV12_TAG16_HKDF_SHA512_NO_SIGNATURE_ALG := AlgSuite(MsgFormatV2, EncryptionSuites.AES_GCM_256, KeyDerivationAlgorithms.HKDF_WITH_SHA_512, Some(256), Some(KeyDerivationAlgorithms.HKDF_WITH_SHA_512), Some(256), Some(32), None),
+    AES_256_GCM_IV12_TAG16_HKDF_SHA384_ECDSA_P384       := AlgSuite(MsgFormatV1, EncryptionSuites.AES_GCM_256, KeyDerivationAlgorithms.HKDF_WITH_SHA_384, None,      None,                                            None,      None,     Some(S.ECDSA_P384)),
+    AES_192_GCM_IV12_TAG16_HKDF_SHA384_ECDSA_P384       := AlgSuite(MsgFormatV1, EncryptionSuites.AES_GCM_192, KeyDerivationAlgorithms.HKDF_WITH_SHA_384, None,      None,                                            None,      None,     Some(S.ECDSA_P384)),
+    AES_128_GCM_IV12_TAG16_HKDF_SHA256_ECDSA_P256       := AlgSuite(MsgFormatV1, EncryptionSuites.AES_GCM_128, KeyDerivationAlgorithms.HKDF_WITH_SHA_256, None,      None,                                            None,      None,     Some(S.ECDSA_P256)),
+    AES_256_GCM_IV12_TAG16_HKDF_SHA256_NO_SIGNATURE_ALG := AlgSuite(MsgFormatV1, EncryptionSuites.AES_GCM_256, KeyDerivationAlgorithms.HKDF_WITH_SHA_256, None,      None,                                            None,      None,     None),
+    AES_192_GCM_IV12_TAG16_HKDF_SHA256_NO_SIGNATURE_ALG := AlgSuite(MsgFormatV1, EncryptionSuites.AES_GCM_192, KeyDerivationAlgorithms.HKDF_WITH_SHA_256, None,      None,                                            None,      None,     None),
+    AES_128_GCM_IV12_TAG16_HKDF_SHA256_NO_SIGNATURE_ALG := AlgSuite(MsgFormatV1, EncryptionSuites.AES_GCM_128, KeyDerivationAlgorithms.HKDF_WITH_SHA_256, None,      None,                                            None,      None,     None),
+    AES_256_GCM_IV12_TAG16_IDENTITY_NO_SIGNATURE_ALG    := AlgSuite(MsgFormatV1, EncryptionSuites.AES_GCM_256, KeyDerivationAlgorithms.IDENTITY,          None,      None,                                            None,      None,     None),
+    AES_192_GCM_IV12_TAG16_IDENTITY_NO_SIGNATURE_ALG    := AlgSuite(MsgFormatV1, EncryptionSuites.AES_GCM_192, KeyDerivationAlgorithms.IDENTITY,          None,      None,                                            None,      None,     None),
+    AES_128_GCM_IV12_TAG16_IDENTITY_NO_SIGNATURE_ALG    := AlgSuite(MsgFormatV1, EncryptionSuites.AES_GCM_128, KeyDerivationAlgorithms.IDENTITY,          None,      None,                                            None,      None,     None)
   ]
 
   // TODO a better way to integrate the Polymorph Alg Suites with the info in this file?

@@ -9,7 +9,7 @@ module {:extern "HMAC"} HMAC {
   import opened StandardLibrary
   import opened UInt = StandardLibrary.UInt
 
-  datatype {:extern "Digests"} Digests = SHA_256 | SHA_384
+  datatype {:extern "Digests"} Digests = SHA_256 | SHA_384 | SHA_512
 
   // Hash length in octets (bytes), e.g. GetHashLength(SHA_256) ==> 256 bits = 32 bytes ==> n = 32
   function method GetHashLength(digest: Digests): int
@@ -17,6 +17,7 @@ module {:extern "HMAC"} HMAC {
     match digest
     case SHA_256 => 32
     case SHA_384 => 48
+    case SHA_512 => 64
   }
 
   class {:extern "HMac"} HMac {
