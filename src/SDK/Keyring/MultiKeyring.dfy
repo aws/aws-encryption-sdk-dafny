@@ -53,7 +53,6 @@ module {:extern "MultiKeyringDef"} MultiKeyringDef {
                     && materials.encryptionContext == res.value.encryptionContext
                     && materials.algorithmSuiteID == res.value.algorithmSuiteID
                     && (materials.plaintextDataKey.Some? ==> res.value.plaintextDataKey == materials.plaintextDataKey)
-                    && materials.keyringTrace <= res.value.keyringTrace
                     && materials.encryptedDataKeys <= res.value.encryptedDataKeys
                     && materials.signingKey == res.value.signingKey
         {
@@ -74,7 +73,6 @@ module {:extern "MultiKeyringDef"} MultiKeyringDef {
                 invariant materials.encryptionContext == resultMaterials.encryptionContext
                 invariant materials.algorithmSuiteID == resultMaterials.algorithmSuiteID
                 invariant materials.plaintextDataKey.Some? ==> resultMaterials.plaintextDataKey == materials.plaintextDataKey
-                invariant materials.keyringTrace <= resultMaterials.keyringTrace
                 invariant materials.encryptedDataKeys <= resultMaterials.encryptedDataKeys
                 invariant materials.signingKey == resultMaterials.signingKey
                 decreases |children| - i
@@ -94,7 +92,6 @@ module {:extern "MultiKeyringDef"} MultiKeyringDef {
                 && materials.encryptionContext == res.value.encryptionContext
                 && materials.algorithmSuiteID == res.value.algorithmSuiteID
                 && (materials.plaintextDataKey.Some? ==> res.value.plaintextDataKey == materials.plaintextDataKey)
-                && materials.keyringTrace <= res.value.keyringTrace
                 && materials.verificationKey == res.value.verificationKey
         {
             res := Success(materials);
@@ -115,7 +112,6 @@ module {:extern "MultiKeyringDef"} MultiKeyringDef {
                         && materials.encryptionContext == res.value.encryptionContext
                         && materials.algorithmSuiteID == res.value.algorithmSuiteID
                         && (materials.plaintextDataKey.Some? ==> res.value.plaintextDataKey == materials.plaintextDataKey)
-                        && materials.keyringTrace <= res.value.keyringTrace
                         && materials.verificationKey == res.value.verificationKey
                 decreases |children| - i
             {

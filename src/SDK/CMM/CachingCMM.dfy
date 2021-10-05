@@ -341,7 +341,7 @@ module {:extern "CachingCMMDef"} CachingCMMDef {
     // and initializing usage limits to (currentTime + secondsToLiveLimit, 0, 0). Returns the resulting entry.
     method AddEncrypt(cacheID: seq<uint8>, encMat: Materials.ValidEncryptionMaterials, secondsToLiveLimit: nat) returns (entry: CacheEntryEncrypt)
       requires Valid()
-      requires encMat.Serializable()
+      requires encMat.Serializable() && encMat.plaintextDataKey.Some?
       modifies Repr
       ensures Valid() && fresh(Repr - old(Repr)) && entry in Repr
     {

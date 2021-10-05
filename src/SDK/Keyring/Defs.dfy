@@ -25,7 +25,6 @@ module {:extern "KeyringDefs"} KeyringDefs {
           && materials.encryptionContext == res.value.encryptionContext
           && materials.algorithmSuiteID == res.value.algorithmSuiteID
           && (materials.plaintextDataKey.Some? ==> res.value.plaintextDataKey == materials.plaintextDataKey)
-          && materials.keyringTrace <= res.value.keyringTrace
           && materials.encryptedDataKeys <= res.value.encryptedDataKeys
           && materials.signingKey == res.value.signingKey
 
@@ -39,7 +38,6 @@ module {:extern "KeyringDefs"} KeyringDefs {
           && materials.encryptionContext == res.value.encryptionContext
           && materials.algorithmSuiteID == res.value.algorithmSuiteID
           && (materials.plaintextDataKey.Some? ==> res.value.plaintextDataKey == materials.plaintextDataKey)
-          && materials.keyringTrace <= res.value.keyringTrace
           && res.value.verificationKey == materials.verificationKey
   }
 }

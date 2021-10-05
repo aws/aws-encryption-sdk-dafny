@@ -25,7 +25,6 @@ module TestKeyrings {
           && materials.encryptionContext == res.value.encryptionContext
           && materials.algorithmSuiteID == res.value.algorithmSuiteID
           && (materials.plaintextDataKey.Some? ==> res.value.plaintextDataKey == materials.plaintextDataKey)
-          && materials.keyringTrace <= res.value.keyringTrace
           && materials.encryptedDataKeys <= res.value.encryptedDataKeys
           && materials.signingKey == res.value.signingKey
     {
@@ -42,7 +41,6 @@ module TestKeyrings {
           && materials.encryptionContext == res.value.encryptionContext
           && materials.algorithmSuiteID == res.value.algorithmSuiteID
           && (materials.plaintextDataKey.Some? ==> res.value.plaintextDataKey == materials.plaintextDataKey)
-          && materials.keyringTrace <= res.value.keyringTrace
           && res.value.verificationKey == materials.verificationKey
     {
       return Success(materials);
@@ -64,7 +62,6 @@ module TestKeyrings {
           && materials.encryptionContext == res.value.encryptionContext
           && materials.algorithmSuiteID == res.value.algorithmSuiteID
           && (materials.plaintextDataKey.Some? ==> res.value.plaintextDataKey == materials.plaintextDataKey)
-          && materials.keyringTrace <= res.value.keyringTrace
           && materials.encryptedDataKeys <= res.value.encryptedDataKeys
           && materials.signingKey == res.value.signingKey
     {
@@ -81,7 +78,6 @@ module TestKeyrings {
           && materials.encryptionContext == res.value.encryptionContext
           && materials.algorithmSuiteID == res.value.algorithmSuiteID
           && (materials.plaintextDataKey.Some? ==> res.value.plaintextDataKey == materials.plaintextDataKey)
-          && materials.keyringTrace <= res.value.keyringTrace
           && res.value.verificationKey == materials.verificationKey
     {
       if |encryptedDataKeys| == 0 || materials.plaintextDataKey.Some? {

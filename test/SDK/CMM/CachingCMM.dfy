@@ -253,27 +253,13 @@ module TestCachingCMM {
 
         var algSuiteID := if materialsRequest.algorithmSuiteID == None then AlgorithmSuite.AES_256_GCM_IV12_TAG16_HKDF_SHA384_ECDSA_P384 else materialsRequest.algorithmSuiteID.value;
         var edk: Materials.ValidEncryptedDataKey := Materials.EncryptedDataKey([], [], []);
-        var tr0 := Materials.KeyringTraceEntry([], [], {Materials.GENERATED_DATA_KEY});
-        var tr1 := Materials.KeyringTraceEntry([], [], {Materials.ENCRYPTED_DATA_KEY});
         var em := Materials.EncryptionMaterials(
           materialsRequest.encryptionContext,
           algSuiteID,
           Some(seq(algSuiteID.KDFInputKeyLength(), x => 70 + (x % 20) as uint8)), // plaintextDataKey
           [edk], // encryptedDataKeys
-          [tr0, tr1], // keyringTrace
           if algSuiteID.SignatureType() == None then None else Some([52, 53, 54])); // signingKey
-        assert em.Valid() by {
-          calc {
-            Filter([tr0, tr1], Materials.IsGenerateTraceEntry);
-          ==  { assert Materials.IsGenerateTraceEntry(tr0); }
-            [tr0] + Filter([tr0, tr1][1..], Materials.IsGenerateTraceEntry);
-          ==  { assert [tr0, tr1][1..] == [tr1]; }
-            [tr0] + Filter([tr1], Materials.IsGenerateTraceEntry);
-          ==  // def. Filter
-            [tr0];
-          }
-          assert Filter(em.keyringTrace, Materials.IsEncryptTraceEntry) == [tr1];
-        }
+        assert em.Valid();
         eCalls := eCalls + 1;
         return Success(em);
       }
@@ -289,8 +275,7 @@ module TestCachingCMM {
           materialsRequest.algorithmSuiteID,
           materialsRequest.encryptionContext,
           Some(seq(materialsRequest.algorithmSuiteID.KDFInputKeyLength(), x => 70 + (x % 20) as uint8)), // plaintextDataKey
-          Some([49, 48, 47]), // verificationKey
-          []); // keyringTrace
+          Some([49, 48, 47])); // verificationKey
         assert dm.Valid();
         dCalls := dCalls + 1;
         return Success(dm);
