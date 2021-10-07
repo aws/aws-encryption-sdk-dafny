@@ -1,5 +1,6 @@
 include "../../Util/UTF8.dfy"
 include "../../StandardLibrary/StandardLibrary.dfy"
+include "../../KMS/AmazonKeyManagementService.dfy"
 
 module {:extern "CryptographicMaterialProviders"} CryptographicMaterialProviders {
     import opened Wrappers
@@ -53,10 +54,12 @@ module {:extern "CryptographicMaterialProviders"} CryptographicMaterialProviders
     }
 
     module CryptoConfig {
-        class CommitmentPolicy {
-            const REQUIRE_ENCRYPT_REQUIRE_DECRYPT: string := "REQUIRE_ENCRYPT_REQUIRE_DECRYPT"
-            // TODO: the rest
-        }
+        // Discusion: we can model commitment policy as an enum like this, with no values.
+        // But other enum types (like AlgSuite) do have values we want to associate with them.
+        // Since this will eventually be code-genned, we need to be consistent since they're both
+        // Smithy enums. Plus the Smithy docs suggest that code generators may choose to represent
+        // enums as constants, for better forwards compatibility.
+        datatype CommitmentPolicy = FORBID_ENCRYPT_FORBID_DECRYPT | REQUIRE_ENCRYPT_ALLOW_DECRYPT | REQUIRE_ENCRYPT_REQUIRE_DECRYPT
 
         class AlgorithmSuite {
             const ALG_AES_256_GCM_HKDF_SHA512_COMMIT_KEY               := 0x0478
@@ -89,6 +92,7 @@ module {:extern "CryptographicMaterialProviders"} CryptographicMaterialProviders
 
     module CMMs {
         import Structures
+        import CryptoConfig
         import opened Wrappers
 
         datatype GetEncryptionMaterialsInput = GetEncryptionMaterialsInput(
@@ -103,7 +107,7 @@ module {:extern "CryptographicMaterialProviders"} CryptographicMaterialProviders
 
         datatype DecryptMaterialsInput = DecryptMaterialsInput(
             encryptionContext: Structures.EncryptionContext,
-            commitmentPolicy: string,
+            commitmentPolicy: CryptoConfig.CommitmentPolicy,
             algorithmSuite: string,
             encryptedDataKeys: Structures.EncryptedDataKeyList
         )

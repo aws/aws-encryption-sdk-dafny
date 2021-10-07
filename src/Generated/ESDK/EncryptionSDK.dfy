@@ -1,6 +1,6 @@
 include "../../Util/UTF8.dfy"
 include "../../StandardLibrary/StandardLibrary.dfy"
-
+include "../MaterialProviders/MaterialProviders.dfy"
 
 module {:extern "AwsEncryptionSdk"} EncryptionSDK {
     import opened Wrappers
