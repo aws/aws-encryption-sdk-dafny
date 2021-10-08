@@ -17,6 +17,11 @@ module {:extern "AlgorithmSuite"} AlgorithmSuite {
 
   newtype ID = x | x in VALID_IDS witness 0x0014
   {
+    function method MessageFormat(): nat
+    {
+      Suite[this].msgFormat
+    }
+
     function method EncryptionSuite(): EncryptionSuites.EncryptionSuite
       ensures EncryptionSuite().Valid()
     {
