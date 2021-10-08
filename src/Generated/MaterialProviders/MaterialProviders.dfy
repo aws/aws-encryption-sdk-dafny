@@ -6,6 +6,23 @@ module {:extern "CryptographicMaterialProviders"} CryptographicMaterialProviders
     import opened Wrappers
     import AmazonKeyManagementService
 
+    // TODO: KMS client will live here
+    module KMS {
+        import UTF8
+        import AmazonKeyManagementService
+
+        type KmsKeyId = string
+        type KmsKeyIdList = seq<KmsKeyId>
+
+        type GrantToken = string
+        type GrantTokenList = seq<GrantToken>
+
+        trait IClientSupplier {
+            method GetClient(region: string) returns (res: AmazonKeyManagementService.IAmazonKeyManagementService)
+        }
+
+    }
+
     // TODO: don't necessarily need sub-structures here. Perhaps Dafny modules are 1:1 with
     // Smithy namespaces, in which case all of this lives under the "aws.crypto" module.
     // But for now it seems like a nice way of separating things out. Alternatively we could
@@ -15,15 +32,11 @@ module {:extern "CryptographicMaterialProviders"} CryptographicMaterialProviders
         import opened UInt = StandardLibrary.UInt
         import opened Wrappers
 
-        // TODO This lives in the 'keyrings' file in the Smithy model, but I think 'structures'
-        // actually makes more sense (or even 'kms'?)
         type EncryptionContext = map<UTF8.ValidUTF8Bytes, UTF8.ValidUTF8Bytes>
-        type GrantToken = string
-        type GrantTokenList = seq<GrantToken>
 
         datatype EncryptedDataKey = EncryptedDataKey(providerID: UTF8.ValidUTF8Bytes,
-                                                    providerInfo: seq<uint8>,
-                                                    ciphertext: seq<uint8>)
+                                                     providerInfo: seq<uint8>,
+                                                     ciphertext: seq<uint8>)
         {
             // TODO: constraints not currently modeled in Smithy
             predicate Valid() {
@@ -94,6 +107,7 @@ module {:extern "CryptographicMaterialProviders"} CryptographicMaterialProviders
         import Structures
         import CryptoConfig
         import opened Wrappers
+        import KMS
 
         datatype GetEncryptionMaterialsInput = GetEncryptionMaterialsInput(
             encryptionContext: Structures.EncryptionContext,
@@ -123,10 +137,18 @@ module {:extern "CryptographicMaterialProviders"} CryptographicMaterialProviders
     }
 
     // Creation inputs
-    datatype CreateMrkAwareStrictAwsKmsKeyringInput = CreateMrkAwareStrictAwsKmsKeyring(
-            kmsKeyId: string,
-            grantTokens: Structures.GrantTokenList,
-            kmsClient: AmazonKeyManagementService.IAmazonKeyManagementService
+    datatype CreateMrkAwareStrictAwsKmsKeyringInput = CreateMrkAwareStrictAwsKmsKeyringInput(
+        kmsKeyId: KMS.KmsKeyId,
+        grantTokens: KMS.GrantTokenList,
+        kmsClient: AmazonKeyManagementService.IAmazonKeyManagementService
+    )
+
+    // TODO: Client supplier
+    datatype CreateMrkAwareStrictMultiKeyringInput = CreateMrkAwareStrictMultiKeyringInput(
+        generator: KMS.KmsKeyId,
+        kmsKeyIds: KMS.KmsKeyIdList,
+        grantTokens: KMS.GrantTokenList,
+        clientSupplier: KMS.IClientSupplier
     )
 
     // TODO: Naming convention for interfaces/traits?
