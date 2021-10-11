@@ -8,17 +8,17 @@ module {:extern "AwsEncryptionSdk"} EncryptionSDK {
     import opened UInt = StandardLibrary.UInt
 
     datatype EncryptInput = EncryptInput(
-        plaintext: seq<uint8>,
-        encryptionContext: Option<CryptographicMaterialProviders.Structures.EncryptionContext>,
-        algorithmSuite: Option<string>,
-        keyring: CryptographicMaterialProviders.Keyrings.IKeyring?,
-        materialsManager: CryptographicMaterialProviders.CMMs.ICryptographicMaterialProvider?
+        nameonly plaintext: seq<uint8>,
+        nameonly encryptionContext: Option<CryptographicMaterialProviders.Structures.EncryptionContext>,
+        nameonly algorithmSuite: Option<CryptographicMaterialProviders.CryptoConfig.AlgorithmSuite>,
+        nameonly keyring: CryptographicMaterialProviders.Keyrings.IKeyring?,
+        nameonly materialsManager: CryptographicMaterialProviders.CMMs.ICryptographicMaterialProvider?
     )
 
     datatype EncryptOutput = EncryptOutput(
-        ciphertext: seq<uint8>,
-        encryptionContext: CryptographicMaterialProviders.Structures.EncryptionContext,
-        algorithmSuite: string
+        nameonly ciphertext: seq<uint8>,
+        nameonly encryptionContext: CryptographicMaterialProviders.Structures.EncryptionContext,
+        nameonly algorithmSuite: CryptographicMaterialProviders.CryptoConfig.AlgorithmSuite
     )
 
     trait IAwsEncryptionSdkClient {
@@ -26,9 +26,9 @@ module {:extern "AwsEncryptionSdk"} EncryptionSDK {
     }
 
     datatype AwsEncryptionSdkClientConfig = AwsEncryptionSdkClientConfig(
-        commitmentPolicy: string,
-        maxEncryptedEdks: int,
-        configDefaults: string
+        nameonly commitmentPolicy: string,
+        nameonly maxEncryptedEdks: int,
+        nameonly configDefaults: string
     )
 
     // If we were to follow the C# example we would generate an abstract class here whose methods
