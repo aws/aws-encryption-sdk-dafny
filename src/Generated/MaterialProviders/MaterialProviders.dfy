@@ -20,7 +20,6 @@ module {:extern "CryptographicMaterialProviders"} CryptographicMaterialProviders
         trait IClientSupplier {
             method GetClient(region: string) returns (res: AmazonKeyManagementService.IAmazonKeyManagementService)
         }
-
     }
 
     // TODO: don't necessarily need sub-structures here. Perhaps Dafny modules are 1:1 with
@@ -31,12 +30,13 @@ module {:extern "CryptographicMaterialProviders"} CryptographicMaterialProviders
         import UTF8
         import opened UInt = StandardLibrary.UInt
         import opened Wrappers
+        import CryptoConfig
 
-        type EncryptionContext = map<UTF8.ValidUTF8Bytes, UTF8.ValidUTF8Bytes>
+        type EncryptionContext = map<string, string>
 
-        datatype EncryptedDataKey = EncryptedDataKey(providerID: UTF8.ValidUTF8Bytes,
-                                                     providerInfo: seq<uint8>,
-                                                     ciphertext: seq<uint8>)
+        datatype EncryptedDataKey = EncryptedDataKey(nameonly providerID: UTF8.ValidUTF8Bytes,
+                                                     nameonly providerInfo: seq<uint8>,
+                                                     nameonly ciphertext: seq<uint8>)
         {
             // TODO: constraints not currently modeled in Smithy
             predicate Valid() {
@@ -49,39 +49,39 @@ module {:extern "CryptographicMaterialProviders"} CryptographicMaterialProviders
 
         type EncryptedDataKeyList = seq<EncryptedDataKey>
 
-        // Discussion: there are various constraints we could add in a predicate to validate
-        // correctness of materials (such as if the algorithm suite includes signing, a signingKey
-        // is present). However, we haven't so far been able to model these sorts of constraints
-        // in Smithy, so it's not clear that the Smithy-generated code will be able to have them.
-        // Perhaps manually implemented?
-        datatype EncryptionMaterials = EncryptionMaterials(encryptionContext: Option<EncryptionContext>,
-                                                           algorithm: Option<string>,
-                                                           plaintextDataKey: Option<seq<uint8>>,
-                                                           encryptedDataKeys: Option<seq<ValidEncryptedDataKey>>,
-                                                           signingKey: Option<seq<uint8>>)
+        // There are a number of assertions we can make about materials to validate correctness
+        // (for example: if the algorithm suite includes signing, signingKey must not be null).
+        // However, we cannot model these in Smithy, so we will need to write them manually in the
+        // Dafny code rather than in this auto-generated portion.
+        datatype EncryptionMaterials = EncryptionMaterials(nameonly encryptionContext: Option<EncryptionContext>,
+                                                           nameonly algorithm: Option<CryptoConfig.AlgorithmSuite>,
+                                                           nameonly plaintextDataKey: Option<seq<uint8>>,
+                                                           nameonly encryptedDataKeys: Option<seq<ValidEncryptedDataKey>>,
+                                                           nameonly signingKey: Option<seq<uint8>>)
 
-        datatype DecryptionMaterials = DecryptionMaterials(encryptionContext: Option<EncryptionContext>,
-                                                           algorithm: Option<string>,
-                                                           plaintextDataKey: Option<seq<uint8>>,
-                                                           verificationKey: Option<seq<uint8>>)
+        datatype DecryptionMaterials = DecryptionMaterials(nameonly encryptionContext: Option<EncryptionContext>,
+                                                           nameonly algorithm: Option<CryptoConfig.AlgorithmSuite>,
+                                                           nameonly plaintextDataKey: Option<seq<uint8>>,
+                                                           nameonly verificationKey: Option<seq<uint8>>)
     }
 
     module CryptoConfig {
-        // Discusion: we can model commitment policy as an enum like this, with no values.
-        // But other enum types (like AlgSuite) do have values we want to associate with them.
-        // Since this will eventually be code-genned, we need to be consistent since they're both
-        // Smithy enums. Plus the Smithy docs suggest that code generators may choose to represent
-        // enums as constants, for better forwards compatibility.
-        datatype CommitmentPolicy = FORBID_ENCRYPT_FORBID_DECRYPT | REQUIRE_ENCRYPT_ALLOW_DECRYPT | REQUIRE_ENCRYPT_REQUIRE_DECRYPT
+        datatype CommitmentPolicy = 
+            FORBID_ENCRYPT_FORBID_DECRYPT |
+            REQUIRE_ENCRYPT_ALLOW_DECRYPT |
+            REQUIRE_ENCRYPT_REQUIRE_DECRYPT
 
-        class AlgorithmSuite {
-            const ALG_AES_256_GCM_HKDF_SHA512_COMMIT_KEY               := 0x0478
-            const ALG_AES_256_GCM_HKDF_SHA512_COMMIT_KEY_ECDSA_P384    := 0x0578
+        datatype AlgorithmSuite = 
+            ALG_AES_256_GCM_HKDF_SHA512_COMMIT_KEY |
+            ALG_AES_256_GCM_HKDF_SHA512_COMMIT_KEY_ECDSA_P384
             // TODO: the rest
-        }
 
-        // Padding scheme
-
+        datatype PaddingScheme =
+            PKCS1 |
+            OAEP_SHA1_MGF1 |
+            OAEP_SHA256_MGF1 |
+            OAEP_SHA384_MGF1 |
+            OAEP_SHA512_MGF1
     }
 
     module Keyrings {
@@ -89,12 +89,14 @@ module {:extern "CryptographicMaterialProviders"} CryptographicMaterialProviders
         import opened Wrappers
         import UTF8
 
-        // We can consider removing wrapper objects like this and passing the parameters
-        // directly as named parameters. 
-        datatype OnEncryptInput = OnEncryptInput(materials: Structures.EncryptionMaterials)
-        datatype OnEncryptOutput = OnEncryptOutput(materials: Structures.EncryptionMaterials)
-        datatype OnDecryptInput = OnDecryptInput(materials: Structures.DecryptionMaterials)
-        datatype OnDecryptOutput = OnDecryptOutput(materials: Structures.DecryptionMaterials)
+        // For the input structures, we could remove these wrapper structures and inline the contained
+        // structures (in this case, encryption/decryption materials) directly in method signatures.
+        // But we cannot do the same for output, so for now we choose to give everything the wrapper
+        // to retain symmetry.
+        datatype OnEncryptInput = OnEncryptInput(nameonly materials: Structures.EncryptionMaterials)
+        datatype OnEncryptOutput = OnEncryptOutput(nameonly materials: Structures.EncryptionMaterials)
+        datatype OnDecryptInput = OnDecryptInput(nameonly materials: Structures.DecryptionMaterials)
+        datatype OnDecryptOutput = OnDecryptOutput(nameonly materials: Structures.DecryptionMaterials)
 
         // TODO: Naming convention for interfaces/traits?
         trait IKeyring {
@@ -110,24 +112,24 @@ module {:extern "CryptographicMaterialProviders"} CryptographicMaterialProviders
         import KMS
 
         datatype GetEncryptionMaterialsInput = GetEncryptionMaterialsInput(
-            encryptionContext: Structures.EncryptionContext,
-            algorithmSuite: Option<string>,
-            maxPlaintextLength: int
+            nameonly encryptionContext: Structures.EncryptionContext,
+            nameonly algorithmSuite: Option<CryptoConfig.AlgorithmSuite>,
+            nameonly maxPlaintextLength: int
         )
 
         datatype GetEncryptionMaterialsOutput = GetEncryptionMaterialsOutput(
-            materials: Structures.EncryptionMaterials
+            nameonly materials: Structures.EncryptionMaterials
         )
 
         datatype DecryptMaterialsInput = DecryptMaterialsInput(
-            encryptionContext: Structures.EncryptionContext,
-            commitmentPolicy: CryptoConfig.CommitmentPolicy,
-            algorithmSuite: string,
-            encryptedDataKeys: Structures.EncryptedDataKeyList
+            nameonly encryptionContext: Structures.EncryptionContext,
+            nameonly commitmentPolicy: CryptoConfig.CommitmentPolicy,
+            nameonly algorithmSuite: CryptoConfig.AlgorithmSuite,
+            nameonly encryptedDataKeys: Structures.EncryptedDataKeyList
         )
 
         datatype DecryptMaterialsOutput = DecryptMaterialsOutput(
-            decryptionMaterials: Structures.DecryptionMaterials
+            nameonly decryptionMaterials: Structures.DecryptionMaterials
         )
 
         trait ICryptographicMaterialProvider {
@@ -138,21 +140,20 @@ module {:extern "CryptographicMaterialProviders"} CryptographicMaterialProviders
 
     // Creation inputs
     datatype CreateMrkAwareStrictAwsKmsKeyringInput = CreateMrkAwareStrictAwsKmsKeyringInput(
-        kmsKeyId: KMS.KmsKeyId,
-        grantTokens: KMS.GrantTokenList,
-        kmsClient: AmazonKeyManagementService.IAmazonKeyManagementService
+        nameonly kmsKeyId: KMS.KmsKeyId,
+        nameonly grantTokens: KMS.GrantTokenList,
+        nameonly kmsClient: AmazonKeyManagementService.IAmazonKeyManagementService
     )
 
-    // TODO: Client supplier
     datatype CreateMrkAwareStrictMultiKeyringInput = CreateMrkAwareStrictMultiKeyringInput(
-        generator: KMS.KmsKeyId,
-        kmsKeyIds: KMS.KmsKeyIdList,
-        grantTokens: KMS.GrantTokenList,
-        clientSupplier: KMS.IClientSupplier
+        nameonly generator: KMS.KmsKeyId,
+        nameonly kmsKeyIds: KMS.KmsKeyIdList,
+        nameonly grantTokens: KMS.GrantTokenList,
+        nameonly clientSupplier: KMS.IClientSupplier
     )
 
     // TODO: Naming convention for interfaces/traits?
-    // TODO: removed Result<> return because it does not accept traits
+    // TODO: eventually should return a Result<>, but Dafny currently doesn't support traits as parameters to Result<>
     trait IAwsCryptographicMaterialProvidersClient {
         method CreateMrkAwareStrictAwsKmsKeyring(input: CreateMrkAwareStrictAwsKmsKeyringInput) returns (res: Keyrings.IKeyring)
         // TODO: Others
