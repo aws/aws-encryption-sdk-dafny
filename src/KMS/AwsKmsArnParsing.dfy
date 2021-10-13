@@ -119,26 +119,6 @@ module  AwsKmsArnParsing {
   }
 
   function method ParseAwsKmsResources(identifier: string): (result: Result<AwsKmsResource, string>)
-    //= compliance/framework/aws-kms/aws-kms-key-arn.txt#2.5
-    //= type=implication
-    //# The resource section MUST be non-empty and MUST be split by a
-    //# single "/" any additional "/" are included in the resource id
-    ensures result.Success? ==>
-      var info := Split(identifier, '/');
-      && |info| > 1
-      && Join([result.value.resourceType, result.value.value], "/") == identifier
-    //= compliance/framework/aws-kms/aws-kms-key-arn.txt#2.5
-    //= type=implication
-    //# The resource type MUST be either "alias" or "key"
-    ensures result.Success? ==>
-      var resourceType := Split(identifier, '/')[0];
-      "key" <= resourceType || "alias" <= resourceType
-    //= compliance/framework/aws-kms/aws-kms-key-arn.txt#2.5
-    //= type=implication
-    //# The resource id MUST be a non-empty string
-    ensures result.Success? ==>
-      var info := Split(identifier, '/');
-      |Join(info[1..], "/")| > 0
   {
     var info := Split(identifier, '/');
 
@@ -153,6 +133,30 @@ module  AwsKmsArnParsing {
 
     Success(resource)
   }
+
+  lemma ParseAwsKmsResourcesCorrect(identifier: string)
+    //= compliance/framework/aws-kms/aws-kms-key-arn.txt#2.5
+    //= type=implication
+    //# The resource section MUST be non-empty and MUST be split by a
+    //# single "/" any additional "/" are included in the resource id
+    ensures ParseAwsKmsResources(identifier).Success? ==>
+      var info := Split(identifier, '/');
+      var r := ParseAwsKmsResources(identifier);
+      && |info| > 1
+      && Join([r.value.resourceType, r.value.value], "/") == identifier
+    //= compliance/framework/aws-kms/aws-kms-key-arn.txt#2.5
+    //= type=implication
+    //# The resource type MUST be either "alias" or "key"
+    ensures ParseAwsKmsResources(identifier).Success? ==>
+      var resourceType := Split(identifier, '/')[0];
+      "key" == resourceType || "alias" == resourceType
+    //= compliance/framework/aws-kms/aws-kms-key-arn.txt#2.5
+    //= type=implication
+    //# The resource id MUST be a non-empty string
+    ensures ParseAwsKmsResources(identifier).Success? ==>
+      var info := Split(identifier, '/');
+      |Join(info[1..], "/")| > 0
+  {}
 
   function method ParseAwsKmsArn(identifier: string): (result: Result<AwsKmsArn, string>)
   {
@@ -180,41 +184,39 @@ module  AwsKmsArnParsing {
     //= compliance/framework/aws-kms/aws-kms-key-arn.txt#2.5
     //= type=implication
     //# MUST start with string "arn"
-    ensures "arn" <= identifier ==> ParseAwsKmsArn(identifier).Success?
+    ensures ParseAwsKmsArn(identifier).Success? ==> "arn" <= identifier
 
-    ensures |Split(identifier, ':')| == 6 ==> ParseAwsKmsArn(identifier).Success?
+    ensures ParseAwsKmsArn(identifier).Success? ==> |Split(identifier, ':')| == 6
 
     //= compliance/framework/aws-kms/aws-kms-key-arn.txt#2.5
     //= type=implication
     //# The partition MUST be a non-empty
-    ensures |Split(identifier, ':')[1]| > 0 ==> ParseAwsKmsArn(identifier).Success?
+    ensures ParseAwsKmsArn(identifier).Success? ==> |Split(identifier, ':')[1]| > 0
 
     //= compliance/framework/aws-kms/aws-kms-key-arn.txt#2.5
     //= type=implication
     //# The service MUST be the string "kms"
-    ensures Split(identifier, ':')[2] == "kms" ==> ParseAwsKmsArn(identifier).Success?
+    ensures ParseAwsKmsArn(identifier).Success? ==> Split(identifier, ':')[2] == "kms"
 
     //= compliance/framework/aws-kms/aws-kms-key-arn.txt#2.5
     //= type=implication
     //# The region MUST be a non-empty string
-    ensures |Split(identifier, ':')[3]| > 0 ==> ParseAwsKmsArn(identifier).Success?
+    ensures ParseAwsKmsArn(identifier).Success? ==> |Split(identifier, ':')[3]| > 0
 
     //= compliance/framework/aws-kms/aws-kms-key-arn.txt#2.5
     //= type=implication
     //# The account MUST be a non-empty string
-    ensures |Split(identifier, ':')[4]| > 0 ==> ParseAwsKmsArn(identifier).Success?
+    ensures ParseAwsKmsArn(identifier).Success? ==> |Split(identifier, ':')[4]| > 0
   {}
 
   function method ParseAwsKmsIdentifier(identifier: string): (result: Result<AwsKmsIdentifier, string>)
   {
     if "arn:" <= identifier then
       var arn :- ParseAwsKmsArn(identifier);
-      var tmp := AwsKmsArnIdentifier(arn);
-      Success(tmp)
+      Success(AwsKmsArnIdentifier(arn))
     else
       var r :- ParseAwsKmsRawResources(identifier);
-      var tmp := AwsKmsRawResourceIdentifier(r);
-      Success(tmp)
+      Success(AwsKmsRawResourceIdentifier(r))
   }
 
   //= compliance/framework/aws-kms/aws-kms-key-arn.txt#2.8
