@@ -46,7 +46,7 @@ module  AwsKmsMrkMatchForDecrypt {
       && c.Success?
       && m.Success?
     ==>
-      AwsKmsMrkMatchForDecrypt(c.value, m.value);
+      AwsKmsMrkMatchForDecrypt(c.value, m.value)
     //= compliance/framework/aws-kms/aws-kms-mrk-match-for-decrypt.txt#2.5
     //= type=implication
     //# Otherwise if either input is not identified as a multi-Region key
