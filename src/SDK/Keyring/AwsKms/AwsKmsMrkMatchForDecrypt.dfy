@@ -58,10 +58,7 @@ module  AwsKmsMrkMatchForDecrypt {
       && config != message
       && c.Success?
       && m.Success?
-      && (
-        || !IsMultiRegionAwsKmsArn(c.value)
-        || !IsMultiRegionAwsKmsArn(m.value)
-      )
+      && IsMultiRegionAwsKmsArn(c.value) != IsMultiRegionAwsKmsArn(m.value)
     ==>
       !AwsKmsMrkMatchForDecrypt(
         AwsKmsArnIdentifier(c.value), 
