@@ -22,13 +22,13 @@ module  AwsKmsMrkAreUnique {
     if |mrks| == 0 then
       Success(())
     else
-      var mrkKeyIds := Seq.Map(PluckKeyId, mrks);
+      var mrkKeyIds := Seq.Map(GetKeyId, mrks);
       var setMrks := ToSet(mrkKeyIds);
       if |mrkKeyIds| == |setMrks| then
         Success(())
       else
         var duplicateMrkIds := set x | x in mrkKeyIds && multiset(mrkKeyIds)[x] >= 1;
-        var isDuplicate := identifier => PluckKeyId(identifier) in duplicateMrkIds;
+        var isDuplicate := identifier => GetKeyId(identifier) in duplicateMrkIds;
         var identifierToString := (i: AwsKmsIdentifier) => i.ToString();
 
         var duplicateIdentifiers := Seq.Filter(isDuplicate, identifiers);
@@ -42,7 +42,7 @@ module  AwsKmsMrkAreUnique {
         )
   }
 
-  function method PluckKeyId(identifier: AwsKmsIdentifier): (result: string) {
+  function method GetKeyId(identifier: AwsKmsIdentifier): (result: string) {
     match identifier {
       case AwsKmsArnIdentifier(a) => a.resource.value
       case AwsKmsRawResourceIdentifier(i) => i.value
@@ -66,7 +66,7 @@ module  AwsKmsMrkAreUnique {
     //# keys, this function MUST exit successfully
     ensures
       var mrks := Seq.Filter(IsMultiRegionAwsKmsIdentifier, identifiers);
-      var ids := Seq.Map(PluckKeyId, mrks);
+      var ids := Seq.Map(GetKeyId, mrks);
       && |mrks| > 0
       && Seq.HasNoDuplicates(ids)
     ==>
@@ -79,19 +79,18 @@ module  AwsKmsMrkAreUnique {
     //# ids not only the first duplicate found.
     ensures
       var mrks := Seq.Filter(IsMultiRegionAwsKmsIdentifier, identifiers);
-      var ids := Seq.Map(PluckKeyId, mrks);
+      var ids := Seq.Map(GetKeyId, mrks);
       && |mrks| > 0
       && !Seq.HasNoDuplicates(ids)
     ==>
       AwsKmsMrkAreUnique(identifiers).Failure?
   {
-    var ids := Seq.Map(
-      PluckKeyId,
-      Seq.Filter(IsMultiRegionAwsKmsIdentifier, identifiers)
-    );
+    var mrks := Seq.Filter(IsMultiRegionAwsKmsIdentifier, identifiers);
+    var ids := Seq.Map(GetKeyId, mrks);
     if Seq.HasNoDuplicates(ids) {
       LemmaCardinalityOfSetNoDuplicates(ids);
-    } else if |ToSet(ids)| == |ids| {
+    }
+    if |ToSet(ids)| == |ids| {
       LemmaNoDuplicatesCardinalityOfSet(ids);
     }
   }
