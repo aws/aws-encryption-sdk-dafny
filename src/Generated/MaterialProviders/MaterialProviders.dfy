@@ -2,17 +2,19 @@ include "../../Util/UTF8.dfy"
 include "../../StandardLibrary/StandardLibrary.dfy"
 include "../../KMS/AmazonKeyManagementService.dfy"
 
-module {:extern "CryptographicMaterialProviders"} CryptographicMaterialProviders {
-    import opened Wrappers
-    import AmazonKeyManagementService
-    import opened UInt = StandardLibrary.UInt
-
-    // TODO: KMS client will live here
-    // TODO: How much value do we get out of the FooList types?
-    module KMS {
-        import UTF8
+// All in one file for now, because I can't figure out how to get this submodule structure (with
+// the shared 'Aws' prefix) working in different files. When we extract material providers to an 
+// independent library we'll need to make these separate files, or change namespaces to not have
+// the shared prefix.
+module {:extern "Aws"} Aws {
+    module {:extern "Crypto"} Crypto {
+        import opened Wrappers
         import AmazonKeyManagementService
+        import opened UInt = StandardLibrary.UInt
+        import UTF8
 
+        /////////////
+        // kms.smithy
         type KmsKeyId = string
         type KmsKeyIdList = seq<KmsKeyId>
 
@@ -29,18 +31,9 @@ module {:extern "CryptographicMaterialProviders"} CryptographicMaterialProviders
         trait IClientSupplier {
             method GetClient(input: GetClientInput) returns (res: AmazonKeyManagementService.IAmazonKeyManagementService)
         }
-    }
 
-    // TODO: don't necessarily need sub-structures here. Perhaps Dafny modules are 1:1 with
-    // Smithy namespaces, in which case all of this lives under the "aws.crypto" module.
-    // But for now it seems like a nice way of separating things out. Alternatively we could
-    // update the Smithy model to have more sub-namespaces ("aws.crypto.structures").
-    module Structures {
-        import UTF8
-        import opened UInt = StandardLibrary.UInt
-        import opened Wrappers
-        import CryptoConfig
-
+        /////////////
+        // structures.smithy
         type EncryptionContext = map<string, string>
 
         datatype EncryptedDataKey = EncryptedDataKey(nameonly providerID: UTF8.ValidUTF8Bytes,
@@ -63,18 +56,18 @@ module {:extern "CryptographicMaterialProviders"} CryptographicMaterialProviders
         // However, we cannot model these in Smithy, so we will need to write them manually in the
         // Dafny code rather than in this auto-generated portion.
         datatype EncryptionMaterials = EncryptionMaterials(nameonly encryptionContext: Option<EncryptionContext>,
-                                                           nameonly algorithm: Option<CryptoConfig.AlgorithmSuite>,
+                                                           nameonly algorithm: Option<AlgorithmSuite>,
                                                            nameonly plaintextDataKey: Option<seq<uint8>>,
                                                            nameonly encryptedDataKeys: Option<seq<ValidEncryptedDataKey>>,
                                                            nameonly signingKey: Option<seq<uint8>>)
 
         datatype DecryptionMaterials = DecryptionMaterials(nameonly encryptionContext: Option<EncryptionContext>,
-                                                           nameonly algorithm: Option<CryptoConfig.AlgorithmSuite>,
+                                                           nameonly algorithm: Option<AlgorithmSuite>,
                                                            nameonly plaintextDataKey: Option<seq<uint8>>,
                                                            nameonly verificationKey: Option<seq<uint8>>)
-    }
 
-    module CryptoConfig {
+        ///////////////////////
+        // crypto-config.smithy
         datatype CommitmentPolicy = 
             FORBID_ENCRYPT_FORBID_DECRYPT |
             REQUIRE_ENCRYPT_ALLOW_DECRYPT |
@@ -99,32 +92,26 @@ module {:extern "CryptographicMaterialProviders"} CryptographicMaterialProviders
             OAEP_SHA256_MGF1 |
             OAEP_SHA384_MGF1 |
             OAEP_SHA512_MGF1
-    }
 
-    module Keyrings {
-        import Structures
-        import opened Wrappers
-        import UTF8
+        //////////////////
+        // keyrings.smithy
 
         // For the input structures, we could remove these wrapper structures and inline the contained
         // structures (in this case, encryption/decryption materials) directly in method signatures.
         // But we cannot do the same for output, so for now we choose to give everything the wrapper
         // to retain symmetry.
-        datatype OnEncryptInput = OnEncryptInput(nameonly materials: Structures.EncryptionMaterials)
-        datatype OnEncryptOutput = OnEncryptOutput(nameonly materials: Structures.EncryptionMaterials)
-        datatype OnDecryptInput = OnDecryptInput(nameonly materials: Structures.DecryptionMaterials)
-        datatype OnDecryptOutput = OnDecryptOutput(nameonly materials: Structures.DecryptionMaterials)
+        datatype OnEncryptInput = OnEncryptInput(nameonly materials: EncryptionMaterials)
+        datatype OnEncryptOutput = OnEncryptOutput(nameonly materials: EncryptionMaterials)
+        datatype OnDecryptInput = OnDecryptInput(nameonly materials: DecryptionMaterials)
+        datatype OnDecryptOutput = OnDecryptOutput(nameonly materials: DecryptionMaterials)
 
         trait IKeyring {
             method OnEncrypt(input: OnEncryptInput) returns (res: Result<OnEncryptOutput, string>)
             method OnDecrypt(input: OnDecryptInput) returns (res: Result<OnDecryptOutput, string>)
         }
-    }
 
-    module Caching {
-        import opened UInt = StandardLibrary.UInt
-        import Structures
-
+        /////////////////
+        // caching.smithy
         datatype CacheUsageMetadata = CacheUsageMetadata(
             messageUsage: int,
             byteUsage: int
@@ -132,14 +119,14 @@ module {:extern "CryptographicMaterialProviders"} CryptographicMaterialProviders
 
         datatype EncryptEntry = EncryptEntry(
             identifier: seq<uint8>,
-            encryptionMaterials: Structures.EncryptionMaterials,
+            encryptionMaterials: EncryptionMaterials,
             creationTime: int,
             expiryTime: int,
             usageMetadata: CacheUsageMetadata
         )
         datatype DecryptEntry = DecryptEntry(
             identifier: seq<uint8>,
-            decryptionMaterials: Structures.DecryptionMaterials,
+            decryptionMaterials: DecryptionMaterials,
             creationTime: int,
             expiryTime: int,
             usageMetadata: CacheUsageMetadata
@@ -147,7 +134,7 @@ module {:extern "CryptographicMaterialProviders"} CryptographicMaterialProviders
 
         datatype PutEntryForEncryptInput = PutEntryForEncryptInput(
             identifier: seq<uint8>,
-            encryptionMaterials: Structures.EncryptionMaterials,
+            encryptionMaterials: EncryptionMaterials,
             usageMetadata: CacheUsageMetadata
         )
         datatype PutEntryForEncryptOutput = PutEntryForEncryptOutput() // empty for now
@@ -157,7 +144,7 @@ module {:extern "CryptographicMaterialProviders"} CryptographicMaterialProviders
 
         datatype PutEntryForDecryptInput = PutEntryForDecryptInput(
             identifier: seq<uint8>,
-            decryptionMaterials: Structures.DecryptionMaterials
+            decryptionMaterials: DecryptionMaterials
         )
         datatype PutEntryForDecryptOutput = PutEntryForDecryptOutput() // empty for now
         
@@ -176,140 +163,193 @@ module {:extern "CryptographicMaterialProviders"} CryptographicMaterialProviders
 
             method DeleteEntry(input: DeleteEntryInput) returns (res: DeleteEntryOutput)
         }
-    }
 
-    module CMMs {
-        import Structures
-        import CryptoConfig
-        import opened Wrappers
-        import KMS
-
+        //////////////
+        // cmms.smithy
         datatype GetEncryptionMaterialsInput = GetEncryptionMaterialsInput(
-            nameonly encryptionContext: Structures.EncryptionContext,
-            nameonly algorithmSuite: Option<CryptoConfig.AlgorithmSuite>,
+            nameonly encryptionContext: EncryptionContext,
+            nameonly algorithmSuite: Option<AlgorithmSuite>,
             nameonly maxPlaintextLength: int
         )
 
         datatype GetEncryptionMaterialsOutput = GetEncryptionMaterialsOutput(
-            nameonly materials: Structures.EncryptionMaterials
+            nameonly materials: EncryptionMaterials
         )
 
         datatype DecryptMaterialsInput = DecryptMaterialsInput(
-            nameonly encryptionContext: Structures.EncryptionContext,
-            nameonly commitmentPolicy: CryptoConfig.CommitmentPolicy,
-            nameonly algorithmSuite: CryptoConfig.AlgorithmSuite,
-            nameonly encryptedDataKeys: Structures.EncryptedDataKeyList
+            nameonly encryptionContext: EncryptionContext,
+            nameonly commitmentPolicy: CommitmentPolicy,
+            nameonly algorithmSuite: AlgorithmSuite,
+            nameonly encryptedDataKeys: EncryptedDataKeyList
         )
 
         datatype DecryptMaterialsOutput = DecryptMaterialsOutput(
-            nameonly decryptionMaterials: Structures.DecryptionMaterials
+            nameonly decryptionMaterials: DecryptionMaterials
         )
 
         trait ICryptographicMaterialsManager {
             method GetEncryptionMaterials(input: GetEncryptionMaterialsInput) returns (res: Result<GetEncryptionMaterialsOutput, string>)
             method DecryptMaterials(input: DecryptMaterialsInput) returns (res: Result<DecryptMaterialsOutput, string>)
         }
+
+            // Keyring creation input structures
+
+        // KMS - Old Style
+        datatype CreateAwsKmsKeyringInput = CreateAwsKmsKeyringInput(
+            nameonly clientSupplier: IClientSupplier,
+            nameonly generator: Option<KmsKeyId>,
+            nameonly keyIds: Option<KmsKeyIdList>,
+            grantTokens: Option<GrantTokenList>
+        )
+
+        // KMS - MRK Aware, Strict
+        datatype CreateMrkAwareStrictAwsKmsKeyringInput = CreateMrkAwareStrictAwsKmsKeyringInput(
+            nameonly kmsKeyId: KmsKeyId,
+            nameonly grantTokens: Option<GrantTokenList>,
+            nameonly kmsClient: AmazonKeyManagementService.IAmazonKeyManagementService
+        )
+
+        datatype CreateMrkAwareStrictMultiKeyringInput = CreateMrkAwareStrictMultiKeyringInput(
+            nameonly generator: Option<KmsKeyId>,
+            nameonly kmsKeyIds: Option<KmsKeyIdList>,
+            nameonly grantTokens: Option<GrantTokenList>,
+            nameonly clientSupplier: IClientSupplier?
+        )
+
+        // KMS - MRK Aware, Discovery
+        datatype CreateMrkAwareDiscoveryAwsKmsKeyringInput = CreateMrkAwareDiscoveryAwsKmsKeyringInput(
+            nameonly kmsClient: AmazonKeyManagementService.IAmazonKeyManagementService,
+            nameonly discoveryFilter: Option<DiscoveryFilter>,
+            nameonly grantTokens: Option<GrantTokenList>
+        )
+
+        datatype CreateMrkAwareDiscoveryMultiKeyringInput = CreateMrkAwareDiscoveryMultiKeyringInput(
+            nameonly regions: RegionList,
+            nameonly discoveryFilter: Option<DiscoveryFilter>,
+            nameonly grantTokens: Option<GrantTokenList>,
+            nameonly clientSupplier: IClientSupplier?
+        )
+
+        // Multi
+        datatype CreateMultiKeyringInput = CreateMultiKeyringInput(
+            nameonly generator: IKeyring?,
+            nameonly childKeyrings: Option<seq<IKeyring>>
+        )
+
+        // Raw Keyrings
+        datatype CreateRawAesKeyringInput = CreateRawAesKeyringInput(
+            nameonly keyNamespace: string,
+            nameonly keyName: string,
+            nameonly wrappingKey: seq<uint8>
+        )
+
+        datatype CreateRawRsaKeyringInput = CreateRawRsaKeyringInput(
+            nameonly keyNamespace: string,
+            nameonly keyName: string,
+            nameonly paddingScheme: PaddingScheme,
+            nameonly publicKey: Option<seq<uint8>>,
+            nameonly privateKey: Option<seq<uint8>>
+        )
+
+        // CMM Creation input structures
+
+        datatype CreateDefaultCryptographicMaterialsManagerInput = CreateDefaultCryptographicMaterialsManagerInput(
+            nameonly keyring: IKeyring
+        )
+
+        datatype CreateCachingCryptographicMaterialsManagerInput = CreateCachingCryptographicMaterialsManagerInput(
+            nameonly cache: ICryptoMaterialsCache,
+            nameonly cacheLimitTtl: int,
+            nameonly keyring: IKeyring?,
+            nameonly materialsManager: ICryptographicMaterialsManager?,
+            nameonly partitionId: Option<string>,
+            nameonly limitBytes: Option<int>,
+            nameonly limitMessages: Option<int>
+        )
+
+        // Caching creation structures
+        datatype CreateLocalCryptoMaterialsCacheInput = CreateLocalCryptoMaterialsCacheInput(
+            nameonly entryCapacity: int,
+            nameonly entryPruningTailSize: Option<int>
+        )
+
+        // TODO: Return Result<> once supported with traits
+        trait IAwsCryptographicMaterialProvidersClient {
+
+            // Keyrings
+            method CreateAwsKmsKeyring(Input: CreateAwsKmsKeyringInput) returns (res: IKeyring) 
+            method CreateMrkAwareStrictAwsKmsKeyring(input: CreateMrkAwareStrictAwsKmsKeyringInput) returns (res: IKeyring)
+            method CreateMrkAwareStrictMultiKeyring(input: CreateMrkAwareStrictMultiKeyringInput) returns (res: IKeyring)
+            method CreateMrkAwareDiscoveryAwsKmsKeyring(input: CreateMrkAwareDiscoveryAwsKmsKeyringInput) returns (res: IKeyring)
+            method CreateMrkAwareDiscoveryMultiKeyring(input: CreateMrkAwareDiscoveryMultiKeyringInput) returns (res: IKeyring)
+            method CreateMultiKeyring(input: CreateMultiKeyringInput) returns (res: IKeyring)
+            method CreateRawAesKeyring(input: CreateRawAesKeyringInput) returns (res: IKeyring)
+            method CreateRawRsaKeyring(input: CreateRawRsaKeyringInput) returns (res: IKeyring)
+
+            // CMMs
+            method CreateDefaultCryptographicMaterialsManager(input: CreateDefaultCryptographicMaterialsManagerInput) returns (res: ICryptographicMaterialsManager)
+            method CreateCachingCryptographicMaterialsManager(input: CreateCachingCryptographicMaterialsManagerInput) returns (res: ICryptographicMaterialsManager)
+
+            // Caches
+            method CreateLocalCryptoMaterialsCache(input: CreateLocalCryptoMaterialsCacheInput) returns (res: ICryptoMaterialsCache)
+        }
     }
 
-    // Keyring creation input structures
+    module {:extern "Esdk"} Esdk {
+        import Crypto
+        import opened UInt = StandardLibrary.UInt
+        import opened Wrappers
 
-    // KMS - Old Style
-    datatype CreateAwsKmsKeyringInput = CreateAwsKmsKeyringInput(
-        nameonly clientSupplier: KMS.IClientSupplier,
-        nameonly generator: Option<KMS.KmsKeyId>,
-        nameonly keyIds: Option<KMS.KmsKeyIdList>,
-        grantTokens: Option<KMS.GrantTokenList>
-    )
+        datatype EncryptInput = EncryptInput(
+            nameonly plaintext: seq<uint8>,
+            nameonly encryptionContext: Option<Crypto.EncryptionContext>,
+            nameonly algorithmSuite: Option<Crypto.AlgorithmSuite>,
+            nameonly keyring: Crypto.IKeyring?,
+            nameonly materialsManager: Crypto.ICryptographicMaterialsManager?
+        )
 
-    // KMS - MRK Aware, Strict
-    datatype CreateMrkAwareStrictAwsKmsKeyringInput = CreateMrkAwareStrictAwsKmsKeyringInput(
-        nameonly kmsKeyId: KMS.KmsKeyId,
-        nameonly grantTokens: Option<KMS.GrantTokenList>,
-        nameonly kmsClient: AmazonKeyManagementService.IAmazonKeyManagementService
-    )
+        datatype EncryptOutput = EncryptOutput(
+            nameonly ciphertext: seq<uint8>,
+            nameonly encryptionContext: Crypto.EncryptionContext,
+            nameonly algorithmSuite: Crypto.AlgorithmSuite
+        )
 
-    datatype CreateMrkAwareStrictMultiKeyringInput = CreateMrkAwareStrictMultiKeyringInput(
-        nameonly generator: Option<KMS.KmsKeyId>,
-        nameonly kmsKeyIds: Option<KMS.KmsKeyIdList>,
-        nameonly grantTokens: Option<KMS.GrantTokenList>,
-        nameonly clientSupplier: KMS.IClientSupplier?
-    )
+        datatype DecryptInput = DecryptInput(
+            nameonly ciphertext: seq<uint8>,
+            nameonly keyring: Crypto.IKeyring?,
+            nameonly materialsManager: Crypto.ICryptographicMaterialsManager?
+        )
 
-    // KMS - MRK Aware, Discovery
-    datatype CreateMrkAwareDiscoveryAwsKmsKeyringInput = CreateMrkAwareDiscoveryAwsKmsKeyringInput(
-        nameonly kmsClient: AmazonKeyManagementService.IAmazonKeyManagementService,
-        nameonly discoveryFilter: Option<KMS.DiscoveryFilter>,
-        nameonly grantTokens: Option<KMS.GrantTokenList>
-    )
+        datatype DecryptOutput = DecryptOutput(
+            nameonly plaintext: seq<uint8>,
+            nameonly encryptionContext: Crypto.EncryptionContext,
+            nameonly algorithmSuite: Crypto.AlgorithmSuite
+        )
 
-    datatype CreateMrkAwareDiscoveryMultiKeyringInput = CreateMrkAwareDiscoveryMultiKeyringInput(
-        nameonly regions: KMS.RegionList,
-        nameonly discoveryFilter: Option<KMS.DiscoveryFilter>,
-        nameonly grantTokens: Option<KMS.GrantTokenList>,
-        nameonly clientSupplier: KMS.IClientSupplier?
-    )
+        trait IAwsEncryptionSdkClient {
+            method Encrypt(input: EncryptInput) returns (res: Result<EncryptOutput, string>)
+        }
 
-    // Multi
-    datatype CreateMultiKeyringInput = CreateMultiKeyringInput(
-        nameonly generator: Keyrings.IKeyring?,
-        nameonly childKeyrings: Option<seq<Keyrings.IKeyring>>
-    )
+        datatype AwsEncryptionSdkClientConfig = AwsEncryptionSdkClientConfig(
+            nameonly commitmentPolicy: string,
+            nameonly maxEncryptedEdks: int,
+            nameonly configDefaults: string
+        )
 
-    // Raw Keyrings
-    datatype CreateRawAesKeyringInput = CreateRawAesKeyringInput(
-        nameonly keyNamespace: string,
-        nameonly keyName: string,
-        nameonly wrappingKey: seq<uint8>
-    )
+        class AwsEncryptionSdkClient extends IAwsEncryptionSdkClient {
+            const clientConfig: AwsEncryptionSdkClientConfig
 
-    datatype CreateRawRsaKeyringInput = CreateRawRsaKeyringInput(
-        nameonly keyNamespace: string,
-        nameonly keyName: string,
-        nameonly paddingScheme: CryptoConfig.PaddingScheme,
-        nameonly publicKey: Option<seq<uint8>>,
-        nameonly privateKey: Option<seq<uint8>>
-    )
+            constructor(clientConfig: AwsEncryptionSdkClientConfig) {
+                this.clientConfig := clientConfig;
+            }
 
-    // CMM Creation input structures
+            static method createClient(nameonly clientConfig: AwsEncryptionSdkClientConfig) returns (res: AwsEncryptionSdkClient) {
+                res := new AwsEncryptionSdkClient(clientConfig);
+            }
 
-    datatype CreateDefaultCryptographicMaterialsManagerInput = CreateDefaultCryptographicMaterialsManagerInput(
-        nameonly keyring: Keyrings.IKeyring
-    )
-
-    datatype CreateCachingCryptographicMaterialsManagerInput = CreateCachingCryptographicMaterialsManagerInput(
-        nameonly cache: Caching.ICryptoMaterialsCache,
-        nameonly cacheLimitTtl: int,
-        nameonly keyring: Keyrings.IKeyring?,
-        nameonly materialsManager: CMMs.ICryptographicMaterialsManager?,
-        nameonly partitionId: Option<string>,
-        nameonly limitBytes: Option<int>,
-        nameonly limitMessages: Option<int>
-    )
-
-    // Caching creation structures
-    datatype CreateLocalCryptoMaterialsCacheInput = CreateLocalCryptoMaterialsCacheInput(
-        nameonly entryCapacity: int,
-        nameonly entryPruningTailSize: Option<int>
-    )
-
-    // TODO: Return Result<> once supported with traits
-    trait IAwsCryptographicMaterialProvidersClient {
-
-        // Keyrings
-        method CreateAwsKmsKeyring(Input: CreateAwsKmsKeyringInput) returns (res: Keyrings.IKeyring) 
-        method CreateMrkAwareStrictAwsKmsKeyring(input: CreateMrkAwareStrictAwsKmsKeyringInput) returns (res: Keyrings.IKeyring)
-        method CreateMrkAwareStrictMultiKeyring(input: CreateMrkAwareStrictMultiKeyringInput) returns (res: Keyrings.IKeyring)
-        method CreateMrkAwareDiscoveryAwsKmsKeyring(input: CreateMrkAwareDiscoveryAwsKmsKeyringInput) returns (res: Keyrings.IKeyring)
-        method CreateMrkAwareDiscoveryMultiKeyring(input: CreateMrkAwareDiscoveryMultiKeyringInput) returns (res: Keyrings.IKeyring)
-        method CreateMultiKeyring(input: CreateMultiKeyringInput) returns (res: Keyrings.IKeyring)
-        method CreateRawAesKeyring(input: CreateRawAesKeyringInput) returns (res: Keyrings.IKeyring)
-        method CreateRawRsaKeyring(input: CreateRawRsaKeyringInput) returns (res: Keyrings.IKeyring)
-
-        // CMMs
-        method CreateDefaultCryptographicMaterialsManager(input: CreateDefaultCryptographicMaterialsManagerInput) returns (res: CMMs.ICryptographicMaterialsManager)
-        method CreateCachingCryptographicMaterialsManager(input: CreateCachingCryptographicMaterialsManagerInput) returns (res: CMMs.ICryptographicMaterialsManager)
-
-        // Caches
-        method CreateLocalCryptoMaterialsCache(input: CreateLocalCryptoMaterialsCacheInput) returns (res: Caching.ICryptoMaterialsCache)
+            method Encrypt(input: EncryptInput) returns (res: Result<EncryptOutput, string>) {
+                // TODO
+            }
+        }
     }
 }
