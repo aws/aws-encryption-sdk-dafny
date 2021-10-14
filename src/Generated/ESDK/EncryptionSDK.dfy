@@ -3,6 +3,8 @@ include "../../StandardLibrary/StandardLibrary.dfy"
 include "../MaterialProviders/MaterialProviders.dfy"
 
 module {:extern "AwsEncryptionSdk"} EncryptionSDK {
+    export provides AwsEncryptionSdkClient, AwsEncryptionSdkClientConfig, AwsEncryptionSdkClient.createClient
+    
     import opened Wrappers
     import CryptographicMaterialProviders
     import opened UInt = StandardLibrary.UInt
@@ -12,11 +14,23 @@ module {:extern "AwsEncryptionSdk"} EncryptionSDK {
         nameonly encryptionContext: Option<CryptographicMaterialProviders.Structures.EncryptionContext>,
         nameonly algorithmSuite: Option<CryptographicMaterialProviders.CryptoConfig.AlgorithmSuite>,
         nameonly keyring: CryptographicMaterialProviders.Keyrings.IKeyring?,
-        nameonly materialsManager: CryptographicMaterialProviders.CMMs.ICryptographicMaterialProvider?
+        nameonly materialsManager: CryptographicMaterialProviders.CMMs.ICryptographicMaterialsManager?
     )
 
     datatype EncryptOutput = EncryptOutput(
         nameonly ciphertext: seq<uint8>,
+        nameonly encryptionContext: CryptographicMaterialProviders.Structures.EncryptionContext,
+        nameonly algorithmSuite: CryptographicMaterialProviders.CryptoConfig.AlgorithmSuite
+    )
+
+    datatype DecryptInput = DecryptInput(
+        nameonly ciphertext: seq<uint8>,
+        nameonly keyring: CryptographicMaterialProviders.Keyrings.IKeyring?,
+        nameonly materialsManager: CryptographicMaterialProviders.CMMs.ICryptographicMaterialsManager?
+    )
+
+    datatype DecryptOutput = DecryptOutput(
+        nameonly plaintext: seq<uint8>,
         nameonly encryptionContext: CryptographicMaterialProviders.Structures.EncryptionContext,
         nameonly algorithmSuite: CryptographicMaterialProviders.CryptoConfig.AlgorithmSuite
     )
@@ -31,15 +45,15 @@ module {:extern "AwsEncryptionSdk"} EncryptionSDK {
         nameonly configDefaults: string
     )
 
-    // If we were to follow the C# example we would generate an abstract class here whose methods
-    // do nothing except validate the input and then delegate out to a subclass's real
-    // implementation. With Dafny the validation can be done with pre- and post-conditions.
-    // But ideally we would still auto-generate the constructor/builder boilerplate.
     class AwsEncryptionSdkClient extends IAwsEncryptionSdkClient {
         const clientConfig: AwsEncryptionSdkClientConfig
 
         constructor(clientConfig: AwsEncryptionSdkClientConfig) {
             this.clientConfig := clientConfig;
+        }
+
+        static method createClient(nameonly clientConfig: AwsEncryptionSdkClientConfig) returns (res: AwsEncryptionSdkClient) {
+            res := new AwsEncryptionSdkClient(clientConfig);
         }
 
         method Encrypt(input: EncryptInput) returns (res: Result<EncryptOutput, string>) {
