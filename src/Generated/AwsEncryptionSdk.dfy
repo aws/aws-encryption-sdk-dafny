@@ -1,9 +1,9 @@
 include "../Util/UTF8.dfy"
 include "../StandardLibrary/StandardLibrary.dfy"
 include "../KMS/AmazonKeyManagementService.dfy"
-include "MaterialProviders/MaterialProviders.dfy"
+include "AwsCryptographicMaterialProviders.dfy"
 
-module {:extern "Aws.Esdk"} Aws.Esdk {
+module {:extern "Dafny.Aws.Esdk"} Aws.Esdk {
     import Crypto
     import opened UInt = StandardLibrary.UInt
     import opened Wrappers
@@ -57,6 +57,10 @@ module {:extern "Aws.Esdk"} Aws.Esdk {
         }
 
         method Encrypt(input: EncryptInput) returns (res: Result<EncryptOutput, string>) {
+            // TODO
+        }
+
+        method Decrypt(input: DecryptInput) returns (res: Result<DecryptOutput, string>) {
             // TODO
         }
     }

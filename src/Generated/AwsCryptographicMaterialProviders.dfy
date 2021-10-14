@@ -1,8 +1,8 @@
-include "../../Util/UTF8.dfy"
-include "../../StandardLibrary/StandardLibrary.dfy"
-include "../../KMS/AmazonKeyManagementService.dfy"
+include "../Util/UTF8.dfy"
+include "../StandardLibrary/StandardLibrary.dfy"
+include "../KMS/AmazonKeyManagementService.dfy"
 
-module {:extern "Aws.Crypto"} Aws.Crypto {
+module {:extern "Dafny.Aws.Crypto"} Aws.Crypto {
     import opened Wrappers
     import AmazonKeyManagementService
     import opened UInt = StandardLibrary.UInt
@@ -187,7 +187,7 @@ module {:extern "Aws.Crypto"} Aws.Crypto {
         method DecryptMaterials(input: DecryptMaterialsInput) returns (res: Result<DecryptMaterialsOutput, string>)
     }
 
-        // Keyring creation input structures
+    // Keyring creation input structures
 
     // KMS - Old Style
     datatype CreateAwsKmsKeyringInput = CreateAwsKmsKeyringInput(
