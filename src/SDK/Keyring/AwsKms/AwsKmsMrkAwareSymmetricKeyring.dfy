@@ -155,8 +155,10 @@ module {:extern "AwsKmsMrkAwareSymmetricKeyring"} AwsKmsMrkAwareSymmetricKeyring
 
       return match outcome {
         case Success(mat) =>
-          // This is a bit of a lie, because this is _not_ the EDK that succeded
-          assert decryptClosure.Ensures(edksToAttempt[0], Success(mat));
+          // I would Like to have a clearer solution, but this works
+          assert exists i | 0 <= i < |edksToAttempt|
+          ::
+            decryptClosure.Ensures(edksToAttempt[i], Success(mat));
           Success(mat)
         case Failure(errors) =>
           if |errors| == 0 then
