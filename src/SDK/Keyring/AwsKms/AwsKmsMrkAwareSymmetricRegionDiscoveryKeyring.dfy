@@ -113,7 +113,7 @@ module {:extern "AwsKmsMrkAwareSymmetricRegionDiscoveryKeyring"} AwsKmsMrkAwareS
   }
 
   class EncrypteDataKeyFilter 
-  extends Action<Materials.EncryptedDataKey, bool, string>
+  extends ActionWithResult<Materials.EncryptedDataKey, bool, string>
   {
     const discoveryFilter: Option<DiscoveryFilter>
 
@@ -143,7 +143,7 @@ module {:extern "AwsKmsMrkAwareSymmetricRegionDiscoveryKeyring"} AwsKmsMrkAwareS
   }
 
   class DecryptEncryptedDataKey
-  extends Action<
+  extends ActionWithResult<
     Materials.EncryptedDataKey,
     Materials.ValidDecryptionMaterials,
     string>
@@ -186,3 +186,43 @@ module {:extern "AwsKmsMrkAwareSymmetricRegionDiscoveryKeyring"} AwsKmsMrkAwareS
     }
   }
 }
+
+
+
+
+  // trait {:termination false} UnwrapSingleEncryptedDataKey {
+  //   method Decrypt(
+  //     materials: Materials.ValidDecryptionMaterials,
+  //     encryptedDataKey: Materials.EncryptedDataKey
+  //   ) returns (res: Result<Materials.ValidDecryptionMaterials, string>)
+
+  //   method FirstSuccessufulDecrypt(
+  //     materials: Materials.ValidDecryptionMaterials,
+  //     encryptedDataKeys: seq<Materials.EncryptedDataKey>,
+  //     emptyError: string,
+  //     initError: string
+  //   ) returns (res: Result<Materials.ValidDecryptionMaterials, string>) {
+
+  //     var errors := [];
+  //     for i := 0 to |encryptedDataKeys| {
+  //       var thisResult := this.Decrypt(materials, encryptedDataKeys[i]);
+  //       if thisResult.Success? {
+  //         return Success(thisResult.value);
+  //       } else {
+  //         errors := errors + [thisResult.error];
+  //       }
+  //     }
+
+  //     if |errors| == 0 {
+  //       return Failure(emptyError);
+  //     } else {
+  //       var concatString := (s, a) => a + "\n" + s;
+  //       var error := FoldRight(
+  //         concatString,
+  //         errors,
+  //         initError
+  //       );
+  //       return Failure(error);
+  //     }
+  //   }
+  // }

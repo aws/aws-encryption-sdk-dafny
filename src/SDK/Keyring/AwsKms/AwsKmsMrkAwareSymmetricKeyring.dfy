@@ -10,6 +10,9 @@ include "../../../KMS/AmazonKeyManagementService.dfy"
 include "../../../KMS/AwsKmsArnParsing.dfy"
 include "../../../Util/UTF8.dfy"
 include "../../../../libraries/src/Collections/Sequences/Seq.dfy"
+include "../../../../libraries/src/Collections/Sequences/Closures.dfy"
+include "../../Serializable.dfy"
+include "Constants.dfy"
 
 module {:extern "AwsKmsMrkAwareSymmetricKeyring"} AwsKmsMrkAwareSymmetricKeyring {
   import opened StandardLibrary
@@ -18,64 +21,61 @@ module {:extern "AwsKmsMrkAwareSymmetricKeyring"} AwsKmsMrkAwareSymmetricKeyring
   import opened AwsKmsArnParsing
   import opened AmazonKeyManagementService
   import opened Seq
+  import opened Closures
+  import opened Constants
+  import Serializable
   import AlgorithmSuite
-  import KeyringDefs
+  import opened KeyringDefs
   import Materials
   import KMSUtils
   import UTF8
 
-  // UTF-8 encoded "aws-kms"
-  const PROVIDER_ID: UTF8.ValidUTF8Bytes :=
-    var s := [0x61, 0x77, 0x73, 0x2D, 0x6B, 0x6D, 0x73];
-    assert UTF8.ValidUTF8Range(s, 0, 7);
-    s
-
-    //= compliance/framework/aws-kms/aws-kms-mrk-aware-symmetric-keyring.txt#2.5
-    //= type=implication
-    //# MUST implement the AWS Encryption SDK Keyring interface (../keyring-
-    //# interface.md#interface)
-  class AwsKmsMrkAwareSymmetricKeyring 
-    extends KeyringDefs.Keyring,
-    KeyringDefs.UnwrapSingleEncryptedDataKey
+  //= compliance/framework/aws-kms/aws-kms-mrk-aware-symmetric-keyring.txt#2.5
+  //= type=implication
+  //# MUST implement the AWS Encryption SDK Keyring interface (../keyring-
+  //# interface.md#interface)
+  class AwsKmsMrkAwareSymmetricKeyring
+    extends Keyring
   {
 
     const client: IAmazonKeyManagementService
-    const awsKmsKey: string
-    const awsKmsKeyUtf8Bytes: UTF8.ValidUTF8Bytes
-    const awsKmsKeyIdentifier: AwsKmsIdentifier
-    const grantTokens: seq<KMSUtils.GrantToken>
+    const awsKmsKey: AwsKmsIdentifierString
+    const awsKmsKeyUtf8Bytes: Serializable.UINT16Seq
+    const grantTokens: KMSUtils.GrantTokens
 
     constructor (
       client: IAmazonKeyManagementService,
       awsKmsKey: string,
       grantTokens: seq<KMSUtils.GrantToken>
     )
-      requires ParseAwsKmsIdentifier(awsKmsKey).Success?;
+      requires ParseAwsKmsIdentifier(awsKmsKey).Success?
+      requires UTF8.IsASCIIString(awsKmsKey)
+      requires 0 < |awsKmsKey| <= MAX_AWS_KMS_IDENTIFIER_LENGTH
+      requires 0 <= |grantTokens| <= KMSUtils.MAX_GRANT_TOKENS
     {
-      var awsKmsKeyIdentifier := ParseAwsKmsIdentifier(awsKmsKey);
       var awsKmsKeyUtf8Bytes  := UTF8.Encode(awsKmsKey);
+
+      assert ParseAwsKmsIdentifier(awsKmsKey).Success?;
 
       this.client              := client;
       this.awsKmsKey           := awsKmsKey;
-      this.awsKmsKeyIdentifier := awsKmsKeyIdentifier.value;
       this.awsKmsKeyUtf8Bytes  := awsKmsKeyUtf8Bytes.value;
       this.grantTokens         := grantTokens;
     }
 
     predicate Valid()
-      // reads this, Repr
-      // ensures Valid() ==> this in Repr
+      reads this, Repr
+      ensures Valid() ==> this in Repr
     {
-      true
-      // && this in Repr
-      // && 0 <= |grantTokens| <= KMSUtils.MAX_GRANT_TOKENS
-      // && (|keyIDs| == 0 && generator.None? ==> isDiscovery)
-      // && (clientSupplier in Repr && clientSupplier.Repr <= Repr && this !in clientSupplier.Repr && clientSupplier.Valid())
+      && this in Repr
     }
 
-    method OnEncrypt(materials: Materials.ValidEncryptionMaterials) returns (res: Result<Materials.ValidEncryptionMaterials, string>)
+    method OnEncrypt(materials: Materials.ValidEncryptionMaterials)
+      returns (res: Result<Materials.ValidEncryptionMaterials, string>)
+      requires Valid()
+      ensures Valid()
+      ensures OnEncryptPure(materials, res)
     {
-      var resultMaterials: Materials.ValidEncryptionMaterials;
 
       if materials.plaintextDataKey.None? {
         var generatorRequest := KMSUtils.GenerateDataKeyRequest(
@@ -84,7 +84,7 @@ module {:extern "AwsKmsMrkAwareSymmetricKeyring"} AwsKmsMrkAwareSymmetricKeyring
           this.awsKmsKey,
           materials.algorithmSuiteID.KDFInputKeyLength() as int32
         );
-        
+
         var generatorResponse :- KMSUtils.GenerateDataKey(this.client, generatorRequest);
 
         :- Need(generatorResponse.IsWellFormed(), "Invalid response from KMS GenerateDataKey");
@@ -94,22 +94,21 @@ module {:extern "AwsKmsMrkAwareSymmetricKeyring"} AwsKmsMrkAwareSymmetricKeyring
           "Invalid response from KMS GenerateDataKey: Invalid key"
         );
 
-        var encryptedDataKey := Materials.EncryptedDataKey(
+        var edk := Materials.EncryptedDataKey(
           PROVIDER_ID,
-          this.awsKmsKeyUtf8Bytes, 
+          this.awsKmsKeyUtf8Bytes,
           generatorResponse.ciphertextBlob
         );
         var plaintextDataKey := generatorResponse.plaintext;
 
-        var newEncryptedDataKeys := [encryptedDataKey];
-        var result := materials.WithKeys(Some(plaintextDataKey), newEncryptedDataKeys);
+        var result := materials.WithKeys(Some(plaintextDataKey), [edk]);
         return Success(result);
       } else {
         var encryptRequest := KMSUtils.EncryptRequest(
           materials.encryptionContext,
           grantTokens,
           this.awsKmsKey,
-          resultMaterials.plaintextDataKey.value
+          materials.plaintextDataKey.value
         );
         var encryptResponse :- KMSUtils.Encrypt(this.client, encryptRequest);
 
@@ -121,42 +120,98 @@ module {:extern "AwsKmsMrkAwareSymmetricKeyring"} AwsKmsMrkAwareSymmetricKeyring
           this.awsKmsKeyUtf8Bytes,
           encryptResponse.ciphertextBlob
         );
-        resultMaterials := resultMaterials.WithKeys(resultMaterials.plaintextDataKey, [edk]);
 
-        return Success(resultMaterials);
+        var result := materials.WithKeys(materials.plaintextDataKey, [edk]);
+        return Success(result);
       }
     }
 
     method OnDecrypt(
       materials: Materials.ValidDecryptionMaterials,
-      edks: seq<Materials.EncryptedDataKey>
-    ) returns (res: Result<Materials.ValidDecryptionMaterials, string>)
+      encryptedDataKeys: seq<Materials.EncryptedDataKey>
+    )
+      returns (res: Result<Materials.ValidDecryptionMaterials, string>)
+      requires Valid()
+      ensures Valid()
+      ensures OnDecryptPure(materials, res)
     {
 
       if (materials.plaintextDataKey.Some?) {
         return Success(materials);
       }
 
-      var edksToAttempt := Seq.Filter(ShouldAttemptDecryption, edks);
+      var edksToAttempt := Seq.Filter(IsWrappedWithKey, encryptedDataKeys);
 
-      var outcome := this.FirstSuccessufulDecrypt(
+      var decrypt := new DecryptEncryptedDataKey(
         materials,
+        this.client,
+        this.awsKmsKey,
+        this.grantTokens
+      );
+      var outcome := Closures.ReduceToSuccess(
         edksToAttempt,
-        "Unable to decrypt data key: No EDKs supplied",
-        "Unable to decrypt data key: "
+        decrypt
       );
 
-      return outcome;
+      return match outcome {
+        case Success(mat) =>
+          Success(mat)
+        case Failure(errors) =>
+          if |errors| == 0 then
+            Failure("Unable to decrypt data key: No Encrypted Data Keys found to match.")
+          else
+            var concatString := (s, a) => a + "\n" + s;
+            var error := Seq.FoldRight(
+              concatString,
+              errors,
+              "Unable to decrypt data key:\n"
+            );
+            Failure(error)
+      };
     }
 
-    method Decrypt(
-      materials: Materials.ValidDecryptionMaterials,
-      encryptedDataKey: Materials.EncryptedDataKey
-    ) returns (res: Result<Materials.ValidDecryptionMaterials, string>)
+    predicate method IsWrappedWithKey(edk: Materials.EncryptedDataKey)
     {
+      && edk.providerID == PROVIDER_ID
+      && edk.providerInfo == this.awsKmsKeyUtf8Bytes
+    }
+
+  }
+
+  class DecryptEncryptedDataKey
+  extends ActionWithResult<
+    Materials.EncryptedDataKey,
+    Materials.CompleteDecryptionMaterials,
+    string>
+  {
+    const materials: Materials.PendingDecryptionMaterials
+    const client: IAmazonKeyManagementService
+    const awsKmsKey: AwsKmsIdentifierString
+    const grantTokens: KMSUtils.GrantTokens
+
+    constructor(
+      materials: Materials.PendingDecryptionMaterials,
+      client: IAmazonKeyManagementService,
+      awsKmsKey: AwsKmsIdentifierString,
+      grantTokens: KMSUtils.GrantTokens
+    )
+    {
+      this.materials := materials;
+      this.client := client;
+      this.awsKmsKey := awsKmsKey;
+      this.grantTokens := grantTokens;
+    }
+
+    method Invoke(
+      edk: Materials.EncryptedDataKey
+    ) returns (res: Result<Materials.CompleteDecryptionMaterials, string>)
+      ensures res.Success? ==> res.value.Valid()
+      ensures OnDecryptPure(this.materials, res)
+    {
+
       var decryptRequest := KMSUtils.DecryptRequest(
         this.awsKmsKey,
-        encryptedDataKey.ciphertext,
+        edk.ciphertext,
         materials.encryptionContext,
         grantTokens
       );
@@ -165,19 +220,12 @@ module {:extern "AwsKmsMrkAwareSymmetricKeyring"} AwsKmsMrkAwareSymmetricKeyring
 
       :- Need(
         && decryptResponse.keyID == this.awsKmsKey
-        && materials.algorithmSuiteID.ValidPlaintextDataKey(decryptResponse.plaintext)
+        && this.materials.algorithmSuiteID.ValidPlaintextDataKey(decryptResponse.plaintext)
         , "Invalid response from KMS Decrypt");
 
-      var result := materials.WithPlaintextDataKey(decryptResponse.plaintext);
+      var result := this.materials.WithPlaintextDataKey(decryptResponse.plaintext);
       return Success(result);
     }
-
-    predicate method ShouldAttemptDecryption(edk: Materials.EncryptedDataKey)
-    {
-      && edk.providerID == PROVIDER_ID
-      && edk.providerInfo == this.awsKmsKeyUtf8Bytes
-    }
-
   }
 
 }
