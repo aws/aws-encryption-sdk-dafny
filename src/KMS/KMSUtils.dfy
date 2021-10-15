@@ -6,6 +6,7 @@ include "../SDK/EncryptionContext.dfy"
 include "../StandardLibrary/StandardLibrary.dfy"
 include "../StandardLibrary/UInt.dfy"
 include "../Util/UTF8.dfy"
+include "AwsKmsArnParsing.dfy"
 
 module {:extern "KMSUtils"} KMSUtils {
   import EncryptionContext
@@ -13,65 +14,38 @@ module {:extern "KMSUtils"} KMSUtils {
   import opened StandardLibrary
   import opened Wrappers
   import opened UInt = StandardLibrary.UInt
+  import opened AwsKmsArnParsing
   import UTF8
 
   const MAX_GRANT_TOKENS := 10
 
-  type CustomerMasterKey = s: string | ValidFormatCMK(s)
-    witness (ValidCMKAliasFromSuffix("ExampleAlias"); "alias/ExampleAlias")
+  type CustomerMasterKey = AwsKmsIdentifierString
+  type GrantTokens = s: seq<GrantToken> | 0 <= |s| <= MAX_GRANT_TOKENS
 
-  predicate method ValidFormatCMK(cmk: string) {
-    ValidFormatCMKKeyARN(cmk) || ValidFormatCMKAlias(cmk) || ValidFormatCMKAliasARN(cmk)
-  }
+  // predicate method ValidFormatCMK(cmk: string) 
+  //   // ensures ParseAwsKmsIdentifier(cmk).Success?
+  // {
+  //   ParseAwsKmsIdentifier(cmk).Success?
+  // }
 
-  predicate method ValidFormatCMKKeyARN(cmk: string) {
-    var components := Split(cmk, ':');
-    UTF8.IsASCIIString(cmk) && 0 < |cmk| <= 2048 && |components| == 6 && components[0] == "arn" && components[2] == "kms" && Split(components[5], '/')[0] == "key"
-  }
+  // predicate method ValidFormatCMKKeyARN(cmk: string) {
+  //   ParseAwsKmsArn(cmk).Success?
+  //   // var components := Split(cmk, ':');
+  //   // UTF8.IsASCIIString(cmk) && 0 < |cmk| <= 2048 && |components| == 6 && components[0] == "arn" && components[2] == "kms" && Split(components[5], '/')[0] == "key"
+  // }
 
-  predicate method ValidFormatCMKAlias(cmk: string) {
-    var components := Split(cmk, '/');
-    UTF8.IsASCIIString(cmk) && 0 < |cmk| <= 2048 && |components| == 2 && components[0] == "alias"
-  }
-
-  lemma ValidCMKAliasFromSuffix(suffix: string)
-    requires UTF8.IsASCIIString(suffix) && |suffix| < 2042 && '/' !in suffix
-    ensures var cmk := "alias/" + suffix;
-      ValidFormatCMKAlias(cmk)
-  {
-    var alias := "alias";
-    assert UTF8.IsASCIIString(alias);
-    var cmk := alias + "/" + suffix;
-    assert UTF8.IsASCIIString(cmk);
-
-    var components := Split(cmk, '/');
-    calc {
-      components;
-    ==
-      Split(alias + "/" + suffix, '/');
-    ==  { WillSplitOnDelim(cmk, '/', alias); }
-      [alias] + Split(cmk[|alias| + 1..], '/');
-    ==  { assert cmk[|alias| + 1..] == suffix; }
-      [alias] + Split(suffix, '/');
-    ==  { WillNotSplitWithOutDelim(suffix, '/'); }
-      [alias] + [suffix];
-    ==
-      [alias, suffix];
-    }
-  }
-
-  predicate method ValidFormatCMKAliasARN(cmk: string) {
-    var components := Split(cmk, ':');
-    UTF8.IsASCIIString(cmk) && 0 < |cmk| <= 2048 && |components| == 6 && components[0] == "arn" && components[2] == "kms" && Split(components[5], '/')[0] == "alias"
-  }
-
-  type GrantToken = s: string | 0 < |s| <= 8192 witness "witness"
+  type GrantToken = s: string | 0 < |s| <= 8192 witness *
 
   datatype ResponseMetadata = ResponseMetadata(metadata: map<string, string>, requestID: string)
 
   type HttpStatusCode = int //FIXME: Restrict this
 
-  datatype GenerateDataKeyRequest = GenerateDataKeyRequest(encryptionContext: EncryptionContext.Map, grantTokens: seq<GrantToken>, keyID: CustomerMasterKey, numberOfBytes: int32)
+  datatype GenerateDataKeyRequest = GenerateDataKeyRequest(
+    encryptionContext: EncryptionContext.Map,
+    grantTokens: seq<GrantToken>,
+    keyID: CustomerMasterKey,
+    numberOfBytes: int32
+  )
   {
     predicate Valid() {
       0 <= |grantTokens| <= MAX_GRANT_TOKENS && 0 < numberOfBytes <= 1024
@@ -114,7 +88,11 @@ module {:extern "KMSUtils"} KMSUtils {
 
   method {:extern "KMSUtils.ClientHelper", "GetDefaultAWSKMSServiceClientExtern"} GetDefaultAWSKMSServiceClientExtern(region: Option<string>) returns (res: Result<IAmazonKeyManagementService, string>)
 
-  method {:extern "KMSUtils.ClientHelper", "GenerateDataKey"} GenerateDataKey(client: IAmazonKeyManagementService, request: GenerateDataKeyRequest) returns (res: Result<GenerateDataKeyResponse, string>)
+  method {:extern "KMSUtils.ClientHelper", "GenerateDataKey"} GenerateDataKey(
+    client: IAmazonKeyManagementService,
+    request: GenerateDataKeyRequest
+  ) 
+    returns (res: Result<GenerateDataKeyResponse, string>)
     requires request.Valid()
 
   method {:extern "KMSUtils.ClientHelper", "Encrypt"} Encrypt(client: IAmazonKeyManagementService, request: EncryptRequest) returns (res: Result<EncryptResponse, string>)
