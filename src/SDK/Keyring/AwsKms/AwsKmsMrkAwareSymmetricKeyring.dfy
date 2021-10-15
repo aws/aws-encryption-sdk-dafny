@@ -222,7 +222,7 @@ module {:extern "AwsKmsMrkAwareSymmetricKeyring"} AwsKmsMrkAwareSymmetricKeyring
     ) returns (res: Result<Materials.CompleteDecryptionMaterials, string>)
       ensures res.Success? ==> res.value.Valid()
       ensures OnDecryptPure(this.materials, res)
-      ensures res.Success? ==> Ensures(edk, res)
+      ensures Ensures(edk, res)
     {
 
       var decryptRequest := KMSUtils.DecryptRequest(
