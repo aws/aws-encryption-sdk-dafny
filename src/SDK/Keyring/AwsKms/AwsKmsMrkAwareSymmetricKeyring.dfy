@@ -155,6 +155,8 @@ module {:extern "AwsKmsMrkAwareSymmetricKeyring"} AwsKmsMrkAwareSymmetricKeyring
 
       return match outcome {
         case Success(mat) =>
+          // This is a bit of a lie, because this is _not_ the EDK that succeded
+          assert decryptClosure.Ensures(edksToAttempt[0], Success(mat));
           Success(mat)
         case Failure(errors) =>
           if |errors| == 0 then
@@ -203,11 +205,24 @@ module {:extern "AwsKmsMrkAwareSymmetricKeyring"} AwsKmsMrkAwareSymmetricKeyring
       this.grantTokens := grantTokens;
     }
 
+    predicate Ensures(
+      edk: Materials.EncryptedDataKey,
+      r: Result<Materials.CompleteDecryptionMaterials, string>
+    ) {
+      r.Success?
+      ==>
+        && this.materials.encryptionContext == r.value.encryptionContext
+        && this.materials.algorithmSuiteID == r.value.algorithmSuiteID
+        && this.materials.verificationKey == r.value.verificationKey
+        && r.value.plaintextDataKey.Some?
+    }
+
     method Invoke(
       edk: Materials.EncryptedDataKey
     ) returns (res: Result<Materials.CompleteDecryptionMaterials, string>)
       ensures res.Success? ==> res.value.Valid()
       ensures OnDecryptPure(this.materials, res)
+      ensures res.Success? ==> Ensures(edk, res)
     {
 
       var decryptRequest := KMSUtils.DecryptRequest(
