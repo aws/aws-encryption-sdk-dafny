@@ -103,6 +103,17 @@ module {:extern "Materials"} Materials {
       && (algorithmSuiteID.SignatureType().Some? ==> verificationKey.Some?)
     }
 
+    predicate Pending() {
+      && plaintextDataKey.None?
+      && (algorithmSuiteID.SignatureType().Some? ==> verificationKey.Some?)
+    }
+
+    predicate Complete() {
+      && plaintextDataKey.Some?
+      && algorithmSuiteID.ValidPlaintextDataKey(plaintextDataKey.value)
+      && (algorithmSuiteID.SignatureType().Some? ==> verificationKey.Some?)
+    }
+
     static function method ValidWitness(): DecryptionMaterials {
       DecryptionMaterials(AlgorithmSuite.AES_256_GCM_IV12_TAG16_HKDF_SHA384_ECDSA_P384,
                           map[], Some(seq(32, i => 0)), Some(seq(32, i => 0)))
@@ -133,6 +144,8 @@ module {:extern "Materials"} Materials {
     }
   }
 
+  type PendingDecryptionMaterials = i: DecryptionMaterials | i.Pending() witness *
+  type CompleteDecryptionMaterials = i: DecryptionMaterials | i.Complete() witness *
   type ValidDecryptionMaterials = i: DecryptionMaterials | i.Valid() witness DecryptionMaterials.ValidWitness()
 
   datatype EncryptionMaterialsRequest = EncryptionMaterialsRequest(encryptionContext: EncryptionContext.Map,
