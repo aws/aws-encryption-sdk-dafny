@@ -142,7 +142,7 @@ module {:extern "AwsKmsMrkAwareSymmetricKeyring"} AwsKmsMrkAwareSymmetricKeyring
 
       var edksToAttempt := Seq.Filter(IsWrappedWithKey, encryptedDataKeys);
 
-      var decrypt := new DecryptEncryptedDataKey(
+      var decryptClosure := new DecryptEncryptedDataKey(
         materials,
         this.client,
         this.awsKmsKey,
@@ -150,7 +150,7 @@ module {:extern "AwsKmsMrkAwareSymmetricKeyring"} AwsKmsMrkAwareSymmetricKeyring
       );
       var outcome := Closures.ReduceToSuccess(
         edksToAttempt,
-        decrypt
+        decryptClosure
       );
 
       return match outcome {
@@ -195,6 +195,7 @@ module {:extern "AwsKmsMrkAwareSymmetricKeyring"} AwsKmsMrkAwareSymmetricKeyring
       awsKmsKey: AwsKmsIdentifierString,
       grantTokens: KMSUtils.GrantTokens
     )
+      ensures this.materials == materials
     {
       this.materials := materials;
       this.client := client;
