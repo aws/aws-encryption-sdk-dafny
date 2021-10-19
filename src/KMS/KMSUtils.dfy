@@ -105,6 +105,10 @@ module {:extern "KMSUtils"} KMSUtils {
     ciphertextBlob: seq<uint8>
     // keyID: string,
   )
+  datatype EncryptDataKeyVerification = EncryptDataKeyVerification(
+    ciphertextBlob: seq<uint8>
+    // keyID: string,
+  )
 
   // The `{:opaque}` is important.
   // This forces the verify to _only_ accept
@@ -122,15 +126,15 @@ module {:extern "KMSUtils"} KMSUtils {
     client: IAmazonKeyManagementService,
     request: EncryptRequest
   ) {true}
-  predicate {:opaque} EncryptCalledSucced() {true}
-  predicate {:opaque} EncryptCalledFailed() {true}
+  predicate {:opaque} EncryptResult(
+    verification: Option<EncryptDataKeyVerification>
+  ) {true}
+
 
   predicate {:opaque} DecryptCalled(
     client: IAmazonKeyManagementService,
     request: DecryptRequest
   ) {true}
-  predicate {:opaque} DecryptCalledSucced() {true}
-  predicate {:opaque} DecryptCalledFailed() {true}
 
   method {:extern "KMSUtils.ClientHelper", "GenerateDataKey"} GenerateDataKey(
     client: IAmazonKeyManagementService,
@@ -147,7 +151,7 @@ module {:extern "KMSUtils"} KMSUtils {
         Some(GenerateDataKeyVerification(
           res.value.plaintext,
           res.value.ciphertextBlob
-          // res.value.keyID,
+          // res.value.keyID
         ))
       else
         None
@@ -160,6 +164,15 @@ module {:extern "KMSUtils"} KMSUtils {
     returns (res: Result<EncryptResponse, string>)
     requires request.Valid()
     ensures EncryptCalled(client, request)
+    ensures EncryptResult(
+      if res.Success? then
+        Some(EncryptDataKeyVerification(
+          res.value.ciphertextBlob
+          // res.value.keyID
+        ))
+      else
+        None
+    )
 
   method {:extern "KMSUtils.ClientHelper", "Decrypt"} Decrypt(
     client: IAmazonKeyManagementService,
