@@ -40,11 +40,13 @@ module {:extern "Dafny.Aws.Crypto"} Aws.Crypto {
 
     /////////////
     // structures.smithy
-    type EncryptionContext = map<string, string>
+    // TODO: May eventually change this to strings, for now leaving as utf8 bytes for 
+    // compatibility with existing code.
+    type EncryptionContext = map<UTF8.ValidUTF8Bytes, UTF8.ValidUTF8Bytes>
 
     datatype EncryptedDataKey = EncryptedDataKey(nameonly providerID: UTF8.ValidUTF8Bytes,
-                                                    nameonly providerInfo: seq<uint8>,
-                                                    nameonly ciphertext: seq<uint8>)
+                                                 nameonly providerInfo: seq<uint8>,
+                                                 nameonly ciphertext: seq<uint8>)
     {
         // TODO: constraints not currently modeled in Smithy
         predicate Valid() {
@@ -62,10 +64,10 @@ module {:extern "Dafny.Aws.Crypto"} Aws.Crypto {
     // However, we cannot model these in Smithy, so we will need to write them manually in the
     // Dafny code rather than in this auto-generated portion.
     datatype EncryptionMaterials = EncryptionMaterials(nameonly encryptionContext: Option<EncryptionContext>,
-                                                        nameonly algorithm: Option<AlgorithmSuite>,
-                                                        nameonly plaintextDataKey: Option<seq<uint8>>,
-                                                        nameonly encryptedDataKeys: Option<seq<ValidEncryptedDataKey>>,
-                                                        nameonly signingKey: Option<seq<uint8>>)
+                                                       nameonly algorithm: Option<AlgorithmSuite>,
+                                                       nameonly plaintextDataKey: Option<seq<uint8>>,
+                                                       nameonly encryptedDataKeys: Option<seq<ValidEncryptedDataKey>>,
+                                                       nameonly signingKey: Option<seq<uint8>>)
     {
         predicate Valid() {
             true
@@ -73,9 +75,9 @@ module {:extern "Dafny.Aws.Crypto"} Aws.Crypto {
     }
 
     datatype DecryptionMaterials = DecryptionMaterials(nameonly encryptionContext: Option<EncryptionContext>,
-                                                        nameonly algorithm: Option<AlgorithmSuite>,
-                                                        nameonly plaintextDataKey: Option<seq<uint8>>,
-                                                        nameonly verificationKey: Option<seq<uint8>>)
+                                                       nameonly algorithm: Option<AlgorithmSuite>,
+                                                       nameonly plaintextDataKey: Option<seq<uint8>>,
+                                                       nameonly verificationKey: Option<seq<uint8>>)
     {
         predicate Valid() {
             true
@@ -129,7 +131,8 @@ module {:extern "Dafny.Aws.Crypto"} Aws.Crypto {
             true
         }
     }
-    datatype OnDecryptInput = OnDecryptInput(nameonly materials: DecryptionMaterials)
+    datatype OnDecryptInput = OnDecryptInput(nameonly materials: DecryptionMaterials,
+                                             nameonly encryptedDataKeys: EncryptedDataKeyList)
     {
         predicate Valid() {
             true
@@ -143,7 +146,7 @@ module {:extern "Dafny.Aws.Crypto"} Aws.Crypto {
         }
     }
 
-    trait IKeyring {
+    trait {:termination false} IKeyring {
         method OnEncrypt(input: OnEncryptInput) returns (res: Result<OnEncryptOutput, string>)
             requires input.Valid()
         method OnDecrypt(input: OnDecryptInput) returns (res: Result<OnDecryptOutput, string>)
