@@ -138,6 +138,7 @@ module {:extern "AwsKmsMrkAwareSymmetricKeyring"} AwsKmsMrkAwareSymmetricKeyring
             res.value.plaintextDataKey.value,
             Last(res.value.encryptedDataKeys).ciphertext
           )))
+
       //= compliance/framework/aws-kms/aws-kms-mrk-aware-symmetric-keyring.txt#2.7
       //= type=implication
       //# If the call to AWS KMS GenerateDataKey
@@ -150,8 +151,66 @@ module {:extern "AwsKmsMrkAwareSymmetricKeyring"} AwsKmsMrkAwareSymmetricKeyring
         && GenerateDataKeyResult(None)
       ==>
         && res.Failure?
-    {
 
+      //= compliance/framework/aws-kms/aws-kms-mrk-aware-symmetric-keyring.txt#2.7
+      //= type=implication
+      //# Given a plaintext data key in the encryption materials
+      //# (structures.md#encryption-materials), OnEncrypt MUST attempt to
+      //# encrypt the plaintext data key using the configured AWS KMS key
+      //# identifier.
+      ensures 
+        && materials.plaintextDataKey.Some?
+        && res.Success?
+      ==>
+        //= compliance/framework/aws-kms/aws-kms-mrk-aware-symmetric-keyring.txt#2.7
+        //= type=implication
+        //# If all Encrypt calls succeed, OnEncrypt MUST output the modified
+        //# encryption materials (structures.md#encryption-materials).
+        && |res.value.encryptedDataKeys| == |materials.encryptedDataKeys| + 1
+        //= compliance/framework/aws-kms/aws-kms-mrk-aware-symmetric-keyring.txt#2.7
+        //= type=implication
+        //# If verified, OnEncrypt MUST do the following with the
+        //# response from AWS KMS Encrypt
+        //# (https://docs.aws.amazon.com/kms/latest/APIReference/
+        //# API_Encrypt.html):
+        && EncryptCalled(
+          //= compliance/framework/aws-kms/aws-kms-mrk-aware-symmetric-keyring.txt#2.7
+          //= type=implication
+          //# The keyring MUST call AWS KMS Encrypt
+          //# (https://docs.aws.amazon.com/kms/latest/APIReference/
+          //# API_Encrypt.html) using the configured AWS KMS client.
+          this.client,
+          //= compliance/framework/aws-kms/aws-kms-mrk-aware-symmetric-keyring.txt#2.7
+          //= type=implication
+          //# The keyring
+          //# MUST AWS KMS Encrypt call with a request constructed as follows:
+          EncryptRequest(
+            materials.encryptionContext,
+            this.grantTokens,
+            this.awsKmsKey,
+            materials.plaintextDataKey.value
+          ))
+        //= compliance/framework/aws-kms/aws-kms-mrk-aware-symmetric-keyring.txt#2.7
+        //= type=implication
+        //# If verified, OnEncrypt MUST do the following with the
+        //# response from AWS KMS Encrypt
+        //# (https://docs.aws.amazon.com/kms/latest/APIReference/
+        //# API_Encrypt.html):
+        && EncryptResult(Some(EncryptDataKeyVerification(
+            Last(res.value.encryptedDataKeys).ciphertext
+          )))
+
+      //= compliance/framework/aws-kms/aws-kms-mrk-aware-symmetric-keyring.txt#2.7
+      //= type=implication
+      //# If the call to AWS KMS Encrypt
+      //# (https://docs.aws.amazon.com/kms/latest/APIReference/
+      //# API_Encrypt.html) does not succeed, OnEncrypt MUST fail.
+      ensures 
+        && materials.plaintextDataKey.Some?
+        && EncryptResult(None)
+      ==>
+        && res.Failure?
+    {
       if materials.plaintextDataKey.None? {
         var generatorRequest := GenerateDataKeyRequest(
           materials.encryptionContext,
@@ -173,7 +232,7 @@ module {:extern "AwsKmsMrkAwareSymmetricKeyring"} AwsKmsMrkAwareSymmetricKeyring
         );
         :- Need(
           materials.algorithmSuiteID.ValidPlaintextDataKey(generatorResponse.plaintext),
-          "Invalid response from KMS GenerateDataKey: Invalid data key"
+          "Invalid response from AWS KMS GenerateDataKey: Invalid data key"
         );
 
         var edk := Materials.EncryptedDataKey(
@@ -195,7 +254,14 @@ module {:extern "AwsKmsMrkAwareSymmetricKeyring"} AwsKmsMrkAwareSymmetricKeyring
         var encryptResponse :- KMSUtils.Encrypt(this.client, encryptRequest);
 
         :- Need(encryptResponse.IsWellFormed(), "Invalid response from KMS Encrypt");
-        :- Need(encryptResponse.keyID == this.awsKmsKey, "Invalid keyId in response from KMS Encrypt");
+        //= compliance/framework/aws-kms/aws-kms-mrk-aware-symmetric-keyring.txt#2.7
+        //# If the Encrypt call succeeds The response's "KeyId" MUST be A valid
+        //# AWS KMS key ARN (aws-kms-key-arn.md#identifying-an-aws-kms-multi-
+        //# region-key).
+        :- Need(
+          ParseAwsKmsIdentifier(encryptResponse.keyID).Success?,
+          "Invalid response from AWS KMS Encrypt:: Invalid Key Id"
+        );
 
         var edk := Materials.EncryptedDataKey(
           PROVIDER_ID,
