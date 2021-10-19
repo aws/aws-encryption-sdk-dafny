@@ -20,11 +20,22 @@ module {:extern "Dafny.Aws.Crypto"} Aws.Crypto {
     type RegionList = seq<Region>
 
     datatype DiscoveryFilter = DiscoveryFilter(accountId: string, partition: string)
+    {
+        predicate Valid() {
+            true
+        }
+    }
 
     datatype GetClientInput = GetClientInput(region: string)
+    {
+        predicate Valid() {
+            true
+        }
+    }
 
     trait IClientSupplier {
         method GetClient(input: GetClientInput) returns (res: AmazonKeyManagementService.IAmazonKeyManagementService)
+            requires input.Valid()
     }
 
     /////////////
@@ -55,11 +66,21 @@ module {:extern "Dafny.Aws.Crypto"} Aws.Crypto {
                                                         nameonly plaintextDataKey: Option<seq<uint8>>,
                                                         nameonly encryptedDataKeys: Option<seq<ValidEncryptedDataKey>>,
                                                         nameonly signingKey: Option<seq<uint8>>)
+    {
+        predicate Valid() {
+            true
+        }
+    }
 
     datatype DecryptionMaterials = DecryptionMaterials(nameonly encryptionContext: Option<EncryptionContext>,
                                                         nameonly algorithm: Option<AlgorithmSuite>,
                                                         nameonly plaintextDataKey: Option<seq<uint8>>,
                                                         nameonly verificationKey: Option<seq<uint8>>)
+    {
+        predicate Valid() {
+            true
+        }
+    }
 
     ///////////////////////
     // crypto-config.smithy
@@ -96,13 +117,37 @@ module {:extern "Dafny.Aws.Crypto"} Aws.Crypto {
     // But we cannot do the same for output, so for now we choose to give everything the wrapper
     // to retain symmetry.
     datatype OnEncryptInput = OnEncryptInput(nameonly materials: EncryptionMaterials)
+    {
+        predicate Valid() {
+            true
+        }
+    }
+
     datatype OnEncryptOutput = OnEncryptOutput(nameonly materials: EncryptionMaterials)
+    {
+        predicate Valid() {
+            true
+        }
+    }
     datatype OnDecryptInput = OnDecryptInput(nameonly materials: DecryptionMaterials)
+    {
+        predicate Valid() {
+            true
+        }
+    }
+
     datatype OnDecryptOutput = OnDecryptOutput(nameonly materials: DecryptionMaterials)
+    {
+        predicate Valid() {
+            true
+        }
+    }
 
     trait IKeyring {
         method OnEncrypt(input: OnEncryptInput) returns (res: Result<OnEncryptOutput, string>)
+            requires input.Valid()
         method OnDecrypt(input: OnDecryptInput) returns (res: Result<OnDecryptOutput, string>)
+            requires input.Valid()
     }
 
     /////////////////
@@ -111,6 +156,11 @@ module {:extern "Dafny.Aws.Crypto"} Aws.Crypto {
         messageUsage: int,
         byteUsage: int
     )
+    {
+        predicate Valid() {
+            true
+        }
+    }
 
     datatype EncryptEntry = EncryptEntry(
         identifier: seq<uint8>,
@@ -119,6 +169,12 @@ module {:extern "Dafny.Aws.Crypto"} Aws.Crypto {
         expiryTime: int,
         usageMetadata: CacheUsageMetadata
     )
+    {
+        predicate Valid() {
+            true
+        }
+    }
+
     datatype DecryptEntry = DecryptEntry(
         identifier: seq<uint8>,
         decryptionMaterials: DecryptionMaterials,
@@ -126,37 +182,102 @@ module {:extern "Dafny.Aws.Crypto"} Aws.Crypto {
         expiryTime: int,
         usageMetadata: CacheUsageMetadata
     )
+    {
+        predicate Valid() {
+            true
+        }
+    }
 
     datatype PutEntryForEncryptInput = PutEntryForEncryptInput(
         identifier: seq<uint8>,
         encryptionMaterials: EncryptionMaterials,
         usageMetadata: CacheUsageMetadata
     )
+    {
+        predicate Valid() {
+            true
+        }
+    }
+
     datatype PutEntryForEncryptOutput = PutEntryForEncryptOutput() // empty for now
+    {
+        predicate Valid() {
+            true
+        }
+    }
 
     datatype GetEntryForEncryptInput = GetEntryForEncryptInput(identifier: seq<uint8>)
+    {
+        predicate Valid() {
+            true
+        }
+    }
+
     datatype GetEntryForEncryptOutput = GetEntryForEncryptOutput(cacheEntry: EncryptEntry)
+    {
+        predicate Valid() {
+            true
+        }
+    }
 
     datatype PutEntryForDecryptInput = PutEntryForDecryptInput(
         identifier: seq<uint8>,
         decryptionMaterials: DecryptionMaterials
     )
+    {
+        predicate Valid() {
+            true
+        }
+    }
+
     datatype PutEntryForDecryptOutput = PutEntryForDecryptOutput() // empty for now
+    {
+        predicate Valid() {
+            true
+        }
+    }
     
     datatype GetEntryForDecryptInput = GetEntryForDecryptInput(identifier: seq<uint8>)
+    {
+        predicate Valid() {
+            true
+        }
+    }
+
     datatype GetEntryForDecryptOutput = GetEntryForDecryptOutput(cacheEntry: DecryptEntry)
+    {
+        predicate Valid() {
+            true
+        }
+    }
 
     datatype DeleteEntryInput = DeleteEntryInput(identifier: seq<uint8>)
+    {
+        predicate Valid() {
+            true
+        }
+    }
+
     datatype DeleteEntryOutput = DeleteEntryOutput() // empty for now
+    {
+        predicate Valid() {
+            true
+        }
+    }
 
     trait ICryptoMaterialsCache {
         method PutEntryForEncrypt(input: PutEntryForEncryptInput) returns (res: PutEntryForEncryptOutput)
+            requires input.Valid()
         method GetEntryForEncrypt(input: GetEntryForEncryptInput) returns (res: GetEntryForEncryptOutput)
+            requires input.Valid()
         
         method PutEntryForDecrypt(input: PutEntryForDecryptInput) returns (res: PutEntryForDecryptOutput)
+            requires input.Valid()
         method GetEntryForDecrypt(input: GetEntryForDecryptInput) returns (res: GetEntryForDecryptOutput)
+            requires input.Valid()
 
         method DeleteEntry(input: DeleteEntryInput) returns (res: DeleteEntryOutput)
+            requires input.Valid()
     }
 
     //////////////
@@ -166,10 +287,20 @@ module {:extern "Dafny.Aws.Crypto"} Aws.Crypto {
         nameonly algorithmSuite: Option<AlgorithmSuite>,
         nameonly maxPlaintextLength: int
     )
+    {
+        predicate Valid() {
+            true
+        }
+    }
 
     datatype GetEncryptionMaterialsOutput = GetEncryptionMaterialsOutput(
         nameonly materials: EncryptionMaterials
     )
+    {
+        predicate Valid() {
+            true
+        }
+    }
 
     datatype DecryptMaterialsInput = DecryptMaterialsInput(
         nameonly encryptionContext: EncryptionContext,
@@ -177,14 +308,26 @@ module {:extern "Dafny.Aws.Crypto"} Aws.Crypto {
         nameonly algorithmSuite: AlgorithmSuite,
         nameonly encryptedDataKeys: EncryptedDataKeyList
     )
+    {
+        predicate Valid() {
+            true
+        }
+    }
 
     datatype DecryptMaterialsOutput = DecryptMaterialsOutput(
         nameonly decryptionMaterials: DecryptionMaterials
     )
+    {
+        predicate Valid() {
+            true
+        }
+    }
 
     trait ICryptographicMaterialsManager {
         method GetEncryptionMaterials(input: GetEncryptionMaterialsInput) returns (res: Result<GetEncryptionMaterialsOutput, string>)
+            requires input.Valid()
         method DecryptMaterials(input: DecryptMaterialsInput) returns (res: Result<DecryptMaterialsOutput, string>)
+            requires input.Valid()
     }
 
     // Keyring creation input structures
@@ -196,6 +339,11 @@ module {:extern "Dafny.Aws.Crypto"} Aws.Crypto {
         nameonly keyIds: Option<KmsKeyIdList>,
         grantTokens: Option<GrantTokenList>
     )
+    {
+        predicate Valid() {
+            true
+        }
+    }
 
     // KMS - MRK Aware, Strict
     datatype CreateMrkAwareStrictAwsKmsKeyringInput = CreateMrkAwareStrictAwsKmsKeyringInput(
@@ -203,6 +351,11 @@ module {:extern "Dafny.Aws.Crypto"} Aws.Crypto {
         nameonly grantTokens: Option<GrantTokenList>,
         nameonly kmsClient: AmazonKeyManagementService.IAmazonKeyManagementService
     )
+    {
+        predicate Valid() {
+            true
+        }
+    }
 
     datatype CreateMrkAwareStrictMultiKeyringInput = CreateMrkAwareStrictMultiKeyringInput(
         nameonly generator: Option<KmsKeyId>,
@@ -210,6 +363,11 @@ module {:extern "Dafny.Aws.Crypto"} Aws.Crypto {
         nameonly grantTokens: Option<GrantTokenList>,
         nameonly clientSupplier: IClientSupplier?
     )
+    {
+        predicate Valid() {
+            true
+        }
+    }
 
     // KMS - MRK Aware, Discovery
     datatype CreateMrkAwareDiscoveryAwsKmsKeyringInput = CreateMrkAwareDiscoveryAwsKmsKeyringInput(
@@ -217,6 +375,11 @@ module {:extern "Dafny.Aws.Crypto"} Aws.Crypto {
         nameonly discoveryFilter: Option<DiscoveryFilter>,
         nameonly grantTokens: Option<GrantTokenList>
     )
+    {
+        predicate Valid() {
+            true
+        }
+    }
 
     datatype CreateMrkAwareDiscoveryMultiKeyringInput = CreateMrkAwareDiscoveryMultiKeyringInput(
         nameonly regions: RegionList,
@@ -224,12 +387,22 @@ module {:extern "Dafny.Aws.Crypto"} Aws.Crypto {
         nameonly grantTokens: Option<GrantTokenList>,
         nameonly clientSupplier: IClientSupplier?
     )
+    {
+        predicate Valid() {
+            true
+        }
+    }
 
     // Multi
     datatype CreateMultiKeyringInput = CreateMultiKeyringInput(
         nameonly generator: IKeyring?,
         nameonly childKeyrings: Option<seq<IKeyring>>
     )
+    {
+        predicate Valid() {
+            true
+        }
+    }
 
     // Raw Keyrings
     datatype CreateRawAesKeyringInput = CreateRawAesKeyringInput(
@@ -237,6 +410,11 @@ module {:extern "Dafny.Aws.Crypto"} Aws.Crypto {
         nameonly keyName: string,
         nameonly wrappingKey: seq<uint8>
     )
+    {
+        predicate Valid() {
+            true
+        }
+    }
 
     datatype CreateRawRsaKeyringInput = CreateRawRsaKeyringInput(
         nameonly keyNamespace: string,
@@ -245,12 +423,22 @@ module {:extern "Dafny.Aws.Crypto"} Aws.Crypto {
         nameonly publicKey: Option<seq<uint8>>,
         nameonly privateKey: Option<seq<uint8>>
     )
+    {
+        predicate Valid() {
+            true
+        }
+    }
 
     // CMM Creation input structures
 
     datatype CreateDefaultCryptographicMaterialsManagerInput = CreateDefaultCryptographicMaterialsManagerInput(
         nameonly keyring: IKeyring
     )
+    {
+        predicate Valid() {
+            true
+        }
+    }
 
     datatype CreateCachingCryptographicMaterialsManagerInput = CreateCachingCryptographicMaterialsManagerInput(
         nameonly cache: ICryptoMaterialsCache,
@@ -261,31 +449,52 @@ module {:extern "Dafny.Aws.Crypto"} Aws.Crypto {
         nameonly limitBytes: Option<int>,
         nameonly limitMessages: Option<int>
     )
+    {
+        predicate Valid() {
+            true
+        }
+    }
 
     // Caching creation structures
     datatype CreateLocalCryptoMaterialsCacheInput = CreateLocalCryptoMaterialsCacheInput(
         nameonly entryCapacity: int,
         nameonly entryPruningTailSize: Option<int>
     )
+    {
+        predicate Valid() {
+            true
+        }
+    }
 
     // TODO: Return Result<> once supported with traits
     trait IAwsCryptographicMaterialsProviderClient {
 
         // Keyrings
-        method CreateAwsKmsKeyring(Input: CreateAwsKmsKeyringInput) returns (res: IKeyring) 
+        method CreateAwsKmsKeyring(input: CreateAwsKmsKeyringInput) returns (res: IKeyring) 
+            requires input.Valid()
         method CreateMrkAwareStrictAwsKmsKeyring(input: CreateMrkAwareStrictAwsKmsKeyringInput) returns (res: IKeyring)
+            requires input.Valid()
         method CreateMrkAwareStrictMultiKeyring(input: CreateMrkAwareStrictMultiKeyringInput) returns (res: IKeyring)
+            requires input.Valid()
         method CreateMrkAwareDiscoveryAwsKmsKeyring(input: CreateMrkAwareDiscoveryAwsKmsKeyringInput) returns (res: IKeyring)
+            requires input.Valid()
         method CreateMrkAwareDiscoveryMultiKeyring(input: CreateMrkAwareDiscoveryMultiKeyringInput) returns (res: IKeyring)
+            requires input.Valid()
         method CreateMultiKeyring(input: CreateMultiKeyringInput) returns (res: IKeyring)
+            requires input.Valid()
         method CreateRawAesKeyring(input: CreateRawAesKeyringInput) returns (res: IKeyring)
+            requires input.Valid()
         method CreateRawRsaKeyring(input: CreateRawRsaKeyringInput) returns (res: IKeyring)
+            requires input.Valid()
 
         // CMMs
         method CreateDefaultCryptographicMaterialsManager(input: CreateDefaultCryptographicMaterialsManagerInput) returns (res: ICryptographicMaterialsManager)
+            requires input.Valid()
         method CreateCachingCryptographicMaterialsManager(input: CreateCachingCryptographicMaterialsManagerInput) returns (res: ICryptographicMaterialsManager)
+            requires input.Valid()
 
         // Caches
         method CreateLocalCryptoMaterialsCache(input: CreateLocalCryptoMaterialsCacheInput) returns (res: ICryptoMaterialsCache)
+            requires input.Valid()
     }
 }
