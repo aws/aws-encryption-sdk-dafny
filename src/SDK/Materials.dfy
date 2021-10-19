@@ -53,6 +53,19 @@ module {:extern "Materials"} Materials {
       && (plaintextDataKey.None? ==> |encryptedDataKeys| == 0)
     }
 
+    predicate Empty() {
+      && plaintextDataKey.None?
+      && |encryptedDataKeys| == 0
+      && (algorithmSuiteID.SignatureType().Some? ==> signingKey.Some?)
+    }
+
+    predicate Functional() {
+      && plaintextDataKey.Some?
+      && algorithmSuiteID.ValidPlaintextDataKey(plaintextDataKey.value)
+      && |encryptedDataKeys| > 0
+      && (algorithmSuiteID.SignatureType().Some? ==> signingKey.Some?)
+    }
+
     predicate Serializable() {
       && |encryptedDataKeys| > 0
       && EncryptionContext.Serializable(encryptionContext)
@@ -92,6 +105,9 @@ module {:extern "Materials"} Materials {
   }
 
   type ValidEncryptionMaterials = i: EncryptionMaterials | i.Valid() witness EncryptionMaterials.ValidWitness()
+  type EmptyEncryptionMaterials = i: EncryptionMaterials | i.Empty() witness *
+  type FunctionalEncryptionMaterials = i: EncryptionMaterials | i.Functional() witness *
+
 
   datatype DecryptionMaterials = DecryptionMaterials(algorithmSuiteID: AlgorithmSuite.ID,
                                                      encryptionContext: EncryptionContext.Map,
