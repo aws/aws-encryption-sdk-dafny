@@ -6,6 +6,7 @@ include "../SDK/EncryptionContext.dfy"
 include "../StandardLibrary/StandardLibrary.dfy"
 include "../StandardLibrary/UInt.dfy"
 include "../Util/UTF8.dfy"
+include "AwsKmsArnParsing.dfy"
 
 module {:extern "KMSUtils"} KMSUtils {
   import EncryptionContext
@@ -13,111 +14,147 @@ module {:extern "KMSUtils"} KMSUtils {
   import opened StandardLibrary
   import opened Wrappers
   import opened UInt = StandardLibrary.UInt
+  import opened AwsKmsArnParsing
   import UTF8
 
   const MAX_GRANT_TOKENS := 10
 
-  type CustomerMasterKey = s: string | ValidFormatCMK(s)
-    witness (ValidCMKAliasFromSuffix("ExampleAlias"); "alias/ExampleAlias")
-
-  predicate method ValidFormatCMK(cmk: string) {
-    ValidFormatCMKKeyARN(cmk) || ValidFormatCMKAlias(cmk) || ValidFormatCMKAliasARN(cmk)
-  }
-
-  predicate method ValidFormatCMKKeyARN(cmk: string) {
-    var components := Split(cmk, ':');
-    UTF8.IsASCIIString(cmk) && 0 < |cmk| <= 2048 && |components| == 6 && components[0] == "arn" && components[2] == "kms" && Split(components[5], '/')[0] == "key"
-  }
-
-  predicate method ValidFormatCMKAlias(cmk: string) {
-    var components := Split(cmk, '/');
-    UTF8.IsASCIIString(cmk) && 0 < |cmk| <= 2048 && |components| == 2 && components[0] == "alias"
-  }
-
-  lemma ValidCMKAliasFromSuffix(suffix: string)
-    requires UTF8.IsASCIIString(suffix) && |suffix| < 2042 && '/' !in suffix
-    ensures var cmk := "alias/" + suffix;
-      ValidFormatCMKAlias(cmk)
-  {
-    var alias := "alias";
-    assert UTF8.IsASCIIString(alias);
-    var cmk := alias + "/" + suffix;
-    assert UTF8.IsASCIIString(cmk);
-
-    var components := Split(cmk, '/');
-    calc {
-      components;
-    ==
-      Split(alias + "/" + suffix, '/');
-    ==  { WillSplitOnDelim(cmk, '/', alias); }
-      [alias] + Split(cmk[|alias| + 1..], '/');
-    ==  { assert cmk[|alias| + 1..] == suffix; }
-      [alias] + Split(suffix, '/');
-    ==  { WillNotSplitWithOutDelim(suffix, '/'); }
-      [alias] + [suffix];
-    ==
-      [alias, suffix];
-    }
-  }
-
-  predicate method ValidFormatCMKAliasARN(cmk: string) {
-    var components := Split(cmk, ':');
-    UTF8.IsASCIIString(cmk) && 0 < |cmk| <= 2048 && |components| == 6 && components[0] == "arn" && components[2] == "kms" && Split(components[5], '/')[0] == "alias"
-  }
-
-  type GrantToken = s: string | 0 < |s| <= 8192 witness "witness"
+  type CustomerMasterKey = AwsKmsIdentifierString
+  type GrantTokens = s: seq<GrantToken> | 0 <= |s| <= MAX_GRANT_TOKENS
+  type GrantToken = s: string | 0 < |s| <= 8192 witness *
 
   datatype ResponseMetadata = ResponseMetadata(metadata: map<string, string>, requestID: string)
 
   type HttpStatusCode = int //FIXME: Restrict this
 
-  datatype GenerateDataKeyRequest = GenerateDataKeyRequest(encryptionContext: EncryptionContext.Map, grantTokens: seq<GrantToken>, keyID: CustomerMasterKey, numberOfBytes: int32)
+  datatype GenerateDataKeyRequest = GenerateDataKeyRequest(
+    encryptionContext: EncryptionContext.Map,
+    grantTokens: seq<GrantToken>,
+    keyID: CustomerMasterKey,
+    numberOfBytes: int32
+  )
   {
     predicate Valid() {
       0 <= |grantTokens| <= MAX_GRANT_TOKENS && 0 < numberOfBytes <= 1024
     }
   }
 
-  datatype GenerateDataKeyResponse = GenerateDataKeyResponse(ciphertextBlob: seq<uint8>, contentLength: int, httpStatusCode: HttpStatusCode, keyID: string, plaintext: seq<uint8>, responseMetadata: ResponseMetadata)
+  datatype GenerateDataKeyResponse = GenerateDataKeyResponse(
+    ciphertextBlob: seq<uint8>,
+    keyID: string,
+    plaintext: seq<uint8>
+  )
   {
     predicate method IsWellFormed() {
       |keyID| < UINT16_LIMIT && |ciphertextBlob| < UINT16_LIMIT
     }
   }
 
-  datatype EncryptRequest = EncryptRequest(encryptionContext: EncryptionContext.Map, grantTokens: seq<GrantToken>, keyID: CustomerMasterKey, plaintext: seq<uint8>)
+  datatype EncryptRequest = EncryptRequest(
+    encryptionContext: EncryptionContext.Map,
+    grantTokens: seq<GrantToken>,
+    keyID: CustomerMasterKey,
+    plaintext: seq<uint8>
+  )
   {
     predicate Valid() {
       0 <= |grantTokens| <= MAX_GRANT_TOKENS
     }
   }
 
-  datatype EncryptResponse = EncryptResponse(ciphertextBlob: seq<uint8>, contentLength: int, httpStatusCode: HttpStatusCode, keyID: string, responseMetadata: ResponseMetadata)
+  datatype EncryptResponse = EncryptResponse(
+    ciphertextBlob: seq<uint8>,
+    contentLength: int,
+    httpStatusCode: HttpStatusCode,
+    keyID: string,
+    responseMetadata: ResponseMetadata
+  )
   {
     predicate method IsWellFormed() {
       |keyID| < UINT16_LIMIT && |ciphertextBlob| < UINT16_LIMIT
     }
   }
 
-  datatype DecryptRequest = DecryptRequest(ciphertextBlob: seq<uint8>, encryptionContext: EncryptionContext.Map, grantTokens: seq<GrantToken>)
+  datatype DecryptRequest = DecryptRequest(
+    keyId: string,
+    ciphertextBlob: seq<uint8>,
+    encryptionContext: EncryptionContext.Map,
+    grantTokens: seq<GrantToken>)
   {
     predicate Valid() {
       0 <= |grantTokens| <= MAX_GRANT_TOKENS
     }
   }
 
-  datatype DecryptResponse = DecryptResponse(contentLength: int, httpStatusCode: HttpStatusCode, keyID: string, plaintext: seq<uint8>, responseMetadata: ResponseMetadata)
+  datatype DecryptResponse = DecryptResponse(
+    contentLength: int,
+    httpStatusCode: HttpStatusCode,
+    keyID: string,
+    plaintext: seq<uint8>,
+    responseMetadata: ResponseMetadata
+  )
 
   method {:extern "KMSUtils.ClientHelper", "GetDefaultAWSKMSServiceClientExtern"} GetDefaultAWSKMSServiceClientExtern(region: Option<string>) returns (res: Result<IAmazonKeyManagementService, string>)
 
-  method {:extern "KMSUtils.ClientHelper", "GenerateDataKey"} GenerateDataKey(client: IAmazonKeyManagementService, request: GenerateDataKeyRequest) returns (res: Result<GenerateDataKeyResponse, string>)
-    requires request.Valid()
+  // The `{:opaque}` is important.
+  // This forces the verify to _only_ accept
+  // the exact values passed in the `ensures` clause.
+  // Without this, any client or request would pass verification.
+  predicate {:opaque} GenerateDataKeyCalledWith(
+    client: IAmazonKeyManagementService,
+    request: GenerateDataKeyRequest
+  ) {true}
+  predicate {:opaque} GenerateDataKeyResult(
+    ciphertextBlob: seq<uint8>,
+    plaintext: seq<uint8>
+  ) {true}
 
-  method {:extern "KMSUtils.ClientHelper", "Encrypt"} Encrypt(client: IAmazonKeyManagementService, request: EncryptRequest) returns (res: Result<EncryptResponse, string>)
-    requires request.Valid()
+  predicate {:opaque} EncryptCalledWith(
+    client: IAmazonKeyManagementService,
+    request: EncryptRequest
+  ) {true}
+  predicate {:opaque} EncryptResult(
+    ciphertextBlob: seq<uint8>
+  ) {true}
 
-  method {:extern "KMSUtils.ClientHelper", "Decrypt"} Decrypt(client: IAmazonKeyManagementService, request: DecryptRequest) returns (res: Result<DecryptResponse, string>)
+  predicate {:opaque} DecryptCalled(
+    client: IAmazonKeyManagementService,
+    request: DecryptRequest
+  ) {true}
+  predicate {:opaque} DecryptResult(
+    keyID: string,
+    plaintext: seq<uint8>
+  ) {true}
+
+  method {:extern "KMSUtils.ClientHelper", "GenerateDataKey"} GenerateDataKey(
+    client: IAmazonKeyManagementService,
+    request: GenerateDataKeyRequest
+  ) 
+    returns (res: Result<GenerateDataKeyResponse, string>)
     requires request.Valid()
+    ensures GenerateDataKeyCalledWith(client, request)
+    ensures res.Success? ==>
+      var r := res.value;
+      GenerateDataKeyResult(r.ciphertextBlob, r.plaintext)
+
+  method {:extern "KMSUtils.ClientHelper", "Encrypt"} Encrypt(
+    client: IAmazonKeyManagementService,
+    request: EncryptRequest
+  )
+    returns (res: Result<EncryptResponse, string>)
+    requires request.Valid()
+    ensures EncryptCalledWith(client, request)
+    ensures res.Success? ==> EncryptResult(res.value.ciphertextBlob)
+
+  method {:extern "KMSUtils.ClientHelper", "Decrypt"} Decrypt(
+    client: IAmazonKeyManagementService,
+    request: DecryptRequest
+  ) returns (res: Result<DecryptResponse, string>)
+    requires request.Valid()
+    ensures DecryptCalled(client, request)
+    ensures res.Success? ==>
+      var r := res.value;
+      DecryptResult(r.keyID, r.plaintext)
 
   method {:extern "KMSUtils.ClientHelper", "AddCachingClientCallback"} AddCachingClientCallback(client: IAmazonKeyManagementService, region: Option<string>, cache: CachingClientSupplierCache)
 
