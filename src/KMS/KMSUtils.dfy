@@ -41,11 +41,8 @@ module {:extern "KMSUtils"} KMSUtils {
 
   datatype GenerateDataKeyResponse = GenerateDataKeyResponse(
     ciphertextBlob: seq<uint8>,
-    contentLength: int,
-    httpStatusCode: HttpStatusCode,
     keyID: string,
-    plaintext: seq<uint8>,
-    responseMetadata: ResponseMetadata
+    plaintext: seq<uint8>
   )
   {
     predicate method IsWellFormed() {
@@ -99,35 +96,25 @@ module {:extern "KMSUtils"} KMSUtils {
 
   method {:extern "KMSUtils.ClientHelper", "GetDefaultAWSKMSServiceClientExtern"} GetDefaultAWSKMSServiceClientExtern(region: Option<string>) returns (res: Result<IAmazonKeyManagementService, string>)
 
-
-  datatype GenerateDataKeyVerification = GenerateDataKeyVerification(
-    plaintext: seq<uint8>,
-    ciphertextBlob: seq<uint8>
-    // keyID: string,
-  )
-  datatype EncryptDataKeyVerification = EncryptDataKeyVerification(
-    ciphertextBlob: seq<uint8>
-    // keyID: string,
-  )
-
   // The `{:opaque}` is important.
   // This forces the verify to _only_ accept
   // the exact values passed in the `ensures` clause.
   // Without this, any client or request would pass verification.
-  predicate {:opaque} GenerateDataKeyCalled(
+  predicate {:opaque} GenerateDataKeyCalledWith(
     client: IAmazonKeyManagementService,
     request: GenerateDataKeyRequest
   ) {true}
   predicate {:opaque} GenerateDataKeyResult(
-    verification: Option<GenerateDataKeyVerification>
+    ciphertextBlob: seq<uint8>,
+    plaintext: seq<uint8>
   ) {true}
 
-  predicate {:opaque} EncryptCalled(
+  predicate {:opaque} EncryptCalledWith(
     client: IAmazonKeyManagementService,
     request: EncryptRequest
   ) {true}
   predicate {:opaque} EncryptResult(
-    verification: Option<EncryptDataKeyVerification>
+    ciphertextBlob: seq<uint8>
   ) {true}
 
 
@@ -142,20 +129,10 @@ module {:extern "KMSUtils"} KMSUtils {
   ) 
     returns (res: Result<GenerateDataKeyResponse, string>)
     requires request.Valid()
-    ensures GenerateDataKeyCalled(
-      client,
-      request
-    )
-    ensures GenerateDataKeyResult(
-      if res.Success? then
-        Some(GenerateDataKeyVerification(
-          res.value.plaintext,
-          res.value.ciphertextBlob
-          // res.value.keyID
-        ))
-      else
-        None
-    )
+    ensures GenerateDataKeyCalledWith(client, request)
+    ensures res.Success? ==>
+      var r := res.value;
+      GenerateDataKeyResult(r.ciphertextBlob, r.plaintext)
 
   method {:extern "KMSUtils.ClientHelper", "Encrypt"} Encrypt(
     client: IAmazonKeyManagementService,
@@ -163,16 +140,8 @@ module {:extern "KMSUtils"} KMSUtils {
   )
     returns (res: Result<EncryptResponse, string>)
     requires request.Valid()
-    ensures EncryptCalled(client, request)
-    ensures EncryptResult(
-      if res.Success? then
-        Some(EncryptDataKeyVerification(
-          res.value.ciphertextBlob
-          // res.value.keyID
-        ))
-      else
-        None
-    )
+    ensures EncryptCalledWith(client, request)
+    ensures res.Success? ==> EncryptResult(res.value.ciphertextBlob)
 
   method {:extern "KMSUtils.ClientHelper", "Decrypt"} Decrypt(
     client: IAmazonKeyManagementService,
