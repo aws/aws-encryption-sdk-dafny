@@ -24,6 +24,26 @@ so they can only be run when embedding this library into one of the compilation 
 
 - [.NET](https://github.com/awslabs/aws-encryption-sdk-net)
 
+## Generate Duvet Reports
+
+This repo uses Duvet to directly document the [specification](https://github.com/awslabs/aws-encryption-sdk-specification) alongside this implementation.
+Refer to the [specification](https://github.com/awslabs/aws-encryption-sdk-specification/blob/master/README.md) for how to install duvet in order to generate reports.
+
+To generate a report for this AWS Encryption SDK for Dafny, run the following command:
+
+```
+./duvet_report.sh
+```
+
+It will output if there is any missing coverage.
+To view the report, look at the genreated `specification_compliance_report.html`:
+
+
+```
+open specification_compliance_report.html
+```
+
+
 ## License
 
 This library is licensed under the Apache 2.0 License.
