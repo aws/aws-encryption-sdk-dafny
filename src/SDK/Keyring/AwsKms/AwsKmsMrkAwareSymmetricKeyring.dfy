@@ -3,7 +3,6 @@
 
 include "../Defs.dfy"
 include "../../Materials.dfy"
-include "../../AlgorithmSuite.dfy"
 include "../../../StandardLibrary/StandardLibrary.dfy"
 include "../../../KMS/KMSUtils.dfy"
 include "../../../KMS/AmazonKeyManagementService.dfy"
@@ -24,8 +23,6 @@ module {:extern "AwsKmsMrkAwareSymmetricKeyring"} AwsKmsMrkAwareSymmetricKeyring
   import opened Actions
   import opened Constants
   import opened AwsKmsMrkMatchForDecrypt
-  import Serializable
-  import AlgorithmSuite
   import opened KeyringDefs
   import Materials
   import opened KMSUtils
