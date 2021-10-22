@@ -47,7 +47,7 @@ module {:extern "AwsKmsMrkAwareSymmetricKeyring"} AwsKmsMrkAwareSymmetricKeyring
       //# The AWS KMS SDK client MUST NOT be null.
       client: IAmazonKeyManagementService,
       awsKmsKey: string,
-      grantTokens: seq<KMSUtils.GrantToken>
+      grantTokens: GrantTokens
     )
       //= compliance/framework/aws-kms/aws-kms-mrk-aware-symmetric-keyring.txt#2.6
       //= type=implication
@@ -58,7 +58,6 @@ module {:extern "AwsKmsMrkAwareSymmetricKeyring"} AwsKmsMrkAwareSymmetricKeyring
       requires ParseAwsKmsIdentifier(awsKmsKey).Success?
       requires UTF8.IsASCIIString(awsKmsKey)
       requires 0 < |awsKmsKey| <= MAX_AWS_KMS_IDENTIFIER_LENGTH
-      requires 0 <= |grantTokens| <= KMSUtils.MAX_GRANT_TOKENS
       ensures Valid()
       ensures fresh(Repr - {this})
     {
