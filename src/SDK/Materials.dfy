@@ -59,7 +59,7 @@ module {:extern "Materials"} Materials {
       && (algorithmSuiteID.SignatureType().Some? ==> signingKey.Some?)
     }
 
-    predicate Functional() {
+    predicate Useable() {
       && plaintextDataKey.Some?
       && algorithmSuiteID.ValidPlaintextDataKey(plaintextDataKey.value)
       && |encryptedDataKeys| > 0
@@ -106,7 +106,7 @@ module {:extern "Materials"} Materials {
 
   type ValidEncryptionMaterials = i: EncryptionMaterials | i.Valid() witness EncryptionMaterials.ValidWitness()
   type EmptyEncryptionMaterials = i: EncryptionMaterials | i.Empty() witness *
-  type FunctionalEncryptionMaterials = i: EncryptionMaterials | i.Functional() witness *
+  type UseableEncryptionMaterials = i: EncryptionMaterials | i.Useable() witness *
 
 
   datatype DecryptionMaterials = DecryptionMaterials(algorithmSuiteID: AlgorithmSuite.ID,
