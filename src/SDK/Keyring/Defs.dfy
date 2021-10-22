@@ -5,12 +5,10 @@ include "../../StandardLibrary/StandardLibrary.dfy"
 include "../../StandardLibrary/UInt.dfy"
 include "../Materials.dfy"
 include "../AlgorithmSuite.dfy"
-include "../../../libraries/src/Collections/Sequences/Seq.dfy"
 
 module {:extern "KeyringDefs"} KeyringDefs {
   import opened Wrappers
   import opened UInt = StandardLibrary.UInt
-  import opened Seq
   import Materials
   import AlgorithmSuite
 
