@@ -30,7 +30,7 @@ module {:extern "KMSUtils"} KMSUtils {
   datatype GenerateDataKeyRequest = GenerateDataKeyRequest(
     encryptionContext: EncryptionContext.Map,
     grantTokens: seq<GrantToken>,
-    keyID: CustomerMasterKey,
+    keyID: AwsKmsIdentifierString,
     numberOfBytes: int32
   )
   {
@@ -53,7 +53,7 @@ module {:extern "KMSUtils"} KMSUtils {
   datatype EncryptRequest = EncryptRequest(
     encryptionContext: EncryptionContext.Map,
     grantTokens: seq<GrantToken>,
-    keyID: CustomerMasterKey,
+    keyID: AwsKmsIdentifierString,
     plaintext: seq<uint8>
   )
   {
@@ -156,221 +156,16 @@ module {:extern "KMSUtils"} KMSUtils {
       var r := res.value;
       DecryptResult(r.keyID, r.plaintext)
 
-  method {:extern "KMSUtils.ClientHelper", "AddCachingClientCallback"} AddCachingClientCallback(client: IAmazonKeyManagementService, region: Option<string>, cache: CachingClientSupplierCache)
-
   trait {:extern "DafnyAWSKMSClientSupplier"} DafnyAWSKMSClientSupplier {
-    ghost var Repr: set<object>
-
-    predicate Valid()
-      reads this, Repr
-      ensures Valid() ==> this in Repr
-
     method GetClient(region: Option<string>) returns (res: Result<IAmazonKeyManagementService, string>)
-      requires Valid()
-      ensures Valid()
-      decreases Repr
-  }
-
-  // An implementation of a DafnyAWSKMSClientSupplier that takes in an existing DafnyAWSKMSClientSupplier as well as a seq of regions (strings).
-  // The LimitRegionsClientSupplier will only return an AWS KMS service client from the given DafnyAWSKMSClientSupplier
-  // if the region provided to GetClient(region) is in the list of regions associated with the LimitRegionsClientSupplier.
-  class LimitRegionsClientSupplier extends DafnyAWSKMSClientSupplier {
-    const clientSupplier: DafnyAWSKMSClientSupplier
-    const regions: seq<string>
-
-    predicate Valid()
-      reads this, Repr
-      ensures Valid() ==> this in Repr
-    {
-      this in Repr &&
-      clientSupplier in Repr && clientSupplier.Repr <= Repr && this !in clientSupplier.Repr && clientSupplier.Valid()
-    }
-
-    constructor(clientSupplier: DafnyAWSKMSClientSupplier, regions: seq<string>)
-      requires clientSupplier.Valid()
-      ensures this.clientSupplier == clientSupplier
-      ensures this.regions == regions
-      ensures Valid() && fresh(Repr - clientSupplier.Repr)
-    {
-      this.clientSupplier := clientSupplier;
-      this.regions := regions;
-      Repr := {this} + clientSupplier.Repr;
-    }
-
-    method GetClient(region: Option<string>) returns (res: Result<IAmazonKeyManagementService, string>)
-      requires Valid()
-      ensures Valid()
-      // Verify this behavior with the spec. TODO: https://github.com/awslabs/aws-encryption-sdk-dafny/issues/272
-      // Only add a post condition around failures, since the GetClient call could return a success or failure
-      ensures region.None? ==> res.Failure?
-      ensures region.Some? && !(region.value in regions) ==> res.Failure?
-      decreases Repr
-    {
-      // In order to limit regions, make sure our given region string exists and is a member of the regions to limit to
-      if region.Some? && region.value in regions {
-        var resClient := clientSupplier.GetClient(region);
-        return resClient;
-      } else if region.None? {
-        return Result.Failure("LimitRegionsClientSupplier GetClient requires a region");
-      }
-      var failure := "Given region " + region.value + " not in regions maintained by LimitRegionsClientSupplier";
-      return Result.Failure(failure);
-    }
-  }
-
-  // An implementation of a DafnyAWSKMSClientSupplier that takes in an existing DafnyAWSKMSClientSupplier as well as a seq of regions (strings).
-  // The ExcludeRegionsClientSupplier will only return an AWS KMS service client from the given DafnyAWSKMSClientSupplier
-  // if the region provided to GetClient(region) is not in the list of regions associated with the ExcludeRegionsClientSupplier.
-  class ExcludeRegionsClientSupplier extends DafnyAWSKMSClientSupplier {
-    const clientSupplier: DafnyAWSKMSClientSupplier
-    const regions: seq<string>
-
-    predicate Valid()
-      reads this, Repr
-      ensures Valid() ==> this in Repr
-    {
-      this in Repr &&
-      clientSupplier in Repr && clientSupplier.Repr <= Repr && this !in clientSupplier.Repr && clientSupplier.Valid()
-    }
-
-    constructor(clientSupplier: DafnyAWSKMSClientSupplier, regions: seq<string>)
-      requires clientSupplier.Valid()
-      ensures this.clientSupplier == clientSupplier
-      ensures this.regions == regions
-      ensures Valid() && fresh(Repr - clientSupplier.Repr)
-    {
-      this.clientSupplier := clientSupplier;
-      this.regions := regions;
-      Repr := {this} + clientSupplier.Repr;
-    }
-
-    method GetClient(region: Option<string>) returns (res: Result<IAmazonKeyManagementService, string>)
-      requires Valid()
-      ensures Valid()
-      // Verify this behavior with the spec. TODO: https://github.com/awslabs/aws-encryption-sdk-dafny/issues/272
-      // Only add a post condition around failures, since the GetClient call could return a success or failure
-      ensures region.None? ==> res.Failure?
-      ensures region.Some? && region.value in regions ==> res.Failure?
-      decreases Repr
-    {
-      // In order to exclude regions, make sure our given region string exists and is not a member of the regions to exclude
-      if region.None? {
-        return Result.Failure("ExcludeRegionsClientSupplier GetClient requires a region");
-      } else if (region.Some? && region.value in regions) {
-        var failure := "Given region " + region.value + " is in regions maintained by ExcludeRegionsClientSupplier";
-        return Result.Failure(failure);
-      }
-      var resClient := clientSupplier.GetClient(region);
-      return resClient;
-    }
-  }
-
-  class CachingClientSupplierCache {
-    ghost var Repr: set<object>
-    var ClientCache: map<Option<string>, IAmazonKeyManagementService>
-
-    predicate Valid()
-      reads this, Repr
-      ensures Valid() ==> this in Repr
-    {
-      this in Repr &&
-      (forall region :: region in ClientCache.Keys ==> ClientCache[region] in Repr)
-    }
-
-    constructor ()
-      ensures ClientCache == map[]
-      ensures Valid() && fresh(Repr)
-    {
-      ClientCache := map[];
-      Repr := {this};
-    }
-
-    function method LookupClient(region: Option<string>): (client: Option<IAmazonKeyManagementService>)
-      requires Valid()
-      ensures Valid()
-      ensures client.Some? ==> region in ClientCache.Keys && client.value in Repr
-      reads Repr
-    {
-      if region in ClientCache.Keys then Some(ClientCache[region]) else None()
-    }
-
-    method AddClient(region: Option<string>, client: IAmazonKeyManagementService)
-      requires Valid()
-      ensures Valid()
-      ensures region in ClientCache.Keys && ClientCache[region] == client && client in Repr
-      modifies Repr
-    {
-      Repr := Repr + {client};
-      ClientCache := ClientCache[region := client];
-    }
-  }
-
-  class CachingClientSupplier extends DafnyAWSKMSClientSupplier {
-    const clientSupplier: DafnyAWSKMSClientSupplier
-    const clientCache: CachingClientSupplierCache
-
-    predicate Valid()
-      reads this, Repr
-      ensures Valid() ==> this in Repr
-    {
-      this in Repr &&
-      clientSupplier in Repr && clientSupplier.Repr <= Repr && this !in clientSupplier.Repr && clientSupplier.Valid() &&
-      clientCache in Repr && clientCache.Repr <= Repr && this !in clientCache.Repr && clientCache.Valid() &&
-      clientSupplier.Repr !! clientCache.Repr
-    }
-
-    constructor(clientSupplier: DafnyAWSKMSClientSupplier)
-      requires clientSupplier.Valid()
-      ensures this.clientSupplier == clientSupplier
-      ensures Valid() && fresh(Repr - clientSupplier.Repr)
-    {
-      this.clientSupplier := clientSupplier;
-      // Establish the cache
-      var clientCache := new CachingClientSupplierCache();
-      assert clientCache in clientCache.Repr;
-      this.clientCache := clientCache;
-      Repr := {this} + clientSupplier.Repr + clientCache.Repr;
-    }
-
-    method GetClient(region: Option<string>) returns (res: Result<IAmazonKeyManagementService, string>)
-      requires Valid()
-      ensures Valid()
-      ensures clientCache.LookupClient(region).Some? ==> res.Success? && clientCache.LookupClient(region).value == res.value
-      decreases Repr
-    {
-      var potentialClient := clientCache.LookupClient(region);
-      if potentialClient.Some? {
-        return Result.Success(potentialClient.value);
-      } else  {
-        var resClient := clientSupplier.GetClient(region);
-        if resClient.Success? {
-          // Call the extern method to create a callback for adding the client to the cache
-          AddCachingClientCallback(resClient.value, region, clientCache);
-        }
-        return resClient;
-      }
-    }
   }
 
   class BaseClientSupplier extends DafnyAWSKMSClientSupplier {
-    predicate Valid()
-      reads this, Repr
-      ensures Valid() ==> this in Repr
-    {
-      this in Repr
-    }
 
-    constructor()
-      ensures Valid() && fresh(Repr)
-    {
-      Repr := {this};
-    }
+    constructor(){}
 
     // Since this is the base client supplier, this just calls the extern GetClient method
     method GetClient(region: Option<string>) returns (res: Result<IAmazonKeyManagementService, string>)
-      requires Valid()
-      ensures Valid()
-      decreases Repr
     {
       // Since this is the base client supplier, this obtains the extern client
       var resClient := GetDefaultAWSKMSServiceClientExtern(region);
