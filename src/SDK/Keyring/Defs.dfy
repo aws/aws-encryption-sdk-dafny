@@ -67,16 +67,4 @@ module {:extern "KeyringDefs"} KeyringDefs {
       )
 
   }
-
-  trait {:termination false} BetterKeyring {
-    method OnEncrypt(
-      materials: Materials.ValidEncryptionMaterials
-    ) returns (res: Result<Materials.ValidEncryptionMaterials, string>)
-
-    method OnDecrypt(
-      materials: Materials.ValidDecryptionMaterials,
-      encryptedDataKeys: seq<Materials.EncryptedDataKey>
-    ) returns (res: Result<Materials.ValidDecryptionMaterials, string>)
-  }
-
 }
