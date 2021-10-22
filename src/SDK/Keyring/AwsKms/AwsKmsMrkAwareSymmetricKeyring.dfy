@@ -100,15 +100,15 @@ module {:extern "AwsKmsMrkAwareSymmetricKeyring"} AwsKmsMrkAwareSymmetricKeyring
           //= type=implication
           //# If the keyring calls AWS KMS GenerateDataKeys, it MUST use the
           //# configured AWS KMS client to make the call.
-          this.client,
+          client,
           //= compliance/framework/aws-kms/aws-kms-mrk-aware-symmetric-keyring.txt#2.7
           //= type=implication
           //# The keyring MUST call
           //# AWS KMS GenerateDataKeys with a request constructed as follows:
           GenerateDataKeyRequest(
             materials.encryptionContext,
-            this.grantTokens,
-            this.awsKmsKey,
+            grantTokens,
+            awsKmsKey,
             materials.algorithmSuiteID.KDFInputKeyLength() as int32
           ))
 
@@ -155,15 +155,15 @@ module {:extern "AwsKmsMrkAwareSymmetricKeyring"} AwsKmsMrkAwareSymmetricKeyring
           //# The keyring MUST call AWS KMS Encrypt
           //# (https://docs.aws.amazon.com/kms/latest/APIReference/
           //# API_Encrypt.html) using the configured AWS KMS client.
-          this.client,
+          client,
           //= compliance/framework/aws-kms/aws-kms-mrk-aware-symmetric-keyring.txt#2.7
           //= type=implication
           //# The keyring
           //# MUST AWS KMS Encrypt call with a request constructed as follows:
           EncryptRequest(
             materials.encryptionContext,
-            this.grantTokens,
-            this.awsKmsKey,
+            grantTokens,
+            awsKmsKey,
             materials.plaintextDataKey.value
           ))
 
@@ -187,12 +187,12 @@ module {:extern "AwsKmsMrkAwareSymmetricKeyring"} AwsKmsMrkAwareSymmetricKeyring
       if materials.plaintextDataKey.None? {
         var generatorRequest := GenerateDataKeyRequest(
           materials.encryptionContext,
-          this.grantTokens,
-          this.awsKmsKey,
+          grantTokens,
+          awsKmsKey,
           materials.algorithmSuiteID.KDFInputKeyLength() as int32
         );
 
-        var maybeGenerateResponse := GenerateDataKey(this.client, generatorRequest);
+        var maybeGenerateResponse := GenerateDataKey(client, generatorRequest);
 
         //= compliance/framework/aws-kms/aws-kms-mrk-aware-symmetric-keyring.txt#2.7
         //# If the call to AWS KMS GenerateDataKey
@@ -235,10 +235,10 @@ module {:extern "AwsKmsMrkAwareSymmetricKeyring"} AwsKmsMrkAwareSymmetricKeyring
         var encryptRequest := KMSUtils.EncryptRequest(
           materials.encryptionContext,
           grantTokens,
-          this.awsKmsKey,
+          awsKmsKey,
           materials.plaintextDataKey.value
         );
-        var maybeEncryptResponse := KMSUtils.Encrypt(this.client, encryptRequest);
+        var maybeEncryptResponse := KMSUtils.Encrypt(client, encryptRequest);
 
         //= compliance/framework/aws-kms/aws-kms-mrk-aware-symmetric-keyring.txt#2.7
         //= type=implication
@@ -359,7 +359,7 @@ module {:extern "AwsKmsMrkAwareSymmetricKeyring"} AwsKmsMrkAwareSymmetricKeyring
       //= compliance/framework/aws-kms/aws-kms-mrk-aware-symmetric-keyring.txt#2.8
       //# The set of encrypted data keys MUST first be filtered to match this
       //# keyring's configuration.
-      var filter := new EncrypteDataKeyFilter(this.awsKmsArn);
+      var filter := new EncrypteDataKeyFilter(awsKmsArn);
       var edksToAttempt :- FilterWithResult(filter, encryptedDataKeys);
 
       //= compliance/framework/aws-kms/aws-kms-mrk-aware-symmetric-keyring.txt#2.8
@@ -369,9 +369,9 @@ module {:extern "AwsKmsMrkAwareSymmetricKeyring"} AwsKmsMrkAwareSymmetricKeyring
       //# results in an error, then these errors MUST be collected.
       var decryptClosure := new DecryptEncryptedDataKey(
         materials,
-        this.client,
-        this.awsKmsKey,
-        this.grantTokens
+        client,
+        awsKmsKey,
+        grantTokens
       );
 
       //= compliance/framework/aws-kms/aws-kms-mrk-aware-symmetric-keyring.txt#2.8
@@ -420,7 +420,7 @@ module {:extern "AwsKmsMrkAwareSymmetricKeyring"} AwsKmsMrkAwareSymmetricKeyring
   }
 
   class EncrypteDataKeyFilter
-  extends ActionWithResult<Materials.EncryptedDataKey, bool, string>
+    extends ActionWithResult<Materials.EncryptedDataKey, bool, string>
   {
     const awsKmsKey: AwsKmsIdentifier
 
@@ -464,17 +464,17 @@ module {:extern "AwsKmsMrkAwareSymmetricKeyring"} AwsKmsMrkAwareSymmetricKeyring
       //# for-decrypt.md#implementation) called with the configured AWS KMS
       //# key identifier and the provider info MUST return "true".
       return Success(AwsKmsMrkMatchForDecrypt.AwsKmsMrkMatchForDecrypt(
-        this.awsKmsKey,
+        awsKmsKey,
         AwsKmsArnIdentifier(arn)
       ));
     }
   }
 
   class DecryptEncryptedDataKey
-  extends ActionWithResult<
-    Materials.EncryptedDataKey,
-    Materials.CompleteDecryptionMaterials,
-    string>
+    extends ActionWithResult<
+      Materials.EncryptedDataKey,
+      Materials.CompleteDecryptionMaterials,
+      string>
   {
     const materials: Materials.PendingDecryptionMaterials
     const client: IAmazonKeyManagementService
@@ -506,7 +506,7 @@ module {:extern "AwsKmsMrkAwareSymmetricKeyring"} AwsKmsMrkAwareSymmetricKeyring
         res.Success?
       ==>
         && res.value.Valid()
-        && OnDecryptPure(this.materials, res)
+        && OnDecryptPure(materials, res)
         && DecryptCalled(
           client,
           DecryptRequest(
@@ -532,14 +532,14 @@ module {:extern "AwsKmsMrkAwareSymmetricKeyring"} AwsKmsMrkAwareSymmetricKeyring
         grantTokens
       );
 
-      var decryptResponse :- KMSUtils.Decrypt(this.client, decryptRequest);
+      var decryptResponse :- KMSUtils.Decrypt(client, decryptRequest);
 
       :- Need(
-        && decryptResponse.keyID == this.awsKmsKey
-        && this.materials.algorithmSuiteID.ValidPlaintextDataKey(decryptResponse.plaintext)
+        && decryptResponse.keyID == awsKmsKey
+        && materials.algorithmSuiteID.ValidPlaintextDataKey(decryptResponse.plaintext)
         , "Invalid response from KMS Decrypt");
 
-      var result := this.materials.WithPlaintextDataKey(decryptResponse.plaintext);
+      var result := materials.WithPlaintextDataKey(decryptResponse.plaintext);
       return Success(result);
     }
   }
