@@ -21,8 +21,8 @@ module Actions {
   }
 
   method Map<A, R>(
-    s: seq<A>,
-    action: Action<A, R>
+    action: Action<A, R>,
+    s: seq<A>
   )
     returns (res: seq<R>)
     ensures |s| == |res|
@@ -47,8 +47,8 @@ module Actions {
   }
 
   method MapWithResult<A, R, E>(
-    s: seq<A>,
-    action: ActionWithResult<A, R, E>
+    action: ActionWithResult<A, R, E>,
+    s: seq<A>
   )
     returns (res: Result<seq<R>, E>)
     ensures
@@ -78,8 +78,8 @@ module Actions {
   }
 
   method Filter<A>(
-    s: seq<A>,
-    action: Action<A, bool>
+    action: Action<A, bool>,
+    s: seq<A>
   )
     returns (res: seq<A>)
     ensures |s| >= |res|
@@ -109,8 +109,8 @@ module Actions {
 
 
   method FilterWithResult<A, E>(
-    s: seq<A>,
-    action: ActionWithResult<A, bool, E>
+    action: ActionWithResult<A, bool, E>,
+    s: seq<A>
   )
     returns (res: Result<seq<A>, E>)
     ensures
@@ -141,8 +141,8 @@ module Actions {
   }
 
   method ReduceToSuccess<A, B, E>(
-    s: seq<A>,
-    action: ActionWithResult<A, B, E>
+    action: ActionWithResult<A, B, E>,
+    s: seq<A>
   )
     returns (res: Result<B, seq<E>>)
     ensures

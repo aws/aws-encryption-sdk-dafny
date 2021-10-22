@@ -360,7 +360,7 @@ module {:extern "AwsKmsMrkAwareSymmetricKeyring"} AwsKmsMrkAwareSymmetricKeyring
       //# The set of encrypted data keys MUST first be filtered to match this
       //# keyring's configuration.
       var filter := new EncrypteDataKeyFilter(this.awsKmsArn);
-      var edksToAttempt :- Closures.FilterWithResult(encryptedDataKeys, filter);
+      var edksToAttempt :- FilterWithResult(filter, encryptedDataKeys);
 
       //= compliance/framework/aws-kms/aws-kms-mrk-aware-symmetric-keyring.txt#2.8
       //# For each encrypted data key in the filtered set, one at a time, the
@@ -378,9 +378,9 @@ module {:extern "AwsKmsMrkAwareSymmetricKeyring"} AwsKmsMrkAwareSymmetricKeyring
       //# If the response does not satisfies these requirements then an error
       //# MUST be collected and the next encrypted data key in the filtered set
       //# MUST be attempted.
-      var outcome := Closures.ReduceToSuccess(
-        edksToAttempt,
-        decryptClosure
+      var outcome := ReduceToSuccess(
+        decryptClosure,
+        edksToAttempt
       );
 
       return match outcome {
