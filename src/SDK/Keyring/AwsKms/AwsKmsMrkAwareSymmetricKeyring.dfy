@@ -59,12 +59,15 @@ module {:extern "AwsKmsMrkAwareSymmetricKeyring"} AwsKmsMrkAwareSymmetricKeyring
       requires UTF8.IsASCIIString(awsKmsKey)
       requires 0 < |awsKmsKey| <= MAX_AWS_KMS_IDENTIFIER_LENGTH
       requires 0 <= |grantTokens| <= KMSUtils.MAX_GRANT_TOKENS
+      ensures Valid()
+      ensures fresh(Repr - {this})
     {
       var awsKmsArn    := ParseAwsKmsIdentifier(awsKmsKey);
       this.client      := client;
       this.awsKmsKey   := awsKmsKey;
       this.awsKmsArn   := awsKmsArn.value;
       this.grantTokens := grantTokens;
+      Repr := {this};
     }
 
     predicate Valid()
