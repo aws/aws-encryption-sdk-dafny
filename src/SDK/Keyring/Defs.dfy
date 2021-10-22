@@ -47,7 +47,6 @@ module {:extern "KeyringDefs"} KeyringDefs {
 
   predicate OnDecryptPure(
     materials: Materials.ValidDecryptionMaterials,
-    // encryptedDataKeys: seq<Materials.EncryptedDataKey>,
     res: Result<Materials.ValidDecryptionMaterials, string>
   )
   {
