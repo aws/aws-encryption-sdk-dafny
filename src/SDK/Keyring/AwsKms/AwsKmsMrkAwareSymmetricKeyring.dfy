@@ -359,7 +359,7 @@ module {:extern "AwsKmsMrkAwareSymmetricKeyring"} AwsKmsMrkAwareSymmetricKeyring
       //= compliance/framework/aws-kms/aws-kms-mrk-aware-symmetric-keyring.txt#2.8
       //# The set of encrypted data keys MUST first be filtered to match this
       //# keyring's configuration.
-      var filter := new EncrypteDataKeyFilter(awsKmsArn);
+      var filter := new OnDecryptEncrypteDataKeyFilter(awsKmsArn);
       var edksToAttempt :- FilterWithResult(filter, encryptedDataKeys);
 
       //= compliance/framework/aws-kms/aws-kms-mrk-aware-symmetric-keyring.txt#2.8
@@ -419,7 +419,7 @@ module {:extern "AwsKmsMrkAwareSymmetricKeyring"} AwsKmsMrkAwareSymmetricKeyring
     }
   }
 
-  class EncrypteDataKeyFilter
+  class OnDecryptEncrypteDataKeyFilter
     extends ActionWithResult<Materials.EncryptedDataKey, bool, string>
   {
     const awsKmsKey: AwsKmsIdentifier
