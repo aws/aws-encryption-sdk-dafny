@@ -10,8 +10,7 @@ include "../../../KMS/AmazonKeyManagementService.dfy"
 include "../../../KMS/AwsKmsArnParsing.dfy"
 include "../../../Util/UTF8.dfy"
 include "../../../../libraries/src/Collections/Sequences/Seq.dfy"
-include "../../../StandardLibrary/Closures.dfy"
-include "../../Serializable.dfy"
+include "../../../StandardLibrary/Actions.dfy"
 include "Constants.dfy"
 include "AwsKmsMrkMatchForDecrypt.dfy"
 
@@ -22,7 +21,7 @@ module {:extern "AwsKmsMrkAwareSymmetricKeyring"} AwsKmsMrkAwareSymmetricKeyring
   import opened AwsKmsArnParsing
   import opened AmazonKeyManagementService
   import opened Seq
-  import opened Closures
+  import opened Actions
   import opened Constants
   import opened AwsKmsMrkMatchForDecrypt
   import Serializable

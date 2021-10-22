@@ -1,6 +1,6 @@
 include "../../libraries/src/Wrappers.dfy"
 
-module Closures {
+module Actions {
 
   import opened Wrappers
 
