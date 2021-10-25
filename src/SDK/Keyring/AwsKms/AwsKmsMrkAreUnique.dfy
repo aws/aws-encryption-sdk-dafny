@@ -14,6 +14,7 @@ module  AwsKmsMrkAreUnique {
   //= compliance/framework/aws-kms/aws-kms-mrk-are-unique.txt#2.5
   //= type=implication
   //# The caller MUST provide:
+  //# *  A list of AWS KMS key identifiers
   function method AwsKmsMrkAreUnique(identifiers: seq<AwsKmsIdentifier>)
   : (result: Result<(), string>)
   {
