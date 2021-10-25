@@ -9,6 +9,7 @@ include "AlgorithmSuite.dfy"
 include "../Util/Streams.dfy"
 include "../StandardLibrary/StandardLibrary.dfy"
 include "../Util/UTF8.dfy"
+include "../Generated/AwsCryptographicMaterialProviders.dfy"
 
 /*
  * The message header deserialization
@@ -23,6 +24,7 @@ module Deserialize {
     provides InsertNewEntry, UTF8, EncryptionContext
     reveals DeserializeHeaderResult
 
+  import Aws.Crypto
   import Msg = MessageHeader
 
   import AlgorithmSuite
@@ -477,7 +479,7 @@ module Deserialize {
     }
 
     assert rd.reader.pos == old(rd.reader.pos) + 2;
-    var edkEntries: seq<Materials.EncryptedDataKey> := [];
+    var edkEntries: seq<Crypto.EncryptedDataKey> := [];
     var i := 0;
     while i < edkCount
       invariant old(rd.reader.pos) + 2 <= rd.reader.pos
@@ -501,13 +503,13 @@ module Deserialize {
       var edkLength :- rd.ReadUInt16();
       var edk :- rd.ReadBytes(edkLength as nat);
 
-      edkEntries := edkEntries + [Materials.EncryptedDataKey(keyProviderID, keyProviderInfo, edk)];
+      edkEntries := edkEntries + [Crypto.EncryptedDataKey(providerID:=keyProviderID, providerInfo:=keyProviderInfo, ciphertext:=edk)];
       i := i + 1;
       assert invStartPos < rd.reader.pos;
       assert Msg.EDKEntriesToSeq(edkEntries, 0, |edkEntries|) == rd.reader.data[old(rd.reader.pos) + 2 .. rd.reader.pos] by {
-        assert Msg.EDKEntryToSeq(Materials.EncryptedDataKey(keyProviderID, keyProviderInfo, edk)) == rd.reader.data[invStartPos..rd.reader.pos];
+        assert Msg.EDKEntryToSeq(Crypto.EncryptedDataKey(providerID:=keyProviderID, providerInfo:=keyProviderInfo, ciphertext:=edk)) == rd.reader.data[invStartPos..rd.reader.pos];
         Msg.EDKEntriesToSeqInductiveStep(edkEntries[..|edkEntries| - 1],
-          [Materials.EncryptedDataKey(keyProviderID, keyProviderInfo, edk)], 0, |edkEntries[..|edkEntries| - 1]|);
+          [Crypto.EncryptedDataKey(providerID:=keyProviderID, providerInfo:=keyProviderInfo, ciphertext:=edk)], 0, |edkEntries[..|edkEntries| - 1]|);
       }
     }
     assert |edkEntries| == edkCount as int;

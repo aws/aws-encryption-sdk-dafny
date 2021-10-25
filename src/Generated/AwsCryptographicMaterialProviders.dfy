@@ -63,10 +63,10 @@ module {:extern "Dafny.Aws.Crypto"} Aws.Crypto {
     // (for example: if the algorithm suite includes signing, the signingKey must not be null).
     // However, we cannot model these in Smithy, so we will need to write them manually in the
     // Dafny code rather than in this auto-generated portion.
-    datatype EncryptionMaterials = EncryptionMaterials(nameonly encryptionContext: Option<EncryptionContext>,
-                                                       nameonly algorithm: Option<AlgorithmSuite>,
+    datatype EncryptionMaterials = EncryptionMaterials(nameonly encryptionContext: EncryptionContext,
+                                                       nameonly algorithmSuiteID: AlgorithmSuite,
                                                        nameonly plaintextDataKey: Option<seq<uint8>>,
-                                                       nameonly encryptedDataKeys: Option<seq<ValidEncryptedDataKey>>,
+                                                       nameonly encryptedDataKeys: seq<ValidEncryptedDataKey>,
                                                        nameonly signingKey: Option<seq<uint8>>)
     {
         predicate Valid() {
@@ -74,8 +74,8 @@ module {:extern "Dafny.Aws.Crypto"} Aws.Crypto {
         }
     }
 
-    datatype DecryptionMaterials = DecryptionMaterials(nameonly encryptionContext: Option<EncryptionContext>,
-                                                       nameonly algorithm: Option<AlgorithmSuite>,
+    datatype DecryptionMaterials = DecryptionMaterials(nameonly encryptionContext: EncryptionContext,
+                                                       nameonly algorithmSuiteID: AlgorithmSuite,
                                                        nameonly plaintextDataKey: Option<seq<uint8>>,
                                                        nameonly verificationKey: Option<seq<uint8>>)
     {
@@ -91,6 +91,11 @@ module {:extern "Dafny.Aws.Crypto"} Aws.Crypto {
         REQUIRE_ENCRYPT_ALLOW_DECRYPT |
         REQUIRE_ENCRYPT_REQUIRE_DECRYPT
 
+    datatype AESWrappingAlg = 
+      ALG_AES128_GCM_IV12_TAG16 |
+      ALG_AES192_GCM_IV12_TAG16 |
+      ALG_AES256_GCM_IV12_TAG16
+
     datatype AlgorithmSuite = 
         ALG_AES_128_GCM_IV12_TAG16_NO_KDF |
         ALG_AES_192_GCM_IV12_TAG16_NO_KDF |
@@ -100,9 +105,8 @@ module {:extern "Dafny.Aws.Crypto"} Aws.Crypto {
         ALG_AES_256_GCM_IV12_TAG16_HKDF_SHA256 |
         ALG_AES_128_GCM_IV12_TAG16_HKDF_SHA256_ECDSA_P256 |
         ALG_AES_192_GCM_IV12_TAG16_HKDF_SHA384_ECDSA_P384 |
-        ALG_AES_256_GCM_IV12_TAG16_HKDF_SHA384_ECDSA_P384 |
-        ALG_AES_256_GCM_HKDF_SHA512_COMMIT_KEY |
-        ALG_AES_256_GCM_HKDF_SHA512_COMMIT_KEY_ECDSA_P384
+        ALG_AES_256_GCM_IV12_TAG16_HKDF_SHA384_ECDSA_P384 
+        // TODO add commitment
 
     datatype PaddingScheme =
         PKCS1 |
@@ -147,6 +151,12 @@ module {:extern "Dafny.Aws.Crypto"} Aws.Crypto {
     }
 
     trait {:termination false} IKeyring {
+        // TODO this is NOT a ghost
+        var Repr: set<object>
+        predicate method Valid()
+        reads this, Repr
+        ensures Valid() ==> this in Repr
+
         method OnEncrypt(input: OnEncryptInput) returns (res: Result<OnEncryptOutput, string>)
             requires input.Valid()
         method OnDecrypt(input: OnDecryptInput) returns (res: Result<OnDecryptOutput, string>)
@@ -287,7 +297,7 @@ module {:extern "Dafny.Aws.Crypto"} Aws.Crypto {
     // cmms.smithy
     datatype GetEncryptionMaterialsInput = GetEncryptionMaterialsInput(
         nameonly encryptionContext: EncryptionContext,
-        nameonly algorithmSuite: Option<AlgorithmSuite>,
+        nameonly algorithmSuiteID: Option<AlgorithmSuite>,
         nameonly maxPlaintextLength: int
     )
     {
@@ -307,8 +317,8 @@ module {:extern "Dafny.Aws.Crypto"} Aws.Crypto {
 
     datatype DecryptMaterialsInput = DecryptMaterialsInput(
         nameonly encryptionContext: EncryptionContext,
-        nameonly commitmentPolicy: CommitmentPolicy,
-        nameonly algorithmSuite: AlgorithmSuite,
+        //nameonly commitmentPolicy: CommitmentPolicy,
+        nameonly algorithmSuiteID: AlgorithmSuite,
         nameonly encryptedDataKeys: EncryptedDataKeyList
     )
     {
@@ -326,7 +336,12 @@ module {:extern "Dafny.Aws.Crypto"} Aws.Crypto {
         }
     }
 
-    trait ICryptographicMaterialsManager {
+    trait {:extern "CMM"} {:termination false} ICryptographicMaterialsManager {
+        // TODO this is NOT a ghost
+        var Repr: set<object>
+        predicate method Valid()
+        reads this, Repr
+        ensures Valid() ==> this in Repr
         method GetEncryptionMaterials(input: GetEncryptionMaterialsInput) returns (res: Result<GetEncryptionMaterialsOutput, string>)
             requires input.Valid()
         method DecryptMaterials(input: DecryptMaterialsInput) returns (res: Result<DecryptMaterialsOutput, string>)
@@ -411,7 +426,8 @@ module {:extern "Dafny.Aws.Crypto"} Aws.Crypto {
     datatype CreateRawAesKeyringInput = CreateRawAesKeyringInput(
         nameonly keyNamespace: string,
         nameonly keyName: string,
-        nameonly wrappingKey: seq<uint8>
+        nameonly wrappingKey: seq<uint8>,
+        nameonly wrappingAlg: AESWrappingAlg
     )
     {
         predicate Valid() {
@@ -470,34 +486,34 @@ module {:extern "Dafny.Aws.Crypto"} Aws.Crypto {
     }
 
     // TODO: Return Result<> once supported with traits
-    trait IAwsCryptographicMaterialsProviderClient {
+    trait {:termination false} IAwsCryptographicMaterialsProviderClient {
 
         // Keyrings
-        method CreateAwsKmsKeyring(input: CreateAwsKmsKeyringInput) returns (res: IKeyring) 
-            requires input.Valid()
-        method CreateMrkAwareStrictAwsKmsKeyring(input: CreateMrkAwareStrictAwsKmsKeyringInput) returns (res: IKeyring)
-            requires input.Valid()
-        method CreateMrkAwareStrictMultiKeyring(input: CreateMrkAwareStrictMultiKeyringInput) returns (res: IKeyring)
-            requires input.Valid()
-        method CreateMrkAwareDiscoveryAwsKmsKeyring(input: CreateMrkAwareDiscoveryAwsKmsKeyringInput) returns (res: IKeyring)
-            requires input.Valid()
-        method CreateMrkAwareDiscoveryMultiKeyring(input: CreateMrkAwareDiscoveryMultiKeyringInput) returns (res: IKeyring)
-            requires input.Valid()
-        method CreateMultiKeyring(input: CreateMultiKeyringInput) returns (res: IKeyring)
-            requires input.Valid()
+        //method CreateAwsKmsKeyring(input: CreateAwsKmsKeyringInput) returns (res: IKeyring) 
+        //     requires input.Valid()
+        // method CreateMrkAwareStrictAwsKmsKeyring(input: CreateMrkAwareStrictAwsKmsKeyringInput) returns (res: IKeyring)
+        //     requires input.Valid()
+        // method CreateMrkAwareStrictMultiKeyring(input: CreateMrkAwareStrictMultiKeyringInput) returns (res: IKeyring)
+        //     requires input.Valid()
+        // method CreateMrkAwareDiscoveryAwsKmsKeyring(input: CreateMrkAwareDiscoveryAwsKmsKeyringInput) returns (res: IKeyring)
+        //     requires input.Valid()
+        // method CreateMrkAwareDiscoveryMultiKeyring(input: CreateMrkAwareDiscoveryMultiKeyringInput) returns (res: IKeyring)
+        //     requires input.Valid()
+        // method CreateMultiKeyring(input: CreateMultiKeyringInput) returns (res: IKeyring)
+        //     requires input.Valid()
         method CreateRawAesKeyring(input: CreateRawAesKeyringInput) returns (res: IKeyring)
             requires input.Valid()
-        method CreateRawRsaKeyring(input: CreateRawRsaKeyringInput) returns (res: IKeyring)
-            requires input.Valid()
+        // method CreateRawRsaKeyring(input: CreateRawRsaKeyringInput) returns (res: IKeyring)
+        //     requires input.Valid()
 
         // CMMs
         method CreateDefaultCryptographicMaterialsManager(input: CreateDefaultCryptographicMaterialsManagerInput) returns (res: ICryptographicMaterialsManager)
             requires input.Valid()
-        method CreateCachingCryptographicMaterialsManager(input: CreateCachingCryptographicMaterialsManagerInput) returns (res: ICryptographicMaterialsManager)
-            requires input.Valid()
+        // method CreateCachingCryptographicMaterialsManager(input: CreateCachingCryptographicMaterialsManagerInput) returns (res: ICryptographicMaterialsManager)
+        //    requires input.Valid()
 
         // Caches
-        method CreateLocalCryptoMaterialsCache(input: CreateLocalCryptoMaterialsCacheInput) returns (res: ICryptoMaterialsCache)
-            requires input.Valid()
+        // method CreateLocalCryptoMaterialsCache(input: CreateLocalCryptoMaterialsCacheInput) returns (res: ICryptoMaterialsCache)
+        //    requires input.Valid()
     }
 }

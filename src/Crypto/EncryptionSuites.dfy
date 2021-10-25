@@ -11,7 +11,7 @@ module {:extern "EncryptionSuites"} EncryptionSuites {
 
   datatype EncryptionSuite = EncryptionSuite(alg: EncryptionAlgorithm, keyLen: uint8, tagLen: uint8, ivLen: uint8)
   {
-    predicate Valid() {
+    predicate method Valid() {
       match alg
       case AES(mode) => keyLen as int in AES_CIPHER_KEY_LENGTHS && tagLen == AES_TAG_LEN && ivLen == AES_IV_LEN && mode == GCM
     }
