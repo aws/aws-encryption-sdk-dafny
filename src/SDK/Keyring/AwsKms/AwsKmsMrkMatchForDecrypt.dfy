@@ -14,6 +14,7 @@ module  AwsKmsMrkMatchForDecrypt {
   //= compliance/framework/aws-kms/aws-kms-mrk-match-for-decrypt.txt#2.5
   //= type=implication
   //# The caller MUST provide:
+  //# *  2 AWS KMS key identifiers 
   predicate method AwsKmsMrkMatchForDecrypt(
     configuredAwsKmsIdentifier: AwsKmsIdentifier,
     messageAwsKmsIdentifer: AwsKmsIdentifier
