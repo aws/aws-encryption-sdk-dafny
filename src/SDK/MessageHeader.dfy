@@ -27,7 +27,6 @@ module {:extern "MessageHeader"} MessageHeader {
   datatype Header = Header(body: HeaderBody, auth: HeaderAuthentication)
   {
     predicate Valid() {
-      && body.Valid()
       && |auth.iv| == body.AlgorithmSuite().IVLength()
       && |auth.authenticationTag| == body.AlgorithmSuite().TagLength()
     }
@@ -39,7 +38,24 @@ module {:extern "MessageHeader"} MessageHeader {
 
   const VERSION_1: uint8     := 0x01
   const VERSION_2: uint8     := 0x02
-  type Version               = x: uint8 | x == VERSION_1 || x == VERSION_2 witness VERSION_1
+  type Version               = x: uint8 | x == VERSION_1 || x == VERSION_2 witness *
+
+  datatype VVersion = V1 | V2
+
+  function method VersionToUInt8(version: VVersion): uint8 {
+    match version
+    case V1 => VERSION_1
+    case V2 => VERSION_2
+  }
+
+  function method UInt8ToVersion(x: uint8): Result<VVersion, string> {
+    if x == VERSION_1 then
+      Success(VVersion.V1)
+    else if x == VERSION_2 then
+      Success(VVersion.V1)
+    else
+      Failure("unsupported version")
+  }
 
   const TYPE_CUSTOMER_AED: uint8 := 0x80
   type Type                  = x | x == TYPE_CUSTOMER_AED witness TYPE_CUSTOMER_AED
@@ -80,43 +96,84 @@ module {:extern "MessageHeader"} MessageHeader {
     }
   }
 
-  datatype HeaderBodyCommon = HeaderBodyCommon(
+  // datatype HeaderBodyCommon = HeaderBodyCommon(
+  //   algorithmSuiteID: AlgorithmSuite.ID,
+  //   messageID: MessageID,
+  //   aad: EncryptionContext.Map,
+  //   encryptedDataKeys: EncryptedDataKeys,
+  //   contentType: ContentType,
+  //   frameLength: uint32)
+  // {
+  //   predicate Valid() {
+  //     && EncryptionContext.Serializable(aad)
+  //     && encryptedDataKeys.Valid()
+  //     && ValidFrameLength(frameLength, contentType)
+  //   }
+  // }
+
+  datatype HeaderBodyV1' = HeaderBodyV1'(
+    version: VVersion,
+    typ: Type,
     algorithmSuiteID: AlgorithmSuite.ID,
     messageID: MessageID,
     aad: EncryptionContext.Map,
     encryptedDataKeys: EncryptedDataKeys,
     contentType: ContentType,
-    frameLength: uint32)
+    ivLength: uint8,
+    frameLength: uint32
+  )
+  {
+    predicate method Valid() {
+      && EncryptionContext.Serializable(aad)
+      && encryptedDataKeys.Valid()
+      && ValidFrameLength(frameLength, contentType)
+      && algorithmSuiteID.IVLength() == ivLength as nat
+    }
+  }
+
+  type HeaderBodyV1 = h: HeaderBodyV1' | h.Valid() witness *
+
+  datatype HeaderBodyV2' = HeaderBodyV2'(
+    version: VVersion,
+    algorithmSuiteID: AlgorithmSuite.ID,
+    messageID: MessageID,
+    aad: EncryptionContext.Map,
+    encryptedDataKeys: EncryptedDataKeys,
+    contentType: ContentType,
+    frameLength: uint32,
+    suiteData: seq<uint8>
+  )
   {
     predicate Valid() {
       && EncryptionContext.Serializable(aad)
       && encryptedDataKeys.Valid()
       && ValidFrameLength(frameLength, contentType)
+      && algorithmSuiteID.SuiteDataLength() == Some(|suiteData|)
     }
   }
+
+  type HeaderBodyV2 = h: HeaderBodyV2' | h.Valid() witness *
+
   datatype HeaderBody =
-    | HeaderBodyV1(
-        headerBodyCommon: HeaderBodyCommon,
-        typ: Type,
-        ivLength: uint8)
-    | HeaderBodyV2(
-        headerBodyCommon: HeaderBodyCommon,
-        suiteData: seq<uint8>)
+    | V1(hb1: HeaderBodyV1)
+    | V2(hb2: HeaderBodyV2)
   {
-    predicate Valid() {
+    function method Version(): VVersion {
       match this
-      case HeaderBodyV1(headerBodyCommon, typ, ivLength) => (
-        && headerBodyCommon.Valid()
-        && AlgorithmSuite().IVLength() == ivLength as nat
-      )
-      case HeaderBodyV2(headerBodyCommon, suiteData) => (
-        && headerBodyCommon.Valid()
-        && AlgorithmSuite().SuiteDataLength() == Some(|suiteData|)
-      )
+      case V1(h) => h.version
+      case V2(h) => h.version
     }
 
     function method AlgorithmSuite(): AlgorithmSuite.ID {
-      this.headerBodyCommon.algorithmSuiteID
+      match this
+      case V1(h) => h.algorithmSuiteID
+      case V2(h) => h.algorithmSuiteID
+    }
+
+    function method AAD(): EncryptionContext.Map {
+      match this
+      case V1(h) => h.aad
+      case V2(h) => h.aad
     }
   }
 
@@ -126,7 +183,6 @@ module {:extern "MessageHeader"} MessageHeader {
   datatype HeaderAuthentication = HeaderAuthentication(iv: seq<uint8>, authenticationTag: seq<uint8>)
 
   predicate HeaderAuthenticationMatchesHeaderBody(headerAuthentication: HeaderAuthentication, headerBody: HeaderBody)
-    requires headerBody.Valid()
   {
     var serializedHeaderBody := (reveal HeaderBodyToSeq(); HeaderBodyToSeq(headerBody));
     headerAuthentication.iv == seq(headerBody.AlgorithmSuite().IVLength(), _ => 0)
@@ -147,30 +203,29 @@ module {:extern "MessageHeader"} MessageHeader {
    */
 
   function {:opaque} HeaderBodyToSeq(hb: HeaderBody): seq<uint8>
-    requires hb.Valid()
   {
     match hb
-    case HeaderBodyV1(headerBodyCommon, typ, ivLength) => (
-      [hb.AlgorithmSuite().MessageFormat() as uint8] +
-      [hb.typ as uint8] +
-      UInt16ToSeq(hb.AlgorithmSuite() as uint16) +
-      hb.headerBodyCommon.messageID +
-      EncryptionContext.MapToLinear(hb.headerBodyCommon.aad) +
-      EDKsToSeq(hb.headerBodyCommon.encryptedDataKeys) +
-      [ContentTypeToUInt8(hb.headerBodyCommon.contentType)] +
+    case V1(h) => (
+      [h.algorithmSuiteID.MessageFormat() as uint8] +
+      [h.typ as uint8] +
+      UInt16ToSeq(h.algorithmSuiteID as uint16) +
+      h.messageID +
+      EncryptionContext.MapToLinear(h.aad) +
+      EDKsToSeq(h.encryptedDataKeys) +
+      [ContentTypeToUInt8(h.contentType)] +
       Reserved +
-      [hb.ivLength] +
-      UInt32ToSeq(hb.headerBodyCommon.frameLength)
+      [h.ivLength] +
+      UInt32ToSeq(h.frameLength)
     )
-    case HeaderBodyV2(common, suiteData) => (
-      [hb.AlgorithmSuite().MessageFormat() as uint8] +
-      UInt16ToSeq(hb.AlgorithmSuite() as uint16) +
-      common.messageID +
-      EncryptionContext.MapToLinear(common.aad) +
-      EDKsToSeq(common.encryptedDataKeys) +
-      [ContentTypeToUInt8(common.contentType)] +
-      UInt32ToSeq(common.frameLength) +
-      suiteData
+    case V2(h) => (
+      [h.algorithmSuiteID.MessageFormat() as uint8] +
+      UInt16ToSeq(h.algorithmSuiteID as uint16) +
+      h.messageID +
+      EncryptionContext.MapToLinear(h.aad) +
+      EDKsToSeq(h.encryptedDataKeys) +
+      [ContentTypeToUInt8(h.contentType)] +
+      UInt32ToSeq(h.frameLength) +
+      h.suiteData
     )
   }
 
@@ -215,46 +270,44 @@ module {:extern "MessageHeader"} MessageHeader {
   }
 
   predicate {:opaque} IsSerializationOfHeaderBody(sequence: seq<uint8>, hb: HeaderBody)
-    requires hb.Valid()
   {
-    exists serializedAAD | EncryptionContext.LinearSeqToMap(serializedAAD, hb.headerBodyCommon.aad) ::
+    exists serializedAAD | EncryptionContext.LinearSeqToMap(serializedAAD, hb.AAD()) ::
       IsSerializationOfHeaderBodyAux(sequence, hb, serializedAAD)
   }
 
   predicate IsSerializationOfHeaderBodyAux(sequence: seq<uint8>, hb: HeaderBody, serializedAAD: seq<uint8>)
-    requires hb.Valid() && EncryptionContext.LinearSeqToMap(serializedAAD, hb.headerBodyCommon.aad)
+    requires EncryptionContext.LinearSeqToMap(serializedAAD, hb.AAD())
   {
     sequence ==
       match hb
-      case HeaderBodyV1(common, typ, ivLength) => (
-        [hb.AlgorithmSuite().MessageFormat() as uint8] +
-        [typ as uint8] +
+      case V1(h) => (
+        [h.algorithmSuiteID.MessageFormat() as uint8] +
+        [h.typ as uint8] +
         UInt16ToSeq(hb.AlgorithmSuite() as uint16) +
-        common.messageID +
+        h.messageID +
         serializedAAD + // This field can be encrypted in multiple ways and prevents us from reusing HeaderBodyToSeq
-        EDKsToSeq(common.encryptedDataKeys) +
-        [ContentTypeToUInt8(common.contentType)] +
+        EDKsToSeq(h.encryptedDataKeys) +
+        [ContentTypeToUInt8(h.contentType)] +
         Reserved +
-        [ivLength] +
-        UInt32ToSeq(common.frameLength)
+        [h.ivLength] +
+        UInt32ToSeq(h.frameLength)
       )
-      case HeaderBodyV2(common, suiteData) => (
+      case V2(h) => (
         [hb.AlgorithmSuite().MessageFormat() as uint8] +
         UInt16ToSeq(hb.AlgorithmSuite() as uint16) +
-        common.messageID +
+        h.messageID +
         serializedAAD +
-        EDKsToSeq(common.encryptedDataKeys) +
-        [ContentTypeToUInt8(common.contentType)] +
-        UInt32ToSeq(common.frameLength) +
-        suiteData
+        EDKsToSeq(h.encryptedDataKeys) +
+        [ContentTypeToUInt8(h.contentType)] +
+        UInt32ToSeq(h.frameLength) +
+        h.suiteData
       )
   }
 
   lemma IsSerializationOfHeaderBodyDuality(hb: HeaderBody)
-    requires hb.Valid()
     ensures IsSerializationOfHeaderBody(HeaderBodyToSeq(hb), hb)
   {
     reveal HeaderBodyToSeq(), IsSerializationOfHeaderBody();
-    EncryptionContext.MapToLinearIsDualLinearSeqToMap(hb.headerBodyCommon.aad);
+    EncryptionContext.MapToLinearIsDualLinearSeqToMap(hb.AAD());
   }
 }
