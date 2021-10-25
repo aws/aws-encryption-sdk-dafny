@@ -5,13 +5,17 @@ include "../Crypto/EncryptionSuites.dfy"
 include "../Crypto/KeyDerivationAlgorithms.dfy"
 include "../Crypto/Signature.dfy"
 include "../StandardLibrary/StandardLibrary.dfy"
+include "../Generated/AwsCryptographicMaterialProviders.dfy"
 
 module {:extern "AlgorithmSuite"} AlgorithmSuite {
   import opened Wrappers
+  import Aws.Crypto
   import opened UInt = StandardLibrary.UInt
   import EncryptionSuites
   import S = Signature
   import KeyDerivationAlgorithms
+
+
 
   const VALID_IDS: set<uint16> := {0x0378, 0x0346, 0x0214, 0x0178, 0x0146, 0x0114, 0x0078, 0x0046, 0x0014};
 
@@ -84,6 +88,49 @@ module {:extern "AlgorithmSuite"} AlgorithmSuite {
     AES_192_GCM_IV12_TAG16_IDENTITY_NO_SIGNATURE_ALG    := AlgSuite(EncryptionSuites.AES_GCM_192, KeyDerivationAlgorithms.IDENTITY,  None),
     AES_128_GCM_IV12_TAG16_IDENTITY_NO_SIGNATURE_ALG    := AlgSuite(EncryptionSuites.AES_GCM_128, KeyDerivationAlgorithms.IDENTITY,  None)
   ]
+
+  function method PolymorphIDToInternalID(input: Crypto.AlgorithmSuite): (res: ID) {
+        if (input==Crypto.ALG_AES_128_GCM_IV12_TAG16_NO_KDF) then
+          AES_128_GCM_IV12_TAG16_IDENTITY_NO_SIGNATURE_ALG
+        else if (input==Crypto.ALG_AES_192_GCM_IV12_TAG16_NO_KDF) then
+          AES_192_GCM_IV12_TAG16_IDENTITY_NO_SIGNATURE_ALG
+        else if (input==Crypto.ALG_AES_256_GCM_IV12_TAG16_NO_KDF) then
+          AES_256_GCM_IV12_TAG16_IDENTITY_NO_SIGNATURE_ALG
+        else if (input==Crypto.ALG_AES_128_GCM_IV12_TAG16_HKDF_SHA256) then
+          AES_128_GCM_IV12_TAG16_HKDF_SHA256_NO_SIGNATURE_ALG
+        else if (input==Crypto.ALG_AES_192_GCM_IV12_TAG16_HKDF_SHA256) then
+          AES_192_GCM_IV12_TAG16_HKDF_SHA256_NO_SIGNATURE_ALG
+        else if (input==Crypto.ALG_AES_256_GCM_IV12_TAG16_HKDF_SHA256) then
+          AES_256_GCM_IV12_TAG16_HKDF_SHA256_NO_SIGNATURE_ALG
+        else if (input==Crypto.ALG_AES_128_GCM_IV12_TAG16_HKDF_SHA256_ECDSA_P256) then
+          AES_128_GCM_IV12_TAG16_HKDF_SHA256_ECDSA_P256
+        else if (input==Crypto.ALG_AES_192_GCM_IV12_TAG16_HKDF_SHA384_ECDSA_P384) then
+          AES_192_GCM_IV12_TAG16_HKDF_SHA384_ECDSA_P384
+        else
+          AES_256_GCM_IV12_TAG16_HKDF_SHA384_ECDSA_P384
+  }
+
+
+  function method InternalIDToPolymorphID(input: ID): (res: Crypto.AlgorithmSuite) {
+        if (input==AES_128_GCM_IV12_TAG16_IDENTITY_NO_SIGNATURE_ALG) then
+          Crypto.ALG_AES_128_GCM_IV12_TAG16_NO_KDF
+        else if (input==AES_192_GCM_IV12_TAG16_IDENTITY_NO_SIGNATURE_ALG) then
+          Crypto.ALG_AES_192_GCM_IV12_TAG16_NO_KDF
+        else if (input==AES_256_GCM_IV12_TAG16_IDENTITY_NO_SIGNATURE_ALG) then
+          Crypto.ALG_AES_256_GCM_IV12_TAG16_NO_KDF
+        else if (input==AES_128_GCM_IV12_TAG16_HKDF_SHA256_NO_SIGNATURE_ALG) then
+          Crypto.ALG_AES_128_GCM_IV12_TAG16_HKDF_SHA256
+        else if (input==AES_192_GCM_IV12_TAG16_HKDF_SHA256_NO_SIGNATURE_ALG) then
+          Crypto.ALG_AES_192_GCM_IV12_TAG16_HKDF_SHA256
+        else if (input==AES_256_GCM_IV12_TAG16_HKDF_SHA256_NO_SIGNATURE_ALG) then
+          Crypto.ALG_AES_256_GCM_IV12_TAG16_HKDF_SHA256
+        else if (input==AES_128_GCM_IV12_TAG16_HKDF_SHA256_ECDSA_P256) then
+          Crypto.ALG_AES_128_GCM_IV12_TAG16_HKDF_SHA256_ECDSA_P256
+        else if (input==AES_192_GCM_IV12_TAG16_HKDF_SHA384_ECDSA_P384) then
+          Crypto.ALG_AES_192_GCM_IV12_TAG16_HKDF_SHA384_ECDSA_P384
+        else
+          Crypto.ALG_AES_256_GCM_IV12_TAG16_HKDF_SHA384_ECDSA_P384
+  }
 
   /* Suite is intended to have an entry for each possible value of ID. This is stated and checked in three ways.
    *   - lemma SuiteIsComplete states and proves the connection between type ID and Suite.Keys

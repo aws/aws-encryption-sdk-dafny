@@ -8,8 +8,10 @@ include "Materials.dfy"
 include "../Util/UTF8.dfy"
 include "../Util/Sets.dfy"
 include "../Crypto/AESEncryption.dfy"
+include "../Generated/AwsCryptographicMaterialProviders.dfy"
 
 module {:extern "MessageHeader"} MessageHeader {
+  import Aws.Crypto
   import AlgorithmSuite
   import Sets
   import opened Wrappers
@@ -71,7 +73,7 @@ module {:extern "MessageHeader"} MessageHeader {
   {
   }
 
-  datatype EncryptedDataKeys = EncryptedDataKeys(entries: seq<Materials.EncryptedDataKey>)
+  datatype EncryptedDataKeys = EncryptedDataKeys(entries: seq<Crypto.EncryptedDataKey>)
   {
     predicate Valid() {
       && 0 < |entries| < UINT16_LIMIT
@@ -147,14 +149,14 @@ module {:extern "MessageHeader"} MessageHeader {
     EDKEntriesToSeq(encryptedDataKeys.entries, 0, n)
   }
 
-  function EDKEntriesToSeq(entries: seq<Materials.EncryptedDataKey>, lo: nat, hi: nat): seq<uint8>
+  function EDKEntriesToSeq(entries: seq<Crypto.EncryptedDataKey>, lo: nat, hi: nat): seq<uint8>
     requires forall i :: 0 <= i < |entries| ==> entries[i].Valid()
     requires lo <= hi <= |entries|
   {
     if lo == hi then [] else EDKEntriesToSeq(entries, lo, hi - 1) + EDKEntryToSeq(entries[hi - 1])
   }
 
-  lemma EDKEntriesToSeqInductiveStep(entriesHead: seq<Materials.EncryptedDataKey>, entriesTail: seq<Materials.EncryptedDataKey>, lo: nat, hi: nat)
+  lemma EDKEntriesToSeqInductiveStep(entriesHead: seq<Crypto.EncryptedDataKey>, entriesTail: seq<Crypto.EncryptedDataKey>, lo: nat, hi: nat)
     requires var entries := entriesHead + entriesTail;
       forall i :: 0 <= i < |entries| ==> (entries)[i].Valid()
     requires lo <= hi <= |entriesHead|
@@ -171,7 +173,7 @@ module {:extern "MessageHeader"} MessageHeader {
     }
   }
 
-  function method EDKEntryToSeq(edk: Materials.EncryptedDataKey): seq<uint8>
+  function method EDKEntryToSeq(edk: Crypto.EncryptedDataKey): seq<uint8>
     requires edk.Valid()
   {
     UInt16ToSeq(|edk.providerID| as uint16)   + edk.providerID +

@@ -6,7 +6,7 @@ include "../StandardLibrary/UInt.dfy"
 include "Materials.dfy"
 include "EncryptionContext.dfy"
 include "CMM/Defs.dfy"
-include "CMM/DefaultCMM.dfy"
+include "CMM/PolymorphDefaultCMM.dfy"
 include "MessageHeader.dfy"
 include "MessageBody.dfy"
 include "Serialize.dfy"
@@ -18,16 +18,18 @@ include "../Crypto/KeyDerivationAlgorithms.dfy"
 include "../Crypto/HKDF/HKDF.dfy"
 include "../Crypto/AESEncryption.dfy"
 include "../Crypto/Signature.dfy"
+include "../Generated/AwsCryptographicMaterialProviders.dfy"
 
 module {:extern "ESDKClient"} ESDKClient {
   import opened Wrappers
   import opened StandardLibrary
   import opened UInt = StandardLibrary.UInt
+  import Aws.Crypto
   import EncryptionContext
   import AlgorithmSuite
   import AESEncryption
   import CMMDefs
-  import DefaultCMMDef
+  import PolymorphDefaultCMMDef
   import Deserialize
   import HKDF
   import KeyringDefs
@@ -44,21 +46,21 @@ module {:extern "ESDKClient"} ESDKClient {
 
   datatype EncryptRequest = EncryptRequest(
     plaintext: seq<uint8>,
-    cmm: CMMDefs.CMM?,
-    keyring: KeyringDefs.Keyring?,
+    cmm: Crypto.ICryptographicMaterialsManager?,
+    keyring: Crypto.IKeyring?,
     plaintextLength: nat,
     encryptionContext: EncryptionContext.Map,
     algorithmSuiteID: Option<uint16>,
     frameLength: Option<uint32>)
   {
-    static function method WithCMM(plaintext: seq<uint8>, cmm: CMMDefs.CMM): EncryptRequest
+    static function method WithCMM(plaintext: seq<uint8>, cmm: Crypto.ICryptographicMaterialsManager): EncryptRequest
       requires cmm.Valid()
       reads cmm.Repr
     {
       EncryptRequest(plaintext, cmm, null, |plaintext|, map[], None, None)
     }
 
-    static function method WithKeyring(plaintext: seq<uint8>, keyring: KeyringDefs.Keyring): EncryptRequest
+    static function method WithKeyring(plaintext: seq<uint8>, keyring: Crypto.IKeyring): EncryptRequest
       requires keyring.Valid()
       reads keyring.Repr
     {
@@ -78,16 +80,16 @@ module {:extern "ESDKClient"} ESDKClient {
     }
   }
 
-  datatype DecryptRequest = DecryptRequest(message: seq<uint8>, cmm: CMMDefs.CMM?, keyring: KeyringDefs.Keyring?)
+  datatype DecryptRequest = DecryptRequest(message: seq<uint8>, cmm: Crypto.ICryptographicMaterialsManager?, keyring: Crypto.IKeyring?)
   {
-    static function method WithCMM(message: seq<uint8>, cmm: CMMDefs.CMM): DecryptRequest
+    static function method WithCMM(message: seq<uint8>, cmm: Crypto.ICryptographicMaterialsManager): DecryptRequest
       requires cmm.Valid()
       reads cmm.Repr
     {
       DecryptRequest(message, cmm, null)
     }
 
-    static function method WithKeyring(message: seq<uint8>, keyring: KeyringDefs.Keyring): DecryptRequest
+    static function method WithKeyring(message: seq<uint8>, keyring: Crypto.IKeyring): DecryptRequest
       requires keyring.Valid()
       reads keyring.Repr
     {
@@ -124,10 +126,11 @@ module {:extern "ESDKClient"} ESDKClient {
     headerBody.Valid()
     && headerBody.version == Msg.VERSION_1
     && headerBody.typ == Msg.TYPE_CUSTOMER_AED
-    && (exists material: Materials.ValidEncryptionMaterials | CMMDefs.EncryptionMaterialsSignature(material) ::
-      headerBody.algorithmSuiteID == material.algorithmSuiteID
-      && headerBody.aad == material.encryptionContext
-      && headerBody.encryptedDataKeys == Msg.EncryptedDataKeys(material.encryptedDataKeys))
+    // whaaaa TODO
+    // && (exists material: Crypto.EncryptionMaterials | CMMDefs.EncryptionMaterialsSignature(material) ::
+    //  headerBody.algorithmSuiteID == material.algorithmSuiteID
+    //  && headerBody.aad == material.encryptionContext
+    //  && headerBody.encryptedDataKeys == Msg.EncryptedDataKeys(material.encryptedDataKeys))
     && headerBody.contentType == Msg.ContentType.Framed
     && headerBody.frameLength == if request.frameLength.Some? then request.frameLength.value else DEFAULT_FRAME_LENGTH
   }
@@ -160,7 +163,7 @@ module {:extern "ESDKClient"} ESDKClient {
   {
     var serializedMessage := SerializeMessageWithoutSignature(headerBody, headerAuthentication, frames);
     |signature| < UINT16_LIMIT
-    && (exists material: Materials.ValidEncryptionMaterials | CMMDefs.EncryptionMaterialsSignature(material) && material.signingKey.Some? ::
+    && (exists material: Crypto.EncryptionMaterials | material.signingKey.Some? ::
         Signature.IsSigned(material.signingKey.value, serializedMessage, signature))
   }
 
@@ -170,8 +173,12 @@ module {:extern "ESDKClient"} ESDKClient {
   method Encrypt(request: EncryptRequest) returns (res: Result<seq<uint8>, string>)
     requires request.cmm != null ==> request.cmm.Valid()
     requires request.keyring != null ==> request.keyring.Valid()
-    modifies if request.cmm == null then {} else request.cmm.Repr
-    modifies if request.keyring == null then {} else request.keyring.Repr
+    // I do not know why the below modifies clauses are necessary for our original impl.
+    // For our new impl, it causes problems
+    // (in the Client test, you can only use a cmm/keyring once before it gets "tainted" and can't use it again without Dafny complaining about modifies clauses)
+    // I am not sure what change in the impl would cause this, or why our previous tests for the old impl do not have this problem
+    // modifies if request.cmm == null then {} else request.cmm.Repr
+    // modifies if request.keyring == null then {} else request.keyring.Repr
     ensures request.cmm != null ==> request.cmm.Valid()
     ensures request.cmm != null ==> fresh(request.cmm.Repr - old(request.cmm.Repr))
     ensures request.cmm == null && request.keyring == null ==> res.Failure?
@@ -203,20 +210,32 @@ module {:extern "ESDKClient"} ESDKClient {
     } else if request.frameLength.Some? && request.frameLength.value == 0 {
       return Failure("Request frameLength must be > 0");
     }
-    var cmm: CMMDefs.CMM;
+    var cmm: Crypto.ICryptographicMaterialsManager;
     if request.keyring == null {
       cmm := request.cmm;
     } else {
-      cmm := new DefaultCMMDef.DefaultCMM.OfKeyring(request.keyring);
+      cmm := new PolymorphDefaultCMMDef.PolymorphDefaultCMM.OfKeyring(request.keyring);
     }
 
     var frameLength := if request.frameLength.Some? then request.frameLength.value else DEFAULT_FRAME_LENGTH;
 
-    var algorithmSuiteID := if request.algorithmSuiteID.Some? then Some(request.algorithmSuiteID.value as AlgorithmSuite.ID) else None;
+    var algorithmSuiteID := if request.algorithmSuiteID.Some? then Some(AlgorithmSuite.InternalIDToPolymorphID(request.algorithmSuiteID.value as AlgorithmSuite.ID)) else None;
 
-    var encMatRequest := Materials.EncryptionMaterialsRequest(request.encryptionContext, algorithmSuiteID, Some(request.plaintextLength as nat));
+    var encMatRequest := Crypto.GetEncryptionMaterialsInput(encryptionContext:=request.encryptionContext, algorithmSuiteID:=algorithmSuiteID, maxPlaintextLength:=request.plaintextLength as nat);
 
-    var encMat :- cmm.GetEncryptionMaterials(encMatRequest);
+    var output :- cmm.GetEncryptionMaterials(encMatRequest);
+
+    var encMat := output.materials;
+
+    //expect CMMDefs.EncryptionMaterialsSignature(encMat);
+    expect encMat.plaintextDataKey.Some?;
+    expect (algorithmSuiteID.None? || (request.algorithmSuiteID.value as AlgorithmSuite.ID).SignatureType().Some?) ==>
+      Materials.EC_PUBLIC_KEY_FIELD in encMat.encryptionContext;
+    expect PolymorphDefaultCMMDef.Serializable(encMat);
+    expect 
+      match request.algorithmSuiteID
+      case Some(id) => AlgorithmSuite.PolymorphIDToInternalID(encMat.algorithmSuiteID) == id as AlgorithmSuite.ID
+      case None => AlgorithmSuite.PolymorphIDToInternalID(encMat.algorithmSuiteID) == 0x0378 as AlgorithmSuite.ID;
 
 
     if UINT16_LIMIT <= |encMat.encryptedDataKeys| {
@@ -224,18 +243,20 @@ module {:extern "ESDKClient"} ESDKClient {
     }
 
     var messageID: Msg.MessageID :- Random.GenerateBytes(Msg.MESSAGE_ID_LEN as int32);
-    var derivedDataKey := DeriveKey(encMat.plaintextDataKey.value, encMat.algorithmSuiteID, messageID);
+    expect encMat.plaintextDataKey.Some?;
+    expect |encMat.plaintextDataKey.value| == AlgorithmSuite.PolymorphIDToInternalID(encMat.algorithmSuiteID).KDFInputKeyLength();
+    var derivedDataKey := DeriveKey(encMat.plaintextDataKey.value, AlgorithmSuite.PolymorphIDToInternalID(encMat.algorithmSuiteID), messageID);
 
     // Assemble and serialize the header and its authentication tag
     var headerBody := Msg.HeaderBody(
       Msg.VERSION_1,
       Msg.TYPE_CUSTOMER_AED,
-      encMat.algorithmSuiteID,
+      AlgorithmSuite.PolymorphIDToInternalID(encMat.algorithmSuiteID),
       messageID,
       encMat.encryptionContext,
       Msg.EncryptedDataKeys(encMat.encryptedDataKeys),
       Msg.ContentType.Framed,
-      encMat.algorithmSuiteID.IVLength() as uint8,
+      AlgorithmSuite.PolymorphIDToInternalID(encMat.algorithmSuiteID).IVLength() as uint8,
       frameLength);
     assert ValidHeaderBodyForRequest (headerBody, request);
     ghost var serializedHeaderBody := (reveal Msg.HeaderBodyToSeq(); Msg.HeaderBodyToSeq(headerBody));
@@ -245,8 +266,8 @@ module {:extern "ESDKClient"} ESDKClient {
     var unauthenticatedHeader := wr.GetDataWritten();
     assert unauthenticatedHeader == serializedHeaderBody;
 
-    var iv: seq<uint8> := seq(encMat.algorithmSuiteID.IVLength(), _ => 0);
-    var encryptionOutput :- AESEncryption.AESEncryptExtern(encMat.algorithmSuiteID.EncryptionSuite(), iv, derivedDataKey, [], unauthenticatedHeader);
+    var iv: seq<uint8> := seq(AlgorithmSuite.PolymorphIDToInternalID(encMat.algorithmSuiteID).IVLength(), _ => 0);
+    var encryptionOutput :- AESEncryption.AESEncryptExtern(AlgorithmSuite.PolymorphIDToInternalID(encMat.algorithmSuiteID).EncryptionSuite(), iv, derivedDataKey, [], unauthenticatedHeader);
     var headerAuthentication := Msg.HeaderAuthentication(iv, encryptionOutput.authTag);
 
     assert ValidHeaderAuthenticationForRequest(headerAuthentication, headerBody) by{ // Header confirms to specification
@@ -257,11 +278,11 @@ module {:extern "ESDKClient"} ESDKClient {
     ghost var serializedHeaderAuthentication := headerAuthentication.iv + headerAuthentication.authenticationTag;
 
     assert request.cmm != null ==> request.cmm.Valid();
-    var _ :- Serialize.SerializeHeaderAuthentication(wr, headerAuthentication, encMat.algorithmSuiteID);
+    var _ :- Serialize.SerializeHeaderAuthentication(wr, headerAuthentication, AlgorithmSuite.PolymorphIDToInternalID(encMat.algorithmSuiteID));
     assert wr.GetDataWritten() == serializedHeaderBody + serializedHeaderAuthentication; // Read data contains complete header
 
     // Encrypt the given plaintext into the message body and add a footer with a signature, if required
-    var seqWithGhostFrames :- MessageBody.EncryptMessageBody(request.plaintext, frameLength as int, messageID, derivedDataKey, encMat.algorithmSuiteID);
+    var seqWithGhostFrames :- MessageBody.EncryptMessageBody(request.plaintext, frameLength as int, messageID, derivedDataKey, AlgorithmSuite.PolymorphIDToInternalID(encMat.algorithmSuiteID));
     var body := seqWithGhostFrames.sequence;
     ghost var frames := seqWithGhostFrames.frames;
 
@@ -274,8 +295,10 @@ module {:extern "ESDKClient"} ESDKClient {
     }
 
     var msg := wr.GetDataWritten() + body;
-    if encMat.algorithmSuiteID.SignatureType().Some? {
-      var ecdsaParams := encMat.algorithmSuiteID.SignatureType().value;
+    if AlgorithmSuite.PolymorphIDToInternalID(encMat.algorithmSuiteID).SignatureType().Some? {
+      var ecdsaParams := AlgorithmSuite.PolymorphIDToInternalID(encMat.algorithmSuiteID).SignatureType().value;
+      // TODO this shouldnt have to be a runtime check
+      expect encMat.signingKey.Some?;
       var bytes :- Signature.Sign(ecdsaParams, encMat.signingKey.value, msg);
       if |bytes| != ecdsaParams.SignatureLength() as int {
         return Failure("Malformed response from Sign().");
@@ -326,8 +349,8 @@ module {:extern "ESDKClient"} ESDKClient {
   method Decrypt(request: DecryptRequest) returns (res: Result<seq<uint8>, string>)
     requires request.cmm != null ==> request.cmm.Valid()
     requires request.keyring != null ==> request.keyring.Valid()
-    modifies if request.cmm == null then {} else request.cmm.Repr
-    modifies if request.keyring == null then {} else request.keyring.Repr
+    // modifies if request.cmm == null then {} else request.cmm.Repr
+    // modifies if request.keyring == null then {} else request.keyring.Repr
     ensures request.cmm != null ==> request.cmm.Valid()
     ensures request.cmm != null ==> fresh(request.cmm.Repr - old(request.cmm.Repr))
     ensures request.cmm == null && request.keyring == null ==> res.Failure?
@@ -349,8 +372,12 @@ module {:extern "ESDKClient"} ESDKClient {
   method DecryptWithVerificationInfo(request: DecryptRequest) returns (res: Result<DecryptResultWithVerificationInfo, string>)
     requires request.cmm != null ==> request.cmm.Valid()
     requires request.keyring != null ==> request.keyring.Valid()
-    modifies if request.cmm == null then {} else request.cmm.Repr
-    modifies if request.keyring == null then {} else request.keyring.Repr
+    // I do not know why the below modifies clauses are necessary for our original impl.
+    // For our new impl, it causes problems
+    // (in the Client test, you can only use a cmm/keyring once before it gets "tainted" and can't use it again without Dafny complaining about modifies clauses)
+    // I am not sure what change in the impl would cause this, or why our previous tests for the old impl do not have this problem
+    // modifies if request.cmm == null then {} else request.cmm.Repr
+    // modifies if request.keyring == null then {} else request.keyring.Repr
     ensures request.cmm != null ==> request.cmm.Valid()
     ensures request.cmm != null ==> fresh(request.cmm.Repr - old(request.cmm.Repr))
     ensures request.cmm == null && request.keyring == null ==> res.Failure?
@@ -378,11 +405,11 @@ module {:extern "ESDKClient"} ESDKClient {
       return Failure("DecryptRequest.cmm and DecryptRequest.keyring cannot both be null.");
     }
 
-    var cmm: CMMDefs.CMM;
+    var cmm: Crypto.ICryptographicMaterialsManager;
     if request.keyring == null {
       cmm := request.cmm;
     } else {
-      cmm := new DefaultCMMDef.DefaultCMM.OfKeyring(request.keyring);
+      cmm := new PolymorphDefaultCMMDef.PolymorphDefaultCMM.OfKeyring(request.keyring);
     }
 
     var rd := new Streams.ByteReader(request.message);
@@ -404,19 +431,22 @@ module {:extern "ESDKClient"} ESDKClient {
       }
     }
 
-    var decMatRequest := Materials.DecryptionMaterialsRequest(header.body.algorithmSuiteID, header.body.encryptedDataKeys.entries, header.body.aad);
-    var decMat :- cmm.DecryptMaterials(decMatRequest);
+    var decMatRequest := Crypto.DecryptMaterialsInput(algorithmSuiteID:=AlgorithmSuite.InternalIDToPolymorphID(header.body.algorithmSuiteID), encryptedDataKeys:=header.body.encryptedDataKeys.entries, encryptionContext:=header.body.aad);
+    var output :- cmm.DecryptMaterials(decMatRequest);
+    var decMat := output.decryptionMaterials;
 
-    var decryptionKey := DeriveKey(decMat.plaintextDataKey.value, decMat.algorithmSuiteID, header.body.messageID);
+    expect decMat.plaintextDataKey.Some?;
+    expect |decMat.plaintextDataKey.value| == AlgorithmSuite.PolymorphIDToInternalID(decMat.algorithmSuiteID).KDFInputKeyLength();
+    var decryptionKey := DeriveKey(decMat.plaintextDataKey.value,AlgorithmSuite.PolymorphIDToInternalID(decMat.algorithmSuiteID), header.body.messageID);
 
     ghost var endHeaderPos := rd.reader.pos;
     // Parse and decrypt the message body
     var plaintext;
     match header.body.contentType {
       case NonFramed =>
-        plaintext :- MessageBody.DecryptNonFramedMessageBody(rd, decMat.algorithmSuiteID, decryptionKey, header.body.messageID);
+        plaintext :- MessageBody.DecryptNonFramedMessageBody(rd, AlgorithmSuite.PolymorphIDToInternalID(decMat.algorithmSuiteID), decryptionKey, header.body.messageID);
       case Framed =>
-        plaintext :- MessageBody.DecryptFramedMessageBody(rd, decMat.algorithmSuiteID, decryptionKey, header.body.frameLength as int, header.body.messageID);
+        plaintext :- MessageBody.DecryptFramedMessageBody(rd, AlgorithmSuite.PolymorphIDToInternalID(decMat.algorithmSuiteID), decryptionKey, header.body.frameLength as int, header.body.messageID);
     }
 
     // Ghost variable contains frames which are deserialized from the data read after the header if the data is framed
@@ -447,7 +477,7 @@ module {:extern "ESDKClient"} ESDKClient {
     ghost var signature: Option<seq<uint8>> := None;
     ghost var endFramePos := rd.reader.pos;
     assert header.body.contentType.Framed? ==> 0 <= endHeaderPos <= endFramePos <= |request.message|;
-    if decMat.algorithmSuiteID.SignatureType().Some? {
+    if AlgorithmSuite.PolymorphIDToInternalID(decMat.algorithmSuiteID).SignatureType().Some? {
       var verifyResult, locSig := VerifySignature(rd, decMat);
       signature := Some(locSig);
       if verifyResult.Failure? {
@@ -463,7 +493,7 @@ module {:extern "ESDKClient"} ESDKClient {
 
     // Combine gathered facts and convert to postcondition
     if header.body.contentType.Framed? {
-      if decMat.algorithmSuiteID.SignatureType().Some? { // Case with Signature
+      if AlgorithmSuite.PolymorphIDToInternalID(decMat.algorithmSuiteID).SignatureType().Some? { // Case with Signature
         assert signature.Some?;
         assert SignatureBySequence(signature.value, rd.reader.data[endFramePos..rd.reader.pos]);
         assert HeaderBySequence(header, deserializeHeaderResult.hbSeq, request.message[..endHeaderPos])
@@ -512,9 +542,8 @@ module {:extern "ESDKClient"} ESDKClient {
     return Success(decryptResultWithVerificationInfo);
   }
 
-  method VerifySignature(rd: Streams.ByteReader, decMat: Materials.ValidDecryptionMaterials) returns (res: Result<(), string>, ghost signature: seq<uint8>)
+  method VerifySignature(rd: Streams.ByteReader, decMat: Crypto.DecryptionMaterials) returns (res: Result<(), string>, ghost signature: seq<uint8>)
     requires rd.Valid()
-    requires decMat.algorithmSuiteID.SignatureType().Some?
     modifies rd.reader`pos
     ensures rd.Valid()
     ensures match res
@@ -523,7 +552,8 @@ module {:extern "ESDKClient"} ESDKClient {
         && 2 <= old(rd.reader.pos) + 2 <= rd.reader.pos
         && SignatureBySequence(signature, rd.reader.data[old(rd.reader.pos)..rd.reader.pos])
   {
-    var ecdsaParams := decMat.algorithmSuiteID.SignatureType().value;
+    expect AlgorithmSuite.PolymorphIDToInternalID(decMat.algorithmSuiteID).SignatureType().Some?;
+    var ecdsaParams := AlgorithmSuite.PolymorphIDToInternalID(decMat.algorithmSuiteID).SignatureType().value;
     var usedCapacity := rd.GetSizeRead();
     assert usedCapacity == rd.reader.pos;
     var msg := rd.reader.data[..usedCapacity];  // unauthenticatedHeader + authTag + body
@@ -537,6 +567,7 @@ module {:extern "ESDKClient"} ESDKClient {
       return Failure(sigResult.error), [];
     }
     // verify signature
+    expect decMat.verificationKey.Some?;
     var signatureVerifiedResult := Signature.Verify(ecdsaParams, decMat.verificationKey.value, msg, sigResult.value);
     if signatureVerifiedResult.Failure? {
       return Failure(signatureVerifiedResult.error), [];
