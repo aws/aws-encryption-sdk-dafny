@@ -8,6 +8,16 @@ module {:extern "Dafny.Aws.Crypto"} Aws.Crypto {
     import opened UInt = StandardLibrary.UInt
     import UTF8
 
+    export
+      provides UTF8, UInt, Wrappers, IKeyring.Repr, ICryptographicMaterialsManager.Repr, IKeyring.OnDecrypt,
+        ICryptographicMaterialsManager.GetEncryptionMaterials, ICryptographicMaterialsManager.DecryptMaterials, IKeyring.OnEncrypt,
+        IAwsCryptographicMaterialsProviderClient.CreateRawAesKeyring, IAwsCryptographicMaterialsProviderClient.CreateDefaultCryptographicMaterialsManager
+      reveals AlgorithmSuite, EncryptedDataKey, EncryptedDataKey.Valid, IKeyring, IKeyring.Valid, GetEncryptionMaterialsInput, GetEncryptionMaterialsOutput,
+        DecryptMaterialsInput, DecryptMaterialsOutput, ICryptographicMaterialsManager, ICryptographicMaterialsManager.Valid, EncryptionContext, EncryptionMaterials, DecryptionMaterials,
+        ValidEncryptedDataKey, EncryptedDataKeyList, OnEncryptInput, OnEncryptOutput, OnDecryptInput, OnDecryptOutput, OnEncryptInput.Valid, OnDecryptInput.Valid,
+        GetEncryptionMaterialsInput.Valid, DecryptMaterialsInput.Valid, EncryptionMaterials.Valid, CreateRawAesKeyringInput, CreateDefaultCryptographicMaterialsManagerInput,
+        IAwsCryptographicMaterialsProviderClient, AESWrappingAlg, CreateDefaultCryptographicMaterialsManagerInput.Valid, CreateRawAesKeyringInput.Valid
+
     /////////////
     // kms.smithy
     type KmsKeyId = string
