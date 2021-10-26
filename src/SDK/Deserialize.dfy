@@ -498,6 +498,8 @@ module Deserialize {
       // Key provider info
       var keyProviderInfoLength :- rd.ReadUInt16();
       var keyProviderInfo :- rd.ReadBytes(keyProviderInfoLength as nat);
+      // TODO proof needs additional handholding here where it didn't before. Should make more stable.
+      assert UInt16ToSeq(|keyProviderInfo| as uint16) + keyProviderInfo == rd.reader.data[invStartPos+2+|keyProviderID|..invStartPos+2+|keyProviderID|+2+|keyProviderInfo|];
 
       // Encrypted data key
       var edkLength :- rd.ReadUInt16();
@@ -507,6 +509,9 @@ module Deserialize {
       i := i + 1;
       assert invStartPos < rd.reader.pos;
       assert Msg.EDKEntriesToSeq(edkEntries, 0, |edkEntries|) == rd.reader.data[old(rd.reader.pos) + 2 .. rd.reader.pos] by {
+        // TODO proof needs additional handholding here where it didn't before. Should make more stable somehow.
+        assert UInt16ToSeq(|keyProviderID| as uint16) + keyProviderID == rd.reader.data[invStartPos..invStartPos+2+|keyProviderID|];
+        assert UInt16ToSeq(|keyProviderInfo| as uint16) + keyProviderInfo == rd.reader.data[invStartPos+2+|keyProviderID|..invStartPos+2+|keyProviderID|+2+|keyProviderInfo|];
         assert Msg.EDKEntryToSeq(Crypto.EncryptedDataKey(providerID:=keyProviderID, providerInfo:=keyProviderInfo, ciphertext:=edk)) == rd.reader.data[invStartPos..rd.reader.pos];
         Msg.EDKEntriesToSeqInductiveStep(edkEntries[..|edkEntries| - 1],
           [Crypto.EncryptedDataKey(providerID:=keyProviderID, providerInfo:=keyProviderInfo, ciphertext:=edk)], 0, |edkEntries[..|edkEntries| - 1]|);
