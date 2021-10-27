@@ -371,7 +371,7 @@ module {:extern "AwsKmsMrkAwareSymmetricKeyring"} AwsKmsMrkAwareSymmetricKeyring
       //# OnDecrypt MUST attempt to decrypt the data key.
       //# If this attempt
       //# results in an error, then these errors MUST be collected.
-      var decryptClosure := new DecryptEncryptedDataKey(
+      var decryptClosure := new DecryptSingleEncryptedDataKey(
         materials,
         client,
         awsKmsKey,
@@ -394,7 +394,7 @@ module {:extern "AwsKmsMrkAwareSymmetricKeyring"} AwsKmsMrkAwareSymmetricKeyring
             && edk in encryptedDataKeys
             && filter.Ensures(edk, Success(true))
             && decryptClosure.Ensures(edk, Success(mat))
-            && DecryptCalled(
+            && DecryptCalledWith(
               client,
               DecryptRequest(
                 awsKmsKey,
@@ -477,7 +477,7 @@ module {:extern "AwsKmsMrkAwareSymmetricKeyring"} AwsKmsMrkAwareSymmetricKeyring
     }
   }
 
-  class DecryptEncryptedDataKey
+  class DecryptSingleEncryptedDataKey
     extends ActionWithResult<
       Materials.EncryptedDataKey,
       Materials.CompleteDecryptionMaterials,
@@ -514,7 +514,7 @@ module {:extern "AwsKmsMrkAwareSymmetricKeyring"} AwsKmsMrkAwareSymmetricKeyring
       ==>
         && res.value.Valid()
         && OnDecryptPure(materials, res)
-        && DecryptCalled(
+        && DecryptCalledWith(
           client,
           DecryptRequest(
             awsKmsKey,
