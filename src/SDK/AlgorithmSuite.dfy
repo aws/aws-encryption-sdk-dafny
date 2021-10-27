@@ -89,6 +89,7 @@ module {:extern "AlgorithmSuite"} AlgorithmSuite {
     AES_128_GCM_IV12_TAG16_IDENTITY_NO_SIGNATURE_ALG    := AlgSuite(EncryptionSuites.AES_GCM_128, KeyDerivationAlgorithms.IDENTITY,  None)
   ]
 
+  // TODO a better way to integrate the Polymorph Alg Suites with the info in this file?
   function method PolymorphIDToInternalID(input: Crypto.AlgorithmSuite): (res: ID) {
         if (input==Crypto.ALG_AES_128_GCM_IV12_TAG16_NO_KDF) then
           AES_128_GCM_IV12_TAG16_IDENTITY_NO_SIGNATURE_ALG

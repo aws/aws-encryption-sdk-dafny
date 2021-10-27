@@ -4,7 +4,6 @@
 include "../../StandardLibrary/StandardLibrary.dfy"
 include "../../StandardLibrary/UInt.dfy"
 include "../AlgorithmSuite.dfy"
-include "./Defs.dfy"
 include "../../Crypto/EncryptionSuites.dfy"
 include "../../Crypto/Random.dfy"
 include "../../Crypto/AESEncryption.dfy"
@@ -14,15 +13,16 @@ include "../EncryptionContext.dfy"
 include "../Serialize.dfy"
 include "../../Util/UTF8.dfy"
 include "../../Util/Streams.dfy"
+include "../../Generated/AwsCryptographicMaterialProviders.dfy"
 
 module {:extern "RawAESKeyringDef"} RawAESKeyringDef {
   import opened StandardLibrary
   import opened Wrappers
+  import Aws.Crypto
   import opened UInt = StandardLibrary.UInt
   import EncryptionSuites
   import AlgorithmSuite
   import Random
-  import KeyringDefs
   import AESEncryption
   import Mat = Materials
   import MessageHeader
@@ -56,7 +56,7 @@ module {:extern "RawAESKeyringDef"} RawAESKeyringDef {
     ensures SerializeEDKCiphertext(DeserializeEDKCiphertext(ciphertext, tagLen)) == ciphertext
   {}
 
-  class RawAESKeyring extends KeyringDefs.Keyring {
+  class RawAESKeyring extends Crypto.IKeyring {
     const keyNamespace: UTF8.ValidUTF8Bytes
     const keyName: UTF8.ValidUTF8Bytes
     const wrappingKey: seq<uint8>
@@ -72,15 +72,19 @@ module {:extern "RawAESKeyringDef"} RawAESKeyringDef {
     //# It MUST be randomly
     //# generated from a cryptographically secure entropy source.
 
-    predicate Valid()
-      reads this, Repr
-      ensures Valid() ==> this in Repr
+    predicate method Valid()
     {
-      && this in Repr
       && |wrappingKey| == wrappingAlgorithm.keyLen as int
       && wrappingAlgorithm in VALID_ALGORITHMS
       && wrappingAlgorithm.Valid()
       && |keyNamespace| < UINT16_LIMIT
+    }
+
+    // TODO move to materials
+    predicate method ValidEncryptionMaterials(mat: Crypto.EncryptionMaterials) {
+      && (AlgorithmSuite.PolymorphIDToInternalID(mat.algorithmSuiteID).SignatureType().Some? ==> mat.signingKey.Some?)
+      && (mat.plaintextDataKey.Some? ==> AlgorithmSuite.PolymorphIDToInternalID(mat.algorithmSuiteID).ValidPlaintextDataKey(mat.plaintextDataKey.value))
+      && (mat.plaintextDataKey.None? ==> |mat.encryptedDataKeys| == 0)
     }
 
     //= compliance/framework/raw-aes-keyring.txt#2.5
@@ -102,19 +106,16 @@ module {:extern "RawAESKeyringDef"} RawAESKeyringDef {
       ensures keyName == name
       ensures wrappingKey == key
       ensures wrappingAlgorithm == wrappingAlg
-      ensures Valid() && fresh(Repr)
     {
       keyNamespace := namespace;
       keyName := name;
       wrappingKey := key;
       wrappingAlgorithm := wrappingAlg;
-      Repr := {this};
     }
 
     function method SerializeProviderInfo(iv: seq<uint8>): seq<uint8>
       requires Valid()
       requires |iv| == wrappingAlgorithm.ivLen as int
-      reads Repr
     {
         keyName +
         [0, 0, 0, wrappingAlgorithm.tagLen * 8] + // tag length in bits
@@ -126,25 +127,25 @@ module {:extern "RawAESKeyringDef"} RawAESKeyringDef {
     //= type=implication
     //# OnEncrypt MUST take encryption materials (structures.md#encryption-
     //# materials) as input.
-    method OnEncrypt(materials: Mat.ValidEncryptionMaterials) returns (res: Result<Mat.ValidEncryptionMaterials, string>)
+    method OnEncrypt(input: Crypto.OnEncryptInput) returns (res: Result<Crypto.OnEncryptOutput, string>)
 
       // Keyring Trait conditions
-      requires Valid()
+      // requires Valid()
       ensures res.Success? ==>
-        && materials.encryptionContext == res.value.encryptionContext
-        && materials.algorithmSuiteID == res.value.algorithmSuiteID
-        && (materials.plaintextDataKey.Some? ==> res.value.plaintextDataKey == materials.plaintextDataKey)
-        && materials.encryptedDataKeys <= res.value.encryptedDataKeys
-        && materials.signingKey == res.value.signingKey
+        && input.materials.encryptionContext == res.value.materials.encryptionContext
+        && input.materials.algorithmSuiteID == res.value.materials.algorithmSuiteID
+        && (input.materials.plaintextDataKey.Some? ==> res.value.materials.plaintextDataKey == input.materials.plaintextDataKey)
+        && input.materials.encryptedDataKeys <= res.value.materials.encryptedDataKeys
+        && input.materials.signingKey == res.value.materials.signingKey
 
       // EDK created using expected AAD
       ensures res.Success? ==>
-        && var encCtxSerializable := (reveal EncryptionContext.Serializable(); EncryptionContext.Serializable(materials.encryptionContext));
-        && |res.value.encryptedDataKeys| == |materials.encryptedDataKeys| + 1
+        && var encCtxSerializable := (reveal EncryptionContext.Serializable(); EncryptionContext.Serializable(input.materials.encryptionContext));
+        && |res.value.materials.encryptedDataKeys| == |input.materials.encryptedDataKeys| + 1
         && encCtxSerializable
-        && wrappingAlgorithm.tagLen as nat <= |res.value.encryptedDataKeys[|materials.encryptedDataKeys|].ciphertext|
-        && var encOutput := DeserializeEDKCiphertext(res.value.encryptedDataKeys[|materials.encryptedDataKeys|].ciphertext, wrappingAlgorithm.tagLen as nat);
-        && AESEncryption.EncryptionOutputEncryptedWithAAD(encOutput, EncryptionContext.MapToSeq(materials.encryptionContext))
+        && wrappingAlgorithm.tagLen as nat <= |res.value.materials.encryptedDataKeys[|input.materials.encryptedDataKeys|].ciphertext|
+        && var encOutput := DeserializeEDKCiphertext(res.value.materials.encryptedDataKeys[|input.materials.encryptedDataKeys|].ciphertext, wrappingAlgorithm.tagLen as nat);
+        && AESEncryption.EncryptionOutputEncryptedWithAAD(encOutput, EncryptionContext.MapToSeq(input.materials.encryptionContext))
 
       //= compliance/framework/raw-aes-keyring.txt#2.7.1
       //= type=implication
@@ -152,14 +153,14 @@ module {:extern "RawAESKeyringDef"} RawAESKeyringDef {
       //# MUST construct an encrypted data key (structures.md#encrypted-data-
       //# key) with the following specifics:
       ensures res.Success? ==>
-        && |res.value.encryptedDataKeys| == |materials.encryptedDataKeys| + 1
+        && |res.value.materials.encryptedDataKeys| == |input.materials.encryptedDataKeys| + 1
         // *  The key provider ID (structures.md#key-provider-id) is this
         // keyring's key namespace (./keyring-interface.md#key-namespace).
-        && res.value.encryptedDataKeys[|materials.encryptedDataKeys|].providerID == keyNamespace
+        && res.value.materials.encryptedDataKeys[|input.materials.encryptedDataKeys|].providerID == keyNamespace
         // *  The key provider information (structures.md#key-provider-
         //   information) is serialized as the raw AES keyring key provider
         //   information (Section 2.6.1).
-        && ValidProviderInfo(res.value.encryptedDataKeys[|materials.encryptedDataKeys|].providerInfo)
+        && ValidProviderInfo(res.value.materials.encryptedDataKeys[|input.materials.encryptedDataKeys|].providerInfo)
         // *  The ciphertext (structures.md#ciphertext) is serialized as the raw
         // AES keyring ciphertext (Section 2.6.2).
         // TODO ??? strongly tiw output to SerializeEDKCiphertext
@@ -169,8 +170,11 @@ module {:extern "RawAESKeyringDef"} RawAESKeyringDef {
       //= type=implication
       //# If the keyring cannot serialize
       //# the encryption context, OnEncrypt MUST fail.
-      ensures !EncryptionContext.Serializable(materials.encryptionContext) ==> res.Failure?
+      ensures !EncryptionContext.Serializable(input.materials.encryptionContext) ==> res.Failure?
     {
+      // TODO better error messaging
+      :- Need(Valid(), "Keyring in invalid state");
+      :- Need(ValidEncryptionMaterials(input.materials), "input encryption materials invalid");
       // Check that the encryption context can be serialized correctly
       reveal EncryptionContext.Serializable();
       //= compliance/framework/raw-aes-keyring.txt#2.7.1
@@ -179,29 +183,34 @@ module {:extern "RawAESKeyringDef"} RawAESKeyringDef {
       //# (structures.md#encryption-context-1) in the same format as the
       //# serialization of message header AAD key value pairs (../data-format/
       //# message-header.md#key-value-pairs).
-      var valid := EncryptionContext.CheckSerializable(materials.encryptionContext);
+      var valid := EncryptionContext.CheckSerializable(input.materials.encryptionContext);
       if !valid {
         return Failure("Unable to serialize encryption context");
       }
 
-      var materialsWithDataKey := materials;
+      var materialsWithDataKey := input.materials;
       //= compliance/framework/raw-aes-keyring.txt#2.7.1
       //# If the encryption materials (structures.md#encryption-materials) do
       //# not contain a plaintext data key, OnEncrypt MUST generate a random
       //# plaintext data key and set it on the encryption materials
       //# (structures.md#encryption-materials).
       if materialsWithDataKey.plaintextDataKey.None? {
-        var k :- Random.GenerateBytes(materials.algorithmSuiteID.KeyLength() as int32);
-        materialsWithDataKey := materialsWithDataKey.WithKeys(Some(k), []);
+        var k :- Random.GenerateBytes(AlgorithmSuite.PolymorphIDToInternalID(input.materials.algorithmSuiteID).KeyLength() as int32);
+        materialsWithDataKey := Crypto.EncryptionMaterials(
+          encryptionContext := materialsWithDataKey.encryptionContext,
+          algorithmSuiteID := materialsWithDataKey.algorithmSuiteID,
+          signingKey := materialsWithDataKey.signingKey,
+          plaintextDataKey := Some(k),
+          encryptedDataKeys := []);
       }
 
       var iv :- Random.GenerateBytes(wrappingAlgorithm.ivLen as int32);
       var providerInfo := SerializeProviderInfo(iv);
 
       var wr := new Streams.ByteWriter();
-      var _ :- Serialize.SerializeKVPairs(wr, materials.encryptionContext);
+      var _ :- Serialize.SerializeKVPairs(wr, input.materials.encryptionContext);
       var aad := wr.GetDataWritten();
-      assert aad == EncryptionContext.MapToSeq(materials.encryptionContext);
+      assert aad == EncryptionContext.MapToSeq(input.materials.encryptionContext);
 
       //= compliance/framework/raw-aes-keyring.txt#2.7.1
       //# The keyring MUST encrypt the plaintext data key in the encryption
@@ -215,7 +224,7 @@ module {:extern "RawAESKeyringDef"} RawAESKeyringDef {
       if UINT16_LIMIT <= |encryptedKey| {
         return Failure("Encrypted data key too long.");
       }
-      var edk := Mat.EncryptedDataKey(keyNamespace, providerInfo, encryptedKey);
+      var edk:Crypto.ValidEncryptedDataKey := Crypto.EncryptedDataKey(providerID := keyNamespace, providerInfo := providerInfo, ciphertext := encryptedKey);
 
       //= compliance/framework/raw-aes-keyring.txt#2.7.1
       //# The keyring MUST append the constructed encrypted data key to the
@@ -225,74 +234,87 @@ module {:extern "RawAESKeyringDef"} RawAESKeyringDef {
       //= compliance/framework/raw-aes-keyring.txt#2.7.1
       //# OnEncrypt MUST output the modified encryption materials
       //# (structures.md#encryption-materials).
-      res := Success(materialsWithDataKey.WithKeys(materialsWithDataKey.plaintextDataKey, [edk]));
+      var edks:seq<Crypto.ValidEncryptedDataKey> := materialsWithDataKey.encryptedDataKeys + [edk];
+      var r := Crypto.EncryptionMaterials(
+        encryptionContext := materialsWithDataKey.encryptionContext,
+        algorithmSuiteID := materialsWithDataKey.algorithmSuiteID,
+        signingKey := materialsWithDataKey.signingKey,
+        plaintextDataKey := materialsWithDataKey.plaintextDataKey,
+        encryptedDataKeys := edks);
+      assert materialsWithDataKey.encryptedDataKeys == input.materials.encryptedDataKeys;
+      assert |edks| == |materialsWithDataKey.encryptedDataKeys| + 1;
+      assert r.encryptedDataKeys == edks;
+      assert |r.encryptedDataKeys| == |edks|;
+      assert |r.encryptedDataKeys| >= |input.materials.encryptedDataKeys|;
+      res := Success(Crypto.OnEncryptOutput(materials := r));
     }
 
     //= compliance/framework/raw-aes-keyring.txt#2.7.2
     //= type=implication
-    //# OnDecrypt MUST take decryption materials (structures.md#decryption-
-    //# materials) and a list of encrypted data keys
+    //# OnDecrypt MUST take decryption input.materials (structures.md#decryption-
+    //# input.materials) and a list of encrypted data keys
     //# (structures.md#encrypted-data-key) as input.
-    method OnDecrypt(materials: Mat.ValidDecryptionMaterials,
-                     edks: seq<Mat.EncryptedDataKey>) returns (res: Result<Mat.ValidDecryptionMaterials, string>)
+    method OnDecrypt(input: Crypto.OnDecryptInput) returns (res: Result<Crypto.OnDecryptOutput, string>)
       // Keyring Trait conditions
-      requires Valid()
-      ensures Valid()
-      ensures |edks| == 0 ==> res.Success? && materials == res.value
-      ensures materials.plaintextDataKey.Some? ==> res.Success? && materials == res.value
+      // requires Valid()
+      ensures Valid() && |input.encryptedDataKeys| == 0 ==> res.Success? && input.materials == res.value.materials
+      ensures Valid() && input.materials.plaintextDataKey.Some? ==> res.Success? && input.materials == res.value.materials
       ensures res.Success? ==>
-          && materials.encryptionContext == res.value.encryptionContext
-          && materials.algorithmSuiteID == res.value.algorithmSuiteID
-          && (materials.plaintextDataKey.Some? ==> res.value.plaintextDataKey == materials.plaintextDataKey)
-          && res.value.verificationKey == materials.verificationKey
+          && input.materials.encryptionContext == res.value.materials.encryptionContext
+          && input.materials.algorithmSuiteID == res.value.materials.algorithmSuiteID
+          && (input.materials.plaintextDataKey.Some? ==> res.value.materials.plaintextDataKey == input.materials.plaintextDataKey)
+          && res.value.materials.verificationKey == input.materials.verificationKey
 
       //= compliance/framework/raw-aes-keyring.txt#2.7.2
       //= type=TODO
-      //# If the decryption materials already contain a plaintext data key, the
-      //# keyring MUST fail and MUST NOT modify the decryption materials
-      //# (structures.md#decryption-materials).
+      //# If the decryption input.materials already contain a plaintext data key, the
+      //# keyring MUST fail and MUST NOT modify the decryption input.materials
+      //# (structures.md#decryption-input.materials).
       // We don't do this. We just pass through...
 
       // TODO: ensure non-None when input edk list has edk with valid provider info
 
       // Plaintext decrypted using expected AAD
-      ensures res.Success? && materials.plaintextDataKey.None? && res.value.plaintextDataKey.Some? ==>
-        var encCtxSerializable := (reveal EncryptionContext.Serializable(); EncryptionContext.Serializable(materials.encryptionContext));
+      ensures res.Success? && input.materials.plaintextDataKey.None? && res.value.materials.plaintextDataKey.Some? ==>
+        var encCtxSerializable := (reveal EncryptionContext.Serializable(); EncryptionContext.Serializable(input.materials.encryptionContext));
         && encCtxSerializable
-        && AESEncryption.PlaintextDecryptedWithAAD(res.value.plaintextDataKey.value, EncryptionContext.MapToSeq(materials.encryptionContext))
+        && AESEncryption.PlaintextDecryptedWithAAD(res.value.materials.plaintextDataKey.value, EncryptionContext.MapToSeq(input.materials.encryptionContext))
 
       // If attempts to decrypt an EDK and the input EC cannot be serialized, return a Failure
       //= compliance/framework/raw-aes-keyring.txt#2.7.2
       //= type=implication
       //# If the keyring cannot
       //# serialize the encryption context, OnDecrypt MUST fail.
-      ensures materials.plaintextDataKey.None? && !EncryptionContext.Serializable(materials.encryptionContext) && (exists i :: 0 <= i < |edks| && ShouldDecryptEDK(edks[i])) ==> res.Failure?
+      ensures input.materials.plaintextDataKey.None? && !EncryptionContext.Serializable(input.materials.encryptionContext) && (exists i :: 0 <= i < |input.encryptedDataKeys| && ShouldDecryptEDK(input.encryptedDataKeys[i])) ==> res.Failure?
     {
-      if materials.plaintextDataKey.Some? {
-        return Success(materials);
+      // TODO better error messaging
+      :- Need(Valid(), "Keyring in invalid state");
+
+      if input.materials.plaintextDataKey.Some? {
+        return Success(Crypto.OnDecryptOutput(materials:=input.materials));
       }
       //= compliance/framework/raw-aes-keyring.txt#2.7.2
       //# The keyring MUST perform the following actions on each encrypted data
       //# key (structures.md#encrypted-data-key) in the input encrypted data
       //# key list, serially, until it successfully decrypts one.
       var i := 0;
-      while i < |edks|
-        invariant forall prevIndex :: 0 <= prevIndex < i ==> prevIndex < |edks| && !(ShouldDecryptEDK(edks[prevIndex]))
+      while i < |input.encryptedDataKeys|
+        invariant forall prevIndex :: 0 <= prevIndex < i ==> prevIndex < |input.encryptedDataKeys| && !(ShouldDecryptEDK(input.encryptedDataKeys[prevIndex]))
       {
-        if ShouldDecryptEDK(edks[i]) {
+        if ShouldDecryptEDK(input.encryptedDataKeys[i]) {
           //= compliance/framework/raw-aes-keyring.txt#2.7.2
-          //# The keyring MUST attempt to serialize the decryption materials'
-          //# (structures.md#decryption-materials) encryption context
+          //# The keyring MUST attempt to serialize the decryption input.materials'
+          //# (structures.md#decryption-input.materials) encryption context
           //# (structures.md#encryption-context-1) in the same format as the
           //# serialization of the message header AAD key value pairs (../data-
           //# format/message-header.md#key-value-pairs).
           reveal EncryptionContext.Serializable();
-          var valid := EncryptionContext.CheckSerializable(materials.encryptionContext);
+          var valid := EncryptionContext.CheckSerializable(input.materials.encryptionContext);
           if !valid {
             return Failure("Unable to serialize encryption context");
           }
           var wr := new Streams.ByteWriter();
-          var _ :- Serialize.SerializeKVPairs(wr, materials.encryptionContext);
+          var _ :- Serialize.SerializeKVPairs(wr, input.materials.encryptionContext);
 
           //= compliance/framework/raw-aes-keyring.txt#2.7.2
           //# For each encrypted data key (structures.md#encrypted-data-key), the
@@ -304,9 +326,9 @@ module {:extern "RawAESKeyringDef"} RawAESKeyringDef {
           //# and authentication tag length (Section 2.6.1.2).
           // TODO without mocking there isn't a good way to test this...
           var aad := wr.GetDataWritten();
-          assert aad == EncryptionContext.MapToSeq(materials.encryptionContext);
-          var iv := GetIvFromProvInfo(edks[i].providerInfo);
-          var encryptionOutput := DeserializeEDKCiphertext(edks[i].ciphertext, wrappingAlgorithm.tagLen as nat);
+          assert aad == EncryptionContext.MapToSeq(input.materials.encryptionContext);
+          var iv := GetIvFromProvInfo(input.encryptedDataKeys[i].providerInfo);
+          var encryptionOutput := DeserializeEDKCiphertext(input.encryptedDataKeys[i].ciphertext, wrappingAlgorithm.tagLen as nat);
 
           //= compliance/framework/raw-aes-keyring.txt#2.7.2
           //# If decrypting, the keyring MUST use AES-GCM with the following
@@ -316,10 +338,15 @@ module {:extern "RawAESKeyringDef"} RawAESKeyringDef {
 
           //= compliance/framework/raw-aes-keyring.txt#2.7.2
           //# If a decryption succeeds, this keyring MUST add the resulting
-          //# plaintext data key to the decryption materials and return the
-          //# modified materials.
-          if materials.algorithmSuiteID.ValidPlaintextDataKey(ptKey) { // check for correct key length
-            return Success(materials.WithPlaintextDataKey(ptKey));
+          //# plaintext data key to the decryption input.materials and return the
+          //# modified input.materials.
+          if AlgorithmSuite.PolymorphIDToInternalID(input.materials.algorithmSuiteID).ValidPlaintextDataKey(ptKey) { // check for correct key length
+            var r := Crypto.DecryptionMaterials(
+            encryptionContext := input.materials.encryptionContext,
+            algorithmSuiteID := input.materials.algorithmSuiteID,
+            verificationKey := input.materials.verificationKey,
+            plaintextDataKey := Some(ptKey));
+            return Success(Crypto.OnDecryptOutput(materials:=r));
           } else {
             // TODO will this ever happen?
             return Failure("Decryption failed: bad datakey length.");
@@ -332,14 +359,14 @@ module {:extern "RawAESKeyringDef"} RawAESKeyringDef {
       //# If no decryption succeeds, the keyring MUST fail and MUST NOT modify
       //# the decryption materials (structures.md#decryption-materials).
       // Right now we do the opposite, we always "succeed" does the spec need to change? How does this interoperate?
-      return Success(materials);
+      return Success(Crypto.OnDecryptOutput(materials:=input.materials));
     }
 
     //= compliance/framework/raw-aes-keyring.txt#2.7.2
     //# The keyring MUST attempt to decrypt the encrypted data key if and
     //# only if the following is true:
     // TODO break up
-    predicate method ShouldDecryptEDK(edk: Mat.EncryptedDataKey) {
+    predicate method ShouldDecryptEDK(edk: Crypto.EncryptedDataKey) {
       edk.providerID == keyNamespace && ValidProviderInfo(edk.providerInfo) && wrappingAlgorithm.tagLen as int <= |edk.ciphertext|
     }
 

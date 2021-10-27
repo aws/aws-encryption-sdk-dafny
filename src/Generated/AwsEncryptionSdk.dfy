@@ -10,9 +10,10 @@ module {:extern "Dafny.Aws.Esdk"} Aws.Esdk {
 
     datatype EncryptInput = EncryptInput(
         nameonly plaintext: seq<uint8>,
-        nameonly encryptionContext: Crypto.EncryptionContext,
-        nameonly algorithmSuiteID: Option<Crypto.AlgorithmSuite>,
+        nameonly encryptionContext: Crypto.EncryptionContext, // TODO Make an option?
+        nameonly algorithmSuiteID: Option<Crypto.AlgorithmSuite>, // TODO rename algorithmSuiteID?
         nameonly materialsManager: Crypto.ICryptographicMaterialsManager
+        // TODO reintroduce optional materialsManager and optional keyring
     )
     {
         predicate Valid() {
@@ -22,8 +23,9 @@ module {:extern "Dafny.Aws.Esdk"} Aws.Esdk {
 
     datatype EncryptOutput = EncryptOutput(
         nameonly ciphertext: seq<uint8>
-        //nameonly encryptionContext: Crypto.EncryptionContext,
-        //nameonly algorithmSuite: Crypto.AlgorithmSuite
+        // TODO Hook up additional Encryption outputs
+        // nameonly encryptionContext: Crypto.EncryptionContext,
+        // nameonly algorithmSuite: Crypto.AlgorithmSuite
     )
     {
         predicate Valid() {
@@ -34,7 +36,7 @@ module {:extern "Dafny.Aws.Esdk"} Aws.Esdk {
     datatype DecryptInput = DecryptInput(
         nameonly ciphertext: seq<uint8>,
         nameonly materialsManager: Crypto.ICryptographicMaterialsManager
-        // TODO re introduce optional and keyring
+        // TODO reintroduce optional and keyring
     )
     {
         predicate Valid() {
@@ -44,8 +46,9 @@ module {:extern "Dafny.Aws.Esdk"} Aws.Esdk {
 
     datatype DecryptOutput = DecryptOutput(
         nameonly plaintext: seq<uint8>
-        //nameonly encryptionContext: Crypto.EncryptionContext,
-        //nameonly algorithmSuite: Crypto.AlgorithmSuite
+        // TODO hook up additional decrypt outputs
+        // nameonly encryptionContext: Crypto.EncryptionContext,
+        // nameonly algorithmSuite: Crypto.AlgorithmSuite
     )
     {
         predicate Valid() {
@@ -70,6 +73,6 @@ module {:extern "Dafny.Aws.Esdk"} Aws.Esdk {
         method Decrypt(input: DecryptInput) returns (res: Result<DecryptOutput, string>)
             requires input.Valid()
         // TODO I can't seem to find a way to get this to work
-        static method {:extern "createClient"} createClient(clientConfig: AwsEncryptionSdkClientConfig) returns (res: IAwsEncryptionSdkClient)
+        // static method {:extern "createClient"} createClient(clientConfig: AwsEncryptionSdkClientConfig) returns (res: IAwsEncryptionSdkClient)
     }
 }
