@@ -1,16 +1,13 @@
 // Copyright Amazon.com Inc. or its affiliates. All Rights Reserved.
 // SPDX-License-Identifier: Apache-2.0
 
-include "../../src/SDK/Keyring/PolymorphRawAESKeyring.dfy"
-include "../../src/SDK/Materials.dfy"
+include "../../src/SDK/Keyring/RawAESKeyring.dfy"
 include "../../src/StandardLibrary/StandardLibrary.dfy"
 include "../../src/StandardLibrary/UInt.dfy"
-include "../../src/SDK/CMM/Defs.dfy"
-include "../../src/SDK/CMM/PolymorphDefaultCMM.dfy"
-include "../../src/SDK/Client.dfy"
 include "../../src/Generated/AwsCryptographicMaterialProviders.dfy"
 include "../../src/Generated/AwsEncryptionSdk.dfy"
-include "../../src/SDK/AwsCryptographicMaterialsProviderClient.dfy"
+include "../../src/SDK/AwsCryptographicMaterialProviders.dfy"
+include "../../src/SDK/AwsEncryptionSdk.dfy"
 include "../../src/SDK/EncryptionContext.dfy"
 include "../../src/Crypto/RSAEncryption.dfy"
 include "../../src/Crypto/EncryptionSuites.dfy"
@@ -25,13 +22,11 @@ module {:extern "TestClient"} TestClient {
   import opened Wrappers
   import opened UInt = StandardLibrary.UInt
   import opened StandardLibrary
-  import PolymorphDefaultCMMDef
-  import PolymorphRawAESKeyringDef
-  import Materials
+  import RawAESKeyringDef
   import EncryptionSuites
-  import Client = ESDKClient
   import Base64
-  import MaterialsProviderClientDefs
+  import AwsCryptographicMaterialProviders
+  import AwsEncryptionSdk
 
   import UTF8
 
@@ -40,7 +35,7 @@ module {:extern "TestClient"} TestClient {
   method {:test} HappyPath() 
   {
     // Create material provider client
-    var materialsClient := new MaterialsProviderClientDefs.MaterialsProviderClient();
+    var materialsClient := new AwsCryptographicMaterialProviders.AwsCryptographicMaterialProvidersClient();
 
     // Use material provider client API for RawAESKeyring creation
     var rawAESKeyring := materialsClient.CreateRawAesKeyring(Crypto.CreateRawAesKeyringInput(
@@ -56,7 +51,7 @@ module {:extern "TestClient"} TestClient {
 
     // Create AWS Crypto client
     // TODO use createClient
-    var client := new MaterialsProviderClientDefs.PolymorphClient();
+    var client := new AwsEncryptionSdk.AwsEncryptionSdkClient();
 
     // Use Encrypt API
     var plaintext :- expect UTF8.Encode("hello");

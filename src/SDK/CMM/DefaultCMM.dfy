@@ -6,20 +6,16 @@ include "../../StandardLibrary/UInt.dfy"
 include "../../StandardLibrary/Base64.dfy"
 include "../Materials.dfy"
 include "../EncryptionContext.dfy"
-include "Defs.dfy"
-include "../Keyring/Defs.dfy"
 include "../MessageHeader.dfy"
 include "../../Util/UTF8.dfy"
 include "../Deserialize.dfy"
 include "../../Generated/AwsCryptographicMaterialProviders.dfy"
 
-module {:extern "PolymorphDefaultCMMDef"} PolymorphDefaultCMMDef {
+module {:extern "DefaultCMMDef"} DefaultCMMDef {
   import opened Wrappers
   import opened UInt = StandardLibrary.UInt
   import Materials
   import EncryptionContext
-  import CMMDefs
-  import KeyringDefs
   import AlgorithmSuite
   import Signature
   import Base64
@@ -28,18 +24,23 @@ module {:extern "PolymorphDefaultCMMDef"} PolymorphDefaultCMMDef {
   import Deserialize
   import Aws.Crypto
 
-  predicate {:opaque } DecryptionMaterialsFromPolymorphDefaultCMM(key: seq<uint8>)
-  {
-    true
-  }
-
-  // TODO move
+  // TODO move somewhere central
   predicate method Serializable(mat:Crypto.EncryptionMaterials) {
     && |mat.encryptedDataKeys| > 0
     && EncryptionContext.Serializable(mat.encryptionContext)
   }
 
-  class PolymorphDefaultCMM extends Crypto.ICryptographicMaterialsManager {
+  // TODO: What are these predicates doing and should we reintroduce them? We can't ensure them on all CMM GetEncryptionMaterials calls anymore.
+  // Predicate works arround a known error in Dafny: https://github.com/dafny-lang/dafny/issues/422
+  // predicate EncryptionMaterialsSignature(validEncryptionMaterials: Crypto.EncryptionMaterials) {
+  //  EncryptionMaterialsSignatureOpaque(validEncryptionMaterials)
+  // }
+  // predicate {:opaque } EncryptionMaterialsSignatureOpaque(validEncryptionMaterials: Crypto.EncryptionMaterials)
+  // {
+  //   true
+  // }
+
+  class DefaultCMM extends Crypto.ICryptographicMaterialsManager {
     const keyring: Crypto.IKeyring
 
     constructor OfKeyring(k: Crypto.IKeyring)
@@ -51,8 +52,8 @@ module {:extern "PolymorphDefaultCMMDef"} PolymorphDefaultCMMDef {
     method GetEncryptionMaterials(input: Crypto.GetEncryptionMaterialsInput)
                                   returns (res: Result<Crypto.GetEncryptionMaterialsOutput, string>)
       requires input.Valid()
-      // the heck is this?
-      // ensures res.Success? ==> CMMDefs.EncryptionMaterialsSignature(res.value.materials)
+      // TODO what is the history behind this predicate and should we reintroduce it?
+      // ensures res.Success? ==> EncryptionMaterialsSignature(res.value.materials)
       ensures res.Success? ==> res.value.materials.plaintextDataKey.Some? && Serializable(res.value.materials)
       ensures Materials.EC_PUBLIC_KEY_FIELD in input.encryptionContext ==> res.Failure?
       ensures res.Success? && (input.algorithmSuiteID.None? || AlgorithmSuite.PolymorphIDToInternalID(input.algorithmSuiteID.value).SignatureType().Some?) ==>
@@ -63,7 +64,7 @@ module {:extern "PolymorphDefaultCMMDef"} PolymorphDefaultCMMDef {
         case Some(id) => res.value.materials.algorithmSuiteID == id
         case None => AlgorithmSuite.PolymorphIDToInternalID(res.value.materials.algorithmSuiteID) == 0x0378
     {
-      // reveal CMMDefs.EncryptionMaterialsSignatureOpaque();
+      // reveal EncryptionMaterialsSignatureOpaque();
       var reservedField := Materials.EC_PUBLIC_KEY_FIELD;
       assert reservedField in Materials.RESERVED_KEY_VALUES;
       if reservedField in input.encryptionContext.Keys {
@@ -107,11 +108,8 @@ module {:extern "PolymorphDefaultCMMDef"} PolymorphDefaultCMMDef {
       }
       assert result.materials.Valid();
 
-      expect result.materials.plaintextDataKey.Some? && Serializable(result.materials);
-      expect (input.algorithmSuiteID.None? || AlgorithmSuite.PolymorphIDToInternalID(input.algorithmSuiteID.value).SignatureType().Some?) ==> Materials.EC_PUBLIC_KEY_FIELD in result.materials.encryptionContext;
-      expect match input.algorithmSuiteID
-        case Some(id) => result.materials.algorithmSuiteID == id
-        case None => AlgorithmSuite.PolymorphIDToInternalID(result.materials.algorithmSuiteID) == 0x0378;
+      // TODO more informative error message
+      :- Need(OnEncryptResultValid(input, result), "Keyring returned an invalid response");
 
       return Success(Crypto.GetEncryptionMaterialsOutput(materials:=result.materials));
     }
@@ -148,7 +146,21 @@ module {:extern "PolymorphDefaultCMMDef"} PolymorphDefaultCMMDef {
         return Failure("Keyring.OnDecrypt failed to decrypt the plaintext data key.");
       }
 
+      // TODO Why do we not need to check anything on the OnDecrypt result?
+
       return Success(Crypto.DecryptMaterialsOutput(decryptionMaterials:=result.materials));
+    }
+
+    // TODO move somewhere central
+    predicate method OnEncryptResultValid(input: Crypto.GetEncryptionMaterialsInput, result: Crypto.OnEncryptOutput) {
+      && (
+        result.materials.plaintextDataKey.Some? && Serializable(result.materials))
+      && (
+        (input.algorithmSuiteID.None? || AlgorithmSuite.PolymorphIDToInternalID(input.algorithmSuiteID.value).SignatureType().Some?) ==> Materials.EC_PUBLIC_KEY_FIELD in result.materials.encryptionContext)
+      && (
+      match input.algorithmSuiteID
+        case Some(id) => result.materials.algorithmSuiteID == id
+        case None => AlgorithmSuite.PolymorphIDToInternalID(result.materials.algorithmSuiteID) == 0x0378)
     }
   }
 }

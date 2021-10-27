@@ -5,13 +5,11 @@ include "../StandardLibrary/StandardLibrary.dfy"
 include "../StandardLibrary/UInt.dfy"
 include "Materials.dfy"
 include "EncryptionContext.dfy"
-include "CMM/Defs.dfy"
-include "CMM/PolymorphDefaultCMM.dfy"
+include "CMM/DefaultCMM.dfy"
 include "MessageHeader.dfy"
 include "MessageBody.dfy"
 include "Serialize.dfy"
 include "Deserialize.dfy"
-include "Keyring/Defs.dfy"
 include "../Crypto/Random.dfy"
 include "../Util/Streams.dfy"
 include "../Crypto/KeyDerivationAlgorithms.dfy"
@@ -20,7 +18,7 @@ include "../Crypto/AESEncryption.dfy"
 include "../Crypto/Signature.dfy"
 include "../Generated/AwsCryptographicMaterialProviders.dfy"
 
-module {:extern "ESDKClient"} ESDKClient {
+module {:extern "EncryptDecrypt"} EncryptDecrypt {
   import opened Wrappers
   import opened StandardLibrary
   import opened UInt = StandardLibrary.UInt
@@ -28,11 +26,9 @@ module {:extern "ESDKClient"} ESDKClient {
   import EncryptionContext
   import AlgorithmSuite
   import AESEncryption
-  import CMMDefs
-  import PolymorphDefaultCMMDef
+  import DefaultCMMDef
   import Deserialize
   import HKDF
-  import KeyringDefs
   import KeyDerivationAlgorithms
   import Materials
   import Msg = MessageHeader
@@ -118,11 +114,11 @@ module {:extern "ESDKClient"} ESDKClient {
     headerBody.Valid()
     && headerBody.version == Msg.VERSION_1
     && headerBody.typ == Msg.TYPE_CUSTOMER_AED
-    // whaaaa TODO
-    // && (exists material: Crypto.EncryptionMaterials | CMMDefs.EncryptionMaterialsSignature(material) ::
-    //  headerBody.algorithmSuiteID == material.algorithmSuiteID
-    //  && headerBody.aad == material.encryptionContext
-    //  && headerBody.encryptedDataKeys == Msg.EncryptedDataKeys(material.encryptedDataKeys))
+    // TODO This is currently failing. What is it proving and is it needed?
+    // && (exists material: Crypto.EncryptionMaterials | DefaultCMMDef.EncryptionMaterialsSignature(material) ::
+    // headerBody.algorithmSuiteID == AlgorithmSuite.PolymorphIDToInternalID(material.algorithmSuiteID)
+    // && headerBody.aad == material.encryptionContext
+    // && headerBody.encryptedDataKeys == Msg.EncryptedDataKeys(material.encryptedDataKeys))
     && headerBody.contentType == Msg.ContentType.Framed
     && headerBody.frameLength == if request.frameLength.Some? then request.frameLength.value else DEFAULT_FRAME_LENGTH
   }
@@ -202,7 +198,7 @@ module {:extern "ESDKClient"} ESDKClient {
     if request.keyring == null {
       cmm := request.cmm;
     } else {
-      cmm := new PolymorphDefaultCMMDef.PolymorphDefaultCMM.OfKeyring(request.keyring);
+      cmm := new DefaultCMMDef.DefaultCMM.OfKeyring(request.keyring);
     }
 
     var frameLength := if request.frameLength.Some? then request.frameLength.value else DEFAULT_FRAME_LENGTH;
@@ -215,15 +211,17 @@ module {:extern "ESDKClient"} ESDKClient {
 
     var encMat := output.materials;
 
+    // TODO turn these into Needs and move into some predicate
     //expect CMMDefs.EncryptionMaterialsSignature(encMat);
     expect encMat.plaintextDataKey.Some?;
     expect (algorithmSuiteID.None? || (request.algorithmSuiteID.value as AlgorithmSuite.ID).SignatureType().Some?) ==>
       Materials.EC_PUBLIC_KEY_FIELD in encMat.encryptionContext;
-    expect PolymorphDefaultCMMDef.Serializable(encMat);
+    expect DefaultCMMDef.Serializable(encMat);
     expect 
       match request.algorithmSuiteID
       case Some(id) => AlgorithmSuite.PolymorphIDToInternalID(encMat.algorithmSuiteID) == id as AlgorithmSuite.ID
       case None => AlgorithmSuite.PolymorphIDToInternalID(encMat.algorithmSuiteID) == 0x0378 as AlgorithmSuite.ID;
+    expect |encMat.plaintextDataKey.value| == AlgorithmSuite.PolymorphIDToInternalID(encMat.algorithmSuiteID).KDFInputKeyLength();
 
 
     if UINT16_LIMIT <= |encMat.encryptedDataKeys| {
@@ -231,8 +229,6 @@ module {:extern "ESDKClient"} ESDKClient {
     }
 
     var messageID: Msg.MessageID :- Random.GenerateBytes(Msg.MESSAGE_ID_LEN as int32);
-    expect encMat.plaintextDataKey.Some?;
-    expect |encMat.plaintextDataKey.value| == AlgorithmSuite.PolymorphIDToInternalID(encMat.algorithmSuiteID).KDFInputKeyLength();
     var derivedDataKey := DeriveKey(encMat.plaintextDataKey.value, AlgorithmSuite.PolymorphIDToInternalID(encMat.algorithmSuiteID), messageID);
 
     // Assemble and serialize the header and its authentication tag
@@ -388,7 +384,7 @@ module {:extern "ESDKClient"} ESDKClient {
     if request.keyring == null {
       cmm := request.cmm;
     } else {
-      cmm := new PolymorphDefaultCMMDef.PolymorphDefaultCMM.OfKeyring(request.keyring);
+      cmm := new DefaultCMMDef.DefaultCMM.OfKeyring(request.keyring);
     }
 
     var rd := new Streams.ByteReader(request.message);

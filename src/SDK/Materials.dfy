@@ -24,6 +24,9 @@ module {:extern "Materials"} Materials {
     s
   const RESERVED_KEY_VALUES := { EC_PUBLIC_KEY_FIELD }
 
+  // TODO If one removes anything below this comment (since it is either unused or defined in the Polymorph generated files)
+  // Deserialize's verification hangs. Need to stabilize Deserialize's verification.
+
   datatype EncryptedDataKey = EncryptedDataKey(providerID: UTF8.ValidUTF8Bytes,
                                                providerInfo: seq<uint8>,
                                                ciphertext: seq<uint8>)
