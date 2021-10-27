@@ -453,7 +453,10 @@ module {:extern "AwsKmsMrkAwareSymmetricKeyring"} AwsKmsMrkAwareSymmetricKeyring
       }
 
       if !UTF8.ValidUTF8Seq(edk.providerInfo) {
-        return Success(false);
+        // The Keyring produces UTF8 providerInfo.
+        // If an `aws-kms` encrypted data key's providerInfo is not UTF8
+        // this is an error, not simply an EDK to filter out.
+        return Failure("Invalid AWS KMS encoding, provider info is not UTF8.");
       }
 
       var keyId :- UTF8.Decode(edk.providerInfo);
