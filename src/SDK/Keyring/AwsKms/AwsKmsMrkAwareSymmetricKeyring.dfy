@@ -60,6 +60,10 @@ module {:extern "AwsKmsMrkAwareSymmetricKeyring"} AwsKmsMrkAwareSymmetricKeyring
       requires 0 < |awsKmsKey| <= MAX_AWS_KMS_IDENTIFIER_LENGTH
       ensures Valid()
       ensures fresh(Repr - {this})
+      ensures
+        && this.client      == client
+        && this.awsKmsKey   == awsKmsKey
+        && this.grantTokens == grantTokens
     {
       var awsKmsArn    := ParseAwsKmsIdentifier(awsKmsKey);
       this.client      := client;
