@@ -75,10 +75,7 @@ module {:extern "PolymorphRawAESKeyringDef"} PolymorphRawAESKeyringDef {
     //# generated from a cryptographically secure entropy source.
 
     predicate method Valid()
-      reads this, Repr
-      ensures Valid() ==> this in Repr
     {
-      && this in Repr
       && |wrappingKey| == wrappingAlgorithm.keyLen as int
       && wrappingAlgorithm in VALID_ALGORITHMS
       && wrappingAlgorithm.Valid()
@@ -111,19 +108,16 @@ module {:extern "PolymorphRawAESKeyringDef"} PolymorphRawAESKeyringDef {
       ensures keyName == name
       ensures wrappingKey == key
       ensures wrappingAlgorithm == wrappingAlg
-      ensures Valid() && fresh(Repr)
     {
       keyNamespace := namespace;
       keyName := name;
       wrappingKey := key;
       wrappingAlgorithm := wrappingAlg;
-      Repr := {this};
     }
 
     function method SerializeProviderInfo(iv: seq<uint8>): seq<uint8>
       requires Valid()
       requires |iv| == wrappingAlgorithm.ivLen as int
-      reads Repr
     {
         keyName +
         [0, 0, 0, wrappingAlgorithm.tagLen * 8] + // tag length in bits

@@ -9,11 +9,11 @@ module {:extern "Dafny.Aws.Crypto"} Aws.Crypto {
     import UTF8
 
     export
-      provides UTF8, UInt, Wrappers, IKeyring.Repr, ICryptographicMaterialsManager.Repr, IKeyring.OnDecrypt,
+      provides UTF8, UInt, Wrappers, IKeyring.OnDecrypt,
         ICryptographicMaterialsManager.GetEncryptionMaterials, ICryptographicMaterialsManager.DecryptMaterials, IKeyring.OnEncrypt,
         IAwsCryptographicMaterialsProviderClient.CreateRawAesKeyring, IAwsCryptographicMaterialsProviderClient.CreateDefaultCryptographicMaterialsManager
-      reveals AlgorithmSuite, EncryptedDataKey, EncryptedDataKey.Valid, IKeyring, IKeyring.Valid, GetEncryptionMaterialsInput, GetEncryptionMaterialsOutput,
-        DecryptMaterialsInput, DecryptMaterialsOutput, ICryptographicMaterialsManager, ICryptographicMaterialsManager.Valid, EncryptionContext, EncryptionMaterials, DecryptionMaterials,
+      reveals AlgorithmSuite, EncryptedDataKey, EncryptedDataKey.Valid, IKeyring, GetEncryptionMaterialsInput, GetEncryptionMaterialsOutput,
+        DecryptMaterialsInput, DecryptMaterialsOutput, ICryptographicMaterialsManager, EncryptionContext, EncryptionMaterials, DecryptionMaterials,
         ValidEncryptedDataKey, EncryptedDataKeyList, OnEncryptInput, OnEncryptOutput, OnDecryptInput, OnDecryptOutput, OnEncryptInput.Valid, OnDecryptInput.Valid,
         GetEncryptionMaterialsInput.Valid, DecryptMaterialsInput.Valid, EncryptionMaterials.Valid, CreateRawAesKeyringInput, CreateDefaultCryptographicMaterialsManagerInput,
         IAwsCryptographicMaterialsProviderClient, AESWrappingAlg, CreateDefaultCryptographicMaterialsManagerInput.Valid, CreateRawAesKeyringInput.Valid
@@ -161,12 +161,6 @@ module {:extern "Dafny.Aws.Crypto"} Aws.Crypto {
     }
 
     trait {:termination false} IKeyring {
-        // TODO this is NOT a ghost
-        var Repr: set<object>
-        predicate method Valid()
-        reads this, Repr
-        ensures Valid() ==> this in Repr
-
         method OnEncrypt(input: OnEncryptInput) returns (res: Result<OnEncryptOutput, string>)
             requires input.Valid()
         method OnDecrypt(input: OnDecryptInput) returns (res: Result<OnDecryptOutput, string>)
@@ -347,11 +341,6 @@ module {:extern "Dafny.Aws.Crypto"} Aws.Crypto {
     }
 
     trait {:extern "CMM"} {:termination false} ICryptographicMaterialsManager {
-        // TODO this is NOT a ghost
-        var Repr: set<object>
-        predicate method Valid()
-        reads this, Repr
-        ensures Valid() ==> this in Repr
         method GetEncryptionMaterials(input: GetEncryptionMaterialsInput) returns (res: Result<GetEncryptionMaterialsOutput, string>)
             requires input.Valid()
         method DecryptMaterials(input: DecryptMaterialsInput) returns (res: Result<DecryptMaterialsOutput, string>)

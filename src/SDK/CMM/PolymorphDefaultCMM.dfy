@@ -42,27 +42,15 @@ module {:extern "PolymorphDefaultCMMDef"} PolymorphDefaultCMMDef {
   class PolymorphDefaultCMM extends Crypto.ICryptographicMaterialsManager {
     const keyring: Crypto.IKeyring
 
-    predicate method Valid()
-      reads this, Repr
-      ensures Valid() ==> this in Repr
-    {
-      this in Repr &&
-      keyring in Repr && keyring.Repr <= Repr && this !in keyring.Repr && keyring.Valid()
-    }
-
     constructor OfKeyring(k: Crypto.IKeyring)
-      requires k.Valid()
       ensures keyring == k
-      ensures Valid() && fresh(Repr - k.Repr)
     {
       keyring := k;
-      Repr := {this} + k.Repr;
     }
 
     method GetEncryptionMaterials(input: Crypto.GetEncryptionMaterialsInput)
                                   returns (res: Result<Crypto.GetEncryptionMaterialsOutput, string>)
       requires input.Valid()
-      ensures Valid()
       // the heck is this?
       // ensures res.Success? ==> CMMDefs.EncryptionMaterialsSignature(res.value.materials)
       ensures res.Success? ==> res.value.materials.plaintextDataKey.Some? && Serializable(res.value.materials)
@@ -75,7 +63,6 @@ module {:extern "PolymorphDefaultCMMDef"} PolymorphDefaultCMMDef {
         case Some(id) => res.value.materials.algorithmSuiteID == id
         case None => AlgorithmSuite.PolymorphIDToInternalID(res.value.materials.algorithmSuiteID) == 0x0378
     {
-      expect Valid();
       // reveal CMMDefs.EncryptionMaterialsSignatureOpaque();
       var reservedField := Materials.EC_PUBLIC_KEY_FIELD;
       assert reservedField in Materials.RESERVED_KEY_VALUES;
@@ -132,10 +119,8 @@ module {:extern "PolymorphDefaultCMMDef"} PolymorphDefaultCMMDef {
     method DecryptMaterials(input: Crypto.DecryptMaterialsInput)
                             returns (res: Result<Crypto.DecryptMaterialsOutput, string>)
       requires input.Valid()
-      ensures Valid()
       ensures res.Success? ==> res.value.decryptionMaterials.plaintextDataKey.Some?
     {
-      expect Valid();
       // Retrieve and decode verification key from encryption context if using signing algorithm
       var vkey := None;
       var algID := AlgorithmSuite.PolymorphIDToInternalID(input.algorithmSuiteID);
