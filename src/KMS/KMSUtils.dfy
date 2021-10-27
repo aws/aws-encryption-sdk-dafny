@@ -118,7 +118,7 @@ module {:extern "KMSUtils"} KMSUtils {
     ciphertextBlob: seq<uint8>
   ) {true}
 
-  predicate {:opaque} DecryptCalled(
+  predicate {:opaque} DecryptCalledWith(
     client: IAmazonKeyManagementService,
     request: DecryptRequest
   ) {true}
@@ -152,7 +152,7 @@ module {:extern "KMSUtils"} KMSUtils {
     request: DecryptRequest
   ) returns (res: Result<DecryptResponse, string>)
     requires request.Valid()
-    ensures DecryptCalled(client, request)
+    ensures DecryptCalledWith(client, request)
     ensures res.Success? ==>
       var r := res.value;
       DecryptResult(r.keyID, r.plaintext)

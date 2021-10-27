@@ -314,7 +314,7 @@ module {:extern "AwsKmsMrkAwareSymmetricKeyring"} AwsKmsMrkAwareSymmetricKeyring
           //= type=implication
           //# *  Its provider ID MUST exactly match the value "aws-kms".
           && edk.providerID == PROVIDER_ID
-          && DecryptCalled(
+          && DecryptCalledWith(
             //= compliance/framework/aws-kms/aws-kms-mrk-aware-symmetric-keyring.txt#2.8
             //= type=implication
             //# To attempt to decrypt a particular encrypted data key
