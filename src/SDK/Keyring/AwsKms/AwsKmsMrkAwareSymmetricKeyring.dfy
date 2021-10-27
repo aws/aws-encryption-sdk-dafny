@@ -22,7 +22,7 @@ module {:extern "AwsKmsMrkAwareSymmetricKeyring"} AwsKmsMrkAwareSymmetricKeyring
   import opened Seq
   import opened Actions
   import opened Constants
-  import opened AwsKmsMrkMatchForDecrypt
+  import opened M = AwsKmsMrkMatchForDecrypt
   import opened KeyringDefs
   import Materials
   import opened KMSUtils
@@ -463,7 +463,7 @@ module {:extern "AwsKmsMrkAwareSymmetricKeyring"} AwsKmsMrkAwareSymmetricKeyring
       //# *  The the function AWS KMS MRK Match for Decrypt (aws-kms-mrk-match-
       //# for-decrypt.md#implementation) called with the configured AWS KMS
       //# key identifier and the provider info MUST return "true".
-      return Success(AwsKmsMrkMatchForDecrypt.AwsKmsMrkMatchForDecrypt(
+      return Success(AwsKmsMrkMatchForDecrypt(
         awsKmsKey,
         AwsKmsArnIdentifier(arn)
       ));
