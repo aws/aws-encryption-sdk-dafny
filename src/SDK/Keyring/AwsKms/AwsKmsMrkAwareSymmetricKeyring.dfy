@@ -65,10 +65,10 @@ module {:extern "AwsKmsMrkAwareSymmetricKeyring"} AwsKmsMrkAwareSymmetricKeyring
         && this.awsKmsKey   == awsKmsKey
         && this.grantTokens == grantTokens
     {
-      var awsKmsArn    := ParseAwsKmsIdentifier(awsKmsKey);
+      var parsedAwsKmsId    := ParseAwsKmsIdentifier(awsKmsKey);
       this.client      := client;
       this.awsKmsKey   := awsKmsKey;
-      this.awsKmsArn   := awsKmsArn.value;
+      this.awsKmsArn   := parsedAwsKmsId.value;
       this.grantTokens := grantTokens;
       Repr := {this};
     }
