@@ -54,15 +54,11 @@ module {:extern "ESDKClient"} ESDKClient {
     frameLength: Option<uint32>)
   {
     static function method WithCMM(plaintext: seq<uint8>, cmm: Crypto.ICryptographicMaterialsManager): EncryptRequest
-      requires cmm.Valid()
-      reads cmm.Repr
     {
       EncryptRequest(plaintext, cmm, null, |plaintext|, map[], None, None)
     }
 
     static function method WithKeyring(plaintext: seq<uint8>, keyring: Crypto.IKeyring): EncryptRequest
-      requires keyring.Valid()
-      reads keyring.Repr
     {
       EncryptRequest(plaintext, null, keyring, |plaintext|, map[], None, None)
     }
@@ -83,15 +79,11 @@ module {:extern "ESDKClient"} ESDKClient {
   datatype DecryptRequest = DecryptRequest(message: seq<uint8>, cmm: Crypto.ICryptographicMaterialsManager?, keyring: Crypto.IKeyring?)
   {
     static function method WithCMM(message: seq<uint8>, cmm: Crypto.ICryptographicMaterialsManager): DecryptRequest
-      requires cmm.Valid()
-      reads cmm.Repr
     {
       DecryptRequest(message, cmm, null)
     }
 
     static function method WithKeyring(message: seq<uint8>, keyring: Crypto.IKeyring): DecryptRequest
-      requires keyring.Valid()
-      reads keyring.Repr
     {
       DecryptRequest(message, null, keyring)
     }
@@ -171,16 +163,12 @@ module {:extern "ESDKClient"} ESDKClient {
   * Encrypt a plaintext and serialize it into a message.
   */
   method Encrypt(request: EncryptRequest) returns (res: Result<seq<uint8>, string>)
-    requires request.cmm != null ==> request.cmm.Valid()
-    requires request.keyring != null ==> request.keyring.Valid()
     // I do not know why the below modifies clauses are necessary for our original impl.
     // For our new impl, it causes problems
     // (in the Client test, you can only use a cmm/keyring once before it gets "tainted" and can't use it again without Dafny complaining about modifies clauses)
     // I am not sure what change in the impl would cause this, or why our previous tests for the old impl do not have this problem
     // modifies if request.cmm == null then {} else request.cmm.Repr
     // modifies if request.keyring == null then {} else request.keyring.Repr
-    ensures request.cmm != null ==> request.cmm.Valid()
-    ensures request.cmm != null ==> fresh(request.cmm.Repr - old(request.cmm.Repr))
     ensures request.cmm == null && request.keyring == null ==> res.Failure?
     ensures request.cmm != null && request.keyring != null ==> res.Failure?
     ensures request.algorithmSuiteID.Some? && request.algorithmSuiteID.value !in AlgorithmSuite.VALID_IDS ==> res.Failure?
@@ -277,7 +265,6 @@ module {:extern "ESDKClient"} ESDKClient {
     }
     ghost var serializedHeaderAuthentication := headerAuthentication.iv + headerAuthentication.authenticationTag;
 
-    assert request.cmm != null ==> request.cmm.Valid();
     var _ :- Serialize.SerializeHeaderAuthentication(wr, headerAuthentication, AlgorithmSuite.PolymorphIDToInternalID(encMat.algorithmSuiteID));
     assert wr.GetDataWritten() == serializedHeaderBody + serializedHeaderAuthentication; // Read data contains complete header
 
@@ -347,12 +334,8 @@ module {:extern "ESDKClient"} ESDKClient {
   }
 
   method Decrypt(request: DecryptRequest) returns (res: Result<seq<uint8>, string>)
-    requires request.cmm != null ==> request.cmm.Valid()
-    requires request.keyring != null ==> request.keyring.Valid()
     // modifies if request.cmm == null then {} else request.cmm.Repr
     // modifies if request.keyring == null then {} else request.keyring.Repr
-    ensures request.cmm != null ==> request.cmm.Valid()
-    ensures request.cmm != null ==> fresh(request.cmm.Repr - old(request.cmm.Repr))
     ensures request.cmm == null && request.keyring == null ==> res.Failure?
     ensures request.cmm != null && request.keyring != null ==> res.Failure?
   {
@@ -370,16 +353,12 @@ module {:extern "ESDKClient"} ESDKClient {
 
   // Verification of this method requires verification of the CMM to some extent, The verification of the Decrypt method should be extended after CMM is verified
   method DecryptWithVerificationInfo(request: DecryptRequest) returns (res: Result<DecryptResultWithVerificationInfo, string>)
-    requires request.cmm != null ==> request.cmm.Valid()
-    requires request.keyring != null ==> request.keyring.Valid()
     // I do not know why the below modifies clauses are necessary for our original impl.
     // For our new impl, it causes problems
     // (in the Client test, you can only use a cmm/keyring once before it gets "tainted" and can't use it again without Dafny complaining about modifies clauses)
     // I am not sure what change in the impl would cause this, or why our previous tests for the old impl do not have this problem
     // modifies if request.cmm == null then {} else request.cmm.Repr
     // modifies if request.keyring == null then {} else request.keyring.Repr
-    ensures request.cmm != null ==> request.cmm.Valid()
-    ensures request.cmm != null ==> fresh(request.cmm.Repr - old(request.cmm.Repr))
     ensures request.cmm == null && request.keyring == null ==> res.Failure?
     ensures request.cmm != null && request.keyring != null ==> res.Failure?
     ensures match res // Verify that if no error occurs the correct objects are deserialized from the stream

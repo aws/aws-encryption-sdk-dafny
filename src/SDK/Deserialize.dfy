@@ -73,21 +73,29 @@ module Deserialize {
   {
     var version :- DeserializeVersion(rd);
     var typ :- DeserializeType(rd);
+
     var algorithmSuiteID :- DeserializeAlgorithmSuiteID(rd);
     var messageID :- DeserializeMsgID(rd);
-    assert [version as uint8] + [typ as uint8] + UInt16ToSeq(algorithmSuiteID as uint16) + messageID ==
-      rd.reader.data[old(rd.reader.pos)..rd.reader.pos];
 
     ghost var aadStart := rd.reader.pos;
     var aad :- DeserializeAAD(rd);
     ghost var aadEnd := rd.reader.pos;
+
+
     var encryptedDataKeys :- DeserializeEncryptedDataKeys(rd);
+
     var contentType :- DeserializeContentType(rd);
+
     ghost var reserveStart := rd.reader.pos;
     var _ :- DeserializeReserved(rd);
     ghost var reserveEnd := rd.reader.pos;
+
     var ivLength :- rd.ReadByte();
     var frameLength :- rd.ReadUInt32();
+
+    assert [version as uint8] + [typ as uint8] + UInt16ToSeq(algorithmSuiteID as uint16) + messageID + rd.reader.data[aadStart..aadEnd]
+      + Msg.EDKsToSeq(encryptedDataKeys) + [Msg.ContentTypeToUInt8(contentType)] + [0,0,0,0] + [ivLength] + UInt32ToSeq(frameLength) ==
+      rd.reader.data[old(rd.reader.pos)..rd.reader.pos];
 
     // inter-field checks
     if ivLength as nat != algorithmSuiteID.IVLength() {
@@ -117,6 +125,7 @@ module Deserialize {
       assert EncryptionContext.LinearSeqToMap(serializedAAD, aad);
       // Without this assertion, the following assertion of IsSerializationOfHeaderBodyAux
       // fails to verify on the latest Dafny (3.1).
+      // TODO unstable proof. removing Reprs resulted in proof failure. Had to add asserts in method body.
       assert s[0..1] == [hb.version as uint8];
       assert Msg.IsSerializationOfHeaderBodyAux(s, hb, serializedAAD);
     }

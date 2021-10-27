@@ -79,7 +79,6 @@ module {:extern "MaterialsProviderClientDefs"} MaterialsProviderClientDefs {
     method CreateDefaultCryptographicMaterialsManager(input: Crypto.CreateDefaultCryptographicMaterialsManagerInput) returns (res: Crypto.ICryptographicMaterialsManager)
       requires input.Valid()
     {
-        expect input.keyring.Valid();
         return new PolymorphDefaultCMMDef.PolymorphDefaultCMM.OfKeyring(input.keyring);
     }
   }
@@ -90,24 +89,16 @@ module {:extern "MaterialsProviderClientDefs"} MaterialsProviderClientDefs {
 
         method Encrypt(input: Esdk.EncryptInput) returns (res: Result<Esdk.EncryptOutput, string>)
             requires input.Valid()
-            ensures input.materialsManager.Valid()
         {
-            expect input.materialsManager.Valid();
             var encryptRequest := Client.EncryptRequest.WithCMM(input.plaintext, input.materialsManager).SetEncryptionContext(input.encryptionContext);
             var e :- expect Client.Encrypt(encryptRequest);
-            // TODO is this weird?
-            expect input.materialsManager.Valid();
             return Success(Esdk.EncryptOutput(ciphertext:=e));
         }
         method Decrypt(input: Esdk.DecryptInput) returns (res: Result<Esdk.DecryptOutput, string>)
             requires input.Valid()
-            ensures input.materialsManager.Valid()
         {
-            expect input.materialsManager.Valid();
             var decryptRequest := Client.DecryptRequest.WithCMM(input.ciphertext, input.materialsManager);
             var d :- expect Client.Decrypt(decryptRequest);
-            // TODO is this weird?
-            expect input.materialsManager.Valid();
             return Success(Esdk.DecryptOutput(plaintext:=d));
         }
   }
