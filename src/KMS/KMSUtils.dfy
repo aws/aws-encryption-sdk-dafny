@@ -96,10 +96,11 @@ module {:extern "KMSUtils"} KMSUtils {
 
   method {:extern "KMSUtils.ClientHelper", "GetDefaultAWSKMSServiceClientExtern"} GetDefaultAWSKMSServiceClientExtern(region: Option<string>) returns (res: Result<IAmazonKeyManagementService, string>)
 
-  // The `{:opaque}` is important.
-  // This forces the verify to _only_ accept
-  // the exact values passed in the `ensures` clause.
-  // Without this, any client or request would pass verification.
+// The {:opaque} is important. 
+// These predicates are hacks to model the fact that a particular external method was called for the verifier,
+// but depends on the post-condition of the method being the ONLY way to prove the predicate is true for any particular arguments. 
+// Making the predicate opaque means that other code cannot prove them true,
+// UNLESS the other code reveals them.
   predicate {:opaque} GenerateDataKeyCalledWith(
     client: IAmazonKeyManagementService,
     request: GenerateDataKeyRequest
