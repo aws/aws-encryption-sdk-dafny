@@ -79,12 +79,7 @@ module {:extern "RawRSAKeyringDef"} RawRSAKeyringDef {
       requires Valid()
       // NOTE: encryptionContext is intentionally unused
       ensures publicKey.None? ==> res.Failure?
-      ensures res.Success? ==>
-        && materials.encryptionContext == res.value.encryptionContext
-        && materials.algorithmSuiteID == res.value.algorithmSuiteID
-        && (materials.plaintextDataKey.Some? ==> res.value.plaintextDataKey == materials.plaintextDataKey)
-        && materials.encryptedDataKeys <= res.value.encryptedDataKeys
-        && materials.signingKey == res.value.signingKey
+      ensures KeyringDefs.OnEncryptPure(materials, res)
       ensures res.Success? ==>
         (forall i :: |materials.encryptedDataKeys| <= i < |res.value.encryptedDataKeys| ==>
         res.value.encryptedDataKeys[i].providerID == keyNamespace && res.value.encryptedDataKeys[i].providerInfo == keyName)
@@ -117,16 +112,10 @@ module {:extern "RawRSAKeyringDef"} RawRSAKeyringDef {
                      encryptedDataKeys: seq<Materials.EncryptedDataKey>) returns (res: Result<Materials.ValidDecryptionMaterials, string>)
       requires Valid()
       ensures Valid()
-      ensures |encryptedDataKeys| == 0 ==> res.Success? && materials == res.value
-      ensures materials.plaintextDataKey.Some? ==> res.Success? && materials == res.value
-      ensures res.Success? ==>
-        && materials.encryptionContext == res.value.encryptionContext
-        && materials.algorithmSuiteID == res.value.algorithmSuiteID
-        && (materials.plaintextDataKey.Some? ==> res.value.plaintextDataKey == materials.plaintextDataKey)
-        && res.value.verificationKey == materials.verificationKey
+      ensures KeyringDefs.OnDecryptPure(materials, res)
       ensures privateKey.None? && materials.plaintextDataKey.None? && |encryptedDataKeys| > 0 ==> res.Failure?
     {
-      if materials.plaintextDataKey.Some? || |encryptedDataKeys| == 0 {
+      if materials.plaintextDataKey.Some? {
         return Success(materials);
       } else if privateKey.None? {
         return Failure("Decryption key undefined");
@@ -153,7 +142,7 @@ module {:extern "RawRSAKeyringDef"} RawRSAKeyringDef {
         }
         i := i + 1;
       }
-      return Success(materials);
+      return Failure("Unable to decrypt.");
     }
   }
 }
