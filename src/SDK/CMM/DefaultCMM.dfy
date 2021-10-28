@@ -42,18 +42,18 @@ module {:extern "DefaultCMMDef"} DefaultCMMDef {
       keyring in Repr && keyring.Repr <= Repr && this !in keyring.Repr && keyring.Valid()
     }
 
-    constructor OfKeyring(a_keyring: KeyringDefs.Keyring)
+    constructor OfKeyring(keyring: KeyringDefs.Keyring)
       //= compliance/framework/default-cmm.txt#2.5
       //= type=implication
       //# On default CMM initialization, the caller MUST provide the following
       //# value:
       // A valid Keyring
-      requires a_keyring.Valid()
-      ensures keyring == a_keyring
-      ensures Valid() && fresh(Repr - a_keyring.Repr)
+      requires keyring.Valid()
+      ensures this.keyring == keyring
+      ensures Valid() && fresh(Repr - keyring.Repr)
     {
-      keyring := a_keyring;
-      Repr := {this} + a_keyring.Repr;
+      this.keyring := keyring;
+      Repr := {this} + keyring.Repr;
     }
 
     method GetEncryptionMaterials(materialsRequest: Materials.EncryptionMaterialsRequest)
@@ -76,6 +76,7 @@ module {:extern "DefaultCMMDef"} DefaultCMMDef {
       ensures res.Success? ==> res.value.Serializable()
       ensures res.Success? ==>
         match materialsRequest.algorithmSuiteID
+
         //= compliance/framework/default-cmm.txt#2.6.1
         //= type=implication
         //# *  If the encryption materials request (cmm-interface.md#encryption-
@@ -150,7 +151,7 @@ module {:extern "DefaultCMMDef"} DefaultCMMDef {
       // Check validity of the encryption context at runtime.
       var validAAD := EncryptionContext.CheckSerializable(encryptionContext);
       if !validAAD {
-        //TODO: Provide a more specific error message here, depending on how the EncCtx spec was violated.
+        //TODO: Provide a more specific error message here, depending on how the EncryptionContext spec was violated.
         return Failure("Invalid Encryption Context");
       }
       assert EncryptionContext.Serializable(encryptionContext);
@@ -170,14 +171,15 @@ module {:extern "DefaultCMMDef"} DefaultCMMDef {
         //# The default CMM MUST obtain the Plaintext Data Key from the Get
         //# Encryption Materials Response and include it in the encryption
         //# materials (structures.md#encryption-materials) returned.
-        materials.plaintextDataKey.None?
+        || materials.plaintextDataKey.None?
 
         //= compliance/framework/default-cmm.txt#2.6.1
         //# The default CMM MUST obtain the Encrypted Data Keys
         //# (structures.md#encrypted-data-keys) from the Get Encryption Materials
         //# Response and include it in the encryption materials
         //# (structures.md#encryption-materials) returned.
-        || |materials.encryptedDataKeys| == 0 {
+        || |materials.encryptedDataKeys| == 0
+      {
         return Failure("Could not retrieve materials required for encryption");
       }
       assert materials.Valid();
