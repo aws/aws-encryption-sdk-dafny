@@ -115,11 +115,6 @@ module {:extern "DefaultCMMDef"} DefaultCMMDef {
       match algID.SignatureType() {
         case None =>
 
-        //= compliance/framework/default-cmm.txt#2.6.1
-        //# If the algorithm suite contains a signing algorithm (algorithm-
-        //# suites.md#signature-algorithm), the default CMM MUST Add the
-        //# following key-value pair to the encryption context
-        //# (structures.md#encryption-context):
         case Some(param) =>
           
           //= compliance/framework/default-cmm.txt#2.6.1
@@ -128,15 +123,14 @@ module {:extern "DefaultCMMDef"} DefaultCMMDef {
           //# signing key (structures.md#signing-key).
           var signatureKeys :- Signature.KeyGen(param);
 
-          
+          //= compliance/framework/default-cmm.txt#2.6.1
+          //# If the algorithm suite contains a signing algorithm (algorithm-
+          //# suites.md#signature-algorithm), the default CMM MUST Add the key-
+          //# value pair of key "aws-crypto-public-key", value "base64-encoded public
+          //# verification key" to the encryption context (structures.md#encryption-
+          //# context).
           signingKey := Some(signatureKeys.signingKey);
-          
-          //= compliance/framework/default-cmm.txt#2.6.1
-          //# *  The value MUST be the base64-encoded public verification key.
           var verificationKey :- UTF8.Encode(Base64.Encode(signatureKeys.verificationKey));
-
-          //= compliance/framework/default-cmm.txt#2.6.1
-          //# *  The key MUST be the reserved name, "aws-crypto-public-key".
           encryptionContext := encryptionContext[reservedField := verificationKey];
           // The above also provides:
           //= compliance/framework/default-cmm.txt#2.6.1
@@ -165,19 +159,20 @@ module {:extern "DefaultCMMDef"} DefaultCMMDef {
       //# interface.md#onencrypt) operation.
       materials :- keyring.OnEncrypt(materials);
 
-      // The following two tags are provided by the negative:
+      // The following two compliance tags are provided by the negative:
       if
+
         //= compliance/framework/default-cmm.txt#2.6.1
-        //# The default CMM MUST obtain the Plaintext Data Key from the Get
-        //# Encryption Materials Response and include it in the encryption
-        //# materials (structures.md#encryption-materials) returned.
+        //# The default CMM MUST obtain the Plaintext Data Key from the On
+        //# Encrypt Response and include it in the encryption materials
+        //# (structures.md#encryption-materials) returned.
         || materials.plaintextDataKey.None?
 
         //= compliance/framework/default-cmm.txt#2.6.1
         //# The default CMM MUST obtain the Encrypted Data Keys
-        //# (structures.md#encrypted-data-keys) from the Get Encryption Materials
-        //# Response and include it in the encryption materials
-        //# (structures.md#encryption-materials) returned.
+        //# (structures.md#encrypted-data-keys) from the On Encrypt Response and
+        //# include it in the encryption materials (structures.md#encryption-
+        //# materials) returned.
         || |materials.encryptedDataKeys| == 0
       {
         return Failure("Could not retrieve materials required for encryption");
@@ -190,11 +185,6 @@ module {:extern "DefaultCMMDef"} DefaultCMMDef {
                             returns (res: Result<Materials.ValidDecryptionMaterials, string>)
       requires Valid()
       ensures Valid()
-      
-      //= compliance/framework/default-cmm.txt#2.6.2
-      //= type=implication
-      //# The default CMM MUST obtain the Plaintext Data Key from the Decrypt
-      //# Materials response and include it in the decrypt materials returned.
       ensures res.Success? ==> res.value.plaintextDataKey.Some?
       
     {
@@ -206,14 +196,10 @@ module {:extern "DefaultCMMDef"} DefaultCMMDef {
       //# supported by the commitment policy (../client-apis/
       //# client.md#commitment-policy) on the request.
       var algID := materialsRequest.algorithmSuiteID;
+      
       var encryptionContext := materialsRequest.encryptionContext;
       var reservedField := Materials.EC_PUBLIC_KEY_FIELD;
 
-      //= compliance/framework/default-cmm.txt#2.6.2
-      //# If the algorithm suite contains a signing algorithm (algorithm-
-      //# suites.md#signature-algorithm), the default CMM MUST extract the
-      //# verification key from the encryption context under the reserved "aws-
-      //# crypto-public-key" key.
       if algID.SignatureType().Some? {
 
         //= compliance/framework/default-cmm.txt#2.6.2
@@ -223,8 +209,13 @@ module {:extern "DefaultCMMDef"} DefaultCMMDef {
         if reservedField !in encryptionContext {
           return Failure("Could not get materials required for decryption.");
         }
-        
-        var encodedVerificationKey := encryptionContext[reservedField];
+
+        //= compliance/framework/default-cmm.txt#2.6.2
+        //# If the algorithm suite contains a signing algorithm (algorithm-
+        //# suites.md#signature-algorithm), the default CMM MUST extract the
+        //# verification key from the encryption context under the reserved "aws-
+        //# crypto-public-key" key.
+        var encodedVerificationKey := encryptionContext[reservedField];        
         var utf8Decoded :- UTF8.Decode(encodedVerificationKey);
         var base64Decoded :- Base64.Decode(utf8Decoded);
         verificationKey := Some(base64Decoded);
@@ -242,17 +233,21 @@ module {:extern "DefaultCMMDef"} DefaultCMMDef {
       }
 
       var materials := Materials.DecryptionMaterials.WithoutPlaintextDataKey(encryptionContext, algID, verificationKey);
+
       //= compliance/framework/default-cmm.txt#2.6.2
       //# On each call to Decrypt Materials, the default CMM MUST make a call
       //# to its keyring's (Section 2.5.1) On Decrypt (keyring-
       //# interface.md#ondecrypt) operation.
       materials :- keyring.OnDecrypt(materials, materialsRequest.encryptedDataKeys);
-      
+
+      //= compliance/framework/default-cmm.txt#2.6.2
+      //# The default CMM MUST obtain the Plaintext Data Key from the On
+      //# Decrypt response and include it in the decrypt materials returned.
       if materials.plaintextDataKey.None? {
         return Failure("Keyring.OnDecrypt failed to decrypt the plaintext data key.");
       }
-
       return Success(materials);
+      
     }
   }
 }
@@ -302,5 +297,4 @@ module {:extern "DefaultCMMDef"} DefaultCMMDef {
   //= type=exception
   //# The default CMM MUST call its master key provider's Decrypt Data Key
   //# (master-key-provider-interface.md#decrypt-data-key) operation.
-
 
