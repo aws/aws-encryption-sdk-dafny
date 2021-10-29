@@ -9,6 +9,7 @@ module  AwsKmsArnParsing {
   import opened StandardLibrary
   import opened Wrappers
   import opened Seq
+  import opened UInt = StandardLibrary.UInt
   import UTF8
 
   const MAX_AWS_KMS_IDENTIFIER_LENGTH := 2048
@@ -330,10 +331,17 @@ module  AwsKmsArnParsing {
     }
   }
 
+  function method IsAwsKmsIdentifierString(
+    s: string
+  ): (res: Result<AwsKmsIdentifier, string>)
+  {
+    :- Need(UTF8.IsASCIIString(s), "Not a valid ASCII string.");
+    :- Need(0 < |s| <= MAX_AWS_KMS_IDENTIFIER_LENGTH , "Identifier exceds maximum length.");
+    ParseAwsKmsIdentifier(s)
+  }
+
   type AwsKmsIdentifierString = s: string |
-    && ParseAwsKmsIdentifier(s).Success?
-    && UTF8.IsASCIIString(s)
-    && 0 < |s| <= MAX_AWS_KMS_IDENTIFIER_LENGTH 
+    IsAwsKmsIdentifierString(s).Success?
     witness *
 
 }
