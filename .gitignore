@@ -8,3 +8,6 @@ test/**/Output/*
 
 # Duvet output
 specification_compliance_report.html
+
+# VS Code local history
+/.history

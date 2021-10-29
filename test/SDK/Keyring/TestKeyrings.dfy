@@ -21,12 +21,7 @@ module TestKeyrings {
     method OnEncrypt(materials: Materials.ValidEncryptionMaterials) returns (res: Result<Materials.ValidEncryptionMaterials, string>)
       requires Valid()
       ensures Valid()
-      ensures res.Success? ==>
-          && materials.encryptionContext == res.value.encryptionContext
-          && materials.algorithmSuiteID == res.value.algorithmSuiteID
-          && (materials.plaintextDataKey.Some? ==> res.value.plaintextDataKey == materials.plaintextDataKey)
-          && materials.encryptedDataKeys <= res.value.encryptedDataKeys
-          && materials.signingKey == res.value.signingKey
+      ensures OnEncryptPure(materials, res)
     {
       return Success(materials);
     }
@@ -35,14 +30,11 @@ module TestKeyrings {
                      encryptedDataKeys: seq<Materials.EncryptedDataKey>) returns (res: Result<Materials.ValidDecryptionMaterials, string>)
       requires Valid()
       ensures Valid()
-      ensures |encryptedDataKeys| == 0 ==> res.Success? && materials == res.value
-      ensures materials.plaintextDataKey.Some? ==> res.Success? && materials == res.value
-      ensures res.Success? ==>
-          && materials.encryptionContext == res.value.encryptionContext
-          && materials.algorithmSuiteID == res.value.algorithmSuiteID
-          && (materials.plaintextDataKey.Some? ==> res.value.plaintextDataKey == materials.plaintextDataKey)
-          && res.value.verificationKey == materials.verificationKey
+      ensures OnDecryptPure(materials, res)
     {
+      if materials.plaintextDataKey.None? {
+        return Failure("No data key");
+      }
       return Success(materials);
     }
   }
@@ -58,12 +50,7 @@ module TestKeyrings {
     method OnEncrypt(materials: Materials.ValidEncryptionMaterials) returns (res: Result<Materials.ValidEncryptionMaterials, string>)
       requires Valid()
       ensures Valid()
-      ensures res.Success? ==>
-          && materials.encryptionContext == res.value.encryptionContext
-          && materials.algorithmSuiteID == res.value.algorithmSuiteID
-          && (materials.plaintextDataKey.Some? ==> res.value.plaintextDataKey == materials.plaintextDataKey)
-          && materials.encryptedDataKeys <= res.value.encryptedDataKeys
-          && materials.signingKey == res.value.signingKey
+      ensures OnEncryptPure(materials, res)
     {
       return Failure("Surprise, AlwaysFailingKeyring always fails!");
     }
@@ -72,15 +59,9 @@ module TestKeyrings {
                      encryptedDataKeys: seq<Materials.EncryptedDataKey>) returns (res: Result<Materials.ValidDecryptionMaterials, string>)
       requires Valid()
       ensures Valid()
-      ensures |encryptedDataKeys| == 0 ==> res.Success? && materials == res.value
-      ensures materials.plaintextDataKey.Some? ==> res.Success? && materials == res.value
-      ensures res.Success? ==>
-          && materials.encryptionContext == res.value.encryptionContext
-          && materials.algorithmSuiteID == res.value.algorithmSuiteID
-          && (materials.plaintextDataKey.Some? ==> res.value.plaintextDataKey == materials.plaintextDataKey)
-          && res.value.verificationKey == materials.verificationKey
+      ensures OnDecryptPure(materials, res)
     {
-      if |encryptedDataKeys| == 0 || materials.plaintextDataKey.Some? {
+      if materials.plaintextDataKey.Some? {
         return Success(materials);
       }
       return Failure("Surprise, AlwaysFailingKeyring always fails!");

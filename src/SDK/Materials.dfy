@@ -53,6 +53,19 @@ module {:extern "Materials"} Materials {
       && (plaintextDataKey.None? ==> |encryptedDataKeys| == 0)
     }
 
+    predicate Empty() {
+      && plaintextDataKey.None?
+      && |encryptedDataKeys| == 0
+      && (algorithmSuiteID.SignatureType().Some? ==> signingKey.Some?)
+    }
+
+    predicate Useable() {
+      && plaintextDataKey.Some?
+      && algorithmSuiteID.ValidPlaintextDataKey(plaintextDataKey.value)
+      && |encryptedDataKeys| > 0
+      && (algorithmSuiteID.SignatureType().Some? ==> signingKey.Some?)
+    }
+
     predicate Serializable() {
       && |encryptedDataKeys| > 0
       && EncryptionContext.Serializable(encryptionContext)
@@ -92,6 +105,9 @@ module {:extern "Materials"} Materials {
   }
 
   type ValidEncryptionMaterials = i: EncryptionMaterials | i.Valid() witness EncryptionMaterials.ValidWitness()
+  type EmptyEncryptionMaterials = i: EncryptionMaterials | i.Empty() witness *
+  type UseableEncryptionMaterials = i: EncryptionMaterials | i.Useable() witness *
+
 
   datatype DecryptionMaterials = DecryptionMaterials(algorithmSuiteID: AlgorithmSuite.ID,
                                                      encryptionContext: EncryptionContext.Map,
@@ -100,6 +116,17 @@ module {:extern "Materials"} Materials {
   {
     predicate Valid() {
       && (plaintextDataKey.Some? ==> algorithmSuiteID.ValidPlaintextDataKey(plaintextDataKey.value))
+      && (algorithmSuiteID.SignatureType().Some? ==> verificationKey.Some?)
+    }
+
+    predicate Pending() {
+      && plaintextDataKey.None?
+      && (algorithmSuiteID.SignatureType().Some? ==> verificationKey.Some?)
+    }
+
+    predicate Complete() {
+      && plaintextDataKey.Some?
+      && algorithmSuiteID.ValidPlaintextDataKey(plaintextDataKey.value)
       && (algorithmSuiteID.SignatureType().Some? ==> verificationKey.Some?)
     }
 
@@ -133,6 +160,8 @@ module {:extern "Materials"} Materials {
     }
   }
 
+  type PendingDecryptionMaterials = i: DecryptionMaterials | i.Pending() witness *
+  type CompleteDecryptionMaterials = i: DecryptionMaterials | i.Complete() witness *
   type ValidDecryptionMaterials = i: DecryptionMaterials | i.Valid() witness DecryptionMaterials.ValidWitness()
 
   datatype EncryptionMaterialsRequest = EncryptionMaterialsRequest(encryptionContext: EncryptionContext.Map,

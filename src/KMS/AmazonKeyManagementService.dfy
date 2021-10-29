@@ -10,3 +10,4 @@ module {:extern "Amazon.KeyManagementService"} AmazonKeyManagementService {
   // TODO: https://github.com/awslabs/aws-encryption-sdk-dafny/issues/284
   class {:extern "IAmazonKeyManagementService"} IAmazonKeyManagementService {}
 }
+

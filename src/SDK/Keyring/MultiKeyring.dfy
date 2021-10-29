@@ -31,6 +31,9 @@ module {:extern "MultiKeyringDef"} MultiKeyringDef {
             requires g != null ==> g.Valid()
             requires forall i :: 0 <= i < |c| ==> c[i].Valid()
             ensures Valid() && fresh(Repr - (if g != null then g.Repr else {}) - childrenRepr(c))
+            ensures
+                && generator == g
+                && children == c
         {
             generator := g;
             children := c;
@@ -49,12 +52,7 @@ module {:extern "MultiKeyringDef"} MultiKeyringDef {
         method OnEncrypt(materials: Materials.ValidEncryptionMaterials) returns (res: Result<Materials.ValidEncryptionMaterials, string>)
             requires Valid()
             ensures Valid()
-            ensures res.Success? ==>
-                    && materials.encryptionContext == res.value.encryptionContext
-                    && materials.algorithmSuiteID == res.value.algorithmSuiteID
-                    && (materials.plaintextDataKey.Some? ==> res.value.plaintextDataKey == materials.plaintextDataKey)
-                    && materials.encryptedDataKeys <= res.value.encryptedDataKeys
-                    && materials.signingKey == res.value.signingKey
+            ensures OnEncryptPure(materials, res)
         {
             // First pass on or generate the plaintext data key
             var resultMaterials := materials;
@@ -86,27 +84,19 @@ module {:extern "MultiKeyringDef"} MultiKeyringDef {
                          edks: seq<Materials.EncryptedDataKey>) returns (res: Result<Materials.ValidDecryptionMaterials, string>)
             requires Valid()
             ensures Valid()
-            ensures |edks| == 0 ==> res.Success? && materials == res.value
-            ensures materials.plaintextDataKey.Some? ==> res.Success? && materials == res.value
-            ensures res.Success? ==>
-                && materials.encryptionContext == res.value.encryptionContext
-                && materials.algorithmSuiteID == res.value.algorithmSuiteID
-                && (materials.plaintextDataKey.Some? ==> res.value.plaintextDataKey == materials.plaintextDataKey)
-                && materials.verificationKey == res.value.verificationKey
+            ensures OnDecryptPure(materials, res)
         {
-            res := Success(materials);
-            if |edks| == 0 || materials.plaintextDataKey.Some? {
-                return res;
+            if materials.plaintextDataKey.Some? {
+                return Success(materials);
             }
             if generator != null {
                 var onDecryptResult := generator.OnDecrypt(materials, edks);
-                if onDecryptResult.Failure? {
-                    res := onDecryptResult;
-                } else if onDecryptResult.value.plaintextDataKey.Some? {
+                if onDecryptResult.Success? {
                     return onDecryptResult;
                 }
             }
             var i := 0;
+            res := Success(materials);
             while i < |children|
                 invariant res.Success? ==>
                         && materials.encryptionContext == res.value.encryptionContext
@@ -116,14 +106,12 @@ module {:extern "MultiKeyringDef"} MultiKeyringDef {
                 decreases |children| - i
             {
                 var onDecryptResult := children[i].OnDecrypt(materials, edks);
-                if onDecryptResult.Failure? {
-                    res := onDecryptResult;
-                } else if onDecryptResult.value.plaintextDataKey.Some? {
+                if onDecryptResult.Success? {
                     return onDecryptResult;
                 }
                 i := i + 1;
             }
-            return res;
+            return Failure("Unable to decrypt.");
         }
     }
 }

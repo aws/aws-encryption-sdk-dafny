@@ -21,23 +21,47 @@ module {:extern "KeyringDefs"} KeyringDefs {
     method OnEncrypt(materials: Materials.ValidEncryptionMaterials) returns (res: Result<Materials.ValidEncryptionMaterials, string>)
       requires Valid()
       ensures Valid()
-      ensures res.Success? ==>
-          && materials.encryptionContext == res.value.encryptionContext
-          && materials.algorithmSuiteID == res.value.algorithmSuiteID
-          && (materials.plaintextDataKey.Some? ==> res.value.plaintextDataKey == materials.plaintextDataKey)
-          && materials.encryptedDataKeys <= res.value.encryptedDataKeys
-          && materials.signingKey == res.value.signingKey
+      ensures OnEncryptPure(materials, res)
 
     method OnDecrypt(materials: Materials.ValidDecryptionMaterials,
                      encryptedDataKeys: seq<Materials.EncryptedDataKey>) returns (res: Result<Materials.ValidDecryptionMaterials, string>)
       requires Valid()
       ensures Valid()
-      ensures |encryptedDataKeys| == 0 ==> res.Success? && materials == res.value
-      ensures materials.plaintextDataKey.Some? ==> res.Success? && materials == res.value
-      ensures res.Success? ==>
-          && materials.encryptionContext == res.value.encryptionContext
-          && materials.algorithmSuiteID == res.value.algorithmSuiteID
-          && (materials.plaintextDataKey.Some? ==> res.value.plaintextDataKey == materials.plaintextDataKey)
-          && res.value.verificationKey == materials.verificationKey
+      ensures OnDecryptPure(materials, res)
+  }
+
+  predicate OnEncryptPure(
+    materials: Materials.ValidEncryptionMaterials,
+    res: Result<Materials.ValidEncryptionMaterials, string>
+  )
+  {
+    res.Success? ==>
+      && materials.encryptionContext == res.value.encryptionContext
+      && materials.algorithmSuiteID == res.value.algorithmSuiteID
+      && materials.encryptedDataKeys <= res.value.encryptedDataKeys
+      && materials.signingKey == res.value.signingKey
+      && (materials.plaintextDataKey.Some? ==> res.value.plaintextDataKey == materials.plaintextDataKey)
+  }
+
+  predicate OnDecryptPure(
+    materials: Materials.ValidDecryptionMaterials,
+    res: Result<Materials.ValidDecryptionMaterials, string>
+  )
+  {
+    && (
+        && res.Success?
+        && materials.plaintextDataKey.Some?
+      ==>
+        && materials == res.value)
+    && (
+        && res.Success?
+        && materials.plaintextDataKey.None?
+      ==>
+        && materials.encryptionContext == res.value.encryptionContext
+        && materials.algorithmSuiteID == res.value.algorithmSuiteID
+        && materials.verificationKey == res.value.verificationKey
+        && res.value.plaintextDataKey.Some?
+      )
+
   }
 }

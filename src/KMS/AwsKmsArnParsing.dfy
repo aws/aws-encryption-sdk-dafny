@@ -3,11 +3,15 @@
 
 include "../StandardLibrary/StandardLibrary.dfy"
 include "../../libraries/src/Collections/Sequences/Seq.dfy"
+include "../Util/UTF8.dfy"
 
 module  AwsKmsArnParsing {
   import opened StandardLibrary
   import opened Wrappers
   import opened Seq
+  import UTF8
+
+  const MAX_AWS_KMS_IDENTIFIER_LENGTH := 2048
 
   datatype AwsResource = AwsResource(
     resourceType: string,
@@ -325,4 +329,11 @@ module  AwsKmsArnParsing {
       case AwsKmsRawResourceIdentifier(_) => None()
     }
   }
+
+  type AwsKmsIdentifierString = s: string |
+    && ParseAwsKmsIdentifier(s).Success?
+    && UTF8.IsASCIIString(s)
+    && 0 < |s| <= MAX_AWS_KMS_IDENTIFIER_LENGTH 
+    witness *
+
 }
