@@ -2,10 +2,12 @@
 // SPDX-License-Identifier: Apache-2.0
 
 include "../../libraries/src/Wrappers.dfy"
+include "../../libraries/src/Collections/Sequences/Seq.dfy"
 
 module Actions {
 
   import opened Wrappers
+  import opened Seq
 
   trait {:termination false} Action<A, R>
   {
@@ -79,6 +81,69 @@ module Actions {
       rs := rs + [r];
     }
     return Success(rs);
+  }
+
+  method FlatMap<A, R>(
+    action: Action<A, seq<R>>,
+    s: seq<A>
+  )
+    returns (res: seq<R>)
+    ensures
+      forall i :: i in s
+      ==>
+        && exists fm :: action.Ensures(i, fm)
+        && forall k | k in fm :: k in res
+  {
+    ghost var total := [];
+    var rs := [];
+    for i := 0 to |s|
+      invariant |s[..i]| == |total|
+      invariant forall j ::
+        && 0 <= j < i
+      ==>
+        && action.Ensures(s[j], total[j])
+        && forall b | b in total[j] :: b in rs
+    {
+      var r := action.Invoke(s[i]);
+      rs := rs + r;
+      total := total + [r];
+    }
+    return rs;
+  }
+
+  method FlatMapWithResult<A, R, E>(
+    action: ActionWithResult<A, seq<R>, E>,
+    s: seq<A>
+  )
+    returns (res: Result<seq<R>, E>, ghost parts: seq<seq<R>>)
+    ensures
+      res.Success?
+    ==>
+      && |s| == |parts|
+      && res.value == Flatten(parts)
+      && (forall i :: 0 <= i < |s|
+      ==>
+        && action.Ensures(s[i], Success(parts[i]))
+        && multiset(parts[i]) <= multiset(res.value)
+      )
+  {
+    ghost var total := [];
+    var rs := [];
+    for i := 0 to |s|
+      invariant |s[..i]| == |total|
+      invariant forall j ::
+        && 0 <= j < i
+      ==>
+        && action.Ensures(s[j], Success(total[j]))
+        && multiset(total[j]) <= multiset(rs)
+      invariant Flatten(total) == rs
+    {
+      var r :- action.Invoke(s[i]);
+      rs := rs + r;
+      LemmaFlattenConcat(total, [r]);
+      total := total + [r];
+    }
+    return Success(rs), total;
   }
 
   method Filter<A>(
