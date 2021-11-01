@@ -90,7 +90,7 @@ module {:extern "AlgorithmSuite"} AlgorithmSuite {
   ]
 
   // TODO a better way to integrate the Polymorph Alg Suites with the info in this file?
-  function method PolymorphIDToInternalID(input: Crypto.AlgorithmSuite): (res: ID) {
+  function method PolymorphIDToInternalID(input: Crypto.AlgorithmSuiteId): (res: ID) {
         if (input==Crypto.ALG_AES_128_GCM_IV12_TAG16_NO_KDF) then
           AES_128_GCM_IV12_TAG16_IDENTITY_NO_SIGNATURE_ALG
         else if (input==Crypto.ALG_AES_192_GCM_IV12_TAG16_NO_KDF) then
@@ -112,7 +112,7 @@ module {:extern "AlgorithmSuite"} AlgorithmSuite {
   }
 
 
-  function method InternalIDToPolymorphID(input: ID): (res: Crypto.AlgorithmSuite) {
+  function method InternalIDToPolymorphID(input: ID): (res: Crypto.AlgorithmSuiteId) {
         if (input==AES_128_GCM_IV12_TAG16_IDENTITY_NO_SIGNATURE_ALG) then
           Crypto.ALG_AES_128_GCM_IV12_TAG16_NO_KDF
         else if (input==AES_192_GCM_IV12_TAG16_IDENTITY_NO_SIGNATURE_ALG) then

@@ -10,7 +10,7 @@ include "../Crypto/EncryptionSuites.dfy"
 include "Keyring/RawAESKeyring.dfy"
 include "CMM/DefaultCMM.dfy"
 
-module {:extern "AwsCryptographicMaterialProviders"} AwsCryptographicMaterialProviders {
+module {:extern "Dafny.Aws.Crypto.AwsCryptographicMaterialProvidersClient"} AwsCryptographicMaterialProviders {
   import opened Wrappers
   import opened StandardLibrary
   import opened UInt = StandardLibrary.UInt
