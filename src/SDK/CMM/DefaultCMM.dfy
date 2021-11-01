@@ -59,9 +59,10 @@ module {:extern "DefaultCMMDef"} DefaultCMMDef {
     method GetEncryptionMaterials(materialsRequest: Materials.EncryptionMaterialsRequest)
                                   returns (res: Result<Materials.ValidEncryptionMaterials, string>)
       requires Valid()
-      ensures Valid()
-      ensures res.Success? ==> CMMDefs.EncryptionMaterialsSignature(res.value)
-      ensures res.Success? ==> res.value.plaintextDataKey.Some? && res.value.Serializable()
+      ensures Valid() 
+      ensures res.Success? ==> res.value.plaintextDataKey.Some?
+        && res.value.Serializable()
+        && CMMDefs.EncryptionMaterialsSignature(res.value)
 
       //= compliance/framework/default-cmm.txt#2.6.1
       //= type=implication
@@ -83,7 +84,8 @@ module {:extern "DefaultCMMDef"} DefaultCMMDef {
         //# materials-request) does contain an algorithm suite, the encryption
         //# materials returned MUST contain the same algorithm suite.
           case Some(id) => res.value.algorithmSuiteID == id
-            
+
+        // BLOCKED by absense of committment    
         //= compliance/framework/default-cmm.txt#2.6.1
         //= type=TODO
         //# *  If the encryption materials request (cmm-interface.md#encryption-
@@ -91,15 +93,34 @@ module {:extern "DefaultCMMDef"} DefaultCMMDef {
         //# MUST fail if the algorithm suite is not supported by the
         //# commitment policy (../client-apis/client.md#commitment-policy) on
         //# the request.
-          case None => res.value.algorithmSuiteID == 0x0378        
+          case None => res.value.algorithmSuiteID == 0x0378
+
+      //= compliance/framework/default-cmm.txt#2.6.1
+      //= type=implication
+      //# If the algorithm suite contains a signing algorithm (algorithm-
+      //# suites.md#signature-algorithm), the default CMM MUST Add the key-
+      //# value pair of key "aws-crypto-public-key", value "base64-encoded public
+      //# verification key" to the encryption context (structures.md#encryption-
+      //# context).      
+      ensures res.Success? ==>
+        match materialsRequest.algorithmSuiteID.UnwrapOr(AlgorithmSuite.AES_256_GCM_IV12_TAG16_HKDF_SHA384_ECDSA_P384).SignatureType()
+          case Some(param) => |res.value.encryptionContext[Materials.EC_PUBLIC_KEY_FIELD]| > 0
+          case _ => true
     {
       reveal CMMDefs.EncryptionMaterialsSignatureOpaque();
       var reservedField := Materials.EC_PUBLIC_KEY_FIELD;
       assert reservedField in Materials.RESERVED_KEY_VALUES;
+      
+      //= compliance/framework/default-cmm.txt#2.6.1
+      //# If the encryption context included in the
+      //# encryption materials request (cmm-interface.md#encryption-materials-
+      //# request) already contains the "aws-crypto-public-key" key, this
+      //# operation MUST fail rather than overwrite the associated value.        
       if reservedField in materialsRequest.encryptionContext.Keys {
         return Failure("Reserved Field found in EncryptionContext keys.");
       }
-      
+
+      // BLOCKED by absense of committment
       //= compliance/framework/default-cmm.txt#2.6.1
       //= type=TODO
       //# *  If the encryption materials request (cmm-interface.md#encryption-
@@ -251,6 +272,8 @@ module {:extern "DefaultCMMDef"} DefaultCMMDef {
     }
   }
 }
+
+
 
 //= compliance/framework/default-cmm.txt#2.7.1
 //= type=implication
