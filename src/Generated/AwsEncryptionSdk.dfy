@@ -11,7 +11,7 @@ module {:extern "Dafny.Aws.Esdk"} Aws.Esdk {
     datatype EncryptInput = EncryptInput(
         nameonly plaintext: seq<uint8>,
         nameonly encryptionContext: Crypto.EncryptionContext, // TODO Make an option?
-        nameonly algorithmSuiteID: Option<Crypto.AlgorithmSuite>, // TODO rename algorithmSuiteID?
+        nameonly algorithmSuiteID: Option<Crypto.AlgorithmSuiteId>,
         nameonly materialsManager: Crypto.ICryptographicMaterialsManager
         // TODO reintroduce optional materialsManager and optional keyring
     )
@@ -25,7 +25,7 @@ module {:extern "Dafny.Aws.Esdk"} Aws.Esdk {
         nameonly ciphertext: seq<uint8>
         // TODO Hook up additional Encryption outputs
         // nameonly encryptionContext: Crypto.EncryptionContext,
-        // nameonly algorithmSuite: Crypto.AlgorithmSuite
+        // nameonly algorithmSuite: Crypto.AlgorithmSuiteId
     )
     {
         predicate Valid() {
@@ -48,7 +48,7 @@ module {:extern "Dafny.Aws.Esdk"} Aws.Esdk {
         nameonly plaintext: seq<uint8>
         // TODO hook up additional decrypt outputs
         // nameonly encryptionContext: Crypto.EncryptionContext,
-        // nameonly algorithmSuite: Crypto.AlgorithmSuite
+        // nameonly algorithmSuite: Crypto.AlgorithmSuiteId
     )
     {
         predicate Valid() {
@@ -59,13 +59,15 @@ module {:extern "Dafny.Aws.Esdk"} Aws.Esdk {
     datatype AwsEncryptionSdkClientConfig = AwsEncryptionSdkClientConfig(
         // nameonly commitmentPolicy: string,
         // nameonly maxEncryptedEdks: int,
-        nameonly configDefaults: string
+        nameonly configDefaults: ConfigurationDefaults
     )
     {
         predicate Valid() {
             true
         }
     }
+
+    datatype ConfigurationDefaults = V1
 
     trait {:termination false} IAwsEncryptionSdkClient {
         method Encrypt(input: EncryptInput) returns (res: Result<EncryptOutput, string>)

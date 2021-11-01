@@ -8,7 +8,7 @@ include "../Generated/AwsEncryptionSdk.dfy"
 include "../Util/UTF8.dfy"
 include "EncryptDecrypt.dfy"
 
-module {:extern "AwsEncryptionSdk"} AwsEncryptionSdk {
+module {:extern "Dafny.Aws.Esdk.AwsEncryptionSdkClient"} AwsEncryptionSdk {
   import opened Wrappers
   import opened StandardLibrary
   import opened UInt = StandardLibrary.UInt
@@ -19,7 +19,11 @@ module {:extern "AwsEncryptionSdk"} AwsEncryptionSdk {
 
   // move to different module
   class AwsEncryptionSdkClient extends Esdk.IAwsEncryptionSdkClient {
-        constructor () {}
+        const config: Esdk.AwsEncryptionSdkClientConfig
+
+        constructor (clientConfig: Esdk.AwsEncryptionSdkClientConfig) {
+            config := clientConfig;
+        }
 
         method Encrypt(input: Esdk.EncryptInput) returns (res: Result<Esdk.EncryptOutput, string>)
             requires input.Valid()

@@ -14,7 +14,7 @@ module {:extern "Dafny.Aws.Crypto"} Aws.Crypto {
       provides UTF8, UInt, Wrappers, IKeyring.OnDecrypt,
         ICryptographicMaterialsManager.GetEncryptionMaterials, ICryptographicMaterialsManager.DecryptMaterials, IKeyring.OnEncrypt,
         IAwsCryptographicMaterialsProviderClient.CreateRawAesKeyring, IAwsCryptographicMaterialsProviderClient.CreateDefaultCryptographicMaterialsManager
-      reveals AlgorithmSuite, EncryptedDataKey, EncryptedDataKey.Valid, IKeyring, GetEncryptionMaterialsInput, GetEncryptionMaterialsOutput,
+      reveals AlgorithmSuiteId, EncryptedDataKey, EncryptedDataKey.Valid, IKeyring, GetEncryptionMaterialsInput, GetEncryptionMaterialsOutput,
         DecryptMaterialsInput, DecryptMaterialsOutput, ICryptographicMaterialsManager, EncryptionContext, EncryptionMaterials, DecryptionMaterials,
         ValidEncryptedDataKey, EncryptedDataKeyList, OnEncryptInput, OnEncryptOutput, OnDecryptInput, OnDecryptOutput, OnEncryptInput.Valid, OnDecryptInput.Valid,
         GetEncryptionMaterialsInput.Valid, DecryptMaterialsInput.Valid, EncryptionMaterials.Valid, CreateRawAesKeyringInput, CreateDefaultCryptographicMaterialsManagerInput,
@@ -45,14 +45,20 @@ module {:extern "Dafny.Aws.Crypto"} Aws.Crypto {
         }
     }
 
+    // TODO remove workaround
+    trait IKmsClient {}
+
     trait IClientSupplier {
-        method GetClient(input: GetClientInput) returns (res: AmazonKeyManagementService.IAmazonKeyManagementService)
+        // TODO
+        // method GetClient(input: GetClientInput) returns (res: AmazonKeyManagementService.IAmazonKeyManagementService)
+        //    requires input.Valid()
+        method GetClient(input: GetClientInput) returns (res: IKmsClient)
             requires input.Valid()
     }
 
     /////////////
     // structures.smithy
-    // TODO: May eventually change this to strings, for now leaving as utf8 bytes for 
+    // TODO: May eventually change this to strings, for now leaving as utf8 bytes for
     // compatibility with existing code.
     type EncryptionContext = map<UTF8.ValidUTF8Bytes, UTF8.ValidUTF8Bytes>
 
@@ -76,7 +82,7 @@ module {:extern "Dafny.Aws.Crypto"} Aws.Crypto {
     // However, we cannot model these in Smithy, so we will need to write them manually in the
     // Dafny code rather than in this auto-generated portion.
     datatype EncryptionMaterials = EncryptionMaterials(nameonly encryptionContext: EncryptionContext, // TODO should EC be an Option? (and elsewhere)
-                                                       nameonly algorithmSuiteID: AlgorithmSuite, // TODO update to algorithmSuite or update Smithy model (and elsewhere)
+                                                       nameonly algorithmSuiteID: AlgorithmSuiteId, // TODO update to algorithmSuite or update Smithy model (and elsewhere)
                                                        nameonly plaintextDataKey: Option<seq<uint8>>,
                                                        nameonly encryptedDataKeys: seq<ValidEncryptedDataKey>, // TODO should this be an Option? (and elsewhere)
                                                        nameonly signingKey: Option<seq<uint8>>)
@@ -87,7 +93,7 @@ module {:extern "Dafny.Aws.Crypto"} Aws.Crypto {
     }
 
     datatype DecryptionMaterials = DecryptionMaterials(nameonly encryptionContext: EncryptionContext,
-                                                       nameonly algorithmSuiteID: AlgorithmSuite,
+                                                       nameonly algorithmSuiteID: AlgorithmSuiteId,
                                                        nameonly plaintextDataKey: Option<seq<uint8>>,
                                                        nameonly verificationKey: Option<seq<uint8>>)
     {
@@ -98,17 +104,17 @@ module {:extern "Dafny.Aws.Crypto"} Aws.Crypto {
 
     ///////////////////////
     // crypto-config.smithy
-    datatype CommitmentPolicy = 
+    datatype CommitmentPolicy =
         FORBID_ENCRYPT_FORBID_DECRYPT |
         REQUIRE_ENCRYPT_ALLOW_DECRYPT |
         REQUIRE_ENCRYPT_REQUIRE_DECRYPT
 
-    datatype AesWrappingAlg = 
+    datatype AesWrappingAlg =
       ALG_AES128_GCM_IV12_TAG16 |
       ALG_AES192_GCM_IV12_TAG16 |
       ALG_AES256_GCM_IV12_TAG16
 
-    datatype AlgorithmSuite = 
+    datatype AlgorithmSuiteId =
         ALG_AES_128_GCM_IV12_TAG16_NO_KDF |
         ALG_AES_192_GCM_IV12_TAG16_NO_KDF |
         ALG_AES_256_GCM_IV12_TAG16_NO_KDF |
@@ -117,7 +123,7 @@ module {:extern "Dafny.Aws.Crypto"} Aws.Crypto {
         ALG_AES_256_GCM_IV12_TAG16_HKDF_SHA256 |
         ALG_AES_128_GCM_IV12_TAG16_HKDF_SHA256_ECDSA_P256 |
         ALG_AES_192_GCM_IV12_TAG16_HKDF_SHA384_ECDSA_P384 |
-        ALG_AES_256_GCM_IV12_TAG16_HKDF_SHA384_ECDSA_P384 
+        ALG_AES_256_GCM_IV12_TAG16_HKDF_SHA384_ECDSA_P384
         // TODO add commitment suites back in
         // ALG_AES_256_GCM_HKDF_SHA512_COMMIT_KEY |
         // ALG_AES_256_GCM_HKDF_SHA512_COMMIT_KEY_ECDSA_P384
@@ -257,7 +263,7 @@ module {:extern "Dafny.Aws.Crypto"} Aws.Crypto {
             true
         }
     }
-    
+
     datatype GetEntryForDecryptInput = GetEntryForDecryptInput(identifier: seq<uint8>)
     {
         predicate Valid() {
@@ -291,7 +297,7 @@ module {:extern "Dafny.Aws.Crypto"} Aws.Crypto {
             requires input.Valid()
         method GetEntryForEncrypt(input: GetEntryForEncryptInput) returns (res: GetEntryForEncryptOutput)
             requires input.Valid()
-        
+
         method PutEntryForDecrypt(input: PutEntryForDecryptInput) returns (res: PutEntryForDecryptOutput)
             requires input.Valid()
         method GetEntryForDecrypt(input: GetEntryForDecryptInput) returns (res: GetEntryForDecryptOutput)
@@ -305,7 +311,7 @@ module {:extern "Dafny.Aws.Crypto"} Aws.Crypto {
     // cmms.smithy
     datatype GetEncryptionMaterialsInput = GetEncryptionMaterialsInput(
         nameonly encryptionContext: EncryptionContext,
-        nameonly algorithmSuiteID: Option<AlgorithmSuite>,
+        nameonly algorithmSuiteID: Option<AlgorithmSuiteId>,
         nameonly maxPlaintextLength: int
     )
     {
@@ -325,9 +331,9 @@ module {:extern "Dafny.Aws.Crypto"} Aws.Crypto {
 
     datatype DecryptMaterialsInput = DecryptMaterialsInput(
         nameonly encryptionContext: EncryptionContext,
-        // TODO 
+        // TODO
         // nameonly commitmentPolicy: CommitmentPolicy,
-        nameonly algorithmSuiteID: AlgorithmSuite,
+        nameonly algorithmSuiteID: AlgorithmSuiteId,
         nameonly encryptedDataKeys: EncryptedDataKeyList
     )
     {
@@ -495,7 +501,7 @@ module {:extern "Dafny.Aws.Crypto"} Aws.Crypto {
     trait {:termination false} IAwsCryptographicMaterialsProviderClient {
 
         // Keyrings
-        //method CreateAwsKmsKeyring(input: CreateAwsKmsKeyringInput) returns (res: IKeyring) 
+        //method CreateAwsKmsKeyring(input: CreateAwsKmsKeyringInput) returns (res: IKeyring)
         //     requires input.Valid()
         // method CreateMrkAwareStrictAwsKmsKeyring(input: CreateMrkAwareStrictAwsKmsKeyringInput) returns (res: IKeyring)
         //     requires input.Valid()
