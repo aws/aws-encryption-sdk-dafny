@@ -205,7 +205,8 @@ module {:extern "EncryptDecrypt"} EncryptDecrypt {
 
     var algorithmSuiteID := if request.algorithmSuiteID.Some? then Some(AlgorithmSuite.InternalIDToPolymorphID(request.algorithmSuiteID.value as AlgorithmSuite.ID)) else None;
 
-    var encMatRequest := Crypto.GetEncryptionMaterialsInput(encryptionContext:=request.encryptionContext, algorithmSuiteID:=algorithmSuiteID, maxPlaintextLength:=request.plaintextLength as nat);
+    expect request.plaintextLength < INT64_MAX_LIMIT;
+    var encMatRequest := Crypto.GetEncryptionMaterialsInput(encryptionContext:=request.encryptionContext, algorithmSuiteID:=algorithmSuiteID, maxPlaintextLength:=Option.Some(request.plaintextLength as int64));
 
     var output :- cmm.GetEncryptionMaterials(encMatRequest);
 

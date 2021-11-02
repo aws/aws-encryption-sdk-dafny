@@ -81,8 +81,8 @@ module {:extern "Dafny.Aws.Crypto"} Aws.Crypto {
     // (for example: if the algorithm suite includes signing, the signingKey must not be null).
     // However, we cannot model these in Smithy, so we will need to write them manually in the
     // Dafny code rather than in this auto-generated portion.
-    datatype EncryptionMaterials = EncryptionMaterials(nameonly encryptionContext: EncryptionContext, // TODO should EC be an Option? (and elsewhere)
-                                                       nameonly algorithmSuiteID: AlgorithmSuiteId, // TODO update to algorithmSuite or update Smithy model (and elsewhere)
+    datatype EncryptionMaterials = EncryptionMaterials(nameonly algorithmSuiteID: AlgorithmSuiteId, // TODO update to algorithmSuite or update Smithy model (and elsewhere)
+                                                       nameonly encryptionContext: EncryptionContext, // TODO should EC be an Option? (and elsewhere)
                                                        nameonly plaintextDataKey: Option<seq<uint8>>,
                                                        nameonly encryptedDataKeys: seq<ValidEncryptedDataKey>, // TODO should this be an Option? (and elsewhere)
                                                        nameonly signingKey: Option<seq<uint8>>)
@@ -92,8 +92,8 @@ module {:extern "Dafny.Aws.Crypto"} Aws.Crypto {
         }
     }
 
-    datatype DecryptionMaterials = DecryptionMaterials(nameonly encryptionContext: EncryptionContext,
-                                                       nameonly algorithmSuiteID: AlgorithmSuiteId,
+    datatype DecryptionMaterials = DecryptionMaterials(nameonly algorithmSuiteID: AlgorithmSuiteId,
+                                                       nameonly encryptionContext: EncryptionContext,
                                                        nameonly plaintextDataKey: Option<seq<uint8>>,
                                                        nameonly verificationKey: Option<seq<uint8>>)
     {
@@ -180,8 +180,8 @@ module {:extern "Dafny.Aws.Crypto"} Aws.Crypto {
     /////////////////
     // caching.smithy
     datatype CacheUsageMetadata = CacheUsageMetadata(
-        messageUsage: int,
-        byteUsage: int
+        messageUsage: int64,
+        byteUsage: int64
     )
     {
         predicate Valid() {
@@ -192,8 +192,8 @@ module {:extern "Dafny.Aws.Crypto"} Aws.Crypto {
     datatype EncryptEntry = EncryptEntry(
         identifier: seq<uint8>,
         encryptionMaterials: EncryptionMaterials,
-        creationTime: int,
-        expiryTime: int,
+        creationTime: int64,
+        expiryTime: int64,
         usageMetadata: CacheUsageMetadata
     )
     {
@@ -205,8 +205,8 @@ module {:extern "Dafny.Aws.Crypto"} Aws.Crypto {
     datatype DecryptEntry = DecryptEntry(
         identifier: seq<uint8>,
         decryptionMaterials: DecryptionMaterials,
-        creationTime: int,
-        expiryTime: int,
+        creationTime: int64,
+        expiryTime: int64,
         usageMetadata: CacheUsageMetadata
     )
     {
@@ -311,8 +311,10 @@ module {:extern "Dafny.Aws.Crypto"} Aws.Crypto {
     // cmms.smithy
     datatype GetEncryptionMaterialsInput = GetEncryptionMaterialsInput(
         nameonly encryptionContext: EncryptionContext,
+        // TODO
+        // nameonly commitmentPolicy: CommitmentPolicy,
         nameonly algorithmSuiteID: Option<AlgorithmSuiteId>,
-        nameonly maxPlaintextLength: int
+        nameonly maxPlaintextLength: Option<int64>
     )
     {
         predicate Valid() {
@@ -330,11 +332,11 @@ module {:extern "Dafny.Aws.Crypto"} Aws.Crypto {
     }
 
     datatype DecryptMaterialsInput = DecryptMaterialsInput(
-        nameonly encryptionContext: EncryptionContext,
+        nameonly algorithmSuiteID: AlgorithmSuiteId,
         // TODO
         // nameonly commitmentPolicy: CommitmentPolicy,
-        nameonly algorithmSuiteID: AlgorithmSuiteId,
-        nameonly encryptedDataKeys: EncryptedDataKeyList
+        nameonly encryptedDataKeys: EncryptedDataKeyList,
+        nameonly encryptionContext: EncryptionContext
     )
     {
         predicate Valid() {
@@ -472,12 +474,12 @@ module {:extern "Dafny.Aws.Crypto"} Aws.Crypto {
 
     datatype CreateCachingCryptographicMaterialsManagerInput = CreateCachingCryptographicMaterialsManagerInput(
         nameonly cache: ICryptoMaterialsCache,
-        nameonly cacheLimitTtl: int,
+        nameonly cacheLimitTtl: int32,
         nameonly keyring: IKeyring?,
         nameonly materialsManager: ICryptographicMaterialsManager?,
         nameonly partitionId: Option<string>,
-        nameonly limitBytes: Option<int>,
-        nameonly limitMessages: Option<int>
+        nameonly limitBytes: Option<int64>,
+        nameonly limitMessages: Option<int64>
     )
     {
         predicate Valid() {
@@ -487,8 +489,8 @@ module {:extern "Dafny.Aws.Crypto"} Aws.Crypto {
 
     // Caching creation structures
     datatype CreateLocalCryptoMaterialsCacheInput = CreateLocalCryptoMaterialsCacheInput(
-        nameonly entryCapacity: int,
-        nameonly entryPruningTailSize: Option<int>
+        nameonly entryCapacity: int32,
+        nameonly entryPruningTailSize: Option<int32>
     )
     {
         predicate Valid() {
