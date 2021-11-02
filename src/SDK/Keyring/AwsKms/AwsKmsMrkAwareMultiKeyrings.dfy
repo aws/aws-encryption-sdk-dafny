@@ -24,6 +24,12 @@ module {:extern "AwsKmsMrkAwareMultiKeyrings"} AwsKmsMrkAwareMultiKeyrings {
   //= compliance/framework/aws-kms/aws-kms-mrk-aware-multi-keyrings.txt#2.6
   //= type=implication
   //# The caller MUST provide:
+  //#*  An optional AWS KMS key identifiers to use as the generator.
+  //#*  An optional set of AWS KMS key identifiers to us as child
+  //#   keyrings.
+  //#*  An optional method that can take a region string and return an AWS
+  //#   KMS client e.g. a regional client supplier
+  //#*  An optional list of AWS KMS grant tokens
   method StrictMultiKeyring(
     generator: Option<string>,
     awsKmsKeys: Option<seq<string>>,
@@ -97,10 +103,13 @@ module {:extern "AwsKmsMrkAwareMultiKeyrings"} AwsKmsMrkAwareMultiKeyrings {
       ==>
         && |awsKmsKeys.value| == |res.value.children|
         && forall i | 0 <= i < |awsKmsKeys.value| ::
+          // AWS KMS MRK Aware Symmetric Keying must be created for each AWS KMS Key identifier
           && var k: Keyring := res.value.children[i];
           && k is AwsKmsMrkAwareSymmetricKeyring
           && var c := k as AwsKmsMrkAwareSymmetricKeyring;
+          // AWS KMS key identifier
           && c.awsKmsKey == awsKmsKeys.value[i]
+          // The input list of AWS KMS grant tokens
           && (grantTokens.Some? ==> c.grantTokens == grantTokens.value))
       && (awsKmsKeys.None?
       ==>
@@ -135,8 +144,6 @@ module {:extern "AwsKmsMrkAwareMultiKeyrings"} AwsKmsMrkAwareMultiKeyrings {
     var generatorKeyring : AwsKmsMrkAwareSymmetricKeyring?;
     match generator {
       case Some(generatorIdentifier) =>
-        var wtf := Seq.First(allStrings);
-        assert wtf == generatorIdentifier;
         var info :- IsAwsKmsIdentifierString(generatorIdentifier);
         var region := GetRegion(info);
         var client :- supplier.GetClient(region);
