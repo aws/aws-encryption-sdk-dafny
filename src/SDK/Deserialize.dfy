@@ -91,6 +91,11 @@ module Deserialize {
 
     // TODO dafny verification handholding
     assert [version as uint8] + [typ as uint8] + UInt16ToSeq(algorithmSuiteID as uint16) + messageID + rd.reader.data[aadStart..aadEnd]
+      + Msg.EDKsToSeq(encryptedDataKeys) + [Msg.ContentTypeToUInt8(contentType)] + rd.reader.data[reserveStart..reserveEnd]  ==
+      rd.reader.data[old(rd.reader.pos)..rd.reader.pos];
+
+    // TODO dafny verification handholding
+    assert [version as uint8] + [typ as uint8] + UInt16ToSeq(algorithmSuiteID as uint16) + messageID + rd.reader.data[aadStart..aadEnd]
       + Msg.EDKsToSeq(encryptedDataKeys) + [Msg.ContentTypeToUInt8(contentType)] + [0,0,0,0]  ==
       rd.reader.data[old(rd.reader.pos)..rd.reader.pos];
 
@@ -518,6 +523,8 @@ module Deserialize {
       // Encrypted data key
       var edkLength :- rd.ReadUInt16();
       var edk :- rd.ReadBytes(edkLength as nat);
+      // TODO proof needs additional handholding here where it didn't before. Should make more stable.
+      assert UInt16ToSeq(|edk| as uint16) + edk == rd.reader.data[invStartPos+2+|keyProviderID|+2+|keyProviderInfo|..invStartPos+2+|keyProviderID|+2+|keyProviderInfo|+2+|edk|];
 
       edkEntries := edkEntries + [Crypto.EncryptedDataKey(providerID:=keyProviderID, providerInfo:=keyProviderInfo, ciphertext:=edk)];
       i := i + 1;
