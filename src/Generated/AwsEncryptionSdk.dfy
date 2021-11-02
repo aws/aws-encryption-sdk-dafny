@@ -56,18 +56,16 @@ module {:extern "Dafny.Aws.Esdk"} Aws.Esdk {
         }
     }
 
-    datatype AwsEncryptionSdkClientConfig = AwsEncryptionSdkClientConfig(
-        // nameonly commitmentPolicy: string,
-        // nameonly maxEncryptedEdks: int,
-        nameonly configDefaults: ConfigurationDefaults
-    )
-    {
-        predicate Valid() {
-            true
-        }
-    }
-
-    datatype ConfigurationDefaults = V1
+    // datatype AwsEncryptionSdkClientConfig = AwsEncryptionSdkClientConfig(
+    //     nameonly commitmentPolicy: string,
+    //     nameonly maxEncryptedEdks: int,
+    //     nameonly configDefaults: ConfigurationDefaults
+    // )
+    // {
+    //     predicate Valid() {
+    //         true
+    //     }
+    // }
 
     trait {:termination false} IAwsEncryptionSdkClient {
         method Encrypt(input: EncryptInput) returns (res: Result<EncryptOutput, string>)
