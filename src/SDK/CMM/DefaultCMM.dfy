@@ -71,9 +71,33 @@ module {:extern "DefaultCMMDef"} DefaultCMMDef {
       //# request) already contains the "aws-crypto-public-key" key, this
       //# operation MUST fail rather than overwrite the associated value.
       ensures Materials.EC_PUBLIC_KEY_FIELD in materialsRequest.encryptionContext ==> res.Failure?
-      
-      ensures res.Success? && (materialsRequest.algorithmSuiteID.None? || materialsRequest.algorithmSuiteID.value.SignatureType().Some?) ==>
-        Materials.EC_PUBLIC_KEY_FIELD in res.value.encryptionContext
+
+      //= compliance/framework/default-cmm.txt#2.6.1
+      //= type=implication
+      //# If the algorithm suite contains a signing algorithm (algorithm-
+      //# suites.md#signature-algorithm), the default CMM MUST Add the key-
+      //# value pair of key "aws-crypto-public-key", value "base64-encoded public
+      //# verification key" to the encryption context (structures.md#encryption-
+      //# context).      
+      ensures
+        && res.Success?
+        && (
+          || materialsRequest.algorithmSuiteID.None?
+          || materialsRequest.algorithmSuiteID.value.SignatureType().Some?
+        )
+      ==>
+      (
+        && Materials.EC_PUBLIC_KEY_FIELD in res.value.encryptionContext
+        && |res.value.encryptionContext[Materials.EC_PUBLIC_KEY_FIELD]| > 0
+        // Why is it UTF8 encoded? That is not in the spec...
+        && UTF8.ValidUTF8Seq(res.value.encryptionContext[Materials.EC_PUBLIC_KEY_FIELD])
+        // &&
+        // ( // HELP: How can I validate that this is base64 encoded if it is UTF8 encoded?
+        //   var validationKey := UTF8.Decode(res.value.encryptionContext[Materials.EC_PUBLIC_KEY_FIELD]);
+        //   && Base64.IsBase64String(validationKey)
+        // )
+      )
+        
       ensures res.Success? ==> res.value.Serializable()
       ensures res.Success? ==>
         match materialsRequest.algorithmSuiteID
@@ -93,19 +117,7 @@ module {:extern "DefaultCMMDef"} DefaultCMMDef {
         //# MUST fail if the algorithm suite is not supported by the
         //# commitment policy (../client-apis/client.md#commitment-policy) on
         //# the request.
-          case None => res.value.algorithmSuiteID == 0x0378
-
-      //= compliance/framework/default-cmm.txt#2.6.1
-      //= type=implication
-      //# If the algorithm suite contains a signing algorithm (algorithm-
-      //# suites.md#signature-algorithm), the default CMM MUST Add the key-
-      //# value pair of key "aws-crypto-public-key", value "base64-encoded public
-      //# verification key" to the encryption context (structures.md#encryption-
-      //# context).      
-      ensures res.Success? ==>
-        match materialsRequest.algorithmSuiteID.UnwrapOr(AlgorithmSuite.AES_256_GCM_IV12_TAG16_HKDF_SHA384_ECDSA_P384).SignatureType()
-          case Some(param) => |res.value.encryptionContext[Materials.EC_PUBLIC_KEY_FIELD]| > 0
-          case _ => true
+          case None => res.value.algorithmSuiteID == 0x0378      
     {
       reveal CMMDefs.EncryptionMaterialsSignatureOpaque();
       var reservedField := Materials.EC_PUBLIC_KEY_FIELD;
@@ -137,7 +149,8 @@ module {:extern "DefaultCMMDef"} DefaultCMMDef {
         case None =>
 
         case Some(param) =>
-          
+
+          // testing/implicaiton is BLOCKED by dafny absence of tracking object origin/method being called
           //= compliance/framework/default-cmm.txt#2.6.1
           //# If the algorithm suite contains a signing algorithm (algorithm-
           //# suites.md#signature-algorithm), the default CMM MUST Generate a
@@ -174,6 +187,7 @@ module {:extern "DefaultCMMDef"} DefaultCMMDef {
       var materials := Materials.EncryptionMaterials.WithoutDataKeys(encryptionContext, algID, signingKey);
       assert materials.encryptionContext == encryptionContext;
 
+      // testing/implicaiton is BLOCKED by dafny absence of tracking object origin/method being called
       //= compliance/framework/default-cmm.txt#2.6.1
       //# On each call to Get Encryption Materials, the default CMM MUST make a
       //# call to its keyring's (Section 2.5.1) On Encrypt (keyring-
@@ -183,12 +197,14 @@ module {:extern "DefaultCMMDef"} DefaultCMMDef {
       // The following two compliance tags are provided by the negative:
       if
 
+        // testing/implicaiton is BLOCKED by dafny absence of tracking object origin/method being called
         //= compliance/framework/default-cmm.txt#2.6.1
         //# The default CMM MUST obtain the Plaintext Data Key from the On
         //# Encrypt Response and include it in the encryption materials
         //# (structures.md#encryption-materials) returned.
         || materials.plaintextDataKey.None?
 
+        // testing/implicaiton is BLOCKED by dafny absence of tracking object origin/method being called
         //= compliance/framework/default-cmm.txt#2.6.1
         //# The default CMM MUST obtain the Encrypted Data Keys
         //# (structures.md#encrypted-data-keys) from the On Encrypt Response and
@@ -207,10 +223,35 @@ module {:extern "DefaultCMMDef"} DefaultCMMDef {
       requires Valid()
       ensures Valid()
       ensures res.Success? ==> res.value.plaintextDataKey.Some?
-      
+
+      //= compliance/framework/default-cmm.txt#2.6.2
+      //= type=implication
+      //# If the algorithm suite does not contain a signing algorithm
+      //# (algorithm-suites.md#signature-algorithm), but the encryption context
+      //# includes the reserved "aws-crypto-public-key" key, the operation MUST
+      //# fail without returning any decryption materials.
+      ensures
+        && res.Success? 
+        &&  materialsRequest.algorithmSuiteID.SignatureType().None?
+      ==>
+         forall key | key in res.value.encryptionContext :: key != Materials.EC_PUBLIC_KEY_FIELD
+
+      // TODO: update spec to specify that this is for signing algorithms
+      //= compliance/framework/default-cmm.txt#2.6.2
+      //= type=implication
+      //# If this key is not present in the encryption
+      //# context, the operation MUST fail without returning any decryption
+      //# materials.    
+      ensures
+        && materialsRequest.algorithmSuiteID.SignatureType().Some?
+        && Materials.EC_PUBLIC_KEY_FIELD !in materialsRequest.encryptionContext
+      ==>
+        res.Failure?
+            
     {
       var verificationKey := None;
 
+      // BLOCKED by absense of commitment
       //= compliance/framework/default-cmm.txt#2.6.2
       //= type=TODO
       //# The request MUST fail if the algorithm suite on the request is not
@@ -231,6 +272,7 @@ module {:extern "DefaultCMMDef"} DefaultCMMDef {
           return Failure("Could not get materials required for decryption.");
         }
 
+        // testing/implicaiton is BLOCKED by dafny absence of tracking object origin/method being called
         //= compliance/framework/default-cmm.txt#2.6.2
         //# If the algorithm suite contains a signing algorithm (algorithm-
         //# suites.md#signature-algorithm), the default CMM MUST extract the
@@ -255,12 +297,14 @@ module {:extern "DefaultCMMDef"} DefaultCMMDef {
 
       var materials := Materials.DecryptionMaterials.WithoutPlaintextDataKey(encryptionContext, algID, verificationKey);
 
+      // testing/implicaiton is BLOCKED by dafny absence of tracking object origin/method being called      
       //= compliance/framework/default-cmm.txt#2.6.2
       //# On each call to Decrypt Materials, the default CMM MUST make a call
       //# to its keyring's (Section 2.5.1) On Decrypt (keyring-
       //# interface.md#ondecrypt) operation.
       materials :- keyring.OnDecrypt(materials, materialsRequest.encryptedDataKeys);
 
+      // testing/implicaiton is BLOCKED by dafny absence of tracking object origin/method being called
       //= compliance/framework/default-cmm.txt#2.6.2
       //# The default CMM MUST obtain the Plaintext Data Key from the On
       //# Decrypt response and include it in the decrypt materials returned.
