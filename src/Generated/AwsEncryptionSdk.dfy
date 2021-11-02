@@ -11,8 +11,8 @@ module {:extern "Dafny.Aws.Esdk"} Aws.Esdk {
     datatype EncryptInput = EncryptInput(
         nameonly plaintext: seq<uint8>,
         nameonly encryptionContext: Crypto.EncryptionContext, // TODO Make an option?
-        nameonly algorithmSuiteID: Option<Crypto.AlgorithmSuiteId>,
-        nameonly materialsManager: Crypto.ICryptographicMaterialsManager
+        nameonly materialsManager: Crypto.ICryptographicMaterialsManager,
+        nameonly algorithmSuiteID: Option<Crypto.AlgorithmSuiteId>
         // TODO reintroduce optional materialsManager and optional keyring
     )
     {

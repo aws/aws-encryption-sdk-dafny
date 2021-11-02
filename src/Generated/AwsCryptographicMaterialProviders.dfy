@@ -83,8 +83,8 @@ module {:extern "Dafny.Aws.Crypto"} Aws.Crypto {
     // Dafny code rather than in this auto-generated portion.
     datatype EncryptionMaterials = EncryptionMaterials(nameonly algorithmSuiteID: AlgorithmSuiteId, // TODO update to algorithmSuite or update Smithy model (and elsewhere)
                                                        nameonly encryptionContext: EncryptionContext, // TODO should EC be an Option? (and elsewhere)
-                                                       nameonly plaintextDataKey: Option<seq<uint8>>,
                                                        nameonly encryptedDataKeys: seq<ValidEncryptedDataKey>, // TODO should this be an Option? (and elsewhere)
+                                                       nameonly plaintextDataKey: Option<seq<uint8>>,
                                                        nameonly signingKey: Option<seq<uint8>>)
     {
         predicate Valid() {
