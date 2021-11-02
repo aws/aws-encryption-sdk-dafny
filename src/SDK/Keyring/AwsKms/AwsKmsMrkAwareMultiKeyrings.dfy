@@ -195,13 +195,4 @@ module {:extern "AwsKmsMrkAwareMultiKeyrings"} AwsKmsMrkAwareMultiKeyrings {
     return Success(keyring);
   }
 
-  predicate ChildKeyringCorrect(
-    c: AwsKmsMrkAwareSymmetricKeyring,
-    awsKmsKeys: seq<string>,
-    grantTokens: Option<KMSUtils.GrantTokens>
-  ) {
-    && c.awsKmsKey in awsKmsKeys
-    && (grantTokens.Some? ==> c.grantTokens == grantTokens.value)
-  }
-
 }
