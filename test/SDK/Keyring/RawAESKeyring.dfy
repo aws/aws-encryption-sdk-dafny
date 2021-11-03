@@ -39,7 +39,7 @@ module TestAESKeyring {
     var signingKey := seq(32, i => 0);
     var encryptionMaterialsIn := Crypto.EncryptionMaterials(
       encryptionContext:=encryptionContext,
-      algorithmSuiteID:=wrappingAlgorithmID,
+      algorithmSuiteId:=wrappingAlgorithmID,
       plaintextDataKey:=None(),
       encryptedDataKeys:=[],
       signingKey:=Some(signingKey)
@@ -64,7 +64,7 @@ module TestAESKeyring {
 
     var decryptionMaterialsIn := Crypto.DecryptionMaterials(
       encryptionContext:=encryptionContext,
-      algorithmSuiteID:=wrappingAlgorithmID,
+      algorithmSuiteId:=wrappingAlgorithmID,
       plaintextDataKey:=None(),
       verificationKey:=Some(verificationKey)
     );
@@ -91,7 +91,7 @@ module TestAESKeyring {
     var signingKey := seq(32, i => 0);
     var encryptionMaterialsIn := Crypto.EncryptionMaterials(
       encryptionContext:=encryptionContext,
-      algorithmSuiteID:=wrappingAlgorithmID,
+      algorithmSuiteId:=wrappingAlgorithmID,
       plaintextDataKey:=Some(pdk),
       encryptedDataKeys:=[],
       signingKey:=Some(signingKey)
@@ -104,7 +104,7 @@ module TestAESKeyring {
 
     var decryptionMaterialsIn := Crypto.DecryptionMaterials(
       encryptionContext:=encryptionContext,
-      algorithmSuiteID:=wrappingAlgorithmID,
+      algorithmSuiteId:=wrappingAlgorithmID,
       plaintextDataKey:=None(),
       verificationKey:=Some(verificationKey)
     );
@@ -135,7 +135,7 @@ module TestAESKeyring {
     var signingKey := seq(32, i => 0);
     var encryptionMaterialsIn := Crypto.EncryptionMaterials(
       encryptionContext:=encryptionContext,
-      algorithmSuiteID:=wrappingAlgorithmID,
+      algorithmSuiteId:=wrappingAlgorithmID,
       plaintextDataKey:=Some(pdk),
       encryptedDataKeys:=[],
       signingKey:=Some(signingKey)
@@ -148,7 +148,7 @@ module TestAESKeyring {
 
     var decryptionMaterialsIn := Crypto.DecryptionMaterials(
       encryptionContext:=encryptionContext,
-      algorithmSuiteID:=wrappingAlgorithmID,
+      algorithmSuiteId:=wrappingAlgorithmID,
       plaintextDataKey:=None(),
       verificationKey:=Some(verificationKey)
     );
@@ -177,7 +177,7 @@ module TestAESKeyring {
     var verificationKey := seq(32, i => 0);
     var decryptionMaterialsIn := Crypto.DecryptionMaterials(
       encryptionContext:=encryptionContext,
-      algorithmSuiteID:=wrappingAlgorithmID,
+      algorithmSuiteId:=wrappingAlgorithmID,
       plaintextDataKey:=None(),
       verificationKey:=Some(verificationKey)
     );
@@ -204,7 +204,7 @@ module TestAESKeyring {
     var signingKey := seq(32, i => 0);
         var encryptionMaterialsIn := Crypto.EncryptionMaterials(
       encryptionContext:=unserializableEncryptionContext,
-      algorithmSuiteID:=wrappingAlgorithmID,
+      algorithmSuiteId:=wrappingAlgorithmID,
       plaintextDataKey:=None(),
       encryptedDataKeys:=[],
       signingKey:=Some(signingKey)
@@ -230,7 +230,7 @@ module TestAESKeyring {
     var signingKey := seq(32, i => 0);
     var encryptionMaterialsIn := Crypto.EncryptionMaterials(
       encryptionContext:=encryptionContext,
-      algorithmSuiteID:=wrappingAlgorithmID,
+      algorithmSuiteId:=wrappingAlgorithmID,
       plaintextDataKey:=None(),
       encryptedDataKeys:=[],
       signingKey:=Some(signingKey)
@@ -247,7 +247,7 @@ module TestAESKeyring {
 
     var decryptionMaterialsIn := Crypto.DecryptionMaterials(
       encryptionContext:=unserializableEncryptionContext,
-      algorithmSuiteID:=wrappingAlgorithmID,
+      algorithmSuiteId:=wrappingAlgorithmID,
       plaintextDataKey:=None(),
       verificationKey:=Some(verificationKey)
     );

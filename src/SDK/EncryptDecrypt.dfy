@@ -116,7 +116,7 @@ module {:extern "EncryptDecrypt"} EncryptDecrypt {
     && headerBody.typ == Msg.TYPE_CUSTOMER_AED
     // TODO This is currently failing. What is it proving and is it needed?
     // && (exists material: Crypto.EncryptionMaterials | DefaultCMMDef.EncryptionMaterialsSignature(material) ::
-    // headerBody.algorithmSuiteID == AlgorithmSuite.PolymorphIDToInternalID(material.algorithmSuiteID)
+    // headerBody.algorithmSuiteID == AlgorithmSuite.PolymorphIDToInternalID(material.algorithmSuiteId)
     // && headerBody.aad == material.encryptionContext
     // && headerBody.encryptedDataKeys == Msg.EncryptedDataKeys(material.encryptedDataKeys))
     && headerBody.contentType == Msg.ContentType.Framed
@@ -206,11 +206,11 @@ module {:extern "EncryptDecrypt"} EncryptDecrypt {
     var algorithmSuiteID := if request.algorithmSuiteID.Some? then Some(AlgorithmSuite.InternalIDToPolymorphID(request.algorithmSuiteID.value as AlgorithmSuite.ID)) else None;
 
     expect request.plaintextLength < INT64_MAX_LIMIT;
-    var encMatRequest := Crypto.GetEncryptionMaterialsInput(encryptionContext:=request.encryptionContext, algorithmSuiteID:=algorithmSuiteID, maxPlaintextLength:=Option.Some(request.plaintextLength as int64));
+    var encMatRequest := Crypto.GetEncryptionMaterialsInput(encryptionContext:=request.encryptionContext, algorithmSuiteId:=algorithmSuiteID, maxPlaintextLength:=Option.Some(request.plaintextLength as int64));
 
     var output :- cmm.GetEncryptionMaterials(encMatRequest);
 
-    var encMat := output.materials;
+    var encMat := output.encryptionMaterials;
 
     // TODO turn these into Needs and move into some predicate
     //expect CMMDefs.EncryptionMaterialsSignature(encMat);
@@ -220,9 +220,9 @@ module {:extern "EncryptDecrypt"} EncryptDecrypt {
     expect DefaultCMMDef.Serializable(encMat);
     expect 
       match request.algorithmSuiteID
-      case Some(id) => AlgorithmSuite.PolymorphIDToInternalID(encMat.algorithmSuiteID) == id as AlgorithmSuite.ID
-      case None => AlgorithmSuite.PolymorphIDToInternalID(encMat.algorithmSuiteID) == 0x0378 as AlgorithmSuite.ID;
-    expect |encMat.plaintextDataKey.value| == AlgorithmSuite.PolymorphIDToInternalID(encMat.algorithmSuiteID).KDFInputKeyLength();
+      case Some(id) => AlgorithmSuite.PolymorphIDToInternalID(encMat.algorithmSuiteId) == id as AlgorithmSuite.ID
+      case None => AlgorithmSuite.PolymorphIDToInternalID(encMat.algorithmSuiteId) == 0x0378 as AlgorithmSuite.ID;
+    expect |encMat.plaintextDataKey.value| == AlgorithmSuite.PolymorphIDToInternalID(encMat.algorithmSuiteId).KDFInputKeyLength();
 
 
     if UINT16_LIMIT <= |encMat.encryptedDataKeys| {
@@ -230,18 +230,18 @@ module {:extern "EncryptDecrypt"} EncryptDecrypt {
     }
 
     var messageID: Msg.MessageID :- Random.GenerateBytes(Msg.MESSAGE_ID_LEN as int32);
-    var derivedDataKey := DeriveKey(encMat.plaintextDataKey.value, AlgorithmSuite.PolymorphIDToInternalID(encMat.algorithmSuiteID), messageID);
+    var derivedDataKey := DeriveKey(encMat.plaintextDataKey.value, AlgorithmSuite.PolymorphIDToInternalID(encMat.algorithmSuiteId), messageID);
 
     // Assemble and serialize the header and its authentication tag
     var headerBody := Msg.HeaderBody(
       Msg.VERSION_1,
       Msg.TYPE_CUSTOMER_AED,
-      AlgorithmSuite.PolymorphIDToInternalID(encMat.algorithmSuiteID),
+      AlgorithmSuite.PolymorphIDToInternalID(encMat.algorithmSuiteId),
       messageID,
       encMat.encryptionContext,
       Msg.EncryptedDataKeys(encMat.encryptedDataKeys),
       Msg.ContentType.Framed,
-      AlgorithmSuite.PolymorphIDToInternalID(encMat.algorithmSuiteID).IVLength() as uint8,
+      AlgorithmSuite.PolymorphIDToInternalID(encMat.algorithmSuiteId).IVLength() as uint8,
       frameLength);
     assert ValidHeaderBodyForRequest (headerBody, request);
     ghost var serializedHeaderBody := (reveal Msg.HeaderBodyToSeq(); Msg.HeaderBodyToSeq(headerBody));
@@ -251,8 +251,8 @@ module {:extern "EncryptDecrypt"} EncryptDecrypt {
     var unauthenticatedHeader := wr.GetDataWritten();
     assert unauthenticatedHeader == serializedHeaderBody;
 
-    var iv: seq<uint8> := seq(AlgorithmSuite.PolymorphIDToInternalID(encMat.algorithmSuiteID).IVLength(), _ => 0);
-    var encryptionOutput :- AESEncryption.AESEncryptExtern(AlgorithmSuite.PolymorphIDToInternalID(encMat.algorithmSuiteID).EncryptionSuite(), iv, derivedDataKey, [], unauthenticatedHeader);
+    var iv: seq<uint8> := seq(AlgorithmSuite.PolymorphIDToInternalID(encMat.algorithmSuiteId).IVLength(), _ => 0);
+    var encryptionOutput :- AESEncryption.AESEncryptExtern(AlgorithmSuite.PolymorphIDToInternalID(encMat.algorithmSuiteId).EncryptionSuite(), iv, derivedDataKey, [], unauthenticatedHeader);
     var headerAuthentication := Msg.HeaderAuthentication(iv, encryptionOutput.authTag);
 
     assert ValidHeaderAuthenticationForRequest(headerAuthentication, headerBody) by{ // Header confirms to specification
@@ -262,11 +262,11 @@ module {:extern "EncryptDecrypt"} EncryptDecrypt {
     }
     ghost var serializedHeaderAuthentication := headerAuthentication.iv + headerAuthentication.authenticationTag;
 
-    var _ :- Serialize.SerializeHeaderAuthentication(wr, headerAuthentication, AlgorithmSuite.PolymorphIDToInternalID(encMat.algorithmSuiteID));
+    var _ :- Serialize.SerializeHeaderAuthentication(wr, headerAuthentication, AlgorithmSuite.PolymorphIDToInternalID(encMat.algorithmSuiteId));
     assert wr.GetDataWritten() == serializedHeaderBody + serializedHeaderAuthentication; // Read data contains complete header
 
     // Encrypt the given plaintext into the message body and add a footer with a signature, if required
-    var seqWithGhostFrames :- MessageBody.EncryptMessageBody(request.plaintext, frameLength as int, messageID, derivedDataKey, AlgorithmSuite.PolymorphIDToInternalID(encMat.algorithmSuiteID));
+    var seqWithGhostFrames :- MessageBody.EncryptMessageBody(request.plaintext, frameLength as int, messageID, derivedDataKey, AlgorithmSuite.PolymorphIDToInternalID(encMat.algorithmSuiteId));
     var body := seqWithGhostFrames.sequence;
     ghost var frames := seqWithGhostFrames.frames;
 
@@ -279,8 +279,8 @@ module {:extern "EncryptDecrypt"} EncryptDecrypt {
     }
 
     var msg := wr.GetDataWritten() + body;
-    if AlgorithmSuite.PolymorphIDToInternalID(encMat.algorithmSuiteID).SignatureType().Some? {
-      var ecdsaParams := AlgorithmSuite.PolymorphIDToInternalID(encMat.algorithmSuiteID).SignatureType().value;
+    if AlgorithmSuite.PolymorphIDToInternalID(encMat.algorithmSuiteId).SignatureType().Some? {
+      var ecdsaParams := AlgorithmSuite.PolymorphIDToInternalID(encMat.algorithmSuiteId).SignatureType().value;
       // TODO this shouldnt have to be a runtime check
       expect encMat.signingKey.Some?;
       var bytes :- Signature.Sign(ecdsaParams, encMat.signingKey.value, msg);
@@ -407,22 +407,22 @@ module {:extern "EncryptDecrypt"} EncryptDecrypt {
       }
     }
 
-    var decMatRequest := Crypto.DecryptMaterialsInput(algorithmSuiteID:=AlgorithmSuite.InternalIDToPolymorphID(header.body.algorithmSuiteID), encryptedDataKeys:=header.body.encryptedDataKeys.entries, encryptionContext:=header.body.aad);
+    var decMatRequest := Crypto.DecryptMaterialsInput(algorithmSuiteId:=AlgorithmSuite.InternalIDToPolymorphID(header.body.algorithmSuiteID), encryptedDataKeys:=header.body.encryptedDataKeys.entries, encryptionContext:=header.body.aad);
     var output :- cmm.DecryptMaterials(decMatRequest);
     var decMat := output.decryptionMaterials;
 
     expect decMat.plaintextDataKey.Some?;
-    expect |decMat.plaintextDataKey.value| == AlgorithmSuite.PolymorphIDToInternalID(decMat.algorithmSuiteID).KDFInputKeyLength();
-    var decryptionKey := DeriveKey(decMat.plaintextDataKey.value,AlgorithmSuite.PolymorphIDToInternalID(decMat.algorithmSuiteID), header.body.messageID);
+    expect |decMat.plaintextDataKey.value| == AlgorithmSuite.PolymorphIDToInternalID(decMat.algorithmSuiteId).KDFInputKeyLength();
+    var decryptionKey := DeriveKey(decMat.plaintextDataKey.value,AlgorithmSuite.PolymorphIDToInternalID(decMat.algorithmSuiteId), header.body.messageID);
 
     ghost var endHeaderPos := rd.reader.pos;
     // Parse and decrypt the message body
     var plaintext;
     match header.body.contentType {
       case NonFramed =>
-        plaintext :- MessageBody.DecryptNonFramedMessageBody(rd, AlgorithmSuite.PolymorphIDToInternalID(decMat.algorithmSuiteID), decryptionKey, header.body.messageID);
+        plaintext :- MessageBody.DecryptNonFramedMessageBody(rd, AlgorithmSuite.PolymorphIDToInternalID(decMat.algorithmSuiteId), decryptionKey, header.body.messageID);
       case Framed =>
-        plaintext :- MessageBody.DecryptFramedMessageBody(rd, AlgorithmSuite.PolymorphIDToInternalID(decMat.algorithmSuiteID), decryptionKey, header.body.frameLength as int, header.body.messageID);
+        plaintext :- MessageBody.DecryptFramedMessageBody(rd, AlgorithmSuite.PolymorphIDToInternalID(decMat.algorithmSuiteId), decryptionKey, header.body.frameLength as int, header.body.messageID);
     }
 
     // Ghost variable contains frames which are deserialized from the data read after the header if the data is framed
@@ -453,7 +453,7 @@ module {:extern "EncryptDecrypt"} EncryptDecrypt {
     ghost var signature: Option<seq<uint8>> := None;
     ghost var endFramePos := rd.reader.pos;
     assert header.body.contentType.Framed? ==> 0 <= endHeaderPos <= endFramePos <= |request.message|;
-    if AlgorithmSuite.PolymorphIDToInternalID(decMat.algorithmSuiteID).SignatureType().Some? {
+    if AlgorithmSuite.PolymorphIDToInternalID(decMat.algorithmSuiteId).SignatureType().Some? {
       var verifyResult, locSig := VerifySignature(rd, decMat);
       signature := Some(locSig);
       if verifyResult.Failure? {
@@ -469,7 +469,7 @@ module {:extern "EncryptDecrypt"} EncryptDecrypt {
 
     // Combine gathered facts and convert to postcondition
     if header.body.contentType.Framed? {
-      if AlgorithmSuite.PolymorphIDToInternalID(decMat.algorithmSuiteID).SignatureType().Some? { // Case with Signature
+      if AlgorithmSuite.PolymorphIDToInternalID(decMat.algorithmSuiteId).SignatureType().Some? { // Case with Signature
         assert signature.Some?;
         assert SignatureBySequence(signature.value, rd.reader.data[endFramePos..rd.reader.pos]);
         assert HeaderBySequence(header, deserializeHeaderResult.hbSeq, request.message[..endHeaderPos])
@@ -528,8 +528,8 @@ module {:extern "EncryptDecrypt"} EncryptDecrypt {
         && 2 <= old(rd.reader.pos) + 2 <= rd.reader.pos
         && SignatureBySequence(signature, rd.reader.data[old(rd.reader.pos)..rd.reader.pos])
   {
-    expect AlgorithmSuite.PolymorphIDToInternalID(decMat.algorithmSuiteID).SignatureType().Some?;
-    var ecdsaParams := AlgorithmSuite.PolymorphIDToInternalID(decMat.algorithmSuiteID).SignatureType().value;
+    expect AlgorithmSuite.PolymorphIDToInternalID(decMat.algorithmSuiteId).SignatureType().Some?;
+    var ecdsaParams := AlgorithmSuite.PolymorphIDToInternalID(decMat.algorithmSuiteId).SignatureType().value;
     var usedCapacity := rd.GetSizeRead();
     assert usedCapacity == rd.reader.pos;
     var msg := rd.reader.data[..usedCapacity];  // unauthenticatedHeader + authTag + body

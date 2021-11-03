@@ -62,14 +62,14 @@ module {:extern "Dafny.Aws.Crypto"} Aws.Crypto {
     // compatibility with existing code.
     type EncryptionContext = map<UTF8.ValidUTF8Bytes, UTF8.ValidUTF8Bytes>
 
-    datatype EncryptedDataKey = EncryptedDataKey(nameonly providerID: UTF8.ValidUTF8Bytes,
-                                                 nameonly providerInfo: seq<uint8>,
+    datatype EncryptedDataKey = EncryptedDataKey(nameonly keyProviderId: UTF8.ValidUTF8Bytes,
+                                                 nameonly keyProviderInfo: seq<uint8>,
                                                  nameonly ciphertext: seq<uint8>)
     {
         // TODO: constraints not currently modeled in Smithy
         predicate Valid() {
-            |providerID| < UINT16_LIMIT &&
-            |providerInfo| < UINT16_LIMIT &&
+            |keyProviderId| < UINT16_LIMIT &&
+            |keyProviderInfo| < UINT16_LIMIT &&
             |ciphertext| < UINT16_LIMIT
         }
     }
@@ -81,7 +81,7 @@ module {:extern "Dafny.Aws.Crypto"} Aws.Crypto {
     // (for example: if the algorithm suite includes signing, the signingKey must not be null).
     // However, we cannot model these in Smithy, so we will need to write them manually in the
     // Dafny code rather than in this auto-generated portion.
-    datatype EncryptionMaterials = EncryptionMaterials(nameonly algorithmSuiteID: AlgorithmSuiteId, // TODO update to algorithmSuite or update Smithy model (and elsewhere)
+    datatype EncryptionMaterials = EncryptionMaterials(nameonly algorithmSuiteId: AlgorithmSuiteId, // TODO update to algorithmSuite or update Smithy model (and elsewhere)
                                                        nameonly encryptionContext: EncryptionContext, // TODO should EC be an Option? (and elsewhere)
                                                        nameonly encryptedDataKeys: seq<ValidEncryptedDataKey>, // TODO should this be an Option? (and elsewhere)
                                                        nameonly plaintextDataKey: Option<seq<uint8>>,
@@ -92,7 +92,7 @@ module {:extern "Dafny.Aws.Crypto"} Aws.Crypto {
         }
     }
 
-    datatype DecryptionMaterials = DecryptionMaterials(nameonly algorithmSuiteID: AlgorithmSuiteId,
+    datatype DecryptionMaterials = DecryptionMaterials(nameonly algorithmSuiteId: AlgorithmSuiteId,
                                                        nameonly encryptionContext: EncryptionContext,
                                                        nameonly plaintextDataKey: Option<seq<uint8>>,
                                                        nameonly verificationKey: Option<seq<uint8>>)
@@ -313,7 +313,7 @@ module {:extern "Dafny.Aws.Crypto"} Aws.Crypto {
         nameonly encryptionContext: EncryptionContext,
         // TODO
         // nameonly commitmentPolicy: CommitmentPolicy,
-        nameonly algorithmSuiteID: Option<AlgorithmSuiteId>,
+        nameonly algorithmSuiteId: Option<AlgorithmSuiteId>,
         nameonly maxPlaintextLength: Option<int64>
     )
     {
@@ -323,7 +323,7 @@ module {:extern "Dafny.Aws.Crypto"} Aws.Crypto {
     }
 
     datatype GetEncryptionMaterialsOutput = GetEncryptionMaterialsOutput(
-        nameonly materials: EncryptionMaterials
+        nameonly encryptionMaterials: EncryptionMaterials
     )
     {
         predicate Valid() {
@@ -332,7 +332,7 @@ module {:extern "Dafny.Aws.Crypto"} Aws.Crypto {
     }
 
     datatype DecryptMaterialsInput = DecryptMaterialsInput(
-        nameonly algorithmSuiteID: AlgorithmSuiteId,
+        nameonly algorithmSuiteId: AlgorithmSuiteId,
         // TODO
         // nameonly commitmentPolicy: CommitmentPolicy,
         nameonly encryptedDataKeys: EncryptedDataKeyList,

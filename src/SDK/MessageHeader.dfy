@@ -176,9 +176,9 @@ module {:extern "MessageHeader"} MessageHeader {
   function method EDKEntryToSeq(edk: Crypto.EncryptedDataKey): seq<uint8>
     requires edk.Valid()
   {
-    UInt16ToSeq(|edk.providerID| as uint16)   + edk.providerID +
-    UInt16ToSeq(|edk.providerInfo| as uint16) + edk.providerInfo +
-    UInt16ToSeq(|edk.ciphertext| as uint16)   + edk.ciphertext
+    UInt16ToSeq(|edk.keyProviderId| as uint16)   + edk.keyProviderId +
+    UInt16ToSeq(|edk.keyProviderInfo| as uint16) + edk.keyProviderInfo +
+    UInt16ToSeq(|edk.ciphertext| as uint16)      + edk.ciphertext
   }
 
   predicate {:opaque} IsSerializationOfHeaderBody(sequence: seq<uint8>, hb: HeaderBody)
