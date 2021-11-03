@@ -193,9 +193,9 @@ module DeserializeV2 {
       suiteData
     );
 
-    // if !h.Valid() {
-    //   return Failure("Invalid header body"), 0, 0, map[];
-    // }
+    if !h.Valid() {
+      return Failure("Invalid header body"), 0, 0, map[];
+    }
 
     var hb: Msg.HeaderBody := Msg.HeaderBody.V2(h);
 

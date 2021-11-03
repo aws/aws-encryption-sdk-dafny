@@ -38,6 +38,10 @@ module {:extern "MessageHeader"} MessageHeader {
 
   const VERSION_1: uint8     := 0x01
   const VERSION_2: uint8     := 0x02
+  //= compliance/data-format/message-header.txt#2.5.1.3
+  //= type=implication
+  //# The version (hex) of this field
+  //# MUST be a value that exists in the following table:
   type Version               = x: uint8 | x == VERSION_1 || x == VERSION_2 witness *
 
   datatype VVersion = V1 | V2
@@ -57,12 +61,20 @@ module {:extern "MessageHeader"} MessageHeader {
       Failure("unsupported version")
   }
 
+  //= compliance/data-format/message-header.txt#2.5.1.4
+  //= type=implication
+  //# The type (hex) of this field MUST be
+  //# a value that exists in the following table:
   const TYPE_CUSTOMER_AED: uint8 := 0x80
   type Type                  = x | x == TYPE_CUSTOMER_AED witness TYPE_CUSTOMER_AED
 
   const MESSAGE_ID_LEN       := 16
   type MessageID             = x: seq<uint8> | |x| == MESSAGE_ID_LEN witness [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]
 
+  //= compliance/data-format/message-header.txt#2.5.2.1
+  //= type=implication
+  //# A reserved sequence of 4 bytes that MUST have the value (hex) of "00
+  //# 00 00 00".
   const Reserved: seq<uint8> := [0,0,0,0]
 
   datatype ContentType       = NonFramed | Framed
@@ -90,31 +102,21 @@ module {:extern "MessageHeader"} MessageHeader {
 
   datatype EncryptedDataKeys = EncryptedDataKeys(entries: seq<Materials.EncryptedDataKey>)
   {
-    predicate Valid() {
+    predicate method Valid() {
+      //= compliance/data-format/message-header.txt#2.5.1.9
+      //# This value MUST be greater than
+      //# 0.
       && 0 < |entries| < UINT16_LIMIT
       && (forall i :: 0 <= i < |entries| ==> entries[i].Valid())
     }
   }
 
-  // datatype HeaderBodyCommon = HeaderBodyCommon(
-  //   algorithmSuiteID: AlgorithmSuite.ID,
-  //   messageID: MessageID,
-  //   aad: EncryptionContext.Map,
-  //   encryptedDataKeys: EncryptedDataKeys,
-  //   contentType: ContentType,
-  //   frameLength: uint32)
-  // {
-  //   predicate Valid() {
-  //     && EncryptionContext.Serializable(aad)
-  //     && encryptedDataKeys.Valid()
-  //     && ValidFrameLength(frameLength, contentType)
-  //   }
-  // }
-
   datatype HeaderBodyV1' = HeaderBodyV1'(
     version: VVersion,
     typ: Type,
     algorithmSuiteID: AlgorithmSuite.ID,
+    //= compliance/data-format/message-header.txt#2.5.1.6
+    //# A Message ID MUST uniquely identify the message (message.md).
     messageID: MessageID,
     aad: EncryptionContext.Map,
     encryptedDataKeys: EncryptedDataKeys,
@@ -125,8 +127,23 @@ module {:extern "MessageHeader"} MessageHeader {
   {
     predicate method Valid() {
       && EncryptionContext.Serializable(aad)
+      && (
+          //= compliance/data-format/message-header.txt#2.5.1.7.1
+          //# When the encryption context (../framework/structures.md#encryption-
+          //# context) is empty, the value of this field MUST be 0.
+          || (|aad| == 0 && EncryptionContext.Length(aad) == 0)
+          //= compliance/data-format/message-header.txt#2.5.1.7.2.1
+          //# The value of this field MUST be greater
+          //# than 0.
+          || (|aad|  > 0 && EncryptionContext.Length(aad) > 0)
+         )
       && encryptedDataKeys.Valid()
       && ValidFrameLength(frameLength, contentType)
+      //= compliance/data-format/message-header.txt#2.5.2.2
+      //# This value MUST be
+      //# equal to the IV length (../framework/algorithm-suites.md#iv-length)
+      //# value of the algorithm suite (../framework/algorithm-suites.md)
+      //# specified by the Algorithm Suite ID (Section 2.5.1.5) field.
       && algorithmSuiteID.IVLength() == ivLength as nat
     }
   }
@@ -136,6 +153,8 @@ module {:extern "MessageHeader"} MessageHeader {
   datatype HeaderBodyV2' = HeaderBodyV2'(
     version: VVersion,
     algorithmSuiteID: AlgorithmSuite.ID,
+    //= compliance/data-format/message-header.txt#2.5.1.6
+    //# A Message ID MUST uniquely identify the message (message.md).
     messageID: MessageID,
     aad: EncryptionContext.Map,
     encryptedDataKeys: EncryptedDataKeys,
@@ -144,8 +163,12 @@ module {:extern "MessageHeader"} MessageHeader {
     suiteData: seq<uint8>
   )
   {
-    predicate Valid() {
+    predicate method Valid() {
       && EncryptionContext.Serializable(aad)
+      //= compliance/data-format/message-header.txt#2.5.1.7.2.1
+      //# The value of this field MUST be greater
+      //# than 0.
+      && EncryptionContext.Length(aad) > 0
       && encryptedDataKeys.Valid()
       && ValidFrameLength(frameLength, contentType)
       && algorithmSuiteID.SuiteDataLength() == Some(|suiteData|)
@@ -192,7 +215,11 @@ module {:extern "MessageHeader"} MessageHeader {
         encryptionOutput.authTag == headerAuthentication.authenticationTag
   }
 
-  predicate ValidFrameLength(frameLength: uint32, contentType: ContentType) {
+
+  predicate method ValidFrameLength(frameLength: uint32, contentType: ContentType) {
+    //= compliance/data-format/message-header.txt#2.5.2.3
+    //# When the content type (Section 2.5.1.11) is non-
+    //# framed, the value of this field MUST be 0.
     match contentType
     case NonFramed => frameLength == 0
     case Framed => frameLength != 0
@@ -205,9 +232,35 @@ module {:extern "MessageHeader"} MessageHeader {
   function {:opaque} HeaderBodyToSeq(hb: HeaderBody): seq<uint8>
   {
     match hb
+    //= compliance/data-format/message-header.txt#2.5.1.1
+    //# +===========+=====================+================================+
+    //# | Field     | Length (bytes)      | Interpreted as                 |
+    //# +===========+=====================+================================+
+    //# | Section   | 1                   | See Supported Versions         |
+    //# | 2.1       |                     | (Section 2.5.1.3.1) (MUST be   |
+    //# |           |                     | "01" in version 1.0 Headers)   |
+    //# +-----------+---------------------+--------------------------------+
+    //# | Section   | 1                   | See Supported Types            |
+    //# | 2.5.1.4   |                     | (Section 2.5.1.4.1)            |
+    //# +-----------+---------------------+--------------------------------+
+    //# | Algorithm | 2                   | See Supported Algorithm Suites |
+    //# | Suite ID  |                     | (../framework/algorithm-       |
+    //# | (Section  |                     | suites.md#supported-algorithm- |
+    //# | 2.5.1.5)  |                     | suites)                        |
+    //# +-----------+---------------------+--------------------------------+
+    //# | Message   | 16                  | Bytes                          |
+    //# | ID        |                     |                                |
+    //# | (Section  |                     |                                |
+    //# | 2.5.1.6)  |                     |                                |
+    //# +-----------+---------------------+--------------------------------+
+    //# | Section   | Variable.
     case V1(h) => (
       [h.algorithmSuiteID.MessageFormat() as uint8] +
       [h.typ as uint8] +
+      //= compliance/data-format/message-header.txt#2.5.1.5
+      //# The value (hex) of this field MUST be a value that exists
+      //# in the Supported Algorithm Suites (../framework/algorithm-
+      //# suites.md#supported-algorithm-suites) table.
       UInt16ToSeq(h.algorithmSuiteID as uint16) +
       h.messageID +
       EncryptionContext.MapToLinear(h.aad) +
@@ -217,8 +270,32 @@ module {:extern "MessageHeader"} MessageHeader {
       [h.ivLength] +
       UInt32ToSeq(h.frameLength)
     )
+
+    //= compliance/data-format/message-header.txt#2.5.1.2
+    //# +===========+=====================+================================+
+    //# | Field     | Length (bytes)      | Interpreted as                 |
+    //# +===========+=====================+================================+
+    //# | Section   | 1                   | See Supported Versions         |
+    //# | 2.1       |                     | (Section 2.5.1.3.1) (MUST be   |
+    //# |           |                     | "02" in version 2.0 Headers)   |
+    //# +-----------+---------------------+--------------------------------+
+    //# | Algorithm | 2                   | See Supported Algorithm Suites |
+    //# | Suite ID  |                     | (../framework/algorithm-       |
+    //# | (Section  |                     | suites.md#supported-algorithm- |
+    //# | 2.5.1.5)  |                     | suites)                        |
+    //# +-----------+---------------------+--------------------------------+
+    //# | Message   | 16                  | Bytes                          |
+    //# | ID        |                     |                                |
+    //# | (Section  |                     |                                |
+    //# | 2.5.1.6)  |                     |                                |
+    //# +-----------+---------------------+--------------------------------+
+    //# | Section   | Variable.
     case V2(h) => (
       [h.algorithmSuiteID.MessageFormat() as uint8] +
+      //= compliance/data-format/message-header.txt#2.5.1.5
+      //# The value (hex) of this field MUST be a value that exists
+      //# in the Supported Algorithm Suites (../framework/algorithm-
+      //# suites.md#supported-algorithm-suites) table.
       UInt16ToSeq(h.algorithmSuiteID as uint16) +
       h.messageID +
       EncryptionContext.MapToLinear(h.aad) +

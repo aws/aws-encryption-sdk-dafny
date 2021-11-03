@@ -28,7 +28,7 @@ module {:extern "Materials"} Materials {
                                                providerInfo: seq<uint8>,
                                                ciphertext: seq<uint8>)
   {
-    predicate Valid() {
+    predicate method Valid() {
       |providerID| < UINT16_LIMIT &&
       |providerInfo| < UINT16_LIMIT &&
       |ciphertext| < UINT16_LIMIT

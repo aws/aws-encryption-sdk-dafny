@@ -223,6 +223,11 @@ module {:extern "ESDKClient"} ESDKClient {
       return Failure("Number of EDKs exceeds the allowed maximum.");
     }
 
+    //= compliance/data-format/message-header.txt#2.5.1.6
+    //# While
+    //# implementations cannot guarantee complete uniqueness, implementations
+    //# MUST use a good source of randomness when generating messages IDs in
+    //# order to make the chance of duplicate IDs negligible.
     var messageID: Msg.MessageID :- Random.GenerateBytes(Msg.MESSAGE_ID_LEN as int32);
     var derivedDataKey := DeriveKey(encMat.plaintextDataKey.value, encMat.algorithmSuiteID, messageID);
 
