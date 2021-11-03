@@ -102,15 +102,15 @@ module {:extern "AwsKmsMrkAwareMultiKeyrings"} AwsKmsMrkAwareMultiKeyrings {
       && (awsKmsKeys.Some?
       ==>
         && |awsKmsKeys.value| == |res.value.children|
-        && forall i | 0 <= i < |awsKmsKeys.value| ::
+        && forall index | 0 <= index < |awsKmsKeys.value| ::
           // AWS KMS MRK Aware Symmetric Keying must be created for each AWS KMS Key identifier
-          && var k: Keyring := res.value.children[i];
-          && k is AwsKmsMrkAwareSymmetricKeyring
-          && var c := k as AwsKmsMrkAwareSymmetricKeyring;
+          && var childKeyring: Keyring := res.value.children[index];
+          && childKeyring is AwsKmsMrkAwareSymmetricKeyring
+          && var awsKmsChild := childKeyring as AwsKmsMrkAwareSymmetricKeyring;
           // AWS KMS key identifier
-          && c.awsKmsKey == awsKmsKeys.value[i]
+          && awsKmsChild.awsKmsKey == awsKmsKeys.value[index]
           // The input list of AWS KMS grant tokens
-          && (grantTokens.Some? ==> c.grantTokens == grantTokens.value))
+          && (grantTokens.Some? ==> awsKmsChild.grantTokens == grantTokens.value))
       && (awsKmsKeys.None?
       ==>
         && res.value.children == [])
@@ -144,8 +144,8 @@ module {:extern "AwsKmsMrkAwareMultiKeyrings"} AwsKmsMrkAwareMultiKeyrings {
     var generatorKeyring : AwsKmsMrkAwareSymmetricKeyring?;
     match generator {
       case Some(generatorIdentifier) =>
-        var info :- IsAwsKmsIdentifierString(generatorIdentifier);
-        var region := GetRegion(info);
+        var arn :- IsAwsKmsIdentifierString(generatorIdentifier);
+        var region := GetRegion(arn);
         var client :- supplier.GetClient(region);
         generatorKeyring := new AwsKmsMrkAwareSymmetricKeyring(
           client,
@@ -160,16 +160,16 @@ module {:extern "AwsKmsMrkAwareMultiKeyrings"} AwsKmsMrkAwareMultiKeyrings {
 
     match awsKmsKeys {
       case Some(childIdentifiers) =>
-        for i := 0 to |childIdentifiers|
+        for index := 0 to |childIdentifiers|
           invariant generatorKeyring != null ==> generatorKeyring.Valid()
-          invariant forall k :: k in children ==> k.Valid()
-          invariant |awsKmsKeys.value[..i]| == |children|
-          invariant forall i | 0 <= i < |children|
+          invariant forall keyring :: keyring in children ==> keyring.Valid()
+          invariant |awsKmsKeys.value[..index]| == |children|
+          invariant forall index | 0 <= index < |children|
           ::
-            && children[i].awsKmsKey == awsKmsKeys.value[i]
-            && (grantTokens.Some? ==> children[i].grantTokens == grantTokens.value)
+            && children[index].awsKmsKey == awsKmsKeys.value[index]
+            && (grantTokens.Some? ==> children[index].grantTokens == grantTokens.value)
         {
-          var childIdentifier := childIdentifiers[i];
+          var childIdentifier := childIdentifiers[index];
           var info :- IsAwsKmsIdentifierString(childIdentifier);
           var region := GetRegion(info);
           var client :- supplier.GetClient(region);
