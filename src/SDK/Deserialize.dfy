@@ -508,34 +508,39 @@ module Deserialize {
       invariant forall i :: 0 <= i < |edkEntries| ==> edkEntries[i].Valid()
       invariant Msg.EDKEntriesToSeq(edkEntries, 0, |edkEntries|) == rd.reader.data[old(rd.reader.pos) + 2 .. rd.reader.pos]
     {
-      ghost var invStartPos := rd.reader.pos;
+      ghost var edkStartPos := rd.reader.pos;
+      ghost var providerIdStartPos := edkStartPos;
       // Key provider ID
-      var keyProviderIDLength :- rd.ReadUInt16();
-      var str :- DeserializeUTF8(rd, keyProviderIDLength as nat);
-      var keyProviderID := str;
+      var providerIdLength :- rd.ReadUInt16();
+      var str :- DeserializeUTF8(rd, providerIdLength as nat);
+      var providerId := str;
+      assert rd.reader.pos == providerIdStartPos + 2 + |providerId|;
+      assert UInt16ToSeq(|providerId| as uint16) + providerId == rd.reader.data[providerIdStartPos..rd.reader.pos];
 
       // Key provider info
-      var keyProviderInfoLength :- rd.ReadUInt16();
-      var keyProviderInfo :- rd.ReadBytes(keyProviderInfoLength as nat);
-      // TODO proof needs additional handholding here where it didn't before. Should make more stable.
-      assert UInt16ToSeq(|keyProviderInfo| as uint16) + keyProviderInfo == rd.reader.data[invStartPos+2+|keyProviderID|..invStartPos+2+|keyProviderID|+2+|keyProviderInfo|];
+      ghost var providerInfoStartPos := rd.reader.pos;
+      var providerInfoLength :- rd.ReadUInt16();
+      var providerInfo :- rd.ReadBytes(providerInfoLength as nat);
+      assert rd.reader.pos == providerInfoStartPos + 2 + |providerInfo|;
+      assert UInt16ToSeq(|providerInfo| as uint16) + providerInfo == rd.reader.data[providerInfoStartPos..rd.reader.pos];
 
-      // Encrypted data key
-      var edkLength :- rd.ReadUInt16();
-      var edk :- rd.ReadBytes(edkLength as nat);
-      // TODO proof needs additional handholding here where it didn't before. Should make more stable.
-      assert UInt16ToSeq(|edk| as uint16) + edk == rd.reader.data[invStartPos+2+|keyProviderID|+2+|keyProviderInfo|..invStartPos+2+|keyProviderID|+2+|keyProviderInfo|+2+|edk|];
+      // Ciphertext
+      ghost var ciphertextStartPos := rd.reader.pos;
+      var ciphertextLength :- rd.ReadUInt16();
+      var ciphertext :- rd.ReadBytes(ciphertextLength as nat);
+      assert rd.reader.pos == ciphertextStartPos + 2 + |ciphertext|;
+      assert UInt16ToSeq(|ciphertext| as uint16) + ciphertext == rd.reader.data[ciphertextStartPos..rd.reader.pos];
 
-      edkEntries := edkEntries + [Crypto.EncryptedDataKey(keyProviderId:=keyProviderID, keyProviderInfo:=keyProviderInfo, ciphertext:=edk)];
+      edkEntries := edkEntries + [Crypto.EncryptedDataKey(keyProviderId:=providerId, keyProviderInfo:=providerInfo, ciphertext:=ciphertext)];
       i := i + 1;
-      assert invStartPos < rd.reader.pos;
+      assert edkStartPos + 2 + |providerId| + 2 + |providerInfo| + 2 + |ciphertext| == rd.reader.pos;
       assert Msg.EDKEntriesToSeq(edkEntries, 0, |edkEntries|) == rd.reader.data[old(rd.reader.pos) + 2 .. rd.reader.pos] by {
         // TODO proof needs additional handholding here where it didn't before. Should make more stable somehow.
-        assert UInt16ToSeq(|keyProviderID| as uint16) + keyProviderID == rd.reader.data[invStartPos..invStartPos+2+|keyProviderID|];
-        assert UInt16ToSeq(|keyProviderInfo| as uint16) + keyProviderInfo == rd.reader.data[invStartPos+2+|keyProviderID|..invStartPos+2+|keyProviderID|+2+|keyProviderInfo|];
-        assert Msg.EDKEntryToSeq(Crypto.EncryptedDataKey(keyProviderId:=keyProviderID, keyProviderInfo:=keyProviderInfo, ciphertext:=edk)) == rd.reader.data[invStartPos..rd.reader.pos];
+        assert UInt16ToSeq(|providerId| as uint16) + providerId == rd.reader.data[edkStartPos..edkStartPos+2+|providerId|];
+        assert UInt16ToSeq(|providerInfo| as uint16) + providerInfo == rd.reader.data[edkStartPos+2+|providerId|..edkStartPos+2+|providerId|+2+|providerInfo|];
+        assert Msg.EDKEntryToSeq(Crypto.EncryptedDataKey(keyProviderId:=providerId, keyProviderInfo:=providerInfo, ciphertext:=ciphertext)) == rd.reader.data[edkStartPos..rd.reader.pos];
         Msg.EDKEntriesToSeqInductiveStep(edkEntries[..|edkEntries| - 1],
-          [Crypto.EncryptedDataKey(keyProviderId:=keyProviderID, keyProviderInfo:=keyProviderInfo, ciphertext:=edk)], 0, |edkEntries[..|edkEntries| - 1]|);
+          [Crypto.EncryptedDataKey(keyProviderId:=providerId, keyProviderInfo:=providerInfo, ciphertext:=ciphertext)], 0, |edkEntries[..|edkEntries| - 1]|);
       }
     }
     assert |edkEntries| == edkCount as int;
