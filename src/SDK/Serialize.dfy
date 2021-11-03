@@ -246,16 +246,16 @@ module Serialize {
     {
       var entry := encryptedDataKeys.entries[j];
 
-      len := wr.WriteUInt16(|entry.providerID| as uint16);
+      len := wr.WriteUInt16(|entry.keyProviderId| as uint16);
       totalWritten := totalWritten + len;
 
-      len := wr.WriteBytes(entry.providerID);
+      len := wr.WriteBytes(entry.keyProviderId);
       totalWritten := totalWritten + len;
 
-      len := wr.WriteUInt16(|entry.providerInfo| as uint16);
+      len := wr.WriteUInt16(|entry.keyProviderInfo| as uint16);
       totalWritten := totalWritten + len;
 
-      len := wr.WriteBytes(entry.providerInfo);
+      len := wr.WriteBytes(entry.keyProviderInfo);
       totalWritten := totalWritten + len;
 
       len := wr.WriteUInt16(|entry.ciphertext| as uint16);

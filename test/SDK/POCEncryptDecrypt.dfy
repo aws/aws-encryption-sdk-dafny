@@ -59,7 +59,7 @@ module {:extern "TestClient"} TestClient {
     var input := Esdk.EncryptInput(
       plaintext:=plaintext,
       encryptionContext:=encryptionContext,
-      algorithmSuiteID:=None(),
+      algorithmSuiteId:=None(),
       materialsManager:=cmm);
     var res :- expect client.Encrypt(input);
 

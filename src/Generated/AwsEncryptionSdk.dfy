@@ -12,7 +12,7 @@ module {:extern "Dafny.Aws.Esdk"} Aws.Esdk {
         nameonly plaintext: seq<uint8>,
         nameonly encryptionContext: Crypto.EncryptionContext, // TODO Make an option?
         nameonly materialsManager: Crypto.ICryptographicMaterialsManager,
-        nameonly algorithmSuiteID: Option<Crypto.AlgorithmSuiteId>
+        nameonly algorithmSuiteId: Option<Crypto.AlgorithmSuiteId>
         // TODO reintroduce optional materialsManager and optional keyring
     )
     {
@@ -25,7 +25,7 @@ module {:extern "Dafny.Aws.Esdk"} Aws.Esdk {
         nameonly ciphertext: seq<uint8>
         // TODO Hook up additional Encryption outputs
         // nameonly encryptionContext: Crypto.EncryptionContext,
-        // nameonly algorithmSuite: Crypto.AlgorithmSuiteId
+        // nameonly algorithmSuiteId: Crypto.AlgorithmSuiteId
     )
     {
         predicate Valid() {
@@ -48,7 +48,7 @@ module {:extern "Dafny.Aws.Esdk"} Aws.Esdk {
         nameonly plaintext: seq<uint8>
         // TODO hook up additional decrypt outputs
         // nameonly encryptionContext: Crypto.EncryptionContext,
-        // nameonly algorithmSuite: Crypto.AlgorithmSuiteId
+        // nameonly algorithmSuiteId: Crypto.AlgorithmSuiteId
     )
     {
         predicate Valid() {

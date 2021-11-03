@@ -82,8 +82,8 @@ module {:extern "RawAESKeyringDef"} RawAESKeyringDef {
 
     // TODO move to materials
     predicate method ValidEncryptionMaterials(mat: Crypto.EncryptionMaterials) {
-      && (AlgorithmSuite.PolymorphIDToInternalID(mat.algorithmSuiteID).SignatureType().Some? ==> mat.signingKey.Some?)
-      && (mat.plaintextDataKey.Some? ==> AlgorithmSuite.PolymorphIDToInternalID(mat.algorithmSuiteID).ValidPlaintextDataKey(mat.plaintextDataKey.value))
+      && (AlgorithmSuite.PolymorphIDToInternalID(mat.algorithmSuiteId).SignatureType().Some? ==> mat.signingKey.Some?)
+      && (mat.plaintextDataKey.Some? ==> AlgorithmSuite.PolymorphIDToInternalID(mat.algorithmSuiteId).ValidPlaintextDataKey(mat.plaintextDataKey.value))
       && (mat.plaintextDataKey.None? ==> |mat.encryptedDataKeys| == 0)
     }
 
@@ -133,7 +133,7 @@ module {:extern "RawAESKeyringDef"} RawAESKeyringDef {
       // requires Valid()
       ensures res.Success? ==>
         && input.materials.encryptionContext == res.value.materials.encryptionContext
-        && input.materials.algorithmSuiteID == res.value.materials.algorithmSuiteID
+        && input.materials.algorithmSuiteId == res.value.materials.algorithmSuiteId
         && (input.materials.plaintextDataKey.Some? ==> res.value.materials.plaintextDataKey == input.materials.plaintextDataKey)
         && input.materials.encryptedDataKeys <= res.value.materials.encryptedDataKeys
         && input.materials.signingKey == res.value.materials.signingKey
@@ -156,11 +156,11 @@ module {:extern "RawAESKeyringDef"} RawAESKeyringDef {
         && |res.value.materials.encryptedDataKeys| == |input.materials.encryptedDataKeys| + 1
         // *  The key provider ID (structures.md#key-provider-id) is this
         // keyring's key namespace (./keyring-interface.md#key-namespace).
-        && res.value.materials.encryptedDataKeys[|input.materials.encryptedDataKeys|].providerID == keyNamespace
+        && res.value.materials.encryptedDataKeys[|input.materials.encryptedDataKeys|].keyProviderId == keyNamespace
         // *  The key provider information (structures.md#key-provider-
         //   information) is serialized as the raw AES keyring key provider
         //   information (Section 2.6.1).
-        && ValidProviderInfo(res.value.materials.encryptedDataKeys[|input.materials.encryptedDataKeys|].providerInfo)
+        && ValidProviderInfo(res.value.materials.encryptedDataKeys[|input.materials.encryptedDataKeys|].keyProviderInfo)
         // *  The ciphertext (structures.md#ciphertext) is serialized as the raw
         // AES keyring ciphertext (Section 2.6.2).
         // TODO ??? strongly tiw output to SerializeEDKCiphertext
@@ -195,10 +195,10 @@ module {:extern "RawAESKeyringDef"} RawAESKeyringDef {
       //# plaintext data key and set it on the encryption materials
       //# (structures.md#encryption-materials).
       if materialsWithDataKey.plaintextDataKey.None? {
-        var k :- Random.GenerateBytes(AlgorithmSuite.PolymorphIDToInternalID(input.materials.algorithmSuiteID).KeyLength() as int32);
+        var k :- Random.GenerateBytes(AlgorithmSuite.PolymorphIDToInternalID(input.materials.algorithmSuiteId).KeyLength() as int32);
         materialsWithDataKey := Crypto.EncryptionMaterials(
           encryptionContext := materialsWithDataKey.encryptionContext,
-          algorithmSuiteID := materialsWithDataKey.algorithmSuiteID,
+          algorithmSuiteId := materialsWithDataKey.algorithmSuiteId,
           signingKey := materialsWithDataKey.signingKey,
           plaintextDataKey := Some(k),
           encryptedDataKeys := []);
@@ -224,7 +224,7 @@ module {:extern "RawAESKeyringDef"} RawAESKeyringDef {
       if UINT16_LIMIT <= |encryptedKey| {
         return Failure("Encrypted data key too long.");
       }
-      var edk:Crypto.ValidEncryptedDataKey := Crypto.EncryptedDataKey(providerID := keyNamespace, providerInfo := providerInfo, ciphertext := encryptedKey);
+      var edk:Crypto.ValidEncryptedDataKey := Crypto.EncryptedDataKey(keyProviderId := keyNamespace, keyProviderInfo := providerInfo, ciphertext := encryptedKey);
 
       //= compliance/framework/raw-aes-keyring.txt#2.7.1
       //# The keyring MUST append the constructed encrypted data key to the
@@ -237,7 +237,7 @@ module {:extern "RawAESKeyringDef"} RawAESKeyringDef {
       var edks:seq<Crypto.ValidEncryptedDataKey> := materialsWithDataKey.encryptedDataKeys + [edk];
       var r := Crypto.EncryptionMaterials(
         encryptionContext := materialsWithDataKey.encryptionContext,
-        algorithmSuiteID := materialsWithDataKey.algorithmSuiteID,
+        algorithmSuiteId := materialsWithDataKey.algorithmSuiteId,
         signingKey := materialsWithDataKey.signingKey,
         plaintextDataKey := materialsWithDataKey.plaintextDataKey,
         encryptedDataKeys := edks);
@@ -261,7 +261,7 @@ module {:extern "RawAESKeyringDef"} RawAESKeyringDef {
       ensures Valid() && input.materials.plaintextDataKey.Some? ==> res.Success? && input.materials == res.value.materials
       ensures res.Success? ==>
           && input.materials.encryptionContext == res.value.materials.encryptionContext
-          && input.materials.algorithmSuiteID == res.value.materials.algorithmSuiteID
+          && input.materials.algorithmSuiteId == res.value.materials.algorithmSuiteId
           && (input.materials.plaintextDataKey.Some? ==> res.value.materials.plaintextDataKey == input.materials.plaintextDataKey)
           && res.value.materials.verificationKey == input.materials.verificationKey
 
@@ -327,7 +327,7 @@ module {:extern "RawAESKeyringDef"} RawAESKeyringDef {
           // TODO without mocking there isn't a good way to test this...
           var aad := wr.GetDataWritten();
           assert aad == EncryptionContext.MapToSeq(input.materials.encryptionContext);
-          var iv := GetIvFromProvInfo(input.encryptedDataKeys[i].providerInfo);
+          var iv := GetIvFromProvInfo(input.encryptedDataKeys[i].keyProviderInfo);
           var encryptionOutput := DeserializeEDKCiphertext(input.encryptedDataKeys[i].ciphertext, wrappingAlgorithm.tagLen as nat);
 
           //= compliance/framework/raw-aes-keyring.txt#2.7.2
@@ -340,10 +340,10 @@ module {:extern "RawAESKeyringDef"} RawAESKeyringDef {
           //# If a decryption succeeds, this keyring MUST add the resulting
           //# plaintext data key to the decryption input.materials and return the
           //# modified input.materials.
-          if AlgorithmSuite.PolymorphIDToInternalID(input.materials.algorithmSuiteID).ValidPlaintextDataKey(ptKey) { // check for correct key length
+          if AlgorithmSuite.PolymorphIDToInternalID(input.materials.algorithmSuiteId).ValidPlaintextDataKey(ptKey) { // check for correct key length
             var r := Crypto.DecryptionMaterials(
             encryptionContext := input.materials.encryptionContext,
-            algorithmSuiteID := input.materials.algorithmSuiteID,
+            algorithmSuiteId := input.materials.algorithmSuiteId,
             verificationKey := input.materials.verificationKey,
             plaintextDataKey := Some(ptKey));
             return Success(Crypto.OnDecryptOutput(materials:=r));
@@ -367,7 +367,7 @@ module {:extern "RawAESKeyringDef"} RawAESKeyringDef {
     //# only if the following is true:
     // TODO break up
     predicate method ShouldDecryptEDK(edk: Crypto.EncryptedDataKey) {
-      edk.providerID == keyNamespace && ValidProviderInfo(edk.providerInfo) && wrappingAlgorithm.tagLen as int <= |edk.ciphertext|
+      edk.keyProviderId == keyNamespace && ValidProviderInfo(edk.keyProviderInfo) && wrappingAlgorithm.tagLen as int <= |edk.ciphertext|
     }
 
     // TODO #68: prove providerInfo serializes/deserializes correctly

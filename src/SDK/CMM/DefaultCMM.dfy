@@ -54,15 +54,15 @@ module {:extern "DefaultCMMDef"} DefaultCMMDef {
       requires input.Valid()
       // TODO what is the history behind this predicate and should we reintroduce it?
       // ensures res.Success? ==> EncryptionMaterialsSignature(res.value.materials)
-      ensures res.Success? ==> res.value.materials.plaintextDataKey.Some? && Serializable(res.value.materials)
+      ensures res.Success? ==> res.value.encryptionMaterials.plaintextDataKey.Some? && Serializable(res.value.encryptionMaterials)
       ensures Materials.EC_PUBLIC_KEY_FIELD in input.encryptionContext ==> res.Failure?
-      ensures res.Success? && (input.algorithmSuiteID.None? || AlgorithmSuite.PolymorphIDToInternalID(input.algorithmSuiteID.value).SignatureType().Some?) ==>
-        Materials.EC_PUBLIC_KEY_FIELD in res.value.materials.encryptionContext
-      ensures res.Success? ==> Serializable(res.value.materials)
+      ensures res.Success? && (input.algorithmSuiteId.None? || AlgorithmSuite.PolymorphIDToInternalID(input.algorithmSuiteId.value).SignatureType().Some?) ==>
+        Materials.EC_PUBLIC_KEY_FIELD in res.value.encryptionMaterials.encryptionContext
+      ensures res.Success? ==> Serializable(res.value.encryptionMaterials)
       ensures res.Success? ==>
-        match input.algorithmSuiteID
-        case Some(id) => res.value.materials.algorithmSuiteID == id
-        case None => AlgorithmSuite.PolymorphIDToInternalID(res.value.materials.algorithmSuiteID) == 0x0378
+        match input.algorithmSuiteId
+        case Some(id) => res.value.encryptionMaterials.algorithmSuiteId == id
+        case None => AlgorithmSuite.PolymorphIDToInternalID(res.value.encryptionMaterials.algorithmSuiteId) == 0x0378
     {
       // reveal EncryptionMaterialsSignatureOpaque();
       var reservedField := Materials.EC_PUBLIC_KEY_FIELD;
@@ -71,8 +71,8 @@ module {:extern "DefaultCMMDef"} DefaultCMMDef {
         return Failure("Reserved Field found in EncryptionContext keys.");
       }
       var id := AlgorithmSuite.AES_256_GCM_IV12_TAG16_HKDF_SHA384_ECDSA_P384;
-      if (input.algorithmSuiteID.Some?) {
-        id := AlgorithmSuite.PolymorphIDToInternalID(input.algorithmSuiteID.value);
+      if (input.algorithmSuiteId.Some?) {
+        id := AlgorithmSuite.PolymorphIDToInternalID(input.algorithmSuiteId.value);
       }
       var enc_sk := None;
       var enc_ctx := input.encryptionContext;
@@ -96,7 +96,7 @@ module {:extern "DefaultCMMDef"} DefaultCMMDef {
 
       var materials := Crypto.EncryptionMaterials(
         encryptionContext:=enc_ctx,
-        algorithmSuiteID:=AlgorithmSuite.InternalIDToPolymorphID(id),
+        algorithmSuiteId:=AlgorithmSuite.InternalIDToPolymorphID(id),
         plaintextDataKey:=None(),
         encryptedDataKeys:=[],
         signingKey:=enc_sk
@@ -111,7 +111,7 @@ module {:extern "DefaultCMMDef"} DefaultCMMDef {
       // TODO more informative error message
       :- Need(OnEncryptResultValid(input, result), "Keyring returned an invalid response");
 
-      return Success(Crypto.GetEncryptionMaterialsOutput(materials:=result.materials));
+      return Success(Crypto.GetEncryptionMaterialsOutput(encryptionMaterials:=result.materials));
     }
 
     method DecryptMaterials(input: Crypto.DecryptMaterialsInput)
@@ -121,7 +121,7 @@ module {:extern "DefaultCMMDef"} DefaultCMMDef {
     {
       // Retrieve and decode verification key from encryption context if using signing algorithm
       var vkey := None;
-      var algID := AlgorithmSuite.PolymorphIDToInternalID(input.algorithmSuiteID);
+      var algID := AlgorithmSuite.PolymorphIDToInternalID(input.algorithmSuiteId);
       var encCtx := input.encryptionContext;
 
       if algID.SignatureType().Some? {
@@ -137,7 +137,7 @@ module {:extern "DefaultCMMDef"} DefaultCMMDef {
 
       var materials := Crypto.DecryptionMaterials(
         encryptionContext:=encCtx,
-        algorithmSuiteID:=input.algorithmSuiteID,
+        algorithmSuiteId:=input.algorithmSuiteId,
         plaintextDataKey:=None(),
         verificationKey:=vkey
       );
@@ -156,11 +156,11 @@ module {:extern "DefaultCMMDef"} DefaultCMMDef {
       && (
         result.materials.plaintextDataKey.Some? && Serializable(result.materials))
       && (
-        (input.algorithmSuiteID.None? || AlgorithmSuite.PolymorphIDToInternalID(input.algorithmSuiteID.value).SignatureType().Some?) ==> Materials.EC_PUBLIC_KEY_FIELD in result.materials.encryptionContext)
+        (input.algorithmSuiteId.None? || AlgorithmSuite.PolymorphIDToInternalID(input.algorithmSuiteId.value).SignatureType().Some?) ==> Materials.EC_PUBLIC_KEY_FIELD in result.materials.encryptionContext)
       && (
-      match input.algorithmSuiteID
-        case Some(id) => result.materials.algorithmSuiteID == id
-        case None => AlgorithmSuite.PolymorphIDToInternalID(result.materials.algorithmSuiteID) == 0x0378)
+      match input.algorithmSuiteId
+        case Some(id) => result.materials.algorithmSuiteId == id
+        case None => AlgorithmSuite.PolymorphIDToInternalID(result.materials.algorithmSuiteId) == 0x0378)
     }
   }
 }
