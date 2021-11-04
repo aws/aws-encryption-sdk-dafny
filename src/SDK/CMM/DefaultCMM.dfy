@@ -228,10 +228,10 @@ module {:extern "DefaultCMMDef"} DefaultCMMDef {
       //# includes the reserved "aws-crypto-public-key" key, the operation MUST
       //# fail without returning any decryption materials.
       ensures
-        && res.Success? 
-        &&  materialsRequest.algorithmSuiteID.SignatureType().None?
+        && materialsRequest.algorithmSuiteID.SignatureType().None?
+        && Materials.EC_PUBLIC_KEY_FIELD in materialsRequest.encryptionContext
       ==>
-         forall key | key in res.value.encryptionContext :: key != Materials.EC_PUBLIC_KEY_FIELD
+        res.Failure?
 
       // TODO: update spec to specify that this is for signing algorithms
       //= compliance/framework/default-cmm.txt#2.6.2
