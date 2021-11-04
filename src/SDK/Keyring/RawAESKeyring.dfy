@@ -130,7 +130,6 @@ module {:extern "RawAESKeyringDef"} RawAESKeyringDef {
     method OnEncrypt(input: Crypto.OnEncryptInput) returns (res: Result<Crypto.OnEncryptOutput, string>)
 
       // Keyring Trait conditions
-      // requires Valid()
       ensures res.Success? ==>
         && input.materials.encryptionContext == res.value.materials.encryptionContext
         && input.materials.algorithmSuiteId == res.value.materials.algorithmSuiteId

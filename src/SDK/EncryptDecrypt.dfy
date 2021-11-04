@@ -159,12 +159,6 @@ module {:extern "EncryptDecrypt"} EncryptDecrypt {
   * Encrypt a plaintext and serialize it into a message.
   */
   method Encrypt(request: EncryptRequest) returns (res: Result<seq<uint8>, string>)
-    // I do not know why the below modifies clauses are necessary for our original impl.
-    // For our new impl, it causes problems
-    // (in the Client test, you can only use a cmm/keyring once before it gets "tainted" and can't use it again without Dafny complaining about modifies clauses)
-    // I am not sure what change in the impl would cause this, or why our previous tests for the old impl do not have this problem
-    // modifies if request.cmm == null then {} else request.cmm.Repr
-    // modifies if request.keyring == null then {} else request.keyring.Repr
     ensures request.cmm == null && request.keyring == null ==> res.Failure?
     ensures request.cmm != null && request.keyring != null ==> res.Failure?
     ensures request.algorithmSuiteID.Some? && request.algorithmSuiteID.value !in AlgorithmSuite.VALID_IDS ==> res.Failure?
@@ -205,6 +199,7 @@ module {:extern "EncryptDecrypt"} EncryptDecrypt {
 
     var algorithmSuiteID := if request.algorithmSuiteID.Some? then Some(AlgorithmSuite.InternalIDToPolymorphID(request.algorithmSuiteID.value as AlgorithmSuite.ID)) else None;
 
+    // TODO turn this into Needs
     expect request.plaintextLength < INT64_MAX_LIMIT;
     var encMatRequest := Crypto.GetEncryptionMaterialsInput(encryptionContext:=request.encryptionContext, algorithmSuiteId:=algorithmSuiteID, maxPlaintextLength:=Option.Some(request.plaintextLength as int64));
 
@@ -212,7 +207,9 @@ module {:extern "EncryptDecrypt"} EncryptDecrypt {
 
     var encMat := output.encryptionMaterials;
 
-    // TODO turn these into Needs and move into some predicate
+    // TODO turn these into Needs and move into some predicate. Note
+    // that once we do so, making the verifier happy is a non-trivial
+    // amount of effort.
     //expect CMMDefs.EncryptionMaterialsSignature(encMat);
     expect encMat.plaintextDataKey.Some?;
     expect (algorithmSuiteID.None? || (request.algorithmSuiteID.value as AlgorithmSuite.ID).SignatureType().Some?) ==>
@@ -331,8 +328,6 @@ module {:extern "EncryptDecrypt"} EncryptDecrypt {
   }
 
   method Decrypt(request: DecryptRequest) returns (res: Result<seq<uint8>, string>)
-    // modifies if request.cmm == null then {} else request.cmm.Repr
-    // modifies if request.keyring == null then {} else request.keyring.Repr
     ensures request.cmm == null && request.keyring == null ==> res.Failure?
     ensures request.cmm != null && request.keyring != null ==> res.Failure?
   {
@@ -350,12 +345,6 @@ module {:extern "EncryptDecrypt"} EncryptDecrypt {
 
   // Verification of this method requires verification of the CMM to some extent, The verification of the Decrypt method should be extended after CMM is verified
   method DecryptWithVerificationInfo(request: DecryptRequest) returns (res: Result<DecryptResultWithVerificationInfo, string>)
-    // I do not know why the below modifies clauses are necessary for our original impl.
-    // For our new impl, it causes problems
-    // (in the Client test, you can only use a cmm/keyring once before it gets "tainted" and can't use it again without Dafny complaining about modifies clauses)
-    // I am not sure what change in the impl would cause this, or why our previous tests for the old impl do not have this problem
-    // modifies if request.cmm == null then {} else request.cmm.Repr
-    // modifies if request.keyring == null then {} else request.keyring.Repr
     ensures request.cmm == null && request.keyring == null ==> res.Failure?
     ensures request.cmm != null && request.keyring != null ==> res.Failure?
     ensures match res // Verify that if no error occurs the correct objects are deserialized from the stream
@@ -411,6 +400,7 @@ module {:extern "EncryptDecrypt"} EncryptDecrypt {
     var output :- cmm.DecryptMaterials(decMatRequest);
     var decMat := output.decryptionMaterials;
 
+    // TODO: turn into Needs
     expect decMat.plaintextDataKey.Some?;
     expect |decMat.plaintextDataKey.value| == AlgorithmSuite.PolymorphIDToInternalID(decMat.algorithmSuiteId).KDFInputKeyLength();
     var decryptionKey := DeriveKey(decMat.plaintextDataKey.value,AlgorithmSuite.PolymorphIDToInternalID(decMat.algorithmSuiteId), header.body.messageID);
@@ -528,6 +518,7 @@ module {:extern "EncryptDecrypt"} EncryptDecrypt {
         && 2 <= old(rd.reader.pos) + 2 <= rd.reader.pos
         && SignatureBySequence(signature, rd.reader.data[old(rd.reader.pos)..rd.reader.pos])
   {
+    // TODO: turn into Needs
     expect AlgorithmSuite.PolymorphIDToInternalID(decMat.algorithmSuiteId).SignatureType().Some?;
     var ecdsaParams := AlgorithmSuite.PolymorphIDToInternalID(decMat.algorithmSuiteId).SignatureType().value;
     var usedCapacity := rd.GetSizeRead();
@@ -543,6 +534,7 @@ module {:extern "EncryptDecrypt"} EncryptDecrypt {
       return Failure(sigResult.error), [];
     }
     // verify signature
+    // TODO: turn into Needs
     expect decMat.verificationKey.Some?;
     var signatureVerifiedResult := Signature.Verify(ecdsaParams, decMat.verificationKey.value, msg, sigResult.value);
     if signatureVerifiedResult.Failure? {

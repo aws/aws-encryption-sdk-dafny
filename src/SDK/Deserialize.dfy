@@ -72,7 +72,6 @@ module Deserialize {
   {
     var version :- DeserializeVersion(rd);
     var typ :- DeserializeType(rd);
-
     var algorithmSuiteID :- DeserializeAlgorithmSuiteID(rd);
     var messageID :- DeserializeMsgID(rd);
 

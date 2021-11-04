@@ -23,6 +23,8 @@ module {:extern "EncryptionContext"} EncryptionContext {
    * Serializability predicates
    */
 
+  // TODO: We turned this into a function method; we should investigate
+  // whether there are any performance implications
   predicate method {:opaque} Serializable(encryptionContext: Map) {
     && SerializableKVPairs(encryptionContext)
     && Length(encryptionContext) < UINT16_LIMIT

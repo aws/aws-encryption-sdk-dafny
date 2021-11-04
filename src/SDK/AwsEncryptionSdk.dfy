@@ -1,6 +1,9 @@
 // Copyright Amazon.com Inc. or its affiliates. All Rights Reserved.
 // SPDX-License-Identifier: Apache-2.0
 
+// TODO: Originally written as part of POC; we should come back through this
+// to refine it 
+
 include "../StandardLibrary/StandardLibrary.dfy"
 include "../StandardLibrary/UInt.dfy"
 include "../Generated/AwsCryptographicMaterialProviders.dfy"
@@ -17,7 +20,6 @@ module {:extern "Dafny.Aws.Esdk.AwsEncryptionSdkClient"} AwsEncryptionSdk {
   import Aws.Esdk
   import EncryptDecrypt
 
-  // move to different module
   class AwsEncryptionSdkClient extends Esdk.IAwsEncryptionSdkClient {
         constructor () {}
 

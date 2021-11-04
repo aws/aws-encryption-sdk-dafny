@@ -77,10 +77,6 @@ module {:extern "Dafny.Aws.Crypto"} Aws.Crypto {
 
     type EncryptedDataKeyList = seq<EncryptedDataKey>
 
-    // There are a number of assertions we can make about materials to validate correctness
-    // (for example: if the algorithm suite includes signing, the signingKey must not be null).
-    // However, we cannot model these in Smithy, so we will need to write them manually in the
-    // Dafny code rather than in this auto-generated portion.
     datatype EncryptionMaterials = EncryptionMaterials(nameonly algorithmSuiteId: AlgorithmSuiteId, // TODO update to algorithmSuite or update Smithy model (and elsewhere)
                                                        nameonly encryptionContext: EncryptionContext, // TODO should EC be an Option? (and elsewhere)
                                                        nameonly encryptedDataKeys: seq<ValidEncryptedDataKey>, // TODO should this be an Option? (and elsewhere)
@@ -138,10 +134,6 @@ module {:extern "Dafny.Aws.Crypto"} Aws.Crypto {
     //////////////////
     // keyrings.smithy
 
-    // For the input structures, we could remove these wrapper structures and inline the contained
-    // structures (in this case, encryption/decryption materials) directly in method signatures.
-    // But we cannot do the same for output, so for now we choose to give everything the wrapper
-    // to retain symmetry.
     datatype OnEncryptInput = OnEncryptInput(nameonly materials: EncryptionMaterials)
     {
         predicate Valid() {
