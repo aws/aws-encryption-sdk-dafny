@@ -49,7 +49,8 @@ module Actions {
     return rs;
   }
 
-  method MapWithResult<A, R, E>(
+  // TODO: Change R(0) -> R once https://github.com/dafny-lang/dafny/issues/1553 resolved
+  method MapWithResult<A, R(0), E>(
     action: ActionWithResult<A, R, E>,
     s: seq<A>
   )

@@ -1,8 +1,8 @@
 // Copyright Amazon.com Inc. or its affiliates. All Rights Reserved.
 // SPDX-License-Identifier: Apache-2.0
 
-include "../../src/SDK/Keyring/RawRSAKeyring.dfy"
-include "../../src/Crypto/RSAEncryption.dfy"
+include "../../src/SDK/Keyring/RawAESKeyring.dfy"
+include "../../src/Crypto/EncryptionSuites.dfy"
 include "../../src/StandardLibrary/StandardLibrary.dfy"
 include "../../src/StandardLibrary/UInt.dfy"
 include "../../src/Util/UTF8.dfy"
@@ -18,8 +18,8 @@ module {:extern "TestUtils"} TestUtils {
   import Materials
   import EncryptionContext
   import MessageHeader
-  import RSA = RSAEncryption
-  import RawRSAKeyringDef
+  import RawAESKeyringDef
+  import EncryptionSuites
 
   const SHARED_TEST_KEY_ARN := "arn:aws:kms:us-west-2:658956600833:key/b3537ef1-d8dc-4780-9f5a-55776cbb2f7f";
 
@@ -157,14 +157,11 @@ module {:extern "TestUtils"} TestUtils {
   {
   }
 
-  method MakeRSAKeyring() returns (res: Result<RawRSAKeyringDef.RawRSAKeyring, string>)
-    ensures res.Success? ==> res.value.Valid()
-    ensures res.Success? ==> fresh(res.value) && fresh(res.value.Repr)
+  method MakeAESKeyring() returns (res: Result<RawAESKeyringDef.RawAESKeyring, string>)
   {
     var namespace :- UTF8.Encode("namespace");
     var name :- UTF8.Encode("MyKeyring");
-    var ek, dk := RSA.GenerateKeyPair(2048, RSA.PKCS1);
-    var keyring := new RawRSAKeyringDef.RawRSAKeyring(namespace, name, RSA.PaddingMode.PKCS1, Some(ek), Some(dk));
+    var keyring := new RawAESKeyringDef.RawAESKeyring(namespace, name, seq(32, i => 0), EncryptionSuites.AES_GCM_256);
     return Success(keyring);
   }
 

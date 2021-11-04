@@ -6,75 +6,76 @@ include "../../StandardLibrary/UInt.dfy"
 include "../../StandardLibrary/Base64.dfy"
 include "../Materials.dfy"
 include "../EncryptionContext.dfy"
-include "Defs.dfy"
-include "../Keyring/Defs.dfy"
 include "../MessageHeader.dfy"
 include "../../Util/UTF8.dfy"
 include "../Deserialize.dfy"
+include "../../Generated/AwsCryptographicMaterialProviders.dfy"
 
 module {:extern "DefaultCMMDef"} DefaultCMMDef {
   import opened Wrappers
   import opened UInt = StandardLibrary.UInt
   import Materials
   import EncryptionContext
-  import CMMDefs
-  import KeyringDefs
   import AlgorithmSuite
   import Signature
   import Base64
   import MessageHeader
   import UTF8
   import Deserialize
+  import Aws.Crypto
 
-  predicate {:opaque } DecryptionMaterialsFromDefaultCMM(key: seq<uint8>)
-  {
-    true
+  // TODO move somewhere central
+  predicate method Serializable(mat:Crypto.EncryptionMaterials) {
+    && |mat.encryptedDataKeys| > 0
+    && EncryptionContext.Serializable(mat.encryptionContext)
   }
 
-  class DefaultCMM extends CMMDefs.CMM {
-    const keyring: KeyringDefs.Keyring
+  // TODO: What are these predicates doing and should we reintroduce them? We can't ensure them on all CMM GetEncryptionMaterials calls anymore.
+  // Predicate works arround a known error in Dafny: https://github.com/dafny-lang/dafny/issues/422
+  // predicate EncryptionMaterialsSignature(validEncryptionMaterials: Crypto.EncryptionMaterials) {
+  //  EncryptionMaterialsSignatureOpaque(validEncryptionMaterials)
+  // }
+  // predicate {:opaque } EncryptionMaterialsSignatureOpaque(validEncryptionMaterials: Crypto.EncryptionMaterials)
+  // {
+  //   true
+  // }
 
-    predicate Valid()
-      reads this, Repr
-      ensures Valid() ==> this in Repr
-    {
-      this in Repr &&
-      keyring in Repr && keyring.Repr <= Repr && this !in keyring.Repr && keyring.Valid()
-    }
+  class DefaultCMM extends Crypto.ICryptographicMaterialsManager {
+    const keyring: Crypto.IKeyring
 
-    constructor OfKeyring(k: KeyringDefs.Keyring)
-      requires k.Valid()
+    constructor OfKeyring(k: Crypto.IKeyring)
       ensures keyring == k
-      ensures Valid() && fresh(Repr - k.Repr)
     {
       keyring := k;
-      Repr := {this} + k.Repr;
     }
 
-    method GetEncryptionMaterials(materialsRequest: Materials.EncryptionMaterialsRequest)
-                                  returns (res: Result<Materials.ValidEncryptionMaterials, string>)
-      requires Valid()
-      ensures Valid()
-      ensures res.Success? ==> CMMDefs.EncryptionMaterialsSignature(res.value)
-      ensures res.Success? ==> res.value.plaintextDataKey.Some? && res.value.Serializable()
-      ensures Materials.EC_PUBLIC_KEY_FIELD in materialsRequest.encryptionContext ==> res.Failure?
-      ensures res.Success? && (materialsRequest.algorithmSuiteID.None? || materialsRequest.algorithmSuiteID.value.SignatureType().Some?) ==>
-        Materials.EC_PUBLIC_KEY_FIELD in res.value.encryptionContext
-      ensures res.Success? ==> res.value.Serializable()
+    method GetEncryptionMaterials(input: Crypto.GetEncryptionMaterialsInput)
+                                  returns (res: Result<Crypto.GetEncryptionMaterialsOutput, string>)
+      requires input.Valid()
+      // TODO what is the history behind this predicate and should we reintroduce it?
+      // ensures res.Success? ==> EncryptionMaterialsSignature(res.value.materials)
+      ensures res.Success? ==> res.value.encryptionMaterials.plaintextDataKey.Some? && Serializable(res.value.encryptionMaterials)
+      ensures Materials.EC_PUBLIC_KEY_FIELD in input.encryptionContext ==> res.Failure?
+      ensures res.Success? && (input.algorithmSuiteId.None? || AlgorithmSuite.PolymorphIDToInternalID(input.algorithmSuiteId.value).SignatureType().Some?) ==>
+        Materials.EC_PUBLIC_KEY_FIELD in res.value.encryptionMaterials.encryptionContext
+      ensures res.Success? ==> Serializable(res.value.encryptionMaterials)
       ensures res.Success? ==>
-        match materialsRequest.algorithmSuiteID
-        case Some(id) => res.value.algorithmSuiteID == id
-        case None => res.value.algorithmSuiteID == 0x0378
+        match input.algorithmSuiteId
+        case Some(id) => res.value.encryptionMaterials.algorithmSuiteId == id
+        case None => AlgorithmSuite.PolymorphIDToInternalID(res.value.encryptionMaterials.algorithmSuiteId) == 0x0378
     {
-      reveal CMMDefs.EncryptionMaterialsSignatureOpaque();
+      // reveal EncryptionMaterialsSignatureOpaque();
       var reservedField := Materials.EC_PUBLIC_KEY_FIELD;
       assert reservedField in Materials.RESERVED_KEY_VALUES;
-      if reservedField in materialsRequest.encryptionContext.Keys {
+      if reservedField in input.encryptionContext.Keys {
         return Failure("Reserved Field found in EncryptionContext keys.");
       }
-      var id := materialsRequest.algorithmSuiteID.UnwrapOr(AlgorithmSuite.AES_256_GCM_IV12_TAG16_HKDF_SHA384_ECDSA_P384);
+      var id := AlgorithmSuite.AES_256_GCM_IV12_TAG16_HKDF_SHA384_ECDSA_P384;
+      if (input.algorithmSuiteId.Some?) {
+        id := AlgorithmSuite.PolymorphIDToInternalID(input.algorithmSuiteId.value);
+      }
       var enc_sk := None;
-      var enc_ctx := materialsRequest.encryptionContext;
+      var enc_ctx := input.encryptionContext;
 
       match id.SignatureType() {
         case None =>
@@ -93,26 +94,35 @@ module {:extern "DefaultCMMDef"} DefaultCMMDef {
       }
       assert EncryptionContext.Serializable(enc_ctx);
 
-      var materials := Materials.EncryptionMaterials.WithoutDataKeys(enc_ctx, id, enc_sk);
+      var materials := Crypto.EncryptionMaterials(
+        encryptionContext:=enc_ctx,
+        algorithmSuiteId:=AlgorithmSuite.InternalIDToPolymorphID(id),
+        plaintextDataKey:=None(),
+        encryptedDataKeys:=[],
+        signingKey:=enc_sk
+      );
       assert materials.encryptionContext == enc_ctx;
-      materials :- keyring.OnEncrypt(materials);
-      if materials.plaintextDataKey.None? || |materials.encryptedDataKeys| == 0 {
+      var result :- keyring.OnEncrypt(Crypto.OnEncryptInput(materials:=materials));
+      if result.materials.plaintextDataKey.None? || |result.materials.encryptedDataKeys| == 0 {
         return Failure("Could not retrieve materials required for encryption");
       }
-      assert materials.Valid();
-      return Success(materials);
+      assert result.materials.Valid();
+
+      // TODO more informative error message
+      :- Need(OnEncryptResultValid(input, result), "Keyring returned an invalid response");
+
+      return Success(Crypto.GetEncryptionMaterialsOutput(encryptionMaterials:=result.materials));
     }
 
-    method DecryptMaterials(materialsRequest: Materials.ValidDecryptionMaterialsRequest)
-                            returns (res: Result<Materials.ValidDecryptionMaterials, string>)
-      requires Valid()
-      ensures Valid()
-      ensures res.Success? ==> res.value.plaintextDataKey.Some?
+    method DecryptMaterials(input: Crypto.DecryptMaterialsInput)
+                            returns (res: Result<Crypto.DecryptMaterialsOutput, string>)
+      requires input.Valid()
+      ensures res.Success? ==> res.value.decryptionMaterials.plaintextDataKey.Some?
     {
       // Retrieve and decode verification key from encryption context if using signing algorithm
       var vkey := None;
-      var algID := materialsRequest.algorithmSuiteID;
-      var encCtx := materialsRequest.encryptionContext;
+      var algID := AlgorithmSuite.PolymorphIDToInternalID(input.algorithmSuiteId);
+      var encCtx := input.encryptionContext;
 
       if algID.SignatureType().Some? {
         var reservedField := Materials.EC_PUBLIC_KEY_FIELD;
@@ -125,13 +135,32 @@ module {:extern "DefaultCMMDef"} DefaultCMMDef {
         vkey := Some(base64Decoded);
       }
 
-      var materials := Materials.DecryptionMaterials.WithoutPlaintextDataKey(encCtx, algID, vkey);
-      materials :- keyring.OnDecrypt(materials, materialsRequest.encryptedDataKeys);
-      if materials.plaintextDataKey.None? {
+      var materials := Crypto.DecryptionMaterials(
+        encryptionContext:=encCtx,
+        algorithmSuiteId:=input.algorithmSuiteId,
+        plaintextDataKey:=None(),
+        verificationKey:=vkey
+      );
+      var result :- keyring.OnDecrypt(Crypto.OnDecryptInput(materials:=materials, encryptedDataKeys:=input.encryptedDataKeys));
+      if result.materials.plaintextDataKey.None? {
         return Failure("Keyring.OnDecrypt failed to decrypt the plaintext data key.");
       }
 
-      return Success(materials);
+      // TODO Why do we not need to check anything on the OnDecrypt result?
+
+      return Success(Crypto.DecryptMaterialsOutput(decryptionMaterials:=result.materials));
+    }
+
+    // TODO move somewhere central
+    predicate method OnEncryptResultValid(input: Crypto.GetEncryptionMaterialsInput, result: Crypto.OnEncryptOutput) {
+      && (
+        result.materials.plaintextDataKey.Some? && Serializable(result.materials))
+      && (
+        (input.algorithmSuiteId.None? || AlgorithmSuite.PolymorphIDToInternalID(input.algorithmSuiteId.value).SignatureType().Some?) ==> Materials.EC_PUBLIC_KEY_FIELD in result.materials.encryptionContext)
+      && (
+      match input.algorithmSuiteId
+        case Some(id) => result.materials.algorithmSuiteId == id
+        case None => AlgorithmSuite.PolymorphIDToInternalID(result.materials.algorithmSuiteId) == 0x0378)
     }
   }
 }
