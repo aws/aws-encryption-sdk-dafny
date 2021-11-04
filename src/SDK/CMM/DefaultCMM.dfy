@@ -89,13 +89,10 @@ module {:extern "DefaultCMMDef"} DefaultCMMDef {
       (
         && Materials.EC_PUBLIC_KEY_FIELD in res.value.encryptionContext
         && |res.value.encryptionContext[Materials.EC_PUBLIC_KEY_FIELD]| > 0
-        // Why is it UTF8 encoded? That is not in the spec...
+        //TODO implement and then us "Base64.IsBase64ByteSeq" to prove verification key
+        // is Base64 encoded.
+        //Note: UTF8 is required by the Spec for EncryptionContext
         && UTF8.ValidUTF8Seq(res.value.encryptionContext[Materials.EC_PUBLIC_KEY_FIELD])
-        // &&
-        // ( // HELP: How can I validate that this is base64 encoded if it is UTF8 encoded?
-        //   var validationKey := UTF8.Decode(res.value.encryptionContext[Materials.EC_PUBLIC_KEY_FIELD]);
-        //   && Base64.IsBase64String(validationKey)
-        // )
       )
         
       ensures res.Success? ==> res.value.Serializable()
