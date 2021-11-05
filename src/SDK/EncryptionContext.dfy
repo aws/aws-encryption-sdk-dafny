@@ -23,7 +23,9 @@ module {:extern "EncryptionContext"} EncryptionContext {
    * Serializability predicates
    */
 
-  predicate {:opaque} Serializable(encryptionContext: Map) {
+  // TODO: We turned this into a function method; we should investigate
+  // whether there are any performance implications
+  predicate method {:opaque} Serializable(encryptionContext: Map) {
     && SerializableKVPairs(encryptionContext)
     && Length(encryptionContext) < UINT16_LIMIT
   }
@@ -62,7 +64,7 @@ module {:extern "EncryptionContext"} EncryptionContext {
    * Length properties
    */
 
-  function Length(encryptionContext: Map): nat
+  function method Length(encryptionContext: Map): nat
   {
     if |encryptionContext| == 0 then 0 else
       // Defining and reasoning about order at this level is simplified by using a sequence of
@@ -81,7 +83,7 @@ module {:extern "EncryptionContext"} EncryptionContext {
   type Linear = seq<(UTF8.ValidUTF8Bytes, UTF8.ValidUTF8Bytes)>
 
   // Length of KVPairEntries is defined in terms of a seq of tuples, which is easier to reason about
-  function LinearLength(kvPairs: Linear, lo: nat, hi: nat): nat
+  function method LinearLength(kvPairs: Linear, lo: nat, hi: nat): nat
     requires lo <= hi <= |kvPairs|
   {
     if lo == hi then 0 else

@@ -13,7 +13,7 @@ include "../../../StandardLibrary/Actions.dfy"
 include "Constants.dfy"
 include "AwsKmsMrkMatchForDecrypt.dfy"
 
-module {:extern "AwsKmsMrkAwareSymmetricKeyring"} AwsKmsMrkAwareSymmetricKeyring {
+module {:extern "AwsKmsMrkAwareSymmetricKeyringDef"} AwsKmsMrkAwareSymmetricKeyringDef {
   import opened StandardLibrary
   import opened Wrappers
   import opened UInt = StandardLibrary.UInt

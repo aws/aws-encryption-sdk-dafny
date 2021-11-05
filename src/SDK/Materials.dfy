@@ -24,6 +24,10 @@ module {:extern "Materials"} Materials {
     s
   const RESERVED_KEY_VALUES := { EC_PUBLIC_KEY_FIELD }
 
+  // TODO Most of the structures below will be replaced by Polymorph structures.
+  // However, they are currently used by things like the MRK-aware keyring. Remove
+  // them once we are fully migrated to Polymorph structures.
+
   datatype EncryptedDataKey = EncryptedDataKey(providerID: UTF8.ValidUTF8Bytes,
                                                providerInfo: seq<uint8>,
                                                ciphertext: seq<uint8>)
