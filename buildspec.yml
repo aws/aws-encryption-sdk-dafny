@@ -18,4 +18,4 @@ reports:
         file-format: VisualStudioTrx
         files:
             - '**/*'
-        base-directory: 'test/TestReports'
+        base-directory: 'test/TestResults'
