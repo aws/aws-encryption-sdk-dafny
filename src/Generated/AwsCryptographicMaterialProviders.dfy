@@ -9,7 +9,7 @@ module {:extern "Dafny.Aws.Crypto"} Aws.Crypto {
     import opened Wrappers
     import AmazonKeyManagementService
     import opened UInt = StandardLibrary.UInt
-    import UTF8
+    import opened UTF8
 
     // TODO this is currently needed for proof stability reasons, otherwise any file that has a transitive dependency on this one tries to
     // load too much at once, making the verification unstable
@@ -17,9 +17,9 @@ module {:extern "Dafny.Aws.Crypto"} Aws.Crypto {
       provides UTF8, UInt, Wrappers, IKeyring.OnDecrypt,
         ICryptographicMaterialsManager.GetEncryptionMaterials, ICryptographicMaterialsManager.DecryptMaterials, IKeyring.OnEncrypt,
         IAwsCryptographicMaterialsProviderClient.CreateRawAesKeyring, IAwsCryptographicMaterialsProviderClient.CreateDefaultCryptographicMaterialsManager
-      reveals AlgorithmSuiteId, EncryptedDataKey, EncryptedDataKey.Valid, IKeyring, GetEncryptionMaterialsInput, GetEncryptionMaterialsOutput,
+      reveals AlgorithmSuiteId, EncryptedDataKey, IKeyring, GetEncryptionMaterialsInput, GetEncryptionMaterialsOutput,
         DecryptMaterialsInput, DecryptMaterialsOutput, ICryptographicMaterialsManager, EncryptionContext, EncryptionMaterials, DecryptionMaterials,
-        ValidEncryptedDataKey, EncryptedDataKeyList, OnEncryptInput, OnEncryptOutput, OnDecryptInput, OnDecryptOutput, OnEncryptInput.Valid, OnDecryptInput.Valid,
+        OnEncryptInput, OnEncryptOutput, OnDecryptInput, OnDecryptOutput, OnEncryptInput.Valid, OnDecryptInput.Valid,
         GetEncryptionMaterialsInput.Valid, DecryptMaterialsInput.Valid, EncryptionMaterials.Valid, CreateRawAesKeyringInput, CreateDefaultCryptographicMaterialsManagerInput,
         IAwsCryptographicMaterialsProviderClient, AesWrappingAlg, CreateDefaultCryptographicMaterialsManagerInput.Valid, CreateRawAesKeyringInput.Valid
 
@@ -63,26 +63,15 @@ module {:extern "Dafny.Aws.Crypto"} Aws.Crypto {
     // structures.smithy
     // TODO: May eventually change this to strings, for now leaving as utf8 bytes for
     // compatibility with existing code.
-    type EncryptionContext = map<UTF8.ValidUTF8Bytes, UTF8.ValidUTF8Bytes>
+    type EncryptionContext = map<ValidUTF8Bytes, ValidUTF8Bytes>
 
-    datatype EncryptedDataKey = EncryptedDataKey(nameonly keyProviderId: UTF8.ValidUTF8Bytes,
+    datatype EncryptedDataKey = EncryptedDataKey(nameonly keyProviderId: ValidUTF8Bytes,
                                                  nameonly keyProviderInfo: seq<uint8>,
                                                  nameonly ciphertext: seq<uint8>)
-    {
-        // TODO: constraints not currently modeled in Smithy
-        predicate Valid() {
-            |keyProviderId| < UINT16_LIMIT &&
-            |keyProviderInfo| < UINT16_LIMIT &&
-            |ciphertext| < UINT16_LIMIT
-        }
-    }
-    type ValidEncryptedDataKey = i : EncryptedDataKey | i.Valid() witness *
-
-    type EncryptedDataKeyList = seq<EncryptedDataKey>
 
     datatype EncryptionMaterials = EncryptionMaterials(nameonly algorithmSuiteId: AlgorithmSuiteId, // TODO update to algorithmSuite or update Smithy model (and elsewhere)
                                                        nameonly encryptionContext: EncryptionContext, // TODO should EC be an Option? (and elsewhere)
-                                                       nameonly encryptedDataKeys: seq<ValidEncryptedDataKey>, // TODO should this be an Option? (and elsewhere)
+                                                       nameonly encryptedDataKeys: seq<EncryptedDataKey>, // TODO should this be an Option? (and elsewhere)
                                                        nameonly plaintextDataKey: Option<seq<uint8>>,
                                                        nameonly signingKey: Option<seq<uint8>>)
     {
@@ -151,7 +140,7 @@ module {:extern "Dafny.Aws.Crypto"} Aws.Crypto {
         }
     }
     datatype OnDecryptInput = OnDecryptInput(nameonly materials: DecryptionMaterials,
-                                             nameonly encryptedDataKeys: EncryptedDataKeyList)
+                                             nameonly encryptedDataKeys: seq<EncryptedDataKey>)
     {
         predicate Valid() {
             true
@@ -330,7 +319,7 @@ module {:extern "Dafny.Aws.Crypto"} Aws.Crypto {
         nameonly algorithmSuiteId: AlgorithmSuiteId,
         // TODO
         // nameonly commitmentPolicy: CommitmentPolicy,
-        nameonly encryptedDataKeys: EncryptedDataKeyList,
+        nameonly encryptedDataKeys: seq<EncryptedDataKey>,
         nameonly encryptionContext: EncryptionContext
     )
     {
