@@ -1,0 +1,3 @@
+is_global = true
+build_property.RootNamespace = AWSEncryptionSDK
+build_property.ProjectDir = /Users/farleyb/workspace/esdk/dafny/aws-encryption-sdk-dafny/aws-encryption-sdk-net-formally-verified/Source/

@@ -1,0 +1,61 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netcoreapp5.0</TargetFramework>
+    <IsPackable>false</IsPackable>
+    <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="dafny.msbuild" Version="1.0.0" />
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="16.2.0" />
+    <PackageReference Include="xunit" Version="2.4.0" />
+    <PackageReference Include="xunit.runner.visualstudio" Version="2.4.0" />
+    <PackageReference Include="coverlet.collector" Version="1.0.1" />
+  </ItemGroup>
+
+  <!--
+    TODO: We should be able to just reference the source project, but that doesn't work
+    well for Dafny yet: external C# code will be compiled and referrable, but the way we
+    are currently writing external code requires that the external C# code is actually compiled
+    together with the C# code generated from Dafny at the same time.
+    For now we just inline the referenced project's source and dependencies.
+
+  <ItemGroup>
+    <ProjectReference Include="../src/AWSEncryptionSDK.csproj" />
+  </ItemGroup>
+  -->
+  <ItemGroup>
+    <DafnySource Include="../../src/**/*.dfy" />
+    <DafnySource Include="../../test/**/*.dfy" />
+    <!-- While a file is being edited in emacs, emacs spills out a .# copy of the file -->
+    <DafnySource Remove="../../src/**/.#*.dfy" />
+    <!-- While a file is being verified in emacs, the Dafny plug-in spills out a flycheck_ copy of the file -->
+    <DafnySource Remove="../../test/**/flycheck_*.dfy" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="../Source/**/*.cs" Exclude="../Source/obj/**/*.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="AWSSDK.Core" Version="3.3.104.1" />
+    <PackageReference Include="AWSSDK.KeyManagementService" Version="3.3.103" />
+    <PackageReference Include="Portable.BouncyCastle" Version="1.8.5.2" />
+  </ItemGroup>
+  <ItemGroup>
+    <VerifyDafnyPassthrough Include="timeLimit:300" />
+    <VerifyDafnyPassthrough Include="definiteAssignment:3" />
+  </ItemGroup>
+
+  <!--
+    Previous versions of this code base used lit for testing, which would drop
+    C# files into "Output" subdirectories. Clean up the contents of those so that
+    we don't try to compile those files as well.
+  -->
+  <ItemGroup>
+    <LitOutputFiles Include="**/Output/*" />
+  </ItemGroup>
+  <Target Name="CleanLitOutput" BeforeTargets="CoreCompile">
+    <Delete Files="@(LitOutputFiles)" />
+  </Target>
+
+</Project>
