@@ -1,6 +1,0 @@
-<?xml version="1.0"?>
-
-<project name="AWSEncryptionSDKModel-1.0" basedir="." default="release" xmlns:ht="happytrails">
-    <import file="${happytrails.root}/happytrails.xml" optional="false" />
-    <ht:import file="smithy-build-ht.xml" optional="false"/>
-</project>
