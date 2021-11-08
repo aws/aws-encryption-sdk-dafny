@@ -11,5 +11,4 @@ phases:
   build:
     commands:
       # Currently, test depends on src, so verifying test will also verify src
-      # TODO-RS: Move the parallel verification task into the dafny CLI itself
       - dotnet build -t:VerifyDafny test
