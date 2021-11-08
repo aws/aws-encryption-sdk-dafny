@@ -1,0 +1,14 @@
+version: 0.2
+phases:
+  install:
+    commands:
+      - cd ..
+      # Get Dafny
+      - curl https://github.com/dafny-lang/dafny/releases/download/v3.2.0/dafny-3.2.0-x64-ubuntu-16.04.zip -L -o dafny.zip
+      - unzip dafny.zip && rm dafny.zip
+      - export PATH="$PWD/dafny:$PATH"
+      - cd aws-encryption-sdk-dafny
+  build:
+    commands:
+      # Currently, test depends on src, so verifying test will also verify src
+      - dotnet build -t:VerifyDafny test
