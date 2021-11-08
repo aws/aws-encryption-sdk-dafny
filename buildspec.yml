@@ -5,3 +5,5 @@ batch:
   build-list:
     - identifier: dafny_verify
       buildpsec: codebuild/dafny/verify.yml
+    - identifier: dotnet 
+      buildpsec: codebuild/dotnet/ci.yml
