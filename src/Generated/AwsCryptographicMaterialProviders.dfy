@@ -69,9 +69,11 @@ module {:extern "Dafny.Aws.Crypto"} Aws.Crypto {
                                                  nameonly keyProviderInfo: seq<uint8>,
                                                  nameonly ciphertext: seq<uint8>)
 
+    type EncryptedDataKeys = seq<EncryptedDataKey>
+
     datatype EncryptionMaterials = EncryptionMaterials(nameonly algorithmSuiteId: AlgorithmSuiteId, // TODO update to algorithmSuite or update Smithy model (and elsewhere)
                                                        nameonly encryptionContext: EncryptionContext, // TODO should EC be an Option? (and elsewhere)
-                                                       nameonly encryptedDataKeys: seq<EncryptedDataKey>, // TODO should this be an Option? (and elsewhere)
+                                                       nameonly encryptedDataKeys: EncryptedDataKeys, // TODO should this be an Option? (and elsewhere)
                                                        nameonly plaintextDataKey: Option<seq<uint8>>,
                                                        nameonly signingKey: Option<seq<uint8>>)
     {
@@ -140,7 +142,7 @@ module {:extern "Dafny.Aws.Crypto"} Aws.Crypto {
         }
     }
     datatype OnDecryptInput = OnDecryptInput(nameonly materials: DecryptionMaterials,
-                                             nameonly encryptedDataKeys: seq<EncryptedDataKey>)
+                                             nameonly encryptedDataKeys: EncryptedDataKeys)
     {
         predicate Valid() {
             true
@@ -319,7 +321,7 @@ module {:extern "Dafny.Aws.Crypto"} Aws.Crypto {
         nameonly algorithmSuiteId: AlgorithmSuiteId,
         // TODO
         // nameonly commitmentPolicy: CommitmentPolicy,
-        nameonly encryptedDataKeys: seq<EncryptedDataKey>,
+        nameonly encryptedDataKeys: EncryptedDataKeys,
         nameonly encryptionContext: EncryptionContext
     )
     {
