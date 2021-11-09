@@ -2,7 +2,7 @@ version: 0.2
 phases:
   install:
     runtime-versions:
-      dotnet: 3.1
+      dotnet: 5.0
     commands:
       - cd ..
       # Get Dafny
