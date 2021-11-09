@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<RunSettings>
+  <DataCollectionRunSettings>
+    <DataCollectors>
+      <!-- Declaring the friendly name that corresponds to the data collectors from Coverlet -->
+      <DataCollector friendlyName="XPlat code coverage">
+        <Configuration>
+          <Format>cobertura</Format>
+          <!-- [Assembly-Filter]Type-Filter -->
+          <Exclude>[xunit.*]*,[BouncyCastle.*]*</Exclude>
+          <!-- Include coverage of the test assembly. -->
+          <IncludeTestAssembly>true</IncludeTestAssembly>
+          <!-- Specifies whether to limit code coverage hit reporting to a single hit for each location.-->
+          <SingleHit>true</SingleHit>
+        </Configuration>
+      </DataCollector>
+    </DataCollectors>
+  </DataCollectionRunSettings>
+</RunSettings>
+
