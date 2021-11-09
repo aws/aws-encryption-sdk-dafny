@@ -4,6 +4,6 @@ batch:
   fast-fail: false
   build-list:
     - identifier: dafny_verify
-      buildpsec: codebuild/dafny/verify.yml
+      buildspec: codebuild/dafny/verify.yml
     - identifier: dotnet 
-      buildpsec: codebuild/dotnet/ci.yml
+      buildspec: codebuild/dotnet/ci.yml
