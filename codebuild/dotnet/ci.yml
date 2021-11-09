@@ -35,6 +35,7 @@ phases:
       # Run ReportGenerator
       - dotnet reportgenerator "-reports:../Test/TestResults/coverage.cobertura.xml" "-targetdir:../Test/TestResults" -reporttypes:TextSummary
       - cd ..
-      - python3 GetCodeCoverage.py
+      # TODO: uncomment once we get POC polished
+      #- python3 GetCodeCoverage.py
 
       
