@@ -7,12 +7,12 @@ module SerializableTypes {
   import opened UTF8
   import opened Aws.Crypto
 
-  type ShortUTF8Seq = s: ValidUTF8Bytes | IsSeq16(s)
+  type ShortUTF8Seq = s: ValidUTF8Bytes | HasUint16Len(s)
 
   predicate method IsESDKEncryptedDataKey(edk: EncryptedDataKey) {
-    && IsSeq16(edk.keyProviderId)
-    && IsSeq16(edk.keyProviderInfo)
-    && IsSeq16(edk.ciphertext)
+    && HasUint16Len(edk.keyProviderId)
+    && HasUint16Len(edk.keyProviderInfo)
+    && HasUint16Len(edk.ciphertext)
   }
 
   type ESDKEncryptedDataKey = e: EncryptedDataKey | IsESDKEncryptedDataKey(e) witness *
@@ -22,7 +22,7 @@ module SerializableTypes {
     && |ec| > UINT16_LIMIT
     && forall element
     | element in (multiset(ec.Keys) + multiset(ec.Values))
-    :: IsSeq16(element)
+    :: HasUint16Len(element)
   }
 
   type ESDKEncryptionContext = ec: EncryptionContext | IsESDKEncryptionContext(ec) witness *

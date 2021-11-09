@@ -224,7 +224,7 @@ module {:extern "EncryptDecrypt"} EncryptDecrypt {
     expect |encMat.plaintextDataKey.value| == AlgorithmSuite.PolymorphIDToInternalID(encMat.algorithmSuiteId).KDFInputKeyLength();
 
 
-    :- Need(IsSeq16(encMat.encryptedDataKeys), "Number of EDKs exceeds the allowed maximum.");
+    :- Need(HasUint16Len(encMat.encryptedDataKeys), "Number of EDKs exceeds the allowed maximum.");
     :- Need(forall edk
       | edk in encMat.encryptedDataKeys
       :: SerializableTypes.IsESDKEncryptedDataKey(edk), "Encrypted data key is not serializable.");
