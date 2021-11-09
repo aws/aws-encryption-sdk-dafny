@@ -1,3 +1,0 @@
-is_global = true
-build_property.RootNamespace = AWSEncryptionSDKTests
-build_property.ProjectDir = /Users/farleyb/workspace/esdk/dafny/aws-encryption-sdk-net-formally-verified/Test/
