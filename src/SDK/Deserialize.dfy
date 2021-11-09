@@ -10,6 +10,7 @@ include "../Util/Streams.dfy"
 include "../StandardLibrary/StandardLibrary.dfy"
 include "../Util/UTF8.dfy"
 include "Serialize/SerializableTypes.dfy"
+include "../Generated/AwsCryptographicMaterialProviders.dfy"
 
 /*
  * The message header deserialization
@@ -24,9 +25,9 @@ module Deserialize {
     provides InsertNewEntry, UTF8, EncryptionContext
     reveals DeserializeHeaderResult
 
-  import Aws.Crypto
   import Msg = MessageHeader
   import opened SerializableTypes
+  import Aws.Crypto
 
   import AlgorithmSuite
   import Streams
@@ -498,7 +499,7 @@ module Deserialize {
     }
 
     assert rd.reader.pos == old(rd.reader.pos) + 2;
-    var edkEntries: seq<Crypto.EncryptedDataKey> := [];
+    var edkEntries: ESDKEncryptedDataKeys := [];
     var i := 0;
     while i < edkCount
       invariant old(rd.reader.pos) + 2 <= rd.reader.pos
