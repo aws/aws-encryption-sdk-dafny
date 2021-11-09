@@ -11,3 +11,19 @@ specification_compliance_report.html
 
 # VS Code local history
 /.history
+
+
+aws-encryption-sdk-net-formally-verified/Source/bin
+aws-encryption-sdk-net-formally-verified/Source/obj
+
+aws-encryption-sdk-net-formally-verified/Test/bin
+aws-encryption-sdk-net-formally-verified/Test/obj
+
+aws-encryption-sdk-net-formally-verified/TestVectors/bin
+aws-encryption-sdk-net-formally-verified/TestVectors/obj
+
+aws-encryption-sdk-net-formally-verified/Examples/bin
+aws-encryption-sdk-net-formally-verified/Examples/obj
+
+aws-encryption-sdk-net-formally-verified/Test/TestResults/
+
