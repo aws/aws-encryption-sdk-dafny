@@ -10,11 +10,13 @@ include "../Util/Sets.dfy"
 
 include "../Util/Streams.dfy"
 include "../StandardLibrary/StandardLibrary.dfy"
+include "Serialize/SerializableTypes.dfy"
 
 module Serialize {
   import Msg = MessageHeader
   import EncryptionContext
   import AlgorithmSuite
+  import opened SerializableTypes
 
   import Streams
   import opened StandardLibrary
@@ -221,30 +223,30 @@ module Serialize {
 
   // ----- SerializeEDKs -----
 
-  method SerializeEDKs(wr: Streams.ByteWriter, encryptedDataKeys: Msg.EncryptedDataKeys) returns (ret: nat)
-    requires wr.Valid() && encryptedDataKeys.Valid()
+  method SerializeEDKs(wr: Streams.ByteWriter, encryptedDataKeys: ESDKEncryptedDataKeys) returns (ret: nat)
+    requires wr.Valid()
     modifies wr.writer`data
-    ensures wr.Valid() && encryptedDataKeys.Valid()
+    ensures wr.Valid()
     ensures ret == |Msg.EDKsToSeq(encryptedDataKeys)|
     ensures old(wr.GetSizeWritten()) + ret == wr.GetSizeWritten()
     ensures wr.GetDataWritten() == old(wr.GetDataWritten()) + Msg.EDKsToSeq(encryptedDataKeys)
   {
     var totalWritten := 0;
 
-    var len := wr.WriteUInt16(|encryptedDataKeys.entries| as uint16);
+    var len := wr.WriteUInt16(|encryptedDataKeys| as uint16);
     totalWritten := totalWritten + len;
 
     var j := 0;
-    ghost var n := |encryptedDataKeys.entries|;
-    while j < |encryptedDataKeys.entries|
-      invariant j <= n == |encryptedDataKeys.entries|
+    ghost var n := |encryptedDataKeys|;
+    while j < |encryptedDataKeys|
+      invariant j <= n == |encryptedDataKeys|
       invariant wr.GetDataWritten() ==
         old(wr.GetDataWritten()) +
         UInt16ToSeq(n as uint16) +
-        Msg.EDKEntriesToSeq(encryptedDataKeys.entries, 0, j);
-      invariant totalWritten == 2 + |Msg.EDKEntriesToSeq(encryptedDataKeys.entries, 0, j)|
+        Msg.EDKEntriesToSeq(encryptedDataKeys, 0, j);
+      invariant totalWritten == 2 + |Msg.EDKEntriesToSeq(encryptedDataKeys, 0, j)|
     {
-      var entry := encryptedDataKeys.entries[j];
+      var entry := encryptedDataKeys[j];
 
       len := wr.WriteUInt16(|entry.keyProviderId| as uint16);
       totalWritten := totalWritten + len;

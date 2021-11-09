@@ -9,6 +9,7 @@ include "AlgorithmSuite.dfy"
 include "../Util/Streams.dfy"
 include "../StandardLibrary/StandardLibrary.dfy"
 include "../Util/UTF8.dfy"
+include "Serialize/SerializableTypes.dfy"
 
 /*
  * The message header deserialization
@@ -25,6 +26,7 @@ module Deserialize {
 
   import Aws.Crypto
   import Msg = MessageHeader
+  import opened SerializableTypes
 
   import AlgorithmSuite
   import Streams
@@ -479,13 +481,12 @@ module Deserialize {
 
   }
 
-  method DeserializeEncryptedDataKeys(rd: Streams.ByteReader) returns (ret: Result<Msg.EncryptedDataKeys, string>)
+  method DeserializeEncryptedDataKeys(rd: Streams.ByteReader) returns (ret: Result<ESDKEncryptedDataKeys, string>)
     requires rd.Valid()
     modifies rd.reader`pos
     ensures rd.Valid()
     ensures match ret
       case Success(edks) =>
-        edks.Valid()
         && var n := |Msg.EDKsToSeq(edks)|;
         old(rd.reader.pos) + n == rd.reader.pos
         && Msg.EDKsToSeq(edks) == rd.reader.data[old(rd.reader.pos)..rd.reader.pos]
@@ -504,7 +505,6 @@ module Deserialize {
       invariant rd.Valid()
       invariant i <= edkCount
       invariant |edkEntries| == i as int
-      invariant forall i :: 0 <= i < |edkEntries| ==> edkEntries[i].Valid()
       invariant Msg.EDKEntriesToSeq(edkEntries, 0, |edkEntries|) == rd.reader.data[old(rd.reader.pos) + 2 .. rd.reader.pos]
     {
       ghost var edkStartPos := rd.reader.pos;
@@ -538,12 +538,10 @@ module Deserialize {
         assert UInt16ToSeq(|providerId| as uint16) + providerId == rd.reader.data[edkStartPos..edkStartPos+2+|providerId|];
         assert UInt16ToSeq(|providerInfo| as uint16) + providerInfo == rd.reader.data[edkStartPos+2+|providerId|..edkStartPos+2+|providerId|+2+|providerInfo|];
         assert Msg.EDKEntryToSeq(Crypto.EncryptedDataKey(keyProviderId:=providerId, keyProviderInfo:=providerInfo, ciphertext:=ciphertext)) == rd.reader.data[edkStartPos..rd.reader.pos];
-        Msg.EDKEntriesToSeqInductiveStep(edkEntries[..|edkEntries| - 1],
-          [Crypto.EncryptedDataKey(keyProviderId:=providerId, keyProviderInfo:=providerInfo, ciphertext:=ciphertext)], 0, |edkEntries[..|edkEntries| - 1]|);
       }
     }
     assert |edkEntries| == edkCount as int;
-    var edks := Msg.EncryptedDataKeys(edkEntries);
+    var edks := edkEntries;
     return Success(edks);
   }
 
