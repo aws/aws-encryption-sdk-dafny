@@ -164,7 +164,10 @@ module Deserialize {
   {
     var iv :- rd.ReadBytes(algorithmSuiteID.IVLength());
     var authenticationTag :- rd.ReadBytes(algorithmSuiteID.TagLength());
-    return Success(Msg.HeaderAuthentication(iv, authenticationTag));
+    var ha := Msg.HeaderAuthentication(iv, authenticationTag);
+    assert |ha.iv| == algorithmSuiteID.IVLength();
+    assert |ha.authenticationTag| == algorithmSuiteID.TagLength();
+    return Success(ha);
   }
 
   /*
