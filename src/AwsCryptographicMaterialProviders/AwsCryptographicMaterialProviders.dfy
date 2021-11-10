@@ -8,7 +8,7 @@ include "../Generated/AwsEncryptionSdk.dfy"
 include "../Util/UTF8.dfy"
 include "AlgorithmSuites.dfy"
 
-module {:extern "Dafny.Aws.Crypto.AwsCryptographicMaterialProvidersClient"} AwsCryptographicMaterialProviders {
+module {:extern "Dafny.Aws.Crypto.AwsCryptographicMaterialProvidersClient2"} AwsCryptographicMaterialProviders2 {
   import opened Wrappers
   import opened StandardLibrary
   import opened UInt = StandardLibrary.UInt
