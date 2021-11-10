@@ -17,6 +17,7 @@ include "../Crypto/HKDF/HKDF.dfy"
 include "../Crypto/AESEncryption.dfy"
 include "../Crypto/Signature.dfy"
 include "../Generated/AwsCryptographicMaterialProviders.dfy"
+include "Serialize/SerializableTypes.dfy"
 
 module {:extern "EncryptDecrypt"} EncryptDecrypt {
   import opened Wrappers
@@ -37,6 +38,7 @@ module {:extern "EncryptDecrypt"} EncryptDecrypt {
   import Serialize
   import Signature
   import Streams
+  import SerializableTypes
 
   const DEFAULT_FRAME_LENGTH: uint32 := 4096
 
@@ -222,9 +224,11 @@ module {:extern "EncryptDecrypt"} EncryptDecrypt {
     expect |encMat.plaintextDataKey.value| == AlgorithmSuite.PolymorphIDToInternalID(encMat.algorithmSuiteId).KDFInputKeyLength();
 
 
-    if UINT16_LIMIT <= |encMat.encryptedDataKeys| {
-      return Failure("Number of EDKs exceeds the allowed maximum.");
-    }
+    :- Need(HasUint16Len(encMat.encryptedDataKeys), "Number of EDKs exceeds the allowed maximum.");
+    :- Need(forall edk
+      | edk in encMat.encryptedDataKeys
+      :: SerializableTypes.IsESDKEncryptedDataKey(edk), "Encrypted data key is not serializable.");
+    var encryptedDataKeys: SerializableTypes.ESDKEncryptedDataKeys := encMat.encryptedDataKeys;
 
     var messageID: Msg.MessageID :- Random.GenerateBytes(Msg.MESSAGE_ID_LEN as int32);
     var derivedDataKey := DeriveKey(encMat.plaintextDataKey.value, AlgorithmSuite.PolymorphIDToInternalID(encMat.algorithmSuiteId), messageID);
@@ -236,7 +240,7 @@ module {:extern "EncryptDecrypt"} EncryptDecrypt {
       AlgorithmSuite.PolymorphIDToInternalID(encMat.algorithmSuiteId),
       messageID,
       encMat.encryptionContext,
-      Msg.EncryptedDataKeys(encMat.encryptedDataKeys),
+      encryptedDataKeys,
       Msg.ContentType.Framed,
       AlgorithmSuite.PolymorphIDToInternalID(encMat.algorithmSuiteId).IVLength() as uint8,
       frameLength);
@@ -396,7 +400,10 @@ module {:extern "EncryptDecrypt"} EncryptDecrypt {
       }
     }
 
-    var decMatRequest := Crypto.DecryptMaterialsInput(algorithmSuiteId:=AlgorithmSuite.InternalIDToPolymorphID(header.body.algorithmSuiteID), encryptedDataKeys:=header.body.encryptedDataKeys.entries, encryptionContext:=header.body.aad);
+    var decMatRequest := Crypto.DecryptMaterialsInput(
+      algorithmSuiteId:=AlgorithmSuite.InternalIDToPolymorphID(header.body.algorithmSuiteID),
+      encryptedDataKeys:=header.body.encryptedDataKeys,
+      encryptionContext:=header.body.aad);
     var output :- cmm.DecryptMaterials(decMatRequest);
     var decMat := output.decryptionMaterials;
 

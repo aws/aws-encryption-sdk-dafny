@@ -6,9 +6,7 @@ include "../../StandardLibrary/UInt.dfy"
 include "../../StandardLibrary/Base64.dfy"
 include "../Materials.dfy"
 include "../EncryptionContext.dfy"
-include "../MessageHeader.dfy"
 include "../../Util/UTF8.dfy"
-include "../Deserialize.dfy"
 include "../../Generated/AwsCryptographicMaterialProviders.dfy"
 
 module {:extern "DefaultCMMDef"} DefaultCMMDef {
@@ -19,9 +17,7 @@ module {:extern "DefaultCMMDef"} DefaultCMMDef {
   import AlgorithmSuite
   import Signature
   import Base64
-  import MessageHeader
   import UTF8
-  import Deserialize
   import Aws.Crypto
 
   // TODO move somewhere central

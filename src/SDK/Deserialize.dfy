@@ -9,6 +9,8 @@ include "AlgorithmSuite.dfy"
 include "../Util/Streams.dfy"
 include "../StandardLibrary/StandardLibrary.dfy"
 include "../Util/UTF8.dfy"
+include "Serialize/SerializableTypes.dfy"
+include "../Generated/AwsCryptographicMaterialProviders.dfy"
 
 /*
  * The message header deserialization
@@ -23,8 +25,9 @@ module Deserialize {
     provides InsertNewEntry, UTF8, EncryptionContext
     reveals DeserializeHeaderResult
 
-  import Aws.Crypto
   import Msg = MessageHeader
+  import opened SerializableTypes
+  import Aws.Crypto
 
   import AlgorithmSuite
   import Streams
@@ -161,7 +164,10 @@ module Deserialize {
   {
     var iv :- rd.ReadBytes(algorithmSuiteID.IVLength());
     var authenticationTag :- rd.ReadBytes(algorithmSuiteID.TagLength());
-    return Success(Msg.HeaderAuthentication(iv, authenticationTag));
+    var ha := Msg.HeaderAuthentication(iv, authenticationTag);
+    assert |ha.iv| == algorithmSuiteID.IVLength();
+    assert |ha.authenticationTag| == algorithmSuiteID.TagLength();
+    return Success(ha);
   }
 
   /*
@@ -479,13 +485,12 @@ module Deserialize {
 
   }
 
-  method DeserializeEncryptedDataKeys(rd: Streams.ByteReader) returns (ret: Result<Msg.EncryptedDataKeys, string>)
+  method DeserializeEncryptedDataKeys(rd: Streams.ByteReader) returns (ret: Result<ESDKEncryptedDataKeys, string>)
     requires rd.Valid()
     modifies rd.reader`pos
     ensures rd.Valid()
     ensures match ret
       case Success(edks) =>
-        edks.Valid()
         && var n := |Msg.EDKsToSeq(edks)|;
         old(rd.reader.pos) + n == rd.reader.pos
         && Msg.EDKsToSeq(edks) == rd.reader.data[old(rd.reader.pos)..rd.reader.pos]
@@ -497,14 +502,13 @@ module Deserialize {
     }
 
     assert rd.reader.pos == old(rd.reader.pos) + 2;
-    var edkEntries: seq<Crypto.EncryptedDataKey> := [];
+    var edkEntries: ESDKEncryptedDataKeys := [];
     var i := 0;
     while i < edkCount
       invariant old(rd.reader.pos) + 2 <= rd.reader.pos
       invariant rd.Valid()
       invariant i <= edkCount
       invariant |edkEntries| == i as int
-      invariant forall i :: 0 <= i < |edkEntries| ==> edkEntries[i].Valid()
       invariant Msg.EDKEntriesToSeq(edkEntries, 0, |edkEntries|) == rd.reader.data[old(rd.reader.pos) + 2 .. rd.reader.pos]
     {
       ghost var edkStartPos := rd.reader.pos;
@@ -543,7 +547,7 @@ module Deserialize {
       }
     }
     assert |edkEntries| == edkCount as int;
-    var edks := Msg.EncryptedDataKeys(edkEntries);
+    var edks := edkEntries;
     return Success(edks);
   }
 

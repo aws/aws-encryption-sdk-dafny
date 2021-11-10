@@ -19,6 +19,13 @@ module StandardLibrary.UInt {
 
   predicate method UInt8Less(a: uint8, b: uint8) { a < b }
 
+  predicate method HasUint16Len<T>(s: seq<T>) {
+    |s| < UINT16_LIMIT
+  }
+
+  type seq16<T> = s: seq<T> | HasUint16Len(s)
+  type Uint8Seq16 = seq16<uint8>
+
   function method UInt16ToSeq(x: uint16): (ret: seq<uint8>)
     ensures |ret| == 2
     ensures 0x100 * ret[0] as uint16 + ret[1] as uint16 == x
