@@ -8,7 +8,6 @@ include "../../Crypto/EncryptionSuites.dfy"
 include "../../Crypto/Random.dfy"
 include "../../Crypto/AESEncryption.dfy"
 include "../Materials.dfy"
-include "../MessageHeader.dfy"
 include "../EncryptionContext.dfy"
 include "../Serialize.dfy"
 include "../../Util/UTF8.dfy"
@@ -25,7 +24,6 @@ module {:extern "RawAESKeyringDef"} RawAESKeyringDef {
   import Random
   import AESEncryption
   import Mat = Materials
-  import MessageHeader
   import UTF8
   import EncryptionContext
   import Serialize
@@ -223,7 +221,7 @@ module {:extern "RawAESKeyringDef"} RawAESKeyringDef {
       if UINT16_LIMIT <= |encryptedKey| {
         return Failure("Encrypted data key too long.");
       }
-      var edk:Crypto.ValidEncryptedDataKey := Crypto.EncryptedDataKey(keyProviderId := keyNamespace, keyProviderInfo := providerInfo, ciphertext := encryptedKey);
+      var edk:Crypto.EncryptedDataKey := Crypto.EncryptedDataKey(keyProviderId := keyNamespace, keyProviderInfo := providerInfo, ciphertext := encryptedKey);
 
       //= compliance/framework/raw-aes-keyring.txt#2.7.1
       //# The keyring MUST append the constructed encrypted data key to the
@@ -233,7 +231,7 @@ module {:extern "RawAESKeyringDef"} RawAESKeyringDef {
       //= compliance/framework/raw-aes-keyring.txt#2.7.1
       //# OnEncrypt MUST output the modified encryption materials
       //# (structures.md#encryption-materials).
-      var edks:seq<Crypto.ValidEncryptedDataKey> := materialsWithDataKey.encryptedDataKeys + [edk];
+      var edks:seq<Crypto.EncryptedDataKey> := materialsWithDataKey.encryptedDataKeys + [edk];
       var r := Crypto.EncryptionMaterials(
         encryptionContext := materialsWithDataKey.encryptionContext,
         algorithmSuiteId := materialsWithDataKey.algorithmSuiteId,
