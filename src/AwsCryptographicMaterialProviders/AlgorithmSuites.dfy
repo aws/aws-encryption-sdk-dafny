@@ -176,7 +176,7 @@ module
     tagLen := TagLen,
     ivLen := IvLen,
     kdf := KeyDerivationAlgorithm_.HKDF_WITH_SHA_512(Bits256, Bits256),
-    commitment := CommitmentDerivationAlgorithm.None,
+    commitment := CommitmentDerivationAlgorithm.Algorithm(KeyDerivationAlgorithm_.HKDF_WITH_SHA_512(Bits256, Bits256))
     signature := SignatureAlgorithm.None
   )
   const ALG_AES_256_GCM_HKDF_SHA512_COMMIT_KEY_ECDSA_P384: AlgorithmSuite := AlgorithmSuite_(
