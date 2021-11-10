@@ -148,6 +148,15 @@ module {:extern "MessageHeader"} MessageHeader {
       EDKEntriesToSeq(entries, lo, hi - 1) + EDKEntryToSeq(entries[hi - 1])
   }
 
+  lemma EDKEntriesToSeqInductiveStep(entriesHead: ESDKEncryptedDataKeys, entriesTail: ESDKEncryptedDataKeys, lo: nat, hi: nat)
+    requires HasUint16Len(entriesHead + entriesTail)
+    requires lo <= hi <= |entriesHead|
+    ensures var entries := entriesHead + entriesTail;
+      EDKEntriesToSeq(entriesHead + entriesTail, lo, hi) == EDKEntriesToSeq(entriesHead, lo, hi)
+  {
+
+  }
+
   function method EDKEntryToSeq(edk: ESDKEncryptedDataKey): seq<uint8>
   {
     UInt16ToSeq(|edk.keyProviderId| as uint16)   + edk.keyProviderId +
