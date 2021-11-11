@@ -107,7 +107,7 @@ import opened StandardLibrary
   predicate method ValidDecryptionMaterials(decryptionMaterials: Crypto.DecryptionMaterials) {
     && var suite := AlgorithmSuites.GetSuite(decryptionMaterials.algorithmSuiteId);
     && (decryptionMaterials.plaintextDataKey.Some? ==> suite.keyLen as int == |decryptionMaterials.plaintextDataKey.value|)
-    && (!suite.signature.None? ==> decryptionMaterials.verificationKey.Some?)
+    && (suite.signature.None? <==> decryptionMaterials.verificationKey.None?)
   }
 
   function method DecryptionMaterialsAddDataKey(
