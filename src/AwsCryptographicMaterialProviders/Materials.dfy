@@ -120,7 +120,7 @@ import opened StandardLibrary
       DecryptionMaterialsIsValidClone(decryptionMaterials, res.value)
   {
     var suite := AlgorithmSuites.GetSuite(decryptionMaterials.algorithmSuiteId);
-    :- Need(ValidDecryptionMaterials(decryptionMaterials), "Attempt to modifiy invalid encryption material.");
+    :- Need(ValidDecryptionMaterials(decryptionMaterials), "Attempt to modifiy invalid decryption material.");
     :- Need(decryptionMaterials.plaintextDataKey.None?, "Attempt to modify plaintextDataKey.");
     :- Need(suite.keyLen as int == |plaintextDataKey|, "plaintextDataKey does not match Algorithm Suite specification.");
 
