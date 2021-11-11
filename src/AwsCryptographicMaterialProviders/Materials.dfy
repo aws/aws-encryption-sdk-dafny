@@ -70,6 +70,7 @@ import opened StandardLibrary
       EncryptionMaterialsTransitionIsValid(encryptionMaterials, res.value)
   {
     :- Need(ValidEncryptionMaterials(encryptionMaterials), "Attempt to modifiy invalid encryption material.");
+    :- Need(encryptionMaterials.plaintextDataKey.Some?, "Adding encrypted data keys without a plaintext data key is not allowed.");
     Success(Crypto.EncryptionMaterials(
       plaintextDataKey := encryptionMaterials.plaintextDataKey,
       encryptedDataKeys := encryptionMaterials.encryptedDataKeys + encryptedDataKeys,
