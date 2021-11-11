@@ -541,6 +541,7 @@ module Deserialize {
         // TODO proof needs additional handholding here where it didn't before. Should make more stable somehow.
         assert UInt16ToSeq(|providerId| as uint16) + providerId == rd.reader.data[edkStartPos..edkStartPos+2+|providerId|];
         assert UInt16ToSeq(|providerInfo| as uint16) + providerInfo == rd.reader.data[edkStartPos+2+|providerId|..edkStartPos+2+|providerId|+2+|providerInfo|];
+        assert UInt16ToSeq(|ciphertext| as uint16) + ciphertext == rd.reader.data[edkStartPos+2+|providerId|+2+|providerInfo|..edkStartPos+2+|providerId|+2+|providerInfo|+2+|ciphertext|];
         assert Msg.EDKEntryToSeq(Crypto.EncryptedDataKey(keyProviderId:=providerId, keyProviderInfo:=providerInfo, ciphertext:=ciphertext)) == rd.reader.data[edkStartPos..rd.reader.pos];
         Msg.EDKEntriesToSeqInductiveStep(edkEntries[..|edkEntries| - 1],
           [Crypto.EncryptedDataKey(keyProviderId:=providerId, keyProviderInfo:=providerInfo, ciphertext:=ciphertext)], 0, |edkEntries[..|edkEntries| - 1]|);
