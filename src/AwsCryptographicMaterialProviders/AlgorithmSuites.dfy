@@ -3,6 +3,7 @@
 
 include "../StandardLibrary/StandardLibrary.dfy"
 include "../Generated/AwsCryptographicMaterialProviders.dfy"
+include "../../libraries/src/Collections/Maps/Maps.dfy"
 
 module 
   {:extern "Dafny.Aws.Crypto.AwsCryptographicMaterialProvidersClient2.AlgorithmSuites"}
@@ -11,6 +12,7 @@ module
   import opened Wrappers
   import opened StandardLibrary
   import opened UInt = StandardLibrary.UInt
+  import Maps
   import Aws.Crypto
 
   type KeyLength = l: uint8 | l == 32 || l == 24 || l == 16 witness 32
@@ -204,7 +206,12 @@ module
     Crypto.AlgorithmSuiteId.ALG_AES_256_GCM_HKDF_SHA512_COMMIT_KEY_ECDSA_P384 := ALG_AES_256_GCM_HKDF_SHA512_COMMIT_KEY_ECDSA_P384
   ];
 
-  function method GetSuite(id: Crypto.AlgorithmSuiteId): AlgorithmSuite {
+  lemma LemmaSupportedAlgorithmSuitesIsComplete(id:Crypto.AlgorithmSuiteId)
+    ensures id in SupportedAlgorithmSuites
+  {}
+
+  function method GetSuite(id: Crypto.AlgorithmSuiteId): (res: AlgorithmSuite) {
+    LemmaSupportedAlgorithmSuitesIsComplete(id);
     SupportedAlgorithmSuites[id]
   }
 }
