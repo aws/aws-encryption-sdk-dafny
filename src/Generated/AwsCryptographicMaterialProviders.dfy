@@ -20,7 +20,7 @@ module {:extern "Dafny.Aws.Crypto"} Aws.Crypto {
       reveals AlgorithmSuiteId, EncryptedDataKey, EncryptedDataKeyList, IKeyring, GetEncryptionMaterialsInput, GetEncryptionMaterialsOutput,
         DecryptMaterialsInput, DecryptMaterialsOutput, ICryptographicMaterialsManager, EncryptionContext, EncryptionMaterials, DecryptionMaterials,
         OnEncryptInput, OnEncryptOutput, OnDecryptInput, OnDecryptOutput, OnEncryptInput.Valid, OnDecryptInput.Valid,
-        GetEncryptionMaterialsInput.Valid, DecryptMaterialsInput.Valid, EncryptionMaterials.Valid, CreateRawAesKeyringInput, CreateDefaultCryptographicMaterialsManagerInput,
+        GetEncryptionMaterialsInput.Valid, DecryptMaterialsInput.Valid, CreateRawAesKeyringInput, CreateDefaultCryptographicMaterialsManagerInput,
         IAwsCryptographicMaterialsProviderClient, AesWrappingAlg, CreateDefaultCryptographicMaterialsManagerInput.Valid, CreateRawAesKeyringInput.Valid
 
     /////////////
@@ -65,32 +65,25 @@ module {:extern "Dafny.Aws.Crypto"} Aws.Crypto {
     // compatibility with existing code.
     type EncryptionContext = map<ValidUTF8Bytes, ValidUTF8Bytes>
 
-    datatype EncryptedDataKey = EncryptedDataKey(nameonly keyProviderId: ValidUTF8Bytes,
-                                                 nameonly keyProviderInfo: seq<uint8>,
-                                                 nameonly ciphertext: seq<uint8>)
+    datatype EncryptedDataKey = EncryptedDataKey(
+        nameonly keyProviderId: ValidUTF8Bytes,
+        nameonly keyProviderInfo: seq<uint8>,
+        nameonly ciphertext: seq<uint8>)
 
     type EncryptedDataKeyList = seq<EncryptedDataKey>
 
-    datatype EncryptionMaterials = EncryptionMaterials(nameonly algorithmSuiteId: AlgorithmSuiteId, // TODO update to algorithmSuite or update Smithy model (and elsewhere)
-                                                       nameonly encryptionContext: EncryptionContext, // TODO should EC be an Option? (and elsewhere)
-                                                       nameonly encryptedDataKeys: EncryptedDataKeyList, // TODO should this be an Option? (and elsewhere)
-                                                       nameonly plaintextDataKey: Option<seq<uint8>>,
-                                                       nameonly signingKey: Option<seq<uint8>>)
-    {
-        predicate Valid() {
-            true
-        }
-    }
+    datatype EncryptionMaterials = EncryptionMaterials(
+        nameonly algorithmSuiteId: AlgorithmSuiteId, // TODO update to algorithmSuite or update Smithy model (and elsewhere)
+        nameonly encryptionContext: EncryptionContext, // TODO should EC be an Option? (and elsewhere)
+        nameonly encryptedDataKeys: EncryptedDataKeyList, // TODO should this be an Option? (and elsewhere)
+        nameonly plaintextDataKey: Option<seq<uint8>>,
+        nameonly signingKey: Option<seq<uint8>>)
 
-    datatype DecryptionMaterials = DecryptionMaterials(nameonly algorithmSuiteId: AlgorithmSuiteId,
-                                                       nameonly encryptionContext: EncryptionContext,
-                                                       nameonly plaintextDataKey: Option<seq<uint8>>,
-                                                       nameonly verificationKey: Option<seq<uint8>>)
-    {
-        predicate Valid() {
-            true
-        }
-    }
+    datatype DecryptionMaterials = DecryptionMaterials(
+        nameonly algorithmSuiteId: AlgorithmSuiteId,
+        nameonly encryptionContext: EncryptionContext,
+        nameonly plaintextDataKey: Option<seq<uint8>>,
+        nameonly verificationKey: Option<seq<uint8>>)
 
     ///////////////////////
     // crypto-config.smithy
