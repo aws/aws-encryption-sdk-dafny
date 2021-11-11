@@ -189,4 +189,22 @@ module
     commitment := CommitmentDerivationAlgorithm.Algorithm(KeyDerivationAlgorithm_.HKDF_WITH_SHA_512(Bits256, Bits256)),
     signature := SignatureAlgorithm.ECDSA_P_384_SHA_384
   )
+
+  const SupportedAlgorithmSuites: map<Crypto.AlgorithmSuiteId, AlgorithmSuite> := map[
+    Crypto.AlgorithmSuiteId.ALG_AES_128_GCM_IV12_TAG16_NO_KDF := ALG_AES_128_GCM_IV12_TAG16_NO_KDF,
+    Crypto.AlgorithmSuiteId.ALG_AES_192_GCM_IV12_TAG16_NO_KDF := ALG_AES_192_GCM_IV12_TAG16_NO_KDF,
+    Crypto.AlgorithmSuiteId.ALG_AES_256_GCM_IV12_TAG16_NO_KDF := ALG_AES_256_GCM_IV12_TAG16_NO_KDF,
+    Crypto.AlgorithmSuiteId.ALG_AES_128_GCM_IV12_TAG16_HKDF_SHA256 := ALG_AES_128_GCM_IV12_TAG16_HKDF_SHA256,
+    Crypto.AlgorithmSuiteId.ALG_AES_192_GCM_IV12_TAG16_HKDF_SHA256 := ALG_AES_192_GCM_IV12_TAG16_HKDF_SHA256,
+    Crypto.AlgorithmSuiteId.ALG_AES_256_GCM_IV12_TAG16_HKDF_SHA256 := ALG_AES_256_GCM_IV12_TAG16_HKDF_SHA256,
+    Crypto.AlgorithmSuiteId.ALG_AES_128_GCM_IV12_TAG16_HKDF_SHA256_ECDSA_P256 := ALG_AES_128_GCM_IV12_TAG16_HKDF_SHA256_ECDSA_P256,
+    Crypto.AlgorithmSuiteId.ALG_AES_192_GCM_IV12_TAG16_HKDF_SHA384_ECDSA_P384 := ALG_AES_192_GCM_IV12_TAG16_HKDF_SHA384_ECDSA_P384,
+    Crypto.AlgorithmSuiteId.ALG_AES_256_GCM_IV12_TAG16_HKDF_SHA384_ECDSA_P384 := ALG_AES_256_GCM_IV12_TAG16_HKDF_SHA384_ECDSA_P384,
+    Crypto.AlgorithmSuiteId.ALG_AES_256_GCM_HKDF_SHA512_COMMIT_KEY := ALG_AES_256_GCM_HKDF_SHA512_COMMIT_KEY,
+    Crypto.AlgorithmSuiteId.ALG_AES_256_GCM_HKDF_SHA512_COMMIT_KEY_ECDSA_P384 := ALG_AES_256_GCM_HKDF_SHA512_COMMIT_KEY_ECDSA_P384
+  ];
+
+  function method GetSuite(id: Crypto.AlgorithmSuiteId): AlgorithmSuite {
+    SupportedAlgorithmSuites[id]
+  }
 }
