@@ -102,7 +102,6 @@ module {:extern "DefaultCMMDef"} DefaultCMMDef {
       if result.materials.plaintextDataKey.None? || |result.materials.encryptedDataKeys| == 0 {
         return Failure("Could not retrieve materials required for encryption");
       }
-      assert result.materials.Valid();
 
       // TODO more informative error message
       :- Need(OnEncryptResultValid(input, result), "Keyring returned an invalid response");
