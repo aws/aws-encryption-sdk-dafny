@@ -413,9 +413,18 @@ module Base64 {
     ensures IsBase64String(s)
     // Rather than ensure Decode(s) == Success(b) directly, lemmas are used to verify this property
   {
-    if |b| % 3 == 0 then EncodeUnpadded(b)
-    else if |b| % 3 == 1 then EncodeUnpadded(b[..(|b| - 1)]) + Encode2Padding(b[(|b| - 1)..])
-    else EncodeUnpadded(b[..(|b| - 2)]) + Encode1Padding(b[(|b| - 2)..])
+    if |b| % 3 == 0 then
+      var s := EncodeUnpadded(b);
+      assert |s| % 4 == 0;
+      s
+    else if |b| % 3 == 1 then
+      var s := EncodeUnpadded(b[..(|b| - 1)]) + Encode2Padding(b[(|b| - 1)..]);
+      assert |s| % 4 == 0;
+      s
+    else
+      var s := EncodeUnpadded(b[..(|b| - 2)]) + Encode1Padding(b[(|b| - 2)..]);
+      assert |s| % 4 == 0;
+      s
   }
 
   lemma EncodeLengthExact(b: seq<uint8>)
