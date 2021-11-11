@@ -34,11 +34,7 @@ import opened StandardLibrary
     && newMat.algorithmSuiteId == oldMat.algorithmSuiteId
     && newMat.encryptionContext == oldMat.encryptionContext
     && newMat.signingKey == oldMat.signingKey
-    && if oldMat.plaintextDataKey.Some? || newMat.plaintextDataKey.None? then
-        newMat.plaintextDataKey == oldMat.plaintextDataKey
-      else
-        && newMat.plaintextDataKey.Some?
-        && oldMat.plaintextDataKey.None?
+    && (oldMat.plaintextDataKey.None? || oldMat.plaintextDataKey == newMat.plaintextDataKey)
     && |newMat.encryptedDataKeys| >= |oldMat.encryptedDataKeys|
     && multiset(oldMat.encryptedDataKeys) <= multiset(newMat.encryptedDataKeys)
     && ValidEncryptionMaterials(oldMat)
