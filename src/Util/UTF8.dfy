@@ -126,8 +126,6 @@ module {:extern "UTF8"} UTF8 {
         lo := lo + 3;
       } else if 4 <= |r| && Uses4Bytes(r) {
         lo := lo + 4;
-      } else {
-        assert false;
       }
     }
     calc {
