@@ -27,7 +27,7 @@ import opened StandardLibrary
 
 
   // Encryption Materials
-  predicate method EncryptionMaterialIsValidClone(
+  predicate method EncryptionMaterialsTransitionIsValid(
     oldMat: Crypto.EncryptionMaterials,
     newMat: Crypto.EncryptionMaterials
   ) {
