@@ -27,6 +27,18 @@ import opened StandardLibrary
 
 
   // Encryption Materials
+
+  /* The goal of EncryptionMaterialsTransitionIsValid is to aproxomate
+   * _some_ mutablity in an otherwise immutable structure.
+   * Encryption Materials should allow for the addition
+   * of the plaintext data key and encrypted data keys.
+   * Once a plaintext data key is added,
+   * it can never be removed or altered.
+   * Simmilarly encrypted data keys can be added,
+   * but none can be removed.
+   * This lets keyrings/CMM handle immutalbe data,
+   * and easily assert these invariants.
+   */
   predicate method EncryptionMaterialsTransitionIsValid(
     oldMat: Crypto.EncryptionMaterials,
     newMat: Crypto.EncryptionMaterials
@@ -55,7 +67,7 @@ import opened StandardLibrary
     :(res: Result<Crypto.EncryptionMaterials, string>)
     ensures res.Success?
     ==>
-      EncryptionMaterialIsValidClone(encryptionMaterials, res.value)
+      EncryptionMaterialsTransitionIsValid(encryptionMaterials, res.value)
   {
     :- Need(ValidEncryptionMaterials(encryptionMaterials), "Attempt to modifiy invalid encryption material.");
     Success(Crypto.EncryptionMaterials(
@@ -75,7 +87,7 @@ import opened StandardLibrary
     :(res: Result<Crypto.EncryptionMaterials, string>)
     ensures res.Success?
     ==>
-      EncryptionMaterialIsValidClone(encryptionMaterials, res.value)
+      EncryptionMaterialsTransitionIsValid(encryptionMaterials, res.value)
   {
     var suite := AlgorithmSuites.GetSuite(encryptionMaterials.algorithmSuiteId);
     :- Need(ValidEncryptionMaterials(encryptionMaterials), "Attempt to modifiy invalid encryption material.");
@@ -92,7 +104,16 @@ import opened StandardLibrary
   }
 
   // Decryption Materials
-  predicate method DecryptionMaterialsIsValidClone(
+  /* The goal of DecryptionMaterialsTransitionIsValid is to aproxomate
+   * _some_ mutablity in an otherwise immutable structure.
+   * Decryption Materials allow for the addition
+   * of a plaintext data key.
+   * Once a plaintext data key is added,
+   * it can never be removed or altered.
+   * This lets keyrings/CMM handle immutalbe data,
+   * and easily assert these invariants.
+   */
+  predicate method DecryptionMaterialsTransitionIsValid(
     oldMat: Crypto.DecryptionMaterials,
     newMat: Crypto.DecryptionMaterials
   ) {
@@ -117,7 +138,7 @@ import opened StandardLibrary
     :(res: Result<Crypto.DecryptionMaterials, string>)
     ensures res.Success?
     ==>
-      DecryptionMaterialsIsValidClone(decryptionMaterials, res.value)
+      DecryptionMaterialsTransitionIsValid(decryptionMaterials, res.value)
   {
     var suite := AlgorithmSuites.GetSuite(decryptionMaterials.algorithmSuiteId);
     :- Need(ValidDecryptionMaterials(decryptionMaterials), "Attempt to modifiy invalid decryption material.");
