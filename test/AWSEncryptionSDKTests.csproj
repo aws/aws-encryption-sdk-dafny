@@ -39,6 +39,7 @@
       flag any more. See https://github.com/awslabs/aws-encryption-sdk-dafny/issues/367.
       <VerifyDafnyPassthrough Include="definiteAssignment:3" />
     -->
+    <VerifyDafnyPassthrough Include="$(TestVerifyOverride)" />
   </ItemGroup>
 
   <!--
