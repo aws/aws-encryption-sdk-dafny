@@ -67,7 +67,8 @@ import opened StandardLibrary
     :(res: Result<Crypto.EncryptionMaterials, string>)
     ensures res.Success?
     ==>
-      EncryptionMaterialsTransitionIsValid(encryptionMaterials, res.value)
+      && res.value.plaintextDataKey.Some?
+      && EncryptionMaterialsTransitionIsValid(encryptionMaterials, res.value)
   {
     :- Need(ValidEncryptionMaterials(encryptionMaterials), "Attempt to modifiy invalid encryption material.");
     :- Need(encryptionMaterials.plaintextDataKey.Some?, "Adding encrypted data keys without a plaintext data key is not allowed.");
@@ -88,7 +89,8 @@ import opened StandardLibrary
     :(res: Result<Crypto.EncryptionMaterials, string>)
     ensures res.Success?
     ==>
-      EncryptionMaterialsTransitionIsValid(encryptionMaterials, res.value)
+      && res.value.plaintextDataKey.Some?
+      && EncryptionMaterialsTransitionIsValid(encryptionMaterials, res.value)
   {
     var suite := AlgorithmSuites.GetSuite(encryptionMaterials.algorithmSuiteId);
     :- Need(ValidEncryptionMaterials(encryptionMaterials), "Attempt to modifiy invalid encryption material.");
@@ -139,7 +141,8 @@ import opened StandardLibrary
     :(res: Result<Crypto.DecryptionMaterials, string>)
     ensures res.Success?
     ==>
-      DecryptionMaterialsTransitionIsValid(decryptionMaterials, res.value)
+      && res.value.plaintextDataKey.Some?
+      && DecryptionMaterialsTransitionIsValid(decryptionMaterials, res.value)
   {
     var suite := AlgorithmSuites.GetSuite(decryptionMaterials.algorithmSuiteId);
     :- Need(ValidDecryptionMaterials(decryptionMaterials), "Attempt to modifiy invalid decryption material.");
@@ -160,7 +163,7 @@ import opened StandardLibrary
   }
 
   predicate method DecryptionMaterialsWithPlaintextDataKey(decryptionMaterials: Crypto.DecryptionMaterials) {
-    && decryptionMaterials.plaintextDataKey.None?
+    && decryptionMaterials.plaintextDataKey.Some?
     && ValidDecryptionMaterials(decryptionMaterials)
   }
 
