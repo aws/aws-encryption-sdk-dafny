@@ -99,11 +99,7 @@ import opened StandardLibrary
     && newMat.algorithmSuiteId == oldMat.algorithmSuiteId
     && newMat.encryptionContext == oldMat.encryptionContext
     && newMat.verificationKey == oldMat.verificationKey
-    && if oldMat.plaintextDataKey.Some? || newMat.plaintextDataKey.None? then
-        newMat.plaintextDataKey == oldMat.plaintextDataKey
-      else
-        && newMat.plaintextDataKey.Some?
-        && oldMat.plaintextDataKey.None?
+    && (oldMat.plaintextDataKey.None? || oldMat.plaintextDataKey == newMat.plaintextDataKey)
     && ValidDecryptionMaterials(oldMat)
     && ValidDecryptionMaterials(newMat)
   }
