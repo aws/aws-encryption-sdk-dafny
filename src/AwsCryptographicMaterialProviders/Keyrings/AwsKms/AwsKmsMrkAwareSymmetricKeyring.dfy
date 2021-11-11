@@ -1,8 +1,9 @@
 // Copyright Amazon.com Inc. or its affiliates. All Rights Reserved.
 // SPDX-License-Identifier: Apache-2.0
 
-include "../Defs.dfy"
+include "../../Keyring.dfy"
 include "../../Materials.dfy"
+include "../../AlgorithmSuites.dfy"
 include "../../../StandardLibrary/StandardLibrary.dfy"
 include "../../../KMS/KMSUtils.dfy"
 include "../../../KMS/AmazonKeyManagementService.dfy"
@@ -12,8 +13,12 @@ include "../../../../libraries/src/Collections/Sequences/Seq.dfy"
 include "../../../StandardLibrary/Actions.dfy"
 include "Constants.dfy"
 include "AwsKmsMrkMatchForDecrypt.dfy"
+include "../../../Generated/AwsCryptographicMaterialProviders.dfy"
 
-module {:extern "AwsKmsMrkAwareSymmetricKeyringDef"} AwsKmsMrkAwareSymmetricKeyringDef {
+module
+  {:extern "Dafny.Aws.Crypto.AwsCryptographicMaterialProvidersClient2.AwsKmsMrkAwareSymmetricKeyring"}
+  AwsCryptographicMaterialProvidersClient2.AwsKmsMrkAwareSymmetricKeyring
+{
   import opened StandardLibrary
   import opened Wrappers
   import opened UInt = StandardLibrary.UInt
@@ -22,9 +27,11 @@ module {:extern "AwsKmsMrkAwareSymmetricKeyringDef"} AwsKmsMrkAwareSymmetricKeyr
   import opened Seq
   import opened Actions
   import opened Constants
-  import opened M = AwsKmsMrkMatchForDecrypt
-  import opened KeyringDefs
-  import Materials
+  import opened A = AwsKmsMrkMatchForDecrypt
+  import AwsCryptographicMaterialProviders2.Keyring
+  import AwsCryptographicMaterialProviders2.Materials
+  import AwsCryptographicMaterialProviders2.AlgorithmSuites
+  import Aws.Crypto
   import opened KMSUtils
   import UTF8
 
@@ -33,7 +40,7 @@ module {:extern "AwsKmsMrkAwareSymmetricKeyringDef"} AwsKmsMrkAwareSymmetricKeyr
   //# MUST implement the AWS Encryption SDK Keyring interface (../keyring-
   //# interface.md#interface)
   class AwsKmsMrkAwareSymmetricKeyring
-    extends Keyring
+    extends Keyring.VerifiableInterface
   {
 
     const client: IAmazonKeyManagementService
@@ -58,8 +65,6 @@ module {:extern "AwsKmsMrkAwareSymmetricKeyringDef"} AwsKmsMrkAwareSymmetricKeyr
       requires ParseAwsKmsIdentifier(awsKmsKey).Success?
       requires UTF8.IsASCIIString(awsKmsKey)
       requires 0 < |awsKmsKey| <= MAX_AWS_KMS_IDENTIFIER_LENGTH
-      ensures Valid()
-      ensures fresh(Repr - {this})
       ensures
         && this.client      == client
         && this.awsKmsKey   == awsKmsKey
@@ -70,25 +75,20 @@ module {:extern "AwsKmsMrkAwareSymmetricKeyringDef"} AwsKmsMrkAwareSymmetricKeyr
       this.awsKmsKey   := awsKmsKey;
       this.awsKmsArn   := parsedAwsKmsId.value;
       this.grantTokens := grantTokens;
-      Repr := {this};
-    }
-
-    predicate Valid()
-      reads this, Repr
-      ensures Valid() ==> this in Repr
-    {
-      && this in Repr
     }
 
     //= compliance/framework/aws-kms/aws-kms-mrk-aware-symmetric-keyring.txt#2.7
     //= type=implication
     //# OnEncrypt MUST take encryption materials (structures.md#encryption-
     //# materials) as input.
-    method OnEncrypt(materials: Materials.ValidEncryptionMaterials)
-      returns (res: Result<Materials.ValidEncryptionMaterials, string>)
-      requires Valid()
-      ensures Valid()
-      ensures OnEncryptPure(materials, res)
+    method OnEncrypt(input: Crypto.OnEncryptInput)
+      returns (res: Result<Crypto.OnEncryptOutput, string>)
+      ensures res.Success?
+      ==>
+        && Materials.EncryptionMaterialsTransitionIsValid(
+          input.materials,
+          res.value.materials
+        )
       //= compliance/framework/aws-kms/aws-kms-mrk-aware-symmetric-keyring.txt#2.7
       //= type=implication
       //# If the input encryption materials (structures.md#encryption-
@@ -97,7 +97,7 @@ module {:extern "AwsKmsMrkAwareSymmetricKeyringDef"} AwsKmsMrkAwareSymmetricKeyr
       //# GenerateDataKey (https://docs.aws.amazon.com/kms/latest/APIReference/
       //# API_GenerateDataKey.html).
       ensures
-        && materials.plaintextDataKey.None?
+        && input.materials.plaintextDataKey.None?
       ==>
         GenerateDataKeyCalledWith(
           //= compliance/framework/aws-kms/aws-kms-mrk-aware-symmetric-keyring.txt#2.7
@@ -110,10 +110,10 @@ module {:extern "AwsKmsMrkAwareSymmetricKeyringDef"} AwsKmsMrkAwareSymmetricKeyr
           //# The keyring MUST call
           //# AWS KMS GenerateDataKeys with a request constructed as follows:
           GenerateDataKeyRequest(
-            materials.encryptionContext,
+            input.materials.encryptionContext,
             grantTokens,
             awsKmsKey,
-            materials.algorithmSuiteID.KDFInputKeyLength() as int32
+            AlgorithmSuites.GetSuite(input.materials.algorithmSuiteId).keyLen as int32
           ))
 
       //= compliance/framework/aws-kms/aws-kms-mrk-aware-symmetric-keyring.txt#2.7
@@ -121,18 +121,18 @@ module {:extern "AwsKmsMrkAwareSymmetricKeyringDef"} AwsKmsMrkAwareSymmetricKeyr
       //# *  OnEncrypt MUST output the modified encryption materials
       //# (structures.md#encryption-materials)
       ensures 
-        && materials.plaintextDataKey.None?
+        && input.materials.plaintextDataKey.None?
         && res.Success?
       ==>
-        && res.value.plaintextDataKey.Some?
-        && |res.value.encryptedDataKeys| == |materials.encryptedDataKeys| + 1
+        && res.value.materials.plaintextDataKey.Some?
+        && |res.value.materials.encryptedDataKeys| == |input.materials.encryptedDataKeys| + 1
         //= compliance/framework/aws-kms/aws-kms-mrk-aware-symmetric-keyring.txt#2.7
         //= type=implication
         //# If the Generate Data Key call succeeds, OnEncrypt MUST verify that
         //# the response "Plaintext" length matches the specification of the
         //# algorithm suite (algorithm-suites.md)'s Key Derivation Input Length
         //# field.
-        && materials.algorithmSuiteID.ValidPlaintextDataKey(res.value.plaintextDataKey.value)
+        && AlgorithmSuites.GetSuite(input.materials.algorithmSuiteId).keyLen as int == |res.value.materials.plaintextDataKey.value|
         //= compliance/framework/aws-kms/aws-kms-mrk-aware-symmetric-keyring.txt#2.7
         //= type=implication
         //# If verified, OnEncrypt MUST do the following with the response
@@ -140,8 +140,8 @@ module {:extern "AwsKmsMrkAwareSymmetricKeyringDef"} AwsKmsMrkAwareSymmetricKeyr
         //# (https://docs.aws.amazon.com/kms/latest/APIReference/
         //# API_GenerateDataKey.html):
         && GenerateDataKeyResult(
-            Last(res.value.encryptedDataKeys).ciphertext,
-            res.value.plaintextDataKey.value
+            Last(res.value.materials.encryptedDataKeys).ciphertext,
+            res.value.materials.plaintextDataKey.value
           )
 
       //= compliance/framework/aws-kms/aws-kms-mrk-aware-symmetric-keyring.txt#2.7
@@ -151,7 +151,7 @@ module {:extern "AwsKmsMrkAwareSymmetricKeyringDef"} AwsKmsMrkAwareSymmetricKeyr
       //# encrypt the plaintext data key using the configured AWS KMS key
       //# identifier.
       ensures 
-        && materials.plaintextDataKey.Some?
+        && input.materials.plaintextDataKey.Some?
       ==>
         && EncryptCalledWith(
           //= compliance/framework/aws-kms/aws-kms-mrk-aware-symmetric-keyring.txt#2.7
@@ -165,10 +165,10 @@ module {:extern "AwsKmsMrkAwareSymmetricKeyringDef"} AwsKmsMrkAwareSymmetricKeyr
           //# The keyring
           //# MUST AWS KMS Encrypt call with a request constructed as follows:
           EncryptRequest(
-            materials.encryptionContext,
+            input.materials.encryptionContext,
             grantTokens,
             awsKmsKey,
-            materials.plaintextDataKey.value
+            input.materials.plaintextDataKey.value
           ))
 
       //= compliance/framework/aws-kms/aws-kms-mrk-aware-symmetric-keyring.txt#2.7
@@ -176,7 +176,7 @@ module {:extern "AwsKmsMrkAwareSymmetricKeyringDef"} AwsKmsMrkAwareSymmetricKeyr
       //# If all Encrypt calls succeed, OnEncrypt MUST output the modified
       //# encryption materials (structures.md#encryption-materials).
       ensures 
-        && materials.plaintextDataKey.Some?
+        && input.materials.plaintextDataKey.Some?
         && res.Success?
       ==>
         //= compliance/framework/aws-kms/aws-kms-mrk-aware-symmetric-keyring.txt#2.7
@@ -185,15 +185,17 @@ module {:extern "AwsKmsMrkAwareSymmetricKeyringDef"} AwsKmsMrkAwareSymmetricKeyr
         //# response from AWS KMS Encrypt
         //# (https://docs.aws.amazon.com/kms/latest/APIReference/
         //# API_Encrypt.html):
-        && |res.value.encryptedDataKeys| == |materials.encryptedDataKeys| + 1
-        && EncryptResult(Last(res.value.encryptedDataKeys).ciphertext)
+        && |res.value.materials.encryptedDataKeys| == |input.materials.encryptedDataKeys| + 1
+        && EncryptResult(Last(res.value.materials.encryptedDataKeys).ciphertext)
     {
+      var materials := input.materials;
+      var suite := AlgorithmSuites.GetSuite(input.materials.algorithmSuiteId);
       if materials.plaintextDataKey.None? {
         var generatorRequest := GenerateDataKeyRequest(
           materials.encryptionContext,
           grantTokens,
           awsKmsKey,
-          materials.algorithmSuiteID.KDFInputKeyLength() as int32
+          suite.keyLen as int32
         );
 
         var maybeGenerateResponse := GenerateDataKey(client, generatorRequest);
@@ -219,22 +221,24 @@ module {:extern "AwsKmsMrkAwareSymmetricKeyringDef"} AwsKmsMrkAwareSymmetricKeyr
           "Invalid response from KMS GenerateDataKey:: Invalid Key Id"
         );
         :- Need(
-          materials.algorithmSuiteID.ValidPlaintextDataKey(generateResponse.plaintext),
+          suite.keyLen as int == |generateResponse.plaintext|,
           "Invalid response from AWS KMS GenerateDataKey: Invalid data key"
         );
 
         var providerInfo :- UTF8.Encode(generateResponse.keyID);
         :- Need(|providerInfo| < UINT16_LIMIT, "AWS KMS Key ID too long.");
 
-        var edk := Materials.EncryptedDataKey(
-          PROVIDER_ID,
-          providerInfo,
-          generateResponse.ciphertextBlob
+        var edk := Crypto.EncryptedDataKey(
+          keyProviderId := PROVIDER_ID,
+          keyProviderInfo := providerInfo,
+          ciphertext := generateResponse.ciphertextBlob
         );
         var plaintextDataKey := generateResponse.plaintext;
 
-        var result := materials.WithKeys(Some(plaintextDataKey), [edk]);
-        return Success(result);
+        var result :- Materials.EncryptionMaterialAddDataKey(materials, plaintextDataKey, [edk]);
+        return Success(Crypto.OnEncryptOutput(
+          materials := result
+        ));
       } else {
         var encryptRequest := KMSUtils.EncryptRequest(
           materials.encryptionContext,
@@ -267,14 +271,16 @@ module {:extern "AwsKmsMrkAwareSymmetricKeyringDef"} AwsKmsMrkAwareSymmetricKeyr
         var providerInfo :- UTF8.Encode(encryptResponse.keyID);
         :- Need(|providerInfo| < UINT16_LIMIT, "AWS KMS Key ID too long.");
 
-        var edk := Materials.EncryptedDataKey(
-          PROVIDER_ID,
-          providerInfo,
-          encryptResponse.ciphertextBlob
+        var edk := Crypto.EncryptedDataKey(
+          keyProviderId := PROVIDER_ID,
+          keyProviderInfo := providerInfo,
+          ciphertext := encryptResponse.ciphertextBlob
         );
 
-        var result := materials.WithKeys(materials.plaintextDataKey, [edk]);
-        return Success(result);
+        var result :- Materials.EncryptionMaterialAddEncryptedDataKeys(materials, [edk]);
+        return Success(Crypto.OnEncryptOutput(
+          materials := result
+        ));
       }
     }
 
@@ -284,36 +290,27 @@ module {:extern "AwsKmsMrkAwareSymmetricKeyringDef"} AwsKmsMrkAwareSymmetricKeyr
     //# materials) and a list of encrypted data keys
     //# (structures.md#encrypted-data-key) as input.
     method OnDecrypt(
-      materials: Materials.ValidDecryptionMaterials,
-      encryptedDataKeys: seq<Materials.EncryptedDataKey>
+      input: Crypto.OnDecryptInput
     )
-      returns (res: Result<Materials.ValidDecryptionMaterials, string>)
-      requires Valid()
-      ensures Valid()
-      ensures OnDecryptPure(materials, res)
-      //= compliance/framework/aws-kms/aws-kms-mrk-aware-symmetric-keyring.txt#2.8
-      //= type=implication
-      //# If the decryption materials (structures.md#decryption-materials)
-      //# already contained a valid plaintext data key OnDecrypt MUST
-      //# immediately return the unmodified decryption materials
-      //# (structures.md#decryption-materials).
-      ensures
-        materials.plaintextDataKey.Some?
+      returns (res: Result<Crypto.OnDecryptOutput, string>)
+      ensures res.Success?
       ==>
-        && res.Success?
-        && res.value == materials
+        && Materials.DecryptionMaterialsTransitionIsValid(
+          input.materials,
+          res.value.materials
+        )
 
       ensures
-        && materials.plaintextDataKey.None?
+        && input.materials.plaintextDataKey.None?
         && res.Success?
       ==>
-        && res.value.plaintextDataKey.Some?
-        && exists edk | edk in encryptedDataKeys
+        && res.value.materials.plaintextDataKey.Some?
+        && exists edk | edk in input.encryptedDataKeys
         ::
           //= compliance/framework/aws-kms/aws-kms-mrk-aware-symmetric-keyring.txt#2.8
           //= type=implication
           //# *  Its provider ID MUST exactly match the value "aws-kms".
-          && edk.providerID == PROVIDER_ID
+          && edk.keyProviderId == PROVIDER_ID
           && DecryptCalledWith(
             //= compliance/framework/aws-kms/aws-kms-mrk-aware-symmetric-keyring.txt#2.8
             //= type=implication
@@ -331,7 +328,7 @@ module {:extern "AwsKmsMrkAwareSymmetricKeyringDef"} AwsKmsMrkAwareSymmetricKeyr
             DecryptRequest(
               awsKmsKey,
               edk.ciphertext,
-              materials.encryptionContext,
+              input.materials.encryptionContext,
               grantTokens
             ))
           && DecryptResult(
@@ -344,7 +341,7 @@ module {:extern "AwsKmsMrkAwareSymmetricKeyringDef"} AwsKmsMrkAwareSymmetricKeyr
             //= type=implication
             //# If the response does satisfies these requirements then OnDecrypt MUST
             //# do the following with the response:
-            res.value.plaintextDataKey.value)
+            res.value.materials.plaintextDataKey.value)
           //= compliance/framework/aws-kms/aws-kms-mrk-aware-symmetric-keyring.txt#2.8
           //= type=implication
           //# *  The length of the response's "Plaintext" MUST equal the key
@@ -352,19 +349,21 @@ module {:extern "AwsKmsMrkAwareSymmetricKeyringDef"} AwsKmsMrkAwareSymmetricKeyr
           //# length) specified by the algorithm suite (algorithm-suites.md)
           //# included in the input decryption materials
           //# (structures.md#decryption-materials).
-          && materials.algorithmSuiteID.ValidPlaintextDataKey(res.value.plaintextDataKey.value)
-
+          && AlgorithmSuites.GetSuite(input.materials.algorithmSuiteId).keyLen as int == |res.value.materials.plaintextDataKey.value|
     {
 
-      if (materials.plaintextDataKey.Some?) {
-        return Success(materials);
-      }
+      var materials := input.materials;
+      var suite := AlgorithmSuites.GetSuite(input.materials.algorithmSuiteId);
+
+      :- Need(
+        Materials.DecryptionMaterialsWithoutPlaintextDataKey(materials), 
+        "");
 
       //= compliance/framework/aws-kms/aws-kms-mrk-aware-symmetric-keyring.txt#2.8
       //# The set of encrypted data keys MUST first be filtered to match this
       //# keyring's configuration.
       var filter := new OnDecryptEncryptedDataKeyFilter(awsKmsArn);
-      var edksToAttempt :- FilterWithResult(filter, encryptedDataKeys);
+      var edksToAttempt :- FilterWithResult(filter, input.encryptedDataKeys);
 
       //= compliance/framework/aws-kms/aws-kms-mrk-aware-symmetric-keyring.txt#2.8
       //# For each encrypted data key in the filtered set, one at a time, the
@@ -391,7 +390,7 @@ module {:extern "AwsKmsMrkAwareSymmetricKeyringDef"} AwsKmsMrkAwareSymmetricKeyr
         case Success(mat) =>
           assert exists edk | edk in edksToAttempt
           ::
-            && edk in encryptedDataKeys
+            && edk in input.encryptedDataKeys
             && filter.Ensures(edk, Success(true))
             && decryptClosure.Ensures(edk, Success(mat))
             && DecryptCalledWith(
@@ -403,7 +402,9 @@ module {:extern "AwsKmsMrkAwareSymmetricKeyringDef"} AwsKmsMrkAwareSymmetricKeyr
                 grantTokens
               ))
             && DecryptResult(awsKmsKey, mat.plaintextDataKey.value);
-          Success(mat)
+          Success(Crypto.OnDecryptOutput(
+            materials := mat
+          ))
         //= compliance/framework/aws-kms/aws-kms-mrk-aware-symmetric-keyring.txt#2.8
         //# If OnDecrypt fails to successfully decrypt any encrypted data key
         //# (structures.md#encrypted-data-key), then it MUST yield an error that
@@ -424,7 +425,7 @@ module {:extern "AwsKmsMrkAwareSymmetricKeyringDef"} AwsKmsMrkAwareSymmetricKeyr
   }
 
   class OnDecryptEncryptedDataKeyFilter
-    extends ActionWithResult<Materials.EncryptedDataKey, bool, string>
+    extends ActionWithResult<Crypto.EncryptedDataKey, bool, string>
   {
     const awsKmsKey: AwsKmsIdentifier
 
@@ -433,33 +434,33 @@ module {:extern "AwsKmsMrkAwareSymmetricKeyringDef"} AwsKmsMrkAwareSymmetricKeyr
     }
 
     predicate Ensures(
-      edk: Materials.EncryptedDataKey,
+      edk: Crypto.EncryptedDataKey,
       res: Result<bool, string>
     ) {
       && (
           && res.Success?
           && res.value
         ==>
-          edk.providerID == PROVIDER_ID)
+          edk.keyProviderId == PROVIDER_ID)
     }
 
-    method Invoke(edk: Materials.EncryptedDataKey)
+    method Invoke(edk: Crypto.EncryptedDataKey)
       returns (res: Result<bool, string>)
       ensures Ensures(edk, res)
     {
 
-      if edk.providerID != PROVIDER_ID {
+      if edk.keyProviderId != PROVIDER_ID {
         return Success(false);
       }
 
-      if !UTF8.ValidUTF8Seq(edk.providerInfo) {
-        // The Keyring produces UTF8 providerInfo.
-        // If an `aws-kms` encrypted data key's providerInfo is not UTF8
+      if !UTF8.ValidUTF8Seq(edk.keyProviderInfo) {
+        // The Keyring produces UTF8 keyProviderInfo.
+        // If an `aws-kms` encrypted data key's keyProviderInfo is not UTF8
         // this is an error, not simply an EDK to filter out.
         return Failure("Invalid AWS KMS encoding, provider info is not UTF8.");
       }
 
-      var keyId :- UTF8.Decode(edk.providerInfo);
+      var keyId :- UTF8.Decode(edk.keyProviderInfo);
       //= compliance/framework/aws-kms/aws-kms-mrk-aware-symmetric-keyring.txt#2.8
       //# *  The provider info MUST be a valid AWS KMS ARN (aws-kms-key-
       //# arn.md#a-valid-aws-kms-arn) with a resource type of "key" or
@@ -479,17 +480,17 @@ module {:extern "AwsKmsMrkAwareSymmetricKeyringDef"} AwsKmsMrkAwareSymmetricKeyr
 
   class DecryptSingleEncryptedDataKey
     extends ActionWithResult<
-      Materials.EncryptedDataKey,
-      Materials.CompleteDecryptionMaterials,
+      Crypto.EncryptedDataKey,
+      Materials.SealedDecryptionMaterials,
       string>
   {
-    const materials: Materials.PendingDecryptionMaterials
+    const materials: Materials.DecryptionMaterialsPendingPlaintextDataKey
     const client: IAmazonKeyManagementService
     const awsKmsKey: AwsKmsIdentifierString
     const grantTokens: KMSUtils.GrantTokens
 
     constructor(
-      materials: Materials.PendingDecryptionMaterials,
+      materials: Materials.DecryptionMaterialsPendingPlaintextDataKey,
       client: IAmazonKeyManagementService,
       awsKmsKey: AwsKmsIdentifierString,
       grantTokens: KMSUtils.GrantTokens
@@ -507,13 +508,12 @@ module {:extern "AwsKmsMrkAwareSymmetricKeyringDef"} AwsKmsMrkAwareSymmetricKeyr
     }
 
     predicate Ensures(
-      edk: Materials.EncryptedDataKey,
-      res: Result<Materials.CompleteDecryptionMaterials, string>
+      edk: Crypto.EncryptedDataKey,
+      res: Result<Materials.SealedDecryptionMaterials, string>
     ) {
         res.Success?
       ==>
-        && res.value.Valid()
-        && OnDecryptPure(materials, res)
+        && Materials.DecryptionMaterialsTransitionIsValid(materials, res.value)
         && DecryptCalledWith(
           client,
           DecryptRequest(
@@ -527,8 +527,8 @@ module {:extern "AwsKmsMrkAwareSymmetricKeyringDef"} AwsKmsMrkAwareSymmetricKeyr
     }
 
     method Invoke(
-      edk: Materials.EncryptedDataKey
-    ) returns (res: Result<Materials.CompleteDecryptionMaterials, string>)
+      edk: Crypto.EncryptedDataKey
+    ) returns (res: Result<Materials.SealedDecryptionMaterials, string>)
       ensures Ensures(edk, res)
     {
 
@@ -540,13 +540,12 @@ module {:extern "AwsKmsMrkAwareSymmetricKeyringDef"} AwsKmsMrkAwareSymmetricKeyr
       );
 
       var decryptResponse :- KMSUtils.Decrypt(client, decryptRequest);
-
       :- Need(
         && decryptResponse.keyID == awsKmsKey
-        && materials.algorithmSuiteID.ValidPlaintextDataKey(decryptResponse.plaintext)
+        && AlgorithmSuites.GetSuite(materials.algorithmSuiteId).keyLen as int == |decryptResponse.plaintext|
         , "Invalid response from KMS Decrypt");
 
-      var result := materials.WithPlaintextDataKey(decryptResponse.plaintext);
+      var result :- Materials.DecryptionMaterialsAddDataKey(materials, decryptResponse.plaintext);
       return Success(result);
     }
   }

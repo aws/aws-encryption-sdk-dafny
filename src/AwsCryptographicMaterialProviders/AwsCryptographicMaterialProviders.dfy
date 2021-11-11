@@ -2,11 +2,11 @@
 // SPDX-License-Identifier: Apache-2.0
 
 include "../StandardLibrary/StandardLibrary.dfy"
-include "../StandardLibrary/UInt.dfy"
 include "../Generated/AwsCryptographicMaterialProviders.dfy"
-include "../Generated/AwsEncryptionSdk.dfy"
 include "../Util/UTF8.dfy"
 include "AlgorithmSuites.dfy"
+include "Materials.dfy"
+include "Keyring.dfy"
 
 module {:extern "Dafny.Aws.Crypto.AwsCryptographicMaterialProvidersClient2"} AwsCryptographicMaterialProviders2 {
   import opened Wrappers
@@ -15,6 +15,8 @@ module {:extern "Dafny.Aws.Crypto.AwsCryptographicMaterialProvidersClient2"} Aws
   import opened AlgorithmSuites
   import UTF8
   import Aws.Crypto
-  import Aws.Esdk
+  import A = AlgorithmSuites
+  import M = Materials
+  import K = Keyring
 
 }
