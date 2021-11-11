@@ -87,6 +87,11 @@ module Deserialize {
 
     var contentType :- DeserializeContentType(rd);
 
+    // TODO dafny verification handholding
+    assert [version as uint8] + [typ as uint8] + UInt16ToSeq(algorithmSuiteID as uint16) + messageID + rd.reader.data[aadStart..aadEnd]
+      + Msg.EDKsToSeq(encryptedDataKeys) + [Msg.ContentTypeToUInt8(contentType)]  ==
+      rd.reader.data[old(rd.reader.pos)..rd.reader.pos];
+
     ghost var reserveStart := rd.reader.pos;
     var _ :- DeserializeReserved(rd);
     ghost var reserveEnd := rd.reader.pos;
