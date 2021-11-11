@@ -43,7 +43,7 @@ import opened StandardLibrary
 
   predicate method ValidEncryptionMaterials(encryptionMaterials: Crypto.EncryptionMaterials) {
     && var suite := AlgorithmSuites.GetSuite(encryptionMaterials.algorithmSuiteId);
-    && (!suite.signature.None? ==> encryptionMaterials.signingKey.Some?)
+    && (suite.signature.None? <==> encryptionMaterials.signingKey.None?)
     && (encryptionMaterials.plaintextDataKey.Some? ==> suite.keyLen as int == |encryptionMaterials.plaintextDataKey.value|)
     && (encryptionMaterials.plaintextDataKey.None? ==> |encryptionMaterials.encryptedDataKeys| == 0)
   }
