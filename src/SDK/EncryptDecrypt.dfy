@@ -181,15 +181,13 @@ module {:extern "EncryptDecrypt"} EncryptDecrypt {
                 encryptedSequence == SerializeMessageWithoutSignature(headerBody, headerAuthentication, frames) // Then these items can be serialized to the output
             }
   {
-    if request.cmm != null && request.keyring != null {
-      return Failure("EncryptRequest.keyring OR EncryptRequest.cmm must be set (not both).");
-    } else if request.cmm == null && request.keyring == null {
-      return Failure("EncryptRequest.cmm and EncryptRequest.keyring cannot both be null.");
-    } else if request.algorithmSuiteID.Some? && request.algorithmSuiteID.value !in AlgorithmSuite.VALID_IDS {
-      return Failure("Invalid algorithmSuiteID.");
-    } else if request.frameLength.Some? && request.frameLength.value == 0 {
-      return Failure("Request frameLength must be > 0");
-    }
+    // Validate encrypt request
+    :- Need(request.cmm == null || request.keyring == null, "EncryptRequest.keyring OR EncryptRequest.cmm must be set (not both).");
+    :- Need(request.cmm != null || request.keyring != null, "EncryptRequest.cmm and EncryptRequest.keyring cannot both be null.");
+    :- Need(request.algorithmSuiteID.None? || request.algorithmSuiteID.value in AlgorithmSuite.VALID_IDS, "Invalid Algorithm Suite ID");
+    :- Need(request.frameLength.None? || request.frameLength.value > 0, "Requested frame length must be > 0");
+    :- Need(request.plaintextLength < INT64_MAX_LIMIT, "Input plaintext size too large.");
+
     var cmm: Crypto.ICryptographicMaterialsManager;
     if request.keyring == null {
       cmm := request.cmm;
@@ -201,33 +199,29 @@ module {:extern "EncryptDecrypt"} EncryptDecrypt {
 
     var algorithmSuiteID := if request.algorithmSuiteID.Some? then Some(AlgorithmSuite.InternalIDToPolymorphID(request.algorithmSuiteID.value as AlgorithmSuite.ID)) else None;
 
-    // TODO turn this into Needs
-    expect request.plaintextLength < INT64_MAX_LIMIT;
     var encMatRequest := Crypto.GetEncryptionMaterialsInput(encryptionContext:=request.encryptionContext, algorithmSuiteId:=algorithmSuiteID, maxPlaintextLength:=Option.Some(request.plaintextLength as int64));
 
     var output :- cmm.GetEncryptionMaterials(encMatRequest);
 
     var encMat := output.encryptionMaterials;
 
-    // TODO turn these into Needs and move into some predicate. Note
-    // that once we do so, making the verifier happy is a non-trivial
-    // amount of effort.
-    //expect CMMDefs.EncryptionMaterialsSignature(encMat);
-    expect encMat.plaintextDataKey.Some?;
-    expect (algorithmSuiteID.None? || (request.algorithmSuiteID.value as AlgorithmSuite.ID).SignatureType().Some?) ==>
-      Materials.EC_PUBLIC_KEY_FIELD in encMat.encryptionContext;
-    expect DefaultCMMDef.Serializable(encMat);
-    expect 
-      match request.algorithmSuiteID
-      case Some(id) => AlgorithmSuite.PolymorphIDToInternalID(encMat.algorithmSuiteId) == id as AlgorithmSuite.ID
-      case None => AlgorithmSuite.PolymorphIDToInternalID(encMat.algorithmSuiteId) == 0x0378 as AlgorithmSuite.ID;
-    expect |encMat.plaintextDataKey.value| == AlgorithmSuite.PolymorphIDToInternalID(encMat.algorithmSuiteId).KDFInputKeyLength();
-
-
-    :- Need(HasUint16Len(encMat.encryptedDataKeys), "Number of EDKs exceeds the allowed maximum.");
+    // Validate encryption materials
+    :- Need(encMat.plaintextDataKey.Some?, "CMM failed to obtain a plaintext data key.");
+    :- Need((algorithmSuiteID.None? || (request.algorithmSuiteID.value as AlgorithmSuite.ID).SignatureType().Some?) ==>
+      Materials.EC_PUBLIC_KEY_FIELD in encMat.encryptionContext,
+      "CMM failed to return valid encryptionContext for algorithm suite in use: verification key must exist in encryption context for suites with signing.");
+    :- Need(DefaultCMMDef.Serializable(encMat), "CMM failed to return serializable encryption materials.");
+    :- Need(request.algorithmSuiteID.None? ==> AlgorithmSuite.PolymorphIDToInternalID(encMat.algorithmSuiteId) == 0x0378 as AlgorithmSuite.ID,
+      "CMM defaulted to the incorrect algorithm suite ID.");
+    :- Need(|encMat.plaintextDataKey.value| == AlgorithmSuite.PolymorphIDToInternalID(encMat.algorithmSuiteId).KDFInputKeyLength(),
+      "CMM returned an invalid plaintext data key for the algorithm suite in use.");
+    :- Need(HasUint16Len(encMat.encryptedDataKeys), "CMM returned EDKs that exceed the allowed maximum.");
     :- Need(forall edk
       | edk in encMat.encryptedDataKeys
-      :: SerializableTypes.IsESDKEncryptedDataKey(edk), "Encrypted data key is not serializable.");
+      :: SerializableTypes.IsESDKEncryptedDataKey(edk), "CMM returned non-serializable encrypted data key.");
+    :- Need(AlgorithmSuite.PolymorphIDToInternalID(encMat.algorithmSuiteId).SignatureType().Some? ==> encMat.signingKey.Some?,
+      "CMM failed to acquire signing key.");
+
     var encryptedDataKeys: SerializableTypes.ESDKEncryptedDataKeys := encMat.encryptedDataKeys;
 
     var messageID: Msg.MessageID :- Random.GenerateBytes(Msg.MESSAGE_ID_LEN as int32);
@@ -282,12 +276,9 @@ module {:extern "EncryptDecrypt"} EncryptDecrypt {
     var msg := wr.GetDataWritten() + body;
     if AlgorithmSuite.PolymorphIDToInternalID(encMat.algorithmSuiteId).SignatureType().Some? {
       var ecdsaParams := AlgorithmSuite.PolymorphIDToInternalID(encMat.algorithmSuiteId).SignatureType().value;
-      // TODO this shouldnt have to be a runtime check
-      expect encMat.signingKey.Some?;
       var bytes :- Signature.Sign(ecdsaParams, encMat.signingKey.value, msg);
-      if |bytes| != ecdsaParams.SignatureLength() as int {
-        return Failure("Malformed response from Sign().");
-      }
+      :- Need(|bytes| == ecdsaParams.SignatureLength() as int, "Malformed response from Sign().");
+
       var signature := UInt16ToSeq(|bytes| as uint16) + bytes;
       assert ValidSignatureForRequest(bytes, headerBody, headerAuthentication, frames) by{ // Signature confirms to specification
         assert |signature| < UINT16_LIMIT;
@@ -368,11 +359,9 @@ module {:extern "EncryptDecrypt"} EncryptDecrypt {
                  request.message == d.hbSeq + d.header.auth.iv + d.header.auth.authenticationTag + MessageBody.FramesToSequence(d.frames)
              })
   {
-    if request.cmm != null && request.keyring != null {
-      return Failure("DecryptRequest.keyring OR DecryptRequest.cmm must be set (not both).");
-    } else if request.cmm == null && request.keyring == null {
-      return Failure("DecryptRequest.cmm and DecryptRequest.keyring cannot both be null.");
-    }
+    // Validate decrypt request
+    :- Need(request.cmm == null || request.keyring == null, "DecryptRequest.keyring OR DecryptRequest.cmm must be set (not both).");
+    :- Need(request.cmm != null || request.keyring != null, "DecryptRequest.cmm and DecryptRequest.keyring cannot both be null.");
 
     var cmm: Crypto.ICryptographicMaterialsManager;
     if request.keyring == null {
@@ -407,9 +396,13 @@ module {:extern "EncryptDecrypt"} EncryptDecrypt {
     var output :- cmm.DecryptMaterials(decMatRequest);
     var decMat := output.decryptionMaterials;
 
-    // TODO: turn into Needs
-    expect decMat.plaintextDataKey.Some?;
-    expect |decMat.plaintextDataKey.value| == AlgorithmSuite.PolymorphIDToInternalID(decMat.algorithmSuiteId).KDFInputKeyLength();
+    // Validate decryption materials
+    :- Need(decMat.plaintextDataKey.Some?, "CMM failed to acquire plaintext data key.");
+    :- Need(|decMat.plaintextDataKey.value| == AlgorithmSuite.PolymorphIDToInternalID(decMat.algorithmSuiteId).KDFInputKeyLength(),
+      "CMM return invalid plaintext data key for algorithm suite in use.");
+    :- Need(AlgorithmSuite.PolymorphIDToInternalID(decMat.algorithmSuiteId).SignatureType().Some? ==> decMat.verificationKey.Some?,
+      "CMM failed to acquire verification key.");
+
     var decryptionKey := DeriveKey(decMat.plaintextDataKey.value,AlgorithmSuite.PolymorphIDToInternalID(decMat.algorithmSuiteId), header.body.messageID);
 
     ghost var endHeaderPos := rd.reader.pos;
@@ -460,9 +453,7 @@ module {:extern "EncryptDecrypt"} EncryptDecrypt {
     }
 
     var isDone := rd.IsDoneReading();
-    if !isDone {
-      return Failure("message contains additional bytes at end");
-    }
+    :- Need(isDone, "message contains additional bytes at end");
 
     // Combine gathered facts and convert to postcondition
     if header.body.contentType.Framed? {
@@ -517,6 +508,8 @@ module {:extern "EncryptDecrypt"} EncryptDecrypt {
 
   method VerifySignature(rd: Streams.ByteReader, decMat: Crypto.DecryptionMaterials) returns (res: Result<(), string>, ghost signature: seq<uint8>)
     requires rd.Valid()
+    requires AlgorithmSuite.PolymorphIDToInternalID(decMat.algorithmSuiteId).SignatureType().Some?
+    requires decMat.verificationKey.Some?
     modifies rd.reader`pos
     ensures rd.Valid()
     ensures match res
@@ -525,8 +518,6 @@ module {:extern "EncryptDecrypt"} EncryptDecrypt {
         && 2 <= old(rd.reader.pos) + 2 <= rd.reader.pos
         && SignatureBySequence(signature, rd.reader.data[old(rd.reader.pos)..rd.reader.pos])
   {
-    // TODO: turn into Needs
-    expect AlgorithmSuite.PolymorphIDToInternalID(decMat.algorithmSuiteId).SignatureType().Some?;
     var ecdsaParams := AlgorithmSuite.PolymorphIDToInternalID(decMat.algorithmSuiteId).SignatureType().value;
     var usedCapacity := rd.GetSizeRead();
     assert usedCapacity == rd.reader.pos;
@@ -541,8 +532,6 @@ module {:extern "EncryptDecrypt"} EncryptDecrypt {
       return Failure(sigResult.error), [];
     }
     // verify signature
-    // TODO: turn into Needs
-    expect decMat.verificationKey.Some?;
     var signatureVerifiedResult := Signature.Verify(ecdsaParams, decMat.verificationKey.value, msg, sigResult.value);
     if signatureVerifiedResult.Failure? {
       return Failure(signatureVerifiedResult.error), [];
