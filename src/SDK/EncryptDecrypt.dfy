@@ -277,7 +277,7 @@ module {:extern "EncryptDecrypt"} EncryptDecrypt {
     if AlgorithmSuite.PolymorphIDToInternalID(encMat.algorithmSuiteId).SignatureType().Some? {
       var ecdsaParams := AlgorithmSuite.PolymorphIDToInternalID(encMat.algorithmSuiteId).SignatureType().value;
       var bytes :- Signature.Sign(ecdsaParams, encMat.signingKey.value, msg);
-      :- Need(|bytes| != ecdsaParams.SignatureLength() as int, "Malformed response from Sign().");
+      :- Need(|bytes| == ecdsaParams.SignatureLength() as int, "Malformed response from Sign().");
 
       var signature := UInt16ToSeq(|bytes| as uint16) + bytes;
       assert ValidSignatureForRequest(bytes, headerBody, headerAuthentication, frames) by{ // Signature confirms to specification
