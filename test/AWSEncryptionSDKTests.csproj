@@ -40,7 +40,6 @@
     <VerifyDafnyJobs>8</VerifyDafnyJobs>
   </PropertyGroup>
   <ItemGroup>
-    <VerifyDafnyPassthrough Include="rlimit:1000000000" />
     <VerifyDafnyPassthrough Include="timeLimit:600" />
     <!-- 
       TODO: This is important to enable, but Dafny 3.1 and on seems to not be able to
