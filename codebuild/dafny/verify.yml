@@ -12,7 +12,7 @@ phases:
     commands:
       # Currently, test depends on src, so verifying test will also verify src
       - dotnet build -t:VerifyDafny -p:TestVerifyOverride="verificationLogger:trx" test
-      - python3 verification-times-from-trx.py test/TestResults/*/trx
+      - python3 verification-times-from-trx.py test/TestResults/*.trx
 reports:
     Dafny:
         file-format: VisualStudioTrx
