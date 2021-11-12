@@ -35,6 +35,9 @@ module {:extern "EncryptionSuites"} EncryptionSuites {
     ensures res.Success?
     ==>
       && res.value.Valid()
+      && res.value.keyLen == suite.keyLen
+      && res.value.tagLen == suite.tagLen
+      && res.value.ivLen == suite.ivLen
   {
     match suite.keyLen
       case 16 => Success(AES_GCM_128)

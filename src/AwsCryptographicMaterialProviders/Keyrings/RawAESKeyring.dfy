@@ -97,6 +97,7 @@ module
       ensures keyName == name
       ensures wrappingKey == key
       ensures wrappingAlgorithm == GetSuite(wrappingAlgId)
+      ensures |wrappingKey| == wrappingAlgorithm.keyLen as int
     {
       keyNamespace := namespace;
       keyName := name;
@@ -170,9 +171,9 @@ module
       var iv :- Random.GenerateBytes(wrappingAlgorithm.ivLen as int32);
       var providerInfo := SerializeProviderInfo(iv);
 
-      var wr := new Streams.ByteWriter();
-      var _ :- Serialize.SerializeKVPairs(wr, input.materials.encryptionContext);
-      var aad := wr.GetDataWritten();
+      var byteWriter := new Streams.ByteWriter();
+      var _ :- Serialize.SerializeKVPairs(byteWriter, input.materials.encryptionContext);
+      var aad := byteWriter.GetDataWritten();
       assert aad == EncryptionContext.MapToSeq(input.materials.encryptionContext);
 
       //= compliance/framework/raw-aes-keyring.txt#2.7.1
@@ -213,7 +214,6 @@ module
       //= compliance/framework/raw-aes-keyring.txt#2.7.1
       //# OnEncrypt MUST output the modified encryption materials
       //# (structures.md#encryption-materials).
-
       var r :- if materials.plaintextDataKey.None? then
         Materials.EncryptionMaterialAddDataKey(materials, plaintextDataKey, [edk])
       else
@@ -243,12 +243,11 @@ module
         && encCtxSerializable
         && AESEncryption.PlaintextDecryptedWithAAD(res.value.materials.plaintextDataKey.value, EncryptionContext.MapToSeq(input.materials.encryptionContext))
 
-      // // If attempts to decrypt an EDK and the input EC cannot be serialized, return a Failure
-      // //= compliance/framework/raw-aes-keyring.txt#2.7.2
-      // //= type=implication
-      // //# If the keyring cannot
-      // //# serialize the encryption context, OnDecrypt MUST fail.
-      ensures input.materials.plaintextDataKey.None? && !EncryptionContext.Serializable(input.materials.encryptionContext) && (exists i :: 0 <= i < |input.encryptedDataKeys| && ShouldDecryptEDK(input.encryptedDataKeys[i])) ==> res.Failure?
+      //= compliance/framework/raw-aes-keyring.txt#2.7.2
+      //= type=implication
+      //# If the keyring cannot
+      //# serialize the encryption context, OnDecrypt MUST fail.
+      ensures !EncryptionContext.Serializable(input.materials.encryptionContext) ==> res.Failure?
     {
       var materials := input.materials;
       :- Need(
@@ -275,8 +274,8 @@ module
           if !valid {
             return Failure("Unable to serialize encryption context");
           }
-          var wr := new Streams.ByteWriter();
-          var _ :- Serialize.SerializeKVPairs(wr, materials.encryptionContext);
+          var byteWriter := new Streams.ByteWriter();
+          var _ :- Serialize.SerializeKVPairs(byteWriter, materials.encryptionContext);
 
           //= compliance/framework/raw-aes-keyring.txt#2.7.2
           //# For each encrypted data key (structures.md#encrypted-data-key), the
@@ -287,7 +286,7 @@ module
           //# interface.md#key-name), Section 2.6.1.4, IV length (Section 2.6.1.3),
           //# and authentication tag length (Section 2.6.1.2).
           // TODO without mocking there isn't a good way to test this...
-          var aad := wr.GetDataWritten();
+          var aad := byteWriter.GetDataWritten();
           assert aad == EncryptionContext.MapToSeq(materials.encryptionContext);
           var iv := GetIvFromProvInfo(input.encryptedDataKeys[i].keyProviderInfo);
           var encryptionOutput := DeserializeEDKCiphertext(input.encryptedDataKeys[i].ciphertext, wrappingAlgorithm.tagLen as nat);
