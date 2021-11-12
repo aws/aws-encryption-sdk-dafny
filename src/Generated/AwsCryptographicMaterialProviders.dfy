@@ -14,37 +14,14 @@ module {:extern "Dafny.Aws.Crypto"} Aws.Crypto {
     // TODO this is currently needed for proof stability reasons, otherwise any file that has a transitive dependency on this one tries to
     // load too much at once, making the verification unstable
     export
-      provides
-        IAwsCryptographicMaterialsProviderClient.CreateDefaultCryptographicMaterialsManager,
-        IAwsCryptographicMaterialsProviderClient.CreateRawAesKeyring,
-        ICryptographicMaterialsManager.DecryptMaterials,
-        ICryptographicMaterialsManager.GetEncryptionMaterials,
-        IKeyring.OnEncrypt,
-        IKeyring.OnDecrypt,
-        UInt,
-        UTF8,
-        Wrappers
-      reveals
-        AesWrappingAlg,
-        AlgorithmSuiteId,
-        CreateDefaultCryptographicMaterialsManagerInput,
-        CreateRawAesKeyringInput,
-        DecryptionMaterials,
-        DecryptMaterialsInput,
-        DecryptMaterialsOutput,
-        EncryptedDataKey,
-        EncryptedDataKeyList,
-        EncryptionContext,
-        EncryptionMaterials,
-        GetEncryptionMaterialsInput,
-        GetEncryptionMaterialsOutput,
-        IAwsCryptographicMaterialsProviderClient,
-        ICryptographicMaterialsManager,
-        IKeyring,
-        OnEncryptInput,
-        OnEncryptOutput,
-        OnDecryptInput,
-        OnDecryptOutput
+      provides UTF8, UInt, Wrappers, IKeyring.OnDecrypt,
+        ICryptographicMaterialsManager.GetEncryptionMaterials, ICryptographicMaterialsManager.DecryptMaterials, IKeyring.OnEncrypt,
+        IAwsCryptographicMaterialsProviderClient.CreateRawAesKeyring, IAwsCryptographicMaterialsProviderClient.CreateDefaultCryptographicMaterialsManager
+      reveals AlgorithmSuiteId, EncryptedDataKey, EncryptedDataKeyList, IKeyring, GetEncryptionMaterialsInput, GetEncryptionMaterialsOutput,
+        DecryptMaterialsInput, DecryptMaterialsOutput, ICryptographicMaterialsManager, EncryptionContext, EncryptionMaterials, DecryptionMaterials,
+        OnEncryptInput, OnEncryptOutput, OnDecryptInput, OnDecryptOutput, OnEncryptInput.Valid, OnDecryptInput.Valid,
+        GetEncryptionMaterialsInput.Valid, DecryptMaterialsInput.Valid, EncryptionMaterials.Valid, CreateRawAesKeyringInput, CreateDefaultCryptographicMaterialsManagerInput,
+        IAwsCryptographicMaterialsProviderClient, AesWrappingAlg, CreateDefaultCryptographicMaterialsManagerInput.Valid, CreateRawAesKeyringInput.Valid
 
     /////////////
     // kms.smithy
