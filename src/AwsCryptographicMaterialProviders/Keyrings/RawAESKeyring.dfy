@@ -186,7 +186,7 @@ module
       else
         materials.plaintextDataKey.value;
 
-      var encAlg :- EncryptionSuites.Translate(wrappingAlgorithm);
+      var encAlg :- EncryptionSuites.FromAlgorithmSuite(wrappingAlgorithm);
       :- Need(|wrappingKey|== encAlg.keyLen as int, "");
       :- Need(|iv| == encAlg.ivLen as int, "");
 
@@ -291,7 +291,7 @@ module
           var iv := GetIvFromProvInfo(input.encryptedDataKeys[i].keyProviderInfo);
           var encryptionOutput := DeserializeEDKCiphertext(input.encryptedDataKeys[i].ciphertext, wrappingAlgorithm.tagLen as nat);
 
-          var encAlg :- EncryptionSuites.Translate(wrappingAlgorithm);
+          var encAlg :- EncryptionSuites.FromAlgorithmSuite(wrappingAlgorithm);
           :- Need(|wrappingKey|== encAlg.keyLen as int, "");
           :- Need(|iv| == encAlg.ivLen as int, "");
 

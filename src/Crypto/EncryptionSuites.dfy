@@ -30,7 +30,7 @@ module {:extern "EncryptionSuites"} EncryptionSuites {
   const AES_GCM_192 := EncryptionSuite(AES(GCM), 24, AES_TAG_LEN, AES_IV_LEN)
   const AES_GCM_256 := EncryptionSuite(AES(GCM), 32, AES_TAG_LEN, AES_IV_LEN)
 
-  function method Translate(suite: AlgorithmSuites.AlgorithmSuite)
+  function method FromAlgorithmSuite(suite: AlgorithmSuites.AlgorithmSuite)
     :(res: Result<EncryptionSuite, string>)
     ensures res.Success?
     ==>
