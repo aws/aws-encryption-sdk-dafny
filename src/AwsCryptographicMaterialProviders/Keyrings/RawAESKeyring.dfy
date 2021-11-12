@@ -351,6 +351,7 @@ module
     predicate method ValidProviderInfo(info: seq<uint8>)
     {
       && |info| == |keyName| + AUTH_TAG_LEN_LEN + IV_LEN_LEN + wrappingAlgorithm.ivLen as int
+      // The key name obtained from the encrypted data key's key provider information has a value equal to this keyring's key name.
       && info[0..|keyName|] == keyName
       //= compliance/framework/raw-aes-keyring.txt#2.6.1.2
       //= type=implication
