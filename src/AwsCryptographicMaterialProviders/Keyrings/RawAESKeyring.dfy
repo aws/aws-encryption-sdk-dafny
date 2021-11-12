@@ -237,7 +237,7 @@ module
         )
       // TODO: ensure non-None when input edk list has edk with valid provider info
 
-      // // Plaintext decrypted using expected AAD
+       // Plaintext decrypted using expected AAD
       ensures res.Success? && input.materials.plaintextDataKey.None? && res.value.materials.plaintextDataKey.Some? ==>
         var encCtxSerializable := (reveal EncryptionContext.Serializable(); EncryptionContext.Serializable(input.materials.encryptionContext));
         && encCtxSerializable
