@@ -341,6 +341,7 @@ module
     //# only if the following is true:
     // TODO break up
     predicate method ShouldDecryptEDK(edk: Crypto.EncryptedDataKey) {
+      // The key provider ID of the encrypted data key has a value equal to this keyring's key namespace.
       && edk.keyProviderId == keyNamespace
       && ValidProviderInfo(edk.keyProviderInfo)
       && wrappingAlgorithm.tagLen as int <= |edk.ciphertext|
