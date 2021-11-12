@@ -1,7 +1,7 @@
 // Copyright Amazon.com Inc. or its affiliates. All Rights Reserved.
 // SPDX-License-Identifier: Apache-2.0
 //
-// Generated at 2021-11-11T16:21:55.383509
+// Generated at 2021-11-12T14:03:18.35958
 include "../StandardLibrary/StandardLibrary.dfy"
  module {:extern "Dafny.Com.Amazonaws.Kms.KeyManagementService"} Com.Amazonaws.Kms.KeyManagementService {
  import opened Wrappers
@@ -376,7 +376,6 @@ import opened StandardLibrary.UInt
  method ListAliases ( input: ListAliasesRequest ) returns (output: Result<ListAliasesResponse, KeyManagementServiceError>)
  method ListGrants ( input: ListGrantsRequest ) returns (output: Result<ListGrantsResponse, KeyManagementServiceError>)
  method ListKeyPolicies ( input: ListKeyPoliciesRequest ) returns (output: Result<ListKeyPoliciesResponse, KeyManagementServiceError>)
- method ListKeys ( input: ListKeysRequest ) returns (output: Result<ListKeysResponse, KeyManagementServiceError>)
  method ListResourceTags ( input: ListResourceTagsRequest ) returns (output: Result<ListResourceTagsResponse, KeyManagementServiceError>)
  method ListRetirableGrants ( input: ListRetirableGrantsRequest ) returns (output: Result<ListGrantsResponse, KeyManagementServiceError>)
  method PutKeyPolicy ( input: PutKeyPolicyRequest ) returns (output: Result<(), KeyManagementServiceError>)
@@ -516,10 +515,6 @@ import opened StandardLibrary.UInt
  datatype ListKeysRequest = ListKeysRequest (
 	nameonly Limit: Option<LimitType> ,
 	nameonly Marker: Option<MarkerType> )
- datatype ListKeysResponse = ListKeysResponse (
-	nameonly Keys: Option<KeyList> ,
-	nameonly NextMarker: Option<MarkerType> ,
-	nameonly Truncated: Option<BooleanType> )
  datatype ListResourceTagsRequest = ListResourceTagsRequest (
 	nameonly KeyId: KeyIdType ,
 	nameonly Limit: Option<LimitType> ,
