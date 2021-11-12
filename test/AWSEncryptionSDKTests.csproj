@@ -31,6 +31,14 @@
     <!-- While a file is being verified in emacs, the Dafny plug-in spills out a flycheck_ copy of the file -->
     <DafnySource Remove="**/flycheck_*.dfy" />
   </ItemGroup>
+  <PropertyGroup>
+    <!-- 
+      Setting this manually since dafny.msbuild is not defaulting to the number of
+      logical cores any more.
+      See https://github.com/dafny-lang/dafny.msbuild/issues/20
+    -->
+    <VerifyDafnyJobs>8</VerifyDafnyJobs>
+  </PropertyGroup>
   <ItemGroup>
     <VerifyDafnyPassthrough Include="timeLimit:600" />
     <!-- 

@@ -47,7 +47,6 @@ module {:extern "DefaultCMMDef"} DefaultCMMDef {
 
     method GetEncryptionMaterials(input: Crypto.GetEncryptionMaterialsInput)
                                   returns (res: Result<Crypto.GetEncryptionMaterialsOutput, string>)
-      requires input.Valid()
       // TODO what is the history behind this predicate and should we reintroduce it?
       // ensures res.Success? ==> EncryptionMaterialsSignature(res.value.materials)
       ensures res.Success? ==> res.value.encryptionMaterials.plaintextDataKey.Some? && Serializable(res.value.encryptionMaterials)
@@ -111,7 +110,6 @@ module {:extern "DefaultCMMDef"} DefaultCMMDef {
 
     method DecryptMaterials(input: Crypto.DecryptMaterialsInput)
                             returns (res: Result<Crypto.DecryptMaterialsOutput, string>)
-      requires input.Valid()
       ensures res.Success? ==> res.value.decryptionMaterials.plaintextDataKey.Some?
     {
       // Retrieve and decode verification key from encryption context if using signing algorithm
