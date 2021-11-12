@@ -19,9 +19,9 @@ module {:extern "Dafny.Aws.Crypto"} Aws.Crypto {
         IAwsCryptographicMaterialsProviderClient.CreateRawAesKeyring, IAwsCryptographicMaterialsProviderClient.CreateDefaultCryptographicMaterialsManager
       reveals AlgorithmSuiteId, EncryptedDataKey, EncryptedDataKeyList, IKeyring, GetEncryptionMaterialsInput, GetEncryptionMaterialsOutput,
         DecryptMaterialsInput, DecryptMaterialsOutput, ICryptographicMaterialsManager, EncryptionContext, EncryptionMaterials, DecryptionMaterials,
-        OnEncryptInput, OnEncryptOutput, OnDecryptInput, OnDecryptOutput, OnEncryptInput.Valid, OnDecryptInput.Valid,
-        GetEncryptionMaterialsInput.Valid, DecryptMaterialsInput.Valid, EncryptionMaterials.Valid, CreateRawAesKeyringInput, CreateDefaultCryptographicMaterialsManagerInput,
-        IAwsCryptographicMaterialsProviderClient, AesWrappingAlg, CreateDefaultCryptographicMaterialsManagerInput.Valid, CreateRawAesKeyringInput.Valid
+        OnEncryptInput, OnEncryptOutput, OnDecryptInput, OnDecryptOutput,
+        EncryptionMaterials.Valid, CreateRawAesKeyringInput, CreateDefaultCryptographicMaterialsManagerInput,
+        IAwsCryptographicMaterialsProviderClient, AesWrappingAlg
 
     /////////////
     // kms.smithy
