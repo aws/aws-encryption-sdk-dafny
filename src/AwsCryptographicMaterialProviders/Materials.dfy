@@ -46,12 +46,30 @@ import opened StandardLibrary
     && newMat.algorithmSuiteId == oldMat.algorithmSuiteId
     && newMat.encryptionContext == oldMat.encryptionContext
     && newMat.signingKey == oldMat.signingKey
-    && (oldMat.plaintextDataKey.None? || oldMat.plaintextDataKey == newMat.plaintextDataKey)
+    && (
+      || (oldMat.plaintextDataKey.None? && newMat.plaintextDataKey.Some?)
+      || oldMat.plaintextDataKey == newMat.plaintextDataKey)
     && |newMat.encryptedDataKeys| >= |oldMat.encryptedDataKeys|
     && multiset(oldMat.encryptedDataKeys) <= multiset(newMat.encryptedDataKeys)
     && ValidEncryptionMaterials(oldMat)
     && ValidEncryptionMaterials(newMat)
   }
+
+  // Chain of custody is important.
+  // Being given valid materials
+  // means that you MUST always have valid materials.
+  lemma TransitionImplyValidEncryptionMaterials(
+    oldMat: Crypto.EncryptionMaterials,
+    newMat: Crypto.EncryptionMaterials
+  )
+    // You can not transition from invalid materials
+    ensures !ValidEncryptionMaterials(oldMat)
+    ==> !EncryptionMaterialsTransitionIsValid(oldMat, newMat)
+
+    // You can not transition to invalid materials
+    ensures !ValidEncryptionMaterials(newMat)
+    ==> !EncryptionMaterialsTransitionIsValid(oldMat, newMat)
+  {}
 
   predicate method ValidEncryptionMaterials(encryptionMaterials: Crypto.EncryptionMaterials) {
     && var suite := AlgorithmSuites.GetSuite(encryptionMaterials.algorithmSuiteId);
@@ -123,10 +141,27 @@ import opened StandardLibrary
     && newMat.algorithmSuiteId == oldMat.algorithmSuiteId
     && newMat.encryptionContext == oldMat.encryptionContext
     && newMat.verificationKey == oldMat.verificationKey
-    && (oldMat.plaintextDataKey.None? || oldMat.plaintextDataKey == newMat.plaintextDataKey)
+    && oldMat.plaintextDataKey.None?
+    && newMat.plaintextDataKey.Some?
     && ValidDecryptionMaterials(oldMat)
     && ValidDecryptionMaterials(newMat)
   }
+
+  // Chain of custody is important.
+  // Being given valid materials
+  // means that you MUST always have valid materials.
+  lemma TransitionImplyValidDecryptionMaterials(
+    oldMat: Crypto.DecryptionMaterials,
+    newMat: Crypto.DecryptionMaterials
+  )
+    // You can not transition from invalid materials
+    ensures !ValidDecryptionMaterials(oldMat)
+    ==> !DecryptionMaterialsTransitionIsValid(oldMat, newMat)
+
+    // You can not transition to invalid materials
+    ensures !ValidDecryptionMaterials(newMat)
+    ==> !DecryptionMaterialsTransitionIsValid(oldMat, newMat)
+  {}
 
   predicate method ValidDecryptionMaterials(decryptionMaterials: Crypto.DecryptionMaterials) {
     && var suite := AlgorithmSuites.GetSuite(decryptionMaterials.algorithmSuiteId);
