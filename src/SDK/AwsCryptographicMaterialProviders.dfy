@@ -28,7 +28,6 @@ module {:extern "Dafny.Aws.Crypto.AwsCryptographicMaterialProvidersClient"} AwsC
     constructor () {}
 
     method CreateRawAesKeyring(input: Crypto.CreateRawAesKeyringInput) returns (res: Crypto.IKeyring)
-      requires input.Valid()
     {
       var wrappingAlg:EncryptionSuites.EncryptionSuite;
       if (input.wrappingAlg==Crypto.ALG_AES128_GCM_IV12_TAG16) {
@@ -60,7 +59,6 @@ module {:extern "Dafny.Aws.Crypto.AwsCryptographicMaterialProvidersClient"} AwsC
     }
 
     method CreateDefaultCryptographicMaterialsManager(input: Crypto.CreateDefaultCryptographicMaterialsManagerInput) returns (res: Crypto.ICryptographicMaterialsManager)
-      requires input.Valid()
     {
         return new DefaultCMMDef.DefaultCMM.OfKeyring(input.keyring);
     }
