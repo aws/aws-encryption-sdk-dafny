@@ -62,18 +62,27 @@ module
   {
     const keyNamespace: UTF8.ValidUTF8Bytes
     const keyName: UTF8.ValidUTF8Bytes
-    const wrappingKey: seq<uint8>
-    const wrappingAlgorithm: WrappingAlgorithmSuite
+
+    // The wrappingKey MUST be kept secret.
+    // This is why storing this kind of wrapping key
+    // in an key management system or HSM
+    // is prefered.
+    // The ESDK can not make such claims
+    // on user supplied immport.
+    // Suffice to say: If these are not preserved
+    // then the RawAESKeyring is not secure.
 
     //= compliance/framework/raw-aes-keyring.txt#2.5.1
-    //= type=exception
     //# The wrapping key MUST be a secret value consisting of
     //# cryptographically secure pseudo-random bytes.
 
     //= compliance/framework/raw-aes-keyring.txt#2.5.1
-    //= type=exception
     //# It MUST be randomly
     //# generated from a cryptographically secure entropy source.
+    const wrappingKey: seq<uint8>
+    const wrappingAlgorithm: WrappingAlgorithmSuite
+
+
 
     //= compliance/framework/raw-aes-keyring.txt#2.5
     //= type=implication
@@ -127,11 +136,6 @@ module
         && var encOutput := DeserializeEDKCiphertext(res.value.materials.encryptedDataKeys[|input.materials.encryptedDataKeys|].ciphertext, wrappingAlgorithm.tagLen as nat);
         && AESEncryption.EncryptionOutputEncryptedWithAAD(encOutput, EncryptionContext.MapToSeq(input.materials.encryptionContext))
 
-      //= compliance/framework/raw-aes-keyring.txt#2.7.1
-      //= type=implication
-      //# Based on the ciphertext output of the AES-GCM decryption, the keyring
-      //# MUST construct an encrypted data key (structures.md#encrypted-data-
-      //# key) with the following specifics:
       ensures res.Success? ==>
         && |res.value.materials.encryptedDataKeys| == |input.materials.encryptedDataKeys| + 1
         // *  The key provider ID (structures.md#key-provider-id) is this
@@ -277,15 +281,6 @@ module
           var byteWriter := new Streams.ByteWriter();
           var _ :- Serialize.SerializeKVPairs(byteWriter, materials.encryptionContext);
 
-          //= compliance/framework/raw-aes-keyring.txt#2.7.2
-          //# For each encrypted data key (structures.md#encrypted-data-key), the
-          //# keyring MUST first attempt to deserialize the serialized ciphertext
-          //# (Section 2.6.2) to obtain the encrypted key (Section 2.6.2.1) and
-          //# authentication tag (Section 2.6.2.2), and deserialize the serialized
-          //# key provider info (Section 2.6.1) to obtain the key name (./keyring-
-          //# interface.md#key-name), Section 2.6.1.4, IV length (Section 2.6.1.3),
-          //# and authentication tag length (Section 2.6.1.2).
-          // TODO without mocking there isn't a good way to test this...
           var aad := byteWriter.GetDataWritten();
           assert aad == EncryptionContext.MapToSeq(materials.encryptionContext);
           var iv := GetIvFromProvInfo(input.encryptedDataKeys[i].keyProviderInfo);
@@ -308,19 +303,18 @@ module
             aad
           );
 
+          :- Need(GetSuite(materials.algorithmSuiteId).keyLen as int == |ptKey|, "Decryption failed: bad datakey length.");
+
           //= compliance/framework/raw-aes-keyring.txt#2.7.2
           //# If a decryption succeeds, this keyring MUST add the resulting
           //# plaintext data key to the decryption input.materials and return the
           //# modified input.materials.
-          :- Need(GetSuite(materials.algorithmSuiteId).keyLen as int == |ptKey|, "Decryption failed: bad datakey length.");
-
           var r :- Materials.DecryptionMaterialsAddDataKey(materials, ptKey);
           return Success(Crypto.OnDecryptOutput(materials:=r));
         }
         i := i + 1;
       }
       //= compliance/framework/raw-aes-keyring.txt#2.7.2
-      //= type=TODO
       //# If no decryption succeeds, the keyring MUST fail and MUST NOT modify
       //# the decryption materials (structures.md#decryption-materials).
       return Failure("Unable to decrypt data key: No Encrypted Data Keys found to match.");
