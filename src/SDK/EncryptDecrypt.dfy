@@ -141,8 +141,8 @@ module {:extern "EncryptDecrypt"} EncryptDecrypt {
             }
   {
     // Validate encrypt request
-    :- Need(request.materialsManager == null || request.keyring == null, "Esdk.EncryptInput.keyring OR Esdk.EncryptInput.materialsManager must be set (not both).");
-    :- Need(request.materialsManager != null || request.keyring != null, "Esdk.EncryptInput.materialsManager and Esdk.EncryptInput.keyring cannot both be null.");
+    :- Need(request.materialsManager == null || request.keyring == null, "keyring OR materialsManager must be set (not both).");
+    :- Need(request.materialsManager != null || request.keyring != null, "materialsManager and keyring cannot both be null.");
     :- Need(request.algorithmSuiteId.None? || request.algorithmSuiteId.value in AlgorithmSuites.SupportedAlgorithmSuites, "Invalid Algorithm Suite ID");
     :- Need(request.frameLength.None? || request.frameLength.value > 0, "Requested frame length must be > 0");
     :- Need(request.plaintextLength < INT64_MAX_LIMIT, "Input plaintext size too large.");
