@@ -1,7 +1,7 @@
 // Copyright Amazon.com Inc. or its affiliates. All Rights Reserved.
 // SPDX-License-Identifier: Apache-2.0
 //
-// Generated at 2021-11-12T14:03:18.35958
+// Generated at 2021-11-15T09:25:50.311246
 include "../StandardLibrary/StandardLibrary.dfy"
  module {:extern "Dafny.Com.Amazonaws.Kms.KeyManagementService"} Com.Amazonaws.Kms.KeyManagementService {
  import opened Wrappers
@@ -391,7 +391,53 @@ import opened StandardLibrary.UInt
  method UpdateCustomKeyStore ( input: UpdateCustomKeyStoreRequest ) returns (output: Result<UpdateCustomKeyStoreResponse, KeyManagementServiceError>)
  method UpdateKeyDescription ( input: UpdateKeyDescriptionRequest ) returns (output: Result<(), KeyManagementServiceError>)
  method UpdatePrimaryRegion ( input: UpdatePrimaryRegionRequest ) returns (output: Result<(), KeyManagementServiceError>)
- method Verify ( input: VerifyRequest ) returns (output: Result<VerifyResponse, KeyManagementServiceError>)
+ method Verify ( input: VerifyRequest ) returns (output: Result<VerifyResponse, KeyManagementServiceError>) predicate method CancelKeyDeletionCalledWith ( input: CancelKeyDeletionRequest )
+ predicate method ConnectCustomKeyStoreCalledWith ( input: ConnectCustomKeyStoreRequest )
+ predicate method CreateAliasCalledWith ( input: CreateAliasRequest )
+ predicate method CreateCustomKeyStoreCalledWith ( input: CreateCustomKeyStoreRequest )
+ predicate method CreateGrantCalledWith ( input: CreateGrantRequest )
+ predicate method CreateKeyCalledWith ( input: CreateKeyRequest )
+ predicate method DecryptCalledWith ( input: DecryptRequest )
+ predicate method DeleteAliasCalledWith ( input: DeleteAliasRequest )
+ predicate method DeleteCustomKeyStoreCalledWith ( input: DeleteCustomKeyStoreRequest )
+ predicate method DeleteImportedKeyMaterialCalledWith ( input: DeleteImportedKeyMaterialRequest )
+ predicate method DescribeCustomKeyStoresCalledWith ( input: DescribeCustomKeyStoresRequest )
+ predicate method DescribeKeyCalledWith ( input: DescribeKeyRequest )
+ predicate method DisableKeyCalledWith ( input: DisableKeyRequest )
+ predicate method DisableKeyRotationCalledWith ( input: DisableKeyRotationRequest )
+ predicate method DisconnectCustomKeyStoreCalledWith ( input: DisconnectCustomKeyStoreRequest )
+ predicate method EnableKeyCalledWith ( input: EnableKeyRequest )
+ predicate method EnableKeyRotationCalledWith ( input: EnableKeyRotationRequest )
+ predicate method EncryptCalledWith ( input: EncryptRequest )
+ predicate method GenerateDataKeyCalledWith ( input: GenerateDataKeyRequest )
+ predicate method GenerateDataKeyPairCalledWith ( input: GenerateDataKeyPairRequest )
+ predicate method GenerateDataKeyPairWithoutPlaintextCalledWith ( input: GenerateDataKeyPairWithoutPlaintextRequest )
+ predicate method GenerateDataKeyWithoutPlaintextCalledWith ( input: GenerateDataKeyWithoutPlaintextRequest )
+ predicate method GenerateRandomCalledWith ( input: GenerateRandomRequest )
+ predicate method GetKeyPolicyCalledWith ( input: GetKeyPolicyRequest )
+ predicate method GetKeyRotationStatusCalledWith ( input: GetKeyRotationStatusRequest )
+ predicate method GetParametersForImportCalledWith ( input: GetParametersForImportRequest )
+ predicate method GetPublicKeyCalledWith ( input: GetPublicKeyRequest )
+ predicate method ImportKeyMaterialCalledWith ( input: ImportKeyMaterialRequest )
+ predicate method ListAliasesCalledWith ( input: ListAliasesRequest )
+ predicate method ListGrantsCalledWith ( input: ListGrantsRequest )
+ predicate method ListKeyPoliciesCalledWith ( input: ListKeyPoliciesRequest )
+ predicate method ListResourceTagsCalledWith ( input: ListResourceTagsRequest )
+ predicate method ListRetirableGrantsCalledWith ( input: ListRetirableGrantsRequest )
+ predicate method PutKeyPolicyCalledWith ( input: PutKeyPolicyRequest )
+ predicate method ReEncryptCalledWith ( input: ReEncryptRequest )
+ predicate method ReplicateKeyCalledWith ( input: ReplicateKeyRequest )
+ predicate method RetireGrantCalledWith ( input: RetireGrantRequest )
+ predicate method RevokeGrantCalledWith ( input: RevokeGrantRequest )
+ predicate method ScheduleKeyDeletionCalledWith ( input: ScheduleKeyDeletionRequest )
+ predicate method SignCalledWith ( input: SignRequest )
+ predicate method TagResourceCalledWith ( input: TagResourceRequest )
+ predicate method UntagResourceCalledWith ( input: UntagResourceRequest )
+ predicate method UpdateAliasCalledWith ( input: UpdateAliasRequest )
+ predicate method UpdateCustomKeyStoreCalledWith ( input: UpdateCustomKeyStoreRequest )
+ predicate method UpdateKeyDescriptionCalledWith ( input: UpdateKeyDescriptionRequest )
+ predicate method UpdatePrimaryRegionCalledWith ( input: UpdatePrimaryRegionRequest )
+ predicate method VerifyCalledWith ( input: VerifyRequest )
 }
  datatype KeyManagementServiceError =
  | KeyManagementService_AlreadyExistsException(AlreadyExistsException: AlreadyExistsException)
