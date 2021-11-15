@@ -145,7 +145,7 @@ module {:extern "EncryptDecrypt"} EncryptDecrypt {
     :- Need(request.materialsManager != null || request.keyring != null, "materialsManager and keyring cannot both be null.");
     :- Need(request.algorithmSuiteId.None? || request.algorithmSuiteId.value in AlgorithmSuites.SupportedAlgorithmSuites, "Invalid Algorithm Suite ID");
     :- Need(request.frameLength.None? || request.frameLength.value > 0, "Requested frame length must be > 0");
-    :- Need(request.plaintextLength < INT64_MAX_LIMIT, "Input plaintext size too large.");
+    :- Need(|request.plaintext| < INT64_MAX_LIMIT, "Input plaintext size too large.");
 
     var materialsManager: Crypto.ICryptographicMaterialsManager;
     if request.materialsManager != null {
@@ -158,7 +158,7 @@ module {:extern "EncryptDecrypt"} EncryptDecrypt {
 
     var algorithmSuiteId := if request.algorithmSuiteId.Some? then Some(request.algorithmSuiteId.value) else None;
 
-    var encMatRequest := Crypto.GetEncryptionMaterialsInput(encryptionContext:=request.encryptionContext, algorithmSuiteId:=algorithmSuiteId, maxPlaintextLength:=Option.Some(request.plaintextLength as int64));
+    var encMatRequest := Crypto.GetEncryptionMaterialsInput(encryptionContext:=request.encryptionContext, algorithmSuiteId:=algorithmSuiteId, maxPlaintextLength:=Option.Some(|request.plaintext| as int64));
 
     var output :- materialsManager.GetEncryptionMaterials(encMatRequest);
 

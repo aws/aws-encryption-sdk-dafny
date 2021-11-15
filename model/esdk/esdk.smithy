@@ -55,11 +55,12 @@ structure EncryptInput {
     keyring: KeyringReference,
 
     algorithmSuite: AlgorithmSuite,
+    frameLength: Long,
 }
 
 structure EncryptOutput {
     @required
-    ciphertext: Blob,
+    encryptedMessage: Blob,
 
     @required
     encryptionContext: EncryptionContext,
@@ -76,7 +77,7 @@ operation Decrypt {
 
 structure DecryptInput {
     @required
-    ciphertext: Blob,
+    encryptedMessage: Blob,
 
     // One of keyring or CMM are required
     materialsManager: CryptographicMaterialsManagerReference,

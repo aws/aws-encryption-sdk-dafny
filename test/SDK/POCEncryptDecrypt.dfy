@@ -61,7 +61,6 @@ module {:extern "TestClient"} TestClient {
       encryptionContext := encryptionContext,
       algorithmSuiteId := None(),
       materialsManager := cmm,
-      plaintextLength := |plaintext|,
       frameLength := None(),
       keyring := null);
     var res :- expect client.Encrypt(input);

@@ -14,11 +14,12 @@ module {:extern "Dafny.Aws.Esdk"} Aws.Esdk {
     datatype EncryptInput = EncryptInput(
         nameonly plaintext: seq<uint8>,
         nameonly encryptionContext: Crypto.EncryptionContext, // TODO Make an option?
+        // TODO Turn these nullables into Options
+        // blocked by https://github.com/dafny-lang/dafny/issues/1499
         nameonly materialsManager: Crypto.ICryptographicMaterialsManager?,
         nameonly keyring: Crypto.IKeyring?,
         nameonly algorithmSuiteId: Option<Crypto.AlgorithmSuiteId>,
-        nameonly plaintextLength: nat, // TODO add to smithy model, or remove from encrypt logic
-        nameonly frameLength: Option<uint32> // TODO add to smithy model, or remove from encrypt logic
+        nameonly frameLength: Option<uint32>
     )
 
     datatype EncryptOutput = EncryptOutput(
