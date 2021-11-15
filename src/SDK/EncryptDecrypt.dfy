@@ -10,6 +10,7 @@ include "MessageHeader.dfy"
 include "MessageBody.dfy"
 include "Serialize.dfy"
 include "Deserialize.dfy"
+include "../AwsCryptographicMaterialProviders/AlgorithmSuites.dfy"
 include "../Crypto/Random.dfy"
 include "../Util/Streams.dfy"
 include "../Crypto/KeyDerivationAlgorithms.dfy"
@@ -17,6 +18,7 @@ include "../Crypto/HKDF/HKDF.dfy"
 include "../Crypto/AESEncryption.dfy"
 include "../Crypto/Signature.dfy"
 include "../Generated/AwsCryptographicMaterialProviders.dfy"
+include "../Generated/AwsEncryptionSdk.dfy"
 include "Serialize/SerializableTypes.dfy"
 
 module {:extern "EncryptDecrypt"} EncryptDecrypt {
@@ -24,7 +26,9 @@ module {:extern "EncryptDecrypt"} EncryptDecrypt {
   import opened StandardLibrary
   import opened UInt = StandardLibrary.UInt
   import Aws.Crypto
+  import Aws.Esdk
   import EncryptionContext
+  import AwsCryptographicMaterialProviders2.AlgorithmSuites
   import AlgorithmSuite
   import AESEncryption
   import DefaultCMMDef
@@ -41,51 +45,6 @@ module {:extern "EncryptDecrypt"} EncryptDecrypt {
   import SerializableTypes
 
   const DEFAULT_FRAME_LENGTH: uint32 := 4096
-
-  datatype EncryptRequest = EncryptRequest(
-    plaintext: seq<uint8>,
-    cmm: Crypto.ICryptographicMaterialsManager?,
-    keyring: Crypto.IKeyring?,
-    plaintextLength: nat,
-    encryptionContext: EncryptionContext.Map,
-    algorithmSuiteID: Option<uint16>,
-    frameLength: Option<uint32>)
-  {
-    static function method WithCMM(plaintext: seq<uint8>, cmm: Crypto.ICryptographicMaterialsManager): EncryptRequest
-    {
-      EncryptRequest(plaintext, cmm, null, |plaintext|, map[], None, None)
-    }
-
-    static function method WithKeyring(plaintext: seq<uint8>, keyring: Crypto.IKeyring): EncryptRequest
-    {
-      EncryptRequest(plaintext, null, keyring, |plaintext|, map[], None, None)
-    }
-
-    function method SetEncryptionContext(encryptionContext: EncryptionContext.Map): EncryptRequest {
-      this.(encryptionContext := encryptionContext)
-    }
-
-    function method SetAlgorithmSuiteID(algorithmSuiteID: uint16): EncryptRequest {
-      this.(algorithmSuiteID := Some(algorithmSuiteID))
-    }
-
-    function method SetFrameLength(frameLength: uint32): EncryptRequest {
-      this.(frameLength := Some(frameLength))
-    }
-  }
-
-  datatype DecryptRequest = DecryptRequest(message: seq<uint8>, cmm: Crypto.ICryptographicMaterialsManager?, keyring: Crypto.IKeyring?)
-  {
-    static function method WithCMM(message: seq<uint8>, cmm: Crypto.ICryptographicMaterialsManager): DecryptRequest
-    {
-      DecryptRequest(message, cmm, null)
-    }
-
-    static function method WithKeyring(message: seq<uint8>, keyring: Crypto.IKeyring): DecryptRequest
-    {
-      DecryptRequest(message, null, keyring)
-    }
-  }
 
   // Specification of Encrypt with signature
   function SerializeMessageWithSignature(headerBody: Msg.HeaderBody, headerAuthentication: Msg.HeaderAuthentication, frames: seq<MessageBody.Frame>,
@@ -111,7 +70,7 @@ module {:extern "EncryptDecrypt"} EncryptDecrypt {
   }
 
   // Specification of headerBody in Encrypt
-  predicate ValidHeaderBodyForRequest(headerBody: Msg.HeaderBody, request: EncryptRequest)
+  predicate ValidHeaderBodyForRequest(headerBody: Msg.HeaderBody, request: Esdk.EncryptInput)
   {
     headerBody.Valid()
     && headerBody.version == Msg.VERSION_1
@@ -137,7 +96,7 @@ module {:extern "EncryptDecrypt"} EncryptDecrypt {
   }
 
   // Specification of the Frames used in Encrypt
-  predicate ValidFramesForRequest(frames: seq<MessageBody.Frame>, request: EncryptRequest, headerBody: Msg.HeaderBody)
+  predicate ValidFramesForRequest(frames: seq<MessageBody.Frame>, request: Esdk.EncryptInput, headerBody: Msg.HeaderBody)
   {
     (forall frame: MessageBody.Frame | frame in frames :: frame.Valid()) //This predicates ensure that the frame can be converted to a sequence
     && MessageBody.FramesEncryptPlaintext(frames, request.plaintext) // This requirement is missing in spec but needed for now needs to be addapted to match streaming
@@ -160,10 +119,10 @@ module {:extern "EncryptDecrypt"} EncryptDecrypt {
  /*
   * Encrypt a plaintext and serialize it into a message.
   */
-  method Encrypt(request: EncryptRequest) returns (res: Result<seq<uint8>, string>)
-    ensures request.cmm == null && request.keyring == null ==> res.Failure?
-    ensures request.cmm != null && request.keyring != null ==> res.Failure?
-    ensures request.algorithmSuiteID.Some? && request.algorithmSuiteID.value !in AlgorithmSuite.VALID_IDS ==> res.Failure?
+  method Encrypt(request: Esdk.EncryptInput) returns (res: Result<seq<uint8>, string>)
+    ensures request.materialsManager == null && request.keyring == null ==> res.Failure?
+    ensures request.materialsManager != null && request.keyring != null ==> res.Failure?
+    ensures request.algorithmSuiteId.Some? && request.algorithmSuiteId.value !in AlgorithmSuites.SupportedAlgorithmSuites ==> res.Failure?
     ensures request.frameLength.Some? && request.frameLength.value == 0 ==> res.Failure?
     ensures match res
       case Failure(e) => true
@@ -182,36 +141,36 @@ module {:extern "EncryptDecrypt"} EncryptDecrypt {
             }
   {
     // Validate encrypt request
-    :- Need(request.cmm == null || request.keyring == null, "EncryptRequest.keyring OR EncryptRequest.cmm must be set (not both).");
-    :- Need(request.cmm != null || request.keyring != null, "EncryptRequest.cmm and EncryptRequest.keyring cannot both be null.");
-    :- Need(request.algorithmSuiteID.None? || request.algorithmSuiteID.value in AlgorithmSuite.VALID_IDS, "Invalid Algorithm Suite ID");
+    :- Need(request.materialsManager == null || request.keyring == null, "Esdk.EncryptInput.keyring OR Esdk.EncryptInput.materialsManager must be set (not both).");
+    :- Need(request.materialsManager != null || request.keyring != null, "Esdk.EncryptInput.materialsManager and Esdk.EncryptInput.keyring cannot both be null.");
+    :- Need(request.algorithmSuiteId.None? || request.algorithmSuiteId.value in AlgorithmSuites.SupportedAlgorithmSuites, "Invalid Algorithm Suite ID");
     :- Need(request.frameLength.None? || request.frameLength.value > 0, "Requested frame length must be > 0");
     :- Need(request.plaintextLength < INT64_MAX_LIMIT, "Input plaintext size too large.");
 
-    var cmm: Crypto.ICryptographicMaterialsManager;
-    if request.keyring == null {
-      cmm := request.cmm;
+    var materialsManager: Crypto.ICryptographicMaterialsManager;
+    if request.materialsManager != null {
+      materialsManager := request.materialsManager;
     } else {
-      cmm := new DefaultCMMDef.DefaultCMM.OfKeyring(request.keyring);
+      materialsManager := new DefaultCMMDef.DefaultCMM.OfKeyring(request.keyring);
     }
 
     var frameLength := if request.frameLength.Some? then request.frameLength.value else DEFAULT_FRAME_LENGTH;
 
-    var algorithmSuiteID := if request.algorithmSuiteID.Some? then Some(AlgorithmSuite.InternalIDToPolymorphID(request.algorithmSuiteID.value as AlgorithmSuite.ID)) else None;
+    var algorithmSuiteId := if request.algorithmSuiteId.Some? then Some(request.algorithmSuiteId.value) else None;
 
-    var encMatRequest := Crypto.GetEncryptionMaterialsInput(encryptionContext:=request.encryptionContext, algorithmSuiteId:=algorithmSuiteID, maxPlaintextLength:=Option.Some(request.plaintextLength as int64));
+    var encMatRequest := Crypto.GetEncryptionMaterialsInput(encryptionContext:=request.encryptionContext, algorithmSuiteId:=algorithmSuiteId, maxPlaintextLength:=Option.Some(request.plaintextLength as int64));
 
-    var output :- cmm.GetEncryptionMaterials(encMatRequest);
+    var output :- materialsManager.GetEncryptionMaterials(encMatRequest);
 
     var encMat := output.encryptionMaterials;
 
     // Validate encryption materials
     :- Need(encMat.plaintextDataKey.Some?, "CMM failed to obtain a plaintext data key.");
-    :- Need((algorithmSuiteID.None? || (request.algorithmSuiteID.value as AlgorithmSuite.ID).SignatureType().Some?) ==>
+    :- Need((algorithmSuiteId.None? || AlgorithmSuites.GetSuite(request.algorithmSuiteId.value).signature != AlgorithmSuites.SignatureAlgorithm.None) ==>
       Materials.EC_PUBLIC_KEY_FIELD in encMat.encryptionContext,
       "CMM failed to return valid encryptionContext for algorithm suite in use: verification key must exist in encryption context for suites with signing.");
     :- Need(DefaultCMMDef.Serializable(encMat), "CMM failed to return serializable encryption materials.");
-    :- Need(request.algorithmSuiteID.None? ==> AlgorithmSuite.PolymorphIDToInternalID(encMat.algorithmSuiteId) == 0x0378 as AlgorithmSuite.ID,
+    :- Need(request.algorithmSuiteId.None? ==> AlgorithmSuite.PolymorphIDToInternalID(encMat.algorithmSuiteId) == 0x0378 as AlgorithmSuite.ID,
       "CMM defaulted to the incorrect algorithm suite ID.");
     :- Need(|encMat.plaintextDataKey.value| == AlgorithmSuite.PolymorphIDToInternalID(encMat.algorithmSuiteId).KDFInputKeyLength(),
       "CMM returned an invalid plaintext data key for the algorithm suite in use.");
@@ -295,12 +254,12 @@ module {:extern "EncryptDecrypt"} EncryptDecrypt {
     }
   }
 
-  method DeriveKey(plaintextDataKey: seq<uint8>, algorithmSuiteID: AlgorithmSuite.ID, messageID: Msg.MessageID) returns (derivedDataKey: seq<uint8>)
-    requires |plaintextDataKey| == algorithmSuiteID.KDFInputKeyLength()
-    ensures |derivedDataKey| == algorithmSuiteID.KeyLength()
+  method DeriveKey(plaintextDataKey: seq<uint8>, algorithmSuiteId: AlgorithmSuite.ID, messageID: Msg.MessageID) returns (derivedDataKey: seq<uint8>)
+    requires |plaintextDataKey| == algorithmSuiteId.KDFInputKeyLength()
+    ensures |derivedDataKey| == algorithmSuiteId.KeyLength()
     ensures IsDerivedKey(derivedDataKey)
   {
-    var algorithm := AlgorithmSuite.Suite[algorithmSuiteID].hkdf;
+    var algorithm := AlgorithmSuite.Suite[algorithmSuiteId].hkdf;
     if algorithm == KeyDerivationAlgorithms.IDENTITY {
       assert IsDerivedKey(plaintextDataKey) by {
         reveal IsDerivedKey();
@@ -308,8 +267,8 @@ module {:extern "EncryptDecrypt"} EncryptDecrypt {
       return plaintextDataKey;
     }
 
-    var infoSeq := UInt16ToSeq(algorithmSuiteID as uint16) + messageID;
-    var len := algorithmSuiteID.KeyLength();
+    var infoSeq := UInt16ToSeq(algorithmSuiteId as uint16) + messageID;
+    var len := algorithmSuiteId.KeyLength();
     var derivedKey := HKDF.Hkdf(algorithm, None, plaintextDataKey, infoSeq, len);
     assert IsDerivedKey(derivedKey) by {
       reveal IsDerivedKey();
@@ -322,9 +281,9 @@ module {:extern "EncryptDecrypt"} EncryptDecrypt {
     true
   }
 
-  method Decrypt(request: DecryptRequest) returns (res: Result<seq<uint8>, string>)
-    ensures request.cmm == null && request.keyring == null ==> res.Failure?
-    ensures request.cmm != null && request.keyring != null ==> res.Failure?
+  method Decrypt(request: Esdk.DecryptInput) returns (res: Result<seq<uint8>, string>)
+    ensures request.materialsManager == null && request.keyring == null ==> res.Failure?
+    ensures request.materialsManager != null && request.keyring != null ==> res.Failure?
   {
     var decryptWithVerificationInfo :- DecryptWithVerificationInfo(request);
     return Success(decryptWithVerificationInfo.plaintext);
@@ -339,9 +298,9 @@ module {:extern "EncryptDecrypt"} EncryptDecrypt {
 
 
   // Verification of this method requires verification of the CMM to some extent, The verification of the Decrypt method should be extended after CMM is verified
-  method DecryptWithVerificationInfo(request: DecryptRequest) returns (res: Result<DecryptResultWithVerificationInfo, string>)
-    ensures request.cmm == null && request.keyring == null ==> res.Failure?
-    ensures request.cmm != null && request.keyring != null ==> res.Failure?
+  method DecryptWithVerificationInfo(request: Esdk.DecryptInput) returns (res: Result<DecryptResultWithVerificationInfo, string>)
+    ensures request.materialsManager == null && request.keyring == null ==> res.Failure?
+    ensures request.materialsManager != null && request.keyring != null ==> res.Failure?
     ensures match res // Verify that if no error occurs the correct objects are deserialized from the stream
       case Failure(e) => true
       case Success(d) => // Unfold return value into seperate variables
@@ -353,24 +312,24 @@ module {:extern "EncryptDecrypt"} EncryptDecrypt {
           && match d.signature {
                case Some(_) =>
                  && |d.signature.value| < UINT16_LIMIT
-                 && request.message == d.hbSeq + d.header.auth.iv + d.header.auth.authenticationTag // These items can be serialized to the output
+                 && request.encryptedMessage == d.hbSeq + d.header.auth.iv + d.header.auth.authenticationTag // These items can be serialized to the output
                    + MessageBody.FramesToSequence(d.frames) + UInt16ToSeq(|d.signature.value| as uint16) + d.signature.value
                case None => // if the result does not need to be signed
-                 request.message == d.hbSeq + d.header.auth.iv + d.header.auth.authenticationTag + MessageBody.FramesToSequence(d.frames)
+                 request.encryptedMessage == d.hbSeq + d.header.auth.iv + d.header.auth.authenticationTag + MessageBody.FramesToSequence(d.frames)
              })
   {
     // Validate decrypt request
-    :- Need(request.cmm == null || request.keyring == null, "DecryptRequest.keyring OR DecryptRequest.cmm must be set (not both).");
-    :- Need(request.cmm != null || request.keyring != null, "DecryptRequest.cmm and DecryptRequest.keyring cannot both be null.");
+    :- Need(request.materialsManager == null || request.keyring == null, "Esdk.DecryptInput.keyring OR Esdk.DecryptInput.materialsManager must be set (not both).");
+    :- Need(request.materialsManager != null || request.keyring != null, "Esdk.DecryptInput.materialsManager and Esdk.DecryptInput.keyring cannot both be null.");
 
-    var cmm: Crypto.ICryptographicMaterialsManager;
-    if request.keyring == null {
-      cmm := request.cmm;
+    var materialsManager: Crypto.ICryptographicMaterialsManager;
+    if request.materialsManager != null {
+      materialsManager := request.materialsManager;
     } else {
-      cmm := new DefaultCMMDef.DefaultCMM.OfKeyring(request.keyring);
+      materialsManager := new DefaultCMMDef.DefaultCMM.OfKeyring(request.keyring);
     }
 
-    var rd := new Streams.ByteReader(request.message);
+    var rd := new Streams.ByteReader(request.encryptedMessage);
     var deserializeHeaderResult :- Deserialize.DeserializeHeader(rd);
     var header := deserializeHeaderResult.header;
 
@@ -382,10 +341,10 @@ module {:extern "EncryptDecrypt"} EncryptDecrypt {
         assert Msg.IsSerializationOfHeaderBody(deserializeHeaderResult.hbSeq, header.body);
         assert rd.reader.data[..rd.reader.pos] == deserializeHeaderResult.hbSeq + header.auth.iv + header.auth.authenticationTag;
       }
-      assert DataIsFramed(request.message) by { // Predicate that holds in DataIsFramed this predicate is currently not used but is very usefull for future validation
-        assert 0 <= rd.reader.pos <= |request.message|;
-        assert rd.reader.data[..rd.reader.pos] == request.message[..rd.reader.pos];
-        assert HeaderBySequence(header, deserializeHeaderResult.hbSeq, request.message[..rd.reader.pos]);
+      assert DataIsFramed(request.encryptedMessage) by { // Predicate that holds in DataIsFramed this predicate is currently not used but is very usefull for future validation
+        assert 0 <= rd.reader.pos <= |request.encryptedMessage|;
+        assert rd.reader.data[..rd.reader.pos] == request.encryptedMessage[..rd.reader.pos];
+        assert HeaderBySequence(header, deserializeHeaderResult.hbSeq, request.encryptedMessage[..rd.reader.pos]);
       }
     }
 
@@ -393,7 +352,7 @@ module {:extern "EncryptDecrypt"} EncryptDecrypt {
       algorithmSuiteId:=AlgorithmSuite.InternalIDToPolymorphID(header.body.algorithmSuiteID),
       encryptedDataKeys:=header.body.encryptedDataKeys,
       encryptionContext:=header.body.aad);
-    var output :- cmm.DecryptMaterials(decMatRequest);
+    var output :- materialsManager.DecryptMaterials(decMatRequest);
     var decMat := output.decryptionMaterials;
 
     // Validate decryption materials
@@ -442,7 +401,7 @@ module {:extern "EncryptDecrypt"} EncryptDecrypt {
 
     ghost var signature: Option<seq<uint8>> := None;
     ghost var endFramePos := rd.reader.pos;
-    assert header.body.contentType.Framed? ==> 0 <= endHeaderPos <= endFramePos <= |request.message|;
+    assert header.body.contentType.Framed? ==> 0 <= endHeaderPos <= endFramePos <= |request.encryptedMessage|;
     if AlgorithmSuite.PolymorphIDToInternalID(decMat.algorithmSuiteId).SignatureType().Some? {
       var verifyResult, locSig := VerifySignature(rd, decMat);
       signature := Some(locSig);
@@ -460,46 +419,46 @@ module {:extern "EncryptDecrypt"} EncryptDecrypt {
       if AlgorithmSuite.PolymorphIDToInternalID(decMat.algorithmSuiteId).SignatureType().Some? { // Case with Signature
         assert signature.Some?;
         assert SignatureBySequence(signature.value, rd.reader.data[endFramePos..rd.reader.pos]);
-        assert HeaderBySequence(header, deserializeHeaderResult.hbSeq, request.message[..endHeaderPos])
-          && FramesBySequence(frames, request.message[endHeaderPos..endFramePos])
-          && SignatureBySequence(signature.value, request.message[endFramePos..]) by {
-            assert 0 <= endHeaderPos <= endFramePos <= |request.message|;
-            assert SignatureBySequence(signature.value, request.message[endFramePos..]) by {
+        assert HeaderBySequence(header, deserializeHeaderResult.hbSeq, request.encryptedMessage[..endHeaderPos])
+          && FramesBySequence(frames, request.encryptedMessage[endHeaderPos..endFramePos])
+          && SignatureBySequence(signature.value, request.encryptedMessage[endFramePos..]) by {
+            assert 0 <= endHeaderPos <= endFramePos <= |request.encryptedMessage|;
+            assert SignatureBySequence(signature.value, request.encryptedMessage[endFramePos..]) by {
             assert header.body.contentType.Framed? ==> SignatureBySequence(signature.value, rd.reader.data[endFramePos..rd.reader.pos]);
-            assert rd.reader.data[endFramePos..rd.reader.pos] == request.message[endFramePos..] by {
+            assert rd.reader.data[endFramePos..rd.reader.pos] == request.encryptedMessage[endFramePos..] by {
               calc {
                 rd.reader.data[endFramePos..rd.reader.pos];
               == {UpperBoundRemv(rd.reader.data, endFramePos); assert rd.reader.pos == |rd.reader.data|; }
                 rd.reader.data[endFramePos..];
-              == {assert rd.reader.data == request.message; }
-                request.message[endFramePos..];
+              == {assert rd.reader.data == request.encryptedMessage; }
+                request.encryptedMessage[endFramePos..];
               }
             }
             assert SignatureBySequence(signature.value, rd.reader.data[endFramePos..rd.reader.pos]);
           }
         }
-        HBandMBwithSigMatchSequence(header, deserializeHeaderResult.hbSeq, frames, signature.value, request.message);
+        HBandMBwithSigMatchSequence(header, deserializeHeaderResult.hbSeq, frames, signature.value, request.encryptedMessage);
       } else { // Case without signature
         assert signature.None?;
-        assert 0 <= endHeaderPos <= |request.message| by {
-          assert request.message == rd.reader.data;
+        assert 0 <= endHeaderPos <= |request.encryptedMessage| by {
+          assert request.encryptedMessage == rd.reader.data;
         }
-        assert HeaderBySequence(header, deserializeHeaderResult.hbSeq, request.message[..endHeaderPos])
-          && FramesBySequence(frames, request.message[endHeaderPos..]) by {
+        assert HeaderBySequence(header, deserializeHeaderResult.hbSeq, request.encryptedMessage[..endHeaderPos])
+          && FramesBySequence(frames, request.encryptedMessage[endHeaderPos..]) by {
             assert HeaderBySequence(header, deserializeHeaderResult.hbSeq, rd.reader.data[..endHeaderPos])
               && FramesBySequence(frames, rd.reader.data[endHeaderPos..rd.reader.pos]);
-            assert rd.reader.data[endHeaderPos..rd.reader.pos] == request.message[endHeaderPos..] by {
+            assert rd.reader.data[endHeaderPos..rd.reader.pos] == request.encryptedMessage[endHeaderPos..] by {
               calc {
                 rd.reader.data[endHeaderPos..rd.reader.pos];
               == {UpperBoundRemv(rd.reader.data, endHeaderPos); }
                 rd.reader.data[endHeaderPos..];
-              == {assert rd.reader.data == request.message; }
-                request.message[endHeaderPos..];
+              == {assert rd.reader.data == request.encryptedMessage; }
+                request.encryptedMessage[endHeaderPos..];
               }
             }
           }
-        assert 0 <= endHeaderPos <= |request.message|;
-        HBandMBMatchSequence(header, deserializeHeaderResult.hbSeq, frames, request.message);
+        assert 0 <= endHeaderPos <= |request.encryptedMessage|;
+        HBandMBMatchSequence(header, deserializeHeaderResult.hbSeq, frames, request.encryptedMessage);
       }
     }
     var decryptResultWithVerificationInfo := DecryptResultWithVerificationInfo(plaintext, header, deserializeHeaderResult.hbSeq, frames, signature);

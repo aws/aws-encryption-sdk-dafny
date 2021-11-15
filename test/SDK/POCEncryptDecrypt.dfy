@@ -57,14 +57,20 @@ module {:extern "TestClient"} TestClient {
     var plaintext :- expect UTF8.Encode("hello");
     var encryptionContext := TestUtils.SmallEncryptionContext(TestUtils.SmallEncryptionContextVariation.A);
     var input := Esdk.EncryptInput(
-      plaintext:=plaintext,
-      encryptionContext:=encryptionContext,
-      algorithmSuiteId:=None(),
-      materialsManager:=cmm);
+      plaintext := plaintext,
+      encryptionContext := encryptionContext,
+      algorithmSuiteId := None(),
+      materialsManager := cmm,
+      plaintextLength := |plaintext|,
+      frameLength := None(),
+      keyring := null);
     var res :- expect client.Encrypt(input);
 
     // Use Decrypt API
-    var decryptInput := Esdk.DecryptInput(ciphertext:=res.ciphertext, materialsManager:=cmm);
+    var decryptInput := Esdk.DecryptInput(
+      encryptedMessage := res.encryptedMessage,
+      materialsManager := cmm,
+      keyring := null);
     var d :- expect client.Decrypt(decryptInput);
 
     // ensure expected output
