@@ -1,7 +1,7 @@
 // Copyright Amazon.com Inc. or its affiliates. All Rights Reserved.
 // SPDX-License-Identifier: Apache-2.0
 //
-// Generated at 2021-11-15T09:25:50.311246
+// Generated at 2021-11-15T14:28:32.983509
 include "../StandardLibrary/StandardLibrary.dfy"
  module {:extern "Dafny.Com.Amazonaws.Kms.KeyManagementService"} Com.Amazonaws.Kms.KeyManagementService {
  import opened Wrappers
@@ -391,53 +391,194 @@ import opened StandardLibrary.UInt
  method UpdateCustomKeyStore ( input: UpdateCustomKeyStoreRequest ) returns (output: Result<UpdateCustomKeyStoreResponse, KeyManagementServiceError>)
  method UpdateKeyDescription ( input: UpdateKeyDescriptionRequest ) returns (output: Result<(), KeyManagementServiceError>)
  method UpdatePrimaryRegion ( input: UpdatePrimaryRegionRequest ) returns (output: Result<(), KeyManagementServiceError>)
- method Verify ( input: VerifyRequest ) returns (output: Result<VerifyResponse, KeyManagementServiceError>) predicate method CancelKeyDeletionCalledWith ( input: CancelKeyDeletionRequest )
- predicate method ConnectCustomKeyStoreCalledWith ( input: ConnectCustomKeyStoreRequest )
- predicate method CreateAliasCalledWith ( input: CreateAliasRequest )
- predicate method CreateCustomKeyStoreCalledWith ( input: CreateCustomKeyStoreRequest )
- predicate method CreateGrantCalledWith ( input: CreateGrantRequest )
- predicate method CreateKeyCalledWith ( input: CreateKeyRequest )
- predicate method DecryptCalledWith ( input: DecryptRequest )
- predicate method DeleteAliasCalledWith ( input: DeleteAliasRequest )
- predicate method DeleteCustomKeyStoreCalledWith ( input: DeleteCustomKeyStoreRequest )
- predicate method DeleteImportedKeyMaterialCalledWith ( input: DeleteImportedKeyMaterialRequest )
- predicate method DescribeCustomKeyStoresCalledWith ( input: DescribeCustomKeyStoresRequest )
- predicate method DescribeKeyCalledWith ( input: DescribeKeyRequest )
- predicate method DisableKeyCalledWith ( input: DisableKeyRequest )
- predicate method DisableKeyRotationCalledWith ( input: DisableKeyRotationRequest )
- predicate method DisconnectCustomKeyStoreCalledWith ( input: DisconnectCustomKeyStoreRequest )
- predicate method EnableKeyCalledWith ( input: EnableKeyRequest )
- predicate method EnableKeyRotationCalledWith ( input: EnableKeyRotationRequest )
- predicate method EncryptCalledWith ( input: EncryptRequest )
- predicate method GenerateDataKeyCalledWith ( input: GenerateDataKeyRequest )
- predicate method GenerateDataKeyPairCalledWith ( input: GenerateDataKeyPairRequest )
- predicate method GenerateDataKeyPairWithoutPlaintextCalledWith ( input: GenerateDataKeyPairWithoutPlaintextRequest )
- predicate method GenerateDataKeyWithoutPlaintextCalledWith ( input: GenerateDataKeyWithoutPlaintextRequest )
- predicate method GenerateRandomCalledWith ( input: GenerateRandomRequest )
- predicate method GetKeyPolicyCalledWith ( input: GetKeyPolicyRequest )
- predicate method GetKeyRotationStatusCalledWith ( input: GetKeyRotationStatusRequest )
- predicate method GetParametersForImportCalledWith ( input: GetParametersForImportRequest )
- predicate method GetPublicKeyCalledWith ( input: GetPublicKeyRequest )
- predicate method ImportKeyMaterialCalledWith ( input: ImportKeyMaterialRequest )
- predicate method ListAliasesCalledWith ( input: ListAliasesRequest )
- predicate method ListGrantsCalledWith ( input: ListGrantsRequest )
- predicate method ListKeyPoliciesCalledWith ( input: ListKeyPoliciesRequest )
- predicate method ListResourceTagsCalledWith ( input: ListResourceTagsRequest )
- predicate method ListRetirableGrantsCalledWith ( input: ListRetirableGrantsRequest )
- predicate method PutKeyPolicyCalledWith ( input: PutKeyPolicyRequest )
- predicate method ReEncryptCalledWith ( input: ReEncryptRequest )
- predicate method ReplicateKeyCalledWith ( input: ReplicateKeyRequest )
- predicate method RetireGrantCalledWith ( input: RetireGrantRequest )
- predicate method RevokeGrantCalledWith ( input: RevokeGrantRequest )
- predicate method ScheduleKeyDeletionCalledWith ( input: ScheduleKeyDeletionRequest )
- predicate method SignCalledWith ( input: SignRequest )
- predicate method TagResourceCalledWith ( input: TagResourceRequest )
- predicate method UntagResourceCalledWith ( input: UntagResourceRequest )
- predicate method UpdateAliasCalledWith ( input: UpdateAliasRequest )
- predicate method UpdateCustomKeyStoreCalledWith ( input: UpdateCustomKeyStoreRequest )
- predicate method UpdateKeyDescriptionCalledWith ( input: UpdateKeyDescriptionRequest )
- predicate method UpdatePrimaryRegionCalledWith ( input: UpdatePrimaryRegionRequest )
- predicate method VerifyCalledWith ( input: VerifyRequest )
+ method Verify ( input: VerifyRequest ) returns (output: Result<VerifyResponse, KeyManagementServiceError>) predicate {:opaque} CancelKeyDeletionCalledWith (
+   client: IKeyManagementServiceClient,
+   request: CancelKeyDeletionRequest
+ ) {True}
+ predicate {:opaque} ConnectCustomKeyStoreCalledWith (
+   client: IKeyManagementServiceClient,
+   request: ConnectCustomKeyStoreRequest
+ ) {True}
+ predicate {:opaque} CreateAliasCalledWith (
+   client: IKeyManagementServiceClient,
+   request: CreateAliasRequest
+ ) {True}
+ predicate {:opaque} CreateCustomKeyStoreCalledWith (
+   client: IKeyManagementServiceClient,
+   request: CreateCustomKeyStoreRequest
+ ) {True}
+ predicate {:opaque} CreateGrantCalledWith (
+   client: IKeyManagementServiceClient,
+   request: CreateGrantRequest
+ ) {True}
+ predicate {:opaque} CreateKeyCalledWith (
+   client: IKeyManagementServiceClient,
+   request: CreateKeyRequest
+ ) {True}
+ predicate {:opaque} DecryptCalledWith (
+   client: IKeyManagementServiceClient,
+   request: DecryptRequest
+ ) {True}
+ predicate {:opaque} DeleteAliasCalledWith (
+   client: IKeyManagementServiceClient,
+   request: DeleteAliasRequest
+ ) {True}
+ predicate {:opaque} DeleteCustomKeyStoreCalledWith (
+   client: IKeyManagementServiceClient,
+   request: DeleteCustomKeyStoreRequest
+ ) {True}
+ predicate {:opaque} DeleteImportedKeyMaterialCalledWith (
+   client: IKeyManagementServiceClient,
+   request: DeleteImportedKeyMaterialRequest
+ ) {True}
+ predicate {:opaque} DescribeCustomKeyStoresCalledWith (
+   client: IKeyManagementServiceClient,
+   request: DescribeCustomKeyStoresRequest
+ ) {True}
+ predicate {:opaque} DescribeKeyCalledWith (
+   client: IKeyManagementServiceClient,
+   request: DescribeKeyRequest
+ ) {True}
+ predicate {:opaque} DisableKeyCalledWith (
+   client: IKeyManagementServiceClient,
+   request: DisableKeyRequest
+ ) {True}
+ predicate {:opaque} DisableKeyRotationCalledWith (
+   client: IKeyManagementServiceClient,
+   request: DisableKeyRotationRequest
+ ) {True}
+ predicate {:opaque} DisconnectCustomKeyStoreCalledWith (
+   client: IKeyManagementServiceClient,
+   request: DisconnectCustomKeyStoreRequest
+ ) {True}
+ predicate {:opaque} EnableKeyCalledWith (
+   client: IKeyManagementServiceClient,
+   request: EnableKeyRequest
+ ) {True}
+ predicate {:opaque} EnableKeyRotationCalledWith (
+   client: IKeyManagementServiceClient,
+   request: EnableKeyRotationRequest
+ ) {True}
+ predicate {:opaque} EncryptCalledWith (
+   client: IKeyManagementServiceClient,
+   request: EncryptRequest
+ ) {True}
+ predicate {:opaque} GenerateDataKeyCalledWith (
+   client: IKeyManagementServiceClient,
+   request: GenerateDataKeyRequest
+ ) {True}
+ predicate {:opaque} GenerateDataKeyPairCalledWith (
+   client: IKeyManagementServiceClient,
+   request: GenerateDataKeyPairRequest
+ ) {True}
+ predicate {:opaque} GenerateDataKeyPairWithoutPlaintextCalledWith (
+   client: IKeyManagementServiceClient,
+   request: GenerateDataKeyPairWithoutPlaintextRequest
+ ) {True}
+ predicate {:opaque} GenerateDataKeyWithoutPlaintextCalledWith (
+   client: IKeyManagementServiceClient,
+   request: GenerateDataKeyWithoutPlaintextRequest
+ ) {True}
+ predicate {:opaque} GenerateRandomCalledWith (
+   client: IKeyManagementServiceClient,
+   request: GenerateRandomRequest
+ ) {True}
+ predicate {:opaque} GetKeyPolicyCalledWith (
+   client: IKeyManagementServiceClient,
+   request: GetKeyPolicyRequest
+ ) {True}
+ predicate {:opaque} GetKeyRotationStatusCalledWith (
+   client: IKeyManagementServiceClient,
+   request: GetKeyRotationStatusRequest
+ ) {True}
+ predicate {:opaque} GetParametersForImportCalledWith (
+   client: IKeyManagementServiceClient,
+   request: GetParametersForImportRequest
+ ) {True}
+ predicate {:opaque} GetPublicKeyCalledWith (
+   client: IKeyManagementServiceClient,
+   request: GetPublicKeyRequest
+ ) {True}
+ predicate {:opaque} ImportKeyMaterialCalledWith (
+   client: IKeyManagementServiceClient,
+   request: ImportKeyMaterialRequest
+ ) {True}
+ predicate {:opaque} ListAliasesCalledWith (
+   client: IKeyManagementServiceClient,
+   request: ListAliasesRequest
+ ) {True}
+ predicate {:opaque} ListGrantsCalledWith (
+   client: IKeyManagementServiceClient,
+   request: ListGrantsRequest
+ ) {True}
+ predicate {:opaque} ListKeyPoliciesCalledWith (
+   client: IKeyManagementServiceClient,
+   request: ListKeyPoliciesRequest
+ ) {True}
+ predicate {:opaque} ListResourceTagsCalledWith (
+   client: IKeyManagementServiceClient,
+   request: ListResourceTagsRequest
+ ) {True}
+ predicate {:opaque} ListRetirableGrantsCalledWith (
+   client: IKeyManagementServiceClient,
+   request: ListRetirableGrantsRequest
+ ) {True}
+ predicate {:opaque} PutKeyPolicyCalledWith (
+   client: IKeyManagementServiceClient,
+   request: PutKeyPolicyRequest
+ ) {True}
+ predicate {:opaque} ReEncryptCalledWith (
+   client: IKeyManagementServiceClient,
+   request: ReEncryptRequest
+ ) {True}
+ predicate {:opaque} ReplicateKeyCalledWith (
+   client: IKeyManagementServiceClient,
+   request: ReplicateKeyRequest
+ ) {True}
+ predicate {:opaque} RetireGrantCalledWith (
+   client: IKeyManagementServiceClient,
+   request: RetireGrantRequest
+ ) {True}
+ predicate {:opaque} RevokeGrantCalledWith (
+   client: IKeyManagementServiceClient,
+   request: RevokeGrantRequest
+ ) {True}
+ predicate {:opaque} ScheduleKeyDeletionCalledWith (
+   client: IKeyManagementServiceClient,
+   request: ScheduleKeyDeletionRequest
+ ) {True}
+ predicate {:opaque} SignCalledWith (
+   client: IKeyManagementServiceClient,
+   request: SignRequest
+ ) {True}
+ predicate {:opaque} TagResourceCalledWith (
+   client: IKeyManagementServiceClient,
+   request: TagResourceRequest
+ ) {True}
+ predicate {:opaque} UntagResourceCalledWith (
+   client: IKeyManagementServiceClient,
+   request: UntagResourceRequest
+ ) {True}
+ predicate {:opaque} UpdateAliasCalledWith (
+   client: IKeyManagementServiceClient,
+   request: UpdateAliasRequest
+ ) {True}
+ predicate {:opaque} UpdateCustomKeyStoreCalledWith (
+   client: IKeyManagementServiceClient,
+   request: UpdateCustomKeyStoreRequest
+ ) {True}
+ predicate {:opaque} UpdateKeyDescriptionCalledWith (
+   client: IKeyManagementServiceClient,
+   request: UpdateKeyDescriptionRequest
+ ) {True}
+ predicate {:opaque} UpdatePrimaryRegionCalledWith (
+   client: IKeyManagementServiceClient,
+   request: UpdatePrimaryRegionRequest
+ ) {True}
+ predicate {:opaque} VerifyCalledWith (
+   client: IKeyManagementServiceClient,
+   request: VerifyRequest
+ ) {True}
 }
  datatype KeyManagementServiceError =
  | KeyManagementService_AlreadyExistsException(AlreadyExistsException: AlreadyExistsException)
