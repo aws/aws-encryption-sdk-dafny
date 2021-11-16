@@ -4,6 +4,9 @@
 include "../StandardLibrary/StandardLibrary.dfy"
 include "../Generated/AwsCryptographicMaterialProviders.dfy"
 include "../../libraries/src/Collections/Maps/Maps.dfy"
+include "../Crypto/HKDF/HMAC.dfy"
+include "../Crypto/Signature.dfy"
+include "../Crypto/AESEncryption.dfy"
 
 module 
   {:extern "Dafny.Aws.Crypto.AwsCryptographicMaterialProvidersClient2.AlgorithmSuites"}
@@ -14,182 +17,258 @@ module
   import opened UInt = StandardLibrary.UInt
   import Maps
   import Aws.Crypto
+  import HMAC
+  import Signature
+  import AESEncryption
 
-  type KeyLength = l: uint8 | l == 32 || l == 24 || l == 16 witness 32
-  type TagLength = l: uint8 | l == 16 witness 16
-  type IVLength = l: uint8 | l == 12 witness 12
-
-  datatype EncryptionAlgorithm = AES(mode: AESMode)
-  datatype AESMode = GCM
-  datatype KeyDerivationAlgorithm_ =
-    | HKDF_WITH_SHA_512(inputKeyLength:KeyLength, saltLength: KeyLength)
-    | HKDF_WITH_SHA_384(inputKeyLength:KeyLength)
-    | HKDF_WITH_SHA_256(inputKeyLength:KeyLength)
+  datatype DerivationAlgorithm =
+    | HKDF(
+      nameonly hmac: HMAC.Digests,
+      nameonly saltLength: int,
+      nameonly inputKeyLength: AESEncryption.KeyLength,
+      nameonly outputKeyLength: AESEncryption.KeyLength
+    )
     | IDENTITY
+    | None
 
-  type KeyDerivationAlgorithm = kdf: KeyDerivationAlgorithm_
-    | kdf.HKDF_WITH_SHA_512? ==> kdf.inputKeyLength == 32
+  type KeyDerivationAlgorithm = kdf: DerivationAlgorithm
+    |
+    && (
+      && kdf.HKDF?
+    ==>
+      && kdf.inputKeyLength == kdf.outputKeyLength
+      && (kdf.hmac == HMAC.Digests.SHA_512 ==> kdf.inputKeyLength == 32))
+    && !kdf.None?
     witness *
 
-  datatype CommitmentDerivationAlgorithm =
-    | Algorithm(kdf: KeyDerivationAlgorithm)
-    | None
+  type CommitmentDerivationAlgorithm = kdf: DerivationAlgorithm
+    |
+    && (
+      && kdf.HKDF?
+    ==> 
+      && kdf.hmac.SHA_512?
+      && kdf.saltLength == 32
+      && kdf.inputKeyLength == 32
+      && kdf.outputKeyLength == 32)
+    && !kdf.IDENTITY?
 
-  type HKDFAlgorithms = kdf: KeyDerivationAlgorithm | !kdf.IDENTITY? witness *
-  type IdentityAlgorithm = kdf: KeyDerivationAlgorithm | kdf.IDENTITY? witness *
+    witness *
 
   datatype SignatureAlgorithm =
-    | ECDSA_P_384_SHA_384
-    | ECDSA_P_256_SHA_256
+    | ECDSA(curve: Signature.ECDSAParams)
     | None
 
-  datatype AlgorithmSuite_ = AlgorithmSuite_(
+  datatype AlgorithmSuiteInfo = AlgorithmSuiteInfo(
     nameonly id: Crypto.AlgorithmSuiteId,
-    nameonly alg: EncryptionAlgorithm,
-    nameonly keyLen: KeyLength,
-    nameonly tagLen: TagLength,
-    nameonly ivLen: IVLength,
+    nameonly encrypt: AESEncryption.AES_GCM,
     nameonly kdf: KeyDerivationAlgorithm,
     nameonly commitment: CommitmentDerivationAlgorithm,
     nameonly signature: SignatureAlgorithm
   )
 
-  type AlgorithmSuite = a: AlgorithmSuite_ |
-    && (!a.kdf.IDENTITY? ==> a.kdf.inputKeyLength == a.keyLen)
-    && (a.commitment.Algorithm?
+  type AlgorithmSuite = a: AlgorithmSuiteInfo |
+    && (a.kdf.HKDF? ==> a.kdf.outputKeyLength == a.encrypt.keyLength)
+    && (a.signature.ECDSA?
+      ==> 
+        && a.kdf.HKDF?
+        && (a.signature.curve.ECDSA_P256? ==> a.encrypt.keyLength == Bits128)
+        && (a.signature.curve.ECDSA_P384? ==>
+          || a.encrypt.keyLength == Bits192
+          || a.encrypt.keyLength == Bits256))
+    && (a.commitment.HKDF?
       ==>
-        && a.keyLen == 32
-        && a.kdf.HKDF_WITH_SHA_512?
-        && a.kdf.saltLength == 32
-        && a.commitment.kdf == a.kdf)
-
+        && a.encrypt.keyLength == Bits256
+        && a.commitment.hmac.SHA_512?
+        && a.commitment.saltLength == Bits256 as int
+        && a.commitment == a.kdf
+        && (a.signature.ECDSA? ==> a.signature.curve.ECDSA_P384?))
   witness *
 
-  const Bits256 := 32 as KeyLength;
-  const Bits192 := 24 as KeyLength;
-  const Bits128 := 16 as KeyLength;
-  const TagLen := 16 as TagLength;
-  const IvLen := 12 as IVLength;
-
+  const Bits256 := 32 as AESEncryption.KeyLength;
+  const Bits192 := 24 as AESEncryption.KeyLength;
+  const Bits128 := 16 as AESEncryption.KeyLength;
+  const TagLen := 16 as AESEncryption.TagLength;
+  const IvLen := 12 as AESEncryption.IVLength;
 
   // All algorithum suites
 
   // Non-KDF suites
-  const ALG_AES_128_GCM_IV12_TAG16_NO_KDF: AlgorithmSuite := AlgorithmSuite_(
+  const ALG_AES_128_GCM_IV12_TAG16_NO_KDF: AlgorithmSuite := AlgorithmSuiteInfo(
     id := Crypto.AlgorithmSuiteId.ALG_AES_128_GCM_IV12_TAG16_NO_KDF,
-    alg := AES(GCM),
-    keyLen := Bits128,
-    tagLen := TagLen,
-    ivLen := IvLen,
-    kdf := KeyDerivationAlgorithm_.IDENTITY,
+    encrypt := AESEncryption.AES_GCM(
+      keyLength := Bits128,
+      tagLength := TagLen,
+      ivLength := IvLen
+    ),
+    kdf := KeyDerivationAlgorithm.IDENTITY,
     commitment := CommitmentDerivationAlgorithm.None,
     signature := SignatureAlgorithm.None
   )
-  const ALG_AES_192_GCM_IV12_TAG16_NO_KDF: AlgorithmSuite := AlgorithmSuite_(
+  const ALG_AES_192_GCM_IV12_TAG16_NO_KDF: AlgorithmSuite := AlgorithmSuiteInfo(
     id := Crypto.AlgorithmSuiteId.ALG_AES_192_GCM_IV12_TAG16_NO_KDF,
-    alg := AES(GCM),
-    keyLen := Bits192,
-    tagLen := TagLen,
-    ivLen := IvLen,
-    kdf := KeyDerivationAlgorithm_.IDENTITY,
+    encrypt := AESEncryption.AES_GCM(
+      keyLength := Bits192,
+      tagLength := TagLen,
+      ivLength := IvLen
+    ),
+    kdf := KeyDerivationAlgorithm.IDENTITY,
     commitment := CommitmentDerivationAlgorithm.None,
     signature := SignatureAlgorithm.None
   )
-  const ALG_AES_256_GCM_IV12_TAG16_NO_KDF: AlgorithmSuite := AlgorithmSuite_(
+  const ALG_AES_256_GCM_IV12_TAG16_NO_KDF: AlgorithmSuite := AlgorithmSuiteInfo(
     id := Crypto.AlgorithmSuiteId.ALG_AES_256_GCM_IV12_TAG16_NO_KDF,
-    alg := AES(GCM),
-    keyLen := Bits256,
-    tagLen := TagLen,
-    ivLen := IvLen,
-    kdf := KeyDerivationAlgorithm_.IDENTITY,
+    encrypt := AESEncryption.AES_GCM(
+      keyLength := Bits256,
+      tagLength := TagLen,
+      ivLength := IvLen
+    ),
+    kdf := KeyDerivationAlgorithm.IDENTITY,
     commitment := CommitmentDerivationAlgorithm.None,
     signature := SignatureAlgorithm.None
   )
 
   //Non-Signature KDF suites
-  const ALG_AES_128_GCM_IV12_TAG16_HKDF_SHA256: AlgorithmSuite := AlgorithmSuite_(
+  const ALG_AES_128_GCM_IV12_TAG16_HKDF_SHA256: AlgorithmSuite := AlgorithmSuiteInfo(
     id := Crypto.AlgorithmSuiteId.ALG_AES_128_GCM_IV12_TAG16_HKDF_SHA256,
-    alg := AES(GCM),
-    keyLen := Bits128,
-    tagLen := TagLen,
-    ivLen := IvLen,
-    kdf := KeyDerivationAlgorithm_.HKDF_WITH_SHA_256(Bits128),
+    encrypt := AESEncryption.AES_GCM(
+      keyLength := Bits128,
+      tagLength := TagLen,
+      ivLength := IvLen
+    ),
+    kdf := KeyDerivationAlgorithm.HKDF(
+      hmac := HMAC.Digests.SHA_256,
+      saltLength := 0,
+      inputKeyLength := Bits128,
+      outputKeyLength := Bits128
+    ),
     commitment := CommitmentDerivationAlgorithm.None,
     signature := SignatureAlgorithm.None
   )
-  const ALG_AES_192_GCM_IV12_TAG16_HKDF_SHA256: AlgorithmSuite := AlgorithmSuite_(
+  const ALG_AES_192_GCM_IV12_TAG16_HKDF_SHA256: AlgorithmSuite := AlgorithmSuiteInfo(
     id := Crypto.AlgorithmSuiteId.ALG_AES_192_GCM_IV12_TAG16_HKDF_SHA256,
-    alg := AES(GCM),
-    keyLen := Bits192,
-    tagLen := TagLen,
-    ivLen := IvLen,
-    kdf := KeyDerivationAlgorithm_.HKDF_WITH_SHA_256(Bits192),
+    encrypt := AESEncryption.AES_GCM(
+      keyLength := Bits192,
+      tagLength := TagLen,
+      ivLength := IvLen
+    ),
+    kdf := KeyDerivationAlgorithm.HKDF(
+      hmac := HMAC.Digests.SHA_256,
+      saltLength := 0,
+      inputKeyLength := Bits192,
+      outputKeyLength := Bits192
+    ),
     commitment := CommitmentDerivationAlgorithm.None,
     signature := SignatureAlgorithm.None
   )
-  const ALG_AES_256_GCM_IV12_TAG16_HKDF_SHA256: AlgorithmSuite := AlgorithmSuite_(
+  const ALG_AES_256_GCM_IV12_TAG16_HKDF_SHA256: AlgorithmSuite := AlgorithmSuiteInfo(
     id := Crypto.AlgorithmSuiteId.ALG_AES_256_GCM_IV12_TAG16_HKDF_SHA256,
-    alg := AES(GCM),
-    keyLen := Bits256,
-    tagLen := TagLen,
-    ivLen := IvLen,
-    kdf := KeyDerivationAlgorithm_.HKDF_WITH_SHA_256(Bits256),
+    encrypt := AESEncryption.AES_GCM(
+      keyLength := Bits256,
+      tagLength := TagLen,
+      ivLength := IvLen
+    ),
+    kdf := KeyDerivationAlgorithm.HKDF(
+      hmac := HMAC.Digests.SHA_256,
+      saltLength := 0,
+      inputKeyLength := Bits256,
+      outputKeyLength := Bits256
+    ),
     commitment := CommitmentDerivationAlgorithm.None,
     signature := SignatureAlgorithm.None
   )
 
   //Signature KDF suites
-  const ALG_AES_128_GCM_IV12_TAG16_HKDF_SHA256_ECDSA_P256: AlgorithmSuite := AlgorithmSuite_(
+  const ALG_AES_128_GCM_IV12_TAG16_HKDF_SHA256_ECDSA_P256: AlgorithmSuite := AlgorithmSuiteInfo(
     id := Crypto.AlgorithmSuiteId.ALG_AES_128_GCM_IV12_TAG16_HKDF_SHA256_ECDSA_P256,
-    alg := AES(GCM),
-    keyLen := Bits128,
-    tagLen := TagLen,
-    ivLen := IvLen,
-    kdf := KeyDerivationAlgorithm_.HKDF_WITH_SHA_256(Bits128),
+    encrypt := AESEncryption.AES_GCM(
+      keyLength := Bits128,
+      tagLength := TagLen,
+      ivLength := IvLen
+    ),
+    kdf := KeyDerivationAlgorithm.HKDF(
+      hmac := HMAC.Digests.SHA_256,
+      saltLength := 0,
+      inputKeyLength := Bits128,
+      outputKeyLength := Bits128
+    ),
     commitment := CommitmentDerivationAlgorithm.None,
-    signature := SignatureAlgorithm.ECDSA_P_256_SHA_256
+    signature := SignatureAlgorithm.ECDSA(curve := Signature.ECDSAParams.ECDSA_P256)
   )
-  const ALG_AES_192_GCM_IV12_TAG16_HKDF_SHA384_ECDSA_P384: AlgorithmSuite := AlgorithmSuite_(
+  const ALG_AES_192_GCM_IV12_TAG16_HKDF_SHA384_ECDSA_P384: AlgorithmSuite := AlgorithmSuiteInfo(
     id := Crypto.AlgorithmSuiteId.ALG_AES_192_GCM_IV12_TAG16_HKDF_SHA384_ECDSA_P384,
-    alg := AES(GCM),
-    keyLen := Bits192,
-    tagLen := TagLen,
-    ivLen := IvLen,
-    kdf := KeyDerivationAlgorithm_.HKDF_WITH_SHA_384(Bits192),
+    encrypt := AESEncryption.AES_GCM(
+      keyLength := Bits192,
+      tagLength := TagLen,
+      ivLength := IvLen
+    ),
+    kdf := KeyDerivationAlgorithm.HKDF(
+      hmac := HMAC.Digests.SHA_384,
+      saltLength := 0,
+      inputKeyLength := Bits192,
+      outputKeyLength := Bits192
+    ),
     commitment := CommitmentDerivationAlgorithm.None,
-    signature := SignatureAlgorithm.ECDSA_P_384_SHA_384
+    signature := SignatureAlgorithm.ECDSA(curve := Signature.ECDSAParams.ECDSA_P384)
   )
-  const ALG_AES_256_GCM_IV12_TAG16_HKDF_SHA384_ECDSA_P384: AlgorithmSuite := AlgorithmSuite_(
+  const ALG_AES_256_GCM_IV12_TAG16_HKDF_SHA384_ECDSA_P384: AlgorithmSuite := AlgorithmSuiteInfo(
     id := Crypto.AlgorithmSuiteId.ALG_AES_256_GCM_IV12_TAG16_HKDF_SHA384_ECDSA_P384,
-    alg := AES(GCM),
-    keyLen := Bits256,
-    tagLen := TagLen,
-    ivLen := IvLen,
-    kdf := KeyDerivationAlgorithm_.HKDF_WITH_SHA_384(Bits256),
+    encrypt := AESEncryption.AES_GCM(
+      keyLength := Bits256,
+      tagLength := TagLen,
+      ivLength := IvLen
+    ),
+    kdf := KeyDerivationAlgorithm.HKDF(
+      hmac := HMAC.Digests.SHA_384,
+      saltLength := 0,
+      inputKeyLength := Bits256,
+      outputKeyLength := Bits256
+    ),
     commitment := CommitmentDerivationAlgorithm.None,
-    signature := SignatureAlgorithm.ECDSA_P_384_SHA_384
+    signature := SignatureAlgorithm.ECDSA(curve := Signature.ECDSAParams.ECDSA_P384)
   )
 
   // Commitment Suites
-    const ALG_AES_256_GCM_HKDF_SHA512_COMMIT_KEY: AlgorithmSuite := AlgorithmSuite_(
+    const ALG_AES_256_GCM_HKDF_SHA512_COMMIT_KEY: AlgorithmSuite := AlgorithmSuiteInfo(
     id := Crypto.AlgorithmSuiteId.ALG_AES_256_GCM_HKDF_SHA512_COMMIT_KEY,
-    alg := AES(GCM),
-    keyLen := Bits256,
-    tagLen := TagLen,
-    ivLen := IvLen,
-    kdf := KeyDerivationAlgorithm_.HKDF_WITH_SHA_512(Bits256, Bits256),
-    commitment := CommitmentDerivationAlgorithm.Algorithm(KeyDerivationAlgorithm_.HKDF_WITH_SHA_512(Bits256, Bits256)),
+    encrypt := AESEncryption.AES_GCM(
+      keyLength := Bits256,
+      tagLength := TagLen,
+      ivLength := IvLen
+    ),
+    kdf := KeyDerivationAlgorithm.HKDF(
+      hmac := HMAC.Digests.SHA_512,
+      saltLength := 32,
+      inputKeyLength := Bits256,
+      outputKeyLength := Bits256
+    ),
+    commitment := CommitmentDerivationAlgorithm.HKDF(
+      hmac := HMAC.Digests.SHA_512,
+      saltLength := 32,
+      inputKeyLength := Bits256,
+      outputKeyLength := Bits256
+    ),
     signature := SignatureAlgorithm.None
   )
-  const ALG_AES_256_GCM_HKDF_SHA512_COMMIT_KEY_ECDSA_P384: AlgorithmSuite := AlgorithmSuite_(
+  const ALG_AES_256_GCM_HKDF_SHA512_COMMIT_KEY_ECDSA_P384: AlgorithmSuite := AlgorithmSuiteInfo(
     id := Crypto.AlgorithmSuiteId.ALG_AES_256_GCM_HKDF_SHA512_COMMIT_KEY_ECDSA_P384,
-    alg := AES(GCM),
-    keyLen := Bits256,
-    tagLen := TagLen,
-    ivLen := IvLen,
-    kdf := KeyDerivationAlgorithm_.HKDF_WITH_SHA_512(Bits256, Bits256),
-    commitment := CommitmentDerivationAlgorithm.Algorithm(KeyDerivationAlgorithm_.HKDF_WITH_SHA_512(Bits256, Bits256)),
-    signature := SignatureAlgorithm.ECDSA_P_384_SHA_384
+    encrypt := AESEncryption.AES_GCM(
+      keyLength := Bits256,
+      tagLength := TagLen,
+      ivLength := IvLen
+    ),
+    kdf := KeyDerivationAlgorithm.HKDF(
+      hmac := HMAC.Digests.SHA_512,
+      saltLength := 32,
+      inputKeyLength := Bits256,
+      outputKeyLength := Bits256
+    ),
+    commitment := CommitmentDerivationAlgorithm.HKDF(
+      hmac := HMAC.Digests.SHA_512,
+      saltLength := 32,
+      inputKeyLength := Bits256,
+      outputKeyLength := Bits256
+    ),
+    signature := SignatureAlgorithm.ECDSA(curve := Signature.ECDSAParams.ECDSA_P384)
   )
 
   const SupportedAlgorithmSuites: map<Crypto.AlgorithmSuiteId, AlgorithmSuite> := map[

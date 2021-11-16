@@ -14,13 +14,6 @@ module HKDF {
   import opened Wrappers
   import opened UInt = StandardLibrary.UInt
 
-  function method GetHMACDigestFromHKDFAlgorithm(algorithm: HKDFAlgorithms): Digests
-  {
-    match algorithm
-    case HKDF_WITH_SHA_256 => SHA_256
-    case HKDF_WITH_SHA_384 => SHA_384
-  }
-
   method Extract(hmac: HMac, salt: seq<uint8>, ikm: seq<uint8>, ghost digest: Digests) returns (prk: seq<uint8>)
     requires hmac.GetDigest() == digest
     requires |salt| != 0
@@ -141,8 +134,8 @@ module HKDF {
   /*
    * The RFC 5869 KDF. Outputs L bytes of output key material.
    */
-  method Hkdf(algorithm: HKDFAlgorithms, salt: Option<seq<uint8>>, ikm: seq<uint8>, info: seq<uint8>, L: int) returns (okm: seq<uint8>)
-    requires 0 <= L <= 255 * GetHashLength(GetHMACDigestFromHKDFAlgorithm(algorithm))
+  method Hkdf(digest: HMAC.Digests, salt: Option<seq<uint8>>, ikm: seq<uint8>, info: seq<uint8>, L: int) returns (okm: seq<uint8>)
+    requires 0 <= L <= 255 * GetHashLength(digest)
     requires salt.None? || |salt.value| != 0
     requires |info| < INT32_MAX_LIMIT
     requires |ikm| < INT32_MAX_LIMIT
@@ -151,7 +144,6 @@ module HKDF {
     if L == 0 {
       return [];
     }
-    var digest := GetHMACDigestFromHKDFAlgorithm(algorithm);
     var hmac := new HMac(digest);
     var hashLength := GetHashLength(digest);
 
