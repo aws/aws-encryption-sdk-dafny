@@ -51,7 +51,5 @@ module {:extern "Dafny.Aws.Esdk"} Aws.Esdk {
     trait {:termination false} IAwsEncryptionSdkClient {
         method Encrypt(input: EncryptInput) returns (res: Result<EncryptOutput, string>)
         method Decrypt(input: DecryptInput) returns (res: Result<DecryptOutput, string>)
-        // TODO I can't seem to find a way to get this to work
-        // static method {:extern "createClient"} createClient(clientConfig: AwsEncryptionSdkClientConfig) returns (res: IAwsEncryptionSdkClient)
     }
 }
