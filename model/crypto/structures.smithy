@@ -1,5 +1,10 @@
 namespace aws.crypto
 
+use aws.polymorph#dafnyUtf8Bytes
+
+@dafnyUtf8Bytes
+string Utf8Bytes
+
 ///////////////////////////////////
 // Encryption Materials 
 
@@ -14,10 +19,13 @@ namespace aws.crypto
 // Note that both of these will be breaking changes to any customers building
 // custom implementations of keyrings or CMMs.
 structure EncryptionMaterials {
-    algorithm: AlgorithmSuite,
+    @required
+    algorithmSuiteId: AlgorithmSuiteId,
 
+    @required
     encryptionContext: EncryptionContext,
 
+    @required
     encryptedDataKeys: EncryptedDataKeyList,
 
     @sensitive
@@ -28,8 +36,10 @@ structure EncryptionMaterials {
 }
 
 structure DecryptionMaterials {
-    algorithm: AlgorithmSuite,
+    @required
+    algorithmSuiteId: AlgorithmSuiteId,
 
+    @required
     encryptionContext: EncryptionContext,
 
     @sensitive
@@ -41,13 +51,13 @@ structure DecryptionMaterials {
 
 structure EncryptedDataKey {
     @required
-    keyProviderId: String,
+    keyProviderId: Utf8Bytes,
 
     @required
-    keyProviderInformation: String,
+    keyProviderInfo: Utf8Bytes,
 
     @required
-    cipherText: Blob
+    ciphertext: Blob
 }
 
 list EncryptedDataKeyList {

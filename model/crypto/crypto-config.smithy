@@ -46,16 +46,17 @@ namespace aws.crypto
         name: "ALG_AES_256_GCM_IV12_TAG16_HKDF_SHA384_ECDSA_P384",
         value: "0x0378",
     },
-    {
-        name: "ALG_AES_256_GCM_HKDF_SHA512_COMMIT_KEY",
-        value: "0x0478",
-    },
-    {
-        name: "ALG_AES_256_GCM_HKDF_SHA512_COMMIT_KEY_ECDSA_P384",
-        value: "0x0578",
-    },
+    // TODO add commitment suites back in
+    // {
+    //     name: "ALG_AES_256_GCM_HKDF_SHA512_COMMIT_KEY",
+    //     value: "0x0478",
+    // },
+    // {
+    //     name: "ALG_AES_256_GCM_HKDF_SHA512_COMMIT_KEY_ECDSA_P384",
+    //     value: "0x0578",
+    // },
 ])
-string AlgorithmSuite
+string AlgorithmSuiteId
 
 
 //////////
@@ -105,3 +106,21 @@ string PaddingScheme
     },
 ])
 string CommitmentPolicy
+
+//////////////////////////
+// AES wrapping algorithms
+@enum([
+    {
+        name: "ALG_AES128_GCM_IV12_TAG16",
+        value: "ALG_AES128_GCM_IV12_TAG16",
+    },
+    {
+        name: "ALG_AES192_GCM_IV12_TAG16",
+        value: "ALG_AES192_GCM_IV12_TAG16",
+    },
+    {
+        name: "ALG_AES256_GCM_IV12_TAG16",
+        value: "ALG_AES256_GCM_IV12_TAG16",
+    },
+])
+string AesWrappingAlg

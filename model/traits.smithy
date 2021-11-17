@@ -32,3 +32,11 @@ structure clientConfig {
 // TODO: naming
 @trait(selector: "structure")
 structure positional {}
+
+// Indicates that a string is represented as a sequence of UTF-8 encoded bytes
+// in Dafny, rather than the default sequence of UTF-16 chars.
+//
+// This is a workaround that should be removed when Dafny's string definition
+// is improved: <https://github.com/dafny-lang/dafny/issues/413>
+@trait(selector: "string")
+structure dafnyUtf8Bytes {}
