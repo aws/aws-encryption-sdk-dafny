@@ -204,7 +204,9 @@ namespace Aws.Esdk
                 return valueWithImpl._impl;
             }
 
-            throw new System.ArgumentException("Custom implementations of IKeyring are not supported yet");
+            // TODO the rest of the method has been manually updated
+            // throw new System.ArgumentException("Custom implementations of IKeyring are not supported yet");
+            return null;
         }
 
         public static System.IO.MemoryStream FromDafny_N3_aws__N4_esdk__S13_EncryptOutput__M16_encryptedMessage(

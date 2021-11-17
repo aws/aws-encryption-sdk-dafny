@@ -64,11 +64,12 @@ namespace Aws.Esdk
                         String.Format("No value set for required field {0}", "materialsManager"));
                 }
 
-                if (Keyring == null)
-                {
-                    throw new InvalidOperationException(
-                        String.Format("No value set for required field {0}", "keyring"));
-                }
+                // TODO if statement manually removed
+                // if (Keyring == null)
+                // {
+                //     throw new InvalidOperationException(
+                //         String.Format("No value set for required field {0}", "keyring"));
+                // }
 
                 return new DecryptInput
                 {
