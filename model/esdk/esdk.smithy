@@ -3,23 +3,25 @@ namespace aws.esdk
 use aws.crypto#KeyringReference
 use aws.crypto#CryptographicMaterialsManagerReference
 use aws.crypto#EncryptionContext
-use aws.crypto#AlgorithmSuite
+use aws.crypto#AlgorithmSuiteId
 use aws.crypto#CommitmentPolicy
 use aws.polymorph#reference
 use aws.polymorph#clientConfig
 
-
-@clientConfig(config: AwsEncryptionSdkClientConfig)
+// TODO
+// @clientConfig(config: AwsEncryptionSdkClientConfig)
 service AwsEncryptionSdk {
     version: "2020-10-24",
     operations: [Encrypt, Decrypt]
 }
 
 structure AwsEncryptionSdkClientConfig {
-    commitmentPolicy: CommitmentPolicy,
+    // TODO
+    // commitmentPolicy: CommitmentPolicy,
+    //
+    // maxEncryptedEdks: Integer,
 
-    maxEncryptedEdks: Integer,
-
+    @required
     configDefaults: ConfigurationDefaults
 }
 
@@ -48,25 +50,28 @@ structure EncryptInput {
     @required
     plaintext: Blob,
 
+    @required
     encryptionContext: EncryptionContext,
 
+    // TODO reintroduce optional materialsManager and optional keyring
     // One of keyring or CMM are required
+    @required
     materialsManager: CryptographicMaterialsManagerReference,
-    keyring: KeyringReference,
+    // keyring: KeyringReference,
 
-    algorithmSuite: AlgorithmSuite,
+    algorithmSuiteId: AlgorithmSuiteId,
 }
 
 structure EncryptOutput {
     @required
     ciphertext: Blob,
 
-    @required
-    encryptionContext: EncryptionContext,
-
-    @required
-    algorithmSuite: AlgorithmSuite,
-
+    // TODO hook up additional encrypt outputs
+    // @required
+    // encryptionContext: EncryptionContext,
+    //
+    // @required
+    // algorithmSuiteId: AlgorithmSuiteId,
 }
 
 operation Decrypt {
@@ -78,20 +83,23 @@ structure DecryptInput {
     @required
     ciphertext: Blob,
 
+    // TODO reintroduce optional materialsManager and optional keyring
     // One of keyring or CMM are required
+    @required
     materialsManager: CryptographicMaterialsManagerReference,
-    keyring: KeyringReference,
+    // keyring: KeyringReference,
 }
 
 structure DecryptOutput {
     @required
     plaintext: Blob,
 
-    @required
-    encryptionContext: EncryptionContext,
-
-    @required
-    algorithmSuite: AlgorithmSuite,
+    // TODO hook up additional decrypt outputs
+    // @required
+    // encryptionContext: EncryptionContext,
+    //
+    // @required
+    // algorithmSuiteId: AlgorithmSuiteId,
 
     // The spec says that decrypt SHOULD also return the parsed
     // header. We're omitting this for now, until we can spend
