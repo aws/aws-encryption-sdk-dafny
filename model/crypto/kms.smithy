@@ -31,29 +31,30 @@ list RegionList {
 // from the KMS Smithy model.
 // https://github.com/aws/aws-models/blob/master/kms/smithy/model.json#L4849
 // https://github.com/aws/aws-models/blob/master/kms/smithy/model.json#L5000
-//@reference(service: com.amazonaws.kms#TrentService)
-structure KmsClientReference {}
+// @reference(service: com.amazonaws.kms#TrentService)
+// structure KmsClientReference {}
 
+// TODO
 ///////////////////
 // Client Suppliers
-resource ClientSupplier {
-    operations: [GetClient]
-}
-
-@reference(resource: ClientSupplier)
-structure ClientSupplierReference {}
-
-operation GetClient {
-    input: GetClientInput,
-    output: GetClientOutput,
-}
-
-structure GetClientInput {
-    @required
-    region: Region
-}
-
-@positional
-structure GetClientOutput  {
-    client: KmsClientReference
-}
+// resource ClientSupplier {
+//     operations: [GetClient]
+// }
+//
+// @reference(resource: ClientSupplier)
+// structure ClientSupplierReference {}
+//
+// operation GetClient {
+//     input: GetClientInput,
+//     output: GetClientOutput,
+// }
+//
+// structure GetClientInput {
+//     @required
+//     region: Region
+// }
+//
+// @positional
+// structure GetClientOutput  {
+//     client: KmsClientReference
+// }
