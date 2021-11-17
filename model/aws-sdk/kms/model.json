@@ -1723,7 +1723,10 @@
             }
         },
         "com.amazonaws.kms#EncryptionContextKey": {
-            "type": "string"
+            "type": "string",
+            "traits": {
+                "aws.polymorph#dafnyUtf8Bytes": {}
+            }
         },
         "com.amazonaws.kms#EncryptionContextType": {
             "type": "map",
@@ -1735,7 +1738,10 @@
             }
         },
         "com.amazonaws.kms#EncryptionContextValue": {
-            "type": "string"
+            "type": "string",
+             "traits": {
+                "aws.polymorph#dafnyUtf8Bytes": {}
+             }
         },
         "com.amazonaws.kms#ErrorMessageType": {
             "type": "string"
