@@ -10,7 +10,6 @@ include "../../src/SDK/AwsCryptographicMaterialProviders.dfy"
 include "../../src/SDK/AwsEncryptionSdk.dfy"
 include "../../src/SDK/EncryptionContext.dfy"
 include "../../src/Crypto/RSAEncryption.dfy"
-include "../../src/Crypto/EncryptionSuites.dfy"
 include "../../src/Util/UTF8.dfy"
 include "../../src/StandardLibrary/Base64.dfy"
 include "../Util/TestUtils.dfy"
@@ -23,7 +22,6 @@ module {:extern "TestClient"} TestClient {
   import opened UInt = StandardLibrary.UInt
   import opened StandardLibrary
   import RawAESKeyringDef
-  import EncryptionSuites
   import Base64
   import AwsCryptographicMaterialProviders
   import AwsEncryptionSdk

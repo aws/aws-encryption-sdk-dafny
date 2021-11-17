@@ -8,7 +8,6 @@ include "AlgorithmSuite.dfy"
 include "../Crypto/AESEncryption.dfy"
 include "Materials.dfy"
 include "../Util/Streams.dfy"
-include "../Crypto/EncryptionSuites.dfy"
 include "../Util/UTF8.dfy"
 
 module MessageBody {
@@ -25,7 +24,6 @@ module MessageBody {
   import AESEncryption
   import Materials
   import Streams
-  import EncryptionSuites
   import UTF8
 
   datatype BodyAADContent = AADRegularFrame | AADFinalFrame | AADSingleBlock

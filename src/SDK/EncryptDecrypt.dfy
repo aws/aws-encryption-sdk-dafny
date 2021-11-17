@@ -12,7 +12,6 @@ include "Serialize.dfy"
 include "Deserialize.dfy"
 include "../Crypto/Random.dfy"
 include "../Util/Streams.dfy"
-include "../Crypto/KeyDerivationAlgorithms.dfy"
 include "../Crypto/HKDF/HKDF.dfy"
 include "../Crypto/AESEncryption.dfy"
 include "../Crypto/Signature.dfy"
@@ -30,7 +29,6 @@ module {:extern "EncryptDecrypt"} EncryptDecrypt {
   import DefaultCMMDef
   import Deserialize
   import HKDF
-  import KeyDerivationAlgorithms
   import Materials
   import Msg = MessageHeader
   import MessageBody
@@ -301,7 +299,7 @@ module {:extern "EncryptDecrypt"} EncryptDecrypt {
     ensures IsDerivedKey(derivedDataKey)
   {
     var algorithm := AlgorithmSuite.Suite[algorithmSuiteID].hkdf;
-    if algorithm == KeyDerivationAlgorithms.IDENTITY {
+    if algorithm == AlgorithmSuite.KeyDerivationAlgorithms.IDENTITY {
       assert IsDerivedKey(plaintextDataKey) by {
         reveal IsDerivedKey();
       }
@@ -310,7 +308,7 @@ module {:extern "EncryptDecrypt"} EncryptDecrypt {
 
     var infoSeq := UInt16ToSeq(algorithmSuiteID as uint16) + messageID;
     var len := algorithmSuiteID.KeyLength();
-    var derivedKey := HKDF.Hkdf(algorithm, None, plaintextDataKey, infoSeq, len);
+    var derivedKey := HKDF.Hkdf(algorithm.digest, None, plaintextDataKey, infoSeq, len);
     assert IsDerivedKey(derivedKey) by {
       reveal IsDerivedKey();
     }

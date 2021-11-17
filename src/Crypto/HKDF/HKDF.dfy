@@ -2,7 +2,6 @@
 // SPDX-License-Identifier: Apache-2.0
 
 include "HMAC.dfy"
-include "../KeyDerivationAlgorithms.dfy"
 include "../../StandardLibrary/StandardLibrary.dfy"
 
 /*
@@ -10,7 +9,6 @@ include "../../StandardLibrary/StandardLibrary.dfy"
  */
 module HKDF {
   import opened HMAC
-  import opened KeyDerivationAlgorithms
   import opened Wrappers
   import opened UInt = StandardLibrary.UInt
 

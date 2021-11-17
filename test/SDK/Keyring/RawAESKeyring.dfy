@@ -6,7 +6,6 @@ include "../../../src/SDK/AlgorithmSuite.dfy"
 include "../../../src/SDK/MessageHeader.dfy"
 include "../../../src/SDK/Materials.dfy"
 include "../../../src/SDK/EncryptionContext.dfy"
-include "../../../src/Crypto/EncryptionSuites.dfy"
 include "../../../src/Crypto/AESEncryption.dfy"
 include "../../../src/StandardLibrary/StandardLibrary.dfy"
 include "../../../src/StandardLibrary/UInt.dfy"
@@ -22,7 +21,6 @@ module TestAESKeyring {
   import MessageHeader
   import Materials
   import EncryptionContext
-  import EncryptionSuites
   import AlgorithmSuite
   import UTF8
   import Aws.Crypto
@@ -31,7 +29,15 @@ module TestAESKeyring {
   method {:test} TestOnEncryptOnDecryptGenerateDataKey()
   {
     var namespace, name := TestUtils.NamespaceAndName(0);
-    var rawAESKeyring := new RawAESKeyringDef.RawAESKeyring(namespace, name, seq(32, i => 0), EncryptionSuites.AES_GCM_256);
+    var rawAESKeyring := new RawAESKeyringDef.RawAESKeyring(
+      namespace,
+      name,
+      seq(32, i => 0),
+      AESEncryption.AES_GCM(
+        keyLength := 32 as AESEncryption.KeyLength,
+        tagLength := 16 as AESEncryption.TagLength,
+        ivLength := 12 as AESEncryption.IVLength
+      ));
     var encryptionContext := TestUtils.SmallEncryptionContext(TestUtils.SmallEncryptionContextVariation.A);
     ExpectSerializableEncryptionContext(encryptionContext);
 
@@ -81,7 +87,15 @@ module TestAESKeyring {
   method {:test} TestOnEncryptOnDecryptSuppliedDataKey()
   {
     var namespace, name := TestUtils.NamespaceAndName(0);
-    var rawAESKeyring := new RawAESKeyringDef.RawAESKeyring(namespace, name, seq(32, i => 0), EncryptionSuites.AES_GCM_256);
+    var rawAESKeyring := new RawAESKeyringDef.RawAESKeyring(
+      namespace,
+      name,
+      seq(32, i => 0),
+      AESEncryption.AES_GCM(
+        keyLength := 32 as AESEncryption.KeyLength,
+        tagLength := 16 as AESEncryption.TagLength,
+        ivLength := 12 as AESEncryption.IVLength
+      ));
     var encryptionContext := TestUtils.SmallEncryptionContext(TestUtils.SmallEncryptionContextVariation.A);
     ExpectSerializableEncryptionContext(encryptionContext);
 
@@ -121,10 +135,26 @@ module TestAESKeyring {
     method {:test} TestOnDecryptKeyNameMismatch()
   {
     var namespace, name := TestUtils.NamespaceAndName(0);
-    var rawAESKeyring := new RawAESKeyringDef.RawAESKeyring(namespace, name, seq(32, i => 0), EncryptionSuites.AES_GCM_256);
+    var rawAESKeyring := new RawAESKeyringDef.RawAESKeyring(
+      namespace,
+      name,
+      seq(32, i => 0),
+      AESEncryption.AES_GCM(
+        keyLength := 32 as AESEncryption.KeyLength,
+        tagLength := 16 as AESEncryption.TagLength,
+        ivLength := 12 as AESEncryption.IVLength
+      ));
 
     var mismatchName :- expect UTF8.Encode("mismatched");
-    var mismatchedAESKeyring := new RawAESKeyringDef.RawAESKeyring(namespace, mismatchName, seq(32, i => 0), EncryptionSuites.AES_GCM_256);
+    var mismatchedAESKeyring := new RawAESKeyringDef.RawAESKeyring(
+      namespace,
+      mismatchName,
+      seq(32, i => 0),
+      AESEncryption.AES_GCM(
+        keyLength := 32 as AESEncryption.KeyLength,
+        tagLength := 16 as AESEncryption.TagLength,
+        ivLength := 12 as AESEncryption.IVLength
+      ));
 
     var encryptionContext := TestUtils.SmallEncryptionContext(TestUtils.SmallEncryptionContextVariation.A);
     ExpectSerializableEncryptionContext(encryptionContext);
@@ -171,7 +201,15 @@ module TestAESKeyring {
   method {:test} TestOnDecryptNoEDKs()
   {
     var namespace, name := TestUtils.NamespaceAndName(0);
-    var rawAESKeyring := new RawAESKeyringDef.RawAESKeyring(namespace, name, seq(32, i => 0), EncryptionSuites.AES_GCM_256);
+    var rawAESKeyring := new RawAESKeyringDef.RawAESKeyring(
+      namespace,
+      name,
+      seq(32, i => 0),
+      AESEncryption.AES_GCM(
+        keyLength := 32 as AESEncryption.KeyLength,
+        tagLength := 16 as AESEncryption.TagLength,
+        ivLength := 12 as AESEncryption.IVLength
+      ));
     var wrappingAlgorithmID := Crypto.ALG_AES_256_GCM_IV12_TAG16_HKDF_SHA384_ECDSA_P384;
     var encryptionContext := TestUtils.SmallEncryptionContext(TestUtils.SmallEncryptionContextVariation.A);
     var verificationKey := seq(32, i => 0);
@@ -196,7 +234,15 @@ module TestAESKeyring {
   method {:test} TestOnEncryptUnserializableEC()
   {
     var namespace, name := TestUtils.NamespaceAndName(0);
-    var rawAESKeyring := new RawAESKeyringDef.RawAESKeyring(namespace, name, seq(32, i => 0), EncryptionSuites.AES_GCM_256);
+    var rawAESKeyring := new RawAESKeyringDef.RawAESKeyring(
+      namespace,
+      name,
+      seq(32, i => 0),
+      AESEncryption.AES_GCM(
+        keyLength := 32 as AESEncryption.KeyLength,
+        tagLength := 16 as AESEncryption.TagLength,
+        ivLength := 12 as AESEncryption.IVLength
+      ));
     var unserializableEncryptionContext := generateUnserializableEncryptionContext();
     ExpectNonSerializableEncryptionContext(unserializableEncryptionContext);
 
@@ -225,7 +271,15 @@ module TestAESKeyring {
     // Set up valid EDK for decryption
     var encryptionContext := TestUtils.SmallEncryptionContext(TestUtils.SmallEncryptionContextVariation.A);
     var namespace, name := TestUtils.NamespaceAndName(0);
-    var rawAESKeyring := new RawAESKeyringDef.RawAESKeyring(namespace, name, seq(32, i => 0), EncryptionSuites.AES_GCM_256);
+    var rawAESKeyring := new RawAESKeyringDef.RawAESKeyring(
+      namespace,
+      name,
+      seq(32, i => 0),
+      AESEncryption.AES_GCM(
+        keyLength := 32 as AESEncryption.KeyLength,
+        tagLength := 16 as AESEncryption.TagLength,
+        ivLength := 12 as AESEncryption.IVLength
+      ));
     var wrappingAlgorithmID := Crypto.ALG_AES_256_GCM_IV12_TAG16_HKDF_SHA384_ECDSA_P384;
     var signingKey := seq(32, i => 0);
     var encryptionMaterialsIn := Crypto.EncryptionMaterials(

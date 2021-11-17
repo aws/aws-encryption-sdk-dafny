@@ -9,34 +9,46 @@ include "../StandardLibrary/UInt.dfy"
 include "../Generated/AwsCryptographicMaterialProviders.dfy"
 include "../Generated/AwsEncryptionSdk.dfy"
 include "../Util/UTF8.dfy"
-include "../Crypto/EncryptionSuites.dfy"
 include "Keyring/RawAESKeyring.dfy"
 include "CMM/DefaultCMM.dfy"
+include "../Crypto/AESEncryption.dfy"
 
 module {:extern "Dafny.Aws.Crypto.AwsCryptographicMaterialProvidersClient"} AwsCryptographicMaterialProviders {
   import opened Wrappers
   import opened StandardLibrary
   import opened UInt = StandardLibrary.UInt
-  import EncryptionSuites
   import UTF8
   import Aws.Crypto
   import DefaultCMMDef
   import RawAESKeyringDef
   import Aws.Esdk
+  import AESEncryption
 
   class AwsCryptographicMaterialProvidersClient extends Crypto.IAwsCryptographicMaterialsProviderClient {
     constructor () {}
 
     method CreateRawAesKeyring(input: Crypto.CreateRawAesKeyringInput) returns (res: Crypto.IKeyring)
     {
-      var wrappingAlg:EncryptionSuites.EncryptionSuite;
+      var wrappingAlg:AESEncryption.AES_GCM;
       if (input.wrappingAlg==Crypto.ALG_AES128_GCM_IV12_TAG16) {
-        wrappingAlg := EncryptionSuites.AES_GCM_128;
+        wrappingAlg := AESEncryption.AES_GCM(
+          keyLength := 16 as AESEncryption.KeyLength,
+          tagLength := 16 as AESEncryption.TagLength,
+          ivLength := 12 as AESEncryption.IVLength
+        );
       } else if (input.wrappingAlg==Crypto.ALG_AES192_GCM_IV12_TAG16) {
-        wrappingAlg := EncryptionSuites.AES_GCM_192;
+        wrappingAlg := AESEncryption.AES_GCM(
+          keyLength := 24 as AESEncryption.KeyLength,
+          tagLength := 16 as AESEncryption.TagLength,
+          ivLength := 12 as AESEncryption.IVLength
+        );
       } else {
         assert input.wrappingAlg==Crypto.ALG_AES256_GCM_IV12_TAG16;
-        wrappingAlg := EncryptionSuites.AES_GCM_256;
+        wrappingAlg := AESEncryption.AES_GCM(
+          keyLength := 32 as AESEncryption.KeyLength,
+          tagLength := 16 as AESEncryption.TagLength,
+          ivLength := 12 as AESEncryption.IVLength
+        );
       }
       // I have no idea why :- isn't working here...
       var namespaceRes := UTF8.Encode(input.keyNamespace);
@@ -49,11 +61,10 @@ module {:extern "Dafny.Aws.Crypto.AwsCryptographicMaterialProvidersClient"} AwsC
       if nameRes.Success? {
         name := nameRes.value;
       }
-      assert wrappingAlg.Valid(); 
 
       expect |namespace| < UINT16_LIMIT;
       expect |input.wrappingKey| == 16 || |input.wrappingKey| == 24 || |input.wrappingKey| == 32;
-      expect |input.wrappingKey| == wrappingAlg.keyLen as int;
+      expect |input.wrappingKey| == wrappingAlg.keyLength as int;
       
       return new RawAESKeyringDef.RawAESKeyring(namespace, name, input.wrappingKey, wrappingAlg);
     }

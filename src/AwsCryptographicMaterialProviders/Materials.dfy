@@ -74,7 +74,7 @@ import opened StandardLibrary
   predicate method ValidEncryptionMaterials(encryptionMaterials: Crypto.EncryptionMaterials) {
     && var suite := AlgorithmSuites.GetSuite(encryptionMaterials.algorithmSuiteId);
     && (suite.signature.None? <==> encryptionMaterials.signingKey.None?)
-    && (encryptionMaterials.plaintextDataKey.Some? ==> suite.keyLen as int == |encryptionMaterials.plaintextDataKey.value|)
+    && (encryptionMaterials.plaintextDataKey.Some? ==> suite.encrypt.keyLength as int == |encryptionMaterials.plaintextDataKey.value|)
     && (encryptionMaterials.plaintextDataKey.None? ==> |encryptionMaterials.encryptedDataKeys| == 0)
   }
 
@@ -113,7 +113,7 @@ import opened StandardLibrary
     var suite := AlgorithmSuites.GetSuite(encryptionMaterials.algorithmSuiteId);
     :- Need(ValidEncryptionMaterials(encryptionMaterials), "Attempt to modifiy invalid encryption material.");
     :- Need(encryptionMaterials.plaintextDataKey.None?, "Attempt to modify plaintextDataKey.");
-    :- Need(suite.keyLen as int == |plaintextDataKey|, "plaintextDataKey does not match Algorithm Suite specification.");
+    :- Need(suite.encrypt.keyLength as int == |plaintextDataKey|, "plaintextDataKey does not match Algorithm Suite specification.");
 
     Success(Crypto.EncryptionMaterials(
       plaintextDataKey := Some(plaintextDataKey),
@@ -165,7 +165,7 @@ import opened StandardLibrary
 
   predicate method ValidDecryptionMaterials(decryptionMaterials: Crypto.DecryptionMaterials) {
     && var suite := AlgorithmSuites.GetSuite(decryptionMaterials.algorithmSuiteId);
-    && (decryptionMaterials.plaintextDataKey.Some? ==> suite.keyLen as int == |decryptionMaterials.plaintextDataKey.value|)
+    && (decryptionMaterials.plaintextDataKey.Some? ==> suite.encrypt.keyLength as int == |decryptionMaterials.plaintextDataKey.value|)
     && (suite.signature.None? <==> decryptionMaterials.verificationKey.None?)
   }
 
@@ -182,7 +182,7 @@ import opened StandardLibrary
     var suite := AlgorithmSuites.GetSuite(decryptionMaterials.algorithmSuiteId);
     :- Need(ValidDecryptionMaterials(decryptionMaterials), "Attempt to modifiy invalid decryption material.");
     :- Need(decryptionMaterials.plaintextDataKey.None?, "Attempt to modify plaintextDataKey.");
-    :- Need(suite.keyLen as int == |plaintextDataKey|, "plaintextDataKey does not match Algorithm Suite specification.");
+    :- Need(suite.encrypt.keyLength as int == |plaintextDataKey|, "plaintextDataKey does not match Algorithm Suite specification.");
 
     Success(Crypto.DecryptionMaterials(
       plaintextDataKey := Some(plaintextDataKey),
