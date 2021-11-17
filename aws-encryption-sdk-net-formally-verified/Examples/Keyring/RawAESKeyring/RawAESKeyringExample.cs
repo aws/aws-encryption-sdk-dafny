@@ -67,7 +67,7 @@ public class RawAESKeyringExample {
             .WithEncryptionContext(encryptionContext)
             .Build();
         EncryptOutput encryptOutput = encryptionSdkClient.Encrypt(encryptInput);
-        MemoryStream ciphertext = encryptOutput.Ciphertext;
+        MemoryStream ciphertext = encryptOutput.EncryptedMessage;
 
         // Demonstrate that the ciphertext and plaintext are different.
         Assert.NotEqual(ciphertext.ToArray(), plaintext.ToArray());
@@ -77,7 +77,7 @@ public class RawAESKeyringExample {
         // You do not need to specify the encryption context on decrypt
         // because the header of the encrypted message includes the encryption context.
         DecryptInput decryptInput = DecryptInput.Builder()
-            .WithCiphertext(ciphertext)
+            .WithEncryptedMessage(ciphertext)
             .WithMaterialsManager(materialsManager)
             .Build();
         DecryptOutput decryptOutput = encryptionSdkClient.Decrypt(decryptInput);

@@ -81,7 +81,7 @@ module {:extern "EncryptDecrypt"} EncryptDecrypt {
     // && headerBody.aad == material.encryptionContext
     // && headerBody.encryptedDataKeys == Msg.EncryptedDataKeys(material.encryptedDataKeys))
     && headerBody.contentType == Msg.ContentType.Framed
-    && headerBody.frameLength == if request.frameLength.Some? then request.frameLength.value else DEFAULT_FRAME_LENGTH
+    && headerBody.frameLength == if request.frameLength.Some? then request.frameLength.value as uint32 else DEFAULT_FRAME_LENGTH
   }
 
   // Specification of headerAuthentication in Encrypt
@@ -154,7 +154,7 @@ module {:extern "EncryptDecrypt"} EncryptDecrypt {
       materialsManager := new DefaultCMMDef.DefaultCMM.OfKeyring(request.keyring);
     }
 
-    var frameLength := if request.frameLength.Some? then request.frameLength.value else DEFAULT_FRAME_LENGTH;
+    var frameLength := if request.frameLength.Some? then request.frameLength.value as uint32 else DEFAULT_FRAME_LENGTH;
 
     var algorithmSuiteId := if request.algorithmSuiteId.Some? then Some(request.algorithmSuiteId.value) else None;
 

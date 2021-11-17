@@ -19,7 +19,7 @@ module {:extern "Dafny.Aws.Esdk"} Aws.Esdk {
         nameonly materialsManager: Crypto.ICryptographicMaterialsManager?,
         nameonly keyring: Crypto.IKeyring?,
         nameonly algorithmSuiteId: Option<Crypto.AlgorithmSuiteId>,
-        nameonly frameLength: Option<uint32>
+        nameonly frameLength: Option<int32>
     )
 
     datatype EncryptOutput = EncryptOutput(

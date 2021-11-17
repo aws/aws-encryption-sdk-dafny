@@ -53,18 +53,21 @@ structure EncryptInput {
     @required
     encryptionContext: EncryptionContext,
 
-    // TODO reintroduce optional materialsManager and optional keyring
-    // One of keyring or CMM are required
+    // TODO: Remove required for cmm and keyring once we can
+    // represent these as optional Dafny AwsEncryptionSdkClientConfig.
+    // Blocked by https://github.com/dafny-lang/dafny/issues/1499
     @required
     materialsManager: CryptographicMaterialsManagerReference,
-    // keyring: KeyringReference,
+    @required
+    keyring: KeyringReference,
 
     algorithmSuiteId: AlgorithmSuiteId,
+    frameLength: Integer,
 }
 
 structure EncryptOutput {
     @required
-    ciphertext: Blob,
+    encryptedMessage: Blob,
 
     // TODO hook up additional encrypt outputs
     // @required
@@ -81,13 +84,15 @@ operation Decrypt {
 
 structure DecryptInput {
     @required
-    ciphertext: Blob,
+    encryptedMessage: Blob,
 
-    // TODO reintroduce optional materialsManager and optional keyring
-    // One of keyring or CMM are required
+    // TODO: Remove required for cmm and keyring once we can
+    // represent these as optional Dafny AwsEncryptionSdkClientConfig.
+    // Blocked by https://github.com/dafny-lang/dafny/issues/1499
     @required
     materialsManager: CryptographicMaterialsManagerReference,
-    // keyring: KeyringReference,
+    @required
+    keyring: KeyringReference,
 }
 
 structure DecryptOutput {
