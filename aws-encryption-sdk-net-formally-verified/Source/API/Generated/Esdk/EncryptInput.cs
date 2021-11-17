@@ -1,7 +1,7 @@
 // Copyright Amazon.com Inc. or its affiliates. All Rights Reserved.
 // SPDX-License-Identifier: Apache-2.0
 //
-// Generated at 2021-11-03T00:22:03.283903
+// Generated at 2021-11-17T11:32:59.305823
 
 using System;
 using Aws.Crypto;
@@ -16,7 +16,9 @@ namespace Aws.Esdk
         public System.IO.MemoryStream Plaintext { get; private set; }
         public System.Collections.Generic.IDictionary<string, string> EncryptionContext { get; private set; }
         public ICryptographicMaterialsManager MaterialsManager { get; private set; }
+        public IKeyring Keyring { get; private set; }
         public AlgorithmSuiteId AlgorithmSuiteId { get; private set; }
+        public int? FrameLength { get; private set; }
 
         public static IEncryptInputBuilder Builder()
         {
@@ -32,7 +34,9 @@ namespace Aws.Esdk
             private System.IO.MemoryStream Plaintext;
             private System.Collections.Generic.IDictionary<string, string> EncryptionContext;
             private ICryptographicMaterialsManager MaterialsManager;
+            private IKeyring Keyring;
             private AlgorithmSuiteId AlgorithmSuiteId;
+            private int? FrameLength;
 
             public IEncryptInputBuilder WithPlaintext(System.IO.MemoryStream value)
             {
@@ -53,9 +57,21 @@ namespace Aws.Esdk
                 return this;
             }
 
+            public IEncryptInputBuilder WithKeyring(IKeyring value)
+            {
+                Keyring = value;
+                return this;
+            }
+
             public IEncryptInputBuilder WithAlgorithmSuiteId(AlgorithmSuiteId value)
             {
                 AlgorithmSuiteId = value;
+                return this;
+            }
+
+            public IEncryptInputBuilder WithFrameLength(int? value)
+            {
+                FrameLength = value;
                 return this;
             }
 
@@ -79,12 +95,18 @@ namespace Aws.Esdk
                         String.Format("No value set for required field {0}", "materialsManager"));
                 }
 
+                if (Keyring == null)
+                {
+                    throw new InvalidOperationException(
+                        String.Format("No value set for required field {0}", "keyring"));
+                }
+
                 return new EncryptInput
                 {
                     Plaintext = (System.IO.MemoryStream) Plaintext,
                     EncryptionContext = (System.Collections.Generic.IDictionary<string, string>) EncryptionContext,
-                    MaterialsManager = (ICryptographicMaterialsManager) MaterialsManager,
-                    AlgorithmSuiteId = (AlgorithmSuiteId) AlgorithmSuiteId,
+                    MaterialsManager = (ICryptographicMaterialsManager) MaterialsManager, Keyring = (IKeyring) Keyring,
+                    AlgorithmSuiteId = (AlgorithmSuiteId) AlgorithmSuiteId, FrameLength = (int?) FrameLength,
                 };
             }
         }
@@ -95,7 +117,9 @@ namespace Aws.Esdk
         IEncryptInputBuilder WithPlaintext(System.IO.MemoryStream value);
         IEncryptInputBuilder WithEncryptionContext(System.Collections.Generic.IDictionary<string, string> value);
         IEncryptInputBuilder WithMaterialsManager(ICryptographicMaterialsManager value);
+        IEncryptInputBuilder WithKeyring(IKeyring value);
         IEncryptInputBuilder WithAlgorithmSuiteId(AlgorithmSuiteId value);
+        IEncryptInputBuilder WithFrameLength(int? value);
         EncryptInput Build();
     }
 }

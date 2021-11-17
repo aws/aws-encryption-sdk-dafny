@@ -1,7 +1,7 @@
 // Copyright Amazon.com Inc. or its affiliates. All Rights Reserved.
 // SPDX-License-Identifier: Apache-2.0
 //
-// Generated at 2021-11-03T00:22:03.283903
+// Generated at 2021-11-17T11:32:59.305823
 
 using System;
 using Aws.Crypto;
@@ -13,7 +13,7 @@ namespace Aws.Esdk
 {
     public class EncryptOutput
     {
-        public System.IO.MemoryStream Ciphertext { get; private set; }
+        public System.IO.MemoryStream EncryptedMessage { get; private set; }
 
         public static IEncryptOutputBuilder Builder()
         {
@@ -26,25 +26,25 @@ namespace Aws.Esdk
 
         private class EncryptOutputBuilder : IEncryptOutputBuilder
         {
-            private System.IO.MemoryStream Ciphertext;
+            private System.IO.MemoryStream EncryptedMessage;
 
-            public IEncryptOutputBuilder WithCiphertext(System.IO.MemoryStream value)
+            public IEncryptOutputBuilder WithEncryptedMessage(System.IO.MemoryStream value)
             {
-                Ciphertext = value;
+                EncryptedMessage = value;
                 return this;
             }
 
             public EncryptOutput Build()
             {
-                if (Ciphertext == null)
+                if (EncryptedMessage == null)
                 {
                     throw new InvalidOperationException(
-                        String.Format("No value set for required field {0}", "ciphertext"));
+                        String.Format("No value set for required field {0}", "encryptedMessage"));
                 }
 
                 return new EncryptOutput
                 {
-                    Ciphertext = (System.IO.MemoryStream) Ciphertext,
+                    EncryptedMessage = (System.IO.MemoryStream) EncryptedMessage,
                 };
             }
         }
@@ -52,7 +52,7 @@ namespace Aws.Esdk
 
     public interface IEncryptOutputBuilder
     {
-        IEncryptOutputBuilder WithCiphertext(System.IO.MemoryStream value);
+        IEncryptOutputBuilder WithEncryptedMessage(System.IO.MemoryStream value);
         EncryptOutput Build();
     }
 }

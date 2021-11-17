@@ -1,7 +1,7 @@
 // Copyright Amazon.com Inc. or its affiliates. All Rights Reserved.
 // SPDX-License-Identifier: Apache-2.0
 //
-// Generated at 2021-11-03T00:22:03.283903
+// Generated at 2021-11-17T11:32:59.305823
 
 using System;
 using Aws.Crypto;
@@ -13,8 +13,9 @@ namespace Aws.Esdk
 {
     public class DecryptInput
     {
-        public System.IO.MemoryStream Ciphertext { get; private set; }
+        public System.IO.MemoryStream EncryptedMessage { get; private set; }
         public ICryptographicMaterialsManager MaterialsManager { get; private set; }
+        public IKeyring Keyring { get; private set; }
 
         public static IDecryptInputBuilder Builder()
         {
@@ -27,12 +28,13 @@ namespace Aws.Esdk
 
         private class DecryptInputBuilder : IDecryptInputBuilder
         {
-            private System.IO.MemoryStream Ciphertext;
+            private System.IO.MemoryStream EncryptedMessage;
             private ICryptographicMaterialsManager MaterialsManager;
+            private IKeyring Keyring;
 
-            public IDecryptInputBuilder WithCiphertext(System.IO.MemoryStream value)
+            public IDecryptInputBuilder WithEncryptedMessage(System.IO.MemoryStream value)
             {
-                Ciphertext = value;
+                EncryptedMessage = value;
                 return this;
             }
 
@@ -42,12 +44,18 @@ namespace Aws.Esdk
                 return this;
             }
 
+            public IDecryptInputBuilder WithKeyring(IKeyring value)
+            {
+                Keyring = value;
+                return this;
+            }
+
             public DecryptInput Build()
             {
-                if (Ciphertext == null)
+                if (EncryptedMessage == null)
                 {
                     throw new InvalidOperationException(
-                        String.Format("No value set for required field {0}", "ciphertext"));
+                        String.Format("No value set for required field {0}", "encryptedMessage"));
                 }
 
                 if (MaterialsManager == null)
@@ -56,10 +64,16 @@ namespace Aws.Esdk
                         String.Format("No value set for required field {0}", "materialsManager"));
                 }
 
+                if (Keyring == null)
+                {
+                    throw new InvalidOperationException(
+                        String.Format("No value set for required field {0}", "keyring"));
+                }
+
                 return new DecryptInput
                 {
-                    Ciphertext = (System.IO.MemoryStream) Ciphertext,
-                    MaterialsManager = (ICryptographicMaterialsManager) MaterialsManager,
+                    EncryptedMessage = (System.IO.MemoryStream) EncryptedMessage,
+                    MaterialsManager = (ICryptographicMaterialsManager) MaterialsManager, Keyring = (IKeyring) Keyring,
                 };
             }
         }
@@ -67,8 +81,9 @@ namespace Aws.Esdk
 
     public interface IDecryptInputBuilder
     {
-        IDecryptInputBuilder WithCiphertext(System.IO.MemoryStream value);
+        IDecryptInputBuilder WithEncryptedMessage(System.IO.MemoryStream value);
         IDecryptInputBuilder WithMaterialsManager(ICryptographicMaterialsManager value);
+        IDecryptInputBuilder WithKeyring(IKeyring value);
         DecryptInput Build();
     }
 }
