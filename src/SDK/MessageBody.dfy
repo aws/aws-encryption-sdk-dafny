@@ -207,6 +207,7 @@ module MessageBody {
       invariant SumPlaintextSegments(plaintextSeg) == plaintext[..n] // Chunks of plaintext sum up to plaintexts
       invariant forall frame: Frame | frame in frames :: AESEncryption.EncryptedWithKey(frame.encContent, key)
     {
+      assert {:split_here} true;
       if sequenceNumber == ENDFRAME_SEQUENCE_NUMBER {
         return Failure("too many frames");
       }
@@ -394,6 +395,7 @@ module MessageBody {
       invariant DecryptedSegmentsWithKey(key, plaintextSeg)
       invariant plaintext == SumPlaintextSegments(plaintextSeg)
     {
+      assert {:split_here} true;
       var frameWithGhostSeq :- DecryptFrame(rd, algorithmSuiteID, key, frameLength, messageID, n);
       assert |frameWithGhostSeq.sequence| < UINT32_LIMIT;
       var decryptedFrame := frameWithGhostSeq.frame;
