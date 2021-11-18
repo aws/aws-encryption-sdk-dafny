@@ -246,7 +246,6 @@ module Streams {
     method WriteByte(n: uint8) returns (r: nat)
       requires Valid()
       modifies writer`data
-      ensures !unchanged(writer`data)
       ensures writer.data == old(writer.data) + [n]
       ensures r == 1
       ensures Valid()
@@ -257,8 +256,6 @@ module Streams {
     method WriteBytes(s: seq<uint8>) returns (r: nat)
       requires Valid()
       modifies writer`data
-      ensures |s| == 0 ==> unchanged(writer)
-      ensures |s| > 0 ==> !unchanged(writer`data)
       ensures writer.data == old(writer.data) + s
       ensures r == |s|
       ensures Valid()
@@ -269,7 +266,6 @@ module Streams {
     method WriteUInt16(n: uint16) returns (r: nat)
       requires Valid()
       modifies writer`data
-      ensures !unchanged(writer`data)
       ensures writer.data == old(writer.data) + UInt16ToSeq(n)
       ensures r == 2
       ensures Valid()
@@ -280,7 +276,6 @@ module Streams {
     method WriteUInt32(n: uint32) returns (r: nat)
       requires Valid()
       modifies writer`data
-      ensures !unchanged(writer`data)
       ensures writer.data == old(writer.data) + UInt32ToSeq(n)
       ensures r == 4
       ensures Valid()
