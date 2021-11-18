@@ -109,7 +109,7 @@ module Serialize {
         && wr.GetDataWritten() == old(wr.GetDataWritten()) + serAAD
       case Failure(e) => true
   {
-    reveal EncryptionContext.Serializable();
+    reveal EncryptionContext.Serializable(), EncryptionContext.MapToLinear();
     var totalWritten := 0;
 
     var kvPairsLength := EncryptionContext.ComputeLength(kvPairs);
