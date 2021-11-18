@@ -78,10 +78,26 @@ module Deserialize {
     var algorithmSuiteID :- DeserializeAlgorithmSuiteID(rd);
     var messageID :- DeserializeMsgID(rd);
 
+    // TODO dafny verification handholding
+    assert [version as uint8]
+      + [typ as uint8]
+      + UInt16ToSeq(algorithmSuiteID as uint16)
+      + messageID
+    ==
+      rd.reader.data[old(rd.reader.pos)..rd.reader.pos];
+
     ghost var aadStart := rd.reader.pos;
     var aad :- DeserializeAAD(rd);
     ghost var aadEnd := rd.reader.pos;
 
+    // TODO dafny verification handholding
+    assert [version as uint8]
+      + [typ as uint8]
+      + UInt16ToSeq(algorithmSuiteID as uint16)
+      + messageID
+      + rd.reader.data[aadStart..aadEnd]
+    ==
+      rd.reader.data[old(rd.reader.pos)..rd.reader.pos];
 
     var encryptedDataKeys :- DeserializeEncryptedDataKeys(rd);
 
