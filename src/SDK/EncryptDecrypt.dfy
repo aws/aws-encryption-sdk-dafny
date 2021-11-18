@@ -81,7 +81,7 @@ module {:extern "EncryptDecrypt"} EncryptDecrypt {
     // && headerBody.aad == material.encryptionContext
     // && headerBody.encryptedDataKeys == Msg.EncryptedDataKeys(material.encryptedDataKeys))
     && headerBody.contentType == Msg.ContentType.Framed
-    && (request.frameLength.None? || (request.frameLength.value as int < UINT32_LIMIT && request.frameLength.value > 0))
+    && (request.frameLength.None? || request.frameLength.value > 0)
     && headerBody.frameLength == if request.frameLength.Some? then request.frameLength.value as uint32 else DEFAULT_FRAME_LENGTH
   }
 
