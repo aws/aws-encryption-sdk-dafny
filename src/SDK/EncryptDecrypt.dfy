@@ -382,6 +382,7 @@ module {:extern "EncryptDecrypt"} EncryptDecrypt {
     var rd := new Streams.ByteReader(request.message);
     var deserializeHeaderResult :- Deserialize.DeserializeHeader(rd);
     var header := deserializeHeaderResult.header;
+    assert header.body.Valid();
 
     if header.body.contentType.Framed? { // If the header is framed then the header is deserialized from the read sequence
       assert HeaderBySequence(header, deserializeHeaderResult.hbSeq, rd.reader.data[..rd.reader.pos]) by {
@@ -512,6 +513,31 @@ module {:extern "EncryptDecrypt"} EncryptDecrypt {
       }
     }
     var decryptResultWithVerificationInfo := DecryptResultWithVerificationInfo(plaintext, header, deserializeHeaderResult.hbSeq, frames, signature);
+    ghost var d := decryptResultWithVerificationInfo;
+    assert d.header.body.Valid();
+    assert Msg.IsSerializationOfHeaderBody(d.hbSeq, d.header.body);
+    if d.header.body.contentType.Framed? {
+      assert forall frame: MessageBody.Frame | frame in d.frames :: frame.Valid();
+      assert MessageBody.FramesEncryptPlaintext(d.frames, d.plaintext);
+      assert match d.signature {
+               case Some(_) =>
+                 && |d.signature.value| < UINT16_LIMIT
+                 && request.message == d.hbSeq + d.header.auth.iv + d.header.auth.authenticationTag // These items can be serialized to the output
+                   + MessageBody.FramesToSequence(d.frames) + UInt16ToSeq(|d.signature.value| as uint16) + d.signature.value
+               case None => // if the result does not need to be signed
+                 request.message == d.hbSeq + d.header.auth.iv + d.header.auth.authenticationTag + MessageBody.FramesToSequence(d.frames)
+             } by
+      {
+        if d.signature.Some? {
+          assert |d.signature.value| < UINT16_LIMIT;
+          assert request.message ==
+                   d.hbSeq + d.header.auth.iv + d.header.auth.authenticationTag // These items can be serialized to the output
+                   + MessageBody.FramesToSequence(d.frames) + UInt16ToSeq(|d.signature.value| as uint16) + d.signature.value;
+        } else {
+          assert request.message == d.hbSeq + d.header.auth.iv + d.header.auth.authenticationTag + MessageBody.FramesToSequence(d.frames);
+        }
+      }
+    }
     return Success(decryptResultWithVerificationInfo);
   }
 
