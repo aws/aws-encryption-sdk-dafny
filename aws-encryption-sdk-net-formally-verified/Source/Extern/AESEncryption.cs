@@ -16,14 +16,14 @@ using charseq = Dafny.Sequence<char>;
 namespace AESEncryption {
     public partial class AES_GCM {
 
-        public static Result<EncryptionOutput, icharseq> AESEncryptExtern(EncryptionSuites.EncryptionSuite encAlg,
+        public static Result<EncryptionOutput, icharseq> AESEncryptExtern(AESEncryption.AES_GCM encAlg,
                                                       ibyteseq iv,
                                                       ibyteseq key,
                                                       ibyteseq msg,
                                                       ibyteseq aad) {
             try {
                 var cipher = new GcmBlockCipher(new AesEngine());
-                var param = new AeadParameters(new KeyParameter(key.Elements), (int)encAlg.tagLen * 8, iv.Elements, aad.Elements);
+                var param = new AeadParameters(new KeyParameter(key.Elements), (int)encAlg.tagLength * 8, iv.Elements, aad.Elements);
                 cipher.Init(true, param);
 
                 byte[] c = new byte[cipher.GetOutputSize(msg.Elements.Length)];
@@ -36,10 +36,10 @@ namespace AESEncryption {
             }
         }
 
-        public static Result<ibyteseq, icharseq> AESDecryptExtern(EncryptionSuites.EncryptionSuite encAlg, ibyteseq key, ibyteseq cipherText, ibyteseq authTag, ibyteseq iv, ibyteseq aad) {
+        public static Result<ibyteseq, icharseq> AESDecryptExtern(AESEncryption.AES_GCM encAlg, ibyteseq key, ibyteseq cipherText, ibyteseq authTag, ibyteseq iv, ibyteseq aad) {
             try {
                 var cipher = new GcmBlockCipher(new AesEngine());
-                var param = new AeadParameters(new KeyParameter(key.Elements), encAlg.tagLen * 8, iv.Elements, aad.Elements);
+                var param = new AeadParameters(new KeyParameter(key.Elements), encAlg.tagLength * 8, iv.Elements, aad.Elements);
                 cipher.Init(false, param);
                 var ctx = byteseq.Concat(cipherText, authTag);
                 var pt = new byte[cipher.GetOutputSize(ctx.Elements.Length)];
