@@ -16,7 +16,7 @@ using charseq = Dafny.Sequence<char>;
 namespace AESEncryption {
     public partial class AES_GCM {
 
-        public static Result<EncryptionOutput, icharseq> AESEncryptExtern(AESEncryption.AES_GCM encAlg,
+        public static Result<EncryptionOutput, icharseq> AESEncryptExtern(AESEncryption.AES__GCM encAlg,
                                                       ibyteseq iv,
                                                       ibyteseq key,
                                                       ibyteseq msg,
@@ -36,7 +36,7 @@ namespace AESEncryption {
             }
         }
 
-        public static Result<ibyteseq, icharseq> AESDecryptExtern(AESEncryption.AES_GCM encAlg, ibyteseq key, ibyteseq cipherText, ibyteseq authTag, ibyteseq iv, ibyteseq aad) {
+        public static Result<ibyteseq, icharseq> AESDecryptExtern(AESEncryption.AES__GCM encAlg, ibyteseq key, ibyteseq cipherText, ibyteseq authTag, ibyteseq iv, ibyteseq aad) {
             try {
                 var cipher = new GcmBlockCipher(new AesEngine());
                 var param = new AeadParameters(new KeyParameter(key.Elements), encAlg.tagLength * 8, iv.Elements, aad.Elements);
