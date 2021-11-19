@@ -473,6 +473,7 @@ module MessageBody {
       return Failure("unexpected frame sequence number");
     }
 
+    assert {:focus} true;
     var iv :- rd.ReadBytes(algorithmSuiteID.IVLength());
     frameSerialization := frameSerialization + iv;
     assert rd.reader.data[old(rd.reader.pos)..rd.reader.pos] == frameSerialization;
@@ -488,6 +489,7 @@ module MessageBody {
 
     var aad := BodyAAD(messageID, if final then AADFinalFrame else AADRegularFrame, sequenceNumber, len as uint64);
 
+    assert {:focus} true;
     var ciphertext :- rd.ReadBytes(len as nat);
     frameSerialization := frameSerialization + ciphertext;
     assert rd.reader.data[old(rd.reader.pos)..rd.reader.pos] == frameSerialization;
@@ -515,6 +517,7 @@ module MessageBody {
     assert frameSerialization == FrameToSequence(encryptedFrame);
 
     // Prove read content of stream is frameSerialization
+    assert {:focus} true;
     assert !final ==> frameSerialization[..4] == rd.reader.data[old(rd.reader.pos)..][..4];
     assert !final ==> frameSerialization[4..][..algorithmSuiteID.IVLength()] == rd.reader.data[old(rd.reader.pos)..][4..][..algorithmSuiteID.IVLength()];
     assert !final ==> frameSerialization[4 + algorithmSuiteID.IVLength()..][..frameLength] == rd.reader.data[old(rd.reader.pos)..][4 + algorithmSuiteID.IVLength()..][..frameLength];
