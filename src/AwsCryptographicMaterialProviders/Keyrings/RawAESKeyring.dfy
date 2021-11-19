@@ -355,7 +355,7 @@ module
   ): 
     (res: Result<seq<uint8>, string>)
   {
-    :- Need(|encryptionContext| < UINT16_LIMIT, "asdf");
+    :- Need(|encryptionContext| < UINT16_LIMIT, "Encryption Context is too large");
     var keys := SetToOrderedSequence(encryptionContext.Keys, UInt.UInt8Less);
 
     var KeyIntoPairBytes := k
