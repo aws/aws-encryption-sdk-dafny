@@ -1,20 +1,33 @@
 // Copyright Amazon.com Inc. or its affiliates. All Rights Reserved.
 // SPDX-License-Identifier: Apache-2.0
 
-include "../SDK/AlgorithmSuite.dfy"
 include "../../libraries/src/Wrappers.dfy"
-include "EncryptionSuites.dfy"
+include "../StandardLibrary/StandardLibrary.dfy"
 
 module {:extern "AESEncryption"} AESEncryption {
-  import EncryptionSuites
   import opened Wrappers
   import opened UInt = StandardLibrary.UInt
 
   export
-    provides AESDecrypt, AESEncrypt, AESDecryptExtern, AESEncryptExtern, EncryptionSuites, Wrappers,
+    provides AESDecrypt, AESEncrypt, AESDecryptExtern, AESEncryptExtern, Wrappers,
       UInt, PlaintextDecryptedWithAAD, EncryptionOutputEncryptedWithAAD, CiphertextGeneratedWithPlaintext,
       EncryptedWithKey, DecryptedWithKey
-    reveals EncryptionOutput
+    reveals 
+      EncryptionOutput, 
+      AES_GCM,
+      KeyLength,
+      TagLength,
+      IVLength
+
+  type KeyLength = l: uint8 | l == 32 || l == 24 || l == 16 witness 32
+  type TagLength = l: uint8 | l == 16 witness 16
+  type IVLength = l: uint8 | l == 12 witness 12
+
+  datatype AES_GCM = AES_GCM(
+    nameonly keyLength: KeyLength,
+    nameonly tagLength: TagLength,
+    nameonly ivLength: IVLength
+  )
 
   datatype EncryptionOutput = EncryptionOutput(cipherText: seq<uint8>, authTag: seq<uint8>)
 
@@ -27,35 +40,28 @@ module {:extern "AESEncryption"} AESEncryption {
   predicate {:axiom} EncryptedWithKey(ciphertext: seq<uint8>, key: seq<uint8>)
   predicate {:axiom} DecryptedWithKey(key: seq<uint8>, plaintext: seq<uint8>)
 
-  function method EncryptionOutputFromByteSeq(s: seq<uint8>, encAlg: EncryptionSuites.EncryptionSuite): (encArt: EncryptionOutput)
-    requires encAlg.Valid()
-    requires |s| >= encAlg.tagLen as int
+  function method EncryptionOutputFromByteSeq(s: seq<uint8>, encAlg: AES_GCM): (encArt: EncryptionOutput)
+    requires |s| >= encAlg.tagLength as int
     ensures |encArt.cipherText + encArt.authTag| == |s|
-    ensures |encArt.authTag| == encAlg.tagLen as int
+    ensures |encArt.authTag| == encAlg.tagLength as int
   {
-    EncryptionOutput(s[.. |s| - encAlg.tagLen as int], s[|s| - encAlg.tagLen as int ..])
+    EncryptionOutput(s[.. |s| - encAlg.tagLength as int], s[|s| - encAlg.tagLength as int ..])
   }
 
-  method {:extern "AESEncryption.AES_GCM", "AESEncryptExtern"} AESEncryptExtern(encAlg: EncryptionSuites.EncryptionSuite, iv: seq<uint8>, key: seq<uint8>, msg: seq<uint8>, aad: seq<uint8>)
+  method {:extern "AESEncryption.AES_GCM", "AESEncryptExtern"} AESEncryptExtern(encAlg: AES_GCM, iv: seq<uint8>, key: seq<uint8>, msg: seq<uint8>, aad: seq<uint8>)
       returns (res : Result<EncryptionOutput, string>)
-    requires encAlg.Valid()
-    requires encAlg.alg.AES?
-    requires encAlg.alg.mode.GCM?
-    requires |iv| == encAlg.ivLen as int
-    requires |key| == encAlg.keyLen as int
+    requires |iv| == encAlg.ivLength as int
+    requires |key| == encAlg.keyLength as int
     ensures res.Success? ==> EncryptionOutputEncryptedWithAAD(res.value, aad)
     ensures res.Success? ==> CiphertextGeneratedWithPlaintext(res.value.cipherText, msg)
     ensures res.Success? ==> EncryptedWithKey(res.value.cipherText, key)
 
-  method AESEncrypt(encAlg: EncryptionSuites.EncryptionSuite, iv: seq<uint8>, key: seq<uint8>, msg: seq<uint8>, aad: seq<uint8>)
+  method AESEncrypt(encAlg: AES_GCM, iv: seq<uint8>, key: seq<uint8>, msg: seq<uint8>, aad: seq<uint8>)
       returns (res : Result<EncryptionOutput, string>)
-    requires encAlg.Valid()
-    requires encAlg.alg.AES?
-    requires encAlg.alg.mode.GCM?
-    requires |iv| == encAlg.ivLen as int
-    requires |key| == encAlg.keyLen as int
+    requires |iv| == encAlg.ivLength as int
+    requires |key| == encAlg.keyLength as int
     ensures res.Success? ==>
-      |res.value.cipherText| == |msg| && |res.value.authTag| == encAlg.tagLen as int
+      |res.value.cipherText| == |msg| && |res.value.authTag| == encAlg.tagLength as int
     ensures res.Success? ==> EncryptionOutputEncryptedWithAAD(res.value, aad)
     ensures res.Success? ==> CiphertextGeneratedWithPlaintext(res.value.cipherText, msg)
     ensures res.Success? ==> EncryptedWithKey(res.value.cipherText, key)
@@ -64,31 +70,25 @@ module {:extern "AESEncryption"} AESEncryption {
       if (res.Success? && |res.value.cipherText| != |msg|){
         res := Failure("AESEncrypt did not return cipherText of expected length");
       }
-      if (res.Success? && |res.value.authTag| != encAlg.tagLen as int){
+      if (res.Success? && |res.value.authTag| != encAlg.tagLength as int){
         res := Failure("AESEncryption did not return valid tag");
       }
     }
 
-  method {:extern "AESEncryption.AES_GCM", "AESDecryptExtern"} AESDecryptExtern(encAlg: EncryptionSuites.EncryptionSuite, key: seq<uint8>, cipherTxt: seq<uint8>, authTag: seq<uint8>, iv: seq<uint8>, aad: seq<uint8>)
+  method {:extern "AESEncryption.AES_GCM", "AESDecryptExtern"} AESDecryptExtern(encAlg: AES_GCM, key: seq<uint8>, cipherTxt: seq<uint8>, authTag: seq<uint8>, iv: seq<uint8>, aad: seq<uint8>)
       returns (res: Result<seq<uint8>, string>)
-    requires encAlg.Valid()
-    requires encAlg.alg.AES?
-    requires encAlg.alg.mode.GCM?
-    requires |key| == encAlg.keyLen as int
-    requires |iv| == encAlg.ivLen as int
-    requires |authTag| == encAlg.tagLen as int
+    requires |key| == encAlg.keyLength as int
+    requires |iv| == encAlg.ivLength as int
+    requires |authTag| == encAlg.tagLength as int
     ensures res.Success? ==> PlaintextDecryptedWithAAD(res.value, aad)
     ensures res.Success? ==> CiphertextGeneratedWithPlaintext(cipherTxt, res.value)
     ensures res.Success? ==> DecryptedWithKey(key, res.value)
 
-  method AESDecrypt(encAlg: EncryptionSuites.EncryptionSuite, key: seq<uint8>, cipherTxt: seq<uint8>, authTag: seq<uint8>, iv: seq<uint8>, aad: seq<uint8>)
+  method AESDecrypt(encAlg: AES_GCM, key: seq<uint8>, cipherTxt: seq<uint8>, authTag: seq<uint8>, iv: seq<uint8>, aad: seq<uint8>)
       returns (res: Result<seq<uint8>, string>)
-    requires encAlg.Valid()
-    requires encAlg.alg.AES?
-    requires encAlg.alg.mode.GCM?
-    requires |key| == encAlg.keyLen as int
-    requires |iv| == encAlg.ivLen as int
-    requires |authTag| == encAlg.tagLen as int
+    requires |key| == encAlg.keyLength as int
+    requires |iv| == encAlg.ivLength as int
+    requires |authTag| == encAlg.tagLength as int
     ensures res.Success? ==> |res.value| == |cipherTxt|
     ensures res.Success? ==> PlaintextDecryptedWithAAD(res.value, aad)
     ensures res.Success? ==> CiphertextGeneratedWithPlaintext(cipherTxt, res.value)

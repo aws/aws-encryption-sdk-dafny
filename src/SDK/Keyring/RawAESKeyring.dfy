@@ -4,7 +4,7 @@
 include "../../StandardLibrary/StandardLibrary.dfy"
 include "../../StandardLibrary/UInt.dfy"
 include "../AlgorithmSuite.dfy"
-include "../../Crypto/EncryptionSuites.dfy"
+include "../../Crypto/AESEncryption.dfy"
 include "../../Crypto/Random.dfy"
 include "../../Crypto/AESEncryption.dfy"
 include "../Materials.dfy"
@@ -19,7 +19,6 @@ module {:extern "RawAESKeyringDef"} RawAESKeyringDef {
   import opened Wrappers
   import Aws.Crypto
   import opened UInt = StandardLibrary.UInt
-  import EncryptionSuites
   import AlgorithmSuite
   import Random
   import AESEncryption
@@ -31,13 +30,12 @@ module {:extern "RawAESKeyringDef"} RawAESKeyringDef {
 
   const AUTH_TAG_LEN_LEN := 4;
   const IV_LEN_LEN       := 4;
-  const VALID_ALGORITHMS := {EncryptionSuites.AES_GCM_128, EncryptionSuites.AES_GCM_192, EncryptionSuites.AES_GCM_256}
 
-  function method DeserializeEDKCiphertext(ciphertext: seq<uint8>, tagLen: nat): (encOutput: AESEncryption.EncryptionOutput)
-    requires tagLen <= |ciphertext|
-    ensures |encOutput.authTag| == tagLen
+  function method DeserializeEDKCiphertext(ciphertext: seq<uint8>, tagLength: nat): (encOutput: AESEncryption.EncryptionOutput)
+    requires tagLength <= |ciphertext|
+    ensures |encOutput.authTag| == tagLength
   {
-      var encryptedKeyLength := |ciphertext| - tagLen as int;
+      var encryptedKeyLength := |ciphertext| - tagLength as int;
       AESEncryption.EncryptionOutput(ciphertext[.. encryptedKeyLength], ciphertext[encryptedKeyLength ..])
   }
 
@@ -49,16 +47,16 @@ module {:extern "RawAESKeyringDef"} RawAESKeyringDef {
     ensures DeserializeEDKCiphertext(SerializeEDKCiphertext(encOutput), |encOutput.authTag|) == encOutput
   {}
 
-  lemma EDKDeserializeSerialze(ciphertext: seq<uint8>, tagLen: nat)
-    requires tagLen <= |ciphertext|
-    ensures SerializeEDKCiphertext(DeserializeEDKCiphertext(ciphertext, tagLen)) == ciphertext
+  lemma EDKDeserializeSerialze(ciphertext: seq<uint8>, tagLength: nat)
+    requires tagLength <= |ciphertext|
+    ensures SerializeEDKCiphertext(DeserializeEDKCiphertext(ciphertext, tagLength)) == ciphertext
   {}
 
   class RawAESKeyring extends Crypto.IKeyring {
     const keyNamespace: UTF8.ValidUTF8Bytes
     const keyName: UTF8.ValidUTF8Bytes
     const wrappingKey: seq<uint8>
-    const wrappingAlgorithm: EncryptionSuites.EncryptionSuite
+    const wrappingAlgorithm: AESEncryption.AES_GCM
 
     //= compliance/framework/raw-aes-keyring.txt#2.5.1
     //= type=exception
@@ -72,9 +70,7 @@ module {:extern "RawAESKeyringDef"} RawAESKeyringDef {
 
     predicate method Valid()
     {
-      && |wrappingKey| == wrappingAlgorithm.keyLen as int
-      && wrappingAlgorithm in VALID_ALGORITHMS
-      && wrappingAlgorithm.Valid()
+      && |wrappingKey| == wrappingAlgorithm.keyLength as int
       && |keyNamespace| < UINT16_LIMIT
     }
 
@@ -88,10 +84,8 @@ module {:extern "RawAESKeyringDef"} RawAESKeyringDef {
     //= compliance/framework/raw-aes-keyring.txt#2.5
     //= type=implication
     //# On keyring initialization, the caller MUST provide the following:
-    constructor (namespace: UTF8.ValidUTF8Bytes, name: UTF8.ValidUTF8Bytes, key: seq<uint8>, wrappingAlg: EncryptionSuites.EncryptionSuite)
+    constructor (namespace: UTF8.ValidUTF8Bytes, name: UTF8.ValidUTF8Bytes, key: seq<uint8>, wrappingAlg: AESEncryption.AES_GCM)
       requires |namespace| < UINT16_LIMIT
-      requires wrappingAlg in VALID_ALGORITHMS
-      requires wrappingAlg.Valid()
 
       //= compliance/framework/raw-aes-keyring.txt#2.5.1
       //= type=implication
@@ -99,7 +93,7 @@ module {:extern "RawAESKeyringDef"} RawAESKeyringDef {
       //# of the wrapping key MUST be 128, 192, or 256.
       // TODO what does a condition like this mean for the shim?
       requires |key| == 16 || |key| == 24 || |key| == 32
-      requires |key| == wrappingAlg.keyLen as int
+      requires |key| == wrappingAlg.keyLength as int
       ensures keyNamespace == namespace
       ensures keyName == name
       ensures wrappingKey == key
@@ -113,11 +107,11 @@ module {:extern "RawAESKeyringDef"} RawAESKeyringDef {
 
     function method SerializeProviderInfo(iv: seq<uint8>): seq<uint8>
       requires Valid()
-      requires |iv| == wrappingAlgorithm.ivLen as int
+      requires |iv| == wrappingAlgorithm.ivLength as int
     {
         keyName +
-        [0, 0, 0, wrappingAlgorithm.tagLen * 8] + // tag length in bits
-        [0, 0, 0, wrappingAlgorithm.ivLen] + // IV length in bytes
+        [0, 0, 0, wrappingAlgorithm.tagLength * 8] + // tag length in bits
+        [0, 0, 0, wrappingAlgorithm.ivLength as uint8] + // IV length in bytes
         iv
     }
 
@@ -140,8 +134,8 @@ module {:extern "RawAESKeyringDef"} RawAESKeyringDef {
         && var encCtxSerializable := (reveal EncryptionContext.Serializable(); EncryptionContext.Serializable(input.materials.encryptionContext));
         && |res.value.materials.encryptedDataKeys| == |input.materials.encryptedDataKeys| + 1
         && encCtxSerializable
-        && wrappingAlgorithm.tagLen as nat <= |res.value.materials.encryptedDataKeys[|input.materials.encryptedDataKeys|].ciphertext|
-        && var encOutput := DeserializeEDKCiphertext(res.value.materials.encryptedDataKeys[|input.materials.encryptedDataKeys|].ciphertext, wrappingAlgorithm.tagLen as nat);
+        && wrappingAlgorithm.tagLength as nat <= |res.value.materials.encryptedDataKeys[|input.materials.encryptedDataKeys|].ciphertext|
+        && var encOutput := DeserializeEDKCiphertext(res.value.materials.encryptedDataKeys[|input.materials.encryptedDataKeys|].ciphertext, wrappingAlgorithm.tagLength as nat);
         && AESEncryption.EncryptionOutputEncryptedWithAAD(encOutput, EncryptionContext.MapToSeq(input.materials.encryptionContext))
 
       //= compliance/framework/raw-aes-keyring.txt#2.7.1
@@ -201,7 +195,7 @@ module {:extern "RawAESKeyringDef"} RawAESKeyringDef {
           encryptedDataKeys := []);
       }
 
-      var iv :- Random.GenerateBytes(wrappingAlgorithm.ivLen as int32);
+      var iv :- Random.GenerateBytes(wrappingAlgorithm.ivLength as int32);
       var providerInfo := SerializeProviderInfo(iv);
 
       var wr := new Streams.ByteWriter();
@@ -325,7 +319,7 @@ module {:extern "RawAESKeyringDef"} RawAESKeyringDef {
           var aad := wr.GetDataWritten();
           assert aad == EncryptionContext.MapToSeq(input.materials.encryptionContext);
           var iv := GetIvFromProvInfo(input.encryptedDataKeys[i].keyProviderInfo);
-          var encryptionOutput := DeserializeEDKCiphertext(input.encryptedDataKeys[i].ciphertext, wrappingAlgorithm.tagLen as nat);
+          var encryptionOutput := DeserializeEDKCiphertext(input.encryptedDataKeys[i].ciphertext, wrappingAlgorithm.tagLength as nat);
 
           //= compliance/framework/raw-aes-keyring.txt#2.7.2
           //# If decrypting, the keyring MUST use AES-GCM with the following
@@ -364,20 +358,20 @@ module {:extern "RawAESKeyringDef"} RawAESKeyringDef {
     //# only if the following is true:
     // TODO break up
     predicate method ShouldDecryptEDK(edk: Crypto.EncryptedDataKey) {
-      edk.keyProviderId == keyNamespace && ValidProviderInfo(edk.keyProviderInfo) && wrappingAlgorithm.tagLen as int <= |edk.ciphertext|
+      edk.keyProviderId == keyNamespace && ValidProviderInfo(edk.keyProviderInfo) && wrappingAlgorithm.tagLength as int <= |edk.ciphertext|
     }
 
     // TODO #68: prove providerInfo serializes/deserializes correctly
     predicate method ValidProviderInfo(info: seq<uint8>)
     {
-      |info| == |keyName| + AUTH_TAG_LEN_LEN + IV_LEN_LEN + wrappingAlgorithm.ivLen as int &&
+      |info| == |keyName| + AUTH_TAG_LEN_LEN + IV_LEN_LEN + wrappingAlgorithm.ivLength as int &&
       info[0..|keyName|] == keyName &&
       //= compliance/framework/raw-aes-keyring.txt#2.6.1.2
       //= type=implication
       //# This value MUST be 128.
       SeqToUInt32(info[|keyName|..|keyName| + AUTH_TAG_LEN_LEN]) == 128 &&
-      SeqToUInt32(info[|keyName|..|keyName| + AUTH_TAG_LEN_LEN]) == wrappingAlgorithm.tagLen as uint32 * 8 &&
-      SeqToUInt32(info[|keyName| + AUTH_TAG_LEN_LEN .. |keyName| + AUTH_TAG_LEN_LEN + IV_LEN_LEN]) == wrappingAlgorithm.ivLen as uint32 &&
+      SeqToUInt32(info[|keyName|..|keyName| + AUTH_TAG_LEN_LEN]) == wrappingAlgorithm.tagLength as uint32 * 8 &&
+      SeqToUInt32(info[|keyName| + AUTH_TAG_LEN_LEN .. |keyName| + AUTH_TAG_LEN_LEN + IV_LEN_LEN]) == wrappingAlgorithm.ivLength as uint32 &&
       //= compliance/framework/raw-aes-keyring.txt#2.6.1.3
       //= type=implication
       //# This value MUST be 12.

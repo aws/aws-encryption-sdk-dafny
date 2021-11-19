@@ -38,6 +38,7 @@ module StandardLibrary.UInt {
   function method SeqToUInt16(s: seq<uint8>): (x: uint16)
     requires |s| == 2
     ensures UInt16ToSeq(x) == s
+    ensures x >= 0
   {
     var x0 := s[0] as uint16 * 0x100;
     x0 + s[1] as uint16

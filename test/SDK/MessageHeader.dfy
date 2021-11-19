@@ -1,7 +1,6 @@
 // Copyright Amazon.com Inc. or its affiliates. All Rights Reserved.
 // SPDX-License-Identifier: Apache-2.0
 
-include "../../src/SDK/AlgorithmSuite.dfy"
 include "../../src/StandardLibrary/StandardLibrary.dfy"
 include "../../src/SDK/Materials.dfy"
 include "../../src/Util/UTF8.dfy"
@@ -9,7 +8,6 @@ include "../../src/SDK/EncryptionContext.dfy"
 include "../Util/TestUtils.dfy"
 
 module TestMessageHeader {
-  import AlgorithmSuite
   import opened StandardLibrary
   import opened UInt = StandardLibrary.UInt
   import Materials
