@@ -89,14 +89,6 @@ module Deserialize {
     var messageID :- DeserializeMsgID(rd);
     readSoFar := ReadHelper(rd, orig, readSoFar, messageID);
 
-    // TODO dafny verification handholding
-    assert [version as uint8]
-      + [typ as uint8]
-      + UInt16ToSeq(algorithmSuiteID as uint16)
-      + messageID
-    ==
-      rd.reader.data[old(rd.reader.pos)..rd.reader.pos];
-
     ghost var aadStart := rd.reader.pos;
     var aad :- DeserializeAAD(rd);
     ghost var aadEnd := rd.reader.pos;
@@ -106,16 +98,6 @@ module Deserialize {
 
     var encryptedDataKeys :- DeserializeEncryptedDataKeys(rd);
     readSoFar := ReadHelper(rd, orig, readSoFar, Msg.EDKsToSeq(encryptedDataKeys));
-
-    // TODO dafny verification handholding
-    assert [version as uint8]
-      + [typ as uint8]
-      + UInt16ToSeq(algorithmSuiteID as uint16)
-      + messageID
-      + rd.reader.data[aadStart..aadEnd]
-      + Msg.EDKsToSeq(encryptedDataKeys)
-    ==
-      rd.reader.data[old(rd.reader.pos)..rd.reader.pos];
 
     var contentType :- DeserializeContentType(rd);
     readSoFar := ReadHelper(rd, orig, readSoFar, [Msg.ContentTypeToUInt8(contentType)]);
