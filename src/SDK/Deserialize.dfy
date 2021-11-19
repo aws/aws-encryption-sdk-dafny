@@ -101,11 +101,27 @@ module Deserialize {
 
     var encryptedDataKeys :- DeserializeEncryptedDataKeys(rd);
 
+    // TODO dafny verification handholding
+    assert [version as uint8]
+      + [typ as uint8]
+      + UInt16ToSeq(algorithmSuiteID as uint16)
+      + messageID
+      + rd.reader.data[aadStart..aadEnd]
+      + Msg.EDKsToSeq(encryptedDataKeys)
+    ==
+      rd.reader.data[old(rd.reader.pos)..rd.reader.pos];
+
     var contentType :- DeserializeContentType(rd);
 
     // TODO dafny verification handholding
-    assert [version as uint8] + [typ as uint8] + UInt16ToSeq(algorithmSuiteID as uint16) + messageID + rd.reader.data[aadStart..aadEnd]
-      + Msg.EDKsToSeq(encryptedDataKeys) + [Msg.ContentTypeToUInt8(contentType)]  ==
+    assert [version as uint8]
+      + [typ as uint8]
+      + UInt16ToSeq(algorithmSuiteID as uint16)
+      + messageID
+      + rd.reader.data[aadStart..aadEnd]
+      + Msg.EDKsToSeq(encryptedDataKeys)
+      + [Msg.ContentTypeToUInt8(contentType)]
+    ==
       rd.reader.data[old(rd.reader.pos)..rd.reader.pos];
 
     ghost var reserveStart := rd.reader.pos;
@@ -113,13 +129,27 @@ module Deserialize {
     ghost var reserveEnd := rd.reader.pos;
 
     // TODO dafny verification handholding
-    assert [version as uint8] + [typ as uint8] + UInt16ToSeq(algorithmSuiteID as uint16) + messageID + rd.reader.data[aadStart..aadEnd]
-      + Msg.EDKsToSeq(encryptedDataKeys) + [Msg.ContentTypeToUInt8(contentType)] + rd.reader.data[reserveStart..reserveEnd]  ==
+    assert [version as uint8]
+      + [typ as uint8]
+      + UInt16ToSeq(algorithmSuiteID as uint16)
+      + messageID
+      + rd.reader.data[aadStart..aadEnd]
+      + Msg.EDKsToSeq(encryptedDataKeys)
+      + [Msg.ContentTypeToUInt8(contentType)]
+      + rd.reader.data[reserveStart..reserveEnd]
+    ==
       rd.reader.data[old(rd.reader.pos)..rd.reader.pos];
 
     // TODO dafny verification handholding
-    assert [version as uint8] + [typ as uint8] + UInt16ToSeq(algorithmSuiteID as uint16) + messageID + rd.reader.data[aadStart..aadEnd]
-      + Msg.EDKsToSeq(encryptedDataKeys) + [Msg.ContentTypeToUInt8(contentType)] + [0,0,0,0]  ==
+    assert [version as uint8]
+      + [typ as uint8]
+      + UInt16ToSeq(algorithmSuiteID as uint16)
+      + messageID
+      + rd.reader.data[aadStart..aadEnd]
+      + Msg.EDKsToSeq(encryptedDataKeys)
+      + [Msg.ContentTypeToUInt8(contentType)]
+      + [0,0,0,0]
+    ==
       rd.reader.data[old(rd.reader.pos)..rd.reader.pos];
 
     var ivLength :- rd.ReadByte();
