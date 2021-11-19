@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 // TODO: Originally written as part of POC; we should come back through this
-// to refine it 
+// to refine it
 
 include "../StandardLibrary/StandardLibrary.dfy"
 include "../StandardLibrary/UInt.dfy"
@@ -51,13 +51,14 @@ module {:extern "Dafny.Aws.Crypto.AwsCryptographicMaterialProvidersClient"} AwsC
         );
       }
       // I have no idea why :- isn't working here...
+      // Here is why: To use :- requires the type of "res" to be "Result<Crypto.IKeyring, string>".
       var namespaceRes := UTF8.Encode(input.keyNamespace);
-      var namespace;
+      var namespace := []; // TODO: This value gets used below if UTF8.Encode fails
       if namespaceRes.Success? {
         namespace := namespaceRes.value;
       }
       var nameRes := UTF8.Encode(input.keyName);
-      var name;
+      var name := []; // TODO: This value gets used below if UTF8.Encode fails
       if nameRes.Success? {
         name := nameRes.value;
       }

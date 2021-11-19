@@ -142,16 +142,16 @@ module Streams {
     method ReadUInt32() returns (res: Result<uint32, string>)
       requires Valid()
       modifies reader`pos
-      ensures res.Failure? ==> unchanged(reader)
-      ensures res.Success? ==> reader.pos == old(reader.pos) + 4
-      ensures old(reader.pos) + 4 <= |old(reader.data)| <==> res.Success?
-      ensures res.Success? ==> res.value == SeqToUInt32(reader.data[old(reader.pos)..old(reader.pos) + 4])
-      ensures reader.data == old(reader.data)
       ensures Valid()
+      ensures res.Failure? ==> unchanged(reader)
+      ensures res.Success? ==>
+        && reader.pos == old(reader.pos) + 4
+        && UInt32ToSeq(res.value) == reader.data[old(reader.pos)..reader.pos]
     {
       var bytes :- reader.ReadExact(4);
       assert |bytes| == 4;
       var n := SeqToUInt32(bytes);
+      UInt32SeqDeserializeSerialize(bytes);
       return Success(n);
     }
 

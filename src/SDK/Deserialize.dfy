@@ -73,10 +73,21 @@ module Deserialize {
         && Msg.IsSerializationOfHeaderBody(rd.reader.data[old(rd.reader.pos)..rd.reader.pos], hb)
       case Failure(_) => true
   {
+    assert {:focus} true;
+    ghost var orig := rd.reader.data[..rd.reader.pos];
+    ghost var readSoFar := [];
+
     var version :- DeserializeVersion(rd);
+    readSoFar := ReadHelper(rd, orig, readSoFar, [version]);
+
     var typ :- DeserializeType(rd);
+    readSoFar := ReadHelper(rd, orig, readSoFar, [typ]);
+
     var algorithmSuiteID :- DeserializeAlgorithmSuiteID(rd);
+    readSoFar := ReadHelper(rd, orig, readSoFar, UInt16ToSeq(algorithmSuiteID as uint16));
+
     var messageID :- DeserializeMsgID(rd);
+    readSoFar := ReadHelper(rd, orig, readSoFar, messageID);
 
     // TODO dafny verification handholding
     assert [version as uint8]
@@ -90,16 +101,11 @@ module Deserialize {
     var aad :- DeserializeAAD(rd);
     ghost var aadEnd := rd.reader.pos;
 
-    // TODO dafny verification handholding
-    assert [version as uint8]
-      + [typ as uint8]
-      + UInt16ToSeq(algorithmSuiteID as uint16)
-      + messageID
-      + rd.reader.data[aadStart..aadEnd]
-    ==
-      rd.reader.data[old(rd.reader.pos)..rd.reader.pos];
+    readSoFar := ReadHelper(rd, orig, readSoFar, rd.reader.data[aadStart..aadEnd]);
+    assert EncryptionContext.LinearSeqToMap(rd.reader.data[aadStart..aadEnd], aad);
 
     var encryptedDataKeys :- DeserializeEncryptedDataKeys(rd);
+    readSoFar := ReadHelper(rd, orig, readSoFar, Msg.EDKsToSeq(encryptedDataKeys));
 
     // TODO dafny verification handholding
     assert [version as uint8]
@@ -112,55 +118,21 @@ module Deserialize {
       rd.reader.data[old(rd.reader.pos)..rd.reader.pos];
 
     var contentType :- DeserializeContentType(rd);
+    readSoFar := ReadHelper(rd, orig, readSoFar, [Msg.ContentTypeToUInt8(contentType)]);
 
-    // TODO dafny verification handholding
-    assert [version as uint8]
-      + [typ as uint8]
-      + UInt16ToSeq(algorithmSuiteID as uint16)
-      + messageID
-      + rd.reader.data[aadStart..aadEnd]
-      + Msg.EDKsToSeq(encryptedDataKeys)
-      + [Msg.ContentTypeToUInt8(contentType)]
-    ==
-      rd.reader.data[old(rd.reader.pos)..rd.reader.pos];
-
-    ghost var reserveStart := rd.reader.pos;
     var _ :- DeserializeReserved(rd);
-    ghost var reserveEnd := rd.reader.pos;
+    readSoFar := ReadHelper(rd, orig, readSoFar, Msg.Reserved);
 
-    // TODO dafny verification handholding
-    assert [version as uint8]
-      + [typ as uint8]
-      + UInt16ToSeq(algorithmSuiteID as uint16)
-      + messageID
-      + rd.reader.data[aadStart..aadEnd]
-      + Msg.EDKsToSeq(encryptedDataKeys)
-      + [Msg.ContentTypeToUInt8(contentType)]
-      + rd.reader.data[reserveStart..reserveEnd]
-    ==
-      rd.reader.data[old(rd.reader.pos)..rd.reader.pos];
-
-    // TODO dafny verification handholding
-    assert [version as uint8]
-      + [typ as uint8]
-      + UInt16ToSeq(algorithmSuiteID as uint16)
-      + messageID
-      + rd.reader.data[aadStart..aadEnd]
-      + Msg.EDKsToSeq(encryptedDataKeys)
-      + [Msg.ContentTypeToUInt8(contentType)]
-      + [0,0,0,0]
-    ==
-      rd.reader.data[old(rd.reader.pos)..rd.reader.pos];
-
+    assert {:focus} true;
     var ivLength :- rd.ReadByte();
-    var frameLength :- rd.ReadUInt32();
+    readSoFar := ReadHelper(rd, orig, readSoFar, [ivLength]);
 
-    // TODO dafny verification handholding
-    assert [version as uint8] + [typ as uint8] + UInt16ToSeq(algorithmSuiteID as uint16) + messageID + rd.reader.data[aadStart..aadEnd]
-      + Msg.EDKsToSeq(encryptedDataKeys) + [Msg.ContentTypeToUInt8(contentType)] + [0,0,0,0] + [ivLength] + UInt32ToSeq(frameLength) ==
-      rd.reader.data[old(rd.reader.pos)..rd.reader.pos];
+    assert {:focus} true;
+    var frameLength :- rd.ReadUInt32();
+    readSoFar := ReadHelper(rd, orig, readSoFar, UInt32ToSeq(frameLength));
 
     // inter-field checks
+    // TODO: shouldn't the following if-statement be done immediately after reading "ivLength"?
     if ivLength as nat != algorithmSuiteID.IVLength() {
       return Failure("Deserialization Error: Incorrect IV length.");
     }
@@ -170,7 +142,7 @@ module Deserialize {
       return Failure("Deserialization Error: Frame length must be non-0 when content type is framed.");
     }
 
-    reveal Msg.IsSerializationOfHeaderBody();
+    assert {:focus} true;
     var hb := Msg.HeaderBody(
       version,
       typ,
@@ -183,16 +155,26 @@ module Deserialize {
       frameLength);
     assert Msg.IsSerializationOfHeaderBody(rd.reader.data[old(rd.reader.pos)..rd.reader.pos], hb) by {
       reveal Msg.IsSerializationOfHeaderBody();
-      var s := rd.reader.data[old(rd.reader.pos)..rd.reader.pos];
+      assert readSoFar == rd.reader.data[old(rd.reader.pos)..rd.reader.pos];
       var serializedAAD := rd.reader.data[aadStart..aadEnd];
       assert EncryptionContext.LinearSeqToMap(serializedAAD, aad);
-      // Without this assertion, the following assertion of IsSerializationOfHeaderBodyAux
-      // fails to verify on the latest Dafny (3.1).
-      // TODO unstable proof. removing Reprs resulted in proof failure. Had to add asserts in method body.
-      assert s[0..1] == [hb.version as uint8];
-      assert Msg.IsSerializationOfHeaderBodyAux(s, hb, serializedAAD);
+      assert Msg.IsSerializationOfHeaderBodyAux(readSoFar, hb, serializedAAD);
     }
     return Success(hb);
+  }
+
+  /*
+   * This lemma helps keep track of what is read in each step.
+   * The second postcondition is phrased in such a way that it is easy to figure out all the pieces that have
+   * been written. In effect, it says "(orig + previouslyRead) + newlyRead == orig + (previouslyRead + newlyRead)".
+   */
+  lemma ReadHelper(rd: Streams.ByteReader, orig: seq<uint8>, previouslyRead: seq<uint8>, newlyRead: seq<uint8>) returns (read: seq<uint8>)
+    requires rd.Valid()
+    requires rd.reader.data[..rd.reader.pos] == orig + previouslyRead + newlyRead
+    ensures read == previouslyRead + newlyRead
+    ensures rd.reader.data[..rd.reader.pos] == orig + read
+  {
+    read := previouslyRead + newlyRead;
   }
 
   /*
@@ -213,6 +195,7 @@ module Deserialize {
         && serHa == rd.reader.data[old(rd.reader.pos)..rd.reader.pos]
       case Failure(_) => true
   {
+    assert {:focus} true;
     var iv :- rd.ReadBytes(algorithmSuiteID.IVLength());
     var authenticationTag :- rd.ReadBytes(algorithmSuiteID.TagLength());
     var ha := Msg.HeaderAuthentication(iv, authenticationTag);
