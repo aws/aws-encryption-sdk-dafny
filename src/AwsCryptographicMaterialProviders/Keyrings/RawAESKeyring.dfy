@@ -12,13 +12,8 @@ include "../Materials.dfy"
 include "../../Util/UTF8.dfy"
 include "../../Util/Streams.dfy"
 include "../../Generated/AwsCryptographicMaterialProviders.dfy"
+include "../../../libraries/src/Collections/Sequences/Seq.dfy"
 
-// This dependency on the ESDK needs to be removed
-// The ESDK depends on the AwsCryptographicMaterialProviders
-// not the ohter way round.
-include "../../SDK/EncryptionContext.dfy"
-include "../../Util/Streams.dfy"
-include "../../SDK/Serialize.dfy"
 
 module
   {:extern "Dafny.Aws.Crypto.AwsCryptographicMaterialProvidersClient2.RawAESKeyring"}
@@ -34,11 +29,7 @@ module
   import Random
   import AESEncryption
   import UTF8
-
-  // This dependency on the ESDK needs to be removed
-  import EncryptionContext
-  import Streams
-  import Serialize
+  import Seq
 
   type WrappingAlgorithmSuiteId = id: Crypto.AlgorithmSuiteId |
     || id == Crypto.ALG_AES_128_GCM_IV12_TAG16_NO_KDF
@@ -58,9 +49,9 @@ module
     // The wrappingKey MUST be kept secret.
     // This is why storing this kind of wrapping key
     // in an key management system or HSM
-    // is prefered.
+    // is preferred.
     // The ESDK can not make such claims
-    // on user supplied immport.
+    // on user supplied import.
     // Suffice to say: If these are not preserved
     // then the RawAESKeyring is not secure.
 
@@ -120,12 +111,15 @@ module
 
       // EDK created using expected AAD
       ensures res.Success? ==>
-        && var encCtxSerializable := (reveal EncryptionContext.Serializable(); EncryptionContext.Serializable(input.materials.encryptionContext));
+        && EncryptionContextToAAD(input.materials.encryptionContext).Success?
         && |res.value.materials.encryptedDataKeys| == |input.materials.encryptedDataKeys| + 1
-        && encCtxSerializable
         && wrappingAlgorithm.tagLength as nat <= |res.value.materials.encryptedDataKeys[|input.materials.encryptedDataKeys|].ciphertext|
-        && var encOutput := DeserializeEDKCiphertext(res.value.materials.encryptedDataKeys[|input.materials.encryptedDataKeys|].ciphertext, wrappingAlgorithm.tagLength as nat);
-        && AESEncryption.EncryptionOutputEncryptedWithAAD(encOutput, EncryptionContext.MapToSeq(input.materials.encryptionContext))
+        && var encOutput := DeserializeEDKCiphertext(
+          res.value.materials.encryptedDataKeys[|input.materials.encryptedDataKeys|].ciphertext,
+          wrappingAlgorithm.tagLength as nat);
+        && AESEncryption.EncryptionOutputEncryptedWithAAD(
+          encOutput,
+          EncryptionContextToAAD(input.materials.encryptionContext).value)
 
       ensures res.Success? ==>
         && |res.value.materials.encryptedDataKeys| == |input.materials.encryptedDataKeys| + 1
@@ -145,31 +139,16 @@ module
       //= type=implication
       //# If the keyring cannot serialize
       //# the encryption context, OnEncrypt MUST fail.
-      ensures !EncryptionContext.Serializable(input.materials.encryptionContext) ==> res.Failure?
+      ensures EncryptionContextToAAD(input.materials.encryptionContext).Failure? ==> res.Failure?
     {
-      // Check that the encryption context can be serialized correctly
-      reveal EncryptionContext.Serializable();
-      //= compliance/framework/raw-aes-keyring.txt#2.7.1
-      //# The keyring MUST attempt to serialize the encryption materials'
-      //# (structures.md#encryption-materials) encryption context
-      //# (structures.md#encryption-context-1) in the same format as the
-      //# serialization of message header AAD key value pairs (../data-format/
-      //# message-header.md#key-value-pairs).
-      var valid := EncryptionContext.CheckSerializable(input.materials.encryptionContext);
-      :- Need(valid, "Unable to serialize encryption context");
-
       var materials := input.materials;
       var suite := GetSuite(materials.algorithmSuiteId);
+      var aad :- EncryptionContextToAAD(materials.encryptionContext);
 
       // Random is a method, and transitions require both a key and encrypted data key
       var k' :- Random.GenerateBytes(suite.encrypt.keyLength as int32);
       var iv :- Random.GenerateBytes(wrappingAlgorithm.ivLength as int32);
       var providerInfo := SerializeProviderInfo(iv);
-
-      var byteWriter := new Streams.ByteWriter();
-      var _ :- Serialize.SerializeKVPairs(byteWriter, input.materials.encryptionContext);
-      var aad := byteWriter.GetDataWritten();
-      assert aad == EncryptionContext.MapToSeq(input.materials.encryptionContext);
 
       //= compliance/framework/raw-aes-keyring.txt#2.7.1
       //# If the encryption materials (structures.md#encryption-materials) do
@@ -232,21 +211,26 @@ module
       // TODO: ensure non-None when input edk list has edk with valid provider info
 
        // Plaintext decrypted using expected AAD
-      ensures res.Success? && input.materials.plaintextDataKey.None? && res.value.materials.plaintextDataKey.Some? ==>
-        var encCtxSerializable := (reveal EncryptionContext.Serializable(); EncryptionContext.Serializable(input.materials.encryptionContext));
-        && encCtxSerializable
-        && AESEncryption.PlaintextDecryptedWithAAD(res.value.materials.plaintextDataKey.value, EncryptionContext.MapToSeq(input.materials.encryptionContext))
+      ensures
+        && res.Success?
+        && input.materials.plaintextDataKey.None?
+        && res.value.materials.plaintextDataKey.Some?
+      ==>
+        && EncryptionContextToAAD(input.materials.encryptionContext).Success?
+        && AESEncryption.PlaintextDecryptedWithAAD(
+          res.value.materials.plaintextDataKey.value,
+          EncryptionContextToAAD(input.materials.encryptionContext).value)
 
       //= compliance/framework/raw-aes-keyring.txt#2.7.2
       //= type=implication
       //# If the keyring cannot
       //# serialize the encryption context, OnDecrypt MUST fail.
-      ensures !EncryptionContext.Serializable(input.materials.encryptionContext) ==> res.Failure?
+      ensures EncryptionContextToAAD(input.materials.encryptionContext).Failure? ==> res.Failure?
     {
       var materials := input.materials;
       :- Need(
         Materials.DecryptionMaterialsWithoutPlaintextDataKey(materials), 
-        "Keyring recieved decryption materials that already contain a plaintext data key.");
+        "Keyring received decryption materials that already contain a plaintext data key.");
 
       //= compliance/framework/raw-aes-keyring.txt#2.7.2
       //# The keyring MUST perform the following actions on each encrypted data
@@ -257,22 +241,7 @@ module
         invariant forall prevIndex :: 0 <= prevIndex < i ==> prevIndex < |input.encryptedDataKeys| && !(ShouldDecryptEDK(input.encryptedDataKeys[prevIndex]))
       {
         if ShouldDecryptEDK(input.encryptedDataKeys[i]) {
-          //= compliance/framework/raw-aes-keyring.txt#2.7.2
-          //# The keyring MUST attempt to serialize the decryption input.materials'
-          //# (structures.md#decryption-input.materials) encryption context
-          //# (structures.md#encryption-context-1) in the same format as the
-          //# serialization of the message header AAD key value pairs (../data-
-          //# format/message-header.md#key-value-pairs).
-          reveal EncryptionContext.Serializable();
-          var valid := EncryptionContext.CheckSerializable(materials.encryptionContext);
-          if !valid {
-            return Failure("Unable to serialize encryption context");
-          }
-          var byteWriter := new Streams.ByteWriter();
-          var _ :- Serialize.SerializeKVPairs(byteWriter, materials.encryptionContext);
-
-          var aad := byteWriter.GetDataWritten();
-          assert aad == EncryptionContext.MapToSeq(materials.encryptionContext);
+          var aad :- EncryptionContextToAAD(input.materials.encryptionContext);
           var iv := GetIvFromProvInfo(input.encryptedDataKeys[i].keyProviderInfo);
           var encryptionOutput := DeserializeEDKCiphertext(input.encryptedDataKeys[i].ciphertext, wrappingAlgorithm.tagLength as nat);
 
@@ -374,5 +343,31 @@ module
     requires tagLen <= |ciphertext|
     ensures SerializeEDKCiphertext(DeserializeEDKCiphertext(ciphertext, tagLen)) == ciphertext
   {}
+
+  //= compliance/framework/raw-aes-keyring.txt#2.7.1
+  //# The keyring MUST attempt to serialize the encryption materials'
+  //# (structures.md#encryption-materials) encryption context
+  //# (structures.md#encryption-context-1) in the same format as the
+  //# serialization of message header AAD key value pairs (../data-format/
+  //# message-header.md#key-value-pairs).
+  function method EncryptionContextToAAD(
+    encryptionContext: Crypto.EncryptionContext
+  ): 
+    (res: Result<seq<uint8>, string>)
+  {
+    :- Need(|encryptionContext| < UINT16_LIMIT, "asdf");
+    var keys := SetToOrderedSequence(encryptionContext.Keys, UInt.UInt8Less);
+
+    var KeyIntoPairBytes := k
+      requires k in encryptionContext
+    =>
+      var v := encryptionContext[k];
+      :- Need(HasUint16Len(k) && HasUint16Len(v), "Unable to serialize encryption context");
+      Success(UInt16ToSeq(|k| as uint16) + k + UInt16ToSeq(|v| as uint16) + v);
+
+    var pairsBytes :- Seq.MapWithResult(KeyIntoPairBytes, keys);
+
+    Success(Seq.Flatten(pairsBytes))
+  }
 
 }
