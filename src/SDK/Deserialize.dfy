@@ -73,48 +73,48 @@ module Deserialize {
         && Msg.IsSerializationOfHeaderBody(rd.reader.data[old(rd.reader.pos)..rd.reader.pos], hb)
       case Failure(_) => true
   {
+    assert {:focus} true;
+    ghost var orig := rd.reader.data[..rd.reader.pos];
+    ghost var readSoFar := [];
+
     var version :- DeserializeVersion(rd);
+    readSoFar := ReadHelper(rd, orig, readSoFar, [version]);
+
     var typ :- DeserializeType(rd);
+    readSoFar := ReadHelper(rd, orig, readSoFar, [typ]);
+
     var algorithmSuiteID :- DeserializeAlgorithmSuiteID(rd);
+    readSoFar := ReadHelper(rd, orig, readSoFar, UInt16ToSeq(algorithmSuiteID as uint16));
+
     var messageID :- DeserializeMsgID(rd);
+    readSoFar := ReadHelper(rd, orig, readSoFar, messageID);
 
     ghost var aadStart := rd.reader.pos;
     var aad :- DeserializeAAD(rd);
     ghost var aadEnd := rd.reader.pos;
 
+    readSoFar := ReadHelper(rd, orig, readSoFar, rd.reader.data[aadStart..aadEnd]);
+    assert EncryptionContext.LinearSeqToMap(rd.reader.data[aadStart..aadEnd], aad);
 
     var encryptedDataKeys :- DeserializeEncryptedDataKeys(rd);
+    readSoFar := ReadHelper(rd, orig, readSoFar, Msg.EDKsToSeq(encryptedDataKeys));
 
     var contentType :- DeserializeContentType(rd);
+    readSoFar := ReadHelper(rd, orig, readSoFar, [Msg.ContentTypeToUInt8(contentType)]);
 
-    // TODO dafny verification handholding
-    assert [version as uint8] + [typ as uint8] + UInt16ToSeq(algorithmSuiteID as uint16) + messageID + rd.reader.data[aadStart..aadEnd]
-      + Msg.EDKsToSeq(encryptedDataKeys) + [Msg.ContentTypeToUInt8(contentType)]  ==
-      rd.reader.data[old(rd.reader.pos)..rd.reader.pos];
-
-    ghost var reserveStart := rd.reader.pos;
     var _ :- DeserializeReserved(rd);
-    ghost var reserveEnd := rd.reader.pos;
+    readSoFar := ReadHelper(rd, orig, readSoFar, Msg.Reserved);
 
-    // TODO dafny verification handholding
-    assert [version as uint8] + [typ as uint8] + UInt16ToSeq(algorithmSuiteID as uint16) + messageID + rd.reader.data[aadStart..aadEnd]
-      + Msg.EDKsToSeq(encryptedDataKeys) + [Msg.ContentTypeToUInt8(contentType)] + rd.reader.data[reserveStart..reserveEnd]  ==
-      rd.reader.data[old(rd.reader.pos)..rd.reader.pos];
-
-    // TODO dafny verification handholding
-    assert [version as uint8] + [typ as uint8] + UInt16ToSeq(algorithmSuiteID as uint16) + messageID + rd.reader.data[aadStart..aadEnd]
-      + Msg.EDKsToSeq(encryptedDataKeys) + [Msg.ContentTypeToUInt8(contentType)] + [0,0,0,0]  ==
-      rd.reader.data[old(rd.reader.pos)..rd.reader.pos];
-
+    assert {:focus} true;
     var ivLength :- rd.ReadByte();
-    var frameLength :- rd.ReadUInt32();
+    readSoFar := ReadHelper(rd, orig, readSoFar, [ivLength]);
 
-    // TODO dafny verification handholding
-    assert [version as uint8] + [typ as uint8] + UInt16ToSeq(algorithmSuiteID as uint16) + messageID + rd.reader.data[aadStart..aadEnd]
-      + Msg.EDKsToSeq(encryptedDataKeys) + [Msg.ContentTypeToUInt8(contentType)] + [0,0,0,0] + [ivLength] + UInt32ToSeq(frameLength) ==
-      rd.reader.data[old(rd.reader.pos)..rd.reader.pos];
+    assert {:focus} true;
+    var frameLength :- rd.ReadUInt32();
+    readSoFar := ReadHelper(rd, orig, readSoFar, UInt32ToSeq(frameLength));
 
     // inter-field checks
+    // TODO: shouldn't the following if-statement be done immediately after reading "ivLength"?
     if ivLength as nat != algorithmSuiteID.IVLength() {
       return Failure("Deserialization Error: Incorrect IV length.");
     }
@@ -124,7 +124,7 @@ module Deserialize {
       return Failure("Deserialization Error: Frame length must be non-0 when content type is framed.");
     }
 
-    reveal Msg.IsSerializationOfHeaderBody();
+    assert {:focus} true;
     var hb := Msg.HeaderBody(
       version,
       typ,
@@ -137,16 +137,26 @@ module Deserialize {
       frameLength);
     assert Msg.IsSerializationOfHeaderBody(rd.reader.data[old(rd.reader.pos)..rd.reader.pos], hb) by {
       reveal Msg.IsSerializationOfHeaderBody();
-      var s := rd.reader.data[old(rd.reader.pos)..rd.reader.pos];
+      assert readSoFar == rd.reader.data[old(rd.reader.pos)..rd.reader.pos];
       var serializedAAD := rd.reader.data[aadStart..aadEnd];
       assert EncryptionContext.LinearSeqToMap(serializedAAD, aad);
-      // Without this assertion, the following assertion of IsSerializationOfHeaderBodyAux
-      // fails to verify on the latest Dafny (3.1).
-      // TODO unstable proof. removing Reprs resulted in proof failure. Had to add asserts in method body.
-      assert s[0..1] == [hb.version as uint8];
-      assert Msg.IsSerializationOfHeaderBodyAux(s, hb, serializedAAD);
+      assert Msg.IsSerializationOfHeaderBodyAux(readSoFar, hb, serializedAAD);
     }
     return Success(hb);
+  }
+
+  /*
+   * This lemma helps keep track of what is read in each step.
+   * The second postcondition is phrased in such a way that it is easy to figure out all the pieces that have
+   * been written. In effect, it says "(orig + previouslyRead) + newlyRead == orig + (previouslyRead + newlyRead)".
+   */
+  lemma ReadHelper(rd: Streams.ByteReader, orig: seq<uint8>, previouslyRead: seq<uint8>, newlyRead: seq<uint8>) returns (read: seq<uint8>)
+    requires rd.Valid()
+    requires rd.reader.data[..rd.reader.pos] == orig + previouslyRead + newlyRead
+    ensures read == previouslyRead + newlyRead
+    ensures rd.reader.data[..rd.reader.pos] == orig + read
+  {
+    read := previouslyRead + newlyRead;
   }
 
   /*
@@ -167,6 +177,7 @@ module Deserialize {
         && serHa == rd.reader.data[old(rd.reader.pos)..rd.reader.pos]
       case Failure(_) => true
   {
+    assert {:focus} true;
     var iv :- rd.ReadBytes(algorithmSuiteID.IVLength());
     var authenticationTag :- rd.ReadBytes(algorithmSuiteID.TagLength());
     var ha := Msg.HeaderAuthentication(iv, authenticationTag);
@@ -497,16 +508,19 @@ module Deserialize {
     ensures match ret
       case Success(edks) =>
         && var n := |Msg.EDKsToSeq(edks)|;
-        old(rd.reader.pos) + n == rd.reader.pos
+        && old(rd.reader.pos) + n == rd.reader.pos
         && Msg.EDKsToSeq(edks) == rd.reader.data[old(rd.reader.pos)..rd.reader.pos]
       case Failure(_) => true
   {
-    var edkCount :- rd.ReadUInt16();
-    if edkCount == 0 {
-      return Failure("Deserialization Error: Encrypted data key count is 0.");
-    }
+    ghost var orig := rd.reader.data[..rd.reader.pos];
+    ghost var readSoFar := [];
 
-    assert rd.reader.pos == old(rd.reader.pos) + 2;
+    var edkCount :- rd.ReadUInt16();
+    :- Need(edkCount > 0, "Deserialization Error: Encrypted data key count is 0.");
+
+    readSoFar := ReadHelper(rd, orig, readSoFar, UInt16ToSeq(edkCount));
+    ghost var countBytes := readSoFar;
+
     var edkEntries: ESDKEncryptedDataKeys := [];
     var i := 0;
     while i < edkCount
@@ -514,47 +528,51 @@ module Deserialize {
       invariant rd.Valid()
       invariant i <= edkCount
       invariant |edkEntries| == i as int
-      invariant Msg.EDKEntriesToSeq(edkEntries, 0, |edkEntries|) == rd.reader.data[old(rd.reader.pos) + 2 .. rd.reader.pos]
+      invariant countBytes + Msg.EDKEntriesToSeq(edkEntries, 0, |edkEntries|) == readSoFar
+      invariant rd.reader.data[..rd.reader.pos] == orig + readSoFar
     {
-      ghost var edkStartPos := rd.reader.pos;
-      ghost var providerIdStartPos := edkStartPos;
+
+      ghost var origInner := rd.reader.data[..rd.reader.pos];
+      ghost var readSoFarInner := [];
+
+      assert {:focus} true;
       // Key provider ID
       var providerIdLength :- rd.ReadUInt16();
-      var str :- DeserializeUTF8(rd, providerIdLength as nat);
-      var providerId := str;
-      assert rd.reader.pos == providerIdStartPos + 2 + |providerId|;
-      assert UInt16ToSeq(|providerId| as uint16) + providerId == rd.reader.data[providerIdStartPos..rd.reader.pos];
+      readSoFarInner := ReadHelper(rd, origInner, readSoFarInner, UInt16ToSeq(providerIdLength));
+      var providerId :- DeserializeUTF8(rd, providerIdLength as nat);
+      readSoFarInner := ReadHelper(rd, origInner, readSoFarInner, providerId);
 
+      assert {:focus} true;
       // Key provider info
-      ghost var providerInfoStartPos := rd.reader.pos;
       var providerInfoLength :- rd.ReadUInt16();
+      readSoFarInner := ReadHelper(rd, origInner, readSoFarInner, UInt16ToSeq(providerInfoLength));
       var providerInfo :- rd.ReadBytes(providerInfoLength as nat);
-      assert rd.reader.pos == providerInfoStartPos + 2 + |providerInfo|;
-      assert UInt16ToSeq(|providerInfo| as uint16) + providerInfo == rd.reader.data[providerInfoStartPos..rd.reader.pos];
+      readSoFarInner := ReadHelper(rd, origInner, readSoFarInner, providerInfo);
 
+      assert {:focus} true;
       // Ciphertext
-      ghost var ciphertextStartPos := rd.reader.pos;
       var ciphertextLength :- rd.ReadUInt16();
+      readSoFarInner := ReadHelper(rd, origInner, readSoFarInner, UInt16ToSeq(ciphertextLength));
       var ciphertext :- rd.ReadBytes(ciphertextLength as nat);
-      assert rd.reader.pos == ciphertextStartPos + 2 + |ciphertext|;
-      assert UInt16ToSeq(|ciphertext| as uint16) + ciphertext == rd.reader.data[ciphertextStartPos..rd.reader.pos];
+      readSoFarInner := ReadHelper(rd, origInner, readSoFarInner, ciphertext);
 
-      edkEntries := edkEntries + [Crypto.EncryptedDataKey(keyProviderId:=providerId, keyProviderInfo:=providerInfo, ciphertext:=ciphertext)];
+      var edk := Crypto.EncryptedDataKey(keyProviderId:=providerId, keyProviderInfo:=providerInfo, ciphertext:=ciphertext);
+
+      assert readSoFarInner == Msg.EDKEntryToSeq(edk);
+      readSoFar := readSoFar + readSoFarInner;
+
+      edkEntries := edkEntries + [edk];
       i := i + 1;
-      assert edkStartPos + 2 + |providerId| + 2 + |providerInfo| + 2 + |ciphertext| == rd.reader.pos;
-      assert Msg.EDKEntriesToSeq(edkEntries, 0, |edkEntries|) == rd.reader.data[old(rd.reader.pos) + 2 .. rd.reader.pos] by {
-        // TODO proof needs additional handholding here where it didn't before. Should make more stable somehow.
-        assert UInt16ToSeq(|providerId| as uint16) + providerId == rd.reader.data[edkStartPos..edkStartPos+2+|providerId|];
-        assert UInt16ToSeq(|providerInfo| as uint16) + providerInfo == rd.reader.data[edkStartPos+2+|providerId|..edkStartPos+2+|providerId|+2+|providerInfo|];
-        assert UInt16ToSeq(|ciphertext| as uint16) + ciphertext == rd.reader.data[edkStartPos+2+|providerId|+2+|providerInfo|..edkStartPos+2+|providerId|+2+|providerInfo|+2+|ciphertext|];
-        assert Msg.EDKEntryToSeq(Crypto.EncryptedDataKey(keyProviderId:=providerId, keyProviderInfo:=providerInfo, ciphertext:=ciphertext)) == rd.reader.data[edkStartPos..rd.reader.pos];
-        Msg.EDKEntriesToSeqInductiveStep(edkEntries[..|edkEntries| - 1],
-          [Crypto.EncryptedDataKey(keyProviderId:=providerId, keyProviderInfo:=providerInfo, ciphertext:=ciphertext)], 0, |edkEntries[..|edkEntries| - 1]|);
-      }
+
+      Msg.EDKEntriesToSeqInductiveStep(
+        edkEntries[..|edkEntries| - 1],
+        [edk],
+        0,
+        |edkEntries[..|edkEntries| - 1]|);
+
     }
     assert |edkEntries| == edkCount as int;
-    var edks := edkEntries;
-    return Success(edks);
+    return Success(edkEntries);
   }
 
   method DeserializeContentType(rd: Streams.ByteReader) returns (ret: Result<Msg.ContentType, string>)

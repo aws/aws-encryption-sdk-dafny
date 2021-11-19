@@ -12,7 +12,6 @@ include "Serialize.dfy"
 include "Deserialize.dfy"
 include "../Crypto/Random.dfy"
 include "../Util/Streams.dfy"
-include "../Crypto/KeyDerivationAlgorithms.dfy"
 include "../Crypto/HKDF/HKDF.dfy"
 include "../Crypto/AESEncryption.dfy"
 include "../Crypto/Signature.dfy"
@@ -30,7 +29,6 @@ module {:extern "EncryptDecrypt"} EncryptDecrypt {
   import DefaultCMMDef
   import Deserialize
   import HKDF
-  import KeyDerivationAlgorithms
   import Materials
   import Msg = MessageHeader
   import MessageBody
@@ -160,7 +158,9 @@ module {:extern "EncryptDecrypt"} EncryptDecrypt {
  /*
   * Encrypt a plaintext and serialize it into a message.
   */
-  method Encrypt(request: EncryptRequest) returns (res: Result<seq<uint8>, string>)
+  method Encrypt(request: EncryptRequest)
+      returns (res: Result<seq<uint8>, string>,
+               ghost successSupportingInfo: Option<(Msg.HeaderBody, Msg.HeaderAuthentication, seq<MessageBody.Frame>, seq<uint8>)>)
     ensures request.cmm == null && request.keyring == null ==> res.Failure?
     ensures request.cmm != null && request.keyring != null ==> res.Failure?
     ensures request.algorithmSuiteID.Some? && request.algorithmSuiteID.value !in AlgorithmSuite.VALID_IDS ==> res.Failure?
@@ -168,19 +168,21 @@ module {:extern "EncryptDecrypt"} EncryptDecrypt {
     ensures match res
       case Failure(e) => true
       case Success(encryptedSequence) =>
+        && successSupportingInfo.Some?
+        && var Some((headerBody, headerAuthentication, frames, signature)) := successSupportingInfo;
         // The result is a serialization of 3 items with a potential fourth item. Every item has to meet some specification which is specified in its respective section
-        exists headerBody, headerAuthentication, frames :: // Some items exists
-          ValidHeaderBodyForRequest(headerBody, request) // Which meet their respecive specifications
-          && ValidHeaderAuthenticationForRequest(headerAuthentication, headerBody)
-          && ValidFramesForRequest(frames, request, headerBody)
-          && match headerBody.algorithmSuiteID.SignatureType() {
-              case Some(_) => // If the result needs to be signed then there exists a fourth item
-                exists signature | ValidSignatureForRequest(signature, headerBody, headerAuthentication, frames) :: // which meets its specification
-                  encryptedSequence == SerializeMessageWithSignature(headerBody, headerAuthentication, frames, signature) // These items can be serialized to the output
-              case None => // if the result does not need to be signed
-                encryptedSequence == SerializeMessageWithoutSignature(headerBody, headerAuthentication, frames) // Then these items can be serialized to the output
-            }
+        && ValidHeaderBodyForRequest(headerBody, request) // Which meet their respecive specifications
+        && ValidHeaderAuthenticationForRequest(headerAuthentication, headerBody)
+        && ValidFramesForRequest(frames, request, headerBody)
+        && match headerBody.algorithmSuiteID.SignatureType() {
+            case Some(_) => // If the result needs to be signed then there exists a fourth item
+              && ValidSignatureForRequest(signature, headerBody, headerAuthentication, frames) // which meets its specification
+              && encryptedSequence == SerializeMessageWithSignature(headerBody, headerAuthentication, frames, signature) // These items can be serialized to the output
+            case None => // if the result does not need to be signed
+              encryptedSequence == SerializeMessageWithoutSignature(headerBody, headerAuthentication, frames) // Then these items can be serialized to the output
+          }
   {
+    successSupportingInfo := None; // KRML: why is the type of "successSupportingInfo" subject to definite-assignment rules?
     // Validate encrypt request
     :- Need(request.cmm == null || request.keyring == null, "EncryptRequest.keyring OR EncryptRequest.cmm must be set (not both).");
     :- Need(request.cmm != null || request.keyring != null, "EncryptRequest.cmm and EncryptRequest.keyring cannot both be null.");
@@ -240,6 +242,7 @@ module {:extern "EncryptDecrypt"} EncryptDecrypt {
       frameLength);
     assert ValidHeaderBodyForRequest (headerBody, request);
     ghost var serializedHeaderBody := (reveal Msg.HeaderBodyToSeq(); Msg.HeaderBodyToSeq(headerBody));
+    assert {:focus} true;
 
     var wr := new Streams.ByteWriter();
     var _ :- Serialize.SerializeHeaderBody(wr, headerBody);
@@ -251,6 +254,7 @@ module {:extern "EncryptDecrypt"} EncryptDecrypt {
     var headerAuthentication := Msg.HeaderAuthentication(iv, encryptionOutput.authTag);
 
     assert ValidHeaderAuthenticationForRequest(headerAuthentication, headerBody) by{ // Header confirms to specification
+      assert {:focus} true;
       assert headerAuthentication.iv == seq(headerBody.algorithmSuiteID.IVLength(), _ => 0);
       assert Msg.HeaderAuthenticationMatchesHeaderBody(headerAuthentication, headerBody);
       assert IsDerivedKey(derivedDataKey) && AESEncryption.EncryptedWithKey(encryptionOutput.cipherText, derivedDataKey);
@@ -260,12 +264,14 @@ module {:extern "EncryptDecrypt"} EncryptDecrypt {
     var _ :- Serialize.SerializeHeaderAuthentication(wr, headerAuthentication, AlgorithmSuite.PolymorphIDToInternalID(encMat.algorithmSuiteId));
     assert wr.GetDataWritten() == serializedHeaderBody + serializedHeaderAuthentication; // Read data contains complete header
 
+    assert {:focus} true;
     // Encrypt the given plaintext into the message body and add a footer with a signature, if required
     var seqWithGhostFrames :- MessageBody.EncryptMessageBody(request.plaintext, frameLength as int, messageID, derivedDataKey, AlgorithmSuite.PolymorphIDToInternalID(encMat.algorithmSuiteId));
     var body := seqWithGhostFrames.sequence;
     ghost var frames := seqWithGhostFrames.frames;
 
     assert ValidFramesForRequest(frames, request, headerBody) && body == MessageBody.FramesToSequence(frames) by { // Frames meets specification
+      assert {:focus} true;
       assert forall frame: MessageBody.Frame | frame in frames :: frame.Valid();
       assert MessageBody.FramesEncryptPlaintext(frames, request.plaintext); // This requirement is missing in spec but needed
       assert forall frame: MessageBody.Frame | frame in frames :: |frame.iv| == headerBody.algorithmSuiteID.IVLength();
@@ -280,18 +286,19 @@ module {:extern "EncryptDecrypt"} EncryptDecrypt {
       :- Need(|bytes| == ecdsaParams.SignatureLength() as int, "Malformed response from Sign().");
 
       var signature := UInt16ToSeq(|bytes| as uint16) + bytes;
-      assert ValidSignatureForRequest(bytes, headerBody, headerAuthentication, frames) by{ // Signature confirms to specification
+      assert ValidSignatureForRequest(bytes, headerBody, headerAuthentication, frames) by { // Signature confirms to specification
         assert |signature| < UINT16_LIMIT;
-        assert Signature.IsSigned(encMat.signingKey.value, msg, bytes)  ;
+        assert Signature.IsSigned(encMat.signingKey.value, msg, bytes);
       }
       msg := msg + signature;
       assert headerBody.algorithmSuiteID.SignatureType().Some?;
       assert msg == SerializeMessageWithSignature(headerBody, headerAuthentication, frames, bytes); // Header, frames and signature can be serialized into the stream
-      return Success(msg);
+      return Success(msg), Some((headerBody, headerAuthentication, frames, bytes));
     } else {
+      assert {:focus} true;
       // don't use a footer
       assert msg == SerializeMessageWithoutSignature(headerBody, headerAuthentication, frames); // Header and frames can be serialized into the stream
-      return Success(msg);
+      return Success(msg), Some((headerBody, headerAuthentication, frames, []));
     }
   }
 
@@ -301,7 +308,7 @@ module {:extern "EncryptDecrypt"} EncryptDecrypt {
     ensures IsDerivedKey(derivedDataKey)
   {
     var algorithm := AlgorithmSuite.Suite[algorithmSuiteID].hkdf;
-    if algorithm == KeyDerivationAlgorithms.IDENTITY {
+    if algorithm == AlgorithmSuite.KeyDerivationAlgorithms.IDENTITY {
       assert IsDerivedKey(plaintextDataKey) by {
         reveal IsDerivedKey();
       }
@@ -310,7 +317,7 @@ module {:extern "EncryptDecrypt"} EncryptDecrypt {
 
     var infoSeq := UInt16ToSeq(algorithmSuiteID as uint16) + messageID;
     var len := algorithmSuiteID.KeyLength();
-    var derivedKey := HKDF.Hkdf(algorithm, None, plaintextDataKey, infoSeq, len);
+    var derivedKey := HKDF.Hkdf(algorithm.digest, None, plaintextDataKey, infoSeq, len);
     assert IsDerivedKey(derivedKey) by {
       reveal IsDerivedKey();
     }
@@ -373,6 +380,7 @@ module {:extern "EncryptDecrypt"} EncryptDecrypt {
     var rd := new Streams.ByteReader(request.message);
     var deserializeHeaderResult :- Deserialize.DeserializeHeader(rd);
     var header := deserializeHeaderResult.header;
+    assert header.body.Valid();
 
     if header.body.contentType.Framed? { // If the header is framed then the header is deserialized from the read sequence
       assert HeaderBySequence(header, deserializeHeaderResult.hbSeq, rd.reader.data[..rd.reader.pos]) by {
@@ -503,6 +511,31 @@ module {:extern "EncryptDecrypt"} EncryptDecrypt {
       }
     }
     var decryptResultWithVerificationInfo := DecryptResultWithVerificationInfo(plaintext, header, deserializeHeaderResult.hbSeq, frames, signature);
+    ghost var d := decryptResultWithVerificationInfo;
+    assert d.header.body.Valid();
+    assert Msg.IsSerializationOfHeaderBody(d.hbSeq, d.header.body);
+    if d.header.body.contentType.Framed? {
+      assert forall frame: MessageBody.Frame | frame in d.frames :: frame.Valid();
+      assert MessageBody.FramesEncryptPlaintext(d.frames, d.plaintext);
+      assert match d.signature {
+               case Some(_) =>
+                 && |d.signature.value| < UINT16_LIMIT
+                 && request.message == d.hbSeq + d.header.auth.iv + d.header.auth.authenticationTag // These items can be serialized to the output
+                   + MessageBody.FramesToSequence(d.frames) + UInt16ToSeq(|d.signature.value| as uint16) + d.signature.value
+               case None => // if the result does not need to be signed
+                 request.message == d.hbSeq + d.header.auth.iv + d.header.auth.authenticationTag + MessageBody.FramesToSequence(d.frames)
+             } by
+      {
+        if d.signature.Some? {
+          assert |d.signature.value| < UINT16_LIMIT;
+          assert request.message ==
+                   d.hbSeq + d.header.auth.iv + d.header.auth.authenticationTag // These items can be serialized to the output
+                   + MessageBody.FramesToSequence(d.frames) + UInt16ToSeq(|d.signature.value| as uint16) + d.signature.value;
+        } else {
+          assert request.message == d.hbSeq + d.header.auth.iv + d.header.auth.authenticationTag + MessageBody.FramesToSequence(d.frames);
+        }
+      }
+    }
     return Success(decryptResultWithVerificationInfo);
   }
 

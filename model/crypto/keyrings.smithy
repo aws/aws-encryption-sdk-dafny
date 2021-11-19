@@ -27,8 +27,8 @@ structure DiscoveryFilter {
 }
 
 map EncryptionContext {
-    key: String,
-    value: String
+    key: Utf8Bytes,
+    value: Utf8Bytes,
 }
 
 // Grant Tokens are base64 encoded strings
@@ -87,101 +87,102 @@ structure CreateKeyringOutput {
     keyring: KeyringReference
 }
 
-// KMS - Old Style
+// TODO
+// // KMS - Old Style
+//
+// operation CreateAwsKmsKeyring {
+//     input: CreateAwsKmsKeyringInput,
+//     output: CreateKeyringOutput 
+// }
+//
+// structure CreateAwsKmsKeyringInput {
+//     @required
+//     clientSupplier: ClientSupplierReference,
+//
+//     // Not required because the keyring could be in discovery mode
+//     generator: KmsKeyId,
+//
+//     keyIds: KmsKeyIdList,
+//
+//     grantTokens: GrantTokenList,
+// }
+//
+// // KMS - MRK Aware, Strict
+// operation CreateMrkAwareStrictAwsKmsKeyring {
+//     input: CreateMrkAwareStrictAwsKmsKeyringInput,
+//     output: CreateKeyringOutput,
+// }
+//
+// structure CreateMrkAwareStrictAwsKmsKeyringInput {
+//     @required
+//     kmsKeyId: KmsKeyId,
+//
+//     @required
+//     kmsClient: KmsClientReference,
+//
+//     grantTokens: GrantTokenList
+// }
+//
+// operation CreateMrkAwareStrictMultiKeyring {
+//     input: CreateMrkAwareStrictMultiKeyringInput,
+//     output: CreateKeyringOutput,
+// }
+//
+// structure CreateMrkAwareStrictMultiKeyringInput {
+//     // TODO: spec doesn't call this required but it seems like it should be
+//     generator:  KmsKeyId,
+//
+//     kmsKeyIds: KmsKeyIdList,
+//
+//     clientSupplier: ClientSupplierReference,
+//
+//     grantTokens: GrantTokenList
+// }
+//
+// // KMS - MRK Aware, Discovery
+//
+// operation CreateMrkAwareDiscoveryAwsKmsKeyring {
+//     input: CreateMrkAwareDiscoveryAwsKmsKeyringInput,
+//     output: CreateKeyringOutput,
+// }
+//
+// structure CreateMrkAwareDiscoveryAwsKmsKeyringInput {
+//     @required
+//     kmsClient: KmsClientReference,
+//
+//     discoveryFilter: DiscoveryFilter,
+//
+//     grantTokens: GrantTokenList
+// }
+//
+// operation CreateMrkAwareDiscoveryMultiKeyring {
+//     input: CreateMrkAwareDiscoveryMultiKeyringInput,
+//     output: CreateKeyringOutput,
+// }
+//
+// structure CreateMrkAwareDiscoveryMultiKeyringInput {
+//     @required
+//     regions: RegionList,
+//
+//     discoveryFilter: DiscoveryFilter,
+//
+//     clientSupplier: ClientSupplierReference,
+//
+//     grantTokens: GrantTokenList
+// }
 
-operation CreateAwsKmsKeyring {
-    input: CreateAwsKmsKeyringInput,
-    output: CreateKeyringOutput 
-}
-
-structure CreateAwsKmsKeyringInput {
-    @required
-    clientSupplier: ClientSupplierReference,
-
-    // Not required because the keyring could be in discovery mode
-    generator: KmsKeyId,
-
-    keyIds: KmsKeyIdList,
-
-    grantTokens: GrantTokenList,
-}
-
-// KMS - MRK Aware, Strict
-operation CreateMrkAwareStrictAwsKmsKeyring {
-    input: CreateMrkAwareStrictAwsKmsKeyringInput,
-    output: CreateKeyringOutput,
-}
-
-structure CreateMrkAwareStrictAwsKmsKeyringInput {
-    @required
-    kmsKeyId: KmsKeyId,
-
-    @required
-    kmsClient: KmsClientReference,
-
-    grantTokens: GrantTokenList
-}
-
-operation CreateMrkAwareStrictMultiKeyring {
-    input: CreateMrkAwareStrictMultiKeyringInput,
-    output: CreateKeyringOutput,
-}
-
-structure CreateMrkAwareStrictMultiKeyringInput {
-    // TODO: spec doesn't call this required but it seems like it should be
-    generator:  KmsKeyId,
-
-    kmsKeyIds: KmsKeyIdList,
-
-    clientSupplier: ClientSupplierReference,
-
-    grantTokens: GrantTokenList
-}
-
-// KMS - MRK Aware, Discovery
-
-operation CreateMrkAwareDiscoveryAwsKmsKeyring {
-    input: CreateMrkAwareDiscoveryAwsKmsKeyringInput,
-    output: CreateKeyringOutput,
-}
-
-structure CreateMrkAwareDiscoveryAwsKmsKeyringInput {
-    @required
-    kmsClient: KmsClientReference,
-
-    discoveryFilter: DiscoveryFilter,
-
-    grantTokens: GrantTokenList
-}
-
-operation CreateMrkAwareDiscoveryMultiKeyring {
-    input: CreateMrkAwareDiscoveryMultiKeyringInput,
-    output: CreateKeyringOutput,
-}
-
-structure CreateMrkAwareDiscoveryMultiKeyringInput {
-    @required
-    regions: RegionList,
-
-    discoveryFilter: DiscoveryFilter,
-
-    clientSupplier: ClientSupplierReference,
-
-    grantTokens: GrantTokenList
-}
-
+// TODO
 // Multi
-
-operation CreateMultiKeyring {
-    input: CreateMultiKeyringInput,
-    output: CreateKeyringOutput,
-}
-
-structure CreateMultiKeyringInput {
-    generator: KeyringReference,
-
-    childKeyrings: KeyringList
-}
+//
+// operation CreateMultiKeyring {
+//     input: CreateMultiKeyringInput,
+//     output: CreateKeyringOutput,
+// }
+//
+// structure CreateMultiKeyringInput {
+//     generator: KeyringReference,
+//     childKeyrings: KeyringList
+// }
 
 // Raw
 
@@ -198,25 +199,29 @@ structure CreateRawAesKeyringInput {
     keyName: String,
 
     @required
-    wrappingKey: Blob
-}
-
-operation CreateRawRsaKeyring {
-    input: CreateRawRsaKeyringInput,
-    output: CreateKeyringOutput,
-}
-
-structure CreateRawRsaKeyringInput {
-    @required
-    keyNamespace: String,
+    wrappingKey: Blob,
 
     @required
-    keyName: String,
-
-    @required
-    paddingScheme: PaddingScheme,
-
-    // One or both is required
-    publicKey: Blob,
-    privateKey: Blob
+    wrappingAlg: AesWrappingAlg,
 }
+
+// TODO
+// operation CreateRawRsaKeyring {
+//     input: CreateRawRsaKeyringInput,
+//     output: CreateKeyringOutput,
+// }
+//
+// structure CreateRawRsaKeyringInput {
+//     @required
+//     keyNamespace: String,
+//
+//     @required
+//     keyName: String,
+//
+//     @required
+//     paddingScheme: PaddingScheme,
+//
+//     // One or both is required
+//     publicKey: Blob,
+//     privateKey: Blob
+// }

@@ -26,10 +26,11 @@ structure GetEncryptionMaterialsInput {
     @required
     encryptionContext: EncryptionContext,
 
-    @required
-    commitmentPolicy: CommitmentPolicy,
+    // TODO
+    // @required
+    // commitmentPolicy: CommitmentPolicy,
 
-    algorithmSuite: AlgorithmSuite,
+    algorithmSuiteId: AlgorithmSuiteId,
 
     maxPlaintextLength: Long
 }
@@ -46,10 +47,11 @@ operation DecryptMaterials {
 
 structure DecryptMaterialsInput {
     @required
-    algorithmSuite: AlgorithmSuite,
+    algorithmSuiteId: AlgorithmSuiteId,
 
-    @required
-    commitmentPolicy: CommitmentPolicy,
+    // TODO
+    // @required
+    // commitmentPolicy: CommitmentPolicy,
 
     @required
     encryptedDataKeys: EncryptedDataKeyList,
@@ -59,7 +61,8 @@ structure DecryptMaterialsInput {
 }
 
 structure DecryptMaterialsOutput {
-   decryptionMaterials: DecryptionMaterials 
+    @required
+    decryptionMaterials: DecryptionMaterials 
 }
 
 

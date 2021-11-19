@@ -35,8 +35,10 @@ structure CreateLocalCryptoMaterialsCacheInput {
 }
 
 structure CacheUsageMetadata {
+    @required
     messageUsage: Long,
 
+    @required
     byteUsage: Long,
 }
 
@@ -44,14 +46,19 @@ structure CacheUsageMetadata {
 // Encrypt
 
 structure EncryptEntry {
+    @required
     identifier: Blob,
 
+    @required
     encryptionMaterials: EncryptionMaterials,
 
+    @required
     creationTime: Long,
 
+    @required
     expiryTime: Long,
 
+    @required
     usageMetadata: CacheUsageMetadata,
 }
 
@@ -87,6 +94,7 @@ structure GetEntryForEncryptInput {
 }
 
 structure GetEntryForEncryptOutput {
+    @required
     cacheEntry: EncryptEntry,
 }
 
@@ -95,14 +103,19 @@ structure GetEntryForEncryptOutput {
 // Decrypt
 
 structure DecryptEntry {
+    @required
     identifier: Blob,
 
+    @required
     decryptionMaterials: DecryptionMaterials,
 
+    @required
     creationTime: Long,
 
+    @required
     expiryTime: Long,
 
+    @required
     usageMetadata: CacheUsageMetadata,
 }
 
@@ -135,6 +148,7 @@ structure GetEntryForDecryptInput {
 }
 
 structure GetEntryForDecryptOutput {
+    @required
     cacheEntry: DecryptEntry,
 }
 

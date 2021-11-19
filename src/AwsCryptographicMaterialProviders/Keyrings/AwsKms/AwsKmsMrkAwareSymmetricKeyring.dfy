@@ -113,7 +113,7 @@ module
             input.materials.encryptionContext,
             grantTokens,
             awsKmsKey,
-            AlgorithmSuites.GetSuite(input.materials.algorithmSuiteId).keyLen as int32
+            AlgorithmSuites.GetSuite(input.materials.algorithmSuiteId).encrypt.keyLength as int32
           ))
 
       //= compliance/framework/aws-kms/aws-kms-mrk-aware-symmetric-keyring.txt#2.7
@@ -132,7 +132,7 @@ module
         //# the response "Plaintext" length matches the specification of the
         //# algorithm suite (algorithm-suites.md)'s Key Derivation Input Length
         //# field.
-        && AlgorithmSuites.GetSuite(input.materials.algorithmSuiteId).keyLen as int == |res.value.materials.plaintextDataKey.value|
+        && AlgorithmSuites.GetSuite(input.materials.algorithmSuiteId).encrypt.keyLength as int == |res.value.materials.plaintextDataKey.value|
         //= compliance/framework/aws-kms/aws-kms-mrk-aware-symmetric-keyring.txt#2.7
         //= type=implication
         //# If verified, OnEncrypt MUST do the following with the response
@@ -195,7 +195,7 @@ module
           materials.encryptionContext,
           grantTokens,
           awsKmsKey,
-          suite.keyLen as int32
+          suite.encrypt.keyLength as int32
         );
 
         var maybeGenerateResponse := GenerateDataKey(client, generatorRequest);
@@ -221,7 +221,7 @@ module
           "Invalid response from KMS GenerateDataKey:: Invalid Key Id"
         );
         :- Need(
-          suite.keyLen as int == |generateResponse.plaintext|,
+          suite.encrypt.keyLength as int == |generateResponse.plaintext|,
           "Invalid response from AWS KMS GenerateDataKey: Invalid data key"
         );
 
@@ -349,7 +349,7 @@ module
           //# length) specified by the algorithm suite (algorithm-suites.md)
           //# included in the input decryption materials
           //# (structures.md#decryption-materials).
-          && AlgorithmSuites.GetSuite(input.materials.algorithmSuiteId).keyLen as int == |res.value.materials.plaintextDataKey.value|
+          && AlgorithmSuites.GetSuite(input.materials.algorithmSuiteId).encrypt.keyLength as int == |res.value.materials.plaintextDataKey.value|
     {
 
       var materials := input.materials;
@@ -542,7 +542,7 @@ module
       var decryptResponse :- KMSUtils.Decrypt(client, decryptRequest);
       :- Need(
         && decryptResponse.keyID == awsKmsKey
-        && AlgorithmSuites.GetSuite(materials.algorithmSuiteId).keyLen as int == |decryptResponse.plaintext|
+        && AlgorithmSuites.GetSuite(materials.algorithmSuiteId).encrypt.keyLength as int == |decryptResponse.plaintext|
         , "Invalid response from KMS Decrypt");
 
       var result :- Materials.DecryptionMaterialsAddDataKey(materials, decryptResponse.plaintext);

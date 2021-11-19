@@ -109,7 +109,7 @@ module Serialize {
         && wr.GetDataWritten() == old(wr.GetDataWritten()) + serAAD
       case Failure(e) => true
   {
-    reveal EncryptionContext.Serializable();
+    reveal EncryptionContext.Serializable(), EncryptionContext.MapToLinear();
     var totalWritten := 0;
 
     var kvPairsLength := EncryptionContext.ComputeLength(kvPairs);
@@ -140,9 +140,11 @@ module Serialize {
     var newlyWritten := 0;
 
     if |encryptionContext| == 0 {
+      assert {:focus} true;
       return Success(newlyWritten);
     }
 
+    assert {:focus} true;
     var len := wr.WriteUInt16(|encryptionContext| as uint16);
     newlyWritten := newlyWritten + len;
 
@@ -161,6 +163,7 @@ module Serialize {
       invariant wr.GetDataWritten() == writtenBeforeLoop + EncryptionContext.LinearToSeq(kvPairs, 0, j)
       invariant wr.GetSizeWritten() == old(wr.GetSizeWritten()) + newlyWritten
     {
+      assert {:focus} true;
       len :- SerializeKVPair(wr, keys[j], encryptionContext[keys[j]]);
       newlyWritten := newlyWritten + len;
       assert wr.GetSizeWritten() == old(wr.GetSizeWritten()) + newlyWritten;
@@ -178,6 +181,11 @@ module Serialize {
       j := j + 1;
     }
 
+    assert {:focus} true;
+    assert EncryptionContext.MapToSeq(encryptionContext) == UInt16ToSeq(n as uint16) + EncryptionContext.LinearToSeq(kvPairs, 0, j) by {
+      assert {:focus} true;
+      assert |kvPairs| == j;
+    }
     return Success(newlyWritten);
   }
 

@@ -8,7 +8,6 @@ include "AlgorithmSuite.dfy"
 include "../Crypto/AESEncryption.dfy"
 include "Materials.dfy"
 include "../Util/Streams.dfy"
-include "../Crypto/EncryptionSuites.dfy"
 include "../Util/UTF8.dfy"
 
 module MessageBody {
@@ -25,7 +24,6 @@ module MessageBody {
   import AESEncryption
   import Materials
   import Streams
-  import EncryptionSuites
   import UTF8
 
   datatype BodyAADContent = AADRegularFrame | AADFinalFrame | AADSingleBlock
@@ -207,6 +205,7 @@ module MessageBody {
       invariant SumPlaintextSegments(plaintextSeg) == plaintext[..n] // Chunks of plaintext sum up to plaintexts
       invariant forall frame: Frame | frame in frames :: AESEncryption.EncryptedWithKey(frame.encContent, key)
     {
+      assert {:split_here} true;
       if sequenceNumber == ENDFRAME_SEQUENCE_NUMBER {
         return Failure("too many frames");
       }
@@ -394,6 +393,7 @@ module MessageBody {
       invariant DecryptedSegmentsWithKey(key, plaintextSeg)
       invariant plaintext == SumPlaintextSegments(plaintextSeg)
     {
+      assert {:split_here} true;
       var frameWithGhostSeq :- DecryptFrame(rd, algorithmSuiteID, key, frameLength, messageID, n);
       assert |frameWithGhostSeq.sequence| < UINT32_LIMIT;
       var decryptedFrame := frameWithGhostSeq.frame;
@@ -471,6 +471,7 @@ module MessageBody {
       return Failure("unexpected frame sequence number");
     }
 
+    assert {:focus} true;
     var iv :- rd.ReadBytes(algorithmSuiteID.IVLength());
     frameSerialization := frameSerialization + iv;
     assert rd.reader.data[old(rd.reader.pos)..rd.reader.pos] == frameSerialization;
@@ -486,6 +487,7 @@ module MessageBody {
 
     var aad := BodyAAD(messageID, if final then AADFinalFrame else AADRegularFrame, sequenceNumber, len as uint64);
 
+    assert {:focus} true;
     var ciphertext :- rd.ReadBytes(len as nat);
     frameSerialization := frameSerialization + ciphertext;
     assert rd.reader.data[old(rd.reader.pos)..rd.reader.pos] == frameSerialization;
@@ -513,6 +515,7 @@ module MessageBody {
     assert frameSerialization == FrameToSequence(encryptedFrame);
 
     // Prove read content of stream is frameSerialization
+    assert {:focus} true;
     assert !final ==> frameSerialization[..4] == rd.reader.data[old(rd.reader.pos)..][..4];
     assert !final ==> frameSerialization[4..][..algorithmSuiteID.IVLength()] == rd.reader.data[old(rd.reader.pos)..][4..][..algorithmSuiteID.IVLength()];
     assert !final ==> frameSerialization[4 + algorithmSuiteID.IVLength()..][..frameLength] == rd.reader.data[old(rd.reader.pos)..][4 + algorithmSuiteID.IVLength()..][..frameLength];

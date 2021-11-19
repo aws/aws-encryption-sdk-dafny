@@ -393,7 +393,7 @@ module {:extern "EncryptionContext"} EncryptionContext {
     requires Serializable(resultMap)
     ensures LinearSeqToMap(MapToLinear(resultMap), resultMap)
   {
-    reveal Serializable();
+    reveal Serializable(), MapToLinear();
     LengthCorrect(resultMap);
     MapToSeqIsDualSeqToMap(resultMap);
   }
@@ -547,7 +547,7 @@ module {:extern "EncryptionContext"} EncryptionContext {
     if lo == hi then [] else LinearToSeq(kvPairs, lo, hi - 1) + KVPairToSeq(kvPairs[hi - 1])
   }
 
-  function MapToLinear(kvPairs: Map): seq<uint8>
+  function {:opaque} MapToLinear(kvPairs: Map): seq<uint8>
     requires Serializable(kvPairs)
   {
     reveal Serializable();
@@ -627,7 +627,7 @@ module {:extern "EncryptionContext"} EncryptionContext {
     requires Serializable(encryptionContext)
     ensures |MapToLinear(encryptionContext)| == 2 + Length(encryptionContext)
   {
-    reveal Serializable();
+    reveal Serializable(), MapToLinear();
     var keys: seq<UTF8.ValidUTF8Bytes> := SetToOrderedSequence(encryptionContext.Keys, UInt.UInt8Less);
     var kvPairs := seq(|keys|, i requires 0 <= i < |keys| => (keys[i], encryptionContext[keys[i]]));
     LinearLengthCorrect(kvPairs, 0, |kvPairs|);
