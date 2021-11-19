@@ -535,39 +535,31 @@ module Deserialize {
       ghost var origInner := rd.reader.data[..rd.reader.pos];
       ghost var readSoFarInner := [];
 
-      ghost var asdf := rd.reader.pos;
-
       assert {:focus} true;
       // Key provider ID
       var providerIdLength :- rd.ReadUInt16();
       readSoFarInner := ReadHelper(rd, origInner, readSoFarInner, UInt16ToSeq(providerIdLength));
-      // readSoFar := ReadHelper(rd, orig, readSoFar, UInt16ToSeq(providerIdLength));
       var providerId :- DeserializeUTF8(rd, providerIdLength as nat);
       readSoFarInner := ReadHelper(rd, origInner, readSoFarInner, providerId);
-      // readSoFar := ReadHelper(rd, orig, readSoFar, providerId);
 
       assert {:focus} true;
       // Key provider info
       var providerInfoLength :- rd.ReadUInt16();
       readSoFarInner := ReadHelper(rd, origInner, readSoFarInner, UInt16ToSeq(providerInfoLength));
-      // readSoFar := ReadHelper(rd, orig, readSoFar, UInt16ToSeq(providerInfoLength));
       var providerInfo :- rd.ReadBytes(providerInfoLength as nat);
       readSoFarInner := ReadHelper(rd, origInner, readSoFarInner, providerInfo);
-      // readSoFar := ReadHelper(rd, orig, readSoFar, providerInfo);
 
       assert {:focus} true;
       // Ciphertext
       var ciphertextLength :- rd.ReadUInt16();
       readSoFarInner := ReadHelper(rd, origInner, readSoFarInner, UInt16ToSeq(ciphertextLength));
-      // readSoFar := ReadHelper(rd, orig, readSoFar, UInt16ToSeq(ciphertextLength));
       var ciphertext :- rd.ReadBytes(ciphertextLength as nat);
       readSoFarInner := ReadHelper(rd, origInner, readSoFarInner, ciphertext);
-      // readSoFar := ReadHelper(rd, orig, readSoFar, ciphertext);
 
       var edk := Crypto.EncryptedDataKey(keyProviderId:=providerId, keyProviderInfo:=providerInfo, ciphertext:=ciphertext);
 
       assert readSoFarInner == Msg.EDKEntryToSeq(edk);
-      readSoFar := readSoFar + readSoFarInner;// ReadHelper(rd, orig, readSoFar, readSoFarInner);
+      readSoFar := readSoFar + readSoFarInner;
 
       edkEntries := edkEntries + [edk];
       i := i + 1;
