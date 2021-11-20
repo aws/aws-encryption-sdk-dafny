@@ -11,7 +11,7 @@ phases:
       - cd dafny
       - git apply customBoogie.patch
       # Build Dafny
-      - dotnet build Source/Dafny.sln
+      - dotnet build -c Release Source/Dafny.sln
       - export PATH="$PWD/Scripts:$PATH"
       # Get Z3
       - make z3-ubuntu
