@@ -5,8 +5,6 @@ phases:
       - cd ..
       # Get Boogie
       - git clone --branch per-assert-splitting https://github.com/robin-aws/boogie.git
-      - nuget restore boogie/Source/Boogie.sln
-      - msbuild boogie/Source/Boogie.sln
       # Get Dafny
       - git clone --branch fine-grained-verification-logging https://github.com/robin-aws/dafny.git
       # Apply the patch for Dafny to use the local Boogie clone
@@ -14,10 +12,10 @@ phases:
       - git apply customBoogie.patch
       # Build Dafny
       - dotnet build Source/Dafny.sln
-      - export PATH="$PWD/dafny/Binaries:$PATH"
+      - export PATH="$PWD/Scripts:$PATH"
       # Get Z3
       - make z3-ubuntu
-      - cd aws-encryption-sdk-dafny
+      - cd ../aws-encryption-sdk-dafny
   build:
     commands:
       # Currently, test depends on src, so verifying test will also verify src
