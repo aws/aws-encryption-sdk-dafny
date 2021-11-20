@@ -69,6 +69,7 @@ module
         && result.materials.plaintextDataKey.Some?
         && |result.materials.encryptedDataKeys| > 0,
         "Could not retrieve materials required for encryption");
+      }
 
       // For Dafny keyrings this is a trivial statement
       // because they implement a trait that ensures this.
