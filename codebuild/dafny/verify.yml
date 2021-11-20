@@ -3,10 +3,20 @@ phases:
   install:
     commands:
       - cd ..
+      # Get Boogie
+      - git clone --branch per-assert-splitting https://github.com/robin-aws/boogie.git
+      - nuget restore boogie/Source/Boogie.sln
+      - msbuild boogie/Source/Boogie.sln
       # Get Dafny
-      - curl https://github.com/dafny-lang/dafny/releases/download/v3.3.0/dafny-3.3.0-x64-ubuntu-16.04.zip -L -o dafny.zip
-      - unzip dafny.zip && rm dafny.zip
-      - export PATH="$PWD/dafny:$PATH"
+      - git clone --branch fine-grained-verification-logging https://github.com/robin-aws/dafny.git
+      # Apply the patch for Dafny to use the local Boogie clone
+      - cd dafny
+      - git apply customBoogie.patch
+      # Build Dafny
+      - dotnet build Source/Dafny.sln
+      - export PATH="$PWD/dafny/Binaries:$PATH"
+      # Get Z3
+      - make z3-ubuntu
       - cd aws-encryption-sdk-dafny
   build:
     commands:
