@@ -182,4 +182,8 @@ module {:extern "TestUtils"} TestUtils {
     namespace :- expect UTF8.Encode(s + " Namespace");
     name :- expect UTF8.Encode(s + " Name");
   }
+
+  method {:extern} WriteFile(path: string, contents: seq<uint8>) returns (outcome: Outcome<string>)
+
+  method {:extern} ReadFile(path: string) returns (result: Result<seq<uint8>, string>)
 }
