@@ -71,8 +71,7 @@ module
       expect |input.wrappingKey| == 16 || |input.wrappingKey| == 24 || |input.wrappingKey| == 32;
       expect |input.wrappingKey| == wrappingAlg.keyLength as int;
 
-      var keyring := new RawAESKeyring.RawAESKeyring(namespace, name, input.wrappingKey, wrappingAlg);
-      return keyring;
+      return new RawAESKeyring.RawAESKeyring(namespace, name, input.wrappingKey, wrappingAlg);
     }
 
 

@@ -34,7 +34,9 @@ module
   const IV_LEN_LEN       := 4;
 
   class RawAESKeyring
-    extends Keyring.VerifiableInterface
+    extends
+    Keyring.VerifiableInterface,
+    Crypto.IKeyring
   {
     const keyNamespace: UTF8.ValidUTF8Bytes
     const keyName: UTF8.ValidUTF8Bytes
