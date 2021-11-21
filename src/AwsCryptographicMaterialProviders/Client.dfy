@@ -1,33 +1,37 @@
 // Copyright Amazon.com Inc. or its affiliates. All Rights Reserved.
 // SPDX-License-Identifier: Apache-2.0
 
-// TODO: Originally written as part of POC; we should come back through this
-// to refine it
-
 include "../StandardLibrary/StandardLibrary.dfy"
-include "../StandardLibrary/UInt.dfy"
 include "../Generated/AwsCryptographicMaterialProviders.dfy"
-include "../Generated/AwsEncryptionSdk.dfy"
 include "../Util/UTF8.dfy"
-include "Keyring/RawAESKeyring.dfy"
-include "CMM/DefaultCMM.dfy"
 include "../Crypto/AESEncryption.dfy"
+include "Keyrings/RawAESKeyring.dfy"
+include "CMMs/DefaultCMM.dfy"
 
-module {:extern "Dafny.Aws.Crypto.AwsCryptographicMaterialProvidersClient"} AwsCryptographicMaterialProviders {
+module
+  {:extern "Dafny.Aws.Crypto.MaterialProviders.Client"}
+  MaterialProviders.Client
+{
   import opened Wrappers
   import opened StandardLibrary
   import opened UInt = StandardLibrary.UInt
   import UTF8
   import Aws.Crypto
-  import DefaultCMMDef
-  import RawAESKeyringDef
-  import Aws.Esdk
   import AESEncryption
+  import RawAESKeyring
+  import DefaultCMM
 
-  class AwsCryptographicMaterialProvidersClient extends Crypto.IAwsCryptographicMaterialsProviderClient {
+  export
+    provides
+      AwsCryptographicMaterialProvidersClient
+
+  class AwsCryptographicMaterialProvidersClient
+    // extends Crypto.IAwsCryptographicMaterialsProviderClient
+  {
     constructor () {}
 
-    method CreateRawAesKeyring(input: Crypto.CreateRawAesKeyringInput) returns (res: Crypto.IKeyring)
+    method CreateRawAesKeyring(input: Crypto.CreateRawAesKeyringInput)
+      returns (res: Crypto.IKeyring)
     {
       var wrappingAlg:AESEncryption.AES_GCM;
       if (input.wrappingAlg==Crypto.ALG_AES128_GCM_IV12_TAG16) {
@@ -66,13 +70,17 @@ module {:extern "Dafny.Aws.Crypto.AwsCryptographicMaterialProvidersClient"} AwsC
       expect |namespace| < UINT16_LIMIT;
       expect |input.wrappingKey| == 16 || |input.wrappingKey| == 24 || |input.wrappingKey| == 32;
       expect |input.wrappingKey| == wrappingAlg.keyLength as int;
-      
-      return new RawAESKeyringDef.RawAESKeyring(namespace, name, input.wrappingKey, wrappingAlg);
+
+      var keyring := new RawAESKeyring.RawAESKeyring(namespace, name, input.wrappingKey, wrappingAlg);
+      return keyring;
     }
 
-    method CreateDefaultCryptographicMaterialsManager(input: Crypto.CreateDefaultCryptographicMaterialsManagerInput) returns (res: Crypto.ICryptographicMaterialsManager)
+
+    method CreateDefaultCryptographicMaterialsManager(input: Crypto.CreateDefaultCryptographicMaterialsManagerInput)
+      returns (res: Crypto.ICryptographicMaterialsManager)
     {
-        return new DefaultCMMDef.DefaultCMM.OfKeyring(input.keyring);
+        return new DefaultCMM.DefaultCMM.OfKeyring(input.keyring);
     }
   }
+
 }

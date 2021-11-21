@@ -11,14 +11,14 @@ include "../../Util/UTF8.dfy"
 include "../../Generated/AwsCryptographicMaterialProviders.dfy"
 
 module
-  {:extern "Dafny.Aws.Crypto.AwsCryptographicMaterialProvidersClient2.DefaultCMMDef"}
-  AwsCryptographicMaterialProvidersClient2.DefaultCMMDef
+  {:extern "Dafny.Aws.Crypto.MaterialProviders.DefaultCMM"}
+  MaterialProviders.DefaultCMM
 {
   import opened Wrappers
   import opened UInt = StandardLibrary.UInt
-  import AwsCryptographicMaterialProviders2.AlgorithmSuites
-  import AwsCryptographicMaterialProviders2.Materials
-  import AwsCryptographicMaterialProviders2.CMM
+  import AlgorithmSuites
+  import Materials
+  import CMM
   import Signature
   import Base64
   import UTF8

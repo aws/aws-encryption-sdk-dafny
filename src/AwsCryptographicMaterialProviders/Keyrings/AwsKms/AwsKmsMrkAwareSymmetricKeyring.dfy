@@ -16,8 +16,8 @@ include "AwsKmsMrkMatchForDecrypt.dfy"
 include "../../../Generated/AwsCryptographicMaterialProviders.dfy"
 
 module
-  {:extern "Dafny.Aws.Crypto.AwsCryptographicMaterialProvidersClient2.AwsKmsMrkAwareSymmetricKeyring"}
-  AwsCryptographicMaterialProvidersClient2.AwsKmsMrkAwareSymmetricKeyring
+  {:extern "Dafny.Aws.Crypto.MaterialProviders.AwsKmsMrkAwareSymmetricKeyring"}
+  MaterialProviders.AwsKmsMrkAwareSymmetricKeyring
 {
   import opened StandardLibrary
   import opened Wrappers
@@ -28,9 +28,9 @@ module
   import opened Actions
   import opened Constants
   import opened A = AwsKmsMrkMatchForDecrypt
-  import AwsCryptographicMaterialProviders2.Keyring
-  import AwsCryptographicMaterialProviders2.Materials
-  import AwsCryptographicMaterialProviders2.AlgorithmSuites
+  import Keyring
+  import Materials
+  import AlgorithmSuites
   import Aws.Crypto
   import opened KMSUtils
   import UTF8

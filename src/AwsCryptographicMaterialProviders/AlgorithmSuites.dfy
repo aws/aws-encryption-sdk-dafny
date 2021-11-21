@@ -9,8 +9,8 @@ include "../Crypto/Signature.dfy"
 include "../Crypto/AESEncryption.dfy"
 
 module
-  {:extern "Dafny.Aws.Crypto.AwsCryptographicMaterialProvidersClient2.AlgorithmSuites"}
-  AwsCryptographicMaterialProviders2.AlgorithmSuites
+  {:extern "Dafny.Aws.Crypto.MaterialProviders.AlgorithmSuites"}
+  MaterialProviders.AlgorithmSuites
 {
   import opened Wrappers
   import opened StandardLibrary
