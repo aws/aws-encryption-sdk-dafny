@@ -26,7 +26,7 @@ module
       AwsCryptographicMaterialProvidersClient
 
   class AwsCryptographicMaterialProvidersClient
-    // extends Crypto.IAwsCryptographicMaterialsProviderClient
+    extends Crypto.IAwsCryptographicMaterialsProviderClient
   {
     constructor () {}
 

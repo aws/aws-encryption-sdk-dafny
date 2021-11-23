@@ -13,10 +13,6 @@ module
   import Aws.Crypto
   import Materials
 
-  export
-    provides
-      VerifiableInterface
-
   trait {:termination false} VerifiableInterface
     extends Crypto.IKeyring
   {
