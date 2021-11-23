@@ -65,9 +65,10 @@ module
       );
 
       var result :- keyring.OnEncrypt(Crypto.OnEncryptInput(materials:=materials));
-      if result.materials.plaintextDataKey.None? || |result.materials.encryptedDataKeys| == 0 {
-        return Failure("Could not retrieve materials required for encryption");
-      }
+      :- Need(
+        && result.materials.plaintextDataKey.Some?
+        && |result.materials.encryptedDataKeys| > 0,
+        "Could not retrieve materials required for encryption");
 
       // For Dafny keyrings this is a trivial statement
       // because they implement a trait that ensures this.
@@ -123,7 +124,7 @@ module
     ensures
       && res.Success?
     ==>
-      // ToDo Need to prove
+      // TODO Need to prove
       // && Materials.ValidEncryptionMaterials(res.value)
       && res.value.algorithmSuiteId == suite.id
       && (suite.signature.ECDSA? ==> Materials.EC_PUBLIC_KEY_FIELD in res.value.encryptionContext)
@@ -165,6 +166,9 @@ module
     {
       match suite.signature
         case None =>
+          :- Need(
+            Materials.EC_PUBLIC_KEY_FIELD !in encryptionContext,
+            "Verification key can not exist in non-signed Algorithm Suites.");
           return Success(Crypto.DecryptionMaterials(
             encryptionContext := encryptionContext,
             algorithmSuiteId := suite.id,
