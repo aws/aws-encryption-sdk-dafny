@@ -246,8 +246,8 @@ module
         //# the encryption materials (structures.md#encryption-materials) and
         //# MUST fail.
         if maybeGenerateResponse.Failure? {
-          return Failure(maybeGenerateResponse.error);
-        }
+          return Failure(GeneratedKMS.CastKeyManagementServiceErrorToString(maybeGenerateResponse.error));
+       }
         var generateResponse := maybeGenerateResponse.value;
 
         //= compliance/framework/aws-kms/aws-kms-mrk-aware-symmetric-keyring.txt#2.7
@@ -305,7 +305,7 @@ module
         //# (https://docs.aws.amazon.com/kms/latest/APIReference/
         //# API_Encrypt.html) does not succeed, OnEncrypt MUST fail.
         if maybeEncryptResponse.Failure? {
-          return Failure(maybeEncryptResponse.error);
+          return Failure(GeneratedKMS.CastKeyManagementServiceErrorToString(maybeEncryptResponse.error));
         }
 
         var encryptResponse := maybeEncryptResponse.value;
@@ -612,8 +612,12 @@ module
         EncryptionAlgorithm := Option.None()
       );
 
-      var decryptResponse :- client.Decrypt(decryptRequest);
-
+      var maybeDecryptResponse := client.Decrypt(decryptRequest);
+      if maybeDecryptResponse.Failure? {
+        return Failure(GeneratedKMS.CastKeyManagementServiceErrorToString(maybeDecryptResponse.error));
+      }
+      
+      var decryptResponse := maybeDecryptResponse.value;
       var algId := AlgorithmSuites.GetSuite(materials.algorithmSuiteId);
       :- Need(
         && decryptResponse.KeyId.Some?
