@@ -4,7 +4,7 @@
 include "../../src/StandardLibrary/StandardLibrary.dfy"
 include "../../src/StandardLibrary/UInt.dfy"
 include "../../src/Util/UTF8.dfy"
-include "../../src/SDK/Materials.dfy"
+include "../../src/AwsCryptographicMaterialProviders/Materials.dfy"
 include "../../src/SDK/EncryptionContext.dfy"
 include "../../src/Crypto/AESEncryption.dfy"
 include "../../src/SDK/MessageHeader.dfy"
@@ -14,7 +14,7 @@ module {:extern "TestUtils"} TestUtils {
   import opened Wrappers
   import opened UInt = StandardLibrary.UInt
   import UTF8
-  import Materials
+  import MaterialProviders.Materials
   import EncryptionContext
   import MessageHeader
   import AESEncryption
