@@ -28,15 +28,15 @@ module
       AESEncryption,
       Signature,
       Crypto,
-      GetSuite
+      GetSuite,
+      LemmaAlgorithmSuiteIdImpliesEquality
     reveals
       DerivationAlgorithm,
       KeyDerivationAlgorithm,
       CommitmentDerivationAlgorithm,
       SignatureAlgorithm,
       AlgorithmSuiteInfo,
-      AlgorithmSuite,
-      AlgorithmSuiteInfo
+      AlgorithmSuite
 
   datatype DerivationAlgorithm =
     | HKDF(
@@ -89,30 +89,114 @@ module
   )
 
   type AlgorithmSuite = a: AlgorithmSuiteInfo |
+    // General constraints for all existing Algorithm Suites.
+    // These are here to make sure that these are true.
+
+    // If there is a KDF, the output length MUST match the encrypt length
     && (a.kdf.HKDF? ==> a.kdf.outputKeyLength == a.encrypt.keyLength)
-    && (a.signature.ECDSA?
+    // If there is a signature, there MUST be a KDF
+    && (a.signature.ECDSA? ==> a.kdf.HKDF?)
+    // If there is commitment, the KDF MUST match
+    && (a.commitment.HKDF? ==>
+      && a.commitment.saltLength == 32
+      && a.commitment == a.kdf)
+    // If there is a KDF and no commitment then salt MUST be 0
+    && (a.kdf.HKDF? && a.commitment.None? ==> a.kdf.saltLength == 0)
+
+    // These are the specific Algorithm Suites definitions.
+    // Because the Smithy side can not fully express these kinds of requirements
+    // it only has the `AlgorithmSuiteId`.
+    // This means that on the cryptographic materials
+    // there is only a `AlgorithmSuiteId`.
+    // For Dafny to be able to reason practically about the `AlgorithmSuite`
+    // it needs to be able to prove that
+    // GetSuite(suite.id) == suite
+
+    // Legacy non-KDF suites
+    && (a.id == Crypto.AlgorithmSuiteId.ALG_AES_128_GCM_IV12_TAG16_NO_KDF
       ==>
+        && a.encrypt.keyLength == 16
+        && a.kdf.IDENTITY?
+        && a.signature.None?
+        && a.commitment.None?)
+    && (a.id == Crypto.AlgorithmSuiteId.ALG_AES_192_GCM_IV12_TAG16_NO_KDF
+      ==>
+        && a.encrypt.keyLength == 24
+        && a.kdf.IDENTITY?
+        && a.signature.None?
+        && a.commitment.None?)
+    && (a.id == Crypto.AlgorithmSuiteId.ALG_AES_256_GCM_IV12_TAG16_NO_KDF
+      ==>
+        && a.encrypt.keyLength == 32
+        && a.kdf.IDENTITY?
+        && a.signature.None?
+        && a.commitment.None?)
+
+    // HKDF suites
+    && (a.id == Crypto.AlgorithmSuiteId.ALG_AES_128_GCM_IV12_TAG16_HKDF_SHA256
+      ==>
+        && a.encrypt.keyLength == 16
         && a.kdf.HKDF?
-        && (a.signature.curve.ECDSA_P256? ==>
-          && a.encrypt.keyLength == 16 as AESEncryption.KeyLength
-          && a.kdf.hmac == HMAC.Digests.SHA_256
-        )
-        && (a.signature.curve.ECDSA_P384? ==>
-          && (
-            || a.kdf.hmac == HMAC.Digests.SHA_384
-            || a.kdf.hmac == HMAC.Digests.SHA_512)
-          && (
-            || a.encrypt.keyLength == 24 as AESEncryption.KeyLength
-            || a.encrypt.keyLength == 32 as AESEncryption.KeyLength)
-        )
-    )
-    && (a.commitment.HKDF?
+        && a.kdf.hmac == HMAC.Digests.SHA_256
+        && a.signature.None?
+        && a.commitment.None?)
+    && (a.id == Crypto.AlgorithmSuiteId.ALG_AES_192_GCM_IV12_TAG16_HKDF_SHA256
       ==>
-        && a.encrypt.keyLength == 32 as AESEncryption.KeyLength
-        && a.commitment.hmac.SHA_512?
-        && a.commitment.saltLength == 32 as AESEncryption.KeyLength as int
-        && a.commitment == a.kdf
-        && (a.signature.ECDSA? ==> a.signature.curve.ECDSA_P384?))
+        && a.encrypt.keyLength == 24
+        && a.kdf.HKDF?
+        && a.kdf.hmac == HMAC.Digests.SHA_256
+        && a.signature.None?
+        && a.commitment.None?)
+    && (a.id == Crypto.AlgorithmSuiteId.ALG_AES_256_GCM_IV12_TAG16_HKDF_SHA256
+      ==>
+        && a.encrypt.keyLength == 32
+        && a.kdf.HKDF?
+        && a.kdf.hmac == HMAC.Digests.SHA_256
+        && a.signature.None?
+        && a.commitment.None?)
+
+    // Signature suites
+    && (a.id == Crypto.AlgorithmSuiteId.ALG_AES_128_GCM_IV12_TAG16_HKDF_SHA256_ECDSA_P256
+      ==>
+        && a.encrypt.keyLength == 16
+        && a.kdf.HKDF?
+        && a.kdf.hmac == HMAC.Digests.SHA_256
+        && a.signature.ECDSA?
+        && a.signature.curve == Signature.ECDSAParams.ECDSA_P256
+        && a.commitment.None?)
+    && (a.id == Crypto.AlgorithmSuiteId.ALG_AES_192_GCM_IV12_TAG16_HKDF_SHA384_ECDSA_P384
+      ==>
+        && a.encrypt.keyLength == 24
+        && a.kdf.HKDF?
+        && a.kdf.hmac == HMAC.Digests.SHA_384
+        && a.signature.ECDSA?
+        && a.signature.curve == Signature.ECDSAParams.ECDSA_P384
+        && a.commitment.None?)
+    && (a.id == Crypto.AlgorithmSuiteId.ALG_AES_256_GCM_IV12_TAG16_HKDF_SHA384_ECDSA_P384
+      ==>
+        && a.encrypt.keyLength == 32
+        && a.kdf.HKDF?
+        && a.kdf.hmac == HMAC.Digests.SHA_384
+        && a.signature.ECDSA?
+        && a.signature.curve == Signature.ECDSAParams.ECDSA_P384
+        && a.commitment.None?)
+
+    // Suites with key commitment
+    && (a.id == Crypto.AlgorithmSuiteId.ALG_AES_256_GCM_HKDF_SHA512_COMMIT_KEY
+      ==>
+        && a.encrypt.keyLength == 32
+        && a.kdf.HKDF?
+        && a.kdf.hmac == HMAC.Digests.SHA_512
+        && a.signature.None?
+        && a.commitment.HKDF?)
+    && (a.id == Crypto.AlgorithmSuiteId.ALG_AES_256_GCM_HKDF_SHA512_COMMIT_KEY_ECDSA_P384
+      ==>
+        && a.encrypt.keyLength == 32
+        && a.kdf.HKDF?
+        && a.kdf.hmac == HMAC.Digests.SHA_512
+        && a.signature.ECDSA?
+        && a.signature.curve == Signature.ECDSAParams.ECDSA_P384
+        && a.commitment.HKDF?)
   witness *
 
   const Bits256 := 32 as AESEncryption.KeyLength;
@@ -176,7 +260,7 @@ module
     )
   }
 
-  // All algorithum suites
+  // All algorithm suites
 
   // Non-KDF suites
   const ALG_AES_128_GCM_IV12_TAG16_NO_KDF: AlgorithmSuite := AlgorithmSuiteInfo(
@@ -281,8 +365,21 @@ module
     ensures id in SupportedAlgorithmSuites
   {}
 
-  function method GetSuite(id: Crypto.AlgorithmSuiteId): (res: AlgorithmSuite) {
+  function method GetSuite(
+    id: Crypto.AlgorithmSuiteId
+  ):
+    (res: AlgorithmSuite)
+  {
     LemmaSupportedAlgorithmSuitesIsComplete(id);
     SupportedAlgorithmSuites[id]
+  }
+
+  lemma LemmaAlgorithmSuiteIdImpliesEquality(id: Crypto.AlgorithmSuiteId, suite: AlgorithmSuite)
+    requires id == suite.id
+    ensures GetSuite(id) == suite
+  {
+    if GetSuite(id) != suite {
+      assert GetSuite(id).encrypt.keyLength == suite.encrypt.keyLength;
+    }
   }
 }

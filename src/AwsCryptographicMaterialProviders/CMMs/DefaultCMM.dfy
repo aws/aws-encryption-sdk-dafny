@@ -43,11 +43,11 @@ module
       ==>
         && Materials.EncryptionMaterialsWithPlaintextDataKey(res.value.encryptionMaterials)
         // TODO Need to prove
-        // && (
-        //   AlgorithmSuites.GetSuite(res.value.encryptionMaterials.algorithmSuiteId).signature.ECDSA?
-        // ==>
-        //   Materials.EC_PUBLIC_KEY_FIELD in res.value.encryptionMaterials.encryptionContext
-        // )
+        && (
+          AlgorithmSuites.GetSuite(res.value.encryptionMaterials.algorithmSuiteId).signature.ECDSA?
+        ==>
+          Materials.EC_PUBLIC_KEY_FIELD in res.value.encryptionMaterials.encryptionContext
+        )
       ensures Materials.EC_PUBLIC_KEY_FIELD in input.encryptionContext ==> res.Failure?
     {
       :- Need(
@@ -69,7 +69,6 @@ module
         && result.materials.plaintextDataKey.Some?
         && |result.materials.encryptedDataKeys| > 0,
         "Could not retrieve materials required for encryption");
-      }
 
       // For Dafny keyrings this is a trivial statement
       // because they implement a trait that ensures this.
@@ -79,9 +78,7 @@ module
         Materials.EncryptionMaterialsTransitionIsValid(materials, result.materials),
         "Keyring returned an invalid response");
 
-      assert result.materials.algorithmSuiteId == suite.id;
-      assert suite.signature.ECDSA? ==> Materials.EC_PUBLIC_KEY_FIELD in result.materials.encryptionContext;
-
+      AlgorithmSuites.LemmaAlgorithmSuiteIdImpliesEquality(result.materials.algorithmSuiteId, suite);
       return Success(Crypto.GetEncryptionMaterialsOutput(encryptionMaterials:=result.materials));
     }
 
@@ -125,8 +122,7 @@ module
     ensures
       && res.Success?
     ==>
-      // TODO Need to prove
-      // && Materials.ValidEncryptionMaterials(res.value)
+      && Materials.ValidEncryptionMaterials(res.value)
       && res.value.algorithmSuiteId == suite.id
       && (suite.signature.ECDSA? ==> Materials.EC_PUBLIC_KEY_FIELD in res.value.encryptionContext)
   {
@@ -139,6 +135,7 @@ module
           encryptedDataKeys := [],
           signingKey := None()
         );
+        AlgorithmSuites.LemmaAlgorithmSuiteIdImpliesEquality(mat.algorithmSuiteId, suite);
         return Success(mat);
       case ECDSA(curve) =>
         var signatureKeys :- Signature.KeyGen(curve);
@@ -150,6 +147,7 @@ module
           encryptedDataKeys := [],
           signingKey := Some(signatureKeys.signingKey)
         );
+        AlgorithmSuites.LemmaAlgorithmSuiteIdImpliesEquality(mat.algorithmSuiteId, suite);
         return Success(mat);
   }
 
@@ -161,8 +159,7 @@ module
       ensures
         && res.Success?
       ==>
-        // ToDo Need to prove
-        // && Materials.ValidDecryptionMaterials(res.value)
+        && Materials.ValidDecryptionMaterials(res.value)
         && res.value.algorithmSuiteId == suite.id
     {
       match suite.signature
@@ -170,12 +167,14 @@ module
           :- Need(
             Materials.EC_PUBLIC_KEY_FIELD !in encryptionContext,
             "Verification key can not exist in non-signed Algorithm Suites.");
-          return Success(Crypto.DecryptionMaterials(
+          var mat := Crypto.DecryptionMaterials(
             encryptionContext := encryptionContext,
             algorithmSuiteId := suite.id,
             plaintextDataKey := None(),
             verificationKey := None()
-          ));
+          );
+        AlgorithmSuites.LemmaAlgorithmSuiteIdImpliesEquality(mat.algorithmSuiteId, suite);
+        return Success(mat);
         case ECDSA(curve) =>
           :- Need(
             Materials.EC_PUBLIC_KEY_FIELD in encryptionContext,
@@ -183,11 +182,13 @@ module
           var encodedVerificationKey := encryptionContext[Materials.EC_PUBLIC_KEY_FIELD];
           var decodedUtf8VerificationKey :- UTF8.Decode(encodedVerificationKey);
           var base64DecodedVerificationKey :- Base64.Decode(decodedUtf8VerificationKey);
-          return Success(Crypto.DecryptionMaterials(
+          var mat := Crypto.DecryptionMaterials(
             encryptionContext := encryptionContext,
             algorithmSuiteId := suite.id,
             plaintextDataKey := None(),
             verificationKey := Some(base64DecodedVerificationKey)
-          ));
+          );
+          AlgorithmSuites.LemmaAlgorithmSuiteIdImpliesEquality(mat.algorithmSuiteId, suite);
+          return Success(mat);
     }
 }
