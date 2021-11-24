@@ -22,8 +22,10 @@ module
   import DefaultCMM
 
   export
-    provides
-      AwsCryptographicMaterialProvidersClient
+    provides Crypto
+    provides AwsCryptographicMaterialProvidersClient.CreateRawAesKeyring
+    provides AwsCryptographicMaterialProvidersClient.CreateDefaultCryptographicMaterialsManager
+    reveals AwsCryptographicMaterialProvidersClient
 
   class AwsCryptographicMaterialProvidersClient
     extends Crypto.IAwsCryptographicMaterialsProviderClient
@@ -33,27 +35,23 @@ module
     method CreateRawAesKeyring(input: Crypto.CreateRawAesKeyringInput)
       returns (res: Crypto.IKeyring)
     {
-      var wrappingAlg:AESEncryption.AES_GCM;
-      if (input.wrappingAlg==Crypto.ALG_AES128_GCM_IV12_TAG16) {
-        wrappingAlg := AESEncryption.AES_GCM(
-          keyLength := 16 as AESEncryption.KeyLength,
-          tagLength := 16 as AESEncryption.TagLength,
-          ivLength := 12 as AESEncryption.IVLength
-        );
-      } else if (input.wrappingAlg==Crypto.ALG_AES192_GCM_IV12_TAG16) {
-        wrappingAlg := AESEncryption.AES_GCM(
-          keyLength := 24 as AESEncryption.KeyLength,
-          tagLength := 16 as AESEncryption.TagLength,
-          ivLength := 12 as AESEncryption.IVLength
-        );
-      } else {
-        assert input.wrappingAlg==Crypto.ALG_AES256_GCM_IV12_TAG16;
-        wrappingAlg := AESEncryption.AES_GCM(
-          keyLength := 32 as AESEncryption.KeyLength,
-          tagLength := 16 as AESEncryption.TagLength,
-          ivLength := 12 as AESEncryption.IVLength
-        );
-      }
+      var wrappingAlg:AESEncryption.AES_GCM := match input.wrappingAlg
+        case ALG_AES128_GCM_IV12_TAG16 => AESEncryption.AES_GCM(
+            keyLength := 16 as AESEncryption.KeyLength,
+            tagLength := 16 as AESEncryption.TagLength,
+            ivLength := 12 as AESEncryption.IVLength
+          )
+        case ALG_AES192_GCM_IV12_TAG16 => AESEncryption.AES_GCM(
+            keyLength := 24 as AESEncryption.KeyLength,
+            tagLength := 16 as AESEncryption.TagLength,
+            ivLength := 12 as AESEncryption.IVLength
+          )
+        case ALG_AES256_GCM_IV12_TAG16 => AESEncryption.AES_GCM(
+            keyLength := 32 as AESEncryption.KeyLength,
+            tagLength := 16 as AESEncryption.TagLength,
+            ivLength := 12 as AESEncryption.IVLength
+          );
+
       // I have no idea why :- isn't working here...
       // Here is why: To use :- requires the type of "res" to be "Result<Crypto.IKeyring, string>".
       var namespaceRes := UTF8.Encode(input.keyNamespace);
@@ -73,7 +71,6 @@ module
 
       return new RawAESKeyring.RawAESKeyring(namespace, name, input.wrappingKey, wrappingAlg);
     }
-
 
     method CreateDefaultCryptographicMaterialsManager(input: Crypto.CreateDefaultCryptographicMaterialsManagerInput)
       returns (res: Crypto.ICryptographicMaterialsManager)
