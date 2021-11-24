@@ -78,17 +78,24 @@ import opened StandardLibrary
     && (encryptionMaterials.plaintextDataKey.None? ==> |encryptionMaterials.encryptedDataKeys| == 0)
   }
 
+  predicate method EncryptionMaterialsWithPlaintextDataKey(encryptionMaterials: Crypto.EncryptionMaterials) {
+    && encryptionMaterials.plaintextDataKey.Some?
+    && |encryptionMaterials.encryptedDataKeys| > 0
+    && ValidEncryptionMaterials(encryptionMaterials)
+  }
+
   function method EncryptionMaterialAddEncryptedDataKeys(
     encryptionMaterials: Crypto.EncryptionMaterials,
     encryptedDataKeys: Crypto.EncryptedDataKeyList
   )
     :(res: Result<Crypto.EncryptionMaterials, string>)
+    requires |encryptedDataKeys| > 0
     ensures res.Success?
     ==>
-      && res.value.plaintextDataKey.Some?
+      && EncryptionMaterialsWithPlaintextDataKey(res.value)
       && EncryptionMaterialsTransitionIsValid(encryptionMaterials, res.value)
   {
-    :- Need(ValidEncryptionMaterials(encryptionMaterials), "Attempt to modifiy invalid encryption material.");
+    :- Need(ValidEncryptionMaterials(encryptionMaterials), "Attempt to modify invalid encryption material.");
     :- Need(encryptionMaterials.plaintextDataKey.Some?, "Adding encrypted data keys without a plaintext data key is not allowed.");
     Success(Crypto.EncryptionMaterials(
       plaintextDataKey := encryptionMaterials.plaintextDataKey,
@@ -105,13 +112,14 @@ import opened StandardLibrary
     encryptedDataKeys: Crypto.EncryptedDataKeyList
   )
     :(res: Result<Crypto.EncryptionMaterials, string>)
+    requires |encryptedDataKeys| > 0
     ensures res.Success?
     ==>
-      && res.value.plaintextDataKey.Some?
+      && EncryptionMaterialsWithPlaintextDataKey(res.value)
       && EncryptionMaterialsTransitionIsValid(encryptionMaterials, res.value)
   {
     var suite := AlgorithmSuites.GetSuite(encryptionMaterials.algorithmSuiteId);
-    :- Need(ValidEncryptionMaterials(encryptionMaterials), "Attempt to modifiy invalid encryption material.");
+    :- Need(ValidEncryptionMaterials(encryptionMaterials), "Attempt to modify invalid encryption material.");
     :- Need(encryptionMaterials.plaintextDataKey.None?, "Attempt to modify plaintextDataKey.");
     :- Need(suite.encrypt.keyLength as int == |plaintextDataKey|, "plaintextDataKey does not match Algorithm Suite specification.");
 
@@ -125,13 +133,13 @@ import opened StandardLibrary
   }
 
   // Decryption Materials
-  /* The goal of DecryptionMaterialsTransitionIsValid is to aproxomate
-   * _some_ mutablity in an otherwise immutable structure.
+  /* The goal of DecryptionMaterialsTransitionIsValid is to approximate
+   * _some_ mutability in an otherwise immutable structure.
    * Decryption Materials allow for the addition
    * of a plaintext data key.
    * Once a plaintext data key is added,
    * it can never be removed or altered.
-   * This lets keyrings/CMM handle immutalbe data,
+   * This lets keyrings/CMM handle immutable data,
    * and easily assert these invariants.
    */
   predicate method DecryptionMaterialsTransitionIsValid(
@@ -176,11 +184,11 @@ import opened StandardLibrary
     :(res: Result<Crypto.DecryptionMaterials, string>)
     ensures res.Success?
     ==>
-      && res.value.plaintextDataKey.Some?
+      && DecryptionMaterialsWithPlaintextDataKey(res.value)
       && DecryptionMaterialsTransitionIsValid(decryptionMaterials, res.value)
   {
     var suite := AlgorithmSuites.GetSuite(decryptionMaterials.algorithmSuiteId);
-    :- Need(ValidDecryptionMaterials(decryptionMaterials), "Attempt to modifiy invalid decryption material.");
+    :- Need(ValidDecryptionMaterials(decryptionMaterials), "Attempt to modify invalid decryption material.");
     :- Need(decryptionMaterials.plaintextDataKey.None?, "Attempt to modify plaintextDataKey.");
     :- Need(suite.encrypt.keyLength as int == |plaintextDataKey|, "plaintextDataKey does not match Algorithm Suite specification.");
 
@@ -202,11 +210,11 @@ import opened StandardLibrary
     && ValidDecryptionMaterials(decryptionMaterials)
   }
 
-  // The distiction between DecryptionMaterials with and without a PlaintextDataKey
+  // The distinction between DecryptionMaterials with and without a PlaintextDataKey
   // is relevant to DecryptionMaterials in a way that it is not for EncryptionMaterials.
-  // To avoid ambuguity a keyring that recives DecryptionMaterials with a PlaintextDataKey MUST fail.
+  // To avoid ambiguity a keyring that receives DecryptionMaterials with a PlaintextDataKey MUST fail.
   // Given the failure mode of the MultiKeyring,
-  // or any other rational compinator.
+  // or any other rational combinator.
   type DecryptionMaterialsPendingPlaintextDataKey = d: Crypto.DecryptionMaterials
     | DecryptionMaterialsWithoutPlaintextDataKey(d)
     witness *
