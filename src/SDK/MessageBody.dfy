@@ -3,10 +3,10 @@
 
 include "../StandardLibrary/StandardLibrary.dfy"
 include "../StandardLibrary/UInt.dfy"
+include "../AwsCryptographicMaterialProviders/Materials.dfy"
 include "MessageHeader.dfy"
 include "AlgorithmSuite.dfy"
 include "../Crypto/AESEncryption.dfy"
-include "Materials.dfy"
 include "../Util/Streams.dfy"
 include "../Util/UTF8.dfy"
 
@@ -22,7 +22,7 @@ module MessageBody {
   import AlgorithmSuite
   import Msg = MessageHeader
   import AESEncryption
-  import Materials
+  import MaterialProviders.Materials
   import Streams
   import UTF8
 

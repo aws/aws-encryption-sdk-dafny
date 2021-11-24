@@ -25,6 +25,11 @@ module Serialize {
   import UTF8
   import Sets
 
+  predicate method EncryptionMaterialsSerializable(mat:Crypto.EncryptionMaterials) {
+    && |mat.encryptedDataKeys| > 0
+    && EncryptionContext.Serializable(mat.encryptionContext)
+  }
+
   method SerializeHeaderBody(wr: Streams.ByteWriter, hb: Msg.HeaderBody) returns (ret: Result<nat, string>)
     requires wr.Valid() && hb.Valid()
     modifies wr.writer`data

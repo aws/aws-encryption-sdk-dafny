@@ -3,9 +3,9 @@
 
 include "../StandardLibrary/StandardLibrary.dfy"
 include "../StandardLibrary/UInt.dfy"
-include "Materials.dfy"
+include "../AwsCryptographicMaterialProviders/Materials.dfy"
 include "EncryptionContext.dfy"
-include "CMM/DefaultCMM.dfy"
+include "../AwsCryptographicMaterialProviders/CMMs/DefaultCMM.dfy"
 include "MessageHeader.dfy"
 include "MessageBody.dfy"
 include "Serialize.dfy"
@@ -26,10 +26,10 @@ module {:extern "EncryptDecrypt"} EncryptDecrypt {
   import EncryptionContext
   import AlgorithmSuite
   import AESEncryption
-  import DefaultCMMDef
+  import MaterialProviders.DefaultCMM
   import Deserialize
   import HKDF
-  import Materials
+  import MaterialProviders.Materials
   import Msg = MessageHeader
   import MessageBody
   import Random
@@ -194,7 +194,7 @@ module {:extern "EncryptDecrypt"} EncryptDecrypt {
     if request.keyring == null {
       cmm := request.cmm;
     } else {
-      cmm := new DefaultCMMDef.DefaultCMM.OfKeyring(request.keyring);
+      cmm := new DefaultCMM.DefaultCMM.OfKeyring(request.keyring);
     }
 
     var frameLength := if request.frameLength.Some? then request.frameLength.value else DEFAULT_FRAME_LENGTH;
@@ -212,7 +212,8 @@ module {:extern "EncryptDecrypt"} EncryptDecrypt {
     :- Need((algorithmSuiteID.None? || (request.algorithmSuiteID.value as AlgorithmSuite.ID).SignatureType().Some?) ==>
       Materials.EC_PUBLIC_KEY_FIELD in encMat.encryptionContext,
       "CMM failed to return valid encryptionContext for algorithm suite in use: verification key must exist in encryption context for suites with signing.");
-    :- Need(DefaultCMMDef.Serializable(encMat), "CMM failed to return serializable encryption materials.");
+    //ToDo find out if Need Serializable is important/implemented somewhere 
+    :- Need(Serialize.EncryptionMaterialsSerializable(encMat), "CMM failed to return serializable encryption materials.");
     :- Need(request.algorithmSuiteID.None? ==> AlgorithmSuite.PolymorphIDToInternalID(encMat.algorithmSuiteId) == 0x0378 as AlgorithmSuite.ID,
       "CMM defaulted to the incorrect algorithm suite ID.");
     :- Need(|encMat.plaintextDataKey.value| == AlgorithmSuite.PolymorphIDToInternalID(encMat.algorithmSuiteId).KDFInputKeyLength(),
@@ -374,7 +375,7 @@ module {:extern "EncryptDecrypt"} EncryptDecrypt {
     if request.keyring == null {
       cmm := request.cmm;
     } else {
-      cmm := new DefaultCMMDef.DefaultCMM.OfKeyring(request.keyring);
+      cmm := new DefaultCMM.DefaultCMM.OfKeyring(request.keyring);
     }
 
     var rd := new Streams.ByteReader(request.message);

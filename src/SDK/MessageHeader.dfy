@@ -4,7 +4,7 @@
 include "AlgorithmSuite.dfy"
 include "../StandardLibrary/StandardLibrary.dfy"
 include "EncryptionContext.dfy"
-include "Materials.dfy"
+include "../AwsCryptographicMaterialProviders/Materials.dfy"
 include "../Util/UTF8.dfy"
 include "../Util/Sets.dfy"
 include "../Crypto/AESEncryption.dfy"
@@ -17,7 +17,7 @@ module {:extern "MessageHeader"} MessageHeader {
   import opened Wrappers
   import opened UInt = StandardLibrary.UInt
   import EncryptionContext
-  import Materials
+  import MaterialProviders.Materials
   import UTF8
   import AESEncryption
 
