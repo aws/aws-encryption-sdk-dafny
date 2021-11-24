@@ -2,7 +2,6 @@
 // SPDX-License-Identifier: Apache-2.0
 
 include "MessageHeader.dfy"
-include "Materials.dfy"
 include "EncryptionContext.dfy"
 include "AlgorithmSuite.dfy"
 
@@ -20,7 +19,7 @@ include "../Generated/AwsCryptographicMaterialProviders.dfy"
  */
 module Deserialize {
   export
-    provides DeserializeHeader, Materials
+    provides DeserializeHeader
     provides Streams, StandardLibrary, Wrappers, UInt, AlgorithmSuite, Msg
     provides InsertNewEntry, UTF8, EncryptionContext
     reveals DeserializeHeaderResult
@@ -35,7 +34,6 @@ module Deserialize {
   import opened Wrappers
   import opened UInt = StandardLibrary.UInt
   import UTF8
-  import Materials
   import EncryptionContext
 
 

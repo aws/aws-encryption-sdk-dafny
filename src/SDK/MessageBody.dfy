@@ -6,14 +6,13 @@ include "../StandardLibrary/UInt.dfy"
 include "MessageHeader.dfy"
 include "AlgorithmSuite.dfy"
 include "../Crypto/AESEncryption.dfy"
-include "Materials.dfy"
 include "../Util/Streams.dfy"
 include "../Util/UTF8.dfy"
 
 module MessageBody {
   export
     provides EncryptMessageBody, DecryptFramedMessageBody, DecryptNonFramedMessageBody,
-      Wrappers, UInt, Msg, AlgorithmSuite, Materials, Streams, FramesToSequence,
+      Wrappers, UInt, Msg, AlgorithmSuite, Streams, FramesToSequence,
       FrameToSequence, ValidFrames, FramesEncryptPlaintext, AESEncryption, DecryptedWithKey
     reveals Frame, Frame.Valid, SeqWithGhostFrames
 
@@ -22,7 +21,6 @@ module MessageBody {
   import AlgorithmSuite
   import Msg = MessageHeader
   import AESEncryption
-  import Materials
   import Streams
   import UTF8
 
