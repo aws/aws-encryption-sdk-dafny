@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 include "../../src/StandardLibrary/StandardLibrary.dfy"
-include "../../src/SDK/Materials.dfy"
+include "../../src/AwsCryptographicMaterialProviders/Materials.dfy"
 include "../../src/Util/UTF8.dfy"
 include "../../src/SDK/EncryptionContext.dfy"
 include "../Util/TestUtils.dfy"
@@ -10,7 +10,7 @@ include "../Util/TestUtils.dfy"
 module TestMessageHeader {
   import opened StandardLibrary
   import opened UInt = StandardLibrary.UInt
-  import Materials
+  import MaterialProviders.Materials
   import UTF8
   import EncryptionContext
   import opened TestUtils
