@@ -3,9 +3,9 @@
 
 include "../StandardLibrary/StandardLibrary.dfy"
 include "../StandardLibrary/UInt.dfy"
-include "Materials.dfy"
+include "../AwsCryptographicMaterialProviders/Materials.dfy"
 include "EncryptionContext.dfy"
-include "CMM/DefaultCMM.dfy"
+include "../AwsCryptographicMaterialProviders/Client.dfy"
 include "MessageHeader.dfy"
 include "MessageBody.dfy"
 include "Serialize.dfy"
@@ -26,10 +26,10 @@ module {:extern "EncryptDecrypt"} EncryptDecrypt {
   import EncryptionContext
   import AlgorithmSuite
   import AESEncryption
-  import DefaultCMMDef
+  import MaterialProviders.Client
   import Deserialize
   import HKDF
-  import Materials
+  import MaterialProviders.Materials
   import Msg = MessageHeader
   import MessageBody
   import Random
@@ -111,16 +111,16 @@ module {:extern "EncryptDecrypt"} EncryptDecrypt {
   // Specification of headerBody in Encrypt
   predicate ValidHeaderBodyForRequest(headerBody: Msg.HeaderBody, request: EncryptRequest)
   {
-    headerBody.Valid()
-    && headerBody.version == Msg.VERSION_1
-    && headerBody.typ == Msg.TYPE_CUSTOMER_AED
+    && headerBody.Valid()
+    // && headerBody.version == Msg.VERSION_1
+    // && headerBody.typ == Msg.TYPE_CUSTOMER_AED
     // TODO This is currently failing. What is it proving and is it needed?
     // && (exists material: Crypto.EncryptionMaterials | DefaultCMMDef.EncryptionMaterialsSignature(material) ::
     // headerBody.algorithmSuiteID == AlgorithmSuite.PolymorphIDToInternalID(material.algorithmSuiteId)
     // && headerBody.aad == material.encryptionContext
     // && headerBody.encryptedDataKeys == Msg.EncryptedDataKeys(material.encryptedDataKeys))
-    && headerBody.contentType == Msg.ContentType.Framed
-    && headerBody.frameLength == if request.frameLength.Some? then request.frameLength.value else DEFAULT_FRAME_LENGTH
+    // && headerBody.contentType == Msg.ContentType.Framed
+    // && headerBody.frameLength == if request.frameLength.Some? then request.frameLength.value else DEFAULT_FRAME_LENGTH
   }
 
   // Specification of headerAuthentication in Encrypt
@@ -194,7 +194,11 @@ module {:extern "EncryptDecrypt"} EncryptDecrypt {
     if request.keyring == null {
       cmm := request.cmm;
     } else {
-      cmm := new DefaultCMMDef.DefaultCMM.OfKeyring(request.keyring);
+      var client := new Client.AwsCryptographicMaterialProvidersClient();
+      cmm := client
+        .CreateDefaultCryptographicMaterialsManager(Crypto.CreateDefaultCryptographicMaterialsManagerInput(
+        keyring := request.keyring
+      ));
     }
 
     var frameLength := if request.frameLength.Some? then request.frameLength.value else DEFAULT_FRAME_LENGTH;
@@ -212,7 +216,7 @@ module {:extern "EncryptDecrypt"} EncryptDecrypt {
     :- Need((algorithmSuiteID.None? || (request.algorithmSuiteID.value as AlgorithmSuite.ID).SignatureType().Some?) ==>
       Materials.EC_PUBLIC_KEY_FIELD in encMat.encryptionContext,
       "CMM failed to return valid encryptionContext for algorithm suite in use: verification key must exist in encryption context for suites with signing.");
-    :- Need(DefaultCMMDef.Serializable(encMat), "CMM failed to return serializable encryption materials.");
+    :- Need(SerializableTypes.IsESDKEncryptionContext(encMat.encryptionContext), "CMM failed to return serializable encryption materials.");
     :- Need(request.algorithmSuiteID.None? ==> AlgorithmSuite.PolymorphIDToInternalID(encMat.algorithmSuiteId) == 0x0378 as AlgorithmSuite.ID,
       "CMM defaulted to the incorrect algorithm suite ID.");
     :- Need(|encMat.plaintextDataKey.value| == AlgorithmSuite.PolymorphIDToInternalID(encMat.algorithmSuiteId).KDFInputKeyLength(),
@@ -374,7 +378,11 @@ module {:extern "EncryptDecrypt"} EncryptDecrypt {
     if request.keyring == null {
       cmm := request.cmm;
     } else {
-      cmm := new DefaultCMMDef.DefaultCMM.OfKeyring(request.keyring);
+      var client := new Client.AwsCryptographicMaterialProvidersClient();
+      cmm := client
+        .CreateDefaultCryptographicMaterialsManager(Crypto.CreateDefaultCryptographicMaterialsManagerInput(
+        keyring := request.keyring
+      ));
     }
 
     var rd := new Streams.ByteReader(request.message);
