@@ -1,7 +1,6 @@
 // Copyright Amazon.com Inc. or its affiliates. All Rights Reserved.
 // SPDX-License-Identifier: Apache-2.0
 
-include "../../src/SDK/Keyring/RawAESKeyring.dfy"
 include "../../src/StandardLibrary/StandardLibrary.dfy"
 include "../../src/StandardLibrary/UInt.dfy"
 include "../../src/Util/UTF8.dfy"
@@ -18,7 +17,6 @@ module {:extern "TestUtils"} TestUtils {
   import Materials
   import EncryptionContext
   import MessageHeader
-  import RawAESKeyringDef
   import AESEncryption
 
   const SHARED_TEST_KEY_ARN := "arn:aws:kms:us-west-2:658956600833:key/b3537ef1-d8dc-4780-9f5a-55776cbb2f7f";
@@ -157,21 +155,21 @@ module {:extern "TestUtils"} TestUtils {
   {
   }
 
-  method MakeAESKeyring() returns (res: Result<RawAESKeyringDef.RawAESKeyring, string>)
-  {
-    var namespace :- UTF8.Encode("namespace");
-    var name :- UTF8.Encode("MyKeyring");
-    var keyring := new RawAESKeyringDef.RawAESKeyring(
-      namespace,
-      name,
-      seq(32, i => 0),
-      AESEncryption.AES_GCM(
-        keyLength := 32 as AESEncryption.KeyLength,
-        tagLength := 16 as AESEncryption.TagLength,
-        ivLength := 12 as AESEncryption.IVLength
-      ));
-    return Success(keyring);
-  }
+  // method MakeAESKeyring() returns (res: Result<RawAESKeyringDef.RawAESKeyring, string>)
+  // {
+  //   var namespace :- UTF8.Encode("namespace");
+  //   var name :- UTF8.Encode("MyKeyring");
+  //   var keyring := new RawAESKeyringDef.RawAESKeyring(
+  //     namespace,
+  //     name,
+  //     seq(32, i => 0),
+  //     AESEncryption.AES_GCM(
+  //       keyLength := 32 as AESEncryption.KeyLength,
+  //       tagLength := 16 as AESEncryption.TagLength,
+  //       ivLength := 12 as AESEncryption.IVLength
+  //     ));
+  //   return Success(keyring);
+  // }
 
   method NamespaceAndName(n: nat) returns (namespace: UTF8.ValidUTF8Bytes, name: UTF8.ValidUTF8Bytes)
     requires 0 <= n < 10

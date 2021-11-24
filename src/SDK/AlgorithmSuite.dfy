@@ -44,8 +44,8 @@ module {:extern "AlgorithmSuite"} AlgorithmSuite {
       // and we don't accidentally use Suite[this].algorithm.keyLen by default. Also, prevent or KDFInputKeyLength from
       // being tied to KeyLength().
       match Suite[this].hkdf
-      case HKDF_WITH_SHA_384 => Suite[this].algorithm.keyLength as nat
-      case HKDF_WITH_SHA_256 => Suite[this].algorithm.keyLength as nat
+      case HKDF_WITH_SHA_384(_) => Suite[this].algorithm.keyLength as nat
+      case HKDF_WITH_SHA_256(_) => Suite[this].algorithm.keyLength as nat
       case IDENTITY => Suite[this].algorithm.keyLength as nat
     }
 
