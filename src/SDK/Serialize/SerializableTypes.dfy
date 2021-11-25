@@ -48,7 +48,7 @@ module SerializableTypes {
     Crypto.AlgorithmSuiteId.ALG_AES_256_GCM_HKDF_SHA512_COMMIT_KEY_ECDSA_P384 := 0x0578
   ]
 
-  function GetESDKAlgorithmSuiteId(
+  function method GetESDKAlgorithmSuiteId(
     suiteId: Crypto.AlgorithmSuiteId
   ):
     (res: ESDKAlgorithmSuiteId)
@@ -57,7 +57,7 @@ module SerializableTypes {
     SupportedAlgorithmSuites[suiteId]
   }
 
-  function GetAlgorithmSuiteId(
+  function method GetAlgorithmSuiteId(
     esdkId: ESDKAlgorithmSuiteId
   ):
     (res: Crypto.AlgorithmSuiteId)
