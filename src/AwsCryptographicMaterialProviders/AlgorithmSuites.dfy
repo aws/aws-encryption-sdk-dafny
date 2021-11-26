@@ -3,7 +3,6 @@
 
 include "../StandardLibrary/StandardLibrary.dfy"
 include "../Generated/AwsCryptographicMaterialProviders.dfy"
-include "../../libraries/src/Collections/Maps/Maps.dfy"
 include "../Crypto/HKDF/HMAC.dfy"
 include "../Crypto/Signature.dfy"
 include "../Crypto/AESEncryption.dfy"
@@ -12,10 +11,9 @@ module
   {:extern "Dafny.Aws.Crypto.MaterialProviders.AlgorithmSuites"}
   MaterialProviders.AlgorithmSuites
 {
-  import opened Wrappers
+
   import opened StandardLibrary
   import opened UInt = StandardLibrary.UInt
-  import Maps
   import Aws.Crypto
   import HMAC
   import Signature
@@ -23,7 +21,6 @@ module
 
   export
     provides
-      Wrappers,
       HMAC,
       AESEncryption,
       Signature,
@@ -369,6 +366,7 @@ module
     id: Crypto.AlgorithmSuiteId
   ):
     (res: AlgorithmSuite)
+    ensures res.id == id
   {
     LemmaSupportedAlgorithmSuitesIsComplete(id);
     SupportedAlgorithmSuites[id]

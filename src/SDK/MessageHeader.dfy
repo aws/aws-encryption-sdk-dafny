@@ -1,7 +1,8 @@
 // Copyright Amazon.com Inc. or its affiliates. All Rights Reserved.
 // SPDX-License-Identifier: Apache-2.0
 
-include "AlgorithmSuite.dfy"
+include "../AwsCryptographicMaterialProviders/AlgorithmSuites.dfy"
+include "../Generated/AwsCryptographicMaterialProviders.dfy"
 include "../StandardLibrary/StandardLibrary.dfy"
 include "EncryptionContext.dfy"
 include "../Util/UTF8.dfy"
@@ -11,7 +12,8 @@ include "Serialize/SerializableTypes.dfy"
 
 module {:extern "MessageHeader"} MessageHeader {
   import opened SerializableTypes
-  import AlgorithmSuite
+  import MaterialProviders.AlgorithmSuites
+  import Aws.Crypto
   import Sets
   import opened Wrappers
   import opened UInt = StandardLibrary.UInt
@@ -28,8 +30,9 @@ module {:extern "MessageHeader"} MessageHeader {
   {
     predicate Valid() {
       && body.Valid()
-      && |auth.iv| == body.algorithmSuiteID.IVLength()
-      && |auth.authenticationTag| == body.algorithmSuiteID.TagLength()
+      && var suite := AlgorithmSuites.GetSuite(GetAlgorithmSuiteId(body.algorithmSuiteID));
+      && |auth.iv| == suite.encrypt.ivLength as int
+      && |auth.authenticationTag| == suite.encrypt.tagLength as int
     }
   }
 
@@ -74,7 +77,7 @@ module {:extern "MessageHeader"} MessageHeader {
   datatype HeaderBody = HeaderBody(
                           version: Version,
                           typ: Type,
-                          algorithmSuiteID: AlgorithmSuite.ID,
+                          algorithmSuiteID: ESDKAlgorithmSuiteId,
                           messageID: MessageID,
                           aad: EncryptionContext.Map,
                           encryptedDataKeys: ESDKEncryptedDataKeys,
@@ -84,7 +87,8 @@ module {:extern "MessageHeader"} MessageHeader {
   {
     predicate Valid() {
       && EncryptionContext.Serializable(aad)
-      && algorithmSuiteID.IVLength() == ivLength as nat
+      && var suite := AlgorithmSuites.GetSuite(GetAlgorithmSuiteId(algorithmSuiteID));
+      && suite.encrypt.ivLength as nat == ivLength as nat
       && ValidFrameLength(frameLength, contentType)
     }
   }
@@ -98,7 +102,8 @@ module {:extern "MessageHeader"} MessageHeader {
     requires headerBody.Valid()
   {
     var serializedHeaderBody := (reveal HeaderBodyToSeq(); HeaderBodyToSeq(headerBody));
-    headerAuthentication.iv == seq(headerBody.algorithmSuiteID.IVLength(), _ => 0)
+    var suite := AlgorithmSuites.GetSuite(GetAlgorithmSuiteId(headerBody.algorithmSuiteID));
+    headerAuthentication.iv == seq(suite.encrypt.ivLength as int, _ => 0)
     && exists encryptionOutput |
       AESEncryption.EncryptionOutputEncryptedWithAAD(encryptionOutput, serializedHeaderBody)
       && AESEncryption.CiphertextGeneratedWithPlaintext(encryptionOutput.cipherText, []) ::

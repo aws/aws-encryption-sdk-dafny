@@ -3,11 +3,8 @@
 
 include "MessageHeader.dfy"
 include "EncryptionContext.dfy"
-include "AlgorithmSuite.dfy"
 include "../Util/UTF8.dfy"
 include "../Util/Sets.dfy"
-
-
 include "../Util/Streams.dfy"
 include "../StandardLibrary/StandardLibrary.dfy"
 include "Serialize/SerializableTypes.dfy"
@@ -15,7 +12,6 @@ include "Serialize/SerializableTypes.dfy"
 module Serialize {
   import Msg = MessageHeader
   import EncryptionContext
-  import AlgorithmSuite
   import opened SerializableTypes
 
   import Streams
@@ -75,7 +71,7 @@ module Serialize {
     return Success(totalWritten);
   }
 
-  method SerializeHeaderAuthentication(wr: Streams.ByteWriter, ha: Msg.HeaderAuthentication, ghost algorithmSuiteID: AlgorithmSuite.ID) returns (ret: Result<nat, string>)
+  method SerializeHeaderAuthentication(wr: Streams.ByteWriter, ha: Msg.HeaderAuthentication) returns (ret: Result<nat, string>)
     requires wr.Valid()
     modifies wr.writer`data
     ensures wr.Valid()

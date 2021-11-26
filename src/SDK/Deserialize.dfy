@@ -3,7 +3,7 @@
 
 include "MessageHeader.dfy"
 include "EncryptionContext.dfy"
-include "AlgorithmSuite.dfy"
+include "../AwsCryptographicMaterialProviders/AlgorithmSuites.dfy"
 
 include "../Util/Streams.dfy"
 include "../StandardLibrary/StandardLibrary.dfy"
@@ -20,7 +20,7 @@ include "../Generated/AwsCryptographicMaterialProviders.dfy"
 module Deserialize {
   export
     provides DeserializeHeader
-    provides Streams, StandardLibrary, Wrappers, UInt, AlgorithmSuite, Msg
+    provides Streams, StandardLibrary, Wrappers, UInt, AlgorithmSuites, Msg
     provides InsertNewEntry, UTF8, EncryptionContext
     reveals DeserializeHeaderResult
 
@@ -28,7 +28,7 @@ module Deserialize {
   import opened SerializableTypes
   import Aws.Crypto
 
-  import AlgorithmSuite
+  import MaterialProviders.AlgorithmSuites
   import Streams
   import opened StandardLibrary
   import opened Wrappers
@@ -111,16 +111,20 @@ module Deserialize {
     var frameLength :- rd.ReadUInt32();
     readSoFar := ReadHelper(rd, orig, readSoFar, UInt32ToSeq(frameLength));
 
-    // inter-field checks
-    // TODO: shouldn't the following if-statement be done immediately after reading "ivLength"?
-    if ivLength as nat != algorithmSuiteID.IVLength() {
-      return Failure("Deserialization Error: Incorrect IV length.");
-    }
-    if contentType.NonFramed? && frameLength != 0 {
-      return Failure("Deserialization Error: Frame length must be 0 when content type is non-framed.");
-    } else if contentType.Framed? && frameLength == 0 {
-      return Failure("Deserialization Error: Frame length must be non-0 when content type is framed.");
-    }
+    var suite := AlgorithmSuites.GetSuite(GetAlgorithmSuiteId(algorithmSuiteID));
+    :- Need(
+      ivLength == suite.encrypt.ivLength as uint8,
+      "Deserialization Error: Incorrect IV length."
+    );
+
+    assert {:focus} true;
+    :- Need(
+      contentType.NonFramed? ==> frameLength == 0,
+      "Deserialization Error: Frame length must be 0 when content type is non-framed." );
+    assert {:focus} true;
+    :- Need(
+      contentType.Framed? ==> frameLength > 0,
+      "Deserialization Error: Frame length must be non-0 when content type is framed.");
 
     assert {:focus} true;
     var hb := Msg.HeaderBody(
@@ -160,27 +164,32 @@ module Deserialize {
   /*
    * Reads IV length and auth tag of the lengths specified by algorithmSuiteID.
    */
-  method DeserializeHeaderAuthentication(rd: Streams.ByteReader, algorithmSuiteID: AlgorithmSuite.ID) returns (ret: Result<Msg.HeaderAuthentication, string>)
+  method DeserializeHeaderAuthentication(
+    rd: Streams.ByteReader,
+    algorithmSuiteID: ESDKAlgorithmSuiteId
+  )
+    returns (ret: Result<Msg.HeaderAuthentication, string>)
     requires rd.Valid()
-    requires algorithmSuiteID in AlgorithmSuite.Suite.Keys
     modifies rd.reader`pos
     ensures rd.Valid()
     ensures match ret
       case Success(ha) =>
-        var bytesRead := algorithmSuiteID.IVLength() + algorithmSuiteID.TagLength();
+        var suite := AlgorithmSuites.GetSuite(GetAlgorithmSuiteId(algorithmSuiteID));
+        var bytesRead := suite.encrypt.ivLength as int + suite.encrypt.tagLength as int;
         var serHa := ha.iv + ha.authenticationTag;
-        && |ha.iv| == algorithmSuiteID.IVLength()
-        && |ha.authenticationTag| == algorithmSuiteID.TagLength()
+        && |ha.iv| == suite.encrypt.ivLength as int
+        && |ha.authenticationTag| == suite.encrypt.tagLength as int
         && old(rd.reader.pos) + bytesRead == rd.reader.pos
         && serHa == rd.reader.data[old(rd.reader.pos)..rd.reader.pos]
       case Failure(_) => true
   {
     assert {:focus} true;
-    var iv :- rd.ReadBytes(algorithmSuiteID.IVLength());
-    var authenticationTag :- rd.ReadBytes(algorithmSuiteID.TagLength());
+    var suite := AlgorithmSuites.GetSuite(GetAlgorithmSuiteId(algorithmSuiteID));
+    var iv :- rd.ReadBytes(suite.encrypt.ivLength as int);
+    var authenticationTag :- rd.ReadBytes(suite.encrypt.tagLength as int);
     var ha := Msg.HeaderAuthentication(iv, authenticationTag);
-    assert |ha.iv| == algorithmSuiteID.IVLength();
-    assert |ha.authenticationTag| == algorithmSuiteID.TagLength();
+    // assert |ha.iv| == algorithmSuiteID.IVLength();
+    // assert |ha.authenticationTag| == algorithmSuiteID.TagLength();
     return Success(ha);
   }
 
@@ -227,7 +236,7 @@ module Deserialize {
     }
   }
 
-  method DeserializeAlgorithmSuiteID(rd: Streams.ByteReader) returns (ret: Result<AlgorithmSuite.ID, string>)
+  method DeserializeAlgorithmSuiteID(rd: Streams.ByteReader) returns (ret: Result<ESDKAlgorithmSuiteId, string>)
     requires rd.Valid()
     modifies rd.reader`pos
     ensures rd.Valid()
@@ -240,11 +249,8 @@ module Deserialize {
       case Failure(_) => true
   {
     var algorithmSuiteID :- rd.ReadUInt16();
-    if algorithmSuiteID in AlgorithmSuite.VALID_IDS {
-      return Success(algorithmSuiteID as AlgorithmSuite.ID);
-    } else {
-      return Failure("Deserialization Error: Algorithm suite not supported.");
-    }
+    :- Need(algorithmSuiteID in VALID_IDS, "Deserialization Error: Algorithm suite not supported.");
+    return Success(algorithmSuiteID as ESDKAlgorithmSuiteId);
   }
 
   method DeserializeMsgID(rd: Streams.ByteReader) returns (ret: Result<Msg.MessageID, string>)
