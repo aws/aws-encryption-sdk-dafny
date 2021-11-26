@@ -21,9 +21,10 @@ module
   import RawAESKeyring
   import DefaultCMM
 
-  export
-    provides
-      AwsCryptographicMaterialProvidersClient
+  //ToDo Generated appears to not include class creation
+  // export
+  //   provides AwsCryptographicMaterialProvidersClient
+  //   reveals AwsCryptographicMaterialProvidersClient //revealing breaks Crypto contract
 
   class AwsCryptographicMaterialProvidersClient
     extends Crypto.IAwsCryptographicMaterialsProviderClient
