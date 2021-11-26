@@ -384,6 +384,7 @@ module Deserialize {
       // Proof that a KVPair is deserialized correctly
       // Note: Proof that serializing the resulting pair is equal to the input is easier and more stable.
       assert EncryptionContext.KVPairToSeq((key, value)) == rd.reader.data[oldPosPair .. rd.reader.pos] by {
+        assert {:split_here} true;
         assert rd.reader.data[oldPosPair .. rd.reader.pos] == rd.reader.data[oldPosPair..oldPosPair + 4 + |key| + |value|];
         assert UInt16ToSeq(|key| as uint16) == rd.reader.data[oldPosPair..oldPosPair + 2];
         assert key == rd.reader.data[oldPosPair + 2..oldPosPair + 2 + |key|];
