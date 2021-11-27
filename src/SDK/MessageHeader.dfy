@@ -86,7 +86,7 @@ module {:extern "MessageHeader"} MessageHeader {
                           frameLength: uint32)
   {
     predicate Valid() {
-      && EncryptionContext.Serializable(aad)
+      && SerializableTypes.IsESDKEncryptionContext(aad)
       && var suite := AlgorithmSuites.GetSuite(GetAlgorithmSuiteId(algorithmSuiteID));
       && suite.encrypt.ivLength as nat == ivLength as nat
       && ValidFrameLength(frameLength, contentType)

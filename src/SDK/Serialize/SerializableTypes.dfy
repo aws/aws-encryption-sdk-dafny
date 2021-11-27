@@ -4,11 +4,13 @@
 include "../../Util/UTF8.dfy"
 include "../../Generated/AwsCryptographicMaterialProviders.dfy"
 include "../../StandardLibrary/StandardLibrary.dfy"
+include "../../AwsCryptographicMaterialProviders/Client.dfy"
 
 module SerializableTypes {
   import opened UInt = StandardLibrary.UInt
   import opened UTF8
   import opened Aws.Crypto
+  import MaterialProviders.Client
 
   type ShortUTF8Seq = s: ValidUTF8Bytes | HasUint16Len(s)
 
@@ -52,6 +54,7 @@ module SerializableTypes {
     suiteId: Crypto.AlgorithmSuiteId
   ):
     (res: ESDKAlgorithmSuiteId)
+    ensures GetAlgorithmSuiteId(res) == suiteId
   {
     LemmaSupportedAlgorithmSuitesIsComplete(suiteId);
     SupportedAlgorithmSuites[suiteId]
@@ -72,5 +75,20 @@ module SerializableTypes {
   lemma LemmaSupportedAlgorithmSuitesIsComplete(id:Crypto.AlgorithmSuiteId)
     ensures id in SupportedAlgorithmSuites
   {}
+
+  lemma LemmaESDKAlgorithmSuiteIdImpliesEquality(
+    esdkId: ESDKAlgorithmSuiteId,
+    suite: Client.AlgorithmSuites.AlgorithmSuite
+  )
+    requires GetAlgorithmSuiteId(esdkId) == suite.id
+    ensures
+      && var suiteId := GetAlgorithmSuiteId(esdkId);
+      && Client.SpecificationClient().GetSuite(suiteId) == suite
+  {
+    var suiteId := GetAlgorithmSuiteId(esdkId);
+    if Client.SpecificationClient().GetSuite(suiteId) != suite {
+      assert Client.SpecificationClient().GetSuite(suiteId).encrypt.keyLength == suite.encrypt.keyLength;
+    }
+  }
 
 }
