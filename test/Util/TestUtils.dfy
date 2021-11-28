@@ -6,6 +6,7 @@ include "../../src/StandardLibrary/UInt.dfy"
 include "../../src/Util/UTF8.dfy"
 include "../../src/AwsCryptographicMaterialProviders/Materials.dfy"
 include "../../src/SDK/EncryptionContext.dfy"
+include "../../src/SDK/Serialize/SerializableTypes.dfy"
 include "../../src/Crypto/AESEncryption.dfy"
 include "../../src/SDK/MessageHeader.dfy"
 
@@ -18,6 +19,7 @@ module {:extern "TestUtils"} TestUtils {
   import EncryptionContext
   import MessageHeader
   import AESEncryption
+  import SerializableTypes
 
   const SHARED_TEST_KEY_ARN := "arn:aws:kms:us-west-2:658956600833:key/b3537ef1-d8dc-4780-9f5a-55776cbb2f7f";
 
@@ -78,11 +80,11 @@ module {:extern "TestUtils"} TestUtils {
 
     assert EncryptionContext.Serializable(encCtx) by {
       reveal EncryptionContext.Serializable();
-      assert EncryptionContext.Length(encCtx) < UINT16_LIMIT by {
+      assert SerializableTypes.Length(encCtx) < UINT16_LIMIT by {
         var keys: seq<UTF8.ValidUTF8Bytes> := SetToOrderedSequence(encCtx.Keys, UInt.UInt8Less);
         var kvPairs := seq(|keys|, i requires 0 <= i < |keys| => (keys[i], encCtx[keys[i]]));
         KVPairsLengthBound(kvPairs, |kvPairs|, 3);
-        assert EncryptionContext.LinearLength(kvPairs, 0, |kvPairs|) <= 2 + numMaxPairs * 7;
+        assert SerializableTypes.LinearLength(kvPairs, 0, |kvPairs|) <= 2 + numMaxPairs * 7;
       }
     }
     return encCtx;
@@ -130,17 +132,17 @@ module {:extern "TestUtils"} TestUtils {
     ensures EncryptionContext.Serializable(encryptionContext)
   {
     reveal EncryptionContext.Serializable();
-    assert EncryptionContext.Length(encryptionContext) < UINT16_LIMIT by {
+    assert SerializableTypes.Length(encryptionContext) < UINT16_LIMIT by {
       if |encryptionContext| != 0 {
         var keys: seq<UTF8.ValidUTF8Bytes> := SetToOrderedSequence(encryptionContext.Keys, UInt.UInt8Less);
         var kvPairs := seq(|keys|, i requires 0 <= i < |keys| => (keys[i], encryptionContext[keys[i]]));
-        assert EncryptionContext.Length(encryptionContext) ==
-          2 + EncryptionContext.LinearLength(kvPairs, 0, |kvPairs|);
+        assert SerializableTypes.Length(encryptionContext) ==
+          2 + SerializableTypes.LinearLength(kvPairs, 0, |kvPairs|);
 
         var n := |kvPairs|;
         assert n <= 5;
 
-        assert EncryptionContext.LinearLength(kvPairs, 0, n) <= n * 204 by {
+        assert SerializableTypes.LinearLength(kvPairs, 0, n) <= n * 204 by {
           KVPairsLengthBound(kvPairs, |kvPairs|, 200);
         }
         assert n * 204 <= 1020 < UINT16_LIMIT;
@@ -151,7 +153,7 @@ module {:extern "TestUtils"} TestUtils {
   lemma KVPairsLengthBound(kvPairs: EncryptionContext.Linear, n: nat, kvBound: int)
     requires n <= |kvPairs|
     requires forall i :: 0 <= i < n ==> |kvPairs[i].0| + |kvPairs[i].1| <= kvBound
-    ensures EncryptionContext.LinearLength(kvPairs, 0, n) <= n * (4 + kvBound)
+    ensures SerializableTypes.LinearLength(kvPairs, 0, n) <= n * (4 + kvBound)
   {
   }
 

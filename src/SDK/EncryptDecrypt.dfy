@@ -253,7 +253,7 @@ module {:extern "EncryptDecrypt"} EncryptDecrypt {
     ghost var serializedHeaderBody := (reveal Msg.HeaderBodyToSeq(); Msg.HeaderBodyToSeq(headerBody));
     assert SerializableTypes.GetAlgorithmSuiteId(headerBody.algorithmSuiteID) == suite.id;
 
-    SerializableTypes.LemmaESDKAlgorithmSuiteIdImpliesEquality(headerBody.algorithmSuiteID, suite);
+    LemmaESDKAlgorithmSuiteIdImpliesEquality(headerBody.algorithmSuiteID, suite);
     assert {:focus} true;
 
     var wr := new Streams.ByteWriter();
@@ -660,5 +660,19 @@ module {:extern "EncryptDecrypt"} EncryptDecrypt {
     exists i, header, hbSeq | 0 <= i <= |sequence| :: HeaderBySequence(header, hbSeq, sequence[..i])
   }
 
+  lemma LemmaESDKAlgorithmSuiteIdImpliesEquality(
+    esdkId: SerializableTypes.ESDKAlgorithmSuiteId,
+    suite: Client.AlgorithmSuites.AlgorithmSuite
+  )
+    requires SerializableTypes.GetAlgorithmSuiteId(esdkId) == suite.id
+    ensures
+      && var suiteId := SerializableTypes.GetAlgorithmSuiteId(esdkId);
+      && Client.SpecificationClient().GetSuite(suiteId) == suite
+  {
+    var suiteId := SerializableTypes.GetAlgorithmSuiteId(esdkId);
+    if Client.SpecificationClient().GetSuite(suiteId) != suite {
+      assert Client.SpecificationClient().GetSuite(suiteId).encrypt.keyLength == suite.encrypt.keyLength;
+    }
+  }
 
 }

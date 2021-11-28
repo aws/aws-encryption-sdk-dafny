@@ -302,7 +302,7 @@ module Deserialize {
     Furthermore we prove that EncryptionContext.LinearSeqToMap(map, SerializeAAD(map)) which means that any map we serialize to a sequence is in the weak serialize relation
     From this we can conclude that DeserializeAAD(SerializeAAD(map)) == map
    */
-  method DeserializeAAD(rd: Streams.ByteReader) returns (ret: Result<EncryptionContext.Map, string>)
+  method DeserializeAAD(rd: Streams.ByteReader) returns (ret: Result<ESDKEncryptionContext, string>)
     requires rd.Valid()
     modifies rd.reader`pos
     ensures rd.Valid()
@@ -343,7 +343,7 @@ module Deserialize {
       invariant i <= kvPairsCount
       invariant |kvPairs| == |unsortedKvPairs|
       invariant forall kvPair :: kvPair in kvPairs <==> kvPair in unsortedKvPairs
-      invariant totalBytesRead == 2 + EncryptionContext.LinearLength(kvPairs, 0, i as nat) <= kvPairsLength as nat
+      invariant totalBytesRead == 2 + SerializableTypes.LinearLength(kvPairs, 0, i as nat) <= kvPairsLength as nat
       invariant totalBytesRead == |rd.reader.data[old(rd.reader.pos)..rd.reader.pos]| - 2
       invariant EncryptionContext.SerializableLinear(kvPairs)
       invariant EncryptionContext.SerializableUnsortedLinear(unsortedKvPairs)
@@ -424,7 +424,7 @@ module Deserialize {
   }
 
   // Lemma used for validation speedup, Combines straightforward facts into the post condition
-  lemma SerializationIsValid(sequence: seq<uint8>, resultMap: EncryptionContext.Map, unsortedKvPairs: EncryptionContext.Linear, kvPairs: EncryptionContext.Linear)
+  lemma SerializationIsValid(sequence: seq<uint8>, resultMap: ESDKEncryptionContext, unsortedKvPairs: EncryptionContext.Linear, kvPairs: EncryptionContext.Linear)
     requires |resultMap| == 0 ==> |sequence| == 2
     requires |resultMap| != 0 ==> 4 <= |sequence|
     requires EncryptionContext.Serializable(resultMap)

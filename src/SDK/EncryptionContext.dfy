@@ -22,6 +22,7 @@ module {:extern "EncryptionContext"} EncryptionContext {
    */
 
   type Map = Crypto.EncryptionContext
+  type Linear = SerializableTypes.Linear
 
   /*
    * Serializability predicates
@@ -368,7 +369,7 @@ module {:extern "EncryptionContext"} EncryptionContext {
 
   // Proof SerializeAAD is a subset of WeakSerializeAAD
   lemma MapToLinearIsDualLinearSeqToMap(resultMap: ESDKEncryptionContext)
-    requires Serializable(resultMap)
+    // requires Serializable(resultMap)
     ensures LinearSeqToMap(MapToLinear(resultMap), resultMap)
   {
     reveal Serializable(), MapToLinear();
@@ -602,7 +603,7 @@ module {:extern "EncryptionContext"} EncryptionContext {
    * that the two definitions correspond.
    */
   lemma LengthCorrect(encryptionContext: ESDKEncryptionContext)
-    requires Serializable(encryptionContext)
+    // requires Serializable(encryptionContext)
     ensures |MapToLinear(encryptionContext)| == 2 + Length(encryptionContext)
   {
     reveal Serializable(), MapToLinear();

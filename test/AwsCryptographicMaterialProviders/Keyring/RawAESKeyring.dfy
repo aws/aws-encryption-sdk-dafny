@@ -19,7 +19,6 @@ module TestAESKeyring {
   import MessageHeader
   import MaterialProviders.Materials
   import EncryptionContext
-  import AlgorithmSuite
   import UTF8
   import Aws.Crypto
   import opened TestUtils
