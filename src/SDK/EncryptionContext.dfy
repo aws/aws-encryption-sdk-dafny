@@ -5,6 +5,8 @@ include "../StandardLibrary/StandardLibrary.dfy"
 include "../StandardLibrary/UInt.dfy"
 include "../Util/UTF8.dfy"
 include "../Util/Sets.dfy"
+include "Serialize/SerializableTypes.dfy"
+include "../Generated/AwsCryptographicMaterialProviders.dfy"
 
 module {:extern "EncryptionContext"} EncryptionContext {
   import opened StandardLibrary
@@ -12,12 +14,14 @@ module {:extern "EncryptionContext"} EncryptionContext {
   import opened UInt = StandardLibrary.UInt
   import UTF8
   import Sets
+  import opened SerializableTypes
+  import Aws.Crypto
 
   /*
    * The main type of encryption context
    */
 
-  type Map = map<UTF8.ValidUTF8Bytes, UTF8.ValidUTF8Bytes>
+  type Map = Crypto.EncryptionContext
 
   /*
    * Serializability predicates
@@ -28,6 +32,12 @@ module {:extern "EncryptionContext"} EncryptionContext {
   predicate method {:opaque} Serializable(encryptionContext: Map) {
     && SerializableKVPairs(encryptionContext)
     && Length(encryptionContext) < UINT16_LIMIT
+  }
+
+  lemma asdf(ec: SerializableTypes.ESDKEncryptionContext)
+    ensures Serializable(ec)
+  {
+    reveal Serializable();
   }
 
   predicate method SerializableKVPairs(encryptionContext: Map) {
@@ -58,38 +68,6 @@ module {:extern "EncryptionContext"} EncryptionContext {
   predicate LinearIsUnique(linear: Linear)
   {
     forall i, j | 0 <= i < j < |linear| :: linear[i].0 != linear[j].0
-  }
-
-  /*
-   * Length properties
-   */
-
-  function method Length(encryptionContext: Map): nat
-  {
-    if |encryptionContext| == 0 then 0 else
-      // Defining and reasoning about order at this level is simplified by using a sequence of
-      // key value pairs instead of a map.
-      var keys: seq<UTF8.ValidUTF8Bytes> := SetToOrderedSequence(encryptionContext.Keys, UInt.UInt8Less);
-      var kvPairs := seq(|keys|, i requires 0 <= i < |keys| => (keys[i], encryptionContext[keys[i]]));
-      2 + LinearLength(kvPairs, 0, |kvPairs|)
-  }
-
-  /*
-   * Encryption context as a sequence
-   */
-
-  // To make verification and working with iterating through the encryption context
-  // simpler, here we define a specific type to represent a sequence of key-value tuples.
-  type Linear = seq<(UTF8.ValidUTF8Bytes, UTF8.ValidUTF8Bytes)>
-
-  // Length of KVPairEntries is defined in terms of a seq of tuples, which is easier to reason about
-  function method LinearLength(kvPairs: Linear, lo: nat, hi: nat): nat
-    requires lo <= hi <= |kvPairs|
-  {
-    if lo == hi then 0 else
-      LinearLength(kvPairs, lo, hi - 1) +
-      2 + |kvPairs[hi - 1].0| +
-      2 + |kvPairs[hi - 1].1|
   }
 
   // There isn't an efficient way to build a map from a sequence in dafny, so this
@@ -358,7 +336,7 @@ module {:extern "EncryptionContext"} EncryptionContext {
    * Definition of dual DeserializeAAD
    */
 
-  predicate LinearSeqToMap(sequence: seq<uint8>, resultMap: Map)
+  predicate LinearSeqToMap(sequence: seq<uint8>, resultMap: ESDKEncryptionContext)
   {
     if 2 <= |sequence| && |sequence[2..]| < UINT16_LIMIT then
       sequence[..2] == UInt16ToSeq(|sequence[2..]| as uint16) && SeqToMap(sequence[2..], resultMap)
@@ -368,7 +346,7 @@ module {:extern "EncryptionContext"} EncryptionContext {
 
 
   // Deserialization is a surjection. This predicate holds if a sequence can be deserialized to the result map
-  predicate SeqToMap(sequence: seq<uint8>, resultMap: Map)
+  predicate SeqToMap(sequence: seq<uint8>, resultMap: ESDKEncryptionContext)
   {
     if 2 <= |sequence| then
       exists unsortedKvPairs :: SeqToLinearToMap(sequence, resultMap, unsortedKvPairs, InsertionSort(unsortedKvPairs))
@@ -376,7 +354,7 @@ module {:extern "EncryptionContext"} EncryptionContext {
       |resultMap| == 0
   }
 
-  predicate SeqToLinearToMap(sequence: seq<uint8>, resultMap: Map, unsortedKvPairs: Linear, sortedKvPairs: Linear)
+  predicate SeqToLinearToMap(sequence: seq<uint8>, resultMap: ESDKEncryptionContext, unsortedKvPairs: Linear, sortedKvPairs: Linear)
   {
     && 2 <= |sequence| // All inputs have a valid form
     && SerializableUnsortedLinear(unsortedKvPairs)
@@ -389,7 +367,7 @@ module {:extern "EncryptionContext"} EncryptionContext {
   }
 
   // Proof SerializeAAD is a subset of WeakSerializeAAD
-  lemma MapToLinearIsDualLinearSeqToMap(resultMap: Map)
+  lemma MapToLinearIsDualLinearSeqToMap(resultMap: ESDKEncryptionContext)
     requires Serializable(resultMap)
     ensures LinearSeqToMap(MapToLinear(resultMap), resultMap)
   {
@@ -427,7 +405,7 @@ module {:extern "EncryptionContext"} EncryptionContext {
     }
   }
 
-  lemma MapToSeqIsDualSeqToMap(resultMap: Map)
+  lemma MapToSeqIsDualSeqToMap(resultMap: ESDKEncryptionContext)
     requires SerializableKVPairs(resultMap)
     ensures SeqToMap(MapToSeq(resultMap), resultMap)
   {
@@ -524,8 +502,8 @@ module {:extern "EncryptionContext"} EncryptionContext {
   /**
    * Definition SerializeAAD
    */
-  function MapToSeq(kvPairs: Map): seq<uint8>
-    requires SerializableKVPairs(kvPairs)
+  function MapToSeq(kvPairs: ESDKEncryptionContext): seq<uint8>
+    // requires SerializableKVPairs(kvPairs)
   {
     var n := |kvPairs|;
     if n == 0 then [] else
@@ -547,10 +525,10 @@ module {:extern "EncryptionContext"} EncryptionContext {
     if lo == hi then [] else LinearToSeq(kvPairs, lo, hi - 1) + KVPairToSeq(kvPairs[hi - 1])
   }
 
-  function {:opaque} MapToLinear(kvPairs: Map): seq<uint8>
-    requires Serializable(kvPairs)
+  function {:opaque} MapToLinear(kvPairs: ESDKEncryptionContext): seq<uint8>
+    // requires Serializable(kvPairs)
   {
-    reveal Serializable();
+    // reveal Serializable();
     UInt16ToSeq(Length(kvPairs) as uint16) +
     MapToSeq(kvPairs)
   }
@@ -623,7 +601,7 @@ module {:extern "EncryptionContext"} EncryptionContext {
    * these two would be mutually recursive with Valid). The following lemma proves
    * that the two definitions correspond.
    */
-  lemma LengthCorrect(encryptionContext: Map)
+  lemma LengthCorrect(encryptionContext: ESDKEncryptionContext)
     requires Serializable(encryptionContext)
     ensures |MapToLinear(encryptionContext)| == 2 + Length(encryptionContext)
   {

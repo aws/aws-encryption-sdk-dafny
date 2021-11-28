@@ -7,6 +7,7 @@ include "../../StandardLibrary/StandardLibrary.dfy"
 include "../../AwsCryptographicMaterialProviders/Client.dfy"
 
 module SerializableTypes {
+  import StandardLibrary
   import opened UInt = StandardLibrary.UInt
   import opened UTF8
   import opened Aws.Crypto
@@ -24,11 +25,21 @@ module SerializableTypes {
   type ESDKEncryptedDataKeys = seq16<ESDKEncryptedDataKey>
 
   predicate method IsESDKEncryptionContext(ec: EncryptionContext) {
-    && |ec| > UINT16_LIMIT
+    && |ec| < UINT16_LIMIT
+    && Length(ec) < UINT16_LIMIT
     && forall element
     | element in (multiset(ec.Keys) + multiset(ec.Values))
-    :: HasUint16Len(element)
+    ::
+      && HasUint16Len(element)
+      && ValidUTF8Seq(element)
   }
+
+  // predicate method IsESDKEncryptionContextPair(kvPair: (UTF8.ValidUTF8Bytes, UTF8.ValidUTF8Bytes)) {
+  //   && HasUint16Len(kvPair.0)
+  //   && ValidUTF8Seq(kvPair.0)
+  //   && HasUint16Len(kvPair.1)
+  //   && ValidUTF8Seq(kvPair.1)
+  // }
 
   type ESDKEncryptionContext = ec: EncryptionContext | IsESDKEncryptionContext(ec) witness *
 
@@ -91,4 +102,35 @@ module SerializableTypes {
     }
   }
 
+  /*
+   * Length properties
+   */
+
+  function method Length(encryptionContext: EncryptionContext): nat
+  {
+    if |encryptionContext| == 0 then 0 else
+      // Defining and reasoning about order at this level is simplified by using a sequence of
+      // key value pairs instead of a map.
+      var keys: seq<UTF8.ValidUTF8Bytes> := StandardLibrary.SetToOrderedSequence(encryptionContext.Keys, UInt.UInt8Less);
+      var kvPairs := seq(|keys|, i requires 0 <= i < |keys| => (keys[i], encryptionContext[keys[i]]));
+      2 + LinearLength(kvPairs, 0, |kvPairs|)
+  }
+
+  /*
+   * Encryption context as a sequence
+   */
+
+  // To make verification and working with iterating through the encryption context
+  // simpler, here we define a specific type to represent a sequence of key-value tuples.
+  type Linear = seq<(UTF8.ValidUTF8Bytes, UTF8.ValidUTF8Bytes)>
+
+  // Length of KVPairEntries is defined in terms of a seq of tuples, which is easier to reason about
+  function method LinearLength(kvPairs: Linear, lo: nat, hi: nat): nat
+    requires lo <= hi <= |kvPairs|
+  {
+    if lo == hi then 0 else
+      LinearLength(kvPairs, lo, hi - 1) +
+      2 + |kvPairs[hi - 1].0| +
+      2 + |kvPairs[hi - 1].1|
+  }
 }

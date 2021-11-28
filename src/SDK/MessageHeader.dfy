@@ -79,7 +79,7 @@ module {:extern "MessageHeader"} MessageHeader {
                           typ: Type,
                           algorithmSuiteID: ESDKAlgorithmSuiteId,
                           messageID: MessageID,
-                          aad: EncryptionContext.Map,
+                          aad: ESDKEncryptionContext,
                           encryptedDataKeys: ESDKEncryptedDataKeys,
                           contentType: ContentType,
                           ivLength: uint8,
