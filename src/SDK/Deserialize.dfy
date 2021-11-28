@@ -103,13 +103,13 @@ module Deserialize {
     var _ :- DeserializeReserved(rd);
     readSoFar := ReadHelper(rd, orig, readSoFar, Msg.Reserved);
 
-    assert {:focus} true;
-    var ivLength :- rd.ReadByte();
-    readSoFar := ReadHelper(rd, orig, readSoFar, [ivLength]);
+    var ivLengthData :- rd.ReadBytes(1);
+    var ivLength := ivLengthData[0];
+    readSoFar := ReadHelper(rd, orig, readSoFar, ivLengthData);
 
-    assert {:focus} true;
-    var frameLength :- rd.ReadUInt32();
-    readSoFar := ReadHelper(rd, orig, readSoFar, UInt32ToSeq(frameLength));
+    var frameLengthData :- rd.ReadBytes(4);
+    var frameLength := SeqToUInt32(frameLengthData);
+    readSoFar := ReadHelper(rd, orig, readSoFar, frameLengthData);
 
     var suite := AlgorithmSuites.GetSuite(GetAlgorithmSuiteId(algorithmSuiteID));
     :- Need(
