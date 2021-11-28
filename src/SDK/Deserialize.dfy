@@ -117,14 +117,11 @@ module Deserialize {
       "Deserialization Error: Incorrect IV length."
     );
 
-    assert {:focus} true;
-    :- Need(
-      contentType.NonFramed? ==> frameLength == 0,
-      "Deserialization Error: Frame length must be 0 when content type is non-framed." );
-    assert {:focus} true;
-    :- Need(
-      contentType.Framed? ==> frameLength > 0,
-      "Deserialization Error: Frame length must be non-0 when content type is framed.");
+    if contentType.NonFramed? && frameLength != 0 {
+      return Failure("Deserialization Error: Frame length must be 0 when content type is non-framed.");
+    } else if contentType.Framed? && frameLength == 0 {
+      return Failure("Deserialization Error: Frame length must be non-0 when content type is framed.");
+    }
 
     assert {:focus} true;
     var hb := Msg.HeaderBody(
