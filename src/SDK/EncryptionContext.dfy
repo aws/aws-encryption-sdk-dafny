@@ -35,8 +35,14 @@ module {:extern "EncryptionContext"} EncryptionContext {
     && Length(encryptionContext) < UINT16_LIMIT
   }
 
-  lemma asdf(ec: SerializableTypes.ESDKEncryptionContext)
+  lemma LemmaESDKEncryptionContextIsSerializable(ec: SerializableTypes.ESDKEncryptionContext)
     ensures Serializable(ec)
+  {
+    reveal Serializable();
+  }
+  lemma LemmaSerializableIsESDKEncryptionContext(ec: Crypto.EncryptionContext)
+    requires Serializable(ec)
+    ensures IsESDKEncryptionContext(ec)
   {
     reveal Serializable();
   }
@@ -44,6 +50,11 @@ module {:extern "EncryptionContext"} EncryptionContext {
   predicate method SerializableKVPairs(encryptionContext: Map) {
     && |encryptionContext| < UINT16_LIMIT
     && (forall key :: key in encryptionContext.Keys ==> SerializableKVPair((key, encryptionContext[key])))
+  }
+
+  lemma LemmaESDKEncryptionContextIsSerializableKVPairs(ec: SerializableTypes.ESDKEncryptionContext)
+    ensures SerializableKVPairs(ec)
+  {
   }
 
   predicate method SerializableKVPair(kvPair: (UTF8.ValidUTF8Bytes, UTF8.ValidUTF8Bytes)) {

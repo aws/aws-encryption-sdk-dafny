@@ -50,7 +50,7 @@ module {:extern "TestUtils"} TestUtils {
   // Generates a large encryption context that approaches the upper bounds of
   // what is able to be serialized in the message format.
   // Building a map item by item is slow in dafny, so this method should be used sparingly.
-  method GenerateLargeValidEncryptionContext() returns (r: EncryptionContext.Map)
+  method GenerateLargeValidEncryptionContext() returns (r: SerializableTypes.ESDKEncryptionContext)
     ensures EncryptionContext.Serializable(r)
   {
     // KVPairsMaxSize - KVPairsLenLen / KVPairLen ==>
@@ -87,6 +87,7 @@ module {:extern "TestUtils"} TestUtils {
         assert SerializableTypes.LinearLength(kvPairs, 0, |kvPairs|) <= 2 + numMaxPairs * 7;
       }
     }
+    EncryptionContext.LemmaSerializableIsESDKEncryptionContext(encCtx);
     return encCtx;
   }
 

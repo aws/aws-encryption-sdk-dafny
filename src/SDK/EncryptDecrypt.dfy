@@ -44,7 +44,7 @@ module {:extern "EncryptDecrypt"} EncryptDecrypt {
     cmm: Crypto.ICryptographicMaterialsManager?,
     keyring: Crypto.IKeyring?,
     plaintextLength: nat,
-    encryptionContext: EncryptionContext.Map,
+    encryptionContext: Crypto.EncryptionContext,
     algorithmSuiteID: Option<Crypto.AlgorithmSuiteId>,
     frameLength: Option<uint32>)
   {
@@ -58,7 +58,7 @@ module {:extern "EncryptDecrypt"} EncryptDecrypt {
       EncryptRequest(plaintext, null, keyring, |plaintext|, map[], None, None)
     }
 
-    function method SetEncryptionContext(encryptionContext: EncryptionContext.Map): EncryptRequest {
+    function method SetEncryptionContext(encryptionContext: Crypto.EncryptionContext): EncryptRequest {
       this.(encryptionContext := encryptionContext)
     }
 

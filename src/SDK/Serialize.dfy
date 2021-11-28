@@ -48,6 +48,7 @@ module Serialize {
     len := wr.WriteBytes(hb.messageID);
     totalWritten := totalWritten + len;
 
+    EncryptionContext.LemmaESDKEncryptionContextIsSerializable(hb.aad);
     len :- SerializeAAD(wr, hb.aad);
     totalWritten := totalWritten + len;
 
@@ -92,7 +93,7 @@ module Serialize {
 
   // ----- SerializeAAD -----
 
-  method SerializeAAD(wr: Streams.ByteWriter, kvPairs: EncryptionContext.Map) returns (ret: Result<nat, string>)
+  method SerializeAAD(wr: Streams.ByteWriter, kvPairs: SerializableTypes.ESDKEncryptionContext) returns (ret: Result<nat, string>)
     requires wr.Valid() && EncryptionContext.Serializable(kvPairs)
     modifies wr.writer`data
     ensures wr.Valid() && EncryptionContext.Serializable(kvPairs)
@@ -121,7 +122,7 @@ module Serialize {
 
   // ----- SerializeKVPairs -----
 
-  method SerializeKVPairs(wr: Streams.ByteWriter, encryptionContext: EncryptionContext.Map) returns (ret: Result<nat, string>)
+  method SerializeKVPairs(wr: Streams.ByteWriter, encryptionContext: SerializableTypes.ESDKEncryptionContext) returns (ret: Result<nat, string>)
     requires wr.Valid() && EncryptionContext.SerializableKVPairs(encryptionContext)
     modifies wr.writer`data
     ensures wr.Valid() && EncryptionContext.SerializableKVPairs(encryptionContext)

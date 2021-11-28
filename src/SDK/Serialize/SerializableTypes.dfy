@@ -86,9 +86,18 @@ module SerializableTypes {
   {}
 
   /*
-   * Length properties
+   * Length properties of the Encryption Context.
+   * The Encryption Context has a complex relationship with length.
+   * Each key or value MUST be less than Uint16,
+   * However the entire thing MUST all so serialize to less than Uint16.
+   * In practice, this means than the longest value,
+   * given a key of 1 bytes is Uint16-2-2-1.
+   * e.g.
+   * 2 for the key length
+   * 1 for the key data
+   * 2 for the value length
+   * Uint16-2-2-1 for the value data
    */
-
   function method Length(encryptionContext: EncryptionContext): nat
   {
     if |encryptionContext| == 0 then 0 else
