@@ -76,10 +76,10 @@ module Deserialize {
     ghost var readSoFar := [];
 
     var version :- DeserializeVersion(rd);
-    readSoFar := ReadHelper(rd, orig, readSoFar, [version]);
+    readSoFar := ReadHelper(rd, orig, readSoFar, [version as uint8]);
 
     var typ :- DeserializeType(rd);
-    readSoFar := ReadHelper(rd, orig, readSoFar, [typ]);
+    readSoFar := ReadHelper(rd, orig, readSoFar, [typ as uint8]);
 
     var algorithmSuiteID :- DeserializeAlgorithmSuiteID(rd);
     readSoFar := ReadHelper(rd, orig, readSoFar, UInt16ToSeq(algorithmSuiteID as uint16));
