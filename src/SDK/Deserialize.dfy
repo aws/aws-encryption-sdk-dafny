@@ -71,44 +71,63 @@ module Deserialize {
         && Msg.IsSerializationOfHeaderBody(rd.reader.data[old(rd.reader.pos)..rd.reader.pos], hb)
       case Failure(_) => true
   {
-    assert {:focus} true;
+    assert {:split_here} true;
     ghost var orig := rd.reader.data[..rd.reader.pos];
     ghost var readSoFar := [];
 
+    assert {:split_here} true;
     var version :- DeserializeVersion(rd);
+    assert {:split_here} true;
     readSoFar := ReadHelper(rd, orig, readSoFar, [version as uint8]);
 
+    assert {:split_here} true;
     var typ :- DeserializeType(rd);
+    assert {:split_here} true;
     readSoFar := ReadHelper(rd, orig, readSoFar, [typ as uint8]);
 
+    assert {:split_here} true;
     var algorithmSuiteID :- DeserializeAlgorithmSuiteID(rd);
+    assert {:split_here} true;
     readSoFar := ReadHelper(rd, orig, readSoFar, UInt16ToSeq(algorithmSuiteID as uint16));
 
+    assert {:split_here} true;
     var messageID :- DeserializeMsgID(rd);
+    assert {:split_here} true;
     readSoFar := ReadHelper(rd, orig, readSoFar, messageID);
 
+    assert {:split_here} true;
     ghost var aadStart := rd.reader.pos;
     var aad :- DeserializeAAD(rd);
     ghost var aadEnd := rd.reader.pos;
-
-    readSoFar := ReadHelper(rd, orig, readSoFar, rd.reader.data[aadStart..aadEnd]);
     assert EncryptionContext.LinearSeqToMap(rd.reader.data[aadStart..aadEnd], aad);
+    assert {:split_here} true;
+    readSoFar := ReadHelper(rd, orig, readSoFar, rd.reader.data[aadStart..aadEnd]);
 
+    assert {:split_here} true;
     var encryptedDataKeys :- DeserializeEncryptedDataKeys(rd);
+    assert {:split_here} true;
     readSoFar := ReadHelper(rd, orig, readSoFar, Msg.EDKsToSeq(encryptedDataKeys));
 
+    assert {:split_here} true;
     var contentType :- DeserializeContentType(rd);
+    assert {:split_here} true;
     readSoFar := ReadHelper(rd, orig, readSoFar, [Msg.ContentTypeToUInt8(contentType)]);
 
+    assert {:split_here} true;
     var _ :- DeserializeReserved(rd);
+    assert {:split_here} true;
     readSoFar := ReadHelper(rd, orig, readSoFar, Msg.Reserved);
 
-    var ivLengthData :- rd.ReadBytes(1);
+    assert {:split_here} true;
+    var ivLengthData :- rd.ReadBytes(1 as nat);
     var ivLength := ivLengthData[0];
+    assert {:split_here} true;
     readSoFar := ReadHelper(rd, orig, readSoFar, ivLengthData);
 
-    var frameLengthData :- rd.ReadBytes(4);
+    assert {:split_here} true;
+    var frameLengthData :- rd.ReadBytes(4 as nat);
     var frameLength := SeqToUInt32(frameLengthData);
+    assert {:split_here} true;
     readSoFar := ReadHelper(rd, orig, readSoFar, frameLengthData);
 
     var suite := AlgorithmSuites.GetSuite(GetAlgorithmSuiteId(algorithmSuiteID));
@@ -123,7 +142,7 @@ module Deserialize {
       return Failure("Deserialization Error: Frame length must be non-0 when content type is framed.");
     }
 
-    assert {:focus} true;
+    assert {:split_here} true;
     var hb := Msg.HeaderBody(
       version,
       typ,
@@ -134,11 +153,14 @@ module Deserialize {
       contentType,
       ivLength,
       frameLength);
+    assert {:split_here} true;
     assert Msg.IsSerializationOfHeaderBody(rd.reader.data[old(rd.reader.pos)..rd.reader.pos], hb) by {
       reveal Msg.IsSerializationOfHeaderBody();
+      assert {:split_here} true;
       assert readSoFar == rd.reader.data[old(rd.reader.pos)..rd.reader.pos];
       var serializedAAD := rd.reader.data[aadStart..aadEnd];
       assert EncryptionContext.LinearSeqToMap(serializedAAD, aad);
+      assert {:split_here} true;
       assert Msg.IsSerializationOfHeaderBodyAux(readSoFar, hb, serializedAAD);
     }
     return Success(hb);
