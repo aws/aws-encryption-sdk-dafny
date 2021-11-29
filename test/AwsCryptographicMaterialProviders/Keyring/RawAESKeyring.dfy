@@ -179,8 +179,8 @@ module TestAESKeyring {
       plaintextDataKey:=None(),
       verificationKey:=Some(verificationKey)
     );
-    var decryptionMaterialsOut :- expect rawAESKeyring.OnDecrypt(Crypto.OnDecryptInput(materials:=decryptionMaterialsIn, encryptedDataKeys:=[edk]));
-    expect decryptionMaterialsOut.materials.plaintextDataKey.None?;
+    var decryptionMaterialsOut := rawAESKeyring.OnDecrypt(Crypto.OnDecryptInput(materials:=decryptionMaterialsIn, encryptedDataKeys:=[edk]));
+    expect decryptionMaterialsOut.IsFailure();
   }
 
   // TODO test for multiple EDKS for OnDecrypt
@@ -216,8 +216,8 @@ module TestAESKeyring {
       plaintextDataKey:=None(),
       verificationKey:=Some(verificationKey)
     );
-    var decryptionMaterialsOut :- expect rawAESKeyring.OnDecrypt(Crypto.OnDecryptInput(materials:=decryptionMaterialsIn, encryptedDataKeys:=[]));
-    expect decryptionMaterialsOut.materials.plaintextDataKey.None?;
+    var decryptionMaterialsOut := rawAESKeyring.OnDecrypt(Crypto.OnDecryptInput(materials:=decryptionMaterialsIn, encryptedDataKeys:=[]));
+    expect decryptionMaterialsOut.IsFailure();
   }
 
   //= compliance/framework/raw-aes-keyring.txt#2.7.1
