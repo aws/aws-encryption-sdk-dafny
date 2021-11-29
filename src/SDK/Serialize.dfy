@@ -141,7 +141,7 @@ module Serialize {
       return Success(newlyWritten);
     }
 
-    assert {:focus} true;
+    assert {:split_here} true;
     var len := wr.WriteUInt16(|encryptionContext| as uint16);
     newlyWritten := newlyWritten + len;
 
@@ -160,25 +160,27 @@ module Serialize {
       invariant wr.GetDataWritten() == writtenBeforeLoop + EncryptionContext.LinearToSeq(kvPairs, 0, j)
       invariant wr.GetSizeWritten() == old(wr.GetSizeWritten()) + newlyWritten
     {
-      assert {:focus} true;
+      assert {:split_here} true;
       len :- SerializeKVPair(wr, keys[j], encryptionContext[keys[j]]);
       newlyWritten := newlyWritten + len;
+      assert {:split_here} true;
       assert wr.GetSizeWritten() == old(wr.GetSizeWritten()) + newlyWritten;
 
+      assert {:split_here} true;
       calc {
         wr.GetDataWritten();
       ==  // by the loop invariant and the postcondition of SerializeKVPair
         writtenBeforeLoop + EncryptionContext.LinearToSeq(kvPairs, 0, j) + EncryptionContext.KVPairToSeq(kvPairs[j]);
       ==  // + is associative
-        writtenBeforeLoop + (EncryptionContext.LinearToSeq(kvPairs, 0, j) + EncryptionContext.KVPairToSeq(kvPairs[j]));
-      ==  { assert EncryptionContext.LinearToSeq(kvPairs, 0, j) + EncryptionContext.KVPairToSeq(kvPairs[j]) == EncryptionContext.LinearToSeq(kvPairs, 0, j + 1); }
+        assert {:split_here} true;writtenBeforeLoop + (EncryptionContext.LinearToSeq(kvPairs, 0, j) + EncryptionContext.KVPairToSeq(kvPairs[j]));
+      ==  {  assert {:split_here} true; assert EncryptionContext.LinearToSeq(kvPairs, 0, j) + EncryptionContext.KVPairToSeq(kvPairs[j]) == EncryptionContext.LinearToSeq(kvPairs, 0, j + 1); }
         writtenBeforeLoop + EncryptionContext.LinearToSeq(kvPairs, 0, j + 1);
       }
 
       j := j + 1;
     }
 
-    assert {:focus} true;
+    assert {:split_here} true;
     assert EncryptionContext.MapToSeq(encryptionContext) == UInt16ToSeq(n as uint16) + EncryptionContext.LinearToSeq(kvPairs, 0, j) by {
       assert {:focus} true;
       assert |kvPairs| == j;
