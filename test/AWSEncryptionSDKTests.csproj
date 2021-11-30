@@ -41,7 +41,12 @@
   </PropertyGroup>
   <ItemGroup>
     <VerifyDafnyPassthrough Include="timeLimit:600" />
-    <VerifyDafnyPassthrough Include="definiteAssignment:3" />
+    <!-- 
+      TODO: This is important to enable, but Dafny 3.1 and on seems to not be able to
+      verify MessageBody.EncryptMessageBody with this flag on Mac OS.
+      See https://github.com/awslabs/aws-encryption-sdk-dafny/issues/425.
+      <VerifyDafnyPassthrough Include="definiteAssignment:3" />
+    -->
     <VerifyDafnyPassthrough Include="$(TestVerifyOverride)" />
   </ItemGroup>
 
