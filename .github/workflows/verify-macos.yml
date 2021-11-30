@@ -8,8 +8,7 @@ jobs:
     runs-on: macos-latest
     steps:
       - uses: actions/checkout@v2
-        with:
-          submodules: recursive
+      - run: git submodule update --init libraries
 
       - name: Setup Dafny
         uses: dafny-lang/setup-dafny-action@v1
