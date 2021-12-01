@@ -32,13 +32,6 @@ module SerializableTypes {
       && ValidUTF8Seq(element)
   }
 
-  // predicate method IsESDKEncryptionContextPair(kvPair: (UTF8.ValidUTF8Bytes, UTF8.ValidUTF8Bytes)) {
-  //   && HasUint16Len(kvPair.0)
-  //   && ValidUTF8Seq(kvPair.0)
-  //   && HasUint16Len(kvPair.1)
-  //   && ValidUTF8Seq(kvPair.1)
-  // }
-
   type ESDKEncryptionContext = ec: EncryptionContext | IsESDKEncryptionContext(ec) witness *
 
   const VALID_IDS: set<uint16> := {0x0578, 0x0478, 0x0378, 0x0346, 0x0214, 0x0178, 0x0146, 0x0114, 0x0078, 0x0046, 0x0014};

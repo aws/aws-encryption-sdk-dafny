@@ -42,7 +42,6 @@ module
       ensures res.Success?
       ==>
         && Materials.EncryptionMaterialsWithPlaintextDataKey(res.value.encryptionMaterials)
-        // TODO Need to prove
         && (
           AlgorithmSuites.GetSuite(res.value.encryptionMaterials.algorithmSuiteId).signature.ECDSA?
         ==>
