@@ -100,12 +100,11 @@ module
         && input.materials.plaintextDataKey.None?
         && 1 <= |awsKmsKey| <= 2048
       ==>
+        //= compliance/framework/aws-kms/aws-kms-mrk-aware-symmetric-keyring.txt#2.7
+        //= type=implication
+        //# If the keyring calls AWS KMS GenerateDataKeys, it MUST use the
+        //# configured AWS KMS client to make the call.
         client.GenerateDataKeyCalledWith(
-          //= compliance/framework/aws-kms/aws-kms-mrk-aware-symmetric-keyring.txt#2.7
-          //= type=implication
-          //# If the keyring calls AWS KMS GenerateDataKeys, it MUST use the
-          //# configured AWS KMS client to make the call.
-          client,
           //= compliance/framework/aws-kms/aws-kms-mrk-aware-symmetric-keyring.txt#2.7
           //= type=implication
           //# The keyring MUST call
@@ -146,7 +145,6 @@ module
         && var algId := AlgorithmSuites.GetSuite(input.materials.algorithmSuiteId);
         && exists returnedKeyId ::
           && client.GenerateDataKeySucceededWith(
-          client := client,
           input := GeneratedKMS.GenerateDataKeyRequest(
             KeyId := awsKmsKey,
             EncryptionContext := Option.Some(input.materials.encryptionContext),
@@ -171,13 +169,12 @@ module
         && input.materials.plaintextDataKey.Some?
         && 1 <= |input.materials.plaintextDataKey.value| <= 4096
       ==>
+        //= compliance/framework/aws-kms/aws-kms-mrk-aware-symmetric-keyring.txt#2.7
+        //= type=implication
+        //# The keyring MUST call AWS KMS Encrypt
+        //# (https://docs.aws.amazon.com/kms/latest/APIReference/
+        //# API_Encrypt.html) using the configured AWS KMS client.
         && client.EncryptCalledWith(
-          //= compliance/framework/aws-kms/aws-kms-mrk-aware-symmetric-keyring.txt#2.7
-          //= type=implication
-          //# The keyring MUST call AWS KMS Encrypt
-          //# (https://docs.aws.amazon.com/kms/latest/APIReference/
-          //# API_Encrypt.html) using the configured AWS KMS client.
-          client,
           //= compliance/framework/aws-kms/aws-kms-mrk-aware-symmetric-keyring.txt#2.7
           //= type=implication
           //# The keyring
@@ -210,7 +207,6 @@ module
 
         && exists returnedKeyId, returnedEncryptionAlgorithm ::
           && client.EncryptSucceededWith(
-            client := client,
             input := GeneratedKMS.EncryptRequest(
               KeyId := awsKmsKey,
               Plaintext := input.materials.plaintextDataKey.value,
@@ -375,14 +371,13 @@ module
             GrantTokens := Option.Some(grantTokens),
             EncryptionAlgorithm := Option.None()
           );
+          //= compliance/framework/aws-kms/aws-kms-mrk-aware-symmetric-keyring.txt#2.8
+          //= type=implication
+          //# To attempt to decrypt a particular encrypted data key
+          //# (structures.md#encrypted-data-key), OnDecrypt MUST call AWS KMS
+          //# Decrypt (https://docs.aws.amazon.com/kms/latest/APIReference/
+          //# API_Decrypt.html) with the configured AWS KMS client.
           && client.DecryptCalledWith(
-            //= compliance/framework/aws-kms/aws-kms-mrk-aware-symmetric-keyring.txt#2.8
-            //= type=implication
-            //# To attempt to decrypt a particular encrypted data key
-            //# (structures.md#encrypted-data-key), OnDecrypt MUST call AWS KMS
-            //# Decrypt (https://docs.aws.amazon.com/kms/latest/APIReference/
-            //# API_Decrypt.html) with the configured AWS KMS client.
-            client,
             //= compliance/framework/aws-kms/aws-kms-mrk-aware-symmetric-keyring.txt#2.8
             //= type=implication
             //# When calling AWS KMS Decrypt
@@ -409,7 +404,7 @@ module
             //= type=implication
             //# If the response does satisfies these requirements then OnDecrypt MUST
             //# do the following with the response:
-            && client.DecryptSucceededWith(client, request, response)
+            && client.DecryptSucceededWith(request, response)
     {
 
       var materials := input.materials;
@@ -461,13 +456,13 @@ module
               EncryptionAlgorithm := Option.None()
             );
 
-            && client.DecryptCalledWith( client, request)
+            && client.DecryptCalledWith(request)
             && var response := GeneratedKMS.DecryptResponse(
               KeyId := returnedKeyId,
               Plaintext := mat.plaintextDataKey,
               EncryptionAlgorithm := returnedEncryptionAlgorithm
             );
-            && client.DecryptSucceededWith(client, request, response);
+            && client.DecryptSucceededWith(request, response);
           Success(Crypto.OnDecryptOutput(
             materials := mat
           ))
@@ -588,14 +583,14 @@ module
             GrantTokens := Option.Some(grantTokens),
             EncryptionAlgorithm := Option.None()
           );
-        && client.DecryptCalledWith( client, request )
+        && client.DecryptCalledWith(request )
         && exists returnedKeyId, returnedEncryptionAlgorithm ::
           && var response := GeneratedKMS.DecryptResponse(
             KeyId := returnedKeyId,
             Plaintext := Option.Some(res.value.plaintextDataKey.value),
             EncryptionAlgorithm := returnedEncryptionAlgorithm
           );
-          && client.DecryptSucceededWith(client, request, response)
+          && client.DecryptSucceededWith(request, response)
     }
 
     method Invoke(

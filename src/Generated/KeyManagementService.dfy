@@ -1,7 +1,7 @@
 // Copyright Amazon.com Inc. or its affiliates. All Rights Reserved.
 // SPDX-License-Identifier: Apache-2.0
 //
-// Generated at 2021-11-24T06:03:27.038099
+// Generated at 2021-12-01T10:52:09.748631
 include "../StandardLibrary/StandardLibrary.dfy"
 include "../Util/UTF8.dfy"
  module {:extern "Dafny.Com.Amazonaws.Kms.KeyManagementService"} Com.Amazonaws.Kms.KeyManagementService {
@@ -443,287 +443,287 @@ import opened UTF8
 	nameonly KeyId: Option<KeyIdType> ,
 	nameonly KeyArn: Option<ArnType> )
  trait IKeyManagementServiceClient {
- predicate {:opaque} CancelKeyDeletionCalledWith (client: IKeyManagementServiceClient , input: CancelKeyDeletionRequest ) {true}
- predicate {:opaque} CancelKeyDeletionSucceededWith ( client: IKeyManagementServiceClient , input: CancelKeyDeletionRequest , output: CancelKeyDeletionResponse ) {true}
+ predicate {:opaque} CancelKeyDeletionCalledWith ( input: CancelKeyDeletionRequest ) {true}
+ predicate {:opaque} CancelKeyDeletionSucceededWith (  input: CancelKeyDeletionRequest , output: CancelKeyDeletionResponse ) {true}
  method CancelKeyDeletion ( input: CancelKeyDeletionRequest ) returns  ( output: Result<CancelKeyDeletionResponse, KeyManagementServiceError> )
-	ensures CancelKeyDeletionCalledWith(this , input )
-	ensures output.Success? ==> CancelKeyDeletionSucceededWith(this , input , output.value )
+	ensures CancelKeyDeletionCalledWith (  input )
+	ensures output.Success? ==> CancelKeyDeletionSucceededWith (  input , output.value )
 
- predicate {:opaque} ConnectCustomKeyStoreCalledWith (client: IKeyManagementServiceClient , input: ConnectCustomKeyStoreRequest ) {true}
- predicate {:opaque} ConnectCustomKeyStoreSucceededWith ( client: IKeyManagementServiceClient , input: ConnectCustomKeyStoreRequest , output: ConnectCustomKeyStoreResponse ) {true}
+ predicate {:opaque} ConnectCustomKeyStoreCalledWith ( input: ConnectCustomKeyStoreRequest ) {true}
+ predicate {:opaque} ConnectCustomKeyStoreSucceededWith (  input: ConnectCustomKeyStoreRequest , output: ConnectCustomKeyStoreResponse ) {true}
  method ConnectCustomKeyStore ( input: ConnectCustomKeyStoreRequest ) returns  ( output: Result<ConnectCustomKeyStoreResponse, KeyManagementServiceError> )
-	ensures ConnectCustomKeyStoreCalledWith(this , input )
-	ensures output.Success? ==> ConnectCustomKeyStoreSucceededWith(this , input , output.value )
+	ensures ConnectCustomKeyStoreCalledWith (  input )
+	ensures output.Success? ==> ConnectCustomKeyStoreSucceededWith (  input , output.value )
 
- predicate {:opaque} CreateAliasCalledWith (client: IKeyManagementServiceClient , input: CreateAliasRequest ) {true}
- predicate {:opaque} CreateAliasSucceededWith ( client: IKeyManagementServiceClient , input: CreateAliasRequest ) {true}
+ predicate {:opaque} CreateAliasCalledWith ( input: CreateAliasRequest ) {true}
+ predicate {:opaque} CreateAliasSucceededWith (  input: CreateAliasRequest ) {true}
  method CreateAlias ( input: CreateAliasRequest ) returns  ( output: Result<(), KeyManagementServiceError> )
-	ensures CreateAliasCalledWith(this , input )
-	ensures output.Success? ==> CreateAliasSucceededWith(this , input )
+	ensures CreateAliasCalledWith (  input )
+	ensures output.Success? ==> CreateAliasSucceededWith (  input )
 
- predicate {:opaque} CreateCustomKeyStoreCalledWith (client: IKeyManagementServiceClient , input: CreateCustomKeyStoreRequest ) {true}
- predicate {:opaque} CreateCustomKeyStoreSucceededWith ( client: IKeyManagementServiceClient , input: CreateCustomKeyStoreRequest , output: CreateCustomKeyStoreResponse ) {true}
+ predicate {:opaque} CreateCustomKeyStoreCalledWith ( input: CreateCustomKeyStoreRequest ) {true}
+ predicate {:opaque} CreateCustomKeyStoreSucceededWith (  input: CreateCustomKeyStoreRequest , output: CreateCustomKeyStoreResponse ) {true}
  method CreateCustomKeyStore ( input: CreateCustomKeyStoreRequest ) returns  ( output: Result<CreateCustomKeyStoreResponse, KeyManagementServiceError> )
-	ensures CreateCustomKeyStoreCalledWith(this , input )
-	ensures output.Success? ==> CreateCustomKeyStoreSucceededWith(this , input , output.value )
+	ensures CreateCustomKeyStoreCalledWith (  input )
+	ensures output.Success? ==> CreateCustomKeyStoreSucceededWith (  input , output.value )
 
- predicate {:opaque} CreateGrantCalledWith (client: IKeyManagementServiceClient , input: CreateGrantRequest ) {true}
- predicate {:opaque} CreateGrantSucceededWith ( client: IKeyManagementServiceClient , input: CreateGrantRequest , output: CreateGrantResponse ) {true}
+ predicate {:opaque} CreateGrantCalledWith ( input: CreateGrantRequest ) {true}
+ predicate {:opaque} CreateGrantSucceededWith (  input: CreateGrantRequest , output: CreateGrantResponse ) {true}
  method CreateGrant ( input: CreateGrantRequest ) returns  ( output: Result<CreateGrantResponse, KeyManagementServiceError> )
-	ensures CreateGrantCalledWith(this , input )
-	ensures output.Success? ==> CreateGrantSucceededWith(this , input , output.value )
+	ensures CreateGrantCalledWith (  input )
+	ensures output.Success? ==> CreateGrantSucceededWith (  input , output.value )
 
- predicate {:opaque} CreateKeyCalledWith (client: IKeyManagementServiceClient , input: CreateKeyRequest ) {true}
- predicate {:opaque} CreateKeySucceededWith ( client: IKeyManagementServiceClient , input: CreateKeyRequest , output: CreateKeyResponse ) {true}
+ predicate {:opaque} CreateKeyCalledWith ( input: CreateKeyRequest ) {true}
+ predicate {:opaque} CreateKeySucceededWith (  input: CreateKeyRequest , output: CreateKeyResponse ) {true}
  method CreateKey ( input: CreateKeyRequest ) returns  ( output: Result<CreateKeyResponse, KeyManagementServiceError> )
-	ensures CreateKeyCalledWith(this , input )
-	ensures output.Success? ==> CreateKeySucceededWith(this , input , output.value )
+	ensures CreateKeyCalledWith (  input )
+	ensures output.Success? ==> CreateKeySucceededWith (  input , output.value )
 
- predicate {:opaque} DecryptCalledWith (client: IKeyManagementServiceClient , input: DecryptRequest ) {true}
- predicate {:opaque} DecryptSucceededWith ( client: IKeyManagementServiceClient , input: DecryptRequest , output: DecryptResponse ) {true}
+ predicate {:opaque} DecryptCalledWith ( input: DecryptRequest ) {true}
+ predicate {:opaque} DecryptSucceededWith (  input: DecryptRequest , output: DecryptResponse ) {true}
  method Decrypt ( input: DecryptRequest ) returns  ( output: Result<DecryptResponse, KeyManagementServiceError> )
-	ensures DecryptCalledWith(this , input )
-	ensures output.Success? ==> DecryptSucceededWith(this , input , output.value )
+	ensures DecryptCalledWith (  input )
+	ensures output.Success? ==> DecryptSucceededWith (  input , output.value )
 
- predicate {:opaque} DeleteAliasCalledWith (client: IKeyManagementServiceClient , input: DeleteAliasRequest ) {true}
- predicate {:opaque} DeleteAliasSucceededWith ( client: IKeyManagementServiceClient , input: DeleteAliasRequest ) {true}
+ predicate {:opaque} DeleteAliasCalledWith ( input: DeleteAliasRequest ) {true}
+ predicate {:opaque} DeleteAliasSucceededWith (  input: DeleteAliasRequest ) {true}
  method DeleteAlias ( input: DeleteAliasRequest ) returns  ( output: Result<(), KeyManagementServiceError> )
-	ensures DeleteAliasCalledWith(this , input )
-	ensures output.Success? ==> DeleteAliasSucceededWith(this , input )
+	ensures DeleteAliasCalledWith (  input )
+	ensures output.Success? ==> DeleteAliasSucceededWith (  input )
 
- predicate {:opaque} DeleteCustomKeyStoreCalledWith (client: IKeyManagementServiceClient , input: DeleteCustomKeyStoreRequest ) {true}
- predicate {:opaque} DeleteCustomKeyStoreSucceededWith ( client: IKeyManagementServiceClient , input: DeleteCustomKeyStoreRequest , output: DeleteCustomKeyStoreResponse ) {true}
+ predicate {:opaque} DeleteCustomKeyStoreCalledWith ( input: DeleteCustomKeyStoreRequest ) {true}
+ predicate {:opaque} DeleteCustomKeyStoreSucceededWith (  input: DeleteCustomKeyStoreRequest , output: DeleteCustomKeyStoreResponse ) {true}
  method DeleteCustomKeyStore ( input: DeleteCustomKeyStoreRequest ) returns  ( output: Result<DeleteCustomKeyStoreResponse, KeyManagementServiceError> )
-	ensures DeleteCustomKeyStoreCalledWith(this , input )
-	ensures output.Success? ==> DeleteCustomKeyStoreSucceededWith(this , input , output.value )
+	ensures DeleteCustomKeyStoreCalledWith (  input )
+	ensures output.Success? ==> DeleteCustomKeyStoreSucceededWith (  input , output.value )
 
- predicate {:opaque} DeleteImportedKeyMaterialCalledWith (client: IKeyManagementServiceClient , input: DeleteImportedKeyMaterialRequest ) {true}
- predicate {:opaque} DeleteImportedKeyMaterialSucceededWith ( client: IKeyManagementServiceClient , input: DeleteImportedKeyMaterialRequest ) {true}
+ predicate {:opaque} DeleteImportedKeyMaterialCalledWith ( input: DeleteImportedKeyMaterialRequest ) {true}
+ predicate {:opaque} DeleteImportedKeyMaterialSucceededWith (  input: DeleteImportedKeyMaterialRequest ) {true}
  method DeleteImportedKeyMaterial ( input: DeleteImportedKeyMaterialRequest ) returns  ( output: Result<(), KeyManagementServiceError> )
-	ensures DeleteImportedKeyMaterialCalledWith(this , input )
-	ensures output.Success? ==> DeleteImportedKeyMaterialSucceededWith(this , input )
+	ensures DeleteImportedKeyMaterialCalledWith (  input )
+	ensures output.Success? ==> DeleteImportedKeyMaterialSucceededWith (  input )
 
- predicate {:opaque} DescribeCustomKeyStoresCalledWith (client: IKeyManagementServiceClient , input: DescribeCustomKeyStoresRequest ) {true}
- predicate {:opaque} DescribeCustomKeyStoresSucceededWith ( client: IKeyManagementServiceClient , input: DescribeCustomKeyStoresRequest , output: DescribeCustomKeyStoresResponse ) {true}
+ predicate {:opaque} DescribeCustomKeyStoresCalledWith ( input: DescribeCustomKeyStoresRequest ) {true}
+ predicate {:opaque} DescribeCustomKeyStoresSucceededWith (  input: DescribeCustomKeyStoresRequest , output: DescribeCustomKeyStoresResponse ) {true}
  method DescribeCustomKeyStores ( input: DescribeCustomKeyStoresRequest ) returns  ( output: Result<DescribeCustomKeyStoresResponse, KeyManagementServiceError> )
-	ensures DescribeCustomKeyStoresCalledWith(this , input )
-	ensures output.Success? ==> DescribeCustomKeyStoresSucceededWith(this , input , output.value )
+	ensures DescribeCustomKeyStoresCalledWith (  input )
+	ensures output.Success? ==> DescribeCustomKeyStoresSucceededWith (  input , output.value )
 
- predicate {:opaque} DescribeKeyCalledWith (client: IKeyManagementServiceClient , input: DescribeKeyRequest ) {true}
- predicate {:opaque} DescribeKeySucceededWith ( client: IKeyManagementServiceClient , input: DescribeKeyRequest , output: DescribeKeyResponse ) {true}
+ predicate {:opaque} DescribeKeyCalledWith ( input: DescribeKeyRequest ) {true}
+ predicate {:opaque} DescribeKeySucceededWith (  input: DescribeKeyRequest , output: DescribeKeyResponse ) {true}
  method DescribeKey ( input: DescribeKeyRequest ) returns  ( output: Result<DescribeKeyResponse, KeyManagementServiceError> )
-	ensures DescribeKeyCalledWith(this , input )
-	ensures output.Success? ==> DescribeKeySucceededWith(this , input , output.value )
+	ensures DescribeKeyCalledWith (  input )
+	ensures output.Success? ==> DescribeKeySucceededWith (  input , output.value )
 
- predicate {:opaque} DisableKeyCalledWith (client: IKeyManagementServiceClient , input: DisableKeyRequest ) {true}
- predicate {:opaque} DisableKeySucceededWith ( client: IKeyManagementServiceClient , input: DisableKeyRequest ) {true}
+ predicate {:opaque} DisableKeyCalledWith ( input: DisableKeyRequest ) {true}
+ predicate {:opaque} DisableKeySucceededWith (  input: DisableKeyRequest ) {true}
  method DisableKey ( input: DisableKeyRequest ) returns  ( output: Result<(), KeyManagementServiceError> )
-	ensures DisableKeyCalledWith(this , input )
-	ensures output.Success? ==> DisableKeySucceededWith(this , input )
+	ensures DisableKeyCalledWith (  input )
+	ensures output.Success? ==> DisableKeySucceededWith (  input )
 
- predicate {:opaque} DisableKeyRotationCalledWith (client: IKeyManagementServiceClient , input: DisableKeyRotationRequest ) {true}
- predicate {:opaque} DisableKeyRotationSucceededWith ( client: IKeyManagementServiceClient , input: DisableKeyRotationRequest ) {true}
+ predicate {:opaque} DisableKeyRotationCalledWith ( input: DisableKeyRotationRequest ) {true}
+ predicate {:opaque} DisableKeyRotationSucceededWith (  input: DisableKeyRotationRequest ) {true}
  method DisableKeyRotation ( input: DisableKeyRotationRequest ) returns  ( output: Result<(), KeyManagementServiceError> )
-	ensures DisableKeyRotationCalledWith(this , input )
-	ensures output.Success? ==> DisableKeyRotationSucceededWith(this , input )
+	ensures DisableKeyRotationCalledWith (  input )
+	ensures output.Success? ==> DisableKeyRotationSucceededWith (  input )
 
- predicate {:opaque} DisconnectCustomKeyStoreCalledWith (client: IKeyManagementServiceClient , input: DisconnectCustomKeyStoreRequest ) {true}
- predicate {:opaque} DisconnectCustomKeyStoreSucceededWith ( client: IKeyManagementServiceClient , input: DisconnectCustomKeyStoreRequest , output: DisconnectCustomKeyStoreResponse ) {true}
+ predicate {:opaque} DisconnectCustomKeyStoreCalledWith ( input: DisconnectCustomKeyStoreRequest ) {true}
+ predicate {:opaque} DisconnectCustomKeyStoreSucceededWith (  input: DisconnectCustomKeyStoreRequest , output: DisconnectCustomKeyStoreResponse ) {true}
  method DisconnectCustomKeyStore ( input: DisconnectCustomKeyStoreRequest ) returns  ( output: Result<DisconnectCustomKeyStoreResponse, KeyManagementServiceError> )
-	ensures DisconnectCustomKeyStoreCalledWith(this , input )
-	ensures output.Success? ==> DisconnectCustomKeyStoreSucceededWith(this , input , output.value )
+	ensures DisconnectCustomKeyStoreCalledWith (  input )
+	ensures output.Success? ==> DisconnectCustomKeyStoreSucceededWith (  input , output.value )
 
- predicate {:opaque} EnableKeyCalledWith (client: IKeyManagementServiceClient , input: EnableKeyRequest ) {true}
- predicate {:opaque} EnableKeySucceededWith ( client: IKeyManagementServiceClient , input: EnableKeyRequest ) {true}
+ predicate {:opaque} EnableKeyCalledWith ( input: EnableKeyRequest ) {true}
+ predicate {:opaque} EnableKeySucceededWith (  input: EnableKeyRequest ) {true}
  method EnableKey ( input: EnableKeyRequest ) returns  ( output: Result<(), KeyManagementServiceError> )
-	ensures EnableKeyCalledWith(this , input )
-	ensures output.Success? ==> EnableKeySucceededWith(this , input )
+	ensures EnableKeyCalledWith (  input )
+	ensures output.Success? ==> EnableKeySucceededWith (  input )
 
- predicate {:opaque} EnableKeyRotationCalledWith (client: IKeyManagementServiceClient , input: EnableKeyRotationRequest ) {true}
- predicate {:opaque} EnableKeyRotationSucceededWith ( client: IKeyManagementServiceClient , input: EnableKeyRotationRequest ) {true}
+ predicate {:opaque} EnableKeyRotationCalledWith ( input: EnableKeyRotationRequest ) {true}
+ predicate {:opaque} EnableKeyRotationSucceededWith (  input: EnableKeyRotationRequest ) {true}
  method EnableKeyRotation ( input: EnableKeyRotationRequest ) returns  ( output: Result<(), KeyManagementServiceError> )
-	ensures EnableKeyRotationCalledWith(this , input )
-	ensures output.Success? ==> EnableKeyRotationSucceededWith(this , input )
+	ensures EnableKeyRotationCalledWith (  input )
+	ensures output.Success? ==> EnableKeyRotationSucceededWith (  input )
 
- predicate {:opaque} EncryptCalledWith (client: IKeyManagementServiceClient , input: EncryptRequest ) {true}
- predicate {:opaque} EncryptSucceededWith ( client: IKeyManagementServiceClient , input: EncryptRequest , output: EncryptResponse ) {true}
+ predicate {:opaque} EncryptCalledWith ( input: EncryptRequest ) {true}
+ predicate {:opaque} EncryptSucceededWith (  input: EncryptRequest , output: EncryptResponse ) {true}
  method Encrypt ( input: EncryptRequest ) returns  ( output: Result<EncryptResponse, KeyManagementServiceError> )
-	ensures EncryptCalledWith(this , input )
-	ensures output.Success? ==> EncryptSucceededWith(this , input , output.value )
+	ensures EncryptCalledWith (  input )
+	ensures output.Success? ==> EncryptSucceededWith (  input , output.value )
 
- predicate {:opaque} GenerateDataKeyCalledWith (client: IKeyManagementServiceClient , input: GenerateDataKeyRequest ) {true}
- predicate {:opaque} GenerateDataKeySucceededWith ( client: IKeyManagementServiceClient , input: GenerateDataKeyRequest , output: GenerateDataKeyResponse ) {true}
+ predicate {:opaque} GenerateDataKeyCalledWith ( input: GenerateDataKeyRequest ) {true}
+ predicate {:opaque} GenerateDataKeySucceededWith (  input: GenerateDataKeyRequest , output: GenerateDataKeyResponse ) {true}
  method GenerateDataKey ( input: GenerateDataKeyRequest ) returns  ( output: Result<GenerateDataKeyResponse, KeyManagementServiceError> )
-	ensures GenerateDataKeyCalledWith(this , input )
-	ensures output.Success? ==> GenerateDataKeySucceededWith(this , input , output.value )
+	ensures GenerateDataKeyCalledWith (  input )
+	ensures output.Success? ==> GenerateDataKeySucceededWith (  input , output.value )
 
- predicate {:opaque} GenerateDataKeyPairCalledWith (client: IKeyManagementServiceClient , input: GenerateDataKeyPairRequest ) {true}
- predicate {:opaque} GenerateDataKeyPairSucceededWith ( client: IKeyManagementServiceClient , input: GenerateDataKeyPairRequest , output: GenerateDataKeyPairResponse ) {true}
+ predicate {:opaque} GenerateDataKeyPairCalledWith ( input: GenerateDataKeyPairRequest ) {true}
+ predicate {:opaque} GenerateDataKeyPairSucceededWith (  input: GenerateDataKeyPairRequest , output: GenerateDataKeyPairResponse ) {true}
  method GenerateDataKeyPair ( input: GenerateDataKeyPairRequest ) returns  ( output: Result<GenerateDataKeyPairResponse, KeyManagementServiceError> )
-	ensures GenerateDataKeyPairCalledWith(this , input )
-	ensures output.Success? ==> GenerateDataKeyPairSucceededWith(this , input , output.value )
+	ensures GenerateDataKeyPairCalledWith (  input )
+	ensures output.Success? ==> GenerateDataKeyPairSucceededWith (  input , output.value )
 
- predicate {:opaque} GenerateDataKeyPairWithoutPlaintextCalledWith (client: IKeyManagementServiceClient , input: GenerateDataKeyPairWithoutPlaintextRequest ) {true}
- predicate {:opaque} GenerateDataKeyPairWithoutPlaintextSucceededWith ( client: IKeyManagementServiceClient , input: GenerateDataKeyPairWithoutPlaintextRequest , output: GenerateDataKeyPairWithoutPlaintextResponse ) {true}
+ predicate {:opaque} GenerateDataKeyPairWithoutPlaintextCalledWith ( input: GenerateDataKeyPairWithoutPlaintextRequest ) {true}
+ predicate {:opaque} GenerateDataKeyPairWithoutPlaintextSucceededWith (  input: GenerateDataKeyPairWithoutPlaintextRequest , output: GenerateDataKeyPairWithoutPlaintextResponse ) {true}
  method GenerateDataKeyPairWithoutPlaintext ( input: GenerateDataKeyPairWithoutPlaintextRequest ) returns  ( output: Result<GenerateDataKeyPairWithoutPlaintextResponse, KeyManagementServiceError> )
-	ensures GenerateDataKeyPairWithoutPlaintextCalledWith(this , input )
-	ensures output.Success? ==> GenerateDataKeyPairWithoutPlaintextSucceededWith(this , input , output.value )
+	ensures GenerateDataKeyPairWithoutPlaintextCalledWith (  input )
+	ensures output.Success? ==> GenerateDataKeyPairWithoutPlaintextSucceededWith (  input , output.value )
 
- predicate {:opaque} GenerateDataKeyWithoutPlaintextCalledWith (client: IKeyManagementServiceClient , input: GenerateDataKeyWithoutPlaintextRequest ) {true}
- predicate {:opaque} GenerateDataKeyWithoutPlaintextSucceededWith ( client: IKeyManagementServiceClient , input: GenerateDataKeyWithoutPlaintextRequest , output: GenerateDataKeyWithoutPlaintextResponse ) {true}
+ predicate {:opaque} GenerateDataKeyWithoutPlaintextCalledWith ( input: GenerateDataKeyWithoutPlaintextRequest ) {true}
+ predicate {:opaque} GenerateDataKeyWithoutPlaintextSucceededWith (  input: GenerateDataKeyWithoutPlaintextRequest , output: GenerateDataKeyWithoutPlaintextResponse ) {true}
  method GenerateDataKeyWithoutPlaintext ( input: GenerateDataKeyWithoutPlaintextRequest ) returns  ( output: Result<GenerateDataKeyWithoutPlaintextResponse, KeyManagementServiceError> )
-	ensures GenerateDataKeyWithoutPlaintextCalledWith(this , input )
-	ensures output.Success? ==> GenerateDataKeyWithoutPlaintextSucceededWith(this , input , output.value )
+	ensures GenerateDataKeyWithoutPlaintextCalledWith (  input )
+	ensures output.Success? ==> GenerateDataKeyWithoutPlaintextSucceededWith (  input , output.value )
 
- predicate {:opaque} GenerateRandomCalledWith (client: IKeyManagementServiceClient , input: GenerateRandomRequest ) {true}
- predicate {:opaque} GenerateRandomSucceededWith ( client: IKeyManagementServiceClient , input: GenerateRandomRequest , output: GenerateRandomResponse ) {true}
+ predicate {:opaque} GenerateRandomCalledWith ( input: GenerateRandomRequest ) {true}
+ predicate {:opaque} GenerateRandomSucceededWith (  input: GenerateRandomRequest , output: GenerateRandomResponse ) {true}
  method GenerateRandom ( input: GenerateRandomRequest ) returns  ( output: Result<GenerateRandomResponse, KeyManagementServiceError> )
-	ensures GenerateRandomCalledWith(this , input )
-	ensures output.Success? ==> GenerateRandomSucceededWith(this , input , output.value )
+	ensures GenerateRandomCalledWith (  input )
+	ensures output.Success? ==> GenerateRandomSucceededWith (  input , output.value )
 
- predicate {:opaque} GetKeyPolicyCalledWith (client: IKeyManagementServiceClient , input: GetKeyPolicyRequest ) {true}
- predicate {:opaque} GetKeyPolicySucceededWith ( client: IKeyManagementServiceClient , input: GetKeyPolicyRequest , output: GetKeyPolicyResponse ) {true}
+ predicate {:opaque} GetKeyPolicyCalledWith ( input: GetKeyPolicyRequest ) {true}
+ predicate {:opaque} GetKeyPolicySucceededWith (  input: GetKeyPolicyRequest , output: GetKeyPolicyResponse ) {true}
  method GetKeyPolicy ( input: GetKeyPolicyRequest ) returns  ( output: Result<GetKeyPolicyResponse, KeyManagementServiceError> )
-	ensures GetKeyPolicyCalledWith(this , input )
-	ensures output.Success? ==> GetKeyPolicySucceededWith(this , input , output.value )
+	ensures GetKeyPolicyCalledWith (  input )
+	ensures output.Success? ==> GetKeyPolicySucceededWith (  input , output.value )
 
- predicate {:opaque} GetKeyRotationStatusCalledWith (client: IKeyManagementServiceClient , input: GetKeyRotationStatusRequest ) {true}
- predicate {:opaque} GetKeyRotationStatusSucceededWith ( client: IKeyManagementServiceClient , input: GetKeyRotationStatusRequest , output: GetKeyRotationStatusResponse ) {true}
+ predicate {:opaque} GetKeyRotationStatusCalledWith ( input: GetKeyRotationStatusRequest ) {true}
+ predicate {:opaque} GetKeyRotationStatusSucceededWith (  input: GetKeyRotationStatusRequest , output: GetKeyRotationStatusResponse ) {true}
  method GetKeyRotationStatus ( input: GetKeyRotationStatusRequest ) returns  ( output: Result<GetKeyRotationStatusResponse, KeyManagementServiceError> )
-	ensures GetKeyRotationStatusCalledWith(this , input )
-	ensures output.Success? ==> GetKeyRotationStatusSucceededWith(this , input , output.value )
+	ensures GetKeyRotationStatusCalledWith (  input )
+	ensures output.Success? ==> GetKeyRotationStatusSucceededWith (  input , output.value )
 
- predicate {:opaque} GetParametersForImportCalledWith (client: IKeyManagementServiceClient , input: GetParametersForImportRequest ) {true}
- predicate {:opaque} GetParametersForImportSucceededWith ( client: IKeyManagementServiceClient , input: GetParametersForImportRequest , output: GetParametersForImportResponse ) {true}
+ predicate {:opaque} GetParametersForImportCalledWith ( input: GetParametersForImportRequest ) {true}
+ predicate {:opaque} GetParametersForImportSucceededWith (  input: GetParametersForImportRequest , output: GetParametersForImportResponse ) {true}
  method GetParametersForImport ( input: GetParametersForImportRequest ) returns  ( output: Result<GetParametersForImportResponse, KeyManagementServiceError> )
-	ensures GetParametersForImportCalledWith(this , input )
-	ensures output.Success? ==> GetParametersForImportSucceededWith(this , input , output.value )
+	ensures GetParametersForImportCalledWith (  input )
+	ensures output.Success? ==> GetParametersForImportSucceededWith (  input , output.value )
 
- predicate {:opaque} GetPublicKeyCalledWith (client: IKeyManagementServiceClient , input: GetPublicKeyRequest ) {true}
- predicate {:opaque} GetPublicKeySucceededWith ( client: IKeyManagementServiceClient , input: GetPublicKeyRequest , output: GetPublicKeyResponse ) {true}
+ predicate {:opaque} GetPublicKeyCalledWith ( input: GetPublicKeyRequest ) {true}
+ predicate {:opaque} GetPublicKeySucceededWith (  input: GetPublicKeyRequest , output: GetPublicKeyResponse ) {true}
  method GetPublicKey ( input: GetPublicKeyRequest ) returns  ( output: Result<GetPublicKeyResponse, KeyManagementServiceError> )
-	ensures GetPublicKeyCalledWith(this , input )
-	ensures output.Success? ==> GetPublicKeySucceededWith(this , input , output.value )
+	ensures GetPublicKeyCalledWith (  input )
+	ensures output.Success? ==> GetPublicKeySucceededWith (  input , output.value )
 
- predicate {:opaque} ImportKeyMaterialCalledWith (client: IKeyManagementServiceClient , input: ImportKeyMaterialRequest ) {true}
- predicate {:opaque} ImportKeyMaterialSucceededWith ( client: IKeyManagementServiceClient , input: ImportKeyMaterialRequest , output: ImportKeyMaterialResponse ) {true}
+ predicate {:opaque} ImportKeyMaterialCalledWith ( input: ImportKeyMaterialRequest ) {true}
+ predicate {:opaque} ImportKeyMaterialSucceededWith (  input: ImportKeyMaterialRequest , output: ImportKeyMaterialResponse ) {true}
  method ImportKeyMaterial ( input: ImportKeyMaterialRequest ) returns  ( output: Result<ImportKeyMaterialResponse, KeyManagementServiceError> )
-	ensures ImportKeyMaterialCalledWith(this , input )
-	ensures output.Success? ==> ImportKeyMaterialSucceededWith(this , input , output.value )
+	ensures ImportKeyMaterialCalledWith (  input )
+	ensures output.Success? ==> ImportKeyMaterialSucceededWith (  input , output.value )
 
- predicate {:opaque} ListAliasesCalledWith (client: IKeyManagementServiceClient , input: ListAliasesRequest ) {true}
- predicate {:opaque} ListAliasesSucceededWith ( client: IKeyManagementServiceClient , input: ListAliasesRequest , output: ListAliasesResponse ) {true}
+ predicate {:opaque} ListAliasesCalledWith ( input: ListAliasesRequest ) {true}
+ predicate {:opaque} ListAliasesSucceededWith (  input: ListAliasesRequest , output: ListAliasesResponse ) {true}
  method ListAliases ( input: ListAliasesRequest ) returns  ( output: Result<ListAliasesResponse, KeyManagementServiceError> )
-	ensures ListAliasesCalledWith(this , input )
-	ensures output.Success? ==> ListAliasesSucceededWith(this , input , output.value )
+	ensures ListAliasesCalledWith (  input )
+	ensures output.Success? ==> ListAliasesSucceededWith (  input , output.value )
 
- predicate {:opaque} ListGrantsCalledWith (client: IKeyManagementServiceClient , input: ListGrantsRequest ) {true}
- predicate {:opaque} ListGrantsSucceededWith ( client: IKeyManagementServiceClient , input: ListGrantsRequest , output: ListGrantsResponse ) {true}
+ predicate {:opaque} ListGrantsCalledWith ( input: ListGrantsRequest ) {true}
+ predicate {:opaque} ListGrantsSucceededWith (  input: ListGrantsRequest , output: ListGrantsResponse ) {true}
  method ListGrants ( input: ListGrantsRequest ) returns  ( output: Result<ListGrantsResponse, KeyManagementServiceError> )
-	ensures ListGrantsCalledWith(this , input )
-	ensures output.Success? ==> ListGrantsSucceededWith(this , input , output.value )
+	ensures ListGrantsCalledWith (  input )
+	ensures output.Success? ==> ListGrantsSucceededWith (  input , output.value )
 
- predicate {:opaque} ListKeyPoliciesCalledWith (client: IKeyManagementServiceClient , input: ListKeyPoliciesRequest ) {true}
- predicate {:opaque} ListKeyPoliciesSucceededWith ( client: IKeyManagementServiceClient , input: ListKeyPoliciesRequest , output: ListKeyPoliciesResponse ) {true}
+ predicate {:opaque} ListKeyPoliciesCalledWith ( input: ListKeyPoliciesRequest ) {true}
+ predicate {:opaque} ListKeyPoliciesSucceededWith (  input: ListKeyPoliciesRequest , output: ListKeyPoliciesResponse ) {true}
  method ListKeyPolicies ( input: ListKeyPoliciesRequest ) returns  ( output: Result<ListKeyPoliciesResponse, KeyManagementServiceError> )
-	ensures ListKeyPoliciesCalledWith(this , input )
-	ensures output.Success? ==> ListKeyPoliciesSucceededWith(this , input , output.value )
+	ensures ListKeyPoliciesCalledWith (  input )
+	ensures output.Success? ==> ListKeyPoliciesSucceededWith (  input , output.value )
 
- predicate {:opaque} ListResourceTagsCalledWith (client: IKeyManagementServiceClient , input: ListResourceTagsRequest ) {true}
- predicate {:opaque} ListResourceTagsSucceededWith ( client: IKeyManagementServiceClient , input: ListResourceTagsRequest , output: ListResourceTagsResponse ) {true}
+ predicate {:opaque} ListResourceTagsCalledWith ( input: ListResourceTagsRequest ) {true}
+ predicate {:opaque} ListResourceTagsSucceededWith (  input: ListResourceTagsRequest , output: ListResourceTagsResponse ) {true}
  method ListResourceTags ( input: ListResourceTagsRequest ) returns  ( output: Result<ListResourceTagsResponse, KeyManagementServiceError> )
-	ensures ListResourceTagsCalledWith(this , input )
-	ensures output.Success? ==> ListResourceTagsSucceededWith(this , input , output.value )
+	ensures ListResourceTagsCalledWith (  input )
+	ensures output.Success? ==> ListResourceTagsSucceededWith (  input , output.value )
 
- predicate {:opaque} ListRetirableGrantsCalledWith (client: IKeyManagementServiceClient , input: ListRetirableGrantsRequest ) {true}
- predicate {:opaque} ListRetirableGrantsSucceededWith ( client: IKeyManagementServiceClient , input: ListRetirableGrantsRequest , output: ListGrantsResponse ) {true}
+ predicate {:opaque} ListRetirableGrantsCalledWith ( input: ListRetirableGrantsRequest ) {true}
+ predicate {:opaque} ListRetirableGrantsSucceededWith (  input: ListRetirableGrantsRequest , output: ListGrantsResponse ) {true}
  method ListRetirableGrants ( input: ListRetirableGrantsRequest ) returns  ( output: Result<ListGrantsResponse, KeyManagementServiceError> )
-	ensures ListRetirableGrantsCalledWith(this , input )
-	ensures output.Success? ==> ListRetirableGrantsSucceededWith(this , input , output.value )
+	ensures ListRetirableGrantsCalledWith (  input )
+	ensures output.Success? ==> ListRetirableGrantsSucceededWith (  input , output.value )
 
- predicate {:opaque} PutKeyPolicyCalledWith (client: IKeyManagementServiceClient , input: PutKeyPolicyRequest ) {true}
- predicate {:opaque} PutKeyPolicySucceededWith ( client: IKeyManagementServiceClient , input: PutKeyPolicyRequest ) {true}
+ predicate {:opaque} PutKeyPolicyCalledWith ( input: PutKeyPolicyRequest ) {true}
+ predicate {:opaque} PutKeyPolicySucceededWith (  input: PutKeyPolicyRequest ) {true}
  method PutKeyPolicy ( input: PutKeyPolicyRequest ) returns  ( output: Result<(), KeyManagementServiceError> )
-	ensures PutKeyPolicyCalledWith(this , input )
-	ensures output.Success? ==> PutKeyPolicySucceededWith(this , input )
+	ensures PutKeyPolicyCalledWith (  input )
+	ensures output.Success? ==> PutKeyPolicySucceededWith (  input )
 
- predicate {:opaque} ReEncryptCalledWith (client: IKeyManagementServiceClient , input: ReEncryptRequest ) {true}
- predicate {:opaque} ReEncryptSucceededWith ( client: IKeyManagementServiceClient , input: ReEncryptRequest , output: ReEncryptResponse ) {true}
+ predicate {:opaque} ReEncryptCalledWith ( input: ReEncryptRequest ) {true}
+ predicate {:opaque} ReEncryptSucceededWith (  input: ReEncryptRequest , output: ReEncryptResponse ) {true}
  method ReEncrypt ( input: ReEncryptRequest ) returns  ( output: Result<ReEncryptResponse, KeyManagementServiceError> )
-	ensures ReEncryptCalledWith(this , input )
-	ensures output.Success? ==> ReEncryptSucceededWith(this , input , output.value )
+	ensures ReEncryptCalledWith (  input )
+	ensures output.Success? ==> ReEncryptSucceededWith (  input , output.value )
 
- predicate {:opaque} ReplicateKeyCalledWith (client: IKeyManagementServiceClient , input: ReplicateKeyRequest ) {true}
- predicate {:opaque} ReplicateKeySucceededWith ( client: IKeyManagementServiceClient , input: ReplicateKeyRequest , output: ReplicateKeyResponse ) {true}
+ predicate {:opaque} ReplicateKeyCalledWith ( input: ReplicateKeyRequest ) {true}
+ predicate {:opaque} ReplicateKeySucceededWith (  input: ReplicateKeyRequest , output: ReplicateKeyResponse ) {true}
  method ReplicateKey ( input: ReplicateKeyRequest ) returns  ( output: Result<ReplicateKeyResponse, KeyManagementServiceError> )
-	ensures ReplicateKeyCalledWith(this , input )
-	ensures output.Success? ==> ReplicateKeySucceededWith(this , input , output.value )
+	ensures ReplicateKeyCalledWith (  input )
+	ensures output.Success? ==> ReplicateKeySucceededWith (  input , output.value )
 
- predicate {:opaque} RetireGrantCalledWith (client: IKeyManagementServiceClient , input: RetireGrantRequest ) {true}
- predicate {:opaque} RetireGrantSucceededWith ( client: IKeyManagementServiceClient , input: RetireGrantRequest ) {true}
+ predicate {:opaque} RetireGrantCalledWith ( input: RetireGrantRequest ) {true}
+ predicate {:opaque} RetireGrantSucceededWith (  input: RetireGrantRequest ) {true}
  method RetireGrant ( input: RetireGrantRequest ) returns  ( output: Result<(), KeyManagementServiceError> )
-	ensures RetireGrantCalledWith(this , input )
-	ensures output.Success? ==> RetireGrantSucceededWith(this , input )
+	ensures RetireGrantCalledWith (  input )
+	ensures output.Success? ==> RetireGrantSucceededWith (  input )
 
- predicate {:opaque} RevokeGrantCalledWith (client: IKeyManagementServiceClient , input: RevokeGrantRequest ) {true}
- predicate {:opaque} RevokeGrantSucceededWith ( client: IKeyManagementServiceClient , input: RevokeGrantRequest ) {true}
+ predicate {:opaque} RevokeGrantCalledWith ( input: RevokeGrantRequest ) {true}
+ predicate {:opaque} RevokeGrantSucceededWith (  input: RevokeGrantRequest ) {true}
  method RevokeGrant ( input: RevokeGrantRequest ) returns  ( output: Result<(), KeyManagementServiceError> )
-	ensures RevokeGrantCalledWith(this , input )
-	ensures output.Success? ==> RevokeGrantSucceededWith(this , input )
+	ensures RevokeGrantCalledWith (  input )
+	ensures output.Success? ==> RevokeGrantSucceededWith (  input )
 
- predicate {:opaque} ScheduleKeyDeletionCalledWith (client: IKeyManagementServiceClient , input: ScheduleKeyDeletionRequest ) {true}
- predicate {:opaque} ScheduleKeyDeletionSucceededWith ( client: IKeyManagementServiceClient , input: ScheduleKeyDeletionRequest , output: ScheduleKeyDeletionResponse ) {true}
+ predicate {:opaque} ScheduleKeyDeletionCalledWith ( input: ScheduleKeyDeletionRequest ) {true}
+ predicate {:opaque} ScheduleKeyDeletionSucceededWith (  input: ScheduleKeyDeletionRequest , output: ScheduleKeyDeletionResponse ) {true}
  method ScheduleKeyDeletion ( input: ScheduleKeyDeletionRequest ) returns  ( output: Result<ScheduleKeyDeletionResponse, KeyManagementServiceError> )
-	ensures ScheduleKeyDeletionCalledWith(this , input )
-	ensures output.Success? ==> ScheduleKeyDeletionSucceededWith(this , input , output.value )
+	ensures ScheduleKeyDeletionCalledWith (  input )
+	ensures output.Success? ==> ScheduleKeyDeletionSucceededWith (  input , output.value )
 
- predicate {:opaque} SignCalledWith (client: IKeyManagementServiceClient , input: SignRequest ) {true}
- predicate {:opaque} SignSucceededWith ( client: IKeyManagementServiceClient , input: SignRequest , output: SignResponse ) {true}
+ predicate {:opaque} SignCalledWith ( input: SignRequest ) {true}
+ predicate {:opaque} SignSucceededWith (  input: SignRequest , output: SignResponse ) {true}
  method Sign ( input: SignRequest ) returns  ( output: Result<SignResponse, KeyManagementServiceError> )
-	ensures SignCalledWith(this , input )
-	ensures output.Success? ==> SignSucceededWith(this , input , output.value )
+	ensures SignCalledWith (  input )
+	ensures output.Success? ==> SignSucceededWith (  input , output.value )
 
- predicate {:opaque} TagResourceCalledWith (client: IKeyManagementServiceClient , input: TagResourceRequest ) {true}
- predicate {:opaque} TagResourceSucceededWith ( client: IKeyManagementServiceClient , input: TagResourceRequest ) {true}
+ predicate {:opaque} TagResourceCalledWith ( input: TagResourceRequest ) {true}
+ predicate {:opaque} TagResourceSucceededWith (  input: TagResourceRequest ) {true}
  method TagResource ( input: TagResourceRequest ) returns  ( output: Result<(), KeyManagementServiceError> )
-	ensures TagResourceCalledWith(this , input )
-	ensures output.Success? ==> TagResourceSucceededWith(this , input )
+	ensures TagResourceCalledWith (  input )
+	ensures output.Success? ==> TagResourceSucceededWith (  input )
 
- predicate {:opaque} UntagResourceCalledWith (client: IKeyManagementServiceClient , input: UntagResourceRequest ) {true}
- predicate {:opaque} UntagResourceSucceededWith ( client: IKeyManagementServiceClient , input: UntagResourceRequest ) {true}
+ predicate {:opaque} UntagResourceCalledWith ( input: UntagResourceRequest ) {true}
+ predicate {:opaque} UntagResourceSucceededWith (  input: UntagResourceRequest ) {true}
  method UntagResource ( input: UntagResourceRequest ) returns  ( output: Result<(), KeyManagementServiceError> )
-	ensures UntagResourceCalledWith(this , input )
-	ensures output.Success? ==> UntagResourceSucceededWith(this , input )
+	ensures UntagResourceCalledWith (  input )
+	ensures output.Success? ==> UntagResourceSucceededWith (  input )
 
- predicate {:opaque} UpdateAliasCalledWith (client: IKeyManagementServiceClient , input: UpdateAliasRequest ) {true}
- predicate {:opaque} UpdateAliasSucceededWith ( client: IKeyManagementServiceClient , input: UpdateAliasRequest ) {true}
+ predicate {:opaque} UpdateAliasCalledWith ( input: UpdateAliasRequest ) {true}
+ predicate {:opaque} UpdateAliasSucceededWith (  input: UpdateAliasRequest ) {true}
  method UpdateAlias ( input: UpdateAliasRequest ) returns  ( output: Result<(), KeyManagementServiceError> )
-	ensures UpdateAliasCalledWith(this , input )
-	ensures output.Success? ==> UpdateAliasSucceededWith(this , input )
+	ensures UpdateAliasCalledWith (  input )
+	ensures output.Success? ==> UpdateAliasSucceededWith (  input )
 
- predicate {:opaque} UpdateCustomKeyStoreCalledWith (client: IKeyManagementServiceClient , input: UpdateCustomKeyStoreRequest ) {true}
- predicate {:opaque} UpdateCustomKeyStoreSucceededWith ( client: IKeyManagementServiceClient , input: UpdateCustomKeyStoreRequest , output: UpdateCustomKeyStoreResponse ) {true}
+ predicate {:opaque} UpdateCustomKeyStoreCalledWith ( input: UpdateCustomKeyStoreRequest ) {true}
+ predicate {:opaque} UpdateCustomKeyStoreSucceededWith (  input: UpdateCustomKeyStoreRequest , output: UpdateCustomKeyStoreResponse ) {true}
  method UpdateCustomKeyStore ( input: UpdateCustomKeyStoreRequest ) returns  ( output: Result<UpdateCustomKeyStoreResponse, KeyManagementServiceError> )
-	ensures UpdateCustomKeyStoreCalledWith(this , input )
-	ensures output.Success? ==> UpdateCustomKeyStoreSucceededWith(this , input , output.value )
+	ensures UpdateCustomKeyStoreCalledWith (  input )
+	ensures output.Success? ==> UpdateCustomKeyStoreSucceededWith (  input , output.value )
 
- predicate {:opaque} UpdateKeyDescriptionCalledWith (client: IKeyManagementServiceClient , input: UpdateKeyDescriptionRequest ) {true}
- predicate {:opaque} UpdateKeyDescriptionSucceededWith ( client: IKeyManagementServiceClient , input: UpdateKeyDescriptionRequest ) {true}
+ predicate {:opaque} UpdateKeyDescriptionCalledWith ( input: UpdateKeyDescriptionRequest ) {true}
+ predicate {:opaque} UpdateKeyDescriptionSucceededWith (  input: UpdateKeyDescriptionRequest ) {true}
  method UpdateKeyDescription ( input: UpdateKeyDescriptionRequest ) returns  ( output: Result<(), KeyManagementServiceError> )
-	ensures UpdateKeyDescriptionCalledWith(this , input )
-	ensures output.Success? ==> UpdateKeyDescriptionSucceededWith(this , input )
+	ensures UpdateKeyDescriptionCalledWith (  input )
+	ensures output.Success? ==> UpdateKeyDescriptionSucceededWith (  input )
 
- predicate {:opaque} UpdatePrimaryRegionCalledWith (client: IKeyManagementServiceClient , input: UpdatePrimaryRegionRequest ) {true}
- predicate {:opaque} UpdatePrimaryRegionSucceededWith ( client: IKeyManagementServiceClient , input: UpdatePrimaryRegionRequest ) {true}
+ predicate {:opaque} UpdatePrimaryRegionCalledWith ( input: UpdatePrimaryRegionRequest ) {true}
+ predicate {:opaque} UpdatePrimaryRegionSucceededWith (  input: UpdatePrimaryRegionRequest ) {true}
  method UpdatePrimaryRegion ( input: UpdatePrimaryRegionRequest ) returns  ( output: Result<(), KeyManagementServiceError> )
-	ensures UpdatePrimaryRegionCalledWith(this , input )
-	ensures output.Success? ==> UpdatePrimaryRegionSucceededWith(this , input )
+	ensures UpdatePrimaryRegionCalledWith (  input )
+	ensures output.Success? ==> UpdatePrimaryRegionSucceededWith (  input )
 
- predicate {:opaque} VerifyCalledWith (client: IKeyManagementServiceClient , input: VerifyRequest ) {true}
- predicate {:opaque} VerifySucceededWith ( client: IKeyManagementServiceClient , input: VerifyRequest , output: VerifyResponse ) {true}
+ predicate {:opaque} VerifyCalledWith ( input: VerifyRequest ) {true}
+ predicate {:opaque} VerifySucceededWith (  input: VerifyRequest , output: VerifyResponse ) {true}
  method Verify ( input: VerifyRequest ) returns  ( output: Result<VerifyResponse, KeyManagementServiceError> )
-	ensures VerifyCalledWith(this , input )
-	ensures output.Success? ==> VerifySucceededWith(this , input , output.value )
+	ensures VerifyCalledWith (  input )
+	ensures output.Success? ==> VerifySucceededWith (  input , output.value )
 
 }
  datatype KeyManagementServiceError =
