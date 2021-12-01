@@ -39,7 +39,7 @@ module SerializeFunctions {
   // It may not be enough data, but since it is raw binary,
   // it can not be wrong.
   // This T MUST be `seq<uint8>`
-  type ReadBinaryCorrect<T> = ReadResult<T, MoreNeeded>
+  type ReadBinary<T> = ReadResult<T, MoreNeeded>
 
   predicate CorrectlyRead<T> (
     s: seq<uint8>,
@@ -60,6 +60,7 @@ module SerializeFunctions {
     length: nat
   ):
     (res: ReadBinaryCorrect<seq<uint8>>)
+    decreases if pos > 0 then true else false
     requires length > 0
     ensures
       && |s| >= pos + length
@@ -89,7 +90,7 @@ module SerializeFunctions {
     s: seq<uint8>,
     pos: nat
   ):
-    (res: ReadBinaryCorrect<uint16>)
+    (res: ReadBinary<uint16>)
     ensures CorrectlyRead(s, pos, res, UInt16ToSeq)
   {
     var (data, end) :- Read(s, pos, 2);
