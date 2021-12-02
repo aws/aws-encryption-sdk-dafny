@@ -127,23 +127,23 @@ module Actions {
         && multiset(parts[i]) <= multiset(res.value)
       )
   {
-    ghost var total := [];
+    parts := [];
     var rs := [];
     for i := 0 to |s|
-      invariant |s[..i]| == |total|
+      invariant |s[..i]| == |parts|
       invariant forall j ::
         && 0 <= j < i
       ==>
-        && action.Ensures(s[j], Success(total[j]))
-        && multiset(total[j]) <= multiset(rs)
-      invariant Flatten(total) == rs
+        && action.Ensures(s[j], Success(parts[j]))
+        && multiset(parts[j]) <= multiset(rs)
+      invariant Flatten(parts) == rs
     {
       var r :- action.Invoke(s[i]);
       rs := rs + r;
-      LemmaFlattenConcat(total, [r]);
-      total := total + [r];
+      LemmaFlattenConcat(parts, [r]);
+      parts := parts + [r];
     }
-    return Success(rs), total;
+    return Success(rs), parts;
   }
 
   method Filter<A>(
