@@ -189,8 +189,8 @@ module
 
     //= compliance/framework/raw-aes-keyring.txt#2.7.2
     //= type=implication
-    //# OnDecrypt MUST take decryption input.materials (structures.md#decryption-
-    //# input.materials) and a list of encrypted data keys
+    //# OnDecrypt MUST take decryption materials (structures.md#decryption-
+    //# materials) and a list of encrypted data keys
     //# (structures.md#encrypted-data-key) as input.
     method OnDecrypt(input: Crypto.OnDecryptInput)
 
@@ -258,8 +258,8 @@ module
 
           //= compliance/framework/raw-aes-keyring.txt#2.7.2
           //# If a decryption succeeds, this keyring MUST add the resulting
-          //# plaintext data key to the decryption input.materials and return the
-          //# modified input.materials.
+          //# plaintext data key to the decryption materials and return the
+          //# modified materials.
           var r :- Materials.DecryptionMaterialsAddDataKey(materials, ptKey);
           return Success(Crypto.OnDecryptOutput(materials:=r));
         }
