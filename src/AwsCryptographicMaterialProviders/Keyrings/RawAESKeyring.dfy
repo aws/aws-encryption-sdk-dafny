@@ -14,34 +14,29 @@ include "../../Util/Streams.dfy"
 include "../../Generated/AwsCryptographicMaterialProviders.dfy"
 include "../../../libraries/src/Collections/Sequences/Seq.dfy"
 
-
 module
-  {:extern "Dafny.Aws.Crypto.AwsCryptographicMaterialProvidersClient2.RawAESKeyring"}
-  AwsCryptographicMaterialProvidersClient2.RawAESKeyring
+  {:extern "Dafny.Aws.Crypto.MaterialProviders.RawAESKeyring"}
+  MaterialProviders.RawAESKeyring
 {
   import opened StandardLibrary
+  import opened UInt = StandardLibrary.UInt
   import opened Wrappers
   import Aws.Crypto
-  import AwsCryptographicMaterialProviders2.Keyring
-  import AwsCryptographicMaterialProviders2.Materials
-  import opened AwsCryptographicMaterialProviders2.AlgorithmSuites
-  import opened UInt = StandardLibrary.UInt
+  import Keyring
+  import Materials
+  import opened AlgorithmSuites
   import Random
   import AESEncryption
   import UTF8
   import Seq
 
-  type WrappingAlgorithmSuiteId = id: Crypto.AlgorithmSuiteId |
-    || id == Crypto.ALG_AES_128_GCM_IV12_TAG16_NO_KDF
-    || id == Crypto.ALG_AES_192_GCM_IV12_TAG16_NO_KDF
-    || id == Crypto.ALG_AES_256_GCM_IV12_TAG16_NO_KDF
-  witness *
-
   const AUTH_TAG_LEN_LEN := 4;
   const IV_LEN_LEN       := 4;
 
   class RawAESKeyring
-    extends Keyring.VerifiableInterface
+    extends
+    Keyring.VerifiableInterface,
+    Crypto.IKeyring
   {
     const keyNamespace: UTF8.ValidUTF8Bytes
     const keyName: UTF8.ValidUTF8Bytes
@@ -64,8 +59,6 @@ module
     //# generated from a cryptographically secure entropy source.
     const wrappingKey: seq<uint8>
     const wrappingAlgorithm: AESEncryption.AES_GCM
-
-
 
     //= compliance/framework/raw-aes-keyring.txt#2.5
     //= type=implication
@@ -229,7 +222,7 @@ module
     {
       var materials := input.materials;
       :- Need(
-        Materials.DecryptionMaterialsWithoutPlaintextDataKey(materials), 
+        Materials.DecryptionMaterialsWithoutPlaintextDataKey(materials),
         "Keyring received decryption materials that already contain a plaintext data key.");
 
       //= compliance/framework/raw-aes-keyring.txt#2.7.2
@@ -352,7 +345,7 @@ module
   //# message-header.md#key-value-pairs).
   function method EncryptionContextToAAD(
     encryptionContext: Crypto.EncryptionContext
-  ): 
+  ):
     (res: Result<seq<uint8>, string>)
   {
     :- Need(|encryptionContext| < UINT16_LIMIT, "Encryption Context is too large");

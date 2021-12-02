@@ -15,12 +15,12 @@ namespace Aws.Crypto
 {
     public class AwsCryptographicMaterialProvidersClient : AwsCryptographicMaterialProvidersClientBase
     {
-        private Dafny.Aws.Crypto.AwsCryptographicMaterialProvidersClient.AwsCryptographicMaterialProvidersClient _impl;
+        private Dafny.Aws.Crypto.MaterialProviders.Client.AwsCryptographicMaterialProvidersClient _impl;
 
         public AwsCryptographicMaterialProvidersClient()
         {
             this._impl =
-                new Dafny.Aws.Crypto.AwsCryptographicMaterialProvidersClient.AwsCryptographicMaterialProvidersClient();
+                new Dafny.Aws.Crypto.MaterialProviders.Client.AwsCryptographicMaterialProvidersClient();
         }
 
         protected override IKeyring _CreateRawAesKeyring(CreateRawAesKeyringInput input)

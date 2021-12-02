@@ -1,11 +1,9 @@
 // Copyright Amazon.com Inc. or its affiliates. All Rights Reserved.
 // SPDX-License-Identifier: Apache-2.0
 
-include "../../../src/SDK/Keyring/RawAESKeyring.dfy"
-include "../../../src/SDK/AlgorithmSuite.dfy"
-include "../../../src/SDK/MessageHeader.dfy"
-include "../../../src/SDK/Materials.dfy"
-include "../../../src/SDK/EncryptionContext.dfy"
+include "../../../src/AwsCryptographicMaterialProviders/Keyrings/RawAESKeyring.dfy"
+include "../../../src/AwsCryptographicMaterialProviders/AlgorithmSuites.dfy"
+include "../../../src/AwsCryptographicMaterialProviders/Materials.dfy"
 include "../../../src/Crypto/AESEncryption.dfy"
 include "../../../src/StandardLibrary/StandardLibrary.dfy"
 include "../../../src/StandardLibrary/UInt.dfy"
@@ -17,11 +15,10 @@ module TestAESKeyring {
   import opened Wrappers
   import opened UInt = StandardLibrary.UInt
   import AESEncryption
-  import RawAESKeyringDef
+  import MaterialProviders.RawAESKeyring
   import MessageHeader
-  import Materials
+  import MaterialProviders.Materials
   import EncryptionContext
-  import AlgorithmSuite
   import UTF8
   import Aws.Crypto
   import opened TestUtils
@@ -29,7 +26,7 @@ module TestAESKeyring {
   method {:test} TestOnEncryptOnDecryptGenerateDataKey()
   {
     var namespace, name := TestUtils.NamespaceAndName(0);
-    var rawAESKeyring := new RawAESKeyringDef.RawAESKeyring(
+    var rawAESKeyring := new RawAESKeyring.RawAESKeyring(
       namespace,
       name,
       seq(32, i => 0),
@@ -87,7 +84,7 @@ module TestAESKeyring {
   method {:test} TestOnEncryptOnDecryptSuppliedDataKey()
   {
     var namespace, name := TestUtils.NamespaceAndName(0);
-    var rawAESKeyring := new RawAESKeyringDef.RawAESKeyring(
+    var rawAESKeyring := new RawAESKeyring.RawAESKeyring(
       namespace,
       name,
       seq(32, i => 0),
@@ -135,7 +132,7 @@ module TestAESKeyring {
     method {:test} TestOnDecryptKeyNameMismatch()
   {
     var namespace, name := TestUtils.NamespaceAndName(0);
-    var rawAESKeyring := new RawAESKeyringDef.RawAESKeyring(
+    var rawAESKeyring := new RawAESKeyring.RawAESKeyring(
       namespace,
       name,
       seq(32, i => 0),
@@ -146,7 +143,7 @@ module TestAESKeyring {
       ));
 
     var mismatchName :- expect UTF8.Encode("mismatched");
-    var mismatchedAESKeyring := new RawAESKeyringDef.RawAESKeyring(
+    var mismatchedAESKeyring := new RawAESKeyring.RawAESKeyring(
       namespace,
       mismatchName,
       seq(32, i => 0),
@@ -182,8 +179,8 @@ module TestAESKeyring {
       plaintextDataKey:=None(),
       verificationKey:=Some(verificationKey)
     );
-    var decryptionMaterialsOut :- expect rawAESKeyring.OnDecrypt(Crypto.OnDecryptInput(materials:=decryptionMaterialsIn, encryptedDataKeys:=[edk]));
-    expect decryptionMaterialsOut.materials.plaintextDataKey.None?;
+    var decryptionMaterialsOut := rawAESKeyring.OnDecrypt(Crypto.OnDecryptInput(materials:=decryptionMaterialsIn, encryptedDataKeys:=[edk]));
+    expect decryptionMaterialsOut.IsFailure();
   }
 
   // TODO test for multiple EDKS for OnDecrypt
@@ -201,7 +198,7 @@ module TestAESKeyring {
   method {:test} TestOnDecryptNoEDKs()
   {
     var namespace, name := TestUtils.NamespaceAndName(0);
-    var rawAESKeyring := new RawAESKeyringDef.RawAESKeyring(
+    var rawAESKeyring := new RawAESKeyring.RawAESKeyring(
       namespace,
       name,
       seq(32, i => 0),
@@ -219,8 +216,8 @@ module TestAESKeyring {
       plaintextDataKey:=None(),
       verificationKey:=Some(verificationKey)
     );
-    var decryptionMaterialsOut :- expect rawAESKeyring.OnDecrypt(Crypto.OnDecryptInput(materials:=decryptionMaterialsIn, encryptedDataKeys:=[]));
-    expect decryptionMaterialsOut.materials.plaintextDataKey.None?;
+    var decryptionMaterialsOut := rawAESKeyring.OnDecrypt(Crypto.OnDecryptInput(materials:=decryptionMaterialsIn, encryptedDataKeys:=[]));
+    expect decryptionMaterialsOut.IsFailure();
   }
 
   //= compliance/framework/raw-aes-keyring.txt#2.7.1
@@ -234,7 +231,7 @@ module TestAESKeyring {
   method {:test} TestOnEncryptUnserializableEC()
   {
     var namespace, name := TestUtils.NamespaceAndName(0);
-    var rawAESKeyring := new RawAESKeyringDef.RawAESKeyring(
+    var rawAESKeyring := new RawAESKeyring.RawAESKeyring(
       namespace,
       name,
       seq(32, i => 0),
@@ -271,7 +268,7 @@ module TestAESKeyring {
     // Set up valid EDK for decryption
     var encryptionContext := TestUtils.SmallEncryptionContext(TestUtils.SmallEncryptionContextVariation.A);
     var namespace, name := TestUtils.NamespaceAndName(0);
-    var rawAESKeyring := new RawAESKeyringDef.RawAESKeyring(
+    var rawAESKeyring := new RawAESKeyring.RawAESKeyring(
       namespace,
       name,
       seq(32, i => 0),
@@ -313,7 +310,7 @@ module TestAESKeyring {
     var ciphertext := [0, 1, 2, 3];
     var authTag := [4, 5, 6, 7];
     var serializedEDKCiphertext := ciphertext + authTag;
-    var encOutput := RawAESKeyringDef.DeserializeEDKCiphertext(serializedEDKCiphertext, |authTag|);
+    var encOutput := RawAESKeyring.DeserializeEDKCiphertext(serializedEDKCiphertext, |authTag|);
 
     expect encOutput.cipherText == ciphertext;
     expect encOutput.authTag == authTag;
@@ -323,7 +320,7 @@ module TestAESKeyring {
     var ciphertext := [0, 1, 2, 3];
     var authTag := [4, 5, 6, 7];
     var encOutput := AESEncryption.EncryptionOutput(ciphertext, authTag);
-    var serializedEDKCiphertext := RawAESKeyringDef.SerializeEDKCiphertext(encOutput);
+    var serializedEDKCiphertext := RawAESKeyring.SerializeEDKCiphertext(encOutput);
 
     expect serializedEDKCiphertext == ciphertext + authTag;
   }

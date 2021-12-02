@@ -3,11 +3,8 @@
 
 include "MessageHeader.dfy"
 include "EncryptionContext.dfy"
-include "AlgorithmSuite.dfy"
 include "../Util/UTF8.dfy"
 include "../Util/Sets.dfy"
-
-
 include "../Util/Streams.dfy"
 include "../StandardLibrary/StandardLibrary.dfy"
 include "Serialize/SerializableTypes.dfy"
@@ -15,7 +12,6 @@ include "Serialize/SerializableTypes.dfy"
 module Serialize {
   import Msg = MessageHeader
   import EncryptionContext
-  import AlgorithmSuite
   import opened SerializableTypes
 
   import Streams
@@ -52,6 +48,7 @@ module Serialize {
     len := wr.WriteBytes(hb.messageID);
     totalWritten := totalWritten + len;
 
+    EncryptionContext.LemmaESDKEncryptionContextIsSerializable(hb.aad);
     len :- SerializeAAD(wr, hb.aad);
     totalWritten := totalWritten + len;
 
@@ -75,7 +72,7 @@ module Serialize {
     return Success(totalWritten);
   }
 
-  method SerializeHeaderAuthentication(wr: Streams.ByteWriter, ha: Msg.HeaderAuthentication, ghost algorithmSuiteID: AlgorithmSuite.ID) returns (ret: Result<nat, string>)
+  method SerializeHeaderAuthentication(wr: Streams.ByteWriter, ha: Msg.HeaderAuthentication) returns (ret: Result<nat, string>)
     requires wr.Valid()
     modifies wr.writer`data
     ensures wr.Valid()
@@ -96,7 +93,7 @@ module Serialize {
 
   // ----- SerializeAAD -----
 
-  method SerializeAAD(wr: Streams.ByteWriter, kvPairs: EncryptionContext.Map) returns (ret: Result<nat, string>)
+  method SerializeAAD(wr: Streams.ByteWriter, kvPairs: SerializableTypes.ESDKEncryptionContext) returns (ret: Result<nat, string>)
     requires wr.Valid() && EncryptionContext.Serializable(kvPairs)
     modifies wr.writer`data
     ensures wr.Valid() && EncryptionContext.Serializable(kvPairs)
@@ -125,7 +122,7 @@ module Serialize {
 
   // ----- SerializeKVPairs -----
 
-  method SerializeKVPairs(wr: Streams.ByteWriter, encryptionContext: EncryptionContext.Map) returns (ret: Result<nat, string>)
+  method SerializeKVPairs(wr: Streams.ByteWriter, encryptionContext: SerializableTypes.ESDKEncryptionContext) returns (ret: Result<nat, string>)
     requires wr.Valid() && EncryptionContext.SerializableKVPairs(encryptionContext)
     modifies wr.writer`data
     ensures wr.Valid() && EncryptionContext.SerializableKVPairs(encryptionContext)
@@ -144,7 +141,7 @@ module Serialize {
       return Success(newlyWritten);
     }
 
-    assert {:focus} true;
+    assert {:split_here} true;
     var len := wr.WriteUInt16(|encryptionContext| as uint16);
     newlyWritten := newlyWritten + len;
 
@@ -163,25 +160,27 @@ module Serialize {
       invariant wr.GetDataWritten() == writtenBeforeLoop + EncryptionContext.LinearToSeq(kvPairs, 0, j)
       invariant wr.GetSizeWritten() == old(wr.GetSizeWritten()) + newlyWritten
     {
-      assert {:focus} true;
+      assert {:split_here} true;
       len :- SerializeKVPair(wr, keys[j], encryptionContext[keys[j]]);
       newlyWritten := newlyWritten + len;
+      assert {:split_here} true;
       assert wr.GetSizeWritten() == old(wr.GetSizeWritten()) + newlyWritten;
 
+      assert {:split_here} true;
       calc {
         wr.GetDataWritten();
       ==  // by the loop invariant and the postcondition of SerializeKVPair
         writtenBeforeLoop + EncryptionContext.LinearToSeq(kvPairs, 0, j) + EncryptionContext.KVPairToSeq(kvPairs[j]);
       ==  // + is associative
-        writtenBeforeLoop + (EncryptionContext.LinearToSeq(kvPairs, 0, j) + EncryptionContext.KVPairToSeq(kvPairs[j]));
-      ==  { assert EncryptionContext.LinearToSeq(kvPairs, 0, j) + EncryptionContext.KVPairToSeq(kvPairs[j]) == EncryptionContext.LinearToSeq(kvPairs, 0, j + 1); }
+        assert {:split_here} true;writtenBeforeLoop + (EncryptionContext.LinearToSeq(kvPairs, 0, j) + EncryptionContext.KVPairToSeq(kvPairs[j]));
+      ==  {  assert {:split_here} true; assert EncryptionContext.LinearToSeq(kvPairs, 0, j) + EncryptionContext.KVPairToSeq(kvPairs[j]) == EncryptionContext.LinearToSeq(kvPairs, 0, j + 1); }
         writtenBeforeLoop + EncryptionContext.LinearToSeq(kvPairs, 0, j + 1);
       }
 
       j := j + 1;
     }
 
-    assert {:focus} true;
+    assert {:split_here} true;
     assert EncryptionContext.MapToSeq(encryptionContext) == UInt16ToSeq(n as uint16) + EncryptionContext.LinearToSeq(kvPairs, 0, j) by {
       assert {:focus} true;
       assert |kvPairs| == j;
