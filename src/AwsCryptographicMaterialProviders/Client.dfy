@@ -11,7 +11,7 @@ include "Materials.dfy"
 include "AlgorithmSuites.dfy"
 
 module
-  {:extern "Dafny.Aws.Crypto.MaterialProviders.Client"}
+  {:extern "Dafny.Aws.Crypto.AwsCryptographicMaterialProvidersClient"}
   MaterialProviders.Client
 {
   import opened Wrappers
