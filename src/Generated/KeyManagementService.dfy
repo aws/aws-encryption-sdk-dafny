@@ -1,7 +1,5 @@
 // Copyright Amazon.com Inc. or its affiliates. All Rights Reserved.
 // SPDX-License-Identifier: Apache-2.0
-//
-// Generated at 2021-12-02T17:59:28.558333
 include "../StandardLibrary/StandardLibrary.dfy"
 include "../Util/UTF8.dfy"
  module {:extern "Dafny.Com.Amazonaws.Kms"} Com.Amazonaws.Kms {

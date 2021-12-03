@@ -9,6 +9,7 @@ include "Keyrings/RawAESKeyring.dfy"
 include "CMMs/DefaultCMM.dfy"
 include "Materials.dfy"
 include "AlgorithmSuites.dfy"
+include "Keyrings/AwsKms/AwsKmsMrkAwareSymmetricKeyring.dfy"
 
 module
   {:extern "Dafny.Aws.Crypto.AwsCryptographicMaterialProvidersClient"}
@@ -24,6 +25,7 @@ module
   import DefaultCMM
   import AlgorithmSuites
   import Materials
+  import AwsKmsMrkAwareSymmetricKeyring
 
   // This file is the entry point for all Material Provider operations.
   // There MUST NOT be any direct includes to any other files in this project.
@@ -109,6 +111,13 @@ module
     {
         return new DefaultCMM.DefaultCMM.OfKeyring(input.keyring);
     }
+
+    method CreateMrkAwareStrictAwsKmsKeyring(input: Crypto.CreateMrkAwareStrictAwsKmsKeyringInput)
+      returns (res: Crypto.IKeyring)
+    {
+      return new AwsKmsMrkAwareSymmetricKeyring(input.client, input.kmsKeyId, input.grantTokens);
+    }
+
 // Materials.EncryptionMaterialsTransitionIsValid(
 // Materials.DecryptionMaterialsTransitionIsValid(
 // Materials.EncryptionMaterialsWithPlaintextDataKey(

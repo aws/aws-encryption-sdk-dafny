@@ -4,10 +4,11 @@
 include "../Util/UTF8.dfy"
 include "../StandardLibrary/StandardLibrary.dfy"
 include "../KMS/AmazonKeyManagementService.dfy"
+include "./KeyManagementService.dfy"
 
 module {:extern "Dafny.Aws.Crypto"} Aws.Crypto {
     import opened Wrappers
-    import AmazonKeyManagementService
+    import KMS = Com.Amazonaws.Kms
     import opened UInt = StandardLibrary.UInt
     import opened UTF8
 
@@ -233,7 +234,7 @@ module {:extern "Dafny.Aws.Crypto"} Aws.Crypto {
     datatype CreateMrkAwareStrictAwsKmsKeyringInput = CreateMrkAwareStrictAwsKmsKeyringInput(
         nameonly kmsKeyId: KmsKeyId,
         nameonly grantTokens: Option<GrantTokenList>,
-        nameonly kmsClient: AmazonKeyManagementService.IAmazonKeyManagementService
+        nameonly kmsClient: KMS.IKeyManagementServiceClient
     )
 
     datatype CreateMrkAwareStrictMultiKeyringInput = CreateMrkAwareStrictMultiKeyringInput(
@@ -245,7 +246,7 @@ module {:extern "Dafny.Aws.Crypto"} Aws.Crypto {
 
     // KMS - MRK Aware, Discovery
     datatype CreateMrkAwareDiscoveryAwsKmsKeyringInput = CreateMrkAwareDiscoveryAwsKmsKeyringInput(
-        nameonly kmsClient: AmazonKeyManagementService.IAmazonKeyManagementService,
+        nameonly kmsClient: KMS.IKeyManagementServiceClient,
         nameonly discoveryFilter: Option<DiscoveryFilter>,
         nameonly grantTokens: Option<GrantTokenList>
     )
@@ -308,7 +309,7 @@ module {:extern "Dafny.Aws.Crypto"} Aws.Crypto {
 
         // Keyrings
         //method CreateAwsKmsKeyring(input: CreateAwsKmsKeyringInput) returns (res: IKeyring)
-        // method CreateMrkAwareStrictAwsKmsKeyring(input: CreateMrkAwareStrictAwsKmsKeyringInput) returns (res: IKeyring)
+        method CreateMrkAwareStrictAwsKmsKeyring(input: CreateMrkAwareStrictAwsKmsKeyringInput) returns (res: IKeyring)
         // method CreateMrkAwareStrictMultiKeyring(input: CreateMrkAwareStrictMultiKeyringInput) returns (res: IKeyring)
         // method CreateMrkAwareDiscoveryAwsKmsKeyring(input: CreateMrkAwareDiscoveryAwsKmsKeyringInput) returns (res: IKeyring)
         // method CreateMrkAwareDiscoveryMultiKeyring(input: CreateMrkAwareDiscoveryMultiKeyringInput) returns (res: IKeyring)
