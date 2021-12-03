@@ -13,7 +13,6 @@ namespace Aws.Crypto
     {
         private string _kmsKeyId;
 
-        // TODO this line was manually updated
         private Amazon.KeyManagementService.IAmazonKeyManagementService _kmsClient;
         private System.Collections.Generic.List<string> _grantTokens;
 
@@ -23,7 +22,6 @@ namespace Aws.Crypto
             set { this._kmsKeyId = value; }
         }
 
-        // TODO this line was manually updated
         public Amazon.KeyManagementService.IAmazonKeyManagementService KmsClient
         {
             get { return this._kmsClient; }

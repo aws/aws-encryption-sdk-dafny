@@ -776,17 +776,26 @@ namespace Aws.Crypto
             FromDafny_N3_aws__N6_crypto__S18_KmsClientReference(
                 Dafny.Com.Amazonaws.Kms.IKeyManagementServiceClient value)
         {
-            if (value is Amazon.KeyManagementService.AmazonKeyManagementServiceClient valueWithImpl) return value._impl;
-            throw
-                new System.ArgumentException(
-                    \"Custom implementations of Amazon.KeyManagementService.IAmazonKeyManagementService are not supported yet\");
+            if (value is Com.Amazonaws.Kms.KeyManagementServiceShim shim)
+            {
+                return shim._impl;
+            }
+
+            throw new System.ArgumentException(
+                "Custom implementations of Amazon.KeyManagementService.IAmazonKeyManagementService are not supported yet");
         }
 
         public static Dafny.Com.Amazonaws.Kms.IKeyManagementServiceClient
             ToDafny_N3_aws__N6_crypto__S18_KmsClientReference(
                 Amazon.KeyManagementService.IAmazonKeyManagementService value)
         {
-            return new Amazon.KeyManagementService.AmazonKeyManagementServiceClient(value);
+            if (value is Amazon.KeyManagementService.AmazonKeyManagementServiceClient impl)
+            {
+                return new Com.Amazonaws.Kms.KeyManagementServiceShim(impl);
+            }
+
+            throw new System.ArgumentException(
+                "Custom implementations of Amazon.KeyManagementService.IAmazonKeyManagementService are not supported yet");
         }
 
         public static System.IO.MemoryStream FromDafny_N3_aws__N6_crypto__S16_DeleteEntryInput__M10_identifier(
@@ -1570,7 +1579,7 @@ namespace Aws.Crypto
                 (string) FromDafny_N3_aws__N6_crypto__S38_CreateMrkAwareStrictAwsKmsKeyringInput__M8_kmsKeyId(
                     value.kmsKeyId);
             converted.KmsClient =
-                (Com.Amazonaws.Kms.IKeyManagementService)
+                (Amazon.KeyManagementService.IAmazonKeyManagementService)
                 FromDafny_N3_aws__N6_crypto__S38_CreateMrkAwareStrictAwsKmsKeyringInput__M9_kmsClient(value.kmsClient);
             if (value.grantTokens.is_Some)
                 converted.GrantTokens =
@@ -1855,7 +1864,7 @@ namespace Aws.Crypto
                 .Select(ToDafny_N3_aws__N6_crypto__S14_GrantTokenList__M6_member).ToArray());
         }
 
-        public static Com.Amazonaws.Kms.IKeyManagementService
+        public static Amazon.KeyManagementService.IAmazonKeyManagementService
             FromDafny_N3_aws__N6_crypto__S38_CreateMrkAwareStrictAwsKmsKeyringInput__M9_kmsClient(
                 Dafny.Com.Amazonaws.Kms.IKeyManagementServiceClient value)
         {
@@ -1864,7 +1873,7 @@ namespace Aws.Crypto
 
         public static Dafny.Com.Amazonaws.Kms.IKeyManagementServiceClient
             ToDafny_N3_aws__N6_crypto__S38_CreateMrkAwareStrictAwsKmsKeyringInput__M9_kmsClient(
-                Com.Amazonaws.Kms.IKeyManagementService value)
+                Amazon.KeyManagementService.IAmazonKeyManagementService value)
         {
             return ToDafny_N3_aws__N6_crypto__S18_KmsClientReference(value);
         }
