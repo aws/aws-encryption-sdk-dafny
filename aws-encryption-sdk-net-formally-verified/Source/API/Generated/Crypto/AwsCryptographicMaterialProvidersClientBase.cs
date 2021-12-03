@@ -1,7 +1,5 @@
 // Copyright Amazon.com Inc. or its affiliates. All Rights Reserved.
 // SPDX-License-Identifier: Apache-2.0
-//
-// Generated at 2021-12-02T18:30:30.159384
 
 using System;
 using Aws.Crypto;
@@ -16,6 +14,16 @@ namespace Aws.Crypto
         protected AwsCryptographicMaterialProvidersClientBase()
         {
         }
+
+        public Aws.Crypto.IKeyring CreateMrkAwareStrictAwsKmsKeyring(
+            Aws.Crypto.CreateMrkAwareStrictAwsKmsKeyringInput input)
+        {
+            input.Validate();
+            return _CreateMrkAwareStrictAwsKmsKeyring(input);
+        }
+
+        protected abstract Aws.Crypto.IKeyring _CreateMrkAwareStrictAwsKmsKeyring(
+            Aws.Crypto.CreateMrkAwareStrictAwsKmsKeyringInput input);
 
         public Aws.Crypto.IKeyring CreateRawAesKeyring(Aws.Crypto.CreateRawAesKeyringInput input)
         {

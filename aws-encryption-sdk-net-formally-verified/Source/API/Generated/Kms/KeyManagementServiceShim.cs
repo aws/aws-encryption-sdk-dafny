@@ -1,7 +1,5 @@
 // Copyright Amazon.com Inc. or its affiliates. All Rights Reserved.
 // SPDX-License-Identifier: Apache-2.0
-//
-// Generated at 2021-12-02T17:59:28.572019
 
 using System;
 using System.IO;
@@ -11,7 +9,12 @@ namespace Com.Amazonaws.Kms
 {
     internal class KeyManagementServiceShim : Dafny.Com.Amazonaws.Kms.IKeyManagementServiceClient
     {
-        private Amazon.KeyManagementService.AmazonKeyManagementServiceClient _impl;
+        internal Amazon.KeyManagementService.AmazonKeyManagementServiceClient _impl;
+
+        internal KeyManagementServiceShim(Amazon.KeyManagementService.AmazonKeyManagementServiceClient impl)
+        {
+            this._impl = impl;
+        }
 
         public Wrappers_Compile.Result<Dafny.Com.Amazonaws.Kms.CancelKeyDeletionResponse,
             Dafny.Com.Amazonaws.Kms.KeyManagementServiceError> CancelKeyDeletion(

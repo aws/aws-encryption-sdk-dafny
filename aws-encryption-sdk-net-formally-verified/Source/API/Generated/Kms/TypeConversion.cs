@@ -1,7 +1,5 @@
 // Copyright Amazon.com Inc. or its affiliates. All Rights Reserved.
 // SPDX-License-Identifier: Apache-2.0
-//
-// Generated at 2021-12-02T17:59:28.514791
 
 using System.Linq;
 using Aws.Crypto;
@@ -3353,38 +3351,6 @@ namespace Com.Amazonaws.Kms
                     ToDafny_N3_com__N9_amazonaws__N3_kms__S8_KeyState((Amazon.KeyManagementService.KeyState) value));
         }
 
-        public static Amazon.KeyManagementService.Model.GenerateDataKeyResponse
-            FromDafny_N3_com__N9_amazonaws__N3_kms__S23_GenerateDataKeyResponse(
-                Dafny.Com.Amazonaws.Kms.GenerateDataKeyResponse value)
-        {
-            Amazon.KeyManagementService.Model.GenerateDataKeyResponse converted =
-                new Amazon.KeyManagementService.Model.GenerateDataKeyResponse();
-            if (value.CiphertextBlob.is_Some)
-                converted.CiphertextBlob =
-                    (System.IO.MemoryStream)
-                    FromDafny_N3_com__N9_amazonaws__N3_kms__S23_GenerateDataKeyResponse__M14_CiphertextBlob(
-                        value.CiphertextBlob);
-            if (value.Plaintext.is_Some)
-                converted.Plaintext =
-                    (System.IO.MemoryStream)
-                    FromDafny_N3_com__N9_amazonaws__N3_kms__S23_GenerateDataKeyResponse__M9_Plaintext(value.Plaintext);
-            if (value.KeyId.is_Some)
-                converted.KeyId =
-                    (string) FromDafny_N3_com__N9_amazonaws__N3_kms__S23_GenerateDataKeyResponse__M5_KeyId(value.KeyId);
-            return converted;
-        }
-
-        public static Dafny.Com.Amazonaws.Kms.GenerateDataKeyResponse
-            ToDafny_N3_com__N9_amazonaws__N3_kms__S23_GenerateDataKeyResponse(
-                Amazon.KeyManagementService.Model.GenerateDataKeyResponse value)
-        {
-            return new Dafny.Com.Amazonaws.Kms.GenerateDataKeyResponse(
-                ToDafny_N3_com__N9_amazonaws__N3_kms__S23_GenerateDataKeyResponse__M14_CiphertextBlob(
-                    value.CiphertextBlob),
-                ToDafny_N3_com__N9_amazonaws__N3_kms__S23_GenerateDataKeyResponse__M9_Plaintext(value.Plaintext),
-                ToDafny_N3_com__N9_amazonaws__N3_kms__S23_GenerateDataKeyResponse__M5_KeyId(value.KeyId));
-        }
-
         public static Amazon.KeyManagementService.Model.GenerateDataKeyPairResponse
             FromDafny_N3_com__N9_amazonaws__N3_kms__S27_GenerateDataKeyPairResponse(
                 Dafny.Com.Amazonaws.Kms.GenerateDataKeyPairResponse value)
@@ -3431,6 +3397,38 @@ namespace Com.Amazonaws.Kms
                 ToDafny_N3_com__N9_amazonaws__N3_kms__S27_GenerateDataKeyPairResponse__M5_KeyId(value.KeyId),
                 ToDafny_N3_com__N9_amazonaws__N3_kms__S27_GenerateDataKeyPairResponse__M11_KeyPairSpec(
                     value.KeyPairSpec));
+        }
+
+        public static Amazon.KeyManagementService.Model.GenerateDataKeyResponse
+            FromDafny_N3_com__N9_amazonaws__N3_kms__S23_GenerateDataKeyResponse(
+                Dafny.Com.Amazonaws.Kms.GenerateDataKeyResponse value)
+        {
+            Amazon.KeyManagementService.Model.GenerateDataKeyResponse converted =
+                new Amazon.KeyManagementService.Model.GenerateDataKeyResponse();
+            if (value.CiphertextBlob.is_Some)
+                converted.CiphertextBlob =
+                    (System.IO.MemoryStream)
+                    FromDafny_N3_com__N9_amazonaws__N3_kms__S23_GenerateDataKeyResponse__M14_CiphertextBlob(
+                        value.CiphertextBlob);
+            if (value.Plaintext.is_Some)
+                converted.Plaintext =
+                    (System.IO.MemoryStream)
+                    FromDafny_N3_com__N9_amazonaws__N3_kms__S23_GenerateDataKeyResponse__M9_Plaintext(value.Plaintext);
+            if (value.KeyId.is_Some)
+                converted.KeyId =
+                    (string) FromDafny_N3_com__N9_amazonaws__N3_kms__S23_GenerateDataKeyResponse__M5_KeyId(value.KeyId);
+            return converted;
+        }
+
+        public static Dafny.Com.Amazonaws.Kms.GenerateDataKeyResponse
+            ToDafny_N3_com__N9_amazonaws__N3_kms__S23_GenerateDataKeyResponse(
+                Amazon.KeyManagementService.Model.GenerateDataKeyResponse value)
+        {
+            return new Dafny.Com.Amazonaws.Kms.GenerateDataKeyResponse(
+                ToDafny_N3_com__N9_amazonaws__N3_kms__S23_GenerateDataKeyResponse__M14_CiphertextBlob(
+                    value.CiphertextBlob),
+                ToDafny_N3_com__N9_amazonaws__N3_kms__S23_GenerateDataKeyResponse__M9_Plaintext(value.Plaintext),
+                ToDafny_N3_com__N9_amazonaws__N3_kms__S23_GenerateDataKeyResponse__M5_KeyId(value.KeyId));
         }
 
         public static string FromDafny_N3_com__N9_amazonaws__N3_kms__S22_EncryptionContextValue(
@@ -6198,6 +6196,38 @@ namespace Com.Amazonaws.Kms
             return ToDafny_N3_com__N9_amazonaws__N3_kms__S9_KeyIdType(value);
         }
 
+        public static Amazon.KeyManagementService.Model.ListKeyPoliciesResponse
+            FromDafny_N3_com__N9_amazonaws__N3_kms__S23_ListKeyPoliciesResponse(
+                Dafny.Com.Amazonaws.Kms.ListKeyPoliciesResponse value)
+        {
+            Amazon.KeyManagementService.Model.ListKeyPoliciesResponse converted =
+                new Amazon.KeyManagementService.Model.ListKeyPoliciesResponse();
+            if (value.PolicyNames.is_Some)
+                converted.PolicyNames =
+                    (System.Collections.Generic.List<string>)
+                    FromDafny_N3_com__N9_amazonaws__N3_kms__S23_ListKeyPoliciesResponse__M11_PolicyNames(
+                        value.PolicyNames);
+            if (value.NextMarker.is_Some)
+                converted.NextMarker =
+                    (string) FromDafny_N3_com__N9_amazonaws__N3_kms__S23_ListKeyPoliciesResponse__M10_NextMarker(
+                        value.NextMarker);
+            if (value.Truncated.is_Some)
+                converted.Truncated =
+                    (bool) FromDafny_N3_com__N9_amazonaws__N3_kms__S23_ListKeyPoliciesResponse__M9_Truncated(
+                        value.Truncated);
+            return converted;
+        }
+
+        public static Dafny.Com.Amazonaws.Kms.ListKeyPoliciesResponse
+            ToDafny_N3_com__N9_amazonaws__N3_kms__S23_ListKeyPoliciesResponse(
+                Amazon.KeyManagementService.Model.ListKeyPoliciesResponse value)
+        {
+            return new Dafny.Com.Amazonaws.Kms.ListKeyPoliciesResponse(
+                ToDafny_N3_com__N9_amazonaws__N3_kms__S23_ListKeyPoliciesResponse__M11_PolicyNames(value.PolicyNames),
+                ToDafny_N3_com__N9_amazonaws__N3_kms__S23_ListKeyPoliciesResponse__M10_NextMarker(value.NextMarker),
+                ToDafny_N3_com__N9_amazonaws__N3_kms__S23_ListKeyPoliciesResponse__M9_Truncated(value.Truncated));
+        }
+
         public static Amazon.KeyManagementService.Model.DescribeCustomKeyStoresResponse
             FromDafny_N3_com__N9_amazonaws__N3_kms__S31_DescribeCustomKeyStoresResponse(
                 Dafny.Com.Amazonaws.Kms.DescribeCustomKeyStoresResponse value)
@@ -6232,38 +6262,6 @@ namespace Com.Amazonaws.Kms
                     value.NextMarker),
                 ToDafny_N3_com__N9_amazonaws__N3_kms__S31_DescribeCustomKeyStoresResponse__M9_Truncated(
                     value.Truncated));
-        }
-
-        public static Amazon.KeyManagementService.Model.ListKeyPoliciesResponse
-            FromDafny_N3_com__N9_amazonaws__N3_kms__S23_ListKeyPoliciesResponse(
-                Dafny.Com.Amazonaws.Kms.ListKeyPoliciesResponse value)
-        {
-            Amazon.KeyManagementService.Model.ListKeyPoliciesResponse converted =
-                new Amazon.KeyManagementService.Model.ListKeyPoliciesResponse();
-            if (value.PolicyNames.is_Some)
-                converted.PolicyNames =
-                    (System.Collections.Generic.List<string>)
-                    FromDafny_N3_com__N9_amazonaws__N3_kms__S23_ListKeyPoliciesResponse__M11_PolicyNames(
-                        value.PolicyNames);
-            if (value.NextMarker.is_Some)
-                converted.NextMarker =
-                    (string) FromDafny_N3_com__N9_amazonaws__N3_kms__S23_ListKeyPoliciesResponse__M10_NextMarker(
-                        value.NextMarker);
-            if (value.Truncated.is_Some)
-                converted.Truncated =
-                    (bool) FromDafny_N3_com__N9_amazonaws__N3_kms__S23_ListKeyPoliciesResponse__M9_Truncated(
-                        value.Truncated);
-            return converted;
-        }
-
-        public static Dafny.Com.Amazonaws.Kms.ListKeyPoliciesResponse
-            ToDafny_N3_com__N9_amazonaws__N3_kms__S23_ListKeyPoliciesResponse(
-                Amazon.KeyManagementService.Model.ListKeyPoliciesResponse value)
-        {
-            return new Dafny.Com.Amazonaws.Kms.ListKeyPoliciesResponse(
-                ToDafny_N3_com__N9_amazonaws__N3_kms__S23_ListKeyPoliciesResponse__M11_PolicyNames(value.PolicyNames),
-                ToDafny_N3_com__N9_amazonaws__N3_kms__S23_ListKeyPoliciesResponse__M10_NextMarker(value.NextMarker),
-                ToDafny_N3_com__N9_amazonaws__N3_kms__S23_ListKeyPoliciesResponse__M9_Truncated(value.Truncated));
         }
 
         public static Amazon.KeyManagementService.OriginType

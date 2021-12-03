@@ -1,7 +1,5 @@
 // Copyright Amazon.com Inc. or its affiliates. All Rights Reserved.
 // SPDX-License-Identifier: Apache-2.0
-//
-// Generated at 2021-12-02T18:30:30.189229
 
 using System;
 using System.IO;
@@ -21,6 +19,16 @@ namespace Aws.Crypto
         {
             this._impl =
                 new Dafny.Aws.Crypto.AwsCryptographicMaterialProvidersClient.AwsCryptographicMaterialProvidersClient();
+        }
+
+        protected override Aws.Crypto.IKeyring _CreateMrkAwareStrictAwsKmsKeyring(
+            Aws.Crypto.CreateMrkAwareStrictAwsKmsKeyringInput input)
+        {
+            Dafny.Aws.Crypto.CreateMrkAwareStrictAwsKmsKeyringInput internalInput =
+                TypeConversion.ToDafny_N3_aws__N6_crypto__S38_CreateMrkAwareStrictAwsKmsKeyringInput(input);
+            Dafny.Aws.Crypto.IKeyring internalOutput =
+                this._impl.CreateMrkAwareStrictAwsKmsKeyring(internalInput);
+            return TypeConversion.FromDafny_N3_aws__N6_crypto__S19_CreateKeyringOutput(internalOutput);
         }
 
         protected override Aws.Crypto.IKeyring _CreateRawAesKeyring(Aws.Crypto.CreateRawAesKeyringInput input)
