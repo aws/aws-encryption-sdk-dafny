@@ -1,7 +1,7 @@
 // Copyright Amazon.com Inc. or its affiliates. All Rights Reserved.
 // SPDX-License-Identifier: Apache-2.0
 //
-// Generated at 2021-11-03T00:21:59.652135
+// Generated at 2021-12-02T18:30:30.159384
 
 using System;
 using Aws.Crypto;
@@ -13,108 +13,44 @@ namespace Aws.Crypto
 {
     public class EncryptEntry
     {
-        public System.IO.MemoryStream Identifier { get; private set; }
-        public EncryptionMaterials EncryptionMaterials { get; private set; }
-        public long CreationTime { get; private set; }
-        public long ExpiryTime { get; private set; }
-        public CacheUsageMetadata UsageMetadata { get; private set; }
+        private System.IO.MemoryStream _identifier;
+        private Aws.Crypto.EncryptionMaterials _encryptionMaterials;
+        private long? _creationTime;
+        private long? _expiryTime;
+        private Aws.Crypto.CacheUsageMetadata _usageMetadata;
 
-        public static IEncryptEntryBuilder Builder()
+        public System.IO.MemoryStream Identifier
         {
-            return new EncryptEntryBuilder();
+            get { return this._identifier; }
+            set { this._identifier = value; }
+        }
+
+        public Aws.Crypto.EncryptionMaterials EncryptionMaterials
+        {
+            get { return this._encryptionMaterials; }
+            set { this._encryptionMaterials = value; }
+        }
+
+        public long CreationTime
+        {
+            get { return this._creationTime.GetValueOrDefault(); }
+            set { this._creationTime = value; }
+        }
+
+        public long ExpiryTime
+        {
+            get { return this._expiryTime.GetValueOrDefault(); }
+            set { this._expiryTime = value; }
+        }
+
+        public Aws.Crypto.CacheUsageMetadata UsageMetadata
+        {
+            get { return this._usageMetadata; }
+            set { this._usageMetadata = value; }
         }
 
         public void Validate()
         {
         }
-
-        private class EncryptEntryBuilder : IEncryptEntryBuilder
-        {
-            private System.IO.MemoryStream Identifier;
-            private EncryptionMaterials EncryptionMaterials;
-            private long? CreationTime;
-            private long? ExpiryTime;
-            private CacheUsageMetadata UsageMetadata;
-
-            public IEncryptEntryBuilder WithIdentifier(System.IO.MemoryStream value)
-            {
-                Identifier = value;
-                return this;
-            }
-
-            public IEncryptEntryBuilder WithEncryptionMaterials(EncryptionMaterials value)
-            {
-                EncryptionMaterials = value;
-                return this;
-            }
-
-            public IEncryptEntryBuilder WithCreationTime(long value)
-            {
-                CreationTime = value;
-                return this;
-            }
-
-            public IEncryptEntryBuilder WithExpiryTime(long value)
-            {
-                ExpiryTime = value;
-                return this;
-            }
-
-            public IEncryptEntryBuilder WithUsageMetadata(CacheUsageMetadata value)
-            {
-                UsageMetadata = value;
-                return this;
-            }
-
-            public EncryptEntry Build()
-            {
-                if (Identifier == null)
-                {
-                    throw new InvalidOperationException(
-                        String.Format("No value set for required field {0}", "identifier"));
-                }
-
-                if (EncryptionMaterials == null)
-                {
-                    throw new InvalidOperationException(
-                        String.Format("No value set for required field {0}", "encryptionMaterials"));
-                }
-
-                if (CreationTime == null)
-                {
-                    throw new InvalidOperationException(
-                        String.Format("No value set for required field {0}", "creationTime"));
-                }
-
-                if (ExpiryTime == null)
-                {
-                    throw new InvalidOperationException(
-                        String.Format("No value set for required field {0}", "expiryTime"));
-                }
-
-                if (UsageMetadata == null)
-                {
-                    throw new InvalidOperationException(
-                        String.Format("No value set for required field {0}", "usageMetadata"));
-                }
-
-                return new EncryptEntry
-                {
-                    Identifier = (System.IO.MemoryStream) Identifier,
-                    EncryptionMaterials = (EncryptionMaterials) EncryptionMaterials, CreationTime = (long) CreationTime,
-                    ExpiryTime = (long) ExpiryTime, UsageMetadata = (CacheUsageMetadata) UsageMetadata,
-                };
-            }
-        }
-    }
-
-    public interface IEncryptEntryBuilder
-    {
-        IEncryptEntryBuilder WithIdentifier(System.IO.MemoryStream value);
-        IEncryptEntryBuilder WithEncryptionMaterials(EncryptionMaterials value);
-        IEncryptEntryBuilder WithCreationTime(long value);
-        IEncryptEntryBuilder WithExpiryTime(long value);
-        IEncryptEntryBuilder WithUsageMetadata(CacheUsageMetadata value);
-        EncryptEntry Build();
     }
 }

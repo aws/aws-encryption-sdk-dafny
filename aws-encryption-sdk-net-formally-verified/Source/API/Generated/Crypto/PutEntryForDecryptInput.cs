@@ -1,7 +1,7 @@
 // Copyright Amazon.com Inc. or its affiliates. All Rights Reserved.
 // SPDX-License-Identifier: Apache-2.0
 //
-// Generated at 2021-11-03T00:21:59.652135
+// Generated at 2021-12-02T18:30:30.159384
 
 using System;
 using Aws.Crypto;
@@ -13,62 +13,23 @@ namespace Aws.Crypto
 {
     public class PutEntryForDecryptInput
     {
-        public System.IO.MemoryStream Identifier { get; private set; }
-        public DecryptionMaterials DecryptionMaterials { get; private set; }
+        private System.IO.MemoryStream _identifier;
+        private Aws.Crypto.DecryptionMaterials _decryptionMaterials;
 
-        public static IPutEntryForDecryptInputBuilder Builder()
+        public System.IO.MemoryStream Identifier
         {
-            return new PutEntryForDecryptInputBuilder();
+            get { return this._identifier; }
+            set { this._identifier = value; }
+        }
+
+        public Aws.Crypto.DecryptionMaterials DecryptionMaterials
+        {
+            get { return this._decryptionMaterials; }
+            set { this._decryptionMaterials = value; }
         }
 
         public void Validate()
         {
         }
-
-        private class PutEntryForDecryptInputBuilder : IPutEntryForDecryptInputBuilder
-        {
-            private System.IO.MemoryStream Identifier;
-            private DecryptionMaterials DecryptionMaterials;
-
-            public IPutEntryForDecryptInputBuilder WithIdentifier(System.IO.MemoryStream value)
-            {
-                Identifier = value;
-                return this;
-            }
-
-            public IPutEntryForDecryptInputBuilder WithDecryptionMaterials(DecryptionMaterials value)
-            {
-                DecryptionMaterials = value;
-                return this;
-            }
-
-            public PutEntryForDecryptInput Build()
-            {
-                if (Identifier == null)
-                {
-                    throw new InvalidOperationException(
-                        String.Format("No value set for required field {0}", "identifier"));
-                }
-
-                if (DecryptionMaterials == null)
-                {
-                    throw new InvalidOperationException(
-                        String.Format("No value set for required field {0}", "decryptionMaterials"));
-                }
-
-                return new PutEntryForDecryptInput
-                {
-                    Identifier = (System.IO.MemoryStream) Identifier,
-                    DecryptionMaterials = (DecryptionMaterials) DecryptionMaterials,
-                };
-            }
-        }
-    }
-
-    public interface IPutEntryForDecryptInputBuilder
-    {
-        IPutEntryForDecryptInputBuilder WithIdentifier(System.IO.MemoryStream value);
-        IPutEntryForDecryptInputBuilder WithDecryptionMaterials(DecryptionMaterials value);
-        PutEntryForDecryptInput Build();
     }
 }

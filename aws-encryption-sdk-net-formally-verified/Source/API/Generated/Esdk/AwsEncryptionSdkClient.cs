@@ -1,7 +1,7 @@
 // Copyright Amazon.com Inc. or its affiliates. All Rights Reserved.
 // SPDX-License-Identifier: Apache-2.0
 //
-// Generated at 2021-11-03T00:22:03.332515
+// Generated at 2021-12-02T18:12:30.383884
 
 using System;
 using System.IO;
@@ -22,7 +22,7 @@ namespace Aws.Esdk
             this._impl = new Dafny.Aws.Esdk.AwsEncryptionSdkClient.AwsEncryptionSdkClient();
         }
 
-        protected override EncryptOutput _Encrypt(EncryptInput input)
+        protected override Aws.Esdk.EncryptOutput _Encrypt(Aws.Esdk.EncryptInput input)
         {
             Dafny.Aws.Esdk.EncryptInput internalInput = TypeConversion.ToDafny_N3_aws__N4_esdk__S12_EncryptInput(input);
             Dafny.Aws.Esdk.EncryptOutput internalOutput =
@@ -31,7 +31,7 @@ namespace Aws.Esdk
             return TypeConversion.FromDafny_N3_aws__N4_esdk__S13_EncryptOutput(internalOutput);
         }
 
-        protected override DecryptOutput _Decrypt(DecryptInput input)
+        protected override Aws.Esdk.DecryptOutput _Decrypt(Aws.Esdk.DecryptInput input)
         {
             Dafny.Aws.Esdk.DecryptInput internalInput = TypeConversion.ToDafny_N3_aws__N4_esdk__S12_DecryptInput(input);
             Dafny.Aws.Esdk.DecryptOutput internalOutput =

@@ -1,7 +1,7 @@
 // Copyright Amazon.com Inc. or its affiliates. All Rights Reserved.
 // SPDX-License-Identifier: Apache-2.0
 //
-// Generated at 2021-11-03T00:21:59.752491
+// Generated at 2021-12-02T18:30:30.189229
 
 using System;
 using System.IO;
@@ -22,7 +22,8 @@ namespace Aws.Crypto
             this._impl = impl;
         }
 
-        protected override GetEncryptionMaterialsOutput _GetEncryptionMaterials(GetEncryptionMaterialsInput input)
+        protected override Aws.Crypto.GetEncryptionMaterialsOutput _GetEncryptionMaterials(
+            Aws.Crypto.GetEncryptionMaterialsInput input)
         {
             Dafny.Aws.Crypto.GetEncryptionMaterialsInput internalInput =
                 TypeConversion.ToDafny_N3_aws__N6_crypto__S27_GetEncryptionMaterialsInput(input);
@@ -32,7 +33,7 @@ namespace Aws.Crypto
             return TypeConversion.FromDafny_N3_aws__N6_crypto__S28_GetEncryptionMaterialsOutput(internalOutput);
         }
 
-        protected override DecryptMaterialsOutput _DecryptMaterials(DecryptMaterialsInput input)
+        protected override Aws.Crypto.DecryptMaterialsOutput _DecryptMaterials(Aws.Crypto.DecryptMaterialsInput input)
         {
             Dafny.Aws.Crypto.DecryptMaterialsInput internalInput =
                 TypeConversion.ToDafny_N3_aws__N6_crypto__S21_DecryptMaterialsInput(input);

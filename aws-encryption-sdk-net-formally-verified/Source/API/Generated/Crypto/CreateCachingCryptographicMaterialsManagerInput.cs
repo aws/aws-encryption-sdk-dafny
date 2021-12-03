@@ -1,7 +1,7 @@
 // Copyright Amazon.com Inc. or its affiliates. All Rights Reserved.
 // SPDX-License-Identifier: Apache-2.0
 //
-// Generated at 2021-11-03T00:21:59.652135
+// Generated at 2021-12-02T18:30:30.159384
 
 using System;
 using Aws.Crypto;
@@ -13,115 +13,58 @@ namespace Aws.Crypto
 {
     public class CreateCachingCryptographicMaterialsManagerInput
     {
-        public ICryptoMaterialsCache Cache { get; private set; }
-        public int CacheLimitTtl { get; private set; }
-        public IKeyring Keyring { get; private set; }
-        public ICryptographicMaterialsManager MaterialsManager { get; private set; }
-        public string PartitionId { get; private set; }
-        public long? LimitBytes { get; private set; }
-        public long? LimitMessages { get; private set; }
+        private Aws.Crypto.ICryptoMaterialsCache _cache;
+        private int? _cacheLimitTtl;
+        private Aws.Crypto.IKeyring _keyring;
+        private Aws.Crypto.ICryptographicMaterialsManager _materialsManager;
+        private string _partitionId;
+        private long? _limitBytes;
+        private long? _limitMessages;
 
-        public static ICreateCachingCryptographicMaterialsManagerInputBuilder Builder()
+        public Aws.Crypto.ICryptoMaterialsCache Cache
         {
-            return new CreateCachingCryptographicMaterialsManagerInputBuilder();
+            get { return this._cache; }
+            set { this._cache = value; }
+        }
+
+        public int CacheLimitTtl
+        {
+            get { return this._cacheLimitTtl.GetValueOrDefault(); }
+            set { this._cacheLimitTtl = value; }
+        }
+
+        public Aws.Crypto.IKeyring Keyring
+        {
+            get { return this._keyring; }
+            set { this._keyring = value; }
+        }
+
+        public Aws.Crypto.ICryptographicMaterialsManager MaterialsManager
+        {
+            get { return this._materialsManager; }
+            set { this._materialsManager = value; }
+        }
+
+        public string PartitionId
+        {
+            get { return this._partitionId; }
+            set { this._partitionId = value; }
+        }
+
+        public long LimitBytes
+        {
+            get { return this._limitBytes.GetValueOrDefault(); }
+            set { this._limitBytes = value; }
+        }
+
+        public long LimitMessages
+        {
+            get { return this._limitMessages.GetValueOrDefault(); }
+            set { this._limitMessages = value; }
         }
 
         public void Validate()
         {
         }
-
-        private class
-            CreateCachingCryptographicMaterialsManagerInputBuilder :
-                ICreateCachingCryptographicMaterialsManagerInputBuilder
-        {
-            private ICryptoMaterialsCache Cache;
-            private int? CacheLimitTtl;
-            private IKeyring Keyring;
-            private ICryptographicMaterialsManager MaterialsManager;
-            private string PartitionId;
-            private long? LimitBytes;
-            private long? LimitMessages;
-
-            public ICreateCachingCryptographicMaterialsManagerInputBuilder WithCache(ICryptoMaterialsCache value)
-            {
-                Cache = value;
-                return this;
-            }
-
-            public ICreateCachingCryptographicMaterialsManagerInputBuilder WithCacheLimitTtl(int value)
-            {
-                CacheLimitTtl = value;
-                return this;
-            }
-
-            public ICreateCachingCryptographicMaterialsManagerInputBuilder WithKeyring(IKeyring value)
-            {
-                Keyring = value;
-                return this;
-            }
-
-            public ICreateCachingCryptographicMaterialsManagerInputBuilder WithMaterialsManager(
-                ICryptographicMaterialsManager value)
-            {
-                MaterialsManager = value;
-                return this;
-            }
-
-            public ICreateCachingCryptographicMaterialsManagerInputBuilder WithPartitionId(string value)
-            {
-                PartitionId = value;
-                return this;
-            }
-
-            public ICreateCachingCryptographicMaterialsManagerInputBuilder WithLimitBytes(long? value)
-            {
-                LimitBytes = value;
-                return this;
-            }
-
-            public ICreateCachingCryptographicMaterialsManagerInputBuilder WithLimitMessages(long? value)
-            {
-                LimitMessages = value;
-                return this;
-            }
-
-            public CreateCachingCryptographicMaterialsManagerInput Build()
-            {
-                if (Cache == null)
-                {
-                    throw new InvalidOperationException(
-                        String.Format("No value set for required field {0}", "cache"));
-                }
-
-                if (CacheLimitTtl == null)
-                {
-                    throw new InvalidOperationException(
-                        String.Format("No value set for required field {0}", "cacheLimitTtl"));
-                }
-
-                return new CreateCachingCryptographicMaterialsManagerInput
-                {
-                    Cache = (ICryptoMaterialsCache) Cache, CacheLimitTtl = (int) CacheLimitTtl,
-                    Keyring = (IKeyring) Keyring, MaterialsManager = (ICryptographicMaterialsManager) MaterialsManager,
-                    PartitionId = (string) PartitionId, LimitBytes = (long?) LimitBytes,
-                    LimitMessages = (long?) LimitMessages,
-                };
-            }
-        }
-    }
-
-    public interface ICreateCachingCryptographicMaterialsManagerInputBuilder
-    {
-        ICreateCachingCryptographicMaterialsManagerInputBuilder WithCache(ICryptoMaterialsCache value);
-        ICreateCachingCryptographicMaterialsManagerInputBuilder WithCacheLimitTtl(int value);
-        ICreateCachingCryptographicMaterialsManagerInputBuilder WithKeyring(IKeyring value);
-
-        ICreateCachingCryptographicMaterialsManagerInputBuilder WithMaterialsManager(
-            ICryptographicMaterialsManager value);
-
-        ICreateCachingCryptographicMaterialsManagerInputBuilder WithPartitionId(string value);
-        ICreateCachingCryptographicMaterialsManagerInputBuilder WithLimitBytes(long? value);
-        ICreateCachingCryptographicMaterialsManagerInputBuilder WithLimitMessages(long? value);
-        CreateCachingCryptographicMaterialsManagerInput Build();
     }
 }

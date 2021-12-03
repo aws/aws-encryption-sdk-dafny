@@ -1,7 +1,7 @@
 // Copyright Amazon.com Inc. or its affiliates. All Rights Reserved.
 // SPDX-License-Identifier: Apache-2.0
 //
-// Generated at 2021-11-03T00:19:52.740808
+// Generated at 2021-12-02T18:30:30.159384
 
 using System;
 using Aws.Crypto;
@@ -13,69 +13,30 @@ namespace Aws.Crypto
 {
     public class GetEncryptionMaterialsInput
     {
-        public System.Collections.Generic.IDictionary<string, string> EncryptionContext { get; private set; }
-        public AlgorithmSuiteId AlgorithmSuiteId { get; private set; }
-        public long? MaxPlaintextLength { get; private set; }
+        private System.Collections.Generic.Dictionary<string, string> _encryptionContext;
+        private Aws.Crypto.AlgorithmSuiteId _algorithmSuiteId;
+        private long? _maxPlaintextLength;
 
-        public static IGetEncryptionMaterialsInputBuilder Builder()
+        public System.Collections.Generic.Dictionary<string, string> EncryptionContext
         {
-            return new GetEncryptionMaterialsInputBuilder();
+            get { return this._encryptionContext; }
+            set { this._encryptionContext = value; }
+        }
+
+        public Aws.Crypto.AlgorithmSuiteId AlgorithmSuiteId
+        {
+            get { return this._algorithmSuiteId; }
+            set { this._algorithmSuiteId = value; }
+        }
+
+        public long MaxPlaintextLength
+        {
+            get { return this._maxPlaintextLength.GetValueOrDefault(); }
+            set { this._maxPlaintextLength = value; }
         }
 
         public void Validate()
         {
         }
-
-        private class GetEncryptionMaterialsInputBuilder : IGetEncryptionMaterialsInputBuilder
-        {
-            private System.Collections.Generic.IDictionary<string, string> EncryptionContext;
-            private AlgorithmSuiteId AlgorithmSuiteId;
-            private long? MaxPlaintextLength;
-
-            public IGetEncryptionMaterialsInputBuilder WithEncryptionContext(
-                System.Collections.Generic.IDictionary<string, string> value)
-            {
-                EncryptionContext = value;
-                return this;
-            }
-
-            public IGetEncryptionMaterialsInputBuilder WithAlgorithmSuiteId(AlgorithmSuiteId value)
-            {
-                AlgorithmSuiteId = value;
-                return this;
-            }
-
-            public IGetEncryptionMaterialsInputBuilder WithMaxPlaintextLength(long? value)
-            {
-                MaxPlaintextLength = value;
-                return this;
-            }
-
-            public GetEncryptionMaterialsInput Build()
-            {
-                if (EncryptionContext == null)
-                {
-                    throw new InvalidOperationException(
-                        String.Format("No value set for required field {0}", "encryptionContext"));
-                }
-
-                return new GetEncryptionMaterialsInput
-                {
-                    EncryptionContext = (System.Collections.Generic.IDictionary<string, string>) EncryptionContext,
-                    AlgorithmSuiteId = (AlgorithmSuiteId) AlgorithmSuiteId,
-                    MaxPlaintextLength = (long?) MaxPlaintextLength,
-                };
-            }
-        }
-    }
-
-    public interface IGetEncryptionMaterialsInputBuilder
-    {
-        IGetEncryptionMaterialsInputBuilder WithEncryptionContext(
-            System.Collections.Generic.IDictionary<string, string> value);
-
-        IGetEncryptionMaterialsInputBuilder WithAlgorithmSuiteId(AlgorithmSuiteId value);
-        IGetEncryptionMaterialsInputBuilder WithMaxPlaintextLength(long? value);
-        GetEncryptionMaterialsInput Build();
     }
 }

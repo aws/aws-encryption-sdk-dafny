@@ -1,7 +1,7 @@
 // Copyright Amazon.com Inc. or its affiliates. All Rights Reserved.
 // SPDX-License-Identifier: Apache-2.0
 //
-// Generated at 2021-11-03T00:21:59.652135
+// Generated at 2021-12-02T18:30:30.159384
 
 using System;
 using Aws.Crypto;
@@ -13,46 +13,16 @@ namespace Aws.Crypto
 {
     public class DecryptMaterialsOutput
     {
-        public DecryptionMaterials DecryptionMaterials { get; private set; }
+        private Aws.Crypto.DecryptionMaterials _decryptionMaterials;
 
-        public static IDecryptMaterialsOutputBuilder Builder()
+        public Aws.Crypto.DecryptionMaterials DecryptionMaterials
         {
-            return new DecryptMaterialsOutputBuilder();
+            get { return this._decryptionMaterials; }
+            set { this._decryptionMaterials = value; }
         }
 
         public void Validate()
         {
         }
-
-        private class DecryptMaterialsOutputBuilder : IDecryptMaterialsOutputBuilder
-        {
-            private DecryptionMaterials DecryptionMaterials;
-
-            public IDecryptMaterialsOutputBuilder WithDecryptionMaterials(DecryptionMaterials value)
-            {
-                DecryptionMaterials = value;
-                return this;
-            }
-
-            public DecryptMaterialsOutput Build()
-            {
-                if (DecryptionMaterials == null)
-                {
-                    throw new InvalidOperationException(
-                        String.Format("No value set for required field {0}", "decryptionMaterials"));
-                }
-
-                return new DecryptMaterialsOutput
-                {
-                    DecryptionMaterials = (DecryptionMaterials) DecryptionMaterials,
-                };
-            }
-        }
-    }
-
-    public interface IDecryptMaterialsOutputBuilder
-    {
-        IDecryptMaterialsOutputBuilder WithDecryptionMaterials(DecryptionMaterials value);
-        DecryptMaterialsOutput Build();
     }
 }

@@ -1,7 +1,7 @@
 // Copyright Amazon.com Inc. or its affiliates. All Rights Reserved.
 // SPDX-License-Identifier: Apache-2.0
 //
-// Generated at 2021-11-03T00:21:59.652135
+// Generated at 2021-12-02T18:30:30.159384
 
 using System;
 using Aws.Crypto;
@@ -13,46 +13,16 @@ namespace Aws.Crypto
 {
     public class OnEncryptInput
     {
-        public EncryptionMaterials Materials { get; private set; }
+        private Aws.Crypto.EncryptionMaterials _materials;
 
-        public static IOnEncryptInputBuilder Builder()
+        public Aws.Crypto.EncryptionMaterials Materials
         {
-            return new OnEncryptInputBuilder();
+            get { return this._materials; }
+            set { this._materials = value; }
         }
 
         public void Validate()
         {
         }
-
-        private class OnEncryptInputBuilder : IOnEncryptInputBuilder
-        {
-            private EncryptionMaterials Materials;
-
-            public IOnEncryptInputBuilder WithMaterials(EncryptionMaterials value)
-            {
-                Materials = value;
-                return this;
-            }
-
-            public OnEncryptInput Build()
-            {
-                if (Materials == null)
-                {
-                    throw new InvalidOperationException(
-                        String.Format("No value set for required field {0}", "materials"));
-                }
-
-                return new OnEncryptInput
-                {
-                    Materials = (EncryptionMaterials) Materials,
-                };
-            }
-        }
-    }
-
-    public interface IOnEncryptInputBuilder
-    {
-        IOnEncryptInputBuilder WithMaterials(EncryptionMaterials value);
-        OnEncryptInput Build();
     }
 }

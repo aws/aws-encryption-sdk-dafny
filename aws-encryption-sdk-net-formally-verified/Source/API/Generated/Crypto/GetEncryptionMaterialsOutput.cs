@@ -1,7 +1,7 @@
 // Copyright Amazon.com Inc. or its affiliates. All Rights Reserved.
 // SPDX-License-Identifier: Apache-2.0
 //
-// Generated at 2021-11-03T00:21:59.652135
+// Generated at 2021-12-02T18:30:30.159384
 
 using System;
 using Aws.Crypto;
@@ -13,46 +13,16 @@ namespace Aws.Crypto
 {
     public class GetEncryptionMaterialsOutput
     {
-        public EncryptionMaterials EncryptionMaterials { get; private set; }
+        private Aws.Crypto.EncryptionMaterials _encryptionMaterials;
 
-        public static IGetEncryptionMaterialsOutputBuilder Builder()
+        public Aws.Crypto.EncryptionMaterials EncryptionMaterials
         {
-            return new GetEncryptionMaterialsOutputBuilder();
+            get { return this._encryptionMaterials; }
+            set { this._encryptionMaterials = value; }
         }
 
         public void Validate()
         {
         }
-
-        private class GetEncryptionMaterialsOutputBuilder : IGetEncryptionMaterialsOutputBuilder
-        {
-            private EncryptionMaterials EncryptionMaterials;
-
-            public IGetEncryptionMaterialsOutputBuilder WithEncryptionMaterials(EncryptionMaterials value)
-            {
-                EncryptionMaterials = value;
-                return this;
-            }
-
-            public GetEncryptionMaterialsOutput Build()
-            {
-                if (EncryptionMaterials == null)
-                {
-                    throw new InvalidOperationException(
-                        String.Format("No value set for required field {0}", "encryptionMaterials"));
-                }
-
-                return new GetEncryptionMaterialsOutput
-                {
-                    EncryptionMaterials = (EncryptionMaterials) EncryptionMaterials,
-                };
-            }
-        }
-    }
-
-    public interface IGetEncryptionMaterialsOutputBuilder
-    {
-        IGetEncryptionMaterialsOutputBuilder WithEncryptionMaterials(EncryptionMaterials value);
-        GetEncryptionMaterialsOutput Build();
     }
 }

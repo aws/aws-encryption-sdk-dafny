@@ -1,7 +1,7 @@
 // Copyright Amazon.com Inc. or its affiliates. All Rights Reserved.
 // SPDX-License-Identifier: Apache-2.0
 //
-// Generated at 2021-11-03T00:21:59.652135
+// Generated at 2021-12-02T18:30:30.159384
 
 using System;
 using Aws.Crypto;
@@ -13,78 +13,30 @@ namespace Aws.Crypto
 {
     public class PutEntryForEncryptInput
     {
-        public System.IO.MemoryStream Identifier { get; private set; }
-        public EncryptionMaterials EncryptionMaterials { get; private set; }
-        public CacheUsageMetadata UsageMetadata { get; private set; }
+        private System.IO.MemoryStream _identifier;
+        private Aws.Crypto.EncryptionMaterials _encryptionMaterials;
+        private Aws.Crypto.CacheUsageMetadata _usageMetadata;
 
-        public static IPutEntryForEncryptInputBuilder Builder()
+        public System.IO.MemoryStream Identifier
         {
-            return new PutEntryForEncryptInputBuilder();
+            get { return this._identifier; }
+            set { this._identifier = value; }
+        }
+
+        public Aws.Crypto.EncryptionMaterials EncryptionMaterials
+        {
+            get { return this._encryptionMaterials; }
+            set { this._encryptionMaterials = value; }
+        }
+
+        public Aws.Crypto.CacheUsageMetadata UsageMetadata
+        {
+            get { return this._usageMetadata; }
+            set { this._usageMetadata = value; }
         }
 
         public void Validate()
         {
         }
-
-        private class PutEntryForEncryptInputBuilder : IPutEntryForEncryptInputBuilder
-        {
-            private System.IO.MemoryStream Identifier;
-            private EncryptionMaterials EncryptionMaterials;
-            private CacheUsageMetadata UsageMetadata;
-
-            public IPutEntryForEncryptInputBuilder WithIdentifier(System.IO.MemoryStream value)
-            {
-                Identifier = value;
-                return this;
-            }
-
-            public IPutEntryForEncryptInputBuilder WithEncryptionMaterials(EncryptionMaterials value)
-            {
-                EncryptionMaterials = value;
-                return this;
-            }
-
-            public IPutEntryForEncryptInputBuilder WithUsageMetadata(CacheUsageMetadata value)
-            {
-                UsageMetadata = value;
-                return this;
-            }
-
-            public PutEntryForEncryptInput Build()
-            {
-                if (Identifier == null)
-                {
-                    throw new InvalidOperationException(
-                        String.Format("No value set for required field {0}", "identifier"));
-                }
-
-                if (EncryptionMaterials == null)
-                {
-                    throw new InvalidOperationException(
-                        String.Format("No value set for required field {0}", "encryptionMaterials"));
-                }
-
-                if (UsageMetadata == null)
-                {
-                    throw new InvalidOperationException(
-                        String.Format("No value set for required field {0}", "usageMetadata"));
-                }
-
-                return new PutEntryForEncryptInput
-                {
-                    Identifier = (System.IO.MemoryStream) Identifier,
-                    EncryptionMaterials = (EncryptionMaterials) EncryptionMaterials,
-                    UsageMetadata = (CacheUsageMetadata) UsageMetadata,
-                };
-            }
-        }
-    }
-
-    public interface IPutEntryForEncryptInputBuilder
-    {
-        IPutEntryForEncryptInputBuilder WithIdentifier(System.IO.MemoryStream value);
-        IPutEntryForEncryptInputBuilder WithEncryptionMaterials(EncryptionMaterials value);
-        IPutEntryForEncryptInputBuilder WithUsageMetadata(CacheUsageMetadata value);
-        PutEntryForEncryptInput Build();
     }
 }

@@ -1,7 +1,7 @@
 // Copyright Amazon.com Inc. or its affiliates. All Rights Reserved.
 // SPDX-License-Identifier: Apache-2.0
 //
-// Generated at 2021-11-03T00:22:03.283903
+// Generated at 2021-12-02T18:12:30.370597
 
 using System;
 using Aws.Crypto;
@@ -13,89 +13,37 @@ namespace Aws.Esdk
 {
     public class EncryptInput
     {
-        public System.IO.MemoryStream Plaintext { get; private set; }
-        public System.Collections.Generic.IDictionary<string, string> EncryptionContext { get; private set; }
-        public ICryptographicMaterialsManager MaterialsManager { get; private set; }
-        public AlgorithmSuiteId AlgorithmSuiteId { get; private set; }
+        private System.IO.MemoryStream _plaintext;
+        private System.Collections.Generic.Dictionary<string, string> _encryptionContext;
+        private Aws.Crypto.ICryptographicMaterialsManager _materialsManager;
+        private Aws.Crypto.AlgorithmSuiteId _algorithmSuiteId;
 
-        public static IEncryptInputBuilder Builder()
+        public System.IO.MemoryStream Plaintext
         {
-            return new EncryptInputBuilder();
+            get { return this._plaintext; }
+            set { this._plaintext = value; }
+        }
+
+        public System.Collections.Generic.Dictionary<string, string> EncryptionContext
+        {
+            get { return this._encryptionContext; }
+            set { this._encryptionContext = value; }
+        }
+
+        public Aws.Crypto.ICryptographicMaterialsManager MaterialsManager
+        {
+            get { return this._materialsManager; }
+            set { this._materialsManager = value; }
+        }
+
+        public Aws.Crypto.AlgorithmSuiteId AlgorithmSuiteId
+        {
+            get { return this._algorithmSuiteId; }
+            set { this._algorithmSuiteId = value; }
         }
 
         public void Validate()
         {
         }
-
-        private class EncryptInputBuilder : IEncryptInputBuilder
-        {
-            private System.IO.MemoryStream Plaintext;
-            private System.Collections.Generic.IDictionary<string, string> EncryptionContext;
-            private ICryptographicMaterialsManager MaterialsManager;
-            private AlgorithmSuiteId AlgorithmSuiteId;
-
-            public IEncryptInputBuilder WithPlaintext(System.IO.MemoryStream value)
-            {
-                Plaintext = value;
-                return this;
-            }
-
-            public IEncryptInputBuilder WithEncryptionContext(
-                System.Collections.Generic.IDictionary<string, string> value)
-            {
-                EncryptionContext = value;
-                return this;
-            }
-
-            public IEncryptInputBuilder WithMaterialsManager(ICryptographicMaterialsManager value)
-            {
-                MaterialsManager = value;
-                return this;
-            }
-
-            public IEncryptInputBuilder WithAlgorithmSuiteId(AlgorithmSuiteId value)
-            {
-                AlgorithmSuiteId = value;
-                return this;
-            }
-
-            public EncryptInput Build()
-            {
-                if (Plaintext == null)
-                {
-                    throw new InvalidOperationException(
-                        String.Format("No value set for required field {0}", "plaintext"));
-                }
-
-                if (EncryptionContext == null)
-                {
-                    throw new InvalidOperationException(
-                        String.Format("No value set for required field {0}", "encryptionContext"));
-                }
-
-                if (MaterialsManager == null)
-                {
-                    throw new InvalidOperationException(
-                        String.Format("No value set for required field {0}", "materialsManager"));
-                }
-
-                return new EncryptInput
-                {
-                    Plaintext = (System.IO.MemoryStream) Plaintext,
-                    EncryptionContext = (System.Collections.Generic.IDictionary<string, string>) EncryptionContext,
-                    MaterialsManager = (ICryptographicMaterialsManager) MaterialsManager,
-                    AlgorithmSuiteId = (AlgorithmSuiteId) AlgorithmSuiteId,
-                };
-            }
-        }
-    }
-
-    public interface IEncryptInputBuilder
-    {
-        IEncryptInputBuilder WithPlaintext(System.IO.MemoryStream value);
-        IEncryptInputBuilder WithEncryptionContext(System.Collections.Generic.IDictionary<string, string> value);
-        IEncryptInputBuilder WithMaterialsManager(ICryptographicMaterialsManager value);
-        IEncryptInputBuilder WithAlgorithmSuiteId(AlgorithmSuiteId value);
-        EncryptInput Build();
     }
 }
