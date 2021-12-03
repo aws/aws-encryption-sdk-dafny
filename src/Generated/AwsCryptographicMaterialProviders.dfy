@@ -15,13 +15,15 @@ module {:extern "Dafny.Aws.Crypto"} Aws.Crypto {
     // TODO this is currently needed for proof stability reasons, otherwise any file that has a transitive dependency on this one tries to
     // load too much at once, making the verification unstable
     export
-      provides UTF8, UInt, Wrappers, IKeyring.OnDecrypt,
+      provides UTF8, UInt, KMS, Wrappers, IKeyring.OnDecrypt,
         ICryptographicMaterialsManager.GetEncryptionMaterials, ICryptographicMaterialsManager.DecryptMaterials, IKeyring.OnEncrypt,
+        IAwsCryptographicMaterialsProviderClient.CreateMrkAwareStrictAwsKmsKeyring,
         IAwsCryptographicMaterialsProviderClient.CreateRawAesKeyring, IAwsCryptographicMaterialsProviderClient.CreateDefaultCryptographicMaterialsManager
       reveals AlgorithmSuiteId, EncryptedDataKey, EncryptedDataKeyList, IKeyring, GetEncryptionMaterialsInput, GetEncryptionMaterialsOutput,
         DecryptMaterialsInput, DecryptMaterialsOutput, ICryptographicMaterialsManager, EncryptionContext, EncryptionMaterials, DecryptionMaterials,
         OnEncryptInput, OnEncryptOutput, OnDecryptInput, OnDecryptOutput,
         EncryptionMaterials.Valid, CreateRawAesKeyringInput, CreateDefaultCryptographicMaterialsManagerInput,
+        CreateMrkAwareStrictAwsKmsKeyringInput, KmsKeyId, GrantToken, GrantTokenList,
         IAwsCryptographicMaterialsProviderClient, AesWrappingAlg
 
     /////////////
@@ -233,8 +235,8 @@ module {:extern "Dafny.Aws.Crypto"} Aws.Crypto {
     // KMS - MRK Aware, Strict
     datatype CreateMrkAwareStrictAwsKmsKeyringInput = CreateMrkAwareStrictAwsKmsKeyringInput(
         nameonly kmsKeyId: KmsKeyId,
-        nameonly grantTokens: Option<GrantTokenList>,
-        nameonly kmsClient: KMS.IKeyManagementServiceClient
+        nameonly kmsClient: KMS.IKeyManagementServiceClient,
+        nameonly grantTokens: Option<GrantTokenList>
     )
 
     datatype CreateMrkAwareStrictMultiKeyringInput = CreateMrkAwareStrictMultiKeyringInput(
