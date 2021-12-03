@@ -3750,35 +3750,6 @@
                 }
             }
         },
-        "com.amazonaws.kms#ListRetirableGrants": {
-            "type": "operation",
-            "input": {
-                "target": "com.amazonaws.kms#ListRetirableGrantsRequest"
-            },
-            "output": {
-                "target": "com.amazonaws.kms#ListGrantsResponse"
-            },
-            "errors": [
-                {
-                    "target": "com.amazonaws.kms#DependencyTimeoutException"
-                },
-                {
-                    "target": "com.amazonaws.kms#InvalidArnException"
-                },
-                {
-                    "target": "com.amazonaws.kms#InvalidMarkerException"
-                },
-                {
-                    "target": "com.amazonaws.kms#KMSInternalException"
-                },
-                {
-                    "target": "com.amazonaws.kms#NotFoundException"
-                }
-            ],
-            "traits": {
-                "smithy.api#documentation": "<p>Returns information about all grants in the Amazon Web Services account and Region that have the\n      specified retiring principal. </p>\n         <p>You can specify any principal in your Amazon Web Services account. The grants that are returned include\n      grants for KMS keys in your Amazon Web Services account and other Amazon Web Services accounts. You might use this\n      operation to determine which grants you may retire. To retire a grant, use the <a>RetireGrant</a> operation.</p>\n         <p>For detailed information about grants, including grant terminology, see <a href=\"https://docs.aws.amazon.com/kms/latest/developerguide/grants.html\">Using grants</a> in the\n        <i>\n               <i>Key Management Service Developer Guide</i>\n            </i>. For examples of working with grants in several\n      programming languages, see <a href=\"https://docs.aws.amazon.com/kms/latest/developerguide/programming-grants.html\">Programming grants</a>. </p>\n         <p>\n            <b>Cross-account use</b>: You must specify a principal in your\n      Amazon Web Services account. However, this operation can return grants in any Amazon Web Services account. You do not need\n        <code>kms:ListRetirableGrants</code> permission (or any other additional permission) in any\n      Amazon Web Services account other than your own.</p>\n\n         <p>\n            <b>Required permissions</b>: <a href=\"https://docs.aws.amazon.com/kms/latest/developerguide/kms-api-permissions-reference.html\">kms:ListRetirableGrants</a> (IAM policy) in your\n      Amazon Web Services account.</p>\n         <p>\n            <b>Related operations:</b>\n         </p>\n         <ul>\n            <li>\n               <p>\n                  <a>CreateGrant</a>\n               </p>\n            </li>\n            <li>\n               <p>\n                  <a>ListGrants</a>\n               </p>\n            </li>\n            <li>\n               <p>\n                  <a>RetireGrant</a>\n               </p>\n            </li>\n            <li>\n               <p>\n                  <a>RevokeGrant</a>\n               </p>\n            </li>\n         </ul>"
-            }
-        },
         "com.amazonaws.kms#ListRetirableGrantsRequest": {
             "type": "structure",
             "members": {
@@ -4893,9 +4864,6 @@
                 },
                 {
                     "target": "com.amazonaws.kms#ListResourceTags"
-                },
-                {
-                    "target": "com.amazonaws.kms#ListRetirableGrants"
                 },
                 {
                     "target": "com.amazonaws.kms#PutKeyPolicy"
