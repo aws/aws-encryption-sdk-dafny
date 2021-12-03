@@ -1,8 +1,9 @@
 namespace aws.crypto
 
-
 use aws.polymorph#reference
 use aws.polymorph#positional
+
+use com.amazonaws.kms#KeyManagementService
 
 ///////////////////
 // Basic structures
@@ -31,8 +32,8 @@ list RegionList {
 // from the KMS Smithy model.
 // https://github.com/aws/aws-models/blob/master/kms/smithy/model.json#L4849
 // https://github.com/aws/aws-models/blob/master/kms/smithy/model.json#L5000
-// @reference(service: com.amazonaws.kms#TrentService)
-// structure KmsClientReference {}
+@reference(service: KeyManagementService)
+structure KmsClientReference {}
 
 // TODO
 ///////////////////
