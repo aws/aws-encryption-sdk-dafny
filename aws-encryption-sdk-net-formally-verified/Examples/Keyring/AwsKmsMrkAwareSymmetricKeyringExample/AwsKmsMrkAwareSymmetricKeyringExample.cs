@@ -9,7 +9,7 @@ using Aws.Esdk;
 
 using Xunit;
 
-/// Demonstrate an encrypt/decrypt cycle using a raw AES keyring.
+/// Demonstrate an encrypt/decrypt cycle using a AWS MRK-aware symmetric keyring.
 public class AwsKmsMrkAwareSymmetricKeyringExample {
     static void Run(MemoryStream plaintext) {
         // Create your encryption context.
