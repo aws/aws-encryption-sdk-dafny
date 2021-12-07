@@ -32,8 +32,7 @@ public class AwsKmsMrkAwareSymmetricKeyringExample {
         CreateMrkAwareStrictAwsKmsKeyringInput createKeyringInput = new CreateMrkAwareStrictAwsKmsKeyringInput
         {
             KmsClient = new AmazonKeyManagementServiceClient(),
-            // this key belongs to alexchew@
-            KmsKeyId = "arn:aws:kms:us-west-2:011692869396:key/fba1e876-23e1-417c-b573-b550b2df2d7e",
+            KmsKeyId = "arn:aws:kms:us-west-2:658956600833:key/b3537ef1-d8dc-4780-9f5a-55776cbb2f7f",
         };
         IKeyring keyring = materialProviders.CreateMrkAwareStrictAwsKmsKeyring(createKeyringInput);
 
