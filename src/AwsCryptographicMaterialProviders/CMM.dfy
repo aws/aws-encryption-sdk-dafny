@@ -1,4 +1,3 @@
-
 // Copyright Amazon.com Inc. or its affiliates. All Rights Reserved.
 // SPDX-License-Identifier: Apache-2.0
 
@@ -7,8 +6,8 @@ include "../Generated/AwsCryptographicMaterialProviders.dfy"
 include "Materials.dfy"
 
 module 
-  {:extern "Dafny.Aws.Crypto.AwsCryptographicMaterialProvidersClient2.CMM"}
-  AwsCryptographicMaterialProviders2.CMM
+  {:extern "Dafny.Aws.Crypto.MaterialProviders.CMM"}
+  MaterialProviders.CMM
 {
   import opened Wrappers
   import Aws.Crypto
