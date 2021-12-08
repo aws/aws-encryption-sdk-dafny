@@ -50,7 +50,10 @@ module Serialize {
     len := wr.WriteBytes(hb.messageID);
     totalWritten := totalWritten + len;
 
+    assert {:split_here} true;
     EncryptionContext.LemmaESDKEncryptionContextIsSerializable(hb.aad);
+    assert {:split_here} true;
+
     len :- SerializeAAD(wr, hb.aad);
     totalWritten := totalWritten + len;
 
