@@ -146,7 +146,7 @@ module
 
       //= compliance/framework/aws-kms/aws-kms-mrk-aware-symmetric-keyring.txt#2.7
       //= type=implication
-      //If the input encryption materials (../structures.md#encryption-
+      //# If the input encryption materials (../structures.md#encryption-
       //# materials) do contain a plaintext data key, OnEncrypt MUST attempt to
       //# encrypt the plaintext data key using the configured AWS KMS key
       //# identifier.
