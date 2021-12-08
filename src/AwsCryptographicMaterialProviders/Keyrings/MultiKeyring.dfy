@@ -189,7 +189,7 @@ module
       //# If the decryption materials already contain a plaintext data key, the
       //# keyring MUST fail and MUST NOT modify the decryption materials
       //# (structures.md#decryption-materials).      
-      ensures !Materials.DecryptionMaterialsWithoutPlaintextDataKey(input.materials) ==> res.Failure?
+      ensures Materials.DecryptionMaterialsWithPlaintextDataKey(input.materials) ==> res.Failure?
 
       // TODO/QQ: how to check "does not modify input materials"?
     {

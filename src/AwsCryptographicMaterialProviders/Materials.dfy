@@ -158,7 +158,7 @@ import opened StandardLibrary
     && newMat.encryptionContext == oldMat.encryptionContext
     && newMat.verificationKey == oldMat.verificationKey
     && oldMat.plaintextDataKey.None?
-    && newMat.plaintextDataKey.Some? // MultiKeyring spec allows transitions not of this type. Spec seems wrong
+    && newMat.plaintextDataKey.Some?
     && ValidDecryptionMaterials(oldMat)
     && ValidDecryptionMaterials(newMat)
   }
