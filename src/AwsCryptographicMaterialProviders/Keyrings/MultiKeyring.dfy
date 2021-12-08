@@ -3,14 +3,8 @@
 
 include "../Keyring.dfy"
 include "../Materials.dfy"
-include "../AlgorithmSuites.dfy"
 include "../../StandardLibrary/StandardLibrary.dfy"
-include "../AlgorithmSuites.dfy"
-include "../../Crypto/Random.dfy"
-include "../../Crypto/AESEncryption.dfy"
 include "../Materials.dfy"
-include "../../Util/UTF8.dfy"
-include "../../Util/Streams.dfy"
 include "../../Generated/AwsCryptographicMaterialProviders.dfy"
 include "../../../libraries/src/Collections/Sequences/Seq.dfy"
 
@@ -19,14 +13,10 @@ module
   MaterialProviders.MultiKeyring
 {
   import opened StandardLibrary
-  import opened UInt = StandardLibrary.UInt
   import opened Wrappers
   import Aws.Crypto
   import Keyring
   import Materials
-  import opened AlgorithmSuites
-  import Random
-  import AESEncryption
   import UTF8
   import Seq
 

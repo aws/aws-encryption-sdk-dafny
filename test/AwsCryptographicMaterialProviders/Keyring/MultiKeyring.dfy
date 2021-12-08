@@ -7,8 +7,6 @@ include "../../../src/AwsCryptographicMaterialProviders/AlgorithmSuites.dfy"
 include "../../../src/AwsCryptographicMaterialProviders/Materials.dfy"
 include "../../../src/Crypto/AESEncryption.dfy"
 include "../../../src/StandardLibrary/StandardLibrary.dfy"
-include "../../../src/StandardLibrary/UInt.dfy"
-include "../../../src/Util/UTF8.dfy"
 include "../../../src/Generated/AwsCryptographicMaterialProviders.dfy"
 include "../../Util/TestUtils.dfy"
 
@@ -18,10 +16,8 @@ module TestMultiKeyring {
   import AESEncryption
   import MaterialProviders.MultiKeyring
   import MaterialProviders.RawAESKeyring
-  import MessageHeader
   import MaterialProviders.Materials
   import EncryptionContext
-  import UTF8
   import Aws.Crypto
   import opened TestUtils
 
