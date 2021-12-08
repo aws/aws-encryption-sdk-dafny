@@ -60,6 +60,11 @@ module TestMultiKeyring {
     var result := multiKeyring.OnEncrypt(Crypto.OnEncryptInput(materials:=encryptionMaterials));
     expect result.Success?;
 
+
+    // TODO: unsure how to test claims around
+    //    a) not modifying input materials in various cases
+    //    b) passing exact inputs to child keyrings
+
     //= compliance/framework/multi-keyring.txt#2.7.1
     //= type=test
     //# If this keyring has a generator keyring, this keyring MUST first

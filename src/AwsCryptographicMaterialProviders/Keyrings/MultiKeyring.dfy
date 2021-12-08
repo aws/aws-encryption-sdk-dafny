@@ -170,9 +170,6 @@ module
         returnMaterials := onEncryptOutput.value.materials;
       }
 
-      // TODO: Verifier can't prove the 'ensures' clause unless I add this, which seems odd. We proved in the loop 
-      // above that each individual transition is valid (A->B->C->D). Does that not also tell us that the 
-      // overall transition (A->D) is valid?
       if !Materials.EncryptionMaterialsTransitionIsValid(input.materials, returnMaterials) {
        return Failure("A child or generator keyring modified the encryption materials in illegal ways.");
       }
