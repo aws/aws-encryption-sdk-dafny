@@ -189,8 +189,8 @@ module
 
     //= compliance/framework/raw-aes-keyring.txt#2.7.2
     //= type=implication
-    //# OnDecrypt MUST take decryption input.materials (structures.md#decryption-
-    //# input.materials) and a list of encrypted data keys
+    //# OnDecrypt MUST take decryption materials (structures.md#decryption-
+    //# materials) and a list of encrypted data keys
     //# (structures.md#encrypted-data-key) as input.
     method OnDecrypt(input: Crypto.OnDecryptInput)
 
@@ -241,10 +241,7 @@ module
           :- Need(|wrappingKey|== wrappingAlgorithm.keyLength as int, "");
           :- Need(|iv| == wrappingAlgorithm.ivLength as int, "");
 
-          //= compliance/framework/raw-aes-keyring.txt#2.7.2
-          //# If decrypting, the keyring MUST use AES-GCM with the following
-          //# specifics:
-          // TODO break up in spec
+          // TODO add back in duvet annotations
           var ptKey :- AESEncryption.AESDecrypt(
             wrappingAlgorithm,
             wrappingKey,
@@ -258,8 +255,8 @@ module
 
           //= compliance/framework/raw-aes-keyring.txt#2.7.2
           //# If a decryption succeeds, this keyring MUST add the resulting
-          //# plaintext data key to the decryption input.materials and return the
-          //# modified input.materials.
+          //# plaintext data key to the decryption materials and return the
+          //# modified materials.
           var r :- Materials.DecryptionMaterialsAddDataKey(materials, ptKey);
           return Success(Crypto.OnDecryptOutput(materials:=r));
         }
@@ -280,10 +277,7 @@ module
         iv
     }
 
-    //= compliance/framework/raw-aes-keyring.txt#2.7.2
-    //# The keyring MUST attempt to decrypt the encrypted data key if and
-    //# only if the following is true:
-    // TODO break up
+    // TODO bring in the broken up spec statements
     predicate method ShouldDecryptEDK(edk: Crypto.EncryptedDataKey) {
       // The key provider ID of the encrypted data key has a value equal to this keyring's key namespace.
       && edk.keyProviderId == keyNamespace
@@ -299,13 +293,16 @@ module
       && info[0..|keyName|] == keyName
       //= compliance/framework/raw-aes-keyring.txt#2.6.1.2
       //= type=implication
-      //# This value MUST be 128.
+      //# This value MUST match the authentication tag length of the keyring's
+      //# configured wrapping algorithm
+
       && SeqToUInt32(info[|keyName|..|keyName| + AUTH_TAG_LEN_LEN]) == 128
       && SeqToUInt32(info[|keyName|..|keyName| + AUTH_TAG_LEN_LEN]) == wrappingAlgorithm.tagLength as uint32 * 8
       && SeqToUInt32(info[|keyName| + AUTH_TAG_LEN_LEN .. |keyName| + AUTH_TAG_LEN_LEN + IV_LEN_LEN]) == wrappingAlgorithm.ivLength as uint32
       //= compliance/framework/raw-aes-keyring.txt#2.6.1.3
       //= type=implication
-      //# This value MUST be 12.
+      //# This value MUST match the IV length of the keyring's
+      //# configured wrapping algorithm
       && SeqToUInt32(info[|keyName| + AUTH_TAG_LEN_LEN .. |keyName| + AUTH_TAG_LEN_LEN + IV_LEN_LEN]) == 12
     }
 
