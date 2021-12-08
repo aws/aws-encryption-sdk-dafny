@@ -218,6 +218,12 @@ module
       // Failure messages will be collected here
       var failures : seq<string> := [];
 
+
+      //= compliance/framework/multi-keyring.txt#2.7.2
+      //# Otherwise, OnDecrypt MUST first attempt to decrypt the encrypted data
+      //# keys (structures.md#encrypted-data-keys-1) in the input decryption
+      //# materials (structures.md#decryption-materials) using its generator
+      //# keyring (Section 2.6.1).
       if this.generatorKeyring != null {
 
         var result := AttemptDecryptDataKey(this.generatorKeyring, input);
@@ -231,6 +237,10 @@ module
         }
       }
 
+      //= compliance/framework/multi-keyring.txt#2.7.2
+      //# If the generator keyring is unable to
+      //# decrypt the materials, the multi-keyring MUST attempt to decrypt
+      //# using its child keyrings.
       for j := 0 to |this.childKeyrings|
         invariant Materials.DecryptionMaterialsWithoutPlaintextDataKey(materials)
       {
@@ -263,23 +273,22 @@ module
         }
       }
 
-        if materials.plaintextDataKey.None? {
+      if materials.plaintextDataKey.None? {
 
-          //= compliance/framework/multi-keyring.txt#2.7.2
-          //# If, after calling OnDecrypt (keyring-interface.md#ondecrypt) on every
-          //# child keyring (Section 2.6.2) (and possibly the generator keyring
-          //# (Section 2.6.1)), the decryption materials (structures.md#decryption-
-          //# materials) still do not contain a plaintext data key, OnDecrypt MUST
-          //# return a failure message containing the collected failure messages
-          //# from the child keyrings.
-          var concatString := (s, a) => a + "\n" + s;
-          var error := Seq.FoldRight(
-            concatString,
-            failures,
-            "Unable to decrypt data key:\n"
-          );
-          return Failure(error);
-        }
+        //= compliance/framework/multi-keyring.txt#2.7.2
+        //# If, after calling OnDecrypt (keyring-interface.md#ondecrypt) on every
+        //# child keyring (Section 2.6.2) (and possibly the generator keyring
+        //# (Section 2.6.1)), the decryption materials (structures.md#decryption-
+        //# materials) still do not contain a plaintext data key, OnDecrypt MUST
+        //# return a failure message containing the collected failure messages
+        //# from the child keyrings.
+        var concatString := (s, a) => a + "\n" + s;
+        var error := Seq.FoldRight(
+          concatString,
+          failures,
+          "Unable to decrypt data key:\n"
+        );
+        return Failure(error);
       }
     }
   }

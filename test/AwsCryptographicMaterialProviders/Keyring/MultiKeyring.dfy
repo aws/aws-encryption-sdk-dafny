@@ -64,6 +64,11 @@ module TestMultiKeyring {
     //= type=test
     //# If this keyring has a generator keyring, this keyring MUST first
     //# generate a plaintext data key using the generator keyring:
+
+    //= compliance/framework/multi-keyring.txt#2.7.1
+    //= type=test
+    //# *  This keyring MUST first call the generator keyring's OnEncrypt
+    //# using the input encryption materials as input.
     expect result.value.materials.plaintextDataKey.value == expectedPlaintextDataKey.value;
 
     //= compliance/framework/multi-keyring.txt#2.7.1
@@ -71,6 +76,13 @@ module TestMultiKeyring {
     //# Next, for each keyring (keyring-interface.md) in this keyring's list
     //# of child keyrings (Section 2.6.2), the keyring MUST call OnEncrypt
     //# (keyring-interface.md#onencrypt).
+  
+    //= compliance/framework/multi-keyring.txt#2.7.1
+    //= type=test
+    //# If all previous OnEncrypt (keyring-interface.md#onencrypt) calls
+    //# succeeded, this keyring MUST return the encryption materials
+    //# (structures.md#encryption-materials) returned by the last OnEncrypt
+    //# call.
     expect |result.value.materials.encryptedDataKeys| == 2;
   }
 
@@ -132,6 +144,12 @@ module TestMultiKeyring {
   }
 
   method {:test} TestGeneratorAbleToDecrypt() {
+    //= compliance/framework/multi-keyring.txt#2.7.2
+    //= type=test
+    //# Otherwise, OnDecrypt MUST first attempt to decrypt the encrypted data
+    //# keys (structures.md#encrypted-data-keys-1) in the input decryption
+    //# materials (structures.md#decryption-materials) using its generator
+    //# keyring (Section 2.6.1).
 
     // Generate some materials to decrypt
     var encryptionContext := TestUtils.SmallEncryptionContext(TestUtils.SmallEncryptionContextVariation.A);
@@ -152,6 +170,44 @@ module TestMultiKeyring {
     var multiKeyring := new MultiKeyring.MultiKeyring(
         generatorKeyring := rawAESKeyring,
         childKeyrings := [failingKeyring]
+    );
+
+
+    var onDecryptInput := Crypto.OnDecryptInput(
+      materials := inputDecryptionMaterials, encryptedDataKeys := encryptionMaterials.value.materials.encryptedDataKeys
+    );
+
+    var decryptionMaterials := multiKeyring.OnDecrypt(input:=onDecryptInput);
+    expect decryptionMaterials.Success?;
+    expect decryptionMaterials.value.materials.plaintextDataKey == encryptionMaterials.value.materials.plaintextDataKey;
+  }
+
+  method {:test} TestGeneratorUnableToDecrypt() {
+    //= compliance/framework/multi-keyring.txt#2.7.2
+    //= type=test
+    //# If the generator keyring is unable to
+    //# decrypt the materials, the multi-keyring MUST attempt to decrypt
+    //# using its child keyrings.
+
+    // Generate some materials to decrypt
+    var encryptionContext := TestUtils.SmallEncryptionContext(TestUtils.SmallEncryptionContextVariation.A);
+    var rawAESKeyring := setupRawAesKeyring(encryptionContext);
+    var inputEncryptionMaterials := getInputEncryptionMaterials(encryptionContext);
+    var encryptionMaterials := rawAESKeyring.OnEncrypt(Crypto.OnEncryptInput(materials:=inputEncryptionMaterials));
+    expect encryptionMaterials.Success?;
+
+    var inputDecryptionMaterials := Crypto.DecryptionMaterials(
+      encryptionContext:=encryptionContext,
+      algorithmSuiteId := encryptionMaterials.value.materials.algorithmSuiteId,
+      verificationKey := None(),
+      plaintextDataKey:=None()
+    );
+
+    var failingKeyring := new FailingKeyring();
+
+    var multiKeyring := new MultiKeyring.MultiKeyring(
+        generatorKeyring := failingKeyring,
+        childKeyrings := [rawAESKeyring]
     );
 
 
