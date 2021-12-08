@@ -8,6 +8,7 @@ include "../Util/Sets.dfy"
 include "../Util/Streams.dfy"
 include "../StandardLibrary/StandardLibrary.dfy"
 include "Serialize/SerializableTypes.dfy"
+include "../../libraries/src/Collections/Sequences/Seq.dfy"
 
 module Serialize {
   import Msg = MessageHeader
@@ -20,6 +21,7 @@ module Serialize {
   import opened UInt = StandardLibrary.UInt
   import UTF8
   import Sets
+  import Seq
 
   method SerializeHeaderBody(wr: Streams.ByteWriter, hb: Msg.HeaderBody) returns (ret: Result<nat, string>)
     requires wr.Valid() && hb.Valid()
@@ -154,6 +156,8 @@ module Serialize {
     ghost var writtenBeforeLoop := wr.GetDataWritten();
     assert writtenBeforeLoop == old(wr.GetDataWritten()) + UInt16ToSeq(n as uint16);
 
+    assert {:split_here} true;
+
     var j := 0;
     while j < |keys|
       invariant j <= n == |keys|
@@ -167,13 +171,18 @@ module Serialize {
       assert wr.GetSizeWritten() == old(wr.GetSizeWritten()) + newlyWritten;
 
       assert {:split_here} true;
+
+      ghost var previousPairs := EncryptionContext.LinearToSeq(kvPairs, 0, j);
+      ghost var currentPair := EncryptionContext.KVPairToSeq(kvPairs[j]);
+
+      Seq.LemmaConcatIsAssociative(writtenBeforeLoop, previousPairs, currentPair);
       calc {
         wr.GetDataWritten();
       ==  // by the loop invariant and the postcondition of SerializeKVPair
-        writtenBeforeLoop + EncryptionContext.LinearToSeq(kvPairs, 0, j) + EncryptionContext.KVPairToSeq(kvPairs[j]);
-      ==  // + is associative
-        assert {:split_here} true;writtenBeforeLoop + (EncryptionContext.LinearToSeq(kvPairs, 0, j) + EncryptionContext.KVPairToSeq(kvPairs[j]));
-      ==  {  assert {:split_here} true; assert EncryptionContext.LinearToSeq(kvPairs, 0, j) + EncryptionContext.KVPairToSeq(kvPairs[j]) == EncryptionContext.LinearToSeq(kvPairs, 0, j + 1); }
+        writtenBeforeLoop + previousPairs + currentPair;
+      ==  // by LemmaConcatIsAssociative
+        writtenBeforeLoop + (previousPairs + currentPair);
+      ==
         writtenBeforeLoop + EncryptionContext.LinearToSeq(kvPairs, 0, j + 1);
       }
 
