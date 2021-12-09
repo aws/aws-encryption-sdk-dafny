@@ -157,9 +157,10 @@ module
         :- Need(onEncryptOutput.Success?, "Child keyring failed to encrypt plaintext data key");
 
         // We have to explicitly check for this because our child and generator keyrings are of type
-        // IKeyring, rather than VerifiableKeyring. If we knew we would always have VerifiableKeyrings,
-        // we would get this for free. However, we want to support customer implementations of keyrings
-        // which may or may not perform valid transitions.
+        // IKeyring, rather than VerifiableKeyring.
+        // If we knew we would always have VerifiableKeyrings, we would get this for free.
+        // However, we want to support customer implementations of keyrings which may or may
+        // not perform valid transitions.
         :- Need(Materials.EncryptionMaterialsTransitionIsValid(returnMaterials, onEncryptOutput.value.materials),
             "Child keyring performed invalid transition on encryption materials");
 
