@@ -304,17 +304,6 @@ module
           res.value.materials
         )
 
-      //= compliance/framework/aws-kms/aws-kms-keyring.txt#2.8
-      //= type=implication
-      //# If the decryption materials (../structures.md#decryption-materials)
-      //# already contained a valid plaintext data key OnDecrypt MUST
-      //# immediately return the unmodified decryption materials
-      //# (../structures.md#decryption-materials).
-      ensures input.materials.plaintextDataKey.Some?
-      ==>
-        && res.Success?
-        && input.materials == output.value.materials
-
       ensures
         && input.materials.plaintextDataKey.None?
         && res.Success?
@@ -370,6 +359,11 @@ module
       var materials := input.materials;
       var suite := AlgorithmSuites.GetSuite(input.materials.algorithmSuiteId);
 
+      //= compliance/framework/aws-kms/aws-kms-keyring.txt#2.8
+      //# If the decryption materials (../structures.md#decryption-materials)
+      //# already contained a valid plaintext data key OnDecrypt MUST
+      //# immediately return the unmodified decryption materials
+      //# (../structures.md#decryption-materials).
       :- Need(
         Materials.DecryptionMaterialsWithoutPlaintextDataKey(materials),
         "Keyring recieved decryption materials that already contain a plaintext data key.");
@@ -487,7 +481,7 @@ module
       //= compliance/framework/aws-kms/aws-kms-keyring.txt#2.8
       //# *  The provider info MUST match the configured AWS KMS key
       //# identifier.
-      return Success(this.awsKmsKey == AwsKmsArnIdentifier(arn))
+      return Success(this.awsKmsKey == AwsKmsArnIdentifier(arn));
     }
   }
 
