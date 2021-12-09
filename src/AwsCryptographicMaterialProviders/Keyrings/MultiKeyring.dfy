@@ -89,18 +89,24 @@ module
       //# and the input encryption materials (structures.md#encryption-
       //# materials) does not include a plaintext data key, OnEncrypt MUST
       //# fail.
-      ensures this.generatorKeyring == null && input.materials.plaintextDataKey.None? ==> res.Failure?
+      ensures
+        && this.generatorKeyring == null
+        && input.materials.plaintextDataKey.None?
+      ==> res.Failure?
 
       //= compliance/framework/multi-keyring.txt#2.7.1
       //= type=implication
       //# *  If the input encryption materials already include a plaintext data
       //# key, OnEncrypt MUST fail.
-      ensures this.generatorKeyring != null && input.materials.plaintextDataKey.Some? ==> res.Failure?
+      ensures
+        && this.generatorKeyring != null
+        && input.materials.plaintextDataKey.Some?
+      ==> res.Failure?
     {
 
       // We could also frame this as "Need", but I found an "if" statement more clearly matches the 
       // requirement in the spec ("If this keyring does not have a generator keyring 
-      //# and the input encryption materials does not include a plaintext data key")
+      // and the input encryption materials does not include a plaintext data key")
       if this.generatorKeyring == null && input.materials.plaintextDataKey.None? {
           return Failure("Need either a generator keyring or input encryption materials which contain a plaintext data key");
       }
@@ -160,9 +166,8 @@ module
         returnMaterials := onEncryptOutput.value.materials;
       }
 
-      if !Materials.EncryptionMaterialsTransitionIsValid(input.materials, returnMaterials) {
-       return Failure("A child or generator keyring modified the encryption materials in illegal ways.");
-      }
+      :- Need(Materials.EncryptionMaterialsTransitionIsValid(input.materials, returnMaterials),
+        "A child or generator keyring modified the encryption materials in illegal ways.");
 
       //= compliance/framework/multi-keyring.txt#2.7.1
       //# If all previous OnEncrypt (keyring-interface.md#onencrypt) calls
@@ -241,16 +246,16 @@ module
         var result := AttemptDecryptDataKey(this.childKeyrings[j], input);
 
         if result.Success? {
-          materials := result.value.materials;
           //= compliance/framework/multi-keyring.txt#2.7.2
           //# If OnDecrypt (keyring-
           //# interface.md#ondecrypt) returns decryption materials
           //# (structures.md#decryption-materials) containing a plaintext data key,
           //# the multi-keyring MUST immediately return the modified decryption
           //# materials.
-          if materials.plaintextDataKey.Some? {
-            return Success(result.value);
-          }
+          // We don't explicitly check for "containing a plaintext data key"
+          // because AttemptDecryptDataKey has a post-condition ensuring that
+          // if the call is successful, the result has a plaintext data key
+          return result;
         } else {
           //= compliance/framework/multi-keyring.txt#2.7.2
           //# If the child keyring's OnDecrypt call fails, the multi-
@@ -260,23 +265,25 @@ module
         }
       }
 
-      if materials.plaintextDataKey.None? {
-
-        //= compliance/framework/multi-keyring.txt#2.7.2
-        //# If, after calling OnDecrypt (keyring-interface.md#ondecrypt) on every
-        //# child keyring (Section 2.6.2) (and possibly the generator keyring
-        //# (Section 2.6.1)), the decryption materials (structures.md#decryption-
-        //# materials) still do not contain a plaintext data key, OnDecrypt MUST
-        //# return a failure message containing the collected failure messages
-        //# from the child keyrings.
-        var concatString := (s, a) => a + "\n" + s;
-        var error := Seq.FoldRight(
-          concatString,
-          failures,
-          "Unable to decrypt data key:\n"
-        );
-        return Failure(error);
-      }
+      //= compliance/framework/multi-keyring.txt#2.7.2
+      //# If, after calling OnDecrypt (keyring-interface.md#ondecrypt) on every
+      //# child keyring (Section 2.6.2) (and possibly the generator keyring
+      //# (Section 2.6.1)), the decryption materials (structures.md#decryption-
+      //# materials) still do not contain a plaintext data key, OnDecrypt MUST
+      //# return a failure message containing the collected failure messages
+      //# from the child keyrings.
+      // Note that the annotation says this should only happen if there is no
+      // plaintext data key. From our proofs above (the loop invariant of 
+      // DecryptionMaterialsWithoutPlaintextDataKey), we know that the *only*
+      // way to get to this place is if there is no plaintext data key, so we
+      // omit the 'if' statement checking for it.
+      var concatString := (s, a) => a + "\n" + s;
+      var error := Seq.FoldRight(
+        concatString,
+        failures,
+        "Unable to decrypt data key:\n"
+      );
+      return Failure(error);
     }
   }
 
@@ -288,13 +295,10 @@ module
     {
       var output :- keyring.OnDecrypt(input);
 
-      if output.materials.plaintextDataKey.Some? {
-        if !Materials.DecryptionMaterialsTransitionIsValid(input.materials, output.materials) {
-          return Failure("Keyring performed invalid material transition");
-        }   
-        return Success(output);
-      } else {
-        return Failure("Could not decrypt data key");
-      }
+      :- Need(
+          Materials.DecryptionMaterialsTransitionIsValid(input.materials, output.materials),
+          "Keyring performed invalid material transition"
+        );
+      return Success(output);
   }
 }

@@ -115,9 +115,13 @@ module TestMultiKeyring {
     var encryptionContext := TestUtils.SmallEncryptionContext(TestUtils.SmallEncryptionContextVariation.A);
     var failingKeyring := new FailingKeyring();
 
+    // We'll add a functional AES keyring as a child to make sure that we're not incorrectly using
+    // that keyring after the generator fails (e.g. trying to use a child keyring to generate keys)
+    var rawAESKeyring := setupRawAesKeyring(encryptionContext);
+
     var multiKeyring := new MultiKeyring.MultiKeyring(
         generatorKeyring := failingKeyring,
-        childKeyrings := []
+        childKeyrings := [rawAESKeyring]
     );
 
     var encryptionMaterials := getInputEncryptionMaterials(encryptionContext);
