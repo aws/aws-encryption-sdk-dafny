@@ -194,10 +194,9 @@ module
       //= type=implication
       //# If the decryption materials already contain a plaintext data key, the
       //# keyring MUST fail and MUST NOT modify the decryption materials
-      //# (structures.md#decryption-materials).      
+      //# (structures.md#decryption-materials).
+      // The "MUST NOT modify" clause is true because objects are immutable in Dafny.
       ensures Materials.DecryptionMaterialsWithPlaintextDataKey(input.materials) ==> res.Failure?
-
-      // TODO/QQ: how to check "does not modify input materials"?
     {
       // We won't actually be returning these materials, but it's useful to have a reference to them
       // for proving things (for example, proving we never enter a state where we get a plaintext data
@@ -233,7 +232,8 @@ module
       //= compliance/framework/multi-keyring.txt#2.7.2
       //# If the generator keyring is unable to
       //# decrypt the materials, the multi-keyring MUST attempt to decrypt
-      //# using its child keyrings.
+      //# using its child keyrings, until one either succeeds in decryption or
+      //# all have failed.
       for j := 0 to |this.childKeyrings|
         invariant Materials.DecryptionMaterialsWithoutPlaintextDataKey(materials)
       {

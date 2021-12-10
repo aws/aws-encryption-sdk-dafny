@@ -173,16 +173,16 @@ structure CreateKeyringOutput {
 
 // TODO
 // Multi
-//
-// operation CreateMultiKeyring {
-//     input: CreateMultiKeyringInput,
-//     output: CreateKeyringOutput,
-// }
-//
-// structure CreateMultiKeyringInput {
-//     generator: KeyringReference,
-//     childKeyrings: KeyringList
-// }
+
+operation CreateMultiKeyring {
+    input: CreateMultiKeyringInput,
+    output: CreateKeyringOutput,
+}
+
+structure CreateMultiKeyringInput {
+    generator: KeyringReference,
+    childKeyrings: KeyringList
+}
 
 // Raw
 
