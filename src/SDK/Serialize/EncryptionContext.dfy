@@ -54,10 +54,8 @@ module EncryptionContext2 {
   predicate KeysAreUnique<K, V>(pairs: Linear<K, V>)
   {
     (forall i, j
-    ::
-      && 0 <= i < |pairs|
-      && 0 <= j < |pairs|
-      && i != j
+    // This satisfies every cardinality AND i != j
+    :: 0 <= i < j < |pairs|
     ==> pairs[i].key != pairs[j].key)
   }
 
