@@ -350,7 +350,7 @@ module EncryptionContext2 {
     else
       // Defining and reasoning about order at this level is simplified by using a sequence of
       // key value pairs instead of a map.
-      var keys: seq<UTF8.ValidUTF8Bytes> := Sets.ComputeSetToOrderedSequence<uint8>(encryptionContext.Keys, UInt.UInt8Less);
+      var keys: seq<UTF8.ValidUTF8Bytes> := Sets.ComputeSetToOrderedSequence2<uint8>(encryptionContext.Keys, UInt.UInt8Less);
       var pairs := seq(|keys|, i requires 0 <= i < |keys| => Pair(keys[i], encryptionContext[keys[i]]));
       2 + LinearLength2(pairs)
   }

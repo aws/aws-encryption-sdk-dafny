@@ -8,7 +8,11 @@ module {:extern "Sets"} Sets {
   import opened StandardLibrary
   import Seq
 
-  function method {:extern "SetToOrderedSequence"} ComputeSetToOrderedSequence<T(==)>(
+  method {:extern "SetToOrderedSequence"} ComputeSetToOrderedSequence<T(==)>(s: set<seq<T>>, less: (T, T) -> bool) returns (res: seq<seq<T>>)
+    requires Trichotomous(less) && Transitive(less)
+    ensures res == SetToOrderedSequence(s, less)
+
+  function method {:extern "SetToOrderedSequence2"} ComputeSetToOrderedSequence2<T(==)>(
     s: set<seq<T>>,
     less: (T, T) -> bool
   )
