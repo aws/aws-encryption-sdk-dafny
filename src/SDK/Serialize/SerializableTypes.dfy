@@ -12,10 +12,6 @@ module SerializableTypes {
   import opened Aws.Crypto
 
   type ShortUTF8Seq = s: ValidUTF8Bytes | HasUint16Len(s)
-  // To make verification and working with iterating through the encryption context
-  // simpler, here we define a specific type to represent a sequence of key-value tuples.
-  type Pair = (UTF8.ValidUTF8Bytes, UTF8.ValidUTF8Bytes)
-  type Linear = seq<Pair>
 
   predicate method IsESDKEncryptedDataKey(edk: EncryptedDataKey) {
     && HasUint16Len(edk.keyProviderId)
@@ -108,6 +104,10 @@ module SerializableTypes {
   /*
    * Encryption context as a sequence
    */
+
+  // To make verification and working with iterating through the encryption context
+  // simpler, here we define a specific type to represent a sequence of key-value tuples.
+  type Linear = seq<(UTF8.ValidUTF8Bytes, UTF8.ValidUTF8Bytes)>
 
   // Length of KVPairEntries is defined in terms of a seq of tuples, which is easier to reason about
   function method LinearLength(kvPairs: Linear, lo: nat, hi: nat): nat
