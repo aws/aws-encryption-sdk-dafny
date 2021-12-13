@@ -37,10 +37,6 @@ module EncryptionContext2 {
   witness *
 
   const ESDK_CANONICAL_ENCRYPTION_CONTEXT_MAX_LENGTH := UINT16_LIMIT - 2;
-  type SeqEcMaxBytes = s: seq<uint8>
-  | |s| < ESDK_CANONICAL_ENCRYPTION_CONTEXT_MAX_LENGTH
-  witness *
-
   type ESDKCanonicalEncryptionContext = pairs: seq<ESDKEncryptionContextPair>
   |
     && HasUint16Len(pairs)
