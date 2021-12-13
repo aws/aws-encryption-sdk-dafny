@@ -1,7 +1,5 @@
 // Copyright Amazon.com Inc. or its affiliates. All Rights Reserved.
 // SPDX-License-Identifier: Apache-2.0
-//
-// Generated at 2021-11-03T00:21:59.652135
 
 using System;
 using Aws.Crypto;
@@ -13,44 +11,48 @@ namespace Aws.Crypto
 {
     public abstract class CryptoMaterialsCacheBase : ICryptoMaterialsCache
     {
-        public PutEntryForEncryptOutput PutEntryForEncrypt(PutEntryForEncryptInput input)
+        public Aws.Crypto.PutEntryForEncryptOutput PutEntryForEncrypt(Aws.Crypto.PutEntryForEncryptInput input)
         {
             input.Validate();
             return _PutEntryForEncrypt(input);
         }
 
-        protected abstract PutEntryForEncryptOutput _PutEntryForEncrypt(PutEntryForEncryptInput input);
+        protected abstract Aws.Crypto.PutEntryForEncryptOutput _PutEntryForEncrypt(
+            Aws.Crypto.PutEntryForEncryptInput input);
 
-        public GetEntryForEncryptOutput GetEntryForEncrypt(GetEntryForEncryptInput input)
+        public Aws.Crypto.GetEntryForEncryptOutput GetEntryForEncrypt(Aws.Crypto.GetEntryForEncryptInput input)
         {
             input.Validate();
             return _GetEntryForEncrypt(input);
         }
 
-        protected abstract GetEntryForEncryptOutput _GetEntryForEncrypt(GetEntryForEncryptInput input);
+        protected abstract Aws.Crypto.GetEntryForEncryptOutput _GetEntryForEncrypt(
+            Aws.Crypto.GetEntryForEncryptInput input);
 
-        public PutEntryForDecryptOutput PutEntryForDecrypt(PutEntryForDecryptInput input)
+        public Aws.Crypto.PutEntryForDecryptOutput PutEntryForDecrypt(Aws.Crypto.PutEntryForDecryptInput input)
         {
             input.Validate();
             return _PutEntryForDecrypt(input);
         }
 
-        protected abstract PutEntryForDecryptOutput _PutEntryForDecrypt(PutEntryForDecryptInput input);
+        protected abstract Aws.Crypto.PutEntryForDecryptOutput _PutEntryForDecrypt(
+            Aws.Crypto.PutEntryForDecryptInput input);
 
-        public GetEntryForDecryptOutput GetEntryForDecrypt(GetEntryForDecryptInput input)
+        public Aws.Crypto.GetEntryForDecryptOutput GetEntryForDecrypt(Aws.Crypto.GetEntryForDecryptInput input)
         {
             input.Validate();
             return _GetEntryForDecrypt(input);
         }
 
-        protected abstract GetEntryForDecryptOutput _GetEntryForDecrypt(GetEntryForDecryptInput input);
+        protected abstract Aws.Crypto.GetEntryForDecryptOutput _GetEntryForDecrypt(
+            Aws.Crypto.GetEntryForDecryptInput input);
 
-        public DeleteEntryOutput DeleteEntry(DeleteEntryInput input)
+        public Aws.Crypto.DeleteEntryOutput DeleteEntry(Aws.Crypto.DeleteEntryInput input)
         {
             input.Validate();
             return _DeleteEntry(input);
         }
 
-        protected abstract DeleteEntryOutput _DeleteEntry(DeleteEntryInput input);
+        protected abstract Aws.Crypto.DeleteEntryOutput _DeleteEntry(Aws.Crypto.DeleteEntryInput input);
     }
 }

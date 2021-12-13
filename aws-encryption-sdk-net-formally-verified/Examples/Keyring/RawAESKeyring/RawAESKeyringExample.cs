@@ -16,7 +16,7 @@ public class RawAESKeyringExample {
         // Create your encryption context.
         // Remember that your encryption context is NOT SECRET.
         // https://docs.aws.amazon.com/encryption-sdk/latest/developer-guide/concepts.html#encryption-context
-        IDictionary<string, string> encryptionContext = new Dictionary<string, string>() {
+        Dictionary<string, string> encryptionContext = new Dictionary<string, string>() {
             {"encryption", "context"},
             {"is not", "secret"},
             {"but adds", "useful metadata"},
@@ -44,28 +44,28 @@ public class RawAESKeyringExample {
         IAwsEncryptionSdk encryptionSdkClient = new AwsEncryptionSdkClient();
 
         // Create the keyring that determines how your data keys are protected.
-        CreateRawAesKeyringInput createKeyringInput = CreateRawAesKeyringInput.Builder()
-            .WithKeyNamespace(keyNamespace)
-            .WithKeyName(keyName)
-            .WithWrappingKey(key)
-            .WithWrappingAlg(AesWrappingAlg.ALG_AES256_GCM_IV12_TAG16)
-            .Build();
+        CreateRawAesKeyringInput createKeyringInput = new CreateRawAesKeyringInput
+        {
+            KeyNamespace = keyNamespace,
+            KeyName = keyName,
+            WrappingKey = key,
+            WrappingAlg = AesWrappingAlg.ALG_AES256_GCM_IV12_TAG16,
+        };
         IKeyring keyring = materialProviders.CreateRawAesKeyring(createKeyringInput);
 
         // Create the materials manager that assembles cryptographic materials from your keyring.
         CreateDefaultCryptographicMaterialsManagerInput createMaterialsManagerInput =
-            CreateDefaultCryptographicMaterialsManagerInput.Builder()
-                .WithKeyring(keyring)
-                .Build();
+            new CreateDefaultCryptographicMaterialsManagerInput() {Keyring = keyring};
         ICryptographicMaterialsManager materialsManager =
             materialProviders.CreateDefaultCryptographicMaterialsManager(createMaterialsManagerInput);
 
         // Encrypt your plaintext data.
-        EncryptInput encryptInput = EncryptInput.Builder()
-            .WithPlaintext(plaintext)
-            .WithMaterialsManager(materialsManager)
-            .WithEncryptionContext(encryptionContext)
-            .Build();
+        EncryptInput encryptInput = new EncryptInput()
+        {
+            Plaintext = plaintext,
+            MaterialsManager = materialsManager,
+            EncryptionContext = encryptionContext
+        };
         EncryptOutput encryptOutput = encryptionSdkClient.Encrypt(encryptInput);
         MemoryStream ciphertext = encryptOutput.Ciphertext;
 
@@ -76,10 +76,11 @@ public class RawAESKeyringExample {
         //
         // You do not need to specify the encryption context on decrypt
         // because the header of the encrypted message includes the encryption context.
-        DecryptInput decryptInput = DecryptInput.Builder()
-            .WithCiphertext(ciphertext)
-            .WithMaterialsManager(materialsManager)
-            .Build();
+        DecryptInput decryptInput = new DecryptInput()
+        {
+            Ciphertext = ciphertext,
+            MaterialsManager = materialsManager
+        };
         DecryptOutput decryptOutput = encryptionSdkClient.Decrypt(decryptInput);
         MemoryStream decrypted = decryptOutput.Plaintext;
 

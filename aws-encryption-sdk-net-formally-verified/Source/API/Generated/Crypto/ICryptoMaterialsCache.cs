@@ -1,7 +1,5 @@
 // Copyright Amazon.com Inc. or its affiliates. All Rights Reserved.
 // SPDX-License-Identifier: Apache-2.0
-//
-// Generated at 2021-11-03T00:21:59.652135
 
 using System;
 using Aws.Crypto;
@@ -13,10 +11,10 @@ namespace Aws.Crypto
 {
     public interface ICryptoMaterialsCache
     {
-        PutEntryForEncryptOutput PutEntryForEncrypt(PutEntryForEncryptInput input);
-        GetEntryForEncryptOutput GetEntryForEncrypt(GetEntryForEncryptInput input);
-        PutEntryForDecryptOutput PutEntryForDecrypt(PutEntryForDecryptInput input);
-        GetEntryForDecryptOutput GetEntryForDecrypt(GetEntryForDecryptInput input);
-        DeleteEntryOutput DeleteEntry(DeleteEntryInput input);
+        Aws.Crypto.PutEntryForEncryptOutput PutEntryForEncrypt(Aws.Crypto.PutEntryForEncryptInput input);
+        Aws.Crypto.GetEntryForEncryptOutput GetEntryForEncrypt(Aws.Crypto.GetEntryForEncryptInput input);
+        Aws.Crypto.PutEntryForDecryptOutput PutEntryForDecrypt(Aws.Crypto.PutEntryForDecryptInput input);
+        Aws.Crypto.GetEntryForDecryptOutput GetEntryForDecrypt(Aws.Crypto.GetEntryForDecryptInput input);
+        Aws.Crypto.DeleteEntryOutput DeleteEntry(Aws.Crypto.DeleteEntryInput input);
     }
 }

@@ -1,7 +1,5 @@
 // Copyright Amazon.com Inc. or its affiliates. All Rights Reserved.
 // SPDX-License-Identifier: Apache-2.0
-//
-// Generated at 2021-11-03T00:22:03.283903
 
 using System;
 using Aws.Crypto;
@@ -13,46 +11,16 @@ namespace Aws.Esdk
 {
     public class AwsEncryptionSdkClientConfig
     {
-        public ConfigurationDefaults ConfigDefaults { get; private set; }
+        private Aws.Esdk.ConfigurationDefaults _configDefaults;
 
-        public static IAwsEncryptionSdkClientConfigBuilder Builder()
+        public Aws.Esdk.ConfigurationDefaults ConfigDefaults
         {
-            return new AwsEncryptionSdkClientConfigBuilder();
+            get { return this._configDefaults; }
+            set { this._configDefaults = value; }
         }
 
         public void Validate()
         {
         }
-
-        private class AwsEncryptionSdkClientConfigBuilder : IAwsEncryptionSdkClientConfigBuilder
-        {
-            private ConfigurationDefaults ConfigDefaults;
-
-            public IAwsEncryptionSdkClientConfigBuilder WithConfigDefaults(ConfigurationDefaults value)
-            {
-                ConfigDefaults = value;
-                return this;
-            }
-
-            public AwsEncryptionSdkClientConfig Build()
-            {
-                if (ConfigDefaults == null)
-                {
-                    throw new InvalidOperationException(
-                        String.Format("No value set for required field {0}", "configDefaults"));
-                }
-
-                return new AwsEncryptionSdkClientConfig
-                {
-                    ConfigDefaults = (ConfigurationDefaults) ConfigDefaults,
-                };
-            }
-        }
-    }
-
-    public interface IAwsEncryptionSdkClientConfigBuilder
-    {
-        IAwsEncryptionSdkClientConfigBuilder WithConfigDefaults(ConfigurationDefaults value);
-        AwsEncryptionSdkClientConfig Build();
     }
 }
