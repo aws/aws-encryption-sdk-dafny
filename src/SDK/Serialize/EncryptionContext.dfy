@@ -37,10 +37,6 @@ module EncryptionContext2 {
   witness *
 
   const ESDK_CANONICAL_ENCRYPTION_CONTEXT_MAX_LENGTH := UINT16_LIMIT - 2;
-  type SeqEcMaxBytes = s: seq<uint8>
-  | |s| < ESDK_CANONICAL_ENCRYPTION_CONTEXT_MAX_LENGTH
-  witness *
-
   type ESDKCanonicalEncryptionContext = pairs: seq<ESDKEncryptionContextPair>
   |
     && HasUint16Len(pairs)
@@ -126,15 +122,15 @@ module EncryptionContext2 {
       //# context (../framework/structures.md#encryption-context) is empty,
       //# this field MUST NOT be included in the Section 2.5.1.7.
 
+      ret == UInt16ToSeq(0)
+    ensures |ec| != 0
+    ==>
       //= compliance/data-format/message-header.txt#2.5.1.7.2.1
       //= type=implication
       //# The value of this field MUST be greater
       //# than 0.
-      ret == UInt16ToSeq(0)
-    ensures |ec| != 0
-    ==>
-      && ret == UInt16ToSeq(|WriteAAD(ec)| as uint16)
-        + WriteAAD(ec)
+      && var aad := WriteAAD(ec);
+      && ret == UInt16ToSeq(|aad| as uint16) + aad
     {
     if |ec| == 0 then UInt16ToSeq(0)
     else
@@ -315,6 +311,9 @@ module EncryptionContext2 {
     else if countPos + length as nat < |s| then
       Failure(MoreNeeded(countPos + length as nat))
     else if length == 2 then
+      // This is the case referred to above.
+      // It is not a canonically correct message,
+      // but it should still be parsed.
       var (count, end) :- ReadUInt16(s, countPos);
       :- Need(count == 0, Error("Encryption Context pairs count can not exceed byte length"));
       Success(([], end))
@@ -347,7 +346,8 @@ module EncryptionContext2 {
 
   function method Length2(encryptionContext: Crypto.EncryptionContext): nat
   {
-    if |encryptionContext| == 0 then 0 else
+    if |encryptionContext| == 0 then 0
+    else
       // Defining and reasoning about order at this level is simplified by using a sequence of
       // key value pairs instead of a map.
       var keys: seq<UTF8.ValidUTF8Bytes> := Sets.ComputeSetToOrderedSequence<uint8>(encryptionContext.Keys, UInt.UInt8Less);
