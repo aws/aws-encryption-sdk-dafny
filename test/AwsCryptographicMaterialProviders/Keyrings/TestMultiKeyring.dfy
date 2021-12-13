@@ -46,7 +46,7 @@ module TestMultiKeyring {
     var expectedPlaintextDataKey := expectedMaterials.value.materials.plaintextDataKey;
     expect expectedPlaintextDataKey.Some?;
 
-    var staticKeyring := new StaticKeyring(expectedMaterials.value.materials);
+    var staticKeyring := new StaticKeyring(Some(expectedMaterials.value.materials), None());
 
     var multiKeyring := new MultiKeyring.MultiKeyring(
         generatorKeyring := staticKeyring,
@@ -137,7 +137,7 @@ module TestMultiKeyring {
     //# plaintext data key, OnEncrypt MUST fail.
     var encryptionContext := TestUtils.SmallEncryptionContext(TestUtils.SmallEncryptionContextVariation.A);
     var encryptionMaterials := getInputEncryptionMaterials(encryptionContext);
-    var failingKeyring := new StaticKeyring(encryptionMaterials);
+    var failingKeyring := new StaticKeyring(Some(encryptionMaterials), None());
 
     var multiKeyring := new MultiKeyring.MultiKeyring(
         generatorKeyring := failingKeyring,
@@ -172,11 +172,14 @@ module TestMultiKeyring {
 
     var failingKeyring := new FailingKeyring();
 
+    // TODO: still not technically checking for "first". Since the decrypt flow
+    // will move past failures, a buggy implementation could be trying the 
+    // (failing) child keyring first and then moving to the generator.
+
     var multiKeyring := new MultiKeyring.MultiKeyring(
         generatorKeyring := rawAESKeyring,
         childKeyrings := [failingKeyring]
     );
-
 
     var onDecryptInput := Crypto.OnDecryptInput(
       materials := inputDecryptionMaterials, encryptedDataKeys := encryptionMaterials.value.materials.encryptedDataKeys
@@ -192,7 +195,8 @@ module TestMultiKeyring {
     //= type=test
     //# If the generator keyring is unable to
     //# decrypt the materials, the multi-keyring MUST attempt to decrypt
-    //# using its child keyrings.
+    //# using its child keyrings, until one either succeeds in decryption or
+    //# all have failed.
 
     // Generate some materials to decrypt
     var encryptionContext := TestUtils.SmallEncryptionContext(TestUtils.SmallEncryptionContextVariation.A);
@@ -210,9 +214,11 @@ module TestMultiKeyring {
 
     var failingKeyring := new FailingKeyring();
 
+    // For children, we add failing keyrings on both sides of the valid keyring so we exercise
+    // all paths
     var multiKeyring := new MultiKeyring.MultiKeyring(
         generatorKeyring := failingKeyring,
-        childKeyrings := [rawAESKeyring]
+        childKeyrings := [failingKeyring, rawAESKeyring, failingKeyring]
     );
 
 
@@ -276,26 +282,76 @@ module TestMultiKeyring {
   }
 
   /*
-   * A keyring which always returns a specific static set of EncryptionMaterials. Used for testing.
+   * A keyring which always returns a specific static set of materials. Used for testing.
    */
   class StaticKeyring extends Crypto.IKeyring {
-    const encryptionMaterials: Crypto.EncryptionMaterials;
+    const encryptionMaterials: Option<Crypto.EncryptionMaterials>;
+    const decryptionMaterials: Option<Crypto.DecryptionMaterials>;
 
-    constructor(encryptionMaterials: Crypto.EncryptionMaterials) {
-        this.encryptionMaterials := encryptionMaterials;
-      }
+    constructor(
+      encryptionMaterials: Option<Crypto.EncryptionMaterials>,
+      decryptionMaterials: Option<Crypto.DecryptionMaterials>
+    )
+    {
+      this.encryptionMaterials := encryptionMaterials;
+      this.decryptionMaterials := decryptionMaterials;
+    }
 
     method OnEncrypt(input: Crypto.OnEncryptInput)
       returns (res: Result<Crypto.OnEncryptOutput, string>)
     {
-      return Success(Crypto.OnEncryptOutput(materials:=encryptionMaterials));
+      if this.encryptionMaterials.Some? {
+        return Success(Crypto.OnEncryptOutput(materials:=encryptionMaterials.value));
+      } else {
+        return Failure("Failure");
+      }
     }
 
     method OnDecrypt(input: Crypto.OnDecryptInput)
       returns (res: Result<Crypto.OnDecryptOutput, string>)
     {
-      return Failure("Failure");
+      if this.decryptionMaterials.Some? {
+        return Success(Crypto.OnDecryptOutput(materials:=decryptionMaterials.value));
+      } else {
+        return Failure("Failure");
+      }
     }
+  }
+
+  /*
+   * A Keyring which is configured to expect a certain set of input materials, and fails
+   * if it is not given those materials.
+   */
+  class InputCheckingKeyring extends Crypto.IKeyring {
+    const expectedInputEncryptionMaterials: Crypto.EncryptionMaterials;
+    const expectedInputDecryptionMaterials: Crypto.DecryptionMaterials;
+    const delegateKeyring: Crypto.IKeyring;
+
+    constructor(
+      encryptionMaterials: Crypto.EncryptionMaterials,
+      decryptionMaterials: Crypto.DecryptionMaterials,
+      keyring: Crypto.IKeyring
+    )
+    {
+      this.expectedInputEncryptionMaterials := encryptionMaterials;
+      this.expectedInputDecryptionMaterials := decryptionMaterials;
+      this.delegateKeyring := keyring;
+    }
+
+    method OnEncrypt(input: Crypto.OnEncryptInput)
+      returns (res: Result<Crypto.OnEncryptOutput, string>)
+    {
+      :- Need(expectedInputEncryptionMaterials == input.materials, "Wrong materials provided as input");
+      res := delegateKeyring.OnEncrypt(input);
+    }
+
+    method OnDecrypt(input: Crypto.OnDecryptInput)
+      returns (res: Result<Crypto.OnDecryptOutput, string>)
+    {
+      :- Need(expectedInputDecryptionMaterials == input.materials, "Wrong materials provided as input");
+      res := delegateKeyring.OnDecrypt(input);
+    }
+
   }
 
   /*

@@ -16,11 +16,12 @@ module {:extern "Dafny.Aws.Crypto"} Aws.Crypto {
     export
       provides UTF8, UInt, Wrappers, IKeyring.OnDecrypt,
         ICryptographicMaterialsManager.GetEncryptionMaterials, ICryptographicMaterialsManager.DecryptMaterials, IKeyring.OnEncrypt,
-        IAwsCryptographicMaterialsProviderClient.CreateRawAesKeyring, IAwsCryptographicMaterialsProviderClient.CreateDefaultCryptographicMaterialsManager
+        IAwsCryptographicMaterialsProviderClient.CreateRawAesKeyring, IAwsCryptographicMaterialsProviderClient.CreateDefaultCryptographicMaterialsManager,
+        IAwsCryptographicMaterialsProviderClient.CreateMultiKeyring
       reveals AlgorithmSuiteId, EncryptedDataKey, EncryptedDataKeyList, IKeyring, GetEncryptionMaterialsInput, GetEncryptionMaterialsOutput,
         DecryptMaterialsInput, DecryptMaterialsOutput, ICryptographicMaterialsManager, EncryptionContext, EncryptionMaterials, DecryptionMaterials,
         OnEncryptInput, OnEncryptOutput, OnDecryptInput, OnDecryptOutput,
-        EncryptionMaterials.Valid, CreateRawAesKeyringInput, CreateDefaultCryptographicMaterialsManagerInput,
+        EncryptionMaterials.Valid, CreateRawAesKeyringInput, CreateMultiKeyringInput, CreateDefaultCryptographicMaterialsManagerInput,
         IAwsCryptographicMaterialsProviderClient, AesWrappingAlg
 
     /////////////
@@ -260,7 +261,7 @@ module {:extern "Dafny.Aws.Crypto"} Aws.Crypto {
     // Multi
     datatype CreateMultiKeyringInput = CreateMultiKeyringInput(
         nameonly generator: IKeyring?,
-        nameonly childKeyrings: Option<seq<IKeyring>>
+        nameonly childKeyrings: seq<IKeyring>
     )
 
     // Raw Keyrings
@@ -312,7 +313,7 @@ module {:extern "Dafny.Aws.Crypto"} Aws.Crypto {
         // method CreateMrkAwareStrictMultiKeyring(input: CreateMrkAwareStrictMultiKeyringInput) returns (res: IKeyring)
         // method CreateMrkAwareDiscoveryAwsKmsKeyring(input: CreateMrkAwareDiscoveryAwsKmsKeyringInput) returns (res: IKeyring)
         // method CreateMrkAwareDiscoveryMultiKeyring(input: CreateMrkAwareDiscoveryMultiKeyringInput) returns (res: IKeyring)
-        // method CreateMultiKeyring(input: CreateMultiKeyringInput) returns (res: IKeyring)
+        method CreateMultiKeyring(input: CreateMultiKeyringInput) returns (res: IKeyring?)
         method CreateRawAesKeyring(input: CreateRawAesKeyringInput) returns (res: IKeyring)
         // method CreateRawRsaKeyring(input: CreateRawRsaKeyringInput) returns (res: IKeyring)
 
