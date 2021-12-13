@@ -1,7 +1,5 @@
 // Copyright Amazon.com Inc. or its affiliates. All Rights Reserved.
 // SPDX-License-Identifier: Apache-2.0
-//
-// Generated at 2021-11-03T00:21:59.752491
 
 using System;
 using System.IO;
@@ -22,7 +20,7 @@ namespace Aws.Crypto
             this._impl = impl;
         }
 
-        protected override DeleteEntryOutput _DeleteEntry(DeleteEntryInput input)
+        protected override Aws.Crypto.DeleteEntryOutput _DeleteEntry(Aws.Crypto.DeleteEntryInput input)
         {
             Dafny.Aws.Crypto.DeleteEntryInput internalInput =
                 TypeConversion.ToDafny_N3_aws__N6_crypto__S16_DeleteEntryInput(input);
@@ -31,7 +29,8 @@ namespace Aws.Crypto
             return TypeConversion.FromDafny_N3_aws__N6_crypto__S17_DeleteEntryOutput(internalOutput);
         }
 
-        protected override PutEntryForEncryptOutput _PutEntryForEncrypt(PutEntryForEncryptInput input)
+        protected override Aws.Crypto.PutEntryForEncryptOutput _PutEntryForEncrypt(
+            Aws.Crypto.PutEntryForEncryptInput input)
         {
             Dafny.Aws.Crypto.PutEntryForEncryptInput internalInput =
                 TypeConversion.ToDafny_N3_aws__N6_crypto__S23_PutEntryForEncryptInput(input);
@@ -40,7 +39,8 @@ namespace Aws.Crypto
             return TypeConversion.FromDafny_N3_aws__N6_crypto__S24_PutEntryForEncryptOutput(internalOutput);
         }
 
-        protected override GetEntryForDecryptOutput _GetEntryForDecrypt(GetEntryForDecryptInput input)
+        protected override Aws.Crypto.GetEntryForDecryptOutput _GetEntryForDecrypt(
+            Aws.Crypto.GetEntryForDecryptInput input)
         {
             Dafny.Aws.Crypto.GetEntryForDecryptInput internalInput =
                 TypeConversion.ToDafny_N3_aws__N6_crypto__S23_GetEntryForDecryptInput(input);
@@ -49,7 +49,8 @@ namespace Aws.Crypto
             return TypeConversion.FromDafny_N3_aws__N6_crypto__S24_GetEntryForDecryptOutput(internalOutput);
         }
 
-        protected override GetEntryForEncryptOutput _GetEntryForEncrypt(GetEntryForEncryptInput input)
+        protected override Aws.Crypto.GetEntryForEncryptOutput _GetEntryForEncrypt(
+            Aws.Crypto.GetEntryForEncryptInput input)
         {
             Dafny.Aws.Crypto.GetEntryForEncryptInput internalInput =
                 TypeConversion.ToDafny_N3_aws__N6_crypto__S23_GetEntryForEncryptInput(input);
@@ -58,7 +59,8 @@ namespace Aws.Crypto
             return TypeConversion.FromDafny_N3_aws__N6_crypto__S24_GetEntryForEncryptOutput(internalOutput);
         }
 
-        protected override PutEntryForDecryptOutput _PutEntryForDecrypt(PutEntryForDecryptInput input)
+        protected override Aws.Crypto.PutEntryForDecryptOutput _PutEntryForDecrypt(
+            Aws.Crypto.PutEntryForDecryptInput input)
         {
             Dafny.Aws.Crypto.PutEntryForDecryptInput internalInput =
                 TypeConversion.ToDafny_N3_aws__N6_crypto__S23_PutEntryForDecryptInput(input);
