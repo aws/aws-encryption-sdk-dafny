@@ -1,7 +1,5 @@
 // Copyright Amazon.com Inc. or its affiliates. All Rights Reserved.
 // SPDX-License-Identifier: Apache-2.0
-//
-// Generated at 2021-11-03T00:21:59.652135
 
 using System;
 using Aws.Crypto;
@@ -13,46 +11,16 @@ namespace Aws.Crypto
 {
     public class GetEntryForEncryptInput
     {
-        public System.IO.MemoryStream Identifier { get; private set; }
+        private System.IO.MemoryStream _identifier;
 
-        public static IGetEntryForEncryptInputBuilder Builder()
+        public System.IO.MemoryStream Identifier
         {
-            return new GetEntryForEncryptInputBuilder();
+            get { return this._identifier; }
+            set { this._identifier = value; }
         }
 
         public void Validate()
         {
         }
-
-        private class GetEntryForEncryptInputBuilder : IGetEntryForEncryptInputBuilder
-        {
-            private System.IO.MemoryStream Identifier;
-
-            public IGetEntryForEncryptInputBuilder WithIdentifier(System.IO.MemoryStream value)
-            {
-                Identifier = value;
-                return this;
-            }
-
-            public GetEntryForEncryptInput Build()
-            {
-                if (Identifier == null)
-                {
-                    throw new InvalidOperationException(
-                        String.Format("No value set for required field {0}", "identifier"));
-                }
-
-                return new GetEntryForEncryptInput
-                {
-                    Identifier = (System.IO.MemoryStream) Identifier,
-                };
-            }
-        }
-    }
-
-    public interface IGetEntryForEncryptInputBuilder
-    {
-        IGetEntryForEncryptInputBuilder WithIdentifier(System.IO.MemoryStream value);
-        GetEntryForEncryptInput Build();
     }
 }

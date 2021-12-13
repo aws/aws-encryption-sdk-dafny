@@ -1,7 +1,5 @@
 // Copyright Amazon.com Inc. or its affiliates. All Rights Reserved.
 // SPDX-License-Identifier: Apache-2.0
-//
-// Generated at 2021-11-03T00:21:59.752491
 
 using System;
 using System.IO;
@@ -22,7 +20,7 @@ namespace Aws.Crypto
             this._impl = impl;
         }
 
-        protected override OnEncryptOutput _OnEncrypt(OnEncryptInput input)
+        protected override Aws.Crypto.OnEncryptOutput _OnEncrypt(Aws.Crypto.OnEncryptInput input)
         {
             Dafny.Aws.Crypto.OnEncryptInput internalInput =
                 TypeConversion.ToDafny_N3_aws__N6_crypto__S14_OnEncryptInput(input);
@@ -32,7 +30,7 @@ namespace Aws.Crypto
             return TypeConversion.FromDafny_N3_aws__N6_crypto__S15_OnEncryptOutput(internalOutput);
         }
 
-        protected override OnDecryptOutput _OnDecrypt(OnDecryptInput input)
+        protected override Aws.Crypto.OnDecryptOutput _OnDecrypt(Aws.Crypto.OnDecryptInput input)
         {
             Dafny.Aws.Crypto.OnDecryptInput internalInput =
                 TypeConversion.ToDafny_N3_aws__N6_crypto__S14_OnDecryptInput(input);
