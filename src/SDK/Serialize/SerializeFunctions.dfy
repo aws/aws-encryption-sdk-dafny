@@ -42,28 +42,28 @@ module SerializeFunctions {
   function method Read(
     s: seq<uint8>,
     pos: nat,
-    l: nat
+    length: nat
   ):
     (res: ReadBinary<seq<uint8>>)
     decreases if pos > 0 then true else false
-    requires l > 0
+    requires length > 0
     ensures
-      && |s| >= pos + l
+      && |s| >= pos + length
     ==>
       && res.Success?
-      && |res.value.0| == l
-      && res.value.1 == pos + l >= 0
+      && |res.value.0| == length
+      && res.value.1 == pos + length >= 0
       && |s| >= res.value.1 > pos
       && s[pos..res.value.1] == res.value.0
     ensures
-      && pos + l > |s|
+      && pos + length > |s|
     ==>
       && res.Failure?
       && res.error.MoreNeeded?
-      && res.error.pos == pos + l
+      && res.error.pos == pos + length
     ensures CorrectlyRead(s, pos, res, d => d)
   {
-    var end := pos + l;
+    var end := pos + length;
     if |s| >= end then
       Success((s[pos..end], end))
     else
