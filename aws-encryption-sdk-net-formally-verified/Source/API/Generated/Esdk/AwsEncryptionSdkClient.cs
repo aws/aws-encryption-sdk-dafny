@@ -24,8 +24,8 @@ namespace Aws.Esdk
         {
             Dafny.Aws.Esdk.EncryptInput internalInput = TypeConversion.ToDafny_N3_aws__N4_esdk__S12_EncryptInput(input);
             Dafny.Aws.Esdk.EncryptOutput internalOutput =
-            // TODO this line was manually updated
-            DafnyFFI.ExtractResult(this._impl.Encrypt(internalInput));
+                // TODO this line was manually updated
+                DafnyFFI.ExtractResult(this._impl.Encrypt(internalInput));
             return TypeConversion.FromDafny_N3_aws__N4_esdk__S13_EncryptOutput(internalOutput);
         }
 

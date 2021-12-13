@@ -181,6 +181,9 @@ operation CreateMultiKeyring {
 
 structure CreateMultiKeyringInput {
     generator: KeyringReference,
+
+    // We'll represent "no children" as an empty list
+    @required
     childKeyrings: KeyringList
 }
 
