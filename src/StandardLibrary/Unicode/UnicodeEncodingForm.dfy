@@ -31,6 +31,9 @@ abstract module UnicodeEncodingForm {
   import Unicode
 
   type CodeUnitSeq = seq<CodeUnit>
+  type WellFormedCodeUnitSeq = s: CodeUnitSeq
+    | IsWellFormedCodeUnitSequence(s)
+    witness []
   type MinimalWellFormedCodeUnitSeq = s: CodeUnitSeq
     | IsMinimalWellFormedCodeUnitSubsequence(s)
     witness *
@@ -85,4 +88,182 @@ abstract module UnicodeEncodingForm {
   //
   // End abstract items.
   //
+
+  /**
+    * If `ms` is the concatenation of a minimal well-formed code unit subsequence `m` and a code unit sequence `s`,
+    * then the shortest minimal well-formed code unit subsequence prefix of `ms` is simply `m`.
+    */
+  lemma LemmaSplitPrefixMinimalWellFormedCodeUnitSubsequenceInvertsPrepend(m: MinimalWellFormedCodeUnitSeq, s: CodeUnitSeq)
+    ensures SplitPrefixMinimalWellFormedCodeUnitSubsequence(m + s) == Some(m)
+  {
+    var ms := m + s;
+    assert IsMinimalWellFormedCodeUnitSubsequence(ms[..|m|]);
+    var prefix := SplitPrefixMinimalWellFormedCodeUnitSubsequence(ms).Extract();
+    calc ==> {
+      IsMinimalWellFormedCodeUnitSubsequence(m);
+      |prefix| <= |m|;
+      prefix == ms[..|prefix|] == m[..|prefix|] == m;
+    }
+  }
+
+  /**
+    * Returns the unique partition of the given code unit sequence into minimal well-formed code unit subsequences,
+    * or None if no such partition exists.
+    */
+  function method PartitionCodeUnitSequenceChecked(s: CodeUnitSeq): (maybeParts: Option<seq<MinimalWellFormedCodeUnitSeq>>)
+    ensures maybeParts.Some? ==> Seq.Flatten(maybeParts.Extract()) == s
+    decreases |s|
+  {
+    if s == [] then Some([])
+    else (
+      var maybePrefix := SplitPrefixMinimalWellFormedCodeUnitSubsequence(s);
+      if maybePrefix.None? then None
+      else (
+        var prefix := maybePrefix.Extract();
+        var restParts := PartitionCodeUnitSequenceChecked(s[|prefix|..]);
+        if restParts.Some? then Some([prefix] + restParts.Extract())
+        else None
+      )
+    )
+  }
+
+  /**
+    * Returns the unique partition of the given well-formed code unit sequence into minimal well-formed code unit
+    * subsequences.
+    */
+  function method PartitionCodeUnitSequence(s: WellFormedCodeUnitSeq): (parts: seq<MinimalWellFormedCodeUnitSeq>)
+    ensures Seq.Flatten(parts) == s
+  {
+    PartitionCodeUnitSequenceChecked(s).Extract()
+  }
+
+  /**
+    * The partitioning of a minimal well-formed code unit subsequence is the singleton sequence
+    * containing exactly the minimal well-formed code unit subsequence.
+    */
+  lemma LemmaPartitionMinimalWellFormedCodeUnitSubsequence(m: MinimalWellFormedCodeUnitSeq)
+    ensures PartitionCodeUnitSequenceChecked(m) == Some([m])
+  {
+    LemmaSplitPrefixMinimalWellFormedCodeUnitSubsequenceInvertsPrepend(m, []);
+    calc == {
+      Some(m);
+      SplitPrefixMinimalWellFormedCodeUnitSubsequence(m + []);
+      { assert m + [] == m; }
+      SplitPrefixMinimalWellFormedCodeUnitSubsequence(m);
+    }
+    calc == {
+      PartitionCodeUnitSequenceChecked(m);
+      Some([m] + []);
+      { assert [m] + [] == [m]; }
+      Some([m]);
+    }
+  }
+
+  /**
+    * A code unit sequence is well-formed iff it can be partitioned into a sequence of minimal well-formed code unit subsequences.
+    */
+  function method IsWellFormedCodeUnitSequence(s: CodeUnitSeq): (b: bool)
+  {
+    PartitionCodeUnitSequenceChecked(s).Some?
+  }
+
+  /**
+    * A minimal well-formed code unit subsequence is a well-formed code unit sequence.
+    */
+  lemma LemmaMinimalWellFormedCodeUnitSubsequenceIsWellFormedSequence(m: MinimalWellFormedCodeUnitSeq)
+    ensures IsWellFormedCodeUnitSequence(m)
+  {
+    LemmaPartitionMinimalWellFormedCodeUnitSubsequence(m);
+  }
+
+  /**
+    * The concatenation of a minimal well-formed code unit subsequence and a well-formed code unit sequence
+    * is itself a well-formed code unit sequence.
+    */
+  lemma LemmaPrependMinimalWellFormedCodeUnitSubsequence(m: MinimalWellFormedCodeUnitSeq, s: WellFormedCodeUnitSeq)
+    ensures IsWellFormedCodeUnitSequence(m + s)
+  {
+    LemmaPartitionMinimalWellFormedCodeUnitSubsequence(m);
+    LemmaSplitPrefixMinimalWellFormedCodeUnitSubsequenceInvertsPrepend(m, s);
+    assert PartitionCodeUnitSequenceChecked(m + s).Some?;
+  }
+
+  /**
+    * The concatenation of minimal well-formed code unit subsequences is itself a well-formed code unit sequence.
+    */
+  lemma LemmaFlattenMinimalWellFormedCodeUnitSubsequences(ms: seq<MinimalWellFormedCodeUnitSeq>)
+    ensures IsWellFormedCodeUnitSequence(Seq.Flatten(ms))
+  {
+    if |ms| == 0 {
+      assert IsWellFormedCodeUnitSequence(Seq.Flatten(ms));
+    }
+    else {
+      var head := ms[0];
+      var tail := ms[1..];
+      LemmaFlattenMinimalWellFormedCodeUnitSubsequences(tail);
+      var flatTail := Seq.Flatten(tail);
+      LemmaPrependMinimalWellFormedCodeUnitSubsequence(head, flatTail);
+      assert IsWellFormedCodeUnitSequence(head + flatTail);
+    }
+  }
+
+  /**
+    * The concatenation of well-formed code unit sequences is itself a well-formed code unit sequence.
+    */
+  lemma LemmaConcatWellFormedCodeUnitSubsequences(s: WellFormedCodeUnitSeq, t: WellFormedCodeUnitSeq)
+    ensures IsWellFormedCodeUnitSequence(s + t)
+  {
+    var partsS := PartitionCodeUnitSequence(s);
+    var partsT := PartitionCodeUnitSequence(t);
+    var partsST := partsS + partsT;
+    Seq.LemmaFlattenConcat(partsS, partsT);
+
+    assert s + t == Seq.Flatten(partsST);
+    assert forall part | part in partsST ::
+      && |part| > 0
+      && IsMinimalWellFormedCodeUnitSubsequence(part);
+    LemmaFlattenMinimalWellFormedCodeUnitSubsequences(partsST);
+  }
+
+  /**
+    * Returns the well-formed Unicode string that is the encoding of the given scalar value sequence.
+    */
+  function method EncodeScalarSequence(vs: seq<Unicode.ScalarValue>): (s: WellFormedCodeUnitSeq)
+  {
+    var ms := Seq.Map(EncodeScalarValue, vs);
+    LemmaFlattenMinimalWellFormedCodeUnitSubsequences(ms);
+    Seq.Flatten(ms)
+  }
+
+  /**
+    * Returns the scalar value sequence encoded by the given well-formed Unicode string.
+    */
+  function method DecodeCodeUnitSequence(s: WellFormedCodeUnitSeq): (vs: seq<Unicode.ScalarValue>)
+    ensures EncodeScalarSequence(vs) == s
+  {
+    var parts := PartitionCodeUnitSequence(s);
+    var vs := Seq.Map(DecodeMinimalWellFormedCodeUnitSubsequence, parts);
+    calc == {
+      s;
+      Seq.Flatten(parts);
+      { assert parts == Seq.Map(EncodeScalarValue, vs); }
+      Seq.Flatten(Seq.Map(EncodeScalarValue, vs));
+      EncodeScalarSequence(vs);
+    }
+    vs
+  }
+
+  /**
+    * Returns the scalar value sequence encoded by the given code unit sequence, or None if the given Unicode string
+    * is not well-formed.
+    */
+  function method DecodeCodeUnitSequenceChecked(s: CodeUnitSeq): (maybeVs: Option<seq<Unicode.ScalarValue>>)
+    ensures IsWellFormedCodeUnitSequence(s) ==>
+      && maybeVs.Some?
+      && maybeVs.Extract() == DecodeCodeUnitSequence(s)
+    ensures !IsWellFormedCodeUnitSequence(s) ==> && maybeVs.None?
+  {
+    if IsWellFormedCodeUnitSequence(s) then Some(DecodeCodeUnitSequence(s))
+    else None
+  }
 }
