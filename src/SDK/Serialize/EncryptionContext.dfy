@@ -14,7 +14,7 @@ module EncryptionContext2 {
   import Seq
   import StandardLibrary
   import Sets
-  // import opened SerializableTypes
+  import opened SerializableTypes
   import opened StandardLibrary.UInt
   import opened Wrappers
   import opened UTF8
@@ -27,9 +27,6 @@ module EncryptionContext2 {
   // For reading and writing, we use the arbitrary given order,
   // and separate the ordering problem from serialization.
 
-  datatype Pair<K, V> = Pair(key: K, value: V)
-  type Linear<K, V> = seq<Pair<K,V>>
-
   type ESDKEncryptionContextPair = p: Pair<UTF8.ValidUTF8Bytes, UTF8.ValidUTF8Bytes>
   |
     && HasUint16Len(p.key) && ValidUTF8Seq(p.key)
@@ -40,7 +37,7 @@ module EncryptionContext2 {
   type ESDKCanonicalEncryptionContext = pairs: seq<ESDKEncryptionContextPair>
   |
     && HasUint16Len(pairs)
-    && LinearLength2(pairs) < ESDK_CANONICAL_ENCRYPTION_CONTEXT_MAX_LENGTH
+    && LinearLength(pairs) < ESDK_CANONICAL_ENCRYPTION_CONTEXT_MAX_LENGTH
     //= compliance/data-format/message-header.txt#2.5.1.7.2.2
     //= type=implication
     //# This sequence MUST NOT contain duplicate entries.
@@ -175,17 +172,17 @@ module EncryptionContext2 {
     (ret: seq<uint8>)
     ensures |ec| == 0
     ==>
-      && LinearLength2(ec) == |ret|
+      && LinearLength(ec) == |ret|
       && ret == []
     ensures |ec| != 0
     ==>
-      && LinearLength2(Seq.DropLast(ec)) + PairLength(Seq.Last(ec)) == |ret|
+      && LinearLength(Seq.DropLast(ec)) + PairLength(Seq.Last(ec)) == |ret|
       && WriteAADPairs(Seq.DropLast(ec)) + WriteAADPair(Seq.Last(ec)) == ret
     ensures |ret| < ESDK_CANONICAL_ENCRYPTION_CONTEXT_MAX_LENGTH
   {
     if |ec| == 0 then []
     else
-      assert LinearLength2(Seq.DropLast(ec)) < LinearLength2(ec);
+      assert LinearLength(Seq.DropLast(ec)) < LinearLength(ec);
       WriteAADPairs(Seq.DropLast(ec)) + WriteAADPair(Seq.Last(ec))
   }
 
@@ -327,51 +324,4 @@ module EncryptionContext2 {
   {
     set p: Pair<K,V> | p in pairs :: p.key
   }
-
-
-
-  // Copied from Serialized Types...
-
-  predicate method IsESDKEncryptionContext(ec: Crypto.EncryptionContext) {
-    && |ec| < UINT16_LIMIT
-    && Length2(ec) < UINT16_LIMIT
-    && forall element
-    | element in (multiset(ec.Keys) + multiset(ec.Values))
-    ::
-      && HasUint16Len(element)
-      && ValidUTF8Seq(element)
-  }
-
-  type ESDKEncryptionContext = ec: Crypto.EncryptionContext | IsESDKEncryptionContext(ec) witness *
-
-  function method Length2(encryptionContext: Crypto.EncryptionContext): nat
-  {
-    if |encryptionContext| == 0 then 0
-    else
-      // Defining and reasoning about order at this level is simplified by using a sequence of
-      // key value pairs instead of a map.
-      var keys: seq<UTF8.ValidUTF8Bytes> := Sets.ComputeSetToOrderedSequence2<uint8>(encryptionContext.Keys, UInt.UInt8Less);
-      var pairs := seq(|keys|, i requires 0 <= i < |keys| => Pair(keys[i], encryptionContext[keys[i]]));
-      2 + LinearLength2(pairs)
-  }
-
-  function method LinearLength2(
-    pairs: Linear<UTF8.ValidUTF8Bytes, UTF8.ValidUTF8Bytes>
-  ):
-    (ret: nat)
-    ensures |pairs| == 0 ==> ret == 0
-  {
-    if |pairs| == 0 then 0
-    else
-      LinearLength2(Seq.DropLast(pairs)) + PairLength(Seq.Last(pairs))
-  }
-
-  function method PairLength(
-    pair: Pair<UTF8.ValidUTF8Bytes, UTF8.ValidUTF8Bytes>
-  ):
-    (ret: nat)
-  {
-    2 + |pair.key| + 2 + |pair.value|
-  }
-
 }

@@ -27,7 +27,7 @@ module HeaderV2 {
   | h.body.HeaderBodyV2?
   witness *
 
-  const VERSION_2: seq<uint8> := [2];
+  const VERSION_2: seq<uint8> := [0x01];
 
   function method WriteHeaderV2(
     header: V2Header

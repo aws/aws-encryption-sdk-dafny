@@ -2,14 +2,14 @@
 // SPDX-License-Identifier: Apache-2.0
 
 include "AmazonKeyManagementService.dfy"
-include "../SDK/EncryptionContext.dfy"
+include "../Generated/AwsCryptographicMaterialProviders.dfy"
 include "../StandardLibrary/StandardLibrary.dfy"
 include "../StandardLibrary/UInt.dfy"
 include "../Util/UTF8.dfy"
 include "AwsKmsArnParsing.dfy"
 
 module {:extern "KMSUtils"} KMSUtils {
-  import EncryptionContext
+  import Aws.Crypto
   import opened AmazonKeyManagementService
   import opened StandardLibrary
   import opened Wrappers
@@ -28,7 +28,7 @@ module {:extern "KMSUtils"} KMSUtils {
   type HttpStatusCode = int //FIXME: Restrict this
 
   datatype GenerateDataKeyRequest = GenerateDataKeyRequest(
-    encryptionContext: EncryptionContext.Map,
+    encryptionContext: Crypto.EncryptionContext,
     grantTokens: seq<GrantToken>,
     keyID: AwsKmsIdentifierString,
     numberOfBytes: int32
@@ -51,7 +51,7 @@ module {:extern "KMSUtils"} KMSUtils {
   }
 
   datatype EncryptRequest = EncryptRequest(
-    encryptionContext: EncryptionContext.Map,
+    encryptionContext: Crypto.EncryptionContext,
     grantTokens: seq<GrantToken>,
     keyID: AwsKmsIdentifierString,
     plaintext: seq<uint8>
@@ -78,7 +78,7 @@ module {:extern "KMSUtils"} KMSUtils {
   datatype DecryptRequest = DecryptRequest(
     keyId: string,
     ciphertextBlob: seq<uint8>,
-    encryptionContext: EncryptionContext.Map,
+    encryptionContext: Crypto.EncryptionContext,
     grantTokens: seq<GrantToken>)
   {
     predicate Valid() {

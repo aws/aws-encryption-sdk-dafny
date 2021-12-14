@@ -4,14 +4,22 @@
 include "../../Util/UTF8.dfy"
 include "../../Generated/AwsCryptographicMaterialProviders.dfy"
 include "../../StandardLibrary/StandardLibrary.dfy"
+include "../../Util/Sets.dfy"
+include "../../../libraries/src/Collections/Sequences/Seq.dfy"
 
 module SerializableTypes {
   import StandardLibrary
   import opened UInt = StandardLibrary.UInt
   import opened UTF8
   import opened Aws.Crypto
+  import Sets
+  import Seq
 
   type ShortUTF8Seq = s: ValidUTF8Bytes | HasUint16Len(s)
+  // To make verification and working with iterating through the encryption context
+  // simpler, here we define a specific type to represent a sequence of key-value tuples.
+  datatype Pair<K, V> = Pair(key: K, value: V)
+  type Linear<K, V> = seq<Pair<K,V>>
 
   predicate method IsESDKEncryptedDataKey(edk: EncryptedDataKey) {
     && HasUint16Len(edk.keyProviderId)
@@ -23,7 +31,7 @@ module SerializableTypes {
   type ESDKEncryptedDataKey = e: EncryptedDataKey | IsESDKEncryptedDataKey(e) witness *
   type ESDKEncryptedDataKeys = seq16<ESDKEncryptedDataKey>
 
-  predicate method IsESDKEncryptionContext(ec: EncryptionContext) {
+  predicate method IsESDKEncryptionContext(ec: Crypto.EncryptionContext) {
     && |ec| < UINT16_LIMIT
     && Length(ec) < UINT16_LIMIT
     && forall element
@@ -33,7 +41,9 @@ module SerializableTypes {
       && ValidUTF8Seq(element)
   }
 
-  type ESDKEncryptionContext = ec: EncryptionContext | IsESDKEncryptionContext(ec) witness *
+  type ESDKEncryptionContext = ec: Crypto.EncryptionContext
+  | IsESDKEncryptionContext(ec)
+  witness *
 
   const VALID_IDS: set<uint16> := {0x0578, 0x0478, 0x0378, 0x0346, 0x0214, 0x0178, 0x0146, 0x0114, 0x0078, 0x0046, 0x0014};
   
@@ -92,31 +102,32 @@ module SerializableTypes {
    * 2 for the value length
    * Uint16-2-2-1 for the value data
    */
-  function method Length(encryptionContext: EncryptionContext): nat
+  function method Length(encryptionContext: Crypto.EncryptionContext): nat
   {
     if |encryptionContext| == 0 then 0 else
       // Defining and reasoning about order at this level is simplified by using a sequence of
       // key value pairs instead of a map.
-      var keys: seq<UTF8.ValidUTF8Bytes> := StandardLibrary.SetToOrderedSequence(encryptionContext.Keys, UInt.UInt8Less);
-      var kvPairs := seq(|keys|, i requires 0 <= i < |keys| => (keys[i], encryptionContext[keys[i]]));
-      2 + LinearLength(kvPairs, 0, |kvPairs|)
+      var keys: seq<UTF8.ValidUTF8Bytes> := Sets.ComputeSetToOrderedSequence2<uint8>(encryptionContext.Keys, UInt.UInt8Less);
+      var pairs := seq(|keys|, i requires 0 <= i < |keys| => Pair(keys[i], encryptionContext[keys[i]]));
+      2 + LinearLength(pairs)
   }
 
-  /*
-   * Encryption context as a sequence
-   */
-
-  // To make verification and working with iterating through the encryption context
-  // simpler, here we define a specific type to represent a sequence of key-value tuples.
-  type Linear = seq<(UTF8.ValidUTF8Bytes, UTF8.ValidUTF8Bytes)>
-
-  // Length of KVPairEntries is defined in terms of a seq of tuples, which is easier to reason about
-  function method LinearLength(kvPairs: Linear, lo: nat, hi: nat): nat
-    requires lo <= hi <= |kvPairs|
+  function method {:tailrecursion} LinearLength(
+    pairs: Linear<UTF8.ValidUTF8Bytes, UTF8.ValidUTF8Bytes>
+  ):
+    (ret: nat)
+    ensures |pairs| == 0 ==> ret == 0
   {
-    if lo == hi then 0 else
-      LinearLength(kvPairs, lo, hi - 1) +
-      2 + |kvPairs[hi - 1].0| +
-      2 + |kvPairs[hi - 1].1|
+    if |pairs| == 0 then 0
+    else
+      LinearLength(Seq.DropLast(pairs)) + PairLength(Seq.Last(pairs))
+  }
+
+  function method PairLength(
+    pair: Pair<UTF8.ValidUTF8Bytes, UTF8.ValidUTF8Bytes>
+  ):
+    (ret: nat)
+  {
+    2 + |pair.key| + 2 + |pair.value|
   }
 }
