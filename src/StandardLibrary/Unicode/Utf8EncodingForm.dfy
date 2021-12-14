@@ -172,7 +172,7 @@ module Utf8EncodingForm refines UnicodeEncodingForm {
     ensures IsWellFormedQuadrupleCodeUnitSequence(s)
   {
     // v = 000u uuuu / zzzz yyyy / yyxx xxxx
-    //        1 1222
+    //        1 1122
     assert v <= 0x1FFFFF;
     var x := (v & 0x3F) as bv6;
     var y := ((v & 0xFC0) >> 6) as bv6;
