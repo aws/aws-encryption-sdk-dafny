@@ -70,24 +70,24 @@ module EncryptedDataKeys {
   function method {:tailrecursion true} ReadEncryptedDataKeys(
     s: seq<uint8>,
     pos: nat,
-    acc: ESDKEncryptedDataKeys,
+    accumulator: ESDKEncryptedDataKeys,
     count: uint16,
     nextEdk: nat
   ):
     (res: ReadCorrect<ESDKEncryptedDataKeys>)
-    requires 0 <= |acc| <= count as nat < UINT16_LIMIT
+    requires 0 <= |accumulator| <= count as nat < UINT16_LIMIT
     requires |s| >= nextEdk >= pos
-    requires WriteEncryptedDataKeys(acc) == s[pos..nextEdk]
-    decreases count as int - |acc|
+    requires WriteEncryptedDataKeys(accumulator) == s[pos..nextEdk]
+    decreases count as int - |accumulator|
     ensures CorrectlyRead(s, pos, res, WriteEncryptedDataKeys)
     ensures res.Success? ==> count as nat == |res.value.0|
   {
-    if count as int > |acc| then
+    if count as int > |accumulator| then
       var (edk, newPos) :- ReadEncryptedDataKey(s, nextEdk);
-      var nextAcc := acc + [edk];
+      var nextAcc := accumulator + [edk];
       ReadEncryptedDataKeys(s, pos, nextAcc, count, newPos)
     else
-      Success((acc, nextEdk))
+      Success((accumulator, nextEdk))
   }
 
   function method ReadEncryptedDataKeysSection(
@@ -98,7 +98,7 @@ module EncryptedDataKeys {
     ensures CorrectlyRead(s, pos, res, WriteEncryptedDataKeysSection)
   {
     var (count, edkStart) :- ReadUInt16(s, pos);
-    :- Need(count > 0, Error("Invalid EDKs seq"));
+    :- Need(count > 0, Error("Invalid Encrypted Data Keys section: 0 EDKs is not valid."));
     var (edks, end) :- ReadEncryptedDataKeys(s, edkStart, [], count, edkStart);
     Success((edks, end))
   }

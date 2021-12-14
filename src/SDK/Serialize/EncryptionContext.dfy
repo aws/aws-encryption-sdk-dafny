@@ -55,7 +55,7 @@ module EncryptionContext2 {
     ==> pairs[i].key != pairs[j].key)
   }
 
-  function method {:vcs_split_on_every_assert} CanonicalEncryptionContext(
+  function method GetCanonicalEncryptionContext(
     encryptionContext: ESDKEncryptionContext
   )
     :(ret: ESDKCanonicalEncryptionContext)
@@ -76,7 +76,7 @@ module EncryptionContext2 {
         encryptionContext[keys[i]]))
   }
 
-  function method EncryptionContext(
+  function method GetEncryptionContext(
     canonicalEncryptionContext: ESDKCanonicalEncryptionContext
   )
     :(ret: Crypto.EncryptionContext)
@@ -235,35 +235,35 @@ module EncryptionContext2 {
   function method {:tailrecursion} ReadAADPairs(
     s: seq<uint8>,
     pos: nat,
-    acc: ESDKCanonicalEncryptionContext,
+    accumulator: ESDKCanonicalEncryptionContext,
     keys: set<UTF8.ValidUTF8Bytes>,
     count: uint16,
     nextPair: nat
   ):
     (res: ReadCorrect<ESDKCanonicalEncryptionContext>)
-    requires 0 <= |acc| <= count as nat < UINT16_LIMIT
+    requires 0 <= |accumulator| <= count as nat < UINT16_LIMIT
     requires |s| >= nextPair >= pos
-    requires WriteAADPairs(acc) == s[pos..nextPair]
-    requires KeysToSet(acc) == keys
-    decreases count as int - |acc|
+    requires WriteAADPairs(accumulator) == s[pos..nextPair]
+    requires KeysToSet(accumulator) == keys
+    decreases count as int - |accumulator|
     ensures res.Success?
     ==>
        && count as nat == |res.value.0|
     ensures CorrectlyRead(s, pos, res, WriteAADPairs)
   {
-    if count as int > |acc| then
+    if count as int > |accumulator| then
       var (pair, newPos) :- ReadAADPair(s, nextPair);
       :- Need(pair.key !in keys, Error("Duplicate Encryption Context key value."));
       :- Need(|s[pos..newPos]| < ESDK_CANONICAL_ENCRYPTION_CONTEXT_MAX_LENGTH, Error("Encryption Context exceeds maximum length."));
 
-      var nextAcc := acc + [pair];
+      var nextAcc := accumulator + [pair];
       var nextKeys := KeysToSet(nextAcc);
       reveal KeysToSet();
-      assert KeysToSet(nextAcc) == KeysToSet(acc) + KeysToSet([pair]);
+      assert KeysToSet(nextAcc) == KeysToSet(accumulator) + KeysToSet([pair]);
       ReadAADPairs(s, pos, nextAcc, nextKeys, count, newPos)
     else
-      assert WriteAADPairs(acc) == s[pos..nextPair];
-      Success((acc, nextPair))
+      assert WriteAADPairs(accumulator) == s[pos..nextPair];
+      Success((accumulator, nextPair))
   }
 
   function method ReadAAD(
@@ -278,9 +278,9 @@ module EncryptionContext2 {
       var edks: ESDKCanonicalEncryptionContext := [];
       Success((edks, ecPos))
     else
-      var acc := [];
-      var keys := KeysToSet(acc);
-      ReadAADPairs(s, ecPos, acc, keys, count, ecPos)
+      var accumulator := [];
+      var keys := KeysToSet(accumulator);
+      ReadAADPairs(s, ecPos, accumulator, keys, count, ecPos)
   }
 
   function method ReadAADSection(

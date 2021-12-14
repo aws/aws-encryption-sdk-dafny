@@ -15,6 +15,7 @@ module SerializableTypes {
 
   predicate method IsESDKEncryptedDataKey(edk: EncryptedDataKey) {
     && HasUint16Len(edk.keyProviderId)
+    && ValidUTF8Seq(edk.keyProviderId)
     && HasUint16Len(edk.keyProviderInfo)
     && HasUint16Len(edk.ciphertext)
   }

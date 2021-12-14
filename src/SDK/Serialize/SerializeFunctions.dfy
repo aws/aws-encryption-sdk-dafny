@@ -14,7 +14,16 @@ module SerializeFunctions {
   import opened UTF8
 
   datatype ReadProblems =
+    // This _may_ be recoverable.
+    // if these is more data to read,
+    // then after getting this data
+    // a read function _may_ be able to return a datatype.
+    // If the caller is at EOS,
+    // then this is not recoverable.
     | MoreNeeded(pos: nat)
+    // These errors should not be recoverable.
+    // The data is incorrect
+    // and reading the same data again will generate the same error.
     | Error(message: string)
   type MoreNeeded = p: ReadProblems | p.MoreNeeded? witness *
 
@@ -22,9 +31,15 @@ module SerializeFunctions {
   // datatype Thing = Thing(data: s:seq<uint8>, pos: nat)
   // Then we take and return this thing,
   // not just `pos`.
+  // Currently we use a tuple,
+  // but a more complete datatype like above may be better long term.
   type ReadResult<T, E> = Result<(T, nat), E>
   type ReadCorrect<T> = ReadResult<T, ReadProblems>
-  type ReadBinary<T> = ReadResult<T, MoreNeeded>
+  // When reading binary it can not be incorrect.
+  // It may not be enough data, but since it is raw binary,
+  // it can not be wrong.
+  // This T MUST be `seq<uint8>`
+  type ReadBinaryCorrect<T> = ReadResult<T, MoreNeeded>
 
   predicate CorrectlyRead<T> (
     s: seq<uint8>,
@@ -44,8 +59,7 @@ module SerializeFunctions {
     pos: nat,
     length: nat
   ):
-    (res: ReadBinary<seq<uint8>>)
-    decreases if pos > 0 then true else false
+    (res: ReadBinaryCorrect<seq<uint8>>)
     requires length > 0
     ensures
       && |s| >= pos + length
@@ -75,8 +89,7 @@ module SerializeFunctions {
     s: seq<uint8>,
     pos: nat
   ):
-    (res: ReadBinary<uint16>)
-    // decreases if pos > 0 then true else false
+    (res: ReadBinaryCorrect<uint16>)
     ensures CorrectlyRead(s, pos, res, UInt16ToSeq)
   {
     var (data, end) :- Read(s, pos, 2);
