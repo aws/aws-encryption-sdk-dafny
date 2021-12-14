@@ -124,27 +124,26 @@ module
           GenerateDataKeyRequest(
             //= compliance/framework/aws-kms/aws-kms-keyring.txt#2.7
             //= type=implication
-            //# *  "EncryptionContext": the encryption context
+            //# *  "EncryptionContext" MUST be the encryption context
             //# (../structures.md#encryption-context) included in the input
-            //# encryption materials (../structures.md#encryption-materials) is
-            //# REQUIRED.
+            //# encryption materials (../structures.md#encryption-materials).
             input.materials.encryptionContext,
             //= compliance/framework/aws-kms/aws-kms-keyring.txt#2.7
             //= type=implication
-            //# *  "GrantTokens": this keyring's grant tokens
+            //# *  "GrantTokens" MUST be this keyring's grant tokens
             //# (https://docs.aws.amazon.com/kms/latest/developerguide/
-            //# concepts.html#grant_token) is REQUIRED.
+            //# concepts.html#grant_token).
             grantTokens,
             //= compliance/framework/aws-kms/aws-kms-keyring.txt#2.7
             //= type=implication
-            //# *  "KeyId": this keyring's KMS key identifier is REQUIRED.
+            //# *  "KeyId" MUST be the keyring's KMS key identifier.
             awsKmsKey,
             //= compliance/framework/aws-kms/aws-kms-keyring.txt#2.7
             //= type=implication
-            //# "NumberOfBytes": the key derivation input length (../algorithm-
-            //# suites.md#key-derivation-input-length) specified by the algorithm
-            //# suite (../algorithm-suites.md) included in the input encryption
-            //# materials (../structures.md#encryption-materials) is REQUIRED.
+            //# *  "NumberOfBytes" MUST be the key derivation input length
+            //# (../algorithm-suites.md#key-derivation-input-length) specified by
+            //# the algorithm suite (../algorithm-suites.md) included in the input
+            //# encryption materials (../structures.md#encryption-materials).
             AlgorithmSuites.GetSuite(input.materials.algorithmSuiteId).encrypt.keyLength as int32
           ))
 
@@ -192,22 +191,23 @@ module
           //# MUST AWS KMS Encrypt call with a request constructed as follows:
           EncryptRequest(
             //= compliance/framework/aws-kms/aws-kms-keyring.txt#2.7
-            //# *  "EncryptionContext": the encryption context
+            //# *  "EncryptionContext" MUST be the encryption context
             //# (../structures.md#encryption-context) included in the input
-            //# encryption materials (../structures.md#encryption-materials) is
-            //# REQUIRED.
+            //# encryption materials (../structures.md#encryption-materials).
             input.materials.encryptionContext,
             //= compliance/framework/aws-kms/aws-kms-keyring.txt#2.7
-            //# *  "GrantTokens": this keyring's grant tokens
+            //# *  "GrantTokens" MUST be this keyring's grant tokens
             //# (https://docs.aws.amazon.com/kms/latest/developerguide/
-            //# concepts.html#grant_token) is REQUIRED.
+            //# concepts.html#grant_token).
             grantTokens,
             //= compliance/framework/aws-kms/aws-kms-keyring.txt#2.7
-            //# *  "KeyId": The configured AWS KMS key identifier is REQUIRED.
+            //= type=implication
+            //# *  "KeyId" MUST be the configured AWS KMS key identifier.
             awsKmsKey,
             //= compliance/framework/aws-kms/aws-kms-keyring.txt#2.7
-            //# *  "PlaintextDataKey": the plaintext data key in the encryption
-            //# materials (../structures.md#encryption-materials) is REQUIRED.
+            //= type=implication
+            //# *  "PlaintextDataKey" MUST be the plaintext data key in the
+            //# encryption materials (../structures.md#encryption-materials).
             input.materials.plaintextDataKey.value
           ))
 
@@ -270,16 +270,16 @@ module
 
         var edk := Crypto.EncryptedDataKey(
           //= compliance/framework/aws-kms/aws-kms-keyring.txt#2.7
-          //# -  the key provider id (../structures.md#key-provider-id) is "aws-
-          //# kms" is REQUIRED.
+          //# -  the key provider id (../structures.md#key-provider-id) MUST be
+          //# "aws-kms".
           keyProviderId := PROVIDER_ID,
           //= compliance/framework/aws-kms/aws-kms-keyring.txt#2.7
           //# -  the key provider information (../structures.md#key-provider-
-          //# information) is the response "KeyId" is REQUIRED.
+          //# information) MUST be the response "KeyId".
           keyProviderInfo := providerInfo,
           //= compliance/framework/aws-kms/aws-kms-keyring.txt#2.7
-          //# -  the ciphertext (../structures.md#ciphertext) is the response
-          //# "CiphertextBlob" is REQUIRED.
+          //# -  the ciphertext (../structures.md#ciphertext) MUST be the
+          //# response "CiphertextBlob".
           ciphertext := generateResponse.ciphertextBlob
         );
         //= compliance/framework/aws-kms/aws-kms-keyring.txt#2.7
@@ -330,17 +330,17 @@ module
 
         var edk := Crypto.EncryptedDataKey(
           //= compliance/framework/aws-kms/aws-kms-keyring.txt#2.7
-          //# *  The key provider id (../structures.md#key-provider-id) is "aws-
-          //# kms" is REQUIRED.
+          //# *  The key provider id (../structures.md#key-provider-id) MUST be
+          //# "aws-kms".
           keyProviderId := PROVIDER_ID,
           //= compliance/framework/aws-kms/aws-kms-keyring.txt#2.7
           //# *  The key provider information (../structures.md#key-provider-
-          //# information) is the response "KeyId".  Note that the "KeyId" in
-          //# the response is always in key ARN format is REQUIRED.
+          //# information) MUST be the response "KeyId".  Note that the "KeyId"
+          //# in the response is always in key ARN format.
           keyProviderInfo := providerInfo,
           //= compliance/framework/aws-kms/aws-kms-keyring.txt#2.7
-          //# *  The ciphertext (../structures.md#ciphertext) is the response
-          //# "CiphertextBlob" is REQUIRED.
+          //# *  The ciphertext (../structures.md#ciphertext) MUST be the response
+          //# "CiphertextBlob".
           ciphertext := encryptResponse.ciphertextBlob
         );
 
@@ -360,6 +360,12 @@ module
       input: Crypto.OnDecryptInput
     )
       returns (res: Result<Crypto.OnDecryptOutput, string>)
+      //= compliance/framework/aws-kms/aws-kms-keyring.txt#2.8
+      //= type=implication
+      //# If the decryption materials (../structures.md#decryption-materials)
+      //# already contained a valid plaintext data key OnDecrypt MUST return an
+      //# error.
+      ensures input.materials.plaintextDataKey.Some? ==> res.Failure?
       ensures res.Success?
       ==>
         && Materials.DecryptionMaterialsTransitionIsValid(
@@ -395,27 +401,30 @@ module
             DecryptRequest(
               //= compliance/framework/aws-kms/aws-kms-keyring.txt#2.8
               //= type=implication
-              //# *  "KeyId": The configured AWS KMS key identifier is REQUIRED.
+              //# *  "KeyId" MUST be the configured AWS KMS key identifier.
               awsKmsKey,
               //= compliance/framework/aws-kms/aws-kms-keyring.txt#2.8
               //= type=implication
-              //# *  "CiphertextBlob": the encrypted data key ciphertext
-              //# (../structures.md#ciphertext) is REQUIRED.
+              //# *  "CiphertextBlob" MUST be the encrypted data key ciphertext
+              //# (../structures.md#ciphertext).
               edk.ciphertext,
               //= compliance/framework/aws-kms/aws-kms-keyring.txt#2.8
               //= type=implication
-              //# *  "EncryptionContext": the encryption context
+              //# *  "EncryptionContext" MUST be the encryption context
               //# (../structures.md#encryption-context) included in the input
-              //# decryption materials (../structures.md#decryption-materials) is
-              //# REQUIRED.
+              //# decryption materials (../structures.md#decryption-materials).
               input.materials.encryptionContext,
               //= compliance/framework/aws-kms/aws-kms-keyring.txt#2.8
               //= type=implication
-              //# *  "GrantTokens": this keyring's grant tokens
+              //# *  "GrantTokens" MUST be this keyring's grant tokens
               //# (https://docs.aws.amazon.com/kms/latest/developerguide/
-              //# concepts.html#grant_token) is REQUIRED.
+              //# concepts.html#grant_token).
               grantTokens
             ))
+          //= compliance/framework/aws-kms/aws-kms-keyring.txt#2.8
+          //= type=implication
+          //# *  MUST immediately return the modified decryption materials
+          //# (../structures.md#decryption-materials).
           && DecryptResult(
             //= compliance/framework/aws-kms/aws-kms-keyring.txt#2.8
             //= type=implication
@@ -436,11 +445,6 @@ module
       var materials := input.materials;
       var suite := AlgorithmSuites.GetSuite(input.materials.algorithmSuiteId);
 
-      //= compliance/framework/aws-kms/aws-kms-keyring.txt#2.8
-      //= type=implication
-      //# If the decryption materials (../structures.md#decryption-materials)
-      //# already contained a valid plaintext data key OnDecrypt MUST return an
-      //# error.
       :- Need(
         Materials.DecryptionMaterialsWithoutPlaintextDataKey(materials),
         "Keyring recieved decryption materials that already contain a plaintext data key.");
@@ -488,10 +492,6 @@ module
                 grantTokens
               ))
             && DecryptResult(awsKmsKey, mat.plaintextDataKey.value);
-          //= compliance/framework/aws-kms/aws-kms-keyring.txt#2.8
-          //= type=implication
-          //# *  MUST immediately return the modified decryption materials
-          //# (../structures.md#decryption-materials).
           Success(Crypto.OnDecryptOutput(
             materials := mat
           ))
