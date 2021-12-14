@@ -97,6 +97,18 @@ module SerializeFunctions {
     Success((SeqToUInt16(data), end))
   }
 
+  function method ReadUInt32(
+    s: seq<uint8>,
+    pos: nat
+  ):
+    (res: ReadBinary<uint32>)
+    // decreases if pos > 0 then true else false
+    ensures CorrectlyRead(s, pos, res, UInt32ToSeq)
+  {
+    var (data, end) :- Read(s, pos, 4);
+    Success((SeqToUInt32(data), end))
+  }
+
   function method WriteShortLengthSeq(
     d: Uint8Seq16
   ):
