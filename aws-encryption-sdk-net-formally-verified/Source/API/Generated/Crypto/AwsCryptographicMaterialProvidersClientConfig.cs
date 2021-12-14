@@ -1,7 +1,5 @@
 // Copyright Amazon.com Inc. or its affiliates. All Rights Reserved.
 // SPDX-License-Identifier: Apache-2.0
-//
-// Generated at 2021-11-03T00:21:59.652135
 
 using System;
 using Aws.Crypto;
@@ -13,47 +11,16 @@ namespace Aws.Crypto
 {
     public class AwsCryptographicMaterialProvidersClientConfig
     {
-        public ConfigurationDefaults ConfigDefaults { get; private set; }
+        private Aws.Crypto.ConfigurationDefaults _configDefaults;
 
-        public static IAwsCryptographicMaterialProvidersClientConfigBuilder Builder()
+        public Aws.Crypto.ConfigurationDefaults ConfigDefaults
         {
-            return new AwsCryptographicMaterialProvidersClientConfigBuilder();
+            get { return this._configDefaults; }
+            set { this._configDefaults = value; }
         }
 
         public void Validate()
         {
         }
-
-        private class
-            AwsCryptographicMaterialProvidersClientConfigBuilder : IAwsCryptographicMaterialProvidersClientConfigBuilder
-        {
-            private ConfigurationDefaults ConfigDefaults;
-
-            public IAwsCryptographicMaterialProvidersClientConfigBuilder WithConfigDefaults(ConfigurationDefaults value)
-            {
-                ConfigDefaults = value;
-                return this;
-            }
-
-            public AwsCryptographicMaterialProvidersClientConfig Build()
-            {
-                if (ConfigDefaults == null)
-                {
-                    throw new InvalidOperationException(
-                        String.Format("No value set for required field {0}", "configDefaults"));
-                }
-
-                return new AwsCryptographicMaterialProvidersClientConfig
-                {
-                    ConfigDefaults = (ConfigurationDefaults) ConfigDefaults,
-                };
-            }
-        }
-    }
-
-    public interface IAwsCryptographicMaterialProvidersClientConfigBuilder
-    {
-        IAwsCryptographicMaterialProvidersClientConfigBuilder WithConfigDefaults(ConfigurationDefaults value);
-        AwsCryptographicMaterialProvidersClientConfig Build();
     }
 }

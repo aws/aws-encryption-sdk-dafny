@@ -6,6 +6,8 @@ on: ["pull_request", "push"]
 jobs:
   verification:
     runs-on: macos-latest
+    env:
+      DOTNET_CLI_TELEMETRY_OPTOUT: 1
     steps:
       - uses: actions/checkout@v2
       # The specification submodule is private so we don't have access, but we don't need
