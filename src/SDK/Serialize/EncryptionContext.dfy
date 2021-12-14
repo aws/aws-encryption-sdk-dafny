@@ -63,7 +63,7 @@ module EncryptionContext2 {
     //= compliance/data-format/message-header.txt#2.5.1.7.2.2
     //# These entries MUST have entries sorted, by key, in ascending order
     //# according to the UTF-8 encoded binary value.
-    var keys: seq<UTF8.ValidUTF8Bytes> := Sets.ComputeSetToOrderedSequence<uint8>(
+    var keys: seq<UTF8.ValidUTF8Bytes> := Sets.ComputeSetToOrderedSequence2<uint8>(
       encryptionContext.Keys,
       UInt.UInt8Less
     );
