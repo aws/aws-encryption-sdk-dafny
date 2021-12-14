@@ -360,18 +360,19 @@ module
       input: Crypto.OnDecryptInput
     )
       returns (res: Result<Crypto.OnDecryptOutput, string>)
-      //= compliance/framework/aws-kms/aws-kms-keyring.txt#2.8
-      //= type=implication
-      //# If the decryption materials (../structures.md#decryption-materials)
-      //# already contained a valid plaintext data key OnDecrypt MUST return an
-      //# error.
-      ensures input.materials.plaintextDataKey.Some? ==> res.Failure?
       ensures res.Success?
       ==>
         && Materials.DecryptionMaterialsTransitionIsValid(
           input.materials,
           res.value.materials
         )
+
+      //= compliance/framework/aws-kms/aws-kms-keyring.txt#2.8
+      //= type=implication
+      //# If the decryption materials (../structures.md#decryption-materials)
+      //# already contained a valid plaintext data key OnDecrypt MUST return an
+      //# error.
+      ensures input.materials.plaintextDataKey.Some? ==> res.Failure?
 
       ensures
         && input.materials.plaintextDataKey.None?
