@@ -31,22 +31,32 @@ module TestMultiKeyring {
     );
   }
 
+  method getInputDecryptionMaterials(encryptionContext: EncryptionContext.Map) returns (res: Crypto.DecryptionMaterials) {
+    return Crypto.DecryptionMaterials(
+      encryptionContext:=encryptionContext,
+      algorithmSuiteId := Crypto.ALG_AES_256_GCM_IV12_TAG16_HKDF_SHA256,
+      verificationKey := None(),
+      plaintextDataKey:=None()
+    );
+  }
+
   method {:test} TestHappyCase()
   {
     var encryptionContext := TestUtils.SmallEncryptionContext(TestUtils.SmallEncryptionContextVariation.A);
     var encryptionMaterials := getInputEncryptionMaterials(encryptionContext);
+    var decryptionMaterials := getInputDecryptionMaterials(encryptionContext);
 
     // To confirm that the multi-keyring is generating the plaintext data key using the generator, we'll
     // directly get materials using the generator
     var rawAESKeyring := setupRawAesKeyring(encryptionContext);
-    var expectedMaterials := rawAESKeyring.OnEncrypt(
+    var expectedEncryptionMaterials := rawAESKeyring.OnEncrypt(
       Crypto.OnEncryptInput(materials:=encryptionMaterials)
     );
-    expect expectedMaterials.Success?;
-    var expectedPlaintextDataKey := expectedMaterials.value.materials.plaintextDataKey;
+    expect expectedEncryptionMaterials.Success?;
+    var expectedPlaintextDataKey := expectedEncryptionMaterials.value.materials.plaintextDataKey;
     expect expectedPlaintextDataKey.Some?;
 
-    var staticKeyring := new StaticKeyring(Some(expectedMaterials.value.materials), None());
+    var staticKeyring := new StaticKeyring(Some(expectedEncryptionMaterials.value.materials), None());
 
     var multiKeyring := new MultiKeyring.MultiKeyring(
         generatorKeyring := staticKeyring,
@@ -55,11 +65,6 @@ module TestMultiKeyring {
 
     var result := multiKeyring.OnEncrypt(Crypto.OnEncryptInput(materials:=encryptionMaterials));
     expect result.Success?;
-
-
-    // TODO: unsure how to test claims around
-    //    a) not modifying input materials in various cases
-    //    b) passing exact inputs to child keyrings
 
     //= compliance/framework/multi-keyring.txt#2.7.1
     //= type=test
@@ -115,8 +120,8 @@ module TestMultiKeyring {
     var encryptionContext := TestUtils.SmallEncryptionContext(TestUtils.SmallEncryptionContextVariation.A);
     var failingKeyring := new FailingKeyring();
 
-    // We'll add a functional AES keyring as a child to make sure that we're not incorrectly using
-    // that keyring after the generator fails (e.g. trying to use a child keyring to generate keys)
+    // We'll add a functional AES keyring as a small validation that something *could* have succeeded in
+    // generating but the call still fails.
     var rawAESKeyring := setupRawAesKeyring(encryptionContext);
 
     var multiKeyring := new MultiKeyring.MultiKeyring(
@@ -163,18 +168,9 @@ module TestMultiKeyring {
     var encryptionMaterials := rawAESKeyring.OnEncrypt(Crypto.OnEncryptInput(materials:=inputEncryptionMaterials));
     expect encryptionMaterials.Success?;
 
-    var inputDecryptionMaterials := Crypto.DecryptionMaterials(
-      encryptionContext:=encryptionContext,
-      algorithmSuiteId := encryptionMaterials.value.materials.algorithmSuiteId,
-      verificationKey := None(),
-      plaintextDataKey:=None()
-    );
+    var inputDecryptionMaterials := getInputDecryptionMaterials(encryptionContext);
 
     var failingKeyring := new FailingKeyring();
-
-    // TODO: still not technically checking for "first". Since the decrypt flow
-    // will move past failures, a buggy implementation could be trying the 
-    // (failing) child keyring first and then moving to the generator.
 
     var multiKeyring := new MultiKeyring.MultiKeyring(
         generatorKeyring := rawAESKeyring,
@@ -198,6 +194,17 @@ module TestMultiKeyring {
     //# using its child keyrings, until one either succeeds in decryption or
     //# all have failed.
 
+    //= compliance/framework/multi-keyring.txt#2.7.2
+    //= type=TODO
+    //# For each keyring (keyring-interface.md) to be used for decryption,
+    //# the multi-keyring MUST call that keyring's OnDecrypt (keyring-
+    //# interface.md#ondecrypt) using the unmodified decryption materials
+    //# (structures.md#decryption-materials) and the input encrypted data key
+    //# (structures.md#encrypted-data-key) list.
+    // Marked as TODO because we don't yet have a way of confirming the exact
+    // parameters passed to child keyrings. Investigate our "spy" patterns at
+    // some point
+
     // Generate some materials to decrypt
     var encryptionContext := TestUtils.SmallEncryptionContext(TestUtils.SmallEncryptionContextVariation.A);
     var rawAESKeyring := setupRawAesKeyring(encryptionContext);
@@ -205,12 +212,7 @@ module TestMultiKeyring {
     var encryptionMaterials := rawAESKeyring.OnEncrypt(Crypto.OnEncryptInput(materials:=inputEncryptionMaterials));
     expect encryptionMaterials.Success?;
 
-    var inputDecryptionMaterials := Crypto.DecryptionMaterials(
-      encryptionContext:=encryptionContext,
-      algorithmSuiteId := encryptionMaterials.value.materials.algorithmSuiteId,
-      verificationKey := None(),
-      plaintextDataKey:=None()
-    );
+    var inputDecryptionMaterials := getInputDecryptionMaterials(encryptionContext);
 
     var failingKeyring := new FailingKeyring();
 
@@ -221,11 +223,20 @@ module TestMultiKeyring {
         childKeyrings := [failingKeyring, rawAESKeyring, failingKeyring]
     );
 
-
     var onDecryptInput := Crypto.OnDecryptInput(
       materials := inputDecryptionMaterials, encryptedDataKeys := encryptionMaterials.value.materials.encryptedDataKeys
     );
 
+    //= compliance/framework/multi-keyring.txt#2.7.2
+    //= type=TODO
+    //# If OnDecrypt (keyring-
+    //# interface.md#ondecrypt) returns decryption materials
+    //# (structures.md#decryption-materials) containing a plaintext data key,
+    //# the multi-keyring MUST immediately return the modified decryption
+    //# materials.
+    // Marked as TODO because we don't yet have a way of confirming the "immediately"
+    // requirement. We ensure we got the right output, but we don't ensure we didn't try
+    // the other keyrings before returning. Look into the "spy" pattern at some point
     var decryptionMaterials := multiKeyring.OnDecrypt(input:=onDecryptInput);
     expect decryptionMaterials.Success?;
     expect decryptionMaterials.value.materials.plaintextDataKey == encryptionMaterials.value.materials.plaintextDataKey;
@@ -316,42 +327,6 @@ module TestMultiKeyring {
         return Failure("Failure");
       }
     }
-  }
-
-  /*
-   * A Keyring which is configured to expect a certain set of input materials, and fails
-   * if it is not given those materials.
-   */
-  class InputCheckingKeyring extends Crypto.IKeyring {
-    const expectedInputEncryptionMaterials: Crypto.EncryptionMaterials;
-    const expectedInputDecryptionMaterials: Crypto.DecryptionMaterials;
-    const delegateKeyring: Crypto.IKeyring;
-
-    constructor(
-      encryptionMaterials: Crypto.EncryptionMaterials,
-      decryptionMaterials: Crypto.DecryptionMaterials,
-      keyring: Crypto.IKeyring
-    )
-    {
-      this.expectedInputEncryptionMaterials := encryptionMaterials;
-      this.expectedInputDecryptionMaterials := decryptionMaterials;
-      this.delegateKeyring := keyring;
-    }
-
-    method OnEncrypt(input: Crypto.OnEncryptInput)
-      returns (res: Result<Crypto.OnEncryptOutput, string>)
-    {
-      :- Need(expectedInputEncryptionMaterials == input.materials, "Wrong materials provided as input");
-      res := delegateKeyring.OnEncrypt(input);
-    }
-
-    method OnDecrypt(input: Crypto.OnDecryptInput)
-      returns (res: Result<Crypto.OnDecryptOutput, string>)
-    {
-      :- Need(expectedInputDecryptionMaterials == input.materials, "Wrong materials provided as input");
-      res := delegateKeyring.OnDecrypt(input);
-    }
-
   }
 
   /*
