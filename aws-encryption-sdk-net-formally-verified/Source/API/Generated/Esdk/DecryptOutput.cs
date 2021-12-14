@@ -1,7 +1,5 @@
 // Copyright Amazon.com Inc. or its affiliates. All Rights Reserved.
 // SPDX-License-Identifier: Apache-2.0
-//
-// Generated at 2021-11-03T00:22:03.283903
 
 using System;
 using Aws.Crypto;
@@ -13,46 +11,16 @@ namespace Aws.Esdk
 {
     public class DecryptOutput
     {
-        public System.IO.MemoryStream Plaintext { get; private set; }
+        private System.IO.MemoryStream _plaintext;
 
-        public static IDecryptOutputBuilder Builder()
+        public System.IO.MemoryStream Plaintext
         {
-            return new DecryptOutputBuilder();
+            get { return this._plaintext; }
+            set { this._plaintext = value; }
         }
 
         public void Validate()
         {
         }
-
-        private class DecryptOutputBuilder : IDecryptOutputBuilder
-        {
-            private System.IO.MemoryStream Plaintext;
-
-            public IDecryptOutputBuilder WithPlaintext(System.IO.MemoryStream value)
-            {
-                Plaintext = value;
-                return this;
-            }
-
-            public DecryptOutput Build()
-            {
-                if (Plaintext == null)
-                {
-                    throw new InvalidOperationException(
-                        String.Format("No value set for required field {0}", "plaintext"));
-                }
-
-                return new DecryptOutput
-                {
-                    Plaintext = (System.IO.MemoryStream) Plaintext,
-                };
-            }
-        }
-    }
-
-    public interface IDecryptOutputBuilder
-    {
-        IDecryptOutputBuilder WithPlaintext(System.IO.MemoryStream value);
-        DecryptOutput Build();
     }
 }
