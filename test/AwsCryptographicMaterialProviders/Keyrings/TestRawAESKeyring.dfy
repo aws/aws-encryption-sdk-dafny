@@ -11,7 +11,7 @@ include "../../../src/Util/UTF8.dfy"
 include "../../../src/Generated/AwsCryptographicMaterialProviders.dfy"
 include "../../Util/TestUtils.dfy"
 
-module TestAESKeyring {
+module TestRawAESKeyring {
   import opened Wrappers
   import opened UInt = StandardLibrary.UInt
   import AESEncryption

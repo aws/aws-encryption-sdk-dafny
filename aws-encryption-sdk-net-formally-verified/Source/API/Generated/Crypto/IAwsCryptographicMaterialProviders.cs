@@ -11,6 +11,7 @@ namespace Aws.Crypto
 {
     public interface IAwsCryptographicMaterialProviders
     {
+        Aws.Crypto.IKeyring CreateMultiKeyring(Aws.Crypto.CreateMultiKeyringInput input);
         Aws.Crypto.IKeyring CreateRawAesKeyring(Aws.Crypto.CreateRawAesKeyringInput input);
 
         Aws.Crypto.ICryptographicMaterialsManager CreateDefaultCryptographicMaterialsManager(
