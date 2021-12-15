@@ -21,6 +21,15 @@ namespace Aws.Crypto
                 new Dafny.Aws.Crypto.MaterialProviders.Client.AwsCryptographicMaterialProvidersClient();
         }
 
+        protected override Aws.Crypto.IKeyring _CreateMultiKeyring(Aws.Crypto.CreateMultiKeyringInput input)
+        {
+            Dafny.Aws.Crypto.CreateMultiKeyringInput internalInput =
+                TypeConversion.ToDafny_N3_aws__N6_crypto__S23_CreateMultiKeyringInput(input);
+            Dafny.Aws.Crypto.IKeyring internalOutput =
+                this._impl.CreateMultiKeyring(internalInput);
+            return TypeConversion.FromDafny_N3_aws__N6_crypto__S19_CreateKeyringOutput(internalOutput);
+        }
+
         protected override Aws.Crypto.IKeyring _CreateRawAesKeyring(Aws.Crypto.CreateRawAesKeyringInput input)
         {
             Dafny.Aws.Crypto.CreateRawAesKeyringInput internalInput =
