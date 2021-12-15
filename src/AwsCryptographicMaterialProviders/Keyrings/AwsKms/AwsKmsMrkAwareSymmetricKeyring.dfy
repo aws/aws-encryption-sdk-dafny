@@ -103,9 +103,8 @@ module
       ensures
         && input.materials.plaintextDataKey.None?
         && 1 <= |awsKmsKey| <= 2048
-        && StringifyEncryptionContext(input.materials.encryptionContext).Success?
+        && var maybeStringifiedEncCtx = StringifyEncryptionContext(input.materials.encryptionContext);
       ==> (
-        && var stringifiedEncCtx := StringifyEncryptionContext(input.materials.encryptionContext).Extract();
         //= compliance/framework/aws-kms/aws-kms-mrk-aware-symmetric-keyring.txt#2.7
         //= type=implication
         //# If the keyring calls AWS KMS GenerateDataKeys, it MUST use the
@@ -117,7 +116,7 @@ module
           //# AWS KMS GenerateDataKeys with a request constructed as follows:
           KMS.GenerateDataKeyRequest(
             KeyId := awsKmsKey,
-            EncryptionContext := Option.Some(stringifiedEncCtx),
+            EncryptionContext := Option.Some(maybeStringifiedEncCtx.Extract()),
             GrantTokens := Option.Some(grantTokens),
             NumberOfBytes := Option.Some(AlgorithmSuites.GetSuite(input.materials.algorithmSuiteId).encrypt.keyLength as int32),
             KeySpec := Option.None
@@ -368,8 +367,8 @@ module
         && res.Success?
       ==>
         && res.value.materials.plaintextDataKey.Some?
-        && StringifyEncryptionContext(input.materials.encryptionContext).Success?
-        && var stringifiedEncCtx := StringifyEncryptionContext(input.materials.encryptionContext).Extract();
+        && var maybeStringifiedEncCtx := StringifyEncryptionContext(input.materials.encryptionContext);
+        && maybeStringifiedEncCtx.Success?
         && exists edk | edk in input.encryptedDataKeys
         ::
           //= compliance/framework/aws-kms/aws-kms-mrk-aware-symmetric-keyring.txt#2.8
@@ -380,7 +379,7 @@ module
           && var request := KMS.DecryptRequest(
             KeyId := Option.Some(awsKmsKey),
             CiphertextBlob :=  edk.ciphertext,
-            EncryptionContext := Option.Some(stringifiedEncCtx),
+            EncryptionContext := Option.Some(maybeStringifiedEncCtx.Extract()),
             GrantTokens := Option.Some(grantTokens),
             EncryptionAlgorithm := Option.None()
           );
@@ -590,12 +589,12 @@ module
        ==>
         && 1 <= |edk.ciphertext| <= 6144
         && Materials.DecryptionMaterialsTransitionIsValid(materials, res.value)
-        && StringifyEncryptionContext(materials.encryptionContext).Success?
-        && var stringifiedEncCtx := StringifyEncryptionContext(materials.encryptionContext).Extract();
+        && var maybeStringifiedEncCtx = StringifyEncryptionContext(materials.encryptionContext);
+        && maybeStringifiedEncCtx.Success?
         && var request := KMS.DecryptRequest(
             KeyId := Option.Some(awsKmsKey),
             CiphertextBlob := edk.ciphertext,
-            EncryptionContext := Option.Some(stringifiedEncCtx),
+            EncryptionContext := Option.Some(maybeStringifiedEncCtx.Extract()),
             GrantTokens := Option.Some(grantTokens),
             EncryptionAlgorithm := Option.None()
           );
