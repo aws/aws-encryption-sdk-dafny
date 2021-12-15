@@ -1,21 +1,23 @@
 // Copyright Amazon.com Inc. or its affiliates. All Rights Reserved.
 // SPDX-License-Identifier: Apache-2.0
 
+include "../../../../libraries/src/Collections/Sequences/Seq.dfy"
+
+include "../../../StandardLibrary/StandardLibrary.dfy"
+include "../../../StandardLibrary/Actions.dfy"
+include "../../../Util/UTF8.dfy"
+
+include "../../../Generated/AwsCryptographicMaterialProviders.dfy"
+include "../../../Generated/KeyManagementService.dfy"
+
+include "Constants.dfy"
+include "AwsKmsMrkMatchForDecrypt.dfy"
 include "../../Keyring.dfy"
 include "../../Materials.dfy"
 include "../../AlgorithmSuites.dfy"
-include "../../../StandardLibrary/StandardLibrary.dfy"
 include "../../../KMS/KMSUtils.dfy"
 include "../../../KMS/AmazonKeyManagementService.dfy"
 include "../../../KMS/AwsKmsArnParsing.dfy"
-include "../../../Util/UTF8.dfy"
-include "../../../../libraries/src/Collections/Sequences/Seq.dfy"
-include "../../../StandardLibrary/Actions.dfy"
-include "../../../Generated/KeyManagementService.dfy"
-include "Constants.dfy"
-include "AwsKmsMrkMatchForDecrypt.dfy"
-include "../../../Generated/AwsCryptographicMaterialProviders.dfy"
-include "../../../Generated/KeyManagementService.dfy"
 
 module
   {:extern "Dafny.Aws.Crypto.MaterialProviders.AwsKmsMrkAwareSymmetricKeyring"}
@@ -25,7 +27,7 @@ module
   import opened Wrappers
   import opened UInt = StandardLibrary.UInt
   import opened AwsKmsArnParsing
-  import GeneratedKMS = Com.Amazonaws.Kms
+  import KMS = Com.Amazonaws.Kms
   import opened Seq
   import opened Actions
   import opened Constants
@@ -44,18 +46,18 @@ module
     extends Keyring.VerifiableInterface
   {
 
-    const client: GeneratedKMS.IKeyManagementServiceClient
+    const client: KMS.IKeyManagementServiceClient
     const awsKmsKey: AwsKmsIdentifierString
     const awsKmsArn: AwsKmsIdentifier
-    const grantTokens: GeneratedKMS.GrantTokenList
+    const grantTokens: KMS.GrantTokenList
 
     constructor (
       //= compliance/framework/aws-kms/aws-kms-mrk-aware-symmetric-keyring.txt#2.6
       //= type=implication
       //# The AWS KMS SDK client MUST NOT be null.
-      client: GeneratedKMS.IKeyManagementServiceClient,
+      client: KMS.IKeyManagementServiceClient,
       awsKmsKey: string,
-      grantTokens: GeneratedKMS.GrantTokenList
+      grantTokens: KMS.GrantTokenList
     )
       //= compliance/framework/aws-kms/aws-kms-mrk-aware-symmetric-keyring.txt#2.6
       //= type=implication
@@ -113,7 +115,7 @@ module
           //= type=implication
           //# The keyring MUST call
           //# AWS KMS GenerateDataKeys with a request constructed as follows:
-          GeneratedKMS.GenerateDataKeyRequest(
+          KMS.GenerateDataKeyRequest(
             KeyId := awsKmsKey,
             EncryptionContext := Option.Some(stringifiedEncCtx),
             GrantTokens := Option.Some(grantTokens),
@@ -126,7 +128,7 @@ module
       //= type=implication
       //# *  OnEncrypt MUST output the modified encryption materials
       //# (../structures.md#encryption-materials)
-      ensures 
+      ensures
         && input.materials.plaintextDataKey.None?
         && res.Success?
       ==>
@@ -150,14 +152,14 @@ module
         && var algId := AlgorithmSuites.GetSuite(input.materials.algorithmSuiteId);
         && exists returnedKeyId ::
           && client.GenerateDataKeySucceededWith(
-          input := GeneratedKMS.GenerateDataKeyRequest(
+          input := KMS.GenerateDataKeyRequest(
             KeyId := awsKmsKey,
             EncryptionContext := Option.Some(StringifyEncryptionContext(input.materials.encryptionContext).Extract()),
             GrantTokens := Option.Some(grantTokens),
             NumberOfBytes := Option.Some(algId.encrypt.keyLength as int32),
             KeySpec := Option.None
           ),
-          output := GeneratedKMS.GenerateDataKeyResponse(
+          output := KMS.GenerateDataKeyResponse(
               KeyId := returnedKeyId,
               CiphertextBlob := Option.Some(Last(res.value.materials.encryptedDataKeys).ciphertext),
               Plaintext := Option.Some(res.value.materials.plaintextDataKey.value)
@@ -186,7 +188,7 @@ module
           //= type=implication
           //# The keyring
           //# MUST AWS KMS Encrypt call with a request constructed as follows:
-          GeneratedKMS.EncryptRequest(
+          KMS.EncryptRequest(
             KeyId := awsKmsKey,
             Plaintext := input.materials.plaintextDataKey.value,
             EncryptionContext := Option.Some(stringifiedEncCtx),
@@ -198,7 +200,7 @@ module
       //= type=implication
       //# If all Encrypt calls succeed, OnEncrypt MUST output the modified
       //# encryption materials (../structures.md#encryption-materials).
-      ensures 
+      ensures
         && input.materials.plaintextDataKey.Some?
         && 1 <= |input.materials.plaintextDataKey.value| <= 4096
         && res.Success?
@@ -214,14 +216,14 @@ module
 
         && exists returnedKeyId, returnedEncryptionAlgorithm ::
           && client.EncryptSucceededWith(
-            input := GeneratedKMS.EncryptRequest(
+            input := KMS.EncryptRequest(
               KeyId := awsKmsKey,
               Plaintext := input.materials.plaintextDataKey.value,
               EncryptionContext := Option.Some(StringifyEncryptionContext(input.materials.encryptionContext).Extract()),
               GrantTokens := Option.Some(grantTokens),
               EncryptionAlgorithm := Option.None
             ),
-            output := GeneratedKMS.EncryptResponse(
+            output := KMS.EncryptResponse(
               CiphertextBlob := Option.Some(Last(res.value.materials.encryptedDataKeys).ciphertext),
               KeyId := returnedKeyId,
               EncryptionAlgorithm := returnedEncryptionAlgorithm
@@ -234,7 +236,7 @@ module
 
       if materials.plaintextDataKey.None? {
 
-        var generatorRequest := GeneratedKMS.GenerateDataKeyRequest(
+        var generatorRequest := KMS.GenerateDataKeyRequest(
           KeyId := awsKmsKey,
           EncryptionContext := Option.Some(stringifiedEncCtx),
           GrantTokens := Option.Some(grantTokens),
@@ -251,7 +253,7 @@ module
         //# the encryption materials (../structures.md#encryption-materials) and
         //# MUST fail.
         if maybeGenerateResponse.Failure? {
-          return Failure(GeneratedKMS.CastKeyManagementServiceErrorToString(maybeGenerateResponse.error));
+          return Failure(KMS.CastKeyManagementServiceErrorToString(maybeGenerateResponse.error));
        }
         var generateResponse := maybeGenerateResponse.value;
 
@@ -295,7 +297,7 @@ module
         :- Need(1 <= |materials.plaintextDataKey.value| <= 4096,
           "PlaintextDataKey is invalid length"
         );
-        var encryptRequest := GeneratedKMS.EncryptRequest(
+        var encryptRequest := KMS.EncryptRequest(
             KeyId := awsKmsKey,
             Plaintext := materials.plaintextDataKey.value,
             EncryptionContext := Option.Some(stringifiedEncCtx),
@@ -310,7 +312,7 @@ module
         //# (https://docs.aws.amazon.com/kms/latest/APIReference/
         //# API_Encrypt.html) does not succeed, OnEncrypt MUST fail.
         if maybeEncryptResponse.Failure? {
-          return Failure(GeneratedKMS.CastKeyManagementServiceErrorToString(maybeEncryptResponse.error));
+          return Failure(KMS.CastKeyManagementServiceErrorToString(maybeEncryptResponse.error));
         }
 
         var encryptResponse := maybeEncryptResponse.value;
@@ -374,7 +376,7 @@ module
           //# *  Its provider ID MUST exactly match the value "aws-kms".
           && edk.keyProviderId == PROVIDER_ID
           && 1 <= |edk.ciphertext| <= 6144
-          && var request := GeneratedKMS.DecryptRequest(
+          && var request := KMS.DecryptRequest(
             KeyId := Option.Some(awsKmsKey),
             CiphertextBlob :=  edk.ciphertext,
             EncryptionContext := Option.Some(stringifiedEncCtx),
@@ -397,7 +399,7 @@ module
             request)
           //= compliance/framework/aws-kms/aws-kms-mrk-aware-symmetric-keyring.txt#2.8
           //= type=implication
-          //# * The length of the response's "Plaintext" MUST equal the key 
+          //# * The length of the response's "Plaintext" MUST equal the key
           //# derivation input length (../algorithm-suites.md#key-derivation-
           //# input-length) specified by the algorithm suite (../algorithm-
           //# suites.md) included in the input decryption materials
@@ -405,7 +407,7 @@ module
           && var algId := AlgorithmSuites.GetSuite(input.materials.algorithmSuiteId);
           && algId.encrypt.keyLength as int == |res.value.materials.plaintextDataKey.value|
           && exists returnedKeyId, returnedEncryptionAlgorithm ::
-            && var response := GeneratedKMS.DecryptResponse(
+            && var response := KMS.DecryptResponse(
               KeyId := returnedKeyId,
               Plaintext := res.value.materials.plaintextDataKey,
               EncryptionAlgorithm := returnedEncryptionAlgorithm
@@ -421,7 +423,7 @@ module
       var suite := AlgorithmSuites.GetSuite(input.materials.algorithmSuiteId);
 
       :- Need(
-        Materials.DecryptionMaterialsWithoutPlaintextDataKey(materials), 
+        Materials.DecryptionMaterialsWithoutPlaintextDataKey(materials),
         "Keyring recieved decryption materials that already contain a plaintext data key.");
 
       //= compliance/framework/aws-kms/aws-kms-mrk-aware-symmetric-keyring.txt#2.8
@@ -459,7 +461,7 @@ module
             && edk in input.encryptedDataKeys
             && filter.Ensures(edk, Success(true))
             && decryptClosure.Ensures(edk, Success(mat))
-            && var request := GeneratedKMS.DecryptRequest(
+            && var request := KMS.DecryptRequest(
               KeyId := Option.Some(awsKmsKey),
               CiphertextBlob :=  edk.ciphertext,
               EncryptionContext := Option.Some(stringifiedEncCtx),
@@ -468,7 +470,7 @@ module
             );
 
             && client.DecryptCalledWith(request)
-            && var response := GeneratedKMS.DecryptResponse(
+            && var response := KMS.DecryptResponse(
               KeyId := returnedKeyId,
               Plaintext := mat.plaintextDataKey,
               EncryptionAlgorithm := returnedEncryptionAlgorithm
@@ -557,15 +559,15 @@ module
       string>
   {
     const materials: Materials.DecryptionMaterialsPendingPlaintextDataKey
-    const client: GeneratedKMS.IKeyManagementServiceClient
+    const client: KMS.IKeyManagementServiceClient
     const awsKmsKey: AwsKmsIdentifierString
-    const grantTokens: GeneratedKMS.GrantTokenList
+    const grantTokens: KMS.GrantTokenList
 
     constructor(
       materials: Materials.DecryptionMaterialsPendingPlaintextDataKey,
-      client: GeneratedKMS.IKeyManagementServiceClient,
+      client: KMS.IKeyManagementServiceClient,
       awsKmsKey: AwsKmsIdentifierString,
-      grantTokens: GeneratedKMS.GrantTokenList
+      grantTokens: KMS.GrantTokenList
     )
       ensures
       && this.materials == materials
@@ -589,7 +591,7 @@ module
         && Materials.DecryptionMaterialsTransitionIsValid(materials, res.value)
         && StringifyEncryptionContext(materials.encryptionContext).Success?
         && var stringifiedEncCtx := StringifyEncryptionContext(materials.encryptionContext).Extract();
-        && var request := GeneratedKMS.DecryptRequest(
+        && var request := KMS.DecryptRequest(
             KeyId := Option.Some(awsKmsKey),
             CiphertextBlob := edk.ciphertext,
             EncryptionContext := Option.Some(stringifiedEncCtx),
@@ -598,7 +600,7 @@ module
           );
         && client.DecryptCalledWith(request )
         && exists returnedKeyId, returnedEncryptionAlgorithm ::
-          && var response := GeneratedKMS.DecryptResponse(
+          && var response := KMS.DecryptResponse(
             KeyId := returnedKeyId,
             Plaintext := Option.Some(res.value.plaintextDataKey.value),
             EncryptionAlgorithm := returnedEncryptionAlgorithm
@@ -613,7 +615,7 @@ module
     {
       :- Need(1 <= |edk.ciphertext| <= 6144, "Ciphertext length invalid");
       var stringifiedEncCtx :- StringifyEncryptionContext(materials.encryptionContext);
-      var decryptRequest := GeneratedKMS.DecryptRequest(
+      var decryptRequest := KMS.DecryptRequest(
         KeyId := Option.Some(awsKmsKey),
         CiphertextBlob := edk.ciphertext,
         EncryptionContext := Option.Some(stringifiedEncCtx),
@@ -623,9 +625,9 @@ module
 
       var maybeDecryptResponse := client.Decrypt(decryptRequest);
       if maybeDecryptResponse.Failure? {
-        return Failure(GeneratedKMS.CastKeyManagementServiceErrorToString(maybeDecryptResponse.error));
+        return Failure(KMS.CastKeyManagementServiceErrorToString(maybeDecryptResponse.error));
       }
-      
+
       var decryptResponse := maybeDecryptResponse.value;
       var algId := AlgorithmSuites.GetSuite(materials.algorithmSuiteId);
       :- Need(
@@ -642,7 +644,7 @@ module
 
   // TODO use ValidUTF8Bytes everywhere in business logic, so that this (and usages in implementation/preconditions) can be removed
   function method StringifyEncryptionContext(utf8EncCtx: Crypto.EncryptionContext):
-    (res: Result<GeneratedKMS.EncryptionContextType, string>)
+    (res: Result<KMS.EncryptionContextType, string>)
   {
     if |utf8EncCtx| == 0 then Success(map[])
     else
