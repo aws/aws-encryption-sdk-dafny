@@ -19,10 +19,10 @@ module Header {
   import opened SerializeFunctions
 
   datatype HeaderInfo = HeaderInfo(
-    body: HeaderBody,
-    rawHeader: seq<uint8>,
-    suite: Client.AlgorithmSuites.AlgorithmSuite,
-    headerAuth: HeaderAuth
+    nameonly body: HeaderBody,
+    nameonly rawHeader: seq<uint8>,
+    nameonly suite: Client.AlgorithmSuites.AlgorithmSuite,
+    nameonly headerAuth: HeaderAuth
   )
 
   type Header = h: HeaderInfo
@@ -47,29 +47,29 @@ module Header {
 
   datatype HeaderBody = 
     | HeaderBodyV1(
-      messageType: MessageType,
-      esdkSuiteId: ESDKAlgorithmSuiteId,
-      messageId: MessageID,
-      encryptionContext: ESDKEncryptionContext,
-      encryptedDataKeys: ESDKEncryptedDataKeys,
-      contentType: ContentType,
-      headerIvLength: nat,
-      frameLength: uint32
+      nameonly messageType: MessageType,
+      nameonly esdkSuiteId: ESDKAlgorithmSuiteId,
+      nameonly messageId: MessageID,
+      nameonly encryptionContext: ESDKEncryptionContext,
+      nameonly encryptedDataKeys: ESDKEncryptedDataKeys,
+      nameonly contentType: ContentType,
+      nameonly headerIvLength: nat,
+      nameonly frameLength: uint32
     )
     | HeaderBodyV2(
-      esdkSuiteId: ESDKAlgorithmSuiteId,
-      messageId: MessageID,
-      encryptionContext: ESDKEncryptionContext,
-      encryptedDataKeys: ESDKEncryptedDataKeys,
-      contentType: ContentType,
-      frameLength: uint32,
-      suiteData: seq<uint8>
+      nameonly esdkSuiteId: ESDKAlgorithmSuiteId,
+      nameonly messageId: MessageID,
+      nameonly encryptionContext: ESDKEncryptionContext,
+      nameonly encryptedDataKeys: ESDKEncryptedDataKeys,
+      nameonly contentType: ContentType,
+      nameonly frameLength: uint32,
+      nameonly suiteData: seq<uint8>
     )
 
   datatype HeaderAuth =
   | AES_Mac(
-    headerIv: seq<uint8>,
-    headerAuthTag: seq<uint8>
+    nameonly headerIv: seq<uint8>,
+    nameonly headerAuthTag: seq<uint8>
   )
 
   datatype MessageType =

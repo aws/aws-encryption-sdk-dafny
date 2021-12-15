@@ -76,13 +76,33 @@ module EncryptionContext2 {
   function method GetEncryptionContext(
     canonicalEncryptionContext: ESDKCanonicalEncryptionContext
   )
-    :(ret: Crypto.EncryptionContext)
+    :(ret: ESDKEncryptionContext)
   {
     // This is needed because Dafny can not reveal the subset type by default?
     assert KeysAreUnique(canonicalEncryptionContext);
     map p: ESDKEncryptionContextPair
     | p in canonicalEncryptionContext
     :: p.key := p.value
+  }
+
+  lemma asdf(pairs: ESDKCanonicalEncryptionContext)
+    ensures IsESDKEncryptionContext(
+      map p: ESDKEncryptionContextPair
+      | p in pairs
+      :: p.key := p.value)
+  {
+    var ec := map p: ESDKEncryptionContextPair
+      | p in pairs
+      :: p.key := p.value;
+
+    if |ec| < |pairs| {
+      assert forall p
+      | p in pairs
+      :: p.key in ec;
+    }
+    if |ec| > |pairs| {
+
+    }
   }
 
   //= compliance/data-format/message-header.txt#2.5.1.7
