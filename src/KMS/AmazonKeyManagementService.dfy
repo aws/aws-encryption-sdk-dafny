@@ -9,5 +9,9 @@ module {:extern "Amazon.KeyManagementService"} AmazonKeyManagementService {
   // By making this a trait, compilation fails because this causes a conflict with the actual Amazon.KeyManagementService.IAmazonKeyManagementService
   // TODO: https://github.com/awslabs/aws-encryption-sdk-dafny/issues/284
   class {:extern "IAmazonKeyManagementService"} IAmazonKeyManagementService {}
-}
 
+  predicate method {:extern "ReagionMatch"} ReagionMatch(
+    client: IAmazonKeyManagementService,
+    region: string
+  )
+}
