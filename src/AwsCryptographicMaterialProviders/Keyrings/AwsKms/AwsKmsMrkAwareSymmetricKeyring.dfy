@@ -264,16 +264,17 @@ module
         :- Need(
           && generateResponse.KeyId.Some?
           && ParseAwsKmsIdentifier(generateResponse.KeyId.value).Success?,
-          "Invalid response from KMS GenerateDataKey:: Invalid Key Id"
+          "Invalid response from KMS GenerateDataKey: Invalid Key Id"
         );
         var keyId := generateResponse.KeyId.value;
         var providerInfo :- UTF8.Encode(keyId);
-        :- Need(|providerInfo| < UINT16_LIMIT, "AWS KMS Key ID too long.");
+        :- Need(|providerInfo| < UINT16_LIMIT,
+          "Invalid response from KMS GenerateDataKey: AWS KMS Key ID too long.");
 
         :- Need(
           && generateResponse.Plaintext.Some?
           && suite.encrypt.keyLength as int == |generateResponse.Plaintext.value|,
-          "Invalid response from AWS KMS GenerateDataKey: Invalid data key"
+          "Invalid response from KMS GenerateDataKey: Invalid data key"
         );
         var plaintextDataKey := generateResponse.Plaintext.value;
 
