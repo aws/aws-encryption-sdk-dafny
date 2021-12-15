@@ -98,9 +98,9 @@ module
 
     //= compliance/framework/aws-kms/aws-kms-mrk-aware-symmetric-region-discovery-keyring.txt#2.8
     //= type=implication
-    //# OnDecrypt MUST take decryption materials (structures.md#decryption-
+    //# OnDecrypt MUST take decryption materials (../structures.md#decryption-
     //# materials) and a list of encrypted data keys
-    //# (structures.md#encrypted-data-key) as input.
+    //# (../structures.md#encrypted-data-key) as input.
     method OnDecrypt(
       input: Crypto.OnDecryptInput
     )
@@ -135,7 +135,7 @@ module
           //= compliance/framework/aws-kms/aws-kms-mrk-aware-symmetric-region-discovery-keyring.txt#2.8
           //= type=implication
           //# To attempt to decrypt a particular encrypted data key
-          //# (structures.md#encrypted-data-key), OnDecrypt MUST call AWS KMS
+          //# (../structures.md#encrypted-data-key), OnDecrypt MUST call AWS KMS
           //# Decrypt (https://docs.aws.amazon.com/kms/latest/APIReference/
           //# API_Decrypt.html) with the configured AWS KMS client.
             client,
@@ -156,17 +156,17 @@ module
           //# Since the response does satisfies these requirements then OnDecrypt
           //# MUST do the following with the response:
           //#*  set the plaintext data key on the decryption materials
-          //#   (structures.md#decryption-materials) as the response "Plaintext".
+          //#   (../structures.md#decryption-materials) as the response "Plaintext".
           && DecryptResult(
             awsKmsKey,
             res.value.materials.plaintextDataKey.value)
           //= compliance/framework/aws-kms/aws-kms-mrk-aware-symmetric-region-discovery-keyring.txt#2.8
           //= type=implication
           //# *  The length of the response's "Plaintext" MUST equal the key
-          //# derivation input length (algorithm-suites.md#key-derivation-input-
-          //# length) specified by the algorithm suite (algorithm-suites.md)
-          //# included in the input decryption materials
-          //# (structures.md#decryption-materials).
+          //# derivation input length (../algorithm-suites.md#key-derivation-
+          //# input-length) specified by the algorithm suite (../algorithm-
+          //# suites.md) included in the input decryption materials
+          //# (../structures.md#decryption-materials).
           && Materials.DecryptionMaterialsWithPlaintextDataKey(res.value.materials)
     {
 
@@ -258,7 +258,7 @@ module
           Success(Crypto.OnDecryptOutput(materials := mat))
         //= compliance/framework/aws-kms/aws-kms-mrk-aware-symmetric-region-discovery-keyring.txt#2.8
         //# If OnDecrypt fails to successfully decrypt any encrypted data key
-        //# (structures.md#encrypted-data-key), then it MUST yield an error that
+        //# (../structures.md#encrypted-data-key), then it MUST yield an error that
         //# includes all collected errors.
         case Failure(errors) =>
           if |errors| == 0 then
