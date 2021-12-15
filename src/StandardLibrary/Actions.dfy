@@ -94,19 +94,19 @@ module Actions {
         && exists fm :: action.Ensures(i, fm)
         && forall k | k in fm :: k in res
   {
-    ghost var total := [];
+    ghost var parts := [];
     var rs := [];
     for i := 0 to |s|
-      invariant |s[..i]| == |total|
+      invariant |s[..i]| == |parts|
       invariant forall j ::
         && 0 <= j < i
       ==>
-        && action.Ensures(s[j], total[j])
-        && forall b | b in total[j] :: b in rs
+        && action.Ensures(s[j], parts[j])
+        && forall b | b in parts[j] :: b in rs
     {
       var r := action.Invoke(s[i]);
       rs := rs + r;
-      total := total + [r];
+      parts := parts + [r];
     }
     return rs;
   }

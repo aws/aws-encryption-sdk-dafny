@@ -181,7 +181,7 @@ module
       //= compliance/framework/aws-kms/aws-kms-mrk-aware-symmetric-region-discovery-keyring.txt#2.8
       //# The set of encrypted data keys MUST first be filtered to match this
       //# keyring's configuration.
-      var edkFilterTransform : OnDecryptEncrypteDataKeyFilterMap := new OnDecryptEncrypteDataKeyFilterMap(region, discoveryFilter);
+      var edkFilterTransform : OnDecryptMRKEncryptedDataKeyFilterMap := new OnDecryptMRKEncryptedDataKeyFilterMap(region, discoveryFilter);
       var edksToAttempt, parts :- Actions.FlatMapWithResult(edkFilterTransform, encryptedDataKeys);
 
       forall i
@@ -275,7 +275,7 @@ module
     }
   }
 
-  class OnDecryptEncrypteDataKeyFilterMap
+  class OnDecryptMRKEncryptedDataKeyFilterMap
     extends ActionWithResult<
       Crypto.EncryptedDataKey,
       seq<AwsKmsEdkHelper>,
@@ -419,7 +419,6 @@ module
       //# *  The "KeyId" field in the response MUST equal the requested "KeyId"
       :- Need(
         && decryptResponse.keyID == awsKmsKey
-        // && materials.algorithmSuiteID.ValidPlaintextDataKey(decryptResponse.plaintext)
         , "Invalid response from KMS Decrypt");
 
       var result :-  Materials.DecryptionMaterialsAddDataKey(materials, decryptResponse.plaintext);
