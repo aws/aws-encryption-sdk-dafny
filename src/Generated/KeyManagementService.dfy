@@ -17,22 +17,34 @@ import opened UTF8
 	nameonly TargetKeyId: Option<KeyIdType> ,
 	nameonly CreationDate: Option<string> ,
 	nameonly LastUpdatedDate: Option<string> )
- type AliasNameType = x: string |  ( 1 <= |x| <= 256 ) witness *
+ type AliasNameType = x: string | IsValid_AliasNameType(x) witness *
+ predicate method IsValid_AliasNameType(x: string) {
+ ( 1 <= |x| <= 256 )
+}
  datatype AlreadyExistsException = AlreadyExistsException (
 	nameonly message: Option<ErrorMessageType> ) {
  	function method CastToString(): string {
 		if message.Some? then "AlreadyExistsException: " + message.value else "AlreadyExistsException"
 	}
  }
- type ArnType = x: string |  ( 20 <= |x| <= 2048 ) witness *
+ type ArnType = x: string | IsValid_ArnType(x) witness *
+ predicate method IsValid_ArnType(x: string) {
+ ( 20 <= |x| <= 2048 )
+}
  type AWSAccountIdType = string
  type BooleanType = bool
  datatype CancelKeyDeletionRequest = CancelKeyDeletionRequest (
 	nameonly KeyId: KeyIdType )
  datatype CancelKeyDeletionResponse = CancelKeyDeletionResponse (
 	nameonly KeyId: Option<KeyIdType> )
- type CiphertextType = x: seq<uint8> |  ( 1 <= |x| <= 6144 ) witness *
- type CloudHsmClusterIdType = x: string |  ( 19 <= |x| <= 24 ) witness *
+ type CiphertextType = x: seq<uint8> | IsValid_CiphertextType(x) witness *
+ predicate method IsValid_CiphertextType(x: seq<uint8>) {
+ ( 1 <= |x| <= 6144 )
+}
+ type CloudHsmClusterIdType = x: string | IsValid_CloudHsmClusterIdType(x) witness *
+ predicate method IsValid_CloudHsmClusterIdType(x: string) {
+ ( 19 <= |x| <= 24 )
+}
  datatype CloudHsmClusterInUseException = CloudHsmClusterInUseException (
 	nameonly message: Option<ErrorMessageType> ) {
  	function method CastToString(): string {
@@ -131,7 +143,10 @@ import opened UTF8
 		if message.Some? then "CustomKeyStoreHasCMKsException: " + message.value else "CustomKeyStoreHasCMKsException"
 	}
  }
- type CustomKeyStoreIdType = x: string |  ( 1 <= |x| <= 64 ) witness *
+ type CustomKeyStoreIdType = x: string | IsValid_CustomKeyStoreIdType(x) witness *
+ predicate method IsValid_CustomKeyStoreIdType(x: string) {
+ ( 1 <= |x| <= 64 )
+}
  datatype CustomKeyStoreInvalidStateException = CustomKeyStoreInvalidStateException (
 	nameonly message: Option<ErrorMessageType> ) {
  	function method CastToString(): string {
@@ -144,7 +159,10 @@ import opened UTF8
 		if message.Some? then "CustomKeyStoreNameInUseException: " + message.value else "CustomKeyStoreNameInUseException"
 	}
  }
- type CustomKeyStoreNameType = x: string |  ( 1 <= |x| <= 256 ) witness *
+ type CustomKeyStoreNameType = x: string | IsValid_CustomKeyStoreNameType(x) witness *
+ predicate method IsValid_CustomKeyStoreNameType(x: string) {
+ ( 1 <= |x| <= 256 )
+}
  datatype CustomKeyStoreNotFoundException = CustomKeyStoreNotFoundException (
 	nameonly message: Option<ErrorMessageType> ) {
  	function method CastToString(): string {
@@ -208,7 +226,10 @@ import opened UTF8
 	nameonly GrantTokens: Option<GrantTokenList> )
  datatype DescribeKeyResponse = DescribeKeyResponse (
 	nameonly KeyMetadata: Option<KeyMetadata> )
- type DescriptionType = x: string |  ( 0 <= |x| <= 8192 ) witness *
+ type DescriptionType = x: string | IsValid_DescriptionType(x) witness *
+ predicate method IsValid_DescriptionType(x: string) {
+ ( 0 <= |x| <= 8192 )
+}
  datatype DisabledException = DisabledException (
 	nameonly message: Option<ErrorMessageType> ) {
  	function method CastToString(): string {
@@ -331,7 +352,10 @@ import opened UTF8
  datatype GrantConstraints = GrantConstraints (
 	nameonly EncryptionContextSubset: Option<EncryptionContextType> ,
 	nameonly EncryptionContextEquals: Option<EncryptionContextType> )
- type GrantIdType = x: string |  ( 1 <= |x| <= 128 ) witness *
+ type GrantIdType = x: string | IsValid_GrantIdType(x) witness *
+ predicate method IsValid_GrantIdType(x: string) {
+ ( 1 <= |x| <= 128 )
+}
  type GrantList = seq<GrantListEntry>
  datatype GrantListEntry = GrantListEntry (
 	nameonly KeyId: Option<KeyIdType> ,
@@ -343,7 +367,10 @@ import opened UTF8
 	nameonly IssuingAccount: Option<PrincipalIdType> ,
 	nameonly Operations: Option<GrantOperationList> ,
 	nameonly Constraints: Option<GrantConstraints> )
- type GrantNameType = x: string |  ( 1 <= |x| <= 256 ) witness *
+ type GrantNameType = x: string | IsValid_GrantNameType(x) witness *
+ predicate method IsValid_GrantNameType(x: string) {
+ ( 1 <= |x| <= 256 )
+}
  datatype GrantOperation =
 	| Decrypt
 	| Encrypt
@@ -360,8 +387,14 @@ import opened UTF8
 	| GenerateDataKeyPair
 	| GenerateDataKeyPairWithoutPlaintext
  type GrantOperationList = seq<GrantOperation>
- type GrantTokenList = x: seq<GrantTokenType> |  ( 0 <= |x| <= 10 ) witness *
- type GrantTokenType = x: string |  ( 1 <= |x| <= 8192 ) witness *
+ type GrantTokenList = x: seq<GrantTokenType> | IsValid_GrantTokenList(x) witness *
+ predicate method IsValid_GrantTokenList(x: seq<GrantTokenType>) {
+ ( 0 <= |x| <= 10 )
+}
+ type GrantTokenType = x: string | IsValid_GrantTokenType(x) witness *
+ predicate method IsValid_GrantTokenType(x: string) {
+ ( 1 <= |x| <= 8192 )
+}
  datatype ImportKeyMaterialRequest = ImportKeyMaterialRequest (
 	nameonly KeyId: KeyIdType ,
 	nameonly ImportToken: CiphertextType ,
@@ -435,7 +468,10 @@ import opened UTF8
 		if message.Some? then "InvalidMarkerException: " + message.value else "InvalidMarkerException"
 	}
  }
- type KeyIdType = x: string |  ( 1 <= |x| <= 2048 ) witness *
+ type KeyIdType = x: string | IsValid_KeyIdType(x) witness *
+ predicate method IsValid_KeyIdType(x: string) {
+ ( 1 <= |x| <= 2048 )
+}
  type KeyList = seq<KeyListEntry>
  datatype KeyListEntry = KeyListEntry (
 	nameonly KeyId: Option<KeyIdType> ,
@@ -834,7 +870,10 @@ import opened UTF8
 	| PendingReplicaDeletion
 	| Unavailable
 	| Updating
- type KeyStorePasswordType = x: string |  ( 7 <= |x| <= 32 ) witness *
+ type KeyStorePasswordType = x: string | IsValid_KeyStorePasswordType(x) witness *
+ predicate method IsValid_KeyStorePasswordType(x: string) {
+ ( 7 <= |x| <= 32 )
+}
  datatype KeyUnavailableException = KeyUnavailableException (
 	nameonly message: Option<ErrorMessageType> ) {
  	function method CastToString(): string {
@@ -868,7 +907,10 @@ import opened UTF8
 		if message.Some? then "LimitExceededException: " + message.value else "LimitExceededException"
 	}
  }
- type LimitType = x: int32 |  ( 1 <= x <= 1000 ) witness *
+ type LimitType = x: int32 | IsValid_LimitType(x) witness *
+ predicate method IsValid_LimitType(x: int32) {
+ ( 1 <= x <= 1000 )
+}
  datatype ListAliasesRequest = ListAliasesRequest (
 	nameonly KeyId: Option<KeyIdType> ,
 	nameonly Limit: Option<LimitType> ,
@@ -916,7 +958,10 @@ import opened UTF8
 		if message.Some? then "MalformedPolicyDocumentException: " + message.value else "MalformedPolicyDocumentException"
 	}
  }
- type MarkerType = x: string |  ( 1 <= |x| <= 1024 ) witness *
+ type MarkerType = x: string | IsValid_MarkerType(x) witness *
+ predicate method IsValid_MarkerType(x: string) {
+ ( 1 <= |x| <= 1024 )
+}
  datatype MessageType =
 	| RAW
 	| DIGEST
@@ -938,18 +983,39 @@ import opened UTF8
 	}
  }
  type NullableBooleanType = bool
- type NumberOfBytesType = x: int32 |  ( 1 <= x <= 1024 ) witness *
+ type NumberOfBytesType = x: int32 | IsValid_NumberOfBytesType(x) witness *
+ predicate method IsValid_NumberOfBytesType(x: int32) {
+ ( 1 <= x <= 1024 )
+}
  datatype OriginType =
 	| AWS_KMS
 	| EXTERNAL
 	| AWS_CLOUDHSM
- type PendingWindowInDaysType = x: int32 |  ( 1 <= x <= 365 ) witness *
- type PlaintextType = x: seq<uint8> |  ( 1 <= |x| <= 4096 ) witness *
+ type PendingWindowInDaysType = x: int32 | IsValid_PendingWindowInDaysType(x) witness *
+ predicate method IsValid_PendingWindowInDaysType(x: int32) {
+ ( 1 <= x <= 365 )
+}
+ type PlaintextType = x: seq<uint8> | IsValid_PlaintextType(x) witness *
+ predicate method IsValid_PlaintextType(x: seq<uint8>) {
+ ( 1 <= |x| <= 4096 )
+}
  type PolicyNameList = seq<PolicyNameType>
- type PolicyNameType = x: string |  ( 1 <= |x| <= 128 ) witness *
- type PolicyType = x: string |  ( 1 <= |x| <= 131072 ) witness *
- type PrincipalIdType = x: string |  ( 1 <= |x| <= 256 ) witness *
- type PublicKeyType = x: seq<uint8> |  ( 1 <= |x| <= 8192 ) witness *
+ type PolicyNameType = x: string | IsValid_PolicyNameType(x) witness *
+ predicate method IsValid_PolicyNameType(x: string) {
+ ( 1 <= |x| <= 128 )
+}
+ type PolicyType = x: string | IsValid_PolicyType(x) witness *
+ predicate method IsValid_PolicyType(x: string) {
+ ( 1 <= |x| <= 131072 )
+}
+ type PrincipalIdType = x: string | IsValid_PrincipalIdType(x) witness *
+ predicate method IsValid_PrincipalIdType(x: string) {
+ ( 1 <= |x| <= 256 )
+}
+ type PublicKeyType = x: seq<uint8> | IsValid_PublicKeyType(x) witness *
+ predicate method IsValid_PublicKeyType(x: seq<uint8>) {
+ ( 1 <= |x| <= 8192 )
+}
  datatype PutKeyPolicyRequest = PutKeyPolicyRequest (
 	nameonly KeyId: KeyIdType ,
 	nameonly PolicyName: PolicyNameType ,
@@ -970,7 +1036,10 @@ import opened UTF8
 	nameonly KeyId: Option<KeyIdType> ,
 	nameonly SourceEncryptionAlgorithm: Option<EncryptionAlgorithmSpec> ,
 	nameonly DestinationEncryptionAlgorithm: Option<EncryptionAlgorithmSpec> )
- type RegionType = x: string |  ( 1 <= |x| <= 32 ) witness *
+ type RegionType = x: string | IsValid_RegionType(x) witness *
+ predicate method IsValid_RegionType(x: string) {
+ ( 1 <= |x| <= 32 )
+}
  datatype ReplicateKeyRequest = ReplicateKeyRequest (
 	nameonly KeyId: KeyIdType ,
 	nameonly ReplicaRegion: RegionType ,
@@ -1028,13 +1097,22 @@ import opened UTF8
 	}
  }
  type TagKeyList = seq<TagKeyType>
- type TagKeyType = x: string |  ( 1 <= |x| <= 128 ) witness *
+ type TagKeyType = x: string | IsValid_TagKeyType(x) witness *
+ predicate method IsValid_TagKeyType(x: string) {
+ ( 1 <= |x| <= 128 )
+}
  type TagList = seq<Tag>
  datatype TagResourceRequest = TagResourceRequest (
 	nameonly KeyId: KeyIdType ,
 	nameonly Tags: TagList )
- type TagValueType = x: string |  ( 0 <= |x| <= 256 ) witness *
- type TrustAnchorCertificateType = x: string |  ( 1 <= |x| <= 5000 ) witness *
+ type TagValueType = x: string | IsValid_TagValueType(x) witness *
+ predicate method IsValid_TagValueType(x: string) {
+ ( 0 <= |x| <= 256 )
+}
+ type TrustAnchorCertificateType = x: string | IsValid_TrustAnchorCertificateType(x) witness *
+ predicate method IsValid_TrustAnchorCertificateType(x: string) {
+ ( 1 <= |x| <= 5000 )
+}
  datatype UnsupportedOperationException = UnsupportedOperationException (
 	nameonly message: Option<ErrorMessageType> ) {
  	function method CastToString(): string {
