@@ -324,11 +324,11 @@ module
         :- Need(
           && encryptResponse.KeyId.Some?
           && ParseAwsKmsIdentifier(encryptResponse.KeyId.value).Success?,
-          "Invalid response from AWS KMS Encrypt:: Invalid Key Id"
+          "Invalid response from AWS KMS Encrypt: Invalid Key Id"
         );
 
         :- Need(encryptResponse.CiphertextBlob.Some?,
-          "Invalid response from AWS KMS Encrypt:: Invalid Ciphertext Blob"
+          "Invalid response from AWS KMS Encrypt: Invalid Ciphertext Blob"
         );
 
         var providerInfo :- UTF8.Encode(encryptResponse.KeyId.Extract());
