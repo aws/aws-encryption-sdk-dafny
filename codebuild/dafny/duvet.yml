@@ -2,8 +2,10 @@ version: 0.2
 phases:
   install:
     commands:
-      - curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
-      - rustup install stable -y
+      - curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs > rustup.sh
+      - chmod a+x rustup.sh
+      - ./rustup.sh -y
+      #- rustup install stable
       - ./aws-encryption-sdk-specification/util/install-duvet
   build:
     commands:
