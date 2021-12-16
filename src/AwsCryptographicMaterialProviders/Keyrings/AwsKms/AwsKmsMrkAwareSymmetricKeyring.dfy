@@ -101,9 +101,9 @@ module
       //# GenerateDataKey (https://docs.aws.amazon.com/kms/latest/APIReference/
       //# API_GenerateDataKey.html).
       ensures
+        var maybeStringifiedEncCtx := StringifyEncryptionContext(input.materials.encryptionContext);
         && input.materials.plaintextDataKey.None?
         && KMS.IsValid_KeyIdType(awsKmsKey)
-        && var maybeStringifiedEncCtx := StringifyEncryptionContext(input.materials.encryptionContext);
         && maybeStringifiedEncCtx.Success?
       ==> (
         //= compliance/framework/aws-kms/aws-kms-mrk-aware-symmetric-keyring.txt#2.7
