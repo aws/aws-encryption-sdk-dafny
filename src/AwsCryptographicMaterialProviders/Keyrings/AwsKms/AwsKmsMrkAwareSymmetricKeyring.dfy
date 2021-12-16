@@ -103,7 +103,8 @@ module
       ensures
         && input.materials.plaintextDataKey.None?
         && 1 <= |awsKmsKey| <= 2048
-        && var maybeStringifiedEncCtx = StringifyEncryptionContext(input.materials.encryptionContext);
+        && var maybeStringifiedEncCtx := StringifyEncryptionContext(input.materials.encryptionContext);
+        && maybeStringifiedEncCtx.Success?
       ==> (
         //= compliance/framework/aws-kms/aws-kms-mrk-aware-symmetric-keyring.txt#2.7
         //= type=implication
@@ -589,7 +590,7 @@ module
        ==>
         && 1 <= |edk.ciphertext| <= 6144
         && Materials.DecryptionMaterialsTransitionIsValid(materials, res.value)
-        && var maybeStringifiedEncCtx = StringifyEncryptionContext(materials.encryptionContext);
+        && var maybeStringifiedEncCtx := StringifyEncryptionContext(materials.encryptionContext);
         && maybeStringifiedEncCtx.Success?
         && var request := KMS.DecryptRequest(
             KeyId := Option.Some(awsKmsKey),
