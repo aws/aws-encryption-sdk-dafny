@@ -5,12 +5,10 @@ phases:
       - curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs > rustup.sh
       - chmod a+x rustup.sh
       - ./rustup.sh -v -y
-      - ls -la $HOME/.cargo/
       - export PATH="$HOME/.cargo/bin:$PATH"
-      - echo $PATH
-      - command -v rustup
-      - command -v cargo
-      - ./aws-encryption-sdk-specification/util/install-duvet
+      - DIR=$(mktemp -d)
+      - git clone git@github.com:awslabs/duvet.git $DIR
+      - cargo +stable install --force --path $DIR/
   build:
     commands:
       - ./duvet_report.sh
