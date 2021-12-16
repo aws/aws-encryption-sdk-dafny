@@ -3,6 +3,7 @@
 
 include "../StandardLibrary/StandardLibrary.dfy"
 include "../Generated/AwsCryptographicMaterialProviders.dfy"
+include "../Generated/KeyManagementService.dfy"
 include "../Util/UTF8.dfy"
 include "../Crypto/AESEncryption.dfy"
 include "Keyrings/RawAESKeyring.dfy"
@@ -10,9 +11,11 @@ include "Keyrings/MultiKeyring.dfy"
 include "CMMs/DefaultCMM.dfy"
 include "Materials.dfy"
 include "AlgorithmSuites.dfy"
+include "Keyrings/AwsKms/AwsKmsMrkAwareSymmetricKeyring.dfy"
+include "../KMS/AwsKmsArnParsing.dfy"
 
 module
-  {:extern "Dafny.Aws.Crypto.MaterialProviders.Client"}
+  {:extern "Dafny.Aws.Crypto.AwsCryptographicMaterialProvidersClient"}
   MaterialProviders.Client
 {
   import opened Wrappers
@@ -26,6 +29,9 @@ module
   import DefaultCMM
   import AlgorithmSuites
   import Materials
+  import AwsKmsMrkAwareSymmetricKeyring
+  import AwsKmsArnParsing
+  import GeneratedKMS = Com.Amazonaws.Kms
 
   // This file is the entry point for all Material Provider operations.
   // There MUST NOT be any direct includes to any other files in this project.
@@ -46,6 +52,7 @@ module
     // Class Members
     provides
       AwsCryptographicMaterialProvidersClient.CreateRawAesKeyring,
+      AwsCryptographicMaterialProvidersClient.CreateMrkAwareStrictAwsKmsKeyring,
       AwsCryptographicMaterialProvidersClient.CreateDefaultCryptographicMaterialsManager,
       AwsCryptographicMaterialProvidersClient.CreateMultiKeyring
 
@@ -112,6 +119,24 @@ module
     {
         return new DefaultCMM.DefaultCMM.OfKeyring(input.keyring);
     }
+
+    method CreateMrkAwareStrictAwsKmsKeyring(input: Crypto.CreateMrkAwareStrictAwsKmsKeyringInput) returns (res: Crypto.IKeyring)
+    {
+      expect AwsKmsArnParsing.ParseAwsKmsIdentifier(input.kmsKeyId).Success?;
+      expect UTF8.IsASCIIString(input.kmsKeyId);
+      expect 0 < |input.kmsKeyId| <= AwsKmsArnParsing.MAX_AWS_KMS_IDENTIFIER_LENGTH;
+
+      var grantTokens: Crypto.GrantTokenList := input.grantTokens.UnwrapOr([]);
+      expect 0 <= |grantTokens| <= 10;
+      expect forall grantToken | grantToken in grantTokens :: 1 <= |grantToken| <= 8192;
+
+      return new AwsKmsMrkAwareSymmetricKeyring.AwsKmsMrkAwareSymmetricKeyring(input.kmsClient, input.kmsKeyId, grantTokens);
+    }
+
+    // Materials.EncryptionMaterialsTransitionIsValid(
+    // Materials.DecryptionMaterialsTransitionIsValid(
+    // Materials.EncryptionMaterialsWithPlaintextDataKey(
+    // Materials.DecryptionMaterialsWithPlaintextDataKey(
 
     method CreateMultiKeyring(input: Crypto.CreateMultiKeyringInput)
       returns (res: Crypto.IKeyring?)

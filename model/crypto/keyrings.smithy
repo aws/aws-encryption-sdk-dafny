@@ -106,23 +106,23 @@ structure CreateKeyringOutput {
 //
 //     grantTokens: GrantTokenList,
 // }
-//
-// // KMS - MRK Aware, Strict
-// operation CreateMrkAwareStrictAwsKmsKeyring {
-//     input: CreateMrkAwareStrictAwsKmsKeyringInput,
-//     output: CreateKeyringOutput,
-// }
-//
-// structure CreateMrkAwareStrictAwsKmsKeyringInput {
-//     @required
-//     kmsKeyId: KmsKeyId,
-//
-//     @required
-//     kmsClient: KmsClientReference,
-//
-//     grantTokens: GrantTokenList
-// }
-//
+
+// KMS - MRK Aware, Strict
+operation CreateMrkAwareStrictAwsKmsKeyring {
+    input: CreateMrkAwareStrictAwsKmsKeyringInput,
+    output: CreateKeyringOutput,
+}
+
+structure CreateMrkAwareStrictAwsKmsKeyringInput {
+    @required
+    kmsKeyId: KmsKeyId,
+
+    @required
+    kmsClient: KmsClientReference,
+
+    grantTokens: GrantTokenList
+}
+
 // operation CreateMrkAwareStrictMultiKeyring {
 //     input: CreateMrkAwareStrictMultiKeyringInput,
 //     output: CreateKeyringOutput,

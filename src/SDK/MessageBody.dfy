@@ -235,6 +235,7 @@ module MessageBody {
       n, sequenceNumber := n + frameLength, sequenceNumber + 1;
       assert SumPlaintextSegments(plaintextSeg) == plaintext[..n];
     }
+    assert {:split_here} true;
 
     var finalFrameResult, finalFrame := EncryptFinalFrame(suite, key, frameLength, messageID, plaintext[n..], sequenceNumber);
     if finalFrameResult.IsFailure() {

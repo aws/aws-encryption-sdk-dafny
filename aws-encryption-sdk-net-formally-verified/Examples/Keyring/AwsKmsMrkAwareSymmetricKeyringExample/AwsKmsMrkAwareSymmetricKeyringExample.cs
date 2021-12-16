@@ -3,15 +3,14 @@
 
 using System.Collections.Generic;
 using System.IO;
-
+using Amazon.KeyManagementService;
 using Aws.Crypto;
 using Aws.Esdk;
 
-using Org.BouncyCastle.Security; // In this example, we use BouncyCastle to generate a wrapping key.
 using Xunit;
 
-/// Demonstrate an encrypt/decrypt cycle using a raw AES keyring.
-public class RawAESKeyringExample {
+/// Demonstrate an encrypt/decrypt cycle using a AWS MRK-aware symmetric keyring.
+public class AwsKmsMrkAwareSymmetricKeyringExample {
     static void Run(MemoryStream plaintext) {
         // Create your encryption context.
         // Remember that your encryption context is NOT SECRET.
@@ -24,34 +23,18 @@ public class RawAESKeyringExample {
             {"the data you are handling", "is what you think it is"}
         };
 
-        // Generate a 256-bit AES key to use with your keyring.
-        // Here we use BouncyCastle, but you don't have to.
-        //
-        // In practice, you should get this key from a secure key management system such as an HSM.
-        MemoryStream key = new MemoryStream(GeneratorUtilities.GetKeyGenerator("AES256").GenerateKey());
-
-        // The key namespace and key name are defined by you
-        // and are used by the raw AES keyring to determine
-        // whether it should attempt to decrypt an encrypted data key.
-        //
-        // https://docs.aws.amazon.com/encryption-sdk/latest/developer-guide/choose-keyring.html#use-raw-aes-keyring
-        string keyNamespace = "Some managed raw keys";
-        string keyName = "My 256-bit AES wrapping key";
-
         // Create clients to access the Encryption SDK APIs.
         // TODO: add client configuration objects
         IAwsCryptographicMaterialProviders materialProviders = new AwsCryptographicMaterialProvidersClient();
         IAwsEncryptionSdk encryptionSdkClient = new AwsEncryptionSdkClient();
 
         // Create the keyring that determines how your data keys are protected.
-        CreateRawAesKeyringInput createKeyringInput = new CreateRawAesKeyringInput
+        CreateMrkAwareStrictAwsKmsKeyringInput createKeyringInput = new CreateMrkAwareStrictAwsKmsKeyringInput
         {
-            KeyNamespace = keyNamespace,
-            KeyName = keyName,
-            WrappingKey = key,
-            WrappingAlg = AesWrappingAlg.ALG_AES256_GCM_IV12_TAG16,
+            KmsClient = new AmazonKeyManagementServiceClient(),
+            KmsKeyId = "arn:aws:kms:us-west-2:658956600833:key/b3537ef1-d8dc-4780-9f5a-55776cbb2f7f",
         };
-        IKeyring keyring = materialProviders.CreateRawAesKeyring(createKeyringInput);
+        IKeyring keyring = materialProviders.CreateMrkAwareStrictAwsKmsKeyring(createKeyringInput);
 
         // Create the materials manager that assembles cryptographic materials from your keyring.
         CreateDefaultCryptographicMaterialsManagerInput createMaterialsManagerInput =
@@ -97,7 +80,7 @@ public class RawAESKeyringExample {
 
     // We test examples to ensure they remain up-to-date.
     [Fact]
-    public void TestRawAESKeyringExample() {
+    public void TestAwsKmsMrkAwareSymmetricKeyringExample() {
         Run(ExampleUtils.ExampleUtils.GetPlaintextStream());
     }
 }
