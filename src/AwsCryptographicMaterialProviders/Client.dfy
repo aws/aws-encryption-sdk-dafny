@@ -133,11 +133,10 @@ module
       return new AwsKmsMrkAwareSymmetricKeyring.AwsKmsMrkAwareSymmetricKeyring(input.kmsClient, input.kmsKeyId, grantTokens);
     }
 
-// Materials.EncryptionMaterialsTransitionIsValid(
-// Materials.DecryptionMaterialsTransitionIsValid(
-// Materials.EncryptionMaterialsWithPlaintextDataKey(
-// Materials.DecryptionMaterialsWithPlaintextDataKey(
-  }
+    // Materials.EncryptionMaterialsTransitionIsValid(
+    // Materials.DecryptionMaterialsTransitionIsValid(
+    // Materials.EncryptionMaterialsWithPlaintextDataKey(
+    // Materials.DecryptionMaterialsWithPlaintextDataKey(
 
     method CreateMultiKeyring(input: Crypto.CreateMultiKeyringInput)
       returns (res: Crypto.IKeyring?)
