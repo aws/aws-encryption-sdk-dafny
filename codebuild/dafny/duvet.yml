@@ -9,7 +9,7 @@ phases:
       - echo $PATH
       - ls -la $HOME/
       - ls -la $HOME/.rustup/
-      - source $HOME/.cargo/env
+      - export PATH="$HOME/.cargo/bin:$PATH"
       #- rustup install stable
       - ./aws-encryption-sdk-specification/util/install-duvet
   build:
