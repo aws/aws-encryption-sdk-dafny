@@ -1,5 +1,24 @@
 #!/bin/sh
 
+
+#######################
+# TEMP
+set -e
+
+# Make sure that rustup in installed
+if ! command -v rustup &> /dev/null; then
+  curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
+fi
+
+# 
+if ! command -v cargo &> /dev/null; then
+  rustup install stable -y
+fi
+
+
+# END TEMP
+#######################
+
 SPEC_ROOT=aws-encryption-sdk-specification
 
 # As we make the duvet framework more robust this logic around extracting and rebuilding
