@@ -7,7 +7,7 @@ phases:
       - ./rustup.sh -v -y
       - export PATH="$HOME/.cargo/bin:$PATH"
       - DIR=$(mktemp -d)
-      - git clone git@github.com:awslabs/duvet.git $DIR
+      - git clone https://github.com/awslabs/duvet.git $DIR
       - cargo +stable install --force --path $DIR/
   build:
     commands:
