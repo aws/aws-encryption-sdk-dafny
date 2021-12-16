@@ -5,6 +5,8 @@ phases:
       - curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs > rustup.sh
       - chmod a+x rustup.sh
       - ./rustup.sh -y
+      - echo $HOME
+      - source $HOME/.cargo/env
       #- rustup install stable
       - ./aws-encryption-sdk-specification/util/install-duvet
   build:
