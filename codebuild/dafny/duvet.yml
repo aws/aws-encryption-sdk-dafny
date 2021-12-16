@@ -1,0 +1,8 @@
+version: 0.2
+phases:
+  install:
+    commands:
+      - ./aws-encryption-sdk-specification/util/install-duvet
+  build:
+    commands:
+      - ./duvet_report.sh
