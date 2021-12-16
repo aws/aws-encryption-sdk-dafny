@@ -5,5 +5,7 @@ batch:
   build-list:
     - identifier: dafny_verify
       buildspec: codebuild/dafny/verify.yml
+    - identifier: duvet
+      buildspec: codebuild/dafny/duvet.yml
     - identifier: dotnet 
       buildspec: codebuild/dotnet/ci.yml
