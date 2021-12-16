@@ -33,7 +33,6 @@ module EncryptionContext2 {
     && HasUint16Len(p.value) && ValidUTF8Seq(p.value)
   witness *
 
-  const ESDK_CANONICAL_ENCRYPTION_CONTEXT_MAX_LENGTH := UINT16_LIMIT - 2;
   type ESDKCanonicalEncryptionContext = pairs: seq<ESDKEncryptionContextPair>
   |
     && HasUint16Len(pairs)
@@ -56,53 +55,81 @@ module EncryptionContext2 {
     encryptionContext: ESDKEncryptionContext
   )
     :(ret: ESDKCanonicalEncryptionContext)
+    ensures |encryptionContext| == 0 ==> |ret| == 0
   {
-    //= compliance/data-format/message-header.txt#2.5.1.7.2.2
-    //# These entries MUST have entries sorted, by key, in ascending order
-    //# according to the UTF-8 encoded binary value.
-    var keys: seq<UTF8.ValidUTF8Bytes> := Sets.ComputeSetToOrderedSequence2<uint8>(
-      encryptionContext.Keys,
-      UInt.UInt8Less
-    );
-    seq(
-      |keys|,
-      i
-        requires 0 <= i < |keys|
-      => Pair(
-        keys[i],
-        encryptionContext[keys[i]]))
+    GetCanonicalLinearPairs(encryptionContext)
   }
 
   function method GetEncryptionContext(
     canonicalEncryptionContext: ESDKCanonicalEncryptionContext
   )
-    :(ret: ESDKEncryptionContext)
+    :(ret: Crypto.EncryptionContext)
+    ensures |canonicalEncryptionContext| == 0 ==> |ret| == 0
   {
     // This is needed because Dafny can not reveal the subset type by default?
     assert KeysAreUnique(canonicalEncryptionContext);
-    map p: ESDKEncryptionContextPair
-    | p in canonicalEncryptionContext
-    :: p.key := p.value
+    map i
+    | 0 <= i < |canonicalEncryptionContext|
+    :: canonicalEncryptionContext[i].key := canonicalEncryptionContext[i].value
+    // map p: ESDKEncryptionContextPair
+    // | p in canonicalEncryptionContext
+    // :: p.key := p.value
   }
 
-  lemma asdf(pairs: ESDKCanonicalEncryptionContext)
-    ensures IsESDKEncryptionContext(
-      map p: ESDKEncryptionContextPair
-      | p in pairs
-      :: p.key := p.value)
+  lemma LemmaCardinalityOfEncryptionContextEqualsPairs(
+    pairs: ESDKCanonicalEncryptionContext,
+    ec: Crypto.EncryptionContext
+  )
+    requires ec == GetEncryptionContext(pairs)
+    ensures |ec| == |pairs|
   {
-    var ec := map p: ESDKEncryptionContextPair
-      | p in pairs
-      :: p.key := p.value;
+    if |pairs| == 0 {
+    } else {
+      var front := Seq.DropLast(pairs);
+      var tail := Seq.Last(pairs);
+      var ecOfFront := GetEncryptionContext(front);
+      assert pairs == front + [tail];
+      assert ec.Keys == ecOfFront.Keys + {tail.key};
 
-    if |ec| < |pairs| {
-      assert forall p
-      | p in pairs
-      :: p.key in ec;
+      assert |ecOfFront.Keys| == |ecOfFront|;
+      LemmaCardinalityOfEncryptionContextEqualsPairs(front, ecOfFront);
     }
-    if |ec| > |pairs| {
+  }
 
+  lemma LemmaLengthOfPairsEqualsEncryptionContext(
+    pairs: ESDKCanonicalEncryptionContext,
+    ec: Crypto.EncryptionContext
+  )
+    requires ec == GetEncryptionContext(pairs)
+    ensures LinearLength(pairs) == Length(ec)
+  {
+    if |pairs| == 0 {
+    } else {
+      var front := Seq.DropLast(pairs);
+      var tail := Seq.Last(pairs);
+      var ecOfFront := GetEncryptionContext(front);
+
+      assert pairs == front + [tail];
+      assert ec.Keys == ecOfFront.Keys + {tail.key};
+      assert ec == ecOfFront + map[tail.key := tail.value];
+      assert |ecOfFront.Keys| == |ecOfFront|;
+
+      assert LinearLength(pairs) == Length(ec);
+
+      LemmaLengthOfPairsEqualsEncryptionContext(front, ecOfFront);
     }
+
+  }
+
+  lemma LemmaESDKCanonicalEncryptionContextIsESDKEncryptionContext(
+    pairs: ESDKCanonicalEncryptionContext,
+    ec: Crypto.EncryptionContext
+  )
+    requires ec == GetEncryptionContext(pairs)
+    ensures IsESDKEncryptionContext(ec)
+  {
+    LemmaCardinalityOfEncryptionContextEqualsPairs(pairs, ec);
+    LemmaLengthOfPairsEqualsEncryptionContext(pairs, ec);
   }
 
   //= compliance/data-format/message-header.txt#2.5.1.7

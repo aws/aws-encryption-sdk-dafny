@@ -30,10 +30,11 @@ module SerializableTypes {
 
   type ESDKEncryptedDataKey = e: EncryptedDataKey | IsESDKEncryptedDataKey(e) witness *
   type ESDKEncryptedDataKeys = seq16<ESDKEncryptedDataKey>
+  const ESDK_CANONICAL_ENCRYPTION_CONTEXT_MAX_LENGTH := UINT16_LIMIT - 2;
 
   predicate method IsESDKEncryptionContext(ec: Crypto.EncryptionContext) {
     && |ec| < UINT16_LIMIT
-    && Length(ec) < UINT16_LIMIT
+    && Length(ec) < ESDK_CANONICAL_ENCRYPTION_CONTEXT_MAX_LENGTH
     && forall element
     | element in (multiset(ec.Keys) + multiset(ec.Values))
     ::
@@ -102,21 +103,55 @@ module SerializableTypes {
    * 2 for the value length
    * Uint16-2-2-1 for the value data
    */
-  function method Length(encryptionContext: Crypto.EncryptionContext): nat
+  function method Length(
+    encryptionContext: Crypto.EncryptionContext
+  )
+    : (ret: nat)
+    ensures |encryptionContext| == 0
+    ==> ret == 0
+    ensures |encryptionContext| != 0
+    ==>
+      && var pairs := GetCanonicalLinearPairs(encryptionContext);
+      && ret == LinearLength(pairs)
   {
     if |encryptionContext| == 0 then 0 else
-      // Defining and reasoning about order at this level is simplified by using a sequence of
-      // key value pairs instead of a map.
-      var keys: seq<UTF8.ValidUTF8Bytes> := Sets.ComputeSetToOrderedSequence2<uint8>(encryptionContext.Keys, UInt.UInt8Less);
-      var pairs := seq(|keys|, i requires 0 <= i < |keys| => Pair(keys[i], encryptionContext[keys[i]]));
-      2 + LinearLength(pairs)
+      var pairs := GetCanonicalLinearPairs(encryptionContext);
+      LinearLength(pairs)
+  }
+
+  // Defining and reasoning about order with maps
+  // is simplified by using a sequence of
+  // key value pairs instead.
+  function method GetCanonicalLinearPairs(
+    encryptionContext: Crypto.EncryptionContext
+  )
+    :(ret: Linear<UTF8.ValidUTF8Bytes, UTF8.ValidUTF8Bytes>)
+    ensures |encryptionContext| == 0 ==> |ret| == 0
+  {
+    //= compliance/data-format/message-header.txt#2.5.1.7.2.2
+    //# These entries MUST have entries sorted, by key, in ascending order
+    //# according to the UTF-8 encoded binary value.
+    var keys: seq<UTF8.ValidUTF8Bytes> := Sets.ComputeSetToOrderedSequence2<uint8>(
+      encryptionContext.Keys,
+      UInt.UInt8Less
+    );
+    seq(
+      |keys|,
+      i
+        requires 0 <= i < |keys|
+      => Pair(
+        keys[i],
+        encryptionContext[keys[i]]))
   }
 
   function method {:tailrecursion} LinearLength(
     pairs: Linear<UTF8.ValidUTF8Bytes, UTF8.ValidUTF8Bytes>
   ):
     (ret: nat)
-    ensures |pairs| == 0 ==> ret == 0
+    ensures |pairs| == 0
+    ==> ret == 0
+    ensures |pairs| != 0
+    ==> ret == LinearLength(Seq.DropLast(pairs)) + PairLength(Seq.Last(pairs))
   {
     if |pairs| == 0 then 0
     else
