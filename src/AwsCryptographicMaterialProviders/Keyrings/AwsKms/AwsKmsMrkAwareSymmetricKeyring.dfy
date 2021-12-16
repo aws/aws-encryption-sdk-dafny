@@ -102,7 +102,7 @@ module
       //# API_GenerateDataKey.html).
       ensures
         && input.materials.plaintextDataKey.None?
-        && 1 <= |awsKmsKey| <= 2048
+        && KMS.IsValid_KeyIdType(awsKmsKey)
         && var maybeStringifiedEncCtx := StringifyEncryptionContext(input.materials.encryptionContext);
         && maybeStringifiedEncCtx.Success?
       ==> (
@@ -141,8 +141,8 @@ module
         //# algorithm suite (../algorithm-suites.md)'s Key Derivation Input Length
         //# field.
         && AlgorithmSuites.GetSuite(input.materials.algorithmSuiteId).encrypt.keyLength as int == |res.value.materials.plaintextDataKey.value|
-        && 1 <= |Last(res.value.materials.encryptedDataKeys).ciphertext| <= 6144
-        && 1 <= |res.value.materials.plaintextDataKey.value| <= 4096
+        && KMS.IsValid_CiphertextType(Last(res.value.materials.encryptedDataKeys).ciphertext)
+        && KMS.IsValid_PlaintextType(res.value.materials.plaintextDataKey.value)
         //= compliance/framework/aws-kms/aws-kms-mrk-aware-symmetric-keyring.txt#2.7
         //= type=implication
         //# If verified, OnEncrypt MUST do the following with the response
@@ -174,7 +174,7 @@ module
       //# identifier.
       ensures
         && input.materials.plaintextDataKey.Some?
-        && 1 <= |input.materials.plaintextDataKey.value| <= 4096
+        && KMS.IsValid_PlaintextType(input.materials.plaintextDataKey.value)
         && StringifyEncryptionContext(input.materials.encryptionContext).Success?
       ==>
         //= compliance/framework/aws-kms/aws-kms-mrk-aware-symmetric-keyring.txt#2.7
@@ -202,7 +202,7 @@ module
       //# encryption materials (../structures.md#encryption-materials).
       ensures
         && input.materials.plaintextDataKey.Some?
-        && 1 <= |input.materials.plaintextDataKey.value| <= 4096
+        && KMS.IsValid_PlaintextType(input.materials.plaintextDataKey.value)
         && res.Success?
       ==>
         //= compliance/framework/aws-kms/aws-kms-mrk-aware-symmetric-keyring.txt#2.7
@@ -212,7 +212,7 @@ module
         //# (https://docs.aws.amazon.com/kms/latest/APIReference/
         //# API_Encrypt.html):
         && |res.value.materials.encryptedDataKeys| == |input.materials.encryptedDataKeys| + 1
-        && 1 <= |Last(res.value.materials.encryptedDataKeys).ciphertext| <= 6144
+        && KMS.IsValid_CiphertextType(Last(res.value.materials.encryptedDataKeys).ciphertext)
 
         && exists returnedKeyId, returnedEncryptionAlgorithm ::
           && client.EncryptSucceededWith(
@@ -280,7 +280,7 @@ module
 
         :- Need(
           && generateResponse.CiphertextBlob.Some?
-          && 1 <= |generateResponse.CiphertextBlob.value| <= 6144,
+          && KMS.IsValid_CiphertextType(generateResponse.CiphertextBlob.value),
           "Returned ciphertext is invalid length");
         var ciphertext := generateResponse.CiphertextBlob.value;
 
@@ -295,7 +295,7 @@ module
           materials := result
         ));
       } else {
-        :- Need(1 <= |materials.plaintextDataKey.value| <= 4096,
+        :- Need(KMS.IsValid_PlaintextType(materials.plaintextDataKey.value),
           "PlaintextDataKey is invalid length"
         );
         var encryptRequest := KMS.EncryptRequest(
@@ -376,7 +376,7 @@ module
           //= type=implication
           //# *  Its provider ID MUST exactly match the value "aws-kms".
           && edk.keyProviderId == PROVIDER_ID
-          && 1 <= |edk.ciphertext| <= 6144
+          && KMS.IsValid_CiphertextType(edk.ciphertext)
           && var request := KMS.DecryptRequest(
             KeyId := Option.Some(awsKmsKey),
             CiphertextBlob :=  edk.ciphertext,
@@ -588,7 +588,7 @@ module
     ) {
         res.Success?
        ==>
-        && 1 <= |edk.ciphertext| <= 6144
+        && KMS.IsValid_CiphertextType(edk.ciphertext)
         && Materials.DecryptionMaterialsTransitionIsValid(materials, res.value)
         && var maybeStringifiedEncCtx := StringifyEncryptionContext(materials.encryptionContext);
         && maybeStringifiedEncCtx.Success?
@@ -614,7 +614,7 @@ module
     ) returns (res: Result<Materials.SealedDecryptionMaterials, string>)
       ensures Ensures(edk, res)
     {
-      :- Need(1 <= |edk.ciphertext| <= 6144, "Ciphertext length invalid");
+      :- Need(KMS.IsValid_CiphertextType(edk.ciphertext), "Ciphertext length invalid");
       var stringifiedEncCtx :- StringifyEncryptionContext(materials.encryptionContext);
       var decryptRequest := KMS.DecryptRequest(
         KeyId := Option.Some(awsKmsKey),
