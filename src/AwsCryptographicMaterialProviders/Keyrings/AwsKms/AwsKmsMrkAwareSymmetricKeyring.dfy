@@ -356,7 +356,7 @@ module
 
       :- Need(
         Materials.DecryptionMaterialsWithoutPlaintextDataKey(materials), 
-        "Keyring recieved decryption materials that already contain a plaintext data key.");
+        "Keyring received decryption materials that already contain a plaintext data key.");
 
       //= compliance/framework/aws-kms/aws-kms-mrk-aware-symmetric-keyring.txt#2.8
       //# The set of encrypted data keys MUST first be filtered to match this

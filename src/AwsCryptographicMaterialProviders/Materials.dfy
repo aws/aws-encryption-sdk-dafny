@@ -28,7 +28,7 @@ import opened StandardLibrary
 
   // Encryption Materials
 
-  /* The goal of EncryptionMaterialsTransitionIsValid is to aproxomate
+  /* The goal of EncryptionMaterialsTransitionIsValid is to approximate
    * _some_ mutability in an otherwise immutable structure.
    * Encryption Materials should allow for the addition
    * of the plaintext data key and encrypted data keys.
@@ -36,7 +36,7 @@ import opened StandardLibrary
    * it can never be removed or altered.
    * Simmilarly encrypted data keys can be added,
    * but none can be removed.
-   * This lets keyrings/CMM handle immutalbe data,
+   * This lets keyrings/CMM handle immutable data,
    * and easily assert these invariants.
    */
   predicate method EncryptionMaterialsTransitionIsValid(
@@ -49,6 +49,7 @@ import opened StandardLibrary
     && (
       || (oldMat.plaintextDataKey.None? && newMat.plaintextDataKey.Some?)
       || oldMat.plaintextDataKey == newMat.plaintextDataKey)
+    && newMat.plaintextDataKey.Some?
     && |newMat.encryptedDataKeys| >= |oldMat.encryptedDataKeys|
     && multiset(oldMat.encryptedDataKeys) <= multiset(newMat.encryptedDataKeys)
     && ValidEncryptionMaterials(oldMat)
@@ -68,6 +69,13 @@ import opened StandardLibrary
 
     // You can not transition to invalid materials
     ensures !ValidEncryptionMaterials(newMat)
+    ==> !EncryptionMaterialsTransitionIsValid(oldMat, newMat)
+
+    // During transitions, we MUST always end up with a plaintext data key.
+    // It is not valid to start with a plaintext datakey and remove it.
+    // It is not valid to start with no plaintext datakey and not add one.
+    ensures 
+      && newMat.plaintextDataKey.None? 
     ==> !EncryptionMaterialsTransitionIsValid(oldMat, newMat)
   {}
 

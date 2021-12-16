@@ -22,4 +22,4 @@ if [ $REBUILD == "true" ] ; then
   cd ..
 fi
 
-$SPEC_ROOT/util/report.js $(find src -name '*.dfy') $(find test -name '*.dfy')
+$SPEC_ROOT/util/report.js $(find src -name '*.dfy') $(find test -name '*.dfy') $(find compliance_exceptions -name '*.txt')

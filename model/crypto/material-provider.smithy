@@ -21,7 +21,7 @@ service AwsCryptographicMaterialProviders {
         // CreateMrkAwareStrictMultiKeyring,
         // CreateMrkAwareDiscoveryAwsKmsKeyring,
         // CreateMrkAwareDiscoveryMultiKeyring,
-        // CreateMultiKeyring,
+        CreateMultiKeyring,
         CreateRawAesKeyring,
         // CreateRawRsaKeyring,
 
