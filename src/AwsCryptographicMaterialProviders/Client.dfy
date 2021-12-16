@@ -7,6 +7,7 @@ include "../Generated/KeyManagementService.dfy"
 include "../Util/UTF8.dfy"
 include "../Crypto/AESEncryption.dfy"
 include "Keyrings/RawAESKeyring.dfy"
+include "Keyrings/MultiKeyring.dfy"
 include "CMMs/DefaultCMM.dfy"
 include "Materials.dfy"
 include "AlgorithmSuites.dfy"
@@ -24,6 +25,7 @@ module
   import Aws.Crypto
   import AESEncryption
   import RawAESKeyring
+  import MultiKeyring
   import DefaultCMM
   import AlgorithmSuites
   import Materials
@@ -51,7 +53,8 @@ module
     provides
       AwsCryptographicMaterialProvidersClient.CreateRawAesKeyring,
       AwsCryptographicMaterialProvidersClient.CreateMrkAwareStrictAwsKmsKeyring,
-      AwsCryptographicMaterialProvidersClient.CreateDefaultCryptographicMaterialsManager
+      AwsCryptographicMaterialProvidersClient.CreateDefaultCryptographicMaterialsManager,
+      AwsCryptographicMaterialProvidersClient.CreateMultiKeyring
 
   datatype SpecificationClient = SpecificationClient(
     // Whatever top level closure is added to the constructor needs to be added here
@@ -136,4 +139,16 @@ module
 // Materials.DecryptionMaterialsWithPlaintextDataKey(
   }
 
+    method CreateMultiKeyring(input: Crypto.CreateMultiKeyringInput)
+      returns (res: Crypto.IKeyring?)
+    {
+
+      if input.generator == null && |input.childKeyrings| == 0 {
+         // TODO: placeholder, update once we can return Result<>
+        return null;
+      }
+
+      return new MultiKeyring.MultiKeyring(input.generator, input.childKeyrings);
+    }
+  }
 }
