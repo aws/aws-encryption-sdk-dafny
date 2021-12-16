@@ -6,6 +6,8 @@ phases:
       - chmod a+x rustup.sh
       - ./rustup.sh -v -y
       - echo $HOME
+      - echo $PATH
+      - ls -l $HOME/.rustup/
       - source $HOME/.cargo/env
       #- rustup install stable
       - ./aws-encryption-sdk-specification/util/install-duvet
