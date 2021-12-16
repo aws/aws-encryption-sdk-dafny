@@ -5,12 +5,11 @@ phases:
       - curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs > rustup.sh
       - chmod a+x rustup.sh
       - ./rustup.sh -v -y
-      - echo $HOME
-      - echo $PATH
-      - ls -la $HOME/
-      - ls -la $HOME/.rustup/
+      - ls -la $HOME/.cargo/
       - export PATH="$HOME/.cargo/bin:$PATH"
-      #- rustup install stable
+      - echo $PATH
+      - command -v rustup
+      - command -v cargo
       - ./aws-encryption-sdk-specification/util/install-duvet
   build:
     commands:
