@@ -27,86 +27,98 @@ module SerializeFunctions {
     | Error(message: string)
   type MoreNeeded = p: ReadProblems | p.MoreNeeded? witness *
 
+  
+  datatype ReadableBytes = ReadableBytes(
+    data: seq<uint8>,
+    start: nat
+  )
+  datatype Data<T> = Data(
+    thing: T,
+    tail: ReadableBytes
+  )
+
   // Think about a type
   // datatype Thing = Thing(data: s:seq<uint8>, pos: nat)
   // Then we take and return this thing,
   // not just `pos`.
   // Currently we use a tuple,
   // but a more complete datatype like above may be better long term.
-  type ReadResult<T, E> = Result<(T, nat), E>
+  type ReadResult<T, E> = Result<Data<T>, E>
   type ReadCorrect<T> = ReadResult<T, ReadProblems>
   // When reading binary it can not be incorrect.
   // It may not be enough data, but since it is raw binary,
   // it can not be wrong.
-  // This T MUST be `seq<uint8>`
-  type ReadBinary<T> = ReadResult<T, MoreNeeded>
+  // Generally this T is `seq<uint8>`,
+  // but in the a few cases like uint16, uint32, uint64
+  // it may be other types.
+  type ReadBinaryCorrect<T> = ReadResult<T, MoreNeeded>
 
   predicate CorrectlyRead<T> (
-    s: seq<uint8>,
-    pos: nat,
+    bytes: ReadableBytes,
     res: ReadCorrect<T>,
     invertT: T -> seq<uint8>
   )
   {
     res.Success?
     ==>
-      && |s| >= res.value.1 >= pos
-      && invertT(res.value.0) == s[pos..res.value.1]
+      && var Data(thing, tail) := res.value;
+      && tail.data == bytes.data
+      && |tail.data| >= tail.start >= bytes.start
+      && invertT(thing) == tail.data[bytes.start..tail.start]
   }
 
   function method Read(
-    s: seq<uint8>,
-    pos: nat,
+    bytes: ReadableBytes,
     length: nat
   ):
     (res: ReadBinaryCorrect<seq<uint8>>)
-    decreases if pos > 0 then true else false
     requires length > 0
     ensures
-      && |s| >= pos + length
+      && |bytes.data| >= bytes.start + length
     ==>
       && res.Success?
-      && |res.value.0| == length
-      && res.value.1 == pos + length >= 0
-      && |s| >= res.value.1 > pos
-      && s[pos..res.value.1] == res.value.0
+      && var Data(thing, tail) := res.value;
+      && tail.data == bytes.data
+      && |thing| == length
+      && tail.start == bytes.start + length >= 0
+      && |tail.data| >= tail.start > bytes.start
+      && tail.data[bytes.start..tail.start] == thing
     ensures
-      && pos + length > |s|
+      && |bytes.data| < bytes.start + length
     ==>
       && res.Failure?
       && res.error.MoreNeeded?
-      && res.error.pos == pos + length
-    ensures CorrectlyRead(s, pos, res, d => d)
+      && res.error.pos == bytes.start + length
+    ensures CorrectlyRead(bytes, res, d => d)
   {
-    var end := pos + length;
-    if |s| >= end then
-      Success((s[pos..end], end))
+    var end := bytes.start + length;
+    if |bytes.data| >= end then
+      Success(Data(
+        bytes.data[bytes.start..end],
+        bytes.(start := end)))
     else
       Failure(MoreNeeded(end))
   }
 
   // Opaque? Because the body is not interesting...
   function method ReadUInt16(
-    s: seq<uint8>,
-    pos: nat
-  ):
-    (res: ReadBinary<uint16>)
-    ensures CorrectlyRead(s, pos, res, UInt16ToSeq)
+    bytes: ReadableBytes
+  )
+    :(res: ReadBinaryCorrect<uint16>)
+    ensures CorrectlyRead(bytes, res, UInt16ToSeq)
   {
-    var (data, end) :- Read(s, pos, 2);
-    Success((SeqToUInt16(data), end))
+    var Data(uint16Bytes, tail) :- Read(bytes, 2);
+    Success(Data(SeqToUInt16(uint16Bytes), tail))
   }
 
   function method ReadUInt32(
-    s: seq<uint8>,
-    pos: nat
+    bytes: ReadableBytes
   ):
-    (res: ReadBinary<uint32>)
-    // decreases if pos > 0 then true else false
-    ensures CorrectlyRead(s, pos, res, UInt32ToSeq)
+    (res: ReadBinaryCorrect<uint32>)
+    ensures CorrectlyRead(bytes, res, UInt32ToSeq)
   {
-    var (data, end) :- Read(s, pos, 4);
-    Success((SeqToUInt32(data), end))
+    var Data(uint32Bytes, tail) :- Read(bytes, 4);
+    Success(Data(SeqToUInt32(uint32Bytes), tail))
   }
 
   function method WriteShortLengthSeq(
@@ -118,14 +130,13 @@ module SerializeFunctions {
   }
 
   function method ReadShortLengthSeq(
-    s: seq<uint8>,
-    pos: nat
+    bytes: ReadableBytes
   ):
     (res: ReadCorrect<Uint8Seq16>)
-    ensures CorrectlyRead(s, pos, res, WriteShortLengthSeq)
+    ensures CorrectlyRead(bytes, res, WriteShortLengthSeq)
   {
-    var (length, dataPos) :- ReadUInt16(s, pos);
+    var Data(length, dataPos) :- ReadUInt16(bytes);
     :- Need(length > 0, Error("Length cannot be 0."));
-    Read(s, dataPos, length as nat)
+    Read(dataPos, length as nat)
   }
 }
