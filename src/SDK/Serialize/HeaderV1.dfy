@@ -37,7 +37,7 @@ module HeaderV1 {
   ):
     (ret: seq<uint8>)
   {
-    var connonicalEC := CanonicalEncryptionContext(body.encryptionContext);
+    var connonicalEC := GetCanonicalEncryptionContext(body.encryptionContext);
     var suiteId := GetAlgorithmSuiteId(body.esdkSuiteId);
     var suite := Client.SpecificationClient().GetSuite(suiteId);
 
@@ -71,7 +71,8 @@ module HeaderV1 {
     var suite := Client.SpecificationClient().GetSuite(suiteId);
     var (messageId, ecStart) :- Read(s, messageIdStart, Header.MESSAGE_ID_LEN);
     var (canonicalEncryptionContext, edkStart) :- EncryptionContext2.ReadAADSection(s, ecStart);
-    var encryptionContext: ESDKEncryptionContext := EncryptionContext2.EncryptionContext(canonicalEncryptionContext);
+    var encryptionContext := EncryptionContext2.GetEncryptionContext(canonicalEncryptionContext);
+    LemmaESDKCanonicalEncryptionContextIsESDKEncryptionContext(canonicalEncryptionContext, encryptionContext);
     var (encryptedDataKeys, contentTypeStart) :- EncryptedDataKeys.ReadEncryptedDataKeysSection(s, edkStart);
     var (contentTypeByte, reservedStart) :- Read(s, contentTypeStart, 1);
     var contentType :- Header.ContentType.Get(contentTypeByte[0]).MapFailure(e => Error(e));
