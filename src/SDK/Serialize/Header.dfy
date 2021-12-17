@@ -114,4 +114,89 @@ module Header {
   | |x| == MESSAGE_ID_LEN
   witness *
 
+  const VERSION_1: seq<uint8> := [0x01];
+  const VERSION_2: seq<uint8> := [0x02];
+  type Version = s: seq<uint8>
+  |
+    || s == VERSION_1
+    || s == VERSION_2
+  witness VERSION_1
+
+  function method WriteVersion(
+    version: Version
+  ):
+    (ret: seq<uint8>)
+  {
+    version
+  }
+
+  function method ReadVersion(
+    bytes: ReadableBytes
+  )
+    :(res: ReadCorrect<Version>)
+    ensures CorrectlyRead(bytes, res, WriteVersion)
+  {
+    var Data(raw, tail) :- SerializeFunctions.Read(bytes, |VERSION_1|);
+    :- Need(
+        || raw == VERSION_1
+        || raw == VERSION_2,
+      Error("Unsupported message version."));
+    var version: Version := raw;
+    Success(Data(version, tail))
+  }
+
+  function method WriteESDKSuiteId(
+    esdkSuiteId: ESDKAlgorithmSuiteId
+  ):
+    (ret: seq<uint8>)
+  {
+    UInt16ToSeq(esdkSuiteId)
+  }
+
+  function method ReadESDKSuiteId(
+    bytes: ReadableBytes
+  )
+    :(res: ReadCorrect<ESDKAlgorithmSuiteId>)
+    ensures CorrectlyRead(bytes, res, WriteESDKSuiteId)
+  {
+    var Data(esdkSuiteId, tail) :- ReadUInt16(bytes);
+    :- Need(esdkSuiteId in VALID_IDS, Error("Algorithm suite ID not supported."));
+    Success(Data(esdkSuiteId, tail))
+  }
+
+  function method WriteMessageId(
+    messageId: MessageID
+  ):
+    (ret: seq<uint8>)
+  {
+    messageId
+  }
+
+  function method ReadMessageId(
+    bytes: ReadableBytes
+  )
+    :(res: ReadBinaryCorrect<MessageID>)
+    ensures CorrectlyRead(bytes, res, WriteMessageId)
+  {
+    SerializeFunctions.Read(bytes, MESSAGE_ID_LEN)
+  }
+
+  function method WriteContentType(
+    contentType: ContentType
+  ):
+    (ret: seq<uint8>)
+  {
+    [contentType.Serialize()]
+  }
+
+  function method ReadContentType(
+    bytes: ReadableBytes
+  )
+    :(res: ReadCorrect<ContentType>)
+    ensures CorrectlyRead(bytes, res, WriteContentType)
+  {
+    var Data(raw, tail) :- SerializeFunctions.Read(bytes, 1);
+    var contentType :- ContentType.Get(raw[0]).MapFailure(e => Error(e));
+    Success(Data(contentType, tail))
+  }
 }

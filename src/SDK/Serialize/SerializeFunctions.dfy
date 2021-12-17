@@ -67,6 +67,19 @@ module SerializeFunctions {
       && invertT(thing) == tail.data[bytes.start..tail.start]
   }
 
+  // This function is trivial,
+  // but it lets `Read` have a `Write` function
+  // for its `CorrectlyRead` ensures clause.
+  // This facilitates proof
+  // because both sides use exactly the same function.
+  function method Write(
+    data: seq<uint8>
+  )
+    :(res: seq<uint8>)
+  {
+    data
+  }
+
   function method Read(
     bytes: ReadableBytes,
     length: nat
@@ -89,7 +102,7 @@ module SerializeFunctions {
       && res.Failure?
       && res.error.MoreNeeded?
       && res.error.pos == bytes.start + length
-    ensures CorrectlyRead(bytes, res, d => d)
+    ensures CorrectlyRead(bytes, res, Write)
   {
     var end := bytes.start + length;
     if |bytes.data| >= end then
@@ -123,8 +136,8 @@ module SerializeFunctions {
 
   function method WriteShortLengthSeq(
     d: Uint8Seq16
-  ):
-    (res: seq<uint8>)
+  )
+    :(res: seq<uint8>)
   {
     UInt16ToSeq(|d| as uint16) + d
   }
