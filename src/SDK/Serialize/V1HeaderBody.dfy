@@ -12,7 +12,7 @@ include "Header.dfy"
 include "EncryptionContext.dfy"
 include "EncryptedDataKeys.dfy"
 
-module HeaderV1 {
+module V1HeaderBody {
   import Aws.Crypto
   import Seq
   import Header
@@ -26,7 +26,7 @@ module HeaderV1 {
   import opened SerializeFunctions
 
   type V1HeaderBody = h: Header.HeaderBody
-  | h.HeaderBodyV1?
+  | h.V1HeaderBody?
   witness *
 
   const RESERVED_BYTES: seq<uint8> := [0x00, 0x00, 0x00, 0x00];
@@ -99,7 +99,7 @@ module HeaderV1 {
 
     var frameLength :- ReadUInt32(headerIvLength.tail);
 
-    var body:V1HeaderBody := Header.HeaderBodyV1(
+    var body:V1HeaderBody := Header.V1HeaderBody(
       messageType := messageType.thing,
       esdkSuiteId := esdkSuiteId.thing,
       messageId := messageId.thing,

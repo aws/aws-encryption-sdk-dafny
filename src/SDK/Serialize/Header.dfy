@@ -38,17 +38,17 @@ module Header {
       && |h.headerAuth.headerAuthTag| == h.suite.encrypt.tagLength as nat)
     && (h.suite.commitment.HKDF?
       ==>
-        && h.body.HeaderBodyV2?
+        && h.body.V2HeaderBody?
         && |h.body.suiteData| == h.suite.commitment.outputKeyLength as nat)
     && (!h.suite.commitment.HKDF?
       ==>
-        && h.body.HeaderBodyV1?)
+        && h.body.V1HeaderBody?)
   witness *
 
   datatype MessageFormat = V1 | V2
 
   datatype HeaderBody = 
-    | HeaderBodyV1(
+    | V1HeaderBody(
       nameonly messageType: MessageType,
       nameonly esdkSuiteId: ESDKAlgorithmSuiteId,
       nameonly messageId: MessageID,
@@ -58,7 +58,7 @@ module Header {
       nameonly headerIvLength: nat,
       nameonly frameLength: uint32
     )
-    | HeaderBodyV2(
+    | V2HeaderBody(
       nameonly esdkSuiteId: ESDKAlgorithmSuiteId,
       nameonly messageId: MessageID,
       nameonly encryptionContext: EncryptionContext2.ESDKCanonicalEncryptionContext,

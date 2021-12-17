@@ -12,7 +12,7 @@ include "Header.dfy"
 include "EncryptionContext.dfy"
 include "EncryptedDataKeys.dfy"
 
-module HeaderV2 {
+module V2HeaderBody {
   import Aws.Crypto
   import Seq
   import Header
@@ -26,10 +26,10 @@ module HeaderV2 {
   import opened SerializeFunctions
 
   type V2HeaderBody = h: Header.HeaderBody
-  | h.HeaderBodyV2?
+  | h.V1HeaderBody?
   witness *
 
-  function method WriteV2Header(
+  function method WriteV2HeaderBody(
     body: V2HeaderBody
   )
     :(ret: seq<uint8>)
@@ -50,7 +50,7 @@ module HeaderV2 {
   )
     :(res: ReadCorrect<V2HeaderBody>)
     ensures
-      || CorrectlyRead(bytes, res, WriteV2Header)
+      || CorrectlyRead(bytes, res, WriteV2HeaderBody)
       // This is to handle the edge case in empty AAD see: `ReadAADSection`
       || (
         var headerBytesToAADStart := 1+2+16;
@@ -82,7 +82,7 @@ module HeaderV2 {
 
     var suiteData :- Read(frameLength.tail, suite.commitment.outputKeyLength as nat);
 
-    var body:V2HeaderBody := Header.HeaderBodyV2(
+    var body:V2HeaderBody := Header.V2HeaderBody(
       esdkSuiteId := esdkSuiteId.thing,
       messageId := messageId.thing,
       encryptionContext := encryptionContext.thing,
