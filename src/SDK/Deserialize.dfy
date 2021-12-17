@@ -135,6 +135,7 @@ module Deserialize {
       ivLength == suite.encrypt.ivLength as uint8,
       "Deserialization Error: Incorrect IV length."
     );
+    assert {:split_here} true;
 
     if contentType.NonFramed? && frameLength != 0 {
       return Failure("Deserialization Error: Frame length must be 0 when content type is non-framed.");
