@@ -10,6 +10,7 @@ namespace ExampleUtils {
 
         // The name of the environment variable storing the key to use in examples
         private static string TEST_AWS_KMS_KEY_ID_ENV_VAR = "AWS_ENCRYPTION_SDK_EXAMPLE_KMS_KEY_ID";
+
         static public MemoryStream GetPlaintextStream() {
             return new MemoryStream(Encoding.UTF8.GetBytes(
                         "Lorem ipsum dolor sit amet, consectetur adipiscing elit."
