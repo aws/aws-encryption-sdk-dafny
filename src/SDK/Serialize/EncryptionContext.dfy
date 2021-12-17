@@ -26,7 +26,6 @@ module EncryptionContext2 {
   // However, it is best if a canonical representation exists.
   // For reading and writing, we use the arbitrary given order,
   // and separate the ordering problem from serialization.
-
   type ESDKEncryptionContextPair = p: Pair<UTF8.ValidUTF8Bytes, UTF8.ValidUTF8Bytes>
   |
     && HasUint16Len(p.key) && ValidUTF8Seq(p.key)
@@ -71,9 +70,6 @@ module EncryptionContext2 {
     map i
     | 0 <= i < |canonicalEncryptionContext|
     :: canonicalEncryptionContext[i].key := canonicalEncryptionContext[i].value
-    // map p: ESDKEncryptionContextPair
-    // | p in canonicalEncryptionContext
-    // :: p.key := p.value
   }
 
   lemma LemmaCardinalityOfEncryptionContextEqualsPairs(
@@ -342,8 +338,7 @@ module EncryptionContext2 {
         && bytes.start+4 < |bytes.data|
         && bytes.data[bytes.start..bytes.start+4] == [0,2,0,0]
         ==>
-          && |res.value.thing| == 0
-          && res.value.tail == bytes.(start := bytes.start+4))
+          && CorrectlyRead(bytes, res, WriteExpandedAADSection))
   {
     var Data(length, countPos) :- ReadUInt16(bytes);
     if length == 0 then
@@ -369,4 +364,21 @@ module EncryptionContext2 {
   {
     set p: Pair<K,V> | p in pairs :: p.key
   }
+
+// This is *not* a function method,
+// because it is *only* used for correctness.
+// This represents the sub-optimal encoding of AAD
+// with an extra 2 bytes.
+function WriteExpandedAADSection(
+    ec: ESDKCanonicalEncryptionContext
+  ):
+    (ret: seq<uint8>)
+    ensures
+      && var aad := WriteAAD(ec);
+      && ret == UInt16ToSeq(|aad| as uint16) + aad
+    {
+    var aad := WriteAAD(ec);
+    UInt16ToSeq(|aad| as uint16) + aad
+  }
+
 }

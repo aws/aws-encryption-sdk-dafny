@@ -7,11 +7,13 @@ include "../../StandardLibrary/StandardLibrary.dfy"
 include "../../Util/UTF8.dfy"
 include "./SerializableTypes.dfy"
 include "SerializeFunctions.dfy"
+include "EncryptionContext.dfy"
 
 module Header {
   import Aws.Crypto
   import Seq
   import MaterialProviders.Client
+  import EncryptionContext2
   import opened SerializableTypes
   import opened StandardLibrary.UInt
   import opened Wrappers
@@ -50,7 +52,7 @@ module Header {
       nameonly messageType: MessageType,
       nameonly esdkSuiteId: ESDKAlgorithmSuiteId,
       nameonly messageId: MessageID,
-      nameonly encryptionContext: ESDKEncryptionContext,
+      nameonly encryptionContext: EncryptionContext2.ESDKCanonicalEncryptionContext,
       nameonly encryptedDataKeys: ESDKEncryptedDataKeys,
       nameonly contentType: ContentType,
       nameonly headerIvLength: nat,
@@ -59,7 +61,7 @@ module Header {
     | HeaderBodyV2(
       nameonly esdkSuiteId: ESDKAlgorithmSuiteId,
       nameonly messageId: MessageID,
-      nameonly encryptionContext: ESDKEncryptionContext,
+      nameonly encryptionContext: EncryptionContext2.ESDKCanonicalEncryptionContext,
       nameonly encryptedDataKeys: ESDKEncryptedDataKeys,
       nameonly contentType: ContentType,
       nameonly frameLength: uint32,
