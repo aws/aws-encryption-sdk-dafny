@@ -32,7 +32,7 @@ module Header {
     && GetESDKAlgorithmSuiteId(h.suite.id) == h.body.esdkSuiteId
     && h.body.contentType.NonFramed? <==> 0 == h.body.frameLength
     && h.body.contentType.Framed? <==> 0 < h.body.frameLength
-    && (h.headerAuth.AES_Mac?
+    && (h.headerAuth.AESMac?
     ==>
       && |h.headerAuth.headerIv| == h.suite.encrypt.ivLength as nat
       && |h.headerAuth.headerAuthTag| == h.suite.encrypt.tagLength as nat)
@@ -69,7 +69,7 @@ module Header {
     )
 
   datatype HeaderAuth =
-  | AES_Mac(
+  | AESMac(
     nameonly headerIv: seq<uint8>,
     nameonly headerAuthTag: seq<uint8>
   )
