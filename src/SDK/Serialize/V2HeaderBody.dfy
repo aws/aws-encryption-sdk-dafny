@@ -26,7 +26,7 @@ module V2HeaderBody {
   import opened SerializeFunctions
 
   type V2HeaderBody = h: Header.HeaderBody
-  | h.V1HeaderBody?
+  | h.V2HeaderBody?
   witness *
 
   function method WriteV2HeaderBody(

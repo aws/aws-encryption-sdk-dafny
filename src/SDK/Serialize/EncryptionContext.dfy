@@ -261,6 +261,7 @@ module EncryptionContext2 {
   )
     :(res: ReadCorrect<ESDKEncryptionContextPair>)
     ensures CorrectlyRead(bytes, res, WriteAADPair)
+    ensures res.Success? ==> PairLength(res.value.thing) == res.value.tail.start - bytes.start
   {
     var Data(key, keyEnd) :- ReadShortLengthSeq(bytes);
     :- Need(ValidUTF8Seq(key), Error("Invalid Encryption Context key"));
@@ -293,9 +294,15 @@ module EncryptionContext2 {
       :- Need(|newPos.data[bytes.start..newPos.start]| < ESDK_CANONICAL_ENCRYPTION_CONTEXT_MAX_LENGTH, Error("Encryption Context exceeds maximum length."));
 
       var nextAcc := accumulator + [pair];
-      var nextKeys := KeysToSet(nextAcc);
+      // Calling `KeysToSet` once per pair
+      // will be faster than calling it on `nextAcc` every time.
       reveal KeysToSet();
-      assert KeysToSet(nextAcc) == KeysToSet(accumulator) + KeysToSet([pair]);
+      assert KeysToSet(nextAcc) == keys + KeysToSet([pair]);
+      var nextKeys := keys + KeysToSet([pair]);
+
+      assert LinearLength(nextAcc) == LinearLength(accumulator) + PairLength(pair);
+      assert KeysAreUnique(nextAcc);
+
       ReadAADPairs(bytes, nextAcc, nextKeys, count, newPos)
     else
       assert CorrectlyRead(bytes, Success(Data(accumulator, nextPair)), WriteAADPairs);
