@@ -17,15 +17,19 @@ module {:extern "Dafny.Aws.Crypto"} Aws.Crypto {
     export
       provides UTF8, UInt, KMS, Wrappers, IKeyring.OnDecrypt,
         ICryptographicMaterialsManager.GetEncryptionMaterials, ICryptographicMaterialsManager.DecryptMaterials, IKeyring.OnEncrypt,
-        IAwsCryptographicMaterialsProviderClient.CreateRawAesKeyring, IAwsCryptographicMaterialsProviderClient.CreateDefaultCryptographicMaterialsManager,
+        IAwsCryptographicMaterialsProviderClient.CreateRawAesKeyring,
+        IAwsCryptographicMaterialsProviderClient.CreateDefaultCryptographicMaterialsManager,
         IAwsCryptographicMaterialsProviderClient.CreateMrkAwareStrictAwsKmsKeyring,
-        IAwsCryptographicMaterialsProviderClient.CreateMultiKeyring
+        IAwsCryptographicMaterialsProviderClient.CreateMultiKeyring,
+        IAwsCryptographicMaterialsProviderClient.CreateRawRsaKeyring
+
       reveals AlgorithmSuiteId, EncryptedDataKey, EncryptedDataKeyList, IKeyring, GetEncryptionMaterialsInput, GetEncryptionMaterialsOutput,
         DecryptMaterialsInput, DecryptMaterialsOutput, ICryptographicMaterialsManager, EncryptionContext, EncryptionMaterials, DecryptionMaterials,
         OnEncryptInput, OnEncryptOutput, OnDecryptInput, OnDecryptOutput,
         EncryptionMaterials.Valid, CreateRawAesKeyringInput, CreateMultiKeyringInput, CreateDefaultCryptographicMaterialsManagerInput,
+
         CreateMrkAwareStrictAwsKmsKeyringInput, KmsKeyId, GrantToken, GrantTokenList,
-        IAwsCryptographicMaterialsProviderClient, AesWrappingAlg
+        IAwsCryptographicMaterialsProviderClient, AesWrappingAlg, CreateRawRsaKeyringInput, PaddingScheme
 
     /////////////
     // kms.smithy
@@ -318,7 +322,7 @@ module {:extern "Dafny.Aws.Crypto"} Aws.Crypto {
         // method CreateMrkAwareDiscoveryMultiKeyring(input: CreateMrkAwareDiscoveryMultiKeyringInput) returns (res: IKeyring)
         method CreateMultiKeyring(input: CreateMultiKeyringInput) returns (res: IKeyring?)
         method CreateRawAesKeyring(input: CreateRawAesKeyringInput) returns (res: IKeyring)
-        // method CreateRawRsaKeyring(input: CreateRawRsaKeyringInput) returns (res: IKeyring)
+        method CreateRawRsaKeyring(input: CreateRawRsaKeyringInput) returns (res: IKeyring)
 
         // CMMs
         method CreateDefaultCryptographicMaterialsManager(input: CreateDefaultCryptographicMaterialsManagerInput) returns (res: ICryptographicMaterialsManager)

@@ -23,7 +23,7 @@ service AwsCryptographicMaterialProviders {
         // CreateMrkAwareDiscoveryMultiKeyring,
         CreateMultiKeyring,
         CreateRawAesKeyring,
-        // CreateRawRsaKeyring,
+        CreateRawRsaKeyring,
 
         // CMMs
         CreateDefaultCryptographicMaterialsManager,

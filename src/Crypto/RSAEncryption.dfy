@@ -23,10 +23,7 @@ module {:extern "RSAEncryption"} RSAEncryption {
     ghost const padding: PaddingMode
     const pem: seq<uint8>
     predicate Valid()
-      reads this, Repr
-      ensures Valid() ==> this in Repr
     {
-      this in Repr &&
       |pem| > 0 &&
       GetBytes(strength) >= MinStrengthBytes(padding) &&
       PEMGeneratedWithStrength(pem, strength) &&
@@ -49,12 +46,11 @@ module {:extern "RSAEncryption"} RSAEncryption {
     ensures this.pem == pem
     ensures this.strength == strength
     ensures this.padding == padding
-    ensures Valid() && fresh(Repr)
+    ensures Valid()
     {
       this.pem := pem;
       this.strength := strength;
       this.padding := padding;
-      Repr := {this};
     }
   }
 
@@ -68,12 +64,11 @@ module {:extern "RSAEncryption"} RSAEncryption {
     ensures this.pem == pem
     ensures this.strength == strength
     ensures this.padding == padding
-    ensures Valid() && fresh(Repr)
+    ensures Valid()
     {
       this.pem := pem;
       this.strength := strength;
       this.padding := padding;
-      Repr := {this};
     }
   }
 
@@ -89,7 +84,7 @@ module {:extern "RSAEncryption"} RSAEncryption {
   }
 
   // MinStrengthBytes represents the minimum strength (in bytes) required for a given padding
-  function MinStrengthBytes(padding: PaddingMode): nat {
+  function method MinStrengthBytes(padding: PaddingMode): nat {
     match padding {
       // 0 = k - 11 ==> k = 11
       case PKCS1 => 11
@@ -120,10 +115,10 @@ module {:extern "RSAEncryption"} RSAEncryption {
   method GenerateKeyPair(strength: StrengthBits, padding: PaddingMode)
       returns (publicKey: PublicKey, privateKey: PrivateKey)
     requires GetBytes(strength) >= MinStrengthBytes(padding)
-    ensures privateKey.Valid() && fresh(privateKey.Repr)
+    ensures privateKey.Valid()
     ensures privateKey.strength == strength
     ensures privateKey.padding == padding
-    ensures publicKey.Valid() && fresh(publicKey.Repr)
+    ensures publicKey.Valid()
     ensures publicKey.strength == strength
     ensures publicKey.padding == padding
     ensures GetBytes(publicKey.strength) >= MinStrengthBytes(publicKey.padding)
