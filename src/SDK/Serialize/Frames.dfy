@@ -27,7 +27,6 @@ module Frames {
 
   const START_SEQUENCE_NUMBER: uint32 := 1
   const ENDFRAME_SEQUENCE_NUMBER: uint32 := 0xFFFF_FFFF
-                                        //  0x1_0000_0000
   const NONFRAMED_SEQUENCE_NUMBER: uint32 := 1
 
   type RegularFrameSequenceNumber = n: uint32
@@ -36,6 +35,10 @@ module Frames {
 
   type FramedHeader = h : Header.Header
   | h.body.contentType.Framed?
+  witness *
+
+  type NonFramedHeader = h : Header.Header
+  | h.body.contentType.NonFramed?
   witness *
 
   datatype Frame' = 
@@ -58,11 +61,23 @@ module Frames {
     && |f.authTag| == f.header.suite.encrypt.tagLength as nat
   witness *
 
-  datatype NonFramed = NonFramed(
+  const SAFE_MAX_ENCRYPT := 0xFFFFFFFE0 // 2^36 - 32
+  type SafeNonFramedSeq = s: seq<uint8>
+  | |s| < SAFE_MAX_ENCRYPT
+  witness *
+
+  datatype NonFramed' = NonFramed(
+    header: NonFramedHeader,
     iv: seq<uint8>,
-    encContent: seq<uint8>,
+    encContent: SafeNonFramedSeq,
     authTag: seq<uint8>
   )
+
+  type NonFramed = f: NonFramed'
+  |
+    && |f.iv| == f.header.suite.encrypt.ivLength as nat
+    && |f.authTag| == f.header.suite.encrypt.tagLength as nat
+  witness *
 
   function method WriteFrame(
     frame: Frame
@@ -91,28 +106,6 @@ module Frames {
         + UInt32ToSeq(|frame.encContent| as uint32)
         + Write(frame.encContent)
         + Write(frame.authTag)
-
-
-    // ensures 4  <= |ret|
-    // ensures
-    //   ret[0..4] != UInt32ToSeq(ENDFRAME_SEQUENCE_NUMBER)
-    // ==>
-    //   && frame.RegularFrame?
-    //   && ret == UInt32ToSeq(frame.seqNum)
-    //     + Write(frame.iv)
-    //     + Write(frame.encContent)
-    //     + Write(frame.authTag)
-    // ensures
-    //   ret[0..4] == UInt32ToSeq(ENDFRAME_SEQUENCE_NUMBER)
-    // ==>
-    //   && frame.FinalFrame?
-    //   && ret == UInt32ToSeq(ENDFRAME_SEQUENCE_NUMBER)
-    //     + UInt32ToSeq(frame.finalSequenceNumber)
-    //     + Write(frame.iv)
-    //     + UInt32ToSeq(|frame.encContent| as uint32)
-    //     + Write(frame.encContent)
-    //     + Write(frame.authTag)
-
   {
     match frame
       case RegularFrame(_, seqNum, iv, encContent, authTag) =>
@@ -175,9 +168,30 @@ module Frames {
   }
 
 
+  function method ReadNonFrame(
+    bytes: ReadableBytes,
+    header: NonFramedHeader
+  )
+    :(res: ReadCorrect<NonFramed>)
+    ensures CorrectlyRead(bytes, res, WriteNonFramed)
+  {
+    var iv :- Read(bytes, header.suite.encrypt.ivLength as nat);
+    var contentLength :- ReadUInt64(iv.tail);
+    :- Need(contentLength.thing as nat < SAFE_MAX_ENCRYPT, Error("Too Much"));
+    var encContent :- Read(contentLength.tail, contentLength.thing as nat);
+    var authTag :- Read(encContent.tail, header.suite.encrypt.tagLength as nat);
 
+    var content: SafeNonFramedSeq := encContent.thing;
 
+    var nonFramed: NonFramed := NonFramed'.NonFramed(
+      header,
+      iv.thing,
+      content,
+      authTag.thing
+    );
 
+    Success(Data(nonFramed, authTag.tail))
+  }
 
   // The Encryption SDK no longer supports writing Non-Framed Data.
   // That is why this is a function and not a function method.
@@ -188,11 +202,9 @@ module Frames {
     :(ret: seq<uint8>)
   {
     Write(nonFramed.iv)
-    // Uint64 Length
+    + UInt64ToSeq(|nonFramed.encContent| as uint64)
     + Write(nonFramed.encContent)
     + Write(nonFramed.authTag)
   }
-
-
 
 }
