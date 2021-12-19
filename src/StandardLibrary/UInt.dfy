@@ -26,6 +26,13 @@ module StandardLibrary.UInt {
   type seq16<T> = s: seq<T> | HasUint16Len(s)
   type Uint8Seq16 = seq16<uint8>
 
+  predicate method HasUint32Len<T>(s: seq<T>) {
+    |s| < UINT32_LIMIT
+  }
+
+  type seq32<T> = s: seq<T> | HasUint32Len(s)
+  type Uint8Seq32 = seq32<uint8>
+
   function method UInt16ToSeq(x: uint16): (ret: seq<uint8>)
     ensures |ret| == 2
     ensures 0x100 * ret[0] as uint16 + ret[1] as uint16 == x
