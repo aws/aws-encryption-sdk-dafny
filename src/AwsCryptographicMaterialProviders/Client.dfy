@@ -6,8 +6,10 @@ include "../Generated/AwsCryptographicMaterialProviders.dfy"
 include "../Generated/KeyManagementService.dfy"
 include "../Util/UTF8.dfy"
 include "../Crypto/AESEncryption.dfy"
+include "../Crypto/RSAEncryption.dfy"
 include "Keyrings/RawAESKeyring.dfy"
 include "Keyrings/MultiKeyring.dfy"
+include "Keyrings/RawRSAKeyring.dfy"
 include "CMMs/DefaultCMM.dfy"
 include "Materials.dfy"
 include "AlgorithmSuites.dfy"
@@ -24,7 +26,9 @@ module
   import UTF8
   import Aws.Crypto
   import AESEncryption
+  import RSAEncryption
   import RawAESKeyring
+  import RawRSAKeyring
   import MultiKeyring
   import DefaultCMM
   import AlgorithmSuites
@@ -54,8 +58,9 @@ module
       AwsCryptographicMaterialProvidersClient.CreateRawAesKeyring,
       AwsCryptographicMaterialProvidersClient.CreateMrkAwareStrictAwsKmsKeyring,
       AwsCryptographicMaterialProvidersClient.CreateDefaultCryptographicMaterialsManager,
-      AwsCryptographicMaterialProvidersClient.CreateMultiKeyring
-
+      AwsCryptographicMaterialProvidersClient.CreateMultiKeyring,
+      AwsCryptographicMaterialProvidersClient.CreateRawRsaKeyring
+      
   datatype SpecificationClient = SpecificationClient(
     // Whatever top level closure is added to the constructor needs to be added here
   )
@@ -148,6 +153,35 @@ module
       }
 
       return new MultiKeyring.MultiKeyring(input.generator, input.childKeyrings);
+    }
+
+    method CreateRawRsaKeyring(input: Crypto.CreateRawRsaKeyringInput)
+      returns (res: Crypto.IKeyring)
+    {
+      var padding: RSAEncryption.PaddingMode := match input.paddingScheme
+        case PKCS1 => RSAEncryption.PaddingMode.PKCS1
+        case OAEP_SHA1_MGF1 => RSAEncryption.PaddingMode.OAEP_SHA1
+        case OAEP_SHA256_MGF1 => RSAEncryption.PaddingMode.OAEP_SHA256
+        case OAEP_SHA384_MGF1 => RSAEncryption.PaddingMode.OAEP_SHA384
+        case OAEP_SHA512_MGF1 => RSAEncryption.PaddingMode.OAEP_SHA512
+      ;
+      var namespaceRes := UTF8.Encode(input.keyNamespace);
+      var namespace := []; // TODO: This value gets used below if UTF8.Encode fails
+      if namespaceRes.Success? {
+        namespace := namespaceRes.value;
+      }
+      var nameRes := UTF8.Encode(input.keyName);
+      var name := []; // TODO: This value gets used below if UTF8.Encode fails
+      if nameRes.Success? {
+        name := nameRes.value;
+      }
+
+      expect |namespace| < UINT16_LIMIT;
+      expect |name| < UINT16_LIMIT;
+      expect input.publicKey.Some? ==> |input.publicKey.Extract()| > 0;
+      expect input.privateKey.Some? ==> |input.privateKey.Extract()| > 0;
+      expect input.privateKey.Some? || input.publicKey.Some?;
+      return new RawRSAKeyring.RawRSAKeyring(namespace, name, input.publicKey, input.privateKey, padding);
     }
   }
 }
