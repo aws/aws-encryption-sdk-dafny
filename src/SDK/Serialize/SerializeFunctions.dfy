@@ -96,7 +96,7 @@ module SerializeFunctions {
       && tail.data == bytes.data
       && |thing| == length
       && tail.start == bytes.start + length >= 0
-      && |tail.data| >= tail.start > bytes.start
+      && |tail.data| >= tail.start >= bytes.start
       && tail.data[bytes.start..tail.start] == thing
     ensures
       && |bytes.data| < bytes.start + length
@@ -134,6 +134,16 @@ module SerializeFunctions {
   {
     var Data(uint32Bytes, tail) :- Read(bytes, 4);
     Success(Data(SeqToUInt32(uint32Bytes), tail))
+  }
+
+  function method ReadUInt64(
+    bytes: ReadableBytes
+  ):
+    (res: ReadBinaryCorrect<uint64>)
+    ensures CorrectlyRead(bytes, res, UInt64ToSeq)
+  {
+    var Data(uint64Bytes, tail) :- Read(bytes, 8);
+    Success(Data(SeqToUInt64(uint64Bytes), tail))
   }
 
   function method WriteShortLengthSeq(
