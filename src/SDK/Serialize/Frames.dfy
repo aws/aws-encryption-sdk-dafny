@@ -34,15 +34,19 @@ module Frames {
   | n  < ENDFRAME_SEQUENCE_NUMBER
   witness *
 
+  type FramedHeader = h : Header.Header
+  | h.body.contentType.Framed?
+  witness *
+
   datatype Frame' = 
   | RegularFrame(
-    header: Header.Header,
+    header: FramedHeader,
     seqNum: RegularFrameSequenceNumber,
     iv: seq<uint8>,
     encContent: Uint8Seq32,
     authTag: seq<uint8>)
   | FinalFrame (
-    header: Header.Header,
+    header: FramedHeader,
     finalSequenceNumber: uint32,
     iv: seq<uint8>,
     encContent: Uint8Seq32,
@@ -65,24 +69,49 @@ module Frames {
   )
     :(ret: seq<uint8>)
     ensures 4  <= |ret|
-    ensures
-      ret[0..4] != UInt32ToSeq(ENDFRAME_SEQUENCE_NUMBER)
+    ensures ret[0..4] != UInt32ToSeq(ENDFRAME_SEQUENCE_NUMBER)
     ==>
-      && frame.RegularFrame?
+      frame.RegularFrame?
+    ensures ret[0..4] == UInt32ToSeq(ENDFRAME_SEQUENCE_NUMBER)
+    ==>
+      frame.FinalFrame?
+    ensures
+      frame.RegularFrame?
+    ==>
       && ret == UInt32ToSeq(frame.seqNum)
         + Write(frame.iv)
         + Write(frame.encContent)
         + Write(frame.authTag)
     ensures
-      ret[0..4] == UInt32ToSeq(ENDFRAME_SEQUENCE_NUMBER)
+      frame.FinalFrame?
     ==>
-      && frame.FinalFrame?
       && ret == UInt32ToSeq(ENDFRAME_SEQUENCE_NUMBER)
         + UInt32ToSeq(frame.finalSequenceNumber)
         + Write(frame.iv)
         + UInt32ToSeq(|frame.encContent| as uint32)
         + Write(frame.encContent)
         + Write(frame.authTag)
+
+
+    // ensures 4  <= |ret|
+    // ensures
+    //   ret[0..4] != UInt32ToSeq(ENDFRAME_SEQUENCE_NUMBER)
+    // ==>
+    //   && frame.RegularFrame?
+    //   && ret == UInt32ToSeq(frame.seqNum)
+    //     + Write(frame.iv)
+    //     + Write(frame.encContent)
+    //     + Write(frame.authTag)
+    // ensures
+    //   ret[0..4] == UInt32ToSeq(ENDFRAME_SEQUENCE_NUMBER)
+    // ==>
+    //   && frame.FinalFrame?
+    //   && ret == UInt32ToSeq(ENDFRAME_SEQUENCE_NUMBER)
+    //     + UInt32ToSeq(frame.finalSequenceNumber)
+    //     + Write(frame.iv)
+    //     + UInt32ToSeq(|frame.encContent| as uint32)
+    //     + Write(frame.encContent)
+    //     + Write(frame.authTag)
 
   {
     match frame
@@ -102,7 +131,7 @@ module Frames {
 
   function method ReadFrame(
     bytes: ReadableBytes,
-    header: Header.Header
+    header: FramedHeader
   )
     :(res: ReadCorrect<Frame>)
     ensures CorrectlyRead(bytes, res, WriteFrame)
@@ -122,13 +151,7 @@ module Frames {
         authTag.thing
       );
 
-      assert |WriteFrame(regularFrame)| == 4 + |iv.thing| + |encContent.thing| + |authTag.thing|;
-
-      assert WriteFrame(regularFrame)[bytes.start-bytes.start..sequenceNumber.tail.start-bytes.start] == sequenceNumber.tail.data[bytes.start..sequenceNumber.tail.start];
-      assert WriteFrame(regularFrame)[sequenceNumber.tail.start-bytes.start..iv.tail.start-bytes.start] == sequenceNumber.tail.data[sequenceNumber.tail.start..iv.tail.start];
-      assert WriteFrame(regularFrame)[iv.tail.start-bytes.start..encContent.tail.start-bytes.start] == sequenceNumber.tail.data[iv.tail.start..encContent.tail.start];
-      assert WriteFrame(regularFrame)[encContent.tail.start-bytes.start..authTag.tail.start-bytes.start] == sequenceNumber.tail.data[encContent.tail.start..authTag.tail.start];
-
+      assert WriteFrame(regularFrame)[0..4] != UInt32ToSeq(ENDFRAME_SEQUENCE_NUMBER);
       assert CorrectlyRead(bytes, Success(Data(regularFrame, authTag.tail)), WriteFrame);
       Success(Data(regularFrame, authTag.tail))
     else
@@ -146,50 +169,10 @@ module Frames {
         authTag.thing
       );
 
-
-      assert |WriteFrame(finalFrame)| == 4 + 4 + |iv.thing| + 4 + |encContent.thing| + |authTag.thing|;
-
-      assert WriteFrame(finalFrame)[bytes.start-bytes.start..sequenceNumber.tail.start-bytes.start] == sequenceNumber.tail.data[bytes.start..sequenceNumber.tail.start];
-      assert WriteFrame(finalFrame)[sequenceNumber.tail.start-bytes.start..finalSequenceNumber.tail.start-bytes.start] == sequenceNumber.tail.data[sequenceNumber.tail.start..finalSequenceNumber.tail.start];
-      assert WriteFrame(finalFrame)[finalSequenceNumber.tail.start-bytes.start..iv.tail.start-bytes.start] == sequenceNumber.tail.data[finalSequenceNumber.tail.start..iv.tail.start];
-      assert WriteFrame(finalFrame)[iv.tail.start-bytes.start..contentLength.tail.start-bytes.start] == sequenceNumber.tail.data[iv.tail.start..contentLength.tail.start];
-      assert WriteFrame(finalFrame)[contentLength.tail.start-bytes.start..encContent.tail.start-bytes.start] == sequenceNumber.tail.data[contentLength.tail.start..encContent.tail.start];
-      assert WriteFrame(finalFrame)[encContent.tail.start-bytes.start..authTag.tail.start-bytes.start] == sequenceNumber.tail.data[encContent.tail.start..authTag.tail.start];
-
+      assert WriteFrame(finalFrame)[0..4] == UInt32ToSeq(ENDFRAME_SEQUENCE_NUMBER);
       assert CorrectlyRead(bytes, Success(Data(finalFrame, authTag.tail)), WriteFrame);
       Success(Data(finalFrame, authTag.tail))
   }
-
-
-
-// function method ReadFinalFrame(
-//     bytes: ReadableBytes,
-//     header: Header.Header
-//   )
-//     :(res: ReadCorrect<Frame>)
-//     ensures CorrectlyRead(bytes, res, WriteFrame)
-//   {
-//     var sequenceNumber :- ReadUInt32(bytes);
-//     :- Need(sequenceNumber.thing != ENDFRAME_SEQUENCE_NUMBER, "asdf");
-      
-//     assert sequenceNumber.thing == ENDFRAME_SEQUENCE_NUMBER;
-//     var finalSequenceNumber :- ReadUInt32(sequenceNumber.tail);
-//     var iv :- Read(sequenceNumber.tail, header.suite.encrypt.ivLength as nat);
-//     var contentLength :- ReadUInt32(finalSequenceNumber.tail);
-//     var encContent :- Read(iv.tail, contentLength.thing as nat);
-//     var authTag :- Read(encContent.tail, header.suite.encrypt.tagLength as nat);
-
-//     var finalFrame: Frame := Frame'.FinalFrame(
-//       header,
-//       finalSequenceNumber.thing,
-//       iv.thing,
-//       encContent.thing,
-//       authTag.thing
-//     );
-
-//     Success(Data(finalFrame, authTag.tail))
-//   }
-
 
 
 
