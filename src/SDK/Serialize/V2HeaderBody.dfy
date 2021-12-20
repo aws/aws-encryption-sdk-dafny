@@ -37,7 +37,7 @@ module V2HeaderBody {
     :(ret: seq<uint8>)
   {
 
-    SharedHeaderFunctions.WriteVersion(HeaderTypes.VERSION_2)
+    SharedHeaderFunctions.WriteMessageFormatVersion(HeaderTypes.MessageFormatVersion.V2)
     + SharedHeaderFunctions.WriteESDKSuiteId(body.esdkSuiteId)
     + SharedHeaderFunctions.WriteMessageId(body.messageId)
     + WriteAADSection(body.encryptionContext)
@@ -51,21 +51,10 @@ module V2HeaderBody {
     bytes: ReadableBytes
   )
     :(res: ReadCorrect<V2HeaderBody>)
-    ensures
-      || CorrectlyRead(bytes, res, WriteV2HeaderBody)
-      // This is to handle the edge case in empty AAD see: `ReadAADSection`
-      || (
-        var headerBytesToAADStart := 1+2+16;
-        var aadStartPosition := bytes.start+headerBytesToAADStart;
-        && res.Success?
-        && aadStartPosition+4 < |bytes.data|
-        && bytes.data[aadStartPosition..aadStartPosition+4] == [0,2,0,0]
-        ==>
-          && CorrectlyRead(bytes, res, WriteV2ExpandedAADSectionHeader))
-
+    ensures CorrectlyReadV2HeaderBody(bytes, res)
   {
-    var version :- SharedHeaderFunctions.ReadVersion(bytes);
-    :- Need(version.thing == HeaderTypes.VERSION_2, Error("Message version must be version 1."));
+    var version :- SharedHeaderFunctions.ReadMessageFormatVersion(bytes);
+    :- Need(version.thing.V2?, Error("Message version must be version 1."));
 
     var esdkSuiteId :- SharedHeaderFunctions.ReadESDKSuiteId(version.tail);
     var suiteId := GetAlgorithmSuiteId(esdkSuiteId.thing);
@@ -97,6 +86,29 @@ module V2HeaderBody {
     Success(Data(body, frameLength.tail))
   }
 
+  predicate CorrectlyReadV2HeaderBody(
+    bytes: ReadableBytes,
+    res: ReadCorrect<V2HeaderBody>
+  )
+  {
+    || CorrectlyRead(bytes, res, WriteV2HeaderBody)
+    // This is to handle the edge case in empty AAD see: `ReadAADSection`
+    || (
+        IsV2ExpandedAADSection(bytes)
+      ==>
+        CorrectlyRead(bytes, res, WriteV2ExpandedAADSectionHeader))
+  }
+
+  predicate IsV2ExpandedAADSection(
+    bytes: ReadableBytes
+  )
+  {
+    var headerBytesToAADStart := 1+2+16;
+    var aadStartPosition := bytes.start+headerBytesToAADStart;
+    && aadStartPosition+4 < |bytes.data|
+    && bytes.data[aadStartPosition..aadStartPosition+4] == [0,2,0,0]
+  }
+
   // This is *not* a function method,
   // because it is *only* used for correctness.
   // This represents the sub-optimal encoding of AAD
@@ -107,7 +119,7 @@ module V2HeaderBody {
     :(ret: seq<uint8>)
   {
 
-    SharedHeaderFunctions.WriteVersion(HeaderTypes.VERSION_2)
+    SharedHeaderFunctions.WriteMessageFormatVersion(HeaderTypes.MessageFormatVersion.V2)
     + SharedHeaderFunctions.WriteESDKSuiteId(body.esdkSuiteId)
     + SharedHeaderFunctions.WriteMessageId(body.messageId)
     + WriteExpandedAADSection(body.encryptionContext)

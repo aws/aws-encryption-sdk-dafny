@@ -22,27 +22,24 @@ module SharedHeaderFunctions {
   import opened SerializeFunctions
   import opened HeaderTypes
 
-  function method WriteVersion(
-    version: Version
-  ):
-    (ret: seq<uint8>)
+  function method WriteMessageFormatVersion(
+    version: MessageFormatVersion
+  )
+    :(ret : seq<uint8>)
   {
-    version
+    Write(version.Serialize())
   }
 
-  function method ReadVersion(
+  function method ReadMessageFormatVersion(
     bytes: ReadableBytes
   )
-    :(res: ReadCorrect<Version>)
-    ensures CorrectlyRead(bytes, res, WriteVersion)
+    :(res: ReadCorrect<MessageFormatVersion>)
+    ensures CorrectlyRead(bytes, res, WriteMessageFormatVersion)
   {
-    var Data(raw, tail) :- SerializeFunctions.Read(bytes, |VERSION_1|);
-    :- Need(
-        || raw == VERSION_1
-        || raw == VERSION_2,
-      Error("Unsupported message version."));
-    var version: Version := raw;
-    Success(Data(version, tail))
+    var rawVersion :- SerializeFunctions.Read(bytes, 1);
+
+    var version :- MessageFormatVersion.Get(rawVersion.thing).MapFailure(e => Error(e));
+    Success(Data(version, rawVersion.tail))
   }
 
   function method WriteESDKSuiteId(

@@ -45,7 +45,7 @@ module V1HeaderBody {
     var suiteId := GetAlgorithmSuiteId(body.esdkSuiteId);
     var suite := Client.SpecificationClient().GetSuite(suiteId);
 
-    SharedHeaderFunctions.WriteVersion(HeaderTypes.VERSION_1)
+    SharedHeaderFunctions.WriteMessageFormatVersion(HeaderTypes.MessageFormatVersion.V1)
     + WriteV1MessageType(body.messageType)
     + SharedHeaderFunctions.WriteESDKSuiteId(body.esdkSuiteId)
     + SharedHeaderFunctions.WriteMessageId(body.messageId)
@@ -61,21 +61,10 @@ module V1HeaderBody {
     bytes: ReadableBytes
   )
     :(res: ReadCorrect<V1HeaderBody>)
-    ensures
-      || CorrectlyRead(bytes, res, WriteV1HeaderBody)
-      // This is to handle the edge case in empty AAD see: `ReadAADSection`
-      || (
-        var headerBytesToAADStart := 20; 
-        var aadStartPosition := bytes.start+headerBytesToAADStart;
-        && res.Success?
-        && aadStartPosition+4 < |bytes.data|
-        && bytes.data[aadStartPosition..aadStartPosition+4] == [0,2,0,0]
-        ==>
-          && CorrectlyRead(bytes, res, WriteV1ExpandedAADSectionHeaderBody))
-
+    ensures CorrectlyReadV1HeaderBody(bytes, res)
   {
-    var version :- SharedHeaderFunctions.ReadVersion(bytes);
-    :- Need(version.thing == HeaderTypes.VERSION_1, Error("Message version must be version 1."));
+    var version :- SharedHeaderFunctions.ReadMessageFormatVersion(bytes);
+    :- Need(version.thing.V1?, Error("Message version must be version 1."));
 
     var messageType :- ReadV1MessageType(version.tail);
 
@@ -113,6 +102,30 @@ module V1HeaderBody {
     );
 
     Success(Data(body, frameLength.tail))
+  }
+
+
+  predicate CorrectlyReadV1HeaderBody(
+    bytes: ReadableBytes,
+    res: ReadCorrect<V1HeaderBody>
+  )
+  {
+    || CorrectlyRead(bytes, res, WriteV1HeaderBody)
+    // This is to handle the edge case in empty AAD see: `ReadAADSection`
+    || (
+        IsV1ExpandedAADSection(bytes)
+      ==>
+        CorrectlyRead(bytes, res, WriteV1ExpandedAADSectionHeaderBody))
+  }
+
+  predicate IsV1ExpandedAADSection(
+    bytes: ReadableBytes
+  )
+  {
+    var headerBytesToAADStart := 20; 
+    var aadStartPosition := bytes.start+headerBytesToAADStart;
+    && aadStartPosition+4 < |bytes.data|
+    && bytes.data[aadStartPosition..aadStartPosition+4] == [0,2,0,0]
   }
 
   function method WriteV1MessageType(
@@ -187,7 +200,7 @@ module V1HeaderBody {
     var suiteId := GetAlgorithmSuiteId(body.esdkSuiteId);
     var suite := Client.SpecificationClient().GetSuite(suiteId);
 
-    SharedHeaderFunctions.WriteVersion(HeaderTypes.VERSION_1)
+    SharedHeaderFunctions.WriteMessageFormatVersion(HeaderTypes.MessageFormatVersion.V1)
     + WriteV1MessageType(body.messageType)
     + SharedHeaderFunctions.WriteESDKSuiteId(body.esdkSuiteId)
     + SharedHeaderFunctions.WriteMessageId(body.messageId)

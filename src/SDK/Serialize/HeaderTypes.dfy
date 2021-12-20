@@ -20,33 +20,29 @@ module HeaderTypes {
   import opened UTF8
   import opened SerializeFunctions
 
-  datatype HeaderInfo = HeaderInfo(
-    nameonly body: HeaderBody,
-    nameonly rawHeader: seq<uint8>,
-    nameonly suite: Client.AlgorithmSuites.AlgorithmSuite,
-    nameonly headerAuth: HeaderAuth
-  )
-
-  type Header = h: HeaderInfo
-  |
-    && GetESDKAlgorithmSuiteId(h.suite.id) == h.body.esdkSuiteId
-    && h.body.contentType.NonFramed? <==> 0 == h.body.frameLength
-    && h.body.contentType.Framed? <==> 0 < h.body.frameLength
-    && (h.headerAuth.AESMac?
-    ==>
-      && |h.headerAuth.headerIv| == h.suite.encrypt.ivLength as nat
-      && |h.headerAuth.headerAuthTag| == h.suite.encrypt.tagLength as nat)
-    && (h.suite.commitment.HKDF?
-      ==>
-        && h.body.V2HeaderBody?
-        && |h.body.suiteData| == h.suite.commitment.outputKeyLength as nat)
-    && (!h.suite.commitment.HKDF?
-      ==>
-        && h.body.V1HeaderBody?)
-  witness *
-
-  datatype MessageFormat = V1 | V2
-
+  datatype MessageFormatVersion = 
+  | V1
+  | V2
+    {
+    function method Serialize(): seq<uint8> {
+      match this
+      case V1 => [0x01]
+      case V2 => [0x02]
+    }
+    static function method Get(
+      x: seq<uint8>
+    )
+      :(res: Result<MessageFormatVersion, string>)
+      ensures res.Success? ==> x == res.value.Serialize()
+    {
+      :- Need(x == [0x01] || x == [0x02], "Unsupported Version value.");
+      Success(
+        match x[0]
+        case 0x01 => V1
+        case 0x02 => V2
+      )
+    }
+  }
   datatype HeaderBody = 
     | V1HeaderBody(
       nameonly messageType: MessageType,
@@ -81,7 +77,12 @@ module HeaderTypes {
       match this
       case TYPE_CUSTOMER_AED => 0x80
     }
-    static function method Get(x: uint8): Result<MessageType, string> {
+    static function method Get(
+      x: uint8
+    )
+      :(res: Result<MessageType, string>)
+      ensures res.Success? ==> x == res.value.Serialize()
+    {
       :- Need(x == 0x80 , "Unsupported ContentType value.");
       Success(
         match x
@@ -99,7 +100,12 @@ module HeaderTypes {
       case NonFramed => 0x01
       case Framed => 0x02
     }
-    static function method Get(x: uint8): Result<ContentType, string> {
+    static function method Get(
+      x: uint8
+    )
+      :(res: Result<ContentType, string>)
+      ensures res.Success? ==> x == res.value.Serialize()
+    {
       :- Need(x == 0x01 || x == 0x02, "Unsupported ContentType value.");
       Success(
         match x
@@ -113,13 +119,5 @@ module HeaderTypes {
   type MessageID = x: seq<uint8> 
   | |x| == MESSAGE_ID_LEN
   witness *
-
-  const VERSION_1: seq<uint8> := [0x01];
-  const VERSION_2: seq<uint8> := [0x02];
-  type Version = s: seq<uint8>
-  |
-    || s == VERSION_1
-    || s == VERSION_2
-  witness VERSION_1
 
 }
