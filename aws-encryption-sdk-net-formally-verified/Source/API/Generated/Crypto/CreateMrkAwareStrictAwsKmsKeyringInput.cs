@@ -12,7 +12,6 @@ namespace Aws.Crypto
     public class CreateMrkAwareStrictAwsKmsKeyringInput
     {
         private string _kmsKeyId;
-
         private Amazon.KeyManagementService.IAmazonKeyManagementService _kmsClient;
         private System.Collections.Generic.List<string> _grantTokens;
 
