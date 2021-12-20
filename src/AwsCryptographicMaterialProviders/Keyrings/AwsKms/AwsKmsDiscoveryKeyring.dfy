@@ -29,6 +29,8 @@ module
   import Materials
   import opened KMSUtils
   import UTF8
+  import KMS = Com.Amazonaws.Kms
+
 
   // TODO: taken from the mrk discovery example, but why do we need a dedicated datatype here?
   datatype DiscoveryFilter = DiscoveryFilter(
@@ -43,7 +45,7 @@ module
     //# interface.md#interface)
     extends Keyring.VerifiableInterface
   {
-    const client: IAmazonKeyManagementService
+    const client: KMS.IKeyManagementServiceClient
     const discoveryFilter: Option<DiscoveryFilter>
     const grantTokens: GrantTokens
 
@@ -51,7 +53,7 @@ module
     //= type=implication
     //# On initialization the caller MUST provide:
     constructor (
-      client: IAmazonKeyManagementService,
+      client: KMS.IKeyManagementServiceClient,
       discoveryFilter: Option<DiscoveryFilter>,
       grantTokens: GrantTokens
     )
@@ -121,26 +123,29 @@ module
           //= type=implication
           //# *  Its provider ID MUST exactly match the value "aws-kms".
           && edk.keyProviderId == PROVIDER_ID
-          && DecryptCalledWith(
+          && KMS.IsValid_CiphertextType(edk.ciphertext)
+          && var maybeStringifiedEncCtx := StringifyEncryptionContext(input.materials.encryptionContext);
+          && var request := KMS.DecryptRequest(
+            KeyId := Option.Some(awsKmsKey),
+            CiphertextBlob :=  edk.ciphertext,
+            EncryptionContext := Option.Some(maybeStringifiedEncCtx.Extract()),
+            GrantTokens := Option.Some(grantTokens),
+            EncryptionAlgorithm := Option.None()
+          );
           //= compliance/framework/aws-kms/aws-kms-discovery-keyring.txt#2.8
           //= type=implication
           //# To attempt to decrypt a particular encrypted data key
           //# (../structures.md#encrypted-data-key), OnDecrypt MUST call AWS KMS
           //# Decrypt (https://docs.aws.amazon.com/kms/latest/APIReference/
           //# API_Decrypt.html) with the configured AWS KMS client.
-            client,
+          && client.DecryptCalledWith(
             //= compliance/framework/aws-kms/aws-kms-discovery-keyring.txt#2.8
             //= type=implication
             //# When calling AWS KMS Decrypt
             //# (https://docs.aws.amazon.com/kms/latest/APIReference/
             //# API_Decrypt.html), the keyring MUST call with a request constructed
             //# as follows:
-            DecryptRequest(
-              awsKmsKey,
-              edk.ciphertext,
-              input.materials.encryptionContext,
-              grantTokens
-            ))
+            request)
           //= compliance/framework/aws-kms/aws-kms-discovery-keyring.txt#2.8
           //= type=implication
           //# If the response does satisfy these requirements then OnDecrypt MUST
@@ -333,17 +338,17 @@ module
 
   class DecryptSingleEncryptedDataKey
     extends ActionWithResult<
-      AwsKmsEdkHelper,
+      Crypto.EncryptedDataKey,
       Materials.SealedDecryptionMaterials,
       string>
   {
     const materials: Materials.DecryptionMaterialsPendingPlaintextDataKey
-    const client: IAmazonKeyManagementService
+    const client: KMS.IKeyManagementServiceClient
     const grantTokens: GrantTokens
 
     constructor(
       materials: Materials.DecryptionMaterialsPendingPlaintextDataKey,
-      client: IAmazonKeyManagementService,
+      client: KMS.IKeyManagementServiceClient,
       grantTokens: GrantTokens
     )
       ensures
@@ -357,15 +362,23 @@ module
     }
 
     predicate Ensures(
-      helper: AwsKmsEdkHelper,
+      edk: Crypto.EncryptedDataKey,
       res: Result<Materials.SealedDecryptionMaterials, string>
     ) {
         res.Success?
       ==>
+        && KMS.IsValid_CiphertextType(edk.ciphertext)
         && Materials.DecryptionMaterialsTransitionIsValid(materials, res.value)
-        && var awsKmsKey := helper.arn.ToString();
-        && DecryptCalledWith(
-          client,
+        && var maybeStringifiedEncCtx := StringifyEncryptionContext(materials.encryptionContext);
+        && maybeStringifiedEncCtx.Success?
+        && var request := KMS.DecryptRequest(
+            KeyId := Option.Some(awsKmsKey),
+            CiphertextBlob := edk.ciphertext,
+            EncryptionContext := Option.Some(maybeStringifiedEncCtx.Extract()),
+            GrantTokens := Option.Some(grantTokens),
+            EncryptionAlgorithm := Option.None()
+          );
+        && client.DecryptCalledWith(
           DecryptRequest(
             awsKmsKey,
             helper.edk.ciphertext,
@@ -377,7 +390,7 @@ module
     }
 
     method Invoke(
-      helper: AwsKmsEdkHelper
+      edk: Crypto.EncryptedDataKey
     )
       returns (res: Result<Materials.SealedDecryptionMaterials, string>)
       ensures Ensures(helper, res)
@@ -392,7 +405,7 @@ module
         grantTokens
       );
 
-      var decryptResponse :- KMSUtils.Decrypt(client, decryptRequest);
+      var decryptResponse :- client.Decrypt(decryptRequest);
 
       //= compliance/framework/aws-kms/aws-kms-discovery-keyring.txt#2.8
       //# *  The "KeyId" field in the response MUST equal the AWS KMS ARN from

@@ -20,7 +20,7 @@ list KeyringList {
 
 structure DiscoveryFilter {
     @required
-    region: String,
+    accountIds: AccountIdList,
 
     @required
     partition: String
@@ -88,24 +88,21 @@ structure CreateKeyringOutput {
 }
 
 // TODO
-// // KMS - Old Style
-//
-// operation CreateAwsKmsKeyring {
-//     input: CreateAwsKmsKeyringInput,
-//     output: CreateKeyringOutput 
-// }
-//
-// structure CreateAwsKmsKeyringInput {
-//     @required
-//     clientSupplier: ClientSupplierReference,
-//
-//     // Not required because the keyring could be in discovery mode
-//     generator: KmsKeyId,
-//
-//     keyIds: KmsKeyIdList,
-//
-//     grantTokens: GrantTokenList,
-// }
+// KMS - Old Style
+
+operation CreateAwsKmsDiscoveryKeyring {
+    input: CreateAwsKmsDiscoveryKeyringInput,
+    output: CreateKeyringOutput 
+}
+
+structure CreateAwsKmsDiscoveryKeyringInput {
+    @required
+    kmsClient: KmsClientReference,
+
+    discoveryFilter: DiscoveryFilter,
+
+    grantTokens: GrantTokenList
+}
 
 // KMS - MRK Aware, Strict
 operation CreateMrkAwareStrictAwsKmsKeyring {
