@@ -87,9 +87,7 @@ structure CreateKeyringOutput {
     keyring: KeyringReference
 }
 
-// TODO
-// KMS - Old Style
-
+// KMS - Discovery
 operation CreateAwsKmsDiscoveryKeyring {
     input: CreateAwsKmsDiscoveryKeyringInput,
     output: CreateKeyringOutput 
