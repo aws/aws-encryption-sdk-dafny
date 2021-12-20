@@ -8,14 +8,16 @@ include "../../StandardLibrary/StandardLibrary.dfy"
 include "../../Util/UTF8.dfy"
 include "./SerializableTypes.dfy"
 include "SerializeFunctions.dfy"
-include "Header.dfy"
+include "HeaderTypes.dfy"
+include "SharedHeaderFunctions.dfy"
 include "EncryptionContext.dfy"
 include "EncryptedDataKeys.dfy"
 
 module V1HeaderBody {
   import Aws.Crypto
   import Seq
-  import Header
+  import HeaderTypes
+  import SharedHeaderFunctions
   import MaterialProviders.Client
   import opened EncryptedDataKeys
   import opened EncryptionContext2
@@ -25,7 +27,7 @@ module V1HeaderBody {
   import opened UTF8
   import opened SerializeFunctions
 
-  type V1HeaderBody = h: Header.HeaderBody
+  type V1HeaderBody = h: HeaderTypes.HeaderBody
   | h.V1HeaderBody?
   witness *
 
@@ -43,13 +45,13 @@ module V1HeaderBody {
     var suiteId := GetAlgorithmSuiteId(body.esdkSuiteId);
     var suite := Client.SpecificationClient().GetSuite(suiteId);
 
-    Header.WriteVersion(Header.VERSION_1)
+    SharedHeaderFunctions.WriteVersion(HeaderTypes.VERSION_1)
     + WriteV1MessageType(body.messageType)
-    + Header.WriteESDKSuiteId(body.esdkSuiteId)
-    + Header.WriteMessageId(body.messageId)
+    + SharedHeaderFunctions.WriteESDKSuiteId(body.esdkSuiteId)
+    + SharedHeaderFunctions.WriteMessageId(body.messageId)
     + WriteAADSection(body.encryptionContext)
     + WriteEncryptedDataKeys(body.encryptedDataKeys)
-    + Header.WriteContentType(body.contentType)
+    + SharedHeaderFunctions.WriteContentType(body.contentType)
     + WriteV1ReservedBytes(RESERVED_BYTES)
     + WriteV1HeaderIvLength(suite.encrypt.ivLength)
     + UInt32ToSeq(body.frameLength)
@@ -72,23 +74,23 @@ module V1HeaderBody {
           && CorrectlyRead(bytes, res, WriteV1ExpandedAADSectionHeaderBody))
 
   {
-    var version :- Header.ReadVersion(bytes);
-    :- Need(version.thing == Header.VERSION_1, Error("Message version must be version 1."));
+    var version :- SharedHeaderFunctions.ReadVersion(bytes);
+    :- Need(version.thing == HeaderTypes.VERSION_1, Error("Message version must be version 1."));
 
     var messageType :- ReadV1MessageType(version.tail);
 
-    var esdkSuiteId :- Header.ReadESDKSuiteId(messageType.tail);
+    var esdkSuiteId :- SharedHeaderFunctions.ReadESDKSuiteId(messageType.tail);
     var suiteId := GetAlgorithmSuiteId(esdkSuiteId.thing);
     var suite := Client.SpecificationClient().GetSuite(suiteId);
     :- Need(suite.commitment.None?, Error("Algorithm suite must not support commitment."));
 
-    var messageId :- Header.ReadMessageId(esdkSuiteId.tail);
+    var messageId :- SharedHeaderFunctions.ReadMessageId(esdkSuiteId.tail);
 
     var encryptionContext :- EncryptionContext2.ReadAADSection(messageId.tail);
 
     var encryptedDataKeys :- EncryptedDataKeys.ReadEncryptedDataKeysSection(encryptionContext.tail);
 
-    var contentType :- Header.ReadContentType(encryptedDataKeys.tail);
+    var contentType :- SharedHeaderFunctions.ReadContentType(encryptedDataKeys.tail);
 
     var reservedBytes :- ReadV1ReservedBytes(contentType.tail);
 
@@ -99,7 +101,7 @@ module V1HeaderBody {
 
     var frameLength :- ReadUInt32(headerIvLength.tail);
 
-    var body:V1HeaderBody := Header.V1HeaderBody(
+    var body:V1HeaderBody := HeaderTypes.V1HeaderBody(
       messageType := messageType.thing,
       esdkSuiteId := esdkSuiteId.thing,
       messageId := messageId.thing,
@@ -114,7 +116,7 @@ module V1HeaderBody {
   }
 
   function method WriteV1MessageType(
-    messageType: Header.MessageType
+    messageType: HeaderTypes.MessageType
   ):
     (ret: seq<uint8>)
   {
@@ -124,11 +126,11 @@ module V1HeaderBody {
   function method ReadV1MessageType(
     bytes: ReadableBytes
   )
-    :(res: ReadCorrect<Header.MessageType>)
+    :(res: ReadCorrect<HeaderTypes.MessageType>)
     ensures CorrectlyRead(bytes, res, WriteV1MessageType)
   {
     var Data(raw, tail) :- SerializeFunctions.Read(bytes, 1);
-    var messageType :- Header.MessageType.Get(raw[0]).MapFailure(e => Error(e));
+    var messageType :- HeaderTypes.MessageType.Get(raw[0]).MapFailure(e => Error(e));
     Success(Data(messageType, tail))
   }
 
@@ -185,13 +187,13 @@ module V1HeaderBody {
     var suiteId := GetAlgorithmSuiteId(body.esdkSuiteId);
     var suite := Client.SpecificationClient().GetSuite(suiteId);
 
-    Header.WriteVersion(Header.VERSION_1)
+    SharedHeaderFunctions.WriteVersion(HeaderTypes.VERSION_1)
     + WriteV1MessageType(body.messageType)
-    + Header.WriteESDKSuiteId(body.esdkSuiteId)
-    + Header.WriteMessageId(body.messageId)
+    + SharedHeaderFunctions.WriteESDKSuiteId(body.esdkSuiteId)
+    + SharedHeaderFunctions.WriteMessageId(body.messageId)
     + WriteExpandedAADSection(body.encryptionContext)
     + WriteEncryptedDataKeys(body.encryptedDataKeys)
-    + Header.WriteContentType(body.contentType)
+    + SharedHeaderFunctions.WriteContentType(body.contentType)
     + WriteV1ReservedBytes(RESERVED_BYTES)
     + WriteV1HeaderIvLength(suite.encrypt.ivLength)
     + UInt32ToSeq(body.frameLength)

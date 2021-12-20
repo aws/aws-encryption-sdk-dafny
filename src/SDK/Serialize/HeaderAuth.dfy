@@ -8,14 +8,14 @@ include "../../StandardLibrary/StandardLibrary.dfy"
 include "../../Util/UTF8.dfy"
 include "./SerializableTypes.dfy"
 include "SerializeFunctions.dfy"
-include "Header.dfy"
+include "HeaderTypes.dfy"
 include "EncryptionContext.dfy"
 include "EncryptedDataKeys.dfy"
 
-module V2HeaderBody {
+module HeaderAuth {
   import Aws.Crypto
   import Seq
-  import Header
+  import HeaderTypes
   import MaterialProviders.Client
   import opened EncryptedDataKeys
   import opened EncryptionContext2
@@ -25,7 +25,7 @@ module V2HeaderBody {
   import opened UTF8
   import opened SerializeFunctions
 
-  type AESMac = a: Header.HeaderAuth
+  type AESMac = a: HeaderTypes.HeaderAuth
   | a.AESMac?
   witness *
 
@@ -47,7 +47,7 @@ module V2HeaderBody {
     var headerIv :- Read(bytes, suite.encrypt.ivLength as nat);
     var headerAuthTag :- Read(headerIv.tail, suite.encrypt.tagLength as nat);
 
-    var auth: AESMac := Header.HeaderAuth.AESMac(
+    var auth: AESMac := HeaderTypes.HeaderAuth.AESMac(
       headerIv := headerIv.thing,
       headerAuthTag := headerAuthTag.thing
     );

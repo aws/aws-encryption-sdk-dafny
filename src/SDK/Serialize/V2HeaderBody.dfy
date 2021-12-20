@@ -8,14 +8,16 @@ include "../../StandardLibrary/StandardLibrary.dfy"
 include "../../Util/UTF8.dfy"
 include "./SerializableTypes.dfy"
 include "SerializeFunctions.dfy"
-include "Header.dfy"
+include "HeaderTypes.dfy"
+include "SharedHeaderFunctions.dfy"
 include "EncryptionContext.dfy"
 include "EncryptedDataKeys.dfy"
 
 module V2HeaderBody {
   import Aws.Crypto
   import Seq
-  import Header
+  import HeaderTypes
+  import SharedHeaderFunctions
   import MaterialProviders.Client
   import opened EncryptedDataKeys
   import opened EncryptionContext2
@@ -25,7 +27,7 @@ module V2HeaderBody {
   import opened UTF8
   import opened SerializeFunctions
 
-  type V2HeaderBody = h: Header.HeaderBody
+  type V2HeaderBody = h: HeaderTypes.HeaderBody
   | h.V2HeaderBody?
   witness *
 
@@ -35,12 +37,12 @@ module V2HeaderBody {
     :(ret: seq<uint8>)
   {
 
-    Header.WriteVersion(Header.VERSION_2)
-    + Header.WriteESDKSuiteId(body.esdkSuiteId)
-    + Header.WriteMessageId(body.messageId)
+    SharedHeaderFunctions.WriteVersion(HeaderTypes.VERSION_2)
+    + SharedHeaderFunctions.WriteESDKSuiteId(body.esdkSuiteId)
+    + SharedHeaderFunctions.WriteMessageId(body.messageId)
     + WriteAADSection(body.encryptionContext)
     + WriteEncryptedDataKeys(body.encryptedDataKeys)
-    + Header.WriteContentType(body.contentType)
+    + SharedHeaderFunctions.WriteContentType(body.contentType)
     + UInt32ToSeq(body.frameLength)
     + Write(body.suiteData)
   }
@@ -62,27 +64,27 @@ module V2HeaderBody {
           && CorrectlyRead(bytes, res, WriteV2ExpandedAADSectionHeader))
 
   {
-    var version :- Header.ReadVersion(bytes);
-    :- Need(version.thing == Header.VERSION_2, Error("Message version must be version 1."));
+    var version :- SharedHeaderFunctions.ReadVersion(bytes);
+    :- Need(version.thing == HeaderTypes.VERSION_2, Error("Message version must be version 1."));
 
-    var esdkSuiteId :- Header.ReadESDKSuiteId(version.tail);
+    var esdkSuiteId :- SharedHeaderFunctions.ReadESDKSuiteId(version.tail);
     var suiteId := GetAlgorithmSuiteId(esdkSuiteId.thing);
     var suite := Client.SpecificationClient().GetSuite(suiteId);
     :- Need(suite.commitment.HKDF?, Error("Algorithm suite must support commitment."));
 
-    var messageId :- Header.ReadMessageId(esdkSuiteId.tail);
+    var messageId :- SharedHeaderFunctions.ReadMessageId(esdkSuiteId.tail);
 
     var encryptionContext :- EncryptionContext2.ReadAADSection(messageId.tail);
 
     var encryptedDataKeys :- EncryptedDataKeys.ReadEncryptedDataKeysSection(encryptionContext.tail);
 
-    var contentType :- Header.ReadContentType(encryptedDataKeys.tail);
+    var contentType :- SharedHeaderFunctions.ReadContentType(encryptedDataKeys.tail);
 
     var frameLength :- ReadUInt32(contentType.tail);
 
     var suiteData :- Read(frameLength.tail, suite.commitment.outputKeyLength as nat);
 
-    var body:V2HeaderBody := Header.V2HeaderBody(
+    var body:V2HeaderBody := HeaderTypes.V2HeaderBody(
       esdkSuiteId := esdkSuiteId.thing,
       messageId := messageId.thing,
       encryptionContext := encryptionContext.thing,
@@ -105,12 +107,12 @@ module V2HeaderBody {
     :(ret: seq<uint8>)
   {
 
-    Header.WriteVersion(Header.VERSION_2)
-    + Header.WriteESDKSuiteId(body.esdkSuiteId)
-    + Header.WriteMessageId(body.messageId)
+    SharedHeaderFunctions.WriteVersion(HeaderTypes.VERSION_2)
+    + SharedHeaderFunctions.WriteESDKSuiteId(body.esdkSuiteId)
+    + SharedHeaderFunctions.WriteMessageId(body.messageId)
     + WriteExpandedAADSection(body.encryptionContext)
     + WriteEncryptedDataKeys(body.encryptedDataKeys)
-    + Header.WriteContentType(body.contentType)
+    + SharedHeaderFunctions.WriteContentType(body.contentType)
     + UInt32ToSeq(body.frameLength)
     + Write(body.suiteData)
   }
