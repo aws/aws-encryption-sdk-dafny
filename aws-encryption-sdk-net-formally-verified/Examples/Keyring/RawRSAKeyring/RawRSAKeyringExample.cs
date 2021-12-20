@@ -33,8 +33,8 @@ public class RawRSAKeyringExample {
         byte[] publicKeyBytes;
         byte[] privateKeyBytes;
         RSAEncryption.RSA.GenerateKeyPairBytes(2048, out publicKeyBytes, out privateKeyBytes);
-        ibyteseq publicKey = byteseq.FromArray(publicKeyBytes);
-        ibyteseq privateKey = byteseq.FromArray(privateKeyBytes);
+        System.IO.MemoryStream publicKey = MemoryStreamFromSequence(byteseq.FromArray(publicKeyBytes));
+        System.IO.MemoryStream privateKey = MemoryStreamFromSequence(byteseq.FromArray(privateKeyBytes));
 
         // The key namespace and key name are defined by you
         // and are used by the raw RSA keyring to determine
