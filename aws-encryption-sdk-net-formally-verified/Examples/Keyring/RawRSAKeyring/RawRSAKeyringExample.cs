@@ -32,7 +32,7 @@ public class RawRSAKeyringExample {
         // or generate a key with another low level cryptographic library.
         byte[] publicKeyBytes;
         byte[] privateKeyBytes;
-        RSAEncryption.RSA.GenerateKeyPairBytes(2048, publicKeyBytes, privateKeyBytes);
+        RSAEncryption.RSA.GenerateKeyPairBytes(2048, out publicKeyBytes, out privateKeyBytes);
         ibyteseq publicKey = byteseq.FromArray(publicKeyBytes);
         ibyteseq privateKey = byteseq.FromArray(privateKeyBytes);
 
