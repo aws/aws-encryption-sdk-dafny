@@ -142,7 +142,7 @@ module  AwsKmsArnParsing {
     //= compliance/framework/aws-kms/aws-kms-key-arn.txt#2.5
     //= type=implication
     //# The resource section MUST be non-empty and MUST be split by a
-    //# single "/" any additional "/" are included in the resource id
+    //# single / any additional / are included in the resource id
     ensures ParseAwsKmsResources(identifier).Success? ==>
       var info := Split(identifier, '/');
       var r := ParseAwsKmsResources(identifier);
@@ -150,7 +150,7 @@ module  AwsKmsArnParsing {
       && Join([r.value.resourceType, r.value.value], "/") == identifier
     //= compliance/framework/aws-kms/aws-kms-key-arn.txt#2.5
     //= type=implication
-    //# The resource type MUST be either "alias" or "key"
+    //# The resource type MUST be either alias or key
     ensures ParseAwsKmsResources(identifier).Success? ==>
       var resourceType := Split(identifier, '/')[0];
       "key" == resourceType || "alias" == resourceType
@@ -187,7 +187,7 @@ module  AwsKmsArnParsing {
   lemma ParseAwsKmsArnCorrect(identifier: string)
     //= compliance/framework/aws-kms/aws-kms-key-arn.txt#2.5
     //= type=implication
-    //# MUST start with string "arn"
+    //# MUST start with string arn
     ensures ParseAwsKmsArn(identifier).Success? ==> "arn" <= identifier
 
     ensures ParseAwsKmsArn(identifier).Success? ==> |Split(identifier, ':')| == 6
@@ -199,7 +199,7 @@ module  AwsKmsArnParsing {
 
     //= compliance/framework/aws-kms/aws-kms-key-arn.txt#2.5
     //= type=implication
-    //# The service MUST be the string "kms"
+    //# The service MUST be the string kms
     ensures ParseAwsKmsArn(identifier).Success? ==> Split(identifier, ':')[2] == "kms"
 
     //= compliance/framework/aws-kms/aws-kms-key-arn.txt#2.5

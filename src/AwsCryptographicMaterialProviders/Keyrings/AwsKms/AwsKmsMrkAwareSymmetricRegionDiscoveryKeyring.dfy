@@ -156,13 +156,13 @@ module
           //# Since the response does satisfies these requirements then OnDecrypt
           //# MUST do the following with the response:
           //#*  set the plaintext data key on the decryption materials
-          //#   (../structures.md#decryption-materials) as the response "Plaintext".
+          //#   (../structures.md#decryption-materials) as the response Plaintext.
           && DecryptResult(
             awsKmsKey,
             res.value.materials.plaintextDataKey.value)
           //= compliance/framework/aws-kms/aws-kms-mrk-aware-symmetric-region-discovery-keyring.txt#2.8
           //= type=implication
-          //# *  The length of the response's "Plaintext" MUST equal the key
+          //# *  The length of the response's Plaintext MUST equal the key
           //# derivation input length (../algorithm-suites.md#key-derivation-
           //# input-length) specified by the algorithm suite (../algorithm-
           //# suites.md) included in the input decryption materials
@@ -334,7 +334,7 @@ module
 
       //= compliance/framework/aws-kms/aws-kms-mrk-aware-symmetric-region-discovery-keyring.txt#2.8
       //# *  The provider info MUST be a valid AWS KMS ARN (aws-kms-key-
-      //# arn.md#a-valid-aws-kms-arn) with a resource type of "key" or
+      //# arn.md#a-valid-aws-kms-arn) with a resource type of key or
       //# OnDecrypt MUST fail.
       :- Need(arn.resource.resourceType == "key", "Only AWS KMS Keys supported");
 
@@ -416,7 +416,7 @@ module
       var decryptResponse :- KMSUtils.Decrypt(client, decryptRequest);
 
       //= compliance/framework/aws-kms/aws-kms-mrk-aware-symmetric-region-discovery-keyring.txt#2.8
-      //# *  The "KeyId" field in the response MUST equal the requested "KeyId"
+      //# *  The KeyId field in the response MUST equal the requested KeyId
       :- Need(
         && decryptResponse.keyID == awsKmsKey
         , "Invalid response from KMS Decrypt");
@@ -432,7 +432,7 @@ module
   ): (res: string) {
     if IsMultiRegionAwsKmsArn(arn) then
       //= compliance/framework/aws-kms/aws-kms-mrk-aware-symmetric-region-discovery-keyring.txt#2.8
-      //# *  "KeyId": If the provider info's resource type is "key" and its
+      //# *  KeyId: If the provider info's resource type is key and its
       //# resource is a multi-Region key then a new ARN MUST be created
       //# where the region part MUST equal the AWS KMS client region and
       //# every other part MUST equal the provider info.
