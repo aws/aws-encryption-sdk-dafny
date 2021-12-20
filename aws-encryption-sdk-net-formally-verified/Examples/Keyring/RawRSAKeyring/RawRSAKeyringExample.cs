@@ -30,9 +30,7 @@ public class RawRSAKeyringExample {
         // Generate a 2,048 bit RSA Key to use with your keyring.
         // We generate a key with Bouncy Castle, but you could also load a key,
         // or generate a key with another low level cryptographic library.
-        byte[] publicKeyBytes;
-        byte[] privateKeyBytes;
-        RSAEncryption.RSA.GenerateKeyPairBytes(2048, out publicKeyBytes, out privateKeyBytes);
+        RSAEncryption.RSA.GenerateKeyPairBytes(2048, out var publicKeyBytes, out var privateKeyBytes);
         System.IO.MemoryStream publicKey = DafnyFFI.MemoryStreamFromSequence(byteseq.FromArray(publicKeyBytes));
         System.IO.MemoryStream privateKey = DafnyFFI.MemoryStreamFromSequence(byteseq.FromArray(privateKeyBytes));
 
