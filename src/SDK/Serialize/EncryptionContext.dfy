@@ -9,7 +9,7 @@ include "./SerializableTypes.dfy"
 include "SerializeFunctions.dfy"
 include "../../Util/Sets.dfy"
 
-module EncryptionContext2 {
+module EncryptionContext {
   import Aws.Crypto
   import Seq
   import StandardLibrary

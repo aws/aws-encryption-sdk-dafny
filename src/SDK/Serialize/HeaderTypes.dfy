@@ -13,7 +13,7 @@ module HeaderTypes {
   import Aws.Crypto
   import Seq
   import MaterialProviders.Client
-  import EncryptionContext2
+  import EncryptionContext
   import opened SerializableTypes
   import opened StandardLibrary.UInt
   import opened Wrappers
@@ -48,7 +48,7 @@ module HeaderTypes {
       nameonly messageType: MessageType,
       nameonly esdkSuiteId: ESDKAlgorithmSuiteId,
       nameonly messageId: MessageID,
-      nameonly encryptionContext: EncryptionContext2.ESDKCanonicalEncryptionContext,
+      nameonly encryptionContext: EncryptionContext.ESDKCanonicalEncryptionContext,
       nameonly encryptedDataKeys: ESDKEncryptedDataKeys,
       nameonly contentType: ContentType,
       nameonly headerIvLength: nat,
@@ -57,7 +57,7 @@ module HeaderTypes {
     | V2HeaderBody(
       nameonly esdkSuiteId: ESDKAlgorithmSuiteId,
       nameonly messageId: MessageID,
-      nameonly encryptionContext: EncryptionContext2.ESDKCanonicalEncryptionContext,
+      nameonly encryptionContext: EncryptionContext.ESDKCanonicalEncryptionContext,
       nameonly encryptedDataKeys: ESDKEncryptedDataKeys,
       nameonly contentType: ContentType,
       nameonly frameLength: uint32,

@@ -20,7 +20,7 @@ module Header {
   import Aws.Crypto
   import Seq
   import MaterialProviders.Client
-  import EncryptionContext2
+  import EncryptionContext
 
   import V1HeaderBody
   import V2HeaderBody

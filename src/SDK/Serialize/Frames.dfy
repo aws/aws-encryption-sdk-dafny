@@ -18,7 +18,7 @@ module Frames {
   import Header
   import MaterialProviders.Client
   import opened EncryptedDataKeys
-  import opened EncryptionContext2
+  import opened EncryptionContext
   import opened SerializableTypes
   import opened StandardLibrary.UInt
   import opened Wrappers

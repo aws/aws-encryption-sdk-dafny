@@ -20,7 +20,7 @@ module V2HeaderBody {
   import SharedHeaderFunctions
   import MaterialProviders.Client
   import opened EncryptedDataKeys
-  import opened EncryptionContext2
+  import opened EncryptionContext
   import opened SerializableTypes
   import opened StandardLibrary.UInt
   import opened Wrappers
@@ -63,7 +63,7 @@ module V2HeaderBody {
 
     var messageId :- SharedHeaderFunctions.ReadMessageId(esdkSuiteId.tail);
 
-    var encryptionContext :- EncryptionContext2.ReadAADSection(messageId.tail);
+    var encryptionContext :- EncryptionContext.ReadAADSection(messageId.tail);
 
     var encryptedDataKeys :- EncryptedDataKeys.ReadEncryptedDataKeysSection(encryptionContext.tail);
 

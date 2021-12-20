@@ -14,7 +14,7 @@ module SharedHeaderFunctions {
   import Aws.Crypto
   import Seq
   import MaterialProviders.Client
-  import EncryptionContext2
+  import EncryptionContext
   import opened SerializableTypes
   import opened StandardLibrary.UInt
   import opened Wrappers
