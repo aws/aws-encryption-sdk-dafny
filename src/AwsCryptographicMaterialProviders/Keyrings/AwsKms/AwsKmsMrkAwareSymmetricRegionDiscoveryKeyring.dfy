@@ -184,6 +184,8 @@ module
       var edkFilterTransform : OnDecryptMRKEncryptedDataKeyFilterMap := new OnDecryptMRKEncryptedDataKeyFilterMap(region, discoveryFilter);
       var edksToAttempt, parts :- Actions.FlatMapWithResult(edkFilterTransform, encryptedDataKeys);
 
+      // TODO: Comment this block of code. What is it doing and why is it necessary? Can it be extracted
+      // into a clearly named, dedicated method?
       forall i
       | 0 <= i < |parts|
       ensures
@@ -214,7 +216,7 @@ module
           && helper.edk == encryptedDataKeys[i]
           && helper.arn.resource.resourceType == "key"
         {
-          LemmaMultisetSubMemebership(parts[i], edksToAttempt);
+          LemmaMultisetSubMembership(parts[i], edksToAttempt);
         }
       }
 
@@ -275,6 +277,16 @@ module
     }
   }
 
+  /*
+   * A class responsible for filtering Encrypted Data Keys based on whether they match
+   * an MRK-aware keyring's configuration. Specifically, this class knows how to filter
+   * based on region and discovery filters.
+   *
+   * TODO: Explain somewhere (here or maybe elsewhere) our motivation beyond our approach
+   * here. We're adding a lot of complexity to the code, which gives us good value (like
+   * being able to prove more things), but this comes at a cost. And the concept/approach
+   * are complicated enough that variable and method names alone are not enough.
+   */
   class OnDecryptMRKEncryptedDataKeyFilterMap
     extends ActionWithResult<
       Crypto.EncryptedDataKey,
@@ -300,8 +312,7 @@ module
       edk: Crypto.EncryptedDataKey,
       res: Result<seq<AwsKmsEdkHelper>, string>
     ) {
-      && (
-        && res.Success?
+      && res.Success?
       ==>
         if |res.value| == 1 then
           && var h := res.value[0];
@@ -311,11 +322,9 @@ module
           && DiscoveryMatch(h.arn, discoveryFilter, region)
         else
           && |res.value| == 0
-      )
     }
 
-    method Invoke(edk: Crypto.EncryptedDataKey
-    )
+    method Invoke(edk: Crypto.EncryptedDataKey)
       returns (res: Result<seq<AwsKmsEdkHelper>, string>)
       ensures Ensures(edk, res)
     {
@@ -348,6 +357,9 @@ module
     }
   }
 
+  /*
+   * A class responsible for decrypting Encrypted Data Keys protected by KMS.
+   */
   class DecryptSingleEncryptedDataKey
     extends ActionWithResult<
       AwsKmsEdkHelper,
@@ -426,6 +438,10 @@ module
     }
   }
 
+  /*
+   * Given an ARN and a region, returns a string version of the ARN, with support for MRKs
+   * (that is, if the ARN is an MRK, we replace its region portion with the provided region).
+   */
   function method ToStringForRegion(
     arn: AwsKmsArn,
     region: string
@@ -444,10 +460,15 @@ module
       arn.ToString()
   }
 
+  /*
+   * Determines whether the given KMS Key ARN matches the given discovery filter and region,
+   * with support for MRKs (that is, if a given ARN refers to an MRK, it will be considered to
+   * "match" regardless of the region in the ARN).
+   */
   function method DiscoveryMatch(
     arn: AwsKmsArn,
     discoveryFilter: Option<DiscoveryFilter>,
-    region:string
+    region: string
   ):
     (res: bool)
     ensures
@@ -487,7 +508,10 @@ module
       true
   }
 
-  lemma LemmaMultisetSubMemebership<T>(a: seq<T>, b: seq<T>)
+  /*
+   * TODO: add comments about what this is and why it exists
+   */
+  lemma LemmaMultisetSubMembership<T>(a: seq<T>, b: seq<T>)
     requires multiset(a) <= multiset(b)
     ensures forall i | i in a :: i in b
   {
@@ -496,10 +520,13 @@ module
       assert multiset([Seq.First(a)]) <= multiset(b);
       assert Seq.First(a) in b;
       assert a == [Seq.First(a)] + a[1..];
-      LemmaMultisetSubMemebership(a[1..], b);
+      LemmaMultisetSubMembership(a[1..], b);
     }
   }
 
+  /*
+   * TODO: add comments about what this is and why it exists
+   */
   lemma LemmaFlattenMembership<T>(parts: seq<seq<T>>, flat: seq<T>)
     requires Seq.Flatten(parts) == flat
     ensures forall index
