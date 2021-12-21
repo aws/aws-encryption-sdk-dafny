@@ -7,7 +7,18 @@ module {:extern "RSAEncryption"} RSAEncryption {
   import opened Wrappers
   import opened UInt = StandardLibrary.UInt
 
+  //= compliance/framework/raw-rsa-keyring.txt#2.5.1.1
+  //= type=implication
+  //# This keyring MUST NOT use a padding scheme outside those defined
+  //# above.
   datatype {:extern "PaddingMode"} PaddingMode = PKCS1 | OAEP_SHA1 | OAEP_SHA256 | OAEP_SHA384 | OAEP_SHA512
+
+  //= compliance/framework/raw-rsa-keyring.txt#2.5.1
+  //= type=TODO
+  //# If the padding scheme uses MGF1 Padding, the hash function used as
+  //# part of MGF1 MUST be the same hash function used to hash the
+  //# plaintext data key.
+  // NOTE: this file currently does not mention MGF1 at all!
 
   // The smallest ciphertext length is defined using PKCS1, where messageLength <= k - 11 and k represents the strength,
   // defined as the length in octets (bytes) of the modulus n. This means that the minimum possible strength in bits
