@@ -49,6 +49,8 @@ module {:extern "Dafny.Aws.Crypto"} Aws.Crypto {
         CreateMrkAwareStrictAwsKmsKeyringInput,
         CreateAwsKmsDiscoveryKeyringInput,
         DiscoveryFilter,
+        AccountId,
+        AccountIdList,
         KmsKeyId,
         GrantToken,
         GrantTokenList,
@@ -66,7 +68,10 @@ module {:extern "Dafny.Aws.Crypto"} Aws.Crypto {
     type Region = string
     type RegionList = seq<Region>
 
-    datatype DiscoveryFilter = DiscoveryFilter(accountId: string, partition: string)
+    type AccountId = string
+    type AccountIdList = seq<AccountId>
+
+    datatype DiscoveryFilter = DiscoveryFilter(accountIds: AccountIdList, partition: string)
 
     datatype GetClientInput = GetClientInput(region: string)
 

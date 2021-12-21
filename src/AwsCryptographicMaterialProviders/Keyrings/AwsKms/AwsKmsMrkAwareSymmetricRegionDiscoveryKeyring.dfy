@@ -69,7 +69,7 @@ module
       //= type=implication
       //# It SHOULD have a Region parameter and
       //# SHOULD try to identify mismatched configurations.
-      requires ReagionMatch(client, region)
+      requires RegionMatch(client, region)
       ensures
         && this.client          == client
         && this.region          == region
