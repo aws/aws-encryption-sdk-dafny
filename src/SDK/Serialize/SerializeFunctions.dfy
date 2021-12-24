@@ -64,6 +64,7 @@ module SerializeFunctions {
       && var Data(thing, tail) := res.value;
       && tail.data == bytes.data
       && |tail.data| >= tail.start >= bytes.start
+      && bytes.data[bytes.start..tail.start] == tail.data[bytes.start..tail.start]
       && invertT(thing) == tail.data[bytes.start..tail.start]
   }
 
@@ -76,11 +77,12 @@ module SerializeFunctions {
     data: seq<uint8>
   )
     :(res: seq<uint8>)
+    ensures data == res
   {
     data
   }
 
-  function method Read(
+  function method {:opaque} Read(
     bytes: ReadableBytes,
     length: nat
   ):
@@ -92,12 +94,6 @@ module SerializeFunctions {
       && |bytes.data| >= bytes.start + length
     ==>
       && res.Success?
-      && var Data(thing, tail) := res.value;
-      && tail.data == bytes.data
-      && |thing| == length
-      && tail.start == bytes.start + length >= 0
-      && |tail.data| >= tail.start >= bytes.start
-      && tail.data[bytes.start..tail.start] == thing
     ensures
       && |bytes.data| < bytes.start + length
     ==>
@@ -105,14 +101,27 @@ module SerializeFunctions {
       && res.error.MoreNeeded?
       && res.error.pos == bytes.start + length
     ensures CorrectlyRead(bytes, res, Write)
+    ensures res.Success?
+    ==>
+      var Data(thing, tail) := res.value;
+      && |thing| == length
+      && tail.start == bytes.start + length
+      && tail.data[bytes.start..tail.start] == thing
   {
     var end := bytes.start + length;
-    if |bytes.data| >= end then
-      Success(Data(
-        bytes.data[bytes.start..end],
-        bytes.(start := end)))
-    else
-      Failure(MoreNeeded(end))
+    :- Need(|bytes.data| >= end, MoreNeeded(end));
+
+    Success(Data(
+      bytes.data[bytes.start..end],
+      bytes.(start := end)))
+  }
+
+  function method WriteUint16(
+    number: uint16
+  )
+    :(ret: seq<uint8>)
+  {
+    Write(UInt16ToSeq(number))
   }
 
   // Opaque? Because the body is not interesting...
@@ -120,20 +129,36 @@ module SerializeFunctions {
     bytes: ReadableBytes
   )
     :(res: ReadBinaryCorrect<uint16>)
-    ensures CorrectlyRead(bytes, res, UInt16ToSeq)
+    ensures CorrectlyRead(bytes, res, WriteUint16)
   {
     var Data(uint16Bytes, tail) :- Read(bytes, 2);
     Success(Data(SeqToUInt16(uint16Bytes), tail))
+  }
+
+  function method WriteUint32(
+    number: uint32
+  )
+    :(ret: seq<uint8>)
+  {
+    Write(UInt32ToSeq(number))
   }
 
   function method ReadUInt32(
     bytes: ReadableBytes
   ):
     (res: ReadBinaryCorrect<uint32>)
-    ensures CorrectlyRead(bytes, res, UInt32ToSeq)
+    ensures CorrectlyRead(bytes, res, WriteUint32)
   {
     var Data(uint32Bytes, tail) :- Read(bytes, 4);
     Success(Data(SeqToUInt32(uint32Bytes), tail))
+  }
+
+  function method WriteUint64(
+    number: uint64
+  )
+    :(ret: seq<uint8>)
+  {
+    Write(UInt64ToSeq(number))
   }
 
   function method ReadUInt64(
@@ -151,7 +176,8 @@ module SerializeFunctions {
   )
     :(res: seq<uint8>)
   {
-    UInt16ToSeq(|d| as uint16) + d
+    WriteUint16((|d| as uint16))
+    + Write(d)
   }
 
   function method ReadShortLengthSeq(
@@ -160,8 +186,48 @@ module SerializeFunctions {
     (res: ReadCorrect<Uint8Seq16>)
     ensures CorrectlyRead(bytes, res, WriteShortLengthSeq)
   {
-    var Data(length, dataPos) :- ReadUInt16(bytes);
-    :- Need(length > 0, Error("Length cannot be 0."));
-    Read(dataPos, length as nat)
+    var length :- ReadUInt16(bytes);
+    var d: Data<Uint8Seq16> :- Read(length.tail, length.thing as nat);
+    Success(d)
+  }
+
+  function method WriteUint32Seq(
+    d: Uint8Seq32
+  )
+    :(res: seq<uint8>)
+  {
+    WriteUint32(|d| as uint32)
+    + Write(d)
+  }
+
+  function method ReadUint32Seq(
+    bytes: ReadableBytes
+  ):
+    (res: ReadCorrect<Uint8Seq32>)
+    ensures CorrectlyRead(bytes, res, WriteUint32Seq)
+  {
+    var length :- ReadUInt32(bytes);
+    var d: Data<Uint8Seq32> :- Read(length.tail, length.thing as nat);
+    Success(d)
+  }
+
+  function method WriteUint64Seq(
+    d: Uint8Seq64
+  )
+    :(res: seq<uint8>)
+  {
+    WriteUint64(|d| as uint64)
+    + Write(d)
+  }
+
+  function method ReadUint64Seq(
+    bytes: ReadableBytes
+  ):
+    (res: ReadCorrect<Uint8Seq64>)
+    ensures CorrectlyRead(bytes, res, WriteUint64Seq)
+  {
+    var length :- ReadUInt64(bytes);
+    var d: Data<Uint8Seq64> :- Read(length.tail, length.thing as nat);
+    Success(d)
   }
 }
