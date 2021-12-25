@@ -29,10 +29,6 @@ module Frames {
   const ENDFRAME_SEQUENCE_NUMBER: uint32 := 0xFFFF_FFFF
   const NONFRAMED_SEQUENCE_NUMBER: uint32 := 1
 
-  type RegularFrameSequenceNumber = n: uint32
-  | n  < ENDFRAME_SEQUENCE_NUMBER
-  witness *
-
   type FramedHeader = h : Header.Header
   | h.body.contentType.Framed?
   witness *
@@ -41,152 +37,180 @@ module Frames {
   | h.body.contentType.NonFramed?
   witness *
 
-  datatype Frame' = 
+  datatype Frame = 
   | RegularFrame(
-    header: FramedHeader,
-    seqNum: RegularFrameSequenceNumber,
+    header: Header.Header,
+    seqNum: uint32,
     iv: seq<uint8>,
-    encContent: Uint8Seq32,
+    encContent: seq<uint8>,
     authTag: seq<uint8>)
   | FinalFrame (
-    header: FramedHeader,
-    finalSequenceNumber: uint32,
+    header: Header.Header,
+    seqNum: uint32,
     iv: seq<uint8>,
-    encContent: Uint8Seq32,
+    encContent: seq<uint8>,
     authTag: seq<uint8>)
-
-  type Frame = f: Frame'
-  |
-    && |f.iv| == f.header.suite.encrypt.ivLength as nat
-    && |f.authTag| == f.header.suite.encrypt.tagLength as nat
-  witness *
-
-  const SAFE_MAX_ENCRYPT := 0xFFFFFFFE0 // 2^36 - 32
-  type SafeNonFramedSeq = s: seq<uint8>
-  | |s| < SAFE_MAX_ENCRYPT
-  witness *
-
-  datatype NonFramed' = NonFramed(
-    header: NonFramedHeader,
+  | NonFramed(
+    header: Header.Header,
     iv: seq<uint8>,
-    encContent: SafeNonFramedSeq,
+    encContent: seq<uint8>,
     authTag: seq<uint8>
   )
 
-  type NonFramed = f: NonFramed'
-  |
-    && |f.iv| == f.header.suite.encrypt.ivLength as nat
-    && |f.authTag| == f.header.suite.encrypt.tagLength as nat
-  witness *
-
-  function method WriteFrame(
-    frame: Frame
-  )
-    :(ret: seq<uint8>)
-    ensures 4  <= |ret|
-    ensures ret[0..4] != UInt32ToSeq(ENDFRAME_SEQUENCE_NUMBER)
-    ==>
-      frame.RegularFrame?
-    ensures ret[0..4] == UInt32ToSeq(ENDFRAME_SEQUENCE_NUMBER)
-    ==>
-      frame.FinalFrame?
-    ensures
-      frame.RegularFrame?
-    ==>
-      && ret == UInt32ToSeq(frame.seqNum)
-        + Write(frame.iv)
-        + Write(frame.encContent)
-        + Write(frame.authTag)
-    ensures
-      frame.FinalFrame?
-    ==>
-      && ret == UInt32ToSeq(ENDFRAME_SEQUENCE_NUMBER)
-        + UInt32ToSeq(frame.finalSequenceNumber)
-        + Write(frame.iv)
-        + UInt32ToSeq(|frame.encContent| as uint32)
-        + Write(frame.encContent)
-        + Write(frame.authTag)
-  {
-    match frame
-      case RegularFrame(_, seqNum, iv, encContent, authTag) =>
-        UInt32ToSeq(seqNum)
-        + Write(iv)
-        + Write(encContent)
-        + Write(authTag)
-      case FinalFrame(_, finalSequenceNumber, iv, encContent, authTag) =>
-        UInt32ToSeq(ENDFRAME_SEQUENCE_NUMBER)
-        + UInt32ToSeq(finalSequenceNumber)
-        + Write(iv)
-        + UInt32ToSeq(|encContent| as uint32)
-        + Write(encContent)
-        + Write(authTag)
+  predicate IvTagLengths(frame: Frame){
+    && |frame.iv| == frame.header.suite.encrypt.ivLength as nat
+    && |frame.authTag| == frame.header.suite.encrypt.tagLength as nat
   }
 
-  function method ReadFrame(
+  type RegularFrame = frame: Frame
+  |
+    && frame.RegularFrame?
+    && IvTagLengths(frame)
+    && frame.header.body.contentType.Framed?
+    && |frame.encContent| == frame.header.body.frameLength as nat
+    && frame.seqNum != ENDFRAME_SEQUENCE_NUMBER
+  witness *
+
+  type FinalFrame = frame: Frame
+  |
+    && frame.FinalFrame?
+    && IvTagLengths(frame)
+    && frame.header.body.contentType.Framed?
+    && |frame.encContent| <= frame.header.body.frameLength as nat
+  witness *
+
+  type NonFramed = frame: Frame
+  |
+    && frame.NonFramed?
+    && IvTagLengths(frame)
+    && frame.header.body.contentType.NonFramed?
+    && |frame.encContent| < SAFE_MAX_ENCRYPT
+  witness *
+  
+  const SAFE_MAX_ENCRYPT := 0xFFFFFFFE0 // 2^36 - 32
+
+  function method WriteRegularFrame(
+    regularFrame: RegularFrame
+  )
+    :(ret: seq<uint8>)
+    ensures
+      && ReadUInt32(ReadableBytes(ret, 0)).Success?
+      && ReadUInt32(ReadableBytes(ret, 0)).value.thing != ENDFRAME_SEQUENCE_NUMBER
+  {
+    WriteUint32(regularFrame.seqNum)
+    + Write(regularFrame.iv)
+    + Write(regularFrame.encContent)
+    + Write(regularFrame.authTag)
+  }
+
+  function method ReadRegularFrame(
     bytes: ReadableBytes,
     header: FramedHeader
   )
-    :(res: ReadCorrect<Frame>)
-    ensures CorrectlyRead(bytes, res, WriteFrame)
+    :(res: ReadCorrect<RegularFrame>)
+    ensures res.Success?
+    ==>
+      && var Data(thing, tail) := res.value;
+      && tail.data == bytes.data
+      && |tail.data| >= tail.start >= bytes.start
+      && bytes.data[bytes.start..tail.start] == tail.data[bytes.start..tail.start]
+      && WriteRegularFrame(thing) == tail.data[bytes.start..tail.start]
+    ensures CorrectlyRead(bytes, res, WriteRegularFrame)
   {
+
     var sequenceNumber :- ReadUInt32(bytes);
+    :- Need(sequenceNumber.thing != ENDFRAME_SEQUENCE_NUMBER, Error("bad"));
 
-    if sequenceNumber.thing != ENDFRAME_SEQUENCE_NUMBER then
-      var iv :- Read(sequenceNumber.tail, header.suite.encrypt.ivLength as nat);
-      var encContent :- Read(iv.tail, header.body.frameLength as nat);
-      var authTag :- Read(encContent.tail, header.suite.encrypt.tagLength as nat);
+    var iv :- Read(sequenceNumber.tail, header.suite.encrypt.ivLength as nat);
+    var encContent :- Read(iv.tail, header.body.frameLength as nat);
+    var authTag :- Read(encContent.tail, header.suite.encrypt.tagLength as nat);
 
-      var regularFrame: Frame := Frame'.RegularFrame(
-        header,
-        sequenceNumber.thing,
-        iv.thing,
-        encContent.thing,
-        authTag.thing
-      );
+    var regularFrame: RegularFrame := Frame.RegularFrame(
+      header,
+      sequenceNumber.thing,
+      iv.thing,
+      encContent.thing,
+      authTag.thing
+    );
 
-      assert WriteFrame(regularFrame)[0..4] != UInt32ToSeq(ENDFRAME_SEQUENCE_NUMBER);
-      assert CorrectlyRead(bytes, Success(Data(regularFrame, authTag.tail)), WriteFrame);
-      Success(Data(regularFrame, authTag.tail))
-    else
-      var finalSequenceNumber :- ReadUInt32(sequenceNumber.tail);
-      var iv :- Read(finalSequenceNumber.tail, header.suite.encrypt.ivLength as nat);
-      var contentLength :- ReadUInt32(iv.tail);
-      var encContent :- Read(contentLength.tail, contentLength.thing as nat);
-      var authTag :- Read(encContent.tail, header.suite.encrypt.tagLength as nat);
-
-      var finalFrame: Frame := Frame'.FinalFrame(
-        header,
-        finalSequenceNumber.thing,
-        iv.thing,
-        encContent.thing,
-        authTag.thing
-      );
-
-      assert WriteFrame(finalFrame)[0..4] == UInt32ToSeq(ENDFRAME_SEQUENCE_NUMBER);
-      assert CorrectlyRead(bytes, Success(Data(finalFrame, authTag.tail)), WriteFrame);
-      Success(Data(finalFrame, authTag.tail))
+    Success(Data(regularFrame, authTag.tail))
   }
 
+  function method WriteFinalFrame(
+    finalFrame: FinalFrame
+  )
+    :(ret: seq<uint8>)
+    ensures 
+      && ReadUInt32(ReadableBytes(ret, 0)).Success?
+      && ReadUInt32(ReadableBytes(ret, 0)).value.thing == ENDFRAME_SEQUENCE_NUMBER
+  {
+    WriteUint32(ENDFRAME_SEQUENCE_NUMBER)
+    + WriteUint32(finalFrame.seqNum)
+    + Write(finalFrame.iv)
+    + WriteUint32Seq(finalFrame.encContent)
+    + Write(finalFrame.authTag)
+  }
+
+  function method ReadFinalFrame(
+    bytes: ReadableBytes,
+    header: FramedHeader
+  )
+    :(res: ReadCorrect<FinalFrame>)
+    ensures res.Success?
+    ==>
+      && var Data(thing, tail) := res.value;
+      && tail.data == bytes.data
+      && |tail.data| >= tail.start >= bytes.start
+      && bytes.data[bytes.start..tail.start] == tail.data[bytes.start..tail.start]
+      && WriteFinalFrame(thing) == tail.data[bytes.start..tail.start]
+    ensures CorrectlyRead(bytes, res, WriteFinalFrame)
+  {
+    var finalFrameSignal :- ReadUInt32(bytes);
+    :- Need(finalFrameSignal.thing == ENDFRAME_SEQUENCE_NUMBER, Error("bad"));
+
+    var sequenceNumber :- ReadUInt32(finalFrameSignal.tail);
+    var iv :- Read(sequenceNumber.tail, header.suite.encrypt.ivLength as nat);
+    var encContent :- ReadUint32Seq(iv.tail);
+    :- Need(|encContent.thing| as uint32 <= header.body.frameLength, Error("bad"));
+    var authTag :- Read(encContent.tail, header.suite.encrypt.tagLength as nat);
+
+    var finalFrame: FinalFrame := Frame.FinalFrame(
+      header,
+      sequenceNumber.thing,
+      iv.thing,
+      encContent.thing,
+      authTag.thing
+    );
+
+    Success(Data(finalFrame, authTag.tail))
+  }
 
   function method ReadNonFrame(
     bytes: ReadableBytes,
     header: NonFramedHeader
   )
     :(res: ReadCorrect<NonFramed>)
+    ensures res.Success?
+    ==>
+      && var Data(thing, tail) := res.value;
+      && tail.data == bytes.data
+      && |tail.data| >= tail.start >= bytes.start
+      && bytes.data[bytes.start..tail.start] == tail.data[bytes.start..tail.start]
+      && WriteNonFramed(thing) == tail.data[bytes.start..tail.start]
     ensures CorrectlyRead(bytes, res, WriteNonFramed)
   {
     var iv :- Read(bytes, header.suite.encrypt.ivLength as nat);
+    // Checking only the content length _before_ reading it into memory
+    // is just a nice thing to do given the sizes involved.
     var contentLength :- ReadUInt64(iv.tail);
     :- Need(contentLength.thing as nat < SAFE_MAX_ENCRYPT, Error("Too Much"));
-    var encContent :- Read(contentLength.tail, contentLength.thing as nat);
+    var encContent :- ReadUint64Seq(iv.tail);
     var authTag :- Read(encContent.tail, header.suite.encrypt.tagLength as nat);
 
-    var content: SafeNonFramedSeq := encContent.thing;
-
-    var nonFramed: NonFramed := NonFramed'.NonFramed(
+    var nonFramed: NonFramed := Frame.NonFramed(
       header,
       iv.thing,
-      content,
+      encContent.thing,
       authTag.thing
     );
 
@@ -202,8 +226,7 @@ module Frames {
     :(ret: seq<uint8>)
   {
     Write(nonFramed.iv)
-    + UInt64ToSeq(|nonFramed.encContent| as uint64)
-    + Write(nonFramed.encContent)
+    + WriteUint64Seq(nonFramed.encContent)
     + Write(nonFramed.authTag)
   }
 
