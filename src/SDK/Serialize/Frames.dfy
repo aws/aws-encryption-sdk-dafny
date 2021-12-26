@@ -62,21 +62,27 @@ module Frames {
     && |frame.authTag| == frame.header.suite.encrypt.tagLength as nat
   }
 
-  type RegularFrame = frame: Frame
-  |
+  predicate IsRegularFrame(frame: Frame){
     && frame.RegularFrame?
     && IvTagLengths(frame)
     && frame.header.body.contentType.Framed?
     && |frame.encContent| == frame.header.body.frameLength as nat
     && frame.seqNum != ENDFRAME_SEQUENCE_NUMBER
+  }
+
+  type RegularFrame = frame: Frame
+  | IsRegularFrame(frame)
   witness *
 
-  type FinalFrame = frame: Frame
-  |
+  predicate IsFinalFrame(frame: Frame) {
     && frame.FinalFrame?
     && IvTagLengths(frame)
     && frame.header.body.contentType.Framed?
     && |frame.encContent| <= frame.header.body.frameLength as nat
+  }
+
+  type FinalFrame = frame: Frame
+  | IsFinalFrame(frame)
   witness *
 
   type NonFramed = frame: Frame
