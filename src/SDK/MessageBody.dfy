@@ -176,27 +176,6 @@ module MessageBody {
   || Frames.IsRegularFrame(frame)
   witness *
 
-  // type FramedMessage = frames: seq<MessageFrame>
-  // |
-  // // The total number of frames MUST be < UINT16_LENGTH
-  // && 0 < |frames| <= ENDFRAME_SEQUENCE_NUMBER as nat
-  // && var tail := Seq.Last(frames);
-  // // The last element MUST be a final frame.
-  // && Frames.IsFinalFrame(tail)
-  // // All other frames MUST be RegularFrames
-  // && (forall i
-  //   | 0 <= i < |Seq.DropLast(frames)|
-  //   :: Frames.IsRegularFrame(frames[i]))
-  // && (forall i
-  //   | 0 <= i < |frames|
-  //   ::
-  //     // The sequence number MUST be monotonic
-  //     && frames[i].seqNum as nat == i + START_SEQUENCE_NUMBER as nat
-  //     // All frames MUST all be from the same messages with the same header
-  //     && frames[i].header == tail.header)
-  // witness *
-
-
   lemma LemmaAddingNextRegularFrame(
     regularFrames: MessageRegularFrames,
     nextRegularFrame: Frames.RegularFrame
@@ -312,22 +291,6 @@ module MessageBody {
     //     IVSeqDistinct(suite, frames[i].seqNum, frames[j].seqNum);
     //   }
     // }
-
-    // assert |frames| <= ENDFRAME_SEQUENCE_NUMBER as nat;
-    // assert Frames.IsFinalFrame(Seq.Last(frames));
-    // assert |frames| == (sequenceNumber - START_SEQUENCE_NUMBER + 1) as nat;
-    // assert Seq.Last(frames).seqNum == sequenceNumber;
-    // assert Seq.Last(frames).seqNum as nat == |frames|;
-    // assert Seq.DropLast(frames) == regularFrames;
-    // assert forall i
-    // | 0 <= i < |Seq.DropLast(frames)|
-    // ::
-    //   // All other frames MUST be RegularFrames
-    //   && Frames.IsRegularFrame(frames[i])
-    //   // The sequence number MUST be monotonic
-    //   && frames[i].seqNum as nat == i + START_SEQUENCE_NUMBER as nat
-    //   // All frames MUST all be from the same messages with the same header
-    //   && frames[i].header == Seq.Last(frames).header;
 
     assert MessageFramesAreForTheSameMessage(regularFrames + [finalFrame]);
 
