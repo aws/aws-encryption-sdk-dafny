@@ -255,7 +255,9 @@ module MessageBody {
       // invariant SumPlaintextSegments(plaintextSeg) == plaintext[..n] // Chunks of plaintext sum up to plaintexts
       invariant forall frame: Frames.Frame
       | frame in regularFrames
-      :: AESEncryption.EncryptedWithKey(frame.encContent, key)
+      ::
+        && AESEncryption.EncryptedWithKey(frame.encContent, key)
+        && frame.header == header
     {
       // assert {:split_here} true;
       :- Need(sequenceNumber < ENDFRAME_SEQUENCE_NUMBER, "too many frames");
@@ -268,9 +270,6 @@ module MessageBody {
       );
 
       assert regularFrame.seqNum as nat == |regularFrames| + 1;
-      assert forall frame
-      | frame in regularFrames
-      :: frame.header == header;
       LemmaAddingNextRegularFrame(regularFrames, regularFrame);
 
       // assert frame.iv == IVSeq(suite, sequenceNumber);
@@ -329,6 +328,8 @@ module MessageBody {
     //   && frames[i].seqNum as nat == i + START_SEQUENCE_NUMBER as nat
     //   // All frames MUST all be from the same messages with the same header
     //   && frames[i].header == Seq.Last(frames).header;
+
+    assert MessageFramesAreForTheSameMessage(regularFrames + [finalFrame]);
 
     return Success(FramedMessageBody(
       regularFrames := regularFrames,
