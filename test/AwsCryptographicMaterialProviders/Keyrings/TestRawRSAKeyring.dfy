@@ -21,12 +21,10 @@ module TestRawRSAKeying {
   import Aws.Crypto
   import opened TestUtils
 
-  method {:test} TestOnEncryptOnDecryptSuppliedDataKey(
-    keyStrength: RSAEncryption.StrengthBits := 2048,
-    padding: RSAEncryption.PaddingMode := RSAEncryption.PaddingMode.OAEP_SHA1
-  )
-    requires RSAEncryption.GetBytes(keyStrength) >= RSAEncryption.MinStrengthBytes(padding)
+  method {:test} TestOnEncryptOnDecryptSuppliedDataKey()
   {
+    var keyStrength: RSAEncryption.StrengthBits := 2048;
+    var padding: RSAEncryption.PaddingMode := RSAEncryption.PaddingMode.OAEP_SHA1;
     var namespace, name := TestUtils.NamespaceAndName(0);
     var publicKey, privateKey := RSAEncryption.GenerateKeyPair(
       keyStrength,
@@ -81,12 +79,10 @@ module TestRawRSAKeying {
     expect decryptionMaterialsOut.materials.plaintextDataKey == Some(pdk);      
   }
 
-  method {:test} TestOnDecryptKeyNameMismatch(
-    keyStrength: RSAEncryption.StrengthBits := 2048,
-    padding: RSAEncryption.PaddingMode := RSAEncryption.PaddingMode.OAEP_SHA1
-  )
-    requires RSAEncryption.GetBytes(keyStrength) >= RSAEncryption.MinStrengthBytes(padding)
+  method {:test} TestOnDecryptKeyNameMismatch()
   {
+    var keyStrength: RSAEncryption.StrengthBits := 2048;
+    var padding: RSAEncryption.PaddingMode := RSAEncryption.PaddingMode.OAEP_SHA1;
     var namespace, name := TestUtils.NamespaceAndName(0);
     var publicKey, privateKey := RSAEncryption.GenerateKeyPair(
       keyStrength,
@@ -144,12 +140,10 @@ module TestRawRSAKeying {
 
 
 
-  method {:test} TestOnDecryptFailure(
-    keyStrength: RSAEncryption.StrengthBits := 2048,
-    padding: RSAEncryption.PaddingMode := RSAEncryption.PaddingMode.OAEP_SHA1
-  )
-    requires RSAEncryption.GetBytes(keyStrength) >= RSAEncryption.MinStrengthBytes(padding)
+  method {:test} TestOnDecryptFailure()
   {
+    var keyStrength: RSAEncryption.StrengthBits := 2048;
+    var padding: RSAEncryption.PaddingMode := RSAEncryption.PaddingMode.OAEP_SHA1;
     var namespace, name := TestUtils.NamespaceAndName(0);
     var publicKey, privateKey := RSAEncryption.GenerateKeyPair(keyStrength, padding);
     var encryptKeying := new RawRSAKeyring.RawRSAKeyring(
