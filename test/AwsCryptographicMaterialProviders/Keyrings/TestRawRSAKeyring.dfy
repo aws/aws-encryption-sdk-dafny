@@ -20,6 +20,7 @@ module TestRawRSAKeying {
   import UTF8
   import Aws.Crypto
   import opened TestUtils
+  import MaterialProviders.Materials
 
   method {:test} TestOnEncryptOnDecryptSuppliedDataKey()
   {
@@ -43,7 +44,7 @@ module TestRawRSAKeying {
     var pdk := seq(32, i => 0);
 
     // QUESTION :: What does a wrappingAlgorithmID do for an RSA Keyring?
-    var wrappingAlgorithmID := Crypto.ALG_AES_256_GCM_IV12_TAG16_HKDF_SHA384_ECDSA_P384;
+    var wrappingAlgorithmID := Crypto.ALG_AES_128_GCM_IV12_TAG16_NO_KDF;
     var encryptionMaterialsIn := Crypto.EncryptionMaterials(
       encryptionContext:=encryptionContext,
       algorithmSuiteId:=wrappingAlgorithmID,
@@ -51,9 +52,11 @@ module TestRawRSAKeying {
       encryptedDataKeys:=[],
       signingKey:=Option.None
     );
+    expect Materials.ValidEncryptionMaterials(encryptionMaterialsIn);  
     var encryptionMaterialsOut :- expect rawRSAKeyring.OnEncrypt(
       Crypto.OnEncryptInput(materials:=encryptionMaterialsIn)
     );
+    expect Materials.ValidEncryptionMaterials(encryptionMaterialsOut.materials);  
     expect |encryptionMaterialsOut.materials.encryptedDataKeys| == 1;
 
     var edk := encryptionMaterialsOut.materials.encryptedDataKeys[0];
@@ -110,7 +113,7 @@ module TestRawRSAKeying {
 
     var pdk := seq(32, i => 0);
 
-    var wrappingAlgorithmID := Crypto.ALG_AES_256_GCM_IV12_TAG16_HKDF_SHA384_ECDSA_P384;
+    var wrappingAlgorithmID := Crypto.ALG_AES_128_GCM_IV12_TAG16_NO_KDF;
     var encryptionMaterialsIn := Crypto.EncryptionMaterials(
       encryptionContext:=encryptionContext,
       algorithmSuiteId:=wrappingAlgorithmID,
@@ -166,7 +169,7 @@ module TestRawRSAKeying {
 
     var pdk := seq(32, i => 0);
 
-    var wrappingAlgorithmID := Crypto.ALG_AES_256_GCM_IV12_TAG16_HKDF_SHA384_ECDSA_P384;
+    var wrappingAlgorithmID := Crypto.ALG_AES_128_GCM_IV12_TAG16_NO_KDF;
     var encryptionMaterialsIn := Crypto.EncryptionMaterials(
       encryptionContext:=encryptionContext,
       algorithmSuiteId:=wrappingAlgorithmID,
