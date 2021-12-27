@@ -44,13 +44,13 @@ module TestRawRSAKeying {
     var pdk := seq(32, i => 0);
 
     // QUESTION :: What does a wrappingAlgorithmID do for an RSA Keyring?
-    var wrappingAlgorithmID := Crypto.ALG_AES_128_GCM_IV12_TAG16_NO_KDF;
+    var wrappingAlgorithmID := Crypto.ALG_AES_256_GCM_IV12_TAG16_NO_KDF;
     var encryptionMaterialsIn := Crypto.EncryptionMaterials(
       encryptionContext:=encryptionContext,
       algorithmSuiteId:=wrappingAlgorithmID,
       plaintextDataKey:=Some(pdk),
       encryptedDataKeys:=[],
-      signingKey:=Option.None
+      signingKey:=None()
     );
     expect Materials.ValidEncryptionMaterials(encryptionMaterialsIn);  
     var encryptionMaterialsOut :- expect rawRSAKeyring.OnEncrypt(
@@ -113,7 +113,7 @@ module TestRawRSAKeying {
 
     var pdk := seq(32, i => 0);
 
-    var wrappingAlgorithmID := Crypto.ALG_AES_128_GCM_IV12_TAG16_NO_KDF;
+    var wrappingAlgorithmID := Crypto.ALG_AES_256_GCM_IV12_TAG16_NO_KDF;
     var encryptionMaterialsIn := Crypto.EncryptionMaterials(
       encryptionContext:=encryptionContext,
       algorithmSuiteId:=wrappingAlgorithmID,
@@ -169,7 +169,7 @@ module TestRawRSAKeying {
 
     var pdk := seq(32, i => 0);
 
-    var wrappingAlgorithmID := Crypto.ALG_AES_128_GCM_IV12_TAG16_NO_KDF;
+    var wrappingAlgorithmID := Crypto.ALG_AES_256_GCM_IV12_TAG16_NO_KDF;
     var encryptionMaterialsIn := Crypto.EncryptionMaterials(
       encryptionContext:=encryptionContext,
       algorithmSuiteId:=wrappingAlgorithmID,
