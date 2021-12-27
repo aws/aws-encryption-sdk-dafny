@@ -85,20 +85,24 @@ module MessageBody {
   {
     exists plaintextSeg: seq<seq<uint8>>
     ::
-    && FramesEncryptPlaintextSegments(frames, plaintextSeg)
+    && FramesEncryptPlaintextSegments(frames.regularFrames + [frames.finalFrame], plaintextSeg)
     && SumPlaintextSegments(plaintextSeg) == plaintext
   }
 
-  predicate FramesEncryptPlaintextSegments(frames: FramedMessage, plaintextSeg: seq<seq<uint8>>)
+  predicate FramesEncryptPlaintextSegments(frames: seq<MessageFrame>, plaintextSeg: seq<seq<uint8>>)
   {
+    // The total number of frames MUST equal the total number of plaintext segments.
     if |frames| != |plaintextSeg| then
       false
     else
-      if frames == [] then
+      // No more regular frames, check the tail
+     if frames == [] then
         true
       else
+        // Drop the segments
         && FramesEncryptPlaintextSegments(frames[..|frames| - 1], plaintextSeg[..|frames| - 1])
         && AESEncryption.CiphertextGeneratedWithPlaintext(frames[|frames| - 1].encContent, plaintextSeg[|frames| - 1])
+
   }
 
   // // Steps for inductive proofs EncryptMessageBody
@@ -122,69 +126,113 @@ module MessageBody {
   // {
   // }
 
-  type FramedMessage = frames: seq<Frames.Frame>
-  |
-  // The total number of frames MUST be < UINT16_LENGTH
-  && 0 < |frames| <= ENDFRAME_SEQUENCE_NUMBER as nat
-  && var tail := Seq.Last(frames);
-  // The last element MUST be a final frame.
-  && Frames.IsFinalFrame(tail)
-  // All other frames MUST be RegularFrames
-  && (forall i
-    | 0 <= i < |Seq.DropLast(frames)|
-    :: Frames.IsRegularFrame(frames[i]))
-  && (forall i
-    | 0 <= i < |frames|
-    ::
-      // The sequence number MUST be monotonic
-      && frames[i].seqNum as nat == i + START_SEQUENCE_NUMBER as nat
-      // All frames MUST all be from the same messages with the same header
-      && frames[i].header == tail.header)
+  type MessageRegularFrames = regularFrames: seq<Frames.RegularFrame>
+  | IsMessageRegularFrames(regularFrames)
   witness *
 
-
-  lemma asdf(
-    regularFrames: seq<Frames.RegularFrame>,
-    frame: Frames.RegularFrame
-  )
-    requires forall i // Sequence of frames is valid
-      | 0 <= i < |regularFrames|
-      :: regularFrames[i].seqNum as nat == i + START_SEQUENCE_NUMBER as nat
-    requires frame.seqNum as nat == |regularFrames| + START_SEQUENCE_NUMBER as nat
-    ensures forall i, frames : seq<Frames.RegularFrame>
-      |
-        && frames == regularFrames + [frame]
-        && 0 <= i < |frames|
-      :: frames[i].seqNum as nat == i + START_SEQUENCE_NUMBER as nat
-  {
-
+  predicate MessageFramesAreMonotonic(frames: seq<MessageFrame>){
+    if |frames| == 0 then true
+    else
+      // Cardinality can be thought of as the tail index
+      // of a one-based indexed array.
+      // Sequence number is the one-based indexed array of frames
+      && |frames| == Seq.Last(frames).seqNum as nat
+      && MessageFramesAreMonotonic(Seq.DropLast(frames))
   }
 
+  predicate MessageFramesAreForTheSameMessage(frames: seq<MessageFrame>){
+    forall i
+    // This excludes the First frame in the seq
+    // because all headers are definitionally equal for `[]` and `[frame]`.
+    | 0 < i < |frames|
+    ::  Seq.First(frames).header == frames[i].header
+  }
 
+  predicate IsMessageRegularFrames(regularFrames: seq<Frames.RegularFrame>) {
+    // The total number of frames MUST be < UINT16_LENGTH.
+    // And a RegularFrame can not have a sequence number
+    // equal to the ENDFRAME_SEQUENCE_NUMBER. 
+    && 0 <= |regularFrames| < ENDFRAME_SEQUENCE_NUMBER as nat
+    // The sequence number MUST be monotonic
+    && MessageFramesAreMonotonic(regularFrames)
+    // All frames MUST all be from the same messages i.e. the same header
+    && MessageFramesAreForTheSameMessage(regularFrames)
+  }
+
+  datatype FramedMessageBody = FramedMessageBody(
+    regularFrames: MessageRegularFrames,
+    finalFrame: Frames.FinalFrame
+  )
+
+  type FramedMessage = body: FramedMessageBody
+  |
+  && MessageFramesAreMonotonic(body.regularFrames + [body.finalFrame])
+  && MessageFramesAreForTheSameMessage(body.regularFrames + [body.finalFrame])
+  witness *
+
+  type MessageFrame = frame: Frames.Frame
+  |
+  || Frames.IsFinalFrame(frame)
+  || Frames.IsRegularFrame(frame)
+  witness *
+
+  // type FramedMessage = frames: seq<MessageFrame>
+  // |
+  // // The total number of frames MUST be < UINT16_LENGTH
+  // && 0 < |frames| <= ENDFRAME_SEQUENCE_NUMBER as nat
+  // && var tail := Seq.Last(frames);
+  // // The last element MUST be a final frame.
+  // && Frames.IsFinalFrame(tail)
+  // // All other frames MUST be RegularFrames
+  // && (forall i
+  //   | 0 <= i < |Seq.DropLast(frames)|
+  //   :: Frames.IsRegularFrame(frames[i]))
+  // && (forall i
+  //   | 0 <= i < |frames|
+  //   ::
+  //     // The sequence number MUST be monotonic
+  //     && frames[i].seqNum as nat == i + START_SEQUENCE_NUMBER as nat
+  //     // All frames MUST all be from the same messages with the same header
+  //     && frames[i].header == tail.header)
+  // witness *
+
+
+  lemma LemmaAddingNextRegularFrame(
+    regularFrames: MessageRegularFrames,
+    nextRegularFrame: Frames.RegularFrame
+  )
+    requires |regularFrames| + 1 < ENDFRAME_SEQUENCE_NUMBER as nat
+    requires nextRegularFrame.seqNum as nat == |regularFrames| + 1 as nat
+    requires MessageFramesAreForTheSameMessage(regularFrames + [nextRegularFrame])
+    ensures IsMessageRegularFrames(regularFrames + [nextRegularFrame])
+  {}
 
   method EncryptMessageBody(
     plaintext: seq<uint8>,
     header : Header.Header,
     key: seq<uint8>
   )
-    returns (result: Result<seq<Frames.Frame>, string>)
+    returns (result: Result<FramedMessage, string>)
     requires |key| ==  header.suite.encrypt.keyLength as nat
     requires 0 < header.body.frameLength as nat < UINT32_LIMIT
     requires header.body.contentType.Framed?
     ensures match result
       case Failure(e) => true
-      case Success(frames) =>
+      case Success(body) =>
         // var frames := seqWithGhostFrames.frames;
         // ValidFrames(frames)
         // && (forall frame | frame in frames :: frame.Valid())
         // && (forall frame: Frame | frame in frames :: |frame.iv| == suite.encrypt.ivLength as int)
         // && FramesToSequence(frames) == seqWithGhostFrames.sequence
-        && FramesEncryptPlaintext(frames, plaintext)
-        && (forall frame: Frames.Frame | frame in frames :: AESEncryption.EncryptedWithKey(frame.encContent, key))
+        // && FramesEncryptPlaintext(body, plaintext)
+        && (forall frame 
+          | frame in body.regularFrames
+          :: AESEncryption.EncryptedWithKey(frame.encContent, key))
+        && AESEncryption.EncryptedWithKey(body.finalFrame.encContent, key)
   {
     // var body := [];
     var n : int, sequenceNumber := 0, START_SEQUENCE_NUMBER;
-    var regularFrames: seq<Frames.RegularFrame> := [];
+    var regularFrames: MessageRegularFrames := [];
     // ghost var plaintextSeg := [];
 
     while n + header.body.frameLength as nat < |plaintext|
@@ -196,11 +244,11 @@ module MessageBody {
       // then when this loop exists, sequenceNumber == ENDFRAME_SEQUENCE_NUMBER.
       invariant START_SEQUENCE_NUMBER <= sequenceNumber <= ENDFRAME_SEQUENCE_NUMBER
       invariant |regularFrames| == (sequenceNumber - START_SEQUENCE_NUMBER) as nat
-      invariant forall i // Sequence of frames is valid
-      | 0 <= i < |regularFrames|
-      ::
-        && regularFrames[i].seqNum as nat == i + START_SEQUENCE_NUMBER as nat
-        && regularFrames[i].header == header
+      // invariant forall i // Sequence of frames is valid
+      // | 0 <= i < |regularFrames|
+      // ::
+      //   && regularFrames[i].seqNum as nat == i + START_SEQUENCE_NUMBER as nat
+      //   && regularFrames[i].header == header
       // invariant forall i | 0 <= i < |regularFrames| :: regularFrames[i].iv == IVSeq(suite, regularFrames[i].seqNum)
       // invariant FramesToSequence(regularFrames) == body
       // invariant FramesEncryptPlaintextSegments(regularFrames, plaintextSeg) // Frames decrypt to chunks of plaintext
@@ -219,7 +267,11 @@ module MessageBody {
         sequenceNumber
       );
 
-      asdf(regularFrames, regularFrame);
+      assert regularFrame.seqNum as nat == |regularFrames| + 1;
+      assert forall frame
+      | frame in regularFrames
+      :: frame.header == header;
+      LemmaAddingNextRegularFrame(regularFrames, regularFrame);
 
       // assert frame.iv == IVSeq(suite, sequenceNumber);
       // // Proofs that invariant holds after loop
@@ -247,7 +299,7 @@ module MessageBody {
     // ExtendFramesToSequence(frames, finalFrame);
     // ExtendFramesEncryptPlaintextSegments(frames, plaintextSeg, finalFrame, plaintext[n..]);
     // ExtendSumPlaintextSegments(plaintextSeg, plaintext[n..]);
-    var frames := regularFrames + [finalFrame];
+    // var frames := regularFrames + [finalFrame];
     // body := body + finalFrameSequence;
     // plaintextSeg := plaintextSeg + [plaintext[n..]];
     // assert ValidFrames(frames) by {
@@ -262,12 +314,12 @@ module MessageBody {
     //   }
     // }
 
-    assert |frames| <= ENDFRAME_SEQUENCE_NUMBER as nat;
-    assert Frames.IsFinalFrame(Seq.Last(frames));
-    assert |frames| == (sequenceNumber - START_SEQUENCE_NUMBER + 1) as nat;
-    assert Seq.Last(frames).seqNum == sequenceNumber;
-    assert Seq.Last(frames).seqNum as nat == |frames|;
-    assert Seq.DropLast(frames) == regularFrames;
+    // assert |frames| <= ENDFRAME_SEQUENCE_NUMBER as nat;
+    // assert Frames.IsFinalFrame(Seq.Last(frames));
+    // assert |frames| == (sequenceNumber - START_SEQUENCE_NUMBER + 1) as nat;
+    // assert Seq.Last(frames).seqNum == sequenceNumber;
+    // assert Seq.Last(frames).seqNum as nat == |frames|;
+    // assert Seq.DropLast(frames) == regularFrames;
     // assert forall i
     // | 0 <= i < |Seq.DropLast(frames)|
     // ::
@@ -278,7 +330,10 @@ module MessageBody {
     //   // All frames MUST all be from the same messages with the same header
     //   && frames[i].header == Seq.Last(frames).header;
 
-    return Success(frames);
+    return Success(FramedMessageBody(
+      regularFrames := regularFrames,
+      finalFrame := finalFrame
+    ));
   }
 
   method EncryptRegularFrame(
