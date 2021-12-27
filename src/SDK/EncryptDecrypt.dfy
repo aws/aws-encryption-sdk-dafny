@@ -3,13 +3,10 @@
 
 include "../StandardLibrary/StandardLibrary.dfy"
 include "../StandardLibrary/UInt.dfy"
-include "EncryptionContext.dfy"
+include "Serialize/EncryptionContext.dfy"
 include "../AwsCryptographicMaterialProviders/Client.dfy"
 include "../AwsCryptographicMaterialProviders/Materials.dfy"
-include "MessageHeader.dfy"
 include "MessageBody.dfy"
-include "Serialize.dfy"
-include "Deserialize.dfy"
 include "../Crypto/Random.dfy"
 include "../Util/Streams.dfy"
 include "../Crypto/HKDF/HKDF.dfy"
@@ -17,6 +14,12 @@ include "../Crypto/AESEncryption.dfy"
 include "../Crypto/Signature.dfy"
 include "../Generated/AwsCryptographicMaterialProviders.dfy"
 include "Serialize/SerializableTypes.dfy"
+
+include "Serialize/Header.dfy"
+include "Serialize/HeaderTypes.dfy"
+include "Serialize/V1HeaderBody.dfy"
+include "Serialize/HeaderAuth.dfy"
+
 
 module {:extern "EncryptDecrypt"} EncryptDecrypt {
   import opened Wrappers
@@ -26,16 +29,17 @@ module {:extern "EncryptDecrypt"} EncryptDecrypt {
   import EncryptionContext
   import AESEncryption
   import MaterialProviders.Client
-  import Deserialize
   import HKDF
   import MaterialProviders.Materials
-  import Msg = MessageHeader
   import MessageBody
   import Random
-  import Serialize
   import Signature
   import Streams
   import SerializableTypes
+
+  import Header
+  import HeaderTypes
+  import HeaderAuth
 
   const DEFAULT_FRAME_LENGTH: uint32 := 4096
 
@@ -205,23 +209,16 @@ module {:extern "EncryptDecrypt"} EncryptDecrypt {
 
     var algorithmSuiteID := request.algorithmSuiteID;
 
-    var encMatRequest := Crypto.GetEncryptionMaterialsInput(encryptionContext:=request.encryptionContext, algorithmSuiteId:=algorithmSuiteID, maxPlaintextLength:=Option.Some(request.plaintextLength as int64));
+    var encMatRequest := Crypto.GetEncryptionMaterialsInput(
+      encryptionContext:=request.encryptionContext,
+      algorithmSuiteId:=algorithmSuiteID,
+      maxPlaintextLength:=Option.Some(request.plaintextLength as int64)
+    );
 
     var output :- cmm.GetEncryptionMaterials(encMatRequest);
 
     var encMat := output.encryptionMaterials;
 
-    // :- Need(encMat.plaintextDataKey.Some?, "CMM failed to obtain a plaintext data key.");
-    // :- Need((algorithmSuiteID.None? || (request.algorithmSuiteID.value as AlgorithmSuite.ID).SignatureType().Some?) ==>
-    //   Materials.EC_PUBLIC_KEY_FIELD in encMat.encryptionContext,
-    //   "CMM failed to return valid encryptionContext for algorithm suite in use: verification key must exist in encryption context for suites with signing.");
-    // :- Need(request.algorithmSuiteID.None? ==> AlgorithmSuite.PolymorphIDToInternalID(encMat.algorithmSuiteId) == 0x0378 as AlgorithmSuite.ID,
-    //   "CMM defaulted to the incorrect algorithm suite ID.");
-    // :- Need(|encMat.plaintextDataKey.value| == AlgorithmSuite.PolymorphIDToInternalID(encMat.algorithmSuiteId).KDFInputKeyLength(),
-    //   "CMM returned an invalid plaintext data key for the algorithm suite in use.");
-    // :- Need(AlgorithmSuite.PolymorphIDToInternalID(encMat.algorithmSuiteId).SignatureType().Some? ==> encMat.signingKey.Some?,
-    //   "CMM failed to acquire signing key.");
-    // The above is equivalent to. Lets talk about it in the PR and remove the comments if we agree.
     :- Need(Client.Materials.EncryptionMaterialsWithPlaintextDataKey(encMat), "CMM returned invalid EncryptionMaterials");
 
     // Validate encryption materials
@@ -238,47 +235,54 @@ module {:extern "EncryptDecrypt"} EncryptDecrypt {
     var messageID: Msg.MessageID :- Random.GenerateBytes(Msg.MESSAGE_ID_LEN as int32);
     var derivedDataKey := DeriveKey(encMat.plaintextDataKey.value, suite, messageID);
 
-    // Assemble and serialize the header and its authentication tag
-    var headerBody := Msg.HeaderBody(
-      Msg.VERSION_1,
-      Msg.TYPE_CUSTOMER_AED,
-      esdkId,
-      messageID,
-      encMat.encryptionContext,
-      encryptedDataKeys,
-      Msg.ContentType.Framed,
-      suite.encrypt.ivLength as uint8,
-      frameLength);
-    assert ValidHeaderBodyForRequest (headerBody, request);
-    ghost var serializedHeaderBody := (reveal Msg.HeaderBodyToSeq(); Msg.HeaderBodyToSeq(headerBody));
-    assert SerializableTypes.GetAlgorithmSuiteId(headerBody.algorithmSuiteID) == suite.id;
 
-    LemmaESDKAlgorithmSuiteIdImpliesEquality(headerBody.algorithmSuiteID, suite);
-    assert {:focus} true;
 
-    var wr := new Streams.ByteWriter();
-    var _ :- Serialize.SerializeHeaderBody(wr, headerBody);
-    var unauthenticatedHeader := wr.GetDataWritten();
-    assert unauthenticatedHeader == serializedHeaderBody;
+
+    var body := HeaderTypes.HeaderBody.V1HeaderBody(
+      messageType := HeaderTypes.MessageType.TYPE_CUSTOMER_AED,
+      esdkSuiteId := esdkId,
+      messageId := messageID,
+      encryptionContext :=[], // encMat.encryptionContext,
+      encryptedDataKeys := encryptedDataKeys,
+      contentType := HeaderTypes.ContentType.Framed,
+      headerIvLength := suite.encrypt.ivLength as uint8,
+      frameLength := frameLength
+    );
+
+    var rawHeader := V1HeaderBody.WriteV1HeaderBody(body);
 
     var iv: seq<uint8> := seq(suite.encrypt.ivLength as int, _ => 0);
-    var encryptionOutput :- AESEncryption.AESEncryptExtern(suite.encrypt, iv, derivedDataKey, [], unauthenticatedHeader);
-    var headerAuthentication := Msg.HeaderAuthentication(iv, encryptionOutput.authTag);
+    var encryptionOutput :- AESEncryption.AESEncryptExtern(suite.encrypt, iv, derivedDataKey, [], rawHeader);
+    var headerAuth := HeaderTypes.HeaderAuth.AESMac(
+      headerIv := iv,
+      headerAuthTag := encryptionOutput.authTag
+    );
 
-    assert ValidHeaderAuthenticationForRequest(headerAuthentication, headerBody) by{ // Header confirms to specification
-      assert {:focus} true;
-      assert headerAuthentication.iv == seq(suite.encrypt.ivLength, _ => 0);
-      assert Msg.HeaderAuthenticationMatchesHeaderBody(headerAuthentication, headerBody);
-      assert IsDerivedKey(derivedDataKey) && AESEncryption.EncryptedWithKey(encryptionOutput.cipherText, derivedDataKey);
-    }
-    ghost var serializedHeaderAuthentication := headerAuthentication.iv + headerAuthentication.authenticationTag;
+    var header : Header := HeaderInfo(
+      body := body,
+      rawHeader := Header.WriteHeaderBody(body),
+      suite := suite,
+      headerAuth := headerAuth
+    );
 
-    var _ :- Serialize.SerializeHeaderAuthentication(wr, headerAuthentication);
-    assert wr.GetDataWritten() == serializedHeaderBody + serializedHeaderAuthentication; // Read data contains complete header
+    // assert ValidHeaderAuthenticationForRequest(headerAuthentication, headerBody) by{ // Header confirms to specification
+    //   assert {:focus} true;
+    //   assert headerAuthentication.iv == seq(suite.encrypt.ivLength, _ => 0);
+    //   assert Msg.HeaderAuthenticationMatchesHeaderBody(headerAuthentication, headerBody);
+    //   assert IsDerivedKey(derivedDataKey) && AESEncryption.EncryptedWithKey(encryptionOutput.cipherText, derivedDataKey);
+    // }
+    // ghost var serializedHeaderAuthentication := headerAuthentication.iv + headerAuthentication.authenticationTag;
+
+    // var _ :- Serialize.SerializeHeaderAuthentication(wr, headerAuthentication);
+    // assert wr.GetDataWritten() == serializedHeaderBody + serializedHeaderAuthentication; // Read data contains complete header
 
     assert {:focus} true;
     // Encrypt the given plaintext into the message body and add a footer with a signature, if required
-    var seqWithGhostFrames :- MessageBody.EncryptMessageBody(request.plaintext, frameLength as int, messageID, derivedDataKey, suite);
+    var seqWithGhostFrames :- MessageBody.EncryptMessageBody(
+      request.plaintext,
+      header,
+      derivedDataKey
+    );
     var body := seqWithGhostFrames.sequence;
     ghost var frames := seqWithGhostFrames.frames;
 
