@@ -14,6 +14,7 @@ include "Serialize/Header.dfy"
 include "Serialize/HeaderTypes.dfy"
 include "Serialize/V1HeaderBody.dfy"
 include "Serialize/HeaderAuth.dfy"
+include "Serialize/SerializeFunctions.dfy"
 include "../../libraries/src/Collections/Sequences/Seq.dfy"
 
 
@@ -33,6 +34,7 @@ module MessageBody {
   import MaterialProviders.Client
   import Frames
   import Header
+  import opened SerializeFunctions
   import Seq
 
   datatype BodyAADContent = AADRegularFrame | AADFinalFrame | AADSingleBlock
@@ -232,7 +234,7 @@ module MessageBody {
       // invariant FramesToSequence(regularFrames) == body
       // invariant FramesEncryptPlaintextSegments(regularFrames, plaintextSeg) // Frames decrypt to chunks of plaintext
       // invariant SumPlaintextSegments(plaintextSeg) == plaintext[..n] // Chunks of plaintext sum up to plaintexts
-      invariant forall frame: Frames.Frame
+      invariant forall frame
       | frame in regularFrames
       ::
         && AESEncryption.EncryptedWithKey(frame.encContent, key)
@@ -689,4 +691,59 @@ module MessageBody {
   //   var plaintext :- Decrypt(ciphertext, authTag, suite, iv, key, aad);
   //   return Success(plaintext);
   // }
+
+  function method WriteFramedMessageBody(
+    body: FramedMessage
+  )
+    :(ret: seq<uint8>)
+  {
+    WriteMessageRegularFrames(body.regularFrames) + Frames.WriteFinalFrame(body.finalFrame)
+  }
+
+  function method WriteMessageRegularFrames(
+    frames: MessageRegularFrames
+  )
+    :(ret: seq<uint8>)
+  {
+    if |frames| == 0 then []
+    else 
+      WriteMessageRegularFrames(Seq.DropLast(frames))
+      + Frames.WriteRegularFrame(Seq.Last(frames))
+  }
+
+  function method ReadFramedMessageBody(
+    bytes: ReadableBytes,
+    header: Frames.FramedHeader,
+    regularFrames: MessageRegularFrames,
+    continuation: ReadableBytes
+  )
+    :(res: ReadCorrect<FramedMessage>)
+    requires forall frame
+    | frame in regularFrames
+    :: frame.header == header
+    requires CorrectlyRead(bytes, Success(Data(regularFrames, continuation)), WriteMessageRegularFrames)
+    decreases ENDFRAME_SEQUENCE_NUMBER as nat - |regularFrames|
+    ensures CorrectlyRead(bytes, res, WriteFramedMessageBody)
+  {
+    var sequenceNumber :- ReadUInt32(continuation);
+    if (sequenceNumber.thing != ENDFRAME_SEQUENCE_NUMBER) then
+      var regularFrame :- Frames.ReadRegularFrame(continuation, header);
+      :- Need(regularFrame.thing.seqNum as nat == |regularFrames| + 1, Error("Sequence number out of order."));
+      LemmaAddingNextRegularFrame(regularFrames, regularFrame.thing);
+      ReadFramedMessageBody(
+        bytes,
+        header,
+        regularFrames + [regularFrame.thing],
+        regularFrame.tail
+      )
+    else
+      var finalFrame :- Frames.ReadFinalFrame(continuation, header);
+      :- Need(finalFrame.thing.seqNum as nat == |regularFrames| + 1, Error("Sequence number out of order."));
+      assert MessageFramesAreForTheSameMessage(regularFrames + [finalFrame.thing]);
+      var body: FramedMessage := FramedMessageBody(
+        regularFrames := regularFrames,
+        finalFrame := finalFrame.thing
+      );
+      Success(Data(body, finalFrame.tail))
+  }
 }
