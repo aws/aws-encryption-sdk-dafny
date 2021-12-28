@@ -696,6 +696,8 @@ module MessageBody {
     body: FramedMessage
   )
     :(ret: seq<uint8>)
+    ensures ret == WriteMessageRegularFrames(body.regularFrames)
+      + Frames.WriteFinalFrame(body.finalFrame)
   {
     WriteMessageRegularFrames(body.regularFrames) + Frames.WriteFinalFrame(body.finalFrame)
   }
@@ -704,6 +706,11 @@ module MessageBody {
     frames: MessageRegularFrames
   )
     :(ret: seq<uint8>)
+    ensures if |frames| == 0 then
+      ret == []
+    else 
+      ret == WriteMessageRegularFrames(Seq.DropLast(frames))
+      + Frames.WriteRegularFrame(Seq.Last(frames))
   {
     if |frames| == 0 then []
     else 
@@ -718,7 +725,7 @@ module MessageBody {
     continuation: ReadableBytes
   )
     :(res: ReadCorrect<FramedMessage>)
-    requires forall frame
+    requires forall frame: Frames.RegularFrame
     | frame in regularFrames
     :: frame.header == header
     requires CorrectlyRead(bytes, Success(Data(regularFrames, continuation)), WriteMessageRegularFrames)
@@ -730,20 +737,25 @@ module MessageBody {
       var regularFrame :- Frames.ReadRegularFrame(continuation, header);
       :- Need(regularFrame.thing.seqNum as nat == |regularFrames| + 1, Error("Sequence number out of order."));
       LemmaAddingNextRegularFrame(regularFrames, regularFrame.thing);
+      var nextRegularFrames: MessageRegularFrames := regularFrames + [regularFrame.thing];
+      ReadableBytesStartPositionsAreAssociative(bytes, continuation, regularFrame.tail);
       ReadFramedMessageBody(
         bytes,
         header,
-        regularFrames + [regularFrame.thing],
+        nextRegularFrames,
         regularFrame.tail
       )
     else
       var finalFrame :- Frames.ReadFinalFrame(continuation, header);
       :- Need(finalFrame.thing.seqNum as nat == |regularFrames| + 1, Error("Sequence number out of order."));
+      ReadableBytesStartPositionsAreAssociative(bytes, continuation, finalFrame.tail);
+      assert MessageFramesAreMonotonic(regularFrames + [finalFrame.thing]);
       assert MessageFramesAreForTheSameMessage(regularFrames + [finalFrame.thing]);
       var body: FramedMessage := FramedMessageBody(
         regularFrames := regularFrames,
         finalFrame := finalFrame.thing
       );
+      
       Success(Data(body, finalFrame.tail))
   }
 }
