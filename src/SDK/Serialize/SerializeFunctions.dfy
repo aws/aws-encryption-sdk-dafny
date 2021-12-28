@@ -230,4 +230,15 @@ module SerializeFunctions {
     var d: Data<Uint8Seq64> :- Read(length.tail, length.thing as nat);
     Success(d)
   }
+
+  lemma ReadableBytesStartPositionsAreAssociative(
+    head: ReadableBytes,
+    mid: ReadableBytes,
+    tail: ReadableBytes
+  )
+    requires head.data == mid.data == tail.data
+    requires head.start <= mid.start <= tail.start <= |tail.data|
+    ensures tail.data[head.start..tail.start]
+      == tail.data[head.start..mid.start] + tail.data[mid.start..tail.start]
+  {}
 }
