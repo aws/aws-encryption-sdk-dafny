@@ -8,6 +8,31 @@ namespace Aws.Crypto
 {
     internal static class TypeConversion
     {
+        public static Aws.Crypto.CreateAwsKmsKeyringInput FromDafny_N3_aws__N6_crypto__S24_CreateAwsKmsKeyringInput(
+            Dafny.Aws.Crypto.CreateAwsKmsKeyringInput value)
+        {
+            Aws.Crypto.CreateAwsKmsKeyringInput converted = new Aws.Crypto.CreateAwsKmsKeyringInput();
+            converted.KmsKeyId =
+                (string)FromDafny_N3_aws__N6_crypto__S24_CreateAwsKmsKeyringInput__M8_kmsKeyId(value.kmsKeyId);
+            converted.KmsClient =
+                (Amazon.KeyManagementService.IAmazonKeyManagementService)
+                FromDafny_N3_aws__N6_crypto__S24_CreateAwsKmsKeyringInput__M9_kmsClient(value.kmsClient);
+            if (value.grantTokens.is_Some)
+                converted.GrantTokens =
+                    (System.Collections.Generic.List<string>)
+                    FromDafny_N3_aws__N6_crypto__S24_CreateAwsKmsKeyringInput__M11_grantTokens(value.grantTokens);
+            return converted;
+        }
+
+        public static Dafny.Aws.Crypto.CreateAwsKmsKeyringInput ToDafny_N3_aws__N6_crypto__S24_CreateAwsKmsKeyringInput(
+            Aws.Crypto.CreateAwsKmsKeyringInput value)
+        {
+            return new Dafny.Aws.Crypto.CreateAwsKmsKeyringInput(
+                ToDafny_N3_aws__N6_crypto__S24_CreateAwsKmsKeyringInput__M8_kmsKeyId(value.KmsKeyId),
+                ToDafny_N3_aws__N6_crypto__S24_CreateAwsKmsKeyringInput__M9_kmsClient(value.KmsClient),
+                ToDafny_N3_aws__N6_crypto__S24_CreateAwsKmsKeyringInput__M11_grantTokens(value.GrantTokens));
+        }
+
         public static Aws.Crypto.PutEntryForEncryptInput FromDafny_N3_aws__N6_crypto__S23_PutEntryForEncryptInput(
             Dafny.Aws.Crypto.PutEntryForEncryptInput value)
         {
@@ -392,6 +417,20 @@ namespace Aws.Crypto
             System.IO.MemoryStream value)
         {
             return ToDafny_N6_smithy__N3_api__S4_Blob(value);
+        }
+
+        public static Amazon.KeyManagementService.IAmazonKeyManagementService
+            FromDafny_N3_aws__N6_crypto__S24_CreateAwsKmsKeyringInput__M9_kmsClient(
+                Dafny.Com.Amazonaws.Kms.IKeyManagementServiceClient value)
+        {
+            return FromDafny_N3_aws__N6_crypto__S18_KmsClientReference(value);
+        }
+
+        public static Dafny.Com.Amazonaws.Kms.IKeyManagementServiceClient
+            ToDafny_N3_aws__N6_crypto__S24_CreateAwsKmsKeyringInput__M9_kmsClient(
+                Amazon.KeyManagementService.IAmazonKeyManagementService value)
+        {
+            return ToDafny_N3_aws__N6_crypto__S18_KmsClientReference(value);
         }
 
         public static Aws.Crypto.DecryptMaterialsInput FromDafny_N3_aws__N6_crypto__S21_DecryptMaterialsInput(
@@ -1071,17 +1110,23 @@ namespace Aws.Crypto
                 "Custom implementations of Aws.Crypto.ICryptographicMaterialsManager are not supported yet");
         }
 
-        public static Aws.Crypto.DeleteEntryOutput FromDafny_N3_aws__N6_crypto__S17_DeleteEntryOutput(
-            Dafny.Aws.Crypto.DeleteEntryOutput value)
+        public static System.Collections.Generic.List<string>
+            FromDafny_N3_aws__N6_crypto__S24_CreateAwsKmsKeyringInput__M11_grantTokens(
+                Wrappers_Compile.Option<Dafny.ISequence<Dafny.ISequence<char>>> value)
         {
-            Aws.Crypto.DeleteEntryOutput converted = new Aws.Crypto.DeleteEntryOutput();
-            return converted;
+            return value.is_None
+                ? (System.Collections.Generic.List<string>)null
+                : FromDafny_N3_aws__N6_crypto__S14_GrantTokenList(value.Extract());
         }
 
-        public static Dafny.Aws.Crypto.DeleteEntryOutput ToDafny_N3_aws__N6_crypto__S17_DeleteEntryOutput(
-            Aws.Crypto.DeleteEntryOutput value)
+        public static Wrappers_Compile.Option<Dafny.ISequence<Dafny.ISequence<char>>>
+            ToDafny_N3_aws__N6_crypto__S24_CreateAwsKmsKeyringInput__M11_grantTokens(
+                System.Collections.Generic.List<string> value)
         {
-            return new Dafny.Aws.Crypto.DeleteEntryOutput();
+            return value == null
+                ? Wrappers_Compile.Option<Dafny.ISequence<Dafny.ISequence<char>>>.create_None()
+                : Wrappers_Compile.Option<Dafny.ISequence<Dafny.ISequence<char>>>.create_Some(
+                    ToDafny_N3_aws__N6_crypto__S14_GrantTokenList((System.Collections.Generic.List<string>)value));
         }
 
         public static Aws.Crypto.PutEntryForDecryptOutput FromDafny_N3_aws__N6_crypto__S24_PutEntryForDecryptOutput(
@@ -1095,6 +1140,19 @@ namespace Aws.Crypto
             Aws.Crypto.PutEntryForDecryptOutput value)
         {
             return new Dafny.Aws.Crypto.PutEntryForDecryptOutput();
+        }
+
+        public static Aws.Crypto.DeleteEntryOutput FromDafny_N3_aws__N6_crypto__S17_DeleteEntryOutput(
+            Dafny.Aws.Crypto.DeleteEntryOutput value)
+        {
+            Aws.Crypto.DeleteEntryOutput converted = new Aws.Crypto.DeleteEntryOutput();
+            return converted;
+        }
+
+        public static Dafny.Aws.Crypto.DeleteEntryOutput ToDafny_N3_aws__N6_crypto__S17_DeleteEntryOutput(
+            Aws.Crypto.DeleteEntryOutput value)
+        {
+            return new Dafny.Aws.Crypto.DeleteEntryOutput();
         }
 
         public static int
@@ -1453,6 +1511,18 @@ namespace Aws.Crypto
 
             throw new System.ArgumentException(
                 "Custom implementations of Aws.Crypto.ICryptoMaterialsCache are not supported yet");
+        }
+
+        public static string FromDafny_N3_aws__N6_crypto__S24_CreateAwsKmsKeyringInput__M8_kmsKeyId(
+            Dafny.ISequence<char> value)
+        {
+            return FromDafny_N3_aws__N6_crypto__S8_KmsKeyId(value);
+        }
+
+        public static Dafny.ISequence<char> ToDafny_N3_aws__N6_crypto__S24_CreateAwsKmsKeyringInput__M8_kmsKeyId(
+            string value)
+        {
+            return ToDafny_N3_aws__N6_crypto__S8_KmsKeyId(value);
         }
 
         public static string FromDafny_N3_aws__N6_crypto__S24_CreateRawAesKeyringInput__M7_keyName(

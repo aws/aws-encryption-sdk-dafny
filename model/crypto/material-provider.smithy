@@ -16,7 +16,7 @@ service AwsCryptographicMaterialProviders {
     operations: [
         // Keyrings
         // TODO
-        // CreateAwsKmsKeyring,
+        CreateAwsKmsKeyring,
         CreateMrkAwareStrictAwsKmsKeyring,
         // CreateMrkAwareStrictMultiKeyring,
         // CreateMrkAwareDiscoveryAwsKmsKeyring,

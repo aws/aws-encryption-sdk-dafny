@@ -87,25 +87,20 @@ structure CreateKeyringOutput {
     keyring: KeyringReference
 }
 
-// TODO
-// // KMS - Old Style
-//
-// operation CreateAwsKmsKeyring {
-//     input: CreateAwsKmsKeyringInput,
-//     output: CreateKeyringOutput 
-// }
-//
-// structure CreateAwsKmsKeyringInput {
-//     @required
-//     clientSupplier: ClientSupplierReference,
-//
-//     // Not required because the keyring could be in discovery mode
-//     generator: KmsKeyId,
-//
-//     keyIds: KmsKeyIdList,
-//
-//     grantTokens: GrantTokenList,
-// }
+// KMS - Strict
+operation CreateAwsKmsKeyring {
+    input: CreateAwsKmsKeyringInput,
+    output: CreateKeyringOutput
+}
+structure CreateAwsKmsKeyringInput {
+    @required
+    kmsKeyId: KmsKeyId,
+
+    @required
+    kmsClient: KmsClientReference,
+
+    grantTokens: GrantTokenList
+}
 
 // KMS - MRK Aware, Strict
 operation CreateMrkAwareStrictAwsKmsKeyring {
