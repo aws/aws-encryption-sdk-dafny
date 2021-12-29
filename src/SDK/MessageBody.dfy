@@ -475,7 +475,7 @@ module MessageBody {
   {
     var plaintext := [];
     // var n: uint32 := 1;
-    // // ghost var frames: seq<Frame> := [];
+    ghost var decryptedFrames: seq<Frames.RegularFrame> := [];
     ghost var plaintextSeg: seq<seq<uint8>> := []; // Chuncks of plaintext which are decrypted from the frame
 
     // while true
@@ -518,32 +518,32 @@ module MessageBody {
     // }
 
     for i := 0 to |body.regularFrames|
+      invariant body.regularFrames[..i] == decryptedFrames
       // The goal is to assert FramesEncryptPlaintext.
       // But this requires the final frame e.g. a FramedMessage.
       // So I decompose this predicate into its parts
-      invariant |body.regularFrames[..i]| == |plaintextSeg|
-      invariant forall j
-      | 0 < j < i
-      :: AESEncryption.CiphertextGeneratedWithPlaintext(body.regularFrames[j].encContent, plaintextSeg[j]);
-      invariant FramesEncryptPlaintextSegments(body.regularFrames[..i], plaintextSeg) // So far: All decrypted frames decrypt to the list of plaintext chunks
+      invariant FramesEncryptPlaintextSegments(decryptedFrames, plaintextSeg) // So far: All decrypted frames decrypt to the list of plaintext chunks
       invariant SumPlaintextSegments(plaintextSeg) == plaintext // So far: The current plaintext is the sum of all decrypted chunks
       invariant DecryptedSegmentsWithKey(key, plaintextSeg)
+      invariant DecryptedWithKey(key, plaintext)
     {
       var plaintextSegment :- DecryptFrame(body.regularFrames[i], key);
 
-      assert FramesEncryptPlaintextSegments(body.regularFrames[..i], plaintextSeg);
-      assert AESEncryption.CiphertextGeneratedWithPlaintext(body.regularFrames[i].encContent, plaintextSegment);
-      assert FramesEncryptPlaintextSegments(body.regularFrames[..i] + [body.regularFrames[i]], plaintextSeg + [plaintextSegment]);
-
       plaintext := plaintext + plaintextSegment;
       plaintextSeg := plaintextSeg + [plaintextSegment];
+      decryptedFrames := decryptedFrames + [body.regularFrames[i]];
 
-      assert body.regularFrames[..i] + [body.regularFrames[i]] == body.regularFrames[..i + 1];
-      assert FramesEncryptPlaintextSegments(body.regularFrames[..i + 1], plaintextSeg);
+      assert decryptedFrames[..i] + [body.regularFrames[i]] == body.regularFrames[..i + 1];
     }
-
     var finalPlaintextSegment :- DecryptFrame(body.finalFrame, key);
     plaintext := plaintext + finalPlaintextSegment;
+    plaintextSeg := plaintextSeg + [finalPlaintextSegment];
+
+    // assert FramesEncryptPlaintextSegments(decryptedFrames, plaintextSeg);
+    assert FramesEncryptPlaintextSegments([body.finalFrame], [finalPlaintextSegment]);
+    assert body.regularFrames == decryptedFrames;
+    assert FramesEncryptPlaintextSegments(body.regularFrames + [body.finalFrame], plaintextSeg);
+    assert SumPlaintextSegments(plaintextSeg) == plaintext;
 
     // assert |frames| < UINT32_LIMIT ;
     // assert (forall frame | frame in frames :: frame.Valid()) ;
