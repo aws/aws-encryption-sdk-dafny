@@ -139,6 +139,8 @@ module Frames {
       authTag.thing
     );
 
+    ReadableBytesStartPositionsAreAssociative(bytes, sequenceNumber.tail, iv.tail);
+
     Success(Data(regularFrame, authTag.tail))
   }
 
