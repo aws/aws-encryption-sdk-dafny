@@ -211,7 +211,7 @@ module MessageBody {
         // && (forall frame: Frame | frame in frames :: |frame.iv| == suite.encrypt.ivLength as int)
         // && FramesToSequence(frames) == seqWithGhostFrames.sequence
         // && FramesEncryptPlaintext(body, plaintext)
-        && (forall frame: Frames.RegularFrame
+        && (forall frame: Frames.Frame
           | frame in body.regularFrames
           :: AESEncryption.EncryptedWithKey(frame.encContent, key))
         && AESEncryption.EncryptedWithKey(body.finalFrame.encContent, key)
@@ -239,7 +239,7 @@ module MessageBody {
       // invariant FramesToSequence(regularFrames) == body
       // invariant FramesEncryptPlaintextSegments(regularFrames, plaintextSeg) // Frames decrypt to chunks of plaintext
       // invariant SumPlaintextSegments(plaintextSeg) == plaintext[..n] // Chunks of plaintext sum up to plaintexts
-      invariant forall frame: Frames.RegularFrame
+      invariant forall frame: Frames.Frame
       | frame in regularFrames
       ::
         && AESEncryption.EncryptedWithKey(frame.encContent, key)
@@ -778,7 +778,7 @@ module MessageBody {
     continuation: ReadableBytes
   )
     :(res: ReadCorrect<FramedMessage>)
-    requires forall frame: Frames.RegularFrame
+    requires forall frame: Frames.Frame
     | frame in regularFrames
     :: frame.header == header
     requires CorrectlyRead(bytes, Success(Data(regularFrames, continuation)), WriteMessageRegularFrames)
