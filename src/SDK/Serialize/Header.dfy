@@ -37,6 +37,7 @@ module Header {
 datatype HeaderInfo = HeaderInfo(
     nameonly body: HeaderTypes.HeaderBody,
     nameonly rawHeader: seq<uint8>,
+    nameonly encryptionContext: ESDKEncryptionContext,
     nameonly suite: Client.AlgorithmSuites.AlgorithmSuite,
     nameonly headerAuth: HeaderTypes.HeaderAuth
   )
