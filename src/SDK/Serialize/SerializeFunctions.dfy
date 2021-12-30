@@ -27,7 +27,7 @@ module SerializeFunctions {
     | Error(message: string)
   type MoreNeeded = p: ReadProblems | p.MoreNeeded? witness *
 
-  
+
   datatype ReadableBytes = ReadableBytes(
     data: seq<uint8>,
     start: nat
@@ -241,4 +241,34 @@ module SerializeFunctions {
     ensures tail.data[head.start..tail.start]
       == tail.data[head.start..mid.start] + tail.data[mid.start..tail.start]
   {}
+
+  // The goal here is to create a generic ReadableBytesStartPositionsAreAssociative
+  // not just one that works for 3 points.
+  // Both of these together prove things that the verifier enjoys a lot.
+  lemma AAA(positions: seq<ReadableBytes>)
+    requires forall i,j
+    | 0 <= i < j < |positions|
+    ::
+      && positions[i].data == positions[j].data == Seq.Last(positions).data
+      && positions[i].start <= positions[j].start <= |Seq.Last(positions).data|
+    ensures forall i,j,k
+    |
+      && 0 <= i < j < k < |positions|
+    ::
+      var left := Read(positions[i], positions[j].start - positions[i].start);
+      var right := Read(positions[j], positions[k].start - positions[j].start);
+      var both := Read(positions[i], positions[k].start - positions[i].start);
+
+      && left.Success?
+      && right.Success?
+      && both.Success?
+
+      && left.value.tail == positions[j]
+      && right.value.tail == positions[k]
+      && both.value.tail == positions[k]
+      && both.value.thing == left.value.thing + right.value.thing
+      && positions[k].data[positions[i].start..positions[k].start]
+      == positions[k].data[positions[i].start..positions[j].start] + positions[k].data[positions[j].start..positions[k].start]
+  {}
+
 }
