@@ -37,7 +37,7 @@ module Frames {
   | h.body.contentType.NonFramed?
   witness *
 
-  datatype Frame = 
+  datatype Frame =
   | RegularFrame(
     header: Header.Header,
     seqNum: uint32,
@@ -92,7 +92,7 @@ module Frames {
     && frame.header.body.contentType.NonFramed?
     && |frame.encContent| < SAFE_MAX_ENCRYPT
   witness *
-  
+
   const SAFE_MAX_ENCRYPT := 0xFFFFFFFE0 // 2^36 - 32
 
   function method WriteRegularFrame(
@@ -115,12 +115,7 @@ module Frames {
   )
     :(res: ReadCorrect<RegularFrame>)
     ensures res.Success?
-    ==>
-      && var Data(thing, tail) := res.value;
-      && tail.data == bytes.data
-      && |tail.data| >= tail.start >= bytes.start
-      && bytes.data[bytes.start..tail.start] == tail.data[bytes.start..tail.start]
-      && WriteRegularFrame(thing) == tail.data[bytes.start..tail.start]
+    ==> res.value.thing.header == header
     ensures CorrectlyRead(bytes, res, WriteRegularFrame)
   {
 
@@ -141,6 +136,33 @@ module Frames {
 
     ReadableBytesStartPositionsAreAssociative(bytes, sequenceNumber.tail, iv.tail);
 
+    // It is not clear why this needs to be a separate variable.
+    // But this function does not verify if this seq is pass directly to the lemma.
+    ghost var why? := [ bytes, sequenceNumber.tail, iv.tail, encContent.tail, authTag.tail ];
+    AAA(why?);
+
+    // This is here to help debug things.
+    // If this is uncommented, then the verification times out.
+    // But this assert takes a few min to write,
+    // so having it handy is helpful.
+    // assert authTag.tail.data[bytes.start..authTag.tail.start]
+    //   == authTag.tail.data[bytes.start..sequenceNumber.tail.start]
+    //   + authTag.tail.data[sequenceNumber.tail.start..iv.tail.start]
+    //   + authTag.tail.data[iv.tail.start..encContent.tail.start]
+    //   + authTag.tail.data[encContent.tail.start..authTag.tail.start];
+
+    assert authTag.tail.data == bytes.data;
+    assert |authTag.tail.data| >= authTag.tail.start >= bytes.start;
+    assert bytes.data[bytes.start..authTag.tail.start] == authTag.tail.data[bytes.start..authTag.tail.start];
+    assert WriteRegularFrame(regularFrame)
+    == WriteUint32(regularFrame.seqNum) + Write(regularFrame.iv) + Write(regularFrame.encContent) + Write(regularFrame.authTag);
+    assert WriteRegularFrame(regularFrame)
+    == WriteUint32(sequenceNumber.thing) + Write(iv.thing) + Write(encContent.thing) + Write(authTag.thing);
+    assert authTag.tail.data[bytes.start..authTag.tail.start]
+    == WriteUint32(sequenceNumber.thing) + Write(iv.thing) + Write(encContent.thing) + Write(authTag.thing);
+    assert WriteRegularFrame(regularFrame) == authTag.tail.data[bytes.start..authTag.tail.start];
+    assert regularFrame.header == header;
+
     Success(Data(regularFrame, authTag.tail))
   }
 
@@ -148,7 +170,7 @@ module Frames {
     finalFrame: FinalFrame
   )
     :(ret: seq<uint8>)
-    ensures 
+    ensures
       && ReadUInt32(ReadableBytes(ret, 0)).Success?
       && ReadUInt32(ReadableBytes(ret, 0)).value.thing == ENDFRAME_SEQUENCE_NUMBER
   {
@@ -165,12 +187,7 @@ module Frames {
   )
     :(res: ReadCorrect<FinalFrame>)
     ensures res.Success?
-    ==>
-      && var Data(thing, tail) := res.value;
-      && tail.data == bytes.data
-      && |tail.data| >= tail.start >= bytes.start
-      && bytes.data[bytes.start..tail.start] == tail.data[bytes.start..tail.start]
-      && WriteFinalFrame(thing) == tail.data[bytes.start..tail.start]
+    ==> res.value.thing.header == header
     ensures CorrectlyRead(bytes, res, WriteFinalFrame)
   {
     var finalFrameSignal :- ReadUInt32(bytes);
@@ -189,6 +206,39 @@ module Frames {
       encContent.thing,
       authTag.thing
     );
+
+    ReadableBytesStartPositionsAreAssociative(bytes, finalFrameSignal.tail, authTag.tail);
+    ReadableBytesStartPositionsAreAssociative(bytes, sequenceNumber.tail, authTag.tail);
+    ReadableBytesStartPositionsAreAssociative(bytes, iv.tail, authTag.tail);
+    ReadableBytesStartPositionsAreAssociative(bytes, encContent.tail, authTag.tail);
+
+    // It is not clear why this needs to be a separate variable.
+    // But this function does not verify if this seq is pass directly to the lemma.
+    ghost var why? := [ bytes, finalFrameSignal.tail, sequenceNumber.tail, iv.tail, encContent.tail, authTag.tail ];
+    AAA(why?);
+
+    // This is here to help debug things.
+    // If this is uncommented, then the verification times out.
+    // But this assert takes a few min to write,
+    // so having it handy is helpful.
+    // assert authTag.tail.data[bytes.start..authTag.tail.start]
+    //   == authTag.tail.data[bytes.start..finalFrameSignal.tail.start]
+    //   + authTag.tail.data[finalFrameSignal.tail.start..sequenceNumber.tail.start]
+    //   + authTag.tail.data[sequenceNumber.tail.start..iv.tail.start]
+    //   + authTag.tail.data[iv.tail.start..encContent.tail.start]
+    //   + authTag.tail.data[encContent.tail.start..authTag.tail.start];
+
+    assert authTag.tail.data == bytes.data;
+    assert |authTag.tail.data| >= authTag.tail.start >= bytes.start;
+    assert bytes.data[bytes.start..authTag.tail.start] == authTag.tail.data[bytes.start..authTag.tail.start];
+    assert WriteFinalFrame(finalFrame)
+    == WriteUint32(finalFrameSignal.thing) + WriteUint32(finalFrame.seqNum) + Write(finalFrame.iv) + WriteUint32Seq(finalFrame.encContent) + Write(finalFrame.authTag);
+    assert WriteFinalFrame(finalFrame)
+    == WriteUint32(finalFrameSignal.thing) +  WriteUint32(sequenceNumber.thing) + Write(iv.thing) + WriteUint32Seq(encContent.thing) + Write(authTag.thing);
+    assert authTag.tail.data[bytes.start..authTag.tail.start]
+    == WriteUint32(finalFrameSignal.thing) +  WriteUint32(sequenceNumber.thing) + Write(iv.thing) + WriteUint32Seq(encContent.thing) + Write(authTag.thing);
+    assert WriteFinalFrame(finalFrame) == authTag.tail.data[bytes.start..authTag.tail.start];
+    assert finalFrame.header == header;
 
     Success(Data(finalFrame, authTag.tail))
   }
