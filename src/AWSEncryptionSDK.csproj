@@ -10,8 +10,21 @@
     <PackageReference Include="dafny.msbuild" Version="1.0.0" />
   </ItemGroup>
 
+  <PropertyGroup>
+    <!-- 
+      Setting this manually since dafny.msbuild is not defaulting to the number of
+      logical cores any more.
+      See https://github.com/dafny-lang/dafny.msbuild/issues/20
+    -->
+    <VerifyDafnyJobs>8</VerifyDafnyJobs>
+  </PropertyGroup>
   <ItemGroup>
     <VerifyDafnyPassthrough Include="timeLimit:300" />
-    <VerifyDafnyPassthrough Include="definiteAssignment:3" />
+    <!-- 
+      TODO: This is important to enable, but Dafny 3.1 and on seems to not be able to
+      verify MessageBody.EncryptMessageBody with this flag on Mac OS.
+      See https://github.com/awslabs/aws-encryption-sdk-dafny/issues/425.
+      <VerifyDafnyPassthrough Include="definiteAssignment:3" />
+    -->
   </ItemGroup>
 </Project>

@@ -1,23 +1,23 @@
 // Copyright Amazon.com Inc. or its affiliates. All Rights Reserved.
 // SPDX-License-Identifier: Apache-2.0
 
-include "AlgorithmSuite.dfy"
+include "../AwsCryptographicMaterialProviders/AlgorithmSuites.dfy"
+include "../Generated/AwsCryptographicMaterialProviders.dfy"
 include "../StandardLibrary/StandardLibrary.dfy"
 include "EncryptionContext.dfy"
-include "Materials.dfy"
 include "../Util/UTF8.dfy"
 include "../Util/Sets.dfy"
 include "../Crypto/AESEncryption.dfy"
-include "../Generated/AwsCryptographicMaterialProviders.dfy"
+include "Serialize/SerializableTypes.dfy"
 
 module {:extern "MessageHeader"} MessageHeader {
+  import opened SerializableTypes
+  import MaterialProviders.AlgorithmSuites
   import Aws.Crypto
-  import AlgorithmSuite
   import Sets
   import opened Wrappers
   import opened UInt = StandardLibrary.UInt
   import EncryptionContext
-  import Materials
   import UTF8
   import AESEncryption
 
@@ -30,8 +30,9 @@ module {:extern "MessageHeader"} MessageHeader {
   {
     predicate Valid() {
       && body.Valid()
-      && |auth.iv| == body.algorithmSuiteID.IVLength()
-      && |auth.authenticationTag| == body.algorithmSuiteID.TagLength()
+      && var suite := AlgorithmSuites.GetSuite(GetAlgorithmSuiteId(body.algorithmSuiteID));
+      && |auth.iv| == suite.encrypt.ivLength as int
+      && |auth.authenticationTag| == suite.encrypt.tagLength as int
     }
   }
 
@@ -73,29 +74,21 @@ module {:extern "MessageHeader"} MessageHeader {
   {
   }
 
-  datatype EncryptedDataKeys = EncryptedDataKeys(entries: seq<Crypto.EncryptedDataKey>)
-  {
-    predicate Valid() {
-      && 0 < |entries| < UINT16_LIMIT
-      && (forall i :: 0 <= i < |entries| ==> entries[i].Valid())
-    }
-  }
-
   datatype HeaderBody = HeaderBody(
                           version: Version,
                           typ: Type,
-                          algorithmSuiteID: AlgorithmSuite.ID,
+                          algorithmSuiteID: ESDKAlgorithmSuiteId,
                           messageID: MessageID,
-                          aad: EncryptionContext.Map,
-                          encryptedDataKeys: EncryptedDataKeys,
+                          aad: ESDKEncryptionContext,
+                          encryptedDataKeys: ESDKEncryptedDataKeys,
                           contentType: ContentType,
                           ivLength: uint8,
                           frameLength: uint32)
   {
     predicate Valid() {
-      && EncryptionContext.Serializable(aad)
-      && encryptedDataKeys.Valid()
-      && algorithmSuiteID.IVLength() == ivLength as nat
+      && SerializableTypes.IsESDKEncryptionContext(aad)
+      && var suite := AlgorithmSuites.GetSuite(GetAlgorithmSuiteId(algorithmSuiteID));
+      && suite.encrypt.ivLength as nat == ivLength as nat
       && ValidFrameLength(frameLength, contentType)
     }
   }
@@ -109,7 +102,8 @@ module {:extern "MessageHeader"} MessageHeader {
     requires headerBody.Valid()
   {
     var serializedHeaderBody := (reveal HeaderBodyToSeq(); HeaderBodyToSeq(headerBody));
-    headerAuthentication.iv == seq(headerBody.algorithmSuiteID.IVLength(), _ => 0)
+    var suite := AlgorithmSuites.GetSuite(GetAlgorithmSuiteId(headerBody.algorithmSuiteID));
+    headerAuthentication.iv == seq(suite.encrypt.ivLength as int, _ => 0)
     && exists encryptionOutput |
       AESEncryption.EncryptionOutputEncryptedWithAAD(encryptionOutput, serializedHeaderBody)
       && AESEncryption.CiphertextGeneratedWithPlaintext(encryptionOutput.cipherText, []) ::
@@ -141,40 +135,32 @@ module {:extern "MessageHeader"} MessageHeader {
     UInt32ToSeq(hb.frameLength)
   }
 
-  function EDKsToSeq(encryptedDataKeys: EncryptedDataKeys): seq<uint8>
-    requires encryptedDataKeys.Valid()
+  function EDKsToSeq(encryptedDataKeys: ESDKEncryptedDataKeys): seq<uint8>
   {
-    var n := |encryptedDataKeys.entries|;
+    var n := |encryptedDataKeys|;
     UInt16ToSeq(n as uint16) +
-    EDKEntriesToSeq(encryptedDataKeys.entries, 0, n)
+    EDKEntriesToSeq(encryptedDataKeys, 0, n)
   }
 
-  function EDKEntriesToSeq(entries: seq<Crypto.EncryptedDataKey>, lo: nat, hi: nat): seq<uint8>
-    requires forall i :: 0 <= i < |entries| ==> entries[i].Valid()
+  function EDKEntriesToSeq(entries: ESDKEncryptedDataKeys, lo: nat, hi: nat): seq<uint8>
     requires lo <= hi <= |entries|
   {
-    if lo == hi then [] else EDKEntriesToSeq(entries, lo, hi - 1) + EDKEntryToSeq(entries[hi - 1])
+    if lo == hi then
+      []
+    else
+      EDKEntriesToSeq(entries, lo, hi - 1) + EDKEntryToSeq(entries[hi - 1])
   }
 
-  lemma EDKEntriesToSeqInductiveStep(entriesHead: seq<Crypto.EncryptedDataKey>, entriesTail: seq<Crypto.EncryptedDataKey>, lo: nat, hi: nat)
-    requires var entries := entriesHead + entriesTail;
-      forall i :: 0 <= i < |entries| ==> (entries)[i].Valid()
+  lemma EDKEntriesToSeqInductiveStep(entriesHead: ESDKEncryptedDataKeys, entriesTail: ESDKEncryptedDataKeys, lo: nat, hi: nat)
+    requires HasUint16Len(entriesHead + entriesTail)
     requires lo <= hi <= |entriesHead|
-    ensures forall i :: 0 <= i < |entriesHead| ==> entriesHead[i].Valid()
     ensures var entries := entriesHead + entriesTail;
       EDKEntriesToSeq(entriesHead + entriesTail, lo, hi) == EDKEntriesToSeq(entriesHead, lo, hi)
   {
-    assert forall i :: 0 <= i < |entriesHead| ==> entriesHead[i].Valid() by {
-      if !(forall i :: 0 <= i < |entriesHead| ==> entriesHead[i].Valid()) {
-        var entry :| entry in entriesHead && !entry.Valid();
-        assert entry in (entriesHead + entriesTail);
-        assert false;
-      }
-    }
+
   }
 
-  function method EDKEntryToSeq(edk: Crypto.EncryptedDataKey): seq<uint8>
-    requires edk.Valid()
+  function method EDKEntryToSeq(edk: ESDKEncryptedDataKey): seq<uint8>
   {
     UInt16ToSeq(|edk.keyProviderId| as uint16)   + edk.keyProviderId +
     UInt16ToSeq(|edk.keyProviderInfo| as uint16) + edk.keyProviderInfo +

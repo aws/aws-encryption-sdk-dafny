@@ -31,14 +31,23 @@
     <!-- While a file is being verified in emacs, the Dafny plug-in spills out a flycheck_ copy of the file -->
     <DafnySource Remove="**/flycheck_*.dfy" />
   </ItemGroup>
+  <PropertyGroup>
+    <!--
+      Setting this manually since dafny.msbuild is not defaulting to the number of
+      logical cores any more.
+      See https://github.com/dafny-lang/dafny.msbuild/issues/20
+    -->
+    <VerifyDafnyJobs>8</VerifyDafnyJobs>
+  </PropertyGroup>
   <ItemGroup>
     <VerifyDafnyPassthrough Include="timeLimit:600" />
     <!-- 
       TODO: This is important to enable, but Dafny 3.1 and on seems to not be able to
-      verify the IsSerializationOfHeaderBody assertion in src/SDK/Deserialize.dfy with this
-      flag any more. See https://github.com/awslabs/aws-encryption-sdk-dafny/issues/367.
+      verify MessageBody.EncryptMessageBody with this flag on Mac OS.
+      See https://github.com/awslabs/aws-encryption-sdk-dafny/issues/425.
       <VerifyDafnyPassthrough Include="definiteAssignment:3" />
     -->
+    <VerifyDafnyPassthrough Include="$(TestVerifyOverride)" />
   </ItemGroup>
 
   <!--

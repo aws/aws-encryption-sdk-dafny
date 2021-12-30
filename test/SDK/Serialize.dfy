@@ -5,6 +5,7 @@ include "../../src/SDK/Serialize.dfy"
 include "../../src/SDK/EncryptionContext.dfy"
 include "../../src/StandardLibrary/StandardLibrary.dfy"
 include "../Util/TestUtils.dfy"
+include "../../src/SDK/Serialize/SerializableTypes.dfy"
 
 module TestSerialize {
   import opened StandardLibrary
@@ -13,6 +14,7 @@ module TestSerialize {
   import UTF8
   import EncryptionContext
   import TestUtils
+  import SerializableTypes
 
   method {:test} TestSerializeAAD() {
     var wr := new Streams.ByteWriter();
@@ -21,6 +23,7 @@ module TestSerialize {
     var keyB :- expect UTF8.Encode("keyB");
     var valB :- expect UTF8.Encode("valB");
     var encryptionContext := map[keyB := valB, keyA := valA];
+    expect SerializableTypes.IsESDKEncryptionContext(encryptionContext);
     TestUtils.ValidSmallEncryptionContext(encryptionContext);
 
     var expectedSerializedAAD := [0, 26, 0, 2, 0, 4, 107, 101, 121, 65, 0, 4, 118, 97, 108, 65, 0, 4, 107, 101, 121, 66, 0, 4, 118, 97, 108, 66];
@@ -55,6 +58,7 @@ module TestSerialize {
     var keyB :- expect UTF8.Encode("keyB");
     var valB :- expect UTF8.Encode("valB");
     var encryptionContext := map[keyB := valB, keyA := valA];
+    expect SerializableTypes.IsESDKEncryptionContext(encryptionContext);
     TestUtils.ValidSmallEncryptionContext(encryptionContext);
 
     var expectedSerializedAAD := [0, 2, 0, 4, 107, 101, 121, 65, 0, 4, 118, 97, 108, 65, 0, 4, 107, 101, 121, 66, 0, 4, 118, 97, 108, 66];

@@ -20,11 +20,13 @@ module {:extern "UTF8"} UTF8 {
 
   type ValidUTF8Bytes = i: seq<uint8> | ValidUTF8Seq(i) witness []
 
-  method {:extern "Encode"} Encode(s: string) returns (res: Result<ValidUTF8Bytes, string>)
+  // The tradeoff of assuming the external implementation of encode and decode is correct is worth the tradeoff
+  // of unlocking being able to express and hence prove so many other specifications
+  function method {:extern "Encode"} Encode(s: string): (res: Result<ValidUTF8Bytes, string>)
     // US-ASCII only needs a single UTF-8 byte per character
     ensures IsASCIIString(s) ==> res.Success? && |res.value| == |s|
 
-  method {:extern "Decode"} Decode(b: ValidUTF8Bytes) returns (res: Result<string, string>)
+  function method {:extern "Decode"} Decode(b: ValidUTF8Bytes): (res: Result<string, string>)
 
   predicate method IsASCIIString(s: string) {
     forall i :: 0 <= i < |s| ==> s[i] as int < 128
@@ -126,8 +128,6 @@ module {:extern "UTF8"} UTF8 {
         lo := lo + 3;
       } else if 4 <= |r| && Uses4Bytes(r) {
         lo := lo + 4;
-      } else {
-        assert false;
       }
     }
     calc {

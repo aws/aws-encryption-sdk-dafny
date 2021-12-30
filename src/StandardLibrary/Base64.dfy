@@ -225,6 +225,7 @@ module Base64 {
     ensures IsUnpaddedBase64String(s)
     ensures |s| == |b| / 3 * 4
     ensures DecodeUnpadded(s) == b
+    ensures |s| % 4 == 0
   {
     FromIndicesToChars(EncodeRecursively(b))
   }
@@ -282,6 +283,7 @@ module Base64 {
     requires |b| == 2
     ensures Is1Padding(s)
     ensures Decode1Padding(s) == b
+    ensures |s| % 4 == 0
   {
     // 0 is used to ensure that the final element doesn't affect the EncodeBlock conversion for b
     var e := EncodeBlock([b[0], b[1], 0]);
@@ -322,6 +324,7 @@ module Base64 {
     requires |b| == 1
     ensures Is2Padding(s)
     ensures Decode2Padding(s) == b
+    ensures |s| % 4 == 0
   {
     // 0 is used to ensure that the final two elements don't affect the EncodeBlock conversion for b
     var e := EncodeBlock([b[0], 0, 0]);
@@ -407,15 +410,38 @@ module Base64 {
     forall i :: 0 <= i < |s| ==> s[i] < 128 as char
   }
 
+  lemma ConcatMod4Sequences<T>(s: seq<T>, t: seq<T>)
+    requires |s| % 4 == 0;
+    requires |t| % 4 == 0;
+    ensures |s + t| % 4 == 0;
+  {
+  }
+
   function method Encode(b: seq<uint8>): (s: seq<char>)
     ensures StringIs7Bit(s)
     ensures |s| % 4 == 0
     ensures IsBase64String(s)
     // Rather than ensure Decode(s) == Success(b) directly, lemmas are used to verify this property
   {
-    if |b| % 3 == 0 then EncodeUnpadded(b)
-    else if |b| % 3 == 1 then EncodeUnpadded(b[..(|b| - 1)]) + Encode2Padding(b[(|b| - 1)..])
-    else EncodeUnpadded(b[..(|b| - 2)]) + Encode1Padding(b[(|b| - 2)..])
+    if |b| % 3 == 0 then
+      var s := EncodeUnpadded(b);
+      assert |s| % 4 == 0;
+      s
+    else if |b| % 3 == 1 then
+      assert |b| >= 1;
+      var s1, s2 := EncodeUnpadded(b[..(|b| - 1)]), Encode2Padding(b[(|b| - 1)..]);
+      ConcatMod4Sequences(s1, s2);
+      var s := s1 + s2;
+      assert |s| % 4 == 0;
+      s
+    else
+      assert |b| % 3 == 2;
+      assert |b| >= 2;
+      var s1, s2 := EncodeUnpadded(b[..(|b| - 2)]), Encode1Padding(b[(|b| - 2)..]);
+      ConcatMod4Sequences(s1, s2);
+      var s := s1 + s2;
+      assert |s| % 4 == 0;
+      s
   }
 
   lemma EncodeLengthExact(b: seq<uint8>)

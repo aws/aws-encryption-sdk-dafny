@@ -1,3 +1,6 @@
+// Copyright Amazon.com Inc. or its affiliates. All Rights Reserved.
+// SPDX-License-Identifier: Apache-2.0
+
 module {:extern "Dafny.Aws"} Aws {
     // No content, this just creates the parent module so that
     // we can add sub-modules.
