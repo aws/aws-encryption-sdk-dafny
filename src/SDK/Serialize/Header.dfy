@@ -42,8 +42,8 @@ datatype HeaderInfo = HeaderInfo(
     nameonly headerAuth: HeaderTypes.HeaderAuth
   )
 
-  type Header = h: HeaderInfo
-  |
+  predicate IsHeader(h: HeaderInfo)
+  {
     && GetESDKAlgorithmSuiteId(h.suite.id) == h.body.esdkSuiteId
     && h.body.contentType.NonFramed? <==> 0 == h.body.frameLength
     && h.body.contentType.Framed? <==> 0 < h.body.frameLength
@@ -51,14 +51,20 @@ datatype HeaderInfo = HeaderInfo(
     ==>
       && |h.headerAuth.headerIv| == h.suite.encrypt.ivLength as nat
       && |h.headerAuth.headerAuthTag| == h.suite.encrypt.tagLength as nat)
-    && (h.suite.commitment.HKDF?
-      ==>
-        && h.body.V2HeaderBody?
-        && |h.body.suiteData| == h.suite.commitment.outputKeyLength as nat)
+    // && (h.suite.commitment.HKDF?
+    //   ==>
+    //     && h.body.V2HeaderBody?
+    //     && |h.body.suiteData| == h.suite.commitment.outputKeyLength as nat)
     && (!h.suite.commitment.HKDF?
       ==>
         && h.body.V1HeaderBody?)
-    && CorrectlyReadHeaderBody(h.body, ReadableBytes(h.rawHeader, 0))
+    && h.rawHeader == WriteHeaderBody(h.body)
+    // This is the opposite direction because ...
+    // && h.encryptionContext == EncryptionContext.GetEncryptionContext(h.body.encryptionContext)
+  }
+
+  type Header = h: HeaderInfo
+  | IsHeader(h)
   witness *
 
   function method ReadHeaderBody(
