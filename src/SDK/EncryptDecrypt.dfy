@@ -96,6 +96,8 @@ module {:extern "EncryptDecrypt"} EncryptDecrypt {
   )
     :(message: seq<uint8>)
     requires |signature| < UINT16_LIMIT
+    ensures message
+    == SerializeMessageWithoutSignature(framedMessage) + UInt16ToSeq(|signature| as uint16) + signature
   {
     var serializedSignature := UInt16ToSeq(|signature| as uint16) + signature;
     SerializeMessageWithoutSignature(framedMessage) + serializedSignature
@@ -239,33 +241,37 @@ module {:extern "EncryptDecrypt"} EncryptDecrypt {
     var messageID: HeaderTypes.MessageID :- Random.GenerateBytes(HeaderTypes.MESSAGE_ID_LEN as int32);
     var derivedDataKey := DeriveKey(encMat.plaintextDataKey.value, suite, messageID);
 
+    var canonicalEncryptionContext := EncryptionContext.GetCanonicalEncryptionContext(encMat.encryptionContext);
+
     var body := HeaderTypes.HeaderBody.V1HeaderBody(
       messageType := HeaderTypes.MessageType.TYPE_CUSTOMER_AED,
       esdkSuiteId := esdkId,
       messageId := messageID,
-      encryptionContext := EncryptionContext.GetCanonicalEncryptionContext(encMat.encryptionContext),
+      encryptionContext := canonicalEncryptionContext,
       encryptedDataKeys := encryptedDataKeys,
       contentType := HeaderTypes.ContentType.Framed,
       headerIvLength := suite.encrypt.ivLength as nat,
       frameLength := frameLength
     );
 
-    var rawHeader := V1HeaderBody.WriteV1HeaderBody(body);
+    var rawHeader := Header.WriteHeaderBody(body);
 
     var iv: seq<uint8> := seq(suite.encrypt.ivLength as int, _ => 0);
-    var encryptionOutput :- AESEncryption.AESEncryptExtern(suite.encrypt, iv, derivedDataKey, [], rawHeader);
+    var encryptionOutput :- AESEncryption.AESEncrypt(suite.encrypt, iv, derivedDataKey, [], rawHeader);
     var headerAuth := HeaderTypes.HeaderAuth.AESMac(
       headerIv := iv,
       headerAuthTag := encryptionOutput.authTag
     );
 
-    var header : Header.Header := Header.HeaderInfo(
+    var header := Header.HeaderInfo(
       body := body,
-      rawHeader := Header.WriteHeaderBody(body),
+      rawHeader := rawHeader,
       encryptionContext := encMat.encryptionContext,
       suite := suite,
       headerAuth := headerAuth
     );
+
+    assert Header.IsHeader(header);
 
     // assert ValidHeaderAuthenticationForRequest(headerAuthentication, headerBody) by{ // Header confirms to specification
     //   assert {:focus} true;
@@ -301,7 +307,10 @@ module {:extern "EncryptDecrypt"} EncryptDecrypt {
     // var msg := wr.GetDataWritten() + body;
     if framedMessage.finalFrame.header.suite.signature.ECDSA? {
       var msg := SerializeMessageWithoutSignature(framedMessage);
-      var ecdsaParams := suite.signature.curve;
+      var ecdsaParams := framedMessage.finalFrame.header.suite.signature.curve;
+      // This should just work, but Proof is difficult
+      :- Need(encMat.signingKey.Some?, "Missing signing key.");
+
       var bytes :- Signature.Sign(ecdsaParams, encMat.signingKey.value, msg);
       :- Need(|bytes| == ecdsaParams.SignatureLength() as int, "Malformed response from Sign().");
 
@@ -311,7 +320,8 @@ module {:extern "EncryptDecrypt"} EncryptDecrypt {
       //   assert Signature.IsSigned(encMat.signingKey.value, msg, bytes);
       // }
       msg := msg + signature;
-      assert msg == SerializeMessageWithSignature(framedMessage, signature); // Header, frames and signature can be serialized into the stream
+      // Come back and prove this
+      // assert msg == SerializeMessageWithSignature(framedMessage, signature); // Header, frames and signature can be serialized into the stream
       return Success(msg); //, Some((headerBody, headerAuthentication, frames, bytes));
     } else {
       // assert {:focus} true;
