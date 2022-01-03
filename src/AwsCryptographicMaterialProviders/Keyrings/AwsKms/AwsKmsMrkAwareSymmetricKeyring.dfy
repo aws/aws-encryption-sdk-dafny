@@ -137,7 +137,7 @@ module
         //= compliance/framework/aws-kms/aws-kms-mrk-aware-symmetric-keyring.txt#2.7
         //= type=implication
         //# If the Generate Data Key call succeeds, OnEncrypt MUST verify that
-        //# the response Plaintext length matches the specification of the
+        //# the response "Plaintext" length matches the specification of the
         //# algorithm suite (../algorithm-suites.md)'s Key Derivation Input Length
         //# field.
         && AlgorithmSuites.GetSuite(input.materials.algorithmSuiteId).encrypt.keyLength as int == |res.value.materials.plaintextDataKey.value|
@@ -258,9 +258,9 @@ module
         var generateResponse := maybeGenerateResponse.value;
 
         //= compliance/framework/aws-kms/aws-kms-mrk-aware-symmetric-keyring.txt#2.7
-        //# The Generate Data Key response's KeyId MUST be A valid
-        //# AWS KMS key ARN (aws-kms-key-arn.md#identifying-an-aws-kms-multi-
-        //# region-key).
+        //# The Generate Data Key response's "KeyId" MUST be A valid AWS
+        //# KMS key ARN (aws-kms-key-arn.md#identifying-an-aws-kms-
+        //# multi-region-key).
         :- Need(
           && generateResponse.KeyId.Some?
           && ParseAwsKmsIdentifier(generateResponse.KeyId.value).Success?,
@@ -319,7 +319,7 @@ module
         var encryptResponse := maybeEncryptResponse.value;
 
         //= compliance/framework/aws-kms/aws-kms-mrk-aware-symmetric-keyring.txt#2.7
-        //# If the Encrypt call succeeds the response's KeyId MUST be A valid
+        //# If the Encrypt call succeeds the response's "KeyId" MUST be A valid
         //# AWS KMS key ARN (aws-kms-key-arn.md#a-valid-aws-kms-arn).
         :- Need(
           && encryptResponse.KeyId.Some?
@@ -400,7 +400,7 @@ module
             request)
           //= compliance/framework/aws-kms/aws-kms-mrk-aware-symmetric-keyring.txt#2.8
           //= type=implication
-          //# * The length of the response's Plaintext MUST equal the key
+          //# * The length of the response's "Plaintext" MUST equal the key
           //# derivation input length (../algorithm-suites.md#key-derivation-
           //# input-length) specified by the algorithm suite (../algorithm-
           //# suites.md) included in the input decryption materials
@@ -538,14 +538,14 @@ module
       var keyId :- UTF8.Decode(edk.keyProviderInfo);
       //= compliance/framework/aws-kms/aws-kms-mrk-aware-symmetric-keyring.txt#2.8
       //# *  The provider info MUST be a valid AWS KMS ARN (aws-kms-key-
-      //# arn.md#a-valid-aws-kms-arn) with a resource type of key or
+      //# arn.md#a-valid-aws-kms-arn) with a resource type of "key" or
       //# OnDecrypt MUST fail.
       var arn :- ParseAwsKmsArn(keyId);
 
       //= compliance/framework/aws-kms/aws-kms-mrk-aware-symmetric-keyring.txt#2.8
       //# *  The the function AWS KMS MRK Match for Decrypt (aws-kms-mrk-match-
       //# for-decrypt.md#implementation) called with the configured AWS KMS
-      //# key identifier and the provider info MUST return true.
+      //# key identifier and the provider info MUST return "true".
       return Success(AwsKmsMrkMatchForDecrypt(
         awsKmsKey,
         AwsKmsArnIdentifier(arn)

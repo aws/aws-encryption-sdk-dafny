@@ -39,7 +39,7 @@ module  AwsKmsMrkMatchForDecrypt {
   lemma AwsKmsMrkMatchForDecryptCorrect(config: string, message: string)
     //= compliance/framework/aws-kms/aws-kms-mrk-match-for-decrypt.txt#2.5
     //= type=implication
-    //# If both identifiers are identical, this function MUST return true.
+    //# If both identifiers are identical, this function MUST return "true".
     ensures
       var c := ParseAwsKmsIdentifier(config);
       var m := ParseAwsKmsIdentifier(message);
@@ -52,7 +52,7 @@ module  AwsKmsMrkMatchForDecrypt {
     //= type=implication
     //# Otherwise if either input is not identified as a multi-Region key
     //# (aws-kms-key-arn.md#identifying-an-aws-kms-multi-region-key), then
-    //# this function MUST return false.
+    //# this function MUST return "false".
     ensures
       var c := ParseAwsKmsArn(config);
       var m := ParseAwsKmsArn(message);
@@ -70,8 +70,8 @@ module  AwsKmsMrkMatchForDecrypt {
     //# Otherwise if both inputs are
     //# identified as a multi-Region keys (aws-kms-key-arn.md#identifying-an-
     //# aws-kms-multi-region-key), this function MUST return the result of
-    //# comparing the partition, service, accountId, resourceType,
-    //# and resource parts of both ARN inputs.
+    //# comparing the "partition", "service", "accountId", "resourceType",
+    //# and "resource" parts of both ARN inputs.
     ensures
       var c := ParseAwsKmsArn(config);
       var m := ParseAwsKmsArn(message);
