@@ -43,7 +43,6 @@ module TestRawRSAKeying {
     );
     var pdk := seq(32, i => 0);
 
-    // QUESTION :: What does a wrappingAlgorithmID do for an RSA Keyring?
     var wrappingAlgorithmID := Crypto.ALG_AES_256_GCM_IV12_TAG16_NO_KDF;
     var encryptionMaterialsIn := Crypto.EncryptionMaterials(
       encryptionContext:=encryptionContext,
