@@ -15,13 +15,14 @@ namespace Aws.Crypto
         {
         }
 
-        public Aws.Crypto.IKeyring CreateAwsKmsKeyring(Aws.Crypto.CreateAwsKmsKeyringInput input)
+        public Aws.Crypto.IKeyring CreateStrictAwsKmsKeyring(Aws.Crypto.CreateStrictAwsKmsKeyringInput input)
         {
             input.Validate();
-            return _CreateAwsKmsKeyring(input);
+            return _CreateStrictAwsKmsKeyring(input);
         }
 
-        protected abstract Aws.Crypto.IKeyring _CreateAwsKmsKeyring(Aws.Crypto.CreateAwsKmsKeyringInput input);
+        protected abstract Aws.Crypto.IKeyring _CreateStrictAwsKmsKeyring(
+            Aws.Crypto.CreateStrictAwsKmsKeyringInput input);
 
         public Aws.Crypto.IKeyring CreateMrkAwareStrictAwsKmsKeyring(
             Aws.Crypto.CreateMrkAwareStrictAwsKmsKeyringInput input)

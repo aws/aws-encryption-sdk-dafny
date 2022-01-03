@@ -88,11 +88,11 @@ structure CreateKeyringOutput {
 }
 
 // KMS - Strict
-operation CreateAwsKmsKeyring {
-    input: CreateAwsKmsKeyringInput,
+operation CreateStrictAwsKmsKeyring {
+    input: CreateStrictAwsKmsKeyringInput,
     output: CreateKeyringOutput
 }
-structure CreateAwsKmsKeyringInput {
+structure CreateStrictAwsKmsKeyringInput {
     @required
     kmsKeyId: KmsKeyId,
 

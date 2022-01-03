@@ -11,6 +11,7 @@ include "Keyrings/MultiKeyring.dfy"
 include "CMMs/DefaultCMM.dfy"
 include "Materials.dfy"
 include "AlgorithmSuites.dfy"
+include "Keyrings/AwsKms/AwsKmsStrictKeyring.dfy"
 include "Keyrings/AwsKms/AwsKmsMrkAwareSymmetricKeyring.dfy"
 include "../KMS/AwsKmsArnParsing.dfy"
 
@@ -29,6 +30,7 @@ module
   import DefaultCMM
   import AlgorithmSuites
   import Materials
+  import AwsKmsStrictKeyring
   import AwsKmsMrkAwareSymmetricKeyring
   import AwsKmsArnParsing
   import GeneratedKMS = Com.Amazonaws.Kms
@@ -52,6 +54,7 @@ module
     // Class Members
     provides
       AwsCryptographicMaterialProvidersClient.CreateRawAesKeyring,
+      AwsCryptographicMaterialProvidersClient.CreateStrictAwsKmsKeyring,
       AwsCryptographicMaterialProvidersClient.CreateMrkAwareStrictAwsKmsKeyring,
       AwsCryptographicMaterialProvidersClient.CreateDefaultCryptographicMaterialsManager,
       AwsCryptographicMaterialProvidersClient.CreateMultiKeyring
@@ -118,6 +121,19 @@ module
       returns (res: Crypto.ICryptographicMaterialsManager)
     {
         return new DefaultCMM.DefaultCMM.OfKeyring(input.keyring);
+    }
+
+    method CreateStrictAwsKmsKeyring(input: Crypto.CreateStrictAwsKmsKeyringInput) returns (res: Crypto.IKeyring)
+    {
+      expect AwsKmsArnParsing.ParseAwsKmsIdentifier(input.kmsKeyId).Success?;
+      expect UTF8.IsASCIIString(input.kmsKeyId);
+      expect 0 < |input.kmsKeyId| <= AwsKmsArnParsing.MAX_AWS_KMS_IDENTIFIER_LENGTH;
+
+      var grantTokens: Crypto.GrantTokenList := input.grantTokens.UnwrapOr([]);
+      expect 0 <= |grantTokens| <= 10;
+      expect forall grantToken | grantToken in grantTokens :: 1 <= |grantToken| <= 8192;
+
+      return new AwsKmsStrictKeyring.AwsKmsStrictKeyring(input.kmsClient, input.kmsKeyId, grantTokens);
     }
 
     method CreateMrkAwareStrictAwsKmsKeyring(input: Crypto.CreateMrkAwareStrictAwsKmsKeyringInput) returns (res: Crypto.IKeyring)

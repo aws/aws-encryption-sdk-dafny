@@ -21,12 +21,13 @@ namespace Aws.Crypto
                 new Dafny.Aws.Crypto.AwsCryptographicMaterialProvidersClient.AwsCryptographicMaterialProvidersClient();
         }
 
-        protected override Aws.Crypto.IKeyring _CreateAwsKmsKeyring(Aws.Crypto.CreateAwsKmsKeyringInput input)
+        protected override Aws.Crypto.IKeyring _CreateStrictAwsKmsKeyring(
+            Aws.Crypto.CreateStrictAwsKmsKeyringInput input)
         {
-            Dafny.Aws.Crypto.CreateAwsKmsKeyringInput internalInput =
-                TypeConversion.ToDafny_N3_aws__N6_crypto__S24_CreateAwsKmsKeyringInput(input);
+            Dafny.Aws.Crypto.CreateStrictAwsKmsKeyringInput internalInput =
+                TypeConversion.ToDafny_N3_aws__N6_crypto__S30_CreateStrictAwsKmsKeyringInput(input);
             Dafny.Aws.Crypto.IKeyring internalOutput =
-                this._impl.CreateAwsKmsKeyring(internalInput);
+                this._impl.CreateStrictAwsKmsKeyring(internalInput);
             return TypeConversion.FromDafny_N3_aws__N6_crypto__S19_CreateKeyringOutput(internalOutput);
         }
 
