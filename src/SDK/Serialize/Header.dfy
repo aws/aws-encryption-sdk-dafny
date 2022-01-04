@@ -47,20 +47,42 @@ datatype HeaderInfo = HeaderInfo(
     && GetESDKAlgorithmSuiteId(h.suite.id) == h.body.esdkSuiteId
     && h.body.contentType.NonFramed? <==> 0 == h.body.frameLength
     && h.body.contentType.Framed? <==> 0 < h.body.frameLength
-    && (h.headerAuth.AESMac?
-    ==>
-      && |h.headerAuth.headerIv| == h.suite.encrypt.ivLength as nat
-      && |h.headerAuth.headerAuthTag| == h.suite.encrypt.tagLength as nat)
-    // && (h.suite.commitment.HKDF?
-    //   ==>
-    //     && h.body.V2HeaderBody?
-    //     && |h.body.suiteData| == h.suite.commitment.outputKeyLength as nat)
-    && (!h.suite.commitment.HKDF?
-      ==>
-        && h.body.V1HeaderBody?)
-    && h.rawHeader == WriteHeaderBody(h.body)
-    // This is the opposite direction because ...
+    && HeaderAuth?(h.suite, h.headerAuth)
+    && HeaderVersionSupportsCommitment?(h.suite, h.body)
+    // There are 2 readable formats, but only 1 writeable format.
+    // This means that a correct header is defined by reading.
+    // Less options to keep track of.
+    && CorrectlyReadHeaderBody(
+      ReadableBytes(h.rawHeader, 0), 
+      Success(Data(h.body, ReadableBytes(h.rawHeader, |h.rawHeader|))))
+    // I would like to have this relationship, but the CMM really gets to control this
+    // So I'm going to push towards this distinguishing the stored vs the "complete" encryption context.
     // && h.encryptionContext == EncryptionContext.GetEncryptionContext(h.body.encryptionContext)
+  }
+
+  predicate HeaderAuth?(
+    suite: Client.AlgorithmSuites.AlgorithmSuite,
+    headerAuth: HeaderTypes.HeaderAuth
+  )
+  {
+      && (headerAuth.AESMac?
+    ==>
+      && |headerAuth.headerIv| == suite.encrypt.ivLength as nat
+      && |headerAuth.headerAuthTag| == suite.encrypt.tagLength as nat)
+  }
+
+  predicate method HeaderVersionSupportsCommitment?(
+    suite: Client.AlgorithmSuites.AlgorithmSuite,
+    body: HeaderTypes.HeaderBody
+  )
+  {
+    && (suite.commitment.HKDF?
+      ==>
+        && body.V2HeaderBody?
+        && |body.suiteData| == suite.commitment.outputKeyLength as nat)
+    && (!suite.commitment.HKDF?
+      ==>
+        && body.V1HeaderBody?)
   }
 
   type Header = h: HeaderInfo
@@ -71,7 +93,7 @@ datatype HeaderInfo = HeaderInfo(
      bytes: ReadableBytes
   )
     :(res: ReadCorrect<HeaderTypes.HeaderBody>)
-    ensures res.Success? ==> CorrectlyReadHeaderBody(res.value.thing, bytes)
+    ensures CorrectlyReadHeaderBody(bytes, res)
   {
 
     var version :- SharedHeaderFunctions.ReadMessageFormatVersion(bytes);
@@ -88,21 +110,30 @@ datatype HeaderInfo = HeaderInfo(
   }
 
   predicate CorrectlyReadHeaderBody(
-    body: HeaderTypes.HeaderBody,
-    bytes: ReadableBytes
+    bytes: ReadableBytes,
+    res: ReadCorrect<HeaderTypes.HeaderBody>
   )
+    ensures res.Success?
+    ==> |res.value.tail.data| >= res.value.tail.start >= bytes.start
   {
-    match body
+    res.Success?
+    ==>
+    match res.value.thing
     case V1HeaderBody(_,_,_,_,_,_,_,_) =>
-      V1HeaderBody.CorrectlyReadV1HeaderBody(bytes, Success(Data(body, bytes)))
+      V1HeaderBody.CorrectlyReadV1HeaderBody(bytes, res)
     case V2HeaderBody(_,_,_,_,_,_,_) =>
-      V2HeaderBody.CorrectlyReadV2HeaderBody(bytes, Success(Data(body, bytes)))
+      V2HeaderBody.CorrectlyReadV2HeaderBody(bytes, res)
   }
 
   function method WriteHeaderBody(
     body: HeaderTypes.HeaderBody
   )
     :(ret: seq<uint8>)
+    // ensures ret == match body
+    // case V1HeaderBody(_,_,_,_,_,_,_,_) =>
+    //   V1HeaderBody.WriteV1HeaderBody(body)
+    // case V2HeaderBody(_,_,_,_,_,_,_) =>
+    //   V2HeaderBody.WriteV2HeaderBody(body)
   {
     match body
     case V1HeaderBody(_,_,_,_,_,_,_,_) =>
