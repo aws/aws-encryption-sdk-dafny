@@ -19,6 +19,7 @@ include "Serialize/Header.dfy"
 include "Serialize/HeaderTypes.dfy"
 include "Serialize/V1HeaderBody.dfy"
 include "Serialize/HeaderAuth.dfy"
+include "Serialize/SerializeFunctions.dfy"
 
 
 module {:extern "EncryptDecrypt"} EncryptDecrypt {
@@ -36,6 +37,7 @@ module {:extern "EncryptDecrypt"} EncryptDecrypt {
   import Signature
   import Streams
   import SerializableTypes
+  import opened SerializeFunctions
 
   import Header
   import HeaderTypes
@@ -175,6 +177,7 @@ module {:extern "EncryptDecrypt"} EncryptDecrypt {
     ensures request.cmm == null && request.keyring == null ==> res.Failure?
     ensures request.cmm != null && request.keyring != null ==> res.Failure?
     ensures request.frameLength.Some? && request.frameLength.value == 0 ==> res.Failure?
+    // Need to add back
     // ensures match res
     //   case Failure(e) => true
     //   case Success(encryptedSequence) =>
@@ -271,6 +274,7 @@ module {:extern "EncryptDecrypt"} EncryptDecrypt {
       headerAuth := headerAuth
     );
 
+    // Add headerAuth requirements to Header type
     assert Header.IsHeader(header);
 
     // assert ValidHeaderAuthenticationForRequest(headerAuthentication, headerBody) by{ // Header confirms to specification
@@ -332,6 +336,8 @@ module {:extern "EncryptDecrypt"} EncryptDecrypt {
     }
   }
 
+  // This should take materials and the headerBody...
+  // It should return these types together with the derived key.
   method DeriveKey(
     plaintextDataKey: seq<uint8>,
     suite: Client.AlgorithmSuites.AlgorithmSuite,
@@ -380,246 +386,338 @@ module {:extern "EncryptDecrypt"} EncryptDecrypt {
     ghost signature: Option<seq<uint8>>)
 
 
-  // // Verification of this method requires verification of the CMM to some extent, The verification of the Decrypt method should be extended after CMM is verified
-  // method DecryptWithVerificationInfo(request: DecryptRequest) returns (res: Result<DecryptResultWithVerificationInfo, string>)
-  //   ensures request.cmm == null && request.keyring == null ==> res.Failure?
-  //   ensures request.cmm != null && request.keyring != null ==> res.Failure?
-  //   ensures match res // Verify that if no error occurs the correct objects are deserialized from the stream
-  //     case Failure(e) => true
-  //     case Success(d) => // Unfold return value into seperate variables
-  //       && d.header.body.Valid()
-  //       && Msg.IsSerializationOfHeaderBody(d.hbSeq, d.header.body)
-  //       && (d.header.body.contentType.Framed? ==> // We only verify framed content for now
-  //         && (forall frame: MessageBody.Frame | frame in d.frames :: frame.Valid())
-  //         && MessageBody.FramesEncryptPlaintext(d.frames, d.plaintext)
-  //         && match d.signature {
-  //              case Some(_) =>
-  //                && |d.signature.value| < UINT16_LIMIT
-  //                && request.message == d.hbSeq + d.header.auth.iv + d.header.auth.authenticationTag // These items can be serialized to the output
-  //                  + MessageBody.FramesToSequence(d.frames) + UInt16ToSeq(|d.signature.value| as uint16) + d.signature.value
-  //              case None => // if the result does not need to be signed
-  //                request.message == d.hbSeq + d.header.auth.iv + d.header.auth.authenticationTag + MessageBody.FramesToSequence(d.frames)
-  //            })
-  // {
-  //   // Validate decrypt request
-  //   :- Need(request.cmm == null || request.keyring == null, "DecryptRequest.keyring OR DecryptRequest.cmm must be set (not both).");
-  //   :- Need(request.cmm != null || request.keyring != null, "DecryptRequest.cmm and DecryptRequest.keyring cannot both be null.");
-
-  //   var cmm: Crypto.ICryptographicMaterialsManager;
-  //   if request.keyring == null {
-  //     cmm := request.cmm;
-  //   } else {
-  //     var client := new Client.AwsCryptographicMaterialProvidersClient();
-  //     cmm := client
-  //       .CreateDefaultCryptographicMaterialsManager(Crypto.CreateDefaultCryptographicMaterialsManagerInput(
-  //       keyring := request.keyring
-  //     ));
-  //   }
-
-  //   var rd := new Streams.ByteReader(request.message);
-  //   var deserializeHeaderResult :- Deserialize.DeserializeHeader(rd);
-  //   var header := deserializeHeaderResult.header;
-  //   assert header.body.Valid();
-
-  //   if header.body.contentType.Framed? { // If the header is framed then the header is deserialized from the read sequence
-  //     assert HeaderBySequence(header, deserializeHeaderResult.hbSeq, rd.reader.data[..rd.reader.pos]) by {
-  //       reveal HeaderBySequence();
-  //       assert header.body.contentType.Framed?;
-  //       assert header.body.Valid();
-  //       assert Msg.IsSerializationOfHeaderBody(deserializeHeaderResult.hbSeq, header.body);
-  //       assert rd.reader.data[..rd.reader.pos] == deserializeHeaderResult.hbSeq + header.auth.iv + header.auth.authenticationTag;
-  //     }
-  //     assert DataIsFramed(request.message) by { // Predicate that holds in DataIsFramed this predicate is currently not used but is very usefull for future validation
-  //       assert 0 <= rd.reader.pos <= |request.message|;
-  //       assert rd.reader.data[..rd.reader.pos] == request.message[..rd.reader.pos];
-  //       assert HeaderBySequence(header, deserializeHeaderResult.hbSeq, request.message[..rd.reader.pos]);
-  //     }
-  //   }
-
-  //   var decMatRequest := Crypto.DecryptMaterialsInput(
-  //     algorithmSuiteId:=SerializableTypes.GetAlgorithmSuiteId(header.body.algorithmSuiteID),
-  //     encryptedDataKeys:=header.body.encryptedDataKeys,
-  //     encryptionContext:=header.body.aad);
-  //   var output :- cmm.DecryptMaterials(decMatRequest);
-  //   var decMat := output.decryptionMaterials;
-
-  //   // Validate decryption materials
-  //   :- Need(Client.Materials.DecryptionMaterialsWithPlaintextDataKey(decMat), "CMM returned invalid DecryptMaterials");
-  //   // Same as with the Encryption Materials, I assert that this is equivalent. Let's talk in the PR!
-  //   // :- Need(decMat.plaintextDataKey.Some?, "CMM failed to acquire plaintext data key.");
-  //   // :- Need(|decMat.plaintextDataKey.value| == AlgorithmSuite.PolymorphIDToInternalID(decMat.algorithmSuiteId).KDFInputKeyLength(),
-  //   //   "CMM return invalid plaintext data key for algorithm suite in use.");
-  //   // :- Need(AlgorithmSuite.PolymorphIDToInternalID(decMat.algorithmSuiteId).SignatureType().Some? ==> decMat.verificationKey.Some?,
-  //   //   "CMM failed to acquire verification key.");
-
-  //   var suite := Client.SpecificationClient().GetSuite(decMat.algorithmSuiteId);
-
-  //   var decryptionKey := DeriveKey(decMat.plaintextDataKey.value, suite, header.body.messageID);
-
-  //   ghost var endHeaderPos := rd.reader.pos;
-  //   // Parse and decrypt the message body
-  //   var plaintext;
-  //   match header.body.contentType {
-  //     case NonFramed =>
-  //       plaintext :- MessageBody.DecryptNonFramedMessageBody(rd, suite, decryptionKey, header.body.messageID);
-  //     case Framed =>
-  //       plaintext :- MessageBody.DecryptFramedMessageBody(rd, suite, decryptionKey, header.body.frameLength as int, header.body.messageID);
-  //   }
-
-  //   // Ghost variable contains frames which are deserialized from the data read after the header if the data is framed
-  //   assert header.body.contentType.Framed? ==>
-  //     exists frames: seq<MessageBody.Frame> | |frames| < UINT32_LIMIT && (forall frame | frame in frames :: frame.Valid())
-  //       && MessageBody.FramesToSequence(frames) == rd.reader.data[endHeaderPos..rd.reader.pos] ::
-  //         && MessageBody.FramesEncryptPlaintext(frames, plaintext);
-  //   ghost var frames: seq<MessageBody.Frame> :| header.body.contentType.Framed? ==>
-  //       && |frames| < UINT32_LIMIT
-  //       && (forall frame | frame in frames :: frame.Valid())
-  //       && MessageBody.FramesToSequence(frames) == rd.reader.data[endHeaderPos..rd.reader.pos]
-  //       && MessageBody.FramesEncryptPlaintext(frames, plaintext);
-
-  //   if header.body.contentType.Framed? {
-  //     assert FramesBySequence(frames, rd.reader.data[endHeaderPos..rd.reader.pos]) by {
-  //       reveal FramesBySequence();
-  //       assert |frames| < UINT32_LIMIT;
-  //       assert forall frame | frame in frames :: frame.Valid();
-  //       assert rd.reader.data[endHeaderPos..rd.reader.pos] == MessageBody.FramesToSequence(frames);
-  //     }
-  //     assert HeaderBySequence(header, deserializeHeaderResult.hbSeq, rd.reader.data[..endHeaderPos]) by {
-  //       assert endHeaderPos == |deserializeHeaderResult.hbSeq| + |header.auth.iv + header.auth.authenticationTag|;
-  //       assert HeaderBySequence(header, deserializeHeaderResult.hbSeq, rd.reader.data[..endHeaderPos]);
-  //     }
-  //     assert FramesBySequence(frames, rd.reader.data[endHeaderPos..rd.reader.pos]);
-  //   }
-
-  //   ghost var signature: Option<seq<uint8>> := None;
-  //   ghost var endFramePos := rd.reader.pos;
-  //   assert header.body.contentType.Framed? ==> 0 <= endHeaderPos <= endFramePos <= |request.message|;
-  //   if suite.signature.ECDSA? {
-  //     var verifyResult, locSig := VerifySignature(rd, decMat);
-  //     signature := Some(locSig);
-  //     if verifyResult.Failure? {
-  //       return Failure(verifyResult.error);
-  //     }
-  //     assert SignatureBySequence(signature.value, rd.reader.data[endFramePos..rd.reader.pos]); // Read signature from the sequence
-  //   }
-
-  //   var isDone := rd.IsDoneReading();
-  //   :- Need(isDone, "message contains additional bytes at end");
-
-  //   // Combine gathered facts and convert to postcondition
-  //   if header.body.contentType.Framed? {
-  //     if suite.signature.ECDSA? { // Case with Signature
-  //       assert signature.Some?;
-  //       assert SignatureBySequence(signature.value, rd.reader.data[endFramePos..rd.reader.pos]);
-  //       assert HeaderBySequence(header, deserializeHeaderResult.hbSeq, request.message[..endHeaderPos])
-  //         && FramesBySequence(frames, request.message[endHeaderPos..endFramePos])
-  //         && SignatureBySequence(signature.value, request.message[endFramePos..]) by {
-  //           assert 0 <= endHeaderPos <= endFramePos <= |request.message|;
-  //           assert SignatureBySequence(signature.value, request.message[endFramePos..]) by {
-  //           assert header.body.contentType.Framed? ==> SignatureBySequence(signature.value, rd.reader.data[endFramePos..rd.reader.pos]);
-  //           assert rd.reader.data[endFramePos..rd.reader.pos] == request.message[endFramePos..] by {
-  //             calc {
-  //               rd.reader.data[endFramePos..rd.reader.pos];
-  //             == {UpperBoundRemv(rd.reader.data, endFramePos); assert rd.reader.pos == |rd.reader.data|; }
-  //               rd.reader.data[endFramePos..];
-  //             == {assert rd.reader.data == request.message; }
-  //               request.message[endFramePos..];
-  //             }
-  //           }
-  //           assert SignatureBySequence(signature.value, rd.reader.data[endFramePos..rd.reader.pos]);
-  //         }
-  //       }
-  //       HBandMBwithSigMatchSequence(header, deserializeHeaderResult.hbSeq, frames, signature.value, request.message);
-  //     } else { // Case without signature
-  //       assert signature.None?;
-  //       assert 0 <= endHeaderPos <= |request.message| by {
-  //         assert request.message == rd.reader.data;
-  //       }
-  //       assert HeaderBySequence(header, deserializeHeaderResult.hbSeq, request.message[..endHeaderPos])
-  //         && FramesBySequence(frames, request.message[endHeaderPos..]) by {
-  //           assert HeaderBySequence(header, deserializeHeaderResult.hbSeq, rd.reader.data[..endHeaderPos])
-  //             && FramesBySequence(frames, rd.reader.data[endHeaderPos..rd.reader.pos]);
-  //           assert rd.reader.data[endHeaderPos..rd.reader.pos] == request.message[endHeaderPos..] by {
-  //             calc {
-  //               rd.reader.data[endHeaderPos..rd.reader.pos];
-  //             == {UpperBoundRemv(rd.reader.data, endHeaderPos); }
-  //               rd.reader.data[endHeaderPos..];
-  //             == {assert rd.reader.data == request.message; }
-  //               request.message[endHeaderPos..];
-  //             }
-  //           }
-  //         }
-  //       assert 0 <= endHeaderPos <= |request.message|;
-  //       HBandMBMatchSequence(header, deserializeHeaderResult.hbSeq, frames, request.message);
-  //     }
-  //   }
-  //   var decryptResultWithVerificationInfo := DecryptResultWithVerificationInfo(plaintext, header, deserializeHeaderResult.hbSeq, frames, signature);
-  //   ghost var d := decryptResultWithVerificationInfo;
-  //   assert d.header.body.Valid();
-  //   assert Msg.IsSerializationOfHeaderBody(d.hbSeq, d.header.body);
-  //   if d.header.body.contentType.Framed? {
-  //     assert forall frame: MessageBody.Frame | frame in d.frames :: frame.Valid();
-  //     assert MessageBody.FramesEncryptPlaintext(d.frames, d.plaintext);
-  //     assert match d.signature {
-  //              case Some(_) =>
-  //                && |d.signature.value| < UINT16_LIMIT
-  //                && request.message == d.hbSeq + d.header.auth.iv + d.header.auth.authenticationTag // These items can be serialized to the output
-  //                  + MessageBody.FramesToSequence(d.frames) + UInt16ToSeq(|d.signature.value| as uint16) + d.signature.value
-  //              case None => // if the result does not need to be signed
-  //                request.message == d.hbSeq + d.header.auth.iv + d.header.auth.authenticationTag + MessageBody.FramesToSequence(d.frames)
-  //            } by
-  //     {
-  //       if d.signature.Some? {
-  //         assert |d.signature.value| < UINT16_LIMIT;
-  //         assert request.message ==
-  //                  d.hbSeq + d.header.auth.iv + d.header.auth.authenticationTag // These items can be serialized to the output
-  //                  + MessageBody.FramesToSequence(d.frames) + UInt16ToSeq(|d.signature.value| as uint16) + d.signature.value;
-  //       } else {
-  //         assert request.message == d.hbSeq + d.header.auth.iv + d.header.auth.authenticationTag + MessageBody.FramesToSequence(d.frames);
-  //       }
-  //     }
-  //   }
-  //   return Success(decryptResultWithVerificationInfo);
-  // }
-
-  method VerifySignature(rd: Streams.ByteReader, decMat: Crypto.DecryptionMaterials) returns (res: Result<(), string>, ghost signature: seq<uint8>)
-    requires rd.Valid()
-    requires Client.SpecificationClient().GetSuite(decMat.algorithmSuiteId).signature.ECDSA?
-    requires decMat.verificationKey.Some?
-    modifies rd.reader`pos
-    ensures rd.Valid()
-    ensures match res
-      case Failure(_) => true
-      case Success(_) =>
-        && 2 <= old(rd.reader.pos) + 2 <= rd.reader.pos
-        && SignatureBySequence(signature, rd.reader.data[old(rd.reader.pos)..rd.reader.pos])
+  // Verification of this method requires verification of the CMM to some extent, The verification of the Decrypt method should be extended after CMM is verified
+  method DecryptWithVerificationInfo(request: DecryptRequest)
+    returns (res: Result<seq<uint8>, string>)
+    ensures request.cmm == null && request.keyring == null ==> res.Failure?
+    ensures request.cmm != null && request.keyring != null ==> res.Failure?
+    // Need to add back
+    // ensures match res // Verify that if no error occurs the correct objects are deserialized from the stream
+    //   case Failure(e) => true
+    //   case Success(d) => // Unfold return value into seperate variables
+    //     && d.header.body.Valid()
+    //     && Msg.IsSerializationOfHeaderBody(d.hbSeq, d.header.body)
+    //     && (d.header.body.contentType.Framed? ==> // We only verify framed content for now
+    //       && (forall frame: MessageBody.Frame | frame in d.frames :: frame.Valid())
+    //       && MessageBody.FramesEncryptPlaintext(d.frames, d.plaintext)
+    //       && match d.signature {
+    //            case Some(_) =>
+    //              && |d.signature.value| < UINT16_LIMIT
+    //              && request.message == d.hbSeq + d.header.auth.iv + d.header.auth.authenticationTag // These items can be serialized to the output
+    //                + MessageBody.FramesToSequence(d.frames) + UInt16ToSeq(|d.signature.value| as uint16) + d.signature.value
+    //            case None => // if the result does not need to be signed
+    //              request.message == d.hbSeq + d.header.auth.iv + d.header.auth.authenticationTag + MessageBody.FramesToSequence(d.frames)
+    //          })
   {
-    var ecdsaParams := Client.SpecificationClient().GetSuite(decMat.algorithmSuiteId).signature.curve;
-    var usedCapacity := rd.GetSizeRead();
-    assert usedCapacity == rd.reader.pos;
-    var msg := rd.reader.data[..usedCapacity];  // unauthenticatedHeader + authTag + body
-    // read signature
-    var signatureLengthResult := rd.ReadUInt16();
-    if signatureLengthResult.Failure? {
-      return Failure(signatureLengthResult.error), [];
-    }
-    var sigResult := rd.ReadBytes(signatureLengthResult.value as nat);
-    if sigResult.Failure? {
-      return Failure(sigResult.error), [];
-    }
-    // verify signature
-    var signatureVerifiedResult := Signature.Verify(ecdsaParams, decMat.verificationKey.value, msg, sigResult.value);
-    if signatureVerifiedResult.Failure? {
-      return Failure(signatureVerifiedResult.error), [];
-    }
-    if !signatureVerifiedResult.value {
-      return Failure("signature not verified"), [];
+    // Validate decrypt request
+    :- Need(request.cmm == null || request.keyring == null, "DecryptRequest.keyring OR DecryptRequest.cmm must be set (not both).");
+    :- Need(request.cmm != null || request.keyring != null, "DecryptRequest.cmm and DecryptRequest.keyring cannot both be null.");
+
+    var cmm: Crypto.ICryptographicMaterialsManager;
+    if request.keyring == null {
+      cmm := request.cmm;
+    } else {
+      var client := new Client.AwsCryptographicMaterialProvidersClient();
+      cmm := client
+        .CreateDefaultCryptographicMaterialsManager(Crypto.CreateDefaultCryptographicMaterialsManagerInput(
+        keyring := request.keyring
+      ));
     }
 
-    assert SignatureBySequence(sigResult.value, rd.reader.data[old(rd.reader.pos)..rd.reader.pos]) by {
-      reveal SignatureBySequence();
+    var bytes := SerializeFunctions.ReadableBytes(request.message, 0);
+    var headerBody :- Header
+      .ReadHeaderBody(bytes)
+      .MapFailure((e: SerializeFunctions.ReadProblems) => match e
+        case Error(e) => e
+        case MoreNeeded(_) => "Incomplete message");
+
+    var rawHeader := headerBody.tail.data[bytes.start..headerBody.tail.start];
+
+    var esdkEncryptionContext := EncryptionContext.GetEncryptionContext(headerBody.thing.encryptionContext);
+
+    // var rd := new Streams.ByteReader(request.message);
+    // var deserializeHeaderResult :- Deserialize.DeserializeHeader(rd);
+    // var header := deserializeHeaderResult.header;
+    // assert header.body.Valid();
+
+    // if header.body.contentType.Framed? { // If the header is framed then the header is deserialized from the read sequence
+    //   assert HeaderBySequence(header, deserializeHeaderResult.hbSeq, rd.reader.data[..rd.reader.pos]) by {
+    //     reveal HeaderBySequence();
+    //     assert header.body.contentType.Framed?;
+    //     assert header.body.Valid();
+    //     assert Msg.IsSerializationOfHeaderBody(deserializeHeaderResult.hbSeq, header.body);
+    //     assert rd.reader.data[..rd.reader.pos] == deserializeHeaderResult.hbSeq + header.auth.iv + header.auth.authenticationTag;
+    //   }
+    //   assert DataIsFramed(request.message) by { // Predicate that holds in DataIsFramed this predicate is currently not used but is very usefull for future validation
+    //     assert 0 <= rd.reader.pos <= |request.message|;
+    //     assert rd.reader.data[..rd.reader.pos] == request.message[..rd.reader.pos];
+    //     assert HeaderBySequence(header, deserializeHeaderResult.hbSeq, request.message[..rd.reader.pos]);
+    //   }
+    // }
+
+    var decMatRequest := Crypto.DecryptMaterialsInput(
+      algorithmSuiteId:=SerializableTypes.GetAlgorithmSuiteId(headerBody.thing.esdkSuiteId),
+      encryptedDataKeys:=headerBody.thing.encryptedDataKeys,
+      encryptionContext:=esdkEncryptionContext);
+    var output :- cmm.DecryptMaterials(decMatRequest);
+    var decMat := output.decryptionMaterials;
+
+    // Validate decryption materials
+    :- Need(Client.Materials.DecryptionMaterialsWithPlaintextDataKey(decMat), "CMM returned invalid DecryptMaterials");
+
+    var suite := Client
+      .SpecificationClient()
+      .GetSuite(decMat.algorithmSuiteId);
+
+    var headerAuth :- HeaderAuth
+      .ReadAESMac(headerBody.tail, suite)
+      .MapFailure(MapSerializeFailure);
+
+    var decryptionKey := DeriveKey(decMat.plaintextDataKey.value, suite, headerBody.thing.messageId);
+
+    // There is nothing to compare since there was nothing to decrypt.
+    // Success means that the tag is correct.
+    var _ :- AESEncryption.AESDecrypt(
+      suite.encrypt,
+      decryptionKey,
+      [], // The header auth is for integrity, not confidentiality
+      headerAuth.thing.headerAuthTag,
+      headerAuth.thing.headerIv,
+      rawHeader
+    );
+
+    // Need to add a message with 
+    :- Need(headerBody.thing.contentType.Framed?, "Fix me");
+
+
+    // Currently the Encryption Context in the header MUST be the same
+    // as the canonical encryption context in the header body.
+    // Ideally, only the canonical encryption context needs to be serializable.
+    :- Need(SerializableTypes.IsESDKEncryptionContext(decMat.encryptionContext), "CMM failed to return serializable encryption materials.");
+    // The V2 message format not only supports commitment, it requires it.
+    // Therefore the message format is bound to properties of the algorithm suite.
+    :- Need(Header.HeaderVersionSupportsCommitment?(suite, headerBody.thing), "Algorithm suite does not match message format.");
+
+    var header := Header.HeaderInfo(
+      body := headerBody.thing,
+      rawHeader := rawHeader,
+      encryptionContext := decMat.encryptionContext,
+      suite := suite,
+      headerAuth := headerAuth.thing
+    );
+
+    assert Header.CorrectlyReadHeaderBody(
+      ReadableBytes(rawHeader, 0),
+      Success(Data(headerBody.thing, ReadableBytes(rawHeader, |rawHeader|))));
+    assert Header.HeaderAuth?(suite, headerAuth.thing);
+    assert Header.IsHeader(header);
+
+    var messageBody :- MessageBody.ReadFramedMessageBody(
+      headerAuth.tail,
+      header,
+      [],
+      headerAuth.tail
+    ).MapFailure(MapSerializeFailure);
+
+    assert suite == messageBody.thing.finalFrame.header.suite;
+    assert |decryptionKey| == messageBody.thing.finalFrame.header.suite.encrypt.keyLength as int;
+
+    // ghost var endHeaderPos := rd.reader.pos;
+    // Parse the message body
+    var plaintext;
+    match header.body.contentType {
+      case NonFramed => return Failure("not at this time");
+      //   plaintext :- MessageBody.DecryptNonFramedMessageBody(rd, suite, decryptionKey, header.body.messageID);
+      case Framed =>
+        plaintext :- MessageBody.DecryptFramedMessageBody(messageBody.thing, decryptionKey);
     }
-    return Success(()), sigResult.value;
+
+    // // Ghost variable contains frames which are deserialized from the data read after the header if the data is framed
+    // assert header.body.contentType.Framed? ==>
+    //   exists frames: seq<MessageBody.Frame> | |frames| < UINT32_LIMIT && (forall frame | frame in frames :: frame.Valid())
+    //     && MessageBody.FramesToSequence(frames) == rd.reader.data[endHeaderPos..rd.reader.pos] ::
+    //       && MessageBody.FramesEncryptPlaintext(frames, plaintext);
+    // ghost var frames: seq<MessageBody.Frame> :| header.body.contentType.Framed? ==>
+    //     && |frames| < UINT32_LIMIT
+    //     && (forall frame | frame in frames :: frame.Valid())
+    //     && MessageBody.FramesToSequence(frames) == rd.reader.data[endHeaderPos..rd.reader.pos]
+    //     && MessageBody.FramesEncryptPlaintext(frames, plaintext);
+
+    // if header.body.contentType.Framed? {
+    //   assert FramesBySequence(frames, rd.reader.data[endHeaderPos..rd.reader.pos]) by {
+    //     reveal FramesBySequence();
+    //     assert |frames| < UINT32_LIMIT;
+    //     assert forall frame | frame in frames :: frame.Valid();
+    //     assert rd.reader.data[endHeaderPos..rd.reader.pos] == MessageBody.FramesToSequence(frames);
+    //   }
+    //   assert HeaderBySequence(header, deserializeHeaderResult.hbSeq, rd.reader.data[..endHeaderPos]) by {
+    //     assert endHeaderPos == |deserializeHeaderResult.hbSeq| + |header.auth.iv + header.auth.authenticationTag|;
+    //     assert HeaderBySequence(header, deserializeHeaderResult.hbSeq, rd.reader.data[..endHeaderPos]);
+    //   }
+    //   assert FramesBySequence(frames, rd.reader.data[endHeaderPos..rd.reader.pos]);
+    // }
+
+    // ghost var signature: Option<seq<uint8>> := None;
+    // ghost var endFramePos := rd.reader.pos;
+    // assert header.body.contentType.Framed? ==> 0 <= endHeaderPos <= endFramePos <= |request.message|;
+    // if suite.signature.ECDSA? {
+    //   var verifyResult, locSig := VerifySignature(rd, decMat);
+    //   signature := Some(locSig);
+    //   if verifyResult.Failure? {
+    //     return Failure(verifyResult.error);
+    //   }
+    //   assert SignatureBySequence(signature.value, rd.reader.data[endFramePos..rd.reader.pos]); // Read signature from the sequence
+    // }
+
+    var signature :- VerifySignature(
+      messageBody.tail,
+      messageBody.tail.data[bytes.start..messageBody.tail.start],
+      decMat
+    );
+
+    :- Need(signature.start == |signature.data|, "Data after message footer.");
+
+    // var isDone := rd.IsDoneReading();
+    // :- Need(isDone, "message contains additional bytes at end");
+
+    // // Combine gathered facts and convert to postcondition
+    // if header.body.contentType.Framed? {
+    //   if suite.signature.ECDSA? { // Case with Signature
+    //     assert signature.Some?;
+    //     assert SignatureBySequence(signature.value, rd.reader.data[endFramePos..rd.reader.pos]);
+    //     assert HeaderBySequence(header, deserializeHeaderResult.hbSeq, request.message[..endHeaderPos])
+    //       && FramesBySequence(frames, request.message[endHeaderPos..endFramePos])
+    //       && SignatureBySequence(signature.value, request.message[endFramePos..]) by {
+    //         assert 0 <= endHeaderPos <= endFramePos <= |request.message|;
+    //         assert SignatureBySequence(signature.value, request.message[endFramePos..]) by {
+    //         assert header.body.contentType.Framed? ==> SignatureBySequence(signature.value, rd.reader.data[endFramePos..rd.reader.pos]);
+    //         assert rd.reader.data[endFramePos..rd.reader.pos] == request.message[endFramePos..] by {
+    //           calc {
+    //             rd.reader.data[endFramePos..rd.reader.pos];
+    //           == {UpperBoundRemv(rd.reader.data, endFramePos); assert rd.reader.pos == |rd.reader.data|; }
+    //             rd.reader.data[endFramePos..];
+    //           == {assert rd.reader.data == request.message; }
+    //             request.message[endFramePos..];
+    //           }
+    //         }
+    //         assert SignatureBySequence(signature.value, rd.reader.data[endFramePos..rd.reader.pos]);
+    //       }
+    //     }
+    //     HBandMBwithSigMatchSequence(header, deserializeHeaderResult.hbSeq, frames, signature.value, request.message);
+    //   } else { // Case without signature
+    //     assert signature.None?;
+    //     assert 0 <= endHeaderPos <= |request.message| by {
+    //       assert request.message == rd.reader.data;
+    //     }
+    //     assert HeaderBySequence(header, deserializeHeaderResult.hbSeq, request.message[..endHeaderPos])
+    //       && FramesBySequence(frames, request.message[endHeaderPos..]) by {
+    //         assert HeaderBySequence(header, deserializeHeaderResult.hbSeq, rd.reader.data[..endHeaderPos])
+    //           && FramesBySequence(frames, rd.reader.data[endHeaderPos..rd.reader.pos]);
+    //         assert rd.reader.data[endHeaderPos..rd.reader.pos] == request.message[endHeaderPos..] by {
+    //           calc {
+    //             rd.reader.data[endHeaderPos..rd.reader.pos];
+    //           == {UpperBoundRemv(rd.reader.data, endHeaderPos); }
+    //             rd.reader.data[endHeaderPos..];
+    //           == {assert rd.reader.data == request.message; }
+    //             request.message[endHeaderPos..];
+    //           }
+    //         }
+    //       }
+    //     assert 0 <= endHeaderPos <= |request.message|;
+    //     HBandMBMatchSequence(header, deserializeHeaderResult.hbSeq, frames, request.message);
+    //   }
+    // }
+    // var decryptResultWithVerificationInfo := DecryptResultWithVerificationInfo(plaintext, header, deserializeHeaderResult.hbSeq, frames, signature);
+    // ghost var d := decryptResultWithVerificationInfo;
+    // assert d.header.body.Valid();
+    // assert Msg.IsSerializationOfHeaderBody(d.hbSeq, d.header.body);
+    // if d.header.body.contentType.Framed? {
+    //   assert forall frame: MessageBody.Frame | frame in d.frames :: frame.Valid();
+    //   assert MessageBody.FramesEncryptPlaintext(d.frames, d.plaintext);
+    //   assert match d.signature {
+    //            case Some(_) =>
+    //              && |d.signature.value| < UINT16_LIMIT
+    //              && request.message == d.hbSeq + d.header.auth.iv + d.header.auth.authenticationTag // These items can be serialized to the output
+    //                + MessageBody.FramesToSequence(d.frames) + UInt16ToSeq(|d.signature.value| as uint16) + d.signature.value
+    //            case None => // if the result does not need to be signed
+    //              request.message == d.hbSeq + d.header.auth.iv + d.header.auth.authenticationTag + MessageBody.FramesToSequence(d.frames)
+    //          } by
+    //   {
+    //     if d.signature.Some? {
+    //       assert |d.signature.value| < UINT16_LIMIT;
+    //       assert request.message ==
+    //                d.hbSeq + d.header.auth.iv + d.header.auth.authenticationTag // These items can be serialized to the output
+    //                + MessageBody.FramesToSequence(d.frames) + UInt16ToSeq(|d.signature.value| as uint16) + d.signature.value;
+    //     } else {
+    //       assert request.message == d.hbSeq + d.header.auth.iv + d.header.auth.authenticationTag + MessageBody.FramesToSequence(d.frames);
+    //     }
+    //   }
+    // }
+    return Success(plaintext);
+  }
+
+  method VerifySignature(
+    bytes: SerializeFunctions.ReadableBytes,
+    msg: seq<uint8>,
+    decMat: Crypto.DecryptionMaterials
+  )
+    returns (res: Result<SerializeFunctions.ReadableBytes, string>)
+    // requires
+    //   && messageStart.data == messageFooterStart.data
+    //   && messageStart.start < messageFooterStart.start < |messageFooterStart.data|
+    requires Client.Materials.DecryptionMaterialsWithPlaintextDataKey(decMat)
+    // requires rd.Valid()
+    // requires Client.SpecificationClient().GetSuite(decMat.algorithmSuiteId).signature.ECDSA?
+    // requires decMat.verificationKey.Some?
+    // modifies rd.reader`pos
+    // ensures rd.Valid()
+
+    // ensures match res
+    //   case Failure(_) => true
+    //   case Success(_) =>
+    //     && 2 <= old(rd.reader.pos) + 2 <= rd.reader.pos
+    //     && SignatureBySequence(signature, rd.reader.data[old(rd.reader.pos)..rd.reader.pos])
+  {
+
+    // DecryptionMaterialsWithPlaintextDataKey ensures that the materials and the suite match.
+    // If there is no verification key, that lets us conclude that the suite does not have a signature.
+    if decMat.verificationKey.None? {
+      return Success(bytes);
+    }
+
+    var signature :- SerializeFunctions
+      .ReadShortLengthSeq(bytes)
+      .MapFailure(MapSerializeFailure);
+
+    // var ecdsaParams := Client.SpecificationClient().GetSuite(decMat.algorithmSuiteId).signature.curve;
+    // var usedCapacity := rd.GetSizeRead();
+    // assert usedCapacity == rd.reader.pos;
+    // var msg := rd.reader.data[..usedCapacity];  // unauthenticatedHeader + authTag + body
+    // // read signature
+    // var signatureLengthResult := rd.ReadUInt16();
+    // if signatureLengthResult.Failure? {
+    //   return Failure(signatureLengthResult.error), [];
+    // }
+    // var sigResult := rd.ReadBytes(signatureLengthResult.value as nat);
+    // if sigResult.Failure? {
+    //   return Failure(sigResult.error), [];
+    // }
+
+    var ecdsaParams := Client.SpecificationClient().GetSuite(decMat.algorithmSuiteId).signature.curve;
+    // verify signature
+    var signatureVerifiedResult :- Signature.Verify(ecdsaParams, decMat.verificationKey.value, msg, signature.thing);
+
+    // if signatureVerifiedResult.Failure? {
+    //   return Failure(signatureVerifiedResult.error), [];
+    // }
+    // if !signatureVerifiedResult.value {
+    //   return Failure("signature not verified"), [];
+    // }
+
+    // assert SignatureBySequence(sigResult.value, rd.reader.data[old(rd.reader.pos)..rd.reader.pos]) by {
+    //   reveal SignatureBySequence();
+    // }
+    return Success(signature.tail);
   }
 
   // predicate {:opaque } HeaderBySequence(header: Msg.Header, hbSeq: seq<uint8>, sequence: seq<uint8>)
@@ -693,5 +791,13 @@ module {:extern "EncryptDecrypt"} EncryptDecrypt {
       assert Client.SpecificationClient().GetSuite(suiteId).encrypt.keyLength == suite.encrypt.keyLength;
     }
   }
+
+  function method MapSerializeFailure(e: SerializeFunctions.ReadProblems): string {
+    match e
+      case Error(e) => e
+      case MoreNeeded(_) => "Incomplete message"
+  }
+
+
 
 }
