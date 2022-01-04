@@ -784,6 +784,9 @@ module MessageBody {
     requires CorrectlyRead(bytes, Success(Data(regularFrames, continuation)), WriteMessageRegularFrames)
     decreases ENDFRAME_SEQUENCE_NUMBER as nat - |regularFrames|
     ensures CorrectlyRead(bytes, res, WriteFramedMessageBody)
+    ensures res.Success?
+    ==>
+      && res.value.thing.finalFrame.header == header
   {
     var sequenceNumber :- ReadUInt32(continuation);
     if (sequenceNumber.thing != ENDFRAME_SEQUENCE_NUMBER) then

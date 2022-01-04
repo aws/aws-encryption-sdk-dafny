@@ -91,12 +91,17 @@ module V2HeaderBody {
     res: ReadCorrect<V2HeaderBody>
   )
   {
-    || CorrectlyRead(bytes, res, WriteV2HeaderBody)
-    // This is to handle the edge case in empty AAD see: `ReadAADSection`
-    || (
-        IsV2ExpandedAADSection(bytes)
-      ==>
-        CorrectlyRead(bytes, res, WriteV2ExpandedAADSectionHeader))
+    && CorrectlyReadRange(bytes, res) 
+    && (
+      || (
+        !IsV2ExpandedAADSection(bytes)
+        ==>
+          && CorrectlyRead(bytes, res, WriteV2HeaderBody))
+      // This is to handle the edge case in empty AAD see: `ReadAADSection`
+      || (
+          IsV2ExpandedAADSection(bytes)
+        ==>
+          && CorrectlyRead(bytes, res, WriteV2ExpandedAADSectionHeader)))
   }
 
   predicate IsV2ExpandedAADSection(

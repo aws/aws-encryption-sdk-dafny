@@ -43,6 +43,10 @@ module HeaderAuth {
   )
     :(res: ReadCorrect<AESMac>)
     ensures CorrectlyRead(bytes, res, WriteAESMac)
+    ensures res.Success?
+    ==>
+      && |res.value.thing.headerIv| == suite.encrypt.ivLength as nat
+      && |res.value.thing.headerAuthTag| == suite.encrypt.tagLength as nat
   {
     var headerIv :- Read(bytes, suite.encrypt.ivLength as nat);
     var headerAuthTag :- Read(headerIv.tail, suite.encrypt.tagLength as nat);
