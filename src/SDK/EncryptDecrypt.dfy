@@ -246,6 +246,11 @@ module {:extern "EncryptDecrypt"} EncryptDecrypt {
 
     var canonicalEncryptionContext := EncryptionContext.GetCanonicalEncryptionContext(encMat.encryptionContext);
 
+    // Until the commitment policy has been plumbed through
+    // we can not assert assert Header.HeaderVersionSupportsCommitment?(suite, body);
+    // without the following:
+    :- Need(!suite.commitment.HKDF?, "Commitment not yet supported");
+
     var body := HeaderTypes.HeaderBody.V1HeaderBody(
       messageType := HeaderTypes.MessageType.TYPE_CUSTOMER_AED,
       esdkSuiteId := esdkId,
@@ -275,6 +280,10 @@ module {:extern "EncryptDecrypt"} EncryptDecrypt {
     );
 
     // Add headerAuth requirements to Header type
+    assert Header.CorrectlyReadHeaderBody(
+      ReadableBytes(rawHeader, 0),
+      Success(Data(body, ReadableBytes(rawHeader, |rawHeader|))));
+    assert Header.HeaderAuth?(suite, headerAuth);
     assert Header.IsHeader(header);
 
     // assert ValidHeaderAuthenticationForRequest(headerAuthentication, headerBody) by{ // Header confirms to specification
