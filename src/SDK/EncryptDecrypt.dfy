@@ -490,6 +490,7 @@ module {:extern "EncryptDecrypt"} EncryptDecrypt {
     :- Need(headerBody.thing.contentType.Framed?, "Fix me");
 
 
+    assert {:split_here} true;
     // Currently the Encryption Context in the header MUST be the same
     // as the canonical encryption context in the header body.
     // Ideally, only the canonical encryption context needs to be serializable.
@@ -506,6 +507,7 @@ module {:extern "EncryptDecrypt"} EncryptDecrypt {
       headerAuth := headerAuth.thing
     );
 
+    assert {:split_here} true;
     assert Header.CorrectlyReadHeaderBody(
       ReadableBytes(rawHeader, 0),
       Success(Data(headerBody.thing, ReadableBytes(rawHeader, |rawHeader|))));
@@ -519,6 +521,7 @@ module {:extern "EncryptDecrypt"} EncryptDecrypt {
       headerAuth.tail
     ).MapFailure(MapSerializeFailure);
 
+    assert {:split_here} true;
     assert suite == messageBody.thing.finalFrame.header.suite;
     assert |decryptionKey| == messageBody.thing.finalFrame.header.suite.encrypt.keyLength as int;
 
