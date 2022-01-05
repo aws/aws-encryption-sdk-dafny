@@ -261,7 +261,7 @@ module {:extern "Dafny.Aws.Crypto"} Aws.Crypto {
     // KMS - Discovery
     datatype CreateAwsKmsDiscoveryKeyringInput = CreateAwsKmsDiscoveryKeyringInput(
         nameonly kmsClient: KMS.IKeyManagementServiceClient,
-        nameonly discoveryFilter: DiscoveryFilter,
+        nameonly discoveryFilter: Option<DiscoveryFilter>,
         grantTokens: Option<GrantTokenList>
     )
 

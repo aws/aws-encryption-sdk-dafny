@@ -55,6 +55,7 @@ module
     provides
       AwsCryptographicMaterialProvidersClient.CreateRawAesKeyring,
       AwsCryptographicMaterialProvidersClient.CreateMrkAwareStrictAwsKmsKeyring,
+      AwsCryptographicMaterialProvidersClient.CreateAwsKmsDiscoveryKeyring,
       AwsCryptographicMaterialProvidersClient.CreateDefaultCryptographicMaterialsManager,
       AwsCryptographicMaterialProvidersClient.CreateMultiKeyring
 

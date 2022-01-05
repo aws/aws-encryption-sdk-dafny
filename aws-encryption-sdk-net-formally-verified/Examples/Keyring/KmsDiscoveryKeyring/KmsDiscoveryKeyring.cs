@@ -31,6 +31,8 @@ public class AwsKmsDiscoveryKeyringExample {
         // Create the keyring that determines how your data keys are protected. Though this example highlights
         // Discovery keyrings, Discovery keyrings cannot be used to encrypt, so we create a Strict KMS keyring
         // for encryption.
+        // TODO: probably move to a normal strict keyring, making this MRK-aware is unnecessary and potentially
+        //  confusing, since we're not using an MRK
         CreateMrkAwareStrictAwsKmsKeyringInput createKeyringInput = new CreateMrkAwareStrictAwsKmsKeyringInput
         {
             KmsClient = new AmazonKeyManagementServiceClient(),

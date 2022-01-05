@@ -105,8 +105,10 @@ module
         && res.Failure?
 
       ensures
+        && var maybeStringifiedEncCtx := StringifyEncryptionContext(input.materials.encryptionContext);
         && input.materials.plaintextDataKey.None?
         && res.Success?
+        && maybeStringifiedEncCtx.Success?
       ==>
         && res.value.materials.plaintextDataKey.Some?
         && exists edk: Crypto.EncryptedDataKey, awsKmsKey: string
@@ -119,7 +121,6 @@ module
           && edk.keyProviderId == PROVIDER_ID
           && KMS.IsValid_CiphertextType(edk.ciphertext)
           && KMS.IsValid_KeyIdType(awsKmsKey)
-          && var maybeStringifiedEncCtx := StringifyEncryptionContext(input.materials.encryptionContext);
           && var request := KMS.DecryptRequest(
             KeyId := Option.Some(awsKmsKey),
             CiphertextBlob :=  edk.ciphertext,
@@ -260,7 +261,6 @@ module
               EncryptionAlgorithm := Some(KMS.EncryptionAlgorithmSpec.SYMMETRIC_DEFAULT) // TODO, don't hardcode
             );
             && client.DecryptSucceededWith(request, response);
-
           Success(Crypto.OnDecryptOutput(materials := mat))
 
         //= compliance/framework/aws-kms/aws-kms-discovery-keyring.txt#2.8
@@ -311,7 +311,7 @@ module
           && helper.edk.keyProviderId == PROVIDER_ID
           && helper.edk == edk
           && helper.arn.resource.resourceType == "key"
-          && DiscoveryMatch(h.arn, discoveryFilter)
+          && DiscoveryMatch(helper.arn, discoveryFilter)
         else
           && |res.value| == 0
       )
