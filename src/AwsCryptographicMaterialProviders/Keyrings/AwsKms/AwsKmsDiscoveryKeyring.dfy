@@ -307,10 +307,10 @@ module
         && res.Success?
       ==>
         if |res.value| == 1 then
-          && var h := res.value[0];
-          && h.edk.keyProviderId == PROVIDER_ID
-          && h.edk == edk
-          && h.arn.resource.resourceType == "key"
+          && var helper := res.value[0];
+          && helper.edk.keyProviderId == PROVIDER_ID
+          && helper.edk == edk
+          && helper.arn.resource.resourceType == "key"
           && DiscoveryMatch(h.arn, discoveryFilter)
         else
           && |res.value| == 0
