@@ -9,14 +9,30 @@ module Actions {
   import opened Wrappers
   import opened Seq
 
+  /*
+   * A trait that can execute arbitrary actions on input type A
+   * and return results of type R.
+   */
   trait {:termination false} Action<A, R>
   {
+    /*
+     * Contains the implementation of the given action
+     */
     method Invoke(a: A)
       returns (r: R)
       ensures Ensures(a, r)
+
+    /*
+     * Contains the assertions that should be true upon return of the Invoke method
+     */
     predicate Ensures(a: A, r: R)
   }
 
+  /*
+   * A trait that can execute actions which can fail. Is invoked on inputs
+   * of type A, and returns Result types which contain type R on success
+   * or type E on failure.
+   */
   trait {:termination false} ActionWithResult<A, R, E>
     extends Action<A, Result<R, E>>
   {
@@ -25,6 +41,10 @@ module Actions {
       ensures Ensures(a, res)
   }
 
+  /*
+   * Returns a sequence with elements of type R which is built by executing the input action
+   * to all items in the input sequence.
+   */
   method Map<A, R>(
     action: Action<A, R>,
     s: seq<A>
@@ -51,6 +71,9 @@ module Actions {
     return rs;
   }
 
+  /*
+   * A specialized version of the Map method which allows actions that can fail.
+   */
   // TODO: Change R(0) -> R once https://github.com/dafny-lang/dafny/issues/1553 resolved
   method MapWithResult<A, R(0), E>(
     action: ActionWithResult<A, R, E>,
@@ -83,6 +106,9 @@ module Actions {
     return Success(rs);
   }
 
+  /*
+   * A specialized version of the Map method whose action always returns sequences.
+   */
   method FlatMap<A, R>(
     action: Action<A, seq<R>>,
     s: seq<A>
@@ -111,6 +137,9 @@ module Actions {
     return rs;
   }
 
+  /*
+   * A specialized version of the FlatMap method whose action may fail.
+   */
   method FlatMapWithResult<A, R, E>(
     action: ActionWithResult<A, seq<R>, E>,
     s: seq<A>
@@ -146,6 +175,11 @@ module Actions {
     return Success(rs), parts;
   }
 
+  /*
+   * Given an input action (which must return a boolean) and an input sequence,
+   * returns a sequence containing only those items from the input sequence which
+   * return true when the action is invoked on them.
+   */
   method Filter<A>(
     action: Action<A, bool>,
     s: seq<A>
@@ -176,7 +210,9 @@ module Actions {
     return rs;
   }
 
-
+  /*
+   * Specialized version of Filter whose input action may fail.
+   */
   method FilterWithResult<A, E>(
     action: ActionWithResult<A, bool, E>,
     s: seq<A>
@@ -209,6 +245,13 @@ module Actions {
     return Success(rs);
   }
 
+  /*
+   * Given an input action which may fail and an input sequence, executes the
+   * given action on each element of the sequence until either one succeeds or
+   * all have failed. If one succeeds, this method returns immediately with
+   * the successful attempts result. If all fails, this method returns a single
+   * failure which aggregates all failures.
+   */
   method ReduceToSuccess<A, B, E>(
     action: ActionWithResult<A, B, E>,
     s: seq<A>
