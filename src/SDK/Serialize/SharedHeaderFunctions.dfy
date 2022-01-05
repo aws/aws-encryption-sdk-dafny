@@ -75,7 +75,10 @@ module SharedHeaderFunctions {
     :(res: ReadBinaryCorrect<MessageID>)
     ensures CorrectlyRead(bytes, res, WriteMessageId)
   {
-    SerializeFunctions.Read(bytes, MESSAGE_ID_LEN)
+    var data :- SerializeFunctions.Read(bytes, MESSAGE_ID_LEN);
+    var messageId: MessageID := data.thing;
+
+    Success(Data(messageId, data.tail))
   }
 
   function method WriteContentType(

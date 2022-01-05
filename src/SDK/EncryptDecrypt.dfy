@@ -379,13 +379,13 @@ module {:extern "EncryptDecrypt"} EncryptDecrypt {
     true
   }
 
-  // method Decrypt(request: DecryptRequest) returns (res: Result<seq<uint8>, string>)
-  //   ensures request.cmm == null && request.keyring == null ==> res.Failure?
-  //   ensures request.cmm != null && request.keyring != null ==> res.Failure?
-  // {
-  //   var decryptWithVerificationInfo :- DecryptWithVerificationInfo(request);
-  //   return Success(decryptWithVerificationInfo.plaintext);
-  // }
+  method Decrypt(request: DecryptRequest) returns (res: Result<seq<uint8>, string>)
+    ensures request.cmm == null && request.keyring == null ==> res.Failure?
+    ensures request.cmm != null && request.keyring != null ==> res.Failure?
+  {
+    var plaintext :- DecryptWithVerificationInfo(request);
+    return Success(plaintext);
+  }
 
   datatype DecryptResultWithVerificationInfo = DecryptResultWithVerificationInfo(
           plaintext: seq<uint8>,
