@@ -53,29 +53,14 @@ module SerializeFunctions {
   // it may be other types.
   type ReadBinaryCorrect<T> = ReadResult<T, MoreNeeded>
 
-  predicate CorrectlyReadRange<T>(
+  predicate CorrectlyReadRange(
     bytes: ReadableBytes,
-    res: ReadCorrect<T>
+    tail: ReadableBytes
   )
   {
-    res.Success?
-    ==>
-      && var Data(thing, tail) := res.value;
-      && tail.data == bytes.data
-      && |tail.data| >= tail.start >= bytes.start
-      && bytes.data[bytes.start..tail.start] == tail.data[bytes.start..tail.start]
-  }
-
-  predicate CorrectlyInvertWrite<T> (
-    bytes: ReadableBytes,
-    res: ReadCorrect<T>,
-    invertT: T -> seq<uint8>
-  )
-  {
-    res.Success?
-    ==>
-      && var Data(thing, tail) := res.value;
-      && invertT(thing) == tail.data[bytes.start..tail.start]
+    && tail.data == bytes.data
+    && |tail.data| >= tail.start >= bytes.start
+    && bytes.data[bytes.start..tail.start] == tail.data[bytes.start..tail.start]
   }
 
   predicate CorrectlyRead<T> (
@@ -86,8 +71,9 @@ module SerializeFunctions {
   {
     res.Success?
     ==>
-      && CorrectlyReadRange(bytes, res)
-      && CorrectlyInvertWrite(bytes, res, invertT)
+      && var Data(thing, tail) := res.value;
+      && CorrectlyReadRange(bytes, tail)
+      && invertT(thing) == tail.data[bytes.start..tail.start]
   }
 
   // This function is trivial,

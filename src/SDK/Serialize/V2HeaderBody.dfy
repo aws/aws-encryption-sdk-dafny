@@ -91,7 +91,7 @@ module V2HeaderBody {
     res: ReadCorrect<V2HeaderBody>
   )
   {
-    && CorrectlyReadRange(bytes, res) 
+    && res.Success? ==> CorrectlyReadRange(bytes, res.value.tail)
     && (
       || (
         !IsV2ExpandedAADSection(bytes)
