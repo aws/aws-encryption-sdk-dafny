@@ -6,11 +6,11 @@ include "../../Materials.dfy"
 include "../../AlgorithmSuites.dfy"
 include "../../../StandardLibrary/StandardLibrary.dfy"
 include "../../../KMS/KMSUtils.dfy"
-include "../../../KMS/AmazonKeyManagementService.dfy"
 include "../../../KMS/AwsKmsArnParsing.dfy"
 include "../../../Util/UTF8.dfy"
 include "../../../../libraries/src/Collections/Sequences/Seq.dfy"
 include "../../../StandardLibrary/Actions.dfy"
+include "../../../Generated/KeyManagementService.dfy"
 include "Constants.dfy"
 
 module
@@ -20,14 +20,13 @@ module
   import opened StandardLibrary
   import opened Wrappers
   import opened UInt = StandardLibrary.UInt
-  import opened AwsKmsArnParsing
-  import opened AmazonKeyManagementService
   import opened Actions
   import opened Constants
   import AlgorithmSuites
   import Keyring
   import Materials
   import opened KMSUtils
+  import opened AwsKmsArnParsing
   import UTF8
   import KMS = Com.Amazonaws.Kms
 
@@ -183,7 +182,7 @@ module
         && |encryptedDataKeys| >= |edksToAttempt|
         && multiset(parts[i]) <= multiset(edksToAttempt)
         && multiset(edksToAttempt) <= multiset(Seq.Flatten(parts))
-        && forall helper: AwsKmsEdkHelper
+        && forall helper: AwsKmsEdk
           | helper in parts[i]
           ::
             && helper in edksToAttempt
@@ -196,18 +195,18 @@ module
           assert |parts| * 1 >= |Seq.Flatten(parts)|;
         }
 
-        forall helper: AwsKmsEdkHelper
+        forall helper: AwsKmsEdk
         | helper in parts[i]
         ensures
           && helper in edksToAttempt
           && helper.edk == encryptedDataKeys[i]
           && helper.arn.resource.resourceType == "key"
         {
-          LemmaMultisetSubMemebership(parts[i], edksToAttempt);
+          LemmaMultisetSubMembership(parts[i], edksToAttempt);
         }
       }
 
-      forall helper: AwsKmsEdkHelper
+      forall helper: AwsKmsEdk
       | helper in edksToAttempt
       ensures
         && helper.edk in encryptedDataKeys
@@ -220,7 +219,7 @@ module
       //= compliance/framework/aws-kms/aws-kms-discovery-keyring.txt#2.8
       //# For each encrypted data key in the filtered set, one at a time, the
       //# OnDecrypt MUST attempt to decrypt the data key.
-      var decryptAction: DecryptSingleEncryptedDataKey := new DecryptSingleEncryptedDataKey(
+      var decryptAction: EncryptedDataKeyDecryptor := new EncryptedDataKeyDecryptor(
         materials,
         client,
         grantTokens
@@ -237,12 +236,13 @@ module
       var stringifiedEncCtx :- StringifyEncryptionContext(materials.encryptionContext);
       return match outcome {
         case Success(mat) =>
-          assert exists helper: AwsKmsEdkHelper | helper in edksToAttempt
+          assert exists helper: AwsKmsEdk | helper in edksToAttempt
           ::
             && var awsKmsKey := helper.arn.arnLiteral;
+            
             && var suite := AlgorithmSuites.GetSuite(input.materials.algorithmSuiteId);  
-            && helper.edk in encryptedDataKeys
-            && helper.arn.resource.resourceType == "key"
+            && helper.edk in encryptedDataKeys;
+            /*&& helper.arn.resource.resourceType == "key"
             && helper.edk.keyProviderId == PROVIDER_ID
             && decryptAction.Ensures(helper, Success(mat))
             && KMS.IsValid_CiphertextType(helper.edk.ciphertext)
@@ -261,6 +261,7 @@ module
               EncryptionAlgorithm := Some(KMS.EncryptionAlgorithmSpec.SYMMETRIC_DEFAULT) // TODO, don't hardcode
             );
             && client.DecryptSucceededWith(request, response);
+            */
           Success(Crypto.OnDecryptOutput(materials := mat))
 
         //= compliance/framework/aws-kms/aws-kms-discovery-keyring.txt#2.8
@@ -282,10 +283,20 @@ module
     }
   }
 
+  /*
+   * A class responsible for filtering Encrypted Data Keys based on whether they match
+   * an MRK-aware keyring's configuration. Specifically, this class knows how to filter
+   * based on region and discovery filters.
+   *
+   * TODO: Explain somewhere (here or maybe elsewhere) our motivation beyond our approach
+   * here. We're adding a lot of complexity to the code, which gives us good value (like
+   * being able to prove more things), but this comes at a cost. And the concept/approach
+   * are complicated enough that variable and method names alone are not enough.
+   */
   class OnDecryptEncryptedDataKeyFilterMap
     extends ActionWithResult<
       Crypto.EncryptedDataKey,
-      seq<AwsKmsEdkHelper>,
+      AwsKmsEdk,
       string
     >
   {
@@ -301,30 +312,25 @@ module
 
     predicate Ensures(
       edk: Crypto.EncryptedDataKey,
-      res: Result<seq<AwsKmsEdkHelper>, string>
+      res: Result<AwsKmsEdk, string>
     ) {
-      && (
-        && res.Success?
+      && res.Success?
       ==>
-        if |res.value| == 1 then
-          && var helper := res.value[0];
-          && helper.edk.keyProviderId == PROVIDER_ID
-          && helper.edk == edk
-          && helper.arn.resource.resourceType == "key"
-          && DiscoveryMatch(helper.arn, discoveryFilter)
-        else
-          && |res.value| == 0
-      )
+        && var matchingEdk := res.value;
+        && matchingEdk.edk.keyProviderId == PROVIDER_ID
+        && matchingEdk.edk == edk
+        && matchingEdk.arn.resource.resourceType == "key"
+        && DiscoveryMatch(matchingEdk.arn, discoveryFilter)
     }
 
     method Invoke(edk: Crypto.EncryptedDataKey
     )
-      returns (res: Result<seq<AwsKmsEdkHelper>, string>)
+      returns (res: Result<AwsKmsEdk, string>)
       ensures Ensures(edk, res)
     {
 
       if edk.keyProviderId != PROVIDER_ID {
-        return Success([]);
+        return Failure("TODO");
       }
 
       // The Keyring produces UTF8 providerInfo.
@@ -342,18 +348,16 @@ module
       :- Need(arn.resource.resourceType == "key", "Only AWS KMS Keys supported");
 
       if !DiscoveryMatch(arn, discoveryFilter) {
-        return Success([]);
+        return Failure("TODO");
       }
 
-      return Success([
-        AwsKmsEdkHelper(edk, arn)
-      ]);
+      return Success(AwsKmsEdk(edk, arn));
     }
   }
 
-  class DecryptSingleEncryptedDataKey
+  class EncryptedDataKeyDecryptor
     extends ActionWithResult<
-      AwsKmsEdkHelper,
+      AwsKmsEdk,
       Materials.SealedDecryptionMaterials,
       string>
   {
@@ -377,7 +381,7 @@ module
     }
 
     predicate Ensures(
-      helper: AwsKmsEdkHelper,
+      helper: AwsKmsEdk,
       res: Result<Materials.SealedDecryptionMaterials, string>
     ) {
         res.Success?
@@ -406,7 +410,7 @@ module
     }
 
     method Invoke(
-      helper: AwsKmsEdkHelper
+      helper: AwsKmsEdk
     )
       returns (res: Result<Materials.SealedDecryptionMaterials, string>)
       ensures Ensures(helper, res)
@@ -477,7 +481,7 @@ module
     }
   }
 
-  lemma LemmaMultisetSubMemebership<T>(a: seq<T>, b: seq<T>)
+  lemma LemmaMultisetSubMembership<T>(a: seq<T>, b: seq<T>)
     requires multiset(a) <= multiset(b)
     ensures forall i | i in a :: i in b
   {
@@ -486,7 +490,7 @@ module
       assert multiset([Seq.First(a)]) <= multiset(b);
       assert Seq.First(a) in b;
       assert a == [Seq.First(a)] + a[1..];
-      LemmaMultisetSubMemebership(a[1..], b);
+      LemmaMultisetSubMembership(a[1..], b);
     }
   }
 
