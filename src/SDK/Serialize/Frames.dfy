@@ -137,25 +137,30 @@ module Frames {
     assert {:split_here} true;
     ReadableBytesStartPositionsAreAssociative(bytes, sequenceNumber.tail, iv.tail);
 
-    // It is not clear why this needs to be a separate variable.
-    // But this function does not verify if this seq is pass directly to the lemma.
+    assert {:split_here} true;
+    // // It is not clear why this needs to be a separate variable.
+    // // But this function does not verify if this seq is pass directly to the lemma.
     ghost var why? := [ bytes, sequenceNumber.tail, iv.tail, encContent.tail, authTag.tail ];
+    BBB(why?);
+    assert {:split_here} true;
+    assert CorrectlyReadRange(bytes, authTag.tail);
+
     AAA(why?);
 
-    assert {:split_here} true;
-    // This is here to help debug things.
-    // If this is uncommented, then the verification times out.
-    // But this assert takes a few min to write,
-    // so having it handy is helpful.
-    // assert authTag.tail.data[bytes.start..authTag.tail.start]
-    //   == authTag.tail.data[bytes.start..sequenceNumber.tail.start]
-    //   + authTag.tail.data[sequenceNumber.tail.start..iv.tail.start]
-    //   + authTag.tail.data[iv.tail.start..encContent.tail.start]
-    //   + authTag.tail.data[encContent.tail.start..authTag.tail.start];
+    // assert {:split_here} true;
+    // // This is here to help debug things.
+    // // If this is uncommented, then the verification times out.
+    // // But this assert takes a few min to write,
+    // // so having it handy is helpful.
+    // // assert authTag.tail.data[bytes.start..authTag.tail.start]
+    // //   == authTag.tail.data[bytes.start..sequenceNumber.tail.start]
+    // //   + authTag.tail.data[sequenceNumber.tail.start..iv.tail.start]
+    // //   + authTag.tail.data[iv.tail.start..encContent.tail.start]
+    // //   + authTag.tail.data[encContent.tail.start..authTag.tail.start];
 
-    assert authTag.tail.data == bytes.data;
-    assert |authTag.tail.data| >= authTag.tail.start >= bytes.start;
-    assert bytes.data[bytes.start..authTag.tail.start] == authTag.tail.data[bytes.start..authTag.tail.start];
+    // assert authTag.tail.data == bytes.data;
+    // assert |authTag.tail.data| >= authTag.tail.start >= bytes.start;
+    // assert bytes.data[bytes.start..authTag.tail.start] == authTag.tail.data[bytes.start..authTag.tail.start];
     assert WriteRegularFrame(regularFrame)
     == WriteUint32(regularFrame.seqNum) + Write(regularFrame.iv) + Write(regularFrame.encContent) + Write(regularFrame.authTag);
     assert {:split_here} true;
@@ -165,7 +170,9 @@ module Frames {
     == WriteUint32(sequenceNumber.thing) + Write(iv.thing) + Write(encContent.thing) + Write(authTag.thing);
     assert {:split_here} true;
     assert WriteRegularFrame(regularFrame) == authTag.tail.data[bytes.start..authTag.tail.start];
+    assert {:split_here} true;
     assert regularFrame.header == header;
+    assert {:split_here} true;
 
     Success(Data(regularFrame, authTag.tail))
   }
@@ -265,17 +272,20 @@ module Frames {
     // Checking only the content length _before_ reading it into memory
     // is just a nice thing to do given the sizes involved.
     var contentLength :- ReadUInt64(iv.tail);
-    assert {:split_here} true;
     :- Need(contentLength.thing as nat < SAFE_MAX_ENCRYPT, Error("Too Much"));
     var encContent :- ReadUint64Seq(iv.tail);
     var authTag :- Read(encContent.tail, header.suite.encrypt.tagLength as nat);
-    assert {:split_here} true;
+
     var nonFramed: NonFramed := Frame.NonFramed(
       header,
       iv.thing,
       encContent.thing,
       authTag.thing
     );
+
+    assert {:split_here} true;
+    BBB([bytes, iv.tail, encContent.tail, authTag.tail]);
+    assert CorrectlyReadRange(bytes, authTag.tail);
 
     Success(Data(nonFramed, authTag.tail))
   }

@@ -59,7 +59,7 @@ module SerializeFunctions {
   )
   {
     && tail.data == bytes.data
-    && |tail.data| >= tail.start >= bytes.start
+    && bytes.start <= tail.start <= |tail.data|
     && bytes.data[bytes.start..tail.start] == tail.data[bytes.start..tail.start]
   }
 
@@ -279,4 +279,14 @@ module SerializeFunctions {
       == positions[k].data[positions[i].start..positions[j].start] + positions[k].data[positions[j].start..positions[k].start]
   {}
 
+  lemma BBB(positions: seq<ReadableBytes>)
+    requires |positions| > 3
+    requires forall i,j
+    | 0 <= i < j < |positions|
+    :: CorrectlyReadRange(positions[i], positions[j])
+    ensures CorrectlyReadRange(Seq.First(positions), Seq.Last(positions))
+
+
+
+  {}
 }
