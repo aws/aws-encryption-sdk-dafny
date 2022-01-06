@@ -46,14 +46,15 @@ module
     //= type=implication
     //# On initialization the caller MUST provide:
     constructor (
+      //= compliance/framework/aws-kms/aws-kms-discovery-keyring.txt#2.6
+      //= type=implication
+      //# The AWS KMS SDK client MUST NOT be null.
+      // This is trivially true because the type we accept in this constructor
+      // is non-nullable (as evidenced by the lack of a '?')
       client: KMS.IKeyManagementServiceClient,
       discoveryFilter: Option<Crypto.DiscoveryFilter>,
       grantTokens: GrantTokens
     )
-    //= compliance/framework/aws-kms/aws-kms-discovery-keyring.txt#2.6
-    //= type=implication
-    //# The AWS KMS SDK client MUST NOT be null.
-    requires client != null
     ensures
         && this.client          == client
         && this.discoveryFilter == discoveryFilter
@@ -103,12 +104,18 @@ module
       ==>
         && res.Failure?
 
+      // If we could not convert the encryption context into a form understandable
+      // by KMS, the result must be failure
       ensures
-        && var maybeStringifiedEncCtx := StringifyEncryptionContext(input.materials.encryptionContext);
+        && StringifyEncryptionContext(input.materials.encryptionContext).Failure?
+      ==>
+        res.Failure?
+
+      ensures
         && input.materials.plaintextDataKey.None?
         && res.Success?
-        && maybeStringifiedEncCtx.Success?
       ==>
+        && var maybeStringifiedEncCtx := StringifyEncryptionContext(input.materials.encryptionContext);
         && res.value.materials.plaintextDataKey.Some?
         && exists edk: Crypto.EncryptedDataKey, awsKmsKey: string
         |
@@ -145,9 +152,13 @@ module
           //= type=implication
           //# If the response does satisfy these requirements then OnDecrypt MUST
           //# do the following with the response:
-          && DecryptResult(
-            awsKmsKey,
-            res.value.materials.plaintextDataKey.value)
+          && exists returnedKeyId, returnedEncryptionAlgorithm ::
+            && var response := KMS.DecryptResponse(
+              KeyId := returnedKeyId,
+              Plaintext := res.value.materials.plaintextDataKey,
+              EncryptionAlgorithm := returnedEncryptionAlgorithm
+            );
+            && client.DecryptSucceededWith(request, response)
           //= compliance/framework/aws-kms/aws-kms-discovery-keyring.txt#2.8
           //= type=implication
           //# *  The length of the response's "Plaintext" MUST equal the key
@@ -169,20 +180,21 @@ module
       //= compliance/framework/aws-kms/aws-kms-discovery-keyring.txt#2.8
       //# The set of encrypted data keys MUST first be filtered to match this
       //# keyring's configuration.
-      var edkFilterTransform : EncryptedDataKeyFilter := new EncryptedDataKeyFilter(discoveryFilter);
-      var edksToAttempt, parts :- Actions.FlatMapWithResult(edkFilterTransform, encryptedDataKeys);
+      var edkFilter : EncryptedDataKeyFilter := new EncryptedDataKeyFilter(discoveryFilter);
+      var edksToAttempt, parts :- Actions.FlatMapWithResult(edkFilter, encryptedDataKeys);
 
+      // TODO: rework this
       forall i
       | 0 <= i < |parts|
       ensures
-        && edkFilterTransform.Ensures(encryptedDataKeys[i], Success(parts[i]))
+        && edkFilter.Ensures(encryptedDataKeys[i], Success(parts[i]))
         && 1 >= |parts[i]|
         && |encryptedDataKeys| == |parts|
         && edksToAttempt == Seq.Flatten(parts)
         && |encryptedDataKeys| >= |edksToAttempt|
         && multiset(parts[i]) <= multiset(edksToAttempt)
         && multiset(edksToAttempt) <= multiset(Seq.Flatten(parts))
-        && forall helper: AwsKmsEdk
+        && forall helper: AwsKmsEdkHelper
           | helper in parts[i]
           ::
             && helper in edksToAttempt
@@ -195,7 +207,7 @@ module
           assert |parts| * 1 >= |Seq.Flatten(parts)|;
         }
 
-        forall helper: AwsKmsEdk
+        forall helper: AwsKmsEdkHelper
         | helper in parts[i]
         ensures
           && helper in edksToAttempt
@@ -206,7 +218,8 @@ module
         }
       }
 
-      forall helper: AwsKmsEdk
+      // TODO: rework this
+      forall helper: AwsKmsEdkHelper
       | helper in edksToAttempt
       ensures
         && helper.edk in encryptedDataKeys
@@ -233,35 +246,15 @@ module
         edksToAttempt
       );
 
-      var stringifiedEncCtx :- StringifyEncryptionContext(materials.encryptionContext);
       return match outcome {
         case Success(mat) =>
-          assert exists helper: AwsKmsEdk | helper in edksToAttempt
+          assert exists helper: AwsKmsEdkHelper | helper in edksToAttempt
           ::
-            && var awsKmsKey := helper.arn.arnLiteral;
-            
-            && var suite := AlgorithmSuites.GetSuite(input.materials.algorithmSuiteId);  
-            && helper.edk in encryptedDataKeys;
-            /*&& helper.arn.resource.resourceType == "key"
+            && var keyArn: string := helper.arn.arnLiteral;
+            && helper.edk in encryptedDataKeys
+            && helper.arn.resource.resourceType == "key"
             && helper.edk.keyProviderId == PROVIDER_ID
-            && decryptAction.Ensures(helper, Success(mat))
-            && KMS.IsValid_CiphertextType(helper.edk.ciphertext)
-            && KMS.IsValid_KeyIdType(awsKmsKey)
-            && var request := KMS.DecryptRequest(
-              KeyId := Option.Some(awsKmsKey),
-              CiphertextBlob :=  helper.edk.ciphertext,
-              EncryptionContext := Option.Some(stringifiedEncCtx),
-              GrantTokens := Option.Some(grantTokens),
-              EncryptionAlgorithm := Option.None()
-            );
-            && client.DecryptCalledWith(request)
-            && var response := KMS.DecryptResponse(
-              KeyId := Some(awsKmsKey),
-              Plaintext := mat.plaintextDataKey,
-              EncryptionAlgorithm := Some(KMS.EncryptionAlgorithmSpec.SYMMETRIC_DEFAULT) // TODO, don't hardcode
-            );
-            && client.DecryptSucceededWith(request, response);
-            */
+            && decryptAction.Ensures(helper, Success(mat));
           Success(Crypto.OnDecryptOutput(materials := mat))
 
         //= compliance/framework/aws-kms/aws-kms-discovery-keyring.txt#2.8
@@ -284,19 +277,26 @@ module
   }
 
   /*
-   * A class responsible for filtering Encrypted Data Keys based on whether they match
-   * an MRK-aware keyring's configuration. Specifically, this class knows how to filter
-   * based on region and discovery filters.
+   * A class responsible for both filtering and transforming Encrypted Data Keys.
    *
-   * TODO: Explain somewhere (here or maybe elsewhere) our motivation beyond our approach
-   * here. We're adding a lot of complexity to the code, which gives us good value (like
-   * being able to prove more things), but this comes at a cost. And the concept/approach
-   * are complicated enough that variable and method names alone are not enough.
+   * Filtering happens based on whether the input EDK is a valid AWS KMS-encrypted EDK,
+   * as well as whether it matches a configured Discovery Filter.
+   *
+   * The class also transforms input Crypto.EncryptedDataKey to Constants.AwsKmsEdk,
+   * which is primarily for convenience as the AwsKmsEdk helper class provides easier
+   * access to the KMS key ARN.
+   *
+   * Note that our return type (seq<AwsKmsEdk>) does not technically need to be a seq,
+   * since we are operating on a single EDK at a time. However, we want to be able to do
+   * one of three things: 1) the EDK matches our config so we transform/return it,
+   * 2) the EDK is valid but doesn't match our config, in which case we return nothing
+   * and continue to the remaining EDKs, and 3) the EDK is invalid and we want to fail
+   * immediately.
    */
   class EncryptedDataKeyFilter
     extends ActionWithResult<
       Crypto.EncryptedDataKey,
-      seq<AwsKmsEdk>,
+      seq<AwsKmsEdkHelper>,
       string
     >
   {
@@ -312,20 +312,23 @@ module
 
     predicate Ensures(
       edk: Crypto.EncryptedDataKey,
-      res: Result<seq<AwsKmsEdk>, string>
+      res: Result<seq<AwsKmsEdkHelper>, string>
     ) {
       && res.Success?
       ==>
-        && var matchingEdk := res.value[0];
-        && matchingEdk.edk.keyProviderId == PROVIDER_ID
-        && matchingEdk.edk == edk
-        && matchingEdk.arn.resource.resourceType == "key"
-        && DiscoveryMatch(matchingEdk.arn, discoveryFilter)
+        if |res.value| == 1 then
+          && var matchingEdk := res.value[0];
+          && matchingEdk.edk.keyProviderId == PROVIDER_ID
+          && matchingEdk.edk == edk
+          && matchingEdk.arn.resource.resourceType == "key"
+          && DiscoveryMatch(matchingEdk.arn, discoveryFilter)
+        else
+          && |res.value| == 0
     }
 
     method Invoke(edk: Crypto.EncryptedDataKey
     )
-      returns (res: Result<seq<AwsKmsEdk>, string>)
+      returns (res: Result<seq<AwsKmsEdkHelper>, string>)
       ensures Ensures(edk, res)
     {
 
@@ -351,13 +354,13 @@ module
         return Success([]);
       }
 
-      return Success([AwsKmsEdk(edk, arn)]);
+      return Success([AwsKmsEdkHelper(edk, arn)]);
     }
   }
 
   class EncryptedDataKeyDecryptor
     extends ActionWithResult<
-      AwsKmsEdk,
+      AwsKmsEdkHelper,
       Materials.SealedDecryptionMaterials,
       string>
   {
@@ -381,7 +384,7 @@ module
     }
 
     predicate Ensures(
-      helper: AwsKmsEdk,
+      helper: AwsKmsEdkHelper,
       res: Result<Materials.SealedDecryptionMaterials, string>
     ) {
         res.Success?
@@ -410,7 +413,7 @@ module
     }
 
     method Invoke(
-      helper: AwsKmsEdk
+      helper: AwsKmsEdkHelper
     )
       returns (res: Result<Materials.SealedDecryptionMaterials, string>)
       ensures Ensures(helper, res)

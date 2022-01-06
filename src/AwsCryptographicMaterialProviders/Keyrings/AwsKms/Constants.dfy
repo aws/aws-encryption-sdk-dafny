@@ -32,8 +32,4 @@ module Constants {
     edk: AwsKmsEncryptedDataKey,
     arn: AwsKmsArnParsing.AwsKmsArn
   )
-  datatype AwsKmsEdk = AwsKmsEdk(
-    edk: AwsKmsEncryptedDataKey,
-    arn: AwsKmsArnParsing.AwsKmsArn
-  )
 }

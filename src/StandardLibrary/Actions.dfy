@@ -107,7 +107,8 @@ module Actions {
   }
 
   /*
-   * A specialized version of the Map method whose action always returns sequences.
+   * A specialized version of the Map method whose action always returns sequences, which
+   * are flattened into a single final result
    */
   method FlatMap<A, R>(
     action: Action<A, seq<R>>,
