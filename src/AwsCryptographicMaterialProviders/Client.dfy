@@ -141,6 +141,8 @@ module
       // TODO: validation on discovery filter
 
       var grantTokens: Crypto.GrantTokenList := input.grantTokens.UnwrapOr([]);
+
+      // TODO: update to not 'expect' once we can return Result<IKeyring>
       expect 0 <= |grantTokens| <= 10;
       expect forall grantToken | grantToken in grantTokens :: 1 <= |grantToken| <= 8192;
 

@@ -5,7 +5,6 @@ include "../../Keyring.dfy"
 include "../../Materials.dfy"
 include "../../AlgorithmSuites.dfy"
 include "../../../StandardLibrary/StandardLibrary.dfy"
-include "../../../KMS/KMSUtils.dfy"
 include "../../../KMS/AwsKmsArnParsing.dfy"
 include "../../../Util/UTF8.dfy"
 include "../../../../libraries/src/Collections/Sequences/Seq.dfy"
@@ -25,7 +24,6 @@ module
   import AlgorithmSuites
   import Keyring
   import Materials
-  import opened KMSUtils
   import opened AwsKmsArnParsing
   import UTF8
   import KMS = Com.Amazonaws.Kms
@@ -40,7 +38,7 @@ module
   {
     const client: KMS.IKeyManagementServiceClient
     const discoveryFilter: Option<Crypto.DiscoveryFilter>
-    const grantTokens: GrantTokens
+    const grantTokens: KMS.GrantTokenList
 
     //= compliance/framework/aws-kms/aws-kms-discovery-keyring.txt#2.6
     //= type=implication
@@ -53,7 +51,7 @@ module
       // is non-nullable (as evidenced by the lack of a '?')
       client: KMS.IKeyManagementServiceClient,
       discoveryFilter: Option<Crypto.DiscoveryFilter>,
-      grantTokens: GrantTokens
+      grantTokens: KMS.GrantTokenList
     )
     ensures
         && this.client          == client
@@ -106,6 +104,7 @@ module
 
       // If we could not convert the encryption context into a form understandable
       // by KMS, the result must be failure
+      // TODO: add this to the spec
       ensures
         StringifyEncryptionContext(input.materials.encryptionContext).Failure?
       ==>
@@ -364,12 +363,12 @@ module
   {
     const materials: Materials.DecryptionMaterialsPendingPlaintextDataKey
     const client: KMS.IKeyManagementServiceClient
-    const grantTokens: GrantTokens
+    const grantTokens: KMS.GrantTokenList
 
     constructor(
       materials: Materials.DecryptionMaterialsPendingPlaintextDataKey,
       client: KMS.IKeyManagementServiceClient,
-      grantTokens: GrantTokens
+      grantTokens: KMS.GrantTokenList
     )
       ensures
       && this.materials == materials
