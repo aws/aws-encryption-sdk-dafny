@@ -107,16 +107,14 @@ module
       // If we could not convert the encryption context into a form understandable
       // by KMS, the result must be failure
       ensures
-        && StringifyEncryptionContext(input.materials.encryptionContext).Failure?
+        StringifyEncryptionContext(input.materials.encryptionContext).Failure?
       ==>
         res.Failure?
 
       ensures
-        && input.materials.plaintextDataKey.None?
-        && res.Success?
+        res.Success?
       ==>
         && var maybeStringifiedEncCtx := StringifyEncryptionContext(input.materials.encryptionContext);
-        && res.value.materials.plaintextDataKey.Some?
         && exists edk: Crypto.EncryptedDataKey, awsKmsKey: string
         |
           && edk in input.encryptedDataKeys
