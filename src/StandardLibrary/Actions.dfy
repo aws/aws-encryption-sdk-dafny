@@ -249,7 +249,7 @@ module Actions {
    * Given an input action which may fail and an input sequence, executes the
    * given action on each element of the sequence until either one succeeds or
    * all have failed. If one succeeds, this method returns immediately with
-   * the successful attempts result. If all fails, this method returns a single
+   * the successful attempt's result. If all fail, this method returns a single
    * failure which aggregates all failures.
    */
   method ReduceToSuccess<A, B, E>(
