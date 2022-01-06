@@ -113,27 +113,21 @@ datatype HeaderInfo = HeaderInfo(
     bytes: ReadableBytes,
     res: ReadCorrect<HeaderTypes.HeaderBody>
   )
-    ensures res.Success?
-    ==> |res.value.tail.data| >= res.value.tail.start >= bytes.start
   {
     res.Success?
     ==>
-    match res.value.thing
-    case V1HeaderBody(_,_,_,_,_,_,_,_) =>
-      V1HeaderBody.CorrectlyReadV1HeaderBody(bytes, res)
-    case V2HeaderBody(_,_,_,_,_,_,_) =>
-      V2HeaderBody.CorrectlyReadV2HeaderBody(bytes, res)
+    && CorrectlyReadRange(bytes, res.value.tail)
+    && match res.value.thing
+      case V1HeaderBody(_,_,_,_,_,_,_,_) =>
+        V1HeaderBody.CorrectlyReadV1HeaderBody(bytes, res)
+      case V2HeaderBody(_,_,_,_,_,_,_) =>
+        V2HeaderBody.CorrectlyReadV2HeaderBody(bytes, res)
   }
 
   function method WriteHeaderBody(
     body: HeaderTypes.HeaderBody
   )
     :(ret: seq<uint8>)
-    // ensures ret == match body
-    // case V1HeaderBody(_,_,_,_,_,_,_,_) =>
-    //   V1HeaderBody.WriteV1HeaderBody(body)
-    // case V2HeaderBody(_,_,_,_,_,_,_) =>
-    //   V2HeaderBody.WriteV2HeaderBody(body)
   {
     match body
     case V1HeaderBody(_,_,_,_,_,_,_,_) =>

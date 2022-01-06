@@ -106,10 +106,12 @@ module EncryptionContext {
       var ecOfFront := GetEncryptionContext(front);
 
       assert pairs == front + [tail];
+      assert {:split_here} true;
       assert ec.Keys == ecOfFront.Keys + {tail.key};
       assert ec == ecOfFront + map[tail.key := tail.value];
       assert |ecOfFront.Keys| == |ecOfFront|;
 
+      assert {:split_here} true;
       assert LinearLength(pairs) == Length(ec);
 
       LemmaLengthOfPairsEqualsEncryptionContext(front, ecOfFront);
