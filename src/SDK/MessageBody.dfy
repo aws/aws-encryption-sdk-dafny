@@ -794,7 +794,7 @@ module MessageBody {
       :- Need(regularFrame.thing.seqNum as nat == |regularFrames| + 1, Error("Sequence number out of order."));
       LemmaAddingNextRegularFrame(regularFrames, regularFrame.thing);
       var nextRegularFrames: MessageRegularFrames := regularFrames + [regularFrame.thing];
-      ReadableBytesStartPositionsAreAssociative(bytes, continuation, regularFrame.tail);
+      ConsecutiveReadsAreAssociative([bytes, continuation, regularFrame.tail]);
       ReadFramedMessageBody(
         bytes,
         header,
@@ -804,14 +804,14 @@ module MessageBody {
     else
       var finalFrame :- Frames.ReadFinalFrame(continuation, header);
       :- Need(finalFrame.thing.seqNum as nat == |regularFrames| + 1, Error("Sequence number out of order."));
-      ReadableBytesStartPositionsAreAssociative(bytes, continuation, finalFrame.tail);
+      ConsecutiveReadsAreAssociative([bytes, continuation, finalFrame.tail]);
       assert MessageFramesAreMonotonic(regularFrames + [finalFrame.thing]);
       assert MessageFramesAreForTheSameMessage(regularFrames + [finalFrame.thing]);
       var body: FramedMessage := FramedMessageBody(
         regularFrames := regularFrames,
         finalFrame := finalFrame.thing
       );
-      
+
       Success(Data(body, finalFrame.tail))
   }
 }

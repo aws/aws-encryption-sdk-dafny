@@ -134,45 +134,8 @@ module Frames {
       authTag.thing
     );
 
-    assert {:split_here} true;
-    ReadableBytesStartPositionsAreAssociative(bytes, sequenceNumber.tail, iv.tail);
-
-    assert {:split_here} true;
-    // // It is not clear why this needs to be a separate variable.
-    // // But this function does not verify if this seq is pass directly to the lemma.
     ghost var why? := [ bytes, sequenceNumber.tail, iv.tail, encContent.tail, authTag.tail ];
-    BBB(why?);
-    assert {:split_here} true;
-    assert CorrectlyReadRange(bytes, authTag.tail);
-
-    AAA(why?);
-
-    // assert {:split_here} true;
-    // // This is here to help debug things.
-    // // If this is uncommented, then the verification times out.
-    // // But this assert takes a few min to write,
-    // // so having it handy is helpful.
-    // // assert authTag.tail.data[bytes.start..authTag.tail.start]
-    // //   == authTag.tail.data[bytes.start..sequenceNumber.tail.start]
-    // //   + authTag.tail.data[sequenceNumber.tail.start..iv.tail.start]
-    // //   + authTag.tail.data[iv.tail.start..encContent.tail.start]
-    // //   + authTag.tail.data[encContent.tail.start..authTag.tail.start];
-
-    // assert authTag.tail.data == bytes.data;
-    // assert |authTag.tail.data| >= authTag.tail.start >= bytes.start;
-    // assert bytes.data[bytes.start..authTag.tail.start] == authTag.tail.data[bytes.start..authTag.tail.start];
-    assert WriteRegularFrame(regularFrame)
-    == WriteUint32(regularFrame.seqNum) + Write(regularFrame.iv) + Write(regularFrame.encContent) + Write(regularFrame.authTag);
-    assert {:split_here} true;
-    assert WriteRegularFrame(regularFrame)
-    == WriteUint32(sequenceNumber.thing) + Write(iv.thing) + Write(encContent.thing) + Write(authTag.thing);
-    assert authTag.tail.data[bytes.start..authTag.tail.start]
-    == WriteUint32(sequenceNumber.thing) + Write(iv.thing) + Write(encContent.thing) + Write(authTag.thing);
-    assert {:split_here} true;
-    assert WriteRegularFrame(regularFrame) == authTag.tail.data[bytes.start..authTag.tail.start];
-    assert {:split_here} true;
-    assert regularFrame.header == header;
-    assert {:split_here} true;
+    ConsecutiveReadsAreAssociative(why?);
 
     Success(Data(regularFrame, authTag.tail))
   }
@@ -218,45 +181,8 @@ module Frames {
       authTag.thing
     );
 
-    assert {:split_here} true;
-    ReadableBytesStartPositionsAreAssociative(bytes, finalFrameSignal.tail, authTag.tail);
-    ReadableBytesStartPositionsAreAssociative(bytes, sequenceNumber.tail, authTag.tail);
-    ReadableBytesStartPositionsAreAssociative(bytes, iv.tail, authTag.tail);
-    ReadableBytesStartPositionsAreAssociative(bytes, encContent.tail, authTag.tail);
-    assert {:split_here} true;
-    // It is not clear why this needs to be a separate variable.
-    // But this function does not verify if this seq is pass directly to the lemma.
     ghost var why? := [ bytes, finalFrameSignal.tail, sequenceNumber.tail, iv.tail, encContent.tail, authTag.tail ];
-    AAA(why?);
-
-    // This is here to help debug things.
-    // If this is uncommented, then the verification times out.
-    // But this assert takes a few min to write,
-    // so having it handy is helpful.
-    // assert authTag.tail.data[bytes.start..authTag.tail.start]
-    //   == authTag.tail.data[bytes.start..finalFrameSignal.tail.start]
-    //   + authTag.tail.data[finalFrameSignal.tail.start..sequenceNumber.tail.start]
-    //   + authTag.tail.data[sequenceNumber.tail.start..iv.tail.start]
-    //   + authTag.tail.data[iv.tail.start..encContent.tail.start]
-    //   + authTag.tail.data[encContent.tail.start..authTag.tail.start];
-
-    assert authTag.tail.data == bytes.data;
-    assert |authTag.tail.data| >= authTag.tail.start >= bytes.start;
-    assert {:split_here} true;
-    assert bytes.data[bytes.start..authTag.tail.start] == authTag.tail.data[bytes.start..authTag.tail.start];
-    assert {:split_here} true;
-    assert WriteFinalFrame(finalFrame)
-    == WriteUint32(finalFrameSignal.thing) + WriteUint32(finalFrame.seqNum) + Write(finalFrame.iv) + WriteUint32Seq(finalFrame.encContent) + Write(finalFrame.authTag);
-    assert {:split_here} true;
-    assert WriteFinalFrame(finalFrame)
-    == WriteUint32(finalFrameSignal.thing) +  WriteUint32(sequenceNumber.thing) + Write(iv.thing) + WriteUint32Seq(encContent.thing) + Write(authTag.thing);
-    assert {:split_here} true;
-    assert authTag.tail.data[bytes.start..authTag.tail.start]
-    == WriteUint32(finalFrameSignal.thing) +  WriteUint32(sequenceNumber.thing) + Write(iv.thing) + WriteUint32Seq(encContent.thing) + Write(authTag.thing);
-    assert {:split_here} true;
-    assert WriteFinalFrame(finalFrame) == authTag.tail.data[bytes.start..authTag.tail.start];
-    assert {:split_here} true;
-    assert finalFrame.header == header;
+    ConsecutiveReadsAreAssociative(why?);
 
     Success(Data(finalFrame, authTag.tail))
   }
@@ -283,9 +209,8 @@ module Frames {
       authTag.thing
     );
 
-    assert {:split_here} true;
-    BBB([bytes, iv.tail, encContent.tail, authTag.tail]);
-    assert CorrectlyReadRange(bytes, authTag.tail);
+    ghost var why? := [bytes, iv.tail, encContent.tail, authTag.tail];
+    ConsecutiveReadsAreAssociative(why?);
 
     Success(Data(nonFramed, authTag.tail))
   }

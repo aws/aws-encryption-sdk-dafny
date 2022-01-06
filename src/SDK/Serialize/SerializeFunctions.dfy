@@ -239,54 +239,125 @@ module SerializeFunctions {
     Success(d)
   }
 
-  lemma ReadableBytesStartPositionsAreAssociative(
-    head: ReadableBytes,
-    mid: ReadableBytes,
-    tail: ReadableBytes
+  // Combining consecutive reads can be problematic for Dafny to prove `CorrectlyRead`.
+  // This lemma aims to simplify this by proving
+  // that the total bytes read is equal to the sum of all `Read` calls.
+  // This lemma works for any function
+  // that uses `Read`, `CorrectlyRead` and `CorrectlyReadRange`
+  // as the basis for its correctness.
+  // A simple example is to prove the following assert:
+  // 
+  //  var first :- Read(bytes, a);
+  //  var second :- Read(bytes, b);
+  //  var third :- Read(bytes, c);
+  //  var fourth :- Read(bytes, d);
+  //  assert fourth.tail.data[bytes.start..fourth.tail]
+  //  == fourth.tail.data[bytes.start..first.tail.start]
+  //  + fourth.tail.data[first.tail.start..second.tail.start]
+  //  + fourth.tail.data[second.tail.start..third.tail.start]
+  //  + fourth.tail.data[third.tail.start..fourth.tail.start]
+  lemma ConsecutiveReadsAreAssociative(positions: seq<ReadableBytes>)
+    requires |positions| >= 2
+    requires PositionsAreConsecutive(positions)
+
+    ensures
+      var readableRanges := PositionsToReadableRanges(positions);
+    && ReadRange((Seq.First(positions), Seq.Last(positions)))
+    == ConcatenateRanges(readableRanges)
+  {
+    if |positions| == 2 {
+      assert PositionsToReadableRanges(positions) == [(positions[0], positions[1])];
+      assert ReadRange((Seq.First(positions), Seq.Last(positions))) == ConcatenateRanges(PositionsToReadableRanges(positions));
+    } else {
+      var tail := Seq.Last(positions);
+      var left := Seq.DropLast(positions);
+
+      assert ReadRange((Seq.First(positions),  Seq.Last(positions)))
+      == ReadRange((Seq.First(positions), Seq.Last(left))) + ReadRange((Seq.Last(left), tail));
+      LemmaLast(positions);
+
+      assert PositionsToReadableRanges(positions) == PositionsToReadableRanges(left) + [(Seq.Last(left), tail)];
+      assert ConcatenateRanges(PositionsToReadableRanges(positions)) == ConcatenateRanges(PositionsToReadableRanges(left)) + ReadRange((Seq.Last(left), tail));
+
+      ConsecutiveReadsAreAssociative(Seq.DropLast(positions));
+    }
+  }
+
+  // This ensures that all the `start` positions
+  // in the seq of ReadableBytes
+  // are moving "down" the binary data.
+  // The goal is that these positions
+  // come from a sequence of consecutive `Read`
+  // or more complicated `Read*` calls.
+  predicate PositionsAreConsecutive(
+    positions: seq<ReadableBytes>
   )
-    requires head.data == mid.data == tail.data
-    requires head.start <= mid.start <= tail.start <= |tail.data|
-    ensures tail.data[head.start..tail.start]
-      == tail.data[head.start..mid.start] + tail.data[mid.start..tail.start]
-  {}
-
-  // The goal here is to create a generic ReadableBytesStartPositionsAreAssociative
-  // not just one that works for 3 points.
-  // Both of these together prove things that the verifier enjoys a lot.
-  lemma AAA(positions: seq<ReadableBytes>)
-    requires forall i,j
-    | 0 <= i < j < |positions|
-    ::
-      && positions[i].data == positions[j].data == Seq.Last(positions).data
-      && positions[i].start <= positions[j].start <= |Seq.Last(positions).data|
-    ensures forall i,j,k
-    |
-      && 0 <= i < j < k < |positions|
-    ::
-      var left := Read(positions[i], positions[j].start - positions[i].start);
-      var right := Read(positions[j], positions[k].start - positions[j].start);
-      var both := Read(positions[i], positions[k].start - positions[i].start);
-
-      && left.Success?
-      && right.Success?
-      && both.Success?
-
-      && left.value.tail == positions[j]
-      && right.value.tail == positions[k]
-      && both.value.tail == positions[k]
-      && both.value.thing == left.value.thing + right.value.thing
-      && positions[k].data[positions[i].start..positions[k].start]
-      == positions[k].data[positions[i].start..positions[j].start] + positions[k].data[positions[j].start..positions[k].start]
-  {}
-
-  lemma BBB(positions: seq<ReadableBytes>)
-    requires |positions| > 3
-    requires forall i,j
+  {
+    forall i,j
     | 0 <= i < j < |positions|
     :: CorrectlyReadRange(positions[i], positions[j])
-    ensures CorrectlyReadRange(Seq.First(positions), Seq.Last(positions))
+  }
 
+  // Since each position is consecutive it represents the "end of a read".
+  // This means that each consecutive pair of positions is a read,
+  // and therefore represents a range.
+  // e.g. the start of the last read to the start of the next read.
+  // This function translates these positions into these ranges.
+  function PositionsToReadableRanges(positions: seq<ReadableBytes>)
+    :(ranges: seq<(ReadableBytes, ReadableBytes)>)
+    requires |positions| >= 2
+    requires PositionsAreConsecutive(positions)
 
+    ensures |ranges| == |positions| - 1
+    ensures Seq.First(positions) == Seq.First(ranges).0
+    ensures Seq.Last(positions) == Seq.Last(ranges).1
+    // There MUST NOT be any gap between ranges.
+    // The end of one range MUST be the start of the next.
+    ensures forall i,j
+    | 0 <= i < j < |ranges| && i + 1 == j
+    :: ranges[i].1 == ranges[j].0
+    ensures forall i
+    | 0 <= i < |ranges|
+    :: CorrectlyReadRange(ranges[i].0, ranges[i].1)
+  {
+    Seq.Zip(
+      Seq.DropLast(positions),
+      Seq.DropFirst(positions))
+  }
 
-  {}
+  // Given a sequence of ranges this function will concatenate them.
+  // This function simplifies this concatenation
+  // in a way that makes it easy to prove
+  // that it is equal to the "complete range"
+  // e.g. the very first read position, to the very last read position.
+  function ConcatenateRanges(ranges: seq<(ReadableBytes, ReadableBytes)>)
+    :(ret: seq<uint8>)
+    requires forall i,j
+    | 0 <= i < j < |ranges| && i + 1 == j
+    :: ranges[i].1 == ranges[j].0
+    requires forall i
+    | 0 <= i < |ranges|
+    :: CorrectlyReadRange(ranges[i].0, ranges[i].1)
+    ensures if |ranges| == 0 then
+      ret == []
+    else
+      ret == ConcatenateRanges(Seq.DropLast(ranges)) + ReadRange(Seq.Last(ranges))
+  {
+    if |ranges| == 0 then
+      []
+    else
+      ConcatenateRanges(Seq.DropLast(ranges)) + ReadRange(Seq.Last(ranges))
+  }
+
+  // Given a range, please read it.
+  // Just sugar to make things more readable.
+  function ReadRange(
+    range: (ReadableBytes, ReadableBytes)
+  )
+    :(ret: seq<uint8>)
+    requires CorrectlyReadRange(range.0, range.1)
+  {
+    range.1.data[range.0.start..range.1.start]
+  }
+
 }
