@@ -169,7 +169,7 @@ module
       //= compliance/framework/aws-kms/aws-kms-discovery-keyring.txt#2.8
       //# The set of encrypted data keys MUST first be filtered to match this
       //# keyring's configuration.
-      var edkFilterTransform : OnDecryptEncryptedDataKeyFilterMap := new OnDecryptEncryptedDataKeyFilterMap(discoveryFilter);
+      var edkFilterTransform : EncryptedDataKeyFilter := new EncryptedDataKeyFilter(discoveryFilter);
       var edksToAttempt, parts :- Actions.FlatMapWithResult(edkFilterTransform, encryptedDataKeys);
 
       forall i
@@ -293,10 +293,10 @@ module
    * being able to prove more things), but this comes at a cost. And the concept/approach
    * are complicated enough that variable and method names alone are not enough.
    */
-  class OnDecryptEncryptedDataKeyFilterMap
+  class EncryptedDataKeyFilter
     extends ActionWithResult<
       Crypto.EncryptedDataKey,
-      AwsKmsEdk,
+      seq<AwsKmsEdk>,
       string
     >
   {
@@ -312,11 +312,11 @@ module
 
     predicate Ensures(
       edk: Crypto.EncryptedDataKey,
-      res: Result<AwsKmsEdk, string>
+      res: Result<seq<AwsKmsEdk>, string>
     ) {
       && res.Success?
       ==>
-        && var matchingEdk := res.value;
+        && var matchingEdk := res.value[0];
         && matchingEdk.edk.keyProviderId == PROVIDER_ID
         && matchingEdk.edk == edk
         && matchingEdk.arn.resource.resourceType == "key"
@@ -325,12 +325,12 @@ module
 
     method Invoke(edk: Crypto.EncryptedDataKey
     )
-      returns (res: Result<AwsKmsEdk, string>)
+      returns (res: Result<seq<AwsKmsEdk>, string>)
       ensures Ensures(edk, res)
     {
 
       if edk.keyProviderId != PROVIDER_ID {
-        return Failure("TODO");
+        return Success([]);
       }
 
       // The Keyring produces UTF8 providerInfo.
@@ -348,10 +348,10 @@ module
       :- Need(arn.resource.resourceType == "key", "Only AWS KMS Keys supported");
 
       if !DiscoveryMatch(arn, discoveryFilter) {
-        return Failure("TODO");
+        return Success([]);
       }
 
-      return Success(AwsKmsEdk(edk, arn));
+      return Success([AwsKmsEdk(edk, arn)]);
     }
   }
 
