@@ -53,8 +53,8 @@ datatype HeaderInfo = HeaderInfo(
     // This means that a correct header is defined by reading.
     // Less options to keep track of.
     && CorrectlyReadHeaderBody(
-      ReadableBytes(h.rawHeader, 0), 
-      Success(Data(h.body, ReadableBytes(h.rawHeader, |h.rawHeader|))))
+      ReadableBuffer(h.rawHeader, 0), 
+      Success(SuccessfulRead(h.body, ReadableBuffer(h.rawHeader, |h.rawHeader|))))
     // I would like to have this relationship, but the CMM really gets to control this
     // So I'm going to push towards this distinguishing the stored vs the "complete" encryption context.
     // && h.encryptionContext == EncryptionContext.GetEncryptionContext(h.body.encryptionContext)
@@ -90,38 +90,38 @@ datatype HeaderInfo = HeaderInfo(
   witness *
 
   function method ReadHeaderBody(
-     bytes: ReadableBytes
+     buffer: ReadableBuffer
   )
     :(res: ReadCorrect<HeaderTypes.HeaderBody>)
-    ensures CorrectlyReadHeaderBody(bytes, res)
+    ensures CorrectlyReadHeaderBody(buffer, res)
   {
 
-    var version :- SharedHeaderFunctions.ReadMessageFormatVersion(bytes);
+    var version :- SharedHeaderFunctions.ReadMessageFormatVersion(buffer);
 
-    match version.thing
+    match version.data
     case V1 => 
-      var b :- V1HeaderBody.ReadV1HeaderBody(bytes);
-      var body: HeaderTypes.HeaderBody := b.thing;
-      Success(Data(body, b.tail))
+      var b :- V1HeaderBody.ReadV1HeaderBody(buffer);
+      var body: HeaderTypes.HeaderBody := b.data;
+      Success(SuccessfulRead(body, b.tail))
     case V2 => 
-      var b :- V2HeaderBody.ReadV2HeaderBody(bytes);
-      var body: HeaderTypes.HeaderBody := b.thing;
-      Success(Data(body, b.tail))
+      var b :- V2HeaderBody.ReadV2HeaderBody(buffer);
+      var body: HeaderTypes.HeaderBody := b.data;
+      Success(SuccessfulRead(body, b.tail))
   }
 
   predicate CorrectlyReadHeaderBody(
-    bytes: ReadableBytes,
+    buffer: ReadableBuffer,
     res: ReadCorrect<HeaderTypes.HeaderBody>
   )
   {
     res.Success?
     ==>
-    && CorrectlyReadRange(bytes, res.value.tail)
-    && match res.value.thing
+    && CorrectlyReadRange(buffer, res.value.tail)
+    && match res.value.data
       case V1HeaderBody(_,_,_,_,_,_,_,_) =>
-        V1HeaderBody.CorrectlyReadV1HeaderBody(bytes, res)
+        V1HeaderBody.CorrectlyReadV1HeaderBody(buffer, res)
       case V2HeaderBody(_,_,_,_,_,_,_) =>
-        V2HeaderBody.CorrectlyReadV2HeaderBody(bytes, res)
+        V2HeaderBody.CorrectlyReadV2HeaderBody(buffer, res)
   }
 
   function method WriteHeaderBody(

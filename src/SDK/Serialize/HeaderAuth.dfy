@@ -38,25 +38,25 @@ module HeaderAuth {
   }
 
   function method ReadAESMac(
-    bytes: ReadableBytes,
+    buffer: ReadableBuffer,
     suite: Client.AlgorithmSuites.AlgorithmSuite
   )
     :(res: ReadCorrect<AESMac>)
-    ensures CorrectlyRead(bytes, res, WriteAESMac)
+    ensures CorrectlyRead(buffer, res, WriteAESMac)
     ensures res.Success?
     ==>
-      && |res.value.thing.headerIv| == suite.encrypt.ivLength as nat
-      && |res.value.thing.headerAuthTag| == suite.encrypt.tagLength as nat
+      && |res.value.data.headerIv| == suite.encrypt.ivLength as nat
+      && |res.value.data.headerAuthTag| == suite.encrypt.tagLength as nat
   {
-    var headerIv :- Read(bytes, suite.encrypt.ivLength as nat);
+    var headerIv :- Read(buffer, suite.encrypt.ivLength as nat);
     var headerAuthTag :- Read(headerIv.tail, suite.encrypt.tagLength as nat);
 
     var auth: AESMac := HeaderTypes.HeaderAuth.AESMac(
-      headerIv := headerIv.thing,
-      headerAuthTag := headerAuthTag.thing
+      headerIv := headerIv.data,
+      headerAuthTag := headerAuthTag.data
     );
 
-    Success(Data(auth, headerAuthTag.tail))
+    Success(SuccessfulRead(auth, headerAuthTag.tail))
   }
 
 }

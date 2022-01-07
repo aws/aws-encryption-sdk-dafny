@@ -49,53 +49,53 @@ module EncryptedDataKeys {
   }
 
   function method ReadEncryptedDataKey(
-    bytes: ReadableBytes
+    buffer: ReadableBuffer
   ):
     (res: ReadCorrect<ESDKEncryptedDataKey>)
-    ensures CorrectlyRead(bytes, res, WriteEncryptedDataKey)
+    ensures CorrectlyRead(buffer, res, WriteEncryptedDataKey)
   {
-    var Data(providerId, providerIdPos) :- ReadShortLengthSeq(bytes);
+    var SuccessfulRead(providerId, providerIdPos) :- ReadShortLengthSeq(buffer);
     :- Need(ValidUTF8Seq(providerId), Error("Invalid providerID"));
-    var Data(providerInfo, providerInfoPos) :- ReadShortLengthSeq(providerIdPos);
-    var Data(cipherText, tail) :- ReadShortLengthSeq(providerInfoPos);
+    var SuccessfulRead(providerInfo, providerInfoPos) :- ReadShortLengthSeq(providerIdPos);
+    var SuccessfulRead(cipherText, tail) :- ReadShortLengthSeq(providerInfoPos);
     var edk: ESDKEncryptedDataKey := Crypto.EncryptedDataKey(
         keyProviderId := providerId,
         keyProviderInfo := providerInfo,
         ciphertext := cipherText);
 
-    Success(Data(edk, tail))
+    Success(SuccessfulRead(edk, tail))
   }
 
   function method {:tailrecursion true} ReadEncryptedDataKeys(
-    bytes: ReadableBytes,
+    buffer: ReadableBuffer,
     accumulator: ESDKEncryptedDataKeys,
     count: uint16,
-    nextEdkStart: ReadableBytes
+    nextEdkStart: ReadableBuffer
   )
     :(res: ReadCorrect<ESDKEncryptedDataKeys>)
     requires 0 <= |accumulator| <= count as nat < UINT16_LIMIT
-    requires CorrectlyRead(bytes, Success(Data(accumulator, nextEdkStart)), WriteEncryptedDataKeys)
+    requires CorrectlyRead(buffer, Success(SuccessfulRead(accumulator, nextEdkStart)), WriteEncryptedDataKeys)
     decreases count as int - |accumulator|
-    ensures CorrectlyRead(bytes, res, WriteEncryptedDataKeys)
-    ensures res.Success? ==> count as nat == |res.value.thing|
+    ensures CorrectlyRead(buffer, res, WriteEncryptedDataKeys)
+    ensures res.Success? ==> count as nat == |res.value.data|
   {
     if count as int > |accumulator| then
-      var Data(edk, newPos) :- ReadEncryptedDataKey(nextEdkStart);
+      var SuccessfulRead(edk, newPos) :- ReadEncryptedDataKey(nextEdkStart);
       var nextAcc := accumulator + [edk];
-      ReadEncryptedDataKeys(bytes, nextAcc, count, newPos)
+      ReadEncryptedDataKeys(buffer, nextAcc, count, newPos)
     else
-      Success(Data(accumulator, nextEdkStart))
+      Success(SuccessfulRead(accumulator, nextEdkStart))
   }
 
   function method ReadEncryptedDataKeysSection(
-    bytes: ReadableBytes
+    buffer: ReadableBuffer
   )
     :(res: ReadCorrect<ESDKEncryptedDataKeys>)
-    ensures CorrectlyRead(bytes, res, WriteEncryptedDataKeysSection)
+    ensures CorrectlyRead(buffer, res, WriteEncryptedDataKeysSection)
   {
-    var Data(count, edkStart) :- ReadUInt16(bytes);
+    var SuccessfulRead(count, edkStart) :- ReadUInt16(buffer);
     :- Need(count > 0, Error("Invalid Encrypted Data Keys section: 0 EDKs is not valid."));
-    var Data(edks, tail) :- ReadEncryptedDataKeys(edkStart, [], count, edkStart);
-    Success(Data(edks, tail))
+    var SuccessfulRead(edks, tail) :- ReadEncryptedDataKeys(edkStart, [], count, edkStart);
+    Success(SuccessfulRead(edks, tail))
   }
 }

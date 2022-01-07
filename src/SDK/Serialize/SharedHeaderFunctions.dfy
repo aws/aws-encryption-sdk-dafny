@@ -31,15 +31,15 @@ module SharedHeaderFunctions {
   }
 
   function method ReadMessageFormatVersion(
-    bytes: ReadableBytes
+    buffer: ReadableBuffer
   )
     :(res: ReadCorrect<MessageFormatVersion>)
-    ensures CorrectlyRead(bytes, res, WriteMessageFormatVersion)
+    ensures CorrectlyRead(buffer, res, WriteMessageFormatVersion)
   {
-    var rawVersion :- SerializeFunctions.Read(bytes, 1);
+    var rawVersion :- SerializeFunctions.Read(buffer, 1);
 
-    var version :- MessageFormatVersion.Get(rawVersion.thing).MapFailure(e => Error(e));
-    Success(Data(version, rawVersion.tail))
+    var version :- MessageFormatVersion.Get(rawVersion.data).MapFailure(e => Error(e));
+    Success(SuccessfulRead(version, rawVersion.tail))
   }
 
   function method WriteESDKSuiteId(
@@ -51,14 +51,14 @@ module SharedHeaderFunctions {
   }
 
   function method ReadESDKSuiteId(
-    bytes: ReadableBytes
+    buffer: ReadableBuffer
   )
     :(res: ReadCorrect<ESDKAlgorithmSuiteId>)
-    ensures CorrectlyRead(bytes, res, WriteESDKSuiteId)
+    ensures CorrectlyRead(buffer, res, WriteESDKSuiteId)
   {
-    var Data(esdkSuiteId, tail) :- ReadUInt16(bytes);
+    var SuccessfulRead(esdkSuiteId, tail) :- ReadUInt16(buffer);
     :- Need(esdkSuiteId in VALID_IDS, Error("Algorithm suite ID not supported."));
-    Success(Data(esdkSuiteId, tail))
+    Success(SuccessfulRead(esdkSuiteId, tail))
   }
 
   function method WriteMessageId(
@@ -70,15 +70,15 @@ module SharedHeaderFunctions {
   }
 
   function method ReadMessageId(
-    bytes: ReadableBytes
+    buffer: ReadableBuffer
   )
     :(res: ReadBinaryCorrect<MessageID>)
-    ensures CorrectlyRead(bytes, res, WriteMessageId)
+    ensures CorrectlyRead(buffer, res, WriteMessageId)
   {
-    var data :- SerializeFunctions.Read(bytes, MESSAGE_ID_LEN);
-    var messageId: MessageID := data.thing;
+    var messageIdRead :- SerializeFunctions.Read(buffer, MESSAGE_ID_LEN);
+    var messageId: MessageID := messageIdRead.data;
 
-    Success(Data(messageId, data.tail))
+    Success(SuccessfulRead(messageId, messageIdRead.tail))
   }
 
   function method WriteContentType(
@@ -90,13 +90,13 @@ module SharedHeaderFunctions {
   }
 
   function method ReadContentType(
-    bytes: ReadableBytes
+    buffer: ReadableBuffer
   )
     :(res: ReadCorrect<ContentType>)
-    ensures CorrectlyRead(bytes, res, WriteContentType)
+    ensures CorrectlyRead(buffer, res, WriteContentType)
   {
-    var Data(raw, tail) :- SerializeFunctions.Read(bytes, 1);
+    var SuccessfulRead(raw, tail) :- SerializeFunctions.Read(buffer, 1);
     var contentType :- ContentType.Get(raw[0]).MapFailure(e => Error(e));
-    Success(Data(contentType, tail))
+    Success(SuccessfulRead(contentType, tail))
   }
 }

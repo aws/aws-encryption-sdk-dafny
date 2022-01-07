@@ -772,46 +772,46 @@ module MessageBody {
   }
 
   function method ReadFramedMessageBody(
-    bytes: ReadableBytes,
+    buffer: ReadableBuffer,
     header: Frames.FramedHeader,
     regularFrames: MessageRegularFrames,
-    continuation: ReadableBytes
+    continuation: ReadableBuffer
   )
     :(res: ReadCorrect<FramedMessage>)
     requires forall frame: Frames.Frame
     | frame in regularFrames
     :: frame.header == header
-    requires CorrectlyRead(bytes, Success(Data(regularFrames, continuation)), WriteMessageRegularFrames)
+    requires CorrectlyRead(buffer, Success(SuccessfulRead(regularFrames, continuation)), WriteMessageRegularFrames)
     decreases ENDFRAME_SEQUENCE_NUMBER as nat - |regularFrames|
-    ensures CorrectlyRead(bytes, res, WriteFramedMessageBody)
+    ensures CorrectlyRead(buffer, res, WriteFramedMessageBody)
     ensures res.Success?
     ==>
-      && res.value.thing.finalFrame.header == header
+      && res.value.data.finalFrame.header == header
   {
     var sequenceNumber :- ReadUInt32(continuation);
-    if (sequenceNumber.thing != ENDFRAME_SEQUENCE_NUMBER) then
+    if (sequenceNumber.data != ENDFRAME_SEQUENCE_NUMBER) then
       var regularFrame :- Frames.ReadRegularFrame(continuation, header);
-      :- Need(regularFrame.thing.seqNum as nat == |regularFrames| + 1, Error("Sequence number out of order."));
-      LemmaAddingNextRegularFrame(regularFrames, regularFrame.thing);
-      var nextRegularFrames: MessageRegularFrames := regularFrames + [regularFrame.thing];
-      ConsecutiveReadsAreAssociative([bytes, continuation, regularFrame.tail]);
+      :- Need(regularFrame.data.seqNum as nat == |regularFrames| + 1, Error("Sequence number out of order."));
+      LemmaAddingNextRegularFrame(regularFrames, regularFrame.data);
+      var nextRegularFrames: MessageRegularFrames := regularFrames + [regularFrame.data];
+      ConsecutiveReadsAreAssociative([buffer, continuation, regularFrame.tail]);
       ReadFramedMessageBody(
-        bytes,
+        buffer,
         header,
         nextRegularFrames,
         regularFrame.tail
       )
     else
       var finalFrame :- Frames.ReadFinalFrame(continuation, header);
-      :- Need(finalFrame.thing.seqNum as nat == |regularFrames| + 1, Error("Sequence number out of order."));
-      ConsecutiveReadsAreAssociative([bytes, continuation, finalFrame.tail]);
-      assert MessageFramesAreMonotonic(regularFrames + [finalFrame.thing]);
-      assert MessageFramesAreForTheSameMessage(regularFrames + [finalFrame.thing]);
+      :- Need(finalFrame.data.seqNum as nat == |regularFrames| + 1, Error("Sequence number out of order."));
+      ConsecutiveReadsAreAssociative([buffer, continuation, finalFrame.tail]);
+      assert MessageFramesAreMonotonic(regularFrames + [finalFrame.data]);
+      assert MessageFramesAreForTheSameMessage(regularFrames + [finalFrame.data]);
       var body: FramedMessage := FramedMessageBody(
         regularFrames := regularFrames,
-        finalFrame := finalFrame.thing
+        finalFrame := finalFrame.data
       );
 
-      Success(Data(body, finalFrame.tail))
+      Success(SuccessfulRead(body, finalFrame.tail))
   }
 }

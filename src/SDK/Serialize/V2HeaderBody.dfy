@@ -48,16 +48,16 @@ module V2HeaderBody {
   }
 
   function method ReadV2HeaderBody(
-    bytes: ReadableBytes
+    buffer: ReadableBuffer
   )
     :(res: ReadCorrect<V2HeaderBody>)
-    ensures CorrectlyReadV2HeaderBody(bytes, res)
+    ensures CorrectlyReadV2HeaderBody(buffer, res)
   {
-    var version :- SharedHeaderFunctions.ReadMessageFormatVersion(bytes);
-    :- Need(version.thing.V2?, Error("Message version must be version 1."));
+    var version :- SharedHeaderFunctions.ReadMessageFormatVersion(buffer);
+    :- Need(version.data.V2?, Error("Message version must be version 1."));
 
     var esdkSuiteId :- SharedHeaderFunctions.ReadESDKSuiteId(version.tail);
-    var suiteId := GetAlgorithmSuiteId(esdkSuiteId.thing);
+    var suiteId := GetAlgorithmSuiteId(esdkSuiteId.data);
     var suite := Client.SpecificationClient().GetSuite(suiteId);
     :- Need(suite.commitment.HKDF?, Error("Algorithm suite must support commitment."));
 
@@ -74,44 +74,44 @@ module V2HeaderBody {
     var suiteData :- Read(frameLength.tail, suite.commitment.outputKeyLength as nat);
 
     var body:V2HeaderBody := HeaderTypes.V2HeaderBody(
-      esdkSuiteId := esdkSuiteId.thing,
-      messageId := messageId.thing,
-      encryptionContext := encryptionContext.thing,
-      encryptedDataKeys := encryptedDataKeys.thing,
-      contentType := contentType.thing,
-      frameLength := frameLength.thing,
-      suiteData := suiteData.thing
+      esdkSuiteId := esdkSuiteId.data,
+      messageId := messageId.data,
+      encryptionContext := encryptionContext.data,
+      encryptedDataKeys := encryptedDataKeys.data,
+      contentType := contentType.data,
+      frameLength := frameLength.data,
+      suiteData := suiteData.data
     );
 
-    Success(Data(body, frameLength.tail))
+    Success(SuccessfulRead(body, frameLength.tail))
   }
 
   predicate CorrectlyReadV2HeaderBody(
-    bytes: ReadableBytes,
+    buffer: ReadableBuffer,
     res: ReadCorrect<V2HeaderBody>
   )
   {
-    && res.Success? ==> CorrectlyReadRange(bytes, res.value.tail)
+    && res.Success? ==> CorrectlyReadRange(buffer, res.value.tail)
     && (
       || (
-        !IsV2ExpandedAADSection(bytes)
+        !IsV2ExpandedAADSection(buffer)
         ==>
-          && CorrectlyRead(bytes, res, WriteV2HeaderBody))
+          && CorrectlyRead(buffer, res, WriteV2HeaderBody))
       // This is to handle the edge case in empty AAD see: `ReadAADSection`
       || (
-          IsV2ExpandedAADSection(bytes)
+          IsV2ExpandedAADSection(buffer)
         ==>
-          && CorrectlyRead(bytes, res, WriteV2ExpandedAADSectionHeader)))
+          && CorrectlyRead(buffer, res, WriteV2ExpandedAADSectionHeader)))
   }
 
   predicate IsV2ExpandedAADSection(
-    bytes: ReadableBytes
+    buffer: ReadableBuffer
   )
   {
     var headerBytesToAADStart := 1+2+16;
-    var aadStartPosition := bytes.start+headerBytesToAADStart;
-    && aadStartPosition+4 < |bytes.data|
-    && bytes.data[aadStartPosition..aadStartPosition+4] == [0,2,0,0]
+    var aadStartPosition := buffer.start+headerBytesToAADStart;
+    && aadStartPosition+4 < |buffer.bytes|
+    && buffer.bytes[aadStartPosition..aadStartPosition+4] == [0,2,0,0]
   }
 
   // This is *not* a function method,

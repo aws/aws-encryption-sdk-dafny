@@ -281,8 +281,8 @@ module {:extern "EncryptDecrypt"} EncryptDecrypt {
 
     // Add headerAuth requirements to Header type
     assert Header.CorrectlyReadHeaderBody(
-      ReadableBytes(rawHeader, 0),
-      Success(Data(body, ReadableBytes(rawHeader, |rawHeader|))));
+      ReadableBuffer(rawHeader, 0),
+      Success(SuccessfulRead(body, ReadableBuffer(rawHeader, |rawHeader|))));
     assert Header.HeaderAuth?(suite, headerAuth);
     assert Header.IsHeader(header);
 
@@ -433,16 +433,16 @@ module {:extern "EncryptDecrypt"} EncryptDecrypt {
       ));
     }
 
-    var bytes := SerializeFunctions.ReadableBytes(request.message, 0);
+    var buffer := SerializeFunctions.ReadableBuffer(request.message, 0);
     var headerBody :- Header
-      .ReadHeaderBody(bytes)
+      .ReadHeaderBody(buffer)
       .MapFailure((e: SerializeFunctions.ReadProblems) => match e
         case Error(e) => e
         case MoreNeeded(_) => "Incomplete message");
 
-    var rawHeader := headerBody.tail.data[bytes.start..headerBody.tail.start];
+    var rawHeader := headerBody.tail.bytes[buffer.start..headerBody.tail.start];
 
-    var esdkEncryptionContext := EncryptionContext.GetEncryptionContext(headerBody.thing.encryptionContext);
+    var esdkEncryptionContext := EncryptionContext.GetEncryptionContext(headerBody.data.encryptionContext);
 
     // var rd := new Streams.ByteReader(request.message);
     // var deserializeHeaderResult :- Deserialize.DeserializeHeader(rd);
@@ -465,8 +465,8 @@ module {:extern "EncryptDecrypt"} EncryptDecrypt {
     // }
 
     var decMatRequest := Crypto.DecryptMaterialsInput(
-      algorithmSuiteId:=SerializableTypes.GetAlgorithmSuiteId(headerBody.thing.esdkSuiteId),
-      encryptedDataKeys:=headerBody.thing.encryptedDataKeys,
+      algorithmSuiteId:=SerializableTypes.GetAlgorithmSuiteId(headerBody.data.esdkSuiteId),
+      encryptedDataKeys:=headerBody.data.encryptedDataKeys,
       encryptionContext:=esdkEncryptionContext);
     var output :- cmm.DecryptMaterials(decMatRequest);
     var decMat := output.decryptionMaterials;
@@ -482,7 +482,7 @@ module {:extern "EncryptDecrypt"} EncryptDecrypt {
       .ReadAESMac(headerBody.tail, suite)
       .MapFailure(MapSerializeFailure);
 
-    var decryptionKey := DeriveKey(decMat.plaintextDataKey.value, suite, headerBody.thing.messageId);
+    var decryptionKey := DeriveKey(decMat.plaintextDataKey.value, suite, headerBody.data.messageId);
 
     // There is nothing to compare since there was nothing to decrypt.
     // Success means that the tag is correct.
@@ -490,13 +490,13 @@ module {:extern "EncryptDecrypt"} EncryptDecrypt {
       suite.encrypt,
       decryptionKey,
       [], // The header auth is for integrity, not confidentiality
-      headerAuth.thing.headerAuthTag,
-      headerAuth.thing.headerIv,
+      headerAuth.data.headerAuthTag,
+      headerAuth.data.headerIv,
       rawHeader
     );
 
     // Need to add a message with 
-    :- Need(headerBody.thing.contentType.Framed?, "Fix me");
+    :- Need(headerBody.data.contentType.Framed?, "Fix me");
 
 
     assert {:split_here} true;
@@ -506,21 +506,21 @@ module {:extern "EncryptDecrypt"} EncryptDecrypt {
     :- Need(SerializableTypes.IsESDKEncryptionContext(decMat.encryptionContext), "CMM failed to return serializable encryption materials.");
     // The V2 message format not only supports commitment, it requires it.
     // Therefore the message format is bound to properties of the algorithm suite.
-    :- Need(Header.HeaderVersionSupportsCommitment?(suite, headerBody.thing), "Algorithm suite does not match message format.");
+    :- Need(Header.HeaderVersionSupportsCommitment?(suite, headerBody.data), "Algorithm suite does not match message format.");
 
     var header := Header.HeaderInfo(
-      body := headerBody.thing,
+      body := headerBody.data,
       rawHeader := rawHeader,
       encryptionContext := decMat.encryptionContext,
       suite := suite,
-      headerAuth := headerAuth.thing
+      headerAuth := headerAuth.data
     );
 
     assert {:split_here} true;
     assert Header.CorrectlyReadHeaderBody(
-      ReadableBytes(rawHeader, 0),
-      Success(Data(headerBody.thing, ReadableBytes(rawHeader, |rawHeader|))));
-    assert Header.HeaderAuth?(suite, headerAuth.thing);
+      ReadableBuffer(rawHeader, 0),
+      Success(SuccessfulRead(headerBody.data, ReadableBuffer(rawHeader, |rawHeader|))));
+    assert Header.HeaderAuth?(suite, headerAuth.data);
     assert Header.IsHeader(header);
 
     var messageBody :- MessageBody.ReadFramedMessageBody(
@@ -531,8 +531,8 @@ module {:extern "EncryptDecrypt"} EncryptDecrypt {
     ).MapFailure(MapSerializeFailure);
 
     assert {:split_here} true;
-    assert suite == messageBody.thing.finalFrame.header.suite;
-    assert |decryptionKey| == messageBody.thing.finalFrame.header.suite.encrypt.keyLength as int;
+    assert suite == messageBody.data.finalFrame.header.suite;
+    assert |decryptionKey| == messageBody.data.finalFrame.header.suite.encrypt.keyLength as int;
 
     // ghost var endHeaderPos := rd.reader.pos;
     // Parse the message body
@@ -541,7 +541,7 @@ module {:extern "EncryptDecrypt"} EncryptDecrypt {
       case NonFramed => return Failure("not at this time");
       //   plaintext :- MessageBody.DecryptNonFramedMessageBody(rd, suite, decryptionKey, header.body.messageID);
       case Framed =>
-        plaintext :- MessageBody.DecryptFramedMessageBody(messageBody.thing, decryptionKey);
+        plaintext :- MessageBody.DecryptFramedMessageBody(messageBody.data, decryptionKey);
     }
 
     // // Ghost variable contains frames which are deserialized from the data read after the header if the data is framed
@@ -583,11 +583,11 @@ module {:extern "EncryptDecrypt"} EncryptDecrypt {
 
     var signature :- VerifySignature(
       messageBody.tail,
-      messageBody.tail.data[bytes.start..messageBody.tail.start],
+      messageBody.tail.bytes[buffer.start..messageBody.tail.start],
       decMat
     );
 
-    :- Need(signature.start == |signature.data|, "Data after message footer.");
+    :- Need(signature.start == |signature.bytes|, "Data after message footer.");
 
     // var isDone := rd.IsDoneReading();
     // :- Need(isDone, "message contains additional bytes at end");
@@ -669,11 +669,11 @@ module {:extern "EncryptDecrypt"} EncryptDecrypt {
   }
 
   method VerifySignature(
-    bytes: SerializeFunctions.ReadableBytes,
+    buffer: SerializeFunctions.ReadableBuffer,
     msg: seq<uint8>,
     decMat: Crypto.DecryptionMaterials
   )
-    returns (res: Result<SerializeFunctions.ReadableBytes, string>)
+    returns (res: Result<SerializeFunctions.ReadableBuffer, string>)
     // requires
     //   && messageStart.data == messageFooterStart.data
     //   && messageStart.start < messageFooterStart.start < |messageFooterStart.data|
@@ -694,11 +694,11 @@ module {:extern "EncryptDecrypt"} EncryptDecrypt {
     // DecryptionMaterialsWithPlaintextDataKey ensures that the materials and the suite match.
     // If there is no verification key, that lets us conclude that the suite does not have a signature.
     if decMat.verificationKey.None? {
-      return Success(bytes);
+      return Success(buffer);
     }
 
     var signature :- SerializeFunctions
-      .ReadShortLengthSeq(bytes)
+      .ReadShortLengthSeq(buffer)
       .MapFailure(MapSerializeFailure);
 
     // var ecdsaParams := Client.SpecificationClient().GetSuite(decMat.algorithmSuiteId).signature.curve;
@@ -717,7 +717,7 @@ module {:extern "EncryptDecrypt"} EncryptDecrypt {
 
     var ecdsaParams := Client.SpecificationClient().GetSuite(decMat.algorithmSuiteId).signature.curve;
     // verify signature
-    var signatureVerifiedResult :- Signature.Verify(ecdsaParams, decMat.verificationKey.value, msg, signature.thing);
+    var signatureVerifiedResult :- Signature.Verify(ecdsaParams, decMat.verificationKey.value, msg, signature.data);
 
     // if signatureVerifiedResult.Failure? {
     //   return Failure(signatureVerifiedResult.error), [];

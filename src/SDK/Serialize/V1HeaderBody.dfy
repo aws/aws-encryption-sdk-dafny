@@ -58,18 +58,18 @@ module V1HeaderBody {
   }
 
   function method ReadV1HeaderBody(
-    bytes: ReadableBytes
+    buffer: ReadableBuffer
   )
     :(res: ReadCorrect<V1HeaderBody>)
-    ensures CorrectlyReadV1HeaderBody(bytes, res)
+    ensures CorrectlyReadV1HeaderBody(buffer, res)
   {
-    var version :- SharedHeaderFunctions.ReadMessageFormatVersion(bytes);
-    :- Need(version.thing.V1?, Error("Message version must be version 1."));
+    var version :- SharedHeaderFunctions.ReadMessageFormatVersion(buffer);
+    :- Need(version.data.V1?, Error("Message version must be version 1."));
 
     var messageType :- ReadV1MessageType(version.tail);
 
     var esdkSuiteId :- SharedHeaderFunctions.ReadESDKSuiteId(messageType.tail);
-    var suiteId := GetAlgorithmSuiteId(esdkSuiteId.thing);
+    var suiteId := GetAlgorithmSuiteId(esdkSuiteId.data);
     var suite := Client.SpecificationClient().GetSuite(suiteId);
     :- Need(suite.commitment.None?, Error("Algorithm suite must not support commitment."));
 
@@ -91,46 +91,46 @@ module V1HeaderBody {
     var frameLength :- ReadUInt32(headerIvLength.tail);
 
     var body:V1HeaderBody := HeaderTypes.V1HeaderBody(
-      messageType := messageType.thing,
-      esdkSuiteId := esdkSuiteId.thing,
-      messageId := messageId.thing,
-      encryptionContext := encryptionContext.thing,
-      encryptedDataKeys := encryptedDataKeys.thing,
-      contentType := contentType.thing,
-      headerIvLength := headerIvLength.thing as nat,
-      frameLength := frameLength.thing
+      messageType := messageType.data,
+      esdkSuiteId := esdkSuiteId.data,
+      messageId := messageId.data,
+      encryptionContext := encryptionContext.data,
+      encryptedDataKeys := encryptedDataKeys.data,
+      contentType := contentType.data,
+      headerIvLength := headerIvLength.data as nat,
+      frameLength := frameLength.data
     );
 
-    Success(Data(body, frameLength.tail))
+    Success(SuccessfulRead(body, frameLength.tail))
   }
 
 
   predicate CorrectlyReadV1HeaderBody(
-    bytes: ReadableBytes,
+    buffer: ReadableBuffer,
     res: ReadCorrect<V1HeaderBody>
   )
   {
-    && res.Success? ==> CorrectlyReadRange(bytes, res.value.tail)
+    && res.Success? ==> CorrectlyReadRange(buffer, res.value.tail)
     && (
       || (
-        !IsV1ExpandedAADSection(bytes)
+        !IsV1ExpandedAADSection(buffer)
         ==>
-          && CorrectlyRead(bytes, res, WriteV1HeaderBody))
+          && CorrectlyRead(buffer, res, WriteV1HeaderBody))
       // This is to handle the edge case in empty AAD see: `ReadAADSection`
       || (
-          IsV1ExpandedAADSection(bytes)
+          IsV1ExpandedAADSection(buffer)
         ==>
-          && CorrectlyRead(bytes, res, WriteV1ExpandedAADSectionHeaderBody)))
+          && CorrectlyRead(buffer, res, WriteV1ExpandedAADSectionHeaderBody)))
   }
 
   predicate IsV1ExpandedAADSection(
-    bytes: ReadableBytes
+    buffer: ReadableBuffer
   )
   {
     var headerBytesToAADStart := 20; 
-    var aadStartPosition := bytes.start+headerBytesToAADStart;
-    && aadStartPosition+4 < |bytes.data|
-    && bytes.data[aadStartPosition..aadStartPosition+4] == [0,2,0,0]
+    var aadStartPosition := buffer.start+headerBytesToAADStart;
+    && aadStartPosition+4 < |buffer.bytes|
+    && buffer.bytes[aadStartPosition..aadStartPosition+4] == [0,2,0,0]
   }
 
   function method WriteV1MessageType(
@@ -142,14 +142,14 @@ module V1HeaderBody {
   }
 
   function method ReadV1MessageType(
-    bytes: ReadableBytes
+    buffer: ReadableBuffer
   )
     :(res: ReadCorrect<HeaderTypes.MessageType>)
-    ensures CorrectlyRead(bytes, res, WriteV1MessageType)
+    ensures CorrectlyRead(buffer, res, WriteV1MessageType)
   {
-    var Data(raw, tail) :- SerializeFunctions.Read(bytes, 1);
+    var SuccessfulRead(raw, tail) :- SerializeFunctions.Read(buffer, 1);
     var messageType :- HeaderTypes.MessageType.Get(raw[0]).MapFailure(e => Error(e));
-    Success(Data(messageType, tail))
+    Success(SuccessfulRead(messageType, tail))
   }
 
   function method WriteV1ReservedBytes(
@@ -161,15 +161,15 @@ module V1HeaderBody {
   }
 
   function method ReadV1ReservedBytes(
-    bytes: ReadableBytes
+    buffer: ReadableBuffer
   )
     :(res: ReadCorrect<ReservedBytes>)
-    ensures CorrectlyRead(bytes, res, WriteV1ReservedBytes)
+    ensures CorrectlyRead(buffer, res, WriteV1ReservedBytes)
   {
-    var Data(raw, tail) :- SerializeFunctions.Read(bytes, |RESERVED_BYTES|);
+    var SuccessfulRead(raw, tail) :- SerializeFunctions.Read(buffer, |RESERVED_BYTES|);
     :- Need(raw == RESERVED_BYTES, Error("Incorrect reserved bytes."));
     var reservedBytes: ReservedBytes := raw;
-    Success(Data(reservedBytes, tail))
+    Success(SuccessfulRead(reservedBytes, tail))
   }
 
   function method WriteV1HeaderIvLength(
@@ -181,15 +181,15 @@ module V1HeaderBody {
   }
 
   function method ReadV1HeaderIvLength(
-    bytes: ReadableBytes,
+    buffer: ReadableBuffer,
     suite: Client.AlgorithmSuites.AlgorithmSuite
   )
     :(res: ReadCorrect<uint8>)
-    ensures CorrectlyRead(bytes, res, WriteV1HeaderIvLength)
+    ensures CorrectlyRead(buffer, res, WriteV1HeaderIvLength)
   {
-    var Data(raw, tail) :- SerializeFunctions.Read(bytes, 1);
+    var SuccessfulRead(raw, tail) :- SerializeFunctions.Read(buffer, 1);
     :- Need(raw[0] == suite.encrypt.ivLength, Error("HeaderIv Length does not match Algorithm Suite."));
-    Success(Data(raw[0], tail))
+    Success(SuccessfulRead(raw[0], tail))
   }
 
   // This is *not* a function method,

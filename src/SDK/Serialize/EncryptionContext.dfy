@@ -259,41 +259,41 @@ module EncryptionContext {
   }
 
   function method ReadAADPair(
-    bytes: ReadableBytes
+    buffer: ReadableBuffer
   )
     :(res: ReadCorrect<ESDKEncryptionContextPair>)
-    ensures CorrectlyRead(bytes, res, WriteAADPair)
-    ensures res.Success? ==> PairLength(res.value.thing) == res.value.tail.start - bytes.start
+    ensures CorrectlyRead(buffer, res, WriteAADPair)
+    ensures res.Success? ==> PairLength(res.value.data) == res.value.tail.start - buffer.start
   {
-    var Data(key, keyEnd) :- ReadShortLengthSeq(bytes);
+    var SuccessfulRead(key, keyEnd) :- ReadShortLengthSeq(buffer);
     :- Need(ValidUTF8Seq(key), Error("Invalid Encryption Context key"));
-    var Data(value, tail) :- ReadShortLengthSeq(keyEnd);
+    var SuccessfulRead(value, tail) :- ReadShortLengthSeq(keyEnd);
     :- Need(ValidUTF8Seq(value), Error("Invalid Encryption Context value"));
     var pair:ESDKEncryptionContextPair := Pair(key, value);
-    Success(Data(pair, tail))
+    Success(SuccessfulRead(pair, tail))
   }
 
   function method {:tailrecursion} ReadAADPairs(
-    bytes: ReadableBytes,
+    buffer: ReadableBuffer,
     accumulator: ESDKCanonicalEncryptionContext,
     keys: set<UTF8.ValidUTF8Bytes>,
     count: uint16,
-    nextPair: ReadableBytes
+    nextPair: ReadableBuffer
   ):
     (res: ReadCorrect<ESDKCanonicalEncryptionContext>)
     requires 0 <= |accumulator| <= count as nat < UINT16_LIMIT
-    requires CorrectlyRead(bytes, Success(Data(accumulator, nextPair)), WriteAADPairs)
+    requires CorrectlyRead(buffer, Success(SuccessfulRead(accumulator, nextPair)), WriteAADPairs)
     requires KeysToSet(accumulator) == keys
     decreases count as int - |accumulator|
     ensures res.Success?
     ==>
-       && count as nat == |res.value.thing|
-    ensures CorrectlyRead(bytes, res, WriteAADPairs)
+       && count as nat == |res.value.data|
+    ensures CorrectlyRead(buffer, res, WriteAADPairs)
   {
     if count as int > |accumulator| then
-      var Data(pair, newPos) :- ReadAADPair(nextPair);
+      var SuccessfulRead(pair, newPos) :- ReadAADPair(nextPair);
       :- Need(pair.key !in keys, Error("Duplicate Encryption Context key value."));
-      :- Need(|newPos.data[bytes.start..newPos.start]| < ESDK_CANONICAL_ENCRYPTION_CONTEXT_MAX_LENGTH, Error("Encryption Context exceeds maximum length."));
+      :- Need(|newPos.bytes[buffer.start..newPos.start]| < ESDK_CANONICAL_ENCRYPTION_CONTEXT_MAX_LENGTH, Error("Encryption Context exceeds maximum length."));
 
       var nextAcc := accumulator + [pair];
       // Calling `KeysToSet` once per pair
@@ -305,36 +305,36 @@ module EncryptionContext {
       assert LinearLength(nextAcc) == LinearLength(accumulator) + PairLength(pair);
       assert KeysAreUnique(nextAcc);
 
-      ReadAADPairs(bytes, nextAcc, nextKeys, count, newPos)
+      ReadAADPairs(buffer, nextAcc, nextKeys, count, newPos)
     else
-      assert CorrectlyRead(bytes, Success(Data(accumulator, nextPair)), WriteAADPairs);
-      Success(Data(accumulator, nextPair))
+      assert CorrectlyRead(buffer, Success(SuccessfulRead(accumulator, nextPair)), WriteAADPairs);
+      Success(SuccessfulRead(accumulator, nextPair))
   }
 
   function method ReadAAD(
-    bytes: ReadableBytes
+    buffer: ReadableBuffer
   ):
     (res: ReadCorrect<ESDKCanonicalEncryptionContext>)
-    ensures CorrectlyRead(bytes, res, WriteAAD)
+    ensures CorrectlyRead(buffer, res, WriteAAD)
   {
-    var Data(count, ecPos) :- ReadUInt16(bytes);
+    var SuccessfulRead(count, ecPos) :- ReadUInt16(buffer);
     if count == 0 then
       var edks: ESDKCanonicalEncryptionContext := [];
-      assert CorrectlyRead(bytes, Success(Data(edks, ecPos)), WriteAAD);
-      Success(Data(edks, ecPos))
+      assert CorrectlyRead(buffer, Success(SuccessfulRead(edks, ecPos)), WriteAAD);
+      Success(SuccessfulRead(edks, ecPos))
     else
       var accumulator := [];
       var keys := KeysToSet(accumulator);
-      var Data(pairs, tail) :- ReadAADPairs(ecPos, accumulator, keys, count, ecPos);
-      Success(Data(pairs, tail))
+      var SuccessfulRead(pairs, tail) :- ReadAADPairs(ecPos, accumulator, keys, count, ecPos);
+      Success(SuccessfulRead(pairs, tail))
   }
 
   function method ReadAADSection(
-    bytes: ReadableBytes
+    buffer: ReadableBuffer
   ):
     (res: ReadCorrect<ESDKCanonicalEncryptionContext>)
     ensures
-      || CorrectlyRead(bytes, res, WriteAADSection)
+      || CorrectlyRead(buffer, res, WriteAADSection)
       // This is an exceedingly rare case.
       // The AAD section is supposed to encode
       // an empty encryption context as a length of 0
@@ -344,27 +344,27 @@ module EncryptionContext {
       // `[0,2,0,0]` this read path MUST be supported.
       || (
         && res.Success?
-        && bytes.start+4 < |bytes.data|
-        && bytes.data[bytes.start..bytes.start+4] == [0,2,0,0]
+        && buffer.start+4 < |buffer.bytes|
+        && buffer.bytes[buffer.start..buffer.start+4] == [0,2,0,0]
         ==>
-          && CorrectlyRead(bytes, res, WriteExpandedAADSection))
+          && CorrectlyRead(buffer, res, WriteExpandedAADSection))
   {
-    var Data(length, countPos) :- ReadUInt16(bytes);
+    var SuccessfulRead(length, countPos) :- ReadUInt16(buffer);
     if length == 0 then
       var empty: ESDKCanonicalEncryptionContext := [];
-      Success(Data(empty, countPos))
-    else if countPos.start + length as nat < |countPos.data| then
+      Success(SuccessfulRead(empty, countPos))
+    else if countPos.start + length as nat < |countPos.bytes| then
       Failure(MoreNeeded(countPos.start + length as nat))
     else if length == 2 then
       // This is the case referred to above.
       // It is not a canonically correct message,
       // but it should still be parsed.
-      var Data(count, end) :- ReadUInt16(countPos);
+      var SuccessfulRead(count, end) :- ReadUInt16(countPos);
       :- Need(count == 0, Error("Encryption Context pairs count can not exceed byte length"));
       var empty: ESDKCanonicalEncryptionContext := [];
-      Success(Data(empty, end))
+      Success(SuccessfulRead(empty, end))
     else
-      var Data(count, tail) :- ReadUInt16(countPos);
+      var SuccessfulRead(count, tail) :- ReadUInt16(countPos);
       :- Need(count > 0, Error("Encryption Context byte length exceeds pairs count."));
       ReadAAD(tail)
   }
