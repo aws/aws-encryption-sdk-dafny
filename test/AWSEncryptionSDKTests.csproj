@@ -3,7 +3,9 @@
   <PropertyGroup>
     <TargetFramework>net5.0</TargetFramework>
     <IsPackable>false</IsPackable>
-    <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
+    <GenerateAssemblyInfo>false</GenerateAssemblyInfo> 
+    <!-- If you need to run against a custom built version of Dafny: -->
+    <!-- <DafnyBinariesDir>/path/to/local/dafny/Scripts/</DafnyBinariesDir> -->
   </PropertyGroup>
 
   <ItemGroup>
