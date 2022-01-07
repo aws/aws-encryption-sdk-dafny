@@ -181,8 +181,13 @@ module
       //= compliance/framework/aws-kms/aws-kms-discovery-keyring.txt#2.8
       //# The set of encrypted data keys MUST first be filtered to match this
       //# keyring's configuration.
-      var edkFilter : EncryptedDataKeyFilter := new EncryptedDataKeyFilter(discoveryFilter);
-      var edksToAttempt, parts :- Actions.FlatMapWithResult(edkFilter, encryptedDataKeys);
+      var edkFilter : AwsKmsEncryptedDataKeyFilter := new AwsKmsEncryptedDataKeyFilter(discoveryFilter);
+      var matchingEdks :- Actions.FilterWithResult(edkFilter, encryptedDataKeys);
+
+      // Next we convert the input Crypto.EncrypteDataKeys into Constant.AwsKmsEdkHelpers,
+      // which makes them slightly easier to work with.
+      var edkTransform : AwsKmsEncryptedDataKeyTransform := new AwsKmsEncryptedDataKeyTransform();
+      var edksToAttempt, parts :- Actions.FlatMapWithResult(edkTransform, matchingEdks);
 
       // We want to make sure that the set of EDKs we're about to attempt
       // to decrypt all actually came from the original set of EDKs. This is useful
@@ -216,6 +221,7 @@ module
         case Success(mat) =>
           assert exists helper: AwsKmsEdkHelper | helper in edksToAttempt
           ::
+            && helper.edk in encryptedDataKeys
             && decryptAction.Ensures(helper, Success(mat));
           Success(Crypto.OnDecryptOutput(materials := mat))
 
@@ -239,26 +245,13 @@ module
   }
 
   /*
-   * A class responsible for both filtering and transforming Encrypted Data Keys.
-   *
-   * Filtering happens based on whether the input EDK is a valid AWS KMS-encrypted EDK,
-   * as well as whether it matches a configured Discovery Filter.
-   *
-   * The class also transforms input Crypto.EncryptedDataKey to Constants.AwsKmsEdk,
-   * which is primarily for convenience as the AwsKmsEdk helper class provides easier
-   * access to the KMS key ARN.
-   *
-   * Note that our return type (seq<AwsKmsEdk>) does not technically need to be a seq,
-   * since we are operating on a single EDK at a time. However, we want to be able to do
-   * one of three things: 1) the EDK matches our config so we transform/return it,
-   * 2) the EDK is valid but doesn't match our config, in which case we return nothing
-   * and continue to the remaining EDKs, and 3) the EDK is invalid and we want to fail
-   * immediately.
+   * A class responsible for filtering Encrypted Data Keys to include only ones
+   * that were encrypted by AWS KMS and match a provided discovery filter.
    */
-  class EncryptedDataKeyFilter
+  class AwsKmsEncryptedDataKeyFilter
     extends ActionWithResult<
       Crypto.EncryptedDataKey,
-      seq<AwsKmsEdkHelper>,
+      bool,
       string
     >
   {
@@ -272,50 +265,32 @@ module
       this.discoveryFilter := discoveryFilter;
     }
 
-    /*
-     * Since this class does both transformation and filtering, we need to prove
-     * that both were correct.
-     *
-     * For transformation, this means ensuring that the output AwsKmsEdkHelper
-     * corresponds to the input EDK.
-     *
-     * For filtering, this means ensuring that the output AwsKmsEdkHelper
-     * is of the right resource type and matches our discovery filter.
-     */
     predicate Ensures(
       edk: Crypto.EncryptedDataKey,
-      res: Result<seq<AwsKmsEdkHelper>, string>
+      res: Result<bool, string>
     ) {
       && res.Success?
+      && res.value
       ==>
-        if |res.value| == 1 then
-          && var matchingEdk := res.value[0];
+        // Pull out some values so we can compare them
+        && UTF8.ValidUTF8Seq(edk.keyProviderInfo)
+        && var keyId := UTF8.Decode(edk.keyProviderInfo);
+        && keyId.Success?
+        && var arn := ParseAwsKmsArn(keyId.value);
+        && arn.Success?
 
-          // Ensure correct transformation (edks and ARNs match)
-          && UTF8.ValidUTF8Seq(edk.keyProviderInfo)
-          && var keyId := UTF8.Decode(edk.keyProviderInfo);
-          && keyId.Success?
-          && var arn := ParseAwsKmsArn(keyId.value);
-          && arn.Success?
-          && arn.value == matchingEdk.arn
-          && matchingEdk.edk == edk
-
-          // Ensure correct filtering (resource type and discovery filter match)
-          && matchingEdk.edk.keyProviderId == PROVIDER_ID
-          && matchingEdk.arn.resource.resourceType == "key"
-          && DiscoveryMatch(matchingEdk.arn, discoveryFilter)
-        else
-          && |res.value| == 0
+        && edk.keyProviderId == PROVIDER_ID
+        && arn.value.resource.resourceType == "key"
+        && DiscoveryMatch(arn.value, discoveryFilter)
     }
 
-    method Invoke(edk: Crypto.EncryptedDataKey
-    )
-      returns (res: Result<seq<AwsKmsEdkHelper>, string>)
+    method Invoke(edk: Crypto.EncryptedDataKey)
+      returns (res: Result<bool, string>)
       ensures Ensures(edk, res)
     {
 
       if edk.keyProviderId != PROVIDER_ID {
-        return Success([]);
+        return Success(false);
       }
 
       // The Keyring produces UTF8 providerInfo.
@@ -333,15 +308,83 @@ module
       :- Need(arn.resource.resourceType == "key", "Only AWS KMS Keys supported");
 
       if !DiscoveryMatch(arn, discoveryFilter) {
-        return Success([]);
+        return Success(false);
       }
+
+      return Success(true);
+    }
+  }
+
+  /*
+   * Responsible for transforming Encrypted Data Keys which have
+   * been generated by AWS KMS into a more usable format (specifically
+   * the output is of type AwsKmsEdkHelper, which provides easier access
+   * to the KMS ARN).
+   *
+   * Note that this transform will fail if it is given EDKs which were not
+   * encrypted by AWS KMS or have invalid values, so it is recommended that
+   * input first be run through AwsKmsEncryptedDataKeyFilter to filter out
+   * incorrect EDKs.
+   *
+   * Our return type (seq<AwsKmsEdk>) does not technically need to be a seq,
+   * since we are operating on a single EDK at a time. However, I can't seem
+   * to use Actions.MapWithResult because it wants the return type to have
+   * an auto-init and I'm not sure what that would look like for AwsKmsEdkHelper.
+   * So I'm using this with Actions.FlatMapWithResult instead, which does not
+   * have the same issue issue, but it requires returns of type seq.
+   * This may be fixed by https://github.com/dafny-lang/dafny/issues/1553.
+   */
+  class AwsKmsEncryptedDataKeyTransform
+    extends ActionWithResult<
+      Crypto.EncryptedDataKey,
+      seq<AwsKmsEdkHelper>,
+      string
+    >
+  {
+    constructor() {}
+
+    predicate Ensures(
+      edk: Crypto.EncryptedDataKey,
+      res: Result<seq<AwsKmsEdkHelper>, string>
+    ) {
+      && res.Success?
+      ==>
+        && |res.value| == 1
+        && var matchingEdk := res.value[0];
+
+        // Ensure correct transformation (edks and ARNs match)
+        && UTF8.ValidUTF8Seq(edk.keyProviderInfo)
+        && var keyId := UTF8.Decode(edk.keyProviderInfo);
+        && keyId.Success?
+        && var arn := ParseAwsKmsArn(keyId.value);
+        && arn.Success?
+        && arn.value == matchingEdk.arn
+        && matchingEdk.edk == edk
+    }
+
+    method Invoke(edk: Crypto.EncryptedDataKey
+    )
+      returns (res: Result<seq<AwsKmsEdkHelper>, string>)
+      ensures Ensures(edk, res)
+    {
+      // This transform only works if the given EDK is a valid AWS KMS-generated EDK
+      // Ideally we would add these as pre-conditions on the method, but we're extending the
+      // ActionWithResult trait which does not have pre-conditions and we cannot make our
+      // implementation more restrictive.
+      // TODO: consider updating Actions.ActionWithResult to have an implementable "Requires"
+      // method in the same way it has an "Ensures" method
+      :- Need(edk.keyProviderId == PROVIDER_ID, "Encrypted data key was not generated by KMS");
+      :- Need(UTF8.ValidUTF8Seq(edk.keyProviderInfo), "Invalid AWS KMS encoding, provider info is not UTF8.");
+
+      var keyId :- UTF8.Decode(edk.keyProviderInfo);
+      var arn :- ParseAwsKmsArn(keyId);
 
       return Success([AwsKmsEdkHelper(edk, arn)]);
     }
   }
 
   /*
-   * A class responsible for executing the actual KMS.Decrypt call on input EDKs,
+   * Responsible for executing the actual KMS.Decrypt call on input EDKs,
    * returning decryption materials on success or an error message on failure.
    */
   class EncryptedDataKeyDecryptor
@@ -423,7 +466,6 @@ module
       if maybeDecryptResponse.Failure? {
         return Failure(KMS.CastKeyManagementServiceErrorToString(maybeDecryptResponse.error));
       }
-
 
       var decryptResponse := maybeDecryptResponse.value;
       var algId := AlgorithmSuites.GetSuite(materials.algorithmSuiteId);
