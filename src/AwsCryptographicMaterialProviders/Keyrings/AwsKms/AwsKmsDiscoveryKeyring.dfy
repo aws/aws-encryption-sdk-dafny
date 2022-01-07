@@ -268,6 +268,16 @@ module
       this.discoveryFilter := discoveryFilter;
     }
 
+    /*
+     * Since this class does both transformation and filtering, we need to prove
+     * that both were correct.
+     *
+     * For transformation, this means ensuring that the output AwsKmsEdkHelper
+     * corresponds to the input EDK.
+     *
+     * For filtering, this means ensuring that the output AwsKmsEdkHelper
+     * is of the right resource type and matches our discovery filter.
+     */
     predicate Ensures(
       edk: Crypto.EncryptedDataKey,
       res: Result<seq<AwsKmsEdkHelper>, string>
@@ -276,8 +286,18 @@ module
       ==>
         if |res.value| == 1 then
           && var matchingEdk := res.value[0];
-          && matchingEdk.edk.keyProviderId == PROVIDER_ID
+
+          // Ensure correct transformation (edks and ARNs match)
+          && UTF8.ValidUTF8Seq(edk.keyProviderInfo)
+          && var keyId := UTF8.Decode(edk.keyProviderInfo);
+          && keyId.Success?
+          && var arn := ParseAwsKmsArn(keyId.value);
+          && arn.Success?
+          && arn.value == matchingEdk.arn
           && matchingEdk.edk == edk
+
+          // Ensure correct filtering (resource type and discovery filter match)
+          && matchingEdk.edk.keyProviderId == PROVIDER_ID
           && matchingEdk.arn.resource.resourceType == "key"
           && DiscoveryMatch(matchingEdk.arn, discoveryFilter)
         else
