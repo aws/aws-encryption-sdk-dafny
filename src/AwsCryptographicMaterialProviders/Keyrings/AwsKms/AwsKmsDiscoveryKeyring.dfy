@@ -110,6 +110,10 @@ module
       ==>
         res.Failure?
 
+      // The primary purpose of this post-condition is to make assertions about how
+      // we called KMS; specifically, that we constructed a response to KMS
+      // using one of the input EDKs, and correctly used the values from KMS's
+      // response in our own output.
       ensures
         res.Success?
       ==>
