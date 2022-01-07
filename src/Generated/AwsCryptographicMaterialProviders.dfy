@@ -3,7 +3,7 @@
 
 include "../Util/UTF8.dfy"
 include "../StandardLibrary/StandardLibrary.dfy"
-include "../KMS/AmazonKeyManagementService.dfy"
+include "../Generated/KeyManagementService.dfy"
 include "./KeyManagementService.dfy"
 
 module {:extern "Dafny.Aws.Crypto"} Aws.Crypto {
@@ -75,13 +75,15 @@ module {:extern "Dafny.Aws.Crypto"} Aws.Crypto {
 
     datatype GetClientInput = GetClientInput(region: string)
 
-    // TODO remove workaround
-    trait IKmsClient {}
-
     trait IClientSupplier {
-        // TODO
-        // method GetClient(input: GetClientInput) returns (res: AmazonKeyManagementService.IAmazonKeyManagementService)
-        method GetClient(input: GetClientInput) returns (res: IKmsClient)
+        // GetClient is a fallible operation, so it should return a Result<KMS.IKeyManagementServiceClient>,
+        // but prior to Dafny 3.4 we can't use the client trait as a type parameter.
+        // Until we adopt Dafny 3.4+, we mark the return type optional via `?`.
+        // This forces consuming code/proofs to handle the failure case,
+        // which in turn will ease the migration to a Result-wrapped client type.
+        //
+        // TODO: replace `?` by wrapping client in Result once we've adopted Dafny 3.4+
+        method GetClient(input: GetClientInput) returns (res: KMS.IKeyManagementServiceClient?)
     }
 
     /////////////
