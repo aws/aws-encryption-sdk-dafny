@@ -180,50 +180,15 @@ module
       var edkFilter : EncryptedDataKeyFilter := new EncryptedDataKeyFilter(discoveryFilter);
       var edksToAttempt, parts :- Actions.FlatMapWithResult(edkFilter, encryptedDataKeys);
 
-      // TODO: rework this
-      forall i
-      | 0 <= i < |parts|
-      ensures
-        && edkFilter.Ensures(encryptedDataKeys[i], Success(parts[i]))
-        && 1 >= |parts[i]|
-        && |encryptedDataKeys| == |parts|
-        && edksToAttempt == Seq.Flatten(parts)
-        && |encryptedDataKeys| >= |edksToAttempt|
-        && multiset(parts[i]) <= multiset(edksToAttempt)
-        && multiset(edksToAttempt) <= multiset(Seq.Flatten(parts))
-        && forall helper: AwsKmsEdkHelper
-          | helper in parts[i]
-          ::
-            && helper in edksToAttempt
-            && helper.edk == encryptedDataKeys[i]
-            && helper.arn.resource.resourceType == "key"
-      {
-        if |parts| < |edksToAttempt| {
-          Seq.LemmaFlattenLengthLeMul(parts, 1);
-          Seq.LemmaFlattenAndFlattenReverseAreEquivalent(parts);
-          assert |parts| * 1 >= |Seq.Flatten(parts)|;
-        }
-
-        forall helper: AwsKmsEdkHelper
-        | helper in parts[i]
-        ensures
-          && helper in edksToAttempt
-          && helper.edk == encryptedDataKeys[i]
-          && helper.arn.resource.resourceType == "key"
-        {
-          LemmaMultisetSubMembership(parts[i], edksToAttempt);
-        }
-      }
-
-      // TODO: rework this
-      forall helper: AwsKmsEdkHelper
-      | helper in edksToAttempt
-      ensures
-        && helper.edk in encryptedDataKeys
-        && helper.arn.resource.resourceType == "key"
+      // We want to make sure that the set of EDKs we're about to attempt
+      // to decrypt all actually came from the original set of EDKs. This is useful
+      // in our post-conditions that prove we made the correct KMS calls, which
+      // need to match the fields of the input EDKs to the KMS calls that were made.
+      forall helper: AwsKmsEdkHelper | helper in edksToAttempt
+        ensures helper.edk in encryptedDataKeys
       {
         LemmaFlattenMembership(parts, edksToAttempt);
-        assert helper in Seq.Flatten(parts);
+        assert helper.edk in encryptedDataKeys;
       }
 
       //= compliance/framework/aws-kms/aws-kms-discovery-keyring.txt#2.8
@@ -247,10 +212,6 @@ module
         case Success(mat) =>
           assert exists helper: AwsKmsEdkHelper | helper in edksToAttempt
           ::
-            && var keyArn: string := helper.arn.arnLiteral;
-            && helper.edk in encryptedDataKeys
-            && helper.arn.resource.resourceType == "key"
-            && helper.edk.keyProviderId == PROVIDER_ID
             && decryptAction.Ensures(helper, Success(mat));
           Success(Crypto.OnDecryptOutput(materials := mat))
 
@@ -494,6 +455,10 @@ module
     }
   }
 
+  /*
+   * Proves that the given parts (a sequence of sequences) are
+   * equivalent to the given flattened version of the parts.
+   */
   lemma LemmaFlattenMembership<T>(parts: seq<seq<T>>, flat: seq<T>)
     requires Seq.Flatten(parts) == flat
     ensures forall index

@@ -140,6 +140,10 @@ module Actions {
 
   /*
    * A specialized version of the FlatMap method whose action may fail.
+   *
+   * Also returns a ghost variable containing the unflattened version of
+   * the action's return sequences, which may be useful in helping callers
+   * prove things.
    */
   method FlatMapWithResult<A, R, E>(
     action: ActionWithResult<A, seq<R>, E>,
