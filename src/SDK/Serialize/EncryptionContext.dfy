@@ -101,6 +101,7 @@ module EncryptionContext {
   {
     if |pairs| == 0 {
     } else {
+      assert {:split_here} true;
       var front := Seq.DropLast(pairs);
       var tail := Seq.Last(pairs);
       var ecOfFront := GetEncryptionContext(front);
@@ -114,6 +115,7 @@ module EncryptionContext {
       assert {:split_here} true;
       assert LinearLength(pairs) == Length(ec);
 
+      assert {:split_here} true;
       LemmaLengthOfPairsEqualsEncryptionContext(front, ecOfFront);
     }
 
@@ -305,6 +307,10 @@ module EncryptionContext {
       assert LinearLength(nextAcc) == LinearLength(accumulator) + PairLength(pair);
       assert KeysAreUnique(nextAcc);
 
+      ghost var why? := [buffer, nextPair, newPos];
+      assert {:split_here} true;
+      ConsecutiveReadsAreAssociative(why?);
+
       ReadAADPairs(buffer, nextAcc, nextKeys, count, newPos)
     else
       assert CorrectlyRead(buffer, Success(SuccessfulRead(accumulator, nextPair)), WriteAADPairs);
@@ -320,10 +326,12 @@ module EncryptionContext {
     var SuccessfulRead(count, ecPos) :- ReadUInt16(buffer);
     if count == 0 then
       var edks: ESDKCanonicalEncryptionContext := [];
+      assert {:split_here} true;
       assert CorrectlyRead(buffer, Success(SuccessfulRead(edks, ecPos)), WriteAAD);
       Success(SuccessfulRead(edks, ecPos))
     else
       var accumulator := [];
+      assert {:split_here} true;
       var keys := KeysToSet(accumulator);
       var SuccessfulRead(pairs, tail) :- ReadAADPairs(ecPos, accumulator, keys, count, ecPos);
       Success(SuccessfulRead(pairs, tail))
