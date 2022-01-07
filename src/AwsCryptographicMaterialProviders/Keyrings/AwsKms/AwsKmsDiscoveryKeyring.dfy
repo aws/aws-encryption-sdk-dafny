@@ -336,6 +336,10 @@ module
     }
   }
 
+  /*
+   * A class responsible for executing the actual KMS.Decrypt call on input EDKs,
+   * returning decryption materials on success or an error message on failure.
+   */
   class EncryptedDataKeyDecryptor
     extends ActionWithResult<
       AwsKmsEdkHelper,
@@ -369,12 +373,12 @@ module
       ==>
         && KMS.IsValid_CiphertextType(helper.edk.ciphertext)
         && Materials.DecryptionMaterialsTransitionIsValid(materials, res.value)
-        && var awsKmsKey := helper.arn.ToString();
-        && KMS.IsValid_KeyIdType(awsKmsKey)
+        && var keyArn := helper.arn.ToString();
+        && KMS.IsValid_KeyIdType(keyArn)
         && var maybeStringifiedEncCtx := StringifyEncryptionContext(materials.encryptionContext);
         && maybeStringifiedEncCtx.Success?
         && var request := KMS.DecryptRequest(
-            KeyId := Option.Some(awsKmsKey),
+            KeyId := Option.Some(keyArn),
             CiphertextBlob := helper.edk.ciphertext,
             EncryptionContext := Option.Some(maybeStringifiedEncCtx.Extract()),
             GrantTokens := Option.Some(grantTokens),
@@ -459,19 +463,6 @@ module
         && filter.partition == arn.partition
         && filter.accountIds <= [arn.account]
       case None() => true
-    }
-  }
-
-  lemma LemmaMultisetSubMembership<T>(a: seq<T>, b: seq<T>)
-    requires multiset(a) <= multiset(b)
-    ensures forall i | i in a :: i in b
-  {
-    if |a| == 0 {
-    } else {
-      assert multiset([Seq.First(a)]) <= multiset(b);
-      assert Seq.First(a) in b;
-      assert a == [Seq.First(a)] + a[1..];
-      LemmaMultisetSubMembership(a[1..], b);
     }
   }
 
