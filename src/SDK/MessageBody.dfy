@@ -791,6 +791,7 @@ module MessageBody {
   {
     var sequenceNumber :- ReadUInt32(continuation);
     if (sequenceNumber.data != ENDFRAME_SEQUENCE_NUMBER) then
+      assert {:split_here} true;
       var regularFrame :- Frames.ReadRegularFrame(continuation, header);
       :- Need(regularFrame.data.seqNum as nat == |regularFrames| + 1, Error("Sequence number out of order."));
 
@@ -805,6 +806,7 @@ module MessageBody {
       assert {:split_here} true;
       ConsecutiveReadsAreAssociative(why?);
 
+      assert {:split_here} true;
       ReadFramedMessageBody(
         buffer,
         header,
@@ -812,6 +814,7 @@ module MessageBody {
         regularFrame.tail
       )
     else
+      assert {:split_here} true;
       var finalFrame :- Frames.ReadFinalFrame(continuation, header);
       :- Need(finalFrame.data.seqNum as nat == |regularFrames| + 1, Error("Sequence number out of order."));
 
@@ -830,6 +833,7 @@ module MessageBody {
       assert {:split_here} true;
       ConsecutiveReadsAreAssociative(why?);
 
+      assert {:split_here} true;
       Success(SuccessfulRead(body, finalFrame.tail))
   }
 }
