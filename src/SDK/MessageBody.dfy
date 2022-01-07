@@ -781,6 +781,7 @@ module MessageBody {
     requires forall frame: Frames.Frame
     | frame in regularFrames
     :: frame.header == header
+    requires CorrectlyReadRange(buffer, continuation)
     requires CorrectlyRead(buffer, Success(SuccessfulRead(regularFrames, continuation)), WriteMessageRegularFrames)
     decreases ENDFRAME_SEQUENCE_NUMBER as nat - |regularFrames|
     ensures CorrectlyRead(buffer, res, WriteFramedMessageBody)
@@ -792,9 +793,18 @@ module MessageBody {
     if (sequenceNumber.data != ENDFRAME_SEQUENCE_NUMBER) then
       var regularFrame :- Frames.ReadRegularFrame(continuation, header);
       :- Need(regularFrame.data.seqNum as nat == |regularFrames| + 1, Error("Sequence number out of order."));
+
+      assert {:split_here} true;
       LemmaAddingNextRegularFrame(regularFrames, regularFrame.data);
+
       var nextRegularFrames: MessageRegularFrames := regularFrames + [regularFrame.data];
-      ConsecutiveReadsAreAssociative([buffer, continuation, regularFrame.tail]);
+
+      assert {:split_here} true;
+      assert CorrectlyRead(continuation, Success(regularFrame), Frames.WriteRegularFrame);
+      ghost var why? := [buffer, continuation, regularFrame.tail];
+      assert {:split_here} true;
+      ConsecutiveReadsAreAssociative(why?);
+
       ReadFramedMessageBody(
         buffer,
         header,
@@ -804,13 +814,21 @@ module MessageBody {
     else
       var finalFrame :- Frames.ReadFinalFrame(continuation, header);
       :- Need(finalFrame.data.seqNum as nat == |regularFrames| + 1, Error("Sequence number out of order."));
-      ConsecutiveReadsAreAssociative([buffer, continuation, finalFrame.tail]);
+
+      assert {:split_here} true;
       assert MessageFramesAreMonotonic(regularFrames + [finalFrame.data]);
       assert MessageFramesAreForTheSameMessage(regularFrames + [finalFrame.data]);
+
       var body: FramedMessage := FramedMessageBody(
         regularFrames := regularFrames,
         finalFrame := finalFrame.data
       );
+
+      assert {:split_here} true;
+      assert CorrectlyRead(continuation, Success(finalFrame), Frames.WriteFinalFrame);
+      ghost var why? := [buffer, continuation, finalFrame.tail];
+      assert {:split_here} true;
+      ConsecutiveReadsAreAssociative(why?);
 
       Success(SuccessfulRead(body, finalFrame.tail))
   }
