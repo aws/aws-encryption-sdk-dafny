@@ -203,7 +203,7 @@ module
       //= compliance/framework/aws-kms/aws-kms-discovery-keyring.txt#2.8
       //# For each encrypted data key in the filtered set, one at a time, the
       //# OnDecrypt MUST attempt to decrypt the data key.
-      var decryptAction: EncryptedDataKeyDecryptor := new EncryptedDataKeyDecryptor(
+      var decryptAction: AwsKmsEncryptedDataKeyDecryptor := new AwsKmsEncryptedDataKeyDecryptor(
         materials,
         client,
         grantTokens
@@ -387,7 +387,7 @@ module
    * Responsible for executing the actual KMS.Decrypt call on input EDKs,
    * returning decryption materials on success or an error message on failure.
    */
-  class EncryptedDataKeyDecryptor
+  class AwsKmsEncryptedDataKeyDecryptor
     extends ActionWithResult<
       AwsKmsEdkHelper,
       Materials.SealedDecryptionMaterials,
