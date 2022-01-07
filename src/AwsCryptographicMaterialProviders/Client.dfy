@@ -133,6 +133,7 @@ module
       expect 0 <= |grantTokens| <= 10;
       expect forall grantToken | grantToken in grantTokens :: 1 <= |grantToken| <= 8192;
 
+      // TODO: update once we can use Result
       return new AwsKmsStrictKeyring.AwsKmsStrictKeyring(input.kmsClient, input.kmsKeyId, grantTokens);
     }
 

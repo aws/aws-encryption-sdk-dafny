@@ -15,8 +15,14 @@ module {:extern "Dafny.Aws.Crypto"} Aws.Crypto {
     // TODO this is currently needed for proof stability reasons, otherwise any file that has a transitive dependency on this one tries to
     // load too much at once, making the verification unstable
     export
-      provides UTF8, UInt, KMS, Wrappers,
-	  	IKeyring.OnEncrypt, IKeyring.OnDecrypt,
+      provides
+	  	UTF8,
+		UInt,
+		KMS,
+		Wrappers,
+
+	  	IKeyring.OnEncrypt,
+		IKeyring.OnDecrypt,
 
 		ICryptographicMaterialsManager.GetEncryptionMaterials,
 		ICryptographicMaterialsManager.DecryptMaterials,
@@ -27,6 +33,7 @@ module {:extern "Dafny.Aws.Crypto"} Aws.Crypto {
 		IAwsCryptographicMaterialsProviderClient.CreateStrictAwsKmsKeyring,
         IAwsCryptographicMaterialsProviderClient.CreateMrkAwareStrictAwsKmsKeyring,
         IAwsCryptographicMaterialsProviderClient.CreateMultiKeyring
+
       reveals AlgorithmSuiteId, EncryptedDataKey, EncryptedDataKeyList, IKeyring, GetEncryptionMaterialsInput, GetEncryptionMaterialsOutput,
         DecryptMaterialsInput, DecryptMaterialsOutput, ICryptographicMaterialsManager, EncryptionContext, EncryptionMaterials, DecryptionMaterials,
         OnEncryptInput, OnEncryptOutput, OnDecryptInput, OnDecryptOutput,

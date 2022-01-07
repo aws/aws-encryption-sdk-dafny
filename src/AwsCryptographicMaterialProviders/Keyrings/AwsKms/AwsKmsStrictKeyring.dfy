@@ -103,7 +103,21 @@ module
           input.materials,
           res.value.materials
         )
-        && StringifyEncryptionContext(input.materials.encryptionContext).Success?
+
+      ensures StringifyEncryptionContext(input.materials.encryptionContext).Failure?
+      ==>
+        res.Failure?
+
+      ensures !KMS.IsValid_KeyIdType(awsKmsKey)
+      ==>
+        res.Failure?
+
+      ensures
+        && input.materials.plaintextDataKey.Some?
+        && !KMS.IsValid_PlaintextType(input.materials.plaintextDataKey.value)
+      ==>
+        res.Failure?
+
       //= compliance/framework/aws-kms/aws-kms-keyring.txt#2.7
       //= type=implication
       //# If the input encryption materials (../structures.md#encryption-
@@ -115,7 +129,6 @@ module
         // This must be before the .None? check, otherwise the verifier fails
         && var maybeStringifiedEncCtx := StringifyEncryptionContext(input.materials.encryptionContext);
         && input.materials.plaintextDataKey.None?
-        && KMS.IsValid_KeyIdType(awsKmsKey)
         && maybeStringifiedEncCtx.Success?
       ==>
         //= compliance/framework/aws-kms/aws-kms-keyring.txt#2.7
@@ -185,6 +198,7 @@ module
             ),
             output := KMS.GenerateDataKeyResponse(
               KeyId := returnedKeyId,
+              // The last data key is the one just added and what should be the result of the KMS call
               CiphertextBlob := Some(Last(res.value.materials.encryptedDataKeys).ciphertext),
               Plaintext := Some(res.value.materials.plaintextDataKey.value)
             )
@@ -241,7 +255,6 @@ module
       //# encryption materials (../structures.md#encryption-materials).
       ensures
         && input.materials.plaintextDataKey.Some?
-        && KMS.IsValid_PlaintextType(input.materials.plaintextDataKey.value)
         && res.Success?
       ==>
         //= compliance/framework/aws-kms/aws-kms-keyring.txt#2.7
@@ -310,7 +323,7 @@ module
         );
 
         var providerInfo :- UTF8.Encode(generateResponse.KeyId.value);
-        :- Need(|providerInfo| < UINT16_LIMIT, "AWS KMS Key ID too long.");
+        :- Need(|providerInfo| < UINT16_LIMIT, "Invalid response from AWS KMS GenerateDataKey: Key ID too long.");
 
         :- Need(
           && generateResponse.CiphertextBlob.Some?
@@ -348,9 +361,8 @@ module
           materials := result
         ));
       } else {
-        :- Need(KMS.IsValid_PlaintextType(materials.plaintextDataKey.value),
-          "PlaintextDataKey is invalid length"
-        );
+        :- Need(KMS.IsValid_PlaintextType(materials.plaintextDataKey.value), "PlaintextDataKey is invalid");
+
         var encryptRequest := KMS.EncryptRequest(
           EncryptionContext := Some(stringifiedEncCtx),
           GrantTokens := Some(grantTokens),
@@ -434,10 +446,9 @@ module
       ensures input.materials.plaintextDataKey.Some? ==> res.Failure?
 
       ensures
-        && input.materials.plaintextDataKey.None?
         && res.Success?
       ==>
-        && res.value.materials.plaintextDataKey.Some?
+        // && res.value.materials.plaintextDataKey.Some?
         && var maybeStringifiedEncCtx := StringifyEncryptionContext(input.materials.encryptionContext);
         && maybeStringifiedEncCtx.Success?
         && exists edk | edk in input.encryptedDataKeys
@@ -543,28 +554,14 @@ module
         edksToAttempt
       );
 
-      var stringifiedEncCtx :- StringifyEncryptionContext(materials.encryptionContext);
+      ghost var stringifiedEncCtx :- StringifyEncryptionContext(materials.encryptionContext);
       return match outcome {
         case Success(mat) =>
-          assert exists edk, returnedEncryptionAlgorithm | edk in edksToAttempt
+          assert exists edk | edk in edksToAttempt
           ::
             && edk in input.encryptedDataKeys
             && filter.Ensures(edk, Success(true))
-            && decryptClosure.Ensures(edk, Success(mat))
-            && var request := KMS.DecryptRequest(
-              KeyId := Some(awsKmsKey),
-              CiphertextBlob := edk.ciphertext,
-              EncryptionContext := Some(stringifiedEncCtx),
-              GrantTokens := Some(grantTokens),
-              EncryptionAlgorithm := None
-            );
-            && client.DecryptCalledWith(request)
-            && var response := KMS.DecryptResponse(
-              KeyId := Some(awsKmsKey),
-              Plaintext := mat.plaintextDataKey,
-              EncryptionAlgorithm := returnedEncryptionAlgorithm
-            );
-            && client.DecryptSucceededWith(request, response);
+            && decryptClosure.Ensures(edk, Success(mat));
           Success(Crypto.OnDecryptOutput(
             materials := mat
           ))
