@@ -457,65 +457,17 @@ module MessageBody {
     key: seq<uint8>
   )
     returns (res: Result<seq<uint8>, string>)
-    // requires rd.Valid()
     requires |key| == body.finalFrame.header.suite.encrypt.keyLength as int
-    // requires 0 < frameLength < UINT32_LIMIT
-    // modifies rd.reader`pos
-    // ensures rd.Valid()
-    // ensures res.Success? ==> DecryptedWithKey(key, res.value)
     ensures match res
       case Failure(_) => true
       case Success(plaintext) => //Exists a sequence of frames which encrypts the plaintext and is serialized in the read section of the stream
-        // old(rd.reader.pos) <= rd.reader.pos <= |rd.reader.data|
-        // && exists frames: seq<Frame> | |frames| < UINT32_LIMIT && (forall frame | frame in frames :: frame.Valid())
-        //     && FramesToSequence(frames) == rd.reader.data[old(rd.reader.pos)..rd.reader.pos] ::
-        //       && FramesEncryptPlaintext(frames, plaintext)
         && FramesEncryptPlaintext(body, plaintext)
         && DecryptedWithKey(key, plaintext)
   {
     var plaintext := [];
     // var n: uint32 := 1;
     ghost var decryptedFrames: seq<Frames.RegularFrame> := [];
-    ghost var plaintextSeg: seq<seq<uint8>> := []; // Chuncks of plaintext which are decrypted from the frame
-
-    // while true
-    //   decreases ENDFRAME_SEQUENCE_NUMBER - n
-    //   invariant rd.Valid()
-    //   invariant n as int - 1 == |frames|
-    //   invariant n <= ENDFRAME_SEQUENCE_NUMBER
-    //   invariant forall frame | frame in frames :: frame.Valid()
-    //   invariant old(rd.reader.pos) <= rd.reader.pos <= |rd.reader.data|
-    //   invariant FramesToSequence(frames) == rd.reader.data[old(rd.reader.pos)..rd.reader.pos]
-    //   invariant rd.Valid()
-    //   invariant FramesEncryptPlaintextSegments(frames, plaintextSeg) // All decrypted frames decrypt to the list of plaintext chuncks
-    //   invariant SumPlaintextSegments(plaintextSeg) == plaintext // The current decrypted frame is the sum of all decrypted chuncks
-    //   invariant DecryptedSegmentsWithKey(key, plaintextSeg)
-    //   invariant plaintext == SumPlaintextSegments(plaintextSeg)
-    // {
-    //   // assert {:split_here} true;
-    //   var frameWithGhostSeq :- DecryptFrame(rd, suite, key, frameLength, messageID, n);
-    //   assert |frameWithGhostSeq.sequence| < UINT32_LIMIT;
-    //   var decryptedFrame := frameWithGhostSeq.frame;
-    //   ghost var ciphertext := frameWithGhostSeq.sequence;
-    //   assert |ciphertext| < UINT32_LIMIT;
-    //   ghost var encryptedFrame := if decryptedFrame.FinalFrame? then
-    //     FinalFrame(decryptedFrame.seqNum, decryptedFrame.iv, ciphertext, decryptedFrame.authTag)
-    //   else
-    //     RegularFrame(decryptedFrame.seqNum, decryptedFrame.iv, ciphertext, decryptedFrame.authTag);
-    //   assert encryptedFrame.Valid();
-    //   frames := frames + [encryptedFrame];
-
-    //   var (decryptedFramePlaintext, final) := (decryptedFrame.encContent, decryptedFrame.FinalFrame?);
-    //   plaintext := plaintext + decryptedFramePlaintext;
-    //   plaintextSeg := plaintextSeg + [decryptedFramePlaintext];
-    //   if final {
-    //     assert FramesEncryptPlaintextSegments(frames, plaintextSeg);
-    //     assert SumPlaintextSegments(plaintextSeg) == plaintext;
-    //     break;
-    //   }
-
-    //   n := n + 1;
-    // }
+    ghost var plaintextSeg: seq<seq<uint8>> := []; // Chunks of plaintext which are decrypted from the frame
 
     for i := 0 to |body.regularFrames|
       invariant body.regularFrames[..i] == decryptedFrames
@@ -527,27 +479,30 @@ module MessageBody {
       invariant DecryptedSegmentsWithKey(key, plaintextSeg)
       invariant DecryptedWithKey(key, plaintext)
     {
+      assert {:split_here} true;
       var plaintextSegment :- DecryptFrame(body.regularFrames[i], key);
 
       plaintext := plaintext + plaintextSegment;
       plaintextSeg := plaintextSeg + [plaintextSegment];
       decryptedFrames := decryptedFrames + [body.regularFrames[i]];
 
+      assert {:split_here} true;
       assert decryptedFrames[..i] + [body.regularFrames[i]] == body.regularFrames[..i + 1];
     }
+    assert {:split_here} true;
     var finalPlaintextSegment :- DecryptFrame(body.finalFrame, key);
     plaintext := plaintext + finalPlaintextSegment;
     plaintextSeg := plaintextSeg + [finalPlaintextSegment];
 
+    assert {:split_here} true;
     // assert FramesEncryptPlaintextSegments(decryptedFrames, plaintextSeg);
     assert FramesEncryptPlaintextSegments([body.finalFrame], [finalPlaintextSegment]);
     assert body.regularFrames == decryptedFrames;
+    assert {:split_here} true;
     assert FramesEncryptPlaintextSegments(body.regularFrames + [body.finalFrame], plaintextSeg);
+    assert {:split_here} true;
     assert SumPlaintextSegments(plaintextSeg) == plaintext;
 
-    // assert |frames| < UINT32_LIMIT ;
-    // assert (forall frame | frame in frames :: frame.Valid()) ;
-    // assert FramesToSequence(frames) == rd.reader.data[old(rd.reader.pos)..rd.reader.pos];
     return Success(plaintext);
   }
 
