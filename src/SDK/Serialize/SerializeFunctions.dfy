@@ -58,20 +58,23 @@ module SerializeFunctions {
   // that all `ReadX` functions use to prove correctness. 
   // The idea is that WriteX(ReadX(ReadableBuffer)) == ReadableBuffer.
   // That a read is the inverse of a write.
+  // The assertion is that the write side is correct _by construction_.
+  // This means that the order of writes *is* the correct order,
+  // and no additional Dafny specifications are need to define a correct write.
   // This puts the correctness on the write side,
   // and the read side is correct _because_
   // what was read is what would have been written.
   predicate CorrectlyRead<T> (
     buffer: ReadableBuffer,
     res: ReadCorrect<T>,
-    invertT: T -> seq<uint8>
+    inversionFunction: T -> seq<uint8>
   )
   {
     res.Success?
     ==>
       && var SuccessfulRead(thing, tail) := res.value;
       && CorrectlyReadRange(buffer, tail)
-      && invertT(thing) == tail.bytes[buffer.start..tail.start]
+      && inversionFunction(thing) == tail.bytes[buffer.start..tail.start]
   }
 
   // Sequence ranges are complicated in Dafny.
@@ -299,7 +302,7 @@ module SerializeFunctions {
 
   // This ensures that all the `start` positions
   // in the seq of ReadableBuffer
-  // are moving "down" the binary data.
+  // are moving "down" the binary data without gaps.
   // The goal is that these positions
   // come from a sequence of consecutive `Read`
   // or more complicated `Read*` calls.
