@@ -416,12 +416,15 @@ module
       helper: AwsKmsEdkHelper,
       res: Result<Materials.SealedDecryptionMaterials, string>
     ) {
-        res.Success?
+      // Confirm that the materials we're about to output are a valid transition
+      // from the input materials
+      && res.Success? ==> Materials.DecryptionMaterialsTransitionIsValid(materials, res.value)
+
+      // Confirm that we called KMS in the way we expected and returned the data
+      // it gave us correctly
+      && res.Success?
       ==>
-        && KMS.IsValid_CiphertextType(helper.edk.ciphertext)
-        && Materials.DecryptionMaterialsTransitionIsValid(materials, res.value)
         && var keyArn := helper.arn.ToString();
-        && KMS.IsValid_KeyIdType(keyArn)
         && var maybeStringifiedEncCtx := StringifyEncryptionContext(materials.encryptionContext);
         && maybeStringifiedEncCtx.Success?
         && var request := KMS.DecryptRequest(
