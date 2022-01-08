@@ -173,6 +173,7 @@ module Frames {
     :- Need(|encContent.data| as uint32 <= header.body.frameLength, Error("bad"));
     var authTag :- Read(encContent.tail, header.suite.encrypt.tagLength as nat);
 
+    assert {:focus} true;
     var finalFrame: FinalFrame := Frame.FinalFrame(
       header,
       sequenceNumber.data,
@@ -181,6 +182,7 @@ module Frames {
       authTag.data
     );
 
+    assert {:focus} true;
     ghost var why? := [ buffer, finalFrameSignal.tail, sequenceNumber.tail, iv.tail, encContent.tail, authTag.tail ];
     ConsecutiveReadsAreAssociative(why?);
 
