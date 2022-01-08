@@ -39,7 +39,7 @@
       logical cores any more.
       See https://github.com/dafny-lang/dafny.msbuild/issues/20
     -->
-    <VerifyDafnyJobs>8</VerifyDafnyJobs>
+    <VerifyDafnyJobs>7</VerifyDafnyJobs>
   </PropertyGroup>
   <ItemGroup>
     <VerifyDafnyPassthrough Include="timeLimit:600" />
