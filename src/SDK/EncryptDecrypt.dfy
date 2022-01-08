@@ -436,9 +436,7 @@ module {:extern "EncryptDecrypt"} EncryptDecrypt {
     var buffer := SerializeFunctions.ReadableBuffer(request.message, 0);
     var headerBody :- Header
       .ReadHeaderBody(buffer)
-      .MapFailure((e: SerializeFunctions.ReadProblems) => match e
-        case Error(e) => e
-        case MoreNeeded(_) => "Incomplete message");
+      .MapFailure(MapSerializeFailure);
 
     var rawHeader := headerBody.tail.bytes[buffer.start..headerBody.tail.start];
 
@@ -809,7 +807,5 @@ module {:extern "EncryptDecrypt"} EncryptDecrypt {
       case Error(e) => e
       case MoreNeeded(_) => "Incomplete message"
   }
-
-
 
 }
