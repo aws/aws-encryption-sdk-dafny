@@ -377,4 +377,13 @@ module SerializeFunctions {
     range.1.bytes[range.0.start..range.1.start]
   }
 
+  function MoveStart(
+    buffer: ReadableBuffer,
+    length: nat
+  )
+    :(ret: ReadableBuffer)
+  {
+    buffer.(start := buffer.start + length)
+  }
+
 }
