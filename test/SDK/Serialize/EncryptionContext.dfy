@@ -73,7 +73,6 @@ module TestSerialize {
     var valB :- expect UTF8.Encode("valB");
     var kvPairs := [SerializableTypes.Pair(keyA, valA), SerializableTypes.Pair(keyB, valB)];
 
-    // ESDKCanonicalEncryptionContext?(kvPairs) == true
     assert HasUint16Len(kvPairs);
     assert SerializableTypes.LinearLength(kvPairs) < 100;
     expect keyA != keyB;
@@ -136,7 +135,7 @@ module TestSerialize {
     var valA :- expect UTF8.Encode("valA");
     var encCtx := map[keyA := valA];
 
-    var expectedSerialization := [0, 1, 0, 4, 107, 101, 121, 65, 0, 4, 118, 97, 108, 65];
+    var expectedSerialization := [0, 4, 107, 101, 121, 65, 0, 4, 118, 97, 108, 65];
     var len := SerializableTypes.Length(encCtx);
     expect len as int == |expectedSerialization|;
   }
@@ -148,7 +147,7 @@ module TestSerialize {
     var encCtx := map[keyA := largeVal];
 
     var len := SerializableTypes.Length(encCtx);
-    expect len as int == 7 + |largeVal|; // 7 bytes needed for kvPairs count, key size, and key
+    expect len as int == 5 + |largeVal|; // 5 bytes needed for the key length, key, and value length (2 + 1 + 2)
   }
 
   method {:test} TestComputeOpoerationsOnLargeValidEC() {
