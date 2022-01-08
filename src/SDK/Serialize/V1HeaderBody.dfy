@@ -50,7 +50,7 @@ module V1HeaderBody {
     + SharedHeaderFunctions.WriteESDKSuiteId(body.esdkSuiteId)
     + SharedHeaderFunctions.WriteMessageId(body.messageId)
     + WriteAADSection(body.encryptionContext)
-    + WriteEncryptedDataKeys(body.encryptedDataKeys)
+    + WriteEncryptedDataKeysSection(body.encryptedDataKeys)
     + SharedHeaderFunctions.WriteContentType(body.contentType)
     + WriteV1ReservedBytes(RESERVED_BYTES)
     + WriteV1HeaderIvLength(suite.encrypt.ivLength)
@@ -104,7 +104,6 @@ module V1HeaderBody {
     Success(SuccessfulRead(body, frameLength.tail))
   }
 
-
   predicate CorrectlyReadV1HeaderBody(
     buffer: ReadableBuffer,
     res: ReadCorrect<V1HeaderBody>
@@ -113,7 +112,7 @@ module V1HeaderBody {
     && res.Success? ==> CorrectlyReadRange(buffer, res.value.tail)
     && (
       || (
-        !IsV1ExpandedAADSection(buffer)
+          !IsV1ExpandedAADSection(buffer)
         ==>
           && CorrectlyRead(buffer, res, WriteV1HeaderBody))
       // This is to handle the edge case in empty AAD see: `ReadAADSection`
@@ -210,7 +209,7 @@ module V1HeaderBody {
     + SharedHeaderFunctions.WriteESDKSuiteId(body.esdkSuiteId)
     + SharedHeaderFunctions.WriteMessageId(body.messageId)
     + WriteExpandedAADSection(body.encryptionContext)
-    + WriteEncryptedDataKeys(body.encryptedDataKeys)
+    + WriteEncryptedDataKeysSection(body.encryptedDataKeys)
     + SharedHeaderFunctions.WriteContentType(body.contentType)
     + WriteV1ReservedBytes(RESERVED_BYTES)
     + WriteV1HeaderIvLength(suite.encrypt.ivLength)
