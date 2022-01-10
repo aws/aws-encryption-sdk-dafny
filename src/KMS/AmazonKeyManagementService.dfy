@@ -10,7 +10,7 @@ module {:extern "Amazon.KeyManagementService"} AmazonKeyManagementService {
   // TODO: https://github.com/awslabs/aws-encryption-sdk-dafny/issues/284
   class {:extern "IAmazonKeyManagementService"} IAmazonKeyManagementService {}
 
-  predicate method {:extern "ReagionMatch"} ReagionMatch(
+  predicate method {:extern "RegionMatch"} RegionMatch(
     client: IAmazonKeyManagementService,
     region: string
   )

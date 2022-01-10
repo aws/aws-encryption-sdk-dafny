@@ -107,7 +107,10 @@ module Actions {
   }
 
   /*
-   * A specialized version of the Map method whose action always returns sequences.
+   * A specialized version of the Map method whose action always returns sequences, which
+   * are flattened into a single final result. This flattening only happens once, rather
+   * than recursively; that is, if the action returns a sequence of sequences, the return
+   * of this method will also be a sequence of sequences.
    */
   method FlatMap<A, R>(
     action: Action<A, seq<R>>,
@@ -139,6 +142,10 @@ module Actions {
 
   /*
    * A specialized version of the FlatMap method whose action may fail.
+   *
+   * Also returns a ghost variable containing the unflattened version of
+   * the action's return sequences, which may be useful in helping callers
+   * prove things.
    */
   method FlatMapWithResult<A, R, E>(
     action: ActionWithResult<A, seq<R>, E>,

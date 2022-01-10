@@ -1,0 +1,48 @@
+diff --git a/aws-encryption-sdk-net-formally-verified/Source/API/Generated/Crypto/CryptographicMaterialsManager.cs b/aws-encryption-sdk-net-formally-verified/Source/API/Generated/Crypto/CryptographicMaterialsManager.cs
+index c10f111..acc92e4 100644
+--- a/aws-encryption-sdk-net-formally-verified/Source/API/Generated/Crypto/CryptographicMaterialsManager.cs
++++ b/aws-encryption-sdk-net-formally-verified/Source/API/Generated/Crypto/CryptographicMaterialsManager.cs
+@@ -26,7 +26,8 @@ namespace Aws.Crypto
+             Dafny.Aws.Crypto.GetEncryptionMaterialsInput internalInput =
+                 TypeConversion.ToDafny_N3_aws__N6_crypto__S27_GetEncryptionMaterialsInput(input);
+             Dafny.Aws.Crypto.GetEncryptionMaterialsOutput internalOutput =
+-                this._impl.GetEncryptionMaterials(internalInput);
++                // TODO this line was manually updated
++                DafnyFFI.ExtractResult(this._impl.GetEncryptionMaterials(internalInput));
+             return TypeConversion.FromDafny_N3_aws__N6_crypto__S28_GetEncryptionMaterialsOutput(internalOutput);
+         }
+ 
+@@ -35,7 +36,8 @@ namespace Aws.Crypto
+             Dafny.Aws.Crypto.DecryptMaterialsInput internalInput =
+                 TypeConversion.ToDafny_N3_aws__N6_crypto__S21_DecryptMaterialsInput(input);
+             Dafny.Aws.Crypto.DecryptMaterialsOutput internalOutput =
+-                this._impl.DecryptMaterials(internalInput);
++                // TODO this line was manually updated
++                DafnyFFI.ExtractResult(this._impl.DecryptMaterials(internalInput));
+             return TypeConversion.FromDafny_N3_aws__N6_crypto__S22_DecryptMaterialsOutput(internalOutput);
+         }
+     }
+diff --git a/aws-encryption-sdk-net-formally-verified/Source/API/Generated/Crypto/Keyring.cs b/aws-encryption-sdk-net-formally-verified/Source/API/Generated/Crypto/Keyring.cs
+index 80ed815..364cb80 100644
+--- a/aws-encryption-sdk-net-formally-verified/Source/API/Generated/Crypto/Keyring.cs
++++ b/aws-encryption-sdk-net-formally-verified/Source/API/Generated/Crypto/Keyring.cs
+@@ -25,7 +25,8 @@ namespace Aws.Crypto
+             Dafny.Aws.Crypto.OnEncryptInput internalInput =
+                 TypeConversion.ToDafny_N3_aws__N6_crypto__S14_OnEncryptInput(input);
+             Dafny.Aws.Crypto.OnEncryptOutput internalOutput =
+-                this._impl.OnEncrypt(internalInput);
++                // TODO this line was manually updated
++                DafnyFFI.ExtractResult(this._impl.OnEncrypt(internalInput));
+             return TypeConversion.FromDafny_N3_aws__N6_crypto__S15_OnEncryptOutput(internalOutput);
+         }
+ 
+@@ -34,7 +35,8 @@ namespace Aws.Crypto
+             Dafny.Aws.Crypto.OnDecryptInput internalInput =
+                 TypeConversion.ToDafny_N3_aws__N6_crypto__S14_OnDecryptInput(input);
+             Dafny.Aws.Crypto.OnDecryptOutput internalOutput =
+-                this._impl.OnDecrypt(internalInput);
++                // TODO this line was manually updated
++                DafnyFFI.ExtractResult(this._impl.OnDecrypt(internalInput));
+             return TypeConversion.FromDafny_N3_aws__N6_crypto__S15_OnDecryptOutput(internalOutput);
+         }
+     }

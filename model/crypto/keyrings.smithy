@@ -20,7 +20,7 @@ list KeyringList {
 
 structure DiscoveryFilter {
     @required
-    region: String,
+    accountIds: AccountIdList,
 
     @required
     partition: String
@@ -98,6 +98,21 @@ structure CreateStrictAwsKmsKeyringInput {
 
     @required
     kmsClient: KmsClientReference,
+
+    grantTokens: GrantTokenList
+}
+
+// KMS - Discovery
+operation CreateAwsKmsDiscoveryKeyring {
+    input: CreateAwsKmsDiscoveryKeyringInput,
+    output: CreateKeyringOutput
+}
+
+structure CreateAwsKmsDiscoveryKeyringInput {
+    @required
+    kmsClient: KmsClientReference,
+
+    discoveryFilter: DiscoveryFilter,
 
     grantTokens: GrantTokenList
 }
