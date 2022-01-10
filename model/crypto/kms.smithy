@@ -20,6 +20,11 @@ list RegionList {
     member: Region
 }
 
+string AccountId
+
+list AccountIdList {
+    member: AccountId
+}
 
 //////////
 // Clients

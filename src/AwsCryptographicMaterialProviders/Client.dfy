@@ -8,6 +8,7 @@ include "../Util/UTF8.dfy"
 include "../Crypto/AESEncryption.dfy"
 include "Keyrings/RawAESKeyring.dfy"
 include "Keyrings/MultiKeyring.dfy"
+include "Keyrings/AwsKms/AwsKmsDiscoveryKeyring.dfy"
 include "CMMs/DefaultCMM.dfy"
 include "Materials.dfy"
 include "AlgorithmSuites.dfy"
@@ -30,6 +31,7 @@ module
   import AlgorithmSuites
   import Materials
   import AwsKmsMrkAwareSymmetricKeyring
+  import AwsKmsDiscoveryKeyring
   import AwsKmsArnParsing
   import GeneratedKMS = Com.Amazonaws.Kms
 
@@ -53,6 +55,7 @@ module
     provides
       AwsCryptographicMaterialProvidersClient.CreateRawAesKeyring,
       AwsCryptographicMaterialProvidersClient.CreateMrkAwareStrictAwsKmsKeyring,
+      AwsCryptographicMaterialProvidersClient.CreateAwsKmsDiscoveryKeyring,
       AwsCryptographicMaterialProvidersClient.CreateDefaultCryptographicMaterialsManager,
       AwsCryptographicMaterialProvidersClient.CreateMultiKeyring
 
@@ -133,10 +136,19 @@ module
       return new AwsKmsMrkAwareSymmetricKeyring.AwsKmsMrkAwareSymmetricKeyring(input.kmsClient, input.kmsKeyId, grantTokens);
     }
 
-    // Materials.EncryptionMaterialsTransitionIsValid(
-    // Materials.DecryptionMaterialsTransitionIsValid(
-    // Materials.EncryptionMaterialsWithPlaintextDataKey(
-    // Materials.DecryptionMaterialsWithPlaintextDataKey(
+    method CreateAwsKmsDiscoveryKeyring(input: Crypto.CreateAwsKmsDiscoveryKeyringInput) returns (res: Crypto.IKeyring)
+    {
+      // TODO: validation on discovery filter
+
+      var grantTokens: Crypto.GrantTokenList := input.grantTokens.UnwrapOr([]);
+
+      // TODO: update to not 'expect' once we can return Result<IKeyring>
+      expect 0 <= |grantTokens| <= 10;
+      expect forall grantToken | grantToken in grantTokens :: 1 <= |grantToken| <= 8192;
+
+      return new AwsKmsDiscoveryKeyring.AwsKmsDiscoveryKeyring(input.kmsClient, input.discoveryFilter, grantTokens);
+    }
+
 
     method CreateMultiKeyring(input: Crypto.CreateMultiKeyringInput)
       returns (res: Crypto.IKeyring?)
