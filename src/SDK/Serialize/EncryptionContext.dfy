@@ -166,7 +166,7 @@ module EncryptionContext {
       //# context (../framework/structures.md#encryption-context) is empty,
       //# this field MUST NOT be included in the Section 2.5.1.7.
 
-      ret == UInt16ToSeq(0) == [0, 0]
+      ret == [0, 0]
     else
       //= compliance/data-format/message-header.txt#2.5.1.7.2.1
       //= type=implication
@@ -340,23 +340,14 @@ module EncryptionContext {
     buffer: ReadableBuffer
   ):
     (res: ReadCorrect<ESDKCanonicalEncryptionContext>)
-    ensures
-      if !IsExpandedAADSection(buffer) then
-        CorrectlyRead(buffer, res, WriteAADSection)
-      else
-        CorrectlyRead(buffer, res, WriteExpandedAADSection)
+    ensures if IsExpandedAADSection(buffer) then
+      CorrectlyRead(buffer, res, WriteExpandedAADSection)
+    else 
+      CorrectlyRead(buffer, res, WriteAADSection)
   {
     var SuccessfulRead(length, countPos) :- ReadUInt16(buffer);
     if length == 0 then
       var empty: ESDKCanonicalEncryptionContext := [];
-
-      // Dafny has trouble here.
-      // Because in this case the `buffer` may only have had 2 extra bytes.
-      // So it needs help to understand that `[0, 2, 0, 0]` can *never* == `[0, 0]`
-      assert ReadRange((buffer, MoveStart(buffer, |ZeroPairExpandedHeaderSection| - 2 ))) != ZeroPairExpandedHeaderSection[0..2];
-      assert !IsExpandedAADSection(buffer);
-      assert WriteAADSection(empty) == UInt16ToSeq(0);
-
       Success(SuccessfulRead(empty, countPos))
     else if countPos.start + length as nat < |countPos.bytes| then
       Failure(MoreNeeded(countPos.start + length as nat))
@@ -364,10 +355,10 @@ module EncryptionContext {
       // This is the expanded case referred to in IsStandardCompressedAADSection.
       // It is not a canonically correct message,
       // but it should still be parsed.
-      var SuccessfulRead(count, end) :- ReadUInt16(countPos);
+      var SuccessfulRead(count, tail) :- ReadUInt16(countPos);
       :- Need(count == 0, Error("Encryption Context pairs count can not exceed byte length"));
       var empty: ESDKCanonicalEncryptionContext := [];
-      Success(SuccessfulRead(empty, end))
+      Success(SuccessfulRead(empty, tail))
     else
       var SuccessfulRead(count, tail) :- ReadUInt16(countPos);
       :- Need(count > 0, Error("Encryption Context byte length exceeds pairs count."));
@@ -383,8 +374,6 @@ module EncryptionContext {
     set p: Pair<K,V> | p in pairs :: p.key
   }
 
-  const ZeroPairExpandedHeaderSection: seq<uint8> := [0,2,0,0]
-
   // Makes sure that the AAD Section is optimally encoded.
   // The AAD section is supposed to encode
   // an empty encryption context, {}, as a length of 0
@@ -396,19 +385,22 @@ module EncryptionContext {
     buffer: ReadableBuffer
   )
   {
-    && buffer.start + |ZeroPairExpandedHeaderSection| <= |buffer.bytes|
-    && ReadRange((buffer, MoveStart(buffer, |ZeroPairExpandedHeaderSection|))) == ZeroPairExpandedHeaderSection
+    && buffer.start + |[0, 2]| <= |buffer.bytes|
+    && ReadRange((buffer, MoveStart(buffer, |[0, 2]|))) == [0, 2]
+  }
   }
 
-// This is *not* a function method,
-// because it is *only* used for correctness.
-// This represents the sub-optimal encoding of AAD
-// with an extra 2 bytes.
-function WriteExpandedAADSection(
+  // This is *not* a function method,
+  // because it is *only* used for correctness.
+  // This represents the sub-optimal encoding of AAD
+  // with an extra 2 bytes.
+  function WriteExpandedAADSection(
     ec: ESDKCanonicalEncryptionContext
   ):
     (ret: seq<uint8>)
-    ensures
+    ensures if |ec| == 0 then
+      ret == [0, 2, 0, 0]
+    else
       && var aad := WriteAAD(ec);
       && ret == UInt16ToSeq(|aad| as uint16) + aad
     {
