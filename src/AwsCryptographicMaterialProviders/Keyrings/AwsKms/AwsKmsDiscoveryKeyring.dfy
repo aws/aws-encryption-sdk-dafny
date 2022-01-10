@@ -30,7 +30,6 @@ module
   import KMS = Com.Amazonaws.Kms
   import opened AwsKmsUtils
 
-
   class AwsKmsDiscoveryKeyring
     //= compliance/framework/aws-kms/aws-kms-discovery-keyring.txt#2.5
     //= type=implication
