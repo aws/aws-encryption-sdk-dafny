@@ -5,13 +5,13 @@ include "../../Keyring.dfy"
 include "../../Materials.dfy"
 include "../../AlgorithmSuites.dfy"
 include "../../../StandardLibrary/StandardLibrary.dfy"
-include "../../../KMS/KMSUtils.dfy"
-include "../../../KMS/AmazonKeyManagementService.dfy"
+include "../../../Generated/KeyManagementService.dfy"
 include "../../../KMS/AwsKmsArnParsing.dfy"
 include "../../../Util/UTF8.dfy"
 include "../../../../libraries/src/Collections/Sequences/Seq.dfy"
 include "../../../StandardLibrary/Actions.dfy"
 include "Constants.dfy"
+include "KMSUtils.dfy"
 
 module
   {:extern "Dafny.Aws.Crypto.MaterialProviders.AwsKmsMrkAwareSymmetricRegionDiscoveryKeyring"}
@@ -21,14 +21,14 @@ module
   import opened Wrappers
   import opened UInt = StandardLibrary.UInt
   import opened AwsKmsArnParsing
-  import opened AmazonKeyManagementService
   import opened Actions
   import opened Constants
   import AlgorithmSuites
   import Keyring
   import Materials
-  import opened KMSUtils
   import UTF8
+  import KMS = Com.Amazonaws.Kms
+  import opened KMSUtils
 
   datatype DiscoveryFilter = DiscoveryFilter(
     partition: string,
@@ -42,9 +42,9 @@ module
     //# interface.md#interface)
     extends Keyring.VerifiableInterface
   {
-    const client: IAmazonKeyManagementService
+    const client: KMS.IKeyManagementServiceClient
     const discoveryFilter: Option<DiscoveryFilter>
-    const grantTokens: GrantTokens
+    const grantTokens: KMS.GrantTokenList
     const region: string
 
     //= compliance/framework/aws-kms/aws-kms-mrk-aware-symmetric-region-discovery-keyring.txt#2.6
@@ -55,7 +55,7 @@ module
       //= type=implication
       //# However if it can not, then it MUST
       //# NOT create the client itself.
-      client: IAmazonKeyManagementService,
+      client: KMS.IKeyManagementServiceClient,
       //= compliance/framework/aws-kms/aws-kms-mrk-aware-symmetric-region-discovery-keyring.txt#2.6
       //= type=exception
       //# It
@@ -63,13 +63,13 @@ module
       //# having an additional parameter.
       region: string,
       discoveryFilter: Option<DiscoveryFilter>,
-      grantTokens: GrantTokens
+      grantTokens: KMS.GrantTokenList
     )
       //= compliance/framework/aws-kms/aws-kms-mrk-aware-symmetric-region-discovery-keyring.txt#2.6
       //= type=implication
       //# It SHOULD have a Region parameter and
       //# SHOULD try to identify mismatched configurations.
-      requires RegionMatch(client, region)
+      requires KMSUtils.RegionMatch(client, region)
       ensures
         && this.client          == client
         && this.region          == region
@@ -117,10 +117,18 @@ module
       ==>
         && res.Failure?
 
+      // If we could not convert the encryption context into a form understandable
+      // by KMS, the result must be failure
+      // TODO: add this to the spec
       ensures
-        && input.materials.plaintextDataKey.None?
+        StringifyEncryptionContext(input.materials.encryptionContext).Failure?
+      ==>
+        res.Failure?
+
+      ensures
         && res.Success?
       ==>
+        && var stringifiedEncCtx := StringifyEncryptionContext(input.materials.encryptionContext).Extract();
         && res.value.materials.plaintextDataKey.Some?
         && exists edk: Crypto.EncryptedDataKey, awsKmsKey: string
         |
@@ -131,35 +139,44 @@ module
           //= type=implication
           //# *  Its provider ID MUST exactly match the value "aws-kms".
           && edk.keyProviderId == PROVIDER_ID
-          && DecryptCalledWith(
+          && KMS.IsValid_CiphertextType(edk.ciphertext)
+          && KMS.IsValid_KeyIdType(awsKmsKey)
+          && var request := KMS.DecryptRequest(
+            KeyId := Option.Some(awsKmsKey),
+            CiphertextBlob :=  edk.ciphertext,
+            EncryptionContext := Option.Some(stringifiedEncCtx),
+            GrantTokens := Option.Some(grantTokens),
+            EncryptionAlgorithm := Option.None()
+          );
+
           //= compliance/framework/aws-kms/aws-kms-mrk-aware-symmetric-region-discovery-keyring.txt#2.8
           //= type=implication
           //# To attempt to decrypt a particular encrypted data key
           //# (../structures.md#encrypted-data-key), OnDecrypt MUST call AWS KMS
           //# Decrypt (https://docs.aws.amazon.com/kms/latest/APIReference/
           //# API_Decrypt.html) with the configured AWS KMS client.
-            client,
+          && client.DecryptCalledWith(
             //= compliance/framework/aws-kms/aws-kms-mrk-aware-symmetric-region-discovery-keyring.txt#2.8
             //= type=implication
             //# When calling AWS KMS Decrypt
             //# (https://docs.aws.amazon.com/kms/latest/APIReference/
             //# API_Decrypt.html), the keyring MUST call with a request constructed
             //# as follows:
-            DecryptRequest(
-              awsKmsKey,
-              edk.ciphertext,
-              input.materials.encryptionContext,
-              grantTokens
-            ))
+            request
+            )
           //= compliance/framework/aws-kms/aws-kms-mrk-aware-symmetric-region-discovery-keyring.txt#2.8
           //= type=implication
           //# Since the response does satisfies these requirements then OnDecrypt
           //# MUST do the following with the response:
           //#*  set the plaintext data key on the decryption materials
           //#   (../structures.md#decryption-materials) as the response "Plaintext".
-          && DecryptResult(
-            awsKmsKey,
-            res.value.materials.plaintextDataKey.value)
+          && exists returnedKeyId, returnedEncryptionAlgorithm ::
+            && var response := KMS.DecryptResponse(
+              KeyId := returnedKeyId,
+              Plaintext := res.value.materials.plaintextDataKey,
+              EncryptionAlgorithm := returnedEncryptionAlgorithm
+            );
+            && client.DecryptSucceededWith(request, response)
           //= compliance/framework/aws-kms/aws-kms-mrk-aware-symmetric-region-discovery-keyring.txt#2.8
           //= type=implication
           //# *  The length of the response's "Plaintext" MUST equal the key
@@ -181,7 +198,7 @@ module
       //= compliance/framework/aws-kms/aws-kms-mrk-aware-symmetric-region-discovery-keyring.txt#2.8
       //# The set of encrypted data keys MUST first be filtered to match this
       //# keyring's configuration.
-      var edkFilterTransform : OnDecryptMRKEncryptedDataKeyFilterMap := new OnDecryptMRKEncryptedDataKeyFilterMap(region, discoveryFilter);
+      var edkFilterTransform : AwsKmsEncryptedDataKeyFilterTransform := new AwsKmsEncryptedDataKeyFilterTransform(region, discoveryFilter);
       var edksToAttempt, parts :- Actions.FlatMapWithResult(edkFilterTransform, encryptedDataKeys);
 
       forall i
@@ -231,7 +248,7 @@ module
       //= compliance/framework/aws-kms/aws-kms-mrk-aware-symmetric-region-discovery-keyring.txt#2.8
       //# For each encrypted data key in the filtered set, one at a time, the
       //# OnDecrypt MUST attempt to decrypt the data key.
-      var decryptAction: DecryptSingleEncryptedDataKey := new DecryptSingleEncryptedDataKey(
+      var decryptAction: AwsKmsEncryptedDataKeyDecryptor := new AwsKmsEncryptedDataKeyDecryptor(
         materials,
         client,
         region,
@@ -275,7 +292,7 @@ module
     }
   }
 
-  class OnDecryptMRKEncryptedDataKeyFilterMap
+  class AwsKmsEncryptedDataKeyFilterTransform
     extends ActionWithResult<
       Crypto.EncryptedDataKey,
       seq<AwsKmsEdkHelper>,
@@ -348,22 +365,22 @@ module
     }
   }
 
-  class DecryptSingleEncryptedDataKey
+  class AwsKmsEncryptedDataKeyDecryptor
     extends ActionWithResult<
       AwsKmsEdkHelper,
       Materials.SealedDecryptionMaterials,
       string>
   {
     const materials: Materials.DecryptionMaterialsPendingPlaintextDataKey
-    const client: IAmazonKeyManagementService
+    const client: KMS.IKeyManagementServiceClient
     const region : string
-    const grantTokens: GrantTokens
+    const grantTokens: KMS.GrantTokenList
 
     constructor(
       materials: Materials.DecryptionMaterialsPendingPlaintextDataKey,
-      client: IAmazonKeyManagementService,
+      client: KMS.IKeyManagementServiceClient,
       region : string,
-      grantTokens: GrantTokens
+      grantTokens: KMS.GrantTokenList
     )
       ensures
       && this.materials == materials
@@ -381,20 +398,36 @@ module
       helper: AwsKmsEdkHelper,
       res: Result<Materials.SealedDecryptionMaterials, string>
     ) {
-        res.Success?
+      && res.Success?
       ==>
+        // Confirm that the materials we're about to output are a valid transition
+        // from the input materials
         && Materials.DecryptionMaterialsTransitionIsValid(materials, res.value)
-        && var awsKmsKey := ToStringForRegion(helper.arn, region);
-        && DecryptCalledWith(
-          client,
-          DecryptRequest(
-            awsKmsKey,
-            helper.edk.ciphertext,
-            materials.encryptionContext,
-            grantTokens
-          )
-        )
-        && DecryptResult(awsKmsKey, res.value.plaintextDataKey.value)
+
+        // Confirm that all our input values were valid
+        && var keyArn := ToStringForRegion(helper.arn, region);
+        && var maybeStringifiedEncCtx := StringifyEncryptionContext(materials.encryptionContext);
+        && KMS.IsValid_CiphertextType(helper.edk.ciphertext)
+        && KMS.IsValid_KeyIdType(keyArn)
+        && maybeStringifiedEncCtx.Success?
+
+        // Confirm that we called KMS in the right way and correctly returned the values
+        // it gave us
+        && var request := KMS.DecryptRequest(
+            KeyId := Option.Some(keyArn),
+            CiphertextBlob := helper.edk.ciphertext,
+            EncryptionContext := Option.Some(maybeStringifiedEncCtx.Extract()),
+            GrantTokens := Option.Some(grantTokens),
+            EncryptionAlgorithm := Option.None()
+          );
+        && client.DecryptCalledWith(request)
+        && exists returnedKeyId, returnedEncryptionAlgorithm ::
+          && var response := KMS.DecryptResponse(
+            KeyId := returnedKeyId,
+            Plaintext := Option.Some(res.value.plaintextDataKey.value),
+            EncryptionAlgorithm := returnedEncryptionAlgorithm
+          );
+          && client.DecryptSucceededWith(request, response)
     }
 
     method Invoke(
@@ -403,25 +436,37 @@ module
       returns (res: Result<Materials.SealedDecryptionMaterials, string>)
       ensures Ensures(helper, res)
     {
-
       var awsKmsKey := ToStringForRegion(helper.arn, region);
+      var stringifiedEncCtx :- StringifyEncryptionContext(materials.encryptionContext);
 
-      var decryptRequest := KMSUtils.DecryptRequest(
-        awsKmsKey,
-        helper.edk.ciphertext,
-        materials.encryptionContext,
-        grantTokens
+      :- Need(KMS.IsValid_CiphertextType(helper.edk.ciphertext), "Ciphertext length invalid");
+      :- Need(KMS.IsValid_KeyIdType(awsKmsKey), "KMS key arn invalid");
+
+      var decryptRequest := KMS.DecryptRequest(
+        KeyId := Option.Some(awsKmsKey),
+        CiphertextBlob := helper.edk.ciphertext,
+        EncryptionContext := Option.Some(stringifiedEncCtx),
+        GrantTokens := Option.Some(grantTokens),
+        EncryptionAlgorithm := Option.None()
       );
 
-      var decryptResponse :- KMSUtils.Decrypt(client, decryptRequest);
+      var maybeDecryptResponse := client.Decrypt(decryptRequest);
+      if maybeDecryptResponse.Failure? {
+        return Failure(KMS.CastKeyManagementServiceErrorToString(maybeDecryptResponse.error));
+      }
 
+      var decryptResponse := maybeDecryptResponse.value;
+      var algId := AlgorithmSuites.GetSuite(materials.algorithmSuiteId);
       //= compliance/framework/aws-kms/aws-kms-mrk-aware-symmetric-region-discovery-keyring.txt#2.8
       //# *  The "KeyId" field in the response MUST equal the requested "KeyId"
       :- Need(
-        && decryptResponse.keyID == awsKmsKey
+        && decryptResponse.KeyId.Some?
+        && decryptResponse.KeyId.value == awsKmsKey
+        && decryptResponse.Plaintext.Some?
+        && algId.encrypt.keyLength as int == |decryptResponse.Plaintext.value|
         , "Invalid response from KMS Decrypt");
 
-      var result :-  Materials.DecryptionMaterialsAddDataKey(materials, decryptResponse.plaintext);
+      var result :-  Materials.DecryptionMaterialsAddDataKey(materials, decryptResponse.Plaintext.value);
       return Success(result);
     }
   }

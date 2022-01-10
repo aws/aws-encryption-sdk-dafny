@@ -11,6 +11,7 @@ include "../../../../libraries/src/Collections/Sequences/Seq.dfy"
 include "../../../StandardLibrary/Actions.dfy"
 include "../../../Generated/KeyManagementService.dfy"
 include "Constants.dfy"
+include "KMSUtils.dfy"
 
 module
   {:extern "Dafny.Aws.Crypto.MaterialProviders.AwsKmsDiscoveryKeyring"}
@@ -27,6 +28,7 @@ module
   import opened AwsKmsArnParsing
   import UTF8
   import KMS = Com.Amazonaws.Kms
+  import opened KMSUtils
 
 
   class AwsKmsDiscoveryKeyring
@@ -117,7 +119,7 @@ module
       ensures
         res.Success?
       ==>
-        && var maybeStringifiedEncCtx := StringifyEncryptionContext(input.materials.encryptionContext);
+        && var stringifiedEncCtx := StringifyEncryptionContext(input.materials.encryptionContext).Extract();
         && exists edk: Crypto.EncryptedDataKey, awsKmsKey: string
         |
           && edk in input.encryptedDataKeys
@@ -131,7 +133,7 @@ module
           && var request := KMS.DecryptRequest(
             KeyId := Option.Some(awsKmsKey),
             CiphertextBlob :=  edk.ciphertext,
-            EncryptionContext := Option.Some(maybeStringifiedEncCtx.Extract()),
+            EncryptionContext := Option.Some(stringifiedEncCtx),
             GrantTokens := Option.Some(grantTokens),
             EncryptionAlgorithm := Option.None()
           );
@@ -542,36 +544,4 @@ module
       LemmaFlattenMembership(parts[1..], Seq.Flatten(parts[1..]));
     }
   }
-
-  // TODO: copied from AwsKmsMrkAwareSymmetricKeyring
-  //    use ValidUTF8Bytes everywhere in business logic, so that this (and usages in implementation/preconditions) can be removed
-  function method StringifyEncryptionContext(utf8EncCtx: Crypto.EncryptionContext):
-    (res: Result<KMS.EncryptionContextType, string>)
-  {
-    if |utf8EncCtx| == 0 then Success(map[])
-    else
-      var stringifyResults: map<UTF8.ValidUTF8Bytes, Result<(string, string), string>> :=
-        map utf8Key | utf8Key in utf8EncCtx.Keys :: utf8Key := StringifyEncryptionContextPair(utf8Key, utf8EncCtx[utf8Key]);
-      if exists r | r in stringifyResults.Values :: r.Failure?
-        then Failure("Encryption context contains invalid UTF8")
-      else
-        assert forall r | r in stringifyResults.Values :: r.Success?;
-        // TODO state that UTF8.Decode is injective so we don't need this
-        var stringKeysUnique := forall k, k' | k in stringifyResults && k' in stringifyResults
-          :: k != k' ==> stringifyResults[k].value.0 != stringifyResults[k'].value.0;
-        if !stringKeysUnique then Failure("Encryption context keys are not unique")  // this should never happen...
-        else Success(map r | r in stringifyResults.Values :: r.value.0 := r.value.1)
-  }
-
-  function method StringifyEncryptionContextPair(utf8Key: UTF8.ValidUTF8Bytes, utf8Value: UTF8.ValidUTF8Bytes):
-    (res: Result<(string, string), string>)
-    ensures (UTF8.Decode(utf8Key).Success? && UTF8.Decode(utf8Value).Success?) <==> res.Success?
-  {
-    var decodedKey := UTF8.Decode(utf8Key);
-    var decodedValue := UTF8.Decode(utf8Value);
-    if (decodedKey.Failure?) then Failure(decodedKey.error)
-    else if (decodedValue.Failure?) then Failure(decodedValue.error)
-    else Success((decodedKey.value, decodedValue.value))
-  }
-
 }
