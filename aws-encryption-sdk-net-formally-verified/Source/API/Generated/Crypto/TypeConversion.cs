@@ -501,7 +501,7 @@ namespace Aws.Crypto
                 Wrappers_Compile.Option<Dafny.Aws.Crypto.DiscoveryFilter> value)
         {
             return value.is_None
-                ? (Aws.Crypto.DiscoveryFilter) null
+                ? (Aws.Crypto.DiscoveryFilter)null
                 : FromDafny_N3_aws__N6_crypto__S15_DiscoveryFilter(value.Extract());
         }
 
@@ -512,7 +512,7 @@ namespace Aws.Crypto
             return value == null
                 ? Wrappers_Compile.Option<Dafny.Aws.Crypto.DiscoveryFilter>.create_None()
                 : Wrappers_Compile.Option<Dafny.Aws.Crypto.DiscoveryFilter>.create_Some(
-                    ToDafny_N3_aws__N6_crypto__S15_DiscoveryFilter((Aws.Crypto.DiscoveryFilter) value));
+                    ToDafny_N3_aws__N6_crypto__S15_DiscoveryFilter((Aws.Crypto.DiscoveryFilter)value));
         }
 
         public static Aws.Crypto.DecryptMaterialsOutput FromDafny_N3_aws__N6_crypto__S22_DecryptMaterialsOutput(
@@ -674,7 +674,7 @@ namespace Aws.Crypto
                 (System.Collections.Generic.List<string>)
                 FromDafny_N3_aws__N6_crypto__S15_DiscoveryFilter__M10_accountIds(value.accountIds);
             converted.Partition =
-                (string) FromDafny_N3_aws__N6_crypto__S15_DiscoveryFilter__M9_partition(value.partition);
+                (string)FromDafny_N3_aws__N6_crypto__S15_DiscoveryFilter__M9_partition(value.partition);
             return converted;
         }
 
@@ -1044,7 +1044,7 @@ namespace Aws.Crypto
                 Wrappers_Compile.Option<Dafny.ISequence<Dafny.ISequence<char>>> value)
         {
             return value.is_None
-                ? (System.Collections.Generic.List<string>) null
+                ? (System.Collections.Generic.List<string>)null
                 : FromDafny_N3_aws__N6_crypto__S14_GrantTokenList(value.Extract());
         }
 
@@ -1055,7 +1055,7 @@ namespace Aws.Crypto
             return value == null
                 ? Wrappers_Compile.Option<Dafny.ISequence<Dafny.ISequence<char>>>.create_None()
                 : Wrappers_Compile.Option<Dafny.ISequence<Dafny.ISequence<char>>>.create_Some(
-                    ToDafny_N3_aws__N6_crypto__S14_GrantTokenList((System.Collections.Generic.List<string>) value));
+                    ToDafny_N3_aws__N6_crypto__S14_GrantTokenList((System.Collections.Generic.List<string>)value));
         }
 
         public static System.IO.MemoryStream FromDafny_N3_aws__N6_crypto__S16_EncryptedDataKey__M10_ciphertext(
