@@ -11,7 +11,7 @@ include "../../../Util/UTF8.dfy"
 include "../../../../libraries/src/Collections/Sequences/Seq.dfy"
 include "../../../StandardLibrary/Actions.dfy"
 include "Constants.dfy"
-include "KMSUtils.dfy"
+include "AwsKmsUtils.dfy"
 
 module
   {:extern "Dafny.Aws.Crypto.MaterialProviders.AwsKmsMrkAwareSymmetricRegionDiscoveryKeyring"}
@@ -28,12 +28,7 @@ module
   import Materials
   import UTF8
   import KMS = Com.Amazonaws.Kms
-  import opened KMSUtils
-
-  datatype DiscoveryFilter = DiscoveryFilter(
-    partition: string,
-    accounts: seq<string>
-  )
+  import opened AwsKmsUtils
 
   class AwsKmsMrkAwareSymmetricRegionDiscoveryKeyring
     //= compliance/framework/aws-kms/aws-kms-mrk-aware-symmetric-region-discovery-keyring.txt#2.5
@@ -43,7 +38,7 @@ module
     extends Keyring.VerifiableInterface
   {
     const client: KMS.IKeyManagementServiceClient
-    const discoveryFilter: Option<DiscoveryFilter>
+    const discoveryFilter: Option<Crypto.DiscoveryFilter>
     const grantTokens: KMS.GrantTokenList
     const region: string
 
@@ -62,14 +57,14 @@ module
       //# SHOULD obtain this information directly from the client as opposed to
       //# having an additional parameter.
       region: string,
-      discoveryFilter: Option<DiscoveryFilter>,
+      discoveryFilter: Option<Crypto.DiscoveryFilter>,
       grantTokens: KMS.GrantTokenList
     )
       //= compliance/framework/aws-kms/aws-kms-mrk-aware-symmetric-region-discovery-keyring.txt#2.6
       //= type=implication
       //# It SHOULD have a Region parameter and
       //# SHOULD try to identify mismatched configurations.
-      requires KMSUtils.RegionMatch(client, region)
+      requires AwsKmsUtils.RegionMatch(client, region)
       ensures
         && this.client          == client
         && this.region          == region
@@ -300,10 +295,10 @@ module
     >
   {
     const region: string
-    const discoveryFilter: Option<DiscoveryFilter>
+    const discoveryFilter: Option<Crypto.DiscoveryFilter>
     constructor(
       region: string,
-      discoveryFilter: Option<DiscoveryFilter>
+      discoveryFilter: Option<Crypto.DiscoveryFilter>
     )
       ensures
         && this.region == region
@@ -491,7 +486,7 @@ module
 
   function method DiscoveryMatch(
     arn: AwsKmsArn,
-    discoveryFilter: Option<DiscoveryFilter>,
+    discoveryFilter: Option<Crypto.DiscoveryFilter>,
     region:string
   ):
     (res: bool)
@@ -508,7 +503,7 @@ module
       //= type=implication
       //# *  If a discovery filter is configured, its set of accounts MUST
       //# contain the provider info account.
-      && discoveryFilter.value.accounts <= [arn.account]
+      && discoveryFilter.value.accountIds <= [arn.account]
     //= compliance/framework/aws-kms/aws-kms-mrk-aware-symmetric-region-discovery-keyring.txt#2.8
     //= type=implication
     //# *  If the provider info is not identified as a multi-Region key (aws-
@@ -523,7 +518,7 @@ module
     && match discoveryFilter {
       case Some(filter) =>
         && filter.partition == arn.partition
-        && filter.accounts <= [arn.account]
+        && filter.accountIds <= [arn.account]
       case None() => true
     }
     && if !IsMultiRegionAwsKmsArn(arn) then

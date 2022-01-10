@@ -24,6 +24,7 @@ module {:extern "Dafny.Aws.Crypto"} Aws.Crypto {
         IAwsCryptographicMaterialsProviderClient.CreateDefaultCryptographicMaterialsManager,
         IAwsCryptographicMaterialsProviderClient.CreateAwsKmsDiscoveryKeyring,
         IAwsCryptographicMaterialsProviderClient.CreateMrkAwareStrictAwsKmsKeyring,
+        IAwsCryptographicMaterialsProviderClient.CreateMrkAwareDiscoveryAwsKmsKeyring,
         IAwsCryptographicMaterialsProviderClient.CreateMultiKeyring
       reveals 
         AlgorithmSuiteId,
@@ -47,6 +48,7 @@ module {:extern "Dafny.Aws.Crypto"} Aws.Crypto {
         CreateMultiKeyringInput,
         CreateDefaultCryptographicMaterialsManagerInput,
         CreateMrkAwareStrictAwsKmsKeyringInput,
+        CreateMrkAwareDiscoveryAwsKmsKeyringInput,
         CreateAwsKmsDiscoveryKeyringInput,
         DiscoveryFilter,
         AccountId,
@@ -285,7 +287,8 @@ module {:extern "Dafny.Aws.Crypto"} Aws.Crypto {
     datatype CreateMrkAwareDiscoveryAwsKmsKeyringInput = CreateMrkAwareDiscoveryAwsKmsKeyringInput(
         nameonly kmsClient: KMS.IKeyManagementServiceClient,
         nameonly discoveryFilter: Option<DiscoveryFilter>,
-        nameonly grantTokens: Option<GrantTokenList>
+        nameonly grantTokens: Option<GrantTokenList>,
+        nameonly region: string
     )
 
     datatype CreateMrkAwareDiscoveryMultiKeyringInput = CreateMrkAwareDiscoveryMultiKeyringInput(
@@ -348,7 +351,7 @@ module {:extern "Dafny.Aws.Crypto"} Aws.Crypto {
         method CreateAwsKmsDiscoveryKeyring(input: CreateAwsKmsDiscoveryKeyringInput) returns (res: IKeyring)
         method CreateMrkAwareStrictAwsKmsKeyring(input: CreateMrkAwareStrictAwsKmsKeyringInput) returns (res: IKeyring)
         // method CreateMrkAwareStrictMultiKeyring(input: CreateMrkAwareStrictMultiKeyringInput) returns (res: IKeyring)
-        // method CreateMrkAwareDiscoveryAwsKmsKeyring(input: CreateMrkAwareDiscoveryAwsKmsKeyringInput) returns (res: IKeyring)
+        method CreateMrkAwareDiscoveryAwsKmsKeyring(input: CreateMrkAwareDiscoveryAwsKmsKeyringInput) returns (res: IKeyring)
         // method CreateMrkAwareDiscoveryMultiKeyring(input: CreateMrkAwareDiscoveryMultiKeyringInput) returns (res: IKeyring)
         method CreateMultiKeyring(input: CreateMultiKeyringInput) returns (res: IKeyring?)
         method CreateRawAesKeyring(input: CreateRawAesKeyringInput) returns (res: IKeyring)

@@ -13,6 +13,7 @@ include "CMMs/DefaultCMM.dfy"
 include "Materials.dfy"
 include "AlgorithmSuites.dfy"
 include "Keyrings/AwsKms/AwsKmsMrkAwareSymmetricKeyring.dfy"
+include "Keyrings/AwsKms/AwsKmsMrkAwareSymmetricRegionDiscoveryKeyring.dfy"
 include "../KMS/AwsKmsArnParsing.dfy"
 
 module
@@ -31,6 +32,7 @@ module
   import AlgorithmSuites
   import Materials
   import AwsKmsMrkAwareSymmetricKeyring
+  import AwsKmsMrkAwareSymmetricRegionDiscoveryKeyring
   import AwsKmsDiscoveryKeyring
   import AwsKmsArnParsing
   import GeneratedKMS = Com.Amazonaws.Kms
@@ -55,6 +57,7 @@ module
     provides
       AwsCryptographicMaterialProvidersClient.CreateRawAesKeyring,
       AwsCryptographicMaterialProvidersClient.CreateMrkAwareStrictAwsKmsKeyring,
+      AwsCryptographicMaterialProvidersClient.CreateMrkAwareDiscoveryAwsKmsKeyring,
       AwsCryptographicMaterialProvidersClient.CreateAwsKmsDiscoveryKeyring,
       AwsCryptographicMaterialProvidersClient.CreateDefaultCryptographicMaterialsManager,
       AwsCryptographicMaterialProvidersClient.CreateMultiKeyring
@@ -134,6 +137,19 @@ module
       expect forall grantToken | grantToken in grantTokens :: 1 <= |grantToken| <= 8192;
 
       return new AwsKmsMrkAwareSymmetricKeyring.AwsKmsMrkAwareSymmetricKeyring(input.kmsClient, input.kmsKeyId, grantTokens);
+    }
+
+    method CreateMrkAwareDiscoveryAwsKmsKeyring(input: Crypto.CreateMrkAwareDiscoveryAwsKmsKeyringInput) returns (res: Crypto.IKeyring)
+    {
+      // TODO: validation on discovery filter
+
+      var grantTokens: Crypto.GrantTokenList := input.grantTokens.UnwrapOr([]);
+
+      // TODO: update to not 'expect' once we can return Result<IKeyring>
+      expect 0 <= |grantTokens| <= 10;
+      expect forall grantToken | grantToken in grantTokens :: 1 <= |grantToken| <= 8192;
+
+      return new AwsKmsMrkAwareSymmetricRegionDiscoveryKeyring.AwsKmsMrkAwareSymmetricRegionDiscoveryKeyring(input.kmsClient, input.region, input.discoveryFilter, grantTokens);
     }
 
     method CreateAwsKmsDiscoveryKeyring(input: Crypto.CreateAwsKmsDiscoveryKeyringInput) returns (res: Crypto.IKeyring)

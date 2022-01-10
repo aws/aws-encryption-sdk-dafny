@@ -35,6 +35,20 @@ namespace Aws.Crypto
                 ToDafny_N3_aws__N6_crypto__S23_PutEntryForEncryptInput__M13_usageMetadata(value.UsageMetadata));
         }
 
+        public static Amazon.KeyManagementService.IAmazonKeyManagementService
+            FromDafny_N3_aws__N6_crypto__S41_CreateMrkAwareDiscoveryAwsKmsKeyringInput__M9_kmsClient(
+                Dafny.Com.Amazonaws.Kms.IKeyManagementServiceClient value)
+        {
+            return FromDafny_N3_aws__N6_crypto__S18_KmsClientReference(value);
+        }
+
+        public static Dafny.Com.Amazonaws.Kms.IKeyManagementServiceClient
+            ToDafny_N3_aws__N6_crypto__S41_CreateMrkAwareDiscoveryAwsKmsKeyringInput__M9_kmsClient(
+                Amazon.KeyManagementService.IAmazonKeyManagementService value)
+        {
+            return ToDafny_N3_aws__N6_crypto__S18_KmsClientReference(value);
+        }
+
         public static System.Collections.Generic.List<string>
             FromDafny_N3_aws__N6_crypto__S15_DiscoveryFilter__M10_accountIds(
                 Dafny.ISequence<Dafny.ISequence<char>> value)
@@ -337,6 +351,46 @@ namespace Aws.Crypto
             return ToDafny_N6_smithy__N3_api__S4_Blob(value);
         }
 
+        public static Aws.Crypto.CreateMrkAwareDiscoveryAwsKmsKeyringInput
+            FromDafny_N3_aws__N6_crypto__S41_CreateMrkAwareDiscoveryAwsKmsKeyringInput(
+                Dafny.Aws.Crypto.CreateMrkAwareDiscoveryAwsKmsKeyringInput value)
+        {
+            Aws.Crypto.CreateMrkAwareDiscoveryAwsKmsKeyringInput converted =
+                new Aws.Crypto.CreateMrkAwareDiscoveryAwsKmsKeyringInput();
+            converted.KmsClient =
+                (Amazon.KeyManagementService.IAmazonKeyManagementService)
+                FromDafny_N3_aws__N6_crypto__S41_CreateMrkAwareDiscoveryAwsKmsKeyringInput__M9_kmsClient(
+                    value.kmsClient);
+            if (value.discoveryFilter.is_Some)
+                converted.DiscoveryFilter =
+                    (Aws.Crypto.DiscoveryFilter)
+                    FromDafny_N3_aws__N6_crypto__S41_CreateMrkAwareDiscoveryAwsKmsKeyringInput__M15_discoveryFilter(
+                        value.discoveryFilter);
+            if (value.grantTokens.is_Some)
+                converted.GrantTokens =
+                    (System.Collections.Generic.List<string>)
+                    FromDafny_N3_aws__N6_crypto__S41_CreateMrkAwareDiscoveryAwsKmsKeyringInput__M11_grantTokens(
+                        value.grantTokens);
+            if (value.region.is_Some)
+                converted.Region =
+                    (string)FromDafny_N3_aws__N6_crypto__S41_CreateMrkAwareDiscoveryAwsKmsKeyringInput__M6_region(
+                        value.region);
+            return converted;
+        }
+
+        public static Dafny.Aws.Crypto.CreateMrkAwareDiscoveryAwsKmsKeyringInput
+            ToDafny_N3_aws__N6_crypto__S41_CreateMrkAwareDiscoveryAwsKmsKeyringInput(
+                Aws.Crypto.CreateMrkAwareDiscoveryAwsKmsKeyringInput value)
+        {
+            return new Dafny.Aws.Crypto.CreateMrkAwareDiscoveryAwsKmsKeyringInput(
+                ToDafny_N3_aws__N6_crypto__S41_CreateMrkAwareDiscoveryAwsKmsKeyringInput__M9_kmsClient(value.KmsClient),
+                ToDafny_N3_aws__N6_crypto__S41_CreateMrkAwareDiscoveryAwsKmsKeyringInput__M15_discoveryFilter(
+                    value.DiscoveryFilter),
+                ToDafny_N3_aws__N6_crypto__S41_CreateMrkAwareDiscoveryAwsKmsKeyringInput__M11_grantTokens(
+                    value.GrantTokens),
+                ToDafny_N3_aws__N6_crypto__S41_CreateMrkAwareDiscoveryAwsKmsKeyringInput__M6_region(value.Region));
+        }
+
         public static string FromDafny_N3_aws__N6_crypto__S16_EncryptedDataKey__M15_keyProviderInfo(
             Dafny.ISequence<byte> value)
         {
@@ -474,7 +528,7 @@ namespace Aws.Crypto
                 Wrappers_Compile.Option<Dafny.Aws.Crypto.DiscoveryFilter> value)
         {
             return value.is_None
-                ? (Aws.Crypto.DiscoveryFilter) null
+                ? (Aws.Crypto.DiscoveryFilter)null
                 : FromDafny_N3_aws__N6_crypto__S15_DiscoveryFilter(value.Extract());
         }
 
@@ -485,7 +539,7 @@ namespace Aws.Crypto
             return value == null
                 ? Wrappers_Compile.Option<Dafny.Aws.Crypto.DiscoveryFilter>.create_None()
                 : Wrappers_Compile.Option<Dafny.Aws.Crypto.DiscoveryFilter>.create_Some(
-                    ToDafny_N3_aws__N6_crypto__S15_DiscoveryFilter((Aws.Crypto.DiscoveryFilter) value));
+                    ToDafny_N3_aws__N6_crypto__S15_DiscoveryFilter((Aws.Crypto.DiscoveryFilter)value));
         }
 
         public static Aws.Crypto.DecryptMaterialsOutput FromDafny_N3_aws__N6_crypto__S22_DecryptMaterialsOutput(
@@ -633,7 +687,7 @@ namespace Aws.Crypto
                 (System.Collections.Generic.List<string>)
                 FromDafny_N3_aws__N6_crypto__S15_DiscoveryFilter__M10_accountIds(value.accountIds);
             converted.Partition =
-                (string) FromDafny_N3_aws__N6_crypto__S15_DiscoveryFilter__M9_partition(value.partition);
+                (string)FromDafny_N3_aws__N6_crypto__S15_DiscoveryFilter__M9_partition(value.partition);
             return converted;
         }
 
@@ -898,6 +952,25 @@ namespace Aws.Crypto
             return ToDafny_N6_smithy__N3_api__S4_Blob(value);
         }
 
+        public static Aws.Crypto.DiscoveryFilter
+            FromDafny_N3_aws__N6_crypto__S41_CreateMrkAwareDiscoveryAwsKmsKeyringInput__M15_discoveryFilter(
+                Wrappers_Compile.Option<Dafny.Aws.Crypto.DiscoveryFilter> value)
+        {
+            return value.is_None
+                ? (Aws.Crypto.DiscoveryFilter)null
+                : FromDafny_N3_aws__N6_crypto__S15_DiscoveryFilter(value.Extract());
+        }
+
+        public static Wrappers_Compile.Option<Dafny.Aws.Crypto.DiscoveryFilter>
+            ToDafny_N3_aws__N6_crypto__S41_CreateMrkAwareDiscoveryAwsKmsKeyringInput__M15_discoveryFilter(
+                Aws.Crypto.DiscoveryFilter value)
+        {
+            return value == null
+                ? Wrappers_Compile.Option<Dafny.Aws.Crypto.DiscoveryFilter>.create_None()
+                : Wrappers_Compile.Option<Dafny.Aws.Crypto.DiscoveryFilter>.create_Some(
+                    ToDafny_N3_aws__N6_crypto__S15_DiscoveryFilter((Aws.Crypto.DiscoveryFilter)value));
+        }
+
         public static string
             FromDafny_N3_aws__N6_crypto__S47_CreateCachingCryptographicMaterialsManagerInput__M11_partitionId(
                 Wrappers_Compile.Option<Dafny.ISequence<char>> value)
@@ -939,6 +1012,25 @@ namespace Aws.Crypto
 
             throw new System.ArgumentException(
                 "Custom implementations of Amazon.KeyManagementService.IAmazonKeyManagementService are not supported yet");
+        }
+
+        public static System.Collections.Generic.List<string>
+            FromDafny_N3_aws__N6_crypto__S41_CreateMrkAwareDiscoveryAwsKmsKeyringInput__M11_grantTokens(
+                Wrappers_Compile.Option<Dafny.ISequence<Dafny.ISequence<char>>> value)
+        {
+            return value.is_None
+                ? (System.Collections.Generic.List<string>)null
+                : FromDafny_N3_aws__N6_crypto__S14_GrantTokenList(value.Extract());
+        }
+
+        public static Wrappers_Compile.Option<Dafny.ISequence<Dafny.ISequence<char>>>
+            ToDafny_N3_aws__N6_crypto__S41_CreateMrkAwareDiscoveryAwsKmsKeyringInput__M11_grantTokens(
+                System.Collections.Generic.List<string> value)
+        {
+            return value == null
+                ? Wrappers_Compile.Option<Dafny.ISequence<Dafny.ISequence<char>>>.create_None()
+                : Wrappers_Compile.Option<Dafny.ISequence<Dafny.ISequence<char>>>.create_Some(
+                    ToDafny_N3_aws__N6_crypto__S14_GrantTokenList((System.Collections.Generic.List<string>)value));
         }
 
         public static string FromDafny_N3_aws__N6_crypto__S6_Region(Dafny.ISequence<char> value)
@@ -1003,7 +1095,7 @@ namespace Aws.Crypto
                 Wrappers_Compile.Option<Dafny.ISequence<Dafny.ISequence<char>>> value)
         {
             return value.is_None
-                ? (System.Collections.Generic.List<string>) null
+                ? (System.Collections.Generic.List<string>)null
                 : FromDafny_N3_aws__N6_crypto__S14_GrantTokenList(value.Extract());
         }
 
@@ -1014,7 +1106,7 @@ namespace Aws.Crypto
             return value == null
                 ? Wrappers_Compile.Option<Dafny.ISequence<Dafny.ISequence<char>>>.create_None()
                 : Wrappers_Compile.Option<Dafny.ISequence<Dafny.ISequence<char>>>.create_Some(
-                    ToDafny_N3_aws__N6_crypto__S14_GrantTokenList((System.Collections.Generic.List<string>) value));
+                    ToDafny_N3_aws__N6_crypto__S14_GrantTokenList((System.Collections.Generic.List<string>)value));
         }
 
         public static System.IO.MemoryStream FromDafny_N3_aws__N6_crypto__S16_EncryptedDataKey__M10_ciphertext(
@@ -1307,6 +1399,21 @@ namespace Aws.Crypto
                 System.Collections.Generic.List<Aws.Crypto.EncryptedDataKey> value)
         {
             return ToDafny_N3_aws__N6_crypto__S20_EncryptedDataKeyList(value);
+        }
+
+        public static string FromDafny_N3_aws__N6_crypto__S41_CreateMrkAwareDiscoveryAwsKmsKeyringInput__M6_region(
+            Wrappers_Compile.Option<Dafny.ISequence<char>> value)
+        {
+            return value.is_None ? (string)null : FromDafny_N3_aws__N6_crypto__S6_Region(value.Extract());
+        }
+
+        public static Wrappers_Compile.Option<Dafny.ISequence<char>>
+            ToDafny_N3_aws__N6_crypto__S41_CreateMrkAwareDiscoveryAwsKmsKeyringInput__M6_region(string value)
+        {
+            return value == null
+                ? Wrappers_Compile.Option<Dafny.ISequence<char>>.create_None()
+                : Wrappers_Compile.Option<Dafny.ISequence<char>>.create_Some(
+                    ToDafny_N3_aws__N6_crypto__S6_Region((string)value));
         }
 
         public static long FromDafny_N3_aws__N6_crypto__S12_DecryptEntry__M12_creationTime(long value)

@@ -134,22 +134,24 @@ structure CreateMrkAwareStrictAwsKmsKeyringInput {
 //     grantTokens: GrantTokenList
 // }
 //
-// // KMS - MRK Aware, Discovery
-//
-// operation CreateMrkAwareDiscoveryAwsKmsKeyring {
-//     input: CreateMrkAwareDiscoveryAwsKmsKeyringInput,
-//     output: CreateKeyringOutput,
-// }
-//
-// structure CreateMrkAwareDiscoveryAwsKmsKeyringInput {
-//     @required
-//     kmsClient: KmsClientReference,
-//
-//     discoveryFilter: DiscoveryFilter,
-//
-//     grantTokens: GrantTokenList
-// }
-//
+// KMS - MRK Aware, Discovery
+
+operation CreateMrkAwareDiscoveryAwsKmsKeyring {
+    input: CreateMrkAwareDiscoveryAwsKmsKeyringInput,
+    output: CreateKeyringOutput,
+}
+
+structure CreateMrkAwareDiscoveryAwsKmsKeyringInput {
+    @required
+    kmsClient: KmsClientReference,
+
+    discoveryFilter: DiscoveryFilter,
+
+    grantTokens: GrantTokenList,
+
+    region: Region
+}
+
 // operation CreateMrkAwareDiscoveryMultiKeyring {
 //     input: CreateMrkAwareDiscoveryMultiKeyringInput,
 //     output: CreateKeyringOutput,

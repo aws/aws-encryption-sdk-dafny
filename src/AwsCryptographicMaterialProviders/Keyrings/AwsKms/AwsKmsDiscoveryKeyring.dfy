@@ -11,7 +11,7 @@ include "../../../../libraries/src/Collections/Sequences/Seq.dfy"
 include "../../../StandardLibrary/Actions.dfy"
 include "../../../Generated/KeyManagementService.dfy"
 include "Constants.dfy"
-include "KMSUtils.dfy"
+include "AwsKmsUtils.dfy"
 
 module
   {:extern "Dafny.Aws.Crypto.MaterialProviders.AwsKmsDiscoveryKeyring"}
@@ -28,7 +28,7 @@ module
   import opened AwsKmsArnParsing
   import UTF8
   import KMS = Com.Amazonaws.Kms
-  import opened KMSUtils
+  import opened AwsKmsUtils
 
 
   class AwsKmsDiscoveryKeyring

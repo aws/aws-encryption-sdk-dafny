@@ -3,7 +3,7 @@ include "../../../StandardLibrary/StandardLibrary.dfy"
 include "../../../Generated/KeyManagementService.dfy"
 include "../../../Generated/AwsCryptographicMaterialProviders.dfy"
 
-module {:extern "KMSUtils"} KMSUtils {
+module {:extern "AwsKmsUtils"} AwsKmsUtils {
   import opened Wrappers
   import KMS = Com.Amazonaws.Kms
   import Aws.Crypto
