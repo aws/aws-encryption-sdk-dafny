@@ -371,10 +371,9 @@ namespace Aws.Crypto
                     (System.Collections.Generic.List<string>)
                     FromDafny_N3_aws__N6_crypto__S41_CreateMrkAwareDiscoveryAwsKmsKeyringInput__M11_grantTokens(
                         value.grantTokens);
-            if (value.region.is_Some)
-                converted.Region =
-                    (string)FromDafny_N3_aws__N6_crypto__S41_CreateMrkAwareDiscoveryAwsKmsKeyringInput__M6_region(
-                        value.region);
+            converted.Region =
+                (string)FromDafny_N3_aws__N6_crypto__S41_CreateMrkAwareDiscoveryAwsKmsKeyringInput__M6_region(
+                    value.region);
             return converted;
         }
 
@@ -1402,18 +1401,15 @@ namespace Aws.Crypto
         }
 
         public static string FromDafny_N3_aws__N6_crypto__S41_CreateMrkAwareDiscoveryAwsKmsKeyringInput__M6_region(
-            Wrappers_Compile.Option<Dafny.ISequence<char>> value)
+            Dafny.ISequence<char> value)
         {
-            return value.is_None ? (string)null : FromDafny_N3_aws__N6_crypto__S6_Region(value.Extract());
+            return FromDafny_N3_aws__N6_crypto__S6_Region(value);
         }
 
-        public static Wrappers_Compile.Option<Dafny.ISequence<char>>
+        public static Dafny.ISequence<char>
             ToDafny_N3_aws__N6_crypto__S41_CreateMrkAwareDiscoveryAwsKmsKeyringInput__M6_region(string value)
         {
-            return value == null
-                ? Wrappers_Compile.Option<Dafny.ISequence<char>>.create_None()
-                : Wrappers_Compile.Option<Dafny.ISequence<char>>.create_Some(
-                    ToDafny_N3_aws__N6_crypto__S6_Region((string)value));
+            return ToDafny_N3_aws__N6_crypto__S6_Region(value);
         }
 
         public static long FromDafny_N3_aws__N6_crypto__S12_DecryptEntry__M12_creationTime(long value)

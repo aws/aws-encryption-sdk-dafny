@@ -61,6 +61,7 @@ public class AwsKmsMrkAwareDiscoveryKeyringExample {
         CreateMrkAwareDiscoveryAwsKmsKeyringInput createDecryptKeyringInput = new CreateMrkAwareDiscoveryAwsKmsKeyringInput
         {
             KmsClient = new AmazonKeyManagementServiceClient(),
+            Region = "us-west-2"
         };
         IKeyring decryptKeyring = materialProviders.CreateMrkAwareDiscoveryAwsKmsKeyring(createDecryptKeyringInput);
         CreateDefaultCryptographicMaterialsManagerInput createDecryptCmmInput =

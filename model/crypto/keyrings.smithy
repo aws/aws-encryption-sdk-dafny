@@ -149,6 +149,7 @@ structure CreateMrkAwareDiscoveryAwsKmsKeyringInput {
 
     grantTokens: GrantTokenList,
 
+    @required // TODO: probably shouldn't be
     region: Region
 }
 
