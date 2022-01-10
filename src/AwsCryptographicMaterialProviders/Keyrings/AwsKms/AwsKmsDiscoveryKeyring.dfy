@@ -187,7 +187,7 @@ module
 
       // Next we convert the input Crypto.EncrypteDataKeys into Constant.AwsKmsEdkHelpers,
       // which makes them slightly easier to work with.
-      var edkTransform : AwsKmsEncryptedDataKeyTransform := new AwsKmsEncryptedDataKeyTransform();
+      var edkTransform : AwsKmsEncryptedDataKeyTransformer := new AwsKmsEncryptedDataKeyTransformer();
       var edksToAttempt, parts :- Actions.FlatMapWithResult(edkTransform, matchingEdks);
 
       // We want to make sure that the set of EDKs we're about to attempt
@@ -335,7 +335,7 @@ module
    * have the same issue issue, but it requires returns of type seq.
    * This may be fixed by https://github.com/dafny-lang/dafny/issues/1553.
    */
-  class AwsKmsEncryptedDataKeyTransform
+  class AwsKmsEncryptedDataKeyTransformer
     extends ActionWithResult<
       Crypto.EncryptedDataKey,
       seq<AwsKmsEdkHelper>,

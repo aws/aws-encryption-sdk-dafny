@@ -107,6 +107,12 @@ module
           res.value.materials
         )
 
+      //= compliance/framework/aws-kms/aws-kms-mrk-aware-symmetric-region-discovery-keyring.txt#2.8
+      //= type=implication
+      //# If the decryption materials (../structures.md#decryption-materials)
+      //# already contained a valid plaintext data key, they keyring MUST fail
+      //# and MUST NOT modify the decryption materials
+      //# (../structures.md#decryption-materials).
       ensures
         input.materials.plaintextDataKey.Some?
       ==>
@@ -226,7 +232,7 @@ module
           && helper.edk == encryptedDataKeys[i]
           && helper.arn.resource.resourceType == "key"
         {
-          LemmaMultisetSubMemebership(parts[i], edksToAttempt);
+          LemmaMultisetSubMembership(parts[i], edksToAttempt);
         }
       }
 
@@ -312,8 +318,7 @@ module
       edk: Crypto.EncryptedDataKey,
       res: Result<seq<AwsKmsEdkHelper>, string>
     ) {
-      && (
-        && res.Success?
+      && res.Success?
       ==>
         if |res.value| == 1 then
           && var h := res.value[0];
@@ -323,11 +328,9 @@ module
           && DiscoveryMatch(h.arn, discoveryFilter, region)
         else
           && |res.value| == 0
-      )
     }
 
-    method Invoke(edk: Crypto.EncryptedDataKey
-    )
+    method Invoke(edk: Crypto.EncryptedDataKey)
       returns (res: Result<seq<AwsKmsEdkHelper>, string>)
       ensures Ensures(edk, res)
     {
@@ -360,6 +363,15 @@ module
     }
   }
 
+  /*
+   * Responsible for executing the actual KMS.Decrypt call on input EDKs,
+   * returning decryption materials on success or an error message on failure.
+   *
+   * TODO: we may want to combine this with the very similar class in
+   * AwsKmsDiscoveryKeyring.dfy. However they're not *perfectly* identical
+   * because they handle ARNs differently. We can probably abstract that away,
+   * but in the interest of small changes, I'm leaving that for a separate PR.
+   */
   class AwsKmsEncryptedDataKeyDecryptor
     extends ActionWithResult<
       AwsKmsEdkHelper,
@@ -466,6 +478,10 @@ module
     }
   }
 
+  /*
+   * Given an ARN and a region, returns a string version of the ARN, with support for MRKs
+   * (that is, if the ARN is an MRK, we replace its region portion with the provided region).
+   */
   function method ToStringForRegion(
     arn: AwsKmsArn,
     region: string
@@ -484,10 +500,15 @@ module
       arn.ToString()
   }
 
+  /*
+   * Determines whether the given KMS Key ARN matches the given discovery filter and region,
+   * with support for MRKs (that is, if a given ARN refers to an MRK, it will be considered to
+   * "match" regardless of the region in the ARN).
+   */
   function method DiscoveryMatch(
     arn: AwsKmsArn,
     discoveryFilter: Option<Crypto.DiscoveryFilter>,
-    region:string
+    region: string
   ):
     (res: bool)
     ensures
@@ -527,7 +548,7 @@ module
       true
   }
 
-  lemma LemmaMultisetSubMemebership<T>(a: seq<T>, b: seq<T>)
+  lemma LemmaMultisetSubMembership<T>(a: seq<T>, b: seq<T>)
     requires multiset(a) <= multiset(b)
     ensures forall i | i in a :: i in b
   {
@@ -536,7 +557,7 @@ module
       assert multiset([Seq.First(a)]) <= multiset(b);
       assert Seq.First(a) in b;
       assert a == [Seq.First(a)] + a[1..];
-      LemmaMultisetSubMemebership(a[1..], b);
+      LemmaMultisetSubMembership(a[1..], b);
     }
   }
 
