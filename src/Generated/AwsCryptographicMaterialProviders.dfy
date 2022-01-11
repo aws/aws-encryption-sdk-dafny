@@ -15,17 +15,18 @@ module {:extern "Dafny.Aws.Crypto"} Aws.Crypto {
     // TODO this is currently needed for proof stability reasons, otherwise any file that has a transitive dependency on this one tries to
     // load too much at once, making the verification unstable
     export
-      provides UTF8, UInt, KMS, Wrappers, 
+      provides UTF8, UInt, KMS, Wrappers,
         IKeyring.OnDecrypt,
         IKeyring.OnEncrypt,
         ICryptographicMaterialsManager.GetEncryptionMaterials,
         ICryptographicMaterialsManager.DecryptMaterials,
         IAwsCryptographicMaterialsProviderClient.CreateRawAesKeyring,
         IAwsCryptographicMaterialsProviderClient.CreateDefaultCryptographicMaterialsManager,
+		IAwsCryptographicMaterialsProviderClient.CreateStrictAwsKmsKeyring,
         IAwsCryptographicMaterialsProviderClient.CreateAwsKmsDiscoveryKeyring,
         IAwsCryptographicMaterialsProviderClient.CreateMrkAwareStrictAwsKmsKeyring,
         IAwsCryptographicMaterialsProviderClient.CreateMultiKeyring
-      reveals 
+      reveals
         AlgorithmSuiteId,
         EncryptedDataKey,
         EncryptedDataKeyList,
@@ -47,6 +48,7 @@ module {:extern "Dafny.Aws.Crypto"} Aws.Crypto {
         CreateMultiKeyringInput,
         CreateDefaultCryptographicMaterialsManagerInput,
         CreateMrkAwareStrictAwsKmsKeyringInput,
+		CreateStrictAwsKmsKeyringInput,
         CreateAwsKmsDiscoveryKeyringInput,
         DiscoveryFilter,
         AccountId,
@@ -260,6 +262,13 @@ module {:extern "Dafny.Aws.Crypto"} Aws.Crypto {
 
     // Keyring creation input structures
 
+    // KMS
+    datatype CreateStrictAwsKmsKeyringInput = CreateStrictAwsKmsKeyringInput(
+        nameonly kmsKeyId: KmsKeyId,
+        nameonly kmsClient: KMS.IKeyManagementServiceClient,
+        nameonly grantTokens: Option<GrantTokenList>
+	)
+
     // KMS - Discovery
     datatype CreateAwsKmsDiscoveryKeyringInput = CreateAwsKmsDiscoveryKeyringInput(
         nameonly kmsClient: KMS.IKeyManagementServiceClient,
@@ -345,6 +354,7 @@ module {:extern "Dafny.Aws.Crypto"} Aws.Crypto {
     trait {:termination false} IAwsCryptographicMaterialsProviderClient {
 
         // Keyrings
+        method CreateStrictAwsKmsKeyring(input: CreateStrictAwsKmsKeyringInput) returns (res: IKeyring)
         method CreateAwsKmsDiscoveryKeyring(input: CreateAwsKmsDiscoveryKeyringInput) returns (res: IKeyring)
         method CreateMrkAwareStrictAwsKmsKeyring(input: CreateMrkAwareStrictAwsKmsKeyringInput) returns (res: IKeyring)
         // method CreateMrkAwareStrictMultiKeyring(input: CreateMrkAwareStrictMultiKeyringInput) returns (res: IKeyring)

@@ -98,7 +98,7 @@ namespace Aws.Esdk
         {
             Aws.Esdk.EncryptOutput converted = new Aws.Esdk.EncryptOutput();
             converted.Ciphertext =
-                (System.IO.MemoryStream) FromDafny_N3_aws__N4_esdk__S13_EncryptOutput__M10_ciphertext(value.ciphertext);
+                (System.IO.MemoryStream)FromDafny_N3_aws__N4_esdk__S13_EncryptOutput__M10_ciphertext(value.ciphertext);
             return converted;
         }
 
@@ -173,7 +173,7 @@ namespace Aws.Esdk
             Wrappers_Compile.Option<Dafny.Aws.Crypto.AlgorithmSuiteId> value)
         {
             return value.is_None
-                ? (Aws.Crypto.AlgorithmSuiteId) null
+                ? (Aws.Crypto.AlgorithmSuiteId)null
                 : FromDafny_N3_aws__N6_crypto__S16_AlgorithmSuiteId(value.Extract());
         }
 
@@ -183,7 +183,7 @@ namespace Aws.Esdk
             return value == null
                 ? Wrappers_Compile.Option<Dafny.Aws.Crypto.AlgorithmSuiteId>.create_None()
                 : Wrappers_Compile.Option<Dafny.Aws.Crypto.AlgorithmSuiteId>.create_Some(
-                    ToDafny_N3_aws__N6_crypto__S16_AlgorithmSuiteId((Aws.Crypto.AlgorithmSuiteId) value));
+                    ToDafny_N3_aws__N6_crypto__S16_AlgorithmSuiteId((Aws.Crypto.AlgorithmSuiteId)value));
         }
 
         public static System.IO.MemoryStream FromDafny_N3_aws__N4_esdk__S12_DecryptInput__M10_ciphertext(
@@ -245,7 +245,7 @@ namespace Aws.Esdk
         {
             Aws.Esdk.DecryptInput converted = new Aws.Esdk.DecryptInput();
             converted.Ciphertext =
-                (System.IO.MemoryStream) FromDafny_N3_aws__N4_esdk__S12_DecryptInput__M10_ciphertext(value.ciphertext);
+                (System.IO.MemoryStream)FromDafny_N3_aws__N4_esdk__S12_DecryptInput__M10_ciphertext(value.ciphertext);
             converted.MaterialsManager =
                 (Aws.Crypto.ICryptographicMaterialsManager)
                 FromDafny_N3_aws__N4_esdk__S12_DecryptInput__M16_materialsManager(value.materialsManager);
@@ -264,7 +264,7 @@ namespace Aws.Esdk
         {
             Aws.Esdk.DecryptOutput converted = new Aws.Esdk.DecryptOutput();
             converted.Plaintext =
-                (System.IO.MemoryStream) FromDafny_N3_aws__N4_esdk__S13_DecryptOutput__M9_plaintext(value.plaintext);
+                (System.IO.MemoryStream)FromDafny_N3_aws__N4_esdk__S13_DecryptOutput__M9_plaintext(value.plaintext);
             return converted;
         }
 
@@ -280,7 +280,7 @@ namespace Aws.Esdk
         {
             Aws.Esdk.EncryptInput converted = new Aws.Esdk.EncryptInput();
             converted.Plaintext =
-                (System.IO.MemoryStream) FromDafny_N3_aws__N4_esdk__S12_EncryptInput__M9_plaintext(value.plaintext);
+                (System.IO.MemoryStream)FromDafny_N3_aws__N4_esdk__S12_EncryptInput__M9_plaintext(value.plaintext);
             converted.EncryptionContext =
                 (System.Collections.Generic.Dictionary<string, string>)
                 FromDafny_N3_aws__N4_esdk__S12_EncryptInput__M17_encryptionContext(value.encryptionContext);
@@ -289,7 +289,7 @@ namespace Aws.Esdk
                 FromDafny_N3_aws__N4_esdk__S12_EncryptInput__M16_materialsManager(value.materialsManager);
             if (value.algorithmSuiteId.is_Some)
                 converted.AlgorithmSuiteId =
-                    (Aws.Crypto.AlgorithmSuiteId) FromDafny_N3_aws__N4_esdk__S12_EncryptInput__M16_algorithmSuiteId(
+                    (Aws.Crypto.AlgorithmSuiteId)FromDafny_N3_aws__N4_esdk__S12_EncryptInput__M16_algorithmSuiteId(
                         value.algorithmSuiteId);
             return converted;
         }

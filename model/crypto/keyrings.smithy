@@ -87,10 +87,25 @@ structure CreateKeyringOutput {
     keyring: KeyringReference
 }
 
+// KMS - Strict
+operation CreateStrictAwsKmsKeyring {
+    input: CreateStrictAwsKmsKeyringInput,
+    output: CreateKeyringOutput
+}
+structure CreateStrictAwsKmsKeyringInput {
+    @required
+    kmsKeyId: KmsKeyId,
+
+    @required
+    kmsClient: KmsClientReference,
+
+    grantTokens: GrantTokenList
+}
+
 // KMS - Discovery
 operation CreateAwsKmsDiscoveryKeyring {
     input: CreateAwsKmsDiscoveryKeyringInput,
-    output: CreateKeyringOutput 
+    output: CreateKeyringOutput
 }
 
 structure CreateAwsKmsDiscoveryKeyringInput {
