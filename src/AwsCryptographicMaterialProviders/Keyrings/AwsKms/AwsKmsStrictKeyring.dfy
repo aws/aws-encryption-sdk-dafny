@@ -176,7 +176,6 @@ module
         && res.value.materials.plaintextDataKey.Some?
         && |res.value.materials.encryptedDataKeys| == |input.materials.encryptedDataKeys| + 1
         && KMS.IsValid_CiphertextType(Last(res.value.materials.encryptedDataKeys).ciphertext)
-        && KMS.IsValid_PlaintextType(res.value.materials.plaintextDataKey.value)
         && var algSuite := AlgorithmSuites.GetSuite(input.materials.algorithmSuiteId);
         //= compliance/framework/aws-kms/aws-kms-keyring.txt#2.7
         //= type=implication
@@ -210,6 +209,8 @@ module
       //# identifier.
       ensures
         && input.materials.plaintextDataKey.Some?
+        // These already-ensured clauses are required because we cannot depend on a res.Success? or res.Failure? to verify
+        // that the client was called as it may be called on both paths
         && KMS.IsValid_PlaintextType(input.materials.plaintextDataKey.value)
         && StringifyEncryptionContext(input.materials.encryptionContext).Success?
       ==>
@@ -446,7 +447,6 @@ module
       ensures
         && res.Success?
       ==>
-        // && res.value.materials.plaintextDataKey.Some?
         && var maybeStringifiedEncCtx := StringifyEncryptionContext(input.materials.encryptionContext);
         && maybeStringifiedEncCtx.Success?
         && exists edk | edk in input.encryptedDataKeys
