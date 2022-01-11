@@ -5,7 +5,6 @@ include "../../Keyring.dfy"
 include "../../Materials.dfy"
 include "../../AlgorithmSuites.dfy"
 include "../../../StandardLibrary/StandardLibrary.dfy"
-include "../../../KMS/KMSUtils.dfy"
 include "../../../KMS/AmazonKeyManagementService.dfy"
 include "../../../KMS/AwsKmsArnParsing.dfy"
 include "../../../Util/UTF8.dfy"
@@ -34,7 +33,6 @@ module
   import Materials
   import AlgorithmSuites
   import Aws.Crypto
-  import opened KMSUtils
   import UTF8
 
   //= compliance/framework/aws-kms/aws-kms-keyring.txt#2.5
@@ -48,7 +46,7 @@ module
     const client: KMS.IKeyManagementServiceClient
     const awsKmsKey: AwsKmsIdentifierString
     const awsKmsArn: AwsKmsIdentifier
-    const grantTokens: KMSUtils.GrantTokens
+    const grantTokens: KMS.GrantTokenList
 
     constructor (
       //= compliance/framework/aws-kms/aws-kms-keyring.txt#2.6
@@ -66,7 +64,7 @@ module
       //= compliance/framework/aws-kms/aws-kms-keyring.txt#2.6
       //= type=implication
       //# *  MAY provide a list of Grant Tokens
-      grantTokens: GrantTokens
+      grantTokens: KMS.GrantTokenList
     )
       //= compliance/framework/aws-kms/aws-kms-keyring.txt#2.6
       //= type=implication
@@ -643,13 +641,13 @@ module
     const materials: Materials.DecryptionMaterialsPendingPlaintextDataKey
     const client: KMS.IKeyManagementServiceClient
     const awsKmsKey: AwsKmsIdentifierString
-    const grantTokens: KMSUtils.GrantTokens
+    const grantTokens: KMS.GrantTokenList
 
     constructor(
       materials: Materials.DecryptionMaterialsPendingPlaintextDataKey,
       client: KMS.IKeyManagementServiceClient,
       awsKmsKey: AwsKmsIdentifierString,
-      grantTokens: KMSUtils.GrantTokens
+      grantTokens: KMS.GrantTokenList
     )
       ensures
       && this.materials == materials
