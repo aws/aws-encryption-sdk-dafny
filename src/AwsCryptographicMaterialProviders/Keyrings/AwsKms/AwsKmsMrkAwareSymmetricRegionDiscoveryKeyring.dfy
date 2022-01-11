@@ -44,27 +44,18 @@ module
 
     //= compliance/framework/aws-kms/aws-kms-mrk-aware-symmetric-region-discovery-keyring.txt#2.6
     //= type=implication
-    //# On initialization the caller MUST provide:
+    //# On initialization the keyring MUST accept the following parameters:
     constructor (
       //= compliance/framework/aws-kms/aws-kms-mrk-aware-symmetric-region-discovery-keyring.txt#2.6
       //= type=implication
-      //# However if it can not, then it MUST
-      //# NOT create the client itself.
+      //# They keyring MUST fail initialization if any required parameters are
+      //# missing or null.
+      // Dafny does not allow null values for parameters unless explicitly told to (Option or '?')
       client: KMS.IKeyManagementServiceClient,
-      //= compliance/framework/aws-kms/aws-kms-mrk-aware-symmetric-region-discovery-keyring.txt#2.6
-      //= type=exception
-      //# It
-      //# SHOULD obtain this information directly from the client as opposed to
-      //# having an additional parameter.
       region: string,
       discoveryFilter: Option<Crypto.DiscoveryFilter>,
       grantTokens: KMS.GrantTokenList
     )
-      //= compliance/framework/aws-kms/aws-kms-mrk-aware-symmetric-region-discovery-keyring.txt#2.6
-      //= type=implication
-      //# It SHOULD have a Region parameter and
-      //# SHOULD try to identify mismatched configurations.
-      requires AwsKmsUtils.RegionMatch(client, region)
       ensures
         && this.client          == client
         && this.region          == region
@@ -72,8 +63,6 @@ module
         && this.grantTokens     == grantTokens
     {
       this.client          := client;
-      //= compliance/framework/aws-kms/aws-kms-mrk-aware-symmetric-region-discovery-keyring.txt#2.6
-      //# The keyring MUST know what Region the AWS KMS client is in.
       this.region          := region;
       this.discoveryFilter := discoveryFilter;
       this.grantTokens     := grantTokens;

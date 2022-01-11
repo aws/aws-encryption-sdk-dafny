@@ -9,6 +9,7 @@ include "../Crypto/AESEncryption.dfy"
 include "Keyrings/RawAESKeyring.dfy"
 include "Keyrings/MultiKeyring.dfy"
 include "Keyrings/AwsKms/AwsKmsDiscoveryKeyring.dfy"
+include "Keyrings/AwsKms/AwsKmsUtils.dfy"
 include "CMMs/DefaultCMM.dfy"
 include "Materials.dfy"
 include "AlgorithmSuites.dfy"
@@ -35,6 +36,7 @@ module
   import AwsKmsMrkAwareSymmetricRegionDiscoveryKeyring
   import AwsKmsDiscoveryKeyring
   import AwsKmsArnParsing
+  import AwsKmsUtils
   import GeneratedKMS = Com.Amazonaws.Kms
 
   // This file is the entry point for all Material Provider operations.
@@ -142,6 +144,13 @@ module
     method CreateMrkAwareDiscoveryAwsKmsKeyring(input: Crypto.CreateMrkAwareDiscoveryAwsKmsKeyringInput) returns (res: Crypto.IKeyring)
     {
       // TODO: validation on discovery filter
+
+      //= compliance/framework/aws-kms/aws-kms-mrk-aware-symmetric-region-discovery-keyring.txt#2.6
+      //= type=implication
+      //# The keyring SHOULD fail initialization if the
+      //# provided region does not match the region of the KMS client.
+      // TODO: uncomment once we are returning Result<IKeyring>
+      //:- Need(AwsKmsUtils.RegionMatch(input.kmsClient, input.region), "Provided client and region do not match");
 
       var grantTokens: Crypto.GrantTokenList := input.grantTokens.UnwrapOr([]);
 
