@@ -340,7 +340,7 @@ module MessageBody {
     return Success(finalFrame);
   }
 
-  method {:vcsSplitOnEveryAssert} DecryptFramedMessageBody(
+  method DecryptFramedMessageBody(
     body: FramedMessage,
     key: seq<uint8>
   )
@@ -521,18 +521,18 @@ module MessageBody {
       var regularFrame :- Frames.ReadRegularFrame(continuation, header);
       :- Need(regularFrame.data.seqNum as nat == |regularFrames| + 1, Error("Sequence number out of order."));
 
-      assert {:split_here} true;
+      assert {:focus} true;
       LemmaAddingNextRegularFrame(regularFrames, regularFrame.data);
 
       var nextRegularFrames: MessageRegularFrames := regularFrames + [regularFrame.data];
 
-      assert {:split_here} true;
+      assert {:focus} true;
       assert CorrectlyRead(continuation, Success(regularFrame), Frames.WriteRegularFrame);
       ghost var why? := [buffer, continuation, regularFrame.tail];
-      assert {:split_here} true;
+      assert {:focus} true;
       ConsecutiveReadsAreAssociative(why?);
 
-      assert {:split_here} true;
+      assert {:focus} true;
       ReadFramedMessageBody(
         buffer,
         header,
