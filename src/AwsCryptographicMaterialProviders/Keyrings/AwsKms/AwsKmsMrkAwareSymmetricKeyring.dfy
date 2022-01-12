@@ -12,10 +12,10 @@ include "../../../Generated/KeyManagementService.dfy"
 
 include "Constants.dfy"
 include "AwsKmsMrkMatchForDecrypt.dfy"
+include "AwsKmsArnParsing.dfy"
 include "../../Keyring.dfy"
 include "../../Materials.dfy"
 include "../../AlgorithmSuites.dfy"
-include "../../../KMS/AwsKmsArnParsing.dfy"
 
 module
   {:extern "Dafny.Aws.Crypto.MaterialProviders.AwsKmsMrkAwareSymmetricKeyring"}

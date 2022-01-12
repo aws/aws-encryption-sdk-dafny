@@ -3,7 +3,7 @@
 
 include "../../../Util/UTF8.dfy"
 include "../../../Generated/AwsCryptographicMaterialProviders.dfy" 
-include "../../../KMS/AwsKmsArnParsing.dfy"
+include "AwsKmsArnParsing.dfy"
 
 module Constants {
   import UTF8
