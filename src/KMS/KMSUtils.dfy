@@ -8,6 +8,7 @@ include "../StandardLibrary/UInt.dfy"
 include "../Util/UTF8.dfy"
 include "AwsKmsArnParsing.dfy"
 
+// TODO: remove this file once we've completed moved to the new way of calling KMS
 module {:extern "KMSUtils"} KMSUtils {
   import EncryptionContext
   import opened AmazonKeyManagementService
