@@ -3,7 +3,7 @@
 
 include "../Util/UTF8.dfy"
 include "../StandardLibrary/StandardLibrary.dfy"
-include "../KMS/AmazonKeyManagementService.dfy"
+include "../Generated/KeyManagementService.dfy"
 include "./KeyManagementService.dfy"
 
 module {:extern "Dafny.Aws.Crypto"} Aws.Crypto {
@@ -15,21 +15,54 @@ module {:extern "Dafny.Aws.Crypto"} Aws.Crypto {
     // TODO this is currently needed for proof stability reasons, otherwise any file that has a transitive dependency on this one tries to
     // load too much at once, making the verification unstable
     export
-      provides UTF8, UInt, KMS, Wrappers, IKeyring.OnDecrypt,
-        ICryptographicMaterialsManager.GetEncryptionMaterials, ICryptographicMaterialsManager.DecryptMaterials, IKeyring.OnEncrypt,
+      provides UTF8, UInt, KMS, Wrappers,
+        IKeyring.OnDecrypt,
+        IKeyring.OnEncrypt,
+        ICryptographicMaterialsManager.GetEncryptionMaterials,
+        ICryptographicMaterialsManager.DecryptMaterials,
         IAwsCryptographicMaterialsProviderClient.CreateRawAesKeyring,
         IAwsCryptographicMaterialsProviderClient.CreateDefaultCryptographicMaterialsManager,
+		IAwsCryptographicMaterialsProviderClient.CreateStrictAwsKmsKeyring,
+        IAwsCryptographicMaterialsProviderClient.CreateAwsKmsDiscoveryKeyring,
         IAwsCryptographicMaterialsProviderClient.CreateMrkAwareStrictAwsKmsKeyring,
+        IAwsCryptographicMaterialsProviderClient.CreateMrkAwareDiscoveryAwsKmsKeyring,
         IAwsCryptographicMaterialsProviderClient.CreateMultiKeyring,
         IAwsCryptographicMaterialsProviderClient.CreateRawRsaKeyring
 
-      reveals AlgorithmSuiteId, EncryptedDataKey, EncryptedDataKeyList, IKeyring, GetEncryptionMaterialsInput, GetEncryptionMaterialsOutput,
-        DecryptMaterialsInput, DecryptMaterialsOutput, ICryptographicMaterialsManager, EncryptionContext, EncryptionMaterials, DecryptionMaterials,
-        OnEncryptInput, OnEncryptOutput, OnDecryptInput, OnDecryptOutput,
-        EncryptionMaterials.Valid, CreateRawAesKeyringInput, CreateMultiKeyringInput, CreateDefaultCryptographicMaterialsManagerInput,
+      reveals
+        AlgorithmSuiteId,
+        EncryptedDataKey,
+        EncryptedDataKeyList,
+        IKeyring,
+        GetEncryptionMaterialsInput,
+        GetEncryptionMaterialsOutput,
+        DecryptMaterialsInput,
+        DecryptMaterialsOutput,
+        ICryptographicMaterialsManager,
+        EncryptionContext,
+        EncryptionMaterials,
+        DecryptionMaterials,
+        OnEncryptInput,
+        OnEncryptOutput,
+        OnDecryptInput,
+        OnDecryptOutput,
+        EncryptionMaterials.Valid,
+        CreateRawAesKeyringInput,
+        CreateMultiKeyringInput,
+        CreateDefaultCryptographicMaterialsManagerInput,
 
-        CreateMrkAwareStrictAwsKmsKeyringInput, KmsKeyId, GrantToken, GrantTokenList,
-        IAwsCryptographicMaterialsProviderClient, AesWrappingAlg, CreateRawRsaKeyringInput, PaddingScheme
+        CreateMrkAwareStrictAwsKmsKeyringInput,
+        CreateMrkAwareDiscoveryAwsKmsKeyringInput,
+		CreateStrictAwsKmsKeyringInput,
+        CreateAwsKmsDiscoveryKeyringInput,
+        DiscoveryFilter,
+        AccountId,
+        AccountIdList,
+        KmsKeyId,
+        GrantToken,
+        GrantTokenList,
+        IAwsCryptographicMaterialsProviderClient,
+        AesWrappingAlg, CreateRawRsaKeyringInput, PaddingScheme
 
     /////////////
     // kms.smithy
@@ -42,17 +75,22 @@ module {:extern "Dafny.Aws.Crypto"} Aws.Crypto {
     type Region = string
     type RegionList = seq<Region>
 
-    datatype DiscoveryFilter = DiscoveryFilter(accountId: string, partition: string)
+    type AccountId = string
+    type AccountIdList = seq<AccountId>
+
+    datatype DiscoveryFilter = DiscoveryFilter(accountIds: AccountIdList, partition: string)
 
     datatype GetClientInput = GetClientInput(region: string)
 
-    // TODO remove workaround
-    trait IKmsClient {}
-
     trait IClientSupplier {
-        // TODO
-        // method GetClient(input: GetClientInput) returns (res: AmazonKeyManagementService.IAmazonKeyManagementService)
-        method GetClient(input: GetClientInput) returns (res: IKmsClient)
+        // GetClient is a fallible operation, so it should return a Result<KMS.IKeyManagementServiceClient>,
+        // but prior to Dafny 3.4 we can't use the client trait as a type parameter.
+        // Until we adopt Dafny 3.4+, we mark the return type optional via `?`.
+        // This forces consuming code/proofs to handle the failure case,
+        // which in turn will ease the migration to a Result-wrapped client type.
+        //
+        // TODO: replace `?` by wrapping client in Result once we've adopted Dafny 3.4+
+        method GetClient(input: GetClientInput) returns (res: KMS.IKeyManagementServiceClient?)
     }
 
     /////////////
@@ -77,7 +115,7 @@ module {:extern "Dafny.Aws.Crypto"} Aws.Crypto {
             true
         }
     }
-    
+
     datatype DecryptionMaterials = DecryptionMaterials(nameonly algorithmSuiteId: AlgorithmSuiteId,
                                                        nameonly encryptionContext: EncryptionContext,
                                                        nameonly plaintextDataKey: Option<seq<uint8>>,
@@ -229,11 +267,17 @@ module {:extern "Dafny.Aws.Crypto"} Aws.Crypto {
 
     // Keyring creation input structures
 
-    // KMS - Old Style
-    datatype CreateAwsKmsKeyringInput = CreateAwsKmsKeyringInput(
-        nameonly clientSupplier: IClientSupplier,
-        nameonly generator: Option<KmsKeyId>,
-        nameonly keyIds: Option<KmsKeyIdList>,
+    // KMS
+    datatype CreateStrictAwsKmsKeyringInput = CreateStrictAwsKmsKeyringInput(
+        nameonly kmsKeyId: KmsKeyId,
+        nameonly kmsClient: KMS.IKeyManagementServiceClient,
+        nameonly grantTokens: Option<GrantTokenList>
+	)
+
+    // KMS - Discovery
+    datatype CreateAwsKmsDiscoveryKeyringInput = CreateAwsKmsDiscoveryKeyringInput(
+        nameonly kmsClient: KMS.IKeyManagementServiceClient,
+        nameonly discoveryFilter: Option<DiscoveryFilter>,
         grantTokens: Option<GrantTokenList>
     )
 
@@ -255,7 +299,8 @@ module {:extern "Dafny.Aws.Crypto"} Aws.Crypto {
     datatype CreateMrkAwareDiscoveryAwsKmsKeyringInput = CreateMrkAwareDiscoveryAwsKmsKeyringInput(
         nameonly kmsClient: KMS.IKeyManagementServiceClient,
         nameonly discoveryFilter: Option<DiscoveryFilter>,
-        nameonly grantTokens: Option<GrantTokenList>
+        nameonly grantTokens: Option<GrantTokenList>,
+        nameonly region: string
     )
 
     datatype CreateMrkAwareDiscoveryMultiKeyringInput = CreateMrkAwareDiscoveryMultiKeyringInput(
@@ -315,10 +360,11 @@ module {:extern "Dafny.Aws.Crypto"} Aws.Crypto {
     trait {:termination false} IAwsCryptographicMaterialsProviderClient {
 
         // Keyrings
-        //method CreateAwsKmsKeyring(input: CreateAwsKmsKeyringInput) returns (res: IKeyring)
+        method CreateStrictAwsKmsKeyring(input: CreateStrictAwsKmsKeyringInput) returns (res: IKeyring)
+        method CreateAwsKmsDiscoveryKeyring(input: CreateAwsKmsDiscoveryKeyringInput) returns (res: IKeyring)
         method CreateMrkAwareStrictAwsKmsKeyring(input: CreateMrkAwareStrictAwsKmsKeyringInput) returns (res: IKeyring)
         // method CreateMrkAwareStrictMultiKeyring(input: CreateMrkAwareStrictMultiKeyringInput) returns (res: IKeyring)
-        // method CreateMrkAwareDiscoveryAwsKmsKeyring(input: CreateMrkAwareDiscoveryAwsKmsKeyringInput) returns (res: IKeyring)
+        method CreateMrkAwareDiscoveryAwsKmsKeyring(input: CreateMrkAwareDiscoveryAwsKmsKeyringInput) returns (res: IKeyring)
         // method CreateMrkAwareDiscoveryMultiKeyring(input: CreateMrkAwareDiscoveryMultiKeyringInput) returns (res: IKeyring)
         method CreateMultiKeyring(input: CreateMultiKeyringInput) returns (res: IKeyring?)
         method CreateRawAesKeyring(input: CreateRawAesKeyringInput) returns (res: IKeyring)

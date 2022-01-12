@@ -20,7 +20,7 @@ list KeyringList {
 
 structure DiscoveryFilter {
     @required
-    region: String,
+    accountIds: AccountIdList,
 
     @required
     partition: String
@@ -87,25 +87,35 @@ structure CreateKeyringOutput {
     keyring: KeyringReference
 }
 
-// TODO
-// // KMS - Old Style
-//
-// operation CreateAwsKmsKeyring {
-//     input: CreateAwsKmsKeyringInput,
-//     output: CreateKeyringOutput 
-// }
-//
-// structure CreateAwsKmsKeyringInput {
-//     @required
-//     clientSupplier: ClientSupplierReference,
-//
-//     // Not required because the keyring could be in discovery mode
-//     generator: KmsKeyId,
-//
-//     keyIds: KmsKeyIdList,
-//
-//     grantTokens: GrantTokenList,
-// }
+// KMS - Strict
+operation CreateStrictAwsKmsKeyring {
+    input: CreateStrictAwsKmsKeyringInput,
+    output: CreateKeyringOutput
+}
+structure CreateStrictAwsKmsKeyringInput {
+    @required
+    kmsKeyId: KmsKeyId,
+
+    @required
+    kmsClient: KmsClientReference,
+
+    grantTokens: GrantTokenList
+}
+
+// KMS - Discovery
+operation CreateAwsKmsDiscoveryKeyring {
+    input: CreateAwsKmsDiscoveryKeyringInput,
+    output: CreateKeyringOutput
+}
+
+structure CreateAwsKmsDiscoveryKeyringInput {
+    @required
+    kmsClient: KmsClientReference,
+
+    discoveryFilter: DiscoveryFilter,
+
+    grantTokens: GrantTokenList
+}
 
 // KMS - MRK Aware, Strict
 operation CreateMrkAwareStrictAwsKmsKeyring {
@@ -139,22 +149,25 @@ structure CreateMrkAwareStrictAwsKmsKeyringInput {
 //     grantTokens: GrantTokenList
 // }
 //
-// // KMS - MRK Aware, Discovery
-//
-// operation CreateMrkAwareDiscoveryAwsKmsKeyring {
-//     input: CreateMrkAwareDiscoveryAwsKmsKeyringInput,
-//     output: CreateKeyringOutput,
-// }
-//
-// structure CreateMrkAwareDiscoveryAwsKmsKeyringInput {
-//     @required
-//     kmsClient: KmsClientReference,
-//
-//     discoveryFilter: DiscoveryFilter,
-//
-//     grantTokens: GrantTokenList
-// }
-//
+// KMS - MRK Aware, Discovery
+
+operation CreateMrkAwareDiscoveryAwsKmsKeyring {
+    input: CreateMrkAwareDiscoveryAwsKmsKeyringInput,
+    output: CreateKeyringOutput,
+}
+
+structure CreateMrkAwareDiscoveryAwsKmsKeyringInput {
+    @required
+    kmsClient: KmsClientReference,
+
+    discoveryFilter: DiscoveryFilter,
+
+    grantTokens: GrantTokenList,
+
+    @required // TODO: probably shouldn't be
+    region: Region
+}
+
 // operation CreateMrkAwareDiscoveryMultiKeyring {
 //     input: CreateMrkAwareDiscoveryMultiKeyringInput,
 //     output: CreateKeyringOutput,

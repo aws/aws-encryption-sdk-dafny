@@ -11,13 +11,13 @@ namespace Aws.Crypto
 {
     public class DiscoveryFilter
     {
-        private string _region;
+        private System.Collections.Generic.List<string> _accountIds;
         private string _partition;
 
-        public string Region
+        public System.Collections.Generic.List<string> AccountIds
         {
-            get { return this._region; }
-            set { this._region = value; }
+            get { return this._accountIds; }
+            set { this._accountIds = value; }
         }
 
         public string Partition

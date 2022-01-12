@@ -9,17 +9,12 @@ using
 
 namespace Aws.Crypto
 {
-    public class CreateMrkAwareStrictAwsKmsKeyringInput
+    public class CreateMrkAwareDiscoveryAwsKmsKeyringInput
     {
-        private string _kmsKeyId;
         private Amazon.KeyManagementService.IAmazonKeyManagementService _kmsClient;
+        private Aws.Crypto.DiscoveryFilter _discoveryFilter;
         private System.Collections.Generic.List<string> _grantTokens;
-
-        public string KmsKeyId
-        {
-            get { return this._kmsKeyId; }
-            set { this._kmsKeyId = value; }
-        }
+        private string _region;
 
         public Amazon.KeyManagementService.IAmazonKeyManagementService KmsClient
         {
@@ -27,10 +22,22 @@ namespace Aws.Crypto
             set { this._kmsClient = value; }
         }
 
+        public Aws.Crypto.DiscoveryFilter DiscoveryFilter
+        {
+            get { return this._discoveryFilter; }
+            set { this._discoveryFilter = value; }
+        }
+
         public System.Collections.Generic.List<string> GrantTokens
         {
             get { return this._grantTokens; }
             set { this._grantTokens = value; }
+        }
+
+        public string Region
+        {
+            get { return this._region; }
+            set { this._region = value; }
         }
 
         public void Validate()
