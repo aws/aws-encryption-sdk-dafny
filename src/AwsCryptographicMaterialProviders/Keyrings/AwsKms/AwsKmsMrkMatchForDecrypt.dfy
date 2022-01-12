@@ -3,7 +3,7 @@
 
 include "../../../StandardLibrary/StandardLibrary.dfy"
 include "../../../../libraries/src/Collections/Sequences/Seq.dfy"
-include "../../../KMS/AwsKmsArnParsing.dfy"
+include "AwsKmsArnParsing.dfy"
 
 module  AwsKmsMrkMatchForDecrypt {
   import opened StandardLibrary
