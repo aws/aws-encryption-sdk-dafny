@@ -226,13 +226,22 @@ module TestRawRSAKeying {
       keyProviderInfo := edk.keyProviderInfo,
       ciphertext := seq(|edk.ciphertext|, i => 0)
     );
+
+    //= compliance/framework/raw-rsa-keyring.txt#2.6.2
+    //= type=test    
+    //# The keyring MUST attempt to decrypt the input encrypted data keys, in
+    //# list order, until it successfully decrypts one.  
     var decryptionMaterialsOut :- expect rawRSAKeyring.OnDecrypt(
       Crypto.OnDecryptInput(
         materials:=decryptionMaterialsIn,
         encryptedDataKeys:=[fakeEdk, edk]
       )
     );
-    
+    //= compliance/framework/raw-rsa-keyring.txt#2.6.2
+    //= type=test
+    //# If any decryption succeeds, this keyring MUST immediately return the
+    //# input decryption materials (structures.md#decryption-materials),
+    //# modified in the following ways:
     expect decryptionMaterialsOut.materials.plaintextDataKey == Some(pdk);      
   }
   
