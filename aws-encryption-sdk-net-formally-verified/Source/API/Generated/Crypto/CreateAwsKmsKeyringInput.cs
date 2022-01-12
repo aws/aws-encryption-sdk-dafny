@@ -1,15 +1,9 @@
 // Copyright Amazon.com Inc. or its affiliates. All Rights Reserved.
 // SPDX-License-Identifier: Apache-2.0
 
-using System;
-using Aws.Crypto;
-using
-    Aws.Crypto
-    ;
-
 namespace Aws.Crypto
 {
-    public class CreateMrkAwareStrictAwsKmsKeyringInput
+    public class CreateAwsKmsKeyringInput
     {
         private string _kmsKeyId;
         private Amazon.KeyManagementService.IAmazonKeyManagementService _kmsClient;

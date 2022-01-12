@@ -1020,7 +1020,7 @@ namespace Com.Amazonaws.Kms
                 return Dafny.Com.Amazonaws.Kms.KeyManagementServiceError
                     .create_KeyManagementService__AlreadyExistsException(
                         TypeConversion.ToDafny_N3_com__N9_amazonaws__N3_kms__S22_AlreadyExistsException(
-                            (Amazon.KeyManagementService.Model.AlreadyExistsException) error));
+                            (Amazon.KeyManagementService.Model.AlreadyExistsException)error));
             }
 
             if (error is Amazon.KeyManagementService.Model.CloudHsmClusterInUseException)
@@ -1028,7 +1028,7 @@ namespace Com.Amazonaws.Kms
                 return Dafny.Com.Amazonaws.Kms.KeyManagementServiceError
                     .create_KeyManagementService__CloudHsmClusterInUseException(
                         TypeConversion.ToDafny_N3_com__N9_amazonaws__N3_kms__S29_CloudHsmClusterInUseException(
-                            (Amazon.KeyManagementService.Model.CloudHsmClusterInUseException) error));
+                            (Amazon.KeyManagementService.Model.CloudHsmClusterInUseException)error));
             }
 
             if (error is Amazon.KeyManagementService.Model.CloudHsmClusterInvalidConfigurationException)
@@ -1046,7 +1046,7 @@ namespace Com.Amazonaws.Kms
                 return Dafny.Com.Amazonaws.Kms.KeyManagementServiceError
                     .create_KeyManagementService__CloudHsmClusterNotActiveException(
                         TypeConversion.ToDafny_N3_com__N9_amazonaws__N3_kms__S33_CloudHsmClusterNotActiveException(
-                            (Amazon.KeyManagementService.Model.CloudHsmClusterNotActiveException) error));
+                            (Amazon.KeyManagementService.Model.CloudHsmClusterNotActiveException)error));
             }
 
             if (error is Amazon.KeyManagementService.Model.CloudHsmClusterNotFoundException)
@@ -1054,7 +1054,7 @@ namespace Com.Amazonaws.Kms
                 return Dafny.Com.Amazonaws.Kms.KeyManagementServiceError
                     .create_KeyManagementService__CloudHsmClusterNotFoundException(
                         TypeConversion.ToDafny_N3_com__N9_amazonaws__N3_kms__S32_CloudHsmClusterNotFoundException(
-                            (Amazon.KeyManagementService.Model.CloudHsmClusterNotFoundException) error));
+                            (Amazon.KeyManagementService.Model.CloudHsmClusterNotFoundException)error));
             }
 
             if (error is Amazon.KeyManagementService.Model.CloudHsmClusterNotRelatedException)
@@ -1062,7 +1062,7 @@ namespace Com.Amazonaws.Kms
                 return Dafny.Com.Amazonaws.Kms.KeyManagementServiceError
                     .create_KeyManagementService__CloudHsmClusterNotRelatedException(
                         TypeConversion.ToDafny_N3_com__N9_amazonaws__N3_kms__S34_CloudHsmClusterNotRelatedException(
-                            (Amazon.KeyManagementService.Model.CloudHsmClusterNotRelatedException) error));
+                            (Amazon.KeyManagementService.Model.CloudHsmClusterNotRelatedException)error));
             }
 
             if (error is Amazon.KeyManagementService.Model.CustomKeyStoreHasCMKsException)
@@ -1070,7 +1070,7 @@ namespace Com.Amazonaws.Kms
                 return Dafny.Com.Amazonaws.Kms.KeyManagementServiceError
                     .create_KeyManagementService__CustomKeyStoreHasCMKsException(
                         TypeConversion.ToDafny_N3_com__N9_amazonaws__N3_kms__S30_CustomKeyStoreHasCMKsException(
-                            (Amazon.KeyManagementService.Model.CustomKeyStoreHasCMKsException) error));
+                            (Amazon.KeyManagementService.Model.CustomKeyStoreHasCMKsException)error));
             }
 
             if (error is Amazon.KeyManagementService.Model.CustomKeyStoreInvalidStateException)
@@ -1078,7 +1078,7 @@ namespace Com.Amazonaws.Kms
                 return Dafny.Com.Amazonaws.Kms.KeyManagementServiceError
                     .create_KeyManagementService__CustomKeyStoreInvalidStateException(
                         TypeConversion.ToDafny_N3_com__N9_amazonaws__N3_kms__S35_CustomKeyStoreInvalidStateException(
-                            (Amazon.KeyManagementService.Model.CustomKeyStoreInvalidStateException) error));
+                            (Amazon.KeyManagementService.Model.CustomKeyStoreInvalidStateException)error));
             }
 
             if (error is Amazon.KeyManagementService.Model.CustomKeyStoreNameInUseException)
@@ -1086,7 +1086,7 @@ namespace Com.Amazonaws.Kms
                 return Dafny.Com.Amazonaws.Kms.KeyManagementServiceError
                     .create_KeyManagementService__CustomKeyStoreNameInUseException(
                         TypeConversion.ToDafny_N3_com__N9_amazonaws__N3_kms__S32_CustomKeyStoreNameInUseException(
-                            (Amazon.KeyManagementService.Model.CustomKeyStoreNameInUseException) error));
+                            (Amazon.KeyManagementService.Model.CustomKeyStoreNameInUseException)error));
             }
 
             if (error is Amazon.KeyManagementService.Model.CustomKeyStoreNotFoundException)
@@ -1094,7 +1094,7 @@ namespace Com.Amazonaws.Kms
                 return Dafny.Com.Amazonaws.Kms.KeyManagementServiceError
                     .create_KeyManagementService__CustomKeyStoreNotFoundException(
                         TypeConversion.ToDafny_N3_com__N9_amazonaws__N3_kms__S31_CustomKeyStoreNotFoundException(
-                            (Amazon.KeyManagementService.Model.CustomKeyStoreNotFoundException) error));
+                            (Amazon.KeyManagementService.Model.CustomKeyStoreNotFoundException)error));
             }
 
             if (error is Amazon.KeyManagementService.Model.DependencyTimeoutException)
@@ -1102,14 +1102,14 @@ namespace Com.Amazonaws.Kms
                 return Dafny.Com.Amazonaws.Kms.KeyManagementServiceError
                     .create_KeyManagementService__DependencyTimeoutException(
                         TypeConversion.ToDafny_N3_com__N9_amazonaws__N3_kms__S26_DependencyTimeoutException(
-                            (Amazon.KeyManagementService.Model.DependencyTimeoutException) error));
+                            (Amazon.KeyManagementService.Model.DependencyTimeoutException)error));
             }
 
             if (error is Amazon.KeyManagementService.Model.DisabledException)
             {
                 return Dafny.Com.Amazonaws.Kms.KeyManagementServiceError.create_KeyManagementService__DisabledException(
                     TypeConversion.ToDafny_N3_com__N9_amazonaws__N3_kms__S17_DisabledException(
-                        (Amazon.KeyManagementService.Model.DisabledException) error));
+                        (Amazon.KeyManagementService.Model.DisabledException)error));
             }
 
             if (error is Amazon.KeyManagementService.Model.ExpiredImportTokenException)
@@ -1117,7 +1117,7 @@ namespace Com.Amazonaws.Kms
                 return Dafny.Com.Amazonaws.Kms.KeyManagementServiceError
                     .create_KeyManagementService__ExpiredImportTokenException(
                         TypeConversion.ToDafny_N3_com__N9_amazonaws__N3_kms__S27_ExpiredImportTokenException(
-                            (Amazon.KeyManagementService.Model.ExpiredImportTokenException) error));
+                            (Amazon.KeyManagementService.Model.ExpiredImportTokenException)error));
             }
 
             if (error is Amazon.KeyManagementService.Model.IncorrectKeyException)
@@ -1125,7 +1125,7 @@ namespace Com.Amazonaws.Kms
                 return Dafny.Com.Amazonaws.Kms.KeyManagementServiceError
                     .create_KeyManagementService__IncorrectKeyException(
                         TypeConversion.ToDafny_N3_com__N9_amazonaws__N3_kms__S21_IncorrectKeyException(
-                            (Amazon.KeyManagementService.Model.IncorrectKeyException) error));
+                            (Amazon.KeyManagementService.Model.IncorrectKeyException)error));
             }
 
             if (error is Amazon.KeyManagementService.Model.IncorrectKeyMaterialException)
@@ -1133,7 +1133,7 @@ namespace Com.Amazonaws.Kms
                 return Dafny.Com.Amazonaws.Kms.KeyManagementServiceError
                     .create_KeyManagementService__IncorrectKeyMaterialException(
                         TypeConversion.ToDafny_N3_com__N9_amazonaws__N3_kms__S29_IncorrectKeyMaterialException(
-                            (Amazon.KeyManagementService.Model.IncorrectKeyMaterialException) error));
+                            (Amazon.KeyManagementService.Model.IncorrectKeyMaterialException)error));
             }
 
             if (error is Amazon.KeyManagementService.Model.IncorrectTrustAnchorException)
@@ -1141,7 +1141,7 @@ namespace Com.Amazonaws.Kms
                 return Dafny.Com.Amazonaws.Kms.KeyManagementServiceError
                     .create_KeyManagementService__IncorrectTrustAnchorException(
                         TypeConversion.ToDafny_N3_com__N9_amazonaws__N3_kms__S29_IncorrectTrustAnchorException(
-                            (Amazon.KeyManagementService.Model.IncorrectTrustAnchorException) error));
+                            (Amazon.KeyManagementService.Model.IncorrectTrustAnchorException)error));
             }
 
             if (error is Amazon.KeyManagementService.Model.InvalidAliasNameException)
@@ -1149,7 +1149,7 @@ namespace Com.Amazonaws.Kms
                 return Dafny.Com.Amazonaws.Kms.KeyManagementServiceError
                     .create_KeyManagementService__InvalidAliasNameException(
                         TypeConversion.ToDafny_N3_com__N9_amazonaws__N3_kms__S25_InvalidAliasNameException(
-                            (Amazon.KeyManagementService.Model.InvalidAliasNameException) error));
+                            (Amazon.KeyManagementService.Model.InvalidAliasNameException)error));
             }
 
             if (error is Amazon.KeyManagementService.Model.InvalidArnException)
@@ -1157,7 +1157,7 @@ namespace Com.Amazonaws.Kms
                 return Dafny.Com.Amazonaws.Kms.KeyManagementServiceError
                     .create_KeyManagementService__InvalidArnException(
                         TypeConversion.ToDafny_N3_com__N9_amazonaws__N3_kms__S19_InvalidArnException(
-                            (Amazon.KeyManagementService.Model.InvalidArnException) error));
+                            (Amazon.KeyManagementService.Model.InvalidArnException)error));
             }
 
             if (error is Amazon.KeyManagementService.Model.InvalidCiphertextException)
@@ -1165,7 +1165,7 @@ namespace Com.Amazonaws.Kms
                 return Dafny.Com.Amazonaws.Kms.KeyManagementServiceError
                     .create_KeyManagementService__InvalidCiphertextException(
                         TypeConversion.ToDafny_N3_com__N9_amazonaws__N3_kms__S26_InvalidCiphertextException(
-                            (Amazon.KeyManagementService.Model.InvalidCiphertextException) error));
+                            (Amazon.KeyManagementService.Model.InvalidCiphertextException)error));
             }
 
             if (error is Amazon.KeyManagementService.Model.InvalidGrantIdException)
@@ -1173,7 +1173,7 @@ namespace Com.Amazonaws.Kms
                 return Dafny.Com.Amazonaws.Kms.KeyManagementServiceError
                     .create_KeyManagementService__InvalidGrantIdException(
                         TypeConversion.ToDafny_N3_com__N9_amazonaws__N3_kms__S23_InvalidGrantIdException(
-                            (Amazon.KeyManagementService.Model.InvalidGrantIdException) error));
+                            (Amazon.KeyManagementService.Model.InvalidGrantIdException)error));
             }
 
             if (error is Amazon.KeyManagementService.Model.InvalidGrantTokenException)
@@ -1181,7 +1181,7 @@ namespace Com.Amazonaws.Kms
                 return Dafny.Com.Amazonaws.Kms.KeyManagementServiceError
                     .create_KeyManagementService__InvalidGrantTokenException(
                         TypeConversion.ToDafny_N3_com__N9_amazonaws__N3_kms__S26_InvalidGrantTokenException(
-                            (Amazon.KeyManagementService.Model.InvalidGrantTokenException) error));
+                            (Amazon.KeyManagementService.Model.InvalidGrantTokenException)error));
             }
 
             if (error is Amazon.KeyManagementService.Model.InvalidImportTokenException)
@@ -1189,7 +1189,7 @@ namespace Com.Amazonaws.Kms
                 return Dafny.Com.Amazonaws.Kms.KeyManagementServiceError
                     .create_KeyManagementService__InvalidImportTokenException(
                         TypeConversion.ToDafny_N3_com__N9_amazonaws__N3_kms__S27_InvalidImportTokenException(
-                            (Amazon.KeyManagementService.Model.InvalidImportTokenException) error));
+                            (Amazon.KeyManagementService.Model.InvalidImportTokenException)error));
             }
 
             if (error is Amazon.KeyManagementService.Model.InvalidKeyUsageException)
@@ -1197,7 +1197,7 @@ namespace Com.Amazonaws.Kms
                 return Dafny.Com.Amazonaws.Kms.KeyManagementServiceError
                     .create_KeyManagementService__InvalidKeyUsageException(
                         TypeConversion.ToDafny_N3_com__N9_amazonaws__N3_kms__S24_InvalidKeyUsageException(
-                            (Amazon.KeyManagementService.Model.InvalidKeyUsageException) error));
+                            (Amazon.KeyManagementService.Model.InvalidKeyUsageException)error));
             }
 
             if (error is Amazon.KeyManagementService.Model.InvalidMarkerException)
@@ -1205,7 +1205,7 @@ namespace Com.Amazonaws.Kms
                 return Dafny.Com.Amazonaws.Kms.KeyManagementServiceError
                     .create_KeyManagementService__InvalidMarkerException(
                         TypeConversion.ToDafny_N3_com__N9_amazonaws__N3_kms__S22_InvalidMarkerException(
-                            (Amazon.KeyManagementService.Model.InvalidMarkerException) error));
+                            (Amazon.KeyManagementService.Model.InvalidMarkerException)error));
             }
 
             if (error is Amazon.KeyManagementService.Model.KeyUnavailableException)
@@ -1213,7 +1213,7 @@ namespace Com.Amazonaws.Kms
                 return Dafny.Com.Amazonaws.Kms.KeyManagementServiceError
                     .create_KeyManagementService__KeyUnavailableException(
                         TypeConversion.ToDafny_N3_com__N9_amazonaws__N3_kms__S23_KeyUnavailableException(
-                            (Amazon.KeyManagementService.Model.KeyUnavailableException) error));
+                            (Amazon.KeyManagementService.Model.KeyUnavailableException)error));
             }
 
             if (error is Amazon.KeyManagementService.Model.KMSInternalException)
@@ -1221,7 +1221,7 @@ namespace Com.Amazonaws.Kms
                 return Dafny.Com.Amazonaws.Kms.KeyManagementServiceError
                     .create_KeyManagementService__KMSInternalException(
                         TypeConversion.ToDafny_N3_com__N9_amazonaws__N3_kms__S20_KMSInternalException(
-                            (Amazon.KeyManagementService.Model.KMSInternalException) error));
+                            (Amazon.KeyManagementService.Model.KMSInternalException)error));
             }
 
             if (error is Amazon.KeyManagementService.Model.KMSInvalidSignatureException)
@@ -1229,7 +1229,7 @@ namespace Com.Amazonaws.Kms
                 return Dafny.Com.Amazonaws.Kms.KeyManagementServiceError
                     .create_KeyManagementService__KMSInvalidSignatureException(
                         TypeConversion.ToDafny_N3_com__N9_amazonaws__N3_kms__S28_KMSInvalidSignatureException(
-                            (Amazon.KeyManagementService.Model.KMSInvalidSignatureException) error));
+                            (Amazon.KeyManagementService.Model.KMSInvalidSignatureException)error));
             }
 
             if (error is Amazon.KeyManagementService.Model.KMSInvalidStateException)
@@ -1237,7 +1237,7 @@ namespace Com.Amazonaws.Kms
                 return Dafny.Com.Amazonaws.Kms.KeyManagementServiceError
                     .create_KeyManagementService__KMSInvalidStateException(
                         TypeConversion.ToDafny_N3_com__N9_amazonaws__N3_kms__S24_KMSInvalidStateException(
-                            (Amazon.KeyManagementService.Model.KMSInvalidStateException) error));
+                            (Amazon.KeyManagementService.Model.KMSInvalidStateException)error));
             }
 
             if (error is Amazon.KeyManagementService.Model.LimitExceededException)
@@ -1245,7 +1245,7 @@ namespace Com.Amazonaws.Kms
                 return Dafny.Com.Amazonaws.Kms.KeyManagementServiceError
                     .create_KeyManagementService__LimitExceededException(
                         TypeConversion.ToDafny_N3_com__N9_amazonaws__N3_kms__S22_LimitExceededException(
-                            (Amazon.KeyManagementService.Model.LimitExceededException) error));
+                            (Amazon.KeyManagementService.Model.LimitExceededException)error));
             }
 
             if (error is Amazon.KeyManagementService.Model.MalformedPolicyDocumentException)
@@ -1253,21 +1253,21 @@ namespace Com.Amazonaws.Kms
                 return Dafny.Com.Amazonaws.Kms.KeyManagementServiceError
                     .create_KeyManagementService__MalformedPolicyDocumentException(
                         TypeConversion.ToDafny_N3_com__N9_amazonaws__N3_kms__S32_MalformedPolicyDocumentException(
-                            (Amazon.KeyManagementService.Model.MalformedPolicyDocumentException) error));
+                            (Amazon.KeyManagementService.Model.MalformedPolicyDocumentException)error));
             }
 
             if (error is Amazon.KeyManagementService.Model.NotFoundException)
             {
                 return Dafny.Com.Amazonaws.Kms.KeyManagementServiceError.create_KeyManagementService__NotFoundException(
                     TypeConversion.ToDafny_N3_com__N9_amazonaws__N3_kms__S17_NotFoundException(
-                        (Amazon.KeyManagementService.Model.NotFoundException) error));
+                        (Amazon.KeyManagementService.Model.NotFoundException)error));
             }
 
             if (error is Amazon.KeyManagementService.Model.TagException)
             {
                 return Dafny.Com.Amazonaws.Kms.KeyManagementServiceError.create_KeyManagementService__TagException(
                     TypeConversion.ToDafny_N3_com__N9_amazonaws__N3_kms__S12_TagException(
-                        (Amazon.KeyManagementService.Model.TagException) error));
+                        (Amazon.KeyManagementService.Model.TagException)error));
             }
 
             if (error is Amazon.KeyManagementService.Model.UnsupportedOperationException)
@@ -1275,7 +1275,7 @@ namespace Com.Amazonaws.Kms
                 return Dafny.Com.Amazonaws.Kms.KeyManagementServiceError
                     .create_KeyManagementService__UnsupportedOperationException(
                         TypeConversion.ToDafny_N3_com__N9_amazonaws__N3_kms__S29_UnsupportedOperationException(
-                            (Amazon.KeyManagementService.Model.UnsupportedOperationException) error));
+                            (Amazon.KeyManagementService.Model.UnsupportedOperationException)error));
             }
 
             return Dafny.Com.Amazonaws.Kms.KeyManagementServiceError.create_KeyManagementService__Unknown(

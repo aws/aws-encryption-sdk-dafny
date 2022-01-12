@@ -3,7 +3,7 @@
 
 include "../../../Util/UTF8.dfy"
 include "../../../Generated/AwsCryptographicMaterialProviders.dfy" 
-include "../../../KMS/AwsKmsArnParsing.dfy"
+include "AwsKmsArnParsing.dfy"
 
 module Constants {
   import UTF8
@@ -21,6 +21,13 @@ module Constants {
     && UTF8.ValidUTF8Seq(edk.keyProviderInfo)
     witness *
 
+  /*
+   * A datatype to make it easier to work with Encrypted Data Keys
+   * that are protected by AWS KMS. Though the EDK technically contains
+   * the ARN (in the keyProviderInfo field), pulling it out into a
+   * dedicated variable which has already been converted into a usable
+   * format makes our lives easier.
+   */
   datatype AwsKmsEdkHelper = AwsKmsEdkHelper(
     edk: AwsKmsEncryptedDataKey,
     arn: AwsKmsArnParsing.AwsKmsArn

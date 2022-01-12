@@ -1,9 +1,9 @@
 // Copyright Amazon.com Inc. or its affiliates. All Rights Reserved.
 // SPDX-License-Identifier: Apache-2.0
 
-include "../StandardLibrary/StandardLibrary.dfy"
-include "../../libraries/src/Collections/Sequences/Seq.dfy"
-include "../Util/UTF8.dfy"
+include "../../../StandardLibrary/StandardLibrary.dfy"
+include "../../../../libraries/src/Collections/Sequences/Seq.dfy"
+include "../../../Util/UTF8.dfy"
 
 module  AwsKmsArnParsing {
   import opened StandardLibrary
