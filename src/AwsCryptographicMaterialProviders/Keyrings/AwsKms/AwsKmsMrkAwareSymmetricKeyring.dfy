@@ -15,8 +15,6 @@ include "AwsKmsMrkMatchForDecrypt.dfy"
 include "../../Keyring.dfy"
 include "../../Materials.dfy"
 include "../../AlgorithmSuites.dfy"
-include "../../../KMS/KMSUtils.dfy"
-include "../../../KMS/AmazonKeyManagementService.dfy"
 include "../../../KMS/AwsKmsArnParsing.dfy"
 
 module
