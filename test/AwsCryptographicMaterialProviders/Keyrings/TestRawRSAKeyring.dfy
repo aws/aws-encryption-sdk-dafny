@@ -229,7 +229,7 @@ module TestRawRSAKeying {
     var decryptionMaterialsOut :- expect rawRSAKeyring.OnDecrypt(
       Crypto.OnDecryptInput(
         materials:=decryptionMaterialsIn,
-        encryptedDataKeys:=[fakeEdk]
+        encryptedDataKeys:=[fakeEdk, edk]
       )
     );
     
