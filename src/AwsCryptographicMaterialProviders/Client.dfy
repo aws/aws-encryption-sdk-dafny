@@ -16,7 +16,7 @@ include "AlgorithmSuites.dfy"
 include "Keyrings/AwsKms/AwsKmsStrictKeyring.dfy"
 include "Keyrings/AwsKms/AwsKmsMrkAwareSymmetricKeyring.dfy"
 include "Keyrings/AwsKms/AwsKmsMrkAwareSymmetricRegionDiscoveryKeyring.dfy"
-include "../KMS/AwsKmsArnParsing.dfy"
+include "Keyrings/AwsKms/AwsKmsArnParsing.dfy"
 
 module
   {:extern "Dafny.Aws.Crypto.AwsCryptographicMaterialProvidersClient"}
