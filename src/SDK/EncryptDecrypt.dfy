@@ -355,7 +355,7 @@ module {:extern "EncryptDecrypt"} EncryptDecrypt {
     var buffer := SerializeFunctions.ReadableBuffer(request.message, 0);
     var headerBody :- Header
       .ReadHeaderBody(buffer)
-      .MapFailure(MapSerializeFailure);
+      .MapFailure(MapSerializeFailure(": ReadHeaderBody"));
 
     var rawHeader := headerBody.tail.bytes[buffer.start..headerBody.tail.start];
 
@@ -377,7 +377,7 @@ module {:extern "EncryptDecrypt"} EncryptDecrypt {
 
     var headerAuth :- HeaderAuth
       .ReadAESMac(headerBody.tail, suite)
-      .MapFailure(MapSerializeFailure);
+      .MapFailure(MapSerializeFailure(": ReadAESMac"));
 
     var decryptionKey := DeriveKey(decMat.plaintextDataKey.value, suite, headerBody.data.messageId);
 
@@ -425,7 +425,7 @@ module {:extern "EncryptDecrypt"} EncryptDecrypt {
       header,
       [],
       headerAuth.tail
-    ).MapFailure(MapSerializeFailure);
+    ).MapFailure(MapSerializeFailure(": ReadFramedMessageBody"));
 
     assert {:split_here} true;
     assert suite == messageBody.data.finalFrame.header.suite;
@@ -475,7 +475,7 @@ module {:extern "EncryptDecrypt"} EncryptDecrypt {
 
     var signature :- SerializeFunctions
       .ReadShortLengthSeq(buffer)
-      .MapFailure(MapSerializeFailure);
+      .MapFailure(MapSerializeFailure(": ReadShortLengthSeq"));
 
     var ecdsaParams := Client.SpecificationClient().GetSuite(decMat.algorithmSuiteId).signature.curve;
     // verify signature
@@ -512,10 +512,11 @@ module {:extern "EncryptDecrypt"} EncryptDecrypt {
     }
   }
 
-  function method MapSerializeFailure(e: SerializeFunctions.ReadProblems): string {
+  function method MapSerializeFailure(s: string): SerializeFunctions.ReadProblems -> string {
+    (e: SerializeFunctions.ReadProblems) =>
     match e
       case Error(e) => e
-      case MoreNeeded(_) => "Incomplete message"
+      case MoreNeeded(_) => "Incomplete message" + s
   }
 
 }
