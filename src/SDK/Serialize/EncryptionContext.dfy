@@ -92,7 +92,7 @@ module EncryptionContext {
     }
   }
 
-  lemma LemmaLengthOfPairsEqualsEncryptionContext(
+  lemma {:vcs_split_on_every_assert} LemmaLengthOfPairsEqualsEncryptionContext(
     pairs: ESDKCanonicalEncryptionContext,
     ec: Crypto.EncryptionContext
   )
@@ -101,21 +101,21 @@ module EncryptionContext {
   {
     if |pairs| == 0 {
     } else {
-      assert {:split_here} true;
+      // assert {:split_here} true;
       var front := Seq.DropLast(pairs);
       var tail := Seq.Last(pairs);
       var ecOfFront := GetEncryptionContext(front);
 
       assert pairs == front + [tail];
-      assert {:split_here} true;
+      // assert {:split_here} true;
       assert ec.Keys == ecOfFront.Keys + {tail.key};
       assert ec == ecOfFront + map[tail.key := tail.value];
       assert |ecOfFront.Keys| == |ecOfFront|;
 
-      assert {:split_here} true;
+      // assert {:split_here} true;
       assert LinearLength(pairs) == Length(ec);
 
-      assert {:split_here} true;
+      // assert {:split_here} true;
       LemmaLengthOfPairsEqualsEncryptionContext(front, ecOfFront);
     }
 

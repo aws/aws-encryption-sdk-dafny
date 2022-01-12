@@ -112,8 +112,6 @@ module SerializeFunctions {
     length: nat
   ):
     (res: ReadBinaryCorrect<seq<uint8>>)
-    // It may seem strange to alow reading 0 bytes
-    // however given compositional it is much more common than you might think.
     // Optional elements in a data structure can be represented with a length of 0 bytes.
     ensures
       && |buffer.bytes| >= buffer.start + length

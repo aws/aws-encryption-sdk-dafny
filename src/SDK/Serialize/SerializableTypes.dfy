@@ -30,6 +30,9 @@ module SerializableTypes {
 
   type ESDKEncryptedDataKey = e: EncryptedDataKey | IsESDKEncryptedDataKey(e) witness *
   type ESDKEncryptedDataKeys = seq16<ESDKEncryptedDataKey>
+  // The AAD section is the total length|number of pairs|key|value|key|value...
+  // The total length is uint16, so the maximum length for the keys and values
+  // MUST be able to include the uint16 for the number of pairs.
   const ESDK_CANONICAL_ENCRYPTION_CONTEXT_MAX_LENGTH := UINT16_LIMIT - 2;
 
   predicate method IsESDKEncryptionContext(ec: Crypto.EncryptionContext) {
@@ -107,11 +110,8 @@ module SerializableTypes {
     encryptionContext: Crypto.EncryptionContext
   )
     : (ret: nat)
-    ensures |encryptionContext| == 0
-    ==> ret == 0
-    ensures |encryptionContext| != 0
-    ==>
-      && var pairs := GetCanonicalLinearPairs(encryptionContext);
+    ensures
+      var pairs := GetCanonicalLinearPairs(encryptionContext);
       && ret == LinearLength(pairs)
   {
     if |encryptionContext| == 0 then 0 else
