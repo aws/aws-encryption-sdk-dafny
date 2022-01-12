@@ -6,8 +6,8 @@ include "../Generated/AwsCryptographicMaterialProviders.dfy"
 include "AlgorithmSuites.dfy"
 
 module 
-  {:extern "Dafny.Aws.Crypto.AwsCryptographicMaterialProvidersClient2.Materials"}
-  AwsCryptographicMaterialProviders2.Materials
+  {:extern "Dafny.Aws.Crypto.MaterialProviders.Materials"}
+  MaterialProviders.Materials
 {
 import opened StandardLibrary
   import opened Wrappers
@@ -28,15 +28,15 @@ import opened StandardLibrary
 
   // Encryption Materials
 
-  /* The goal of EncryptionMaterialsTransitionIsValid is to aproxomate
-   * _some_ mutablity in an otherwise immutable structure.
+  /* The goal of EncryptionMaterialsTransitionIsValid is to approximate
+   * _some_ mutability in an otherwise immutable structure.
    * Encryption Materials should allow for the addition
    * of the plaintext data key and encrypted data keys.
    * Once a plaintext data key is added,
    * it can never be removed or altered.
    * Simmilarly encrypted data keys can be added,
    * but none can be removed.
-   * This lets keyrings/CMM handle immutalbe data,
+   * This lets keyrings/CMM handle immutable data,
    * and easily assert these invariants.
    */
   predicate method EncryptionMaterialsTransitionIsValid(
@@ -49,6 +49,7 @@ import opened StandardLibrary
     && (
       || (oldMat.plaintextDataKey.None? && newMat.plaintextDataKey.Some?)
       || oldMat.plaintextDataKey == newMat.plaintextDataKey)
+    && newMat.plaintextDataKey.Some?
     && |newMat.encryptedDataKeys| >= |oldMat.encryptedDataKeys|
     && multiset(oldMat.encryptedDataKeys) <= multiset(newMat.encryptedDataKeys)
     && ValidEncryptionMaterials(oldMat)
@@ -69,6 +70,13 @@ import opened StandardLibrary
     // You can not transition to invalid materials
     ensures !ValidEncryptionMaterials(newMat)
     ==> !EncryptionMaterialsTransitionIsValid(oldMat, newMat)
+
+    // During transitions, we MUST always end up with a plaintext data key.
+    // It is not valid to start with a plaintext datakey and remove it.
+    // It is not valid to start with no plaintext datakey and not add one.
+    ensures 
+      && newMat.plaintextDataKey.None? 
+    ==> !EncryptionMaterialsTransitionIsValid(oldMat, newMat)
   {}
 
   predicate method ValidEncryptionMaterials(encryptionMaterials: Crypto.EncryptionMaterials) {
@@ -86,10 +94,10 @@ import opened StandardLibrary
 
   function method EncryptionMaterialAddEncryptedDataKeys(
     encryptionMaterials: Crypto.EncryptionMaterials,
-    encryptedDataKeys: Crypto.EncryptedDataKeyList
+    encryptedDataKeysToAdd: Crypto.EncryptedDataKeyList
   )
     :(res: Result<Crypto.EncryptionMaterials, string>)
-    requires |encryptedDataKeys| > 0
+    requires |encryptedDataKeysToAdd| > 0
     ensures res.Success?
     ==>
       && EncryptionMaterialsWithPlaintextDataKey(res.value)
@@ -99,7 +107,7 @@ import opened StandardLibrary
     :- Need(encryptionMaterials.plaintextDataKey.Some?, "Adding encrypted data keys without a plaintext data key is not allowed.");
     Success(Crypto.EncryptionMaterials(
       plaintextDataKey := encryptionMaterials.plaintextDataKey,
-      encryptedDataKeys := encryptionMaterials.encryptedDataKeys + encryptedDataKeys,
+      encryptedDataKeys := encryptionMaterials.encryptedDataKeys + encryptedDataKeysToAdd,
       algorithmSuiteId := encryptionMaterials.algorithmSuiteId,
       encryptionContext := encryptionMaterials.encryptionContext,
       signingKey := encryptionMaterials.signingKey
@@ -109,10 +117,10 @@ import opened StandardLibrary
   function method EncryptionMaterialAddDataKey(
     encryptionMaterials: Crypto.EncryptionMaterials,
     plaintextDataKey: seq<uint8>,
-    encryptedDataKeys: Crypto.EncryptedDataKeyList
+    encryptedDataKeysToAdd: Crypto.EncryptedDataKeyList
   )
     :(res: Result<Crypto.EncryptionMaterials, string>)
-    requires |encryptedDataKeys| > 0
+    requires |encryptedDataKeysToAdd| > 0
     ensures res.Success?
     ==>
       && EncryptionMaterialsWithPlaintextDataKey(res.value)
@@ -125,7 +133,7 @@ import opened StandardLibrary
 
     Success(Crypto.EncryptionMaterials(
       plaintextDataKey := Some(plaintextDataKey),
-      encryptedDataKeys := encryptionMaterials.encryptedDataKeys + encryptedDataKeys,
+      encryptedDataKeys := encryptionMaterials.encryptedDataKeys + encryptedDataKeysToAdd,
       algorithmSuiteId := encryptionMaterials.algorithmSuiteId,
       encryptionContext := encryptionMaterials.encryptionContext,
       signingKey := encryptionMaterials.signingKey
@@ -174,7 +182,7 @@ import opened StandardLibrary
   predicate method ValidDecryptionMaterials(decryptionMaterials: Crypto.DecryptionMaterials) {
     && var suite := AlgorithmSuites.GetSuite(decryptionMaterials.algorithmSuiteId);
     && (decryptionMaterials.plaintextDataKey.Some? ==> suite.encrypt.keyLength as int == |decryptionMaterials.plaintextDataKey.value|)
-    && (suite.signature.None? <==> decryptionMaterials.verificationKey.None?)
+    && (suite.signature.ECDSA? <==> decryptionMaterials.verificationKey.Some?)
   }
 
   function method DecryptionMaterialsAddDataKey(

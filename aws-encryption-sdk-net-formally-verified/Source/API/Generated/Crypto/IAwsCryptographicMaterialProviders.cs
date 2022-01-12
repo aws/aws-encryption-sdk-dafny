@@ -1,7 +1,5 @@
 // Copyright Amazon.com Inc. or its affiliates. All Rights Reserved.
 // SPDX-License-Identifier: Apache-2.0
-//
-// Generated at 2021-11-03T00:21:59.652135
 
 using System;
 using Aws.Crypto;
@@ -13,9 +11,17 @@ namespace Aws.Crypto
 {
     public interface IAwsCryptographicMaterialProviders
     {
-        IKeyring CreateRawAesKeyring(CreateRawAesKeyringInput input);
+        Aws.Crypto.IKeyring CreateStrictAwsKmsKeyring(Aws.Crypto.CreateStrictAwsKmsKeyringInput input);
+        Aws.Crypto.IKeyring CreateAwsKmsDiscoveryKeyring(Aws.Crypto.CreateAwsKmsDiscoveryKeyringInput input);
+        Aws.Crypto.IKeyring CreateMrkAwareStrictAwsKmsKeyring(Aws.Crypto.CreateMrkAwareStrictAwsKmsKeyringInput input);
 
-        ICryptographicMaterialsManager CreateDefaultCryptographicMaterialsManager(
-            CreateDefaultCryptographicMaterialsManagerInput input);
+        Aws.Crypto.IKeyring CreateMrkAwareDiscoveryAwsKmsKeyring(
+            Aws.Crypto.CreateMrkAwareDiscoveryAwsKmsKeyringInput input);
+
+        Aws.Crypto.IKeyring CreateMultiKeyring(Aws.Crypto.CreateMultiKeyringInput input);
+        Aws.Crypto.IKeyring CreateRawAesKeyring(Aws.Crypto.CreateRawAesKeyringInput input);
+
+        Aws.Crypto.ICryptographicMaterialsManager CreateDefaultCryptographicMaterialsManager(
+            Aws.Crypto.CreateDefaultCryptographicMaterialsManagerInput input);
     }
 }

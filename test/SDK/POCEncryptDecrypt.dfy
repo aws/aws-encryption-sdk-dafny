@@ -1,12 +1,11 @@
 // Copyright Amazon.com Inc. or its affiliates. All Rights Reserved.
 // SPDX-License-Identifier: Apache-2.0
 
-include "../../src/SDK/Keyring/RawAESKeyring.dfy"
 include "../../src/StandardLibrary/StandardLibrary.dfy"
 include "../../src/StandardLibrary/UInt.dfy"
 include "../../src/Generated/AwsCryptographicMaterialProviders.dfy"
 include "../../src/Generated/AwsEncryptionSdk.dfy"
-include "../../src/SDK/AwsCryptographicMaterialProviders.dfy"
+include "../../src/AwsCryptographicMaterialProviders/Client.dfy"
 include "../../src/SDK/AwsEncryptionSdk.dfy"
 include "../../src/SDK/EncryptionContext.dfy"
 include "../../src/Crypto/RSAEncryption.dfy"
@@ -21,9 +20,8 @@ module {:extern "TestClient"} TestClient {
   import opened Wrappers
   import opened UInt = StandardLibrary.UInt
   import opened StandardLibrary
-  import RawAESKeyringDef
   import Base64
-  import AwsCryptographicMaterialProviders
+  import MaterialProviders.Client
   import AwsEncryptionSdk
 
   import UTF8
@@ -33,7 +31,7 @@ module {:extern "TestClient"} TestClient {
   method {:test} HappyPath() 
   {
     // Create material provider client
-    var materialsClient := new AwsCryptographicMaterialProviders.AwsCryptographicMaterialProvidersClient();
+    var materialsClient := new Client.AwsCryptographicMaterialProvidersClient();
 
     // Use material provider client API for RawAESKeyring creation
     var rawAESKeyring := materialsClient.CreateRawAesKeyring(Crypto.CreateRawAesKeyringInput(
