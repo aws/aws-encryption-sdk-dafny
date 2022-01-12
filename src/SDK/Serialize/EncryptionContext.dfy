@@ -325,12 +325,10 @@ module EncryptionContext {
     var SuccessfulRead(count, ecPos) :- ReadUInt16(buffer);
     if count == 0 then
       var edks: ESDKCanonicalEncryptionContext := [];
-      assert {:split_here} true;
       assert CorrectlyRead(buffer, Success(SuccessfulRead(edks, ecPos)), WriteAAD);
       Success(SuccessfulRead(edks, ecPos))
     else
       var accumulator := [];
-      assert {:split_here} true;
       var keys := KeysToSet(accumulator);
       var SuccessfulRead(pairs, tail) :- ReadAADPairs(ecPos, accumulator, keys, count, ecPos);
       Success(SuccessfulRead(pairs, tail))
@@ -348,6 +346,9 @@ module EncryptionContext {
     var length :- ReadUInt16(buffer);
     if length.data == 0 then
       var empty: ESDKCanonicalEncryptionContext := [];
+
+      assert WriteAADSection(empty) == ReadRange((buffer, length.tail));
+
       Success(SuccessfulRead(empty, length.tail))
     else
       :- Need(length.tail.start + length.data as nat <= |length.tail.bytes|, MoreNeeded(length.tail.start + length.data as nat));
@@ -359,6 +360,9 @@ module EncryptionContext {
         // but it should still be parsed.
         :- Need(verifyCount.data == 0, Error("Encryption Context pairs count can not exceed byte length"));
         var empty: ESDKCanonicalEncryptionContext := [];
+
+        assert WriteExpandedAADSection(empty) == ReadRange((buffer, verifyCount.tail));
+
         Success(SuccessfulRead(empty, verifyCount.tail))
       else 
         // This count MUST be greater than 0,
@@ -367,6 +371,8 @@ module EncryptionContext {
 
         var aad :- ReadAAD(length.tail);
         :- Need(aad.tail.start - length.tail.start == length.data as nat, Error("AAD Length did not match stored length."));
+
+        assert WriteAADSection(aad.data) == ReadRange((buffer, aad.tail));
 
         Success(aad)
   }
