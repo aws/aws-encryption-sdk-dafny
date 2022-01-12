@@ -345,28 +345,30 @@ module EncryptionContext {
     else 
       CorrectlyRead(buffer, res, WriteAADSection)
   {
-    var SuccessfulRead(length, countPos) :- ReadUInt16(buffer);
-    if length == 0 then
+    var length :- ReadUInt16(buffer);
+    if length.data == 0 then
       var empty: ESDKCanonicalEncryptionContext := [];
-      Success(SuccessfulRead(empty, countPos))
-    else if countPos.start + length as nat < |countPos.bytes| then
-      Failure(MoreNeeded(countPos.start + length as nat))
-    else if length == 2 then
-      // This is the expanded case referred to in IsStandardCompressedAADSection.
-      // It is not a canonically correct message,
-      // but it should still be parsed.
-      var SuccessfulRead(count, tail) :- ReadUInt16(countPos);
-      :- Need(count == 0, Error("Encryption Context pairs count can not exceed byte length"));
-      var empty: ESDKCanonicalEncryptionContext := [];
-      Success(SuccessfulRead(empty, tail))
+      Success(SuccessfulRead(empty, length.tail))
     else
-      var SuccessfulRead(count, tail) :- ReadUInt16(countPos);
-      :- Need(count > 0, Error("Encryption Context byte length exceeds pairs count."));
+      :- Need(length.tail.start + length.data as nat <= |length.tail.bytes|, MoreNeeded(length.tail.start + length.data as nat));
 
-      var aad :- ReadAAD(tail);
-      :- Need(aad.tail.start - tail.start == length as nat, Error("AAD Length did not match stored length."));
+      var verifyCount :- ReadUInt16(length.tail);
+      if length.data == 2 then
+        // This is the expanded case referred to in IsStandardCompressedAADSection.
+        // It is not a canonically correct message,
+        // but it should still be parsed.
+        :- Need(verifyCount.data == 0, Error("Encryption Context pairs count can not exceed byte length"));
+        var empty: ESDKCanonicalEncryptionContext := [];
+        Success(SuccessfulRead(empty, verifyCount.tail))
+      else 
+        // This count MUST be greater than 0,
+        // because the length of the AAD is greater than 2.
+        :- Need(0 < verifyCount.data, Error("Encryption Context byte length exceeds pairs count."));
 
-      Success(aad)
+        var aad :- ReadAAD(length.tail);
+        :- Need(aad.tail.start - length.tail.start == length.data as nat, Error("AAD Length did not match stored length."));
+
+        Success(aad)
   }
 
   function method {:opaque} KeysToSet<K(==), V(==)>(pairs: Linear<K, V>): set<K>
