@@ -388,7 +388,6 @@ module EncryptionContext {
     && buffer.start + |[0, 2]| <= |buffer.bytes|
     && ReadRange((buffer, MoveStart(buffer, |[0, 2]|))) == [0, 2]
   }
-  }
 
   // This is *not* a function method,
   // because it is *only* used for correctness.
@@ -407,5 +406,4 @@ module EncryptionContext {
     var aad := WriteAAD(ec);
     UInt16ToSeq(|aad| as uint16) + aad
   }
-
 }
