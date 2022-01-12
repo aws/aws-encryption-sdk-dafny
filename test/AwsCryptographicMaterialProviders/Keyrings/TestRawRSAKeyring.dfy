@@ -24,19 +24,12 @@ module TestRawRSAKeying {
 
   method {:test} TestOnEncryptOnDecryptSuppliedDataKey()
   {
-    var keyStrength: RSAEncryption.StrengthBits := 2048;
-    var padding: RSAEncryption.PaddingMode := RSAEncryption.PaddingMode.OAEP_SHA1;
     var namespace, name := TestUtils.NamespaceAndName(0);
-    var publicKey, privateKey := RSAEncryption.GenerateKeyPair(
-      keyStrength,
-      padding
-    );
-    var rawRSAKeyring := new RawRSAKeyring.RawRSAKeyring(
+    var publicKey, privateKey, rawRSAKeyring := GenerateKeyPairAndKeyring(
       namespace,
       name,
-      Option.Some(publicKey.pem),
-      Option.Some(privateKey.pem),
-      padding
+      2048 as RSAEncryption.StrengthBits,
+      RSAEncryption.PaddingMode.OAEP_SHA1
     );
     var encryptionContext := TestUtils.SmallEncryptionContext(
       TestUtils.SmallEncryptionContextVariation.A
@@ -83,27 +76,21 @@ module TestRawRSAKeying {
 
   method {:test} TestOnDecryptKeyNameMismatch()
   {
-    var keyStrength: RSAEncryption.StrengthBits := 2048;
-    var padding: RSAEncryption.PaddingMode := RSAEncryption.PaddingMode.OAEP_SHA1;
     var namespace, name := TestUtils.NamespaceAndName(0);
-    var publicKey, privateKey := RSAEncryption.GenerateKeyPair(
-      keyStrength,
-      padding
-    );
-    var rawRSAKeyring := new RawRSAKeyring.RawRSAKeyring(
+    var publicKey, privateKey, rawRSAKeyring := GenerateKeyPairAndKeyring(
       namespace,
       name,
-      Option.Some(publicKey.pem),
-      Option.Some(privateKey.pem),
-      padding
+      2048 as RSAEncryption.StrengthBits,
+      RSAEncryption.PaddingMode.OAEP_SHA1
     );
+    
     var mismatchName :- expect UTF8.Encode("mismatched");
     var mismatchedRSAKeyring := new RawRSAKeyring.RawRSAKeyring(
       namespace,
       mismatchName,
       Option.Some(publicKey.pem),
       Option.Some(privateKey.pem),
-      padding
+      RSAEncryption.PaddingMode.OAEP_SHA1
     );
 
     var encryptionContext := TestUtils.SmallEncryptionContext(
@@ -140,29 +127,21 @@ module TestRawRSAKeying {
     expect decryptionMaterialsOut.IsFailure();
   }
 
-
-
   method {:test} TestOnDecryptFailure()
   {
-    var keyStrength: RSAEncryption.StrengthBits := 2048;
-    var padding: RSAEncryption.PaddingMode := RSAEncryption.PaddingMode.OAEP_SHA1;
     var namespace, name := TestUtils.NamespaceAndName(0);
-    var publicKey, privateKey := RSAEncryption.GenerateKeyPair(keyStrength, padding);
-    var encryptKeying := new RawRSAKeyring.RawRSAKeyring(
+    var _, _, encryptKeyring := GenerateKeyPairAndKeyring(
       namespace,
       name,
-      Option.Some(publicKey.pem),
-      Option.Some(privateKey.pem),
-      padding
+      2048 as RSAEncryption.StrengthBits,
+      RSAEncryption.PaddingMode.OAEP_SHA1
     );
-    var publicKeyToFail, privateKeyToFail := RSAEncryption.GenerateKeyPair(keyStrength, padding);      
-    var decryptKeyring := new RawRSAKeyring.RawRSAKeyring(
+    var _, _, decryptKeyring := GenerateKeyPairAndKeyring(
       namespace,
       name,
-      Option.Some(publicKeyToFail.pem),
-      Option.Some(privateKeyToFail.pem),
-      padding
-    );
+      2048 as RSAEncryption.StrengthBits,
+      RSAEncryption.PaddingMode.OAEP_SHA1
+    );  
 
     var encryptionContext := TestUtils.SmallEncryptionContext(TestUtils.SmallEncryptionContextVariation.A);
 
@@ -176,7 +155,7 @@ module TestRawRSAKeying {
       encryptedDataKeys:=[],
       signingKey:=Option.None
     );
-    var encryptionMaterialsOut :- expect encryptKeying.OnEncrypt(
+    var encryptionMaterialsOut :- expect encryptKeyring.OnEncrypt(
       Crypto.OnEncryptInput(materials:=encryptionMaterialsIn)
     );
     expect |encryptionMaterialsOut.materials.encryptedDataKeys| == 1;
@@ -199,5 +178,91 @@ module TestRawRSAKeying {
     //# the decryption materials (structures.md#decryption-materials).
     expect decryptionMaterialsOut.IsFailure();
   }  
+
+  // The RSA Keyring should attempt to decrypt every EDK that matches its keyname
+  // and namespace, until it succeeds.
+  // Here, we generate a valid EDK that the keyring should decrypt
+  // and create a fake EDK that it will not be able to decrypt.
+  // The keyring should fail to decrypt the fake one, and then
+  // succeed with the real EDK, and return the PDK.
+  method {:test} TestOnDecryptBadAndGoodEdkSucceeds()
+  {
+    var namespace, name := TestUtils.NamespaceAndName(0);
+    var publicKey, privateKey, rawRSAKeyring := GenerateKeyPairAndKeyring(
+      namespace,
+      name,
+      2048 as RSAEncryption.StrengthBits,
+      RSAEncryption.PaddingMode.OAEP_SHA1
+    );
+    var encryptionContext := TestUtils.SmallEncryptionContext(
+      TestUtils.SmallEncryptionContextVariation.A
+    );
+    var pdk := seq(32, i => 0);
+
+    var wrappingAlgorithmID := Crypto.ALG_AES_256_GCM_IV12_TAG16_NO_KDF;
+    var encryptionMaterialsIn := Crypto.EncryptionMaterials(
+      encryptionContext:=encryptionContext,
+      algorithmSuiteId:=wrappingAlgorithmID,
+      plaintextDataKey:=Some(pdk),
+      encryptedDataKeys:=[],
+      signingKey:=None()
+    );
+    expect Materials.ValidEncryptionMaterials(encryptionMaterialsIn);  
+    var encryptionMaterialsOut :- expect rawRSAKeyring.OnEncrypt(
+      Crypto.OnEncryptInput(materials:=encryptionMaterialsIn)
+    );
+    expect Materials.ValidEncryptionMaterials(encryptionMaterialsOut.materials);  
+    expect |encryptionMaterialsOut.materials.encryptedDataKeys| == 1;
+
+    var edk := encryptionMaterialsOut.materials.encryptedDataKeys[0];
+    var decryptionMaterialsIn := Crypto.DecryptionMaterials(
+      encryptionContext:=encryptionContext,
+      algorithmSuiteId:=wrappingAlgorithmID,
+      plaintextDataKey:=Option.None,
+      verificationKey:=Option.None
+    );    
+    var fakeEdk: Crypto.EncryptedDataKey := Crypto.EncryptedDataKey(
+      keyProviderId := edk.keyProviderId,
+      keyProviderInfo := edk.keyProviderInfo,
+      ciphertext := seq(|edk.ciphertext|, i => 0)
+    );
+    var decryptionMaterialsOut :- expect rawRSAKeyring.OnDecrypt(
+      Crypto.OnDecryptInput(
+        materials:=decryptionMaterialsIn,
+        encryptedDataKeys:=[fakeEdk, edk]
+      )
+    );
+    
+    expect decryptionMaterialsOut.materials.plaintextDataKey == Some(pdk);      
+  }
+  
+  method GenerateKeyPairAndKeyring(
+    namespace: UTF8.ValidUTF8Bytes,
+    name: UTF8.ValidUTF8Bytes,
+    keyStrength: RSAEncryption.StrengthBits,
+    padding: RSAEncryption.PaddingMode
+  )
+    returns (
+      publicKey: RSAEncryption.PublicKey,
+      privateKey: RSAEncryption.PrivateKey,
+      keyring: RawRSAKeyring.RawRSAKeyring
+    )
+    requires |namespace| < UINT16_LIMIT
+    requires |name| < UINT16_LIMIT
+    requires keyStrength >= RawRSAKeyring.PaddingSchemeToMinStrengthBits(padding)
+  {
+    publicKey, privateKey := RSAEncryption.GenerateKeyPair(
+      keyStrength,
+      padding
+    );
+    keyring := new RawRSAKeyring.RawRSAKeyring(
+      namespace,
+      name,
+      Option.Some(publicKey.pem),
+      Option.Some(privateKey.pem),
+      padding
+    );
+    return publicKey, privateKey, keyring;
+  }
   
 }
