@@ -38,12 +38,13 @@ module TestSerialize {
     expect test == expectedSerializedAAD;
   }
 
-  method {:test} TestSerializeLargeValidEC() {
-    var encryptionContext := TestUtils.GenerateLargeValidEncryptionContext();
+  // TODO: This test is TOO slow, this is probably a Dafny issue
+  // method {:test} TestSerializeLargeValidEC() {
+  //   var encryptionContext := TestUtils.GenerateLargeValidEncryptionContext();
 
-    var test := EncryptionContext.WriteAADSection(EncryptionContext.GetCanonicalEncryptionContext(encryptionContext));
-    expect |test| == 4 + |encryptionContext| as int * 7;
-  }
+  //   var test := EncryptionContext.WriteAADSection(EncryptionContext.GetCanonicalEncryptionContext(encryptionContext));
+  //   expect |test| == 4 + |encryptionContext| as int * 7;
+  // }
 
   method {:test} TestSerializeKVPairs() {
     var keyA :- expect UTF8.Encode("keyA");
@@ -150,13 +151,14 @@ module TestSerialize {
     expect len as int == 5 + |largeVal|; // 5 bytes needed for the key length, key, and value length (2 + 1 + 2)
   }
 
-  method {:test} TestComputeOpoerationsOnLargeValidEC() {
-    var encCtx := TestUtils.GenerateLargeValidEncryptionContext();
+  // TODO: This test is TOO slow, this is probably a Dafny issue
+  // method {:test} TestComputeOpoerationsOnLargeValidEC() {
+  //   var encCtx := TestUtils.GenerateLargeValidEncryptionContext();
 
-    var len := SerializableTypes.Length(encCtx);
-    expect len as int == 2 + |encCtx| as int * 7;
+  //   var len := SerializableTypes.Length(encCtx);
+  //   expect len as int == 2 + |encCtx| as int * 7;
 
-    TestUtils.ExpectSerializableEncryptionContext(encCtx);
-  }
+  //   TestUtils.ExpectSerializableEncryptionContext(encCtx);
+  // }
 
 }
