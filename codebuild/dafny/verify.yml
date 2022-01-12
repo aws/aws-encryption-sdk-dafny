@@ -4,7 +4,7 @@ phases:
     commands:
       - cd ..
       # Get Dafny
-      - git clone https://github.com/dafny/dafny.git
+      - git clone https://github.com/dafny-lang/dafny.git
       - cd dafny
       # Checkout the specific commit we depend on (while waiting for the 3.4 release)
       - git checkout 3eef738a340aed4853201e1619ce3937eaaf978d 
