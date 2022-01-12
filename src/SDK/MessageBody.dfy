@@ -105,14 +105,6 @@ module MessageBody {
         && AESEncryption.CiphertextGeneratedWithPlaintext(Seq.Last(frames).encContent, Seq.Last(plaintextSeg))
   }
 
-  // // Steps for inductive proofs EncryptMessageBody
-  // lemma ExtendFramesEncryptPlaintextSegments(frames: seq<Frame>, plaintextSeg: seq<seq<uint8>>, frame: Frame, plaintextFrame: seq<uint8>)
-  //   requires FramesEncryptPlaintextSegments(frames, plaintextSeg)
-  //   requires AESEncryption.CiphertextGeneratedWithPlaintext(frame.encContent, plaintextFrame)
-  //   ensures FramesEncryptPlaintextSegments(frames + [frame], plaintextSeg + [plaintextFrame])
-  // {
-  // }
-
   function SumPlaintextSegments(plaintextSeg: seq<seq<uint8>>): seq<uint8>
   {
     if plaintextSeg == [] then
@@ -120,11 +112,6 @@ module MessageBody {
     else
       SumPlaintextSegments(plaintextSeg[..|plaintextSeg| - 1]) + plaintextSeg[|plaintextSeg| - 1]
   }
-
-  // lemma ExtendSumPlaintextSegments(plaintextSeg: seq<seq<uint8>>, plaintextFrame: seq<uint8>)
-  //   ensures SumPlaintextSegments(plaintextSeg + [plaintextFrame]) == SumPlaintextSegments(plaintextSeg) + plaintextFrame
-  // {
-  // }
 
   type MessageRegularFrames = regularFrames: seq<Frames.RegularFrame>
   | IsMessageRegularFrames(regularFrames)
@@ -205,47 +192,25 @@ module MessageBody {
     ensures match result
       case Failure(e) => true
       case Success(body) =>
-        // var frames := seqWithGhostFrames.frames;
-        // ValidFrames(frames)
-        // && (forall frame | frame in frames :: frame.Valid())
-        // && (forall frame: Frame | frame in frames :: |frame.iv| == suite.encrypt.ivLength as int)
-        // && FramesToSequence(frames) == seqWithGhostFrames.sequence
-        // && FramesEncryptPlaintext(body, plaintext)
         && (forall frame: Frames.Frame
           | frame in body.regularFrames
           :: AESEncryption.EncryptedWithKey(frame.encContent, key))
         && AESEncryption.EncryptedWithKey(body.finalFrame.encContent, key)
   {
-    // var body := [];
     var n : int, sequenceNumber := 0, START_SEQUENCE_NUMBER;
     var regularFrames: MessageRegularFrames := [];
-    // ghost var plaintextSeg := [];
 
     while n + header.body.frameLength as nat < |plaintext|
       invariant |plaintext| != 0 ==> 0 <= n < |plaintext|
       invariant |plaintext| == 0 ==> 0 == n
-      // This needs to be inclusive
-      // because this invariant MUST also be true when the loop exists.
-      // If the final frame is going to be ENDFRAME_SEQUENCE_NUMBER,
-      // then when this loop exists, sequenceNumber == ENDFRAME_SEQUENCE_NUMBER.
       invariant START_SEQUENCE_NUMBER <= sequenceNumber <= ENDFRAME_SEQUENCE_NUMBER
       invariant |regularFrames| == (sequenceNumber - START_SEQUENCE_NUMBER) as nat
-      // invariant forall i // Sequence of frames is valid
-      // | 0 <= i < |regularFrames|
-      // ::
-      //   && regularFrames[i].seqNum as nat == i + START_SEQUENCE_NUMBER as nat
-      //   && regularFrames[i].header == header
-      // invariant forall i | 0 <= i < |regularFrames| :: regularFrames[i].iv == IVSeq(suite, regularFrames[i].seqNum)
-      // invariant FramesToSequence(regularFrames) == body
-      // invariant FramesEncryptPlaintextSegments(regularFrames, plaintextSeg) // Frames decrypt to chunks of plaintext
-      // invariant SumPlaintextSegments(plaintextSeg) == plaintext[..n] // Chunks of plaintext sum up to plaintexts
       invariant forall frame: Frames.Frame
       | frame in regularFrames
       ::
         && AESEncryption.EncryptedWithKey(frame.encContent, key)
         && frame.header == header
     {
-      // assert {:split_here} true;
       :- Need(sequenceNumber < ENDFRAME_SEQUENCE_NUMBER, "too many frames");
       var plaintextFrame := plaintext[n..n + header.body.frameLength as nat];
       var regularFrame :- EncryptRegularFrame(
@@ -258,19 +223,9 @@ module MessageBody {
       assert regularFrame.seqNum as nat == |regularFrames| + 1;
       LemmaAddingNextRegularFrame(regularFrames, regularFrame);
 
-      // assert frame.iv == IVSeq(suite, sequenceNumber);
-      // // Proofs that invariant holds after loop
-      // ExtendFramesToSequence(frames, frame);
-      // ExtendFramesEncryptPlaintextSegments(frames, plaintextSeg, frame, plaintextFrame);
-      // ExtendSumPlaintextSegments(plaintextSeg, plaintextFrame);
       regularFrames := regularFrames + [regularFrame];
-      // body := body + regularFrame.Extract();
-      // plaintextSeg := plaintextSeg + [plaintextFrame];
-
       n, sequenceNumber := n + header.body.frameLength as nat, sequenceNumber + 1;
-      // assert SumPlaintextSegments(plaintextSeg) == plaintext[..n];
     }
-    // assert {:split_here} true;
 
     var finalFrame :- EncryptFinalFrame(
       key,
@@ -278,26 +233,6 @@ module MessageBody {
       plaintext[n..],
       sequenceNumber
     );
-
-    // var finalFrameSequence := finalFrameResult.Extract();
-    // assert finalFrame.iv == IVSeq(suite, sequenceNumber);
-    // ExtendFramesToSequence(frames, finalFrame);
-    // ExtendFramesEncryptPlaintextSegments(frames, plaintextSeg, finalFrame, plaintext[n..]);
-    // ExtendSumPlaintextSegments(plaintextSeg, plaintext[n..]);
-    // var frames := regularFrames + [finalFrame];
-    // body := body + finalFrameSequence;
-    // plaintextSeg := plaintextSeg + [plaintext[n..]];
-    // assert ValidFrames(frames) by {
-    //   forall i,j | 0 <= i < j < |frames|
-    //     ensures frames[i].iv != frames[j].iv
-    //   {
-    //     assert frames[i].seqNum as int == i + START_SEQUENCE_NUMBER as int;
-    //     assert frames[j].seqNum as int == j + START_SEQUENCE_NUMBER as int;
-    //     assert frames[i].iv == IVSeq(suite, frames[i].seqNum);
-    //     assert frames[j].iv == IVSeq(suite, frames[j].seqNum);
-    //     IVSeqDistinct(suite, frames[i].seqNum, frames[j].seqNum);
-    //   }
-    // }
 
     assert MessageFramesAreForTheSameMessage(regularFrames + [finalFrame]);
 
@@ -319,19 +254,9 @@ module MessageBody {
     requires header.body.contentType.Framed?
     requires |plaintext| < UINT32_LIMIT
     requires |plaintext| == header.body.frameLength as nat && sequenceNumber != ENDFRAME_SEQUENCE_NUMBER
-    // Why is this require here? ivLength is 12, not ever 4-11. ?
-    // requires 4 <= suite.encrypt.ivLength as int
     ensures match res
       case Failure(e) => true
       case Success(frame) =>
-        //    // Decrypt serialized frame back to frame and state that it is equal to the ghost frame
-        // 4 + suite.encrypt.ivLength as int + suite.encrypt.tagLength as int + frameLength == |resultSuccess|
-        // && var iv := IVSeq(suite, sequenceNumber);
-        // var encContent := resultSuccess[4 + suite.encrypt.ivLength as int..4 + suite.encrypt.ivLength as int + frameLength];
-        // var authTag := resultSuccess[4 + suite.encrypt.ivLength as int + frameLength..];
-        // var frame := RegularFrame(sequenceNumber, iv, encContent, authTag);
-        // frame == regFrame
-        // && FrameToSequence(regFrame) == resultSuccess
         && AESEncryption.CiphertextGeneratedWithPlaintext(frame.encContent, plaintext)
         && AESEncryption.EncryptedWithKey(frame.encContent, key)
         && frame.seqNum == sequenceNumber
@@ -363,10 +288,6 @@ module MessageBody {
       encryptionOutput.authTag
     );
 
-    // SeqWithUInt32Suffix(iv, sequenceNumber as nat);  // this proves SeqToNat(iv) == sequenceNumber as nat
-    // unauthenticatedFrame := unauthenticatedFrame + iv;
-    // unauthenticatedFrame := unauthenticatedFrame + encryptionOutput.cipherText + encryptionOutput.authTag;
-
     return Success(frame);
   }
 
@@ -380,39 +301,18 @@ module MessageBody {
     requires |key| == header.suite.encrypt.keyLength as nat
     requires START_SEQUENCE_NUMBER <= sequenceNumber <= ENDFRAME_SEQUENCE_NUMBER
     requires 0 <= |plaintext| < UINT32_LIMIT
-    // requires 0 < header.body.frameLength as nat < UINT32_LIMIT
     requires header.body.contentType.Framed?
     requires |plaintext| <= header.body.frameLength as nat
-    // requires 4 <= header.suite.encrypt.ivLength as int
     ensures match res
       case Failure(e) => true
       case Success(frame) =>
-        // // Decrypt serialized frame back to frame and state that it is equal to the ghost frame
-        // 4 + 4 + suite.encrypt.ivLength as int + 4 + suite.encrypt.tagLength as int <= |resultSuccess|
-        //   <= 4 + 4 + suite.encrypt.ivLength as int + 4 + suite.encrypt.tagLength as int + frameLength
-        // && var contentLength : uint32 := SeqToUInt32(resultSuccess[4+4+suite.encrypt.ivLength as int..4+4+suite.encrypt.ivLength as int+4]);
-        // |resultSuccess| == 4 + 4 + suite.encrypt.ivLength as int + 4 + contentLength as int + suite.encrypt.tagLength as int
-        // && resultSuccess[..4] == UInt32ToSeq(ENDFRAME_SEQUENCE_NUMBER)
-        // && |plaintext| == SeqToUInt32(resultSuccess[4 + 4 + suite.encrypt.ivLength as int..4 + 4 + suite.encrypt.ivLength as int + 4]) as int &&
-        // var iv := IVSeq(suite, sequenceNumber);
-        // var encContent := resultSuccess[4 + 4 + suite.encrypt.ivLength as int + 4..][..|plaintext|];
-        // var authTag := resultSuccess[4 + 4 + suite.encrypt.ivLength as int + 4 + |plaintext|..];
-        // var frame := FinalFrame(sequenceNumber, iv, encContent, authTag);
-        // FrameToSequence(frame) == resultSuccess
-        // && finalFrame == frame
         && AESEncryption.CiphertextGeneratedWithPlaintext(frame.encContent, plaintext)
         && AESEncryption.EncryptedWithKey(frame.encContent, key)
         && frame.seqNum == sequenceNumber
         && frame.header == header
   {
-    // var unauthenticatedFrame := UInt32ToSeq(ENDFRAME_SEQUENCE_NUMBER);
-    // var seqNumSeq := UInt32ToSeq(sequenceNumber);
-    // unauthenticatedFrame := unauthenticatedFrame + seqNumSeq;
 
     var iv := IVSeq(header.suite, sequenceNumber);
-    // SeqWithUInt32Suffix(iv, sequenceNumber as nat);  // this proves SeqToNat(iv) == sequenceNumber as nat
-    // unauthenticatedFrame := unauthenticatedFrame + iv;
-    // unauthenticatedFrame := unauthenticatedFrame + UInt32ToSeq(|plaintext| as uint32);
 
     var aad := BodyAAD(
       header.body.messageId,
@@ -437,22 +337,10 @@ module MessageBody {
       encryptionOutput.authTag
     );
 
-    // var encryptionOutput := encryptionOutputResult.Extract();
-    // unauthenticatedFrame := unauthenticatedFrame + encryptionOutput.cipherText + encryptionOutput.authTag;
-    // assert |plaintext| == |encryptionOutput.cipherText|;
-
-    // ghost var frame := FinalFrame(sequenceNumber, iv, encryptionOutput.cipherText, encryptionOutput.authTag);
-    // finalFrame := frame;
-    // assert FrameToSequence(frame) == unauthenticatedFrame;
-    // // Show which part of the serialized frame map to which frame variable
-    // assert |plaintext| == SeqToUInt32(unauthenticatedFrame[4 + 4 + suite.encrypt.ivLength as int..4 + 4 + suite.encrypt.ivLength as int + 4]) as int;
-    // assert |unauthenticatedFrame| == 4 + 4 + suite.encrypt.ivLength as int + 4 + |plaintext| + suite.encrypt.tagLength as int;
-    // assert unauthenticatedFrame[4 + 4 + suite.encrypt.ivLength as int + 4..][..|plaintext|] == encryptionOutput.cipherText;
-
     return Success(finalFrame);
   }
 
-  method DecryptFramedMessageBody(
+  method {:vcsSplitOnEveryAssert} DecryptFramedMessageBody(
     body: FramedMessage,
     key: seq<uint8>
   )
@@ -479,28 +367,23 @@ module MessageBody {
       invariant DecryptedSegmentsWithKey(key, plaintextSeg)
       invariant DecryptedWithKey(key, plaintext)
     {
-      assert {:split_here} true;
+
       var plaintextSegment :- DecryptFrame(body.regularFrames[i], key);
 
       plaintext := plaintext + plaintextSegment;
       plaintextSeg := plaintextSeg + [plaintextSegment];
       decryptedFrames := decryptedFrames + [body.regularFrames[i]];
 
-      assert {:split_here} true;
+      assert decryptedFrames[..i] == body.regularFrames[..i];
       assert decryptedFrames[..i] + [body.regularFrames[i]] == body.regularFrames[..i + 1];
     }
-    assert {:split_here} true;
     var finalPlaintextSegment :- DecryptFrame(body.finalFrame, key);
     plaintext := plaintext + finalPlaintextSegment;
     plaintextSeg := plaintextSeg + [finalPlaintextSegment];
 
-    assert {:split_here} true;
-    // assert FramesEncryptPlaintextSegments(decryptedFrames, plaintextSeg);
     assert FramesEncryptPlaintextSegments([body.finalFrame], [finalPlaintextSegment]);
     assert body.regularFrames == decryptedFrames;
-    assert {:split_here} true;
     assert FramesEncryptPlaintextSegments(body.regularFrames + [body.finalFrame], plaintextSeg);
-    assert {:split_here} true;
     assert SumPlaintextSegments(plaintextSeg) == plaintext;
 
     return Success(plaintext);
@@ -509,77 +392,17 @@ module MessageBody {
   method DecryptFrame(
     frame: Frame,
     key: seq<uint8>
-    // ,expectedSequenceNumber: uint32
   )
     returns (res: Result<Uint8Seq32, string>)
-    // requires rd.Valid()
     requires |key| == frame.header.suite.encrypt.keyLength as int
-    // requires 0 < frameLength < UINT32_LIMIT
-    // modifies rd.reader`pos
-    // ensures rd.Valid()
-    // ensures match res // If the expected sequence number is the end frame sequence number then the frame is the final frame. However, the final frame can arrive earlier
-    //   case Success(frameWithGhostSeq) =>
-    //     expectedSequenceNumber == ENDFRAME_SEQUENCE_NUMBER ==> frameWithGhostSeq.frame.FinalFrame?
-    //   case Failure(_) => true
-    // ensures res.Success? ==> |res.value| < UINT32_LIMIT
     ensures match res
       case Success(plaintextSegment) => ( // Decrypting the frame encoded in the stream is the returned ghost frame
-        // && var decryptedFrame := frameWithGhostSeq.frame;
-        //    var ciphertext := frameWithGhostSeq.sequence;
-        //    var final := decryptedFrame.FinalFrame?;
-        //    decryptedFrame.Valid()
-        // && old(rd.reader.pos) < rd.reader.pos <= |rd.reader.data|
         && AESEncryption.CiphertextGeneratedWithPlaintext(frame.encContent, plaintextSegment)
         && AESEncryption.DecryptedWithKey(key, plaintextSegment)
-      //   && var encryptedFrame := (if decryptedFrame.FinalFrame? then
-      //        FinalFrame(decryptedFrame.seqNum, decryptedFrame.iv, ciphertext, decryptedFrame.authTag)
-      //      else
-      //        RegularFrame(decryptedFrame.seqNum, decryptedFrame.iv, ciphertext, decryptedFrame.authTag));
-      //      rd.reader.data[old(rd.reader.pos)..rd.reader.pos] == FrameToSequence(encryptedFrame)
-      //   && AESEncryption.CiphertextGeneratedWithPlaintext(encryptedFrame.encContent, decryptedFrame.encContent)
       )
       case Failure(_) => true
   {
-    // var final := false;
-    // var sequenceNumber :- rd.ReadUInt32();
-    // ghost var frameSerialization := UInt32ToSeq(sequenceNumber);
-    // assert rd.reader.data[old(rd.reader.pos)..rd.reader.pos] == frameSerialization;
-
-    // if sequenceNumber == ENDFRAME_SEQUENCE_NUMBER {
-    //   final := true;
-    //   sequenceNumber :- rd.ReadUInt32();
-    //   frameSerialization := frameSerialization + UInt32ToSeq(sequenceNumber);
-    //   assert rd.reader.data[old(rd.reader.pos)..rd.reader.pos] == frameSerialization;
-    // }
-
-    // if sequenceNumber != expectedSequenceNumber {
-    //   return Failure("unexpected frame sequence number");
-    // }
-
-    // assert {:focus} true;
-    // var iv :- rd.ReadBytes(suite.encrypt.ivLength as int);
-    // frameSerialization := frameSerialization + iv;
-    // assert rd.reader.data[old(rd.reader.pos)..rd.reader.pos] == frameSerialization;
-
-    // var len := frameLength as uint32;
-    // if final {
-    //   len :- rd.ReadUInt32();
-    //   if len > frameLength as uint32 {
-    //     return Failure("Final frame too long");
-    //   }
-    //   frameSerialization := frameSerialization + UInt32ToSeq(len);
-    // }
-
     var aad := BodyAADForFrame(frame);
-
-    // assert {:focus} true;
-    // var ciphertext :- rd.ReadBytes(len as nat);
-    // frameSerialization := frameSerialization + ciphertext;
-    // assert rd.reader.data[old(rd.reader.pos)..rd.reader.pos] == frameSerialization;
-
-    // var authTag :- rd.ReadBytes(suite.encrypt.tagLength as int);
-    // frameSerialization := frameSerialization + authTag;
-    // assert rd.reader.data[old(rd.reader.pos)..rd.reader.pos] == frameSerialization;
 
     var plaintextSegment :- AESEncryption.AESDecrypt(
       frame.header.suite.encrypt,
@@ -590,36 +413,6 @@ module MessageBody {
       aad
     );
 
-    // assert AESEncryption.CiphertextGeneratedWithPlaintext(ciphertext, plaintext);
-    // assert rd.reader.data[old(rd.reader.pos)..rd.reader.pos] == frameSerialization;
-
-    // var frame := if final then
-    //     FinalFrame(sequenceNumber, iv, plaintext, authTag)
-    //   else
-    //     RegularFrame(sequenceNumber, iv, plaintext, authTag);
-
-    // ghost var encryptedFrame := if final then
-    //     FinalFrame(sequenceNumber, iv, ciphertext, authTag)
-    //   else
-    //     RegularFrame(sequenceNumber, iv, ciphertext, authTag);
-
-    // // Feed dafny facts about the content of the stream
-    // // Show dafny that the serialized frame is frameSerialization
-    // assert frameSerialization == FrameToSequence(encryptedFrame);
-
-    // // Prove read content of stream is frameSerialization
-    // assert {:focus} true;
-    // assert !final ==> frameSerialization[..4] == rd.reader.data[old(rd.reader.pos)..][..4];
-    // assert !final ==> frameSerialization[4..][..suite.encrypt.ivLength as int] == rd.reader.data[old(rd.reader.pos)..][4..][..suite.encrypt.ivLength as int];
-    // assert !final ==> frameSerialization[4 + suite.encrypt.ivLength as int..][..frameLength] == rd.reader.data[old(rd.reader.pos)..][4 + suite.encrypt.ivLength as int..][..frameLength];
-    // assert !final ==> frameSerialization[4 + frameLength + suite.encrypt.ivLength as int..] == rd.reader.data[old(rd.reader.pos)..][4 + frameLength + suite.encrypt.ivLength as int..][..suite.encrypt.tagLength as int];
-
-    // // Prove equivalence frameSerialization and content read on the stream
-    // assert rd.reader.data[old(rd.reader.pos)..rd.reader.pos] == frameSerialization;
-
-    // assert old(rd.reader.pos) < rd.reader.pos <= |rd.reader.data|;
-
-    // return Success(FrameWithGhostSeq(frame,ciphertext));
     return Success(plaintextSegment);
   }
 
@@ -640,28 +433,6 @@ module MessageBody {
     var contentAAD := UTF8.Encode(BodyAADContentTypeString(bc));
     aad := messageID + contentAAD.value + UInt32ToSeq(sequenceNumber) + UInt64ToSeq(length);
   }
-
-  // method Decrypt(
-  //   ciphertext: seq<uint8>,
-  //   authTag: seq<uint8>,
-  //   suite: Client.AlgorithmSuites.AlgorithmSuite,
-  //   iv: seq<uint8>,
-  //   key: seq<uint8>,
-  //   aad: seq<uint8>
-  // )
-  //   returns (res: Result<seq<uint8>, string>)
-  //   requires
-  //     && |iv| == suite.encrypt.ivLength as int
-  //     && |key| == suite.encrypt.keyLength as int
-  //     && |authTag| == suite.encrypt.tagLength as int
-  //   ensures res.Success? ==> AESEncryption.CiphertextGeneratedWithPlaintext(ciphertext, res.value)
-  //   ensures res.Success? ==> |ciphertext| == |res.value|
-  //   ensures res.Success? ==> AESEncryption.DecryptedWithKey(key, res.value)
-  // {
-  //   var encAlg := suite.encrypt;
-  //   res := AESEncryption.AESDecrypt(encAlg, key, ciphertext, authTag, iv, aad);
-  //   assert res.Success? ==> AESEncryption.DecryptedWithKey(key, res.value);
-  // }
 
   predicate DecryptedWithKey(key: seq<uint8>, plaintext: seq<uint8>)
   {
