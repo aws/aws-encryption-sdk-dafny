@@ -210,28 +210,36 @@ module
     }
 
     method CreateRawRsaKeyring(input: Crypto.CreateRawRsaKeyringInput)
-      returns (res: Result<Crypto.IKeyring, string>)
+      // returns (res: Result<Crypto.IKeyring, string>)
+      returns (res: Crypto.IKeyring?)
       //= compliance/framework/raw-rsa-keyring.txt#2.1.1
       //= type=implication
       //# -  Raw RSA keyring MUST NOT accept a key namespace of "aws-kms".
       ensures
-        res.Success?
+        input.keyNamespace == "aws-kms"
       ==>
-        input.keyNamespace != "aws-kms"
+        res == null
       ensures
-        res.Success?
+        input.publicKey.None? && input.privateKey.None?
       ==>
-        input.publicKey.Some? || input.privateKey.Some?
+        res == null
     {
-      :- Need(
-        input.keyNamespace != "aws-kms",
-        "keyNamespace must not be `aws-kms`"
-      );
+      // :- Need(
+      //   input.keyNamespace != "aws-kms",
+      //   "keyNamespace must not be `aws-kms`"
+      // );
+      if (input.keyNamespace == "aws-kms") {
+        return null;
+      }
 
-      :- Need(
-        input.publicKey.Some? || input.privateKey.Some?,
-        "A publicKey or a privateKey is required"
-      );
+      // :- Need(
+      //   input.publicKey.Some? || input.privateKey.Some?,
+      //   "A publicKey or a privateKey is required"
+      // );
+      if (input.publicKey.None? && input.privateKey.None?) {
+        return null;
+      }
+      
       var padding: RSAEncryption.PaddingMode := match input.paddingScheme
         case PKCS1 => RSAEncryption.PaddingMode.PKCS1
         case OAEP_SHA1_MGF1 => RSAEncryption.PaddingMode.OAEP_SHA1
@@ -239,12 +247,22 @@ module
         case OAEP_SHA384_MGF1 => RSAEncryption.PaddingMode.OAEP_SHA384
         case OAEP_SHA512_MGF1 => RSAEncryption.PaddingMode.OAEP_SHA512
       ;
-      var namespace :- UTF8.Encode(input.keyNamespace);
-      var name :- UTF8.Encode(input.keyName);
+
+      var namespaceRes := UTF8.Encode(input.keyNamespace);
+      var namespace := []; // TODO: This value gets used below if UTF8.Encode fails
+      if namespaceRes.Success? {
+        namespace := namespaceRes.value;
+      }
+      var nameRes := UTF8.Encode(input.keyName);
+      var name := []; // TODO: This value gets used below if UTF8.Encode fails
+      if nameRes.Success? {
+        name := nameRes.value;
+      }
+      
       expect |namespace| < UINT16_LIMIT;  // Both name & namespace will be serialized into the message
       expect |name| < UINT16_LIMIT;       // So both must respect message size limit
       var keyring := new RawRSAKeyring.RawRSAKeyring(namespace, name, input.publicKey, input.privateKey, padding);
-      return Success(keyring);
+      return keyring;
     }
   }
 }

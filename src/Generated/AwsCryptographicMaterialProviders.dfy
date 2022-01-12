@@ -368,7 +368,7 @@ module {:extern "Dafny.Aws.Crypto"} Aws.Crypto {
         // method CreateMrkAwareDiscoveryMultiKeyring(input: CreateMrkAwareDiscoveryMultiKeyringInput) returns (res: IKeyring)
         method CreateMultiKeyring(input: CreateMultiKeyringInput) returns (res: IKeyring?)
         method CreateRawAesKeyring(input: CreateRawAesKeyringInput) returns (res: IKeyring)
-        method CreateRawRsaKeyring(input: CreateRawRsaKeyringInput) returns (res: Result<IKeyring, string>)
+        method CreateRawRsaKeyring(input: CreateRawRsaKeyringInput) returns (res: IKeyring?)
 
         // CMMs
         method CreateDefaultCryptographicMaterialsManager(input: CreateDefaultCryptographicMaterialsManagerInput) returns (res: ICryptographicMaterialsManager)
