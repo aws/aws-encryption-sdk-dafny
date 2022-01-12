@@ -521,18 +521,18 @@ module MessageBody {
       var regularFrame :- Frames.ReadRegularFrame(continuation, header);
       :- Need(regularFrame.data.seqNum as nat == |regularFrames| + 1, Error("Sequence number out of order."));
 
-      assert {:focus} true;
+      assert {:split_here} true;
       LemmaAddingNextRegularFrame(regularFrames, regularFrame.data);
 
       var nextRegularFrames: MessageRegularFrames := regularFrames + [regularFrame.data];
 
-      assert {:focus} true;
+      assert {:split_here} true;
       assert CorrectlyRead(continuation, Success(regularFrame), Frames.WriteRegularFrame);
       ghost var why? := [buffer, continuation, regularFrame.tail];
-      assert {:focus} true;
+      assert {:split_here} true;
       ConsecutiveReadsAreAssociative(why?);
 
-      assert {:focus} true;
+      assert {:split_here} true;
       ReadFramedMessageBody(
         buffer,
         header,

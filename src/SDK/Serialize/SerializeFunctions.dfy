@@ -275,13 +275,19 @@ module SerializeFunctions {
   //  + fourth.tail.data[third.tail.start..fourth.tail.start]
   lemma ConsecutiveReadsAreAssociative(positions: seq<ReadableBuffer>)
     requires |positions| >= 2
-    requires PositionsAreConsecutive(positions)
+    requires forall i,j
+    | 0 <= i < j < |positions| && i + 1 == j
+    :: CorrectlyReadRange(positions[i], positions[j])
 
+    ensures PositionsAreConsecutive(positions)
     ensures
       var readableRanges := PositionsToReadableRanges(positions);
     && ReadRange((Seq.First(positions), Seq.Last(positions)))
     == ConcatenateRanges(readableRanges)
   {
+    ConsecutiveCorrectlyReadPositionsAreAllConsecutivePositions(positions);
+    assert PositionsAreConsecutive(positions);
+
     if |positions| == 2 {
       assert PositionsToReadableRanges(positions) == [(positions[0], positions[1])];
       assert ReadRange((Seq.First(positions), Seq.Last(positions))) == ConcatenateRanges(PositionsToReadableRanges(positions));
@@ -384,6 +390,51 @@ module SerializeFunctions {
     :(ret: ReadableBuffer)
   {
     buffer.(start := buffer.start + length)
+  }
+
+  lemma ConsecutiveCorrectlyReadPositionsAreAllConsecutivePositions(positions: seq<ReadableBuffer>)
+    requires forall i,j
+    | 0 <= i < j < |positions| && i + 1 == j
+    :: CorrectlyReadRange(positions[i], positions[j])
+    ensures PositionsAreConsecutive(positions)
+  {
+    forall i,j
+    | 0 <= i < j < |positions|
+    ensures CorrectlyReadRange(positions[i], positions[j])
+    {
+      SequentialCorrectlyReadRangesAreTransitive(positions, i, j);
+    }
+  }
+
+  lemma SequentialCorrectlyReadRangesAreTransitive(
+    positions: seq<ReadableBuffer>,
+    i: nat,
+    j: nat
+  )
+    requires forall i,j
+    | 0 <= i < j < |positions| && i + 1 == j
+    :: CorrectlyReadRange(positions[i], positions[j])
+    requires i < j < |positions|
+    ensures CorrectlyReadRange(positions[i], positions[j])
+  {
+    if i + 1 == j{
+    } else {
+      SequentialCorrectlyReadRangesAreTransitive(positions, i, j - 1);
+      assert CorrectlyReadRange(positions[i], positions[j-1]);
+      assert CorrectlyReadRange(positions[j-1], positions[j]);
+      ConsecutiveCorrectlyReadPositionsAreTransitive(positions[i], positions[j-1], positions[j]);
+    }
+  }
+
+  lemma ConsecutiveCorrectlyReadPositionsAreTransitive(
+    start: ReadableBuffer,
+    mid: ReadableBuffer,
+    end: ReadableBuffer
+  )
+    requires CorrectlyReadRange(start, mid)
+    requires CorrectlyReadRange(mid, end)
+    ensures CorrectlyReadRange(start, end)
+  {
   }
 
 }
