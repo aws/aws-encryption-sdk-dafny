@@ -3,13 +3,11 @@ phases:
   install:
     commands:
       - cd ..
-      # Get Boogie
-      - git clone --branch per-assert-splitting https://github.com/robin-aws/boogie.git
       # Get Dafny
-      - git clone --branch fine-grained-verification-logging https://github.com/robin-aws/dafny.git
-      # Apply the patch for Dafny to use the local Boogie clone
+      - git clone https://github.com/dafny/dafny.git
       - cd dafny
-      - git apply customBoogie.patch
+      # Checkout the specific commit we depend on (while waiting for the 3.4 release)
+      - git checkout 3eef738a340aed4853201e1619ce3937eaaf978d 
       # Build Dafny
       - dotnet build Source/Dafny.sln
       - export PATH="$PWD/Scripts:$PATH"
