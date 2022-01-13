@@ -3,7 +3,6 @@
 
 include "../Util/UTF8.dfy"
 include "../StandardLibrary/StandardLibrary.dfy"
-include "../KMS/AmazonKeyManagementService.dfy"
 include "AwsCryptographicMaterialProviders.dfy"
 
 module {:extern "Dafny.Aws.Esdk"} Aws.Esdk {

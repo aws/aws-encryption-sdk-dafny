@@ -9,7 +9,7 @@ using
 
 namespace Aws.Crypto
 {
-    public class CreateMrkAwareStrictAwsKmsKeyringInput
+    public class CreateStrictAwsKmsKeyringInput
     {
         private string _kmsKeyId;
         private Amazon.KeyManagementService.IAmazonKeyManagementService _kmsClient;
