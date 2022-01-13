@@ -16,14 +16,18 @@ using charseq = Dafny.Sequence<char>;
 namespace AESEncryption {
     public partial class AES_GCM {
 
-        public static _IResult<_IEncryptionOutput, icharseq> AESEncryptExtern(AESEncryption.AES__GCM encAlg,
+        public static _IResult<_IEncryptionOutput, icharseq> AESEncryptExtern(AESEncryption._IAES__GCM encAlg,
                                                       ibyteseq iv,
                                                       ibyteseq key,
                                                       ibyteseq msg,
                                                       ibyteseq aad) {
             try {
                 var cipher = new GcmBlockCipher(new AesEngine());
-                var param = new AeadParameters(new KeyParameter(key.Elements), (int)encAlg.tagLength * 8, iv.Elements, aad.Elements);
+                var param = new AeadParameters(
+                    new KeyParameter(key.Elements),
+                    (int)((AESEncryption.AES__GCM)encAlg).tagLength * 8,
+                    iv.Elements,
+                    aad.Elements);
                 cipher.Init(true, param);
 
                 byte[] c = new byte[cipher.GetOutputSize(msg.Elements.Length)];
@@ -36,10 +40,14 @@ namespace AESEncryption {
             }
         }
 
-        public static _IResult<ibyteseq, icharseq> AESDecryptExtern(AESEncryption.AES__GCM encAlg, ibyteseq key, ibyteseq cipherText, ibyteseq authTag, ibyteseq iv, ibyteseq aad) {
+        public static _IResult<ibyteseq, icharseq> AESDecryptExtern(AESEncryption._IAES__GCM encAlg, ibyteseq key, ibyteseq cipherText, ibyteseq authTag, ibyteseq iv, ibyteseq aad) {
             try {
                 var cipher = new GcmBlockCipher(new AesEngine());
-                var param = new AeadParameters(new KeyParameter(key.Elements), encAlg.tagLength * 8, iv.Elements, aad.Elements);
+                var param = new AeadParameters(
+                    new KeyParameter(key.Elements),
+                    ((AESEncryption.AES__GCM)encAlg).tagLength * 8,
+                    iv.Elements,
+                    aad.Elements);
                 cipher.Init(false, param);
                 var ctx = byteseq.Concat(cipherText, authTag);
                 var pt = new byte[cipher.GetOutputSize(ctx.Elements.Length)];

@@ -28,7 +28,7 @@ namespace Signature {
     }
 
     public partial class ECDSA {
-        public static _IResult<SignatureKeyPair, icharseq> ExternKeyGen(ECDSAParams x) {
+        public static _IResult<SignatureKeyPair, icharseq> ExternKeyGen(_IECDSAParams x) {
             try {
                 ECKeyPairGenerator generator = new ECKeyPairGenerator();
                 SecureRandom rng = new SecureRandom();
@@ -38,7 +38,7 @@ namespace Signature {
                 } else if (x.is_ECDSA__P256) {
                     p = ECNamedCurveTable.GetByName("secp256r1");
                 } else {
-                    throw new ECDSAUnsupportedParametersException(x);
+                    throw new ECDSAUnsupportedParametersException((ECDSAParams)x);
                 }
                 generator.Init(new ECKeyGenerationParameters(new ECDomainParameters(p.Curve, p.G, p.N, p.H), rng));
                 AsymmetricCipherKeyPair kp = generator.GenerateKeyPair();
@@ -85,7 +85,7 @@ namespace Signature {
             return byteseq.Concat(byteseq.FromArray(yBytes), (byteseq.FromArray(xBytes)));
         }
 
-        public static _IResult<bool, icharseq> Verify(ECDSAParams x, ibyteseq vk, ibyteseq msg, ibyteseq sig) {
+        public static _IResult<bool, icharseq> Verify(_IECDSAParams x, ibyteseq vk, ibyteseq msg, ibyteseq sig) {
             try {
                 byte[] digest = InternalDigest(x, msg);
 
@@ -95,7 +95,7 @@ namespace Signature {
                 } else if (x.is_ECDSA__P256) {
                     parameters = ECNamedCurveTable.GetByName("secp256r1");
                 } else {
-                    throw new ECDSAUnsupportedParametersException(x);
+                    throw new ECDSAUnsupportedParametersException((ECDSAParams)x);
                 }
                 ECDomainParameters dp = new ECDomainParameters(parameters.Curve, parameters.G, parameters.N, parameters.H);
                 ECPoint pt = parameters.Curve.DecodePoint((byte[])vk.Elements.Clone());
@@ -110,7 +110,7 @@ namespace Signature {
             }
         }
 
-        public static _IResult<ibyteseq, icharseq> Sign(ECDSAParams x, ibyteseq sk, ibyteseq msg) {
+        public static _IResult<ibyteseq, icharseq> Sign(_IECDSAParams x, ibyteseq sk, ibyteseq msg) {
             try {
                 byte[] digest = InternalDigest(x, msg);
 
@@ -120,7 +120,7 @@ namespace Signature {
                 } else if (x.is_ECDSA__P256) {
                     parameters = ECNamedCurveTable.GetByName("secp256r1");
                 } else {
-                    throw new ECDSAUnsupportedParametersException(x);
+                    throw new ECDSAUnsupportedParametersException((ECDSAParams)x);
                 }
                 ECDomainParameters dp = new ECDomainParameters(parameters.Curve, parameters.G, parameters.N, parameters.H);
                 ECPrivateKeyParameters skp = new ECPrivateKeyParameters(new BigInteger(sk.Elements), dp);
@@ -145,14 +145,14 @@ namespace Signature {
             }
         }
 
-        private static byte[] InternalDigest(ECDSAParams x, ibyteseq msg) {
+        private static byte[] InternalDigest(_IECDSAParams x, ibyteseq msg) {
             System.Security.Cryptography.HashAlgorithm alg;
             if (x.is_ECDSA__P384) {
                 alg = System.Security.Cryptography.SHA384.Create();
             } else if (x.is_ECDSA__P256) {
                 alg = System.Security.Cryptography.SHA256.Create();
             } else {
-                throw new ECDSAUnsupportedParametersException(x);
+                throw new ECDSAUnsupportedParametersException((ECDSAParams)x);
             }
             return alg.ComputeHash(msg.Elements);
         }
