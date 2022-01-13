@@ -334,7 +334,7 @@ module EncryptionContext {
       Success(SuccessfulRead(pairs, tail))
   }
 
-  function method ReadAADSection(
+  function method {:vcs_split_on_every_assert} ReadAADSection(
     buffer: ReadableBuffer
   ):
     (res: ReadCorrect<ESDKCanonicalEncryptionContext>)
