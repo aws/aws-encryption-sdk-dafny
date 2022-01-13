@@ -7,12 +7,10 @@ include "../../src/Generated/AwsCryptographicMaterialProviders.dfy"
 include "../../src/Generated/AwsEncryptionSdk.dfy"
 include "../../src/AwsCryptographicMaterialProviders/Client.dfy"
 include "../../src/SDK/AwsEncryptionSdk.dfy"
-include "../../src/SDK/EncryptionContext.dfy"
 include "../../src/Crypto/RSAEncryption.dfy"
 include "../../src/Util/UTF8.dfy"
 include "../../src/StandardLibrary/Base64.dfy"
 include "../Util/TestUtils.dfy"
-
 
 module {:extern "TestClient"} TestClient {
   import Aws.Esdk

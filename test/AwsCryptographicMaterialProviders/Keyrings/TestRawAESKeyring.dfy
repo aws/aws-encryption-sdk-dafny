@@ -16,7 +16,6 @@ module TestRawAESKeyring {
   import opened UInt = StandardLibrary.UInt
   import AESEncryption
   import MaterialProviders.RawAESKeyring
-  import MessageHeader
   import MaterialProviders.Materials
   import EncryptionContext
   import UTF8
@@ -36,7 +35,6 @@ module TestRawAESKeyring {
         ivLength := 12 as AESEncryption.IVLength
       ));
     var encryptionContext := TestUtils.SmallEncryptionContext(TestUtils.SmallEncryptionContextVariation.A);
-    ExpectSerializableEncryptionContext(encryptionContext);
 
     var wrappingAlgorithmID := Crypto.ALG_AES_256_GCM_IV12_TAG16_HKDF_SHA384_ECDSA_P384;
     var signingKey := seq(32, i => 0);
@@ -94,7 +92,6 @@ module TestRawAESKeyring {
         ivLength := 12 as AESEncryption.IVLength
       ));
     var encryptionContext := TestUtils.SmallEncryptionContext(TestUtils.SmallEncryptionContextVariation.A);
-    ExpectSerializableEncryptionContext(encryptionContext);
 
     var pdk := seq(32, i => 0);
 
@@ -154,7 +151,6 @@ module TestRawAESKeyring {
       ));
 
     var encryptionContext := TestUtils.SmallEncryptionContext(TestUtils.SmallEncryptionContextVariation.A);
-    ExpectSerializableEncryptionContext(encryptionContext);
 
     var pdk := seq(32, i => 0);
 
@@ -241,7 +237,6 @@ module TestRawAESKeyring {
         ivLength := 12 as AESEncryption.IVLength
       ));
     var unserializableEncryptionContext := generateUnserializableEncryptionContext();
-    ExpectNonSerializableEncryptionContext(unserializableEncryptionContext);
 
     var wrappingAlgorithmID := Crypto.ALG_AES_256_GCM_IV12_TAG16_HKDF_SHA384_ECDSA_P384;
     var signingKey := seq(32, i => 0);
@@ -293,7 +288,6 @@ module TestRawAESKeyring {
 
     // Set up EC that can't be serialized
     var unserializableEncryptionContext := generateUnserializableEncryptionContext();
-    ExpectNonSerializableEncryptionContext(unserializableEncryptionContext);
     var verificationKey := seq(32, i => 0);
 
     var decryptionMaterialsIn := Crypto.DecryptionMaterials(
@@ -325,7 +319,7 @@ module TestRawAESKeyring {
     expect serializedEDKCiphertext == ciphertext + authTag;
   }
 
-  method generateUnserializableEncryptionContext() returns (encCtx: EncryptionContext.Map)
+  method generateUnserializableEncryptionContext() returns (encCtx: Crypto.EncryptionContext)
   {
     var keyA :- expect UTF8.Encode("keyA");
     var invalidVal := seq(0x1_0000, _ => 0);
