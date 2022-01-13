@@ -25,7 +25,8 @@ namespace Aws.Crypto
             Dafny.Aws.Crypto._IOnEncryptInput internalInput =
                 TypeConversion.ToDafny_N3_aws__N6_crypto__S14_OnEncryptInput(input);
             Dafny.Aws.Crypto._IOnEncryptOutput internalOutput =
-                this._impl.OnEncrypt(internalInput);
+                // TODO this line was manually updated
+                DafnyFFI.ExtractResult(this._impl.OnEncrypt(internalInput));
             return TypeConversion.FromDafny_N3_aws__N6_crypto__S15_OnEncryptOutput(internalOutput);
         }
 
@@ -34,7 +35,8 @@ namespace Aws.Crypto
             Dafny.Aws.Crypto._IOnDecryptInput internalInput =
                 TypeConversion.ToDafny_N3_aws__N6_crypto__S14_OnDecryptInput(input);
             Dafny.Aws.Crypto._IOnDecryptOutput internalOutput =
-                this._impl.OnDecrypt(internalInput);
+                // TODO this line was manually updated
+                DafnyFFI.ExtractResult(this._impl.OnDecrypt(internalInput));
             return TypeConversion.FromDafny_N3_aws__N6_crypto__S15_OnDecryptOutput(internalOutput);
         }
     }
