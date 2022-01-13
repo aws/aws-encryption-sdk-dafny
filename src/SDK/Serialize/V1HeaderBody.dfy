@@ -104,6 +104,7 @@ module V1HeaderBody {
     Success(SuccessfulRead(body, frameLength.tail))
   }
 
+  // TODO: This needs to be proven
   predicate CorrectlyReadV1HeaderBody(
     buffer: ReadableBuffer,
     res: ReadCorrect<V1HeaderBody>
