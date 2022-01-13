@@ -5,10 +5,9 @@ include "../../src/StandardLibrary/StandardLibrary.dfy"
 include "../../src/StandardLibrary/UInt.dfy"
 include "../../src/Util/UTF8.dfy"
 include "../../src/AwsCryptographicMaterialProviders/Materials.dfy"
-include "../../src/SDK/EncryptionContext.dfy"
+include "../../src/SDK/Serialize/EncryptionContext.dfy"
 include "../../src/SDK/Serialize/SerializableTypes.dfy"
 include "../../src/Crypto/AESEncryption.dfy"
-include "../../src/SDK/MessageHeader.dfy"
 
 module {:extern "TestUtils"} TestUtils {
   import opened StandardLibrary
@@ -17,7 +16,6 @@ module {:extern "TestUtils"} TestUtils {
   import UTF8
   import MaterialProviders.Materials
   import EncryptionContext
-  import MessageHeader
   import AESEncryption
   import SerializableTypes
 
@@ -30,8 +28,7 @@ module {:extern "TestUtils"} TestUtils {
     requires |s| >= 0x1000
     ensures UTF8.ValidUTF8Seq(s)
 
-  method GenerateInvalidEncryptionContext() returns (encCtx: EncryptionContext.Map)
-    ensures !EncryptionContext.Serializable(encCtx)
+  method GenerateInvalidEncryptionContext() returns (encCtx: EncryptionContext.Crypto.EncryptionContext)
   {
     var validUTF8char: UTF8.ValidUTF8Bytes :- expect UTF8.Encode("a");
     var key: UTF8.ValidUTF8Bytes := [];
@@ -40,18 +37,12 @@ module {:extern "TestUtils"} TestUtils {
       key := key + validUTF8char;
     }
     encCtx := map[key := [0]];
-    //assert !MessageHeader.ValidKVPair((key, encCtx[key]));
-    //assert !MessageHeader.ValidKVPairs(encCtx);
-    //reveal MessageHeader.ValidAAD();
-    reveal EncryptionContext.Serializable();
-    assert !EncryptionContext.Serializable(encCtx);
   }
 
   // Generates a large encryption context that approaches the upper bounds of
   // what is able to be serialized in the message format.
   // Building a map item by item is slow in dafny, so this method should be used sparingly.
   method GenerateLargeValidEncryptionContext() returns (r: SerializableTypes.ESDKEncryptionContext)
-    ensures EncryptionContext.Serializable(r)
   {
     // KVPairsMaxSize - KVPairsLenLen / KVPairLen ==>
     // (2^16 - 1 - 2) / (2 + 2 + 2 + 1) ==> (2^16 - 3) / 7 ==> 9361
@@ -76,37 +67,25 @@ module {:extern "TestUtils"} TestUtils {
       i := i + 1;
     }
     // Check that we actually built a encCtx of the correct size
-    expect |encCtx| == numMaxPairs;
+    expect SerializableTypes.IsESDKEncryptionContext(encCtx);
 
-    assert EncryptionContext.Serializable(encCtx) by {
-      reveal EncryptionContext.Serializable();
-      assert SerializableTypes.Length(encCtx) < UINT16_LIMIT by {
-        var keys: seq<UTF8.ValidUTF8Bytes> := SetToOrderedSequence(encCtx.Keys, UInt.UInt8Less);
-        var kvPairs := seq(|keys|, i requires 0 <= i < |keys| => (keys[i], encCtx[keys[i]]));
-        KVPairsLengthBound(kvPairs, |kvPairs|, 3);
-        assert SerializableTypes.LinearLength(kvPairs, 0, |kvPairs|) <= 2 + numMaxPairs * 7;
-      }
-    }
-    EncryptionContext.LemmaSerializableIsESDKEncryptionContext(encCtx);
     return encCtx;
   }
 
-  method ExpectSerializableEncryptionContext(encCtx: EncryptionContext.Map)
-    ensures EncryptionContext.Serializable(encCtx)
+  method ExpectSerializableEncryptionContext(encCtx: EncryptionContext.Crypto.EncryptionContext)
+    ensures SerializableTypes.IsESDKEncryptionContext(encCtx);
   {
-    var valid := EncryptionContext.CheckSerializable(encCtx);
-    expect valid;
+    expect SerializableTypes.IsESDKEncryptionContext(encCtx);
   }
 
-  method ExpectNonSerializableEncryptionContext(encCtx: EncryptionContext.Map) {
-    var valid := EncryptionContext.CheckSerializable(encCtx);
-    expect !valid;
+  method ExpectNonSerializableEncryptionContext(encCtx: EncryptionContext.Crypto.EncryptionContext) {
+    expect !SerializableTypes.IsESDKEncryptionContext(encCtx);
   }
 
   datatype SmallEncryptionContextVariation = Empty | A | AB | BA
 
-  method SmallEncryptionContext(v: SmallEncryptionContextVariation) returns (encryptionContext: EncryptionContext.Map)
-    ensures EncryptionContext.Serializable(encryptionContext)
+  method SmallEncryptionContext(v: SmallEncryptionContextVariation)
+    returns (encryptionContext: SerializableTypes.ESDKEncryptionContext)
     ensures encryptionContext.Keys !! Materials.RESERVED_KEY_VALUES
   {
     var keyA :- expect UTF8.Encode("keyA");
@@ -124,39 +103,41 @@ module {:extern "TestUtils"} TestUtils {
         // this is really the same as AB; this lets us test that this is also true at run time
         encryptionContext := map[keyB := valB, keyA := valA];
     }
-    ValidSmallEncryptionContext(encryptionContext);
+    // ValidSmallEncryptionContext(encryptionContext);
   }
 
-  lemma ValidSmallEncryptionContext(encryptionContext: EncryptionContext.Map)
-    requires |encryptionContext| <= 5
-    requires forall k :: k in encryptionContext.Keys ==> |k| < 100 && |encryptionContext[k]| < 100
-    ensures EncryptionContext.Serializable(encryptionContext)
-  {
-    reveal EncryptionContext.Serializable();
-    assert SerializableTypes.Length(encryptionContext) < UINT16_LIMIT by {
-      if |encryptionContext| != 0 {
-        var keys: seq<UTF8.ValidUTF8Bytes> := SetToOrderedSequence(encryptionContext.Keys, UInt.UInt8Less);
-        var kvPairs := seq(|keys|, i requires 0 <= i < |keys| => (keys[i], encryptionContext[keys[i]]));
-        assert SerializableTypes.Length(encryptionContext) ==
-          2 + SerializableTypes.LinearLength(kvPairs, 0, |kvPairs|);
+  // lemma ValidSmallEncryptionContext(encryptionContext: EncryptionContext.Crypto.EncryptionContext)
+  //   requires |encryptionContext| <= 5
+  //   requires forall k :: k in encryptionContext.Keys ==> |k| < 100 && |encryptionContext[k]| < 100
+  // {
+  //   assert SerializableTypes.Length(encryptionContext) < UINT16_LIMIT by {
+  //     if |encryptionContext| != 0 {
+  //       var keys: seq<UTF8.ValidUTF8Bytes> := SetToOrderedSequence(encryptionContext.Keys, UInt.UInt8Less);
+  //       var kvPairs := seq(|keys|, i requires 0 <= i < |keys| => SerializableTypes.Pair(keys[i], encryptionContext[keys[i]]));
+  //       assert SerializableTypes.Length(encryptionContext) ==
+  //         2 + SerializableTypes.LinearLength(kvPairs);
 
-        var n := |kvPairs|;
-        assert n <= 5;
+  //       var n := |kvPairs|;
+  //       assert n <= 5;
 
-        assert SerializableTypes.LinearLength(kvPairs, 0, n) <= n * 204 by {
-          KVPairsLengthBound(kvPairs, |kvPairs|, 200);
-        }
-        assert n * 204 <= 1020 < UINT16_LIMIT;
-      }
-    }
-  }
+  //       assert SerializableTypes.LinearLength(kvPairs) <= n * 204 by {
+  //         KVPairsLengthBound(kvPairs, |kvPairs|, 200);
+  //       }
+  //       assert n * 204 <= 1020 < UINT16_LIMIT;
+  //     }
+  //   }
+  // }
 
-  lemma KVPairsLengthBound(kvPairs: EncryptionContext.Linear, n: nat, kvBound: int)
-    requires n <= |kvPairs|
-    requires forall i :: 0 <= i < n ==> |kvPairs[i].0| + |kvPairs[i].1| <= kvBound
-    ensures SerializableTypes.LinearLength(kvPairs, 0, n) <= n * (4 + kvBound)
-  {
-  }
+  // lemma KVPairsLengthBound(
+  //   kvPairs: SerializableTypes.Linear<UTF8.ValidUTF8Bytes, UTF8.ValidUTF8Bytes>,
+  //   n: nat,
+  //   kvBound: int
+  // )
+  //   requires n <= |kvPairs|
+  //   requires forall i :: 0 <= i < n ==> |kvPairs[i].key| + |kvPairs[i].value| <= kvBound
+  //   ensures SerializableTypes.LinearLength(kvPairs) <= n * (4 + kvBound)
+  // {
+  // }
 
   // method MakeAESKeyring() returns (res: Result<RawAESKeyringDef.RawAESKeyring, string>)
   // {
