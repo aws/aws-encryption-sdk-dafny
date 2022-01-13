@@ -49,57 +49,53 @@ module EncryptedDataKeys {
   }
 
   function method ReadEncryptedDataKey(
-    s: seq<uint8>,
-    pos: nat
+    buffer: ReadableBuffer
   ):
     (res: ReadCorrect<ESDKEncryptedDataKey>)
-    ensures CorrectlyRead(s, pos, res, WriteEncryptedDataKey)
+    ensures CorrectlyRead(buffer, res, WriteEncryptedDataKey)
   {
-    var (providerId, providerIdPos) :- ReadShortLengthSeq(s, pos);
+    var SuccessfulRead(providerId, providerIdPos) :- ReadShortLengthSeq(buffer);
     :- Need(ValidUTF8Seq(providerId), Error("Invalid providerID"));
-    var (providerInfo, providerInfoPos) :- ReadShortLengthSeq(s, providerIdPos);
-    var (cipherText, cipherTextPos) :- ReadShortLengthSeq(s, providerInfoPos);
+    var SuccessfulRead(providerInfo, providerInfoPos) :- ReadShortLengthSeq(providerIdPos);
+    var SuccessfulRead(cipherText, tail) :- ReadShortLengthSeq(providerInfoPos);
     var edk: ESDKEncryptedDataKey := Crypto.EncryptedDataKey(
         keyProviderId := providerId,
         keyProviderInfo := providerInfo,
         ciphertext := cipherText);
 
-    Success((edk, cipherTextPos))
+    Success(SuccessfulRead(edk, tail))
   }
 
   function method {:tailrecursion true} ReadEncryptedDataKeys(
-    s: seq<uint8>,
-    pos: nat,
+    buffer: ReadableBuffer,
     accumulator: ESDKEncryptedDataKeys,
     count: uint16,
-    nextEdk: nat
-  ):
-    (res: ReadCorrect<ESDKEncryptedDataKeys>)
+    nextEdkStart: ReadableBuffer
+  )
+    :(res: ReadCorrect<ESDKEncryptedDataKeys>)
     requires 0 <= |accumulator| <= count as nat < UINT16_LIMIT
-    requires |s| >= nextEdk >= pos
-    requires WriteEncryptedDataKeys(accumulator) == s[pos..nextEdk]
+    requires CorrectlyRead(buffer, Success(SuccessfulRead(accumulator, nextEdkStart)), WriteEncryptedDataKeys)
     decreases count as int - |accumulator|
-    ensures CorrectlyRead(s, pos, res, WriteEncryptedDataKeys)
-    ensures res.Success? ==> count as nat == |res.value.0|
+    ensures CorrectlyRead(buffer, res, WriteEncryptedDataKeys)
+    ensures res.Success? ==> count as nat == |res.value.data|
   {
     if count as int > |accumulator| then
-      var (edk, newPos) :- ReadEncryptedDataKey(s, nextEdk);
+      var SuccessfulRead(edk, newPos) :- ReadEncryptedDataKey(nextEdkStart);
       var nextAcc := accumulator + [edk];
-      ReadEncryptedDataKeys(s, pos, nextAcc, count, newPos)
+      ReadEncryptedDataKeys(buffer, nextAcc, count, newPos)
     else
-      Success((accumulator, nextEdk))
+      Success(SuccessfulRead(accumulator, nextEdkStart))
   }
 
   function method ReadEncryptedDataKeysSection(
-    s: seq<uint8>,
-    pos: nat
-  ):
-    (res: ReadCorrect<ESDKEncryptedDataKeys>)
-    ensures CorrectlyRead(s, pos, res, WriteEncryptedDataKeysSection)
+    buffer: ReadableBuffer
+  )
+    :(res: ReadCorrect<ESDKEncryptedDataKeys>)
+    ensures CorrectlyRead(buffer, res, WriteEncryptedDataKeysSection)
   {
-    var (count, edkStart) :- ReadUInt16(s, pos);
+    var SuccessfulRead(count, edkStart) :- ReadUInt16(buffer);
     :- Need(count > 0, Error("Invalid Encrypted Data Keys section: 0 EDKs is not valid."));
-    var (edks, end) :- ReadEncryptedDataKeys(s, edkStart, [], count, edkStart);
-    Success((edks, end))
+    var SuccessfulRead(edks, tail) :- ReadEncryptedDataKeys(edkStart, [], count, edkStart);
+    Success(SuccessfulRead(edks, tail))
   }
 }
