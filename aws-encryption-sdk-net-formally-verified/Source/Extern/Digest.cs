@@ -18,7 +18,7 @@ namespace ExternDigest {
     }
 
     public partial class __default {
-        public static Result<ibyteseq, icharseq> Digest(CryptoDatatypes_Compile.DigestAlgorithm alg, ibyteseq msg) {
+        public static _IResult<ibyteseq, icharseq> Digest(CryptoDatatypes_Compile.DigestAlgorithm alg, ibyteseq msg) {
             try {
                 System.Security.Cryptography.HashAlgorithm hashAlgorithm;
                 if (alg.is_SHA__512) {

@@ -28,7 +28,7 @@ namespace Signature {
     }
 
     public partial class ECDSA {
-        public static Result<SignatureKeyPair, icharseq> ExternKeyGen(ECDSAParams x) {
+        public static _IResult<SignatureKeyPair, icharseq> ExternKeyGen(ECDSAParams x) {
             try {
                 ECKeyPairGenerator generator = new ECKeyPairGenerator();
                 SecureRandom rng = new SecureRandom();
@@ -85,7 +85,7 @@ namespace Signature {
             return byteseq.Concat(byteseq.FromArray(yBytes), (byteseq.FromArray(xBytes)));
         }
 
-        public static Result<bool, icharseq> Verify(ECDSAParams x, ibyteseq vk, ibyteseq msg, ibyteseq sig) {
+        public static _IResult<bool, icharseq> Verify(ECDSAParams x, ibyteseq vk, ibyteseq msg, ibyteseq sig) {
             try {
                 byte[] digest = InternalDigest(x, msg);
 
@@ -110,7 +110,7 @@ namespace Signature {
             }
         }
 
-        public static Result<ibyteseq, icharseq> Sign(ECDSAParams x, ibyteseq sk, ibyteseq msg) {
+        public static _IResult<ibyteseq, icharseq> Sign(ECDSAParams x, ibyteseq sk, ibyteseq msg) {
             try {
                 byte[] digest = InternalDigest(x, msg);
 

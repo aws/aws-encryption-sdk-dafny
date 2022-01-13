@@ -12,7 +12,7 @@ using charseq = Dafny.Sequence<char>;
 
 namespace UTF8 {
     public partial class __default {
-        public static Result<ibyteseq, icharseq> Encode(icharseq str) {
+        public static _IResult<ibyteseq, icharseq> Encode(icharseq str) {
             UTF8Encoding utf8 = new UTF8Encoding(false, true);
             try {
                 byte[] utf8Bytes = utf8.GetBytes(str.Elements);
@@ -24,7 +24,7 @@ namespace UTF8 {
             }
         }
 
-        public static Result<icharseq, icharseq> Decode(ibyteseq bytes) {
+        public static _IResult<icharseq, icharseq> Decode(ibyteseq bytes) {
             UTF8Encoding utf8 = new UTF8Encoding(false, true);
             try {
                 string decoded = utf8.GetString(bytes.Elements);

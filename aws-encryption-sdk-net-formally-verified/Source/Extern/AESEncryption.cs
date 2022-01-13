@@ -16,7 +16,7 @@ using charseq = Dafny.Sequence<char>;
 namespace AESEncryption {
     public partial class AES_GCM {
 
-        public static Result<EncryptionOutput, icharseq> AESEncryptExtern(AESEncryption.AES__GCM encAlg,
+        public static _IResult<_IEncryptionOutput, icharseq> AESEncryptExtern(AESEncryption.AES__GCM encAlg,
                                                       ibyteseq iv,
                                                       ibyteseq key,
                                                       ibyteseq msg,
@@ -29,14 +29,14 @@ namespace AESEncryption {
                 byte[] c = new byte[cipher.GetOutputSize(msg.Elements.Length)];
                 var len = cipher.ProcessBytes(msg.Elements, 0, msg.Elements.Length, c, 0);
                 cipher.DoFinal(c, len); //Append authentication tag to `c`
-                return Result<EncryptionOutput, icharseq>.create_Success(__default.EncryptionOutputFromByteSeq(byteseq.FromArray(c), encAlg));
+                return Result<_IEncryptionOutput, icharseq>.create_Success(__default.EncryptionOutputFromByteSeq(byteseq.FromArray(c), encAlg));
             }
             catch {
                 return DafnyFFI.CreateFailure<EncryptionOutput>("aes encrypt err");
             }
         }
 
-        public static Result<ibyteseq, icharseq> AESDecryptExtern(AESEncryption.AES__GCM encAlg, ibyteseq key, ibyteseq cipherText, ibyteseq authTag, ibyteseq iv, ibyteseq aad) {
+        public static _IResult<ibyteseq, icharseq> AESDecryptExtern(AESEncryption.AES__GCM encAlg, ibyteseq key, ibyteseq cipherText, ibyteseq authTag, ibyteseq iv, ibyteseq aad) {
             try {
                 var cipher = new GcmBlockCipher(new AesEngine());
                 var param = new AeadParameters(new KeyParameter(key.Elements), encAlg.tagLength * 8, iv.Elements, aad.Elements);

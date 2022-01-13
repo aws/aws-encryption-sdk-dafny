@@ -105,7 +105,7 @@ namespace RSAEncryption {
             privateKey = byteseq.FromArray(privateKeyBytes);
         }
 
-        public static Result<ibyteseq, icharseq> EncryptExtern(PaddingMode padding, ibyteseq publicKey, ibyteseq plaintextMessage) {
+        public static _IResult<ibyteseq, icharseq> EncryptExtern(PaddingMode padding, ibyteseq publicKey, ibyteseq plaintextMessage) {
             try {
                 IAsymmetricBlockCipher engine = GetEngineForPadding(padding);
                 AsymmetricKeyParameter publicKeyParam = GetPublicKeyFromByteSeq(publicKey);
@@ -118,7 +118,7 @@ namespace RSAEncryption {
             }
         }
 
-        public static Result<ibyteseq, icharseq> DecryptExtern(PaddingMode padding, ibyteseq privateKey, ibyteseq cipherText) {
+        public static _IResult<ibyteseq, icharseq> DecryptExtern(PaddingMode padding, ibyteseq privateKey, ibyteseq cipherText) {
             try {
                 IAsymmetricBlockCipher engine = GetEngineForPadding(padding);
                 AsymmetricCipherKeyPair keyPair;
