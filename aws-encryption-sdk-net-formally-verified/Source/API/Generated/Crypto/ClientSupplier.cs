@@ -23,7 +23,7 @@ namespace Aws.Crypto
         protected override Amazon.KeyManagementService.IAmazonKeyManagementService _GetClient(
             Aws.Crypto.GetClientInput input)
         {
-            Dafny.Aws.Crypto.GetClientInput internalInput =
+            Dafny.Aws.Crypto._IGetClientInput internalInput =
                 TypeConversion.ToDafny_N3_aws__N6_crypto__S14_GetClientInput(input);
             Dafny.Com.Amazonaws.Kms.IKeyManagementServiceClient internalOutput =
                 this._impl.GetClient(internalInput);

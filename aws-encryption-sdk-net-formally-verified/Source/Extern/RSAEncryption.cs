@@ -63,7 +63,7 @@ namespace RSAEncryption {
         // GetEngineForPadding represents a helper method that takes in an PaddingMode and returns a
         // IAsymmetricBlockCipher for the RsaBlindedEngine that uses the appropriate digest or throws a
         // RSAUnsupportedPaddingSchemeException if no valid padding exists
-        private static IAsymmetricBlockCipher GetEngineForPadding(PaddingMode padding) {
+        private static IAsymmetricBlockCipher GetEngineForPadding(_IPaddingMode padding) {
             if (padding.is_PKCS1) {
                 return new Pkcs1Encoding(new RsaBlindedEngine());
             } else if (padding.is_OAEP__SHA1) {
@@ -97,7 +97,7 @@ namespace RSAEncryption {
             GetPemBytes(keygenPair, out publicKeyBytes, out privateKeyBytes);
         }
 
-        public static void GenerateKeyPairExtern(int strength, PaddingMode padding, out ibyteseq publicKey, out ibyteseq privateKey) {
+        public static void GenerateKeyPairExtern(int strength, _IPaddingMode padding, out ibyteseq publicKey, out ibyteseq privateKey) {
             byte[] publicKeyBytes;
             byte[] privateKeyBytes;
             GenerateKeyPairBytes(strength, out publicKeyBytes, out privateKeyBytes);
@@ -105,7 +105,7 @@ namespace RSAEncryption {
             privateKey = byteseq.FromArray(privateKeyBytes);
         }
 
-        public static Result<ibyteseq, icharseq> EncryptExtern(PaddingMode padding, ibyteseq publicKey, ibyteseq plaintextMessage) {
+        public static _IResult<ibyteseq, icharseq> EncryptExtern(_IPaddingMode padding, ibyteseq publicKey, ibyteseq plaintextMessage) {
             try {
                 IAsymmetricBlockCipher engine = GetEngineForPadding(padding);
                 AsymmetricKeyParameter publicKeyParam = GetPublicKeyFromByteSeq(publicKey);
@@ -118,7 +118,7 @@ namespace RSAEncryption {
             }
         }
 
-        public static Result<ibyteseq, icharseq> DecryptExtern(PaddingMode padding, ibyteseq privateKey, ibyteseq cipherText) {
+        public static _IResult<ibyteseq, icharseq> DecryptExtern(_IPaddingMode padding, ibyteseq privateKey, ibyteseq cipherText) {
             try {
                 IAsymmetricBlockCipher engine = GetEngineForPadding(padding);
                 AsymmetricCipherKeyPair keyPair;
