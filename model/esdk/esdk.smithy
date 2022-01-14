@@ -11,7 +11,8 @@ use aws.polymorph#clientConfig
 @clientConfig(config: AwsEncryptionSdkClientConfig)
 service AwsEncryptionSdk {
     version: "2020-10-24",
-    operations: [Encrypt, Decrypt]
+    operations: [Encrypt, Decrypt],
+    errors: [AwsEncryptionSdkClientException],
 }
 
 structure AwsEncryptionSdkClientConfig {
@@ -22,6 +23,11 @@ structure AwsEncryptionSdkClientConfig {
     configDefaults: ConfigurationDefaults
 }
 
+@error("client")
+structure AwsEncryptionSdkClientException {
+    @required
+    message: String,
+}
 
 ///////////////////
 // Default Versions
@@ -106,4 +112,3 @@ structure DecryptOutput {
     // some more time figuring out what it looks like to model
     // the message format and message header in Smithy.
 }
-
