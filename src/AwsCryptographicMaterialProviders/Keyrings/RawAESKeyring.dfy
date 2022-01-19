@@ -340,6 +340,7 @@ module
   //# (structures.md#encryption-context-1) in the same format as the
   //# serialization of message header AAD key value pairs (../data-format/
   //# message-header.md#key-value-pairs).
+  // TODO: Tests/proofs
   function method EncryptionContextToAAD(
     encryptionContext: Crypto.EncryptionContext
   ):
@@ -348,16 +349,23 @@ module
     :- Need(|encryptionContext| < UINT16_LIMIT, "Encryption Context is too large");
     var keys := SetToOrderedSequence(encryptionContext.Keys, UInt.UInt8Less);
 
-    var KeyIntoPairBytes := k
-      requires k in encryptionContext
-    =>
-      var v := encryptionContext[k];
-      :- Need(HasUint16Len(k) && HasUint16Len(v), "Unable to serialize encryption context");
-      Success(UInt16ToSeq(|k| as uint16) + k + UInt16ToSeq(|v| as uint16) + v);
+    if |keys| == 0 then
+      // TODO: this adheres to spec (message-header.md) but diverges from what we do
+      // in EncryptionContext.WriteAADSection
+      Success([])
+    else
+      var KeyIntoPairBytes := k
+        requires k in encryptionContext
+      =>
+        var v := encryptionContext[k];
+        :- Need(HasUint16Len(k) && HasUint16Len(v), "Unable to serialize encryption context");
+        Success(UInt16ToSeq(|k| as uint16) + k + UInt16ToSeq(|v| as uint16) + v);
 
-    var pairsBytes :- Seq.MapWithResult(KeyIntoPairBytes, keys);
+      var pairsBytes :- Seq.MapWithResult(KeyIntoPairBytes, keys);
 
-    Success(Seq.Flatten(pairsBytes))
+      // The final return should be the bytes of the pairs, prepended with the number of pairs
+      var allBytes := UInt16ToSeq(|keys| as uint16) + Seq.Flatten(pairsBytes);
+      Success(allBytes)
   }
 
 }

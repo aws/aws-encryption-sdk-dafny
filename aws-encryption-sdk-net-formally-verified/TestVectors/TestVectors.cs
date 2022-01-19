@@ -19,6 +19,7 @@ using Xunit;
 
 using Aws.Crypto;
 using Aws.Esdk;
+using Xunit.Sdk;
 
 namespace TestVectorTests {
 
@@ -94,19 +95,30 @@ namespace TestVectorTests {
         public abstract IEnumerator<object[]> GetEnumerator();
 
         IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
+        
+        // TODO remove or make more robust. Leaving it in for now because it's useful for testing
+        protected static bool TargetVector(KeyValuePair<string, TestVector> entry)
+        {
+            if (entry.Value.MasterKeys.Any(masterKey => masterKey.Key != null && masterKey.Key.StartsWith("aes")))
+            {
+                return true;
+            }
+
+            return false;
+        }
     }
 
     public class DecryptTestVectors : TestVectorData {
         public override IEnumerator<object[]> GetEnumerator() {
             foreach(var vectorEntry in VectorMap) {
-                TestVector vector = vectorEntry.Value;
-                // TODO
-                if (vector.MasterKeys[0].Key == null || vector.MasterKeys[0].Key.StartsWith("rsa"))
+
+                // TODO remove
+                if (!TargetVector(vectorEntry))
                 {
                     continue;
                 }
-                // END TODO
-
+                
+                TestVector vector = vectorEntry.Value;
                 byte[] plaintext = null;
                 if (vector.Result.Output != null)
                 {
@@ -133,7 +145,7 @@ namespace TestVectorTests {
 
                 MemoryStream ciphertextStream = new MemoryStream(ciphertext);
 
-                yield return new object[] { vector, KeyMap, plaintext, errorMessage, ciphertextStream };
+                yield return new object[] { vectorEntry.Key, vector, KeyMap, plaintext, errorMessage, ciphertextStream };
             }
         }
     }
@@ -146,20 +158,13 @@ namespace TestVectorTests {
             foreach(var vectorEntry in VectorMap) {
                 TestVector vector = vectorEntry.Value;
 
-                // We are unable to test Raw Keyrings until #137 is resolved.
-                if (VectorContainsMasterKeyOfType(vector, "raw")) {
-                    continue;
-                }
-
                 string plaintextPath = ManifestUriToPath(vector.Result.Output.Plaintext, VectorRoot);
                 if (!File.Exists(plaintextPath)) {
                     throw new ArgumentException($"Could not find plaintext file at path: {plaintextPath}");
                 }
                 byte[] plaintext = File.ReadAllBytes(plaintextPath);
 
-                ICryptographicMaterialsManager cmm = CmmFactory.EncryptCmm(vector, KeyMap);
-
-                yield return new object[] { vector, KeyMap, plaintext, client, decryptOracle };
+                yield return new object[] { vectorEntry.Key, vector, KeyMap, plaintext, client, decryptOracle };
             }
         }
     }
@@ -342,34 +347,91 @@ namespace TestVectorTests {
         [SkippableTheory]
         [ClassData (typeof(DecryptTestVectors))]
         public void CanDecryptTestVector(
+            string vectorId,
             TestVector vector,
             Dictionary<string, Key> keyMap,
             byte[] expectedPlaintext,
             string expectedError,
             MemoryStream ciphertextStream
         ) {
-            IAwsEncryptionSdk encryptionSdkClient = new AwsEncryptionSdkClient();
-
-            ICryptographicMaterialsManager cmm = CmmFactory.DecryptCmm(vector, keyMap);
-
-            DecryptInput decryptInput = new DecryptInput
+            if (expectedPlaintext != null && expectedError != null)
             {
-                Ciphertext = ciphertextStream,
-                MaterialsManager = cmm,
-            };
-            DecryptOutput decryptOutput = encryptionSdkClient.Decrypt(decryptInput);
+                throw new ArgumentException(
+                    $"Test vector {vectorId} has both plaintext and error in its expected result, this is not possible"
+                );
+            }
 
-            byte[] result = decryptOutput.Plaintext.ToArray();
-            Assert.Equal(expectedPlaintext, result);
+            // TODO remove
+            if (vector.MasterKeys.Any(masterKey => masterKey.Key != null && masterKey.Key.StartsWith("rsa")))
+            {
+                throw new Exception($"RSA keyrings not yet supported");
+            }
+            // End TODO
+
+            try
+            {
+                IAwsEncryptionSdk encryptionSdkClient = new AwsEncryptionSdkClient();
+
+                ICryptographicMaterialsManager cmm = CmmFactory.DecryptCmm(vector, keyMap);
+
+                DecryptInput decryptInput = new DecryptInput
+                {
+                    Ciphertext = ciphertextStream,
+                    MaterialsManager = cmm,
+                };
+                DecryptOutput decryptOutput = encryptionSdkClient.Decrypt(decryptInput);
+
+                if (expectedError != null)
+                {
+                    throw new Exception(
+                        $"Test vector {vectorId} succeeded when it shouldn't have"
+                    );
+                }
+
+
+                byte[] result = decryptOutput.Plaintext.ToArray();
+                Assert.Equal(expectedPlaintext, result);
+            }
+            catch (Exception)
+            {
+                if (expectedPlaintext != null)
+                {
+                    // Test was not expected to fail
+                    // TODO: don't allow DafnyHalt and maybe some other set of exceptions that we know are not right
+                    throw;
+                }
+
+                if (expectedError != null)
+                {
+                    // TODO: maybe do some comparison on error messages. Or if not, at least make sure the types are
+                    // right? A DafnyHalt exception is definitely bad.
+                    // For now, suffice to say the test correctly failed.
+                }
+            }
         }
 
         #pragma warning disable xUnit1026 // Suppress Unused argument warnings for vectorID.
         [Theory]
         [ClassData (typeof(EncryptTestVectors))]
         public void CanEncryptTestVector(
-            string vectorID, ICryptographicMaterialsManager cmm, byte[] plaintext, HttpClient client, string decryptOracle
+            string vectorID,
+            TestVector vector,
+            Dictionary<string, Key> keyMap,
+            byte[] plaintext,
+            HttpClient client,
+            string decryptOracle
         ) {
+            // TODO remove
+            if (vector.MasterKeys.Any(masterKey => masterKey.Key != null && masterKey.Key.StartsWith("rsa")))
+            {
+                throw new Exception($"RSA keyrings not yet supported");
+            }
+            // End TODO
+
             IAwsEncryptionSdk encryptionSdkClient = new AwsEncryptionSdkClient();
+
+            ICryptographicMaterialsManager cmm = CmmFactory.DecryptCmm(vector, keyMap);
+
             EncryptInput encryptInput = new EncryptInput
             {
                 Plaintext = new MemoryStream(plaintext),
