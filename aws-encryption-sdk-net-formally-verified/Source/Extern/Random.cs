@@ -9,7 +9,7 @@ using ibyteseq = Dafny.ISequence<byte>;
 
 namespace ExternRandom {
     public partial class __default {
-        public static Wrappers_Compile.Result<ibyteseq, icharseq> GenerateBytes(int i) {
+        public static Wrappers_Compile._IResult<ibyteseq, icharseq> GenerateBytes(int i) {
             try {
                 RandomNumberGenerator rng = RandomNumberGenerator.Create();
                 byte[] z = new byte[i];
