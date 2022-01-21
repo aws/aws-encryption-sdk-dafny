@@ -20,14 +20,14 @@ namespace HMAC {
 
         private Org.BouncyCastle.Crypto.Macs.HMac hmac;
 
-        public HMac(Digests digest) {
+        public HMac(_IDigests digest) {
             Org.BouncyCastle.Crypto.IDigest bouncyCastleDigest;
             if(digest.is_SHA__256) {
                 bouncyCastleDigest = new Org.BouncyCastle.Crypto.Digests.Sha256Digest();
             } else if(digest.is_SHA__384) {
                 bouncyCastleDigest = new Org.BouncyCastle.Crypto.Digests.Sha384Digest();
             } else {
-                throw new UnsupportedDigestException(digest);
+                throw new UnsupportedDigestException((Digests)digest);
             }
             hmac = new Org.BouncyCastle.Crypto.Macs.HMac(bouncyCastleDigest);
         }

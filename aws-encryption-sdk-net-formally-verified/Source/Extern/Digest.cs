@@ -18,13 +18,13 @@ namespace ExternDigest {
     }
 
     public partial class __default {
-        public static Result<ibyteseq, icharseq> Digest(CryptoDatatypes_Compile.DigestAlgorithm alg, ibyteseq msg) {
+        public static _IResult<ibyteseq, icharseq> Digest(CryptoDatatypes_Compile._IDigestAlgorithm alg, ibyteseq msg) {
             try {
                 System.Security.Cryptography.HashAlgorithm hashAlgorithm;
                 if (alg.is_SHA__512) {
                     hashAlgorithm = System.Security.Cryptography.SHA512.Create();
                 } else {
-                    throw new DigestUnsupportedException(alg);
+                    throw new DigestUnsupportedException((CryptoDatatypes_Compile.DigestAlgorithm)alg);
                 }
                 byte[] digest = hashAlgorithm.ComputeHash(msg.Elements);
                 return Result<ibyteseq, icharseq>.create_Success(byteseq.FromArray(digest));
