@@ -234,12 +234,7 @@ module
       //# The keyring MUST perform the following actions on each encrypted data
       //# key (structures.md#encrypted-data-key) in the input encrypted data
       //# key list, serially, until it successfully decrypts one.
-      var i := 0;
-      while i < |input.encryptedDataKeys|
-        invariant
-          forall prevIndex :: 0 <= prevIndex < i
-        ==>
-          && prevIndex < |input.encryptedDataKeys|
+      for i := 0 to |input.encryptedDataKeys|
       {
         if ShouldDecryptEDK(input.encryptedDataKeys[i]) {
 
@@ -250,10 +245,12 @@ module
           );
             
           var ptKeyRes := this.Decrypt(iv, encryptionOutput, input.materials.encryptionContext);
-          if
-            && ptKeyRes.Success?
-            && GetSuite(materials.algorithmSuiteId).encrypt.keyLength as int == |ptKeyRes.Extract()|
+          if ptKeyRes.Success?
           {
+            :- Need(
+              GetSuite(materials.algorithmSuiteId).encrypt.keyLength as int == |ptKeyRes.Extract()|,
+              "Plaintext Data Key is not the expected length" // this should never happen
+            );
             //= compliance/framework/raw-aes-keyring.txt#2.7.2
             //# If a decryption succeeds, this keyring MUST add the resulting
             //# plaintext data key to the decryption materials and return the
@@ -262,7 +259,6 @@ module
             return Success(Crypto.OnDecryptOutput(materials:=r));
           }
         }
-        i := i + 1;
       }
       //= compliance/framework/raw-aes-keyring.txt#2.7.2
       //# If no decryption succeeds, the keyring MUST fail and MUST NOT modify
