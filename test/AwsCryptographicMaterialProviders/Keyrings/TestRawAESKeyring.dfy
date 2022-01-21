@@ -179,10 +179,55 @@ module TestRawAESKeyring {
     expect decryptionMaterialsOut.IsFailure();
   }
 
-  // TODO test for multiple EDKS for OnDecrypt
-  // TODO possibly test failure for one?
-  // or is it easier to verify this...
+  method {:test} TestOnDecryptBadAndGoodEdkSucceeds()
+  {
+    var namespace, name := TestUtils.NamespaceAndName(0);
+    var rawAESKeyring := new RawAESKeyring.RawAESKeyring(
+      namespace,
+      name,
+      seq(32, i => 0),
+      AESEncryption.AES_GCM(
+        keyLength := 32 as AESEncryption.KeyLength,
+        tagLength := 16 as AESEncryption.TagLength,
+        ivLength := 12 as AESEncryption.IVLength
+      ));
+    var pdk := seq(32, i => 0);
+    var wrappingAlgorithmID := Crypto.ALG_AES_256_GCM_IV12_TAG16_NO_KDF;
+    var encryptionContext := TestUtils.SmallEncryptionContext(TestUtils.SmallEncryptionContextVariation.A);
+    var encryptionMaterialsIn := Crypto.EncryptionMaterials(
+      encryptionContext:=encryptionContext,
+      algorithmSuiteId:=wrappingAlgorithmID,
+      plaintextDataKey:=Some(pdk),
+      encryptedDataKeys:=[],
+      signingKey:=None()
+    );
+    var encryptionMaterialsOut :- expect rawAESKeyring.OnEncrypt(
+      Crypto.OnEncryptInput(materials:=encryptionMaterialsIn)
+    );
+    expect |encryptionMaterialsOut.materials.encryptedDataKeys| == 1;
+    var edk := encryptionMaterialsOut.materials.encryptedDataKeys[0];
+    
+    var decryptionMaterialsIn := Crypto.DecryptionMaterials(
+      encryptionContext:=encryptionContext,
+      algorithmSuiteId:=wrappingAlgorithmID,
+      plaintextDataKey:=None(),
+      verificationKey:=None()
+    );
+    var fakeEdk: Crypto.EncryptedDataKey := Crypto.EncryptedDataKey(
+      keyProviderId := edk.keyProviderId,
+      keyProviderInfo := edk.keyProviderInfo,
+      ciphertext := seq(|edk.ciphertext|, i => 0)
+    );  
+    var decryptionMaterialsOut :- expect rawAESKeyring.OnDecrypt(
+      Crypto.OnDecryptInput(
+        materials:=decryptionMaterialsIn,
+        encryptedDataKeys:=[fakeEdk, edk]
+      )
+    );
+    expect decryptionMaterialsOut.materials.plaintextDataKey == Some(pdk);
+  }
 
+  
   // TODO test with EDK that shouldn't be decrypted, so with another Keyring e.g.
 
   //= compliance/framework/raw-aes-keyring.txt#2.7.1

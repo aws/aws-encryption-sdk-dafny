@@ -193,7 +193,6 @@ module
     //# materials) and a list of encrypted data keys
     //# (structures.md#encrypted-data-key) as input.
     method OnDecrypt(input: Crypto.OnDecryptInput)
-
       returns (res: Result<Crypto.OnDecryptOutput, string>)
       ensures res.Success?
       ==>
@@ -223,50 +222,80 @@ module
       var materials := input.materials;
       :- Need(
         Materials.DecryptionMaterialsWithoutPlaintextDataKey(materials),
-        "Keyring received decryption materials that already contain a plaintext data key.");
+        "Keyring received decryption materials that already contain a plaintext data key."
+      );
 
+      var aad :- EncryptionContextToAAD(input.materials.encryptionContext);
+      :- Need(|wrappingKey|== wrappingAlgorithm.keyLength as int,
+        "The wrapping key does not match the wrapping algorithm"
+      );
+      
       //= compliance/framework/raw-aes-keyring.txt#2.7.2
       //# The keyring MUST perform the following actions on each encrypted data
       //# key (structures.md#encrypted-data-key) in the input encrypted data
       //# key list, serially, until it successfully decrypts one.
-      var i := 0;
-      while i < |input.encryptedDataKeys|
-        invariant forall prevIndex :: 0 <= prevIndex < i ==> prevIndex < |input.encryptedDataKeys| && !(ShouldDecryptEDK(input.encryptedDataKeys[prevIndex]))
+      for i := 0 to |input.encryptedDataKeys|
       {
         if ShouldDecryptEDK(input.encryptedDataKeys[i]) {
-          var aad :- EncryptionContextToAAD(input.materials.encryptionContext);
+
           var iv := GetIvFromProvInfo(input.encryptedDataKeys[i].keyProviderInfo);
-          var encryptionOutput := DeserializeEDKCiphertext(input.encryptedDataKeys[i].ciphertext, wrappingAlgorithm.tagLength as nat);
-
-          :- Need(|wrappingKey|== wrappingAlgorithm.keyLength as int, "");
-          :- Need(|iv| == wrappingAlgorithm.ivLength as int, "");
-
-          // TODO add back in duvet annotations
-          var ptKey :- AESEncryption.AESDecrypt(
-            wrappingAlgorithm,
-            wrappingKey,
-            encryptionOutput.cipherText,
-            encryptionOutput.authTag,
-            iv,
-            aad
+          var encryptionOutput := DeserializeEDKCiphertext(
+            input.encryptedDataKeys[i].ciphertext,
+            wrappingAlgorithm.tagLength as nat
           );
-
-          :- Need(GetSuite(materials.algorithmSuiteId).encrypt.keyLength as int == |ptKey|, "Decryption failed: bad datakey length.");
-
-          //= compliance/framework/raw-aes-keyring.txt#2.7.2
-          //# If a decryption succeeds, this keyring MUST add the resulting
-          //# plaintext data key to the decryption materials and return the
-          //# modified materials.
-          var r :- Materials.DecryptionMaterialsAddDataKey(materials, ptKey);
-          return Success(Crypto.OnDecryptOutput(materials:=r));
+            
+          var ptKeyRes := this.Decrypt(iv, encryptionOutput, input.materials.encryptionContext);
+          if ptKeyRes.Success?
+          {
+            :- Need(
+              GetSuite(materials.algorithmSuiteId).encrypt.keyLength as int == |ptKeyRes.Extract()|,
+              "Plaintext Data Key is not the expected length" // this should never happen
+            );
+            //= compliance/framework/raw-aes-keyring.txt#2.7.2
+            //# If a decryption succeeds, this keyring MUST add the resulting
+            //# plaintext data key to the decryption materials and return the
+            //# modified materials.
+            var r :- Materials.DecryptionMaterialsAddDataKey(materials, ptKeyRes.Extract());
+            return Success(Crypto.OnDecryptOutput(materials:=r));
+          }
         }
-        i := i + 1;
       }
       //= compliance/framework/raw-aes-keyring.txt#2.7.2
       //# If no decryption succeeds, the keyring MUST fail and MUST NOT modify
       //# the decryption materials (structures.md#decryption-materials).
       return Failure("Unable to decrypt data key: No Encrypted Data Keys found to match.");
     }
+
+    //TODO This needs to be a private method
+    method Decrypt(
+      iv: seq<uint8>,
+      encryptionOutput: AESEncryption.EncryptionOutput,
+      encryptionContext: Crypto.EncryptionContext
+    ) returns (res: Result<seq<uint8>, string>)
+      requires |encryptionOutput.authTag| == wrappingAlgorithm.tagLength as int
+      requires |wrappingKey| == wrappingAlgorithm.keyLength as int
+      ensures
+        res.Success?
+      ==>
+        && EncryptionContextToAAD(encryptionContext).Success?
+        && AESEncryption.PlaintextDecryptedWithAAD(
+          res.value,
+          EncryptionContextToAAD(encryptionContext).value
+        )
+    {
+      :- Need(|iv| == wrappingAlgorithm.ivLength as int, "");
+      var aad :- EncryptionContextToAAD(encryptionContext);
+      var ptKey: seq<uint8> :- AESEncryption.AESDecrypt(
+        wrappingAlgorithm,
+        wrappingKey,
+        encryptionOutput.cipherText,
+        encryptionOutput.authTag,
+        iv,
+        aad
+      );
+      return Success(ptKey);  
+    }
+    
 
     function method SerializeProviderInfo(iv: seq<uint8>): seq<uint8>
       requires |iv| == wrappingAlgorithm.ivLength as int
@@ -313,7 +342,10 @@ module
     }
   }
 
-  function method DeserializeEDKCiphertext(ciphertext: seq<uint8>, tagLen: nat): (encOutput: AESEncryption.EncryptionOutput)
+  function method DeserializeEDKCiphertext(
+    ciphertext: seq<uint8>,
+    tagLen: nat
+  ): ( encOutput: AESEncryption.EncryptionOutput)
     requires tagLen <= |ciphertext|
     ensures |encOutput.authTag| == tagLen
   {
