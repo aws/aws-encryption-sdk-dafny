@@ -1,11 +1,14 @@
 // Copyright Amazon.com Inc. or its affiliates. All Rights Reserved.
 // SPDX-License-Identifier: Apache-2.0
 
+using System;
+using System.Security.Cryptography;
+using Dafny;
 using Org.BouncyCastle.Crypto;
 using Org.BouncyCastle.Crypto.Engines;
 using Org.BouncyCastle.Crypto.Modes;
 using Org.BouncyCastle.Crypto.Parameters;
-
+using Org.BouncyCastle.Security;
 using Wrappers_Compile;
 using ibyteseq = Dafny.ISequence<byte>;
 using byteseq = Dafny.Sequence<byte>;
@@ -40,23 +43,29 @@ namespace AESEncryption {
             }
         }
 
-        public static _IResult<ibyteseq, icharseq> AESDecryptExtern(AESEncryption._IAES__GCM encAlg, ibyteseq key, ibyteseq cipherText, ibyteseq authTag, ibyteseq iv, ibyteseq aad) {
+        public static _IResult<ibyteseq, icharseq> AESDecryptExtern(
+            AESEncryption._IAES__GCM encAlg,
+            ibyteseq key,
+            ibyteseq cipherText,
+            ibyteseq authTag,
+            ibyteseq iv,
+            ibyteseq aad
+        ) {
             try {
-                var cipher = new GcmBlockCipher(new AesEngine());
                 var param = new AeadParameters(
                     new KeyParameter(key.Elements),
                     ((AESEncryption.AES__GCM)encAlg).tagLength * 8,
                     iv.Elements,
                     aad.Elements);
+                var cipher = CipherUtilities.GetCipher("AES/GCM/NoPadding");
                 cipher.Init(false, param);
                 var ctx = byteseq.Concat(cipherText, authTag);
                 var pt = new byte[cipher.GetOutputSize(ctx.Elements.Length)];
-                var len = cipher.ProcessBytes(ctx.Elements, 0, ctx.Elements.Length, pt, 0);
-                cipher.DoFinal(pt, len); //Check message authentication tag
+                cipher.DoFinal(ctx.Elements, pt, 0);
                 return Result<ibyteseq, icharseq>.create_Success(byteseq.FromArray(pt));
             } catch(InvalidCipherTextException macEx) {
                 return DafnyFFI.CreateFailure<ibyteseq>(macEx.ToString());
-            } catch {
+            } catch (Exception e) {
                 return DafnyFFI.CreateFailure<ibyteseq>("aes decrypt err");
             }
         }
