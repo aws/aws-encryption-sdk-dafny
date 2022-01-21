@@ -30,14 +30,12 @@ module {:extern "Dafny.Aws.Esdk.AwsEncryptionSdkClient"} AwsEncryptionSdk {
         }
 
         method Encrypt(input: Esdk.EncryptInput) returns (res: Result<Esdk.EncryptOutput, string>)
-            requires input.Valid()
         {
             var encryptRequest := EncryptDecrypt.EncryptRequest.WithCMM(input.plaintext, input.materialsManager).SetEncryptionContext(input.encryptionContext);
             var e :- expect EncryptDecrypt.Encrypt(encryptRequest);
             return Success(Esdk.EncryptOutput(ciphertext:=e));
         }
         method Decrypt(input: Esdk.DecryptInput) returns (res: Result<Esdk.DecryptOutput, string>)
-            requires input.Valid()
         {
             var decryptRequest := EncryptDecrypt.DecryptRequest.WithCMM(input.ciphertext, input.materialsManager);
             var d :- expect EncryptDecrypt.Decrypt(decryptRequest);
