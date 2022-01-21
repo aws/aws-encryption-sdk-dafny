@@ -111,6 +111,20 @@ namespace Aws.Esdk
                 ToDafny_N3_aws__N4_esdk__S13_EncryptOutput__M10_ciphertext(value.Ciphertext));
         }
 
+        public static Aws.Esdk.ConfigurationDefaults FromDafny_N3_aws__N4_esdk__S21_ConfigurationDefaults(
+            Dafny.Aws.Esdk._IConfigurationDefaults value)
+        {
+            if (value.is_V1) return Aws.Esdk.ConfigurationDefaults.V1;
+            throw new System.ArgumentException("Invalid Aws.Esdk.ConfigurationDefaults value");
+        }
+
+        public static Dafny.Aws.Esdk._IConfigurationDefaults ToDafny_N3_aws__N4_esdk__S21_ConfigurationDefaults(
+            Aws.Esdk.ConfigurationDefaults value)
+        {
+            if (Aws.Esdk.ConfigurationDefaults.V1.Equals(value)) return Dafny.Aws.Esdk.ConfigurationDefaults.create();
+            throw new System.ArgumentException("Invalid Aws.Esdk.ConfigurationDefaults value");
+        }
+
         public static string FromDafny_N3_aws__N6_crypto__S9_Utf8Bytes(Dafny.ISequence<byte> value)
         {
             System.Text.UTF8Encoding utf8 = new System.Text.UTF8Encoding(false, true);
@@ -188,6 +202,20 @@ namespace Aws.Esdk
                     ToDafny_N3_aws__N6_crypto__S16_AlgorithmSuiteId((Aws.Crypto.AlgorithmSuiteId) value));
         }
 
+        public static Aws.Esdk.ConfigurationDefaults
+            FromDafny_N3_aws__N4_esdk__S28_AwsEncryptionSdkClientConfig__M14_configDefaults(
+                Dafny.Aws.Esdk._IConfigurationDefaults value)
+        {
+            return FromDafny_N3_aws__N4_esdk__S21_ConfigurationDefaults(value);
+        }
+
+        public static Dafny.Aws.Esdk._IConfigurationDefaults
+            ToDafny_N3_aws__N4_esdk__S28_AwsEncryptionSdkClientConfig__M14_configDefaults(
+                Aws.Esdk.ConfigurationDefaults value)
+        {
+            return ToDafny_N3_aws__N4_esdk__S21_ConfigurationDefaults(value);
+        }
+
         public static System.IO.MemoryStream FromDafny_N3_aws__N4_esdk__S12_DecryptInput__M10_ciphertext(
             Dafny.ISequence<byte> value)
         {
@@ -198,6 +226,25 @@ namespace Aws.Esdk
             System.IO.MemoryStream value)
         {
             return ToDafny_N6_smithy__N3_api__S4_Blob(value);
+        }
+
+        public static Aws.Esdk.AwsEncryptionSdkClientConfig FromDafny_N3_aws__N4_esdk__S28_AwsEncryptionSdkClientConfig(
+            Dafny.Aws.Esdk._IAwsEncryptionSdkClientConfig value)
+        {
+            Dafny.Aws.Esdk.AwsEncryptionSdkClientConfig concrete = (Dafny.Aws.Esdk.AwsEncryptionSdkClientConfig) value;
+            Aws.Esdk.AwsEncryptionSdkClientConfig converted = new Aws.Esdk.AwsEncryptionSdkClientConfig();
+            converted.ConfigDefaults =
+                (Aws.Esdk.ConfigurationDefaults)
+                FromDafny_N3_aws__N4_esdk__S28_AwsEncryptionSdkClientConfig__M14_configDefaults(
+                    concrete.configDefaults);
+            return converted;
+        }
+
+        public static Dafny.Aws.Esdk._IAwsEncryptionSdkClientConfig
+            ToDafny_N3_aws__N4_esdk__S28_AwsEncryptionSdkClientConfig(Aws.Esdk.AwsEncryptionSdkClientConfig value)
+        {
+            return new Dafny.Aws.Esdk.AwsEncryptionSdkClientConfig(
+                ToDafny_N3_aws__N4_esdk__S28_AwsEncryptionSdkClientConfig__M14_configDefaults(value.ConfigDefaults));
         }
 
         public static System.IO.MemoryStream FromDafny_N3_aws__N4_esdk__S12_EncryptInput__M9_plaintext(

@@ -59,7 +59,8 @@ module {:extern "Dafny.Aws.Crypto"} Aws.Crypto {
         GrantToken,
         GrantTokenList,
         IAwsCryptographicMaterialsProviderClient,
-        AesWrappingAlg
+        AesWrappingAlg,
+        CommitmentPolicy
 
     /////////////
     // kms.smithy

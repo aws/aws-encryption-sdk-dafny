@@ -21,7 +21,13 @@ module {:extern "Dafny.Aws.Esdk.AwsEncryptionSdkClient"} AwsEncryptionSdk {
   import EncryptDecrypt
 
   class AwsEncryptionSdkClient extends Esdk.IAwsEncryptionSdkClient {
-        constructor () {}
+        const config: Esdk.AwsEncryptionSdkClientConfig;
+
+        constructor (config: Esdk.AwsEncryptionSdkClientConfig)
+            ensures this.config == config
+        {
+            this.config := config;
+        }
 
         method Encrypt(input: Esdk.EncryptInput) returns (res: Result<Esdk.EncryptOutput, string>)
             requires input.Valid()

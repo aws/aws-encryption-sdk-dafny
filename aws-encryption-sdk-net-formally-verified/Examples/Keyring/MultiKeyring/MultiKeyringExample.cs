@@ -11,6 +11,7 @@ using Aws.Esdk;
 using Org.BouncyCastle.Security;
 using Org.BouncyCastle.Utilities; // In this example, we use BouncyCastle to generate a wrapping key.
 using Xunit;
+using ConfigurationDefaults = Aws.Esdk.ConfigurationDefaults;
 
 /// Demonstrate an encrypt/decrypt cycle using a Multi keyring consisting of an AWS KMS Keyring and
 /// a raw AES keyring.
@@ -31,7 +32,11 @@ public class MultiKeyringExample {
         // Create clients to access the Encryption SDK APIs.
         // TODO: add client configuration objects
         IAwsCryptographicMaterialProviders materialProviders = new AwsCryptographicMaterialProvidersClient();
-        IAwsEncryptionSdk encryptionSdkClient = new AwsEncryptionSdkClient();
+        AwsEncryptionSdkClientConfig config = new AwsEncryptionSdkClientConfig
+        {
+            ConfigDefaults = ConfigurationDefaults.V1
+        };
+        IAwsEncryptionSdk encryptionSdkClient = new AwsEncryptionSdkClient(config);
 
         // Create a KMS keyring to use as the generator
         // TODO

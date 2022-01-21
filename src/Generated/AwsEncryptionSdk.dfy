@@ -58,23 +58,23 @@ module {:extern "Dafny.Aws.Esdk"} Aws.Esdk {
         }
     }
 
-    // datatype AwsEncryptionSdkClientConfig = AwsEncryptionSdkClientConfig(
-    //     nameonly commitmentPolicy: string,
-    //     nameonly maxEncryptedEdks: int,
-    //     nameonly configDefaults: ConfigurationDefaults
-    // )
-    // {
-    //     predicate Valid() {
-    //         true
-    //     }
-    // }
+    datatype AwsEncryptionSdkClientConfig = AwsEncryptionSdkClientConfig(
+        //nameonly commitmentPolicy: Crypto.CommitmentPolicy,
+        //nameonly maxEncryptedEdks: int,
+        nameonly configDefaults: ConfigurationDefaults
+    )
+    {
+        predicate Valid() {
+            true
+        }
+    }
+
+    datatype ConfigurationDefaults = V1
 
     trait {:termination false} IAwsEncryptionSdkClient {
         method Encrypt(input: EncryptInput) returns (res: Result<EncryptOutput, string>)
             requires input.Valid()
         method Decrypt(input: DecryptInput) returns (res: Result<DecryptOutput, string>)
             requires input.Valid()
-        // TODO I can't seem to find a way to get this to work
-        // static method {:extern "createClient"} createClient(clientConfig: AwsEncryptionSdkClientConfig) returns (res: IAwsEncryptionSdkClient)
     }
 }
