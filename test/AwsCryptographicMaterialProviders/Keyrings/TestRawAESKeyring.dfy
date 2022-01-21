@@ -179,8 +179,6 @@ module TestRawAESKeyring {
     expect decryptionMaterialsOut.IsFailure();
   }
 
-  // TODO test for multiple EDKS for OnDecrypt
-  // TODO possibly test failure for one?
   method {:test} TestOnDecryptBadAndGoodEdkSucceeds()
   {
     var namespace, name := TestUtils.NamespaceAndName(0);
@@ -230,8 +228,6 @@ module TestRawAESKeyring {
   }
 
   
-  // or is it easier to verify this...
-
   // TODO test with EDK that shouldn't be decrypted, so with another Keyring e.g.
 
   //= compliance/framework/raw-aes-keyring.txt#2.7.1

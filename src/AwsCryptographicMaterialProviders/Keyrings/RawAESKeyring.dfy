@@ -227,7 +227,7 @@ module
 
       var aad :- EncryptionContextToAAD(input.materials.encryptionContext);
       :- Need(|wrappingKey|== wrappingAlgorithm.keyLength as int,
-        "The wrapping key does not match the wrapping algoritm"
+        "The wrapping key does not match the wrapping algorithm"
       );
       
       //= compliance/framework/raw-aes-keyring.txt#2.7.2
