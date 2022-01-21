@@ -300,19 +300,7 @@ module
       //= compliance/framework/raw-rsa-keyring.txt#2.6.2
       //# The keyring MUST attempt to decrypt the input encrypted data keys, in
       //# list order, until it successfully decrypts one.
-      var i := 0;
-      while i < |input.encryptedDataKeys|
-        invariant
-          forall prevIndex :: 0 <= prevIndex < i
-        ==>
-          && prevIndex < |input.encryptedDataKeys|
-          // The following lines would prove that all former keys either should not be decrypted
-          // OR the decryption failed. But, we do not know how to proove that decryption failed on
-          // the previous index.
-      //     && (
-      //       || !ShouldDecryptEDK(input.encryptedDataKeys[prevIndex])
-      //       || DecryptFailed(input.encryptedDataKeys[prevIndex])
-      //     )
+      for i := 0 to |input.encryptedDataKeys|
       {
         if ShouldDecryptEDK(input.encryptedDataKeys[i]) {
           var edk := input.encryptedDataKeys[i];
@@ -337,7 +325,6 @@ module
             return Success(Crypto.OnDecryptOutput(materials := r));
           }
         }
-        i := i + 1;
       }
       //= compliance/framework/raw-rsa-keyring.txt#2.6.2
       //# If no decryption succeeds, the keyring MUST fail and MUST NOT modify
@@ -374,14 +361,6 @@ module
       && edk.keyProviderInfo == this.keyName
       && edk.keyProviderId == this.keyNamespace
       && |edk.ciphertext| > 0
-    }
-
-    // TODO: Complete predicate so that it can be used to prove that
-    // all previous attempted edk decryptions failed
-    predicate {:opaque} DecryptFailed(edk: Crypto.EncryptedDataKey)
-      requires this.privateKey.Some? && |this.privateKey.Extract()| > 0
-    {
-      true
     }
 
     //TODO :: What external method can we use to verify a pem is a pem?
