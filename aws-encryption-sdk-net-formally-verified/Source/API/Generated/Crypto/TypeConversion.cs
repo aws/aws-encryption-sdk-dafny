@@ -392,6 +392,41 @@ namespace Aws.Crypto
             return ToDafny_N6_smithy__N3_api__S4_Blob(value);
         }
 
+        public static Aws.Crypto.CreateRawRsaKeyringInput FromDafny_N3_aws__N6_crypto__S24_CreateRawRsaKeyringInput(
+            Dafny.Aws.Crypto._ICreateRawRsaKeyringInput value)
+        {
+            Dafny.Aws.Crypto.CreateRawRsaKeyringInput concrete = (Dafny.Aws.Crypto.CreateRawRsaKeyringInput) value;
+            Aws.Crypto.CreateRawRsaKeyringInput converted = new Aws.Crypto.CreateRawRsaKeyringInput();
+            converted.KeyNamespace =
+                (string) FromDafny_N3_aws__N6_crypto__S24_CreateRawRsaKeyringInput__M12_keyNamespace(
+                    concrete.keyNamespace);
+            converted.KeyName =
+                (string) FromDafny_N3_aws__N6_crypto__S24_CreateRawRsaKeyringInput__M7_keyName(concrete.keyName);
+            converted.PaddingScheme =
+                (Aws.Crypto.PaddingScheme) FromDafny_N3_aws__N6_crypto__S24_CreateRawRsaKeyringInput__M13_paddingScheme(
+                    concrete.paddingScheme);
+            if (concrete.publicKey.is_Some)
+                converted.PublicKey =
+                    (System.IO.MemoryStream) FromDafny_N3_aws__N6_crypto__S24_CreateRawRsaKeyringInput__M9_publicKey(
+                        concrete.publicKey);
+            if (concrete.privateKey.is_Some)
+                converted.PrivateKey =
+                    (System.IO.MemoryStream) FromDafny_N3_aws__N6_crypto__S24_CreateRawRsaKeyringInput__M10_privateKey(
+                        concrete.privateKey);
+            return converted;
+        }
+
+        public static Dafny.Aws.Crypto._ICreateRawRsaKeyringInput
+            ToDafny_N3_aws__N6_crypto__S24_CreateRawRsaKeyringInput(Aws.Crypto.CreateRawRsaKeyringInput value)
+        {
+            return new Dafny.Aws.Crypto.CreateRawRsaKeyringInput(
+                ToDafny_N3_aws__N6_crypto__S24_CreateRawRsaKeyringInput__M12_keyNamespace(value.KeyNamespace),
+                ToDafny_N3_aws__N6_crypto__S24_CreateRawRsaKeyringInput__M7_keyName(value.KeyName),
+                ToDafny_N3_aws__N6_crypto__S24_CreateRawRsaKeyringInput__M13_paddingScheme(value.PaddingScheme),
+                ToDafny_N3_aws__N6_crypto__S24_CreateRawRsaKeyringInput__M9_publicKey(value.PublicKey),
+                ToDafny_N3_aws__N6_crypto__S24_CreateRawRsaKeyringInput__M10_privateKey(value.PrivateKey));
+        }
+
         public static Aws.Crypto.CreateMrkAwareDiscoveryAwsKmsKeyringInput
             FromDafny_N3_aws__N6_crypto__S41_CreateMrkAwareDiscoveryAwsKmsKeyringInput(
                 Dafny.Aws.Crypto._ICreateMrkAwareDiscoveryAwsKmsKeyringInput value)
@@ -431,40 +466,6 @@ namespace Aws.Crypto
                 ToDafny_N3_aws__N6_crypto__S41_CreateMrkAwareDiscoveryAwsKmsKeyringInput__M11_grantTokens(
                     value.GrantTokens),
                 ToDafny_N3_aws__N6_crypto__S41_CreateMrkAwareDiscoveryAwsKmsKeyringInput__M6_region(value.Region));
-        }
-
-        public static Aws.Crypto.CreateRawRsaKeyringInput FromDafny_N3_aws__N6_crypto__S24_CreateRawRsaKeyringInput(
-            Dafny.Aws.Crypto.CreateRawRsaKeyringInput value)
-        {
-            Aws.Crypto.CreateRawRsaKeyringInput converted = new Aws.Crypto.CreateRawRsaKeyringInput();
-            converted.KeyNamespace =
-                (string) FromDafny_N3_aws__N6_crypto__S24_CreateRawRsaKeyringInput__M12_keyNamespace(
-                    value.keyNamespace);
-            converted.KeyName =
-                (string) FromDafny_N3_aws__N6_crypto__S24_CreateRawRsaKeyringInput__M7_keyName(value.keyName);
-            converted.PaddingScheme =
-                (Aws.Crypto.PaddingScheme) FromDafny_N3_aws__N6_crypto__S24_CreateRawRsaKeyringInput__M13_paddingScheme(
-                    value.paddingScheme);
-            if (value.publicKey.is_Some)
-                converted.PublicKey =
-                    (System.IO.MemoryStream) FromDafny_N3_aws__N6_crypto__S24_CreateRawRsaKeyringInput__M9_publicKey(
-                        value.publicKey);
-            if (value.privateKey.is_Some)
-                converted.PrivateKey =
-                    (System.IO.MemoryStream) FromDafny_N3_aws__N6_crypto__S24_CreateRawRsaKeyringInput__M10_privateKey(
-                        value.privateKey);
-            return converted;
-        }
-
-        public static Dafny.Aws.Crypto.CreateRawRsaKeyringInput ToDafny_N3_aws__N6_crypto__S24_CreateRawRsaKeyringInput(
-            Aws.Crypto.CreateRawRsaKeyringInput value)
-        {
-            return new Dafny.Aws.Crypto.CreateRawRsaKeyringInput(
-                ToDafny_N3_aws__N6_crypto__S24_CreateRawRsaKeyringInput__M12_keyNamespace(value.KeyNamespace),
-                ToDafny_N3_aws__N6_crypto__S24_CreateRawRsaKeyringInput__M7_keyName(value.KeyName),
-                ToDafny_N3_aws__N6_crypto__S24_CreateRawRsaKeyringInput__M13_paddingScheme(value.PaddingScheme),
-                ToDafny_N3_aws__N6_crypto__S24_CreateRawRsaKeyringInput__M9_publicKey(value.PublicKey),
-                ToDafny_N3_aws__N6_crypto__S24_CreateRawRsaKeyringInput__M10_privateKey(value.PrivateKey));
         }
 
         public static string FromDafny_N3_aws__N6_crypto__S16_EncryptedDataKey__M15_keyProviderInfo(
@@ -657,7 +658,7 @@ namespace Aws.Crypto
         }
 
         public static Aws.Crypto.PaddingScheme FromDafny_N3_aws__N6_crypto__S13_PaddingScheme(
-            Dafny.Aws.Crypto.PaddingScheme value)
+            Dafny.Aws.Crypto._IPaddingScheme value)
         {
             if (value.is_PKCS1) return Aws.Crypto.PaddingScheme.PKCS1;
             if (value.is_OAEP__SHA1__MGF1) return Aws.Crypto.PaddingScheme.OAEP_SHA1_MGF1;
@@ -667,7 +668,7 @@ namespace Aws.Crypto
             throw new System.ArgumentException("Invalid Aws.Crypto.PaddingScheme value");
         }
 
-        public static Dafny.Aws.Crypto.PaddingScheme ToDafny_N3_aws__N6_crypto__S13_PaddingScheme(
+        public static Dafny.Aws.Crypto._IPaddingScheme ToDafny_N3_aws__N6_crypto__S13_PaddingScheme(
             Aws.Crypto.PaddingScheme value)
         {
             if (Aws.Crypto.PaddingScheme.PKCS1.Equals(value)) return Dafny.Aws.Crypto.PaddingScheme.create_PKCS1();
@@ -1057,12 +1058,12 @@ namespace Aws.Crypto
 
         public static Aws.Crypto.PaddingScheme
             FromDafny_N3_aws__N6_crypto__S24_CreateRawRsaKeyringInput__M13_paddingScheme(
-                Dafny.Aws.Crypto.PaddingScheme value)
+                Dafny.Aws.Crypto._IPaddingScheme value)
         {
             return FromDafny_N3_aws__N6_crypto__S13_PaddingScheme(value);
         }
 
-        public static Dafny.Aws.Crypto.PaddingScheme
+        public static Dafny.Aws.Crypto._IPaddingScheme
             ToDafny_N3_aws__N6_crypto__S24_CreateRawRsaKeyringInput__M13_paddingScheme(Aws.Crypto.PaddingScheme value)
         {
             return ToDafny_N3_aws__N6_crypto__S13_PaddingScheme(value);
@@ -1131,14 +1132,14 @@ namespace Aws.Crypto
         }
 
         public static System.IO.MemoryStream FromDafny_N3_aws__N6_crypto__S24_CreateRawRsaKeyringInput__M9_publicKey(
-            Wrappers_Compile.Option<Dafny.ISequence<byte>> value)
+            Wrappers_Compile._IOption<Dafny.ISequence<byte>> value)
         {
             return value.is_None
                 ? (System.IO.MemoryStream) null
                 : FromDafny_N6_smithy__N3_api__S4_Blob(value.Extract());
         }
 
-        public static Wrappers_Compile.Option<Dafny.ISequence<byte>>
+        public static Wrappers_Compile._IOption<Dafny.ISequence<byte>>
             ToDafny_N3_aws__N6_crypto__S24_CreateRawRsaKeyringInput__M9_publicKey(System.IO.MemoryStream value)
         {
             return value == null
@@ -2124,6 +2125,18 @@ namespace Aws.Crypto
                     value.LimitMessages));
         }
 
+        public static string FromDafny_N3_aws__N6_crypto__S24_CreateRawRsaKeyringInput__M7_keyName(
+            Dafny.ISequence<char> value)
+        {
+            return FromDafny_N6_smithy__N3_api__S6_String(value);
+        }
+
+        public static Dafny.ISequence<char> ToDafny_N3_aws__N6_crypto__S24_CreateRawRsaKeyringInput__M7_keyName(
+            string value)
+        {
+            return ToDafny_N6_smithy__N3_api__S6_String(value);
+        }
+
         public static Amazon.KeyManagementService.IAmazonKeyManagementService
             FromDafny_N3_aws__N6_crypto__S15_GetClientOutput__M6_client(
                 Dafny.Com.Amazonaws.Kms.IKeyManagementServiceClient value)
@@ -2138,27 +2151,15 @@ namespace Aws.Crypto
             return ToDafny_N3_aws__N6_crypto__S18_KmsClientReference(value);
         }
 
-        public static string FromDafny_N3_aws__N6_crypto__S24_CreateRawRsaKeyringInput__M7_keyName(
-            Dafny.ISequence<char> value)
-        {
-            return FromDafny_N6_smithy__N3_api__S6_String(value);
-        }
-
-        public static Dafny.ISequence<char> ToDafny_N3_aws__N6_crypto__S24_CreateRawRsaKeyringInput__M7_keyName(
-            string value)
-        {
-            return ToDafny_N6_smithy__N3_api__S6_String(value);
-        }
-
         public static System.IO.MemoryStream FromDafny_N3_aws__N6_crypto__S24_CreateRawRsaKeyringInput__M10_privateKey(
-            Wrappers_Compile.Option<Dafny.ISequence<byte>> value)
+            Wrappers_Compile._IOption<Dafny.ISequence<byte>> value)
         {
             return value.is_None
                 ? (System.IO.MemoryStream) null
                 : FromDafny_N6_smithy__N3_api__S4_Blob(value.Extract());
         }
 
-        public static Wrappers_Compile.Option<Dafny.ISequence<byte>>
+        public static Wrappers_Compile._IOption<Dafny.ISequence<byte>>
             ToDafny_N3_aws__N6_crypto__S24_CreateRawRsaKeyringInput__M10_privateKey(System.IO.MemoryStream value)
         {
             return value == null
