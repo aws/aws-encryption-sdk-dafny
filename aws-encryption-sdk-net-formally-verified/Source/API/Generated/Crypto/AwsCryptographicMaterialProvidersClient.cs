@@ -81,7 +81,7 @@ namespace Aws.Crypto
 
         protected override Aws.Crypto.IKeyring _CreateRawRsaKeyring(Aws.Crypto.CreateRawRsaKeyringInput input)
         {
-            Dafny.Aws.Crypto.CreateRawRsaKeyringInput internalInput =
+            Dafny.Aws.Crypto._ICreateRawRsaKeyringInput internalInput =
                 TypeConversion.ToDafny_N3_aws__N6_crypto__S24_CreateRawRsaKeyringInput(input);
             Dafny.Aws.Crypto.IKeyring internalOutput =
                 this._impl.CreateRawRsaKeyring(internalInput);
