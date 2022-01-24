@@ -26,7 +26,9 @@ module {:extern "Dafny.Aws.Crypto"} Aws.Crypto {
         IAwsCryptographicMaterialsProviderClient.CreateAwsKmsDiscoveryKeyring,
         IAwsCryptographicMaterialsProviderClient.CreateMrkAwareStrictAwsKmsKeyring,
         IAwsCryptographicMaterialsProviderClient.CreateMrkAwareDiscoveryAwsKmsKeyring,
-        IAwsCryptographicMaterialsProviderClient.CreateMultiKeyring
+        IAwsCryptographicMaterialsProviderClient.CreateMultiKeyring,
+        IAwsCryptographicMaterialsProviderClient.CreateRawRsaKeyring
+
       reveals
         AlgorithmSuiteId,
         EncryptedDataKey,
@@ -48,6 +50,7 @@ module {:extern "Dafny.Aws.Crypto"} Aws.Crypto {
         CreateRawAesKeyringInput,
         CreateMultiKeyringInput,
         CreateDefaultCryptographicMaterialsManagerInput,
+
         CreateMrkAwareStrictAwsKmsKeyringInput,
         CreateMrkAwareDiscoveryAwsKmsKeyringInput,
 		CreateStrictAwsKmsKeyringInput,
@@ -59,7 +62,7 @@ module {:extern "Dafny.Aws.Crypto"} Aws.Crypto {
         GrantToken,
         GrantTokenList,
         IAwsCryptographicMaterialsProviderClient,
-        AesWrappingAlg
+        AesWrappingAlg, CreateRawRsaKeyringInput, PaddingScheme
 
     /////////////
     // kms.smithy
@@ -365,7 +368,7 @@ module {:extern "Dafny.Aws.Crypto"} Aws.Crypto {
         // method CreateMrkAwareDiscoveryMultiKeyring(input: CreateMrkAwareDiscoveryMultiKeyringInput) returns (res: IKeyring)
         method CreateMultiKeyring(input: CreateMultiKeyringInput) returns (res: IKeyring?)
         method CreateRawAesKeyring(input: CreateRawAesKeyringInput) returns (res: IKeyring)
-        // method CreateRawRsaKeyring(input: CreateRawRsaKeyringInput) returns (res: IKeyring)
+        method CreateRawRsaKeyring(input: CreateRawRsaKeyringInput) returns (res: IKeyring?)
 
         // CMMs
         method CreateDefaultCryptographicMaterialsManager(input: CreateDefaultCryptographicMaterialsManagerInput) returns (res: ICryptographicMaterialsManager)

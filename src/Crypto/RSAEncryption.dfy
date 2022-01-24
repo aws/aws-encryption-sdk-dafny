@@ -7,7 +7,18 @@ module {:extern "RSAEncryption"} RSAEncryption {
   import opened Wrappers
   import opened UInt = StandardLibrary.UInt
 
+  //= compliance/framework/raw-rsa-keyring.txt#2.5.1.1
+  //= type=implication
+  //# This keyring MUST NOT use a padding scheme outside those defined
+  //# above.
   datatype {:extern "PaddingMode"} PaddingMode = PKCS1 | OAEP_SHA1 | OAEP_SHA256 | OAEP_SHA384 | OAEP_SHA512
+
+  //= compliance/framework/raw-rsa-keyring.txt#2.5.1
+  //= type=TODO
+  //# If the padding scheme uses MGF1 Padding, the hash function used as
+  //# part of MGF1 MUST be the same hash function used to hash the
+  //# plaintext data key.
+  // NOTE: this file currently does not mention MGF1 at all!
 
   // The smallest ciphertext length is defined using PKCS1, where messageLength <= k - 11 and k represents the strength,
   // defined as the length in octets (bytes) of the modulus n. This means that the minimum possible strength in bits
@@ -23,10 +34,7 @@ module {:extern "RSAEncryption"} RSAEncryption {
     ghost const padding: PaddingMode
     const pem: seq<uint8>
     predicate Valid()
-      reads this, Repr
-      ensures Valid() ==> this in Repr
     {
-      this in Repr &&
       |pem| > 0 &&
       GetBytes(strength) >= MinStrengthBytes(padding) &&
       PEMGeneratedWithStrength(pem, strength) &&
@@ -49,12 +57,11 @@ module {:extern "RSAEncryption"} RSAEncryption {
     ensures this.pem == pem
     ensures this.strength == strength
     ensures this.padding == padding
-    ensures Valid() && fresh(Repr)
+    ensures Valid()
     {
       this.pem := pem;
       this.strength := strength;
       this.padding := padding;
-      Repr := {this};
     }
   }
 
@@ -68,12 +75,11 @@ module {:extern "RSAEncryption"} RSAEncryption {
     ensures this.pem == pem
     ensures this.strength == strength
     ensures this.padding == padding
-    ensures Valid() && fresh(Repr)
+    ensures Valid()
     {
       this.pem := pem;
       this.strength := strength;
       this.padding := padding;
-      Repr := {this};
     }
   }
 
@@ -89,7 +95,7 @@ module {:extern "RSAEncryption"} RSAEncryption {
   }
 
   // MinStrengthBytes represents the minimum strength (in bytes) required for a given padding
-  function MinStrengthBytes(padding: PaddingMode): nat {
+  function method MinStrengthBytes(padding: PaddingMode): nat {
     match padding {
       // 0 = k - 11 ==> k = 11
       case PKCS1 => 11
@@ -120,10 +126,10 @@ module {:extern "RSAEncryption"} RSAEncryption {
   method GenerateKeyPair(strength: StrengthBits, padding: PaddingMode)
       returns (publicKey: PublicKey, privateKey: PrivateKey)
     requires GetBytes(strength) >= MinStrengthBytes(padding)
-    ensures privateKey.Valid() && fresh(privateKey.Repr)
+    ensures privateKey.Valid()
     ensures privateKey.strength == strength
     ensures privateKey.padding == padding
-    ensures publicKey.Valid() && fresh(publicKey.Repr)
+    ensures publicKey.Valid()
     ensures publicKey.strength == strength
     ensures publicKey.padding == padding
     ensures GetBytes(publicKey.strength) >= MinStrengthBytes(publicKey.padding)
