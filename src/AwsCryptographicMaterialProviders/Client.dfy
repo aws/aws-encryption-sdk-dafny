@@ -6,10 +6,12 @@ include "../Generated/AwsCryptographicMaterialProviders.dfy"
 include "../Generated/KeyManagementService.dfy"
 include "../Util/UTF8.dfy"
 include "../Crypto/AESEncryption.dfy"
+include "../Crypto/RSAEncryption.dfy"
 include "Keyrings/RawAESKeyring.dfy"
 include "Keyrings/MultiKeyring.dfy"
 include "Keyrings/AwsKms/AwsKmsDiscoveryKeyring.dfy"
 include "Keyrings/AwsKms/AwsKmsUtils.dfy"
+include "Keyrings/RawRSAKeyring.dfy"
 include "CMMs/DefaultCMM.dfy"
 include "Materials.dfy"
 include "AlgorithmSuites.dfy"
@@ -28,7 +30,9 @@ module
   import UTF8
   import Aws.Crypto
   import AESEncryption
+  import RSAEncryption
   import RawAESKeyring
+  import RawRSAKeyring
   import MultiKeyring
   import DefaultCMM
   import AlgorithmSuites
@@ -52,7 +56,7 @@ module
 
   export
     // Modules
-    provides Crypto, AlgorithmSuites, Materials
+    provides Crypto, AlgorithmSuites, Materials, Wrappers
     // Class
     reveals AwsCryptographicMaterialProvidersClient
     // Functions
@@ -65,7 +69,8 @@ module
       AwsCryptographicMaterialProvidersClient.CreateMrkAwareDiscoveryAwsKmsKeyring,
       AwsCryptographicMaterialProvidersClient.CreateAwsKmsDiscoveryKeyring,
       AwsCryptographicMaterialProvidersClient.CreateDefaultCryptographicMaterialsManager,
-      AwsCryptographicMaterialProvidersClient.CreateMultiKeyring
+      AwsCryptographicMaterialProvidersClient.CreateMultiKeyring,
+      AwsCryptographicMaterialProvidersClient.CreateRawRsaKeyring
 
   datatype SpecificationClient = SpecificationClient(
     // Whatever top level closure is added to the constructor needs to be added here
@@ -202,6 +207,62 @@ module
       }
 
       return new MultiKeyring.MultiKeyring(input.generator, input.childKeyrings);
+    }
+
+    method CreateRawRsaKeyring(input: Crypto.CreateRawRsaKeyringInput)
+      // returns (res: Result<Crypto.IKeyring, string>)
+      returns (res: Crypto.IKeyring?)
+      //= compliance/framework/raw-rsa-keyring.txt#2.1.1
+      //= type=implication
+      //# -  Raw RSA keyring MUST NOT accept a key namespace of "aws-kms".
+      ensures
+        input.keyNamespace == "aws-kms"
+      ==>
+        res == null
+      ensures
+        input.publicKey.None? && input.privateKey.None?
+      ==>
+        res == null
+    {
+      // :- Need(
+      //   input.keyNamespace != "aws-kms",
+      //   "keyNamespace must not be `aws-kms`"
+      // );
+      if (input.keyNamespace == "aws-kms") {
+        return null;
+      }
+
+      // :- Need(
+      //   input.publicKey.Some? || input.privateKey.Some?,
+      //   "A publicKey or a privateKey is required"
+      // );
+      if (input.publicKey.None? && input.privateKey.None?) {
+        return null;
+      }
+      
+      var padding: RSAEncryption.PaddingMode := match input.paddingScheme
+        case PKCS1 => RSAEncryption.PaddingMode.PKCS1
+        case OAEP_SHA1_MGF1 => RSAEncryption.PaddingMode.OAEP_SHA1
+        case OAEP_SHA256_MGF1 => RSAEncryption.PaddingMode.OAEP_SHA256
+        case OAEP_SHA384_MGF1 => RSAEncryption.PaddingMode.OAEP_SHA384
+        case OAEP_SHA512_MGF1 => RSAEncryption.PaddingMode.OAEP_SHA512
+      ;
+
+      var namespaceRes := UTF8.Encode(input.keyNamespace);
+      var namespace := []; // TODO: This value gets used below if UTF8.Encode fails
+      if namespaceRes.Success? {
+        namespace := namespaceRes.value;
+      }
+      var nameRes := UTF8.Encode(input.keyName);
+      var name := []; // TODO: This value gets used below if UTF8.Encode fails
+      if nameRes.Success? {
+        name := nameRes.value;
+      }
+      
+      expect |namespace| < UINT16_LIMIT;  // Both name & namespace will be serialized into the message
+      expect |name| < UINT16_LIMIT;       // So both must respect message size limit
+      var keyring := new RawRSAKeyring.RawRSAKeyring(namespace, name, input.publicKey, input.privateKey, padding);
+      return keyring;
     }
   }
 }
