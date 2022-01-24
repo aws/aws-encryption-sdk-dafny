@@ -13,6 +13,7 @@ include "../Crypto/HKDF/HKDF.dfy"
 include "../Crypto/AESEncryption.dfy"
 include "../Crypto/Signature.dfy"
 include "../Generated/AwsCryptographicMaterialProviders.dfy"
+include "../Generated/AwsEncryptionSdk.dfy"
 include "Serialize/SerializableTypes.dfy"
 
 include "Serialize/Header.dfy"
@@ -27,6 +28,7 @@ module {:extern "EncryptDecrypt"} EncryptDecrypt {
   import opened StandardLibrary
   import opened UInt = StandardLibrary.UInt
   import Aws.Crypto
+  import Aws.Esdk
   import EncryptionContext
   import AESEncryption
   import MaterialProviders.Client
@@ -44,54 +46,9 @@ module {:extern "EncryptDecrypt"} EncryptDecrypt {
   import HeaderAuth
   import V1HeaderBody
 
-  const DEFAULT_FRAME_LENGTH: uint32 := 4096
+  const DEFAULT_FRAME_LENGTH : int64 := 4096
 
-  datatype EncryptRequest = EncryptRequest(
-    plaintext: seq<uint8>,
-    cmm: Crypto.ICryptographicMaterialsManager?,
-    keyring: Crypto.IKeyring?,
-    plaintextLength: nat,
-    encryptionContext: Crypto.EncryptionContext,
-    algorithmSuiteID: Option<Crypto.AlgorithmSuiteId>,
-    frameLength: Option<uint32>)
-  {
-    static function method WithCMM(plaintext: seq<uint8>, cmm: Crypto.ICryptographicMaterialsManager): EncryptRequest
-    {
-      EncryptRequest(plaintext, cmm, null, |plaintext|, map[], None, None)
-    }
-
-    static function method WithKeyring(plaintext: seq<uint8>, keyring: Crypto.IKeyring): EncryptRequest
-    {
-      EncryptRequest(plaintext, null, keyring, |plaintext|, map[], None, None)
-    }
-
-    function method SetEncryptionContext(encryptionContext: Crypto.EncryptionContext): EncryptRequest {
-      this.(encryptionContext := encryptionContext)
-    }
-
-    function method SetAlgorithmSuiteID(algorithmSuiteID: Crypto.AlgorithmSuiteId): EncryptRequest {
-      this.(algorithmSuiteID := Some(algorithmSuiteID))
-    }
-
-    function method SetFrameLength(frameLength: uint32): EncryptRequest {
-      this.(frameLength := Some(frameLength))
-    }
-  }
-
-  datatype DecryptRequest = DecryptRequest(message: seq<uint8>, cmm: Crypto.ICryptographicMaterialsManager?, keyring: Crypto.IKeyring?)
-  {
-    static function method WithCMM(message: seq<uint8>, cmm: Crypto.ICryptographicMaterialsManager): DecryptRequest
-    {
-      DecryptRequest(message, cmm, null)
-    }
-
-    static function method WithKeyring(message: seq<uint8>, keyring: Crypto.IKeyring): DecryptRequest
-    {
-      DecryptRequest(message, null, keyring)
-    }
-  }
-
-  // // Specification of Encrypt with signature
+  // Specification of Encrypt with signature
   function method SerializeMessageWithSignature(
     framedMessage: MessageBody.FramedMessage,
     signature: seq<uint8>
@@ -122,39 +79,38 @@ module {:extern "EncryptDecrypt"} EncryptDecrypt {
  /*
   * Encrypt a plaintext and serialize it into a message.
   */
-  method Encrypt(request: EncryptRequest)
-      returns (res: Result<seq<uint8>, string>)
-              //  ,ghost successSupportingInfo: Option<(Msg.HeaderBody, Msg.HeaderAuthentication, seq<MessageBody.Frame>, seq<uint8>)>)
-    ensures request.cmm == null && request.keyring == null ==> res.Failure?
-    ensures request.cmm != null && request.keyring != null ==> res.Failure?
-    ensures request.frameLength.Some? && request.frameLength.value == 0 ==> res.Failure?
-    // TODO: Need to add back proof
-    // ensures match res
-    //   case Failure(e) => true
-    //   case Success(encryptedSequence) =>
-    //     && successSupportingInfo.Some?
-    //     && var Some((headerBody, headerAuthentication, frames, signature)) := successSupportingInfo;
-    //     // The result is a serialization of 3 items with a potential fourth item.
-    //     // Every item has to meet some specification which is specified in its respective section
-    //     && ValidHeaderBodyForRequest(headerBody, request) // Which meet their respective specifications
-    //     && ValidHeaderAuthenticationForRequest(headerAuthentication, headerBody)
-    //     && ValidFramesForRequest(frames, request, headerBody)
-    //     && match Client.SpecificationClient().GetSuite(SerializableTypes.GetAlgorithmSuiteId(headerBody.algorithmSuiteID)).signature {
-    //         case ECDSA(_) => // If the result needs to be signed then there exists a fourth item
-    //           && ValidSignatureForRequest(signature, headerBody, headerAuthentication, frames) // which meets its specification
-    //           && encryptedSequence == SerializeMessageWithSignature(headerBody, headerAuthentication, frames, signature) // These items can be serialized to the output
-    //         case None => // if the result does not need to be signed
-    //           encryptedSequence == SerializeMessageWithoutSignature(headerBody, headerAuthentication, frames) // Then these items can be serialized to the output
-    //       }
-  {
-    // successSupportingInfo := None; // KRML: why is the type of "successSupportingInfo" subject to definite-assignment rules?
-    // Validate encrypt request
-    :- Need(request.cmm != null || request.keyring != null, "EncryptRequest.cmm OR EncryptRequest.keyring must be set.");
-    :- Need(!(request.cmm != null && request.keyring != null), "EncryptRequest.keyring AND EncryptRequest.cmm must not both be set.");
-    :- Need(request.frameLength.None? || request.frameLength.value > 0, "Requested frame length must be > 0");
-    :- Need(request.plaintextLength < INT64_MAX_LIMIT, "Input plaintext size too large.");
+  method Encrypt(request: Esdk.EncryptInput)
+      returns (res: Result<Esdk.EncryptOutput, string>)
 
-    var cmm: Crypto.ICryptographicMaterialsManager;
+    // TODO: bring back once we can have Option<Trait>
+    //ensures request.cmm == null && request.keyring == null ==> res.Failure?
+    //ensures request.cmm != null && request.keyring != null ==> res.Failure?
+    ensures request.frameLength.Some? && request.frameLength.value == 0 ==> res.Failure?
+  {
+    // Validate encrypt request
+    // TODO: bring back once we can have Option<Trait>
+    //:- Need(request.cmm != null || request.keyring != null, "EncryptRequest.cmm OR EncryptRequest.keyring must be set.");
+    //:- Need(!(request.cmm != null && request.keyring != null), "EncryptRequest.keyring AND EncryptRequest.cmm must not both be set.");
+    var frameLength : int64 := DEFAULT_FRAME_LENGTH;
+    if request.frameLength.Some? {
+      // TODO: uncomment this once we figure out why C# is passing 0 as the default value for these nullable
+      // fields
+      //frameLength := request.frameLength.value;
+    }
+    :- Need(frameLength > 0, "Requested frame length must be > 0");
+
+    var maxPlaintextLength := INT64_MAX_LIMIT - 1;
+    if request.maxPlaintextLength.Some? {
+      // TODO: uncomment this once we figure out why C# is passing 0 as the default value for these nullable
+      // fields
+      //maxPlaintextLength := request.maxPlaintextLength.value;
+    }
+    :- Need(maxPlaintextLength < INT64_MAX_LIMIT, "Input plaintext size too large.");
+
+
+    var cmm := request.materialsManager;
+    // TODO: bring back once we can have Option<Trait>
+    /*
     if request.keyring == null {
       cmm := request.cmm;
     } else {
@@ -163,16 +119,14 @@ module {:extern "EncryptDecrypt"} EncryptDecrypt {
         .CreateDefaultCryptographicMaterialsManager(Crypto.CreateDefaultCryptographicMaterialsManagerInput(
         keyring := request.keyring
       ));
-    }
+    }*/
 
-    var frameLength := if request.frameLength.Some? then request.frameLength.value else DEFAULT_FRAME_LENGTH;
-
-    var algorithmSuiteID := request.algorithmSuiteID;
+    var algorithmSuiteID := request.algorithmSuiteId;
 
     var encMatRequest := Crypto.GetEncryptionMaterialsInput(
       encryptionContext:=request.encryptionContext,
       algorithmSuiteId:=algorithmSuiteID,
-      maxPlaintextLength:=Option.Some(request.plaintextLength as int64)
+      maxPlaintextLength:=Option.Some(maxPlaintextLength as int64)
     );
 
     var output :- cmm.GetEncryptionMaterials(encMatRequest);
@@ -210,7 +164,7 @@ module {:extern "EncryptDecrypt"} EncryptDecrypt {
       encryptedDataKeys := encryptedDataKeys,
       contentType := HeaderTypes.ContentType.Framed,
       headerIvLength := suite.encrypt.ivLength as nat,
-      frameLength := frameLength
+      frameLength := frameLength as uint32
     );
 
     var rawHeader := Header.WriteHeaderBody(body);
@@ -257,10 +211,10 @@ module {:extern "EncryptDecrypt"} EncryptDecrypt {
       msg := msg + signature;
       // TODO: Come back and prove this
       // assert msg == SerializeMessageWithSignature(framedMessage, signature); // Header, frames and signature can be serialized into the stream
-      return Success(msg);
+      return Success(Esdk.EncryptOutput(ciphertext := msg));
     } else {
       var msg := SerializeMessageWithoutSignature(framedMessage);
-      return Success(msg);
+      return Success(Esdk.EncryptOutput(ciphertext := msg));
     }
   }
 
@@ -298,50 +252,22 @@ module {:extern "EncryptDecrypt"} EncryptDecrypt {
     true
   }
 
-  method Decrypt(request: DecryptRequest) returns (res: Result<seq<uint8>, string>)
-    ensures request.cmm == null && request.keyring == null ==> res.Failure?
-    ensures request.cmm != null && request.keyring != null ==> res.Failure?
-  {
-    var plaintext :- DecryptWithVerificationInfo(request);
-    return Success(plaintext);
-  }
-
-  datatype DecryptResultWithVerificationInfo = DecryptResultWithVerificationInfo(
-          plaintext: seq<uint8>,
-    ghost header: Header.Header,
-    ghost hbSeq: seq<uint8>,
-    ghost frames: seq<MessageBody.Frame>,
-    ghost signature: Option<seq<uint8>>)
-
-
   // Verification of this method requires verification of the CMM to some extent, The verification of the Decrypt method should be extended after CMM is verified
-  method DecryptWithVerificationInfo(request: DecryptRequest)
-    returns (res: Result<seq<uint8>, string>)
-    ensures request.cmm == null && request.keyring == null ==> res.Failure?
-    ensures request.cmm != null && request.keyring != null ==> res.Failure?
-    // TODO: Need to add back proof
-    // ensures match res // Verify that if no error occurs the correct objects are deserialized from the stream
-    //   case Failure(e) => true
-    //   case Success(d) => // Unfold return value into seperate variables
-    //     && d.header.body.Valid()
-    //     && Msg.IsSerializationOfHeaderBody(d.hbSeq, d.header.body)
-    //     && (d.header.body.contentType.Framed? ==> // We only verify framed content for now
-    //       && (forall frame: MessageBody.Frame | frame in d.frames :: frame.Valid())
-    //       && MessageBody.FramesEncryptPlaintext(d.frames, d.plaintext)
-    //       && match d.signature {
-    //            case Some(_) =>
-    //              && |d.signature.value| < UINT16_LIMIT
-    //              && request.message == d.hbSeq + d.header.auth.iv + d.header.auth.authenticationTag // These items can be serialized to the output
-    //                + MessageBody.FramesToSequence(d.frames) + UInt16ToSeq(|d.signature.value| as uint16) + d.signature.value
-    //            case None => // if the result does not need to be signed
-    //              request.message == d.hbSeq + d.header.auth.iv + d.header.auth.authenticationTag + MessageBody.FramesToSequence(d.frames)
-    //          })
+  method Decrypt(request: Esdk.DecryptInput)
+    returns (res: Result<Esdk.DecryptOutput, string>)
+    // TODO: bring back once we can have Option<Trait>
+    //ensures request.cmm == null && request.keyring == null ==> res.Failure?
+    //ensures request.cmm != null && request.keyring != null ==> res.Failure?
+
   {
     // Validate decrypt request
-    :- Need(request.cmm == null || request.keyring == null, "DecryptRequest.keyring OR DecryptRequest.cmm must be set (not both).");
-    :- Need(request.cmm != null || request.keyring != null, "DecryptRequest.cmm and DecryptRequest.keyring cannot both be null.");
+    // TODO: bring back once we can have Option<Trait>
+    //:- Need(request.cmm == null || request.keyring == null, "DecryptRequest.keyring OR DecryptRequest.cmm must be set (not both).");
+    //:- Need(request.cmm != null || request.keyring != null, "DecryptRequest.cmm and DecryptRequest.keyring cannot both be null.");
 
-    var cmm: Crypto.ICryptographicMaterialsManager;
+    var cmm := request.materialsManager;
+    // TODO: bring back once we can have Option<Trait>
+    /*
     if request.keyring == null {
       cmm := request.cmm;
     } else {
@@ -350,9 +276,9 @@ module {:extern "EncryptDecrypt"} EncryptDecrypt {
         .CreateDefaultCryptographicMaterialsManager(Crypto.CreateDefaultCryptographicMaterialsManagerInput(
         keyring := request.keyring
       ));
-    }
+    }*/
 
-    var buffer := SerializeFunctions.ReadableBuffer(request.message, 0);
+    var buffer := SerializeFunctions.ReadableBuffer(request.ciphertext, 0);
     var headerBody :- Header
       .ReadHeaderBody(buffer)
       .MapFailure(MapSerializeFailure(": ReadHeaderBody"));
@@ -449,7 +375,7 @@ module {:extern "EncryptDecrypt"} EncryptDecrypt {
 
     :- Need(signature.start == |signature.bytes|, "Data after message footer.");
 
-    return Success(plaintext);
+    return Success(Esdk.DecryptOutput(plaintext := plaintext));
   }
 
   method VerifySignature(

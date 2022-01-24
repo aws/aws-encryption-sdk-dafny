@@ -16,7 +16,6 @@ service AwsEncryptionSdk {
 
 structure AwsEncryptionSdkClientConfig {
     //commitmentPolicy: CommitmentPolicy,
-    //
     // maxEncryptedEdks: Integer,
 
     @required
@@ -57,6 +56,10 @@ structure EncryptInput {
     // keyring: KeyringReference,
 
     algorithmSuiteId: AlgorithmSuiteId,
+
+    frameLength: Long,
+
+    maxPlaintextLength: Long
 }
 
 structure EncryptOutput {

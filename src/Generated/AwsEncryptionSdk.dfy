@@ -14,7 +14,9 @@ module {:extern "Dafny.Aws.Esdk"} Aws.Esdk {
         nameonly plaintext: seq<uint8>,
         nameonly encryptionContext: Crypto.EncryptionContext, // TODO Make an option?
         nameonly materialsManager: Crypto.ICryptographicMaterialsManager,
-        nameonly algorithmSuiteId: Option<Crypto.AlgorithmSuiteId>
+        nameonly algorithmSuiteId: Option<Crypto.AlgorithmSuiteId>,
+        nameonly frameLength: Option<int64>,
+        nameonly maxPlaintextLength: Option<int64>
         // TODO reintroduce optional materialsManager and optional keyring
     )
 
@@ -39,7 +41,7 @@ module {:extern "Dafny.Aws.Esdk"} Aws.Esdk {
     )
 
     datatype AwsEncryptionSdkClientConfig = AwsEncryptionSdkClientConfig(
-        //nameonly commitmentPolicy: Crypto.CommitmentPolicy,
+        //nameonly commitmentPolicy: Option<Crypto.CommitmentPolicy>,
         //nameonly maxEncryptedEdks: int,
         nameonly configDefaults: ConfigurationDefaults
     )
