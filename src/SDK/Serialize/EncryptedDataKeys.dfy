@@ -132,7 +132,7 @@ module EncryptedDataKeys {
 
   // This lemma turned out to be less useful
   // but it is super helpful as documentation about how to use `calc`
-  lemma WriteEncryptedDataKeysIsAssociative(
+  lemma WriteEncryptedDataKeysIsDistributive(
     a: ESDKEncryptedDataKeys,
     b: ESDKEncryptedDataKeys
   )
@@ -151,7 +151,7 @@ module EncryptedDataKeys {
         WriteEncryptedDataKeys(Seq.DropLast(a + b)) + WriteEncryptedDataKey(Seq.Last(a+b));
       == {assert Seq.Last(a+b) == Seq.Last(b) && Seq.DropLast(a+b) == a + Seq.DropLast(b);} // Breaking apart (a+b)
         WriteEncryptedDataKeys(a + Seq.DropLast(b)) + WriteEncryptedDataKey(Seq.Last(b));
-      == {WriteEncryptedDataKeysIsAssociative(a, Seq.DropLast(b));} // This lets us break apart WriteEncryptedDataKeys(a + Seq.DropLast(b))
+      == {WriteEncryptedDataKeysIsDistributive(a, Seq.DropLast(b));} // This lets us break apart WriteEncryptedDataKeys(a + Seq.DropLast(b))
         (WriteEncryptedDataKeys(a) + WriteEncryptedDataKeys(Seq.DropLast(b))) + WriteEncryptedDataKey(Seq.Last(b));
       == // Move () to prove associativity of +
         WriteEncryptedDataKeys(a) + (WriteEncryptedDataKeys(Seq.DropLast(b)) + WriteEncryptedDataKey(Seq.Last(b)));
@@ -203,7 +203,7 @@ module EncryptedDataKeys {
       // then data[|accumulator|] is always a valid index!
       var nextAccumulator := accumulator + [data[|accumulator|]];
       assert data == nextAccumulator + data[|nextAccumulator|..];
-      WriteEncryptedDataKeysIsAssociative(nextAccumulator, data[|nextAccumulator|..]);
+      WriteEncryptedDataKeysIsDistributive(nextAccumulator, data[|nextAccumulator|..]);
       assert WriteEncryptedDataKeys(nextAccumulator) <= bytes;
       // This is because WriteEncryptedDataKeys(nextAccumulator) == WriteEncryptedDataKeys(DropLast) + WriteEncryptedDataKey(Last)
       assert WriteEncryptedDataKey(Seq.Last(nextAccumulator)) <= nextEdkStart.bytes[nextEdkStart.start..];
