@@ -99,10 +99,9 @@ module {:extern "EncryptDecrypt"} EncryptDecrypt {
     :(message: seq<uint8>)
     requires |signature| < UINT16_LIMIT
     ensures message
-    == SerializeMessageWithoutSignature(framedMessage) + UInt16ToSeq(|signature| as uint16) + signature
+    == SerializeMessageWithoutSignature(framedMessage) + WriteShortLengthSeq(signature)
   {
-    var serializedSignature := UInt16ToSeq(|signature| as uint16) + signature;
-    SerializeMessageWithoutSignature(framedMessage) + serializedSignature
+    SerializeMessageWithoutSignature(framedMessage) + WriteShortLengthSeq(signature)
   }
 
   // // Specification of Encrypt without signature
