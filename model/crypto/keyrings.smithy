@@ -222,22 +222,22 @@ structure CreateRawAesKeyringInput {
 }
 
 // TODO
-// operation CreateRawRsaKeyring {
-//     input: CreateRawRsaKeyringInput,
-//     output: CreateKeyringOutput,
-// }
-//
-// structure CreateRawRsaKeyringInput {
-//     @required
-//     keyNamespace: String,
-//
-//     @required
-//     keyName: String,
-//
-//     @required
-//     paddingScheme: PaddingScheme,
-//
-//     // One or both is required
-//     publicKey: Blob,
-//     privateKey: Blob
-// }
+ operation CreateRawRsaKeyring {
+     input: CreateRawRsaKeyringInput,
+     output: CreateKeyringOutput,
+ }
+
+ structure CreateRawRsaKeyringInput {
+     @required
+     keyNamespace: String,
+
+     @required
+     keyName: String,
+
+     @required
+     paddingScheme: PaddingScheme,
+
+     // One or both is required
+     publicKey: Blob,
+     privateKey: Blob
+ }

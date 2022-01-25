@@ -69,6 +69,14 @@ namespace Aws.Crypto
 
         protected abstract Aws.Crypto.IKeyring _CreateRawAesKeyring(Aws.Crypto.CreateRawAesKeyringInput input);
 
+        public Aws.Crypto.IKeyring CreateRawRsaKeyring(Aws.Crypto.CreateRawRsaKeyringInput input)
+        {
+            input.Validate();
+            return _CreateRawRsaKeyring(input);
+        }
+
+        protected abstract Aws.Crypto.IKeyring _CreateRawRsaKeyring(Aws.Crypto.CreateRawRsaKeyringInput input);
+
         public Aws.Crypto.ICryptographicMaterialsManager CreateDefaultCryptographicMaterialsManager(
             Aws.Crypto.CreateDefaultCryptographicMaterialsManagerInput input)
         {

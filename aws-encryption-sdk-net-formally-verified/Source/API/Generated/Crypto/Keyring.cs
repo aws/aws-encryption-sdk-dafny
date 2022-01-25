@@ -22,9 +22,9 @@ namespace Aws.Crypto
 
         protected override Aws.Crypto.OnEncryptOutput _OnEncrypt(Aws.Crypto.OnEncryptInput input)
         {
-            Dafny.Aws.Crypto.OnEncryptInput internalInput =
+            Dafny.Aws.Crypto._IOnEncryptInput internalInput =
                 TypeConversion.ToDafny_N3_aws__N6_crypto__S14_OnEncryptInput(input);
-            Dafny.Aws.Crypto.OnEncryptOutput internalOutput =
+            Dafny.Aws.Crypto._IOnEncryptOutput internalOutput =
                 // TODO this line was manually updated
                 DafnyFFI.ExtractResult(this._impl.OnEncrypt(internalInput));
             return TypeConversion.FromDafny_N3_aws__N6_crypto__S15_OnEncryptOutput(internalOutput);
@@ -32,9 +32,9 @@ namespace Aws.Crypto
 
         protected override Aws.Crypto.OnDecryptOutput _OnDecrypt(Aws.Crypto.OnDecryptInput input)
         {
-            Dafny.Aws.Crypto.OnDecryptInput internalInput =
+            Dafny.Aws.Crypto._IOnDecryptInput internalInput =
                 TypeConversion.ToDafny_N3_aws__N6_crypto__S14_OnDecryptInput(input);
-            Dafny.Aws.Crypto.OnDecryptOutput internalOutput =
+            Dafny.Aws.Crypto._IOnDecryptOutput internalOutput =
                 // TODO this line was manually updated
                 DafnyFFI.ExtractResult(this._impl.OnDecrypt(internalInput));
             return TypeConversion.FromDafny_N3_aws__N6_crypto__S15_OnDecryptOutput(internalOutput);

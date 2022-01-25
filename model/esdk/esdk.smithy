@@ -8,16 +8,14 @@ use aws.crypto#CommitmentPolicy
 use aws.polymorph#reference
 use aws.polymorph#clientConfig
 
-// TODO
-// @clientConfig(config: AwsEncryptionSdkClientConfig)
+@clientConfig(config: AwsEncryptionSdkClientConfig)
 service AwsEncryptionSdk {
     version: "2020-10-24",
     operations: [Encrypt, Decrypt]
 }
 
 structure AwsEncryptionSdkClientConfig {
-    // TODO
-    // commitmentPolicy: CommitmentPolicy,
+    //commitmentPolicy: CommitmentPolicy,
     //
     // maxEncryptedEdks: Integer,
 
@@ -36,7 +34,6 @@ structure AwsEncryptionSdkClientConfig {
     }
 ])
 string ConfigurationDefaults
-
 
 /////////////
 // Operations

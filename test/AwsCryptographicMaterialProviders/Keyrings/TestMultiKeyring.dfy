@@ -17,11 +17,10 @@ module TestMultiKeyring {
   import MaterialProviders.MultiKeyring
   import MaterialProviders.RawAESKeyring
   import MaterialProviders.Materials
-  import EncryptionContext
   import Aws.Crypto
   import opened TestUtils
 
-  method getInputEncryptionMaterials(encryptionContext: EncryptionContext.Map) returns (res: Crypto.EncryptionMaterials) {
+  method getInputEncryptionMaterials(encryptionContext: Crypto.EncryptionContext) returns (res: Crypto.EncryptionMaterials) {
     return Crypto.EncryptionMaterials(
       encryptionContext:=encryptionContext,
       algorithmSuiteId := Crypto.ALG_AES_256_GCM_IV12_TAG16_HKDF_SHA256,
@@ -31,7 +30,7 @@ module TestMultiKeyring {
     );
   }
 
-  method getInputDecryptionMaterials(encryptionContext: EncryptionContext.Map) returns (res: Crypto.DecryptionMaterials) {
+  method getInputDecryptionMaterials(encryptionContext: Crypto.EncryptionContext) returns (res: Crypto.DecryptionMaterials) {
     return Crypto.DecryptionMaterials(
       encryptionContext:=encryptionContext,
       algorithmSuiteId := Crypto.ALG_AES_256_GCM_IV12_TAG16_HKDF_SHA256,
@@ -278,7 +277,7 @@ module TestMultiKeyring {
     expect result.error == "Unable to decrypt data key:\n\nFailure\nFailure";
   }
 
-  method setupRawAesKeyring(encryptionContext: EncryptionContext.Map) returns (res: Crypto.IKeyring) {
+  method setupRawAesKeyring(encryptionContext: Crypto.EncryptionContext) returns (res: Crypto.IKeyring) {
     var namespace, name := TestUtils.NamespaceAndName(0);
     var rawAESKeyring := new RawAESKeyring.RawAESKeyring(
       namespace,

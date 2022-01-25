@@ -11,8 +11,11 @@ namespace Aws.Esdk
 {
     public abstract class AwsEncryptionSdkClientBase : IAwsEncryptionSdk
     {
-        protected AwsEncryptionSdkClientBase()
+        public Aws.Esdk.AwsEncryptionSdkClientConfig Config { get; private set; }
+
+        protected AwsEncryptionSdkClientBase(Aws.Esdk.AwsEncryptionSdkClientConfig Config)
         {
+            this.Config = Config;
         }
 
         public Aws.Esdk.EncryptOutput Encrypt(Aws.Esdk.EncryptInput input)
