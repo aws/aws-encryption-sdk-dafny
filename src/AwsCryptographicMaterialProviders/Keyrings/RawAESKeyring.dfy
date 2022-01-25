@@ -5,6 +5,7 @@ include "../Keyring.dfy"
 include "../Materials.dfy"
 include "../AlgorithmSuites.dfy"
 include "../../StandardLibrary/StandardLibrary.dfy"
+include "../../StandardLibrary/String.dfy"
 include "../AlgorithmSuites.dfy"
 include "../../Crypto/Random.dfy"
 include "../../Crypto/AESEncryption.dfy"
@@ -20,6 +21,7 @@ module
 {
   import opened StandardLibrary
   import opened UInt = StandardLibrary.UInt
+  import opened String = StandardLibrary.String
   import opened Wrappers
   import Aws.Crypto
   import Keyring
@@ -229,12 +231,14 @@ module
       :- Need(|wrappingKey|== wrappingAlgorithm.keyLength as int,
         "The wrapping key does not match the wrapping algorithm"
       );
-      
+
+      var errors: seq<string> := [];
       //= compliance/framework/raw-aes-keyring.txt#2.7.2
       //# The keyring MUST perform the following actions on each encrypted data
       //# key (structures.md#encrypted-data-key) in the input encrypted data
       //# key list, serially, until it successfully decrypts one.
       for i := 0 to |input.encryptedDataKeys|
+        invariant |errors| == i
       {
         if ShouldDecryptEDK(input.encryptedDataKeys[i]) {
 
@@ -257,13 +261,27 @@ module
             //# modified materials.
             var r :- Materials.DecryptionMaterialsAddDataKey(materials, ptKeyRes.Extract());
             return Success(Crypto.OnDecryptOutput(materials:=r));
+          } else {
+            errors := errors + [
+              "AESKeyring could not decrypt EncryptedDataKey "
+              + Base10Int2String(i)
+              + ". "
+            ];
           }
+        } else {
+          errors := errors + [
+            "EncrypedDataKey "
+            + Base10Int2String(i)
+            + " did not match AESKeyring. "
+          ];
         }
       }
       //= compliance/framework/raw-aes-keyring.txt#2.7.2
       //# If no decryption succeeds, the keyring MUST fail and MUST NOT modify
       //# the decryption materials (structures.md#decryption-materials).
-      return Failure("Unable to decrypt data key: No Encrypted Data Keys found to match.");
+      return Failure("Unable to decrypt any data keys. Encountered the following errors: "
+        + Seq.Flatten(errors)
+      );
     }
 
     //TODO This needs to be a private method
