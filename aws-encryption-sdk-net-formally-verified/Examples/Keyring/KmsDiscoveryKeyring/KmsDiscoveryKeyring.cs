@@ -8,6 +8,7 @@ using Aws.Crypto;
 using Aws.Esdk;
 
 using Xunit;
+using ConfigurationDefaults = Aws.Esdk.ConfigurationDefaults;
 
 /// Demonstrate an encrypt/decrypt cycle using a AWS KMS discovery keyring.
 public class AwsKmsDiscoveryKeyringExample {
@@ -26,7 +27,11 @@ public class AwsKmsDiscoveryKeyringExample {
         // Create clients to access the Encryption SDK APIs.
         // TODO: add client configuration objects
         IAwsCryptographicMaterialProviders materialProviders = new AwsCryptographicMaterialProvidersClient();
-        IAwsEncryptionSdk encryptionSdkClient = new AwsEncryptionSdkClient();
+        AwsEncryptionSdkClientConfig config = new AwsEncryptionSdkClientConfig
+        {
+            ConfigDefaults = ConfigurationDefaults.V1
+        };
+        IAwsEncryptionSdk encryptionSdkClient = new AwsEncryptionSdkClient(config);
 
         // Create the keyring that determines how your data keys are protected. Though this example highlights
         // Discovery keyrings, Discovery keyrings cannot be used to encrypt, so we create a Strict KMS keyring
