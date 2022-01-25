@@ -172,7 +172,7 @@ module EncryptedDataKeys {
     requires
       && WriteEncryptedDataKeys(data) == bytes
       && accumulator <= data
-      && buffer.start <= |buffer.bytes|
+      && buffer.start + |bytes| <= |buffer.bytes|
       && bytes <= buffer.bytes[buffer.start..]
     ensures
       && ret.data == data
@@ -233,6 +233,7 @@ module EncryptedDataKeys {
       assert edks.data == data;
       assert edks.tail.start == buffer.start + |WriteEncryptedDataKeys(data)|;
 
+      assert {:split_here} true;
       return ReadEncryptedDataKeys(buffer, accumulator, |data| as uint16, nextEdkStart).value;
     }
   }
