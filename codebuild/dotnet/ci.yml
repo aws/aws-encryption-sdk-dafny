@@ -26,7 +26,8 @@ phases:
       - cd aws-encryption-sdk-dafny/aws-encryption-sdk-net-formally-verified
   build:
     commands:
-      - dotnet test
+      # Unit tests
+      - dotnet test Test
       # TODO: uncomment when we update TestVectors
       #- dotnet test TestVectors
       - dotnet test Examples
