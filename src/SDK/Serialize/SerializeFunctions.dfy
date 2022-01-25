@@ -72,7 +72,8 @@ module SerializeFunctions {
     ==>
       && var SuccessfulRead(thing, tail) := res.value;
       && CorrectlyReadRange(buffer, tail)
-      && inversionFunction(thing) == tail.bytes[buffer.start..tail.start]
+      && inversionFunction(thing) <= buffer.bytes[buffer.start..]
+      && tail.start == buffer.start + |inversionFunction(thing)|
   }
 
   // Sequence ranges are complicated in Dafny.
@@ -86,9 +87,9 @@ module SerializeFunctions {
     tail: ReadableBuffer
   )
   {
-    && tail.bytes == buffer.bytes
+    && buffer.bytes == tail.bytes
     && buffer.start <= tail.start <= |tail.bytes|
-    && buffer.bytes[buffer.start..tail.start] == tail.bytes[buffer.start..tail.start]
+    && buffer.bytes[buffer.start..] == tail.bytes[buffer.start..]
   }
 
   // This function is trivial,
@@ -150,6 +151,7 @@ module SerializeFunctions {
     buffer: ReadableBuffer
   )
     :(res: ReadBinaryCorrect<uint16>)
+    ensures buffer.start + 2 <= |buffer.bytes| ==> res.Success?
     ensures CorrectlyRead(buffer, res, WriteUint16)
   {
     var SuccessfulRead(uint16Bytes, tail) :- Read(buffer, 2);
@@ -168,6 +170,7 @@ module SerializeFunctions {
     buffer: ReadableBuffer
   ):
     (res: ReadBinaryCorrect<uint32>)
+    ensures buffer.start + 4 <= |buffer.bytes| ==> res.Success?
     ensures CorrectlyRead(buffer, res, WriteUint32)
   {
     var SuccessfulRead(uint32Bytes, tail) :- Read(buffer, 4);
@@ -186,6 +189,7 @@ module SerializeFunctions {
     buffer: ReadableBuffer
   ):
     (res: ReadBinaryCorrect<uint64>)
+    ensures buffer.start + 8 <= |buffer.bytes| ==> res.Success?
     ensures CorrectlyRead(buffer, res, UInt64ToSeq)
   {
     var SuccessfulRead(uint64Bytes, tail) :- Read(buffer, 8);
