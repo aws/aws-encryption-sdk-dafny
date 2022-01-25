@@ -55,7 +55,9 @@ module {:extern "TestClient"} TestClient {
       plaintext:=plaintext,
       encryptionContext:=encryptionContext,
       algorithmSuiteId:=None(),
-      materialsManager:=cmm);
+      materialsManager:=cmm,
+      frameLength:=Option.None(),
+      maxPlaintextLength:=Option.None());
     var res :- expect client.Encrypt(input);
 
     // Use Decrypt API
