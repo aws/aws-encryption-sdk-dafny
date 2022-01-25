@@ -45,7 +45,8 @@ module {:extern "TestClient"} TestClient {
 
     // Create AWS Crypto client
     // TODO use createClient
-    var client := new AwsEncryptionSdk.AwsEncryptionSdkClient();
+    var config := Esdk.AwsEncryptionSdkClientConfig(configDefaults := Esdk.V1);
+    var client := new AwsEncryptionSdk.AwsEncryptionSdkClient(config);
 
     // Use Encrypt API
     var plaintext :- expect UTF8.Encode("hello");

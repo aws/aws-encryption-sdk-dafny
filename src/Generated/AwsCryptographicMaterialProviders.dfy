@@ -50,7 +50,6 @@ module {:extern "Dafny.Aws.Crypto"} Aws.Crypto {
         CreateRawAesKeyringInput,
         CreateMultiKeyringInput,
         CreateDefaultCryptographicMaterialsManagerInput,
-
         CreateMrkAwareStrictAwsKmsKeyringInput,
         CreateMrkAwareDiscoveryAwsKmsKeyringInput,
 		CreateStrictAwsKmsKeyringInput,
@@ -62,7 +61,10 @@ module {:extern "Dafny.Aws.Crypto"} Aws.Crypto {
         GrantToken,
         GrantTokenList,
         IAwsCryptographicMaterialsProviderClient,
-        AesWrappingAlg, CreateRawRsaKeyringInput, PaddingScheme
+        AesWrappingAlg,
+        CommitmentPolicy,
+        CreateRawRsaKeyringInput,
+        PaddingScheme
 
     /////////////
     // kms.smithy
