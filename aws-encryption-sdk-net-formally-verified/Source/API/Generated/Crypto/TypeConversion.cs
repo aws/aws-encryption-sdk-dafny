@@ -179,6 +179,10 @@ namespace Aws.Crypto
                 (System.Collections.Generic.Dictionary<string, string>)
                 FromDafny_N3_aws__N6_crypto__S27_GetEncryptionMaterialsInput__M17_encryptionContext(
                     concrete.encryptionContext);
+            converted.CommitmentPolicy =
+                (Aws.Crypto.CommitmentPolicy)
+                FromDafny_N3_aws__N6_crypto__S27_GetEncryptionMaterialsInput__M16_commitmentPolicy(
+                    concrete.commitmentPolicy);
             if (concrete.algorithmSuiteId.is_Some)
                 converted.AlgorithmSuiteId =
                     (Aws.Crypto.AlgorithmSuiteId)
@@ -197,6 +201,8 @@ namespace Aws.Crypto
             return new Dafny.Aws.Crypto.GetEncryptionMaterialsInput(
                 ToDafny_N3_aws__N6_crypto__S27_GetEncryptionMaterialsInput__M17_encryptionContext(
                     value.EncryptionContext),
+                ToDafny_N3_aws__N6_crypto__S27_GetEncryptionMaterialsInput__M16_commitmentPolicy(
+                    value.CommitmentPolicy),
                 ToDafny_N3_aws__N6_crypto__S27_GetEncryptionMaterialsInput__M16_algorithmSuiteId(
                     value.AlgorithmSuiteId),
                 ToDafny_N3_aws__N6_crypto__S27_GetEncryptionMaterialsInput__M18_maxPlaintextLength(
@@ -558,6 +564,9 @@ namespace Aws.Crypto
             converted.AlgorithmSuiteId =
                 (Aws.Crypto.AlgorithmSuiteId)
                 FromDafny_N3_aws__N6_crypto__S21_DecryptMaterialsInput__M16_algorithmSuiteId(concrete.algorithmSuiteId);
+            converted.CommitmentPolicy =
+                (Aws.Crypto.CommitmentPolicy)
+                FromDafny_N3_aws__N6_crypto__S21_DecryptMaterialsInput__M16_commitmentPolicy(concrete.commitmentPolicy);
             converted.EncryptedDataKeys =
                 (System.Collections.Generic.List<Aws.Crypto.EncryptedDataKey>)
                 FromDafny_N3_aws__N6_crypto__S21_DecryptMaterialsInput__M17_encryptedDataKeys(
@@ -574,6 +583,7 @@ namespace Aws.Crypto
         {
             return new Dafny.Aws.Crypto.DecryptMaterialsInput(
                 ToDafny_N3_aws__N6_crypto__S21_DecryptMaterialsInput__M16_algorithmSuiteId(value.AlgorithmSuiteId),
+                ToDafny_N3_aws__N6_crypto__S21_DecryptMaterialsInput__M16_commitmentPolicy(value.CommitmentPolicy),
                 ToDafny_N3_aws__N6_crypto__S21_DecryptMaterialsInput__M17_encryptedDataKeys(value.EncryptedDataKeys),
                 ToDafny_N3_aws__N6_crypto__S21_DecryptMaterialsInput__M17_encryptionContext(value.EncryptionContext));
         }
@@ -655,6 +665,30 @@ namespace Aws.Crypto
                 Aws.Crypto.IKeyring value)
         {
             return ToDafny_N3_aws__N6_crypto__S16_KeyringReference(value);
+        }
+
+        public static Aws.Crypto.CommitmentPolicy FromDafny_N3_aws__N6_crypto__S16_CommitmentPolicy(
+            Dafny.Aws.Crypto._ICommitmentPolicy value)
+        {
+            if (value.is_FORBID__ENCRYPT__ALLOW__DECRYPT)
+                return Aws.Crypto.CommitmentPolicy.FORBID_ENCRYPT_ALLOW_DECRYPT;
+            if (value.is_REQUIRE__ENCRYPT__ALLOW__DECRYPT)
+                return Aws.Crypto.CommitmentPolicy.REQUIRE_ENCRYPT_ALLOW_DECRYPT;
+            if (value.is_REQUIRE__ENCRYPT__REQUIRE__DECRYPT)
+                return Aws.Crypto.CommitmentPolicy.REQUIRE_ENCRYPT_REQUIRE_DECRYPT;
+            throw new System.ArgumentException("Invalid Aws.Crypto.CommitmentPolicy value");
+        }
+
+        public static Dafny.Aws.Crypto._ICommitmentPolicy ToDafny_N3_aws__N6_crypto__S16_CommitmentPolicy(
+            Aws.Crypto.CommitmentPolicy value)
+        {
+            if (Aws.Crypto.CommitmentPolicy.FORBID_ENCRYPT_ALLOW_DECRYPT.Equals(value))
+                return Dafny.Aws.Crypto.CommitmentPolicy.create_FORBID__ENCRYPT__ALLOW__DECRYPT();
+            if (Aws.Crypto.CommitmentPolicy.REQUIRE_ENCRYPT_ALLOW_DECRYPT.Equals(value))
+                return Dafny.Aws.Crypto.CommitmentPolicy.create_REQUIRE__ENCRYPT__ALLOW__DECRYPT();
+            if (Aws.Crypto.CommitmentPolicy.REQUIRE_ENCRYPT_REQUIRE_DECRYPT.Equals(value))
+                return Dafny.Aws.Crypto.CommitmentPolicy.create_REQUIRE__ENCRYPT__REQUIRE__DECRYPT();
+            throw new System.ArgumentException("Invalid Aws.Crypto.CommitmentPolicy value");
         }
 
         public static Aws.Crypto.PaddingScheme FromDafny_N3_aws__N6_crypto__S13_PaddingScheme(
@@ -2341,6 +2375,20 @@ namespace Aws.Crypto
             return ToDafny_N3_aws__N6_crypto__S9_Utf8Bytes(value);
         }
 
+        public static Aws.Crypto.CommitmentPolicy
+            FromDafny_N3_aws__N6_crypto__S27_GetEncryptionMaterialsInput__M16_commitmentPolicy(
+                Dafny.Aws.Crypto._ICommitmentPolicy value)
+        {
+            return FromDafny_N3_aws__N6_crypto__S16_CommitmentPolicy(value);
+        }
+
+        public static Dafny.Aws.Crypto._ICommitmentPolicy
+            ToDafny_N3_aws__N6_crypto__S27_GetEncryptionMaterialsInput__M16_commitmentPolicy(
+                Aws.Crypto.CommitmentPolicy value)
+        {
+            return ToDafny_N3_aws__N6_crypto__S16_CommitmentPolicy(value);
+        }
+
         public static Amazon.KeyManagementService.IAmazonKeyManagementService
             FromDafny_N3_aws__N6_crypto__S33_CreateAwsKmsDiscoveryKeyringInput__M9_kmsClient(
                 Dafny.Com.Amazonaws.Kms.IKeyManagementServiceClient value)
@@ -2353,6 +2401,20 @@ namespace Aws.Crypto
                 Amazon.KeyManagementService.IAmazonKeyManagementService value)
         {
             return ToDafny_N3_aws__N6_crypto__S18_KmsClientReference(value);
+        }
+
+        public static Aws.Crypto.CommitmentPolicy
+            FromDafny_N3_aws__N6_crypto__S21_DecryptMaterialsInput__M16_commitmentPolicy(
+                Dafny.Aws.Crypto._ICommitmentPolicy value)
+        {
+            return FromDafny_N3_aws__N6_crypto__S16_CommitmentPolicy(value);
+        }
+
+        public static Dafny.Aws.Crypto._ICommitmentPolicy
+            ToDafny_N3_aws__N6_crypto__S21_DecryptMaterialsInput__M16_commitmentPolicy(
+                Aws.Crypto.CommitmentPolicy value)
+        {
+            return ToDafny_N3_aws__N6_crypto__S16_CommitmentPolicy(value);
         }
 
         public static long FromDafny_N6_smithy__N3_api__S4_Long(long value)

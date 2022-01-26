@@ -13,6 +13,7 @@ include "../AwsCryptographicMaterialProviders/Client.dfy"
 include "../Crypto/Random.dfy"
 include "../Crypto/AESEncryption.dfy"
 include "EncryptDecrypt.dfy"
+include "ConfigDefaults.dfy"
 
 include "Serialize/SerializableTypes.dfy"
 include "Serialize/Header.dfy"
@@ -38,6 +39,7 @@ module {:extern "Dafny.Aws.Esdk.AwsEncryptionSdkClient"} AwsEncryptionSdk {
   import SerializeFunctions
   import MessageBody
   import Signature
+  import ConfigDefaults
 
   import Header
   import HeaderTypes
@@ -47,10 +49,18 @@ module {:extern "Dafny.Aws.Esdk.AwsEncryptionSdkClient"} AwsEncryptionSdk {
   class AwsEncryptionSdkClient extends Esdk.IAwsEncryptionSdkClient {
         const config: Esdk.AwsEncryptionSdkClientConfig;
 
+        const commitmentPolicy: Crypto.CommitmentPolicy;
+
         constructor (config: Esdk.AwsEncryptionSdkClientConfig)
             ensures this.config == config
         {
             this.config := config;
+            if config.commitmentPolicy.None? {
+                var defaultPolicy := ConfigDefaults.GetDefaultCommitmentPolicy(config.configDefaults);
+                this.commitmentPolicy := defaultPolicy;
+            } else {
+                this.commitmentPolicy := config.commitmentPolicy.value;
+            }
         }
 
         method Encrypt(input: Esdk.EncryptInput) returns (res: Result<Esdk.EncryptOutput, string>)
@@ -93,6 +103,7 @@ module {:extern "Dafny.Aws.Esdk.AwsEncryptionSdkClient"} AwsEncryptionSdk {
 
             var encMatRequest := Crypto.GetEncryptionMaterialsInput(
                 encryptionContext:=input.encryptionContext,
+                commitmentPolicy:=this.commitmentPolicy,
                 algorithmSuiteId:=algorithmSuiteID,
                 maxPlaintextLength:=Option.Some(maxPlaintextLength as int64)
             );
@@ -228,6 +239,7 @@ module {:extern "Dafny.Aws.Esdk.AwsEncryptionSdkClient"} AwsEncryptionSdk {
 
             var decMatRequest := Crypto.DecryptMaterialsInput(
             algorithmSuiteId:=SerializableTypes.GetAlgorithmSuiteId(headerBody.data.esdkSuiteId),
+            commitmentPolicy:=this.commitmentPolicy,
             encryptedDataKeys:=headerBody.data.encryptedDataKeys,
             encryptionContext:=esdkEncryptionContext);
             var output :- cmm.DecryptMaterials(decMatRequest);
