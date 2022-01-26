@@ -99,12 +99,14 @@ module {:extern "Dafny.Aws.Esdk.AwsEncryptionSdkClient"} AwsEncryptionSdk {
                 ));
             }*/
 
-            var algorithmSuiteID := input.algorithmSuiteId;
+            var algorithmSuiteId := input.algorithmSuiteId;
+
+            var _ := Client.SpecificationClient().ValidateCommitmentPolicyOnEncrypt(algorithmSuiteId, this.commitmentPolicy);
 
             var encMatRequest := Crypto.GetEncryptionMaterialsInput(
                 encryptionContext:=input.encryptionContext,
                 commitmentPolicy:=this.commitmentPolicy,
-                algorithmSuiteId:=algorithmSuiteID,
+                algorithmSuiteId:=algorithmSuiteId,
                 maxPlaintextLength:=Option.Some(maxPlaintextLength as int64)
             );
 
@@ -237,16 +239,25 @@ module {:extern "Dafny.Aws.Esdk.AwsEncryptionSdkClient"} AwsEncryptionSdk {
 
             var esdkEncryptionContext := EncryptionContext.GetEncryptionContext(headerBody.data.encryptionContext);
 
+            var algorithmSuiteId := SerializableTypes.GetAlgorithmSuiteId(headerBody.data.esdkSuiteId);
+            var _ := Client.SpecificationClient().ValidateCommitmentPolicyOnDecrypt(
+                Option.Some(algorithmSuiteId), this.commitmentPolicy
+            );
+
             var decMatRequest := Crypto.DecryptMaterialsInput(
-            algorithmSuiteId:=SerializableTypes.GetAlgorithmSuiteId(headerBody.data.esdkSuiteId),
-            commitmentPolicy:=this.commitmentPolicy,
-            encryptedDataKeys:=headerBody.data.encryptedDataKeys,
-            encryptionContext:=esdkEncryptionContext);
+                algorithmSuiteId:=algorithmSuiteId,
+                commitmentPolicy:=this.commitmentPolicy,
+                encryptedDataKeys:=headerBody.data.encryptedDataKeys,
+                encryptionContext:=esdkEncryptionContext
+            );
             var output :- cmm.DecryptMaterials(decMatRequest);
             var decMat := output.decryptionMaterials;
 
             // Validate decryption materials
-            :- Need(Client.Materials.DecryptionMaterialsWithPlaintextDataKey(decMat), "CMM returned invalid DecryptMaterials");
+            :- Need(
+                Client.Materials.DecryptionMaterialsWithPlaintextDataKey(decMat),
+                "CMM returned invalid DecryptMaterials"
+            );
 
             var suite := Client
                 .SpecificationClient()
@@ -256,7 +267,9 @@ module {:extern "Dafny.Aws.Esdk.AwsEncryptionSdkClient"} AwsEncryptionSdk {
                 .ReadAESMac(headerBody.tail, suite)
                 .MapFailure(EncryptDecryptHelpers.MapSerializeFailure(": ReadAESMac"));
 
-            var decryptionKey := EncryptDecryptHelpers.DeriveKey(decMat.plaintextDataKey.value, suite, headerBody.data.messageId);
+            var decryptionKey := EncryptDecryptHelpers.DeriveKey(
+                decMat.plaintextDataKey.value, suite, headerBody.data.messageId
+            );
 
             // There is nothing to compare since there was nothing to decrypt.
             // Success means that the tag is correct.

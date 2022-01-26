@@ -15,9 +15,11 @@ module {:extern "ConfigDefaults"} ConfigDefaults {
     returns (res: Aws.Crypto.CommitmentPolicy)
 
     ensures
-      configDefaults == Aws.Esdk.V1 ==> res == Aws.Crypto.REQUIRE_ENCRYPT_REQUIRE_DECRYPT
+      //configDefaults == Aws.Esdk.V1 ==> res == Aws.Crypto.REQUIRE_ENCRYPT_REQUIRE_DECRYPT
+      configDefaults == Aws.Esdk.V1 ==> res == Aws.Crypto.FORBID_ENCRYPT_ALLOW_DECRYPT
     {
       // TODO: actual matching on version
-      return Aws.Crypto.REQUIRE_ENCRYPT_REQUIRE_DECRYPT;
+      // For now defaulting to the FORBID_ENCRYPT version because don't yet support commiting alg suites
+      return Aws.Crypto.FORBID_ENCRYPT_ALLOW_DECRYPT;
     }
 }

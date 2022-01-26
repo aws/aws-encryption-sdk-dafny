@@ -7,6 +7,8 @@ include "../../StandardLibrary/Base64.dfy"
 include "../Materials.dfy"
 include "../AlgorithmSuites.dfy"
 include "../CMM.dfy"
+include "../Defaults.dfy"
+include "../Commitment.dfy"
 include "../../Util/UTF8.dfy"
 include "../../Generated/AwsCryptographicMaterialProviders.dfy"
 
@@ -23,6 +25,8 @@ module
   import Base64
   import UTF8
   import Aws.Crypto
+  import Defaults
+  import Commitment
 
   class DefaultCMM
     extends CMM.VerifiableInterface
@@ -53,11 +57,17 @@ module
         Materials.EC_PUBLIC_KEY_FIELD !in input.encryptionContext,
         "Reserved Field found in EncryptionContext keys.");
 
-      var id := input
-        .algorithmSuiteId
-        .UnwrapOr(Crypto.AlgorithmSuiteId.ALG_AES_256_GCM_IV12_TAG16_HKDF_SHA384_ECDSA_P384);
+      var algorithmId : Crypto.AlgorithmSuiteId;
+      if input.algorithmSuiteId.Some? {
+        algorithmId := input.algorithmSuiteId.value;
+      } else {
+        algorithmId := Defaults.GetAlgorithmSuiteForCommitmentPolicy(input.commitmentPolicy);
+      }
 
-      var suite := AlgorithmSuites.GetSuite(id);
+
+      var _ :- Commitment.ValidateCommitmentPolicyOnEncrypt(Option.Some(algorithmId), input.commitmentPolicy);
+
+      var suite := AlgorithmSuites.GetSuite(algorithmId);
       var materials :- InitializeEncryptionMaterials(
         suite,
         input.encryptionContext
@@ -81,6 +91,7 @@ module
       return Success(Crypto.GetEncryptionMaterialsOutput(encryptionMaterials:=result.materials));
     }
 
+
     method DecryptMaterials(
       input: Crypto.DecryptMaterialsInput
     )
@@ -89,9 +100,13 @@ module
       ==>
         && Materials.DecryptionMaterialsWithPlaintextDataKey(res.value.decryptionMaterials)
     {
+      var _ :- Commitment.ValidateCommitmentPolicyOnDecrypt(
+        Option.Some(input.algorithmSuiteId), input.commitmentPolicy
+      );
 
+      var suite := AlgorithmSuites.GetSuite(input.algorithmSuiteId);
       var materials :- InitializeDecryptionMaterials(
-        AlgorithmSuites.GetSuite(input.algorithmSuiteId),
+        suite,
         input.encryptionContext
       );
 
