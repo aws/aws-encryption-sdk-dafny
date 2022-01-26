@@ -62,7 +62,7 @@ module {:extern "EncryptDecryptHelpers"} EncryptDecryptHelpers {
     SerializeMessageWithoutSignature(framedMessage) + serializedSignature
   }
 
-  // // Specification of Encrypt without signature
+  // Specification of Encrypt without signature
   function method SerializeMessageWithoutSignature(
     framedMessage: MessageBody.FramedMessage
   )

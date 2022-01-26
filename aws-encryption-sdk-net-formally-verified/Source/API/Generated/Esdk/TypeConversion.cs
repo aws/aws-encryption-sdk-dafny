@@ -177,6 +177,11 @@ namespace Aws.Esdk
         {
             Dafny.Aws.Esdk.AwsEncryptionSdkClientConfig concrete = (Dafny.Aws.Esdk.AwsEncryptionSdkClientConfig) value;
             Aws.Esdk.AwsEncryptionSdkClientConfig converted = new Aws.Esdk.AwsEncryptionSdkClientConfig();
+            if (concrete.commitmentPolicy.is_Some)
+                converted.CommitmentPolicy =
+                    (Aws.Crypto.CommitmentPolicy)
+                    FromDafny_N3_aws__N4_esdk__S28_AwsEncryptionSdkClientConfig__M16_commitmentPolicy(
+                        concrete.commitmentPolicy);
             converted.ConfigDefaults =
                 (Aws.Esdk.ConfigurationDefaults)
                 FromDafny_N3_aws__N4_esdk__S28_AwsEncryptionSdkClientConfig__M14_configDefaults(
@@ -188,6 +193,7 @@ namespace Aws.Esdk
             ToDafny_N3_aws__N4_esdk__S28_AwsEncryptionSdkClientConfig(Aws.Esdk.AwsEncryptionSdkClientConfig value)
         {
             return new Dafny.Aws.Esdk.AwsEncryptionSdkClientConfig(
+                ToDafny_N3_aws__N4_esdk__S28_AwsEncryptionSdkClientConfig__M16_commitmentPolicy(value.CommitmentPolicy),
                 ToDafny_N3_aws__N4_esdk__S28_AwsEncryptionSdkClientConfig__M14_configDefaults(value.ConfigDefaults));
         }
 
@@ -371,6 +377,30 @@ namespace Aws.Esdk
             return ToDafny_N6_smithy__N3_api__S4_Blob(value);
         }
 
+        public static Aws.Crypto.CommitmentPolicy FromDafny_N3_aws__N6_crypto__S16_CommitmentPolicy(
+            Dafny.Aws.Crypto._ICommitmentPolicy value)
+        {
+            if (value.is_FORBID__ENCRYPT__ALLOW__DECRYPT)
+                return Aws.Crypto.CommitmentPolicy.FORBID_ENCRYPT_ALLOW_DECRYPT;
+            if (value.is_REQUIRE__ENCRYPT__ALLOW__DECRYPT)
+                return Aws.Crypto.CommitmentPolicy.REQUIRE_ENCRYPT_ALLOW_DECRYPT;
+            if (value.is_REQUIRE__ENCRYPT__REQUIRE__DECRYPT)
+                return Aws.Crypto.CommitmentPolicy.REQUIRE_ENCRYPT_REQUIRE_DECRYPT;
+            throw new System.ArgumentException("Invalid Aws.Crypto.CommitmentPolicy value");
+        }
+
+        public static Dafny.Aws.Crypto._ICommitmentPolicy ToDafny_N3_aws__N6_crypto__S16_CommitmentPolicy(
+            Aws.Crypto.CommitmentPolicy value)
+        {
+            if (Aws.Crypto.CommitmentPolicy.FORBID_ENCRYPT_ALLOW_DECRYPT.Equals(value))
+                return Dafny.Aws.Crypto.CommitmentPolicy.create_FORBID__ENCRYPT__ALLOW__DECRYPT();
+            if (Aws.Crypto.CommitmentPolicy.REQUIRE_ENCRYPT_ALLOW_DECRYPT.Equals(value))
+                return Dafny.Aws.Crypto.CommitmentPolicy.create_REQUIRE__ENCRYPT__ALLOW__DECRYPT();
+            if (Aws.Crypto.CommitmentPolicy.REQUIRE_ENCRYPT_REQUIRE_DECRYPT.Equals(value))
+                return Dafny.Aws.Crypto.CommitmentPolicy.create_REQUIRE__ENCRYPT__REQUIRE__DECRYPT();
+            throw new System.ArgumentException("Invalid Aws.Crypto.CommitmentPolicy value");
+        }
+
         public static System.IO.MemoryStream FromDafny_N3_aws__N4_esdk__S12_EncryptInput__M9_plaintext(
             Dafny.ISequence<byte> value)
         {
@@ -427,6 +457,25 @@ namespace Aws.Esdk
             return new Dafny.Aws.Esdk.DecryptInput(
                 ToDafny_N3_aws__N4_esdk__S12_DecryptInput__M10_ciphertext(value.Ciphertext),
                 ToDafny_N3_aws__N4_esdk__S12_DecryptInput__M16_materialsManager(value.MaterialsManager));
+        }
+
+        public static Aws.Crypto.CommitmentPolicy
+            FromDafny_N3_aws__N4_esdk__S28_AwsEncryptionSdkClientConfig__M16_commitmentPolicy(
+                Wrappers_Compile._IOption<Dafny.Aws.Crypto._ICommitmentPolicy> value)
+        {
+            return value.is_None
+                ? (Aws.Crypto.CommitmentPolicy) null
+                : FromDafny_N3_aws__N6_crypto__S16_CommitmentPolicy(value.Extract());
+        }
+
+        public static Wrappers_Compile._IOption<Dafny.Aws.Crypto._ICommitmentPolicy>
+            ToDafny_N3_aws__N4_esdk__S28_AwsEncryptionSdkClientConfig__M16_commitmentPolicy(
+                Aws.Crypto.CommitmentPolicy value)
+        {
+            return value == null
+                ? Wrappers_Compile.Option<Dafny.Aws.Crypto._ICommitmentPolicy>.create_None()
+                : Wrappers_Compile.Option<Dafny.Aws.Crypto._ICommitmentPolicy>.create_Some(
+                    ToDafny_N3_aws__N6_crypto__S16_CommitmentPolicy((Aws.Crypto.CommitmentPolicy) value));
         }
     }
 }

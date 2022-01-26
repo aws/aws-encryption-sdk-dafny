@@ -61,17 +61,17 @@ module {:extern "Dafny.Aws.Esdk.AwsEncryptionSdkClient"} AwsEncryptionSdk {
             //:- Need(!(request.cmm != null && request.keyring != null), "EncryptRequest.keyring AND EncryptRequest.cmm must not both be set.");
             var frameLength : int64 := EncryptDecryptHelpers.DEFAULT_FRAME_LENGTH;
             if input.frameLength.Some? {
-            // TODO: uncomment this once we figure out why C# is passing 0 as the default value for these nullable
-            // fields
-            //frameLength := request.frameLength.value;
+                // TODO: uncomment this once we figure out why C# is passing 0 as the default value for these nullable
+                // fields
+                //frameLength := request.frameLength.value;
             }
             :- Need(frameLength > 0, "Requested frame length must be > 0");
 
             var maxPlaintextLength := INT64_MAX_LIMIT - 1;
             if input.maxPlaintextLength.Some? {
-            // TODO: uncomment this once we figure out why C# is passing 0 as the default value for these nullable
-            // fields
-            //maxPlaintextLength := request.maxPlaintextLength.value;
+                // TODO: uncomment this once we figure out why C# is passing 0 as the default value for these nullable
+                // fields
+                //maxPlaintextLength := request.maxPlaintextLength.value;
             }
             :- Need(maxPlaintextLength < INT64_MAX_LIMIT, "Input plaintext size too large.");
 
@@ -80,35 +80,40 @@ module {:extern "Dafny.Aws.Esdk.AwsEncryptionSdkClient"} AwsEncryptionSdk {
             // TODO: bring back once we can have Option<Trait>
             /*
             if request.keyring == null {
-            cmm := request.cmm;
+                cmm := request.cmm;
             } else {
-            var client := new Client.AwsCryptographicMaterialProvidersClient();
-            cmm := client
-                .CreateDefaultCryptographicMaterialsManager(Crypto.CreateDefaultCryptographicMaterialsManagerInput(
-                keyring := request.keyring
-            ));
+                var client := new Client.AwsCryptographicMaterialProvidersClient();
+                cmm := client
+                    .CreateDefaultCryptographicMaterialsManager(Crypto.CreateDefaultCryptographicMaterialsManagerInput(
+                    keyring := request.keyring
+                ));
             }*/
 
             var algorithmSuiteID := input.algorithmSuiteId;
 
             var encMatRequest := Crypto.GetEncryptionMaterialsInput(
-            encryptionContext:=input.encryptionContext,
-            algorithmSuiteId:=algorithmSuiteID,
-            maxPlaintextLength:=Option.Some(maxPlaintextLength as int64)
+                encryptionContext:=input.encryptionContext,
+                algorithmSuiteId:=algorithmSuiteID,
+                maxPlaintextLength:=Option.Some(maxPlaintextLength as int64)
             );
 
             var output :- cmm.GetEncryptionMaterials(encMatRequest);
 
             var encMat := output.encryptionMaterials;
 
-            :- Need(Client.Materials.EncryptionMaterialsWithPlaintextDataKey(encMat), "CMM returned invalid EncryptionMaterials");
-
             // Validate encryption materials
-            :- Need(SerializableTypes.IsESDKEncryptionContext(encMat.encryptionContext), "CMM failed to return serializable encryption materials.");
+            :- Need(
+                Client.Materials.EncryptionMaterialsWithPlaintextDataKey(encMat),
+                "CMM returned invalid EncryptionMaterials"
+            );
+            :- Need(
+                SerializableTypes.IsESDKEncryptionContext(encMat.encryptionContext),
+                "CMM failed to return serializable encryption materials."
+            );
             :- Need(HasUint16Len(encMat.encryptedDataKeys), "CMM returned EDKs that exceed the allowed maximum.");
-            :- Need(forall edk
-            | edk in encMat.encryptedDataKeys
-            :: SerializableTypes.IsESDKEncryptedDataKey(edk), "CMM returned non-serializable encrypted data key.");
+            :- Need(forall edk | edk in encMat.encryptedDataKeys
+                :: SerializableTypes.IsESDKEncryptedDataKey(edk),
+                "CMM returned non-serializable encrypted data key.");
 
             var encryptedDataKeys: SerializableTypes.ESDKEncryptedDataKeys := encMat.encryptedDataKeys;
 
@@ -125,31 +130,31 @@ module {:extern "Dafny.Aws.Esdk.AwsEncryptionSdkClient"} AwsEncryptionSdk {
             :- Need(!suite.commitment.HKDF?, "Commitment not yet supported");
 
             var body := HeaderTypes.HeaderBody.V1HeaderBody(
-            messageType := HeaderTypes.MessageType.TYPE_CUSTOMER_AED,
-            esdkSuiteId := esdkId,
-            messageId := messageID,
-            encryptionContext := canonicalEncryptionContext,
-            encryptedDataKeys := encryptedDataKeys,
-            contentType := HeaderTypes.ContentType.Framed,
-            headerIvLength := suite.encrypt.ivLength as nat,
-            frameLength := frameLength as uint32
+                messageType := HeaderTypes.MessageType.TYPE_CUSTOMER_AED,
+                esdkSuiteId := esdkId,
+                messageId := messageID,
+                encryptionContext := canonicalEncryptionContext,
+                encryptedDataKeys := encryptedDataKeys,
+                contentType := HeaderTypes.ContentType.Framed,
+                headerIvLength := suite.encrypt.ivLength as nat,
+                frameLength := frameLength as uint32
             );
 
             var rawHeader := Header.WriteHeaderBody(body);
 
             var iv: seq<uint8> := seq(suite.encrypt.ivLength as int, _ => 0);
             var encryptionOutput :- AESEncryption.AESEncrypt(suite.encrypt, iv, derivedDataKey, [], rawHeader);
-            var headerAuth := HeaderTypes.HeaderAuth.AESMac(
-            headerIv := iv,
-            headerAuthTag := encryptionOutput.authTag
+                var headerAuth := HeaderTypes.HeaderAuth.AESMac(
+                headerIv := iv,
+                headerAuthTag := encryptionOutput.authTag
             );
 
             var header := Header.HeaderInfo(
-            body := body,
-            rawHeader := rawHeader,
-            encryptionContext := encMat.encryptionContext,
-            suite := suite,
-            headerAuth := headerAuth
+                body := body,
+                rawHeader := rawHeader,
+                encryptionContext := encMat.encryptionContext,
+                suite := suite,
+                headerAuth := headerAuth
             );
 
             // Add headerAuth requirements to Header type
@@ -167,28 +172,28 @@ module {:extern "Dafny.Aws.Esdk.AwsEncryptionSdkClient"} AwsEncryptionSdk {
 
             // Encrypt the given plaintext into the framed message
             var framedMessage :- MessageBody.EncryptMessageBody(
-            input.plaintext,
-            header,
-            derivedDataKey
+                input.plaintext,
+                header,
+                derivedDataKey
             );
 
             if framedMessage.finalFrame.header.suite.signature.ECDSA? {
-            var msg := EncryptDecryptHelpers.SerializeMessageWithoutSignature(framedMessage);
-            var ecdsaParams := framedMessage.finalFrame.header.suite.signature.curve;
-            // TODO: This should just work, but Proof is difficult
-            :- Need(encMat.signingKey.Some?, "Missing signing key.");
+                var msg := EncryptDecryptHelpers.SerializeMessageWithoutSignature(framedMessage);
+                var ecdsaParams := framedMessage.finalFrame.header.suite.signature.curve;
+                // TODO: This should just work, but Proof is difficult
+                :- Need(encMat.signingKey.Some?, "Missing signing key.");
 
-            var bytes :- Signature.Sign(ecdsaParams, encMat.signingKey.value, msg);
-            :- Need(|bytes| == ecdsaParams.SignatureLength() as int, "Malformed response from Sign().");
+                var bytes :- Signature.Sign(ecdsaParams, encMat.signingKey.value, msg);
+                :- Need(|bytes| == ecdsaParams.SignatureLength() as int, "Malformed response from Sign().");
 
-            var signature := UInt16ToSeq(|bytes| as uint16) + bytes;
-            msg := msg + signature;
-            // TODO: Come back and prove this
-            // assert msg == SerializeMessageWithSignature(framedMessage, signature); // Header, frames and signature can be serialized into the stream
+                var signature := UInt16ToSeq(|bytes| as uint16) + bytes;
+                msg := msg + signature;
+                // TODO: Come back and prove this
+                // assert msg == SerializeMessageWithSignature(framedMessage, signature); // Header, frames and signature can be serialized into the stream
             return Success(Esdk.EncryptOutput(ciphertext := msg));
             } else {
-            var msg := EncryptDecryptHelpers.SerializeMessageWithoutSignature(framedMessage);
-            return Success(Esdk.EncryptOutput(ciphertext := msg));
+                var msg := EncryptDecryptHelpers.SerializeMessageWithoutSignature(framedMessage);
+                return Success(Esdk.EncryptOutput(ciphertext := msg));
             }
         }
 
@@ -203,19 +208,19 @@ module {:extern "Dafny.Aws.Esdk.AwsEncryptionSdkClient"} AwsEncryptionSdk {
             // TODO: bring back once we can have Option<Trait>
             /*
             if request.keyring == null {
-            cmm := request.cmm;
+                cmm := request.cmm;
             } else {
-            var client := new Client.AwsCryptographicMaterialProvidersClient();
-            cmm := client
-                .CreateDefaultCryptographicMaterialsManager(Crypto.CreateDefaultCryptographicMaterialsManagerInput(
-                keyring := request.keyring
-            ));
+                var client := new Client.AwsCryptographicMaterialProvidersClient();
+                cmm := client
+                    .CreateDefaultCryptographicMaterialsManager(Crypto.CreateDefaultCryptographicMaterialsManagerInput(
+                    keyring := request.keyring
+                ));
             }*/
 
             var buffer := SerializeFunctions.ReadableBuffer(input.ciphertext, 0);
             var headerBody :- Header
-            .ReadHeaderBody(buffer)
-            .MapFailure(EncryptDecryptHelpers.MapSerializeFailure(": ReadHeaderBody"));
+                .ReadHeaderBody(buffer)
+                .MapFailure(EncryptDecryptHelpers.MapSerializeFailure(": ReadHeaderBody"));
 
             var rawHeader := headerBody.tail.bytes[buffer.start..headerBody.tail.start];
 
@@ -232,29 +237,28 @@ module {:extern "Dafny.Aws.Esdk.AwsEncryptionSdkClient"} AwsEncryptionSdk {
             :- Need(Client.Materials.DecryptionMaterialsWithPlaintextDataKey(decMat), "CMM returned invalid DecryptMaterials");
 
             var suite := Client
-            .SpecificationClient()
-            .GetSuite(decMat.algorithmSuiteId);
+                .SpecificationClient()
+                .GetSuite(decMat.algorithmSuiteId);
 
             var headerAuth :- HeaderAuth
-            .ReadAESMac(headerBody.tail, suite)
-            .MapFailure(EncryptDecryptHelpers.MapSerializeFailure(": ReadAESMac"));
+                .ReadAESMac(headerBody.tail, suite)
+                .MapFailure(EncryptDecryptHelpers.MapSerializeFailure(": ReadAESMac"));
 
             var decryptionKey := EncryptDecryptHelpers.DeriveKey(decMat.plaintextDataKey.value, suite, headerBody.data.messageId);
 
             // There is nothing to compare since there was nothing to decrypt.
             // Success means that the tag is correct.
             var _ :- AESEncryption.AESDecrypt(
-            suite.encrypt,
-            decryptionKey,
-            [], // The header auth is for integrity, not confidentiality
-            headerAuth.data.headerAuthTag,
-            headerAuth.data.headerIv,
-            rawHeader
+                suite.encrypt,
+                decryptionKey,
+                [], // The header auth is for integrity, not confidentiality
+                headerAuth.data.headerAuthTag,
+                headerAuth.data.headerIv,
+                rawHeader
             );
 
-            // Need to add a message with 
+            // TODO: add support for non-framed content
             :- Need(headerBody.data.contentType.Framed?, "Fix me");
-
 
             assert {:split_here} true;
             // Currently the Encryption Context in the header MUST be the same
@@ -266,25 +270,29 @@ module {:extern "Dafny.Aws.Esdk.AwsEncryptionSdkClient"} AwsEncryptionSdk {
             :- Need(Header.HeaderVersionSupportsCommitment?(suite, headerBody.data), "Algorithm suite does not match message format.");
 
             var header := Header.HeaderInfo(
-            body := headerBody.data,
-            rawHeader := rawHeader,
-            encryptionContext := decMat.encryptionContext,
-            suite := suite,
-            headerAuth := headerAuth.data
+                body := headerBody.data,
+                rawHeader := rawHeader,
+                encryptionContext := decMat.encryptionContext,
+                suite := suite,
+                headerAuth := headerAuth.data
             );
 
             assert {:split_here} true;
             assert Header.CorrectlyReadHeaderBody(
             SerializeFunctions.ReadableBuffer(rawHeader, 0),
-            Success(SerializeFunctions.SuccessfulRead(headerBody.data, SerializeFunctions.ReadableBuffer(rawHeader, |rawHeader|))));
+            Success(
+                SerializeFunctions.SuccessfulRead(
+                    headerBody.data, SerializeFunctions.ReadableBuffer(rawHeader, |rawHeader|))
+                )
+            );
             assert Header.HeaderAuth?(suite, headerAuth.data);
             assert Header.IsHeader(header);
 
             var messageBody :- MessageBody.ReadFramedMessageBody(
-            headerAuth.tail,
-            header,
-            [],
-            headerAuth.tail
+                headerAuth.tail,
+                header,
+                [],
+                headerAuth.tail
             ).MapFailure(EncryptDecryptHelpers.MapSerializeFailure(": ReadFramedMessageBody"));
 
             assert {:split_here} true;
@@ -302,14 +310,14 @@ module {:extern "Dafny.Aws.Esdk.AwsEncryptionSdkClient"} AwsEncryptionSdk {
             }
 
             var signature :- EncryptDecryptHelpers.VerifySignature(
-            messageBody.tail,
-            messageBody.tail.bytes[buffer.start..messageBody.tail.start],
-            decMat
+                messageBody.tail,
+                messageBody.tail.bytes[buffer.start..messageBody.tail.start],
+                decMat
             );
 
             :- Need(signature.start == |signature.bytes|, "Data after message footer.");
 
             return Success(Esdk.DecryptOutput(plaintext := plaintext));
         }
-  }
+    }
 }

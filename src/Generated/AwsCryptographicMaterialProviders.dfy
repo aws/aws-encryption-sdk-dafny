@@ -131,7 +131,7 @@ module {:extern "Dafny.Aws.Crypto"} Aws.Crypto {
     ///////////////////////
     // crypto-config.smithy
     datatype CommitmentPolicy =
-        FORBID_ENCRYPT_FORBID_DECRYPT |
+        FORBID_ENCRYPT_ALLOW_DECRYPT |
         REQUIRE_ENCRYPT_ALLOW_DECRYPT |
         REQUIRE_ENCRYPT_REQUIRE_DECRYPT
 
