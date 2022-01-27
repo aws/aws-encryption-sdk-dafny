@@ -20,6 +20,8 @@ module {:extern "Dafny.Aws.Crypto.MaterialProviders.Commitment"} MaterialProvide
     algorithm: Option<Crypto.AlgorithmSuiteId>,
     commitmentPolicy: Crypto.CommitmentPolicy
   )
+    // Bool return type on success is somewhat arbitrary; mainly we care about
+    // success/failure
     returns (res: Result<bool, string>)
 
     // If an algorithm suite was not provided it cannot conflict with the
@@ -87,6 +89,8 @@ module {:extern "Dafny.Aws.Crypto.MaterialProviders.Commitment"} MaterialProvide
     algorithm: Option<Crypto.AlgorithmSuiteId>,
     commitmentPolicy: Crypto.CommitmentPolicy
   )
+    // Bool return type on success is somewhat arbitrary; mainly we care about
+    // success/failure
     returns (res: Result<bool, string>)
 
     // If an algorithm suite was not provided it cannot conflict with the
