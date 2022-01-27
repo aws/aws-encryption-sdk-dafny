@@ -1,5 +1,6 @@
 .idea/*
 .vscode/*
+*.sln*
 **/.DS_Store
 build/*
 test/**/Output/*

@@ -20,6 +20,7 @@ using Xunit;
 using Aws.Crypto;
 using Aws.Esdk;
 using Xunit.Sdk;
+using ConfigurationDefaults = Aws.Esdk.ConfigurationDefaults;
 
 namespace TestVectorTests {
 
@@ -370,7 +371,11 @@ namespace TestVectorTests {
 
             try
             {
-                IAwsEncryptionSdk encryptionSdkClient = new AwsEncryptionSdkClient();
+                AwsEncryptionSdkClientConfig config = new AwsEncryptionSdkClientConfig
+                {
+                    ConfigDefaults = ConfigurationDefaults.V1
+                };
+                IAwsEncryptionSdk encryptionSdkClient = new AwsEncryptionSdkClient(config);
 
                 ICryptographicMaterialsManager cmm = CmmFactory.DecryptCmm(vector, keyMap);
 
@@ -428,7 +433,11 @@ namespace TestVectorTests {
             }
             // End TODO
 
-            IAwsEncryptionSdk encryptionSdkClient = new AwsEncryptionSdkClient();
+            AwsEncryptionSdkClientConfig config = new AwsEncryptionSdkClientConfig
+            {
+                ConfigDefaults = ConfigurationDefaults.V1
+            };
+            IAwsEncryptionSdk encryptionSdkClient = new AwsEncryptionSdkClient(config);
 
             ICryptographicMaterialsManager cmm = CmmFactory.DecryptCmm(vector, keyMap);
 
