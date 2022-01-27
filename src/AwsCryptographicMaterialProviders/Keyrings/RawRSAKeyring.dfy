@@ -331,7 +331,8 @@ module
             errors := errors + [
               "RSAKeyring could not decrypt EncryptedDataKey "
               + Base10Int2String(i)
-              + ". "
+              + ": "
+              + decryptResult.error
             ];
           }
         } else {

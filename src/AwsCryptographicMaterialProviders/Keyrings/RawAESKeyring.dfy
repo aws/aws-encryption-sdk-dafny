@@ -265,7 +265,8 @@ module
             errors := errors + [
               "AESKeyring could not decrypt EncryptedDataKey "
               + Base10Int2String(i)
-              + ". "
+              + ": "
+              + ptKeyRes.error
             ];
           }
         } else {
