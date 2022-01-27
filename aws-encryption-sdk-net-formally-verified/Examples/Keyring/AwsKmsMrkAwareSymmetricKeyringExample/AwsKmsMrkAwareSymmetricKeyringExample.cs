@@ -8,6 +8,7 @@ using Aws.Crypto;
 using Aws.Esdk;
 
 using Xunit;
+using ConfigurationDefaults = Aws.Esdk.ConfigurationDefaults;
 
 /// Demonstrate an encrypt/decrypt cycle using a AWS MRK-aware symmetric keyring.
 public class AwsKmsMrkAwareSymmetricKeyringExample {
@@ -26,7 +27,11 @@ public class AwsKmsMrkAwareSymmetricKeyringExample {
         // Create clients to access the Encryption SDK APIs.
         // TODO: add client configuration objects
         IAwsCryptographicMaterialProviders materialProviders = new AwsCryptographicMaterialProvidersClient();
-        IAwsEncryptionSdk encryptionSdkClient = new AwsEncryptionSdkClient();
+        AwsEncryptionSdkClientConfig config = new AwsEncryptionSdkClientConfig
+        {
+            ConfigDefaults = ConfigurationDefaults.V1
+        };
+        IAwsEncryptionSdk encryptionSdkClient = new AwsEncryptionSdkClient(config);
 
         // Create the keyring that determines how your data keys are protected.
         CreateMrkAwareStrictAwsKmsKeyringInput createKeyringInput = new CreateMrkAwareStrictAwsKmsKeyringInput
