@@ -53,6 +53,9 @@ module {:extern "Dafny.Aws.Esdk.AwsEncryptionSdkClient"} AwsEncryptionSdk {
 
         constructor (config: Esdk.AwsEncryptionSdkClientConfig)
             ensures this.config == config
+            ensures config.commitmentPolicy.None? ==>
+              && var policy := ConfigDefaults.GetDefaultCommitmentPolicy(config.configDefaults);
+              && this.commitmentPolicy == policy
         {
             this.config := config;
             if config.commitmentPolicy.None? {

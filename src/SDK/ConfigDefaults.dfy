@@ -11,13 +11,13 @@ module {:extern "ConfigDefaults"} ConfigDefaults {
 
   import Aws
 
-  method GetDefaultCommitmentPolicy(configDefaults : Aws.Esdk.ConfigurationDefaults)
-    returns (res: Aws.Crypto.CommitmentPolicy)
+  function method GetDefaultCommitmentPolicy(configDefaults : Aws.Esdk.ConfigurationDefaults):
+    (res: Aws.Crypto.CommitmentPolicy)
 
     ensures
       configDefaults == Aws.Esdk.V1 ==> res == Aws.Crypto.REQUIRE_ENCRYPT_REQUIRE_DECRYPT
     {
       // TODO: actual matching on version
-      return Aws.Crypto.REQUIRE_ENCRYPT_REQUIRE_DECRYPT;
+      Aws.Crypto.REQUIRE_ENCRYPT_REQUIRE_DECRYPT
     }
 }
