@@ -91,7 +91,6 @@ module
       return Success(Crypto.GetEncryptionMaterialsOutput(encryptionMaterials:=result.materials));
     }
 
-
     method DecryptMaterials(
       input: Crypto.DecryptMaterialsInput
     )
@@ -104,9 +103,8 @@ module
         Option.Some(input.algorithmSuiteId), input.commitmentPolicy
       );
 
-      var suite := AlgorithmSuites.GetSuite(input.algorithmSuiteId);
       var materials :- InitializeDecryptionMaterials(
-        suite,
+        AlgorithmSuites.GetSuite(input.algorithmSuiteId),
         input.encryptionContext
       );
 
