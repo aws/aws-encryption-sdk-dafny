@@ -30,8 +30,8 @@ module {:extern "Dafny.Aws.Crypto.MaterialProviders.Commitment"} MaterialProvide
     // algorithm provides it
     ensures
       (
-        && algorithm.Some?
         && commitmentPolicy == Crypto.FORBID_ENCRYPT_ALLOW_DECRYPT
+        && algorithm.Some?
         && var suite := AlgorithmSuites.GetSuite(algorithm.value);
         && !suite.commitment.None?
       )
