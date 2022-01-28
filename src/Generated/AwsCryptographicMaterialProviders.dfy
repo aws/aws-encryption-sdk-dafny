@@ -27,8 +27,7 @@ module {:extern "Dafny.Aws.Crypto"} Aws.Crypto {
         IAwsCryptographicMaterialsProviderClient.CreateMrkAwareStrictAwsKmsKeyring,
         IAwsCryptographicMaterialsProviderClient.CreateMrkAwareDiscoveryAwsKmsKeyring,
         IAwsCryptographicMaterialsProviderClient.CreateMultiKeyring,
-        IAwsCryptographicMaterialsProviderClient.CreateRawRsaKeyring,
-        IAwsCryptographicMaterialProvidersException
+        IAwsCryptographicMaterialsProviderClient.CreateRawRsaKeyring
 
       reveals
         AlgorithmSuiteId,
@@ -62,6 +61,8 @@ module {:extern "Dafny.Aws.Crypto"} Aws.Crypto {
         GrantToken,
         GrantTokenList,
         IAwsCryptographicMaterialsProviderClient,
+        IAwsCryptographicMaterialProvidersException,
+        AwsCryptographicMaterialProvidersClientException,
         AesWrappingAlg,
         CommitmentPolicy,
         CreateRawRsaKeyringInput,
@@ -372,7 +373,8 @@ module {:extern "Dafny.Aws.Crypto"} Aws.Crypto {
         method CreateRawRsaKeyring(input: CreateRawRsaKeyringInput) returns (res: Result<IKeyring, IAwsCryptographicMaterialProvidersException>)
 
         // CMMs
-        method CreateDefaultCryptographicMaterialsManager(input: CreateDefaultCryptographicMaterialsManagerInput) returns (res: ICryptographicMaterialsManager)
+        method CreateDefaultCryptographicMaterialsManager(input: CreateDefaultCryptographicMaterialsManagerInput)
+            returns (res: Result<ICryptographicMaterialsManager, IAwsCryptographicMaterialProvidersException>)
         // method CreateCachingCryptographicMaterialsManager(input: CreateCachingCryptographicMaterialsManagerInput) returns (res: ICryptographicMaterialsManager)
 
         // Caches

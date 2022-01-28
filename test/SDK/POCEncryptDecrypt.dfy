@@ -26,22 +26,26 @@ module {:extern "TestClient"} TestClient {
 
   import TestUtils
 
-  method {:test} HappyPath() 
+  method {:test} HappyPath()
   {
     // Create material provider client
     var materialsClient := new Client.AwsCryptographicMaterialProvidersClient();
 
     // Use material provider client API for RawAESKeyring creation
-    var rawAESKeyring := materialsClient.CreateRawAesKeyring(Crypto.CreateRawAesKeyringInput(
+    var rawAESKeyringResult := materialsClient.CreateRawAesKeyring(Crypto.CreateRawAesKeyringInput(
       keyNamespace := "someNamespace",
       keyName := "someName",
       wrappingKey := seq(32, i => 0),
       wrappingAlg := Crypto.ALG_AES256_GCM_IV12_TAG16));
+    expect rawAESKeyringResult.Success?;
+    var rawAESKeyring := rawAESKeyringResult.value;
 
     // Use material provider client API for DefaultCMM creation
-    var cmm := materialsClient.CreateDefaultCryptographicMaterialsManager(Crypto.CreateDefaultCryptographicMaterialsManagerInput(
+    var cmmResult := materialsClient.CreateDefaultCryptographicMaterialsManager(Crypto.CreateDefaultCryptographicMaterialsManagerInput(
       keyring := rawAESKeyring
     ));
+    expect cmmResult.Success?;
+    var cmm := cmmResult.value;
 
     // Create AWS Crypto client
     // TODO use createClient
