@@ -27,7 +27,8 @@ module {:extern "Dafny.Aws.Crypto"} Aws.Crypto {
         IAwsCryptographicMaterialsProviderClient.CreateMrkAwareStrictAwsKmsKeyring,
         IAwsCryptographicMaterialsProviderClient.CreateMrkAwareDiscoveryAwsKmsKeyring,
         IAwsCryptographicMaterialsProviderClient.CreateMultiKeyring,
-        IAwsCryptographicMaterialsProviderClient.CreateRawRsaKeyring
+        IAwsCryptographicMaterialsProviderClient.CreateRawRsaKeyring,
+        AwsCryptographicMaterialProvidersClientException.WrapResultString
 
       reveals
         AlgorithmSuiteId,
@@ -87,14 +88,8 @@ module {:extern "Dafny.Aws.Crypto"} Aws.Crypto {
     datatype GetClientInput = GetClientInput(region: string)
 
     trait IClientSupplier {
-        // GetClient is a fallible operation, so it should return a Result<KMS.IKeyManagementServiceClient>,
-        // but prior to Dafny 3.4 we can't use the client trait as a type parameter.
-        // Until we adopt Dafny 3.4+, we mark the return type optional via `?`.
-        // This forces consuming code/proofs to handle the failure case,
-        // which in turn will ease the migration to a Result-wrapped client type.
-        //
-        // TODO: replace `?` by wrapping client in Result once we've adopted Dafny 3.4+
-        method GetClient(input: GetClientInput) returns (res: KMS.IKeyManagementServiceClient?)
+        method GetClient(input: GetClientInput)
+            returns (res: Result<KMS.IKeyManagementServiceClient, IAwsCryptographicMaterialProvidersException>)
     }
 
     /////////////
@@ -174,8 +169,10 @@ module {:extern "Dafny.Aws.Crypto"} Aws.Crypto {
     datatype OnDecryptOutput = OnDecryptOutput(nameonly materials: DecryptionMaterials)
 
     trait {:termination false} IKeyring {
-        method OnEncrypt(input: OnEncryptInput) returns (res: Result<OnEncryptOutput, string>)
-        method OnDecrypt(input: OnDecryptInput) returns (res: Result<OnDecryptOutput, string>)
+        method OnEncrypt(input: OnEncryptInput)
+            returns (res: Result<OnEncryptOutput, IAwsCryptographicMaterialProvidersException>)
+        method OnDecrypt(input: OnDecryptInput)
+            returns (res: Result<OnDecryptOutput, IAwsCryptographicMaterialProvidersException>)
     }
 
     /////////////////
@@ -229,13 +226,18 @@ module {:extern "Dafny.Aws.Crypto"} Aws.Crypto {
     datatype DeleteEntryOutput = DeleteEntryOutput() // empty for now
 
     trait ICryptoMaterialsCache {
-        method PutEntryForEncrypt(input: PutEntryForEncryptInput) returns (res: PutEntryForEncryptOutput)
-        method GetEntryForEncrypt(input: GetEntryForEncryptInput) returns (res: GetEntryForEncryptOutput)
+        method PutEntryForEncrypt(input: PutEntryForEncryptInput)
+            returns (res: Result<PutEntryForEncryptOutput, IAwsCryptographicMaterialProvidersException>)
+        method GetEntryForEncrypt(input: GetEntryForEncryptInput)
+            returns (res: Result<GetEntryForEncryptOutput, IAwsCryptographicMaterialProvidersException>)
 
-        method PutEntryForDecrypt(input: PutEntryForDecryptInput) returns (res: PutEntryForDecryptOutput)
-        method GetEntryForDecrypt(input: GetEntryForDecryptInput) returns (res: GetEntryForDecryptOutput)
+        method PutEntryForDecrypt(input: PutEntryForDecryptInput)
+            returns (res: Result<PutEntryForDecryptOutput, IAwsCryptographicMaterialProvidersException>)
+        method GetEntryForDecrypt(input: GetEntryForDecryptInput)
+            returns (res: Result<GetEntryForDecryptOutput, IAwsCryptographicMaterialProvidersException>)
 
-        method DeleteEntry(input: DeleteEntryInput) returns (res: DeleteEntryOutput)
+        method DeleteEntry(input: DeleteEntryInput)
+            returns (res: Result<DeleteEntryOutput, IAwsCryptographicMaterialProvidersException>)
     }
 
     //////////////
@@ -263,8 +265,10 @@ module {:extern "Dafny.Aws.Crypto"} Aws.Crypto {
     )
 
     trait {:termination false} ICryptographicMaterialsManager {
-        method GetEncryptionMaterials(input: GetEncryptionMaterialsInput) returns (res: Result<GetEncryptionMaterialsOutput, string>)
-        method DecryptMaterials(input: DecryptMaterialsInput) returns (res: Result<DecryptMaterialsOutput, string>)
+        method GetEncryptionMaterials(input: GetEncryptionMaterialsInput)
+            returns (res: Result<GetEncryptionMaterialsOutput, IAwsCryptographicMaterialProvidersException>)
+        method DecryptMaterials(input: DecryptMaterialsInput)
+            returns (res: Result<DecryptMaterialsOutput, IAwsCryptographicMaterialProvidersException>)
     }
 
     // Keyring creation input structures
@@ -357,7 +361,6 @@ module {:extern "Dafny.Aws.Crypto"} Aws.Crypto {
         nameonly entryPruningTailSize: Option<int32>
     )
 
-    // TODO: Return Result<> once supported with traits
     // TODO: Add in Create methods once new Keyrings/CMMs are ready
     trait {:termination false} IAwsCryptographicMaterialsProviderClient {
 
@@ -400,7 +403,13 @@ module {:extern "Dafny.Aws.Crypto"} Aws.Crypto {
         }
 
         static method WrapResultString<T>(result: Result<T, string>)
-            returns (wrapped: Result<T, IAwsCryptographicMaterialProvidersException>) {
+            returns (wrapped: Result<T, IAwsCryptographicMaterialProvidersException>)
+            ensures result.Success? ==>
+                && wrapped.Success?
+                && wrapped.value == result.value
+            ensures result.Failure? ==>
+                && wrapped.Failure?
+        {
             match result {
                 case Success(value) => return Result.Success(value);
                 case Failure(error) =>

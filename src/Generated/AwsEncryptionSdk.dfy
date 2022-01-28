@@ -72,7 +72,13 @@ module {:extern "Dafny.Aws.Esdk"} Aws.Esdk {
         }
 
         static method WrapResultString<T>(result: Result<T, string>)
-            returns (wrapped: Result<T, IAwsEncryptionSdkException>) {
+            returns (wrapped: Result<T, IAwsEncryptionSdkException>)
+            ensures result.Success? ==>
+                && wrapped.Success?
+                && wrapped.value == result.value
+            ensures result.Failure? ==>
+                && wrapped.Failure?
+        {
             match result {
                 case Success(value) => return Result.Success(value);
                 case Failure(error) =>

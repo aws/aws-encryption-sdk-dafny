@@ -38,7 +38,7 @@ module
     method GetEncryptionMaterials(
       input: Crypto.GetEncryptionMaterialsInput
     )
-      returns (res: Result<Crypto.GetEncryptionMaterialsOutput, string>)
+      returns (res: Result<Crypto.GetEncryptionMaterialsOutput, Crypto.IAwsCryptographicMaterialProvidersException>)
       ensures res.Success?
       ==>
         && Materials.EncryptionMaterialsWithPlaintextDataKey(res.value.encryptionMaterials)
@@ -49,33 +49,38 @@ module
         )
       ensures Materials.EC_PUBLIC_KEY_FIELD in input.encryptionContext ==> res.Failure?
     {
-      :- Need(
-        Materials.EC_PUBLIC_KEY_FIELD !in input.encryptionContext,
+      var reservedFieldException := new Crypto.AwsCryptographicMaterialProvidersClientException(
         "Reserved Field found in EncryptionContext keys.");
+      :- Need(Materials.EC_PUBLIC_KEY_FIELD !in input.encryptionContext, reservedFieldException);
 
       var id := input
         .algorithmSuiteId
         .UnwrapOr(Crypto.AlgorithmSuiteId.ALG_AES_256_GCM_IV12_TAG16_HKDF_SHA384_ECDSA_P384);
 
       var suite := AlgorithmSuites.GetSuite(id);
-      var materials :- InitializeEncryptionMaterials(
+      var initializeMaterialsResult :=  InitializeEncryptionMaterials(
         suite,
         input.encryptionContext
       );
+      var materials :- Crypto.AwsCryptographicMaterialProvidersClientException.WrapResultString(initializeMaterialsResult);
 
       var result :- keyring.OnEncrypt(Crypto.OnEncryptInput(materials:=materials));
+      var badMaterialsException := new Crypto.AwsCryptographicMaterialProvidersClientException(
+        "Could not retrieve materials required for encryption");
       :- Need(
         && result.materials.plaintextDataKey.Some?
         && |result.materials.encryptedDataKeys| > 0,
-        "Could not retrieve materials required for encryption");
+        badMaterialsException);
 
       // For Dafny keyrings this is a trivial statement
       // because they implement a trait that ensures this.
       // However not all keyrings are Dafny keyrings.
       // Customers can create custom keyrings.
+      var invalidKeyringResponseException := new Crypto.AwsCryptographicMaterialProvidersClientException(
+        "Keyring returned an invalid response");
       :- Need(
         Materials.EncryptionMaterialsTransitionIsValid(materials, result.materials),
-        "Keyring returned an invalid response");
+        invalidKeyringResponseException);
 
       AlgorithmSuites.LemmaAlgorithmSuiteIdImpliesEquality(result.materials.algorithmSuiteId, suite);
       return Success(Crypto.GetEncryptionMaterialsOutput(encryptionMaterials:=result.materials));
@@ -84,16 +89,16 @@ module
     method DecryptMaterials(
       input: Crypto.DecryptMaterialsInput
     )
-      returns (res: Result<Crypto.DecryptMaterialsOutput, string>)
+      returns (res: Result<Crypto.DecryptMaterialsOutput, Crypto.IAwsCryptographicMaterialProvidersException>)
       ensures res.Success?
       ==>
         && Materials.DecryptionMaterialsWithPlaintextDataKey(res.value.decryptionMaterials)
     {
-
-      var materials :- InitializeDecryptionMaterials(
+      var initializeMaterialsResult := InitializeDecryptionMaterials(
         AlgorithmSuites.GetSuite(input.algorithmSuiteId),
         input.encryptionContext
       );
+      var materials :- Crypto.AwsCryptographicMaterialProvidersClientException.WrapResultString(initializeMaterialsResult);
 
       var result :- keyring.OnDecrypt(Crypto.OnDecryptInput(
         materials:=materials,
@@ -104,9 +109,11 @@ module
       // because they implement a trait that ensures this.
       // However not all keyrings are Dafny keyrings.
       // Customers can create custom keyrings.
+      var failedDecryptException := new Crypto.AwsCryptographicMaterialProvidersClientException(
+        "Keyring.OnDecrypt failed to decrypt the plaintext data key.");
       :- Need(
         Materials.DecryptionMaterialsTransitionIsValid(materials, result.materials),
-        "Keyring.OnDecrypt failed to decrypt the plaintext data key.");
+        failedDecryptException);
 
       return Success(Crypto.DecryptMaterialsOutput(decryptionMaterials:=result.materials));
     }
