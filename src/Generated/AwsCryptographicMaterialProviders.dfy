@@ -29,7 +29,8 @@ module {:extern "Dafny.Aws.Crypto"} Aws.Crypto {
         IAwsCryptographicMaterialsProviderClient.CreateMultiKeyring,
         IAwsCryptographicMaterialsProviderClient.CreateRawRsaKeyring,
         AwsCryptographicMaterialProvidersClientException.message,
-        AwsCryptographicMaterialProvidersClientException.WrapResultString
+        AwsCryptographicMaterialProvidersClientException.WrapResultString,
+        Need
 
       reveals
         AlgorithmSuiteId,
@@ -389,6 +390,7 @@ module {:extern "Dafny.Aws.Crypto"} Aws.Crypto {
 
     trait IAwsCryptographicMaterialProvidersException {
         function method GetMessage(): (message: string)
+            reads this
     }
 
     class AwsCryptographicMaterialProvidersClientException extends IAwsCryptographicMaterialProvidersException {
@@ -418,6 +420,21 @@ module {:extern "Dafny.Aws.Crypto"} Aws.Crypto {
                     var wrappedError := new AwsCryptographicMaterialProvidersClientException(error);
                     return Result.Failure(wrappedError);
             }
+        }
+    }
+
+    // A helper method to ensure a requirement is true at runtime.
+    // If the requirement is false, the returned result contains a generic exception that wraps the provided message.
+    // :- Need(5 == |mySet|, "The set MUST have 5 elements.")
+    method Need(condition: bool, error: string)
+        returns (result: Outcome<IAwsCryptographicMaterialProvidersException>)
+        ensures condition <==> result.Pass?
+    {
+        if condition {
+            return Pass;
+        } else {
+            var exception := new AwsCryptographicMaterialProvidersClientException(error);
+            return Fail(exception);
         }
     }
 }
