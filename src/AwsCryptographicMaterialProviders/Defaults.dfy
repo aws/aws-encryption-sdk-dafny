@@ -9,10 +9,12 @@ module {:extern "Defaults"} Defaults {
   // TODO: move to default commitment algorithms once supported by the rest of the code
   function method GetAlgorithmSuiteForCommitmentPolicy(commitmentPolicy: Crypto.CommitmentPolicy):
     (res: Crypto.AlgorithmSuiteId)
+
     ensures
       commitmentPolicy == Crypto.FORBID_ENCRYPT_ALLOW_DECRYPT
       ==>
       res == Crypto.ALG_AES_256_GCM_IV12_TAG16_HKDF_SHA384_ECDSA_P384
+
     ensures
       || commitmentPolicy == Crypto.REQUIRE_ENCRYPT_ALLOW_DECRYPT
       || commitmentPolicy == Crypto.REQUIRE_ENCRYPT_REQUIRE_DECRYPT
