@@ -70,7 +70,7 @@ module {:extern "Dafny.Aws.Esdk.AwsEncryptionSdkClient"} AwsEncryptionSdk {
             }
         }
 
-        method Encrypt(input: Esdk.EncryptInput) returns (res: Result<Esdk.EncryptOutput, string>)
+        method Encrypt(input: Esdk.EncryptInput) returns (res: Result<Esdk.EncryptOutput, Esdk.IAwsEncryptionSdkException>)
         {
             // Validate encrypt request
             // TODO: bring back once we can have Option<Trait>
@@ -215,7 +215,7 @@ module {:extern "Dafny.Aws.Esdk.AwsEncryptionSdkClient"} AwsEncryptionSdk {
             }
         }
 
-        method Decrypt(input: Esdk.DecryptInput) returns (res: Result<Esdk.DecryptOutput, string>)
+        method Decrypt(input: Esdk.DecryptInput) returns (res: Result<Esdk.DecryptOutput, IAwsEncryptionSdkException>)
         {
             // Validate decrypt request
             // TODO: bring back once we can have Option<Trait>

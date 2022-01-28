@@ -49,16 +49,16 @@ module {:extern "Dafny.Aws.Esdk"} Aws.Esdk {
     datatype ConfigurationDefaults = V1
 
     trait {:termination false} IAwsEncryptionSdkClient {
-        method Encrypt(input: EncryptInput) returns (res: Result<EncryptOutput, IAwsEncryptionSdkError>)
-        method Decrypt(input: DecryptInput) returns (res: Result<DecryptOutput, IAwsEncryptionSdkError>)
+        method Encrypt(input: EncryptInput) returns (res: Result<EncryptOutput, IAwsEncryptionSdkException>)
+        method Decrypt(input: DecryptInput) returns (res: Result<DecryptOutput, IAwsEncryptionSdkException>)
     }
 
-    trait IAwsEncryptionSdkError {
+    trait IAwsEncryptionSdkException {
         function method GetMessage(): (message: string)
             reads this
     }
 
-    class AwsEncryptionSdkClientError extends IAwsEncryptionSdkError {
+    class AwsEncryptionSdkClientException extends IAwsEncryptionSdkException {
         var message: string
 
         constructor (message: string) {
@@ -72,11 +72,11 @@ module {:extern "Dafny.Aws.Esdk"} Aws.Esdk {
         }
 
         static method WrapResultString<T>(result: Result<T, string>)
-            returns (wrapped: Result<T, IAwsEncryptionSdkError>) {
+            returns (wrapped: Result<T, IAwsEncryptionSdkException>) {
             match result {
                 case Success(value) => return Result.Success(value);
                 case Failure(error) =>
-                    var wrappedError := new AwsEncryptionSdkClientError(error);
+                    var wrappedError := new AwsEncryptionSdkClientException(error);
                     return Result.Failure(wrappedError);
             }
         }

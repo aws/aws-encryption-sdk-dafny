@@ -91,7 +91,7 @@ module
   {
     constructor () {}
     method CreateRawAesKeyring(input: Crypto.CreateRawAesKeyringInput)
-      returns (res: Crypto.IKeyring)
+      returns (res: Result<Crypto.IKeyring, Crypto.IAwsCryptographicMaterialProvidersException>)
     {
       var wrappingAlg:AESEncryption.AES_GCM := match input.wrappingAlg
         case ALG_AES128_GCM_IV12_TAG16 => AESEncryption.AES_GCM(
@@ -150,7 +150,8 @@ module
       return new AwsKmsStrictKeyring.AwsKmsStrictKeyring(input.kmsClient, input.kmsKeyId, grantTokens);
     }
 
-    method CreateMrkAwareStrictAwsKmsKeyring(input: Crypto.CreateMrkAwareStrictAwsKmsKeyringInput) returns (res: Crypto.IKeyring)
+    method CreateMrkAwareStrictAwsKmsKeyring(input: Crypto.CreateMrkAwareStrictAwsKmsKeyringInput)
+      returns (res: Result<Crypto.IKeyring, Crypto.IAwsCryptographicMaterialProvidersException>)
     {
       expect AwsKmsArnParsing.ParseAwsKmsIdentifier(input.kmsKeyId).Success?;
       expect UTF8.IsASCIIString(input.kmsKeyId);
@@ -163,7 +164,8 @@ module
       return new AwsKmsMrkAwareSymmetricKeyring.AwsKmsMrkAwareSymmetricKeyring(input.kmsClient, input.kmsKeyId, grantTokens);
     }
 
-    method CreateMrkAwareDiscoveryAwsKmsKeyring(input: Crypto.CreateMrkAwareDiscoveryAwsKmsKeyringInput) returns (res: Crypto.IKeyring)
+    method CreateMrkAwareDiscoveryAwsKmsKeyring(input: Crypto.CreateMrkAwareDiscoveryAwsKmsKeyringInput)
+      returns (res: Result<Crypto.IKeyring, Crypto.IAwsCryptographicMaterialProvidersException>)
     {
       // TODO: validation on discovery filter
 
