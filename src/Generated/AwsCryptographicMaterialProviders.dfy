@@ -28,6 +28,7 @@ module {:extern "Dafny.Aws.Crypto"} Aws.Crypto {
         IAwsCryptographicMaterialsProviderClient.CreateMrkAwareDiscoveryAwsKmsKeyring,
         IAwsCryptographicMaterialsProviderClient.CreateMultiKeyring,
         IAwsCryptographicMaterialsProviderClient.CreateRawRsaKeyring,
+        AwsCryptographicMaterialProvidersClientException.message,
         AwsCryptographicMaterialProvidersClientException.WrapResultString
 
       reveals
@@ -63,7 +64,9 @@ module {:extern "Dafny.Aws.Crypto"} Aws.Crypto {
         GrantTokenList,
         IAwsCryptographicMaterialsProviderClient,
         IAwsCryptographicMaterialProvidersException,
+        IAwsCryptographicMaterialProvidersException.GetMessage,
         AwsCryptographicMaterialProvidersClientException,
+        AwsCryptographicMaterialProvidersClientException.GetMessage,
         AesWrappingAlg,
         CommitmentPolicy,
         CreateRawRsaKeyringInput,
@@ -386,7 +389,6 @@ module {:extern "Dafny.Aws.Crypto"} Aws.Crypto {
 
     trait IAwsCryptographicMaterialProvidersException {
         function method GetMessage(): (message: string)
-            reads this
     }
 
     class AwsCryptographicMaterialProvidersClientException extends IAwsCryptographicMaterialProvidersException {
@@ -399,7 +401,7 @@ module {:extern "Dafny.Aws.Crypto"} Aws.Crypto {
         function method GetMessage(): (message: string)
             reads this
         {
-            "AwsEncryptionSdkClientError: " + message
+            "AwsEncryptionSdkClientError: " + this.message
         }
 
         static method WrapResultString<T>(result: Result<T, string>)
