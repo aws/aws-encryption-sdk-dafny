@@ -108,7 +108,10 @@ module {:extern "Dafny.Aws.Esdk.AwsEncryptionSdkClient"} AwsEncryptionSdk {
 
             var algorithmSuiteId := input.algorithmSuiteId;
 
-            var _ := Client.SpecificationClient().ValidateCommitmentPolicyOnEncrypt(algorithmSuiteId, this.commitmentPolicy);
+            if algorithmSuiteId.Some? {
+                var _ := Client.SpecificationClient()
+                    .ValidateCommitmentPolicyOnEncrypt(algorithmSuiteId.value, this.commitmentPolicy);
+            }
 
             var encMatRequest := Crypto.GetEncryptionMaterialsInput(
                 encryptionContext:=input.encryptionContext,
@@ -134,6 +137,18 @@ module {:extern "Dafny.Aws.Esdk.AwsEncryptionSdkClient"} AwsEncryptionSdk {
             :- Need(forall edk | edk in encMat.encryptedDataKeys
                 :: SerializableTypes.IsESDKEncryptedDataKey(edk),
                 "CMM returned non-serializable encrypted data key.");
+
+            //= compliance/client-apis/encrypt.txt#2.6.1
+            //# If this
+            //# algorithm suite (../framework/algorithm-suites.md) is not supported
+            //# by the commitment policy (client.md#commitment-policy) configured in
+            //# the client (client.md) encrypt MUST yield an error.
+            var algorithmAllowed := Client.SpecificationClient()
+                    .ValidateCommitmentPolicyOnEncrypt(encMat.algorithmSuiteId, this.commitmentPolicy);
+            :- Need(
+                algorithmAllowed.Success?,
+                "CMM return algorithm suite not supported by our commitment policy"
+            );
 
             var encryptedDataKeys: SerializableTypes.ESDKEncryptedDataKeys := encMat.encryptedDataKeys;
 
@@ -248,7 +263,7 @@ module {:extern "Dafny.Aws.Esdk.AwsEncryptionSdkClient"} AwsEncryptionSdk {
 
             var algorithmSuiteId := SerializableTypes.GetAlgorithmSuiteId(headerBody.data.esdkSuiteId);
             var _ := Client.SpecificationClient().ValidateCommitmentPolicyOnDecrypt(
-                Option.Some(algorithmSuiteId), this.commitmentPolicy
+                algorithmSuiteId, this.commitmentPolicy
             );
 
             var decMatRequest := Crypto.DecryptMaterialsInput(

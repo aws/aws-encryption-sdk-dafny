@@ -96,7 +96,7 @@ module
     // they do not need to be part of the public model. Note that this might
     // need to be tweaked when we extract the material provider library
     method ValidateCommitmentPolicyOnEncrypt(
-      algorithm: Option<Crypto.AlgorithmSuiteId>,
+      algorithm: Crypto.AlgorithmSuiteId,
       commitmentPolicy: Crypto.CommitmentPolicy
     )
       returns (res: Result<bool, string>)
@@ -105,13 +105,14 @@ module
     }
 
     method ValidateCommitmentPolicyOnDecrypt(
-      algorithm: Option<Crypto.AlgorithmSuiteId>,
+      algorithm: Crypto.AlgorithmSuiteId,
       commitmentPolicy: Crypto.CommitmentPolicy
     )
       returns (res: Result<bool, string>)
     {
       res := Commitment.ValidateCommitmentPolicyOnDecrypt(algorithm, commitmentPolicy);
     }
+
   }
 
   class AwsCryptographicMaterialProvidersClient

@@ -52,6 +52,46 @@ module
           Materials.EC_PUBLIC_KEY_FIELD in res.value.encryptionMaterials.encryptionContext
         )
       ensures Materials.EC_PUBLIC_KEY_FIELD in input.encryptionContext ==> res.Failure?
+
+      // Make sure that we returned the correct algorithm suite, either as specified in
+      // the input or, if that was not given, the default for the provided commitment policy
+      ensures
+        && res.Success?
+      ==>
+        || (
+            //= compliance/framework/default-cmm.txt#2.6.1
+            //= type=implication
+            //# *  If the encryption materials request (cmm-interface.md#encryption-
+            //# materials-request) does contain an algorithm suite, the encryption
+            //# materials returned MUST contain the same algorithm suite.
+            && input.algorithmSuiteId.Some?
+            && res.value.encryptionMaterials.algorithmSuiteId == input.algorithmSuiteId.value
+           )
+        || (
+            //= compliance/framework/default-cmm.txt#2.6.1
+            //= type=implication
+            //# *  If the encryption materials request (cmm-interface.md#encryption-
+            //# materials-request) does not contain an algorithm suite, the
+            //# operation MUST add the default algorithm suite for the commitment
+            //# policy (../client-apis/client.md#commitment-policy) as the
+            //# algorithm suite in the encryption materials returned.
+            && input.algorithmSuiteId.None?
+            && var selectedAlgorithm := Defaults.GetAlgorithmSuiteForCommitmentPolicy(input.commitmentPolicy);
+            && res.value.encryptionMaterials.algorithmSuiteId == selectedAlgorithm
+           )
+
+      //= compliance/framework/default-cmm.txt#2.6.1
+      //= type=implication
+      //# *  If the encryption materials request (cmm-interface.md#encryption-
+      //# materials-request) does contain an algorithm suite, the request
+      //# MUST fail if the algorithm suite is not supported by the
+      //# commitment policy (../client-apis/client.md#commitment-policy) on
+      //# the request.
+      ensures
+        && input.algorithmSuiteId.Some?
+        && Commitment.ValidateCommitmentPolicyOnEncrypt(input.algorithmSuiteId.value, input.commitmentPolicy).Failure?
+      ==>
+        res.Failure?
     {
       :- Need(
         Materials.EC_PUBLIC_KEY_FIELD !in input.encryptionContext,
@@ -64,8 +104,7 @@ module
         algorithmId := Defaults.GetAlgorithmSuiteForCommitmentPolicy(input.commitmentPolicy);
       }
 
-
-      var _ :- Commitment.ValidateCommitmentPolicyOnEncrypt(Option.Some(algorithmId), input.commitmentPolicy);
+      var _ :- Commitment.ValidateCommitmentPolicyOnEncrypt(algorithmId, input.commitmentPolicy);
 
       var suite := AlgorithmSuites.GetSuite(algorithmId);
       var materials :- InitializeEncryptionMaterials(
@@ -98,9 +137,18 @@ module
       ensures res.Success?
       ==>
         && Materials.DecryptionMaterialsWithPlaintextDataKey(res.value.decryptionMaterials)
+
+      //= compliance/framework/default-cmm.txt#2.6.2
+      //= type=implication
+      //# The request MUST fail if the algorithm suite on the request is not
+      //# supported by the commitment policy (../client-apis/
+      //# client.md#commitment-policy) on the request.
+      ensures Commitment.ValidateCommitmentPolicyOnDecrypt(input.algorithmSuiteId, input.commitmentPolicy).Failure?
+      ==>
+        res.Failure?
     {
       var _ :- Commitment.ValidateCommitmentPolicyOnDecrypt(
-        Option.Some(input.algorithmSuiteId), input.commitmentPolicy
+        input.algorithmSuiteId, input.commitmentPolicy
       );
 
       var materials :- InitializeDecryptionMaterials(
