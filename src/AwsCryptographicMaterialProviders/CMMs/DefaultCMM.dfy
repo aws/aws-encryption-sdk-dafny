@@ -49,9 +49,8 @@ module
         )
       ensures Materials.EC_PUBLIC_KEY_FIELD in input.encryptionContext ==> res.Failure?
     {
-      var reservedFieldException := new Crypto.AwsCryptographicMaterialProvidersClientException(
+      :- Crypto.Need(Materials.EC_PUBLIC_KEY_FIELD !in input.encryptionContext,
         "Reserved Field found in EncryptionContext keys.");
-      :- Need(Materials.EC_PUBLIC_KEY_FIELD !in input.encryptionContext, reservedFieldException);
 
       var id := input
         .algorithmSuiteId
@@ -65,22 +64,18 @@ module
       var materials :- Crypto.AwsCryptographicMaterialProvidersClientException.WrapResultString(initializeMaterialsResult);
 
       var result :- keyring.OnEncrypt(Crypto.OnEncryptInput(materials:=materials));
-      var badMaterialsException := new Crypto.AwsCryptographicMaterialProvidersClientException(
-        "Could not retrieve materials required for encryption");
-      :- Need(
+      :- Crypto.Need(
         && result.materials.plaintextDataKey.Some?
         && |result.materials.encryptedDataKeys| > 0,
-        badMaterialsException);
+        "Could not retrieve materials required for encryption");
 
       // For Dafny keyrings this is a trivial statement
       // because they implement a trait that ensures this.
       // However not all keyrings are Dafny keyrings.
       // Customers can create custom keyrings.
-      var invalidKeyringResponseException := new Crypto.AwsCryptographicMaterialProvidersClientException(
-        "Keyring returned an invalid response");
-      :- Need(
+      :- Crypto.Need(
         Materials.EncryptionMaterialsTransitionIsValid(materials, result.materials),
-        invalidKeyringResponseException);
+        "Keyring returned an invalid response");
 
       AlgorithmSuites.LemmaAlgorithmSuiteIdImpliesEquality(result.materials.algorithmSuiteId, suite);
       return Success(Crypto.GetEncryptionMaterialsOutput(encryptionMaterials:=result.materials));
@@ -109,11 +104,9 @@ module
       // because they implement a trait that ensures this.
       // However not all keyrings are Dafny keyrings.
       // Customers can create custom keyrings.
-      var failedDecryptException := new Crypto.AwsCryptographicMaterialProvidersClientException(
-        "Keyring.OnDecrypt failed to decrypt the plaintext data key.");
-      :- Need(
+      :- Crypto.Need(
         Materials.DecryptionMaterialsTransitionIsValid(materials, result.materials),
-        failedDecryptException);
+        "Keyring.OnDecrypt failed to decrypt the plaintext data key.");
 
       return Success(Crypto.DecryptMaterialsOutput(decryptionMaterials:=result.materials));
     }

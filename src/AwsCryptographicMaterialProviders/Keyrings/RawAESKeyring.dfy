@@ -158,12 +158,10 @@ module
       else
         materials.plaintextDataKey.value;
 
-      var wrappingKeyWrongLenException := new Crypto.AwsCryptographicMaterialProvidersClientException(
+      :- Crypto.Need(|wrappingKey|== wrappingAlgorithm.keyLength as int,
         "Wrapping key length does not match algorithm");
-      :- Need(|wrappingKey|== wrappingAlgorithm.keyLength as int, wrappingKeyWrongLenException);
-      var ivWrongLenException := new Crypto.AwsCryptographicMaterialProvidersClientException(
+      :- Crypto.Need(|iv| == wrappingAlgorithm.ivLength as int,
         "IV length does not match algorithm");
-      :- Need(|iv| == wrappingAlgorithm.ivLength as int, ivWrongLenException);
 
       //= compliance/framework/raw-aes-keyring.txt#2.7.1
       //# The keyring MUST encrypt the plaintext data key in the encryption
@@ -178,12 +176,10 @@ module
       var encryptResult :- Crypto.AwsCryptographicMaterialProvidersClientException.WrapResultString(aesEncryptResult);
       var encryptedKey := SerializeEDKCiphertext(encryptResult);
 
-      var providerInfoTooLongException := new Crypto.AwsCryptographicMaterialProvidersClientException(
+      :- Crypto.Need(HasUint16Len(providerInfo),
         "Serialized provider info too long.");
-      :- Need(HasUint16Len(providerInfo), providerInfoTooLongException);
-      var edkTooLongException := new Crypto.AwsCryptographicMaterialProvidersClientException(
+      :- Crypto.Need(HasUint16Len(encryptedKey),
         "Encrypted data key too long.");
-      :- Need(HasUint16Len(encryptedKey), edkTooLongException);
 
       var edk: Crypto.EncryptedDataKey := Crypto.EncryptedDataKey(keyProviderId := keyNamespace, keyProviderInfo := providerInfo, ciphertext := encryptedKey);
 
@@ -235,18 +231,15 @@ module
       //# serialize the encryption context, OnDecrypt MUST fail.
       ensures EncryptionContextToAAD(input.materials.encryptionContext).Failure? ==> res.Failure?
     {
-      var existingPlaintextDataKeyException := new Crypto.AwsCryptographicMaterialProvidersClientException(
-        "Keyring received decryption materials that already contain a plaintext data key.");
       var materials := input.materials;
-      :- Need(
+      :- Crypto.Need(
         Materials.DecryptionMaterialsWithoutPlaintextDataKey(materials),
-        existingPlaintextDataKeyException);
+        "Keyring received decryption materials that already contain a plaintext data key.");
 
       var aadResult := EncryptionContextToAAD(input.materials.encryptionContext);
       var aad :- Crypto.AwsCryptographicMaterialProvidersClientException.WrapResultString(aadResult);
-      var wrappingKeyWrongLenException := new Crypto.AwsCryptographicMaterialProvidersClientException(
+      :- Crypto.Need(|wrappingKey|== wrappingAlgorithm.keyLength as int,
         "The wrapping key does not match the wrapping algorithm");
-      :- Need(|wrappingKey|== wrappingAlgorithm.keyLength as int, wrappingKeyWrongLenException);
 
       var errors: seq<string> := [];
       //= compliance/framework/raw-aes-keyring.txt#2.7.2
@@ -267,12 +260,10 @@ module
           var ptKeyRes := this.Decrypt(iv, encryptionOutput, input.materials.encryptionContext);
           if ptKeyRes.Success?
           {
-            var unexpectedPdkLenException := new Crypto.AwsCryptographicMaterialProvidersClientException(
-              "Plaintext Data Key is not the expected length");
-            // this should never happen
-            :- Need(
+            :- Crypto.Need(
               GetSuite(materials.algorithmSuiteId).encrypt.keyLength as int == |ptKeyRes.Extract()|,
-              unexpectedPdkLenException);
+              // this should never happen
+              "Plaintext Data Key is not the expected length");
             //= compliance/framework/raw-aes-keyring.txt#2.7.2
             //# If a decryption succeeds, this keyring MUST add the resulting
             //# plaintext data key to the decryption materials and return the

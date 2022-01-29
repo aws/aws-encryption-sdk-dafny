@@ -179,11 +179,9 @@ module
      ==>
        res.Failure?
     {
-      var noPublicKeyException := new Crypto.AwsCryptographicMaterialProvidersClientException(
-        "A RawRSAKeyring without a public key cannot provide OnEncrypt");
-      :- Need(
+      :- Crypto.Need(
         this.publicKey.Some? && |this.publicKey.Extract()| > 0,
-        noPublicKeyException);
+        "A RawRSAKeyring without a public key cannot provide OnEncrypt");
 
       var materials := input.materials;
       var suite := GetSuite(materials.algorithmSuiteId);
@@ -292,18 +290,14 @@ module
       ==>
         res.Failure?
     {
-      var noPrivateKeyException := new Crypto.AwsCryptographicMaterialProvidersClientException(
-        "A RawRSAKeyring without a private key cannot provide OnEncrypt");
-      :- Need(
+      :- Crypto.Need(
         this.privateKey.Some? && |this.privateKey.Extract()| > 0,
-        noPrivateKeyException);
+        "A RawRSAKeyring without a private key cannot provide OnEncrypt");
 
-      var existingPlaintextDataKeyException := new Crypto.AwsCryptographicMaterialProvidersClientException(
-        "Keyring received decryption materials that already contain a plaintext data key.");
       var materials := input.materials;
-      :- Need(
+      :- Crypto.Need(
         Materials.DecryptionMaterialsWithoutPlaintextDataKey(materials),
-        existingPlaintextDataKeyException);
+        "Keyring received decryption materials that already contain a plaintext data key.");
 
       var errors: seq<string> := [];
       //= compliance/framework/raw-rsa-keyring.txt#2.6.2
