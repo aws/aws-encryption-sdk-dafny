@@ -403,7 +403,7 @@ module {:extern "Dafny.Aws.Crypto"} Aws.Crypto {
         function method GetMessage(): (message: string)
             reads this
         {
-            "AwsEncryptionSdkClientError: " + this.message
+            this.message
         }
 
         static method WrapResultString<T>(result: Result<T, string>)

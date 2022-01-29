@@ -68,7 +68,7 @@ module {:extern "Dafny.Aws.Esdk"} Aws.Esdk {
         function method GetMessage(): (message: string)
             reads this
         {
-            "AwsEncryptionSdkClientError: " + message
+            this.message
         }
 
         static method WrapResultString<T>(result: Result<T, string>)
