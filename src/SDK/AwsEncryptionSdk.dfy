@@ -133,7 +133,11 @@ module {:extern "Dafny.Aws.Esdk.AwsEncryptionSdkClient"} AwsEncryptionSdk {
                 maxPlaintextLength:=Option.Some(maxPlaintextLength as int64)
             );
 
-            var output :- cmm.GetEncryptionMaterials(encMatRequest);
+            var getEncMatResult := cmm.GetEncryptionMaterials(encMatRequest);
+            var output :- match getEncMatResult {
+                case Success(value) => Success(value)
+                case Failure(exception) => Failure(exception.GetMessage())
+            };
 
             var encMat := output.encryptionMaterials;
 
@@ -275,7 +279,11 @@ module {:extern "Dafny.Aws.Esdk.AwsEncryptionSdkClient"} AwsEncryptionSdk {
             commitmentPolicy:=this.commitmentPolicy,
             encryptedDataKeys:=headerBody.data.encryptedDataKeys,
             encryptionContext:=esdkEncryptionContext);
-            var output :- cmm.DecryptMaterials(decMatRequest);
+            var decMatResult := cmm.DecryptMaterials(decMatRequest);
+            var output :- match decMatResult {
+                case Success(value) => Success(value)
+                case Failure(exception) => Failure(exception.GetMessage())
+            };
             var decMat := output.decryptionMaterials;
 
             // Validate decryption materials
