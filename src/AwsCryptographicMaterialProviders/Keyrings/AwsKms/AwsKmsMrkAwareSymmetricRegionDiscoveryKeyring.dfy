@@ -71,13 +71,15 @@ module
     method OnEncrypt(
       input: Crypto.OnEncryptInput
     )
-      returns (res: Result<Crypto.OnEncryptOutput, string>)
+      returns (res: Result<Crypto.OnEncryptOutput, Crypto.IAwsCryptographicMaterialProvidersException>)
       //= compliance/framework/aws-kms/aws-kms-mrk-aware-symmetric-region-discovery-keyring.txt#2.7
       //= type=implication
       //# This function MUST fail.
       ensures res.Failure?
     {
-      return Failure("Encryption is not supported with a Discovery Keyring.");
+      var exception := new Crypto.AwsCryptographicMaterialProvidersClientException(
+        "Encryption is not supported with a Discovery Keyring.");
+      return Failure(exception);
     }
 
     //= compliance/framework/aws-kms/aws-kms-mrk-aware-symmetric-region-discovery-keyring.txt#2.8
@@ -88,7 +90,7 @@ module
     method OnDecrypt(
       input: Crypto.OnDecryptInput
     )
-      returns (res: Result<Crypto.OnDecryptOutput, string>)
+      returns (res: Result<Crypto.OnDecryptOutput, Crypto.IAwsCryptographicMaterialProvidersException>)
       ensures res.Success?
       ==>
         && Materials.DecryptionMaterialsTransitionIsValid(
@@ -181,15 +183,16 @@ module
       var encryptedDataKeys := input.encryptedDataKeys;
       var suite := AlgorithmSuites.GetSuite(input.materials.algorithmSuiteId);
 
-      :- Need(
-        Materials.DecryptionMaterialsWithoutPlaintextDataKey(materials), 
+      :- Crypto.Need(
+        Materials.DecryptionMaterialsWithoutPlaintextDataKey(materials),
         "Keyring received decryption materials that already contain a plaintext data key.");
 
       //= compliance/framework/aws-kms/aws-kms-mrk-aware-symmetric-region-discovery-keyring.txt#2.8
       //# The set of encrypted data keys MUST first be filtered to match this
       //# keyring's configuration.
       var edkFilterTransform : AwsKmsEncryptedDataKeyFilterTransform := new AwsKmsEncryptedDataKeyFilterTransform(region, discoveryFilter);
-      var edksToAttempt, parts :- Actions.FlatMapWithResult(edkFilterTransform, encryptedDataKeys);
+      var filterResult, parts := Actions.FlatMapWithResult(edkFilterTransform, encryptedDataKeys);
+      var edksToAttempt :- Crypto.AwsCryptographicMaterialProvidersClientException.WrapResultString(filterResult);
 
       forall i
       | 0 <= i < |parts|
@@ -253,7 +256,7 @@ module
         edksToAttempt
       );
 
-      return match outcome {
+      var result := match outcome {
         case Success(mat) =>
           assert exists helper: AwsKmsEdkHelper
           | helper in edksToAttempt
@@ -279,6 +282,8 @@ module
             );
             Failure(error)
       };
+      var wrappedResult := Crypto.AwsCryptographicMaterialProvidersClientException.WrapResultString(result);
+      return wrappedResult;
     }
   }
 
