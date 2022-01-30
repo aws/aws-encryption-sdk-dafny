@@ -86,7 +86,7 @@ module {:extern "Dafny.Aws.Crypto"} Aws.Crypto {
 
     datatype GetClientInput = GetClientInput(region: string)
 
-    trait IClientSupplier {
+    trait {:termination false} IClientSupplier {
         // GetClient is a fallible operation, so it should return a Result<KMS.IKeyManagementServiceClient>,
         // but prior to Dafny 3.4 we can't use the client trait as a type parameter.
         // Until we adopt Dafny 3.4+, we mark the return type optional via `?`.

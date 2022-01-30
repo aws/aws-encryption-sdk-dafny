@@ -12,9 +12,7 @@ include "AwsKmsMrkAreUnique.dfy"
 include "../MultiKeyring.dfy"
 include "../../Keyring.dfy"
 include "AwsKmsArnParsing.dfy"
-
-//TODO remove once we resolve ClientSupplier via Smithy
-include "../../../KMS/KMSUtils.dfy"
+include "AwsKmsClientSupplier.dfy"
 
 module
     {:extern "Dafny.Aws.Crypto.MaterialProviders.AwsKmsMrkAwareMultiKeyrings"}
@@ -30,7 +28,7 @@ module
   import opened MaterialProviders.Keyring
   import KMS = Com.Amazonaws.Kms
   import Aws.Crypto
-  import KMSUtils
+  import ClientSupplier
 
   //= compliance/framework/aws-kms/aws-kms-mrk-aware-multi-keyrings.txt#2.6
   //= type=implication
@@ -149,7 +147,7 @@ module
         //# If a regional client supplier is
         //# not passed, then a default MUST be created that takes a region string
         //# and generates a default AWS SDK client for the given region.
-        supplier := new KMSUtils.BaseClientSupplier();
+        supplier := new ClientSupplier.BaseClientSupplier();
         //TODO fix the above by either making a new KMSUtils that
         // returns the new KMS client OR resolving the smithy client supplier issue
     }
@@ -161,7 +159,11 @@ module
         var region := GetRegion(arn);
         //Question: What should the behavior be if there is no region supplied?
         // I assume that the SDK will use the default region or throw an error
-        var client :- supplier.GetClient(Crypto.GetClientInput(region.UnwrapOr("")));
+        var client := supplier.GetClient(Crypto.GetClientInput(region.UnwrapOr("")));
+        :- Need(
+          client != null,
+          "Failed to initialize client"
+        );
         generatorKeyring := new AwsKmsMrkAwareSymmetricKeyring(
           client,
           generatorIdentifier,
@@ -186,7 +188,11 @@ module
           var region := GetRegion(info);
           //Question: What should the behavior be if there is no region supplied?
           // I assume that the SDK will use the default region or throw an error
-          var client :- supplier.GetClient(Crypto.GetClientInput(region.UnwrapOr("")));
+          var client := supplier.GetClient(Crypto.GetClientInput(region.UnwrapOr("")));
+          :- Need(
+            client != null,
+            "Failed to initialize client"
+          );
           var keyring := new AwsKmsMrkAwareSymmetricKeyring(
             client,
             childIdentifier,
@@ -199,6 +205,10 @@ module
         children := [];
     }
 
+    :- Need(
+      generatorKeyring != null || children != [],
+      "generatorKeyring or child Keryings needed to create a multi keyring"
+    );
     var keyring := new MultiKeyring.MultiKeyring(
       generatorKeyring,
       children
@@ -250,11 +260,11 @@ module
     ensures
       && res.Success?
     ==>
-      && res.value.generator == null
-      && |regions| == |res.value.children|
+      && res.value.generatorKeyring == null
+      && |regions| == |res.value.childKeyrings|
       && forall i | 0 <= i < |regions|
       ::
-        && var k: Keyring := res.value.children[i];
+        && var k: Crypto.IKeyring := res.value.childKeyrings[i];
         && k is AwsKmsMrkAwareSymmetricRegionDiscoveryKeyring
         && var c := k as AwsKmsMrkAwareSymmetricRegionDiscoveryKeyring;
         //= compliance/framework/aws-kms/aws-kms-mrk-aware-multi-keyrings.txt#2.5
@@ -273,7 +283,7 @@ module
     :- Need(|regions| > 0, "No regions passed.");
     :- Need(Seq.IndexOfOption(regions, "").None?, "Empty string is not a valid region.");
 
-    var supplier: KMSUtils.DafnyAWSKMSClientSupplier;
+    var supplier: Crypto.IClientSupplier;
     match clientSupplier {
       case Some(s) =>
         supplier := s;
@@ -282,13 +292,12 @@ module
         //# If a regional client supplier is not passed,
         //# then a default MUST be created that takes a region string and
         //# generates a default AWS SDK client for the given region.
-        supplier := new KMSUtils.BaseClientSupplier();
+        supplier := new ClientSupplier.BaseClientSupplier();
     }
 
     var children : seq<AwsKmsMrkAwareSymmetricRegionDiscoveryKeyring> := [];
 
     for i := 0 to |regions|
-        invariant forall k :: k in children ==> k.Valid()
         invariant |regions[..i]| == |children|
         invariant forall i | 0 <= i < |children|
         ::
@@ -300,20 +309,26 @@ module
         //= compliance/framework/aws-kms/aws-kms-mrk-aware-multi-keyrings.txt#2.5
         //# A set of AWS KMS clients MUST be created by calling regional client
         //# supplier for each region in the input set of regions.
-        var client :- supplier.GetClient(Some(region));
-        :- Need(ReagionMatch(client, region), "The region for the client did not match the requested region");
+        var client := supplier.GetClient(Crypto.GetClientInput(region));
+        :- Need(
+          client != null,
+          "Client failed to initialize"
+        );
+        :- Need(
+          AwsKmsUtils.RegionMatch(client, region),
+          "The region for the client did not match the requested region"
+        );
         var keyring := new AwsKmsMrkAwareSymmetricRegionDiscoveryKeyring(
           client,
           region,
           discoveryFilter,
           grantTokens.UnwrapOr([])
         );
-        assert keyring.Valid();
         // Order is important
         children := children + [keyring];
       }
 
-    var keyring := new MultiKeyring(
+    var keyring := new MultiKeyring.MultiKeyring(
       null,
       children
     );
