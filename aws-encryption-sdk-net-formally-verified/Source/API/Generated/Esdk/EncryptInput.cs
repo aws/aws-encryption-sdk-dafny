@@ -15,6 +15,8 @@ namespace Aws.Esdk
         private System.Collections.Generic.Dictionary<string, string> _encryptionContext;
         private Aws.Crypto.ICryptographicMaterialsManager _materialsManager;
         private Aws.Crypto.AlgorithmSuiteId _algorithmSuiteId;
+        private long? _frameLength;
+        private long? _maxPlaintextLength;
 
         public System.IO.MemoryStream Plaintext
         {
@@ -38,6 +40,18 @@ namespace Aws.Esdk
         {
             get { return this._algorithmSuiteId; }
             set { this._algorithmSuiteId = value; }
+        }
+
+        public long FrameLength
+        {
+            get { return this._frameLength.GetValueOrDefault(); }
+            set { this._frameLength = value; }
+        }
+
+        public long MaxPlaintextLength
+        {
+            get { return this._maxPlaintextLength.GetValueOrDefault(); }
+            set { this._maxPlaintextLength = value; }
         }
 
         public void Validate()

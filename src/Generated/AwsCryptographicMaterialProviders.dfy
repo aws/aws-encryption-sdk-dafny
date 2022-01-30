@@ -133,7 +133,7 @@ module {:extern "Dafny.Aws.Crypto"} Aws.Crypto {
     ///////////////////////
     // crypto-config.smithy
     datatype CommitmentPolicy =
-        FORBID_ENCRYPT_FORBID_DECRYPT |
+        FORBID_ENCRYPT_ALLOW_DECRYPT |
         REQUIRE_ENCRYPT_ALLOW_DECRYPT |
         REQUIRE_ENCRYPT_REQUIRE_DECRYPT
 
@@ -242,8 +242,7 @@ module {:extern "Dafny.Aws.Crypto"} Aws.Crypto {
     // cmms.smithy
     datatype GetEncryptionMaterialsInput = GetEncryptionMaterialsInput(
         nameonly encryptionContext: EncryptionContext,
-        // TODO
-        // nameonly commitmentPolicy: CommitmentPolicy,
+        nameonly commitmentPolicy: CommitmentPolicy,
         nameonly algorithmSuiteId: Option<AlgorithmSuiteId>,
         nameonly maxPlaintextLength: Option<int64>
     )
@@ -254,8 +253,7 @@ module {:extern "Dafny.Aws.Crypto"} Aws.Crypto {
 
     datatype DecryptMaterialsInput = DecryptMaterialsInput(
         nameonly algorithmSuiteId: AlgorithmSuiteId,
-        // TODO
-        // nameonly commitmentPolicy: CommitmentPolicy,
+        nameonly commitmentPolicy: CommitmentPolicy,
         nameonly encryptedDataKeys: EncryptedDataKeyList,
         nameonly encryptionContext: EncryptionContext
     )

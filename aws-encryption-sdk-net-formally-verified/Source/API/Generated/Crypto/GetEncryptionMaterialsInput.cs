@@ -12,6 +12,7 @@ namespace Aws.Crypto
     public class GetEncryptionMaterialsInput
     {
         private System.Collections.Generic.Dictionary<string, string> _encryptionContext;
+        private Aws.Crypto.CommitmentPolicy _commitmentPolicy;
         private Aws.Crypto.AlgorithmSuiteId _algorithmSuiteId;
         private long? _maxPlaintextLength;
 
@@ -19,6 +20,12 @@ namespace Aws.Crypto
         {
             get { return this._encryptionContext; }
             set { this._encryptionContext = value; }
+        }
+
+        public Aws.Crypto.CommitmentPolicy CommitmentPolicy
+        {
+            get { return this._commitmentPolicy; }
+            set { this._commitmentPolicy = value; }
         }
 
         public Aws.Crypto.AlgorithmSuiteId AlgorithmSuiteId

@@ -5,6 +5,7 @@ include "../Keyring.dfy"
 include "../Materials.dfy"
 include "../AlgorithmSuites.dfy"
 include "../../StandardLibrary/StandardLibrary.dfy"
+include "../../StandardLibrary/String.dfy"
 include "../AlgorithmSuites.dfy"
 include "../../Crypto/Random.dfy"
 include "../../Crypto/RSAEncryption.dfy"
@@ -22,6 +23,7 @@ module
 {
   import opened StandardLibrary
   import opened UInt = StandardLibrary.UInt
+  import opened String = StandardLibrary.String    
   import opened Wrappers
   import Aws.Crypto
   import Keyring
@@ -297,10 +299,12 @@ module
         "Keyring received decryption materials that already contain a plaintext data key."
       );
 
+      var errors: seq<string> := [];
       //= compliance/framework/raw-rsa-keyring.txt#2.6.2
       //# The keyring MUST attempt to decrypt the input encrypted data keys, in
       //# list order, until it successfully decrypts one.
       for i := 0 to |input.encryptedDataKeys|
+        invariant |errors| == i
       {
         if ShouldDecryptEDK(input.encryptedDataKeys[i]) {
           var edk := input.encryptedDataKeys[i];
@@ -323,15 +327,29 @@ module
               decryptResult.Extract()
             );
             return Success(Crypto.OnDecryptOutput(materials := r));
+          } else {
+            errors := errors + [
+              "RSAKeyring could not decrypt EncryptedDataKey "
+              + Base10Int2String(i)
+              + ": "
+              + decryptResult.error
+            ];
           }
+        } else {
+          errors := errors + [
+            "EncryptedDataKey "
+            + Base10Int2String(i)
+            + " did not match RSAKeyring. "
+          ];
         }
       }
       //= compliance/framework/raw-rsa-keyring.txt#2.6.2
       //# If no decryption succeeds, the keyring MUST fail and MUST NOT modify
       //# the decryption materials (structures.md#decryption-materials).
-      return Failure("Unable to decrypt data key: No Encrypted Data Keys found to match.");
+      return Failure("Unable to decrypt any data keys. Encountered the following errors: "
+        + Seq.Flatten(errors)
+      );
     }
-
 
     predicate method ShouldDecryptEDK(edk: Crypto.EncryptedDataKey)
       //= compliance/framework/raw-rsa-keyring.txt#2.6.2
