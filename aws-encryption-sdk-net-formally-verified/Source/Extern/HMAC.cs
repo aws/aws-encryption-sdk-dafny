@@ -26,6 +26,8 @@ namespace HMAC {
                 bouncyCastleDigest = new Org.BouncyCastle.Crypto.Digests.Sha256Digest();
             } else if(digest.is_SHA__384) {
                 bouncyCastleDigest = new Org.BouncyCastle.Crypto.Digests.Sha384Digest();
+            } else if(digest.is_SHA__512) {
+                bouncyCastleDigest = new Org.BouncyCastle.Crypto.Digests.Sha512Digest();
             } else {
                 throw new UnsupportedDigestException((Digests)digest);
             }
