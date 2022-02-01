@@ -19,18 +19,20 @@ using charseq = Dafny.Sequence<char>;
 namespace AESEncryption {
     public partial class AES_GCM {
 
-        public static _IResult<_IEncryptionOutput, icharseq> AESEncryptExtern(AESEncryption._IAES__GCM encAlg,
-                                                      ibyteseq iv,
-                                                      ibyteseq key,
-                                                      ibyteseq msg,
-                                                      ibyteseq aad) {
+        public static _IResult<_IEncryptionOutput, icharseq> AESEncryptExtern(
+            AESEncryption._IAES__GCM encAlg,
+            ibyteseq iv,
+            ibyteseq key,
+            ibyteseq msg,
+            ibyteseq aad
+        ) {
             try {
-                var cipher = new GcmBlockCipher(new AesEngine());
                 var param = new AeadParameters(
                     new KeyParameter(key.Elements),
-                    (int)((AESEncryption.AES__GCM)encAlg).tagLength * 8,
+                    ((AESEncryption.AES__GCM)encAlg).tagLength * 8,
                     iv.Elements,
                     aad.Elements);
+                var cipher = CipherUtilities.GetCipher("AES/GCM/NoPadding");
                 cipher.Init(true, param);
 
                 byte[] c = new byte[cipher.GetOutputSize(msg.Elements.Length)];
@@ -39,7 +41,7 @@ namespace AESEncryption {
                 return Result<_IEncryptionOutput, icharseq>.create_Success(__default.EncryptionOutputFromByteSeq(byteseq.FromArray(c), encAlg));
             }
             catch {
-                return DafnyFFI.CreateFailure<EncryptionOutput>("aes encrypt err");
+                return DafnyFFI.CreateFailure<EncryptionOutput>("aes encrypt error");
             }
         }
 
@@ -66,7 +68,7 @@ namespace AESEncryption {
             } catch(InvalidCipherTextException macEx) {
                 return DafnyFFI.CreateFailure<ibyteseq>(macEx.ToString());
             } catch (Exception e) {
-                return DafnyFFI.CreateFailure<ibyteseq>("aes decrypt err");
+                return DafnyFFI.CreateFailure<ibyteseq>("aes decrypt error");
             }
         }
     }

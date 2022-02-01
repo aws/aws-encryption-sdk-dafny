@@ -16,9 +16,11 @@ module {:extern "ConfigDefaults"} ConfigDefaults {
 
     ensures
       configDefaults == Aws.Esdk.V1 ==> res == Aws.Crypto.FORBID_ENCRYPT_ALLOW_DECRYPT
+      //configDefaults == Aws.Esdk.V1 ==> res == Aws.Crypto.REQUIRE_ENCRYPT_ALLOW_DECRYPT
     {
       // TODO: actual matching on version
       // TODO: we don't yet support commitment
       Aws.Crypto.FORBID_ENCRYPT_ALLOW_DECRYPT
+      //Aws.Crypto.REQUIRE_ENCRYPT_ALLOW_DECRYPT
     }
 }

@@ -228,9 +228,9 @@ module TestRawRSAKeying {
     );
 
     //= compliance/framework/raw-rsa-keyring.txt#2.6.2
-    //= type=test    
+    //= type=test
     //# The keyring MUST attempt to decrypt the input encrypted data keys, in
-    //# list order, until it successfully decrypts one.  
+    //# list order, until it successfully decrypts one.
     var decryptionMaterialsOut :- expect rawRSAKeyring.OnDecrypt(
       Crypto.OnDecryptInput(
         materials:=decryptionMaterialsIn,
