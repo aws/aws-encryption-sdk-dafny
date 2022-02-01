@@ -44,6 +44,7 @@ module
   import AwsKmsArnParsing
   import AwsKmsUtils
   import GeneratedKMS = Com.Amazonaws.Kms
+  import Commitment
 
   // This file is the entry point for all Material Provider operations.
   // There MUST NOT be any direct includes to any other files in this project.
@@ -60,7 +61,12 @@ module
     // Class
     reveals AwsCryptographicMaterialProvidersClient
     // Functions
-    reveals SpecificationClient, SpecificationClient.GetSuite
+    reveals
+      SpecificationClient,
+      SpecificationClient.GetSuite
+    provides
+      SpecificationClient.ValidateCommitmentPolicyOnEncrypt,
+      SpecificationClient.ValidateCommitmentPolicyOnDecrypt
     // Class Members
     provides
       AwsCryptographicMaterialProvidersClient.CreateRawAesKeyring,
@@ -84,6 +90,29 @@ module
     {
       AlgorithmSuites.GetSuite(id)
     }
+
+    // We want to make these validation methods available to our internal callers
+    // (e.g. the ESDK, which also needs to validate commitment policies), but
+    // they do not need to be part of the public model. Note that this might
+    // need to be tweaked when we extract the material provider library
+    method ValidateCommitmentPolicyOnEncrypt(
+      algorithm: Crypto.AlgorithmSuiteId,
+      commitmentPolicy: Crypto.CommitmentPolicy
+    )
+      returns (res: Result<bool, string>)
+    {
+      res := Commitment.ValidateCommitmentPolicyOnEncrypt(algorithm, commitmentPolicy);
+    }
+
+    method ValidateCommitmentPolicyOnDecrypt(
+      algorithm: Crypto.AlgorithmSuiteId,
+      commitmentPolicy: Crypto.CommitmentPolicy
+    )
+      returns (res: Result<bool, string>)
+    {
+      res := Commitment.ValidateCommitmentPolicyOnDecrypt(algorithm, commitmentPolicy);
+    }
+
   }
 
   class AwsCryptographicMaterialProvidersClient
