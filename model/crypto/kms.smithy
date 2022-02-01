@@ -56,3 +56,15 @@ structure GetClientInput {
 structure GetClientOutput {
     client: KmsClientReference,
 }
+
+operation CreateBaseClientSupplier {
+    input: CreateBaseClientSupplierInput,
+    output: CreateBaseClientSupplierOutput
+}
+
+structure CreateBaseClientSupplierInput {
+}
+
+structure CreateBaseClientSupplierOutput {
+    clientSupplier: ClientSupplierReference
+}

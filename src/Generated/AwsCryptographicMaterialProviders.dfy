@@ -16,13 +16,15 @@ module {:extern "Dafny.Aws.Crypto"} Aws.Crypto {
     // load too much at once, making the verification unstable
     export
       provides UTF8, UInt, KMS, Wrappers,
-        IClientSupplier, IClientSupplier.GetClient,
-        IKeyring.OnDecrypt,IKeyring.OnEncrypt,
+        IClientSupplier,
+        IClientSupplier.GetClient,
+        IKeyring.OnDecrypt,
         IKeyring.OnEncrypt,
         ICryptographicMaterialsManager.GetEncryptionMaterials,
         ICryptographicMaterialsManager.DecryptMaterials,
         IAwsCryptographicMaterialsProviderClient.CreateRawAesKeyring,
-        IAwsCryptographicMaterialsProviderClient.CreateDefaultCryptographicMaterialsManager,IAwsCryptographicMaterialsProviderClient.CreateStrictAwsKmsKeyring,
+        IAwsCryptographicMaterialsProviderClient.CreateDefaultCryptographicMaterialsManager,
+        IAwsCryptographicMaterialsProviderClient.CreateStrictAwsKmsKeyring,
         IAwsCryptographicMaterialsProviderClient.CreateAwsKmsDiscoveryKeyring,
         IAwsCryptographicMaterialsProviderClient.CreateMrkAwareStrictAwsKmsKeyring,
         IAwsCryptographicMaterialsProviderClient.CreateMrkAwareDiscoveryAwsKmsKeyring,
@@ -86,7 +88,7 @@ module {:extern "Dafny.Aws.Crypto"} Aws.Crypto {
 
     datatype GetClientInput = GetClientInput(region: string)
 
-    trait {:termination false} IClientSupplier {
+    trait IClientSupplier {
         // GetClient is a fallible operation, so it should return a Result<KMS.IKeyManagementServiceClient>,
         // but prior to Dafny 3.4 we can't use the client trait as a type parameter.
         // Until we adopt Dafny 3.4+, we mark the return type optional via `?`.

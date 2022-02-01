@@ -10,8 +10,7 @@ service AwsCryptographicMaterialProviders {
         Keyring,
         CryptographicMaterialsManager,
         CryptoMaterialsCache,
-        // TODO
-        // ClientSupplier,
+        ClientSupplier,
     ],
     operations: [
         // Keyrings
@@ -32,7 +31,10 @@ service AwsCryptographicMaterialProviders {
 
         // Caches
         // TODO
-        // CreateLocalCryptoMaterialsCache
+        // CreateLocalCryptoMaterialsCache,
+
+        // ClientSupplier
+        CreateBaseClientSupplier
     ]
 }
 

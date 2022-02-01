@@ -12,7 +12,6 @@ include "AwsKmsMrkAreUnique.dfy"
 include "../MultiKeyring.dfy"
 include "../../Keyring.dfy"
 include "AwsKmsArnParsing.dfy"
-include "AwsKmsClientSupplier.dfy"
 
 module
     {:extern "Dafny.Aws.Crypto.MaterialProviders.AwsKmsMrkAwareMultiKeyrings"}
@@ -28,7 +27,6 @@ module
   import opened MaterialProviders.Keyring
   import KMS = Com.Amazonaws.Kms
   import Aws.Crypto
-  import ClientSupplier
 
   //= compliance/framework/aws-kms/aws-kms-mrk-aware-multi-keyrings.txt#2.6
   //= type=implication
@@ -147,9 +145,7 @@ module
         //# If a regional client supplier is
         //# not passed, then a default MUST be created that takes a region string
         //# and generates a default AWS SDK client for the given region.
-        supplier := new ClientSupplier.BaseClientSupplier();
-        //TODO fix the above by either making a new KMSUtils that
-        // returns the new KMS client OR resolving the smithy client supplier issue
+        supplier := null; //TODO replace with BaseClientSupplier from model
     }
 
     var generatorKeyring : AwsKmsMrkAwareSymmetricKeyring?;
@@ -292,7 +288,7 @@ module
         //# If a regional client supplier is not passed,
         //# then a default MUST be created that takes a region string and
         //# generates a default AWS SDK client for the given region.
-        supplier := new ClientSupplier.BaseClientSupplier();
+        supplier := null; //TODO replace with BaseClientSupplier from model
     }
 
     var children : seq<AwsKmsMrkAwareSymmetricRegionDiscoveryKeyring> := [];
