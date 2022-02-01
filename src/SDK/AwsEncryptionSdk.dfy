@@ -124,12 +124,17 @@ module {:extern "Dafny.Aws.Esdk.AwsEncryptionSdkClient"} AwsEncryptionSdk {
                 ));
             }*/
 
-            var algorithmSuiteID := input.algorithmSuiteId;
+            var algorithmSuiteId := input.algorithmSuiteId;
+
+            if algorithmSuiteId.Some? {
+                var _ := Client.SpecificationClient()
+                    .ValidateCommitmentPolicyOnEncrypt(algorithmSuiteId.value, this.commitmentPolicy);
+            }
 
             var encMatRequest := Crypto.GetEncryptionMaterialsInput(
                 encryptionContext:=input.encryptionContext,
                 commitmentPolicy:=this.commitmentPolicy,
-                algorithmSuiteId:=algorithmSuiteID,
+                algorithmSuiteId:=algorithmSuiteId,
                 maxPlaintextLength:=Option.Some(maxPlaintextLength as int64)
             );
 
@@ -154,6 +159,18 @@ module {:extern "Dafny.Aws.Esdk.AwsEncryptionSdkClient"} AwsEncryptionSdk {
             :- Need(forall edk | edk in encMat.encryptedDataKeys
                 :: SerializableTypes.IsESDKEncryptedDataKey(edk),
                 "CMM returned non-serializable encrypted data key.");
+
+            //= compliance/client-apis/encrypt.txt#2.6.1
+            //# If this
+            //# algorithm suite (../framework/algorithm-suites.md) is not supported
+            //# by the commitment policy (client.md#commitment-policy) configured in
+            //# the client (client.md) encrypt MUST yield an error.
+            var algorithmAllowed := Client.SpecificationClient()
+                    .ValidateCommitmentPolicyOnEncrypt(encMat.algorithmSuiteId, this.commitmentPolicy);
+            :- Need(
+                algorithmAllowed.Success?,
+                "CMM return algorithm suite not supported by our commitment policy"
+            );
 
             var encryptedDataKeys: SerializableTypes.ESDKEncryptedDataKeys := encMat.encryptedDataKeys;
 
@@ -274,11 +291,17 @@ module {:extern "Dafny.Aws.Esdk.AwsEncryptionSdkClient"} AwsEncryptionSdk {
 
             var esdkEncryptionContext := EncryptionContext.GetEncryptionContext(headerBody.data.encryptionContext);
 
+            var algorithmSuiteId := SerializableTypes.GetAlgorithmSuiteId(headerBody.data.esdkSuiteId);
+            var _ := Client.SpecificationClient().ValidateCommitmentPolicyOnDecrypt(
+                algorithmSuiteId, this.commitmentPolicy
+            );
+
             var decMatRequest := Crypto.DecryptMaterialsInput(
-            algorithmSuiteId:=SerializableTypes.GetAlgorithmSuiteId(headerBody.data.esdkSuiteId),
-            commitmentPolicy:=this.commitmentPolicy,
-            encryptedDataKeys:=headerBody.data.encryptedDataKeys,
-            encryptionContext:=esdkEncryptionContext);
+                algorithmSuiteId:=algorithmSuiteId,
+                commitmentPolicy:=this.commitmentPolicy,
+                encryptedDataKeys:=headerBody.data.encryptedDataKeys,
+                encryptionContext:=esdkEncryptionContext
+            );
             var decMatResult := cmm.DecryptMaterials(decMatRequest);
             var output :- match decMatResult {
                 case Success(value) => Success(value)
@@ -287,7 +310,10 @@ module {:extern "Dafny.Aws.Esdk.AwsEncryptionSdkClient"} AwsEncryptionSdk {
             var decMat := output.decryptionMaterials;
 
             // Validate decryption materials
-            :- Need(Client.Materials.DecryptionMaterialsWithPlaintextDataKey(decMat), "CMM returned invalid DecryptMaterials");
+            :- Need(
+                Client.Materials.DecryptionMaterialsWithPlaintextDataKey(decMat),
+                "CMM returned invalid DecryptMaterials"
+            );
 
             var suite := Client
                 .SpecificationClient()
@@ -297,7 +323,9 @@ module {:extern "Dafny.Aws.Esdk.AwsEncryptionSdkClient"} AwsEncryptionSdk {
                 .ReadAESMac(headerBody.tail, suite)
                 .MapFailure(EncryptDecryptHelpers.MapSerializeFailure(": ReadAESMac"));
 
-            var decryptionKey := EncryptDecryptHelpers.DeriveKey(decMat.plaintextDataKey.value, suite, headerBody.data.messageId);
+            var decryptionKey := EncryptDecryptHelpers.DeriveKey(
+                decMat.plaintextDataKey.value, suite, headerBody.data.messageId
+            );
 
             // There is nothing to compare since there was nothing to decrypt.
             // Success means that the tag is correct.
