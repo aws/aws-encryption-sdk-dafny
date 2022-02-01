@@ -369,23 +369,34 @@ module {:extern "Dafny.Aws.Crypto"} Aws.Crypto {
     trait {:termination false} IAwsCryptographicMaterialsProviderClient {
 
         // Keyrings
-        method CreateStrictAwsKmsKeyring(input: CreateStrictAwsKmsKeyringInput) returns (res: Result<IKeyring, IAwsCryptographicMaterialProvidersException>)
-        method CreateAwsKmsDiscoveryKeyring(input: CreateAwsKmsDiscoveryKeyringInput) returns (res: Result<IKeyring, IAwsCryptographicMaterialProvidersException>)
-        method CreateMrkAwareStrictAwsKmsKeyring(input: CreateMrkAwareStrictAwsKmsKeyringInput) returns (res: Result<IKeyring, IAwsCryptographicMaterialProvidersException>)
-        // method CreateMrkAwareStrictMultiKeyring(input: CreateMrkAwareStrictMultiKeyringInput) returns (res: IKeyring)
-        method CreateMrkAwareDiscoveryAwsKmsKeyring(input: CreateMrkAwareDiscoveryAwsKmsKeyringInput) returns (res: Result<IKeyring, IAwsCryptographicMaterialProvidersException>)
-        // method CreateMrkAwareDiscoveryMultiKeyring(input: CreateMrkAwareDiscoveryMultiKeyringInput) returns (res: IKeyring)
-        method CreateMultiKeyring(input: CreateMultiKeyringInput) returns (res: Result<IKeyring, IAwsCryptographicMaterialProvidersException>)
-        method CreateRawAesKeyring(input: CreateRawAesKeyringInput) returns (res: Result<IKeyring, IAwsCryptographicMaterialProvidersException>)
-        method CreateRawRsaKeyring(input: CreateRawRsaKeyringInput) returns (res: Result<IKeyring, IAwsCryptographicMaterialProvidersException>)
+        method CreateStrictAwsKmsKeyring(input: CreateStrictAwsKmsKeyringInput)
+            returns (res: Result<IKeyring, IAwsCryptographicMaterialProvidersException>)
+        method CreateAwsKmsDiscoveryKeyring(input: CreateAwsKmsDiscoveryKeyringInput)
+            returns (res: Result<IKeyring, IAwsCryptographicMaterialProvidersException>)
+        method CreateMrkAwareStrictAwsKmsKeyring(input: CreateMrkAwareStrictAwsKmsKeyringInput)
+            returns (res: Result<IKeyring, IAwsCryptographicMaterialProvidersException>)
+        // method CreateMrkAwareStrictMultiKeyring(input: CreateMrkAwareStrictMultiKeyringInput)
+        //     returns (res: Result<IKeyring, IAwsCryptographicMaterialProvidersException>)
+        method CreateMrkAwareDiscoveryAwsKmsKeyring(input: CreateMrkAwareDiscoveryAwsKmsKeyringInput)
+            returns (res: Result<IKeyring, IAwsCryptographicMaterialProvidersException>)
+        // method CreateMrkAwareDiscoveryMultiKeyring(input: CreateMrkAwareDiscoveryMultiKeyringInput)
+        //     returns (res: Result<IKeyring, IAwsCryptographicMaterialProvidersException>)
+        method CreateMultiKeyring(input: CreateMultiKeyringInput)
+            returns (res: Result<IKeyring, IAwsCryptographicMaterialProvidersException>)
+        method CreateRawAesKeyring(input: CreateRawAesKeyringInput)
+            returns (res: Result<IKeyring, IAwsCryptographicMaterialProvidersException>)
+        method CreateRawRsaKeyring(input: CreateRawRsaKeyringInput)
+            returns (res: Result<IKeyring, IAwsCryptographicMaterialProvidersException>)
 
         // CMMs
         method CreateDefaultCryptographicMaterialsManager(input: CreateDefaultCryptographicMaterialsManagerInput)
             returns (res: Result<ICryptographicMaterialsManager, IAwsCryptographicMaterialProvidersException>)
-        // method CreateCachingCryptographicMaterialsManager(input: CreateCachingCryptographicMaterialsManagerInput) returns (res: ICryptographicMaterialsManager)
+        // method CreateCachingCryptographicMaterialsManager(input: CreateCachingCryptographicMaterialsManagerInput)
+        //     returns (res: Result<ICryptographicMaterialsManager, IAwsCryptographicMaterialProvidersException>)
 
         // Caches
-        // method CreateLocalCryptoMaterialsCache(input: CreateLocalCryptoMaterialsCacheInput) returns (res: ICryptoMaterialsCache)
+        // method CreateLocalCryptoMaterialsCache(input: CreateLocalCryptoMaterialsCacheInput)
+        //     returns (res: Result<ICryptoMaterialsCache, IAwsCryptographicMaterialProvidersException>)
     }
 
     trait IAwsCryptographicMaterialProvidersException {
