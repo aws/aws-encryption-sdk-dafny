@@ -164,7 +164,6 @@ module {:extern "Dafny.Aws.Esdk.AwsEncryptionSdkClient"} AwsEncryptionSdk {
                 algorithmAllowed.Success?,
                 "CMM return algorithm suite not supported by our commitment policy"
             );
-
             var encryptedDataKeys: SerializableTypes.ESDKEncryptedDataKeys := encMat.encryptedDataKeys;
 
             var canonicalEncryptionContext := EncryptionContext.GetCanonicalEncryptionContext(encMat.encryptionContext);
