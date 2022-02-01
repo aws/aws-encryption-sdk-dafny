@@ -412,6 +412,9 @@ module EncryptionContext {
 
   // Completeness Lemmas to prove that ReadX/WriteX are both sound and complete
 
+
+  // This lemma is to prove that a buffer with bytes from `WriteAADPair`
+  // MUST be `ReadAADPair` Success?
   lemma ReadAADPairIsComplete(
     data: ESDKEncryptionContextPair,
     bytes: seq<uint8>,
@@ -441,6 +444,16 @@ module EncryptionContext {
     return ReadAADPair(buffer).value;
   }
 
+  // When dealing with a seq<Pairs> that is `ESDKCanonicalEncryptionContext?`
+  // we need to be able to break up this single `seq` into parts.
+  // This is slightly complicated because the subSeqs
+  // MUST still satisfy `ESDKCanonicalEncryptionContext?`.
+  // This is true to a human,
+  // Dafny complains a little about the uniqueness constraint,
+  // but mostly about the length.
+  // This is done by breaking up a single seq
+  // because the requirements made proof about
+  // 2 parts difficult to put back together.
   lemma ESDKCanonicalEncryptionContextCanBeSplit(
     data: ESDKCanonicalEncryptionContext
   )
@@ -462,10 +475,14 @@ module EncryptionContext {
       assert KeysAreUnique(data[|accumulator|..]);
       assert data == accumulator + data[|accumulator|..];
       LinearLengthIsDistributive(accumulator, data[|accumulator|..]);
+      // Each part MUST be less than `ESDK_CANONICAL_ENCRYPTION_CONTEXT_MAX_LENGTH`
+      // Since the whole MUST be less than this does the trick.
       assert LinearLength(data) == LinearLength(accumulator) + LinearLength(data[|accumulator|..]);
     }
   }
 
+  // What it says on the can.
+  // Need to be able to reason about subSeq of a given ESDKCanonicalEncryptionContext.
   lemma WriteAADPairsIsDistributive(
     a: ESDKCanonicalEncryptionContext,
     b: ESDKCanonicalEncryptionContext
@@ -495,6 +512,11 @@ module EncryptionContext {
     }
   }
 
+  // Proving that a ReadableBuffer
+  // satisfies the preconditions for ReadAADPairs
+  // is a little complicated.
+  // Moving this into a separate lemma
+  // simplified `ReadAADPairsIsComplete`.
   lemma NextPairIsComplete(
     data: ESDKCanonicalEncryptionContext,
     accumulator: ESDKCanonicalEncryptionContext,
@@ -523,6 +545,9 @@ module EncryptionContext {
     assert ESDKCanonicalEncryptionContext?(nextAccumulator);
     assert ESDKCanonicalEncryptionContext?(data[|nextAccumulator|..]);
 
+    // Need to break out `WriteAADPair(data[|accumulator|])`
+    // so that the returned buffer has the position
+    // provable correct for the "next pair"
     calc {
       bytes;
     == // From requires clause
@@ -590,23 +615,6 @@ module EncryptionContext {
     } else {
 
       var nextPair := NextPairIsComplete(data, accumulator, bytes, buffer);
-
-      // WriteAADPairs is defined as WriteAADPairs(DropLast) + WriteAADPair(Last)
-      // This means that we can easily prove n-1 and n,
-      // because n-1 ~ DropLast and n == Last.
-      // However, all we know is accumulator <= data.
-      // We may be at the very last element or somewhere in the middle.
-      // But, because |data| != 0 && we can not be at the end (data == accumulator),
-      // then data[|accumulator|] is always a valid index!
-
-
-      // var nextAccumulator := accumulator + [data[|accumulator|]];
-      // ESDKCanonicalEncryptionContextCanBeSplit(data);
-      // assert data == nextAccumulator + data[|nextAccumulator|..];
-      // assert ESDKCanonicalEncryptionContext?(nextAccumulator);
-      // This is because WriteAADPairs(nextAccumulator) == WriteAADPairs(DropLast) + WriteAADPair(Last)
-
-
       assert WriteAADPair(data[|accumulator|]) <= nextPair.bytes[nextPair.start..];
 
       // Since we know that the bytes here at `nextPair`
@@ -624,6 +632,12 @@ module EncryptionContext {
       assert accumulator < data;
       assert accumulator + [pair.data] <= data;
 
+      // The length constraint is a little complicated.
+      // Dafny wants to know the length of bytes is in bounds.
+      // This is obviously true,
+      // because Dafny believes that the `|bytes| < ESDK_CANONICAL_ENCRYPTION_CONTEXT_MAX_LENGTH`.
+      // Dafny also believes that `LinearLength(accumulator) < ESDK_CANONICAL_ENCRYPTION_CONTEXT_MAX_LENGTH`.
+      // Adding `[pair.data]` to accumulator is the part that it is unsure about.
       LinearLengthIsDistributive(accumulator + [pair.data], data[|(accumulator + [pair.data])|..]);
       assert accumulator + [pair.data] + data[|(accumulator + [pair.data])|..] == data;
       assert LinearLength(accumulator + [pair.data]) + LinearLength(data[|(accumulator + [pair.data])|..]) == LinearLength(data);
