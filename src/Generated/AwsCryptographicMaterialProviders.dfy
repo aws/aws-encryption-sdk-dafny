@@ -437,6 +437,13 @@ module {:extern "Dafny.Aws.Crypto"} Aws.Crypto {
     // A helper method to ensure a requirement is true at runtime.
     // If the requirement is false, the returned result contains a generic exception that wraps the provided message.
     // :- Need(5 == |mySet|, "The set MUST have 5 elements.")
+    //
+    // This is like `Wrappers.Need<E>`, except:
+    //
+    //   - `E` is specialized to be IAwsCryptographicMaterialProvidersException,
+    //     and the error string is wrapped in a class implementing that trait
+    //   - it's a `method` and not a `function method`, because we must instantiate a `new`
+    //     error object and that is not permitted in ghost contexts
     method Need(condition: bool, error: string)
         returns (result: Outcome<IAwsCryptographicMaterialProvidersException>)
         ensures condition <==> result.Pass?
