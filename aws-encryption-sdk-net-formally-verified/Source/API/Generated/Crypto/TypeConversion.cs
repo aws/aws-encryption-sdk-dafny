@@ -8,6 +8,24 @@ namespace Aws.Crypto
 {
     internal static class TypeConversion
     {
+        public static Aws.Crypto.IClientSupplier FromDafny_N3_aws__N6_crypto__S23_ClientSupplierReference(
+            Dafny.Aws.Crypto.IClientSupplier value)
+        {
+            return new ClientSupplier(value);
+        }
+
+        public static Dafny.Aws.Crypto.IClientSupplier ToDafny_N3_aws__N6_crypto__S23_ClientSupplierReference(
+            Aws.Crypto.IClientSupplier value)
+        {
+            if (value is ClientSupplier valueWithImpl)
+            {
+                return valueWithImpl._impl;
+            }
+
+            throw new System.ArgumentException(
+                "Custom implementations of Aws.Crypto.IClientSupplier are not supported yet");
+        }
+
         public static Aws.Crypto.PutEntryForEncryptInput FromDafny_N3_aws__N6_crypto__S23_PutEntryForEncryptInput(
             Dafny.Aws.Crypto._IPutEntryForEncryptInput value)
         {
@@ -689,6 +707,30 @@ namespace Aws.Crypto
             if (Aws.Crypto.CommitmentPolicy.REQUIRE_ENCRYPT_REQUIRE_DECRYPT.Equals(value))
                 return Dafny.Aws.Crypto.CommitmentPolicy.create_REQUIRE__ENCRYPT__REQUIRE__DECRYPT();
             throw new System.ArgumentException("Invalid Aws.Crypto.CommitmentPolicy value");
+        }
+
+        public static Aws.Crypto.CreateBaseClientSupplierOutput
+            FromDafny_N3_aws__N6_crypto__S30_CreateBaseClientSupplierOutput(
+                Dafny.Aws.Crypto._ICreateBaseClientSupplierOutput value)
+        {
+            Dafny.Aws.Crypto.CreateBaseClientSupplierOutput concrete =
+                (Dafny.Aws.Crypto.CreateBaseClientSupplierOutput) value;
+            Aws.Crypto.CreateBaseClientSupplierOutput converted = new Aws.Crypto.CreateBaseClientSupplierOutput();
+            if (concrete.clientSupplier != null)
+                converted.ClientSupplier =
+                    (Aws.Crypto.IClientSupplier)
+                    FromDafny_N3_aws__N6_crypto__S30_CreateBaseClientSupplierOutput__M14_clientSupplier(
+                        concrete.clientSupplier);
+            return converted;
+        }
+
+        public static Dafny.Aws.Crypto._ICreateBaseClientSupplierOutput
+            ToDafny_N3_aws__N6_crypto__S30_CreateBaseClientSupplierOutput(
+                Aws.Crypto.CreateBaseClientSupplierOutput value)
+        {
+            return new Dafny.Aws.Crypto.CreateBaseClientSupplierOutput(
+                ToDafny_N3_aws__N6_crypto__S30_CreateBaseClientSupplierOutput__M14_clientSupplier(
+                    value.ClientSupplier));
         }
 
         public static Aws.Crypto.PaddingScheme FromDafny_N3_aws__N6_crypto__S13_PaddingScheme(
@@ -1692,6 +1734,20 @@ namespace Aws.Crypto
                 : Wrappers_Compile.Option<long>.create_Some(ToDafny_N6_smithy__N3_api__S4_Long((long) value));
         }
 
+        public static Aws.Crypto.IClientSupplier
+            FromDafny_N3_aws__N6_crypto__S30_CreateBaseClientSupplierOutput__M14_clientSupplier(
+                Dafny.Aws.Crypto.IClientSupplier value)
+        {
+            return FromDafny_N3_aws__N6_crypto__S23_ClientSupplierReference(value);
+        }
+
+        public static Dafny.Aws.Crypto.IClientSupplier
+            ToDafny_N3_aws__N6_crypto__S30_CreateBaseClientSupplierOutput__M14_clientSupplier(
+                Aws.Crypto.IClientSupplier value)
+        {
+            return ToDafny_N3_aws__N6_crypto__S23_ClientSupplierReference(value);
+        }
+
         public static System.Collections.Generic.List<string>
             FromDafny_N3_aws__N6_crypto__S30_CreateStrictAwsKmsKeyringInput__M11_grantTokens(
                 Wrappers_Compile._IOption<Dafny.ISequence<Dafny.ISequence<char>>> value)
@@ -1891,6 +1947,22 @@ namespace Aws.Crypto
             return value == null
                 ? Wrappers_Compile.Option<long>.create_None()
                 : Wrappers_Compile.Option<long>.create_Some(ToDafny_N6_smithy__N3_api__S4_Long((long) value));
+        }
+
+        public static Aws.Crypto.CreateBaseClientSupplierInput
+            FromDafny_N3_aws__N6_crypto__S29_CreateBaseClientSupplierInput(
+                Dafny.Aws.Crypto._ICreateBaseClientSupplierInput value)
+        {
+            Dafny.Aws.Crypto.CreateBaseClientSupplierInput concrete =
+                (Dafny.Aws.Crypto.CreateBaseClientSupplierInput) value;
+            Aws.Crypto.CreateBaseClientSupplierInput converted = new Aws.Crypto.CreateBaseClientSupplierInput();
+            return converted;
+        }
+
+        public static Dafny.Aws.Crypto._ICreateBaseClientSupplierInput
+            ToDafny_N3_aws__N6_crypto__S29_CreateBaseClientSupplierInput(Aws.Crypto.CreateBaseClientSupplierInput value)
+        {
+            return new Dafny.Aws.Crypto.CreateBaseClientSupplierInput();
         }
 
         public static Aws.Crypto.ICryptoMaterialsCache FromDafny_N3_aws__N6_crypto__S29_CryptoMaterialsCacheReference(

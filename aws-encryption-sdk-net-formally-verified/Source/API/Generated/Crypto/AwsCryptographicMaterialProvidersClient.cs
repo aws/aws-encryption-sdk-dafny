@@ -98,5 +98,15 @@ namespace Aws.Crypto
             return TypeConversion.FromDafny_N3_aws__N6_crypto__S41_CreateCryptographicMaterialsManagerOutput(
                 internalOutput);
         }
+
+        protected override Aws.Crypto.CreateBaseClientSupplierOutput _CreateBaseClientSupplier(
+            Aws.Crypto.CreateBaseClientSupplierInput input)
+        {
+            Dafny.Aws.Crypto._ICreateBaseClientSupplierInput internalInput =
+                TypeConversion.ToDafny_N3_aws__N6_crypto__S29_CreateBaseClientSupplierInput(input);
+            Dafny.Aws.Crypto._ICreateBaseClientSupplierOutput internalOutput =
+                this._impl.CreateBaseClientSupplier(internalInput);
+            return TypeConversion.FromDafny_N3_aws__N6_crypto__S30_CreateBaseClientSupplierOutput(internalOutput);
+        }
     }
 }
