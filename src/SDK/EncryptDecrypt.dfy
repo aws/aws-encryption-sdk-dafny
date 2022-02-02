@@ -60,9 +60,9 @@ module {:extern "EncryptDecryptHelpers"} EncryptDecryptHelpers {
     requires |signature| < UINT16_LIMIT
     ensures res.Success?
     ==> 
-      res.value == SerializeMessageWithoutSignature(framedMessage, suite).value + UInt16ToSeq(|signature| as uint16) + signature
+      res.value == SerializeMessageWithoutSignature(framedMessage, suite).value + WriteShortLengthSeq(signature)
   {
-    var serializedSignature := UInt16ToSeq(|signature| as uint16) + signature;
+    var serializedSignature := WriteShortLengthSeq(signature);
     var serializedMessage :- SerializeMessageWithoutSignature(framedMessage, suite);
     Success(serializedMessage + serializedSignature)
   }
