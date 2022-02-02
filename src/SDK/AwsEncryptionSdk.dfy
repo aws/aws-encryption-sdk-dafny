@@ -175,7 +175,6 @@ module {:extern "Dafny.Aws.Esdk.AwsEncryptionSdkClient"} AwsEncryptionSdk {
 
             var messageId: HeaderTypes.MessageID :- Random.GenerateBytes(HeaderTypes.MESSAGE_ID_LEN as int32);
 
-
             var suite := Client.SpecificationClient().GetSuite(encMat.algorithmSuiteId);
             var maybeExpandedDataKeys := KeyDerivation.ExpandKeyMaterial(
                 messageId, encMat.plaintextDataKey.value, suite
