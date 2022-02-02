@@ -270,10 +270,7 @@ module {:extern "Dafny.Aws.Esdk.AwsEncryptionSdkClient"} AwsEncryptionSdk {
             var suite := Client.SpecificationClient().GetSuite(suiteId);
             var esdkAlgorithmSuiteId := SerializableTypes.GetESDKAlgorithmSuiteId(suiteId);
 
-            // Committing algorithms must use message format v2
-            if
-              || suite.id == Crypto.ALG_AES_256_GCM_HKDF_SHA512_COMMIT_KEY_ECDSA_P384
-              || suite.id == Crypto.ALG_AES_256_GCM_HKDF_SHA512_COMMIT_KEY
+            if suite.messageVersion == 2
             {
                 :- Need(suiteData.Some?, "Could not build header body");
                 var body := HeaderTypes.HeaderBody.V2HeaderBody(
@@ -356,13 +353,16 @@ module {:extern "Dafny.Aws.Esdk.AwsEncryptionSdkClient"} AwsEncryptionSdk {
 
             var headerAuth :- HeaderAuth
                 .ReadHeaderAuthTag(headerBody.tail, suite)
-                .MapFailure(EncryptDecryptHelpers.MapSerializeFailure(": ReadAESMac"));
+                .MapFailure(EncryptDecryptHelpers.MapSerializeFailure(": ReadHeaderAuthTag"));
 
             var maybeExpandedDataKeys := KeyDerivation.ExpandKeyMaterial(
                 headerBody.data.messageId, decMat.plaintextDataKey.value, suite
             );
             :- Need(maybeExpandedDataKeys.Success?, "Failed to derive data keys");
             var expandedDataKeys := maybeExpandedDataKeys.value;
+
+            // We don't care about the result here, just whether it succeeds/fails
+            var _ :- ValidateSuiteData(suite, headerBody.data, expandedDataKeys.commitmentKey);
 
             // We created the header auth tag by encrypting an
             // empty array. To verify it here, we don't care about the actual
@@ -423,10 +423,10 @@ module {:extern "Dafny.Aws.Esdk.AwsEncryptionSdkClient"} AwsEncryptionSdk {
             // Parse the message body
             var plaintext;
             match header.body.contentType {
-            case NonFramed => return Failure("not at this time");
-            //   plaintext :- MessageBody.DecryptNonFramedMessageBody(rd, suite, decryptionKey, header.body.messageID);
-            case Framed =>
-                plaintext :- MessageBody.DecryptFramedMessageBody(messageBody.data, expandedDataKeys.dataKey);
+                case NonFramed => return Failure("not at this time");
+                //   plaintext :- MessageBody.DecryptNonFramedMessageBody(rd, suite, decryptionKey, header.body.messageID);
+                case Framed =>
+                    plaintext :- MessageBody.DecryptFramedMessageBody(messageBody.data, expandedDataKeys.dataKey);
             }
 
             var signature :- EncryptDecryptHelpers.VerifySignature(
@@ -439,5 +439,46 @@ module {:extern "Dafny.Aws.Esdk.AwsEncryptionSdkClient"} AwsEncryptionSdk {
 
             return Success(Esdk.DecryptOutput(plaintext := plaintext));
         }
+    }
+
+    /*
+     * Ensures that the suite data contained in the header of a message matches
+     * the expected suite data
+     */
+    method ValidateSuiteData(
+        suite: Client.AlgorithmSuites.AlgorithmSuite,
+        header: HeaderTypes.HeaderBody,
+        expectedSuiteData: Option<seq<uint8>>
+    ) returns (res: Result<bool, string>)
+
+    // No commitment, no need to compare anything
+    ensures suite.commitment.None? ==> res.Success?
+
+    // Happy case: we have commitment and the values match
+    ensures
+        && res.Success?
+        && !suite.commitment.None?
+    ==>
+        && expectedSuiteData.Some?
+        && header.suiteData == expectedSuiteData.value
+    
+    // Failure case: We have commitment and it does not match
+    ensures 
+        && expectedSuiteData.Some?
+        && header.suiteData != expectedSuiteData.value
+    ==>
+        res.Failure?
+    {
+        if suite.commitment.None? {
+            return Success(true);
+        }
+
+        :- Need(expectedSuiteData.Some?, "Algorithm has commitment but suite data not present");
+
+        if expectedSuiteData.value != header.suiteData {
+            return Failure("Commitment key does not match");
+        }
+
+        return Success(true);
     }
 }

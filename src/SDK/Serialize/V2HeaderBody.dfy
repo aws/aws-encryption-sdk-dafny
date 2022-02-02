@@ -83,7 +83,7 @@ module V2HeaderBody {
       suiteData := suiteData.data
     );
 
-    Success(SuccessfulRead(body, frameLength.tail))
+    Success(SuccessfulRead(body, suiteData.tail))
   }
 
   // TODO: This needs to be proven

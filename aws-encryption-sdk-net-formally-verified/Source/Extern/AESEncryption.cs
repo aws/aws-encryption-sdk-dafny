@@ -26,7 +26,8 @@ namespace AESEncryption {
             ibyteseq msg,
             ibyteseq aad
         ) {
-            try {
+            try
+            {
                 var param = new AeadParameters(
                     new KeyParameter(key.Elements),
                     ((AESEncryption.AES__GCM)encAlg).tagLength * 8,
