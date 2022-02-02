@@ -11,7 +11,14 @@ namespace Aws.Esdk
 {
     public class AwsEncryptionSdkClientConfig
     {
+        private Aws.Crypto.CommitmentPolicy _commitmentPolicy;
         private Aws.Esdk.ConfigurationDefaults _configDefaults;
+
+        public Aws.Crypto.CommitmentPolicy CommitmentPolicy
+        {
+            get { return this._commitmentPolicy; }
+            set { this._commitmentPolicy = value; }
+        }
 
         public Aws.Esdk.ConfigurationDefaults ConfigDefaults
         {

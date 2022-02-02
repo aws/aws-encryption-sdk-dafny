@@ -27,7 +27,10 @@ module {:extern "Dafny.Aws.Crypto"} Aws.Crypto {
         IAwsCryptographicMaterialsProviderClient.CreateMrkAwareStrictAwsKmsKeyring,
         IAwsCryptographicMaterialsProviderClient.CreateMrkAwareDiscoveryAwsKmsKeyring,
         IAwsCryptographicMaterialsProviderClient.CreateMultiKeyring,
-        IAwsCryptographicMaterialsProviderClient.CreateRawRsaKeyring
+        IAwsCryptographicMaterialsProviderClient.CreateRawRsaKeyring,
+        AwsCryptographicMaterialProvidersClientException.message,
+        AwsCryptographicMaterialProvidersClientException.WrapResultString,
+        Need
 
       reveals
         AlgorithmSuiteId,
@@ -61,6 +64,10 @@ module {:extern "Dafny.Aws.Crypto"} Aws.Crypto {
         GrantToken,
         GrantTokenList,
         IAwsCryptographicMaterialsProviderClient,
+        IAwsCryptographicMaterialProvidersException,
+        IAwsCryptographicMaterialProvidersException.GetMessage,
+        AwsCryptographicMaterialProvidersClientException,
+        AwsCryptographicMaterialProvidersClientException.GetMessage,
         AesWrappingAlg,
         CommitmentPolicy,
         CreateRawRsaKeyringInput,
@@ -85,14 +92,8 @@ module {:extern "Dafny.Aws.Crypto"} Aws.Crypto {
     datatype GetClientInput = GetClientInput(region: string)
 
     trait IClientSupplier {
-        // GetClient is a fallible operation, so it should return a Result<KMS.IKeyManagementServiceClient>,
-        // but prior to Dafny 3.4 we can't use the client trait as a type parameter.
-        // Until we adopt Dafny 3.4+, we mark the return type optional via `?`.
-        // This forces consuming code/proofs to handle the failure case,
-        // which in turn will ease the migration to a Result-wrapped client type.
-        //
-        // TODO: replace `?` by wrapping client in Result once we've adopted Dafny 3.4+
-        method GetClient(input: GetClientInput) returns (res: KMS.IKeyManagementServiceClient?)
+        method GetClient(input: GetClientInput)
+            returns (res: Result<KMS.IKeyManagementServiceClient, IAwsCryptographicMaterialProvidersException>)
     }
 
     /////////////
@@ -131,7 +132,7 @@ module {:extern "Dafny.Aws.Crypto"} Aws.Crypto {
     ///////////////////////
     // crypto-config.smithy
     datatype CommitmentPolicy =
-        FORBID_ENCRYPT_FORBID_DECRYPT |
+        FORBID_ENCRYPT_ALLOW_DECRYPT |
         REQUIRE_ENCRYPT_ALLOW_DECRYPT |
         REQUIRE_ENCRYPT_REQUIRE_DECRYPT
 
@@ -172,8 +173,10 @@ module {:extern "Dafny.Aws.Crypto"} Aws.Crypto {
     datatype OnDecryptOutput = OnDecryptOutput(nameonly materials: DecryptionMaterials)
 
     trait {:termination false} IKeyring {
-        method OnEncrypt(input: OnEncryptInput) returns (res: Result<OnEncryptOutput, string>)
-        method OnDecrypt(input: OnDecryptInput) returns (res: Result<OnDecryptOutput, string>)
+        method OnEncrypt(input: OnEncryptInput)
+            returns (res: Result<OnEncryptOutput, IAwsCryptographicMaterialProvidersException>)
+        method OnDecrypt(input: OnDecryptInput)
+            returns (res: Result<OnDecryptOutput, IAwsCryptographicMaterialProvidersException>)
     }
 
     /////////////////
@@ -227,21 +230,25 @@ module {:extern "Dafny.Aws.Crypto"} Aws.Crypto {
     datatype DeleteEntryOutput = DeleteEntryOutput() // empty for now
 
     trait ICryptoMaterialsCache {
-        method PutEntryForEncrypt(input: PutEntryForEncryptInput) returns (res: PutEntryForEncryptOutput)
-        method GetEntryForEncrypt(input: GetEntryForEncryptInput) returns (res: GetEntryForEncryptOutput)
+        method PutEntryForEncrypt(input: PutEntryForEncryptInput)
+            returns (res: Result<PutEntryForEncryptOutput, IAwsCryptographicMaterialProvidersException>)
+        method GetEntryForEncrypt(input: GetEntryForEncryptInput)
+            returns (res: Result<GetEntryForEncryptOutput, IAwsCryptographicMaterialProvidersException>)
 
-        method PutEntryForDecrypt(input: PutEntryForDecryptInput) returns (res: PutEntryForDecryptOutput)
-        method GetEntryForDecrypt(input: GetEntryForDecryptInput) returns (res: GetEntryForDecryptOutput)
+        method PutEntryForDecrypt(input: PutEntryForDecryptInput)
+            returns (res: Result<PutEntryForDecryptOutput, IAwsCryptographicMaterialProvidersException>)
+        method GetEntryForDecrypt(input: GetEntryForDecryptInput)
+            returns (res: Result<GetEntryForDecryptOutput, IAwsCryptographicMaterialProvidersException>)
 
-        method DeleteEntry(input: DeleteEntryInput) returns (res: DeleteEntryOutput)
+        method DeleteEntry(input: DeleteEntryInput)
+            returns (res: Result<DeleteEntryOutput, IAwsCryptographicMaterialProvidersException>)
     }
 
     //////////////
     // cmms.smithy
     datatype GetEncryptionMaterialsInput = GetEncryptionMaterialsInput(
         nameonly encryptionContext: EncryptionContext,
-        // TODO
-        // nameonly commitmentPolicy: CommitmentPolicy,
+        nameonly commitmentPolicy: CommitmentPolicy,
         nameonly algorithmSuiteId: Option<AlgorithmSuiteId>,
         nameonly maxPlaintextLength: Option<int64>
     )
@@ -252,8 +259,7 @@ module {:extern "Dafny.Aws.Crypto"} Aws.Crypto {
 
     datatype DecryptMaterialsInput = DecryptMaterialsInput(
         nameonly algorithmSuiteId: AlgorithmSuiteId,
-        // TODO
-        // nameonly commitmentPolicy: CommitmentPolicy,
+        nameonly commitmentPolicy: CommitmentPolicy,
         nameonly encryptedDataKeys: EncryptedDataKeyList,
         nameonly encryptionContext: EncryptionContext
     )
@@ -263,8 +269,10 @@ module {:extern "Dafny.Aws.Crypto"} Aws.Crypto {
     )
 
     trait {:termination false} ICryptographicMaterialsManager {
-        method GetEncryptionMaterials(input: GetEncryptionMaterialsInput) returns (res: Result<GetEncryptionMaterialsOutput, string>)
-        method DecryptMaterials(input: DecryptMaterialsInput) returns (res: Result<DecryptMaterialsOutput, string>)
+        method GetEncryptionMaterials(input: GetEncryptionMaterialsInput)
+            returns (res: Result<GetEncryptionMaterialsOutput, IAwsCryptographicMaterialProvidersException>)
+        method DecryptMaterials(input: DecryptMaterialsInput)
+            returns (res: Result<DecryptMaterialsOutput, IAwsCryptographicMaterialProvidersException>)
     }
 
     // Keyring creation input structures
@@ -357,26 +365,94 @@ module {:extern "Dafny.Aws.Crypto"} Aws.Crypto {
         nameonly entryPruningTailSize: Option<int32>
     )
 
-    // TODO: Return Result<> once supported with traits
     // TODO: Add in Create methods once new Keyrings/CMMs are ready
     trait {:termination false} IAwsCryptographicMaterialsProviderClient {
 
         // Keyrings
-        method CreateStrictAwsKmsKeyring(input: CreateStrictAwsKmsKeyringInput) returns (res: IKeyring)
-        method CreateAwsKmsDiscoveryKeyring(input: CreateAwsKmsDiscoveryKeyringInput) returns (res: IKeyring)
-        method CreateMrkAwareStrictAwsKmsKeyring(input: CreateMrkAwareStrictAwsKmsKeyringInput) returns (res: IKeyring)
-        // method CreateMrkAwareStrictMultiKeyring(input: CreateMrkAwareStrictMultiKeyringInput) returns (res: IKeyring)
-        method CreateMrkAwareDiscoveryAwsKmsKeyring(input: CreateMrkAwareDiscoveryAwsKmsKeyringInput) returns (res: IKeyring)
-        // method CreateMrkAwareDiscoveryMultiKeyring(input: CreateMrkAwareDiscoveryMultiKeyringInput) returns (res: IKeyring)
-        method CreateMultiKeyring(input: CreateMultiKeyringInput) returns (res: IKeyring?)
-        method CreateRawAesKeyring(input: CreateRawAesKeyringInput) returns (res: IKeyring)
-        method CreateRawRsaKeyring(input: CreateRawRsaKeyringInput) returns (res: IKeyring?)
+        method CreateStrictAwsKmsKeyring(input: CreateStrictAwsKmsKeyringInput)
+            returns (res: Result<IKeyring, IAwsCryptographicMaterialProvidersException>)
+        method CreateAwsKmsDiscoveryKeyring(input: CreateAwsKmsDiscoveryKeyringInput)
+            returns (res: Result<IKeyring, IAwsCryptographicMaterialProvidersException>)
+        method CreateMrkAwareStrictAwsKmsKeyring(input: CreateMrkAwareStrictAwsKmsKeyringInput)
+            returns (res: Result<IKeyring, IAwsCryptographicMaterialProvidersException>)
+        // method CreateMrkAwareStrictMultiKeyring(input: CreateMrkAwareStrictMultiKeyringInput)
+        //     returns (res: Result<IKeyring, IAwsCryptographicMaterialProvidersException>)
+        method CreateMrkAwareDiscoveryAwsKmsKeyring(input: CreateMrkAwareDiscoveryAwsKmsKeyringInput)
+            returns (res: Result<IKeyring, IAwsCryptographicMaterialProvidersException>)
+        // method CreateMrkAwareDiscoveryMultiKeyring(input: CreateMrkAwareDiscoveryMultiKeyringInput)
+        //     returns (res: Result<IKeyring, IAwsCryptographicMaterialProvidersException>)
+        method CreateMultiKeyring(input: CreateMultiKeyringInput)
+            returns (res: Result<IKeyring, IAwsCryptographicMaterialProvidersException>)
+        method CreateRawAesKeyring(input: CreateRawAesKeyringInput)
+            returns (res: Result<IKeyring, IAwsCryptographicMaterialProvidersException>)
+        method CreateRawRsaKeyring(input: CreateRawRsaKeyringInput)
+            returns (res: Result<IKeyring, IAwsCryptographicMaterialProvidersException>)
 
         // CMMs
-        method CreateDefaultCryptographicMaterialsManager(input: CreateDefaultCryptographicMaterialsManagerInput) returns (res: ICryptographicMaterialsManager)
-        // method CreateCachingCryptographicMaterialsManager(input: CreateCachingCryptographicMaterialsManagerInput) returns (res: ICryptographicMaterialsManager)
+        method CreateDefaultCryptographicMaterialsManager(input: CreateDefaultCryptographicMaterialsManagerInput)
+            returns (res: Result<ICryptographicMaterialsManager, IAwsCryptographicMaterialProvidersException>)
+        // method CreateCachingCryptographicMaterialsManager(input: CreateCachingCryptographicMaterialsManagerInput)
+        //     returns (res: Result<ICryptographicMaterialsManager, IAwsCryptographicMaterialProvidersException>)
 
         // Caches
-        // method CreateLocalCryptoMaterialsCache(input: CreateLocalCryptoMaterialsCacheInput) returns (res: ICryptoMaterialsCache)
+        // method CreateLocalCryptoMaterialsCache(input: CreateLocalCryptoMaterialsCacheInput)
+        //     returns (res: Result<ICryptoMaterialsCache, IAwsCryptographicMaterialProvidersException>)
+    }
+
+    trait IAwsCryptographicMaterialProvidersException {
+        function method GetMessage(): (message: string)
+            reads this
+    }
+
+    class AwsCryptographicMaterialProvidersClientException extends IAwsCryptographicMaterialProvidersException {
+        var message: string
+
+        constructor (message: string) {
+            this.message := message;
+        }
+
+        function method GetMessage(): (message: string)
+            reads this
+        {
+            this.message
+        }
+
+        static method WrapResultString<T>(result: Result<T, string>)
+            returns (wrapped: Result<T, IAwsCryptographicMaterialProvidersException>)
+            ensures result.Success? ==>
+                && wrapped.Success?
+                && wrapped.value == result.value
+            ensures result.Failure? ==>
+                && wrapped.Failure?
+        {
+            match result {
+                case Success(value) => return Result.Success(value);
+                case Failure(error) =>
+                    var wrappedError := new AwsCryptographicMaterialProvidersClientException(error);
+                    return Result.Failure(wrappedError);
+            }
+        }
+    }
+
+    // A helper method to ensure a requirement is true at runtime.
+    // If the requirement is false, the returned result contains a generic exception that wraps the provided message.
+    // :- Need(5 == |mySet|, "The set MUST have 5 elements.")
+    //
+    // This is like `Wrappers.Need<E>`, except:
+    //
+    //   - `E` is specialized to be IAwsCryptographicMaterialProvidersException,
+    //     and the error string is wrapped in a class implementing that trait
+    //   - it's a `method` and not a `function method`, because we must instantiate a `new`
+    //     error object and that is not permitted in ghost contexts
+    method Need(condition: bool, error: string)
+        returns (result: Outcome<IAwsCryptographicMaterialProvidersException>)
+        ensures condition <==> result.Pass?
+    {
+        if condition {
+            return Pass;
+        } else {
+            var exception := new AwsCryptographicMaterialProvidersClientException(error);
+            return Fail(exception);
+        }
     }
 }

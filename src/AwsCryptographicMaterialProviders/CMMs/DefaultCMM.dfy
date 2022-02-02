@@ -7,6 +7,8 @@ include "../../StandardLibrary/Base64.dfy"
 include "../Materials.dfy"
 include "../AlgorithmSuites.dfy"
 include "../CMM.dfy"
+include "../Defaults.dfy"
+include "../Commitment.dfy"
 include "../../Util/UTF8.dfy"
 include "../../Generated/AwsCryptographicMaterialProviders.dfy"
 
@@ -23,6 +25,8 @@ module
   import Base64
   import UTF8
   import Aws.Crypto
+  import Defaults
+  import Commitment
 
   class DefaultCMM
     extends CMM.VerifiableInterface
@@ -38,7 +42,7 @@ module
     method GetEncryptionMaterials(
       input: Crypto.GetEncryptionMaterialsInput
     )
-      returns (res: Result<Crypto.GetEncryptionMaterialsOutput, string>)
+      returns (res: Result<Crypto.GetEncryptionMaterialsOutput, Crypto.IAwsCryptographicMaterialProvidersException>)
       ensures res.Success?
       ==>
         && Materials.EncryptionMaterialsWithPlaintextDataKey(res.value.encryptionMaterials)
@@ -48,23 +52,72 @@ module
           Materials.EC_PUBLIC_KEY_FIELD in res.value.encryptionMaterials.encryptionContext
         )
       ensures Materials.EC_PUBLIC_KEY_FIELD in input.encryptionContext ==> res.Failure?
+
+      // Make sure that we returned the correct algorithm suite, either as specified in
+      // the input or, if that was not given, the default for the provided commitment policy
+      ensures
+        && res.Success?
+      ==>
+        || (
+            //= compliance/framework/default-cmm.txt#2.6.1
+            //= type=implication
+            //# *  If the encryption materials request (cmm-interface.md#encryption-
+            //# materials-request) does contain an algorithm suite, the encryption
+            //# materials returned MUST contain the same algorithm suite.
+            && input.algorithmSuiteId.Some?
+            && res.value.encryptionMaterials.algorithmSuiteId == input.algorithmSuiteId.value
+           )
+        || (
+            //= compliance/framework/default-cmm.txt#2.6.1
+            //= type=implication
+            //# *  If the encryption materials request (cmm-interface.md#encryption-
+            //# materials-request) does not contain an algorithm suite, the
+            //# operation MUST add the default algorithm suite for the commitment
+            //# policy (../client-apis/client.md#commitment-policy) as the
+            //# algorithm suite in the encryption materials returned.
+            && input.algorithmSuiteId.None?
+            && var selectedAlgorithm := Defaults.GetAlgorithmSuiteForCommitmentPolicy(input.commitmentPolicy);
+            && res.value.encryptionMaterials.algorithmSuiteId == selectedAlgorithm
+           )
+
+      //= compliance/framework/default-cmm.txt#2.6.1
+      //= type=implication
+      //# *  If the encryption materials request (cmm-interface.md#encryption-
+      //# materials-request) does contain an algorithm suite, the request
+      //# MUST fail if the algorithm suite is not supported by the
+      //# commitment policy (../client-apis/client.md#commitment-policy) on
+      //# the request.
+      ensures
+        && input.algorithmSuiteId.Some?
+        && Commitment.ValidateCommitmentPolicyOnEncrypt(input.algorithmSuiteId.value, input.commitmentPolicy).Failure?
+      ==>
+        res.Failure?
     {
-      :- Need(
-        Materials.EC_PUBLIC_KEY_FIELD !in input.encryptionContext,
+      :- Crypto.Need(Materials.EC_PUBLIC_KEY_FIELD !in input.encryptionContext,
         "Reserved Field found in EncryptionContext keys.");
 
-      var id := input
-        .algorithmSuiteId
-        .UnwrapOr(Crypto.AlgorithmSuiteId.ALG_AES_256_GCM_IV12_TAG16_HKDF_SHA384_ECDSA_P384);
+      var algorithmId : Crypto.AlgorithmSuiteId;
+      if input.algorithmSuiteId.Some? {
+        algorithmId := input.algorithmSuiteId.value;
+      } else {
+        algorithmId := Defaults.GetAlgorithmSuiteForCommitmentPolicy(input.commitmentPolicy);
+      }
 
-      var suite := AlgorithmSuites.GetSuite(id);
-      var materials :- InitializeEncryptionMaterials(
+      var validateCommitmentPolicyResult := Commitment.ValidateCommitmentPolicyOnEncrypt(
+        algorithmId, input.commitmentPolicy
+      );
+      var _ :- Crypto.AwsCryptographicMaterialProvidersClientException.WrapResultString(
+        validateCommitmentPolicyResult);
+
+      var suite := AlgorithmSuites.GetSuite(algorithmId);
+      var initializeMaterialsResult := InitializeEncryptionMaterials(
         suite,
         input.encryptionContext
       );
+      var materials :- Crypto.AwsCryptographicMaterialProvidersClientException.WrapResultString(initializeMaterialsResult);
 
       var result :- keyring.OnEncrypt(Crypto.OnEncryptInput(materials:=materials));
-      :- Need(
+      :- Crypto.Need(
         && result.materials.plaintextDataKey.Some?
         && |result.materials.encryptedDataKeys| > 0,
         "Could not retrieve materials required for encryption");
@@ -73,7 +126,7 @@ module
       // because they implement a trait that ensures this.
       // However not all keyrings are Dafny keyrings.
       // Customers can create custom keyrings.
-      :- Need(
+      :- Crypto.Need(
         Materials.EncryptionMaterialsTransitionIsValid(materials, result.materials),
         "Keyring returned an invalid response");
 
@@ -84,16 +137,31 @@ module
     method DecryptMaterials(
       input: Crypto.DecryptMaterialsInput
     )
-      returns (res: Result<Crypto.DecryptMaterialsOutput, string>)
+      returns (res: Result<Crypto.DecryptMaterialsOutput, Crypto.IAwsCryptographicMaterialProvidersException>)
       ensures res.Success?
       ==>
         && Materials.DecryptionMaterialsWithPlaintextDataKey(res.value.decryptionMaterials)
-    {
 
-      var materials :- InitializeDecryptionMaterials(
+      //= compliance/framework/default-cmm.txt#2.6.2
+      //= type=implication
+      //# The request MUST fail if the algorithm suite on the request is not
+      //# supported by the commitment policy (../client-apis/
+      //# client.md#commitment-policy) on the request.
+      ensures Commitment.ValidateCommitmentPolicyOnDecrypt(input.algorithmSuiteId, input.commitmentPolicy).Failure?
+      ==>
+        res.Failure?
+    {
+      var validateCommitmentPolicyResult := Commitment.ValidateCommitmentPolicyOnDecrypt(
+        input.algorithmSuiteId, input.commitmentPolicy
+      );
+      var _ :- Crypto.AwsCryptographicMaterialProvidersClientException.WrapResultString(
+        validateCommitmentPolicyResult);
+
+      var initializeMaterialsResult := InitializeDecryptionMaterials(
         AlgorithmSuites.GetSuite(input.algorithmSuiteId),
         input.encryptionContext
       );
+      var materials :- Crypto.AwsCryptographicMaterialProvidersClientException.WrapResultString(initializeMaterialsResult);
 
       var result :- keyring.OnDecrypt(Crypto.OnDecryptInput(
         materials:=materials,
@@ -104,7 +172,7 @@ module
       // because they implement a trait that ensures this.
       // However not all keyrings are Dafny keyrings.
       // Customers can create custom keyrings.
-      :- Need(
+      :- Crypto.Need(
         Materials.DecryptionMaterialsTransitionIsValid(materials, result.materials),
         "Keyring.OnDecrypt failed to decrypt the plaintext data key.");
 

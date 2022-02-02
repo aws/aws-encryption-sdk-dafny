@@ -14,7 +14,9 @@ module {:extern "Dafny.Aws.Esdk"} Aws.Esdk {
         nameonly plaintext: seq<uint8>,
         nameonly encryptionContext: Crypto.EncryptionContext, // TODO Make an option?
         nameonly materialsManager: Crypto.ICryptographicMaterialsManager,
-        nameonly algorithmSuiteId: Option<Crypto.AlgorithmSuiteId>
+        nameonly algorithmSuiteId: Option<Crypto.AlgorithmSuiteId>,
+        nameonly frameLength: Option<int64>,
+        nameonly maxPlaintextLength: Option<int64>
         // TODO reintroduce optional materialsManager and optional keyring
     )
 
@@ -39,7 +41,7 @@ module {:extern "Dafny.Aws.Esdk"} Aws.Esdk {
     )
 
     datatype AwsEncryptionSdkClientConfig = AwsEncryptionSdkClientConfig(
-        //nameonly commitmentPolicy: Crypto.CommitmentPolicy,
+        nameonly commitmentPolicy: Option<Crypto.CommitmentPolicy>,
         //nameonly maxEncryptedEdks: int,
         nameonly configDefaults: ConfigurationDefaults
     )
@@ -47,7 +49,42 @@ module {:extern "Dafny.Aws.Esdk"} Aws.Esdk {
     datatype ConfigurationDefaults = V1
 
     trait {:termination false} IAwsEncryptionSdkClient {
-        method Encrypt(input: EncryptInput) returns (res: Result<EncryptOutput, string>)
-        method Decrypt(input: DecryptInput) returns (res: Result<DecryptOutput, string>)
+        method Encrypt(input: EncryptInput) returns (res: Result<EncryptOutput, IAwsEncryptionSdkException>)
+        method Decrypt(input: DecryptInput) returns (res: Result<DecryptOutput, IAwsEncryptionSdkException>)
+    }
+
+    trait IAwsEncryptionSdkException {
+        function method GetMessage(): (message: string)
+            reads this
+    }
+
+    class AwsEncryptionSdkClientException extends IAwsEncryptionSdkException {
+        var message: string
+
+        constructor (message: string) {
+            this.message := message;
+        }
+
+        function method GetMessage(): (message: string)
+            reads this
+        {
+            this.message
+        }
+
+        static method WrapResultString<T>(result: Result<T, string>)
+            returns (wrapped: Result<T, IAwsEncryptionSdkException>)
+            ensures result.Success? ==>
+                && wrapped.Success?
+                && wrapped.value == result.value
+            ensures result.Failure? ==>
+                && wrapped.Failure?
+        {
+            match result {
+                case Success(value) => return Result.Success(value);
+                case Failure(error) =>
+                    var wrappedError := new AwsEncryptionSdkClientException(error);
+                    return Result.Failure(wrappedError);
+            }
+        }
     }
 }

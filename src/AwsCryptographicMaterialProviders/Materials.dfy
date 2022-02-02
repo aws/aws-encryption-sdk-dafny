@@ -2,10 +2,10 @@
 // SPDX-License-Identifier: Apache-2.0
 
 include "../StandardLibrary/StandardLibrary.dfy"
-include "../Generated/AwsCryptographicMaterialProviders.dfy" 
+include "../Generated/AwsCryptographicMaterialProviders.dfy"
 include "AlgorithmSuites.dfy"
 
-module 
+module
   {:extern "Dafny.Aws.Crypto.MaterialProviders.Materials"}
   MaterialProviders.Materials
 {
@@ -74,8 +74,8 @@ import opened StandardLibrary
     // During transitions, we MUST always end up with a plaintext data key.
     // It is not valid to start with a plaintext datakey and remove it.
     // It is not valid to start with no plaintext datakey and not add one.
-    ensures 
-      && newMat.plaintextDataKey.None? 
+    ensures
+      && newMat.plaintextDataKey.None?
     ==> !EncryptionMaterialsTransitionIsValid(oldMat, newMat)
   {}
 

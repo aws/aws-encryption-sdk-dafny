@@ -12,6 +12,7 @@ namespace Aws.Crypto
     public class DecryptMaterialsInput
     {
         private Aws.Crypto.AlgorithmSuiteId _algorithmSuiteId;
+        private Aws.Crypto.CommitmentPolicy _commitmentPolicy;
         private System.Collections.Generic.List<Aws.Crypto.EncryptedDataKey> _encryptedDataKeys;
         private System.Collections.Generic.Dictionary<string, string> _encryptionContext;
 
@@ -19,6 +20,12 @@ namespace Aws.Crypto
         {
             get { return this._algorithmSuiteId; }
             set { this._algorithmSuiteId = value; }
+        }
+
+        public Aws.Crypto.CommitmentPolicy CommitmentPolicy
+        {
+            get { return this._commitmentPolicy; }
+            set { this._commitmentPolicy = value; }
         }
 
         public System.Collections.Generic.List<Aws.Crypto.EncryptedDataKey> EncryptedDataKeys

@@ -26,9 +26,8 @@ structure GetEncryptionMaterialsInput {
     @required
     encryptionContext: EncryptionContext,
 
-    // TODO
-    // @required
-    // commitmentPolicy: CommitmentPolicy,
+    @required
+    commitmentPolicy: CommitmentPolicy,
 
     algorithmSuiteId: AlgorithmSuiteId,
 
@@ -49,9 +48,8 @@ structure DecryptMaterialsInput {
     @required
     algorithmSuiteId: AlgorithmSuiteId,
 
-    // TODO
-    // @required
-    // commitmentPolicy: CommitmentPolicy,
+    @required
+    commitmentPolicy: CommitmentPolicy,
 
     @required
     encryptedDataKeys: EncryptedDataKeyList,

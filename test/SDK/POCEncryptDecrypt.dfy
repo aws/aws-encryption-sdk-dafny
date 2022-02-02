@@ -26,26 +26,33 @@ module {:extern "TestClient"} TestClient {
 
   import TestUtils
 
-  method {:test} HappyPath() 
+  method {:test} HappyPath()
   {
     // Create material provider client
     var materialsClient := new Client.AwsCryptographicMaterialProvidersClient();
 
     // Use material provider client API for RawAESKeyring creation
-    var rawAESKeyring := materialsClient.CreateRawAesKeyring(Crypto.CreateRawAesKeyringInput(
+    var rawAESKeyringResult := materialsClient.CreateRawAesKeyring(Crypto.CreateRawAesKeyringInput(
       keyNamespace := "someNamespace",
       keyName := "someName",
       wrappingKey := seq(32, i => 0),
       wrappingAlg := Crypto.ALG_AES256_GCM_IV12_TAG16));
+    expect rawAESKeyringResult.Success?;
+    var rawAESKeyring := rawAESKeyringResult.value;
 
     // Use material provider client API for DefaultCMM creation
-    var cmm := materialsClient.CreateDefaultCryptographicMaterialsManager(Crypto.CreateDefaultCryptographicMaterialsManagerInput(
+    var cmmResult := materialsClient.CreateDefaultCryptographicMaterialsManager(Crypto.CreateDefaultCryptographicMaterialsManagerInput(
       keyring := rawAESKeyring
     ));
+    expect cmmResult.Success?;
+    var cmm := cmmResult.value;
 
     // Create AWS Crypto client
     // TODO use createClient
-    var config := Esdk.AwsEncryptionSdkClientConfig(configDefaults := Esdk.V1);
+    var config := Esdk.AwsEncryptionSdkClientConfig(
+      configDefaults := Esdk.V1,
+      commitmentPolicy := Option.Some(Crypto.FORBID_ENCRYPT_ALLOW_DECRYPT) // TODO: update once commitment algs working
+    );
     var client := new AwsEncryptionSdk.AwsEncryptionSdkClient(config);
 
     // Use Encrypt API
@@ -55,7 +62,9 @@ module {:extern "TestClient"} TestClient {
       plaintext:=plaintext,
       encryptionContext:=encryptionContext,
       algorithmSuiteId:=None(),
-      materialsManager:=cmm);
+      materialsManager:=cmm,
+      frameLength:=Option.None(),
+      maxPlaintextLength:=Option.None());
     var res :- expect client.Encrypt(input);
 
     // Use Decrypt API
