@@ -97,14 +97,14 @@ namespace Aws.Crypto
         protected abstract Aws.Crypto.ICryptographicMaterialsManager _CreateDefaultCryptographicMaterialsManager(
             Aws.Crypto.CreateDefaultCryptographicMaterialsManagerInput input);
 
-        public Aws.Crypto.CreateBaseClientSupplierOutput CreateBaseClientSupplier(
-            Aws.Crypto.CreateBaseClientSupplierInput input)
+        public Aws.Crypto.CreateDefaultClientSupplierOutput CreateDefaultClientSupplier(
+            Aws.Crypto.CreateDefaultClientSupplierInput input)
         {
             input.Validate();
-            return _CreateBaseClientSupplier(input);
+            return _CreateDefaultClientSupplier(input);
         }
 
-        protected abstract Aws.Crypto.CreateBaseClientSupplierOutput _CreateBaseClientSupplier(
-            Aws.Crypto.CreateBaseClientSupplierInput input);
+        protected abstract Aws.Crypto.CreateDefaultClientSupplierOutput _CreateDefaultClientSupplier(
+            Aws.Crypto.CreateDefaultClientSupplierInput input);
     }
 }

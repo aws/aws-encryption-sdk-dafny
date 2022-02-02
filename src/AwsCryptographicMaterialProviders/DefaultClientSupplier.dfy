@@ -6,19 +6,19 @@ include "../Generated/KeyManagementService.dfy"
 include "../Generated/AwsCryptographicMaterialProviders.dfy"
 
 module
-  {:extern "BaseClientSupplier"}
-  MaterialProviders.BaseClientSupplier
+  {:extern "DefaultClientSupplier"}
+  MaterialProviders.DefaultClientSupplier
  {
   import KMS = Com.Amazonaws.Kms
   import Aws.Crypto
     
-  class BaseClientSupplier
+  class DefaultClientSupplier
     extends Crypto.IClientSupplier
   {
 
     constructor(){}
 
-    method {:extern "BaseClientSupplier.BaseClientSupplier", "GetClient"} GetClient(input: Crypto.GetClientInput) returns (res: KMS.IKeyManagementServiceClient?) 
+    method {:extern "DefaultClientSupplier.DefaultClientSupplier", "GetClient"} GetClient(input: Crypto.GetClientInput) returns (res: KMS.IKeyManagementServiceClient?) 
     
   }
 }

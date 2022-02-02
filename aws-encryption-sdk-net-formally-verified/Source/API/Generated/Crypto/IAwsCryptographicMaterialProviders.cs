@@ -26,7 +26,7 @@ namespace Aws.Crypto
         Aws.Crypto.ICryptographicMaterialsManager CreateDefaultCryptographicMaterialsManager(
             Aws.Crypto.CreateDefaultCryptographicMaterialsManagerInput input);
 
-        Aws.Crypto.CreateBaseClientSupplierOutput CreateBaseClientSupplier(
-            Aws.Crypto.CreateBaseClientSupplierInput input);
+        Aws.Crypto.CreateDefaultClientSupplierOutput CreateDefaultClientSupplier(
+            Aws.Crypto.CreateDefaultClientSupplierInput input);
     }
 }

@@ -5,9 +5,9 @@ using Amazon.KeyManagementService;
 using Amazon;
 using Aws.Crypto;
 
-namespace BaseClientSupplier {
+namespace DefaultClientSupplier {
 
-    public class BaseClientSupplier {
+    public class DefaultClientSupplier {
         public AmazonKeyManagementServiceClient GetClient(GetClientInput input)
         {
             if (input.Region != "")

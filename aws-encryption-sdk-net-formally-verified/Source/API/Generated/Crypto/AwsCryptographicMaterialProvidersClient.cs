@@ -109,14 +109,14 @@ namespace Aws.Crypto
                 internalOutput);
         }
 
-        protected override Aws.Crypto.CreateBaseClientSupplierOutput _CreateBaseClientSupplier(
-            Aws.Crypto.CreateBaseClientSupplierInput input)
+        protected override Aws.Crypto.CreateDefaultClientSupplierOutput _CreateDefaultClientSupplier(
+            Aws.Crypto.CreateDefaultClientSupplierInput input)
         {
-            Dafny.Aws.Crypto._ICreateBaseClientSupplierInput internalInput =
-                TypeConversion.ToDafny_N3_aws__N6_crypto__S29_CreateBaseClientSupplierInput(input);
-            Dafny.Aws.Crypto._ICreateBaseClientSupplierOutput internalOutput =
-                this._impl.CreateBaseClientSupplier(internalInput);
-            return TypeConversion.FromDafny_N3_aws__N6_crypto__S30_CreateBaseClientSupplierOutput(internalOutput);
+            Dafny.Aws.Crypto._ICreateDefaultClientSupplierInput internalInput =
+                TypeConversion.ToDafny_N3_aws__N6_crypto__S32_CreateDefaultClientSupplierInput(input);
+            Dafny.Aws.Crypto._ICreateDefaultClientSupplierOutput internalOutput =
+                this._impl.CreateDefaultClientSupplier(internalInput);
+            return TypeConversion.FromDafny_N3_aws__N6_crypto__S33_CreateDefaultClientSupplierOutput(internalOutput);
         }
     }
 }

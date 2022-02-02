@@ -9,7 +9,7 @@ using
 
 namespace Aws.Crypto
 {
-    public class CreateBaseClientSupplierInput
+    public class CreateDefaultClientSupplierInput
     {
         public void Validate()
         {

@@ -9,7 +9,7 @@ using
 
 namespace Aws.Crypto
 {
-    public class CreateBaseClientSupplierOutput
+    public class CreateDefaultClientSupplierOutput
     {
         private Aws.Crypto.IClientSupplier _clientSupplier;
 

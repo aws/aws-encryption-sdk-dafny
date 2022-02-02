@@ -34,7 +34,7 @@ service AwsCryptographicMaterialProviders {
         // CreateLocalCryptoMaterialsCache,
 
         // ClientSupplier
-        CreateBaseClientSupplier
+        CreateDefaultClientSupplier
     ]
 }
 

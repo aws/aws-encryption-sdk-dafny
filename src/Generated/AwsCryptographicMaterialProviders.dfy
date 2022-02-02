@@ -30,7 +30,7 @@ module {:extern "Dafny.Aws.Crypto"} Aws.Crypto {
         IAwsCryptographicMaterialsProviderClient.CreateMrkAwareDiscoveryAwsKmsKeyring,
         IAwsCryptographicMaterialsProviderClient.CreateMultiKeyring,
         IAwsCryptographicMaterialsProviderClient.CreateRawRsaKeyring,
-        IAwsCryptographicMaterialsProviderClient.CreateBaseClientSupplier,
+        IAwsCryptographicMaterialsProviderClient.CreateDefaultClientSupplier,
         IAwsCryptographicMaterialsProviderClient.CreateMrkAwareStrictMultiKeyring
 
       reveals
@@ -53,7 +53,7 @@ module {:extern "Dafny.Aws.Crypto"} Aws.Crypto {
         EncryptionMaterials.Valid,
 		    CreateStrictAwsKmsKeyringInput,
         CreateAwsKmsDiscoveryKeyringInput,
-        CreateBaseClientSupplierInput,
+        CreateDefaultClientSupplierInput,
         CreateDefaultCryptographicMaterialsManagerInput,
         CreateMrkAwareDiscoveryAwsKmsKeyringInput,
         CreateMrkAwareStrictAwsKmsKeyringInput,
@@ -104,7 +104,7 @@ module {:extern "Dafny.Aws.Crypto"} Aws.Crypto {
         method GetClient(input: GetClientInput) returns (res: KMS.IKeyManagementServiceClient?)
     }
 
-    datatype CreateBaseClientSupplierInput = CreateBaseClientSupplierInput()
+    datatype CreateDefaultClientSupplierInput = CreateDefaultClientSupplierInput()
 
     /////////////
     // structures.smithy
@@ -389,6 +389,6 @@ module {:extern "Dafny.Aws.Crypto"} Aws.Crypto {
         // method CreateLocalCryptoMaterialsCache(input: CreateLocalCryptoMaterialsCacheInput) returns (res: ICryptoMaterialsCache)
 
         // Client Supplier
-        method CreateBaseClientSupplier(input: CreateBaseClientSupplierInput) returns (res: IClientSupplier)
+        method CreateDefaultClientSupplier(input: CreateDefaultClientSupplierInput) returns (res: IClientSupplier)
     }
 }

@@ -9,7 +9,7 @@ include "../StandardLibrary/StandardLibrary.dfy"
 include "../../libraries/src/Collections/Sequences/Seq.dfy"
 include "../Util/UTF8.dfy"
 include "AlgorithmSuites.dfy"
-include "BaseClientSupplier.dfy"
+include "DefaultClientSupplier.dfy"
 include "CMMs/DefaultCMM.dfy"
 include "Keyrings/AwsKms/AwsKmsArnParsing.dfy"
 include "Keyrings/AwsKms/AwsKmsDiscoveryKeyring.dfy"
@@ -42,9 +42,9 @@ module
   import AwsKmsMrkAwareSymmetricRegionDiscoveryKeyring
   import AwsKmsStrictKeyring
   import AwsKmsUtils
-  import BaseClientSupplier
   import Commitment
   import DefaultCMM
+  import DefaultClientSupplier
   import GeneratedKMS = Com.Amazonaws.Kms
   import Materials
   import MultiKeyring
@@ -77,7 +77,7 @@ module
     // Class Members
     provides
       AwsCryptographicMaterialProvidersClient.CreateAwsKmsDiscoveryKeyring,
-      AwsCryptographicMaterialProvidersClient.CreateBaseClientSupplier,
+      AwsCryptographicMaterialProvidersClient.CreateDefaultClientSupplier,
       AwsCryptographicMaterialProvidersClient.CreateDefaultCryptographicMaterialsManager,
       AwsCryptographicMaterialProvidersClient.CreateMrkAwareDiscoveryAwsKmsKeyring,
       AwsCryptographicMaterialProvidersClient.CreateMrkAwareStrictAwsKmsKeyring,
@@ -317,7 +317,7 @@ module
       //# not passed, then a default MUST be created that takes a region string
       //# and generates a default AWS SDK client for the given region.
       if input.clientSupplier == null {
-        clientSupplier := CreateBaseClientSupplier(Crypto.CreateBaseClientSupplierInput());
+        clientSupplier := CreateDefaultClientSupplier(Crypto.CreateDefaultClientSupplierInput());
       } else {
         clientSupplier := input.clientSupplier;
       }
@@ -496,10 +496,10 @@ module
       return Success(keyring);
     }
 
-    method CreateBaseClientSupplier(input: Crypto.CreateBaseClientSupplierInput)
+    method CreateDefaultClientSupplier(input: Crypto.CreateDefaultClientSupplierInput)
       returns (res: Crypto.IClientSupplier)
     {
-      return new BaseClientSupplier.BaseClientSupplier();
+      return new DefaultClientSupplier.DefaultClientSupplier();
     }
   }
 }
