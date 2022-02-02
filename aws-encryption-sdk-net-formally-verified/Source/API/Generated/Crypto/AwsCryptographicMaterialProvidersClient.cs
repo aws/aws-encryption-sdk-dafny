@@ -51,6 +51,16 @@ namespace Aws.Crypto
             return TypeConversion.FromDafny_N3_aws__N6_crypto__S19_CreateKeyringOutput(internalOutput);
         }
 
+        protected override Aws.Crypto.IKeyring _CreateMrkAwareStrictMultiKeyring(
+            Aws.Crypto.CreateMrkAwareStrictMultiKeyringInput input)
+        {
+            Dafny.Aws.Crypto._ICreateMrkAwareStrictMultiKeyringInput internalInput =
+                TypeConversion.ToDafny_N3_aws__N6_crypto__S37_CreateMrkAwareStrictMultiKeyringInput(input);
+            Dafny.Aws.Crypto.IKeyring internalOutput =
+                this._impl.CreateMrkAwareStrictMultiKeyring(internalInput);
+            return TypeConversion.FromDafny_N3_aws__N6_crypto__S19_CreateKeyringOutput(internalOutput);
+        }
+
         protected override Aws.Crypto.IKeyring _CreateMrkAwareDiscoveryAwsKmsKeyring(
             Aws.Crypto.CreateMrkAwareDiscoveryAwsKmsKeyringInput input)
         {

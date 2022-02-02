@@ -133,22 +133,21 @@ structure CreateMrkAwareStrictAwsKmsKeyringInput {
     grantTokens: GrantTokenList
 }
 
-// operation CreateMrkAwareStrictMultiKeyring {
-//     input: CreateMrkAwareStrictMultiKeyringInput,
-//     output: CreateKeyringOutput,
-// }
-//
-// structure CreateMrkAwareStrictMultiKeyringInput {
-//     // TODO: spec doesn't call this required but it seems like it should be
-//     generator:  KmsKeyId,
-//
-//     kmsKeyIds: KmsKeyIdList,
-//
-//     clientSupplier: ClientSupplierReference,
-//
-//     grantTokens: GrantTokenList
-// }
-//
+operation CreateMrkAwareStrictMultiKeyring {
+    input: CreateMrkAwareStrictMultiKeyringInput,
+    output: CreateKeyringOutput,
+}
+
+structure CreateMrkAwareStrictMultiKeyringInput {
+    generator:  KmsKeyId,
+
+    kmsKeyIds: KmsKeyIdList,
+
+    clientSupplier: ClientSupplierReference,
+
+    grantTokens: GrantTokenList
+}
+
 // KMS - MRK Aware, Discovery
 
 operation CreateMrkAwareDiscoveryAwsKmsKeyring {
