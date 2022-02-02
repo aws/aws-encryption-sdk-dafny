@@ -7,7 +7,7 @@ using Aws.Crypto;
 
 namespace DefaultClientSupplier {
 
-    public class DefaultClientSupplier {
+    public partial class DefaultClientSupplier {
         public AmazonKeyManagementServiceClient GetClient(GetClientInput input)
         {
             if (input.Region != "")
