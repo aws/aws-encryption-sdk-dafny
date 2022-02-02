@@ -285,8 +285,42 @@ module {:extern "Dafny.Aws.Esdk.AwsEncryptionSdkClient"} AwsEncryptionSdk {
             encryptedDataKeys: SerializableTypes.ESDKEncryptedDataKeys,
             frameLength: int64,
             suiteData: Option<seq<uint8>>
-        ) returns (res: Result<HeaderTypes.HeaderBody, string>) {
+        ) returns (res: Result<HeaderTypes.HeaderBody, string>)
 
+        // Correct construction of V2 headers
+        ensures
+            && var suite := Client.SpecificationClient().GetSuite(suiteId);
+            && suite.messageVersion == 2
+        ==>
+            && var esdkAlgorithmSuiteId := SerializableTypes.GetESDKAlgorithmSuiteId(suiteId);
+            && suiteData.Some? // V2 must have suiteData
+            && res.value == HeaderTypes.HeaderBody.V2HeaderBody(
+                esdkSuiteId := esdkAlgorithmSuiteId,
+                messageId := messageId,
+                encryptionContext := encryptionContext,
+                encryptedDataKeys := encryptedDataKeys,
+                contentType := HeaderTypes.ContentType.Framed, // TODO: may need to change to support non-framed
+                frameLength := frameLength as uint32,
+                suiteData := suiteData.value
+            )
+
+        // Correct construction of V1 headers
+        ensures
+            && var suite := Client.SpecificationClient().GetSuite(suiteId);
+            && suite.messageVersion == 1
+        ==>
+            && var esdkAlgorithmSuiteId := SerializableTypes.GetESDKAlgorithmSuiteId(suiteId);
+            && res.value == HeaderTypes.HeaderBody.V1HeaderBody(
+                messageType := HeaderTypes.MessageType.TYPE_CUSTOMER_AED,
+                esdkSuiteId := esdkAlgorithmSuiteId,
+                messageId := messageId,
+                encryptionContext := encryptionContext,
+                encryptedDataKeys := encryptedDataKeys,
+                contentType := HeaderTypes.ContentType.Framed, // TODO: may need to change to support non-framed
+                headerIvLength := suite.encrypt.ivLength as nat,
+                frameLength := frameLength as uint32
+            )
+        {
             var suite := Client.SpecificationClient().GetSuite(suiteId);
             var esdkAlgorithmSuiteId := SerializableTypes.GetESDKAlgorithmSuiteId(suiteId);
 
