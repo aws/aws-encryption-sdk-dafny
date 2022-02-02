@@ -72,8 +72,25 @@ module {:extern "Dafny.Aws.Esdk.AwsEncryptionSdkClient"} AwsEncryptionSdk {
             }
         }
 
-        method Encrypt(input: Esdk.EncryptInput) returns (res: Result<Esdk.EncryptOutput, string>)
+        // Doing this conversion at each error site would allow us to emit more specific error types.
+        // But we don't have specific error types right now,
+        // and to use them,
+        // we'd have to instantiate errors within their own statements since they need to be allocated via `new`.
+        // This is tedious and obscures the already-long business logic.
+        //
+        // We can safely refactor this at a later date to use more specific error types,
+        // because errors are abstracted by the common error trait.
+        // So for expedience, we put the business logic in an internal method,
+        // and provide this facade that wraps any failure message inside the generic error type.
+        method Encrypt(input: Esdk.EncryptInput)
+            returns (res: Result<Esdk.EncryptOutput, Esdk.IAwsEncryptionSdkException>)
+        {
+            var encryptResult := EncryptInternal(input);
+            var withConvertedError := Esdk.AwsEncryptionSdkClientException.WrapResultString(encryptResult);
+            return withConvertedError;
+        }
 
+        method EncryptInternal(input: Esdk.EncryptInput) returns (res: Result<Esdk.EncryptOutput, string>)
         //= compliance/client-apis/encrypt.txt#2.6.1
         //= type=implication
         //# If an input algorithm suite (Section 2.4.5) is provided that is not
@@ -135,7 +152,11 @@ module {:extern "Dafny.Aws.Esdk.AwsEncryptionSdkClient"} AwsEncryptionSdk {
                 maxPlaintextLength:=Option.Some(maxPlaintextLength as int64)
             );
 
-            var output :- cmm.GetEncryptionMaterials(encMatRequest);
+            var getEncMatResult := cmm.GetEncryptionMaterials(encMatRequest);
+            var output :- match getEncMatResult {
+                case Success(value) => Success(value)
+                case Failure(exception) => Failure(exception.GetMessage())
+            };
 
             var encMat := output.encryptionMaterials;
 
@@ -297,7 +318,15 @@ module {:extern "Dafny.Aws.Esdk.AwsEncryptionSdkClient"} AwsEncryptionSdk {
             }
         }
 
-        method Decrypt(input: Esdk.DecryptInput) returns (res: Result<Esdk.DecryptOutput, string>)
+        // See Encrypt/EncryptInternal for an explanation of why we separate Decrypt and DecryptInternal.
+        method Decrypt(input: Esdk.DecryptInput) returns (res: Result<Esdk.DecryptOutput, Esdk.IAwsEncryptionSdkException>)
+        {
+            var decryptResult := DecryptInternal(input);
+            var withConvertedError := Esdk.AwsEncryptionSdkClientException.WrapResultString(decryptResult);
+            return withConvertedError;
+        }
+
+        method DecryptInternal(input: Esdk.DecryptInput) returns (res: Result<Esdk.DecryptOutput, string>)
         {
             // Validate decrypt request
             // TODO: bring back once we can have Option<Trait>
@@ -337,7 +366,11 @@ module {:extern "Dafny.Aws.Esdk.AwsEncryptionSdkClient"} AwsEncryptionSdk {
                 encryptedDataKeys:=headerBody.data.encryptedDataKeys,
                 encryptionContext:=esdkEncryptionContext
             );
-            var output :- cmm.DecryptMaterials(decMatRequest);
+            var decMatResult := cmm.DecryptMaterials(decMatRequest);
+            var output :- match decMatResult {
+                case Success(value) => Success(value)
+                case Failure(exception) => Failure(exception.GetMessage())
+            };
             var decMat := output.decryptionMaterials;
 
             // Validate decryption materials

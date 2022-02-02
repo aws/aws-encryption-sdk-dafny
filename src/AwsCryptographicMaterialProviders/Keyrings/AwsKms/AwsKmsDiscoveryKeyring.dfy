@@ -67,13 +67,15 @@ module
     method OnEncrypt(
       input: Crypto.OnEncryptInput
     )
-      returns (res: Result<Crypto.OnEncryptOutput, string>)
+      returns (res: Result<Crypto.OnEncryptOutput, Crypto.IAwsCryptographicMaterialProvidersException>)
       //= compliance/framework/aws-kms/aws-kms-discovery-keyring.txt#2.7
       //= type=implication
       //# This function MUST fail.
       ensures res.Failure?
     {
-      return Failure("Encryption is not supported with a Discovery Keyring.");
+      var exception := new Crypto.AwsCryptographicMaterialProvidersClientException(
+        "Encryption is not supported with a Discovery Keyring.");
+      return Failure(exception);
     }
 
     //= compliance/framework/aws-kms/aws-kms-discovery-keyring.txt#2.8
@@ -84,7 +86,7 @@ module
     method OnDecrypt(
       input: Crypto.OnDecryptInput
     )
-      returns (res: Result<Crypto.OnDecryptOutput, string>)
+      returns (res: Result<Crypto.OnDecryptOutput, Crypto.IAwsCryptographicMaterialProvidersException>)
       ensures res.Success?
       ==>
         && Materials.DecryptionMaterialsTransitionIsValid(
@@ -175,20 +177,23 @@ module
       var encryptedDataKeys := input.encryptedDataKeys;
       var suite := AlgorithmSuites.GetSuite(input.materials.algorithmSuiteId);
 
-      :- Need(
-        Materials.DecryptionMaterialsWithoutPlaintextDataKey(materials), 
+      :- Crypto.Need(
+        Materials.DecryptionMaterialsWithoutPlaintextDataKey(materials),
         "Keyring received decryption materials that already contain a plaintext data key.");
 
       //= compliance/framework/aws-kms/aws-kms-discovery-keyring.txt#2.8
       //# The set of encrypted data keys MUST first be filtered to match this
       //# keyring's configuration.
       var edkFilter : AwsKmsEncryptedDataKeyFilter := new AwsKmsEncryptedDataKeyFilter(discoveryFilter);
-      var matchingEdks :- Actions.FilterWithResult(edkFilter, encryptedDataKeys);
+      var filterResult := Actions.FilterWithResult(edkFilter, encryptedDataKeys);
+      var matchingEdks :- Crypto.AwsCryptographicMaterialProvidersClientException.WrapResultString(filterResult);
 
       // Next we convert the input Crypto.EncrypteDataKeys into Constant.AwsKmsEdkHelpers,
       // which makes them slightly easier to work with.
       var edkTransform : AwsKmsEncryptedDataKeyTransformer := new AwsKmsEncryptedDataKeyTransformer();
-      var edksToAttempt, parts :- Actions.FlatMapWithResult(edkTransform, matchingEdks);
+      var edkTransformResult, parts := Actions.FlatMapWithResult(edkTransform, matchingEdks);
+      var edksToAttempt :- Crypto.AwsCryptographicMaterialProvidersClientException.WrapResultString(
+        edkTransformResult);
 
       // We want to make sure that the set of EDKs we're about to attempt
       // to decrypt all actually came from the original set of EDKs. This is useful
@@ -218,7 +223,7 @@ module
         edksToAttempt
       );
 
-      return match outcome {
+      var result := match outcome {
         case Success(mat) =>
           assert exists helper: AwsKmsEdkHelper | helper in edksToAttempt
           ::
@@ -242,6 +247,8 @@ module
             );
             Failure(error)
       };
+      var wrappedResult := Crypto.AwsCryptographicMaterialProvidersClientException.WrapResultString(result);
+      return wrappedResult;
     }
   }
 

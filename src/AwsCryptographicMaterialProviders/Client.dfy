@@ -118,7 +118,7 @@ module
   {
     constructor () {}
     method CreateRawAesKeyring(input: Crypto.CreateRawAesKeyringInput)
-      returns (res: Crypto.IKeyring)
+      returns (res: Result<Crypto.IKeyring, Crypto.IAwsCryptographicMaterialProvidersException>)
     {
       var wrappingAlg:AESEncryption.AES_GCM := match input.wrappingAlg
         case ALG_AES128_GCM_IV12_TAG16 => AESEncryption.AES_GCM(
@@ -154,17 +154,21 @@ module
       expect |input.wrappingKey| == 16 || |input.wrappingKey| == 24 || |input.wrappingKey| == 32;
       expect |input.wrappingKey| == wrappingAlg.keyLength as int;
 
-      return new RawAESKeyring.RawAESKeyring(namespace, name, input.wrappingKey, wrappingAlg);
+      var keyring := new RawAESKeyring.RawAESKeyring(namespace, name, input.wrappingKey, wrappingAlg);
+      return Success(keyring);
     }
 
     method CreateDefaultCryptographicMaterialsManager(input: Crypto.CreateDefaultCryptographicMaterialsManagerInput)
-      returns (res: Crypto.ICryptographicMaterialsManager)
+      returns (res: Result<Crypto.ICryptographicMaterialsManager, Crypto.IAwsCryptographicMaterialProvidersException>)
     {
-        return new DefaultCMM.DefaultCMM.OfKeyring(input.keyring);
+        var cmm := new DefaultCMM.DefaultCMM.OfKeyring(input.keyring);
+        return Success(cmm);
     }
 
-    method CreateStrictAwsKmsKeyring(input: Crypto.CreateStrictAwsKmsKeyringInput) returns (res: Crypto.IKeyring)
+    method CreateStrictAwsKmsKeyring(input: Crypto.CreateStrictAwsKmsKeyringInput)
+      returns (res: Result<Crypto.IKeyring, Crypto.IAwsCryptographicMaterialProvidersException>)
     {
+      // TODO: return proper exceptions
       expect AwsKmsArnParsing.ParseAwsKmsIdentifier(input.kmsKeyId).Success?;
       expect UTF8.IsASCIIString(input.kmsKeyId);
       expect 0 < |input.kmsKeyId| <= AwsKmsArnParsing.MAX_AWS_KMS_IDENTIFIER_LENGTH;
@@ -173,12 +177,14 @@ module
       expect 0 <= |grantTokens| <= 10;
       expect forall grantToken | grantToken in grantTokens :: 1 <= |grantToken| <= 8192;
 
-      // TODO: update once we can use Result
-      return new AwsKmsStrictKeyring.AwsKmsStrictKeyring(input.kmsClient, input.kmsKeyId, grantTokens);
+      var keyring := new AwsKmsStrictKeyring.AwsKmsStrictKeyring(input.kmsClient, input.kmsKeyId, grantTokens);
+      return Success(keyring);
     }
 
-    method CreateMrkAwareStrictAwsKmsKeyring(input: Crypto.CreateMrkAwareStrictAwsKmsKeyringInput) returns (res: Crypto.IKeyring)
+    method CreateMrkAwareStrictAwsKmsKeyring(input: Crypto.CreateMrkAwareStrictAwsKmsKeyringInput)
+      returns (res: Result<Crypto.IKeyring, Crypto.IAwsCryptographicMaterialProvidersException>)
     {
+      // TODO: return proper exceptions
       expect AwsKmsArnParsing.ParseAwsKmsIdentifier(input.kmsKeyId).Success?;
       expect UTF8.IsASCIIString(input.kmsKeyId);
       expect 0 < |input.kmsKeyId| <= AwsKmsArnParsing.MAX_AWS_KMS_IDENTIFIER_LENGTH;
@@ -187,10 +193,12 @@ module
       expect 0 <= |grantTokens| <= 10;
       expect forall grantToken | grantToken in grantTokens :: 1 <= |grantToken| <= 8192;
 
-      return new AwsKmsMrkAwareSymmetricKeyring.AwsKmsMrkAwareSymmetricKeyring(input.kmsClient, input.kmsKeyId, grantTokens);
+      var keyring := new AwsKmsMrkAwareSymmetricKeyring.AwsKmsMrkAwareSymmetricKeyring(input.kmsClient, input.kmsKeyId, grantTokens);
+      return Success(keyring);
     }
 
-    method CreateMrkAwareDiscoveryAwsKmsKeyring(input: Crypto.CreateMrkAwareDiscoveryAwsKmsKeyringInput) returns (res: Crypto.IKeyring)
+    method CreateMrkAwareDiscoveryAwsKmsKeyring(input: Crypto.CreateMrkAwareDiscoveryAwsKmsKeyringInput)
+      returns (res: Result<Crypto.IKeyring, Crypto.IAwsCryptographicMaterialProvidersException>)
     {
       // TODO: validation on discovery filter
 
@@ -207,10 +215,12 @@ module
       expect 0 <= |grantTokens| <= 10;
       expect forall grantToken | grantToken in grantTokens :: 1 <= |grantToken| <= 8192;
 
-      return new AwsKmsMrkAwareSymmetricRegionDiscoveryKeyring.AwsKmsMrkAwareSymmetricRegionDiscoveryKeyring(input.kmsClient, input.region, input.discoveryFilter, grantTokens);
+      var keyring := new AwsKmsMrkAwareSymmetricRegionDiscoveryKeyring.AwsKmsMrkAwareSymmetricRegionDiscoveryKeyring(input.kmsClient, input.region, input.discoveryFilter, grantTokens);
+      return Success(keyring);
     }
 
-    method CreateAwsKmsDiscoveryKeyring(input: Crypto.CreateAwsKmsDiscoveryKeyringInput) returns (res: Crypto.IKeyring)
+    method CreateAwsKmsDiscoveryKeyring(input: Crypto.CreateAwsKmsDiscoveryKeyringInput)
+      returns (res: Result<Crypto.IKeyring, Crypto.IAwsCryptographicMaterialProvidersException>)
     {
       // TODO: validation on discovery filter
 
@@ -220,43 +230,46 @@ module
       expect 0 <= |grantTokens| <= 10;
       expect forall grantToken | grantToken in grantTokens :: 1 <= |grantToken| <= 8192;
 
-      return new AwsKmsDiscoveryKeyring.AwsKmsDiscoveryKeyring(input.kmsClient, input.discoveryFilter, grantTokens);
+      var keyring := new AwsKmsDiscoveryKeyring.AwsKmsDiscoveryKeyring(input.kmsClient, input.discoveryFilter, grantTokens);
+      return Success(keyring);
     }
 
 
     method CreateMultiKeyring(input: Crypto.CreateMultiKeyringInput)
-      returns (res: Crypto.IKeyring?)
+      returns (res: Result<Crypto.IKeyring, Crypto.IAwsCryptographicMaterialProvidersException>)
     {
-
       if input.generator == null && |input.childKeyrings| == 0 {
-         // TODO: placeholder, update once we can return Result<>
-        return null;
+        var error := new Crypto.AwsCryptographicMaterialProvidersClientException(
+          "Must include a generator keyring and/or at least one child keyring");
+        return Failure(error);
       }
 
-      return new MultiKeyring.MultiKeyring(input.generator, input.childKeyrings);
+      var keyring := new MultiKeyring.MultiKeyring(input.generator, input.childKeyrings);
+      return Success(keyring);
     }
 
     method CreateRawRsaKeyring(input: Crypto.CreateRawRsaKeyringInput)
-      // returns (res: Result<Crypto.IKeyring, string>)
-      returns (res: Crypto.IKeyring?)
+      returns (res: Result<Crypto.IKeyring, Crypto.IAwsCryptographicMaterialProvidersException>)
       //= compliance/framework/raw-rsa-keyring.txt#2.1.1
       //= type=implication
       //# -  Raw RSA keyring MUST NOT accept a key namespace of "aws-kms".
       ensures
         input.keyNamespace == "aws-kms"
       ==>
-        res == null
+        res.Failure?
       ensures
         input.publicKey.None? && input.privateKey.None?
       ==>
-        res == null
+        res.Failure?
     {
       // :- Need(
       //   input.keyNamespace != "aws-kms",
       //   "keyNamespace must not be `aws-kms`"
       // );
       if (input.keyNamespace == "aws-kms") {
-        return null;
+        var error := new Crypto.AwsCryptographicMaterialProvidersClientException(
+          "keyNamespace must not be `aws-kms`");
+        return Failure(error);
       }
 
       // :- Need(
@@ -264,9 +277,11 @@ module
       //   "A publicKey or a privateKey is required"
       // );
       if (input.publicKey.None? && input.privateKey.None?) {
-        return null;
+        var error := new Crypto.AwsCryptographicMaterialProvidersClientException(
+          "A publicKey or a privateKey is required");
+        return Failure(error);
       }
-      
+
       var padding: RSAEncryption.PaddingMode := match input.paddingScheme
         case PKCS1 => RSAEncryption.PaddingMode.PKCS1
         case OAEP_SHA1_MGF1 => RSAEncryption.PaddingMode.OAEP_SHA1
@@ -285,11 +300,11 @@ module
       if nameRes.Success? {
         name := nameRes.value;
       }
-      
+
       expect |namespace| < UINT16_LIMIT;  // Both name & namespace will be serialized into the message
       expect |name| < UINT16_LIMIT;       // So both must respect message size limit
       var keyring := new RawRSAKeyring.RawRSAKeyring(namespace, name, input.publicKey, input.privateKey, padding);
-      return keyring;
+      return Success(keyring);
     }
   }
 }

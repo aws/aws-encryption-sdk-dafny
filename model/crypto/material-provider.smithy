@@ -41,6 +41,12 @@ structure AwsCryptographicMaterialProvidersClientConfig {
     configDefaults: ConfigurationDefaults
 }
 
+@error("client")
+structure AwsCryptographicMaterialProvidersClientException {
+    @required
+    message: String,
+}
+
 ///////////////////
 // Default Versions
 
