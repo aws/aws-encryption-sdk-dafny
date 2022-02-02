@@ -82,7 +82,7 @@ module {:extern "EncryptDecryptHelpers"} EncryptDecryptHelpers {
     plaintextDataKey: seq<uint8>,
     suite: Client.AlgorithmSuites.AlgorithmSuite,
     messageID: HeaderTypes.MessageID
-  ) 
+  )
     returns (derivedDataKey: seq<uint8>)
     requires |plaintextDataKey| == suite.encrypt.keyLength as int
     ensures |derivedDataKey| == suite.encrypt.keyLength as int

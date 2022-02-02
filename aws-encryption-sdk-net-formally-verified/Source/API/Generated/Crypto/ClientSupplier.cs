@@ -25,9 +25,13 @@ namespace Aws.Crypto
         {
             Dafny.Aws.Crypto._IGetClientInput internalInput =
                 TypeConversion.ToDafny_N3_aws__N6_crypto__S14_GetClientInput(input);
-            Dafny.Com.Amazonaws.Kms.IKeyManagementServiceClient internalOutput =
+            Wrappers_Compile._IResult<Dafny.Com.Amazonaws.Kms.IKeyManagementServiceClient,
+                Dafny.Aws.Crypto.IAwsCryptographicMaterialProvidersException> result =
                 this._impl.GetClient(internalInput);
-            return TypeConversion.FromDafny_N3_aws__N6_crypto__S15_GetClientOutput(internalOutput);
+            if (result.is_Failure)
+                throw TypeConversion
+                    .FromDafny_CommonError_AwsCryptographicMaterialProvidersException(result.dtor_error);
+            return TypeConversion.FromDafny_N3_aws__N6_crypto__S15_GetClientOutput(result.dtor_value);
         }
     }
 }
