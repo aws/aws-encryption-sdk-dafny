@@ -494,6 +494,14 @@ module {:extern "Dafny.Aws.Esdk.AwsEncryptionSdkClient"} AwsEncryptionSdk {
         && expectedSuiteData.Some?
         && header.suiteData == expectedSuiteData.value
     
+    // Failure case: suite includes commitment but no expected value was
+    // provided
+    ensures
+        && !suite.commitment.None?
+        && expectedSuiteData.None?
+    ==>
+        res.Failure?
+
     // Failure case: We have commitment and it does not match
     ensures 
         && expectedSuiteData.Some?
