@@ -1,3 +1,6 @@
+// Copyright Amazon.com Inc. or its affiliates. All Rights Reserved.
+// SPDX-License-Identifier: Apache-2.0
+
 include "../StandardLibrary/StandardLibrary.dfy"
 include "../StandardLibrary/UInt.dfy"
 include "../AwsCryptographicMaterialProviders/Client.dfy"
@@ -6,7 +9,6 @@ include "../Crypto/HKDF/HMAC.dfy"
 
 include "Serialize/HeaderTypes.dfy"
 include "Serialize/SerializableTypes.dfy"
-
 
 module {:extern "KeyDerivation"} KeyDerivation {
   import opened Wrappers
@@ -17,7 +19,6 @@ module {:extern "KeyDerivation"} KeyDerivation {
   import SerializableTypes
   import HKDF
   import HMAC
-
 
   // Convenience container to hold both K_e and K_c necessary
   // for encryption with key commitment
