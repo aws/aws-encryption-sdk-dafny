@@ -1,50 +1,53 @@
 // Copyright Amazon.com Inc. or its affiliates. All Rights Reserved.
 // SPDX-License-Identifier: Apache-2.0
 
-include "../StandardLibrary/StandardLibrary.dfy"
-include "../Generated/AwsCryptographicMaterialProviders.dfy"
-include "../Generated/KeyManagementService.dfy"
-include "../Util/UTF8.dfy"
 include "../Crypto/AESEncryption.dfy"
 include "../Crypto/RSAEncryption.dfy"
-include "Keyrings/RawAESKeyring.dfy"
-include "Keyrings/MultiKeyring.dfy"
-include "Keyrings/AwsKms/AwsKmsDiscoveryKeyring.dfy"
-include "Keyrings/AwsKms/AwsKmsUtils.dfy"
-include "Keyrings/RawRSAKeyring.dfy"
-include "CMMs/DefaultCMM.dfy"
-include "Materials.dfy"
+include "../Generated/AwsCryptographicMaterialProviders.dfy"
+include "../Generated/KeyManagementService.dfy"
+include "../StandardLibrary/StandardLibrary.dfy"
+include "../Util/UTF8.dfy"
 include "AlgorithmSuites.dfy"
-include "Keyrings/AwsKms/AwsKmsStrictKeyring.dfy"
+include "CMMs/DefaultCMM.dfy"
+include "Keyrings/AwsKms/AwsKmsArnParsing.dfy"
+include "Keyrings/AwsKms/AwsKmsDiscoveryKeyring.dfy"
+include "Keyrings/AwsKms/AwsKmsMrkAwareMultiKeyrings.dfy"
 include "Keyrings/AwsKms/AwsKmsMrkAwareSymmetricKeyring.dfy"
 include "Keyrings/AwsKms/AwsKmsMrkAwareSymmetricRegionDiscoveryKeyring.dfy"
-include "Keyrings/AwsKms/AwsKmsArnParsing.dfy"
+include "Keyrings/AwsKms/AwsKmsStrictKeyring.dfy"
+include "Keyrings/AwsKms/AwsKmsUtils.dfy"
+include "Keyrings/MultiKeyring.dfy"
+include "Keyrings/RawAESKeyring.dfy"
+include "Keyrings/RawRSAKeyring.dfy"
+include "Materials.dfy"
 
 module
   {:extern "Dafny.Aws.Crypto.AwsCryptographicMaterialProvidersClient"}
   MaterialProviders.Client
 {
-  import opened Wrappers
   import opened StandardLibrary
   import opened UInt = StandardLibrary.UInt
+  import opened Wrappers
   import UTF8
-  import Aws.Crypto
   import AESEncryption
+  import AlgorithmSuites
+  import Aws.Crypto
+  import AwsKmsArnParsing
+  import AwsKmsDiscoveryKeyring
+  import AwsKmsMrkAwareMultiKeyrings
+  import AwsKmsMrkAwareSymmetricKeyring
+  import AwsKmsMrkAwareSymmetricRegionDiscoveryKeyring
+  import AwsKmsStrictKeyring
+  import AwsKmsUtils
+  import Commitment
+  import DefaultCMM
+  import GeneratedKMS = Com.Amazonaws.Kms
+  import Materials
+  import MultiKeyring
   import RSAEncryption
   import RawAESKeyring
   import RawRSAKeyring
-  import MultiKeyring
-  import DefaultCMM
-  import AlgorithmSuites
-  import Materials
-  import AwsKmsStrictKeyring
-  import AwsKmsMrkAwareSymmetricKeyring
-  import AwsKmsMrkAwareSymmetricRegionDiscoveryKeyring
-  import AwsKmsDiscoveryKeyring
-  import AwsKmsArnParsing
-  import AwsKmsUtils
-  import GeneratedKMS = Com.Amazonaws.Kms
-  import Commitment
+
 
   // This file is the entry point for all Material Provider operations.
   // There MUST NOT be any direct includes to any other files in this project.
@@ -69,14 +72,16 @@ module
       SpecificationClient.ValidateCommitmentPolicyOnDecrypt
     // Class Members
     provides
-      AwsCryptographicMaterialProvidersClient.CreateRawAesKeyring,
-      AwsCryptographicMaterialProvidersClient.CreateStrictAwsKmsKeyring,
-      AwsCryptographicMaterialProvidersClient.CreateMrkAwareStrictAwsKmsKeyring,
-      AwsCryptographicMaterialProvidersClient.CreateMrkAwareDiscoveryAwsKmsKeyring,
       AwsCryptographicMaterialProvidersClient.CreateAwsKmsDiscoveryKeyring,
+      AwsCryptographicMaterialProvidersClient.CreateBaseClientSupplier,
       AwsCryptographicMaterialProvidersClient.CreateDefaultCryptographicMaterialsManager,
+      AwsCryptographicMaterialProvidersClient.CreateMrkAwareDiscoveryAwsKmsKeyring,
+      AwsCryptographicMaterialProvidersClient.CreateMrkAwareStrictAwsKmsKeyring,
+      AwsCryptographicMaterialProvidersClient.CreateMrkAwareStrictMultiKeyring,
       AwsCryptographicMaterialProvidersClient.CreateMultiKeyring,
-      AwsCryptographicMaterialProvidersClient.CreateRawRsaKeyring
+      AwsCryptographicMaterialProvidersClient.CreateRawAesKeyring,
+      AwsCryptographicMaterialProvidersClient.CreateRawRsaKeyring,
+      AwsCryptographicMaterialProvidersClient.CreateStrictAwsKmsKeyring
 
   datatype SpecificationClient = SpecificationClient(
     // Whatever top level closure is added to the constructor needs to be added here
@@ -292,6 +297,34 @@ module
       expect |name| < UINT16_LIMIT;       // So both must respect message size limit
       var keyring := new RawRSAKeyring.RawRSAKeyring(namespace, name, input.publicKey, input.privateKey, padding);
       return keyring;
+    }
+
+    method CreateMrkAwareStrictMultiKeyring(input: Crypto.CreateMrkAwareStrictMultiKeyringInput)
+      returns (res: Crypto.IKeyring?)
+    {
+      //= compliance/framework/aws-kms/aws-kms-mrk-aware-multi-keyrings.txt#2.6
+      //# If a regional client supplier is
+      //# not passed, then a default MUST be created that takes a region string
+      //# and generates a default AWS SDK client for the given region.
+      if input.clientSupplier == null {
+        input.clientSupplier := CreateBaseClientSupplier(Crypto.CreateBaseClientSupplierInput());
+      }
+      var multiKeyringRes := AwsKmsMrkAwareMultiKeyrings.StrictMultiKeyring(
+        input.generatorKeyring,
+        input.kmsKeyIds,
+        input.clientSupplier,
+        input.grantTokens
+      );
+      if multiKeyringRes.Success? {
+        return multiKeyringRes.Extract();
+      }
+      return null;
+    }
+
+    method CreateBaseClientSupplier(input: Crypto.CreateBaseClientSupplierInput)
+      returns (res: Crypto.IClientSupplier)
+    {
+      return new BaseClientSupplier.BaseClientSupplier();
     }
   }
 }
