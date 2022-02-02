@@ -18,7 +18,7 @@ module
 
     constructor(){}
 
-    method {:extern "Aws.Crypto.ClientSupplierBase", "GetClient"} GetClient(input: Crypto.GetClientInput) returns (res: KMS.IKeyManagementServiceClient?) 
+    method {:extern "BaseClientSupplier.BaseClientSupplier", "GetClient"} GetClient(input: Crypto.GetClientInput) returns (res: KMS.IKeyManagementServiceClient?) 
     
   }
 }
