@@ -141,7 +141,7 @@ module {:extern "Dafny.Aws.Esdk.AwsEncryptionSdkClient"} AwsEncryptionSdk {
             var algorithmSuiteId := input.algorithmSuiteId;
 
             if algorithmSuiteId.Some? {
-                var _ := Client.SpecificationClient()
+                var _ :- Client.SpecificationClient()
                     .ValidateCommitmentPolicyOnEncrypt(algorithmSuiteId.value, this.commitmentPolicy);
             }
 
