@@ -4,10 +4,13 @@
 using Amazon.KeyManagementService;
 using Amazon;
 
+using Wrappers_Compile;
+
+
 namespace DefaultClientSupplier {
 
     public partial class DefaultClientSupplier {
-        public IAmazonKeyManagementService GetClient(Dafny.Aws.Crypto._IGetClientInput input)
+        public _IResult<IAmazonKeyManagementService, Dafny.Aws.Crypto._IAwsCryptographicMaterialProvidersException> GetClient(Dafny.Aws.Crypto._IGetClientInput input)
         {
             if (input.Region != "")
             {
