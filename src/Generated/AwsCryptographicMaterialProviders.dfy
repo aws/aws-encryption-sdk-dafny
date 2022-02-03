@@ -31,7 +31,8 @@ module {:extern "Dafny.Aws.Crypto"} Aws.Crypto {
         IAwsCryptographicMaterialsProviderClient.CreateMultiKeyring,
         IAwsCryptographicMaterialsProviderClient.CreateRawRsaKeyring,
         IAwsCryptographicMaterialsProviderClient.CreateDefaultClientSupplier,
-        IAwsCryptographicMaterialsProviderClient.CreateMrkAwareStrictMultiKeyring
+        IAwsCryptographicMaterialsProviderClient.CreateMrkAwareStrictMultiKeyring,
+        IAwsCryptographicMaterialsProviderClient.CreateMrkAwareDiscoveryMultiKeyring
 
       reveals
         AlgorithmSuiteId,
@@ -60,6 +61,7 @@ module {:extern "Dafny.Aws.Crypto"} Aws.Crypto {
         CreateMultiKeyringInput,
         CreateRawAesKeyringInput,
         CreateMrkAwareStrictMultiKeyringInput,
+        CreateMrkAwareDiscoveryMultiKeyringInput,
         DiscoveryFilter,
         AccountId,
         AccountIdList,
@@ -73,7 +75,9 @@ module {:extern "Dafny.Aws.Crypto"} Aws.Crypto {
         CommitmentPolicy,
         CreateRawRsaKeyringInput,
         PaddingScheme,
-        KmsKeyIdList
+        KmsKeyIdList,
+        RegionList,
+        Region
 
     /////////////
     // kms.smithy
@@ -376,7 +380,7 @@ module {:extern "Dafny.Aws.Crypto"} Aws.Crypto {
         method CreateMrkAwareStrictAwsKmsKeyring(input: CreateMrkAwareStrictAwsKmsKeyringInput) returns (res: IKeyring)
         method CreateMrkAwareStrictMultiKeyring(input: CreateMrkAwareStrictMultiKeyringInput) returns (res: IKeyring?)
         method CreateMrkAwareDiscoveryAwsKmsKeyring(input: CreateMrkAwareDiscoveryAwsKmsKeyringInput) returns (res: IKeyring)
-        // method CreateMrkAwareDiscoveryMultiKeyring(input: CreateMrkAwareDiscoveryMultiKeyringInput) returns (res: IKeyring)
+        method CreateMrkAwareDiscoveryMultiKeyring(input: CreateMrkAwareDiscoveryMultiKeyringInput) returns (res: IKeyring?)
         method CreateMultiKeyring(input: CreateMultiKeyringInput) returns (res: IKeyring?)
         method CreateRawAesKeyring(input: CreateRawAesKeyringInput) returns (res: IKeyring)
         method CreateRawRsaKeyring(input: CreateRawRsaKeyringInput) returns (res: IKeyring?)
