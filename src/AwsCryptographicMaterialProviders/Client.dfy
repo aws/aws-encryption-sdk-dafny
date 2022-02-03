@@ -333,7 +333,8 @@ module
       //# not passed, then a default MUST be created that takes a region string
       //# and generates a default AWS SDK client for the given region.
       if input.clientSupplier == null {
-        clientSupplier := CreateDefaultClientSupplier(Crypto.CreateDefaultClientSupplierInput());
+        var clientSupplierOutput := CreateDefaultClientSupplier(Crypto.CreateDefaultClientSupplierInput());
+        clientSupplier := clientSupplierOutput.clientSupplier;
       } else {
         clientSupplier := input.clientSupplier;
       }
@@ -529,7 +530,8 @@ module
       //# not passed, then a default MUST be created that takes a region string
       //# and generates a default AWS SDK client for the given region.
       if input.clientSupplier == null {
-        clientSupplier := CreateDefaultClientSupplier(Crypto.CreateDefaultClientSupplierInput());
+        var clientSupplierOutput := CreateDefaultClientSupplier(Crypto.CreateDefaultClientSupplierInput());
+        clientSupplier := clientSupplierOutput.clientSupplier;
       } else {
         clientSupplier := input.clientSupplier;
       }
@@ -645,9 +647,12 @@ module
     }    
 
     method CreateDefaultClientSupplier(input: Crypto.CreateDefaultClientSupplierInput)
-      returns (res: Crypto.IClientSupplier)
+      returns (res: Crypto.CreateDefaultClientSupplierOutput)
     {
-      return new DefaultClientSupplier.DefaultClientSupplier();
+      var clientSupplier := new DefaultClientSupplier.DefaultClientSupplier();
+      res := Crypto.CreateDefaultClientSupplierOutput(
+        clientSupplier := clientSupplier
+      );
     }
   }
 }

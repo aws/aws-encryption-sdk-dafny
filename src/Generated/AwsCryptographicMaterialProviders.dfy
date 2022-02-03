@@ -59,6 +59,7 @@ module {:extern "Dafny.Aws.Crypto"} Aws.Crypto {
 		    CreateStrictAwsKmsKeyringInput,
         CreateAwsKmsDiscoveryKeyringInput,
         CreateDefaultClientSupplierInput,
+        CreateDefaultClientSupplierOutput,
         CreateDefaultCryptographicMaterialsManagerInput,
         CreateMrkAwareDiscoveryAwsKmsKeyringInput,
         CreateMrkAwareStrictAwsKmsKeyringInput,
@@ -111,6 +112,10 @@ module {:extern "Dafny.Aws.Crypto"} Aws.Crypto {
     }
 
     datatype CreateDefaultClientSupplierInput = CreateDefaultClientSupplierInput()
+
+    datatype CreateDefaultClientSupplierOutput = CreateDefaultClientSupplierOutput(
+      nameonly clientSupplier: IClientSupplier
+    )
 
     /////////////
     // structures.smithy
@@ -411,7 +416,8 @@ module {:extern "Dafny.Aws.Crypto"} Aws.Crypto {
         //     returns (res: Result<ICryptographicMaterialsManager, IAwsCryptographicMaterialProvidersException>)
 
         // Client Supplier
-        method CreateDefaultClientSupplier(input: CreateDefaultClientSupplierInput) returns (res: IClientSupplier)        
+        method CreateDefaultClientSupplier(input: CreateDefaultClientSupplierInput)
+          returns (res: CreateDefaultClientSupplierOutput)
 
         // Caches
         // method CreateLocalCryptoMaterialsCache(input: CreateLocalCryptoMaterialsCacheInput)
