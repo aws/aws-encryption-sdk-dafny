@@ -26,9 +26,13 @@ namespace Aws.Crypto
         {
             Dafny.Aws.Crypto._ICreateStrictAwsKmsKeyringInput internalInput =
                 TypeConversion.ToDafny_N3_aws__N6_crypto__S30_CreateStrictAwsKmsKeyringInput(input);
-            Dafny.Aws.Crypto.IKeyring internalOutput =
+            Wrappers_Compile._IResult<Dafny.Aws.Crypto.IKeyring,
+                Dafny.Aws.Crypto.IAwsCryptographicMaterialProvidersException> result =
                 this._impl.CreateStrictAwsKmsKeyring(internalInput);
-            return TypeConversion.FromDafny_N3_aws__N6_crypto__S19_CreateKeyringOutput(internalOutput);
+            if (result.is_Failure)
+                throw TypeConversion
+                    .FromDafny_CommonError_AwsCryptographicMaterialProvidersException(result.dtor_error);
+            return TypeConversion.FromDafny_N3_aws__N6_crypto__S19_CreateKeyringOutput(result.dtor_value);
         }
 
         protected override Aws.Crypto.IKeyring _CreateAwsKmsDiscoveryKeyring(
@@ -36,9 +40,13 @@ namespace Aws.Crypto
         {
             Dafny.Aws.Crypto._ICreateAwsKmsDiscoveryKeyringInput internalInput =
                 TypeConversion.ToDafny_N3_aws__N6_crypto__S33_CreateAwsKmsDiscoveryKeyringInput(input);
-            Dafny.Aws.Crypto.IKeyring internalOutput =
+            Wrappers_Compile._IResult<Dafny.Aws.Crypto.IKeyring,
+                Dafny.Aws.Crypto.IAwsCryptographicMaterialProvidersException> result =
                 this._impl.CreateAwsKmsDiscoveryKeyring(internalInput);
-            return TypeConversion.FromDafny_N3_aws__N6_crypto__S19_CreateKeyringOutput(internalOutput);
+            if (result.is_Failure)
+                throw TypeConversion
+                    .FromDafny_CommonError_AwsCryptographicMaterialProvidersException(result.dtor_error);
+            return TypeConversion.FromDafny_N3_aws__N6_crypto__S19_CreateKeyringOutput(result.dtor_value);
         }
 
         protected override Aws.Crypto.IKeyring _CreateMrkAwareStrictAwsKmsKeyring(
@@ -46,9 +54,13 @@ namespace Aws.Crypto
         {
             Dafny.Aws.Crypto._ICreateMrkAwareStrictAwsKmsKeyringInput internalInput =
                 TypeConversion.ToDafny_N3_aws__N6_crypto__S38_CreateMrkAwareStrictAwsKmsKeyringInput(input);
-            Dafny.Aws.Crypto.IKeyring internalOutput =
+            Wrappers_Compile._IResult<Dafny.Aws.Crypto.IKeyring,
+                Dafny.Aws.Crypto.IAwsCryptographicMaterialProvidersException> result =
                 this._impl.CreateMrkAwareStrictAwsKmsKeyring(internalInput);
-            return TypeConversion.FromDafny_N3_aws__N6_crypto__S19_CreateKeyringOutput(internalOutput);
+            if (result.is_Failure)
+                throw TypeConversion
+                    .FromDafny_CommonError_AwsCryptographicMaterialProvidersException(result.dtor_error);
+            return TypeConversion.FromDafny_N3_aws__N6_crypto__S19_CreateKeyringOutput(result.dtor_value);
         }
 
         protected override Aws.Crypto.IKeyring _CreateMrkAwareStrictMultiKeyring(
@@ -66,9 +78,13 @@ namespace Aws.Crypto
         {
             Dafny.Aws.Crypto._ICreateMrkAwareDiscoveryAwsKmsKeyringInput internalInput =
                 TypeConversion.ToDafny_N3_aws__N6_crypto__S41_CreateMrkAwareDiscoveryAwsKmsKeyringInput(input);
-            Dafny.Aws.Crypto.IKeyring internalOutput =
+            Wrappers_Compile._IResult<Dafny.Aws.Crypto.IKeyring,
+                Dafny.Aws.Crypto.IAwsCryptographicMaterialProvidersException> result =
                 this._impl.CreateMrkAwareDiscoveryAwsKmsKeyring(internalInput);
-            return TypeConversion.FromDafny_N3_aws__N6_crypto__S19_CreateKeyringOutput(internalOutput);
+            if (result.is_Failure)
+                throw TypeConversion
+                    .FromDafny_CommonError_AwsCryptographicMaterialProvidersException(result.dtor_error);
+            return TypeConversion.FromDafny_N3_aws__N6_crypto__S19_CreateKeyringOutput(result.dtor_value);
         }
 
         protected override Aws.Crypto.IKeyring _CreateMrkAwareDiscoveryMultiKeyring(
@@ -85,27 +101,39 @@ namespace Aws.Crypto
         {
             Dafny.Aws.Crypto._ICreateMultiKeyringInput internalInput =
                 TypeConversion.ToDafny_N3_aws__N6_crypto__S23_CreateMultiKeyringInput(input);
-            Dafny.Aws.Crypto.IKeyring internalOutput =
+            Wrappers_Compile._IResult<Dafny.Aws.Crypto.IKeyring,
+                Dafny.Aws.Crypto.IAwsCryptographicMaterialProvidersException> result =
                 this._impl.CreateMultiKeyring(internalInput);
-            return TypeConversion.FromDafny_N3_aws__N6_crypto__S19_CreateKeyringOutput(internalOutput);
+            if (result.is_Failure)
+                throw TypeConversion
+                    .FromDafny_CommonError_AwsCryptographicMaterialProvidersException(result.dtor_error);
+            return TypeConversion.FromDafny_N3_aws__N6_crypto__S19_CreateKeyringOutput(result.dtor_value);
         }
 
         protected override Aws.Crypto.IKeyring _CreateRawAesKeyring(Aws.Crypto.CreateRawAesKeyringInput input)
         {
             Dafny.Aws.Crypto._ICreateRawAesKeyringInput internalInput =
                 TypeConversion.ToDafny_N3_aws__N6_crypto__S24_CreateRawAesKeyringInput(input);
-            Dafny.Aws.Crypto.IKeyring internalOutput =
+            Wrappers_Compile._IResult<Dafny.Aws.Crypto.IKeyring,
+                Dafny.Aws.Crypto.IAwsCryptographicMaterialProvidersException> result =
                 this._impl.CreateRawAesKeyring(internalInput);
-            return TypeConversion.FromDafny_N3_aws__N6_crypto__S19_CreateKeyringOutput(internalOutput);
+            if (result.is_Failure)
+                throw TypeConversion
+                    .FromDafny_CommonError_AwsCryptographicMaterialProvidersException(result.dtor_error);
+            return TypeConversion.FromDafny_N3_aws__N6_crypto__S19_CreateKeyringOutput(result.dtor_value);
         }
 
         protected override Aws.Crypto.IKeyring _CreateRawRsaKeyring(Aws.Crypto.CreateRawRsaKeyringInput input)
         {
             Dafny.Aws.Crypto._ICreateRawRsaKeyringInput internalInput =
                 TypeConversion.ToDafny_N3_aws__N6_crypto__S24_CreateRawRsaKeyringInput(input);
-            Dafny.Aws.Crypto.IKeyring internalOutput =
+            Wrappers_Compile._IResult<Dafny.Aws.Crypto.IKeyring,
+                Dafny.Aws.Crypto.IAwsCryptographicMaterialProvidersException> result =
                 this._impl.CreateRawRsaKeyring(internalInput);
-            return TypeConversion.FromDafny_N3_aws__N6_crypto__S19_CreateKeyringOutput(internalOutput);
+            if (result.is_Failure)
+                throw TypeConversion
+                    .FromDafny_CommonError_AwsCryptographicMaterialProvidersException(result.dtor_error);
+            return TypeConversion.FromDafny_N3_aws__N6_crypto__S19_CreateKeyringOutput(result.dtor_value);
         }
 
         protected override Aws.Crypto.ICryptographicMaterialsManager _CreateDefaultCryptographicMaterialsManager(
@@ -113,10 +141,14 @@ namespace Aws.Crypto
         {
             Dafny.Aws.Crypto._ICreateDefaultCryptographicMaterialsManagerInput internalInput =
                 TypeConversion.ToDafny_N3_aws__N6_crypto__S47_CreateDefaultCryptographicMaterialsManagerInput(input);
-            Dafny.Aws.Crypto.ICryptographicMaterialsManager internalOutput =
+            Wrappers_Compile._IResult<Dafny.Aws.Crypto.ICryptographicMaterialsManager,
+                Dafny.Aws.Crypto.IAwsCryptographicMaterialProvidersException> result =
                 this._impl.CreateDefaultCryptographicMaterialsManager(internalInput);
+            if (result.is_Failure)
+                throw TypeConversion
+                    .FromDafny_CommonError_AwsCryptographicMaterialProvidersException(result.dtor_error);
             return TypeConversion.FromDafny_N3_aws__N6_crypto__S41_CreateCryptographicMaterialsManagerOutput(
-                internalOutput);
+                result.dtor_value);
         }
 
         protected override Aws.Crypto.CreateDefaultClientSupplierOutput _CreateDefaultClientSupplier(

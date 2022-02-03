@@ -81,7 +81,7 @@ module TestMultiKeyring {
     //# Next, for each keyring (keyring-interface.md) in this keyring's list
     //# of child keyrings (Section 2.6.2), the keyring MUST call OnEncrypt
     //# (keyring-interface.md#onencrypt).
-  
+
     //= compliance/framework/multi-keyring.txt#2.7.1
     //= type=test
     //# If all previous OnEncrypt (keyring-interface.md#onencrypt) calls
@@ -274,7 +274,7 @@ module TestMultiKeyring {
 
     var result := multiKeyring.OnDecrypt(Crypto.OnDecryptInput(materials:=materials, encryptedDataKeys:=[]));
     expect result.IsFailure();
-    expect result.error == "Unable to decrypt data key:\n\nFailure\nFailure";
+    expect result.error.GetMessage() == "Unable to decrypt data key:\n\nFailure\nFailure";
   }
 
   method setupRawAesKeyring(encryptionContext: Crypto.EncryptionContext) returns (res: Crypto.IKeyring) {
@@ -308,22 +308,24 @@ module TestMultiKeyring {
     }
 
     method OnEncrypt(input: Crypto.OnEncryptInput)
-      returns (res: Result<Crypto.OnEncryptOutput, string>)
+      returns (res: Result<Crypto.OnEncryptOutput, Crypto.IAwsCryptographicMaterialProvidersException>)
     {
       if this.encryptionMaterials.Some? {
         return Success(Crypto.OnEncryptOutput(materials:=encryptionMaterials.value));
       } else {
-        return Failure("Failure");
+        var exception := new Crypto.AwsCryptographicMaterialProvidersClientException("Failure");
+        return Failure(exception);
       }
     }
 
     method OnDecrypt(input: Crypto.OnDecryptInput)
-      returns (res: Result<Crypto.OnDecryptOutput, string>)
+      returns (res: Result<Crypto.OnDecryptOutput, Crypto.IAwsCryptographicMaterialProvidersException>)
     {
       if this.decryptionMaterials.Some? {
         return Success(Crypto.OnDecryptOutput(materials:=decryptionMaterials.value));
       } else {
-        return Failure("Failure");
+        var exception := new Crypto.AwsCryptographicMaterialProvidersClientException("Failure");
+        return Failure(exception);
       }
     }
   }
@@ -336,15 +338,17 @@ module TestMultiKeyring {
     constructor() {}
 
     method OnEncrypt(input: Crypto.OnEncryptInput)
-      returns (res: Result<Crypto.OnEncryptOutput, string>)
+      returns (res: Result<Crypto.OnEncryptOutput, Crypto.IAwsCryptographicMaterialProvidersException>)
     {
-      return Failure("Failure");
+      var exception := new Crypto.AwsCryptographicMaterialProvidersClientException("Failure");
+      return Failure(exception);
     }
 
     method OnDecrypt(input: Crypto.OnDecryptInput)
-      returns (res: Result<Crypto.OnDecryptOutput, string>)
+      returns (res: Result<Crypto.OnDecryptOutput, Crypto.IAwsCryptographicMaterialProvidersException>)
     {
-      return Failure("Failure");
+      var exception := new Crypto.AwsCryptographicMaterialProvidersClientException("Failure");
+      return Failure(exception);
     }
   }
 }

@@ -24,20 +24,26 @@ namespace Aws.Crypto
         {
             Dafny.Aws.Crypto._IOnEncryptInput internalInput =
                 TypeConversion.ToDafny_N3_aws__N6_crypto__S14_OnEncryptInput(input);
-            Dafny.Aws.Crypto._IOnEncryptOutput internalOutput =
-                // TODO this line was manually updated
-                DafnyFFI.ExtractResult(this._impl.OnEncrypt(internalInput));
-            return TypeConversion.FromDafny_N3_aws__N6_crypto__S15_OnEncryptOutput(internalOutput);
+            Wrappers_Compile._IResult<Dafny.Aws.Crypto._IOnEncryptOutput,
+                Dafny.Aws.Crypto.IAwsCryptographicMaterialProvidersException> result =
+                this._impl.OnEncrypt(internalInput);
+            if (result.is_Failure)
+                throw TypeConversion
+                    .FromDafny_CommonError_AwsCryptographicMaterialProvidersException(result.dtor_error);
+            return TypeConversion.FromDafny_N3_aws__N6_crypto__S15_OnEncryptOutput(result.dtor_value);
         }
 
         protected override Aws.Crypto.OnDecryptOutput _OnDecrypt(Aws.Crypto.OnDecryptInput input)
         {
             Dafny.Aws.Crypto._IOnDecryptInput internalInput =
                 TypeConversion.ToDafny_N3_aws__N6_crypto__S14_OnDecryptInput(input);
-            Dafny.Aws.Crypto._IOnDecryptOutput internalOutput =
-                // TODO this line was manually updated
-                DafnyFFI.ExtractResult(this._impl.OnDecrypt(internalInput));
-            return TypeConversion.FromDafny_N3_aws__N6_crypto__S15_OnDecryptOutput(internalOutput);
+            Wrappers_Compile._IResult<Dafny.Aws.Crypto._IOnDecryptOutput,
+                Dafny.Aws.Crypto.IAwsCryptographicMaterialProvidersException> result =
+                this._impl.OnDecrypt(internalInput);
+            if (result.is_Failure)
+                throw TypeConversion
+                    .FromDafny_CommonError_AwsCryptographicMaterialProvidersException(result.dtor_error);
+            return TypeConversion.FromDafny_N3_aws__N6_crypto__S15_OnDecryptOutput(result.dtor_value);
         }
     }
 }

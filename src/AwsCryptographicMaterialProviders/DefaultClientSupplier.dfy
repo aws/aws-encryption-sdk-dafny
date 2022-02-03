@@ -11,6 +11,7 @@ module
  {
   import KMS = Com.Amazonaws.Kms
   import Aws.Crypto
+  import opened Wrappers  
     
   class DefaultClientSupplier
     extends Crypto.IClientSupplier
@@ -18,7 +19,8 @@ module
 
     constructor(){}
 
-    method {:extern "DefaultClientSupplier.DefaultClientSupplier", "GetClient"} GetClient(input: Crypto.GetClientInput) returns (res: KMS.IKeyManagementServiceClient?) 
+    method {:extern "DefaultClientSupplier.DefaultClientSupplier", "GetClient"} GetClient(input: Crypto.GetClientInput)
+      returns (res: Result<KMS.IKeyManagementServiceClient, Crypto.IAwsCryptographicMaterialProvidersException>) 
     
   }
 }

@@ -122,12 +122,10 @@ module Frames {
     var sequenceNumber :- ReadUInt32(buffer);
     :- Need(sequenceNumber.data != ENDFRAME_SEQUENCE_NUMBER, Error("bad"));
 
-    assert {:split_here} true;
     var iv :- Read(sequenceNumber.tail, header.suite.encrypt.ivLength as nat);
     var encContent :- Read(iv.tail, header.body.frameLength as nat);
     var authTag :- Read(encContent.tail, header.suite.encrypt.tagLength as nat);
 
-    assert {:split_here} true;
     var regularFrame: RegularFrame := Frame.RegularFrame(
       header,
       sequenceNumber.data,
@@ -137,8 +135,7 @@ module Frames {
     );
 
     assert {:split_here} true;
-    ghost var why? := [ buffer, sequenceNumber.tail, iv.tail, encContent.tail, authTag.tail ];
-    ConsecutiveReadsAreAssociative(why?);
+    assert WriteRegularFrame(regularFrame) <= buffer.bytes[buffer.start..];
 
     Success(SuccessfulRead(regularFrame, authTag.tail))
   }
@@ -176,7 +173,6 @@ module Frames {
     :- Need(|encContent.data| as uint32 <= header.body.frameLength, Error("bad"));
     var authTag :- Read(encContent.tail, header.suite.encrypt.tagLength as nat);
 
-    assert {:split_here} true;
     var finalFrame: FinalFrame := Frame.FinalFrame(
       header,
       sequenceNumber.data,
@@ -186,8 +182,7 @@ module Frames {
     );
 
     assert {:split_here} true;
-    ghost var why? := [ buffer, finalFrameSignal.tail, sequenceNumber.tail, iv.tail, encContent.tail, authTag.tail ];
-    ConsecutiveReadsAreAssociative(why?);
+    assert WriteFinalFrame(finalFrame) <= buffer.bytes[buffer.start..];
 
     Success(SuccessfulRead(finalFrame, authTag.tail))
   }
@@ -214,8 +209,7 @@ module Frames {
       authTag.data
     );
 
-    ghost var why? := [buffer, iv.tail, encContent.tail, authTag.tail];
-    ConsecutiveReadsAreAssociative(why?);
+    assert WriteNonFramed(nonFramed) <= buffer.bytes[buffer.start..];
 
     Success(SuccessfulRead(nonFramed, authTag.tail))
   }

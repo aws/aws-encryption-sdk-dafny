@@ -42,7 +42,7 @@ module
     method GetEncryptionMaterials(
       input: Crypto.GetEncryptionMaterialsInput
     )
-      returns (res: Result<Crypto.GetEncryptionMaterialsOutput, string>)
+      returns (res: Result<Crypto.GetEncryptionMaterialsOutput, Crypto.IAwsCryptographicMaterialProvidersException>)
       ensures res.Success?
       ==>
         && Materials.EncryptionMaterialsWithPlaintextDataKey(res.value.encryptionMaterials)
@@ -93,8 +93,7 @@ module
       ==>
         res.Failure?
     {
-      :- Need(
-        Materials.EC_PUBLIC_KEY_FIELD !in input.encryptionContext,
+      :- Crypto.Need(Materials.EC_PUBLIC_KEY_FIELD !in input.encryptionContext,
         "Reserved Field found in EncryptionContext keys.");
 
       var algorithmId : Crypto.AlgorithmSuiteId;
@@ -104,16 +103,21 @@ module
         algorithmId := Defaults.GetAlgorithmSuiteForCommitmentPolicy(input.commitmentPolicy);
       }
 
-      var _ :- Commitment.ValidateCommitmentPolicyOnEncrypt(algorithmId, input.commitmentPolicy);
+      var validateCommitmentPolicyResult := Commitment.ValidateCommitmentPolicyOnEncrypt(
+        algorithmId, input.commitmentPolicy
+      );
+      var _ :- Crypto.AwsCryptographicMaterialProvidersClientException.WrapResultString(
+        validateCommitmentPolicyResult);
 
       var suite := AlgorithmSuites.GetSuite(algorithmId);
-      var materials :- InitializeEncryptionMaterials(
+      var initializeMaterialsResult := InitializeEncryptionMaterials(
         suite,
         input.encryptionContext
       );
+      var materials :- Crypto.AwsCryptographicMaterialProvidersClientException.WrapResultString(initializeMaterialsResult);
 
       var result :- keyring.OnEncrypt(Crypto.OnEncryptInput(materials:=materials));
-      :- Need(
+      :- Crypto.Need(
         && result.materials.plaintextDataKey.Some?
         && |result.materials.encryptedDataKeys| > 0,
         "Could not retrieve materials required for encryption");
@@ -122,7 +126,7 @@ module
       // because they implement a trait that ensures this.
       // However not all keyrings are Dafny keyrings.
       // Customers can create custom keyrings.
-      :- Need(
+      :- Crypto.Need(
         Materials.EncryptionMaterialsTransitionIsValid(materials, result.materials),
         "Keyring returned an invalid response");
 
@@ -133,7 +137,7 @@ module
     method DecryptMaterials(
       input: Crypto.DecryptMaterialsInput
     )
-      returns (res: Result<Crypto.DecryptMaterialsOutput, string>)
+      returns (res: Result<Crypto.DecryptMaterialsOutput, Crypto.IAwsCryptographicMaterialProvidersException>)
       ensures res.Success?
       ==>
         && Materials.DecryptionMaterialsWithPlaintextDataKey(res.value.decryptionMaterials)
@@ -147,14 +151,17 @@ module
       ==>
         res.Failure?
     {
-      var _ :- Commitment.ValidateCommitmentPolicyOnDecrypt(
+      var validateCommitmentPolicyResult := Commitment.ValidateCommitmentPolicyOnDecrypt(
         input.algorithmSuiteId, input.commitmentPolicy
       );
+      var _ :- Crypto.AwsCryptographicMaterialProvidersClientException.WrapResultString(
+        validateCommitmentPolicyResult);
 
-      var materials :- InitializeDecryptionMaterials(
+      var initializeMaterialsResult := InitializeDecryptionMaterials(
         AlgorithmSuites.GetSuite(input.algorithmSuiteId),
         input.encryptionContext
       );
+      var materials :- Crypto.AwsCryptographicMaterialProvidersClientException.WrapResultString(initializeMaterialsResult);
 
       var result :- keyring.OnDecrypt(Crypto.OnDecryptInput(
         materials:=materials,
@@ -165,7 +172,7 @@ module
       // because they implement a trait that ensures this.
       // However not all keyrings are Dafny keyrings.
       // Customers can create custom keyrings.
-      :- Need(
+      :- Crypto.Need(
         Materials.DecryptionMaterialsTransitionIsValid(materials, result.materials),
         "Keyring.OnDecrypt failed to decrypt the plaintext data key.");
 
