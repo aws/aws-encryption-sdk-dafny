@@ -38,6 +38,7 @@ module {:extern "KeyDerivation"} KeyDerivation {
   ) 
     returns (res: Result<ExpandedKeyMaterial, string>)
 
+    // This should only be used for v1 algorithms
     requires suite.messageVersion == 1
     requires |plaintextDataKey| == suite.encrypt.keyLength as int
 
@@ -62,6 +63,11 @@ module {:extern "KeyDerivation"} KeyDerivation {
       return Success(ExpandedKeyMaterial(dataKey:=derivedKey, commitmentKey:=None()));
   }
 
+  predicate {:opaque} IsDerivedKey(derivedDataKey: seq<uint8>)
+  {
+    true
+  }
+
   /*
    * Derives keys from an input plaintext data key, using "v2"-style
    * key derivation (that is, including key commitment).
@@ -73,13 +79,13 @@ module {:extern "KeyDerivation"} KeyDerivation {
   )
     returns (res: Result<ExpandedKeyMaterial, string>)
 
-    // This should only be used for algorithms with commitment
+    // This should only be used for v2 algorithms
     requires suite.messageVersion == 2
 
     requires |messageId| != 0
     requires |plaintextKey| == suite.encrypt.keyLength as int
     // TODO: seems like this should follow from the fact that |key| == keyLength,
-    // but apparently we don't prove/require any where that keys be small.
+    // but apparently we don't prove/require anywhere that keys be small.
     requires |plaintextKey| < INT32_MAX_LIMIT
 
     // Make sure we return a commitment key
@@ -91,29 +97,38 @@ module {:extern "KeyDerivation"} KeyDerivation {
     var KEY_LABEL :- UTF8.Encode("DERIVEKEY");
     var COMMIT_LABEL :- UTF8.Encode("COMMITKEY");
 
-    //var digest := suite.commitment.hmac;
-    var digest := HMAC.Digests.SHA_512; // TODO: why?
+    var digest := suite.commitment.hmac;
     var esdkId := UInt.UInt16ToSeq(SerializableTypes.GetESDKAlgorithmSuiteId(suite.id));
     var info := esdkId + KEY_LABEL;
 
-    var hmac1 := new HMAC.HMac(digest);
-    hmac1.Init(messageId);
+    var hmac := new HMAC.HMac(digest);
+    hmac.Init(messageId);
 
-    var PRK := HKDF.Extract(hmac1, messageId, plaintextKey, hmac1.GetDigest());
+    var pseudoRandomKey := HKDF.Extract(hmac, messageId, plaintextKey, hmac.GetDigest());
 
-    var Ke, _ := HKDF.Expand(hmac1, PRK, info, suite.encrypt.keyLength as int, digest, messageId);
-
-    var hmac2 := new HMAC.HMac(digest);
-    hmac2.Init(messageId);
-
-    var Kc, _ := HKDF.Expand(hmac2, PRK, COMMIT_LABEL, suite.encrypt.keyLength as int, digest, messageId);
+    var Ke := Expand(digest, pseudoRandomKey, info, suite.encrypt.keyLength as int, messageId);
+    var Kc := Expand(digest, pseudoRandomKey, COMMIT_LABEL, suite.encrypt.keyLength as int, messageId);
 
     return Success(ExpandedKeyMaterial(dataKey:=Ke, commitmentKey:=Some(Kc)));
   }
 
-  predicate {:opaque} IsDerivedKey(derivedDataKey: seq<uint8>)
+  /*
+   * Primarily a wrapper around HKDF.Expand. Saves us a little bit of duplication since
+   * we need to expand multiple keys.
+   */
+  method Expand(
+    digest: HMAC.Digests,
+    pseudoRandomKey: seq<uint8>,
+    info: seq<uint8>,
+    length: int,
+    messageId: seq<uint8>
+  ) returns (res: seq<uint8>)
   {
-    true
+    var hmac := new HMAC.HMac(digest);
+    hmac.Init(messageId);
+
+    var key, _ := HKDF.Expand(hmac, pseudoRandomKey, info, length, digest, messageId);
+    return key;
   }
 
   /*
