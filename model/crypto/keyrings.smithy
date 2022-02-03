@@ -167,21 +167,21 @@ structure CreateMrkAwareDiscoveryAwsKmsKeyringInput {
     region: Region
 }
 
-// operation CreateMrkAwareDiscoveryMultiKeyring {
-//     input: CreateMrkAwareDiscoveryMultiKeyringInput,
-//     output: CreateKeyringOutput,
-// }
-//
-// structure CreateMrkAwareDiscoveryMultiKeyringInput {
-//     @required
-//     regions: RegionList,
-//
-//     discoveryFilter: DiscoveryFilter,
-//
-//     clientSupplier: ClientSupplierReference,
-//
-//     grantTokens: GrantTokenList
-// }
+operation CreateMrkAwareDiscoveryMultiKeyring {
+    input: CreateMrkAwareDiscoveryMultiKeyringInput,
+    output: CreateKeyringOutput,
+}
+
+structure CreateMrkAwareDiscoveryMultiKeyringInput {
+    @required
+    regions: RegionList,
+
+    discoveryFilter: DiscoveryFilter,
+
+    clientSupplier: ClientSupplierReference,
+
+    grantTokens: GrantTokenList
+}
 
 // TODO
 // Multi
