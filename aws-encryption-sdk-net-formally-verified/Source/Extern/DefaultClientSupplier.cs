@@ -3,12 +3,11 @@
 
 using Amazon.KeyManagementService;
 using Amazon;
-using Aws.Crypto;
 
 namespace DefaultClientSupplier {
 
     public partial class DefaultClientSupplier {
-        public AmazonKeyManagementServiceClient GetClient(GetClientInput input)
+        public IAmazonKeyManagementService GetClient(_IGetClientInput input)
         {
             if (input.Region != "")
             {
