@@ -7,7 +7,7 @@ using Amazon;
 namespace DefaultClientSupplier {
 
     public partial class DefaultClientSupplier {
-        public IAmazonKeyManagementService GetClient(_IGetClientInput input)
+        public IAmazonKeyManagementService GetClient(Dafny.Aws.Crypto._IGetClientInput input)
         {
             if (input.Region != "")
             {
