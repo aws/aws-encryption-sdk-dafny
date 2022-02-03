@@ -42,6 +42,7 @@ module {:extern "KeyDerivation"} KeyDerivation {
 
     ensures res.Success? ==> |res.value.dataKey| == suite.encrypt.keyLength as int
     ensures res.Success? ==> IsDerivedKey(res.value.dataKey)
+    ensures res.Success? ==> res.value.commitmentKey.None?
   {
     if suite.kdf.IDENTITY? {
       assert IsDerivedKey(plaintextDataKey) by {
@@ -89,8 +90,7 @@ module {:extern "KeyDerivation"} KeyDerivation {
     var KEY_LABEL :- UTF8.Encode("DERIVEKEY");
     var COMMIT_LABEL :- UTF8.Encode("COMMITKEY");
 
-    //var digest := suite.commitment.hmac;
-    var digest := HMAC.SHA_512; // TODO
+    var digest := suite.commitment.hmac;
     var esdkId := UInt.UInt16ToSeq(SerializableTypes.GetESDKAlgorithmSuiteId(suite.id));
     var info := esdkId + KEY_LABEL;
 
@@ -98,15 +98,6 @@ module {:extern "KeyDerivation"} KeyDerivation {
     hmac1.Init(messageId);
 
     var PRK := HKDF.Extract(hmac1, messageId, plaintextKey, hmac1.GetDigest());
-
-    // method Expand(
-      //hmac: HMac,
-      //prk: seq<uint8>,
-      //info: seq<uint8>,
-      //expectedLength: int,
-      //digest: Digests,
-      //ghost salt: seq<uint8>)
-      //returns (okm: seq<uint8>, ghost okmUnabridged: seq<uint8>)
 
     var Ke, _ := HKDF.Expand(hmac1, PRK, info, suite.encrypt.keyLength as int, digest, messageId);
 
@@ -137,6 +128,17 @@ module {:extern "KeyDerivation"} KeyDerivation {
     requires |messageId| != 0
     requires |plaintextKey| == suite.encrypt.keyLength as int
 
+    ensures
+      && res.Success?
+      && suite.commitment.None?
+    ==>
+      res.value.commitmentKey.None?
+
+    ensures
+      && res.Success?
+      && !suite.commitment.None?
+    ==>
+      res.value.commitmentKey.Some?
   {
     var keys : ExpandedKeyMaterial;
     if (!suite.commitment.None?) {
