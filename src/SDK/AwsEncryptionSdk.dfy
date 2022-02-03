@@ -189,27 +189,22 @@ module {:extern "Dafny.Aws.Esdk.AwsEncryptionSdkClient"} AwsEncryptionSdk {
 
             var canonicalEncryptionContext := EncryptionContext.GetCanonicalEncryptionContext(encMat.encryptionContext);
 
-            // Until the commitment policy has been plumbed through
-            // we can not assert assert Header.HeaderVersionSupportsCommitment?(suite, body);
-            // without the following:
-            //:- Need(!suite.commitment.HKDF?, "Commitment not yet supported");
-
-            var messageId: HeaderTypes.MessageID :- Random.GenerateBytes(HeaderTypes.MESSAGE_ID_LEN as int32);
-
             var suite := Client.SpecificationClient().GetSuite(encMat.algorithmSuiteId);
-            var maybeExpandedDataKeys := KeyDerivation.ExpandKeyMaterial(
+            var messageId: HeaderTypes.MessageId :- GenerateMessageId(suite);
+
+            var maybeDerivedDataKeys := KeyDerivation.DeriveKeys(
                 messageId, encMat.plaintextDataKey.value, suite
             );
-            :- Need(maybeExpandedDataKeys.Success?, "Failed to derive data keys");
-            var expandedDataKeys := maybeExpandedDataKeys.value;
+            :- Need(maybeDerivedDataKeys.Success?, "Failed to derive data keys");
+            var derivedDataKeys := maybeDerivedDataKeys.value;
 
             var maybeBody := BuildHeaderBody(
                 messageId,
-                encMat.algorithmSuiteId,
+                suite,
                 canonicalEncryptionContext,
                 encryptedDataKeys,
                 frameLength,
-                expandedDataKeys.commitmentKey
+                derivedDataKeys.commitmentKey
             );
             :- Need(maybeBody.Success?, "Failed to build header body");
 
@@ -221,7 +216,7 @@ module {:extern "Dafny.Aws.Esdk.AwsEncryptionSdkClient"} AwsEncryptionSdk {
             var encryptionOutput :- AESEncryption.AESEncrypt(
                 suite.encrypt,
                 iv,
-                expandedDataKeys.dataKey,
+                derivedDataKeys.dataKey,
                 [],
                 rawHeader
             );
@@ -255,7 +250,7 @@ module {:extern "Dafny.Aws.Esdk.AwsEncryptionSdkClient"} AwsEncryptionSdk {
             var framedMessage :- MessageBody.EncryptMessageBody(
                 input.plaintext,
                 header,
-                expandedDataKeys.dataKey
+                derivedDataKeys.dataKey
             );
 
             if framedMessage.finalFrame.header.suite.signature.ECDSA? {
@@ -278,9 +273,34 @@ module {:extern "Dafny.Aws.Esdk.AwsEncryptionSdkClient"} AwsEncryptionSdk {
             }
         }
 
+        method GenerateMessageId(suite: Client.AlgorithmSuites.AlgorithmSuite)
+        returns (res: Result<seq<uint8>, string>)
+
+        ensures
+            && res.Success?
+            && suite.messageVersion == 1
+        ==>
+            |res.value| == HeaderTypes.MESSAGE_ID_LEN_V1
+
+        ensures
+            && res.Success?
+            && suite.messageVersion == 2
+        ==>
+            |res.value| == HeaderTypes.MESSAGE_ID_LEN_V2
+        {
+            var id;
+            if suite.messageVersion == 1 {
+                id :- Random.GenerateBytes(HeaderTypes.MESSAGE_ID_LEN_V1 as int32);
+            } else {
+                id :- Random.GenerateBytes(HeaderTypes.MESSAGE_ID_LEN_V2 as int32);
+            }
+
+            return Success(id);
+        }
+
         method BuildHeaderBody(
             messageId: seq<uint8>,
-            suiteId: Crypto.AlgorithmSuiteId,
+            suite: Client.AlgorithmSuites.AlgorithmSuite,
             encryptionContext: EncryptionContext.ESDKCanonicalEncryptionContext,
             encryptedDataKeys: SerializableTypes.ESDKEncryptedDataKeys,
             frameLength: int64,
@@ -289,10 +309,9 @@ module {:extern "Dafny.Aws.Esdk.AwsEncryptionSdkClient"} AwsEncryptionSdk {
 
         // Correct construction of V2 headers
         ensures
-            && var suite := Client.SpecificationClient().GetSuite(suiteId);
             && suite.messageVersion == 2
         ==>
-            && var esdkAlgorithmSuiteId := SerializableTypes.GetESDKAlgorithmSuiteId(suiteId);
+            && var esdkAlgorithmSuiteId := SerializableTypes.GetESDKAlgorithmSuiteId(suite.id);
             && suiteData.Some? // V2 must have suiteData
             && res.value == HeaderTypes.HeaderBody.V2HeaderBody(
                 esdkSuiteId := esdkAlgorithmSuiteId,
@@ -306,10 +325,9 @@ module {:extern "Dafny.Aws.Esdk.AwsEncryptionSdkClient"} AwsEncryptionSdk {
 
         // Correct construction of V1 headers
         ensures
-            && var suite := Client.SpecificationClient().GetSuite(suiteId);
             && suite.messageVersion == 1
         ==>
-            && var esdkAlgorithmSuiteId := SerializableTypes.GetESDKAlgorithmSuiteId(suiteId);
+            && var esdkAlgorithmSuiteId := SerializableTypes.GetESDKAlgorithmSuiteId(suite.id);
             && res.value == HeaderTypes.HeaderBody.V1HeaderBody(
                 messageType := HeaderTypes.MessageType.TYPE_CUSTOMER_AED,
                 esdkSuiteId := esdkAlgorithmSuiteId,
@@ -321,8 +339,7 @@ module {:extern "Dafny.Aws.Esdk.AwsEncryptionSdkClient"} AwsEncryptionSdk {
                 frameLength := frameLength as uint32
             )
         {
-            var suite := Client.SpecificationClient().GetSuite(suiteId);
-            var esdkAlgorithmSuiteId := SerializableTypes.GetESDKAlgorithmSuiteId(suiteId);
+            var esdkAlgorithmSuiteId := SerializableTypes.GetESDKAlgorithmSuiteId(suite.id);
 
             if suite.messageVersion == 2
             {
@@ -421,14 +438,14 @@ module {:extern "Dafny.Aws.Esdk.AwsEncryptionSdkClient"} AwsEncryptionSdk {
                 .ReadHeaderAuthTag(headerBody.tail, suite)
                 .MapFailure(EncryptDecryptHelpers.MapSerializeFailure(": ReadHeaderAuthTag"));
 
-            var maybeExpandedDataKeys := KeyDerivation.ExpandKeyMaterial(
+            var maybeDerivedDataKeys := KeyDerivation.DeriveKeys(
                 headerBody.data.messageId, decMat.plaintextDataKey.value, suite
             );
-            :- Need(maybeExpandedDataKeys.Success?, "Failed to derive data keys");
-            var expandedDataKeys := maybeExpandedDataKeys.value;
+            :- Need(maybeDerivedDataKeys.Success?, "Failed to derive data keys");
+            var derivedDataKeys := maybeDerivedDataKeys.value;
 
             // We don't care about the result here, just whether it succeeds/fails
-            var _ :- ValidateSuiteData(suite, headerBody.data, expandedDataKeys.commitmentKey);
+            var _ :- ValidateSuiteData(suite, headerBody.data, derivedDataKeys.commitmentKey);
 
             // We created the header auth tag by encrypting an
             // empty array. To verify it here, we don't care about the actual
@@ -436,7 +453,7 @@ module {:extern "Dafny.Aws.Esdk.AwsEncryptionSdkClient"} AwsEncryptionSdk {
             // anonymous variable name.
             var _ :- AESEncryption.AESDecrypt(
                 suite.encrypt,
-                expandedDataKeys.dataKey,
+                derivedDataKeys.dataKey,
                 [],
                 headerAuth.data.headerAuthTag,
                 headerAuth.data.headerIv,
@@ -483,7 +500,7 @@ module {:extern "Dafny.Aws.Esdk.AwsEncryptionSdkClient"} AwsEncryptionSdk {
 
             assert {:split_here} true;
             assert suite == messageBody.data.finalFrame.header.suite;
-            assert |expandedDataKeys.dataKey| == messageBody.data.finalFrame.header.suite.encrypt.keyLength as int;
+            assert |derivedDataKeys.dataKey| == messageBody.data.finalFrame.header.suite.encrypt.keyLength as int;
 
             // ghost var endHeaderPos := rd.reader.pos;
             // Parse the message body
@@ -492,7 +509,7 @@ module {:extern "Dafny.Aws.Esdk.AwsEncryptionSdkClient"} AwsEncryptionSdk {
                 case NonFramed => return Failure("not at this time");
                 //   plaintext :- MessageBody.DecryptNonFramedMessageBody(rd, suite, decryptionKey, header.body.messageID);
                 case Framed =>
-                    plaintext :- MessageBody.DecryptFramedMessageBody(messageBody.data, expandedDataKeys.dataKey);
+                    plaintext :- MessageBody.DecryptFramedMessageBody(messageBody.data, derivedDataKeys.dataKey);
             }
 
             var signature :- EncryptDecryptHelpers.VerifySignature(

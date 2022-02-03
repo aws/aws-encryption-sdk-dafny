@@ -61,22 +61,42 @@ module SharedHeaderFunctions {
     Success(SuccessfulRead(esdkSuiteId, tail))
   }
 
-  function method WriteMessageId(
-    messageId: MessageID
+  function method WriteMessageIdV1(
+    messageId: MessageId
   ):
     (ret: seq<uint8>)
   {
     messageId
   }
 
-  function method ReadMessageId(
+  function method ReadMessageIdV1(
     buffer: ReadableBuffer
   )
-    :(res: ReadBinaryCorrect<MessageID>)
-    ensures CorrectlyRead(buffer, res, WriteMessageId)
+    :(res: ReadBinaryCorrect<MessageId>)
+    ensures CorrectlyRead(buffer, res, WriteMessageIdV1)
   {
-    var messageIdRead :- SerializeFunctions.Read(buffer, MESSAGE_ID_LEN);
-    var messageId: MessageID := messageIdRead.data;
+    var messageIdRead :- SerializeFunctions.Read(buffer, MESSAGE_ID_LEN_V1);
+    var messageId: MessageId := messageIdRead.data;
+
+    Success(SuccessfulRead(messageId, messageIdRead.tail))
+  }
+
+  function method WriteMessageIdV2(
+    messageId: MessageId
+  ):
+    (ret: seq<uint8>)
+  {
+    messageId
+  }
+
+  function method ReadMessageIdV2(
+    buffer: ReadableBuffer
+  )
+    :(res: ReadBinaryCorrect<MessageId>)
+    ensures CorrectlyRead(buffer, res, WriteMessageIdV1)
+  {
+    var messageIdRead :- SerializeFunctions.Read(buffer, MESSAGE_ID_LEN_V2);
+    var messageId: MessageId := messageIdRead.data;
 
     Success(SuccessfulRead(messageId, messageIdRead.tail))
   }

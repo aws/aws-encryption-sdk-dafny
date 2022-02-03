@@ -32,12 +32,13 @@ module {:extern "KeyDerivation"} KeyDerivation {
    * key derivation (that is, no key commitment).
    */
   method DeriveKey(
-    messageId: HeaderTypes.MessageID,
+    messageId: HeaderTypes.MessageId,
     plaintextDataKey: seq<uint8>,
     suite: Client.AlgorithmSuites.AlgorithmSuite
   ) 
     returns (res: Result<ExpandedKeyMaterial, string>)
 
+    requires suite.messageVersion == 1
     requires |plaintextDataKey| == suite.encrypt.keyLength as int
 
     ensures res.Success? ==> |res.value.dataKey| == suite.encrypt.keyLength as int
@@ -66,14 +67,14 @@ module {:extern "KeyDerivation"} KeyDerivation {
    * key derivation (that is, including key commitment).
    */
   method ExpandKeyMaterial(
-    messageId: HeaderTypes.MessageID,
+    messageId: HeaderTypes.MessageId,
     plaintextKey: seq<uint8>,
     suite: Client.AlgorithmSuites.AlgorithmSuiteInfo
   )
     returns (res: Result<ExpandedKeyMaterial, string>)
 
     // This should only be used for algorithms with commitment
-    requires !suite.commitment.None?
+    requires suite.messageVersion == 2
 
     requires |messageId| != 0
     requires |plaintextKey| == suite.encrypt.keyLength as int
@@ -90,7 +91,8 @@ module {:extern "KeyDerivation"} KeyDerivation {
     var KEY_LABEL :- UTF8.Encode("DERIVEKEY");
     var COMMIT_LABEL :- UTF8.Encode("COMMITKEY");
 
-    var digest := suite.commitment.hmac;
+    //var digest := suite.commitment.hmac;
+    var digest := HMAC.Digests.SHA_512; // TODO: why?
     var esdkId := UInt.UInt16ToSeq(SerializableTypes.GetESDKAlgorithmSuiteId(suite.id));
     var info := esdkId + KEY_LABEL;
 
@@ -119,7 +121,7 @@ module {:extern "KeyDerivation"} KeyDerivation {
    * based on the input algorithm suite.
    */
   method DeriveKeys(
-    messageId: HeaderTypes.MessageID,
+    messageId: HeaderTypes.MessageId,
     plaintextKey: seq<uint8>,
     suite: Client.AlgorithmSuites.AlgorithmSuite
   )
@@ -127,24 +129,27 @@ module {:extern "KeyDerivation"} KeyDerivation {
 
     requires |messageId| != 0
     requires |plaintextKey| == suite.encrypt.keyLength as int
+    requires |plaintextKey| < INT32_MAX_LIMIT
 
     ensures
       && res.Success?
-      && suite.commitment.None?
+      && suite.messageVersion == 1
     ==>
       res.value.commitmentKey.None?
 
     ensures
       && res.Success?
-      && !suite.commitment.None?
+      && suite.messageVersion == 2
     ==>
       res.value.commitmentKey.Some?
   {
     var keys : ExpandedKeyMaterial;
-    if (!suite.commitment.None?) {
+    if (suite.messageVersion == 2) {
       keys :- ExpandKeyMaterial(messageId, plaintextKey, suite);
-    } else {
+    } else if (suite.messageVersion == 1) {
       keys :- DeriveKey(messageId, plaintextKey, suite);
+    } else {
+      return Failure("Unknown message version");
     }
 
     return Success(keys);

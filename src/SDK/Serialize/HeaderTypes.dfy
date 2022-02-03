@@ -47,7 +47,7 @@ module HeaderTypes {
     | V1HeaderBody(
       nameonly messageType: MessageType,
       nameonly esdkSuiteId: ESDKAlgorithmSuiteId,
-      nameonly messageId: MessageID,
+      nameonly messageId: MessageId,
       nameonly encryptionContext: EncryptionContext.ESDKCanonicalEncryptionContext,
       nameonly encryptedDataKeys: ESDKEncryptedDataKeys,
       nameonly contentType: ContentType,
@@ -56,7 +56,7 @@ module HeaderTypes {
     )
     | V2HeaderBody(
       nameonly esdkSuiteId: ESDKAlgorithmSuiteId,
-      nameonly messageId: MessageID,
+      nameonly messageId: MessageId,
       nameonly encryptionContext: EncryptionContext.ESDKCanonicalEncryptionContext,
       nameonly encryptedDataKeys: ESDKEncryptedDataKeys,
       nameonly contentType: ContentType,
@@ -115,9 +115,10 @@ module HeaderTypes {
     }
   }
 
-  const MESSAGE_ID_LEN := 16
-  type MessageID = x: seq<uint8> 
-  | |x| == MESSAGE_ID_LEN
+  const MESSAGE_ID_LEN_V1 := 16
+  const MESSAGE_ID_LEN_V2 := 32
+  type MessageId = x: seq<uint8> |
+    || |x| == MESSAGE_ID_LEN_V1
+    || |x| == MESSAGE_ID_LEN_V2
   witness *
-
 }

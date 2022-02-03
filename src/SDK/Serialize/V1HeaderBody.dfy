@@ -48,7 +48,7 @@ module V1HeaderBody {
     SharedHeaderFunctions.WriteMessageFormatVersion(HeaderTypes.MessageFormatVersion.V1)
     + WriteV1MessageType(body.messageType)
     + SharedHeaderFunctions.WriteESDKSuiteId(body.esdkSuiteId)
-    + SharedHeaderFunctions.WriteMessageId(body.messageId)
+    + SharedHeaderFunctions.WriteMessageIdV1(body.messageId)
     + WriteAADSection(body.encryptionContext)
     + WriteEncryptedDataKeysSection(body.encryptedDataKeys)
     + SharedHeaderFunctions.WriteContentType(body.contentType)
@@ -73,7 +73,7 @@ module V1HeaderBody {
     var suite := Client.SpecificationClient().GetSuite(suiteId);
     :- Need(suite.commitment.None?, Error("Algorithm suite must not support commitment."));
 
-    var messageId :- SharedHeaderFunctions.ReadMessageId(esdkSuiteId.tail);
+    var messageId :- SharedHeaderFunctions.ReadMessageIdV1(esdkSuiteId.tail);
 
     var encryptionContext :- EncryptionContext.ReadAADSection(messageId.tail);
 
@@ -208,7 +208,7 @@ module V1HeaderBody {
     SharedHeaderFunctions.WriteMessageFormatVersion(HeaderTypes.MessageFormatVersion.V1)
     + WriteV1MessageType(body.messageType)
     + SharedHeaderFunctions.WriteESDKSuiteId(body.esdkSuiteId)
-    + SharedHeaderFunctions.WriteMessageId(body.messageId)
+    + SharedHeaderFunctions.WriteMessageIdV1(body.messageId)
     + WriteExpandedAADSection(body.encryptionContext)
     + WriteEncryptedDataKeysSection(body.encryptedDataKeys)
     + SharedHeaderFunctions.WriteContentType(body.contentType)

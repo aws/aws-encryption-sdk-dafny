@@ -39,7 +39,7 @@ module V2HeaderBody {
 
     SharedHeaderFunctions.WriteMessageFormatVersion(HeaderTypes.MessageFormatVersion.V2)
     + SharedHeaderFunctions.WriteESDKSuiteId(body.esdkSuiteId)
-    + SharedHeaderFunctions.WriteMessageId(body.messageId)
+    + SharedHeaderFunctions.WriteMessageIdV2(body.messageId)
     + WriteAADSection(body.encryptionContext)
     + WriteEncryptedDataKeysSection(body.encryptedDataKeys)
     + SharedHeaderFunctions.WriteContentType(body.contentType)
@@ -54,14 +54,14 @@ module V2HeaderBody {
     ensures CorrectlyReadV2HeaderBody(buffer, res)
   {
     var version :- SharedHeaderFunctions.ReadMessageFormatVersion(buffer);
-    :- Need(version.data.V2?, Error("Message version must be version 1."));
+    :- Need(version.data.V2?, Error("Message version must be version 2."));
 
     var esdkSuiteId :- SharedHeaderFunctions.ReadESDKSuiteId(version.tail);
     var suiteId := GetAlgorithmSuiteId(esdkSuiteId.data);
     var suite := Client.SpecificationClient().GetSuite(suiteId);
     :- Need(suite.commitment.HKDF?, Error("Algorithm suite must support commitment."));
 
-    var messageId :- SharedHeaderFunctions.ReadMessageId(esdkSuiteId.tail);
+    var messageId :- SharedHeaderFunctions.ReadMessageIdV2(esdkSuiteId.tail);
 
     var encryptionContext :- EncryptionContext.ReadAADSection(messageId.tail);
 
@@ -127,7 +127,7 @@ module V2HeaderBody {
 
     SharedHeaderFunctions.WriteMessageFormatVersion(HeaderTypes.MessageFormatVersion.V2)
     + SharedHeaderFunctions.WriteESDKSuiteId(body.esdkSuiteId)
-    + SharedHeaderFunctions.WriteMessageId(body.messageId)
+    + SharedHeaderFunctions.WriteMessageIdV2(body.messageId)
     + WriteExpandedAADSection(body.encryptionContext)
     + WriteEncryptedDataKeysSection(body.encryptedDataKeys)
     + SharedHeaderFunctions.WriteContentType(body.contentType)
