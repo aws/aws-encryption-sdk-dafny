@@ -1,3 +1,5 @@
+// Copyright Amazon.com Inc. or its affiliates. All Rights Reserved.
+// SPDX-License-Identifier: Apache-2.0
 
 include "../Generated/AwsEncryptionSdk.dfy"
 include "../Generated/AwsCryptographicMaterialProviders.dfy"
