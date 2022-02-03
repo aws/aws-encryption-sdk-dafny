@@ -20,8 +20,8 @@ module {:extern "KeyDerivation"} KeyDerivation {
   import HKDF
   import HMAC
 
-  // Convenience container to hold both K_e and K_c necessary
-  // for encryption with key commitment
+  // Convenience container to hold both a data key and an optional commitment key
+  // to support algorithm suites that provide commitment and those that do not
   datatype ExpandedKeyMaterial = ExpandedKeyMaterial(
     nameonly dataKey: seq<uint8>,
     nameonly commitmentKey: Option<seq<uint8>>
@@ -84,11 +84,11 @@ module {:extern "KeyDerivation"} KeyDerivation {
 
     requires |messageId| != 0
     requires |plaintextKey| == suite.encrypt.keyLength as int
-    // TODO: seems like this should follow from the fact that |key| == keyLength,
-    // but apparently we don't prove/require anywhere that keys be small.
+    // TODO: seems like the below pre-condition should follow from the above
+    // pre-condition (|key| == keyLength), but apparently we don't prove/require
+    // anywhere that keys be small.
     requires |plaintextKey| < INT32_MAX_LIMIT
 
-    // Make sure we return a commitment key
     ensures
       && res.Success?
     ==>

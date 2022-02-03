@@ -39,7 +39,7 @@ module V2HeaderBody {
 
     SharedHeaderFunctions.WriteMessageFormatVersion(HeaderTypes.MessageFormatVersion.V2)
     + SharedHeaderFunctions.WriteESDKSuiteId(body.esdkSuiteId)
-    + SharedHeaderFunctions.WriteMessageIdV2(body.messageId)
+    + SharedHeaderFunctions.WriteMessageId(body.messageId)
     + WriteAADSection(body.encryptionContext)
     + WriteEncryptedDataKeysSection(body.encryptedDataKeys)
     + SharedHeaderFunctions.WriteContentType(body.contentType)
@@ -127,7 +127,7 @@ module V2HeaderBody {
 
     SharedHeaderFunctions.WriteMessageFormatVersion(HeaderTypes.MessageFormatVersion.V2)
     + SharedHeaderFunctions.WriteESDKSuiteId(body.esdkSuiteId)
-    + SharedHeaderFunctions.WriteMessageIdV2(body.messageId)
+    + SharedHeaderFunctions.WriteMessageId(body.messageId)
     + WriteExpandedAADSection(body.encryptionContext)
     + WriteEncryptedDataKeysSection(body.encryptedDataKeys)
     + SharedHeaderFunctions.WriteContentType(body.contentType)
