@@ -273,8 +273,12 @@ module {:extern "Dafny.Aws.Esdk.AwsEncryptionSdkClient"} AwsEncryptionSdk {
             }
         }
 
-        method GenerateMessageId(suite: Client.AlgorithmSuites.AlgorithmSuite)
-        returns (res: Result<seq<uint8>, string>)
+        /*
+         * Generate a message id of appropriate length for the given algorithm suite.
+         */
+        method GenerateMessageId(
+            suite: Client.AlgorithmSuites.AlgorithmSuite
+        ) returns (res: Result<seq<uint8>, string>)
 
         ensures
             && res.Success?
@@ -308,8 +312,7 @@ module {:extern "Dafny.Aws.Esdk.AwsEncryptionSdkClient"} AwsEncryptionSdk {
         ) returns (res: Result<HeaderTypes.HeaderBody, string>)
 
         // Correct construction of V2 headers
-        ensures
-            && suite.messageVersion == 2
+        ensures suite.messageVersion == 2
         ==>
             && var esdkAlgorithmSuiteId := SerializableTypes.GetESDKAlgorithmSuiteId(suite.id);
             && suiteData.Some? // V2 must have suiteData
@@ -324,8 +327,7 @@ module {:extern "Dafny.Aws.Esdk.AwsEncryptionSdkClient"} AwsEncryptionSdk {
             )
 
         // Correct construction of V1 headers
-        ensures
-            && suite.messageVersion == 1
+        ensures suite.messageVersion == 1
         ==>
             && var esdkAlgorithmSuiteId := SerializableTypes.GetESDKAlgorithmSuiteId(suite.id);
             && res.value == HeaderTypes.HeaderBody.V1HeaderBody(
@@ -444,8 +446,10 @@ module {:extern "Dafny.Aws.Esdk.AwsEncryptionSdkClient"} AwsEncryptionSdk {
             :- Need(maybeDerivedDataKeys.Success?, "Failed to derive data keys");
             var derivedDataKeys := maybeDerivedDataKeys.value;
 
-            // We don't care about the result here, just whether it succeeds/fails
-            var _ :- ValidateSuiteData(suite, headerBody.data, derivedDataKeys.commitmentKey);
+            if suite.messageVersion == 2 {
+                :- Need(derivedDataKeys.commitmentKey.Some?, "Algorithm has commitment but suite data not present");
+                var _ :- ValidateSuiteData(suite, headerBody.data, derivedDataKeys.commitmentKey.value);
+            }
 
             // We created the header auth tag by encrypting an
             // empty array. To verify it here, we don't care about the actual
@@ -531,44 +535,21 @@ module {:extern "Dafny.Aws.Esdk.AwsEncryptionSdkClient"} AwsEncryptionSdk {
     method ValidateSuiteData(
         suite: Client.AlgorithmSuites.AlgorithmSuite,
         header: HeaderTypes.HeaderBody,
-        expectedSuiteData: Option<seq<uint8>>
+        expectedSuiteData: seq<uint8>
     ) returns (res: Result<bool, string>)
 
-    // No commitment, no need to compare anything
-    ensures suite.commitment.None? ==> res.Success?
+    // Validating suite data is only relevant for v2 messages
+    requires suite.messageVersion == 2
 
-    // Happy case: we have commitment and the values match
-    ensures
-        && res.Success?
-        && !suite.commitment.None?
-    ==>
-        && expectedSuiteData.Some?
-        && header.suiteData == expectedSuiteData.value
+    // Happy case
+    ensures res.Success? ==> header.suiteData == expectedSuiteData
     
-    // Failure case: suite includes commitment but no expected value was
-    // provided
-    ensures
-        && !suite.commitment.None?
-        && expectedSuiteData.None?
-    ==>
-        res.Failure?
-
-    // Failure case: We have commitment and it does not match
-    ensures 
-        && expectedSuiteData.Some?
-        && header.suiteData != expectedSuiteData.value
-    ==>
-        res.Failure?
+    // Failure cases
+    ensures header.suiteData != expectedSuiteData ==> res.Failure?
+    ensures |header.suiteData| != suite.commitment.outputKeyLength as int ==> res.Failure?
     {
-        if suite.commitment.None? {
-            return Success(true);
-        }
-
-        :- Need(expectedSuiteData.Some?, "Algorithm has commitment but suite data not present");
-
-        if expectedSuiteData.value != header.suiteData {
-            return Failure("Commitment key does not match");
-        }
+        :- Need(|header.suiteData| == suite.commitment.outputKeyLength as int, "Commitment key is invalid");
+        :- Need(expectedSuiteData == header.suiteData, "Commitment key does not match");
 
         return Success(true);
     }
