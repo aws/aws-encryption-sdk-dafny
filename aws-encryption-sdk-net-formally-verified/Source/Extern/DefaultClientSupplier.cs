@@ -20,7 +20,9 @@ namespace DefaultClientSupplier {
             } else {
                 client = new AmazonKeyManagementServiceClient();
             }
-            return TypeConversion.ToDafny_N3_aws__N6_crypto__S15_GetClientOutput(client);
+            return Result<Dafny.Com.Amazonaws.Kms.IKeyManagementServiceClient, Dafny.Aws.Crypto.IAwsCryptographicMaterialProvidersException>.create_Success(
+                TypeConversion.ToDafny_N3_aws__N6_crypto__S15_GetClientOutput(client)
+            );
         }
     }
 }
