@@ -3,24 +3,12 @@
 
 include "../StandardLibrary/StandardLibrary.dfy"
 include "../StandardLibrary/UInt.dfy"
-include "Serialize/EncryptionContext.dfy"
 include "../AwsCryptographicMaterialProviders/Client.dfy"
-include "../AwsCryptographicMaterialProviders/Materials.dfy"
-include "../AwsCryptographicMaterialProviders/AlgorithmSuites.dfy"
 include "MessageBody.dfy"
-include "../Crypto/Random.dfy"
-include "../Util/Streams.dfy"
-include "../Crypto/HKDF/HKDF.dfy"
-include "../Crypto/HKDF/HMAC.dfy"
-include "../Crypto/AESEncryption.dfy"
 include "../Crypto/Signature.dfy"
 include "../Generated/AwsCryptographicMaterialProviders.dfy"
-include "../Generated/AwsEncryptionSdk.dfy"
-include "Serialize/SerializableTypes.dfy"
 
-include "Serialize/Header.dfy"
-include "Serialize/HeaderTypes.dfy"
-include "Serialize/V1HeaderBody.dfy"
+include "Serialize/SerializableTypes.dfy"
 include "Serialize/HeaderAuth.dfy"
 include "Serialize/SerializeFunctions.dfy"
 
@@ -30,23 +18,12 @@ module {:extern "EncryptDecryptHelpers"} EncryptDecryptHelpers {
   import opened StandardLibrary
   import opened UInt = StandardLibrary.UInt
   import Aws.Crypto
-  import Aws.Esdk
-  import EncryptionContext
-  import AESEncryption
   import MaterialProviders.Client
-  import HKDF
-  import HMAC
   import MessageBody
-  import Random
   import Signature
-  import Streams
   import SerializableTypes
   import opened SerializeFunctions
-
-  import Header
-  import HeaderTypes
   import HeaderAuth
-  import V1HeaderBody
 
   const DEFAULT_FRAME_LENGTH : int64 := 4096
 
