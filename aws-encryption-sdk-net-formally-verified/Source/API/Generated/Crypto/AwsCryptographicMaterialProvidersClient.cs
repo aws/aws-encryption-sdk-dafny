@@ -68,9 +68,14 @@ namespace Aws.Crypto
         {
             Dafny.Aws.Crypto._ICreateMrkAwareStrictMultiKeyringInput internalInput =
                 TypeConversion.ToDafny_N3_aws__N6_crypto__S37_CreateMrkAwareStrictMultiKeyringInput(input);
-            Dafny.Aws.Crypto.IKeyring internalOutput =
+            // Manually Fixed
+            Wrappers_Compile._IResult<Dafny.Aws.Crypto.IKeyring,
+                Dafny.Aws.Crypto.IAwsCryptographicMaterialProvidersException> result =
                 this._impl.CreateMrkAwareStrictMultiKeyring(internalInput);
-            return TypeConversion.FromDafny_N3_aws__N6_crypto__S19_CreateKeyringOutput(internalOutput);
+            if (result.is_Failure)
+                throw TypeConversion
+                    .FromDafny_CommonError_AwsCryptographicMaterialProvidersException(result.dtor_error);
+            return TypeConversion.FromDafny_N3_aws__N6_crypto__S19_CreateKeyringOutput(result.dtor_value);
         }
 
         protected override Aws.Crypto.IKeyring _CreateMrkAwareDiscoveryAwsKmsKeyring(
@@ -92,9 +97,13 @@ namespace Aws.Crypto
         {
             Dafny.Aws.Crypto._ICreateMrkAwareDiscoveryMultiKeyringInput internalInput =
                 TypeConversion.ToDafny_N3_aws__N6_crypto__S40_CreateMrkAwareDiscoveryMultiKeyringInput(input);
-            Dafny.Aws.Crypto.IKeyring internalOutput =
+            Wrappers_Compile._IResult<Dafny.Aws.Crypto.IKeyring,
+                Dafny.Aws.Crypto.IAwsCryptographicMaterialProvidersException> result =
                 this._impl.CreateMrkAwareDiscoveryMultiKeyring(internalInput);
-            return TypeConversion.FromDafny_N3_aws__N6_crypto__S19_CreateKeyringOutput(internalOutput);
+            if (result.is_Failure)
+                throw TypeConversion
+                    .FromDafny_CommonError_AwsCryptographicMaterialProvidersException(result.dtor_error);
+            return TypeConversion.FromDafny_N3_aws__N6_crypto__S19_CreateKeyringOutput(result.dtor_value);
         }
 
         protected override Aws.Crypto.IKeyring _CreateMultiKeyring(Aws.Crypto.CreateMultiKeyringInput input)
