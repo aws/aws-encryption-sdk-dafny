@@ -63,6 +63,16 @@ namespace Aws.Crypto
         protected abstract Aws.Crypto.IKeyring _CreateMrkAwareDiscoveryAwsKmsKeyring(
             Aws.Crypto.CreateMrkAwareDiscoveryAwsKmsKeyringInput input);
 
+        public Aws.Crypto.IKeyring CreateMrkAwareDiscoveryMultiKeyring(
+            Aws.Crypto.CreateMrkAwareDiscoveryMultiKeyringInput input)
+        {
+            input.Validate();
+            return _CreateMrkAwareDiscoveryMultiKeyring(input);
+        }
+
+        protected abstract Aws.Crypto.IKeyring _CreateMrkAwareDiscoveryMultiKeyring(
+            Aws.Crypto.CreateMrkAwareDiscoveryMultiKeyringInput input);
+
         public Aws.Crypto.IKeyring CreateMultiKeyring(Aws.Crypto.CreateMultiKeyringInput input)
         {
             input.Validate();

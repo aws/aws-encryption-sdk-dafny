@@ -19,6 +19,9 @@ namespace Aws.Crypto
         Aws.Crypto.IKeyring CreateMrkAwareDiscoveryAwsKmsKeyring(
             Aws.Crypto.CreateMrkAwareDiscoveryAwsKmsKeyringInput input);
 
+        Aws.Crypto.IKeyring CreateMrkAwareDiscoveryMultiKeyring(
+            Aws.Crypto.CreateMrkAwareDiscoveryMultiKeyringInput input);
+
         Aws.Crypto.IKeyring CreateMultiKeyring(Aws.Crypto.CreateMultiKeyringInput input);
         Aws.Crypto.IKeyring CreateRawAesKeyring(Aws.Crypto.CreateRawAesKeyringInput input);
         Aws.Crypto.IKeyring CreateRawRsaKeyring(Aws.Crypto.CreateRawRsaKeyringInput input);
