@@ -46,8 +46,9 @@ module TestMrkAwareDiscoveryMultiKeyring {
     var result := mrkAwareDiscoveryMultiKeyring.OnEncrypt(
       Crypto.OnEncryptInput(materials:=encryptionMaterials)
     );
-    if result.Failure? {
-      print result;
+    match result {
+      case Failure(error) => print error.GetMessage();
+      case Success(value) => return;
     }
     expect result.Success?;
   }
