@@ -178,6 +178,10 @@ module {:extern "Dafny.Aws.Esdk.AwsEncryptionSdkClient"} AwsEncryptionSdk {
             :- Need(maybeDerivedDataKeys.Success?, "Failed to derive data keys");
             var derivedDataKeys := maybeDerivedDataKeys.value;
 
+            if suite.messageVersion == 2 {
+                :- Need(derivedDataKeys.commitmentKey.Some?, "Message version 2 requires suite data");
+            }
+
             var maybeBody := BuildHeaderBody(
                 messageId,
                 suite,
@@ -186,11 +190,14 @@ module {:extern "Dafny.Aws.Esdk.AwsEncryptionSdkClient"} AwsEncryptionSdk {
                 frameLength as uint32,
                 derivedDataKeys.commitmentKey
             );
+
             :- Need(maybeBody.Success?, "Failed to build header body");
 
             var body := maybeBody.value;
+            assert false;
 
             var rawHeader := Header.WriteHeaderBody(body);
+            assert false;
 
             var iv: seq<uint8> := seq(suite.encrypt.ivLength as int, _ => 0);
             var encryptionOutput :- AESEncryption.AESEncrypt(
@@ -212,6 +219,7 @@ module {:extern "Dafny.Aws.Esdk.AwsEncryptionSdkClient"} AwsEncryptionSdk {
                 suite := suite,
                 headerAuth := headerAuth
             );
+            assert false;
 
             // Add headerAuth requirements to Header type
             assert Header.CorrectlyReadHeaderBody(
@@ -343,13 +351,15 @@ module {:extern "Dafny.Aws.Esdk.AwsEncryptionSdkClient"} AwsEncryptionSdk {
             suiteData: Option<seq<uint8>>
         ) returns (res: Result<HeaderTypes.HeaderBody, string>)
 
+        requires suite.messageVersion == 2 ==> suiteData.Some?
+
         // Correct construction of V2 headers
         ensures
             && res.Success?
             && suite.messageVersion == 2
         ==>
+            && res.value.V2HeaderBody?
             && var esdkAlgorithmSuiteId := SerializableTypes.GetESDKAlgorithmSuiteId(suite.id);
-            && suiteData.Some? // V2 must have suiteData
             && res.value == HeaderTypes.HeaderBody.V2HeaderBody(
                 esdkSuiteId := esdkAlgorithmSuiteId,
                 messageId := messageId,
@@ -365,6 +375,7 @@ module {:extern "Dafny.Aws.Esdk.AwsEncryptionSdkClient"} AwsEncryptionSdk {
             && res.Success?
             && suite.messageVersion == 1
         ==>
+            && res.value.V1HeaderBody?
             && var esdkAlgorithmSuiteId := SerializableTypes.GetESDKAlgorithmSuiteId(suite.id);
             && res.value == HeaderTypes.HeaderBody.V1HeaderBody(
                 messageType := HeaderTypes.MessageType.TYPE_CUSTOMER_AED,
@@ -376,24 +387,21 @@ module {:extern "Dafny.Aws.Esdk.AwsEncryptionSdkClient"} AwsEncryptionSdk {
                 headerIvLength := suite.encrypt.ivLength as nat,
                 frameLength := frameLength
             )
+
+        /* TODO: Including this makes verification time balloon. Why?
+        ensures
+        (
+            && suite.messageVersion != 1
+            && suite.messageVersion != 2
+        )
+        ==>
+            res.Failure?
+        */
         {
             var esdkAlgorithmSuiteId := SerializableTypes.GetESDKAlgorithmSuiteId(suite.id);
 
-            if suite.messageVersion == 2
-            {
-                :- Need(suiteData.Some?, "Could not build header body");
-                var body := HeaderTypes.HeaderBody.V2HeaderBody(
-                    esdkSuiteId := esdkAlgorithmSuiteId,
-                    messageId := messageId,
-                    encryptionContext := encryptionContext,
-                    encryptedDataKeys := encryptedDataKeys,
-                    contentType := HeaderTypes.ContentType.Framed,
-                    frameLength := frameLength,
-                    suiteData := suiteData.value
-                );
-                return Success(body);
-            } else {
-                var body := HeaderTypes.HeaderBody.V1HeaderBody(
+            match suite.messageVersion {
+                case 1 => return Success(HeaderTypes.HeaderBody.V1HeaderBody(
                     messageType := HeaderTypes.MessageType.TYPE_CUSTOMER_AED,
                     esdkSuiteId := esdkAlgorithmSuiteId,
                     messageId := messageId,
@@ -402,8 +410,17 @@ module {:extern "Dafny.Aws.Esdk.AwsEncryptionSdkClient"} AwsEncryptionSdk {
                     contentType := HeaderTypes.ContentType.Framed,
                     headerIvLength := suite.encrypt.ivLength as nat,
                     frameLength := frameLength
-                );
-                return Success(body);
+                ));
+                case 2 => return Success(HeaderTypes.HeaderBody.V2HeaderBody(
+                    esdkSuiteId := esdkAlgorithmSuiteId,
+                    messageId := messageId,
+                    encryptionContext := encryptionContext,
+                    encryptedDataKeys := encryptedDataKeys,
+                    contentType := HeaderTypes.ContentType.Framed,
+                    frameLength := frameLength,
+                    suiteData := suiteData.value
+                ));
+                case _ => return Failure("");
             }
         }
 
