@@ -624,10 +624,10 @@ module
           //# A set of AWS KMS clients MUST be created by calling regional client
           //# supplier for each region in the input set of regions.
           var client :- clientSupplier.GetClient(Crypto.GetClientInput(region));
-          :- Crypto.Need(
-            AwsKmsUtils.RegionMatch(client, region),
-            "The region for the client did not match the requested region"
-          );
+          // :- Crypto.Need(
+          //   AwsKmsUtils.RegionMatch(client, region),
+          //   "The region for the client did not match the requested region"
+          // );
           var keyring := new AwsKmsMrkAwareSymmetricRegionDiscoveryKeyring.AwsKmsMrkAwareSymmetricRegionDiscoveryKeyring(
             client,
             region,

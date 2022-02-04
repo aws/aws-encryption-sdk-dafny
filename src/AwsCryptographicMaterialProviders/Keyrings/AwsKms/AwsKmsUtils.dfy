@@ -51,9 +51,10 @@ module {:extern "AwsKmsUtils"} AwsKmsUtils {
    * Dafny code about client and region matching; we will always need to account
    * for the case where they do not.
    */
-  predicate method {:extern "RegionMatch"} RegionMatch(
-    client: KMS.IKeyManagementServiceClient,
-    region: string
-  )
+  // Commentted out since this is not implemented in Extern yet
+  // predicate method {:extern "RegionMatch"} RegionMatch(
+  //   client: KMS.IKeyManagementServiceClient,
+  //   region: string
+  // )
 
 }
