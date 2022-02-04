@@ -97,10 +97,12 @@ module {:extern "Dafny.Aws.Esdk.AwsEncryptionSdkClient"} AwsEncryptionSdk {
         //# supported by the commitment policy (client.md#commitment-policy)
         //# configured in the client (client.md) encrypt MUST yield an error.
         ensures
+        (
             && input.algorithmSuiteId.Some?
             && var valid := Client.SpecificationClient()
                     .ValidateCommitmentPolicyOnEncrypt(input.algorithmSuiteId.value, this.commitmentPolicy);
             && valid.Failure?
+        )
         ==>
             res.Failure?
         {
@@ -145,34 +147,12 @@ module {:extern "Dafny.Aws.Esdk.AwsEncryptionSdkClient"} AwsEncryptionSdk {
                     .ValidateCommitmentPolicyOnEncrypt(algorithmSuiteId.value, this.commitmentPolicy);
             }
 
-            var encMatRequest := Crypto.GetEncryptionMaterialsInput(
-                encryptionContext:=input.encryptionContext,
-                commitmentPolicy:=this.commitmentPolicy,
-                algorithmSuiteId:=algorithmSuiteId,
-                maxPlaintextLength:=Option.Some(maxPlaintextLength as int64)
+            var materials :- GetEncryptionMaterials(
+                cmm,
+                algorithmSuiteId,
+                input.encryptionContext,
+                maxPlaintextLength as int64
             );
-
-            var getEncMatResult := cmm.GetEncryptionMaterials(encMatRequest);
-            var output :- match getEncMatResult {
-                case Success(value) => Success(value)
-                case Failure(exception) => Failure(exception.GetMessage())
-            };
-
-            var encMat := output.encryptionMaterials;
-
-            // Validate encryption materials
-            :- Need(
-                Client.Materials.EncryptionMaterialsWithPlaintextDataKey(encMat),
-                "CMM returned invalid EncryptionMaterials"
-            );
-            :- Need(
-                SerializableTypes.IsESDKEncryptionContext(encMat.encryptionContext),
-                "CMM failed to return serializable encryption materials."
-            );
-            :- Need(HasUint16Len(encMat.encryptedDataKeys), "CMM returned EDKs that exceed the allowed maximum.");
-            :- Need(forall edk | edk in encMat.encryptedDataKeys
-                :: SerializableTypes.IsESDKEncryptedDataKey(edk),
-                "CMM returned non-serializable encrypted data key.");
 
             //= compliance/client-apis/encrypt.txt#2.6.1
             //# If this
@@ -180,20 +160,20 @@ module {:extern "Dafny.Aws.Esdk.AwsEncryptionSdkClient"} AwsEncryptionSdk {
             //# by the commitment policy (client.md#commitment-policy) configured in
             //# the client (client.md) encrypt MUST yield an error.
             var algorithmAllowed := Client.SpecificationClient()
-                    .ValidateCommitmentPolicyOnEncrypt(encMat.algorithmSuiteId, this.commitmentPolicy);
+                    .ValidateCommitmentPolicyOnEncrypt(materials.algorithmSuiteId, this.commitmentPolicy);
             :- Need(
                 algorithmAllowed.Success?,
                 "CMM return algorithm suite not supported by our commitment policy"
             );
-            var encryptedDataKeys: SerializableTypes.ESDKEncryptedDataKeys := encMat.encryptedDataKeys;
+            var encryptedDataKeys: SerializableTypes.ESDKEncryptedDataKeys := materials.encryptedDataKeys;
 
-            var canonicalEncryptionContext := EncryptionContext.GetCanonicalEncryptionContext(encMat.encryptionContext);
+            var canonicalEncryptionContext := EncryptionContext.GetCanonicalEncryptionContext(materials.encryptionContext);
 
-            var suite := Client.SpecificationClient().GetSuite(encMat.algorithmSuiteId);
+            var suite := Client.SpecificationClient().GetSuite(materials.algorithmSuiteId);
             var messageId: HeaderTypes.MessageId :- GenerateMessageId(suite);
 
             var maybeDerivedDataKeys := KeyDerivation.DeriveKeys(
-                messageId, encMat.plaintextDataKey.value, suite
+                messageId, materials.plaintextDataKey.value, suite
             );
             :- Need(maybeDerivedDataKeys.Success?, "Failed to derive data keys");
             var derivedDataKeys := maybeDerivedDataKeys.value;
@@ -203,7 +183,7 @@ module {:extern "Dafny.Aws.Esdk.AwsEncryptionSdkClient"} AwsEncryptionSdk {
                 suite,
                 canonicalEncryptionContext,
                 encryptedDataKeys,
-                frameLength,
+                frameLength as uint32,
                 derivedDataKeys.commitmentKey
             );
             :- Need(maybeBody.Success?, "Failed to build header body");
@@ -228,7 +208,7 @@ module {:extern "Dafny.Aws.Esdk.AwsEncryptionSdkClient"} AwsEncryptionSdk {
             var header := Header.HeaderInfo(
                 body := body,
                 rawHeader := rawHeader,
-                encryptionContext := encMat.encryptionContext,
+                encryptionContext := materials.encryptionContext,
                 suite := suite,
                 headerAuth := headerAuth
             );
@@ -257,9 +237,9 @@ module {:extern "Dafny.Aws.Esdk.AwsEncryptionSdkClient"} AwsEncryptionSdk {
                 var msg :- EncryptDecryptHelpers.SerializeMessageWithoutSignature(framedMessage, suite);
                 var ecdsaParams := framedMessage.finalFrame.header.suite.signature.curve;
                 // TODO: This should just work, but Proof is difficult
-                :- Need(encMat.signingKey.Some?, "Missing signing key.");
+                :- Need(materials.signingKey.Some?, "Missing signing key.");
 
-                var bytes :- Signature.Sign(ecdsaParams, encMat.signingKey.value, msg);
+                var bytes :- Signature.Sign(ecdsaParams, materials.signingKey.value, msg);
                 :- Need(|bytes| == ecdsaParams.SignatureLength() as int, "Malformed response from Sign().");
 
                 var signature := UInt16ToSeq(|bytes| as uint16) + bytes;
@@ -273,12 +253,64 @@ module {:extern "Dafny.Aws.Esdk.AwsEncryptionSdkClient"} AwsEncryptionSdk {
             }
         }
 
+        method GetEncryptionMaterials(
+            cmm: Crypto.ICryptographicMaterialsManager,
+            algorithmSuiteId: Option<Crypto.AlgorithmSuiteId>,
+            encryptionContext: Crypto.EncryptionContext,
+            maxPlaintextLength: int64
+        ) returns (res: Result<Crypto.EncryptionMaterials, string>)
+
+        ensures res.Success? ==>
+            && Client.Materials.EncryptionMaterialsWithPlaintextDataKey(res.value)
+
+        ensures res.Success? ==>
+            && SerializableTypes.IsESDKEncryptionContext(res.value.encryptionContext)
+        
+        ensures res.Success? ==>
+            && HasUint16Len(res.value.encryptedDataKeys)
+
+        ensures res.Success? ==>
+            && forall edk | edk in res.value.encryptedDataKeys
+                :: SerializableTypes.IsESDKEncryptedDataKey(edk)
+        {
+            var encMatRequest := Crypto.GetEncryptionMaterialsInput(
+                encryptionContext:=encryptionContext,
+                commitmentPolicy:=this.commitmentPolicy,
+                algorithmSuiteId:=algorithmSuiteId,
+                maxPlaintextLength:=Option.Some(maxPlaintextLength)
+            );
+
+            var getEncMatResult := cmm.GetEncryptionMaterials(encMatRequest);
+            var output :- match getEncMatResult {
+                case Success(value) => Success(value)
+                case Failure(exception) => Failure(exception.GetMessage())
+            };
+
+            var materials := output.encryptionMaterials;
+
+            // Validations to ensure we got back materials that we can use
+            :- Need(
+                Client.Materials.EncryptionMaterialsWithPlaintextDataKey(materials),
+                "CMM returned invalid EncryptionMaterials"
+            );
+            :- Need(
+                SerializableTypes.IsESDKEncryptionContext(materials.encryptionContext),
+                "CMM failed to return serializable encryption materials."
+            );
+            :- Need(HasUint16Len(materials.encryptedDataKeys), "CMM returned EDKs that exceed the allowed maximum.");
+            :- Need(forall edk | edk in materials.encryptedDataKeys
+                :: SerializableTypes.IsESDKEncryptedDataKey(edk),
+                "CMM returned non-serializable encrypted data key.");
+
+            return Success(materials);
+        }
+
         /*
          * Generate a message id of appropriate length for the given algorithm suite.
          */
         method GenerateMessageId(
             suite: Client.AlgorithmSuites.AlgorithmSuite
-        ) returns (res: Result<seq<uint8>, string>)
+        ) returns (res: Result<HeaderTypes.MessageId, string>)
 
         ensures
             && res.Success?
@@ -303,16 +335,18 @@ module {:extern "Dafny.Aws.Esdk.AwsEncryptionSdkClient"} AwsEncryptionSdk {
         }
 
         method BuildHeaderBody(
-            messageId: seq<uint8>,
+            messageId: HeaderTypes.MessageId,
             suite: Client.AlgorithmSuites.AlgorithmSuite,
             encryptionContext: EncryptionContext.ESDKCanonicalEncryptionContext,
             encryptedDataKeys: SerializableTypes.ESDKEncryptedDataKeys,
-            frameLength: int64,
+            frameLength: uint32,
             suiteData: Option<seq<uint8>>
         ) returns (res: Result<HeaderTypes.HeaderBody, string>)
 
         // Correct construction of V2 headers
-        ensures suite.messageVersion == 2
+        ensures
+            && res.Success?
+            && suite.messageVersion == 2
         ==>
             && var esdkAlgorithmSuiteId := SerializableTypes.GetESDKAlgorithmSuiteId(suite.id);
             && suiteData.Some? // V2 must have suiteData
@@ -322,12 +356,14 @@ module {:extern "Dafny.Aws.Esdk.AwsEncryptionSdkClient"} AwsEncryptionSdk {
                 encryptionContext := encryptionContext,
                 encryptedDataKeys := encryptedDataKeys,
                 contentType := HeaderTypes.ContentType.Framed, // TODO: may need to change to support non-framed
-                frameLength := frameLength as uint32,
+                frameLength := frameLength,
                 suiteData := suiteData.value
             )
 
         // Correct construction of V1 headers
-        ensures suite.messageVersion == 1
+        ensures
+            && res.Success?
+            && suite.messageVersion == 1
         ==>
             && var esdkAlgorithmSuiteId := SerializableTypes.GetESDKAlgorithmSuiteId(suite.id);
             && res.value == HeaderTypes.HeaderBody.V1HeaderBody(
@@ -338,7 +374,7 @@ module {:extern "Dafny.Aws.Esdk.AwsEncryptionSdkClient"} AwsEncryptionSdk {
                 encryptedDataKeys := encryptedDataKeys,
                 contentType := HeaderTypes.ContentType.Framed, // TODO: may need to change to support non-framed
                 headerIvLength := suite.encrypt.ivLength as nat,
-                frameLength := frameLength as uint32
+                frameLength := frameLength
             )
         {
             var esdkAlgorithmSuiteId := SerializableTypes.GetESDKAlgorithmSuiteId(suite.id);
@@ -352,7 +388,7 @@ module {:extern "Dafny.Aws.Esdk.AwsEncryptionSdkClient"} AwsEncryptionSdk {
                     encryptionContext := encryptionContext,
                     encryptedDataKeys := encryptedDataKeys,
                     contentType := HeaderTypes.ContentType.Framed,
-                    frameLength := frameLength as uint32,
+                    frameLength := frameLength,
                     suiteData := suiteData.value
                 );
                 return Success(body);
@@ -365,7 +401,7 @@ module {:extern "Dafny.Aws.Esdk.AwsEncryptionSdkClient"} AwsEncryptionSdk {
                     encryptedDataKeys := encryptedDataKeys,
                     contentType := HeaderTypes.ContentType.Framed,
                     headerIvLength := suite.encrypt.ivLength as nat,
-                    frameLength := frameLength as uint32
+                    frameLength := frameLength
                 );
                 return Success(body);
             }
@@ -538,8 +574,12 @@ module {:extern "Dafny.Aws.Esdk.AwsEncryptionSdkClient"} AwsEncryptionSdk {
         expectedSuiteData: seq<uint8>
     ) returns (res: Result<bool, string>)
 
-    // Validating suite data is only relevant for v2 messages
-    requires suite.messageVersion == 2
+    // Validating suite data is only relevant for suites with commitment
+    requires suite.commitment.HKDF?
+
+    // We can't dereference the 'suiteData' portion of the body, which only exists
+    // in V2 headers, unless we know we have a V2HeaderBody
+    requires header.V2HeaderBody?
 
     // Happy case
     ensures res.Success? ==> header.suiteData == expectedSuiteData
