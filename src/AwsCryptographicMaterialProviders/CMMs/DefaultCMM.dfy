@@ -150,7 +150,7 @@ module
       ensures
         (
           AlgorithmSuites.GetSuite(input.algorithmSuiteId).signature.None?
-          ==
+          <==>
           (Materials.EC_PUBLIC_KEY_FIELD in input.encryptionContext)
         )
         ==> res.Failure?
@@ -241,6 +241,10 @@ module
       ==>
         && Materials.ValidDecryptionMaterials(res.value)
         && res.value.algorithmSuiteId == suite.id
+      ensures
+        (suite.signature.None? <==> Materials.EC_PUBLIC_KEY_FIELD in encryptionContext)
+      ==>
+        res.Failure?
     {
       match suite.signature
         case None =>
