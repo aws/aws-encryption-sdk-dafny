@@ -108,7 +108,7 @@ module {:extern "Dafny.Aws.Crypto"} Aws.Crypto {
 
     trait {:termination false} IClientSupplier {
         method GetClient(input: GetClientInput)
-            returns (res: Result<KMS.IKeyManagementServiceClient, IAwsCryptographicMaterialProvidersException>)
+            returns (res: Result<KMS.IKeyManagementServiceClient, AwsCryptographicMaterialProvidersClientException>)
     }
 
     datatype CreateDefaultClientSupplierInput = CreateDefaultClientSupplierInput()

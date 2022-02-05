@@ -11,7 +11,7 @@ using Wrappers_Compile;
 namespace DefaultClientSupplier {
 
     public partial class DefaultClientSupplier {
-        public _IResult<Dafny.Com.Amazonaws.Kms.IKeyManagementServiceClient, Dafny.Aws.Crypto.IAwsCryptographicMaterialProvidersException> GetClient(Dafny.Aws.Crypto._IGetClientInput input)
+        public _IResult<Dafny.Com.Amazonaws.Kms.IKeyManagementServiceClient, Dafny.Aws.Crypto.AwsCryptographicMaterialProvidersClientException> GetClient(Dafny.Aws.Crypto._IGetClientInput input)
         {
             try
             {
@@ -28,14 +28,14 @@ namespace DefaultClientSupplier {
                 }
 
                 return Result<Dafny.Com.Amazonaws.Kms.IKeyManagementServiceClient,
-                    Dafny.Aws.Crypto.IAwsCryptographicMaterialProvidersException>.create_Success(
+                    Dafny.Aws.Crypto.AwsCryptographicMaterialProvidersClientException>.create_Success(
                     TypeConversion.ToDafny_N3_aws__N6_crypto__S15_GetClientOutput(client)
                 );
             }
             catch (AmazonServiceException e)
             {
                 return Result<Dafny.Com.Amazonaws.Kms.IKeyManagementServiceClient,
-                    Dafny.Aws.Crypto.IAwsCryptographicMaterialProvidersException>.create_Failure(
+                    Dafny.Aws.Crypto.AwsCryptographicMaterialProvidersClientException>.create_Failure(
                     TypeConversion.ToDafny_N3_aws__N6_crypto__S48_AwsCryptographicMaterialProvidersClientException(new AwsCryptographicMaterialProvidersClientException(e.Message))
                 );
             }
