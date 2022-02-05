@@ -178,8 +178,13 @@ module {:extern "Dafny.Aws.Esdk.AwsEncryptionSdkClient"} AwsEncryptionSdk {
             :- Need(maybeDerivedDataKeys.Success?, "Failed to derive data keys");
             var derivedDataKeys := maybeDerivedDataKeys.value;
 
+            // TODO: KeyDerivation.DeriveKeys includes both of the below as post-conditions, so in
+            // theory the verifier should know this. However, if I remove them verification times
+            // go way up.
             if suite.messageVersion == 2 {
                 :- Need(derivedDataKeys.commitmentKey.Some?, "Message version 2 requires suite data");
+            } else if suite.messageVersion == 1 {
+                :- Need(derivedDataKeys.commitmentKey.None?, "Message version 1 requires no suite data");
             }
 
             var maybeBody := BuildHeaderBody(
@@ -192,10 +197,9 @@ module {:extern "Dafny.Aws.Esdk.AwsEncryptionSdkClient"} AwsEncryptionSdk {
             );
 
             :- Need(maybeBody.Success?, "Failed to build header body");
-
-            var body := maybeBody.value;
             assert false;
 
+            var body := maybeBody.value;
             var rawHeader := Header.WriteHeaderBody(body);
             assert false;
 
@@ -352,6 +356,7 @@ module {:extern "Dafny.Aws.Esdk.AwsEncryptionSdkClient"} AwsEncryptionSdk {
         ) returns (res: Result<HeaderTypes.HeaderBody, string>)
 
         requires suite.messageVersion == 2 ==> suiteData.Some?
+        requires suite.messageVersion == 1 ==> suiteData.None?
 
         // Correct construction of V2 headers
         ensures
@@ -365,7 +370,7 @@ module {:extern "Dafny.Aws.Esdk.AwsEncryptionSdkClient"} AwsEncryptionSdk {
                 messageId := messageId,
                 encryptionContext := encryptionContext,
                 encryptedDataKeys := encryptedDataKeys,
-                contentType := HeaderTypes.ContentType.Framed, // TODO: may need to change to support non-framed
+                contentType := HeaderTypes.ContentType.Framed,
                 frameLength := frameLength,
                 suiteData := suiteData.value
             )

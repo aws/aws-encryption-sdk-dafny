@@ -60,7 +60,7 @@ module {:extern "KeyDerivation"} KeyDerivation {
     assert IsDerivedKey(derivedKey) by {
       reveal IsDerivedKey();
     }
-      return Success(ExpandedKeyMaterial(dataKey:=derivedKey, commitmentKey:=None()));
+    return Success(ExpandedKeyMaterial(dataKey:=derivedKey, commitmentKey:=None()));
   }
 
   predicate {:opaque} IsDerivedKey(derivedDataKey: seq<uint8>)
