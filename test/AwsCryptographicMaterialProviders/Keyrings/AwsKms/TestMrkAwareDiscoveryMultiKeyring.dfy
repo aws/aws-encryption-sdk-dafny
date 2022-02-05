@@ -47,7 +47,11 @@ module TestMrkAwareDiscoveryMultiKeyring {
       Crypto.OnEncryptInput(materials:=encryptionMaterials)
     );
     match result {
-      case Failure(error) => print error.GetMessage();
+      case Failure(error) => {
+        var castError := error as Crypto.IAwsCryptographicMaterialProvidersException;
+        print error.GetMessage();
+      }
+      
       case Success(value) => return;
     }
     expect result.Success?;
