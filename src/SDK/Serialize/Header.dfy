@@ -45,7 +45,8 @@ datatype HeaderInfo = HeaderInfo(
   predicate IsHeader(h: HeaderInfo)
   {
     && GetESDKAlgorithmSuiteId(h.suite.id) == h.body.esdkSuiteId
-    && h.body.contentType.NonFramed? <==> 0 == h.body.frameLength
+    // TODO: possibly bring back when we add support for non-framed
+    //&& h.body.contentType.NonFramed? <==> 0 == h.body.frameLength
     && h.body.contentType.Framed? <==> 0 < h.body.frameLength
     && HeaderAuth?(h.suite, h.headerAuth)
     && HeaderVersionSupportsCommitment?(h.suite, h.body)

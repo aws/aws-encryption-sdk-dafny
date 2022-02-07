@@ -306,19 +306,22 @@ module {:extern "Dafny.Aws.Esdk.AwsEncryptionSdkClient"} AwsEncryptionSdk {
             encryptedDataKeys: SerializableTypes.ESDKEncryptedDataKeys,
             frameLength: uint32,
             suiteData: Option<seq<uint8>>
-        ) returns (res: Result<HeaderTypes.HeaderBody, string>)
+        ) returns (res: HeaderTypes.HeaderBody)
 
-        requires suite.messageVersion == 2 ==> suiteData.Some?
-        requires suite.messageVersion == 1 ==> suiteData.None?
+        requires suite.commitment.HKDF? ==>
+            && suiteData.Some?
+            && |suiteData.value| == suite.commitment.outputKeyLength as int
+
+        // This ensures that our header is internally consistent with respect to
+        // commitment (e.g. creating the right header version for the given suite)
+        ensures Header.HeaderVersionSupportsCommitment?(suite, res)
 
         // Correct construction of V2 headers
         ensures
-            && res.Success?
-            && suite.messageVersion == 2
+            && suite.commitment.HKDF?
         ==>
-            && res.value.V2HeaderBody?
             && var esdkAlgorithmSuiteId := SerializableTypes.GetESDKAlgorithmSuiteId(suite.id);
-            && res.value == HeaderTypes.HeaderBody.V2HeaderBody(
+            && res == HeaderTypes.HeaderBody.V2HeaderBody(
                 esdkSuiteId := esdkAlgorithmSuiteId,
                 messageId := messageId,
                 encryptionContext := encryptionContext,
@@ -330,12 +333,10 @@ module {:extern "Dafny.Aws.Esdk.AwsEncryptionSdkClient"} AwsEncryptionSdk {
 
         // Correct construction of V1 headers
         ensures
-            && res.Success?
-            && suite.messageVersion == 1
+            && suite.commitment.None?
         ==>
-            && res.value.V1HeaderBody?
             && var esdkAlgorithmSuiteId := SerializableTypes.GetESDKAlgorithmSuiteId(suite.id);
-            && res.value == HeaderTypes.HeaderBody.V1HeaderBody(
+            && res == HeaderTypes.HeaderBody.V1HeaderBody(
                 messageType := HeaderTypes.MessageType.TYPE_CUSTOMER_AED,
                 esdkSuiteId := esdkAlgorithmSuiteId,
                 messageId := messageId,
@@ -345,21 +346,11 @@ module {:extern "Dafny.Aws.Esdk.AwsEncryptionSdkClient"} AwsEncryptionSdk {
                 headerIvLength := suite.encrypt.ivLength as nat,
                 frameLength := frameLength
             )
-
-        /* TODO: Including this makes verification time balloon. Why?
-        ensures
-        (
-            && suite.messageVersion != 1
-            && suite.messageVersion != 2
-        )
-        ==>
-            res.Failure?
-        */
         {
             var esdkAlgorithmSuiteId := SerializableTypes.GetESDKAlgorithmSuiteId(suite.id);
 
-            match suite.messageVersion {
-                case 1 => return Success(HeaderTypes.HeaderBody.V1HeaderBody(
+            match suite.commitment {
+                case None => return HeaderTypes.HeaderBody.V1HeaderBody(
                     messageType := HeaderTypes.MessageType.TYPE_CUSTOMER_AED,
                     esdkSuiteId := esdkAlgorithmSuiteId,
                     messageId := messageId,
@@ -368,8 +359,8 @@ module {:extern "Dafny.Aws.Esdk.AwsEncryptionSdkClient"} AwsEncryptionSdk {
                     contentType := HeaderTypes.ContentType.Framed,
                     headerIvLength := suite.encrypt.ivLength as nat,
                     frameLength := frameLength
-                ));
-                case 2 => return Success(HeaderTypes.HeaderBody.V2HeaderBody(
+                );
+                case HKDF => return HeaderTypes.HeaderBody.V2HeaderBody(
                     esdkSuiteId := esdkAlgorithmSuiteId,
                     messageId := messageId,
                     encryptionContext := encryptionContext,
@@ -377,9 +368,37 @@ module {:extern "Dafny.Aws.Esdk.AwsEncryptionSdkClient"} AwsEncryptionSdk {
                     contentType := HeaderTypes.ContentType.Framed,
                     frameLength := frameLength,
                     suiteData := suiteData.value
-                ));
-                case _ => return Failure("");
+                );
             }
+        }
+
+        method BuildHeaderAuthTag(
+            suite: Client.AlgorithmSuites.AlgorithmSuite,
+            dataKey: seq<uint8>,
+            rawHeader: seq<uint8>
+        )
+            returns (res: Result<HeaderTypes.HeaderAuth, string>)
+
+            ensures res.Success? ==> Header.HeaderAuth?(suite, res.value)
+        {
+            var keyLength := suite.encrypt.keyLength as int;
+            :- Need(|dataKey| == keyLength, "Incorrect data key length");
+
+            var ivLength := suite.encrypt.ivLength as int;
+            var iv: seq<uint8> := seq(ivLength, _ => 0);
+
+            var encryptionOutput :- AESEncryption.AESEncrypt(
+                suite.encrypt,
+                iv,
+                dataKey,
+                [],
+                rawHeader
+            );
+            var headerAuth := HeaderTypes.HeaderAuth.AESMac(
+                headerIv := iv,
+                headerAuthTag := encryptionOutput.authTag
+            );
+            return Success(headerAuth);
         }
 
         method BuildHeader(
@@ -391,17 +410,23 @@ module {:extern "Dafny.Aws.Esdk.AwsEncryptionSdkClient"} AwsEncryptionSdk {
             materials: Crypto.EncryptionMaterials,
             derivedDataKeys: KeyDerivation.ExpandedKeyMaterial
         ) returns (res: Result<Header.HeaderInfo, string>)
+
+        requires SerializableTypes.IsESDKEncryptionContext(materials.encryptionContext)
+
+        // TODO: may need changing when we need to support non-framed
+        requires frameLength > 0
+
+        ensures res.Success? ==> Header.IsHeader(res.value)
         {
-            // TODO: KeyDerivation.DeriveKeys includes both of the below as post-conditions, so in
-            // theory the verifier should know this. However, if I remove them verification times
-            // go way up.
-            if suite.messageVersion == 2 {
+            // TODO: possibly move to `requires` clauses and have the calling function check this
+            if suite.commitment.HKDF? {
                 :- Need(derivedDataKeys.commitmentKey.Some?, "Message version 2 requires suite data");
-            } else if suite.messageVersion == 1 {
-                :- Need(derivedDataKeys.commitmentKey.None?, "Message version 1 requires no suite data");
+                :- Need(
+                    |derivedDataKeys.commitmentKey.value| == suite.commitment.outputKeyLength as int,
+                    "Incorrect commitment key length for provided algorithm suite");
             }
 
-            var maybeBody := BuildHeaderBody(
+            var body := BuildHeaderBody(
                 messageId,
                 suite,
                 encryptionContext,
@@ -410,24 +435,9 @@ module {:extern "Dafny.Aws.Esdk.AwsEncryptionSdkClient"} AwsEncryptionSdk {
                 derivedDataKeys.commitmentKey
             );
 
-            :- Need(maybeBody.Success?, "Failed to build header body");
-
-            var body := maybeBody.value;
             var rawHeader := Header.WriteHeaderBody(body);
-            assert false;
 
-            var iv: seq<uint8> := seq(suite.encrypt.ivLength as int, _ => 0);
-            var encryptionOutput :- AESEncryption.AESEncrypt(
-                suite.encrypt,
-                iv,
-                derivedDataKeys.dataKey,
-                [],
-                rawHeader
-            );
-            var headerAuth := HeaderTypes.HeaderAuth.AESMac(
-                headerIv := iv,
-                headerAuthTag := encryptionOutput.authTag
-            );
+            var headerAuth :- BuildHeaderAuthTag(suite, derivedDataKeys.dataKey, rawHeader);
 
             var header := Header.HeaderInfo(
                 body := body,
@@ -436,7 +446,6 @@ module {:extern "Dafny.Aws.Esdk.AwsEncryptionSdkClient"} AwsEncryptionSdk {
                 suite := suite,
                 headerAuth := headerAuth
             );
-            assert false;
 
             // Add headerAuth requirements to Header type
             assert Header.CorrectlyReadHeaderBody(
@@ -448,8 +457,6 @@ module {:extern "Dafny.Aws.Esdk.AwsEncryptionSdkClient"} AwsEncryptionSdk {
                     )
                 )
             );
-            assert Header.HeaderAuth?(suite, headerAuth);
-            assert Header.IsHeader(header);
 
             return Success(header);
         }
