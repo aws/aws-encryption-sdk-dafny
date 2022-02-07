@@ -38,8 +38,7 @@ module TestDefaultClientProvider {
     }
 
     expect clientRes.Success?;
-    assert clientRes.Success?;
-    assert client != null;
+    expect client != null;
     
     var kmsRequest := KMS.GenerateDataKeyRequest(
       KeyId := TestUtils.SHARED_TEST_KEY_ARN,
@@ -56,6 +55,6 @@ module TestDefaultClientProvider {
       }
       case Success(value) => return;
     }
+    expect kmsReply.Success?;
   }
-
 }
