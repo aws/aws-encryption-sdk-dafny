@@ -137,6 +137,9 @@ module {:extern "KeyDerivation"} KeyDerivation {
     requires |plaintextKey| == suite.encrypt.keyLength as int
     requires |plaintextKey| < INT32_MAX_LIMIT
 
+    ensures res.Success? ==>
+      |res.value.dataKey| == suite.encrypt.keyLength as nat
+
     ensures
       && res.Success?
       && suite.messageVersion == 1

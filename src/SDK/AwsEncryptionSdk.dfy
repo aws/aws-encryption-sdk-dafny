@@ -165,9 +165,8 @@ module {:extern "Dafny.Aws.Esdk.AwsEncryptionSdkClient"} AwsEncryptionSdk {
                 algorithmAllowed.Success?,
                 "CMM return algorithm suite not supported by our commitment policy"
             );
-            var encryptedDataKeys: SerializableTypes.ESDKEncryptedDataKeys := materials.encryptedDataKeys;
 
-            var canonicalEncryptionContext := EncryptionContext.GetCanonicalEncryptionContext(materials.encryptionContext);
+            var encryptedDataKeys: SerializableTypes.ESDKEncryptedDataKeys := materials.encryptedDataKeys;
 
             var suite := Client.SpecificationClient().GetSuite(materials.algorithmSuiteId);
             var messageId: HeaderTypes.MessageId :- GenerateMessageId(suite);
@@ -178,13 +177,17 @@ module {:extern "Dafny.Aws.Esdk.AwsEncryptionSdkClient"} AwsEncryptionSdk {
             :- Need(maybeDerivedDataKeys.Success?, "Failed to derive data keys");
             var derivedDataKeys := maybeDerivedDataKeys.value;
 
+            if (suite.commitment.HKDF?) {
+                :- Need(derivedDataKeys.commitmentKey.Some?, "foo");
+                :- Need(|derivedDataKeys.commitmentKey.value| == suite.commitment.outputKeyLength as int, "foo");
+            }
+
             var maybeHeader := BuildHeader(
                 messageId,
                 suite,
-                canonicalEncryptionContext,
+                materials.encryptionContext,
                 encryptedDataKeys,
                 frameLength as uint32,
-                materials,
                 derivedDataKeys
             );
 
@@ -404,19 +407,27 @@ module {:extern "Dafny.Aws.Esdk.AwsEncryptionSdkClient"} AwsEncryptionSdk {
         method BuildHeader(
             messageId: HeaderTypes.MessageId,
             suite: Client.AlgorithmSuites.AlgorithmSuite,
-            encryptionContext: EncryptionContext.ESDKCanonicalEncryptionContext,
+            encryptionContext: Crypto.EncryptionContext,
             encryptedDataKeys: SerializableTypes.ESDKEncryptedDataKeys,
             frameLength: uint32,
-            materials: Crypto.EncryptionMaterials,
             derivedDataKeys: KeyDerivation.ExpandedKeyMaterial
         ) returns (res: Result<Header.HeaderInfo, string>)
 
-        requires SerializableTypes.IsESDKEncryptionContext(materials.encryptionContext)
+        requires SerializableTypes.IsESDKEncryptionContext(encryptionContext)
 
         // TODO: may need changing when we need to support non-framed
         requires frameLength > 0
 
+        // Make sure the output correctly uses the values that were given as input
+        ensures res.Success? ==>
+            && res.value.suite == suite
+            && res.value.body.frameLength == frameLength
+            && res.value.encryptionContext == encryptionContext
+
         ensures res.Success? ==> Header.IsHeader(res.value)
+
+        // TODO: change when we need to support non-framed
+        ensures res.Success? ==> res.value.body.contentType.Framed?
         {
             // TODO: possibly move to `requires` clauses and have the calling function check this
             if suite.commitment.HKDF? {
@@ -426,10 +437,12 @@ module {:extern "Dafny.Aws.Esdk.AwsEncryptionSdkClient"} AwsEncryptionSdk {
                     "Incorrect commitment key length for provided algorithm suite");
             }
 
+            var canonicalEncryptionContext := EncryptionContext.GetCanonicalEncryptionContext(encryptionContext);
+
             var body := BuildHeaderBody(
                 messageId,
                 suite,
-                encryptionContext,
+                canonicalEncryptionContext,
                 encryptedDataKeys,
                 frameLength as uint32,
                 derivedDataKeys.commitmentKey
@@ -442,7 +455,7 @@ module {:extern "Dafny.Aws.Esdk.AwsEncryptionSdkClient"} AwsEncryptionSdk {
             var header := Header.HeaderInfo(
                 body := body,
                 rawHeader := rawHeader,
-                encryptionContext := materials.encryptionContext,
+                encryptionContext := encryptionContext,
                 suite := suite,
                 headerAuth := headerAuth
             );
