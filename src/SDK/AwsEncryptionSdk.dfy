@@ -178,65 +178,18 @@ module {:extern "Dafny.Aws.Esdk.AwsEncryptionSdkClient"} AwsEncryptionSdk {
             :- Need(maybeDerivedDataKeys.Success?, "Failed to derive data keys");
             var derivedDataKeys := maybeDerivedDataKeys.value;
 
-            // TODO: KeyDerivation.DeriveKeys includes both of the below as post-conditions, so in
-            // theory the verifier should know this. However, if I remove them verification times
-            // go way up.
-            if suite.messageVersion == 2 {
-                :- Need(derivedDataKeys.commitmentKey.Some?, "Message version 2 requires suite data");
-            } else if suite.messageVersion == 1 {
-                :- Need(derivedDataKeys.commitmentKey.None?, "Message version 1 requires no suite data");
-            }
-
-            var maybeBody := BuildHeaderBody(
+            var maybeHeader := BuildHeader(
                 messageId,
                 suite,
                 canonicalEncryptionContext,
                 encryptedDataKeys,
                 frameLength as uint32,
-                derivedDataKeys.commitmentKey
+                materials,
+                derivedDataKeys
             );
 
-            :- Need(maybeBody.Success?, "Failed to build header body");
-            assert false;
-
-            var body := maybeBody.value;
-            var rawHeader := Header.WriteHeaderBody(body);
-            assert false;
-
-            var iv: seq<uint8> := seq(suite.encrypt.ivLength as int, _ => 0);
-            var encryptionOutput :- AESEncryption.AESEncrypt(
-                suite.encrypt,
-                iv,
-                derivedDataKeys.dataKey,
-                [],
-                rawHeader
-            );
-            var headerAuth := HeaderTypes.HeaderAuth.AESMac(
-                headerIv := iv,
-                headerAuthTag := encryptionOutput.authTag
-            );
-
-            var header := Header.HeaderInfo(
-                body := body,
-                rawHeader := rawHeader,
-                encryptionContext := materials.encryptionContext,
-                suite := suite,
-                headerAuth := headerAuth
-            );
-            assert false;
-
-            // Add headerAuth requirements to Header type
-            assert Header.CorrectlyReadHeaderBody(
-                SerializeFunctions.ReadableBuffer(rawHeader, 0),
-                Success(
-                    SerializeFunctions.SuccessfulRead(
-                        body,
-                        SerializeFunctions.ReadableBuffer(rawHeader, |rawHeader|)
-                    )
-                )
-            );
-            assert Header.HeaderAuth?(suite, headerAuth);
-            assert Header.IsHeader(header);
+            :- Need(maybeHeader.Success?, "Failed to build header body");
+            var header := maybeHeader.value;
 
             // Encrypt the given plaintext into the framed message
             var framedMessage :- MessageBody.EncryptMessageBody(
@@ -427,6 +380,78 @@ module {:extern "Dafny.Aws.Esdk.AwsEncryptionSdkClient"} AwsEncryptionSdk {
                 ));
                 case _ => return Failure("");
             }
+        }
+
+        method BuildHeader(
+            messageId: HeaderTypes.MessageId,
+            suite: Client.AlgorithmSuites.AlgorithmSuite,
+            encryptionContext: EncryptionContext.ESDKCanonicalEncryptionContext,
+            encryptedDataKeys: SerializableTypes.ESDKEncryptedDataKeys,
+            frameLength: uint32,
+            materials: Crypto.EncryptionMaterials,
+            derivedDataKeys: KeyDerivation.ExpandedKeyMaterial
+        ) returns (res: Result<Header.HeaderInfo, string>)
+        {
+            // TODO: KeyDerivation.DeriveKeys includes both of the below as post-conditions, so in
+            // theory the verifier should know this. However, if I remove them verification times
+            // go way up.
+            if suite.messageVersion == 2 {
+                :- Need(derivedDataKeys.commitmentKey.Some?, "Message version 2 requires suite data");
+            } else if suite.messageVersion == 1 {
+                :- Need(derivedDataKeys.commitmentKey.None?, "Message version 1 requires no suite data");
+            }
+
+            var maybeBody := BuildHeaderBody(
+                messageId,
+                suite,
+                encryptionContext,
+                encryptedDataKeys,
+                frameLength as uint32,
+                derivedDataKeys.commitmentKey
+            );
+
+            :- Need(maybeBody.Success?, "Failed to build header body");
+
+            var body := maybeBody.value;
+            var rawHeader := Header.WriteHeaderBody(body);
+            assert false;
+
+            var iv: seq<uint8> := seq(suite.encrypt.ivLength as int, _ => 0);
+            var encryptionOutput :- AESEncryption.AESEncrypt(
+                suite.encrypt,
+                iv,
+                derivedDataKeys.dataKey,
+                [],
+                rawHeader
+            );
+            var headerAuth := HeaderTypes.HeaderAuth.AESMac(
+                headerIv := iv,
+                headerAuthTag := encryptionOutput.authTag
+            );
+
+            var header := Header.HeaderInfo(
+                body := body,
+                rawHeader := rawHeader,
+                encryptionContext := materials.encryptionContext,
+                suite := suite,
+                headerAuth := headerAuth
+            );
+            assert false;
+
+            // Add headerAuth requirements to Header type
+            assert Header.CorrectlyReadHeaderBody(
+                SerializeFunctions.ReadableBuffer(rawHeader, 0),
+                Success(
+                    SerializeFunctions.SuccessfulRead(
+                        body,
+                        SerializeFunctions.ReadableBuffer(rawHeader, |rawHeader|)
+                    )
+                )
+            );
+            assert Header.HeaderAuth?(suite, headerAuth);
+            assert Header.IsHeader(header);
+
+            return Success(header);
         }
 
         // See Encrypt/EncryptInternal for an explanation of why we separate Decrypt and DecryptInternal.
