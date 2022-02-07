@@ -40,6 +40,8 @@ module {:extern "KeyDerivation"} KeyDerivation {
 
     // This should only be used for v1 algorithms
     requires suite.messageVersion == 1
+    requires suite.commitment.None?
+
     requires |plaintextDataKey| == suite.encrypt.keyLength as int
 
     ensures res.Success? ==> |res.value.dataKey| == suite.encrypt.keyLength as int
@@ -81,6 +83,7 @@ module {:extern "KeyDerivation"} KeyDerivation {
 
     // This should only be used for v2 algorithms
     requires suite.messageVersion == 2
+    requires suite.commitment.HKDF?
 
     requires |messageId| != 0
     requires |plaintextKey| == suite.encrypt.keyLength as int
@@ -89,10 +92,9 @@ module {:extern "KeyDerivation"} KeyDerivation {
     // anywhere that keys be small.
     requires |plaintextKey| < INT32_MAX_LIMIT
 
-    ensures
-      && res.Success?
-    ==>
-      res.value.commitmentKey.Some?
+    ensures res.Success? ==> res.value.commitmentKey.Some?
+    ensures res.Success? ==> |res.value.dataKey| == suite.encrypt.keyLength as int
+
   {
     var KEY_LABEL :- UTF8.Encode("DERIVEKEY");
     var COMMIT_LABEL :- UTF8.Encode("COMMITKEY");
@@ -106,29 +108,18 @@ module {:extern "KeyDerivation"} KeyDerivation {
 
     var pseudoRandomKey := HKDF.Extract(hmac, messageId, plaintextKey, hmac.GetDigest());
 
-    var Ke := Expand(digest, pseudoRandomKey, info, suite.encrypt.keyLength as int, messageId);
-    var Kc := Expand(digest, pseudoRandomKey, COMMIT_LABEL, suite.encrypt.keyLength as int, messageId);
+    // TODO: Ideally we would just use the same hmac instance for all of these; however,
+    // verification is currently failing if we attempt to re-use hmacs between `Expand`
+    // calls. This likely requires some fixing of pre-/post-conditions on the HKDF methods
+    var hmac_ke := new HMAC.HMac(digest);
+    hmac_ke.Init(messageId);
+    var Ke, _ := HKDF.Expand(hmac_ke, pseudoRandomKey, info, suite.encrypt.keyLength as int, digest, messageId);
+
+    var hmac_kc := new HMAC.HMac(digest);
+    hmac_kc.Init(messageId);
+    var Kc, _ := HKDF.Expand(hmac_kc, pseudoRandomKey, info, suite.encrypt.keyLength as int, digest, messageId);
 
     return Success(ExpandedKeyMaterial(dataKey:=Ke, commitmentKey:=Some(Kc)));
-  }
-
-  /*
-   * Primarily a wrapper around HKDF.Expand. Saves us a little bit of duplication since
-   * we need to expand multiple keys.
-   */
-  method Expand(
-    digest: HMAC.Digests,
-    pseudoRandomKey: seq<uint8>,
-    info: seq<uint8>,
-    length: int,
-    messageId: seq<uint8>
-  ) returns (res: seq<uint8>)
-  {
-    var hmac := new HMAC.HMac(digest);
-    hmac.Init(messageId);
-
-    var key, _ := HKDF.Expand(hmac, pseudoRandomKey, info, length, digest, messageId);
-    return key;
   }
 
   /*
@@ -160,8 +151,10 @@ module {:extern "KeyDerivation"} KeyDerivation {
   {
     var keys : ExpandedKeyMaterial;
     if (suite.messageVersion == 2) {
+      :- Need(suite.commitment.HKDF?, "Suites with message version 2 must have commitment");
       keys :- ExpandKeyMaterial(messageId, plaintextKey, suite);
     } else if (suite.messageVersion == 1) {
+      :- Need(suite.commitment.None?, "Suites with message version 1 must not have commitment");
       keys :- DeriveKey(messageId, plaintextKey, suite);
     } else {
       return Failure("Unknown message version");

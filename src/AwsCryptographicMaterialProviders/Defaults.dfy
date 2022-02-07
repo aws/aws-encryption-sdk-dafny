@@ -8,7 +8,6 @@ module {:extern "Defaults"} Defaults {
   import Aws.Crypto
 
   /* Returns the default algorithm suite for the given commitment policy */
-  // TODO: move to default commitment algorithms once supported by the rest of the code
   function method GetAlgorithmSuiteForCommitmentPolicy(commitmentPolicy: Crypto.CommitmentPolicy):
     (res: Crypto.AlgorithmSuiteId)
 

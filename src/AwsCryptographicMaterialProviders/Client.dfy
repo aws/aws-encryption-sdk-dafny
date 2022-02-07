@@ -98,7 +98,7 @@ module
     function method ValidateCommitmentPolicyOnEncrypt(
       algorithm: Crypto.AlgorithmSuiteId,
       commitmentPolicy: Crypto.CommitmentPolicy
-    ): (res: Result<bool, string>)
+    ): (res: Result<(), string>)
     {
       Commitment.ValidateCommitmentPolicyOnEncrypt(algorithm, commitmentPolicy)
     }
@@ -106,7 +106,7 @@ module
     function method ValidateCommitmentPolicyOnDecrypt(
       algorithm: Crypto.AlgorithmSuiteId,
       commitmentPolicy: Crypto.CommitmentPolicy
-    ): (res: Result<bool, string>)
+    ): (res: Result<(), string>)
     {
       Commitment.ValidateCommitmentPolicyOnDecrypt(algorithm, commitmentPolicy)
     }

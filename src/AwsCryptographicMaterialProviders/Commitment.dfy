@@ -22,9 +22,7 @@ module {:extern "Dafny.Aws.Crypto.MaterialProviders.Commitment"} MaterialProvide
     algorithm: Crypto.AlgorithmSuiteId,
     commitmentPolicy: Crypto.CommitmentPolicy
   ):
-    // Bool return type on success is somewhat arbitrary; mainly we care about
-    // success/failure
-    (res: Result<bool, string>)
+    (res: Result<(), string>)
 
     // Failure: Commitment policy forbids encrypting with commitment but the
     // algorithm provides it
@@ -91,7 +89,7 @@ module {:extern "Dafny.Aws.Crypto.MaterialProviders.Commitment"} MaterialProvide
     then
       Failure("Configuration conflict. Commitment policy requires only committing algorithm suites")
     else
-      Success(true)
+      Success(())
   }
 
   /*
@@ -104,7 +102,7 @@ module {:extern "Dafny.Aws.Crypto.MaterialProviders.Commitment"} MaterialProvide
   ):
     // Bool return type on success is somewhat arbitrary; mainly we care about
     // success/failure
-    (res: Result<bool, string>)
+    (res: Result<(), string>)
 
     // Failure: Commitment policy requires decrypting with commitment but the
     // algorithm does not provide it
@@ -151,6 +149,6 @@ module {:extern "Dafny.Aws.Crypto.MaterialProviders.Commitment"} MaterialProvide
     then
       Failure("Configuration conflict. Commitment policy requires only committing algorithm suites")
     else
-      Success(true)
+      Success(())
   }
 }

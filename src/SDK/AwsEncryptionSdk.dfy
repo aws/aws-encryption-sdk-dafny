@@ -594,7 +594,7 @@ module {:extern "Dafny.Aws.Esdk.AwsEncryptionSdkClient"} AwsEncryptionSdk {
         suite: Client.AlgorithmSuites.AlgorithmSuite,
         header: HeaderTypes.HeaderBody,
         expectedSuiteData: seq<uint8>
-    ) returns (res: Result<bool, string>)
+    ) returns (res: Result<(), string>)
 
     // Validating suite data is only relevant for suites with commitment
     requires suite.commitment.HKDF?
@@ -613,6 +613,6 @@ module {:extern "Dafny.Aws.Esdk.AwsEncryptionSdkClient"} AwsEncryptionSdk {
         :- Need(|header.suiteData| == suite.commitment.outputKeyLength as int, "Commitment key is invalid");
         :- Need(expectedSuiteData == header.suiteData, "Commitment key does not match");
 
-        return Success(true);
+        return Success(());
     }
 }
