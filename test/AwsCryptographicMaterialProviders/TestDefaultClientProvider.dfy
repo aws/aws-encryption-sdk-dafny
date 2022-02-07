@@ -29,7 +29,7 @@ module TestDefaultClientProvider {
         "us-west-2"
       )
     );
-    var client : KMS.IKeyManagementServiceClient;
+    var client : KMS.IKeyManagementServiceClient?;
     match clientRes {
       case Failure(error) => {
         print error.GetMessage();
@@ -38,6 +38,8 @@ module TestDefaultClientProvider {
     }
 
     expect clientRes.Success?;
+    assert clientRes.Success?;
+    assert client != null;
     
     var kmsRequest := KMS.GenerateDataKeyRequest(
       KeyId := TestUtils.SHARED_TEST_KEY_ARN,
