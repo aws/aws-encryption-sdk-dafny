@@ -31,30 +31,30 @@ module TestMrkAwareDiscoveryMultiKeyring {
     expect mrkAwareDiscoveryMultiKeyringResult.Success?;
     var mrkAwareDiscoveryMultiKeyring := mrkAwareDiscoveryMultiKeyringResult.Extract();
 
-    // var cmmResult := materialsClient.CreateDefaultCryptographicMaterialsManager(
-    //   Crypto.CreateDefaultCryptographicMaterialsManagerInput(
-    //     keyring := mrkAwareDiscoveryMultiKeyring
-    //   )
-    // );
-    // expect cmmResult.Success?;
-    // var cmm := cmmResult.Extract();
+    var cmmResult := materialsClient.CreateDefaultCryptographicMaterialsManager(
+      Crypto.CreateDefaultCryptographicMaterialsManagerInput(
+        keyring := mrkAwareDiscoveryMultiKeyring
+      )
+    );
+    expect cmmResult.Success?;
+    var cmm := cmmResult.Extract();
 
     var encryptionContext := TestUtils.SmallEncryptionContext(TestUtils.SmallEncryptionContextVariation.A);
     var encryptionMaterials := TestMultiKeyring.getInputEncryptionMaterials(encryptionContext);
     var decryptionMaterials := TestMultiKeyring.getInputDecryptionMaterials(encryptionContext);
 
-    // var result := mrkAwareDiscoveryMultiKeyring.OnEncrypt(
-    //   Crypto.OnEncryptInput(materials:=encryptionMaterials)
-    // );
-    // match result {
-    //   case Failure(error) => {
-    //     var castError := error as Crypto.IAwsCryptographicMaterialProvidersException;
-    //     print error.GetMessage();
-    //   }
+    var result := mrkAwareDiscoveryMultiKeyring.OnEncrypt(
+      Crypto.OnEncryptInput(materials:=encryptionMaterials)
+    );
+    match result {
+      case Failure(error) => {
+        var castError := error as Crypto.IAwsCryptographicMaterialProvidersException;
+        print error.GetMessage();
+      }
       
-    //   case Success(value) => return;
-    // }
-    // expect result.Success?;
+      case Success(value) => return;
+    }
+    expect result.Success?;
   }
 
 }  
