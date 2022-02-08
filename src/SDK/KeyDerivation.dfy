@@ -120,7 +120,7 @@ module {:extern "KeyDerivation"} KeyDerivation {
 
     var hmac_kc := new HMAC.HMac(digest);
     hmac_kc.Init(messageId);
-    var Kc, _ := HKDF.Expand(hmac_kc, pseudoRandomKey, info, suite.commitment.outputKeyLength as int, digest, messageId);
+    var Kc, _ := HKDF.Expand(hmac_kc, pseudoRandomKey, COMMIT_LABEL, suite.commitment.outputKeyLength as int, digest, messageId);
 
     return Success(ExpandedKeyMaterial(dataKey:=Ke, commitmentKey:=Some(Kc)));
   }
