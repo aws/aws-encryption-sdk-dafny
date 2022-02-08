@@ -509,31 +509,13 @@ module {:extern "Dafny.Aws.Esdk.AwsEncryptionSdkClient"} AwsEncryptionSdk {
 
             var rawHeader := headerBody.tail.bytes[buffer.start..headerBody.tail.start];
 
-            var esdkEncryptionContext := EncryptionContext.GetEncryptionContext(headerBody.data.encryptionContext);
 
             var algorithmSuiteId := SerializableTypes.GetAlgorithmSuiteId(headerBody.data.esdkSuiteId);
             var _ := Client.SpecificationClient().ValidateCommitmentPolicyOnDecrypt(
                 algorithmSuiteId, this.commitmentPolicy
             );
 
-            var decMatRequest := Crypto.DecryptMaterialsInput(
-                algorithmSuiteId:=algorithmSuiteId,
-                commitmentPolicy:=this.commitmentPolicy,
-                encryptedDataKeys:=headerBody.data.encryptedDataKeys,
-                encryptionContext:=esdkEncryptionContext
-            );
-            var decMatResult := cmm.DecryptMaterials(decMatRequest);
-            var output :- match decMatResult {
-                case Success(value) => Success(value)
-                case Failure(exception) => Failure(exception.GetMessage())
-            };
-            var decMat := output.decryptionMaterials;
-
-            // Validate decryption materials
-            :- Need(
-                Client.Materials.DecryptionMaterialsWithPlaintextDataKey(decMat),
-                "CMM returned invalid DecryptMaterials"
-            );
+            var decMat :- GetDecryptionMaterials(cmm, algorithmSuiteId, headerBody.data);
 
             var suite := Client
                 .SpecificationClient()
@@ -549,8 +531,8 @@ module {:extern "Dafny.Aws.Esdk.AwsEncryptionSdkClient"} AwsEncryptionSdk {
             :- Need(maybeDerivedDataKeys.Success?, "Failed to derive data keys");
             var derivedDataKeys := maybeDerivedDataKeys.value;
 
-            if suite.messageVersion == 2 {
-                :- Need(derivedDataKeys.commitmentKey.Some?, "Algorithm has commitment but suite data not present");
+            :- Need(Header.HeaderVersionSupportsCommitment?(suite, headerBody.data), "Invalid commitment values found in header body");
+            if suite.commitment.HKDF? {
                 var _ :- ValidateSuiteData(suite, headerBody.data, derivedDataKeys.commitmentKey.value);
             }
 
@@ -566,18 +548,10 @@ module {:extern "Dafny.Aws.Esdk.AwsEncryptionSdkClient"} AwsEncryptionSdk {
                 headerAuth.data.headerIv,
                 rawHeader
             );
+            assert {:split_here} true;
 
             // TODO: add support for non-framed content
             :- Need(headerBody.data.contentType.Framed?, "Fix me");
-
-            assert {:split_here} true;
-            // Currently the Encryption Context in the header MUST be the same
-            // as the canonical encryption context in the header body.
-            // Ideally, only the canonical encryption context needs to be serializable.
-            :- Need(SerializableTypes.IsESDKEncryptionContext(decMat.encryptionContext), "CMM failed to return serializable encryption materials.");
-            // The V2 message format not only supports commitment, it requires it.
-            // Therefore the message format is bound to properties of the algorithm suite.
-            :- Need(Header.HeaderVersionSupportsCommitment?(suite, headerBody.data), "Algorithm suite does not match message format.");
 
             var header := Header.HeaderInfo(
                 body := headerBody.data,
@@ -587,12 +561,20 @@ module {:extern "Dafny.Aws.Esdk.AwsEncryptionSdkClient"} AwsEncryptionSdk {
                 headerAuth := headerAuth.data
             );
 
-            assert {:split_here} true;
+            // TODO: The below assertions were added to give hints to the verifier in order to speed
+            // up verification. They can almost certainly be refactored into something prettier.
+            :- Need(
+                SerializableTypes.GetESDKAlgorithmSuiteId(header.suite.id) == header.body.esdkSuiteId,
+                "Invalid header: algorithm suite mismatch"
+            );
+            :- Need(header.body.contentType.Framed?, "Non-framed messages not supported");
+            :- Need(header.body.frameLength > 0, "Non-framed messages not supported");
+            
             assert Header.CorrectlyReadHeaderBody(
-            SerializeFunctions.ReadableBuffer(rawHeader, 0),
-            Success(
-                SerializeFunctions.SuccessfulRead(
-                    headerBody.data, SerializeFunctions.ReadableBuffer(rawHeader, |rawHeader|))
+                SerializeFunctions.ReadableBuffer(rawHeader, 0),
+                Success(
+                    SerializeFunctions.SuccessfulRead(
+                        headerBody.data, SerializeFunctions.ReadableBuffer(rawHeader, |rawHeader|))
                 )
             );
             assert Header.HeaderAuth?(suite, headerAuth.data);
@@ -629,8 +611,45 @@ module {:extern "Dafny.Aws.Esdk.AwsEncryptionSdkClient"} AwsEncryptionSdk {
 
             return Success(Esdk.DecryptOutput(plaintext := plaintext));
         }
-    }
 
+        method GetDecryptionMaterials(
+            cmm: Crypto.ICryptographicMaterialsManager,
+            algorithmSuiteId: Crypto.AlgorithmSuiteId,
+            headerBody: HeaderTypes.HeaderBody
+        ) returns (res: Result<Crypto.DecryptionMaterials, string>)
+
+        ensures res.Success? ==> Client.Materials.DecryptionMaterialsWithPlaintextDataKey(res.value)
+
+        ensures res.Success? ==> SerializableTypes.IsESDKEncryptionContext(res.value.encryptionContext)
+
+        {
+            var encryptionContext := EncryptionContext.GetEncryptionContext(headerBody.encryptionContext);
+
+            var decMatRequest := Crypto.DecryptMaterialsInput(
+                algorithmSuiteId:=algorithmSuiteId,
+                commitmentPolicy:=this.commitmentPolicy,
+                encryptedDataKeys:=headerBody.encryptedDataKeys,
+                encryptionContext:=encryptionContext
+            );
+            var decMatResult := cmm.DecryptMaterials(decMatRequest);
+            var output :- match decMatResult {
+                case Success(value) => Success(value)
+                case Failure(exception) => Failure(exception.GetMessage())
+            };
+            var decMat := output.decryptionMaterials;
+
+            // Validate decryption materials
+            :- Need(
+                Client.Materials.DecryptionMaterialsWithPlaintextDataKey(decMat),
+                "CMM returned invalid DecryptMaterials"
+            );
+
+            :- Need(SerializableTypes.IsESDKEncryptionContext(decMat.encryptionContext), "CMM failed to return serializable encryption materials.");
+
+            return Success(decMat);
+        }
+
+    }
     /*
      * Ensures that the suite data contained in the header of a message matches
      * the expected suite data

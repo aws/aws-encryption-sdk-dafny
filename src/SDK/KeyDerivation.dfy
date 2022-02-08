@@ -142,13 +142,13 @@ module {:extern "KeyDerivation"} KeyDerivation {
 
     ensures
       && res.Success?
-      && suite.messageVersion == 1
+      && suite.commitment.None?
     ==>
       res.value.commitmentKey.None?
 
     ensures
       && res.Success?
-      && suite.messageVersion == 2
+      && suite.commitment.HKDF?
     ==>
       res.value.commitmentKey.Some?
   {
