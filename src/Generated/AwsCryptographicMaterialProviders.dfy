@@ -187,7 +187,7 @@ module {:extern "Dafny.Aws.Crypto"} Aws.Crypto {
     trait {:termination false} IKey {}
 
     datatype ImportRSAKeyInput = ImportRSAKeyInput(
-      pem: seq<string>,
+      pem: string,
       strength: int64,
       paddingScheme: PaddingScheme
     )

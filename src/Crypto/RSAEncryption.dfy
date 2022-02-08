@@ -201,7 +201,7 @@ module {:extern "RSAEncryption"} RSAEncryption {
 
 
   method {:extern "RSAEncryption.RSA", "ParsePemExtern"} ParsePemExtern(
-    pem: seq<string>,
+    pem: string,
     strength: StrengthBits,
     padding: PaddingMode
   ) returns (res: Result<seq<uint8>, string>)
