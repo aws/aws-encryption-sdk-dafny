@@ -248,12 +248,12 @@ structure CreateRawRsaKeyringInput {
 
 operation ImportPublicRSAKey {
     input: ImportRSAKeyInput,
-    output: ImportRSAKeyOutput,
+    output: ImportPublicRSAKeyOutput,
 }
 
 operation ImportPrivateRSAKey {
     input: ImportRSAKeyInput,
-    output: ImportRSAKeyOutput,
+    output: ImportPrivateRSAKeyOutput,
 }
 
 structure ImportRSAKeyInput {
@@ -267,7 +267,10 @@ structure ImportRSAKeyInput {
     paddingScheme: PaddingScheme,
 }
 
-structure ImportRSAKeyOutput {
+structure ImportPublicRSAKeyOutput {
     key: KeyReference
 }
-    
+
+structure ImportPrivateRSAKeyOutput {
+    key: KeyReference
+}
