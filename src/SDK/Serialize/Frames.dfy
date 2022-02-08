@@ -12,7 +12,7 @@ include "Header.dfy"
 include "EncryptionContext.dfy"
 include "EncryptedDataKeys.dfy"
 
-module Frames {
+module {:vcs_split_on_every_assert} Frames {
   import Aws.Crypto
   import Seq
   import Header
@@ -208,6 +208,7 @@ module Frames {
       authTag.data
     );
 
+    assert {:split_here} true;
     assert WriteNonFramed(nonFramed) <= buffer.bytes[buffer.start..];
 
     Success(SuccessfulRead(nonFramed, authTag.tail))
