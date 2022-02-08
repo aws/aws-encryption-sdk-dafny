@@ -247,8 +247,41 @@ namespace TestVectorTests {
                 };
 
                 return materialProviders.CreateRawAesKeyring(createKeyringInput);
-            } else if (keyInfo.Type == "raw" && keyInfo.EncryptionAlgorithm == "rsa") {
-                throw new Exception("TODO: implement RSA");
+            } else if (keyInfo.Type == "raw" && keyInfo.EncryptionAlgorithm == "rsa" && key.Type == "private") {
+                Keyrings.RSAPaddingModes padding = RSAPaddingFromStrings(keyInfo.PaddingAlgorithm, keyInfo.PaddingHash);
+                ImportRSAKeyInput keyInput = new ImportRSAKeyInput
+                {
+                    Pem = key.Material,
+                    Strength = key.Bits,
+                    PaddingScheme = padding
+                }
+                Aws.Crypto.IKey rsaKey = materialProviders.ImportPrivateRSAKey(keyInput);
+                CreateRawRsaKeyringInput createKeyringInput = new CreateRawRsaKeyringInput
+                {
+                    KeyNamespace = keyInfo.ProviderIdm
+                    KeyName = key.Id,
+                    PaddingScheme = padding,
+                    PrivateKey = rsaKey
+                }
+                return materialProviders.CreateRawRsaKeyring(createKeyringInput);
+            }
+            else if (keyInfo.Type == "raw" && keyInfo.EncryptionAlgorithm == "rsa" && key.Type == "public") {
+                Keyrings.RSAPaddingModes padding = RSAPaddingFromStrings(keyInfo.PaddingAlgorithm, keyInfo.PaddingHash);
+                ImportRSAKeyInput keyInput = new ImportRSAKeyInput
+                {
+                    Pem = key.Material,
+                    Strength = key.Bits,
+                    PaddingScheme = padding
+                }
+                Aws.Crypto.IKey rsaKey = materialProviders.ImportPublicRSAKey(keyInput);
+                CreateRawRsaKeyringInput createKeyringInput = new CreateRawRsaKeyringInput
+                {
+                    KeyNamespace = keyInfo.ProviderIdm
+                    KeyName = key.Id,
+                    PaddingScheme = padding,
+                    PublicKey = rsaKey
+                }
+                return materialProviders.CreateRawRsaKeyring(createKeyringInput);
             }
             else {
                 throw new Exception("Unsupported keyring type!");
@@ -262,7 +295,7 @@ namespace TestVectorTests {
                 _ => throw new Exception("Unsupported AES wrapping algorithm")
             };
         }
-        /*
+
         private static Keyrings.RSAPaddingModes RSAPAddingFromStrings(string strAlg, string strHash) {
             return (strAlg, strHash) switch {
                 ("pkcs1", _) => Keyrings.RSAPaddingModes.PKCS1,
@@ -272,7 +305,7 @@ namespace TestVectorTests {
                 ("oaep-mgf1", "sha512") => Keyrings.RSAPaddingModes.OAEP_SHA512,
                 _ => throw new Exception("Unsupported RSA Padding " + strAlg + strHash)
             };
-        }*/
+        }
 
         private static RegionEndpoint GetRegionForArn(string keyId)
         {
