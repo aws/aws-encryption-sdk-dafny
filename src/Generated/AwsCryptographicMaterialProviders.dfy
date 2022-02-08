@@ -407,9 +407,9 @@ module {:extern "Dafny.Aws.Crypto"} Aws.Crypto {
             
         // RSA Keys
         method ImportPrivateRSAKey(input: ImportRSAKeyInput)
-          returns (res: Result<IKey, IAwsCryptographicMaterialProvidersException>)
+          returns (res: Result<ImportRSAKeyOutput, IAwsCryptographicMaterialProvidersException>)
         method ImportPublicRSAKey(input: ImportRSAKeyInput)
-          returns (res: Result<IKey, IAwsCryptographicMaterialProvidersException>)
+          returns (res: Result<ImportRSAKeyOutput, IAwsCryptographicMaterialProvidersException>)
 
         // CMMs
         method CreateDefaultCryptographicMaterialsManager(input: CreateDefaultCryptographicMaterialsManagerInput)

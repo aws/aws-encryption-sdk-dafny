@@ -306,7 +306,7 @@ module
     }
 
     method ImportPrivateRSAKey(input: Crypto.ImportRSAKeyInput)
-      returns (res: Result<Crypto.IKey, Crypto.IAwsCryptographicMaterialProvidersException>)
+      returns (res: Result<Crypto.ImportRSAKeyOutput, Crypto.IAwsCryptographicMaterialProvidersException>)
       ensures res.Success? ==> 81 <= input.strength < (0x8000_0000)
     {
       var padding := RawRSAKeyring.ToLocalPadding(input.paddingScheme);
@@ -328,11 +328,11 @@ module
         strength,
         padding
       );
-      return Success(key);  
+      return Success(Crypto.ImportRSAKeyOutput(key));  
     }
 
     method ImportPublicRSAKey(input: Crypto.ImportRSAKeyInput)
-      returns (res: Result<Crypto.IKey, Crypto.IAwsCryptographicMaterialProvidersException>)
+      returns (res: Result<Crypto.ImportRSAKeyOutput, Crypto.IAwsCryptographicMaterialProvidersException>)
       ensures res.Success? ==> 81 <= input.strength < (0x8000_0000)
     {
       var padding := RawRSAKeyring.ToLocalPadding(input.paddingScheme);
@@ -354,7 +354,7 @@ module
         strength,
         padding
       );
-      return Success(key);
+      return Success(Crypto.ImportRSAKeyOutput(key));
     }
   }
 }
