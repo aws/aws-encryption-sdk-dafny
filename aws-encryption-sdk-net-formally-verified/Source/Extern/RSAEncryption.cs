@@ -97,6 +97,21 @@ namespace RSAEncryption {
             GetPemBytes(keygenPair, out publicKeyBytes, out privateKeyBytes);
         }
 
+        public static _IResult<ibyteseq, icharseq> ParsePemExtern(string pemstring, int strength, _IPaddingMode padding)
+        {
+            try
+            {
+                byte[] pembytes;
+                pembytes = ParsePEMString(pemstring);
+                ibyteseq pem = byteseq.FromArray(pembytes);
+                return Result<ibyteseq, icharseq>.create_Success(pem);
+            }
+            catch (Exception parseException)
+            {
+                return DafnyFFI.CreateFailure<ibyteseq>(parseException.ToString());
+            }
+        }
+
         public static void GenerateKeyPairExtern(int strength, _IPaddingMode padding, out ibyteseq publicKey, out ibyteseq privateKey) {
             byte[] publicKeyBytes;
             byte[] privateKeyBytes;
