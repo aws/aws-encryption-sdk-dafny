@@ -14,8 +14,8 @@ namespace Aws.Crypto
         private string _keyNamespace;
         private string _keyName;
         private Aws.Crypto.PaddingScheme _paddingScheme;
-        private System.IO.MemoryStream _publicKey;
-        private System.IO.MemoryStream _privateKey;
+        private Aws.Crypto.IKey _publicKey;
+        private Aws.Crypto.IKey _privateKey;
 
         public string KeyNamespace
         {
@@ -35,13 +35,13 @@ namespace Aws.Crypto
             set { this._paddingScheme = value; }
         }
 
-        public System.IO.MemoryStream PublicKey
+        public Aws.Crypto.IKey PublicKey
         {
             get { return this._publicKey; }
             set { this._publicKey = value; }
         }
 
-        public System.IO.MemoryStream PrivateKey
+        public Aws.Crypto.IKey PrivateKey
         {
             get { return this._privateKey; }
             set { this._privateKey = value; }
