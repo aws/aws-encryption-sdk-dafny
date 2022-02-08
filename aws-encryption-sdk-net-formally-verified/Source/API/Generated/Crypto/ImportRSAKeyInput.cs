@@ -12,7 +12,7 @@ namespace Aws.Crypto
     public class ImportRSAKeyInput
     {
         private System.IO.MemoryStream _pem;
-        private int? _strength;
+        private long? _strength;
         private Aws.Crypto.PaddingScheme _paddingScheme;
 
         public System.IO.MemoryStream Pem
@@ -21,7 +21,7 @@ namespace Aws.Crypto
             set { this._pem = value; }
         }
 
-        public int Strength
+        public long Strength
         {
             get { return this._strength.GetValueOrDefault(); }
             set { this._strength = value; }

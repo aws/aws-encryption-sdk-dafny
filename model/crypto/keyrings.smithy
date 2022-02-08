@@ -262,7 +262,7 @@ structure ImportRSAKeyInput {
     pem: Blob,
 
     @required
-    strength: Integer,
+    strength: Long,
 
     @required
     paddingScheme: PaddingScheme,

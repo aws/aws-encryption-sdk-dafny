@@ -1371,7 +1371,7 @@ namespace Aws.Crypto
             converted.Pem =
                 (System.IO.MemoryStream) FromDafny_N3_aws__N6_crypto__S17_ImportRSAKeyInput__M3_pem(concrete.pem);
             converted.Strength =
-                (int) FromDafny_N3_aws__N6_crypto__S17_ImportRSAKeyInput__M8_strength(concrete.strength);
+                (long) FromDafny_N3_aws__N6_crypto__S17_ImportRSAKeyInput__M8_strength(concrete.strength);
             converted.PaddingScheme =
                 (Aws.Crypto.PaddingScheme) FromDafny_N3_aws__N6_crypto__S17_ImportRSAKeyInput__M13_paddingScheme(
                     concrete.paddingScheme);
@@ -1544,14 +1544,14 @@ namespace Aws.Crypto
                 "Custom implementations of Aws.Crypto.ICryptographicMaterialsManager are not supported yet");
         }
 
-        public static int FromDafny_N3_aws__N6_crypto__S17_ImportRSAKeyInput__M8_strength(int value)
+        public static long FromDafny_N3_aws__N6_crypto__S17_ImportRSAKeyInput__M8_strength(long value)
         {
-            return FromDafny_N6_smithy__N3_api__S7_Integer(value);
+            return FromDafny_N6_smithy__N3_api__S4_Long(value);
         }
 
-        public static int ToDafny_N3_aws__N6_crypto__S17_ImportRSAKeyInput__M8_strength(int value)
+        public static long ToDafny_N3_aws__N6_crypto__S17_ImportRSAKeyInput__M8_strength(long value)
         {
-            return ToDafny_N6_smithy__N3_api__S7_Integer(value);
+            return ToDafny_N6_smithy__N3_api__S4_Long(value);
         }
 
         public static Aws.Crypto.DeleteEntryOutput FromDafny_N3_aws__N6_crypto__S17_DeleteEntryOutput(
