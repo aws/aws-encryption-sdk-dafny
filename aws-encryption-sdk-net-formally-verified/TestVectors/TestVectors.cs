@@ -255,7 +255,7 @@ namespace TestVectorTests {
                     Strength = key.Bits,
                     PaddingScheme = padding
                 };
-                Aws.Crypto.IKey rsaKey = materialProviders.ImportPrivateRSAKey(keyInput);
+                Aws.Crypto.IKey rsaKey = materialProviders.ImportPrivateRSAKey(keyInput).Key;
                 CreateRawRsaKeyringInput createKeyringInput = new CreateRawRsaKeyringInput
                 {
                     KeyNamespace = keyInfo.ProviderId,
@@ -273,7 +273,7 @@ namespace TestVectorTests {
                     Strength = key.Bits,
                     PaddingScheme = padding
                 };
-                Aws.Crypto.IKey rsaKey = materialProviders.ImportPublicRSAKey(keyInput);
+                Aws.Crypto.IKey rsaKey = materialProviders.ImportPublicRSAKey(keyInput).Key;
                 CreateRawRsaKeyringInput createKeyringInput = new CreateRawRsaKeyringInput
                 {
                     KeyNamespace = keyInfo.ProviderId,
@@ -296,7 +296,7 @@ namespace TestVectorTests {
             };
         }
 
-        private static PaddingScheme RSAPAddingFromStrings(string strAlg, string strHash) {
+        private static PaddingScheme RSAPaddingFromStrings(string strAlg, string strHash) {
             return (strAlg, strHash) switch {
                 ("pkcs1", _) => PaddingScheme.PKCS1,
                 ("oaep-mgf1", "sha1") => PaddingScheme.OAEP_SHA1_MGF1,
