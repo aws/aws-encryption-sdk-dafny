@@ -22,12 +22,14 @@ module {:extern "Dafny.Aws.Crypto"} Aws.Crypto {
         ICryptographicMaterialsManager.DecryptMaterials,
         IAwsCryptographicMaterialsProviderClient.CreateRawAesKeyring,
         IAwsCryptographicMaterialsProviderClient.CreateDefaultCryptographicMaterialsManager,
-		IAwsCryptographicMaterialsProviderClient.CreateStrictAwsKmsKeyring,
+    		IAwsCryptographicMaterialsProviderClient.CreateStrictAwsKmsKeyring,
         IAwsCryptographicMaterialsProviderClient.CreateAwsKmsDiscoveryKeyring,
         IAwsCryptographicMaterialsProviderClient.CreateMrkAwareStrictAwsKmsKeyring,
         IAwsCryptographicMaterialsProviderClient.CreateMrkAwareDiscoveryAwsKmsKeyring,
         IAwsCryptographicMaterialsProviderClient.CreateMultiKeyring,
         IAwsCryptographicMaterialsProviderClient.CreateRawRsaKeyring,
+        IAwsCryptographicMaterialsProviderClient.ImportPrivateRSAKey,
+        IAwsCryptographicMaterialsProviderClient.ImportPublicRSAKey,
         AwsCryptographicMaterialProvidersClientException.message,
         AwsCryptographicMaterialProvidersClientException.WrapResultString,
         Need
@@ -71,7 +73,10 @@ module {:extern "Dafny.Aws.Crypto"} Aws.Crypto {
         AesWrappingAlg,
         CommitmentPolicy,
         CreateRawRsaKeyringInput,
-        PaddingScheme
+        PaddingScheme,
+        ImportRSAKeyInput,
+        ImportRSAKeyOutput,
+        IKey
 
     /////////////
     // kms.smithy
@@ -178,6 +183,18 @@ module {:extern "Dafny.Aws.Crypto"} Aws.Crypto {
         method OnDecrypt(input: OnDecryptInput)
             returns (res: Result<OnDecryptOutput, IAwsCryptographicMaterialProvidersException>)
     }
+
+    trait {:termination false} IKey {}
+
+    datatype ImportRSAKeyInput = ImportRSAKeyInput(
+      pem: seq<uint8>,
+      strength: int32,
+      paddingScheme: PaddingScheme
+    )
+
+    datatype ImportRSAKeyOutput = ImportRSAKeyOutput(
+      key: IKey
+    )
 
     /////////////////
     // caching.smithy
@@ -387,6 +404,12 @@ module {:extern "Dafny.Aws.Crypto"} Aws.Crypto {
             returns (res: Result<IKeyring, IAwsCryptographicMaterialProvidersException>)
         method CreateRawRsaKeyring(input: CreateRawRsaKeyringInput)
             returns (res: Result<IKeyring, IAwsCryptographicMaterialProvidersException>)
+            
+        // RSA Keys
+        method ImportPrivateRSAKey(input: ImportRSAKeyInput)
+          returns (res: Result<IKey, IAwsCryptographicMaterialProvidersException>)
+        method ImportPublicRSAKey(input: ImportRSAKeyInput)
+          returns (res: Result<IKey, IAwsCryptographicMaterialProvidersException>)
 
         // CMMs
         method CreateDefaultCryptographicMaterialsManager(input: CreateDefaultCryptographicMaterialsManagerInput)
