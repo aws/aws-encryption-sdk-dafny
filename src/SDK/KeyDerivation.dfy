@@ -92,7 +92,10 @@ module {:extern "KeyDerivation"} KeyDerivation {
     // anywhere that keys be small.
     requires |plaintextKey| < INT32_MAX_LIMIT
 
-    ensures res.Success? ==> res.value.commitmentKey.Some?
+    ensures res.Success? ==>
+      && res.value.commitmentKey.Some?
+      && |res.value.commitmentKey.value| == suite.commitment.outputKeyLength as int
+
     ensures res.Success? ==> |res.value.dataKey| == suite.encrypt.keyLength as int
 
   {
@@ -117,7 +120,7 @@ module {:extern "KeyDerivation"} KeyDerivation {
 
     var hmac_kc := new HMAC.HMac(digest);
     hmac_kc.Init(messageId);
-    var Kc, _ := HKDF.Expand(hmac_kc, pseudoRandomKey, info, suite.encrypt.keyLength as int, digest, messageId);
+    var Kc, _ := HKDF.Expand(hmac_kc, pseudoRandomKey, info, suite.commitment.outputKeyLength as int, digest, messageId);
 
     return Success(ExpandedKeyMaterial(dataKey:=Ke, commitmentKey:=Some(Kc)));
   }
@@ -150,7 +153,8 @@ module {:extern "KeyDerivation"} KeyDerivation {
       && res.Success?
       && suite.commitment.HKDF?
     ==>
-      res.value.commitmentKey.Some?
+      && res.value.commitmentKey.Some?
+      && |res.value.commitmentKey.value| == suite.commitment.outputKeyLength as int
   {
     var keys : ExpandedKeyMaterial;
     if (suite.messageVersion == 2) {

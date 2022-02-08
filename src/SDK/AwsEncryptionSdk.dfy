@@ -410,6 +410,10 @@ module {:extern "Dafny.Aws.Esdk.AwsEncryptionSdkClient"} AwsEncryptionSdk {
 
         requires SerializableTypes.IsESDKEncryptionContext(encryptionContext)
 
+        requires suite.commitment.HKDF? ==>
+            && derivedDataKeys.commitmentKey.Some?
+            && |derivedDataKeys.commitmentKey.value| == suite.commitment.outputKeyLength as int
+
         // TODO: may need changing when we need to support non-framed
         requires frameLength > 0
 
@@ -424,14 +428,6 @@ module {:extern "Dafny.Aws.Esdk.AwsEncryptionSdkClient"} AwsEncryptionSdk {
         // TODO: change when we need to support non-framed
         ensures res.Success? ==> res.value.body.contentType.Framed?
         {
-            // TODO: possibly move to `requires` clauses and have the calling function check this
-            if suite.commitment.HKDF? {
-                :- Need(derivedDataKeys.commitmentKey.Some?, "Message version 2 requires suite data");
-                :- Need(
-                    |derivedDataKeys.commitmentKey.value| == suite.commitment.outputKeyLength as int,
-                    "Incorrect commitment key length for provided algorithm suite");
-            }
-
             var canonicalEncryptionContext := EncryptionContext.GetCanonicalEncryptionContext(encryptionContext);
 
             var body := BuildHeaderBody(
