@@ -259,7 +259,7 @@ operation ImportPrivateRSAKey {
 
 structure ImportRSAKeyInput {
     @required
-    pem: Blob,
+    pem: String,
 
     @required
     strength: Long,
