@@ -621,7 +621,6 @@ module {:extern "Dafny.Aws.Esdk.AwsEncryptionSdkClient"} AwsEncryptionSdk {
         ensures res.Success? ==> Client.Materials.DecryptionMaterialsWithPlaintextDataKey(res.value)
 
         ensures res.Success? ==> SerializableTypes.IsESDKEncryptionContext(res.value.encryptionContext)
-
         {
             var encryptionContext := EncryptionContext.GetEncryptionContext(headerBody.encryptionContext);
 

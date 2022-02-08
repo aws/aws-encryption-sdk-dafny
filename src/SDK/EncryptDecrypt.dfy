@@ -37,7 +37,9 @@ module {:extern "EncryptDecryptHelpers"} EncryptDecryptHelpers {
     requires |signature| < UINT16_LIMIT
     ensures res.Success?
     ==> 
-      res.value == SerializeMessageWithoutSignature(framedMessage, suite).value + WriteShortLengthSeq(signature)
+      && var message := SerializeMessageWithoutSignature(framedMessage, suite);
+      && message.Success?
+      && res.value == message.value + WriteShortLengthSeq(signature)
   {
     var serializedSignature := WriteShortLengthSeq(signature);
     var serializedMessage :- SerializeMessageWithoutSignature(framedMessage, suite);
