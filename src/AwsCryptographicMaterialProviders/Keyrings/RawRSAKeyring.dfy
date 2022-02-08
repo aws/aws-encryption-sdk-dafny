@@ -62,7 +62,7 @@ module
   //# encoded PKCS #8 PrivateKeyInfo structures
   //# (https://tools.ietf.org/html/rfc5958#section-2) as private keys.
   method ImportPrivateKey(
-    pem: seq<uint8>,
+    pem: seq<string>,
     strength: RSAEncryption.StrengthBits,
     padding: RSAEncryption.PaddingMode
   ) returns (res: Result<RSAPrivateKey, Crypto.IAwsCryptographicMaterialProvidersException>)
@@ -86,16 +86,16 @@ module
       verifiedPemRes
     );
     var key := new RSAEncryption.PrivateKey(
-      pem := verifiedPem.pem,
-      padding := verifiedPem.padding,
-      strength := verifiedPem.strength
+      pem := verifiedPem,
+      padding := padding,
+      strength := strength
     );
     return Success(key);
   }
 
   //TODO :: What external method can we use to verify a pem is a pem?
   method ImportPublicKey(
-    pem: seq<uint8>,
+    pem: seq<string>,
     strength: RSAEncryption.StrengthBits,
     padding: RSAEncryption.PaddingMode
   ) returns (res: Result<RSAPublicKey, Crypto.IAwsCryptographicMaterialProvidersException>)
@@ -119,9 +119,9 @@ module
       verifiedPemRes
     );
     var key := new RSAEncryption.PublicKey(
-      pem := verifiedPem.pem,
-      padding := verifiedPem.padding,
-      strength := verifiedPem.strength
+      pem := verifiedPem,
+      padding := padding,
+      strength := strength
     );
     return Success(key);
   }  

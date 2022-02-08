@@ -201,18 +201,13 @@ module {:extern "RSAEncryption"} RSAEncryption {
 
 
   method {:extern "RSAEncryption.RSA", "ParsePemExtern"} ParsePemExtern(
-    pem: seq<uint8>,
+    pem: seq<string>,
     strength: StrengthBits,
     padding: PaddingMode
-  ) returns (res: Result<Key, string>)
-    ensures res.Success? ==> PEMGeneratedWithStrength(res.value.pem, strength)
-    ensures res.Success? ==> PEMGeneratedWithPadding(res.value.pem, padding)
-    ensures
-      res.Success?
-    ==>
-      && res.value.pem == pem
-      && res.value.strength == strength
-      && res.value.padding == padding
+  ) returns (res: Result<seq<uint8>, string>)
+    ensures res.Success? ==> PEMGeneratedWithStrength(res.value, strength)
+    ensures res.Success? ==> PEMGeneratedWithPadding(res.value, padding)
+    ensures res.Success? ==> |res.value| > 0
 
   
   // Note: Customers should call Decrypt instead of DecryptExtern to ensure type safety and additional
