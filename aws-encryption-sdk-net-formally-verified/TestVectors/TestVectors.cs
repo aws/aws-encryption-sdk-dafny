@@ -248,7 +248,7 @@ namespace TestVectorTests {
 
                 return materialProviders.CreateRawAesKeyring(createKeyringInput);
             } else if (keyInfo.Type == "raw" && keyInfo.EncryptionAlgorithm == "rsa" && key.Type == "private") {
-                Keyrings.RSAPaddingModes padding = RSAPaddingFromStrings(keyInfo.PaddingAlgorithm, keyInfo.PaddingHash);
+                PaddingScheme padding = RSAPaddingFromStrings(keyInfo.PaddingAlgorithm, keyInfo.PaddingHash);
                 ImportRSAKeyInput keyInput = new ImportRSAKeyInput
                 {
                     Pem = key.Material,
@@ -266,7 +266,7 @@ namespace TestVectorTests {
                 return materialProviders.CreateRawRsaKeyring(createKeyringInput);
             }
             else if (keyInfo.Type == "raw" && keyInfo.EncryptionAlgorithm == "rsa" && key.Type == "public") {
-                Keyrings.RSAPaddingModes padding = RSAPaddingFromStrings(keyInfo.PaddingAlgorithm, keyInfo.PaddingHash);
+                PaddingScheme padding = RSAPaddingFromStrings(keyInfo.PaddingAlgorithm, keyInfo.PaddingHash);
                 ImportRSAKeyInput keyInput = new ImportRSAKeyInput
                 {
                     Pem = key.Material,
