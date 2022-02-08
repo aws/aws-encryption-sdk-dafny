@@ -31,10 +31,7 @@ module
   import RSAEncryption
   import UTF8
   import Seq
-
-  type RSAPublicKey = key: RSAEncryption.PublicKey | key.Valid()  witness *
-  type RSAPrivateKey = key: RSAEncryption.PrivateKey | key.Valid() witness *
-
+  
   function method PaddingSchemeToMinStrengthBits(
     padding: RSAEncryption.PaddingMode
   ): (strength: RSAEncryption.StrengthBits)
@@ -65,7 +62,7 @@ module
     pem: string,
     strength: RSAEncryption.StrengthBits,
     padding: RSAEncryption.PaddingMode
-  ) returns (res: Result<RSAPrivateKey, Crypto.IAwsCryptographicMaterialProvidersException>)
+  ) returns (res: Result<Crypto.RSAPrivateKey, Crypto.IAwsCryptographicMaterialProvidersException>)
     requires |pem| > 0
     requires RSAEncryption.GetBytes(strength) >= RSAEncryption.MinStrengthBytes(padding)
     ensures
@@ -98,7 +95,7 @@ module
     pem: string,
     strength: RSAEncryption.StrengthBits,
     padding: RSAEncryption.PaddingMode
-  ) returns (res: Result<RSAPublicKey, Crypto.IAwsCryptographicMaterialProvidersException>)
+  ) returns (res: Result<Crypto.RSAPublicKey, Crypto.IAwsCryptographicMaterialProvidersException>)
     requires |pem| > 0
     requires RSAEncryption.GetBytes(strength) >= RSAEncryption.MinStrengthBytes(padding)
     ensures
@@ -137,8 +134,8 @@ module
   {
     const keyNamespace: UTF8.ValidUTF8Bytes
     const keyName: UTF8.ValidUTF8Bytes
-    const publicKey: Option<seq<uint8>>
-    const privateKey: Option<seq<uint8>>
+    const publicKey: Option<Crypto.RSAPublicKey>
+    const privateKey: Option<Crypto.RSAPrivateKey>
     const paddingScheme: RSAEncryption.PaddingMode
 
     //= compliance/framework/raw-rsa-keyring.txt#2.5
@@ -158,8 +155,7 @@ module
       //# (Section 2.4.2).
       // NOTE: section 2.4.2 is a lie,
       // See https://datatracker.ietf.org/doc/html/rfc8017#section-3.1 instead
-      // NOTE: A sequence of uint8 is NOT how a public key is stored according to the RFC linked, though it is how the libraries we use define them
-      publicKey: Option<seq<uint8>>,
+      publicKey: Option<Crypto.RSAPublicKey>,
 
       //= compliance/framework/raw-rsa-keyring.txt#2.5.3
       //= type=TODO
@@ -168,7 +164,7 @@ module
       // NOTE: section 2.4.2 is a lie,
       // See https://datatracker.ietf.org/doc/html/rfc8017#section-3.2 instead
       // NOTE: A sequence of uint8s is NOT how a public key is stored according to the RFC linked, though it is how the libraries we use define them
-      privateKey: Option<seq<uint8>>,
+      privateKey: Option<Crypto.RSAPrivateKey>,
 
       //= compliance/framework/raw-rsa-keyring.txt#2.5.3
       //= type=TODO
@@ -219,7 +215,7 @@ module
      //# OnEncrypt MUST fail if this keyring does not have a specified public
      //# key (Section 2.5.2).
      ensures
-       this.publicKey.None? || |this.publicKey.Extract()| == 0
+       this.publicKey.None?
      ==>
        res.Failure?
 
@@ -259,9 +255,17 @@ module
        res.Failure?
     {
       :- Crypto.Need(
-        this.publicKey.Some? && |this.publicKey.Extract()| > 0,
-        "A RawRSAKeyring without a public key cannot provide OnEncrypt");
-
+        this.publicKey.Some?,
+        "A RawRSAKeyring without a public key cannot provide OnEncrypt"
+      );
+      :- Crypto.Need(
+        RSAEncryption.GetBytes(this.publicKey.value.strength) >= RSAEncryption.MinStrengthBytes(this.paddingScheme),
+        "Key strength must be greater than miminum strength of padding"
+      );
+      :- Crypto.Need(
+        this.paddingScheme == this.publicKey.value.padding,
+        "Keyring PaddingSheme must match RSA Public Key PaddingScheme"
+      );
       var materials := input.materials;
       var suite := GetSuite(materials.algorithmSuiteId);
 
@@ -285,7 +289,7 @@ module
       //# encryption materials (structures.md#encryption-materials) using RSA.
       //# The keyring performs RSA encryption (Section 2.4.2) with the
       //# following specifics:
-      var externEncryptResult := RSAEncryption.EncryptExtern(
+      var externEncryptResult := RSAEncryption.Encrypt(
         //= compliance/framework/raw-rsa-keyring.txt#2.6.1
         //#*  This keyring's padding scheme (Section 2.5.1.1) is the RSA padding
         //#   scheme.
@@ -355,7 +359,7 @@ module
       //# OnDecrypt MUST fail if this keyring does not have a specified private
       //# key (Section 2.5.3).
       ensures
-        this.privateKey.None? || |this.privateKey.Extract()| == 0
+        this.privateKey.None? || |this.privateKey.Extract().pem| == 0
       ==>
         res.Failure?
 
@@ -370,13 +374,19 @@ module
         res.Failure?
     {
       :- Crypto.Need(
-        this.privateKey.Some? && |this.privateKey.Extract()| > 0,
-        "A RawRSAKeyring without a private key cannot provide OnEncrypt");
+        this.privateKey.Some? && |this.privateKey.Extract().pem| > 0,
+        "A RawRSAKeyring without a private key cannot provide OnEncrypt"
+      );
 
       var materials := input.materials;
       :- Crypto.Need(
         Materials.DecryptionMaterialsWithoutPlaintextDataKey(materials),
-        "Keyring received decryption materials that already contain a plaintext data key.");
+        "Keyring received decryption materials that already contain a plaintext data key."
+      );
+      :- Crypto.Need(
+        this.paddingScheme == this.privateKey.value.padding,
+        "Keyring PaddingSheme must match RSA Private Key PaddingScheme"
+      );
 
       var errors: seq<string> := [];
       //= compliance/framework/raw-rsa-keyring.txt#2.6.2
@@ -387,7 +397,7 @@ module
       {
         if ShouldDecryptEDK(input.encryptedDataKeys[i]) {
           var edk := input.encryptedDataKeys[i];
-          var decryptResult := RSAEncryption.DecryptExtern(
+          var decryptResult := RSAEncryption.Decrypt(
             this.paddingScheme,
             this.privateKey.Extract(),
             edk.ciphertext

@@ -5,17 +5,20 @@ include "../Util/UTF8.dfy"
 include "../StandardLibrary/StandardLibrary.dfy"
 include "../Generated/KeyManagementService.dfy"
 include "./KeyManagementService.dfy"
+include "../Crypto/RSAEncryption.dfy"
+
 
 module {:extern "Dafny.Aws.Crypto"} Aws.Crypto {
     import opened Wrappers
     import KMS = Com.Amazonaws.Kms
     import opened UInt = StandardLibrary.UInt
     import opened UTF8
+    import RSAEncryption
 
     // TODO this is currently needed for proof stability reasons, otherwise any file that has a transitive dependency on this one tries to
     // load too much at once, making the verification unstable
     export
-      provides UTF8, UInt, KMS, Wrappers,
+      provides UTF8, UInt, KMS, Wrappers, RSAEncryption,
         IKeyring.OnDecrypt,
         IKeyring.OnEncrypt,
         ICryptographicMaterialsManager.GetEncryptionMaterials,
@@ -75,8 +78,10 @@ module {:extern "Dafny.Aws.Crypto"} Aws.Crypto {
         CreateRawRsaKeyringInput,
         PaddingScheme,
         ImportRSAKeyInput,
-        ImportRSAKeyOutput,
-        IKey
+        ImportPrivateRSAKeyOutput,
+        ImportPublicRSAKeyOutput,
+        RSAPrivateKey,
+        RSAPublicKey
 
     /////////////
     // kms.smithy
@@ -183,8 +188,9 @@ module {:extern "Dafny.Aws.Crypto"} Aws.Crypto {
         method OnDecrypt(input: OnDecryptInput)
             returns (res: Result<OnDecryptOutput, IAwsCryptographicMaterialProvidersException>)
     }
-
-    trait {:termination false} IKey {}
+    
+    type RSAPublicKey = key: RSAEncryption.PublicKey | key.Valid()  witness *
+    type RSAPrivateKey = key: RSAEncryption.PrivateKey | key.Valid() witness *
 
     datatype ImportRSAKeyInput = ImportRSAKeyInput(
       pem: string,
@@ -192,8 +198,12 @@ module {:extern "Dafny.Aws.Crypto"} Aws.Crypto {
       paddingScheme: PaddingScheme
     )
 
-    datatype ImportRSAKeyOutput = ImportRSAKeyOutput(
-      key: IKey
+    datatype ImportPrivateRSAKeyOutput = ImportPrivateRSAKeyOutput(
+      key: RSAPrivateKey
+    )
+      
+    datatype ImportPublicRSAKeyOutput = ImportPublicRSAKeyOutput(
+      key: RSAPublicKey
     )
 
     /////////////////
@@ -356,8 +366,8 @@ module {:extern "Dafny.Aws.Crypto"} Aws.Crypto {
         nameonly keyNamespace: string,
         nameonly keyName: string,
         nameonly paddingScheme: PaddingScheme,
-        nameonly publicKey: Option<seq<uint8>>,
-        nameonly privateKey: Option<seq<uint8>>
+        nameonly publicKey: Option<RSAPublicKey>,
+        nameonly privateKey: Option<RSAPrivateKey>
     )
 
     // CMM Creation input structures
@@ -407,9 +417,9 @@ module {:extern "Dafny.Aws.Crypto"} Aws.Crypto {
             
         // RSA Keys
         method ImportPrivateRSAKey(input: ImportRSAKeyInput)
-          returns (res: Result<ImportRSAKeyOutput, IAwsCryptographicMaterialProvidersException>)
+          returns (res: Result<ImportPrivateRSAKeyOutput, IAwsCryptographicMaterialProvidersException>)
         method ImportPublicRSAKey(input: ImportRSAKeyInput)
-          returns (res: Result<ImportRSAKeyOutput, IAwsCryptographicMaterialProvidersException>)
+          returns (res: Result<ImportPublicRSAKeyOutput, IAwsCryptographicMaterialProvidersException>)
 
         // CMMs
         method CreateDefaultCryptographicMaterialsManager(input: CreateDefaultCryptographicMaterialsManagerInput)

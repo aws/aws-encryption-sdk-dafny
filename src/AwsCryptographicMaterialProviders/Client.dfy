@@ -266,25 +266,15 @@ module
       ==>
         res.Failure?
     {
-      // :- Need(
-      //   input.keyNamespace != "aws-kms",
-      //   "keyNamespace must not be `aws-kms`"
-      // );
-      if (input.keyNamespace == "aws-kms") {
-        var error := new Crypto.AwsCryptographicMaterialProvidersClientException(
-          "keyNamespace must not be `aws-kms`");
-        return Failure(error);
-      }
+      :- Crypto.Need(
+        input.keyNamespace != "aws-kms",
+        "keyNamespace must not be `aws-kms`"
+      );
 
-      // :- Need(
-      //   input.publicKey.Some? || input.privateKey.Some?,
-      //   "A publicKey or a privateKey is required"
-      // );
-      if (input.publicKey.None? && input.privateKey.None?) {
-        var error := new Crypto.AwsCryptographicMaterialProvidersClientException(
-          "A publicKey or a privateKey is required");
-        return Failure(error);
-      }
+      :- Crypto.Need(
+        input.publicKey.Some? || input.privateKey.Some?,
+        "A publicKey or a privateKey is required"
+      );
 
       var padding := RawRSAKeyring.ToLocalPadding(input.paddingScheme);
 
@@ -301,12 +291,18 @@ module
 
       expect |namespace| < UINT16_LIMIT;  // Both name & namespace will be serialized into the message
       expect |name| < UINT16_LIMIT;       // So both must respect message size limit
-      var keyring := new RawRSAKeyring.RawRSAKeyring(namespace, name, input.publicKey, input.privateKey, padding);
+      var keyring := new RawRSAKeyring.RawRSAKeyring(
+        namespace,
+        name,
+        input.publicKey,
+        input.privateKey,
+        padding
+      );
       return Success(keyring);
     }
 
     method ImportPrivateRSAKey(input: Crypto.ImportRSAKeyInput)
-      returns (res: Result<Crypto.ImportRSAKeyOutput, Crypto.IAwsCryptographicMaterialProvidersException>)
+      returns (res: Result<Crypto.ImportPrivateRSAKeyOutput, Crypto.IAwsCryptographicMaterialProvidersException>)
       ensures res.Success? ==> 81 <= input.strength < (0x8000_0000)
     {
       var padding := RawRSAKeyring.ToLocalPadding(input.paddingScheme);
@@ -328,11 +324,11 @@ module
         strength,
         padding
       );
-      return Success(Crypto.ImportRSAKeyOutput(key));  
+      return Success(Crypto.ImportPrivateRSAKeyOutput(key));  
     }
 
     method ImportPublicRSAKey(input: Crypto.ImportRSAKeyInput)
-      returns (res: Result<Crypto.ImportRSAKeyOutput, Crypto.IAwsCryptographicMaterialProvidersException>)
+      returns (res: Result<Crypto.ImportPublicRSAKeyOutput, Crypto.IAwsCryptographicMaterialProvidersException>)
       ensures res.Success? ==> 81 <= input.strength < (0x8000_0000)
     {
       var padding := RawRSAKeyring.ToLocalPadding(input.paddingScheme);
@@ -354,7 +350,7 @@ module
         strength,
         padding
       );
-      return Success(Crypto.ImportRSAKeyOutput(key));
+      return Success(Crypto.ImportPublicRSAKeyOutput(key));
     }
   }
 }
