@@ -19,7 +19,6 @@ module {:extern "ConfigDefaults"} ConfigDefaults {
     ensures
       configDefaults == Aws.Esdk.V1 ==> res == Aws.Crypto.REQUIRE_ENCRYPT_REQUIRE_DECRYPT
     {
-      // TODO: actual matching on version
       Aws.Crypto.REQUIRE_ENCRYPT_REQUIRE_DECRYPT
     }
 }

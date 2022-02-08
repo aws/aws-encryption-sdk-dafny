@@ -172,7 +172,6 @@ module Frames {
     var encContent :- ReadUint32Seq(iv.tail);
     :- Need(|encContent.data| as uint32 <= header.body.frameLength, Error("bad"));
     var authTag :- Read(encContent.tail, header.suite.encrypt.tagLength as nat);
-
     var finalFrame: FinalFrame := Frame.FinalFrame(
       header,
       sequenceNumber.data,
