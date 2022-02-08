@@ -254,15 +254,15 @@ namespace TestVectorTests {
                     Pem = key.Material,
                     Strength = key.Bits,
                     PaddingScheme = padding
-                }
+                };
                 Aws.Crypto.IKey rsaKey = materialProviders.ImportPrivateRSAKey(keyInput);
                 CreateRawRsaKeyringInput createKeyringInput = new CreateRawRsaKeyringInput
                 {
-                    KeyNamespace = keyInfo.ProviderIdm
+                    KeyNamespace = keyInfo.ProviderId,
                     KeyName = key.Id,
                     PaddingScheme = padding,
                     PrivateKey = rsaKey
-                }
+                };
                 return materialProviders.CreateRawRsaKeyring(createKeyringInput);
             }
             else if (keyInfo.Type == "raw" && keyInfo.EncryptionAlgorithm == "rsa" && key.Type == "public") {
@@ -272,15 +272,15 @@ namespace TestVectorTests {
                     Pem = key.Material,
                     Strength = key.Bits,
                     PaddingScheme = padding
-                }
+                };
                 Aws.Crypto.IKey rsaKey = materialProviders.ImportPublicRSAKey(keyInput);
                 CreateRawRsaKeyringInput createKeyringInput = new CreateRawRsaKeyringInput
                 {
-                    KeyNamespace = keyInfo.ProviderIdm
+                    KeyNamespace = keyInfo.ProviderId,
                     KeyName = key.Id,
                     PaddingScheme = padding,
                     PublicKey = rsaKey
-                }
+                };
                 return materialProviders.CreateRawRsaKeyring(createKeyringInput);
             }
             else {
@@ -296,13 +296,13 @@ namespace TestVectorTests {
             };
         }
 
-        private static Keyrings.RSAPaddingModes RSAPAddingFromStrings(string strAlg, string strHash) {
+        private static PaddingScheme RSAPAddingFromStrings(string strAlg, string strHash) {
             return (strAlg, strHash) switch {
-                ("pkcs1", _) => Keyrings.RSAPaddingModes.PKCS1,
-                ("oaep-mgf1", "sha1") => Keyrings.RSAPaddingModes.OAEP_SHA1,
-                ("oaep-mgf1", "sha256") => Keyrings.RSAPaddingModes.OAEP_SHA256,
-                ("oaep-mgf1", "sha384") => Keyrings.RSAPaddingModes.OAEP_SHA384,
-                ("oaep-mgf1", "sha512") => Keyrings.RSAPaddingModes.OAEP_SHA512,
+                ("pkcs1", _) => PaddingScheme.PKCS1,
+                ("oaep-mgf1", "sha1") => PaddingScheme.OAEP_SHA1_MGF1,
+                ("oaep-mgf1", "sha256") => PaddingScheme.OAEP_SHA256_MGF1,
+                ("oaep-mgf1", "sha384") => PaddingScheme.OAEP_SHA384_MGF1,
+                ("oaep-mgf1", "sha512") => PaddingScheme.OAEP_SHA512_MGF1,
                 _ => throw new Exception("Unsupported RSA Padding " + strAlg + strHash)
             };
         }
