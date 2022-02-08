@@ -1,6 +1,7 @@
 // Copyright Amazon.com Inc. or its affiliates. All Rights Reserved.
 // SPDX-License-Identifier: Apache-2.0
 
+include "../StandardLibrary/UInt.dfy"
 include "../Generated/AwsEncryptionSdk.dfy"
 include "../Generated/AwsCryptographicMaterialProviders.dfy"
 
@@ -12,6 +13,7 @@ include "../Generated/AwsCryptographicMaterialProviders.dfy"
 module {:extern "ConfigDefaults"} ConfigDefaults {
 
   import Aws
+  import opened UInt = StandardLibrary.UInt
 
   function method GetDefaultCommitmentPolicy(configDefaults : Aws.Esdk.ConfigurationDefaults):
     (res: Aws.Crypto.CommitmentPolicy)
@@ -20,5 +22,18 @@ module {:extern "ConfigDefaults"} ConfigDefaults {
       configDefaults == Aws.Esdk.V1 ==> res == Aws.Crypto.REQUIRE_ENCRYPT_REQUIRE_DECRYPT
     {
       Aws.Crypto.REQUIRE_ENCRYPT_REQUIRE_DECRYPT
+    }
+
+  /*
+   * The default behavior for max encrypted data keys should be no maximum, which we
+   * represent as 0
+   */
+  function method GetDefaultMaxEncryptedDataKeys(configDefaults : Aws.Esdk.ConfigurationDefaults):
+    (res: int64)
+
+    ensures
+      configDefaults == Aws.Esdk.V1 ==> res == 0
+    {
+      0
     }
 }

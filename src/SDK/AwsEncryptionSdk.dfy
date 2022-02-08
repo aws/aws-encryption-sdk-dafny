@@ -52,6 +52,7 @@ module {:extern "Dafny.Aws.Esdk.AwsEncryptionSdkClient"} AwsEncryptionSdk {
         const config: Esdk.AwsEncryptionSdkClientConfig;
 
         const commitmentPolicy: Crypto.CommitmentPolicy;
+        const maxEncryptedDataKeys: int64;
 
         constructor (config: Esdk.AwsEncryptionSdkClientConfig)
             ensures this.config == config
@@ -69,6 +70,13 @@ module {:extern "Dafny.Aws.Esdk.AwsEncryptionSdkClient"} AwsEncryptionSdk {
                 this.commitmentPolicy := defaultPolicy;
             } else {
                 this.commitmentPolicy := config.commitmentPolicy.value;
+            }
+
+            if config.maxEncryptedDataKeys.None? {
+                var maxEncryptedDataKeys := ConfigDefaults.GetDefaultMaxEncryptedDataKeys(config.configDefaults);
+                this.maxEncryptedDataKeys := maxEncryptedDataKeys;
+            } else {
+                this.maxEncryptedDataKeys := config.maxEncryptedDataKeys.value;
             }
         }
 
@@ -153,6 +161,15 @@ module {:extern "Dafny.Aws.Esdk.AwsEncryptionSdkClient"} AwsEncryptionSdk {
                 input.encryptionContext,
                 maxPlaintextLength as int64
             );
+
+            //= compliance/client-apis/encrypt.txt#2.6.1
+            //# If the number of
+            //# encrypted data keys (../framework/structures.md#encrypted-data-keys)
+            //# on the encryption materials (../framework/structures.md#encryption-
+            //# materials) is greater than the maximum number of encrypted data keys
+            //# (client.md#maximum-number-of-encrypted-data-keys) configured in the
+            //# client (client.md) encrypt MUST yield an error.
+            var _ :- ValidateMaxEncryptedDataKeys(materials.encryptedDataKeys);
 
             //= compliance/client-apis/encrypt.txt#2.6.1
             //# If this
@@ -495,11 +512,10 @@ module {:extern "Dafny.Aws.Esdk.AwsEncryptionSdkClient"} AwsEncryptionSdk {
 
             var buffer := SerializeFunctions.ReadableBuffer(input.ciphertext, 0);
             var headerBody :- Header
-                .ReadHeaderBody(buffer)
+                .ReadHeaderBody(buffer, this.maxEncryptedDataKeys)
                 .MapFailure(EncryptDecryptHelpers.MapSerializeFailure(": ReadHeaderBody"));
 
             var rawHeader := headerBody.tail.bytes[buffer.start..headerBody.tail.start];
-
 
             var algorithmSuiteId := SerializableTypes.GetAlgorithmSuiteId(headerBody.data.esdkSuiteId);
             var _ := Client.SpecificationClient().ValidateCommitmentPolicyOnDecrypt(
@@ -637,6 +653,27 @@ module {:extern "Dafny.Aws.Esdk.AwsEncryptionSdkClient"} AwsEncryptionSdk {
             :- Need(SerializableTypes.IsESDKEncryptionContext(decMat.encryptionContext), "CMM failed to return serializable encryption materials.");
 
             return Success(decMat);
+        }
+
+        method ValidateMaxEncryptedDataKeys(edks: SerializableTypes.ESDKEncryptedDataKeys)
+            returns (res: Result<(), string>)
+
+        ensures this.maxEncryptedDataKeys <= 0 ==> res.Success?
+
+        ensures
+            && this.maxEncryptedDataKeys > 0
+            && |edks| as int64 > this.maxEncryptedDataKeys
+        ==>
+            res.Failure?
+        {
+            if
+                && this.maxEncryptedDataKeys > 0
+                && |edks| as int64 > this.maxEncryptedDataKeys
+            {
+                return Failure("Encrypted data keys exceed maxEncryptedDataKeys");
+            } else {
+                return Success(());
+            }
         }
 
     }
