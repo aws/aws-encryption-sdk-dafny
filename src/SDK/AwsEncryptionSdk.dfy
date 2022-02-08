@@ -177,11 +177,6 @@ module {:extern "Dafny.Aws.Esdk.AwsEncryptionSdkClient"} AwsEncryptionSdk {
             :- Need(maybeDerivedDataKeys.Success?, "Failed to derive data keys");
             var derivedDataKeys := maybeDerivedDataKeys.value;
 
-            if (suite.commitment.HKDF?) {
-                :- Need(derivedDataKeys.commitmentKey.Some?, "foo");
-                :- Need(|derivedDataKeys.commitmentKey.value| == suite.commitment.outputKeyLength as int, "foo");
-            }
-
             var maybeHeader := BuildHeader(
                 messageId,
                 suite,
