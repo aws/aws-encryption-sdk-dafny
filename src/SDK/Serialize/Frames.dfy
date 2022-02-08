@@ -12,7 +12,7 @@ include "Header.dfy"
 include "EncryptionContext.dfy"
 include "EncryptedDataKeys.dfy"
 
-module {:vcs_split_on_every_assert} Frames {
+module Frames {
   import Aws.Crypto
   import Seq
   import Header
