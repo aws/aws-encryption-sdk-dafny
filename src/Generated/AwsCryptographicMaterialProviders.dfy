@@ -188,7 +188,7 @@ module {:extern "Dafny.Aws.Crypto"} Aws.Crypto {
 
     datatype ImportRSAKeyInput = ImportRSAKeyInput(
       pem: seq<uint8>,
-      strength: int32,
+      strength: int64,
       paddingScheme: PaddingScheme
     )
 

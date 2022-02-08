@@ -15,8 +15,6 @@ include "../../Util/Streams.dfy"
 include "../../Generated/AwsCryptographicMaterialProviders.dfy"
 include "../../../libraries/src/Collections/Sequences/Seq.dfy"
 
-
-
 module
   {:extern "Dafny.Aws.Crypto.MaterialProviders.RawRSAKeyring"}
   MaterialProviders.RawRSAKeyring
@@ -46,6 +44,87 @@ module
     ((RSAEncryption.MinStrengthBytes(padding) * 8) - 7) as RSAEncryption.StrengthBits
   }
 
+  function method ToLocalPadding(
+    padding: Crypto.PaddingScheme
+  ): RSAEncryption.PaddingMode
+  {
+    match padding
+      case PKCS1 => RSAEncryption.PaddingMode.PKCS1
+      case OAEP_SHA1_MGF1 => RSAEncryption.PaddingMode.OAEP_SHA1
+      case OAEP_SHA256_MGF1 => RSAEncryption.PaddingMode.OAEP_SHA256
+      case OAEP_SHA384_MGF1 => RSAEncryption.PaddingMode.OAEP_SHA384
+      case OAEP_SHA512_MGF1 => RSAEncryption.PaddingMode.OAEP_SHA512
+  }
+
+  //TODO :: What external method can we use to verify a pem is a pem?
+  //= compliance/framework/raw-rsa-keyring.txt#2.5.3
+  //# The raw RSA keyring SHOULD support loading PEM
+  //# encoded PKCS #8 PrivateKeyInfo structures
+  //# (https://tools.ietf.org/html/rfc5958#section-2) as private keys.
+  method ImportPrivateKey(
+    pem: seq<uint8>,
+    strength: RSAEncryption.StrengthBits,
+    padding: RSAEncryption.PaddingMode
+  ) returns (res: Result<RSAPrivateKey, Crypto.IAwsCryptographicMaterialProvidersException>)
+    requires |pem| > 0
+    requires RSAEncryption.GetBytes(strength) >= RSAEncryption.MinStrengthBytes(padding)
+    ensures
+      res.Success?
+    ==>
+      && res.value.strength >= PaddingSchemeToMinStrengthBits(padding)
+      && res.value.padding == padding
+      && res.value.Valid()
+      && RSAEncryption.PEMGeneratedWithPadding(res.value.pem, res.value.padding)
+      && RSAEncryption.PEMGeneratedWithStrength(res.value.pem, res.value.strength)
+  {
+    var verifiedPemRes := RSAEncryption.ParsePemExtern(
+      pem,
+      strength,
+      padding
+    );
+    var verifiedPem :- Crypto.AwsCryptographicMaterialProvidersClientException.WrapResultString(
+      verifiedPemRes
+    );
+    var key := new RSAEncryption.PrivateKey(
+      pem := verifiedPem.pem,
+      padding := verifiedPem.padding,
+      strength := verifiedPem.strength
+    );
+    return Success(key);
+  }
+
+  //TODO :: What external method can we use to verify a pem is a pem?
+  method ImportPublicKey(
+    pem: seq<uint8>,
+    strength: RSAEncryption.StrengthBits,
+    padding: RSAEncryption.PaddingMode
+  ) returns (res: Result<RSAPublicKey, Crypto.IAwsCryptographicMaterialProvidersException>)
+    requires |pem| > 0
+    requires RSAEncryption.GetBytes(strength) >= RSAEncryption.MinStrengthBytes(padding)
+    ensures
+      res.Success?
+    ==>
+      && res.value.strength >= PaddingSchemeToMinStrengthBits(padding)
+      && res.value.padding == padding
+      && res.value.Valid()
+      && RSAEncryption.PEMGeneratedWithPadding(res.value.pem, res.value.padding)
+      && RSAEncryption.PEMGeneratedWithStrength(res.value.pem, res.value.strength)
+  {
+    var verifiedPemRes := RSAEncryption.ParsePemExtern(
+      pem,
+      strength,
+      padding
+    );
+    var verifiedPem :- Crypto.AwsCryptographicMaterialProvidersClientException.WrapResultString(
+      verifiedPemRes
+    );
+    var key := new RSAEncryption.PublicKey(
+      pem := verifiedPem.pem,
+      padding := verifiedPem.padding,
+      strength := verifiedPem.strength
+    );
+    return Success(key);
+  }  
   //= compliance/framework/raw-rsa-keyring.txt#2.5.2
   //= type=TODO
   //# The raw RSA keyring SHOULD support loading PEM
@@ -381,60 +460,5 @@ module
       && edk.keyProviderId == this.keyNamespace
       && |edk.ciphertext| > 0
     }
-
-    //TODO :: What external method can we use to verify a pem is a pem?
-    //= compliance/framework/raw-rsa-keyring.txt#2.5.3
-    //# The raw RSA keyring SHOULD support loading PEM
-    //# encoded PKCS #8 PrivateKeyInfo structures
-    //# (https://tools.ietf.org/html/rfc5958#section-2) as private keys.
-    method ImportPrivateKey(
-      pem: seq<uint8>,
-      padding: RSAEncryption.PaddingMode
-    ) returns (res: Result<RSAPrivateKey, string>)
-      requires |pem| > 0
-      requires RSAEncryption.GetBytes(PaddingSchemeToMinStrengthBits(padding)) >= RSAEncryption.MinStrengthBytes(padding)
-      requires RSAEncryption.PEMGeneratedWithStrength(pem, PaddingSchemeToMinStrengthBits(padding))
-      requires RSAEncryption.PEMGeneratedWithPadding(pem, padding)
-      ensures
-        res.Success?
-      ==>
-        && res.value.pem == pem
-        && res.value.strength >= PaddingSchemeToMinStrengthBits(padding)
-        && res.value.padding == padding
-        && res.value.Valid()
-    {
-      var key := new RSAEncryption.PrivateKey(
-        pem := pem,
-        padding := padding,
-        strength := PaddingSchemeToMinStrengthBits(padding)
-      );
-      return Success(key);
-    }
-
-    //TODO :: What external method can we use to verify a pem is a pem?
-    method ImportPublicKey(
-      pem: seq<uint8>,
-      padding: RSAEncryption.PaddingMode
-    ) returns (res: Result<RSAPublicKey, string>)
-      requires |pem| > 0
-      requires RSAEncryption.GetBytes(PaddingSchemeToMinStrengthBits(padding)) >= RSAEncryption.MinStrengthBytes(padding)
-      requires RSAEncryption.PEMGeneratedWithStrength(pem, PaddingSchemeToMinStrengthBits(padding))
-      requires RSAEncryption.PEMGeneratedWithPadding(pem, padding)
-      ensures
-        res.Success?
-      ==>
-        && res.value.pem == pem
-        && res.value.strength >= PaddingSchemeToMinStrengthBits(padding)
-        && res.value.padding == padding
-        && res.value.Valid()
-    {
-      var key := new RSAEncryption.PublicKey(
-        pem := pem,
-        padding := padding,
-        strength := PaddingSchemeToMinStrengthBits(padding)
-      );
-      return Success(key);
-    }
-
   }
 }

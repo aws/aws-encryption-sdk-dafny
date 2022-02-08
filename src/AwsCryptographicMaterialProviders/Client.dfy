@@ -76,7 +76,9 @@ module
       AwsCryptographicMaterialProvidersClient.CreateAwsKmsDiscoveryKeyring,
       AwsCryptographicMaterialProvidersClient.CreateDefaultCryptographicMaterialsManager,
       AwsCryptographicMaterialProvidersClient.CreateMultiKeyring,
-      AwsCryptographicMaterialProvidersClient.CreateRawRsaKeyring
+      AwsCryptographicMaterialProvidersClient.CreateRawRsaKeyring,
+      AwsCryptographicMaterialProvidersClient.ImportPrivateRSAKey,
+      AwsCryptographicMaterialProvidersClient.ImportPublicRSAKey
 
   datatype SpecificationClient = SpecificationClient(
     // Whatever top level closure is added to the constructor needs to be added here
@@ -284,13 +286,7 @@ module
         return Failure(error);
       }
 
-      var padding: RSAEncryption.PaddingMode := match input.paddingScheme
-        case PKCS1 => RSAEncryption.PaddingMode.PKCS1
-        case OAEP_SHA1_MGF1 => RSAEncryption.PaddingMode.OAEP_SHA1
-        case OAEP_SHA256_MGF1 => RSAEncryption.PaddingMode.OAEP_SHA256
-        case OAEP_SHA384_MGF1 => RSAEncryption.PaddingMode.OAEP_SHA384
-        case OAEP_SHA512_MGF1 => RSAEncryption.PaddingMode.OAEP_SHA512
-      ;
+      var padding := RawRSAKeyring.ToLocalPadding(input.paddingScheme);
 
       var namespaceRes := UTF8.Encode(input.keyNamespace);
       var namespace := []; // TODO: This value gets used below if UTF8.Encode fails
@@ -307,6 +303,58 @@ module
       expect |name| < UINT16_LIMIT;       // So both must respect message size limit
       var keyring := new RawRSAKeyring.RawRSAKeyring(namespace, name, input.publicKey, input.privateKey, padding);
       return Success(keyring);
+    }
+
+    method ImportPrivateRSAKey(input: Crypto.ImportRSAKeyInput)
+      returns (res: Result<Crypto.IKey, Crypto.IAwsCryptographicMaterialProvidersException>)
+      ensures res.Success? ==> 81 <= input.strength < (0x8000_0000)
+    {
+      var padding := RawRSAKeyring.ToLocalPadding(input.paddingScheme);
+      :- Crypto.Need(
+        81 <= input.strength < (0x8000_0000),
+        "RSA Key Strength must be greater than 80"
+      );
+      var strength := input.strength as RSAEncryption.StrengthBits;
+      :- Crypto.Need(
+        RSAEncryption.GetBytes(strength) >= RSAEncryption.MinStrengthBytes(padding),
+        "Key strength is not great enough for padding scheme"
+      );
+      :- Crypto.Need(
+        |input.pem| > 0,
+        "Key length must be greater than 0"
+      );  
+      var key :- RawRSAKeyring.ImportPrivateKey(
+        input.pem,
+        strength,
+        padding
+      );
+      return Success(key);  
+    }
+
+    method ImportPublicRSAKey(input: Crypto.ImportRSAKeyInput)
+      returns (res: Result<Crypto.IKey, Crypto.IAwsCryptographicMaterialProvidersException>)
+      ensures res.Success? ==> 81 <= input.strength < (0x8000_0000)
+    {
+      var padding := RawRSAKeyring.ToLocalPadding(input.paddingScheme);
+      :- Crypto.Need(
+        81 <= input.strength < (0x8000_0000),
+        "RSA Key Strength must be greater than 80"
+      );
+      var strength := input.strength as RSAEncryption.StrengthBits;
+      :- Crypto.Need(
+        RSAEncryption.GetBytes(strength) >= RSAEncryption.MinStrengthBytes(padding),
+        "Key strength is not great enough for padding scheme"
+      );
+      :- Crypto.Need(
+        |input.pem| > 0,
+        "Key length must be greater than 0"
+      );
+      var key :- RawRSAKeyring.ImportPublicKey(
+        input.pem,
+        strength,
+        padding
+      );
+      return Success(key);
     }
   }
 }

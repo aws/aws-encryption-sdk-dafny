@@ -2,10 +2,12 @@
 // SPDX-License-Identifier: Apache-2.0
 
 include "../StandardLibrary/StandardLibrary.dfy"
+include "../Generated/AwsCryptographicMaterialProviders.dfy"
 
 module {:extern "RSAEncryption"} RSAEncryption {
   import opened Wrappers
   import opened UInt = StandardLibrary.UInt
+  import Aws.Crypto  
 
   //= compliance/framework/raw-rsa-keyring.txt#2.5.1.1
   //= type=implication
@@ -28,10 +30,10 @@ module {:extern "RSAEncryption"} RSAEncryption {
   newtype {:nativeType "int", "number"} StrengthBits = x | 81 <= x < (0x8000_0000) witness 81
 
   // This trait represents the parent for RSA public and private keys
-  trait {:termination false} Key {
+  trait {:termination false} Key extends Crypto.IKey {
     ghost var Repr: set<object>
-    ghost const strength: StrengthBits
-    ghost const padding: PaddingMode
+    const strength: StrengthBits
+    const padding: PaddingMode
     const pem: seq<uint8>
     predicate Valid()
     {
@@ -48,8 +50,8 @@ module {:extern "RSAEncryption"} RSAEncryption {
   predicate {:axiom} PEMGeneratedWithPadding(pem: seq<uint8>, padding: PaddingMode)
 
   // PrivateKey represents an extension of Key for RSA private keys to aid with type safety
-  class PrivateKey extends Key {
-    constructor(pem: seq<uint8>, ghost strength: StrengthBits, ghost padding: PaddingMode)
+  class PrivateKey extends Key, Crypto.IKey {
+    constructor(pem: seq<uint8>, strength: StrengthBits, padding: PaddingMode)
     requires |pem| > 0
     requires GetBytes(strength) >= MinStrengthBytes(padding)
     requires PEMGeneratedWithStrength(pem, strength)
@@ -66,8 +68,8 @@ module {:extern "RSAEncryption"} RSAEncryption {
   }
 
   // PublicKey represents an extension of Key for RSA public keys to aid with type safety
-  class PublicKey extends Key {
-    constructor(pem: seq<uint8>, ghost strength: StrengthBits, ghost padding: PaddingMode)
+  class PublicKey extends Key, Crypto.IKey {
+    constructor(pem: seq<uint8>, strength: StrengthBits, padding: PaddingMode)
     requires |pem| > 0
     requires GetBytes(strength) >= MinStrengthBytes(padding)
     requires PEMGeneratedWithStrength(pem, strength)
@@ -90,7 +92,7 @@ module {:extern "RSAEncryption"} RSAEncryption {
   const SHA512_HASH_BYTES := 64
 
   // GetBytes converts a bit strength into the octet (byte) size that can include all bits
-  function GetBytes(bits: StrengthBits): nat {
+  function method GetBytes(bits: StrengthBits): nat {
     (bits as nat + 7) / 8
   }
 
@@ -197,6 +199,22 @@ module {:extern "RSAEncryption"} RSAEncryption {
     ensures PEMGeneratedWithPadding(publicKey, padding)
     ensures PEMGeneratedWithPadding(privateKey, padding)
 
+
+  method {:extern "RSAEncryption.RSA", "ParsePemExtern"} ParsePemExtern(
+    pem: seq<uint8>,
+    strength: StrengthBits,
+    padding: PaddingMode
+  ) returns (res: Result<Key, string>)
+    ensures res.Success? ==> PEMGeneratedWithStrength(res.value.pem, strength)
+    ensures res.Success? ==> PEMGeneratedWithPadding(res.value.pem, padding)
+    ensures
+      res.Success?
+    ==>
+      && res.value.pem == pem
+      && res.value.strength == strength
+      && res.value.padding == padding
+
+  
   // Note: Customers should call Decrypt instead of DecryptExtern to ensure type safety and additional
   // verification
   method {:extern "RSAEncryption.RSA", "DecryptExtern"} DecryptExtern(padding: PaddingMode, privateKey: seq<uint8>,
