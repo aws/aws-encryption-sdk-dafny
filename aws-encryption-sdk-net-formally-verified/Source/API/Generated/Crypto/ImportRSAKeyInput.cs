@@ -11,11 +11,11 @@ namespace Aws.Crypto
 {
     public class ImportRSAKeyInput
     {
-        private System.IO.MemoryStream _pem;
+        private string _pem;
         private long? _strength;
         private Aws.Crypto.PaddingScheme _paddingScheme;
 
-        public System.IO.MemoryStream Pem
+        public string Pem
         {
             get { return this._pem; }
             set { this._pem = value; }

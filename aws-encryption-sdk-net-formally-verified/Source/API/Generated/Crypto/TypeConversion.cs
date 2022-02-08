@@ -1102,16 +1102,14 @@ namespace Aws.Crypto
             return ToDafny_N3_aws__N6_crypto__S19_DecryptionMaterials(value);
         }
 
-        public static System.IO.MemoryStream FromDafny_N3_aws__N6_crypto__S17_ImportRSAKeyInput__M3_pem(
-            Dafny.ISequence<byte> value)
+        public static string FromDafny_N3_aws__N6_crypto__S17_ImportRSAKeyInput__M3_pem(Dafny.ISequence<char> value)
         {
-            return FromDafny_N6_smithy__N3_api__S4_Blob(value);
+            return FromDafny_N6_smithy__N3_api__S6_String(value);
         }
 
-        public static Dafny.ISequence<byte> ToDafny_N3_aws__N6_crypto__S17_ImportRSAKeyInput__M3_pem(
-            System.IO.MemoryStream value)
+        public static Dafny.ISequence<char> ToDafny_N3_aws__N6_crypto__S17_ImportRSAKeyInput__M3_pem(string value)
         {
-            return ToDafny_N6_smithy__N3_api__S4_Blob(value);
+            return ToDafny_N6_smithy__N3_api__S6_String(value);
         }
 
         public static Aws.Crypto.PaddingScheme
@@ -1368,8 +1366,7 @@ namespace Aws.Crypto
         {
             Dafny.Aws.Crypto.ImportRSAKeyInput concrete = (Dafny.Aws.Crypto.ImportRSAKeyInput) value;
             Aws.Crypto.ImportRSAKeyInput converted = new Aws.Crypto.ImportRSAKeyInput();
-            converted.Pem =
-                (System.IO.MemoryStream) FromDafny_N3_aws__N6_crypto__S17_ImportRSAKeyInput__M3_pem(concrete.pem);
+            converted.Pem = (string) FromDafny_N3_aws__N6_crypto__S17_ImportRSAKeyInput__M3_pem(concrete.pem);
             converted.Strength =
                 (long) FromDafny_N3_aws__N6_crypto__S17_ImportRSAKeyInput__M8_strength(concrete.strength);
             converted.PaddingScheme =
