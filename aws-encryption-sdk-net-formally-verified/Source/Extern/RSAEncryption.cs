@@ -97,12 +97,12 @@ namespace RSAEncryption {
             GetPemBytes(keygenPair, out publicKeyBytes, out privateKeyBytes);
         }
 
-        public static _IResult<ibyteseq, icharseq> ParsePemExtern(string pemstring, int strength, _IPaddingMode padding)
+        public static _IResult<ibyteseq, icharseq> ParsePemExtern(icharseq pemstring, int strength, _IPaddingMode padding)
         {
             try
             {
                 byte[] pembytes;
-                pembytes = ParsePEMString(pemstring);
+                pembytes = ParsePEMString(DafnyFFI.StringFromDafnyString(pemstring));
                 ibyteseq pem = byteseq.FromArray(pembytes);
                 return Result<ibyteseq, icharseq>.create_Success(pem);
             }
