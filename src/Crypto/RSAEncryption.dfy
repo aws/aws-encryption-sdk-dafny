@@ -2,12 +2,10 @@
 // SPDX-License-Identifier: Apache-2.0
 
 include "../StandardLibrary/StandardLibrary.dfy"
-include "../Generated/AwsCryptographicMaterialProviders.dfy"
 
 module {:extern "RSAEncryption"} RSAEncryption {
   import opened Wrappers
   import opened UInt = StandardLibrary.UInt
-  import Aws.Crypto  
 
   //= compliance/framework/raw-rsa-keyring.txt#2.5.1.1
   //= type=implication
@@ -30,7 +28,7 @@ module {:extern "RSAEncryption"} RSAEncryption {
   newtype {:nativeType "int", "number"} StrengthBits = x | 81 <= x < (0x8000_0000) witness 81
 
   // This trait represents the parent for RSA public and private keys
-  trait {:termination false} Key extends Crypto.IKey {
+  trait {:termination false} Key {
     ghost var Repr: set<object>
     const strength: StrengthBits
     const padding: PaddingMode
@@ -50,7 +48,7 @@ module {:extern "RSAEncryption"} RSAEncryption {
   predicate {:axiom} PEMGeneratedWithPadding(pem: seq<uint8>, padding: PaddingMode)
 
   // PrivateKey represents an extension of Key for RSA private keys to aid with type safety
-  class PrivateKey extends Key, Crypto.IKey {
+  class PrivateKey extends Key {
     constructor(pem: seq<uint8>, strength: StrengthBits, padding: PaddingMode)
     requires |pem| > 0
     requires GetBytes(strength) >= MinStrengthBytes(padding)
@@ -68,7 +66,7 @@ module {:extern "RSAEncryption"} RSAEncryption {
   }
 
   // PublicKey represents an extension of Key for RSA public keys to aid with type safety
-  class PublicKey extends Key, Crypto.IKey {
+  class PublicKey extends Key {
     constructor(pem: seq<uint8>, strength: StrengthBits, padding: PaddingMode)
     requires |pem| > 0
     requires GetBytes(strength) >= MinStrengthBytes(padding)
