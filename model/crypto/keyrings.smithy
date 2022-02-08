@@ -221,23 +221,54 @@ structure CreateRawAesKeyringInput {
     wrappingAlg: AesWrappingAlg,
 }
 
-// TODO
- operation CreateRawRsaKeyring {
-     input: CreateRawRsaKeyringInput,
-     output: CreateKeyringOutput,
- }
 
- structure CreateRawRsaKeyringInput {
-     @required
-     keyNamespace: String,
+operation CreateRawRsaKeyring {
+    input: CreateRawRsaKeyringInput,
+    output: CreateKeyringOutput,
+}
 
-     @required
-     keyName: String,
+structure CreateRawRsaKeyringInput {
+    @required
+    keyNamespace: String,
 
-     @required
-     paddingScheme: PaddingScheme,
+    @required
+    keyName: String,
 
-     // One or both is required
-     publicKey: Blob,
-     privateKey: Blob
- }
+    @required
+    paddingScheme: PaddingScheme,
+
+    // One or both is required
+    publicKey: Blob,
+    privateKey: Blob
+}
+
+resource Key {}
+
+@reference(resource: Key)
+structure KeyReference{}
+
+operation ImportPublicRSAKey {
+    input: ImportRSAKeyInput,
+    output: ImportRSAKeyOutput,
+}
+
+operation ImportPrivateRSAKey {
+    input: ImportRSAKeyInput,
+    output: ImportRSAKeyOutput,
+}
+
+structure ImportRSAKeyInput {
+    @required
+    pem: Blob,
+
+    @required
+    strength: Integer,
+
+    @required
+    paddingScheme: PaddingScheme,
+}
+
+structure ImportRSAKeyOutput {
+    key: KeyReference
+}
+    

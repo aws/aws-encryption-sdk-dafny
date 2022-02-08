@@ -32,7 +32,11 @@ service AwsCryptographicMaterialProviders {
 
         // Caches
         // TODO
-        // CreateLocalCryptoMaterialsCache
+        // CreateLocalCryptoMaterialsCache,
+
+        // RSA Keys
+        ImportPublicRSAKey,
+        ImportPrivateRSAKey
     ]
 }
 
