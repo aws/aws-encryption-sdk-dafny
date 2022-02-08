@@ -3,22 +3,12 @@
 
 include "../StandardLibrary/StandardLibrary.dfy"
 include "../StandardLibrary/UInt.dfy"
-include "Serialize/EncryptionContext.dfy"
 include "../AwsCryptographicMaterialProviders/Client.dfy"
-include "../AwsCryptographicMaterialProviders/Materials.dfy"
 include "MessageBody.dfy"
-include "../Crypto/Random.dfy"
-include "../Util/Streams.dfy"
-include "../Crypto/HKDF/HKDF.dfy"
-include "../Crypto/AESEncryption.dfy"
 include "../Crypto/Signature.dfy"
 include "../Generated/AwsCryptographicMaterialProviders.dfy"
-include "../Generated/AwsEncryptionSdk.dfy"
-include "Serialize/SerializableTypes.dfy"
 
-include "Serialize/Header.dfy"
-include "Serialize/HeaderTypes.dfy"
-include "Serialize/V1HeaderBody.dfy"
+include "Serialize/SerializableTypes.dfy"
 include "Serialize/HeaderAuth.dfy"
 include "Serialize/SerializeFunctions.dfy"
 
@@ -28,85 +18,50 @@ module {:extern "EncryptDecryptHelpers"} EncryptDecryptHelpers {
   import opened StandardLibrary
   import opened UInt = StandardLibrary.UInt
   import Aws.Crypto
-  import Aws.Esdk
-  import EncryptionContext
-  import AESEncryption
   import MaterialProviders.Client
-  import HKDF
-  import MaterialProviders.Materials
   import MessageBody
-  import Random
   import Signature
-  import Streams
   import SerializableTypes
   import opened SerializeFunctions
-
-  import Header
-  import HeaderTypes
   import HeaderAuth
-  import V1HeaderBody
 
   const DEFAULT_FRAME_LENGTH : int64 := 4096
 
   // Specification of Encrypt with signature
   function method SerializeMessageWithSignature(
     framedMessage: MessageBody.FramedMessage,
-    signature: seq<uint8>
+    signature: seq<uint8>,
+    suite: Client.AlgorithmSuites.AlgorithmSuite
   )
-    :(message: seq<uint8>)
+    :(res: Result<seq<uint8>, string>)
     requires |signature| < UINT16_LIMIT
-    ensures message
-    == SerializeMessageWithoutSignature(framedMessage) + WriteShortLengthSeq(signature)
+    ensures res.Success?
+    ==> 
+      && var message := SerializeMessageWithoutSignature(framedMessage, suite);
+      && message.Success?
+      && res.value == message.value + WriteShortLengthSeq(signature)
   {
-    SerializeMessageWithoutSignature(framedMessage) + WriteShortLengthSeq(signature)
+    var serializedSignature := WriteShortLengthSeq(signature);
+    var serializedMessage :- SerializeMessageWithoutSignature(framedMessage, suite);
+    Success(serializedMessage + serializedSignature)
   }
 
   // Specification of Encrypt without signature
   function method SerializeMessageWithoutSignature(
-    framedMessage: MessageBody.FramedMessage
+    framedMessage: MessageBody.FramedMessage,
+    suite: Client.AlgorithmSuites.AlgorithmSuite
   )
-    :(message: seq<uint8>)
+    :(message: Result<seq<uint8>, string>)
   {
     // The header
-    framedMessage.finalFrame.header.rawHeader
-    // The header authentication
-    + HeaderAuth.WriteAESMac(framedMessage.finalFrame.header.headerAuth)
-    // The message body i.e. "all the frames"
-    + MessageBody.WriteFramedMessageBody(framedMessage)
-  }
-
-  // This should take materials and the headerBody...
-  // It should return these types together with the derived key.
-  method DeriveKey(
-    plaintextDataKey: seq<uint8>,
-    suite: Client.AlgorithmSuites.AlgorithmSuite,
-    messageID: HeaderTypes.MessageID
-  )
-    returns (derivedDataKey: seq<uint8>)
-    requires |plaintextDataKey| == suite.encrypt.keyLength as int
-    ensures |derivedDataKey| == suite.encrypt.keyLength as int
-    ensures IsDerivedKey(derivedDataKey)
-  {
-    if suite.kdf.IDENTITY? {
-      assert IsDerivedKey(plaintextDataKey) by {
-        reveal IsDerivedKey();
-      }
-      return plaintextDataKey;
-    }
-
-    var algorithmSuiteID := SerializableTypes.GetESDKAlgorithmSuiteId(suite.id);
-    var infoSeq := UInt16ToSeq(algorithmSuiteID as uint16) + messageID;
-    var len := suite.kdf.inputKeyLength as int;
-    var derivedKey := HKDF.Hkdf(suite.kdf.hmac, None, plaintextDataKey, infoSeq, len);
-    assert IsDerivedKey(derivedKey) by {
-      reveal IsDerivedKey();
-    }
-    return derivedKey;
-  }
-
-  predicate {:opaque} IsDerivedKey(derivedDataKey: seq<uint8>)
-  {
-    true
+    var headerAuth :- HeaderAuth.WriteHeaderAuthTag(framedMessage.finalFrame.header.headerAuth, suite);
+    Success(
+      framedMessage.finalFrame.header.rawHeader
+      // The header authentication
+      + headerAuth
+      // The message body i.e. "all the frames"
+      + MessageBody.WriteFramedMessageBody(framedMessage)
+    )
   }
 
   method VerifySignature(
