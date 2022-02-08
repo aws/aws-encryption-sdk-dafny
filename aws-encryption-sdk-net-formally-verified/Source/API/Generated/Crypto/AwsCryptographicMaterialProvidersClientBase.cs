@@ -86,5 +86,21 @@ namespace Aws.Crypto
 
         protected abstract Aws.Crypto.ICryptographicMaterialsManager _CreateDefaultCryptographicMaterialsManager(
             Aws.Crypto.CreateDefaultCryptographicMaterialsManagerInput input);
+
+        public Aws.Crypto.ImportRSAKeyOutput ImportPublicRSAKey(Aws.Crypto.ImportRSAKeyInput input)
+        {
+            input.Validate();
+            return _ImportPublicRSAKey(input);
+        }
+
+        protected abstract Aws.Crypto.ImportRSAKeyOutput _ImportPublicRSAKey(Aws.Crypto.ImportRSAKeyInput input);
+
+        public Aws.Crypto.ImportRSAKeyOutput ImportPrivateRSAKey(Aws.Crypto.ImportRSAKeyInput input)
+        {
+            input.Validate();
+            return _ImportPrivateRSAKey(input);
+        }
+
+        protected abstract Aws.Crypto.ImportRSAKeyOutput _ImportPrivateRSAKey(Aws.Crypto.ImportRSAKeyInput input);
     }
 }
