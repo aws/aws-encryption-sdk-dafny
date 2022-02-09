@@ -34,11 +34,17 @@ namespace Aws.Crypto
         public static readonly AlgorithmSuiteId ALG_AES_256_GCM_IV12_TAG16_HKDF_SHA384_ECDSA_P384 =
             new AlgorithmSuiteId("0x0378");
 
+        public static readonly AlgorithmSuiteId ALG_AES_256_GCM_HKDF_SHA512_COMMIT_KEY = new AlgorithmSuiteId("0x0478");
+
+        public static readonly AlgorithmSuiteId ALG_AES_256_GCM_HKDF_SHA512_COMMIT_KEY_ECDSA_P384 =
+            new AlgorithmSuiteId("0x0578");
+
         public static readonly AlgorithmSuiteId[] Values =
         {
             ALG_AES_128_GCM_IV12_TAG16_HKDF_SHA256, ALG_AES_128_GCM_IV12_TAG16_HKDF_SHA256_ECDSA_P256,
             ALG_AES_128_GCM_IV12_TAG16_NO_KDF, ALG_AES_192_GCM_IV12_TAG16_HKDF_SHA256,
             ALG_AES_192_GCM_IV12_TAG16_HKDF_SHA384_ECDSA_P384, ALG_AES_192_GCM_IV12_TAG16_NO_KDF,
+            ALG_AES_256_GCM_HKDF_SHA512_COMMIT_KEY, ALG_AES_256_GCM_HKDF_SHA512_COMMIT_KEY_ECDSA_P384,
             ALG_AES_256_GCM_IV12_TAG16_HKDF_SHA256, ALG_AES_256_GCM_IV12_TAG16_HKDF_SHA384_ECDSA_P384,
             ALG_AES_256_GCM_IV12_TAG16_NO_KDF
         };

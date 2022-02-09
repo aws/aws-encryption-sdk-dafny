@@ -95,22 +95,20 @@ module
     // (e.g. the ESDK, which also needs to validate commitment policies), but
     // they do not need to be part of the public model. Note that this might
     // need to be tweaked when we extract the material provider library
-    method ValidateCommitmentPolicyOnEncrypt(
+    function method ValidateCommitmentPolicyOnEncrypt(
       algorithm: Crypto.AlgorithmSuiteId,
       commitmentPolicy: Crypto.CommitmentPolicy
-    )
-      returns (res: Result<bool, string>)
+    ): (res: Result<(), string>)
     {
-      res := Commitment.ValidateCommitmentPolicyOnEncrypt(algorithm, commitmentPolicy);
+      Commitment.ValidateCommitmentPolicyOnEncrypt(algorithm, commitmentPolicy)
     }
 
-    method ValidateCommitmentPolicyOnDecrypt(
+    function method ValidateCommitmentPolicyOnDecrypt(
       algorithm: Crypto.AlgorithmSuiteId,
       commitmentPolicy: Crypto.CommitmentPolicy
-    )
-      returns (res: Result<bool, string>)
+    ): (res: Result<(), string>)
     {
-      res := Commitment.ValidateCommitmentPolicyOnDecrypt(algorithm, commitmentPolicy);
+      Commitment.ValidateCommitmentPolicyOnDecrypt(algorithm, commitmentPolicy)
     }
 
   }

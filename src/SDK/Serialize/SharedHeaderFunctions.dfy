@@ -61,22 +61,42 @@ module SharedHeaderFunctions {
     Success(SuccessfulRead(esdkSuiteId, tail))
   }
 
+  /*
+   * Writes the message id as bytes, which, since the message id is already stored
+   * as bytes, simply returns the message id.
+   *
+   * Though we have different V1 and V2 methods for the read path, since
+   * they read different numbers of bytes, a single method on the write path
+   * is fine since writing is identical for both.
+   */
   function method WriteMessageId(
-    messageId: MessageID
+    messageId: MessageId
   ):
     (ret: seq<uint8>)
   {
     messageId
   }
 
-  function method ReadMessageId(
+  function method ReadMessageIdV1(
     buffer: ReadableBuffer
   )
-    :(res: ReadBinaryCorrect<MessageID>)
+    :(res: ReadBinaryCorrect<MessageId>)
     ensures CorrectlyRead(buffer, res, WriteMessageId)
   {
-    var messageIdRead :- SerializeFunctions.Read(buffer, MESSAGE_ID_LEN);
-    var messageId: MessageID := messageIdRead.data;
+    var messageIdRead :- SerializeFunctions.Read(buffer, MESSAGE_ID_LEN_V1);
+    var messageId: MessageId := messageIdRead.data;
+
+    Success(SuccessfulRead(messageId, messageIdRead.tail))
+  }
+
+  function method ReadMessageIdV2(
+    buffer: ReadableBuffer
+  )
+    :(res: ReadBinaryCorrect<MessageId>)
+    ensures CorrectlyRead(buffer, res, WriteMessageId)
+  {
+    var messageIdRead :- SerializeFunctions.Read(buffer, MESSAGE_ID_LEN_V2);
+    var messageId: MessageId := messageIdRead.data;
 
     Success(SuccessfulRead(messageId, messageIdRead.tail))
   }

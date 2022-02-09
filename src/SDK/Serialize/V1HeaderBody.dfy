@@ -73,7 +73,7 @@ module V1HeaderBody {
     var suite := Client.SpecificationClient().GetSuite(suiteId);
     :- Need(suite.commitment.None?, Error("Algorithm suite must not support commitment."));
 
-    var messageId :- SharedHeaderFunctions.ReadMessageId(esdkSuiteId.tail);
+    var messageId :- SharedHeaderFunctions.ReadMessageIdV1(esdkSuiteId.tail);
 
     var encryptionContext :- EncryptionContext.ReadAADSection(messageId.tail);
 
