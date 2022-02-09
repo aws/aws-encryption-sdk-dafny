@@ -82,14 +82,31 @@ module EncryptedDataKeys {
   }
 
   function method ReadEncryptedDataKeysSection(
-    buffer: ReadableBuffer
+    buffer: ReadableBuffer,
+    maxEdks: Option<int64>
   )
     :(res: ReadCorrect<ESDKEncryptedDataKeys>)
     ensures CorrectlyRead(buffer, res, WriteEncryptedDataKeysSection)
   {
     var SuccessfulRead(count, edkStart) :- ReadUInt16(buffer);
-    var SuccessfulRead(edks, tail) :- ReadEncryptedDataKeys(edkStart, [], count, edkStart);
-    Success(SuccessfulRead(edks, tail))
+    
+    if
+      && maxEdks.Some?
+      && maxEdks.value > 0 // TODO: remove once CrypTool-4350 fixed
+      && count as int64 > maxEdks.value
+    then
+      //= compliance/client-apis/decrypt.txt#2.7.1
+      //# If the number of encrypted data keys (../framework/
+      //# structures.md#encrypted-data-keys) deserialized from the message
+      //# header (../data-format/message-header.md) is greater than the maximum
+      //# number of encrypted data keys (client.md#maximum-number-of-encrypted-
+      //# data-keys) configured in the client (client.md), then as soon as that
+      //# can be determined during deserializing decrypt MUST process no more
+      //# bytes and yield an error.
+      Failure(Error("Ciphertext encrypted data keys exceed maxEncryptedDataKeys"))
+    else
+      var SuccessfulRead(edks, tail) :- ReadEncryptedDataKeys(edkStart, [], count, edkStart);
+      Success(SuccessfulRead(edks, tail))
   }
 
   // Completeness Lemmas to prove that ReadX/WriteX are both sound and complete
@@ -241,17 +258,19 @@ module EncryptedDataKeys {
   lemma ReadEncryptedDataKeysSectionIsComplete(
     data: ESDKEncryptedDataKeys,
     bytes: seq<uint8>,
-    buffer: ReadableBuffer
+    buffer: ReadableBuffer,
+    maxEdks: Option<int64>
   )
-    returns (ret: SuccessfulRead<ESDKEncryptedDataKeys>)
+    returns (ret: ReadCorrect<ESDKEncryptedDataKeys>)
     requires
       && WriteEncryptedDataKeysSection(data) == bytes
       && buffer.start <= |buffer.bytes|
       && bytes <= buffer.bytes[buffer.start..]
-    ensures
-      && ret.data == data
-      && ret.tail.start == buffer.start + |bytes|
-      && Success(ret) == ReadEncryptedDataKeysSection(buffer)
+    ensures ret.Success?
+    ==>
+      && ret.value.data == data
+      && ret.value.tail.start == buffer.start + |bytes|
+      && Success(ret.value) == ReadEncryptedDataKeysSection(buffer, maxEdks)
   {
     assert bytes == WriteUint16(|data| as uint16) + WriteEncryptedDataKeys(data);
     assert bytes[|WriteUint16(|data| as uint16)|..] == WriteEncryptedDataKeys(data);
@@ -266,7 +285,18 @@ module EncryptedDataKeys {
     var edks := ReadEncryptedDataKeysIsComplete(data, [], WriteEncryptedDataKeys(data), count.tail);
     assert edks.data == data;
 
-    return ReadEncryptedDataKeysSection(buffer).value;
+    var edksSection := ReadEncryptedDataKeysSection(buffer, maxEdks);
+    if
+      && maxEdks.Some?
+      && maxEdks.value > 0 // TODO: remove once CrypTool-4350 fixed
+      && |edks.data| as int64 > maxEdks.value
+    {
+      assert edksSection.Failure?;
+      return edksSection;
+    } else {
+      assert edksSection.Success?;
+      return edksSection;
+    }
   }
 
 }

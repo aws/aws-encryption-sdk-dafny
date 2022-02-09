@@ -1,6 +1,7 @@
 // Copyright Amazon.com Inc. or its affiliates. All Rights Reserved.
 // SPDX-License-Identifier: Apache-2.0
 
+include "../StandardLibrary/UInt.dfy"
 include "../Generated/AwsEncryptionSdk.dfy"
 include "../Generated/AwsCryptographicMaterialProviders.dfy"
 
@@ -12,6 +13,7 @@ include "../Generated/AwsCryptographicMaterialProviders.dfy"
 module {:extern "ConfigDefaults"} ConfigDefaults {
 
   import Aws
+  import opened UInt = StandardLibrary.UInt
 
   function method GetDefaultCommitmentPolicy(configDefaults : Aws.Esdk.ConfigurationDefaults):
     (res: Aws.Crypto.CommitmentPolicy)

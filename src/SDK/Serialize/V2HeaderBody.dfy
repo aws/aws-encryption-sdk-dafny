@@ -48,7 +48,8 @@ module V2HeaderBody {
   }
 
   function method ReadV2HeaderBody(
-    buffer: ReadableBuffer
+    buffer: ReadableBuffer,
+    maxEdks: Option<int64>
   )
     :(res: ReadCorrect<V2HeaderBody>)
     ensures CorrectlyReadV2HeaderBody(buffer, res)
@@ -65,7 +66,7 @@ module V2HeaderBody {
 
     var encryptionContext :- EncryptionContext.ReadAADSection(messageId.tail);
 
-    var encryptedDataKeys :- EncryptedDataKeys.ReadEncryptedDataKeysSection(encryptionContext.tail);
+    var encryptedDataKeys :- EncryptedDataKeys.ReadEncryptedDataKeysSection(encryptionContext.tail, maxEdks);
 
     var contentType :- SharedHeaderFunctions.ReadContentType(encryptedDataKeys.tail);
 
