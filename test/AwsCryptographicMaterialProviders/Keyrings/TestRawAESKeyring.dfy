@@ -36,14 +36,13 @@ module TestRawAESKeyring {
       ));
     var encryptionContext := TestUtils.SmallEncryptionContext(TestUtils.SmallEncryptionContextVariation.A);
 
-    var wrappingAlgorithmID := Crypto.ALG_AES_256_GCM_IV12_TAG16_HKDF_SHA384_ECDSA_P384;
-    var signingKey := seq(32, i => 0);
+    var wrappingAlgorithmID := Crypto.ALG_AES_256_GCM_IV12_TAG16_HKDF_SHA256;
     var encryptionMaterialsIn := Crypto.EncryptionMaterials(
       encryptionContext:=encryptionContext,
       algorithmSuiteId:=wrappingAlgorithmID,
       plaintextDataKey:=None(),
       encryptedDataKeys:=[],
-      signingKey:=Some(signingKey)
+      signingKey:=None()
     );
     var encryptionMaterialsOut :- expect rawAESKeyring.OnEncrypt(Crypto.OnEncryptInput(materials:=encryptionMaterialsIn));
 
@@ -61,13 +60,12 @@ module TestRawAESKeyring {
 
     var pdk := encryptionMaterialsOut.materials.plaintextDataKey;
     var edk := encryptionMaterialsOut.materials.encryptedDataKeys[0];
-    var verificationKey := seq(32, i => 0);
 
     var decryptionMaterialsIn := Crypto.DecryptionMaterials(
       encryptionContext:=encryptionContext,
       algorithmSuiteId:=wrappingAlgorithmID,
       plaintextDataKey:=None(),
-      verificationKey:=Some(verificationKey)
+      verificationKey:=None()
     );
     var decryptionMaterialsOut :- expect rawAESKeyring.OnDecrypt(Crypto.OnDecryptInput(materials:=decryptionMaterialsIn, encryptedDataKeys:=[edk]));
 
@@ -95,26 +93,24 @@ module TestRawAESKeyring {
 
     var pdk := seq(32, i => 0);
 
-    var wrappingAlgorithmID := Crypto.ALG_AES_256_GCM_IV12_TAG16_HKDF_SHA384_ECDSA_P384;
-    var signingKey := seq(32, i => 0);
+    var wrappingAlgorithmID := Crypto.ALG_AES_256_GCM_IV12_TAG16_HKDF_SHA256;
     var encryptionMaterialsIn := Crypto.EncryptionMaterials(
       encryptionContext:=encryptionContext,
       algorithmSuiteId:=wrappingAlgorithmID,
       plaintextDataKey:=Some(pdk),
       encryptedDataKeys:=[],
-      signingKey:=Some(signingKey)
+      signingKey:=None()
     );
     var encryptionMaterialsOut :- expect rawAESKeyring.OnEncrypt(Crypto.OnEncryptInput(materials:=encryptionMaterialsIn));
     expect |encryptionMaterialsOut.materials.encryptedDataKeys| == 1;
 
     var edk := encryptionMaterialsOut.materials.encryptedDataKeys[0];
-    var verificationKey := seq(32, i => 0);
 
     var decryptionMaterialsIn := Crypto.DecryptionMaterials(
       encryptionContext:=encryptionContext,
       algorithmSuiteId:=wrappingAlgorithmID,
       plaintextDataKey:=None(),
-      verificationKey:=Some(verificationKey)
+      verificationKey:=None()
     );
     var decryptionMaterialsOut :- expect rawAESKeyring.OnDecrypt(Crypto.OnDecryptInput(materials:=decryptionMaterialsIn, encryptedDataKeys:=[edk]));
 
@@ -154,26 +150,24 @@ module TestRawAESKeyring {
 
     var pdk := seq(32, i => 0);
 
-    var wrappingAlgorithmID := Crypto.ALG_AES_256_GCM_IV12_TAG16_HKDF_SHA384_ECDSA_P384;
-    var signingKey := seq(32, i => 0);
+    var wrappingAlgorithmID := Crypto.ALG_AES_256_GCM_IV12_TAG16_HKDF_SHA256;
     var encryptionMaterialsIn := Crypto.EncryptionMaterials(
       encryptionContext:=encryptionContext,
       algorithmSuiteId:=wrappingAlgorithmID,
       plaintextDataKey:=Some(pdk),
       encryptedDataKeys:=[],
-      signingKey:=Some(signingKey)
+      signingKey:=None()
     );
     var encryptionMaterialsOut :- expect mismatchedAESKeyring.OnEncrypt(Crypto.OnEncryptInput(materials:=encryptionMaterialsIn));
     expect |encryptionMaterialsOut.materials.encryptedDataKeys| == 1;
 
     var edk := encryptionMaterialsOut.materials.encryptedDataKeys[0];
-    var verificationKey := seq(32, i => 0);
 
     var decryptionMaterialsIn := Crypto.DecryptionMaterials(
       encryptionContext:=encryptionContext,
       algorithmSuiteId:=wrappingAlgorithmID,
       plaintextDataKey:=None(),
-      verificationKey:=Some(verificationKey)
+      verificationKey:=None()
     );
     var decryptionMaterialsOut := rawAESKeyring.OnDecrypt(Crypto.OnDecryptInput(materials:=decryptionMaterialsIn, encryptedDataKeys:=[edk]));
     expect decryptionMaterialsOut.IsFailure();
@@ -206,7 +200,7 @@ module TestRawAESKeyring {
     );
     expect |encryptionMaterialsOut.materials.encryptedDataKeys| == 1;
     var edk := encryptionMaterialsOut.materials.encryptedDataKeys[0];
-    
+
     var decryptionMaterialsIn := Crypto.DecryptionMaterials(
       encryptionContext:=encryptionContext,
       algorithmSuiteId:=wrappingAlgorithmID,
@@ -217,7 +211,7 @@ module TestRawAESKeyring {
       keyProviderId := edk.keyProviderId,
       keyProviderInfo := edk.keyProviderInfo,
       ciphertext := seq(|edk.ciphertext|, i => 0)
-    );  
+    );
     var decryptionMaterialsOut :- expect rawAESKeyring.OnDecrypt(
       Crypto.OnDecryptInput(
         materials:=decryptionMaterialsIn,
@@ -227,7 +221,7 @@ module TestRawAESKeyring {
     expect decryptionMaterialsOut.materials.plaintextDataKey == Some(pdk);
   }
 
-  
+
   // TODO test with EDK that shouldn't be decrypted, so with another Keyring e.g.
 
   //= compliance/framework/raw-aes-keyring.txt#2.7.1
@@ -317,14 +311,13 @@ module TestRawAESKeyring {
         tagLength := 16 as AESEncryption.TagLength,
         ivLength := 12 as AESEncryption.IVLength
       ));
-    var wrappingAlgorithmID := Crypto.ALG_AES_256_GCM_IV12_TAG16_HKDF_SHA384_ECDSA_P384;
-    var signingKey := seq(32, i => 0);
+    var wrappingAlgorithmID := Crypto.ALG_AES_256_GCM_IV12_TAG16_HKDF_SHA256;
     var encryptionMaterialsIn := Crypto.EncryptionMaterials(
       encryptionContext:=encryptionContext,
       algorithmSuiteId:=wrappingAlgorithmID,
       plaintextDataKey:=None(),
       encryptedDataKeys:=[],
-      signingKey:=Some(signingKey)
+      signingKey:=None()
     );
     var encryptionMaterialsOut :- expect rawAESKeyring.OnEncrypt(Crypto.OnEncryptInput(materials:=encryptionMaterialsIn));
     expect encryptionMaterialsOut.materials.plaintextDataKey.Some?;
@@ -333,13 +326,12 @@ module TestRawAESKeyring {
 
     // Set up EC that can't be serialized
     var unserializableEncryptionContext := generateUnserializableEncryptionContext();
-    var verificationKey := seq(32, i => 0);
 
     var decryptionMaterialsIn := Crypto.DecryptionMaterials(
       encryptionContext:=unserializableEncryptionContext,
       algorithmSuiteId:=wrappingAlgorithmID,
       plaintextDataKey:=None(),
-      verificationKey:=Some(verificationKey)
+      verificationKey:=None()
     );
     var decryptionMaterialsOut := rawAESKeyring.OnDecrypt(Crypto.OnDecryptInput(materials:=decryptionMaterialsIn, encryptedDataKeys:=[edk]));
     expect decryptionMaterialsOut.Failure?;

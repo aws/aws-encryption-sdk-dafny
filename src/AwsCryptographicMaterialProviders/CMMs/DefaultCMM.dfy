@@ -48,7 +48,7 @@ module
         && Materials.EncryptionMaterialsWithPlaintextDataKey(res.value.encryptionMaterials)
         && (
           AlgorithmSuites.GetSuite(res.value.encryptionMaterials.algorithmSuiteId).signature.ECDSA?
-        ==>
+        <==>
           Materials.EC_PUBLIC_KEY_FIELD in res.value.encryptionMaterials.encryptionContext
         )
       ensures Materials.EC_PUBLIC_KEY_FIELD in input.encryptionContext ==> res.Failure?
@@ -142,6 +142,19 @@ module
       ==>
         && Materials.DecryptionMaterialsWithPlaintextDataKey(res.value.decryptionMaterials)
 
+      // If the input has either
+      //   (a) an unsigned algorithm suite and the aws-crypto-public-key encryption context key
+      //   (b) a signing algorithm suite and no aws-crypto-public-key encryption context key
+      // then the operation SHOULD fail.
+      // (Here we strengthen the SHOULD to a MUST.)
+      ensures
+        (
+          AlgorithmSuites.GetSuite(input.algorithmSuiteId).signature.None?
+          <==>
+          (Materials.EC_PUBLIC_KEY_FIELD in input.encryptionContext)
+        )
+        ==> res.Failure?
+
       //= compliance/framework/default-cmm.txt#2.6.2
       //= type=implication
       //# The request MUST fail if the algorithm suite on the request is not
@@ -191,7 +204,7 @@ module
     ==>
       && Materials.ValidEncryptionMaterials(res.value)
       && res.value.algorithmSuiteId == suite.id
-      && (suite.signature.ECDSA? ==> Materials.EC_PUBLIC_KEY_FIELD in res.value.encryptionContext)
+      && (!suite.signature.None? <==> Materials.EC_PUBLIC_KEY_FIELD in res.value.encryptionContext)
   {
     match suite.signature
       case None =>
@@ -228,6 +241,10 @@ module
       ==>
         && Materials.ValidDecryptionMaterials(res.value)
         && res.value.algorithmSuiteId == suite.id
+      ensures
+        (suite.signature.None? <==> Materials.EC_PUBLIC_KEY_FIELD in encryptionContext)
+      ==>
+        res.Failure?
     {
       match suite.signature
         case None =>
