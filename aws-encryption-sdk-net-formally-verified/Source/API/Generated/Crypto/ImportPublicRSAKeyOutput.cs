@@ -9,7 +9,7 @@ using
 
 namespace Aws.Crypto
 {
-    public class ImportRSAKeyOutput
+    public class ImportPublicRSAKeyOutput
     {
         private Aws.Crypto.IKey _key;
 

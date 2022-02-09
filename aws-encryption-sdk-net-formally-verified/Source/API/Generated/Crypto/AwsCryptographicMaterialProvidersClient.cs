@@ -131,30 +131,30 @@ namespace Aws.Crypto
                 result.dtor_value);
         }
 
-        protected override Aws.Crypto.ImportRSAKeyOutput _ImportPublicRSAKey(Aws.Crypto.ImportRSAKeyInput input)
+        protected override Aws.Crypto.ImportPublicRSAKeyOutput _ImportPublicRSAKey(Aws.Crypto.ImportRSAKeyInput input)
         {
             Dafny.Aws.Crypto._IImportRSAKeyInput internalInput =
                 TypeConversion.ToDafny_N3_aws__N6_crypto__S17_ImportRSAKeyInput(input);
-            Wrappers_Compile._IResult<Dafny.Aws.Crypto._IImportRSAKeyOutput,
+            Wrappers_Compile._IResult<Dafny.Aws.Crypto._IImportPublicRSAKeyOutput,
                 Dafny.Aws.Crypto.IAwsCryptographicMaterialProvidersException> result =
                 this._impl.ImportPublicRSAKey(internalInput);
             if (result.is_Failure)
                 throw TypeConversion
                     .FromDafny_CommonError_AwsCryptographicMaterialProvidersException(result.dtor_error);
-            return TypeConversion.FromDafny_N3_aws__N6_crypto__S18_ImportRSAKeyOutput(result.dtor_value);
+            return TypeConversion.FromDafny_N3_aws__N6_crypto__S24_ImportPublicRSAKeyOutput(result.dtor_value);
         }
 
-        protected override Aws.Crypto.ImportRSAKeyOutput _ImportPrivateRSAKey(Aws.Crypto.ImportRSAKeyInput input)
+        protected override Aws.Crypto.ImportPrivateRSAKeyOutput _ImportPrivateRSAKey(Aws.Crypto.ImportRSAKeyInput input)
         {
             Dafny.Aws.Crypto._IImportRSAKeyInput internalInput =
                 TypeConversion.ToDafny_N3_aws__N6_crypto__S17_ImportRSAKeyInput(input);
-            Wrappers_Compile._IResult<Dafny.Aws.Crypto._IImportRSAKeyOutput,
+            Wrappers_Compile._IResult<Dafny.Aws.Crypto._IImportPrivateRSAKeyOutput,
                 Dafny.Aws.Crypto.IAwsCryptographicMaterialProvidersException> result =
                 this._impl.ImportPrivateRSAKey(internalInput);
             if (result.is_Failure)
                 throw TypeConversion
                     .FromDafny_CommonError_AwsCryptographicMaterialProvidersException(result.dtor_error);
-            return TypeConversion.FromDafny_N3_aws__N6_crypto__S18_ImportRSAKeyOutput(result.dtor_value);
+            return TypeConversion.FromDafny_N3_aws__N6_crypto__S25_ImportPrivateRSAKeyOutput(result.dtor_value);
         }
     }
 }
