@@ -84,6 +84,7 @@ import opened StandardLibrary
     && (suite.signature.None? <==> encryptionMaterials.signingKey.None?)
     && (encryptionMaterials.plaintextDataKey.Some? ==> suite.encrypt.keyLength as int == |encryptionMaterials.plaintextDataKey.value|)
     && (encryptionMaterials.plaintextDataKey.None? ==> |encryptionMaterials.encryptedDataKeys| == 0)
+    && (!suite.signature.None? <==> EC_PUBLIC_KEY_FIELD in encryptionMaterials.encryptionContext)
   }
 
   predicate method EncryptionMaterialsWithPlaintextDataKey(encryptionMaterials: Crypto.EncryptionMaterials) {
@@ -183,6 +184,7 @@ import opened StandardLibrary
     && var suite := AlgorithmSuites.GetSuite(decryptionMaterials.algorithmSuiteId);
     && (decryptionMaterials.plaintextDataKey.Some? ==> suite.encrypt.keyLength as int == |decryptionMaterials.plaintextDataKey.value|)
     && (suite.signature.ECDSA? <==> decryptionMaterials.verificationKey.Some?)
+    && (!suite.signature.None? <==> EC_PUBLIC_KEY_FIELD in decryptionMaterials.encryptionContext)
   }
 
   function method DecryptionMaterialsAddDataKey(

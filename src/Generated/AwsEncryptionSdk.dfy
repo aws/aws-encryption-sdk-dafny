@@ -42,7 +42,7 @@ module {:extern "Dafny.Aws.Esdk"} Aws.Esdk {
 
     datatype AwsEncryptionSdkClientConfig = AwsEncryptionSdkClientConfig(
         nameonly commitmentPolicy: Option<Crypto.CommitmentPolicy>,
-        //nameonly maxEncryptedEdks: int,
+        nameonly maxEncryptedDataKeys: Option<int64>,
         nameonly configDefaults: ConfigurationDefaults
     )
 

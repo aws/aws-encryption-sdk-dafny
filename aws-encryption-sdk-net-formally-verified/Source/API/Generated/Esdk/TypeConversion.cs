@@ -55,6 +55,10 @@ namespace Aws.Esdk
                 return Aws.Crypto.AlgorithmSuiteId.ALG_AES_192_GCM_IV12_TAG16_HKDF_SHA384_ECDSA_P384;
             if (value.is_ALG__AES__256__GCM__IV12__TAG16__HKDF__SHA384__ECDSA__P384)
                 return Aws.Crypto.AlgorithmSuiteId.ALG_AES_256_GCM_IV12_TAG16_HKDF_SHA384_ECDSA_P384;
+            if (value.is_ALG__AES__256__GCM__HKDF__SHA512__COMMIT__KEY)
+                return Aws.Crypto.AlgorithmSuiteId.ALG_AES_256_GCM_HKDF_SHA512_COMMIT_KEY;
+            if (value.is_ALG__AES__256__GCM__HKDF__SHA512__COMMIT__KEY__ECDSA__P384)
+                return Aws.Crypto.AlgorithmSuiteId.ALG_AES_256_GCM_HKDF_SHA512_COMMIT_KEY_ECDSA_P384;
             throw new System.ArgumentException("Invalid Aws.Crypto.AlgorithmSuiteId value");
         }
 
@@ -82,6 +86,11 @@ namespace Aws.Esdk
             if (Aws.Crypto.AlgorithmSuiteId.ALG_AES_256_GCM_IV12_TAG16_HKDF_SHA384_ECDSA_P384.Equals(value))
                 return Dafny.Aws.Crypto.AlgorithmSuiteId
                     .create_ALG__AES__256__GCM__IV12__TAG16__HKDF__SHA384__ECDSA__P384();
+            if (Aws.Crypto.AlgorithmSuiteId.ALG_AES_256_GCM_HKDF_SHA512_COMMIT_KEY.Equals(value))
+                return Dafny.Aws.Crypto.AlgorithmSuiteId.create_ALG__AES__256__GCM__HKDF__SHA512__COMMIT__KEY();
+            if (Aws.Crypto.AlgorithmSuiteId.ALG_AES_256_GCM_HKDF_SHA512_COMMIT_KEY_ECDSA_P384.Equals(value))
+                return Dafny.Aws.Crypto.AlgorithmSuiteId
+                    .create_ALG__AES__256__GCM__HKDF__SHA512__COMMIT__KEY__ECDSA__P384();
             throw new System.ArgumentException("Invalid Aws.Crypto.AlgorithmSuiteId value");
         }
 
@@ -192,6 +201,10 @@ namespace Aws.Esdk
                     (Aws.Crypto.CommitmentPolicy)
                     FromDafny_N3_aws__N4_esdk__S28_AwsEncryptionSdkClientConfig__M16_commitmentPolicy(
                         concrete.commitmentPolicy);
+            if (concrete.maxEncryptedDataKeys.is_Some)
+                converted.MaxEncryptedDataKeys =
+                    (long)FromDafny_N3_aws__N4_esdk__S28_AwsEncryptionSdkClientConfig__M20_maxEncryptedDataKeys(
+                        concrete.maxEncryptedDataKeys);
             converted.ConfigDefaults =
                 (Aws.Esdk.ConfigurationDefaults)
                 FromDafny_N3_aws__N4_esdk__S28_AwsEncryptionSdkClientConfig__M14_configDefaults(
@@ -204,6 +217,8 @@ namespace Aws.Esdk
         {
             return new Dafny.Aws.Esdk.AwsEncryptionSdkClientConfig(
                 ToDafny_N3_aws__N4_esdk__S28_AwsEncryptionSdkClientConfig__M16_commitmentPolicy(value.CommitmentPolicy),
+                ToDafny_N3_aws__N4_esdk__S28_AwsEncryptionSdkClientConfig__M20_maxEncryptedDataKeys(
+                    value.MaxEncryptedDataKeys),
                 ToDafny_N3_aws__N4_esdk__S28_AwsEncryptionSdkClientConfig__M14_configDefaults(value.ConfigDefaults));
         }
 
@@ -373,6 +388,20 @@ namespace Aws.Esdk
                 Aws.Crypto.ICryptographicMaterialsManager value)
         {
             return ToDafny_N3_aws__N6_crypto__S38_CryptographicMaterialsManagerReference(value);
+        }
+
+        public static long? FromDafny_N3_aws__N4_esdk__S28_AwsEncryptionSdkClientConfig__M20_maxEncryptedDataKeys(
+            Wrappers_Compile._IOption<long> value)
+        {
+            return value.is_None ? (long?)null : FromDafny_N6_smithy__N3_api__S4_Long(value.Extract());
+        }
+
+        public static Wrappers_Compile._IOption<long>
+            ToDafny_N3_aws__N4_esdk__S28_AwsEncryptionSdkClientConfig__M20_maxEncryptedDataKeys(long? value)
+        {
+            return value == null
+                ? Wrappers_Compile.Option<long>.create_None()
+                : Wrappers_Compile.Option<long>.create_Some(ToDafny_N6_smithy__N3_api__S4_Long((long)value));
         }
 
         public static System.IO.MemoryStream FromDafny_N3_aws__N4_esdk__S12_DecryptInput__M10_ciphertext(
