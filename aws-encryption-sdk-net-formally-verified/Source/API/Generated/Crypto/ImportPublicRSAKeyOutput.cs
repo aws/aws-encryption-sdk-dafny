@@ -11,9 +11,9 @@ namespace Aws.Crypto
 {
     public class ImportPublicRSAKeyOutput
     {
-        private Aws.Crypto.IKey _key;
+        private Aws.Crypto.IPublicKey _key;
 
-        public Aws.Crypto.IKey Key
+        public Aws.Crypto.IPublicKey Key
         {
             get { return this._key; }
             set { this._key = value; }

@@ -238,7 +238,8 @@ namespace Aws.Crypto
             Aws.Crypto.ImportPrivateRSAKeyOutput converted = new Aws.Crypto.ImportPrivateRSAKeyOutput();
             if (concrete.key != null)
                 converted.Key =
-                    (Aws.Crypto.IKey) FromDafny_N3_aws__N6_crypto__S25_ImportPrivateRSAKeyOutput__M3_key(concrete.key);
+                    (Aws.Crypto.IPrivateKey) FromDafny_N3_aws__N6_crypto__S25_ImportPrivateRSAKeyOutput__M3_key(
+                        concrete.key);
             return converted;
         }
 
@@ -431,11 +432,11 @@ namespace Aws.Crypto
                     concrete.paddingScheme);
             if (concrete.publicKey != null)
                 converted.PublicKey =
-                    (Aws.Crypto.IKey) FromDafny_N3_aws__N6_crypto__S24_CreateRawRsaKeyringInput__M9_publicKey(
+                    (Aws.Crypto.IPublicKey) FromDafny_N3_aws__N6_crypto__S24_CreateRawRsaKeyringInput__M9_publicKey(
                         concrete.publicKey);
             if (concrete.privateKey != null)
                 converted.PrivateKey =
-                    (Aws.Crypto.IKey) FromDafny_N3_aws__N6_crypto__S24_CreateRawRsaKeyringInput__M10_privateKey(
+                    (Aws.Crypto.IPrivateKey) FromDafny_N3_aws__N6_crypto__S24_CreateRawRsaKeyringInput__M10_privateKey(
                         concrete.privateKey);
             return converted;
         }
@@ -777,7 +778,8 @@ namespace Aws.Crypto
             Aws.Crypto.ImportPublicRSAKeyOutput converted = new Aws.Crypto.ImportPublicRSAKeyOutput();
             if (concrete.key != null)
                 converted.Key =
-                    (Aws.Crypto.IKey) FromDafny_N3_aws__N6_crypto__S24_ImportPublicRSAKeyOutput__M3_key(concrete.key);
+                    (Aws.Crypto.IPublicKey) FromDafny_N3_aws__N6_crypto__S24_ImportPublicRSAKeyOutput__M3_key(
+                        concrete.key);
             return converted;
         }
 
@@ -903,6 +905,23 @@ namespace Aws.Crypto
             int value)
         {
             return ToDafny_N6_smithy__N3_api__S7_Integer(value);
+        }
+
+        public static Aws.Crypto.IPublicKey FromDafny_N3_aws__N6_crypto__S18_PublicKeyReference(
+            Dafny.Aws.Crypto.IPublicKey value)
+        {
+            return new PublicKey(value);
+        }
+
+        public static Dafny.Aws.Crypto.IPublicKey ToDafny_N3_aws__N6_crypto__S18_PublicKeyReference(
+            Aws.Crypto.IPublicKey value)
+        {
+            if (value is PublicKey valueWithImpl)
+            {
+                return valueWithImpl._impl;
+            }
+
+            throw new System.ArgumentException("Custom implementations of Aws.Crypto.IPublicKey are not supported yet");
         }
 
         public static string FromDafny_N3_aws__N6_crypto__S14_GetClientInput__M6_region(Dafny.ISequence<char> value)
@@ -1211,16 +1230,16 @@ namespace Aws.Crypto
                     ToDafny_N6_smithy__N3_api__S6_String((string) value));
         }
 
-        public static Aws.Crypto.IKey FromDafny_N3_aws__N6_crypto__S24_CreateRawRsaKeyringInput__M9_publicKey(
-            Dafny.Aws.Crypto.IKey value)
+        public static Aws.Crypto.IPublicKey FromDafny_N3_aws__N6_crypto__S24_CreateRawRsaKeyringInput__M9_publicKey(
+            Dafny.Aws.Crypto.IPublicKey value)
         {
-            return FromDafny_N3_aws__N6_crypto__S12_KeyReference(value);
+            return FromDafny_N3_aws__N6_crypto__S18_PublicKeyReference(value);
         }
 
-        public static Dafny.Aws.Crypto.IKey ToDafny_N3_aws__N6_crypto__S24_CreateRawRsaKeyringInput__M9_publicKey(
-            Aws.Crypto.IKey value)
+        public static Dafny.Aws.Crypto.IPublicKey ToDafny_N3_aws__N6_crypto__S24_CreateRawRsaKeyringInput__M9_publicKey(
+            Aws.Crypto.IPublicKey value)
         {
-            return ToDafny_N3_aws__N6_crypto__S12_KeyReference(value);
+            return ToDafny_N3_aws__N6_crypto__S18_PublicKeyReference(value);
         }
 
         public static Amazon.KeyManagementService.IAmazonKeyManagementService
@@ -1941,21 +1960,6 @@ namespace Aws.Crypto
             return ToDafny_N6_smithy__N3_api__S4_Long(value);
         }
 
-        public static Aws.Crypto.IKey FromDafny_N3_aws__N6_crypto__S12_KeyReference(Dafny.Aws.Crypto.IKey value)
-        {
-            return new Key(value);
-        }
-
-        public static Dafny.Aws.Crypto.IKey ToDafny_N3_aws__N6_crypto__S12_KeyReference(Aws.Crypto.IKey value)
-        {
-            if (value is Key valueWithImpl)
-            {
-                return valueWithImpl._impl;
-            }
-
-            throw new System.ArgumentException("Custom implementations of Aws.Crypto.IKey are not supported yet");
-        }
-
         public static Aws.Crypto.DecryptEntry FromDafny_N3_aws__N6_crypto__S24_GetEntryForDecryptOutput__M10_cacheEntry(
             Dafny.Aws.Crypto._IDecryptEntry value)
         {
@@ -2320,16 +2324,34 @@ namespace Aws.Crypto
             return ToDafny_N3_aws__N6_crypto__S18_KmsClientReference(value);
         }
 
-        public static Aws.Crypto.IKey FromDafny_N3_aws__N6_crypto__S24_CreateRawRsaKeyringInput__M10_privateKey(
-            Dafny.Aws.Crypto.IKey value)
+        public static Aws.Crypto.IPrivateKey FromDafny_N3_aws__N6_crypto__S19_PrivateKeyReference(
+            Dafny.Aws.Crypto.IPrivateKey value)
         {
-            return FromDafny_N3_aws__N6_crypto__S12_KeyReference(value);
+            return new PrivateKey(value);
         }
 
-        public static Dafny.Aws.Crypto.IKey ToDafny_N3_aws__N6_crypto__S24_CreateRawRsaKeyringInput__M10_privateKey(
-            Aws.Crypto.IKey value)
+        public static Dafny.Aws.Crypto.IPrivateKey ToDafny_N3_aws__N6_crypto__S19_PrivateKeyReference(
+            Aws.Crypto.IPrivateKey value)
         {
-            return ToDafny_N3_aws__N6_crypto__S12_KeyReference(value);
+            if (value is PrivateKey valueWithImpl)
+            {
+                return valueWithImpl._impl;
+            }
+
+            throw new System.ArgumentException(
+                "Custom implementations of Aws.Crypto.IPrivateKey are not supported yet");
+        }
+
+        public static Aws.Crypto.IPrivateKey FromDafny_N3_aws__N6_crypto__S24_CreateRawRsaKeyringInput__M10_privateKey(
+            Dafny.Aws.Crypto.IPrivateKey value)
+        {
+            return FromDafny_N3_aws__N6_crypto__S19_PrivateKeyReference(value);
+        }
+
+        public static Dafny.Aws.Crypto.IPrivateKey
+            ToDafny_N3_aws__N6_crypto__S24_CreateRawRsaKeyringInput__M10_privateKey(Aws.Crypto.IPrivateKey value)
+        {
+            return ToDafny_N3_aws__N6_crypto__S19_PrivateKeyReference(value);
         }
 
         public static Aws.Crypto.PutEntryForDecryptInput FromDafny_N3_aws__N6_crypto__S23_PutEntryForDecryptInput(
@@ -2370,16 +2392,16 @@ namespace Aws.Crypto
                 .Select(ToDafny_N3_aws__N6_crypto__S13_AccountIdList__M6_member).ToArray());
         }
 
-        public static Aws.Crypto.IKey FromDafny_N3_aws__N6_crypto__S24_ImportPublicRSAKeyOutput__M3_key(
-            Dafny.Aws.Crypto.IKey value)
+        public static Aws.Crypto.IPublicKey FromDafny_N3_aws__N6_crypto__S24_ImportPublicRSAKeyOutput__M3_key(
+            Dafny.Aws.Crypto.IPublicKey value)
         {
-            return FromDafny_N3_aws__N6_crypto__S12_KeyReference(value);
+            return FromDafny_N3_aws__N6_crypto__S18_PublicKeyReference(value);
         }
 
-        public static Dafny.Aws.Crypto.IKey ToDafny_N3_aws__N6_crypto__S24_ImportPublicRSAKeyOutput__M3_key(
-            Aws.Crypto.IKey value)
+        public static Dafny.Aws.Crypto.IPublicKey ToDafny_N3_aws__N6_crypto__S24_ImportPublicRSAKeyOutput__M3_key(
+            Aws.Crypto.IPublicKey value)
         {
-            return ToDafny_N3_aws__N6_crypto__S12_KeyReference(value);
+            return ToDafny_N3_aws__N6_crypto__S18_PublicKeyReference(value);
         }
 
         public static Aws.Crypto.CreateMrkAwareStrictAwsKmsKeyringInput
@@ -2678,16 +2700,16 @@ namespace Aws.Crypto
                     ToDafny_N6_smithy__N3_api__S4_Blob((System.IO.MemoryStream) value));
         }
 
-        public static Aws.Crypto.IKey FromDafny_N3_aws__N6_crypto__S25_ImportPrivateRSAKeyOutput__M3_key(
-            Dafny.Aws.Crypto.IKey value)
+        public static Aws.Crypto.IPrivateKey FromDafny_N3_aws__N6_crypto__S25_ImportPrivateRSAKeyOutput__M3_key(
+            Dafny.Aws.Crypto.IPrivateKey value)
         {
-            return FromDafny_N3_aws__N6_crypto__S12_KeyReference(value);
+            return FromDafny_N3_aws__N6_crypto__S19_PrivateKeyReference(value);
         }
 
-        public static Dafny.Aws.Crypto.IKey ToDafny_N3_aws__N6_crypto__S25_ImportPrivateRSAKeyOutput__M3_key(
-            Aws.Crypto.IKey value)
+        public static Dafny.Aws.Crypto.IPrivateKey ToDafny_N3_aws__N6_crypto__S25_ImportPrivateRSAKeyOutput__M3_key(
+            Aws.Crypto.IPrivateKey value)
         {
-            return ToDafny_N3_aws__N6_crypto__S12_KeyReference(value);
+            return ToDafny_N3_aws__N6_crypto__S19_PrivateKeyReference(value);
         }
 
         public static Aws.Crypto.EncryptEntry FromDafny_N3_aws__N6_crypto__S12_EncryptEntry(

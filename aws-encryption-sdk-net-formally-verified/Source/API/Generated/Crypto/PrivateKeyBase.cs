@@ -9,7 +9,7 @@ using
 
 namespace Aws.Crypto
 {
-    public abstract class KeyBase : IKey
+    public abstract class PrivateKeyBase : IPrivateKey
     {
     }
 }

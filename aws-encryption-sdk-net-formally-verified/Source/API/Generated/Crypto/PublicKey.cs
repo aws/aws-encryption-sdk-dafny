@@ -11,11 +11,11 @@ using
 
 namespace Aws.Crypto
 {
-    internal class Key : KeyBase
+    internal class PublicKey : PublicKeyBase
     {
-        internal Dafny.Aws.Crypto.IKey _impl { get; }
+        internal Dafny.Aws.Crypto.IPublicKey _impl { get; }
 
-        internal Key(Dafny.Aws.Crypto.IKey impl)
+        internal PublicKey(Dafny.Aws.Crypto.IPublicKey impl)
         {
             this._impl = impl;
         }
