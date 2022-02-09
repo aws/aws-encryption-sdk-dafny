@@ -23,17 +23,4 @@ module {:extern "ConfigDefaults"} ConfigDefaults {
     {
       Aws.Crypto.REQUIRE_ENCRYPT_REQUIRE_DECRYPT
     }
-
-  /*
-   * The default behavior for max encrypted data keys should be no maximum, which we
-   * represent as 0
-   */
-  function method GetDefaultMaxEncryptedDataKeys(configDefaults : Aws.Esdk.ConfigurationDefaults):
-    (res: int64)
-
-    ensures
-      configDefaults == Aws.Esdk.V1 ==> res == 0
-    {
-      0
-    }
 }

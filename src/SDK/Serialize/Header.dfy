@@ -94,7 +94,7 @@ datatype HeaderInfo = HeaderInfo(
 
   function method ReadHeaderBody(
      buffer: ReadableBuffer,
-     maxEdks: int64
+     maxEdks: Option<int64>
   )
     :(res: ReadCorrect<HeaderTypes.HeaderBody>)
     ensures CorrectlyReadHeaderBody(buffer, res)

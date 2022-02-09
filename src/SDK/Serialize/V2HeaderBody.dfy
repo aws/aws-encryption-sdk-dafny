@@ -49,7 +49,7 @@ module V2HeaderBody {
 
   function method ReadV2HeaderBody(
     buffer: ReadableBuffer,
-    maxEdks: int64
+    maxEdks: Option<int64>
   )
     :(res: ReadCorrect<V2HeaderBody>)
     ensures CorrectlyReadV2HeaderBody(buffer, res)

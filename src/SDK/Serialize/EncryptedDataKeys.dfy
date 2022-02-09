@@ -83,7 +83,7 @@ module EncryptedDataKeys {
 
   function method ReadEncryptedDataKeysSection(
     buffer: ReadableBuffer,
-    maxEdks: int64
+    maxEdks: Option<int64>
   )
     :(res: ReadCorrect<ESDKEncryptedDataKeys>)
     ensures CorrectlyRead(buffer, res, WriteEncryptedDataKeysSection)
@@ -91,8 +91,9 @@ module EncryptedDataKeys {
     var SuccessfulRead(count, edkStart) :- ReadUInt16(buffer);
     
     if
-      && maxEdks > 0
-      && count as int64 > maxEdks
+      && maxEdks.Some?
+      && maxEdks.value > 0 // TODO: remove once CrypTool-4350 fixed
+      && count as int64 > maxEdks.value
     then
       //= compliance/client-apis/decrypt.txt#2.7.1
       //# If the number of encrypted data keys (../framework/
@@ -258,7 +259,7 @@ module EncryptedDataKeys {
     data: ESDKEncryptedDataKeys,
     bytes: seq<uint8>,
     buffer: ReadableBuffer,
-    maxEdks: int64
+    maxEdks: Option<int64>
   )
     returns (ret: ReadCorrect<ESDKEncryptedDataKeys>)
     requires
@@ -286,8 +287,9 @@ module EncryptedDataKeys {
 
     var edksSection := ReadEncryptedDataKeysSection(buffer, maxEdks);
     if
-      && maxEdks > 0
-      && |edks.data| as int64 > maxEdks
+      && maxEdks.Some?
+      && maxEdks.value > 0 // TODO: remove once CrypTool-4350 fixed
+      && |edks.data| as int64 > maxEdks.value
     {
       assert edksSection.Failure?;
       return edksSection;

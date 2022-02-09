@@ -59,7 +59,7 @@ module V1HeaderBody {
 
   function method ReadV1HeaderBody(
     buffer: ReadableBuffer,
-    maxEdks: int64
+    maxEdks: Option<int64>
   )
     :(res: ReadCorrect<V1HeaderBody>)
     ensures CorrectlyReadV1HeaderBody(buffer, res)

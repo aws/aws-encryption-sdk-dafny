@@ -22,6 +22,7 @@ include "Serialize/HeaderTypes.dfy"
 include "Serialize/V1HeaderBody.dfy"
 include "Serialize/HeaderAuth.dfy"
 include "Serialize/SerializeFunctions.dfy"
+include "Serialize/EncryptedDataKeys.dfy"
 include "Serialize/EncryptionContext.dfy"
 
 module {:extern "Dafny.Aws.Esdk.AwsEncryptionSdkClient"} AwsEncryptionSdk {
@@ -38,6 +39,7 @@ module {:extern "Dafny.Aws.Esdk.AwsEncryptionSdkClient"} AwsEncryptionSdk {
   import MaterialProviders.Client
   import AESEncryption
   import EncryptionContext
+  import EncryptedDataKeys
   import SerializeFunctions
   import MessageBody
   import Signature
@@ -52,11 +54,9 @@ module {:extern "Dafny.Aws.Esdk.AwsEncryptionSdkClient"} AwsEncryptionSdk {
         const config: Esdk.AwsEncryptionSdkClientConfig;
 
         const commitmentPolicy: Crypto.CommitmentPolicy;
-        const maxEncryptedDataKeys: int64;
+        const maxEncryptedDataKeys: Option<int64>;
 
         constructor (config: Esdk.AwsEncryptionSdkClientConfig)
-            requires config.maxEncryptedDataKeys.Some? ==> config.maxEncryptedDataKeys.value >= 0
-
             ensures this.config == config
 
             ensures config.commitmentPolicy.None? ==>
@@ -65,20 +65,22 @@ module {:extern "Dafny.Aws.Esdk.AwsEncryptionSdkClient"} AwsEncryptionSdk {
 
             ensures config.commitmentPolicy.Some? ==>
                 this.commitmentPolicy == config.commitmentPolicy.value
+
+            ensures this.maxEncryptedDataKeys == config.maxEncryptedDataKeys
         {
             this.config := config;
+
+            // TODO: Ideally we would validate that this value, if provided, falls within a specific range,
+            // then only pass around known good values to all places where it is used.
+            // However, currently Polymorph doesn't handle this smoothly for these service client
+            // constructors and their configurations.
+            this.maxEncryptedDataKeys := config.maxEncryptedDataKeys;
+
             if config.commitmentPolicy.None? {
                 var defaultPolicy := ConfigDefaults.GetDefaultCommitmentPolicy(config.configDefaults);
                 this.commitmentPolicy := defaultPolicy;
             } else {
                 this.commitmentPolicy := config.commitmentPolicy.value;
-            }
-
-            if config.maxEncryptedDataKeys.None? {
-                var maxEncryptedDataKeys := ConfigDefaults.GetDefaultMaxEncryptedDataKeys(config.configDefaults);
-                this.maxEncryptedDataKeys := maxEncryptedDataKeys;
-            } else {
-                this.maxEncryptedDataKeys := config.maxEncryptedDataKeys.value;
             }
         }
 
@@ -660,17 +662,24 @@ module {:extern "Dafny.Aws.Esdk.AwsEncryptionSdkClient"} AwsEncryptionSdk {
         method ValidateMaxEncryptedDataKeys(edks: SerializableTypes.ESDKEncryptedDataKeys)
             returns (res: Result<(), string>)
 
-        ensures this.maxEncryptedDataKeys <= 0 ==> res.Success?
+        ensures this.maxEncryptedDataKeys.None? ==> res.Success?
 
         ensures
-            && this.maxEncryptedDataKeys > 0
-            && |edks| as int64 > this.maxEncryptedDataKeys
+            && this.maxEncryptedDataKeys.Some?
+            && this.maxEncryptedDataKeys.value <= 0
+        ==>
+            res.Failure?
+
+        ensures
+            && this.maxEncryptedDataKeys.Some?
+            && |edks| as int64 > this.maxEncryptedDataKeys.value
         ==>
             res.Failure?
         {
             if
-                && this.maxEncryptedDataKeys > 0
-                && |edks| as int64 > this.maxEncryptedDataKeys
+                && this.maxEncryptedDataKeys.Some?
+                && this.maxEncryptedDataKeys.value > 0 // TODO: remove once CrypTool-4350 fixed
+                && |edks| as int64 > this.maxEncryptedDataKeys.value
             {
                 return Failure("Encrypted data keys exceed maxEncryptedDataKeys");
             } else {
