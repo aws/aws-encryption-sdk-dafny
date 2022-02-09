@@ -83,13 +83,17 @@ module TestRawRSAKeying {
       2048 as RSAEncryption.StrengthBits,
       RSAEncryption.PaddingMode.OAEP_SHA1
     );
-    
+
+    assert publicKey.Valid();
+    assert privateKey.Valid();
+    var public := publicKey as Crypto.RSAPublicKey;
+    var private := privateKey as Crypto.RSAPrivateKey;
     var mismatchName :- expect UTF8.Encode("mismatched");
     var mismatchedRSAKeyring := new RawRSAKeyring.RawRSAKeyring(
       namespace,
       mismatchName,
-      Option.Some(publicKey.pem),
-      Option.Some(privateKey.pem),
+      Option.Some(public),
+      Option.Some(private),
       RSAEncryption.PaddingMode.OAEP_SHA1
     );
 
@@ -259,6 +263,8 @@ module TestRawRSAKeying {
     requires |namespace| < UINT16_LIMIT
     requires |name| < UINT16_LIMIT
     requires keyStrength >= RawRSAKeyring.PaddingSchemeToMinStrengthBits(padding)
+    ensures publicKey.Valid();
+    ensures privateKey.Valid();
   {
     publicKey, privateKey := RSAEncryption.GenerateKeyPair(
       keyStrength,
@@ -267,8 +273,8 @@ module TestRawRSAKeying {
     keyring := new RawRSAKeyring.RawRSAKeyring(
       namespace,
       name,
-      Option.Some(publicKey.pem),
-      Option.Some(privateKey.pem),
+      Option.Some(publicKey),
+      Option.Some(privateKey),
       padding
     );
     return publicKey, privateKey, keyring;
