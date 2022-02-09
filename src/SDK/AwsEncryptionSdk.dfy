@@ -22,7 +22,6 @@ include "Serialize/HeaderTypes.dfy"
 include "Serialize/V1HeaderBody.dfy"
 include "Serialize/HeaderAuth.dfy"
 include "Serialize/SerializeFunctions.dfy"
-include "Serialize/EncryptedDataKeys.dfy"
 include "Serialize/EncryptionContext.dfy"
 
 module {:extern "Dafny.Aws.Esdk.AwsEncryptionSdkClient"} AwsEncryptionSdk {
@@ -39,7 +38,6 @@ module {:extern "Dafny.Aws.Esdk.AwsEncryptionSdkClient"} AwsEncryptionSdk {
   import MaterialProviders.Client
   import AESEncryption
   import EncryptionContext
-  import EncryptedDataKeys
   import SerializeFunctions
   import MessageBody
   import Signature
@@ -138,6 +136,11 @@ module {:extern "Dafny.Aws.Esdk.AwsEncryptionSdkClient"} AwsEncryptionSdk {
             }
             :- Need(maxPlaintextLength < INT64_MAX_LIMIT, "Input plaintext size too large.");
 
+            // TODO: Change to '> 0' once CrypTool-4350 complete
+            // TODO: Remove entirely once we can validate this value on client creation
+            if this.maxEncryptedDataKeys.Some? {
+                :- Need(this.maxEncryptedDataKeys.value >= 0, "maxEncryptedDataKeys must be non-negative");
+            }
 
             var cmm := input.materialsManager;
             // TODO: bring back once we can have Option<Trait>
@@ -501,6 +504,12 @@ module {:extern "Dafny.Aws.Esdk.AwsEncryptionSdkClient"} AwsEncryptionSdk {
             //:- Need(request.cmm == null || request.keyring == null, "DecryptRequest.keyring OR DecryptRequest.cmm must be set (not both).");
             //:- Need(request.cmm != null || request.keyring != null, "DecryptRequest.cmm and DecryptRequest.keyring cannot both be null.");
 
+            // TODO: Change to '> 0' once CrypTool-4350 complete
+            // TODO: Remove entirely once we can validate this value on client creation
+            if this.maxEncryptedDataKeys.Some? {
+                :- Need(this.maxEncryptedDataKeys.value >= 0, "maxEncryptedDataKeys must be non-negative");
+            }
+
             var cmm := input.materialsManager;
             // TODO: bring back once we can have Option<Trait>
             /*
@@ -662,16 +671,14 @@ module {:extern "Dafny.Aws.Esdk.AwsEncryptionSdkClient"} AwsEncryptionSdk {
         method ValidateMaxEncryptedDataKeys(edks: SerializableTypes.ESDKEncryptedDataKeys)
             returns (res: Result<(), string>)
 
+        // TODO: change to '> 0' once CrypTool-4350 fixed
+        requires this.maxEncryptedDataKeys.Some? ==> this.maxEncryptedDataKeys.value >= 0
+
         ensures this.maxEncryptedDataKeys.None? ==> res.Success?
 
         ensures
             && this.maxEncryptedDataKeys.Some?
-            && this.maxEncryptedDataKeys.value <= 0
-        ==>
-            res.Failure?
-
-        ensures
-            && this.maxEncryptedDataKeys.Some?
+            && this.maxEncryptedDataKeys.value > 0 // TODO: remove once CrypTool-4350 fixed
             && |edks| as int64 > this.maxEncryptedDataKeys.value
         ==>
             res.Failure?
