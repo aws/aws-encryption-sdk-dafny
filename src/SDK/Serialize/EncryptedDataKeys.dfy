@@ -260,15 +260,16 @@ module EncryptedDataKeys {
     buffer: ReadableBuffer,
     maxEdks: int64
   )
-    returns (ret: SuccessfulRead<ESDKEncryptedDataKeys>)
+    returns (ret: ReadCorrect<ESDKEncryptedDataKeys>)
     requires
       && WriteEncryptedDataKeysSection(data) == bytes
       && buffer.start <= |buffer.bytes|
       && bytes <= buffer.bytes[buffer.start..]
-    ensures
-      && ret.data == data
-      && ret.tail.start == buffer.start + |bytes|
-      && Success(ret) == ReadEncryptedDataKeysSection(buffer, maxEdks)
+    ensures ret.Success?
+    ==>
+      && ret.value.data == data
+      && ret.value.tail.start == buffer.start + |bytes|
+      && Success(ret.value) == ReadEncryptedDataKeysSection(buffer, maxEdks)
   {
     assert bytes == WriteUint16(|data| as uint16) + WriteEncryptedDataKeys(data);
     assert bytes[|WriteUint16(|data| as uint16)|..] == WriteEncryptedDataKeys(data);
@@ -283,7 +284,17 @@ module EncryptedDataKeys {
     var edks := ReadEncryptedDataKeysIsComplete(data, [], WriteEncryptedDataKeys(data), count.tail);
     assert edks.data == data;
 
-    return ReadEncryptedDataKeysSection(buffer, maxEdks).value;
+    var edksSection := ReadEncryptedDataKeysSection(buffer, maxEdks);
+    if
+      && maxEdks > 0
+      && |edks.data| as int64 > maxEdks
+    {
+      assert edksSection.Failure?;
+      return edksSection;
+    } else {
+      assert edksSection.Success?;
+      return edksSection;
+    }
   }
 
 }
