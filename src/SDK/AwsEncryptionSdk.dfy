@@ -55,6 +55,8 @@ module {:extern "Dafny.Aws.Esdk.AwsEncryptionSdkClient"} AwsEncryptionSdk {
         const maxEncryptedDataKeys: int64;
 
         constructor (config: Esdk.AwsEncryptionSdkClientConfig)
+            requires config.maxEncryptedDataKeys.Some? ==> config.maxEncryptedDataKeys.value >= 0
+
             ensures this.config == config
 
             ensures config.commitmentPolicy.None? ==>
