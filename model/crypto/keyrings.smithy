@@ -221,10 +221,14 @@ structure CreateRawAesKeyringInput {
     wrappingAlg: AesWrappingAlg,
 }
 
-resource Key {}
+resource PrivateKey {}
+resource PublicKey {}
 
-@reference(resource: Key)
-structure KeyReference{}
+@reference(resource: PrivateKey)
+structure PrivateKeyReference{}
+
+@reference(resource: PublicKey)
+structure PublicKeyReference{}
 
 operation CreateRawRsaKeyring {
     input: CreateRawRsaKeyringInput,
@@ -242,8 +246,8 @@ structure CreateRawRsaKeyringInput {
     paddingScheme: PaddingScheme,
 
     // One or both is required
-    publicKey: KeyReference,
-    privateKey: KeyReference
+    publicKey: PublicKeyReference,
+    privateKey: PrivateKeyReference
 }
 
 operation ImportPublicRSAKey {
@@ -268,9 +272,9 @@ structure ImportRSAKeyInput {
 }
 
 structure ImportPublicRSAKeyOutput {
-    key: KeyReference
+    key: PublicKeyReference
 }
 
 structure ImportPrivateRSAKeyOutput {
-    key: KeyReference
+    key: PrivateKeyReference
 }
