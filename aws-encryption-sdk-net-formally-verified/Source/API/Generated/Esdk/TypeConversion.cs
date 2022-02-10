@@ -201,6 +201,10 @@ namespace Aws.Esdk
                     (Aws.Crypto.CommitmentPolicy)
                     FromDafny_N3_aws__N4_esdk__S28_AwsEncryptionSdkClientConfig__M16_commitmentPolicy(
                         concrete.commitmentPolicy);
+            if (concrete.maxEncryptedDataKeys.is_Some)
+                converted.MaxEncryptedDataKeys =
+                    (long)FromDafny_N3_aws__N4_esdk__S28_AwsEncryptionSdkClientConfig__M20_maxEncryptedDataKeys(
+                        concrete.maxEncryptedDataKeys);
             converted.ConfigDefaults =
                 (Aws.Esdk.ConfigurationDefaults)
                 FromDafny_N3_aws__N4_esdk__S28_AwsEncryptionSdkClientConfig__M14_configDefaults(
@@ -213,6 +217,8 @@ namespace Aws.Esdk
         {
             return new Dafny.Aws.Esdk.AwsEncryptionSdkClientConfig(
                 ToDafny_N3_aws__N4_esdk__S28_AwsEncryptionSdkClientConfig__M16_commitmentPolicy(value.CommitmentPolicy),
+                ToDafny_N3_aws__N4_esdk__S28_AwsEncryptionSdkClientConfig__M20_maxEncryptedDataKeys(
+                    value.MaxEncryptedDataKeys),
                 ToDafny_N3_aws__N4_esdk__S28_AwsEncryptionSdkClientConfig__M14_configDefaults(value.ConfigDefaults));
         }
 
@@ -382,6 +388,20 @@ namespace Aws.Esdk
                 Aws.Crypto.ICryptographicMaterialsManager value)
         {
             return ToDafny_N3_aws__N6_crypto__S38_CryptographicMaterialsManagerReference(value);
+        }
+
+        public static long? FromDafny_N3_aws__N4_esdk__S28_AwsEncryptionSdkClientConfig__M20_maxEncryptedDataKeys(
+            Wrappers_Compile._IOption<long> value)
+        {
+            return value.is_None ? (long?)null : FromDafny_N6_smithy__N3_api__S4_Long(value.Extract());
+        }
+
+        public static Wrappers_Compile._IOption<long>
+            ToDafny_N3_aws__N4_esdk__S28_AwsEncryptionSdkClientConfig__M20_maxEncryptedDataKeys(long? value)
+        {
+            return value == null
+                ? Wrappers_Compile.Option<long>.create_None()
+                : Wrappers_Compile.Option<long>.create_Some(ToDafny_N6_smithy__N3_api__S4_Long((long)value));
         }
 
         public static System.IO.MemoryStream FromDafny_N3_aws__N4_esdk__S12_DecryptInput__M10_ciphertext(

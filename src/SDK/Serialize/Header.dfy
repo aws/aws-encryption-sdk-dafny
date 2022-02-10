@@ -93,7 +93,8 @@ datatype HeaderInfo = HeaderInfo(
   witness *
 
   function method ReadHeaderBody(
-     buffer: ReadableBuffer
+     buffer: ReadableBuffer,
+     maxEdks: Option<int64>
   )
     :(res: ReadCorrect<HeaderTypes.HeaderBody>)
     ensures CorrectlyReadHeaderBody(buffer, res)
@@ -103,11 +104,11 @@ datatype HeaderInfo = HeaderInfo(
 
     match version.data
     case V1 => 
-      var b :- V1HeaderBody.ReadV1HeaderBody(buffer);
+      var b :- V1HeaderBody.ReadV1HeaderBody(buffer, maxEdks);
       var body: HeaderTypes.HeaderBody := b.data;
       Success(SuccessfulRead(body, b.tail))
     case V2 => 
-      var b :- V2HeaderBody.ReadV2HeaderBody(buffer);
+      var b :- V2HeaderBody.ReadV2HeaderBody(buffer, maxEdks);
       var body: HeaderTypes.HeaderBody := b.data;
       Success(SuccessfulRead(body, b.tail))
   }

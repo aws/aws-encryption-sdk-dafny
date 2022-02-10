@@ -17,7 +17,7 @@ service AwsEncryptionSdk {
 
 structure AwsEncryptionSdkClientConfig {
     commitmentPolicy: CommitmentPolicy,
-    // maxEncryptedEdks: Integer,
+    maxEncryptedDataKeys: Long,
 
     @required
     configDefaults: ConfigurationDefaults
