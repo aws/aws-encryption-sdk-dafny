@@ -14,6 +14,7 @@ namespace Aws.Esdk
         private System.IO.MemoryStream _plaintext;
         private System.Collections.Generic.Dictionary<string, string> _encryptionContext;
         private Aws.Crypto.ICryptographicMaterialsManager _materialsManager;
+        private Aws.Crypto.IKeyring _keyring;
         private Aws.Crypto.AlgorithmSuiteId _algorithmSuiteId;
         private long? _frameLength;
         private long? _maxPlaintextLength;
@@ -34,6 +35,12 @@ namespace Aws.Esdk
         {
             get { return this._materialsManager; }
             set { this._materialsManager = value; }
+        }
+
+        public Aws.Crypto.IKeyring Keyring
+        {
+            get { return this._keyring; }
+            set { this._keyring = value; }
         }
 
         public Aws.Crypto.AlgorithmSuiteId AlgorithmSuiteId
