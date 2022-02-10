@@ -96,11 +96,11 @@ namespace TestVectorTests {
         public abstract IEnumerator<object[]> GetEnumerator();
 
         IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
-        
+
         // TODO remove or make more robust. Leaving it in for now because it's useful for testing
         protected static bool TargetVector(KeyValuePair<string, TestVector> entry)
         {
-            if (entry.Value.MasterKeys.Any(masterKey => masterKey.Key != null && masterKey.Key.StartsWith("aes")))
+            if (entry.Value.MasterKeys.Any(masterKey => masterKey.Key != null && (masterKey.Key.StartsWith("aes") || masterKey.Key.StartsWith("rsa"))))
             {
                 return true;
             }
@@ -382,18 +382,12 @@ namespace TestVectorTests {
                 );
             }
 
-            // TODO remove
-            if (vector.MasterKeys.Any(masterKey => masterKey.Key != null && masterKey.Key.StartsWith("rsa")))
-            {
-                throw new Exception($"RSA keyrings not yet supported");
-            }
-            // End TODO
-
             try
             {
                 AwsEncryptionSdkClientConfig config = new AwsEncryptionSdkClientConfig
                 {
-                    ConfigDefaults = ConfigurationDefaults.V1
+                    ConfigDefaults = ConfigurationDefaults.V1,
+                    CommitmentPolicy = CommitmentPolicy.REQUIRE_ENCRYPT_ALLOW_DECRYPT
                 };
                 IAwsEncryptionSdk encryptionSdkClient = new AwsEncryptionSdkClient(config);
 
