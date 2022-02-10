@@ -55,11 +55,9 @@ structure EncryptInput {
     @required
     encryptionContext: EncryptionContext,
 
-    // TODO reintroduce optional materialsManager and optional keyring
     // One of keyring or CMM are required
-    @required
     materialsManager: CryptographicMaterialsManagerReference,
-    // keyring: KeyringReference,
+    keyring: KeyringReference,
 
     algorithmSuiteId: AlgorithmSuiteId,
 
@@ -89,11 +87,9 @@ structure DecryptInput {
     @required
     ciphertext: Blob,
 
-    // TODO reintroduce optional materialsManager and optional keyring
     // One of keyring or CMM are required
-    @required
     materialsManager: CryptographicMaterialsManagerReference,
-    // keyring: KeyringReference,
+    keyring: KeyringReference,
 }
 
 structure DecryptOutput {

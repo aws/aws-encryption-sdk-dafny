@@ -13,6 +13,7 @@ namespace Aws.Esdk
     {
         private System.IO.MemoryStream _ciphertext;
         private Aws.Crypto.ICryptographicMaterialsManager _materialsManager;
+        private Aws.Crypto.IKeyring _keyring;
 
         public System.IO.MemoryStream Ciphertext
         {
@@ -24,6 +25,12 @@ namespace Aws.Esdk
         {
             get { return this._materialsManager; }
             set { this._materialsManager = value; }
+        }
+
+        public Aws.Crypto.IKeyring Keyring
+        {
+            get { return this._keyring; }
+            set { this._keyring = value; }
         }
 
         public void Validate()
