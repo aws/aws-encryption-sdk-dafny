@@ -54,6 +54,8 @@ module {:extern "Dafny.Aws.Esdk.AwsEncryptionSdkClient"} AwsEncryptionSdk {
         const commitmentPolicy: Crypto.CommitmentPolicy;
         const maxEncryptedDataKeys: Option<int64>;
 
+        const client := new Client.AwsCryptographicMaterialProvidersClient();
+
         constructor (config: Esdk.AwsEncryptionSdkClientConfig)
             ensures this.config == config
 
@@ -116,17 +118,6 @@ module {:extern "Dafny.Aws.Esdk.AwsEncryptionSdkClient"} AwsEncryptionSdk {
         ==>
             res.Failure?
 
-        ensures
-            && input.materialsManager.Some?
-            && input.keyring.Some?
-        ==>
-            res.Failure?
-
-        ensures
-            && input.materialsManager.None?
-            && input.keyring.None?
-        ==>
-            res.Failure?
         {
             var frameLength : int64 := EncryptDecryptHelpers.DEFAULT_FRAME_LENGTH;
             if input.frameLength.Some? {
@@ -299,6 +290,14 @@ module {:extern "Dafny.Aws.Esdk.AwsEncryptionSdkClient"} AwsEncryptionSdk {
             inputKeyring: Option<Crypto.IKeyring>
         ) returns (res: Result<Crypto.ICryptographicMaterialsManager, string>)
 
+        //= compliance/client-apis/encrypt.txt#2.6.1
+        //= type=implication
+        //# The
+        //# CMM used MUST be the input CMM, if supplied.
+
+        //= compliance/client-apis/decrypt.txt#2.7.2
+        //= type=implication
+        //# The CMM used MUST be the input CMM, if supplied.
         ensures
             && res.Success?
             && inputCmm.Some?
@@ -318,7 +317,6 @@ module {:extern "Dafny.Aws.Esdk.AwsEncryptionSdkClient"} AwsEncryptionSdk {
             res.Failure?
 
         {
-            // Validate encrypt request
             :- Need(inputCmm.None? || inputKeyring.None?, "Cannot provide both a keyring and a CMM");
             :- Need(inputCmm.Some? || inputKeyring.Some?, "Must provide either a keyring or a CMM");
 
@@ -326,8 +324,27 @@ module {:extern "Dafny.Aws.Esdk.AwsEncryptionSdkClient"} AwsEncryptionSdk {
             if inputCmm.Some? {
                 return Success(inputCmm.value);
             } else {
-                var client := new Client.AwsCryptographicMaterialProvidersClient();
-                var createCmmOutput := client
+                // Each of these three citations refer to creating a default CMM from
+                // the input keyring.
+
+                //= compliance/client-apis/encrypt.txt#2.6.1
+                //# If instead the caller
+                //# supplied a keyring (../framework/keyring-interface.md), this behavior
+                //# MUST use a default CMM (../framework/default-cmm.md) constructed
+                //# using the caller-supplied keyring as input.
+
+                //= compliance/client-apis/decrypt.txt#2.5.3
+                //# If the Keyring is provided as the input, the client MUST construct a
+                //# default CMM (../framework/default-cmm.md) that uses this keyring, to
+                //# obtain the decryption materials (../framework/
+                //# structures.md#decryption-materials) that is required for decryption.
+
+                //= compliance/client-apis/decrypt.txt#2.7.2
+                //# If a CMM is not
+                //# supplied as the input, the decrypt operation MUST construct a default
+                //# CMM (../framework/default-cmm.md) from the input keyring
+                //# (../framework/keyring-interface.md).
+                var createCmmOutput := this.client
                     .CreateDefaultCryptographicMaterialsManager(Crypto.CreateDefaultCryptographicMaterialsManagerInput(
                     keyring := inputKeyring.value
                 ));
@@ -542,17 +559,6 @@ module {:extern "Dafny.Aws.Esdk.AwsEncryptionSdkClient"} AwsEncryptionSdk {
         }
 
         method DecryptInternal(input: Esdk.DecryptInput) returns (res: Result<Esdk.DecryptOutput, string>)
-        ensures
-            && input.materialsManager.Some?
-            && input.keyring.Some?
-        ==>
-            res.Failure?
-
-        ensures
-            && input.materialsManager.None?
-            && input.keyring.None?
-        ==>
-            res.Failure?
         {
             // TODO: Change to '> 0' once CrypTool-4350 complete
             // TODO: Remove entirely once we can validate this value on client creation
