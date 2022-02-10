@@ -128,10 +128,6 @@ module {:extern "Dafny.Aws.Esdk.AwsEncryptionSdkClient"} AwsEncryptionSdk {
         ==>
             res.Failure?
         {
-            // Validate encrypt request
-            :- Need(input.materialsManager.None? || input.keyring.None?, "Cannot provide both a keyring and a CMM");
-            :- Need(input.materialsManager.Some? || input.keyring.Some?, "Must provide either a keyring or a CMM");
-
             var frameLength : int64 := EncryptDecryptHelpers.DEFAULT_FRAME_LENGTH;
             if input.frameLength.Some? {
                 // TODO: uncomment this once we figure out why C# is passing 0 as the default value for these nullable
@@ -154,18 +150,7 @@ module {:extern "Dafny.Aws.Esdk.AwsEncryptionSdkClient"} AwsEncryptionSdk {
                 :- Need(this.maxEncryptedDataKeys.value >= 0, "maxEncryptedDataKeys must be non-negative");
             }
 
-            var cmm : Crypto.ICryptographicMaterialsManager;
-            if input.materialsManager.Some? {
-                cmm := input.materialsManager.value;
-            } else {
-                var client := new Client.AwsCryptographicMaterialProvidersClient();
-                var createCmmOutput := client
-                    .CreateDefaultCryptographicMaterialsManager(Crypto.CreateDefaultCryptographicMaterialsManagerInput(
-                    keyring := input.keyring.value
-                ));
-                :- Need (createCmmOutput.Success?, "Failed to create default CMM");
-                cmm := createCmmOutput.value;
-            }
+            var cmm :- CreateCmmFromInput(input.materialsManager, input.keyring);
 
             var algorithmSuiteId := input.algorithmSuiteId;
 
@@ -302,6 +287,49 @@ module {:extern "Dafny.Aws.Esdk.AwsEncryptionSdkClient"} AwsEncryptionSdk {
                 "CMM returned non-serializable encrypted data key.");
 
             return Success(materials);
+        }
+
+        /*
+         * Helper method for taking optional input keyrings/CMMs and returning a CMM,
+         * either directly the one that was provided or a new default CMM from the
+         * provided keyring.
+         */
+        method CreateCmmFromInput(
+            inputCmm: Option<Crypto.ICryptographicMaterialsManager>,
+            inputKeyring: Option<Crypto.IKeyring>
+        ) returns (res: Result<Crypto.ICryptographicMaterialsManager, string>)
+
+        ensures inputCmm.Some? ==> res.value == inputCmm
+
+        ensures
+            && inputCmm.Some?
+            && inputKeyring.Some?
+        ==>
+            res.Failure?
+
+        ensures
+            && inputCmm.None?
+            && inputKeyring.None?
+        ==>
+            res.Failure?
+
+        {
+            // Validate encrypt request
+            :- Need(inputCmm.None? || inputKeyring.None?, "Cannot provide both a keyring and a CMM");
+            :- Need(inputCmm.Some? || inputKeyring.Some?, "Must provide either a keyring or a CMM");
+
+            var cmm : Crypto.ICryptographicMaterialsManager;
+            if inputCmm.Some? {
+                return Success(inputCmm.value);
+            } else {
+                var client := new Client.AwsCryptographicMaterialProvidersClient();
+                var createCmmOutput := client
+                    .CreateDefaultCryptographicMaterialsManager(Crypto.CreateDefaultCryptographicMaterialsManagerInput(
+                    keyring := inputKeyring.value
+                ));
+                :- Need (createCmmOutput.Success?, "Failed to create default CMM");
+                return Success(createCmmOutput.value);
+            }
         }
 
         /*
@@ -522,28 +550,13 @@ module {:extern "Dafny.Aws.Esdk.AwsEncryptionSdkClient"} AwsEncryptionSdk {
         ==>
             res.Failure?
         {
-            // Validate decrypt request
-            :- Need(input.materialsManager.None? || input.keyring.None?, "Cannot provide both a keyring and a CMM");
-            :- Need(input.materialsManager.Some? || input.keyring.Some?, "Must provide either a keyring or a CMM");
-
             // TODO: Change to '> 0' once CrypTool-4350 complete
             // TODO: Remove entirely once we can validate this value on client creation
             if this.maxEncryptedDataKeys.Some? {
                 :- Need(this.maxEncryptedDataKeys.value >= 0, "maxEncryptedDataKeys must be non-negative");
             }
 
-            var cmm : Crypto.ICryptographicMaterialsManager;
-            if input.materialsManager.Some? {
-                cmm := input.materialsManager.value;
-            } else {
-                var client := new Client.AwsCryptographicMaterialProvidersClient();
-                var createCmmOutput := client
-                    .CreateDefaultCryptographicMaterialsManager(Crypto.CreateDefaultCryptographicMaterialsManagerInput(
-                    keyring := input.keyring.value
-                ));
-                :- Need (createCmmOutput.Success?, "Failed to create default CMM");
-                cmm := createCmmOutput.value;
-            }
+            var cmm :- CreateCmmFromInput(input.materialsManager, input.keyring);
 
             var buffer := SerializeFunctions.ReadableBuffer(input.ciphertext, 0);
             var headerBody :- Header
