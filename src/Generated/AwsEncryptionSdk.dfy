@@ -13,7 +13,8 @@ module {:extern "Dafny.Aws.Esdk"} Aws.Esdk {
     datatype EncryptInput = EncryptInput(
         nameonly plaintext: seq<uint8>,
         nameonly encryptionContext: Crypto.EncryptionContext, // TODO Make an option?
-        nameonly materialsManager: Crypto.ICryptographicMaterialsManager,
+        nameonly materialsManager: Option<Crypto.ICryptographicMaterialsManager>,
+        nameonly keyring: Option<Crypto.IKeyring>,
         nameonly algorithmSuiteId: Option<Crypto.AlgorithmSuiteId>,
         nameonly frameLength: Option<int64>,
         nameonly maxPlaintextLength: Option<int64>
@@ -29,8 +30,8 @@ module {:extern "Dafny.Aws.Esdk"} Aws.Esdk {
 
     datatype DecryptInput = DecryptInput(
         nameonly ciphertext: seq<uint8>,
-        nameonly materialsManager: Crypto.ICryptographicMaterialsManager
-        // TODO reintroduce optional and keyring
+        nameonly materialsManager: Option<Crypto.ICryptographicMaterialsManager>,
+        nameonly keyring: Option<Crypto.IKeyring>
     )
 
     datatype DecryptOutput = DecryptOutput(

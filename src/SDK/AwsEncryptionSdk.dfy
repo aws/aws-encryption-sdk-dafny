@@ -54,6 +54,8 @@ module {:extern "Dafny.Aws.Esdk.AwsEncryptionSdkClient"} AwsEncryptionSdk {
         const commitmentPolicy: Crypto.CommitmentPolicy;
         const maxEncryptedDataKeys: Option<int64>;
 
+        const materialProvidersClient: Crypto.IAwsCryptographicMaterialsProviderClient;
+
         constructor (config: Esdk.AwsEncryptionSdkClientConfig)
             ensures this.config == config
 
@@ -80,6 +82,8 @@ module {:extern "Dafny.Aws.Esdk.AwsEncryptionSdkClient"} AwsEncryptionSdk {
             } else {
                 this.commitmentPolicy := config.commitmentPolicy.value;
             }
+
+            this.materialProvidersClient := new Client.AwsCryptographicMaterialProvidersClient();
         }
 
         // Doing this conversion at each error site would allow us to emit more specific error types.
@@ -115,11 +119,8 @@ module {:extern "Dafny.Aws.Esdk.AwsEncryptionSdkClient"} AwsEncryptionSdk {
         )
         ==>
             res.Failure?
+
         {
-            // Validate encrypt request
-            // TODO: bring back once we can have Option<Trait>
-            //:- Need(request.cmm != null || request.keyring != null, "EncryptRequest.cmm OR EncryptRequest.keyring must be set.");
-            //:- Need(!(request.cmm != null && request.keyring != null), "EncryptRequest.keyring AND EncryptRequest.cmm must not both be set.");
             var frameLength : int64 := EncryptDecryptHelpers.DEFAULT_FRAME_LENGTH;
             if input.frameLength.Some? {
                 // TODO: uncomment this once we figure out why C# is passing 0 as the default value for these nullable
@@ -142,18 +143,7 @@ module {:extern "Dafny.Aws.Esdk.AwsEncryptionSdkClient"} AwsEncryptionSdk {
                 :- Need(this.maxEncryptedDataKeys.value >= 0, "maxEncryptedDataKeys must be non-negative");
             }
 
-            var cmm := input.materialsManager;
-            // TODO: bring back once we can have Option<Trait>
-            /*
-            if request.keyring == null {
-                cmm := request.cmm;
-            } else {
-                var client := new Client.AwsCryptographicMaterialProvidersClient();
-                cmm := client
-                    .CreateDefaultCryptographicMaterialsManager(Crypto.CreateDefaultCryptographicMaterialsManagerInput(
-                    keyring := request.keyring
-                ));
-            }*/
+            var cmm :- CreateCmmFromInput(input.materialsManager, input.keyring);
 
             var algorithmSuiteId := input.algorithmSuiteId;
 
@@ -293,6 +283,80 @@ module {:extern "Dafny.Aws.Esdk.AwsEncryptionSdkClient"} AwsEncryptionSdk {
         }
 
         /*
+         * Helper method for taking optional input keyrings/CMMs and returning a CMM,
+         * either directly the one that was provided or a new default CMM from the
+         * provided keyring.
+         */
+        method CreateCmmFromInput(
+            inputCmm: Option<Crypto.ICryptographicMaterialsManager>,
+            inputKeyring: Option<Crypto.IKeyring>
+        ) returns (res: Result<Crypto.ICryptographicMaterialsManager, string>)
+
+        //= compliance/client-apis/encrypt.txt#2.6.1
+        //= type=implication
+        //# The
+        //# CMM used MUST be the input CMM, if supplied.
+
+        //= compliance/client-apis/decrypt.txt#2.7.2
+        //= type=implication
+        //# The CMM used MUST be the input CMM, if supplied.
+        ensures
+            && res.Success?
+            && inputCmm.Some?
+        ==>
+            res.value == inputCmm.value
+
+        ensures
+            && inputCmm.Some?
+            && inputKeyring.Some?
+        ==>
+            res.Failure?
+
+        ensures
+            && inputCmm.None?
+            && inputKeyring.None?
+        ==>
+            res.Failure?
+
+        {
+            :- Need(inputCmm.None? || inputKeyring.None?, "Cannot provide both a keyring and a CMM");
+            :- Need(inputCmm.Some? || inputKeyring.Some?, "Must provide either a keyring or a CMM");
+
+            var cmm : Crypto.ICryptographicMaterialsManager;
+            if inputCmm.Some? {
+                return Success(inputCmm.value);
+            } else {
+                // Each of these three citations refer to creating a default CMM from
+                // the input keyring.
+
+                //= compliance/client-apis/encrypt.txt#2.6.1
+                //# If instead the caller
+                //# supplied a keyring (../framework/keyring-interface.md), this behavior
+                //# MUST use a default CMM (../framework/default-cmm.md) constructed
+                //# using the caller-supplied keyring as input.
+
+                //= compliance/client-apis/decrypt.txt#2.5.3
+                //# If the Keyring is provided as the input, the client MUST construct a
+                //# default CMM (../framework/default-cmm.md) that uses this keyring, to
+                //# obtain the decryption materials (../framework/
+                //# structures.md#decryption-materials) that is required for decryption.
+
+                //= compliance/client-apis/decrypt.txt#2.7.2
+                //# If a CMM is not
+                //# supplied as the input, the decrypt operation MUST construct a default
+                //# CMM (../framework/default-cmm.md) from the input keyring
+                //# (../framework/keyring-interface.md).
+                var createCmmOutput := this.materialProvidersClient
+                    .CreateDefaultCryptographicMaterialsManager(Crypto.CreateDefaultCryptographicMaterialsManagerInput(
+                        keyring := inputKeyring.value
+                    )
+                );
+                :- Need (createCmmOutput.Success?, "Failed to create default CMM");
+                return Success(createCmmOutput.value);
+            }
+        }
+
+        /*
          * Generate a message id of appropriate length for the given algorithm suite.
          */
         method GenerateMessageId(
@@ -364,7 +428,7 @@ module {:extern "Dafny.Aws.Esdk.AwsEncryptionSdkClient"} AwsEncryptionSdk {
                 messageId := messageId,
                 encryptionContext := encryptionContext,
                 encryptedDataKeys := encryptedDataKeys,
-                contentType := HeaderTypes.ContentType.Framed, // TODO: may need to change to support non-framed
+                contentType := HeaderTypes.ContentType.Framed,
                 headerIvLength := suite.encrypt.ivLength as nat,
                 frameLength := frameLength
             )
@@ -499,29 +563,13 @@ module {:extern "Dafny.Aws.Esdk.AwsEncryptionSdkClient"} AwsEncryptionSdk {
 
         method DecryptInternal(input: Esdk.DecryptInput) returns (res: Result<Esdk.DecryptOutput, string>)
         {
-            // Validate decrypt request
-            // TODO: bring back once we can have Option<Trait>
-            //:- Need(request.cmm == null || request.keyring == null, "DecryptRequest.keyring OR DecryptRequest.cmm must be set (not both).");
-            //:- Need(request.cmm != null || request.keyring != null, "DecryptRequest.cmm and DecryptRequest.keyring cannot both be null.");
-
             // TODO: Change to '> 0' once CrypTool-4350 complete
             // TODO: Remove entirely once we can validate this value on client creation
             if this.maxEncryptedDataKeys.Some? {
                 :- Need(this.maxEncryptedDataKeys.value >= 0, "maxEncryptedDataKeys must be non-negative");
             }
 
-            var cmm := input.materialsManager;
-            // TODO: bring back once we can have Option<Trait>
-            /*
-            if request.keyring == null {
-                cmm := request.cmm;
-            } else {
-                var client := new Client.AwsCryptographicMaterialProvidersClient();
-                cmm := client
-                    .CreateDefaultCryptographicMaterialsManager(Crypto.CreateDefaultCryptographicMaterialsManagerInput(
-                    keyring := request.keyring
-                ));
-            }*/
+            var cmm :- CreateCmmFromInput(input.materialsManager, input.keyring);
 
             var buffer := SerializeFunctions.ReadableBuffer(input.ciphertext, 0);
             var headerBody :- Header
