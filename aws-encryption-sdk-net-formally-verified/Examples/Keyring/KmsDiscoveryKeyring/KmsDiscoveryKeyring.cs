@@ -64,15 +64,11 @@ public class AwsKmsDiscoveryKeyringExample {
             KmsClient = new AmazonKeyManagementServiceClient(),
         };
         IKeyring decryptKeyring = materialProviders.CreateAwsKmsDiscoveryKeyring(createDecryptKeyringInput);
-        CreateDefaultCryptographicMaterialsManagerInput createDecryptCmmInput =
-            new CreateDefaultCryptographicMaterialsManagerInput {Keyring = decryptKeyring};
-        ICryptographicMaterialsManager decryptCmm =
-            materialProviders.CreateDefaultCryptographicMaterialsManager(createDecryptCmmInput);
 
         DecryptInput decryptInput = new DecryptInput
         {
             Ciphertext = ciphertext,
-            MaterialsManager = decryptCmm,
+            Keyring = decryptKeyring,
         };
         DecryptOutput decryptOutput = encryptionSdkClient.Decrypt(decryptInput);
         MemoryStream decrypted = decryptOutput.Plaintext;
