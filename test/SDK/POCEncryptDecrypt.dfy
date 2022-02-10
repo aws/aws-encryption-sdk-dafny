@@ -63,13 +63,14 @@ module {:extern "TestClient"} TestClient {
       plaintext:=plaintext,
       encryptionContext:=encryptionContext,
       algorithmSuiteId:=None(),
-      materialsManager:=cmm,
+      materialsManager:=Some(cmm),
+      keyring:=None(),
       frameLength:=Option.None(),
       maxPlaintextLength:=Option.None());
     var res :- expect client.Encrypt(input);
 
     // Use Decrypt API
-    var decryptInput := Esdk.DecryptInput(ciphertext:=res.ciphertext, materialsManager:=cmm);
+    var decryptInput := Esdk.DecryptInput(ciphertext:=res.ciphertext, materialsManager:=Some(cmm), keyring:=None());
     var d :- expect client.Decrypt(decryptInput);
 
     // ensure expected output

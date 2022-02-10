@@ -299,7 +299,11 @@ module {:extern "Dafny.Aws.Esdk.AwsEncryptionSdkClient"} AwsEncryptionSdk {
             inputKeyring: Option<Crypto.IKeyring>
         ) returns (res: Result<Crypto.ICryptographicMaterialsManager, string>)
 
-        ensures inputCmm.Some? ==> res.value == inputCmm
+        ensures
+            && res.Success?
+            && inputCmm.Some?
+        ==>
+            res.value == inputCmm.value
 
         ensures
             && inputCmm.Some?
@@ -404,7 +408,7 @@ module {:extern "Dafny.Aws.Esdk.AwsEncryptionSdkClient"} AwsEncryptionSdk {
                 messageId := messageId,
                 encryptionContext := encryptionContext,
                 encryptedDataKeys := encryptedDataKeys,
-                contentType := HeaderTypes.ContentType.Framed, // TODO: may need to change to support non-framed
+                contentType := HeaderTypes.ContentType.Framed,
                 headerIvLength := suite.encrypt.ivLength as nat,
                 frameLength := frameLength
             )
