@@ -102,6 +102,21 @@ structure CreateStrictAwsKmsKeyringInput {
     grantTokens: GrantTokenList
 }
 
+operation CreateStrictAwsKmsMultiKeyring {
+    input: CreateStrictAwsKmsMultiKeyringInput,
+    output: CreateKeyringOutput,
+}
+
+structure CreateStrictAwsKmsMultiKeyringInput {
+    generator:  KmsKeyId,
+
+    kmsKeyIds: KmsKeyIdList,
+
+    clientSupplier: ClientSupplierReference,
+
+    grantTokens: GrantTokenList
+}
+
 // KMS - Discovery
 operation CreateAwsKmsDiscoveryKeyring {
     input: CreateAwsKmsDiscoveryKeyringInput,
@@ -113,6 +128,22 @@ structure CreateAwsKmsDiscoveryKeyringInput {
     kmsClient: KmsClientReference,
 
     discoveryFilter: DiscoveryFilter,
+
+    grantTokens: GrantTokenList
+}
+
+operation CreateAwsKmsDiscoveryMultiKeyring {
+    input: CreateAwsKmsDiscoveryMultiKeyringInput,
+    output: CreateKeyringOutput,
+}
+
+structure CreateAwsKmsDiscoveryMultiKeyringInput {
+    @required
+    regions: RegionList,
+
+    discoveryFilter: DiscoveryFilter,
+
+    clientSupplier: ClientSupplierReference,
 
     grantTokens: GrantTokenList
 }

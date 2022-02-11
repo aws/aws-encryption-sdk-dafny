@@ -58,7 +58,7 @@ module TestMultiKeyring {
     var staticKeyring := new StaticKeyring(Some(expectedEncryptionMaterials.value.materials), None());
 
     var multiKeyring := new MultiKeyring.MultiKeyring(
-        generatorKeyring := staticKeyring,
+        generatorKeyring := Some(staticKeyring),
         childKeyrings := [rawAESKeyring]
     );
 
@@ -101,7 +101,7 @@ module TestMultiKeyring {
     var failingKeyring := new FailingKeyring();
 
     var multiKeyring := new MultiKeyring.MultiKeyring(
-        generatorKeyring := rawAESKeyring,
+        generatorKeyring := Some(rawAESKeyring),
         childKeyrings := [failingKeyring]
     );
 
@@ -124,7 +124,7 @@ module TestMultiKeyring {
     var rawAESKeyring := setupRawAesKeyring(encryptionContext);
 
     var multiKeyring := new MultiKeyring.MultiKeyring(
-        generatorKeyring := failingKeyring,
+        generatorKeyring := Some(failingKeyring),
         childKeyrings := [rawAESKeyring]
     );
 
@@ -144,7 +144,7 @@ module TestMultiKeyring {
     var failingKeyring := new StaticKeyring(Some(encryptionMaterials), None());
 
     var multiKeyring := new MultiKeyring.MultiKeyring(
-        generatorKeyring := failingKeyring,
+        generatorKeyring := Some(failingKeyring),
         childKeyrings := []
     );
 
@@ -172,7 +172,7 @@ module TestMultiKeyring {
     var failingKeyring := new FailingKeyring();
 
     var multiKeyring := new MultiKeyring.MultiKeyring(
-        generatorKeyring := rawAESKeyring,
+        generatorKeyring := Some(rawAESKeyring),
         childKeyrings := [failingKeyring]
     );
 
@@ -218,7 +218,7 @@ module TestMultiKeyring {
     // For children, we add failing keyrings on both sides of the valid keyring so we exercise
     // all paths
     var multiKeyring := new MultiKeyring.MultiKeyring(
-        generatorKeyring := failingKeyring,
+        generatorKeyring := Some(failingKeyring),
         childKeyrings := [failingKeyring, rawAESKeyring, failingKeyring]
     );
 
@@ -261,7 +261,7 @@ module TestMultiKeyring {
 
     var failingKeyring := new FailingKeyring();
     var multiKeyring := new MultiKeyring.MultiKeyring(
-        generatorKeyring := null,
+        generatorKeyring := None(),
         childKeyrings := [failingKeyring, failingKeyring]
     );
 

@@ -25,32 +25,30 @@ module
     Keyring.VerifiableInterface,
     Crypto.IKeyring
   {
-    // TODO: Make this an Option<Crypto.IKeyring> once supported
-    // https://github.com/dafny-lang/dafny/issues/1499
-    const generatorKeyring: Crypto.IKeyring?
+    const generatorKeyring: Option<Crypto.IKeyring>
     const childKeyrings: seq<Crypto.IKeyring>
 
     constructor (
-      generatorKeyring: Crypto.IKeyring?,
+      generatorKeyring: Option<Crypto.IKeyring>,
       childKeyrings: seq<Crypto.IKeyring>
     )
       //= compliance/framework/multi-keyring.txt#2.6
       //= type=implication
       //# On keyring initialization, a keyring MUST define at least one of the
       //# following:
-      requires generatorKeyring != null || |childKeyrings| > 0
+      requires generatorKeyring.Some? || |childKeyrings| > 0
 
       //= compliance/framework/multi-keyring.txt#2.6.1
       //= type=implication
       //# If the list of child keyrings (Section 2.6.2) is empty, a generator
       //# keyring (Section 2.6.1) MUST be defined for the keyring.
-      requires |childKeyrings| == 0 ==> generatorKeyring != null
+      requires |childKeyrings| == 0 ==> generatorKeyring.Some?
 
       //= compliance/framework/multi-keyring.txt#2.6.2
       //= type=implication
       //# If this keyring does not have a generator keyring (Section 2.6.1),
       //# this list MUST NOT be empty.
-      requires generatorKeyring == null ==> |childKeyrings| > 0
+      requires generatorKeyring.None? ==> |childKeyrings| > 0
 
       ensures this.generatorKeyring == generatorKeyring
       ensures this.childKeyrings == childKeyrings
@@ -90,7 +88,7 @@ module
       //# materials) does not include a plaintext data key, OnEncrypt MUST
       //# fail.
       ensures
-        && this.generatorKeyring == null
+        && this.generatorKeyring.None?
         && input.materials.plaintextDataKey.None?
       ==> res.Failure?
 
@@ -99,7 +97,7 @@ module
       //# *  If the input encryption materials already include a plaintext data
       //# key, OnEncrypt MUST fail.
       ensures
-        && this.generatorKeyring != null
+        && this.generatorKeyring.Some?
         && input.materials.plaintextDataKey.Some?
       ==> res.Failure?
     {
@@ -107,7 +105,7 @@ module
       // We could also frame this as "Need", but I found an "if" statement more clearly matches the
       // requirement in the spec ("If this keyring does not have a generator keyring
       // and the input encryption materials does not include a plaintext data key")
-      if this.generatorKeyring == null && input.materials.plaintextDataKey.None? {
+      if this.generatorKeyring.None? && input.materials.plaintextDataKey.None? {
         var exception := new Crypto.AwsCryptographicMaterialProvidersClientException(
           "Need either a generator keyring or input encryption materials which contain a plaintext data key");
         return Failure(exception);
@@ -118,14 +116,14 @@ module
       //= compliance/framework/multi-keyring.txt#2.7.1
       //# If this keyring has a generator keyring, this keyring MUST first
       //# generate a plaintext data key using the generator keyring:
-      if this.generatorKeyring != null {
+      if this.generatorKeyring.Some? {
         :- Crypto.Need(input.materials.plaintextDataKey.None?,
           "This multi keyring has a generator but provided Encryption Materials already contain plaintext data key");
 
         //= compliance/framework/multi-keyring.txt#2.7.1
         //# *  This keyring MUST first call the generator keyring's OnEncrypt
         //# using the input encryption materials as input.
-        var onEncryptOutput := this.generatorKeyring.OnEncrypt(input);
+        var onEncryptOutput := this.generatorKeyring.value.OnEncrypt(input);
 
         //= compliance/framework/multi-keyring.txt#2.7.1
         //# *  If the generator keyring fails OnEncrypt, this OnEncrypt MUST also
@@ -217,8 +215,8 @@ module
       //# keys (structures.md#encrypted-data-keys-1) in the input decryption
       //# materials (structures.md#decryption-materials) using its generator
       //# keyring (Section 2.6.1).
-      if this.generatorKeyring != null {
-        var result := AttemptDecryptDataKey(this.generatorKeyring, input);
+      if this.generatorKeyring.Some? {
+        var result := AttemptDecryptDataKey(this.generatorKeyring.value, input);
 
         if result.Success? {
           if result.value.materials.plaintextDataKey.Some? {

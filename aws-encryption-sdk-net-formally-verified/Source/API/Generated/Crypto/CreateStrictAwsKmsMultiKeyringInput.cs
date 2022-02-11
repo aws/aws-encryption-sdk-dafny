@@ -9,23 +9,23 @@ using
 
 namespace Aws.Crypto
 {
-    public class CreateMrkAwareDiscoveryMultiKeyringInput
+    public class CreateStrictAwsKmsMultiKeyringInput
     {
-        private System.Collections.Generic.List<string> _regions;
-        private Aws.Crypto.DiscoveryFilter _discoveryFilter;
+        private string _generator;
+        private System.Collections.Generic.List<string> _kmsKeyIds;
         private Aws.Crypto.IClientSupplier _clientSupplier;
         private System.Collections.Generic.List<string> _grantTokens;
 
-        public System.Collections.Generic.List<string> Regions
+        public string Generator
         {
-            get { return this._regions; }
-            set { this._regions = value; }
+            get { return this._generator; }
+            set { this._generator = value; }
         }
 
-        public Aws.Crypto.DiscoveryFilter DiscoveryFilter
+        public System.Collections.Generic.List<string> KmsKeyIds
         {
-            get { return this._discoveryFilter; }
-            set { this._discoveryFilter = value; }
+            get { return this._kmsKeyIds; }
+            set { this._kmsKeyIds = value; }
         }
 
         public Aws.Crypto.IClientSupplier ClientSupplier
