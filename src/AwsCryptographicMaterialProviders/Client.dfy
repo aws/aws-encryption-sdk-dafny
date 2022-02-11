@@ -248,13 +248,19 @@ module
     method CreateMultiKeyring(input: Crypto.CreateMultiKeyringInput)
       returns (res: Result<Crypto.IKeyring, Crypto.IAwsCryptographicMaterialProvidersException>)
     {
-      if input.generator == null && |input.childKeyrings| == 0 {
+      if input.generator.None? && |input.childKeyrings| == 0 {
         var error := new Crypto.AwsCryptographicMaterialProvidersClientException(
           "Must include a generator keyring and/or at least one child keyring");
         return Failure(error);
       }
 
-      var keyring := new MultiKeyring.MultiKeyring(input.generator, input.childKeyrings);
+      var generator : Crypto.IKeyring?;
+      if input.generator.Some? {
+        generator := input.generator.value;
+      } else {
+        generator := null;
+      }
+      var keyring := new MultiKeyring.MultiKeyring(generator, input.childKeyrings);
       return Success(keyring);
     }
 
@@ -330,11 +336,10 @@ module
       //# If a regional client supplier is
       //# not passed, then a default MUST be created that takes a region string
       //# and generates a default AWS SDK client for the given region.
-      if input.clientSupplier == null {
-        var clientSupplierOutput := CreateDefaultClientSupplier(Crypto.CreateDefaultClientSupplierInput());
-        clientSupplier := clientSupplierOutput.clientSupplier;
+      if input.clientSupplier.None? {
+        clientSupplier :- CreateDefaultClientSupplier(Crypto.CreateDefaultClientSupplierInput());
       } else {
-        clientSupplier := input.clientSupplier;
+        clientSupplier := input.clientSupplier.value;
       }
       res := StrictMultiKeyring(
         input.generator,
@@ -527,11 +532,10 @@ module
       //# If a regional client supplier is
       //# not passed, then a default MUST be created that takes a region string
       //# and generates a default AWS SDK client for the given region.
-      if input.clientSupplier == null {
-        var clientSupplierOutput := CreateDefaultClientSupplier(Crypto.CreateDefaultClientSupplierInput());
-        clientSupplier := clientSupplierOutput.clientSupplier;
+      if input.clientSupplier.None? {
+        clientSupplier :- CreateDefaultClientSupplier(Crypto.CreateDefaultClientSupplierInput());
       } else {
-        clientSupplier := input.clientSupplier;
+        clientSupplier := input.clientSupplier.value;
       }
       res := DiscoveryMultiKeyring(
         input.regions,
@@ -645,12 +649,10 @@ module
     }    
 
     method CreateDefaultClientSupplier(input: Crypto.CreateDefaultClientSupplierInput)
-      returns (res: Crypto.CreateDefaultClientSupplierOutput)
+      returns (res: Result<Crypto.IClientSupplier, Crypto.IAwsCryptographicMaterialProvidersException>)
     {
       var clientSupplier := new DefaultClientSupplier.DefaultClientSupplier();
-      res := Crypto.CreateDefaultClientSupplierOutput(
-        clientSupplier := clientSupplier
-      );
+      return Success(clientSupplier);
     }
   }
 }

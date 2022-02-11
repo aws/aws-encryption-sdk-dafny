@@ -20,10 +20,12 @@ module TestDefaultClientProvider {
     var materialsClient := new Client.AwsCryptographicMaterialProvidersClient();
 
     var clientSupplier: Crypto.IClientSupplier;
-    var clientSupplierOutput := materialsClient.CreateDefaultClientSupplier(
+    var clientSupplierRes := materialsClient.CreateDefaultClientSupplier(
       Crypto.CreateDefaultClientSupplierInput()
     );
-    clientSupplier := clientSupplierOutput.clientSupplier;
+    expect clientSupplierRes.Success?;
+    
+    clientSupplier := clientSupplierRes.value;
     var clientRes := clientSupplier.GetClient(
       Crypto.GetClientInput(
         "us-west-2"

@@ -59,12 +59,8 @@ structure GetClientOutput {
 
 operation CreateDefaultClientSupplier {
     input: CreateDefaultClientSupplierInput,
-    output: CreateDefaultClientSupplierOutput
+    output: ClientSupplierReference
 }
 
 structure CreateDefaultClientSupplierInput {
-}
-
-structure CreateDefaultClientSupplierOutput {
-    clientSupplier: ClientSupplierReference
 }

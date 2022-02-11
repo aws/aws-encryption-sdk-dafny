@@ -59,7 +59,6 @@ module {:extern "Dafny.Aws.Crypto"} Aws.Crypto {
 		    CreateStrictAwsKmsKeyringInput,
         CreateAwsKmsDiscoveryKeyringInput,
         CreateDefaultClientSupplierInput,
-        CreateDefaultClientSupplierOutput,
         CreateDefaultCryptographicMaterialsManagerInput,
         CreateMrkAwareDiscoveryAwsKmsKeyringInput,
         CreateMrkAwareStrictAwsKmsKeyringInput,
@@ -112,10 +111,6 @@ module {:extern "Dafny.Aws.Crypto"} Aws.Crypto {
     }
 
     datatype CreateDefaultClientSupplierInput = CreateDefaultClientSupplierInput()
-
-    datatype CreateDefaultClientSupplierOutput = CreateDefaultClientSupplierOutput(
-      nameonly clientSupplier: IClientSupplier
-    )
 
     /////////////
     // structures.smithy
@@ -323,7 +318,7 @@ module {:extern "Dafny.Aws.Crypto"} Aws.Crypto {
         nameonly generator: Option<KmsKeyId>,
         nameonly kmsKeyIds: Option<KmsKeyIdList>,
         nameonly grantTokens: Option<GrantTokenList>,
-        nameonly clientSupplier: IClientSupplier?
+        nameonly clientSupplier: Option<IClientSupplier>
     )
 
     // KMS - MRK Aware, Discovery
@@ -338,12 +333,12 @@ module {:extern "Dafny.Aws.Crypto"} Aws.Crypto {
         nameonly regions: RegionList,
         nameonly discoveryFilter: Option<DiscoveryFilter>,
         nameonly grantTokens: Option<GrantTokenList>,
-        nameonly clientSupplier: IClientSupplier?
+        nameonly clientSupplier: Option<IClientSupplier>
     )
 
     // Multi
     datatype CreateMultiKeyringInput = CreateMultiKeyringInput(
-        nameonly generator: IKeyring?,
+        nameonly generator: Option<IKeyring>,
         nameonly childKeyrings: seq<IKeyring>
     )
 
@@ -373,8 +368,8 @@ module {:extern "Dafny.Aws.Crypto"} Aws.Crypto {
     datatype CreateCachingCryptographicMaterialsManagerInput = CreateCachingCryptographicMaterialsManagerInput(
         nameonly cache: ICryptoMaterialsCache,
         nameonly cacheLimitTtl: int32,
-        nameonly keyring: IKeyring?,
-        nameonly materialsManager: ICryptographicMaterialsManager?,
+        nameonly keyring: Option<IKeyring>,
+        nameonly materialsManager: Option<ICryptographicMaterialsManager>,
         nameonly partitionId: Option<string>,
         nameonly limitBytes: Option<int64>,
         nameonly limitMessages: Option<int64>
@@ -417,7 +412,7 @@ module {:extern "Dafny.Aws.Crypto"} Aws.Crypto {
 
         // Client Supplier
         method CreateDefaultClientSupplier(input: CreateDefaultClientSupplierInput)
-          returns (res: CreateDefaultClientSupplierOutput)
+          returns (res: Result<IClientSupplier, IAwsCryptographicMaterialProvidersException>)
 
         // Caches
         // method CreateLocalCryptoMaterialsCache(input: CreateLocalCryptoMaterialsCacheInput)

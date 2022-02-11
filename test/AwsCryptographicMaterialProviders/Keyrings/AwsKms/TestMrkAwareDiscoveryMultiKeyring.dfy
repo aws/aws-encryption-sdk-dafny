@@ -25,7 +25,7 @@ module TestMrkAwareDiscoveryMultiKeyring {
         regions := ["us-west-2", "us-east-1"],
         discoveryFilter := Option.None,
         grantTokens := Option.None,
-        clientSupplier := null
+        clientSupplier := Option.None
       )
     );
     expect mrkAwareDiscoveryMultiKeyringResult.Success?;

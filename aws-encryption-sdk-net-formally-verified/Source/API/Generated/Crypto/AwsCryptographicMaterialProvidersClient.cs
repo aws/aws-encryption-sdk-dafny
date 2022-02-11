@@ -68,7 +68,6 @@ namespace Aws.Crypto
         {
             Dafny.Aws.Crypto._ICreateMrkAwareStrictMultiKeyringInput internalInput =
                 TypeConversion.ToDafny_N3_aws__N6_crypto__S37_CreateMrkAwareStrictMultiKeyringInput(input);
-            // Manually Fixed
             Wrappers_Compile._IResult<Dafny.Aws.Crypto.IKeyring,
                 Dafny.Aws.Crypto.IAwsCryptographicMaterialProvidersException> result =
                 this._impl.CreateMrkAwareStrictMultiKeyring(internalInput);
@@ -160,14 +159,18 @@ namespace Aws.Crypto
                 result.dtor_value);
         }
 
-        protected override Aws.Crypto.CreateDefaultClientSupplierOutput _CreateDefaultClientSupplier(
+        protected override Aws.Crypto.IClientSupplier _CreateDefaultClientSupplier(
             Aws.Crypto.CreateDefaultClientSupplierInput input)
         {
             Dafny.Aws.Crypto._ICreateDefaultClientSupplierInput internalInput =
                 TypeConversion.ToDafny_N3_aws__N6_crypto__S32_CreateDefaultClientSupplierInput(input);
-            Dafny.Aws.Crypto._ICreateDefaultClientSupplierOutput internalOutput =
+            Wrappers_Compile._IResult<Dafny.Aws.Crypto.IClientSupplier,
+                Dafny.Aws.Crypto.IAwsCryptographicMaterialProvidersException> result =
                 this._impl.CreateDefaultClientSupplier(internalInput);
-            return TypeConversion.FromDafny_N3_aws__N6_crypto__S33_CreateDefaultClientSupplierOutput(internalOutput);
+            if (result.is_Failure)
+                throw TypeConversion
+                    .FromDafny_CommonError_AwsCryptographicMaterialProvidersException(result.dtor_error);
+            return TypeConversion.FromDafny_N3_aws__N6_crypto__S23_ClientSupplierReference(result.dtor_value);
         }
     }
 }
