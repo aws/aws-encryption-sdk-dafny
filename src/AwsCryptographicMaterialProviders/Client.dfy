@@ -526,10 +526,10 @@ module
 
       var clientSupplier: Crypto.IClientSupplier;
 
-      //= compliance/framework/aws-kms/aws-kms-mrk-aware-multi-keyrings.txt#2.6
-      //# If a regional client supplier is
-      //# not passed, then a default MUST be created that takes a region string
-      //# and generates a default AWS SDK client for the given region.
+      //= compliance/framework/aws-kms/aws-kms-mrk-aware-multi-keyrings.txt#2.5
+      //# If a regional client supplier is not passed,
+      //# then a default MUST be created that takes a region string and
+      //# generates a default AWS SDK client for the given region.
       if input.clientSupplier.None? {
         clientSupplier :- CreateDefaultClientSupplier(Crypto.CreateDefaultClientSupplierInput());
       } else {
@@ -838,10 +838,10 @@ module
 
       var clientSupplier: Crypto.IClientSupplier;
 
-      //= compliance/framework/aws-kms/aws-kms-mrk-aware-multi-keyrings.txt#2.6
-      //# If a regional client supplier is
-      //# not passed, then a default MUST be created that takes a region string
-      //# and generates a default AWS SDK client for the given region.
+      //= compliance/framework/aws-kms/aws-kms-multi-keyrings.txt#2.5
+      //# If a regional client supplier is not passed,
+      //# then a default MUST be created that takes a region string and
+      //# generates a default AWS SDK client for the given region.
       if input.clientSupplier.None? {
         clientSupplier :- CreateDefaultClientSupplier(Crypto.CreateDefaultClientSupplierInput());
       } else {
