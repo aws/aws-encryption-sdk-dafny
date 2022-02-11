@@ -138,13 +138,15 @@ module MessageBody {
   predicate IsMessageRegularFrames(regularFrames: seq<Frames.RegularFrame>) {
     // The total number of frames MUST be < UINT16_LENGTH.
     // And a RegularFrame can not have a sequence number
-    // equal to the ENDFRAME_SEQUENCE_NUMBER. 
+    // equal to the ENDFRAME_SEQUENCE_NUMBER.
     && 0 <= |regularFrames| < ENDFRAME_SEQUENCE_NUMBER as nat
     // The sequence number MUST be monotonic
     && MessageFramesAreMonotonic(regularFrames)
     // All frames MUST all be from the same messages i.e. the same header
     && MessageFramesAreForTheSameMessage(regularFrames)
   }
+
+  type NonFramedMessage = Frames.NonFramed
 
   datatype FramedMessageBody = FramedMessageBody(
     regularFrames: MessageRegularFrames,
@@ -487,12 +489,12 @@ module MessageBody {
     :(ret: seq<uint8>)
     ensures if |frames| == 0 then
       ret == []
-    else 
+    else
       ret == WriteMessageRegularFrames(Seq.DropLast(frames))
       + Frames.WriteRegularFrame(Seq.Last(frames))
   {
     if |frames| == 0 then []
-    else 
+    else
       WriteMessageRegularFrames(Seq.DropLast(frames))
       + Frames.WriteRegularFrame(Seq.Last(frames))
   }
@@ -561,5 +563,28 @@ module MessageBody {
 
       assert {:split_here} true;
       Success(SuccessfulRead(body, finalFrame.tail))
+  }
+
+  function WriteNonFramedMessageBody(
+    body: NonFramedMessage
+  )
+    :(ret: seq<uint8>)
+    ensures ret == Frames.WriteNonFramed(body)
+  {
+    Frames.WriteNonFramed(body)
+  }
+
+  function method ReadNonFramedMessageBody(
+    buffer: ReadableBuffer,
+    header: Frames.NonFramedHeader
+  )
+    :(res: ReadCorrect<NonFramedMessage>)
+    ensures CorrectlyRead(buffer, res, WriteNonFramedMessageBody)
+    ensures res.Success?
+    ==>
+      && res.value.data.header == header
+  {
+    var block :- Frames.ReadNonFrame(buffer, header);
+    Success(SuccessfulRead(block.data, block.tail))
   }
 }

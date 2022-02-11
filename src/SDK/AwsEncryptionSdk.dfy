@@ -242,7 +242,7 @@ module {:extern "Dafny.Aws.Esdk.AwsEncryptionSdkClient"} AwsEncryptionSdk {
 
         ensures res.Success? ==>
             && SerializableTypes.IsESDKEncryptionContext(res.value.encryptionContext)
-        
+
         ensures res.Success? ==>
             && HasUint16Len(res.value.encryptedDataKeys)
 
@@ -618,9 +618,6 @@ module {:extern "Dafny.Aws.Esdk.AwsEncryptionSdkClient"} AwsEncryptionSdk {
             );
             assert {:split_here} true;
 
-            // TODO: add support for non-framed content
-            :- Need(headerBody.data.contentType.Framed?, "Fix me");
-
             var header := Header.HeaderInfo(
                 body := headerBody.data,
                 rawHeader := rawHeader,
@@ -635,9 +632,7 @@ module {:extern "Dafny.Aws.Esdk.AwsEncryptionSdkClient"} AwsEncryptionSdk {
                 SerializableTypes.GetESDKAlgorithmSuiteId(header.suite.id) == header.body.esdkSuiteId,
                 "Invalid header: algorithm suite mismatch"
             );
-            :- Need(header.body.contentType.Framed?, "Non-framed messages not supported");
-            :- Need(header.body.frameLength > 0, "Non-framed messages not supported");
-            
+
             assert Header.CorrectlyReadHeaderBody(
                 SerializeFunctions.ReadableBuffer(rawHeader, 0),
                 Success(
@@ -648,30 +643,34 @@ module {:extern "Dafny.Aws.Esdk.AwsEncryptionSdkClient"} AwsEncryptionSdk {
             assert Header.HeaderAuth?(suite, headerAuth.data);
             assert Header.IsHeader(header);
 
-            var messageBody :- MessageBody.ReadFramedMessageBody(
-                headerAuth.tail,
-                header,
-                [],
-                headerAuth.tail
-            ).MapFailure(EncryptDecryptHelpers.MapSerializeFailure(": ReadFramedMessageBody"));
-
-            assert {:split_here} true;
-            assert suite == messageBody.data.finalFrame.header.suite;
-            assert |derivedDataKeys.dataKey| == messageBody.data.finalFrame.header.suite.encrypt.keyLength as int;
-
-            // ghost var endHeaderPos := rd.reader.pos;
-            // Parse the message body
-            var plaintext;
+            var plaintext: seq<uint8>;
+            var messageBodyTail: SerializeFunctions.ReadableBuffer;
             match header.body.contentType {
-                case NonFramed => return Failure("not at this time");
-                //   plaintext :- MessageBody.DecryptNonFramedMessageBody(rd, suite, decryptionKey, header.body.messageID);
+                case NonFramed =>
+                    var messageBody :- MessageBody.ReadNonFramedMessageBody(headerAuth.tail, header)
+                        .MapFailure(EncryptDecryptHelpers.MapSerializeFailure(": ReadNonFramedMessageBody"));
+                    assert {:split_here} true;
+                    assert suite == messageBody.data.header.suite;
+                    assert |derivedDataKeys.dataKey| == messageBody.data.header.suite.encrypt.keyLength as int;
+                    plaintext :- MessageBody.DecryptFrame(messageBody.data, derivedDataKeys.dataKey);
+                    messageBodyTail := messageBody.tail;
                 case Framed =>
+                    var messageBody :- MessageBody.ReadFramedMessageBody(
+                        headerAuth.tail,
+                        header,
+                        [],
+                        headerAuth.tail
+                    ).MapFailure(EncryptDecryptHelpers.MapSerializeFailure(": ReadFramedMessageBody"));
+                    assert {:split_here} true;
+                    assert suite == messageBody.data.finalFrame.header.suite;
+                    assert |derivedDataKeys.dataKey| == messageBody.data.finalFrame.header.suite.encrypt.keyLength as int;
                     plaintext :- MessageBody.DecryptFramedMessageBody(messageBody.data, derivedDataKeys.dataKey);
+                    messageBodyTail := messageBody.tail;
             }
 
             var signature :- EncryptDecryptHelpers.VerifySignature(
-                messageBody.tail,
-                messageBody.tail.bytes[buffer.start..messageBody.tail.start],
+                messageBodyTail,
+                messageBodyTail.bytes[buffer.start..messageBodyTail.start],
                 decMat
             );
 
@@ -762,7 +761,7 @@ module {:extern "Dafny.Aws.Esdk.AwsEncryptionSdkClient"} AwsEncryptionSdk {
 
     // Happy case
     ensures res.Success? ==> header.suiteData == expectedSuiteData
-    
+
     // Failure cases
     ensures header.suiteData != expectedSuiteData ==> res.Failure?
     ensures |header.suiteData| != suite.commitment.outputKeyLength as int ==> res.Failure?
