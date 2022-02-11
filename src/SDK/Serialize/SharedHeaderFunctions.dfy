@@ -106,7 +106,7 @@ module SharedHeaderFunctions {
   ):
     (ret: seq<uint8>)
   {
-    [contentType.Serialize()]
+    Write([contentType.Serialize()])
   }
 
   function method ReadContentType(
