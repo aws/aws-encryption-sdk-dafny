@@ -96,11 +96,11 @@ namespace TestVectorTests {
         public abstract IEnumerator<object[]> GetEnumerator();
 
         IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
-        
+
         // TODO remove or make more robust. Leaving it in for now because it's useful for testing
         protected static bool TargetVector(KeyValuePair<string, TestVector> entry)
         {
-            if (entry.Value.MasterKeys.Any(masterKey => masterKey.Key != null && masterKey.Key.StartsWith("aes")))
+            if (entry.Value.MasterKeys.Any(masterKey => masterKey.Key != null && (masterKey.Key.StartsWith("aes") || masterKey.Key.StartsWith("rsa"))))
             {
                 return true;
             }
@@ -247,8 +247,28 @@ namespace TestVectorTests {
                 };
 
                 return materialProviders.CreateRawAesKeyring(createKeyringInput);
-            } else if (keyInfo.Type == "raw" && keyInfo.EncryptionAlgorithm == "rsa") {
-                throw new Exception("TODO: implement RSA");
+            } else if (keyInfo.Type == "raw" && keyInfo.EncryptionAlgorithm == "rsa" && key.Type == "private") {
+                PaddingScheme padding = RSAPaddingFromStrings(keyInfo.PaddingAlgorithm, keyInfo.PaddingHash);
+                byte[] privateKey = RSAEncryption.RSA.ParsePEMString(key.Material);
+                CreateRawRsaKeyringInput createKeyringInput = new CreateRawRsaKeyringInput
+                {
+                    KeyNamespace = keyInfo.ProviderId,
+                    KeyName = key.Id,
+                    PaddingScheme = padding,
+                    PrivateKey = new MemoryStream(privateKey)
+                };
+                return materialProviders.CreateRawRsaKeyring(createKeyringInput);
+            } else if (keyInfo.Type == "raw" && keyInfo.EncryptionAlgorithm == "rsa" && key.Type == "public") {
+                PaddingScheme padding = RSAPaddingFromStrings(keyInfo.PaddingAlgorithm, keyInfo.PaddingHash);
+                byte[] publicKey = RSAEncryption.RSA.ParsePEMString(key.Material);
+                CreateRawRsaKeyringInput createKeyringInput = new CreateRawRsaKeyringInput
+                {
+                    KeyNamespace = keyInfo.ProviderId,
+                    KeyName = key.Id,
+                    PaddingScheme = padding,
+                    PublicKey = new MemoryStream(publicKey)
+                };
+                return materialProviders.CreateRawRsaKeyring(createKeyringInput);
             }
             else {
                 throw new Exception("Unsupported keyring type!");
@@ -262,17 +282,17 @@ namespace TestVectorTests {
                 _ => throw new Exception("Unsupported AES wrapping algorithm")
             };
         }
-        /*
-        private static Keyrings.RSAPaddingModes RSAPAddingFromStrings(string strAlg, string strHash) {
+        
+        private static PaddingScheme RSAPaddingFromStrings(string strAlg, string strHash) {
             return (strAlg, strHash) switch {
-                ("pkcs1", _) => Keyrings.RSAPaddingModes.PKCS1,
-                ("oaep-mgf1", "sha1") => Keyrings.RSAPaddingModes.OAEP_SHA1,
-                ("oaep-mgf1", "sha256") => Keyrings.RSAPaddingModes.OAEP_SHA256,
-                ("oaep-mgf1", "sha384") => Keyrings.RSAPaddingModes.OAEP_SHA384,
-                ("oaep-mgf1", "sha512") => Keyrings.RSAPaddingModes.OAEP_SHA512,
+                ("pkcs1", _) => PaddingScheme.PKCS1,
+                ("oaep-mgf1", "sha1") => PaddingScheme.OAEP_SHA1_MGF1,
+                ("oaep-mgf1", "sha256") => PaddingScheme.OAEP_SHA256_MGF1,
+                ("oaep-mgf1", "sha384") => PaddingScheme.OAEP_SHA384_MGF1,
+                ("oaep-mgf1", "sha512") => PaddingScheme.OAEP_SHA512_MGF1,
                 _ => throw new Exception("Unsupported RSA Padding " + strAlg + strHash)
             };
-        }*/
+        }
 
         private static RegionEndpoint GetRegionForArn(string keyId)
         {
@@ -362,18 +382,12 @@ namespace TestVectorTests {
                 );
             }
 
-            // TODO remove
-            if (vector.MasterKeys.Any(masterKey => masterKey.Key != null && masterKey.Key.StartsWith("rsa")))
-            {
-                throw new Exception($"RSA keyrings not yet supported");
-            }
-            // End TODO
-
             try
             {
                 AwsEncryptionSdkClientConfig config = new AwsEncryptionSdkClientConfig
                 {
-                    ConfigDefaults = ConfigurationDefaults.V1
+                    ConfigDefaults = ConfigurationDefaults.V1,
+                    CommitmentPolicy = CommitmentPolicy.REQUIRE_ENCRYPT_ALLOW_DECRYPT
                 };
                 IAwsEncryptionSdk encryptionSdkClient = new AwsEncryptionSdkClient(config);
 
