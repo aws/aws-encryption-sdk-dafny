@@ -10,7 +10,8 @@ using Aws.Esdk;
 using Xunit;
 using ConfigurationDefaults = Aws.Esdk.ConfigurationDefaults;
 
-/// Demonstrate an encrypt/decrypt cycle using a AWS KMS MRK-aware discovery keyring.
+/// Demonstrate an encrypt/decrypt cycle using a Multi-Keyring containing multiple AWS KMS
+/// MRK-Aware Discovery Keyrings.
 public class KmsMrkAwareDiscoveryMultiKeyringExample {
     static void Run(MemoryStream plaintext, string keyArn, List<string> accountIds, List<string> regions) {
         // Create your encryption context.
