@@ -49,6 +49,34 @@ namespace Aws.Crypto
             return TypeConversion.FromDafny_N3_aws__N6_crypto__S19_CreateKeyringOutput(result.dtor_value);
         }
 
+        protected override Aws.Crypto.IKeyring _CreateStrictAwsKmsMultiKeyring(
+            Aws.Crypto.CreateStrictAwsKmsMultiKeyringInput input)
+        {
+            Dafny.Aws.Crypto._ICreateStrictAwsKmsMultiKeyringInput internalInput =
+                TypeConversion.ToDafny_N3_aws__N6_crypto__S35_CreateStrictAwsKmsMultiKeyringInput(input);
+            Wrappers_Compile._IResult<Dafny.Aws.Crypto.IKeyring,
+                Dafny.Aws.Crypto.IAwsCryptographicMaterialProvidersException> result =
+                this._impl.CreateStrictAwsKmsMultiKeyring(internalInput);
+            if (result.is_Failure)
+                throw TypeConversion
+                    .FromDafny_CommonError_AwsCryptographicMaterialProvidersException(result.dtor_error);
+            return TypeConversion.FromDafny_N3_aws__N6_crypto__S19_CreateKeyringOutput(result.dtor_value);
+        }
+
+        protected override Aws.Crypto.IKeyring _CreateAwsKmsDiscoveryMultiKeyring(
+            Aws.Crypto.CreateAwsKmsDiscoveryMultiKeyringInput input)
+        {
+            Dafny.Aws.Crypto._ICreateAwsKmsDiscoveryMultiKeyringInput internalInput =
+                TypeConversion.ToDafny_N3_aws__N6_crypto__S38_CreateAwsKmsDiscoveryMultiKeyringInput(input);
+            Wrappers_Compile._IResult<Dafny.Aws.Crypto.IKeyring,
+                Dafny.Aws.Crypto.IAwsCryptographicMaterialProvidersException> result =
+                this._impl.CreateAwsKmsDiscoveryMultiKeyring(internalInput);
+            if (result.is_Failure)
+                throw TypeConversion
+                    .FromDafny_CommonError_AwsCryptographicMaterialProvidersException(result.dtor_error);
+            return TypeConversion.FromDafny_N3_aws__N6_crypto__S19_CreateKeyringOutput(result.dtor_value);
+        }
+
         protected override Aws.Crypto.IKeyring _CreateMrkAwareStrictAwsKmsKeyring(
             Aws.Crypto.CreateMrkAwareStrictAwsKmsKeyringInput input)
         {

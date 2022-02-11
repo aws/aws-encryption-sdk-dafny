@@ -16,6 +16,8 @@ service AwsCryptographicMaterialProviders {
         // Keyrings
         CreateStrictAwsKmsKeyring,
         CreateAwsKmsDiscoveryKeyring,
+        CreateStrictAwsKmsMultiKeyring,
+        CreateAwsKmsDiscoveryMultiKeyring,
         CreateMrkAwareStrictAwsKmsKeyring,
         CreateMrkAwareStrictMultiKeyring,
         CreateMrkAwareDiscoveryAwsKmsKeyring,
