@@ -10,17 +10,18 @@ service AwsCryptographicMaterialProviders {
         Keyring,
         CryptographicMaterialsManager,
         CryptoMaterialsCache,
-        // TODO
-        // ClientSupplier,
+        ClientSupplier,
     ],
     operations: [
         // Keyrings
         CreateStrictAwsKmsKeyring,
         CreateAwsKmsDiscoveryKeyring,
+        CreateStrictAwsKmsMultiKeyring,
+        CreateAwsKmsDiscoveryMultiKeyring,
         CreateMrkAwareStrictAwsKmsKeyring,
-        // CreateMrkAwareStrictMultiKeyring,
+        CreateMrkAwareStrictMultiKeyring,
         CreateMrkAwareDiscoveryAwsKmsKeyring,
-        // CreateMrkAwareDiscoveryMultiKeyring,
+        CreateMrkAwareDiscoveryMultiKeyring,
         CreateMultiKeyring,
         CreateRawAesKeyring,
         CreateRawRsaKeyring,
@@ -32,7 +33,10 @@ service AwsCryptographicMaterialProviders {
 
         // Caches
         // TODO
-        // CreateLocalCryptoMaterialsCache
+        // CreateLocalCryptoMaterialsCache,
+
+        // ClientSupplier
+        CreateDefaultClientSupplier
     ]
 }
 

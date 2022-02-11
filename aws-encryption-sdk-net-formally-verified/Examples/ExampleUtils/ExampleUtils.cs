@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Text;
 
@@ -25,6 +26,16 @@ namespace ExampleUtils {
                 );
             }
             return keyId;
+        }
+
+        static public List<string> GetAccountIds()
+        {
+            return new List<string>() {"658956600833"};
+        }
+
+        static public List<string> GetRegions()
+        {
+            return new List<string>() {"us-west-2", "us-east-1"};
         }
     }
 }

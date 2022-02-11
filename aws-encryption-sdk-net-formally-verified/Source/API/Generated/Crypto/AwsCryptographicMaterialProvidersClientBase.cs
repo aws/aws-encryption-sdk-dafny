@@ -33,6 +33,25 @@ namespace Aws.Crypto
         protected abstract Aws.Crypto.IKeyring _CreateAwsKmsDiscoveryKeyring(
             Aws.Crypto.CreateAwsKmsDiscoveryKeyringInput input);
 
+        public Aws.Crypto.IKeyring CreateStrictAwsKmsMultiKeyring(Aws.Crypto.CreateStrictAwsKmsMultiKeyringInput input)
+        {
+            input.Validate();
+            return _CreateStrictAwsKmsMultiKeyring(input);
+        }
+
+        protected abstract Aws.Crypto.IKeyring _CreateStrictAwsKmsMultiKeyring(
+            Aws.Crypto.CreateStrictAwsKmsMultiKeyringInput input);
+
+        public Aws.Crypto.IKeyring CreateAwsKmsDiscoveryMultiKeyring(
+            Aws.Crypto.CreateAwsKmsDiscoveryMultiKeyringInput input)
+        {
+            input.Validate();
+            return _CreateAwsKmsDiscoveryMultiKeyring(input);
+        }
+
+        protected abstract Aws.Crypto.IKeyring _CreateAwsKmsDiscoveryMultiKeyring(
+            Aws.Crypto.CreateAwsKmsDiscoveryMultiKeyringInput input);
+
         public Aws.Crypto.IKeyring CreateMrkAwareStrictAwsKmsKeyring(
             Aws.Crypto.CreateMrkAwareStrictAwsKmsKeyringInput input)
         {
@@ -43,6 +62,16 @@ namespace Aws.Crypto
         protected abstract Aws.Crypto.IKeyring _CreateMrkAwareStrictAwsKmsKeyring(
             Aws.Crypto.CreateMrkAwareStrictAwsKmsKeyringInput input);
 
+        public Aws.Crypto.IKeyring CreateMrkAwareStrictMultiKeyring(
+            Aws.Crypto.CreateMrkAwareStrictMultiKeyringInput input)
+        {
+            input.Validate();
+            return _CreateMrkAwareStrictMultiKeyring(input);
+        }
+
+        protected abstract Aws.Crypto.IKeyring _CreateMrkAwareStrictMultiKeyring(
+            Aws.Crypto.CreateMrkAwareStrictMultiKeyringInput input);
+
         public Aws.Crypto.IKeyring CreateMrkAwareDiscoveryAwsKmsKeyring(
             Aws.Crypto.CreateMrkAwareDiscoveryAwsKmsKeyringInput input)
         {
@@ -52,6 +81,16 @@ namespace Aws.Crypto
 
         protected abstract Aws.Crypto.IKeyring _CreateMrkAwareDiscoveryAwsKmsKeyring(
             Aws.Crypto.CreateMrkAwareDiscoveryAwsKmsKeyringInput input);
+
+        public Aws.Crypto.IKeyring CreateMrkAwareDiscoveryMultiKeyring(
+            Aws.Crypto.CreateMrkAwareDiscoveryMultiKeyringInput input)
+        {
+            input.Validate();
+            return _CreateMrkAwareDiscoveryMultiKeyring(input);
+        }
+
+        protected abstract Aws.Crypto.IKeyring _CreateMrkAwareDiscoveryMultiKeyring(
+            Aws.Crypto.CreateMrkAwareDiscoveryMultiKeyringInput input);
 
         public Aws.Crypto.IKeyring CreateMultiKeyring(Aws.Crypto.CreateMultiKeyringInput input)
         {
@@ -86,5 +125,14 @@ namespace Aws.Crypto
 
         protected abstract Aws.Crypto.ICryptographicMaterialsManager _CreateDefaultCryptographicMaterialsManager(
             Aws.Crypto.CreateDefaultCryptographicMaterialsManagerInput input);
+
+        public Aws.Crypto.IClientSupplier CreateDefaultClientSupplier(Aws.Crypto.CreateDefaultClientSupplierInput input)
+        {
+            input.Validate();
+            return _CreateDefaultClientSupplier(input);
+        }
+
+        protected abstract Aws.Crypto.IClientSupplier _CreateDefaultClientSupplier(
+            Aws.Crypto.CreateDefaultClientSupplierInput input);
     }
 }
