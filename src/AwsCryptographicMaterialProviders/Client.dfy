@@ -401,9 +401,6 @@ module
         && (generator.Some?
         ==>
           && res.value.generatorKeyring.value is AwsKmsMrkAwareSymmetricKeyring.AwsKmsMrkAwareSymmetricKeyring
-          //&& res.value.generatorKeyring.Some?
-          //&& var returnedGenerator := res.value.generatorKeyring.value;
-          //&& res.value.generatorKeyring.value is AwsKmsMrkAwareSymmetricKeyring.AwsKmsMrkAwareSymmetricKeyring
           && var g := res.value.generatorKeyring.value as AwsKmsMrkAwareSymmetricKeyring.AwsKmsMrkAwareSymmetricKeyring;
           && g.awsKmsKey == generator.value
           && (grantTokens.Some? ==> g.grantTokens == grantTokens.value))
