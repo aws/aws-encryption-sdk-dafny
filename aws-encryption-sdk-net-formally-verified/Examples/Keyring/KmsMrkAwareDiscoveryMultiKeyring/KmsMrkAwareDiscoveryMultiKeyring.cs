@@ -3,6 +3,7 @@
 
 using System.Collections.Generic;
 using System.IO;
+using Amazon.KeyManagementService;
 using Aws.Crypto;
 using Aws.Esdk;
 
@@ -11,7 +12,7 @@ using ConfigurationDefaults = Aws.Esdk.ConfigurationDefaults;
 
 /// Demonstrate an encrypt/decrypt cycle using a AWS KMS MRK-aware discovery keyring.
 public class KmsMrkAwareDiscoveryMultiKeyringExample {
-    static void Run(MemoryStream plaintext, List<string> accountIds, List<string> regions) {
+    static void Run(MemoryStream plaintext, string keyArn, List<string> accountIds, List<string> regions) {
         // Create your encryption context.
         // Remember that your encryption context is NOT SECRET.
         // https://docs.aws.amazon.com/encryption-sdk/latest/developer-guide/concepts.html#encryption-context
@@ -32,15 +33,12 @@ public class KmsMrkAwareDiscoveryMultiKeyringExample {
         };
         IAwsEncryptionSdk encryptionSdkClient = new AwsEncryptionSdkClient(config);
 
-        CreateMrkAwareDiscoveryMultiKeyringInput createKeyringInput = new CreateMrkAwareDiscoveryMultiKeyringInput
+        CreateMrkAwareStrictAwsKmsKeyringInput createKeyringInput = new CreateMrkAwareStrictAwsKmsKeyringInput
         {
-            Regions = regions,
-            DiscoveryFilter = new DiscoveryFilter() {
-                AccountIds = accountIds,
-                Partition = "aws"
-            }
+            KmsClient = new AmazonKeyManagementServiceClient(),
+            KmsKeyId = keyArn,
         };
-        IKeyring keyring = materialProviders.CreateMrkAwareDiscoveryMultiKeyring(createKeyringInput);
+        IKeyring encryptKeyring = materialProviders.CreateMrkAwareStrictAwsKmsKeyring(createKeyringInput);
 
         // Encrypt your plaintext data.
         // In this example, we pass a keyring. Behind the scenes, the AWS Encryption SDK will create
@@ -48,7 +46,7 @@ public class KmsMrkAwareDiscoveryMultiKeyringExample {
         EncryptInput encryptInput = new EncryptInput
         {
             Plaintext = plaintext,
-            Keyring = keyring,
+            Keyring = encryptKeyring,
             EncryptionContext = encryptionContext
         };
 
@@ -58,6 +56,16 @@ public class KmsMrkAwareDiscoveryMultiKeyringExample {
         // Demonstrate that the ciphertext and plaintext are different.
         Assert.NotEqual(ciphertext.ToArray(), plaintext.ToArray());
 
+
+        CreateMrkAwareDiscoveryMultiKeyringInput createDecryptKeyringInput = new CreateMrkAwareDiscoveryMultiKeyringInput
+        {
+            Regions = regions,
+            DiscoveryFilter = new DiscoveryFilter() {
+                AccountIds = accountIds,
+                Partition = "aws"
+            }
+        };
+        IKeyring keyring = materialProviders.CreateMrkAwareDiscoveryMultiKeyring(createDecryptKeyringInput);
         // Decrypt your encrypted data using the same keyring you used on encrypt.
         //
         // You do not need to specify the encryption context on decrypt
@@ -87,6 +95,7 @@ public class KmsMrkAwareDiscoveryMultiKeyringExample {
     {
         Run(
             ExampleUtils.ExampleUtils.GetPlaintextStream(),
+            ExampleUtils.ExampleUtils.GetKmsKeyArn(),
             ExampleUtils.ExampleUtils.GetAccountIds(),
             ExampleUtils.ExampleUtils.GetRegions()
         );
