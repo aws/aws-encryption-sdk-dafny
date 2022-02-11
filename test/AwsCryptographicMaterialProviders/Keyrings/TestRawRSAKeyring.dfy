@@ -258,11 +258,9 @@ module TestRawRSAKeying {
     )
     requires |namespace| < UINT16_LIMIT
     requires |name| < UINT16_LIMIT
-    requires keyStrength >= RawRSAKeyring.PaddingSchemeToMinStrengthBits(padding)
   {
     publicKey, privateKey := RSAEncryption.GenerateKeyPair(
-      keyStrength,
-      padding
+      keyStrength
     );
     keyring := new RawRSAKeyring.RawRSAKeyring(
       namespace,
