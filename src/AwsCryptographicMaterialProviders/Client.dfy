@@ -401,6 +401,7 @@ module
         //# keyring.md) initialized with
         && (generator.Some?
         ==>
+          && res.value.generatorKeyring.Some?
           && res.value.generatorKeyring.value is AwsKmsMrkAwareSymmetricKeyring.AwsKmsMrkAwareSymmetricKeyring
           && var g := res.value.generatorKeyring.value as AwsKmsMrkAwareSymmetricKeyring.AwsKmsMrkAwareSymmetricKeyring;
           && g.awsKmsKey == generator.value
@@ -720,6 +721,7 @@ module
         //# AWS KMS Keyring (aws-kms-keyring.md) initialized with
         && (generator.Some?
         ==>
+          && res.value.generatorKeyring.Some?
           && res.value.generatorKeyring.value is AwsKmsStrictKeyring.AwsKmsStrictKeyring
           && var g := res.value.generatorKeyring.value as AwsKmsStrictKeyring.AwsKmsStrictKeyring;
           && g.awsKmsKey == generator.value
