@@ -223,10 +223,22 @@ module {:extern "Dafny.Aws.Esdk.AwsEncryptionSdkClient"} AwsEncryptionSdk {
                 msg := msg + signature;
                 // TODO: Come back and prove this
                 // assert msg == SerializeMessageWithSignature(framedMessage, signature); // Header, frames and signature can be serialized into the stream
-            return Success(Esdk.EncryptOutput(ciphertext := msg));
+                return Success(
+                    Esdk.EncryptOutput(
+                        ciphertext := msg,
+                        encryptionContext := header.encryptionContext,
+                        algorithmSuiteId := header.suite.id
+                    )
+                );
             } else {
                 var msg :- EncryptDecryptHelpers.SerializeMessageWithoutSignature(framedMessage, suite);
-                return Success(Esdk.EncryptOutput(ciphertext := msg));
+                return Success(
+                    Esdk.EncryptOutput(
+                        ciphertext := msg,
+                        encryptionContext := header.encryptionContext,
+                        algorithmSuiteId := header.suite.id
+                    )
+                );
             }
         }
 
@@ -677,7 +689,13 @@ module {:extern "Dafny.Aws.Esdk.AwsEncryptionSdkClient"} AwsEncryptionSdk {
 
             :- Need(signature.start == |signature.bytes|, "Data after message footer.");
 
-            return Success(Esdk.DecryptOutput(plaintext := plaintext));
+            return Success(
+                Esdk.DecryptOutput(
+                    plaintext := plaintext,
+                    encryptionContext := header.encryptionContext,
+                    algorithmSuiteId := header.suite.id
+                )
+            );
         }
 
         method GetDecryptionMaterials(
