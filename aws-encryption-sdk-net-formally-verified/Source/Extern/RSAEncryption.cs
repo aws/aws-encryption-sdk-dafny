@@ -97,7 +97,7 @@ namespace RSAEncryption {
             GetPemBytes(keygenPair, out publicKeyBytes, out privateKeyBytes);
         }
 
-        public static void GenerateKeyPairExtern(int strength, _IPaddingMode padding, out ibyteseq publicKey, out ibyteseq privateKey) {
+        public static void GenerateKeyPairExtern(int strength, out ibyteseq publicKey, out ibyteseq privateKey) {
             byte[] publicKeyBytes;
             byte[] privateKeyBytes;
             GenerateKeyPairBytes(strength, out publicKeyBytes, out privateKeyBytes);
