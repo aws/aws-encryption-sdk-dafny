@@ -16,20 +16,26 @@ module {:extern "Dafny.Aws.Crypto"} Aws.Crypto {
     // load too much at once, making the verification unstable
     export
       provides UTF8, UInt, KMS, Wrappers,
+        IClientSupplier,
+        IClientSupplier.GetClient,
         IKeyring.OnDecrypt,
         IKeyring.OnEncrypt,
         ICryptographicMaterialsManager.GetEncryptionMaterials,
         ICryptographicMaterialsManager.DecryptMaterials,
         IAwsCryptographicMaterialsProviderClient.CreateRawAesKeyring,
         IAwsCryptographicMaterialsProviderClient.CreateDefaultCryptographicMaterialsManager,
-		IAwsCryptographicMaterialsProviderClient.CreateStrictAwsKmsKeyring,
+        IAwsCryptographicMaterialsProviderClient.CreateStrictAwsKmsKeyring,
         IAwsCryptographicMaterialsProviderClient.CreateAwsKmsDiscoveryKeyring,
         IAwsCryptographicMaterialsProviderClient.CreateMrkAwareStrictAwsKmsKeyring,
         IAwsCryptographicMaterialsProviderClient.CreateMrkAwareDiscoveryAwsKmsKeyring,
         IAwsCryptographicMaterialsProviderClient.CreateMultiKeyring,
         IAwsCryptographicMaterialsProviderClient.CreateRawRsaKeyring,
+        IAwsCryptographicMaterialsProviderClient.CreateDefaultClientSupplier,
+        IAwsCryptographicMaterialsProviderClient.CreateMrkAwareStrictMultiKeyring,
+        IAwsCryptographicMaterialsProviderClient.CreateMrkAwareDiscoveryMultiKeyring,
         AwsCryptographicMaterialProvidersClientException.message,
         AwsCryptographicMaterialProvidersClientException.WrapResultString,
+        AwsCryptographicMaterialProvidersClientException.WrapOutcomeString,
         Need
 
       reveals
@@ -50,13 +56,16 @@ module {:extern "Dafny.Aws.Crypto"} Aws.Crypto {
         OnDecryptInput,
         OnDecryptOutput,
         EncryptionMaterials.Valid,
-        CreateRawAesKeyringInput,
-        CreateMultiKeyringInput,
-        CreateDefaultCryptographicMaterialsManagerInput,
-        CreateMrkAwareStrictAwsKmsKeyringInput,
-        CreateMrkAwareDiscoveryAwsKmsKeyringInput,
-		CreateStrictAwsKmsKeyringInput,
+		    CreateStrictAwsKmsKeyringInput,
         CreateAwsKmsDiscoveryKeyringInput,
+        CreateDefaultClientSupplierInput,
+        CreateDefaultCryptographicMaterialsManagerInput,
+        CreateMrkAwareDiscoveryAwsKmsKeyringInput,
+        CreateMrkAwareStrictAwsKmsKeyringInput,
+        CreateMultiKeyringInput,
+        CreateRawAesKeyringInput,
+        CreateMrkAwareStrictMultiKeyringInput,
+        CreateMrkAwareDiscoveryMultiKeyringInput,
         DiscoveryFilter,
         AccountId,
         AccountIdList,
@@ -64,6 +73,8 @@ module {:extern "Dafny.Aws.Crypto"} Aws.Crypto {
         GrantToken,
         GrantTokenList,
         IAwsCryptographicMaterialsProviderClient,
+        IClientSupplier,
+        GetClientInput,
         IAwsCryptographicMaterialProvidersException,
         IAwsCryptographicMaterialProvidersException.GetMessage,
         AwsCryptographicMaterialProvidersClientException,
@@ -71,7 +82,10 @@ module {:extern "Dafny.Aws.Crypto"} Aws.Crypto {
         AesWrappingAlg,
         CommitmentPolicy,
         CreateRawRsaKeyringInput,
-        PaddingScheme
+        PaddingScheme,
+        KmsKeyIdList,
+        RegionList,
+        Region
 
     /////////////
     // kms.smithy
@@ -91,10 +105,12 @@ module {:extern "Dafny.Aws.Crypto"} Aws.Crypto {
 
     datatype GetClientInput = GetClientInput(region: string)
 
-    trait IClientSupplier {
+    trait {:termination false} IClientSupplier {
         method GetClient(input: GetClientInput)
             returns (res: Result<KMS.IKeyManagementServiceClient, IAwsCryptographicMaterialProvidersException>)
     }
+
+    datatype CreateDefaultClientSupplierInput = CreateDefaultClientSupplierInput()
 
     /////////////
     // structures.smithy
@@ -302,7 +318,7 @@ module {:extern "Dafny.Aws.Crypto"} Aws.Crypto {
         nameonly generator: Option<KmsKeyId>,
         nameonly kmsKeyIds: Option<KmsKeyIdList>,
         nameonly grantTokens: Option<GrantTokenList>,
-        nameonly clientSupplier: IClientSupplier?
+        nameonly clientSupplier: Option<IClientSupplier>
     )
 
     // KMS - MRK Aware, Discovery
@@ -317,12 +333,12 @@ module {:extern "Dafny.Aws.Crypto"} Aws.Crypto {
         nameonly regions: RegionList,
         nameonly discoveryFilter: Option<DiscoveryFilter>,
         nameonly grantTokens: Option<GrantTokenList>,
-        nameonly clientSupplier: IClientSupplier?
+        nameonly clientSupplier: Option<IClientSupplier>
     )
 
     // Multi
     datatype CreateMultiKeyringInput = CreateMultiKeyringInput(
-        nameonly generator: IKeyring?,
+        nameonly generator: Option<IKeyring>,
         nameonly childKeyrings: seq<IKeyring>
     )
 
@@ -352,8 +368,8 @@ module {:extern "Dafny.Aws.Crypto"} Aws.Crypto {
     datatype CreateCachingCryptographicMaterialsManagerInput = CreateCachingCryptographicMaterialsManagerInput(
         nameonly cache: ICryptoMaterialsCache,
         nameonly cacheLimitTtl: int32,
-        nameonly keyring: IKeyring?,
-        nameonly materialsManager: ICryptographicMaterialsManager?,
+        nameonly keyring: Option<IKeyring>,
+        nameonly materialsManager: Option<ICryptographicMaterialsManager>,
         nameonly partitionId: Option<string>,
         nameonly limitBytes: Option<int64>,
         nameonly limitMessages: Option<int64>
@@ -375,12 +391,12 @@ module {:extern "Dafny.Aws.Crypto"} Aws.Crypto {
             returns (res: Result<IKeyring, IAwsCryptographicMaterialProvidersException>)
         method CreateMrkAwareStrictAwsKmsKeyring(input: CreateMrkAwareStrictAwsKmsKeyringInput)
             returns (res: Result<IKeyring, IAwsCryptographicMaterialProvidersException>)
-        // method CreateMrkAwareStrictMultiKeyring(input: CreateMrkAwareStrictMultiKeyringInput)
-        //     returns (res: Result<IKeyring, IAwsCryptographicMaterialProvidersException>)
+        method CreateMrkAwareStrictMultiKeyring(input: CreateMrkAwareStrictMultiKeyringInput)
+            returns (res: Result<IKeyring, IAwsCryptographicMaterialProvidersException>)
         method CreateMrkAwareDiscoveryAwsKmsKeyring(input: CreateMrkAwareDiscoveryAwsKmsKeyringInput)
             returns (res: Result<IKeyring, IAwsCryptographicMaterialProvidersException>)
-        // method CreateMrkAwareDiscoveryMultiKeyring(input: CreateMrkAwareDiscoveryMultiKeyringInput)
-        //     returns (res: Result<IKeyring, IAwsCryptographicMaterialProvidersException>)
+        method CreateMrkAwareDiscoveryMultiKeyring(input: CreateMrkAwareDiscoveryMultiKeyringInput)
+            returns (res: Result<IKeyring, IAwsCryptographicMaterialProvidersException>)
         method CreateMultiKeyring(input: CreateMultiKeyringInput)
             returns (res: Result<IKeyring, IAwsCryptographicMaterialProvidersException>)
         method CreateRawAesKeyring(input: CreateRawAesKeyringInput)
@@ -393,6 +409,10 @@ module {:extern "Dafny.Aws.Crypto"} Aws.Crypto {
             returns (res: Result<ICryptographicMaterialsManager, IAwsCryptographicMaterialProvidersException>)
         // method CreateCachingCryptographicMaterialsManager(input: CreateCachingCryptographicMaterialsManagerInput)
         //     returns (res: Result<ICryptographicMaterialsManager, IAwsCryptographicMaterialProvidersException>)
+
+        // Client Supplier
+        method CreateDefaultClientSupplier(input: CreateDefaultClientSupplierInput)
+          returns (res: Result<IClientSupplier, IAwsCryptographicMaterialProvidersException>)
 
         // Caches
         // method CreateLocalCryptoMaterialsCache(input: CreateLocalCryptoMaterialsCacheInput)
@@ -431,6 +451,18 @@ module {:extern "Dafny.Aws.Crypto"} Aws.Crypto {
                     var wrappedError := new AwsCryptographicMaterialProvidersClientException(error);
                     return Result.Failure(wrappedError);
             }
+        }
+
+        static method WrapOutcomeString(outcome: Outcome<string>)
+          returns (wrapped: Outcome<IAwsCryptographicMaterialProvidersException>)
+          ensures outcome.Fail? ==> && wrapped.Fail?
+        {
+          match outcome {
+            case Pass => return Pass;
+            case Fail(error) =>
+              var wrappedError := new AwsCryptographicMaterialProvidersClientException(error);
+              return Outcome.Fail(wrappedError);
+          }
         }
     }
 

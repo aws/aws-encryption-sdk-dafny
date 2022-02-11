@@ -43,6 +43,16 @@ namespace Aws.Crypto
         protected abstract Aws.Crypto.IKeyring _CreateMrkAwareStrictAwsKmsKeyring(
             Aws.Crypto.CreateMrkAwareStrictAwsKmsKeyringInput input);
 
+        public Aws.Crypto.IKeyring CreateMrkAwareStrictMultiKeyring(
+            Aws.Crypto.CreateMrkAwareStrictMultiKeyringInput input)
+        {
+            input.Validate();
+            return _CreateMrkAwareStrictMultiKeyring(input);
+        }
+
+        protected abstract Aws.Crypto.IKeyring _CreateMrkAwareStrictMultiKeyring(
+            Aws.Crypto.CreateMrkAwareStrictMultiKeyringInput input);
+
         public Aws.Crypto.IKeyring CreateMrkAwareDiscoveryAwsKmsKeyring(
             Aws.Crypto.CreateMrkAwareDiscoveryAwsKmsKeyringInput input)
         {
@@ -52,6 +62,16 @@ namespace Aws.Crypto
 
         protected abstract Aws.Crypto.IKeyring _CreateMrkAwareDiscoveryAwsKmsKeyring(
             Aws.Crypto.CreateMrkAwareDiscoveryAwsKmsKeyringInput input);
+
+        public Aws.Crypto.IKeyring CreateMrkAwareDiscoveryMultiKeyring(
+            Aws.Crypto.CreateMrkAwareDiscoveryMultiKeyringInput input)
+        {
+            input.Validate();
+            return _CreateMrkAwareDiscoveryMultiKeyring(input);
+        }
+
+        protected abstract Aws.Crypto.IKeyring _CreateMrkAwareDiscoveryMultiKeyring(
+            Aws.Crypto.CreateMrkAwareDiscoveryMultiKeyringInput input);
 
         public Aws.Crypto.IKeyring CreateMultiKeyring(Aws.Crypto.CreateMultiKeyringInput input)
         {
@@ -86,5 +106,14 @@ namespace Aws.Crypto
 
         protected abstract Aws.Crypto.ICryptographicMaterialsManager _CreateDefaultCryptographicMaterialsManager(
             Aws.Crypto.CreateDefaultCryptographicMaterialsManagerInput input);
+
+        public Aws.Crypto.IClientSupplier CreateDefaultClientSupplier(Aws.Crypto.CreateDefaultClientSupplierInput input)
+        {
+            input.Validate();
+            return _CreateDefaultClientSupplier(input);
+        }
+
+        protected abstract Aws.Crypto.IClientSupplier _CreateDefaultClientSupplier(
+            Aws.Crypto.CreateDefaultClientSupplierInput input);
     }
 }
