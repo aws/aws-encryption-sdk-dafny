@@ -40,7 +40,11 @@ module {:extern "AwsKmsUtils"} AwsKmsUtils {
     else if (decodedValue.Failure?) then Failure(decodedValue.error)
     else Success((decodedKey.value, decodedValue.value))
   }
-
+  
+  //TODO :: It is not clear if we can have this or not
+  // It is possible we could pull it off by checking that is Not Incorrect.
+  // Therefore, in SDK langauges that this is supported, we would return True if it was wrong.
+  // But if it is not supported, we would just always return False
   /*
    * Determines whether the given client is configured to talk to the given region.
    *
@@ -51,9 +55,10 @@ module {:extern "AwsKmsUtils"} AwsKmsUtils {
    * Dafny code about client and region matching; we will always need to account
    * for the case where they do not.
    */
-  predicate method {:extern "RegionMatch"} RegionMatch(
-    client: KMS.IKeyManagementServiceClient,
-    region: string
-  )
+  // Commentted out since this is not implemented in Extern yet
+  // predicate method {:extern "RegionMatch"} RegionMatch(
+  //   client: KMS.IKeyManagementServiceClient,
+  //   region: string
+  // )
 
 }
