@@ -104,9 +104,9 @@ module Frames {
       && ReadUInt32(ReadableBuffer(ret, 0)).value.data != ENDFRAME_SEQUENCE_NUMBER
   {
     WriteUint32(regularFrame.seqNum)
-    + Write(regularFrame.iv)
-    + Write(regularFrame.encContent)
-    + Write(regularFrame.authTag)
+    + (Write(regularFrame.iv)
+    + (Write(regularFrame.encContent)
+    + (Write(regularFrame.authTag))))
   }
 
   function method ReadRegularFrame(
@@ -149,10 +149,10 @@ module Frames {
       && ReadUInt32(ReadableBuffer(ret, 0)).value.data == ENDFRAME_SEQUENCE_NUMBER
   {
     WriteUint32(ENDFRAME_SEQUENCE_NUMBER)
-    + WriteUint32(finalFrame.seqNum)
-    + Write(finalFrame.iv)
-    + WriteUint32Seq(finalFrame.encContent)
-    + Write(finalFrame.authTag)
+    + (WriteUint32(finalFrame.seqNum)
+    + (Write(finalFrame.iv)
+    + (WriteUint32Seq(finalFrame.encContent)
+    + (Write(finalFrame.authTag)))))
   }
 
   function method ReadFinalFrame(
@@ -181,6 +181,11 @@ module Frames {
     );
 
     assert {:split_here} true;
+    assert WriteUint32(finalFrameSignal.data)
+    + (WriteUint32(finalFrame.seqNum)
+    + (Write(finalFrame.iv)
+    + (WriteUint32Seq(finalFrame.encContent)
+    + (Write(finalFrame.authTag))))) <= buffer.bytes[buffer.start..];
     assert WriteFinalFrame(finalFrame) <= buffer.bytes[buffer.start..];
 
     Success(SuccessfulRead(finalFrame, authTag.tail))
@@ -223,8 +228,8 @@ module Frames {
     :(ret: seq<uint8>)
   {
     Write(nonFramed.iv)
-    + WriteUint64Seq(nonFramed.encContent)
-    + Write(nonFramed.authTag)
+    + (WriteUint64Seq(nonFramed.encContent)
+    + (Write(nonFramed.authTag)))
   }
 
 }

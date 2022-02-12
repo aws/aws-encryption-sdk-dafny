@@ -96,7 +96,7 @@ module EncryptionContext {
     }
   }
 
-  lemma LemmaLengthOfPairsEqualsEncryptionContext(
+  lemma  {:vcs_split_on_every_assert} LemmaLengthOfPairsEqualsEncryptionContext(
     pairs: ESDKCanonicalEncryptionContext,
     ec: Crypto.EncryptionContext
   )
@@ -329,7 +329,7 @@ module EncryptionContext {
       Success(SuccessfulRead(pairs, tail))
   }
 
-  function method ReadAADSection(
+  function method {:opaque} ReadAADSection(
     buffer: ReadableBuffer
   ):
     (res: ReadCorrect<ESDKCanonicalEncryptionContext>)
@@ -724,6 +724,7 @@ module EncryptionContext {
       && ret.tail.bytes == buffer.bytes
       && Success(ret) == ReadAADSection(buffer)
   {
+    reveal ReadAADSection();
     assert 2 <= |bytes|;
     assert |data| == 0 ==> WriteAADSection(data) == WriteUint16(0);
 

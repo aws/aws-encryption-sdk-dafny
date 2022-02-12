@@ -115,6 +115,7 @@ module HeaderTypes {
     }
   }
 
+  // TODO: push this into the `IsHeader`
   const MESSAGE_ID_LEN_V1 := 16
   const MESSAGE_ID_LEN_V2 := 32
   type MessageId = x: seq<uint8> |

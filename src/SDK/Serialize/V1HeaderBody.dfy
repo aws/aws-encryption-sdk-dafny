@@ -17,7 +17,7 @@ module V1HeaderBody {
   import Aws.Crypto
   import Seq
   import HeaderTypes
-  import SharedHeaderFunctions
+  import opened SharedHeaderFunctions
   import MaterialProviders.Client
   import opened EncryptedDataKeys
   import opened EncryptionContext
@@ -45,16 +45,20 @@ module V1HeaderBody {
     var suiteId := GetAlgorithmSuiteId(body.esdkSuiteId);
     var suite := Client.SpecificationClient().GetSuite(suiteId);
 
-    SharedHeaderFunctions.WriteMessageFormatVersion(HeaderTypes.MessageFormatVersion.V1)
-    + WriteV1MessageType(body.messageType)
-    + SharedHeaderFunctions.WriteESDKSuiteId(body.esdkSuiteId)
-    + SharedHeaderFunctions.WriteMessageId(body.messageId)
-    + WriteAADSection(body.encryptionContext)
-    + WriteEncryptedDataKeysSection(body.encryptedDataKeys)
-    + SharedHeaderFunctions.WriteContentType(body.contentType)
-    + WriteV1ReservedBytes(RESERVED_BYTES)
-    + WriteV1HeaderIvLength(suite.encrypt.ivLength)
-    + UInt32ToSeq(body.frameLength)
+    // Dafny has trouble
+    // with associativity of concatenation
+    // (knowing that (a + b) + c == a + (b + c) ).
+    // So manually adding the () helps make it clear.
+      WriteMessageFormatVersion(HeaderTypes.MessageFormatVersion.V1)
+    + (WriteV1MessageType(body.messageType)
+    + (WriteESDKSuiteId(body.esdkSuiteId)
+    + (WriteMessageId(body.messageId)
+    + (WriteAADSection(body.encryptionContext)
+    + (WriteEncryptedDataKeysSection(body.encryptedDataKeys)
+    + (WriteContentType(body.contentType)
+    + (WriteV1ReservedBytes(RESERVED_BYTES)
+    + (WriteV1HeaderIvLength(suite.encrypt.ivLength)
+    + (WriteUint32(body.frameLength))))))))))
   }
 
   function method ReadV1HeaderBody(
@@ -206,16 +210,22 @@ module V1HeaderBody {
     var suiteId := GetAlgorithmSuiteId(body.esdkSuiteId);
     var suite := Client.SpecificationClient().GetSuite(suiteId);
 
-    SharedHeaderFunctions.WriteMessageFormatVersion(HeaderTypes.MessageFormatVersion.V1)
-    + WriteV1MessageType(body.messageType)
-    + SharedHeaderFunctions.WriteESDKSuiteId(body.esdkSuiteId)
-    + SharedHeaderFunctions.WriteMessageId(body.messageId)
-    + WriteExpandedAADSection(body.encryptionContext)
-    + WriteEncryptedDataKeysSection(body.encryptedDataKeys)
-    + SharedHeaderFunctions.WriteContentType(body.contentType)
-    + WriteV1ReservedBytes(RESERVED_BYTES)
-    + WriteV1HeaderIvLength(suite.encrypt.ivLength)
-    + UInt32ToSeq(body.frameLength)
+    // Dafny has trouble
+    // with associativity of concatenation
+    // (knowing that (a + b) + c == a + (b + c) ).
+    // So manually adding the () helps make it clear.
+    // Stacks at the end or the beginning seems to work,
+    // but I found this to be slightly faster.
+      WriteMessageFormatVersion(HeaderTypes.MessageFormatVersion.V1)
+    + (WriteV1MessageType(body.messageType)
+    + (WriteESDKSuiteId(body.esdkSuiteId)
+    + (WriteMessageId(body.messageId)
+    + (WriteExpandedAADSection(body.encryptionContext)
+    + (WriteEncryptedDataKeysSection(body.encryptedDataKeys)
+    + (WriteContentType(body.contentType)
+    + (WriteV1ReservedBytes(RESERVED_BYTES)
+    + (WriteV1HeaderIvLength(suite.encrypt.ivLength)
+    + (WriteUint32(body.frameLength))))))))))
   }
 
 }

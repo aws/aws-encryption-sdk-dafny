@@ -17,7 +17,7 @@ module V2HeaderBody {
   import Aws.Crypto
   import Seq
   import HeaderTypes
-  import SharedHeaderFunctions
+  import opened SharedHeaderFunctions
   import MaterialProviders.Client
   import opened EncryptedDataKeys
   import opened EncryptionContext
@@ -36,15 +36,18 @@ module V2HeaderBody {
   )
     :(ret: seq<uint8>)
   {
-
-    SharedHeaderFunctions.WriteMessageFormatVersion(HeaderTypes.MessageFormatVersion.V2)
-    + SharedHeaderFunctions.WriteESDKSuiteId(body.esdkSuiteId)
-    + SharedHeaderFunctions.WriteMessageId(body.messageId)
-    + WriteAADSection(body.encryptionContext)
-    + WriteEncryptedDataKeysSection(body.encryptedDataKeys)
-    + SharedHeaderFunctions.WriteContentType(body.contentType)
-    + UInt32ToSeq(body.frameLength)
-    + Write(body.suiteData)
+    // Dafny has trouble
+    // with associativity of concatenation
+    // (knowing that (a + b) + c == a + (b + c) ).
+    // So manually adding the () helps make it clear.
+      WriteMessageFormatVersion(HeaderTypes.MessageFormatVersion.V2)
+    + (WriteESDKSuiteId(body.esdkSuiteId)
+    + (WriteMessageId(body.messageId)
+    + (WriteAADSection(body.encryptionContext)
+    + (WriteEncryptedDataKeysSection(body.encryptedDataKeys)
+    + (WriteContentType(body.contentType)
+    + (WriteUint32(body.frameLength)
+    + (Write(body.suiteData))))))))
   }
 
   function method ReadV2HeaderBody(
@@ -125,14 +128,19 @@ module V2HeaderBody {
   )
     :(ret: seq<uint8>)
   {
-
-    SharedHeaderFunctions.WriteMessageFormatVersion(HeaderTypes.MessageFormatVersion.V2)
-    + SharedHeaderFunctions.WriteESDKSuiteId(body.esdkSuiteId)
-    + SharedHeaderFunctions.WriteMessageId(body.messageId)
-    + WriteExpandedAADSection(body.encryptionContext)
-    + WriteEncryptedDataKeysSection(body.encryptedDataKeys)
-    + SharedHeaderFunctions.WriteContentType(body.contentType)
-    + UInt32ToSeq(body.frameLength)
-    + Write(body.suiteData)
+    // Dafny has trouble
+    // with associativity of concatenation
+    // (knowing that (a + b) + c == a + (b + c) ).
+    // So manually adding the () helps make it clear.
+    // Stacks at the end or the beginning seems to work,
+    // but I found this to be slightly faster.
+      WriteMessageFormatVersion(HeaderTypes.MessageFormatVersion.V2)
+    + (WriteESDKSuiteId(body.esdkSuiteId)
+    + (WriteMessageId(body.messageId)
+    + (WriteExpandedAADSection(body.encryptionContext)
+    + (WriteEncryptedDataKeysSection(body.encryptedDataKeys)
+    + (WriteContentType(body.contentType)
+    + (WriteUint32(body.frameLength)
+    + (Write(body.suiteData))))))))
   }
 }

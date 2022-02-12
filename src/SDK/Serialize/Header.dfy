@@ -34,7 +34,7 @@ module Header {
   import opened UTF8
   import opened SerializeFunctions
 
-datatype HeaderInfo = HeaderInfo(
+  datatype HeaderInfo = HeaderInfo(
     nameonly body: HeaderTypes.HeaderBody,
     nameonly rawHeader: seq<uint8>,
     nameonly encryptionContext: ESDKEncryptionContext,
