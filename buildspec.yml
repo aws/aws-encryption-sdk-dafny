@@ -6,7 +6,7 @@ batch:
     # This is commented out in favor of running in the GHA OSX.
     # Once Dafny 3.4 is released and Linux and OSX perform the same,
     # re-enable this action.
-    # - identifier: dafny_verify
-    #   buildspec: codebuild/dafny/verify.yml
+    - identifier: dafny_verify
+      buildspec: codebuild/dafny/verify.yml
     - identifier: dotnet 
       buildspec: codebuild/dotnet/ci.yml
