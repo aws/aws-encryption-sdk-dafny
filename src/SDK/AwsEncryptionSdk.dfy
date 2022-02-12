@@ -633,6 +633,7 @@ module {:extern "Dafny.Aws.Esdk.AwsEncryptionSdkClient"} AwsEncryptionSdk {
                 "Invalid header: algorithm suite mismatch"
             );
 
+            assert {:split_here} true;
             assert Header.CorrectlyReadHeaderBody(
                 SerializeFunctions.ReadableBuffer(rawHeader, 0),
                 Success(
@@ -640,20 +641,27 @@ module {:extern "Dafny.Aws.Esdk.AwsEncryptionSdkClient"} AwsEncryptionSdk {
                         headerBody.data, SerializeFunctions.ReadableBuffer(rawHeader, |rawHeader|))
                 )
             );
+            assert {:split_here} true;
+
             assert Header.HeaderAuth?(suite, headerAuth.data);
             assert Header.IsHeader(header);
 
             var plaintext: seq<uint8>;
             var messageBodyTail: SerializeFunctions.ReadableBuffer;
+            assert {:split_here} true;
             match header.body.contentType {
                 case NonFramed =>
                     var messageBody :- MessageBody.ReadNonFramedMessageBody(headerAuth.tail, header)
                         .MapFailure(EncryptDecryptHelpers.MapSerializeFailure(": ReadNonFramedMessageBody"));
                     assert {:split_here} true;
                     assert suite == messageBody.data.header.suite;
+                    assert {:split_here} true;
                     assert |derivedDataKeys.dataKey| == messageBody.data.header.suite.encrypt.keyLength as int;
+                    assert {:split_here} true;
                     plaintext :- MessageBody.DecryptFrame(messageBody.data, derivedDataKeys.dataKey);
+                    assert {:split_here} true;
                     messageBodyTail := messageBody.tail;
+                    assert {:split_here} true;
                 case Framed =>
                     var messageBody :- MessageBody.ReadFramedMessageBody(
                         headerAuth.tail,
@@ -667,12 +675,14 @@ module {:extern "Dafny.Aws.Esdk.AwsEncryptionSdkClient"} AwsEncryptionSdk {
                     plaintext :- MessageBody.DecryptFramedMessageBody(messageBody.data, derivedDataKeys.dataKey);
                     messageBodyTail := messageBody.tail;
             }
+            assert {:split_here} true;
 
             var signature :- EncryptDecryptHelpers.VerifySignature(
                 messageBodyTail,
                 messageBodyTail.bytes[buffer.start..messageBodyTail.start],
                 decMat
             );
+            assert {:split_here} true;
 
             :- Need(signature.start == |signature.bytes|, "Data after message footer.");
 
