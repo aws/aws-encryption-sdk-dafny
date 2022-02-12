@@ -450,29 +450,6 @@ module MessageBody {
       && AESEncryption.DecryptedWithKey(key, plaintextSeg[|plaintextSeg| - 1])
   }
 
-  // method DecryptNonFramedMessageBody(
-  //   rd: Streams.ByteReader,
-  //   suite: Client.AlgorithmSuites.AlgorithmSuite,
-  //   key: seq<uint8>,
-  //   messageID: Msg.MessageID
-  // )
-  //   returns (res: Result<seq<uint8>, string>)
-  //   requires rd.Valid()
-  //   requires |key| == suite.encrypt.keyLength as int
-  //   modifies rd.reader`pos
-  //   ensures rd.Valid()
-  // {
-  //   var iv :- rd.ReadBytes(suite.encrypt.ivLength as int);
-  //   var contentLength :- rd.ReadUInt64();
-  //   var ciphertext :- rd.ReadBytes(contentLength as nat);
-  //   var authTag :- rd.ReadBytes(suite.encrypt.tagLength as int);
-
-  //   var aad := BodyAAD(messageID, AADSingleBlock, NONFRAMED_SEQUENCE_NUMBER, contentLength);
-
-  //   var plaintext :- Decrypt(ciphertext, authTag, suite, iv, key, aad);
-  //   return Success(plaintext);
-  // }
-
   function method WriteFramedMessageBody(
     body: FramedMessage
   )
