@@ -21,6 +21,7 @@ include "Serialize/Header.dfy"
 include "Serialize/HeaderTypes.dfy"
 include "Serialize/V1HeaderBody.dfy"
 include "Serialize/HeaderAuth.dfy"
+include "Serialize/Frames.dfy"  // TODO(alexchew) remove me
 include "Serialize/SerializeFunctions.dfy"
 include "Serialize/EncryptionContext.dfy"
 
@@ -47,6 +48,8 @@ module {:extern "Dafny.Aws.Esdk.AwsEncryptionSdkClient"} AwsEncryptionSdk {
   import HeaderTypes
   import HeaderAuth
   import V1HeaderBody
+
+  import Frames  // TODO(alexchew) remove me
 
   class AwsEncryptionSdkClient extends Esdk.IAwsEncryptionSdkClient {
         const config: Esdk.AwsEncryptionSdkClientConfig;
@@ -651,16 +654,19 @@ module {:extern "Dafny.Aws.Esdk.AwsEncryptionSdkClient"} AwsEncryptionSdk {
 
             match header.body.contentType {
                 case NonFramed =>
-                    return Failure("idk");
                     assert {:focus} true;
                     var messageBody :- MessageBody.ReadNonFramedMessageBody(headerAuth.tail, header)
                         .MapFailure(EncryptDecryptHelpers.MapSerializeFailure(": ReadNonFramedMessageBody"));
+                    var block: Frames.Frame := messageBody.data;
+                    var key: seq<uint8> := derivedDataKeys.dataKey;
 
-                    assert suite == messageBody.data.header.suite;
-                    assert |derivedDataKeys.dataKey| == messageBody.data.header.suite.encrypt.keyLength as int;
+                    assert suite == block.header.suite;
+                    assert |key| == block.header.suite.encrypt.keyLength as int;
                     assert {:split_here} true;
-
-                    plaintext :- MessageBody.DecryptFrame(messageBody.data, derivedDataKeys.dataKey);
+                    //// timeout after me
+                    plaintext :- MessageBody.DecryptFrame(block, key);
+                    // assert {:split_here} true;  // cursor
+                    //// timeout before me
                     messageBodyTail := messageBody.tail;
                     assert {:split_here} true;
                 case Framed =>
@@ -680,6 +686,7 @@ module {:extern "Dafny.Aws.Esdk.AwsEncryptionSdkClient"} AwsEncryptionSdk {
             }
             assert {:split_here} true;
 
+            // assume Client.Materials.DecryptionMaterialsWithPlaintextDataKey(decMat);
             var signature :- EncryptDecryptHelpers.VerifySignature(
                 messageBodyTail,
                 messageBodyTail.bytes[buffer.start..messageBodyTail.start],
