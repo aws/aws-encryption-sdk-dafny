@@ -191,7 +191,7 @@ module {:extern "Dafny.Aws.Esdk.AwsEncryptionSdkClient"} AwsEncryptionSdk {
             :- Need(maybeDerivedDataKeys.Success?, "Failed to derive data keys");
             var derivedDataKeys := maybeDerivedDataKeys.value;
 
-            var maybeHeader := BuildHeader(
+            var maybeHeader := BuildHeaderForEncrypt(
                 messageId,
                 suite,
                 materials.encryptionContext,
@@ -487,7 +487,8 @@ module {:extern "Dafny.Aws.Esdk.AwsEncryptionSdkClient"} AwsEncryptionSdk {
             return Success(headerAuth);
         }
 
-        method BuildHeader(
+        // We restrict this method to the encrypt path so that we can assume the body is framed.
+        method BuildHeaderForEncrypt(
             messageId: HeaderTypes.MessageId,
             suite: Client.AlgorithmSuites.AlgorithmSuite,
             encryptionContext: Crypto.EncryptionContext,
@@ -502,7 +503,6 @@ module {:extern "Dafny.Aws.Esdk.AwsEncryptionSdkClient"} AwsEncryptionSdk {
             && derivedDataKeys.commitmentKey.Some?
             && |derivedDataKeys.commitmentKey.value| == suite.commitment.outputKeyLength as int
 
-        // TODO: may need changing when we need to support non-framed
         requires frameLength > 0
 
         // Make sure the output correctly uses the values that were given as input
@@ -513,7 +513,6 @@ module {:extern "Dafny.Aws.Esdk.AwsEncryptionSdkClient"} AwsEncryptionSdk {
 
         ensures res.Success? ==> Header.IsHeader(res.value)
 
-        // TODO: change when we need to support non-framed
         ensures res.Success? ==> res.value.body.contentType.Framed?
         {
             var canonicalEncryptionContext := EncryptionContext.GetCanonicalEncryptionContext(encryptionContext);
@@ -561,7 +560,8 @@ module {:extern "Dafny.Aws.Esdk.AwsEncryptionSdkClient"} AwsEncryptionSdk {
             return withConvertedError;
         }
 
-        method DecryptInternal(input: Esdk.DecryptInput) returns (res: Result<Esdk.DecryptOutput, string>)
+        method DecryptInternal(input: Esdk.DecryptInput)
+            returns (res: Result<Esdk.DecryptOutput, string>)
         {
             // TODO: Change to '> 0' once CrypTool-4350 complete
             // TODO: Remove entirely once we can validate this value on client creation
@@ -641,7 +641,6 @@ module {:extern "Dafny.Aws.Esdk.AwsEncryptionSdkClient"} AwsEncryptionSdk {
                         headerBody.data, SerializeFunctions.ReadableBuffer(rawHeader, |rawHeader|))
                 )
             );
-            assert {:split_here} true;
 
             assert Header.HeaderAuth?(suite, headerAuth.data);
             assert Header.IsHeader(header);
@@ -649,20 +648,23 @@ module {:extern "Dafny.Aws.Esdk.AwsEncryptionSdkClient"} AwsEncryptionSdk {
             var plaintext: seq<uint8>;
             var messageBodyTail: SerializeFunctions.ReadableBuffer;
             assert {:split_here} true;
+
             match header.body.contentType {
                 case NonFramed =>
+                    return Failure("idk");
+                    assert {:focus} true;
                     var messageBody :- MessageBody.ReadNonFramedMessageBody(headerAuth.tail, header)
                         .MapFailure(EncryptDecryptHelpers.MapSerializeFailure(": ReadNonFramedMessageBody"));
-                    assert {:split_here} true;
+
                     assert suite == messageBody.data.header.suite;
-                    assert {:split_here} true;
                     assert |derivedDataKeys.dataKey| == messageBody.data.header.suite.encrypt.keyLength as int;
                     assert {:split_here} true;
+
                     plaintext :- MessageBody.DecryptFrame(messageBody.data, derivedDataKeys.dataKey);
-                    assert {:split_here} true;
                     messageBodyTail := messageBody.tail;
                     assert {:split_here} true;
                 case Framed =>
+                    assert {:focus} true;
                     var messageBody :- MessageBody.ReadFramedMessageBody(
                         headerAuth.tail,
                         header,
@@ -674,6 +676,7 @@ module {:extern "Dafny.Aws.Esdk.AwsEncryptionSdkClient"} AwsEncryptionSdk {
                     assert |derivedDataKeys.dataKey| == messageBody.data.finalFrame.header.suite.encrypt.keyLength as int;
                     plaintext :- MessageBody.DecryptFramedMessageBody(messageBody.data, derivedDataKeys.dataKey);
                     messageBodyTail := messageBody.tail;
+                    assert {:split_here} true;
             }
             assert {:split_here} true;
 

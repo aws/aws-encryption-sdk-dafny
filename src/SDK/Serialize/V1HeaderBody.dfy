@@ -128,7 +128,7 @@ module V1HeaderBody {
     buffer: ReadableBuffer
   )
   {
-    var headerBytesToAADStart := 20; 
+    var headerBytesToAADStart := 20;
     var aadStartPosition := buffer.start+headerBytesToAADStart;
     && aadStartPosition+4 < |buffer.bytes|
     && buffer.bytes[aadStartPosition..aadStartPosition+4] == [0,2,0,0]
