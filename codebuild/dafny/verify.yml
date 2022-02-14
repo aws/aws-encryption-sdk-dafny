@@ -5,7 +5,7 @@ phases:
       - cd ..
       # Get Dafny
       - curl https://github.com/dafny-lang/dafny/releases/download/v3.4.0/dafny-3.4.0-x64-ubuntu-16.04.zip -L -o dafny.zip
-      - unzip dafny.zip && rm dafny.zip
+      - unzip -qq dafny.zip && rm dafny.zip
       - export PATH="$PWD/dafny:$PATH"
       - cd aws-encryption-sdk-dafny
   build:
