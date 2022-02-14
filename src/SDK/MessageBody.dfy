@@ -169,7 +169,7 @@ module MessageBody {
   |
   || Frames.IsFinalFrame(frame)
   || Frames.IsRegularFrame(frame)
-  || Frames.IsFinalFrame(frame)
+  || Frames.IsNonFramed(frame)
   witness *
 
   lemma LemmaAddingNextRegularFrame(
@@ -395,12 +395,13 @@ module MessageBody {
     frame: Frame,
     key: seq<uint8>
   )
-    returns (res: Result<Uint8Seq32, string>)
+    returns (res: Result<seq<uint8>, string>)
     requires |key| == frame.header.suite.encrypt.keyLength as int
     ensures match res
       case Success(plaintextSegment) => ( // Decrypting the frame encoded in the stream is the returned ghost frame
         && AESEncryption.CiphertextGeneratedWithPlaintext(frame.encContent, plaintextSegment)
         && AESEncryption.DecryptedWithKey(key, plaintextSegment)
+        && (frame.RegularFrame? || frame.FinalFrame? ==> |plaintextSegment| < UINT32_LIMIT)
       )
       case Failure(_) => true
   {

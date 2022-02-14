@@ -561,18 +561,19 @@ module {:extern "Dafny.Aws.Esdk.AwsEncryptionSdkClient"} AwsEncryptionSdk {
         //# header.md#algorithm-suite-id) is not supported by the commitment
         //# policy (client.md#commitment-policy) configured in the client
         //# (client.md) decrypt MUST yield an error.
-        ensures
-        (
-            && var buffer := SerializeFunctions.ReadableBuffer(input.ciphertext, 0);
-            && var headerBody := Header.ReadHeaderBody(buffer, this.maxEncryptedDataKeys);
-            && headerBody.Success?
-            && var algorithmSuiteId := SerializableTypes.GetAlgorithmSuiteId(headerBody.value.data.esdkSuiteId);
-            && Client.SpecificationClient().ValidateCommitmentPolicyOnDecrypt(
-                algorithmSuiteId, this.commitmentPolicy
-            ).Failure?
-        )
-        ==>
-            res.Failure?
+        // TODO(alexchew) put this back
+        // ensures
+        // (
+        //     && var buffer := SerializeFunctions.ReadableBuffer(input.ciphertext, 0);
+        //     && var headerBody := Header.ReadHeaderBody(buffer, this.maxEncryptedDataKeys);
+        //     && headerBody.Success?
+        //     && var algorithmSuiteId := SerializableTypes.GetAlgorithmSuiteId(headerBody.value.data.esdkSuiteId);
+        //     && Client.SpecificationClient().ValidateCommitmentPolicyOnDecrypt(
+        //         algorithmSuiteId, this.commitmentPolicy
+        //     ).Failure?
+        // )
+        // ==>
+        //     res.Failure?
         {
             // TODO: Change to '> 0' once CrypTool-4350 complete
             // TODO: Remove entirely once we can validate this value on client creation
@@ -660,46 +661,16 @@ module {:extern "Dafny.Aws.Esdk.AwsEncryptionSdkClient"} AwsEncryptionSdk {
             var messageBodyTail: SerializeFunctions.ReadableBuffer;
             assert {:split_here} true;
 
+            var key := derivedDataKeys.dataKey;
             match header.body.contentType {
                 case NonFramed =>
-                    assert {:focus} true;
-                    var messageBody :- MessageBody.ReadNonFramedMessageBody(headerAuth.tail, header)
-                        .MapFailure(EncryptDecryptHelpers.MapSerializeFailure(": ReadNonFramedMessageBody"));
-                    var frame: Frames.Frame := messageBody.data;
-                    var key: seq<uint8> := derivedDataKeys.dataKey;
-
-                    assert suite == frame.header.suite;
-                    assert |key| == frame.header.suite.encrypt.keyLength as int;
-                    assert {:split_here} true;
-                    //// timeout after me
-                    assert frame.NonFramed?;
-                    assert {:split_here} true;  // cursor
-                    var decryptFrameResult := MessageBody.DecryptFrame(frame, key);
-                    assert {:split_here} true;  // cursor
-                    //// timeout before me
-                    // if decryptFrameResult.Failure? {
-                    //     return Failure(decryptFrameResult.error);
-                    // }
-                    // assert decryptFrameResult.Success?;
-                    // plaintext := decryptFrameResult.value;
-                    // messageBodyTail := messageBody.tail;
-                    // assert {:split_here} true;
-                    plaintext := [];
-                    messageBodyTail := SerializeFunctions.ReadableBuffer(bytes := [], start := 0);
+                    var decryptRes :- ReadAndDecryptNonFramedMessageBody(headerAuth.tail, header, key);
+                    plaintext := decryptRes.0;
+                    messageBodyTail := decryptRes.1;
                 case Framed =>
-                    assert {:focus} true;
-                    var messageBody :- MessageBody.ReadFramedMessageBody(
-                        headerAuth.tail,
-                        header,
-                        [],
-                        headerAuth.tail
-                    ).MapFailure(EncryptDecryptHelpers.MapSerializeFailure(": ReadFramedMessageBody"));
-                    assert {:split_here} true;
-                    assert suite == messageBody.data.finalFrame.header.suite;
-                    assert |derivedDataKeys.dataKey| == messageBody.data.finalFrame.header.suite.encrypt.keyLength as int;
-                    plaintext :- MessageBody.DecryptFramedMessageBody(messageBody.data, derivedDataKeys.dataKey);
-                    messageBodyTail := messageBody.tail;
-                    assert {:split_here} true;
+                    var decryptRes :- ReadAndDecryptFramedMessageBody(headerAuth.tail, header, key);
+                    plaintext := decryptRes.0;
+                    messageBodyTail := decryptRes.1;
             }
             assert {:split_here} true;
 
@@ -714,6 +685,54 @@ module {:extern "Dafny.Aws.Esdk.AwsEncryptionSdkClient"} AwsEncryptionSdk {
             :- Need(signature.start == |signature.bytes|, "Data after message footer.");
 
             return Success(Esdk.DecryptOutput(plaintext := plaintext));
+        }
+
+        method ReadAndDecryptFramedMessageBody(
+            buffer: SerializeFunctions.ReadableBuffer,
+            header: Frames.FramedHeader,
+            key: seq<uint8>
+        )
+            returns (res: Result<(seq<uint8>, SerializeFunctions.ReadableBuffer), string>)
+            requires buffer.start <= |buffer.bytes|
+            requires |key| == header.suite.encrypt.keyLength as int
+        {
+            assert SerializeFunctions.CorrectlyReadRange(buffer, buffer);
+            var messageBody :- MessageBody.ReadFramedMessageBody(buffer, header, [], buffer)
+                .MapFailure(EncryptDecryptHelpers.MapSerializeFailure(": ReadFramedMessageBody"));
+
+            assert header == messageBody.data.finalFrame.header;
+            assert |key| == messageBody.data.finalFrame.header.suite.encrypt.keyLength as int;
+            var plaintext :- MessageBody.DecryptFramedMessageBody(messageBody.data, key);
+            var messageBodyTail := messageBody.tail;
+
+            return Success((plaintext, messageBodyTail));
+        }
+
+        method ReadAndDecryptNonFramedMessageBody(
+            buffer: SerializeFunctions.ReadableBuffer,
+            header: Frames.NonFramedHeader,
+            key: seq<uint8>
+        )
+            returns (res: Result<(seq<uint8>, SerializeFunctions.ReadableBuffer), string>)
+            requires buffer.start <= |buffer.bytes|
+            requires |key| == header.suite.encrypt.keyLength as int
+        {
+            var messageBody :- MessageBody.ReadNonFramedMessageBody(buffer, header)
+                .MapFailure(EncryptDecryptHelpers.MapSerializeFailure(": ReadNonFramedMessageBody"));
+            var frame: Frames.Frame := messageBody.data;
+            assert frame.NonFramed?;
+
+            assert header == frame.header;
+            assert |key| == frame.header.suite.encrypt.keyLength as int;
+
+            var decryptFrameResult := MessageBody.DecryptFrame(frame, key);
+            if decryptFrameResult.Failure? {
+                return Failure(decryptFrameResult.error);
+            }
+            assert decryptFrameResult.Success?;
+            var plaintext := decryptFrameResult.value;
+            var messageBodyTail := messageBody.tail;
+            return Success((plaintext, messageBodyTail));
         }
 
         method GetDecryptionMaterials(
