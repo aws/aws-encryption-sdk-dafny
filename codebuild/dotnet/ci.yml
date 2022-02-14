@@ -13,12 +13,12 @@ phases:
     commands:
       - cd ..
       # Get Dafny
-      - curl https://github.com/dafny-lang/dafny/releases/download/v3.4.0-prerelease0/dafny-3.4.0-prerelease0-x64-ubuntu-16.04.zip -L -o dafny.zip
-      - unzip dafny.zip && rm dafny.zip
+      - curl https://github.com/dafny-lang/dafny/releases/download/v3.4.0/dafny-3.4.0-x64-ubuntu-16.04.zip -L -o dafny.zip
+      - unzip -qq dafny.zip && rm dafny.zip
       - export PATH="$PWD/dafny:$PATH"
       # Set up environment for running test vectors
-      - wget https://github.com/awslabs/aws-encryption-sdk-test-vectors/raw/master/vectors/awses-decrypt/python-1.3.8.zip
-      - unzip python-1.3.8.zip && rm python-1.3.8.zip
+      - wget https://github.com/awslabs/aws-encryption-sdk-test-vectors/raw/master/vectors/awses-decrypt/python-2.3.0.zip
+      - unzip -qq python-2.3.0.zip && rm python-2.3.0.zip
       # Explicitly set this (rather than as a codebuild env variable like above) because it depends on the
       # current working directory
       - export DAFNY_AWS_ESDK_TEST_VECTOR_MANIFEST_PATH="${PWD}/manifest.json"
@@ -27,10 +27,10 @@ phases:
   build:
     commands:
       # Unit tests
-      - dotnet test Test
+      - dotnet test Test /nowarn:CS0105
       # TODO: uncomment when we update TestVectors
-      #- dotnet test TestVectors
-      - dotnet test Examples
+      #- dotnet test TestVectors /nowarn:CS0105
+      - dotnet test Examples /nowarn:CS0105
       # Code Coverage
       - cd Test/
       # Run Coverlet
