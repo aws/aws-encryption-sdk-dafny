@@ -593,6 +593,21 @@ module {:extern "Dafny.Aws.Esdk.AwsEncryptionSdkClient"} AwsEncryptionSdk {
         )
         ==>
             res.Failure?
+
+        //= compliance/client-apis/decrypt.txt#2.6
+        //= type=implication
+        //# The client MUST return as output to this operation:
+        ensures res.Success?
+        ==>
+            && var buffer := SerializeFunctions.ReadableBuffer(input.ciphertext, 0);
+            && var headerBody := Header.ReadHeaderBody(buffer, this.maxEncryptedDataKeys);
+            && headerBody.Success?
+            // *  Algorithm Suite (Section 2.6.3)
+            && var algorithmSuiteId := SerializableTypes.GetAlgorithmSuiteId(headerBody.value.data.esdkSuiteId);
+            && res.value.algorithmSuiteId == algorithmSuiteId
+            // *  Encryption Context (Section 2.6.2)
+            && var ec := EncryptionContext.GetEncryptionContext(headerBody.value.data.encryptionContext);
+            && res.value.encryptionContext == ec
         {
             // TODO: Change to '> 0' once CrypTool-4350 complete
             // TODO: Remove entirely once we can validate this value on client creation
@@ -652,10 +667,18 @@ module {:extern "Dafny.Aws.Esdk.AwsEncryptionSdkClient"} AwsEncryptionSdk {
             // TODO: add support for non-framed content
             :- Need(headerBody.data.contentType.Framed?, "Fix me");
 
+            var receivedEncryptionContext := EncryptionContext.GetEncryptionContext(
+                headerBody.data.encryptionContext
+            );
+            :- Need(
+                SerializableTypes.IsESDKEncryptionContext(receivedEncryptionContext),
+                "Received invalid encryption context"
+            );
+
             var header := Header.HeaderInfo(
                 body := headerBody.data,
                 rawHeader := rawHeader,
-                encryptionContext := decMat.encryptionContext,
+                encryptionContext := receivedEncryptionContext,
                 suite := suite,
                 headerAuth := headerAuth.data
             );
