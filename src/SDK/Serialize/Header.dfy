@@ -52,12 +52,18 @@ module Header {
     && h.body.contentType.Framed? <==> 0 < h.body.frameLength
     && HeaderAuth?(h.suite, h.headerAuth)
     && HeaderVersionSupportsCommitment?(h.suite, h.body)
+
+    // The readability of the header is effectively a completeness requirement.
+    // By proving the soundness of the ReadV*HeaderBody,
+    // this is complicated.
+    // Uncomment this once the ReadV*HeaderBody functions are proved complete.
     // There are 2 readable formats, but only 1 writeable format.
     // This means that a correct header is defined by reading.
     // Less options to keep track of.
-    && CorrectlyReadHeaderBody(
-      ReadableBuffer(h.rawHeader, 0), 
-      Success(SuccessfulRead(h.body, ReadableBuffer(h.rawHeader, |h.rawHeader|))))
+    // && CorrectlyReadHeaderBody(
+    //   ReadableBuffer(h.rawHeader, 0), 
+    //   Success(SuccessfulRead(h.body, ReadableBuffer(h.rawHeader, |h.rawHeader|))))
+
     // I would like to have this relationship, but the CMM really gets to control this
     // So I'm going to push towards this distinguishing the stored vs the "complete" encryption context.
     // && h.encryptionContext == EncryptionContext.GetEncryptionContext(h.body.encryptionContext)

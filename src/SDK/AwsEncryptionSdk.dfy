@@ -539,17 +539,6 @@ module {:extern "Dafny.Aws.Esdk.AwsEncryptionSdkClient"} AwsEncryptionSdk {
                 headerAuth := headerAuth
             );
 
-            // Add headerAuth requirements to Header type
-            assert Header.CorrectlyReadHeaderBody(
-                SerializeFunctions.ReadableBuffer(rawHeader, 0),
-                Success(
-                    SerializeFunctions.SuccessfulRead(
-                        body,
-                        SerializeFunctions.ReadableBuffer(rawHeader, |rawHeader|)
-                    )
-                )
-            );
-
             return Success(header);
         }
 

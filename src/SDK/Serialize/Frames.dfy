@@ -155,7 +155,7 @@ module Frames {
     + (Write(finalFrame.authTag)))))
   }
 
-  function method ReadFinalFrame(
+  function method {:vcs_split_on_every_assert} ReadFinalFrame(
     buffer: ReadableBuffer,
     header: FramedHeader
   )
@@ -180,7 +180,6 @@ module Frames {
       authTag.data
     );
 
-    assert {:split_here} true;
     assert WriteUint32(finalFrameSignal.data)
     + (WriteUint32(finalFrame.seqNum)
     + (Write(finalFrame.iv)

@@ -61,30 +61,30 @@ module V1HeaderBody {
     + (WriteUint32(body.frameLength))))))))))
   }
 
-  function method ReadV1HeaderBody(
+  function method {:vcs_split_on_every_assert} ReadV1HeaderBody(
     buffer: ReadableBuffer,
     maxEdks: Option<int64>
   )
     :(res: ReadCorrect<V1HeaderBody>)
     ensures CorrectlyReadV1HeaderBody(buffer, res)
   {
-    var version :- SharedHeaderFunctions.ReadMessageFormatVersion(buffer);
+    var version :- ReadMessageFormatVersion(buffer);
     :- Need(version.data.V1?, Error("Message version must be version 1."));
 
     var messageType :- ReadV1MessageType(version.tail);
 
-    var esdkSuiteId :- SharedHeaderFunctions.ReadESDKSuiteId(messageType.tail);
+    var esdkSuiteId :- ReadESDKSuiteId(messageType.tail);
     var suiteId := GetAlgorithmSuiteId(esdkSuiteId.data);
     var suite := Client.SpecificationClient().GetSuite(suiteId);
     :- Need(suite.commitment.None?, Error("Algorithm suite must not support commitment."));
 
-    var messageId :- SharedHeaderFunctions.ReadMessageIdV1(esdkSuiteId.tail);
+    var messageId :- ReadMessageIdV1(esdkSuiteId.tail);
 
     var encryptionContext :- EncryptionContext.ReadAADSection(messageId.tail);
 
     var encryptedDataKeys :- EncryptedDataKeys.ReadEncryptedDataKeysSection(encryptionContext.tail, maxEdks);
 
-    var contentType :- SharedHeaderFunctions.ReadContentType(encryptedDataKeys.tail);
+    var contentType :- ReadContentType(encryptedDataKeys.tail);
 
     var reservedBytes :- ReadV1ReservedBytes(contentType.tail);
 
@@ -106,36 +106,32 @@ module V1HeaderBody {
       frameLength := frameLength.data
     );
 
+    assert if IsV1ExpandedAADSection(buffer) then
+      WriteV1ExpandedAADSectionHeaderBody(body) <= buffer.bytes[buffer.start..]
+    else
+      WriteV1HeaderBody(body) <= buffer.bytes[buffer.start..];
+
     Success(SuccessfulRead(body, frameLength.tail))
   }
 
-  // TODO: This needs to be proven
   predicate CorrectlyReadV1HeaderBody(
     buffer: ReadableBuffer,
     res: ReadCorrect<V1HeaderBody>
   )
   {
-    && res.Success? ==> CorrectlyReadRange(buffer, res.value.tail)
-    && (
-      || (
-          !IsV1ExpandedAADSection(buffer)
-        ==>
-          && CorrectlyRead(buffer, res, WriteV1HeaderBody))
-      // This is to handle the edge case in empty AAD see: `ReadAADSection`
-      || (
-          IsV1ExpandedAADSection(buffer)
-        ==>
-          && CorrectlyRead(buffer, res, WriteV1ExpandedAADSectionHeaderBody)))
+    if IsV1ExpandedAADSection(buffer) then
+      CorrectlyRead(buffer, res, WriteV1ExpandedAADSectionHeaderBody)
+    else
+      CorrectlyRead(buffer, res, WriteV1HeaderBody)
   }
 
   predicate IsV1ExpandedAADSection(
     buffer: ReadableBuffer
   )
   {
-    var headerBytesToAADStart := 20; 
-    var aadStartPosition := buffer.start+headerBytesToAADStart;
-    && aadStartPosition+4 < |buffer.bytes|
-    && buffer.bytes[aadStartPosition..aadStartPosition+4] == [0,2,0,0]
+    // version + messageType + suiteId + messageId
+    var headerBytesToAADStart := 1 + 1 + 2 + 16;
+    IsExpandedAADSection(MoveStart(buffer, headerBytesToAADStart))
   }
 
   function method WriteV1MessageType(
@@ -214,8 +210,6 @@ module V1HeaderBody {
     // with associativity of concatenation
     // (knowing that (a + b) + c == a + (b + c) ).
     // So manually adding the () helps make it clear.
-    // Stacks at the end or the beginning seems to work,
-    // but I found this to be slightly faster.
       WriteMessageFormatVersion(HeaderTypes.MessageFormatVersion.V1)
     + (WriteV1MessageType(body.messageType)
     + (WriteESDKSuiteId(body.esdkSuiteId)
