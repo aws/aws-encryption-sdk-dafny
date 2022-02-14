@@ -672,15 +672,15 @@ module {:extern "Dafny.Aws.Esdk.AwsEncryptionSdkClient"} AwsEncryptionSdk {
                     plaintext := decryptRes.0;
                     messageBodyTail := decryptRes.1;
             }
-            assert {:split_here} true;
 
-            // assume Client.Materials.DecryptionMaterialsWithPlaintextDataKey(decMat);
+            assert {:split_here} true; // cursor
+
+            assume Client.Materials.DecryptionMaterialsWithPlaintextDataKey(decMat);
             var signature :- EncryptDecryptHelpers.VerifySignature(
                 messageBodyTail,
                 messageBodyTail.bytes[buffer.start..messageBodyTail.start],
                 decMat
             );
-            assert {:split_here} true;
 
             :- Need(signature.start == |signature.bytes|, "Data after message footer.");
 
@@ -695,6 +695,9 @@ module {:extern "Dafny.Aws.Esdk.AwsEncryptionSdkClient"} AwsEncryptionSdk {
             returns (res: Result<(seq<uint8>, SerializeFunctions.ReadableBuffer), string>)
             requires buffer.start <= |buffer.bytes|
             requires |key| == header.suite.encrypt.keyLength as int
+            ensures res.Success? ==>
+                var (plaintext, tail) := res.value;
+                && SerializeFunctions.CorrectlyReadRange(buffer, tail)
         {
             assert SerializeFunctions.CorrectlyReadRange(buffer, buffer);
             var messageBody :- MessageBody.ReadFramedMessageBody(buffer, header, [], buffer)
@@ -716,6 +719,9 @@ module {:extern "Dafny.Aws.Esdk.AwsEncryptionSdkClient"} AwsEncryptionSdk {
             returns (res: Result<(seq<uint8>, SerializeFunctions.ReadableBuffer), string>)
             requires buffer.start <= |buffer.bytes|
             requires |key| == header.suite.encrypt.keyLength as int
+            ensures res.Success? ==>
+                var (plaintext, tail) := res.value;
+                && SerializeFunctions.CorrectlyReadRange(buffer, tail)
         {
             var messageBody :- MessageBody.ReadNonFramedMessageBody(buffer, header)
                 .MapFailure(EncryptDecryptHelpers.MapSerializeFailure(": ReadNonFramedMessageBody"));
