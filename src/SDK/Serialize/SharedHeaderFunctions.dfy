@@ -47,7 +47,7 @@ module SharedHeaderFunctions {
   ):
     (ret: seq<uint8>)
   {
-    UInt16ToSeq(esdkSuiteId)
+    WriteUint16(esdkSuiteId)
   }
 
   function method ReadESDKSuiteId(
@@ -56,9 +56,10 @@ module SharedHeaderFunctions {
     :(res: ReadCorrect<ESDKAlgorithmSuiteId>)
     ensures CorrectlyRead(buffer, res, WriteESDKSuiteId)
   {
-    var SuccessfulRead(esdkSuiteId, tail) :- ReadUInt16(buffer);
-    :- Need(esdkSuiteId in VALID_IDS, Error("Algorithm suite ID not supported."));
-    Success(SuccessfulRead(esdkSuiteId, tail))
+    var esdkSuiteIdBytes :- ReadUInt16(buffer);
+    :- Need(esdkSuiteIdBytes.data in VALID_IDS, Error("Algorithm suite ID not supported."));
+    var esdkSuiteId: ESDKAlgorithmSuiteId := esdkSuiteIdBytes.data;
+    Success(SuccessfulRead(esdkSuiteId, esdkSuiteIdBytes.tail))
   }
 
   /*
@@ -74,7 +75,7 @@ module SharedHeaderFunctions {
   ):
     (ret: seq<uint8>)
   {
-    messageId
+    Write(messageId)
   }
 
   function method ReadMessageIdV1(
@@ -106,7 +107,7 @@ module SharedHeaderFunctions {
   ):
     (ret: seq<uint8>)
   {
-    [contentType.Serialize()]
+    Write([contentType.Serialize()])
   }
 
   function method ReadContentType(

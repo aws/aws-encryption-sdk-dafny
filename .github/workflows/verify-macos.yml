@@ -17,11 +17,11 @@ jobs:
       - name: Setup Dafny
         uses: dafny-lang/setup-dafny-action@v1
         with:
-          dafny-version: "3.4.0-prerelease0"
+          dafny-version: "3.4.0"
 
       - name: Verify Dafny code
         # Currently, test depends on src, so verifying test will also verify src
         run: dotnet build -t:VerifyDafny -p:VerifyDafnyJobs=2 -p:TestVerifyOverride="verificationLogger:trx" test
 
       - if: always()
-        run: MAX_VERIFICATION_DURATION_SECONDS=120 python3 verification-times-from-trx.py test/TestResults/*.trx
+        run: MAX_VERIFICATION_DURATION_SECONDS=30 python3 verification-times-from-trx.py test/TestResults/*.trx
