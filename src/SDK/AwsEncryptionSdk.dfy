@@ -675,7 +675,6 @@ module {:extern "Dafny.Aws.Esdk.AwsEncryptionSdkClient"} AwsEncryptionSdk {
 
             assert {:split_here} true; // cursor
 
-            assume Client.Materials.DecryptionMaterialsWithPlaintextDataKey(decMat);
             var signature :- EncryptDecryptHelpers.VerifySignature(
                 messageBodyTail,
                 messageBodyTail.bytes[buffer.start..messageBodyTail.start],
