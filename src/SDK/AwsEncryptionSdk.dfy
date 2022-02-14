@@ -657,18 +657,27 @@ module {:extern "Dafny.Aws.Esdk.AwsEncryptionSdkClient"} AwsEncryptionSdk {
                     assert {:focus} true;
                     var messageBody :- MessageBody.ReadNonFramedMessageBody(headerAuth.tail, header)
                         .MapFailure(EncryptDecryptHelpers.MapSerializeFailure(": ReadNonFramedMessageBody"));
-                    var block: Frames.Frame := messageBody.data;
+                    var frame: Frames.Frame := messageBody.data;
                     var key: seq<uint8> := derivedDataKeys.dataKey;
 
-                    assert suite == block.header.suite;
-                    assert |key| == block.header.suite.encrypt.keyLength as int;
+                    assert suite == frame.header.suite;
+                    assert |key| == frame.header.suite.encrypt.keyLength as int;
                     assert {:split_here} true;
                     //// timeout after me
-                    plaintext :- MessageBody.DecryptFrame(block, key);
-                    // assert {:split_here} true;  // cursor
+                    assert frame.NonFramed?;
+                    assert {:split_here} true;  // cursor
+                    var decryptFrameResult := MessageBody.DecryptFrame(frame, key);
+                    assert {:split_here} true;  // cursor
                     //// timeout before me
-                    messageBodyTail := messageBody.tail;
-                    assert {:split_here} true;
+                    // if decryptFrameResult.Failure? {
+                    //     return Failure(decryptFrameResult.error);
+                    // }
+                    // assert decryptFrameResult.Success?;
+                    // plaintext := decryptFrameResult.value;
+                    // messageBodyTail := messageBody.tail;
+                    // assert {:split_here} true;
+                    plaintext := [];
+                    messageBodyTail := SerializeFunctions.ReadableBuffer(bytes := [], start := 0);
                 case Framed =>
                     assert {:focus} true;
                     var messageBody :- MessageBody.ReadFramedMessageBody(
