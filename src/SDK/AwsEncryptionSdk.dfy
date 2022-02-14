@@ -541,17 +541,6 @@ module {:extern "Dafny.Aws.Esdk.AwsEncryptionSdkClient"} AwsEncryptionSdk {
                 headerAuth := headerAuth
             );
 
-            // Add headerAuth requirements to Header type
-            assert Header.CorrectlyReadHeaderBody(
-                SerializeFunctions.ReadableBuffer(rawHeader, 0),
-                Success(
-                    SerializeFunctions.SuccessfulRead(
-                        body,
-                        SerializeFunctions.ReadableBuffer(rawHeader, |rawHeader|)
-                    )
-                )
-            );
-
             return Success(header);
         }
 
@@ -565,6 +554,25 @@ module {:extern "Dafny.Aws.Esdk.AwsEncryptionSdkClient"} AwsEncryptionSdk {
 
         method DecryptInternal(input: Esdk.DecryptInput)
             returns (res: Result<Esdk.DecryptOutput, string>)
+
+        //= compliance/client-apis/decrypt.txt#2.7.2
+        //= type=implication
+        //# If the parsed algorithm suite ID (../data-format/message-
+        //# header.md#algorithm-suite-id) is not supported by the commitment
+        //# policy (client.md#commitment-policy) configured in the client
+        //# (client.md) decrypt MUST yield an error.
+        ensures
+        (
+            && var buffer := SerializeFunctions.ReadableBuffer(input.ciphertext, 0);
+            && var headerBody := Header.ReadHeaderBody(buffer, this.maxEncryptedDataKeys);
+            && headerBody.Success?
+            && var algorithmSuiteId := SerializableTypes.GetAlgorithmSuiteId(headerBody.value.data.esdkSuiteId);
+            && Client.SpecificationClient().ValidateCommitmentPolicyOnDecrypt(
+                algorithmSuiteId, this.commitmentPolicy
+            ).Failure?
+        )
+        ==>
+            res.Failure?
         {
             // TODO: Change to '> 0' once CrypTool-4350 complete
             // TODO: Remove entirely once we can validate this value on client creation
@@ -582,7 +590,7 @@ module {:extern "Dafny.Aws.Esdk.AwsEncryptionSdkClient"} AwsEncryptionSdk {
             var rawHeader := headerBody.tail.bytes[buffer.start..headerBody.tail.start];
 
             var algorithmSuiteId := SerializableTypes.GetAlgorithmSuiteId(headerBody.data.esdkSuiteId);
-            var _ := Client.SpecificationClient().ValidateCommitmentPolicyOnDecrypt(
+            var _ :- Client.SpecificationClient().ValidateCommitmentPolicyOnDecrypt(
                 algorithmSuiteId, this.commitmentPolicy
             );
 

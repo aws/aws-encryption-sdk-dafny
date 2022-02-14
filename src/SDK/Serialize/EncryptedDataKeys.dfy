@@ -81,7 +81,7 @@ module EncryptedDataKeys {
       Success(SuccessfulRead(accumulator, nextEdkStart))
   }
 
-  function method ReadEncryptedDataKeysSection(
+  function method {:opaque} ReadEncryptedDataKeysSection(
     buffer: ReadableBuffer,
     maxEdks: Option<int64>
   )
@@ -272,6 +272,7 @@ module EncryptedDataKeys {
       && ret.value.tail.start == buffer.start + |bytes|
       && Success(ret.value) == ReadEncryptedDataKeysSection(buffer, maxEdks)
   {
+    reveal ReadEncryptedDataKeysSection();
     assert bytes == WriteUint16(|data| as uint16) + WriteEncryptedDataKeys(data);
     assert bytes[|WriteUint16(|data| as uint16)|..] == WriteEncryptedDataKeys(data);
 
