@@ -24,4 +24,4 @@ jobs:
         run: dotnet build -t:VerifyDafny -p:VerifyDafnyJobs=2 -p:TestVerifyOverride="verificationLogger:trx" test
 
       - if: always()
-        run: MAX_VERIFICATION_DURATION_SECONDS=30 python3 verification-times-from-trx.py test/TestResults/*.trx
+        run: MAX_VERIFICATION_DURATION_SECONDS=40 python3 verification-times-from-trx.py test/TestResults/*.trx
