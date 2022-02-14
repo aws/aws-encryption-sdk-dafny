@@ -56,7 +56,7 @@ module Header {
     // The readability of the header is effectively a completeness requirement.
     // By proving the soundness of the ReadV*HeaderBody,
     // this is complicated.
-    // Uncomment this once the ReadV*HeaderBody functions are proved complete.
+    // TODO Uncomment this once the ReadV*HeaderBody functions are proved complete.
     // There are 2 readable formats, but only 1 writeable format.
     // This means that a correct header is defined by reading.
     // Less options to keep track of.
