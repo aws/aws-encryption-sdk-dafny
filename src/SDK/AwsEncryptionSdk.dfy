@@ -560,19 +560,18 @@ module {:extern "Dafny.Aws.Esdk.AwsEncryptionSdkClient"} AwsEncryptionSdk {
         //# header.md#algorithm-suite-id) is not supported by the commitment
         //# policy (client.md#commitment-policy) configured in the client
         //# (client.md) decrypt MUST yield an error.
-        // TODO(alexchew) put this back
-        // ensures
-        // (
-        //     && var buffer := SerializeFunctions.ReadableBuffer(input.ciphertext, 0);
-        //     && var headerBody := Header.ReadHeaderBody(buffer, this.maxEncryptedDataKeys);
-        //     && headerBody.Success?
-        //     && var algorithmSuiteId := SerializableTypes.GetAlgorithmSuiteId(headerBody.value.data.esdkSuiteId);
-        //     && Client.SpecificationClient().ValidateCommitmentPolicyOnDecrypt(
-        //         algorithmSuiteId, this.commitmentPolicy
-        //     ).Failure?
-        // )
-        // ==>
-        //     res.Failure?
+        ensures
+        (
+            && var buffer := SerializeFunctions.ReadableBuffer(input.ciphertext, 0);
+            && var headerBody := Header.ReadHeaderBody(buffer, this.maxEncryptedDataKeys);
+            && headerBody.Success?
+            && var algorithmSuiteId := SerializableTypes.GetAlgorithmSuiteId(headerBody.value.data.esdkSuiteId);
+            && Client.SpecificationClient().ValidateCommitmentPolicyOnDecrypt(
+                algorithmSuiteId, this.commitmentPolicy
+            ).Failure?
+        )
+        ==>
+            res.Failure?
         {
             // TODO: Change to '> 0' once CrypTool-4350 complete
             // TODO: Remove entirely once we can validate this value on client creation
