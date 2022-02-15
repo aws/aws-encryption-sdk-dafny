@@ -22,10 +22,9 @@ module {:extern "Dafny.Aws.Esdk"} Aws.Esdk {
     )
 
     datatype EncryptOutput = EncryptOutput(
-        nameonly ciphertext: seq<uint8>
-        // TODO Hook up additional Encryption outputs
-        // nameonly encryptionContext: Crypto.EncryptionContext,
-        // nameonly algorithmSuiteId: Crypto.AlgorithmSuiteId
+        nameonly ciphertext: seq<uint8>,
+        nameonly encryptionContext: Crypto.EncryptionContext,
+        nameonly algorithmSuiteId: Crypto.AlgorithmSuiteId
     )
 
     datatype DecryptInput = DecryptInput(
@@ -35,10 +34,9 @@ module {:extern "Dafny.Aws.Esdk"} Aws.Esdk {
     )
 
     datatype DecryptOutput = DecryptOutput(
-        nameonly plaintext: seq<uint8>
-        // TODO hook up additional decrypt outputs
-        // nameonly encryptionContext: Crypto.EncryptionContext,
-        // nameonly algorithmSuiteId: Crypto.AlgorithmSuiteId
+        nameonly plaintext: seq<uint8>,
+        nameonly encryptionContext: Crypto.EncryptionContext,
+        nameonly algorithmSuiteId: Crypto.AlgorithmSuiteId
     )
 
     datatype AwsEncryptionSdkClientConfig = AwsEncryptionSdkClientConfig(
