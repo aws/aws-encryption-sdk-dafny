@@ -17,7 +17,7 @@ jobs:
       - name: Setup Dafny
         uses: dafny-lang/setup-dafny-action@v1
         with:
-          dafny-version: "3.4.0"
+          dafny-version: "3.4.1"
 
       - name: Verify Dafny code
         # Currently, test depends on src, so verifying test will also verify src
