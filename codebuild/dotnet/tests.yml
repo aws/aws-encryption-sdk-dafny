@@ -1,11 +1,5 @@
 version: 0.2
 
-env:
-  variables:
-    DAFNY_AWS_ESDK_DECRYPT_ORACLE_URL: http://xi1mwx3ttb.execute-api.us-west-2.amazonaws.com/api/v0/decrypt
-    AWS_ENCRYPTION_SDK_EXAMPLE_KMS_KEY_ID: >-
-      arn:aws:kms:us-west-2:658956600833:key/b3537ef1-d8dc-4780-9f5a-55776cbb2f7f
-
 phases:
   install:
     runtime-versions:
@@ -16,21 +10,12 @@ phases:
       - curl https://github.com/dafny-lang/dafny/releases/download/v3.4.1/dafny-3.4.1-x64-ubuntu-16.04.zip -L -o dafny.zip
       - unzip -qq dafny.zip && rm dafny.zip
       - export PATH="$PWD/dafny:$PATH"
-      # Set up environment for running test vectors
-      - wget https://github.com/awslabs/aws-encryption-sdk-test-vectors/raw/master/vectors/awses-decrypt/python-2.3.0.zip
-      - unzip -qq python-2.3.0.zip && rm python-2.3.0.zip
-      # Explicitly set this (rather than as a codebuild env variable like above) because it depends on the
-      # current working directory
-      - export DAFNY_AWS_ESDK_TEST_VECTOR_MANIFEST_PATH="${PWD}/manifest.json"
       # Switch back to the main directory
       - cd aws-encryption-sdk-dafny/aws-encryption-sdk-net-formally-verified
   build:
     commands:
       # Unit tests
       - dotnet test Test /nowarn:CS0105
-      # TODO: uncomment when we update TestVectors
-      #- dotnet test TestVectors /nowarn:CS0105
-      - dotnet test Examples /nowarn:CS0105
       # Code Coverage
       - cd Test/
       # Run Coverlet
