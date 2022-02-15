@@ -453,6 +453,11 @@ module
             Plaintext := Option.Some(res.value.plaintextDataKey.value),
             EncryptionAlgorithm := returnedEncryptionAlgorithm
           );
+          //= compliance/framework/aws-kms/aws-kms-discovery-keyring.txt#2.8
+          //= type=implication
+          //# *  The "KeyId" field in the response MUST equal the AWS KMS ARN from
+          //# the provider info
+          && returnedKeyId == Option.Some(keyArn)  
           && client.DecryptSucceededWith(request, response)
     }
 
