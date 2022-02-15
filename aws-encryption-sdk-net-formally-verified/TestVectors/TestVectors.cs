@@ -167,38 +167,20 @@ namespace TestVectorTests {
             return materialProviders.CreateDefaultCryptographicMaterialsManager(input);
         }
 
-        public static ICryptographicMaterialsManager EncryptCmm(TestVector vector, Dictionary<string, Key> keys) {
-            IAwsCryptographicMaterialProviders materialProviders = new AwsCryptographicMaterialProvidersClient();
-
-            CreateDefaultCryptographicMaterialsManagerInput input = new CreateDefaultCryptographicMaterialsManagerInput
-            {
-                Keyring = CreateEncryptKeyring(vector, keys)
-            };
-            return materialProviders.CreateDefaultCryptographicMaterialsManager(input);
-        }
-
-        private static IKeyring CreateEncryptKeyring(TestVector vector, Dictionary<string, Key> keys) {
-            IAwsCryptographicMaterialProviders materialProviders = new AwsCryptographicMaterialProvidersClient();
-
-            IKeyring generator = CreateKeyring(vector.MasterKeys[0], keys[vector.MasterKeys[0].Key]);
-            List<IKeyring> children = vector.MasterKeys.Skip(1)
-                .Select(keyInfo => CreateKeyring(keyInfo, keys[keyInfo.Key])).ToList();
-            CreateMultiKeyringInput createMultiKeyringInput = new CreateMultiKeyringInput
-            {
-                Generator = generator,
-                ChildKeyrings = children
-            };
-
-            return materialProviders.CreateMultiKeyring(createMultiKeyringInput);
-        }
         private static IKeyring CreateDecryptKeyring(TestVector vector, Dictionary<string, Key> keys) {
             IAwsCryptographicMaterialProviders materialProviders = new AwsCryptographicMaterialProvidersClient();
 
-            List<IKeyring> children = vector.MasterKeys
-                .Select(keyInfo => CreateKeyring(keyInfo, keys[keyInfo.Key])).ToList();
+
+            List<IKeyring> children = new List<IKeyring>();
+            foreach (MasterKey keyInfo in vector.MasterKeys)
+            {
+                // Some keyrings, like discovery KMS keyrings, do not specify keys
+                Key key = keyInfo.Key == null ? null : keys[keyInfo.Key];
+                children.Add(CreateKeyring(keyInfo, key));
+            }
             CreateMultiKeyringInput createMultiKeyringInput = new CreateMultiKeyringInput
             {
-                Generator = children[0], // TODO: back to null
+                Generator = null,
                 ChildKeyrings = children
             };
 
@@ -222,6 +204,13 @@ namespace TestVectorTests {
                     KmsKeyId = key.Id,
                 };
                 return materialProviders.CreateMrkAwareStrictAwsKmsKeyring(createKeyringInput);
+            } else if (keyInfo.Type == "aws-kms-mrk-aware-discovery") {
+                CreateMrkAwareDiscoveryAwsKmsKeyringInput createKeyringInput = new CreateMrkAwareDiscoveryAwsKmsKeyringInput
+                {
+                    KmsClient = new AmazonKeyManagementServiceClient(RegionEndpoint.GetBySystemName(keyInfo.DefaultMrkRegion)),
+                    Region = keyInfo.DefaultMrkRegion
+                };
+                return materialProviders.CreateMrkAwareDiscoveryAwsKmsKeyring(createKeyringInput);
             } else if (keyInfo.Type == "raw" && keyInfo.EncryptionAlgorithm == "aes") {
                 CreateRawAesKeyringInput createKeyringInput = new CreateRawAesKeyringInput
                 {
@@ -312,6 +301,8 @@ namespace TestVectorTests {
         public string PaddingAlgorithm { get; set; }
         [JsonProperty("padding-hash")]
         public string PaddingHash { get; set; }
+        [JsonProperty("default-mrk-region")]
+        public string DefaultMrkRegion { get; set; }
     }
 
     public class TestVector {
