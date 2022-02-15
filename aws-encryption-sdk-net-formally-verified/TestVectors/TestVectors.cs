@@ -97,15 +97,11 @@ namespace TestVectorTests {
 
         IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
-        // TODO remove or make more robust. Leaving it in for now because it's useful for testing
+        // Simplistic method for narrowing down which vectors to target. For now, no-op.
+        // Update if you want to test certain vectors
         protected static bool TargetVector(KeyValuePair<string, TestVector> entry)
         {
-            if (entry.Value.MasterKeys.Any(masterKey => masterKey.Key != null && (masterKey.Key.StartsWith("aes") || masterKey.Key.StartsWith("rsa"))))
-            {
-                return true;
-            }
-
-            return false;
+            return true;
         }
     }
 
@@ -115,7 +111,6 @@ namespace TestVectorTests {
             long count = 0;
             foreach(var vectorEntry in VectorMap) {
 
-                // TODO remove
                 if (!TargetVector(vectorEntry))
                 {
                     continue;
@@ -156,30 +151,6 @@ namespace TestVectorTests {
             if (count == 0)
             {
                 throw new Exception("No targeted vectors found");
-            }
-        }
-    }
-
-    public class EncryptTestVectors : TestVectorData {
-        public override IEnumerator<object[]> GetEnumerator() {
-            string decryptOracle = GetEnvironmentVariableOrError("DAFNY_AWS_ESDK_DECRYPT_ORACLE_URL");
-            HttpClient client = new HttpClient();
-            client.DefaultRequestHeaders.Add("Accept", "application/octet-stream");
-            foreach(var vectorEntry in VectorMap) {
-                TestVector vector = vectorEntry.Value;
-
-                byte[] plaintext = null;
-                if (vector.Result.Output != null)
-                {
-                    string plaintextPath = ManifestUriToPath(vector.Result.Output.Plaintext, VectorRoot);
-                    if (!File.Exists(plaintextPath))
-                    {
-                        throw new ArgumentException($"Could not find plaintext file at path: {plaintextPath}");
-                    }
-                    plaintext = File.ReadAllBytes(plaintextPath);
-                }
-
-                yield return new object[] { vectorEntry.Key, vector, KeyMap, plaintext, client, decryptOracle };
             }
         }
     }
@@ -441,48 +412,6 @@ namespace TestVectorTests {
                     // For now, suffice to say the test correctly failed.
                 }
             }
-        }
-
-        #pragma warning disable xUnit1026 // Suppress Unused argument warnings for vectorID.
-        [Theory]
-        [ClassData (typeof(EncryptTestVectors))]
-        public void CanEncryptTestVector(
-            string vectorID,
-            TestVector vector,
-            Dictionary<string, Key> keyMap,
-            byte[] plaintext,
-            HttpClient client,
-            string decryptOracle
-        ) {
-            // TODO remove
-            if (vector.MasterKeys.Any(masterKey => masterKey.Key != null && masterKey.Key.StartsWith("rsa")))
-            {
-                throw new Exception($"RSA keyrings not yet supported");
-            }
-            // End TODO
-
-            AwsEncryptionSdkClientConfig config = new AwsEncryptionSdkClientConfig
-            {
-                ConfigDefaults = ConfigurationDefaults.V1
-            };
-            IAwsEncryptionSdk encryptionSdkClient = new AwsEncryptionSdkClient(config);
-
-            ICryptographicMaterialsManager cmm = CmmFactory.DecryptCmm(vector, keyMap);
-
-            EncryptInput encryptInput = new EncryptInput
-            {
-                Plaintext = new MemoryStream(plaintext),
-                MaterialsManager = cmm
-            };
-            EncryptOutput encryptOutput = encryptionSdkClient.Encrypt(encryptInput);
-            MemoryStream ciphertext = encryptOutput.Ciphertext;
-
-            StreamContent content = new StreamContent(ciphertext);
-            content.Headers.Add("Content-Type", "application/octet-stream");
-
-            var response = client.PostAsync(decryptOracle, content).Result;
-            Assert.Equal(HttpStatusCode.OK, response.StatusCode);
-            Assert.Equal(plaintext, response.Content.ReadAsByteArrayAsync().Result);
         }
     }
 }
