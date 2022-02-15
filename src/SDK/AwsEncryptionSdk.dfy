@@ -719,12 +719,7 @@ module {:extern "Dafny.Aws.Esdk.AwsEncryptionSdkClient"} AwsEncryptionSdk {
             assert header == frame.header;
             assert |key| == frame.header.suite.encrypt.keyLength as int;
 
-            var decryptFrameResult := MessageBody.DecryptFrame(frame, key);
-            if decryptFrameResult.Failure? {
-                return Failure(decryptFrameResult.error);
-            }
-            assert decryptFrameResult.Success?;
-            var plaintext := decryptFrameResult.value;
+            var plaintext :- MessageBody.DecryptFrame(frame, key);
             var messageBodyTail := messageBody.tail;
             return Success((plaintext, messageBodyTail));
         }
