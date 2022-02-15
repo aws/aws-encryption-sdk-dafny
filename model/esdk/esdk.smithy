@@ -70,12 +70,11 @@ structure EncryptOutput {
     @required
     ciphertext: Blob,
 
-    // TODO hook up additional encrypt outputs
-    // @required
-    // encryptionContext: EncryptionContext,
-    //
-    // @required
-    // algorithmSuiteId: AlgorithmSuiteId,
+    @required
+    encryptionContext: EncryptionContext,
+
+    @required
+    algorithmSuiteId: AlgorithmSuiteId,
 }
 
 operation Decrypt {
@@ -96,12 +95,11 @@ structure DecryptOutput {
     @required
     plaintext: Blob,
 
-    // TODO hook up additional decrypt outputs
-    // @required
-    // encryptionContext: EncryptionContext,
-    //
-    // @required
-    // algorithmSuiteId: AlgorithmSuiteId,
+    @required
+    encryptionContext: EncryptionContext,
+
+    @required
+    algorithmSuiteId: AlgorithmSuiteId,
 
     // The spec says that decrypt SHOULD also return the parsed
     // header. We're omitting this for now, until we can spend
