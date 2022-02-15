@@ -138,13 +138,15 @@ module MessageBody {
   predicate IsMessageRegularFrames(regularFrames: seq<Frames.RegularFrame>) {
     // The total number of frames MUST be < UINT16_LENGTH.
     // And a RegularFrame can not have a sequence number
-    // equal to the ENDFRAME_SEQUENCE_NUMBER. 
+    // equal to the ENDFRAME_SEQUENCE_NUMBER.
     && 0 <= |regularFrames| < ENDFRAME_SEQUENCE_NUMBER as nat
     // The sequence number MUST be monotonic
     && MessageFramesAreMonotonic(regularFrames)
     // All frames MUST all be from the same messages i.e. the same header
     && MessageFramesAreForTheSameMessage(regularFrames)
   }
+
+  type NonFramedMessage = Frames.NonFramed
 
   datatype FramedMessageBody = FramedMessageBody(
     regularFrames: MessageRegularFrames,
@@ -167,7 +169,7 @@ module MessageBody {
   |
   || Frames.IsFinalFrame(frame)
   || Frames.IsRegularFrame(frame)
-  || Frames.IsFinalFrame(frame)
+  || Frames.IsNonFramed(frame)
   witness *
 
   lemma LemmaAddingNextRegularFrame(
@@ -393,12 +395,13 @@ module MessageBody {
     frame: Frame,
     key: seq<uint8>
   )
-    returns (res: Result<Uint8Seq32, string>)
+    returns (res: Result<seq<uint8>, string>)
     requires |key| == frame.header.suite.encrypt.keyLength as int
     ensures match res
       case Success(plaintextSegment) => ( // Decrypting the frame encoded in the stream is the returned ghost frame
         && AESEncryption.CiphertextGeneratedWithPlaintext(frame.encContent, plaintextSegment)
         && AESEncryption.DecryptedWithKey(key, plaintextSegment)
+        && (frame.RegularFrame? || frame.FinalFrame? ==> |plaintextSegment| < UINT32_LIMIT)
       )
       case Failure(_) => true
   {
@@ -448,29 +451,6 @@ module MessageBody {
       && AESEncryption.DecryptedWithKey(key, plaintextSeg[|plaintextSeg| - 1])
   }
 
-  // method DecryptNonFramedMessageBody(
-  //   rd: Streams.ByteReader,
-  //   suite: Client.AlgorithmSuites.AlgorithmSuite,
-  //   key: seq<uint8>,
-  //   messageID: Msg.MessageID
-  // )
-  //   returns (res: Result<seq<uint8>, string>)
-  //   requires rd.Valid()
-  //   requires |key| == suite.encrypt.keyLength as int
-  //   modifies rd.reader`pos
-  //   ensures rd.Valid()
-  // {
-  //   var iv :- rd.ReadBytes(suite.encrypt.ivLength as int);
-  //   var contentLength :- rd.ReadUInt64();
-  //   var ciphertext :- rd.ReadBytes(contentLength as nat);
-  //   var authTag :- rd.ReadBytes(suite.encrypt.tagLength as int);
-
-  //   var aad := BodyAAD(messageID, AADSingleBlock, NONFRAMED_SEQUENCE_NUMBER, contentLength);
-
-  //   var plaintext :- Decrypt(ciphertext, authTag, suite, iv, key, aad);
-  //   return Success(plaintext);
-  // }
-
   function method WriteFramedMessageBody(
     body: FramedMessage
   )
@@ -487,12 +467,12 @@ module MessageBody {
     :(ret: seq<uint8>)
     ensures if |frames| == 0 then
       ret == []
-    else 
+    else
       ret == WriteMessageRegularFrames(Seq.DropLast(frames))
       + Frames.WriteRegularFrame(Seq.Last(frames))
   {
     if |frames| == 0 then []
-    else 
+    else
       WriteMessageRegularFrames(Seq.DropLast(frames))
       + Frames.WriteRegularFrame(Seq.Last(frames))
   }
@@ -561,5 +541,28 @@ module MessageBody {
 
       assert {:split_here} true;
       Success(SuccessfulRead(body, finalFrame.tail))
+  }
+
+  function WriteNonFramedMessageBody(
+    body: NonFramedMessage
+  )
+    :(ret: seq<uint8>)
+    ensures ret == Frames.WriteNonFramed(body)
+  {
+    Frames.WriteNonFramed(body)
+  }
+
+  function method ReadNonFramedMessageBody(
+    buffer: ReadableBuffer,
+    header: Frames.NonFramedHeader
+  )
+    :(res: ReadCorrect<NonFramedMessage>)
+    ensures CorrectlyRead(buffer, res, WriteNonFramedMessageBody)
+    ensures res.Success?
+    ==>
+      && res.value.data.header == header
+  {
+    var block :- Frames.ReadNonFrame(buffer, header);
+    Success(SuccessfulRead(block.data, block.tail))
   }
 }

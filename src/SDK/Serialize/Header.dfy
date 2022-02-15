@@ -61,7 +61,7 @@ module Header {
     // This means that a correct header is defined by reading.
     // Less options to keep track of.
     // && CorrectlyReadHeaderBody(
-    //   ReadableBuffer(h.rawHeader, 0), 
+    //   ReadableBuffer(h.rawHeader, 0),
     //   Success(SuccessfulRead(h.body, ReadableBuffer(h.rawHeader, |h.rawHeader|))))
 
     // I would like to have this relationship, but the CMM really gets to control this
@@ -104,19 +104,29 @@ module Header {
   )
     :(res: ReadCorrect<HeaderTypes.HeaderBody>)
     ensures CorrectlyReadHeaderBody(buffer, res)
+    ensures res.Success? ==>
+      var h := res.value.data;
+      && (h.contentType.NonFramed? <==> 0 == h.frameLength)
+      && (h.contentType.Framed? <==> 0 < h.frameLength)
   {
-
     var version :- SharedHeaderFunctions.ReadMessageFormatVersion(buffer);
 
-    match version.data
-    case V1 => 
-      var b :- V1HeaderBody.ReadV1HeaderBody(buffer, maxEdks);
-      var body: HeaderTypes.HeaderBody := b.data;
-      Success(SuccessfulRead(body, b.tail))
-    case V2 => 
-      var b :- V2HeaderBody.ReadV2HeaderBody(buffer, maxEdks);
-      var body: HeaderTypes.HeaderBody := b.data;
-      Success(SuccessfulRead(body, b.tail))
+    var (body, tail) :- match version.data {
+      case V1 =>
+        var b :- V1HeaderBody.ReadV1HeaderBody(buffer, maxEdks);
+        var body: HeaderTypes.HeaderBody := b.data;
+        Success((body, b.tail))
+      case V2 =>
+        var b :- V2HeaderBody.ReadV2HeaderBody(buffer, maxEdks);
+        var body: HeaderTypes.HeaderBody := b.data;
+        Success((body, b.tail))
+    };
+
+    :- Need(body.contentType.Framed? <==> body.frameLength > 0,
+      Error("Frame length must be positive if content is framed"));
+    :- Need(body.contentType.NonFramed? <==> body.frameLength == 0,
+      Error("Frame length must be zero if content is non-framed"));
+    Success(SuccessfulRead(body, tail))
   }
 
   predicate CorrectlyReadHeaderBody(
