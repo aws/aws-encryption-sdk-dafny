@@ -85,12 +85,15 @@ module Frames {
   | IsFinalFrame(frame)
   witness *
 
-  type NonFramed = frame: Frame
-  |
+  predicate IsNonFramed(frame: Frame) {
     && frame.NonFramed?
     && IvTagLengths(frame)
     && frame.header.body.contentType.NonFramed?
     && |frame.encContent| < SAFE_MAX_ENCRYPT
+  }
+
+  type NonFramed = frame: Frame
+  | IsNonFramed(frame)
   witness *
 
   const SAFE_MAX_ENCRYPT := 0xFFFFFFFE0 // 2^36 - 32

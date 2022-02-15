@@ -110,7 +110,9 @@ namespace TestVectorTests {
     }
 
     public class DecryptTestVectors : TestVectorData {
-        public override IEnumerator<object[]> GetEnumerator() {
+        public override IEnumerator<object[]> GetEnumerator()
+        {
+            long count = 0;
             foreach(var vectorEntry in VectorMap) {
 
                 // TODO remove
@@ -118,7 +120,7 @@ namespace TestVectorTests {
                 {
                     continue;
                 }
-                
+
                 TestVector vector = vectorEntry.Value;
                 byte[] plaintext = null;
                 if (vector.Result.Output != null)
@@ -147,6 +149,13 @@ namespace TestVectorTests {
                 MemoryStream ciphertextStream = new MemoryStream(ciphertext);
 
                 yield return new object[] { vectorEntry.Key, vector, KeyMap, plaintext, errorMessage, ciphertextStream };
+                count++;
+            }
+
+            // If nothing gets `yield return`-ed, xUnit gives an unclear error message. This error is better.
+            if (count == 0)
+            {
+                throw new Exception("No targeted vectors found");
             }
         }
     }
@@ -159,11 +168,16 @@ namespace TestVectorTests {
             foreach(var vectorEntry in VectorMap) {
                 TestVector vector = vectorEntry.Value;
 
-                string plaintextPath = ManifestUriToPath(vector.Result.Output.Plaintext, VectorRoot);
-                if (!File.Exists(plaintextPath)) {
-                    throw new ArgumentException($"Could not find plaintext file at path: {plaintextPath}");
+                byte[] plaintext = null;
+                if (vector.Result.Output != null)
+                {
+                    string plaintextPath = ManifestUriToPath(vector.Result.Output.Plaintext, VectorRoot);
+                    if (!File.Exists(plaintextPath))
+                    {
+                        throw new ArgumentException($"Could not find plaintext file at path: {plaintextPath}");
+                    }
+                    plaintext = File.ReadAllBytes(plaintextPath);
                 }
-                byte[] plaintext = File.ReadAllBytes(plaintextPath);
 
                 yield return new object[] { vectorEntry.Key, vector, KeyMap, plaintext, client, decryptOracle };
             }
@@ -198,7 +212,7 @@ namespace TestVectorTests {
             IKeyring generator = CreateKeyring(vector.MasterKeys[0], keys[vector.MasterKeys[0].Key]);
             List<IKeyring> children = vector.MasterKeys.Skip(1)
                 .Select(keyInfo => CreateKeyring(keyInfo, keys[keyInfo.Key])).ToList();
-            CreateMultiKeyringInput createMultiKeyringInput = new CreateMultiKeyringInput 
+            CreateMultiKeyringInput createMultiKeyringInput = new CreateMultiKeyringInput
             {
                 Generator = generator,
                 ChildKeyrings = children
@@ -211,7 +225,7 @@ namespace TestVectorTests {
 
             List<IKeyring> children = vector.MasterKeys
                 .Select(keyInfo => CreateKeyring(keyInfo, keys[keyInfo.Key])).ToList();
-            CreateMultiKeyringInput createMultiKeyringInput = new CreateMultiKeyringInput 
+            CreateMultiKeyringInput createMultiKeyringInput = new CreateMultiKeyringInput
             {
                 Generator = children[0], // TODO: back to null
                 ChildKeyrings = children
@@ -282,7 +296,7 @@ namespace TestVectorTests {
                 _ => throw new Exception("Unsupported AES wrapping algorithm")
             };
         }
-        
+
         private static PaddingScheme RSAPaddingFromStrings(string strAlg, string strHash) {
             return (strAlg, strHash) switch {
                 ("pkcs1", _) => PaddingScheme.PKCS1,
