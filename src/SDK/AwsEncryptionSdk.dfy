@@ -21,7 +21,7 @@ include "Serialize/Header.dfy"
 include "Serialize/HeaderTypes.dfy"
 include "Serialize/V1HeaderBody.dfy"
 include "Serialize/HeaderAuth.dfy"
-include "Serialize/Frames.dfy"  // TODO(alexchew) remove me
+include "Serialize/Frames.dfy"
 include "Serialize/SerializeFunctions.dfy"
 include "Serialize/EncryptionContext.dfy"
 
@@ -48,8 +48,7 @@ module {:extern "Dafny.Aws.Esdk.AwsEncryptionSdkClient"} AwsEncryptionSdk {
   import HeaderTypes
   import HeaderAuth
   import V1HeaderBody
-
-  import Frames  // TODO(alexchew) remove me
+  import Frames
 
   class AwsEncryptionSdkClient extends Esdk.IAwsEncryptionSdkClient {
         const config: Esdk.AwsEncryptionSdkClientConfig;
@@ -646,22 +645,13 @@ module {:extern "Dafny.Aws.Esdk.AwsEncryptionSdkClient"} AwsEncryptionSdk {
             );
 
             assert {:split_here} true;
-            assert Header.CorrectlyReadHeaderBody(
-                SerializeFunctions.ReadableBuffer(rawHeader, 0),
-                Success(
-                    SerializeFunctions.SuccessfulRead(
-                        headerBody.data, SerializeFunctions.ReadableBuffer(rawHeader, |rawHeader|))
-                )
-            );
 
             assert Header.HeaderAuth?(suite, headerAuth.data);
             assert Header.IsHeader(header);
 
+            var key := derivedDataKeys.dataKey;
             var plaintext: seq<uint8>;
             var messageBodyTail: SerializeFunctions.ReadableBuffer;
-            assert {:split_here} true;
-
-            var key := derivedDataKeys.dataKey;
             match header.body.contentType {
                 case NonFramed =>
                     var decryptRes :- ReadAndDecryptNonFramedMessageBody(headerAuth.tail, header, key);
@@ -673,7 +663,7 @@ module {:extern "Dafny.Aws.Esdk.AwsEncryptionSdkClient"} AwsEncryptionSdk {
                     messageBodyTail := decryptRes.1;
             }
 
-            assert {:split_here} true; // cursor
+            assert {:split_here} true;
 
             var signature :- EncryptDecryptHelpers.VerifySignature(
                 messageBodyTail,
