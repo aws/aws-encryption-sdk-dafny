@@ -9,7 +9,7 @@ include "../../../../src/Util/UTF8.dfy"
 include "../../../Util/TestUtils.dfy"
 
 
-module TestAwsKmsDiscoveryKeyring {
+module AwsKmsEncryptedDataKeyFilter {
   import Aws.Crypto
   import MaterialProviders.AwsKmsDiscoveryKeyring
   import opened TestUtils    
@@ -23,7 +23,7 @@ module TestAwsKmsDiscoveryKeyring {
   //# *  The provider info MUST be a valid AWS KMS ARN (aws-kms-key-
   //# arn.md#a-valid-aws-kms-arn) with a resource type of "key" or
   //# OnDecrypt MUST fail.
-  method {:test} TestAwsKmsEncryptedDataKeyFilterFailsNonKeyResource()
+  method {:test} TestFailsNonKeyResource()
   {
     var discoveryFilter := GetDiscoveryFilter();
     var edkFilter := new AwsKmsDiscoveryKeyring.AwsKmsEncryptedDataKeyFilter(
@@ -44,7 +44,7 @@ module TestAwsKmsDiscoveryKeyring {
   //= type=test
   //# The set of encrypted data keys MUST first be filtered to match this
   //# keyring's configuration.
-  method {:test} TestAwsKmsEncryptedDataKeyFilterMatchesKeyringsConfiguration()
+  method {:test} TestMatchesKeyringsConfiguration()
   {
     var matchingEdk := GenerateMockEncryptedDataKey("aws-kms", SHARED_TEST_KEY_ARN);
     var mismatchEdkPartition := GenerateMockEncryptedDataKey(
