@@ -72,6 +72,7 @@ module
       wrappingAlgorithm: AESEncryption.AES_GCM
     )
       requires |namespace| < UINT16_LIMIT
+      requires |name| < UINT16_LIMIT
 
       //= compliance/framework/raw-aes-keyring.txt#2.5.1
       //= type=implication
