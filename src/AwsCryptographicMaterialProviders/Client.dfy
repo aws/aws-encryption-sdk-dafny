@@ -780,7 +780,7 @@ module
       } else {
         clientSupplier := input.clientSupplier.value;
       }
-      res := DiscoveryMultiKeyring( // TODO name
+      res := DiscoveryMultiKeyring(
         input.regions,
         input.discoveryFilter,
         clientSupplier,
