@@ -195,7 +195,8 @@ module
       //= type=implication
       //# The keyring SHOULD fail initialization if the
       //# provided region does not match the region of the KMS client.
-      // :- Crypto.Need(AwsKmsUtils.RegionMatch(input.kmsClient, input.region), "Provided client and region do not match");
+      var regionMatch := AwsKmsUtils.RegionMatch(input.kmsClient, input.region);
+      :- Crypto.Need(regionMatch != Some(false), "Provided client and region do not match");
 
       var grantTokens :- GetValidGrantTokens(input.grantTokens);
       var keyring := new AwsKmsMrkAwareSymmetricRegionDiscoveryKeyring.AwsKmsMrkAwareSymmetricRegionDiscoveryKeyring(input.kmsClient, input.region, input.discoveryFilter, grantTokens);
