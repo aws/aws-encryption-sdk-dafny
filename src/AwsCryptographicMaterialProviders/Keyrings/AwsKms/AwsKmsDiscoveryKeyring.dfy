@@ -280,6 +280,7 @@ module
       && res.Success?
       && res.value
       ==>
+        
         // Pull out some values so we can compare them
         && UTF8.ValidUTF8Seq(edk.keyProviderInfo)
         && var keyId := UTF8.Decode(edk.keyProviderInfo);
@@ -296,11 +297,6 @@ module
       returns (res: Result<bool, string>)
       ensures Ensures(edk, res)
     {
-
-      if edk.keyProviderId != PROVIDER_ID {
-        return Success(false);
-      }
-
       // The Keyring produces UTF8 providerInfo.
       // If an `aws-kms` encrypted data key's providerInfo is not UTF8
       // this is an error, not simply an EDK to filter out.
@@ -314,6 +310,10 @@ module
       //# arn.md#a-valid-aws-kms-arn) with a resource type of "key" or
       //# OnDecrypt MUST fail.
       :- Need(arn.resource.resourceType == "key", "Only AWS KMS Keys supported");
+
+      if edk.keyProviderId != PROVIDER_ID {
+        return Success(false);
+      }
 
       if !DiscoveryMatch(arn, discoveryFilter) {
         return Success(false);
