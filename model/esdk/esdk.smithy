@@ -8,9 +8,25 @@ use aws.crypto#CommitmentPolicy
 use aws.polymorph#reference
 use aws.polymorph#clientConfig
 
-@clientConfig(config: AwsEncryptionSdkClientConfig)
-service AwsEncryptionSdk {
+@reference(resource: AwsEncryptionSdkClient)
+structure AwsEncryptionSdkClientReference {}
+
+operation MakeAwsEncryptionSdk {
+    input: AwsEncryptionSdkClientConfig,
+    output: AwsEncryptionSdkClientReference,
+    errors: [AwsEncryptionSdkClientException],
+}
+
+service AwsEncryptionSdkFactory {
     version: "2020-10-24",
+    operations: [MakeAwsEncryptionSdk],
+    // TODO should there be an exception type specific to client creation?
+    errors: [AwsEncryptionSdkClientException],
+}
+
+// TODO Is this ok as a resoruce, or should it be a separate service?
+// TODO make AwsEncryptionSdkClient vs AwsEncryptionSdk naming consistent throughout code
+resource AwsEncryptionSdkClient {
     operations: [Encrypt, Decrypt],
     errors: [AwsEncryptionSdkClientException],
 }

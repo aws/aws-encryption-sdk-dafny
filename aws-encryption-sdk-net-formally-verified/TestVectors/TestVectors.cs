@@ -365,7 +365,7 @@ namespace TestVectorTests {
                     ConfigDefaults = ConfigurationDefaults.V1,
                     CommitmentPolicy = CommitmentPolicy.REQUIRE_ENCRYPT_ALLOW_DECRYPT
                 };
-                IAwsEncryptionSdk encryptionSdkClient = new AwsEncryptionSdkClient(config);
+                IAwsEncryptionSdkClient encryptionSdkClient = new AwsEncryptionSdkFactoryClient().MakeAwsEncryptionSdk(config);
 
                 ICryptographicMaterialsManager cmm = CmmFactory.DecryptCmm(vector, keyMap);
 

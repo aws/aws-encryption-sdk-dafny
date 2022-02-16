@@ -47,17 +47,23 @@ module {:extern "Dafny.Aws.Esdk"} Aws.Esdk {
 
     datatype ConfigurationDefaults = V1
 
-    trait {:termination false} IAwsEncryptionSdkClient {
-        method Encrypt(input: EncryptInput) returns (res: Result<EncryptOutput, IAwsEncryptionSdkException>)
-        method Decrypt(input: DecryptInput) returns (res: Result<DecryptOutput, IAwsEncryptionSdkException>)
+    // TODO the Client suffix appended by Smithy, leading to annoying naming
+    trait {:termination false} IAwsEncryptionSdkFactoryClient {
+        method MakeAwsEncryptionSdk(input: AwsEncryptionSdkClientConfig) returns (res: Result<IAwsEncryptionSdkClient, IAwsEncryptionSdkFactoryException>)
     }
 
-    trait IAwsEncryptionSdkException {
+    // Code Generation appears to want to name this based off the service, while for us it would make more sense to use IAwsEncryptionSdkException
+    trait {:termination false} IAwsEncryptionSdkClient {
+        method Encrypt(input: EncryptInput) returns (res: Result<EncryptOutput, IAwsEncryptionSdkFactoryException>)
+        method Decrypt(input: DecryptInput) returns (res: Result<DecryptOutput, IAwsEncryptionSdkFactoryException>)
+    }
+
+    trait IAwsEncryptionSdkFactoryException {
         function method GetMessage(): (message: string)
             reads this
     }
 
-    class AwsEncryptionSdkClientException extends IAwsEncryptionSdkException {
+    class AwsEncryptionSdkClientException extends IAwsEncryptionSdkFactoryException {
         var message: string
 
         constructor (message: string) {
@@ -71,7 +77,7 @@ module {:extern "Dafny.Aws.Esdk"} Aws.Esdk {
         }
 
         static method WrapResultString<T>(result: Result<T, string>)
-            returns (wrapped: Result<T, IAwsEncryptionSdkException>)
+            returns (wrapped: Result<T, IAwsEncryptionSdkFactoryException>)
             ensures result.Success? ==>
                 && wrapped.Success?
                 && wrapped.value == result.value

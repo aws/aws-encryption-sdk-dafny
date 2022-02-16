@@ -32,7 +32,7 @@ public class StrictAwsKmsKeyringExample {
         {
             ConfigDefaults = ConfigurationDefaults.V1
         };
-        IAwsEncryptionSdk encryptionSdkClient = new AwsEncryptionSdkClient(config);
+        IAwsEncryptionSdkClient encryptionSdkClient = new AwsEncryptionSdkFactoryClient().MakeAwsEncryptionSdk(config);
 
         // Create the keyring that determines how your data keys are protected.
         CreateStrictAwsKmsKeyringInput createKeyringInput = new CreateStrictAwsKmsKeyringInput

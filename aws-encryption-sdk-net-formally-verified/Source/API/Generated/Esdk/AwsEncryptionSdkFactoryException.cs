@@ -9,13 +9,13 @@ using
 
 namespace Aws.Esdk
 {
-    public class AwsEncryptionSdkException : Exception
+    public class AwsEncryptionSdkFactoryException : Exception
     {
-        public AwsEncryptionSdkException() : base()
+        public AwsEncryptionSdkFactoryException() : base()
         {
         }
 
-        public AwsEncryptionSdkException(string message) : base(message)
+        public AwsEncryptionSdkFactoryException(string message) : base(message)
         {
         }
     }

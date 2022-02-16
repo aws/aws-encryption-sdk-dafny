@@ -9,10 +9,9 @@ using
 
 namespace Aws.Esdk
 {
-    public class AwsEncryptionSdkClientException : AwsEncryptionSdkFactoryException
+    public interface IAwsEncryptionSdkClient
     {
-        public AwsEncryptionSdkClientException(string message) : base(message)
-        {
-        }
+        Aws.Esdk.EncryptOutput Encrypt(Aws.Esdk.EncryptInput input);
+        Aws.Esdk.DecryptOutput Decrypt(Aws.Esdk.DecryptInput input);
     }
 }

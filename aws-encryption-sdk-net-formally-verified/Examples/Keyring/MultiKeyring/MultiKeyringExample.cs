@@ -36,8 +36,8 @@ public class MultiKeyringExample {
         {
             ConfigDefaults = ConfigurationDefaults.V1
         };
-        IAwsEncryptionSdk encryptionSdkClient = new AwsEncryptionSdkClient(config);
-
+        IAwsEncryptionSdkClient encryptionSdkClient = new AwsEncryptionSdkFactoryClient().MakeAwsEncryptionSdk(config);
+        
         // Create a KMS keyring to use as the generator
         // TODO
 

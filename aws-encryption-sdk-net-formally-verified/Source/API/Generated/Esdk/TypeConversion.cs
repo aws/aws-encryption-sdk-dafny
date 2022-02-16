@@ -8,6 +8,24 @@ namespace Aws.Esdk
 {
     internal static class TypeConversion
     {
+        public static Aws.Esdk.IAwsEncryptionSdkClient FromDafny_N3_aws__N4_esdk__S31_AwsEncryptionSdkClientReference(
+            Dafny.Aws.Esdk.IAwsEncryptionSdkClient value)
+        {
+            return new AwsEncryptionSdkClient(value);
+        }
+
+        public static Dafny.Aws.Esdk.IAwsEncryptionSdkClient
+            ToDafny_N3_aws__N4_esdk__S31_AwsEncryptionSdkClientReference(Aws.Esdk.IAwsEncryptionSdkClient value)
+        {
+            if (value is AwsEncryptionSdkClient valueWithImpl)
+            {
+                return valueWithImpl._impl;
+            }
+
+            throw new System.ArgumentException(
+                "Custom implementations of Aws.Esdk.IAwsEncryptionSdkClient are not supported yet");
+        }
+
         public static System.IO.MemoryStream FromDafny_N3_aws__N4_esdk__S13_EncryptOutput__M10_ciphertext(
             Dafny.ISequence<byte> value)
         {
@@ -687,8 +705,8 @@ namespace Aws.Esdk
                     ToDafny_N3_aws__N6_crypto__S16_CommitmentPolicy((Aws.Crypto.CommitmentPolicy)value));
         }
 
-        public static Aws.Esdk.AwsEncryptionSdkException FromDafny_CommonError_AwsEncryptionSdkException(
-            Dafny.Aws.Esdk.IAwsEncryptionSdkException value)
+        public static Aws.Esdk.AwsEncryptionSdkFactoryException FromDafny_CommonError_AwsEncryptionSdkFactoryException(
+            Dafny.Aws.Esdk.IAwsEncryptionSdkFactoryException value)
         {
             if (value is Dafny.Aws.Esdk.AwsEncryptionSdkClientException)
                 return FromDafny_N3_aws__N4_esdk__S31_AwsEncryptionSdkClientException(
@@ -696,8 +714,8 @@ namespace Aws.Esdk
             throw new System.ArgumentException("Unknown exception type");
         }
 
-        public static Dafny.Aws.Esdk.IAwsEncryptionSdkException ToDafny_CommonError_AwsEncryptionSdkException(
-            Aws.Esdk.AwsEncryptionSdkException value)
+        public static Dafny.Aws.Esdk.IAwsEncryptionSdkFactoryException
+            ToDafny_CommonError_AwsEncryptionSdkFactoryException(Aws.Esdk.AwsEncryptionSdkFactoryException value)
         {
             if (value is Aws.Esdk.AwsEncryptionSdkClientException)
                 return ToDafny_N3_aws__N4_esdk__S31_AwsEncryptionSdkClientException(
