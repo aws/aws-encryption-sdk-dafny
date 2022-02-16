@@ -1,6 +1,7 @@
 // Copyright Amazon.com Inc. or its affiliates. All Rights Reserved.
 // SPDX-License-Identifier: Apache-2.0
 
+using System;
 using System.Collections.Generic;
 using System.IO;
 using Amazon.KeyManagementService;
@@ -80,17 +81,24 @@ public class AwsKmsMrkAwareDiscoveryKeyringExample {
             MaterialsManager = decryptCmm,
         };
         DecryptOutput decryptOutput = encryptionSdkClient.Decrypt(decryptInput);
-        MemoryStream decrypted = decryptOutput.Plaintext;
 
-        // Demonstrate that the decrypted plaintext is identical to the original plaintext.
-        Assert.Equal(decrypted.ToArray(), plaintext.ToArray());
-
-        // Verify that the encryption context used in the decrypt operation includes
-        // the encryption context that you specified when encrypting.
-        // The AWS Encryption SDK can add pairs, so don't require an exact match.
+        // Before your application uses plaintext data, verify that the encryption context that
+        // you used to encrypt the message is included in the encryption context that was used to
+        // decrypt the message. The AWS Encryption SDK can add pairs, so don't require an exact match.
         //
         // In production, always use a meaningful encryption context.
-        // TODO: Add logic that checks the encryption context.
+        foreach (var (expectedKey, expectedValue) in encryptionContext)
+        {
+            if (!decryptOutput.EncryptionContext.TryGetValue(expectedKey, out var decryptedValue)
+                || !decryptedValue.Equals(expectedValue))
+            {
+                throw new Exception("Encryption context does not match expected values");
+            }
+        }
+
+        // Demonstrate that the decrypted plaintext is identical to the original plaintext.
+        MemoryStream decrypted = decryptOutput.Plaintext;
+        Assert.Equal(decrypted.ToArray(), plaintext.ToArray());
     }
 
     // We test examples to ensure they remain up-to-date.
