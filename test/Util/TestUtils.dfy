@@ -1,6 +1,7 @@
 // Copyright Amazon.com Inc. or its affiliates. All Rights Reserved.
 // SPDX-License-Identifier: Apache-2.0
 
+include "../../src/Generated/AwsCryptographicMaterialProviders.dfy"
 include "../../src/StandardLibrary/StandardLibrary.dfy"
 include "../../src/StandardLibrary/UInt.dfy"
 include "../../src/Util/UTF8.dfy"
@@ -10,6 +11,7 @@ include "../../src/SDK/Serialize/SerializableTypes.dfy"
 include "../../src/Crypto/AESEncryption.dfy"
 
 module {:extern "TestUtils"} TestUtils {
+  import Aws.Crypto
   import opened StandardLibrary
   import opened Wrappers
   import opened UInt = StandardLibrary.UInt
@@ -109,6 +111,22 @@ module {:extern "TestUtils"} TestUtils {
     }
     // ValidSmallEncryptionContext(encryptionContext);
   }
+
+  method GenerateMockEncryptedDataKey(
+    keyProviderId: string,
+    keyProviderInfo: string
+  ) returns (edk: Crypto.EncryptedDataKey)
+  {
+    var encodedkeyProviderId :- expect UTF8.Encode(keyProviderId);
+    var encodedKeyProviderInfo :- expect UTF8.Encode(keyProviderInfo);
+    var fakeCiphertext :- expect UTF8.Encode("fakeCiphertext");
+    return Crypto.EncryptedDataKey(
+      keyProviderId := encodedkeyProviderId,
+      keyProviderInfo := encodedKeyProviderInfo,
+      ciphertext := fakeCiphertext
+    );
+  }
+    
 
   // lemma ValidSmallEncryptionContext(encryptionContext: EncryptionContext.Crypto.EncryptionContext)
   //   requires |encryptionContext| <= 5
