@@ -189,7 +189,9 @@ module
     method CreateMrkAwareDiscoveryAwsKmsKeyring(input: Crypto.CreateMrkAwareDiscoveryAwsKmsKeyringInput)
       returns (res: Result<Crypto.IKeyring, Crypto.IAwsCryptographicMaterialProvidersException>)
     {
-      // TODO: validation on discovery filter
+      if input.discoveryFilter.Some? {
+        var _ :- ValidateDiscoveryFilter(input.discoveryFilter.value);
+      }
 
       //= compliance/framework/aws-kms/aws-kms-mrk-aware-symmetric-region-discovery-keyring.txt#2.6
       //= type=implication
@@ -206,7 +208,9 @@ module
     method CreateAwsKmsDiscoveryKeyring(input: Crypto.CreateAwsKmsDiscoveryKeyringInput)
       returns (res: Result<Crypto.IKeyring, Crypto.IAwsCryptographicMaterialProvidersException>)
     {
-      // TODO: validation on discovery filter
+      if input.discoveryFilter.Some? {
+        var _ :- ValidateDiscoveryFilter(input.discoveryFilter.value);
+      }
       var grantTokens :- GetValidGrantTokens(input.grantTokens);
       var keyring := new AwsKmsDiscoveryKeyring.AwsKmsDiscoveryKeyring(input.kmsClient, input.discoveryFilter, grantTokens);
       return Success(keyring);
@@ -943,5 +947,19 @@ module
     :- Crypto.Need(|name| < UINT16_LIMIT, "Key name too long");
 
     return Success((namespace, name));
+  }
+
+  method ValidateDiscoveryFilter(filter: Crypto.DiscoveryFilter)
+    returns (res: Result<(), Crypto.IAwsCryptographicMaterialProvidersException>)
+    ensures res.Success? ==>
+      && |filter.accountIds| > 0
+      && (forall accountId | accountId in filter.accountIds :: |accountId| > 0)
+      && |filter.partition| > 0
+  {
+    :- Crypto.Need(|filter.accountIds| > 0, "Discovery filter must have at least one account ID");
+    :- Crypto.Need(forall accountId | accountId in filter.accountIds :: |accountId| > 0,
+      "Discovery filter account IDs cannot be blank");
+    :- Crypto.Need(|filter.partition| > 0, "Discovery filter partition cannot be blank");
+    return Success(());
   }
 }
