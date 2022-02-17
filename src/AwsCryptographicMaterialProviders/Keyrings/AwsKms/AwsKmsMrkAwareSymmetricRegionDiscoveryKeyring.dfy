@@ -518,7 +518,7 @@ module
       //= type=implication
       //# *  If a discovery filter is configured, its set of accounts MUST
       //# contain the provider info account.
-      && discoveryFilter.value.accountIds <= [arn.account]
+      && arn.account in discoveryFilter.value.accountIds
     //= compliance/framework/aws-kms/aws-kms-mrk-aware-symmetric-region-discovery-keyring.txt#2.8
     //= type=implication
     //# *  If the provider info is not identified as a multi-Region key (aws-
@@ -533,7 +533,7 @@ module
     && match discoveryFilter {
       case Some(filter) =>
         && filter.partition == arn.partition
-        && filter.accountIds <= [arn.account]
+        && arn.account in filter.accountIds
       case None() => true
     }
     && if !IsMultiRegionAwsKmsArn(arn) then
