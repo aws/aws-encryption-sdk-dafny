@@ -33,7 +33,7 @@ public class KmsMrkAwareDiscoveryMultiKeyringExample {
         {
             ConfigDefaults = ConfigurationDefaults.V1
         };
-        IAwsEncryptionSdk encryptionSdkClient = new AwsEncryptionSdkClient(config);
+        IAwsEncryptionSdkClient encryptionSdkClient = new AwsEncryptionSdkFactoryClient().MakeAwsEncryptionSdk(config);
 
         // Create the keyring that determines how your data keys are protected. Though this example highlights
         // Discovery keyrings, Discovery keyrings cannot be used to encrypt, so we create a Strict KMS keyring
