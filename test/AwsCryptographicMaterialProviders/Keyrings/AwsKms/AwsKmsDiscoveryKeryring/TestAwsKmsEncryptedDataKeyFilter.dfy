@@ -1,15 +1,15 @@
 // Copyright Amazon.com Inc. or its affiliates. All Rights Reserved.
 // SPDX-License-Identifier: Apache-2.0
 
-include "../../../../src/AwsCryptographicMaterialProviders/Keyrings/AwsKms/AwsKmsDiscoveryKeyring.dfy"
-include "../../../../src/Generated/AwsCryptographicMaterialProviders.dfy"
-include "../../../../src/StandardLibrary/StandardLibrary.dfy"
-include "../../../../src/StandardLibrary/Actions.dfy"
-include "../../../../src/Util/UTF8.dfy"
-include "../../../Util/TestUtils.dfy"
+include "../../../../../src/AwsCryptographicMaterialProviders/Keyrings/AwsKms/AwsKmsDiscoveryKeyring.dfy"
+include "../../../../../src/Generated/AwsCryptographicMaterialProviders.dfy"
+include "../../../../../src/StandardLibrary/StandardLibrary.dfy"
+include "../../../../../src/StandardLibrary/Actions.dfy"
+include "../../../../../src/Util/UTF8.dfy"
+include "../../../../Util/TestUtils.dfy"
 
 
-module AwsKmsEncryptedDataKeyFilter {
+module TestAwsKmsEncryptedDataKeyFilter {
   import Aws.Crypto
   import MaterialProviders.AwsKmsDiscoveryKeyring
   import opened TestUtils    
