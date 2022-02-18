@@ -1,6 +1,7 @@
 // Copyright Amazon.com Inc. or its affiliates. All Rights Reserved.
 // SPDX-License-Identifier: Apache-2.0
 
+include "../../src/Generated/AwsCryptographicMaterialProviders.dfy"
 include "../../src/StandardLibrary/StandardLibrary.dfy"
 include "../../src/StandardLibrary/UInt.dfy"
 include "../../src/Util/UTF8.dfy"
@@ -10,6 +11,7 @@ include "../../src/SDK/Serialize/SerializableTypes.dfy"
 include "../../src/Crypto/AESEncryption.dfy"
 
 module {:extern "TestUtils"} TestUtils {
+  import Aws.Crypto
   import opened StandardLibrary
   import opened Wrappers
   import opened UInt = StandardLibrary.UInt
@@ -21,6 +23,10 @@ module {:extern "TestUtils"} TestUtils {
 
   const SHARED_TEST_KEY_ARN := "arn:aws:kms:us-west-2:658956600833:key/b3537ef1-d8dc-4780-9f5a-55776cbb2f7f";
 
+  const ACCOUNT_IDS := ["658956600833"];
+
+  const PARTITION := "aws";
+  
   // TODO correctly verify UTF8 validity of long sequences
   // This axiom should only be used by tests to skip UTF8 verification of long sequences
   // long to be serialized in 16 bytes, in order to avoid a false negative for from verification.
@@ -105,6 +111,22 @@ module {:extern "TestUtils"} TestUtils {
     }
     // ValidSmallEncryptionContext(encryptionContext);
   }
+
+  method GenerateMockEncryptedDataKey(
+    keyProviderId: string,
+    keyProviderInfo: string
+  ) returns (edk: Crypto.EncryptedDataKey)
+  {
+    var encodedkeyProviderId :- expect UTF8.Encode(keyProviderId);
+    var encodedKeyProviderInfo :- expect UTF8.Encode(keyProviderInfo);
+    var fakeCiphertext :- expect UTF8.Encode("fakeCiphertext");
+    return Crypto.EncryptedDataKey(
+      keyProviderId := encodedkeyProviderId,
+      keyProviderInfo := encodedKeyProviderInfo,
+      ciphertext := fakeCiphertext
+    );
+  }
+    
 
   // lemma ValidSmallEncryptionContext(encryptionContext: EncryptionContext.Crypto.EncryptionContext)
   //   requires |encryptionContext| <= 5
