@@ -51,7 +51,9 @@ import opened StandardLibrary
     //# The plaintext data key SHOULD be stored as immutable data.
     && (
       || (oldMat.plaintextDataKey.None? && newMat.plaintextDataKey.Some?)
-      || oldMat.plaintextDataKey == newMat.plaintextDataKey)
+      || oldMat.plaintextDataKey == newMat.plaintextDataKey
+    )
+    
     && newMat.plaintextDataKey.Some?
     && |newMat.encryptedDataKeys| >= |oldMat.encryptedDataKeys|
     && multiset(oldMat.encryptedDataKeys) <= multiset(newMat.encryptedDataKeys)
