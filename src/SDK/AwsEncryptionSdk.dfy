@@ -123,10 +123,17 @@ module {:extern "Dafny.Aws.Esdk.AwsEncryptionSdkClient"} AwsEncryptionSdk {
             res.Failure?
 
         {
+            //= compliance/client-apis/encrypt.txt#2.4.6
+            //# This
+            //# value MUST default to 4096 bytes.
             var frameLength : int64 := EncryptDecryptHelpers.DEFAULT_FRAME_LENGTH;
             if input.frameLength.Some? {
-                // TODO: uncomment this once we figure out why C# is passing 0 as the default value for these nullable
-                // fields
+                // TODO: uncomment once https://issues.amazon.com/issues/CrypTool-4350 fixed
+                
+                //= compliance/client-apis/encrypt.txt#2.4.6
+                //= type=TODO
+                //# This value
+                //# MUST be greater than 0 and MUST NOT exceed the value 2^32 - 1.
                 //frameLength := request.frameLength.value;
             }
             :- Need(frameLength > 0, "Requested frame length must be > 0");
@@ -147,6 +154,9 @@ module {:extern "Dafny.Aws.Esdk.AwsEncryptionSdkClient"} AwsEncryptionSdk {
 
             var cmm :- CreateCmmFromInput(input.materialsManager, input.keyring);
 
+            //= compliance/client-apis/encrypt.txt#2.4.5
+            //# The algorithm suite (../framework/algorithm-suite.md) that SHOULD be
+            //# used for encryption.
             var algorithmSuiteId := input.algorithmSuiteId;
 
             if algorithmSuiteId.Some? {
@@ -218,6 +228,11 @@ module {:extern "Dafny.Aws.Esdk.AwsEncryptionSdkClient"} AwsEncryptionSdk {
                 // TODO: This should just work, but Proof is difficult
                 :- Need(materials.signingKey.Some?, "Missing signing key.");
 
+                //= compliance/client-apis/encrypt.txt#2.6
+                //# If the encryption materials gathered (Section 2.6.1) has a
+                //# algorithm suite including a signature algorithm (../framework/
+                //# algorithm-suites.md#signature-algorithm), the encrypt operation
+                //# MUST perform this step.
                 var bytes :- Signature.Sign(ecdsaParams, materials.signingKey.value, msg);
                 :- Need(|bytes| == ecdsaParams.SignatureLength() as int, "Malformed response from Sign().");
 
@@ -233,6 +248,9 @@ module {:extern "Dafny.Aws.Esdk.AwsEncryptionSdkClient"} AwsEncryptionSdk {
                     )
                 );
             } else {
+                //= compliance/client-apis/encrypt.txt#2.6
+                //# Otherwise the encrypt operation MUST
+                //# NOT perform this step.
                 var msg :- EncryptDecryptHelpers.SerializeMessageWithoutSignature(framedMessage, suite);
                 return Success(
                     Esdk.EncryptOutput(
@@ -271,6 +289,11 @@ module {:extern "Dafny.Aws.Esdk.AwsEncryptionSdkClient"} AwsEncryptionSdk {
                 maxPlaintextLength:=Option.Some(maxPlaintextLength)
             );
 
+            //= compliance/client-apis/encrypt.txt#2.6.1
+            //# This operation MUST obtain this set of encryption
+            //# materials (../framework/structures.md#encryption-materials) by
+            //# calling Get Encryption Materials (../framework/cmm-interface.md#get-
+            //# encryption-materials) on a CMM (../framework/cmm-interface.md).
             var getEncMatResult := cmm.GetEncryptionMaterials(encMatRequest);
             var output :- match getEncMatResult {
                 case Success(value) => Success(value)
@@ -481,17 +504,28 @@ module {:extern "Dafny.Aws.Esdk.AwsEncryptionSdkClient"} AwsEncryptionSdk {
 
             ensures res.Success? ==> Header.HeaderAuth?(suite, res.value)
         {
+            //= compliance/client-apis/encrypt.txt#2.6.2
+            //# The
+            //# value of this MUST be the output of the authenticated encryption
+            //# algorithm (../framework/algorithm-suites.md#encryption-algorithm)
+            //# specified by the algorithm suite (../framework/algorithm-suites.md),
+            //# with the following inputs:
             var keyLength := suite.encrypt.keyLength as int;
             :- Need(|dataKey| == keyLength, "Incorrect data key length");
 
             var ivLength := suite.encrypt.ivLength as int;
+            // *  The IV has a value of 0.
             var iv: seq<uint8> := seq(ivLength, _ => 0);
 
             var encryptionOutput :- AESEncryption.AESEncrypt(
                 suite.encrypt,
                 iv,
+                // *  The cipherkey is the derived data key
                 dataKey,
+                // *  The plaintext is an empty byte array
                 [],
+                // *  The AAD is the serialized message header body (../data-format/
+                // message-header.md#header-body).
                 rawHeader
             );
             var headerAuth := HeaderTypes.HeaderAuth.AESMac(
@@ -540,8 +574,15 @@ module {:extern "Dafny.Aws.Esdk.AwsEncryptionSdkClient"} AwsEncryptionSdk {
                 derivedDataKeys.commitmentKey
             );
 
+            //= compliance/client-apis/encrypt.txt#2.6.2
+            //# Before encrypting input plaintext, this operation MUST serialize the
+            //# message header body (../data-format/message-header.md).
             var rawHeader := Header.WriteHeaderBody(body);
 
+            //= compliance/client-apis/encrypt.txt#2.6.2
+            //# After serializing the message header body, this operation MUST
+            //# calculate an authentication tag (../data-format/message-
+            //# header.md#authentication-tag) over the message header body.
             var headerAuth :- BuildHeaderAuthTag(suite, derivedDataKeys.dataKey, rawHeader);
 
             var header := Header.HeaderInfo(

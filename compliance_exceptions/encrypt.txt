@@ -1,0 +1,73 @@
+// No specific requirement here, too general to annotate
+//= compliance/client-apis/encrypt.txt#2.3
+//= type=exception
+//# Any client provided by the AWS Encryption SDK that performs
+//# encryption of caller plaintext MUST follow this specification for
+//# encryption.
+
+// Streaming not supported
+//= compliance/client-apis/encrypt.txt#2.4.1
+//= type=exception
+//# This input MAY be streamed (streaming.md) to this operation.
+
+// Streaming not supported
+//= compliance/client-apis/encrypt.txt#2.4.1
+//# If an implementation requires holding the input entire plaintext in
+//# memory in order to perform this operation, that implementation SHOULD
+//# NOT provide an API that allows this input to be streamed.
+
+// We are not returning parsed header until we decide how to model
+// it in Smithy
+//= compliance/client-apis/encrypt.txt#2.5
+//= type=exception
+//# The client SHOULD return as an output:
+//*  Parsed Header (Section 2.5.4)
+
+// Streaming not supported
+//= compliance/client-apis/encrypt.txt#2.5.1
+//= type=exception
+//# This operation MAY stream (streaming.md) the encrypted message.
+
+// Streaming not supported
+//= compliance/client-apis/encrypt.txt#2.5.1
+//# If an implementation requires holding the entire input plaintext in
+//# memory in order to perform this operation, that implementation SHOULD
+//# NOT provide an API that allows this output to be streamed.
+
+// No parsed headers on return for now
+//= compliance/client-apis/encrypt.txt#2.5.2
+//= type=exception
+//# This output MAY be satisfied by outputting a parsed header
+//# (Section 2.5.4) containing this value.
+
+// No parsed headers on return for now
+//= compliance/client-apis/encrypt.txt#2.5.3
+//= type=exception
+//# This output MAY be satisfied by outputting a parsed header
+//# (Section 2.5.4) containing this value.
+
+// Not specific enough to annotate code with
+//= compliance/client-apis/encrypt.txt#2.6.1
+//= type=exception
+//# To construct the encrypted message (Section 2.5.1), some fields MUST
+//# be constructed using information obtained from a set of valid
+//# encryption materials (../framework/structures.md#encryption-
+//# materials).
+
+// No specific action to take. Other annotations describe
+// what we should do in this case
+//= compliance/client-apis/encrypt.txt#2.6.1
+//= type=exception
+//# Note that the
+//# algorithm suite in the retrieved encryption materials MAY be
+//# different from the input algorithm suite (Section 2.4.5).
+
+// Streaming not supported
+//= compliance/client-apis/encrypt.txt#2.6.2
+//# If the algorithm suite contains a signature algorithm and this
+//# operation is streaming (streaming.md) the encrypted message output to
+//# the caller, this operation MUST input the serialized header to the
+//# signature algorithm as soon as it is serialized, such that the
+//# serialized header isn't required to remain in memory to construct the
+//# signature (Section 2.7.2).
+

@@ -11,14 +11,16 @@ module {:extern "Dafny.Aws.Esdk"} Aws.Esdk {
     import opened Wrappers
 
     datatype EncryptInput = EncryptInput(
+        //= compliance/client-apis/encrypt.txt#2.4.1
+        //= type=implication
+        //# This MUST be a sequence of bytes.
         nameonly plaintext: seq<uint8>,
-        nameonly encryptionContext: Crypto.EncryptionContext, // TODO Make an option?
+        nameonly encryptionContext: Crypto.EncryptionContext,
         nameonly materialsManager: Option<Crypto.ICryptographicMaterialsManager>,
         nameonly keyring: Option<Crypto.IKeyring>,
         nameonly algorithmSuiteId: Option<Crypto.AlgorithmSuiteId>,
         nameonly frameLength: Option<int64>,
         nameonly maxPlaintextLength: Option<int64>
-        // TODO reintroduce optional materialsManager and optional keyring
     )
 
     datatype EncryptOutput = EncryptOutput(
