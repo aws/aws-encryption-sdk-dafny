@@ -27,12 +27,50 @@ module {:extern "Dafny.Aws.Esdk"} Aws.Esdk {
         nameonly algorithmSuiteId: Crypto.AlgorithmSuiteId
     )
 
+    //= compliance/client-apis/decrypt.txt#2.5
+    //= type=implication
+    //# The client MUST require the following as inputs to this operation:
+    //#*  Encrypted Message (Section 2.5.1)
+
+    //= compliance/client-apis/decrypt.txt#2.5.1
+    //= type=implication
+    //# The input encrypted message MUST
+    //# be a sequence of bytes in the message format (../data-format/
+    //# message.md) specified by the AWS Encryption SDK.
+    // The above is a little silly. We do not validate that input is
+    // an ESDK message, but fail to Decrypt if it is not.
+    // TODO: Update Spec accordingly
     datatype DecryptInput = DecryptInput(
         nameonly ciphertext: seq<uint8>,
         nameonly materialsManager: Option<Crypto.ICryptographicMaterialsManager>,
         nameonly keyring: Option<Crypto.IKeyring>
     )
 
+    //= compliance/client-apis/decrypt.txt#2.6
+    //= type=implication
+    //# The client MUST return as output to this operation:
+    //#*  Section 2.6.1
+    //#*  Encryption Context (Section 2.6.2)
+    //#*  Algorithm Suite (Section 2.6.3)
+
+    //= compliance/client-apis/decrypt.txt#2.6.2
+    //= type=exception
+    //# This output MAY be satisfied by outputting a parsed header
+    //# (Section 2.6.4) containing this value.
+    // Where This is the Encryption Context. We do not return
+    // a Parsed Header, but we do return the Encryption Context
+
+    //= compliance/client-apis/decrypt.txt#2.6.3
+    //= type=exception
+    //# This output MAY be satisfied by outputting a parsed header
+    //# (Section 2.6.4) containing this value.
+    // Where This is the Algorithm Suite. We do not return
+    // a Parsed Header, but we do return the Algorithm Suite
+    
+    //= compliance/client-apis/decrypt.txt#2.6
+    //= type=TODO
+    //# The client SHOULD return as an output:
+    //#*  Parsed Header (Section 2.6.4)
     datatype DecryptOutput = DecryptOutput(
         nameonly plaintext: seq<uint8>,
         nameonly encryptionContext: Crypto.EncryptionContext,
