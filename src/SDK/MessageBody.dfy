@@ -206,6 +206,16 @@ module MessageBody {
     //# Before the end of the input is indicated, this operation MUST process
     //# as much of the consumable bytes as possible by constructing regular
     //# frames (Section 2.7.1).
+
+    //= compliance/client-apis/encrypt.txt#2.7
+    //# If an end to the input has been indicated, there are no more
+    //# consumable plaintext bytes to process, and a final frame has not yet
+    //# been constructed, this operation MUST construct an empty final frame
+    //# (Section 2.7.1).
+    // This one is true because of our while loop construction below, where we check that
+    // adding another frame puts us at < |plaintext|. This means we will never
+    // consume the entire plaintext in this while loop, and will always construct
+    // a final frame after exiting it.
     while n + header.body.frameLength as nat < |plaintext|
       invariant |plaintext| != 0 ==> 0 <= n < |plaintext|
       invariant |plaintext| == 0 ==> 0 == n

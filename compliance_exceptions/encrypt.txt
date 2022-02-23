@@ -12,6 +12,7 @@
 
 // Streaming not supported
 //= compliance/client-apis/encrypt.txt#2.4.1
+//= type=exception
 //# If an implementation requires holding the input entire plaintext in
 //# memory in order to perform this operation, that implementation SHOULD
 //# NOT provide an API that allows this input to be streamed.
@@ -30,6 +31,7 @@
 
 // Streaming not supported
 //= compliance/client-apis/encrypt.txt#2.5.1
+//= type=exception
 //# If an implementation requires holding the entire input plaintext in
 //# memory in order to perform this operation, that implementation SHOULD
 //# NOT provide an API that allows this output to be streamed.
@@ -112,4 +114,71 @@
 //= type=exception
 //# o  For a regular frame the length of this plaintext MUST equal
 //# the frame length.
+
+// Only relevant for cases where plaintext length is not known,
+// i.e. streaming, which we do not support
+//= compliance/client-apis/encrypt.txt#2.4
+//= type=exception
+//# Implementations SHOULD ensure that a caller is not able to specify
+//# both a plaintext (Section 2.4.1) with known length and a Plaintext
+//# Length Bound (Section 2.4.7) by construction.
+
+// Only relevant for cases where plaintext length is not known,
+// i.e. streaming, which we do not support
+//= compliance/client-apis/encrypt.txt#2.4
+//= type=exception
+//# If a caller is able to
+//# specify both an input plaintext (Section 2.4.1) with known length and
+//# a Plaintext Length Bound (Section 2.4.7), the Plaintext Length Bound
+//# (Section 2.4.7) MUST NOT be used during the Encrypt operation and
+//# MUST be ignored.
+
+// Only relevant for cases where plaintext length is not known,
+// i.e. streaming, which we do not support
+//= compliance/client-apis/encrypt.txt#2.4
+//= type=exception
+//# If the plaintext (Section 2.4.1) is of unknown length, the caller MAY
+//# also input a Plaintext Length Bound (Section 2.4.7).
+
+// Only relevant for cases where plaintext length is not known,
+// i.e. streaming, which we do not support
+//= compliance/client-apis/encrypt.txt#2.4.7
+//= type=exception
+//# If this input is provided, this operation MUST NOT encrypt a
+//# plaintext with length greater than this value.
+
+// Too broad to add as a single annotation
+//= compliance/client-apis/encrypt.txt#2.6
+//= type=exception
+//# This operation MUST perform all the above steps unless otherwise
+//# specified, and it MUST perform them in the above order.
+
+// Too broad to add as a single annotation
+//= compliance/client-apis/encrypt.txt#2.6
+//= type=exception
+//# If any of these steps fails, this operation MUST halt and indicate a
+//# failure to the caller.
+
+// Only relevant for cases where plaintext length is not known,
+// i.e. streaming, which we do not support
+//= compliance/client-apis/encrypt.txt#2.7
+//= type=exception
+//# If Plaintext Length Bound (Section 2.4.7) was specified on input and
+//# this operation determines at any time that the plaintext being
+//# encrypted has a length greater than this value, this operation MUST
+//# immediately fail.
+
+// No streaming; all bytes are released at once once complete
+//= compliance/client-apis/encrypt.txt#2.7.2
+//= type=exception
+//# The above serialized bytes MUST NOT be released until the entire
+//# message footer has been serialized.
+
+// No streaming; all bytes are released at once once complete
+//= compliance/client-apis/encrypt.txt#2.7.2
+//= type=exception
+//# Once the entire message footer
+//# has been serialized, this operation MUST release any previously
+//# unreleased serialized bytes from previous steps and MUST release the
+//# message footer.
 

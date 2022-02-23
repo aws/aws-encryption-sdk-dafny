@@ -10,22 +10,43 @@ module {:extern "Dafny.Aws.Esdk"} Aws.Esdk {
     import opened UInt = StandardLibrary.UInt
     import opened Wrappers
 
+    // TODO: All annotations in this file should probably eventually go on
+    // the smithy model, since that's the authority and this code will be
+    // auto-generated
+
     datatype EncryptInput = EncryptInput(
+        //= compliance/client-apis/encrypt.txt#2.4
+        //= type=implication
+        //# The following inputs to this behavior are REQUIRED:
+        //# *  Plaintext (Section 2.4.1)
+
         //= compliance/client-apis/encrypt.txt#2.4.1
         //= type=implication
         //# This MUST be a sequence of bytes.
-        // TODO: eventually this should probably go on the smithy model, since
-        // that's where we're defining it and this code will be auto-generated
         nameonly plaintext: seq<uint8>,
-        nameonly encryptionContext: Crypto.EncryptionContext, // TODO Make an option?
         nameonly materialsManager: Option<Crypto.ICryptographicMaterialsManager>,
         nameonly keyring: Option<Crypto.IKeyring>,
+
+        //= compliance/client-apis/encrypt.txt#2.4
+        //= type=TODO
+        //# The following inputs to this behavior MUST be OPTIONAL:
+        //# *  Algorithm Suite (Section 2.4.5)
+        //# *  Encryption Context (Section 2.4.2)
+        //# *  Frame Length (Section 2.4.6)
+        // Marked as TODO because EC is not optional yet
+        nameonly encryptionContext: Crypto.EncryptionContext,
         nameonly algorithmSuiteId: Option<Crypto.AlgorithmSuiteId>,
         nameonly frameLength: Option<int64>,
+
+        // TODO: remove, since streaming is not yet supported
         nameonly maxPlaintextLength: Option<int64>
     )
 
     datatype EncryptOutput = EncryptOutput(
+        //= compliance/client-apis/encrypt.txt#2.5.1
+        //# This MUST
+        //# be a sequence of bytes and conform to the message format
+        //# specification (../data-format/message.md).
         nameonly ciphertext: seq<uint8>,
         nameonly encryptionContext: Crypto.EncryptionContext,
         nameonly algorithmSuiteId: Crypto.AlgorithmSuiteId

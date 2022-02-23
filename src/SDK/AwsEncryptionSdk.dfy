@@ -164,7 +164,10 @@ module {:extern "Dafny.Aws.Esdk.AwsEncryptionSdkClient"} AwsEncryptionSdk {
                 cmm,
                 algorithmSuiteId,
                 input.encryptionContext,
-                maxPlaintextLength as int64
+                //= compliance/client-apis/encrypt.txt#2.6.1
+                //# *  Max Plaintext Length: If the input plaintext (Section 2.4.1) has
+                //# known length, this length MUST be used.
+                |input.plaintext| as int64
             );
 
             //= compliance/client-apis/encrypt.txt#2.6.1
@@ -190,6 +193,12 @@ module {:extern "Dafny.Aws.Esdk.AwsEncryptionSdkClient"} AwsEncryptionSdk {
 
             var encryptedDataKeys: SerializableTypes.ESDKEncryptedDataKeys := materials.encryptedDataKeys;
 
+            //= compliance/client-apis/encrypt.txt#2.6.1
+            //# The algorithm suite (../framework/algorithm-suites.md) used in all
+            //# aspects of this operation MUST be the algorithm suite in the
+            //# encryption materials (../framework/structures.md#encryption-
+            //# materials) returned from the Get Encryption Materials (../framework/
+            //# cmm-interface.md#get-encryption-materials) call.
             var suite := Client.SpecificationClient().GetSuite(materials.algorithmSuiteId);
             var messageId: HeaderTypes.MessageId :- GenerateMessageId(suite);
 
@@ -237,7 +246,6 @@ module {:extern "Dafny.Aws.Esdk.AwsEncryptionSdkClient"} AwsEncryptionSdk {
                 // TODO: This should just work, but Proof is difficult
                 :- Need(materials.signingKey.Some?, "Missing signing key.");
 
-
                 //= compliance/client-apis/encrypt.txt#2.7.2
                 //# To calculate a signature, this operation MUST use the signature
                 //# algorithm (../framework/algorithm-suites.md#signature-algorithm)
@@ -259,9 +267,20 @@ module {:extern "Dafny.Aws.Esdk.AwsEncryptionSdkClient"} AwsEncryptionSdk {
                 //# *  Signature (../data-format/message-footer.md#signature): MUST be
                 //# the output of the calculation above.
                 var signature := UInt16ToSeq(|bytes| as uint16) + bytes;
+
+                //= compliance/client-apis/encrypt.txt#2.7.2
+                //# The encrypted message output by this operation MUST have a message
+                //# footer equal to the message footer calculated in this step.
                 msg := msg + signature;
                 // TODO: Come back and prove this
                 // assert msg == SerializeMessageWithSignature(framedMessage, signature); // Header, frames and signature can be serialized into the stream
+
+                //= compliance/client-apis/encrypt.txt#2.5
+                //# This behavior MUST output the following if the behavior is
+                //# successful:
+                //# *  Encrypted Message (Section 2.5.1)
+                //# *  Encryption Context (Section 2.4.2)
+                //# *  Algorithm Suite (Section 2.4.5)
                 return Success(
                     Esdk.EncryptOutput(
                         ciphertext := msg,
