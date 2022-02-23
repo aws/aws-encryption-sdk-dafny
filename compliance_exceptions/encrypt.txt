@@ -64,6 +64,7 @@
 
 // Streaming not supported
 //= compliance/client-apis/encrypt.txt#2.6.2
+//= type=exception
 //# If the algorithm suite contains a signature algorithm and this
 //# operation is streaming (streaming.md) the encrypted message output to
 //# the caller, this operation MUST input the serialized header to the

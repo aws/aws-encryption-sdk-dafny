@@ -14,8 +14,10 @@ module {:extern "Dafny.Aws.Esdk"} Aws.Esdk {
         //= compliance/client-apis/encrypt.txt#2.4.1
         //= type=implication
         //# This MUST be a sequence of bytes.
+        // TODO: eventually this should probably go on the smithy model, since
+        // that's where we're defining it and this code will be auto-generated
         nameonly plaintext: seq<uint8>,
-        nameonly encryptionContext: Crypto.EncryptionContext,
+        nameonly encryptionContext: Crypto.EncryptionContext, // TODO Make an option?
         nameonly materialsManager: Option<Crypto.ICryptographicMaterialsManager>,
         nameonly keyring: Option<Crypto.IKeyring>,
         nameonly algorithmSuiteId: Option<Crypto.AlgorithmSuiteId>,
