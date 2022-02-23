@@ -1,0 +1,26 @@
+//= compliance/client-apis/decrypt.txt#2.3
+//= type=exception
+//# Any client provided by the AWS Encryption SDK that performs
+//# decryption of encrypted messages MUST follow this specification for
+//# decryption.
+// There is no spec content here.
+
+//= compliance/client-apis/decrypt.txt#2.7
+//= type=exception
+//# If the input encrypted message is being streamed (streaming.md) to
+//# this operation:
+//# *  Output MUST NOT be released until otherwise indicated.
+//# *  If all bytes have been provided and this operation is unable to
+//# complete the above steps with the consumable encrypted message
+//# bytes, this operation MUST halt and indicate a failure to the
+//# caller.
+//# *  If this operation successfully completes the above steps but there
+//# are consumable bytes which are intended to be decrypted, this
+//# operation MUST fail.
+//# *  The ESDK MUST provide a configuration option that causes the
+//# decryption operation to fail immediately after parsing the header
+//# if a signed algorithm suite is used.
+
+
+
+// 
