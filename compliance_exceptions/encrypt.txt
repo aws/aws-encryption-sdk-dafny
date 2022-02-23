@@ -71,3 +71,10 @@
 //# serialized header isn't required to remain in memory to construct the
 //# signature (Section 2.7.2).
 
+
+// Not relevant for us
+//= compliance/client-apis/encrypt.txt#2.7.2
+//= type=exception
+//# Note that the message header and message body MAY have already been
+//# input during previous steps.
+

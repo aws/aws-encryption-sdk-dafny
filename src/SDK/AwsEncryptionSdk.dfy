@@ -123,9 +123,6 @@ module {:extern "Dafny.Aws.Esdk.AwsEncryptionSdkClient"} AwsEncryptionSdk {
             res.Failure?
 
         {
-            //= compliance/client-apis/encrypt.txt#2.4.6
-            //# This
-            //# value MUST default to 4096 bytes.
             var frameLength : int64 := EncryptDecryptHelpers.DEFAULT_FRAME_LENGTH;
             if input.frameLength.Some? {
                 // TODO: uncomment once https://issues.amazon.com/issues/CrypTool-4350 fixed
@@ -140,8 +137,7 @@ module {:extern "Dafny.Aws.Esdk.AwsEncryptionSdkClient"} AwsEncryptionSdk {
 
             var maxPlaintextLength := INT64_MAX_LIMIT - 1;
             if input.maxPlaintextLength.Some? {
-                // TODO: uncomment this once we figure out why C# is passing 0 as the default value for these nullable
-                // fields
+                // TODO: uncomment once https://issues.amazon.com/issues/CrypTool-4350 fixed
                 //maxPlaintextLength := request.maxPlaintextLength.value;
             }
             :- Need(maxPlaintextLength < INT64_MAX_LIMIT, "Input plaintext size too large.");
@@ -223,19 +219,45 @@ module {:extern "Dafny.Aws.Esdk.AwsEncryptionSdkClient"} AwsEncryptionSdk {
             );
 
             if framedMessage.finalFrame.header.suite.signature.ECDSA? {
-                var msg :- EncryptDecryptHelpers.SerializeMessageWithoutSignature(framedMessage, suite);
-                var ecdsaParams := framedMessage.finalFrame.header.suite.signature.curve;
-                // TODO: This should just work, but Proof is difficult
-                :- Need(materials.signingKey.Some?, "Missing signing key.");
+                //= compliance/client-apis/encrypt.txt#2.7.2
+                //# If the algorithm suite (../framework/algorithm-suites.md) contains a
+                //# signature algorithm (../framework/algorithm-suites.md#signature-
+                //# algorithm), this operation MUST calculate a signature over the
+                //# message, and the output encrypted message (Section 2.5.1) MUST
+                //# contain a message footer (../data-format/message-footer.md).
 
                 //= compliance/client-apis/encrypt.txt#2.6
                 //# If the encryption materials gathered (Section 2.6.1) has a
                 //# algorithm suite including a signature algorithm (../framework/
                 //# algorithm-suites.md#signature-algorithm), the encrypt operation
                 //# MUST perform this step.
+
+                var msg :- EncryptDecryptHelpers.SerializeMessageWithoutSignature(framedMessage, suite);
+                var ecdsaParams := framedMessage.finalFrame.header.suite.signature.curve;
+                // TODO: This should just work, but Proof is difficult
+                :- Need(materials.signingKey.Some?, "Missing signing key.");
+
+
+                //= compliance/client-apis/encrypt.txt#2.7.2
+                //# To calculate a signature, this operation MUST use the signature
+                //# algorithm (../framework/algorithm-suites.md#signature-algorithm)
+                //# specified by the algorithm suite (../framework/algorithm-suites.md),
+                //# with the following input:
                 var bytes :- Signature.Sign(ecdsaParams, materials.signingKey.value, msg);
                 :- Need(|bytes| == ecdsaParams.SignatureLength() as int, "Malformed response from Sign().");
 
+                //= compliance/client-apis/encrypt.txt#2.7.2
+                //# This operation MUST then serialize a message footer with the
+                //# following specifics:
+
+                //= compliance/client-apis/encrypt.txt#2.7.2
+                //# *  Signature Length (../data-format/message-footer.md#signature-
+                //# length): MUST be the length of the output of the calculation
+                //# above.
+
+                //= compliance/client-apis/encrypt.txt#2.7.2
+                //# *  Signature (../data-format/message-footer.md#signature): MUST be
+                //# the output of the calculation above.
                 var signature := UInt16ToSeq(|bytes| as uint16) + bytes;
                 msg := msg + signature;
                 // TODO: Come back and prove this
@@ -472,6 +494,11 @@ module {:extern "Dafny.Aws.Esdk.AwsEncryptionSdkClient"} AwsEncryptionSdk {
         {
             var esdkAlgorithmSuiteId := SerializableTypes.GetESDKAlgorithmSuiteId(suite.id);
 
+            //= compliance/client-apis/encrypt.txt#2.8.1
+            //# Implementations of the AWS Encryption SDK MUST NOT encrypt using the
+            //# Non-Framed content type.
+            var contentType := HeaderTypes.ContentType.Framed;
+
             match suite.commitment {
                 case None => return HeaderTypes.HeaderBody.V1HeaderBody(
                     messageType := HeaderTypes.MessageType.TYPE_CUSTOMER_AED,
@@ -479,7 +506,7 @@ module {:extern "Dafny.Aws.Esdk.AwsEncryptionSdkClient"} AwsEncryptionSdk {
                     messageId := messageId,
                     encryptionContext := encryptionContext,
                     encryptedDataKeys := encryptedDataKeys,
-                    contentType := HeaderTypes.ContentType.Framed,
+                    contentType := contentType,
                     headerIvLength := suite.encrypt.ivLength as nat,
                     frameLength := frameLength
                 );
@@ -488,7 +515,7 @@ module {:extern "Dafny.Aws.Esdk.AwsEncryptionSdkClient"} AwsEncryptionSdk {
                     messageId := messageId,
                     encryptionContext := encryptionContext,
                     encryptedDataKeys := encryptedDataKeys,
-                    contentType := HeaderTypes.ContentType.Framed,
+                    contentType := contentType,
                     frameLength := frameLength,
                     suiteData := suiteData.value
                 );

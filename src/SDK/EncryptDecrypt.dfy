@@ -25,6 +25,9 @@ module {:extern "EncryptDecryptHelpers"} EncryptDecryptHelpers {
   import opened SerializeFunctions
   import HeaderAuth
 
+    //= compliance/client-apis/encrypt.txt#2.4.6
+    //# This
+    //# value MUST default to 4096 bytes.
   const DEFAULT_FRAME_LENGTH : int64 := 4096
 
   // Specification of Encrypt with signature
