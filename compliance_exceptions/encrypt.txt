@@ -29,9 +29,9 @@
 //= type=exception
 //# This operation MAY stream (streaming.md) the encrypted message.
 
-// Streaming not supported
+// For now we do require holding the entire plaintext in memory and do
+// not implement streaming
 //= compliance/client-apis/encrypt.txt#2.5.1
-//= type=exception
 //# If an implementation requires holding the entire input plaintext in
 //# memory in order to perform this operation, that implementation SHOULD
 //# NOT provide an API that allows this output to be streamed.

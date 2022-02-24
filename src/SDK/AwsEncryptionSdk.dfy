@@ -248,6 +248,12 @@ module {:extern "Dafny.Aws.Esdk.AwsEncryptionSdkClient"} AwsEncryptionSdk {
                 //# algorithm (../framework/algorithm-suites.md#signature-algorithm)
                 //# specified by the algorithm suite (../framework/algorithm-suites.md),
                 //# with the following input:
+                //#*  the signature key is the signing key (../framework/
+                //#   structures.md#signing-key) in the encryption materials
+                //#   (../framework/structures.md#encryption-materials)
+                //#*  the input to sign is the concatenation of the serialization of the
+                //#   message header (../data-format/message-header.md) and message body
+                //#   (../data-format/message-body.md)
                 var bytes :- Signature.Sign(ecdsaParams, materials.signingKey.value, msg);
                 :- Need(|bytes| == ecdsaParams.SignatureLength() as int, "Malformed response from Sign().");
 
