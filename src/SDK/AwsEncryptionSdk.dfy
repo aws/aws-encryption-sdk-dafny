@@ -564,6 +564,7 @@ module {:extern "Dafny.Aws.Esdk.AwsEncryptionSdkClient"} AwsEncryptionSdk {
         //# NOT provide an API that allows the caller to stream the encrypted
         //# message.
 
+        // This method does not allow for a stream
         //= compliance/client-apis/decrypt.txt#2.6.1
         //= type=implication
         //# If an implementation requires holding the entire encrypted message in
@@ -571,11 +572,12 @@ module {:extern "Dafny.Aws.Esdk.AwsEncryptionSdkClient"} AwsEncryptionSdk {
         //# NOT provide an API that allows the caller to stream the encrypted
         //# message.
 
-        
+        // This method does not allow for a stream
         //= compliance/client-apis/decrypt.txt#2.5.1
         //= type=exception
         //# This input MAY be streamed (streaming.md) to this operation.
 
+        // This method does not allow for a stream
         //= compliance/client-apis/decrypt.txt#2.6.1
         //= type=exception
         //# This operation MAY stream (streaming.md) the plaintext as output.
