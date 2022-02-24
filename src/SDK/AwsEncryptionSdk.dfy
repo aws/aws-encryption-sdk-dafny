@@ -164,10 +164,7 @@ module {:extern "Dafny.Aws.Esdk.AwsEncryptionSdkClient"} AwsEncryptionSdk {
                 cmm,
                 algorithmSuiteId,
                 input.encryptionContext,
-                //= compliance/client-apis/encrypt.txt#2.6.1
-                //# *  Max Plaintext Length: If the input plaintext (Section 2.4.1) has
-                //# known length, this length MUST be used.
-                |input.plaintext| as int64
+                maxPlaintextLength as int64
             );
 
             //= compliance/client-apis/encrypt.txt#2.6.1
