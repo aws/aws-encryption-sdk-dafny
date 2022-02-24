@@ -24,6 +24,7 @@ module {:extern "Dafny.Aws.Esdk"} Aws.Esdk {
         //= type=implication
         //# This MUST be a sequence of bytes.
         nameonly plaintext: seq<uint8>,
+        nameonly encryptionContext: Crypto.EncryptionContext,
         nameonly materialsManager: Option<Crypto.ICryptographicMaterialsManager>,
         nameonly keyring: Option<Crypto.IKeyring>,
 
@@ -34,7 +35,6 @@ module {:extern "Dafny.Aws.Esdk"} Aws.Esdk {
         //# *  Encryption Context (Section 2.4.2)
         //# *  Frame Length (Section 2.4.6)
         // Marked as TODO because EC is not optional yet
-        nameonly encryptionContext: Crypto.EncryptionContext,
         nameonly algorithmSuiteId: Option<Crypto.AlgorithmSuiteId>,
         nameonly frameLength: Option<int64>,
 
