@@ -557,18 +557,18 @@ module {:extern "Dafny.Aws.Esdk.AwsEncryptionSdkClient"} AwsEncryptionSdk {
             :- Need(|dataKey| == keyLength, "Incorrect data key length");
 
             var ivLength := suite.encrypt.ivLength as int;
-            // *  The IV has a value of 0.
+            //#*  The IV has a value of 0.
             var iv: seq<uint8> := seq(ivLength, _ => 0);
 
             var encryptionOutput :- AESEncryption.AESEncrypt(
                 suite.encrypt,
                 iv,
-                // *  The cipherkey is the derived data key
+                //#*  The cipherkey is the derived data key
                 dataKey,
-                // *  The plaintext is an empty byte array
+                //#*  The plaintext is an empty byte array
                 [],
-                // *  The AAD is the serialized message header body (../data-format/
-                // message-header.md#header-body).
+                //#*  The AAD is the serialized message header body (../data-format/
+                //#   message-header.md#header-body).
                 rawHeader
             );
             var headerAuth := HeaderTypes.HeaderAuth.AESMac(

@@ -26,6 +26,7 @@ module {:extern "EncryptDecryptHelpers"} EncryptDecryptHelpers {
   import HeaderAuth
 
     //= compliance/client-apis/encrypt.txt#2.4.6
+    //= type=implication
     //# This
     //# value MUST default to 4096 bytes.
   const DEFAULT_FRAME_LENGTH : int64 := 4096

@@ -26,6 +26,7 @@ module Frames {
   import opened SerializeFunctions
 
   //= compliance/client-apis/encrypt.txt#2.7.1
+  //= type=implication
   //# If this is the first frame sequentially, this
   //# value MUST be 1.
   const START_SEQUENCE_NUMBER: uint32 := 1
