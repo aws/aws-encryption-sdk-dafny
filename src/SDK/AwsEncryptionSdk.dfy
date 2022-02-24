@@ -351,7 +351,7 @@ module {:extern "Dafny.Aws.Esdk.AwsEncryptionSdkClient"} AwsEncryptionSdk {
             && res.Success?
             && inputCmm.Some?
         ==>
-          res.value == inputCmm.value
+            res.value == inputCmm.value
 
         ensures
             && inputCmm.Some?
@@ -589,29 +589,6 @@ module {:extern "Dafny.Aws.Esdk.AwsEncryptionSdkClient"} AwsEncryptionSdk {
         }
 
         // See Encrypt/EncryptInternal for an explanation of why we separate Decrypt and DecryptInternal.
-        // This method does not allow for a stream
-        //= compliance/client-apis/decrypt.txt#2.5.1
-        //= type=implication
-        //# If an implementation requires holding the entire encrypted message in
-        //# memory in order to perform this operation, that implementation SHOULD
-        //# NOT provide an API that allows the caller to stream the encrypted
-        //# message.
-
-        //= compliance/client-apis/decrypt.txt#2.6.1
-        //= type=implication
-        //# If an implementation requires holding the entire encrypted message in
-        //# memory in order to perform this operation, that implementation SHOULD
-        //# NOT provide an API that allows the caller to stream the encrypted
-        //# message.
-
-        
-        //= compliance/client-apis/decrypt.txt#2.5.1
-        //= type=exception
-        //# This input MAY be streamed (streaming.md) to this operation.
-
-        //= compliance/client-apis/decrypt.txt#2.6.1
-        //= type=exception
-        //# This operation MAY stream (streaming.md) the plaintext as output.
         method Decrypt(input: Esdk.DecryptInput) returns (res: Result<Esdk.DecryptOutput, Esdk.IAwsEncryptionSdkException>)
         {
             var decryptResult := DecryptInternal(input);
@@ -621,17 +598,6 @@ module {:extern "Dafny.Aws.Esdk.AwsEncryptionSdkClient"} AwsEncryptionSdk {
 
         method DecryptInternal(input: Esdk.DecryptInput)
             returns (res: Result<Esdk.DecryptOutput, string>)
-
-        //= compliance/client-apis/decrypt.txt#2.7
-        //= type=TODO
-        //# This operation MUST perform all the above steps unless otherwise
-        //# specified, and it MUST perform them in the above order.
-
-        //= compliance/client-apis/client.txt#2.5.2
-        //= type=implication
-        //# The AWS Encryption SDK Client MUST provide an decrypt
-        //# (./decrypt.md#input) function that will honor the client's configured
-        //# commitment policy (Section 2.4.1).
 
         //= compliance/client-apis/decrypt.txt#2.7.2
         //= type=implication
@@ -667,38 +633,11 @@ module {:extern "Dafny.Aws.Esdk.AwsEncryptionSdkClient"} AwsEncryptionSdk {
             && var ec := EncryptionContext.GetEncryptionContext(headerBody.value.data.encryptionContext);
             && res.value.encryptionContext == ec
 
-
-        //= compliance/client-apis/decrypt.txt#2.4.2
-        //= type=implication
-        //# This operation MUST NOT release any unauthenticated plaintext or
-        //# unauthenticated associated data.
-        ensures
-        (
-            && var buffer := SerializeFunctions.ReadableBuffer(input.ciphertext, 0);
-            && var headerBody := Header.ReadHeaderBody(buffer, this.maxEncryptedDataKeys);
-            && headerBody.Success?
-            && var algorithmSuiteId := SerializableTypes.GetAlgorithmSuiteId(headerBody.value.data.esdkSuiteId);
-            && var suite := Client.SpecificationClient().GetSuite(algorithmSuiteId);
-            && var headerAuth := HeaderAuth.ReadHeaderAuthTag(headerBody.value.tail, suite);
-            && headerAuth.Failure?
-        )
-        ==>
-          res.Failure?
-
-        //= compliance/client-apis/decrypt.txt#2.5
-        //= type=implication
-        //# The client MUST require exactly one of the following types of inputs:
-        //#*  Cryptographic Materials Manager (CMM) (../framework/cmm-
-        //#   interface.md)
-        //#*  Keyring (../framework/keyring-interface.md)
-        ensures
-        (
-          || (input.materialsManager.Some? && input.keyring.Some?)
-          || (input.materialsManager.None? && input.keyring.None?)
-        )
-        ==>  
-          res.Failure?
-
+        //= compliance/client-apis/client.txt#2.5.2
+        //= type=TODO
+        //# The AWS Encryption SDK Client MUST provide an decrypt
+        //# (./decrypt.md#input) function that will honor the client's configured
+        //# commitment policy (Section 2.4.1).
         {
             // TODO: Change to '> 0' once CrypTool-4350 complete
             // TODO: Remove entirely once we can validate this value on client creation
@@ -709,15 +648,6 @@ module {:extern "Dafny.Aws.Esdk.AwsEncryptionSdkClient"} AwsEncryptionSdk {
             var cmm :- CreateCmmFromInput(input.materialsManager, input.keyring);
 
             var buffer := SerializeFunctions.ReadableBuffer(input.ciphertext, 0);
-
-            //= compliance/client-apis/decrypt.txt#2.5.1.1
-            //= type=TODO
-            //# To make diagnosing this mistake easier, implementations SHOULD detect
-            //# the first two bytes of the Base64 encoding of any supported message
-            //# versions (../data-format/message-header.md#version-1) and types
-            //# (../data-format/message-header.md#type) and fail with a more specific
-            //# error message.
-
             var headerBody :- Header
                 .ReadHeaderBody(buffer, this.maxEncryptedDataKeys)
                 .MapFailure(EncryptDecryptHelpers.MapSerializeFailure(": ReadHeaderBody"));
@@ -729,24 +659,12 @@ module {:extern "Dafny.Aws.Esdk.AwsEncryptionSdkClient"} AwsEncryptionSdk {
                 algorithmSuiteId, this.commitmentPolicy
             );
 
-            //= compliance/client-apis/decrypt.txt#2.5.2
-            //# This CMM MUST obtain the decryption materials (../framework/
-            //# structures.md#decryption-materials) required for decryption.
-
-            //= compliance/client-apis/decrypt.txt#2.5.3
-            //# This default CMM MUST obtain the decryption materials required for
-            //# decryption.
-            // TODO :: Consider removing "Default CMM MUST obtain" from spec.
-            // It is redundent and hard to prove.
             var decMat :- GetDecryptionMaterials(cmm, algorithmSuiteId, headerBody.data);
 
             var suite := Client
                 .SpecificationClient()
                 .GetSuite(decMat.algorithmSuiteId);
 
-            //= compliance/client-apis/decrypt.txt#2.4.2
-            //# This operation MUST NOT release any unauthenticated plaintext or
-            //# unauthenticated associated data.
             var headerAuth :- HeaderAuth
                 .ReadHeaderAuthTag(headerBody.tail, suite)
                 .MapFailure(EncryptDecryptHelpers.MapSerializeFailure(": ReadHeaderAuthTag"));
@@ -828,10 +746,6 @@ module {:extern "Dafny.Aws.Esdk.AwsEncryptionSdkClient"} AwsEncryptionSdk {
 
             :- Need(signature.start == |signature.bytes|, "Data after message footer.");
 
-            //= compliance/client-apis/decrypt.txt#2.7
-            //# If the input encrypted message is not being streamed (streaming.md)
-            //# to this operation, all output MUST NOT be released until after these
-            //# steps complete successfully.
             return Success(
                 Esdk.DecryptOutput(
                     plaintext := plaintext,

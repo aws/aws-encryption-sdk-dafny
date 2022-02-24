@@ -81,17 +81,10 @@ module {:extern "EncryptDecryptHelpers"} EncryptDecryptHelpers {
 
     // DecryptionMaterialsWithPlaintextDataKey ensures that the materials and the suite match.
     // If there is no verification key, that lets us conclude that the suite does not have a signature.
-    //= compliance/client-apis/decrypt.txt#2.7
-    //# Otherwise this operation MUST NOT perform this
-    //# step.
     if decMat.verificationKey.None? {
       return Success(buffer);
     }
 
-    //= compliance/client-apis/decrypt.txt#2.7
-    //# ./framework/algorithm-
-    //# suites.md#signature-algorithm), this operation MUST perform
-    //# this step.
     var signature :- SerializeFunctions
       .ReadShortLengthSeq(buffer)
       .MapFailure(MapSerializeFailure(": ReadShortLengthSeq"));
