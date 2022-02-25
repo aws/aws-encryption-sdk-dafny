@@ -254,16 +254,15 @@ module
       ==>
         && Materials.ValidDecryptionMaterials(res.value)
         && res.value.algorithmSuiteId == suite.id
+        && (suite.signature.None? <==> Materials.EC_PUBLIC_KEY_FIELD !in encryptionContext)
         //= compliance/framework/structures.txt#2.3.4.2.2
         //= type=implication
         //# The mapped value
         //# from the reserved key "aws-crypto-public-key" SHOULD be the signature
         //# verification key stored on the decryption materials (Section 2.3.4).
-        && var verificationKey := if (
-          && !suite.signature.None?
-          && Materials.EC_PUBLIC_KEY_FIELD in encryptionContext
-          && DecodeVerificationKey(encryptionContext[Materials.EC_PUBLIC_KEY_FIELD]).Success?
-        ) then Some(DecodeVerificationKey(encryptionContext[Materials.EC_PUBLIC_KEY_FIELD])) else None;
+        && var verificationKey := if suite.signature.None?
+          then None
+          else Some(DecodeVerificationKey(encryptionContext[Materials.EC_PUBLIC_KEY_FIELD]));
         && (
           verificationKey.Some? && verificationKey.value.Success?
         ==>
