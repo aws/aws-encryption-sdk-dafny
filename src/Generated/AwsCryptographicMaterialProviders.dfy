@@ -128,6 +128,14 @@ module {:extern "Dafny.Aws.Crypto"} Aws.Crypto {
 
     type EncryptedDataKeyList = seq<EncryptedDataKey>
 
+    //= compliance/framework/structures.txt#2.3.3.2
+    //= type=implication
+    //# This structure MAY include
+    //# any of the following fields:
+    //
+    //= compliance/framework/structures.txt#2.3.3.2.4
+    //= type=implication
+    //# The plaintext data key SHOULD be stored as immutable data.
     datatype EncryptionMaterials = EncryptionMaterials(nameonly algorithmSuiteId: AlgorithmSuiteId, // TODO update to algorithmSuite or update Smithy model (and elsewhere)
                                                        nameonly encryptionContext: EncryptionContext, // TODO should EC be an Option? (and elsewhere)
                                                        nameonly encryptedDataKeys: EncryptedDataKeyList, // TODO should this be an Option? (and elsewhere)
@@ -139,6 +147,14 @@ module {:extern "Dafny.Aws.Crypto"} Aws.Crypto {
         }
     }
 
+    //= compliance/framework/structures.txt#2.3.4.2
+    //= type=implication
+    //# This structure MAY include
+    //# any of the following fields:
+    //
+    //= compliance/framework/structures.txt#2.3.4.2.3
+    //= type=implication
+    //# The plaintext data key SHOULD be stored as immutable data.
     datatype DecryptionMaterials = DecryptionMaterials(nameonly algorithmSuiteId: AlgorithmSuiteId,
                                                        nameonly encryptionContext: EncryptionContext,
                                                        nameonly plaintextDataKey: Option<seq<uint8>>,

@@ -25,6 +25,10 @@ module {:extern "EncryptDecryptHelpers"} EncryptDecryptHelpers {
   import opened SerializeFunctions
   import HeaderAuth
 
+    //= compliance/client-apis/encrypt.txt#2.4.6
+    //= type=implication
+    //# This
+    //# value MUST default to 4096 bytes.
   const DEFAULT_FRAME_LENGTH : int64 := 4096
 
   // Specification of Encrypt with signature
@@ -56,6 +60,9 @@ module {:extern "EncryptDecryptHelpers"} EncryptDecryptHelpers {
     // The header
     var headerAuth :- HeaderAuth.WriteHeaderAuthTag(framedMessage.finalFrame.header.headerAuth, suite);
     Success(
+      //= compliance/client-apis/encrypt.txt#2.6.2
+      //# The encrypted message output by this operation MUST have a message
+      //# header equal to the message header calculated in this step.
       framedMessage.finalFrame.header.rawHeader
       // The header authentication
       + headerAuth

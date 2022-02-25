@@ -202,6 +202,20 @@ module MessageBody {
     var n : int, sequenceNumber := 0, START_SEQUENCE_NUMBER;
     var regularFrames: MessageRegularFrames := [];
 
+    //= compliance/client-apis/encrypt.txt#2.7
+    //# Before the end of the input is indicated, this operation MUST process
+    //# as much of the consumable bytes as possible by constructing regular
+    //# frames (Section 2.7.1).
+
+    //= compliance/client-apis/encrypt.txt#2.7
+    //# If an end to the input has been indicated, there are no more
+    //# consumable plaintext bytes to process, and a final frame has not yet
+    //# been constructed, this operation MUST construct an empty final frame
+    //# (Section 2.7.1).
+    // This one is true because of our while loop construction below, where we check that
+    // adding another frame puts us at < |plaintext|. This means we will never
+    // consume the entire plaintext in this while loop, and will always construct
+    // a final frame after exiting it.
     while n + header.body.frameLength as nat < |plaintext|
       invariant |plaintext| != 0 ==> 0 <= n < |plaintext|
       invariant |plaintext| == 0 ==> 0 == n
@@ -215,6 +229,13 @@ module MessageBody {
     {
       :- Need(sequenceNumber < ENDFRAME_SEQUENCE_NUMBER, "too many frames");
       var plaintextFrame := plaintext[n..n + header.body.frameLength as nat];
+
+      //= compliance/client-apis/encrypt.txt#2.7
+      //# *  If there are enough input plaintext bytes consumable to create a
+      //# new regular frame, such that creating a regular frame does not
+      //# processes all consumable bytes, then this operation MUST construct
+      //# a regular frame (Section 2.7.1) using the consumable plaintext
+      //# bytes.
       var regularFrame :- EncryptRegularFrame(
         key,
         header,
@@ -226,9 +247,26 @@ module MessageBody {
       LemmaAddingNextRegularFrame(regularFrames, regularFrame);
 
       regularFrames := regularFrames + [regularFrame];
-      n, sequenceNumber := n + header.body.frameLength as nat, sequenceNumber + 1;
+
+      n := n + header.body.frameLength as nat;
+
+      //= compliance/client-apis/encrypt.txt#2.7.1
+      //# Otherwise, this value MUST be 1 greater than
+      //# the value of the sequence number of the previous frame.
+      sequenceNumber := sequenceNumber + 1;
     }
 
+    //= compliance/client-apis/encrypt.txt#2.7
+    //# *  If there are not enough input consumable plaintext bytes to create
+    //# a new regular frame, then this operation MUST construct a final
+    //# frame (Section 2.7.1)
+
+    //= compliance/client-apis/encrypt.txt#2.7
+    //# *  If there are exactly enough consumable plaintext bytes to create
+    //# one regular frame, such that creating a regular frame processes
+    //# all consumable bytes, then this operation MUST construct either a
+    //# final frame or regular frame (Section 2.7.1) with the remaining
+    //# plaintext.
     var finalFrame :- EncryptFinalFrame(
       key,
       header,
@@ -255,6 +293,11 @@ module MessageBody {
     requires 0 < header.body.frameLength as nat < UINT32_LIMIT && START_SEQUENCE_NUMBER <= sequenceNumber < ENDFRAME_SEQUENCE_NUMBER
     requires header.body.contentType.Framed?
     requires |plaintext| < UINT32_LIMIT
+
+    //= compliance/client-apis/encrypt.txt#2.7.1
+    //= type=implication
+    //# -  For a regular frame the length of this plaintext subsequence
+    //# MUST equal the frame length.
     requires |plaintext| == header.body.frameLength as nat && sequenceNumber != ENDFRAME_SEQUENCE_NUMBER
     ensures match res
       case Failure(e) => true
@@ -264,13 +307,30 @@ module MessageBody {
         && frame.seqNum == sequenceNumber
         && frame.header == header
   {
+    //= compliance/client-apis/encrypt.txt#2.7.1
+    //# To construct a regular or final frame that represents the next frame
+    //# in the encrypted message's body, this operation MUST calculate the
+    //# encrypted content and an authentication tag using the authenticated
+    //# encryption algorithm (../framework/algorithm-suites.md#encryption-
+    //# algorithm) specified by the algorithm suite (../framework/algorithm-
+    //# suites.md), with the following inputs:
     var seqNumSeq := UInt32ToSeq(sequenceNumber);
     var unauthenticatedFrame := seqNumSeq;
     var iv := IVSeq(header.suite, sequenceNumber);
+
+    // *  The AAD is the serialized message body AAD (../data-format/
+    //    message-body-aad.md), constructed as follows:
     var aad := BodyAAD(
+      // -  The message ID (../data-format/message-body-aad.md#message-id)
+      //    is the same as the message ID (../data-frame/message-
+      //    header.md#message-id) serialized in the header of this message.
       header.body.messageId,
       AADRegularFrame,
       sequenceNumber,
+      //= compliance/client-apis/encrypt.txt#2.7.1
+      //# -  The content length (../data-format/message-body-aad.md#content-
+      //# length) MUST have a value equal to the length of the plaintext
+      //# being encrypted.
       |plaintext| as uint64
     );
 
@@ -282,11 +342,27 @@ module MessageBody {
       aad
     );
 
+    //= compliance/client-apis/encrypt.txt#2.7.1
+    //# This operation MUST serialize a regular frame or final frame with the
+    //# following specifics:
     var frame: Frames.RegularFrame := Frames.Frame.RegularFrame(
       header,
+      //= compliance/client-apis/encrypt.txt#2.7.1
+      //# *  Sequence Number (../data-format/message-body.md#sequence-number):
+      //# MUST be the sequence number of this frame, as determined above.
       sequenceNumber,
+      //= compliance/client-apis/encrypt.txt#2.7.1
+      //# *  IV (../data-format/message-body.md#iv): MUST be the IV used when
+      //# calculating the encrypted content above
       iv,
+      //= compliance/client-apis/encrypt.txt#2.7.1
+      //# *  Encrypted Content (../data-format/message-body.md#encrypted-
+      //# content): MUST be the encrypted content calculated above.
       encryptionOutput.cipherText,
+      //= compliance/client-apis/encrypt.txt#2.7.1
+      //# *  Authentication Tag (../data-format/message-body.md#authentication-
+      //# tag): MUST be the authentication tag output when calculating the
+      //# encrypted content above.
       encryptionOutput.authTag
     );
 
@@ -304,6 +380,11 @@ module MessageBody {
     requires START_SEQUENCE_NUMBER <= sequenceNumber <= ENDFRAME_SEQUENCE_NUMBER
     requires 0 <= |plaintext| < UINT32_LIMIT
     requires header.body.contentType.Framed?
+    //= compliance/client-apis/encrypt.txt#2.7.1
+    //= type=implication
+    //# -  For a final frame this MUST be the remaining plaintext bytes
+    //# which have not yet been encrypted, whose length MUST be equal
+    //# to or less than the frame length.
     requires |plaintext| <= header.body.frameLength as nat
     ensures match res
       case Failure(e) => true
@@ -320,6 +401,10 @@ module MessageBody {
       header.body.messageId,
       AADFinalFrame,
       sequenceNumber,
+      //= compliance/client-apis/encrypt.txt#2.7.1
+      //# o  For a final frame this MUST be the length of the remaining
+      //# plaintext bytes which have not yet been encrypted, whose
+      //# length MUST be equal to or less than the frame length.
       |plaintext| as uint64
     );
 

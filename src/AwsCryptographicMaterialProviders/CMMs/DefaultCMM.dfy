@@ -205,6 +205,12 @@ module
       && Materials.ValidEncryptionMaterials(res.value)
       && res.value.algorithmSuiteId == suite.id
       && (!suite.signature.None? <==> Materials.EC_PUBLIC_KEY_FIELD in res.value.encryptionContext)
+      //= compliance/framework/structures.txt#2.3.3.2.5
+      //= type=implication
+      //# If the
+      //# algorithm suite does not contain a signing algorithm, the signing key
+      //# MUST NOT be present.
+      && (suite.signature.None? <==> res.value.signingKey.None?)
   {
     match suite.signature
       case None =>
@@ -219,6 +225,13 @@ module
         return Success(mat);
       case ECDSA(curve) =>
         var signatureKeys :- Signature.KeyGen(curve);
+        //= compliance/framework/structures.txt#2.3.3.2.3
+        //= type=implication
+        //# The mapped value
+        //# from the reserved key "aws-crypto-public-key" SHOULD be the signature
+        //# verification key corresponding to the signing key (Section 2.3.3.2.5)
+        //# stored on the encryption material (Section 2.3.3).
+        assert Signature.IsValidSignatureKeyPair(signatureKeys);
         var enc_vk :- UTF8.Encode(Base64.Encode(signatureKeys.verificationKey));
         var mat := Crypto.EncryptionMaterials(
           encryptionContext := encryptionContext[Materials.EC_PUBLIC_KEY_FIELD := enc_vk],
@@ -241,6 +254,20 @@ module
       ==>
         && Materials.ValidDecryptionMaterials(res.value)
         && res.value.algorithmSuiteId == suite.id
+        && (suite.signature.None? <==> Materials.EC_PUBLIC_KEY_FIELD !in encryptionContext)
+        //= compliance/framework/structures.txt#2.3.4.2.2
+        //= type=implication
+        //# The mapped value
+        //# from the reserved key "aws-crypto-public-key" SHOULD be the signature
+        //# verification key stored on the decryption materials (Section 2.3.4).
+        && var verificationKey := if suite.signature.None?
+          then None
+          else Some(DecodeVerificationKey(encryptionContext[Materials.EC_PUBLIC_KEY_FIELD]));
+        && (
+          verificationKey.Some? && verificationKey.value.Success?
+        ==>
+          res.value.verificationKey == Some(verificationKey.value.value)
+        )
       ensures
         (suite.signature.None? <==> Materials.EC_PUBLIC_KEY_FIELD in encryptionContext)
       ==>
@@ -263,16 +290,22 @@ module
           :- Need(
             Materials.EC_PUBLIC_KEY_FIELD in encryptionContext,
             "Encryption Context missing verification key.");
-          var encodedVerificationKey := encryptionContext[Materials.EC_PUBLIC_KEY_FIELD];
-          var decodedUtf8VerificationKey :- UTF8.Decode(encodedVerificationKey);
-          var base64DecodedVerificationKey :- Base64.Decode(decodedUtf8VerificationKey);
+          var verificationKey :- DecodeVerificationKey(encryptionContext[Materials.EC_PUBLIC_KEY_FIELD]);
           var mat := Crypto.DecryptionMaterials(
             encryptionContext := encryptionContext,
             algorithmSuiteId := suite.id,
             plaintextDataKey := None(),
-            verificationKey := Some(base64DecodedVerificationKey)
+            verificationKey := Some(verificationKey)
           );
           AlgorithmSuites.LemmaAlgorithmSuiteIdImpliesEquality(mat.algorithmSuiteId, suite);
           return Success(mat);
+    }
+
+    function method DecodeVerificationKey(utf8Key: UTF8.ValidUTF8Bytes):
+      (res: Result<seq<uint8>, string>)
+    {
+      var base64Key :- UTF8.Decode(utf8Key);
+      var key :- Base64.Decode(base64Key);
+      Success(key)
     }
 }

@@ -1,0 +1,84 @@
+// Not useful as a general specification.
+//= compliance/framework/structures.txt#2.3
+//= type=exception
+//# These
+//# structures define a group of related fields that MUST hold certain
+//# properties.
+
+// Not useful as a general specification.
+//= compliance/framework/structures.txt#2.3
+//= type=exception
+//# Wherever these structures are referenced in this
+//# specification, implementations MUST ensure that all properties of a
+//# structure's fields are upheld.
+
+// Not useful as a specification.
+//= compliance/framework/structures.txt#2.3
+//= type=exception
+//# While these structures will usually be represented as
+//# objects, lower level languages MAY represent these fields in a less
+//# strictly defined way as long as all field properties are still
+//# upheld.
+
+// Not applicable.
+//= compliance/framework/structures.txt#2.3.1.2
+//= type=exception
+//# This specification uses the terms "encrypt" and "decrypt" for
+//# simplicity, but the actual process by which a key provider obtains
+//# the plaintext data key from the ciphertext and vice versa MAY be any
+//# reversible operation, though we expect that most will use encryption.
+
+// Superseded by individual keyrings' specifications.
+//= compliance/framework/structures.txt#2.3.1.2.3
+//= type=exception
+//# Some key provider MUST be capable of deterministically obtaining the
+//# plaintext key from the ciphertext.
+
+// Not a specification of library behavior.
+//= compliance/framework/structures.txt#2.3.2.2
+//= type=exception
+//# Users SHOULD use the encryption context to store:
+
+// Not a specification of library behavior.
+//= compliance/framework/structures.txt#2.3.2.2
+//= type=exception
+//# *  Non-secret data that MUST remain associated with the message
+//# (../data-format/message.md) ciphertext.
+
+// Not a specification of library behavior.
+//= compliance/framework/structures.txt#2.3.2.2
+//= type=exception
+//# Users MUST NOT use the encryption context to store secret data.
+
+// Superseded by individual keyrings' specifications.
+//= compliance/framework/structures.txt#2.3.3.2.2
+//= type=exception
+//# The Section 2.3.1.2.3 of each encrypted data key in this list MUST be
+//# an opaque form of the plaintext data key from this set of encryption
+//# materials.
+
+// Not applicable.
+//= compliance/framework/structures.txt#2.3.3.2.4
+//= type=exception
+//# The plaintext data key SHOULD offer an interface to zero the
+//# plaintext data key.
+
+// Not useful as a specification.
+//= compliance/framework/structures.txt#2.3.3.2.5
+//= type=exception
+//# The value of this key MUST be kept secret.
+
+// Not applicable.
+//= compliance/framework/structures.txt#2.3.4.2.3
+//= type=exception
+//# The plaintext data key SHOULD offer an interface to zero the
+//# plaintext data key.
+
+// Implemented externally, tested via test vectors.
+//= compliance/framework/structures.txt#2.3.4.2.4
+//= type=exception
+//# The verification key MUST fit the specification for the signature
+//# algorithm (algorithm-suites.md#signature-algorithm) included in this
+//# decryption material's algorithm suite (Section 2.3.4.2.1).
+
+// For some reason Duvet doesn't see the last citation in the file unless I put something here.
