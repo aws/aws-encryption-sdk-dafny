@@ -47,6 +47,8 @@ module {:extern "KeyDerivation"} KeyDerivation {
     ensures res.Success? ==> |res.value.dataKey| == suite.encrypt.keyLength as int
     ensures res.Success? ==> IsDerivedKey(res.value.dataKey)
     ensures res.Success? ==> res.value.commitmentKey.None?
+    ensures res.Success? ==> suite.kdf.IDENTITY? || suite.kdf.HKDF?
+    ensures suite.kdf.None? ==> res.Failure?
   {
     //= compliance/client-apis/decrypt.txt#2.7.2
     //# The algorithm suite used to derive a data key from the
@@ -54,27 +56,27 @@ module {:extern "KeyDerivation"} KeyDerivation {
     //# (../framework/algorithm-suites.md#key-derivation-algorithm) included
     //# in the algorithm suite (../framework/algorithm-suites.md) associated
     //# with the returned decryption materials.
-    if suite.kdf.IDENTITY? {
-      assert IsDerivedKey(plaintextDataKey) by {
-        reveal IsDerivedKey();
+    match suite.kdf {
+      case IDENTITY => {
+        assert IsDerivedKey(plaintextDataKey) by {
+          reveal IsDerivedKey();
+        }
+        return Success(ExpandedKeyMaterial(dataKey:=plaintextDataKey, commitmentKey:=None()));
       }
-      return Success(ExpandedKeyMaterial(dataKey:=plaintextDataKey, commitmentKey:=None()));
+      case HKDF(hmac, saltLength, inputKeyLength, outputKeyLength) => { 
+        var algorithmSuiteID := SerializableTypes.GetESDKAlgorithmSuiteId(suite.id);
+        var infoSeq := UInt16ToSeq(algorithmSuiteID as uint16) + messageId;
+        var len := suite.kdf.inputKeyLength as int;
+        var derivedKey := HKDF.Hkdf(suite.kdf.hmac, None, plaintextDataKey, infoSeq, len);
+        assert IsDerivedKey(derivedKey) by {
+          reveal IsDerivedKey();
+        }
+        return Success(ExpandedKeyMaterial(dataKey:=derivedKey, commitmentKey:=None()));
+      }
+      case None => {
+        return Failure("None is not a valid Key Derivation Function");
+      }
     }
-
-    var algorithmSuiteID := SerializableTypes.GetESDKAlgorithmSuiteId(suite.id);
-    var infoSeq := UInt16ToSeq(algorithmSuiteID as uint16) + messageId;
-    var len := suite.kdf.inputKeyLength as int;
-    //= compliance/client-apis/decrypt.txt#2.7.2
-    //# The algorithm suite used to derive a data key from the
-    //# plaintext data key MUST be the key derivation algorithm
-    //# (../framework/algorithm-suites.md#key-derivation-algorithm) included
-    //# in the algorithm suite (../framework/algorithm-suites.md) associated
-    //# with the returned decryption materials.
-    var derivedKey := HKDF.Hkdf(suite.kdf.hmac, None, plaintextDataKey, infoSeq, len);
-    assert IsDerivedKey(derivedKey) by {
-      reveal IsDerivedKey();
-    }
-    return Success(ExpandedKeyMaterial(dataKey:=derivedKey, commitmentKey:=None()));
   }
 
   predicate {:opaque} IsDerivedKey(derivedDataKey: seq<uint8>)
@@ -97,6 +99,16 @@ module {:extern "KeyDerivation"} KeyDerivation {
     requires suite.messageVersion == 2
     requires suite.commitment.HKDF?
 
+    // For v2 algorithms, KDF can only be HKDF
+    //= compliance/client-apis/decrypt.txt#2.7.2
+    //= type=implication
+    //# The algorithm suite used to derive a data key from the
+    //# plaintext data key MUST be the key derivation algorithm
+    //# (../framework/algorithm-suites.md#key-derivation-algorithm) included
+    //# in the algorithm suite (../framework/algorithm-suites.md) associated
+    //# with the returned decryption materials.
+    requires suite.kdf.HKDF?
+    
     requires |messageId| != 0
     requires |plaintextKey| == suite.encrypt.keyLength as int
     // TODO: seems like the below pre-condition should follow from the above
@@ -137,12 +149,6 @@ module {:extern "KeyDerivation"} KeyDerivation {
     // calls. This likely requires some fixing of pre-/post-conditions on the HKDF methods
     var hmac_ke := new HMAC.HMac(digest);
     hmac_ke.Init(messageId);
-    //= compliance/client-apis/decrypt.txt#2.7.2
-    //# The algorithm suite used to derive a data key from the
-    //# plaintext data key MUST be the key derivation algorithm
-    //# (../framework/algorithm-suites.md#key-derivation-algorithm) included
-    //# in the algorithm suite (../framework/algorithm-suites.md) associated
-    //# with the returned decryption materials.
     var Ke, _ := HKDF.Expand(hmac_ke, pseudoRandomKey, info, suite.encrypt.keyLength as int, digest, messageId);
 
     var hmac_kc := new HMAC.HMac(digest);
