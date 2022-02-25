@@ -45,19 +45,65 @@ module V1HeaderBody {
     var suiteId := GetAlgorithmSuiteId(body.esdkSuiteId);
     var suite := Client.SpecificationClient().GetSuite(suiteId);
 
+    //= compliance/client-apis/encrypt.txt#2.6.2
+    //# If the message format version associated with the algorithm suite
+    //# (../framework/algorithm-suites.md#supported-algorithm-suites) is 1.0
+    //# then the message header body (../data-format/message-
+    //# header.md#header-body-version-1-0) MUST be serialized with the
+    //# following specifics:
+
     // Dafny has trouble
     // with associativity of concatenation
     // (knowing that (a + b) + c == a + (b + c) ).
     // So manually adding the () helps make it clear.
-      WriteMessageFormatVersion(HeaderTypes.MessageFormatVersion.V1)
+
+    //= compliance/client-apis/encrypt.txt#2.6.2
+    //# *  Version (../data-format/message-header.md#version-1): MUST have a
+    //# value corresponding to 1.0 (../data-format/message-
+    //# header.md#supported-versions)
+    WriteMessageFormatVersion(HeaderTypes.MessageFormatVersion.V1)
+    //= compliance/client-apis/encrypt.txt#2.6.2
+    //# *  Type (../data-format/message-header.md#type): MUST have a value
+    //# corresponding to Customer Authenticated Encrypted Data (../data-
+    //# format/message-header.md#supported-types)
     + (WriteV1MessageType(body.messageType)
+    //= compliance/client-apis/encrypt.txt#2.6.2
+    //# *  Algorithm Suite ID (../data-format/message-header.md#algorithm-
+    //# suite-id): MUST correspond to the algorithm suite (../framework/
+    //# algorithm-suites.md) used in this behavior
     + (WriteESDKSuiteId(body.esdkSuiteId)
+    //= compliance/client-apis/encrypt.txt#2.6.2
+    //# *  Message ID (../data-format/message-header.md#message-id): The
+    //# process used to generate this identifier MUST use a good source of
+    //# randomness to make the chance of duplicate identifiers negligible.
     + (WriteMessageId(body.messageId)
+    //= compliance/client-apis/encrypt.txt#2.6.2
+    //# *  AAD (../data-format/message-header.md#aad): MUST be the
+    //# serialization of the encryption context (../framework/
+    //# structures.md#encryption-context) in the encryption materials
+    //# (../framework/structures.md#encryption-materials)
     + (WriteAADSection(body.encryptionContext)
+    //= compliance/client-apis/encrypt.txt#2.6.2
+    //# *  Encrypted Data Keys (../data-format/message-header.md#encrypted-
+    //# data-key-entries): MUST be the serialization of the encrypted data
+    //# keys (../framework/structures.md#encrypted-data-keys) in the
+    //# encryption materials (../framework/structures.md#encryption-
+    //# materials)
     + (WriteEncryptedDataKeysSection(body.encryptedDataKeys)
+    //= compliance/client-apis/encrypt.txt#2.6.2
+    //# *  Content Type (../data-format/message-header.md#content-type): MUST
+    //# be 02 (../data-format/message-header.md#supported-content-types)
     + (WriteContentType(body.contentType)
     + (WriteV1ReservedBytes(RESERVED_BYTES)
+    //= compliance/client-apis/encrypt.txt#2.6.2
+    //# *  IV Length (../data-format/message-header.md#iv-length): MUST match
+    //# the IV length (../framework/algorithm-suites.md#iv-length)
+    //# specified by the algorithm suite (../framework/algorithm-
+    //# suites.md)
     + (WriteV1HeaderIvLength(suite.encrypt.ivLength)
+    //= compliance/client-apis/encrypt.txt#2.6.2
+    //# *  Frame Length (../data-format/message-header.md#frame-length): MUST
+    //# be the value of the frame size determined above.
     + (WriteUint32(body.frameLength))))))))))
   }
 
