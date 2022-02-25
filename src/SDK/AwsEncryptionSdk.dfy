@@ -730,16 +730,31 @@ module {:extern "Dafny.Aws.Esdk.AwsEncryptionSdkClient"} AwsEncryptionSdk {
                 var _ :- ValidateSuiteData(suite, headerBody.data, derivedDataKeys.commitmentKey.value);
             }
 
-            // We created the header auth tag by encrypting an
-            // empty array. To verify it here, we don't care about the actual
-            // result of the decryption, just that it succeeds, hence the
-            // anonymous variable name.
-            var _ :- AESEncryption.AESDecrypt(
+            //= compliance/client-apis/decrypt.txt#2.7.3
+            //# If this tag verification fails, this operation MUST immediately halt
+            //# and fail.
+            var _ :-
+              //= compliance/client-apis/decrypt.txt#2.7.3
+              //# Once a valid message header is deserialized and decryption materials
+              //# are available, this operation MUST validate the message header body
+              //# (../data-format/message-header.md#header-body) by using the
+              //# authenticated encryption algorithm (../framework/algorithm-
+              //# suites.md#encryption-algorithm) to decrypt with the following inputs:
+              AESEncryption.AESDecrypt(
                 suite.encrypt,
+                //#*  the cipherkey is the derived data key
                 derivedDataKeys.dataKey,
+                //#*  the ciphertext is an empty byte array
                 [],
+                //#*  the tag is the value serialized in the message header's
+                //#   authentication tag field (../data-format/message-
+                //#   header.md#authentication-tag)
                 headerAuth.data.headerAuthTag,
+                //#*  the IV is the value serialized in the message header's IV field
+                //#   (../data-format/message-header#iv).
                 headerAuth.data.headerIv,
+                //#*  the AAD is the serialized message header body (../data-format/
+                //#   message-header.md#header-body).
                 rawHeader
             );
             assert {:split_here} true;
