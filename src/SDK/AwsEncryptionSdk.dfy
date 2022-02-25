@@ -824,7 +824,7 @@ module {:extern "Dafny.Aws.Esdk.AwsEncryptionSdkClient"} AwsEncryptionSdk {
 
             :- Need(Header.HeaderVersionSupportsCommitment?(suite, headerBody.data), "Invalid commitment values found in header body");
             if suite.commitment.HKDF? {
-                var _ :- ValidateSuiteData(suite, headerBody.data, derivedDataKeys.commitmentKey.value);
+              var _ :- ValidateSuiteData(suite, headerBody.data, derivedDataKeys.commitmentKey.value);
             }
 
             //= compliance/client-apis/decrypt.txt#2.7.3
@@ -1066,16 +1066,31 @@ module {:extern "Dafny.Aws.Esdk.AwsEncryptionSdkClient"} AwsEncryptionSdk {
     // in V2 headers, unless we know we have a V2HeaderBody
     requires header.V2HeaderBody?
 
-    // Happy case
+    //= compliance/client-apis/decrypt.txt#2.7.2
+    //= type=implication
+    //# The
+    //# derived commit key MUST equal the commit key stored in the message
+    //# header.
     ensures res.Success? ==> header.suiteData == expectedSuiteData
 
     // Failure cases
     ensures header.suiteData != expectedSuiteData ==> res.Failure?
     ensures |header.suiteData| != suite.commitment.outputKeyLength as int ==> res.Failure?
     {
-        :- Need(|header.suiteData| == suite.commitment.outputKeyLength as int, "Commitment key is invalid");
-        :- Need(expectedSuiteData == header.suiteData, "Commitment key does not match");
+      :- Need(
+        |header.suiteData| == suite.commitment.outputKeyLength as int,
+        "Commitment key is invalid"
+      );
 
-        return Success(());
+      //= compliance/client-apis/decrypt.txt#2.7.2
+      //# The
+      //# derived commit key MUST equal the commit key stored in the message
+      //# header.
+      :- Need(
+        expectedSuiteData == header.suiteData,
+        "Commitment key does not match"
+      );
+
+      return Success(());
     }
 }
