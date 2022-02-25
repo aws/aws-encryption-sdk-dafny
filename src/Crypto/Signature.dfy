@@ -7,7 +7,7 @@ module {:extern "Signature"} Signature {
   export
     reveals SignatureKeyPair
     reveals ECDSAParams, ECDSAParams.SignatureLength, ECDSAParams.FieldSize
-    provides KeyGen, Sign, Verify, IsSigned
+    provides KeyGen, Sign, Verify, IsSigned, IsValidSignatureKeyPair
     provides Wrappers, UInt
 
   import opened Wrappers
@@ -32,9 +32,18 @@ module {:extern "Signature"} Signature {
     }
   }
 
+  predicate {:axiom} IsValidSignatureKeyPair(sigKeyPair: SignatureKeyPair)
+
   method KeyGen(s: ECDSAParams) returns (res: Result<SignatureKeyPair, string>)
     ensures match res
-      case Success(sigKeyPair) => |sigKeyPair.verificationKey| == s.FieldSize()
+      case Success(sigKeyPair) =>
+        //= compliance/framework/structures.txt#2.3.3.2.5
+        //= type=implication
+        //# The signing key MUST fit the specification described by the signature
+        //# algorithm (algorithm-suites.md#signature-algorithm) included in this
+        //# encryption material's algorithm suite (Section 2.3.3.2.1).
+        && |sigKeyPair.verificationKey| == s.FieldSize()
+        && IsValidSignatureKeyPair(sigKeyPair)
       case Failure(_) => true
   {
     var sigKeyPair :- ExternKeyGen(s);
@@ -45,7 +54,9 @@ module {:extern "Signature"} Signature {
     }
   }
 
-  method {:extern "Signature.ECDSA", "ExternKeyGen"} ExternKeyGen(s: ECDSAParams) returns (res: Result<SignatureKeyPair, string>)
+  method {:extern "Signature.ECDSA", "ExternKeyGen"} ExternKeyGen(s: ECDSAParams)
+    returns (res: Result<SignatureKeyPair, string>)
+    ensures res.Success? ==> IsValidSignatureKeyPair(res.value)
 
   method {:extern "Signature.ECDSA", "Sign"} Sign(s: ECDSAParams, key: seq<uint8>, msg: seq<uint8>) returns (sig: Result<seq<uint8>, string>)
     ensures sig.Success? ==> IsSigned(key, msg, sig.value)
