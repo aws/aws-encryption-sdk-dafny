@@ -676,6 +676,11 @@ module {:extern "Dafny.Aws.Esdk.AwsEncryptionSdkClient"} AwsEncryptionSdk {
 
             var cmm :- CreateCmmFromInput(input.materialsManager, input.keyring);
 
+            //= compliance/client-apis/decrypt.txt#2.7.1
+            //# Given encrypted message bytes, this operation MUST process those
+            //# bytes sequentially, deserializing those bytes according to the
+            //# message format (../data-format/message.md).
+
             var buffer := SerializeFunctions.ReadableBuffer(input.ciphertext, 0);
 
             //= compliance/client-apis/decrypt.txt#2.5.1.1
@@ -810,6 +815,11 @@ module {:extern "Dafny.Aws.Esdk.AwsEncryptionSdkClient"} AwsEncryptionSdk {
             );
 
             :- Need(signature.start == |signature.bytes|, "Data after message footer.");
+
+            //= compliance/client-apis/decrypt.txt#2.7.1
+            //# Until the header is verified (Section 2.7.3), this operation MUST NOT
+            //# release any parsed information from the header.
+            // Note that the header is verified above
 
             //= compliance/client-apis/decrypt.txt#2.7
             //# If the input encrypted message is not being streamed (streaming.md)
