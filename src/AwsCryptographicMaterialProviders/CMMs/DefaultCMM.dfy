@@ -259,13 +259,15 @@ module
         //# The mapped value
         //# from the reserved key "aws-crypto-public-key" SHOULD be the signature
         //# verification key stored on the decryption materials (Section 2.3.4).
-        && (
+        && var verificationKey := if (
           && !suite.signature.None?
           && Materials.EC_PUBLIC_KEY_FIELD in encryptionContext
           && DecodeVerificationKey(encryptionContext[Materials.EC_PUBLIC_KEY_FIELD]).Success?
-        ) ==> (
-          var verificationKey := DecodeVerificationKey(encryptionContext[Materials.EC_PUBLIC_KEY_FIELD]).value;
-          && res.value.verificationKey == Some(verificationKey)
+        ) then Some(DecodeVerificationKey(encryptionContext[Materials.EC_PUBLIC_KEY_FIELD])) else None;
+        && (
+          verificationKey.Some? && verificationKey.value.Success?
+        ==>
+          res.value.verificationKey == Some(verificationKey.value.value)
         )
       ensures
         (suite.signature.None? <==> Materials.EC_PUBLIC_KEY_FIELD in encryptionContext)
