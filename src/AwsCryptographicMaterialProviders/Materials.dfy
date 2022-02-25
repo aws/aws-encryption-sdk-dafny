@@ -46,9 +46,6 @@ import opened StandardLibrary
     && newMat.algorithmSuiteId == oldMat.algorithmSuiteId
     && newMat.encryptionContext == oldMat.encryptionContext
     && newMat.signingKey == oldMat.signingKey
-    //= compliance/framework/structures.txt#2.3.3.2.4
-    //= type=implication
-    //# The plaintext data key SHOULD be stored as immutable data.
     && (
       || (oldMat.plaintextDataKey.None? && newMat.plaintextDataKey.Some?)
       || oldMat.plaintextDataKey == newMat.plaintextDataKey
@@ -185,9 +182,6 @@ import opened StandardLibrary
     && newMat.algorithmSuiteId == oldMat.algorithmSuiteId
     && newMat.encryptionContext == oldMat.encryptionContext
     && newMat.verificationKey == oldMat.verificationKey
-    //= compliance/framework/structures.txt#2.3.4.2.3
-    //= type=implication
-    //# The plaintext data key SHOULD be stored as immutable data.
     && oldMat.plaintextDataKey.None?
     && newMat.plaintextDataKey.Some?
     && ValidDecryptionMaterials(oldMat)
