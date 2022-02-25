@@ -608,6 +608,14 @@ module {:extern "Dafny.Aws.Esdk.AwsEncryptionSdkClient"} AwsEncryptionSdk {
         //# header.md#algorithm-suite-id) is not supported by the commitment
         //# policy (client.md#commitment-policy) configured in the client
         //# (client.md) decrypt MUST yield an error.
+
+        //= compliance/client-apis/decrypt.txt#2.7.2
+        //= type=implication
+        //# If the
+        //# algorithm suite is not supported by the commitment policy
+        //# (client.md#commitment-policy) configured in the client (client.md)
+        //# decrypt MUST yield an error.
+        // TODO :: Consider removing from spec as this is redundent
         ensures
         (
             && var buffer := SerializeFunctions.ReadableBuffer(input.ciphertext, 0);
@@ -635,23 +643,6 @@ module {:extern "Dafny.Aws.Esdk.AwsEncryptionSdkClient"} AwsEncryptionSdk {
             // *  Encryption Context (Section 2.6.2)
             && var ec := EncryptionContext.GetEncryptionContext(headerBody.value.data.encryptionContext);
             && res.value.encryptionContext == ec
-
-        //= compliance/client-apis/decrypt.txt#2.4.2
-        //= type=implication
-        //# This operation MUST NOT release any unauthenticated plaintext or
-        //# unauthenticated associated data.
-        ensures
-        (
-            && var buffer := SerializeFunctions.ReadableBuffer(input.ciphertext, 0);
-            && var headerBody := Header.ReadHeaderBody(buffer, this.maxEncryptedDataKeys);
-            && headerBody.Success?
-            && var algorithmSuiteId := SerializableTypes.GetAlgorithmSuiteId(headerBody.value.data.esdkSuiteId);
-            && var suite := Client.SpecificationClient().GetSuite(algorithmSuiteId);
-            && var headerAuth := HeaderAuth.ReadHeaderAuthTag(headerBody.value.tail, suite);
-            && headerAuth.Failure?
-        )
-        ==>
-          res.Failure?
 
         //= compliance/client-apis/decrypt.txt#2.5
         //= type=implication
@@ -698,6 +689,11 @@ module {:extern "Dafny.Aws.Esdk.AwsEncryptionSdkClient"} AwsEncryptionSdk {
             var rawHeader := headerBody.tail.bytes[buffer.start..headerBody.tail.start];
 
             var algorithmSuiteId := SerializableTypes.GetAlgorithmSuiteId(headerBody.data.esdkSuiteId);
+            //= compliance/client-apis/decrypt.txt#2.7.2
+            //# If the
+            //# algorithm suite is not supported by the commitment policy
+            //# (client.md#commitment-policy) configured in the client (client.md)
+            //# decrypt MUST yield an error.
             var _ :- Client.SpecificationClient().ValidateCommitmentPolicyOnDecrypt(
                 algorithmSuiteId, this.commitmentPolicy
             );
@@ -711,6 +707,12 @@ module {:extern "Dafny.Aws.Esdk.AwsEncryptionSdkClient"} AwsEncryptionSdk {
             //# decryption.
             // TODO :: Consider removing "Default CMM MUST obtain" from spec.
             // It is redundent and hard to prove.
+
+            //= compliance/client-apis/decrypt.txt#2.7.2
+            //# This operation MUST obtain this set of decryption materials
+            //# (../framework/structures.md#decryption-materials), by calling Decrypt
+            //# Materials (../framework/cmm-interface.md#decrypt-materials) on a CMM
+            //# (../framework/cmm-interface.md).
             var decMat :- GetDecryptionMaterials(cmm, algorithmSuiteId, headerBody.data);
 
             var suite := Client
@@ -894,11 +896,22 @@ module {:extern "Dafny.Aws.Esdk.AwsEncryptionSdkClient"} AwsEncryptionSdk {
         ensures res.Success? ==> SerializableTypes.IsESDKEncryptionContext(res.value.encryptionContext)
         {
             var encryptionContext := EncryptionContext.GetEncryptionContext(headerBody.encryptionContext);
-
+            //= compliance/client-apis/decrypt.txt#2.7.2
+            //# ./framework/cmm-
+            //# interface.md#decrypt-materials) operation MUST be constructed as
+            //# follows:
             var decMatRequest := Crypto.DecryptMaterialsInput(
+                //#*  Algorithm Suite ID: This is the parsed algorithm suite ID
+                //#   (../data-format/message-header.md#algorithm-suite-id) from the
+                //#   message header.
                 algorithmSuiteId:=algorithmSuiteId,
                 commitmentPolicy:=this.commitmentPolicy,
+                //#*  Encrypted Data Keys: This is the parsed encrypted data keys
+                //#   (../data-format/message-header#encrypted-data-keys) from the
+                //#   message header.
                 encryptedDataKeys:=headerBody.encryptedDataKeys,
+                //#*  Encryption Context: This is the parsed encryption context
+                //#   (../data-format/message-header.md#aad) from the message header.
                 encryptionContext:=encryptionContext
             );
             var decMatResult := cmm.DecryptMaterials(decMatRequest);
