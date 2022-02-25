@@ -48,6 +48,12 @@ module {:extern "KeyDerivation"} KeyDerivation {
     ensures res.Success? ==> IsDerivedKey(res.value.dataKey)
     ensures res.Success? ==> res.value.commitmentKey.None?
   {
+    //= compliance/client-apis/decrypt.txt#2.7.2
+    //# The algorithm suite used to derive a data key from the
+    //# plaintext data key MUST be the key derivation algorithm
+    //# (../framework/algorithm-suites.md#key-derivation-algorithm) included
+    //# in the algorithm suite (../framework/algorithm-suites.md) associated
+    //# with the returned decryption materials.
     if suite.kdf.IDENTITY? {
       assert IsDerivedKey(plaintextDataKey) by {
         reveal IsDerivedKey();
@@ -58,6 +64,12 @@ module {:extern "KeyDerivation"} KeyDerivation {
     var algorithmSuiteID := SerializableTypes.GetESDKAlgorithmSuiteId(suite.id);
     var infoSeq := UInt16ToSeq(algorithmSuiteID as uint16) + messageId;
     var len := suite.kdf.inputKeyLength as int;
+    //= compliance/client-apis/decrypt.txt#2.7.2
+    //# The algorithm suite used to derive a data key from the
+    //# plaintext data key MUST be the key derivation algorithm
+    //# (../framework/algorithm-suites.md#key-derivation-algorithm) included
+    //# in the algorithm suite (../framework/algorithm-suites.md) associated
+    //# with the returned decryption materials.
     var derivedKey := HKDF.Hkdf(suite.kdf.hmac, None, plaintextDataKey, infoSeq, len);
     assert IsDerivedKey(derivedKey) by {
       reveal IsDerivedKey();
@@ -92,6 +104,15 @@ module {:extern "KeyDerivation"} KeyDerivation {
     // anywhere that keys be small.
     requires |plaintextKey| < INT32_MAX_LIMIT
 
+    //= compliance/client-apis/decrypt.txt#2.7.2
+    //= type=implication
+    //# If the algorithm suite (../framework/
+    //# algorithm-suites.md#algorithm-suites-encryption-key-derivation-
+    //# settings) supports key commitment (../framework/algorithm-
+    //# suites.md#key-commitment) then the commit key (../framework/
+    //# algorithm-suites.md#commit-key) MUST be derived from the plaintext
+    //# data key using the commit key derivation (../framework/algorithm-
+    //# suites.md#algorithm-suites-commit-key-derivation-settings).
     ensures res.Success? ==>
       && res.value.commitmentKey.Some?
       && |res.value.commitmentKey.value| == suite.commitment.outputKeyLength as int
@@ -116,6 +137,12 @@ module {:extern "KeyDerivation"} KeyDerivation {
     // calls. This likely requires some fixing of pre-/post-conditions on the HKDF methods
     var hmac_ke := new HMAC.HMac(digest);
     hmac_ke.Init(messageId);
+    //= compliance/client-apis/decrypt.txt#2.7.2
+    //# The algorithm suite used to derive a data key from the
+    //# plaintext data key MUST be the key derivation algorithm
+    //# (../framework/algorithm-suites.md#key-derivation-algorithm) included
+    //# in the algorithm suite (../framework/algorithm-suites.md) associated
+    //# with the returned decryption materials.
     var Ke, _ := HKDF.Expand(hmac_ke, pseudoRandomKey, info, suite.encrypt.keyLength as int, digest, messageId);
 
     var hmac_kc := new HMAC.HMac(digest);
