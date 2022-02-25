@@ -1,10 +1,11 @@
+// No specific requirement here, too general to annotate
 //= compliance/client-apis/decrypt.txt#2.3
 //= type=exception
 //# Any client provided by the AWS Encryption SDK that performs
 //# decryption of encrypted messages MUST follow this specification for
 //# decryption.
-// There is no spec content here.
 
+// Streaming not supported
 //= compliance/client-apis/decrypt.txt#2.7
 //= type=exception
 //# If the input encrypted message is being streamed (streaming.md) to
@@ -21,6 +22,27 @@
 //# decryption operation to fail immediately after parsing the header
 //# if a signed algorithm suite is used.
 
+// Streaming not supported
+//= compliance/client-apis/decrypt.txt#2.7.3
+//= type=exception
+//# *  This operation SHOULD release the parsed encryption context
+//# (Section 2.6.2), algorithm suite ID (../data-format/message-
+//# header.md#algorithm-suite-id), and other header information
+//# (Section 2.6.4) as soon as tag verification succeeds.
 
+// Streaming not supported
+//= compliance/client-apis/decrypt.txt#2.7.3
+//= type=exception
+//# However, if
+//# this operation is using an algorithm suite with a signature
+//# algorithm all released output MUST NOT be considered signed data
+//# until this operation successfully completes.
 
-// 
+// Streaming not supported
+//= compliance/client-apis/decrypt.txt#2.7.3
+//= type=exception
+//# *  This operation SHOULD input the serialized header to the signature
+//# algorithm as soon as it is deserialized, such that the serialized
+//# frame isn't required to remain in memory to verify the signature
+//# (Section 2.7.5).
+
