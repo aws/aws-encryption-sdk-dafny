@@ -125,4 +125,10 @@
 //# rollback any processing done due to the released plaintext or
 //# encryption context.
 
+// No specific requirement here, too general to annotate
+//= compliance/client-apis/decrypt.txt#2.7
+//= type=exception
+//# This operation MUST perform all the above steps unless otherwise
+//# specified, and it MUST perform them in the above order.
+
 //

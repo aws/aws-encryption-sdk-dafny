@@ -93,7 +93,7 @@ module {:extern "Dafny.Aws.Esdk"} Aws.Esdk {
     // a Parsed Header, but we do return the Algorithm Suite
     
     //= compliance/client-apis/decrypt.txt#2.6
-    //= type=TODO
+    //= type=exception
     //# The client SHOULD return as an output:
     //#*  Parsed Header (Section 2.6.4)
     datatype DecryptOutput = DecryptOutput(
