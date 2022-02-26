@@ -592,6 +592,10 @@ module MessageBody {
         |encContent| as uint64
       )
       case NonFramed(_,_,encContent,_) => (
+        //= compliance/client-apis/decrypt.txt#2.7.4
+        //# If this is un-framed data,
+        //# this value MUST be 1.
+
         //= compliance/data-format/message-body-aad.txt#2.4.3
         //# For non-framed data (message-body.md#non-framed-data), the
         //# value of this field MUST be "1".
@@ -720,6 +724,15 @@ module MessageBody {
       //# header.md#sequence-number) and the following bytes according to the
       //# regular frame spec (../data-format/message-body.md#regular-frame).
       var regularFrame :- Frames.ReadRegularFrame(continuation, header);
+      //= compliance/client-apis/decrypt.txt#2.7.4
+      //# If this is framed data and the first
+      //# frame sequentially, this value MUST be 1.
+      // Where this is the seqNum
+      // Imagine that |regularFrames| is 0, than seqNum is 1
+      //= compliance/client-apis/decrypt.txt#2.7.4
+      //# Otherwise, this
+      //# value MUST be 1 greater than the value of the sequence number
+      //# of the previous frame.
       :- Need(regularFrame.data.seqNum as nat == |regularFrames| + 1, Error("Sequence number out of order."));
 
       assert {:split_here} true;

@@ -46,3 +46,45 @@
 //# frame isn't required to remain in memory to verify the signature
 //# (Section 2.7.5).
 
+// Streaming not supported
+//= compliance/client-apis/decrypt.txt#2.7.4
+//= type=exception
+//# While there MAY still be message body left to deserialize and
+//# decrypt, this operation MUST either wait for more of the encrypted
+//# message bytes to become consumable, wait for the end to the encrypted
+//# message to be indicated, or to deserialize and/or decrypt the
+//# consumable bytes.
+
+// Streaming not supported
+//= compliance/client-apis/decrypt.txt#2.7.4
+//= type=exception
+//# *  If this operation is using an algorithm suite without a signature
+//# algorithm, plaintext SHOULD be released as soon as the above
+//# calculation, including tag verification, succeeds.
+
+// Streaming not supported
+//= compliance/client-apis/decrypt.txt#2.7.4
+//= type=exception
+//# *  If this operation is using an algorithm suite with a signature
+//# algorithm, all plaintext decrypted from regular frames SHOULD be
+//# released as soon as the above calculation, including tag
+//# verification, succeeds.
+
+// Streaming not supported
+//= compliance/client-apis/decrypt.txt#2.7.4
+//= type=exception
+//# Any plaintext decrypted from unframed
+//# data (../data-format/message-body.md#un-framed-data) or a final
+//# frame MUST NOT be released until signature verification
+//# (Section 2.7.5) successfully completes.
+
+
+// Streaming not supported
+//= compliance/client-apis/decrypt.txt#2.7.4
+//= type=exception
+//# *  This operation SHOULD input the serialized frame to the signature
+//# algorithm as soon as it is deserialized, such that the serialized
+//# frame isn't required to remain in memory to complete the signature
+//# verification (Section 2.7.5).
+
+//

@@ -170,6 +170,26 @@ module Frames {
     ensures res.Success?
     ==> res.value.data.header == header
     ensures CorrectlyRead(buffer, res, WriteFinalFrame)
+
+    //= compliance/client-apis/decrypt.txt#2.7.4
+    //= type=implication
+    //# If deserializing a final frame (../data-format/message-body.md#final-
+    //# frame), this operation MUST ensure that the length of the encrypted
+    //# content field is less than or equal to the frame length deserialized
+    //# in the message header.
+    ensures
+      res.Success?
+    ==>
+      && var finalFrameSignalRes := ReadUInt32(buffer);
+      && finalFrameSignalRes.Success?
+      && var sequenceNumberRes := ReadUInt32(finalFrameSignalRes.value.tail);
+      && sequenceNumberRes.Success?
+      && var ivRes := Read(sequenceNumberRes.value.tail, header.suite.encrypt.ivLength as nat);
+      && ivRes.Success?
+      && var encContentRes := ReadUint32Seq(ivRes.value.tail);
+      && encContentRes.Success?
+      && |encContentRes.value.data| as uint32 <= header.body.frameLength    
+
   {
     var finalFrameSignal :- ReadUInt32(buffer);
     :- Need(finalFrameSignal.data == ENDFRAME_SEQUENCE_NUMBER, Error("bad"));
@@ -177,7 +197,14 @@ module Frames {
     var sequenceNumber :- ReadUInt32(finalFrameSignal.tail);
     var iv :- Read(sequenceNumber.tail, header.suite.encrypt.ivLength as nat);
     var encContent :- ReadUint32Seq(iv.tail);
+
+    //= compliance/client-apis/decrypt.txt#2.7.4
+    //# If deserializing a final frame (../data-format/message-body.md#final-
+    //# frame), this operation MUST ensure that the length of the encrypted
+    //# content field is less than or equal to the frame length deserialized
+    //# in the message header.
     :- Need(|encContent.data| as uint32 <= header.body.frameLength, Error("bad"));
+    
     var authTag :- Read(encContent.tail, header.suite.encrypt.tagLength as nat);
     var finalFrame: FinalFrame := Frame.FinalFrame(
       header,

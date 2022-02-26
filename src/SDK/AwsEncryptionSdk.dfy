@@ -886,13 +886,31 @@ module {:extern "Dafny.Aws.Esdk.AwsEncryptionSdkClient"} AwsEncryptionSdk {
 
             var key := derivedDataKeys.dataKey;
             var plaintext: seq<uint8>;
+
+            //= compliance/client-apis/decrypt.txt#2.7.4
+            //# Once the message header is successfully parsed, the next sequential
+            //# bytes MUST be deserialized according to the message body spec
+            //# (../data-format/message-body.md).
             var messageBodyTail: SerializeFunctions.ReadableBuffer;
+
+            //= compliance/client-apis/decrypt.txt#2.7.4
+            //# The content type (../data-format/message-header.md#content-type)
+            //# field parsed from the message header above determines whether these
+            //# bytes MUST be deserialized as framed data (../data-format/message-
+            //# body.md#framed-data) or un-framed data (../data-format/message-
+            //# body.md#un-framed-data).
             match header.body.contentType {
                 case NonFramed =>
+                    //= compliance/client-apis/decrypt.txt#2.7.4
+                    //# If this decryption fails, this operation MUST immediately halt and
+                    //# fail.
                     var decryptRes :- ReadAndDecryptNonFramedMessageBody(headerAuth.tail, header, key);
                     plaintext := decryptRes.0;
                     messageBodyTail := decryptRes.1;
                 case Framed =>
+                    //= compliance/client-apis/decrypt.txt#2.7.4
+                    //# If this decryption fails, this operation MUST immediately halt and
+                    //# fail.
                     var decryptRes :- ReadAndDecryptFramedMessageBody(headerAuth.tail, header, key);
                     plaintext := decryptRes.0;
                     messageBodyTail := decryptRes.1;
@@ -912,6 +930,9 @@ module {:extern "Dafny.Aws.Esdk.AwsEncryptionSdkClient"} AwsEncryptionSdk {
             //# Until the header is verified (Section 2.7.3), this operation MUST NOT
             //# release any parsed information from the header.
             // Note that the header is verified above
+
+            //= compliance/client-apis/decrypt.txt#2.7.4
+            //# This operation MUST NOT release any unauthenticated plaintext.
 
             //= compliance/client-apis/decrypt.txt#2.7
             //# If the input encrypted message is not being streamed (streaming.md)
@@ -944,6 +965,7 @@ module {:extern "Dafny.Aws.Esdk.AwsEncryptionSdkClient"} AwsEncryptionSdk {
 
             assert header == messageBody.data.finalFrame.header;
             assert |key| == messageBody.data.finalFrame.header.suite.encrypt.keyLength as int;
+            
             var plaintext :- MessageBody.DecryptFramedMessageBody(messageBody.data, key);
             var messageBodyTail := messageBody.tail;
 
