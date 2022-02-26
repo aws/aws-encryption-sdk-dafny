@@ -86,7 +86,11 @@ module {:extern "EncryptDecryptHelpers"} EncryptDecryptHelpers {
     //     && 2 <= old(rd.reader.pos) + 2 <= rd.reader.pos
     //     && SignatureBySequence(signature, rd.reader.data[old(rd.reader.pos)..rd.reader.pos])
 
-    ensures decMat.verificationKey.None? ==> res.Success?
+    //= compliance/client-apis/decrypt.txt#2.7
+    //= type=implication
+    //# Otherwise this operation MUST NOT perform this
+    //# step.
+    ensures decMat.verificationKey.None? ==> res.Success? && res.value == buffer
     
   {
     // If there is no verification key, that lets us conclude that the suite does not have a signature.
