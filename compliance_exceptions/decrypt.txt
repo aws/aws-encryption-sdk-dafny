@@ -102,4 +102,27 @@
 //# Note that the message header and message body MAY have already been
 //# input during previous steps.
 
+// Streaming not supported
+//= compliance/client-apis/decrypt.txt#2.8
+//= type=exception
+//# If this operation is streaming (streaming.md) output to the caller
+//# and is decrypting messages created with an algorithm suite including
+//# a signature algorithm, any released plaintext MUST NOT be considered
+//# signed data until this operation finishes successfully.
+
+// Streaming not supported
+//= compliance/client-apis/decrypt.txt#2.8
+//= type=exception
+//# This means that callers that process such released plaintext MUST NOT
+//# consider any processing successful until this operation completes
+//# successfully.
+
+// Streaming not supported
+//= compliance/client-apis/decrypt.txt#2.8
+//= type=exception
+//# Additionally, if this operation fails, callers MUST
+//# discard the released plaintext and encryption context and MUST
+//# rollback any processing done due to the released plaintext or
+//# encryption context.
+
 //
