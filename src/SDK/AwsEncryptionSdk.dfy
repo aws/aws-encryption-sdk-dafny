@@ -887,12 +887,13 @@ module {:extern "Dafny.Aws.Esdk.AwsEncryptionSdkClient"} AwsEncryptionSdk {
             var key := derivedDataKeys.dataKey;
             var plaintext: seq<uint8>;
 
+            var messageBodyTail: SerializeFunctions.ReadableBuffer;
+
             //= compliance/client-apis/decrypt.txt#2.7.4
             //# Once the message header is successfully parsed, the next sequential
             //# bytes MUST be deserialized according to the message body spec
             //# (../data-format/message-body.md).
-            var messageBodyTail: SerializeFunctions.ReadableBuffer;
-
+            
             //= compliance/client-apis/decrypt.txt#2.7.4
             //# The content type (../data-format/message-header.md#content-type)
             //# field parsed from the message header above determines whether these
@@ -907,6 +908,7 @@ module {:extern "Dafny.Aws.Esdk.AwsEncryptionSdkClient"} AwsEncryptionSdk {
                     var decryptRes :- ReadAndDecryptNonFramedMessageBody(headerAuth.tail, header, key);
                     plaintext := decryptRes.0;
                     messageBodyTail := decryptRes.1;
+                    
                 case Framed =>
                     //= compliance/client-apis/decrypt.txt#2.7.4
                     //# If this decryption fails, this operation MUST immediately halt and
@@ -918,6 +920,9 @@ module {:extern "Dafny.Aws.Esdk.AwsEncryptionSdkClient"} AwsEncryptionSdk {
 
             assert {:split_here} true;
 
+            //= compliance/client-apis/decrypt.txt#2.7.5
+            //# If this verification is not successful, this operation MUST
+            //# immediately halt and fail.
             var signature :- EncryptDecryptHelpers.VerifySignature(
                 messageBodyTail,
                 messageBodyTail.bytes[buffer.start..messageBodyTail.start],

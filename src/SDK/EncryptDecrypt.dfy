@@ -77,6 +77,7 @@ module {:extern "EncryptDecryptHelpers"} EncryptDecryptHelpers {
     decMat: Crypto.DecryptionMaterials
   )
     returns (res: Result<SerializeFunctions.ReadableBuffer, string>)
+    // DecryptionMaterialsWithPlaintextDataKey ensures that the materials and the suite match.
     requires Client.Materials.DecryptionMaterialsWithPlaintextDataKey(decMat)
     // TODO: Add Proof
     // ensures match res
@@ -84,9 +85,10 @@ module {:extern "EncryptDecryptHelpers"} EncryptDecryptHelpers {
     //   case Success(_) =>
     //     && 2 <= old(rd.reader.pos) + 2 <= rd.reader.pos
     //     && SignatureBySequence(signature, rd.reader.data[old(rd.reader.pos)..rd.reader.pos])
-  {
 
-    // DecryptionMaterialsWithPlaintextDataKey ensures that the materials and the suite match.
+    ensures decMat.verificationKey.None? ==> res.Success?
+    
+  {
     // If there is no verification key, that lets us conclude that the suite does not have a signature.
     //= compliance/client-apis/decrypt.txt#2.7
     //# Otherwise this operation MUST NOT perform this
@@ -94,18 +96,42 @@ module {:extern "EncryptDecryptHelpers"} EncryptDecryptHelpers {
     if decMat.verificationKey.None? {
       return Success(buffer);
     }
+    //= compliance/client-apis/decrypt.txt#2.7.5
+    //# If the algorithm suite has a signature algorithm, this operation MUST
+    //# verify the message footer using the specified signature algorithm.
 
+    
     //= compliance/client-apis/decrypt.txt#2.7
     //# ./framework/algorithm-
     //# suites.md#signature-algorithm), this operation MUST perform
     //# this step.
     var signature :- SerializeFunctions
+    
+      //= compliance/client-apis/decrypt.txt#2.7.5
+      //# After deserializing the body, this operation MUST deserialize the
+      //# next encrypted message bytes as the message footer (../data-format/
+      //# message-footer.md).
       .ReadShortLengthSeq(buffer)
       .MapFailure(MapSerializeFailure(": ReadShortLengthSeq"));
 
     var ecdsaParams := Client.SpecificationClient().GetSuite(decMat.algorithmSuiteId).signature.curve;
-    // verify signature
-    var signatureVerifiedResult :- Signature.Verify(ecdsaParams, decMat.verificationKey.value, msg, signature.data);
+
+    //= compliance/client-apis/decrypt.txt#2.7.5
+    //# Once the message footer is deserialized, this operation MUST use the
+    //# signature algorithm (../framework/algorithm-suites.md#signature-
+    //# algorithm) from the algorithm suite (../framework/algorithm-
+    //# suites.md) in the decryption materials to verify the encrypted
+    //# message, with the following inputs:
+    var signatureVerifiedResult :- Signature.Verify(ecdsaParams,
+      //#*  The verification key is the verification key (../framework/
+      //#   structures.md#verification-key) in the decryption materials.
+      decMat.verificationKey.value,
+      //#*  The input to verify is the concatenation of the serialization of
+      //#   the message header (../data-format/message-header.md) and message
+      //#   body (../data-format/message-body.md).
+      msg,
+      signature.data
+    );
 
     return Success(signature.tail);
   }

@@ -87,4 +87,19 @@
 //# frame isn't required to remain in memory to complete the signature
 //# verification (Section 2.7.5).
 
+// Streaming not supported
+//= compliance/client-apis/decrypt.txt#2.7.5
+//= type=exception
+//# If there are not enough consumable bytes to deserialize the message
+//# footer and the caller has not yet indicated an end to the encrypted
+//# message, this operation MUST wait for enough bytes to become
+//# consumable or for the caller to indicate an end to the encrypted
+//# message.
+
+// Streaming not supported
+//= compliance/client-apis/decrypt.txt#2.7.5
+//= type=exception
+//# Note that the message header and message body MAY have already been
+//# input during previous steps.
+
 //
