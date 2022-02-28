@@ -36,4 +36,4 @@ phases:
       - dotnet test Examples /nowarn:CS0105
   post_build:
     commands:
-      - aws --region us-east-1 codeartifact delete-package-versions --domain crypto-tools-internal --domain-owner 587316601012 --repository net-esdk-staging --format dotnet --package awsencryptionsdk --versions $PKG_VERSION
+      - aws --region us-east-1 codeartifact delete-package-versions --domain crypto-tools-internal --domain-owner 587316601012 --repository net-esdk-staging --format nuget --package awsencryptionsdk --versions $PKG_VERSION
