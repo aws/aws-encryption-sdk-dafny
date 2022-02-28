@@ -27,8 +27,13 @@ phases:
       - dotnet pack Source /p:Version=$PKG_VERSION
       - dotnet nuget push Source/bin/Debug/AWSEncryptionSDK.$PKG_VERSION.nupkg --source crypto-tools-internal/net-esdk-staging
   build:
+    # Since we successfully published to CodeArtifact, we want to continue to cleanup phase if this
+    # phase fails
+    on-failure: CONTINUE
     commands:
       # This will eventually be a different CB spec
       - dotnet add Examples/AWSEncryptionSDKExamples.csproj package awsencryptionsdk --version $PKG_VERSION
       - dotnet test Examples /nowarn:CS0105
-  
+  post_build:
+    commands:
+      - aws --region us-east-1 codeartifact delete-package-versions --domain crypto-tools-internal --domain-owner 587316601012 --repository net-esdk-staging --format dotnet --package awsencryptionsdk --versions $PKG_VERSION
