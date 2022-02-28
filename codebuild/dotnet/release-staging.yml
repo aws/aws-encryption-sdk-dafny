@@ -18,7 +18,7 @@ phases:
       # Switch back to the main directory
       - cd aws-encryption-sdk-dafny/aws-encryption-sdk-net-formally-verified
       # Install tools for releasing to CodeArtifact
-      - aws codeartifact login --tool dotnet --domain crypto-tools-internal --domain-owner 587316601012 --repository net-esdk-staging
+      - aws ---region us-east-1 codeartifact login --tool dotnet --domain crypto-tools-internal --domain-owner 587316601012 --repository net-esdk-staging
   build:
     commands:
       - dotnet test Examples /nowarn:CS0105
