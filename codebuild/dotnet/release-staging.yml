@@ -20,9 +20,9 @@ phases:
       - cd aws-encryption-sdk-dafny/aws-encryption-sdk-net-formally-verified
   pre_build:
     commands:
-      # Install tools for releasing to CodeArtifact
+      # Configuration to talk to CodeArtifact staging
       - aws --region us-east-1 codeartifact login --tool dotnet --domain crypto-tools-internal --domain-owner 587316601012 --repository net-esdk-staging
-      # Release to CA
+      # Release to CodeArtifact
       - export PKG_VERSION=$VERSION-`git rev-parse --short HEAD`
       - dotnet pack Source /p:Version=$PKG_VERSION
       - dotnet nuget push Source/bin/Debug/AWSEncryptionSDK.$PKG_VERSION.nupkg --source crypto-tools-internal/net-esdk-staging
