@@ -28,5 +28,7 @@ phases:
       - dotnet nuget push Source/bin/Debug/AWSEncryptionSDK.$PKG_VERSION.nupkg --source crypto-tools-internal/net-esdk-staging
   build:
     commands:
+      # This will eventually be a different CB spec
+      - dotnet add Examples/AWSEncryptionSDKExamples.csproj package awsencryptionsdk --version $PKG_VERSION
       - dotnet test Examples /nowarn:CS0105
   
