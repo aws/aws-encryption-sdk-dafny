@@ -31,7 +31,9 @@ phases:
     # phase fails
     on-failure: CONTINUE
     commands:
-      # This will eventually be a different CB spec
+      # Remove the dependency on the local version of ESDK
+      - sed '/Source\/AWSEncryptionSDK.csproj/d' Examples/AWSEncryptionSDKExamples.csproj
+      # Add dependency on the CodeArtifact version
       - dotnet add Examples/AWSEncryptionSDKExamples.csproj package awsencryptionsdk --version $PKG_VERSION
       - dotnet test Examples /nowarn:CS0105
   post_build:
