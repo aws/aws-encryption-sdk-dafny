@@ -11,7 +11,7 @@ phases:
       - unzip -qq dafny.zip && rm dafny.zip
       - export PATH="$PWD/dafny:$PATH"
       # Set up environment for running test vectors
-      - wget https://github.com/awslabs/aws-encryption-sdk-test-vectors/raw/master/vectors/awses-decrypt/python-2.3.0.zip
+      - wget -q https://github.com/awslabs/aws-encryption-sdk-test-vectors/raw/master/vectors/awses-decrypt/python-2.3.0.zip
       - unzip -qq python-2.3.0.zip && rm python-2.3.0.zip
       # Explicitly set this (rather than as a codebuild env variable like above) because it depends on the
       # current working directory
