@@ -4,6 +4,7 @@ env:
   variables:
     AWS_ENCRYPTION_SDK_EXAMPLE_KMS_KEY_ID: >-
       arn:aws:kms:us-west-2:658956600833:key/b3537ef1-d8dc-4780-9f5a-55776cbb2f7f
+    VERSION: 0.0.1
 
 phases:
   install:
@@ -17,8 +18,15 @@ phases:
       - export PATH="$PWD/dafny:$PATH"
       # Switch back to the main directory
       - cd aws-encryption-sdk-dafny/aws-encryption-sdk-net-formally-verified
+  pre_build:
+    commands:
       # Install tools for releasing to CodeArtifact
       - aws --region us-east-1 codeartifact login --tool dotnet --domain crypto-tools-internal --domain-owner 587316601012 --repository net-esdk-staging
+      # Release to CA
+      - export PKG_VERSION=$VERSION-`git rev-parse --short HEAD`
+      - dotnet pack /p:Version=$PKG_VERSION
+      - dotnet nuget push Source/bin/Debug/AWSEncryptionSDK.$PKG_VERSION.nupkg --source crypto-tools-internal/net-esdk-staging
   build:
     commands:
       - dotnet test Examples /nowarn:CS0105
+  
