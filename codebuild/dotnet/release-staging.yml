@@ -21,7 +21,13 @@ phases:
   pre_build:
     commands:
       # Configuration to talk to CodeArtifact staging
-      - aws --region us-east-1 codeartifact login --tool dotnet --domain crypto-tools-internal --domain-owner 587316601012 --repository net-esdk-staging
+      - >-
+        aws codeartifact login \
+            --region us-east-1 \
+            --tool dotnet \
+            --domain crypto-tools-internal \
+            --domain-owner 587316601012 \
+            --repository net-esdk-staging
       # Release to CodeArtifact
       - export PKG_VERSION=$VERSION-`git rev-parse --short HEAD`
       - dotnet pack Source /p:Version=$PKG_VERSION
@@ -38,4 +44,12 @@ phases:
       - dotnet test Examples /nowarn:CS0105
   post_build:
     commands:
-      - aws --region us-east-1 codeartifact delete-package-versions --domain crypto-tools-internal --domain-owner 587316601012 --repository net-esdk-staging --format nuget --package awsencryptionsdk --versions $PKG_VERSION
+      - >-
+        aws codeartifact delete-package-versions \
+            --region us-east-1 \
+            --domain crypto-tools-internal \
+            --domain-owner 587316601012 \
+            --repository net-esdk-staging \
+            --format nuget \
+            --package awsencryptionsdk \
+            --versions $PKG_VERSION
