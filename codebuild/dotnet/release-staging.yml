@@ -25,7 +25,6 @@ phases:
             --region us-east-1 \
             --tool dotnet \
             --domain crypto-tools-internal \
-            --domain-owner 587316601012 \
             --repository net-esdk-staging
       # Set a version (identified by this commit) so we don't collide with other staging releases
       - export BASE_VERSION=`grep '<Version>' Source/AWSEncryptionSDK.csproj | sed 's/.*<Version>\(.*\)<\/Version>/\1/'`
@@ -49,7 +48,6 @@ phases:
         aws codeartifact delete-package-versions \
             --region us-east-1 \
             --domain crypto-tools-internal \
-            --domain-owner 587316601012 \
             --repository net-esdk-staging \
             --format nuget \
             --package awsencryptionsdk \
