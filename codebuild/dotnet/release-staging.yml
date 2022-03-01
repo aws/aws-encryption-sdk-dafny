@@ -4,7 +4,6 @@ env:
   variables:
     AWS_ENCRYPTION_SDK_EXAMPLE_KMS_KEY_ID: >-
       arn:aws:kms:us-west-2:658956600833:key/b3537ef1-d8dc-4780-9f5a-55776cbb2f7f
-    VERSION: 0.0.1
 
 phases:
   install:
@@ -28,10 +27,12 @@ phases:
             --domain crypto-tools-internal \
             --domain-owner 587316601012 \
             --repository net-esdk-staging
+      # Set a version (identified by this commit) so we don't collide with other staging releases
+      - export BASE_VERSION=`grep '<Version>' Source/AWSEncryptionSDK.csproj | sed 's/.*<Version>\(.*\)<\/Version>/\1/'`
+      - export UNIQUE_VERSION=$BASE_VERSION-`git rev-parse --short HEAD`
       # Release to CodeArtifact
-      - export PKG_VERSION=$VERSION-`git rev-parse --short HEAD`
-      - dotnet pack Source /p:Version=$PKG_VERSION
-      - dotnet nuget push Source/bin/Debug/AWSEncryptionSDK.$PKG_VERSION.nupkg --source crypto-tools-internal/net-esdk-staging
+      - dotnet pack Source /p:Version=$UNIQUE_VERSION
+      - dotnet nuget push Source/bin/Debug/AWSEncryptionSDK.$UNIQUE_VERSION.nupkg --source crypto-tools-internal/net-esdk-staging
   build:
     # Since we successfully published to CodeArtifact, we want to continue to cleanup phase if this
     # phase fails
@@ -40,7 +41,7 @@ phases:
       # Remove the dependency on the local version of ESDK
       - sed -i '/Source\/AWSEncryptionSDK.csproj/d' Examples/AWSEncryptionSDKExamples.csproj
       # Add dependency on the CodeArtifact version
-      - dotnet add Examples/AWSEncryptionSDKExamples.csproj package awsencryptionsdk --version $PKG_VERSION
+      - dotnet add Examples/AWSEncryptionSDKExamples.csproj package awsencryptionsdk --version $UNIQUE_VERSION
       - dotnet test Examples /nowarn:CS0105
   post_build:
     commands:
@@ -52,4 +53,4 @@ phases:
             --repository net-esdk-staging \
             --format nuget \
             --package awsencryptionsdk \
-            --versions $PKG_VERSION
+            --versions $UNIQUE_VERSION
