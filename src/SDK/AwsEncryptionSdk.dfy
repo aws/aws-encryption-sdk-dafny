@@ -54,7 +54,7 @@ module {:extern "Dafny.Aws.Esdk.AwsEncryptionSdkClient"} AwsEncryptionSdk {
         const config: Esdk.AwsEncryptionSdkClientConfig;
 
         //= compliance/client-apis/client.txt#2.4
-        //= type=TODO
+        //= type=implication
         //# Once a commitment policy (Section 2.4.1) has been set it SHOULD be
         //# immutable.
         const commitmentPolicy: Crypto.CommitmentPolicy;
@@ -148,12 +148,6 @@ module {:extern "Dafny.Aws.Esdk.AwsEncryptionSdkClient"} AwsEncryptionSdk {
         )
         ==>
             res.Failure?
-
-        //= compliance/client-apis/client.txt#2.5.1
-        //= type=TODO
-        //# The AWS Encryption SDK Client MUST provide an encrypt
-        //# (./encrypt.md#input) function that will honor the client's configured
-        //# commitment policy (Section 2.4.1).
 
         {
             var frameLength : int64 := EncryptDecryptHelpers.DEFAULT_FRAME_LENGTH;
@@ -723,11 +717,6 @@ module {:extern "Dafny.Aws.Esdk.AwsEncryptionSdkClient"} AwsEncryptionSdk {
             && var ec := EncryptionContext.GetEncryptionContext(headerBody.value.data.encryptionContext);
             && res.value.encryptionContext == ec
 
-        //= compliance/client-apis/client.txt#2.5.2
-        //= type=TODO
-        //# The AWS Encryption SDK Client MUST provide an decrypt
-        //# (./decrypt.md#input) function that will honor the client's configured
-        //# commitment policy (Section 2.4.1).
         {
             // TODO: Change to '> 0' once CrypTool-4350 complete
             // TODO: Remove entirely once we can validate this value on client creation
