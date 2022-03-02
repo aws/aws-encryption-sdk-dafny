@@ -31,6 +31,10 @@ module V1HeaderBody {
   | h.V1HeaderBody?
   witness *
 
+  //= compliance/data-format/message-header.txt#2.5.2.1
+  //= type=implication
+  //# A reserved sequence of 4 bytes that MUST have the value (hex) of "00
+  //# 00 00 00".
   const RESERVED_BYTES: seq<uint8> := [0x00, 0x00, 0x00, 0x00];
   type ReservedBytes = s: seq<uint8>
   | s == RESERVED_BYTES
@@ -95,6 +99,12 @@ module V1HeaderBody {
     //# be 02 (../data-format/message-header.md#supported-content-types)
     + (WriteContentType(body.contentType)
     + (WriteV1ReservedBytes(RESERVED_BYTES)
+    //= compliance/data-format/message-header.txt#2.5.2.2
+    //# This value MUST be
+    //# equal to the IV length (../framework/algorithm-suites.md#iv-length)
+    //# value of the algorithm suite (../framework/algorithm-suites.md)
+    //# specified by the Algorithm Suite ID (Section 2.5.1.5) field.
+    //
     //= compliance/client-apis/encrypt.txt#2.6.2
     //# *  IV Length (../data-format/message-header.md#iv-length): MUST match
     //# the IV length (../framework/algorithm-suites.md#iv-length)

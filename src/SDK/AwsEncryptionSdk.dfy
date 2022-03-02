@@ -126,7 +126,7 @@ module {:extern "Dafny.Aws.Esdk.AwsEncryptionSdkClient"} AwsEncryptionSdk {
             var frameLength : int64 := EncryptDecryptHelpers.DEFAULT_FRAME_LENGTH;
             if input.frameLength.Some? {
                 // TODO: uncomment once https://issues.amazon.com/issues/CrypTool-4350 fixed
-                
+
                 //= compliance/client-apis/encrypt.txt#2.4.6
                 //= type=TODO
                 //# This value
@@ -475,6 +475,13 @@ module {:extern "Dafny.Aws.Esdk.AwsEncryptionSdkClient"} AwsEncryptionSdk {
             suiteData: Option<seq<uint8>>
         ) returns (res: HeaderTypes.HeaderBody)
 
+        //= compliance/data-format/message-header.txt#2.5.2
+        //= type=implication
+        //# The length of the suite data field MUST be equal to
+        //# the Algorithm Suite Data Length (../framework/algorithm-
+        //# suites.md#algorithm-suite-data-length) value of the algorithm suite
+        //# (../framework/algorithm-suites.md) specified by the Algorithm Suite
+        //# ID (Section 2.5.1.5) field.
         requires suite.commitment.HKDF? ==>
             && suiteData.Some?
             && |suiteData.value| == suite.commitment.outputKeyLength as int

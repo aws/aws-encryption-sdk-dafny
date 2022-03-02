@@ -50,7 +50,12 @@ module SerializableTypes {
   witness *
 
   const VALID_IDS: set<uint16> := {0x0578, 0x0478, 0x0378, 0x0346, 0x0214, 0x0178, 0x0146, 0x0114, 0x0078, 0x0046, 0x0014};
-  
+
+  //= compliance/data-format/message-header.txt#2.5.1.5
+  //= type=implication
+  //# The value (hex) of this field MUST be a value that exists
+  //# in the Supported Algorithm Suites (../framework/algorithm-
+  //# suites.md#supported-algorithm-suites) table.
   type ESDKAlgorithmSuiteId = id: uint16 | id in VALID_IDS witness *
 
   const SupportedAlgorithmSuites: map<Crypto.AlgorithmSuiteId, ESDKAlgorithmSuiteId> := map[
