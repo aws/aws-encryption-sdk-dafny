@@ -53,14 +53,29 @@ module {:extern "Dafny.Aws.Esdk.AwsEncryptionSdkClient"} AwsEncryptionSdk {
   class AwsEncryptionSdkClient extends Esdk.IAwsEncryptionSdkClient {
         const config: Esdk.AwsEncryptionSdkClientConfig;
 
+        //= compliance/client-apis/client.txt#2.4
+        //= type=implication
+        //# Once a commitment policy (Section 2.4.1) has been set it SHOULD be
+        //# immutable.
         const commitmentPolicy: Crypto.CommitmentPolicy;
         const maxEncryptedDataKeys: Option<int64>;
 
         const materialProvidersClient: Crypto.IAwsCryptographicMaterialsProviderClient;
 
+        //= compliance/client-apis/client.txt#2.4
+        //= type=implication
+        //# On client initialization, the caller MUST have the option to provide
+        //# a:
+        //#*  commitment policy (Section 2.4.1)
+        //#*  maximum number of encrypted data keys (Section 2.4.2)
         constructor (config: Esdk.AwsEncryptionSdkClientConfig)
             ensures this.config == config
 
+            //= compliance/client-apis/client.txt#2.4
+            //= type=implication
+            //# If no commitment policy (Section 2.4.1) is provided the default MUST
+            //# be REQUIRE_ENCRYPT_REQUIRE_DECRYPT (../framework/algorithm-
+            //# suites.md#require_encrypt_require_decrypt).
             ensures config.commitmentPolicy.None? ==>
               && var policy := ConfigDefaults.GetDefaultCommitmentPolicy(config.configDefaults);
               && this.commitmentPolicy == policy
@@ -68,6 +83,18 @@ module {:extern "Dafny.Aws.Esdk.AwsEncryptionSdkClient"} AwsEncryptionSdk {
             ensures config.commitmentPolicy.Some? ==>
                 this.commitmentPolicy == config.commitmentPolicy.value
 
+            //= compliance/client-apis/client.txt#2.4
+            //# If no maximum number of
+            //# encrypted data keys (Section 2.4.2) is provided the default MUST
+            //# result in no limit on the number of encrypted data keys (aside from
+            //# the limit imposed by the message format (../format/message-
+            //# header.md)).
+            // This is a citation, not an implication, as setting the maxEDK as an option
+            // does not enforce the specified behavior at all.
+            //= compliance/client-apis/client.txt#2.4.2
+            //= type=implication
+            //# Callers MUST have a way to disable
+            //# this limit.
             ensures this.maxEncryptedDataKeys == config.maxEncryptedDataKeys
         {
             this.config := config;
@@ -689,6 +716,7 @@ module {:extern "Dafny.Aws.Esdk.AwsEncryptionSdkClient"} AwsEncryptionSdk {
             // *  Encryption Context (Section 2.6.2)
             && var ec := EncryptionContext.GetEncryptionContext(headerBody.value.data.encryptionContext);
             && res.value.encryptionContext == ec
+
         {
             // TODO: Change to '> 0' once CrypTool-4350 complete
             // TODO: Remove entirely once we can validate this value on client creation
