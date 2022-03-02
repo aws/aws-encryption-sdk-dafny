@@ -11,3 +11,5 @@ batch:
       buildspec: codebuild/dotnet/examples.yml
     - identifier: dotnet_vectors
       buildspec: codebuild/dotnet/test-vectors.yml
+    - identifier: dotnet_release_staging 
+      buildspec: codebuild/dotnet/release-staging.yml
