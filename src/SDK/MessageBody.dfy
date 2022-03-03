@@ -55,13 +55,29 @@ module MessageBody {
 
   function method IVSeq(suite: Client.AlgorithmSuites.AlgorithmSuite, sequenceNumber: uint32)
     :(ret: seq<uint8>)
-    // The suite dictates the length of the IV
-    // this relationship is useful for correctness
+    //= compliance/data-format/message-body.txt#2.5.2.1.2
+    //= type=implication
+    //# The IV length MUST be equal to the IV
+    //# length of the algorithm suite specified by the Algorithm Suite ID
+    //# (message-header.md#algorithm-suite-id) field.
+    //
+    //= compliance/data-format/message-body.txt#2.5.2.2.3
+    //= type=implication
+    //# The IV length MUST be equal to the IV length of the algorithm suite
+    //# (../framework/algorithm-suites.md) that generated the message.
     ensures |ret| == suite.encrypt.ivLength as nat
   {
     seq(suite.encrypt.ivLength as int - 4, _ => 0) + UInt32ToSeq(sequenceNumber)
   }
 
+  //= compliance/data-format/message-body.txt#2.5.2.1.2
+  //= type=implication
+  //# Each frame in the Framed Data (Section 2.5.2) MUST include an IV that
+  //# is unique within the message.
+  //
+  //= compliance/data-format/message-body.txt#2.5.2.2.3
+  //= type=implication
+  //# The IV MUST be a unique IV within the message.
   lemma IVSeqDistinct(suite: Client.AlgorithmSuites.AlgorithmSuite, m: uint32, n: uint32)
     requires m != n
     ensures
@@ -136,11 +152,25 @@ module MessageBody {
   }
 
   predicate IsMessageRegularFrames(regularFrames: seq<Frames.RegularFrame>) {
-    // The total number of frames MUST be < UINT16_LENGTH.
+    // The total number of frames MUST be at most UINT32_MAX.
     // And a RegularFrame can not have a sequence number
     // equal to the ENDFRAME_SEQUENCE_NUMBER.
+    //
+    //= compliance/data-format/message-body.txt#2.5.2
+    //= type=implication
+    //# *  The number of frames in a single message MUST be less than or
+    //# equal to "2^32 - 1".
     && 0 <= |regularFrames| < ENDFRAME_SEQUENCE_NUMBER as nat
     // The sequence number MUST be monotonic
+    //
+    //= compliance/data-format/message-body.txt#2.5.2.1.1
+    //= type=implication
+    //# Framed Data MUST start at Sequence Number 1.
+    //
+    //= compliance/data-format/message-body.txt#2.5.2.1.1
+    //= type=implication
+    //# Subsequent frames MUST be in order and MUST contain an increment of 1
+    //# from the previous frame.
     && MessageFramesAreMonotonic(regularFrames)
     // All frames MUST all be from the same messages i.e. the same header
     && MessageFramesAreForTheSameMessage(regularFrames)
@@ -150,11 +180,18 @@ module MessageBody {
 
   datatype FramedMessageBody = FramedMessageBody(
     regularFrames: MessageRegularFrames,
+    //= compliance/data-format/message-body.txt#2.5.2.2
+    //= type=implication
+    //# Framed data MUST contain exactly one final frame.
     finalFrame: Frames.FinalFrame
   )
 
   type FramedMessage = body: FramedMessageBody
   |
+  //= compliance/data-format/message-body.txt#2.5.2.2.2
+  //= type=implication
+  //# The Final Frame Sequence number MUST be equal to the total number of
+  //# frames in the Framed Data.
   && MessageFramesAreMonotonic(body.regularFrames + [body.finalFrame])
   && MessageFramesAreForTheSameMessage(body.regularFrames + [body.finalFrame])
   witness *
@@ -198,6 +235,12 @@ module MessageBody {
           | frame in body.regularFrames
           :: AESEncryption.EncryptedWithKey(frame.encContent, key))
         && AESEncryption.EncryptedWithKey(body.finalFrame.encContent, key)
+        //= compliance/data-format/message-body.txt#2.5.2.2
+        //= type=implication
+        //# *  When the length of the Plaintext is less than the Frame Length,
+        //# the body MUST contain exactly one frame and that frame MUST be a
+        //# Final Frame.
+        && (|plaintext| < header.body.frameLength as int ==> |body.regularFrames| == 0)
   {
     var n : int, sequenceNumber := 0, START_SEQUENCE_NUMBER;
     var regularFrames: MessageRegularFrames := [];
@@ -260,6 +303,11 @@ module MessageBody {
     //# *  If there are not enough input consumable plaintext bytes to create
     //# a new regular frame, then this operation MUST construct a final
     //# frame (Section 2.7.1)
+    //
+    //= compliance/data-format/message-body.txt#2.5.2.2
+    //# *  When the length of the Plaintext is less than the Frame Length,
+    //# the body MUST contain exactly one frame and that frame MUST be a
+    //# Final Frame.
 
     //= compliance/client-apis/encrypt.txt#2.7
     //# *  If there are exactly enough consumable plaintext bytes to create
@@ -267,6 +315,12 @@ module MessageBody {
     //# all consumable bytes, then this operation MUST construct either a
     //# final frame or regular frame (Section 2.7.1) with the remaining
     //# plaintext.
+    //
+    //= compliance/data-format/message-body.txt#2.5.2.2
+    //# *  When the length of the Plaintext is an exact multiple of the Frame
+    //# Length (including if it is equal to the frame length), the Final
+    //# Frame encrypted content length SHOULD be equal to the frame length
+    //# but MAY be 0.
     var finalFrame :- EncryptFinalFrame(
       key,
       header,
@@ -385,6 +439,12 @@ module MessageBody {
     //# -  For a final frame this MUST be the remaining plaintext bytes
     //# which have not yet been encrypted, whose length MUST be equal
     //# to or less than the frame length.
+    //
+    //= compliance/data-format/message-body.txt#2.5.2.2
+    //= type=implication
+    //# The length of the plaintext to be encrypted in the Final Frame MUST
+    //# be greater than or equal to 0 and less than or equal to the Frame
+    //# Length (message-header.md#frame-length).
     requires |plaintext| <= header.body.frameLength as nat
     ensures match res
       case Failure(e) => true
@@ -540,6 +600,10 @@ module MessageBody {
     body: FramedMessage
   )
     :(ret: seq<uint8>)
+    //= compliance/data-format/message-body.txt#2.5.2.2
+    //= type=implication
+    //# The final frame
+    //# MUST be the last frame.
     ensures ret == WriteMessageRegularFrames(body.regularFrames)
       + Frames.WriteFinalFrame(body.finalFrame)
   {
