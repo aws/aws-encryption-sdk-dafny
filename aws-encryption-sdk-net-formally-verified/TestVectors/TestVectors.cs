@@ -191,26 +191,26 @@ namespace TestVectorTests {
             IAwsCryptographicMaterialProviders materialProviders = new AwsCryptographicMaterialProvidersClient();
 
             if (keyInfo.Type == "aws-kms") {
-                CreateStrictAwsKmsKeyringInput createKeyringInput = new CreateStrictAwsKmsKeyringInput
+                CreateAwsKmsKeyringInput createKeyringInput = new CreateAwsKmsKeyringInput
                 {
                     KmsClient = new AmazonKeyManagementServiceClient(GetRegionForArn(key.Id)),
                     KmsKeyId = key.Id,
                 };
-                return materialProviders.CreateStrictAwsKmsKeyring(createKeyringInput);
+                return materialProviders.CreateAwsKmsKeyring(createKeyringInput);
             } else if (keyInfo.Type == "aws-kms-mrk-aware") {
-                CreateMrkAwareStrictAwsKmsKeyringInput createKeyringInput = new CreateMrkAwareStrictAwsKmsKeyringInput
+                CreateAwsKmsMrkKeyringInput createKeyringInput = new CreateAwsKmsMrkKeyringInput
                 {
                     KmsClient = new AmazonKeyManagementServiceClient(GetRegionForArn(key.Id)),
                     KmsKeyId = key.Id,
                 };
-                return materialProviders.CreateMrkAwareStrictAwsKmsKeyring(createKeyringInput);
+                return materialProviders.CreateAwsKmsMrkKeyring(createKeyringInput);
             } else if (keyInfo.Type == "aws-kms-mrk-aware-discovery") {
-                CreateMrkAwareDiscoveryAwsKmsKeyringInput createKeyringInput = new CreateMrkAwareDiscoveryAwsKmsKeyringInput
+                CreateAwsKmsMrkDiscoveryKeyringInput createKeyringInput = new CreateAwsKmsMrkDiscoveryKeyringInput
                 {
                     KmsClient = new AmazonKeyManagementServiceClient(RegionEndpoint.GetBySystemName(keyInfo.DefaultMrkRegion)),
                     Region = keyInfo.DefaultMrkRegion
                 };
-                return materialProviders.CreateMrkAwareDiscoveryAwsKmsKeyring(createKeyringInput);
+                return materialProviders.CreateAwsKmsMrkDiscoveryKeyring(createKeyringInput);
             } else if (keyInfo.Type == "raw" && keyInfo.EncryptionAlgorithm == "aes") {
                 CreateRawAesKeyringInput createKeyringInput = new CreateRawAesKeyringInput
                 {
