@@ -37,12 +37,12 @@ public class AwsKmsDiscoveryKeyringExample {
         // Create the keyring that determines how your data keys are protected. Though this example highlights
         // Discovery keyrings, Discovery keyrings cannot be used to encrypt, so we create a Strict KMS keyring
         // for encryption.
-        CreateStrictAwsKmsKeyringInput createKeyringInput = new CreateStrictAwsKmsKeyringInput
+        CreateAwsKmsKeyringInput createKeyringInput = new CreateAwsKmsKeyringInput
         {
             KmsClient = new AmazonKeyManagementServiceClient(),
             KmsKeyId = keyArn,
         };
-        IKeyring encryptKeyring = materialProviders.CreateStrictAwsKmsKeyring(createKeyringInput);
+        IKeyring encryptKeyring = materialProviders.CreateAwsKmsKeyring(createKeyringInput);
 
         // Encrypt your plaintext data.
         // In this example, we pass a keyring. Behind the scenes, the AWS Encryption SDK will create

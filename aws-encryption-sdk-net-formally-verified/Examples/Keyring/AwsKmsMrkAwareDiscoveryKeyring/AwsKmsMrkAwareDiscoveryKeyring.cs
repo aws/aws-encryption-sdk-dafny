@@ -37,12 +37,12 @@ public class AwsKmsMrkAwareDiscoveryKeyringExample {
         // Create the keyring that determines how your data keys are protected. Though this example highlights
         // Discovery keyrings, Discovery keyrings cannot be used to encrypt, so we create a Strict KMS keyring
         // for encryption.
-        CreateMrkAwareStrictAwsKmsKeyringInput createKeyringInput = new CreateMrkAwareStrictAwsKmsKeyringInput
+        CreateAwsKmsMrkKeyringInput createKeyringInput = new CreateAwsKmsMrkKeyringInput
         {
             KmsClient = new AmazonKeyManagementServiceClient(),
             KmsKeyId = keyArn,
         };
-        IKeyring encryptKeyring = materialProviders.CreateMrkAwareStrictAwsKmsKeyring(createKeyringInput);
+        IKeyring encryptKeyring = materialProviders.CreateAwsKmsMrkKeyring(createKeyringInput);
 
         // Create the materials manager that assembles cryptographic materials from your keyring.
         CreateDefaultCryptographicMaterialsManagerInput createEncryptCmmInput =
@@ -64,12 +64,12 @@ public class AwsKmsMrkAwareDiscoveryKeyringExample {
         Assert.NotEqual(ciphertext.ToArray(), plaintext.ToArray());
 
         // Now create a Discovery keyring to use for decryption.
-        CreateMrkAwareDiscoveryAwsKmsKeyringInput createDecryptKeyringInput = new CreateMrkAwareDiscoveryAwsKmsKeyringInput
+        CreateAwsKmsMrkDiscoveryKeyringInput createDecryptKeyringInput = new CreateAwsKmsMrkDiscoveryKeyringInput
         {
             KmsClient = new AmazonKeyManagementServiceClient(),
             Region = "us-west-2"
         };
-        IKeyring decryptKeyring = materialProviders.CreateMrkAwareDiscoveryAwsKmsKeyring(createDecryptKeyringInput);
+        IKeyring decryptKeyring = materialProviders.CreateAwsKmsMrkDiscoveryKeyring(createDecryptKeyringInput);
         CreateDefaultCryptographicMaterialsManagerInput createDecryptCmmInput =
             new CreateDefaultCryptographicMaterialsManagerInput {Keyring = decryptKeyring};
         ICryptographicMaterialsManager decryptCmm =

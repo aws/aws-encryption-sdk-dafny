@@ -88,11 +88,11 @@ structure CreateKeyringOutput {
 }
 
 // KMS - Strict
-operation CreateStrictAwsKmsKeyring {
-    input: CreateStrictAwsKmsKeyringInput,
+operation CreateAwsKmsKeyring {
+    input: CreateAwsKmsKeyringInput,
     output: CreateKeyringOutput
 }
-structure CreateStrictAwsKmsKeyringInput {
+structure CreateAwsKmsKeyringInput {
     @required
     kmsKeyId: KmsKeyId,
 
@@ -102,12 +102,12 @@ structure CreateStrictAwsKmsKeyringInput {
     grantTokens: GrantTokenList
 }
 
-operation CreateStrictAwsKmsMultiKeyring {
-    input: CreateStrictAwsKmsMultiKeyringInput,
+operation CreateAwsKmsMultiKeyring {
+    input: CreateAwsKmsMultiKeyringInput,
     output: CreateKeyringOutput,
 }
 
-structure CreateStrictAwsKmsMultiKeyringInput {
+structure CreateAwsKmsMultiKeyringInput {
     generator:  KmsKeyId,
 
     kmsKeyIds: KmsKeyIdList,
@@ -149,12 +149,12 @@ structure CreateAwsKmsDiscoveryMultiKeyringInput {
 }
 
 // KMS - MRK Aware, Strict
-operation CreateMrkAwareStrictAwsKmsKeyring {
-    input: CreateMrkAwareStrictAwsKmsKeyringInput,
+operation CreateAwsKmsMrkKeyring {
+    input: CreateAwsKmsMrkKeyringInput,
     output: CreateKeyringOutput,
 }
 
-structure CreateMrkAwareStrictAwsKmsKeyringInput {
+structure CreateAwsKmsMrkKeyringInput {
     @required
     kmsKeyId: KmsKeyId,
 
@@ -164,12 +164,12 @@ structure CreateMrkAwareStrictAwsKmsKeyringInput {
     grantTokens: GrantTokenList
 }
 
-operation CreateMrkAwareStrictMultiKeyring {
-    input: CreateMrkAwareStrictMultiKeyringInput,
+operation CreateAwsKmsMrkMultiKeyring {
+    input: CreateAwsKmsMrkMultiKeyringInput,
     output: CreateKeyringOutput,
 }
 
-structure CreateMrkAwareStrictMultiKeyringInput {
+structure CreateAwsKmsMrkMultiKeyringInput {
     generator:  KmsKeyId,
 
     kmsKeyIds: KmsKeyIdList,
@@ -181,12 +181,12 @@ structure CreateMrkAwareStrictMultiKeyringInput {
 
 // KMS - MRK Aware, Discovery
 
-operation CreateMrkAwareDiscoveryAwsKmsKeyring {
-    input: CreateMrkAwareDiscoveryAwsKmsKeyringInput,
+operation CreateAwsKmsMrkDiscoveryKeyring {
+    input: CreateAwsKmsMrkDiscoveryKeyringInput,
     output: CreateKeyringOutput,
 }
 
-structure CreateMrkAwareDiscoveryAwsKmsKeyringInput {
+structure CreateAwsKmsMrkDiscoveryKeyringInput {
     @required
     kmsClient: KmsClientReference,
 
@@ -198,12 +198,12 @@ structure CreateMrkAwareDiscoveryAwsKmsKeyringInput {
     region: Region
 }
 
-operation CreateMrkAwareDiscoveryMultiKeyring {
-    input: CreateMrkAwareDiscoveryMultiKeyringInput,
+operation CreateAwsKmsMrkDiscoveryMultiKeyring {
+    input: CreateAwsKmsMrkDiscoveryMultiKeyringInput,
     output: CreateKeyringOutput,
 }
 
-structure CreateMrkAwareDiscoveryMultiKeyringInput {
+structure CreateAwsKmsMrkDiscoveryMultiKeyringInput {
     @required
     regions: RegionList,
 

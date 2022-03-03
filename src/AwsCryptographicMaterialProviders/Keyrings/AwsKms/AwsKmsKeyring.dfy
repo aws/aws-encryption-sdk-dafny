@@ -16,8 +16,8 @@ include "../../../Generated/AwsCryptographicMaterialProviders.dfy"
 include "../../../Generated/KeyManagementService.dfy"
 
 module
-  {:extern "Dafny.Aws.Crypto.MaterialProviders.AwsKmsStrictKeyring"}
-  MaterialProviders.AwsKmsStrictKeyring
+  {:extern "Dafny.Aws.Crypto.MaterialProviders.AwsKmsKeyring"}
+  MaterialProviders.AwsKmsKeyring
 {
   import opened StandardLibrary
   import opened Wrappers
@@ -38,7 +38,7 @@ module
   //= type=implication
   //# MUST implement the AWS Encryption SDK Keyring interface (../keyring-
   //# interface.md#interface)
-  class AwsKmsStrictKeyring
+  class AwsKmsKeyring
     extends Keyring.VerifiableInterface
   {
 

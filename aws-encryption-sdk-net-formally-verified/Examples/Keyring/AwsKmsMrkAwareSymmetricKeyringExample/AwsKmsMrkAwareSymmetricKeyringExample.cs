@@ -35,12 +35,12 @@ public class AwsKmsMrkAwareSymmetricKeyringExample {
         IAwsEncryptionSdk encryptionSdkClient = new AwsEncryptionSdkClient(config);
 
         // Create the keyring that determines how your data keys are protected.
-        CreateMrkAwareStrictAwsKmsKeyringInput createKeyringInput = new CreateMrkAwareStrictAwsKmsKeyringInput
+        CreateAwsKmsMrkKeyringInput createKeyringInput = new CreateAwsKmsMrkKeyringInput
         {
             KmsClient = new AmazonKeyManagementServiceClient(),
             KmsKeyId = keyArn,
         };
-        IKeyring keyring = materialProviders.CreateMrkAwareStrictAwsKmsKeyring(createKeyringInput);
+        IKeyring keyring = materialProviders.CreateAwsKmsMrkKeyring(createKeyringInput);
 
         // Create the materials manager that assembles cryptographic materials from your keyring.
         CreateDefaultCryptographicMaterialsManagerInput createMaterialsManagerInput =

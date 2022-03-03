@@ -38,12 +38,12 @@ public class KmsMrkAwareDiscoveryMultiKeyringExample {
         // Create the keyring that determines how your data keys are protected. Though this example highlights
         // Discovery keyrings, Discovery keyrings cannot be used to encrypt, so we create a Strict KMS keyring
         // for encryption.
-        CreateMrkAwareStrictAwsKmsKeyringInput createKeyringInput = new CreateMrkAwareStrictAwsKmsKeyringInput
+        CreateAwsKmsMrkKeyringInput createKeyringInput = new CreateAwsKmsMrkKeyringInput
         {
             KmsClient = new AmazonKeyManagementServiceClient(),
             KmsKeyId = keyArn,
         };
-        IKeyring encryptKeyring = materialProviders.CreateMrkAwareStrictAwsKmsKeyring(createKeyringInput);
+        IKeyring encryptKeyring = materialProviders.CreateAwsKmsMrkKeyring(createKeyringInput);
 
         // Encrypt your plaintext data.
         // In this example, we pass a keyring. Behind the scenes, the AWS Encryption SDK will create
@@ -62,7 +62,7 @@ public class KmsMrkAwareDiscoveryMultiKeyringExample {
         Assert.NotEqual(ciphertext.ToArray(), plaintext.ToArray());
 
 
-        CreateMrkAwareDiscoveryMultiKeyringInput createDecryptKeyringInput = new CreateMrkAwareDiscoveryMultiKeyringInput
+        CreateAwsKmsMrkDiscoveryMultiKeyringInput createDecryptKeyringInput = new CreateAwsKmsMrkDiscoveryMultiKeyringInput
         {
             Regions = regions,
             DiscoveryFilter = new DiscoveryFilter() {
@@ -70,7 +70,7 @@ public class KmsMrkAwareDiscoveryMultiKeyringExample {
                 Partition = "aws"
             }
         };
-        IKeyring keyring = materialProviders.CreateMrkAwareDiscoveryMultiKeyring(createDecryptKeyringInput);
+        IKeyring keyring = materialProviders.CreateAwsKmsMrkDiscoveryMultiKeyring(createDecryptKeyringInput);
         // Decrypt your encrypted data using the same keyring you used on encrypt.
         //
         // You do not need to specify the encryption context on decrypt

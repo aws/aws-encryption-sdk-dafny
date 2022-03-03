@@ -9,7 +9,7 @@ using
 
 namespace Aws.Crypto
 {
-    public class CreateMrkAwareDiscoveryMultiKeyringInput
+    public class CreateAwsKmsMrkDiscoveryMultiKeyringInput
     {
         private System.Collections.Generic.List<string> _regions;
         private Aws.Crypto.DiscoveryFilter _discoveryFilter;

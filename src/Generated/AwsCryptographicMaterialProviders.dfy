@@ -24,16 +24,16 @@ module {:extern "Dafny.Aws.Crypto"} Aws.Crypto {
         ICryptographicMaterialsManager.DecryptMaterials,
         IAwsCryptographicMaterialsProviderClient.CreateRawAesKeyring,
         IAwsCryptographicMaterialsProviderClient.CreateDefaultCryptographicMaterialsManager,
-        IAwsCryptographicMaterialsProviderClient.CreateStrictAwsKmsKeyring,
+        IAwsCryptographicMaterialsProviderClient.CreateAwsKmsKeyring,
         IAwsCryptographicMaterialsProviderClient.CreateAwsKmsDiscoveryKeyring,
-        IAwsCryptographicMaterialsProviderClient.CreateMrkAwareStrictAwsKmsKeyring,
-        IAwsCryptographicMaterialsProviderClient.CreateMrkAwareDiscoveryAwsKmsKeyring,
+        IAwsCryptographicMaterialsProviderClient.CreateAwsKmsMrkKeyring,
+        IAwsCryptographicMaterialsProviderClient.CreateAwsKmsMrkDiscoveryKeyring,
         IAwsCryptographicMaterialsProviderClient.CreateMultiKeyring,
         IAwsCryptographicMaterialsProviderClient.CreateRawRsaKeyring,
         IAwsCryptographicMaterialsProviderClient.CreateDefaultClientSupplier,
-        IAwsCryptographicMaterialsProviderClient.CreateMrkAwareStrictMultiKeyring,
-        IAwsCryptographicMaterialsProviderClient.CreateMrkAwareDiscoveryMultiKeyring,
-        IAwsCryptographicMaterialsProviderClient.CreateStrictAwsKmsMultiKeyring,
+        IAwsCryptographicMaterialsProviderClient.CreateAwsKmsMrkMultiKeyring,
+        IAwsCryptographicMaterialsProviderClient.CreateAwsKmsMrkDiscoveryMultiKeyring,
+        IAwsCryptographicMaterialsProviderClient.CreateAwsKmsMultiKeyring,
         IAwsCryptographicMaterialsProviderClient.CreateAwsKmsDiscoveryMultiKeyring,
         AwsCryptographicMaterialProvidersClientException.message,
         AwsCryptographicMaterialProvidersClientException.WrapResultString,
@@ -58,17 +58,17 @@ module {:extern "Dafny.Aws.Crypto"} Aws.Crypto {
         OnDecryptInput,
         OnDecryptOutput,
         EncryptionMaterials.Valid,
-        CreateStrictAwsKmsKeyringInput,
+        CreateAwsKmsKeyringInput,
         CreateAwsKmsDiscoveryKeyringInput,
         CreateDefaultClientSupplierInput,
         CreateDefaultCryptographicMaterialsManagerInput,
-        CreateMrkAwareDiscoveryAwsKmsKeyringInput,
-        CreateMrkAwareStrictAwsKmsKeyringInput,
+        CreateAwsKmsMrkDiscoveryKeyringInput,
+        CreateAwsKmsMrkKeyringInput,
         CreateMultiKeyringInput,
         CreateRawAesKeyringInput,
-        CreateMrkAwareStrictMultiKeyringInput,
-        CreateMrkAwareDiscoveryMultiKeyringInput,
-        CreateStrictAwsKmsMultiKeyringInput,
+        CreateAwsKmsMrkMultiKeyringInput,
+        CreateAwsKmsMrkDiscoveryMultiKeyringInput,
+        CreateAwsKmsMultiKeyringInput,
         CreateAwsKmsDiscoveryMultiKeyringInput,
         DiscoveryFilter,
         AccountId,
@@ -321,13 +321,13 @@ module {:extern "Dafny.Aws.Crypto"} Aws.Crypto {
     // Keyring creation input structures
 
     // KMS
-    datatype CreateStrictAwsKmsKeyringInput = CreateStrictAwsKmsKeyringInput(
+    datatype CreateAwsKmsKeyringInput = CreateAwsKmsKeyringInput(
         nameonly kmsKeyId: KmsKeyId,
         nameonly kmsClient: KMS.IKeyManagementServiceClient,
         nameonly grantTokens: Option<GrantTokenList>
 	)
 
-    datatype CreateStrictAwsKmsMultiKeyringInput = CreateStrictAwsKmsMultiKeyringInput(
+    datatype CreateAwsKmsMultiKeyringInput = CreateAwsKmsMultiKeyringInput(
         nameonly generator: Option<KmsKeyId>,
         nameonly kmsKeyIds: Option<KmsKeyIdList>,
         nameonly clientSupplier: Option<IClientSupplier>,
@@ -350,13 +350,13 @@ module {:extern "Dafny.Aws.Crypto"} Aws.Crypto {
 
 
     // KMS - MRK Aware, Strict
-    datatype CreateMrkAwareStrictAwsKmsKeyringInput = CreateMrkAwareStrictAwsKmsKeyringInput(
+    datatype CreateAwsKmsMrkKeyringInput = CreateAwsKmsMrkKeyringInput(
         nameonly kmsKeyId: KmsKeyId,
         nameonly kmsClient: KMS.IKeyManagementServiceClient,
         nameonly grantTokens: Option<GrantTokenList>
     )
 
-    datatype CreateMrkAwareStrictMultiKeyringInput = CreateMrkAwareStrictMultiKeyringInput(
+    datatype CreateAwsKmsMrkMultiKeyringInput = CreateAwsKmsMrkMultiKeyringInput(
         nameonly generator: Option<KmsKeyId>,
         nameonly kmsKeyIds: Option<KmsKeyIdList>,
         nameonly clientSupplier: Option<IClientSupplier>,
@@ -364,14 +364,14 @@ module {:extern "Dafny.Aws.Crypto"} Aws.Crypto {
     )
 
     // KMS - MRK Aware, Discovery
-    datatype CreateMrkAwareDiscoveryAwsKmsKeyringInput = CreateMrkAwareDiscoveryAwsKmsKeyringInput(
+    datatype CreateAwsKmsMrkDiscoveryKeyringInput = CreateAwsKmsMrkDiscoveryKeyringInput(
         nameonly kmsClient: KMS.IKeyManagementServiceClient,
         nameonly discoveryFilter: Option<DiscoveryFilter>,
         nameonly grantTokens: Option<GrantTokenList>,
         nameonly region: string
     )
 
-    datatype CreateMrkAwareDiscoveryMultiKeyringInput = CreateMrkAwareDiscoveryMultiKeyringInput(
+    datatype CreateAwsKmsMrkDiscoveryMultiKeyringInput = CreateAwsKmsMrkDiscoveryMultiKeyringInput(
         nameonly regions: RegionList,
         nameonly discoveryFilter: Option<DiscoveryFilter>,
         nameonly clientSupplier: Option<IClientSupplier>,
@@ -427,21 +427,21 @@ module {:extern "Dafny.Aws.Crypto"} Aws.Crypto {
     trait {:termination false} IAwsCryptographicMaterialsProviderClient {
 
         // Keyrings
-        method CreateStrictAwsKmsKeyring(input: CreateStrictAwsKmsKeyringInput)
+        method CreateAwsKmsKeyring(input: CreateAwsKmsKeyringInput)
             returns (res: Result<IKeyring, IAwsCryptographicMaterialProvidersException>)
-        method CreateStrictAwsKmsMultiKeyring(input: CreateStrictAwsKmsMultiKeyringInput)
+        method CreateAwsKmsMultiKeyring(input: CreateAwsKmsMultiKeyringInput)
             returns (res: Result<IKeyring, IAwsCryptographicMaterialProvidersException>)
         method CreateAwsKmsDiscoveryKeyring(input: CreateAwsKmsDiscoveryKeyringInput)
             returns (res: Result<IKeyring, IAwsCryptographicMaterialProvidersException>)
         method CreateAwsKmsDiscoveryMultiKeyring(input: CreateAwsKmsDiscoveryMultiKeyringInput)
             returns (res: Result<IKeyring, IAwsCryptographicMaterialProvidersException>)
-        method CreateMrkAwareStrictAwsKmsKeyring(input: CreateMrkAwareStrictAwsKmsKeyringInput)
+        method CreateAwsKmsMrkKeyring(input: CreateAwsKmsMrkKeyringInput)
             returns (res: Result<IKeyring, IAwsCryptographicMaterialProvidersException>)
-        method CreateMrkAwareStrictMultiKeyring(input: CreateMrkAwareStrictMultiKeyringInput)
+        method CreateAwsKmsMrkMultiKeyring(input: CreateAwsKmsMrkMultiKeyringInput)
             returns (res: Result<IKeyring, IAwsCryptographicMaterialProvidersException>)
-        method CreateMrkAwareDiscoveryAwsKmsKeyring(input: CreateMrkAwareDiscoveryAwsKmsKeyringInput)
+        method CreateAwsKmsMrkDiscoveryKeyring(input: CreateAwsKmsMrkDiscoveryKeyringInput)
             returns (res: Result<IKeyring, IAwsCryptographicMaterialProvidersException>)
-        method CreateMrkAwareDiscoveryMultiKeyring(input: CreateMrkAwareDiscoveryMultiKeyringInput)
+        method CreateAwsKmsMrkDiscoveryMultiKeyring(input: CreateAwsKmsMrkDiscoveryMultiKeyringInput)
             returns (res: Result<IKeyring, IAwsCryptographicMaterialProvidersException>)
         method CreateMultiKeyring(input: CreateMultiKeyringInput)
             returns (res: Result<IKeyring, IAwsCryptographicMaterialProvidersException>)

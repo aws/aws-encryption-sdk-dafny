@@ -36,12 +36,12 @@ public class AwsKmsStrictMultiKeyring {
         IAwsEncryptionSdk encryptionSdkClient = new AwsEncryptionSdkClient(config);
 
         // Create the keyring that determines how your data keys are protected.
-        CreateStrictAwsKmsKeyringInput createKeyringInput = new CreateStrictAwsKmsKeyringInput
+        CreateAwsKmsKeyringInput createKeyringInput = new CreateAwsKmsKeyringInput
         {
             KmsClient = new AmazonKeyManagementServiceClient(),
             KmsKeyId = keyArn,
         };
-        IKeyring keyring = materialProviders.CreateStrictAwsKmsKeyring(createKeyringInput);
+        IKeyring keyring = materialProviders.CreateAwsKmsKeyring(createKeyringInput);
 
         // Encrypt your plaintext data.
         // In this example, we pass a keyring. Behind the scenes, the AWS Encryption SDK will create
