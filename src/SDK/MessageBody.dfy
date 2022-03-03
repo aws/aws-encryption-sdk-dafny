@@ -235,12 +235,6 @@ module MessageBody {
           | frame in body.regularFrames
           :: AESEncryption.EncryptedWithKey(frame.encContent, key))
         && AESEncryption.EncryptedWithKey(body.finalFrame.encContent, key)
-        //= compliance/data-format/message-body.txt#2.5.2.2
-        //= type=implication
-        //# *  When the length of the Plaintext is less than the Frame Length,
-        //# the body MUST contain exactly one frame and that frame MUST be a
-        //# Final Frame.
-        && (|plaintext| < header.body.frameLength as int ==> |body.regularFrames| == 0)
   {
     var n : int, sequenceNumber := 0, START_SEQUENCE_NUMBER;
     var regularFrames: MessageRegularFrames := [];
