@@ -20,15 +20,34 @@ module HeaderTypes {
   import opened UTF8
   import opened SerializeFunctions
 
-  datatype MessageFormatVersion = 
+  datatype MessageFormatVersion =
   | V1
   | V2
     {
-    function method Serialize(): seq<uint8> {
+    function method Serialize(): (bytes: seq<uint8>) {
       match this
-      case V1 => [0x01]
-      case V2 => [0x02]
+        case V1 => [0x01]
+        case V2 => [0x02]
     }
+
+    lemma LemmaSerializeCorrectValue()
+      //= compliance/data-format/message-header.txt#2.5.1.3
+      //= type=implication
+      //# The version (hex) of this field
+      //# MUST be a value that exists in the following table:
+      ensures match this
+        //= compliance/data-format/message-header.txt#2.5.1.1
+        //= type=implication
+        //# The value of the "Version" field MUST be "01" in the
+        //# Version 1.0 header body.
+        case V1 => this.Serialize() == [0x01]
+        //= compliance/data-format/message-header.txt#2.5.1.2
+        //= type=implication
+        //# The value of the "Version" field MUST be "02" in the
+        //# Version 2.0 header body.
+        case V2 => this.Serialize() == [0x02]
+    {}
+
     static function method Get(
       x: seq<uint8>
     )
@@ -43,7 +62,8 @@ module HeaderTypes {
       )
     }
   }
-  datatype HeaderBody = 
+
+  datatype HeaderBody =
     | V1HeaderBody(
       nameonly messageType: MessageType,
       nameonly esdkSuiteId: ESDKAlgorithmSuiteId,
@@ -73,10 +93,19 @@ module HeaderTypes {
   datatype MessageType =
   | TYPE_CUSTOMER_AED
     {
-    function method Serialize(): uint8 {
+    function method Serialize(): (val: uint8) {
       match this
       case TYPE_CUSTOMER_AED => 0x80
     }
+
+    lemma LemmaSerializeCorrectValue()
+      //= compliance/data-format/message-header.txt#2.5.1.4
+      //= type=implication
+      //# The type (hex) of this field MUST be
+      //# a value that exists in the following table:
+      ensures this.Serialize() == 0x80
+    {}
+
     static function method Get(
       x: uint8
     )
@@ -95,11 +124,21 @@ module HeaderTypes {
   | NonFramed
   | Framed
   {
-    function method Serialize(): uint8 {
+    function method Serialize(): (val: uint8) {
       match this
       case NonFramed => 0x01
       case Framed => 0x02
     }
+
+    lemma LemmaSerializeCorrectValue()
+      //= compliance/data-format/message-header.txt#2.5.1.11
+      //= type=implication
+      //# The value
+      //# (hex) of this field MUST be a value that exists in the following
+      //# table:
+      ensures this.Serialize() in {0x01, 0x02}
+    {}
+
     static function method Get(
       x: uint8
     )

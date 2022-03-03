@@ -104,6 +104,10 @@ module Header {
   )
     :(res: ReadCorrect<HeaderTypes.HeaderBody>)
     ensures CorrectlyReadHeaderBody(buffer, res)
+    //= compliance/data-format/message-header.txt#2.5.2.3
+    //= type=implication
+    //# When the content type (Section 2.5.1.11) is non-
+    //# framed, the value of this field MUST be 0.
     ensures res.Success? ==>
       var h := res.value.data;
       && (h.contentType.NonFramed? <==> 0 == h.frameLength)
