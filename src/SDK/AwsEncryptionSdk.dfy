@@ -265,6 +265,11 @@ module {:extern "Dafny.Aws.Esdk.AwsEncryptionSdkClient"} AwsEncryptionSdk {
                 //# algorithm-suites.md#signature-algorithm), the encrypt operation
                 //# MUST perform this step.
 
+                //= compliance/data-format/message-footer.txt#2.3
+                //# When an algorithm suite (../framework/algorithm-suites.md) includes a
+                //# signature algorithm (../framework/algorithm-suites.md#signature-
+                //# algorithm), the message (message.md) MUST contain a footer.
+
                 var msg :- EncryptDecryptHelpers.SerializeMessageWithoutSignature(framedMessage, suite);
                 var ecdsaParams := framedMessage.finalFrame.header.suite.signature.curve;
                 // TODO: This should just work, but Proof is difficult
