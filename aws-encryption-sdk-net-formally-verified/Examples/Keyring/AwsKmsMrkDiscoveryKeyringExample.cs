@@ -35,8 +35,8 @@ public class AwsKmsMrkAwareDiscoveryKeyringExample {
         IAwsEncryptionSdk encryptionSdkClient = new AwsEncryptionSdkClient(config);
 
         // Create the keyring that determines how your data keys are protected. Though this example highlights
-        // Discovery keyrings, Discovery keyrings cannot be used to encrypt, so we create a Strict KMS keyring
-        // for encryption.
+        // Discovery keyrings, Discovery keyrings cannot be used to encrypt, so for encryption we create
+        // a KMS keyring without discovery mode.
         CreateAwsKmsMrkKeyringInput createKeyringInput = new CreateAwsKmsMrkKeyringInput
         {
             KmsClient = new AmazonKeyManagementServiceClient(),
