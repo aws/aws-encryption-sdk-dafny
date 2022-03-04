@@ -12,7 +12,7 @@ phases:
     commands:
       - cd ..
       # Get Dafny
-      - curl https://github.com/dafny-lang/dafny/releases/download/v3.4.1/dafny-3.4.1-x64-ubuntu-16.04.zip -L -o dafny.zip
+      - curl https://github.com/dafny-lang/dafny/releases/download/v3.4.2/dafny-3.4.2-x64-ubuntu-16.04.zip -L -o dafny.zip
       - unzip -qq dafny.zip && rm dafny.zip
       - export PATH="$PWD/dafny:$PATH"
       # Switch back to the main directory
@@ -29,6 +29,8 @@ phases:
       # Set a version (identified by this commit) so we don't collide with other staging releases
       - export BASE_VERSION=`grep '<Version>' Source/AWSEncryptionSDK.csproj | sed 's/.*<Version>\(.*\)<\/Version>/\1/'`
       - export UNIQUE_VERSION=$BASE_VERSION-`git rev-parse --short HEAD`
+      # Build Source
+      - dotnet build Source /nowarn:CS0105
       # Release to CodeArtifact
       - dotnet pack Source /p:Version=$UNIQUE_VERSION
       - dotnet nuget push Source/bin/Debug/AWSEncryptionSDK.$UNIQUE_VERSION.nupkg --source crypto-tools-internal/net-esdk-staging
