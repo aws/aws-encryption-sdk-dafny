@@ -34,6 +34,13 @@ module EncryptedDataKeys {
       WriteEncryptedDataKeys(Seq.DropLast(edks)) + WriteEncryptedDataKey(Seq.Last(edks))
   }
 
+  // To satisfy this requirement will require some proof refactoring,
+  // in particular to make this function (and the corresponding Read function) partial.
+  //
+  //= compliance/data-format/message-header.txt#2.5.1.9
+  //= type=TODO
+  //# This value MUST be greater than
+  //# 0.
   function method WriteEncryptedDataKeysSection(
     edks: ESDKEncryptedDataKeys
   ):
@@ -89,7 +96,7 @@ module EncryptedDataKeys {
     ensures CorrectlyRead(buffer, res, WriteEncryptedDataKeysSection)
   {
     var SuccessfulRead(count, edkStart) :- ReadUInt16(buffer);
-    
+
     if
       && maxEdks.Some?
       && maxEdks.value > 0 // TODO: remove once CrypTool-4350 fixed

@@ -1,9 +1,11 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
+
   <PropertyGroup>
     <OutputType>Library</OutputType>
     <TargetFramework>netcoreapp5.0</TargetFramework>
     <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
+    <Version>0.0.1</Version>
   </PropertyGroup>
 
   <ItemGroup>
