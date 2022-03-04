@@ -417,7 +417,7 @@ module {:extern "Dafny.Aws.Esdk.AwsEncryptionSdkClient"} AwsEncryptionSdk {
             && res.Success?
             && inputCmm.Some?
         ==>
-          res.value == inputCmm.value
+            res.value == inputCmm.value
 
         ensures
             && inputCmm.Some?
@@ -685,31 +685,6 @@ module {:extern "Dafny.Aws.Esdk.AwsEncryptionSdkClient"} AwsEncryptionSdk {
         }
 
         // See Encrypt/EncryptInternal for an explanation of why we separate Decrypt and DecryptInternal.
-        // This method does not allow for a stream
-        //= compliance/client-apis/decrypt.txt#2.5.1
-        //= type=implication
-        //# If an implementation requires holding the entire encrypted message in
-        //# memory in order to perform this operation, that implementation SHOULD
-        //# NOT provide an API that allows the caller to stream the encrypted
-        //# message.
-
-        // This method does not allow for a stream
-        //= compliance/client-apis/decrypt.txt#2.6.1
-        //= type=implication
-        //# If an implementation requires holding the entire encrypted message in
-        //# memory in order to perform this operation, that implementation SHOULD
-        //# NOT provide an API that allows the caller to stream the encrypted
-        //# message.
-
-        // This method does not allow for a stream
-        //= compliance/client-apis/decrypt.txt#2.5.1
-        //= type=exception
-        //# This input MAY be streamed (streaming.md) to this operation.
-
-        // This method does not allow for a stream
-        //= compliance/client-apis/decrypt.txt#2.6.1
-        //= type=exception
-        //# This operation MAY stream (streaming.md) the plaintext as output.
         method Decrypt(input: Esdk.DecryptInput) returns (res: Result<Esdk.DecryptOutput, Esdk.IAwsEncryptionSdkException>)
         {
             var decryptResult := DecryptInternal(input);
@@ -724,12 +699,6 @@ module {:extern "Dafny.Aws.Esdk.AwsEncryptionSdkClient"} AwsEncryptionSdk {
         //= type=TODO
         //# This operation MUST perform all the above steps unless otherwise
         //# specified, and it MUST perform them in the above order.
-
-        //= compliance/client-apis/client.txt#2.5.2
-        //= type=implication
-        //# The AWS Encryption SDK Client MUST provide an decrypt
-        //# (./decrypt.md#input) function that will honor the client's configured
-        //# commitment policy (Section 2.4.1).
 
         //= compliance/client-apis/decrypt.txt#2.7.2
         //= type=implication
@@ -1148,10 +1117,6 @@ module {:extern "Dafny.Aws.Esdk.AwsEncryptionSdkClient"} AwsEncryptionSdk {
         "Commitment key is invalid"
       );
 
-      //= compliance/client-apis/decrypt.txt#2.7.2
-      //# The
-      //# derived commit key MUST equal the commit key stored in the message
-      //# header.
       :- Need(
         expectedSuiteData == header.suiteData,
         "Commitment key does not match"
