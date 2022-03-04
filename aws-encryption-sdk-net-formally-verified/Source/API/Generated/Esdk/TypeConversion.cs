@@ -342,9 +342,10 @@ namespace Aws.Esdk
             Aws.Esdk.EncryptInput converted = new Aws.Esdk.EncryptInput();
             converted.Plaintext =
                 (System.IO.MemoryStream)FromDafny_N3_aws__N4_esdk__S12_EncryptInput__M9_plaintext(concrete.plaintext);
-            converted.EncryptionContext =
-                (System.Collections.Generic.Dictionary<string, string>)
-                FromDafny_N3_aws__N4_esdk__S12_EncryptInput__M17_encryptionContext(concrete.encryptionContext);
+            if (concrete.encryptionContext.is_Some)
+                converted.EncryptionContext =
+                    (System.Collections.Generic.Dictionary<string, string>)
+                    FromDafny_N3_aws__N4_esdk__S12_EncryptInput__M17_encryptionContext(concrete.encryptionContext);
             if (concrete.materialsManager.is_Some)
                 converted.MaterialsManager =
                     (Aws.Crypto.ICryptographicMaterialsManager)
@@ -381,16 +382,22 @@ namespace Aws.Esdk
 
         public static System.Collections.Generic.Dictionary<string, string>
             FromDafny_N3_aws__N4_esdk__S12_EncryptInput__M17_encryptionContext(
-                Dafny.IMap<Dafny.ISequence<byte>, Dafny.ISequence<byte>> value)
+                Wrappers_Compile._IOption<Dafny.IMap<Dafny.ISequence<byte>, Dafny.ISequence<byte>>> value)
         {
-            return FromDafny_N3_aws__N6_crypto__S17_EncryptionContext(value);
+            return value.is_None
+                ? (System.Collections.Generic.Dictionary<string, string>)null
+                : FromDafny_N3_aws__N6_crypto__S17_EncryptionContext(value.Extract());
         }
 
-        public static Dafny.IMap<Dafny.ISequence<byte>, Dafny.ISequence<byte>>
+        public static Wrappers_Compile._IOption<Dafny.IMap<Dafny.ISequence<byte>, Dafny.ISequence<byte>>>
             ToDafny_N3_aws__N4_esdk__S12_EncryptInput__M17_encryptionContext(
                 System.Collections.Generic.Dictionary<string, string> value)
         {
-            return ToDafny_N3_aws__N6_crypto__S17_EncryptionContext(value);
+            return value == null
+                ? Wrappers_Compile.Option<Dafny.IMap<Dafny.ISequence<byte>, Dafny.ISequence<byte>>>.create_None()
+                : Wrappers_Compile.Option<Dafny.IMap<Dafny.ISequence<byte>, Dafny.ISequence<byte>>>.create_Some(
+                    ToDafny_N3_aws__N6_crypto__S17_EncryptionContext(
+                        (System.Collections.Generic.Dictionary<string, string>)value));
         }
 
         public static System.IO.MemoryStream FromDafny_N6_smithy__N3_api__S4_Blob(Dafny.ISequence<byte> value)
