@@ -11,6 +11,11 @@ namespace ExternRandom {
     public partial class __default {
         public static Wrappers_Compile._IResult<ibyteseq, icharseq> GenerateBytes(int i) {
             try {
+                //= compliance/data-format/message-header.txt#2.5.1.6
+                //# While
+                //# implementations cannot guarantee complete uniqueness, implementations
+                //# MUST use a good source of randomness when generating messages IDs in
+                //# order to make the chance of duplicate IDs negligible.
                 RandomNumberGenerator rng = RandomNumberGenerator.Create();
                 byte[] z = new byte[i];
                 rng.GetBytes(z);

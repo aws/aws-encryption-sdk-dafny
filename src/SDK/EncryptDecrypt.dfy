@@ -40,7 +40,7 @@ module {:extern "EncryptDecryptHelpers"} EncryptDecryptHelpers {
     :(res: Result<seq<uint8>, string>)
     requires |signature| < UINT16_LIMIT
     ensures res.Success?
-    ==> 
+    ==>
       && var message := SerializeMessageWithoutSignature(framedMessage, suite);
       && message.Success?
       && res.value == message.value + WriteShortLengthSeq(signature)
@@ -59,6 +59,10 @@ module {:extern "EncryptDecryptHelpers"} EncryptDecryptHelpers {
   {
     // The header
     var headerAuth :- HeaderAuth.WriteHeaderAuthTag(framedMessage.finalFrame.header.headerAuth, suite);
+    //= compliance/data-format/message-footer.txt#2.5.2
+    //# This signature MUST be calculated over both the message header
+    //# (message-header.md) and the message body (message-body.md), in the
+    //# order of serialization.
     Success(
       //= compliance/client-apis/encrypt.txt#2.6.2
       //# The encrypted message output by this operation MUST have a message

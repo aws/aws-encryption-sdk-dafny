@@ -167,6 +167,13 @@ module {:extern "Dafny.Aws.Crypto"} Aws.Crypto {
 
     ///////////////////////
     // crypto-config.smithy
+    //= compliance/client-apis/client.txt#2.4.1
+    //= type=implication
+    //# The AWS Encryption SDK MUST provide the following commitment
+    //# policies:
+    //#*  FORBID_ENCRYPT_ALLOW_DECRYPT
+    //#*  REQUIRE_ENCRYPT_ALLOW_DECRYPT
+    //#*  REQUIRE_ENCRYPT_REQUIRE_DECRYPT
     datatype CommitmentPolicy =
         FORBID_ENCRYPT_ALLOW_DECRYPT |
         REQUIRE_ENCRYPT_ALLOW_DECRYPT |

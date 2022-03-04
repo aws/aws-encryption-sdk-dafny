@@ -56,6 +56,10 @@ module Frames {
     authTag: seq<uint8>)
   | NonFramed(
     header: Header.Header,
+    //= compliance/data-format/message-body.txt#2.5.1.1
+    //= type=implication
+    //# The
+    //# IV MUST be a unique IV within the message.
     iv: seq<uint8>,
     encContent: seq<uint8>,
     authTag: seq<uint8>
@@ -68,8 +72,17 @@ module Frames {
 
   predicate IsRegularFrame(frame: Frame){
     && frame.RegularFrame?
+    //= compliance/data-format/message-body.txt#2.5.2.1.4
+    //= type=implication
+    //# The authentication tag length MUST be equal to the authentication tag
+    //# length of the algorithm suite specified by the Algorithm Suite ID
+    //# (message-header.md#algorithm-suite-id) field.
     && IvTagLengths(frame)
     && frame.header.body.contentType.Framed?
+    //= compliance/data-format/message-body.txt#2.5.2.1.3
+    //= type=implication
+    //# The length of the encrypted content of a Regular Frame MUST be equal
+    //# to the Frame Length.
     && |frame.encContent| == frame.header.body.frameLength as nat
     && frame.seqNum != ENDFRAME_SEQUENCE_NUMBER
   }
@@ -80,6 +93,11 @@ module Frames {
 
   predicate IsFinalFrame(frame: Frame) {
     && frame.FinalFrame?
+    //= compliance/data-format/message-body.txt#2.5.2.2.6
+    //= type=implication
+    //# The authentication tag length MUST be equal to the authentication tag
+    //# length of the algorithm suite specified by the Algorithm Suite ID
+    //# (message-header.md#algorithm-suite-id) field.
     && IvTagLengths(frame)
     && frame.header.body.contentType.Framed?
     && |frame.encContent| <= frame.header.body.frameLength as nat
@@ -93,12 +111,26 @@ module Frames {
     && frame.NonFramed?
     && IvTagLengths(frame)
     && frame.header.body.contentType.NonFramed?
+    //= compliance/data-format/message-body.txt#2.5.1.2
+    //= type=implication
+    //# The length MUST NOT be greater than "2^36 - 32", or 64 gibibytes (64
+    //# GiB), due to restrictions imposed by the implemented algorithms
+    //# (../framework/algorithm-suites.md).
     && |frame.encContent| < SAFE_MAX_ENCRYPT
   }
 
   type NonFramed = frame: Frame
   | IsNonFramed(frame)
   witness *
+
+  //= compliance/data-format/message-body.txt#2.5.2
+  //= type=implication
+  //# *  The total bytes allowed in a single frame MUST be less than or
+  //# equal to "2^32 - 1".
+  lemma LemmaRegularOrFinalFrameHasUint32ContentByteLength(frame: Frame)
+    ensures IsRegularFrame(frame) || IsFinalFrame(frame)
+      ==> |frame.encContent| <= 0xFFFF_FFFF
+  {}
 
   const SAFE_MAX_ENCRYPT := 0xFFFFFFFE0 // 2^36 - 32
 
@@ -153,6 +185,10 @@ module Frames {
     :(ret: seq<uint8>)
     ensures
       && ReadUInt32(ReadableBuffer(ret, 0)).Success?
+      //= compliance/data-format/message-body.txt#2.5.2.2.1
+      //= type=implication
+      //# The value MUST be encoded as the 4 bytes "FF FF FF FF" in hexadecimal
+      //# notation.
       && ReadUInt32(ReadableBuffer(ret, 0)).value.data == ENDFRAME_SEQUENCE_NUMBER
   {
     WriteUint32(ENDFRAME_SEQUENCE_NUMBER)
