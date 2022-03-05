@@ -22,33 +22,10 @@ namespace TestVectors.Runner {
 
         protected TestVectorData() {
             this.VectorRoot = Utils.GetEnvironmentVariableOrError("DAFNY_AWS_ESDK_TEST_VECTOR_MANIFEST_PATH");
-            DecryptManifest manifest = LoadDecryptManifest(VectorRoot);
+            DecryptManifest manifest = Utils.LoadObjectFromPath<DecryptManifest>(VectorRoot);
             this.VectorMap = manifest.VectorMap;
             string keysPath = Utils.ManifestUriToPath(manifest.KeysUri, VectorRoot);
-            this.KeyMap = LoadKeyManifest(keysPath).Keys;
-        }
-
-        private static DecryptManifest LoadDecryptManifest(string path)
-        {
-            DecryptManifest manifest = Utils.LoadObjectFromPath<DecryptManifest>(path);
-            if (manifest.VectorMap == null) {
-                throw new ArgumentException($"Manifest file malformed: missing \"tests\" field");
-            }
-            if (manifest.KeysUri == null) {
-                throw new ArgumentException($"Manifest file malformed: missing \"keys\" field");
-            }
-
-            return manifest;
-        }
-
-        private static KeyManifest LoadKeyManifest(string path)
-        {
-            KeyManifest keyManifest = Utils.LoadObjectFromPath<KeyManifest>(path);
-            if (keyManifest.Keys == null) {
-                throw new ArgumentException($"Key file malformed: missing \"keys\" field");
-            }
-
-            return keyManifest;
+            this.KeyMap = Utils.LoadObjectFromPath<KeyManifest>(keysPath).Keys;
         }
 
         protected static bool VectorContainsMasterKeyOfType(DecryptVector vector, string typeOfKey)

@@ -10,7 +10,9 @@ namespace TestVectors
     public class Key {
         public bool Decrypt { get; set; }
         public bool Encrypt { get; set; }
+        [JsonRequired]
         public string Type { get; set; }
+        [JsonRequired]
         [JsonProperty("key-id")]
         public string Id { get; set; }
         public string Algorithm { get; set; }
@@ -21,6 +23,7 @@ namespace TestVectors
 
     public class KeyManifest
     {
+        [JsonRequired]
         public Dictionary<string, Key> Keys { get; set; }
     }
 
@@ -42,6 +45,7 @@ namespace TestVectors
 
     public class DecryptVector {
         public string Description { get; set; }
+        [JsonRequired]
         public string Ciphertext { get; set; }
         [JsonProperty("master-keys")]
         public IList<MasterKey> MasterKeys { get; set; }
@@ -66,31 +70,39 @@ namespace TestVectors
     }
 
     public class DecryptManifest {
+        [JsonRequired]
         [JsonProperty("tests")]
         public Dictionary<string, DecryptVector> VectorMap { get; set; }
+        [JsonRequired]
         [JsonProperty("keys")]
         public string KeysUri { get; set; }
     }
 
     public class EncryptScenario
     {
+        [JsonRequired]
         [JsonProperty("plaintext")]
         public string PlaintextName { get; set; }
         /// <summary>
         /// Hex string of algorithm suite ID
         /// </summary>
+        [JsonRequired]
         [JsonProperty("algorithm")]
         public string Algorithm { get; set; }
+        [JsonRequired]
         [JsonProperty("frame-size")]
         public uint FrameSize { get; set; }
+        [JsonRequired]
         [JsonProperty("encryption-context")]
         public Dictionary<string, string> EncryptionContext { get; set; }
+        [JsonRequired]
         [JsonProperty("master-keys")]
         public IList<MasterKey> MasterKeys { get; set; }
     }
 
     public class EncryptVector
     {
+        [JsonRequired]
         [JsonProperty("encryption-scenario")]
         public EncryptScenario Scenario { get; set; }
 
@@ -101,11 +113,14 @@ namespace TestVectors
 
     public class EncryptManifest
     {
-        [JsonProperty("tests")]
-        public Dictionary<string, EncryptVector> VectorMap { get; set; }
-        [JsonProperty("plaintexts")]
-        public Dictionary<string, uint> PlaintextSizes { get; set; }
+        [JsonRequired]
         [JsonProperty("keys")]
         public string KeysUri { get; set; }
+        [JsonRequired]
+        [JsonProperty("plaintexts")]
+        public Dictionary<string, uint> PlaintextSizes { get; set; }
+        [JsonRequired]
+        [JsonProperty("tests")]
+        public Dictionary<string, EncryptVector> VectorMap { get; set; }
     }
 }

@@ -3,7 +3,9 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
+using System.Linq;
 using Amazon;
 using Amazon.KeyManagementService;
 using Aws.Crypto;
@@ -46,6 +48,43 @@ namespace TestVectors
 
             return materialProviders.CreateMultiKeyring(createMultiKeyringInput);
         }
+
+        public static ICryptographicMaterialsManager CreateEncryptCmm(EncryptVector vector, Dictionary<string, Key> keys) {
+            IAwsCryptographicMaterialProviders materialProviders = new AwsCryptographicMaterialProvidersClient();
+
+            CreateDefaultCryptographicMaterialsManagerInput input = new CreateDefaultCryptographicMaterialsManagerInput
+            {
+                Keyring = CreateEncryptKeyring(vector, keys)
+            };
+            return materialProviders.CreateDefaultCryptographicMaterialsManager(input);
+        }
+
+        private static IKeyring CreateEncryptKeyring(EncryptVector vector, Dictionary<string, Key> keys)
+        {
+            IAwsCryptographicMaterialProviders materialProviders = new AwsCryptographicMaterialProvidersClient();
+            IList<MasterKey> masterKeys = vector.Scenario.MasterKeys;
+            Debug.Assert(masterKeys.Count >= 1);
+
+            Key generatorKey = keys[masterKeys[0].Key];
+            IKeyring generatorKeyring = CreateKeyring(masterKeys[0], generatorKey, CryptoOperation.ENCRYPT);
+
+            List<IKeyring> children = masterKeys
+                .Skip(1)
+                .Select(masterKey =>
+                {
+                    Key key = keys[masterKey.Key];
+                    return CreateKeyring(masterKey, key, CryptoOperation.ENCRYPT);
+                })
+                .ToList();
+
+            CreateMultiKeyringInput createMultiKeyringInput = new CreateMultiKeyringInput
+            {
+                Generator = generatorKeyring,
+                ChildKeyrings = children
+            };
+            return materialProviders.CreateMultiKeyring(createMultiKeyringInput);
+        }
+
         private static IKeyring CreateKeyring(MasterKey keyInfo, Key key, CryptoOperation operation) {
             // TODO: maybe make this a class variable so we're not constantly re-creating it
             IAwsCryptographicMaterialProviders materialProviders = new AwsCryptographicMaterialProvidersClient();
