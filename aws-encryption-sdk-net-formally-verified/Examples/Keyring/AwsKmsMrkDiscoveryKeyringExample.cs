@@ -11,8 +11,8 @@ using Aws.Esdk;
 using Xunit;
 using ConfigurationDefaults = Aws.Esdk.ConfigurationDefaults;
 
-/// Demonstrate an encrypt/decrypt cycle using a AWS KMS MRK-aware discovery keyring.
-public class AwsKmsMrkAwareDiscoveryKeyringExample {
+/// Demonstrate an encrypt/decrypt cycle using an AWS KMS MRK discovery keyring.
+public class AwsKmsMrkDiscoveryKeyringExample {
     static void Run(MemoryStream plaintext, string keyArn) {
         // Create your encryption context.
         // Remember that your encryption context is NOT SECRET.
@@ -103,7 +103,7 @@ public class AwsKmsMrkAwareDiscoveryKeyringExample {
 
     // We test examples to ensure they remain up-to-date.
     [Fact]
-    public void TestAwsKmsMrkAwareDiscoveryKeyringExample() {
+    public void TestAwsKmsMrkDiscoveryKeyringExample() {
         Run(ExampleUtils.ExampleUtils.GetPlaintextStream(), ExampleUtils.ExampleUtils.GetKmsKeyArn());
     }
 }

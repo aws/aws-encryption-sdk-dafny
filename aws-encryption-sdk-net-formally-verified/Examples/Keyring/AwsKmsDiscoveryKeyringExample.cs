@@ -11,7 +11,7 @@ using Aws.Esdk;
 using Xunit;
 using ConfigurationDefaults = Aws.Esdk.ConfigurationDefaults;
 
-/// Demonstrate an encrypt/decrypt cycle using a AWS KMS discovery keyring.
+/// Demonstrate an encrypt/decrypt cycle using an AWS KMS discovery keyring.
 public class AwsKmsDiscoveryKeyringExample {
     static void Run(MemoryStream plaintext, string keyArn) {
         // Create your encryption context.
