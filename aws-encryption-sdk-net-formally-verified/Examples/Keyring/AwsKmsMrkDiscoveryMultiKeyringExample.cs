@@ -12,8 +12,8 @@ using Xunit;
 using ConfigurationDefaults = Aws.Esdk.ConfigurationDefaults;
 
 /// Demonstrate an encrypt/decrypt cycle using a Multi-Keyring containing multiple AWS KMS
-/// MRK-Aware Discovery Keyrings.
-public class KmsMrkAwareDiscoveryMultiKeyringExample {
+/// MRK Discovery Keyrings.
+public class AwsKmsMrkDiscoveryMultiKeyringExample {
     static void Run(MemoryStream plaintext, string keyArn, List<string> accountIds, List<string> regions) {
         // Create your encryption context.
         // Remember that your encryption context is NOT SECRET.
@@ -103,7 +103,7 @@ public class KmsMrkAwareDiscoveryMultiKeyringExample {
 
     // We test examples to ensure they remain up-to-date.
     [Fact]
-    public void TestKmsMrkAwareDiscoveryMultiKeyringExample()
+    public void TestAwsKmsMrkDiscoveryMultiKeyringExample()
     {
         Run(
             ExampleUtils.ExampleUtils.GetPlaintextStream(),

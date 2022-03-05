@@ -11,8 +11,8 @@ using Aws.Esdk;
 using Xunit;
 using ConfigurationDefaults = Aws.Esdk.ConfigurationDefaults;
 
-/// Demonstrate an encrypt/decrypt cycle using a AWS MRK-aware symmetric keyring.
-public class AwsKmsMrkAwareSymmetricKeyringExample {
+/// Demonstrate an encrypt/decrypt cycle using an AWS MRK keyring.
+public class AwsKmsMrkKeyringExample {
     static void Run(MemoryStream plaintext, string keyArn) {
         // Create your encryption context.
         // Remember that your encryption context is NOT SECRET.
@@ -93,7 +93,7 @@ public class AwsKmsMrkAwareSymmetricKeyringExample {
 
     // We test examples to ensure they remain up-to-date.
     [Fact]
-    public void TestAwsKmsMrkAwareSymmetricKeyringExample() {
+    public void TestAwsKmsMrkKeyringExample() {
         Run(ExampleUtils.ExampleUtils.GetPlaintextStream(), ExampleUtils.ExampleUtils.GetKmsKeyArn());
     }
 }
