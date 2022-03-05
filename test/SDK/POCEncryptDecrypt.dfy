@@ -61,7 +61,7 @@ module {:extern "TestClient"} TestClient {
     var encryptionContext := TestUtils.SmallEncryptionContext(TestUtils.SmallEncryptionContextVariation.A);
     var input := Esdk.EncryptInput(
       plaintext:=plaintext,
-      encryptionContext:=encryptionContext,
+      encryptionContext:=Some(encryptionContext),
       algorithmSuiteId:=None(),
       materialsManager:=Some(cmm),
       keyring:=None(),
