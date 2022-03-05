@@ -19,6 +19,11 @@ namespace TestVectors
         public string Material { get; set; }
     }
 
+    public class KeyManifest
+    {
+        public Dictionary<string, Key> Keys { get; set; }
+    }
+
     // TODO Rename? Need to use some enums for various fields, possibly subtypes to represent RSA vs AES having different params?
     public class MasterKey {
         public string Type { get; set; }
@@ -35,39 +40,72 @@ namespace TestVectors
         public string DefaultMrkRegion { get; set; }
     }
 
-    public class TestVector {
+    public class DecryptVector {
         public string Description { get; set; }
         public string Ciphertext { get; set; }
         [JsonProperty("master-keys")]
         public IList<MasterKey> MasterKeys { get; set; }
 
-        public TestVectorResult Result { get; set; }
+        public DecryptResult Result { get; set; }
     }
 
-    public class TestVectorResult
+    public class DecryptResult
     {
-        public TestVectorOutput Output { get; set; }
-        public TestVectorError Error { get; set; }
+        public DecryptOutput Output { get; set; }
+        public DecryptError Error { get; set; }
     }
 
-    public class TestVectorOutput
+    public class DecryptOutput
     {
         public string Plaintext { get; set; }
     }
-    public class TestVectorError
+    public class DecryptError
     {
         [JsonProperty("error-description")]
         public string ErrorMessage { get; set; }
     }
 
     public class DecryptManifest {
-        public Dictionary<string, TestVector> VectorMap { get; set; }
-        public string Keys { get; set; }
-
-        public DecryptManifest(Dictionary<string, TestVector> vectorMap, string keys) {
-            this.VectorMap = vectorMap;
-            this.Keys = keys;
-        }
+        [JsonProperty("tests")]
+        public Dictionary<string, DecryptVector> VectorMap { get; set; }
+        [JsonProperty("keys")]
+        public string KeysUri { get; set; }
     }
 
+    public class EncryptScenario
+    {
+        [JsonProperty("plaintext")]
+        public string PlaintextName { get; set; }
+        /// <summary>
+        /// Hex string of algorithm suite ID
+        /// </summary>
+        [JsonProperty("algorithm")]
+        public string Algorithm { get; set; }
+        [JsonProperty("frame-size")]
+        public uint FrameSize { get; set; }
+        [JsonProperty("encryption-context")]
+        public Dictionary<string, string> EncryptionContext { get; set; }
+        [JsonProperty("master-keys")]
+        public IList<MasterKey> MasterKeys { get; set; }
+    }
+
+    public class EncryptVector
+    {
+        [JsonProperty("encryption-scenario")]
+        public EncryptScenario Scenario { get; set; }
+
+        // TODO create tampered messages
+        // [JsonProperty("tampering")]
+        // public string Tampering { get; set; }
+    }
+
+    public class EncryptManifest
+    {
+        [JsonProperty("tests")]
+        public Dictionary<string, EncryptVector> VectorMap { get; set; }
+        [JsonProperty("plaintexts")]
+        public Dictionary<string, uint> PlaintextSizes { get; set; }
+        [JsonProperty("keys")]
+        public string KeysUri { get; set; }
+    }
 }

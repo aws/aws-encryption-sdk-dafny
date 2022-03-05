@@ -7,12 +7,18 @@ using System.IO;
 using Amazon;
 using Amazon.KeyManagementService;
 using Aws.Crypto;
+using RSAEncryption;
 
 namespace TestVectors
 {
+    public enum CryptoOperation
+    {
+        ENCRYPT, DECRYPT
+    }
+
     public static class MaterialProviderFactory
     {
-        public static ICryptographicMaterialsManager DecryptCmm(TestVector vector, Dictionary<string, Key> keys) {
+        public static ICryptographicMaterialsManager CreateDecryptCmm(DecryptVector vector, Dictionary<string, Key> keys) {
             IAwsCryptographicMaterialProviders materialProviders = new AwsCryptographicMaterialProvidersClient();
 
             CreateDefaultCryptographicMaterialsManagerInput input = new CreateDefaultCryptographicMaterialsManagerInput
@@ -22,7 +28,7 @@ namespace TestVectors
             return materialProviders.CreateDefaultCryptographicMaterialsManager(input);
         }
 
-        private static IKeyring CreateDecryptKeyring(TestVector vector, Dictionary<string, Key> keys) {
+        private static IKeyring CreateDecryptKeyring(DecryptVector vector, Dictionary<string, Key> keys) {
             IAwsCryptographicMaterialProviders materialProviders = new AwsCryptographicMaterialProvidersClient();
 
             List<IKeyring> children = new List<IKeyring>();
@@ -30,7 +36,7 @@ namespace TestVectors
             {
                 // Some keyrings, like discovery KMS keyrings, do not specify keys
                 Key key = keyInfo.Key == null ? null : keys[keyInfo.Key];
-                children.Add(CreateKeyring(keyInfo, key));
+                children.Add(CreateKeyring(keyInfo, key, CryptoOperation.DECRYPT));
             }
             CreateMultiKeyringInput createMultiKeyringInput = new CreateMultiKeyringInput
             {
@@ -40,7 +46,7 @@ namespace TestVectors
 
             return materialProviders.CreateMultiKeyring(createMultiKeyringInput);
         }
-        private static IKeyring CreateKeyring(MasterKey keyInfo, Key key) {
+        private static IKeyring CreateKeyring(MasterKey keyInfo, Key key, CryptoOperation operation) {
             // TODO: maybe make this a class variable so we're not constantly re-creating it
             IAwsCryptographicMaterialProviders materialProviders = new AwsCryptographicMaterialProvidersClient();
 
@@ -51,21 +57,26 @@ namespace TestVectors
                     KmsKeyId = key.Id,
                 };
                 return materialProviders.CreateStrictAwsKmsKeyring(createKeyringInput);
-            } else if (keyInfo.Type == "aws-kms-mrk-aware") {
+            }
+            if (keyInfo.Type == "aws-kms-mrk-aware") {
                 CreateMrkAwareStrictAwsKmsKeyringInput createKeyringInput = new CreateMrkAwareStrictAwsKmsKeyringInput
                 {
                     KmsClient = new AmazonKeyManagementServiceClient(GetRegionForArn(key.Id)),
                     KmsKeyId = key.Id,
                 };
                 return materialProviders.CreateMrkAwareStrictAwsKmsKeyring(createKeyringInput);
-            } else if (keyInfo.Type == "aws-kms-mrk-aware-discovery") {
+            }
+
+            if (keyInfo.Type == "aws-kms-mrk-aware-discovery" && operation == CryptoOperation.DECRYPT) {
                 CreateMrkAwareDiscoveryAwsKmsKeyringInput createKeyringInput = new CreateMrkAwareDiscoveryAwsKmsKeyringInput
                 {
                     KmsClient = new AmazonKeyManagementServiceClient(RegionEndpoint.GetBySystemName(keyInfo.DefaultMrkRegion)),
                     Region = keyInfo.DefaultMrkRegion
                 };
                 return materialProviders.CreateMrkAwareDiscoveryAwsKmsKeyring(createKeyringInput);
-            } else if (keyInfo.Type == "raw" && keyInfo.EncryptionAlgorithm == "aes") {
+            }
+
+            if (keyInfo.Type == "raw" && keyInfo.EncryptionAlgorithm == "aes") {
                 CreateRawAesKeyringInput createKeyringInput = new CreateRawAesKeyringInput
                 {
                     KeyNamespace = keyInfo.ProviderId,
@@ -75,9 +86,11 @@ namespace TestVectors
                 };
 
                 return materialProviders.CreateRawAesKeyring(createKeyringInput);
-            } else if (keyInfo.Type == "raw" && keyInfo.EncryptionAlgorithm == "rsa" && key.Type == "private") {
+            }
+
+            if (keyInfo.Type == "raw" && keyInfo.EncryptionAlgorithm == "rsa" && key.Type == "private") {
                 PaddingScheme padding = RSAPaddingFromStrings(keyInfo.PaddingAlgorithm, keyInfo.PaddingHash);
-                byte[] privateKey = RSAEncryption.RSA.ParsePEMString(key.Material);
+                byte[] privateKey = RSA.ParsePEMString(key.Material);
                 CreateRawRsaKeyringInput createKeyringInput = new CreateRawRsaKeyringInput
                 {
                     KeyNamespace = keyInfo.ProviderId,
@@ -86,9 +99,11 @@ namespace TestVectors
                     PrivateKey = new MemoryStream(privateKey)
                 };
                 return materialProviders.CreateRawRsaKeyring(createKeyringInput);
-            } else if (keyInfo.Type == "raw" && keyInfo.EncryptionAlgorithm == "rsa" && key.Type == "public") {
+            }
+
+            if (keyInfo.Type == "raw" && keyInfo.EncryptionAlgorithm == "rsa" && key.Type == "public") {
                 PaddingScheme padding = RSAPaddingFromStrings(keyInfo.PaddingAlgorithm, keyInfo.PaddingHash);
-                byte[] publicKey = RSAEncryption.RSA.ParsePEMString(key.Material);
+                byte[] publicKey = RSA.ParsePEMString(key.Material);
                 CreateRawRsaKeyringInput createKeyringInput = new CreateRawRsaKeyringInput
                 {
                     KeyNamespace = keyInfo.ProviderId,
@@ -98,9 +113,8 @@ namespace TestVectors
                 };
                 return materialProviders.CreateRawRsaKeyring(createKeyringInput);
             }
-            else {
-                throw new Exception("Unsupported keyring type!");
-            }
+
+            throw new Exception("Unsupported keyring type!");
         }
         private static AesWrappingAlg AesAlgorithmFromBits(ushort bits) {
             return bits switch {

@@ -16,70 +16,42 @@ using ConfigurationDefaults = Aws.Esdk.ConfigurationDefaults;
 
 namespace TestVectors.Runner {
     public abstract class TestVectorData : IEnumerable<object[]> {
-        protected readonly Dictionary<string, TestVector> VectorMap;
+        protected readonly Dictionary<string, DecryptVector> VectorMap;
         protected readonly Dictionary<string, Key> KeyMap;
         protected readonly string VectorRoot;
 
         protected TestVectorData() {
-            this.VectorRoot = GetEnvironmentVariableOrError("DAFNY_AWS_ESDK_TEST_VECTOR_MANIFEST_PATH");
-            DecryptManifest manifest = ParseManifest(VectorRoot);
+            this.VectorRoot = Utils.GetEnvironmentVariableOrError("DAFNY_AWS_ESDK_TEST_VECTOR_MANIFEST_PATH");
+            DecryptManifest manifest = LoadDecryptManifest(VectorRoot);
             this.VectorMap = manifest.VectorMap;
-            string keysPath = ManifestUriToPath(manifest.Keys, VectorRoot);
-            this.KeyMap = ParseKeys(keysPath);
+            string keysPath = Utils.ManifestUriToPath(manifest.KeysUri, VectorRoot);
+            this.KeyMap = LoadKeyManifest(keysPath).Keys;
         }
 
-        protected static string GetEnvironmentVariableOrError(string key) {
-            string nullableResult = Environment.GetEnvironmentVariable(key);
-            if (nullableResult == null) {
-                throw new ArgumentException($"Environment Variable {key} must be set");
-            }
-            return nullableResult;
-        }
-
-        private static Dictionary<string, Key> ParseKeys(string path) {
-            if (!File.Exists(path)) {
-                throw new ArgumentException($"Could not find keys file at path: {path}");
-            }
-            string contents = File.ReadAllText(path);
-            JObject keyManifest = JObject.Parse(contents);
-            JToken keys = keyManifest["keys"];
-            if (keys == null) {
-                throw new ArgumentException($"Key file malformed: missing \"keys\" field");
-            }
-            return keys.ToObject<Dictionary<string, Key>>();
-        }
-
-        private static DecryptManifest ParseManifest(string path) {
-            if (!File.Exists(path)) {
-                throw new ArgumentException($"Could not find manifest file at path: {path}");
-            }
-            string contents = File.ReadAllText(path);
-            JObject manifest = JObject.Parse(contents);
-
-            JToken tests = manifest["tests"];
-            if (tests == null) {
+        private static DecryptManifest LoadDecryptManifest(string path)
+        {
+            DecryptManifest manifest = Utils.LoadObjectFromPath<DecryptManifest>(path);
+            if (manifest.VectorMap == null) {
                 throw new ArgumentException($"Manifest file malformed: missing \"tests\" field");
             }
-
-            JToken keys = manifest["keys"];
-            if (keys == null) {
+            if (manifest.KeysUri == null) {
                 throw new ArgumentException($"Manifest file malformed: missing \"keys\" field");
             }
 
-            return new DecryptManifest(tests.ToObject<Dictionary<string, TestVector>>(), keys.ToString());
+            return manifest;
         }
 
-        protected static string ManifestUriToPath(string uri, string manifestPath) {
-            // Assumes files referenced in manifests starts with 'file://'
-            if (!string.Equals(uri.Substring(0, 7), "file://")) {
-                throw new ArgumentException($"Malformed filepath in manifest (needs to start with 'file://'): {uri}");
+        private static KeyManifest LoadKeyManifest(string path)
+        {
+            KeyManifest keyManifest = Utils.LoadObjectFromPath<KeyManifest>(path);
+            if (keyManifest.Keys == null) {
+                throw new ArgumentException($"Key file malformed: missing \"keys\" field");
             }
-            string parentDir = Directory.GetParent(manifestPath).ToString();
 
-            return Path.Combine(parentDir, uri.Substring(7));
+            return keyManifest;
         }
 
-        protected static bool VectorContainsMasterKeyOfType(TestVector vector, string typeOfKey)
+        protected static bool VectorContainsMasterKeyOfType(DecryptVector vector, string typeOfKey)
         {
             return vector.MasterKeys.Any(masterKey => masterKey.Type == typeOfKey);
         }
@@ -90,7 +62,7 @@ namespace TestVectors.Runner {
 
         // Simplistic method for narrowing down which vectors to target. For now, no-op.
         // Update if you want to test certain vectors
-        protected static bool TargetVector(KeyValuePair<string, TestVector> entry)
+        protected static bool TargetVector(KeyValuePair<string, DecryptVector> entry)
         {
             return true;
         }
@@ -107,11 +79,11 @@ namespace TestVectors.Runner {
                     continue;
                 }
 
-                TestVector vector = vectorEntry.Value;
+                DecryptVector vector = vectorEntry.Value;
                 byte[] plaintext = null;
                 if (vector.Result.Output != null)
                 {
-                    string plaintextPath = ManifestUriToPath(vector.Result.Output.Plaintext, VectorRoot);
+                    string plaintextPath = Utils.ManifestUriToPath(vector.Result.Output.Plaintext, VectorRoot);
                     if (!File.Exists(plaintextPath))
                     {
                         throw new ArgumentException($"Could not find plaintext file at path: {plaintextPath}");
@@ -126,11 +98,11 @@ namespace TestVectors.Runner {
                     errorMessage = vector.Result.Error.ErrorMessage;
                 }
 
-                string ciphertextPath = ManifestUriToPath(vector.Ciphertext, VectorRoot);
+                string ciphertextPath = Utils.ManifestUriToPath(vector.Ciphertext, VectorRoot);
                 if (!File.Exists(ciphertextPath)) {
                     throw new ArgumentException($"Could not find ciphertext file at path: {ciphertextPath}");
                 }
-                byte[] ciphertext = File.ReadAllBytes(ManifestUriToPath(vector.Ciphertext, VectorRoot));
+                byte[] ciphertext = File.ReadAllBytes(Utils.ManifestUriToPath(vector.Ciphertext, VectorRoot));
 
                 MemoryStream ciphertextStream = new MemoryStream(ciphertext);
 
@@ -151,7 +123,7 @@ namespace TestVectors.Runner {
         [ClassData (typeof(DecryptTestVectors))]
         public void CanDecryptTestVector(
             string vectorId,
-            TestVector vector,
+            DecryptVector vector,
             Dictionary<string, Key> keyMap,
             byte[] expectedPlaintext,
             string expectedError,
@@ -173,14 +145,14 @@ namespace TestVectors.Runner {
                 };
                 IAwsEncryptionSdk encryptionSdkClient = new AwsEncryptionSdkClient(config);
 
-                ICryptographicMaterialsManager cmm = MaterialProviderFactory.DecryptCmm(vector, keyMap);
+                ICryptographicMaterialsManager cmm = MaterialProviderFactory.CreateDecryptCmm(vector, keyMap);
 
                 DecryptInput decryptInput = new DecryptInput
                 {
                     Ciphertext = ciphertextStream,
                     MaterialsManager = cmm,
                 };
-                DecryptOutput decryptOutput = encryptionSdkClient.Decrypt(decryptInput);
+                Aws.Esdk.DecryptOutput decryptOutput = encryptionSdkClient.Decrypt(decryptInput);
 
                 if (expectedError != null)
                 {
