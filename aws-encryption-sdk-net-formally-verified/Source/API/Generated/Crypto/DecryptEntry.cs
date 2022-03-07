@@ -23,10 +23,20 @@ namespace Aws.Crypto
             set { this._identifier = value; }
         }
 
+        internal bool IsSetIdentifier()
+        {
+            return this._identifier != null;
+        }
+
         public Aws.Crypto.DecryptionMaterials DecryptionMaterials
         {
             get { return this._decryptionMaterials; }
             set { this._decryptionMaterials = value; }
+        }
+
+        internal bool IsSetDecryptionMaterials()
+        {
+            return this._decryptionMaterials != null;
         }
 
         public long CreationTime
@@ -35,16 +45,31 @@ namespace Aws.Crypto
             set { this._creationTime = value; }
         }
 
+        internal bool IsSetCreationTime()
+        {
+            return this._creationTime.HasValue;
+        }
+
         public long ExpiryTime
         {
             get { return this._expiryTime.GetValueOrDefault(); }
             set { this._expiryTime = value; }
         }
 
+        internal bool IsSetExpiryTime()
+        {
+            return this._expiryTime.HasValue;
+        }
+
         public Aws.Crypto.CacheUsageMetadata UsageMetadata
         {
             get { return this._usageMetadata; }
             set { this._usageMetadata = value; }
+        }
+
+        internal bool IsSetUsageMetadata()
+        {
+            return this._usageMetadata != null;
         }
 
         public void Validate()

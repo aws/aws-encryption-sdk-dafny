@@ -21,16 +21,31 @@ namespace Aws.Esdk
             set { this._ciphertext = value; }
         }
 
+        internal bool IsSetCiphertext()
+        {
+            return this._ciphertext != null;
+        }
+
         public System.Collections.Generic.Dictionary<string, string> EncryptionContext
         {
             get { return this._encryptionContext; }
             set { this._encryptionContext = value; }
         }
 
+        internal bool IsSetEncryptionContext()
+        {
+            return this._encryptionContext != null;
+        }
+
         public Aws.Crypto.AlgorithmSuiteId AlgorithmSuiteId
         {
             get { return this._algorithmSuiteId; }
             set { this._algorithmSuiteId = value; }
+        }
+
+        internal bool IsSetAlgorithmSuiteId()
+        {
+            return this._algorithmSuiteId != null;
         }
 
         public void Validate()
