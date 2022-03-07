@@ -162,10 +162,9 @@ module {:extern "Dafny.Aws.Esdk.AwsEncryptionSdkClient"} AwsEncryptionSdk {
             }
             :- Need(frameLength > 0, "Requested frame length must be > 0");
 
-            // TODO: Change to '> 0' once CrypTool-4350 complete
             // TODO: Remove entirely once we can validate this value on client creation
             if this.maxEncryptedDataKeys.Some? {
-                :- Need(this.maxEncryptedDataKeys.value >= 0, "maxEncryptedDataKeys must be non-negative");
+                :- Need(this.maxEncryptedDataKeys.value > 0, "maxEncryptedDataKeys must be non-negative");
             }
 
             var cmm :- CreateCmmFromInput(input.materialsManager, input.keyring);
@@ -763,10 +762,9 @@ module {:extern "Dafny.Aws.Esdk.AwsEncryptionSdkClient"} AwsEncryptionSdk {
           res.Failure?
 
         {
-            // TODO: Change to '> 0' once CrypTool-4350 complete
             // TODO: Remove entirely once we can validate this value on client creation
             if this.maxEncryptedDataKeys.Some? {
-                :- Need(this.maxEncryptedDataKeys.value >= 0, "maxEncryptedDataKeys must be non-negative");
+                :- Need(this.maxEncryptedDataKeys.value > 0, "maxEncryptedDataKeys must be non-negative");
             }
 
             var cmm :- CreateCmmFromInput(input.materialsManager, input.keyring);
@@ -1066,21 +1064,18 @@ module {:extern "Dafny.Aws.Esdk.AwsEncryptionSdkClient"} AwsEncryptionSdk {
         method ValidateMaxEncryptedDataKeys(edks: SerializableTypes.ESDKEncryptedDataKeys)
             returns (res: Result<(), string>)
 
-        // TODO: change to '> 0' once CrypTool-4350 fixed
-        requires this.maxEncryptedDataKeys.Some? ==> this.maxEncryptedDataKeys.value >= 0
+        requires this.maxEncryptedDataKeys.Some? ==> this.maxEncryptedDataKeys.value > 0
 
         ensures this.maxEncryptedDataKeys.None? ==> res.Success?
 
         ensures
             && this.maxEncryptedDataKeys.Some?
-            && this.maxEncryptedDataKeys.value > 0 // TODO: remove once CrypTool-4350 fixed
             && |edks| as int64 > this.maxEncryptedDataKeys.value
         ==>
             res.Failure?
         {
             if
                 && this.maxEncryptedDataKeys.Some?
-                && this.maxEncryptedDataKeys.value > 0 // TODO: remove once CrypTool-4350 fixed
                 && |edks| as int64 > this.maxEncryptedDataKeys.value
             {
                 return Failure("Encrypted data keys exceed maxEncryptedDataKeys");
