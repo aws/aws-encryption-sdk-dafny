@@ -21,16 +21,31 @@ namespace Aws.Crypto
             set { this._identifier = value; }
         }
 
+        internal bool IsSetIdentifier()
+        {
+            return this._identifier != null;
+        }
+
         public Aws.Crypto.EncryptionMaterials EncryptionMaterials
         {
             get { return this._encryptionMaterials; }
             set { this._encryptionMaterials = value; }
         }
 
+        internal bool IsSetEncryptionMaterials()
+        {
+            return this._encryptionMaterials != null;
+        }
+
         public Aws.Crypto.CacheUsageMetadata UsageMetadata
         {
             get { return this._usageMetadata; }
             set { this._usageMetadata = value; }
+        }
+
+        internal bool IsSetUsageMetadata()
+        {
+            return this._usageMetadata != null;
         }
 
         public void Validate()

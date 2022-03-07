@@ -23,7 +23,7 @@ namespace Aws.Esdk
         public static long? FromDafny_N3_aws__N4_esdk__S12_EncryptInput__M11_frameLength(
             Wrappers_Compile._IOption<long> value)
         {
-            return value.is_None ? (long?)null : FromDafny_N6_smithy__N3_api__S4_Long(value.Extract());
+            return value.is_None ? (long?) null : FromDafny_N6_smithy__N3_api__S4_Long(value.Extract());
         }
 
         public static Wrappers_Compile._IOption<long> ToDafny_N3_aws__N4_esdk__S12_EncryptInput__M11_frameLength(
@@ -31,7 +31,7 @@ namespace Aws.Esdk
         {
             return value == null
                 ? Wrappers_Compile.Option<long>.create_None()
-                : Wrappers_Compile.Option<long>.create_Some(ToDafny_N6_smithy__N3_api__S4_Long((long)value));
+                : Wrappers_Compile.Option<long>.create_Some(ToDafny_N6_smithy__N3_api__S4_Long((long) value));
         }
 
         public static Aws.Crypto.AlgorithmSuiteId FromDafny_N3_aws__N6_crypto__S16_AlgorithmSuiteId(
@@ -135,7 +135,7 @@ namespace Aws.Esdk
                 Wrappers_Compile._IOption<Dafny.Aws.Crypto.ICryptographicMaterialsManager> value)
         {
             return value.is_None
-                ? (Aws.Crypto.ICryptographicMaterialsManager)null
+                ? (Aws.Crypto.ICryptographicMaterialsManager) null
                 : FromDafny_N3_aws__N6_crypto__S38_CryptographicMaterialsManagerReference(value.Extract());
         }
 
@@ -147,7 +147,7 @@ namespace Aws.Esdk
                 ? Wrappers_Compile.Option<Dafny.Aws.Crypto.ICryptographicMaterialsManager>.create_None()
                 : Wrappers_Compile.Option<Dafny.Aws.Crypto.ICryptographicMaterialsManager>.create_Some(
                     ToDafny_N3_aws__N6_crypto__S38_CryptographicMaterialsManagerReference(
-                        (Aws.Crypto.ICryptographicMaterialsManager)value));
+                        (Aws.Crypto.ICryptographicMaterialsManager) value));
         }
 
         public static Aws.Crypto.ICryptographicMaterialsManager
@@ -174,7 +174,7 @@ namespace Aws.Esdk
             Wrappers_Compile._IOption<Dafny.Aws.Crypto._IAlgorithmSuiteId> value)
         {
             return value.is_None
-                ? (Aws.Crypto.AlgorithmSuiteId)null
+                ? (Aws.Crypto.AlgorithmSuiteId) null
                 : FromDafny_N3_aws__N6_crypto__S16_AlgorithmSuiteId(value.Extract());
         }
 
@@ -184,7 +184,7 @@ namespace Aws.Esdk
             return value == null
                 ? Wrappers_Compile.Option<Dafny.Aws.Crypto._IAlgorithmSuiteId>.create_None()
                 : Wrappers_Compile.Option<Dafny.Aws.Crypto._IAlgorithmSuiteId>.create_Some(
-                    ToDafny_N3_aws__N6_crypto__S16_AlgorithmSuiteId((Aws.Crypto.AlgorithmSuiteId)value));
+                    ToDafny_N3_aws__N6_crypto__S16_AlgorithmSuiteId((Aws.Crypto.AlgorithmSuiteId) value));
         }
 
         public static Aws.Esdk.ConfigurationDefaults
@@ -231,7 +231,7 @@ namespace Aws.Esdk
         public static Aws.Esdk.AwsEncryptionSdkClientConfig FromDafny_N3_aws__N4_esdk__S28_AwsEncryptionSdkClientConfig(
             Dafny.Aws.Esdk._IAwsEncryptionSdkClientConfig value)
         {
-            Dafny.Aws.Esdk.AwsEncryptionSdkClientConfig concrete = (Dafny.Aws.Esdk.AwsEncryptionSdkClientConfig)value;
+            Dafny.Aws.Esdk.AwsEncryptionSdkClientConfig concrete = (Dafny.Aws.Esdk.AwsEncryptionSdkClientConfig) value;
             Aws.Esdk.AwsEncryptionSdkClientConfig converted = new Aws.Esdk.AwsEncryptionSdkClientConfig();
             if (concrete.commitmentPolicy.is_Some)
                 converted.CommitmentPolicy =
@@ -240,7 +240,7 @@ namespace Aws.Esdk
                         concrete.commitmentPolicy);
             if (concrete.maxEncryptedDataKeys.is_Some)
                 converted.MaxEncryptedDataKeys =
-                    (long)FromDafny_N3_aws__N4_esdk__S28_AwsEncryptionSdkClientConfig__M20_maxEncryptedDataKeys(
+                    (long) FromDafny_N3_aws__N4_esdk__S28_AwsEncryptionSdkClientConfig__M20_maxEncryptedDataKeys(
                         concrete.maxEncryptedDataKeys);
             converted.ConfigDefaults =
                 (Aws.Esdk.ConfigurationDefaults)
@@ -252,10 +252,15 @@ namespace Aws.Esdk
         public static Dafny.Aws.Esdk._IAwsEncryptionSdkClientConfig
             ToDafny_N3_aws__N4_esdk__S28_AwsEncryptionSdkClientConfig(Aws.Esdk.AwsEncryptionSdkClientConfig value)
         {
+            Aws.Crypto.CommitmentPolicy var_commitmentPolicy = value.IsSetCommitmentPolicy()
+                ? value.CommitmentPolicy
+                : (Aws.Crypto.CommitmentPolicy) null;
+            long? var_maxEncryptedDataKeys =
+                value.IsSetMaxEncryptedDataKeys() ? value.MaxEncryptedDataKeys : (long?) null;
             return new Dafny.Aws.Esdk.AwsEncryptionSdkClientConfig(
-                ToDafny_N3_aws__N4_esdk__S28_AwsEncryptionSdkClientConfig__M16_commitmentPolicy(value.CommitmentPolicy),
+                ToDafny_N3_aws__N4_esdk__S28_AwsEncryptionSdkClientConfig__M16_commitmentPolicy(var_commitmentPolicy),
                 ToDafny_N3_aws__N4_esdk__S28_AwsEncryptionSdkClientConfig__M20_maxEncryptedDataKeys(
-                    value.MaxEncryptedDataKeys),
+                    var_maxEncryptedDataKeys),
                 ToDafny_N3_aws__N4_esdk__S28_AwsEncryptionSdkClientConfig__M14_configDefaults(value.ConfigDefaults));
         }
 
@@ -283,7 +288,7 @@ namespace Aws.Esdk
             Wrappers_Compile._IOption<Dafny.Aws.Crypto.IKeyring> value)
         {
             return value.is_None
-                ? (Aws.Crypto.IKeyring)null
+                ? (Aws.Crypto.IKeyring) null
                 : FromDafny_N3_aws__N6_crypto__S16_KeyringReference(value.Extract());
         }
 
@@ -293,21 +298,21 @@ namespace Aws.Esdk
             return value == null
                 ? Wrappers_Compile.Option<Dafny.Aws.Crypto.IKeyring>.create_None()
                 : Wrappers_Compile.Option<Dafny.Aws.Crypto.IKeyring>.create_Some(
-                    ToDafny_N3_aws__N6_crypto__S16_KeyringReference((Aws.Crypto.IKeyring)value));
+                    ToDafny_N3_aws__N6_crypto__S16_KeyringReference((Aws.Crypto.IKeyring) value));
         }
 
         public static Aws.Esdk.DecryptOutput FromDafny_N3_aws__N4_esdk__S13_DecryptOutput(
             Dafny.Aws.Esdk._IDecryptOutput value)
         {
-            Dafny.Aws.Esdk.DecryptOutput concrete = (Dafny.Aws.Esdk.DecryptOutput)value;
+            Dafny.Aws.Esdk.DecryptOutput concrete = (Dafny.Aws.Esdk.DecryptOutput) value;
             Aws.Esdk.DecryptOutput converted = new Aws.Esdk.DecryptOutput();
             converted.Plaintext =
-                (System.IO.MemoryStream)FromDafny_N3_aws__N4_esdk__S13_DecryptOutput__M9_plaintext(concrete.plaintext);
+                (System.IO.MemoryStream) FromDafny_N3_aws__N4_esdk__S13_DecryptOutput__M9_plaintext(concrete.plaintext);
             converted.EncryptionContext =
                 (System.Collections.Generic.Dictionary<string, string>)
                 FromDafny_N3_aws__N4_esdk__S13_DecryptOutput__M17_encryptionContext(concrete.encryptionContext);
             converted.AlgorithmSuiteId =
-                (Aws.Crypto.AlgorithmSuiteId)FromDafny_N3_aws__N4_esdk__S13_DecryptOutput__M16_algorithmSuiteId(
+                (Aws.Crypto.AlgorithmSuiteId) FromDafny_N3_aws__N4_esdk__S13_DecryptOutput__M16_algorithmSuiteId(
                     concrete.algorithmSuiteId);
             return converted;
         }
@@ -338,10 +343,10 @@ namespace Aws.Esdk
         public static Aws.Esdk.EncryptInput FromDafny_N3_aws__N4_esdk__S12_EncryptInput(
             Dafny.Aws.Esdk._IEncryptInput value)
         {
-            Dafny.Aws.Esdk.EncryptInput concrete = (Dafny.Aws.Esdk.EncryptInput)value;
+            Dafny.Aws.Esdk.EncryptInput concrete = (Dafny.Aws.Esdk.EncryptInput) value;
             Aws.Esdk.EncryptInput converted = new Aws.Esdk.EncryptInput();
             converted.Plaintext =
-                (System.IO.MemoryStream)FromDafny_N3_aws__N4_esdk__S12_EncryptInput__M9_plaintext(concrete.plaintext);
+                (System.IO.MemoryStream) FromDafny_N3_aws__N4_esdk__S12_EncryptInput__M9_plaintext(concrete.plaintext);
             if (concrete.encryptionContext.is_Some)
                 converted.EncryptionContext =
                     (System.Collections.Generic.Dictionary<string, string>)
@@ -352,27 +357,38 @@ namespace Aws.Esdk
                     FromDafny_N3_aws__N4_esdk__S12_EncryptInput__M16_materialsManager(concrete.materialsManager);
             if (concrete.keyring.is_Some)
                 converted.Keyring =
-                    (Aws.Crypto.IKeyring)FromDafny_N3_aws__N4_esdk__S12_EncryptInput__M7_keyring(concrete.keyring);
+                    (Aws.Crypto.IKeyring) FromDafny_N3_aws__N4_esdk__S12_EncryptInput__M7_keyring(concrete.keyring);
             if (concrete.algorithmSuiteId.is_Some)
                 converted.AlgorithmSuiteId =
-                    (Aws.Crypto.AlgorithmSuiteId)FromDafny_N3_aws__N4_esdk__S12_EncryptInput__M16_algorithmSuiteId(
+                    (Aws.Crypto.AlgorithmSuiteId) FromDafny_N3_aws__N4_esdk__S12_EncryptInput__M16_algorithmSuiteId(
                         concrete.algorithmSuiteId);
             if (concrete.frameLength.is_Some)
                 converted.FrameLength =
-                    (long)FromDafny_N3_aws__N4_esdk__S12_EncryptInput__M11_frameLength(concrete.frameLength);
+                    (long) FromDafny_N3_aws__N4_esdk__S12_EncryptInput__M11_frameLength(concrete.frameLength);
             return converted;
         }
 
         public static Dafny.Aws.Esdk._IEncryptInput ToDafny_N3_aws__N4_esdk__S12_EncryptInput(
             Aws.Esdk.EncryptInput value)
         {
+            System.Collections.Generic.Dictionary<string, string> var_encryptionContext = value.IsSetEncryptionContext()
+                ? value.EncryptionContext
+                : (System.Collections.Generic.Dictionary<string, string>) null;
+            Aws.Crypto.ICryptographicMaterialsManager var_materialsManager = value.IsSetMaterialsManager()
+                ? value.MaterialsManager
+                : (Aws.Crypto.ICryptographicMaterialsManager) null;
+            Aws.Crypto.IKeyring var_keyring = value.IsSetKeyring() ? value.Keyring : (Aws.Crypto.IKeyring) null;
+            Aws.Crypto.AlgorithmSuiteId var_algorithmSuiteId = value.IsSetAlgorithmSuiteId()
+                ? value.AlgorithmSuiteId
+                : (Aws.Crypto.AlgorithmSuiteId) null;
+            long? var_frameLength = value.IsSetFrameLength() ? value.FrameLength : (long?) null;
             return new Dafny.Aws.Esdk.EncryptInput(
                 ToDafny_N3_aws__N4_esdk__S12_EncryptInput__M9_plaintext(value.Plaintext),
-                ToDafny_N3_aws__N4_esdk__S12_EncryptInput__M17_encryptionContext(value.EncryptionContext),
-                ToDafny_N3_aws__N4_esdk__S12_EncryptInput__M16_materialsManager(value.MaterialsManager),
-                ToDafny_N3_aws__N4_esdk__S12_EncryptInput__M7_keyring(value.Keyring),
-                ToDafny_N3_aws__N4_esdk__S12_EncryptInput__M16_algorithmSuiteId(value.AlgorithmSuiteId),
-                ToDafny_N3_aws__N4_esdk__S12_EncryptInput__M11_frameLength(value.FrameLength));
+                ToDafny_N3_aws__N4_esdk__S12_EncryptInput__M17_encryptionContext(var_encryptionContext),
+                ToDafny_N3_aws__N4_esdk__S12_EncryptInput__M16_materialsManager(var_materialsManager),
+                ToDafny_N3_aws__N4_esdk__S12_EncryptInput__M7_keyring(var_keyring),
+                ToDafny_N3_aws__N4_esdk__S12_EncryptInput__M16_algorithmSuiteId(var_algorithmSuiteId),
+                ToDafny_N3_aws__N4_esdk__S12_EncryptInput__M11_frameLength(var_frameLength));
         }
 
         public static System.Collections.Generic.Dictionary<string, string>
@@ -380,7 +396,7 @@ namespace Aws.Esdk
                 Wrappers_Compile._IOption<Dafny.IMap<Dafny.ISequence<byte>, Dafny.ISequence<byte>>> value)
         {
             return value.is_None
-                ? (System.Collections.Generic.Dictionary<string, string>)null
+                ? (System.Collections.Generic.Dictionary<string, string>) null
                 : FromDafny_N3_aws__N6_crypto__S17_EncryptionContext(value.Extract());
         }
 
@@ -392,7 +408,7 @@ namespace Aws.Esdk
                 ? Wrappers_Compile.Option<Dafny.IMap<Dafny.ISequence<byte>, Dafny.ISequence<byte>>>.create_None()
                 : Wrappers_Compile.Option<Dafny.IMap<Dafny.ISequence<byte>, Dafny.ISequence<byte>>>.create_Some(
                     ToDafny_N3_aws__N6_crypto__S17_EncryptionContext(
-                        (System.Collections.Generic.Dictionary<string, string>)value));
+                        (System.Collections.Generic.Dictionary<string, string>) value));
         }
 
         public static System.IO.MemoryStream FromDafny_N6_smithy__N3_api__S4_Blob(Dafny.ISequence<byte> value)
@@ -430,16 +446,16 @@ namespace Aws.Esdk
         public static Aws.Esdk.EncryptOutput FromDafny_N3_aws__N4_esdk__S13_EncryptOutput(
             Dafny.Aws.Esdk._IEncryptOutput value)
         {
-            Dafny.Aws.Esdk.EncryptOutput concrete = (Dafny.Aws.Esdk.EncryptOutput)value;
+            Dafny.Aws.Esdk.EncryptOutput concrete = (Dafny.Aws.Esdk.EncryptOutput) value;
             Aws.Esdk.EncryptOutput converted = new Aws.Esdk.EncryptOutput();
             converted.Ciphertext =
-                (System.IO.MemoryStream)FromDafny_N3_aws__N4_esdk__S13_EncryptOutput__M10_ciphertext(
+                (System.IO.MemoryStream) FromDafny_N3_aws__N4_esdk__S13_EncryptOutput__M10_ciphertext(
                     concrete.ciphertext);
             converted.EncryptionContext =
                 (System.Collections.Generic.Dictionary<string, string>)
                 FromDafny_N3_aws__N4_esdk__S13_EncryptOutput__M17_encryptionContext(concrete.encryptionContext);
             converted.AlgorithmSuiteId =
-                (Aws.Crypto.AlgorithmSuiteId)FromDafny_N3_aws__N4_esdk__S13_EncryptOutput__M16_algorithmSuiteId(
+                (Aws.Crypto.AlgorithmSuiteId) FromDafny_N3_aws__N4_esdk__S13_EncryptOutput__M16_algorithmSuiteId(
                     concrete.algorithmSuiteId);
             return converted;
         }
@@ -484,7 +500,7 @@ namespace Aws.Esdk
                 Wrappers_Compile._IOption<Dafny.Aws.Crypto.ICryptographicMaterialsManager> value)
         {
             return value.is_None
-                ? (Aws.Crypto.ICryptographicMaterialsManager)null
+                ? (Aws.Crypto.ICryptographicMaterialsManager) null
                 : FromDafny_N3_aws__N6_crypto__S38_CryptographicMaterialsManagerReference(value.Extract());
         }
 
@@ -496,7 +512,7 @@ namespace Aws.Esdk
                 ? Wrappers_Compile.Option<Dafny.Aws.Crypto.ICryptographicMaterialsManager>.create_None()
                 : Wrappers_Compile.Option<Dafny.Aws.Crypto.ICryptographicMaterialsManager>.create_Some(
                     ToDafny_N3_aws__N6_crypto__S38_CryptographicMaterialsManagerReference(
-                        (Aws.Crypto.ICryptographicMaterialsManager)value));
+                        (Aws.Crypto.ICryptographicMaterialsManager) value));
         }
 
         public static Aws.Crypto.AlgorithmSuiteId FromDafny_N3_aws__N4_esdk__S13_DecryptOutput__M16_algorithmSuiteId(
@@ -514,7 +530,7 @@ namespace Aws.Esdk
         public static long? FromDafny_N3_aws__N4_esdk__S28_AwsEncryptionSdkClientConfig__M20_maxEncryptedDataKeys(
             Wrappers_Compile._IOption<long> value)
         {
-            return value.is_None ? (long?)null : FromDafny_N6_smithy__N3_api__S4_Long(value.Extract());
+            return value.is_None ? (long?) null : FromDafny_N6_smithy__N3_api__S4_Long(value.Extract());
         }
 
         public static Wrappers_Compile._IOption<long>
@@ -522,7 +538,7 @@ namespace Aws.Esdk
         {
             return value == null
                 ? Wrappers_Compile.Option<long>.create_None()
-                : Wrappers_Compile.Option<long>.create_Some(ToDafny_N6_smithy__N3_api__S4_Long((long)value));
+                : Wrappers_Compile.Option<long>.create_Some(ToDafny_N6_smithy__N3_api__S4_Long((long) value));
         }
 
         public static System.IO.MemoryStream FromDafny_N3_aws__N4_esdk__S12_DecryptInput__M10_ciphertext(
@@ -599,7 +615,7 @@ namespace Aws.Esdk
             Wrappers_Compile._IOption<Dafny.Aws.Crypto.IKeyring> value)
         {
             return value.is_None
-                ? (Aws.Crypto.IKeyring)null
+                ? (Aws.Crypto.IKeyring) null
                 : FromDafny_N3_aws__N6_crypto__S16_KeyringReference(value.Extract());
         }
 
@@ -609,7 +625,7 @@ namespace Aws.Esdk
             return value == null
                 ? Wrappers_Compile.Option<Dafny.Aws.Crypto.IKeyring>.create_None()
                 : Wrappers_Compile.Option<Dafny.Aws.Crypto.IKeyring>.create_Some(
-                    ToDafny_N3_aws__N6_crypto__S16_KeyringReference((Aws.Crypto.IKeyring)value));
+                    ToDafny_N3_aws__N6_crypto__S16_KeyringReference((Aws.Crypto.IKeyring) value));
         }
 
         public static Aws.Esdk.AwsEncryptionSdkClientException
@@ -632,10 +648,10 @@ namespace Aws.Esdk
         public static Aws.Esdk.DecryptInput FromDafny_N3_aws__N4_esdk__S12_DecryptInput(
             Dafny.Aws.Esdk._IDecryptInput value)
         {
-            Dafny.Aws.Esdk.DecryptInput concrete = (Dafny.Aws.Esdk.DecryptInput)value;
+            Dafny.Aws.Esdk.DecryptInput concrete = (Dafny.Aws.Esdk.DecryptInput) value;
             Aws.Esdk.DecryptInput converted = new Aws.Esdk.DecryptInput();
             converted.Ciphertext =
-                (System.IO.MemoryStream)FromDafny_N3_aws__N4_esdk__S12_DecryptInput__M10_ciphertext(
+                (System.IO.MemoryStream) FromDafny_N3_aws__N4_esdk__S12_DecryptInput__M10_ciphertext(
                     concrete.ciphertext);
             if (concrete.materialsManager.is_Some)
                 converted.MaterialsManager =
@@ -643,17 +659,21 @@ namespace Aws.Esdk
                     FromDafny_N3_aws__N4_esdk__S12_DecryptInput__M16_materialsManager(concrete.materialsManager);
             if (concrete.keyring.is_Some)
                 converted.Keyring =
-                    (Aws.Crypto.IKeyring)FromDafny_N3_aws__N4_esdk__S12_DecryptInput__M7_keyring(concrete.keyring);
+                    (Aws.Crypto.IKeyring) FromDafny_N3_aws__N4_esdk__S12_DecryptInput__M7_keyring(concrete.keyring);
             return converted;
         }
 
         public static Dafny.Aws.Esdk._IDecryptInput ToDafny_N3_aws__N4_esdk__S12_DecryptInput(
             Aws.Esdk.DecryptInput value)
         {
+            Aws.Crypto.ICryptographicMaterialsManager var_materialsManager = value.IsSetMaterialsManager()
+                ? value.MaterialsManager
+                : (Aws.Crypto.ICryptographicMaterialsManager) null;
+            Aws.Crypto.IKeyring var_keyring = value.IsSetKeyring() ? value.Keyring : (Aws.Crypto.IKeyring) null;
             return new Dafny.Aws.Esdk.DecryptInput(
                 ToDafny_N3_aws__N4_esdk__S12_DecryptInput__M10_ciphertext(value.Ciphertext),
-                ToDafny_N3_aws__N4_esdk__S12_DecryptInput__M16_materialsManager(value.MaterialsManager),
-                ToDafny_N3_aws__N4_esdk__S12_DecryptInput__M7_keyring(value.Keyring));
+                ToDafny_N3_aws__N4_esdk__S12_DecryptInput__M16_materialsManager(var_materialsManager),
+                ToDafny_N3_aws__N4_esdk__S12_DecryptInput__M7_keyring(var_keyring));
         }
 
         public static Aws.Crypto.CommitmentPolicy
@@ -661,7 +681,7 @@ namespace Aws.Esdk
                 Wrappers_Compile._IOption<Dafny.Aws.Crypto._ICommitmentPolicy> value)
         {
             return value.is_None
-                ? (Aws.Crypto.CommitmentPolicy)null
+                ? (Aws.Crypto.CommitmentPolicy) null
                 : FromDafny_N3_aws__N6_crypto__S16_CommitmentPolicy(value.Extract());
         }
 
@@ -672,7 +692,7 @@ namespace Aws.Esdk
             return value == null
                 ? Wrappers_Compile.Option<Dafny.Aws.Crypto._ICommitmentPolicy>.create_None()
                 : Wrappers_Compile.Option<Dafny.Aws.Crypto._ICommitmentPolicy>.create_Some(
-                    ToDafny_N3_aws__N6_crypto__S16_CommitmentPolicy((Aws.Crypto.CommitmentPolicy)value));
+                    ToDafny_N3_aws__N6_crypto__S16_CommitmentPolicy((Aws.Crypto.CommitmentPolicy) value));
         }
 
         public static Aws.Esdk.AwsEncryptionSdkException FromDafny_CommonError_AwsEncryptionSdkException(
@@ -680,7 +700,7 @@ namespace Aws.Esdk
         {
             if (value is Dafny.Aws.Esdk.AwsEncryptionSdkClientException)
                 return FromDafny_N3_aws__N4_esdk__S31_AwsEncryptionSdkClientException(
-                    (Dafny.Aws.Esdk.AwsEncryptionSdkClientException)value);
+                    (Dafny.Aws.Esdk.AwsEncryptionSdkClientException) value);
             throw new System.ArgumentException("Unknown exception type");
         }
 
@@ -689,7 +709,7 @@ namespace Aws.Esdk
         {
             if (value is Aws.Esdk.AwsEncryptionSdkClientException)
                 return ToDafny_N3_aws__N4_esdk__S31_AwsEncryptionSdkClientException(
-                    (Aws.Esdk.AwsEncryptionSdkClientException)value);
+                    (Aws.Esdk.AwsEncryptionSdkClientException) value);
             throw new System.ArgumentException("Unknown exception type");
         }
     }

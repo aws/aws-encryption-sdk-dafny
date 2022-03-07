@@ -22,10 +22,20 @@ namespace Aws.Crypto
             set { this._algorithmSuiteId = value; }
         }
 
+        internal bool IsSetAlgorithmSuiteId()
+        {
+            return this._algorithmSuiteId != null;
+        }
+
         public Aws.Crypto.CommitmentPolicy CommitmentPolicy
         {
             get { return this._commitmentPolicy; }
             set { this._commitmentPolicy = value; }
+        }
+
+        internal bool IsSetCommitmentPolicy()
+        {
+            return this._commitmentPolicy != null;
         }
 
         public System.Collections.Generic.List<Aws.Crypto.EncryptedDataKey> EncryptedDataKeys
@@ -34,10 +44,20 @@ namespace Aws.Crypto
             set { this._encryptedDataKeys = value; }
         }
 
+        internal bool IsSetEncryptedDataKeys()
+        {
+            return this._encryptedDataKeys != null;
+        }
+
         public System.Collections.Generic.Dictionary<string, string> EncryptionContext
         {
             get { return this._encryptionContext; }
             set { this._encryptionContext = value; }
+        }
+
+        internal bool IsSetEncryptionContext()
+        {
+            return this._encryptionContext != null;
         }
 
         public void Validate()

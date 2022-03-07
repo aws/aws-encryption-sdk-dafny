@@ -22,10 +22,20 @@ namespace Aws.Crypto
             set { this._encryptionContext = value; }
         }
 
+        internal bool IsSetEncryptionContext()
+        {
+            return this._encryptionContext != null;
+        }
+
         public Aws.Crypto.CommitmentPolicy CommitmentPolicy
         {
             get { return this._commitmentPolicy; }
             set { this._commitmentPolicy = value; }
+        }
+
+        internal bool IsSetCommitmentPolicy()
+        {
+            return this._commitmentPolicy != null;
         }
 
         public Aws.Crypto.AlgorithmSuiteId AlgorithmSuiteId
@@ -34,10 +44,20 @@ namespace Aws.Crypto
             set { this._algorithmSuiteId = value; }
         }
 
+        internal bool IsSetAlgorithmSuiteId()
+        {
+            return this._algorithmSuiteId != null;
+        }
+
         public long MaxPlaintextLength
         {
             get { return this._maxPlaintextLength.GetValueOrDefault(); }
             set { this._maxPlaintextLength = value; }
+        }
+
+        internal bool IsSetMaxPlaintextLength()
+        {
+            return this._maxPlaintextLength.HasValue;
         }
 
         public void Validate()
