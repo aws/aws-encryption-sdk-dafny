@@ -162,13 +162,6 @@ module {:extern "Dafny.Aws.Esdk.AwsEncryptionSdkClient"} AwsEncryptionSdk {
             }
             :- Need(frameLength > 0, "Requested frame length must be > 0");
 
-            var maxPlaintextLength := INT64_MAX_LIMIT - 1;
-            if input.maxPlaintextLength.Some? {
-                // TODO: uncomment once https://issues.amazon.com/issues/CrypTool-4350 fixed
-                //maxPlaintextLength := request.maxPlaintextLength.value;
-            }
-            :- Need(maxPlaintextLength < INT64_MAX_LIMIT, "Input plaintext size too large.");
-
             // TODO: Change to '> 0' once CrypTool-4350 complete
             // TODO: Remove entirely once we can validate this value on client creation
             if this.maxEncryptedDataKeys.Some? {
@@ -190,8 +183,7 @@ module {:extern "Dafny.Aws.Esdk.AwsEncryptionSdkClient"} AwsEncryptionSdk {
             var materials :- GetEncryptionMaterials(
                 cmm,
                 algorithmSuiteId,
-                input.encryptionContext,
-                maxPlaintextLength as int64
+                input.encryptionContext
             );
 
             //= compliance/client-apis/encrypt.txt#2.6.1
@@ -341,8 +333,7 @@ module {:extern "Dafny.Aws.Esdk.AwsEncryptionSdkClient"} AwsEncryptionSdk {
         method GetEncryptionMaterials(
             cmm: Crypto.ICryptographicMaterialsManager,
             algorithmSuiteId: Option<Crypto.AlgorithmSuiteId>,
-            inputEncryptionContext: Option<Crypto.EncryptionContext>,
-            maxPlaintextLength: int64
+            inputEncryptionContext: Option<Crypto.EncryptionContext>
         ) returns (res: Result<Crypto.EncryptionMaterials, string>)
 
         ensures res.Success? ==>
@@ -369,7 +360,7 @@ module {:extern "Dafny.Aws.Esdk.AwsEncryptionSdkClient"} AwsEncryptionSdk {
                 encryptionContext:=encryptionContext,
                 commitmentPolicy:=this.commitmentPolicy,
                 algorithmSuiteId:=algorithmSuiteId,
-                maxPlaintextLength:=Option.Some(maxPlaintextLength)
+                maxPlaintextLength:=Option.None()
             );
 
             //= compliance/client-apis/encrypt.txt#2.6.1

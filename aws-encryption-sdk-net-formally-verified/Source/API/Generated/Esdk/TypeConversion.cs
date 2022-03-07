@@ -360,10 +360,6 @@ namespace Aws.Esdk
             if (concrete.frameLength.is_Some)
                 converted.FrameLength =
                     (long)FromDafny_N3_aws__N4_esdk__S12_EncryptInput__M11_frameLength(concrete.frameLength);
-            if (concrete.maxPlaintextLength.is_Some)
-                converted.MaxPlaintextLength =
-                    (long)FromDafny_N3_aws__N4_esdk__S12_EncryptInput__M18_maxPlaintextLength(concrete
-                        .maxPlaintextLength);
             return converted;
         }
 
@@ -376,8 +372,7 @@ namespace Aws.Esdk
                 ToDafny_N3_aws__N4_esdk__S12_EncryptInput__M16_materialsManager(value.MaterialsManager),
                 ToDafny_N3_aws__N4_esdk__S12_EncryptInput__M7_keyring(value.Keyring),
                 ToDafny_N3_aws__N4_esdk__S12_EncryptInput__M16_algorithmSuiteId(value.AlgorithmSuiteId),
-                ToDafny_N3_aws__N4_esdk__S12_EncryptInput__M11_frameLength(value.FrameLength),
-                ToDafny_N3_aws__N4_esdk__S12_EncryptInput__M18_maxPlaintextLength(value.MaxPlaintextLength));
+                ToDafny_N3_aws__N4_esdk__S12_EncryptInput__M11_frameLength(value.FrameLength));
         }
 
         public static System.Collections.Generic.Dictionary<string, string>
@@ -588,20 +583,6 @@ namespace Aws.Esdk
             System.IO.MemoryStream value)
         {
             return ToDafny_N6_smithy__N3_api__S4_Blob(value);
-        }
-
-        public static long? FromDafny_N3_aws__N4_esdk__S12_EncryptInput__M18_maxPlaintextLength(
-            Wrappers_Compile._IOption<long> value)
-        {
-            return value.is_None ? (long?)null : FromDafny_N6_smithy__N3_api__S4_Long(value.Extract());
-        }
-
-        public static Wrappers_Compile._IOption<long> ToDafny_N3_aws__N4_esdk__S12_EncryptInput__M18_maxPlaintextLength(
-            long? value)
-        {
-            return value == null
-                ? Wrappers_Compile.Option<long>.create_None()
-                : Wrappers_Compile.Option<long>.create_Some(ToDafny_N6_smithy__N3_api__S4_Long((long)value));
         }
 
         public static string FromDafny_N3_aws__N6_crypto__S17_EncryptionContext__M3_key(Dafny.ISequence<byte> value)

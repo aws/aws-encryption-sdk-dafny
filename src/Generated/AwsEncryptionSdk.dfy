@@ -34,10 +34,7 @@ module {:extern "Dafny.Aws.Esdk"} Aws.Esdk {
         //# *  Encryption Context (Section 2.4.2)
         //# *  Frame Length (Section 2.4.6)
         nameonly algorithmSuiteId: Option<Crypto.AlgorithmSuiteId>,
-        nameonly frameLength: Option<int64>,
-
-        // TODO: remove, since streaming is not yet supported
-        nameonly maxPlaintextLength: Option<int64>
+        nameonly frameLength: Option<int64>
     )
 
     datatype EncryptOutput = EncryptOutput(
