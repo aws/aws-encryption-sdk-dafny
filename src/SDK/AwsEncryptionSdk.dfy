@@ -50,6 +50,8 @@ module {:extern "Dafny.Aws.Esdk.AwsEncryptionSdkClient"} AwsEncryptionSdk {
   import V1HeaderBody
   import Frames
 
+  type FrameLength = frameLength : int64 | 0 < frameLength <= 0xFFFF_FFFF witness *
+  
   class AwsEncryptionSdkClient extends Esdk.IAwsEncryptionSdkClient {
         const config: Esdk.AwsEncryptionSdkClientConfig;
 
@@ -149,18 +151,24 @@ module {:extern "Dafny.Aws.Esdk.AwsEncryptionSdkClient"} AwsEncryptionSdk {
         ==>
             res.Failure?
 
+       //= compliance/client-apis/encrypt.txt#2.4.6
+       //= type=implication
+       //# This value
+       //# MUST be greater than 0 and MUST NOT exceed the value 2^32 - 1. 
+        ensures
+            && input.frameLength.Some?
+            && (input.frameLength.value == 0 || input.frameLength.value > 0xFFFF_FFFF)
+        ==>
+            res.Failure?            
         {
-            var frameLength : int64 := EncryptDecryptHelpers.DEFAULT_FRAME_LENGTH;
+            var frameLength : FrameLength := EncryptDecryptHelpers.DEFAULT_FRAME_LENGTH;
             if input.frameLength.Some? {
-                // TODO: uncomment once https://issues.amazon.com/issues/CrypTool-4350 fixed
-
-                //= compliance/client-apis/encrypt.txt#2.4.6
-                //= type=TODO
-                //# This value
-                //# MUST be greater than 0 and MUST NOT exceed the value 2^32 - 1.
-                //frameLength := request.frameLength.value;
+              :- Need(
+                0 < input.frameLength.value <= 0xFFFF_FFFF,
+                "FrameLength must be greater than 0 and less than 2^32"
+              );
+              frameLength := input.frameLength.value;
             }
-            :- Need(frameLength > 0, "Requested frame length must be > 0");
 
             // TODO: Change to '> 0' once CrypTool-4350 complete
             // TODO: Remove entirely once we can validate this value on client creation
