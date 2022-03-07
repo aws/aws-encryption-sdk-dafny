@@ -19,6 +19,11 @@ namespace Aws.Crypto
             set { this._configDefaults = value; }
         }
 
+        internal bool IsSetConfigDefaults()
+        {
+            return this._configDefaults != null;
+        }
+
         public void Validate()
         {
         }

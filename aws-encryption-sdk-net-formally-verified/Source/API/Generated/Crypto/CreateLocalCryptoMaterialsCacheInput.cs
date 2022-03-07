@@ -20,10 +20,20 @@ namespace Aws.Crypto
             set { this._entryCapacity = value; }
         }
 
+        internal bool IsSetEntryCapacity()
+        {
+            return this._entryCapacity.HasValue;
+        }
+
         public int EntryPruningTailSize
         {
             get { return this._entryPruningTailSize.GetValueOrDefault(); }
             set { this._entryPruningTailSize = value; }
+        }
+
+        internal bool IsSetEntryPruningTailSize()
+        {
+            return this._entryPruningTailSize.HasValue;
         }
 
         public void Validate()

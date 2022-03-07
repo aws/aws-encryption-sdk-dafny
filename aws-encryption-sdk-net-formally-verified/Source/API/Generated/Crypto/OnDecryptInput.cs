@@ -20,10 +20,20 @@ namespace Aws.Crypto
             set { this._materials = value; }
         }
 
+        internal bool IsSetMaterials()
+        {
+            return this._materials != null;
+        }
+
         public System.Collections.Generic.List<Aws.Crypto.EncryptedDataKey> EncryptedDataKeys
         {
             get { return this._encryptedDataKeys; }
             set { this._encryptedDataKeys = value; }
+        }
+
+        internal bool IsSetEncryptedDataKeys()
+        {
+            return this._encryptedDataKeys != null;
         }
 
         public void Validate()

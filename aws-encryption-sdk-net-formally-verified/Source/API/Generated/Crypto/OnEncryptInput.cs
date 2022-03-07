@@ -19,6 +19,11 @@ namespace Aws.Crypto
             set { this._materials = value; }
         }
 
+        internal bool IsSetMaterials()
+        {
+            return this._materials != null;
+        }
+
         public void Validate()
         {
         }

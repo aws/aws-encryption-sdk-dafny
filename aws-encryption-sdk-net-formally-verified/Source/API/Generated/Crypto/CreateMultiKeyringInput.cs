@@ -20,10 +20,20 @@ namespace Aws.Crypto
             set { this._generator = value; }
         }
 
+        internal bool IsSetGenerator()
+        {
+            return this._generator != null;
+        }
+
         public System.Collections.Generic.List<Aws.Crypto.IKeyring> ChildKeyrings
         {
             get { return this._childKeyrings; }
             set { this._childKeyrings = value; }
+        }
+
+        internal bool IsSetChildKeyrings()
+        {
+            return this._childKeyrings != null;
         }
 
         public void Validate()

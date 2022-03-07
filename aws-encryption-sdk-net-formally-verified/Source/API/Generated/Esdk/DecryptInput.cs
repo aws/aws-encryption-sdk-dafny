@@ -21,16 +21,31 @@ namespace Aws.Esdk
             set { this._ciphertext = value; }
         }
 
+        internal bool IsSetCiphertext()
+        {
+            return this._ciphertext != null;
+        }
+
         public Aws.Crypto.ICryptographicMaterialsManager MaterialsManager
         {
             get { return this._materialsManager; }
             set { this._materialsManager = value; }
         }
 
+        internal bool IsSetMaterialsManager()
+        {
+            return this._materialsManager != null;
+        }
+
         public Aws.Crypto.IKeyring Keyring
         {
             get { return this._keyring; }
             set { this._keyring = value; }
+        }
+
+        internal bool IsSetKeyring()
+        {
+            return this._keyring != null;
         }
 
         public void Validate()

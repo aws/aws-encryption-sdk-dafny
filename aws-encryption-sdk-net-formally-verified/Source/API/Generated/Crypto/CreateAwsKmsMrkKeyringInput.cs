@@ -21,16 +21,31 @@ namespace Aws.Crypto
             set { this._kmsKeyId = value; }
         }
 
+        internal bool IsSetKmsKeyId()
+        {
+            return this._kmsKeyId != null;
+        }
+
         public Amazon.KeyManagementService.IAmazonKeyManagementService KmsClient
         {
             get { return this._kmsClient; }
             set { this._kmsClient = value; }
         }
 
+        internal bool IsSetKmsClient()
+        {
+            return this._kmsClient != null;
+        }
+
         public System.Collections.Generic.List<string> GrantTokens
         {
             get { return this._grantTokens; }
             set { this._grantTokens = value; }
+        }
+
+        internal bool IsSetGrantTokens()
+        {
+            return this._grantTokens != null;
         }
 
         public void Validate()

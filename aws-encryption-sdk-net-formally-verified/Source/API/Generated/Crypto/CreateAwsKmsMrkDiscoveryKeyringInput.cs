@@ -22,10 +22,20 @@ namespace Aws.Crypto
             set { this._kmsClient = value; }
         }
 
+        internal bool IsSetKmsClient()
+        {
+            return this._kmsClient != null;
+        }
+
         public Aws.Crypto.DiscoveryFilter DiscoveryFilter
         {
             get { return this._discoveryFilter; }
             set { this._discoveryFilter = value; }
+        }
+
+        internal bool IsSetDiscoveryFilter()
+        {
+            return this._discoveryFilter != null;
         }
 
         public System.Collections.Generic.List<string> GrantTokens
@@ -34,10 +44,20 @@ namespace Aws.Crypto
             set { this._grantTokens = value; }
         }
 
+        internal bool IsSetGrantTokens()
+        {
+            return this._grantTokens != null;
+        }
+
         public string Region
         {
             get { return this._region; }
             set { this._region = value; }
+        }
+
+        internal bool IsSetRegion()
+        {
+            return this._region != null;
         }
 
         public void Validate()

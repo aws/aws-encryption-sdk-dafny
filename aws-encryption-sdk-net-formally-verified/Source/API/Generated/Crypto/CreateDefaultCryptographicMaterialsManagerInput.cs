@@ -19,6 +19,11 @@ namespace Aws.Crypto
             set { this._keyring = value; }
         }
 
+        internal bool IsSetKeyring()
+        {
+            return this._keyring != null;
+        }
+
         public void Validate()
         {
         }

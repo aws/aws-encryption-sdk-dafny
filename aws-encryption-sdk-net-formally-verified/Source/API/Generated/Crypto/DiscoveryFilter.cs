@@ -20,10 +20,20 @@ namespace Aws.Crypto
             set { this._accountIds = value; }
         }
 
+        internal bool IsSetAccountIds()
+        {
+            return this._accountIds != null;
+        }
+
         public string Partition
         {
             get { return this._partition; }
             set { this._partition = value; }
+        }
+
+        internal bool IsSetPartition()
+        {
+            return this._partition != null;
         }
 
         public void Validate()

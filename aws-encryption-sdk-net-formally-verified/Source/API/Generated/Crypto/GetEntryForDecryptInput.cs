@@ -19,6 +19,11 @@ namespace Aws.Crypto
             set { this._identifier = value; }
         }
 
+        internal bool IsSetIdentifier()
+        {
+            return this._identifier != null;
+        }
+
         public void Validate()
         {
         }
