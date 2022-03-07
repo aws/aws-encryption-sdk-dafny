@@ -24,17 +24,15 @@ module {:extern "Dafny.Aws.Esdk"} Aws.Esdk {
         //= type=implication
         //# This MUST be a sequence of bytes.
         nameonly plaintext: seq<uint8>,
-        nameonly encryptionContext: Crypto.EncryptionContext,
+        nameonly encryptionContext: Option<Crypto.EncryptionContext>,
         nameonly materialsManager: Option<Crypto.ICryptographicMaterialsManager>,
         nameonly keyring: Option<Crypto.IKeyring>,
 
         //= compliance/client-apis/encrypt.txt#2.4
-        //= type=TODO
         //# The following inputs to this behavior MUST be OPTIONAL:
         //# *  Algorithm Suite (Section 2.4.5)
         //# *  Encryption Context (Section 2.4.2)
         //# *  Frame Length (Section 2.4.6)
-        // Marked as TODO because EC is not optional yet
         nameonly algorithmSuiteId: Option<Crypto.AlgorithmSuiteId>,
         nameonly frameLength: Option<int64>,
 

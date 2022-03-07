@@ -52,7 +52,6 @@ structure EncryptInput {
     @required
     plaintext: Blob,
 
-    @required
     encryptionContext: EncryptionContext,
 
     // One of keyring or CMM are required

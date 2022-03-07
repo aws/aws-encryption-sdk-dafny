@@ -341,7 +341,7 @@ module {:extern "Dafny.Aws.Esdk.AwsEncryptionSdkClient"} AwsEncryptionSdk {
         method GetEncryptionMaterials(
             cmm: Crypto.ICryptographicMaterialsManager,
             algorithmSuiteId: Option<Crypto.AlgorithmSuiteId>,
-            encryptionContext: Crypto.EncryptionContext,
+            inputEncryptionContext: Option<Crypto.EncryptionContext>,
             maxPlaintextLength: int64
         ) returns (res: Result<Crypto.EncryptionMaterials, string>)
 
@@ -358,6 +358,13 @@ module {:extern "Dafny.Aws.Esdk.AwsEncryptionSdkClient"} AwsEncryptionSdk {
             && forall edk | edk in res.value.encryptedDataKeys
                 :: SerializableTypes.IsESDKEncryptedDataKey(edk)
         {
+            var encryptionContext : Crypto.EncryptionContext;
+            if inputEncryptionContext.Some? {
+                encryptionContext := inputEncryptionContext.value;
+            } else {
+                encryptionContext := map[];
+            }
+
             var encMatRequest := Crypto.GetEncryptionMaterialsInput(
                 encryptionContext:=encryptionContext,
                 commitmentPolicy:=this.commitmentPolicy,
