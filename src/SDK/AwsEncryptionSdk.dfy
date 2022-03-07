@@ -180,6 +180,7 @@ module {:extern "Dafny.Aws.Esdk.AwsEncryptionSdkClient"} AwsEncryptionSdk {
                     .ValidateCommitmentPolicyOnEncrypt(algorithmSuiteId.value, this.commitmentPolicy);
             }
 
+            :- Need(|input.plaintext| < INT64_MAX_LIMIT, "Plaintext exceeds maximum allowed size");
             var materials :- GetEncryptionMaterials(
                 cmm,
                 algorithmSuiteId,
