@@ -14,8 +14,8 @@ include "AwsKmsUtils.dfy"
 include "AwsKmsArnParsing.dfy"
 
 module
-  {:extern "Dafny.Aws.Crypto.MaterialProviders.AwsKmsMrkAwareSymmetricRegionDiscoveryKeyring"}
-  MaterialProviders.AwsKmsMrkAwareSymmetricRegionDiscoveryKeyring
+  {:extern "Dafny.Aws.Crypto.MaterialProviders.AwsKmsMrkDiscoveryKeyring"}
+  MaterialProviders.AwsKmsMrkDiscoveryKeyring
 {
   import opened StandardLibrary
   import opened Wrappers
@@ -30,7 +30,7 @@ module
   import KMS = Com.Amazonaws.Kms
   import opened AwsKmsUtils
 
-  class AwsKmsMrkAwareSymmetricRegionDiscoveryKeyring
+  class AwsKmsMrkDiscoveryKeyring
     //= compliance/framework/aws-kms/aws-kms-mrk-discovery-keyring.txt#2.5
     //= type=implication
     //# MUST implement that AWS Encryption SDK Keyring interface (../keyring-

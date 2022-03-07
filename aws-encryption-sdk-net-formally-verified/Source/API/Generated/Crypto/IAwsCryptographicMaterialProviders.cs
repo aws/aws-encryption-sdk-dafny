@@ -11,18 +11,16 @@ namespace Aws.Crypto
 {
     public interface IAwsCryptographicMaterialProviders
     {
-        Aws.Crypto.IKeyring CreateStrictAwsKmsKeyring(Aws.Crypto.CreateStrictAwsKmsKeyringInput input);
+        Aws.Crypto.IKeyring CreateAwsKmsKeyring(Aws.Crypto.CreateAwsKmsKeyringInput input);
         Aws.Crypto.IKeyring CreateAwsKmsDiscoveryKeyring(Aws.Crypto.CreateAwsKmsDiscoveryKeyringInput input);
-        Aws.Crypto.IKeyring CreateStrictAwsKmsMultiKeyring(Aws.Crypto.CreateStrictAwsKmsMultiKeyringInput input);
+        Aws.Crypto.IKeyring CreateAwsKmsMultiKeyring(Aws.Crypto.CreateAwsKmsMultiKeyringInput input);
         Aws.Crypto.IKeyring CreateAwsKmsDiscoveryMultiKeyring(Aws.Crypto.CreateAwsKmsDiscoveryMultiKeyringInput input);
-        Aws.Crypto.IKeyring CreateMrkAwareStrictAwsKmsKeyring(Aws.Crypto.CreateMrkAwareStrictAwsKmsKeyringInput input);
-        Aws.Crypto.IKeyring CreateMrkAwareStrictMultiKeyring(Aws.Crypto.CreateMrkAwareStrictMultiKeyringInput input);
+        Aws.Crypto.IKeyring CreateAwsKmsMrkKeyring(Aws.Crypto.CreateAwsKmsMrkKeyringInput input);
+        Aws.Crypto.IKeyring CreateAwsKmsMrkMultiKeyring(Aws.Crypto.CreateAwsKmsMrkMultiKeyringInput input);
+        Aws.Crypto.IKeyring CreateAwsKmsMrkDiscoveryKeyring(Aws.Crypto.CreateAwsKmsMrkDiscoveryKeyringInput input);
 
-        Aws.Crypto.IKeyring CreateMrkAwareDiscoveryAwsKmsKeyring(
-            Aws.Crypto.CreateMrkAwareDiscoveryAwsKmsKeyringInput input);
-
-        Aws.Crypto.IKeyring CreateMrkAwareDiscoveryMultiKeyring(
-            Aws.Crypto.CreateMrkAwareDiscoveryMultiKeyringInput input);
+        Aws.Crypto.IKeyring CreateAwsKmsMrkDiscoveryMultiKeyring(
+            Aws.Crypto.CreateAwsKmsMrkDiscoveryMultiKeyringInput input);
 
         Aws.Crypto.IKeyring CreateMultiKeyring(Aws.Crypto.CreateMultiKeyringInput input);
         Aws.Crypto.IKeyring CreateRawAesKeyring(Aws.Crypto.CreateRawAesKeyringInput input);

@@ -9,7 +9,7 @@ using
 
 namespace Aws.Crypto
 {
-    public class CreateStrictAwsKmsMultiKeyringInput
+    public class CreateAwsKmsMultiKeyringInput
     {
         private string _generator;
         private System.Collections.Generic.List<string> _kmsKeyIds;

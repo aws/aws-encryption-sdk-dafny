@@ -18,8 +18,8 @@ include "../../Materials.dfy"
 include "../../AlgorithmSuites.dfy"
 
 module
-  {:extern "Dafny.Aws.Crypto.MaterialProviders.AwsKmsMrkAwareSymmetricKeyring"}
-  MaterialProviders.AwsKmsMrkAwareSymmetricKeyring
+  {:extern "Dafny.Aws.Crypto.MaterialProviders.AwsKmsMrkKeyring"}
+  MaterialProviders.AwsKmsMrkKeyring
 {
   import opened StandardLibrary
   import opened Wrappers
@@ -40,7 +40,7 @@ module
   //= type=implication
   //# MUST implement the AWS Encryption SDK Keyring interface (../keyring-
   //# interface.md#interface)
-  class AwsKmsMrkAwareSymmetricKeyring
+  class AwsKmsMrkKeyring
     extends Keyring.VerifiableInterface
   {
 

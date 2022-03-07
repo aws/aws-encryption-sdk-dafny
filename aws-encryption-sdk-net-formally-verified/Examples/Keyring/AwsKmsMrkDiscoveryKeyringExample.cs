@@ -11,8 +11,8 @@ using Aws.Esdk;
 using Xunit;
 using ConfigurationDefaults = Aws.Esdk.ConfigurationDefaults;
 
-/// Demonstrate an encrypt/decrypt cycle using a AWS MRK-aware symmetric keyring.
-public class AwsKmsMrkAwareSymmetricKeyringExample {
+/// Demonstrate an encrypt/decrypt cycle using an AWS KMS MRK discovery keyring.
+public class AwsKmsMrkDiscoveryKeyringExample {
     static void Run(MemoryStream plaintext, string keyArn) {
         // Create your encryption context.
         // Remember that your encryption context is NOT SECRET.
@@ -34,25 +34,27 @@ public class AwsKmsMrkAwareSymmetricKeyringExample {
         };
         IAwsEncryptionSdk encryptionSdkClient = new AwsEncryptionSdkClient(config);
 
-        // Create the keyring that determines how your data keys are protected.
-        CreateMrkAwareStrictAwsKmsKeyringInput createKeyringInput = new CreateMrkAwareStrictAwsKmsKeyringInput
+        // Create the keyring that determines how your data keys are protected. Though this example highlights
+        // Discovery keyrings, Discovery keyrings cannot be used to encrypt, so for encryption we create
+        // a KMS keyring without discovery mode.
+        CreateAwsKmsMrkKeyringInput createKeyringInput = new CreateAwsKmsMrkKeyringInput
         {
             KmsClient = new AmazonKeyManagementServiceClient(),
             KmsKeyId = keyArn,
         };
-        IKeyring keyring = materialProviders.CreateMrkAwareStrictAwsKmsKeyring(createKeyringInput);
+        IKeyring encryptKeyring = materialProviders.CreateAwsKmsMrkKeyring(createKeyringInput);
 
         // Create the materials manager that assembles cryptographic materials from your keyring.
-        CreateDefaultCryptographicMaterialsManagerInput createMaterialsManagerInput =
-            new CreateDefaultCryptographicMaterialsManagerInput {Keyring = keyring};
-        ICryptographicMaterialsManager materialsManager =
-            materialProviders.CreateDefaultCryptographicMaterialsManager(createMaterialsManagerInput);
+        CreateDefaultCryptographicMaterialsManagerInput createEncryptCmmInput =
+            new CreateDefaultCryptographicMaterialsManagerInput {Keyring = encryptKeyring};
+        ICryptographicMaterialsManager encryptCmm =
+            materialProviders.CreateDefaultCryptographicMaterialsManager(createEncryptCmmInput);
 
         // Encrypt your plaintext data.
         EncryptInput encryptInput = new EncryptInput
         {
             Plaintext = plaintext,
-            MaterialsManager = materialsManager,
+            MaterialsManager = encryptCmm,
             EncryptionContext = encryptionContext,
         };
         EncryptOutput encryptOutput = encryptionSdkClient.Encrypt(encryptInput);
@@ -61,14 +63,22 @@ public class AwsKmsMrkAwareSymmetricKeyringExample {
         // Demonstrate that the ciphertext and plaintext are different.
         Assert.NotEqual(ciphertext.ToArray(), plaintext.ToArray());
 
-        // Decrypt your encrypted data using the same keyring you used on encrypt.
-        //
-        // You do not need to specify the encryption context on decrypt
-        // because the header of the encrypted message includes the encryption context.
+        // Now create a Discovery keyring to use for decryption.
+        CreateAwsKmsMrkDiscoveryKeyringInput createDecryptKeyringInput = new CreateAwsKmsMrkDiscoveryKeyringInput
+        {
+            KmsClient = new AmazonKeyManagementServiceClient(),
+            Region = "us-west-2"
+        };
+        IKeyring decryptKeyring = materialProviders.CreateAwsKmsMrkDiscoveryKeyring(createDecryptKeyringInput);
+        CreateDefaultCryptographicMaterialsManagerInput createDecryptCmmInput =
+            new CreateDefaultCryptographicMaterialsManagerInput {Keyring = decryptKeyring};
+        ICryptographicMaterialsManager decryptCmm =
+            materialProviders.CreateDefaultCryptographicMaterialsManager(createDecryptCmmInput);
+
         DecryptInput decryptInput = new DecryptInput
         {
             Ciphertext = ciphertext,
-            MaterialsManager = materialsManager,
+            MaterialsManager = decryptCmm,
         };
         DecryptOutput decryptOutput = encryptionSdkClient.Decrypt(decryptInput);
 
@@ -93,7 +103,7 @@ public class AwsKmsMrkAwareSymmetricKeyringExample {
 
     // We test examples to ensure they remain up-to-date.
     [Fact]
-    public void TestAwsKmsMrkAwareSymmetricKeyringExample() {
+    public void TestAwsKmsMrkDiscoveryKeyringExample() {
         Run(ExampleUtils.ExampleUtils.GetPlaintextStream(), ExampleUtils.ExampleUtils.GetKmsKeyArn());
     }
 }
