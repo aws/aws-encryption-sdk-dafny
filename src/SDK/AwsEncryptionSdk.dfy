@@ -157,7 +157,7 @@ module {:extern "Dafny.Aws.Esdk.AwsEncryptionSdkClient"} AwsEncryptionSdk {
        //# MUST be greater than 0 and MUST NOT exceed the value 2^32 - 1. 
         ensures
             && input.frameLength.Some?
-            && (input.frameLength.value == 0 || input.frameLength.value > 0xFFFF_FFFF)
+            && (input.frameLength.value <= 0 || input.frameLength.value > 0xFFFF_FFFF)
         ==>
             res.Failure?            
         {
