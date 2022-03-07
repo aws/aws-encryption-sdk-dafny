@@ -180,6 +180,8 @@ module {:extern "Dafny.Aws.Esdk.AwsEncryptionSdkClient"} AwsEncryptionSdk {
                     .ValidateCommitmentPolicyOnEncrypt(algorithmSuiteId.value, this.commitmentPolicy);
             }
 
+            // int64 fits 9 exabytes so we're never going to actually hit this. But if we don't
+            // include this the verifier is not convinced that we can cast the size to int64
             :- Need(|input.plaintext| < INT64_MAX_LIMIT, "Plaintext exceeds maximum allowed size");
             var materials :- GetEncryptionMaterials(
                 cmm,
