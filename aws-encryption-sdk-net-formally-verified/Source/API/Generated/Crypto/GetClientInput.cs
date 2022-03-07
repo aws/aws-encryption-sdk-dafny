@@ -19,6 +19,11 @@ namespace Aws.Crypto
             set { this._region = value; }
         }
 
+        internal bool IsSetRegion()
+        {
+            return this._region != null;
+        }
+
         public void Validate()
         {
         }

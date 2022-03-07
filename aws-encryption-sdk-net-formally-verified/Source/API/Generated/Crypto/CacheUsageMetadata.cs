@@ -20,10 +20,20 @@ namespace Aws.Crypto
             set { this._messageUsage = value; }
         }
 
+        internal bool IsSetMessageUsage()
+        {
+            return this._messageUsage.HasValue;
+        }
+
         public long ByteUsage
         {
             get { return this._byteUsage.GetValueOrDefault(); }
             set { this._byteUsage = value; }
+        }
+
+        internal bool IsSetByteUsage()
+        {
+            return this._byteUsage.HasValue;
         }
 
         public void Validate()
