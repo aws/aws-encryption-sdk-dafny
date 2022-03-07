@@ -162,13 +162,6 @@ module {:extern "Dafny.Aws.Esdk.AwsEncryptionSdkClient"} AwsEncryptionSdk {
             }
             :- Need(frameLength > 0, "Requested frame length must be > 0");
 
-            var maxPlaintextLength := INT64_MAX_LIMIT - 1;
-            if input.maxPlaintextLength.Some? {
-                // TODO: uncomment once https://issues.amazon.com/issues/CrypTool-4350 fixed
-                //maxPlaintextLength := request.maxPlaintextLength.value;
-            }
-            :- Need(maxPlaintextLength < INT64_MAX_LIMIT, "Input plaintext size too large.");
-
             // TODO: Change to '> 0' once CrypTool-4350 complete
             // TODO: Remove entirely once we can validate this value on client creation
             if this.maxEncryptedDataKeys.Some? {
@@ -187,11 +180,17 @@ module {:extern "Dafny.Aws.Esdk.AwsEncryptionSdkClient"} AwsEncryptionSdk {
                     .ValidateCommitmentPolicyOnEncrypt(algorithmSuiteId.value, this.commitmentPolicy);
             }
 
+            // int64 fits 9 exabytes so we're never going to actually hit this. But if we don't
+            // include this the verifier is not convinced that we can cast the size to int64
+            :- Need(|input.plaintext| < INT64_MAX_LIMIT, "Plaintext exceeds maximum allowed size");
             var materials :- GetEncryptionMaterials(
                 cmm,
                 algorithmSuiteId,
                 input.encryptionContext,
-                maxPlaintextLength as int64
+                //= compliance/client-apis/encrypt.txt#2.6.1
+                //# *  Max Plaintext Length: If the input plaintext (Section 2.4.1) has
+                //# known length, this length MUST be used.
+                |input.plaintext| as int64
             );
 
             //= compliance/client-apis/encrypt.txt#2.6.1

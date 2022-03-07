@@ -34,8 +34,8 @@ package.
 
 First, clone that repository to some local location.
 
-Then, run `bin/generate-code.sh`, passing the root location of your polymorph repository
-as a parameter.
+Then, from the root of this repository, run `bin/generate-code.sh`,
+passing the root location of your polymorph repository as a parameter.
 
 Finally, you'll need to manually run a code formatter as described in the [README](./aws-encryption-sdk-net-formally-verified/Source/API/Generated).
 

@@ -60,9 +60,7 @@ structure EncryptInput {
 
     algorithmSuiteId: AlgorithmSuiteId,
 
-    frameLength: Long,
-
-    maxPlaintextLength: Long
+    frameLength: Long
 }
 
 structure EncryptOutput {

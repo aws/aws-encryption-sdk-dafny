@@ -17,7 +17,6 @@ namespace Aws.Esdk
         private Aws.Crypto.IKeyring _keyring;
         private Aws.Crypto.AlgorithmSuiteId _algorithmSuiteId;
         private long? _frameLength;
-        private long? _maxPlaintextLength;
 
         public System.IO.MemoryStream Plaintext
         {
@@ -83,17 +82,6 @@ namespace Aws.Esdk
         internal bool IsSetFrameLength()
         {
             return this._frameLength.HasValue;
-        }
-
-        public long MaxPlaintextLength
-        {
-            get { return this._maxPlaintextLength.GetValueOrDefault(); }
-            set { this._maxPlaintextLength = value; }
-        }
-
-        internal bool IsSetMaxPlaintextLength()
-        {
-            return this._maxPlaintextLength.HasValue;
         }
 
         public void Validate()

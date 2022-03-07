@@ -30,7 +30,7 @@ namespace Aws.Crypto
         {
             System.Collections.Generic.List<string> var_grantTokens = value.IsSetGrantTokens()
                 ? value.GrantTokens
-                : (System.Collections.Generic.List<string>) null;
+                : (System.Collections.Generic.List<string>)null;
             return new Dafny.Aws.Crypto.CreateAwsKmsKeyringInput(
                 ToDafny_N3_aws__N6_crypto__S24_CreateAwsKmsKeyringInput__M8_kmsKeyId(value.KmsKeyId),
                 ToDafny_N3_aws__N6_crypto__S24_CreateAwsKmsKeyringInput__M9_kmsClient(value.KmsClient),
@@ -178,7 +178,7 @@ namespace Aws.Crypto
                 Aws.Crypto.CreateLocalCryptoMaterialsCacheInput value)
         {
             int? var_entryPruningTailSize =
-                value.IsSetEntryPruningTailSize() ? value.EntryPruningTailSize : (int?) null;
+                value.IsSetEntryPruningTailSize() ? value.EntryPruningTailSize : (int?)null;
             return new Dafny.Aws.Crypto.CreateLocalCryptoMaterialsCacheInput(
                 ToDafny_N3_aws__N6_crypto__S36_CreateLocalCryptoMaterialsCacheInput__M13_entryCapacity(
                     value.EntryCapacity),
@@ -205,7 +205,8 @@ namespace Aws.Crypto
             FromDafny_N3_aws__N6_crypto__S27_GetEncryptionMaterialsInput(
                 Dafny.Aws.Crypto._IGetEncryptionMaterialsInput value)
         {
-            Dafny.Aws.Crypto.GetEncryptionMaterialsInput concrete = (Dafny.Aws.Crypto.GetEncryptionMaterialsInput)value;
+            Dafny.Aws.Crypto.GetEncryptionMaterialsInput
+                concrete = (Dafny.Aws.Crypto.GetEncryptionMaterialsInput)value;
             Aws.Crypto.GetEncryptionMaterialsInput converted = new Aws.Crypto.GetEncryptionMaterialsInput();
             converted.EncryptionContext =
                 (System.Collections.Generic.Dictionary<string, string>)
@@ -232,8 +233,8 @@ namespace Aws.Crypto
         {
             Aws.Crypto.AlgorithmSuiteId var_algorithmSuiteId = value.IsSetAlgorithmSuiteId()
                 ? value.AlgorithmSuiteId
-                : (Aws.Crypto.AlgorithmSuiteId) null;
-            long? var_maxPlaintextLength = value.IsSetMaxPlaintextLength() ? value.MaxPlaintextLength : (long?) null;
+                : (Aws.Crypto.AlgorithmSuiteId)null;
+            long? var_maxPlaintextLength = value.IsSetMaxPlaintextLength() ? value.MaxPlaintextLength : (long?)null;
             return new Dafny.Aws.Crypto.GetEncryptionMaterialsInput(
                 ToDafny_N3_aws__N6_crypto__S27_GetEncryptionMaterialsInput__M17_encryptionContext(
                     value.EncryptionContext),
@@ -557,9 +558,9 @@ namespace Aws.Crypto
             ToDafny_N3_aws__N6_crypto__S24_CreateRawRsaKeyringInput(Aws.Crypto.CreateRawRsaKeyringInput value)
         {
             System.IO.MemoryStream var_publicKey =
-                value.IsSetPublicKey() ? value.PublicKey : (System.IO.MemoryStream) null;
+                value.IsSetPublicKey() ? value.PublicKey : (System.IO.MemoryStream)null;
             System.IO.MemoryStream var_privateKey =
-                value.IsSetPrivateKey() ? value.PrivateKey : (System.IO.MemoryStream) null;
+                value.IsSetPrivateKey() ? value.PrivateKey : (System.IO.MemoryStream)null;
             return new Dafny.Aws.Crypto.CreateRawRsaKeyringInput(
                 ToDafny_N3_aws__N6_crypto__S24_CreateRawRsaKeyringInput__M12_keyNamespace(value.KeyNamespace),
                 ToDafny_N3_aws__N6_crypto__S24_CreateRawRsaKeyringInput__M7_keyName(value.KeyName),
@@ -1079,14 +1080,14 @@ namespace Aws.Crypto
             ToDafny_N3_aws__N6_crypto__S32_CreateAwsKmsMrkMultiKeyringInput(
                 Aws.Crypto.CreateAwsKmsMrkMultiKeyringInput value)
         {
-            string var_generator = value.IsSetGenerator() ? value.Generator : (string) null;
+            string var_generator = value.IsSetGenerator() ? value.Generator : (string)null;
             System.Collections.Generic.List<string> var_kmsKeyIds =
-                value.IsSetKmsKeyIds() ? value.KmsKeyIds : (System.Collections.Generic.List<string>) null;
+                value.IsSetKmsKeyIds() ? value.KmsKeyIds : (System.Collections.Generic.List<string>)null;
             Aws.Crypto.IClientSupplier var_clientSupplier =
-                value.IsSetClientSupplier() ? value.ClientSupplier : (Aws.Crypto.IClientSupplier) null;
+                value.IsSetClientSupplier() ? value.ClientSupplier : (Aws.Crypto.IClientSupplier)null;
             System.Collections.Generic.List<string> var_grantTokens = value.IsSetGrantTokens()
                 ? value.GrantTokens
-                : (System.Collections.Generic.List<string>) null;
+                : (System.Collections.Generic.List<string>)null;
             return new Dafny.Aws.Crypto.CreateAwsKmsMrkMultiKeyringInput(
                 ToDafny_N3_aws__N6_crypto__S32_CreateAwsKmsMrkMultiKeyringInput__M9_generator(var_generator),
                 ToDafny_N3_aws__N6_crypto__S32_CreateAwsKmsMrkMultiKeyringInput__M9_kmsKeyIds(var_kmsKeyIds),
@@ -1230,12 +1231,12 @@ namespace Aws.Crypto
                 Aws.Crypto.CreateAwsKmsMrkDiscoveryMultiKeyringInput value)
         {
             Aws.Crypto.DiscoveryFilter var_discoveryFilter =
-                value.IsSetDiscoveryFilter() ? value.DiscoveryFilter : (Aws.Crypto.DiscoveryFilter) null;
+                value.IsSetDiscoveryFilter() ? value.DiscoveryFilter : (Aws.Crypto.DiscoveryFilter)null;
             Aws.Crypto.IClientSupplier var_clientSupplier =
-                value.IsSetClientSupplier() ? value.ClientSupplier : (Aws.Crypto.IClientSupplier) null;
+                value.IsSetClientSupplier() ? value.ClientSupplier : (Aws.Crypto.IClientSupplier)null;
             System.Collections.Generic.List<string> var_grantTokens = value.IsSetGrantTokens()
                 ? value.GrantTokens
-                : (System.Collections.Generic.List<string>) null;
+                : (System.Collections.Generic.List<string>)null;
             return new Dafny.Aws.Crypto.CreateAwsKmsMrkDiscoveryMultiKeyringInput(
                 ToDafny_N3_aws__N6_crypto__S41_CreateAwsKmsMrkDiscoveryMultiKeyringInput__M7_regions(value.Regions),
                 ToDafny_N3_aws__N6_crypto__S41_CreateAwsKmsMrkDiscoveryMultiKeyringInput__M15_discoveryFilter(
@@ -1391,7 +1392,7 @@ namespace Aws.Crypto
         public static Dafny.Aws.Crypto._ICreateMultiKeyringInput ToDafny_N3_aws__N6_crypto__S23_CreateMultiKeyringInput(
             Aws.Crypto.CreateMultiKeyringInput value)
         {
-            Aws.Crypto.IKeyring var_generator = value.IsSetGenerator() ? value.Generator : (Aws.Crypto.IKeyring) null;
+            Aws.Crypto.IKeyring var_generator = value.IsSetGenerator() ? value.Generator : (Aws.Crypto.IKeyring)null;
             return new Dafny.Aws.Crypto.CreateMultiKeyringInput(
                 ToDafny_N3_aws__N6_crypto__S23_CreateMultiKeyringInput__M9_generator(var_generator),
                 ToDafny_N3_aws__N6_crypto__S23_CreateMultiKeyringInput__M13_childKeyrings(value.ChildKeyrings));
@@ -1489,7 +1490,8 @@ namespace Aws.Crypto
             FromDafny_N3_aws__N6_crypto__S27_CreateAwsKmsMrkKeyringInput(
                 Dafny.Aws.Crypto._ICreateAwsKmsMrkKeyringInput value)
         {
-            Dafny.Aws.Crypto.CreateAwsKmsMrkKeyringInput concrete = (Dafny.Aws.Crypto.CreateAwsKmsMrkKeyringInput)value;
+            Dafny.Aws.Crypto.CreateAwsKmsMrkKeyringInput
+                concrete = (Dafny.Aws.Crypto.CreateAwsKmsMrkKeyringInput)value;
             Aws.Crypto.CreateAwsKmsMrkKeyringInput converted = new Aws.Crypto.CreateAwsKmsMrkKeyringInput();
             converted.KmsKeyId =
                 (string)FromDafny_N3_aws__N6_crypto__S27_CreateAwsKmsMrkKeyringInput__M8_kmsKeyId(concrete.kmsKeyId);
@@ -1508,7 +1510,7 @@ namespace Aws.Crypto
         {
             System.Collections.Generic.List<string> var_grantTokens = value.IsSetGrantTokens()
                 ? value.GrantTokens
-                : (System.Collections.Generic.List<string>) null;
+                : (System.Collections.Generic.List<string>)null;
             return new Dafny.Aws.Crypto.CreateAwsKmsMrkKeyringInput(
                 ToDafny_N3_aws__N6_crypto__S27_CreateAwsKmsMrkKeyringInput__M8_kmsKeyId(value.KmsKeyId),
                 ToDafny_N3_aws__N6_crypto__S27_CreateAwsKmsMrkKeyringInput__M9_kmsClient(value.KmsClient),
@@ -1518,7 +1520,9 @@ namespace Aws.Crypto
         public static System.IO.MemoryStream FromDafny_N3_aws__N6_crypto__S24_CreateRawRsaKeyringInput__M9_publicKey(
             Wrappers_Compile._IOption<Dafny.ISequence<byte>> value)
         {
-            return value.is_None ? (System.IO.MemoryStream)null : FromDafny_N6_smithy__N3_api__S4_Blob(value.Extract());
+            return value.is_None
+                ? (System.IO.MemoryStream)null
+                : FromDafny_N6_smithy__N3_api__S4_Blob(value.Extract());
         }
 
         public static Wrappers_Compile._IOption<Dafny.ISequence<byte>>
@@ -1564,12 +1568,12 @@ namespace Aws.Crypto
                 Aws.Crypto.CreateAwsKmsDiscoveryMultiKeyringInput value)
         {
             Aws.Crypto.DiscoveryFilter var_discoveryFilter =
-                value.IsSetDiscoveryFilter() ? value.DiscoveryFilter : (Aws.Crypto.DiscoveryFilter) null;
+                value.IsSetDiscoveryFilter() ? value.DiscoveryFilter : (Aws.Crypto.DiscoveryFilter)null;
             Aws.Crypto.IClientSupplier var_clientSupplier =
-                value.IsSetClientSupplier() ? value.ClientSupplier : (Aws.Crypto.IClientSupplier) null;
+                value.IsSetClientSupplier() ? value.ClientSupplier : (Aws.Crypto.IClientSupplier)null;
             System.Collections.Generic.List<string> var_grantTokens = value.IsSetGrantTokens()
                 ? value.GrantTokens
-                : (System.Collections.Generic.List<string>) null;
+                : (System.Collections.Generic.List<string>)null;
             return new Dafny.Aws.Crypto.CreateAwsKmsDiscoveryMultiKeyringInput(
                 ToDafny_N3_aws__N6_crypto__S38_CreateAwsKmsDiscoveryMultiKeyringInput__M7_regions(value.Regions),
                 ToDafny_N3_aws__N6_crypto__S38_CreateAwsKmsDiscoveryMultiKeyringInput__M15_discoveryFilter(
@@ -1685,8 +1689,8 @@ namespace Aws.Crypto
             converted.KeyProviderId =
                 (string)FromDafny_N3_aws__N6_crypto__S16_EncryptedDataKey__M13_keyProviderId(concrete.keyProviderId);
             converted.KeyProviderInfo =
-                (string)FromDafny_N3_aws__N6_crypto__S16_EncryptedDataKey__M15_keyProviderInfo(concrete
-                    .keyProviderInfo);
+                (string)FromDafny_N3_aws__N6_crypto__S16_EncryptedDataKey__M15_keyProviderInfo(
+                    concrete.keyProviderInfo);
             converted.Ciphertext =
                 (System.IO.MemoryStream)FromDafny_N3_aws__N6_crypto__S16_EncryptedDataKey__M10_ciphertext(
                     concrete.ciphertext);
@@ -1906,8 +1910,8 @@ namespace Aws.Crypto
             Dafny.Aws.Crypto.EncryptionMaterials concrete = (Dafny.Aws.Crypto.EncryptionMaterials)value;
             Aws.Crypto.EncryptionMaterials converted = new Aws.Crypto.EncryptionMaterials();
             converted.AlgorithmSuiteId =
-                (Aws.Crypto.AlgorithmSuiteId)FromDafny_N3_aws__N6_crypto__S19_EncryptionMaterials__M16_algorithmSuiteId(
-                    concrete.algorithmSuiteId);
+                (Aws.Crypto.AlgorithmSuiteId)
+                FromDafny_N3_aws__N6_crypto__S19_EncryptionMaterials__M16_algorithmSuiteId(concrete.algorithmSuiteId);
             converted.EncryptionContext =
                 (System.Collections.Generic.Dictionary<string, string>)
                 FromDafny_N3_aws__N6_crypto__S19_EncryptionMaterials__M17_encryptionContext(concrete.encryptionContext);
@@ -1929,9 +1933,9 @@ namespace Aws.Crypto
             Aws.Crypto.EncryptionMaterials value)
         {
             System.IO.MemoryStream var_plaintextDataKey =
-                value.IsSetPlaintextDataKey() ? value.PlaintextDataKey : (System.IO.MemoryStream) null;
+                value.IsSetPlaintextDataKey() ? value.PlaintextDataKey : (System.IO.MemoryStream)null;
             System.IO.MemoryStream var_signingKey =
-                value.IsSetSigningKey() ? value.SigningKey : (System.IO.MemoryStream) null;
+                value.IsSetSigningKey() ? value.SigningKey : (System.IO.MemoryStream)null;
             return new Dafny.Aws.Crypto.EncryptionMaterials(
                 ToDafny_N3_aws__N6_crypto__S19_EncryptionMaterials__M16_algorithmSuiteId(value.AlgorithmSuiteId),
                 ToDafny_N3_aws__N6_crypto__S19_EncryptionMaterials__M17_encryptionContext(value.EncryptionContext),
@@ -2183,10 +2187,10 @@ namespace Aws.Crypto
                 Aws.Crypto.CreateAwsKmsMrkDiscoveryKeyringInput value)
         {
             Aws.Crypto.DiscoveryFilter var_discoveryFilter =
-                value.IsSetDiscoveryFilter() ? value.DiscoveryFilter : (Aws.Crypto.DiscoveryFilter) null;
+                value.IsSetDiscoveryFilter() ? value.DiscoveryFilter : (Aws.Crypto.DiscoveryFilter)null;
             System.Collections.Generic.List<string> var_grantTokens = value.IsSetGrantTokens()
                 ? value.GrantTokens
-                : (System.Collections.Generic.List<string>) null;
+                : (System.Collections.Generic.List<string>)null;
             return new Dafny.Aws.Crypto.CreateAwsKmsMrkDiscoveryKeyringInput(
                 ToDafny_N3_aws__N6_crypto__S36_CreateAwsKmsMrkDiscoveryKeyringInput__M9_kmsClient(value.KmsClient),
                 ToDafny_N3_aws__N6_crypto__S36_CreateAwsKmsMrkDiscoveryKeyringInput__M15_discoveryFilter(
@@ -2277,14 +2281,14 @@ namespace Aws.Crypto
         public static Dafny.Aws.Crypto._ICreateAwsKmsMultiKeyringInput
             ToDafny_N3_aws__N6_crypto__S29_CreateAwsKmsMultiKeyringInput(Aws.Crypto.CreateAwsKmsMultiKeyringInput value)
         {
-            string var_generator = value.IsSetGenerator() ? value.Generator : (string) null;
+            string var_generator = value.IsSetGenerator() ? value.Generator : (string)null;
             System.Collections.Generic.List<string> var_kmsKeyIds =
-                value.IsSetKmsKeyIds() ? value.KmsKeyIds : (System.Collections.Generic.List<string>) null;
+                value.IsSetKmsKeyIds() ? value.KmsKeyIds : (System.Collections.Generic.List<string>)null;
             Aws.Crypto.IClientSupplier var_clientSupplier =
-                value.IsSetClientSupplier() ? value.ClientSupplier : (Aws.Crypto.IClientSupplier) null;
+                value.IsSetClientSupplier() ? value.ClientSupplier : (Aws.Crypto.IClientSupplier)null;
             System.Collections.Generic.List<string> var_grantTokens = value.IsSetGrantTokens()
                 ? value.GrantTokens
-                : (System.Collections.Generic.List<string>) null;
+                : (System.Collections.Generic.List<string>)null;
             return new Dafny.Aws.Crypto.CreateAwsKmsMultiKeyringInput(
                 ToDafny_N3_aws__N6_crypto__S29_CreateAwsKmsMultiKeyringInput__M9_generator(var_generator),
                 ToDafny_N3_aws__N6_crypto__S29_CreateAwsKmsMultiKeyringInput__M9_kmsKeyIds(var_kmsKeyIds),
@@ -2535,7 +2539,9 @@ namespace Aws.Crypto
         public static System.IO.MemoryStream FromDafny_N3_aws__N6_crypto__S19_EncryptionMaterials__M16_plaintextDataKey(
             Wrappers_Compile._IOption<Dafny.ISequence<byte>> value)
         {
-            return value.is_None ? (System.IO.MemoryStream)null : FromDafny_N6_smithy__N3_api__S4_Blob(value.Extract());
+            return value.is_None
+                ? (System.IO.MemoryStream)null
+                : FromDafny_N6_smithy__N3_api__S4_Blob(value.Extract());
         }
 
         public static Wrappers_Compile._IOption<Dafny.ISequence<byte>>
@@ -2624,10 +2630,10 @@ namespace Aws.Crypto
                 Aws.Crypto.CreateAwsKmsDiscoveryKeyringInput value)
         {
             Aws.Crypto.DiscoveryFilter var_discoveryFilter =
-                value.IsSetDiscoveryFilter() ? value.DiscoveryFilter : (Aws.Crypto.DiscoveryFilter) null;
+                value.IsSetDiscoveryFilter() ? value.DiscoveryFilter : (Aws.Crypto.DiscoveryFilter)null;
             System.Collections.Generic.List<string> var_grantTokens = value.IsSetGrantTokens()
                 ? value.GrantTokens
-                : (System.Collections.Generic.List<string>) null;
+                : (System.Collections.Generic.List<string>)null;
             return new Dafny.Aws.Crypto.CreateAwsKmsDiscoveryKeyringInput(
                 ToDafny_N3_aws__N6_crypto__S33_CreateAwsKmsDiscoveryKeyringInput__M9_kmsClient(value.KmsClient),
                 ToDafny_N3_aws__N6_crypto__S33_CreateAwsKmsDiscoveryKeyringInput__M15_discoveryFilter(
@@ -2680,7 +2686,9 @@ namespace Aws.Crypto
         public static System.IO.MemoryStream FromDafny_N3_aws__N6_crypto__S19_DecryptionMaterials__M15_verificationKey(
             Wrappers_Compile._IOption<Dafny.ISequence<byte>> value)
         {
-            return value.is_None ? (System.IO.MemoryStream)null : FromDafny_N6_smithy__N3_api__S4_Blob(value.Extract());
+            return value.is_None
+                ? (System.IO.MemoryStream)null
+                : FromDafny_N6_smithy__N3_api__S4_Blob(value.Extract());
         }
 
         public static Wrappers_Compile._IOption<Dafny.ISequence<byte>>
@@ -2772,13 +2780,13 @@ namespace Aws.Crypto
             ToDafny_N3_aws__N6_crypto__S47_CreateCachingCryptographicMaterialsManagerInput(
                 Aws.Crypto.CreateCachingCryptographicMaterialsManagerInput value)
         {
-            Aws.Crypto.IKeyring var_keyring = value.IsSetKeyring() ? value.Keyring : (Aws.Crypto.IKeyring) null;
+            Aws.Crypto.IKeyring var_keyring = value.IsSetKeyring() ? value.Keyring : (Aws.Crypto.IKeyring)null;
             Aws.Crypto.ICryptographicMaterialsManager var_materialsManager = value.IsSetMaterialsManager()
                 ? value.MaterialsManager
-                : (Aws.Crypto.ICryptographicMaterialsManager) null;
-            string var_partitionId = value.IsSetPartitionId() ? value.PartitionId : (string) null;
-            long? var_limitBytes = value.IsSetLimitBytes() ? value.LimitBytes : (long?) null;
-            long? var_limitMessages = value.IsSetLimitMessages() ? value.LimitMessages : (long?) null;
+                : (Aws.Crypto.ICryptographicMaterialsManager)null;
+            string var_partitionId = value.IsSetPartitionId() ? value.PartitionId : (string)null;
+            long? var_limitBytes = value.IsSetLimitBytes() ? value.LimitBytes : (long?)null;
+            long? var_limitMessages = value.IsSetLimitMessages() ? value.LimitMessages : (long?)null;
             return new Dafny.Aws.Crypto.CreateCachingCryptographicMaterialsManagerInput(
                 ToDafny_N3_aws__N6_crypto__S47_CreateCachingCryptographicMaterialsManagerInput__M5_cache(value.Cache),
                 ToDafny_N3_aws__N6_crypto__S47_CreateCachingCryptographicMaterialsManagerInput__M13_cacheLimitTtl(
@@ -2823,7 +2831,9 @@ namespace Aws.Crypto
         public static System.IO.MemoryStream FromDafny_N3_aws__N6_crypto__S24_CreateRawRsaKeyringInput__M10_privateKey(
             Wrappers_Compile._IOption<Dafny.ISequence<byte>> value)
         {
-            return value.is_None ? (System.IO.MemoryStream)null : FromDafny_N6_smithy__N3_api__S4_Blob(value.Extract());
+            return value.is_None
+                ? (System.IO.MemoryStream)null
+                : FromDafny_N6_smithy__N3_api__S4_Blob(value.Extract());
         }
 
         public static Wrappers_Compile._IOption<Dafny.ISequence<byte>>
@@ -2920,8 +2930,8 @@ namespace Aws.Crypto
             Dafny.Aws.Crypto.DecryptionMaterials concrete = (Dafny.Aws.Crypto.DecryptionMaterials)value;
             Aws.Crypto.DecryptionMaterials converted = new Aws.Crypto.DecryptionMaterials();
             converted.AlgorithmSuiteId =
-                (Aws.Crypto.AlgorithmSuiteId)FromDafny_N3_aws__N6_crypto__S19_DecryptionMaterials__M16_algorithmSuiteId(
-                    concrete.algorithmSuiteId);
+                (Aws.Crypto.AlgorithmSuiteId)
+                FromDafny_N3_aws__N6_crypto__S19_DecryptionMaterials__M16_algorithmSuiteId(concrete.algorithmSuiteId);
             converted.EncryptionContext =
                 (System.Collections.Generic.Dictionary<string, string>)
                 FromDafny_N3_aws__N6_crypto__S19_DecryptionMaterials__M17_encryptionContext(concrete.encryptionContext);
@@ -2940,9 +2950,9 @@ namespace Aws.Crypto
             Aws.Crypto.DecryptionMaterials value)
         {
             System.IO.MemoryStream var_plaintextDataKey =
-                value.IsSetPlaintextDataKey() ? value.PlaintextDataKey : (System.IO.MemoryStream) null;
+                value.IsSetPlaintextDataKey() ? value.PlaintextDataKey : (System.IO.MemoryStream)null;
             System.IO.MemoryStream var_verificationKey =
-                value.IsSetVerificationKey() ? value.VerificationKey : (System.IO.MemoryStream) null;
+                value.IsSetVerificationKey() ? value.VerificationKey : (System.IO.MemoryStream)null;
             return new Dafny.Aws.Crypto.DecryptionMaterials(
                 ToDafny_N3_aws__N6_crypto__S19_DecryptionMaterials__M16_algorithmSuiteId(value.AlgorithmSuiteId),
                 ToDafny_N3_aws__N6_crypto__S19_DecryptionMaterials__M17_encryptionContext(value.EncryptionContext),
@@ -3126,7 +3136,9 @@ namespace Aws.Crypto
         public static System.IO.MemoryStream FromDafny_N3_aws__N6_crypto__S19_DecryptionMaterials__M16_plaintextDataKey(
             Wrappers_Compile._IOption<Dafny.ISequence<byte>> value)
         {
-            return value.is_None ? (System.IO.MemoryStream)null : FromDafny_N6_smithy__N3_api__S4_Blob(value.Extract());
+            return value.is_None
+                ? (System.IO.MemoryStream)null
+                : FromDafny_N6_smithy__N3_api__S4_Blob(value.Extract());
         }
 
         public static Wrappers_Compile._IOption<Dafny.ISequence<byte>>
@@ -3154,7 +3166,9 @@ namespace Aws.Crypto
         public static System.IO.MemoryStream FromDafny_N3_aws__N6_crypto__S19_EncryptionMaterials__M10_signingKey(
             Wrappers_Compile._IOption<Dafny.ISequence<byte>> value)
         {
-            return value.is_None ? (System.IO.MemoryStream)null : FromDafny_N6_smithy__N3_api__S4_Blob(value.Extract());
+            return value.is_None
+                ? (System.IO.MemoryStream)null
+                : FromDafny_N6_smithy__N3_api__S4_Blob(value.Extract());
         }
 
         public static Wrappers_Compile._IOption<Dafny.ISequence<byte>>

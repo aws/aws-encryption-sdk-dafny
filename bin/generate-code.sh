@@ -15,7 +15,7 @@ export DAFNY_ROOT=`pwd`
 export DOTNET_ROOT=$DAFNY_ROOT/aws-encryption-sdk-net-formally-verified
 export MODEL_ROOT=$DAFNY_ROOT/model
 
-cd $POLYMORPH_ROOT
+cd "$POLYMORPH_ROOT"
 
 # Generate code for material providers
 ./gradlew run --args="\
