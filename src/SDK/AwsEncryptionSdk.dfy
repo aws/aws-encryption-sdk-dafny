@@ -183,7 +183,11 @@ module {:extern "Dafny.Aws.Esdk.AwsEncryptionSdkClient"} AwsEncryptionSdk {
             var materials :- GetEncryptionMaterials(
                 cmm,
                 algorithmSuiteId,
-                input.encryptionContext
+                input.encryptionContext,
+                //= compliance/client-apis/encrypt.txt#2.6.1
+                //# *  Max Plaintext Length: If the input plaintext (Section 2.4.1) has
+                //# known length, this length MUST be used.
+                |input.plaintext| as int64
             );
 
             //= compliance/client-apis/encrypt.txt#2.6.1
@@ -333,7 +337,8 @@ module {:extern "Dafny.Aws.Esdk.AwsEncryptionSdkClient"} AwsEncryptionSdk {
         method GetEncryptionMaterials(
             cmm: Crypto.ICryptographicMaterialsManager,
             algorithmSuiteId: Option<Crypto.AlgorithmSuiteId>,
-            inputEncryptionContext: Option<Crypto.EncryptionContext>
+            inputEncryptionContext: Option<Crypto.EncryptionContext>,
+            maxPlaintextLength: int64
         ) returns (res: Result<Crypto.EncryptionMaterials, string>)
 
         ensures res.Success? ==>
@@ -360,7 +365,7 @@ module {:extern "Dafny.Aws.Esdk.AwsEncryptionSdkClient"} AwsEncryptionSdk {
                 encryptionContext:=encryptionContext,
                 commitmentPolicy:=this.commitmentPolicy,
                 algorithmSuiteId:=algorithmSuiteId,
-                maxPlaintextLength:=Option.None()
+                maxPlaintextLength:=Option.Some(maxPlaintextLength)
             );
 
             //= compliance/client-apis/encrypt.txt#2.6.1
