@@ -11,25 +11,25 @@ using
 
 namespace Aws.Esdk
 {
-    public class AwsEncryptionSdkFactoryClient : AwsEncryptionSdkFactoryClientBase
+    public class AwsEncryptionSdkClientFactoryClient : AwsEncryptionSdkClientFactoryClientBase
     {
-        private Dafny.Aws.Esdk.AwsEncryptionSdkFactoryClient.AwsEncryptionSdkFactoryClient _impl;
+        private Dafny.Aws.Esdk.AwsEncryptionSdkClientFactoryClient.AwsEncryptionSdkClientFactoryClient _impl;
 
-        public AwsEncryptionSdkFactoryClient()
+        public AwsEncryptionSdkClientFactoryClient()
         {
-            this._impl = new Dafny.Aws.Esdk.AwsEncryptionSdkFactoryClient.AwsEncryptionSdkFactoryClient();
+            this._impl = new Dafny.Aws.Esdk.AwsEncryptionSdkClientFactoryClient.AwsEncryptionSdkClientFactoryClient();
         }
 
-        protected override Aws.Esdk.IAwsEncryptionSdkClient _MakeAwsEncryptionSdk(
+        protected override Aws.Esdk.IAwsEncryptionSdkClient _MakeAwsEncryptionSdkClient(
             Aws.Esdk.AwsEncryptionSdkClientConfig input)
         {
             Dafny.Aws.Esdk._IAwsEncryptionSdkClientConfig internalInput =
                 TypeConversion.ToDafny_N3_aws__N4_esdk__S28_AwsEncryptionSdkClientConfig(input);
             Wrappers_Compile._IResult<Dafny.Aws.Esdk.IAwsEncryptionSdkClient,
-                Dafny.Aws.Esdk.IAwsEncryptionSdkFactoryException> result =
-                this._impl.MakeAwsEncryptionSdk(internalInput);
+                Dafny.Aws.Esdk.IAwsEncryptionSdkClientFactoryException> result =
+                this._impl.MakeAwsEncryptionSdkClient(internalInput);
             if (result.is_Failure)
-                throw TypeConversion.FromDafny_CommonError_AwsEncryptionSdkFactoryException(result.dtor_error);
+                throw TypeConversion.FromDafny_CommonError_AwsEncryptionSdkClientFactoryException(result.dtor_error);
             return TypeConversion.FromDafny_N3_aws__N4_esdk__S31_AwsEncryptionSdkClientReference(result.dtor_value);
         }
     }

@@ -20,7 +20,7 @@ module
     constructor(){}
 
     method {:extern "DefaultClientSupplier.DefaultClientSupplier", "GetClient"} GetClient(input: Crypto.GetClientInput)
-      returns (res: Result<KMS.IKeyManagementServiceClient, Crypto.IAwsCryptographicMaterialProvidersException>) 
+      returns (res: Result<KMS.IKeyManagementServiceClient, Crypto.IAwsCryptographicMaterialProvidersClientFactoryException>) 
     
   }
 }

@@ -48,22 +48,22 @@ module {:extern "Dafny.Aws.Esdk"} Aws.Esdk {
     datatype ConfigurationDefaults = V1
 
     // TODO the Client suffix appended by Smithy, leading to annoying naming
-    trait {:termination false} IAwsEncryptionSdkFactoryClient {
-        method MakeAwsEncryptionSdk(input: AwsEncryptionSdkClientConfig) returns (res: Result<IAwsEncryptionSdkClient, IAwsEncryptionSdkFactoryException>)
+    trait {:termination false} IAwsEncryptionSdkClientFactoryClient {
+        method MakeAwsEncryptionSdkClient(input: AwsEncryptionSdkClientConfig) returns (res: Result<IAwsEncryptionSdkClient, IAwsEncryptionSdkClientFactoryException>)
     }
 
-    // Code Generation appears to want to name this based off the service, while for us it would make more sense to use IAwsEncryptionSdkException
     trait {:termination false} IAwsEncryptionSdkClient {
-        method Encrypt(input: EncryptInput) returns (res: Result<EncryptOutput, IAwsEncryptionSdkFactoryException>)
-        method Decrypt(input: DecryptInput) returns (res: Result<DecryptOutput, IAwsEncryptionSdkFactoryException>)
+        method Encrypt(input: EncryptInput) returns (res: Result<EncryptOutput, IAwsEncryptionSdkClientFactoryException>)
+        method Decrypt(input: DecryptInput) returns (res: Result<DecryptOutput, IAwsEncryptionSdkClientFactoryException>)
     }
 
-    trait IAwsEncryptionSdkFactoryException {
+    // TODO Code generation for this is awkward
+    trait IAwsEncryptionSdkClientFactoryException {
         function method GetMessage(): (message: string)
             reads this
     }
 
-    class AwsEncryptionSdkClientException extends IAwsEncryptionSdkFactoryException {
+    class AwsEncryptionSdkClientException extends IAwsEncryptionSdkClientFactoryException {
         var message: string
 
         constructor (message: string) {
@@ -77,7 +77,7 @@ module {:extern "Dafny.Aws.Esdk"} Aws.Esdk {
         }
 
         static method WrapResultString<T>(result: Result<T, string>)
-            returns (wrapped: Result<T, IAwsEncryptionSdkFactoryException>)
+            returns (wrapped: Result<T, IAwsEncryptionSdkClientFactoryException>)
             ensures result.Success? ==>
                 && wrapped.Success?
                 && wrapped.value == result.value

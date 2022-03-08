@@ -26,13 +26,17 @@ public class AwsKmsMrkAwareSymmetricKeyringExample {
         };
 
         // Create clients to access the Encryption SDK APIs.
-        // TODO: add client configuration objects
-        IAwsCryptographicMaterialProviders materialProviders = new AwsCryptographicMaterialProvidersClient();
-        AwsEncryptionSdkClientConfig config = new AwsEncryptionSdkClientConfig
+        AwsCryptographicMaterialProvidersClientConfig providersConfig = new AwsCryptographicMaterialProvidersClientConfig
+        {
+            ConfigDefaults = Aws.Crypto.ConfigurationDefaults.V1
+        };
+        IAwsCryptographicMaterialProvidersClient materialProviders = new AwsCryptographicMaterialProvidersClientFactoryClient().MakeAwsCryptographicMaterialProvidersClient(providersConfig);
+
+        AwsEncryptionSdkClientConfig clientConfig = new AwsEncryptionSdkClientConfig
         {
             ConfigDefaults = ConfigurationDefaults.V1
         };
-        IAwsEncryptionSdkClient encryptionSdkClient = new AwsEncryptionSdkFactoryClient().MakeAwsEncryptionSdk(config);
+        IAwsEncryptionSdkClient encryptionSdkClient = new AwsEncryptionSdkClientFactoryClient().MakeAwsEncryptionSdkClient(clientConfig);
         
         // Create the keyring that determines how your data keys are protected.
         CreateMrkAwareStrictAwsKmsKeyringInput createKeyringInput = new CreateMrkAwareStrictAwsKmsKeyringInput

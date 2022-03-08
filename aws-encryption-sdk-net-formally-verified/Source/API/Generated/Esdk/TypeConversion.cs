@@ -515,18 +515,6 @@ namespace Aws.Esdk
                         (Aws.Crypto.ICryptographicMaterialsManager)value));
         }
 
-        public static Aws.Crypto.AlgorithmSuiteId FromDafny_N3_aws__N4_esdk__S13_DecryptOutput__M16_algorithmSuiteId(
-            Dafny.Aws.Crypto._IAlgorithmSuiteId value)
-        {
-            return FromDafny_N3_aws__N6_crypto__S16_AlgorithmSuiteId(value);
-        }
-
-        public static Dafny.Aws.Crypto._IAlgorithmSuiteId
-            ToDafny_N3_aws__N4_esdk__S13_DecryptOutput__M16_algorithmSuiteId(Aws.Crypto.AlgorithmSuiteId value)
-        {
-            return ToDafny_N3_aws__N6_crypto__S16_AlgorithmSuiteId(value);
-        }
-
         public static long? FromDafny_N3_aws__N4_esdk__S28_AwsEncryptionSdkClientConfig__M20_maxEncryptedDataKeys(
             Wrappers_Compile._IOption<long> value)
         {
@@ -539,6 +527,18 @@ namespace Aws.Esdk
             return value == null
                 ? Wrappers_Compile.Option<long>.create_None()
                 : Wrappers_Compile.Option<long>.create_Some(ToDafny_N6_smithy__N3_api__S4_Long((long)value));
+        }
+
+        public static Aws.Crypto.AlgorithmSuiteId FromDafny_N3_aws__N4_esdk__S13_DecryptOutput__M16_algorithmSuiteId(
+            Dafny.Aws.Crypto._IAlgorithmSuiteId value)
+        {
+            return FromDafny_N3_aws__N6_crypto__S16_AlgorithmSuiteId(value);
+        }
+
+        public static Dafny.Aws.Crypto._IAlgorithmSuiteId
+            ToDafny_N3_aws__N4_esdk__S13_DecryptOutput__M16_algorithmSuiteId(Aws.Crypto.AlgorithmSuiteId value)
+        {
+            return ToDafny_N3_aws__N6_crypto__S16_AlgorithmSuiteId(value);
         }
 
         public static System.IO.MemoryStream FromDafny_N3_aws__N4_esdk__S12_DecryptInput__M10_ciphertext(
@@ -705,8 +705,9 @@ namespace Aws.Esdk
                     ToDafny_N3_aws__N6_crypto__S16_CommitmentPolicy((Aws.Crypto.CommitmentPolicy)value));
         }
 
-        public static Aws.Esdk.AwsEncryptionSdkFactoryException FromDafny_CommonError_AwsEncryptionSdkFactoryException(
-            Dafny.Aws.Esdk.IAwsEncryptionSdkFactoryException value)
+        public static Aws.Esdk.AwsEncryptionSdkClientFactoryException
+            FromDafny_CommonError_AwsEncryptionSdkClientFactoryException(
+                Dafny.Aws.Esdk.IAwsEncryptionSdkClientFactoryException value)
         {
             if (value is Dafny.Aws.Esdk.AwsEncryptionSdkClientException)
                 return FromDafny_N3_aws__N4_esdk__S31_AwsEncryptionSdkClientException(
@@ -714,8 +715,9 @@ namespace Aws.Esdk
             throw new System.ArgumentException("Unknown exception type");
         }
 
-        public static Dafny.Aws.Esdk.IAwsEncryptionSdkFactoryException
-            ToDafny_CommonError_AwsEncryptionSdkFactoryException(Aws.Esdk.AwsEncryptionSdkFactoryException value)
+        public static Dafny.Aws.Esdk.IAwsEncryptionSdkClientFactoryException
+            ToDafny_CommonError_AwsEncryptionSdkClientFactoryException(
+                Aws.Esdk.AwsEncryptionSdkClientFactoryException value)
         {
             if (value is Aws.Esdk.AwsEncryptionSdkClientException)
                 return ToDafny_N3_aws__N4_esdk__S31_AwsEncryptionSdkClientException(

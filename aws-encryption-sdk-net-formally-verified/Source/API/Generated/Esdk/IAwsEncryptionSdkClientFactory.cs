@@ -9,8 +9,8 @@ using
 
 namespace Aws.Esdk
 {
-    public interface IAwsEncryptionSdkFactory
+    public interface IAwsEncryptionSdkClientFactory
     {
-        Aws.Esdk.IAwsEncryptionSdkClient MakeAwsEncryptionSdk(Aws.Esdk.AwsEncryptionSdkClientConfig input);
+        Aws.Esdk.IAwsEncryptionSdkClient MakeAwsEncryptionSdkClient(Aws.Esdk.AwsEncryptionSdkClientConfig input);
     }
 }

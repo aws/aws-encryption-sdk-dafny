@@ -17,7 +17,7 @@ module
     extends Crypto.IKeyring
   {
     method OnEncrypt(input: Crypto.OnEncryptInput)
-      returns (res: Result<Crypto.OnEncryptOutput, Crypto.IAwsCryptographicMaterialProvidersException>)
+      returns (res: Result<Crypto.OnEncryptOutput, Crypto.IAwsCryptographicMaterialProvidersClientFactoryException>)
       ensures res.Success?
       ==>
         && Materials.EncryptionMaterialsTransitionIsValid(
@@ -26,7 +26,7 @@ module
         )
 
     method OnDecrypt(input: Crypto.OnDecryptInput)
-      returns (res: Result<Crypto.OnDecryptOutput, Crypto.IAwsCryptographicMaterialProvidersException>)
+      returns (res: Result<Crypto.OnDecryptOutput, Crypto.IAwsCryptographicMaterialProvidersClientFactoryException>)
       ensures res.Success?
       ==>
         && Materials.DecryptionMaterialsTransitionIsValid(

@@ -1,18 +1,13 @@
 // Copyright Amazon.com Inc. or its affiliates. All Rights Reserved.
 // SPDX-License-Identifier: Apache-2.0
-
 using System;
-using Aws.Crypto;
-using
-    Aws.Crypto
-    ;
+ using Aws.Crypto;
+ using
+ Aws.Crypto
+ ; namespace Aws.Crypto {
+ public class PutEntryForDecryptOutput {
 
-namespace Aws.Crypto
-{
-    public class PutEntryForDecryptOutput
-    {
-        public void Validate()
-        {
-        }
-    }
+ 
+ public void Validate() {}
+}
 }

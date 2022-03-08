@@ -26,15 +26,19 @@ public class AwsKmsMrkAwareDiscoveryKeyringExample {
         };
 
         // Create clients to access the Encryption SDK APIs.
-        // TODO: add client configuration objects
-        IAwsCryptographicMaterialProviders materialProviders = new AwsCryptographicMaterialProvidersClient();
-        AwsEncryptionSdkClientConfig config = new AwsEncryptionSdkClientConfig
+        AwsCryptographicMaterialProvidersClientConfig providersConfig = new AwsCryptographicMaterialProvidersClientConfig
         {
-            ConfigDefaults = ConfigurationDefaults.V1
+            ConfigDefaults = Aws.Crypto.ConfigurationDefaults.V1
         };
-        // TODO could the .NET compiler instead expose new AwsEncryptionSdkFactoryClient() through a constant?
-        // or make MakeAwsEncryptionSdk static on AwsEncryptionSdkFactoryClient?
-        IAwsEncryptionSdkClient encryptionSdkClient = new AwsEncryptionSdkFactoryClient().MakeAwsEncryptionSdk(config);
+        IAwsCryptographicMaterialProvidersClient materialProviders = new AwsCryptographicMaterialProvidersClientFactoryClient().MakeAwsCryptographicMaterialProvidersClient(providersConfig);
+
+        AwsEncryptionSdkClientConfig clientConfig = new AwsEncryptionSdkClientConfig
+        {
+            ConfigDefaults = Aws.Esdk.ConfigurationDefaults.V1
+        };
+        // TODO could the .NET compiler instead expose new AwsEncryptionSdkClientFactoryClient() through a constant?
+        // or make MakeAwsEncryptionSdkClient static on AwsEncryptionSdkClientFactoryClient?
+        IAwsEncryptionSdkClient encryptionSdkClient = new AwsEncryptionSdkClientFactoryClient().MakeAwsEncryptionSdkClient(clientConfig);
 
         // Create the keyring that determines how your data keys are protected. Though this example highlights
         // Discovery keyrings, Discovery keyrings cannot be used to encrypt, so we create a Strict KMS keyring

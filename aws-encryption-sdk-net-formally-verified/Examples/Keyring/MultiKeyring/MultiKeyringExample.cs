@@ -30,13 +30,17 @@ public class MultiKeyringExample {
         };
 
         // Create clients to access the Encryption SDK APIs.
-        // TODO: add client configuration objects
-        IAwsCryptographicMaterialProviders materialProviders = new AwsCryptographicMaterialProvidersClient();
-        AwsEncryptionSdkClientConfig config = new AwsEncryptionSdkClientConfig
+        AwsCryptographicMaterialProvidersClientConfig providersConfig = new AwsCryptographicMaterialProvidersClientConfig
+        {
+            ConfigDefaults = Aws.Crypto.ConfigurationDefaults.V1
+        };
+        IAwsCryptographicMaterialProvidersClient materialProviders = new AwsCryptographicMaterialProvidersClientFactoryClient().MakeAwsCryptographicMaterialProvidersClient(providersConfig);
+
+        AwsEncryptionSdkClientConfig clientConfig = new AwsEncryptionSdkClientConfig
         {
             ConfigDefaults = ConfigurationDefaults.V1
         };
-        IAwsEncryptionSdkClient encryptionSdkClient = new AwsEncryptionSdkFactoryClient().MakeAwsEncryptionSdk(config);
+        IAwsEncryptionSdkClient encryptionSdkClient = new AwsEncryptionSdkClientFactoryClient().MakeAwsEncryptionSdkClient(clientConfig);
         
         // Create a KMS keyring to use as the generator
         // TODO
@@ -106,7 +110,7 @@ public class MultiKeyringExample {
         Run(ExampleUtils.ExampleUtils.GetPlaintextStream());
     }
 
-    private static IKeyring CreateRawAESKeyring(IAwsCryptographicMaterialProviders materialProvidersClient) {
+    private static IKeyring CreateRawAESKeyring(IAwsCryptographicMaterialProvidersClient materialProvidersClient) {
         // Generate a 256-bit AES key to use with your keyring.
         // Here we use BouncyCastle, but you don't have to.
         //

@@ -6,28 +6,22 @@ use aws.crypto#EncryptionContext
 use aws.crypto#AlgorithmSuiteId
 use aws.crypto#CommitmentPolicy
 use aws.polymorph#reference
-use aws.polymorph#clientConfig
 
-@reference(resource: AwsEncryptionSdkClient)
-structure AwsEncryptionSdkClientReference {}
+/////////////
+// ESDK Client Creation
 
-operation MakeAwsEncryptionSdk {
+// TODO add a trait to indicate that 'Client' should not be appended to this name,
+// and that the code gen should expose operations under this service statically if
+// possible in the target language
+service AwsEncryptionSdkClientFactory {
+    version: "2020-10-24",
+    operations: [MakeAwsEncryptionSdkClient],
+    errors: [AwsEncryptionSdkClientException],
+}
+
+operation MakeAwsEncryptionSdkClient {
     input: AwsEncryptionSdkClientConfig,
     output: AwsEncryptionSdkClientReference,
-    errors: [AwsEncryptionSdkClientException],
-}
-
-service AwsEncryptionSdkFactory {
-    version: "2020-10-24",
-    operations: [MakeAwsEncryptionSdk],
-    // TODO should there be an exception type specific to client creation?
-    errors: [AwsEncryptionSdkClientException],
-}
-
-// TODO Is this ok as a resoruce, or should it be a separate service?
-// TODO make AwsEncryptionSdkClient vs AwsEncryptionSdk naming consistent throughout code
-resource AwsEncryptionSdkClient {
-    operations: [Encrypt, Decrypt],
     errors: [AwsEncryptionSdkClientException],
 }
 
@@ -39,11 +33,8 @@ structure AwsEncryptionSdkClientConfig {
     configDefaults: ConfigurationDefaults
 }
 
-@error("client")
-structure AwsEncryptionSdkClientException {
-    @required
-    message: String,
-}
+@reference(resource: AwsEncryptionSdkClient)
+structure AwsEncryptionSdkClientReference {}
 
 ///////////////////
 // Default Versions
@@ -57,7 +48,14 @@ structure AwsEncryptionSdkClientException {
 string ConfigurationDefaults
 
 /////////////
-// Operations
+// ESDK
+
+resource AwsEncryptionSdkClient {
+    operations: [Encrypt, Decrypt],
+}
+
+/////////////
+// ESDK Operations
 
 operation Encrypt {
     input: EncryptInput,
@@ -94,8 +92,9 @@ structure EncryptOutput {
 }
 
 operation Decrypt {
-   input: DecryptInput,
-   output: DecryptOutput,
+    input: DecryptInput,
+    output: DecryptOutput,
+    errors: [AwsEncryptionSdkClientException],
 }
 
 structure DecryptInput {
@@ -121,4 +120,13 @@ structure DecryptOutput {
     // header. We're omitting this for now, until we can spend
     // some more time figuring out what it looks like to model
     // the message format and message header in Smithy.
+}
+
+/////////////
+// Errors
+
+@error("client")
+structure AwsEncryptionSdkClientException {
+    @required
+    message: String,
 }

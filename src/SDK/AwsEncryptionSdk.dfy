@@ -56,9 +56,8 @@ module {:extern "Dafny.Aws.Esdk.AwsEncryptionSdkClient"} AwsEncryptionSdk {
         const commitmentPolicy: Crypto.CommitmentPolicy;
         const maxEncryptedDataKeys: Option<int64>;
 
-        const materialProvidersClient: Crypto.IAwsCryptographicMaterialsProviderClient;
+        const materialProvidersClient: Crypto.IAwsCryptographicMaterialProvidersClient;
 
-        // TODO Can we move any verification/impl into MakeAwsEncryptionSdk?
         constructor (config: Esdk.AwsEncryptionSdkClientConfig)
             ensures this.config == config
 
@@ -73,10 +72,6 @@ module {:extern "Dafny.Aws.Esdk.AwsEncryptionSdkClient"} AwsEncryptionSdk {
         {
             this.config := config;
 
-            // TODO: Ideally we would validate that this value, if provided, falls within a specific range,
-            // then only pass around known good values to all places where it is used.
-            // However, currently Polymorph doesn't handle this smoothly for these service client
-            // constructors and their configurations.
             this.maxEncryptedDataKeys := config.maxEncryptedDataKeys;
 
             if config.commitmentPolicy.None? {
@@ -86,7 +81,9 @@ module {:extern "Dafny.Aws.Esdk.AwsEncryptionSdkClient"} AwsEncryptionSdk {
                 this.commitmentPolicy := config.commitmentPolicy.value;
             }
 
-            this.materialProvidersClient := new Client.AwsCryptographicMaterialProvidersClient();
+            var providersConfigDefault := ConfigDefaults.GetDefaultMaterialProviderConfigurationDefault(config.configDefaults);
+            var providersConfig := Crypto.AwsCryptographicMaterialProvidersClientConfig(configDefaults := providersConfigDefault);
+            this.materialProvidersClient := new Client.AwsCryptographicMaterialProvidersClient(providersConfig);
         }
 
         // Doing this conversion at each error site would allow us to emit more specific error types.
@@ -100,7 +97,7 @@ module {:extern "Dafny.Aws.Esdk.AwsEncryptionSdkClient"} AwsEncryptionSdk {
         // So for expedience, we put the business logic in an internal method,
         // and provide this facade that wraps any failure message inside the generic error type.
         method Encrypt(input: Esdk.EncryptInput)
-            returns (res: Result<Esdk.EncryptOutput, Esdk.IAwsEncryptionSdkFactoryException>)
+            returns (res: Result<Esdk.EncryptOutput, Esdk.IAwsEncryptionSdkClientFactoryException>)
         {
             var encryptResult := EncryptInternal(input);
             var withConvertedError := Esdk.AwsEncryptionSdkClientException.WrapResultString(encryptResult);
@@ -557,7 +554,7 @@ module {:extern "Dafny.Aws.Esdk.AwsEncryptionSdkClient"} AwsEncryptionSdk {
         }
 
         // See Encrypt/EncryptInternal for an explanation of why we separate Decrypt and DecryptInternal.
-        method Decrypt(input: Esdk.DecryptInput) returns (res: Result<Esdk.DecryptOutput, Esdk.IAwsEncryptionSdkFactoryException>)
+        method Decrypt(input: Esdk.DecryptInput) returns (res: Result<Esdk.DecryptOutput, Esdk.IAwsEncryptionSdkClientFactoryException>)
         {
             var decryptResult := DecryptInternal(input);
             var withConvertedError := Esdk.AwsEncryptionSdkClientException.WrapResultString(decryptResult);
