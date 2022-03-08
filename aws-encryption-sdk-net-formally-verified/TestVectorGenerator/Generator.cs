@@ -173,7 +173,11 @@ namespace TestVectors {
                 Meta = new ManifestMeta
                 {
                     Type = "awses-decrypt",
-                    Version = 3
+                    // Technically this manifest format is described by version 3.
+                    // But the Python ESDK's test vector handler rejects version 3 despite handling it correctly,
+                    // so for expedience we'll advertise what Python can handle.
+                    // TODO: fix Python's vector handler version validation, and change this value to 3
+                    Version = 2
                 },
                 Client = new Client
                 {

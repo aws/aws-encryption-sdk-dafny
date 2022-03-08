@@ -111,7 +111,7 @@ namespace RSAEncryption {
             Debug.Assert(privateKeyParams != null);
 
             RsaKeyParameters publicKeyParams =
-                new RsaKeyParameters(false, privateKeyParams.Modulus, privateKeyParams.Exponent);
+                new RsaKeyParameters(false, privateKeyParams.Modulus, privateKeyParams.PublicExponent);
 
             using (var stringWriter = new StringWriter())
             {
