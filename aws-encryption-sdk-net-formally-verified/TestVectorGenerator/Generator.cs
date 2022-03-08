@@ -173,9 +173,12 @@ namespace TestVectors {
                 Meta = new ManifestMeta
                 {
                     Type = "awses-decrypt",
-                    // Technically this manifest format is described by version 3.
-                    // But the Python ESDK's test vector handler rejects version 3 despite handling it correctly,
-                    // so for expedience we'll advertise what Python can handle.
+                    // This manifest format is described by version 3 of "AWS Encryption SDK Message Decryption":
+                    // https://github.com/awslabs/aws-crypto-tools-test-vector-framework/blob/master/features/0004-awses-message-decryption.md
+                    //
+                    // Although the Python ESDK's test vector handler would correctly handle/decrypt the vectors,
+                    // it incorrectly rejects the version "3" during manifest loading,
+                    // so for expedience we'll just advertise what Python can handle.
                     // TODO: fix Python's vector handler version validation, and change this value to 3
                     Version = 2
                 },
