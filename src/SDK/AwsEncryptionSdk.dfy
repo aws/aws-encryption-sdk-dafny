@@ -1081,23 +1081,43 @@ module {:extern "Dafny.Aws.Esdk.AwsEncryptionSdkClient"} AwsEncryptionSdk {
         */
         method ValidateEncryptionContext(input: Crypto.EncryptionContext)
             returns (res: Result<(), string>)
-            //= compliance/client-apis/encrypt.txt#2.4.2
-            //# The prefix "aws-crypto-" is reserved for internal use by the AWS
-            //# Encryption SDK; see the the Default CMM spec (default-cmm.md) for one
-            //# such use.
-            //# If the input encryption context contains any entries with
-            //# a key beginning with this prefix, the encryption operation MUST fail.
+        //= compliance/client-apis/encrypt.txt#2.4.2
+        //= type=implication
+        //# The prefix "aws-crypto-" is reserved for internal use by the AWS
+        //# Encryption SDK; see the the Default CMM spec (default-cmm.md) for one
+        //# such use.
+        //# If the input encryption context contains any entries with
+        //# a key beginning with this prefix, the encryption operation MUST fail.
+        ensures
+            (exists key: UTF8.ValidUTF8Bytes | key in input.Keys :: RESERVED_ENCRYPTION_CONTEXT <= key)
+        ==>
+            res.Failure?
         {
-            var items := input.Items;
-            while items != {}
-            decreases |items|
-            {
-                var item :| item in items;
-                items := items - { item };
+            // In this method, we're looping through all keys and failing if any violate the reserved prefix.
+            // Because we're using a loop, if we want to be able to prove things about what went on inside
+            // the loop, we need a loop invariant. So our approach will be to track two sets of keys,
+            // ones we have checked and ones we haven't checked; we can then set invariants on the loop
+            // proving that all keys we've checked satisfy the constraint.
 
-                if RESERVED_ENCRYPTION_CONTEXT <= item.0 {
+            ghost var checkedKeys: set<UTF8.ValidUTF8Bytes> := {};
+            var uncheckedKeys: set<UTF8.ValidUTF8Bytes> := input.Keys;
+
+            while uncheckedKeys != {}
+                // Prove we'll terminate
+                decreases |uncheckedKeys|
+                // Prove we don't miss any keys
+                invariant uncheckedKeys + checkedKeys == input.Keys
+                // Prove that all checked keys satisfy our constraint
+                invariant forall key | key in checkedKeys :: ! (RESERVED_ENCRYPTION_CONTEXT <= key)
+            {
+                var key :| key in uncheckedKeys;
+
+                if RESERVED_ENCRYPTION_CONTEXT <= key {
                     return Failure("Encryption context keys cannot contain reserved prefix 'aws-crypto-'");
                 }
+
+                uncheckedKeys := uncheckedKeys - { key };
+                checkedKeys := checkedKeys + {key};
             }
             return Success(());
         }
