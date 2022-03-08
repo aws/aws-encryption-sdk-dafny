@@ -137,6 +137,14 @@ namespace TestVectors
                     PaddingScheme = padding,
                     PrivateKey = new MemoryStream(privateKey)
                 };
+
+                // Extract the public key if we need to encrypt
+                if (operation == CryptoOperation.ENCRYPT)
+                {
+                    byte[] publicKey = RSA.GetPublicKeyFromPrivateKeyPemString(key.Material);
+                    createKeyringInput.PublicKey = new MemoryStream(publicKey);
+                }
+
                 return materialProviders.CreateRawRsaKeyring(createKeyringInput);
             }
 

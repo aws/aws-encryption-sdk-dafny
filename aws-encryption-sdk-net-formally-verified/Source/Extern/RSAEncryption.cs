@@ -2,8 +2,10 @@
 // SPDX-License-Identifier: Apache-2.0
 
 using System;
+using System.Diagnostics;
 using System.Text;
 using System.IO;
+using Org.BouncyCastle.Asn1.X509;
 using Org.BouncyCastle.Crypto;
 using Org.BouncyCastle.Crypto.Digests;
 using Org.BouncyCastle.Crypto.Engines;
@@ -85,6 +87,36 @@ namespace RSAEncryption {
             AsymmetricKeyParameter keyParam;
             using (var stringReader = new StringReader(Encoding.UTF8.GetString(key.Elements))) {
                 return (AsymmetricKeyParameter) new PemReader(stringReader).ReadObject();
+            }
+        }
+
+        /// <summary>
+        /// Reads the given PEM-encoded RSA private key, and returns the corresponding PEM-encoded public key.
+        /// </summary>
+        public static byte[] GetPublicKeyFromPrivateKeyPemString(string pem)
+        {
+            RsaPrivateCrtKeyParameters privateKeyParams;
+            using (var stringReader = new StringReader(pem))
+            {
+                var pemObject = new PemReader(stringReader).ReadObject();
+                try
+                {
+                    privateKeyParams = (RsaPrivateCrtKeyParameters)pemObject;
+                }
+                catch (InvalidCastException ex)
+                {
+                    throw new ArgumentException("Expected RSA private key", nameof(pem), ex);
+                }
+            }
+            Debug.Assert(privateKeyParams != null);
+
+            RsaKeyParameters publicKeyParams =
+                new RsaKeyParameters(false, privateKeyParams.Modulus, privateKeyParams.Exponent);
+
+            using (var stringWriter = new StringWriter())
+            {
+                new PemWriter(stringWriter).WriteObject(publicKeyParams);
+                return Encoding.UTF8.GetBytes(stringWriter.ToString());
             }
         }
 

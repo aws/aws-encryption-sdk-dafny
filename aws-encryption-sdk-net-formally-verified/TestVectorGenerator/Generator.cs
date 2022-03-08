@@ -69,7 +69,12 @@ namespace TestVectors {
             Utils.WriteNamedDataMap(_plaintextDir, plaintexts);
             Console.Error.WriteLine($"Wrote {plaintexts.Count} plaintext files");
 
-            foreach (var (id, vector) in _encryptManifest.VectorMap)
+            var targetedVectors = _encryptManifest.VectorMap
+                .Where(pair => ShouldTargetVector(pair.Key, pair.Value))
+                .ToList();
+            var totalVectorCount = _encryptManifest.VectorMap.Count;
+            Console.Error.WriteLine($"Targeting {targetedVectors.Count} out of {totalVectorCount} vectors");
+            foreach (var (id, vector) in targetedVectors)
             {
                 try
                 {
@@ -113,6 +118,21 @@ namespace TestVectors {
             AlgorithmSuiteId.ALG_AES_256_GCM_HKDF_SHA512_COMMIT_KEY,
             AlgorithmSuiteId.ALG_AES_256_GCM_HKDF_SHA512_COMMIT_KEY_ECDSA_P384,
         };
+
+        /// <summary>
+        /// Returns whether the generator should attempt to encrypt the given vector.
+        /// </summary>
+        private bool ShouldTargetVector(string id, EncryptVector vector)
+        {
+            // TODO(alexchew) remove raw-keys-only restriction
+            if (vector.Scenario.MasterKeys.Any(key => key.Type != "raw"))
+            {
+                return false;
+            }
+
+            // We don't support encrypting unframed messages.
+            return vector.Scenario.FrameSize != 0;
+        }
 
         private MemoryStream GenerateDecryptVector(
             EncryptVector vector, Dictionary<string, MemoryStream> plaintexts)
