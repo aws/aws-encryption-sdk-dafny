@@ -64,7 +64,7 @@ module
     //# interface.md#generate-data-key) behavior during OnEncrypt (keyring-
     //# interface.md#onencrypt).
     method OnEncrypt(input: Crypto.OnEncryptInput)
-      returns (res: Result<Crypto.OnEncryptOutput, Crypto.IAwsCryptographicMaterialProvidersClientFactoryException>)
+      returns (res: Result<Crypto.OnEncryptOutput, Crypto.IAwsCryptographicMaterialProvidersClientException>)
 
       ensures res.Success?
       ==>
@@ -183,7 +183,7 @@ module
      * OnDecrypt
      */
     method OnDecrypt(input: Crypto.OnDecryptInput)
-      returns (res: Result<Crypto.OnDecryptOutput, Crypto.IAwsCryptographicMaterialProvidersClientFactoryException>)
+      returns (res: Result<Crypto.OnDecryptOutput, Crypto.IAwsCryptographicMaterialProvidersClientException>)
       ensures res.Success?
       ==>
         && Materials.DecryptionMaterialsTransitionIsValid(

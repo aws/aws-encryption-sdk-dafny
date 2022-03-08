@@ -25,9 +25,9 @@ namespace Aws.Esdk
             Dafny.Aws.Esdk._IEncryptInput internalInput =
                 TypeConversion.ToDafny_N3_aws__N4_esdk__S12_EncryptInput(input);
             Wrappers_Compile._IResult<Dafny.Aws.Esdk._IEncryptOutput,
-                Dafny.Aws.Esdk.IAwsEncryptionSdkClientFactoryException> result = this._impl.Encrypt(internalInput);
+                Dafny.Aws.Esdk.IAwsEncryptionSdkClientException> result = this._impl.Encrypt(internalInput);
             if (result.is_Failure)
-                throw TypeConversion.FromDafny_CommonError_AwsEncryptionSdkClientFactoryException(result.dtor_error);
+                throw TypeConversion.FromDafny_CommonError_AwsEncryptionSdkClientException(result.dtor_error);
             return TypeConversion.FromDafny_N3_aws__N4_esdk__S13_EncryptOutput(result.dtor_value);
         }
 
@@ -36,9 +36,9 @@ namespace Aws.Esdk
             Dafny.Aws.Esdk._IDecryptInput internalInput =
                 TypeConversion.ToDafny_N3_aws__N4_esdk__S12_DecryptInput(input);
             Wrappers_Compile._IResult<Dafny.Aws.Esdk._IDecryptOutput,
-                Dafny.Aws.Esdk.IAwsEncryptionSdkClientFactoryException> result = this._impl.Decrypt(internalInput);
+                Dafny.Aws.Esdk.IAwsEncryptionSdkClientException> result = this._impl.Decrypt(internalInput);
             if (result.is_Failure)
-                throw TypeConversion.FromDafny_CommonError_AwsEncryptionSdkClientFactoryException(result.dtor_error);
+                throw TypeConversion.FromDafny_CommonError_AwsEncryptionSdkClientException(result.dtor_error);
             return TypeConversion.FromDafny_N3_aws__N4_esdk__S13_DecryptOutput(result.dtor_value);
         }
     }

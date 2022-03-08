@@ -17,13 +17,13 @@ module
     extends Crypto.ICryptographicMaterialsManager
   {
     method GetEncryptionMaterials(input: Crypto.GetEncryptionMaterialsInput)
-      returns (res: Result<Crypto.GetEncryptionMaterialsOutput, Crypto.IAwsCryptographicMaterialProvidersClientFactoryException>)
+      returns (res: Result<Crypto.GetEncryptionMaterialsOutput, Crypto.IAwsCryptographicMaterialProvidersClientException>)
       ensures res.Success?
       ==>
         && Materials.EncryptionMaterialsWithPlaintextDataKey(res.value.encryptionMaterials)
 
     method DecryptMaterials(input: Crypto.DecryptMaterialsInput)
-      returns (res: Result<Crypto.DecryptMaterialsOutput, Crypto.IAwsCryptographicMaterialProvidersClientFactoryException>)
+      returns (res: Result<Crypto.DecryptMaterialsOutput, Crypto.IAwsCryptographicMaterialProvidersClientException>)
       ensures res.Success?
       ==>
         && Materials.DecryptionMaterialsWithPlaintextDataKey(res.value.decryptionMaterials)

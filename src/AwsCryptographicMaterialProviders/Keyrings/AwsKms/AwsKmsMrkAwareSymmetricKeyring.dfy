@@ -83,7 +83,7 @@ module
     //# OnEncrypt MUST take encryption materials (../structures.md#encryption-
     //# materials) as input.
     method OnEncrypt(input: Crypto.OnEncryptInput)
-      returns (res: Result<Crypto.OnEncryptOutput, Crypto.IAwsCryptographicMaterialProvidersClientFactoryException>)
+      returns (res: Result<Crypto.OnEncryptOutput, Crypto.IAwsCryptographicMaterialProvidersClientException>)
       ensures res.Success?
       ==>
         && Materials.EncryptionMaterialsTransitionIsValid(
@@ -364,7 +364,7 @@ module
     method OnDecrypt(
       input: Crypto.OnDecryptInput
     )
-      returns (res: Result<Crypto.OnDecryptOutput, Crypto.IAwsCryptographicMaterialProvidersClientFactoryException>)
+      returns (res: Result<Crypto.OnDecryptOutput, Crypto.IAwsCryptographicMaterialProvidersClientException>)
       ensures res.Success?
       ==>
         && Materials.DecryptionMaterialsTransitionIsValid(

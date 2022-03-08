@@ -26,19 +26,20 @@ public class AwsKmsMrkAwareDiscoveryKeyringExample {
         };
 
         // Create clients to access the Encryption SDK APIs.
+        // TODO these types are still really wordy. How can we cut down?
+        // TODO is providing config defaults at this level the correct thing to do?
         AwsCryptographicMaterialProvidersClientConfig providersConfig = new AwsCryptographicMaterialProvidersClientConfig
         {
             ConfigDefaults = Aws.Crypto.ConfigurationDefaults.V1
         };
-        IAwsCryptographicMaterialProvidersClient materialProviders = new AwsCryptographicMaterialProvidersClientFactoryClient().MakeAwsCryptographicMaterialProvidersClient(providersConfig);
+        // TODO how awkward is it to have a 'Make' here and then a "Make" later?
+        IAwsCryptographicMaterialProvidersClient materialProviders = AwsCryptographicMaterialProvidersClientFactory.MakeAwsCryptographicMaterialProvidersClient(providersConfig);
 
         AwsEncryptionSdkClientConfig clientConfig = new AwsEncryptionSdkClientConfig
         {
             ConfigDefaults = Aws.Esdk.ConfigurationDefaults.V1
         };
-        // TODO could the .NET compiler instead expose new AwsEncryptionSdkClientFactoryClient() through a constant?
-        // or make MakeAwsEncryptionSdkClient static on AwsEncryptionSdkClientFactoryClient?
-        IAwsEncryptionSdkClient encryptionSdkClient = new AwsEncryptionSdkClientFactoryClient().MakeAwsEncryptionSdkClient(clientConfig);
+        IAwsEncryptionSdkClient encryptionSdkClient = AwsEncryptionSdkClientFactory.MakeAwsEncryptionSdkClient(clientConfig);
 
         // Create the keyring that determines how your data keys are protected. Though this example highlights
         // Discovery keyrings, Discovery keyrings cannot be used to encrypt, so we create a Strict KMS keyring

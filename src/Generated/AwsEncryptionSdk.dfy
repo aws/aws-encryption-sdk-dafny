@@ -48,22 +48,22 @@ module {:extern "Dafny.Aws.Esdk"} Aws.Esdk {
     datatype ConfigurationDefaults = V1
 
     // TODO the Client suffix appended by Smithy, leading to annoying naming
-    trait {:termination false} IAwsEncryptionSdkClientFactoryClient {
-        method MakeAwsEncryptionSdkClient(input: AwsEncryptionSdkClientConfig) returns (res: Result<IAwsEncryptionSdkClient, IAwsEncryptionSdkClientFactoryException>)
+    trait {:termination false} IAwsEncryptionSdkClientFactory {
+        method MakeAwsEncryptionSdkClient(input: AwsEncryptionSdkClientConfig) returns (res: Result<IAwsEncryptionSdkClient, IAwsEncryptionSdkClientException>)
     }
 
     trait {:termination false} IAwsEncryptionSdkClient {
-        method Encrypt(input: EncryptInput) returns (res: Result<EncryptOutput, IAwsEncryptionSdkClientFactoryException>)
-        method Decrypt(input: DecryptInput) returns (res: Result<DecryptOutput, IAwsEncryptionSdkClientFactoryException>)
+        method Encrypt(input: EncryptInput) returns (res: Result<EncryptOutput, IAwsEncryptionSdkClientException>)
+        method Decrypt(input: DecryptInput) returns (res: Result<DecryptOutput, IAwsEncryptionSdkClientException>)
     }
 
     // TODO Code generation for this is awkward
-    trait IAwsEncryptionSdkClientFactoryException {
+    trait IAwsEncryptionSdkClientException {
         function method GetMessage(): (message: string)
             reads this
     }
 
-    class AwsEncryptionSdkClientException extends IAwsEncryptionSdkClientFactoryException {
+    class AwsEncryptionSdkClientException extends IAwsEncryptionSdkClientException {
         var message: string
 
         constructor (message: string) {
@@ -77,7 +77,7 @@ module {:extern "Dafny.Aws.Esdk"} Aws.Esdk {
         }
 
         static method WrapResultString<T>(result: Result<T, string>)
-            returns (wrapped: Result<T, IAwsEncryptionSdkClientFactoryException>)
+            returns (wrapped: Result<T, IAwsEncryptionSdkClientException>)
             ensures result.Success? ==>
                 && wrapped.Success?
                 && wrapped.value == result.value

@@ -49,13 +49,13 @@ public class RawRSAKeyringExample {
         {
             ConfigDefaults = Aws.Crypto.ConfigurationDefaults.V1
         };
-        IAwsCryptographicMaterialProvidersClient materialProviders = new AwsCryptographicMaterialProvidersClientFactoryClient().MakeAwsCryptographicMaterialProvidersClient(providersConfig);
+        IAwsCryptographicMaterialProvidersClient materialProviders = AwsCryptographicMaterialProvidersClientFactory.MakeAwsCryptographicMaterialProvidersClient(providersConfig);
 
         AwsEncryptionSdkClientConfig clientConfig = new AwsEncryptionSdkClientConfig
         {
-            ConfigDefaults = ConfigurationDefaults.V1
+            ConfigDefaults = Aws.Esdk.ConfigurationDefaults.V1
         };
-        IAwsEncryptionSdkClient encryptionSdkClient = new AwsEncryptionSdkClientFactoryClient().MakeAwsEncryptionSdkClient(clientConfig);
+        IAwsEncryptionSdkClient encryptionSdkClient = AwsEncryptionSdkClientFactory.MakeAwsEncryptionSdkClient(clientConfig);
 
         // Create the keyring that determines how your data keys are protected.
         CreateRawRsaKeyringInput createRawRsaKeyringInput = new CreateRawRsaKeyringInput

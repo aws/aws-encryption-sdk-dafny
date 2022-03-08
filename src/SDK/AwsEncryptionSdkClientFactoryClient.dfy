@@ -6,19 +6,19 @@ include "../StandardLibrary/UInt.dfy"
 include "../Generated/AwsEncryptionSdk.dfy"
 include "AwsEncryptionSdk.dfy"
 
-module {:extern "Dafny.Aws.Esdk.AwsEncryptionSdkClientFactoryClient"} AwsEncryptionSdkFactoryClient {
+module {:extern "Dafny.Aws.Esdk.AwsEncryptionSdkClientFactory"} AwsEncryptionSdkFactoryClient {
   import opened StandardLibrary
   import opened UInt = StandardLibrary.UInt
   import opened Wrappers
   import Aws.Esdk
   import AwsEncryptionSdk
 
-  class AwsEncryptionSdkClientFactoryClient extends Esdk.IAwsEncryptionSdkClientFactoryClient {
+  class AwsEncryptionSdkClientFactory extends Esdk.IAwsEncryptionSdkClientFactory {
 
     constructor() {}
 
     method MakeAwsEncryptionSdkClient(input: Esdk.AwsEncryptionSdkClientConfig)
-      returns (res: Result<Esdk.IAwsEncryptionSdkClient, Esdk.IAwsEncryptionSdkClientFactoryException>)
+      returns (res: Result<Esdk.IAwsEncryptionSdkClient, Esdk.IAwsEncryptionSdkClientException>)
 
       ensures
         && input.maxEncryptedDataKeys.Some?
