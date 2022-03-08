@@ -109,7 +109,7 @@ namespace TestVectors {
         }
 
         // We don't have a better way to query this information right now.
-        // This could be use case for Smithy enums' "tags" property, that we'd need to support in codegen.
+        // This could be a use case for Smithy enums' "tags" property, that we'd need to support in codegen.
         // https://awslabs.github.io/smithy/1.0/spec/core/constraint-traits.html#enum-trait
         private static readonly AlgorithmSuiteId[] COMMITTING_ALGORITHM_SUITES = {
             AlgorithmSuiteId.ALG_AES_256_GCM_HKDF_SHA512_COMMIT_KEY,
