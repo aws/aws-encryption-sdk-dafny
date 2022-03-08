@@ -121,12 +121,6 @@ namespace TestVectors {
         /// </summary>
         private bool ShouldTargetVector(string id, EncryptVector vector)
         {
-            // TODO(alexchew) remove raw-keys-only restriction
-            if (vector.Scenario.MasterKeys.Any(key => key.Type != "raw"))
-            {
-                return false;
-            }
-
             // We don't support encrypting unframed messages.
             return vector.Scenario.FrameSize != 0;
         }
