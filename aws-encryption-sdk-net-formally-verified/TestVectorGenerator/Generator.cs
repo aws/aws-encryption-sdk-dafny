@@ -15,6 +15,8 @@ using ConfigurationDefaults = Aws.Esdk.ConfigurationDefaults;
 namespace TestVectors {
     class Generator
     {
+        private const string OutputKeysManifestUri = "file://keys.json";
+
         static void Main(string[] args)
         {
             var encryptManifestFileOpt = new Option<FileInfo>(name: "--encrypt-manifest")
@@ -74,23 +76,17 @@ namespace TestVectors {
                 .ToList();
             var totalVectorCount = _encryptManifest.VectorMap.Count;
             Console.Error.WriteLine($"Targeting {targetedVectors.Count} out of {totalVectorCount} vectors");
-            foreach (var (id, vector) in targetedVectors)
-            {
-                try
-                {
-                    var ciphertext = GenerateDecryptVector(vector, plaintexts);
-                    Utils.WriteBinaryFile(_ciphertextDir, id, ciphertext);
-                    Console.Error.WriteLine($"Wrote ciphertext file for vector {id}");
-                }
-                catch (AwsEncryptionSdkException ex)
-                {
-                    throw new ApplicationException($"Failed to encrypt vector {id}", ex);
-                }
-            }
+            GenerateAndWriteVectors(targetedVectors, plaintexts);
+            Console.Error.WriteLine($"Wrote {targetedVectors.Count} ciphertexts");
 
-            // TODO copy key manifest
+            DecryptManifest decryptManifest = GenerateDecryptManifest(targetedVectors, plaintexts);
+            string decryptManifestPath = Path.Join(_outputDir.FullName, "manifest.json");
+            Utils.WriteObjectToPath(decryptManifest, decryptManifestPath);
+            Console.Error.WriteLine("Wrote decrypt vector manifest");
 
-            // TODO write decrypt manifest
+            var keysPath = Utils.ManifestUriToPath(OutputKeysManifestUri, decryptManifestPath);
+            Utils.WriteObjectToPath(_keyManifest, keysPath);
+            Console.Error.WriteLine("Wrote key manifest");
         }
 
         private static Dictionary<string, MemoryStream> GeneratePlaintexts(Dictionary<string, uint> sizes)
@@ -121,6 +117,7 @@ namespace TestVectors {
 
         /// <summary>
         /// Returns whether the generator should attempt to encrypt the given vector.
+        /// Useful for selecting particular vectors when debugging.
         /// </summary>
         private bool ShouldTargetVector(string id, EncryptVector vector)
         {
@@ -132,6 +129,55 @@ namespace TestVectors {
 
             // We don't support encrypting unframed messages.
             return vector.Scenario.FrameSize != 0;
+        }
+
+        private void GenerateAndWriteVectors(
+            IList<KeyValuePair<string, EncryptVector>> targetedVectors, Dictionary<string, MemoryStream> plaintexts)
+        {
+            foreach (var (id, vector) in targetedVectors)
+            {
+                try
+                {
+                    var ciphertext = GenerateDecryptVector(vector, plaintexts);
+                    Utils.WriteBinaryFile(_ciphertextDir, id, ciphertext);
+                    Console.Error.WriteLine($"Wrote ciphertext file for vector {id}");
+                }
+                catch (AwsEncryptionSdkException ex)
+                {
+                    throw new ApplicationException($"Failed to encrypt vector {id}", ex);
+                }
+            }
+        }
+
+        private DecryptManifest GenerateDecryptManifest(
+            IList<KeyValuePair<string, EncryptVector>> targetedVectors, Dictionary<string, MemoryStream> plaintexts)
+        {
+            var decryptVectors = new Dictionary<string, DecryptVector>();
+            foreach (var (id, encryptVector) in targetedVectors)
+            {
+                var plaintextPath = "file://" + Path.Join(_plaintextDir.Name, encryptVector.Scenario.PlaintextName);
+                var ciphertextPath = "file://" + Path.Join(_ciphertextDir.Name, id);
+                decryptVectors[id] = new DecryptVector
+                {
+                    Ciphertext = ciphertextPath,
+                    MasterKeys = encryptVector.Scenario.MasterKeys,
+                    Result = new DecryptResult
+                    {
+                        Output = new DecryptOutput { Plaintext = plaintextPath }
+                    }
+                };
+            }
+
+            return new DecryptManifest
+            {
+                Meta = new ManifestMeta
+                {
+                    Type = "awses-decrypt",
+                    Version = 3
+                },
+                KeysUri = OutputKeysManifestUri,
+                VectorMap = decryptVectors
+            };
         }
 
         private MemoryStream GenerateDecryptVector(

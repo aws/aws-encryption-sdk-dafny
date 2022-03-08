@@ -1,6 +1,11 @@
+// Copyright Amazon.com Inc. or its affiliates. All Rights Reserved.
+// SPDX-License-Identifier: Apache-2.0
+
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Text;
+using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
 namespace TestVectors
@@ -23,6 +28,32 @@ namespace TestVectors
             string contents = File.ReadAllText(path);
             JObject obj = JObject.Parse(contents);
             return obj.ToObject<T>();
+        }
+
+        /// <summary>
+        /// Serializes the given object as JSON and writes it to the given path.
+        /// Throws if the file already exists.
+        /// <para>
+        /// Note that NO exception will be thrown if the object has a null value on a required property.
+        /// </para>
+        /// </summary>
+        public static void WriteObjectToPath<T>(T obj, string path)
+        {
+            // Do this first in order to avoid serializing if opening the file fails anyway
+            using var fs = new FileStream(path, FileMode.CreateNew);
+
+            using var stringWriter = new StringWriter();
+            var serializer = new JsonSerializer
+            {
+                Formatting = Formatting.Indented,
+                // WARNING: We set this option in order to omit null optional values.
+                // But it "overrides" the `JsonRequired` behavior on serialization -
+                // if the object has a null required value,
+                // the serializer will just ignore it without throwing an exception.
+                NullValueHandling = NullValueHandling.Ignore,
+            };
+            serializer.Serialize(stringWriter, obj);
+            fs.Write(Encoding.UTF8.GetBytes(stringWriter.ToString()));
         }
 
         public static string ManifestUriToPath(string uri, string manifestPath) {
