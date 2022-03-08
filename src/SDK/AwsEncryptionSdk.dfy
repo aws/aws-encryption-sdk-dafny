@@ -172,7 +172,7 @@ module {:extern "Dafny.Aws.Esdk.AwsEncryptionSdkClient"} AwsEncryptionSdk {
 
             // TODO: Remove entirely once we can validate this value on client creation
             if this.maxEncryptedDataKeys.Some? {
-                :- Need(this.maxEncryptedDataKeys.value > 0, "maxEncryptedDataKeys must be non-negative");
+                :- Need(this.maxEncryptedDataKeys.value > 0, "maxEncryptedDataKeys must be positive");
             }
 
             var cmm :- CreateCmmFromInput(input.materialsManager, input.keyring);
@@ -772,7 +772,7 @@ module {:extern "Dafny.Aws.Esdk.AwsEncryptionSdkClient"} AwsEncryptionSdk {
         {
             // TODO: Remove entirely once we can validate this value on client creation
             if this.maxEncryptedDataKeys.Some? {
-                :- Need(this.maxEncryptedDataKeys.value > 0, "maxEncryptedDataKeys must be non-negative");
+                :- Need(this.maxEncryptedDataKeys.value > 0, "maxEncryptedDataKeys must be positive");
             }
 
             var cmm :- CreateCmmFromInput(input.materialsManager, input.keyring);
