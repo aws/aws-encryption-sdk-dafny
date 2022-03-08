@@ -175,6 +175,12 @@ namespace TestVectors {
                     Type = "awses-decrypt",
                     Version = 3
                 },
+                Client = new Client
+                {
+                    Name = "awslabs/aws-encryption-sdk-dafny",
+                    // TODO pass this by env var
+                    Version = "0.1.0-alpha"
+                },
                 KeysUri = OutputKeysManifestUri,
                 VectorMap = decryptVectors
             };

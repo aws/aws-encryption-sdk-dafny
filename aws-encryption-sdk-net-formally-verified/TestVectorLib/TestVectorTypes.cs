@@ -92,11 +92,14 @@ namespace TestVectors
         [JsonProperty("manifest")]
         public ManifestMeta Meta { get; set; }
         [JsonRequired]
-        [JsonProperty("tests")]
-        public Dictionary<string, DecryptVector> VectorMap { get; set; }
+        [JsonProperty("client")]
+        public Client Client { get; set; }
         [JsonRequired]
         [JsonProperty("keys")]
         public string KeysUri { get; set; }
+        [JsonRequired]
+        [JsonProperty("tests")]
+        public Dictionary<string, DecryptVector> VectorMap { get; set; }
     }
 
     public class EncryptScenario
@@ -156,5 +159,15 @@ namespace TestVectors
         [JsonRequired]
         [JsonProperty("version")]
         public int Version { get; set; }
+    }
+
+    public class Client
+    {
+        [JsonRequired]
+        [JsonProperty("name")]
+        public string Name { get; set; }
+        [JsonRequired]
+        [JsonProperty("version")]
+        public string Version { get; set; }
     }
 }
