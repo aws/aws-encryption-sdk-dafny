@@ -9,7 +9,6 @@ service AwsCryptographicMaterialProviders {
     resources: [
         Keyring,
         CryptographicMaterialsManager,
-        CryptoMaterialsCache,
         ClientSupplier,
     ],
     operations: [
@@ -28,12 +27,6 @@ service AwsCryptographicMaterialProviders {
 
         // CMMs
         CreateDefaultCryptographicMaterialsManager,
-        // TODO
-        // CreateCachingCryptographicMaterialsManager,
-
-        // Caches
-        // TODO
-        // CreateLocalCryptoMaterialsCache,
 
         // ClientSupplier
         CreateDefaultClientSupplier

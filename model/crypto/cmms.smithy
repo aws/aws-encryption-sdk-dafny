@@ -81,27 +81,3 @@ structure CreateDefaultCryptographicMaterialsManagerInput {
     @required
     keyring: KeyringReference 
 }
-
-operation CreateCachingCryptographicMaterialsManager {
-    input: CreateCachingCryptographicMaterialsManagerInput,
-    output: CreateCryptographicMaterialsManagerOutput,
-}
-
-structure CreateCachingCryptographicMaterialsManagerInput {
-    @required
-    cache: CryptoMaterialsCacheReference,
-
-    @required
-    cacheLimitTtl: Integer,
-
-    // One of keyring or CMM is required
-    keyring: KeyringReference,
-    materialsManager: CryptographicMaterialsManagerReference,
-
-    partitionId: String,
-
-    limitBytes: Long,
-
-    limitMessages: Long
-}
-
