@@ -11,8 +11,8 @@ using Aws.Esdk;
 using Xunit;
 using ConfigurationDefaults = Aws.Esdk.ConfigurationDefaults;
 
-/// Demonstrate an encrypt/decrypt cycle using a AWS KMS MRK-aware discovery keyring.
-public class AwsKmsMrkAwareDiscoveryKeyringExample {
+/// Demonstrate an encrypt/decrypt cycle using an AWS KMS discovery keyring.
+public class AwsKmsDiscoveryKeyringExample {
     static void Run(MemoryStream plaintext, string keyArn) {
         // Create your encryption context.
         // Remember that your encryption context is NOT SECRET.
@@ -35,26 +35,22 @@ public class AwsKmsMrkAwareDiscoveryKeyringExample {
         IAwsEncryptionSdk encryptionSdkClient = new AwsEncryptionSdkClient(config);
 
         // Create the keyring that determines how your data keys are protected. Though this example highlights
-        // Discovery keyrings, Discovery keyrings cannot be used to encrypt, so we create a Strict KMS keyring
-        // for encryption.
-        CreateMrkAwareStrictAwsKmsKeyringInput createKeyringInput = new CreateMrkAwareStrictAwsKmsKeyringInput
+        // Discovery keyrings, Discovery keyrings cannot be used to encrypt, so for encryption we create
+        // a KMS keyring without discovery mode.
+        CreateAwsKmsKeyringInput createKeyringInput = new CreateAwsKmsKeyringInput
         {
             KmsClient = new AmazonKeyManagementServiceClient(),
             KmsKeyId = keyArn,
         };
-        IKeyring encryptKeyring = materialProviders.CreateMrkAwareStrictAwsKmsKeyring(createKeyringInput);
-
-        // Create the materials manager that assembles cryptographic materials from your keyring.
-        CreateDefaultCryptographicMaterialsManagerInput createEncryptCmmInput =
-            new CreateDefaultCryptographicMaterialsManagerInput {Keyring = encryptKeyring};
-        ICryptographicMaterialsManager encryptCmm =
-            materialProviders.CreateDefaultCryptographicMaterialsManager(createEncryptCmmInput);
+        IKeyring encryptKeyring = materialProviders.CreateAwsKmsKeyring(createKeyringInput);
 
         // Encrypt your plaintext data.
+        // In this example, we pass a keyring. Behind the scenes, the AWS Encryption SDK will create
+        // a default CryptographicMaterialsManager which uses this keyring
         EncryptInput encryptInput = new EncryptInput
         {
             Plaintext = plaintext,
-            MaterialsManager = encryptCmm,
+            Keyring = encryptKeyring,
             EncryptionContext = encryptionContext,
         };
         EncryptOutput encryptOutput = encryptionSdkClient.Encrypt(encryptInput);
@@ -64,21 +60,16 @@ public class AwsKmsMrkAwareDiscoveryKeyringExample {
         Assert.NotEqual(ciphertext.ToArray(), plaintext.ToArray());
 
         // Now create a Discovery keyring to use for decryption.
-        CreateMrkAwareDiscoveryAwsKmsKeyringInput createDecryptKeyringInput = new CreateMrkAwareDiscoveryAwsKmsKeyringInput
+        CreateAwsKmsDiscoveryKeyringInput createDecryptKeyringInput = new CreateAwsKmsDiscoveryKeyringInput
         {
             KmsClient = new AmazonKeyManagementServiceClient(),
-            Region = "us-west-2"
         };
-        IKeyring decryptKeyring = materialProviders.CreateMrkAwareDiscoveryAwsKmsKeyring(createDecryptKeyringInput);
-        CreateDefaultCryptographicMaterialsManagerInput createDecryptCmmInput =
-            new CreateDefaultCryptographicMaterialsManagerInput {Keyring = decryptKeyring};
-        ICryptographicMaterialsManager decryptCmm =
-            materialProviders.CreateDefaultCryptographicMaterialsManager(createDecryptCmmInput);
+        IKeyring decryptKeyring = materialProviders.CreateAwsKmsDiscoveryKeyring(createDecryptKeyringInput);
 
         DecryptInput decryptInput = new DecryptInput
         {
             Ciphertext = ciphertext,
-            MaterialsManager = decryptCmm,
+            Keyring = decryptKeyring,
         };
         DecryptOutput decryptOutput = encryptionSdkClient.Decrypt(decryptInput);
 
@@ -103,7 +94,7 @@ public class AwsKmsMrkAwareDiscoveryKeyringExample {
 
     // We test examples to ensure they remain up-to-date.
     [Fact]
-    public void TestAwsKmsMrkAwareDiscoveryKeyringExample() {
+    public void TestAwsKmsDiscoveryKeyringExample() {
         Run(ExampleUtils.ExampleUtils.GetPlaintextStream(), ExampleUtils.ExampleUtils.GetKmsKeyArn());
     }
 }

@@ -14,9 +14,9 @@ include "CMMs/DefaultCMM.dfy"
 include "Keyrings/AwsKms/AwsKmsArnParsing.dfy"
 include "Keyrings/AwsKms/AwsKmsDiscoveryKeyring.dfy"
 include "Keyrings/AwsKms/AwsKmsMrkAreUnique.dfy"
-include "Keyrings/AwsKms/AwsKmsMrkAwareSymmetricKeyring.dfy"
-include "Keyrings/AwsKms/AwsKmsMrkAwareSymmetricRegionDiscoveryKeyring.dfy"
-include "Keyrings/AwsKms/AwsKmsStrictKeyring.dfy"
+include "Keyrings/AwsKms/AwsKmsMrkKeyring.dfy"
+include "Keyrings/AwsKms/AwsKmsMrkDiscoveryKeyring.dfy"
+include "Keyrings/AwsKms/AwsKmsKeyring.dfy"
 include "Keyrings/AwsKms/AwsKmsUtils.dfy"
 include "Keyrings/MultiKeyring.dfy"
 include "Keyrings/RawAESKeyring.dfy"
@@ -38,9 +38,9 @@ module
   import AwsKmsArnParsing
   import AwsKmsDiscoveryKeyring
   import AwsKmsMrkAreUnique
-  import AwsKmsMrkAwareSymmetricKeyring
-  import AwsKmsMrkAwareSymmetricRegionDiscoveryKeyring
-  import AwsKmsStrictKeyring
+  import AwsKmsMrkKeyring
+  import AwsKmsMrkDiscoveryKeyring
+  import AwsKmsKeyring
   import AwsKmsUtils
   import Commitment
   import DefaultCMM
@@ -79,16 +79,16 @@ module
       AwsCryptographicMaterialProvidersClient.CreateAwsKmsDiscoveryKeyring,
       AwsCryptographicMaterialProvidersClient.CreateDefaultClientSupplier,
       AwsCryptographicMaterialProvidersClient.CreateDefaultCryptographicMaterialsManager,
-      AwsCryptographicMaterialProvidersClient.CreateMrkAwareDiscoveryAwsKmsKeyring,
-      AwsCryptographicMaterialProvidersClient.CreateMrkAwareDiscoveryMultiKeyring,
-      AwsCryptographicMaterialProvidersClient.CreateMrkAwareStrictAwsKmsKeyring,
-      AwsCryptographicMaterialProvidersClient.CreateMrkAwareStrictMultiKeyring,
-      AwsCryptographicMaterialProvidersClient.CreateStrictAwsKmsMultiKeyring,
+      AwsCryptographicMaterialProvidersClient.CreateAwsKmsMrkDiscoveryKeyring,
+      AwsCryptographicMaterialProvidersClient.CreateAwsKmsMrkDiscoveryMultiKeyring,
+      AwsCryptographicMaterialProvidersClient.CreateAwsKmsMrkKeyring,
+      AwsCryptographicMaterialProvidersClient.CreateAwsKmsMrkMultiKeyring,
+      AwsCryptographicMaterialProvidersClient.CreateAwsKmsMultiKeyring,
       AwsCryptographicMaterialProvidersClient.CreateAwsKmsDiscoveryMultiKeyring,
       AwsCryptographicMaterialProvidersClient.CreateMultiKeyring,
       AwsCryptographicMaterialProvidersClient.CreateRawAesKeyring,
       AwsCryptographicMaterialProvidersClient.CreateRawRsaKeyring,
-      AwsCryptographicMaterialProvidersClient.CreateStrictAwsKmsKeyring
+      AwsCryptographicMaterialProvidersClient.CreateAwsKmsKeyring
 
   datatype SpecificationClient = SpecificationClient(
     // Whatever top level closure is added to the constructor needs to be added here
@@ -168,32 +168,32 @@ module
         return Success(cmm);
     }
 
-    method CreateStrictAwsKmsKeyring(input: Crypto.CreateStrictAwsKmsKeyringInput)
+    method CreateAwsKmsKeyring(input: Crypto.CreateAwsKmsKeyringInput)
       returns (res: Result<Crypto.IKeyring, Crypto.IAwsCryptographicMaterialProvidersException>)
     {
       var _ :- ValidateKmsKeyId(input.kmsKeyId);
       var grantTokens :- GetValidGrantTokens(input.grantTokens);
-      var keyring := new AwsKmsStrictKeyring.AwsKmsStrictKeyring(input.kmsClient, input.kmsKeyId, grantTokens);
+      var keyring := new AwsKmsKeyring.AwsKmsKeyring(input.kmsClient, input.kmsKeyId, grantTokens);
       return Success(keyring);
     }
 
-    method CreateMrkAwareStrictAwsKmsKeyring(input: Crypto.CreateMrkAwareStrictAwsKmsKeyringInput)
+    method CreateAwsKmsMrkKeyring(input: Crypto.CreateAwsKmsMrkKeyringInput)
       returns (res: Result<Crypto.IKeyring, Crypto.IAwsCryptographicMaterialProvidersException>)
     {
       var _ :- ValidateKmsKeyId(input.kmsKeyId);
       var grantTokens :- GetValidGrantTokens(input.grantTokens);
-      var keyring := new AwsKmsMrkAwareSymmetricKeyring.AwsKmsMrkAwareSymmetricKeyring(input.kmsClient, input.kmsKeyId, grantTokens);
+      var keyring := new AwsKmsMrkKeyring.AwsKmsMrkKeyring(input.kmsClient, input.kmsKeyId, grantTokens);
       return Success(keyring);
     }
 
-    method CreateMrkAwareDiscoveryAwsKmsKeyring(input: Crypto.CreateMrkAwareDiscoveryAwsKmsKeyringInput)
+    method CreateAwsKmsMrkDiscoveryKeyring(input: Crypto.CreateAwsKmsMrkDiscoveryKeyringInput)
       returns (res: Result<Crypto.IKeyring, Crypto.IAwsCryptographicMaterialProvidersException>)
     {
       if input.discoveryFilter.Some? {
         var _ :- ValidateDiscoveryFilter(input.discoveryFilter.value);
       }
 
-      //= compliance/framework/aws-kms/aws-kms-mrk-aware-symmetric-region-discovery-keyring.txt#2.6
+      //= compliance/framework/aws-kms/aws-kms-mrk-discovery-keyring.txt#2.6
       //= type=implication
       //# The keyring SHOULD fail initialization if the
       //# provided region does not match the region of the KMS client.
@@ -201,7 +201,7 @@ module
       :- Crypto.Need(regionMatch != Some(false), "Provided client and region do not match");
 
       var grantTokens :- GetValidGrantTokens(input.grantTokens);
-      var keyring := new AwsKmsMrkAwareSymmetricRegionDiscoveryKeyring.AwsKmsMrkAwareSymmetricRegionDiscoveryKeyring(input.kmsClient, input.region, input.discoveryFilter, grantTokens);
+      var keyring := new AwsKmsMrkDiscoveryKeyring.AwsKmsMrkDiscoveryKeyring(input.kmsClient, input.region, input.discoveryFilter, grantTokens);
       return Success(keyring);
     }
 
@@ -264,14 +264,14 @@ module
       return Success(keyring);
     }
 
-    method CreateMrkAwareStrictMultiKeyring(input: Crypto.CreateMrkAwareStrictMultiKeyringInput)
+    method CreateAwsKmsMrkMultiKeyring(input: Crypto.CreateAwsKmsMrkMultiKeyringInput)
       returns (res: Result<Crypto.IKeyring, Crypto.IAwsCryptographicMaterialProvidersException>)
     {
       var grantTokens :- GetValidGrantTokens(input.grantTokens);
 
       var clientSupplier: Crypto.IClientSupplier;
 
-      //= compliance/framework/aws-kms/aws-kms-mrk-aware-multi-keyrings.txt#2.6
+      //= compliance/framework/aws-kms/aws-kms-mrk-multi-keyrings.txt#2.5
       //# If a regional client supplier is
       //# not passed, then a default MUST be created that takes a region string
       //# and generates a default AWS SDK client for the given region.
@@ -296,7 +296,7 @@ module
     )
       returns (res: Result<MultiKeyring.MultiKeyring, Crypto.IAwsCryptographicMaterialProvidersException>)
 
-      //= compliance/framework/aws-kms/aws-kms-mrk-aware-multi-keyrings.txt#2.6
+      //= compliance/framework/aws-kms/aws-kms-mrk-multi-keyrings.txt#2.5
       //= type=implication
       //# If any of the AWS KMS key identifiers is not a valid AWS KMS key ARN
       //# (aws-kms-key-arn.md#a-valid-aws-kms-arn), this function MUST fail All
@@ -309,7 +309,7 @@ module
       ==>
         res.Failure?
 
-      //= compliance/framework/aws-kms/aws-kms-mrk-aware-multi-keyrings.txt#2.6
+      //= compliance/framework/aws-kms/aws-kms-mrk-multi-keyrings.txt#2.5
       //= type=implication
       //# All
       //# AWS KMS identifiers are passed to Assert AWS KMS MRK are unique (aws-
@@ -326,7 +326,7 @@ module
       ==>
         res.Failure?
 
-      //= compliance/framework/aws-kms/aws-kms-mrk-aware-multi-keyrings.txt#2.6
+      //= compliance/framework/aws-kms/aws-kms-mrk-multi-keyrings.txt#2.5
       //= type=implication
       //# Then a Multi-Keyring (../multi-keyring.md#inputs) MUST be initialize
       //# by using this generator keyring as the generator keyring (../multi-
@@ -337,35 +337,33 @@ module
       ensures
         && res.Success?
       ==>
-        //= compliance/framework/aws-kms/aws-kms-mrk-aware-multi-keyrings.txt#2.6
+        //= compliance/framework/aws-kms/aws-kms-mrk-multi-keyrings.txt#2.5
         //= type=implication
         //# If there is a generator input then the generator keyring MUST be a
-        //# AWS KMS MRK Aware Symmetric Keyring (aws-kms-mrk-aware-symmetric-
-        //# keyring.md) initialized with
+        //# AWS KMS MRK Keyring (aws-kms-mrk-keyring.md) initialized with
         && (generator.Some?
         ==>
           && res.value.generatorKeyring.Some?
-          && res.value.generatorKeyring.value is AwsKmsMrkAwareSymmetricKeyring.AwsKmsMrkAwareSymmetricKeyring
-          && var g := res.value.generatorKeyring.value as AwsKmsMrkAwareSymmetricKeyring.AwsKmsMrkAwareSymmetricKeyring;
+          && res.value.generatorKeyring.value is AwsKmsMrkKeyring.AwsKmsMrkKeyring
+          && var g := res.value.generatorKeyring.value as AwsKmsMrkKeyring.AwsKmsMrkKeyring;
           && g.awsKmsKey == generator.value
           && (grantTokens.Some? ==> g.grantTokens == grantTokens.value))
         && (generator.None?
         ==>
           && res.value.generatorKeyring.None?)
-        //= compliance/framework/aws-kms/aws-kms-mrk-aware-multi-keyrings.txt#2.6
+        //= compliance/framework/aws-kms/aws-kms-mrk-multi-keyrings.txt#2.5
         //= type=implication
         //# If there is a set of child identifiers then a set of AWS KMS MRK
-        //# Aware Symmetric Keyring (aws-kms-mrk-aware-symmetric-keyring.md) MUST
-        //# be created for each AWS KMS key identifier by initialized each
-        //# keyring with
+        //# Keyring (aws-kms-mrk-keyring.md) MUST be created for each AWS KMS key
+        //# identifier by initialized each keyring with
         && (awsKmsKeys.Some?
         ==>
           && |awsKmsKeys.value| == |res.value.childKeyrings|
           && forall index | 0 <= index < |awsKmsKeys.value| ::
             // AWS KMS MRK Aware Symmetric Keying must be created for each AWS KMS Key identifier
             && var childKeyring: Crypto.IKeyring := res.value.childKeyrings[index];
-            && childKeyring is AwsKmsMrkAwareSymmetricKeyring.AwsKmsMrkAwareSymmetricKeyring
-            && var awsKmsChild := childKeyring as AwsKmsMrkAwareSymmetricKeyring.AwsKmsMrkAwareSymmetricKeyring;
+            && childKeyring is AwsKmsMrkKeyring.AwsKmsMrkKeyring
+            && var awsKmsChild := childKeyring as AwsKmsMrkKeyring.AwsKmsMrkKeyring;
             // AWS KMS key identifier
             && awsKmsChild.awsKmsKey == awsKmsKeys.value[index]
             // The input list of AWS KMS grant tokens
@@ -393,7 +391,7 @@ module
         mrkAreUniqueRes
       );
 
-      var generatorKeyring : Option<AwsKmsMrkAwareSymmetricKeyring.AwsKmsMrkAwareSymmetricKeyring>;
+      var generatorKeyring : Option<AwsKmsMrkKeyring.AwsKmsMrkKeyring>;
       match generator {
         case Some(generatorIdentifier) =>
           var arnRes := AwsKmsArnParsing.IsAwsKmsIdentifierString(generatorIdentifier);
@@ -401,14 +399,14 @@ module
             arnRes
           );
           var region := AwsKmsArnParsing.GetRegion(arn);
-          //= compliance/framework/aws-kms/aws-kms-mrk-aware-multi-keyrings.txt#2.6
+          //= compliance/framework/aws-kms/aws-kms-mrk-multi-keyrings.txt#2.5
           //= type=implication
           //# NOTE: The AWS Encryption SDK SHOULD NOT attempt to evaluate its own
           //# default region.
           //Question: What should the behavior be if there is no region supplied?
           // I assume that the SDK will use the default region or throw an error
           var client :- clientSupplier.GetClient(Crypto.GetClientInput(region.UnwrapOr("")));
-          var g := new AwsKmsMrkAwareSymmetricKeyring.AwsKmsMrkAwareSymmetricKeyring(
+          var g := new AwsKmsMrkKeyring.AwsKmsMrkKeyring(
             client,
             generatorIdentifier,
             grantTokens.UnwrapOr([])
@@ -417,7 +415,7 @@ module
         case None() => generatorKeyring := None();
       }
 
-      var children : seq<AwsKmsMrkAwareSymmetricKeyring.AwsKmsMrkAwareSymmetricKeyring> := [];
+      var children : seq<AwsKmsMrkKeyring.AwsKmsMrkKeyring> := [];
 
       match awsKmsKeys {
         case Some(childIdentifiers) =>
@@ -437,7 +435,7 @@ module
             //Question: What should the behavior be if there is no region supplied?
             // I assume that the SDK will use the default region or throw an error
             var client :- clientSupplier.GetClient(Crypto.GetClientInput(region.UnwrapOr("")));
-            var keyring := new AwsKmsMrkAwareSymmetricKeyring.AwsKmsMrkAwareSymmetricKeyring(
+            var keyring := new AwsKmsMrkKeyring.AwsKmsMrkKeyring(
               client,
               childIdentifier,
               grantTokens.UnwrapOr([])
@@ -461,14 +459,14 @@ module
       return Success(keyring);
     }
 
-    method CreateMrkAwareDiscoveryMultiKeyring(input: Crypto.CreateMrkAwareDiscoveryMultiKeyringInput)
+    method CreateAwsKmsMrkDiscoveryMultiKeyring(input: Crypto.CreateAwsKmsMrkDiscoveryMultiKeyringInput)
       returns (res: Result<Crypto.IKeyring, Crypto.IAwsCryptographicMaterialProvidersException>)
     {
       var grantTokens :- GetValidGrantTokens(input.grantTokens);
 
       var clientSupplier: Crypto.IClientSupplier;
 
-      //= compliance/framework/aws-kms/aws-kms-mrk-aware-multi-keyrings.txt#2.5
+      //= compliance/framework/aws-kms/aws-kms-mrk-multi-keyrings.txt#2.6
       //# If a regional client supplier is not passed,
       //# then a default MUST be created that takes a region string and
       //# generates a default AWS SDK client for the given region.
@@ -485,7 +483,7 @@ module
       );
     }
 
-    //= compliance/framework/aws-kms/aws-kms-mrk-aware-multi-keyrings.txt#2.5
+    //= compliance/framework/aws-kms/aws-kms-mrk-multi-keyrings.txt#2.6
     //= type=implication
     //# The caller MUST provide:
     //#*  A set of Region strings
@@ -505,11 +503,11 @@ module
       )
 
       ensures
-        //= compliance/framework/aws-kms/aws-kms-mrk-aware-multi-keyrings.txt#2.5
+        //= compliance/framework/aws-kms/aws-kms-mrk-multi-keyrings.txt#2.6
         //= type=implication
         //# If an empty set of Region is provided this function MUST fail.
         || |regions| == 0
-        //= compliance/framework/aws-kms/aws-kms-mrk-aware-multi-keyrings.txt#2.5
+        //= compliance/framework/aws-kms/aws-kms-mrk-multi-keyrings.txt#2.6
         //= type=implication
         //# If
         //# any element of the set of regions is null or an empty string this
@@ -518,7 +516,7 @@ module
       ==>
         res.Failure?
 
-      //= compliance/framework/aws-kms/aws-kms-mrk-aware-multi-keyrings.txt#2.5
+      //= compliance/framework/aws-kms/aws-kms-mrk-multi-keyrings.txt#2.6
       //= type=implication
       //# Then a Multi-Keyring (../multi-keyring.md#inputs) MUST be initialize
       //# by using this set of discovery keyrings as the child keyrings
@@ -533,13 +531,13 @@ module
         && forall i | 0 <= i < |regions|
         ::
           && var k: Crypto.IKeyring := res.value.childKeyrings[i];
-          && k is AwsKmsMrkAwareSymmetricRegionDiscoveryKeyring.AwsKmsMrkAwareSymmetricRegionDiscoveryKeyring
-          && var c := k as AwsKmsMrkAwareSymmetricRegionDiscoveryKeyring.AwsKmsMrkAwareSymmetricRegionDiscoveryKeyring;
-          //= compliance/framework/aws-kms/aws-kms-mrk-aware-multi-keyrings.txt#2.5
+          && k is AwsKmsMrkDiscoveryKeyring.AwsKmsMrkDiscoveryKeyring
+          && var c := k as AwsKmsMrkDiscoveryKeyring.AwsKmsMrkDiscoveryKeyring;
+          //= compliance/framework/aws-kms/aws-kms-mrk-multi-keyrings.txt#2.6
           //= type=implication
-          //# Then a set of AWS KMS MRK Aware Symmetric Region Discovery Keyring
-          //# (aws-kms-mrk-aware-symmetric-region-discovery-keyring.md) MUST be
-          //# created for each AWS KMS client by initializing each keyring with
+          //# Then a set of AWS KMS MRK Discovery Keyring (aws-kms-mrk-discovery-
+          //# keyring.md) MUST be created for each AWS KMS client by initializing
+          //# each keyring with
           //#*  The AWS KMS client
           //#*  The input discovery filter
           //#*  The input AWS KMS grant tokens
@@ -550,7 +548,7 @@ module
       :- Crypto.Need(|regions| > 0, "No regions passed.");
       :- Crypto.Need(Seq.IndexOfOption(regions, "").None?, "Empty string is not a valid region.");
 
-      var children : seq<AwsKmsMrkAwareSymmetricRegionDiscoveryKeyring.AwsKmsMrkAwareSymmetricRegionDiscoveryKeyring> := [];
+      var children : seq<AwsKmsMrkDiscoveryKeyring.AwsKmsMrkDiscoveryKeyring> := [];
 
       for i := 0 to |regions|
           invariant |regions[..i]| == |children|
@@ -561,7 +559,7 @@ module
             && (grantTokens.Some? ==> children[i].grantTokens == grantTokens.value)
         {
           var region := regions[i];
-          //= compliance/framework/aws-kms/aws-kms-mrk-aware-multi-keyrings.txt#2.5
+          //= compliance/framework/aws-kms/aws-kms-mrk-multi-keyrings.txt#2.6
           //# A set of AWS KMS clients MUST be created by calling regional client
           //# supplier for each region in the input set of regions.
           var client :- clientSupplier.GetClient(Crypto.GetClientInput(region));
@@ -569,7 +567,7 @@ module
           //   AwsKmsUtils.RegionMatch(client, region),
           //   "The region for the client did not match the requested region"
           // );
-          var keyring := new AwsKmsMrkAwareSymmetricRegionDiscoveryKeyring.AwsKmsMrkAwareSymmetricRegionDiscoveryKeyring(
+          var keyring := new AwsKmsMrkDiscoveryKeyring.AwsKmsMrkDiscoveryKeyring(
             client,
             region,
             discoveryFilter,
@@ -587,14 +585,14 @@ module
       return Success(keyring);
     }
 
-    method CreateStrictAwsKmsMultiKeyring(input: Crypto.CreateStrictAwsKmsMultiKeyringInput)
+    method CreateAwsKmsMultiKeyring(input: Crypto.CreateAwsKmsMultiKeyringInput)
       returns (res: Result<Crypto.IKeyring, Crypto.IAwsCryptographicMaterialProvidersException>)
     {
       var grantTokens :- GetValidGrantTokens(input.grantTokens);
 
       var clientSupplier: Crypto.IClientSupplier;
 
-      //= compliance/framework/aws-kms/aws-kms-multi-keyrings.txt#2.6
+      //= compliance/framework/aws-kms/aws-kms-multi-keyrings.txt#2.5
       //# If a regional client supplier is not passed, then a default MUST be
       //# created that takes a region string and generates a default AWS SDK
       //# client for the given region.
@@ -625,7 +623,7 @@ module
       ==>
         res.Failure?
 
-      //= compliance/framework/aws-kms/aws-kms-multi-keyrings.txt#2.6
+      //= compliance/framework/aws-kms/aws-kms-multi-keyrings.txt#2.5
       //= type=implication
       //# If any of the AWS KMS key identifiers is not a valid AWS KMS key ARN
       //# (aws-kms-key-arn.md#a-valid-aws-kms-arn), this function MUST fail.
@@ -639,35 +637,35 @@ module
       ==>
         res.Failure?
 
-      //= compliance/framework/aws-kms/aws-kms-multi-keyrings.txt#2.6
+      //= compliance/framework/aws-kms/aws-kms-multi-keyrings.txt#2.5
       //= type=implication
       //# Then a Multi-Keyring (../multi-keyring.md#inputs) MUST be initialize
       //# by using this generator keyring as the generator keyring (../multi-
       //# keyring.md#generator-keyring) and this set of child keyrings as the
       //# child keyrings (../multi-keyring.md#child-keyrings).
 
-      //= compliance/framework/aws-kms/aws-kms-multi-keyrings.txt#2.6
+      //= compliance/framework/aws-kms/aws-kms-multi-keyrings.txt#2.5
       //= type=implication
       //# This Multi-
       //# Keyring MUST be this function's output.
       ensures
         && res.Success?
       ==>
-        //= compliance/framework/aws-kms/aws-kms-multi-keyrings.txt#2.6
+        //= compliance/framework/aws-kms/aws-kms-multi-keyrings.txt#2.5
         //= type=implication
         //# If there is a generator input then the generator keyring MUST be a
         //# AWS KMS Keyring (aws-kms-keyring.md) initialized with
         && (generator.Some?
         ==>
           && res.value.generatorKeyring.Some?
-          && res.value.generatorKeyring.value is AwsKmsStrictKeyring.AwsKmsStrictKeyring
-          && var g := res.value.generatorKeyring.value as AwsKmsStrictKeyring.AwsKmsStrictKeyring;
+          && res.value.generatorKeyring.value is AwsKmsKeyring.AwsKmsKeyring
+          && var g := res.value.generatorKeyring.value as AwsKmsKeyring.AwsKmsKeyring;
           && g.awsKmsKey == generator.value
           && (grantTokens.Some? ==> g.grantTokens == grantTokens.value))
         && (generator.None?
         ==>
           && res.value.generatorKeyring.None?)
-        //= compliance/framework/aws-kms/aws-kms-multi-keyrings.txt#2.6
+        //= compliance/framework/aws-kms/aws-kms-multi-keyrings.txt#2.5
         //= type=implication
         //# If there is a set of child identifiers then a set of AWS KMS Keyring
         //# (aws-kms-keyring.md) MUST be created for each AWS KMS key identifier
@@ -678,8 +676,8 @@ module
           && forall index | 0 <= index < |awsKmsKeys.value| ::
             // AWS KMS Keyring must be created for each AWS KMS Key identifier
             && var childKeyring: Crypto.IKeyring := res.value.childKeyrings[index];
-            && childKeyring is AwsKmsStrictKeyring.AwsKmsStrictKeyring
-            && var awsKmsChild := childKeyring as AwsKmsStrictKeyring.AwsKmsStrictKeyring;
+            && childKeyring is AwsKmsKeyring.AwsKmsKeyring
+            && var awsKmsChild := childKeyring as AwsKmsKeyring.AwsKmsKeyring;
             // AWS KMS key identifier
             && awsKmsChild.awsKmsKey == awsKmsKeys.value[index]
             // The input list of AWS KMS grant tokens
@@ -703,7 +701,7 @@ module
         allIdentifiersResults
       );
 
-      var generatorKeyring : Option<AwsKmsStrictKeyring.AwsKmsStrictKeyring>;
+      var generatorKeyring : Option<AwsKmsKeyring.AwsKmsKeyring>;
       match generator {
         case Some(generatorIdentifier) =>
           var arnRes := AwsKmsArnParsing.IsAwsKmsIdentifierString(generatorIdentifier);
@@ -711,12 +709,12 @@ module
             arnRes
           );
           var region := AwsKmsArnParsing.GetRegion(arn);
-          //= compliance/framework/aws-kms/aws-kms-multi-keyrings.txt#2.6
+          //= compliance/framework/aws-kms/aws-kms-multi-keyrings.txt#2.5
           //= type=implication
           //# NOTE: The AWS Encryption SDK SHOULD NOT attempt to evaluate its own
           //# default region.
           var client :- clientSupplier.GetClient(Crypto.GetClientInput(region.UnwrapOr("")));
-          var g := new AwsKmsStrictKeyring.AwsKmsStrictKeyring(
+          var g := new AwsKmsKeyring.AwsKmsKeyring(
             client,
             generatorIdentifier,
             grantTokens.UnwrapOr([])
@@ -725,7 +723,7 @@ module
         case None() => generatorKeyring := None();
       }
 
-      var children : seq<AwsKmsStrictKeyring.AwsKmsStrictKeyring> := [];
+      var children : seq<AwsKmsKeyring.AwsKmsKeyring> := [];
 
       match awsKmsKeys {
         case Some(childIdentifiers) =>
@@ -745,7 +743,7 @@ module
             //Question: What should the behavior be if there is no region supplied?
             // I assume that the SDK will use the default region or throw an error
             var client :- clientSupplier.GetClient(Crypto.GetClientInput(region.UnwrapOr("")));
-            var keyring := new AwsKmsStrictKeyring.AwsKmsStrictKeyring(
+            var keyring := new AwsKmsKeyring.AwsKmsKeyring(
               client,
               childIdentifier,
               grantTokens.UnwrapOr([])
@@ -776,7 +774,7 @@ module
 
       var clientSupplier: Crypto.IClientSupplier;
 
-      //= compliance/framework/aws-kms/aws-kms-multi-keyrings.txt#2.5
+      //= compliance/framework/aws-kms/aws-kms-multi-keyrings.txt#2.6
       //# If a regional client supplier is not passed,
       //# then a default MUST be created that takes a region string and
       //# generates a default AWS SDK client for the given region.
@@ -793,7 +791,7 @@ module
       );
     }
 
-    //= compliance/framework/aws-kms/aws-kms-multi-keyrings.txt#2.5
+    //= compliance/framework/aws-kms/aws-kms-multi-keyrings.txt#2.6
     //= type=implication
     //# The caller MUST provide:
     //#*  A set of Region strings
@@ -813,11 +811,11 @@ module
       )
 
       ensures
-        //= compliance/framework/aws-kms/aws-kms-multi-keyrings.txt#2.5
+        //= compliance/framework/aws-kms/aws-kms-multi-keyrings.txt#2.6
         //= type=implication
         //# If an empty set of Region is provided this function MUST fail.
         || |regions| == 0
-        //= compliance/framework/aws-kms/aws-kms-multi-keyrings.txt#2.5
+        //= compliance/framework/aws-kms/aws-kms-multi-keyrings.txt#2.6
         //= type=implication
         //# If
         //# any element of the set of regions is null or an empty string this
@@ -826,7 +824,7 @@ module
       ==>
         res.Failure?
 
-      //= compliance/framework/aws-kms/aws-kms-multi-keyrings.txt#2.5
+      //= compliance/framework/aws-kms/aws-kms-multi-keyrings.txt#2.6
       //= type=implication
       //# Then a Multi-Keyring (../multi-keyring.md#inputs) MUST be initialize
       //# by using this set of discovery keyrings as the child keyrings
@@ -843,7 +841,7 @@ module
           && var k: Crypto.IKeyring := res.value.childKeyrings[i];
           && k is AwsKmsDiscoveryKeyring.AwsKmsDiscoveryKeyring
           && var c := k as AwsKmsDiscoveryKeyring.AwsKmsDiscoveryKeyring;
-          //= compliance/framework/aws-kms/aws-kms-multi-keyrings.txt#2.5
+          //= compliance/framework/aws-kms/aws-kms-multi-keyrings.txt#2.6
           //= type=implication
           //# Then a set of AWS KMS Discovery Keyring (aws-kms-discovery-
           //# keyring.md) MUST be created for each AWS KMS client by initializing
@@ -868,7 +866,7 @@ module
             && (grantTokens.Some? ==> children[i].grantTokens == grantTokens.value)
         {
           var region := regions[i];
-          //= compliance/framework/aws-kms/aws-kms-multi-keyrings.txt#2.5
+          //= compliance/framework/aws-kms/aws-kms-multi-keyrings.txt#2.6
           //# A set of AWS KMS clients MUST be created by calling regional client
           //# supplier for each region in the input set of regions.
           var client :- clientSupplier.GetClient(Crypto.GetClientInput(region));

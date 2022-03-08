@@ -9,7 +9,7 @@ using
 
 namespace Aws.Crypto
 {
-    public class CreateMrkAwareStrictMultiKeyringInput
+    public class CreateAwsKmsMultiKeyringInput
     {
         private string _generator;
         private System.Collections.Generic.List<string> _kmsKeyIds;
@@ -22,10 +22,20 @@ namespace Aws.Crypto
             set { this._generator = value; }
         }
 
+        internal bool IsSetGenerator()
+        {
+            return this._generator != null;
+        }
+
         public System.Collections.Generic.List<string> KmsKeyIds
         {
             get { return this._kmsKeyIds; }
             set { this._kmsKeyIds = value; }
+        }
+
+        internal bool IsSetKmsKeyIds()
+        {
+            return this._kmsKeyIds != null;
         }
 
         public Aws.Crypto.IClientSupplier ClientSupplier
@@ -34,10 +44,20 @@ namespace Aws.Crypto
             set { this._clientSupplier = value; }
         }
 
+        internal bool IsSetClientSupplier()
+        {
+            return this._clientSupplier != null;
+        }
+
         public System.Collections.Generic.List<string> GrantTokens
         {
             get { return this._grantTokens; }
             set { this._grantTokens = value; }
+        }
+
+        internal bool IsSetGrantTokens()
+        {
+            return this._grantTokens != null;
         }
 
         public void Validate()

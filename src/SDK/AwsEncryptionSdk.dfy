@@ -50,6 +50,8 @@ module {:extern "Dafny.Aws.Esdk.AwsEncryptionSdkClient"} AwsEncryptionSdk {
   import V1HeaderBody
   import Frames
 
+  type FrameLength = frameLength : int64 | 0 < frameLength <= 0xFFFF_FFFF witness *
+  
   class AwsEncryptionSdkClient extends Esdk.IAwsEncryptionSdkClient {
         const config: Esdk.AwsEncryptionSdkClientConfig;
 
@@ -149,25 +151,24 @@ module {:extern "Dafny.Aws.Esdk.AwsEncryptionSdkClient"} AwsEncryptionSdk {
         ==>
             res.Failure?
 
+       //= compliance/client-apis/encrypt.txt#2.4.6
+       //= type=implication
+       //# This value
+       //# MUST be greater than 0 and MUST NOT exceed the value 2^32 - 1. 
+        ensures
+            && input.frameLength.Some?
+            && (input.frameLength.value <= 0 || input.frameLength.value > 0xFFFF_FFFF)
+        ==>
+            res.Failure?            
         {
-            var frameLength : int64 := EncryptDecryptHelpers.DEFAULT_FRAME_LENGTH;
+            var frameLength : FrameLength := EncryptDecryptHelpers.DEFAULT_FRAME_LENGTH;
             if input.frameLength.Some? {
-                // TODO: uncomment once https://issues.amazon.com/issues/CrypTool-4350 fixed
-
-                //= compliance/client-apis/encrypt.txt#2.4.6
-                //= type=TODO
-                //# This value
-                //# MUST be greater than 0 and MUST NOT exceed the value 2^32 - 1.
-                //frameLength := request.frameLength.value;
+              :- Need(
+                0 < input.frameLength.value <= 0xFFFF_FFFF,
+                "FrameLength must be greater than 0 and less than 2^32"
+              );
+              frameLength := input.frameLength.value;
             }
-            :- Need(frameLength > 0, "Requested frame length must be > 0");
-
-            var maxPlaintextLength := INT64_MAX_LIMIT - 1;
-            if input.maxPlaintextLength.Some? {
-                // TODO: uncomment once https://issues.amazon.com/issues/CrypTool-4350 fixed
-                //maxPlaintextLength := request.maxPlaintextLength.value;
-            }
-            :- Need(maxPlaintextLength < INT64_MAX_LIMIT, "Input plaintext size too large.");
 
             // TODO: Change to '> 0' once CrypTool-4350 complete
             // TODO: Remove entirely once we can validate this value on client creation
@@ -187,11 +188,17 @@ module {:extern "Dafny.Aws.Esdk.AwsEncryptionSdkClient"} AwsEncryptionSdk {
                     .ValidateCommitmentPolicyOnEncrypt(algorithmSuiteId.value, this.commitmentPolicy);
             }
 
+            // int64 fits 9 exabytes so we're never going to actually hit this. But if we don't
+            // include this the verifier is not convinced that we can cast the size to int64
+            :- Need(|input.plaintext| < INT64_MAX_LIMIT, "Plaintext exceeds maximum allowed size");
             var materials :- GetEncryptionMaterials(
                 cmm,
                 algorithmSuiteId,
                 input.encryptionContext,
-                maxPlaintextLength as int64
+                //= compliance/client-apis/encrypt.txt#2.6.1
+                //# *  Max Plaintext Length: If the input plaintext (Section 2.4.1) has
+                //# known length, this length MUST be used.
+                |input.plaintext| as int64
             );
 
             //= compliance/client-apis/encrypt.txt#2.6.1
@@ -265,6 +272,11 @@ module {:extern "Dafny.Aws.Esdk.AwsEncryptionSdkClient"} AwsEncryptionSdk {
                 //# algorithm-suites.md#signature-algorithm), the encrypt operation
                 //# MUST perform this step.
 
+                //= compliance/data-format/message-footer.txt#2.3
+                //# When an algorithm suite (../framework/algorithm-suites.md) includes a
+                //# signature algorithm (../framework/algorithm-suites.md#signature-
+                //# algorithm), the message (message.md) MUST contain a footer.
+
                 var msg :- EncryptDecryptHelpers.SerializeMessageWithoutSignature(framedMessage, suite);
                 var ecdsaParams := framedMessage.finalFrame.header.suite.signature.curve;
                 // TODO: This should just work, but Proof is difficult
@@ -336,7 +348,7 @@ module {:extern "Dafny.Aws.Esdk.AwsEncryptionSdkClient"} AwsEncryptionSdk {
         method GetEncryptionMaterials(
             cmm: Crypto.ICryptographicMaterialsManager,
             algorithmSuiteId: Option<Crypto.AlgorithmSuiteId>,
-            encryptionContext: Crypto.EncryptionContext,
+            inputEncryptionContext: Option<Crypto.EncryptionContext>,
             maxPlaintextLength: int64
         ) returns (res: Result<Crypto.EncryptionMaterials, string>)
 
@@ -353,6 +365,13 @@ module {:extern "Dafny.Aws.Esdk.AwsEncryptionSdkClient"} AwsEncryptionSdk {
             && forall edk | edk in res.value.encryptedDataKeys
                 :: SerializableTypes.IsESDKEncryptedDataKey(edk)
         {
+            var encryptionContext : Crypto.EncryptionContext;
+            if inputEncryptionContext.Some? {
+                encryptionContext := inputEncryptionContext.value;
+            } else {
+                encryptionContext := map[];
+            }
+
             var encMatRequest := Crypto.GetEncryptionMaterialsInput(
                 encryptionContext:=encryptionContext,
                 commitmentPolicy:=this.commitmentPolicy,
@@ -690,12 +709,25 @@ module {:extern "Dafny.Aws.Esdk.AwsEncryptionSdkClient"} AwsEncryptionSdk {
         method DecryptInternal(input: Esdk.DecryptInput)
             returns (res: Result<Esdk.DecryptOutput, string>)
 
+        //= compliance/client-apis/decrypt.txt#2.7
+        //= type=TODO
+        //# This operation MUST perform all the above steps unless otherwise
+        //# specified, and it MUST perform them in the above order.
+
         //= compliance/client-apis/decrypt.txt#2.7.2
         //= type=implication
         //# If the parsed algorithm suite ID (../data-format/message-
         //# header.md#algorithm-suite-id) is not supported by the commitment
         //# policy (client.md#commitment-policy) configured in the client
         //# (client.md) decrypt MUST yield an error.
+
+        //= compliance/client-apis/decrypt.txt#2.7.2
+        //= type=implication
+        //# If the
+        //# algorithm suite is not supported by the commitment policy
+        //# (client.md#commitment-policy) configured in the client (client.md)
+        //# decrypt MUST yield an error.
+        // TODO :: Consider removing from spec as this is redundent
         ensures
         (
             && var buffer := SerializeFunctions.ReadableBuffer(input.ciphertext, 0);
@@ -724,6 +756,20 @@ module {:extern "Dafny.Aws.Esdk.AwsEncryptionSdkClient"} AwsEncryptionSdk {
             && var ec := EncryptionContext.GetEncryptionContext(headerBody.value.data.encryptionContext);
             && res.value.encryptionContext == ec
 
+        //= compliance/client-apis/decrypt.txt#2.5
+        //= type=implication
+        //# The client MUST require exactly one of the following types of inputs:
+        //#*  Cryptographic Materials Manager (CMM) (../framework/cmm-
+        //#   interface.md)
+        //#*  Keyring (../framework/keyring-interface.md)
+        ensures
+        (
+          || (input.materialsManager.Some? && input.keyring.Some?)
+          || (input.materialsManager.None? && input.keyring.None?)
+        )
+        ==>  
+          res.Failure?
+
         {
             // TODO: Change to '> 0' once CrypTool-4350 complete
             // TODO: Remove entirely once we can validate this value on client creation
@@ -733,7 +779,21 @@ module {:extern "Dafny.Aws.Esdk.AwsEncryptionSdkClient"} AwsEncryptionSdk {
 
             var cmm :- CreateCmmFromInput(input.materialsManager, input.keyring);
 
+            //= compliance/client-apis/decrypt.txt#2.7.1
+            //# Given encrypted message bytes, this operation MUST process those
+            //# bytes sequentially, deserializing those bytes according to the
+            //# message format (../data-format/message.md).
+
             var buffer := SerializeFunctions.ReadableBuffer(input.ciphertext, 0);
+
+            //= compliance/client-apis/decrypt.txt#2.5.1.1
+            //= type=TODO
+            //# To make diagnosing this mistake easier, implementations SHOULD detect
+            //# the first two bytes of the Base64 encoding of any supported message
+            //# versions (../data-format/message-header.md#version-1) and types
+            //# (../data-format/message-header.md#type) and fail with a more specific
+            //# error message.
+
             var headerBody :- Header
                 .ReadHeaderBody(buffer, this.maxEncryptedDataKeys)
                 .MapFailure(EncryptDecryptHelpers.MapSerializeFailure(": ReadHeaderBody"));
@@ -741,16 +801,39 @@ module {:extern "Dafny.Aws.Esdk.AwsEncryptionSdkClient"} AwsEncryptionSdk {
             var rawHeader := headerBody.tail.bytes[buffer.start..headerBody.tail.start];
 
             var algorithmSuiteId := SerializableTypes.GetAlgorithmSuiteId(headerBody.data.esdkSuiteId);
+            //= compliance/client-apis/decrypt.txt#2.7.2
+            //# If the
+            //# algorithm suite is not supported by the commitment policy
+            //# (client.md#commitment-policy) configured in the client (client.md)
+            //# decrypt MUST yield an error.
             var _ :- Client.SpecificationClient().ValidateCommitmentPolicyOnDecrypt(
                 algorithmSuiteId, this.commitmentPolicy
             );
 
+            //= compliance/client-apis/decrypt.txt#2.5.2
+            //# This CMM MUST obtain the decryption materials (../framework/
+            //# structures.md#decryption-materials) required for decryption.
+
+            //= compliance/client-apis/decrypt.txt#2.5.3
+            //# This default CMM MUST obtain the decryption materials required for
+            //# decryption.
+            // TODO :: Consider removing "Default CMM MUST obtain" from spec.
+            // It is redundent and hard to prove.
+
+            //= compliance/client-apis/decrypt.txt#2.7.2
+            //# This operation MUST obtain this set of decryption materials
+            //# (../framework/structures.md#decryption-materials), by calling Decrypt
+            //# Materials (../framework/cmm-interface.md#decrypt-materials) on a CMM
+            //# (../framework/cmm-interface.md).
             var decMat :- GetDecryptionMaterials(cmm, algorithmSuiteId, headerBody.data);
 
             var suite := Client
                 .SpecificationClient()
                 .GetSuite(decMat.algorithmSuiteId);
 
+            //= compliance/client-apis/decrypt.txt#2.4.2
+            //# This operation MUST NOT release any unauthenticated plaintext or
+            //# unauthenticated associated data.
             var headerAuth :- HeaderAuth
                 .ReadHeaderAuthTag(headerBody.tail, suite)
                 .MapFailure(EncryptDecryptHelpers.MapSerializeFailure(": ReadHeaderAuthTag"));
@@ -763,19 +846,34 @@ module {:extern "Dafny.Aws.Esdk.AwsEncryptionSdkClient"} AwsEncryptionSdk {
 
             :- Need(Header.HeaderVersionSupportsCommitment?(suite, headerBody.data), "Invalid commitment values found in header body");
             if suite.commitment.HKDF? {
-                var _ :- ValidateSuiteData(suite, headerBody.data, derivedDataKeys.commitmentKey.value);
+              var _ :- ValidateSuiteData(suite, headerBody.data, derivedDataKeys.commitmentKey.value);
             }
 
-            // We created the header auth tag by encrypting an
-            // empty array. To verify it here, we don't care about the actual
-            // result of the decryption, just that it succeeds, hence the
-            // anonymous variable name.
-            var _ :- AESEncryption.AESDecrypt(
+            //= compliance/client-apis/decrypt.txt#2.7.3
+            //# If this tag verification fails, this operation MUST immediately halt
+            //# and fail.
+            var _ :-
+              //= compliance/client-apis/decrypt.txt#2.7.3
+              //# Once a valid message header is deserialized and decryption materials
+              //# are available, this operation MUST validate the message header body
+              //# (../data-format/message-header.md#header-body) by using the
+              //# authenticated encryption algorithm (../framework/algorithm-
+              //# suites.md#encryption-algorithm) to decrypt with the following inputs:
+              AESEncryption.AESDecrypt(
                 suite.encrypt,
+                //#*  the cipherkey is the derived data key
                 derivedDataKeys.dataKey,
+                //#*  the ciphertext is an empty byte array
                 [],
+                //#*  the tag is the value serialized in the message header's
+                //#   authentication tag field (../data-format/message-
+                //#   header.md#authentication-tag)
                 headerAuth.data.headerAuthTag,
+                //#*  the IV is the value serialized in the message header's IV field
+                //#   (../data-format/message-header#iv).
                 headerAuth.data.headerIv,
+                //#*  the AAD is the serialized message header body (../data-format/
+                //#   message-header.md#header-body).
                 rawHeader
             );
             assert {:split_here} true;
@@ -810,13 +908,33 @@ module {:extern "Dafny.Aws.Esdk.AwsEncryptionSdkClient"} AwsEncryptionSdk {
 
             var key := derivedDataKeys.dataKey;
             var plaintext: seq<uint8>;
+
             var messageBodyTail: SerializeFunctions.ReadableBuffer;
+
+            //= compliance/client-apis/decrypt.txt#2.7.4
+            //# Once the message header is successfully parsed, the next sequential
+            //# bytes MUST be deserialized according to the message body spec
+            //# (../data-format/message-body.md).
+            
+            //= compliance/client-apis/decrypt.txt#2.7.4
+            //# The content type (../data-format/message-header.md#content-type)
+            //# field parsed from the message header above determines whether these
+            //# bytes MUST be deserialized as framed data (../data-format/message-
+            //# body.md#framed-data) or un-framed data (../data-format/message-
+            //# body.md#un-framed-data).
             match header.body.contentType {
                 case NonFramed =>
+                    //= compliance/client-apis/decrypt.txt#2.7.4
+                    //# If this decryption fails, this operation MUST immediately halt and
+                    //# fail.
                     var decryptRes :- ReadAndDecryptNonFramedMessageBody(headerAuth.tail, header, key);
                     plaintext := decryptRes.0;
                     messageBodyTail := decryptRes.1;
+                    
                 case Framed =>
+                    //= compliance/client-apis/decrypt.txt#2.7.4
+                    //# If this decryption fails, this operation MUST immediately halt and
+                    //# fail.
                     var decryptRes :- ReadAndDecryptFramedMessageBody(headerAuth.tail, header, key);
                     plaintext := decryptRes.0;
                     messageBodyTail := decryptRes.1;
@@ -824,6 +942,9 @@ module {:extern "Dafny.Aws.Esdk.AwsEncryptionSdkClient"} AwsEncryptionSdk {
 
             assert {:split_here} true;
 
+            //= compliance/client-apis/decrypt.txt#2.7.5
+            //# If this verification is not successful, this operation MUST
+            //# immediately halt and fail.
             var signature :- EncryptDecryptHelpers.VerifySignature(
                 messageBodyTail,
                 messageBodyTail.bytes[buffer.start..messageBodyTail.start],
@@ -832,6 +953,18 @@ module {:extern "Dafny.Aws.Esdk.AwsEncryptionSdkClient"} AwsEncryptionSdk {
 
             :- Need(signature.start == |signature.bytes|, "Data after message footer.");
 
+            //= compliance/client-apis/decrypt.txt#2.7.1
+            //# Until the header is verified (Section 2.7.3), this operation MUST NOT
+            //# release any parsed information from the header.
+            // Note that the header is verified above
+
+            //= compliance/client-apis/decrypt.txt#2.7.4
+            //# This operation MUST NOT release any unauthenticated plaintext.
+
+            //= compliance/client-apis/decrypt.txt#2.7
+            //# If the input encrypted message is not being streamed (streaming.md)
+            //# to this operation, all output MUST NOT be released until after these
+            //# steps complete successfully.
             return Success(
                 Esdk.DecryptOutput(
                     plaintext := plaintext,
@@ -859,6 +992,7 @@ module {:extern "Dafny.Aws.Esdk.AwsEncryptionSdkClient"} AwsEncryptionSdk {
 
             assert header == messageBody.data.finalFrame.header;
             assert |key| == messageBody.data.finalFrame.header.suite.encrypt.keyLength as int;
+            
             var plaintext :- MessageBody.DecryptFramedMessageBody(messageBody.data, key);
             var messageBodyTail := messageBody.tail;
 
@@ -901,11 +1035,22 @@ module {:extern "Dafny.Aws.Esdk.AwsEncryptionSdkClient"} AwsEncryptionSdk {
         ensures res.Success? ==> SerializableTypes.IsESDKEncryptionContext(res.value.encryptionContext)
         {
             var encryptionContext := EncryptionContext.GetEncryptionContext(headerBody.encryptionContext);
-
+            //= compliance/client-apis/decrypt.txt#2.7.2
+            //# ./framework/cmm-
+            //# interface.md#decrypt-materials) operation MUST be constructed as
+            //# follows:
             var decMatRequest := Crypto.DecryptMaterialsInput(
+                //#*  Algorithm Suite ID: This is the parsed algorithm suite ID
+                //#   (../data-format/message-header.md#algorithm-suite-id) from the
+                //#   message header.
                 algorithmSuiteId:=algorithmSuiteId,
                 commitmentPolicy:=this.commitmentPolicy,
+                //#*  Encrypted Data Keys: This is the parsed encrypted data keys
+                //#   (../data-format/message-header#encrypted-data-keys) from the
+                //#   message header.
                 encryptedDataKeys:=headerBody.encryptedDataKeys,
+                //#*  Encryption Context: This is the parsed encryption context
+                //#   (../data-format/message-header.md#aad) from the message header.
                 encryptionContext:=encryptionContext
             );
             var decMatResult := cmm.DecryptMaterials(decMatRequest);
@@ -970,16 +1115,27 @@ module {:extern "Dafny.Aws.Esdk.AwsEncryptionSdkClient"} AwsEncryptionSdk {
     // in V2 headers, unless we know we have a V2HeaderBody
     requires header.V2HeaderBody?
 
-    // Happy case
+    //= compliance/client-apis/decrypt.txt#2.7.2
+    //= type=implication
+    //# The
+    //# derived commit key MUST equal the commit key stored in the message
+    //# header.
     ensures res.Success? ==> header.suiteData == expectedSuiteData
 
     // Failure cases
     ensures header.suiteData != expectedSuiteData ==> res.Failure?
     ensures |header.suiteData| != suite.commitment.outputKeyLength as int ==> res.Failure?
     {
-        :- Need(|header.suiteData| == suite.commitment.outputKeyLength as int, "Commitment key is invalid");
-        :- Need(expectedSuiteData == header.suiteData, "Commitment key does not match");
+      :- Need(
+        |header.suiteData| == suite.commitment.outputKeyLength as int,
+        "Commitment key is invalid"
+      );
 
-        return Success(());
+      :- Need(
+        expectedSuiteData == header.suiteData,
+        "Commitment key does not match"
+      );
+
+      return Success(());
     }
 }

@@ -61,12 +61,11 @@ module {:extern "TestClient"} TestClient {
     var encryptionContext := TestUtils.SmallEncryptionContext(TestUtils.SmallEncryptionContextVariation.A);
     var input := Esdk.EncryptInput(
       plaintext:=plaintext,
-      encryptionContext:=encryptionContext,
+      encryptionContext:=Some(encryptionContext),
       algorithmSuiteId:=None(),
       materialsManager:=Some(cmm),
       keyring:=None(),
-      frameLength:=Option.None(),
-      maxPlaintextLength:=Option.None());
+      frameLength:=Option.None());
     var res :- expect client.Encrypt(input);
 
     // Use Decrypt API

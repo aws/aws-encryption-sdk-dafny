@@ -14,8 +14,8 @@ include "AwsKmsUtils.dfy"
 include "AwsKmsArnParsing.dfy"
 
 module
-  {:extern "Dafny.Aws.Crypto.MaterialProviders.AwsKmsMrkAwareSymmetricRegionDiscoveryKeyring"}
-  MaterialProviders.AwsKmsMrkAwareSymmetricRegionDiscoveryKeyring
+  {:extern "Dafny.Aws.Crypto.MaterialProviders.AwsKmsMrkDiscoveryKeyring"}
+  MaterialProviders.AwsKmsMrkDiscoveryKeyring
 {
   import opened StandardLibrary
   import opened Wrappers
@@ -30,8 +30,8 @@ module
   import KMS = Com.Amazonaws.Kms
   import opened AwsKmsUtils
 
-  class AwsKmsMrkAwareSymmetricRegionDiscoveryKeyring
-    //= compliance/framework/aws-kms/aws-kms-mrk-aware-symmetric-region-discovery-keyring.txt#2.5
+  class AwsKmsMrkDiscoveryKeyring
+    //= compliance/framework/aws-kms/aws-kms-mrk-discovery-keyring.txt#2.5
     //= type=implication
     //# MUST implement that AWS Encryption SDK Keyring interface (../keyring-
     //# interface.md#interface)
@@ -42,11 +42,11 @@ module
     const grantTokens: KMS.GrantTokenList
     const region: string
 
-    //= compliance/framework/aws-kms/aws-kms-mrk-aware-symmetric-region-discovery-keyring.txt#2.6
+    //= compliance/framework/aws-kms/aws-kms-mrk-discovery-keyring.txt#2.6
     //= type=implication
     //# On initialization the keyring MUST accept the following parameters:
     constructor (
-      //= compliance/framework/aws-kms/aws-kms-mrk-aware-symmetric-region-discovery-keyring.txt#2.6
+      //= compliance/framework/aws-kms/aws-kms-mrk-discovery-keyring.txt#2.6
       //= type=implication
       //# They keyring MUST fail initialization if any required parameters are
       //# missing or null.
@@ -72,7 +72,7 @@ module
       input: Crypto.OnEncryptInput
     )
       returns (res: Result<Crypto.OnEncryptOutput, Crypto.IAwsCryptographicMaterialProvidersException>)
-      //= compliance/framework/aws-kms/aws-kms-mrk-aware-symmetric-region-discovery-keyring.txt#2.7
+      //= compliance/framework/aws-kms/aws-kms-mrk-discovery-keyring.txt#2.7
       //= type=implication
       //# This function MUST fail.
       ensures res.Failure?
@@ -82,7 +82,7 @@ module
       return Failure(exception);
     }
 
-    //= compliance/framework/aws-kms/aws-kms-mrk-aware-symmetric-region-discovery-keyring.txt#2.8
+    //= compliance/framework/aws-kms/aws-kms-mrk-discovery-keyring.txt#2.8
     //= type=implication
     //# OnDecrypt MUST take decryption materials (../structures.md#decryption-
     //# materials) and a list of encrypted data keys
@@ -98,7 +98,7 @@ module
           res.value.materials
         )
 
-      //= compliance/framework/aws-kms/aws-kms-mrk-aware-symmetric-region-discovery-keyring.txt#2.8
+      //= compliance/framework/aws-kms/aws-kms-mrk-discovery-keyring.txt#2.8
       //= type=implication
       //# If the decryption materials (../structures.md#decryption-materials)
       //# already contained a valid plaintext data key, they keyring MUST fail
@@ -127,7 +127,7 @@ module
           && edk in input.encryptedDataKeys
         ::
           // && edk is EncryptedDataKey
-          //= compliance/framework/aws-kms/aws-kms-mrk-aware-symmetric-region-discovery-keyring.txt#2.8
+          //= compliance/framework/aws-kms/aws-kms-mrk-discovery-keyring.txt#2.8
           //= type=implication
           //# *  Its provider ID MUST exactly match the value "aws-kms".
           && edk.keyProviderId == PROVIDER_ID
@@ -141,14 +141,14 @@ module
             EncryptionAlgorithm := Option.None()
           );
 
-          //= compliance/framework/aws-kms/aws-kms-mrk-aware-symmetric-region-discovery-keyring.txt#2.8
+          //= compliance/framework/aws-kms/aws-kms-mrk-discovery-keyring.txt#2.8
           //= type=implication
           //# To attempt to decrypt a particular encrypted data key
           //# (../structures.md#encrypted-data-key), OnDecrypt MUST call AWS KMS
           //# Decrypt (https://docs.aws.amazon.com/kms/latest/APIReference/
           //# API_Decrypt.html) with the configured AWS KMS client.
           && client.DecryptCalledWith(
-            //= compliance/framework/aws-kms/aws-kms-mrk-aware-symmetric-region-discovery-keyring.txt#2.8
+            //= compliance/framework/aws-kms/aws-kms-mrk-discovery-keyring.txt#2.8
             //= type=implication
             //# When calling AWS KMS Decrypt
             //# (https://docs.aws.amazon.com/kms/latest/APIReference/
@@ -156,7 +156,7 @@ module
             //# as follows:
             request
             )
-          //= compliance/framework/aws-kms/aws-kms-mrk-aware-symmetric-region-discovery-keyring.txt#2.8
+          //= compliance/framework/aws-kms/aws-kms-mrk-discovery-keyring.txt#2.8
           //= type=implication
           //# Since the response does satisfies these requirements then OnDecrypt
           //# MUST do the following with the response:
@@ -169,7 +169,7 @@ module
               EncryptionAlgorithm := returnedEncryptionAlgorithm
             );
             && client.DecryptSucceededWith(request, response)
-          //= compliance/framework/aws-kms/aws-kms-mrk-aware-symmetric-region-discovery-keyring.txt#2.8
+          //= compliance/framework/aws-kms/aws-kms-mrk-discovery-keyring.txt#2.8
           //= type=implication
           //# *  The length of the response's "Plaintext" MUST equal the key
           //# derivation input length (../algorithm-suites.md#key-derivation-
@@ -187,7 +187,7 @@ module
         Materials.DecryptionMaterialsWithoutPlaintextDataKey(materials),
         "Keyring received decryption materials that already contain a plaintext data key.");
 
-      //= compliance/framework/aws-kms/aws-kms-mrk-aware-symmetric-region-discovery-keyring.txt#2.8
+      //= compliance/framework/aws-kms/aws-kms-mrk-discovery-keyring.txt#2.8
       //# The set of encrypted data keys MUST first be filtered to match this
       //# keyring's configuration.
       var edkFilterTransform : AwsKmsEncryptedDataKeyFilterTransform := new AwsKmsEncryptedDataKeyFilterTransform(region, discoveryFilter);
@@ -238,7 +238,7 @@ module
         assert helper in Seq.Flatten(parts);
       }
 
-      //= compliance/framework/aws-kms/aws-kms-mrk-aware-symmetric-region-discovery-keyring.txt#2.8
+      //= compliance/framework/aws-kms/aws-kms-mrk-discovery-keyring.txt#2.8
       //# For each encrypted data key in the filtered set, one at a time, the
       //# OnDecrypt MUST attempt to decrypt the data key.
       var decryptAction: AwsKmsEncryptedDataKeyDecryptor := new AwsKmsEncryptedDataKeyDecryptor(
@@ -247,7 +247,7 @@ module
         region,
         grantTokens
       );
-      //= compliance/framework/aws-kms/aws-kms-mrk-aware-symmetric-region-discovery-keyring.txt#2.8
+      //= compliance/framework/aws-kms/aws-kms-mrk-discovery-keyring.txt#2.8
       //# If the response does not satisfies these requirements then an error
       //# is collected and the next encrypted data key in the filtered set MUST
       //# be attempted.
@@ -266,7 +266,7 @@ module
             && decryptAction.Ensures(helper, Success(mat));
 
           Success(Crypto.OnDecryptOutput(materials := mat))
-        //= compliance/framework/aws-kms/aws-kms-mrk-aware-symmetric-region-discovery-keyring.txt#2.8
+        //= compliance/framework/aws-kms/aws-kms-mrk-discovery-keyring.txt#2.8
         //# If OnDecrypt fails to successfully decrypt any encrypted data key
         //# (../structures.md#encrypted-data-key), then it MUST yield an error that
         //# includes all collected errors.
@@ -341,7 +341,7 @@ module
       var keyId :- UTF8.Decode(edk.keyProviderInfo);
       var arn :- ParseAwsKmsArn(keyId);
 
-      //= compliance/framework/aws-kms/aws-kms-mrk-aware-symmetric-region-discovery-keyring.txt#2.8
+      //= compliance/framework/aws-kms/aws-kms-mrk-discovery-keyring.txt#2.8
       //# *  The provider info MUST be a valid AWS KMS ARN (aws-kms-key-
       //# arn.md#a-valid-aws-kms-arn) with a resource type of "key" or
       //# OnDecrypt MUST fail.
@@ -458,7 +458,7 @@ module
 
       var decryptResponse := maybeDecryptResponse.value;
       var algId := AlgorithmSuites.GetSuite(materials.algorithmSuiteId);
-      //= compliance/framework/aws-kms/aws-kms-mrk-aware-symmetric-region-discovery-keyring.txt#2.8
+      //= compliance/framework/aws-kms/aws-kms-mrk-discovery-keyring.txt#2.8
       //# *  The "KeyId" field in the response MUST equal the requested "KeyId"
       :- Need(
         && decryptResponse.KeyId.Some?
@@ -481,14 +481,14 @@ module
     region: string
   ): (res: string) {
     if IsMultiRegionAwsKmsArn(arn) then
-      //= compliance/framework/aws-kms/aws-kms-mrk-aware-symmetric-region-discovery-keyring.txt#2.8
+      //= compliance/framework/aws-kms/aws-kms-mrk-discovery-keyring.txt#2.8
       //# *  "KeyId": If the provider info's resource type is "key" and its
       //# resource is a multi-Region key then a new ARN MUST be created
       //# where the region part MUST equal the AWS KMS client region and
       //# every other part MUST equal the provider info.
       arn.ToArnString(Some(region))
     else
-      //= compliance/framework/aws-kms/aws-kms-mrk-aware-symmetric-region-discovery-keyring.txt#2.8
+      //= compliance/framework/aws-kms/aws-kms-mrk-discovery-keyring.txt#2.8
       //# Otherwise it MUST
       //# be the provider info.
       arn.ToString()
@@ -509,17 +509,17 @@ module
       && discoveryFilter.Some?
       && res
     ==>
-      //= compliance/framework/aws-kms/aws-kms-mrk-aware-symmetric-region-discovery-keyring.txt#2.8
+      //= compliance/framework/aws-kms/aws-kms-mrk-discovery-keyring.txt#2.8
       //= type=implication
       //# *  If a discovery filter is configured, its partition and the
       //# provider info partition MUST match.
       && discoveryFilter.value.partition == arn.partition
-      //= compliance/framework/aws-kms/aws-kms-mrk-aware-symmetric-region-discovery-keyring.txt#2.8
+      //= compliance/framework/aws-kms/aws-kms-mrk-discovery-keyring.txt#2.8
       //= type=implication
       //# *  If a discovery filter is configured, its set of accounts MUST
       //# contain the provider info account.
       && arn.account in discoveryFilter.value.accountIds
-    //= compliance/framework/aws-kms/aws-kms-mrk-aware-symmetric-region-discovery-keyring.txt#2.8
+    //= compliance/framework/aws-kms/aws-kms-mrk-discovery-keyring.txt#2.8
     //= type=implication
     //# *  If the provider info is not identified as a multi-Region key (aws-
     //# kms-key-arn.md#identifying-an-aws-kms-multi-region-key), then the

@@ -11,8 +11,8 @@ using Aws.Esdk;
 using Xunit;
 using ConfigurationDefaults = Aws.Esdk.ConfigurationDefaults;
 
-/// Demonstrate an encrypt/decrypt cycle using a AWS MRK-aware symmetric keyring.
-public class StrictAwsKmsKeyringExample {
+/// Demonstrate an encrypt/decrypt cycle using an AWS KMS keyring.
+public class AwsKmsKeyringExample {
     static void Run(MemoryStream plaintext, string keyArn) {
         // Create your encryption context.
         // Remember that your encryption context is NOT SECRET.
@@ -35,12 +35,12 @@ public class StrictAwsKmsKeyringExample {
         IAwsEncryptionSdk encryptionSdkClient = new AwsEncryptionSdkClient(config);
 
         // Create the keyring that determines how your data keys are protected.
-        CreateStrictAwsKmsKeyringInput createKeyringInput = new CreateStrictAwsKmsKeyringInput
+        CreateAwsKmsKeyringInput createKeyringInput = new CreateAwsKmsKeyringInput
         {
             KmsClient = new AmazonKeyManagementServiceClient(),
             KmsKeyId = keyArn,
         };
-        IKeyring keyring = materialProviders.CreateStrictAwsKmsKeyring(createKeyringInput);
+        IKeyring keyring = materialProviders.CreateAwsKmsKeyring(createKeyringInput);
 
         // Create the materials manager that assembles cryptographic materials from your keyring.
         CreateDefaultCryptographicMaterialsManagerInput createMaterialsManagerInput =
@@ -93,7 +93,7 @@ public class StrictAwsKmsKeyringExample {
 
     // We test examples to ensure they remain up-to-date.
     [Fact]
-    public void TestStrictAwsKmsKeyringExample() {
+    public void TestAwsKmsKeyringExample() {
         Run(ExampleUtils.ExampleUtils.GetPlaintextStream(), ExampleUtils.ExampleUtils.GetKmsKeyArn());
     }
 }

@@ -9,7 +9,7 @@ using
 
 namespace Aws.Crypto
 {
-    public class CreateMrkAwareDiscoveryMultiKeyringInput
+    public class CreateAwsKmsMrkDiscoveryMultiKeyringInput
     {
         private System.Collections.Generic.List<string> _regions;
         private Aws.Crypto.DiscoveryFilter _discoveryFilter;
@@ -22,10 +22,20 @@ namespace Aws.Crypto
             set { this._regions = value; }
         }
 
+        internal bool IsSetRegions()
+        {
+            return this._regions != null;
+        }
+
         public Aws.Crypto.DiscoveryFilter DiscoveryFilter
         {
             get { return this._discoveryFilter; }
             set { this._discoveryFilter = value; }
+        }
+
+        internal bool IsSetDiscoveryFilter()
+        {
+            return this._discoveryFilter != null;
         }
 
         public Aws.Crypto.IClientSupplier ClientSupplier
@@ -34,10 +44,20 @@ namespace Aws.Crypto
             set { this._clientSupplier = value; }
         }
 
+        internal bool IsSetClientSupplier()
+        {
+            return this._clientSupplier != null;
+        }
+
         public System.Collections.Generic.List<string> GrantTokens
         {
             get { return this._grantTokens; }
             set { this._grantTokens = value; }
+        }
+
+        internal bool IsSetGrantTokens()
+        {
+            return this._grantTokens != null;
         }
 
         public void Validate()

@@ -17,12 +17,16 @@ namespace Aws.Esdk
         private Aws.Crypto.IKeyring _keyring;
         private Aws.Crypto.AlgorithmSuiteId _algorithmSuiteId;
         private long? _frameLength;
-        private long? _maxPlaintextLength;
 
         public System.IO.MemoryStream Plaintext
         {
             get { return this._plaintext; }
             set { this._plaintext = value; }
+        }
+
+        internal bool IsSetPlaintext()
+        {
+            return this._plaintext != null;
         }
 
         public System.Collections.Generic.Dictionary<string, string> EncryptionContext
@@ -31,10 +35,20 @@ namespace Aws.Esdk
             set { this._encryptionContext = value; }
         }
 
+        internal bool IsSetEncryptionContext()
+        {
+            return this._encryptionContext != null;
+        }
+
         public Aws.Crypto.ICryptographicMaterialsManager MaterialsManager
         {
             get { return this._materialsManager; }
             set { this._materialsManager = value; }
+        }
+
+        internal bool IsSetMaterialsManager()
+        {
+            return this._materialsManager != null;
         }
 
         public Aws.Crypto.IKeyring Keyring
@@ -43,10 +57,20 @@ namespace Aws.Esdk
             set { this._keyring = value; }
         }
 
+        internal bool IsSetKeyring()
+        {
+            return this._keyring != null;
+        }
+
         public Aws.Crypto.AlgorithmSuiteId AlgorithmSuiteId
         {
             get { return this._algorithmSuiteId; }
             set { this._algorithmSuiteId = value; }
+        }
+
+        internal bool IsSetAlgorithmSuiteId()
+        {
+            return this._algorithmSuiteId != null;
         }
 
         public long FrameLength
@@ -55,10 +79,9 @@ namespace Aws.Esdk
             set { this._frameLength = value; }
         }
 
-        public long MaxPlaintextLength
+        internal bool IsSetFrameLength()
         {
-            get { return this._maxPlaintextLength.GetValueOrDefault(); }
-            set { this._maxPlaintextLength = value; }
+            return this._frameLength.HasValue;
         }
 
         public void Validate()

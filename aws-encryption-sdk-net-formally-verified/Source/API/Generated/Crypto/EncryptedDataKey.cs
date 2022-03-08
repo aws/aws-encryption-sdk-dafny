@@ -21,16 +21,31 @@ namespace Aws.Crypto
             set { this._keyProviderId = value; }
         }
 
+        internal bool IsSetKeyProviderId()
+        {
+            return this._keyProviderId != null;
+        }
+
         public string KeyProviderInfo
         {
             get { return this._keyProviderInfo; }
             set { this._keyProviderInfo = value; }
         }
 
+        internal bool IsSetKeyProviderInfo()
+        {
+            return this._keyProviderInfo != null;
+        }
+
         public System.IO.MemoryStream Ciphertext
         {
             get { return this._ciphertext; }
             set { this._ciphertext = value; }
+        }
+
+        internal bool IsSetCiphertext()
+        {
+            return this._ciphertext != null;
         }
 
         public void Validate()

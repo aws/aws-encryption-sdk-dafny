@@ -22,10 +22,20 @@ namespace Aws.Crypto
             set { this._keyNamespace = value; }
         }
 
+        internal bool IsSetKeyNamespace()
+        {
+            return this._keyNamespace != null;
+        }
+
         public string KeyName
         {
             get { return this._keyName; }
             set { this._keyName = value; }
+        }
+
+        internal bool IsSetKeyName()
+        {
+            return this._keyName != null;
         }
 
         public System.IO.MemoryStream WrappingKey
@@ -34,10 +44,20 @@ namespace Aws.Crypto
             set { this._wrappingKey = value; }
         }
 
+        internal bool IsSetWrappingKey()
+        {
+            return this._wrappingKey != null;
+        }
+
         public Aws.Crypto.AesWrappingAlg WrappingAlg
         {
             get { return this._wrappingAlg; }
             set { this._wrappingAlg = value; }
+        }
+
+        internal bool IsSetWrappingAlg()
+        {
+            return this._wrappingAlg != null;
         }
 
         public void Validate()

@@ -19,6 +19,11 @@ namespace Aws.Crypto
             set { this._cacheEntry = value; }
         }
 
+        internal bool IsSetCacheEntry()
+        {
+            return this._cacheEntry != null;
+        }
+
         public void Validate()
         {
         }
