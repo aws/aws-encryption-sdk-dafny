@@ -84,6 +84,7 @@ namespace TestVectors {
             Utils.WriteObjectToPath(decryptManifest, decryptManifestPath);
             Console.Error.WriteLine("Wrote decrypt vector manifest");
 
+            // TODO resolve KMS aliases to ARNs, instead of copying them over
             var keysPath = Utils.ManifestUriToPath(OutputKeysManifestUri, decryptManifestPath);
             Utils.WriteObjectToPath(_keyManifest, keysPath);
             Console.Error.WriteLine("Wrote key manifest");
