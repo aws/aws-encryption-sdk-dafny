@@ -64,6 +64,8 @@ module {:extern "Dafny.Aws.Esdk.AwsEncryptionSdkClient"} AwsEncryptionSdk {
 
         const materialProvidersClient: Crypto.IAwsCryptographicMaterialsProviderClient;
 
+        const RESERVED_ENCRYPTION_CONTEXT := UTF8.Encode("aws-crypto-").value;
+
         //= compliance/client-apis/client.txt#2.4
         //= type=implication
         //# On client initialization, the caller MUST have the option to provide
@@ -173,6 +175,10 @@ module {:extern "Dafny.Aws.Esdk.AwsEncryptionSdkClient"} AwsEncryptionSdk {
             // TODO: Remove entirely once we can validate this value on client creation
             if this.maxEncryptedDataKeys.Some? {
                 :- Need(this.maxEncryptedDataKeys.value > 0, "maxEncryptedDataKeys must be positive");
+            }
+
+            if input.encryptionContext.Some? {
+                var _ :- ValidateEncryptionContext(input.encryptionContext.value);
             }
 
             var cmm :- CreateCmmFromInput(input.materialsManager, input.keyring);
@@ -1067,6 +1073,33 @@ module {:extern "Dafny.Aws.Esdk.AwsEncryptionSdkClient"} AwsEncryptionSdk {
             :- Need(SerializableTypes.IsESDKEncryptionContext(decMat.encryptionContext), "CMM failed to return serializable encryption materials.");
 
             return Success(decMat);
+        }
+
+        /*
+        * Ensures that an input encryption context does not contain any values
+        * which use the reserved prefix
+        */
+        method ValidateEncryptionContext(input: Crypto.EncryptionContext)
+            returns (res: Result<(), string>)
+            //= compliance/client-apis/encrypt.txt#2.4.2
+            //# The prefix "aws-crypto-" is reserved for internal use by the AWS
+            //# Encryption SDK; see the the Default CMM spec (default-cmm.md) for one
+            //# such use.
+            //# If the input encryption context contains any entries with
+            //# a key beginning with this prefix, the encryption operation MUST fail.
+        {
+            var items := input.Items;
+            while items != {}
+            decreases |items|
+            {
+                var item :| item in items;
+                items := items - { item };
+
+                if RESERVED_ENCRYPTION_CONTEXT <= item.0 {
+                    return Failure("Encryption context keys cannot contain reserved prefix 'aws-crypto-'");
+                }
+            }
+            return Success(());
         }
 
         method ValidateMaxEncryptedDataKeys(edks: SerializableTypes.ESDKEncryptedDataKeys)
