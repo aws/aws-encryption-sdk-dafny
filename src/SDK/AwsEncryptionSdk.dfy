@@ -14,7 +14,6 @@ include "../Crypto/Random.dfy"
 include "../Crypto/AESEncryption.dfy"
 include "EncryptDecrypt.dfy"
 include "KeyDerivation.dfy"
-include "ConfigDefaults.dfy"
 
 include "Serialize/SerializableTypes.dfy"
 include "Serialize/Header.dfy"
@@ -42,7 +41,6 @@ module {:extern "Dafny.Aws.Esdk.AwsEncryptionSdkClient"} AwsEncryptionSdk {
   import SerializeFunctions
   import MessageBody
   import Signature
-  import ConfigDefaults
 
   import Header
   import HeaderTypes
@@ -52,6 +50,8 @@ module {:extern "Dafny.Aws.Esdk.AwsEncryptionSdkClient"} AwsEncryptionSdk {
 
   type FrameLength = frameLength : int64 | 0 < frameLength <= 0xFFFF_FFFF witness *
   
+  const DEFAULT_COMMITMENT_POLICY : Crypto.CommitmentPolicy := Crypto.REQUIRE_ENCRYPT_REQUIRE_DECRYPT;
+
   class AwsEncryptionSdkClient extends Esdk.IAwsEncryptionSdkClient {
         const config: Esdk.AwsEncryptionSdkClientConfig;
 
@@ -62,7 +62,7 @@ module {:extern "Dafny.Aws.Esdk.AwsEncryptionSdkClient"} AwsEncryptionSdk {
         const commitmentPolicy: Crypto.CommitmentPolicy;
         const maxEncryptedDataKeys: Option<int64>;
 
-        const materialProvidersClient: Crypto.IAwsCryptographicMaterialsProviderClient;
+        const materialProvidersClient: Crypto.IAwsCryptographicMaterialProvidersClient;
 
         const RESERVED_ENCRYPTION_CONTEXT := UTF8.Encode("aws-crypto-").value;
 
@@ -72,6 +72,7 @@ module {:extern "Dafny.Aws.Esdk.AwsEncryptionSdkClient"} AwsEncryptionSdk {
         //# a:
         //#*  commitment policy (Section 2.4.1)
         //#*  maximum number of encrypted data keys (Section 2.4.2)
+
         constructor (config: Esdk.AwsEncryptionSdkClientConfig)
             ensures this.config == config
 
@@ -81,8 +82,7 @@ module {:extern "Dafny.Aws.Esdk.AwsEncryptionSdkClient"} AwsEncryptionSdk {
             //# be REQUIRE_ENCRYPT_REQUIRE_DECRYPT (../framework/algorithm-
             //# suites.md#require_encrypt_require_decrypt).
             ensures config.commitmentPolicy.None? ==>
-              && var policy := ConfigDefaults.GetDefaultCommitmentPolicy(config.configDefaults);
-              && this.commitmentPolicy == policy
+              && this.commitmentPolicy == DEFAULT_COMMITMENT_POLICY
 
             ensures config.commitmentPolicy.Some? ==>
                 this.commitmentPolicy == config.commitmentPolicy.value
@@ -103,15 +103,10 @@ module {:extern "Dafny.Aws.Esdk.AwsEncryptionSdkClient"} AwsEncryptionSdk {
         {
             this.config := config;
 
-            // TODO: Ideally we would validate that this value, if provided, falls within a specific range,
-            // then only pass around known good values to all places where it is used.
-            // However, currently Polymorph doesn't handle this smoothly for these service client
-            // constructors and their configurations.
             this.maxEncryptedDataKeys := config.maxEncryptedDataKeys;
 
             if config.commitmentPolicy.None? {
-                var defaultPolicy := ConfigDefaults.GetDefaultCommitmentPolicy(config.configDefaults);
-                this.commitmentPolicy := defaultPolicy;
+                this.commitmentPolicy := DEFAULT_COMMITMENT_POLICY;
             } else {
                 this.commitmentPolicy := config.commitmentPolicy.value;
             }

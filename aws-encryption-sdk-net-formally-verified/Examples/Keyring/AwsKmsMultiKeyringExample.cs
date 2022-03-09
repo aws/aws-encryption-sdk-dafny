@@ -9,7 +9,6 @@ using Aws.Crypto;
 using Aws.Esdk;
 
 using Xunit;
-using ConfigurationDefaults = Aws.Esdk.ConfigurationDefaults;
 
 /// Demonstrate an encrypt/decrypt cycle using a Multi-Keyring made up of multiple AWS KMS
 /// Keyrings.
@@ -27,13 +26,8 @@ public class AwsKmsMultiKeyring {
         };
 
         // Create clients to access the Encryption SDK APIs.
-        // TODO: add client configuration objects
-        IAwsCryptographicMaterialProviders materialProviders = new AwsCryptographicMaterialProvidersClient();
-        AwsEncryptionSdkClientConfig config = new AwsEncryptionSdkClientConfig
-        {
-            ConfigDefaults = ConfigurationDefaults.V1
-        };
-        IAwsEncryptionSdk encryptionSdkClient = new AwsEncryptionSdkClient(config);
+        var materialProvidersClient = AwsCryptographicMaterialProvidersClientFactory.CreateDefaultAwsCryptographicMaterialProvidersClient();
+        var encryptionSdkClient = AwsEncryptionSdkClientFactory.CreateDefaultAwsEncryptionSdkClient();
 
         // Create the keyring that determines how your data keys are protected.
         CreateAwsKmsKeyringInput createKeyringInput = new CreateAwsKmsKeyringInput
@@ -41,7 +35,7 @@ public class AwsKmsMultiKeyring {
             KmsClient = new AmazonKeyManagementServiceClient(),
             KmsKeyId = keyArn,
         };
-        IKeyring keyring = materialProviders.CreateAwsKmsKeyring(createKeyringInput);
+        IKeyring keyring = materialProvidersClient.CreateAwsKmsKeyring(createKeyringInput);
 
         // Encrypt your plaintext data.
         // In this example, we pass a keyring. Behind the scenes, the AWS Encryption SDK will create

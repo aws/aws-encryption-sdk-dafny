@@ -11,16 +11,13 @@ using
 
 namespace Aws.Esdk
 {
-    public class AwsEncryptionSdkClient : AwsEncryptionSdkClientBase
+    internal class AwsEncryptionSdkClient : AwsEncryptionSdkClientBase
     {
-        private Dafny.Aws.Esdk.AwsEncryptionSdkClient.AwsEncryptionSdkClient _impl;
+        internal Dafny.Aws.Esdk.IAwsEncryptionSdkClient _impl { get; }
 
-        public AwsEncryptionSdkClient(Aws.Esdk.AwsEncryptionSdkClientConfig config) : base(config)
+        internal AwsEncryptionSdkClient(Dafny.Aws.Esdk.IAwsEncryptionSdkClient impl)
         {
-            // TODO: these lines were manually updated
-            this._impl =
-                new Dafny.Aws.Esdk.AwsEncryptionSdkClient.AwsEncryptionSdkClient();
-            this._impl.__ctor(TypeConversion.ToDafny_N3_aws__N4_esdk__S28_AwsEncryptionSdkClientConfig(config));
+            this._impl = impl;
         }
 
         protected override Aws.Esdk.EncryptOutput _Encrypt(Aws.Esdk.EncryptInput input)

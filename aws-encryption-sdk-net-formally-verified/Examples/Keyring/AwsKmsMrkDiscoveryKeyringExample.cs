@@ -9,7 +9,6 @@ using Aws.Crypto;
 using Aws.Esdk;
 
 using Xunit;
-using ConfigurationDefaults = Aws.Esdk.ConfigurationDefaults;
 
 /// Demonstrate an encrypt/decrypt cycle using an AWS KMS MRK discovery keyring.
 public class AwsKmsMrkDiscoveryKeyringExample {
@@ -26,13 +25,8 @@ public class AwsKmsMrkDiscoveryKeyringExample {
         };
 
         // Create clients to access the Encryption SDK APIs.
-        // TODO: add client configuration objects
-        IAwsCryptographicMaterialProviders materialProviders = new AwsCryptographicMaterialProvidersClient();
-        AwsEncryptionSdkClientConfig config = new AwsEncryptionSdkClientConfig
-        {
-            ConfigDefaults = ConfigurationDefaults.V1
-        };
-        IAwsEncryptionSdk encryptionSdkClient = new AwsEncryptionSdkClient(config);
+        var materialProvidersClient = AwsCryptographicMaterialProvidersClientFactory.CreateDefaultAwsCryptographicMaterialProvidersClient();
+        var encryptionSdkClient = AwsEncryptionSdkClientFactory.CreateDefaultAwsEncryptionSdkClient();
 
         // Create the keyring that determines how your data keys are protected. Though this example highlights
         // Discovery keyrings, Discovery keyrings cannot be used to encrypt, so for encryption we create
@@ -42,19 +36,13 @@ public class AwsKmsMrkDiscoveryKeyringExample {
             KmsClient = new AmazonKeyManagementServiceClient(),
             KmsKeyId = keyArn,
         };
-        IKeyring encryptKeyring = materialProviders.CreateAwsKmsMrkKeyring(createKeyringInput);
-
-        // Create the materials manager that assembles cryptographic materials from your keyring.
-        CreateDefaultCryptographicMaterialsManagerInput createEncryptCmmInput =
-            new CreateDefaultCryptographicMaterialsManagerInput {Keyring = encryptKeyring};
-        ICryptographicMaterialsManager encryptCmm =
-            materialProviders.CreateDefaultCryptographicMaterialsManager(createEncryptCmmInput);
+        IKeyring encryptKeyring = materialProvidersClient.CreateAwsKmsMrkKeyring(createKeyringInput);
 
         // Encrypt your plaintext data.
         EncryptInput encryptInput = new EncryptInput
         {
             Plaintext = plaintext,
-            MaterialsManager = encryptCmm,
+            Keyring = encryptKeyring,
             EncryptionContext = encryptionContext,
         };
         EncryptOutput encryptOutput = encryptionSdkClient.Encrypt(encryptInput);
@@ -69,16 +57,12 @@ public class AwsKmsMrkDiscoveryKeyringExample {
             KmsClient = new AmazonKeyManagementServiceClient(),
             Region = "us-west-2"
         };
-        IKeyring decryptKeyring = materialProviders.CreateAwsKmsMrkDiscoveryKeyring(createDecryptKeyringInput);
-        CreateDefaultCryptographicMaterialsManagerInput createDecryptCmmInput =
-            new CreateDefaultCryptographicMaterialsManagerInput {Keyring = decryptKeyring};
-        ICryptographicMaterialsManager decryptCmm =
-            materialProviders.CreateDefaultCryptographicMaterialsManager(createDecryptCmmInput);
+        IKeyring decryptKeyring = materialProvidersClient.CreateAwsKmsMrkDiscoveryKeyring(createDecryptKeyringInput);
 
         DecryptInput decryptInput = new DecryptInput
         {
             Ciphertext = ciphertext,
-            MaterialsManager = decryptCmm,
+            Keyring = decryptKeyring,
         };
         DecryptOutput decryptOutput = encryptionSdkClient.Decrypt(decryptInput);
 

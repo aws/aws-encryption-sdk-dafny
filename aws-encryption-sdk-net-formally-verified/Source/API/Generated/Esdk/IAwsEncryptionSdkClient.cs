@@ -9,7 +9,7 @@ using
 
 namespace Aws.Esdk
 {
-    public interface IAwsEncryptionSdk
+    public interface IAwsEncryptionSdkClient
     {
         Aws.Esdk.EncryptOutput Encrypt(Aws.Esdk.EncryptInput input);
         Aws.Esdk.DecryptOutput Decrypt(Aws.Esdk.DecryptInput input);

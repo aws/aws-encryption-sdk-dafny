@@ -13,7 +13,6 @@ namespace Aws.Esdk
     {
         private Aws.Crypto.CommitmentPolicy _commitmentPolicy;
         private long? _maxEncryptedDataKeys;
-        private Aws.Esdk.ConfigurationDefaults _configDefaults;
 
         public Aws.Crypto.CommitmentPolicy CommitmentPolicy
         {
@@ -35,17 +34,6 @@ namespace Aws.Esdk
         internal bool IsSetMaxEncryptedDataKeys()
         {
             return this._maxEncryptedDataKeys.HasValue;
-        }
-
-        public Aws.Esdk.ConfigurationDefaults ConfigDefaults
-        {
-            get { return this._configDefaults; }
-            set { this._configDefaults = value; }
-        }
-
-        internal bool IsSetConfigDefaults()
-        {
-            return this._configDefaults != null;
         }
 
         public void Validate()

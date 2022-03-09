@@ -126,9 +126,10 @@ module
   }
 
   class AwsCryptographicMaterialProvidersClient
-    extends Crypto.IAwsCryptographicMaterialsProviderClient
+    extends Crypto.IAwsCryptographicMaterialProvidersClient
   {
     constructor () {}
+
     method CreateRawAesKeyring(input: Crypto.CreateRawAesKeyringInput)
       returns (res: Result<Crypto.IKeyring, Crypto.IAwsCryptographicMaterialProvidersException>)
     {

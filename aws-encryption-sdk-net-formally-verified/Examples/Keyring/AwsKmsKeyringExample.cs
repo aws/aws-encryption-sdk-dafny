@@ -9,7 +9,6 @@ using Aws.Crypto;
 using Aws.Esdk;
 
 using Xunit;
-using ConfigurationDefaults = Aws.Esdk.ConfigurationDefaults;
 
 /// Demonstrate an encrypt/decrypt cycle using an AWS KMS keyring.
 public class AwsKmsKeyringExample {
@@ -26,13 +25,8 @@ public class AwsKmsKeyringExample {
         };
 
         // Create clients to access the Encryption SDK APIs.
-        // TODO: add client configuration objects
-        IAwsCryptographicMaterialProviders materialProviders = new AwsCryptographicMaterialProvidersClient();
-        AwsEncryptionSdkClientConfig config = new AwsEncryptionSdkClientConfig
-        {
-            ConfigDefaults = ConfigurationDefaults.V1
-        };
-        IAwsEncryptionSdk encryptionSdkClient = new AwsEncryptionSdkClient(config);
+        var materialProvidersClient = AwsCryptographicMaterialProvidersClientFactory.CreateDefaultAwsCryptographicMaterialProvidersClient();
+        var encryptionSdkClient = AwsEncryptionSdkClientFactory.CreateDefaultAwsEncryptionSdkClient();
 
         // Create the keyring that determines how your data keys are protected.
         CreateAwsKmsKeyringInput createKeyringInput = new CreateAwsKmsKeyringInput
@@ -40,19 +34,14 @@ public class AwsKmsKeyringExample {
             KmsClient = new AmazonKeyManagementServiceClient(),
             KmsKeyId = keyArn,
         };
-        IKeyring keyring = materialProviders.CreateAwsKmsKeyring(createKeyringInput);
 
-        // Create the materials manager that assembles cryptographic materials from your keyring.
-        CreateDefaultCryptographicMaterialsManagerInput createMaterialsManagerInput =
-            new CreateDefaultCryptographicMaterialsManagerInput {Keyring = keyring};
-        ICryptographicMaterialsManager materialsManager =
-            materialProviders.CreateDefaultCryptographicMaterialsManager(createMaterialsManagerInput);
+        IKeyring keyring = materialProvidersClient.CreateAwsKmsKeyring(createKeyringInput);
 
         // Encrypt your plaintext data.
         EncryptInput encryptInput = new EncryptInput
         {
             Plaintext = plaintext,
-            MaterialsManager = materialsManager,
+            Keyring = keyring,
             EncryptionContext = encryptionContext,
         };
         EncryptOutput encryptOutput = encryptionSdkClient.Encrypt(encryptInput);
@@ -68,7 +57,7 @@ public class AwsKmsKeyringExample {
         DecryptInput decryptInput = new DecryptInput
         {
             Ciphertext = ciphertext,
-            MaterialsManager = materialsManager,
+            Keyring = keyring,
         };
         DecryptOutput decryptOutput = encryptionSdkClient.Decrypt(decryptInput);
 

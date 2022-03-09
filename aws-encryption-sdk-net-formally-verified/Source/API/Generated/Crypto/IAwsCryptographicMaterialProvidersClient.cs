@@ -9,7 +9,7 @@ using
 
 namespace Aws.Crypto
 {
-    public interface IAwsCryptographicMaterialProviders
+    public interface IAwsCryptographicMaterialProvidersClient
     {
         Aws.Crypto.IKeyring CreateAwsKmsKeyring(Aws.Crypto.CreateAwsKmsKeyringInput input);
         Aws.Crypto.IKeyring CreateAwsKmsDiscoveryKeyring(Aws.Crypto.CreateAwsKmsDiscoveryKeyringInput input);

@@ -13,8 +13,6 @@ using Xunit;
 
 using ibyteseq = Dafny.ISequence<byte>;
 using byteseq = Dafny.Sequence<byte>;
-using ConfigurationDefaults = Aws.Esdk.ConfigurationDefaults;
-
 
 /// Demonstrate an encrypt/decrypt cycle using a raw RSA keyring.
 public class RawRSAKeyringExample {
@@ -45,13 +43,8 @@ public class RawRSAKeyringExample {
         string keyName = "My 2048-bit RSA wrapping key";
 
         // Create clients to access the Encryption SDK APIs.
-        // TODO: add client configuration objects
-        IAwsCryptographicMaterialProviders materialProviders = new AwsCryptographicMaterialProvidersClient();
-        AwsEncryptionSdkClientConfig config = new AwsEncryptionSdkClientConfig
-        {
-            ConfigDefaults = ConfigurationDefaults.V1
-        };
-        IAwsEncryptionSdk encryptionSdkClient = new AwsEncryptionSdkClient(config);
+        var materialProvidersClient = AwsCryptographicMaterialProvidersClientFactory.CreateDefaultAwsCryptographicMaterialProvidersClient();
+        var encryptionSdkClient = AwsEncryptionSdkClientFactory.CreateDefaultAwsEncryptionSdkClient();
 
         // Create the keyring that determines how your data keys are protected.
         CreateRawRsaKeyringInput createRawRsaKeyringInput = new CreateRawRsaKeyringInput
@@ -62,19 +55,13 @@ public class RawRSAKeyringExample {
             PublicKey = publicKey,
             PrivateKey = privateKey
         };
-        IKeyring keyring = materialProviders.CreateRawRsaKeyring(createRawRsaKeyringInput);
-
-        // Create the materials manager that assembles cryptographic materials from your keyring.
-        CreateDefaultCryptographicMaterialsManagerInput createMaterialsManagerInput =
-            new CreateDefaultCryptographicMaterialsManagerInput {Keyring = keyring};
-        ICryptographicMaterialsManager materialsManager =
-            materialProviders.CreateDefaultCryptographicMaterialsManager(createMaterialsManagerInput);
+        IKeyring keyring = materialProvidersClient.CreateRawRsaKeyring(createRawRsaKeyringInput);
 
         // Encrypt your plaintext data.
         EncryptInput encryptInput = new EncryptInput
         {
             Plaintext = plaintext,
-            MaterialsManager = materialsManager,
+            Keyring = keyring,
             EncryptionContext = encryptionContext,
         };
         EncryptOutput encryptOutput = encryptionSdkClient.Encrypt(encryptInput);
@@ -90,7 +77,7 @@ public class RawRSAKeyringExample {
         DecryptInput decryptInput = new DecryptInput
         {
             Ciphertext = ciphertext,
-            MaterialsManager = materialsManager,
+            Keyring = keyring,
         };
         DecryptOutput decryptOutput = encryptionSdkClient.Decrypt(decryptInput);
 

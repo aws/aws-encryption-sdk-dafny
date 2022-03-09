@@ -11,7 +11,6 @@ using Aws.Esdk;
 using Org.BouncyCastle.Security;
 using Org.BouncyCastle.Utilities; // In this example, we use BouncyCastle to generate a wrapping key.
 using Xunit;
-using ConfigurationDefaults = Aws.Esdk.ConfigurationDefaults;
 
 /// Demonstrate an encrypt/decrypt cycle using a Multi keyring consisting of an AWS KMS Keyring and
 /// a raw AES keyring.
@@ -30,38 +29,27 @@ public class MultiKeyringExample {
         };
 
         // Create clients to access the Encryption SDK APIs.
-        // TODO: add client configuration objects
-        IAwsCryptographicMaterialProviders materialProviders = new AwsCryptographicMaterialProvidersClient();
-        AwsEncryptionSdkClientConfig config = new AwsEncryptionSdkClientConfig
-        {
-            ConfigDefaults = ConfigurationDefaults.V1
-        };
-        IAwsEncryptionSdk encryptionSdkClient = new AwsEncryptionSdkClient(config);
-
+        var materialProvidersClient = AwsCryptographicMaterialProvidersClientFactory.CreateDefaultAwsCryptographicMaterialProvidersClient();
+        var encryptionSdkClient = AwsEncryptionSdkClientFactory.CreateDefaultAwsEncryptionSdkClient();
+        
         // Create a KMS keyring to use as the generator
         // TODO
 
         // Create a raw AES keyring to additionally encrypt under
-        IKeyring rawAESKeyring = CreateRawAESKeyring(materialProviders);
+        IKeyring rawAESKeyring = CreateRawAESKeyring(materialProvidersClient);
 
         CreateMultiKeyringInput createMultiKeyringInput = new CreateMultiKeyringInput
         {
             Generator = rawAESKeyring,
             ChildKeyrings = Array.Empty<IKeyring>().ToList()
         };
-        IKeyring multiKeyring = materialProviders.CreateMultiKeyring(createMultiKeyringInput);
-
-        // Create the materials manager that assembles cryptographic materials from your keyring.
-        CreateDefaultCryptographicMaterialsManagerInput createMaterialsManagerInput =
-            new CreateDefaultCryptographicMaterialsManagerInput {Keyring = multiKeyring};
-        ICryptographicMaterialsManager materialsManager =
-            materialProviders.CreateDefaultCryptographicMaterialsManager(createMaterialsManagerInput);
+        IKeyring multiKeyring = materialProvidersClient.CreateMultiKeyring(createMultiKeyringInput);
 
         // Encrypt your plaintext data.
         EncryptInput encryptInput = new EncryptInput
         {
             Plaintext = plaintext,
-            MaterialsManager = materialsManager,
+            Keyring = rawAESKeyring,
             EncryptionContext = encryptionContext
         };
         EncryptOutput encryptOutput = encryptionSdkClient.Encrypt(encryptInput);
@@ -77,7 +65,7 @@ public class MultiKeyringExample {
         DecryptInput decryptInput = new DecryptInput
         {
             Ciphertext = ciphertext,
-            MaterialsManager = materialsManager,
+            Keyring = rawAESKeyring,
         };
         DecryptOutput decryptOutput = encryptionSdkClient.Decrypt(decryptInput);
 
@@ -106,7 +94,7 @@ public class MultiKeyringExample {
         Run(ExampleUtils.ExampleUtils.GetPlaintextStream());
     }
 
-    private static IKeyring CreateRawAESKeyring(IAwsCryptographicMaterialProviders materialProvidersClient) {
+    private static IKeyring CreateRawAESKeyring(IAwsCryptographicMaterialProvidersClient materialProvidersClient) {
         // Generate a 256-bit AES key to use with your keyring.
         // Here we use BouncyCastle, but you don't have to.
         //

@@ -1347,6 +1347,26 @@ namespace Aws.Crypto
                     ToDafny_N3_aws__N6_crypto__S15_DiscoveryFilter((Aws.Crypto.DiscoveryFilter)value));
         }
 
+        public static Aws.Crypto.IAwsCryptographicMaterialProvidersClient
+            FromDafny_N3_aws__N6_crypto__S48_AwsCryptographicMaterialProvidersClientReference(
+                Dafny.Aws.Crypto.IAwsCryptographicMaterialProvidersClient value)
+        {
+            return new AwsCryptographicMaterialProvidersClient(value);
+        }
+
+        public static Dafny.Aws.Crypto.IAwsCryptographicMaterialProvidersClient
+            ToDafny_N3_aws__N6_crypto__S48_AwsCryptographicMaterialProvidersClientReference(
+                Aws.Crypto.IAwsCryptographicMaterialProvidersClient value)
+        {
+            if (value is AwsCryptographicMaterialProvidersClient valueWithImpl)
+            {
+                return valueWithImpl._impl;
+            }
+
+            throw new System.ArgumentException(
+                "Custom implementations of Aws.Crypto.IAwsCryptographicMaterialProvidersClient are not supported yet");
+        }
+
         public static Aws.Crypto.IKeyring FromDafny_N3_aws__N6_crypto__S19_CreateKeyringOutput(
             Dafny.Aws.Crypto.IKeyring value)
         {
