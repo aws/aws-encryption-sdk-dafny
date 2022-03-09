@@ -18,7 +18,7 @@ module {:extern "Dafny.Aws.Crypto.AwsCryptographicMaterialProvidersClientFactory
     constructor() {}
 
     method MakeAwsCryptographicMaterialProvidersClient(input: Crypto.AwsCryptographicMaterialProvidersClientConfig)
-          returns (res: Result<Crypto.IAwsCryptographicMaterialProvidersClient, Crypto.IAwsCryptographicMaterialProvidersClientException>)
+          returns (res: Result<Crypto.IAwsCryptographicMaterialProvidersClient, Crypto.IAwsCryptographicMaterialProvidersClientFactoryException>)
     {
         var client := new Client.AwsCryptographicMaterialProvidersClient(input);
         return Success(client);

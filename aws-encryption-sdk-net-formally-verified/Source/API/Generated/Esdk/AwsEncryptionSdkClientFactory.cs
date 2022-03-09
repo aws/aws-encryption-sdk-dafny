@@ -9,23 +9,23 @@ using
     Aws.Esdk
     ;
 
-// TODO need to update code gen to produce this file instead of I/Client/Base files
-
 namespace Aws.Esdk
 {
-    public class AwsEncryptionSdkClientFactory
+    public static class AwsEncryptionSdkClientFactory
     {
+        static Dafny.Aws.Esdk.AwsEncryptionSdkClientFactory.AwsEncryptionSdkClientFactory _impl =
+            new Dafny.Aws.Esdk.AwsEncryptionSdkClientFactory.AwsEncryptionSdkClientFactory();
+
         public static Aws.Esdk.IAwsEncryptionSdkClient MakeAwsEncryptionSdkClient(
             Aws.Esdk.AwsEncryptionSdkClientConfig input)
         {
-            Dafny.Aws.Esdk.AwsEncryptionSdkClientFactory.AwsEncryptionSdkClientFactory impl = new Dafny.Aws.Esdk.AwsEncryptionSdkClientFactory.AwsEncryptionSdkClientFactory();
             Dafny.Aws.Esdk._IAwsEncryptionSdkClientConfig internalInput =
                 TypeConversion.ToDafny_N3_aws__N4_esdk__S28_AwsEncryptionSdkClientConfig(input);
             Wrappers_Compile._IResult<Dafny.Aws.Esdk.IAwsEncryptionSdkClient,
-                Dafny.Aws.Esdk.IAwsEncryptionSdkClientException> result =
-                impl.MakeAwsEncryptionSdkClient(internalInput);
+                Dafny.Aws.Esdk.IAwsEncryptionSdkClientFactoryException> result =
+                _impl.MakeAwsEncryptionSdkClient(internalInput);
             if (result.is_Failure)
-                throw TypeConversion.FromDafny_CommonError_AwsEncryptionSdkClientException(result.dtor_error);
+                throw TypeConversion.FromDafny_CommonError_AwsEncryptionSdkClientFactoryException(result.dtor_error);
             return TypeConversion.FromDafny_N3_aws__N4_esdk__S31_AwsEncryptionSdkClientReference(result.dtor_value);
         }
     }

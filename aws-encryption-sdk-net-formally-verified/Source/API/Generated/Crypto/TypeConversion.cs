@@ -3304,9 +3304,9 @@ namespace Aws.Crypto
             return ToDafny_N6_smithy__N3_api__S4_Blob(value);
         }
 
-        public static Aws.Crypto.AwsCryptographicMaterialProvidersClientException
-            FromDafny_CommonError_AwsCryptographicMaterialProvidersClientException(
-                Dafny.Aws.Crypto.IAwsCryptographicMaterialProvidersClientException value)
+        public static Aws.Crypto.AwsCryptographicMaterialProvidersClientFactoryException
+            FromDafny_CommonError_AwsCryptographicMaterialProvidersClientFactoryException(
+                Dafny.Aws.Crypto.IAwsCryptographicMaterialProvidersClientFactoryException value)
         {
             if (value is Dafny.Aws.Crypto.AwsCryptographicMaterialProvidersClientException)
                 return FromDafny_N3_aws__N6_crypto__S48_AwsCryptographicMaterialProvidersClientException(
@@ -3314,9 +3314,9 @@ namespace Aws.Crypto
             throw new System.ArgumentException("Unknown exception type");
         }
 
-        public static Dafny.Aws.Crypto.IAwsCryptographicMaterialProvidersClientException
-            ToDafny_CommonError_AwsCryptographicMaterialProvidersClientException(
-                Aws.Crypto.AwsCryptographicMaterialProvidersClientException value)
+        public static Dafny.Aws.Crypto.IAwsCryptographicMaterialProvidersClientFactoryException
+            ToDafny_CommonError_AwsCryptographicMaterialProvidersClientFactoryException(
+                Aws.Crypto.AwsCryptographicMaterialProvidersClientFactoryException value)
         {
             if (value is Aws.Crypto.AwsCryptographicMaterialProvidersClientException)
                 return ToDafny_N3_aws__N6_crypto__S48_AwsCryptographicMaterialProvidersClientException(

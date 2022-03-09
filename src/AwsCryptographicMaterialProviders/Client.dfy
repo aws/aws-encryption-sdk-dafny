@@ -138,7 +138,7 @@ module
     }
 
     method CreateRawAesKeyring(input: Crypto.CreateRawAesKeyringInput)
-      returns (res: Result<Crypto.IKeyring, Crypto.IAwsCryptographicMaterialProvidersClientException>)
+      returns (res: Result<Crypto.IKeyring, Crypto.IAwsCryptographicMaterialProvidersClientFactoryException>)
     {
       var wrappingAlg:AESEncryption.AES_GCM := match input.wrappingAlg
         case ALG_AES128_GCM_IV12_TAG16 => AESEncryption.AES_GCM(
@@ -179,14 +179,14 @@ module
     }
 
     method CreateDefaultCryptographicMaterialsManager(input: Crypto.CreateDefaultCryptographicMaterialsManagerInput)
-      returns (res: Result<Crypto.ICryptographicMaterialsManager, Crypto.IAwsCryptographicMaterialProvidersClientException>)
+      returns (res: Result<Crypto.ICryptographicMaterialsManager, Crypto.IAwsCryptographicMaterialProvidersClientFactoryException>)
     {
         var cmm := new DefaultCMM.DefaultCMM.OfKeyring(input.keyring);
         return Success(cmm);
     }
 
     method CreateStrictAwsKmsKeyring(input: Crypto.CreateStrictAwsKmsKeyringInput)
-      returns (res: Result<Crypto.IKeyring, Crypto.IAwsCryptographicMaterialProvidersClientException>)
+      returns (res: Result<Crypto.IKeyring, Crypto.IAwsCryptographicMaterialProvidersClientFactoryException>)
     {
       // TODO: return proper exceptions
       expect AwsKmsArnParsing.ParseAwsKmsIdentifier(input.kmsKeyId).Success?;
@@ -202,7 +202,7 @@ module
     }
 
     method CreateMrkAwareStrictAwsKmsKeyring(input: Crypto.CreateMrkAwareStrictAwsKmsKeyringInput)
-      returns (res: Result<Crypto.IKeyring, Crypto.IAwsCryptographicMaterialProvidersClientException>)
+      returns (res: Result<Crypto.IKeyring, Crypto.IAwsCryptographicMaterialProvidersClientFactoryException>)
     {
       // TODO: return proper exceptions
       expect AwsKmsArnParsing.ParseAwsKmsIdentifier(input.kmsKeyId).Success?;
@@ -218,7 +218,7 @@ module
     }
 
     method CreateMrkAwareDiscoveryAwsKmsKeyring(input: Crypto.CreateMrkAwareDiscoveryAwsKmsKeyringInput)
-      returns (res: Result<Crypto.IKeyring, Crypto.IAwsCryptographicMaterialProvidersClientException>)
+      returns (res: Result<Crypto.IKeyring, Crypto.IAwsCryptographicMaterialProvidersClientFactoryException>)
     {
       // TODO: validation on discovery filter
 
@@ -240,7 +240,7 @@ module
     }
 
     method CreateAwsKmsDiscoveryKeyring(input: Crypto.CreateAwsKmsDiscoveryKeyringInput)
-      returns (res: Result<Crypto.IKeyring, Crypto.IAwsCryptographicMaterialProvidersClientException>)
+      returns (res: Result<Crypto.IKeyring, Crypto.IAwsCryptographicMaterialProvidersClientFactoryException>)
     {
       // TODO: validation on discovery filter
 
@@ -256,7 +256,7 @@ module
 
 
     method CreateMultiKeyring(input: Crypto.CreateMultiKeyringInput)
-      returns (res: Result<Crypto.IKeyring, Crypto.IAwsCryptographicMaterialProvidersClientException>)
+      returns (res: Result<Crypto.IKeyring, Crypto.IAwsCryptographicMaterialProvidersClientFactoryException>)
     {
       if input.generator.None? && |input.childKeyrings| == 0 {
         var error := new Crypto.AwsCryptographicMaterialProvidersClientException(
@@ -269,7 +269,7 @@ module
     }
 
     method CreateRawRsaKeyring(input: Crypto.CreateRawRsaKeyringInput)
-      returns (res: Result<Crypto.IKeyring, Crypto.IAwsCryptographicMaterialProvidersClientException>)
+      returns (res: Result<Crypto.IKeyring, Crypto.IAwsCryptographicMaterialProvidersClientFactoryException>)
       //= compliance/framework/raw-rsa-keyring.txt#2.1.1
       //= type=implication
       //# -  Raw RSA keyring MUST NOT accept a key namespace of "aws-kms".
@@ -328,7 +328,7 @@ module
     }
 
     method CreateMrkAwareStrictMultiKeyring(input: Crypto.CreateMrkAwareStrictMultiKeyringInput)
-      returns (res: Result<Crypto.IKeyring, Crypto.IAwsCryptographicMaterialProvidersClientException>)
+      returns (res: Result<Crypto.IKeyring, Crypto.IAwsCryptographicMaterialProvidersClientFactoryException>)
     {
       var grantTokens: Crypto.GrantTokenList := input.grantTokens.UnwrapOr([]);
       expect 0 <= |grantTokens| <= 10;
@@ -359,7 +359,7 @@ module
       clientSupplier: Crypto.IClientSupplier,
       grantTokens: Option<GeneratedKMS.GrantTokenList>
     )
-      returns (res: Result<MultiKeyring.MultiKeyring, Crypto.IAwsCryptographicMaterialProvidersClientException>)
+      returns (res: Result<MultiKeyring.MultiKeyring, Crypto.IAwsCryptographicMaterialProvidersClientFactoryException>)
     
       //= compliance/framework/aws-kms/aws-kms-mrk-aware-multi-keyrings.txt#2.6
       //= type=implication
@@ -527,7 +527,7 @@ module
     }
 
     method CreateMrkAwareDiscoveryMultiKeyring(input: Crypto.CreateMrkAwareDiscoveryMultiKeyringInput)
-      returns (res: Result<Crypto.IKeyring, Crypto.IAwsCryptographicMaterialProvidersClientException>)
+      returns (res: Result<Crypto.IKeyring, Crypto.IAwsCryptographicMaterialProvidersClientFactoryException>)
     {
       var grantTokens: Crypto.GrantTokenList := input.grantTokens.UnwrapOr([]);
       expect 0 <= |grantTokens| <= 10;
@@ -568,7 +568,7 @@ module
       grantTokens: Option<GeneratedKMS.GrantTokenList>
     )
       returns (
-        res: Result<MultiKeyring.MultiKeyring, Crypto.IAwsCryptographicMaterialProvidersClientException>
+        res: Result<MultiKeyring.MultiKeyring, Crypto.IAwsCryptographicMaterialProvidersClientFactoryException>
       )
 
       ensures
@@ -656,7 +656,7 @@ module
     }
 
     method CreateStrictAwsKmsMultiKeyring(input: Crypto.CreateStrictAwsKmsMultiKeyringInput)
-      returns (res: Result<Crypto.IKeyring, Crypto.IAwsCryptographicMaterialProvidersClientException>)
+      returns (res: Result<Crypto.IKeyring, Crypto.IAwsCryptographicMaterialProvidersClientFactoryException>)
     {
       var grantTokens: Crypto.GrantTokenList := input.grantTokens.UnwrapOr([]);
       expect 0 <= |grantTokens| <= 10;
@@ -687,7 +687,7 @@ module
       clientSupplier: Crypto.IClientSupplier,
       grantTokens: Option<GeneratedKMS.GrantTokenList>
     )
-      returns (res: Result<MultiKeyring.MultiKeyring, Crypto.IAwsCryptographicMaterialProvidersClientException>)
+      returns (res: Result<MultiKeyring.MultiKeyring, Crypto.IAwsCryptographicMaterialProvidersClientFactoryException>)
     
       ensures
         || (generator.Some? && generator.value == "")
@@ -840,7 +840,7 @@ module
     }
 
     method CreateAwsKmsDiscoveryMultiKeyring(input: Crypto.CreateAwsKmsDiscoveryMultiKeyringInput)
-      returns (res: Result<Crypto.IKeyring, Crypto.IAwsCryptographicMaterialProvidersClientException>)
+      returns (res: Result<Crypto.IKeyring, Crypto.IAwsCryptographicMaterialProvidersClientFactoryException>)
     {
       var grantTokens: Crypto.GrantTokenList := input.grantTokens.UnwrapOr([]);
       expect 0 <= |grantTokens| <= 10;
@@ -881,7 +881,7 @@ module
       grantTokens: Option<GeneratedKMS.GrantTokenList>
     )
       returns (
-        res: Result<MultiKeyring.MultiKeyring, Crypto.IAwsCryptographicMaterialProvidersClientException>
+        res: Result<MultiKeyring.MultiKeyring, Crypto.IAwsCryptographicMaterialProvidersClientFactoryException>
       )
 
       ensures
@@ -966,7 +966,7 @@ module
     }
 
     method CreateDefaultClientSupplier(input: Crypto.CreateDefaultClientSupplierInput)
-      returns (res: Result<Crypto.IClientSupplier, Crypto.IAwsCryptographicMaterialProvidersClientException>)
+      returns (res: Result<Crypto.IClientSupplier, Crypto.IAwsCryptographicMaterialProvidersClientFactoryException>)
     {
       var clientSupplier := new DefaultClientSupplier.DefaultClientSupplier();
       return Success(clientSupplier);

@@ -25,10 +25,10 @@ namespace Aws.Crypto
             Dafny.Aws.Crypto._IOnEncryptInput internalInput =
                 TypeConversion.ToDafny_N3_aws__N6_crypto__S14_OnEncryptInput(input);
             Wrappers_Compile._IResult<Dafny.Aws.Crypto._IOnEncryptOutput,
-                Dafny.Aws.Crypto.IAwsCryptographicMaterialProvidersClientException> result =
+                Dafny.Aws.Crypto.IAwsCryptographicMaterialProvidersClientFactoryException> result =
                 this._impl.OnEncrypt(internalInput);
             if (result.is_Failure)
-                throw TypeConversion.FromDafny_CommonError_AwsCryptographicMaterialProvidersClientException(
+                throw TypeConversion.FromDafny_CommonError_AwsCryptographicMaterialProvidersClientFactoryException(
                     result.dtor_error);
             return TypeConversion.FromDafny_N3_aws__N6_crypto__S15_OnEncryptOutput(result.dtor_value);
         }
@@ -38,10 +38,10 @@ namespace Aws.Crypto
             Dafny.Aws.Crypto._IOnDecryptInput internalInput =
                 TypeConversion.ToDafny_N3_aws__N6_crypto__S14_OnDecryptInput(input);
             Wrappers_Compile._IResult<Dafny.Aws.Crypto._IOnDecryptOutput,
-                Dafny.Aws.Crypto.IAwsCryptographicMaterialProvidersClientException> result =
+                Dafny.Aws.Crypto.IAwsCryptographicMaterialProvidersClientFactoryException> result =
                 this._impl.OnDecrypt(internalInput);
             if (result.is_Failure)
-                throw TypeConversion.FromDafny_CommonError_AwsCryptographicMaterialProvidersClientException(
+                throw TypeConversion.FromDafny_CommonError_AwsCryptographicMaterialProvidersClientFactoryException(
                     result.dtor_error);
             return TypeConversion.FromDafny_N3_aws__N6_crypto__S15_OnDecryptOutput(result.dtor_value);
         }

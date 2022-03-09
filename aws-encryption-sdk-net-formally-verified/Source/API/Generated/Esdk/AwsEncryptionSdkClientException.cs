@@ -9,12 +9,8 @@ using
 
 namespace Aws.Esdk
 {
-    public class AwsEncryptionSdkClientException : Exception
+    public class AwsEncryptionSdkClientException : AwsEncryptionSdkClientFactoryException
     {
-        public AwsEncryptionSdkClientException() : base()
-        {
-        }
-
         public AwsEncryptionSdkClientException(string message) : base(message)
         {
         }

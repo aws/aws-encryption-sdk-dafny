@@ -18,7 +18,7 @@ module {:extern "Dafny.Aws.Esdk.AwsEncryptionSdkClientFactory"} AwsEncryptionSdk
     constructor() {}
 
     method MakeAwsEncryptionSdkClient(input: Esdk.AwsEncryptionSdkClientConfig)
-      returns (res: Result<Esdk.IAwsEncryptionSdkClient, Esdk.IAwsEncryptionSdkClientException>)
+      returns (res: Result<Esdk.IAwsEncryptionSdkClient, Esdk.IAwsEncryptionSdkClientFactoryException>)
 
       ensures
         && input.maxEncryptedDataKeys.Some?

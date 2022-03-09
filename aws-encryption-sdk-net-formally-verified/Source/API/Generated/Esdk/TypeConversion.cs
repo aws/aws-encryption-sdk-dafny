@@ -705,9 +705,9 @@ namespace Aws.Esdk
                     ToDafny_N3_aws__N6_crypto__S16_CommitmentPolicy((Aws.Crypto.CommitmentPolicy)value));
         }
 
-        public static Aws.Esdk.AwsEncryptionSdkClientException
-            FromDafny_CommonError_AwsEncryptionSdkClientException(
-                Dafny.Aws.Esdk.IAwsEncryptionSdkClientException value)
+        public static Aws.Esdk.AwsEncryptionSdkClientFactoryException
+            FromDafny_CommonError_AwsEncryptionSdkClientFactoryException(
+                Dafny.Aws.Esdk.IAwsEncryptionSdkClientFactoryException value)
         {
             if (value is Dafny.Aws.Esdk.AwsEncryptionSdkClientException)
                 return FromDafny_N3_aws__N4_esdk__S31_AwsEncryptionSdkClientException(
@@ -715,9 +715,9 @@ namespace Aws.Esdk
             throw new System.ArgumentException("Unknown exception type");
         }
 
-        public static Dafny.Aws.Esdk.IAwsEncryptionSdkClientException
-            ToDafny_CommonError_AwsEncryptionSdkClientException(
-                Aws.Esdk.AwsEncryptionSdkClientException value)
+        public static Dafny.Aws.Esdk.IAwsEncryptionSdkClientFactoryException
+            ToDafny_CommonError_AwsEncryptionSdkClientFactoryException(
+                Aws.Esdk.AwsEncryptionSdkClientFactoryException value)
         {
             if (value is Aws.Esdk.AwsEncryptionSdkClientException)
                 return ToDafny_N3_aws__N4_esdk__S31_AwsEncryptionSdkClientException(

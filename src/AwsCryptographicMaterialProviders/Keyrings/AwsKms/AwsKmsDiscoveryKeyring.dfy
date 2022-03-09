@@ -67,7 +67,7 @@ module
     method OnEncrypt(
       input: Crypto.OnEncryptInput
     )
-      returns (res: Result<Crypto.OnEncryptOutput, Crypto.IAwsCryptographicMaterialProvidersClientException>)
+      returns (res: Result<Crypto.OnEncryptOutput, Crypto.IAwsCryptographicMaterialProvidersClientFactoryException>)
       //= compliance/framework/aws-kms/aws-kms-discovery-keyring.txt#2.7
       //= type=implication
       //# This function MUST fail.
@@ -86,7 +86,7 @@ module
     method OnDecrypt(
       input: Crypto.OnDecryptInput
     )
-      returns (res: Result<Crypto.OnDecryptOutput, Crypto.IAwsCryptographicMaterialProvidersClientException>)
+      returns (res: Result<Crypto.OnDecryptOutput, Crypto.IAwsCryptographicMaterialProvidersClientFactoryException>)
       ensures res.Success?
       ==>
         && Materials.DecryptionMaterialsTransitionIsValid(

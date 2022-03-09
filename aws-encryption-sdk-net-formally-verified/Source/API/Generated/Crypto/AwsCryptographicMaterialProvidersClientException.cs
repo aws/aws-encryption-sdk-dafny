@@ -10,12 +10,8 @@ using
 namespace Aws.Crypto
 {
     public class
-        AwsCryptographicMaterialProvidersClientException : Exception
+        AwsCryptographicMaterialProvidersClientException : AwsCryptographicMaterialProvidersClientFactoryException
     {
-        public AwsCryptographicMaterialProvidersClientException() : base()
-        {
-        }
-
         public AwsCryptographicMaterialProvidersClientException(string message) : base(message)
         {
         }
