@@ -99,7 +99,6 @@ module EncryptedDataKeys {
 
     if
       && maxEdks.Some?
-      && maxEdks.value > 0 // TODO: remove once CrypTool-4350 fixed
       && count as int64 > maxEdks.value
     then
       //= compliance/client-apis/decrypt.txt#2.7.1
@@ -296,7 +295,6 @@ module EncryptedDataKeys {
     var edksSection := ReadEncryptedDataKeysSection(buffer, maxEdks);
     if
       && maxEdks.Some?
-      && maxEdks.value > 0 // TODO: remove once CrypTool-4350 fixed
       && |edks.data| as int64 > maxEdks.value
     {
       assert edksSection.Failure?;
