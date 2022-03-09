@@ -222,71 +222,6 @@ module {:extern "Dafny.Aws.Crypto"} Aws.Crypto {
             returns (res: Result<OnDecryptOutput, IAwsCryptographicMaterialProvidersException>)
     }
 
-    /////////////////
-    // caching.smithy
-    datatype CacheUsageMetadata = CacheUsageMetadata(
-        messageUsage: int64,
-        byteUsage: int64
-    )
-
-    datatype EncryptEntry = EncryptEntry(
-        identifier: seq<uint8>,
-        encryptionMaterials: EncryptionMaterials,
-        creationTime: int64,
-        expiryTime: int64,
-        usageMetadata: CacheUsageMetadata
-    )
-
-    datatype DecryptEntry = DecryptEntry(
-        identifier: seq<uint8>,
-        decryptionMaterials: DecryptionMaterials,
-        creationTime: int64,
-        expiryTime: int64,
-        usageMetadata: CacheUsageMetadata
-    )
-
-    datatype PutEntryForEncryptInput = PutEntryForEncryptInput(
-        identifier: seq<uint8>,
-        encryptionMaterials: EncryptionMaterials,
-        usageMetadata: CacheUsageMetadata
-    )
-
-    datatype PutEntryForEncryptOutput = PutEntryForEncryptOutput() // empty for now
-
-    datatype GetEntryForEncryptInput = GetEntryForEncryptInput(identifier: seq<uint8>)
-
-    datatype GetEntryForEncryptOutput = GetEntryForEncryptOutput(cacheEntry: EncryptEntry)
-
-    datatype PutEntryForDecryptInput = PutEntryForDecryptInput(
-        identifier: seq<uint8>,
-        decryptionMaterials: DecryptionMaterials
-    )
-
-    datatype PutEntryForDecryptOutput = PutEntryForDecryptOutput() // empty for now
-
-    datatype GetEntryForDecryptInput = GetEntryForDecryptInput(identifier: seq<uint8>)
-
-    datatype GetEntryForDecryptOutput = GetEntryForDecryptOutput(cacheEntry: DecryptEntry)
-
-    datatype DeleteEntryInput = DeleteEntryInput(identifier: seq<uint8>)
-
-    datatype DeleteEntryOutput = DeleteEntryOutput() // empty for now
-
-    trait ICryptoMaterialsCache {
-        method PutEntryForEncrypt(input: PutEntryForEncryptInput)
-            returns (res: Result<PutEntryForEncryptOutput, IAwsCryptographicMaterialProvidersException>)
-        method GetEntryForEncrypt(input: GetEntryForEncryptInput)
-            returns (res: Result<GetEntryForEncryptOutput, IAwsCryptographicMaterialProvidersException>)
-
-        method PutEntryForDecrypt(input: PutEntryForDecryptInput)
-            returns (res: Result<PutEntryForDecryptOutput, IAwsCryptographicMaterialProvidersException>)
-        method GetEntryForDecrypt(input: GetEntryForDecryptInput)
-            returns (res: Result<GetEntryForDecryptOutput, IAwsCryptographicMaterialProvidersException>)
-
-        method DeleteEntry(input: DeleteEntryInput)
-            returns (res: Result<DeleteEntryOutput, IAwsCryptographicMaterialProvidersException>)
-    }
-
     //////////////
     // cmms.smithy
     datatype GetEncryptionMaterialsInput = GetEncryptionMaterialsInput(
@@ -407,23 +342,6 @@ module {:extern "Dafny.Aws.Crypto"} Aws.Crypto {
         nameonly keyring: IKeyring
     )
 
-    datatype CreateCachingCryptographicMaterialsManagerInput = CreateCachingCryptographicMaterialsManagerInput(
-        nameonly cache: ICryptoMaterialsCache,
-        nameonly cacheLimitTtl: int32,
-        nameonly keyring: Option<IKeyring>,
-        nameonly materialsManager: Option<ICryptographicMaterialsManager>,
-        nameonly partitionId: Option<string>,
-        nameonly limitBytes: Option<int64>,
-        nameonly limitMessages: Option<int64>
-    )
-
-    // Caching creation structures
-    datatype CreateLocalCryptoMaterialsCacheInput = CreateLocalCryptoMaterialsCacheInput(
-        nameonly entryCapacity: int32,
-        nameonly entryPruningTailSize: Option<int32>
-    )
-
-    // TODO: Add in Create methods once new Keyrings/CMMs are ready
     trait {:termination false} IAwsCryptographicMaterialsProviderClient {
 
         // Keyrings
@@ -453,16 +371,10 @@ module {:extern "Dafny.Aws.Crypto"} Aws.Crypto {
         // CMMs
         method CreateDefaultCryptographicMaterialsManager(input: CreateDefaultCryptographicMaterialsManagerInput)
             returns (res: Result<ICryptographicMaterialsManager, IAwsCryptographicMaterialProvidersException>)
-        // method CreateCachingCryptographicMaterialsManager(input: CreateCachingCryptographicMaterialsManagerInput)
-        //     returns (res: Result<ICryptographicMaterialsManager, IAwsCryptographicMaterialProvidersException>)
 
         // Client Supplier
         method CreateDefaultClientSupplier(input: CreateDefaultClientSupplierInput)
           returns (res: Result<IClientSupplier, IAwsCryptographicMaterialProvidersException>)
-
-        // Caches
-        // method CreateLocalCryptoMaterialsCache(input: CreateLocalCryptoMaterialsCacheInput)
-        //     returns (res: Result<ICryptoMaterialsCache, IAwsCryptographicMaterialProvidersException>)
     }
 
     trait IAwsCryptographicMaterialProvidersException {
