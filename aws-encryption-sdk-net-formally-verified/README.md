@@ -64,7 +64,7 @@ You can see more detail about what test cases are being run by increasing the ve
 dotnet test --logger:"console;verbosity=normal"
 ```
 
-Run the test vector suite after [set up](testVector/README.md) with:
+Run the test vector suite after [set up](TestVectors/README.md) with:
 
 ```
 dotnet test TestVectors
