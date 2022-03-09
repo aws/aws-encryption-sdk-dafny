@@ -6,89 +6,29 @@ using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Net;
-using System.Net.Http;
-using System.Text;
-using Amazon;
-using Amazon.KeyManagementService;
-using RSAEncryption;
 
-using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using Xunit;
 
 using Aws.Crypto;
 using Aws.Esdk;
-using Xunit.Sdk;
 using ConfigurationDefaults = Aws.Esdk.ConfigurationDefaults;
 
-namespace TestVectorTests {
-
+namespace TestVectors.Runner {
     public abstract class TestVectorData : IEnumerable<object[]> {
-        protected readonly Dictionary<string, TestVector> VectorMap;
+        protected readonly Dictionary<string, DecryptVector> VectorMap;
         protected readonly Dictionary<string, Key> KeyMap;
         protected readonly string VectorRoot;
 
         protected TestVectorData() {
-            this.VectorRoot = GetEnvironmentVariableOrError("DAFNY_AWS_ESDK_TEST_VECTOR_MANIFEST_PATH");
-            Manifest manifest = ParseManifest(VectorRoot);
+            this.VectorRoot = Utils.GetEnvironmentVariableOrError("DAFNY_AWS_ESDK_TEST_VECTOR_MANIFEST_PATH");
+            DecryptManifest manifest = Utils.LoadObjectFromPath<DecryptManifest>(VectorRoot);
             this.VectorMap = manifest.VectorMap;
-            string keysPath = ManifestUriToPath(manifest.Keys, VectorRoot);
-            this.KeyMap = ParseKeys(keysPath);
+            string keysPath = Utils.ManifestUriToPath(manifest.KeysUri, VectorRoot);
+            this.KeyMap = Utils.LoadObjectFromPath<KeyManifest>(keysPath).Keys;
         }
 
-        protected static string GetEnvironmentVariableOrError(string key) {
-            string nullableResult = Environment.GetEnvironmentVariable(key);
-            if (nullableResult == null) {
-                throw new ArgumentException($"Environment Variable {key} must be set");
-            }
-            return nullableResult;
-        }
-
-        private static Dictionary<string, Key> ParseKeys(string path) {
-            if (!File.Exists(path)) {
-                throw new ArgumentException($"Could not find keys file at path: {path}");
-            }
-            string contents = File.ReadAllText(path);
-            JObject keyManifest = JObject.Parse(contents);
-            JToken keys = keyManifest["keys"];
-            if (keys == null) {
-                throw new ArgumentException($"Key file malformed: missing \"keys\" field");
-            }
-            return keys.ToObject<Dictionary<string, Key>>();
-        }
-
-        private static Manifest ParseManifest(string path) {
-            if (!File.Exists(path)) {
-                throw new ArgumentException($"Could not find manifest file at path: {path}");
-            }
-            string contents = File.ReadAllText(path);
-            JObject manifest = JObject.Parse(contents);
-
-            JToken tests = manifest["tests"];
-            if (tests == null) {
-                throw new ArgumentException($"Manifest file malformed: missing \"tests\" field");
-            }
-
-            JToken keys = manifest["keys"];
-            if (keys == null) {
-                throw new ArgumentException($"Manifest file malformed: missing \"keys\" field");
-            }
-
-            return new Manifest(tests.ToObject<Dictionary<string, TestVector>>(), keys.ToString());
-        }
-
-        protected static string ManifestUriToPath(string uri, string manifestPath) {
-            // Assumes files referenced in manifests starts with 'file://'
-            if (!string.Equals(uri.Substring(0, 7), "file://")) {
-                throw new ArgumentException($"Malformed filepath in manifest (needs to start with 'file://'): {uri}");
-            }
-            string parentDir = Directory.GetParent(manifestPath).ToString();
-
-            return Path.Combine(parentDir, uri.Substring(7));
-        }
-
-        protected static bool VectorContainsMasterKeyOfType(TestVector vector, string typeOfKey)
+        protected static bool VectorContainsMasterKeyOfType(DecryptVector vector, string typeOfKey)
         {
             return vector.MasterKeys.Any(masterKey => masterKey.Type == typeOfKey);
         }
@@ -99,7 +39,7 @@ namespace TestVectorTests {
 
         // Simplistic method for narrowing down which vectors to target. For now, no-op.
         // Update if you want to test certain vectors
-        protected static bool TargetVector(KeyValuePair<string, TestVector> entry)
+        protected static bool TargetVector(KeyValuePair<string, DecryptVector> entry)
         {
             return true;
         }
@@ -116,11 +56,11 @@ namespace TestVectorTests {
                     continue;
                 }
 
-                TestVector vector = vectorEntry.Value;
+                DecryptVector vector = vectorEntry.Value;
                 byte[] plaintext = null;
                 if (vector.Result.Output != null)
                 {
-                    string plaintextPath = ManifestUriToPath(vector.Result.Output.Plaintext, VectorRoot);
+                    string plaintextPath = Utils.ManifestUriToPath(vector.Result.Output.Plaintext, VectorRoot);
                     if (!File.Exists(plaintextPath))
                     {
                         throw new ArgumentException($"Could not find plaintext file at path: {plaintextPath}");
@@ -135,11 +75,11 @@ namespace TestVectorTests {
                     errorMessage = vector.Result.Error.ErrorMessage;
                 }
 
-                string ciphertextPath = ManifestUriToPath(vector.Ciphertext, VectorRoot);
+                string ciphertextPath = Utils.ManifestUriToPath(vector.Ciphertext, VectorRoot);
                 if (!File.Exists(ciphertextPath)) {
                     throw new ArgumentException($"Could not find ciphertext file at path: {ciphertextPath}");
                 }
-                byte[] ciphertext = File.ReadAllBytes(ManifestUriToPath(vector.Ciphertext, VectorRoot));
+                byte[] ciphertext = File.ReadAllBytes(Utils.ManifestUriToPath(vector.Ciphertext, VectorRoot));
 
                 MemoryStream ciphertextStream = new MemoryStream(ciphertext);
 
@@ -155,197 +95,13 @@ namespace TestVectorTests {
         }
     }
 
-    public static class CmmFactory {
-
-        public static ICryptographicMaterialsManager DecryptCmm(TestVector vector, Dictionary<string, Key> keys) {
-            IAwsCryptographicMaterialProviders materialProviders = new AwsCryptographicMaterialProvidersClient();
-
-            CreateDefaultCryptographicMaterialsManagerInput input = new CreateDefaultCryptographicMaterialsManagerInput
-            {
-                Keyring = CreateDecryptKeyring(vector, keys)
-            };
-            return materialProviders.CreateDefaultCryptographicMaterialsManager(input);
-        }
-
-        private static IKeyring CreateDecryptKeyring(TestVector vector, Dictionary<string, Key> keys) {
-            IAwsCryptographicMaterialProviders materialProviders = new AwsCryptographicMaterialProvidersClient();
-
-
-            List<IKeyring> children = new List<IKeyring>();
-            foreach (MasterKey keyInfo in vector.MasterKeys)
-            {
-                // Some keyrings, like discovery KMS keyrings, do not specify keys
-                Key key = keyInfo.Key == null ? null : keys[keyInfo.Key];
-                children.Add(CreateKeyring(keyInfo, key));
-            }
-            CreateMultiKeyringInput createMultiKeyringInput = new CreateMultiKeyringInput
-            {
-                Generator = null,
-                ChildKeyrings = children
-            };
-
-            return materialProviders.CreateMultiKeyring(createMultiKeyringInput);
-        }
-        private static IKeyring CreateKeyring(MasterKey keyInfo, Key key) {
-            // TODO: maybe make this a class variable so we're not constantly re-creating it
-            IAwsCryptographicMaterialProviders materialProviders = new AwsCryptographicMaterialProvidersClient();
-
-            if (keyInfo.Type == "aws-kms") {
-                CreateAwsKmsKeyringInput createKeyringInput = new CreateAwsKmsKeyringInput
-                {
-                    KmsClient = new AmazonKeyManagementServiceClient(GetRegionForArn(key.Id)),
-                    KmsKeyId = key.Id,
-                };
-                return materialProviders.CreateAwsKmsKeyring(createKeyringInput);
-            } else if (keyInfo.Type == "aws-kms-mrk-aware") {
-                CreateAwsKmsMrkKeyringInput createKeyringInput = new CreateAwsKmsMrkKeyringInput
-                {
-                    KmsClient = new AmazonKeyManagementServiceClient(GetRegionForArn(key.Id)),
-                    KmsKeyId = key.Id,
-                };
-                return materialProviders.CreateAwsKmsMrkKeyring(createKeyringInput);
-            } else if (keyInfo.Type == "aws-kms-mrk-aware-discovery") {
-                CreateAwsKmsMrkDiscoveryKeyringInput createKeyringInput = new CreateAwsKmsMrkDiscoveryKeyringInput
-                {
-                    KmsClient = new AmazonKeyManagementServiceClient(RegionEndpoint.GetBySystemName(keyInfo.DefaultMrkRegion)),
-                    Region = keyInfo.DefaultMrkRegion
-                };
-                return materialProviders.CreateAwsKmsMrkDiscoveryKeyring(createKeyringInput);
-            } else if (keyInfo.Type == "raw" && keyInfo.EncryptionAlgorithm == "aes") {
-                CreateRawAesKeyringInput createKeyringInput = new CreateRawAesKeyringInput
-                {
-                    KeyNamespace = keyInfo.ProviderId,
-                    KeyName = key.Id,
-                    WrappingKey = new MemoryStream(Convert.FromBase64String(key.Material)),
-                    WrappingAlg = AesAlgorithmFromBits(key.Bits),
-                };
-
-                return materialProviders.CreateRawAesKeyring(createKeyringInput);
-            } else if (keyInfo.Type == "raw" && keyInfo.EncryptionAlgorithm == "rsa" && key.Type == "private") {
-                PaddingScheme padding = RSAPaddingFromStrings(keyInfo.PaddingAlgorithm, keyInfo.PaddingHash);
-                byte[] privateKey = RSAEncryption.RSA.ParsePEMString(key.Material);
-                CreateRawRsaKeyringInput createKeyringInput = new CreateRawRsaKeyringInput
-                {
-                    KeyNamespace = keyInfo.ProviderId,
-                    KeyName = key.Id,
-                    PaddingScheme = padding,
-                    PrivateKey = new MemoryStream(privateKey)
-                };
-                return materialProviders.CreateRawRsaKeyring(createKeyringInput);
-            } else if (keyInfo.Type == "raw" && keyInfo.EncryptionAlgorithm == "rsa" && key.Type == "public") {
-                PaddingScheme padding = RSAPaddingFromStrings(keyInfo.PaddingAlgorithm, keyInfo.PaddingHash);
-                byte[] publicKey = RSAEncryption.RSA.ParsePEMString(key.Material);
-                CreateRawRsaKeyringInput createKeyringInput = new CreateRawRsaKeyringInput
-                {
-                    KeyNamespace = keyInfo.ProviderId,
-                    KeyName = key.Id,
-                    PaddingScheme = padding,
-                    PublicKey = new MemoryStream(publicKey)
-                };
-                return materialProviders.CreateRawRsaKeyring(createKeyringInput);
-            }
-            else {
-                throw new Exception("Unsupported keyring type!");
-            }
-        }
-        private static AesWrappingAlg AesAlgorithmFromBits(ushort bits) {
-            return bits switch {
-                128 => AesWrappingAlg.ALG_AES128_GCM_IV12_TAG16,
-                192 => AesWrappingAlg.ALG_AES192_GCM_IV12_TAG16,
-                256 => AesWrappingAlg.ALG_AES256_GCM_IV12_TAG16,
-                _ => throw new Exception("Unsupported AES wrapping algorithm")
-            };
-        }
-
-        private static PaddingScheme RSAPaddingFromStrings(string strAlg, string strHash) {
-            return (strAlg, strHash) switch {
-                ("pkcs1", _) => PaddingScheme.PKCS1,
-                ("oaep-mgf1", "sha1") => PaddingScheme.OAEP_SHA1_MGF1,
-                ("oaep-mgf1", "sha256") => PaddingScheme.OAEP_SHA256_MGF1,
-                ("oaep-mgf1", "sha384") => PaddingScheme.OAEP_SHA384_MGF1,
-                ("oaep-mgf1", "sha512") => PaddingScheme.OAEP_SHA512_MGF1,
-                _ => throw new Exception("Unsupported RSA Padding " + strAlg + strHash)
-            };
-        }
-
-        private static RegionEndpoint GetRegionForArn(string keyId)
-        {
-            string[] split = keyId.Split(":");
-            string region = split[3];
-            return RegionEndpoint.GetBySystemName(region);
-        }
-    }
-
-    // TODO Need to use some enums for various fields, possibly subtypes to represent RSA vs AES having different params?
-    public class Key {
-        public bool Decrypt { get; set; }
-        public bool Encrypt { get; set; }
-        public string Type { get; set; }
-        [JsonProperty("key-id")]
-        public string Id { get; set; }
-        public string Algorithm { get; set; }
-        public ushort Bits { get; set; }
-        public string Encoding { get; set; }
-        public string Material { get; set; }
-    }
-
-    // TODO Rename? Need to use some enums for various fields, possibly subtypes to represent RSA vs AES having different params?
-    public class MasterKey {
-        public string Type { get; set; }
-        public string Key { get; set; }
-        [JsonProperty("provider-id")]
-        public string ProviderId { get; set; }
-        [JsonProperty("encryption-algorithm")]
-        public string EncryptionAlgorithm { get; set; }
-        [JsonProperty("padding-algorithm")]
-        public string PaddingAlgorithm { get; set; }
-        [JsonProperty("padding-hash")]
-        public string PaddingHash { get; set; }
-        [JsonProperty("default-mrk-region")]
-        public string DefaultMrkRegion { get; set; }
-    }
-
-    public class TestVector {
-        public string Ciphertext { get; set; }
-        [JsonProperty("master-keys")]
-        public IList<MasterKey> MasterKeys { get; set; }
-
-        public TestVectorResult Result { get; set; }
-    }
-
-    public class TestVectorResult
-    {
-        public TestVectorOutput Output { get; set; }
-        public TestVectorError Error { get; set; }
-    }
-
-    public class TestVectorOutput
-    {
-        public string Plaintext { get; set; }
-    }
-    public class TestVectorError
-    {
-        [JsonProperty("error-description")]
-        public string ErrorMessage { get; set; }
-    }
-
-    public class Manifest {
-        public Dictionary<string, TestVector> VectorMap { get; set; }
-        public string Keys { get; set; }
-
-        public Manifest(Dictionary<string, TestVector> vectorMap, string keys) {
-            this.VectorMap = vectorMap;
-            this.Keys = keys;
-        }
-    }
-
     public class TestVectorDecryptTests {
         #pragma warning disable xUnit1026 // Suppress Unused argument warnings for vectorID.
         [SkippableTheory]
         [ClassData (typeof(DecryptTestVectors))]
         public void CanDecryptTestVector(
             string vectorId,
-            TestVector vector,
+            DecryptVector vector,
             Dictionary<string, Key> keyMap,
             byte[] expectedPlaintext,
             string expectedError,
@@ -367,14 +123,14 @@ namespace TestVectorTests {
                 };
                 IAwsEncryptionSdk encryptionSdkClient = new AwsEncryptionSdkClient(config);
 
-                ICryptographicMaterialsManager cmm = CmmFactory.DecryptCmm(vector, keyMap);
+                ICryptographicMaterialsManager cmm = MaterialProviderFactory.CreateDecryptCmm(vector, keyMap);
 
                 DecryptInput decryptInput = new DecryptInput
                 {
                     Ciphertext = ciphertextStream,
                     MaterialsManager = cmm,
                 };
-                DecryptOutput decryptOutput = encryptionSdkClient.Decrypt(decryptInput);
+                Aws.Esdk.DecryptOutput decryptOutput = encryptionSdkClient.Decrypt(decryptInput);
 
                 if (expectedError != null)
                 {

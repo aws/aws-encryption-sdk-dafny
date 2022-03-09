@@ -12,6 +12,6 @@
     <PackageReference Include="xunit.runner.visualstudio" Version="2.4.0" />
     <PackageReference Include="Xunit.SkippableFact" Version="1.3.12" />
     <PackageReference Include="Newtonsoft.Json" Version="12.0.3" />
-    <ProjectReference Include="../Source/AWSEncryptionSDK.csproj" />
+    <ProjectReference Include="../TestVectorLib/AWSEncryptionSDKTestVectorLib.csproj" />
   </ItemGroup>
 </Project>
