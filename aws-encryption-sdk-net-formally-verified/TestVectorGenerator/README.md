@@ -18,5 +18,5 @@ $ dotnet run -- \
     --output-dir generated_vectors
 ```
 
-Point your decryption test vector runner of choice to `generated_vectors/manifest.json`
+Point your decryption test vector runner to `generated_vectors/manifest.json`
 in order to decrypt the generated vectors.

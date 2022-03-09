@@ -78,6 +78,10 @@ dotnet test Examples
 
 Please note that tests and test vectors require internet access and valid AWS credentials, since calls to KMS are made as part of the test workflow.
 
+### Generate decryption test vectors
+
+See the [TestVectorGenerator README](TestVectorGenerator/README.md).
+
 ### Generate code coverage results
 
 From the Test/ directory, you can generate a coverage.cobertura.xml file 
