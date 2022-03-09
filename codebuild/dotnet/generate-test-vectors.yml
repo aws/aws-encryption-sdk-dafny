@@ -1,0 +1,25 @@
+version: 0.2
+
+phases:
+  install:
+    runtime-versions:
+      dotnet: 5.0
+      python: latest
+    commands:
+      - cd ..
+      # Get Dafny
+      - curl https://github.com/dafny-lang/dafny/releases/download/v3.4.1/dafny-3.4.1-x64-ubuntu-16.04.zip -L -o dafny.zip
+      - unzip -qq dafny.zip && rm dafny.zip
+      - export PATH="$PWD/dafny:$PATH"
+      # Switch back to the main directory
+      - cd aws-encryption-sdk-dafny/aws-encryption-sdk-net-formally-verified
+      # Set up Python environment
+      - pyenv install 3.10.0
+      - pyenv local 3.10.0
+      - pip install tox tox-pyenv
+  build:
+    commands:
+      # Generate decryption test vectors
+      - mkdir generated_vectors
+      - dotnet run --project TestVectorGenerator -- --encrypt-manifest TestVectorGenerator/resources/0006-awses-message-decryption-generation.v2.json --output-dir generated_vectors
+      # TODO Decrypt generated vectors with Python ESDK
