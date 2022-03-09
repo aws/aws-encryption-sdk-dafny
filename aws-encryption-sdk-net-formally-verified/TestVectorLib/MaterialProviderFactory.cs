@@ -161,8 +161,12 @@ namespace TestVectors
                 return materialProviders.CreateRawRsaKeyring(createKeyringInput);
             }
 
-            throw new Exception("Unsupported keyring type!");
+            string operationStr = operation == CryptoOperation.ENCRYPT
+                ? "encryption"
+                : "decryption";
+            throw new Exception($"Unsupported keyring type for {operation}");
         }
+
         private static AesWrappingAlg AesAlgorithmFromBits(ushort bits) {
             return bits switch {
                 128 => AesWrappingAlg.ALG_AES128_GCM_IV12_TAG16,
