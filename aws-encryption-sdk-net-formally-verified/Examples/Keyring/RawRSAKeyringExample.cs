@@ -42,7 +42,7 @@ public class RawRSAKeyringExample {
         var keyNamespace = "Some managed raw keys";
         var keyName = "My 2048-bit RSA wrapping key";
 
-        // Create clients to access the Encryption SDK APIs.
+        // Create clients to access the Material Providers and Encryption SDK APIs.
         var materialProvidersClient = AwsCryptographicMaterialProvidersClientFactory.CreateDefaultAwsCryptographicMaterialProvidersClient();
         var encryptionSdkClient = AwsEncryptionSdkClientFactory.CreateDefaultAwsEncryptionSdkClient();
 

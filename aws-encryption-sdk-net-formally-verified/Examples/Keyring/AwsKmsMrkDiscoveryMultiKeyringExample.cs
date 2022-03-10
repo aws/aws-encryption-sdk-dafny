@@ -25,7 +25,7 @@ public class AwsKmsMrkDiscoveryMultiKeyringExample {
             {"the data you are handling", "is what you think it is"}
         };
 
-        // Create clients to access the Encryption SDK APIs.
+        // Create clients to access the Material Providers and Encryption SDK APIs.
         var materialProvidersClient = AwsCryptographicMaterialProvidersClientFactory.CreateDefaultAwsCryptographicMaterialProvidersClient();
         var encryptionSdkClient = AwsEncryptionSdkClientFactory.CreateDefaultAwsEncryptionSdkClient();
 
@@ -40,8 +40,6 @@ public class AwsKmsMrkDiscoveryMultiKeyringExample {
         var encryptKeyring = materialProvidersClient.CreateAwsKmsMrkKeyring(createKeyringInput);
 
         // Encrypt your plaintext data.
-        // In this example, we pass a keyring. Behind the scenes, the AWS Encryption SDK will create
-        // a default CryptographicMaterialsManager which uses this keyring
         var encryptInput = new EncryptInput
         {
             Plaintext = plaintext,

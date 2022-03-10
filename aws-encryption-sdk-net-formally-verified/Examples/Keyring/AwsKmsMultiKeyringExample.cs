@@ -25,7 +25,7 @@ public class AwsKmsMultiKeyring {
             {"the data you are handling", "is what you think it is"}
         };
 
-        // Create clients to access the Encryption SDK APIs.
+        // Create clients to access the Material Providers and Encryption SDK APIs.
         var materialProvidersClient = AwsCryptographicMaterialProvidersClientFactory.CreateDefaultAwsCryptographicMaterialProvidersClient();
         var encryptionSdkClient = AwsEncryptionSdkClientFactory.CreateDefaultAwsEncryptionSdkClient();
 
@@ -39,8 +39,6 @@ public class AwsKmsMultiKeyring {
         var kmsMultiKeyring = materialProvidersClient.CreateAwsKmsMultiKeyring(createAwsKmsMultiKeyringInput);
 
         // Encrypt your plaintext data.
-        // In this example, we pass a keyring. Behind the scenes, the AWS Encryption SDK will create
-        // a default CryptographicMaterialsManager which uses this keyring
         var encryptInput = new EncryptInput
         {
             Plaintext = plaintext,
@@ -55,8 +53,9 @@ public class AwsKmsMultiKeyring {
         Assert.NotEqual(ciphertext.ToArray(), plaintext.ToArray());
 
         // Decrypt your encrypted data using the AwsKmsMultiKeyring.
-        // It will decrypt the data using either configured KMS key since
-        // both keys are capable of decrypting the data.
+        // It will decrypt the data using the generator KMS key since
+        // it is the first available KMS key on the AwsKmsMultiKeyring that
+        // is capable of decrypting the data.
         //
         // You do not need to specify the encryption context on decrypt
         // because the header of the encrypted message includes the encryption context.
@@ -88,7 +87,6 @@ public class AwsKmsMultiKeyring {
         // Create a KMS keyring to use as the generator.
         var createKeyringInput = new CreateAwsKmsKeyringInput
         {
-            KmsClient = new AmazonKeyManagementServiceClient(),
             KmsKeyId = keyArn2
         };
         var kmsKeyring = materialProvidersClient.CreateAwsKmsKeyring(createKeyringInput);

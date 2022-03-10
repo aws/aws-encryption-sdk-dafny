@@ -20,9 +20,10 @@ namespace TestVectors
 
     public static class MaterialProviderFactory
     {
-        public static ICryptographicMaterialsManager CreateDecryptCmm(DecryptVector vector, Dictionary<string, Key> keys) {
-            IAwsCryptographicMaterialProviders materialProviders = new AwsCryptographicMaterialProvidersClient();
+        public static IAwsCryptographicMaterialProvidersClient materialProviders =
+                AwsCryptographicMaterialProvidersClientFactory.CreateDefaultAwsCryptographicMaterialProvidersClient();
 
+        public static ICryptographicMaterialsManager CreateDecryptCmm(DecryptVector vector, Dictionary<string, Key> keys) {
             CreateDefaultCryptographicMaterialsManagerInput input = new CreateDefaultCryptographicMaterialsManagerInput
             {
                 Keyring = CreateDecryptKeyring(vector, keys)
@@ -31,8 +32,6 @@ namespace TestVectors
         }
 
         private static IKeyring CreateDecryptKeyring(DecryptVector vector, Dictionary<string, Key> keys) {
-            IAwsCryptographicMaterialProviders materialProviders = new AwsCryptographicMaterialProvidersClient();
-
             List<IKeyring> children = new List<IKeyring>();
             foreach (MasterKey keyInfo in vector.MasterKeys)
             {
@@ -50,8 +49,6 @@ namespace TestVectors
         }
 
         public static ICryptographicMaterialsManager CreateEncryptCmm(EncryptVector vector, Dictionary<string, Key> keys) {
-            IAwsCryptographicMaterialProviders materialProviders = new AwsCryptographicMaterialProvidersClient();
-
             CreateDefaultCryptographicMaterialsManagerInput input = new CreateDefaultCryptographicMaterialsManagerInput
             {
                 Keyring = CreateEncryptKeyring(vector, keys)
@@ -61,7 +58,6 @@ namespace TestVectors
 
         private static IKeyring CreateEncryptKeyring(EncryptVector vector, Dictionary<string, Key> keys)
         {
-            IAwsCryptographicMaterialProviders materialProviders = new AwsCryptographicMaterialProvidersClient();
             IList<MasterKey> masterKeys = vector.Scenario.MasterKeys;
             Debug.Assert(masterKeys.Count >= 1);
 
@@ -86,9 +82,6 @@ namespace TestVectors
         }
 
         private static IKeyring CreateKeyring(MasterKey keyInfo, Key key, CryptoOperation operation) {
-            // TODO: maybe make this a class variable so we're not constantly re-creating it
-            IAwsCryptographicMaterialProviders materialProviders = new AwsCryptographicMaterialProvidersClient();
-
             if (keyInfo.Type == "aws-kms") {
                 CreateAwsKmsKeyringInput createKeyringInput = new CreateAwsKmsKeyringInput
                 {

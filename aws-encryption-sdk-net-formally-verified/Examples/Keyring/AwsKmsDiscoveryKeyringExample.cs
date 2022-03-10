@@ -39,8 +39,6 @@ public class AwsKmsDiscoveryKeyringExample {
         var encryptKeyring = materialProvidersClient.CreateAwsKmsKeyring(createKeyringInput);
 
         // Encrypt your plaintext data.
-        // In this example, we pass a keyring. Behind the scenes, the AWS Encryption SDK will create
-        // a default CryptographicMaterialsManager which uses this keyring
         var encryptInput = new EncryptInput
         {
             Plaintext = plaintext,

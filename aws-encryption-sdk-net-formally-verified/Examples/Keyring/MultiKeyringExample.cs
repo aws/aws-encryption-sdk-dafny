@@ -29,7 +29,7 @@ public class MultiKeyringExample {
             {"the data you are handling", "is what you think it is"}
         };
 
-        // Create clients to access the Encryption SDK APIs.
+        // Create clients to access the Material Providers and Encryption SDK APIs.
         var materialProvidersClient = AwsCryptographicMaterialProvidersClientFactory.CreateDefaultAwsCryptographicMaterialProvidersClient();
         var encryptionSdkClient = AwsEncryptionSdkClientFactory.CreateDefaultAwsEncryptionSdkClient();
         
@@ -54,7 +54,7 @@ public class MultiKeyringExample {
         };
         var multiKeyring = materialProvidersClient.CreateMultiKeyring(createMultiKeyringInput);
 
-        // Encrypt your plaintext data using the MultiKeyring.
+        // Encrypt your plaintext data.
         var encryptInput = new EncryptInput
         {
             Plaintext = plaintext,
@@ -105,11 +105,7 @@ public class MultiKeyringExample {
         };
         var rawAESKeyringDecryptOutput = encryptionSdkClient.Decrypt(rawAESKeyringDecryptInput);
 
-        // Before your application uses plaintext data, verify that the encryption context that
-        // you used to encrypt the message is included in the encryption context that was used to
-        // decrypt the message. The AWS Encryption SDK can add pairs, so don't require an exact match.
-        //
-        // In production, always use a meaningful encryption context.
+        // Verify your Encryption Context
         foreach (var (expectedKey, expectedValue) in encryptionContext)
             if (!rawAESKeyringDecryptOutput.EncryptionContext.TryGetValue(expectedKey, out var decryptedValue)
                 || !decryptedValue.Equals(expectedValue))

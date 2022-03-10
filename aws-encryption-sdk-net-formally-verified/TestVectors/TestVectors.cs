@@ -12,7 +12,6 @@ using Xunit;
 
 using Aws.Crypto;
 using Aws.Esdk;
-using ConfigurationDefaults = Aws.Esdk.ConfigurationDefaults;
 
 namespace TestVectors.Runner {
     public abstract class TestVectorData : IEnumerable<object[]> {
@@ -118,10 +117,9 @@ namespace TestVectors.Runner {
             {
                 AwsEncryptionSdkClientConfig config = new AwsEncryptionSdkClientConfig
                 {
-                    ConfigDefaults = ConfigurationDefaults.V1,
                     CommitmentPolicy = CommitmentPolicy.REQUIRE_ENCRYPT_ALLOW_DECRYPT
                 };
-                IAwsEncryptionSdkClient encryptionSdkClient = new AwsEncryptionSdkClientFactory().MakeAwsEncryptionSdk(config);
+                IAwsEncryptionSdkClient encryptionSdkClient = AwsEncryptionSdkClientFactory.CreateAwsEncryptionSdkClient(config);
 
                 ICryptographicMaterialsManager cmm = MaterialProviderFactory.CreateDecryptCmm(vector, keyMap);
 

@@ -35,19 +35,17 @@ module {:extern "Dafny.Aws.Esdk.AwsEncryptionSdkClientFactory"} AwsEncryptionSdk
 
       ensures
         && input.maxEncryptedDataKeys.Some?
-        && input.maxEncryptedDataKeys.value < 0 // TODO: Change to '<= 0' once CrypTool-4350 complete
+        && input.maxEncryptedDataKeys.value <= 0
       ==>
         res.Failure?
 
       ensures
         || input.maxEncryptedDataKeys.None?
-        || (input.maxEncryptedDataKeys.Some? && input.maxEncryptedDataKeys.value >= 0) // TODO: Change to '> 0' once CrypTool-4350 complete
+        || (input.maxEncryptedDataKeys.Some? && input.maxEncryptedDataKeys.value > 0)
       ==>
         res.Success?
     {
-        // TODO Use :- Need(...) once exception types play nice
-        // TODO: Change to '<= 0' once CrypTool-4350 complete
-        if input.maxEncryptedDataKeys.Some? && input.maxEncryptedDataKeys.value < 0 {
+        if input.maxEncryptedDataKeys.Some? && input.maxEncryptedDataKeys.value <= 0 {
             var err := new Esdk.AwsEncryptionSdkClientException("maxEncryptedDataKeys must be non-negative");
             return Failure(err);
         }
