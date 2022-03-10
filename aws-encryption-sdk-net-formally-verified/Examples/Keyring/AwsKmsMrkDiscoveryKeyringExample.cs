@@ -84,6 +84,6 @@ public class AwsKmsMrkDiscoveryKeyringExample {
     // We test examples to ensure they remain up-to-date.
     [Fact]
     public void TestAwsKmsMrkDiscoveryKeyringExample() {
-        Run(ExampleUtils.ExampleUtils.GetPlaintextStream(), ExampleUtils.ExampleUtils.GetKmsKeyArn());
+        Run(ExampleUtils.ExampleUtils.GetPlaintextStream(), ExampleUtils.ExampleUtils.GetDefaultRegionKmsKeyArn());
     }
 }

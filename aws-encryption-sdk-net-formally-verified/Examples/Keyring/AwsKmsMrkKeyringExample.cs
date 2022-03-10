@@ -78,6 +78,6 @@ public class AwsKmsMrkKeyringExample {
     // We test examples to ensure they remain up-to-date.
     [Fact]
     public void TestAwsKmsMrkKeyringExample() {
-        Run(ExampleUtils.ExampleUtils.GetPlaintextStream(), ExampleUtils.ExampleUtils.GetKmsKeyArn());
+        Run(ExampleUtils.ExampleUtils.GetPlaintextStream(), ExampleUtils.ExampleUtils.GetDefaultRegionKmsKeyArn());
     }
 }

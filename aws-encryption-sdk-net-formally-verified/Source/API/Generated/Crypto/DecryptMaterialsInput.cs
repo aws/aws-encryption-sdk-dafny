@@ -62,6 +62,14 @@ namespace Aws.Crypto
 
         public void Validate()
         {
+            if (!IsSetAlgorithmSuiteId())
+                throw new System.ArgumentException("Missing value for required member 'algorithmSuiteId'");
+            if (!IsSetCommitmentPolicy())
+                throw new System.ArgumentException("Missing value for required member 'commitmentPolicy'");
+            if (!IsSetEncryptedDataKeys())
+                throw new System.ArgumentException("Missing value for required member 'encryptedDataKeys'");
+            if (!IsSetEncryptionContext())
+                throw new System.ArgumentException("Missing value for required member 'encryptionContext'");
         }
     }
 }

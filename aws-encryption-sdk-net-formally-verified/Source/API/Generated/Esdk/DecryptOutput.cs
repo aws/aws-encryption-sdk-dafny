@@ -50,6 +50,11 @@ namespace Aws.Esdk
 
         public void Validate()
         {
+            if (!IsSetPlaintext()) throw new System.ArgumentException("Missing value for required member 'plaintext'");
+            if (!IsSetEncryptionContext())
+                throw new System.ArgumentException("Missing value for required member 'encryptionContext'");
+            if (!IsSetAlgorithmSuiteId())
+                throw new System.ArgumentException("Missing value for required member 'algorithmSuiteId'");
         }
     }
 }

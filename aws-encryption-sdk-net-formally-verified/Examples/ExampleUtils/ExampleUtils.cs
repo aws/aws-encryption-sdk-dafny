@@ -19,7 +19,7 @@ namespace ExampleUtils {
                         ));
         }
 
-        static public string GetKmsKeyArn() {
+        static public string GetDefaultRegionKmsKeyArn() {
             string keyId = System.Environment.GetEnvironmentVariable(TEST_AWS_KMS_KEY_ID_ENV_VAR);
             if (keyId == null) {
                 throw new ArgumentException(
@@ -29,7 +29,7 @@ namespace ExampleUtils {
             return keyId;
         }
 
-        static public string GetKmsKeyArn2() {
+        static public string GetEuCentral1KmsKeyArn() {
             string keyId = System.Environment.GetEnvironmentVariable(TEST_AWS_KMS_KEY_ID_2_ENV_VAR);
             if (keyId == null) {
                 throw new ArgumentException(

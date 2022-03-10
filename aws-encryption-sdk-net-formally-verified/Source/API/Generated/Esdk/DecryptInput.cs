@@ -50,6 +50,8 @@ namespace Aws.Esdk
 
         public void Validate()
         {
+            if (!IsSetCiphertext())
+                throw new System.ArgumentException("Missing value for required member 'ciphertext'");
         }
     }
 }

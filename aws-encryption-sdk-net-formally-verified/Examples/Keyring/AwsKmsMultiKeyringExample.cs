@@ -4,6 +4,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using Amazon;
 using Amazon.KeyManagementService;
 using Aws.Crypto;
 using Aws.Esdk;
@@ -13,7 +14,9 @@ using Xunit;
 /// Demonstrate an encrypt/decrypt cycle using a Multi-Keyring made up of multiple AWS KMS
 /// Keyrings.
 public class AwsKmsMultiKeyring {
-    private static void Run(MemoryStream plaintext, string keyArn1, string keyArn2, List<string> accountIds, List<string> regions) {
+    // For this example, `defaultRegionKeyArn` is the ARN for a KMS Key located in your default region,
+    // and `secondRegionKeyArn` is the ARN for a KMS Key located in some second Region.
+    private static void Run(MemoryStream plaintext, string defaultRegionKeyArn, string secondRegionKeyArn, string secondRegion) {
         // Create your encryption context.
         // Remember that your encryption context is NOT SECRET.
         // https://docs.aws.amazon.com/encryption-sdk/latest/developer-guide/concepts.html#encryption-context
@@ -33,8 +36,8 @@ public class AwsKmsMultiKeyring {
         // Either KMS Key individually is capable of decrypting data encrypted under this KeyAwsKmsMultiKeyringring.
         var createAwsKmsMultiKeyringInput = new CreateAwsKmsMultiKeyringInput
         {
-            Generator = keyArn1,
-            KmsKeyIds = new List<string>() { keyArn2 }
+            Generator = defaultRegionKeyArn,
+            KmsKeyIds = new List<string>() { secondRegionKeyArn }
         };
         var kmsMultiKeyring = materialProvidersClient.CreateAwsKmsMultiKeyring(createAwsKmsMultiKeyringInput);
 
@@ -83,15 +86,15 @@ public class AwsKmsMultiKeyring {
         // Demonstrate that a single AwsKmsKeyring configured with either KMS key
         // is also capable of decrypting the data.
         //
-        // Create a single AwsKmsKeyring with one of the KMS keys configured on the AwsKmsMultiKeyring.
-        // Create a KMS keyring to use as the generator.
+        // Create a single AwsKmsKeyring with the KMS key from our second region.
         var createKeyringInput = new CreateAwsKmsKeyringInput
         {
-            KmsKeyId = keyArn2
+            KmsClient = new AmazonKeyManagementServiceClient(RegionEndpoint.GetBySystemName(secondRegion)),
+            KmsKeyId = secondRegionKeyArn
         };
         var kmsKeyring = materialProvidersClient.CreateAwsKmsKeyring(createKeyringInput);
 
-        // Decrypt your encrypted data using the AwsKmsKeyring configured with the single KMS key.
+        // Decrypt your encrypted data using the AwsKmsKeyring configured with the KMS Key from the second region.
         var kmsKeyringDecryptInput = new DecryptInput
         {
             Ciphertext = ciphertext,
@@ -116,10 +119,9 @@ public class AwsKmsMultiKeyring {
     {
         Run(
             ExampleUtils.ExampleUtils.GetPlaintextStream(),
-            ExampleUtils.ExampleUtils.GetKmsKeyArn(),
-            ExampleUtils.ExampleUtils.GetKmsKeyArn2(),
-            ExampleUtils.ExampleUtils.GetAccountIds(),
-            ExampleUtils.ExampleUtils.GetRegions()
+            ExampleUtils.ExampleUtils.GetDefaultRegionKmsKeyArn(),
+            ExampleUtils.ExampleUtils.GetEuCentral1KmsKeyArn(),
+            "eu-central-1"
         );
     }
 }

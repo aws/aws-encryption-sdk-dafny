@@ -38,6 +38,9 @@ namespace Aws.Crypto
 
         public void Validate()
         {
+            if (!IsSetMaterials()) throw new System.ArgumentException("Missing value for required member 'materials'");
+            if (!IsSetEncryptedDataKeys())
+                throw new System.ArgumentException("Missing value for required member 'encryptedDataKeys'");
         }
     }
 }

@@ -121,7 +121,7 @@ public class MultiKeyringExample {
     public void TestMultiKeyringExample() {
         Run(
             ExampleUtils.ExampleUtils.GetPlaintextStream(),
-            ExampleUtils.ExampleUtils.GetKmsKeyArn()
+            ExampleUtils.ExampleUtils.GetDefaultRegionKmsKeyArn()
         );
     }
 

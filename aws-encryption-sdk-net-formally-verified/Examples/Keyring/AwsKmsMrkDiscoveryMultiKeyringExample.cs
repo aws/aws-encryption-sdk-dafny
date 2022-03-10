@@ -96,7 +96,7 @@ public class AwsKmsMrkDiscoveryMultiKeyringExample {
     {
         Run(
             ExampleUtils.ExampleUtils.GetPlaintextStream(),
-            ExampleUtils.ExampleUtils.GetKmsKeyArn(),
+            ExampleUtils.ExampleUtils.GetDefaultRegionKmsKeyArn(),
             ExampleUtils.ExampleUtils.GetAccountIds(),
             ExampleUtils.ExampleUtils.GetRegions()
         );

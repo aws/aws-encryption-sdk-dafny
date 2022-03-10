@@ -50,6 +50,12 @@ namespace Aws.Crypto
 
         public void Validate()
         {
+            if (!IsSetKeyProviderId())
+                throw new System.ArgumentException("Missing value for required member 'keyProviderId'");
+            if (!IsSetKeyProviderInfo())
+                throw new System.ArgumentException("Missing value for required member 'keyProviderInfo'");
+            if (!IsSetCiphertext())
+                throw new System.ArgumentException("Missing value for required member 'ciphertext'");
         }
     }
 }
