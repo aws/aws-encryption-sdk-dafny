@@ -13,7 +13,7 @@ using Xunit;
 /// Demonstrate an encrypt/decrypt cycle using a Multi-Keyring made up of multiple AWS KMS
 /// Keyrings.
 public class AwsKmsMultiKeyring {
-    private static void Run(MemoryStream plaintext, string keyArn, List<string> accountIds, List<string> regions) {
+    private static void Run(MemoryStream plaintext, string keyArn1, string keyArn2, List<string> accountIds, List<string> regions) {
         // Create your encryption context.
         // Remember that your encryption context is NOT SECRET.
         // https://docs.aws.amazon.com/encryption-sdk/latest/developer-guide/concepts.html#encryption-context
@@ -29,13 +29,14 @@ public class AwsKmsMultiKeyring {
         var materialProvidersClient = AwsCryptographicMaterialProvidersClientFactory.CreateDefaultAwsCryptographicMaterialProvidersClient();
         var encryptionSdkClient = AwsEncryptionSdkClientFactory.CreateDefaultAwsEncryptionSdkClient();
 
-        // Create the keyring that determines how your data keys are protected.
-        var createKeyringInput = new CreateAwsKmsKeyringInput
+        // Create a AwsKmsMultiKeyring that protects your data under two different KMS Keys.
+        // Either KMS Key individually is capable of decrypting data encrypted under this KeyAwsKmsMultiKeyringring.
+        var createAwsKmsMultiKeyringInput = new CreateAwsKmsMultiKeyringInput
         {
-            KmsClient = new AmazonKeyManagementServiceClient(),
-            KmsKeyId = keyArn
+            Generator = keyArn1,
+            KmsKeyIds = new List<string>() { keyArn2 }
         };
-        var keyring = materialProvidersClient.CreateAwsKmsKeyring(createKeyringInput);
+        var kmsMultiKeyring = materialProvidersClient.CreateAwsKmsMultiKeyring(createAwsKmsMultiKeyringInput);
 
         // Encrypt your plaintext data.
         // In this example, we pass a keyring. Behind the scenes, the AWS Encryption SDK will create
@@ -43,7 +44,7 @@ public class AwsKmsMultiKeyring {
         var encryptInput = new EncryptInput
         {
             Plaintext = plaintext,
-            Keyring = keyring,
+            Keyring = kmsMultiKeyring,
             EncryptionContext = encryptionContext
         };
 
@@ -53,15 +54,16 @@ public class AwsKmsMultiKeyring {
         // Demonstrate that the ciphertext and plaintext are different.
         Assert.NotEqual(ciphertext.ToArray(), plaintext.ToArray());
 
-
-        // Decrypt your encrypted data using the same keyring you used on encrypt.
+        // Decrypt your encrypted data using the AwsKmsMultiKeyring.
+        // It will decrypt the data using either configured KMS key since
+        // both keys are capable of decrypting the data.
         //
         // You do not need to specify the encryption context on decrypt
         // because the header of the encrypted message includes the encryption context.
         var decryptInput = new DecryptInput
         {
             Ciphertext = ciphertext,
-            Keyring = keyring
+            Keyring = kmsMultiKeyring
         };
         var decryptOutput = encryptionSdkClient.Decrypt(decryptInput);
 
@@ -78,6 +80,36 @@ public class AwsKmsMultiKeyring {
         // Demonstrate that the decrypted plaintext is identical to the original plaintext.
         var decrypted = decryptOutput.Plaintext;
         Assert.Equal(decrypted.ToArray(), plaintext.ToArray());
+
+        // Demonstrate that a single AwsKmsKeyring configured with either KMS key
+        // is also capable of decrypting the data.
+        //
+        // Create a single AwsKmsKeyring with one of the KMS keys configured on the AwsKmsMultiKeyring.
+        // Create a KMS keyring to use as the generator.
+        var createKeyringInput = new CreateAwsKmsKeyringInput
+        {
+            KmsClient = new AmazonKeyManagementServiceClient(),
+            KmsKeyId = keyArn2
+        };
+        var kmsKeyring = materialProvidersClient.CreateAwsKmsKeyring(createKeyringInput);
+
+        // Decrypt your encrypted data using the AwsKmsKeyring configured with the single KMS key.
+        var kmsKeyringDecryptInput = new DecryptInput
+        {
+            Ciphertext = ciphertext,
+            Keyring = kmsKeyring
+        };
+        var kmsKeyringDecryptOutput = encryptionSdkClient.Decrypt(kmsKeyringDecryptInput);
+
+        // Verify the Encryption Context on the output
+        foreach (var (expectedKey, expectedValue) in encryptionContext)
+            if (!kmsKeyringDecryptOutput.EncryptionContext.TryGetValue(expectedKey, out var decryptedValue)
+                || !decryptedValue.Equals(expectedValue))
+                throw new Exception("Encryption context does not match expected values");
+
+        // Demonstrate that the decrypted plaintext is identical to the original plaintext.
+        var kmsKeyringDecrypted = kmsKeyringDecryptOutput.Plaintext;
+        Assert.Equal(kmsKeyringDecrypted.ToArray(), plaintext.ToArray());
     }
 
     // We test examples to ensure they remain up-to-date.
@@ -87,6 +119,7 @@ public class AwsKmsMultiKeyring {
         Run(
             ExampleUtils.ExampleUtils.GetPlaintextStream(),
             ExampleUtils.ExampleUtils.GetKmsKeyArn(),
+            ExampleUtils.ExampleUtils.GetKmsKeyArn2(),
             ExampleUtils.ExampleUtils.GetAccountIds(),
             ExampleUtils.ExampleUtils.GetRegions()
         );

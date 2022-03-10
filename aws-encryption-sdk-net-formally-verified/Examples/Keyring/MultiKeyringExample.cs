@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using Amazon.KeyManagementService;
 using Aws.Crypto;
 using Aws.Esdk;
 
@@ -16,7 +17,7 @@ using Xunit;
 /// a raw AES keyring.
 /// TODO: add KMS keyring
 public class MultiKeyringExample {
-    private static void Run(MemoryStream plaintext) {
+    private static void Run(MemoryStream plaintext, string keyArn) {
         // Create your encryption context.
         // Remember that your encryption context is NOT SECRET.
         // https://docs.aws.amazon.com/encryption-sdk/latest/developer-guide/concepts.html#encryption-context
@@ -32,20 +33,28 @@ public class MultiKeyringExample {
         var materialProvidersClient = AwsCryptographicMaterialProvidersClientFactory.CreateDefaultAwsCryptographicMaterialProvidersClient();
         var encryptionSdkClient = AwsEncryptionSdkClientFactory.CreateDefaultAwsEncryptionSdkClient();
         
-        // Create a KMS keyring to use as the generator
-        // TODO
+        // Create a KMS keyring to use as the generator.
+        var createKeyringInput = new CreateAwsKmsKeyringInput
+        {
+            KmsClient = new AmazonKeyManagementServiceClient(),
+            KmsKeyId = keyArn
+        };
+        var kmsKeyring = materialProvidersClient.CreateAwsKmsKeyring(createKeyringInput);
 
         // Create a raw AES keyring to additionally encrypt under
-        var rawAESKeyring = CreateRawAESKeyring(materialProvidersClient);
+        var rawAESKeyring = GetRawAESKeyring(materialProvidersClient);
 
+        // Create a MultiKeyring that consists of the previously created Keyrings.
+        // When using this MultiKeyring to encrypt data, either `kmsKeyring` or
+        // `rawAESKeyring` (or a MultiKeyring containing either) may be used to decrypt the data.
         var createMultiKeyringInput = new CreateMultiKeyringInput
         {
-            Generator = rawAESKeyring,
-            ChildKeyrings = Array.Empty<IKeyring>().ToList()
+            Generator = kmsKeyring,
+            ChildKeyrings = new List<IKeyring>() { rawAESKeyring }
         };
         var multiKeyring = materialProvidersClient.CreateMultiKeyring(createMultiKeyringInput);
 
-        // Encrypt your plaintext data.
+        // Encrypt your plaintext data using the MultiKeyring.
         var encryptInput = new EncryptInput
         {
             Plaintext = plaintext,
@@ -58,16 +67,19 @@ public class MultiKeyringExample {
         // Demonstrate that the ciphertext and plaintext are different.
         Assert.NotEqual(ciphertext.ToArray(), plaintext.ToArray());
 
-        // Decrypt your encrypted data using the same keyring you used on encrypt.
+        // Decrypt your encrypted data using the MultiKeyring used on encrypt.
+        // The MultiKeyring will use `kmsKeyring` to decrypt the ciphertext
+        // since it is the first available internal keyring which is capable
+        // of decrypting the ciphertext.
         //
         // You do not need to specify the encryption context on decrypt
         // because the header of the encrypted message includes the encryption context.
-        var decryptInput = new DecryptInput
+        var multiKeyringDecryptInput = new DecryptInput
         {
             Ciphertext = ciphertext,
-            Keyring = rawAESKeyring
+            Keyring = multiKeyring
         };
-        var decryptOutput = encryptionSdkClient.Decrypt(decryptInput);
+        var multiKeyringDecryptOutput = encryptionSdkClient.Decrypt(multiKeyringDecryptInput);
 
         // Before your application uses plaintext data, verify that the encryption context that
         // you used to encrypt the message is included in the encryption context that was used to
@@ -75,22 +87,50 @@ public class MultiKeyringExample {
         //
         // In production, always use a meaningful encryption context.
         foreach (var (expectedKey, expectedValue) in encryptionContext)
-            if (!decryptOutput.EncryptionContext.TryGetValue(expectedKey, out var decryptedValue)
+            if (!multiKeyringDecryptOutput.EncryptionContext.TryGetValue(expectedKey, out var decryptedValue)
                 || !decryptedValue.Equals(expectedValue))
                 throw new Exception("Encryption context does not match expected values");
 
         // Demonstrate that the decrypted plaintext is identical to the original plaintext.
-        var decrypted = decryptOutput.Plaintext;
-        Assert.Equal(decrypted.ToArray(), plaintext.ToArray());
+        var multiKeyringDecrypted = multiKeyringDecryptOutput.Plaintext;
+        Assert.Equal(multiKeyringDecrypted.ToArray(), plaintext.ToArray());
+
+        // Demonstrate that you can also successfully decrypt data using the `rawAESKeyring` directly.
+        // Because you used a MultiKeyring on Encrypt, you can use either the `kmsKeyring` or
+        // `rawAESKeyring` individually to decrypt the data.
+        var rawAESKeyringDecryptInput = new DecryptInput
+        {
+            Ciphertext = ciphertext,
+            Keyring = rawAESKeyring
+        };
+        var rawAESKeyringDecryptOutput = encryptionSdkClient.Decrypt(rawAESKeyringDecryptInput);
+
+        // Before your application uses plaintext data, verify that the encryption context that
+        // you used to encrypt the message is included in the encryption context that was used to
+        // decrypt the message. The AWS Encryption SDK can add pairs, so don't require an exact match.
+        //
+        // In production, always use a meaningful encryption context.
+        foreach (var (expectedKey, expectedValue) in encryptionContext)
+            if (!rawAESKeyringDecryptOutput.EncryptionContext.TryGetValue(expectedKey, out var decryptedValue)
+                || !decryptedValue.Equals(expectedValue))
+                throw new Exception("Encryption context does not match expected values");
+
+        // Demonstrate that the decrypted plaintext is identical to the original plaintext.
+        var rawAESKeyringDecrypted = rawAESKeyringDecryptOutput.Plaintext;
+        Assert.Equal(rawAESKeyringDecrypted.ToArray(), plaintext.ToArray());
     }
 
     // We test examples to ensure they remain up-to-date.
     [Fact]
     public void TestMultiKeyringExample() {
-        Run(ExampleUtils.ExampleUtils.GetPlaintextStream());
+        Run(
+            ExampleUtils.ExampleUtils.GetPlaintextStream(),
+            ExampleUtils.ExampleUtils.GetKmsKeyArn()
+        );
     }
 
-    private static IKeyring CreateRawAESKeyring(IAwsCryptographicMaterialProvidersClient materialProvidersClient) {
+    // Helper method to create RawAESKeyring for above example.
+    private static IKeyring GetRawAESKeyring(IAwsCryptographicMaterialProvidersClient materialProvidersClient) {
         // Generate a 256-bit AES key to use with your keyring.
         // Here we use BouncyCastle, but you don't have to.
         //
