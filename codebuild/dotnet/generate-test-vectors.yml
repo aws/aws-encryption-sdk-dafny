@@ -6,22 +6,24 @@ phases:
       dotnet: 5.0
       python: latest
     commands:
-      - cd ..
       # Get Dafny
+      - cd $CODEBUILD_SRC_DIR/..
       - curl https://github.com/dafny-lang/dafny/releases/download/v3.4.1/dafny-3.4.1-x64-ubuntu-16.04.zip -L -o dafny.zip
       - unzip -qq dafny.zip && rm dafny.zip
       - export PATH="$PWD/dafny:$PATH"
       # Get the Python ESDK repo and set up Python env
+      - cd $CODEBUILD_SRC_DIR/..
       - git clone https://github.com/aws/aws-encryption-sdk-python --branch v3.1.0 --depth 1
       - pyenv install 3.10.0
       - pyenv local 3.10.0
       - pip install tox tox-pyenv
-      # Switch back to the main directory
-      - cd aws-encryption-sdk-dafny/aws-encryption-sdk-net-formally-verified
   build:
     commands:
       # Generate decryption test vectors
-      - mkdir generated_vectors
-      - dotnet run --project TestVectorGenerator -- --encrypt-manifest TestVectorGenerator/resources/0006-awses-message-decryption-generation.v2.json --output-dir generated_vectors
+      - cd $CODEBUILD_SRC_DIR/aws-encryption-sdk-net-formally-verified/TestVectorGenerator
+      - export VECTORS_DIR="$CODEBUILD_SRC_DIR/generated_vectors"
+      - mkdir $VECTORS_DIR
+      - dotnet run TestVectorGenerator -- --encrypt-manifest resources/0006-awses-message-decryption-generation.v2.json --output-dir $VECTORS_DIR
       # Decrypt generated vectors with Python ESDK
-      - tox -c aws-encryption-sdk-python/test_vector_handlers/tox.ini -e full-decrypt -- --input generated_vectors/manifest.json
+      - cd $CODEBUILD_SRC_DIR/aws-encryption-sdk-python/test_vector_handlers
+      - tox -e full-decrypt -- --input $VECTORS_DIR/manifest.json
