@@ -4,6 +4,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Text;
 
 using Aws.Crypto;
 using Aws.Esdk;
@@ -16,7 +17,8 @@ using byteseq = Dafny.Sequence<byte>;
 
 /// Demonstrate an encrypt/decrypt cycle using a raw RSA keyring.
 public class RawRSAKeyringExample {
-    private static void Run(MemoryStream plaintext) {
+
+    private static void Run(MemoryStream plaintext, string publicKeyFileName, string privateKeyFileName) {
         // Create your encryption context.
         // Remember that your encryption context is NOT SECRET.
         // https://docs.aws.amazon.com/encryption-sdk/latest/developer-guide/concepts.html#encryption-context
@@ -27,12 +29,9 @@ public class RawRSAKeyringExample {
             {"purpose", "useful metadata"}
         };
 
-        // Generate a 2,048 bit RSA Key to use with your keyring.
-        // We generate a key with Bouncy Castle, but you could also load a key,
-        // or generate a key with another low level cryptographic library.
-        RSAEncryption.RSA.GenerateKeyPairBytes(2048, out var publicKeyBytes, out var privateKeyBytes);
-        var publicKey = DafnyFFI.MemoryStreamFromSequence(byteseq.FromArray(publicKeyBytes));
-        var privateKey = DafnyFFI.MemoryStreamFromSequence(byteseq.FromArray(privateKeyBytes));
+        // Get our PEM encoded RSA private and public keys
+        var publicKey = new MemoryStream(System.IO.File.ReadAllBytes(publicKeyFileName));
+        var privateKey = new MemoryStream(System.IO.File.ReadAllBytes(privateKeyFileName));
 
         // The key namespace and key name are defined by you
         // and are used by the raw RSA keyring to determine
@@ -96,9 +95,18 @@ public class RawRSAKeyringExample {
         Assert.Equal(decrypted.ToArray(), plaintext.ToArray());
     }
 
+    static string PRIVATE_KEY_PEM_FILENAME = "RSAKeyringExamplePrivateKey.pem";
+    static string PUBLIC_KEY_PEM_FILENAME = "RSAKeyringExamplePublicKey.pem";
+
     // We test examples to ensure they remain up-to-date.
     [Fact]
     public void TestRawRSAKeyringExample() {
-        Run(ExampleUtils.ExampleUtils.GetPlaintextStream());
+        RSAEncryption.RSA.GenerateKeyPairBytes(2048, out var publicKeyBytes, out var privateKeyBytes);
+        File.WriteAllBytes(PRIVATE_KEY_PEM_FILENAME, privateKeyBytes);
+        File.WriteAllBytes(PUBLIC_KEY_PEM_FILENAME, publicKeyBytes);
+
+        Run(ExampleUtils.ExampleUtils.GetPlaintextStream(),
+        PUBLIC_KEY_PEM_FILENAME,
+        PRIVATE_KEY_PEM_FILENAME);
     }
 }
