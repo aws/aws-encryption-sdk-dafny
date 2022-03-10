@@ -23,7 +23,7 @@ phases:
       - cd $CODEBUILD_SRC_DIR/aws-encryption-sdk-net-formally-verified/TestVectorGenerator
       - export VECTORS_DIR="$CODEBUILD_SRC_DIR/generated_vectors"
       - mkdir $VECTORS_DIR
-      - dotnet run TestVectorGenerator -- --encrypt-manifest resources/0006-awses-message-decryption-generation.v2.json --output-dir $VECTORS_DIR
+      - dotnet run -- --encrypt-manifest resources/0006-awses-message-decryption-generation.v2.json --output-dir $VECTORS_DIR
       # Decrypt generated vectors with Python ESDK
       - cd $CODEBUILD_SRC_DIR/aws-encryption-sdk-python/test_vector_handlers
       - tox -e full-decrypt -- --input $VECTORS_DIR/manifest.json
