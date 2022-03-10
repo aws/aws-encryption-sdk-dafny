@@ -36,7 +36,7 @@ namespace DefaultClientSupplier {
             {
                 return Result<Dafny.Com.Amazonaws.Kms.IKeyManagementServiceClient,
                     Dafny.Aws.Crypto.IAwsCryptographicMaterialProvidersException>.create_Failure(
-                    TypeConversion.ToDafny_CommonError_AwsCryptographicMaterialProvidersException(new AwsCryptographicMaterialProvidersClientException(e.Message))
+                    TypeConversion.ToDafny_CommonError_AwsCryptographicMaterialProvidersException(new AwsCryptographicMaterialProvidersException(e.Message))
                 );
             }
 

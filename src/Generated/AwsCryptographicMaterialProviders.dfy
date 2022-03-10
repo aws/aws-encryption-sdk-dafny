@@ -383,7 +383,6 @@ module {:extern "Dafny.Aws.Crypto"} Aws.Crypto {
           returns (res: Result<IClientSupplier, IAwsCryptographicMaterialProvidersException>)
     }
 
-    // TODO code generation for this is awkward
     trait IAwsCryptographicMaterialProvidersException {
         function method GetMessage(): (message: string)
             reads this

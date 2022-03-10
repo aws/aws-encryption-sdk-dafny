@@ -6,7 +6,7 @@ include "../../src/StandardLibrary/UInt.dfy"
 include "../../src/Generated/AwsCryptographicMaterialProviders.dfy"
 include "../../src/Generated/AwsEncryptionSdk.dfy"
 include "../../src/AwsCryptographicMaterialProviders/Client.dfy"
-include "../../src/SDK/AwsEncryptionSdkFactoryClient.dfy"
+include "../../src/SDK/AwsEncryptionSdkClientFactory.dfy"
 include "../../src/SDK/AwsEncryptionSdk.dfy"
 include "../../src/Crypto/RSAEncryption.dfy"
 include "../../src/Util/UTF8.dfy"
@@ -22,7 +22,7 @@ module {:extern "TestClient"} TestClient {
   import Base64
   import MaterialProviders.Client
   import AwsEncryptionSdk
-  import AwsEncryptionSdkFactoryClient
+  import AwsEncryptionSdkClientFactory
 
   import UTF8
 
@@ -49,16 +49,12 @@ module {:extern "TestClient"} TestClient {
     expect cmmResult.Success?;
     var cmm := cmmResult.value;
 
-    // Create AWS Crypto client
     var config := Esdk.AwsEncryptionSdkClientConfig(
-      configDefaults := Esdk.V1,
       maxEncryptedDataKeys := Option.Some(2 as int64),
       commitmentPolicy := Option.Some(Crypto.FORBID_ENCRYPT_ALLOW_DECRYPT) // TODO: update once commitment algs working
     );
-    // TODO This is a bit wordy here, but ideally the language specific compilers can translate this to something that is
-    // a better user experience
-    var clientFactory := new AwsEncryptionSdkFactoryClient.AwsEncryptionSdkFactoryClient();
-    var clientResult := clientFactory.MakeAwsEncryptionSdk(config);
+    var clientFactory := new AwsEncryptionSdkClientFactory.AwsEncryptionSdkClientFactory();
+    var clientResult := clientFactory.CreateAwsEncryptionSdkClient(config);
     expect clientResult.Success?;
     var client := clientResult.value;
 

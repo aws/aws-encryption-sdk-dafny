@@ -102,7 +102,6 @@ module {:extern "Dafny.Aws.Esdk"} Aws.Esdk {
         nameonly maxEncryptedDataKeys: Option<int64>
     )
 
-    // TODO the Client suffix appended by Smithy, leading to annoying naming
     trait {:termination false} IAwsEncryptionSdkClientFactory {
         method CreateAwsEncryptionSdkClient(input: AwsEncryptionSdkClientConfig) returns (res: Result<IAwsEncryptionSdkClient, IAwsEncryptionSdkException>)
         method CreateDefaultAwsEncryptionSdkClient() returns (res: Result<IAwsEncryptionSdkClient, IAwsEncryptionSdkException>)
