@@ -18,6 +18,10 @@ using byteseq = Dafny.Sequence<byte>;
 /// Demonstrate an encrypt/decrypt cycle using a raw RSA keyring.
 public class RawRSAKeyringExample {
 
+    // Used to test our example below.
+    static string PRIVATE_KEY_PEM_FILENAME = "RSAKeyringExamplePrivateKey.pem";
+    static string PUBLIC_KEY_PEM_FILENAME = "RSAKeyringExamplePublicKey.pem";
+
     private static void Run(MemoryStream plaintext, string publicKeyFileName, string privateKeyFileName) {
         // Create your encryption context.
         // Remember that your encryption context is NOT SECRET.
@@ -94,9 +98,6 @@ public class RawRSAKeyringExample {
         var decrypted = decryptOutput.Plaintext;
         Assert.Equal(decrypted.ToArray(), plaintext.ToArray());
     }
-
-    static string PRIVATE_KEY_PEM_FILENAME = "RSAKeyringExamplePrivateKey.pem";
-    static string PUBLIC_KEY_PEM_FILENAME = "RSAKeyringExamplePublicKey.pem";
 
     // We test examples to ensure they remain up-to-date.
     [Fact]
