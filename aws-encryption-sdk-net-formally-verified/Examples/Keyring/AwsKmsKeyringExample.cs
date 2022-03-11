@@ -24,9 +24,9 @@ public class AwsKmsKeyringExample {
             {"the data you are handling", "is what you think it is"}
         };
 
-        // Create clients to access the Material Providers and Encryption SDK APIs.
-        var materialProvidersClient = AwsCryptographicMaterialProvidersFactory.CreateDefaultAwsCryptographicMaterialProviders();
-        var encryptionSdkClient = AwsEncryptionSdkFactory.CreateDefaultAwsEncryptionSdk();
+        // Instantiate the Material Providers and the AWS Encryption SDK
+        var materialProviders = AwsCryptographicMaterialProvidersFactory.CreateDefaultAwsCryptographicMaterialProviders();
+        var encryptionSdk = AwsEncryptionSdkFactory.CreateDefaultAwsEncryptionSdk();
 
         // Create the keyring that determines how your data keys are protected.
         var createKeyringInput = new CreateAwsKmsKeyringInput
@@ -35,7 +35,7 @@ public class AwsKmsKeyringExample {
             KmsKeyId = keyArn
         };
 
-        var keyring = materialProvidersClient.CreateAwsKmsKeyring(createKeyringInput);
+        var keyring = materialProviders.CreateAwsKmsKeyring(createKeyringInput);
 
         // Encrypt your plaintext data.
         var encryptInput = new EncryptInput
@@ -44,7 +44,7 @@ public class AwsKmsKeyringExample {
             Keyring = keyring,
             EncryptionContext = encryptionContext
         };
-        var encryptOutput = encryptionSdkClient.Encrypt(encryptInput);
+        var encryptOutput = encryptionSdk.Encrypt(encryptInput);
         var ciphertext = encryptOutput.Ciphertext;
 
         // Demonstrate that the ciphertext and plaintext are different.
@@ -59,7 +59,7 @@ public class AwsKmsKeyringExample {
             Ciphertext = ciphertext,
             Keyring = keyring
         };
-        var decryptOutput = encryptionSdkClient.Decrypt(decryptInput);
+        var decryptOutput = encryptionSdk.Decrypt(decryptInput);
 
         // Before your application uses plaintext data, verify that the encryption context that
         // you used to encrypt the message is included in the encryption context that was used to

@@ -62,7 +62,7 @@ module {:extern "Dafny.Aws.Esdk.AwsEncryptionSdk"} AwsEncryptionSdk {
         const commitmentPolicy: Crypto.CommitmentPolicy;
         const maxEncryptedDataKeys: Option<int64>;
 
-        const materialProvidersClient: Crypto.IAwsCryptographicMaterialProviders;
+        const materialProviders: Crypto.IAwsCryptographicMaterialProviders;
 
         const RESERVED_ENCRYPTION_CONTEXT := UTF8.Encode("aws-crypto-").value;
 
@@ -111,7 +111,7 @@ module {:extern "Dafny.Aws.Esdk.AwsEncryptionSdk"} AwsEncryptionSdk {
                 this.commitmentPolicy := config.commitmentPolicy.value;
             }
 
-            this.materialProvidersClient := new Client.AwsCryptographicMaterialProviders();
+            this.materialProviders := new Client.AwsCryptographicMaterialProviders();
         }
 
         // Doing this conversion at each error site would allow us to emit more specific error types.
@@ -473,7 +473,7 @@ module {:extern "Dafny.Aws.Esdk.AwsEncryptionSdk"} AwsEncryptionSdk {
                 //# supplied as the input, the decrypt operation MUST construct a default
                 //# CMM (../framework/default-cmm.md) from the input keyring
                 //# (../framework/keyring-interface.md).
-                var createCmmOutput := this.materialProvidersClient
+                var createCmmOutput := this.materialProviders
                     .CreateDefaultCryptographicMaterialsManager(Crypto.CreateDefaultCryptographicMaterialsManagerInput(
                         keyring := inputKeyring.value
                     )

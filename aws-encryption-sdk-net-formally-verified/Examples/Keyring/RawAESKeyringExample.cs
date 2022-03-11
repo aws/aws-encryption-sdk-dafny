@@ -39,9 +39,9 @@ public class RawAESKeyringExample {
         var keyNamespace = "Some managed raw keys";
         var keyName = "My 256-bit AES wrapping key";
 
-        // Create clients to access the Material Providers and Encryption SDK APIs.
-        var materialProvidersClient = AwsCryptographicMaterialProvidersFactory.CreateDefaultAwsCryptographicMaterialProviders();
-        var encryptionSdkClient = AwsEncryptionSdkFactory.CreateDefaultAwsEncryptionSdk();
+        // Instantiate the Material Providers and the AWS Encryption SDK
+        var materialProviders = AwsCryptographicMaterialProvidersFactory.CreateDefaultAwsCryptographicMaterialProviders();
+        var encryptionSdk = AwsEncryptionSdkFactory.CreateDefaultAwsEncryptionSdk();
 
         // Create the keyring that determines how your data keys are protected.
         var createKeyringInput = new CreateRawAesKeyringInput
@@ -51,7 +51,7 @@ public class RawAESKeyringExample {
             WrappingKey = key,
             WrappingAlg = AesWrappingAlg.ALG_AES256_GCM_IV12_TAG16
         };
-        var keyring = materialProvidersClient.CreateRawAesKeyring(createKeyringInput);
+        var keyring = materialProviders.CreateRawAesKeyring(createKeyringInput);
 
         // Encrypt your plaintext data.
         var encryptInput = new EncryptInput
@@ -60,7 +60,7 @@ public class RawAESKeyringExample {
             Keyring = keyring,
             EncryptionContext = encryptionContext
         };
-        var encryptOutput = encryptionSdkClient.Encrypt(encryptInput);
+        var encryptOutput = encryptionSdk.Encrypt(encryptInput);
         var ciphertext = encryptOutput.Ciphertext;
 
         // Demonstrate that the ciphertext and plaintext are different.
@@ -75,7 +75,7 @@ public class RawAESKeyringExample {
             Ciphertext = ciphertext,
             Keyring = keyring
         };
-        var decryptOutput = encryptionSdkClient.Decrypt(decryptInput);
+        var decryptOutput = encryptionSdk.Decrypt(decryptInput);
 
         // Before your application uses plaintext data, verify that the encryption context that
         // you used to encrypt the message is included in the encryption context that was used to

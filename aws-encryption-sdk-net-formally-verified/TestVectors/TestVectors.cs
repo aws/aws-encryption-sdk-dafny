@@ -119,7 +119,7 @@ namespace TestVectors.Runner {
                 {
                     CommitmentPolicy = CommitmentPolicy.REQUIRE_ENCRYPT_ALLOW_DECRYPT
                 };
-                IAwsEncryptionSdk encryptionSdkClient = AwsEncryptionSdkFactory.CreateAwsEncryptionSdk(config);
+                IAwsEncryptionSdk encryptionSdk = AwsEncryptionSdkFactory.CreateAwsEncryptionSdk(config);
 
                 ICryptographicMaterialsManager cmm = MaterialProviderFactory.CreateDecryptCmm(vector, keyMap);
 
@@ -128,7 +128,7 @@ namespace TestVectors.Runner {
                     Ciphertext = ciphertextStream,
                     MaterialsManager = cmm,
                 };
-                Aws.Esdk.DecryptOutput decryptOutput = encryptionSdkClient.Decrypt(decryptInput);
+                Aws.Esdk.DecryptOutput decryptOutput = encryptionSdk.Decrypt(decryptInput);
 
                 if (expectedError != null)
                 {

@@ -29,7 +29,7 @@ namespace ExampleUtils {
             return keyId;
         }
 
-        static public string GetEuCentral1KmsKeyArn() {
+        static public string GetAlternateRegionKmsKeyArn() {
             string keyId = System.Environment.GetEnvironmentVariable(TEST_AWS_KMS_KEY_ID_2_ENV_VAR);
             if (keyId == null) {
                 throw new ArgumentException(

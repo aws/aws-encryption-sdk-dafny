@@ -28,9 +28,9 @@ public class AwsKmsMultiKeyring {
             {"the data you are handling", "is what you think it is"}
         };
 
-        // Create clients to access the Material Providers and Encryption SDK APIs.
-        var materialProvidersClient = AwsCryptographicMaterialProvidersFactory.CreateDefaultAwsCryptographicMaterialProviders();
-        var encryptionSdkClient = AwsEncryptionSdkFactory.CreateDefaultAwsEncryptionSdk();
+        // Instantiate the Material Providers and the AWS Encryption SDK
+        var materialProviders = AwsCryptographicMaterialProvidersFactory.CreateDefaultAwsCryptographicMaterialProviders();
+        var encryptionSdk = AwsEncryptionSdkFactory.CreateDefaultAwsEncryptionSdk();
 
         // Create a AwsKmsMultiKeyring that protects your data under two different KMS Keys.
         // Either KMS Key individually is capable of decrypting data encrypted under this KeyAwsKmsMultiKeyringring.
@@ -39,7 +39,7 @@ public class AwsKmsMultiKeyring {
             Generator = defaultRegionKeyArn,
             KmsKeyIds = new List<string>() { secondRegionKeyArn }
         };
-        var kmsMultiKeyring = materialProvidersClient.CreateAwsKmsMultiKeyring(createAwsKmsMultiKeyringInput);
+        var kmsMultiKeyring = materialProviders.CreateAwsKmsMultiKeyring(createAwsKmsMultiKeyringInput);
 
         // Encrypt your plaintext data.
         var encryptInput = new EncryptInput
@@ -49,7 +49,7 @@ public class AwsKmsMultiKeyring {
             EncryptionContext = encryptionContext
         };
 
-        var encryptOutput = encryptionSdkClient.Encrypt(encryptInput);
+        var encryptOutput = encryptionSdk.Encrypt(encryptInput);
         var ciphertext = encryptOutput.Ciphertext;
 
         // Demonstrate that the ciphertext and plaintext are different.
@@ -67,7 +67,7 @@ public class AwsKmsMultiKeyring {
             Ciphertext = ciphertext,
             Keyring = kmsMultiKeyring
         };
-        var decryptOutput = encryptionSdkClient.Decrypt(decryptInput);
+        var decryptOutput = encryptionSdk.Decrypt(decryptInput);
 
         // Before your application uses plaintext data, verify that the encryption context that
         // you used to encrypt the message is included in the encryption context that was used to
@@ -92,7 +92,7 @@ public class AwsKmsMultiKeyring {
             KmsClient = new AmazonKeyManagementServiceClient(RegionEndpoint.GetBySystemName(secondRegion)),
             KmsKeyId = secondRegionKeyArn
         };
-        var kmsKeyring = materialProvidersClient.CreateAwsKmsKeyring(createKeyringInput);
+        var kmsKeyring = materialProviders.CreateAwsKmsKeyring(createKeyringInput);
 
         // Decrypt your encrypted data using the AwsKmsKeyring configured with the KMS Key from the second region.
         var kmsKeyringDecryptInput = new DecryptInput
@@ -100,7 +100,7 @@ public class AwsKmsMultiKeyring {
             Ciphertext = ciphertext,
             Keyring = kmsKeyring
         };
-        var kmsKeyringDecryptOutput = encryptionSdkClient.Decrypt(kmsKeyringDecryptInput);
+        var kmsKeyringDecryptOutput = encryptionSdk.Decrypt(kmsKeyringDecryptInput);
 
         // Verify the Encryption Context on the output
         foreach (var (expectedKey, expectedValue) in encryptionContext)
@@ -120,7 +120,7 @@ public class AwsKmsMultiKeyring {
         Run(
             ExampleUtils.ExampleUtils.GetPlaintextStream(),
             ExampleUtils.ExampleUtils.GetDefaultRegionKmsKeyArn(),
-            ExampleUtils.ExampleUtils.GetEuCentral1KmsKeyArn(),
+            ExampleUtils.ExampleUtils.GetAlternateRegionKmsKeyArn(),
             "eu-central-1"
         );
     }
