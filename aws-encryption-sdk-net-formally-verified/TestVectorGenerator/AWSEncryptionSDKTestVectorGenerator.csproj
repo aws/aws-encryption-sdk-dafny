@@ -5,6 +5,8 @@
         <TargetFramework>net5.0</TargetFramework>
         <RootNamespace>AWSEncryptionSDKTestVectorGenerator</RootNamespace>
         <VersionPrefix>0.1.0</VersionPrefix>
+        <!-- CS0105: duplicate namespace, CS0618: obsolete members -->
+        <NoWarn>CS0105,CS0618</NoWarn>
     </PropertyGroup>
 
     <ItemGroup>
