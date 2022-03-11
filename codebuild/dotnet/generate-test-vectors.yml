@@ -26,5 +26,5 @@ phases:
       - dotnet run -- --encrypt-manifest resources/0006-awses-message-decryption-generation.v2.json --output-dir $VECTORS_DIR
       # Decrypt generated vectors with Javascript ESDK
       - cd $VECTORS_DIR
-      - zip -r vectors.zip ./*
+      - zip -q -r vectors.zip ./*
       - /usr/local/bin/integration-node decrypt -v vectors.zip
