@@ -1,22 +1,22 @@
 version: 0.2
 
+env:
+  variables:
+    NODE_OPTIONS: "--max-old-space-size=4096"
+
 phases:
   install:
     runtime-versions:
       dotnet: 5.0
-      python: latest
+      nodejs: 14
     commands:
       # Get Dafny
       - cd $CODEBUILD_SRC_DIR/..
       - curl https://github.com/dafny-lang/dafny/releases/download/v3.4.1/dafny-3.4.1-x64-ubuntu-16.04.zip -L -o dafny.zip
       - unzip -qq dafny.zip && rm dafny.zip
       - export PATH="$PWD/dafny:$PATH"
-      # Get the Python ESDK repo and set up Python env
-      - cd $CODEBUILD_SRC_DIR/..
-      - git clone https://github.com/aws/aws-encryption-sdk-python --branch v3.1.0 --depth 1
-      - pyenv install 3.10.0
-      - pyenv local 3.10.0
-      - pip install tox tox-pyenv
+      # Install the Javascript ESDK test vector runners
+      - npm install -g @aws-crypto/integration-node
   build:
     commands:
       # Generate decryption test vectors
@@ -24,6 +24,7 @@ phases:
       - export VECTORS_DIR="$CODEBUILD_SRC_DIR/generated_vectors"
       - mkdir $VECTORS_DIR
       - dotnet run -- --encrypt-manifest resources/0006-awses-message-decryption-generation.v2.json --output-dir $VECTORS_DIR
-      # Decrypt generated vectors with Python ESDK
-      - cd $CODEBUILD_SRC_DIR/../aws-encryption-sdk-python/test_vector_handlers
-      - tox -e full-decrypt -- --input $VECTORS_DIR/manifest.json
+      # Decrypt generated vectors with Javascript ESDK
+      - cd $VECTORS_DIR
+      - zip -r vectors.zip ./*
+      - /usr/local/bin/integration-node decrypt -v vectors.zip
