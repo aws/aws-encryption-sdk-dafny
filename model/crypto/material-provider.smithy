@@ -3,29 +3,29 @@ namespace aws.crypto
 use aws.polymorph#reference
 
 /////////////
-// AwsCryptographicMaterialProvidersClient Creation
+// AwsCryptographicMaterialProviders Creation
 
 // TODO add a trait to indicate that 'Client' should not be appended to this name,
 // and that the code gen should expose operations under this service statically if
 // possible in the target language
-service AwsCryptographicMaterialProvidersClientFactory {
+service AwsCryptographicMaterialProvidersFactory {
     version: "2021-11-01",
-    operations: [CreateDefaultAwsCryptographicMaterialProvidersClient],
-    errors: [AwsCryptographicMaterialProvidersClientException],
+    operations: [CreateDefaultAwsCryptographicMaterialProviders],
+    errors: [AwsCryptographicMaterialProvidersException],
 }
 
-operation CreateDefaultAwsCryptographicMaterialProvidersClient {
-    output: AwsCryptographicMaterialProvidersClientReference,
-    errors: [AwsCryptographicMaterialProvidersClientException],
+operation CreateDefaultAwsCryptographicMaterialProviders {
+    output: AwsCryptographicMaterialProvidersReference,
+    errors: [AwsCryptographicMaterialProvidersException],
 }
 
-@reference(resource: AwsCryptographicMaterialProvidersClient)
-structure AwsCryptographicMaterialProvidersClientReference {}
+@reference(resource: AwsCryptographicMaterialProviders)
+structure AwsCryptographicMaterialProvidersReference {}
 
 /////////////
-// AwsCryptographicMaterialProvidersClient
+// AwsCryptographicMaterialProviders
 
-resource AwsCryptographicMaterialProvidersClient {
+resource AwsCryptographicMaterialProviders {
     resources: [
         Keyring,
         CryptographicMaterialsManager,
@@ -58,7 +58,7 @@ resource AwsCryptographicMaterialProvidersClient {
 // Errors
 
 @error("client")
-structure AwsCryptographicMaterialProvidersClientException {
+structure AwsCryptographicMaterialProvidersException {
     @required
     message: String,
 }

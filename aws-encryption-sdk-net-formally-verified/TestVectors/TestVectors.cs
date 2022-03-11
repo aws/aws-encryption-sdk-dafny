@@ -115,11 +115,11 @@ namespace TestVectors.Runner {
 
             try
             {
-                AwsEncryptionSdkClientConfig config = new AwsEncryptionSdkClientConfig
+                AwsEncryptionSdkConfig config = new AwsEncryptionSdkConfig
                 {
                     CommitmentPolicy = CommitmentPolicy.REQUIRE_ENCRYPT_ALLOW_DECRYPT
                 };
-                IAwsEncryptionSdkClient encryptionSdkClient = AwsEncryptionSdkClientFactory.CreateAwsEncryptionSdkClient(config);
+                IAwsEncryptionSdk encryptionSdkClient = AwsEncryptionSdkFactory.CreateAwsEncryptionSdk(config);
 
                 ICryptographicMaterialsManager cmm = MaterialProviderFactory.CreateDecryptCmm(vector, keyMap);
 

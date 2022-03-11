@@ -97,17 +97,17 @@ module {:extern "Dafny.Aws.Esdk"} Aws.Esdk {
         nameonly algorithmSuiteId: Crypto.AlgorithmSuiteId
     )
 
-    datatype AwsEncryptionSdkClientConfig = AwsEncryptionSdkClientConfig(
+    datatype AwsEncryptionSdkConfig = AwsEncryptionSdkConfig(
         nameonly commitmentPolicy: Option<Crypto.CommitmentPolicy>,
         nameonly maxEncryptedDataKeys: Option<int64>
     )
 
-    trait {:termination false} IAwsEncryptionSdkClientFactory {
-        method CreateAwsEncryptionSdkClient(input: AwsEncryptionSdkClientConfig) returns (res: Result<IAwsEncryptionSdkClient, IAwsEncryptionSdkException>)
-        method CreateDefaultAwsEncryptionSdkClient() returns (res: Result<IAwsEncryptionSdkClient, IAwsEncryptionSdkException>)
+    trait {:termination false} IAwsEncryptionSdkFactory {
+        method CreateAwsEncryptionSdk(input: AwsEncryptionSdkConfig) returns (res: Result<IAwsEncryptionSdk, IAwsEncryptionSdkException>)
+        method CreateDefaultAwsEncryptionSdk() returns (res: Result<IAwsEncryptionSdk, IAwsEncryptionSdkException>)
     }
 
-    trait {:termination false} IAwsEncryptionSdkClient {
+    trait {:termination false} IAwsEncryptionSdk {
         method Encrypt(input: EncryptInput) returns (res: Result<EncryptOutput, IAwsEncryptionSdkException>)
         method Decrypt(input: DecryptInput) returns (res: Result<DecryptOutput, IAwsEncryptionSdkException>)
     }
@@ -117,7 +117,7 @@ module {:extern "Dafny.Aws.Esdk"} Aws.Esdk {
             reads this
     }
 
-    class AwsEncryptionSdkClientException extends IAwsEncryptionSdkException {
+    class AwsEncryptionSdkException extends IAwsEncryptionSdkException {
         var message: string
 
         constructor (message: string) {
@@ -141,7 +141,7 @@ module {:extern "Dafny.Aws.Esdk"} Aws.Esdk {
             match result {
                 case Success(value) => return Result.Success(value);
                 case Failure(error) =>
-                    var wrappedError := new AwsEncryptionSdkClientException(error);
+                    var wrappedError := new AwsEncryptionSdkException(error);
                     return Result.Failure(wrappedError);
             }
         }

@@ -6,7 +6,7 @@ include "../../src/StandardLibrary/UInt.dfy"
 include "../../src/Generated/AwsCryptographicMaterialProviders.dfy"
 include "../../src/Generated/AwsEncryptionSdk.dfy"
 include "../../src/AwsCryptographicMaterialProviders/Client.dfy"
-include "../../src/SDK/AwsEncryptionSdkClientFactory.dfy"
+include "../../src/SDK/AwsEncryptionSdkFactory.dfy"
 include "../../src/SDK/AwsEncryptionSdk.dfy"
 include "../../src/Crypto/RSAEncryption.dfy"
 include "../../src/Util/UTF8.dfy"
@@ -22,7 +22,7 @@ module {:extern "TestClient"} TestClient {
   import Base64
   import MaterialProviders.Client
   import AwsEncryptionSdk
-  import AwsEncryptionSdkClientFactory
+  import AwsEncryptionSdkFactory
 
   import UTF8
 
@@ -31,7 +31,7 @@ module {:extern "TestClient"} TestClient {
   method {:test} HappyPath()
   {
     // Create material provider client
-    var materialsClient := new Client.AwsCryptographicMaterialProvidersClient();
+    var materialsClient := new Client.AwsCryptographicMaterialProviders();
 
     // Use material provider client API for RawAESKeyring creation
     var rawAESKeyringResult := materialsClient.CreateRawAesKeyring(Crypto.CreateRawAesKeyringInput(
@@ -49,12 +49,12 @@ module {:extern "TestClient"} TestClient {
     expect cmmResult.Success?;
     var cmm := cmmResult.value;
 
-    var config := Esdk.AwsEncryptionSdkClientConfig(
+    var config := Esdk.AwsEncryptionSdkConfig(
       maxEncryptedDataKeys := Option.Some(2 as int64),
       commitmentPolicy := Option.Some(Crypto.FORBID_ENCRYPT_ALLOW_DECRYPT) // TODO: update once commitment algs working
     );
-    var clientFactory := new AwsEncryptionSdkClientFactory.AwsEncryptionSdkClientFactory();
-    var clientResult := clientFactory.CreateAwsEncryptionSdkClient(config);
+    var clientFactory := new AwsEncryptionSdkFactory.AwsEncryptionSdkFactory();
+    var clientResult := clientFactory.CreateAwsEncryptionSdk(config);
     expect clientResult.Success?;
     var client := clientResult.value;
 

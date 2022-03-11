@@ -313,7 +313,7 @@ module TestMultiKeyring {
       if this.encryptionMaterials.Some? {
         return Success(Crypto.OnEncryptOutput(materials:=encryptionMaterials.value));
       } else {
-        var exception := new Crypto.AwsCryptographicMaterialProvidersClientException("Failure");
+        var exception := new Crypto.AwsCryptographicMaterialProvidersException("Failure");
         return Failure(exception);
       }
     }
@@ -324,7 +324,7 @@ module TestMultiKeyring {
       if this.decryptionMaterials.Some? {
         return Success(Crypto.OnDecryptOutput(materials:=decryptionMaterials.value));
       } else {
-        var exception := new Crypto.AwsCryptographicMaterialProvidersClientException("Failure");
+        var exception := new Crypto.AwsCryptographicMaterialProvidersException("Failure");
         return Failure(exception);
       }
     }
@@ -340,14 +340,14 @@ module TestMultiKeyring {
     method OnEncrypt(input: Crypto.OnEncryptInput)
       returns (res: Result<Crypto.OnEncryptOutput, Crypto.IAwsCryptographicMaterialProvidersException>)
     {
-      var exception := new Crypto.AwsCryptographicMaterialProvidersClientException("Failure");
+      var exception := new Crypto.AwsCryptographicMaterialProvidersException("Failure");
       return Failure(exception);
     }
 
     method OnDecrypt(input: Crypto.OnDecryptInput)
       returns (res: Result<Crypto.OnDecryptOutput, Crypto.IAwsCryptographicMaterialProvidersException>)
     {
-      var exception := new Crypto.AwsCryptographicMaterialProvidersClientException("Failure");
+      var exception := new Crypto.AwsCryptographicMaterialProvidersException("Failure");
       return Failure(exception);
     }
   }

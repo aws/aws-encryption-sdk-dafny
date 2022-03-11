@@ -5,7 +5,7 @@ using System;
  using
  Aws.Esdk
  ; namespace Aws.Esdk {
- public class AwsEncryptionSdkException : AwsEncryptionSdkBaseException {
- public AwsEncryptionSdkException(string message) : base(message) {}
+ public class AwsEncryptionSdkBaseException : Exception {
+ public AwsEncryptionSdkBaseException() : base() {} public AwsEncryptionSdkBaseException(string message) : base(message) {}
 }
 }

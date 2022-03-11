@@ -77,7 +77,7 @@ module
       //# This function MUST fail.
       ensures res.Failure?
     {
-      var exception := new Crypto.AwsCryptographicMaterialProvidersClientException(
+      var exception := new Crypto.AwsCryptographicMaterialProvidersException(
         "Encryption is not supported with a Discovery Keyring.");
       return Failure(exception);
     }
@@ -192,7 +192,7 @@ module
       //# keyring's configuration.
       var edkFilterTransform : AwsKmsEncryptedDataKeyFilterTransform := new AwsKmsEncryptedDataKeyFilterTransform(region, discoveryFilter);
       var filterResult, parts := Actions.FlatMapWithResult(edkFilterTransform, encryptedDataKeys);
-      var edksToAttempt :- Crypto.AwsCryptographicMaterialProvidersClientException.WrapResultString(filterResult);
+      var edksToAttempt :- Crypto.AwsCryptographicMaterialProvidersException.WrapResultString(filterResult);
 
       forall i
       | 0 <= i < |parts|
@@ -282,7 +282,7 @@ module
             );
             Failure(error)
       };
-      var wrappedResult := Crypto.AwsCryptographicMaterialProvidersClientException.WrapResultString(result);
+      var wrappedResult := Crypto.AwsCryptographicMaterialProvidersException.WrapResultString(result);
       return wrappedResult;
     }
   }

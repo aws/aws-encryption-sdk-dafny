@@ -46,10 +46,10 @@ index 80ed815..364cb80 100644
              return TypeConversion.FromDafny_N3_aws__N6_crypto__S15_OnDecryptOutput(internalOutput);
          }
      }
-diff --git a/aws-encryption-sdk-net-formally-verified/Source/API/Generated/Esdk/AwsEncryptionSdkClient.cs b/aws-encryption-sdk-net-formally-verified/Source/API/Generated/Esdk/AwsEncryptionSdkClient.cs
+diff --git a/aws-encryption-sdk-net-formally-verified/Source/API/Generated/Esdk/AwsEncryptionSdk.cs b/aws-encryption-sdk-net-formally-verified/Source/API/Generated/Esdk/AwsEncryptionSdk.cs
 index 4f9fd51..09ef24a 100644
---- a/aws-encryption-sdk-net-formally-verified/Source/API/Generated/Esdk/AwsEncryptionSdkClient.cs
-+++ b/aws-encryption-sdk-net-formally-verified/Source/API/Generated/Esdk/AwsEncryptionSdkClient.cs
+--- a/aws-encryption-sdk-net-formally-verified/Source/API/Generated/Esdk/AwsEncryptionSdk.cs
++++ b/aws-encryption-sdk-net-formally-verified/Source/API/Generated/Esdk/AwsEncryptionSdk.cs
 @@ -24,7 +24,8 @@ namespace Aws.Esdk
          {
              Dafny.Aws.Esdk.EncryptInput internalInput = TypeConversion.ToDafny_N3_aws__N4_esdk__S12_EncryptInput(input);

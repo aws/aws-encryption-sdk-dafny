@@ -13,35 +13,35 @@ use aws.polymorph#reference
 // TODO add a trait to indicate that 'Client' should not be appended to this name,
 // and that the code gen should expose operations under this service statically if
 // possible in the target language
-service AwsEncryptionSdkClientFactory {
+service AwsEncryptionSdkFactory {
     version: "2020-10-24",
-    operations: [CreateDefaultAwsEncryptionSdkClient, CreateAwsEncryptionSdkClient],
-    errors: [AwsEncryptionSdkClientException],
+    operations: [CreateDefaultAwsEncryptionSdk, CreateAwsEncryptionSdk],
+    errors: [AwsEncryptionSdkException],
 }
 
-operation CreateDefaultAwsEncryptionSdkClient {
-    output: AwsEncryptionSdkClientReference,
-    errors: [AwsEncryptionSdkClientException],
+operation CreateDefaultAwsEncryptionSdk {
+    output: AwsEncryptionSdkReference,
+    errors: [AwsEncryptionSdkException],
 }
 
-operation CreateAwsEncryptionSdkClient {
-    input: AwsEncryptionSdkClientConfig,
-    output: AwsEncryptionSdkClientReference,
-    errors: [AwsEncryptionSdkClientException],
+operation CreateAwsEncryptionSdk {
+    input: AwsEncryptionSdkConfig,
+    output: AwsEncryptionSdkReference,
+    errors: [AwsEncryptionSdkException],
 }
 
-structure AwsEncryptionSdkClientConfig {
+structure AwsEncryptionSdkConfig {
     commitmentPolicy: CommitmentPolicy,
     maxEncryptedDataKeys: Long,
 }
 
-@reference(resource: AwsEncryptionSdkClient)
-structure AwsEncryptionSdkClientReference {}
+@reference(resource: AwsEncryptionSdk)
+structure AwsEncryptionSdkReference {}
 
 /////////////
 // ESDK
 
-resource AwsEncryptionSdkClient {
+resource AwsEncryptionSdk {
     operations: [Encrypt, Decrypt],
 }
 
@@ -82,7 +82,7 @@ structure EncryptOutput {
 operation Decrypt {
     input: DecryptInput,
     output: DecryptOutput,
-    errors: [AwsEncryptionSdkClientException],
+    errors: [AwsEncryptionSdkException],
 }
 
 structure DecryptInput {
@@ -114,7 +114,7 @@ structure DecryptOutput {
 // Errors
 
 @error("client")
-structure AwsEncryptionSdkClientException {
+structure AwsEncryptionSdkException {
     @required
     message: String,
 }

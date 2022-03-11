@@ -29,8 +29,8 @@ public class AwsKmsMultiKeyring {
         };
 
         // Create clients to access the Material Providers and Encryption SDK APIs.
-        var materialProvidersClient = AwsCryptographicMaterialProvidersClientFactory.CreateDefaultAwsCryptographicMaterialProvidersClient();
-        var encryptionSdkClient = AwsEncryptionSdkClientFactory.CreateDefaultAwsEncryptionSdkClient();
+        var materialProvidersClient = AwsCryptographicMaterialProvidersFactory.CreateDefaultAwsCryptographicMaterialProviders();
+        var encryptionSdkClient = AwsEncryptionSdkFactory.CreateDefaultAwsEncryptionSdk();
 
         // Create a AwsKmsMultiKeyring that protects your data under two different KMS Keys.
         // Either KMS Key individually is capable of decrypting data encrypted under this KeyAwsKmsMultiKeyringring.

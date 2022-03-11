@@ -5,7 +5,8 @@ using System;
  using
  Aws.Esdk
  ; namespace Aws.Esdk {
- public class AwsEncryptionSdkException : AwsEncryptionSdkBaseException {
- public AwsEncryptionSdkException(string message) : base(message) {}
+ public interface IAwsEncryptionSdk {
+ Aws.Esdk.EncryptOutput Encrypt ( Aws.Esdk.EncryptInput input ) ;
+ Aws.Esdk.DecryptOutput Decrypt ( Aws.Esdk.DecryptInput input ) ;
 }
 }

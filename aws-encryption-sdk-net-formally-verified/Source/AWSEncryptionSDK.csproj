@@ -36,4 +36,9 @@
     <VerifyDafnyPassthrough Include="definiteAssignment:3" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="API\Generated\Crypto" />
+    <Folder Include="API\Generated\Esdk" />
+  </ItemGroup>
+
 </Project>

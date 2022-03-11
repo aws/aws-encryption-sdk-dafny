@@ -24,7 +24,7 @@ include "Serialize/Frames.dfy"
 include "Serialize/SerializeFunctions.dfy"
 include "Serialize/EncryptionContext.dfy"
 
-module {:extern "Dafny.Aws.Esdk.AwsEncryptionSdkClient"} AwsEncryptionSdk {
+module {:extern "Dafny.Aws.Esdk.AwsEncryptionSdk"} AwsEncryptionSdk {
   import opened Wrappers
   import opened StandardLibrary
   import opened UInt = StandardLibrary.UInt
@@ -52,8 +52,8 @@ module {:extern "Dafny.Aws.Esdk.AwsEncryptionSdkClient"} AwsEncryptionSdk {
   
   const DEFAULT_COMMITMENT_POLICY : Crypto.CommitmentPolicy := Crypto.REQUIRE_ENCRYPT_REQUIRE_DECRYPT;
 
-  class AwsEncryptionSdkClient extends Esdk.IAwsEncryptionSdkClient {
-        const config: Esdk.AwsEncryptionSdkClientConfig;
+  class AwsEncryptionSdk extends Esdk.IAwsEncryptionSdk {
+        const config: Esdk.AwsEncryptionSdkConfig;
 
         //= compliance/client-apis/client.txt#2.4
         //= type=implication
@@ -62,7 +62,7 @@ module {:extern "Dafny.Aws.Esdk.AwsEncryptionSdkClient"} AwsEncryptionSdk {
         const commitmentPolicy: Crypto.CommitmentPolicy;
         const maxEncryptedDataKeys: Option<int64>;
 
-        const materialProvidersClient: Crypto.IAwsCryptographicMaterialProvidersClient;
+        const materialProvidersClient: Crypto.IAwsCryptographicMaterialProviders;
 
         const RESERVED_ENCRYPTION_CONTEXT := UTF8.Encode("aws-crypto-").value;
 
@@ -73,7 +73,7 @@ module {:extern "Dafny.Aws.Esdk.AwsEncryptionSdkClient"} AwsEncryptionSdk {
         //#*  commitment policy (Section 2.4.1)
         //#*  maximum number of encrypted data keys (Section 2.4.2)
 
-        constructor (config: Esdk.AwsEncryptionSdkClientConfig)
+        constructor (config: Esdk.AwsEncryptionSdkConfig)
             ensures this.config == config
 
             //= compliance/client-apis/client.txt#2.4
@@ -111,7 +111,7 @@ module {:extern "Dafny.Aws.Esdk.AwsEncryptionSdkClient"} AwsEncryptionSdk {
                 this.commitmentPolicy := config.commitmentPolicy.value;
             }
 
-            this.materialProvidersClient := new Client.AwsCryptographicMaterialProvidersClient();
+            this.materialProvidersClient := new Client.AwsCryptographicMaterialProviders();
         }
 
         // Doing this conversion at each error site would allow us to emit more specific error types.
@@ -128,7 +128,7 @@ module {:extern "Dafny.Aws.Esdk.AwsEncryptionSdkClient"} AwsEncryptionSdk {
             returns (res: Result<Esdk.EncryptOutput, Esdk.IAwsEncryptionSdkException>)
         {
             var encryptResult := EncryptInternal(input);
-            var withConvertedError := Esdk.AwsEncryptionSdkClientException.WrapResultString(encryptResult);
+            var withConvertedError := Esdk.AwsEncryptionSdkException.WrapResultString(encryptResult);
             return withConvertedError;
         }
 
@@ -702,7 +702,7 @@ module {:extern "Dafny.Aws.Esdk.AwsEncryptionSdkClient"} AwsEncryptionSdk {
         method Decrypt(input: Esdk.DecryptInput) returns (res: Result<Esdk.DecryptOutput, Esdk.IAwsEncryptionSdkException>)
         {
             var decryptResult := DecryptInternal(input);
-            var withConvertedError := Esdk.AwsEncryptionSdkClientException.WrapResultString(decryptResult);
+            var withConvertedError := Esdk.AwsEncryptionSdkException.WrapResultString(decryptResult);
             return withConvertedError;
         }
 

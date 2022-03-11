@@ -6,21 +6,21 @@ include "../StandardLibrary/UInt.dfy"
 include "../Generated/AwsCryptographicMaterialProviders.dfy"
 include "Client.dfy"
 
-module {:extern "Dafny.Aws.Crypto.AwsCryptographicMaterialProvidersClientFactory"} MaterialProviders.ClientFactory {
+module {:extern "Dafny.Aws.Crypto.AwsCryptographicMaterialProvidersFactory"} MaterialProviders.ClientFactory {
   import opened StandardLibrary
   import opened UInt = StandardLibrary.UInt
   import opened Wrappers
   import Aws.Crypto
   import Client
 
-  class AwsCryptographicMaterialProvidersClientFactory extends Crypto.IAwsCryptographicMaterialProvidersClientFactory {
+  class AwsCryptographicMaterialProvidersFactory extends Crypto.IAwsCryptographicMaterialProvidersFactory {
 
     constructor() {}
 
-    method CreateDefaultAwsCryptographicMaterialProvidersClient()
-          returns (res: Result<Crypto.IAwsCryptographicMaterialProvidersClient, Crypto.IAwsCryptographicMaterialProvidersException>)
+    method CreateDefaultAwsCryptographicMaterialProviders()
+          returns (res: Result<Crypto.IAwsCryptographicMaterialProviders, Crypto.IAwsCryptographicMaterialProvidersException>)
     {
-        var client := new Client.AwsCryptographicMaterialProvidersClient();
+        var client := new Client.AwsCryptographicMaterialProviders();
         return Success(client);
     }
   }

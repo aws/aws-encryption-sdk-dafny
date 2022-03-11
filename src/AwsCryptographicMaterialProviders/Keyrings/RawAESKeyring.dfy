@@ -140,13 +140,13 @@ module
       var materials := input.materials;
       var suite := GetSuite(materials.algorithmSuiteId);
       var aadResult := EncryptionContextToAAD(materials.encryptionContext);
-      var aad :- Crypto.AwsCryptographicMaterialProvidersClientException.WrapResultString(aadResult);
+      var aad :- Crypto.AwsCryptographicMaterialProvidersException.WrapResultString(aadResult);
 
       // Random is a method, and transitions require both a key and encrypted data key
       var randomKeyResult := Random.GenerateBytes(suite.encrypt.keyLength as int32);
-      var k' :- Crypto.AwsCryptographicMaterialProvidersClientException.WrapResultString(randomKeyResult);
+      var k' :- Crypto.AwsCryptographicMaterialProvidersException.WrapResultString(randomKeyResult);
       var randomIvResult := Random.GenerateBytes(wrappingAlgorithm.ivLength as int32);
-      var iv :- Crypto.AwsCryptographicMaterialProvidersClientException.WrapResultString(randomIvResult);
+      var iv :- Crypto.AwsCryptographicMaterialProvidersException.WrapResultString(randomIvResult);
       var providerInfo := SerializeProviderInfo(iv);
 
       //= compliance/framework/raw-aes-keyring.txt#2.7.1
@@ -174,7 +174,7 @@ module
         plaintextDataKey,
         aad
       );
-      var encryptResult :- Crypto.AwsCryptographicMaterialProvidersClientException.WrapResultString(aesEncryptResult);
+      var encryptResult :- Crypto.AwsCryptographicMaterialProvidersException.WrapResultString(aesEncryptResult);
       var encryptedKey := SerializeEDKCiphertext(encryptResult);
 
       :- Crypto.Need(HasUint16Len(providerInfo),
@@ -196,7 +196,7 @@ module
         Materials.EncryptionMaterialAddDataKey(materials, plaintextDataKey, [edk])
       else
         Materials.EncryptionMaterialAddEncryptedDataKeys(materials, [edk]);
-      var r :- Crypto.AwsCryptographicMaterialProvidersClientException.WrapResultString(addKeyResult);
+      var r :- Crypto.AwsCryptographicMaterialProvidersException.WrapResultString(addKeyResult);
       return Success(Crypto.OnEncryptOutput(materials := r));
     }
 
@@ -238,7 +238,7 @@ module
         "Keyring received decryption materials that already contain a plaintext data key.");
 
       var aadResult := EncryptionContextToAAD(input.materials.encryptionContext);
-      var aad :- Crypto.AwsCryptographicMaterialProvidersClientException.WrapResultString(aadResult);
+      var aad :- Crypto.AwsCryptographicMaterialProvidersException.WrapResultString(aadResult);
       :- Crypto.Need(|wrappingKey|== wrappingAlgorithm.keyLength as int,
         "The wrapping key does not match the wrapping algorithm");
 
@@ -270,7 +270,7 @@ module
             //# plaintext data key to the decryption materials and return the
             //# modified materials.
             var addKeyResult := Materials.DecryptionMaterialsAddDataKey(materials, ptKeyRes.Extract());
-            var r :- Crypto.AwsCryptographicMaterialProvidersClientException.WrapResultString(addKeyResult);
+            var r :- Crypto.AwsCryptographicMaterialProvidersException.WrapResultString(addKeyResult);
             return Success(Crypto.OnDecryptOutput(materials := r));
           } else {
             errors := errors + [
@@ -291,7 +291,7 @@ module
       //= compliance/framework/raw-aes-keyring.txt#2.7.2
       //# If no decryption succeeds, the keyring MUST fail and MUST NOT modify
       //# the decryption materials (structures.md#decryption-materials).
-      var combinedErrorsException := new Crypto.AwsCryptographicMaterialProvidersClientException(
+      var combinedErrorsException := new Crypto.AwsCryptographicMaterialProvidersException(
         "Unable to decrypt any data keys. Encountered the following errors: " + Seq.Flatten(errors));
       return Failure(combinedErrorsException);
     }

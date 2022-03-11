@@ -40,8 +40,8 @@ public class RawAESKeyringExample {
         var keyName = "My 256-bit AES wrapping key";
 
         // Create clients to access the Material Providers and Encryption SDK APIs.
-        var materialProvidersClient = AwsCryptographicMaterialProvidersClientFactory.CreateDefaultAwsCryptographicMaterialProvidersClient();
-        var encryptionSdkClient = AwsEncryptionSdkClientFactory.CreateDefaultAwsEncryptionSdkClient();
+        var materialProvidersClient = AwsCryptographicMaterialProvidersFactory.CreateDefaultAwsCryptographicMaterialProviders();
+        var encryptionSdkClient = AwsEncryptionSdkFactory.CreateDefaultAwsEncryptionSdk();
 
         // Create the keyring that determines how your data keys are protected.
         var createKeyringInput = new CreateRawAesKeyringInput

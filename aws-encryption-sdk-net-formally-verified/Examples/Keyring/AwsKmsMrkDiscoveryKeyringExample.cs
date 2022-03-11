@@ -25,8 +25,8 @@ public class AwsKmsMrkDiscoveryKeyringExample {
         };
 
         // Create clients to access the Material Providers and Encryption SDK APIs.
-        var materialProvidersClient = AwsCryptographicMaterialProvidersClientFactory.CreateDefaultAwsCryptographicMaterialProvidersClient();
-        var encryptionSdkClient = AwsEncryptionSdkClientFactory.CreateDefaultAwsEncryptionSdkClient();
+        var materialProvidersClient = AwsCryptographicMaterialProvidersFactory.CreateDefaultAwsCryptographicMaterialProviders();
+        var encryptionSdkClient = AwsEncryptionSdkFactory.CreateDefaultAwsEncryptionSdk();
 
         // Create the keyring that determines how your data keys are protected. Though this example highlights
         // Discovery keyrings, Discovery keyrings cannot be used to encrypt, so for encryption we create

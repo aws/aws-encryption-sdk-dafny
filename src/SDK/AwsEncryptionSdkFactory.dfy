@@ -6,32 +6,32 @@ include "../StandardLibrary/UInt.dfy"
 include "../Generated/AwsEncryptionSdk.dfy"
 include "AwsEncryptionSdk.dfy"
 
-module {:extern "Dafny.Aws.Esdk.AwsEncryptionSdkClientFactory"} AwsEncryptionSdkClientFactory {
+module {:extern "Dafny.Aws.Esdk.AwsEncryptionSdkFactory"} AwsEncryptionSdkFactory {
   import opened StandardLibrary
   import opened UInt = StandardLibrary.UInt
   import opened Wrappers
   import Aws.Esdk
   import AwsEncryptionSdk
 
-  class AwsEncryptionSdkClientFactory extends Esdk.IAwsEncryptionSdkClientFactory {
+  class AwsEncryptionSdkFactory extends Esdk.IAwsEncryptionSdkFactory {
 
     constructor() {}
 
-    method CreateDefaultAwsEncryptionSdkClient()
-      returns (res: Result<Esdk.IAwsEncryptionSdkClient, Esdk.IAwsEncryptionSdkException>)
+    method CreateDefaultAwsEncryptionSdk()
+      returns (res: Result<Esdk.IAwsEncryptionSdk, Esdk.IAwsEncryptionSdkException>)
 
       ensures res.Success?
     {
-        var emptyConfig := Esdk.AwsEncryptionSdkClientConfig(
+        var emptyConfig := Esdk.AwsEncryptionSdkConfig(
           commitmentPolicy := None(),
           maxEncryptedDataKeys := None()
         );
-        var esdk := new AwsEncryptionSdk.AwsEncryptionSdkClient(emptyConfig);
+        var esdk := new AwsEncryptionSdk.AwsEncryptionSdk(emptyConfig);
         return Success(esdk);
     }
 
-    method CreateAwsEncryptionSdkClient(input: Esdk.AwsEncryptionSdkClientConfig)
-      returns (res: Result<Esdk.IAwsEncryptionSdkClient, Esdk.IAwsEncryptionSdkException>)
+    method CreateAwsEncryptionSdk(input: Esdk.AwsEncryptionSdkConfig)
+      returns (res: Result<Esdk.IAwsEncryptionSdk, Esdk.IAwsEncryptionSdkException>)
 
       ensures
         && input.maxEncryptedDataKeys.Some?
@@ -46,11 +46,11 @@ module {:extern "Dafny.Aws.Esdk.AwsEncryptionSdkClientFactory"} AwsEncryptionSdk
         res.Success?
     {
         if input.maxEncryptedDataKeys.Some? && input.maxEncryptedDataKeys.value <= 0 {
-            var err := new Esdk.AwsEncryptionSdkClientException("maxEncryptedDataKeys must be non-negative");
+            var err := new Esdk.AwsEncryptionSdkException("maxEncryptedDataKeys must be non-negative");
             return Failure(err);
         }
 
-        var esdk := new AwsEncryptionSdk.AwsEncryptionSdkClient(input);
+        var esdk := new AwsEncryptionSdk.AwsEncryptionSdk(input);
         return Success(esdk);
     }
   }

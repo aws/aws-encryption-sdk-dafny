@@ -20,8 +20,8 @@ namespace TestVectors
 
     public static class MaterialProviderFactory
     {
-        public static IAwsCryptographicMaterialProvidersClient materialProviders =
-                AwsCryptographicMaterialProvidersClientFactory.CreateDefaultAwsCryptographicMaterialProvidersClient();
+        public static IAwsCryptographicMaterialProviders materialProviders =
+                AwsCryptographicMaterialProvidersFactory.CreateDefaultAwsCryptographicMaterialProviders();
 
         public static ICryptographicMaterialsManager CreateDecryptCmm(DecryptVector vector, Dictionary<string, Key> keys) {
             CreateDefaultCryptographicMaterialsManagerInput input = new CreateDefaultCryptographicMaterialsManagerInput
