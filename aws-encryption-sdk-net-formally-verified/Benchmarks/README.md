@@ -12,7 +12,7 @@ $ dotnet run -c Release
 ```
 
 The benchmarks will run, and dump output to both the console
-and to the the `BenchmarkDotNet.Artifacts` directory.
+and to the `BenchmarkDotNet.Artifacts` directory.
 
 ## Troubleshooting
 
