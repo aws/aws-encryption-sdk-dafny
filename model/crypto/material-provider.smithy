@@ -1,11 +1,31 @@
 namespace aws.crypto
 
-use aws.polymorph#clientConfig
+use aws.polymorph#reference
 
-// TODO
-// @clientConfig(config: AwsCryptographicMaterialProvidersClientConfig)
-service AwsCryptographicMaterialProviders {
+/////////////
+// AwsCryptographicMaterialProviders Creation
+
+// TODO add a trait to indicate that 'Client' should not be appended to this name,
+// and that the code gen should expose operations under this service statically if
+// possible in the target language
+service AwsCryptographicMaterialProvidersFactory {
     version: "2021-11-01",
+    operations: [CreateDefaultAwsCryptographicMaterialProviders],
+    errors: [AwsCryptographicMaterialProvidersException],
+}
+
+operation CreateDefaultAwsCryptographicMaterialProviders {
+    output: AwsCryptographicMaterialProvidersReference,
+    errors: [AwsCryptographicMaterialProvidersException],
+}
+
+@reference(resource: AwsCryptographicMaterialProviders)
+structure AwsCryptographicMaterialProvidersReference {}
+
+/////////////
+// AwsCryptographicMaterialProviders
+
+resource AwsCryptographicMaterialProviders {
     resources: [
         Keyring,
         CryptographicMaterialsManager,
@@ -33,24 +53,12 @@ service AwsCryptographicMaterialProviders {
     ]
 }
 
-structure AwsCryptographicMaterialProvidersClientConfig {
-    @required
-    configDefaults: ConfigurationDefaults
-}
+
+///////////////////
+// Errors
 
 @error("client")
-structure AwsCryptographicMaterialProvidersClientException {
+structure AwsCryptographicMaterialProvidersException {
     @required
     message: String,
 }
-
-///////////////////
-// Default Versions
-
-@enum([
-    {
-        name: "V1",
-        value: "V1",
-    }
-])
-string ConfigurationDefaults

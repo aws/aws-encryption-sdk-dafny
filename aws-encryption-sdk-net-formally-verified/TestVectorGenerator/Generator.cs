@@ -10,7 +10,6 @@ using System.Linq;
 using System.Security.Cryptography;
 using Aws.Crypto;
 using Aws.Esdk;
-using ConfigurationDefaults = Aws.Esdk.ConfigurationDefaults;
 
 namespace TestVectors {
     class Generator
@@ -27,12 +26,13 @@ namespace TestVectors {
             {
                 IsRequired = true
             };
+            var quietOpt = new Option<bool>(name: "--quiet");
 
-            var rootCommand = new RootCommand { encryptManifestFileOpt, outputDirOpt };
-            rootCommand.SetHandler((FileInfo encryptManifestFile, DirectoryInfo outputDir) =>
+            var rootCommand = new RootCommand { encryptManifestFileOpt, outputDirOpt, quietOpt };
+            rootCommand.SetHandler((FileInfo encryptManifestFile, DirectoryInfo outputDir, bool quiet) =>
             {
-                new Generator(encryptManifestFile, outputDir).Run();
-            }, encryptManifestFileOpt, outputDirOpt);
+                new Generator(encryptManifestFile, outputDir, quiet).Run();
+            }, encryptManifestFileOpt, outputDirOpt, quietOpt);
             rootCommand.Invoke(args);
         }
 
@@ -41,8 +41,9 @@ namespace TestVectors {
         private readonly DirectoryInfo _outputDir;
         private readonly DirectoryInfo _plaintextDir;
         private readonly DirectoryInfo _ciphertextDir;
+        private readonly bool _quiet;
 
-        public Generator(FileInfo encryptManifestFile, DirectoryInfo outputDir)
+        private Generator(FileInfo encryptManifestFile, DirectoryInfo outputDir, bool quiet)
         {
             _encryptManifest = Utils.LoadObjectFromPath<EncryptManifest>(encryptManifestFile.FullName);
             Console.Error.WriteLine(
@@ -63,9 +64,11 @@ namespace TestVectors {
             _outputDir = outputDir;
             _plaintextDir = outputDir.CreateSubdirectory("plaintexts");
             _ciphertextDir = outputDir.CreateSubdirectory("ciphertexts");
+
+            _quiet = quiet;
         }
 
-        public void Run()
+        private void Run()
         {
             var plaintexts = GeneratePlaintexts(_encryptManifest.PlaintextSizes);
             Utils.WriteNamedDataMap(_plaintextDir, plaintexts);
@@ -135,7 +138,10 @@ namespace TestVectors {
                 {
                     var ciphertext = GenerateDecryptVector(vector, plaintexts);
                     Utils.WriteBinaryFile(_ciphertextDir, id, ciphertext);
-                    Console.Error.WriteLine($"Wrote ciphertext file for vector {id}");
+                    if (!_quiet)
+                    {
+                        Console.Error.WriteLine($"Wrote ciphertext file for vector {id}");
+                    }
                 }
                 catch (AwsEncryptionSdkException ex)
                 {
@@ -199,12 +205,11 @@ namespace TestVectors {
             CommitmentPolicy commitmentPolicy = COMMITTING_ALGORITHM_SUITES.Contains(algSuiteId)
                 ? CommitmentPolicy.REQUIRE_ENCRYPT_REQUIRE_DECRYPT
                 : CommitmentPolicy.FORBID_ENCRYPT_ALLOW_DECRYPT;
-            AwsEncryptionSdkClientConfig config = new AwsEncryptionSdkClientConfig
+            AwsEncryptionSdkConfig config = new AwsEncryptionSdkConfig
             {
-                ConfigDefaults = ConfigurationDefaults.V1,
                 CommitmentPolicy = commitmentPolicy
             };
-            IAwsEncryptionSdk client = new AwsEncryptionSdkClient(config);
+            IAwsEncryptionSdk client = AwsEncryptionSdkFactory.CreateAwsEncryptionSdk(config);
             ICryptographicMaterialsManager cmm = MaterialProviderFactory.CreateEncryptCmm(vector, _keyManifest.Keys);
 
             EncryptInput encryptInput = new EncryptInput

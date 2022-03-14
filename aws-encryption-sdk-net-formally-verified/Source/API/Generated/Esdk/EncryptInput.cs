@@ -86,6 +86,7 @@ namespace Aws.Esdk
 
         public void Validate()
         {
+            if (!IsSetPlaintext()) throw new System.ArgumentException("Missing value for required member 'plaintext'");
         }
     }
 }

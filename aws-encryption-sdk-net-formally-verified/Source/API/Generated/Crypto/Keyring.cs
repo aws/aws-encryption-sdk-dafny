@@ -28,8 +28,8 @@ namespace Aws.Crypto
                 Dafny.Aws.Crypto.IAwsCryptographicMaterialProvidersException> result =
                 this._impl.OnEncrypt(internalInput);
             if (result.is_Failure)
-                throw TypeConversion
-                    .FromDafny_CommonError_AwsCryptographicMaterialProvidersException(result.dtor_error);
+                throw TypeConversion.FromDafny_CommonError_AwsCryptographicMaterialProvidersBaseException(
+                    result.dtor_error);
             return TypeConversion.FromDafny_N3_aws__N6_crypto__S15_OnEncryptOutput(result.dtor_value);
         }
 
@@ -41,8 +41,8 @@ namespace Aws.Crypto
                 Dafny.Aws.Crypto.IAwsCryptographicMaterialProvidersException> result =
                 this._impl.OnDecrypt(internalInput);
             if (result.is_Failure)
-                throw TypeConversion
-                    .FromDafny_CommonError_AwsCryptographicMaterialProvidersException(result.dtor_error);
+                throw TypeConversion.FromDafny_CommonError_AwsCryptographicMaterialProvidersBaseException(
+                    result.dtor_error);
             return TypeConversion.FromDafny_N3_aws__N6_crypto__S15_OnDecryptOutput(result.dtor_value);
         }
     }

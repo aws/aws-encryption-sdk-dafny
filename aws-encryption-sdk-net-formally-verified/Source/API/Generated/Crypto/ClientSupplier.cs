@@ -29,8 +29,8 @@ namespace Aws.Crypto
                 Dafny.Aws.Crypto.IAwsCryptographicMaterialProvidersException> result =
                 this._impl.GetClient(internalInput);
             if (result.is_Failure)
-                throw TypeConversion
-                    .FromDafny_CommonError_AwsCryptographicMaterialProvidersException(result.dtor_error);
+                throw TypeConversion.FromDafny_CommonError_AwsCryptographicMaterialProvidersBaseException(
+                    result.dtor_error);
             return TypeConversion.FromDafny_N3_aws__N6_crypto__S15_GetClientOutput(result.dtor_value);
         }
     }

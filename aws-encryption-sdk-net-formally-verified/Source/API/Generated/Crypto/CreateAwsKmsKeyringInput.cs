@@ -50,6 +50,8 @@ namespace Aws.Crypto
 
         public void Validate()
         {
+            if (!IsSetKmsKeyId()) throw new System.ArgumentException("Missing value for required member 'kmsKeyId'");
+            if (!IsSetKmsClient()) throw new System.ArgumentException("Missing value for required member 'kmsClient'");
         }
     }
 }

@@ -38,6 +38,9 @@ namespace Aws.Crypto
 
         public void Validate()
         {
+            if (!IsSetAccountIds())
+                throw new System.ArgumentException("Missing value for required member 'accountIds'");
+            if (!IsSetPartition()) throw new System.ArgumentException("Missing value for required member 'partition'");
         }
     }
 }

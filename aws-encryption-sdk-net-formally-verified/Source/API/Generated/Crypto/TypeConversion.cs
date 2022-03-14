@@ -37,6 +37,25 @@ namespace Aws.Crypto
                 ToDafny_N3_aws__N6_crypto__S24_CreateAwsKmsKeyringInput__M11_grantTokens(var_grantTokens));
         }
 
+        public static Aws.Crypto.AwsCryptographicMaterialProvidersException
+            FromDafny_N3_aws__N6_crypto__S42_AwsCryptographicMaterialProvidersException(
+                Dafny.Aws.Crypto.AwsCryptographicMaterialProvidersException value)
+        {
+            return new Aws.Crypto.AwsCryptographicMaterialProvidersException(
+                FromDafny_N3_aws__N6_crypto__S42_AwsCryptographicMaterialProvidersException__M7_message(value.message));
+        }
+
+        public static Dafny.Aws.Crypto.AwsCryptographicMaterialProvidersException
+            ToDafny_N3_aws__N6_crypto__S42_AwsCryptographicMaterialProvidersException(
+                Aws.Crypto.AwsCryptographicMaterialProvidersException value)
+        {
+            Dafny.Aws.Crypto.AwsCryptographicMaterialProvidersException converted =
+                new Dafny.Aws.Crypto.AwsCryptographicMaterialProvidersException();
+            converted.message =
+                ToDafny_N3_aws__N6_crypto__S42_AwsCryptographicMaterialProvidersException__M7_message(value.Message);
+            return converted;
+        }
+
         public static Aws.Crypto.IClientSupplier FromDafny_N3_aws__N6_crypto__S23_ClientSupplierReference(
             Dafny.Aws.Crypto.IClientSupplier value)
         {
@@ -458,6 +477,18 @@ namespace Aws.Crypto
                 ? Wrappers_Compile.Option<Dafny.Aws.Crypto.IClientSupplier>.create_None()
                 : Wrappers_Compile.Option<Dafny.Aws.Crypto.IClientSupplier>.create_Some(
                     ToDafny_N3_aws__N6_crypto__S23_ClientSupplierReference((Aws.Crypto.IClientSupplier)value));
+        }
+
+        public static string FromDafny_N3_aws__N6_crypto__S42_AwsCryptographicMaterialProvidersException__M7_message(
+            Dafny.ISequence<char> value)
+        {
+            return FromDafny_N6_smithy__N3_api__S6_String(value);
+        }
+
+        public static Dafny.ISequence<char>
+            ToDafny_N3_aws__N6_crypto__S42_AwsCryptographicMaterialProvidersException__M7_message(string value)
+        {
+            return ToDafny_N6_smithy__N3_api__S6_String(value);
         }
 
         public static System.Collections.Generic.Dictionary<string, string>
@@ -1161,19 +1192,6 @@ namespace Aws.Crypto
             return Dafny.Sequence<char>.FromString(value);
         }
 
-        public static string
-            FromDafny_N3_aws__N6_crypto__S48_AwsCryptographicMaterialProvidersClientException__M7_message(
-                Dafny.ISequence<char> value)
-        {
-            return FromDafny_N6_smithy__N3_api__S6_String(value);
-        }
-
-        public static Dafny.ISequence<char>
-            ToDafny_N3_aws__N6_crypto__S48_AwsCryptographicMaterialProvidersClientException__M7_message(string value)
-        {
-            return ToDafny_N6_smithy__N3_api__S6_String(value);
-        }
-
         public static string FromDafny_N3_aws__N6_crypto__S29_CreateAwsKmsMultiKeyringInput__M9_generator(
             Wrappers_Compile._IOption<Dafny.ISequence<char>> value)
         {
@@ -1187,27 +1205,6 @@ namespace Aws.Crypto
                 ? Wrappers_Compile.Option<Dafny.ISequence<char>>.create_None()
                 : Wrappers_Compile.Option<Dafny.ISequence<char>>.create_Some(
                     ToDafny_N3_aws__N6_crypto__S8_KmsKeyId((string)value));
-        }
-
-        public static Aws.Crypto.AwsCryptographicMaterialProvidersClientException
-            FromDafny_N3_aws__N6_crypto__S48_AwsCryptographicMaterialProvidersClientException(
-                Dafny.Aws.Crypto.AwsCryptographicMaterialProvidersClientException value)
-        {
-            return new Aws.Crypto.AwsCryptographicMaterialProvidersClientException(
-                FromDafny_N3_aws__N6_crypto__S48_AwsCryptographicMaterialProvidersClientException__M7_message(
-                    value.message));
-        }
-
-        public static Dafny.Aws.Crypto.AwsCryptographicMaterialProvidersClientException
-            ToDafny_N3_aws__N6_crypto__S48_AwsCryptographicMaterialProvidersClientException(
-                Aws.Crypto.AwsCryptographicMaterialProvidersClientException value)
-        {
-            Dafny.Aws.Crypto.AwsCryptographicMaterialProvidersClientException converted =
-                new Dafny.Aws.Crypto.AwsCryptographicMaterialProvidersClientException();
-            converted.message =
-                ToDafny_N3_aws__N6_crypto__S48_AwsCryptographicMaterialProvidersClientException__M7_message(
-                    value.Message);
-            return converted;
         }
 
         public static Aws.Crypto.EncryptedDataKey FromDafny_N3_aws__N6_crypto__S16_EncryptedDataKey(
@@ -1928,6 +1925,26 @@ namespace Aws.Crypto
                     ToDafny_N3_aws__N6_crypto__S23_ClientSupplierReference((Aws.Crypto.IClientSupplier)value));
         }
 
+        public static Aws.Crypto.IAwsCryptographicMaterialProviders
+            FromDafny_N3_aws__N6_crypto__S42_AwsCryptographicMaterialProvidersReference(
+                Dafny.Aws.Crypto.IAwsCryptographicMaterialProviders value)
+        {
+            return new AwsCryptographicMaterialProviders(value);
+        }
+
+        public static Dafny.Aws.Crypto.IAwsCryptographicMaterialProviders
+            ToDafny_N3_aws__N6_crypto__S42_AwsCryptographicMaterialProvidersReference(
+                Aws.Crypto.IAwsCryptographicMaterialProviders value)
+        {
+            if (value is AwsCryptographicMaterialProviders valueWithImpl)
+            {
+                return valueWithImpl._impl;
+            }
+
+            throw new System.ArgumentException(
+                "Custom implementations of Aws.Crypto.IAwsCryptographicMaterialProviders are not supported yet");
+        }
+
         public static Aws.Crypto.CreateAwsKmsDiscoveryKeyringInput
             FromDafny_N3_aws__N6_crypto__S33_CreateAwsKmsDiscoveryKeyringInput(
                 Dafny.Aws.Crypto._ICreateAwsKmsDiscoveryKeyringInput value)
@@ -2455,23 +2472,23 @@ namespace Aws.Crypto
             return ToDafny_N3_aws__N6_crypto__S16_KeyringReference(value);
         }
 
-        public static Aws.Crypto.AwsCryptographicMaterialProvidersException
-            FromDafny_CommonError_AwsCryptographicMaterialProvidersException(
+        public static Aws.Crypto.AwsCryptographicMaterialProvidersBaseException
+            FromDafny_CommonError_AwsCryptographicMaterialProvidersBaseException(
                 Dafny.Aws.Crypto.IAwsCryptographicMaterialProvidersException value)
         {
-            if (value is Dafny.Aws.Crypto.AwsCryptographicMaterialProvidersClientException)
-                return FromDafny_N3_aws__N6_crypto__S48_AwsCryptographicMaterialProvidersClientException(
-                    (Dafny.Aws.Crypto.AwsCryptographicMaterialProvidersClientException)value);
+            if (value is Dafny.Aws.Crypto.AwsCryptographicMaterialProvidersException)
+                return FromDafny_N3_aws__N6_crypto__S42_AwsCryptographicMaterialProvidersException(
+                    (Dafny.Aws.Crypto.AwsCryptographicMaterialProvidersException)value);
             throw new System.ArgumentException("Unknown exception type");
         }
 
         public static Dafny.Aws.Crypto.IAwsCryptographicMaterialProvidersException
-            ToDafny_CommonError_AwsCryptographicMaterialProvidersException(
-                Aws.Crypto.AwsCryptographicMaterialProvidersException value)
+            ToDafny_CommonError_AwsCryptographicMaterialProvidersBaseException(
+                Aws.Crypto.AwsCryptographicMaterialProvidersBaseException value)
         {
-            if (value is Aws.Crypto.AwsCryptographicMaterialProvidersClientException)
-                return ToDafny_N3_aws__N6_crypto__S48_AwsCryptographicMaterialProvidersClientException(
-                    (Aws.Crypto.AwsCryptographicMaterialProvidersClientException)value);
+            if (value is Aws.Crypto.AwsCryptographicMaterialProvidersException)
+                return ToDafny_N3_aws__N6_crypto__S42_AwsCryptographicMaterialProvidersException(
+                    (Aws.Crypto.AwsCryptographicMaterialProvidersException)value);
             throw new System.ArgumentException("Unknown exception type");
         }
     }

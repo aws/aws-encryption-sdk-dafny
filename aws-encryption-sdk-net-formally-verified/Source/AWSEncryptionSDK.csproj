@@ -6,6 +6,11 @@
     <TargetFramework>netstandard2.0</TargetFramework>
     <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
     <Version>0.0.1</Version>
+    <!--
+      Ignore errors from generated code. Ideally this would be scoped to just the relevant files.
+      CS0105: duplicate namespace, CS0618: obsolete members
+    -->
+    <NoWarn>CS0105,CS0618</NoWarn>
   </PropertyGroup>
 
   <ItemGroup>
@@ -30,4 +35,10 @@
     <VerifyDafnyPassthrough Include="timeLimit:300" />
     <VerifyDafnyPassthrough Include="definiteAssignment:3" />
   </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="API\Generated\Crypto" />
+    <Folder Include="API\Generated\Esdk" />
+  </ItemGroup>
+
 </Project>

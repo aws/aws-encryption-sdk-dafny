@@ -73,7 +73,7 @@ module
       //# This function MUST fail.
       ensures res.Failure?
     {
-      var exception := new Crypto.AwsCryptographicMaterialProvidersClientException(
+      var exception := new Crypto.AwsCryptographicMaterialProvidersException(
         "Encryption is not supported with a Discovery Keyring.");
       return Failure(exception);
     }
@@ -186,13 +186,13 @@ module
       //# keyring's configuration.
       var edkFilter : AwsKmsEncryptedDataKeyFilter := new AwsKmsEncryptedDataKeyFilter(discoveryFilter);
       var filterResult := Actions.FilterWithResult(edkFilter, encryptedDataKeys);
-      var matchingEdks :- Crypto.AwsCryptographicMaterialProvidersClientException.WrapResultString(filterResult);
+      var matchingEdks :- Crypto.AwsCryptographicMaterialProvidersException.WrapResultString(filterResult);
 
       // Next we convert the input Crypto.EncrypteDataKeys into Constant.AwsKmsEdkHelpers,
       // which makes them slightly easier to work with.
       var edkTransform : AwsKmsEncryptedDataKeyTransformer := new AwsKmsEncryptedDataKeyTransformer();
       var edkTransformResult, parts := Actions.FlatMapWithResult(edkTransform, matchingEdks);
-      var edksToAttempt :- Crypto.AwsCryptographicMaterialProvidersClientException.WrapResultString(
+      var edksToAttempt :- Crypto.AwsCryptographicMaterialProvidersException.WrapResultString(
         edkTransformResult);
 
       // We want to make sure that the set of EDKs we're about to attempt
@@ -247,7 +247,7 @@ module
             );
             Failure(error)
       };
-      var wrappedResult := Crypto.AwsCryptographicMaterialProvidersClientException.WrapResultString(result);
+      var wrappedResult := Crypto.AwsCryptographicMaterialProvidersException.WrapResultString(result);
       return wrappedResult;
     }
   }
