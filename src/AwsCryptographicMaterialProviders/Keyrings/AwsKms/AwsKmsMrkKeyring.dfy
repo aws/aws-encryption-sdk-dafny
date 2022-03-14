@@ -231,7 +231,7 @@ module
       var materials := input.materials;
       var suite := AlgorithmSuites.GetSuite(input.materials.algorithmSuiteId);
       var stringifiedEncCtxResult := StringifyEncryptionContext(input.materials.encryptionContext);
-      var stringifiedEncCtx :- Crypto.AwsCryptographicMaterialProvidersClientException.WrapResultString(stringifiedEncCtxResult);
+      var stringifiedEncCtx :- Crypto.AwsCryptographicMaterialProvidersException.WrapResultString(stringifiedEncCtxResult);
 
       if materials.plaintextDataKey.None? {
 
@@ -253,7 +253,7 @@ module
         //# MUST fail.
         if maybeGenerateResponse.Failure? {
           var errMsg := KMS.CastKeyManagementServiceErrorToString(maybeGenerateResponse.error);
-          var exception := new Crypto.AwsCryptographicMaterialProvidersClientException(errMsg);
+          var exception := new Crypto.AwsCryptographicMaterialProvidersException(errMsg);
           return Failure(exception);
        }
         var generateResponse := maybeGenerateResponse.value;
@@ -269,7 +269,7 @@ module
         );
         var keyId := generateResponse.KeyId.value;
         var providerInfoResult := UTF8.Encode(keyId);
-        var providerInfo :- Crypto.AwsCryptographicMaterialProvidersClientException.WrapResultString(
+        var providerInfo :- Crypto.AwsCryptographicMaterialProvidersException.WrapResultString(
           providerInfoResult);
         :- Crypto.Need(|providerInfo| < UINT16_LIMIT,
           "Invalid response from KMS GenerateDataKey: AWS KMS Key ID too long.");
@@ -294,7 +294,7 @@ module
         );
 
         var addKeyResult := Materials.EncryptionMaterialAddDataKey(materials, plaintextDataKey, [edk]);
-        var result :- Crypto.AwsCryptographicMaterialProvidersClientException.WrapResultString(addKeyResult);
+        var result :- Crypto.AwsCryptographicMaterialProvidersException.WrapResultString(addKeyResult);
         return Success(Crypto.OnEncryptOutput(
           materials := result
         ));
@@ -318,7 +318,7 @@ module
         //# API_Encrypt.html) does not succeed, OnEncrypt MUST fail.
         if maybeEncryptResponse.Failure? {
           var errMsg := KMS.CastKeyManagementServiceErrorToString(maybeEncryptResponse.error);
-          var exception := new Crypto.AwsCryptographicMaterialProvidersClientException(errMsg);
+          var exception := new Crypto.AwsCryptographicMaterialProvidersException(errMsg);
           return Failure(exception);
         }
 
@@ -338,7 +338,7 @@ module
         );
 
         var providerInfoResult := UTF8.Encode(encryptResponse.KeyId.Extract());
-        var providerInfo :- Crypto.AwsCryptographicMaterialProvidersClientException.WrapResultString(
+        var providerInfo :- Crypto.AwsCryptographicMaterialProvidersException.WrapResultString(
           providerInfoResult);
         :- Crypto.Need(|providerInfo| < UINT16_LIMIT, "AWS KMS Key ID too long.");
 
@@ -349,7 +349,7 @@ module
         );
 
         var addKeyResult := Materials.EncryptionMaterialAddEncryptedDataKeys(materials, [edk]);
-        var result :- Crypto.AwsCryptographicMaterialProvidersClientException.WrapResultString(addKeyResult);
+        var result :- Crypto.AwsCryptographicMaterialProvidersException.WrapResultString(addKeyResult);
         return Success(Crypto.OnEncryptOutput(
           materials := result
         ));
@@ -441,7 +441,7 @@ module
       //# keyring's configuration.
       var filter := new OnDecryptEncryptedDataKeyFilter(awsKmsArn);
       var filterResult := FilterWithResult(filter, input.encryptedDataKeys);
-      var edksToAttempt :- Crypto.AwsCryptographicMaterialProvidersClientException.WrapResultString(filterResult);
+      var edksToAttempt :- Crypto.AwsCryptographicMaterialProvidersException.WrapResultString(filterResult);
 
       //= compliance/framework/aws-kms/aws-kms-mrk-keyring.txt#2.8
       //# For each encrypted data key in the filtered set, one at a time, the
@@ -465,7 +465,7 @@ module
       );
 
       var stringifiedEncCtxResult := StringifyEncryptionContext(materials.encryptionContext);
-      var stringifiedEncCtx :- Crypto.AwsCryptographicMaterialProvidersClientException.WrapResultString(
+      var stringifiedEncCtx :- Crypto.AwsCryptographicMaterialProvidersException.WrapResultString(
         stringifiedEncCtxResult);
       var result := match outcome {
         case Success(mat) =>
@@ -508,7 +508,7 @@ module
             );
             Failure(error)
       };
-      var wrappedResult := Crypto.AwsCryptographicMaterialProvidersClientException.WrapResultString(result);
+      var wrappedResult := Crypto.AwsCryptographicMaterialProvidersException.WrapResultString(result);
       return wrappedResult;
     }
   }

@@ -106,7 +106,7 @@ module
       var validateCommitmentPolicyResult := Commitment.ValidateCommitmentPolicyOnEncrypt(
         algorithmId, input.commitmentPolicy
       );
-      var _ :- Crypto.AwsCryptographicMaterialProvidersClientException.WrapResultString(
+      var _ :- Crypto.AwsCryptographicMaterialProvidersException.WrapResultString(
         validateCommitmentPolicyResult);
 
       var suite := AlgorithmSuites.GetSuite(algorithmId);
@@ -114,7 +114,7 @@ module
         suite,
         input.encryptionContext
       );
-      var materials :- Crypto.AwsCryptographicMaterialProvidersClientException.WrapResultString(initializeMaterialsResult);
+      var materials :- Crypto.AwsCryptographicMaterialProvidersException.WrapResultString(initializeMaterialsResult);
 
       var result :- keyring.OnEncrypt(Crypto.OnEncryptInput(materials:=materials));
       :- Crypto.Need(
@@ -167,14 +167,14 @@ module
       var validateCommitmentPolicyResult := Commitment.ValidateCommitmentPolicyOnDecrypt(
         input.algorithmSuiteId, input.commitmentPolicy
       );
-      var _ :- Crypto.AwsCryptographicMaterialProvidersClientException.WrapResultString(
+      var _ :- Crypto.AwsCryptographicMaterialProvidersException.WrapResultString(
         validateCommitmentPolicyResult);
 
       var initializeMaterialsResult := InitializeDecryptionMaterials(
         AlgorithmSuites.GetSuite(input.algorithmSuiteId),
         input.encryptionContext
       );
-      var materials :- Crypto.AwsCryptographicMaterialProvidersClientException.WrapResultString(initializeMaterialsResult);
+      var materials :- Crypto.AwsCryptographicMaterialProvidersException.WrapResultString(initializeMaterialsResult);
 
       var result :- keyring.OnDecrypt(Crypto.OnDecryptInput(
         materials:=materials,

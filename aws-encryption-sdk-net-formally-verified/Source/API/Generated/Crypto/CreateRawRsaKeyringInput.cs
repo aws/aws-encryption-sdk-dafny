@@ -74,6 +74,11 @@ namespace Aws.Crypto
 
         public void Validate()
         {
+            if (!IsSetKeyNamespace())
+                throw new System.ArgumentException("Missing value for required member 'keyNamespace'");
+            if (!IsSetKeyName()) throw new System.ArgumentException("Missing value for required member 'keyName'");
+            if (!IsSetPaddingScheme())
+                throw new System.ArgumentException("Missing value for required member 'paddingScheme'");
         }
     }
 }

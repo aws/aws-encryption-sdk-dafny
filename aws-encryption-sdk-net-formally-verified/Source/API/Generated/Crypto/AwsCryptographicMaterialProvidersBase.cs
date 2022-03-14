@@ -9,12 +9,8 @@ using
 
 namespace Aws.Crypto
 {
-    public abstract class AwsCryptographicMaterialProvidersClientBase : IAwsCryptographicMaterialProviders
+    public abstract class AwsCryptographicMaterialProvidersBase : IAwsCryptographicMaterialProviders
     {
-        protected AwsCryptographicMaterialProvidersClientBase()
-        {
-        }
-
         public Aws.Crypto.IKeyring CreateAwsKmsKeyring(Aws.Crypto.CreateAwsKmsKeyringInput input)
         {
             input.Validate();

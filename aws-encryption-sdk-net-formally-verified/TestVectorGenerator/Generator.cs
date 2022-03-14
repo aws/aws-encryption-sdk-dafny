@@ -10,7 +10,6 @@ using System.Linq;
 using System.Security.Cryptography;
 using Aws.Crypto;
 using Aws.Esdk;
-using ConfigurationDefaults = Aws.Esdk.ConfigurationDefaults;
 
 namespace TestVectors {
     class Generator
@@ -206,12 +205,11 @@ namespace TestVectors {
             CommitmentPolicy commitmentPolicy = COMMITTING_ALGORITHM_SUITES.Contains(algSuiteId)
                 ? CommitmentPolicy.REQUIRE_ENCRYPT_REQUIRE_DECRYPT
                 : CommitmentPolicy.FORBID_ENCRYPT_ALLOW_DECRYPT;
-            AwsEncryptionSdkClientConfig config = new AwsEncryptionSdkClientConfig
+            AwsEncryptionSdkConfig config = new AwsEncryptionSdkConfig
             {
-                ConfigDefaults = ConfigurationDefaults.V1,
                 CommitmentPolicy = commitmentPolicy
             };
-            IAwsEncryptionSdk client = new AwsEncryptionSdkClient(config);
+            IAwsEncryptionSdk client = AwsEncryptionSdkFactory.CreateAwsEncryptionSdk(config);
             ICryptographicMaterialsManager cmm = MaterialProviderFactory.CreateEncryptCmm(vector, _keyManifest.Keys);
 
             EncryptInput encryptInput = new EncryptInput

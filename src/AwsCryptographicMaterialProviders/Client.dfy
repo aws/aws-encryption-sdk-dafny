@@ -24,7 +24,7 @@ include "Keyrings/RawRSAKeyring.dfy"
 include "Materials.dfy"
 
 module
-  {:extern "Dafny.Aws.Crypto.AwsCryptographicMaterialProvidersClient"}
+  {:extern "Dafny.Aws.Crypto.AwsCryptographicMaterialProviders"}
   MaterialProviders.Client
 {
   import opened StandardLibrary
@@ -66,7 +66,7 @@ module
     // Modules
     provides Crypto, AlgorithmSuites, Materials, Wrappers
     // Class
-    reveals AwsCryptographicMaterialProvidersClient
+    reveals AwsCryptographicMaterialProviders
     // Functions
     reveals
       SpecificationClient,
@@ -76,19 +76,19 @@ module
       SpecificationClient.ValidateCommitmentPolicyOnDecrypt
     // Class Members
     provides
-      AwsCryptographicMaterialProvidersClient.CreateAwsKmsDiscoveryKeyring,
-      AwsCryptographicMaterialProvidersClient.CreateDefaultClientSupplier,
-      AwsCryptographicMaterialProvidersClient.CreateDefaultCryptographicMaterialsManager,
-      AwsCryptographicMaterialProvidersClient.CreateAwsKmsMrkDiscoveryKeyring,
-      AwsCryptographicMaterialProvidersClient.CreateAwsKmsMrkDiscoveryMultiKeyring,
-      AwsCryptographicMaterialProvidersClient.CreateAwsKmsMrkKeyring,
-      AwsCryptographicMaterialProvidersClient.CreateAwsKmsMrkMultiKeyring,
-      AwsCryptographicMaterialProvidersClient.CreateAwsKmsMultiKeyring,
-      AwsCryptographicMaterialProvidersClient.CreateAwsKmsDiscoveryMultiKeyring,
-      AwsCryptographicMaterialProvidersClient.CreateMultiKeyring,
-      AwsCryptographicMaterialProvidersClient.CreateRawAesKeyring,
-      AwsCryptographicMaterialProvidersClient.CreateRawRsaKeyring,
-      AwsCryptographicMaterialProvidersClient.CreateAwsKmsKeyring
+      AwsCryptographicMaterialProviders.CreateAwsKmsDiscoveryKeyring,
+      AwsCryptographicMaterialProviders.CreateDefaultClientSupplier,
+      AwsCryptographicMaterialProviders.CreateDefaultCryptographicMaterialsManager,
+      AwsCryptographicMaterialProviders.CreateAwsKmsMrkDiscoveryKeyring,
+      AwsCryptographicMaterialProviders.CreateAwsKmsMrkDiscoveryMultiKeyring,
+      AwsCryptographicMaterialProviders.CreateAwsKmsMrkKeyring,
+      AwsCryptographicMaterialProviders.CreateAwsKmsMrkMultiKeyring,
+      AwsCryptographicMaterialProviders.CreateAwsKmsMultiKeyring,
+      AwsCryptographicMaterialProviders.CreateAwsKmsDiscoveryMultiKeyring,
+      AwsCryptographicMaterialProviders.CreateMultiKeyring,
+      AwsCryptographicMaterialProviders.CreateRawAesKeyring,
+      AwsCryptographicMaterialProviders.CreateRawRsaKeyring,
+      AwsCryptographicMaterialProviders.CreateAwsKmsKeyring
 
   datatype SpecificationClient = SpecificationClient(
     // Whatever top level closure is added to the constructor needs to be added here
@@ -125,10 +125,11 @@ module
 
   }
 
-  class AwsCryptographicMaterialProvidersClient
-    extends Crypto.IAwsCryptographicMaterialsProviderClient
+  class AwsCryptographicMaterialProviders
+    extends Crypto.IAwsCryptographicMaterialProviders
   {
     constructor () {}
+
     method CreateRawAesKeyring(input: Crypto.CreateRawAesKeyringInput)
       returns (res: Result<Crypto.IKeyring, Crypto.IAwsCryptographicMaterialProvidersException>)
     {
@@ -221,7 +222,7 @@ module
       returns (res: Result<Crypto.IKeyring, Crypto.IAwsCryptographicMaterialProvidersException>)
     {
       if input.generator.None? && |input.childKeyrings| == 0 {
-        var error := new Crypto.AwsCryptographicMaterialProvidersClientException(
+        var error := new Crypto.AwsCryptographicMaterialProvidersException(
           "Must include a generator keyring and/or at least one child keyring");
         return Failure(error);
       }
@@ -383,11 +384,11 @@ module
         AwsKmsArnParsing.IsAwsKmsIdentifierString,
         allStrings
       );
-      var allIdentifiers :- Crypto.AwsCryptographicMaterialProvidersClientException.WrapResultString(
+      var allIdentifiers :- Crypto.AwsCryptographicMaterialProvidersException.WrapResultString(
         allIdentifiersResults
       );
       var mrkAreUniqueRes := AwsKmsMrkAreUnique.AwsKmsMrkAreUnique(allIdentifiers);
-      :- Crypto.AwsCryptographicMaterialProvidersClientException.WrapOutcomeString(
+      :- Crypto.AwsCryptographicMaterialProvidersException.WrapOutcomeString(
         mrkAreUniqueRes
       );
 
@@ -395,7 +396,7 @@ module
       match generator {
         case Some(generatorIdentifier) =>
           var arnRes := AwsKmsArnParsing.IsAwsKmsIdentifierString(generatorIdentifier);
-          var arn :- Crypto.AwsCryptographicMaterialProvidersClientException.WrapResultString(
+          var arn :- Crypto.AwsCryptographicMaterialProvidersException.WrapResultString(
             arnRes
           );
           var region := AwsKmsArnParsing.GetRegion(arn);
@@ -428,7 +429,7 @@ module
           {
             var childIdentifier := childIdentifiers[index];
             var infoRes := AwsKmsArnParsing.IsAwsKmsIdentifierString(childIdentifier);
-            var info :- Crypto.AwsCryptographicMaterialProvidersClientException.WrapResultString(
+            var info :- Crypto.AwsCryptographicMaterialProvidersException.WrapResultString(
               infoRes
             );
             var region := AwsKmsArnParsing.GetRegion(info);
@@ -697,7 +698,7 @@ module
         AwsKmsArnParsing.IsAwsKmsIdentifierString,
         allStrings
       );
-      var allIdentifiers :- Crypto.AwsCryptographicMaterialProvidersClientException.WrapResultString(
+      var allIdentifiers :- Crypto.AwsCryptographicMaterialProvidersException.WrapResultString(
         allIdentifiersResults
       );
 
@@ -705,7 +706,7 @@ module
       match generator {
         case Some(generatorIdentifier) =>
           var arnRes := AwsKmsArnParsing.IsAwsKmsIdentifierString(generatorIdentifier);
-          var arn :- Crypto.AwsCryptographicMaterialProvidersClientException.WrapResultString(
+          var arn :- Crypto.AwsCryptographicMaterialProvidersException.WrapResultString(
             arnRes
           );
           var region := AwsKmsArnParsing.GetRegion(arn);
@@ -736,7 +737,7 @@ module
           {
             var childIdentifier := childIdentifiers[index];
             var infoRes := AwsKmsArnParsing.IsAwsKmsIdentifierString(childIdentifier);
-            var info :- Crypto.AwsCryptographicMaterialProvidersClientException.WrapResultString(
+            var info :- Crypto.AwsCryptographicMaterialProvidersException.WrapResultString(
               infoRes
             );
             var region := AwsKmsArnParsing.GetRegion(info);
@@ -906,7 +907,7 @@ module
       && UTF8.IsASCIIString(keyId)
       && 0 < |keyId| <= AwsKmsArnParsing.MAX_AWS_KMS_IDENTIFIER_LENGTH
   {
-    var _ :- Crypto.AwsCryptographicMaterialProvidersClientException.WrapResultString(
+    var _ :- Crypto.AwsCryptographicMaterialProvidersException.WrapResultString(
       AwsKmsArnParsing.ParseAwsKmsIdentifier(keyId));
     :- Crypto.Need(UTF8.IsASCIIString(keyId), "Key identifier is not ASCII");
     :- Crypto.Need(0 < |keyId| <= AwsKmsArnParsing.MAX_AWS_KMS_IDENTIFIER_LENGTH, "Key identifier is too long");

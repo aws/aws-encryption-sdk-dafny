@@ -62,6 +62,10 @@ namespace Aws.Crypto
 
         public void Validate()
         {
+            if (!IsSetEncryptionContext())
+                throw new System.ArgumentException("Missing value for required member 'encryptionContext'");
+            if (!IsSetCommitmentPolicy())
+                throw new System.ArgumentException("Missing value for required member 'commitmentPolicy'");
         }
     }
 }

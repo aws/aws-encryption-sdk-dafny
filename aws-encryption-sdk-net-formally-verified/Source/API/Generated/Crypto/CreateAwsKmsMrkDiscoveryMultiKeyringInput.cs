@@ -62,6 +62,7 @@ namespace Aws.Crypto
 
         public void Validate()
         {
+            if (!IsSetRegions()) throw new System.ArgumentException("Missing value for required member 'regions'");
         }
     }
 }

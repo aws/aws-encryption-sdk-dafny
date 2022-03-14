@@ -26,6 +26,8 @@ namespace Aws.Crypto
 
         public void Validate()
         {
+            if (!IsSetDecryptionMaterials())
+                throw new System.ArgumentException("Missing value for required member 'decryptionMaterials'");
         }
     }
 }

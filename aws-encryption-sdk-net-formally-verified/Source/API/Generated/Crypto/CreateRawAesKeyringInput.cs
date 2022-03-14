@@ -62,6 +62,13 @@ namespace Aws.Crypto
 
         public void Validate()
         {
+            if (!IsSetKeyNamespace())
+                throw new System.ArgumentException("Missing value for required member 'keyNamespace'");
+            if (!IsSetKeyName()) throw new System.ArgumentException("Missing value for required member 'keyName'");
+            if (!IsSetWrappingKey())
+                throw new System.ArgumentException("Missing value for required member 'wrappingKey'");
+            if (!IsSetWrappingAlg())
+                throw new System.ArgumentException("Missing value for required member 'wrappingAlg'");
         }
     }
 }

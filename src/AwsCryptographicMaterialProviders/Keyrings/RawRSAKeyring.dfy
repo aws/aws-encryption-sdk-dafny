@@ -174,7 +174,7 @@ module
       // While this may be an unnecessary operation, it is more legiable to generate
       // and then maybe use this new plain text datakey then generate it in the if statement
       var generateBytesResult := Random.GenerateBytes(suite.encrypt.keyLength as int32);
-      var newPlaintextDataKey :- Crypto.AwsCryptographicMaterialProvidersClientException.WrapResultString(generateBytesResult);
+      var newPlaintextDataKey :- Crypto.AwsCryptographicMaterialProvidersException.WrapResultString(generateBytesResult);
 
       //= compliance/framework/raw-rsa-keyring.txt#2.6.1
       //# If the encryption materials (structures.md#encryption-materials) do
@@ -205,7 +205,7 @@ module
         //#*  The plaintext data key is the plaintext input to RSA encryption.
         plaintextDataKey
       );
-      var ciphertext :- Crypto.AwsCryptographicMaterialProvidersClientException.WrapResultString(externEncryptResult);
+      var ciphertext :- Crypto.AwsCryptographicMaterialProvidersException.WrapResultString(externEncryptResult);
 
       //= compliance/framework/raw-rsa-keyring.txt#2.6.1
       //# If RSA encryption was successful, OnEncrypt MUST return the input
@@ -238,7 +238,7 @@ module
         Materials.EncryptionMaterialAddDataKey(materials, plaintextDataKey, [edk])
       else
         Materials.EncryptionMaterialAddEncryptedDataKeys(materials, [edk]);
-      var r :- Crypto.AwsCryptographicMaterialProvidersClientException.WrapResultString(addKeyResult);
+      var r :- Crypto.AwsCryptographicMaterialProvidersException.WrapResultString(addKeyResult);
       return Success(Crypto.OnEncryptOutput(materials := r));
     }
 
@@ -311,7 +311,7 @@ module
               materials,
               decryptResult.Extract()
             );
-            var r :- Crypto.AwsCryptographicMaterialProvidersClientException.WrapResultString(addKeyResult);
+            var r :- Crypto.AwsCryptographicMaterialProvidersException.WrapResultString(addKeyResult);
             return Success(Crypto.OnDecryptOutput(materials := r));
           } else {
             errors := errors + [
@@ -332,7 +332,7 @@ module
       //= compliance/framework/raw-rsa-keyring.txt#2.6.2
       //# If no decryption succeeds, the keyring MUST fail and MUST NOT modify
       //# the decryption materials (structures.md#decryption-materials).
-      var combinedErrorsException := new Crypto.AwsCryptographicMaterialProvidersClientException(
+      var combinedErrorsException := new Crypto.AwsCryptographicMaterialProvidersException(
         "Unable to decrypt any data keys. Encountered the following errors: " + Seq.Flatten(errors));
       return Failure(combinedErrorsException);
     }

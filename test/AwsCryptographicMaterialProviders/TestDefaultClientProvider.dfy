@@ -17,7 +17,7 @@ module TestDefaultClientProvider {
   
   method {:test} GetUsWestTwo() {
     // Create material provider client
-    var materialsClient := new Client.AwsCryptographicMaterialProvidersClient();
+    var materialsClient := new Client.AwsCryptographicMaterialProviders();
 
     var clientSupplier: Crypto.IClientSupplier;
     var clientSupplierRes := materialsClient.CreateDefaultClientSupplier(

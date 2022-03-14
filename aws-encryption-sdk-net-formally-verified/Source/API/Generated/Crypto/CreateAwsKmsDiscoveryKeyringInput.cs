@@ -50,6 +50,7 @@ namespace Aws.Crypto
 
         public void Validate()
         {
+            if (!IsSetKmsClient()) throw new System.ArgumentException("Missing value for required member 'kmsClient'");
         }
     }
 }

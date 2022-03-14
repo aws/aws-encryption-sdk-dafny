@@ -106,7 +106,7 @@ module
       // requirement in the spec ("If this keyring does not have a generator keyring
       // and the input encryption materials does not include a plaintext data key")
       if this.generatorKeyring.None? && input.materials.plaintextDataKey.None? {
-        var exception := new Crypto.AwsCryptographicMaterialProvidersClientException(
+        var exception := new Crypto.AwsCryptographicMaterialProvidersException(
           "Need either a generator keyring or input encryption materials which contain a plaintext data key");
         return Failure(exception);
       }
@@ -282,7 +282,7 @@ module
         failures,
         "Unable to decrypt data key:\n"
       );
-      var combinedResult := new Crypto.AwsCryptographicMaterialProvidersClientException(error);
+      var combinedResult := new Crypto.AwsCryptographicMaterialProvidersException(error);
       return Failure(combinedResult);
     }
   }

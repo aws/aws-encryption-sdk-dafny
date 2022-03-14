@@ -38,6 +38,8 @@ namespace Aws.Crypto
 
         public void Validate()
         {
+            if (!IsSetChildKeyrings())
+                throw new System.ArgumentException("Missing value for required member 'childKeyrings'");
         }
     }
 }
