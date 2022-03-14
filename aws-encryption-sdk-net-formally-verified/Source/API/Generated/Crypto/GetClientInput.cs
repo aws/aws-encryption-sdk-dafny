@@ -2,12 +2,12 @@
 // SPDX-License-Identifier: Apache-2.0
 
 using System;
-using Aws.Crypto;
+using Aws.Encryption.Core;
 using
-    Aws.Crypto
+    Aws.Encryption.Core
     ;
 
-namespace Aws.Crypto
+namespace Aws.Encryption.Core
 {
     public class GetClientInput
     {

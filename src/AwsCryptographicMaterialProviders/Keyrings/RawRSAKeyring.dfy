@@ -16,7 +16,7 @@ include "../../Generated/AwsCryptographicMaterialProviders.dfy"
 include "../../../libraries/src/Collections/Sequences/Seq.dfy"
 
 module
-  {:extern "Dafny.Aws.Crypto.MaterialProviders.RawRSAKeyring"}
+  {:extern "Dafny.Aws.Encryption.Core.RawRSAKeyring"}
   MaterialProviders.RawRSAKeyring
 {
   import opened StandardLibrary

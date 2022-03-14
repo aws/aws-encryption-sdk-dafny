@@ -2,18 +2,18 @@
 // SPDX-License-Identifier: Apache-2.0
 
 using System;
-using Aws.Crypto;
+using Aws.Encryption.Core;
 using
-    Aws.Crypto
+    Aws.Encryption.Core
     ;
 
-namespace Aws.Crypto
+namespace Aws.Encryption.Core
 {
     public class CreateRawRsaKeyringInput
     {
         private string _keyNamespace;
         private string _keyName;
-        private Aws.Crypto.PaddingScheme _paddingScheme;
+        private Aws.Encryption.Core.PaddingScheme _paddingScheme;
         private System.IO.MemoryStream _publicKey;
         private System.IO.MemoryStream _privateKey;
 
@@ -39,7 +39,7 @@ namespace Aws.Crypto
             return this._keyName != null;
         }
 
-        public Aws.Crypto.PaddingScheme PaddingScheme
+        public Aws.Encryption.Core.PaddingScheme PaddingScheme
         {
             get { return this._paddingScheme; }
             set { this._paddingScheme = value; }

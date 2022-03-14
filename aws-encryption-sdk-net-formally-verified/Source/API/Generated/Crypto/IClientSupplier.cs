@@ -2,15 +2,15 @@
 // SPDX-License-Identifier: Apache-2.0
 
 using System;
-using Aws.Crypto;
+using Aws.Encryption.Core;
 using
-    Aws.Crypto
+    Aws.Encryption.Core
     ;
 
-namespace Aws.Crypto
+namespace Aws.Encryption.Core
 {
     public interface IClientSupplier
     {
-        Amazon.KeyManagementService.IAmazonKeyManagementService GetClient(Aws.Crypto.GetClientInput input);
+        Amazon.KeyManagementService.IAmazonKeyManagementService GetClient(Aws.Encryption.Core.GetClientInput input);
     }
 }

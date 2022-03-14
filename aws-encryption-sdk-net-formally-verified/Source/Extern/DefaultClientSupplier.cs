@@ -4,18 +4,18 @@
 using Amazon.KeyManagementService;
 using Amazon;
 using Amazon.Runtime;
-using Aws.Crypto;
+using Aws.Encryption.Core;
 
 using Wrappers_Compile;
 
 namespace DefaultClientSupplier {
 
     public partial class DefaultClientSupplier {
-        public _IResult<Dafny.Com.Amazonaws.Kms.IKeyManagementServiceClient, Dafny.Aws.Crypto.IAwsCryptographicMaterialProvidersException> GetClient(Dafny.Aws.Crypto._IGetClientInput input)
+        public _IResult<Dafny.Com.Amazonaws.Kms.IKeyManagementServiceClient, Dafny.Aws.Encryption.Core.IAwsCryptographicMaterialProvidersException> GetClient(Dafny.Aws.Encryption.Core._IGetClientInput input)
         {
             try
             {
-                GetClientInput convertedInput = TypeConversion.FromDafny_N3_aws__N6_crypto__S14_GetClientInput(input);
+                GetClientInput convertedInput = TypeConversion.FromDafny_N3_aws__N10_encryption__N4_core__S14_GetClientInput(input);
                 IAmazonKeyManagementService client;
                 if (convertedInput.Region != "")
                 {
@@ -28,14 +28,14 @@ namespace DefaultClientSupplier {
                 }
 
                 return Result<Dafny.Com.Amazonaws.Kms.IKeyManagementServiceClient,
-                    Dafny.Aws.Crypto.IAwsCryptographicMaterialProvidersException>.create_Success(
-                    TypeConversion.ToDafny_N3_aws__N6_crypto__S15_GetClientOutput(client)
+                    Dafny.Aws.Encryption.Core.IAwsCryptographicMaterialProvidersException>.create_Success(
+                    TypeConversion.ToDafny_N3_aws__N10_encryption__N4_core__S15_GetClientOutput__M6_client(client)
                 );
             }
             catch (AmazonServiceException e)
             {
                 return Result<Dafny.Com.Amazonaws.Kms.IKeyManagementServiceClient,
-                    Dafny.Aws.Crypto.IAwsCryptographicMaterialProvidersException>.create_Failure(
+                    Dafny.Aws.Encryption.Core.IAwsCryptographicMaterialProvidersException>.create_Failure(
                     TypeConversion.ToDafny_CommonError_AwsCryptographicMaterialProvidersBaseException(new AwsCryptographicMaterialProvidersException(e.Message))
                 );
             }

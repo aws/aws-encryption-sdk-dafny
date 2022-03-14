@@ -21,13 +21,13 @@ cd "$POLYMORPH_ROOT"
 ./gradlew run --args="\
     --output-dotnet $DOTNET_ROOT/Source/API/Generated/Crypto \
     --output-dafny $DAFNY_ROOT/src/Generated \
-    -m $MODEL_ROOT -s aws.crypto#AwsCryptographicMaterialProviders"
+    -m $MODEL_ROOT -s aws.encryption.core#AwsCryptographicMaterialProvidersFactory"
 
 # Generate code for ESDK
 ./gradlew run --args="\
     --output-dotnet $DOTNET_ROOT/Source/API/Generated/Esdk \
     --output-dafny $DAFNY_ROOT/src/Generated \
-     -m $MODEL_ROOT -s aws.esdk#AwsEncryptionSdk"
+     -m $MODEL_ROOT -s aws.encryption#AwsEncryptionSdkFactory"
 
 
 popd

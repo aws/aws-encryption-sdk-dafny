@@ -24,7 +24,7 @@ include "Keyrings/RawRSAKeyring.dfy"
 include "Materials.dfy"
 
 module
-  {:extern "Dafny.Aws.Crypto.AwsCryptographicMaterialProviders"}
+  {:extern "Dafny.Aws.Encryption.Core.AwsCryptographicMaterialProviders"}
   MaterialProviders.Client
 {
   import opened StandardLibrary

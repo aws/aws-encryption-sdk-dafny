@@ -4,36 +4,38 @@
 using System;
 using System.IO;
 using System.Collections.Generic;
-using Aws.Crypto;
+using Aws.Encryption;
+using Aws.Encryption.Core;
 using
-    Aws.Esdk
+    Aws.Encryption
     ;
 
-namespace Aws.Esdk
+namespace Aws.Encryption
 {
     public static class AwsEncryptionSdkFactory
     {
-        static Dafny.Aws.Esdk.AwsEncryptionSdkFactory.AwsEncryptionSdkFactory _impl =
-            new Dafny.Aws.Esdk.AwsEncryptionSdkFactory.AwsEncryptionSdkFactory();
+        static Dafny.Aws.Encryption.AwsEncryptionSdkFactory.AwsEncryptionSdkFactory _impl =
+            new Dafny.Aws.Encryption.AwsEncryptionSdkFactory.AwsEncryptionSdkFactory();
 
-        public static Aws.Esdk.IAwsEncryptionSdk CreateDefaultAwsEncryptionSdk()
+        public static Aws.Encryption.IAwsEncryptionSdk CreateDefaultAwsEncryptionSdk()
         {
-            Wrappers_Compile._IResult<Dafny.Aws.Esdk.IAwsEncryptionSdk, Dafny.Aws.Esdk.IAwsEncryptionSdkException>
-                result = _impl.CreateDefaultAwsEncryptionSdk();
+            Wrappers_Compile._IResult<Dafny.Aws.Encryption.IAwsEncryptionSdk,
+                Dafny.Aws.Encryption.IAwsEncryptionSdkException> result = _impl.CreateDefaultAwsEncryptionSdk();
             if (result.is_Failure)
                 throw TypeConversion.FromDafny_CommonError_AwsEncryptionSdkBaseException(result.dtor_error);
-            return TypeConversion.FromDafny_N3_aws__N4_esdk__S25_AwsEncryptionSdkReference(result.dtor_value);
+            return TypeConversion.FromDafny_N3_aws__N10_encryption__S25_AwsEncryptionSdkReference(result.dtor_value);
         }
 
-        public static Aws.Esdk.IAwsEncryptionSdk CreateAwsEncryptionSdk(Aws.Esdk.AwsEncryptionSdkConfig input)
+        public static Aws.Encryption.IAwsEncryptionSdk CreateAwsEncryptionSdk(
+            Aws.Encryption.AwsEncryptionSdkConfig input)
         {
-            Dafny.Aws.Esdk._IAwsEncryptionSdkConfig internalInput =
-                TypeConversion.ToDafny_N3_aws__N4_esdk__S22_AwsEncryptionSdkConfig(input);
-            Wrappers_Compile._IResult<Dafny.Aws.Esdk.IAwsEncryptionSdk, Dafny.Aws.Esdk.IAwsEncryptionSdkException>
-                result = _impl.CreateAwsEncryptionSdk(internalInput);
+            Dafny.Aws.Encryption._IAwsEncryptionSdkConfig internalInput =
+                TypeConversion.ToDafny_N3_aws__N10_encryption__S22_AwsEncryptionSdkConfig(input);
+            Wrappers_Compile._IResult<Dafny.Aws.Encryption.IAwsEncryptionSdk,
+                Dafny.Aws.Encryption.IAwsEncryptionSdkException> result = _impl.CreateAwsEncryptionSdk(internalInput);
             if (result.is_Failure)
                 throw TypeConversion.FromDafny_CommonError_AwsEncryptionSdkBaseException(result.dtor_error);
-            return TypeConversion.FromDafny_N3_aws__N4_esdk__S25_AwsEncryptionSdkReference(result.dtor_value);
+            return TypeConversion.FromDafny_N3_aws__N10_encryption__S25_AwsEncryptionSdkReference(result.dtor_value);
         }
     }
 }

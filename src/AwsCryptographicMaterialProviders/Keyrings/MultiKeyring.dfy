@@ -9,7 +9,7 @@ include "../../Generated/AwsCryptographicMaterialProviders.dfy"
 include "../../../libraries/src/Collections/Sequences/Seq.dfy"
 
 module
-  {:extern "Dafny.Aws.Crypto.MaterialProviders.MultiKeyring"}
+  {:extern "Dafny.Aws.Encryption.Core.MultiKeyring"}
   MaterialProviders.MultiKeyring
 {
   import opened StandardLibrary

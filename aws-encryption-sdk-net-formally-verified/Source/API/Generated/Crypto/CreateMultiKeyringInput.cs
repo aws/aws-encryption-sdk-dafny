@@ -2,19 +2,19 @@
 // SPDX-License-Identifier: Apache-2.0
 
 using System;
-using Aws.Crypto;
+using Aws.Encryption.Core;
 using
-    Aws.Crypto
+    Aws.Encryption.Core
     ;
 
-namespace Aws.Crypto
+namespace Aws.Encryption.Core
 {
     public class CreateMultiKeyringInput
     {
-        private Aws.Crypto.IKeyring _generator;
-        private System.Collections.Generic.List<Aws.Crypto.IKeyring> _childKeyrings;
+        private Aws.Encryption.Core.IKeyring _generator;
+        private System.Collections.Generic.List<Aws.Encryption.Core.IKeyring> _childKeyrings;
 
-        public Aws.Crypto.IKeyring Generator
+        public Aws.Encryption.Core.IKeyring Generator
         {
             get { return this._generator; }
             set { this._generator = value; }
@@ -25,7 +25,7 @@ namespace Aws.Crypto
             return this._generator != null;
         }
 
-        public System.Collections.Generic.List<Aws.Crypto.IKeyring> ChildKeyrings
+        public System.Collections.Generic.List<Aws.Encryption.Core.IKeyring> ChildKeyrings
         {
             get { return this._childKeyrings; }
             set { this._childKeyrings = value; }

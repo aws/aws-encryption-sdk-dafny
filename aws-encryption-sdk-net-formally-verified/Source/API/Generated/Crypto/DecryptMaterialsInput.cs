@@ -2,21 +2,21 @@
 // SPDX-License-Identifier: Apache-2.0
 
 using System;
-using Aws.Crypto;
+using Aws.Encryption.Core;
 using
-    Aws.Crypto
+    Aws.Encryption.Core
     ;
 
-namespace Aws.Crypto
+namespace Aws.Encryption.Core
 {
     public class DecryptMaterialsInput
     {
-        private Aws.Crypto.AlgorithmSuiteId _algorithmSuiteId;
-        private Aws.Crypto.CommitmentPolicy _commitmentPolicy;
-        private System.Collections.Generic.List<Aws.Crypto.EncryptedDataKey> _encryptedDataKeys;
+        private Aws.Encryption.Core.AlgorithmSuiteId _algorithmSuiteId;
+        private Aws.Encryption.Core.CommitmentPolicy _commitmentPolicy;
+        private System.Collections.Generic.List<Aws.Encryption.Core.EncryptedDataKey> _encryptedDataKeys;
         private System.Collections.Generic.Dictionary<string, string> _encryptionContext;
 
-        public Aws.Crypto.AlgorithmSuiteId AlgorithmSuiteId
+        public Aws.Encryption.Core.AlgorithmSuiteId AlgorithmSuiteId
         {
             get { return this._algorithmSuiteId; }
             set { this._algorithmSuiteId = value; }
@@ -27,7 +27,7 @@ namespace Aws.Crypto
             return this._algorithmSuiteId != null;
         }
 
-        public Aws.Crypto.CommitmentPolicy CommitmentPolicy
+        public Aws.Encryption.Core.CommitmentPolicy CommitmentPolicy
         {
             get { return this._commitmentPolicy; }
             set { this._commitmentPolicy = value; }
@@ -38,7 +38,7 @@ namespace Aws.Crypto
             return this._commitmentPolicy != null;
         }
 
-        public System.Collections.Generic.List<Aws.Crypto.EncryptedDataKey> EncryptedDataKeys
+        public System.Collections.Generic.List<Aws.Encryption.Core.EncryptedDataKey> EncryptedDataKeys
         {
             get { return this._encryptedDataKeys; }
             set { this._encryptedDataKeys = value; }

@@ -2,12 +2,12 @@
 // SPDX-License-Identifier: Apache-2.0
 
 using System;
-using Aws.Crypto;
+using Aws.Encryption.Core;
 using
-    Aws.Esdk
+    Aws.Encryption
     ;
 
-namespace Aws.Esdk
+namespace Aws.Encryption
 {
     public class AwsEncryptionSdkBaseException : Exception
     {

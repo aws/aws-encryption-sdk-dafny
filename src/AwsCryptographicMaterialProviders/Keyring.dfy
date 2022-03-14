@@ -6,7 +6,7 @@ include "../Generated/AwsCryptographicMaterialProviders.dfy"
 include "Materials.dfy"
 
 module
-  {:extern "Dafny.Aws.Crypto.MaterialProviders.Keyring"}
+  {:extern "Dafny.Aws.Encryption.Core.Keyring"}
   MaterialProviders.Keyring
 {
   import opened Wrappers

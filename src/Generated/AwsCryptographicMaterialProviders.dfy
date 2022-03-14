@@ -6,7 +6,7 @@ include "../StandardLibrary/StandardLibrary.dfy"
 include "../Generated/KeyManagementService.dfy"
 include "./KeyManagementService.dfy"
 
-module {:extern "Dafny.Aws.Crypto"} Aws.Crypto {
+module {:extern "Dafny.Aws.Encryption.Core"} Aws.Crypto {
     import opened Wrappers
     import KMS = Com.Amazonaws.Kms
     import opened UInt = StandardLibrary.UInt

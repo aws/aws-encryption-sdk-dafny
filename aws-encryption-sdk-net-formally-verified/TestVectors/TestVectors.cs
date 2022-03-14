@@ -10,8 +10,8 @@ using System.Linq;
 using Newtonsoft.Json.Linq;
 using Xunit;
 
-using Aws.Crypto;
-using Aws.Esdk;
+using Aws.Encryption;
+using Aws.Encryption.Core;
 
 namespace TestVectors.Runner {
     public abstract class TestVectorData : IEnumerable<object[]> {

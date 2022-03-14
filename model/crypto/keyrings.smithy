@@ -1,4 +1,4 @@
-namespace aws.crypto
+namespace aws.encryption.core
 
 use aws.polymorph#reference
 use aws.polymorph#positional

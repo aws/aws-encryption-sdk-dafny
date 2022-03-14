@@ -1,10 +1,10 @@
-namespace aws.esdk
+namespace aws.encryption
 
-use aws.crypto#KeyringReference
-use aws.crypto#CryptographicMaterialsManagerReference
-use aws.crypto#EncryptionContext
-use aws.crypto#AlgorithmSuiteId
-use aws.crypto#CommitmentPolicy
+use aws.encryption.core#KeyringReference
+use aws.encryption.core#CryptographicMaterialsManagerReference
+use aws.encryption.core#EncryptionContext
+use aws.encryption.core#AlgorithmSuiteId
+use aws.encryption.core#CommitmentPolicy
 use aws.polymorph#reference
 
 /////////////

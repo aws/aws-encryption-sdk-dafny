@@ -2,31 +2,33 @@
 // SPDX-License-Identifier: Apache-2.0
 
 using System;
-using Aws.Crypto;
+using Aws.Encryption.Core;
 using
-    Aws.Crypto
+    Aws.Encryption.Core
     ;
 
-namespace Aws.Crypto
+namespace Aws.Encryption.Core
 {
     public abstract class CryptographicMaterialsManagerBase : ICryptographicMaterialsManager
     {
-        public Aws.Crypto.GetEncryptionMaterialsOutput GetEncryptionMaterials(
-            Aws.Crypto.GetEncryptionMaterialsInput input)
+        public Aws.Encryption.Core.GetEncryptionMaterialsOutput GetEncryptionMaterials(
+            Aws.Encryption.Core.GetEncryptionMaterialsInput input)
         {
             input.Validate();
             return _GetEncryptionMaterials(input);
         }
 
-        protected abstract Aws.Crypto.GetEncryptionMaterialsOutput _GetEncryptionMaterials(
-            Aws.Crypto.GetEncryptionMaterialsInput input);
+        protected abstract Aws.Encryption.Core.GetEncryptionMaterialsOutput _GetEncryptionMaterials(
+            Aws.Encryption.Core.GetEncryptionMaterialsInput input);
 
-        public Aws.Crypto.DecryptMaterialsOutput DecryptMaterials(Aws.Crypto.DecryptMaterialsInput input)
+        public Aws.Encryption.Core.DecryptMaterialsOutput DecryptMaterials(
+            Aws.Encryption.Core.DecryptMaterialsInput input)
         {
             input.Validate();
             return _DecryptMaterials(input);
         }
 
-        protected abstract Aws.Crypto.DecryptMaterialsOutput _DecryptMaterials(Aws.Crypto.DecryptMaterialsInput input);
+        protected abstract Aws.Encryption.Core.DecryptMaterialsOutput _DecryptMaterials(
+            Aws.Encryption.Core.DecryptMaterialsInput input);
     }
 }

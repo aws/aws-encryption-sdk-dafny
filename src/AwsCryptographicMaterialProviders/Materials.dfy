@@ -6,7 +6,7 @@ include "../Generated/AwsCryptographicMaterialProviders.dfy"
 include "AlgorithmSuites.dfy"
 
 module
-  {:extern "Dafny.Aws.Crypto.MaterialProviders.Materials"}
+  {:extern "Dafny.Aws.Encryption.Core.Materials"}
   MaterialProviders.Materials
 {
 import opened StandardLibrary

@@ -13,7 +13,7 @@ include "../../Util/UTF8.dfy"
 include "../../Generated/AwsCryptographicMaterialProviders.dfy"
 
 module
-  {:extern "Dafny.Aws.Crypto.MaterialProviders.DefaultCMM"}
+  {:extern "Dafny.Aws.Encryption.Core.DefaultCMM"}
   MaterialProviders.DefaultCMM
 {
   import opened Wrappers

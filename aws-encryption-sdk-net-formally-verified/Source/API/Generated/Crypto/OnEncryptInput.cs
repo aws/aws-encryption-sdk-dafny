@@ -2,18 +2,18 @@
 // SPDX-License-Identifier: Apache-2.0
 
 using System;
-using Aws.Crypto;
+using Aws.Encryption.Core;
 using
-    Aws.Crypto
+    Aws.Encryption.Core
     ;
 
-namespace Aws.Crypto
+namespace Aws.Encryption.Core
 {
     public class OnEncryptInput
     {
-        private Aws.Crypto.EncryptionMaterials _materials;
+        private Aws.Encryption.Core.EncryptionMaterials _materials;
 
-        public Aws.Crypto.EncryptionMaterials Materials
+        public Aws.Encryption.Core.EncryptionMaterials Materials
         {
             get { return this._materials; }
             set { this._materials = value; }

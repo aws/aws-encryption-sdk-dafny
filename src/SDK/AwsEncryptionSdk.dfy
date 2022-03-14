@@ -24,7 +24,7 @@ include "Serialize/Frames.dfy"
 include "Serialize/SerializeFunctions.dfy"
 include "Serialize/EncryptionContext.dfy"
 
-module {:extern "Dafny.Aws.Esdk.AwsEncryptionSdk"} AwsEncryptionSdk {
+module {:extern "Dafny.Aws.Encryption.AwsEncryptionSdk"} AwsEncryptionSdk {
   import opened Wrappers
   import opened StandardLibrary
   import opened UInt = StandardLibrary.UInt

@@ -2,18 +2,18 @@
 // SPDX-License-Identifier: Apache-2.0
 
 using System;
-using Aws.Crypto;
+using Aws.Encryption.Core;
 using
-    Aws.Crypto
+    Aws.Encryption.Core
     ;
 
-namespace Aws.Crypto
+namespace Aws.Encryption.Core
 {
     public class CreateDefaultCryptographicMaterialsManagerInput
     {
-        private Aws.Crypto.IKeyring _keyring;
+        private Aws.Encryption.Core.IKeyring _keyring;
 
-        public Aws.Crypto.IKeyring Keyring
+        public Aws.Encryption.Core.IKeyring Keyring
         {
             get { return this._keyring; }
             set { this._keyring = value; }

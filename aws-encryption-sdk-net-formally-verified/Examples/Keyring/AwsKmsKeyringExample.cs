@@ -5,8 +5,8 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using Amazon.KeyManagementService;
-using Aws.Crypto;
-using Aws.Esdk;
+using Aws.Encryption;
+using Aws.Encryption.Core;
 
 using Xunit;
 

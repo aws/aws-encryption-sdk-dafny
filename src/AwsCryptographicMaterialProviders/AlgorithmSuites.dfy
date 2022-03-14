@@ -8,7 +8,7 @@ include "../Crypto/Signature.dfy"
 include "../Crypto/AESEncryption.dfy"
 
 module
-  {:extern "Dafny.Aws.Crypto.MaterialProviders.AlgorithmSuites"}
+  {:extern "Dafny.Aws.Encryption.Core.AlgorithmSuites"}
   MaterialProviders.AlgorithmSuites
 {
 

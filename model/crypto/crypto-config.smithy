@@ -1,4 +1,4 @@
-namespace aws.crypto
+namespace aws.encryption.core
 
 ///////////////////////////////////
 // Algorithm Suites

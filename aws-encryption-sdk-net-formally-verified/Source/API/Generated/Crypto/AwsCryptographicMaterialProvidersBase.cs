@@ -2,129 +2,140 @@
 // SPDX-License-Identifier: Apache-2.0
 
 using System;
-using Aws.Crypto;
+using Aws.Encryption.Core;
 using
-    Aws.Crypto
+    Aws.Encryption.Core
     ;
 
-namespace Aws.Crypto
+namespace Aws.Encryption.Core
 {
     public abstract class AwsCryptographicMaterialProvidersBase : IAwsCryptographicMaterialProviders
     {
-        public Aws.Crypto.IKeyring CreateAwsKmsKeyring(Aws.Crypto.CreateAwsKmsKeyringInput input)
+        public Aws.Encryption.Core.IKeyring CreateAwsKmsKeyring(Aws.Encryption.Core.CreateAwsKmsKeyringInput input)
         {
             input.Validate();
             return _CreateAwsKmsKeyring(input);
         }
 
-        protected abstract Aws.Crypto.IKeyring _CreateAwsKmsKeyring(Aws.Crypto.CreateAwsKmsKeyringInput input);
+        protected abstract Aws.Encryption.Core.IKeyring _CreateAwsKmsKeyring(
+            Aws.Encryption.Core.CreateAwsKmsKeyringInput input);
 
-        public Aws.Crypto.IKeyring CreateAwsKmsDiscoveryKeyring(Aws.Crypto.CreateAwsKmsDiscoveryKeyringInput input)
+        public Aws.Encryption.Core.IKeyring CreateAwsKmsDiscoveryKeyring(
+            Aws.Encryption.Core.CreateAwsKmsDiscoveryKeyringInput input)
         {
             input.Validate();
             return _CreateAwsKmsDiscoveryKeyring(input);
         }
 
-        protected abstract Aws.Crypto.IKeyring _CreateAwsKmsDiscoveryKeyring(
-            Aws.Crypto.CreateAwsKmsDiscoveryKeyringInput input);
+        protected abstract Aws.Encryption.Core.IKeyring _CreateAwsKmsDiscoveryKeyring(
+            Aws.Encryption.Core.CreateAwsKmsDiscoveryKeyringInput input);
 
-        public Aws.Crypto.IKeyring CreateAwsKmsMultiKeyring(Aws.Crypto.CreateAwsKmsMultiKeyringInput input)
+        public Aws.Encryption.Core.IKeyring CreateAwsKmsMultiKeyring(
+            Aws.Encryption.Core.CreateAwsKmsMultiKeyringInput input)
         {
             input.Validate();
             return _CreateAwsKmsMultiKeyring(input);
         }
 
-        protected abstract Aws.Crypto.IKeyring
-            _CreateAwsKmsMultiKeyring(Aws.Crypto.CreateAwsKmsMultiKeyringInput input);
+        protected abstract Aws.Encryption.Core.IKeyring _CreateAwsKmsMultiKeyring(
+            Aws.Encryption.Core.CreateAwsKmsMultiKeyringInput input);
 
-        public Aws.Crypto.IKeyring CreateAwsKmsDiscoveryMultiKeyring(
-            Aws.Crypto.CreateAwsKmsDiscoveryMultiKeyringInput input)
+        public Aws.Encryption.Core.IKeyring CreateAwsKmsDiscoveryMultiKeyring(
+            Aws.Encryption.Core.CreateAwsKmsDiscoveryMultiKeyringInput input)
         {
             input.Validate();
             return _CreateAwsKmsDiscoveryMultiKeyring(input);
         }
 
-        protected abstract Aws.Crypto.IKeyring _CreateAwsKmsDiscoveryMultiKeyring(
-            Aws.Crypto.CreateAwsKmsDiscoveryMultiKeyringInput input);
+        protected abstract Aws.Encryption.Core.IKeyring _CreateAwsKmsDiscoveryMultiKeyring(
+            Aws.Encryption.Core.CreateAwsKmsDiscoveryMultiKeyringInput input);
 
-        public Aws.Crypto.IKeyring CreateAwsKmsMrkKeyring(Aws.Crypto.CreateAwsKmsMrkKeyringInput input)
+        public Aws.Encryption.Core.IKeyring CreateAwsKmsMrkKeyring(
+            Aws.Encryption.Core.CreateAwsKmsMrkKeyringInput input)
         {
             input.Validate();
             return _CreateAwsKmsMrkKeyring(input);
         }
 
-        protected abstract Aws.Crypto.IKeyring _CreateAwsKmsMrkKeyring(Aws.Crypto.CreateAwsKmsMrkKeyringInput input);
+        protected abstract Aws.Encryption.Core.IKeyring _CreateAwsKmsMrkKeyring(
+            Aws.Encryption.Core.CreateAwsKmsMrkKeyringInput input);
 
-        public Aws.Crypto.IKeyring CreateAwsKmsMrkMultiKeyring(Aws.Crypto.CreateAwsKmsMrkMultiKeyringInput input)
+        public Aws.Encryption.Core.IKeyring CreateAwsKmsMrkMultiKeyring(
+            Aws.Encryption.Core.CreateAwsKmsMrkMultiKeyringInput input)
         {
             input.Validate();
             return _CreateAwsKmsMrkMultiKeyring(input);
         }
 
-        protected abstract Aws.Crypto.IKeyring _CreateAwsKmsMrkMultiKeyring(
-            Aws.Crypto.CreateAwsKmsMrkMultiKeyringInput input);
+        protected abstract Aws.Encryption.Core.IKeyring _CreateAwsKmsMrkMultiKeyring(
+            Aws.Encryption.Core.CreateAwsKmsMrkMultiKeyringInput input);
 
-        public Aws.Crypto.IKeyring CreateAwsKmsMrkDiscoveryKeyring(
-            Aws.Crypto.CreateAwsKmsMrkDiscoveryKeyringInput input)
+        public Aws.Encryption.Core.IKeyring CreateAwsKmsMrkDiscoveryKeyring(
+            Aws.Encryption.Core.CreateAwsKmsMrkDiscoveryKeyringInput input)
         {
             input.Validate();
             return _CreateAwsKmsMrkDiscoveryKeyring(input);
         }
 
-        protected abstract Aws.Crypto.IKeyring _CreateAwsKmsMrkDiscoveryKeyring(
-            Aws.Crypto.CreateAwsKmsMrkDiscoveryKeyringInput input);
+        protected abstract Aws.Encryption.Core.IKeyring _CreateAwsKmsMrkDiscoveryKeyring(
+            Aws.Encryption.Core.CreateAwsKmsMrkDiscoveryKeyringInput input);
 
-        public Aws.Crypto.IKeyring CreateAwsKmsMrkDiscoveryMultiKeyring(
-            Aws.Crypto.CreateAwsKmsMrkDiscoveryMultiKeyringInput input)
+        public Aws.Encryption.Core.IKeyring CreateAwsKmsMrkDiscoveryMultiKeyring(
+            Aws.Encryption.Core.CreateAwsKmsMrkDiscoveryMultiKeyringInput input)
         {
             input.Validate();
             return _CreateAwsKmsMrkDiscoveryMultiKeyring(input);
         }
 
-        protected abstract Aws.Crypto.IKeyring _CreateAwsKmsMrkDiscoveryMultiKeyring(
-            Aws.Crypto.CreateAwsKmsMrkDiscoveryMultiKeyringInput input);
+        protected abstract Aws.Encryption.Core.IKeyring _CreateAwsKmsMrkDiscoveryMultiKeyring(
+            Aws.Encryption.Core.CreateAwsKmsMrkDiscoveryMultiKeyringInput input);
 
-        public Aws.Crypto.IKeyring CreateMultiKeyring(Aws.Crypto.CreateMultiKeyringInput input)
+        public Aws.Encryption.Core.IKeyring CreateMultiKeyring(Aws.Encryption.Core.CreateMultiKeyringInput input)
         {
             input.Validate();
             return _CreateMultiKeyring(input);
         }
 
-        protected abstract Aws.Crypto.IKeyring _CreateMultiKeyring(Aws.Crypto.CreateMultiKeyringInput input);
+        protected abstract Aws.Encryption.Core.IKeyring _CreateMultiKeyring(
+            Aws.Encryption.Core.CreateMultiKeyringInput input);
 
-        public Aws.Crypto.IKeyring CreateRawAesKeyring(Aws.Crypto.CreateRawAesKeyringInput input)
+        public Aws.Encryption.Core.IKeyring CreateRawAesKeyring(Aws.Encryption.Core.CreateRawAesKeyringInput input)
         {
             input.Validate();
             return _CreateRawAesKeyring(input);
         }
 
-        protected abstract Aws.Crypto.IKeyring _CreateRawAesKeyring(Aws.Crypto.CreateRawAesKeyringInput input);
+        protected abstract Aws.Encryption.Core.IKeyring _CreateRawAesKeyring(
+            Aws.Encryption.Core.CreateRawAesKeyringInput input);
 
-        public Aws.Crypto.IKeyring CreateRawRsaKeyring(Aws.Crypto.CreateRawRsaKeyringInput input)
+        public Aws.Encryption.Core.IKeyring CreateRawRsaKeyring(Aws.Encryption.Core.CreateRawRsaKeyringInput input)
         {
             input.Validate();
             return _CreateRawRsaKeyring(input);
         }
 
-        protected abstract Aws.Crypto.IKeyring _CreateRawRsaKeyring(Aws.Crypto.CreateRawRsaKeyringInput input);
+        protected abstract Aws.Encryption.Core.IKeyring _CreateRawRsaKeyring(
+            Aws.Encryption.Core.CreateRawRsaKeyringInput input);
 
-        public Aws.Crypto.ICryptographicMaterialsManager CreateDefaultCryptographicMaterialsManager(
-            Aws.Crypto.CreateDefaultCryptographicMaterialsManagerInput input)
+        public Aws.Encryption.Core.ICryptographicMaterialsManager CreateDefaultCryptographicMaterialsManager(
+            Aws.Encryption.Core.CreateDefaultCryptographicMaterialsManagerInput input)
         {
             input.Validate();
             return _CreateDefaultCryptographicMaterialsManager(input);
         }
 
-        protected abstract Aws.Crypto.ICryptographicMaterialsManager _CreateDefaultCryptographicMaterialsManager(
-            Aws.Crypto.CreateDefaultCryptographicMaterialsManagerInput input);
+        protected abstract Aws.Encryption.Core.ICryptographicMaterialsManager
+            _CreateDefaultCryptographicMaterialsManager(
+                Aws.Encryption.Core.CreateDefaultCryptographicMaterialsManagerInput input);
 
-        public Aws.Crypto.IClientSupplier CreateDefaultClientSupplier(Aws.Crypto.CreateDefaultClientSupplierInput input)
+        public Aws.Encryption.Core.IClientSupplier CreateDefaultClientSupplier(
+            Aws.Encryption.Core.CreateDefaultClientSupplierInput input)
         {
             input.Validate();
             return _CreateDefaultClientSupplier(input);
         }
 
-        protected abstract Aws.Crypto.IClientSupplier _CreateDefaultClientSupplier(
-            Aws.Crypto.CreateDefaultClientSupplierInput input);
+        protected abstract Aws.Encryption.Core.IClientSupplier _CreateDefaultClientSupplier(
+            Aws.Encryption.Core.CreateDefaultClientSupplierInput input);
     }
 }

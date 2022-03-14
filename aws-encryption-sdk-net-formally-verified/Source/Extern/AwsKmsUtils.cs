@@ -11,7 +11,7 @@ namespace AwsKmsUtils
         {
             string regionStr = TypeConversion.FromDafny_N6_smithy__N3_api__S6_String(region);
             IAmazonKeyManagementService nativeClient =
-                Aws.Crypto.TypeConversion.FromDafny_N3_aws__N6_crypto__S18_KmsClientReference(client);
+                Aws.Encryption.Core.TypeConversion.FromDafny_N3_aws__N10_encryption__N4_core__S18_KmsClientReference(client);
             return new Option_Some<bool>(nativeClient.Config.RegionEndpoint.SystemName.Equals(regionStr));
         }
     }
