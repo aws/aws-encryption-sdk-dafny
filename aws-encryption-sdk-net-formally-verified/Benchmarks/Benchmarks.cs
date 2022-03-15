@@ -9,7 +9,7 @@ using Org.BouncyCastle.Utilities.Encoders;
 
 namespace Benchmarks
 {
-    public class RawAesKeyringBenchmark
+    public class EncryptDecryptBenchmark
     {
         [Params(0, 10, 100, 1_000, 10_000, 100_000, 1_000_000, 10_000_000)]
         public int PlaintextLengthBytes { get; set; }
@@ -19,6 +19,7 @@ namespace Benchmarks
         private IAwsEncryptionSdk _encryptionSdk;
         private IKeyring _keyring;
         private MemoryStream _plaintext;
+        private MemoryStream _ciphertext;
         private Dictionary<string, string> _encryptionContext;
 
         // Runs once for each combination of params
@@ -46,36 +47,31 @@ namespace Benchmarks
                 { "key2", "value2" },
                 { "key3", "value3" }
             };
+
+            _ciphertext = Encrypt().Ciphertext;
         }
 
         [Benchmark]
-        public bool EncryptAndDecrypt()
-        {
-            var encryptInput = new EncryptInput
+        public EncryptOutput Encrypt() =>
+            _encryptionSdk.Encrypt(new EncryptInput
             {
                 Keyring = _keyring,
                 Plaintext = _plaintext,
                 EncryptionContext = _encryptionContext,
                 AlgorithmSuiteId = AlgorithmSuiteId.ALG_AES_256_GCM_HKDF_SHA512_COMMIT_KEY,
-            };
-            var encryptOutput = _encryptionSdk.Encrypt(encryptInput);
+            });
 
-            var decryptInput = new DecryptInput
+        [Benchmark]
+        public DecryptOutput Decrypt() =>
+            _encryptionSdk.Decrypt(new DecryptInput
             {
                 Keyring = _keyring,
-                Ciphertext = encryptOutput.Ciphertext
-            };
-            var decryptOutput = _encryptionSdk.Decrypt(decryptInput);
-
-            return Org.BouncyCastle.Utilities.Arrays.ConstantTimeAreEqual(_plaintext.ToArray(), decryptOutput.Plaintext.ToArray());
-        }
+                Ciphertext = _ciphertext
+            });
     }
 
     public class Program
     {
-        public static void Main(string[] args)
-        {
-            BenchmarkRunner.Run<RawAesKeyringBenchmark>();
-        }
+        public static void Main(string[] args) => BenchmarkSwitcher.FromAssembly(typeof(Program).Assembly).Run(args);
     }
 }

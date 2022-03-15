@@ -5,10 +5,28 @@ We use the [BenchmarkDotNet](https://benchmarkdotnet.org/) framework.
 
 ## Usage
 
-In this directory, run the following:
+All commands to be run from this directory.
+
+Run all benchmarks (note the single quotes!):
 
 ```bash
-$ dotnet run -c Release
+$ dotnet run -c Release -- -f '*'
+```
+
+List available benchmarks:
+
+```bash
+$ dotnet run -c Release -- --list flat
+```
+
+Run particular benchmarks:
+
+```
+$ # just the encryption benchmarks
+$ dotnet run -c Release -- -f '*Encrypt'
+
+$ # just the decryption benchmarks
+$ dotnet run -c Release -- -f '*Decrypt'
 ```
 
 The benchmarks will run, and dump output to both the console
