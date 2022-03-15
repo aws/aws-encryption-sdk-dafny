@@ -12,6 +12,8 @@ namespace ExampleUtils {
         // The name of the environment variable storing the key to use in examples
         private static string TEST_AWS_KMS_KEY_ID_ENV_VAR = "AWS_ENCRYPTION_SDK_EXAMPLE_KMS_KEY_ID";
         private static string TEST_AWS_KMS_KEY_ID_2_ENV_VAR = "AWS_ENCRYPTION_SDK_EXAMPLE_KMS_KEY_ID_2";
+        private static string TEST_AWS_KMS_MRK_KEY_ID_ENV_VAR = "AWS_ENCRYPTION_SDK_EXAMPLE_KMS_MRK_KEY_ID";
+        private static string TEST_AWS_KMS_MRK_KEY_ID_ENV_VAR_2 = "AWS_ENCRYPTION_SDK_EXAMPLE_KMS_MRK_KEY_ID_2";
 
         static public MemoryStream GetPlaintextStream() {
             return new MemoryStream(Encoding.UTF8.GetBytes(
@@ -19,24 +21,35 @@ namespace ExampleUtils {
                         ));
         }
 
-        static public string GetDefaultRegionKmsKeyArn() {
-            string keyId = System.Environment.GetEnvironmentVariable(TEST_AWS_KMS_KEY_ID_ENV_VAR);
-            if (keyId == null) {
+        static public string GetEnvVariable(string keyName)
+        {
+            string value = System.Environment.GetEnvironmentVariable(keyName);
+            if (value == null) {
                 throw new ArgumentException(
-                    String.Format("Please set environment variable {0} to a valid KMS key id", TEST_AWS_KMS_KEY_ID_ENV_VAR)
+                    String.Format("Please set environment variable {0} to a valid KMS key ARN", keyName)
                 );
             }
-            return keyId;
+            return value;
         }
 
-        static public string GetAlternateRegionKmsKeyArn() {
-            string keyId = System.Environment.GetEnvironmentVariable(TEST_AWS_KMS_KEY_ID_2_ENV_VAR);
-            if (keyId == null) {
-                throw new ArgumentException(
-                    String.Format("Please set environment variable {0} to a valid KMS key id", TEST_AWS_KMS_KEY_ID_2_ENV_VAR)
-                );
-            }
-            return keyId;
+        static public string GetDefaultRegionKmsKeyArn()
+        {
+            return GetEnvVariable(TEST_AWS_KMS_KEY_ID_ENV_VAR);
+        }
+
+        static public string GetAlternateRegionKmsKeyArn()
+        {
+            return GetEnvVariable(TEST_AWS_KMS_KEY_ID_2_ENV_VAR);
+        }
+
+        static public string GetDefaultRegionMrkKeyArn()
+        {
+            return GetEnvVariable(TEST_AWS_KMS_MRK_KEY_ID_ENV_VAR);
+        }
+
+        static public string GetAlternateRegionMrkKeyArn()
+        {
+            return GetEnvVariable(TEST_AWS_KMS_MRK_KEY_ID_ENV_VAR_2);
         }
 
         static public List<string> GetAccountIds()
