@@ -5,32 +5,33 @@ We use the [BenchmarkDotNet](https://benchmarkdotnet.org/) framework.
 
 ## Usage
 
-All commands to be run from this directory.
+All commands are to be run from this directory.
 
-Run all benchmarks (note the single quotes!):
+For more information about CLI arguments, see <https://benchmarkdotnet.org/articles/guides/console-args.html>.
+
+### Running benchmarks
+
+Note the single quotes!
 
 ```bash
+$ # All benchmarks
 $ dotnet run -c Release -- -f '*'
-```
 
-List available benchmarks:
-
-```bash
-$ dotnet run -c Release -- --list flat
-```
-
-Run particular benchmarks:
-
-```
-$ # just the encryption benchmarks
+$ # Just encryption
 $ dotnet run -c Release -- -f '*Encrypt'
 
-$ # just the decryption benchmarks
+$ # Just decryption
 $ dotnet run -c Release -- -f '*Decrypt'
 ```
 
 The benchmarks will run, and dump output to both the console
 and to the `BenchmarkDotNet.Artifacts` directory.
+
+### List available benchmarks
+
+```bash
+$ dotnet run -c Release -- --list flat
+```
 
 ## Troubleshooting
 
