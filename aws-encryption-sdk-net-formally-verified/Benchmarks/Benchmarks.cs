@@ -15,6 +15,9 @@ namespace Benchmarks
         [Params(0, 10, 100, 1_000, 10_000, 100_000, 1_000_000, 10_000_000)]
         public int PlaintextLengthBytes { get; set; }
 
+        [Params(1024, 4096, 65536)]
+        public int FrameLengthBytes { get; set; }
+
         private IAwsEncryptionSdk _encryptionSdk;
         private IKeyring _keyring;
         private MemoryStream _plaintext;
@@ -56,6 +59,7 @@ namespace Benchmarks
                 Plaintext = _plaintext,
                 EncryptionContext = _encryptionContext,
                 AlgorithmSuiteId = AlgorithmSuiteId.ALG_AES_256_GCM_HKDF_SHA512_COMMIT_KEY,
+                FrameLength = FrameLengthBytes
             });
 
         [Benchmark]
