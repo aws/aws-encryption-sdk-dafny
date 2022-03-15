@@ -2,18 +2,18 @@
 // SPDX-License-Identifier: Apache-2.0
 
 using System;
-using Aws.Encryption.Core;
+using Aws.EncryptionSdk.Core;
 using
-    Aws.Encryption.Core
+    Aws.EncryptionSdk.Core
     ;
 
-namespace Aws.Encryption.Core
+namespace Aws.EncryptionSdk.Core
 {
     public class CreateAwsKmsMrkDiscoveryMultiKeyringInput
     {
         private System.Collections.Generic.List<string> _regions;
-        private Aws.Encryption.Core.DiscoveryFilter _discoveryFilter;
-        private Aws.Encryption.Core.IClientSupplier _clientSupplier;
+        private Aws.EncryptionSdk.Core.DiscoveryFilter _discoveryFilter;
+        private Aws.EncryptionSdk.Core.IClientSupplier _clientSupplier;
         private System.Collections.Generic.List<string> _grantTokens;
 
         public System.Collections.Generic.List<string> Regions
@@ -27,7 +27,7 @@ namespace Aws.Encryption.Core
             return this._regions != null;
         }
 
-        public Aws.Encryption.Core.DiscoveryFilter DiscoveryFilter
+        public Aws.EncryptionSdk.Core.DiscoveryFilter DiscoveryFilter
         {
             get { return this._discoveryFilter; }
             set { this._discoveryFilter = value; }
@@ -38,7 +38,7 @@ namespace Aws.Encryption.Core
             return this._discoveryFilter != null;
         }
 
-        public Aws.Encryption.Core.IClientSupplier ClientSupplier
+        public Aws.EncryptionSdk.Core.IClientSupplier ClientSupplier
         {
             get { return this._clientSupplier; }
             set { this._clientSupplier = value; }

@@ -2,16 +2,16 @@
 // SPDX-License-Identifier: Apache-2.0
 
 using System;
-using Aws.Encryption.Core;
+using Aws.EncryptionSdk.Core;
 using
-    Aws.Encryption.Core
+    Aws.EncryptionSdk.Core
     ;
 
-namespace Aws.Encryption.Core
+namespace Aws.EncryptionSdk.Core
 {
     public interface IKeyring
     {
-        Aws.Encryption.Core.OnEncryptOutput OnEncrypt(Aws.Encryption.Core.OnEncryptInput input);
-        Aws.Encryption.Core.OnDecryptOutput OnDecrypt(Aws.Encryption.Core.OnDecryptInput input);
+        Aws.EncryptionSdk.Core.OnEncryptOutput OnEncrypt(Aws.EncryptionSdk.Core.OnEncryptInput input);
+        Aws.EncryptionSdk.Core.OnDecryptOutput OnDecrypt(Aws.EncryptionSdk.Core.OnDecryptInput input);
     }
 }

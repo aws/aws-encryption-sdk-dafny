@@ -2,18 +2,18 @@
 // SPDX-License-Identifier: Apache-2.0
 
 using System;
-using Aws.Encryption.Core;
+using Aws.EncryptionSdk.Core;
 using
-    Aws.Encryption
+    Aws.EncryptionSdk
     ;
 
-namespace Aws.Encryption
+namespace Aws.EncryptionSdk
 {
     public class DecryptInput
     {
         private System.IO.MemoryStream _ciphertext;
-        private Aws.Encryption.Core.ICryptographicMaterialsManager _materialsManager;
-        private Aws.Encryption.Core.IKeyring _keyring;
+        private Aws.EncryptionSdk.Core.ICryptographicMaterialsManager _materialsManager;
+        private Aws.EncryptionSdk.Core.IKeyring _keyring;
 
         public System.IO.MemoryStream Ciphertext
         {
@@ -26,7 +26,7 @@ namespace Aws.Encryption
             return this._ciphertext != null;
         }
 
-        public Aws.Encryption.Core.ICryptographicMaterialsManager MaterialsManager
+        public Aws.EncryptionSdk.Core.ICryptographicMaterialsManager MaterialsManager
         {
             get { return this._materialsManager; }
             set { this._materialsManager = value; }
@@ -37,7 +37,7 @@ namespace Aws.Encryption
             return this._materialsManager != null;
         }
 
-        public Aws.Encryption.Core.IKeyring Keyring
+        public Aws.EncryptionSdk.Core.IKeyring Keyring
         {
             get { return this._keyring; }
             set { this._keyring = value; }

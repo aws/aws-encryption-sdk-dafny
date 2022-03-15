@@ -2,23 +2,23 @@
 // SPDX-License-Identifier: Apache-2.0
 
 using System;
-using Aws.Encryption.Core;
+using Aws.EncryptionSdk.Core;
 using
-    Aws.Encryption.Core
+    Aws.EncryptionSdk.Core
     ;
 
-namespace Aws.Encryption.Core
+namespace Aws.EncryptionSdk.Core
 {
     public abstract class ClientSupplierBase : IClientSupplier
     {
         public Amazon.KeyManagementService.IAmazonKeyManagementService GetClient(
-            Aws.Encryption.Core.GetClientInput input)
+            Aws.EncryptionSdk.Core.GetClientInput input)
         {
             input.Validate();
             return _GetClient(input);
         }
 
         protected abstract Amazon.KeyManagementService.IAmazonKeyManagementService _GetClient(
-            Aws.Encryption.Core.GetClientInput input);
+            Aws.EncryptionSdk.Core.GetClientInput input);
     }
 }

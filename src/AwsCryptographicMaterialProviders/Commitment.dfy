@@ -9,7 +9,7 @@ include "AlgorithmSuites.dfy"
 /*
  * Contains methods and helpers for working with commitment policies
  */
-module {:extern "Dafny.Aws.Encryption.Core.Commitment"} MaterialProviders.Commitment {
+module {:extern "Dafny.Aws.EncryptionSdk.Core.Commitment"} MaterialProviders.Commitment {
   import opened Wrappers
   import Aws.Crypto
   import AlgorithmSuites

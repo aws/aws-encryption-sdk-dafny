@@ -2,19 +2,19 @@
 // SPDX-License-Identifier: Apache-2.0
 
 using System;
-using Aws.Encryption.Core;
+using Aws.EncryptionSdk.Core;
 using
-    Aws.Encryption
+    Aws.EncryptionSdk
     ;
 
-namespace Aws.Encryption
+namespace Aws.EncryptionSdk
 {
     public class AwsEncryptionSdkConfig
     {
-        private Aws.Encryption.Core.CommitmentPolicy _commitmentPolicy;
+        private Aws.EncryptionSdk.Core.CommitmentPolicy _commitmentPolicy;
         private long? _maxEncryptedDataKeys;
 
-        public Aws.Encryption.Core.CommitmentPolicy CommitmentPolicy
+        public Aws.EncryptionSdk.Core.CommitmentPolicy CommitmentPolicy
         {
             get { return this._commitmentPolicy; }
             set { this._commitmentPolicy = value; }

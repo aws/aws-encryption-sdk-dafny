@@ -1,4 +1,4 @@
-namespace aws.encryption.core
+namespace aws.encryptionSdk.core
 
 
 use aws.polymorph#reference

@@ -2,19 +2,19 @@
 // SPDX-License-Identifier: Apache-2.0
 
 using System;
-using Aws.Encryption.Core;
+using Aws.EncryptionSdk.Core;
 using
-    Aws.Encryption.Core
+    Aws.EncryptionSdk.Core
     ;
 
-namespace Aws.Encryption.Core
+namespace Aws.EncryptionSdk.Core
 {
     public class OnDecryptInput
     {
-        private Aws.Encryption.Core.DecryptionMaterials _materials;
-        private System.Collections.Generic.List<Aws.Encryption.Core.EncryptedDataKey> _encryptedDataKeys;
+        private Aws.EncryptionSdk.Core.DecryptionMaterials _materials;
+        private System.Collections.Generic.List<Aws.EncryptionSdk.Core.EncryptedDataKey> _encryptedDataKeys;
 
-        public Aws.Encryption.Core.DecryptionMaterials Materials
+        public Aws.EncryptionSdk.Core.DecryptionMaterials Materials
         {
             get { return this._materials; }
             set { this._materials = value; }
@@ -25,7 +25,7 @@ namespace Aws.Encryption.Core
             return this._materials != null;
         }
 
-        public System.Collections.Generic.List<Aws.Encryption.Core.EncryptedDataKey> EncryptedDataKeys
+        public System.Collections.Generic.List<Aws.EncryptionSdk.Core.EncryptedDataKey> EncryptedDataKeys
         {
             get { return this._encryptedDataKeys; }
             set { this._encryptedDataKeys = value; }

@@ -4,29 +4,29 @@
 using System;
 using System.IO;
 using System.Collections.Generic;
-using Aws.Encryption.Core;
+using Aws.EncryptionSdk.Core;
 using
-    Aws.Encryption.Core
+    Aws.EncryptionSdk.Core
     ;
 
-namespace Aws.Encryption.Core
+namespace Aws.EncryptionSdk.Core
 {
     public static class AwsCryptographicMaterialProvidersFactory
     {
-        static Dafny.Aws.Encryption.Core.AwsCryptographicMaterialProvidersFactory.AwsCryptographicMaterialProvidersFactory
+        static Dafny.Aws.EncryptionSdk.Core.AwsCryptographicMaterialProvidersFactory.AwsCryptographicMaterialProvidersFactory
             _impl =
-                new Dafny.Aws.Encryption.Core.AwsCryptographicMaterialProvidersFactory.
+                new Dafny.Aws.EncryptionSdk.Core.AwsCryptographicMaterialProvidersFactory.
                     AwsCryptographicMaterialProvidersFactory();
 
-        public static Aws.Encryption.Core.IAwsCryptographicMaterialProviders CreateDefaultAwsCryptographicMaterialProviders()
+        public static Aws.EncryptionSdk.Core.IAwsCryptographicMaterialProviders CreateDefaultAwsCryptographicMaterialProviders()
         {
-            Wrappers_Compile._IResult<Dafny.Aws.Encryption.Core.IAwsCryptographicMaterialProviders,
-                Dafny.Aws.Encryption.Core.IAwsCryptographicMaterialProvidersException> result =
+            Wrappers_Compile._IResult<Dafny.Aws.EncryptionSdk.Core.IAwsCryptographicMaterialProviders,
+                Dafny.Aws.EncryptionSdk.Core.IAwsCryptographicMaterialProvidersException> result =
                 _impl.CreateDefaultAwsCryptographicMaterialProviders();
             if (result.is_Failure)
                 throw TypeConversion.FromDafny_CommonError_AwsCryptographicMaterialProvidersBaseException(
                     result.dtor_error);
-            return TypeConversion.FromDafny_N3_aws__N10_encryption__N4_core__S42_AwsCryptographicMaterialProvidersReference(
+            return TypeConversion.FromDafny_N3_aws__N13_encryptionSdk__N4_core__S42_AwsCryptographicMaterialProvidersReference(
                 result.dtor_value);
         }
     }

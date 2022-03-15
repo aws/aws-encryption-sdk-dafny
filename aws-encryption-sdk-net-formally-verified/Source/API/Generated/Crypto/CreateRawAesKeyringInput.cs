@@ -2,19 +2,19 @@
 // SPDX-License-Identifier: Apache-2.0
 
 using System;
-using Aws.Encryption.Core;
+using Aws.EncryptionSdk.Core;
 using
-    Aws.Encryption.Core
+    Aws.EncryptionSdk.Core
     ;
 
-namespace Aws.Encryption.Core
+namespace Aws.EncryptionSdk.Core
 {
     public class CreateRawAesKeyringInput
     {
         private string _keyNamespace;
         private string _keyName;
         private System.IO.MemoryStream _wrappingKey;
-        private Aws.Encryption.Core.AesWrappingAlg _wrappingAlg;
+        private Aws.EncryptionSdk.Core.AesWrappingAlg _wrappingAlg;
 
         public string KeyNamespace
         {
@@ -49,7 +49,7 @@ namespace Aws.Encryption.Core
             return this._wrappingKey != null;
         }
 
-        public Aws.Encryption.Core.AesWrappingAlg WrappingAlg
+        public Aws.EncryptionSdk.Core.AesWrappingAlg WrappingAlg
         {
             get { return this._wrappingAlg; }
             set { this._wrappingAlg = value; }

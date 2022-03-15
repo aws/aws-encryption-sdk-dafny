@@ -2,44 +2,46 @@
 // SPDX-License-Identifier: Apache-2.0
 
 using System;
-using Aws.Encryption.Core;
+using Aws.EncryptionSdk.Core;
 using
-    Aws.Encryption.Core
+    Aws.EncryptionSdk.Core
     ;
 
-namespace Aws.Encryption.Core
+namespace Aws.EncryptionSdk.Core
 {
     public interface IAwsCryptographicMaterialProviders
     {
-        Aws.Encryption.Core.IKeyring CreateAwsKmsKeyring(Aws.Encryption.Core.CreateAwsKmsKeyringInput input);
+        Aws.EncryptionSdk.Core.IKeyring CreateAwsKmsKeyring(Aws.EncryptionSdk.Core.CreateAwsKmsKeyringInput input);
 
-        Aws.Encryption.Core.IKeyring CreateAwsKmsDiscoveryKeyring(
-            Aws.Encryption.Core.CreateAwsKmsDiscoveryKeyringInput input);
+        Aws.EncryptionSdk.Core.IKeyring CreateAwsKmsDiscoveryKeyring(
+            Aws.EncryptionSdk.Core.CreateAwsKmsDiscoveryKeyringInput input);
 
-        Aws.Encryption.Core.IKeyring CreateAwsKmsMultiKeyring(Aws.Encryption.Core.CreateAwsKmsMultiKeyringInput input);
+        Aws.EncryptionSdk.Core.IKeyring CreateAwsKmsMultiKeyring(
+            Aws.EncryptionSdk.Core.CreateAwsKmsMultiKeyringInput input);
 
-        Aws.Encryption.Core.IKeyring CreateAwsKmsDiscoveryMultiKeyring(
-            Aws.Encryption.Core.CreateAwsKmsDiscoveryMultiKeyringInput input);
+        Aws.EncryptionSdk.Core.IKeyring CreateAwsKmsDiscoveryMultiKeyring(
+            Aws.EncryptionSdk.Core.CreateAwsKmsDiscoveryMultiKeyringInput input);
 
-        Aws.Encryption.Core.IKeyring CreateAwsKmsMrkKeyring(Aws.Encryption.Core.CreateAwsKmsMrkKeyringInput input);
+        Aws.EncryptionSdk.Core.IKeyring
+            CreateAwsKmsMrkKeyring(Aws.EncryptionSdk.Core.CreateAwsKmsMrkKeyringInput input);
 
-        Aws.Encryption.Core.IKeyring CreateAwsKmsMrkMultiKeyring(
-            Aws.Encryption.Core.CreateAwsKmsMrkMultiKeyringInput input);
+        Aws.EncryptionSdk.Core.IKeyring CreateAwsKmsMrkMultiKeyring(
+            Aws.EncryptionSdk.Core.CreateAwsKmsMrkMultiKeyringInput input);
 
-        Aws.Encryption.Core.IKeyring CreateAwsKmsMrkDiscoveryKeyring(
-            Aws.Encryption.Core.CreateAwsKmsMrkDiscoveryKeyringInput input);
+        Aws.EncryptionSdk.Core.IKeyring CreateAwsKmsMrkDiscoveryKeyring(
+            Aws.EncryptionSdk.Core.CreateAwsKmsMrkDiscoveryKeyringInput input);
 
-        Aws.Encryption.Core.IKeyring CreateAwsKmsMrkDiscoveryMultiKeyring(
-            Aws.Encryption.Core.CreateAwsKmsMrkDiscoveryMultiKeyringInput input);
+        Aws.EncryptionSdk.Core.IKeyring CreateAwsKmsMrkDiscoveryMultiKeyring(
+            Aws.EncryptionSdk.Core.CreateAwsKmsMrkDiscoveryMultiKeyringInput input);
 
-        Aws.Encryption.Core.IKeyring CreateMultiKeyring(Aws.Encryption.Core.CreateMultiKeyringInput input);
-        Aws.Encryption.Core.IKeyring CreateRawAesKeyring(Aws.Encryption.Core.CreateRawAesKeyringInput input);
-        Aws.Encryption.Core.IKeyring CreateRawRsaKeyring(Aws.Encryption.Core.CreateRawRsaKeyringInput input);
+        Aws.EncryptionSdk.Core.IKeyring CreateMultiKeyring(Aws.EncryptionSdk.Core.CreateMultiKeyringInput input);
+        Aws.EncryptionSdk.Core.IKeyring CreateRawAesKeyring(Aws.EncryptionSdk.Core.CreateRawAesKeyringInput input);
+        Aws.EncryptionSdk.Core.IKeyring CreateRawRsaKeyring(Aws.EncryptionSdk.Core.CreateRawRsaKeyringInput input);
 
-        Aws.Encryption.Core.ICryptographicMaterialsManager CreateDefaultCryptographicMaterialsManager(
-            Aws.Encryption.Core.CreateDefaultCryptographicMaterialsManagerInput input);
+        Aws.EncryptionSdk.Core.ICryptographicMaterialsManager CreateDefaultCryptographicMaterialsManager(
+            Aws.EncryptionSdk.Core.CreateDefaultCryptographicMaterialsManagerInput input);
 
-        Aws.Encryption.Core.IClientSupplier CreateDefaultClientSupplier(
-            Aws.Encryption.Core.CreateDefaultClientSupplierInput input);
+        Aws.EncryptionSdk.Core.IClientSupplier CreateDefaultClientSupplier(
+            Aws.EncryptionSdk.Core.CreateDefaultClientSupplierInput input);
     }
 }

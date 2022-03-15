@@ -2,17 +2,17 @@
 // SPDX-License-Identifier: Apache-2.0
 
 using System;
-using Aws.Encryption.Core;
+using Aws.EncryptionSdk.Core;
 using
-    Aws.Encryption.Core
+    Aws.EncryptionSdk.Core
     ;
 
-namespace Aws.Encryption.Core
+namespace Aws.EncryptionSdk.Core
 {
     public class CreateAwsKmsMrkDiscoveryKeyringInput
     {
         private Amazon.KeyManagementService.IAmazonKeyManagementService _kmsClient;
-        private Aws.Encryption.Core.DiscoveryFilter _discoveryFilter;
+        private Aws.EncryptionSdk.Core.DiscoveryFilter _discoveryFilter;
         private System.Collections.Generic.List<string> _grantTokens;
         private string _region;
 
@@ -27,7 +27,7 @@ namespace Aws.Encryption.Core
             return this._kmsClient != null;
         }
 
-        public Aws.Encryption.Core.DiscoveryFilter DiscoveryFilter
+        public Aws.EncryptionSdk.Core.DiscoveryFilter DiscoveryFilter
         {
             get { return this._discoveryFilter; }
             set { this._discoveryFilter = value; }
