@@ -13,7 +13,7 @@ using Xunit;
 
 /// Demonstrate an encrypt/decrypt cycle using an AWS KMS MRK discovery keyring.
 public class AwsKmsMrkDiscoveryKeyringExample {
-    private static void Run(MemoryStream plaintext, string encryptKeyArn, string decryptKeyArn) {
+    private static void Run(MemoryStream plaintext, string encryptKeyArn, string decryptRegion) {
         // Create your encryption context.
         // Remember that your encryption context is NOT SECRET.
         // https://docs.aws.amazon.com/encryption-sdk/latest/developer-guide/concepts.html#encryption-context
@@ -32,7 +32,7 @@ public class AwsKmsMrkDiscoveryKeyringExample {
         // Create the keyring that determines how your data keys are protected. Though this example highlights
         // Discovery keyrings, Discovery keyrings cannot be used to encrypt, so for encryption we create
         // a KMS keyring without discovery mode.
-        var encryptRegion = ExampleUtils.ExampleUtils.GetRegionForArn(encryptKeyArn);
+        var encryptRegion = Arn.Parse(encryptKeyArn).Region;
         var createKeyringInput = new CreateAwsKmsMrkKeyringInput
         {
             KmsClient = new AmazonKeyManagementServiceClient(RegionEndpoint.GetBySystemName(encryptRegion)),
@@ -55,7 +55,6 @@ public class AwsKmsMrkDiscoveryKeyringExample {
 
         // Now create a Discovery keyring to use for decryption. In order to illustrate the MRK behavior of this
         // keyring, we configure the keyring to use the second KMS region where the MRK is replicated to.
-        var decryptRegion = ExampleUtils.ExampleUtils.GetRegionForArn(decryptKeyArn);
         var createDecryptKeyringInput = new CreateAwsKmsMrkDiscoveryKeyringInput
         {
             KmsClient = new AmazonKeyManagementServiceClient(RegionEndpoint.GetBySystemName(decryptRegion)),
@@ -95,7 +94,7 @@ public class AwsKmsMrkDiscoveryKeyringExample {
         Run(
             ExampleUtils.ExampleUtils.GetPlaintextStream(),
             ExampleUtils.ExampleUtils.GetDefaultRegionMrkKeyArn(),
-            ExampleUtils.ExampleUtils.GetAlternateRegionMrkKeyArn()
+            Arn.Parse(ExampleUtils.ExampleUtils.GetAlternateRegionMrkKeyArn()).Region
         );
     }
 }

@@ -26,7 +26,7 @@ namespace ExampleUtils {
             string value = System.Environment.GetEnvironmentVariable(keyName);
             if (value == null) {
                 throw new ArgumentException(
-                    String.Format("Please set environment variable {0} to a valid KMS key id", keyName)
+                    String.Format("Please set environment variable {0} to a valid KMS key ARN", keyName)
                 );
             }
             return value;
@@ -49,20 +49,7 @@ namespace ExampleUtils {
 
         static public string GetAlternateRegionMrkKeyArn()
         {
-            return GetEnvVariable(TEST_AWS_KMS_MRK_KEY_ID_ENV_VAR);
-        }
-
-        static public string GetRegionForArn(string arn)
-        {
-            var split = arn.Split(":");
-            if (split.Length != 6)
-            {
-                throw new ArgumentException(
-                    String.Format("Arn is invalid: {0}", arn)
-                );
-            }
-
-            return split[3];
+            return GetEnvVariable(TEST_AWS_KMS_MRK_KEY_ID_ENV_VAR_2);
         }
 
         static public List<string> GetAccountIds()

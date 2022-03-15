@@ -30,7 +30,7 @@ public class AwsKmsMrkKeyringExample {
         var encryptionSdk = AwsEncryptionSdkFactory.CreateDefaultAwsEncryptionSdk();
         
         // Create a keyring that will encrypt your data, using a KMS MRK key in the first region.
-        var encryptRegion = ExampleUtils.ExampleUtils.GetRegionForArn(encryptKeyArn);
+        var encryptRegion = Arn.Parse(encryptKeyArn).Region;
         var createEncryptKeyringInput = new CreateAwsKmsMrkKeyringInput
         {
             KmsClient = new AmazonKeyManagementServiceClient(RegionEndpoint.GetBySystemName(encryptRegion)),
@@ -54,11 +54,11 @@ public class AwsKmsMrkKeyringExample {
         // Create a keyring that will decrypt your data, using the same KMS MRK key replicated to the second region.
         // This example assumes you have already replicated your key; for more info on this, see the KMS documentation:
         // https://docs.aws.amazon.com/kms/latest/developerguide/multi-region-keys-overview.html
-        var decryptRegion = ExampleUtils.ExampleUtils.GetRegionForArn(decryptKeyArn);
+        var decryptRegion = Arn.Parse(decryptKeyArn).Region;
         var createDecryptKeyringInput = new CreateAwsKmsMrkKeyringInput
         {
             KmsClient = new AmazonKeyManagementServiceClient(RegionEndpoint.GetBySystemName(decryptRegion)),
-            KmsKeyId = encryptKeyArn
+            KmsKeyId = decryptKeyArn
         };
         var decryptKeyring = materialProviders.CreateAwsKmsMrkKeyring(createDecryptKeyringInput);
 
