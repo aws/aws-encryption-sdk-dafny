@@ -128,7 +128,7 @@ namespace TestVectors.Runner {
                     Ciphertext = ciphertextStream,
                     MaterialsManager = cmm,
                 };
-                DecryptOutput decryptOutput = encryptionSdk.Decrypt(decryptInput);
+                Aws.Encryption.DecryptOutput decryptOutput = encryptionSdk.Decrypt(decryptInput);
 
                 if (expectedError != null)
                 {
