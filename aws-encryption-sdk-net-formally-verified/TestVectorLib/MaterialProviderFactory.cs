@@ -8,7 +8,7 @@ using System.IO;
 using System.Linq;
 using Amazon;
 using Amazon.KeyManagementService;
-using Aws.Encryption.Core;
+using Aws.EncryptionSdk.Core;
 using RSAEncryption;
 
 namespace TestVectors
