@@ -4,6 +4,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using Amazon;
 using Amazon.KeyManagementService;
 using Aws.Crypto;
 using Aws.Esdk;
@@ -51,10 +52,16 @@ public class AwsKmsDiscoveryKeyringExample {
         // Demonstrate that the ciphertext and plaintext are different.
         Assert.NotEqual(ciphertext.ToArray(), plaintext.ToArray());
 
-        // Now create a Discovery keyring to use for decryption.
+        // Now create a Discovery keyring to use for decryption. We'll add a discovery filter so that we limit
+        // the set of ciphertexts we are willing to decrypt to only ones created by KMS keys in our region and
+        // partition.
         var createDecryptKeyringInput = new CreateAwsKmsDiscoveryKeyringInput
         {
-            KmsClient = new AmazonKeyManagementServiceClient()
+            KmsClient = new AmazonKeyManagementServiceClient(),
+            DiscoveryFilter = new DiscoveryFilter() {
+                AccountIds = ExampleUtils.ExampleUtils.GetAccountIds(),
+                Partition = "aws"
+            }
         };
         var decryptKeyring = materialProviders.CreateAwsKmsDiscoveryKeyring(createDecryptKeyringInput);
 
