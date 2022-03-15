@@ -52,7 +52,8 @@ public class AwsKmsMrkKeyringExample {
         Assert.NotEqual(ciphertext.ToArray(), plaintext.ToArray());
 
         // Create a keyring that will decrypt your data, using the same KMS MRK key replicated to the second region.
-        // This example assumes you have already replicated your key; for more info on this, see the KMS documentation.
+        // This example assumes you have already replicated your key; for more info on this, see the KMS documentation:
+        // https://docs.aws.amazon.com/kms/latest/developerguide/multi-region-keys-overview.html
         var decryptRegion = ExampleUtils.ExampleUtils.GetRegionForArn(decryptKeyArn);
         var createDecryptKeyringInput = new CreateAwsKmsMrkKeyringInput
         {
