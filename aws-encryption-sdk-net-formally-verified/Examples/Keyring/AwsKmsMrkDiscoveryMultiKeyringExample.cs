@@ -53,7 +53,9 @@ public class AwsKmsMrkDiscoveryMultiKeyringExample {
         // Demonstrate that the ciphertext and plaintext are different.
         Assert.NotEqual(ciphertext.ToArray(), plaintext.ToArray());
 
-
+        // Now create a Discovery keyring to use for decryption. We'll add a discovery filter so that we limit
+        // the set of ciphertexts we are willing to decrypt to only ones created by KMS keys in our region and
+        // partition.
         var createDecryptKeyringInput = new CreateAwsKmsMrkDiscoveryMultiKeyringInput
         {
             Regions = regions,
@@ -64,8 +66,6 @@ public class AwsKmsMrkDiscoveryMultiKeyringExample {
         };
         var keyring = materialProviders.CreateAwsKmsMrkDiscoveryMultiKeyring(createDecryptKeyringInput);
 
-        // Decrypt your encrypted data using the same keyring you used on encrypt.
-        //
         // You do not need to specify the encryption context on decrypt
         // because the header of the encrypted message includes the encryption context.
         var decryptInput = new DecryptInput
