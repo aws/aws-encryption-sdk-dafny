@@ -4,7 +4,6 @@
 using System;
 using System.IO;
 using System.Collections.Generic;
-using Aws.EncryptionSdk;
 using Aws.EncryptionSdk.Core;
 using
     Aws.EncryptionSdk.Core
