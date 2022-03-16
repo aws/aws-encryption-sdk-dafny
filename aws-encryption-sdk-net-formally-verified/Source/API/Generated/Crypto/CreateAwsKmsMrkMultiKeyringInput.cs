@@ -2,18 +2,18 @@
 // SPDX-License-Identifier: Apache-2.0
 
 using System;
-using Aws.Crypto;
+using Aws.EncryptionSdk.Core;
 using
-    Aws.Crypto
+    Aws.EncryptionSdk.Core
     ;
 
-namespace Aws.Crypto
+namespace Aws.EncryptionSdk.Core
 {
     public class CreateAwsKmsMrkMultiKeyringInput
     {
         private string _generator;
         private System.Collections.Generic.List<string> _kmsKeyIds;
-        private Aws.Crypto.IClientSupplier _clientSupplier;
+        private Aws.EncryptionSdk.Core.IClientSupplier _clientSupplier;
         private System.Collections.Generic.List<string> _grantTokens;
 
         public string Generator
@@ -38,7 +38,7 @@ namespace Aws.Crypto
             return this._kmsKeyIds != null;
         }
 
-        public Aws.Crypto.IClientSupplier ClientSupplier
+        public Aws.EncryptionSdk.Core.IClientSupplier ClientSupplier
         {
             get { return this._clientSupplier; }
             set { this._clientSupplier = value; }

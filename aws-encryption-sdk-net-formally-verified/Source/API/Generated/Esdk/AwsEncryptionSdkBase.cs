@@ -2,29 +2,29 @@
 // SPDX-License-Identifier: Apache-2.0
 
 using System;
-using Aws.Crypto;
+using Aws.EncryptionSdk.Core;
 using
-    Aws.Esdk
+    Aws.EncryptionSdk
     ;
 
-namespace Aws.Esdk
+namespace Aws.EncryptionSdk
 {
     public abstract class AwsEncryptionSdkBase : IAwsEncryptionSdk
     {
-        public Aws.Esdk.EncryptOutput Encrypt(Aws.Esdk.EncryptInput input)
+        public Aws.EncryptionSdk.EncryptOutput Encrypt(Aws.EncryptionSdk.EncryptInput input)
         {
             input.Validate();
             return _Encrypt(input);
         }
 
-        protected abstract Aws.Esdk.EncryptOutput _Encrypt(Aws.Esdk.EncryptInput input);
+        protected abstract Aws.EncryptionSdk.EncryptOutput _Encrypt(Aws.EncryptionSdk.EncryptInput input);
 
-        public Aws.Esdk.DecryptOutput Decrypt(Aws.Esdk.DecryptInput input)
+        public Aws.EncryptionSdk.DecryptOutput Decrypt(Aws.EncryptionSdk.DecryptInput input)
         {
             input.Validate();
             return _Decrypt(input);
         }
 
-        protected abstract Aws.Esdk.DecryptOutput _Decrypt(Aws.Esdk.DecryptInput input);
+        protected abstract Aws.EncryptionSdk.DecryptOutput _Decrypt(Aws.EncryptionSdk.DecryptInput input);
     }
 }

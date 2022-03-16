@@ -2,18 +2,18 @@
 // SPDX-License-Identifier: Apache-2.0
 
 using System;
-using Aws.Crypto;
+using Aws.EncryptionSdk.Core;
 using
-    Aws.Esdk
+    Aws.EncryptionSdk
     ;
 
-namespace Aws.Esdk
+namespace Aws.EncryptionSdk
 {
     public class DecryptOutput
     {
         private System.IO.MemoryStream _plaintext;
         private System.Collections.Generic.Dictionary<string, string> _encryptionContext;
-        private Aws.Crypto.AlgorithmSuiteId _algorithmSuiteId;
+        private Aws.EncryptionSdk.Core.AlgorithmSuiteId _algorithmSuiteId;
 
         public System.IO.MemoryStream Plaintext
         {
@@ -37,7 +37,7 @@ namespace Aws.Esdk
             return this._encryptionContext != null;
         }
 
-        public Aws.Crypto.AlgorithmSuiteId AlgorithmSuiteId
+        public Aws.EncryptionSdk.Core.AlgorithmSuiteId AlgorithmSuiteId
         {
             get { return this._algorithmSuiteId; }
             set { this._algorithmSuiteId = value; }

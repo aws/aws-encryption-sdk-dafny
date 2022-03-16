@@ -10,8 +10,8 @@ using System.Linq;
 using Newtonsoft.Json.Linq;
 using Xunit;
 
-using Aws.Crypto;
-using Aws.Esdk;
+using Aws.EncryptionSdk;
+using Aws.EncryptionSdk.Core;
 
 namespace TestVectors.Runner {
     public abstract class TestVectorData : IEnumerable<object[]> {
@@ -128,7 +128,7 @@ namespace TestVectors.Runner {
                     Ciphertext = ciphertextStream,
                     MaterialsManager = cmm,
                 };
-                Aws.Esdk.DecryptOutput decryptOutput = encryptionSdk.Decrypt(decryptInput);
+                Aws.EncryptionSdk.DecryptOutput decryptOutput = encryptionSdk.Decrypt(decryptInput);
 
                 if (expectedError != null)
                 {

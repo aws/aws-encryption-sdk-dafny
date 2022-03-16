@@ -16,7 +16,7 @@ include "../../../Generated/AwsCryptographicMaterialProviders.dfy"
 include "../../../Generated/KeyManagementService.dfy"
 
 module
-  {:extern "Dafny.Aws.Crypto.MaterialProviders.AwsKmsKeyring"}
+  {:extern "Dafny.Aws.EncryptionSdk.Core.AwsKmsKeyring"}
   MaterialProviders.AwsKmsKeyring
 {
   import opened StandardLibrary

@@ -2,18 +2,18 @@
 // SPDX-License-Identifier: Apache-2.0
 
 using System;
-using Aws.Crypto;
+using Aws.EncryptionSdk.Core;
 using
-    Aws.Crypto
+    Aws.EncryptionSdk.Core
     ;
 
-namespace Aws.Crypto
+namespace Aws.EncryptionSdk.Core
 {
     public class GetEncryptionMaterialsInput
     {
         private System.Collections.Generic.Dictionary<string, string> _encryptionContext;
-        private Aws.Crypto.CommitmentPolicy _commitmentPolicy;
-        private Aws.Crypto.AlgorithmSuiteId _algorithmSuiteId;
+        private Aws.EncryptionSdk.Core.CommitmentPolicy _commitmentPolicy;
+        private Aws.EncryptionSdk.Core.AlgorithmSuiteId _algorithmSuiteId;
         private long? _maxPlaintextLength;
 
         public System.Collections.Generic.Dictionary<string, string> EncryptionContext
@@ -27,7 +27,7 @@ namespace Aws.Crypto
             return this._encryptionContext != null;
         }
 
-        public Aws.Crypto.CommitmentPolicy CommitmentPolicy
+        public Aws.EncryptionSdk.Core.CommitmentPolicy CommitmentPolicy
         {
             get { return this._commitmentPolicy; }
             set { this._commitmentPolicy = value; }
@@ -38,7 +38,7 @@ namespace Aws.Crypto
             return this._commitmentPolicy != null;
         }
 
-        public Aws.Crypto.AlgorithmSuiteId AlgorithmSuiteId
+        public Aws.EncryptionSdk.Core.AlgorithmSuiteId AlgorithmSuiteId
         {
             get { return this._algorithmSuiteId; }
             set { this._algorithmSuiteId = value; }

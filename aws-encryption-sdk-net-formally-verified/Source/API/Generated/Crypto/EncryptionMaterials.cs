@@ -2,22 +2,22 @@
 // SPDX-License-Identifier: Apache-2.0
 
 using System;
-using Aws.Crypto;
+using Aws.EncryptionSdk.Core;
 using
-    Aws.Crypto
+    Aws.EncryptionSdk.Core
     ;
 
-namespace Aws.Crypto
+namespace Aws.EncryptionSdk.Core
 {
     public class EncryptionMaterials
     {
-        private Aws.Crypto.AlgorithmSuiteId _algorithmSuiteId;
+        private Aws.EncryptionSdk.Core.AlgorithmSuiteId _algorithmSuiteId;
         private System.Collections.Generic.Dictionary<string, string> _encryptionContext;
-        private System.Collections.Generic.List<Aws.Crypto.EncryptedDataKey> _encryptedDataKeys;
+        private System.Collections.Generic.List<Aws.EncryptionSdk.Core.EncryptedDataKey> _encryptedDataKeys;
         private System.IO.MemoryStream _plaintextDataKey;
         private System.IO.MemoryStream _signingKey;
 
-        public Aws.Crypto.AlgorithmSuiteId AlgorithmSuiteId
+        public Aws.EncryptionSdk.Core.AlgorithmSuiteId AlgorithmSuiteId
         {
             get { return this._algorithmSuiteId; }
             set { this._algorithmSuiteId = value; }
@@ -39,7 +39,7 @@ namespace Aws.Crypto
             return this._encryptionContext != null;
         }
 
-        public System.Collections.Generic.List<Aws.Crypto.EncryptedDataKey> EncryptedDataKeys
+        public System.Collections.Generic.List<Aws.EncryptionSdk.Core.EncryptedDataKey> EncryptedDataKeys
         {
             get { return this._encryptedDataKeys; }
             set { this._encryptedDataKeys = value; }
