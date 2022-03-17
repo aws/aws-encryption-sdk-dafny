@@ -36,8 +36,9 @@ phases:
       - export BASE_VERSION=`grep '<Version>' Source/AWSEncryptionSDK.csproj | sed 's/.*<Version>\(.*\)<\/Version>/\1/'`
       - export UNIQUE_VERSION=$BASE_VERSION-`git rev-parse --short HEAD`
       # Release to CodeArtifact
-      - dotnet pack Source /p:Version=$UNIQUE_VERSION
-      - dotnet nuget push Source/bin/Debug/AWSEncryptionSDK.$UNIQUE_VERSION.nupkg --source crypto-tools-internal/net-esdk-staging
+      - mkdir build
+      - dotnet pack Source /p:Version=$UNIQUE_VERSION --output build
+      - dotnet nuget push build/AWSEncryptionSDK.$UNIQUE_VERSION.nupkg --source crypto-tools-internal/net-esdk-staging
   build:
     # Since we successfully published to CodeArtifact, we want to continue to cleanup phase if this
     # phase fails

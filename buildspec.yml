@@ -23,3 +23,8 @@ batch:
       env:
         variables:
           DOTNET_TARGET_VERSION: netcoreapp3.1
+    - identifier: dotnet_examples_net_shouldnt_work
+      buildspec: codebuild/dotnet/examples.yml
+      env:
+        variables:
+          DOTNET_TARGET_VERSION: net47
