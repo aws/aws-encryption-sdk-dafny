@@ -28,9 +28,3 @@ batch:
       env:
         variables:
           DOTNET_TARGET_VERSION: net47
-    - identifier: dotnet_examples_windows
-      buildspec: codebuild/dotnet/examples.yml
-      env:
-        image: aws/codebuild/windows-base:2019-1.0
-        variables:
-          DOTNET_TARGET_VERSION: net5.0
