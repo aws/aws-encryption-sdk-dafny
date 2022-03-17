@@ -40,7 +40,7 @@ module Streams {
       ensures data == old(data)
       ensures Valid()
     {
-      elems := data[pos..][..n];
+      elems := data[pos..pos + n];
       pos := pos + n;
       return elems;
     }
