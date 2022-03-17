@@ -1,52 +1,12 @@
 // Copyright Amazon.com Inc. or its affiliates. All Rights Reserved.
 // SPDX-License-Identifier: Apache-2.0
 
+include "../../libraries/src/Wrappers.dfy"
 include "UInt.dfy"
 
-module {:extern "STL"} StandardLibrary {
+module StandardLibrary {
+  import opened Wrappers
   import opened U = UInt
-
-  // TODO: Depend on types defined in dafny-lang/libraries instead
-  datatype Option<+T> = None | Some(get: T)
-  {
-    function method ToResult(): Result<T> {
-      match this
-      case Some(v) => Success(v)
-      case None() => Failure("Option is None")
-    }
-    function method GetOrElse(default: T): T {
-      match this
-      case Some(v) => v
-      case None => default
-    }
-  }
-
-  datatype Result<T> = Success(value: T) | Failure(error: string)
-  {
-    predicate method IsFailure() {
-      Failure?
-    }
-    function method PropagateFailure<U>(): Result<U>
-      requires Failure?
-    {
-      Failure(this.error)
-    }
-    function method Extract(): T
-      requires Success?
-    {
-      value
-    }
-    function method ToOption(): Option<T> {
-      match this
-      case Success(s) => Some(s)
-      case Failure(e) => None()
-    }
-    function method GetOrElse(default: T): T {
-      match this
-      case Success(s) => s
-      case Failure(e) => default
-    }
-  }
 
   function method {:tailrecursion} Join<T>(ss: seq<seq<T>>, joiner: seq<T>): (s: seq<T>)
     requires 0 < |ss|
@@ -63,7 +23,7 @@ module {:extern "STL"} StandardLibrary {
     decreases |s|
   {
     var i := FindIndexMatching(s, delim, 0);
-    if i.Some? then [s[..i.get]] + Split(s[(i.get + 1)..], delim) else [s]
+    if i.Some? then [s[..i.value]] + Split(s[(i.value + 1)..], delim) else [s]
   }
 
   lemma WillSplitOnDelim<T>(s: seq<T>, delim: T, prefix: seq<T>)
@@ -76,7 +36,7 @@ module {:extern "STL"} StandardLibrary {
       Split(s, delim);
     ==
       var i := FindIndexMatching(s, delim, 0);
-      if i.Some? then [s[..i.get]] + Split(s[i.get + 1..], delim) else [s];
+      if i.Some? then [s[..i.value]] + Split(s[i.value + 1..], delim) else [s];
     ==  { FindIndexMatchingLocatesElem(s, delim, 0, |prefix|); assert FindIndexMatching(s, delim, 0).Some?; }
       [s[..|prefix|]] + Split(s[|prefix| + 1..], delim);
     ==  { assert s[..|prefix|] == prefix; }
@@ -92,7 +52,7 @@ module {:extern "STL"} StandardLibrary {
       Split(s, delim);
     ==
       var i := FindIndexMatching(s, delim, 0);
-      if i.Some? then [s[..i.get]] + Split(s[i.get+1..], delim) else [s];
+      if i.Some? then [s[..i.value]] + Split(s[i.value+1..], delim) else [s];
     ==  { FindIndexMatchingLocatesElem(s, delim, 0, |s|); }
       [s];
     }
@@ -108,7 +68,7 @@ module {:extern "STL"} StandardLibrary {
 
   function method FindIndexMatching<T(==)>(s: seq<T>, c: T, i: nat): (index: Option<nat>)
     requires i <= |s|
-    ensures index.Some? ==>  i <= index.get < |s| && s[index.get] == c && c !in s[i..index.get]
+    ensures index.Some? ==>  i <= index.value < |s| && s[index.value] == c && c !in s[i..index.value]
     ensures index.None? ==> c !in s[i..]
     decreases |s| - i
   {
@@ -117,7 +77,7 @@ module {:extern "STL"} StandardLibrary {
 
   function method {:tailrecursion} FindIndex<T>(s: seq<T>, f: T -> bool, i: nat): (index: Option<nat>)
     requires i <= |s|
-    ensures index.Some? ==> i <= index.get < |s| && f(s[index.get]) && (forall j :: i <= j < index.get ==> !f(s[j]))
+    ensures index.Some? ==> i <= index.value < |s| && f(s[index.value]) && (forall j :: i <= j < index.value ==> !f(s[j]))
     ensures index.None? ==> forall j :: i <= j < |s| ==> !f(s[j])
     decreases |s| - i
   {
@@ -252,13 +212,13 @@ module {:extern "STL"} StandardLibrary {
    * The proofs are a bit pedantic and include steps that can be automated.
    */
 
-  lemma LexIsReflexive<T(==)>(a: seq<T>, less: (T, T) -> bool)
+  lemma LexIsReflexive<T>(a: seq<T>, less: (T, T) -> bool)
     ensures LexicographicLessOrEqual(a, a, less)
   {
     assert LexicographicLessOrEqualAux(a, a, less, |a|);
   }
 
-  lemma LexIsAntisymmetric<T(==)>(a: seq<T>, b: seq<T>, less: (T, T) -> bool)
+  lemma LexIsAntisymmetric<T>(a: seq<T>, b: seq<T>, less: (T, T) -> bool)
     requires Trich: Trichotomous(less)
     requires LexicographicLessOrEqual(a, b, less)
     requires LexicographicLessOrEqual(b, a, less)
@@ -301,7 +261,7 @@ module {:extern "STL"} StandardLibrary {
     }
   }
 
-  lemma LexIsTransitive<T(==)>(a: seq<T>, b: seq<T>, c: seq<T>, less: (T, T) -> bool)
+  lemma LexIsTransitive<T>(a: seq<T>, b: seq<T>, c: seq<T>, less: (T, T) -> bool)
     requires Transitive(less)
     requires LexicographicLessOrEqual(a, b, less)
     requires LexicographicLessOrEqual(b, c, less)
@@ -313,7 +273,7 @@ module {:extern "STL"} StandardLibrary {
     assert LexicographicLessOrEqualAux(a, c, less, k);
   }
 
-  lemma LexIsTotal<T(==)>(a: seq<T>, b: seq<T>, less: (T, T) -> bool)
+  lemma LexIsTotal<T>(a: seq<T>, b: seq<T>, less: (T, T) -> bool)
     requires Trich: Trichotomous(less)
     ensures LexicographicLessOrEqual(a, b, less) || LexicographicLessOrEqual(b, a, less)
   {

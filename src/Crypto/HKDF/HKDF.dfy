@@ -2,7 +2,6 @@
 // SPDX-License-Identifier: Apache-2.0
 
 include "HMAC.dfy"
-include "../KeyDerivationAlgorithms.dfy"
 include "../../StandardLibrary/StandardLibrary.dfy"
 
 /*
@@ -10,16 +9,8 @@ include "../../StandardLibrary/StandardLibrary.dfy"
  */
 module HKDF {
   import opened HMAC
-  import opened KeyDerivationAlgorithms
-  import opened StandardLibrary
+  import opened Wrappers
   import opened UInt = StandardLibrary.UInt
-
-  function method GetHMACDigestFromHKDFAlgorithm(algorithm: HKDFAlgorithms): Digests
-  {
-    match algorithm
-    case HKDF_WITH_SHA_256 => SHA_256
-    case HKDF_WITH_SHA_384 => SHA_384
-  }
 
   method Extract(hmac: HMac, salt: seq<uint8>, ikm: seq<uint8>, ghost digest: Digests) returns (prk: seq<uint8>)
     requires hmac.GetDigest() == digest
@@ -81,6 +72,7 @@ module HKDF {
     modifies hmac
     ensures |okm| == expectedLength
     ensures hmac.GetKey() == prk
+    ensures hmac.GetDigest() == digest
     ensures var n := (GetHashLength(digest) + expectedLength - 1) / GetHashLength(digest);
       && T(hmac, info, n, okmUnabridged)
       && (|okmUnabridged| <= expectedLength ==> okm == okmUnabridged)
@@ -141,9 +133,9 @@ module HKDF {
   /*
    * The RFC 5869 KDF. Outputs L bytes of output key material.
    */
-  method Hkdf(algorithm: HKDFAlgorithms, salt: Option<seq<uint8>>, ikm: seq<uint8>, info: seq<uint8>, L: int) returns (okm: seq<uint8>)
-    requires 0 <= L <= 255 * GetHashLength(GetHMACDigestFromHKDFAlgorithm(algorithm))
-    requires salt.None? || |salt.get| != 0
+  method Hkdf(digest: HMAC.Digests, salt: Option<seq<uint8>>, ikm: seq<uint8>, info: seq<uint8>, L: int) returns (okm: seq<uint8>)
+    requires 0 <= L <= 255 * GetHashLength(digest)
+    requires salt.None? || |salt.value| != 0
     requires |info| < INT32_MAX_LIMIT
     requires |ikm| < INT32_MAX_LIMIT
     ensures |okm| == L
@@ -151,14 +143,13 @@ module HKDF {
     if L == 0 {
       return [];
     }
-    var digest := GetHMACDigestFromHKDFAlgorithm(algorithm);
     var hmac := new HMac(digest);
     var hashLength := GetHashLength(digest);
 
     var nonEmptySalt: seq<uint8>;
     match salt {
       case None =>
-        nonEmptySalt := Fill(0, hashLength);
+        nonEmptySalt := StandardLibrary.Fill(0, hashLength);
       case Some(s) =>
         nonEmptySalt := s;
     }

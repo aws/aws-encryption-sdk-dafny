@@ -5,7 +5,6 @@ include "../../src/StandardLibrary/StandardLibrary.dfy"
 include "../../src/Util/Streams.dfy"
 
 module TestStreams {
-  import opened StandardLibrary
   import opened UInt = StandardLibrary.UInt
   import opened Streams
 

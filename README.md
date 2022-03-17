@@ -19,10 +19,52 @@ To run the dafny verifier across all files:
 dotnet build -t:VerifyDafny test
 ```
 
-The tests currently require native implementations of cryptographic primitives and other methods, 
+The tests currently require native implementations of cryptographic primitives and other methods,
 so they can only be run when embedding this library into one of the compilation target languages supported by Dafny:
 
 - [.NET](https://github.com/awslabs/aws-encryption-sdk-net)
+
+## Generate code
+
+TODO: remove before launch; customers wont' be using this
+
+If you change any of the ESDK model files you will need to re-run our code generators to generate
+the API skeletons and shims. This is done via our [polymorph](https://github.com/awslabs/polymorph)
+package.
+
+First, clone that repository to some local location.
+
+Then, from the root of this repository, run `bin/generate-code.sh`,
+passing the root location of your polymorph repository as a parameter.
+
+Finally, you'll need to manually run a code formatter as described in the [README](./aws-encryption-sdk-net-formally-verified/Source/API/Generated).
+
+## Generate Duvet Reports
+
+This repo uses Duvet to directly document the [specification](https://github.com/awslabs/aws-encryption-sdk-specification) alongside this implementation.
+Refer to the [specification](https://github.com/awslabs/aws-encryption-sdk-specification/blob/master/README.md) for how to install duvet in order to generate reports.
+
+To generate a report for this AWS Encryption SDK for Dafny, run the following command:
+
+```
+./duvet_report.sh
+```
+
+It will output if there is any missing coverage.
+
+By default `duvet_report` will extract the spec only if it cannot find the `compliance` directory in the specification repo, but will re-use a previous extraction if
+it exists. If you want to force it to re-extract the spec (for example, if you have made changes to the spec in your local directory),
+you can do so with the following:
+
+```
+./duvet_report.sh rebuild
+```
+
+```
+open specification_compliance_report.html
+```
+
+To view the report, look at the generated `specification_compliance_report.html`:
 
 ## License
 

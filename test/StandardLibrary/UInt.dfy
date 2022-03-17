@@ -5,7 +5,6 @@ include "../../src/StandardLibrary/UInt.dfy"
 include "../../src/StandardLibrary/StandardLibrary.dfy"
 
 module TestUInt {
-  import opened StandardLibrary
   import opened UInt = StandardLibrary.UInt
 
   method {:test} TestUInt16ToSeq() {

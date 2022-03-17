@@ -8,7 +8,7 @@ include "UInt.dfy"
  * Note that additional lemmas for this module are in Base64Lemmas.dfy.
  */
 module Base64 {
-  import opened StandardLibrary
+  import opened Wrappers
   import opened UInt = StandardLibrary.UInt
 
   // The maximum index for Base64 is less than 64 (0x40)
@@ -225,6 +225,7 @@ module Base64 {
     ensures IsUnpaddedBase64String(s)
     ensures |s| == |b| / 3 * 4
     ensures DecodeUnpadded(s) == b
+    ensures |s| % 4 == 0
   {
     FromIndicesToChars(EncodeRecursively(b))
   }
@@ -282,6 +283,7 @@ module Base64 {
     requires |b| == 2
     ensures Is1Padding(s)
     ensures Decode1Padding(s) == b
+    ensures |s| % 4 == 0
   {
     // 0 is used to ensure that the final element doesn't affect the EncodeBlock conversion for b
     var e := EncodeBlock([b[0], b[1], 0]);
@@ -322,6 +324,7 @@ module Base64 {
     requires |b| == 1
     ensures Is2Padding(s)
     ensures Decode2Padding(s) == b
+    ensures |s| % 4 == 0
   {
     // 0 is used to ensure that the final two elements don't affect the EncodeBlock conversion for b
     var e := EncodeBlock([b[0], 0, 0]);
@@ -368,18 +371,35 @@ module Base64 {
       && (Is2Padding(suffix) ==> |b| % 3 == 1)
       && (!Is1Padding(suffix) && !Is2Padding(suffix) ==> |b| % 3 == 0)
   {
-    var finalBlockStart := |s| - 4;
-    if s == [] {
-    } else if Is1Padding(s[finalBlockStart..]) {
-      assert b == DecodeUnpadded(s[..finalBlockStart]) + Decode1Padding(s[finalBlockStart..]);
-    } else if Is2Padding(s[finalBlockStart..]) {
-      assert b == DecodeUnpadded(s[..finalBlockStart]) + Decode2Padding(s[finalBlockStart..]);
-    } else {
-      assert b == DecodeUnpadded(s);
+    if 4 <= |s| {
+      var finalBlockStart := |s| - 4;
+      var prefix, suffix := s[..finalBlockStart], s[finalBlockStart..];
+
+      if s == [] {
+      } else if Is1Padding(suffix) {
+        assert !Is2Padding(suffix);
+        var x, y := DecodeUnpadded(prefix), Decode1Padding(suffix);
+        assert b == x + y;
+        assert |x| == |x| / 3 * 3 && |y| == 2;
+        Mod3(|x| / 3, |y|, |b|);
+      } else if Is2Padding(suffix) {
+        var x, y := DecodeUnpadded(prefix), Decode2Padding(suffix);
+        assert b == x + y;
+        assert |x| == |x| / 3 * 3 && |y| == 1;
+        Mod3(|x| / 3, |y|, |b|);
+      } else {
+        assert b == DecodeUnpadded(s);
+      }
     }
   }
 
-  function method Decode(s: seq<char>): (b: Result<seq<uint8>>)
+  lemma Mod3(x: nat, k: nat, n: nat)
+    requires 0 <= k < 3 && n == 3 * x + k
+    ensures n % 3 == k
+  {
+  }
+
+  function method Decode(s: seq<char>): (b: Result<seq<uint8>, string>)
     ensures IsBase64String(s) ==> b.Success?
     ensures !IsBase64String(s) ==> b.Failure?
   {
@@ -390,15 +410,38 @@ module Base64 {
     forall i :: 0 <= i < |s| ==> s[i] < 128 as char
   }
 
+  lemma ConcatMod4Sequences<T>(s: seq<T>, t: seq<T>)
+    requires |s| % 4 == 0;
+    requires |t| % 4 == 0;
+    ensures |s + t| % 4 == 0;
+  {
+  }
+
   function method Encode(b: seq<uint8>): (s: seq<char>)
     ensures StringIs7Bit(s)
     ensures |s| % 4 == 0
     ensures IsBase64String(s)
     // Rather than ensure Decode(s) == Success(b) directly, lemmas are used to verify this property
   {
-    if |b| % 3 == 0 then EncodeUnpadded(b)
-    else if |b| % 3 == 1 then EncodeUnpadded(b[..(|b| - 1)]) + Encode2Padding(b[(|b| - 1)..])
-    else EncodeUnpadded(b[..(|b| - 2)]) + Encode1Padding(b[(|b| - 2)..])
+    if |b| % 3 == 0 then
+      var s := EncodeUnpadded(b);
+      assert |s| % 4 == 0;
+      s
+    else if |b| % 3 == 1 then
+      assert |b| >= 1;
+      var s1, s2 := EncodeUnpadded(b[..(|b| - 1)]), Encode2Padding(b[(|b| - 1)..]);
+      ConcatMod4Sequences(s1, s2);
+      var s := s1 + s2;
+      assert |s| % 4 == 0;
+      s
+    else
+      assert |b| % 3 == 2;
+      assert |b| >= 2;
+      var s1, s2 := EncodeUnpadded(b[..(|b| - 2)]), Encode1Padding(b[(|b| - 2)..]);
+      ConcatMod4Sequences(s1, s2);
+      var s := s1 + s2;
+      assert |s| % 4 == 0;
+      s
   }
 
   lemma EncodeLengthExact(b: seq<uint8>)

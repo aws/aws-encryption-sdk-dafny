@@ -1,7 +1,7 @@
 // Copyright Amazon.com Inc. or its affiliates. All Rights Reserved.
 // SPDX-License-Identifier: Apache-2.0
 
-module {:extern "STLUInt"} StandardLibrary.UInt {
+module StandardLibrary.UInt {
 
   // TODO: Depend on types defined in dafny-lang/libraries instead
   newtype uint8 = x | 0 <= x < 0x100
@@ -10,12 +10,36 @@ module {:extern "STLUInt"} StandardLibrary.UInt {
   newtype uint64 = x | 0 <= x < 0x1_0000_0000_0000_0000
 
   newtype int32 = x | -0x8000_0000 <= x < 0x8000_0000
+  newtype int64 = x | -0x8000_0000_0000_0000 <= x < 0x8000_0000_0000_0000
 
   const UINT16_LIMIT := 0x1_0000
   const UINT32_LIMIT := 0x1_0000_0000
+  const UINT64_LIMIT := 0x1_0000_0000_0000_0000
   const INT32_MAX_LIMIT := 0x8000_0000
+  const INT64_MAX_LIMIT := 0x8000_0000_0000_0000
 
   predicate method UInt8Less(a: uint8, b: uint8) { a < b }
+
+  predicate method HasUint16Len<T>(s: seq<T>) {
+    |s| < UINT16_LIMIT
+  }
+
+  type seq16<T> = s: seq<T> | HasUint16Len(s)
+  type Uint8Seq16 = seq16<uint8>
+
+  predicate method HasUint32Len<T>(s: seq<T>) {
+    |s| < UINT32_LIMIT
+  }
+
+  type seq32<T> = s: seq<T> | HasUint32Len(s)
+  type Uint8Seq32 = seq32<uint8>
+
+  predicate method HasUint64Len<T>(s: seq<T>) {
+    |s| < UINT64_LIMIT
+  }
+
+  type seq64<T> = s: seq<T> | HasUint64Len(s)
+  type Uint8Seq64 = seq64<uint8>
 
   function method UInt16ToSeq(x: uint16): (ret: seq<uint8>)
     ensures |ret| == 2
@@ -29,6 +53,7 @@ module {:extern "STLUInt"} StandardLibrary.UInt {
   function method SeqToUInt16(s: seq<uint8>): (x: uint16)
     requires |s| == 2
     ensures UInt16ToSeq(x) == s
+    ensures x >= 0
   {
     var x0 := s[0] as uint16 * 0x100;
     x0 + s[1] as uint16
