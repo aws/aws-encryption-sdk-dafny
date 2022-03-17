@@ -1,16 +1,15 @@
 version: 0.2
 
-env:
-  image: aws/codebuild/windows-base:2019-1.0
-
 phases:
   install:
     runtime-versions:
       dotnet: 5.0
     commands:
-      # TODO get Dafny
+      # Get Dafny
+      - Invoke-WebRequest https://github.com/dafny-lang/dafny/releases/download/v3.4.2/dafny-3.4.2-x64-win.zip -UseBasicParsing -OutFile dafny.zip
+      - Expand-Archive -Path dafny.zip -Destination-Path .
+      - $env:Path += ";$pwd\dafny"
+      - Dafny.exe /version
   build:
     commands:
-      # TODO remove these
-      - dotnet --list-sdks
-      - dotnet --list-runtimes
+      - dotnet test Test
