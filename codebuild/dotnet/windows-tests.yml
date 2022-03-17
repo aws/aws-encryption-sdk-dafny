@@ -3,7 +3,9 @@ version: 0.2
 phases:
   install:
     runtime-versions:
-      dotnet: 5.0
+      # 5.0 has certs that are too old.
+      # See <https://github.com/dotnet/core/issues/6595>
+      dotnet: 6.0
     commands:
       # Get Dafny
       - Invoke-WebRequest https://github.com/dafny-lang/dafny/releases/download/v3.4.2/dafny-3.4.2-x64-win.zip -UseBasicParsing -OutFile dafny.zip
