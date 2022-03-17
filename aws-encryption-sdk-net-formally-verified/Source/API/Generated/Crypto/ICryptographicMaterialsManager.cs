@@ -2,16 +2,19 @@
 // SPDX-License-Identifier: Apache-2.0
 
 using System;
-using Aws.Crypto;
+using Aws.EncryptionSdk.Core;
 using
-    Aws.Crypto
+    Aws.EncryptionSdk.Core
     ;
 
-namespace Aws.Crypto
+namespace Aws.EncryptionSdk.Core
 {
     public interface ICryptographicMaterialsManager
     {
-        Aws.Crypto.GetEncryptionMaterialsOutput GetEncryptionMaterials(Aws.Crypto.GetEncryptionMaterialsInput input);
-        Aws.Crypto.DecryptMaterialsOutput DecryptMaterials(Aws.Crypto.DecryptMaterialsInput input);
+        Aws.EncryptionSdk.Core.GetEncryptionMaterialsOutput GetEncryptionMaterials(
+            Aws.EncryptionSdk.Core.GetEncryptionMaterialsInput input);
+
+        Aws.EncryptionSdk.Core.DecryptMaterialsOutput DecryptMaterials(
+            Aws.EncryptionSdk.Core.DecryptMaterialsInput input);
     }
 }

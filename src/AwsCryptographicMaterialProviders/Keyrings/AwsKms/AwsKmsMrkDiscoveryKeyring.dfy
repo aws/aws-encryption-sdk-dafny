@@ -14,7 +14,7 @@ include "AwsKmsUtils.dfy"
 include "AwsKmsArnParsing.dfy"
 
 module
-  {:extern "Dafny.Aws.Crypto.MaterialProviders.AwsKmsMrkDiscoveryKeyring"}
+  {:extern "Dafny.Aws.EncryptionSdk.Core.AwsKmsMrkDiscoveryKeyring"}
   MaterialProviders.AwsKmsMrkDiscoveryKeyring
 {
   import opened StandardLibrary

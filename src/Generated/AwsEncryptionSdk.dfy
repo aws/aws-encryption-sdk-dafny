@@ -5,7 +5,7 @@ include "../Util/UTF8.dfy"
 include "../StandardLibrary/StandardLibrary.dfy"
 include "AwsCryptographicMaterialProviders.dfy"
 
-module {:extern "Dafny.Aws.Esdk"} Aws.Esdk {
+module {:extern "Dafny.Aws.EncryptionSdk"} Aws.Esdk {
     import Crypto
     import opened UInt = StandardLibrary.UInt
     import opened Wrappers
