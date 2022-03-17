@@ -3,7 +3,7 @@
 
   <PropertyGroup>
     <OutputType>Library</OutputType>
-    <TargetFrameworks>net5.0;netcoreapp3.1;net45;net35</TargetFrameworks>
+    <TargetFrameworks>net5.0;netcoreapp3.1;net45</TargetFrameworks>
     <IsPackable>true</IsPackable>
     <PackageId>AWSEncryptionSDK</PackageId>
     <Authors>aws-crypto-tools</Authors>
