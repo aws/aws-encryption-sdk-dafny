@@ -1,5 +1,9 @@
 version: 0.2
 
+env:
+  variables:
+    DAFNY_INSTALL_DIR: C:\dafny
+
 phases:
   install:
     runtime-versions:
@@ -7,8 +11,10 @@ phases:
     commands:
       # Get Dafny
       - Invoke-WebRequest https://github.com/dafny-lang/dafny/releases/download/v3.4.2/dafny-3.4.2-x64-win.zip -UseBasicParsing -OutFile dafny.zip
-      - Expand-Archive -Path dafny.zip -DestinationPath .
-      - $env:Path += ";$pwd\dafny"
+      - New-Item -Path $env:DAFNY_INSTALL_DIR -ItemType Directory
+      - Expand-Archive -Path dafny.zip -DestinationPath $env:DAFNY_INSTALL_DIR
+      - $env:Path += ";$env:DAFNY_INSTALL_DIR\dafny"
+      - echo $env:Path
       - Dafny.exe /version
   build:
     commands:
