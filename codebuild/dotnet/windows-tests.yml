@@ -1,0 +1,16 @@
+version: 0.2
+
+env:
+  image: aws/codebuild/windows-base:2019-1.0
+
+phases:
+  install:
+    runtime-versions:
+      dotnet: 5.0
+    commands:
+      # TODO get Dafny
+  build:
+    commands:
+      # TODO remove these
+      - dotnet --list-sdks
+      - dotnet --list-runtimes
