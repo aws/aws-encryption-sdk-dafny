@@ -104,7 +104,7 @@ public class AwsKmsMultiKeyring {
 
         // Verify the Encryption Context on the output
         foreach (var tuple in encryptionContext)
-            if (!decryptOutput.EncryptionContext.TryGetValue(tuple.Key, out var decryptedValue)
+            if (!kmsKeyringDecryptOutput.EncryptionContext.TryGetValue(tuple.Key, out var decryptedValue)
                 || !decryptedValue.Equals(tuple.Value))
                 throw new Exception("Encryption context does not match expected values");
 
