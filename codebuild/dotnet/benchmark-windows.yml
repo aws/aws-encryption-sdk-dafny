@@ -13,7 +13,7 @@ phases:
       - Invoke-WebRequest https://github.com/dafny-lang/dafny/releases/download/v3.4.1/dafny-3.4.1-x64-win.zip -UseBasicParsing -OutFile dafny.zip
       - Expand-Archive -Path dafny.zip -DestinationPath .
       - RefreshEnv
-      - [Environment]::SetEnvironmentVariable('Path', $env:Path + ";$pwd\dafny", [EnvironmentVariableTarget]::Machine)
+      - '[Environment]::SetEnvironmentVariable("Path", $env:Path + ";$pwd\dafny", [EnvironmentVariableTarget]::Machine)'
       - Dafny.exe /version
   build:
     commands:
