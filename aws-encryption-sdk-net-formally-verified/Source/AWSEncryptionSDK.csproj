@@ -27,6 +27,7 @@
     <PackageReference Include="AWSSDK.Core" Version="3.7.3.33" />
     <PackageReference Include="AWSSDK.KeyManagementService" Version="3.7.2" />
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="16.11.0" />
+    <PackageReference Include="Portable.BouncyCastle" Version="1.8.10" />
     <!--
       System.Collections.Immutable can be removed once dafny.msbuild is updated with
       https://github.com/dafny-lang/dafny.msbuild/pull/10 and versioned
@@ -34,13 +35,13 @@
     <!--<PackageReference Include="System.Collections.Immutable" Version="1.7.0" />-->
   </ItemGroup>
 
-    <ItemGroup Condition="'$(TargetFramework)' == 'net35'">
-        <PackageReference Include="BouncyCastle" Version="1.8.9" />
-    </ItemGroup>
+  <ItemGroup Condition="'$(TargetFramework)' == 'net45'">
+    <PackageReference Include="System.Collections.Immutable" Version="5.0.0" />
+  </ItemGroup>
 
-    <ItemGroup Condition="'$(TargetFramework)' == 'net45' Or '$(TargetFramework)' == 'netcoreapp3.1' Or '$(TargetFramework)' == 'net5.0'">
-        <PackageReference Include="Portable.BouncyCastle" Version="1.8.10" />
-    </ItemGroup>
+  <ItemGroup Condition="'$(TargetFramework)' != 'net45'">
+    <PackageReference Include="System.Collections.Immutable" Version="6.0.0" />
+  </ItemGroup>
 
   <ItemGroup>
     <VerifyDafnyPassthrough Include="timeLimit:300" />

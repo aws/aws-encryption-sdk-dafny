@@ -66,9 +66,9 @@ public class AwsKmsKeyringExample {
         // decrypt the message. The AWS Encryption SDK can add pairs, so don't require an exact match.
         //
         // In production, always use a meaningful encryption context.
-        foreach (var (expectedKey, expectedValue) in encryptionContext)
-            if (!decryptOutput.EncryptionContext.TryGetValue(expectedKey, out var decryptedValue)
-                || !decryptedValue.Equals(expectedValue))
+        foreach (var tuple in encryptionContext)
+            if (!decryptOutput.EncryptionContext.TryGetValue(tuple.Key, out var decryptedValue)
+                || !decryptedValue.Equals(tuple.Value))
                 throw new Exception("Encryption context does not match expected values");
 
         // Demonstrate that the decrypted plaintext is identical to the original plaintext.
