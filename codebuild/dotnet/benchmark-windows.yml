@@ -6,6 +6,8 @@ phases:
       # Get .NET SDK 6.0 (for build tools only; projects specify their own toolchains)
       - Invoke-WebRequest https://dot.net/v1/dotnet-install.ps1 -UseBasicParsing -OutFile dotnet-install.ps1
       - ./dotnet-install.ps1 -Channel 6.0
+      # Did CodeBuild let dotnet-install modify PATH?
+      - echo $env:Path
       # Try preventing intermittent cert issue.
       # See <https://github.com/NuGet/Home/issues/11099> and
       # <https://github.com/NuGet/NuGet.Client/pull/4259#issue-7318389620>
