@@ -17,3 +17,6 @@ batch:
       buildspec: codebuild/dotnet/release-staging.yml
     - identifier: dotnet_tests_windows
       buildspec: codebuild/dotnet/tests-windows.yml
+      env:
+        type: WINDOWS_SERVER_2019_CONTAINER
+        image: aws/codebuild/windows-base:2019-1.0
