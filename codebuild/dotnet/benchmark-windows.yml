@@ -23,5 +23,6 @@ phases:
       - dotnet run -c Release /nowarn:CS0105,CS0618 -- -f '*' --join
 
 artifacts:
+  base-directory: "aws-encryption-sdk-net-formally-verified/Benchmarks"
   files:
-    - "aws-encryption-sdk-net-formally-verified/Benchmarks/BenchmarkDotNet.Artifacts/**/*"
+    - "BenchmarkDotNet.Artifacts/**/*"
