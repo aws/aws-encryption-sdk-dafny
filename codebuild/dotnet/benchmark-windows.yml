@@ -4,8 +4,7 @@ phases:
   install:
     commands:
       # Get .NET SDK 6.0 (for build tools only; projects specify their own toolchains)
-      - Invoke-WebRequest https://dot.net/v1/dotnet-install.ps1 -UseBasicParsing -OutFile dotnet-install.ps1
-      - ./dotnet-install.ps1 -Channel 6.0 -InstallDir "C:\Program Files\dotnet"
+      - choco install -fy dotnet-sdk --version 6.0.201
       - dotnet --version
       # Try preventing intermittent cert issue.
       # See <https://github.com/NuGet/Home/issues/11099> and
