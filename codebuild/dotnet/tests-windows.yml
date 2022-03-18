@@ -18,4 +18,10 @@ phases:
   build:
     commands:
       - cd aws-encryption-sdk-net-formally-verified
+      - |
+        $attempts = 0
+        while ($attempts -lt 5) {
+          try { dotnet restore; break }
+          catch { Write-Output $_; Start-Sleep -Milliseconds 1000 }
+        }
       - dotnet test Test /nowarn:CS0105,CS0618
