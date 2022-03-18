@@ -12,13 +12,10 @@ phases:
       # Get Dafny
       - Invoke-WebRequest https://github.com/dafny-lang/dafny/releases/download/v3.4.1/dafny-3.4.1-x64-win.zip -UseBasicParsing -OutFile dafny.zip
       - Expand-Archive -Path dafny.zip -DestinationPath .
-      - echo $env:Path
-      - RefreshEnv
-      - echo $env:Path
-      - '[Environment]::SetEnvironmentVariable("Path", $env:Path + ";$pwd\dafny", [EnvironmentVariableTarget]::Machine)'
-      - echo $env:Path
-      - RefreshEnv
-      - echo $env:Path
+      # We can't just add this to $env:Path because CodeBuild makes env vars read-only for some reason.
+      # Assignment to $env:Path just silently fails.
+      # So instead we copy the Dafny binary and DLLs to a known directory.
+      - Copy-Item ".\dafny\*" -Destination "C:\codebuild\user\bin" -Recurse
       - Dafny.exe /version
   build:
     commands:
