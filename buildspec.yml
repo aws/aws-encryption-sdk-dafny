@@ -23,11 +23,6 @@ batch:
       env:
         variables:
           DOTNET_TARGET_VERSION: netcoreapp3.1
-    - identifier: dotnet_examples_net3_5
-      buildspec: codebuild/dotnet/examples.yml
-      env:
-        variables:
-          DOTNET_TARGET_VERSION: net35
     - identifier: dotnet_examples_net4_5
       buildspec: codebuild/dotnet/examples.yml
       env:
