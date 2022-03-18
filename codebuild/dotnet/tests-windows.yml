@@ -17,11 +17,11 @@ phases:
       - Dafny.exe /version
   build:
     commands:
-      - cd aws-encryption-sdk-net-formally-verified
+      - cd aws-encryption-sdk-net-formally-verified/Test
       - |
         $attempts = 0
         while ($attempts -lt 5) {
           try { dotnet restore; break }
           catch { Write-Output $_; Start-Sleep -Milliseconds 1000 }
         }
-      - dotnet test Test /nowarn:CS0105,CS0618
+      - dotnet test /nowarn:CS0105,CS0618
