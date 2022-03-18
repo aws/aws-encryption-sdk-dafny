@@ -14,18 +14,15 @@ phases:
       - Invoke-WebRequest https://github.com/dafny-lang/dafny/releases/download/v3.4.1/dafny-3.4.1-x64-win.zip -UseBasicParsing -OutFile dafny.zip
       - Expand-Archive -Path dafny.zip -DestinationPath .
       # We can't just add this to $env:Path because CodeBuild makes env vars read-only for some reason.
-      - echo $env:Path
-      - Set-Item -Path Env:Path -Value ($env:Path + ";$pwd\dafny") -Force
-      - echo $env:Path
+      # Assignment to $env:Path just silently fails.
+      # So instead we copy the Dafny binary and DLLs to a known directory.
+      - Copy-Item ".\dafny\*" -Destination "C:\codebuild\user\bin" -Recurse
       - Dafny.exe /version
   build:
     commands:
       - cd aws-encryption-sdk-net-formally-verified/Benchmarks
-      - echo $env:Path
-      - Set-Item -Path Env:Path -Value ("C:\Users\ContainerAdministrator\AppData\Local\Microsoft\dotnet;" + $env:Path) -Force
-      - echo $env:Path
-      - dotnet --version
-      - dotnet run -c Release /nowarn:CS0105,CS0618 -- -f '*' --join
+      - $env:Path += ";C:\Users\ContainerAdministrator\AppData\Local\Microsoft\dotnet"; dotnet --version
+      - $env:Path += ";C:\Users\ContainerAdministrator\AppData\Local\Microsoft\dotnet"; dotnet run -c Release /nowarn:CS0105,CS0618 -- -f '*' --join
 
 artifacts:
   files:
