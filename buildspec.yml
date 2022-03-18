@@ -27,7 +27,7 @@ batch:
       buildspec: codebuild/dotnet/examples.yml
       env:
         variables:
-          DOTNET_TARGET_VERSION: net45
+          DOTNET_TARGET_VERSION: net452
     - identifier: dotnet_tests_windows
       buildspec: codebuild/dotnet/tests-windows.yml
       env:
