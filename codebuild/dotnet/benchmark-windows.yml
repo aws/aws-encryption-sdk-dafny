@@ -21,7 +21,8 @@ phases:
   build:
     commands:
       - cd aws-encryption-sdk-net-formally-verified/Benchmarks
-      - C:\Users\ContainerAdministrator\AppData\Local\Microsoft\dotnet\dotnet run -c Release /nowarn:CS0105,CS0618 -- -f '*' --join
+      - $env:Path += ";C:\Users\ContainerAdministrator\AppData\Local\Microsoft\dotnet"; dotnet --version
+      - $env:Path += ";C:\Users\ContainerAdministrator\AppData\Local\Microsoft\dotnet"; dotnet run -c Release /nowarn:CS0105,CS0618 -- -f '*' --join
 
 artifacts:
   files:
