@@ -7,6 +7,13 @@ version: 0.2
 phases:
   install:
     commands:
+      # Get .NET SDK 6.0
+      - Invoke-WebRequest https://dot.net/v1/dotnet-install.ps1 -UseBasicParsing -OutFile dotnet-install.ps1
+      - ./dotnet-install.ps1 -Channel 6.0
+      # Try preventing intermittent cert issue.
+      # See <https://github.com/NuGet/Home/issues/11099> and
+      # <https://github.com/NuGet/NuGet.Client/pull/4259#issue-7318389620>
+      - set NUGET_EXPERIMENTAL_CHAIN_BUILD_RETRY_POLICY=3,1000
       # Get Dafny
       - Invoke-WebRequest https://github.com/dafny-lang/dafny/releases/download/v3.4.1/dafny-3.4.1-x64-win.zip -UseBasicParsing -OutFile dafny.zip
       - Expand-Archive -Path dafny.zip -DestinationPath .
@@ -18,14 +25,4 @@ phases:
   build:
     commands:
       - cd aws-encryption-sdk-net-formally-verified/Test
-      - |
-        $originalErrorActionPreference = $ErrorActionPreference
-        $ErrorActionPreference = "Stop"
-        $attempts = 0
-        while ($attempts -lt 5) {
-          $attempts++
-          try { dotnet restore 2>&1; break }
-          catch { Write-Output $_; Start-Sleep -Seconds $attempts }
-        }
-        $ErrorActionPreference = $originalErrorActionPreference
       - dotnet test /nowarn:CS0105,CS0618
