@@ -1,13 +1,9 @@
 version: 0.2
 
-### NOTE ###
-# There are intermittent cert verification failures during `dotnet restore`,
-# which is run when acquiring dependencies for building .NET projects.
-
 phases:
   install:
     commands:
-      # Get .NET SDK 6.0
+      # Get .NET SDK 6.0 (for build tools only; projects specify their own toolchains)
       - Invoke-WebRequest https://dot.net/v1/dotnet-install.ps1 -UseBasicParsing -OutFile dotnet-install.ps1
       - ./dotnet-install.ps1 -Channel 6.0
       # Try preventing intermittent cert issue.
