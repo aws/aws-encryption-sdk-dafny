@@ -13,11 +13,6 @@ batch:
       buildspec: codebuild/dotnet/generate-test-vectors.yml
     - identifier: dotnet_release_staging 
       buildspec: codebuild/dotnet/release-staging.yml
-    - identifier: dotnet_examples_net5_0
-      buildspec: codebuild/dotnet/examples.yml
-      env:
-        variables:
-          DOTNET_TARGET_VERSION: net5.0
     - identifier: dotnet_examples_net3_1
       buildspec: codebuild/dotnet/examples.yml
       env:
