@@ -20,3 +20,8 @@ batch:
       env:
         type: WINDOWS_SERVER_2019_CONTAINER
         image: aws/codebuild/windows-base:2019-1.0
+    - identifier: dotnet_benchmark_windows
+      buildspec: codebuild/dotnet/benchmark-windows.yml
+      env:
+        type: WINDOWS_SERVER_2019_CONTAINER
+        image: aws/codebuild/windows-base:2019-1.0
