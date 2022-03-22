@@ -2,12 +2,12 @@
 // SPDX-License-Identifier: Apache-2.0
 
 using System;
-using Aws.Crypto;
+using Aws.EncryptionSdk.Core;
 using
-    Aws.Crypto
+    Aws.EncryptionSdk.Core
     ;
 
-namespace Aws.Crypto
+namespace Aws.EncryptionSdk.Core
 {
     using Amazon.Runtime;
 

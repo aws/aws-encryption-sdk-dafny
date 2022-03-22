@@ -2,20 +2,20 @@
 // SPDX-License-Identifier: Apache-2.0
 
 using System;
-using Aws.Crypto;
+using Aws.EncryptionSdk.Core;
 using
-    Aws.Esdk
+    Aws.EncryptionSdk
     ;
 
-namespace Aws.Esdk
+namespace Aws.EncryptionSdk
 {
     public class EncryptInput
     {
         private System.IO.MemoryStream _plaintext;
         private System.Collections.Generic.Dictionary<string, string> _encryptionContext;
-        private Aws.Crypto.ICryptographicMaterialsManager _materialsManager;
-        private Aws.Crypto.IKeyring _keyring;
-        private Aws.Crypto.AlgorithmSuiteId _algorithmSuiteId;
+        private Aws.EncryptionSdk.Core.ICryptographicMaterialsManager _materialsManager;
+        private Aws.EncryptionSdk.Core.IKeyring _keyring;
+        private Aws.EncryptionSdk.Core.AlgorithmSuiteId _algorithmSuiteId;
         private long? _frameLength;
 
         public System.IO.MemoryStream Plaintext
@@ -40,7 +40,7 @@ namespace Aws.Esdk
             return this._encryptionContext != null;
         }
 
-        public Aws.Crypto.ICryptographicMaterialsManager MaterialsManager
+        public Aws.EncryptionSdk.Core.ICryptographicMaterialsManager MaterialsManager
         {
             get { return this._materialsManager; }
             set { this._materialsManager = value; }
@@ -51,7 +51,7 @@ namespace Aws.Esdk
             return this._materialsManager != null;
         }
 
-        public Aws.Crypto.IKeyring Keyring
+        public Aws.EncryptionSdk.Core.IKeyring Keyring
         {
             get { return this._keyring; }
             set { this._keyring = value; }
@@ -62,7 +62,7 @@ namespace Aws.Esdk
             return this._keyring != null;
         }
 
-        public Aws.Crypto.AlgorithmSuiteId AlgorithmSuiteId
+        public Aws.EncryptionSdk.Core.AlgorithmSuiteId AlgorithmSuiteId
         {
             get { return this._algorithmSuiteId; }
             set { this._algorithmSuiteId = value; }

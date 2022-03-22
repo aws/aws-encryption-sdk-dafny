@@ -6,8 +6,8 @@ using System.Collections.Generic;
 using System.IO;
 using System.Text;
 
-using Aws.Crypto;
-using Aws.Esdk;
+using Aws.EncryptionSdk;
+using Aws.EncryptionSdk.Core;
 
 using Org.BouncyCastle.Security; // In this example, we use BouncyCastle to generate a wrapping key.
 using Xunit;

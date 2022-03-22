@@ -4,15 +4,16 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using Amazon;
 using Amazon.KeyManagementService;
-using Aws.Crypto;
-using Aws.Esdk;
+using Aws.EncryptionSdk;
+using Aws.EncryptionSdk.Core;
 
 using Xunit;
 
 /// Demonstrate an encrypt/decrypt cycle using an AWS MRK keyring.
 public class AwsKmsMrkKeyringExample {
-    private static void Run(MemoryStream plaintext, string keyArn) {
+    private static void Run(MemoryStream plaintext, string encryptKeyArn, string decryptKeyArn) {
         // Create your encryption context.
         // Remember that your encryption context is NOT SECRET.
         // https://docs.aws.amazon.com/encryption-sdk/latest/developer-guide/concepts.html#encryption-context
@@ -28,19 +29,20 @@ public class AwsKmsMrkKeyringExample {
         var materialProviders = AwsCryptographicMaterialProvidersFactory.CreateDefaultAwsCryptographicMaterialProviders();
         var encryptionSdk = AwsEncryptionSdkFactory.CreateDefaultAwsEncryptionSdk();
         
-        // Create the keyring that determines how your data keys are protected.
-        var createKeyringInput = new CreateAwsKmsMrkKeyringInput
+        // Create a keyring that will encrypt your data, using a KMS MRK key in the first region.
+        var encryptRegion = Arn.Parse(encryptKeyArn).Region;
+        var createEncryptKeyringInput = new CreateAwsKmsMrkKeyringInput
         {
-            KmsClient = new AmazonKeyManagementServiceClient(),
-            KmsKeyId = keyArn
+            KmsClient = new AmazonKeyManagementServiceClient(RegionEndpoint.GetBySystemName(encryptRegion)),
+            KmsKeyId = encryptKeyArn
         };
-        var keyring = materialProviders.CreateAwsKmsMrkKeyring(createKeyringInput);
+        var encryptKeyring = materialProviders.CreateAwsKmsMrkKeyring(createEncryptKeyringInput);
 
         // Encrypt your plaintext data.
         var encryptInput = new EncryptInput
         {
             Plaintext = plaintext,
-            Keyring = keyring,
+            Keyring = encryptKeyring,
             EncryptionContext = encryptionContext
         };
         var encryptOutput = encryptionSdk.Encrypt(encryptInput);
@@ -49,6 +51,17 @@ public class AwsKmsMrkKeyringExample {
         // Demonstrate that the ciphertext and plaintext are different.
         Assert.NotEqual(ciphertext.ToArray(), plaintext.ToArray());
 
+        // Create a keyring that will decrypt your data, using the same KMS MRK key replicated to the second region.
+        // This example assumes you have already replicated your key; for more info on this, see the KMS documentation:
+        // https://docs.aws.amazon.com/kms/latest/developerguide/multi-region-keys-overview.html
+        var decryptRegion = Arn.Parse(decryptKeyArn).Region;
+        var createDecryptKeyringInput = new CreateAwsKmsMrkKeyringInput
+        {
+            KmsClient = new AmazonKeyManagementServiceClient(RegionEndpoint.GetBySystemName(decryptRegion)),
+            KmsKeyId = decryptKeyArn
+        };
+        var decryptKeyring = materialProviders.CreateAwsKmsMrkKeyring(createDecryptKeyringInput);
+
         // Decrypt your encrypted data using the same keyring you used on encrypt.
         //
         // You do not need to specify the encryption context on decrypt
@@ -56,7 +69,7 @@ public class AwsKmsMrkKeyringExample {
         var decryptInput = new DecryptInput
         {
             Ciphertext = ciphertext,
-            Keyring = keyring
+            Keyring = decryptKeyring
         };
         var decryptOutput = encryptionSdk.Decrypt(decryptInput);
 
@@ -78,6 +91,10 @@ public class AwsKmsMrkKeyringExample {
     // We test examples to ensure they remain up-to-date.
     [Fact]
     public void TestAwsKmsMrkKeyringExample() {
-        Run(ExampleUtils.ExampleUtils.GetPlaintextStream(), ExampleUtils.ExampleUtils.GetDefaultRegionKmsKeyArn());
+        Run(
+            ExampleUtils.ExampleUtils.GetPlaintextStream(),
+            ExampleUtils.ExampleUtils.GetDefaultRegionMrkKeyArn(),
+            ExampleUtils.ExampleUtils.GetAlternateRegionMrkKeyArn()
+        );
     }
 }

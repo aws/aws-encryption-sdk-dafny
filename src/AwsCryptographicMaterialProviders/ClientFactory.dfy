@@ -6,7 +6,7 @@ include "../StandardLibrary/UInt.dfy"
 include "../Generated/AwsCryptographicMaterialProviders.dfy"
 include "Client.dfy"
 
-module {:extern "Dafny.Aws.Crypto.AwsCryptographicMaterialProvidersFactory"} MaterialProviders.ClientFactory {
+module {:extern "Dafny.Aws.EncryptionSdk.Core.AwsCryptographicMaterialProvidersFactory"} MaterialProviders.ClientFactory {
   import opened StandardLibrary
   import opened UInt = StandardLibrary.UInt
   import opened Wrappers
