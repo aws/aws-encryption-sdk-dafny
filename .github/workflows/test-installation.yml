@@ -32,10 +32,14 @@ jobs:
         export BASE_VERSION=`grep '<Version>' Source/AWSEncryptionSDK.csproj | sed 's/.*<Version>\(.*\)<\/Version>/\1/'`
         export UNIQUE_VERSION=$BASE_VERSION-`git rev-parse --short HEAD`
         echo "::set-output name=UNIQUE_VERSION::$UNIQUE_VERSION"
+    - name: Setup Dafny
+      uses: dafny-lang/setup-dafny-action@v1
+      with:
+        dafny-version: "3.4.1"
+    - name: build and pack
+      run: dotnet pack Source /p:Version=$UNIQUE_VERSION
     - name: Push to CA
-      run: |
-        dotnet pack Source /p:Version=$UNIQUE_VERSION
-        dotnet nuget push Source/bin/Debug/AWSEncryptionSDK.$UNIQUE_VERSION.nupkg --source github/dotnet-esdk
+      run: dotnet nuget push Source/bin/Debug/AWSEncryptionSDK.$UNIQUE_VERSION.nupkg --source github/dotnet-esdk
         
   test_installation:
     name: test_installation_${{ matrix.os }}
