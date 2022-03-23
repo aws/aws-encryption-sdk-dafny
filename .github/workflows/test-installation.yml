@@ -13,6 +13,8 @@ jobs:
     outputs:
       UNIQUE_VERSION: ${{ steps.set_version.outputs.UNIQUE_VERSION }}
     steps:
+    - name: set stack trace for debugging
+      run: export SHOW_STACK_TRACE="true"
     - name: Configure AWS credentials for pulling from CA
       uses: aws-actions/configure-aws-credentials@v1
       with:
