@@ -93,8 +93,8 @@ jobs:
 
   purge_from_code_artifact:
     name: purge_from_code_artifact
-    if: ${{ always() }} 
     needs: [test_installation, test_installation_windows, push_to_code_artifact]
+    if: ${{ needs.push_to_code_artifact.status == 'success' }}
     runs-on: ubuntu-latest
     permissions:
       id-token: write
