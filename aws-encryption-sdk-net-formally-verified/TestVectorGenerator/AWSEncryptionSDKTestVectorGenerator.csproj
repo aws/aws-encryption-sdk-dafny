@@ -2,8 +2,11 @@
 
     <PropertyGroup>
         <OutputType>Exe</OutputType>
-        <!-- System.CommandLine doesn't support .NET Framework -->
-        <TargetFramework>netstandard2.1</TargetFramework>
+        <!--
+        System.CommandLine doesn't support .NET Framework.
+        So we only target the oldest .NET Core we support, which is netcoreapp3.1.
+        -->
+        <TargetFramework>netcoreapp3.1</TargetFramework>
         <LangVersion>7.3</LangVersion>
         <RootNamespace>AWSEncryptionSDKTestVectorGenerator</RootNamespace>
         <VersionPrefix>0.1.0</VersionPrefix>
