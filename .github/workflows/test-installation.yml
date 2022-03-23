@@ -17,6 +17,7 @@ jobs:
       uses: aws-actions/configure-aws-credentials@v1
       with:
         role-to-assume: arn:aws:iam::587316601012:role/GitHub-DotNet-CA-Writer
+        role-session-name: push_to_code_artifact
         aws-region: us-west-2
     - name: Configure Nuget to pull from CA
       run: aws codeartifact login --tool nuget --domain github --domain-owner 587316601012 --repository dotnet-esdk
