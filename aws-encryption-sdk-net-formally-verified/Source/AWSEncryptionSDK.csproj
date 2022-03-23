@@ -3,7 +3,8 @@
 
   <PropertyGroup>
     <OutputType>Library</OutputType>
-    <TargetFramework>netstandard2.0</TargetFramework>
+    <TargetFrameworks>netstandard2.1;net452</TargetFrameworks>
+    <LangVersion>7.3</LangVersion>
     <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
     <Version>0.0.1</Version>
     <!--

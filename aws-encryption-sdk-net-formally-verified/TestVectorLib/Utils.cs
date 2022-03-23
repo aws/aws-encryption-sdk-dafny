@@ -39,10 +39,6 @@ namespace TestVectors
         /// </summary>
         public static void WriteObjectToPath<T>(T obj, string path)
         {
-            // Do this first in order to avoid serializing if opening the file fails anyway
-            using var fs = new FileStream(path, FileMode.CreateNew);
-
-            using var stringWriter = new StringWriter();
             var serializer = new JsonSerializer
             {
                 Formatting = Formatting.Indented,
@@ -52,8 +48,16 @@ namespace TestVectors
                 // the serializer will just ignore it without throwing an exception.
                 NullValueHandling = NullValueHandling.Ignore,
             };
-            serializer.Serialize(stringWriter, obj);
-            fs.Write(Encoding.UTF8.GetBytes(stringWriter.ToString()));
+            // Do this first in order to avoid serializing if opening the file fails anyway
+            using (var fs = new FileStream(path, FileMode.CreateNew))
+            {
+                using (var stringWriter = new StringWriter())
+                {
+                    serializer.Serialize(stringWriter, obj);
+                    var bytes = Encoding.UTF8.GetBytes(stringWriter.ToString());
+                    fs.Write(bytes, 0, bytes.Length);
+                }
+            }
         }
 
         public static string ManifestUriToPath(string uri, string manifestPath) {
@@ -79,9 +83,9 @@ namespace TestVectors
         /// <param name="namedData">the collection of name-data pairs</param>
         public static void WriteNamedDataMap(DirectoryInfo dir, Dictionary<string, MemoryStream> namedData)
         {
-            foreach (var (name, data) in namedData)
+            foreach (var nameDataPair in namedData)
             {
-                WriteBinaryFile(dir, name, data);
+                WriteBinaryFile(dir, nameDataPair.Key, nameDataPair.Value);
             }
         }
 
@@ -94,10 +98,14 @@ namespace TestVectors
         /// <param name="data">the data to be written</param>
         public static void WriteBinaryFile(DirectoryInfo dir, string name, MemoryStream data)
         {
-            var path = Path.Join(dir.FullName, name);
-            using var fs = new FileStream(path, FileMode.CreateNew);
-            using var writer = new BinaryWriter(fs);
-            writer.Write(data.ToArray());
+            var path = dir.FullName + Path.DirectorySeparatorChar + name;
+            using (var fs = new FileStream(path, FileMode.CreateNew))
+            {
+                using (var writer = new BinaryWriter(fs))
+                {
+                    writer.Write(data.ToArray());
+                }
+            }
         }
     }
 }

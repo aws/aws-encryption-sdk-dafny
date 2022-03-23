@@ -28,7 +28,7 @@ public class AwsKmsMrkKeyringExample {
         // Instantiate the Material Providers and the AWS Encryption SDK
         var materialProviders = AwsCryptographicMaterialProvidersFactory.CreateDefaultAwsCryptographicMaterialProviders();
         var encryptionSdk = AwsEncryptionSdkFactory.CreateDefaultAwsEncryptionSdk();
-        
+
         // Create a keyring that will encrypt your data, using a KMS MRK key in the first region.
         var encryptRegion = Arn.Parse(encryptKeyArn).Region;
         var createEncryptKeyringInput = new CreateAwsKmsMrkKeyringInput
@@ -78,9 +78,9 @@ public class AwsKmsMrkKeyringExample {
         // decrypt the message. The AWS Encryption SDK can add pairs, so don't require an exact match.
         //
         // In production, always use a meaningful encryption context.
-        foreach (var (expectedKey, expectedValue) in encryptionContext)
-            if (!decryptOutput.EncryptionContext.TryGetValue(expectedKey, out var decryptedValue)
-                || !decryptedValue.Equals(expectedValue))
+        foreach (var expectedPair in encryptionContext)
+            if (!decryptOutput.EncryptionContext.TryGetValue(expectedPair.Key, out var decryptedValue)
+                || !decryptedValue.Equals(expectedPair.Value))
                 throw new Exception("Encryption context does not match expected values");
 
         // Demonstrate that the decrypted plaintext is identical to the original plaintext.

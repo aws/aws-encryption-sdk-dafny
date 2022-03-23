@@ -31,7 +31,7 @@ public class MultiKeyringExample {
         // Instantiate the Material Providers and the AWS Encryption SDK
         var materialProviders = AwsCryptographicMaterialProvidersFactory.CreateDefaultAwsCryptographicMaterialProviders();
         var encryptionSdk = AwsEncryptionSdkFactory.CreateDefaultAwsEncryptionSdk();
-        
+
         // Create a KMS keyring to use as the generator.
         var createKeyringInput = new CreateAwsKmsKeyringInput
         {
@@ -85,9 +85,9 @@ public class MultiKeyringExample {
         // decrypt the message. The AWS Encryption SDK can add pairs, so don't require an exact match.
         //
         // In production, always use a meaningful encryption context.
-        foreach (var (expectedKey, expectedValue) in encryptionContext)
-            if (!multiKeyringDecryptOutput.EncryptionContext.TryGetValue(expectedKey, out var decryptedValue)
-                || !decryptedValue.Equals(expectedValue))
+        foreach (var expectedPair in encryptionContext)
+            if (!multiKeyringDecryptOutput.EncryptionContext.TryGetValue(expectedPair.Key, out var decryptedValue)
+                || !decryptedValue.Equals(expectedPair.Value))
                 throw new Exception("Encryption context does not match expected values");
 
         // Demonstrate that the decrypted plaintext is identical to the original plaintext.
@@ -105,9 +105,9 @@ public class MultiKeyringExample {
         var rawAESKeyringDecryptOutput = encryptionSdk.Decrypt(rawAESKeyringDecryptInput);
 
         // Verify your Encryption Context
-        foreach (var (expectedKey, expectedValue) in encryptionContext)
-            if (!rawAESKeyringDecryptOutput.EncryptionContext.TryGetValue(expectedKey, out var decryptedValue)
-                || !decryptedValue.Equals(expectedValue))
+        foreach (var expectedPair in encryptionContext)
+            if (!rawAESKeyringDecryptOutput.EncryptionContext.TryGetValue(expectedPair.Key, out var decryptedValue)
+                || !decryptedValue.Equals(expectedPair.Value))
                 throw new Exception("Encryption context does not match expected values");
 
         // Demonstrate that the decrypted plaintext is identical to the original plaintext.
