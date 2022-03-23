@@ -46,6 +46,15 @@ Instructions for setting up AWS credentials are available in the [AWS Docs for t
 
 ## Testing the AWS Encryption SDK for .NET
 
+### Configure system dependencies
+
+If you are using macOS, you must install OpenSSL 1.1 and make it available at runtime.
+For example, if you install OpenSSL via Homebrew (`brew install openssl@1.1`), you should set the `DYLD_LIBRARY_PATH` before running any of the below `dotnet test` commands:
+
+```bash
+$ export DYLD_LIBRARY_PATH="/usr/local/opt/openssl@1.1/lib"
+```
+
 ### Configure AWS credentials
 
 To run the test suite you must first set up AWS credentials for use with the AWS SDK.
