@@ -28,7 +28,7 @@ jobs:
     - name: Set unique version
       id: set_version
       run: |
-        cd aws-encryption-sdk-dafny/aws-encryption-sdk-net-formally-verified
+        cd aws-encryption-sdk-net-formally-verified
         export BASE_VERSION=`grep '<Version>' Source/AWSEncryptionSDK.csproj | sed 's/.*<Version>\(.*\)<\/Version>/\1/'`
         export UNIQUE_VERSION=$BASE_VERSION-`git rev-parse --short HEAD`
         echo "::set-output name=UNIQUE_VERSION::$UNIQUE_VERSION"
@@ -61,7 +61,7 @@ jobs:
       run: export UNIQUE_VERSION=${{ needs.push_to_code_artifact.UNIQUE_VERSION }}
     - name: Test with Examples
       run: |
-        cd aws-encryption-sdk-dafny/aws-encryption-sdk-net-formally-verified
+        cd aws-encryption-sdk-net-formally-verified
         sed -i.backup '/Source\/AWSEncryptionSDK.csproj/d' Examples/AWSEncryptionSDKExamples.csproj
         dotnet add Examples/AWSEncryptionSDKExamples.csproj package awsencryptionsdk --version $UNIQUE_VERSION
         dotnet test Examples /nowarn:CS0105
@@ -87,7 +87,7 @@ jobs:
       run: $Env:UNIQUE_VERSION = "${{ needs.push_to_code_artifact.UNIQUE_VERSION }}"
     - name: Test with Examples
       run: |
-        cd aws-encryption-sdk-dafny/aws-encryption-sdk-net-formally-verified
+        cd aws-encryption-sdk-net-formally-verified
         (Get-Content -Path ./Examples/AWSEncryptionSDKExamples.csproj) |
             ForEach-Object {$_ -Replace '    <ProjectReference Include="../Source/AWSEncryptionSDK.csproj" />', ''} |
                 Set-Content -Path ./Examples/AWSEncryptionSDKExamples.csproj
