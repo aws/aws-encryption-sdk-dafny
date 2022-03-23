@@ -6,7 +6,7 @@ on: ["pull_request", "push"]
 jobs:
   push_to_code_artifact:
     name: push_to_code_artifact
-    runs_on: ubuntu-latest
+    runs-on: ubuntu-latest
     permissions:
       id-token: write
       contents: read
