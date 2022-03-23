@@ -37,7 +37,7 @@ jobs:
   test_installation:
     name: test_installation_${{ matrix.os }}
     needs: push_to_code_artifact
-    runs_on: ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
     strategy:
       matrix:
         os: [ubuntu-latest, macos-latest]
@@ -66,7 +66,7 @@ jobs:
   test_installation_windows:
     name: test_installation_windows
     needs: push_to_code_artifact
-    runs_on: windows-latest
+    runs-on: windows-latest
     permissions:
       id-token: write
       contents: read
