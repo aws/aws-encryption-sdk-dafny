@@ -14,6 +14,11 @@ The AWS Encryption SDK is available on [NuGet](https://www.nuget.org/) and can r
 <PackageReference Include="AWS.EncryptionSDK" />
 ```
 
+Alternatively, use the dotnet CLI:
+```
+dotnet add <your-project-name>.csproj package awsencryptionsdk
+```
+
 The Encryption SDK source has a target framework of [netstandard2.0](https://docs.microsoft.com/en-us/dotnet/standard/net-standard).
 
 ## Building the AWS Encryption SDK for .NET

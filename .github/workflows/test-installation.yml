@@ -1,0 +1,111 @@
+# This workflow pushes the .NET ESDK to CodeArtifact, tests on Linux, Windows, & Mac OSX, and then cleans up
+name: test-installation
+
+on: ["pull_request", "push"]
+
+jobs:
+  push_to_code_artifact:
+    name: push_to_code_artifact
+    runs_on: ubuntu-latest
+    permissions:
+      id-token: write
+      contents: read
+    outputs:
+      UNIQUE_VERSION: ${{ steps.set_version.outputs.UNIQUE_VERSION }}
+    steps:
+    - name: Configure AWS credentials for pulling from CA
+      uses: aws-actions/configure-aws-credentials@v1
+      with:
+        role-to-assume: arn:aws:iam::587316601012:role/GitHub-DotNet-CA-Writer
+        aws-region: us-west-2
+    - name: Configure Nuget to pull from CA
+      run: aws codeartifact login --tool nuget --domain github --domain-owner 587316601012 --repository dotnet-esdk
+    - name: Checkout
+      uses: actions/checkout@v2
+    - name: Set unique version
+      id: set_version
+      run: |
+        cd aws-encryption-sdk-dafny/aws-encryption-sdk-net-formally-verified
+        export BASE_VERSION=`grep '<Version>' Source/AWSEncryptionSDK.csproj | sed 's/.*<Version>\(.*\)<\/Version>/\1/'`
+        export UNIQUE_VERSION=$BASE_VERSION-`git rev-parse --short HEAD`
+        echo "::set-output name=UNIQUE_VERSION::$UNIQUE_VERSION"
+    - name: Push to CA
+      run: |
+        dotnet pack Source /p:Version=$UNIQUE_VERSION
+        dotnet nuget push Source/bin/Debug/AWSEncryptionSDK.$UNIQUE_VERSION.nupkg --source github/dotnet-esdk
+        
+  test_installation:
+    name: test_installation_${{ matrix.os }}
+    needs: push_to_code_artifact
+    runs_on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-latest, macos-latest]
+    permissions:
+      id-token: write
+      contents: read
+    steps:
+    - name: Configure AWS credentials for pulling from CA
+      uses: aws-actions/configure-aws-credentials@v1
+      with:
+        role-to-assume: arn:aws:iam::587316601012:role/GitHub-DotNet-CA-Reader
+        aws-region: us-west-2
+    - name: Configure Nuget to pull from CA
+      run: aws codeartifact login --tool nuget --domain github --domain-owner 587316601012 --repository dotnet-esdk
+    - name: Checkout
+      uses: actions/checkout@v2
+    - name: Load unique version
+      run: export UNIQUE_VERSION=${{ needs.push_to_code_artifact.UNIQUE_VERSION }}
+    - name: Test with Examples
+      run: |
+        cd aws-encryption-sdk-dafny/aws-encryption-sdk-net-formally-verified
+        sed -i.backup '/Source\/AWSEncryptionSDK.csproj/d' Examples/AWSEncryptionSDKExamples.csproj
+        dotnet add Examples/AWSEncryptionSDKExamples.csproj package awsencryptionsdk --version $UNIQUE_VERSION
+        dotnet test Examples /nowarn:CS0105
+
+  test_installation_windows:
+    name: test_installation_windows
+    needs: push_to_code_artifact
+    runs_on: windows-latest
+    permissions:
+      id-token: write
+      contents: read
+    steps:
+    - name: Configure AWS credentials for pulling from CA
+      uses: aws-actions/configure-aws-credentials@v1
+      with:
+        role-to-assume: arn:aws:iam::587316601012:role/GitHub-DotNet-CA-Reader
+        aws-region: us-west-2
+    - name: Configure Nuget to pull from CA
+      run: aws codeartifact login --tool nuget --domain github --domain-owner 587316601012 --repository dotnet-esdk
+    - name: Checkout
+      uses: actions/checkout@v2
+    - name: Load unique version
+      run: $Env:UNIQUE_VERSION = "${{ needs.push_to_code_artifact.UNIQUE_VERSION }}"
+    - name: Test with Examples
+      run: |
+        cd aws-encryption-sdk-dafny/aws-encryption-sdk-net-formally-verified
+        (Get-Content -Path ./Examples/AWSEncryptionSDKExamples.csproj) |
+            ForEach-Object {$_ -Replace '    <ProjectReference Include="../Source/AWSEncryptionSDK.csproj" />', ''} |
+                Set-Content -Path ./Examples/AWSEncryptionSDKExamples.csproj
+        dotnet add Examples/AWSEncryptionSDKExamples.csproj package awsencryptionsdk --version $Env:UNIQUE_VERSION
+        dotnet test Examples /nowarn:CS0105        
+
+  purge_from_code_artifact:
+    name: purge_from_code_artifact
+    if: ${{ always() }} 
+    needs: [test_installation, test_installation_windows, push_to_code_artifact]
+    runs-on: ubuntu-latest
+    permissions:
+      id-token: write
+      contents: read
+    steps:
+    - name: Configure AWS credentials for pulling from CA
+      uses: aws-actions/configure-aws-credentials@v1
+      with:
+        role-to-assume: arn:aws:iam::587316601012:role/GitHub-DotNet-CA-Purger
+        aws-region: us-west-2
+    - name: Load unique version
+      run: export UNIQUE_VERSION=${{ needs.push_to_code_artifact.UNIQUE_VERSION }}      
+    - name: CodeArtifact Purger
+      run: aws codeartifact delete-package-versions --domain github --repository dotnet-esdk --format nuget --package awsencryptionsdk --versions $UNIQUE_VERSION
