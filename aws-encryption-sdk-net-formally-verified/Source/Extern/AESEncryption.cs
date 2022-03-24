@@ -28,9 +28,7 @@ namespace AESEncryption {
             var nonceBytes = iv.Elements;
             var plaintextBytes = msg.Elements;
             var aadBytes = aad.Elements;
-
-            var ciphertextNoTag = new byte[plaintextBytes.Length];
-            var tag = new byte[encAlg.dtor_tagLength];
+            var ciphertext = new byte[plaintextBytes.Length + encAlg.dtor_tagLength];
 
             try
             {
@@ -39,18 +37,17 @@ namespace AESEncryption {
                 var param = new AeadParameters(
                     new KeyParameter(keyBytes),
                     encAlg.dtor_tagLength * 8,
-                    iv.Elements,
-                    aad.Elements);
+                    nonceBytes,
+                    aadBytes);
                 var cipher = CipherUtilities.GetCipher("AES/GCM/NoPadding");
                 cipher.Init(true, param);
-
-                var ciphertext = new byte[cipher.GetOutputSize(msg.Elements.Length)];
                 var len = cipher.ProcessBytes(msg.Elements, 0, msg.Elements.Length, ciphertext, 0);
                 cipher.DoFinal(ciphertext, len);  // Append authentication tag
 #else
+                var aesCiphertext = new Span<byte>(ciphertext, 0, plaintextBytes.Length);
+                var tag = new Span<byte>(ciphertext, plaintextBytes.Length, encAlg.dtor_tagLength);
                 var cipher = new AesGcm(keyBytes);
-                cipher.Encrypt(nonceBytes, plaintextBytes, ciphertextNoTag, tag, aadBytes);
-                var ciphertext = ciphertextNoTag.Concat(tag).ToArray();
+                cipher.Encrypt(nonceBytes, plaintextBytes, aesCiphertext, tag, aadBytes);
 #endif
                 return Result<_IEncryptionOutput, icharseq>.create_Success(
                     __default.EncryptionOutputFromByteSeq(byteseq.FromArray(ciphertext), encAlg));
