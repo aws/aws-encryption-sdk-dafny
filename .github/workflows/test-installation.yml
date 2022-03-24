@@ -80,9 +80,10 @@ jobs:
     - name: Test with Examples
       run: |
         echo '::set-output name=action_echo::enabled'
+        echo '::echo::on'
         cd aws-encryption-sdk-net-formally-verified
-        rm ~/.config/Nuget/NuGet.Config || true
-        rm ~/.config/NuGet/config/*.config || true
+        # rm ~/.config/Nuget/NuGet.Config || true
+        # rm ~/.config/NuGet/config/*.config || true
         # rm ~/.nuget/config/*.config || true
         aws codeartifact login --tool dotnet --domain github --domain-owner 587316601012 --repository dotnet-esdk --duration-seconds 900
         sed -i.backup '/Source\/AWSEncryptionSDK.csproj/d' Examples/AWSEncryptionSDKExamples.csproj
