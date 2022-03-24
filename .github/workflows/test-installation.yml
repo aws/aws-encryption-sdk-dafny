@@ -118,8 +118,6 @@ jobs:
       with:
         role-to-assume: arn:aws:iam::587316601012:role/GitHub-DotNet-CA-Purger
         aws-region: us-west-2
-    - name: Load unique version
-      run: 
     - name: CodeArtifact Purger
       run: |
         export UNIQUE_VERSION=${{ needs.push_to_code_artifact.UNIQUE_VERSION }}      
