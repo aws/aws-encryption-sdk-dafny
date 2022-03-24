@@ -77,6 +77,8 @@ jobs:
       run: |
         # export UNIQUE_VERSION=${{ needs.push_to_code_artifact.outputs.UNIQUE_VERSION }}
         echo "UNIQUE_VERSION=0.0.1-d4d9204" >> $GITHUB_ENV
+    - name: determine aws cli version
+      run: aws --version
     - name: fetch ca creds
       run: |
         echo '::set-output name=action_echo::enabled'
