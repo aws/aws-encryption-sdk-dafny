@@ -65,18 +65,6 @@ jobs:
       id-token: write
       contents: read
     steps:
-    - name: set python version
-      uses: actions/setup-python@v3
-      with:
-        pyton-version: '3.9.10'
-    - name: remove aws cli
-      run: |
-        rm $(which aws)
-        rm '/usr/local/bin/aws_completer'
-    - name: install aws cli
-      run: brew install awscli -f
-    - name: check aws cli version
-      run: aws --version
     - name: Configure AWS credentials for pulling from CA
       uses: aws-actions/configure-aws-credentials@v1
       with:
@@ -91,6 +79,12 @@ jobs:
         echo "UNIQUE_VERSION=0.0.1-d4d9204" >> $GITHUB_ENV
     - name: determine aws cli version
       run: aws --version
+    - name: cat nuget config
+      run: |
+        printf "\n .config/NuGet/NuGet.Config \n"
+        cat ~/.config/NuGet/NuGet.Config || true
+        printf "\n\n .nuget/NuGet/NuGet.Config  \n"
+        cat ~/.nuget/NuGet/NuGet.Config
     - name: fetch ca creds
       run: |
         echo '::set-output name=action_echo::enabled'
