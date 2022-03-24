@@ -42,18 +42,10 @@ jobs:
     - name: Push to CA
       run: |
         cd aws-encryption-sdk-net-formally-verified
-        echo "starting cat logging\n .nuget:\n"
-        cat ~/.nuget/NuGet/NuGet.Config || true
-        echo "\n .config:\n:"
-        cat ~/.config/NuGet/NuGet.config || true
-        echo "\n done with pre aws catting\n"
-        aws codeartifact login --tool dotnet --domain github --domain-owner 587316601012 --repository dotnet-esdk
-        echo "starting post aws cat logging\n .nuget:\n"
-        cat ~/.nuget/NuGet/NuGet.Config || true
-        echo "\n .config:\n:"
-        cat ~/.config/NuGet/NuGet.config || true
-        echo "\n done with post aws catting\n"
-        rm ~/.nuget/NuGet/NuGet.Config
+        rm ~/.config/Nuget/NuGet.Config || true
+        rm ~/.config/NuGet/config/*.config || true
+        rm ~/.nuget/config/*.config || true
+        aws codeartifact login --tool dotnet --domain github --domain-owner 587316601012 --repository dotnet-esdk --duration-seconds 900
         dotnet nuget push build/AWSEncryptionSDK.$UNIQUE_VERSION.nupkg --source github/dotnet-esdk
         
   test_installation:
