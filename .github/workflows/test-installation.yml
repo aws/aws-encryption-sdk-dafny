@@ -127,7 +127,9 @@ jobs:
       with:
         role-to-assume: arn:aws:iam::587316601012:role/GitHub-DotNet-CA-Purger
         aws-region: us-west-2
-    - name: CodeArtifact Purger
+    - name: set unique version
       run: |
-        export UNIQUE_VERSION=${{ needs.push_to_code_artifact.UNIQUE_VERSION }}      
-        aws codeartifact delete-package-versions --domain github --repository dotnet-esdk --format nuget --package awsencryptionsdk --versions $UNIQUE_VERSION
+        export UNIQUE_VERSION=${{ needs.push_to_code_artifact.outputs.UNIQUE_VERSION }}
+        echo "UNIQUE_VERSION=$UNIQUE_VERSION" >> $GITHUB_ENV
+    - name: CodeArtifact Purger
+      run: aws codeartifact delete-package-versions --domain github --repository dotnet-esdk --format nuget --package awsencryptionsdk --versions $UNIQUE_VERSION
