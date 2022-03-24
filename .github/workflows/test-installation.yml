@@ -13,6 +13,10 @@ jobs:
     outputs:
       UNIQUE_VERSION: ${{ steps.set_version.outputs.UNIQUE_VERSION }}
     steps:
+    - name: Setup Dafny
+      uses: dafny-lang/setup-dafny-action@v1
+      with:
+        dafny-version: "3.4.1"
     - name: set stack trace for debugging
       run: export SHOW_STACK_TRACE="true"
     - name: Configure AWS credentials for pulling from CA
@@ -28,20 +32,14 @@ jobs:
     - name: Set unique version
       id: set_version
       run: |
-        cd aws-encryption-sdk-net-formally-verified
         export BASE_VERSION=`grep '<Version>' Source/AWSEncryptionSDK.csproj | sed 's/.*<Version>\(.*\)<\/Version>/\1/'`
         export UNIQUE_VERSION=$BASE_VERSION-`git rev-parse --short HEAD`
         echo "::set-output name=UNIQUE_VERSION::$UNIQUE_VERSION"
-    - name: Setup Dafny
-      uses: dafny-lang/setup-dafny-action@v1
-      with:
-        dafny-version: "3.4.1"
-    - name: make build dir
-      run: mkdir build
-    - name: ls for debuging
-      run: ls -al
     - name: build and pack
-      run: dotnet pack ./Source/AWSEncryptionSDK.csproj /p:Version=$UNIQUE_VERSION --output build
+      run: |
+          ./Source/AWSEncryptionSDK.csproj
+          mkdir build
+          dotnet pack ./Source/AWSEncryptionSDK.csproj /p:Version=$UNIQUE_VERSION --output build
     - name: Push to CA
       run: dotnet nuget push build/AWSEncryptionSDK.$UNIQUE_VERSION.nupkg --source github/dotnet-esdk
         
