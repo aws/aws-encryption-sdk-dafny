@@ -41,10 +41,14 @@ jobs:
       run: ls -al
     - name: build and pack
       run: |
+        cd aws-encryption-sdk-net-formally-verified
         mkdir build
+        ls -al        
         dotnet pack ./Source/AWSEncryptionSDK.csproj /p:Version=$UNIQUE_VERSION --output build
     - name: Push to CA
-      run: dotnet nuget push build/AWSEncryptionSDK.$UNIQUE_VERSION.nupkg --source github/dotnet-esdk
+      run: |
+        cd aws-encryption-sdk-net-formally-verified
+        dotnet nuget push build/AWSEncryptionSDK.$UNIQUE_VERSION.nupkg --source github/dotnet-esdk
         
   test_installation:
     name: test_installation_${{ matrix.os }}
