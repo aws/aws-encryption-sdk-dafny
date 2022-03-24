@@ -36,7 +36,7 @@ jobs:
         export BASE_VERSION=`grep '<Version>' Source/AWSEncryptionSDK.csproj | sed 's/.*<Version>\(.*\)<\/Version>/\1/'`
         export UNIQUE_VERSION=$BASE_VERSION-`git rev-parse --short HEAD`
         echo "::set-output name=UNIQUE_VERSION::$UNIQUE_VERSION"
-        echo "{UNIQUE_VERSION}={$UNIQUE_VERSION}" >> $GITHUB_ENV
+        echo "UNIQUE_VERSION=$UNIQUE_VERSION" >> $GITHUB_ENV
     - name: build and pack
       run: |
         mkdir build
