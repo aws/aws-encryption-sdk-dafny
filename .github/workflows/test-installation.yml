@@ -37,6 +37,8 @@ jobs:
         export UNIQUE_VERSION=$BASE_VERSION-`git rev-parse --short HEAD`
         echo "::set-output name=UNIQUE_VERSION::$UNIQUE_VERSION"
         echo "UNIQUE_VERSION=$UNIQUE_VERSION" >> $GITHUB_ENV
+    - name: debug ls
+      run: ls -al
     - name: build and pack
       run: |
         mkdir build
