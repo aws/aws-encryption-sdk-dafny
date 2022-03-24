@@ -72,6 +72,10 @@ jobs:
         aws-region: us-west-2
     - name: Checkout
       uses: actions/checkout@v2
+    - name: set python version
+      uses: actions/setup-python@v3
+      with:
+        pyton-version: '3.9.10'
     - run: git submodule update --init libraries
     - name: set unique version
       run: |
