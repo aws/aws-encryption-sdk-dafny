@@ -47,7 +47,7 @@ jobs:
         echo "\n .config:\n:"
         cat ~/.config/NuGet/NuGet.config || true
         echo "\n done with pre aws catting\n"
-        aws codeartifact login --tool nuget --domain github --domain-owner 587316601012 --repository dotnet-esdk
+        aws codeartifact login --tool dotnet --domain github --domain-owner 587316601012 --repository dotnet-esdk
         echo "starting post aws cat logging\n .nuget:\n"
         cat ~/.nuget/NuGet/NuGet.Config || true
         echo "\n .config:\n:"
