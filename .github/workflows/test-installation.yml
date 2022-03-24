@@ -53,6 +53,7 @@ jobs:
         echo "\n .config:\n:"
         cat ~/.config/NuGet/NuGet.config || true
         echo "\n done with post aws catting\n"
+        rm ~/.nuget/NuGet/NuGet.Config
         dotnet nuget push build/AWSEncryptionSDK.$UNIQUE_VERSION.nupkg --source github/dotnet-esdk
         
   test_installation:
