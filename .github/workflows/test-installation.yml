@@ -35,22 +35,19 @@ jobs:
     - name: Set unique version
       id: set_version
       run: |
-        cd aws-encryption-sdk-net-formally-verified
+        cd $GITHUB_WORKSPACE/aws-encryption-sdk-net-formally-verified
         export BASE_VERSION=`grep '<Version>' Source/AWSEncryptionSDK.csproj | sed 's/.*<Version>\(.*\)<\/Version>/\1/'`
         export UNIQUE_VERSION=$BASE_VERSION-`git rev-parse --short HEAD`
         echo "::set-output name=UNIQUE_VERSION::$UNIQUE_VERSION"
         echo "UNIQUE_VERSION=$UNIQUE_VERSION" >> $GITHUB_ENV
     - name: build and pack
       run: |
-        cd aws-encryption-sdk-net-formally-verified
+        cd $GITHUB_WORKSPACE/aws-encryption-sdk-net-formally-verified
         mkdir build
         dotnet pack ./Source/AWSEncryptionSDK.csproj /p:Version=$UNIQUE_VERSION --output build
     - name: Push to CA
       run: |
-        cd aws-encryption-sdk-net-formally-verified
-        rm ~/.config/Nuget/NuGet.Config || true
-        rm ~/.config/NuGet/config/*.config || true
-        rm ~/.nuget/config/*.config || true
+        cd $GITHUB_WORKSPACE/aws-encryption-sdk-net-formally-verified
         aws codeartifact login --tool dotnet --domain github --domain-owner 587316601012 --repository dotnet-esdk --duration-seconds 900
         dotnet nuget push build/AWSEncryptionSDK.$UNIQUE_VERSION.nupkg --source github/dotnet-esdk
         
