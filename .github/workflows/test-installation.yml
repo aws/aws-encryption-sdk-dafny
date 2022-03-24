@@ -36,10 +36,14 @@ jobs:
       uses: dafny-lang/setup-dafny-action@v1
       with:
         dafny-version: "3.4.1"
+    - name: make build dir
+      run: mkdir build
+    - name: ls for debuging
+      run: ls -al
     - name: build and pack
-      run: dotnet pack Source /p:Version=$UNIQUE_VERSION
+      run: dotnet pack ./Source/AWSEncryptionSDK.csproj /p:Version=$UNIQUE_VERSION --output build
     - name: Push to CA
-      run: dotnet nuget push Source/bin/Debug/AWSEncryptionSDK.$UNIQUE_VERSION.nupkg --source github/dotnet-esdk
+      run: dotnet nuget push build/AWSEncryptionSDK.$UNIQUE_VERSION.nupkg --source github/dotnet-esdk
         
   test_installation:
     name: test_installation_${{ matrix.os }}
