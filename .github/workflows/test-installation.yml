@@ -60,7 +60,7 @@ jobs:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        os: [macos-latest] # [ubuntu-latest, macos-latest] macos is blocked by https://github.com/aws/aws-cli/issues/6813
+        os: [ubuntu-latest, macos-latest]
     permissions:
       id-token: write
       contents: read
@@ -76,7 +76,7 @@ jobs:
     - name: set unique version
       run: |
         export UNIQUE_VERSION=${{ needs.push_to_code_artifact.outputs.UNIQUE_VERSION }}
-        echo "UNIQUE_VERSION=0.0.1-d4d9204" >> $GITHUB_ENV
+        echo "UNIQUE_VERSION=$UNIQUE_VERSION" >> $GITHUB_ENV
     - name: work around https://github.com/aws/aws-cli/issues/6813
       run: dotnet nuget list source --format detailed
     - name: fetch ca creds
@@ -95,7 +95,7 @@ jobs:
         cd $GITHUB_WORKSPACE/aws-encryption-sdk-net-formally-verified
         dotnet test Examples
 
-  test_installation_windows: # windows is blocked by by https://github.com/aws/aws-cli/issues/6813
+  test_installation_windows:
     name: test_installation_windows
     needs: push_to_code_artifact
     runs-on: windows-latest
