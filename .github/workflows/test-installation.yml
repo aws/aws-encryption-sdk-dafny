@@ -77,15 +77,9 @@ jobs:
         rm ~/.config/Nuget/NuGet.Config || true
         rm ~/.config/NuGet/config/*.config || true
         rm ~/.nuget/config/*.config || true
-        aws codeartifact login --tool nuget --domain github --domain-owner 587316601012 --repository dotnet-esdk
-        printf "\n Catting csproj to verify before & after sed behavor \n"
-        cat Examples/AWSEncryptionSDKExamples.csproj
-        printf "\n catted csproj \n"
+        aws codeartifact login --tool nuget --domain github --domain-owner 587316601012 --repository dotnet-esdk --duration-seconds 900
         sed -i.backup '/Source\/AWSEncryptionSDK.csproj/d' Examples/AWSEncryptionSDKExamples.csproj
-        printf "\n catting csproj \n"
-        cat Examples/AWSEncryptionSDKExamples.csproj
-        printf "\n catted csproj \n"
-        dotnet add Examples/AWSEncryptionSDKExamples.csproj package awsencryptionsdk --version $UNIQUE_VERSION --source github/dotnet-esdk
+        dotnet add Examples/AWSEncryptionSDKExamples.csproj package awsencryptionsdk --version $UNIQUE_VERSION --source "https://github-587316601012.d.codeartifact.us-west-2.amazonaws.com/nuget/dotnet-esdk/v3/index.json"
         dotnet test Examples /nowarn:CS0105
 
   test_installation_windows:
@@ -112,11 +106,11 @@ jobs:
       run: |
         cd aws-encryption-sdk-net-formally-verified
         Remove-Item D:\%appdata%\NuGet\config\*.Config -ErrorAction:Continue || true
-        aws codeartifact login --tool dotnet --domain github --domain-owner 587316601012 --repository dotnet-esdk
+        aws codeartifact login --tool dotnet --domain github --domain-owner 587316601012 --repository dotnet-esdk --duration-seconds 900
         (Get-Content -Path ./Examples/AWSEncryptionSDKExamples.csproj) |
             ForEach-Object {$_ -Replace '    <ProjectReference Include="../Source/AWSEncryptionSDK.csproj" />', ''} |
                 Set-Content -Path ./Examples/AWSEncryptionSDKExamples.csproj
-        dotnet add Examples/AWSEncryptionSDKExamples.csproj package awsencryptionsdk --version "$Env:UNIQUE_VERSION" --source "github/dotnet-esdk"
+        dotnet add Examples/AWSEncryptionSDKExamples.csproj package awsencryptionsdk --version "$Env:UNIQUE_VERSION" --source "https://github-587316601012.d.codeartifact.us-west-2.amazonaws.com/nuget/dotnet-esdk/v3/index.json"
         dotnet test Examples /nowarn:CS0105        
 
   purge_from_code_artifact:
