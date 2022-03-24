@@ -8,6 +8,8 @@ env:
   AWS_ENCRYPTION_SDK_EXAMPLE_KMS_KEY_ID_2: arn:aws:kms:eu-central-1:658956600833:key/75414c93-5285-4b57-99c9-30c1cf0a22c2
   AWS_ENCRYPTION_SDK_EXAMPLE_KMS_MRK_KEY_ID: arn:aws:kms:us-east-1:658956600833:key/mrk-80bd8ecdcd4342aebd84b7dc9da498a7
   AWS_ENCRYPTION_SDK_EXAMPLE_KMS_MRK_KEY_ID_2: arn:aws:kms:eu-west-1:658956600833:key/mrk-80bd8ecdcd4342aebd84b7dc9da498a7
+  DOTNET_NOLOGO: true
+  DOTNET_CLI_TELEMETRY_OPTOUT: true
 
 jobs:
   push_to_code_artifact:
@@ -40,7 +42,7 @@ jobs:
         export UNIQUE_VERSION=$BASE_VERSION-`git rev-parse --short HEAD`
         echo "::set-output name=UNIQUE_VERSION::$UNIQUE_VERSION"
         echo "UNIQUE_VERSION=$UNIQUE_VERSION" >> $GITHUB_ENV
-    - name: build and pack
+    - name: Build and pack
       run: |
         cd $GITHUB_WORKSPACE/aws-encryption-sdk-net-formally-verified
         mkdir build
@@ -69,21 +71,18 @@ jobs:
         aws-region: us-west-2
     - name: Checkout
       uses: actions/checkout@v2
-    - run: git submodule update --init libraries
-    - name: set unique version
+    - name: Set unique version
       run: |
         export UNIQUE_VERSION=${{ needs.push_to_code_artifact.outputs.UNIQUE_VERSION }}
         echo "UNIQUE_VERSION=$UNIQUE_VERSION" >> $GITHUB_ENV
-    - name: work around https://github.com/aws/aws-cli/issues/6813
-      run: dotnet nuget list source --format detailed
-    - name: fetch ca creds
+    - name: Fetch CA Credentials
       run: |
         aws codeartifact login --tool dotnet --domain github --domain-owner 587316601012 --repository dotnet-esdk --duration-seconds 900
-    - name: execute sed
+    - name: Remove in-tree ESDK dependency from Examples
       run: |
         cd $GITHUB_WORKSPACE/aws-encryption-sdk-net-formally-verified
         sed -i.backup '/Source\/AWSEncryptionSDK.csproj/d' Examples/AWSEncryptionSDKExamples.csproj
-    - name: add back awsencryptionsdk
+    - name: Add Back awsencryptionsdk
       run: |
         cd $GITHUB_WORKSPACE/aws-encryption-sdk-net-formally-verified
         dotnet add Examples/AWSEncryptionSDKExamples.csproj package awsencryptionsdk --version $UNIQUE_VERSION
@@ -107,19 +106,16 @@ jobs:
         aws-region: us-west-2
     - name: Checkout
       uses: actions/checkout@v2
-    - run: git submodule update --init libraries
-    - name: work around https://github.com/aws/aws-cli/issues/6813
-      run: dotnet nuget list source --format detailed      
-    - name: fetch ca creds
+    - name: Fetch CA Credentials
       run: |
         aws codeartifact login --tool dotnet --domain github --domain-owner 587316601012 --repository dotnet-esdk --duration-seconds 900
-    - name: execute sed
+    - name: Remove in-tree ESDK dependency from Examples
       run: |
         cd $Env:GITHUB_WORKSPACE/aws-encryption-sdk-net-formally-verified
         (Get-Content -Path ./Examples/AWSEncryptionSDKExamples.csproj) |
             ForEach-Object {$_ -Replace '    <ProjectReference Include="../Source/AWSEncryptionSDK.csproj" />', ''} |
                 Set-Content -Path ./Examples/AWSEncryptionSDKExamples.csproj
-    - name: add back awsencryptionsdk
+    - name: Add Back awsencryptionsdk
       run: |
         cd $Env:GITHUB_WORKSPACE/aws-encryption-sdk-net-formally-verified
         dotnet add Examples/AWSEncryptionSDKExamples.csproj package awsencryptionsdk --version  "${{ needs.push_to_code_artifact.outputs.UNIQUE_VERSION }}"
@@ -142,7 +138,7 @@ jobs:
       with:
         role-to-assume: arn:aws:iam::587316601012:role/GitHub-DotNet-CA-Purger
         aws-region: us-west-2
-    - name: set unique version
+    - name: Set unique version
       run: |
         export UNIQUE_VERSION=${{ needs.push_to_code_artifact.outputs.UNIQUE_VERSION }}
         echo "UNIQUE_VERSION=$UNIQUE_VERSION" >> $GITHUB_ENV
