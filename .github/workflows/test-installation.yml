@@ -70,7 +70,9 @@ jobs:
       with:
         pyton-version: '3.9.10'
     - name: remove aws cli
-      run: rm $(which aws)
+      run: |
+        rm $(which aws)
+        rm '/usr/local/bin/aws_completer'
     - name: install aws cli
       run: brew install awscli -f
     - name: check aws cli version
