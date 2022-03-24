@@ -71,7 +71,7 @@ jobs:
         aws-region: us-west-2
     - name: Checkout
       uses: actions/checkout@v2
-    - name: Set unique version
+    - name: Set unique version; useful for debugging
       run: |
         export UNIQUE_VERSION=${{ needs.push_to_code_artifact.outputs.UNIQUE_VERSION }}
         echo "UNIQUE_VERSION=$UNIQUE_VERSION" >> $GITHUB_ENV
@@ -82,10 +82,10 @@ jobs:
       run: |
         cd $GITHUB_WORKSPACE/aws-encryption-sdk-net-formally-verified
         sed -i.backup '/Source\/AWSEncryptionSDK.csproj/d' Examples/AWSEncryptionSDKExamples.csproj
-    - name: Add Back awsencryptionsdk
+    - name: Add Back AWSEncryptionSDK
       run: |
         cd $GITHUB_WORKSPACE/aws-encryption-sdk-net-formally-verified
-        dotnet add Examples/AWSEncryptionSDKExamples.csproj package awsencryptionsdk --version $UNIQUE_VERSION
+        dotnet add Examples/AWSEncryptionSDKExamples.csproj package AWSEncryptionSDK --version $UNIQUE_VERSION
     - name: Test with Examples
       run: |
         cd $GITHUB_WORKSPACE/aws-encryption-sdk-net-formally-verified
@@ -115,10 +115,10 @@ jobs:
         (Get-Content -Path ./Examples/AWSEncryptionSDKExamples.csproj) |
             ForEach-Object {$_ -Replace '    <ProjectReference Include="../Source/AWSEncryptionSDK.csproj" />', ''} |
                 Set-Content -Path ./Examples/AWSEncryptionSDKExamples.csproj
-    - name: Add Back awsencryptionsdk
+    - name: Add Back AWSEncryptionSDK
       run: |
         cd $Env:GITHUB_WORKSPACE/aws-encryption-sdk-net-formally-verified
-        dotnet add Examples/AWSEncryptionSDKExamples.csproj package awsencryptionsdk --version  "${{ needs.push_to_code_artifact.outputs.UNIQUE_VERSION }}"
+        dotnet add Examples/AWSEncryptionSDKExamples.csproj package AWSEncryptionSDK --version  "${{ needs.push_to_code_artifact.outputs.UNIQUE_VERSION }}"
     - name: test examples
       run: |
         cd $Env:GITHUB_WORKSPACE/aws-encryption-sdk-net-formally-verified        
@@ -138,7 +138,7 @@ jobs:
       with:
         role-to-assume: arn:aws:iam::587316601012:role/GitHub-DotNet-CA-Purger
         aws-region: us-west-2
-    - name: Set unique version
+    - name: Set unique version; useful for debugging
       run: |
         export UNIQUE_VERSION=${{ needs.push_to_code_artifact.outputs.UNIQUE_VERSION }}
         echo "UNIQUE_VERSION=$UNIQUE_VERSION" >> $GITHUB_ENV
