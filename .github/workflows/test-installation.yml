@@ -60,7 +60,7 @@ jobs:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        os: [macos-latest] # [ubuntu-latest, macos-latest]
+        os: [ubuntu-latest] # [ubuntu-latest, macos-latest] macos is blocked by https://github.com/aws/aws-cli/issues/6813
     permissions:
       id-token: write
       contents: read
@@ -75,44 +75,22 @@ jobs:
     - run: git submodule update --init libraries
     - name: set unique version
       run: |
-        # export UNIQUE_VERSION=${{ needs.push_to_code_artifact.outputs.UNIQUE_VERSION }}
+        export UNIQUE_VERSION=${{ needs.push_to_code_artifact.outputs.UNIQUE_VERSION }}
         echo "UNIQUE_VERSION=0.0.1-d4d9204" >> $GITHUB_ENV
-    - name: determine aws cli version
-      run: aws --version
-    - name: cat nuget config
-      run: |
-        printf "\n .config/NuGet/NuGet.Config \n"
-        cat ~/.config/NuGet/NuGet.Config || true
-        printf "\n\n .nuget/NuGet/NuGet.Config  \n"
-        cat ~/.nuget/NuGet/NuGet.Config
     - name: fetch ca creds
       run: |
-        echo '::set-output name=action_echo::enabled'
-        echo '::echo::on'        
         aws codeartifact login --tool dotnet --domain github --domain-owner 587316601012 --repository dotnet-esdk --duration-seconds 900 --debug
-        ls -al
     - name: execute sed
       run: |
-        echo '::set-output name=action_echo::enabled'
-        echo '::echo::on'
         cd $GITHUB_WORKSPACE/aws-encryption-sdk-net-formally-verified
         sed -i.backup '/Source\/AWSEncryptionSDK.csproj/d' Examples/AWSEncryptionSDKExamples.csproj
     - name: add back awsencryptionsdk
       run: |
-        echo '::set-output name=action_echo::enabled'
-        echo '::echo::on'
         dotnet add Examples/AWSEncryptionSDKExamples.csproj package awsencryptionsdk --version $UNIQUE_VERSION
     - name: Test with Examples
       run: |
         echo '::set-output name=action_echo::enabled'
         echo '::echo::on'
-        # cd aws-encryption-sdk-net-formally-verified
-        # rm ~/.config/Nuget/NuGet.Config || true
-        # rm ~/.config/NuGet/config/*.config || true
-        # rm ~/.nuget/config/*.config || true
-        # aws codeartifact login --tool dotnet --domain github --domain-owner 587316601012 --repository dotnet-esdk --duration-seconds 900
-        # sed -i.backup '/Source\/AWSEncryptionSDK.csproj/d' Examples/AWSEncryptionSDKExamples.csproj
-        # dotnet add Examples/AWSEncryptionSDKExamples.csproj package awsencryptionsdk --version $UNIQUE_VERSION
         dotnet test Examples /nowarn:CS0105
 
   # test_installation_windows:
