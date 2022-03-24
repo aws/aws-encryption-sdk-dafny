@@ -25,8 +25,6 @@ jobs:
         role-to-assume: arn:aws:iam::587316601012:role/GitHub-DotNet-CA-Writer
         role-session-name: push_to_code_artifact
         aws-region: us-west-2
-    - name: Configure Nuget to pull from CA
-      run: aws codeartifact login --tool nuget --domain github --domain-owner 587316601012 --repository dotnet-esdk
     - name: Checkout
       uses: actions/checkout@v2
     - run: git submodule update --init libraries
@@ -43,13 +41,12 @@ jobs:
     - name: build and pack
       run: |
         cd aws-encryption-sdk-net-formally-verified
-        pwd
         mkdir build
-        ls -al ../*
         dotnet pack ./Source/AWSEncryptionSDK.csproj /p:Version=$UNIQUE_VERSION --output build
     - name: Push to CA
       run: |
         cd aws-encryption-sdk-net-formally-verified
+        aws codeartifact login --tool nuget --domain github --domain-owner 587316601012 --repository dotnet-esdk
         dotnet nuget push build/AWSEncryptionSDK.$UNIQUE_VERSION.nupkg --source github/dotnet-esdk
         
   test_installation:
@@ -68,16 +65,14 @@ jobs:
       with:
         role-to-assume: arn:aws:iam::587316601012:role/GitHub-DotNet-CA-Reader
         aws-region: us-west-2
-    - name: Configure Nuget to pull from CA
-      run: aws codeartifact login --tool nuget --domain github --domain-owner 587316601012 --repository dotnet-esdk
     - name: Checkout
       uses: actions/checkout@v2
     - run: git submodule update --init libraries
-    - name: Load unique version
-      run: export UNIQUE_VERSION=${{ needs.push_to_code_artifact.UNIQUE_VERSION }}
     - name: Test with Examples
       run: |
+        export UNIQUE_VERSION=${{ needs.push_to_code_artifact.UNIQUE_VERSION }}
         cd aws-encryption-sdk-net-formally-verified
+        aws codeartifact login --tool nuget --domain github --domain-owner 587316601012 --repository dotnet-esdk
         sed -i.backup '/Source\/AWSEncryptionSDK.csproj/d' Examples/AWSEncryptionSDKExamples.csproj
         dotnet add Examples/AWSEncryptionSDKExamples.csproj package awsencryptionsdk --version $UNIQUE_VERSION
         dotnet test Examples /nowarn:CS0105
@@ -95,15 +90,13 @@ jobs:
       with:
         role-to-assume: arn:aws:iam::587316601012:role/GitHub-DotNet-CA-Reader
         aws-region: us-west-2
-    - name: Configure Nuget to pull from CA
-      run: aws codeartifact login --tool nuget --domain github --domain-owner 587316601012 --repository dotnet-esdk
     - name: Checkout
       uses: actions/checkout@v2
     - run: git submodule update --init libraries
-    - name: Load unique version
-      run: $Env:UNIQUE_VERSION = "${{ needs.push_to_code_artifact.UNIQUE_VERSION }}"
     - name: Test with Examples
       run: |
+        $Env:UNIQUE_VERSION = "${{ needs.push_to_code_artifact.UNIQUE_VERSION }}"
+        aws codeartifact login --tool nuget --domain github --domain-owner 587316601012 --repository dotnet-esdk
         cd aws-encryption-sdk-net-formally-verified
         (Get-Content -Path ./Examples/AWSEncryptionSDKExamples.csproj) |
             ForEach-Object {$_ -Replace '    <ProjectReference Include="../Source/AWSEncryptionSDK.csproj" />', ''} |
@@ -126,6 +119,8 @@ jobs:
         role-to-assume: arn:aws:iam::587316601012:role/GitHub-DotNet-CA-Purger
         aws-region: us-west-2
     - name: Load unique version
-      run: export UNIQUE_VERSION=${{ needs.push_to_code_artifact.UNIQUE_VERSION }}      
+      run: 
     - name: CodeArtifact Purger
-      run: aws codeartifact delete-package-versions --domain github --repository dotnet-esdk --format nuget --package awsencryptionsdk --versions $UNIQUE_VERSION
+      run: |
+        export UNIQUE_VERSION=${{ needs.push_to_code_artifact.UNIQUE_VERSION }}      
+        aws codeartifact delete-package-versions --domain github --repository dotnet-esdk --format nuget --package awsencryptionsdk --versions $UNIQUE_VERSION
