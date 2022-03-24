@@ -72,7 +72,7 @@ jobs:
     - name: remove aws cli
       run: rm $(which aws)
     - name: install aws cli
-      run: brew install awscli
+      run: brew install awscli -f
     - name: check aws cli version
       run: aws --version
     - name: Configure AWS credentials for pulling from CA
@@ -93,7 +93,7 @@ jobs:
       run: |
         echo '::set-output name=action_echo::enabled'
         echo '::echo::on'        
-        aws codeartifact login --tool dotnet --domain github --domain-owner 587316601012 --repository dotnet-esdk --duration-seconds 900
+        aws codeartifact login --tool dotnet --domain github --domain-owner 587316601012 --repository dotnet-esdk --duration-seconds 900 --debug
         ls -al
     - name: execute sed
       run: |
