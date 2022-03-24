@@ -3,6 +3,12 @@ name: test-installation
 
 on: ["push"]
 
+env:
+  AWS_ENCRYPTION_SDK_EXAMPLE_KMS_KEY_ID: arn:aws:kms:us-west-2:658956600833:key/b3537ef1-d8dc-4780-9f5a-55776cbb2f7f
+  AWS_ENCRYPTION_SDK_EXAMPLE_KMS_KEY_ID_2: arn:aws:kms:eu-central-1:658956600833:key/75414c93-5285-4b57-99c9-30c1cf0a22c2
+  AWS_ENCRYPTION_SDK_EXAMPLE_KMS_MRK_KEY_ID: arn:aws:kms:us-east-1:658956600833:key/mrk-80bd8ecdcd4342aebd84b7dc9da498a7
+  AWS_ENCRYPTION_SDK_EXAMPLE_KMS_MRK_KEY_ID_2: arn:aws:kms:eu-west-1:658956600833:key/mrk-80bd8ecdcd4342aebd84b7dc9da498a7
+
 jobs:
   push_to_code_artifact:
     name: push_to_code_artifact
@@ -98,11 +104,6 @@ jobs:
     - name: Checkout
       uses: actions/checkout@v2
     - run: git submodule update --init libraries
-    - name: set unique version
-      run: |
-        $Env:UNIQUE_VERSION = "${{ needs.push_to_code_artifact.outputs.UNIQUE_VERSION }}"
-        $Env:UNIQUE_VERSION
-        "UNIQUE_VERSION=${{ needs.push_to_code_artifact.outputs.UNIQUE_VERSION }}" >> $GITHUB_ENV
     - name: Test with Examples
       run: |
         cd aws-encryption-sdk-net-formally-verified
@@ -116,11 +117,11 @@ jobs:
         "\n Catting csproj post sed for debugging \n"
         type ./Examples/AWSEncryptionSDKExamples.csproj
         "\n done catting csproj \n"
-        ::echo::on
+        write-output "::echo::on"
         aws codeartifact login --tool dotnet --domain github --domain-owner 587316601012 --repository dotnet-esdk --duration-seconds 900   
         dotnet add Examples/AWSEncryptionSDKExamples.csproj package awsencryptionsdk --version "${{ needs.push_to_code_artifact.outputs.UNIQUE_VERSION }}"
         dotnet test Examples /nowarn:CS0105        
-        ::echo::off
+        write-output "::echo::off"
   purge_from_code_artifact:
     name: purge_from_code_artifact
     needs: [test_installation, test_installation_windows, push_to_code_artifact]
