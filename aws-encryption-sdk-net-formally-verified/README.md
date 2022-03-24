@@ -7,6 +7,7 @@ AWS Encryption SDK for .NET
 [Security issue notifications](./CONTRIBUTING.md#security-issue-notifications)
 
 ## Using the AWS Encryption SDK for .NET
+
 The AWS Encryption SDK is available on [NuGet](https://www.nuget.org/) and can referenced from an existing `.csproj` through typical ways.
 
 ```
@@ -15,6 +16,22 @@ The AWS Encryption SDK is available on [NuGet](https://www.nuget.org/) and can r
 ```
 
 The AWS Encryption SDK targets both [.NET/.NET Core](https://docs.microsoft.com/en-us/dotnet/core/introduction) 3.1 and newer, and [.NET Framework](https://docs.microsoft.com/en-us/dotnet/framework/) 4.5.2 and newer.
+
+### Configure system dependencies - macOS only
+
+If you are using macOS then you must install OpenSSL 1.1,
+and the OpenSSL 1.1 `lib` directory must be on the dynamic linker path at runtime.
+We recommend that you install OpenSSL via Homebrew using `brew install openssl@1.1`,
+and then set the `DYLD_LIBRARY_PATH` environment variable as follows:
+
+```bash
+$ export DYLD_LIBRARY_PATH="/usr/local/opt/openssl@1.1/lib"
+```
+
+If the .NET runtime cannot locate your OpenSSL 1.1 libraries,
+you may encounter an error that says:
+
+> No usable version of libssl was found
 
 ## Building the AWS Encryption SDK for .NET
 
@@ -45,15 +62,6 @@ However, you must first set up AWS credentials for use with the AWS SDK.
 Instructions for setting up AWS credentials are available in the [AWS Docs for the AWS SDK for .NET.](https://docs.aws.amazon.com/sdk-for-net/v3/developer-guide/net-dg-config-creds.html).
 
 ## Testing the AWS Encryption SDK for .NET
-
-### Configure system dependencies
-
-If you are using macOS, you must install OpenSSL 1.1 and make it available at runtime.
-For example, if you install OpenSSL via Homebrew (`brew install openssl@1.1`), you should set the `DYLD_LIBRARY_PATH` before running any of the below `dotnet test` commands:
-
-```bash
-$ export DYLD_LIBRARY_PATH="/usr/local/opt/openssl@1.1/lib"
-```
 
 ### Configure AWS credentials
 
