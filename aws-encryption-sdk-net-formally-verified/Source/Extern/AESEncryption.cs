@@ -70,22 +70,35 @@ namespace AESEncryption {
             ibyteseq iv,
             ibyteseq aad
         ) {
+            var keyBytes = key.Elements;
+            var nonceBytes = iv.Elements;
+            var ciphertextBytes = cipherText.Elements;
+            var aadBytes = aad.Elements;
+            var tagBytes = authTag.Elements;
+
+            var plaintext = new byte[ciphertextBytes.Length];
+
             try {
+#if NETFRAMEWORK
+                var ciphertextAndTag = ciphertextBytes.Concat(tagBytes).ToArray();
                 var param = new AeadParameters(
-                    new KeyParameter(key.Elements),
-                    ((AESEncryption.AES__GCM)encAlg).tagLength * 8,
-                    iv.Elements,
-                    aad.Elements);
+                    new KeyParameter(keyBytes),
+                    encAlg.dtor_tagLength * 8,
+                    nonceBytes,
+                    aadBytes);
                 var cipher = CipherUtilities.GetCipher("AES/GCM/NoPadding");
                 cipher.Init(false, param);
-                var ctx = byteseq.Concat(cipherText, authTag);
-                var pt = new byte[cipher.GetOutputSize(ctx.Elements.Length)];
-                cipher.DoFinal(ctx.Elements, pt, 0);
-                return Result<ibyteseq, icharseq>.create_Success(byteseq.FromArray(pt));
-            } catch(InvalidCipherTextException macEx) {
-                return DafnyFFI.CreateFailure<ibyteseq>(macEx.ToString());
-            } catch (Exception e) {
-                return DafnyFFI.CreateFailure<ibyteseq>("aes decrypt error");
+                cipher.DoFinal(ciphertextAndTag, plaintext, 0);
+#else
+                var cipher = new AesGcm(keyBytes);
+                cipher.Decrypt(nonceBytes, ciphertextBytes, tagBytes, plaintext, aadBytes);
+#endif
+                return Result<ibyteseq, icharseq>.create_Success(byteseq.FromArray(plaintext));
+            }
+            catch (Exception ex)
+            {
+                var message = string.IsNullOrEmpty(ex.Message) ? "" : $": {ex.Message}";
+                return DafnyFFI.CreateFailure<ibyteseq>("AES decrypt error" + message);
             }
         }
     }
