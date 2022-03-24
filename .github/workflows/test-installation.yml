@@ -65,6 +65,16 @@ jobs:
       id-token: write
       contents: read
     steps:
+    - name: set python version
+      uses: actions/setup-python@v3
+      with:
+        pyton-version: '3.9.10'
+    - name: remove aws cli
+      run: rm $(which aws)
+    - name: install aws cli
+      run: brew install awscli
+    - name: check aws cli version
+      run: aws --version
     - name: Configure AWS credentials for pulling from CA
       uses: aws-actions/configure-aws-credentials@v1
       with:
@@ -72,10 +82,6 @@ jobs:
         aws-region: us-west-2
     - name: Checkout
       uses: actions/checkout@v2
-    - name: set python version
-      uses: actions/setup-python@v3
-      with:
-        pyton-version: '3.9.10'
     - run: git submodule update --init libraries
     - name: set unique version
       run: |
