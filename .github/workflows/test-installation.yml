@@ -67,10 +67,16 @@ jobs:
     - name: Checkout
       uses: actions/checkout@v2
     - run: git submodule update --init libraries
+    - name: set unique version
+      run: |
+        export UNIQUE_VERSION=${{ needs.push_to_code_artifact.outputs.UNIQUE_VERSION }}
+        echo "UNIQUE_VERSION=$UNIQUE_VERSION" >> $GITHUB_ENV
     - name: Test with Examples
       run: |
-        export UNIQUE_VERSION=${{ needs.push_to_code_artifact.UNIQUE_VERSION }}
         cd aws-encryption-sdk-net-formally-verified
+        rm ~/.config/Nuget/NuGet.Config || true
+        rm ~/.config/NuGet/config/*.config || true
+        rm ~/.nuget/config/*.config || true
         aws codeartifact login --tool nuget --domain github --domain-owner 587316601012 --repository dotnet-esdk
         sed -i.backup '/Source\/AWSEncryptionSDK.csproj/d' Examples/AWSEncryptionSDKExamples.csproj
         dotnet add Examples/AWSEncryptionSDKExamples.csproj package awsencryptionsdk --version $UNIQUE_VERSION
@@ -92,11 +98,15 @@ jobs:
     - name: Checkout
       uses: actions/checkout@v2
     - run: git submodule update --init libraries
+    - name: set unique version
+      run: |
+        $Env:UNIQUE_VERSION = ${{ needs.push_to_code_artifact.outputs.UNIQUE_VERSION }}
+        "UNIQUE_VERSION=$UNIQUE_VERSION" >> $GITHUB_ENV
     - name: Test with Examples
       run: |
-        $Env:UNIQUE_VERSION = "${{ needs.push_to_code_artifact.UNIQUE_VERSION }}"
-        aws codeartifact login --tool nuget --domain github --domain-owner 587316601012 --repository dotnet-esdk
         cd aws-encryption-sdk-net-formally-verified
+        Remove-Item %appdata%\NuGet\config\*.Config || true
+        aws codeartifact login --tool dotnet --domain github --domain-owner 587316601012 --repository dotnet-esdk
         (Get-Content -Path ./Examples/AWSEncryptionSDKExamples.csproj) |
             ForEach-Object {$_ -Replace '    <ProjectReference Include="../Source/AWSEncryptionSDK.csproj" />', ''} |
                 Set-Content -Path ./Examples/AWSEncryptionSDKExamples.csproj
@@ -106,7 +116,7 @@ jobs:
   purge_from_code_artifact:
     name: purge_from_code_artifact
     needs: [test_installation, test_installation_windows, push_to_code_artifact]
-    if: ${{ needs.push_to_code_artifact.status == 'success' }}
+    if: ${{ needs.push_to_code_artifact.result == 'success' }}
     runs-on: ubuntu-latest
     permissions:
       id-token: write
