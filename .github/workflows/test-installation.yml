@@ -42,8 +42,9 @@ jobs:
     - name: build and pack
       run: |
         cd aws-encryption-sdk-net-formally-verified
+        pwd
         mkdir build
-        ls -al        
+        ls -al ../*
         dotnet pack ./Source/AWSEncryptionSDK.csproj /p:Version=$UNIQUE_VERSION --output build
     - name: Push to CA
       run: |
