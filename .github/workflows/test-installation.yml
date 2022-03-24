@@ -1,7 +1,7 @@
 # This workflow pushes the .NET ESDK to CodeArtifact, tests on Linux, Windows, & Mac OSX, and then cleans up
 name: test-installation
 
-on: ["pull_request", "push"]
+on: ["push"]
 
 jobs:
   push_to_code_artifact:
