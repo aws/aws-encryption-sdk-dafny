@@ -78,7 +78,13 @@ jobs:
         rm ~/.config/NuGet/config/*.config || true
         rm ~/.nuget/config/*.config || true
         aws codeartifact login --tool nuget --domain github --domain-owner 587316601012 --repository dotnet-esdk
+        printf "\n Catting csproj to verify before & after sed behavor \n"
+        cat Examples/AWSEncryptionSDKExamples.csproj
+        printf "\n catted csproj \n"
         sed -i.backup '/Source\/AWSEncryptionSDK.csproj/d' Examples/AWSEncryptionSDKExamples.csproj
+        printf "\n catting csproj \n"
+        cat Examples/AWSEncryptionSDKExamples.csproj
+        printf "\n catted csproj \n"
         dotnet add Examples/AWSEncryptionSDKExamples.csproj package awsencryptionsdk --version $UNIQUE_VERSION --source github/dotnet-esdk
         dotnet test Examples /nowarn:CS0105
 
@@ -101,11 +107,11 @@ jobs:
     - name: set unique version
       run: |
         $Env:UNIQUE_VERSION = "${{ needs.push_to_code_artifact.outputs.UNIQUE_VERSION }}"
-        "UNIQUE_VERSION=$UNIQUE_VERSION" >> $GITHUB_ENV
+        "UNIQUE_VERSION=$Env:UNIQUE_VERSION" >> $GITHUB_ENV
     - name: Test with Examples
       run: |
         cd aws-encryption-sdk-net-formally-verified
-        Remove-Item %appdata%\NuGet\config\*.Config || true
+        Remove-Item D:\%appdata%\NuGet\config\*.Config -ErrorAction:Continue || true
         aws codeartifact login --tool dotnet --domain github --domain-owner 587316601012 --repository dotnet-esdk
         (Get-Content -Path ./Examples/AWSEncryptionSDKExamples.csproj) |
             ForEach-Object {$_ -Replace '    <ProjectReference Include="../Source/AWSEncryptionSDK.csproj" />', ''} |
