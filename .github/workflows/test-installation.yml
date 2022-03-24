@@ -77,9 +77,9 @@ jobs:
         rm ~/.config/Nuget/NuGet.Config || true
         rm ~/.config/NuGet/config/*.config || true
         rm ~/.nuget/config/*.config || true
-        aws codeartifact login --tool nuget --domain github --domain-owner 587316601012 --repository dotnet-esdk --duration-seconds 900
+        aws codeartifact login --tool dotnet --domain github --domain-owner 587316601012 --repository dotnet-esdk --duration-seconds 900
         sed -i.backup '/Source\/AWSEncryptionSDK.csproj/d' Examples/AWSEncryptionSDKExamples.csproj
-        dotnet add Examples/AWSEncryptionSDKExamples.csproj package awsencryptionsdk --version $UNIQUE_VERSION --source "https://github-587316601012.d.codeartifact.us-west-2.amazonaws.com/nuget/dotnet-esdk/v3/index.json"
+        dotnet add Examples/AWSEncryptionSDKExamples.csproj package awsencryptionsdk --version $UNIQUE_VERSION
         dotnet test Examples /nowarn:CS0105
 
   test_installation_windows:
