@@ -54,82 +54,86 @@ jobs:
         aws codeartifact login --tool dotnet --domain github --domain-owner 587316601012 --repository dotnet-esdk --duration-seconds 900
         dotnet nuget push build/AWSEncryptionSDK.$UNIQUE_VERSION.nupkg --source github/dotnet-esdk
         
-  # test_installation:
-  #   name: test_installation_${{ matrix.os }}
-  #   # needs: push_to_code_artifact
-  #   runs-on: ${{ matrix.os }}
-  #   strategy:
-  #     matrix:
-  #       os: [ubuntu-latest] # [ubuntu-latest, macos-latest] macos is blocked by https://github.com/aws/aws-cli/issues/6813
-  #   permissions:
-  #     id-token: write
-  #     contents: read
-  #   steps:
-  #   - name: Configure AWS credentials for pulling from CA
-  #     uses: aws-actions/configure-aws-credentials@v1
-  #     with:
-  #       role-to-assume: arn:aws:iam::587316601012:role/GitHub-DotNet-CA-Reader
-  #       aws-region: us-west-2
-  #   - name: Checkout
-  #     uses: actions/checkout@v2
-  #   - run: git submodule update --init libraries
-  #   - name: set unique version
-  #     run: |
-  #       export UNIQUE_VERSION=${{ needs.push_to_code_artifact.outputs.UNIQUE_VERSION }}
-  #       echo "UNIQUE_VERSION=0.0.1-d4d9204" >> $GITHUB_ENV
-  #   - name: fetch ca creds
-  #     run: |
-  #       aws codeartifact login --tool dotnet --domain github --domain-owner 587316601012 --repository dotnet-esdk --duration-seconds 900 --debug
-  #   - name: execute sed
-  #     run: |
-  #       cd $GITHUB_WORKSPACE/aws-encryption-sdk-net-formally-verified
-  #       sed -i.backup '/Source\/AWSEncryptionSDK.csproj/d' Examples/AWSEncryptionSDKExamples.csproj
-  #   - name: add back awsencryptionsdk
-  #     run: |
-  #       cd $GITHUB_WORKSPACE/aws-encryption-sdk-net-formally-verified
-  #       dotnet add Examples/AWSEncryptionSDKExamples.csproj package awsencryptionsdk --version $UNIQUE_VERSION
-  #   - name: Test with Examples
-  #     run: |
-  #       cd $GITHUB_WORKSPACE/aws-encryption-sdk-net-formally-verified
-  #       dotnet test Examples /nowarn:CS0105
+  test_installation:
+    name: test_installation_${{ matrix.os }}
+    needs: push_to_code_artifact
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [macos-latest] # [ubuntu-latest, macos-latest] macos is blocked by https://github.com/aws/aws-cli/issues/6813
+    permissions:
+      id-token: write
+      contents: read
+    steps:
+    - name: Configure AWS credentials for pulling from CA
+      uses: aws-actions/configure-aws-credentials@v1
+      with:
+        role-to-assume: arn:aws:iam::587316601012:role/GitHub-DotNet-CA-Reader
+        aws-region: us-west-2
+    - name: Checkout
+      uses: actions/checkout@v2
+    - run: git submodule update --init libraries
+    - name: set unique version
+      run: |
+        export UNIQUE_VERSION=${{ needs.push_to_code_artifact.outputs.UNIQUE_VERSION }}
+        echo "UNIQUE_VERSION=0.0.1-d4d9204" >> $GITHUB_ENV
+    - name: work around https://github.com/aws/aws-cli/issues/6813
+      run: dotnet nuget list source --format detailed
+    - name: fetch ca creds
+      run: |
+        aws codeartifact login --tool dotnet --domain github --domain-owner 587316601012 --repository dotnet-esdk --duration-seconds 900
+    - name: execute sed
+      run: |
+        cd $GITHUB_WORKSPACE/aws-encryption-sdk-net-formally-verified
+        sed -i.backup '/Source\/AWSEncryptionSDK.csproj/d' Examples/AWSEncryptionSDKExamples.csproj
+    - name: add back awsencryptionsdk
+      run: |
+        cd $GITHUB_WORKSPACE/aws-encryption-sdk-net-formally-verified
+        dotnet add Examples/AWSEncryptionSDKExamples.csproj package awsencryptionsdk --version $UNIQUE_VERSION
+    - name: Test with Examples
+      run: |
+        cd $GITHUB_WORKSPACE/aws-encryption-sdk-net-formally-verified
+        dotnet test Examples
 
-  # test_installation_windows:
-  #   name: test_installation_windows
-  #   needs: push_to_code_artifact
-  #   runs-on: windows-latest
-  #   permissions:
-  #     id-token: write
-  #     contents: read
-  #   steps:
-  #   - name: Configure AWS credentials for pulling from CA
-  #     uses: aws-actions/configure-aws-credentials@v1
-  #     with:
-  #       role-to-assume: arn:aws:iam::587316601012:role/GitHub-DotNet-CA-Reader
-  #       aws-region: us-west-2
-  #   - name: Checkout
-  #     uses: actions/checkout@v2
-  #   - run: git submodule update --init libraries
-  #   - name: fetch ca creds
-  #     run: |
-  #       aws codeartifact login --tool dotnet --domain github --domain-owner 587316601012 --repository dotnet-esdk --duration-seconds 900 --debug
-  #   - name: execute sed
-  #     run: |
-  #       cd $Env:GITHUB_WORKSPACE/aws-encryption-sdk-net-formally-verified
-  #       (Get-Content -Path ./Examples/AWSEncryptionSDKExamples.csproj) |
-  #           ForEach-Object {$_ -Replace '    <ProjectReference Include="../Source/AWSEncryptionSDK.csproj" />', ''} |
-  #               Set-Content -Path ./Examples/AWSEncryptionSDKExamples.csproj
-  #   - name: add back awsencryptionsdk
-  #     run: |
-  #       cd $Env:GITHUB_WORKSPACE/aws-encryption-sdk-net-formally-verified
-  #       dotnet add Examples/AWSEncryptionSDKExamples.csproj package awsencryptionsdk --version  "${{ needs.push_to_code_artifact.outputs.UNIQUE_VERSION }}"
-  #   - name: test examples
-  #     run: |
-  #       cd $Env:GITHUB_WORKSPACE/aws-encryption-sdk-net-formally-verified        
-  #       dotnet test Examples
+  test_installation_windows: # windows is blocked by by https://github.com/aws/aws-cli/issues/6813
+    name: test_installation_windows
+    needs: push_to_code_artifact
+    runs-on: windows-latest
+    permissions:
+      id-token: write
+      contents: read
+    steps:
+    - name: Configure AWS credentials for pulling from CA
+      uses: aws-actions/configure-aws-credentials@v1
+      with:
+        role-to-assume: arn:aws:iam::587316601012:role/GitHub-DotNet-CA-Reader
+        aws-region: us-west-2
+    - name: Checkout
+      uses: actions/checkout@v2
+    - run: git submodule update --init libraries
+    - name: work around https://github.com/aws/aws-cli/issues/6813
+      run: dotnet nuget list source --format detailed      
+    - name: fetch ca creds
+      run: |
+        aws codeartifact login --tool dotnet --domain github --domain-owner 587316601012 --repository dotnet-esdk --duration-seconds 900
+    - name: execute sed
+      run: |
+        cd $Env:GITHUB_WORKSPACE/aws-encryption-sdk-net-formally-verified
+        (Get-Content -Path ./Examples/AWSEncryptionSDKExamples.csproj) |
+            ForEach-Object {$_ -Replace '    <ProjectReference Include="../Source/AWSEncryptionSDK.csproj" />', ''} |
+                Set-Content -Path ./Examples/AWSEncryptionSDKExamples.csproj
+    - name: add back awsencryptionsdk
+      run: |
+        cd $Env:GITHUB_WORKSPACE/aws-encryption-sdk-net-formally-verified
+        dotnet add Examples/AWSEncryptionSDKExamples.csproj package awsencryptionsdk --version  "${{ needs.push_to_code_artifact.outputs.UNIQUE_VERSION }}"
+    - name: test examples
+      run: |
+        cd $Env:GITHUB_WORKSPACE/aws-encryption-sdk-net-formally-verified        
+        dotnet test Examples
         
   purge_from_code_artifact:
     name: purge_from_code_artifact
-    needs: push_to_code_artifact  # [test_installation, test_installation_windows, push_to_code_artifact]
+    needs: [test_installation, test_installation_windows, push_to_code_artifact]
     if: ${{ needs.push_to_code_artifact.result == 'success' }}
     runs-on: ubuntu-latest
     permissions:
