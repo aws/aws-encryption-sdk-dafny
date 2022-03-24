@@ -29,7 +29,7 @@ jobs:
       run: aws codeartifact login --tool nuget --domain github --domain-owner 587316601012 --repository dotnet-esdk
     - name: Checkout
       uses: actions/checkout@v2
-      run: git submodule update --init libraries
+    - run: git submodule update --init libraries
     - name: Set unique version
       id: set_version
       run: |
@@ -72,7 +72,7 @@ jobs:
       run: aws codeartifact login --tool nuget --domain github --domain-owner 587316601012 --repository dotnet-esdk
     - name: Checkout
       uses: actions/checkout@v2
-      run: git submodule update --init libraries
+    - run: git submodule update --init libraries
     - name: Load unique version
       run: export UNIQUE_VERSION=${{ needs.push_to_code_artifact.UNIQUE_VERSION }}
     - name: Test with Examples
@@ -99,7 +99,7 @@ jobs:
       run: aws codeartifact login --tool nuget --domain github --domain-owner 587316601012 --repository dotnet-esdk
     - name: Checkout
       uses: actions/checkout@v2
-      run: git submodule update --init libraries
+    - run: git submodule update --init libraries
     - name: Load unique version
       run: $Env:UNIQUE_VERSION = "${{ needs.push_to_code_artifact.UNIQUE_VERSION }}"
     - name: Test with Examples
