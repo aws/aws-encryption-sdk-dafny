@@ -112,7 +112,7 @@ module Header {
   //# header (../data-format/message-header.md).
   function method ReadHeaderBody(
      buffer: ReadableBuffer,
-     maxEdks: Option<int64>
+     maxEdks: Option<posInt64>
   )
     :(res: ReadCorrect<HeaderTypes.HeaderBody>)
     ensures CorrectlyReadHeaderBody(buffer, res)
