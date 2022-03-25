@@ -90,7 +90,7 @@ module EncryptedDataKeys {
 
   function method {:opaque} ReadEncryptedDataKeysSection(
     buffer: ReadableBuffer,
-    maxEdks: Option<int64>
+    maxEdks: Option<posInt64>
   )
     :(res: ReadCorrect<ESDKEncryptedDataKeys>)
     ensures CorrectlyRead(buffer, res, WriteEncryptedDataKeysSection)
@@ -99,7 +99,7 @@ module EncryptedDataKeys {
 
     if
       && maxEdks.Some?
-      && count as int64 > maxEdks.value
+      && count as int > maxEdks.value as int
     then
       //= compliance/client-apis/decrypt.txt#2.7.1
       //# If the number of encrypted data keys (../framework/
@@ -265,7 +265,7 @@ module EncryptedDataKeys {
     data: ESDKEncryptedDataKeys,
     bytes: seq<uint8>,
     buffer: ReadableBuffer,
-    maxEdks: Option<int64>
+    maxEdks: Option<posInt64>
   )
     returns (ret: ReadCorrect<ESDKEncryptedDataKeys>)
     requires
@@ -295,7 +295,7 @@ module EncryptedDataKeys {
     var edksSection := ReadEncryptedDataKeysSection(buffer, maxEdks);
     if
       && maxEdks.Some?
-      && |edks.data| as int64 > maxEdks.value
+      && |edks.data| > maxEdks.value as int
     {
       assert edksSection.Failure?;
       return edksSection;
