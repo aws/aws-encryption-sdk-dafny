@@ -11,8 +11,6 @@ batch:
       buildspec: codebuild/dotnet/test-vectors.yml
     - identifier: dotnet_generate_vectors
       buildspec: codebuild/dotnet/generate-test-vectors.yml
-    - identifier: dotnet_release_staging 
-      buildspec: codebuild/dotnet/release-staging.yml
     - identifier: dotnet_examples_net3_1
       buildspec: codebuild/dotnet/examples.yml
       env:
@@ -25,6 +23,11 @@ batch:
           DOTNET_TARGET_VERSION: net452
     - identifier: dotnet_tests_windows
       buildspec: codebuild/dotnet/tests-windows.yml
+      env:
+        type: WINDOWS_SERVER_2019_CONTAINER
+        image: aws/codebuild/windows-base:2019-1.0
+    - identifier: dotnet_benchmark_windows
+      buildspec: codebuild/dotnet/benchmark-windows.yml
       env:
         type: WINDOWS_SERVER_2019_CONTAINER
         image: aws/codebuild/windows-base:2019-1.0

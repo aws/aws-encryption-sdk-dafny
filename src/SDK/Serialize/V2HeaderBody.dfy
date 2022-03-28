@@ -96,7 +96,7 @@ module V2HeaderBody {
 
   function method {:vcs_split_on_every_assert} ReadV2HeaderBody(
     buffer: ReadableBuffer,
-    maxEdks: Option<int64>
+    maxEdks: Option<posInt64>
   )
     :(res: ReadCorrect<V2HeaderBody>)
     ensures CorrectlyReadV2HeaderBody(buffer, res)

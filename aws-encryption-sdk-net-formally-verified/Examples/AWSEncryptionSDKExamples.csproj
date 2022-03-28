@@ -4,6 +4,11 @@
     <TargetFramework>netcoreapp3.1</TargetFramework>
     <IsPackable>false</IsPackable>
     <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
+    <!--
+      Ignore errors from generated code. Ideally this would be scoped to just the relevant files.
+      CS0105: duplicate namespace, CS0618: obsolete members
+    -->
+    <NoWarn>CS0105,CS0618</NoWarn>
   </PropertyGroup>
 
   <ItemGroup>
