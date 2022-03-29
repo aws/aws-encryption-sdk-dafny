@@ -8,16 +8,18 @@ using Amazon;
 using Amazon.KeyManagementService;
 using Aws.EncryptionSdk;
 using Aws.EncryptionSdk.Core;
-
 using Xunit;
 
 /// Demonstrate an encrypt/decrypt cycle using an AWS MRK keyring.
-public class AwsKmsMrkKeyringExample {
-    private static void Run(MemoryStream plaintext, string encryptKeyArn, string decryptKeyArn) {
+public class AwsKmsMrkKeyringExample
+{
+    private static void Run(MemoryStream plaintext, string encryptKeyArn, string decryptKeyArn)
+    {
         // Create your encryption context.
         // Remember that your encryption context is NOT SECRET.
         // https://docs.aws.amazon.com/encryption-sdk/latest/developer-guide/concepts.html#encryption-context
-        var encryptionContext = new Dictionary<string, string>() {
+        var encryptionContext = new Dictionary<string, string>()
+        {
             {"encryption", "context"},
             {"is not", "secret"},
             {"but adds", "useful metadata"},
@@ -26,7 +28,8 @@ public class AwsKmsMrkKeyringExample {
         };
 
         // Instantiate the Material Providers and the AWS Encryption SDK
-        var materialProviders = AwsCryptographicMaterialProvidersFactory.CreateDefaultAwsCryptographicMaterialProviders();
+        var materialProviders =
+            AwsCryptographicMaterialProvidersFactory.CreateDefaultAwsCryptographicMaterialProviders();
         var encryptionSdk = AwsEncryptionSdkFactory.CreateDefaultAwsEncryptionSdk();
 
         // Create a keyring that will encrypt your data, using a KMS MRK key in the first region.
@@ -79,9 +82,13 @@ public class AwsKmsMrkKeyringExample {
         //
         // In production, always use a meaningful encryption context.
         foreach (var expectedPair in encryptionContext)
+        {
             if (!decryptOutput.EncryptionContext.TryGetValue(expectedPair.Key, out var decryptedValue)
                 || !decryptedValue.Equals(expectedPair.Value))
+            {
                 throw new Exception("Encryption context does not match expected values");
+            }
+        }
 
         // Demonstrate that the decrypted plaintext is identical to the original plaintext.
         var decrypted = decryptOutput.Plaintext;
@@ -90,7 +97,8 @@ public class AwsKmsMrkKeyringExample {
 
     // We test examples to ensure they remain up-to-date.
     [Fact]
-    public void TestAwsKmsMrkKeyringExample() {
+    public void TestAwsKmsMrkKeyringExample()
+    {
         Run(
             ExampleUtils.ExampleUtils.GetPlaintextStream(),
             ExampleUtils.ExampleUtils.GetDefaultRegionMrkKeyArn(),
