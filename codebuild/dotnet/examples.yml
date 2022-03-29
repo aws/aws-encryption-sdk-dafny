@@ -32,4 +32,5 @@ phases:
       - cd aws-encryption-sdk-dafny/aws-encryption-sdk-net-formally-verified
   build:
     commands:
+      - sed -i "s/\(<TargetFramework>\).*\(<\/TargetFramework>\)/\1$DOTNET_TARGET_VERSION\2/g" Examples/AWSEncryptionSDKExamples.csproj
       - dotnet test Examples /nowarn:CS0105
