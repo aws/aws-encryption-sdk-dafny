@@ -60,7 +60,7 @@ module {:extern "Dafny.Aws.EncryptionSdk.AwsEncryptionSdk"} AwsEncryptionSdk {
         //# Once a commitment policy (Section 2.4.1) has been set it SHOULD be
         //# immutable.
         const commitmentPolicy: Crypto.CommitmentPolicy;
-        const maxEncryptedDataKeys: Option<int64>;
+        const maxEncryptedDataKeys: Option<posInt64>;
 
         const materialProviders: Crypto.IAwsCryptographicMaterialProviders;
 
@@ -74,6 +74,8 @@ module {:extern "Dafny.Aws.EncryptionSdk.AwsEncryptionSdk"} AwsEncryptionSdk {
         //#*  maximum number of encrypted data keys (Section 2.4.2)
 
         constructor (config: Esdk.AwsEncryptionSdkConfig)
+            requires config.maxEncryptedDataKeys.Some? ==> config.maxEncryptedDataKeys.value > 0
+
             ensures this.config == config
 
             //= compliance/client-apis/client.txt#2.4
@@ -99,11 +101,24 @@ module {:extern "Dafny.Aws.EncryptionSdk.AwsEncryptionSdk"} AwsEncryptionSdk {
             //= type=implication
             //# Callers MUST have a way to disable
             //# this limit.
-            ensures this.maxEncryptedDataKeys == config.maxEncryptedDataKeys
+            ensures
+            || (
+                && this.maxEncryptedDataKeys.None?
+                && config.maxEncryptedDataKeys.None?
+            )
+            || (
+                && this.maxEncryptedDataKeys.Some?
+                && config.maxEncryptedDataKeys.Some?
+                && this.maxEncryptedDataKeys.value as int64 == config.maxEncryptedDataKeys.value
+            )
         {
             this.config := config;
 
-            this.maxEncryptedDataKeys := config.maxEncryptedDataKeys;
+            if (config.maxEncryptedDataKeys.None?) {
+                this.maxEncryptedDataKeys := None();
+            } else {
+                this.maxEncryptedDataKeys := Some(config.maxEncryptedDataKeys.value as posInt64);
+            }
 
             if config.commitmentPolicy.None? {
                 this.commitmentPolicy := DEFAULT_COMMITMENT_POLICY;
@@ -165,11 +180,6 @@ module {:extern "Dafny.Aws.EncryptionSdk.AwsEncryptionSdk"} AwsEncryptionSdk {
                 "FrameLength must be greater than 0 and less than 2^32"
               );
               frameLength := input.frameLength.value;
-            }
-
-            // TODO: Remove entirely once we can validate this value on client creation
-            if this.maxEncryptedDataKeys.Some? {
-                :- Need(this.maxEncryptedDataKeys.value > 0, "maxEncryptedDataKeys must be positive");
             }
 
             if input.encryptionContext.Some? {
@@ -771,11 +781,6 @@ module {:extern "Dafny.Aws.EncryptionSdk.AwsEncryptionSdk"} AwsEncryptionSdk {
           res.Failure?
 
         {
-            // TODO: Remove entirely once we can validate this value on client creation
-            if this.maxEncryptedDataKeys.Some? {
-                :- Need(this.maxEncryptedDataKeys.value > 0, "maxEncryptedDataKeys must be positive");
-            }
-
             var cmm :- CreateCmmFromInput(input.materialsManager, input.keyring);
 
             //= compliance/client-apis/decrypt.txt#2.7.1
@@ -1120,19 +1125,17 @@ module {:extern "Dafny.Aws.EncryptionSdk.AwsEncryptionSdk"} AwsEncryptionSdk {
         method ValidateMaxEncryptedDataKeys(edks: SerializableTypes.ESDKEncryptedDataKeys)
             returns (res: Result<(), string>)
 
-        requires this.maxEncryptedDataKeys.Some? ==> this.maxEncryptedDataKeys.value > 0
-
         ensures this.maxEncryptedDataKeys.None? ==> res.Success?
 
         ensures
             && this.maxEncryptedDataKeys.Some?
-            && |edks| as int64 > this.maxEncryptedDataKeys.value
+            && |edks| > this.maxEncryptedDataKeys.value as int
         ==>
             res.Failure?
         {
             if
                 && this.maxEncryptedDataKeys.Some?
-                && |edks| as int64 > this.maxEncryptedDataKeys.value
+                && |edks| > this.maxEncryptedDataKeys.value as int
             {
                 return Failure("Encrypted data keys exceed maxEncryptedDataKeys");
             } else {
