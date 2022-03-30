@@ -10,6 +10,12 @@ phases:
       - curl https://github.com/dafny-lang/dafny/releases/download/v3.5.0/dafny-3.5.0-x64-ubuntu-16.04.zip -L -o dafny.zip
       - unzip -qq dafny.zip && rm dafny.zip
       - export PATH="$PWD/dafny:$PATH"
+      # Install mono; only necessary for .NET Framework 4.5
+      - sudo apt install gnupg ca-certificates
+      - sudo apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv-keys 3FA7E0328081BFF6A14DA29AA6A19B38D3D831EF
+      - echo "deb https://download.mono-project.com/repo/ubuntu stable-focal main" | sudo tee /etc/apt/sources.list.d/mono-official-stable.list
+      - sudo apt update
+      - sudo apt install -y mono-complete
       # Switch back to the main directory
       - cd aws-encryption-sdk-dafny/aws-encryption-sdk-net-formally-verified
   build:

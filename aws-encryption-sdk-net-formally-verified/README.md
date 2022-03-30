@@ -20,15 +20,18 @@ Alternatively, you may directly modify the `.csproj` and add the AWS Encryption 
 <PackageReference Include="AWSEncryptionSDK" />
 ```
 
-The Encryption SDK source has a target framework of [netstandard2.0](https://docs.microsoft.com/en-us/dotnet/standard/net-standard).
+The AWS Encryption SDK targets both [.NET/.NET Core](https://docs.microsoft.com/en-us/dotnet/core/introduction) 3.1 and newer, and [.NET Framework](https://docs.microsoft.com/en-us/dotnet/framework/) 4.5.2 and newer.
 
 ## Building the AWS Encryption SDK for .NET
 
-To build, the AWS Encryption SDK requires the most up to date version of [dafny](https://github.com/dafny-lang/dafny) on your PATH.
+To build, the AWS Encryption SDK requires the most up to date version of [Dafny](https://github.com/dafny-lang/dafny) on your PATH.
 
-The Encryption SDK source has a target framework of [netstandard2.0](https://docs.microsoft.com/en-us/dotnet/standard/net-standard).
-Tests and test vectors have a target framework of [netcoreapp3.0](https://docs.microsoft.com/en-us/dotnet/standard/frameworks), which is required for properly building and running tests.
-Therefore, building and verifying requires [dotnet 3.0](https://dotnet.microsoft.com/download/dotnet-core/3.0).
+The AWS Encryption SDK targets frameworks [`netstandard2.1` and `net452`](https://docs.microsoft.com/en-us/dotnet/standard/frameworks#supported-target-frameworks).
+Tests and test vectors target frameworks `netcoreapp3.1` and `net452`.
+To build and test the AWS Encryption SDK, you must install the following .NET tools:
+
+* [.NET Core 3.1](https://dotnet.microsoft.com/en-us/download/dotnet/3.1) or newer
+* [.NET Framework 4.5.2](https://docs.microsoft.com/en-us/dotnet/framework/install/) or newer
 
 You will also need to ensure that you fetch all submodules using either `git clone --recursive ...` when cloning the repository or `git submodule update --init` on an existing clone.
 

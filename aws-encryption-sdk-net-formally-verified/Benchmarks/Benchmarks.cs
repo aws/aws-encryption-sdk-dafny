@@ -39,7 +39,7 @@ namespace Benchmarks
 
             _plaintext = new MemoryStream(PlaintextLengthBytes);
             _plaintext.SetLength(PlaintextLengthBytes);  // need to set this because buffer is 0-length by default
-            RandomNumberGenerator.Fill(_plaintext.GetBuffer());
+            RandomNumberGenerator.Create().GetBytes(_plaintext.GetBuffer());
 
             _encryptionContext = new Dictionary<string, string>
             {
