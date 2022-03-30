@@ -20,7 +20,7 @@ Alternatively, you may directly modify the `.csproj` and add the AWS Encryption 
 <PackageReference Include="AWSEncryptionSDK" />
 ```
 
-The AWS Encryption SDK targets both [.NET/.NET Core](https://docs.microsoft.com/en-us/dotnet/core/introduction) 3.1 and newer, and [.NET Framework](https://docs.microsoft.com/en-us/dotnet/framework/) 4.5.2 and newer.
+The AWS Encryption SDK targets both [.NET/.NET Core](https://docs.microsoft.com/en-us/dotnet/core/introduction) 3.1 and newer on all platforms, and [.NET Framework](https://docs.microsoft.com/en-us/dotnet/framework/) 4.5.2 and newer on Windows only.
 
 ## Building the AWS Encryption SDK for .NET
 
