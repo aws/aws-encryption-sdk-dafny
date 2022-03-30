@@ -86,6 +86,9 @@ jobs:
       run: |
         cd $GITHUB_WORKSPACE/aws-encryption-sdk-net-formally-verified
         dotnet add Examples/AWSEncryptionSDKExamples.csproj package AWSEncryptionSDK --version $UNIQUE_VERSION
+    - name: Set up OpenSSL path on macOS
+      if: runner.os == 'macOS'
+      run: echo "DYLD_LIBRARY_PATH=/usr/local/opt/openssl@1.1/lib" >> $GITHUB_ENV
     - name: Test with Examples
       run: |
         cd $GITHUB_WORKSPACE/aws-encryption-sdk-net-formally-verified
