@@ -12,11 +12,6 @@
     <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
   </PropertyGroup>
 
-  <PropertyGroup Condition=" '$(TargetFrameworkIdentifier)' == '.NETFramework' ">
-    <!-- Needed to properly pull in transitive dependencies in .NET Framework -->
-    <RestoreProjectStyle>PackageReference</RestoreProjectStyle>
-  </PropertyGroup>
-
   <ItemGroup>
     <PackageReference Include="dafny.msbuild" Version="1.0.0" />
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="16.2.0" />
