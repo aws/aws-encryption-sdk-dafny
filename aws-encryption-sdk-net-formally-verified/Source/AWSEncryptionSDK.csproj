@@ -31,6 +31,7 @@
       https://github.com/dafny-lang/dafny.msbuild/pull/10 and versioned
     -->
     <PackageReference Include="System.Collections.Immutable" Version="1.7.0" />
+    <PackageReference Include="System.ValueTuple" Version="4.5.0" />
   </ItemGroup>
 
   <ItemGroup>
