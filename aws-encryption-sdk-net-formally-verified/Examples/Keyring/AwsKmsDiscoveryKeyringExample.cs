@@ -8,16 +8,18 @@ using Amazon;
 using Amazon.KeyManagementService;
 using Aws.EncryptionSdk;
 using Aws.EncryptionSdk.Core;
-
 using Xunit;
 
 /// Demonstrate an encrypt/decrypt cycle using an AWS KMS discovery keyring.
-public class AwsKmsDiscoveryKeyringExample {
-    private static void Run(MemoryStream plaintext, string keyArn) {
+public class AwsKmsDiscoveryKeyringExample
+{
+    private static void Run(MemoryStream plaintext, string keyArn)
+    {
         // Create your encryption context.
         // Remember that your encryption context is NOT SECRET.
         // https://docs.aws.amazon.com/encryption-sdk/latest/developer-guide/concepts.html#encryption-context
-        var encryptionContext = new Dictionary<string, string>() {
+        var encryptionContext = new Dictionary<string, string>()
+        {
             {"encryption", "context"},
             {"is not", "secret"},
             {"but adds", "useful metadata"},
@@ -26,7 +28,8 @@ public class AwsKmsDiscoveryKeyringExample {
         };
 
         // Instantiate the Material Providers and the AWS Encryption SDK
-        var materialProviders = AwsCryptographicMaterialProvidersFactory.CreateDefaultAwsCryptographicMaterialProviders();
+        var materialProviders =
+            AwsCryptographicMaterialProvidersFactory.CreateDefaultAwsCryptographicMaterialProviders();
         var encryptionSdk = AwsEncryptionSdkFactory.CreateDefaultAwsEncryptionSdk();
 
         // Create the keyring that determines how your data keys are protected. Though this example highlights
@@ -58,7 +61,8 @@ public class AwsKmsDiscoveryKeyringExample {
         var createDecryptKeyringInput = new CreateAwsKmsDiscoveryKeyringInput
         {
             KmsClient = new AmazonKeyManagementServiceClient(),
-            DiscoveryFilter = new DiscoveryFilter() {
+            DiscoveryFilter = new DiscoveryFilter()
+            {
                 AccountIds = ExampleUtils.ExampleUtils.GetAccountIds(),
                 Partition = "aws"
             }
@@ -78,9 +82,13 @@ public class AwsKmsDiscoveryKeyringExample {
         //
         // In production, always use a meaningful encryption context.
         foreach (var expectedPair in encryptionContext)
+        {
             if (!decryptOutput.EncryptionContext.TryGetValue(expectedPair.Key, out var decryptedValue)
                 || !decryptedValue.Equals(expectedPair.Value))
+            {
                 throw new Exception("Encryption context does not match expected values");
+            }
+        }
 
         // Demonstrate that the decrypted plaintext is identical to the original plaintext.
         var decrypted = decryptOutput.Plaintext;
@@ -89,7 +97,8 @@ public class AwsKmsDiscoveryKeyringExample {
 
     // We test examples to ensure they remain up-to-date.
     [Fact]
-    public void TestAwsKmsDiscoveryKeyringExample() {
+    public void TestAwsKmsDiscoveryKeyringExample()
+    {
         Run(ExampleUtils.ExampleUtils.GetPlaintextStream(), ExampleUtils.ExampleUtils.GetDefaultRegionKmsKeyArn());
     }
 }

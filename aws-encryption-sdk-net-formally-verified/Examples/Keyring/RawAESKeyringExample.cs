@@ -4,20 +4,21 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
-
 using Aws.EncryptionSdk;
 using Aws.EncryptionSdk.Core;
-
 using Org.BouncyCastle.Security; // In this example, we use BouncyCastle to generate a wrapping key.
 using Xunit;
 
 /// Demonstrate an encrypt/decrypt cycle using a raw AES keyring.
-public class RawAESKeyringExample {
-    private static void Run(MemoryStream plaintext) {
+public class RawAESKeyringExample
+{
+    private static void Run(MemoryStream plaintext)
+    {
         // Create your encryption context.
         // Remember that your encryption context is NOT SECRET.
         // https://docs.aws.amazon.com/encryption-sdk/latest/developer-guide/concepts.html#encryption-context
-        var encryptionContext = new Dictionary<string, string>() {
+        var encryptionContext = new Dictionary<string, string>()
+        {
             {"encryption", "context"},
             {"is not", "secret"},
             {"but adds", "useful metadata"},
@@ -40,7 +41,8 @@ public class RawAESKeyringExample {
         var keyName = "My 256-bit AES wrapping key";
 
         // Instantiate the Material Providers and the AWS Encryption SDK
-        var materialProviders = AwsCryptographicMaterialProvidersFactory.CreateDefaultAwsCryptographicMaterialProviders();
+        var materialProviders =
+            AwsCryptographicMaterialProvidersFactory.CreateDefaultAwsCryptographicMaterialProviders();
         var encryptionSdk = AwsEncryptionSdkFactory.CreateDefaultAwsEncryptionSdk();
 
         // Create the keyring that determines how your data keys are protected.
@@ -83,9 +85,13 @@ public class RawAESKeyringExample {
         //
         // In production, always use a meaningful encryption context.
         foreach (var expectedPair in encryptionContext)
+        {
             if (!decryptOutput.EncryptionContext.TryGetValue(expectedPair.Key, out var decryptedValue)
                 || !decryptedValue.Equals(expectedPair.Value))
+            {
                 throw new Exception("Encryption context does not match expected values");
+            }
+        }
 
         // Demonstrate that the decrypted plaintext is identical to the original plaintext.
         var decrypted = decryptOutput.Plaintext;
@@ -94,7 +100,8 @@ public class RawAESKeyringExample {
 
     // We test examples to ensure they remain up-to-date.
     [Fact]
-    public void TestRawAESKeyringExample() {
+    public void TestRawAESKeyringExample()
+    {
         Run(ExampleUtils.ExampleUtils.GetPlaintextStream());
     }
 }

@@ -8,19 +8,22 @@ using Amazon;
 using Amazon.KeyManagementService;
 using Aws.EncryptionSdk;
 using Aws.EncryptionSdk.Core;
-
 using Xunit;
 
 /// Demonstrate an encrypt/decrypt cycle using a Multi-Keyring made up of multiple AWS KMS
 /// Keyrings.
-public class AwsKmsMultiKeyring {
+public class AwsKmsMultiKeyring
+{
     // For this example, `defaultRegionKeyArn` is the ARN for a KMS Key located in your default region,
     // and `secondRegionKeyArn` is the ARN for a KMS Key located in some second Region.
-    private static void Run(MemoryStream plaintext, string defaultRegionKeyArn, string secondRegionKeyArn, string secondRegion) {
+    private static void Run(MemoryStream plaintext, string defaultRegionKeyArn, string secondRegionKeyArn,
+        string secondRegion)
+    {
         // Create your encryption context.
         // Remember that your encryption context is NOT SECRET.
         // https://docs.aws.amazon.com/encryption-sdk/latest/developer-guide/concepts.html#encryption-context
-        var encryptionContext = new Dictionary<string, string>() {
+        var encryptionContext = new Dictionary<string, string>()
+        {
             {"encryption", "context"},
             {"is not", "secret"},
             {"but adds", "useful metadata"},
@@ -29,7 +32,8 @@ public class AwsKmsMultiKeyring {
         };
 
         // Instantiate the Material Providers and the AWS Encryption SDK
-        var materialProviders = AwsCryptographicMaterialProvidersFactory.CreateDefaultAwsCryptographicMaterialProviders();
+        var materialProviders =
+            AwsCryptographicMaterialProvidersFactory.CreateDefaultAwsCryptographicMaterialProviders();
         var encryptionSdk = AwsEncryptionSdkFactory.CreateDefaultAwsEncryptionSdk();
 
         // Create a AwsKmsMultiKeyring that protects your data under two different KMS Keys.
@@ -37,7 +41,7 @@ public class AwsKmsMultiKeyring {
         var createAwsKmsMultiKeyringInput = new CreateAwsKmsMultiKeyringInput
         {
             Generator = defaultRegionKeyArn,
-            KmsKeyIds = new List<string>() { secondRegionKeyArn }
+            KmsKeyIds = new List<string>() {secondRegionKeyArn}
         };
         var kmsMultiKeyring = materialProviders.CreateAwsKmsMultiKeyring(createAwsKmsMultiKeyringInput);
 
@@ -75,9 +79,13 @@ public class AwsKmsMultiKeyring {
         //
         // In production, always use a meaningful encryption context.
         foreach (var expectedPair in encryptionContext)
+        {
             if (!decryptOutput.EncryptionContext.TryGetValue(expectedPair.Key, out var decryptedValue)
                 || !decryptedValue.Equals(expectedPair.Value))
+            {
                 throw new Exception("Encryption context does not match expected values");
+            }
+        }
 
         // Demonstrate that the decrypted plaintext is identical to the original plaintext.
         var decrypted = decryptOutput.Plaintext;
@@ -104,9 +112,13 @@ public class AwsKmsMultiKeyring {
 
         // Verify the Encryption Context on the output
         foreach (var expectedPair in encryptionContext)
+        {
             if (!decryptOutput.EncryptionContext.TryGetValue(expectedPair.Key, out var decryptedValue)
                 || !decryptedValue.Equals(expectedPair.Value))
+            {
                 throw new Exception("Encryption context does not match expected values");
+            }
+        }
 
         // Demonstrate that the decrypted plaintext is identical to the original plaintext.
         var kmsKeyringDecrypted = kmsKeyringDecryptOutput.Plaintext;
