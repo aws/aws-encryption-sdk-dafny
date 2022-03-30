@@ -161,28 +161,38 @@ namespace TestVectors
         }
 
         private static AesWrappingAlg AesAlgorithmFromBits(ushort bits) {
-            return bits switch {
-                128 => AesWrappingAlg.ALG_AES128_GCM_IV12_TAG16,
-                192 => AesWrappingAlg.ALG_AES192_GCM_IV12_TAG16,
-                256 => AesWrappingAlg.ALG_AES256_GCM_IV12_TAG16,
-                _ => throw new Exception("Unsupported AES wrapping algorithm")
+            switch (bits) {
+                case 128:
+                    return AesWrappingAlg.ALG_AES128_GCM_IV12_TAG16;
+                case 192:
+                    return AesWrappingAlg.ALG_AES192_GCM_IV12_TAG16;
+                case 256:
+                    return AesWrappingAlg.ALG_AES256_GCM_IV12_TAG16;
+                default: throw new Exception("Unsupported AES wrapping algorithm");
             };
         }
 
         private static PaddingScheme RSAPaddingFromStrings(string strAlg, string strHash) {
-            return (strAlg, strHash) switch {
-                ("pkcs1", _) => PaddingScheme.PKCS1,
-                ("oaep-mgf1", "sha1") => PaddingScheme.OAEP_SHA1_MGF1,
-                ("oaep-mgf1", "sha256") => PaddingScheme.OAEP_SHA256_MGF1,
-                ("oaep-mgf1", "sha384") => PaddingScheme.OAEP_SHA384_MGF1,
-                ("oaep-mgf1", "sha512") => PaddingScheme.OAEP_SHA512_MGF1,
-                _ => throw new Exception("Unsupported RSA Padding " + strAlg + strHash)
+            switch (strAlg)
+            {
+                case "pkcs1":
+                    return PaddingScheme.PKCS1;
+                case "oaep-mgf1":
+                    switch (strHash)
+                    {
+                        case "sha1": return PaddingScheme.OAEP_SHA1_MGF1;
+                        case "sha256": return PaddingScheme.OAEP_SHA256_MGF1;
+                        case "sha384": return PaddingScheme.OAEP_SHA384_MGF1;
+                        case "sha512": return PaddingScheme.OAEP_SHA512_MGF1;
+                    }
+                    break;
             };
+            throw new Exception("Unsupported RSA Padding " + strAlg + strHash);
         }
 
         private static RegionEndpoint GetRegionForArn(string keyId)
         {
-            string[] split = keyId.Split(":");
+            string[] split = keyId.Split(':');
             string region = split[3];
             return RegionEndpoint.GetBySystemName(region);
         }
