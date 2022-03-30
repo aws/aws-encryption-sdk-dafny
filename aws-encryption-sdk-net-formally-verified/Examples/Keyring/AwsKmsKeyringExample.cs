@@ -7,16 +7,18 @@ using System.IO;
 using Amazon.KeyManagementService;
 using Aws.EncryptionSdk;
 using Aws.EncryptionSdk.Core;
-
 using Xunit;
 
 /// Demonstrate an encrypt/decrypt cycle using an AWS KMS keyring.
-public class AwsKmsKeyringExample {
-    private static void Run(MemoryStream plaintext, string keyArn) {
+public class AwsKmsKeyringExample
+{
+    private static void Run(MemoryStream plaintext, string keyArn)
+    {
         // Create your encryption context.
         // Remember that your encryption context is NOT SECRET.
         // https://docs.aws.amazon.com/encryption-sdk/latest/developer-guide/concepts.html#encryption-context
-        var encryptionContext = new Dictionary<string, string>() {
+        var encryptionContext = new Dictionary<string, string>()
+        {
             {"encryption", "context"},
             {"is not", "secret"},
             {"but adds", "useful metadata"},
@@ -25,7 +27,8 @@ public class AwsKmsKeyringExample {
         };
 
         // Instantiate the Material Providers and the AWS Encryption SDK
-        var materialProviders = AwsCryptographicMaterialProvidersFactory.CreateDefaultAwsCryptographicMaterialProviders();
+        var materialProviders =
+            AwsCryptographicMaterialProvidersFactory.CreateDefaultAwsCryptographicMaterialProviders();
         var encryptionSdk = AwsEncryptionSdkFactory.CreateDefaultAwsEncryptionSdk();
 
         // Create the keyring that determines how your data keys are protected.
@@ -67,9 +70,13 @@ public class AwsKmsKeyringExample {
         //
         // In production, always use a meaningful encryption context.
         foreach (var expectedPair in encryptionContext)
+        {
             if (!decryptOutput.EncryptionContext.TryGetValue(expectedPair.Key, out var decryptedValue)
                 || !decryptedValue.Equals(expectedPair.Value))
+            {
                 throw new Exception("Encryption context does not match expected values");
+            }
+        }
 
         // Demonstrate that the decrypted plaintext is identical to the original plaintext.
         var decrypted = decryptOutput.Plaintext;
@@ -78,7 +85,8 @@ public class AwsKmsKeyringExample {
 
     // We test examples to ensure they remain up-to-date.
     [Fact]
-    public void TestAwsKmsKeyringExample() {
+    public void TestAwsKmsKeyringExample()
+    {
         Run(ExampleUtils.ExampleUtils.GetPlaintextStream(), ExampleUtils.ExampleUtils.GetDefaultRegionKmsKeyArn());
     }
 }
