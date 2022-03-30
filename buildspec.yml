@@ -7,8 +7,6 @@ batch:
       buildspec: codebuild/dafny/verify.yml
     - identifier: dotnet_tests
       buildspec: codebuild/dotnet/tests.yml
-    - identifier: dotnet_examples
-      buildspec: codebuild/dotnet/examples.yml
     - identifier: dotnet_vectors
       buildspec: codebuild/dotnet/test-vectors.yml
     - identifier: dotnet_generate_vectors
