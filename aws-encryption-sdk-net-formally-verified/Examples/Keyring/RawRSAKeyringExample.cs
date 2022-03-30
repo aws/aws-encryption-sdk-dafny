@@ -4,29 +4,24 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Text;
-
 using Aws.EncryptionSdk;
 using Aws.EncryptionSdk.Core;
-
-using Org.BouncyCastle.Security; // In this example, we use BouncyCastle to generate a wrapping key.
 using Xunit;
 
-using ibyteseq = Dafny.ISequence<byte>;
-using byteseq = Dafny.Sequence<byte>;
-
 /// Demonstrate an encrypt/decrypt cycle using a raw RSA keyring.
-public class RawRSAKeyringExample {
-
+public class RawRSAKeyringExample
+{
     // Used to test our example below.
     static string PRIVATE_KEY_PEM_FILENAME = "RSAKeyringExamplePrivateKey.pem";
     static string PUBLIC_KEY_PEM_FILENAME = "RSAKeyringExamplePublicKey.pem";
 
-    private static void Run(MemoryStream plaintext, string publicKeyFileName, string privateKeyFileName) {
+    private static void Run(MemoryStream plaintext, string publicKeyFileName, string privateKeyFileName)
+    {
         // Create your encryption context.
         // Remember that your encryption context is NOT SECRET.
         // https://docs.aws.amazon.com/encryption-sdk/latest/developer-guide/concepts.html#encryption-context
-        var encryptionContext = new Dictionary<string, string>() {
+        var encryptionContext = new Dictionary<string, string>()
+        {
             {"name", "encryption context"},
             {"is_secret", "false"},
             {"is_public", "true"},
@@ -46,7 +41,8 @@ public class RawRSAKeyringExample {
         var keyName = "My 2048-bit RSA wrapping key";
 
         // Instantiate the Material Providers and the AWS Encryption SDK
-        var materialProviders = AwsCryptographicMaterialProvidersFactory.CreateDefaultAwsCryptographicMaterialProviders();
+        var materialProviders =
+            AwsCryptographicMaterialProvidersFactory.CreateDefaultAwsCryptographicMaterialProviders();
         var encryptionSdk = AwsEncryptionSdkFactory.CreateDefaultAwsEncryptionSdk();
 
         // Create the keyring that determines how your data keys are protected.
@@ -90,9 +86,13 @@ public class RawRSAKeyringExample {
         //
         // In production, always use a meaningful encryption context.
         foreach (var expectedPair in encryptionContext)
+        {
             if (!decryptOutput.EncryptionContext.TryGetValue(expectedPair.Key, out var decryptedValue)
                 || !decryptedValue.Equals(expectedPair.Value))
+            {
                 throw new Exception("Encryption context does not match expected values");
+            }
+        }
 
         // Demonstrate that the decrypted plaintext is identical to the original plaintext.
         var decrypted = decryptOutput.Plaintext;
@@ -101,13 +101,14 @@ public class RawRSAKeyringExample {
 
     // We test examples to ensure they remain up-to-date.
     [Fact]
-    public void TestRawRSAKeyringExample() {
+    public void TestRawRSAKeyringExample()
+    {
         RSAEncryption.RSA.GenerateKeyPairBytes(2048, out var publicKeyBytes, out var privateKeyBytes);
         File.WriteAllBytes(PRIVATE_KEY_PEM_FILENAME, privateKeyBytes);
         File.WriteAllBytes(PUBLIC_KEY_PEM_FILENAME, publicKeyBytes);
 
         Run(ExampleUtils.ExampleUtils.GetPlaintextStream(),
-        PUBLIC_KEY_PEM_FILENAME,
-        PRIVATE_KEY_PEM_FILENAME);
+            PUBLIC_KEY_PEM_FILENAME,
+            PRIVATE_KEY_PEM_FILENAME);
     }
 }
