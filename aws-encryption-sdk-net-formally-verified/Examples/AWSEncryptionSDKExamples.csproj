@@ -17,11 +17,6 @@
     <NoWarn>CS0105,CS0618</NoWarn>
   </PropertyGroup>
 
-  <PropertyGroup Condition=" '$(TargetFrameworkIdentifier)' == '.NETFramework' ">
-    <!-- Needed to properly pull in transitive dependencies in .NET Framework -->
-    <RestoreProjectStyle>PackageReference</RestoreProjectStyle>
-  </PropertyGroup>
-
   <ItemGroup>
     <ProjectReference Include="../Source/AWSEncryptionSDK.csproj" />
     <PackageReference Include="System.Collections.Immutable" Version="1.7.0" />
