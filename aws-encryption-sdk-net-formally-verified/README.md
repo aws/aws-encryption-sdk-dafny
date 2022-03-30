@@ -22,6 +22,22 @@ Alternatively, you may directly modify the `.csproj` and add the AWS Encryption 
 
 The AWS Encryption SDK targets both [.NET/.NET Core](https://docs.microsoft.com/en-us/dotnet/core/introduction) 3.1 and newer, and [.NET Framework](https://docs.microsoft.com/en-us/dotnet/framework/) 4.5.2 and newer.
 
+### Configure system dependencies - macOS only
+
+If you are using macOS then you must install OpenSSL 1.1,
+and the OpenSSL 1.1 `lib` directory must be on the dynamic linker path at runtime.
+We recommend that you install OpenSSL via Homebrew using `brew install openssl@1.1`,
+and then set the `DYLD_LIBRARY_PATH` environment variable as follows:
+
+```bash
+$ export DYLD_LIBRARY_PATH="/usr/local/opt/openssl@1.1/lib"
+```
+
+If the .NET runtime cannot locate your OpenSSL 1.1 libraries,
+you may encounter an error that says:
+
+> No usable version of libssl was found
+
 ## Building the AWS Encryption SDK for .NET
 
 To build, the AWS Encryption SDK requires the most up to date version of [Dafny](https://github.com/dafny-lang/dafny) on your PATH.
