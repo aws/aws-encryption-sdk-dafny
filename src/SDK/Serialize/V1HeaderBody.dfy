@@ -119,7 +119,7 @@ module V1HeaderBody {
 
   function method {:vcs_split_on_every_assert} ReadV1HeaderBody(
     buffer: ReadableBuffer,
-    maxEdks: Option<int64>
+    maxEdks: Option<posInt64>
   )
     :(res: ReadCorrect<V1HeaderBody>)
     ensures CorrectlyReadV1HeaderBody(buffer, res)
