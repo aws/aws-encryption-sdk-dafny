@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 using System;
-
+using Aws.EncryptionSdk;
 using Org.BouncyCastle.Crypto;
 using Org.BouncyCastle.Crypto.Generators;
 using Org.BouncyCastle.Crypto.Parameters;
@@ -19,7 +19,7 @@ using ibyteseq = Dafny.ISequence<byte>;
 using byteseq = Dafny.Sequence<byte>;
 
 namespace Signature {
-    public class ECDSAUnsupportedParametersException : Exception
+    public class ECDSAUnsupportedParametersException : AwsEncryptionSdkBaseException
     {
         public ECDSAUnsupportedParametersException(ECDSAParams parameters)
             : base(String.Format("Unsupported ECDSA parameters: {0}", parameters))

@@ -5,7 +5,7 @@ using System;
 using System.Diagnostics;
 using System.Text;
 using System.IO;
-using Org.BouncyCastle.Asn1.X509;
+using Aws.EncryptionSdk;
 using Org.BouncyCastle.Crypto;
 using Org.BouncyCastle.Crypto.Digests;
 using Org.BouncyCastle.Crypto.Engines;
@@ -23,7 +23,7 @@ using byteseq = Dafny.Sequence<byte>;
 
 namespace RSAEncryption {
 
-    public class RSAUnsupportedPaddingSchemeException : Exception
+    public class RSAUnsupportedPaddingSchemeException : AwsEncryptionSdkBaseException
     {
         public RSAUnsupportedPaddingSchemeException(string paddingScheme)
             : base(String.Format("Invalid RSA Padding Scheme: {0}", paddingScheme))

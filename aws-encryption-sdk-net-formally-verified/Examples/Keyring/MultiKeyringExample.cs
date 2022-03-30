@@ -8,19 +8,21 @@ using System.Linq;
 using Amazon.KeyManagementService;
 using Aws.EncryptionSdk;
 using Aws.EncryptionSdk.Core;
-
 using Org.BouncyCastle.Security;
 using Org.BouncyCastle.Utilities; // In this example, we use BouncyCastle to generate a wrapping key.
 using Xunit;
 
 /// Demonstrate an encrypt/decrypt cycle using a Multi keyring consisting of an AWS KMS Keyring and
 /// a raw AES keyring.
-public class MultiKeyringExample {
-    private static void Run(MemoryStream plaintext, string keyArn) {
+public class MultiKeyringExample
+{
+    private static void Run(MemoryStream plaintext, string keyArn)
+    {
         // Create your encryption context.
         // Remember that your encryption context is NOT SECRET.
         // https://docs.aws.amazon.com/encryption-sdk/latest/developer-guide/concepts.html#encryption-context
-        var encryptionContext = new Dictionary<string, string>() {
+        var encryptionContext = new Dictionary<string, string>()
+        {
             {"encryption", "context"},
             {"is not", "secret"},
             {"but adds", "useful metadata"},
@@ -29,7 +31,8 @@ public class MultiKeyringExample {
         };
 
         // Instantiate the Material Providers and the AWS Encryption SDK
-        var materialProviders = AwsCryptographicMaterialProvidersFactory.CreateDefaultAwsCryptographicMaterialProviders();
+        var materialProviders =
+            AwsCryptographicMaterialProvidersFactory.CreateDefaultAwsCryptographicMaterialProviders();
         var encryptionSdk = AwsEncryptionSdkFactory.CreateDefaultAwsEncryptionSdk();
 
         // Create a KMS keyring to use as the generator.
@@ -49,7 +52,7 @@ public class MultiKeyringExample {
         var createMultiKeyringInput = new CreateMultiKeyringInput
         {
             Generator = kmsKeyring,
-            ChildKeyrings = new List<IKeyring>() { rawAESKeyring }
+            ChildKeyrings = new List<IKeyring>() {rawAESKeyring}
         };
         var multiKeyring = materialProviders.CreateMultiKeyring(createMultiKeyringInput);
 
@@ -86,9 +89,13 @@ public class MultiKeyringExample {
         //
         // In production, always use a meaningful encryption context.
         foreach (var expectedPair in encryptionContext)
+        {
             if (!multiKeyringDecryptOutput.EncryptionContext.TryGetValue(expectedPair.Key, out var decryptedValue)
                 || !decryptedValue.Equals(expectedPair.Value))
+            {
                 throw new Exception("Encryption context does not match expected values");
+            }
+        }
 
         // Demonstrate that the decrypted plaintext is identical to the original plaintext.
         var multiKeyringDecrypted = multiKeyringDecryptOutput.Plaintext;
@@ -106,9 +113,13 @@ public class MultiKeyringExample {
 
         // Verify your Encryption Context
         foreach (var expectedPair in encryptionContext)
+        {
             if (!rawAESKeyringDecryptOutput.EncryptionContext.TryGetValue(expectedPair.Key, out var decryptedValue)
                 || !decryptedValue.Equals(expectedPair.Value))
+            {
                 throw new Exception("Encryption context does not match expected values");
+            }
+        }
 
         // Demonstrate that the decrypted plaintext is identical to the original plaintext.
         var rawAESKeyringDecrypted = rawAESKeyringDecryptOutput.Plaintext;
@@ -117,7 +128,8 @@ public class MultiKeyringExample {
 
     // We test examples to ensure they remain up-to-date.
     [Fact]
-    public void TestMultiKeyringExample() {
+    public void TestMultiKeyringExample()
+    {
         Run(
             ExampleUtils.ExampleUtils.GetPlaintextStream(),
             ExampleUtils.ExampleUtils.GetDefaultRegionKmsKeyArn()
@@ -125,7 +137,8 @@ public class MultiKeyringExample {
     }
 
     // Helper method to create RawAESKeyring for above example.
-    private static IKeyring GetRawAESKeyring(IAwsCryptographicMaterialProviders materialProviders) {
+    private static IKeyring GetRawAESKeyring(IAwsCryptographicMaterialProviders materialProviders)
+    {
         // Generate a 256-bit AES key to use with your keyring.
         // Here we use BouncyCastle, but you don't have to.
         //
