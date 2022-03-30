@@ -91,7 +91,7 @@ jobs:
       run: |
         export DYLD_LIBRARY_PATH=/usr/local/opt/openssl@1.1/lib
         cd $GITHUB_WORKSPACE/aws-encryption-sdk-net-formally-verified
-        dotnet test Examples
+        dotnet test -f netcoreapp3.1 Examples
 
   test_installation_windows:
     name: test_installation_windows
