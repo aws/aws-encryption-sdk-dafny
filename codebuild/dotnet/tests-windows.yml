@@ -11,7 +11,7 @@ phases:
       # <https://github.com/NuGet/NuGet.Client/pull/4259#issue-7318389620>
       - set NUGET_EXPERIMENTAL_CHAIN_BUILD_RETRY_POLICY=3,1000
       # Get Dafny
-      - Invoke-WebRequest https://github.com/dafny-lang/dafny/releases/download/v3.4.1/dafny-3.4.1-x64-win.zip -UseBasicParsing -OutFile dafny.zip
+      - Invoke-WebRequest https://github.com/dafny-lang/dafny/releases/download/v3.5.0/dafny-3.5.0-x64-win.zip -UseBasicParsing -OutFile dafny.zip
       - Expand-Archive -Path dafny.zip -DestinationPath .
       # We can't just add this to $env:Path because CodeBuild makes env vars read-only for some reason.
       # Assignment to $env:Path just silently fails.

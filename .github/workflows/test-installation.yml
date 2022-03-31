@@ -24,7 +24,7 @@ jobs:
     - name: Setup Dafny
       uses: dafny-lang/setup-dafny-action@v1
       with:
-        dafny-version: "3.4.1"
+        dafny-version: "3.5.0"
     - name: Configure AWS credentials for pulling from CA
       uses: aws-actions/configure-aws-credentials@v1
       with:
