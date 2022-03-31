@@ -1093,32 +1093,9 @@ module {:extern "Dafny.Aws.EncryptionSdk.AwsEncryptionSdk"} AwsEncryptionSdk {
         ==>
             res.Failure?
         {
-            // In this method, we're looping through all keys and failing if any violate the reserved prefix.
-            // Because we're using a loop, if we want to be able to prove things about what went on inside
-            // the loop, we need a loop invariant. So our approach will be to track two sets of keys,
-            // ones we have checked and ones we haven't checked; we can then set invariants on the loop
-            // proving that all keys we've checked satisfy the constraint.
+            var anyReservedPrefixUse := exists key: UTF8.ValidUTF8Bytes | key in input.Keys :: RESERVED_ENCRYPTION_CONTEXT <= key;
+            :- Need(!anyReservedPrefixUse, "Encryption context keys cannot contain reserved prefix 'aws-crypto-'");
 
-            ghost var checkedKeys: set<UTF8.ValidUTF8Bytes> := {};
-            var uncheckedKeys: set<UTF8.ValidUTF8Bytes> := input.Keys;
-
-            while uncheckedKeys != {}
-                // Prove we'll terminate
-                decreases |uncheckedKeys|
-                // Prove we don't miss any keys
-                invariant uncheckedKeys + checkedKeys == input.Keys
-                // Prove that all checked keys satisfy our constraint
-                invariant forall key | key in checkedKeys :: ! (RESERVED_ENCRYPTION_CONTEXT <= key)
-            {
-                var key :| key in uncheckedKeys;
-
-                if RESERVED_ENCRYPTION_CONTEXT <= key {
-                    return Failure("Encryption context keys cannot contain reserved prefix 'aws-crypto-'");
-                }
-
-                uncheckedKeys := uncheckedKeys - { key };
-                checkedKeys := checkedKeys + {key};
-            }
             return Success(());
         }
 
