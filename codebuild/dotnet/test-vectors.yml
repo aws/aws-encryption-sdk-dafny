@@ -7,7 +7,7 @@ phases:
     commands:
       - cd ..
       # Get Dafny
-      - curl https://github.com/dafny-lang/dafny/releases/download/v3.4.1/dafny-3.4.1-x64-ubuntu-16.04.zip -L -o dafny.zip
+      - curl https://github.com/dafny-lang/dafny/releases/download/v3.5.0/dafny-3.5.0-x64-ubuntu-16.04.zip -L -o dafny.zip
       - unzip -qq dafny.zip && rm dafny.zip
       - export PATH="$PWD/dafny:$PATH"
       # Set up environment for running test vectors
@@ -16,14 +16,8 @@ phases:
       # Explicitly set this (rather than as a codebuild env variable like above) because it depends on the
       # current working directory
       - export DAFNY_AWS_ESDK_TEST_VECTOR_MANIFEST_PATH="${PWD}/manifest.json"
-      # Install mono; only necessary for .NET Framework 4.5
-      - sudo apt install gnupg ca-certificates
-      - sudo apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv-keys 3FA7E0328081BFF6A14DA29AA6A19B38D3D831EF
-      - echo "deb https://download.mono-project.com/repo/ubuntu stable-focal main" | sudo tee /etc/apt/sources.list.d/mono-official-stable.list
-      - sudo apt update
-      - sudo apt install -y mono-complete
       # Switch back to the main directory
       - cd aws-encryption-sdk-dafny/aws-encryption-sdk-net-formally-verified
   build:
     commands:
-      - dotnet test TestVectors /nowarn:CS0105
+      - dotnet test -f netcoreapp3.1 TestVectors /nowarn:CS0105
