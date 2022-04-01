@@ -1,32 +1,30 @@
 // Copyright Amazon.com Inc. or its affiliates. All Rights Reserved.
 // SPDX-License-Identifier: Apache-2.0
+// Do not modify this file. This file is machine generated, and any changes to it will be overwritten.
 
 using System;
-using Aws.EncryptionSdk.Core;
-using
-    Aws.EncryptionSdk.Core
-    ;
+using AWS.EncryptionSDK.Core;
 
-namespace Aws.EncryptionSdk.Core
+namespace AWS.EncryptionSDK.Core
 {
     public abstract class KeyringBase : IKeyring
     {
-        public Aws.EncryptionSdk.Core.OnEncryptOutput OnEncrypt(Aws.EncryptionSdk.Core.OnEncryptInput input)
+        public AWS.EncryptionSDK.Core.OnEncryptOutput OnEncrypt(AWS.EncryptionSDK.Core.OnEncryptInput input)
         {
             input.Validate();
             return _OnEncrypt(input);
         }
 
-        protected abstract Aws.EncryptionSdk.Core.OnEncryptOutput _OnEncrypt(
-            Aws.EncryptionSdk.Core.OnEncryptInput input);
+        protected abstract AWS.EncryptionSDK.Core.OnEncryptOutput _OnEncrypt(
+            AWS.EncryptionSDK.Core.OnEncryptInput input);
 
-        public Aws.EncryptionSdk.Core.OnDecryptOutput OnDecrypt(Aws.EncryptionSdk.Core.OnDecryptInput input)
+        public AWS.EncryptionSDK.Core.OnDecryptOutput OnDecrypt(AWS.EncryptionSDK.Core.OnDecryptInput input)
         {
             input.Validate();
             return _OnDecrypt(input);
         }
 
-        protected abstract Aws.EncryptionSdk.Core.OnDecryptOutput _OnDecrypt(
-            Aws.EncryptionSdk.Core.OnDecryptInput input);
+        protected abstract AWS.EncryptionSDK.Core.OnDecryptOutput _OnDecrypt(
+            AWS.EncryptionSDK.Core.OnDecryptInput input);
     }
 }

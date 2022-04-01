@@ -1,17 +1,16 @@
 // Copyright Amazon.com Inc. or its affiliates. All Rights Reserved.
 // SPDX-License-Identifier: Apache-2.0
+// Do not modify this file. This file is machine generated, and any changes to it will be overwritten.
 
 using System;
-using Aws.EncryptionSdk.Core;
-using
-    Aws.EncryptionSdk
-    ;
+using AWS.EncryptionSDK.Core;
+using AWS.EncryptionSDK;
 
-namespace Aws.EncryptionSdk
+namespace AWS.EncryptionSDK
 {
     public interface IAwsEncryptionSdk
     {
-        Aws.EncryptionSdk.EncryptOutput Encrypt(Aws.EncryptionSdk.EncryptInput input);
-        Aws.EncryptionSdk.DecryptOutput Decrypt(Aws.EncryptionSdk.DecryptInput input);
+        AWS.EncryptionSDK.EncryptOutput Encrypt(AWS.EncryptionSDK.EncryptInput input);
+        AWS.EncryptionSDK.DecryptOutput Decrypt(AWS.EncryptionSDK.DecryptInput input);
     }
 }

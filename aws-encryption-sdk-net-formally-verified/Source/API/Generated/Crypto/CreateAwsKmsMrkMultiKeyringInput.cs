@@ -1,19 +1,17 @@
 // Copyright Amazon.com Inc. or its affiliates. All Rights Reserved.
 // SPDX-License-Identifier: Apache-2.0
+// Do not modify this file. This file is machine generated, and any changes to it will be overwritten.
 
 using System;
-using Aws.EncryptionSdk.Core;
-using
-    Aws.EncryptionSdk.Core
-    ;
+using AWS.EncryptionSDK.Core;
 
-namespace Aws.EncryptionSdk.Core
+namespace AWS.EncryptionSDK.Core
 {
     public class CreateAwsKmsMrkMultiKeyringInput
     {
         private string _generator;
         private System.Collections.Generic.List<string> _kmsKeyIds;
-        private Aws.EncryptionSdk.Core.IClientSupplier _clientSupplier;
+        private AWS.EncryptionSDK.Core.IClientSupplier _clientSupplier;
         private System.Collections.Generic.List<string> _grantTokens;
 
         public string Generator
@@ -38,7 +36,7 @@ namespace Aws.EncryptionSdk.Core
             return this._kmsKeyIds != null;
         }
 
-        public Aws.EncryptionSdk.Core.IClientSupplier ClientSupplier
+        public AWS.EncryptionSDK.Core.IClientSupplier ClientSupplier
         {
             get { return this._clientSupplier; }
             set { this._clientSupplier = value; }

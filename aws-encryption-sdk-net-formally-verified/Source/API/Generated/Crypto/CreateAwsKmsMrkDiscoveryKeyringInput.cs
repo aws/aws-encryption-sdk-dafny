@@ -1,18 +1,16 @@
 // Copyright Amazon.com Inc. or its affiliates. All Rights Reserved.
 // SPDX-License-Identifier: Apache-2.0
+// Do not modify this file. This file is machine generated, and any changes to it will be overwritten.
 
 using System;
-using Aws.EncryptionSdk.Core;
-using
-    Aws.EncryptionSdk.Core
-    ;
+using AWS.EncryptionSDK.Core;
 
-namespace Aws.EncryptionSdk.Core
+namespace AWS.EncryptionSDK.Core
 {
     public class CreateAwsKmsMrkDiscoveryKeyringInput
     {
         private Amazon.KeyManagementService.IAmazonKeyManagementService _kmsClient;
-        private Aws.EncryptionSdk.Core.DiscoveryFilter _discoveryFilter;
+        private AWS.EncryptionSDK.Core.DiscoveryFilter _discoveryFilter;
         private System.Collections.Generic.List<string> _grantTokens;
         private string _region;
 
@@ -27,7 +25,7 @@ namespace Aws.EncryptionSdk.Core
             return this._kmsClient != null;
         }
 
-        public Aws.EncryptionSdk.Core.DiscoveryFilter DiscoveryFilter
+        public AWS.EncryptionSDK.Core.DiscoveryFilter DiscoveryFilter
         {
             get { return this._discoveryFilter; }
             set { this._discoveryFilter = value; }
@@ -62,8 +60,9 @@ namespace Aws.EncryptionSdk.Core
 
         public void Validate()
         {
-            if (!IsSetKmsClient()) throw new System.ArgumentException("Missing value for required member 'kmsClient'");
-            if (!IsSetRegion()) throw new System.ArgumentException("Missing value for required member 'region'");
+            if (!IsSetKmsClient())
+                throw new System.ArgumentException("Missing value for required property 'KmsClient'");
+            if (!IsSetRegion()) throw new System.ArgumentException("Missing value for required property 'Region'");
         }
     }
 }

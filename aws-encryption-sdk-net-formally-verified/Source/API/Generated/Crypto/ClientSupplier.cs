@@ -1,19 +1,17 @@
 // Copyright Amazon.com Inc. or its affiliates. All Rights Reserved.
 // SPDX-License-Identifier: Apache-2.0
+// Do not modify this file. This file is machine generated, and any changes to it will be overwritten.
 
 using System;
 using System.IO;
 using System.Collections.Generic;
-using Aws.EncryptionSdk.Core;
-using
-    Aws.EncryptionSdk.Core
-    ;
+using AWS.EncryptionSDK.Core;
 
-namespace Aws.EncryptionSdk.Core
+namespace AWS.EncryptionSDK.Core
 {
     internal class ClientSupplier : ClientSupplierBase
     {
-        internal Dafny.Aws.EncryptionSdk.Core.IClientSupplier _impl { get; }
+        internal readonly Dafny.Aws.EncryptionSdk.Core.IClientSupplier _impl;
 
         internal ClientSupplier(Dafny.Aws.EncryptionSdk.Core.IClientSupplier impl)
         {
@@ -21,7 +19,7 @@ namespace Aws.EncryptionSdk.Core
         }
 
         protected override Amazon.KeyManagementService.IAmazonKeyManagementService _GetClient(
-            Aws.EncryptionSdk.Core.GetClientInput input)
+            AWS.EncryptionSDK.Core.GetClientInput input)
         {
             Dafny.Aws.EncryptionSdk.Core._IGetClientInput internalInput =
                 TypeConversion.ToDafny_N3_aws__N13_encryptionSdk__N4_core__S14_GetClientInput(input);
