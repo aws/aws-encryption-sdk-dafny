@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 using System;
-using Aws.EncryptionSdk;
+using AWS.EncryptionSDK;
 using Wrappers_Compile;
 using icharseq = Dafny.ISequence<char>;
 using ibyteseq = Dafny.ISequence<byte>;

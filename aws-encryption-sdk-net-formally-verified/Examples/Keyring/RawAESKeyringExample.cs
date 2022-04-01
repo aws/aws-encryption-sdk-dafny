@@ -4,8 +4,8 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
-using Aws.EncryptionSdk;
-using Aws.EncryptionSdk.Core;
+using AWS.EncryptionSDK;
+using AWS.EncryptionSDK.Core;
 using Org.BouncyCastle.Security; // In this example, we use BouncyCastle to generate a wrapping key.
 using Xunit;
 

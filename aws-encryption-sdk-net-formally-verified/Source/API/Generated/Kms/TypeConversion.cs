@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 using System.Linq;
-using Aws.EncryptionSdk.Core;
+using AWS.EncryptionSDK.Core;
 
 namespace Com.Amazonaws.Kms
 {
