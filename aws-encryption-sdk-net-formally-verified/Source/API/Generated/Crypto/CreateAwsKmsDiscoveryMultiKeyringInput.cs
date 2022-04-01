@@ -1,19 +1,17 @@
 // Copyright Amazon.com Inc. or its affiliates. All Rights Reserved.
 // SPDX-License-Identifier: Apache-2.0
+// Do not modify this file. This file is machine generated, and any changes to it will be overwritten.
 
 using System;
-using Aws.EncryptionSdk.Core;
-using
-    Aws.EncryptionSdk.Core
-    ;
+using AWS.EncryptionSDK.Core;
 
-namespace Aws.EncryptionSdk.Core
+namespace AWS.EncryptionSDK.Core
 {
     public class CreateAwsKmsDiscoveryMultiKeyringInput
     {
         private System.Collections.Generic.List<string> _regions;
-        private Aws.EncryptionSdk.Core.DiscoveryFilter _discoveryFilter;
-        private Aws.EncryptionSdk.Core.IClientSupplier _clientSupplier;
+        private AWS.EncryptionSDK.Core.DiscoveryFilter _discoveryFilter;
+        private AWS.EncryptionSDK.Core.IClientSupplier _clientSupplier;
         private System.Collections.Generic.List<string> _grantTokens;
 
         public System.Collections.Generic.List<string> Regions
@@ -27,7 +25,7 @@ namespace Aws.EncryptionSdk.Core
             return this._regions != null;
         }
 
-        public Aws.EncryptionSdk.Core.DiscoveryFilter DiscoveryFilter
+        public AWS.EncryptionSDK.Core.DiscoveryFilter DiscoveryFilter
         {
             get { return this._discoveryFilter; }
             set { this._discoveryFilter = value; }
@@ -38,7 +36,7 @@ namespace Aws.EncryptionSdk.Core
             return this._discoveryFilter != null;
         }
 
-        public Aws.EncryptionSdk.Core.IClientSupplier ClientSupplier
+        public AWS.EncryptionSDK.Core.IClientSupplier ClientSupplier
         {
             get { return this._clientSupplier; }
             set { this._clientSupplier = value; }
@@ -62,7 +60,7 @@ namespace Aws.EncryptionSdk.Core
 
         public void Validate()
         {
-            if (!IsSetRegions()) throw new System.ArgumentException("Missing value for required member 'regions'");
+            if (!IsSetRegions()) throw new System.ArgumentException("Missing value for required property 'Regions'");
         }
     }
 }

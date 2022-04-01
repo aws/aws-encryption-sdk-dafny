@@ -5,8 +5,8 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using Amazon.KeyManagementService;
-using Aws.EncryptionSdk;
-using Aws.EncryptionSdk.Core;
+using AWS.EncryptionSDK;
+using AWS.EncryptionSDK.Core;
 using Xunit;
 
 /// Demonstrate an encrypt/decrypt cycle using an AWS KMS keyring.

@@ -4,7 +4,7 @@
 using Amazon.KeyManagementService;
 using Amazon;
 using Amazon.Runtime;
-using Aws.EncryptionSdk.Core;
+using AWS.EncryptionSDK.Core;
 
 using Wrappers_Compile;
 

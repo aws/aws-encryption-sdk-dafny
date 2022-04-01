@@ -1,13 +1,12 @@
 // Copyright Amazon.com Inc. or its affiliates. All Rights Reserved.
 // SPDX-License-Identifier: Apache-2.0
+// Do not modify this file. This file is machine generated, and any changes to it will be overwritten.
 
 using System;
-using Aws.EncryptionSdk.Core;
-using
-    Aws.EncryptionSdk
-    ;
+using AWS.EncryptionSDK.Core;
+using AWS.EncryptionSDK;
 
-namespace Aws.EncryptionSdk
+namespace AWS.EncryptionSDK
 {
     public class AwsEncryptionSdkBaseException : Exception
     {

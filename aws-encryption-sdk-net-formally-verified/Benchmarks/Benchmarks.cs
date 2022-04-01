@@ -1,8 +1,8 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Security.Cryptography;
-using Aws.EncryptionSdk;
-using Aws.EncryptionSdk.Core;
+using AWS.EncryptionSDK;
+using AWS.EncryptionSDK.Core;
 using BenchmarkDotNet.Attributes;
 using BenchmarkDotNet.Running;
 using Org.BouncyCastle.Utilities.Encoders;

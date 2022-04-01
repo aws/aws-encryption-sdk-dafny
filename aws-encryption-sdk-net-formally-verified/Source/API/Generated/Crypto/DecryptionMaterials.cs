@@ -1,22 +1,20 @@
 // Copyright Amazon.com Inc. or its affiliates. All Rights Reserved.
 // SPDX-License-Identifier: Apache-2.0
+// Do not modify this file. This file is machine generated, and any changes to it will be overwritten.
 
 using System;
-using Aws.EncryptionSdk.Core;
-using
-    Aws.EncryptionSdk.Core
-    ;
+using AWS.EncryptionSDK.Core;
 
-namespace Aws.EncryptionSdk.Core
+namespace AWS.EncryptionSDK.Core
 {
     public class DecryptionMaterials
     {
-        private Aws.EncryptionSdk.Core.AlgorithmSuiteId _algorithmSuiteId;
+        private AWS.EncryptionSDK.Core.AlgorithmSuiteId _algorithmSuiteId;
         private System.Collections.Generic.Dictionary<string, string> _encryptionContext;
         private System.IO.MemoryStream _plaintextDataKey;
         private System.IO.MemoryStream _verificationKey;
 
-        public Aws.EncryptionSdk.Core.AlgorithmSuiteId AlgorithmSuiteId
+        public AWS.EncryptionSDK.Core.AlgorithmSuiteId AlgorithmSuiteId
         {
             get { return this._algorithmSuiteId; }
             set { this._algorithmSuiteId = value; }
@@ -63,9 +61,9 @@ namespace Aws.EncryptionSdk.Core
         public void Validate()
         {
             if (!IsSetAlgorithmSuiteId())
-                throw new System.ArgumentException("Missing value for required member 'algorithmSuiteId'");
+                throw new System.ArgumentException("Missing value for required property 'AlgorithmSuiteId'");
             if (!IsSetEncryptionContext())
-                throw new System.ArgumentException("Missing value for required member 'encryptionContext'");
+                throw new System.ArgumentException("Missing value for required property 'EncryptionContext'");
         }
     }
 }

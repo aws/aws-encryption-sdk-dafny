@@ -8,8 +8,8 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Security.Cryptography;
-using Aws.EncryptionSdk.Core;
-using Aws.EncryptionSdk;
+using AWS.EncryptionSDK.Core;
+using AWS.EncryptionSDK;
 
 namespace TestVectors {
     class Generator

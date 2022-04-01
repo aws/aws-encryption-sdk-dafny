@@ -1,20 +1,18 @@
 // Copyright Amazon.com Inc. or its affiliates. All Rights Reserved.
 // SPDX-License-Identifier: Apache-2.0
+// Do not modify this file. This file is machine generated, and any changes to it will be overwritten.
 
 using System;
-using Aws.EncryptionSdk.Core;
-using
-    Aws.EncryptionSdk.Core
-    ;
+using AWS.EncryptionSDK.Core;
 
-namespace Aws.EncryptionSdk.Core
+namespace AWS.EncryptionSDK.Core
 {
     public class CreateMultiKeyringInput
     {
-        private Aws.EncryptionSdk.Core.IKeyring _generator;
-        private System.Collections.Generic.List<Aws.EncryptionSdk.Core.IKeyring> _childKeyrings;
+        private AWS.EncryptionSDK.Core.IKeyring _generator;
+        private System.Collections.Generic.List<AWS.EncryptionSDK.Core.IKeyring> _childKeyrings;
 
-        public Aws.EncryptionSdk.Core.IKeyring Generator
+        public AWS.EncryptionSDK.Core.IKeyring Generator
         {
             get { return this._generator; }
             set { this._generator = value; }
@@ -25,7 +23,7 @@ namespace Aws.EncryptionSdk.Core
             return this._generator != null;
         }
 
-        public System.Collections.Generic.List<Aws.EncryptionSdk.Core.IKeyring> ChildKeyrings
+        public System.Collections.Generic.List<AWS.EncryptionSDK.Core.IKeyring> ChildKeyrings
         {
             get { return this._childKeyrings; }
             set { this._childKeyrings = value; }
@@ -39,7 +37,7 @@ namespace Aws.EncryptionSdk.Core
         public void Validate()
         {
             if (!IsSetChildKeyrings())
-                throw new System.ArgumentException("Missing value for required member 'childKeyrings'");
+                throw new System.ArgumentException("Missing value for required property 'ChildKeyrings'");
         }
     }
 }

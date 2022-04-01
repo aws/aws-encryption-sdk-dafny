@@ -1,19 +1,17 @@
 // Copyright Amazon.com Inc. or its affiliates. All Rights Reserved.
 // SPDX-License-Identifier: Apache-2.0
+// Do not modify this file. This file is machine generated, and any changes to it will be overwritten.
 
 using System;
-using Aws.EncryptionSdk.Core;
-using
-    Aws.EncryptionSdk.Core
-    ;
+using AWS.EncryptionSDK.Core;
 
-namespace Aws.EncryptionSdk.Core
+namespace AWS.EncryptionSDK.Core
 {
     public class CreateRawRsaKeyringInput
     {
         private string _keyNamespace;
         private string _keyName;
-        private Aws.EncryptionSdk.Core.PaddingScheme _paddingScheme;
+        private AWS.EncryptionSDK.Core.PaddingScheme _paddingScheme;
         private System.IO.MemoryStream _publicKey;
         private System.IO.MemoryStream _privateKey;
 
@@ -39,7 +37,7 @@ namespace Aws.EncryptionSdk.Core
             return this._keyName != null;
         }
 
-        public Aws.EncryptionSdk.Core.PaddingScheme PaddingScheme
+        public AWS.EncryptionSDK.Core.PaddingScheme PaddingScheme
         {
             get { return this._paddingScheme; }
             set { this._paddingScheme = value; }
@@ -75,10 +73,10 @@ namespace Aws.EncryptionSdk.Core
         public void Validate()
         {
             if (!IsSetKeyNamespace())
-                throw new System.ArgumentException("Missing value for required member 'keyNamespace'");
-            if (!IsSetKeyName()) throw new System.ArgumentException("Missing value for required member 'keyName'");
+                throw new System.ArgumentException("Missing value for required property 'KeyNamespace'");
+            if (!IsSetKeyName()) throw new System.ArgumentException("Missing value for required property 'KeyName'");
             if (!IsSetPaddingScheme())
-                throw new System.ArgumentException("Missing value for required member 'paddingScheme'");
+                throw new System.ArgumentException("Missing value for required property 'PaddingScheme'");
         }
     }
 }

@@ -1,27 +1,25 @@
 // Copyright Amazon.com Inc. or its affiliates. All Rights Reserved.
 // SPDX-License-Identifier: Apache-2.0
+// Do not modify this file. This file is machine generated, and any changes to it will be overwritten.
 
 using System;
 using System.IO;
 using System.Collections.Generic;
-using Aws.EncryptionSdk.Core;
-using
-    Aws.EncryptionSdk.Core
-    ;
+using AWS.EncryptionSDK.Core;
 
-namespace Aws.EncryptionSdk.Core
+namespace AWS.EncryptionSDK.Core
 {
     internal class CryptographicMaterialsManager : CryptographicMaterialsManagerBase
     {
-        internal Dafny.Aws.EncryptionSdk.Core.ICryptographicMaterialsManager _impl { get; }
+        internal readonly Dafny.Aws.EncryptionSdk.Core.ICryptographicMaterialsManager _impl;
 
         internal CryptographicMaterialsManager(Dafny.Aws.EncryptionSdk.Core.ICryptographicMaterialsManager impl)
         {
             this._impl = impl;
         }
 
-        protected override Aws.EncryptionSdk.Core.DecryptMaterialsOutput _DecryptMaterials(
-            Aws.EncryptionSdk.Core.DecryptMaterialsInput input)
+        protected override AWS.EncryptionSDK.Core.DecryptMaterialsOutput _DecryptMaterials(
+            AWS.EncryptionSDK.Core.DecryptMaterialsInput input)
         {
             Dafny.Aws.EncryptionSdk.Core._IDecryptMaterialsInput internalInput =
                 TypeConversion.ToDafny_N3_aws__N13_encryptionSdk__N4_core__S21_DecryptMaterialsInput(input);
@@ -35,8 +33,8 @@ namespace Aws.EncryptionSdk.Core
                 result.dtor_value);
         }
 
-        protected override Aws.EncryptionSdk.Core.GetEncryptionMaterialsOutput _GetEncryptionMaterials(
-            Aws.EncryptionSdk.Core.GetEncryptionMaterialsInput input)
+        protected override AWS.EncryptionSDK.Core.GetEncryptionMaterialsOutput _GetEncryptionMaterials(
+            AWS.EncryptionSDK.Core.GetEncryptionMaterialsInput input)
         {
             Dafny.Aws.EncryptionSdk.Core._IGetEncryptionMaterialsInput internalInput =
                 TypeConversion.ToDafny_N3_aws__N13_encryptionSdk__N4_core__S27_GetEncryptionMaterialsInput(input);
