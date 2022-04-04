@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 using System;
-using Aws.EncryptionSdk;
+using AWS.EncryptionSDK;
 using Org.BouncyCastle.Crypto;
 using Org.BouncyCastle.Crypto.Generators;
 using Org.BouncyCastle.Crypto.Parameters;

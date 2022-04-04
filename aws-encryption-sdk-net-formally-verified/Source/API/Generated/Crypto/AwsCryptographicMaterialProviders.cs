@@ -1,27 +1,25 @@
 // Copyright Amazon.com Inc. or its affiliates. All Rights Reserved.
 // SPDX-License-Identifier: Apache-2.0
+// Do not modify this file. This file is machine generated, and any changes to it will be overwritten.
 
 using System;
 using System.IO;
 using System.Collections.Generic;
-using Aws.EncryptionSdk.Core;
-using
-    Aws.EncryptionSdk.Core
-    ;
+using AWS.EncryptionSDK.Core;
 
-namespace Aws.EncryptionSdk.Core
+namespace AWS.EncryptionSDK.Core
 {
     internal class AwsCryptographicMaterialProviders : AwsCryptographicMaterialProvidersBase
     {
-        internal Dafny.Aws.EncryptionSdk.Core.IAwsCryptographicMaterialProviders _impl { get; }
+        internal readonly Dafny.Aws.EncryptionSdk.Core.IAwsCryptographicMaterialProviders _impl;
 
         internal AwsCryptographicMaterialProviders(Dafny.Aws.EncryptionSdk.Core.IAwsCryptographicMaterialProviders impl)
         {
             this._impl = impl;
         }
 
-        protected override Aws.EncryptionSdk.Core.IKeyring _CreateAwsKmsMrkMultiKeyring(
-            Aws.EncryptionSdk.Core.CreateAwsKmsMrkMultiKeyringInput input)
+        protected override AWS.EncryptionSDK.Core.IKeyring _CreateAwsKmsMrkMultiKeyring(
+            AWS.EncryptionSDK.Core.CreateAwsKmsMrkMultiKeyringInput input)
         {
             Dafny.Aws.EncryptionSdk.Core._ICreateAwsKmsMrkMultiKeyringInput internalInput =
                 TypeConversion.ToDafny_N3_aws__N13_encryptionSdk__N4_core__S32_CreateAwsKmsMrkMultiKeyringInput(input);
@@ -35,8 +33,8 @@ namespace Aws.EncryptionSdk.Core
                 result.dtor_value);
         }
 
-        protected override Aws.EncryptionSdk.Core.IKeyring _CreateRawRsaKeyring(
-            Aws.EncryptionSdk.Core.CreateRawRsaKeyringInput input)
+        protected override AWS.EncryptionSDK.Core.IKeyring _CreateRawRsaKeyring(
+            AWS.EncryptionSDK.Core.CreateRawRsaKeyringInput input)
         {
             Dafny.Aws.EncryptionSdk.Core._ICreateRawRsaKeyringInput internalInput =
                 TypeConversion.ToDafny_N3_aws__N13_encryptionSdk__N4_core__S24_CreateRawRsaKeyringInput(input);
@@ -50,8 +48,8 @@ namespace Aws.EncryptionSdk.Core
                 result.dtor_value);
         }
 
-        protected override Aws.EncryptionSdk.Core.IKeyring _CreateRawAesKeyring(
-            Aws.EncryptionSdk.Core.CreateRawAesKeyringInput input)
+        protected override AWS.EncryptionSDK.Core.IKeyring _CreateRawAesKeyring(
+            AWS.EncryptionSDK.Core.CreateRawAesKeyringInput input)
         {
             Dafny.Aws.EncryptionSdk.Core._ICreateRawAesKeyringInput internalInput =
                 TypeConversion.ToDafny_N3_aws__N13_encryptionSdk__N4_core__S24_CreateRawAesKeyringInput(input);
@@ -65,8 +63,8 @@ namespace Aws.EncryptionSdk.Core
                 result.dtor_value);
         }
 
-        protected override Aws.EncryptionSdk.Core.IKeyring _CreateAwsKmsMrkKeyring(
-            Aws.EncryptionSdk.Core.CreateAwsKmsMrkKeyringInput input)
+        protected override AWS.EncryptionSDK.Core.IKeyring _CreateAwsKmsMrkKeyring(
+            AWS.EncryptionSDK.Core.CreateAwsKmsMrkKeyringInput input)
         {
             Dafny.Aws.EncryptionSdk.Core._ICreateAwsKmsMrkKeyringInput internalInput =
                 TypeConversion.ToDafny_N3_aws__N13_encryptionSdk__N4_core__S27_CreateAwsKmsMrkKeyringInput(input);
@@ -80,8 +78,8 @@ namespace Aws.EncryptionSdk.Core
                 result.dtor_value);
         }
 
-        protected override Aws.EncryptionSdk.Core.IKeyring _CreateAwsKmsMrkDiscoveryKeyring(
-            Aws.EncryptionSdk.Core.CreateAwsKmsMrkDiscoveryKeyringInput input)
+        protected override AWS.EncryptionSDK.Core.IKeyring _CreateAwsKmsMrkDiscoveryKeyring(
+            AWS.EncryptionSDK.Core.CreateAwsKmsMrkDiscoveryKeyringInput input)
         {
             Dafny.Aws.EncryptionSdk.Core._ICreateAwsKmsMrkDiscoveryKeyringInput internalInput =
                 TypeConversion
@@ -96,8 +94,8 @@ namespace Aws.EncryptionSdk.Core
                 result.dtor_value);
         }
 
-        protected override Aws.EncryptionSdk.Core.IClientSupplier _CreateDefaultClientSupplier(
-            Aws.EncryptionSdk.Core.CreateDefaultClientSupplierInput input)
+        protected override AWS.EncryptionSDK.Core.IClientSupplier _CreateDefaultClientSupplier(
+            AWS.EncryptionSDK.Core.CreateDefaultClientSupplierInput input)
         {
             Dafny.Aws.EncryptionSdk.Core._ICreateDefaultClientSupplierInput internalInput =
                 TypeConversion.ToDafny_N3_aws__N13_encryptionSdk__N4_core__S32_CreateDefaultClientSupplierInput(input);
@@ -111,8 +109,8 @@ namespace Aws.EncryptionSdk.Core
                 result.dtor_value);
         }
 
-        protected override Aws.EncryptionSdk.Core.IKeyring _CreateAwsKmsDiscoveryKeyring(
-            Aws.EncryptionSdk.Core.CreateAwsKmsDiscoveryKeyringInput input)
+        protected override AWS.EncryptionSDK.Core.IKeyring _CreateAwsKmsDiscoveryKeyring(
+            AWS.EncryptionSDK.Core.CreateAwsKmsDiscoveryKeyringInput input)
         {
             Dafny.Aws.EncryptionSdk.Core._ICreateAwsKmsDiscoveryKeyringInput internalInput =
                 TypeConversion.ToDafny_N3_aws__N13_encryptionSdk__N4_core__S33_CreateAwsKmsDiscoveryKeyringInput(input);
@@ -126,8 +124,8 @@ namespace Aws.EncryptionSdk.Core
                 result.dtor_value);
         }
 
-        protected override Aws.EncryptionSdk.Core.IKeyring _CreateAwsKmsDiscoveryMultiKeyring(
-            Aws.EncryptionSdk.Core.CreateAwsKmsDiscoveryMultiKeyringInput input)
+        protected override AWS.EncryptionSDK.Core.IKeyring _CreateAwsKmsDiscoveryMultiKeyring(
+            AWS.EncryptionSDK.Core.CreateAwsKmsDiscoveryMultiKeyringInput input)
         {
             Dafny.Aws.EncryptionSdk.Core._ICreateAwsKmsDiscoveryMultiKeyringInput internalInput =
                 TypeConversion
@@ -142,9 +140,9 @@ namespace Aws.EncryptionSdk.Core
                 result.dtor_value);
         }
 
-        protected override Aws.EncryptionSdk.Core.ICryptographicMaterialsManager
+        protected override AWS.EncryptionSDK.Core.ICryptographicMaterialsManager
             _CreateDefaultCryptographicMaterialsManager(
-                Aws.EncryptionSdk.Core.CreateDefaultCryptographicMaterialsManagerInput input)
+                AWS.EncryptionSDK.Core.CreateDefaultCryptographicMaterialsManagerInput input)
         {
             Dafny.Aws.EncryptionSdk.Core._ICreateDefaultCryptographicMaterialsManagerInput internalInput =
                 TypeConversion
@@ -161,8 +159,8 @@ namespace Aws.EncryptionSdk.Core
                     result.dtor_value);
         }
 
-        protected override Aws.EncryptionSdk.Core.IKeyring _CreateAwsKmsKeyring(
-            Aws.EncryptionSdk.Core.CreateAwsKmsKeyringInput input)
+        protected override AWS.EncryptionSDK.Core.IKeyring _CreateAwsKmsKeyring(
+            AWS.EncryptionSDK.Core.CreateAwsKmsKeyringInput input)
         {
             Dafny.Aws.EncryptionSdk.Core._ICreateAwsKmsKeyringInput internalInput =
                 TypeConversion.ToDafny_N3_aws__N13_encryptionSdk__N4_core__S24_CreateAwsKmsKeyringInput(input);
@@ -176,8 +174,8 @@ namespace Aws.EncryptionSdk.Core
                 result.dtor_value);
         }
 
-        protected override Aws.EncryptionSdk.Core.IKeyring _CreateMultiKeyring(
-            Aws.EncryptionSdk.Core.CreateMultiKeyringInput input)
+        protected override AWS.EncryptionSDK.Core.IKeyring _CreateMultiKeyring(
+            AWS.EncryptionSDK.Core.CreateMultiKeyringInput input)
         {
             Dafny.Aws.EncryptionSdk.Core._ICreateMultiKeyringInput internalInput =
                 TypeConversion.ToDafny_N3_aws__N13_encryptionSdk__N4_core__S23_CreateMultiKeyringInput(input);
@@ -191,8 +189,8 @@ namespace Aws.EncryptionSdk.Core
                 result.dtor_value);
         }
 
-        protected override Aws.EncryptionSdk.Core.IKeyring _CreateAwsKmsMultiKeyring(
-            Aws.EncryptionSdk.Core.CreateAwsKmsMultiKeyringInput input)
+        protected override AWS.EncryptionSDK.Core.IKeyring _CreateAwsKmsMultiKeyring(
+            AWS.EncryptionSDK.Core.CreateAwsKmsMultiKeyringInput input)
         {
             Dafny.Aws.EncryptionSdk.Core._ICreateAwsKmsMultiKeyringInput internalInput =
                 TypeConversion.ToDafny_N3_aws__N13_encryptionSdk__N4_core__S29_CreateAwsKmsMultiKeyringInput(input);
@@ -206,8 +204,8 @@ namespace Aws.EncryptionSdk.Core
                 result.dtor_value);
         }
 
-        protected override Aws.EncryptionSdk.Core.IKeyring _CreateAwsKmsMrkDiscoveryMultiKeyring(
-            Aws.EncryptionSdk.Core.CreateAwsKmsMrkDiscoveryMultiKeyringInput input)
+        protected override AWS.EncryptionSDK.Core.IKeyring _CreateAwsKmsMrkDiscoveryMultiKeyring(
+            AWS.EncryptionSDK.Core.CreateAwsKmsMrkDiscoveryMultiKeyringInput input)
         {
             Dafny.Aws.EncryptionSdk.Core._ICreateAwsKmsMrkDiscoveryMultiKeyringInput internalInput =
                 TypeConversion

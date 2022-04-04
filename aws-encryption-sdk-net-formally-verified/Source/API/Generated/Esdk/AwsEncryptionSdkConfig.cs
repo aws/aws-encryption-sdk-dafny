@@ -1,20 +1,19 @@
 // Copyright Amazon.com Inc. or its affiliates. All Rights Reserved.
 // SPDX-License-Identifier: Apache-2.0
+// Do not modify this file. This file is machine generated, and any changes to it will be overwritten.
 
 using System;
-using Aws.EncryptionSdk.Core;
-using
-    Aws.EncryptionSdk
-    ;
+using AWS.EncryptionSDK.Core;
+using AWS.EncryptionSDK;
 
-namespace Aws.EncryptionSdk
+namespace AWS.EncryptionSDK
 {
     public class AwsEncryptionSdkConfig
     {
-        private Aws.EncryptionSdk.Core.CommitmentPolicy _commitmentPolicy;
+        private AWS.EncryptionSDK.Core.CommitmentPolicy _commitmentPolicy;
         private long? _maxEncryptedDataKeys;
 
-        public Aws.EncryptionSdk.Core.CommitmentPolicy CommitmentPolicy
+        public AWS.EncryptionSDK.Core.CommitmentPolicy CommitmentPolicy
         {
             get { return this._commitmentPolicy; }
             set { this._commitmentPolicy = value; }

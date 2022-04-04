@@ -1,19 +1,17 @@
 // Copyright Amazon.com Inc. or its affiliates. All Rights Reserved.
 // SPDX-License-Identifier: Apache-2.0
+// Do not modify this file. This file is machine generated, and any changes to it will be overwritten.
 
 using System;
-using Aws.EncryptionSdk.Core;
-using
-    Aws.EncryptionSdk.Core
-    ;
+using AWS.EncryptionSDK.Core;
 
-namespace Aws.EncryptionSdk.Core
+namespace AWS.EncryptionSDK.Core
 {
     public class DecryptMaterialsOutput
     {
-        private Aws.EncryptionSdk.Core.DecryptionMaterials _decryptionMaterials;
+        private AWS.EncryptionSDK.Core.DecryptionMaterials _decryptionMaterials;
 
-        public Aws.EncryptionSdk.Core.DecryptionMaterials DecryptionMaterials
+        public AWS.EncryptionSDK.Core.DecryptionMaterials DecryptionMaterials
         {
             get { return this._decryptionMaterials; }
             set { this._decryptionMaterials = value; }
@@ -27,7 +25,7 @@ namespace Aws.EncryptionSdk.Core
         public void Validate()
         {
             if (!IsSetDecryptionMaterials())
-                throw new System.ArgumentException("Missing value for required member 'decryptionMaterials'");
+                throw new System.ArgumentException("Missing value for required property 'DecryptionMaterials'");
         }
     }
 }

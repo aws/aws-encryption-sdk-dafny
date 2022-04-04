@@ -10,8 +10,8 @@ using System.Linq;
 using Newtonsoft.Json.Linq;
 using Xunit;
 
-using Aws.EncryptionSdk;
-using Aws.EncryptionSdk.Core;
+using AWS.EncryptionSDK;
+using AWS.EncryptionSDK.Core;
 
 namespace TestVectors.Runner {
     public abstract class TestVectorData : IEnumerable<object[]> {
@@ -128,7 +128,7 @@ namespace TestVectors.Runner {
                     Ciphertext = ciphertextStream,
                     MaterialsManager = cmm,
                 };
-                Aws.EncryptionSdk.DecryptOutput decryptOutput = encryptionSdk.Decrypt(decryptInput);
+                AWS.EncryptionSDK.DecryptOutput decryptOutput = encryptionSdk.Decrypt(decryptInput);
 
                 if (expectedError != null)
                 {

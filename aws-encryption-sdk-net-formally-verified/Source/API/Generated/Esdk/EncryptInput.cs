@@ -1,21 +1,20 @@
 // Copyright Amazon.com Inc. or its affiliates. All Rights Reserved.
 // SPDX-License-Identifier: Apache-2.0
+// Do not modify this file. This file is machine generated, and any changes to it will be overwritten.
 
 using System;
-using Aws.EncryptionSdk.Core;
-using
-    Aws.EncryptionSdk
-    ;
+using AWS.EncryptionSDK.Core;
+using AWS.EncryptionSDK;
 
-namespace Aws.EncryptionSdk
+namespace AWS.EncryptionSDK
 {
     public class EncryptInput
     {
         private System.IO.MemoryStream _plaintext;
         private System.Collections.Generic.Dictionary<string, string> _encryptionContext;
-        private Aws.EncryptionSdk.Core.ICryptographicMaterialsManager _materialsManager;
-        private Aws.EncryptionSdk.Core.IKeyring _keyring;
-        private Aws.EncryptionSdk.Core.AlgorithmSuiteId _algorithmSuiteId;
+        private AWS.EncryptionSDK.Core.ICryptographicMaterialsManager _materialsManager;
+        private AWS.EncryptionSDK.Core.IKeyring _keyring;
+        private AWS.EncryptionSDK.Core.AlgorithmSuiteId _algorithmSuiteId;
         private long? _frameLength;
 
         public System.IO.MemoryStream Plaintext
@@ -40,7 +39,7 @@ namespace Aws.EncryptionSdk
             return this._encryptionContext != null;
         }
 
-        public Aws.EncryptionSdk.Core.ICryptographicMaterialsManager MaterialsManager
+        public AWS.EncryptionSDK.Core.ICryptographicMaterialsManager MaterialsManager
         {
             get { return this._materialsManager; }
             set { this._materialsManager = value; }
@@ -51,7 +50,7 @@ namespace Aws.EncryptionSdk
             return this._materialsManager != null;
         }
 
-        public Aws.EncryptionSdk.Core.IKeyring Keyring
+        public AWS.EncryptionSDK.Core.IKeyring Keyring
         {
             get { return this._keyring; }
             set { this._keyring = value; }
@@ -62,7 +61,7 @@ namespace Aws.EncryptionSdk
             return this._keyring != null;
         }
 
-        public Aws.EncryptionSdk.Core.AlgorithmSuiteId AlgorithmSuiteId
+        public AWS.EncryptionSDK.Core.AlgorithmSuiteId AlgorithmSuiteId
         {
             get { return this._algorithmSuiteId; }
             set { this._algorithmSuiteId = value; }
@@ -86,7 +85,8 @@ namespace Aws.EncryptionSdk
 
         public void Validate()
         {
-            if (!IsSetPlaintext()) throw new System.ArgumentException("Missing value for required member 'plaintext'");
+            if (!IsSetPlaintext())
+                throw new System.ArgumentException("Missing value for required property 'Plaintext'");
         }
     }
 }

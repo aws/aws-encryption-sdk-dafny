@@ -1,19 +1,17 @@
 // Copyright Amazon.com Inc. or its affiliates. All Rights Reserved.
 // SPDX-License-Identifier: Apache-2.0
+// Do not modify this file. This file is machine generated, and any changes to it will be overwritten.
 
 using System;
-using Aws.EncryptionSdk.Core;
-using
-    Aws.EncryptionSdk.Core
-    ;
+using AWS.EncryptionSDK.Core;
 
-namespace Aws.EncryptionSdk.Core
+namespace AWS.EncryptionSDK.Core
 {
     public class CreateDefaultCryptographicMaterialsManagerInput
     {
-        private Aws.EncryptionSdk.Core.IKeyring _keyring;
+        private AWS.EncryptionSDK.Core.IKeyring _keyring;
 
-        public Aws.EncryptionSdk.Core.IKeyring Keyring
+        public AWS.EncryptionSDK.Core.IKeyring Keyring
         {
             get { return this._keyring; }
             set { this._keyring = value; }
@@ -26,7 +24,7 @@ namespace Aws.EncryptionSdk.Core
 
         public void Validate()
         {
-            if (!IsSetKeyring()) throw new System.ArgumentException("Missing value for required member 'keyring'");
+            if (!IsSetKeyring()) throw new System.ArgumentException("Missing value for required property 'Keyring'");
         }
     }
 }

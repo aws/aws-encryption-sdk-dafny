@@ -1,34 +1,32 @@
 // Copyright Amazon.com Inc. or its affiliates. All Rights Reserved.
 // SPDX-License-Identifier: Apache-2.0
+// Do not modify this file. This file is machine generated, and any changes to it will be overwritten.
 
 using System;
-using Aws.EncryptionSdk.Core;
-using
-    Aws.EncryptionSdk.Core
-    ;
+using AWS.EncryptionSDK.Core;
 
-namespace Aws.EncryptionSdk.Core
+namespace AWS.EncryptionSDK.Core
 {
     public abstract class CryptographicMaterialsManagerBase : ICryptographicMaterialsManager
     {
-        public Aws.EncryptionSdk.Core.GetEncryptionMaterialsOutput GetEncryptionMaterials(
-            Aws.EncryptionSdk.Core.GetEncryptionMaterialsInput input)
+        public AWS.EncryptionSDK.Core.GetEncryptionMaterialsOutput GetEncryptionMaterials(
+            AWS.EncryptionSDK.Core.GetEncryptionMaterialsInput input)
         {
             input.Validate();
             return _GetEncryptionMaterials(input);
         }
 
-        protected abstract Aws.EncryptionSdk.Core.GetEncryptionMaterialsOutput _GetEncryptionMaterials(
-            Aws.EncryptionSdk.Core.GetEncryptionMaterialsInput input);
+        protected abstract AWS.EncryptionSDK.Core.GetEncryptionMaterialsOutput _GetEncryptionMaterials(
+            AWS.EncryptionSDK.Core.GetEncryptionMaterialsInput input);
 
-        public Aws.EncryptionSdk.Core.DecryptMaterialsOutput DecryptMaterials(
-            Aws.EncryptionSdk.Core.DecryptMaterialsInput input)
+        public AWS.EncryptionSDK.Core.DecryptMaterialsOutput DecryptMaterials(
+            AWS.EncryptionSDK.Core.DecryptMaterialsInput input)
         {
             input.Validate();
             return _DecryptMaterials(input);
         }
 
-        protected abstract Aws.EncryptionSdk.Core.DecryptMaterialsOutput _DecryptMaterials(
-            Aws.EncryptionSdk.Core.DecryptMaterialsInput input);
+        protected abstract AWS.EncryptionSDK.Core.DecryptMaterialsOutput _DecryptMaterials(
+            AWS.EncryptionSDK.Core.DecryptMaterialsInput input);
     }
 }
