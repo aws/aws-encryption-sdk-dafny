@@ -42,8 +42,9 @@ you may encounter an error that says:
 
 To build, the AWS Encryption SDK requires the most up to date version of [Dafny](https://github.com/dafny-lang/dafny) on your PATH.
 
-The AWS Encryption SDK targets frameworks [`netstandard2.1` and `net452` (on Windows only)](https://docs.microsoft.com/en-us/dotnet/standard/frameworks#supported-target-frameworks).
-Tests and test vectors target frameworks `netcoreapp3.1` and `net452` (on Windows only).
+The AWS Encryption SDK targets frameworks [`netstandard2.1` and `net452`](https://docs.microsoft.com/en-us/dotnet/standard/frameworks#supported-target-frameworks).
+Tests and test vectors target frameworks `netcoreapp3.1` and `net452`.
+In all cases, `net452` and newer .NET Framework versions are only supported on Windows.
 To build and test the AWS Encryption SDK, you must install the following .NET tools:
 
 * [.NET Core 3.1](https://dotnet.microsoft.com/en-us/download/dotnet/3.1) or newer
