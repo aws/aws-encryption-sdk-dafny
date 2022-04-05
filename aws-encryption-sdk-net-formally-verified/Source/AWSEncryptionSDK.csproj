@@ -10,7 +10,7 @@
     <Version>0.0.1</Version>
     <PackageId>AWSEncryptionSDK</PackageId>
     <Title>AWS Encryption SDK for .NET</Title>
-    <Description>A client-side encryption library designed to make it easy for everyone to encrypt and decrypt data using industry standards and best practices</Description>
+    <Description>The AWS Encryption SDK is a client-side encryption library designed to make it easy for everyone to encrypt and decrypt data using industry standards and best practices.</Description>
     <Authors>Amazon Web Services</Authors>
     <PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
     <RepositoryUrl>https://github.com/awslabs/aws-encryption-sdk-dafny</RepositoryUrl>
