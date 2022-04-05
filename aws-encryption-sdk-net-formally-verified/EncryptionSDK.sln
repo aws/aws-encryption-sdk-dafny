@@ -1,5 +1,6 @@
-
+﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
+# 
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AWSEncryptionSDKExamples", "Examples\AWSEncryptionSDKExamples.csproj", "{16DD20CF-A8E9-4D32-97F4-79ECD3B7D3DB}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AWSEncryptionSDK", "Source\AWSEncryptionSDK.csproj", "{088B46E4-C97A-40E7-8605-95247C0E0917}"
@@ -13,8 +14,6 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AWSEncryptionSDKTestVectorLib", "TestVectorLib\AWSEncryptionSDKTestVectorLib.csproj", "{0C49CEC5-6BB3-4268-ABDC-98D1917872F7}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AWSEncryptionSDKBenchmarks", "Benchmarks\AWSEncryptionSDKBenchmarks.csproj", "{4D138F6F-BBBF-42E0-AA04-005EA1101B19}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AWSEncryptionSDKTests", "..\test\AWSEncryptionSDKTests.csproj", "{34CE46C4-A579-45E4-B595-FBA105226134}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -50,9 +49,5 @@ Global
 		{4D138F6F-BBBF-42E0-AA04-005EA1101B19}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{4D138F6F-BBBF-42E0-AA04-005EA1101B19}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{4D138F6F-BBBF-42E0-AA04-005EA1101B19}.Release|Any CPU.Build.0 = Release|Any CPU
-		{34CE46C4-A579-45E4-B595-FBA105226134}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{34CE46C4-A579-45E4-B595-FBA105226134}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{34CE46C4-A579-45E4-B595-FBA105226134}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{34CE46C4-A579-45E4-B595-FBA105226134}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal
