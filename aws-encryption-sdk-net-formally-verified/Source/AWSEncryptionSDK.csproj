@@ -8,6 +8,14 @@
     <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
     <IsPackable>true</IsPackable>
     <Version>0.0.1</Version>
+    <PackageId>AWS.EncryptionSDK</PackageId>
+    <Title>AWS Encryption SDK for .NET</Title>
+    <Description></Description>
+    <Authors>Amazon Web Services</Authors>
+    <PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
+    <PackageProjectUrl>https://github.com/awslabs/aws-encryption-sdk-dafny</PackageProjectUrl>
+    <PackageIcon>icon.png</PackageIcon>
+    <PackageTags>AWS;Amazon;KMS;Encryption;Cryptography</PackageTags>
     <!--
       Ignore errors from generated code. Ideally this would be scoped to just the relevant files.
       CS0105: duplicate namespace, CS0618: obsolete members
@@ -43,6 +51,10 @@
   <ItemGroup>
     <Folder Include="API\Generated\Crypto" />
     <Folder Include="API\Generated\Esdk" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="..\icon.png" Pack="true" PackagePath="" />
   </ItemGroup>
 
 </Project>
