@@ -8,12 +8,12 @@
     <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
     <IsPackable>true</IsPackable>
     <Version>0.0.1</Version>
-    <PackageId>AWS.EncryptionSDK</PackageId>
+    <PackageId>AWSEncryptionSDK</PackageId>
     <Title>AWS Encryption SDK for .NET</Title>
-    <Description></Description>
+    <Description>A client-side encryption library designed to make it easy for everyone to encrypt and decrypt data using industry standards and best practices</Description>
     <Authors>Amazon Web Services</Authors>
     <PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
-    <PackageProjectUrl>https://github.com/awslabs/aws-encryption-sdk-dafny</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/awslabs/aws-encryption-sdk-dafny</RepositoryUrl>
     <PackageIcon>icon.png</PackageIcon>
     <PackageTags>AWS;Amazon;KMS;Encryption;Cryptography</PackageTags>
     <!--
