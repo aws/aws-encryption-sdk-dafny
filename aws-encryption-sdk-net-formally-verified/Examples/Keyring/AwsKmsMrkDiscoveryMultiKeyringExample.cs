@@ -73,9 +73,11 @@ public class AwsKmsMrkDiscoveryMultiKeyringExample
         };
 
         // This is a Multi Keyring composed of MRK Discovery Keyrings.
-        // All the keyrings have the same Discovery Filter (and would have the same Grant Tokens, if passed a Grant Token list).
+        // All the keyrings have the same Discovery Filter,
+        // (and would have the same Grant Tokens, if passed a Grant Token list).
         // Each Keyring has its own KMS Client.
-        // These KMS Clients are provisioned by the DefaultClientSupplier, since no ClientSupplier was given to the input object.
+        // These KMS Clients are provisioned by the DefaultClientSupplier,
+        // since no ClientSupplier was given to the input object.
         var multiKeyring = materialProviders.CreateAwsKmsMrkDiscoveryMultiKeyring(createDecryptKeyringInput);
 
         // On Decrypt, the header of the encrypted message (ciphertext) will be parsed.
