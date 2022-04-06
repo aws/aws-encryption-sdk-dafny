@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Text;
+using Amazon;
 
 namespace ExampleUtils {
     class ExampleUtils {
@@ -30,6 +31,12 @@ namespace ExampleUtils {
                 );
             }
             return value;
+        }
+
+        static public RegionEndpoint GetRegionEndpointFromArn(string arn_string)
+        {
+            Arn arn = Arn.Parse(arn_string);
+            return RegionEndpoint.GetBySystemName(arn.Region);
         }
 
         static public string GetDefaultRegionKmsKeyArn()
