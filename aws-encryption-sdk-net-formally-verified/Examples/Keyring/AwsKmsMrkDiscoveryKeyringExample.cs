@@ -9,11 +9,12 @@ using Amazon.KeyManagementService;
 using AWS.EncryptionSDK;
 using AWS.EncryptionSDK.Core;
 using Xunit;
+using static ExampleUtils.ExampleUtils;
 
 /// Demonstrate an encrypt/decrypt cycle using an AWS KMS MRK discovery keyring.
 public class AwsKmsMrkDiscoveryKeyringExample
 {
-    private static void Run(MemoryStream plaintext, string encryptKeyArn, string decryptRegion)
+    private static void Run(MemoryStream plaintext, string encryptKeyArn, RegionEndpoint decryptRegion)
     {
         // Create your encryption context.
         // Remember that your encryption context is NOT SECRET.
@@ -35,10 +36,9 @@ public class AwsKmsMrkDiscoveryKeyringExample
         // Create the keyring that determines how your data keys are protected. Though this example highlights
         // Discovery keyrings, Discovery keyrings cannot be used to encrypt, so for encryption we create
         // a KMS keyring without discovery mode.
-        var encryptRegion = Arn.Parse(encryptKeyArn).Region;
         var createKeyringInput = new CreateAwsKmsMrkKeyringInput
         {
-            KmsClient = new AmazonKeyManagementServiceClient(RegionEndpoint.GetBySystemName(encryptRegion)),
+            KmsClient = new AmazonKeyManagementServiceClient(GetRegionEndpointFromArn(encryptKeyArn)),
             KmsKeyId = encryptKeyArn
         };
         var encryptKeyring = materialProviders.CreateAwsKmsMrkKeyring(createKeyringInput);
@@ -60,11 +60,11 @@ public class AwsKmsMrkDiscoveryKeyringExample
         // keyring, we configure the keyring to use the second KMS region where the MRK is replicated to.
         var createDecryptKeyringInput = new CreateAwsKmsMrkDiscoveryKeyringInput
         {
-            KmsClient = new AmazonKeyManagementServiceClient(RegionEndpoint.GetBySystemName(decryptRegion)),
-            Region = decryptRegion,
+            KmsClient = new AmazonKeyManagementServiceClient(decryptRegion),
+            Region = decryptRegion.SystemName,
             DiscoveryFilter = new DiscoveryFilter()
             {
-                AccountIds = ExampleUtils.ExampleUtils.GetAccountIds(),
+                AccountIds = GetAccountIds(),
                 Partition = "aws"
             }
         };
@@ -101,9 +101,9 @@ public class AwsKmsMrkDiscoveryKeyringExample
     public void TestAwsKmsMrkDiscoveryKeyringExample()
     {
         Run(
-            ExampleUtils.ExampleUtils.GetPlaintextStream(),
-            ExampleUtils.ExampleUtils.GetDefaultRegionMrkKeyArn(),
-            Arn.Parse(ExampleUtils.ExampleUtils.GetAlternateRegionMrkKeyArn()).Region
+            GetPlaintextStream(),
+            GetDefaultRegionMrkKeyArn(),
+            GetRegionEndpointFromArn(GetAlternateRegionMrkKeyArn())
         );
     }
 }
