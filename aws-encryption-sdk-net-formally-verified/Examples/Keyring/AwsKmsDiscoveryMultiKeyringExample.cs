@@ -12,7 +12,7 @@ using static ExampleUtils.ExampleUtils;
 
 /// Demonstrate an encrypt/decrypt cycle using a Multi-Keyring containing multiple AWS KMS
 /// Discovery Keyrings.
-public class AwsKmDiscoveryMultiKeyringExample
+public class AwsKmsDiscoveryMultiKeyringExample
 {
     private static void Run(MemoryStream plaintext, string keyArn, List<string> accountIds, List<string> regions)
     {
@@ -71,11 +71,8 @@ public class AwsKmDiscoveryMultiKeyringExample
         };
 
         // This is a Multi Keyring composed of Discovery Keyrings.
-        // All the keyrings have the same Discovery Filter,
-        // (and would have the same Grant Tokens, if passed a Grant Token list).
-        // Each Keyring has its own KMS Client.
-        // These KMS Clients are provisioned by the DefaultClientSupplier,
-        // since no ClientSupplier was given to the input object.
+        // All the keyrings have the same Discovery Filter.
+        // Each keyring has its own KMS Client.
         var multiKeyring = materialProviders.CreateAwsKmsDiscoveryMultiKeyring(createDecryptKeyringInput);
 
         // On Decrypt, the header of the encrypted message (ciphertext) will be parsed.
@@ -113,7 +110,7 @@ public class AwsKmDiscoveryMultiKeyringExample
 
     // We test examples to ensure they remain up-to-date.
     [Fact]
-    public void TestAwsKmsMrkDiscoveryMultiKeyringExample()
+    public void TestAwsKmsDiscoveryMultiKeyringExample()
     {
         Run(
             GetPlaintextStream(),
