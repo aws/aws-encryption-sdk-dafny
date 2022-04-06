@@ -1,45 +1,52 @@
-namespace aws.esdk
+namespace aws.encryptionSdk
 
-use aws.crypto#KeyringReference
-use aws.crypto#CryptographicMaterialsManagerReference
-use aws.crypto#EncryptionContext
-use aws.crypto#AlgorithmSuiteId
-use aws.crypto#CommitmentPolicy
+use aws.encryptionSdk.core#KeyringReference
+use aws.encryptionSdk.core#CryptographicMaterialsManagerReference
+use aws.encryptionSdk.core#EncryptionContext
+use aws.encryptionSdk.core#AlgorithmSuiteId
+use aws.encryptionSdk.core#CommitmentPolicy
 use aws.polymorph#reference
-use aws.polymorph#clientConfig
-
-// TODO
-// @clientConfig(config: AwsEncryptionSdkClientConfig)
-service AwsEncryptionSdk {
-    version: "2020-10-24",
-    operations: [Encrypt, Decrypt]
-}
-
-structure AwsEncryptionSdkClientConfig {
-    // TODO
-    // commitmentPolicy: CommitmentPolicy,
-    //
-    // maxEncryptedEdks: Integer,
-
-    @required
-    configDefaults: ConfigurationDefaults
-}
-
-
-///////////////////
-// Default Versions
-
-@enum([
-    {
-        name: "V1",
-        value: "V1",
-    }
-])
-string ConfigurationDefaults
-
 
 /////////////
-// Operations
+// ESDK Client Creation
+
+// TODO add a trait to indicate that 'Client' should not be appended to this name,
+// and that the code gen should expose operations under this service statically if
+// possible in the target language
+service AwsEncryptionSdkFactory {
+    version: "2020-10-24",
+    operations: [CreateDefaultAwsEncryptionSdk, CreateAwsEncryptionSdk],
+    errors: [AwsEncryptionSdkException],
+}
+
+operation CreateDefaultAwsEncryptionSdk {
+    output: AwsEncryptionSdkReference,
+    errors: [AwsEncryptionSdkException],
+}
+
+operation CreateAwsEncryptionSdk {
+    input: AwsEncryptionSdkConfig,
+    output: AwsEncryptionSdkReference,
+    errors: [AwsEncryptionSdkException],
+}
+
+structure AwsEncryptionSdkConfig {
+    commitmentPolicy: CommitmentPolicy,
+    maxEncryptedDataKeys: Long,
+}
+
+@reference(resource: AwsEncryptionSdk)
+structure AwsEncryptionSdkReference {}
+
+/////////////
+// ESDK
+
+resource AwsEncryptionSdk {
+    operations: [Encrypt, Decrypt],
+}
+
+/////////////
+// ESDK Operations
 
 operation Encrypt {
     input: EncryptInput,
@@ -50,56 +57,52 @@ structure EncryptInput {
     @required
     plaintext: Blob,
 
-    @required
     encryptionContext: EncryptionContext,
 
-    // TODO reintroduce optional materialsManager and optional keyring
     // One of keyring or CMM are required
-    @required
     materialsManager: CryptographicMaterialsManagerReference,
-    // keyring: KeyringReference,
+    keyring: KeyringReference,
 
     algorithmSuiteId: AlgorithmSuiteId,
+
+    frameLength: Long
 }
 
 structure EncryptOutput {
     @required
     ciphertext: Blob,
 
-    // TODO hook up additional encrypt outputs
-    // @required
-    // encryptionContext: EncryptionContext,
-    //
-    // @required
-    // algorithmSuiteId: AlgorithmSuiteId,
+    @required
+    encryptionContext: EncryptionContext,
+
+    @required
+    algorithmSuiteId: AlgorithmSuiteId,
 }
 
 operation Decrypt {
-   input: DecryptInput,
-   output: DecryptOutput,
+    input: DecryptInput,
+    output: DecryptOutput,
+    errors: [AwsEncryptionSdkException],
 }
 
 structure DecryptInput {
     @required
     ciphertext: Blob,
 
-    // TODO reintroduce optional materialsManager and optional keyring
     // One of keyring or CMM are required
-    @required
     materialsManager: CryptographicMaterialsManagerReference,
-    // keyring: KeyringReference,
+    keyring: KeyringReference,
 }
 
 structure DecryptOutput {
     @required
     plaintext: Blob,
 
-    // TODO hook up additional decrypt outputs
-    // @required
-    // encryptionContext: EncryptionContext,
-    //
-    // @required
-    // algorithmSuiteId: AlgorithmSuiteId,
+    @required
+    encryptionContext: EncryptionContext,
+
+    @required
+    algorithmSuiteId: AlgorithmSuiteId,
 
     // The spec says that decrypt SHOULD also return the parsed
     // header. We're omitting this for now, until we can spend
@@ -107,3 +110,11 @@ structure DecryptOutput {
     // the message format and message header in Smithy.
 }
 
+/////////////
+// Errors
+
+@error("client")
+structure AwsEncryptionSdkException {
+    @required
+    message: String,
+}

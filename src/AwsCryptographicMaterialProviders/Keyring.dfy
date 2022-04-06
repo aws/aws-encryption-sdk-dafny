@@ -5,8 +5,8 @@ include "../StandardLibrary/StandardLibrary.dfy"
 include "../Generated/AwsCryptographicMaterialProviders.dfy"
 include "Materials.dfy"
 
-module 
-  {:extern "Dafny.Aws.Crypto.MaterialProviders.Keyring"}
+module
+  {:extern "Dafny.Aws.EncryptionSdk.Core.Keyring"}
   MaterialProviders.Keyring
 {
   import opened Wrappers
@@ -16,8 +16,8 @@ module
   trait {:termination false} VerifiableInterface
     extends Crypto.IKeyring
   {
-    method OnEncrypt(input: Crypto.OnEncryptInput) 
-      returns (res: Result<Crypto.OnEncryptOutput, string>)
+    method OnEncrypt(input: Crypto.OnEncryptInput)
+      returns (res: Result<Crypto.OnEncryptOutput, Crypto.IAwsCryptographicMaterialProvidersException>)
       ensures res.Success?
       ==>
         && Materials.EncryptionMaterialsTransitionIsValid(
@@ -26,7 +26,7 @@ module
         )
 
     method OnDecrypt(input: Crypto.OnDecryptInput)
-      returns (res: Result<Crypto.OnDecryptOutput, string>)
+      returns (res: Result<Crypto.OnDecryptOutput, Crypto.IAwsCryptographicMaterialProvidersException>)
       ensures res.Success?
       ==>
         && Materials.DecryptionMaterialsTransitionIsValid(

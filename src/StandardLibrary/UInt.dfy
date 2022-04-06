@@ -11,9 +11,11 @@ module StandardLibrary.UInt {
 
   newtype int32 = x | -0x8000_0000 <= x < 0x8000_0000
   newtype int64 = x | -0x8000_0000_0000_0000 <= x < 0x8000_0000_0000_0000
+  newtype posInt64 = x | 0 < x < 0x8000_0000_0000_0000 witness 1
 
   const UINT16_LIMIT := 0x1_0000
   const UINT32_LIMIT := 0x1_0000_0000
+  const UINT64_LIMIT := 0x1_0000_0000_0000_0000
   const INT32_MAX_LIMIT := 0x8000_0000
   const INT64_MAX_LIMIT := 0x8000_0000_0000_0000
 
@@ -25,6 +27,20 @@ module StandardLibrary.UInt {
 
   type seq16<T> = s: seq<T> | HasUint16Len(s)
   type Uint8Seq16 = seq16<uint8>
+
+  predicate method HasUint32Len<T>(s: seq<T>) {
+    |s| < UINT32_LIMIT
+  }
+
+  type seq32<T> = s: seq<T> | HasUint32Len(s)
+  type Uint8Seq32 = seq32<uint8>
+
+  predicate method HasUint64Len<T>(s: seq<T>) {
+    |s| < UINT64_LIMIT
+  }
+
+  type seq64<T> = s: seq<T> | HasUint64Len(s)
+  type Uint8Seq64 = seq64<uint8>
 
   function method UInt16ToSeq(x: uint16): (ret: seq<uint8>)
     ensures |ret| == 2

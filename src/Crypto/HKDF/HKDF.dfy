@@ -72,6 +72,7 @@ module HKDF {
     modifies hmac
     ensures |okm| == expectedLength
     ensures hmac.GetKey() == prk
+    ensures hmac.GetDigest() == digest
     ensures var n := (GetHashLength(digest) + expectedLength - 1) / GetHashLength(digest);
       && T(hmac, info, n, okmUnabridged)
       && (|okmUnabridged| <= expectedLength ==> okm == okmUnabridged)

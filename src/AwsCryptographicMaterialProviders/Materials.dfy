@@ -2,11 +2,11 @@
 // SPDX-License-Identifier: Apache-2.0
 
 include "../StandardLibrary/StandardLibrary.dfy"
-include "../Generated/AwsCryptographicMaterialProviders.dfy" 
+include "../Generated/AwsCryptographicMaterialProviders.dfy"
 include "AlgorithmSuites.dfy"
 
-module 
-  {:extern "Dafny.Aws.Crypto.MaterialProviders.Materials"}
+module
+  {:extern "Dafny.Aws.EncryptionSdk.Core.Materials"}
   MaterialProviders.Materials
 {
 import opened StandardLibrary
@@ -28,7 +28,7 @@ import opened StandardLibrary
 
   // Encryption Materials
 
-  /* The goal of EncryptionMaterialsTransitionIsValid is to aproxomate
+  /* The goal of EncryptionMaterialsTransitionIsValid is to approximate
    * _some_ mutability in an otherwise immutable structure.
    * Encryption Materials should allow for the addition
    * of the plaintext data key and encrypted data keys.
@@ -36,7 +36,7 @@ import opened StandardLibrary
    * it can never be removed or altered.
    * Simmilarly encrypted data keys can be added,
    * but none can be removed.
-   * This lets keyrings/CMM handle immutalbe data,
+   * This lets keyrings/CMM handle immutable data,
    * and easily assert these invariants.
    */
   predicate method EncryptionMaterialsTransitionIsValid(
@@ -48,7 +48,10 @@ import opened StandardLibrary
     && newMat.signingKey == oldMat.signingKey
     && (
       || (oldMat.plaintextDataKey.None? && newMat.plaintextDataKey.Some?)
-      || oldMat.plaintextDataKey == newMat.plaintextDataKey)
+      || oldMat.plaintextDataKey == newMat.plaintextDataKey
+    )
+    
+    && newMat.plaintextDataKey.Some?
     && |newMat.encryptedDataKeys| >= |oldMat.encryptedDataKeys|
     && multiset(oldMat.encryptedDataKeys) <= multiset(newMat.encryptedDataKeys)
     && ValidEncryptionMaterials(oldMat)
@@ -69,13 +72,43 @@ import opened StandardLibrary
     // You can not transition to invalid materials
     ensures !ValidEncryptionMaterials(newMat)
     ==> !EncryptionMaterialsTransitionIsValid(oldMat, newMat)
+
+    // During transitions, we MUST always end up with a plaintext data key.
+    // It is not valid to start with a plaintext datakey and remove it.
+    // It is not valid to start with no plaintext datakey and not add one.
+    ensures
+      && newMat.plaintextDataKey.None?
+    ==> !EncryptionMaterialsTransitionIsValid(oldMat, newMat)
   {}
 
   predicate method ValidEncryptionMaterials(encryptionMaterials: Crypto.EncryptionMaterials) {
     && var suite := AlgorithmSuites.GetSuite(encryptionMaterials.algorithmSuiteId);
     && (suite.signature.None? <==> encryptionMaterials.signingKey.None?)
+    //= compliance/framework/structures.txt#2.3.3.2.4
+    //= type=implication
+    //# The plaintext data key MUST:
+    //   * Fit the specification for the key derivation algorithm (algorithm-
+    //     suites.md#key-derivation-algorithm) included in this decryption
+    //     material's algorithm suite (Section 2.3.3.2.1).
     && (encryptionMaterials.plaintextDataKey.Some? ==> suite.encrypt.keyLength as int == |encryptionMaterials.plaintextDataKey.value|)
+    //= compliance/framework/structures.txt#2.3.3.2.2
+    //= type=implication
+    //# If the plaintext data key is not included in this set of encryption
+    //# materials, this list MUST be empty.
     && (encryptionMaterials.plaintextDataKey.None? ==> |encryptionMaterials.encryptedDataKeys| == 0)
+    //= compliance/framework/structures.txt#2.3.3.2.3
+    //= type=implication
+    //# If an encryption material (Section 2.3.3) contains a signing key
+    //# (Section 2.3.3.2.5), the encryption context (Section 2.3.2) SHOULD
+    //# include the reserved key "aws-crypto-public-key".
+    //
+    //= compliance/framework/structures.txt#2.3.3.2.3
+    //= type=implication
+    //# If an encryption
+    //# material (Section 2.3.3) does not contains a signing key
+    //# (Section 2.3.3.2.5), the encryption context (Section 2.3.2) SHOULD
+    //# NOT include the reserved key "aws-crypto-public-key".
+    && (!suite.signature.None? <==> EC_PUBLIC_KEY_FIELD in encryptionMaterials.encryptionContext)
   }
 
   predicate method EncryptionMaterialsWithPlaintextDataKey(encryptionMaterials: Crypto.EncryptionMaterials) {
@@ -173,8 +206,27 @@ import opened StandardLibrary
 
   predicate method ValidDecryptionMaterials(decryptionMaterials: Crypto.DecryptionMaterials) {
     && var suite := AlgorithmSuites.GetSuite(decryptionMaterials.algorithmSuiteId);
+    //= compliance/framework/structures.txt#2.3.4.2.3
+    //= type=implication
+    //# The plaintext data key MUST:
+    //  *  Fit the specification for the encryption algorithm (algorithm-
+    //     suites.md#encryption-algorithm) included in this decryption
+    //     material's algorithm suite (Section 2.3.4.2.1).
     && (decryptionMaterials.plaintextDataKey.Some? ==> suite.encrypt.keyLength as int == |decryptionMaterials.plaintextDataKey.value|)
+    //= compliance/framework/structures.txt#2.3.4.2.2
+    //= type=implication
+    //# If a decryption materials (Section 2.3.4) contains a verification key
+    //# (Section 2.3.4.2.4), the encryption context (Section 2.3.2) SHOULD
+    //# include the reserved key "aws-crypto-public-key".
+    //
+    //= compliance/framework/structures.txt#2.3.4.2.2
+    //= type=implication
+    //# If a decryption materials (Section 2.3.4) does not contain a
+    //# verification key (Section 2.3.4.2.4), the encryption context
+    //# (Section 2.3.2) SHOULD NOT include the reserved key "aws-crypto-
+    //# public-key".
     && (suite.signature.ECDSA? <==> decryptionMaterials.verificationKey.Some?)
+    && (!suite.signature.None? <==> EC_PUBLIC_KEY_FIELD in decryptionMaterials.encryptionContext)
   }
 
   function method DecryptionMaterialsAddDataKey(

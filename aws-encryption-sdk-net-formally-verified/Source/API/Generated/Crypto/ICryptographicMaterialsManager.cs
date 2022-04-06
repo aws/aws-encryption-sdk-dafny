@@ -1,17 +1,18 @@
 // Copyright Amazon.com Inc. or its affiliates. All Rights Reserved.
 // SPDX-License-Identifier: Apache-2.0
+// Do not modify this file. This file is machine generated, and any changes to it will be overwritten.
 
 using System;
-using Aws.Crypto;
-using
-    Aws.Crypto
-    ;
+using AWS.EncryptionSDK.Core;
 
-namespace Aws.Crypto
+namespace AWS.EncryptionSDK.Core
 {
     public interface ICryptographicMaterialsManager
     {
-        Aws.Crypto.GetEncryptionMaterialsOutput GetEncryptionMaterials(Aws.Crypto.GetEncryptionMaterialsInput input);
-        Aws.Crypto.DecryptMaterialsOutput DecryptMaterials(Aws.Crypto.DecryptMaterialsInput input);
+        AWS.EncryptionSDK.Core.GetEncryptionMaterialsOutput GetEncryptionMaterials(
+            AWS.EncryptionSDK.Core.GetEncryptionMaterialsInput input);
+
+        AWS.EncryptionSDK.Core.DecryptMaterialsOutput DecryptMaterials(
+            AWS.EncryptionSDK.Core.DecryptMaterialsInput input);
     }
 }

@@ -1,4 +1,4 @@
-namespace aws.crypto
+namespace aws.encryptionSdk.core
 
 use aws.polymorph#reference
 use aws.polymorph#positional
@@ -20,7 +20,7 @@ list KeyringList {
 
 structure DiscoveryFilter {
     @required
-    region: String,
+    accountIds: AccountIdList,
 
     @required
     partition: String
@@ -87,102 +87,148 @@ structure CreateKeyringOutput {
     keyring: KeyringReference
 }
 
-// TODO
-// // KMS - Old Style
-//
-// operation CreateAwsKmsKeyring {
-//     input: CreateAwsKmsKeyringInput,
-//     output: CreateKeyringOutput 
-// }
-//
-// structure CreateAwsKmsKeyringInput {
-//     @required
-//     clientSupplier: ClientSupplierReference,
-//
-//     // Not required because the keyring could be in discovery mode
-//     generator: KmsKeyId,
-//
-//     keyIds: KmsKeyIdList,
-//
-//     grantTokens: GrantTokenList,
-// }
-//
-// // KMS - MRK Aware, Strict
-// operation CreateMrkAwareStrictAwsKmsKeyring {
-//     input: CreateMrkAwareStrictAwsKmsKeyringInput,
-//     output: CreateKeyringOutput,
-// }
-//
-// structure CreateMrkAwareStrictAwsKmsKeyringInput {
-//     @required
-//     kmsKeyId: KmsKeyId,
-//
-//     @required
-//     kmsClient: KmsClientReference,
-//
-//     grantTokens: GrantTokenList
-// }
-//
-// operation CreateMrkAwareStrictMultiKeyring {
-//     input: CreateMrkAwareStrictMultiKeyringInput,
-//     output: CreateKeyringOutput,
-// }
-//
-// structure CreateMrkAwareStrictMultiKeyringInput {
-//     // TODO: spec doesn't call this required but it seems like it should be
-//     generator:  KmsKeyId,
-//
-//     kmsKeyIds: KmsKeyIdList,
-//
-//     clientSupplier: ClientSupplierReference,
-//
-//     grantTokens: GrantTokenList
-// }
-//
-// // KMS - MRK Aware, Discovery
-//
-// operation CreateMrkAwareDiscoveryAwsKmsKeyring {
-//     input: CreateMrkAwareDiscoveryAwsKmsKeyringInput,
-//     output: CreateKeyringOutput,
-// }
-//
-// structure CreateMrkAwareDiscoveryAwsKmsKeyringInput {
-//     @required
-//     kmsClient: KmsClientReference,
-//
-//     discoveryFilter: DiscoveryFilter,
-//
-//     grantTokens: GrantTokenList
-// }
-//
-// operation CreateMrkAwareDiscoveryMultiKeyring {
-//     input: CreateMrkAwareDiscoveryMultiKeyringInput,
-//     output: CreateKeyringOutput,
-// }
-//
-// structure CreateMrkAwareDiscoveryMultiKeyringInput {
-//     @required
-//     regions: RegionList,
-//
-//     discoveryFilter: DiscoveryFilter,
-//
-//     clientSupplier: ClientSupplierReference,
-//
-//     grantTokens: GrantTokenList
-// }
+// KMS - Strict
+operation CreateAwsKmsKeyring {
+    input: CreateAwsKmsKeyringInput,
+    output: CreateKeyringOutput
+}
+structure CreateAwsKmsKeyringInput {
+    @required
+    kmsKeyId: KmsKeyId,
+
+    @required
+    kmsClient: KmsClientReference,
+
+    grantTokens: GrantTokenList
+}
+
+operation CreateAwsKmsMultiKeyring {
+    input: CreateAwsKmsMultiKeyringInput,
+    output: CreateKeyringOutput,
+}
+
+structure CreateAwsKmsMultiKeyringInput {
+    generator:  KmsKeyId,
+
+    kmsKeyIds: KmsKeyIdList,
+
+    clientSupplier: ClientSupplierReference,
+
+    grantTokens: GrantTokenList
+}
+
+// KMS - Discovery
+operation CreateAwsKmsDiscoveryKeyring {
+    input: CreateAwsKmsDiscoveryKeyringInput,
+    output: CreateKeyringOutput
+}
+
+structure CreateAwsKmsDiscoveryKeyringInput {
+    @required
+    kmsClient: KmsClientReference,
+
+    discoveryFilter: DiscoveryFilter,
+
+    grantTokens: GrantTokenList
+}
+
+operation CreateAwsKmsDiscoveryMultiKeyring {
+    input: CreateAwsKmsDiscoveryMultiKeyringInput,
+    output: CreateKeyringOutput,
+}
+
+structure CreateAwsKmsDiscoveryMultiKeyringInput {
+    @required
+    regions: RegionList,
+
+    discoveryFilter: DiscoveryFilter,
+
+    clientSupplier: ClientSupplierReference,
+
+    grantTokens: GrantTokenList
+}
+
+// KMS - MRK Aware, Strict
+operation CreateAwsKmsMrkKeyring {
+    input: CreateAwsKmsMrkKeyringInput,
+    output: CreateKeyringOutput,
+}
+
+structure CreateAwsKmsMrkKeyringInput {
+    @required
+    kmsKeyId: KmsKeyId,
+
+    @required
+    kmsClient: KmsClientReference,
+
+    grantTokens: GrantTokenList
+}
+
+operation CreateAwsKmsMrkMultiKeyring {
+    input: CreateAwsKmsMrkMultiKeyringInput,
+    output: CreateKeyringOutput,
+}
+
+structure CreateAwsKmsMrkMultiKeyringInput {
+    generator:  KmsKeyId,
+
+    kmsKeyIds: KmsKeyIdList,
+
+    clientSupplier: ClientSupplierReference,
+
+    grantTokens: GrantTokenList
+}
+
+// KMS - MRK Aware, Discovery
+
+operation CreateAwsKmsMrkDiscoveryKeyring {
+    input: CreateAwsKmsMrkDiscoveryKeyringInput,
+    output: CreateKeyringOutput,
+}
+
+structure CreateAwsKmsMrkDiscoveryKeyringInput {
+    @required
+    kmsClient: KmsClientReference,
+
+    discoveryFilter: DiscoveryFilter,
+
+    grantTokens: GrantTokenList,
+
+    @required // TODO: probably shouldn't be
+    region: Region
+}
+
+operation CreateAwsKmsMrkDiscoveryMultiKeyring {
+    input: CreateAwsKmsMrkDiscoveryMultiKeyringInput,
+    output: CreateKeyringOutput,
+}
+
+structure CreateAwsKmsMrkDiscoveryMultiKeyringInput {
+    @required
+    regions: RegionList,
+
+    discoveryFilter: DiscoveryFilter,
+
+    clientSupplier: ClientSupplierReference,
+
+    grantTokens: GrantTokenList
+}
 
 // TODO
 // Multi
-//
-// operation CreateMultiKeyring {
-//     input: CreateMultiKeyringInput,
-//     output: CreateKeyringOutput,
-// }
-//
-// structure CreateMultiKeyringInput {
-//     generator: KeyringReference,
-//     childKeyrings: KeyringList
-// }
+
+operation CreateMultiKeyring {
+    input: CreateMultiKeyringInput,
+    output: CreateKeyringOutput,
+}
+
+structure CreateMultiKeyringInput {
+    generator: KeyringReference,
+
+    // We'll represent "no children" as an empty list
+    @required
+    childKeyrings: KeyringList
+}
 
 // Raw
 
@@ -206,22 +252,22 @@ structure CreateRawAesKeyringInput {
 }
 
 // TODO
-// operation CreateRawRsaKeyring {
-//     input: CreateRawRsaKeyringInput,
-//     output: CreateKeyringOutput,
-// }
-//
-// structure CreateRawRsaKeyringInput {
-//     @required
-//     keyNamespace: String,
-//
-//     @required
-//     keyName: String,
-//
-//     @required
-//     paddingScheme: PaddingScheme,
-//
-//     // One or both is required
-//     publicKey: Blob,
-//     privateKey: Blob
-// }
+ operation CreateRawRsaKeyring {
+     input: CreateRawRsaKeyringInput,
+     output: CreateKeyringOutput,
+ }
+
+ structure CreateRawRsaKeyringInput {
+     @required
+     keyNamespace: String,
+
+     @required
+     keyName: String,
+
+     @required
+     paddingScheme: PaddingScheme,
+
+     // One or both is required
+     publicKey: Blob,
+     privateKey: Blob
+ }

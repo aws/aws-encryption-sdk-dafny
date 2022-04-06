@@ -65,6 +65,8 @@ module {:extern "AESEncryption"} AESEncryption {
     ensures res.Success? ==> EncryptionOutputEncryptedWithAAD(res.value, aad)
     ensures res.Success? ==> CiphertextGeneratedWithPlaintext(res.value.cipherText, msg)
     ensures res.Success? ==> EncryptedWithKey(res.value.cipherText, key)
+    // This is useful information to have to prove correctness
+    ensures res.Success? ==> |res.value.authTag| == encAlg.tagLength as nat
     {
       res := AESEncryptExtern(encAlg, iv, key, msg, aad);
       if (res.Success? && |res.value.cipherText| != |msg|){

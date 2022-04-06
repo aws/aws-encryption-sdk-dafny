@@ -1,620 +1,878 @@
 // Copyright Amazon.com Inc. or its affiliates. All Rights Reserved.
 // SPDX-License-Identifier: Apache-2.0
+// Do not modify this file. This file is machine generated, and any changes to it will be overwritten.
 
 using System.Linq;
-using Aws.Crypto;
+using AWS.EncryptionSDK.Core;
 
-namespace Aws.Crypto
+namespace AWS.EncryptionSDK.Core
 {
     internal static class TypeConversion
     {
-        public static Aws.Crypto.PutEntryForEncryptInput FromDafny_N3_aws__N6_crypto__S23_PutEntryForEncryptInput(
-            Dafny.Aws.Crypto.PutEntryForEncryptInput value)
+        public static System.Collections.Generic.List<AWS.EncryptionSDK.Core.IKeyring>
+            FromDafny_N3_aws__N13_encryptionSdk__N4_core__S23_CreateMultiKeyringInput__M13_childKeyrings(
+                Dafny.ISequence<Dafny.Aws.EncryptionSdk.Core.IKeyring> value)
         {
-            Aws.Crypto.PutEntryForEncryptInput converted = new Aws.Crypto.PutEntryForEncryptInput();
-            converted.Identifier =
-                (System.IO.MemoryStream) FromDafny_N3_aws__N6_crypto__S23_PutEntryForEncryptInput__M10_identifier(
-                    value.identifier);
-            converted.EncryptionMaterials =
-                (Aws.Crypto.EncryptionMaterials)
-                FromDafny_N3_aws__N6_crypto__S23_PutEntryForEncryptInput__M19_encryptionMaterials(
-                    value.encryptionMaterials);
-            converted.UsageMetadata =
-                (Aws.Crypto.CacheUsageMetadata)
-                FromDafny_N3_aws__N6_crypto__S23_PutEntryForEncryptInput__M13_usageMetadata(value.usageMetadata);
-            return converted;
+            return FromDafny_N3_aws__N13_encryptionSdk__N4_core__S11_KeyringList(value);
         }
 
-        public static Dafny.Aws.Crypto.PutEntryForEncryptInput ToDafny_N3_aws__N6_crypto__S23_PutEntryForEncryptInput(
-            Aws.Crypto.PutEntryForEncryptInput value)
+        public static Dafny.ISequence<Dafny.Aws.EncryptionSdk.Core.IKeyring>
+            ToDafny_N3_aws__N13_encryptionSdk__N4_core__S23_CreateMultiKeyringInput__M13_childKeyrings(
+                System.Collections.Generic.List<AWS.EncryptionSDK.Core.IKeyring> value)
         {
-            return new Dafny.Aws.Crypto.PutEntryForEncryptInput(
-                ToDafny_N3_aws__N6_crypto__S23_PutEntryForEncryptInput__M10_identifier(value.Identifier),
-                ToDafny_N3_aws__N6_crypto__S23_PutEntryForEncryptInput__M19_encryptionMaterials(
-                    value.EncryptionMaterials),
-                ToDafny_N3_aws__N6_crypto__S23_PutEntryForEncryptInput__M13_usageMetadata(value.UsageMetadata));
+            return ToDafny_N3_aws__N13_encryptionSdk__N4_core__S11_KeyringList(value);
         }
 
-        public static Aws.Crypto.PutEntryForEncryptOutput FromDafny_N3_aws__N6_crypto__S24_PutEntryForEncryptOutput(
-            Dafny.Aws.Crypto.PutEntryForEncryptOutput value)
+        public static AWS.EncryptionSDK.Core.AlgorithmSuiteId
+            FromDafny_N3_aws__N13_encryptionSdk__N4_core__S27_GetEncryptionMaterialsInput__M16_algorithmSuiteId(
+                Wrappers_Compile._IOption<Dafny.Aws.EncryptionSdk.Core._IAlgorithmSuiteId> value)
         {
-            Aws.Crypto.PutEntryForEncryptOutput converted = new Aws.Crypto.PutEntryForEncryptOutput();
-            return converted;
+            return value.is_None
+                ? (AWS.EncryptionSDK.Core.AlgorithmSuiteId)null
+                : FromDafny_N3_aws__N13_encryptionSdk__N4_core__S16_AlgorithmSuiteId(value.Extract());
         }
 
-        public static Dafny.Aws.Crypto.PutEntryForEncryptOutput ToDafny_N3_aws__N6_crypto__S24_PutEntryForEncryptOutput(
-            Aws.Crypto.PutEntryForEncryptOutput value)
-        {
-            return new Dafny.Aws.Crypto.PutEntryForEncryptOutput();
-        }
-
-        public static Aws.Crypto.CacheUsageMetadata
-            FromDafny_N3_aws__N6_crypto__S23_PutEntryForEncryptInput__M13_usageMetadata(
-                Dafny.Aws.Crypto.CacheUsageMetadata value)
-        {
-            return FromDafny_N3_aws__N6_crypto__S18_CacheUsageMetadata(value);
-        }
-
-        public static Dafny.Aws.Crypto.CacheUsageMetadata
-            ToDafny_N3_aws__N6_crypto__S23_PutEntryForEncryptInput__M13_usageMetadata(
-                Aws.Crypto.CacheUsageMetadata value)
-        {
-            return ToDafny_N3_aws__N6_crypto__S18_CacheUsageMetadata(value);
-        }
-
-        public static Aws.Crypto.CreateLocalCryptoMaterialsCacheInput
-            FromDafny_N3_aws__N6_crypto__S36_CreateLocalCryptoMaterialsCacheInput(
-                Dafny.Aws.Crypto.CreateLocalCryptoMaterialsCacheInput value)
-        {
-            Aws.Crypto.CreateLocalCryptoMaterialsCacheInput converted =
-                new Aws.Crypto.CreateLocalCryptoMaterialsCacheInput();
-            converted.EntryCapacity =
-                (int) FromDafny_N3_aws__N6_crypto__S36_CreateLocalCryptoMaterialsCacheInput__M13_entryCapacity(
-                    value.entryCapacity);
-            if (value.entryPruningTailSize.is_Some)
-                converted.EntryPruningTailSize =
-                    (int)
-                    FromDafny_N3_aws__N6_crypto__S36_CreateLocalCryptoMaterialsCacheInput__M20_entryPruningTailSize(
-                        value.entryPruningTailSize);
-            return converted;
-        }
-
-        public static Dafny.Aws.Crypto.CreateLocalCryptoMaterialsCacheInput
-            ToDafny_N3_aws__N6_crypto__S36_CreateLocalCryptoMaterialsCacheInput(
-                Aws.Crypto.CreateLocalCryptoMaterialsCacheInput value)
-        {
-            return new Dafny.Aws.Crypto.CreateLocalCryptoMaterialsCacheInput(
-                ToDafny_N3_aws__N6_crypto__S36_CreateLocalCryptoMaterialsCacheInput__M13_entryCapacity(
-                    value.EntryCapacity),
-                ToDafny_N3_aws__N6_crypto__S36_CreateLocalCryptoMaterialsCacheInput__M20_entryPruningTailSize(
-                    value.EntryPruningTailSize));
-        }
-
-        public static int?
-            FromDafny_N3_aws__N6_crypto__S36_CreateLocalCryptoMaterialsCacheInput__M20_entryPruningTailSize(
-                Wrappers_Compile.Option<int> value)
-        {
-            return value.is_None ? (int?) null : FromDafny_N6_smithy__N3_api__S7_Integer(value.Extract());
-        }
-
-        public static Wrappers_Compile.Option<int>
-            ToDafny_N3_aws__N6_crypto__S36_CreateLocalCryptoMaterialsCacheInput__M20_entryPruningTailSize(int? value)
+        public static Wrappers_Compile._IOption<Dafny.Aws.EncryptionSdk.Core._IAlgorithmSuiteId>
+            ToDafny_N3_aws__N13_encryptionSdk__N4_core__S27_GetEncryptionMaterialsInput__M16_algorithmSuiteId(
+                AWS.EncryptionSDK.Core.AlgorithmSuiteId value)
         {
             return value == null
-                ? Wrappers_Compile.Option<int>.create_None()
-                : Wrappers_Compile.Option<int>.create_Some(ToDafny_N6_smithy__N3_api__S7_Integer((int) value));
+                ? Wrappers_Compile.Option<Dafny.Aws.EncryptionSdk.Core._IAlgorithmSuiteId>.create_None()
+                : Wrappers_Compile.Option<Dafny.Aws.EncryptionSdk.Core._IAlgorithmSuiteId>.create_Some(
+                    ToDafny_N3_aws__N13_encryptionSdk__N4_core__S16_AlgorithmSuiteId(
+                        (AWS.EncryptionSDK.Core.AlgorithmSuiteId)value));
         }
 
-        public static Aws.Crypto.GetEncryptionMaterialsInput
-            FromDafny_N3_aws__N6_crypto__S27_GetEncryptionMaterialsInput(
-                Dafny.Aws.Crypto.GetEncryptionMaterialsInput value)
+        public static System.Collections.Generic.List<AWS.EncryptionSDK.Core.IKeyring>
+            FromDafny_N3_aws__N13_encryptionSdk__N4_core__S11_KeyringList(
+                Dafny.ISequence<Dafny.Aws.EncryptionSdk.Core.IKeyring> value)
         {
-            Aws.Crypto.GetEncryptionMaterialsInput converted = new Aws.Crypto.GetEncryptionMaterialsInput();
+            return new System.Collections.Generic.List<AWS.EncryptionSDK.Core.IKeyring>(
+                value.Elements.Select(FromDafny_N3_aws__N13_encryptionSdk__N4_core__S11_KeyringList__M6_member));
+        }
+
+        public static Dafny.ISequence<Dafny.Aws.EncryptionSdk.Core.IKeyring>
+            ToDafny_N3_aws__N13_encryptionSdk__N4_core__S11_KeyringList(
+                System.Collections.Generic.List<AWS.EncryptionSDK.Core.IKeyring> value)
+        {
+            return Dafny.Sequence<Dafny.Aws.EncryptionSdk.Core.IKeyring>.FromArray(value
+                .Select(ToDafny_N3_aws__N13_encryptionSdk__N4_core__S11_KeyringList__M6_member).ToArray());
+        }
+
+        public static System.Collections.Generic.List<AWS.EncryptionSDK.Core.EncryptedDataKey>
+            FromDafny_N3_aws__N13_encryptionSdk__N4_core__S21_DecryptMaterialsInput__M17_encryptedDataKeys(
+                Dafny.ISequence<Dafny.Aws.EncryptionSdk.Core._IEncryptedDataKey> value)
+        {
+            return FromDafny_N3_aws__N13_encryptionSdk__N4_core__S20_EncryptedDataKeyList(value);
+        }
+
+        public static Dafny.ISequence<Dafny.Aws.EncryptionSdk.Core._IEncryptedDataKey>
+            ToDafny_N3_aws__N13_encryptionSdk__N4_core__S21_DecryptMaterialsInput__M17_encryptedDataKeys(
+                System.Collections.Generic.List<AWS.EncryptionSDK.Core.EncryptedDataKey> value)
+        {
+            return ToDafny_N3_aws__N13_encryptionSdk__N4_core__S20_EncryptedDataKeyList(value);
+        }
+
+        public static AWS.EncryptionSDK.Core.IKeyring
+            FromDafny_N3_aws__N13_encryptionSdk__N4_core__S19_CreateKeyringOutput__M7_keyring(
+                Dafny.Aws.EncryptionSdk.Core.IKeyring value)
+        {
+            return FromDafny_N3_aws__N13_encryptionSdk__N4_core__S16_KeyringReference(value);
+        }
+
+        public static Dafny.Aws.EncryptionSdk.Core.IKeyring
+            ToDafny_N3_aws__N13_encryptionSdk__N4_core__S19_CreateKeyringOutput__M7_keyring(
+                AWS.EncryptionSDK.Core.IKeyring value)
+        {
+            return ToDafny_N3_aws__N13_encryptionSdk__N4_core__S16_KeyringReference(value);
+        }
+
+        public static string FromDafny_N3_aws__N13_encryptionSdk__N4_core__S14_GetClientInput__M6_region(
+            Dafny.ISequence<char> value)
+        {
+            return FromDafny_N3_aws__N13_encryptionSdk__N4_core__S6_Region(value);
+        }
+
+        public static Dafny.ISequence<char> ToDafny_N3_aws__N13_encryptionSdk__N4_core__S14_GetClientInput__M6_region(
+            string value)
+        {
+            return ToDafny_N3_aws__N13_encryptionSdk__N4_core__S6_Region(value);
+        }
+
+        public static Amazon.KeyManagementService.IAmazonKeyManagementService
+            FromDafny_N3_aws__N13_encryptionSdk__N4_core__S27_CreateAwsKmsMrkKeyringInput__M9_kmsClient(
+                Dafny.Com.Amazonaws.Kms.IKeyManagementServiceClient value)
+        {
+            return FromDafny_N3_aws__N13_encryptionSdk__N4_core__S18_KmsClientReference(value);
+        }
+
+        public static Dafny.Com.Amazonaws.Kms.IKeyManagementServiceClient
+            ToDafny_N3_aws__N13_encryptionSdk__N4_core__S27_CreateAwsKmsMrkKeyringInput__M9_kmsClient(
+                Amazon.KeyManagementService.IAmazonKeyManagementService value)
+        {
+            return ToDafny_N3_aws__N13_encryptionSdk__N4_core__S18_KmsClientReference(value);
+        }
+
+        public static AWS.EncryptionSDK.Core.IClientSupplier
+            FromDafny_N3_aws__N13_encryptionSdk__N4_core__S29_CreateAwsKmsMultiKeyringInput__M14_clientSupplier(
+                Wrappers_Compile._IOption<Dafny.Aws.EncryptionSdk.Core.IClientSupplier> value)
+        {
+            return value.is_None
+                ? (AWS.EncryptionSDK.Core.IClientSupplier)null
+                : FromDafny_N3_aws__N13_encryptionSdk__N4_core__S23_ClientSupplierReference(value.Extract());
+        }
+
+        public static Wrappers_Compile._IOption<Dafny.Aws.EncryptionSdk.Core.IClientSupplier>
+            ToDafny_N3_aws__N13_encryptionSdk__N4_core__S29_CreateAwsKmsMultiKeyringInput__M14_clientSupplier(
+                AWS.EncryptionSDK.Core.IClientSupplier value)
+        {
+            return value == null
+                ? Wrappers_Compile.Option<Dafny.Aws.EncryptionSdk.Core.IClientSupplier>.create_None()
+                : Wrappers_Compile.Option<Dafny.Aws.EncryptionSdk.Core.IClientSupplier>.create_Some(
+                    ToDafny_N3_aws__N13_encryptionSdk__N4_core__S23_ClientSupplierReference(
+                        (AWS.EncryptionSDK.Core.IClientSupplier)value));
+        }
+
+        public static string FromDafny_N3_aws__N13_encryptionSdk__N4_core__S17_EncryptionContext__M5_value(
+            Dafny.ISequence<byte> value)
+        {
+            return FromDafny_N3_aws__N13_encryptionSdk__N4_core__S9_Utf8Bytes(value);
+        }
+
+        public static Dafny.ISequence<byte> ToDafny_N3_aws__N13_encryptionSdk__N4_core__S17_EncryptionContext__M5_value(
+            string value)
+        {
+            return ToDafny_N3_aws__N13_encryptionSdk__N4_core__S9_Utf8Bytes(value);
+        }
+
+        public static Amazon.KeyManagementService.IAmazonKeyManagementService
+            FromDafny_N3_aws__N13_encryptionSdk__N4_core__S15_GetClientOutput__M6_client(
+                Dafny.Com.Amazonaws.Kms.IKeyManagementServiceClient value)
+        {
+            return FromDafny_N3_aws__N13_encryptionSdk__N4_core__S18_KmsClientReference(value);
+        }
+
+        public static Dafny.Com.Amazonaws.Kms.IKeyManagementServiceClient
+            ToDafny_N3_aws__N13_encryptionSdk__N4_core__S15_GetClientOutput__M6_client(
+                Amazon.KeyManagementService.IAmazonKeyManagementService value)
+        {
+            return ToDafny_N3_aws__N13_encryptionSdk__N4_core__S18_KmsClientReference(value);
+        }
+
+        public static System.IO.MemoryStream
+            FromDafny_N3_aws__N13_encryptionSdk__N4_core__S24_CreateRawAesKeyringInput__M11_wrappingKey(
+                Dafny.ISequence<byte> value)
+        {
+            return FromDafny_N6_smithy__N3_api__S4_Blob(value);
+        }
+
+        public static Dafny.ISequence<byte>
+            ToDafny_N3_aws__N13_encryptionSdk__N4_core__S24_CreateRawAesKeyringInput__M11_wrappingKey(
+                System.IO.MemoryStream value)
+        {
+            return ToDafny_N6_smithy__N3_api__S4_Blob(value);
+        }
+
+        public static System.IO.MemoryStream
+            FromDafny_N3_aws__N13_encryptionSdk__N4_core__S24_CreateRawRsaKeyringInput__M10_privateKey(
+                Wrappers_Compile._IOption<Dafny.ISequence<byte>> value)
+        {
+            return value.is_None ? (System.IO.MemoryStream)null : FromDafny_N6_smithy__N3_api__S4_Blob(value.Extract());
+        }
+
+        public static Wrappers_Compile._IOption<Dafny.ISequence<byte>>
+            ToDafny_N3_aws__N13_encryptionSdk__N4_core__S24_CreateRawRsaKeyringInput__M10_privateKey(
+                System.IO.MemoryStream value)
+        {
+            return value == null
+                ? Wrappers_Compile.Option<Dafny.ISequence<byte>>.create_None()
+                : Wrappers_Compile.Option<Dafny.ISequence<byte>>.create_Some(
+                    ToDafny_N6_smithy__N3_api__S4_Blob((System.IO.MemoryStream)value));
+        }
+
+        public static Amazon.KeyManagementService.IAmazonKeyManagementService
+            FromDafny_N3_aws__N13_encryptionSdk__N4_core__S18_KmsClientReference(
+                Dafny.Com.Amazonaws.Kms.IKeyManagementServiceClient value)
+        {
+            if (value is Com.Amazonaws.Kms.KeyManagementServiceShim shim)
+            {
+                return shim._impl;
+            }
+
+            throw new System.ArgumentException(
+                "Custom implementations of Amazon.KeyManagementService.IAmazonKeyManagementService are not supported yet");
+        }
+
+        public static Dafny.Com.Amazonaws.Kms.IKeyManagementServiceClient
+            ToDafny_N3_aws__N13_encryptionSdk__N4_core__S18_KmsClientReference(
+                Amazon.KeyManagementService.IAmazonKeyManagementService value)
+        {
+            if (value is Amazon.KeyManagementService.AmazonKeyManagementServiceClient impl)
+            {
+                return new Com.Amazonaws.Kms.KeyManagementServiceShim(impl);
+            }
+
+            throw new System.ArgumentException(
+                "Custom implementations of Amazon.KeyManagementService.IAmazonKeyManagementService are not supported yet");
+        }
+
+        public static System.Collections.Generic.List<string>
+            FromDafny_N3_aws__N13_encryptionSdk__N4_core__S32_CreateAwsKmsMrkMultiKeyringInput__M11_grantTokens(
+                Wrappers_Compile._IOption<Dafny.ISequence<Dafny.ISequence<char>>> value)
+        {
+            return value.is_None
+                ? (System.Collections.Generic.List<string>)null
+                : FromDafny_N3_aws__N13_encryptionSdk__N4_core__S14_GrantTokenList(value.Extract());
+        }
+
+        public static Wrappers_Compile._IOption<Dafny.ISequence<Dafny.ISequence<char>>>
+            ToDafny_N3_aws__N13_encryptionSdk__N4_core__S32_CreateAwsKmsMrkMultiKeyringInput__M11_grantTokens(
+                System.Collections.Generic.List<string> value)
+        {
+            return value == null
+                ? Wrappers_Compile.Option<Dafny.ISequence<Dafny.ISequence<char>>>.create_None()
+                : Wrappers_Compile.Option<Dafny.ISequence<Dafny.ISequence<char>>>.create_Some(
+                    ToDafny_N3_aws__N13_encryptionSdk__N4_core__S14_GrantTokenList(
+                        (System.Collections.Generic.List<string>)value));
+        }
+
+        public static AWS.EncryptionSDK.Core.DecryptMaterialsOutput
+            FromDafny_N3_aws__N13_encryptionSdk__N4_core__S22_DecryptMaterialsOutput(
+                Dafny.Aws.EncryptionSdk.Core._IDecryptMaterialsOutput value)
+        {
+            Dafny.Aws.EncryptionSdk.Core.DecryptMaterialsOutput concrete =
+                (Dafny.Aws.EncryptionSdk.Core.DecryptMaterialsOutput)value;
+            AWS.EncryptionSDK.Core.DecryptMaterialsOutput converted =
+                new AWS.EncryptionSDK.Core.DecryptMaterialsOutput();
+            converted.DecryptionMaterials =
+                (AWS.EncryptionSDK.Core.DecryptionMaterials)
+                FromDafny_N3_aws__N13_encryptionSdk__N4_core__S22_DecryptMaterialsOutput__M19_decryptionMaterials(
+                    concrete.decryptionMaterials);
+            return converted;
+        }
+
+        public static Dafny.Aws.EncryptionSdk.Core._IDecryptMaterialsOutput
+            ToDafny_N3_aws__N13_encryptionSdk__N4_core__S22_DecryptMaterialsOutput(
+                AWS.EncryptionSDK.Core.DecryptMaterialsOutput value)
+        {
+            return new Dafny.Aws.EncryptionSdk.Core.DecryptMaterialsOutput(
+                ToDafny_N3_aws__N13_encryptionSdk__N4_core__S22_DecryptMaterialsOutput__M19_decryptionMaterials(
+                    value.DecryptionMaterials));
+        }
+
+        public static AWS.EncryptionSDK.Core.CreateAwsKmsMrkDiscoveryMultiKeyringInput
+            FromDafny_N3_aws__N13_encryptionSdk__N4_core__S41_CreateAwsKmsMrkDiscoveryMultiKeyringInput(
+                Dafny.Aws.EncryptionSdk.Core._ICreateAwsKmsMrkDiscoveryMultiKeyringInput value)
+        {
+            Dafny.Aws.EncryptionSdk.Core.CreateAwsKmsMrkDiscoveryMultiKeyringInput concrete =
+                (Dafny.Aws.EncryptionSdk.Core.CreateAwsKmsMrkDiscoveryMultiKeyringInput)value;
+            AWS.EncryptionSDK.Core.CreateAwsKmsMrkDiscoveryMultiKeyringInput converted =
+                new AWS.EncryptionSDK.Core.CreateAwsKmsMrkDiscoveryMultiKeyringInput();
+            converted.Regions =
+                (System.Collections.Generic.List<string>)
+                FromDafny_N3_aws__N13_encryptionSdk__N4_core__S41_CreateAwsKmsMrkDiscoveryMultiKeyringInput__M7_regions(
+                    concrete.regions);
+            if (concrete.discoveryFilter.is_Some)
+                converted.DiscoveryFilter =
+                    (AWS.EncryptionSDK.Core.DiscoveryFilter)
+                    FromDafny_N3_aws__N13_encryptionSdk__N4_core__S41_CreateAwsKmsMrkDiscoveryMultiKeyringInput__M15_discoveryFilter(
+                        concrete.discoveryFilter);
+            if (concrete.clientSupplier.is_Some)
+                converted.ClientSupplier =
+                    (AWS.EncryptionSDK.Core.IClientSupplier)
+                    FromDafny_N3_aws__N13_encryptionSdk__N4_core__S41_CreateAwsKmsMrkDiscoveryMultiKeyringInput__M14_clientSupplier(
+                        concrete.clientSupplier);
+            if (concrete.grantTokens.is_Some)
+                converted.GrantTokens =
+                    (System.Collections.Generic.List<string>)
+                    FromDafny_N3_aws__N13_encryptionSdk__N4_core__S41_CreateAwsKmsMrkDiscoveryMultiKeyringInput__M11_grantTokens(
+                        concrete.grantTokens);
+            return converted;
+        }
+
+        public static Dafny.Aws.EncryptionSdk.Core._ICreateAwsKmsMrkDiscoveryMultiKeyringInput
+            ToDafny_N3_aws__N13_encryptionSdk__N4_core__S41_CreateAwsKmsMrkDiscoveryMultiKeyringInput(
+                AWS.EncryptionSDK.Core.CreateAwsKmsMrkDiscoveryMultiKeyringInput value)
+        {
+            AWS.EncryptionSDK.Core.DiscoveryFilter var_discoveryFilter = value.IsSetDiscoveryFilter()
+                ? value.DiscoveryFilter
+                : (AWS.EncryptionSDK.Core.DiscoveryFilter)null;
+            AWS.EncryptionSDK.Core.IClientSupplier var_clientSupplier = value.IsSetClientSupplier()
+                ? value.ClientSupplier
+                : (AWS.EncryptionSDK.Core.IClientSupplier)null;
+            System.Collections.Generic.List<string> var_grantTokens = value.IsSetGrantTokens()
+                ? value.GrantTokens
+                : (System.Collections.Generic.List<string>)null;
+            return new Dafny.Aws.EncryptionSdk.Core.CreateAwsKmsMrkDiscoveryMultiKeyringInput(
+                ToDafny_N3_aws__N13_encryptionSdk__N4_core__S41_CreateAwsKmsMrkDiscoveryMultiKeyringInput__M7_regions(
+                    value.Regions),
+                ToDafny_N3_aws__N13_encryptionSdk__N4_core__S41_CreateAwsKmsMrkDiscoveryMultiKeyringInput__M15_discoveryFilter(
+                    var_discoveryFilter),
+                ToDafny_N3_aws__N13_encryptionSdk__N4_core__S41_CreateAwsKmsMrkDiscoveryMultiKeyringInput__M14_clientSupplier(
+                    var_clientSupplier),
+                ToDafny_N3_aws__N13_encryptionSdk__N4_core__S41_CreateAwsKmsMrkDiscoveryMultiKeyringInput__M11_grantTokens(
+                    var_grantTokens));
+        }
+
+        public static AWS.EncryptionSDK.Core.AlgorithmSuiteId
+            FromDafny_N3_aws__N13_encryptionSdk__N4_core__S21_DecryptMaterialsInput__M16_algorithmSuiteId(
+                Dafny.Aws.EncryptionSdk.Core._IAlgorithmSuiteId value)
+        {
+            return FromDafny_N3_aws__N13_encryptionSdk__N4_core__S16_AlgorithmSuiteId(value);
+        }
+
+        public static Dafny.Aws.EncryptionSdk.Core._IAlgorithmSuiteId
+            ToDafny_N3_aws__N13_encryptionSdk__N4_core__S21_DecryptMaterialsInput__M16_algorithmSuiteId(
+                AWS.EncryptionSDK.Core.AlgorithmSuiteId value)
+        {
+            return ToDafny_N3_aws__N13_encryptionSdk__N4_core__S16_AlgorithmSuiteId(value);
+        }
+
+        public static string
+            FromDafny_N3_aws__N13_encryptionSdk__N4_core__S24_CreateRawRsaKeyringInput__M12_keyNamespace(
+                Dafny.ISequence<char> value)
+        {
+            return FromDafny_N6_smithy__N3_api__S6_String(value);
+        }
+
+        public static Dafny.ISequence<char>
+            ToDafny_N3_aws__N13_encryptionSdk__N4_core__S24_CreateRawRsaKeyringInput__M12_keyNamespace(string value)
+        {
+            return ToDafny_N6_smithy__N3_api__S6_String(value);
+        }
+
+        public static System.Collections.Generic.List<AWS.EncryptionSDK.Core.EncryptedDataKey>
+            FromDafny_N3_aws__N13_encryptionSdk__N4_core__S20_EncryptedDataKeyList(
+                Dafny.ISequence<Dafny.Aws.EncryptionSdk.Core._IEncryptedDataKey> value)
+        {
+            return new System.Collections.Generic.List<AWS.EncryptionSDK.Core.EncryptedDataKey>(
+                value.Elements.Select(
+                    FromDafny_N3_aws__N13_encryptionSdk__N4_core__S20_EncryptedDataKeyList__M6_member));
+        }
+
+        public static Dafny.ISequence<Dafny.Aws.EncryptionSdk.Core._IEncryptedDataKey>
+            ToDafny_N3_aws__N13_encryptionSdk__N4_core__S20_EncryptedDataKeyList(
+                System.Collections.Generic.List<AWS.EncryptionSDK.Core.EncryptedDataKey> value)
+        {
+            return Dafny.Sequence<Dafny.Aws.EncryptionSdk.Core._IEncryptedDataKey>.FromArray(value
+                .Select(ToDafny_N3_aws__N13_encryptionSdk__N4_core__S20_EncryptedDataKeyList__M6_member).ToArray());
+        }
+
+        public static string FromDafny_N3_aws__N13_encryptionSdk__N4_core__S16_EncryptedDataKey__M15_keyProviderInfo(
+            Dafny.ISequence<byte> value)
+        {
+            return FromDafny_N3_aws__N13_encryptionSdk__N4_core__S9_Utf8Bytes(value);
+        }
+
+        public static Dafny.ISequence<byte>
+            ToDafny_N3_aws__N13_encryptionSdk__N4_core__S16_EncryptedDataKey__M15_keyProviderInfo(string value)
+        {
+            return ToDafny_N3_aws__N13_encryptionSdk__N4_core__S9_Utf8Bytes(value);
+        }
+
+        public static System.Collections.Generic.List<string>
+            FromDafny_N3_aws__N13_encryptionSdk__N4_core__S36_CreateAwsKmsMrkDiscoveryKeyringInput__M11_grantTokens(
+                Wrappers_Compile._IOption<Dafny.ISequence<Dafny.ISequence<char>>> value)
+        {
+            return value.is_None
+                ? (System.Collections.Generic.List<string>)null
+                : FromDafny_N3_aws__N13_encryptionSdk__N4_core__S14_GrantTokenList(value.Extract());
+        }
+
+        public static Wrappers_Compile._IOption<Dafny.ISequence<Dafny.ISequence<char>>>
+            ToDafny_N3_aws__N13_encryptionSdk__N4_core__S36_CreateAwsKmsMrkDiscoveryKeyringInput__M11_grantTokens(
+                System.Collections.Generic.List<string> value)
+        {
+            return value == null
+                ? Wrappers_Compile.Option<Dafny.ISequence<Dafny.ISequence<char>>>.create_None()
+                : Wrappers_Compile.Option<Dafny.ISequence<Dafny.ISequence<char>>>.create_Some(
+                    ToDafny_N3_aws__N13_encryptionSdk__N4_core__S14_GrantTokenList(
+                        (System.Collections.Generic.List<string>)value));
+        }
+
+        public static Amazon.KeyManagementService.IAmazonKeyManagementService
+            FromDafny_N3_aws__N13_encryptionSdk__N4_core__S33_CreateAwsKmsDiscoveryKeyringInput__M9_kmsClient(
+                Dafny.Com.Amazonaws.Kms.IKeyManagementServiceClient value)
+        {
+            return FromDafny_N3_aws__N13_encryptionSdk__N4_core__S18_KmsClientReference(value);
+        }
+
+        public static Dafny.Com.Amazonaws.Kms.IKeyManagementServiceClient
+            ToDafny_N3_aws__N13_encryptionSdk__N4_core__S33_CreateAwsKmsDiscoveryKeyringInput__M9_kmsClient(
+                Amazon.KeyManagementService.IAmazonKeyManagementService value)
+        {
+            return ToDafny_N3_aws__N13_encryptionSdk__N4_core__S18_KmsClientReference(value);
+        }
+
+        public static System.IO.MemoryStream
+            FromDafny_N3_aws__N13_encryptionSdk__N4_core__S16_EncryptedDataKey__M10_ciphertext(
+                Dafny.ISequence<byte> value)
+        {
+            return FromDafny_N6_smithy__N3_api__S4_Blob(value);
+        }
+
+        public static Dafny.ISequence<byte>
+            ToDafny_N3_aws__N13_encryptionSdk__N4_core__S16_EncryptedDataKey__M10_ciphertext(
+                System.IO.MemoryStream value)
+        {
+            return ToDafny_N6_smithy__N3_api__S4_Blob(value);
+        }
+
+        public static AWS.EncryptionSDK.Core.PaddingScheme
+            FromDafny_N3_aws__N13_encryptionSdk__N4_core__S24_CreateRawRsaKeyringInput__M13_paddingScheme(
+                Dafny.Aws.EncryptionSdk.Core._IPaddingScheme value)
+        {
+            return FromDafny_N3_aws__N13_encryptionSdk__N4_core__S13_PaddingScheme(value);
+        }
+
+        public static Dafny.Aws.EncryptionSdk.Core._IPaddingScheme
+            ToDafny_N3_aws__N13_encryptionSdk__N4_core__S24_CreateRawRsaKeyringInput__M13_paddingScheme(
+                AWS.EncryptionSDK.Core.PaddingScheme value)
+        {
+            return ToDafny_N3_aws__N13_encryptionSdk__N4_core__S13_PaddingScheme(value);
+        }
+
+        public static AWS.EncryptionSDK.Core.DecryptionMaterials
+            FromDafny_N3_aws__N13_encryptionSdk__N4_core__S19_DecryptionMaterials(
+                Dafny.Aws.EncryptionSdk.Core._IDecryptionMaterials value)
+        {
+            Dafny.Aws.EncryptionSdk.Core.DecryptionMaterials concrete =
+                (Dafny.Aws.EncryptionSdk.Core.DecryptionMaterials)value;
+            AWS.EncryptionSDK.Core.DecryptionMaterials converted = new AWS.EncryptionSDK.Core.DecryptionMaterials();
+            converted.AlgorithmSuiteId =
+                (AWS.EncryptionSDK.Core.AlgorithmSuiteId)
+                FromDafny_N3_aws__N13_encryptionSdk__N4_core__S19_DecryptionMaterials__M16_algorithmSuiteId(
+                    concrete.algorithmSuiteId);
             converted.EncryptionContext =
                 (System.Collections.Generic.Dictionary<string, string>)
-                FromDafny_N3_aws__N6_crypto__S27_GetEncryptionMaterialsInput__M17_encryptionContext(
-                    value.encryptionContext);
-            if (value.algorithmSuiteId.is_Some)
-                converted.AlgorithmSuiteId =
-                    (Aws.Crypto.AlgorithmSuiteId)
-                    FromDafny_N3_aws__N6_crypto__S27_GetEncryptionMaterialsInput__M16_algorithmSuiteId(
-                        value.algorithmSuiteId);
-            if (value.maxPlaintextLength.is_Some)
-                converted.MaxPlaintextLength =
-                    (long) FromDafny_N3_aws__N6_crypto__S27_GetEncryptionMaterialsInput__M18_maxPlaintextLength(
-                        value.maxPlaintextLength);
+                FromDafny_N3_aws__N13_encryptionSdk__N4_core__S19_DecryptionMaterials__M17_encryptionContext(
+                    concrete.encryptionContext);
+            if (concrete.plaintextDataKey.is_Some)
+                converted.PlaintextDataKey =
+                    (System.IO.MemoryStream)
+                    FromDafny_N3_aws__N13_encryptionSdk__N4_core__S19_DecryptionMaterials__M16_plaintextDataKey(
+                        concrete.plaintextDataKey);
+            if (concrete.verificationKey.is_Some)
+                converted.VerificationKey =
+                    (System.IO.MemoryStream)
+                    FromDafny_N3_aws__N13_encryptionSdk__N4_core__S19_DecryptionMaterials__M15_verificationKey(
+                        concrete.verificationKey);
             return converted;
         }
 
-        public static Dafny.Aws.Crypto.GetEncryptionMaterialsInput
-            ToDafny_N3_aws__N6_crypto__S27_GetEncryptionMaterialsInput(Aws.Crypto.GetEncryptionMaterialsInput value)
+        public static Dafny.Aws.EncryptionSdk.Core._IDecryptionMaterials
+            ToDafny_N3_aws__N13_encryptionSdk__N4_core__S19_DecryptionMaterials(
+                AWS.EncryptionSDK.Core.DecryptionMaterials value)
         {
-            return new Dafny.Aws.Crypto.GetEncryptionMaterialsInput(
-                ToDafny_N3_aws__N6_crypto__S27_GetEncryptionMaterialsInput__M17_encryptionContext(
-                    value.EncryptionContext),
-                ToDafny_N3_aws__N6_crypto__S27_GetEncryptionMaterialsInput__M16_algorithmSuiteId(
+            System.IO.MemoryStream var_plaintextDataKey =
+                value.IsSetPlaintextDataKey() ? value.PlaintextDataKey : (System.IO.MemoryStream)null;
+            System.IO.MemoryStream var_verificationKey =
+                value.IsSetVerificationKey() ? value.VerificationKey : (System.IO.MemoryStream)null;
+            return new Dafny.Aws.EncryptionSdk.Core.DecryptionMaterials(
+                ToDafny_N3_aws__N13_encryptionSdk__N4_core__S19_DecryptionMaterials__M16_algorithmSuiteId(
                     value.AlgorithmSuiteId),
-                ToDafny_N3_aws__N6_crypto__S27_GetEncryptionMaterialsInput__M18_maxPlaintextLength(
-                    value.MaxPlaintextLength));
+                ToDafny_N3_aws__N13_encryptionSdk__N4_core__S19_DecryptionMaterials__M17_encryptionContext(
+                    value.EncryptionContext),
+                ToDafny_N3_aws__N13_encryptionSdk__N4_core__S19_DecryptionMaterials__M16_plaintextDataKey(
+                    var_plaintextDataKey),
+                ToDafny_N3_aws__N13_encryptionSdk__N4_core__S19_DecryptionMaterials__M15_verificationKey(
+                    var_verificationKey));
         }
 
-        public static Aws.Crypto.GetEncryptionMaterialsOutput
-            FromDafny_N3_aws__N6_crypto__S28_GetEncryptionMaterialsOutput(
-                Dafny.Aws.Crypto.GetEncryptionMaterialsOutput value)
+        public static string FromDafny_N3_aws__N13_encryptionSdk__N4_core__S9_Utf8Bytes(Dafny.ISequence<byte> value)
         {
-            Aws.Crypto.GetEncryptionMaterialsOutput converted = new Aws.Crypto.GetEncryptionMaterialsOutput();
-            converted.EncryptionMaterials =
-                (Aws.Crypto.EncryptionMaterials)
-                FromDafny_N3_aws__N6_crypto__S28_GetEncryptionMaterialsOutput__M19_encryptionMaterials(
-                    value.encryptionMaterials);
+            System.Text.UTF8Encoding utf8 = new System.Text.UTF8Encoding(false, true);
+            return utf8.GetString(value.Elements);
+        }
+
+        public static Dafny.ISequence<byte> ToDafny_N3_aws__N13_encryptionSdk__N4_core__S9_Utf8Bytes(string value)
+        {
+            System.Text.UTF8Encoding utf8 = new System.Text.UTF8Encoding(false, true);
+            return Dafny.Sequence<byte>.FromArray(utf8.GetBytes(value));
+        }
+
+        public static AWS.EncryptionSDK.Core.CreateAwsKmsDiscoveryMultiKeyringInput
+            FromDafny_N3_aws__N13_encryptionSdk__N4_core__S38_CreateAwsKmsDiscoveryMultiKeyringInput(
+                Dafny.Aws.EncryptionSdk.Core._ICreateAwsKmsDiscoveryMultiKeyringInput value)
+        {
+            Dafny.Aws.EncryptionSdk.Core.CreateAwsKmsDiscoveryMultiKeyringInput concrete =
+                (Dafny.Aws.EncryptionSdk.Core.CreateAwsKmsDiscoveryMultiKeyringInput)value;
+            AWS.EncryptionSDK.Core.CreateAwsKmsDiscoveryMultiKeyringInput converted =
+                new AWS.EncryptionSDK.Core.CreateAwsKmsDiscoveryMultiKeyringInput();
+            converted.Regions =
+                (System.Collections.Generic.List<string>)
+                FromDafny_N3_aws__N13_encryptionSdk__N4_core__S38_CreateAwsKmsDiscoveryMultiKeyringInput__M7_regions(
+                    concrete.regions);
+            if (concrete.discoveryFilter.is_Some)
+                converted.DiscoveryFilter =
+                    (AWS.EncryptionSDK.Core.DiscoveryFilter)
+                    FromDafny_N3_aws__N13_encryptionSdk__N4_core__S38_CreateAwsKmsDiscoveryMultiKeyringInput__M15_discoveryFilter(
+                        concrete.discoveryFilter);
+            if (concrete.clientSupplier.is_Some)
+                converted.ClientSupplier =
+                    (AWS.EncryptionSDK.Core.IClientSupplier)
+                    FromDafny_N3_aws__N13_encryptionSdk__N4_core__S38_CreateAwsKmsDiscoveryMultiKeyringInput__M14_clientSupplier(
+                        concrete.clientSupplier);
+            if (concrete.grantTokens.is_Some)
+                converted.GrantTokens =
+                    (System.Collections.Generic.List<string>)
+                    FromDafny_N3_aws__N13_encryptionSdk__N4_core__S38_CreateAwsKmsDiscoveryMultiKeyringInput__M11_grantTokens(
+                        concrete.grantTokens);
             return converted;
         }
 
-        public static Dafny.Aws.Crypto.GetEncryptionMaterialsOutput
-            ToDafny_N3_aws__N6_crypto__S28_GetEncryptionMaterialsOutput(Aws.Crypto.GetEncryptionMaterialsOutput value)
+        public static Dafny.Aws.EncryptionSdk.Core._ICreateAwsKmsDiscoveryMultiKeyringInput
+            ToDafny_N3_aws__N13_encryptionSdk__N4_core__S38_CreateAwsKmsDiscoveryMultiKeyringInput(
+                AWS.EncryptionSDK.Core.CreateAwsKmsDiscoveryMultiKeyringInput value)
         {
-            return new Dafny.Aws.Crypto.GetEncryptionMaterialsOutput(
-                ToDafny_N3_aws__N6_crypto__S28_GetEncryptionMaterialsOutput__M19_encryptionMaterials(
-                    value.EncryptionMaterials));
+            AWS.EncryptionSDK.Core.DiscoveryFilter var_discoveryFilter = value.IsSetDiscoveryFilter()
+                ? value.DiscoveryFilter
+                : (AWS.EncryptionSDK.Core.DiscoveryFilter)null;
+            AWS.EncryptionSDK.Core.IClientSupplier var_clientSupplier = value.IsSetClientSupplier()
+                ? value.ClientSupplier
+                : (AWS.EncryptionSDK.Core.IClientSupplier)null;
+            System.Collections.Generic.List<string> var_grantTokens = value.IsSetGrantTokens()
+                ? value.GrantTokens
+                : (System.Collections.Generic.List<string>)null;
+            return new Dafny.Aws.EncryptionSdk.Core.CreateAwsKmsDiscoveryMultiKeyringInput(
+                ToDafny_N3_aws__N13_encryptionSdk__N4_core__S38_CreateAwsKmsDiscoveryMultiKeyringInput__M7_regions(
+                    value.Regions),
+                ToDafny_N3_aws__N13_encryptionSdk__N4_core__S38_CreateAwsKmsDiscoveryMultiKeyringInput__M15_discoveryFilter(
+                    var_discoveryFilter),
+                ToDafny_N3_aws__N13_encryptionSdk__N4_core__S38_CreateAwsKmsDiscoveryMultiKeyringInput__M14_clientSupplier(
+                    var_clientSupplier),
+                ToDafny_N3_aws__N13_encryptionSdk__N4_core__S38_CreateAwsKmsDiscoveryMultiKeyringInput__M11_grantTokens(
+                    var_grantTokens));
         }
 
-        public static Aws.Crypto.IKeyring FromDafny_N3_aws__N6_crypto__S16_KeyringReference(
-            Dafny.Aws.Crypto.IKeyring value)
+        public static System.IO.MemoryStream
+            FromDafny_N3_aws__N13_encryptionSdk__N4_core__S19_EncryptionMaterials__M10_signingKey(
+                Wrappers_Compile._IOption<Dafny.ISequence<byte>> value)
         {
-            return new Keyring(value);
+            return value.is_None ? (System.IO.MemoryStream)null : FromDafny_N6_smithy__N3_api__S4_Blob(value.Extract());
         }
 
-        public static Dafny.Aws.Crypto.IKeyring ToDafny_N3_aws__N6_crypto__S16_KeyringReference(
-            Aws.Crypto.IKeyring value)
+        public static Wrappers_Compile._IOption<Dafny.ISequence<byte>>
+            ToDafny_N3_aws__N13_encryptionSdk__N4_core__S19_EncryptionMaterials__M10_signingKey(
+                System.IO.MemoryStream value)
         {
-            if (value is Keyring valueWithImpl)
+            return value == null
+                ? Wrappers_Compile.Option<Dafny.ISequence<byte>>.create_None()
+                : Wrappers_Compile.Option<Dafny.ISequence<byte>>.create_Some(
+                    ToDafny_N6_smithy__N3_api__S4_Blob((System.IO.MemoryStream)value));
+        }
+
+        public static Amazon.KeyManagementService.IAmazonKeyManagementService
+            FromDafny_N3_aws__N13_encryptionSdk__N4_core__S15_GetClientOutput(
+                Dafny.Com.Amazonaws.Kms.IKeyManagementServiceClient value)
+        {
+            return FromDafny_N3_aws__N13_encryptionSdk__N4_core__S15_GetClientOutput__M6_client(value);
+        }
+
+        public static Dafny.Com.Amazonaws.Kms.IKeyManagementServiceClient
+            ToDafny_N3_aws__N13_encryptionSdk__N4_core__S15_GetClientOutput(
+                Amazon.KeyManagementService.IAmazonKeyManagementService value)
+        {
+            return ToDafny_N3_aws__N13_encryptionSdk__N4_core__S15_GetClientOutput__M6_client(value);
+        }
+
+        public static AWS.EncryptionSDK.Core.OnEncryptInput
+            FromDafny_N3_aws__N13_encryptionSdk__N4_core__S14_OnEncryptInput(
+                Dafny.Aws.EncryptionSdk.Core._IOnEncryptInput value)
+        {
+            Dafny.Aws.EncryptionSdk.Core.OnEncryptInput concrete = (Dafny.Aws.EncryptionSdk.Core.OnEncryptInput)value;
+            AWS.EncryptionSDK.Core.OnEncryptInput converted = new AWS.EncryptionSDK.Core.OnEncryptInput();
+            converted.Materials =
+                (AWS.EncryptionSDK.Core.EncryptionMaterials)
+                FromDafny_N3_aws__N13_encryptionSdk__N4_core__S14_OnEncryptInput__M9_materials(concrete.materials);
+            return converted;
+        }
+
+        public static Dafny.Aws.EncryptionSdk.Core._IOnEncryptInput
+            ToDafny_N3_aws__N13_encryptionSdk__N4_core__S14_OnEncryptInput(AWS.EncryptionSDK.Core.OnEncryptInput value)
+        {
+            return new Dafny.Aws.EncryptionSdk.Core.OnEncryptInput(
+                ToDafny_N3_aws__N13_encryptionSdk__N4_core__S14_OnEncryptInput__M9_materials(value.Materials));
+        }
+
+        public static string FromDafny_N3_aws__N13_encryptionSdk__N4_core__S6_Region(Dafny.ISequence<char> value)
+        {
+            return new string(value.Elements);
+        }
+
+        public static Dafny.ISequence<char> ToDafny_N3_aws__N13_encryptionSdk__N4_core__S6_Region(string value)
+        {
+            return Dafny.Sequence<char>.FromString(value);
+        }
+
+        public static AWS.EncryptionSDK.Core.IClientSupplier
+            FromDafny_N3_aws__N13_encryptionSdk__N4_core__S23_ClientSupplierReference(
+                Dafny.Aws.EncryptionSdk.Core.IClientSupplier value)
+        {
+            return new ClientSupplier(value);
+        }
+
+        public static Dafny.Aws.EncryptionSdk.Core.IClientSupplier
+            ToDafny_N3_aws__N13_encryptionSdk__N4_core__S23_ClientSupplierReference(
+                AWS.EncryptionSDK.Core.IClientSupplier value)
+        {
+            if (value is ClientSupplier valueWithImpl)
             {
                 return valueWithImpl._impl;
             }
 
-            throw new System.ArgumentException("Custom implementations of Aws.Crypto.IKeyring are not supported yet");
+            throw new System.ArgumentException(
+                "Custom implementations of AWS.EncryptionSDK.Core.IClientSupplier are not supported yet");
         }
 
-        public static Aws.Crypto.EncryptEntry FromDafny_N3_aws__N6_crypto__S24_GetEntryForEncryptOutput__M10_cacheEntry(
-            Dafny.Aws.Crypto.EncryptEntry value)
+        public static AWS.EncryptionSDK.Core.EncryptionMaterials
+            FromDafny_N3_aws__N13_encryptionSdk__N4_core__S19_EncryptionMaterials(
+                Dafny.Aws.EncryptionSdk.Core._IEncryptionMaterials value)
         {
-            return FromDafny_N3_aws__N6_crypto__S12_EncryptEntry(value);
-        }
-
-        public static Dafny.Aws.Crypto.EncryptEntry
-            ToDafny_N3_aws__N6_crypto__S24_GetEntryForEncryptOutput__M10_cacheEntry(Aws.Crypto.EncryptEntry value)
-        {
-            return ToDafny_N3_aws__N6_crypto__S12_EncryptEntry(value);
-        }
-
-        public static System.IO.MemoryStream FromDafny_N3_aws__N6_crypto__S23_GetEntryForEncryptInput__M10_identifier(
-            Dafny.ISequence<byte> value)
-        {
-            return FromDafny_N6_smithy__N3_api__S4_Blob(value);
-        }
-
-        public static Dafny.ISequence<byte> ToDafny_N3_aws__N6_crypto__S23_GetEntryForEncryptInput__M10_identifier(
-            System.IO.MemoryStream value)
-        {
-            return ToDafny_N6_smithy__N3_api__S4_Blob(value);
-        }
-
-        public static Aws.Crypto.DecryptionMaterials FromDafny_N3_aws__N6_crypto__S15_OnDecryptOutput__M9_materials(
-            Dafny.Aws.Crypto.DecryptionMaterials value)
-        {
-            return FromDafny_N3_aws__N6_crypto__S19_DecryptionMaterials(value);
-        }
-
-        public static Dafny.Aws.Crypto.DecryptionMaterials ToDafny_N3_aws__N6_crypto__S15_OnDecryptOutput__M9_materials(
-            Aws.Crypto.DecryptionMaterials value)
-        {
-            return ToDafny_N3_aws__N6_crypto__S19_DecryptionMaterials(value);
-        }
-
-        public static System.Collections.Generic.Dictionary<string, string>
-            FromDafny_N3_aws__N6_crypto__S17_EncryptionContext(
-                Dafny.IMap<Dafny.ISequence<byte>, Dafny.ISequence<byte>> value)
-        {
-            return value.ItemEnumerable.ToDictionary(
-                pair => FromDafny_N3_aws__N6_crypto__S17_EncryptionContext__M3_key(pair.Car),
-                pair => FromDafny_N3_aws__N6_crypto__S17_EncryptionContext__M5_value(pair.Cdr));
-        }
-
-        public static Dafny.IMap<Dafny.ISequence<byte>, Dafny.ISequence<byte>>
-            ToDafny_N3_aws__N6_crypto__S17_EncryptionContext(
-                System.Collections.Generic.Dictionary<string, string> value)
-        {
-            return Dafny.Map<Dafny.ISequence<byte>, Dafny.ISequence<byte>>.FromCollection(value.Select(pair =>
-                new Dafny.Pair<Dafny.ISequence<byte>, Dafny.ISequence<byte>>(
-                    ToDafny_N3_aws__N6_crypto__S17_EncryptionContext__M3_key(pair.Key),
-                    ToDafny_N3_aws__N6_crypto__S17_EncryptionContext__M5_value(pair.Value))
-            ));
-        }
-
-        public static Aws.Crypto.ICryptoMaterialsCache
-            FromDafny_N3_aws__N6_crypto__S37_CreateLocalCryptoMaterialsCacheOutput(
-                Dafny.Aws.Crypto.ICryptoMaterialsCache value)
-        {
-            return FromDafny_N3_aws__N6_crypto__S37_CreateLocalCryptoMaterialsCacheOutput__M5_cache(value);
-        }
-
-        public static Dafny.Aws.Crypto.ICryptoMaterialsCache
-            ToDafny_N3_aws__N6_crypto__S37_CreateLocalCryptoMaterialsCacheOutput(Aws.Crypto.ICryptoMaterialsCache value)
-        {
-            return ToDafny_N3_aws__N6_crypto__S37_CreateLocalCryptoMaterialsCacheOutput__M5_cache(value);
-        }
-
-        public static Aws.Crypto.DeleteEntryInput FromDafny_N3_aws__N6_crypto__S16_DeleteEntryInput(
-            Dafny.Aws.Crypto.DeleteEntryInput value)
-        {
-            Aws.Crypto.DeleteEntryInput converted = new Aws.Crypto.DeleteEntryInput();
-            converted.Identifier =
-                (System.IO.MemoryStream) FromDafny_N3_aws__N6_crypto__S16_DeleteEntryInput__M10_identifier(
-                    value.identifier);
-            return converted;
-        }
-
-        public static Dafny.Aws.Crypto.DeleteEntryInput ToDafny_N3_aws__N6_crypto__S16_DeleteEntryInput(
-            Aws.Crypto.DeleteEntryInput value)
-        {
-            return new Dafny.Aws.Crypto.DeleteEntryInput(
-                ToDafny_N3_aws__N6_crypto__S16_DeleteEntryInput__M10_identifier(value.Identifier));
-        }
-
-        public static System.IO.MemoryStream FromDafny_N3_aws__N6_crypto__S12_EncryptEntry__M10_identifier(
-            Dafny.ISequence<byte> value)
-        {
-            return FromDafny_N6_smithy__N3_api__S4_Blob(value);
-        }
-
-        public static Dafny.ISequence<byte> ToDafny_N3_aws__N6_crypto__S12_EncryptEntry__M10_identifier(
-            System.IO.MemoryStream value)
-        {
-            return ToDafny_N6_smithy__N3_api__S4_Blob(value);
-        }
-
-        public static string FromDafny_N3_aws__N6_crypto__S16_EncryptedDataKey__M15_keyProviderInfo(
-            Dafny.ISequence<byte> value)
-        {
-            return FromDafny_N3_aws__N6_crypto__S9_Utf8Bytes(value);
-        }
-
-        public static Dafny.ISequence<byte> ToDafny_N3_aws__N6_crypto__S16_EncryptedDataKey__M15_keyProviderInfo(
-            string value)
-        {
-            return ToDafny_N3_aws__N6_crypto__S9_Utf8Bytes(value);
-        }
-
-        public static Aws.Crypto.DecryptionMaterials FromDafny_N3_aws__N6_crypto__S14_OnDecryptInput__M9_materials(
-            Dafny.Aws.Crypto.DecryptionMaterials value)
-        {
-            return FromDafny_N3_aws__N6_crypto__S19_DecryptionMaterials(value);
-        }
-
-        public static Dafny.Aws.Crypto.DecryptionMaterials ToDafny_N3_aws__N6_crypto__S14_OnDecryptInput__M9_materials(
-            Aws.Crypto.DecryptionMaterials value)
-        {
-            return ToDafny_N3_aws__N6_crypto__S19_DecryptionMaterials(value);
-        }
-
-        public static Aws.Crypto.ICryptoMaterialsCache
-            FromDafny_N3_aws__N6_crypto__S47_CreateCachingCryptographicMaterialsManagerInput__M5_cache(
-                Dafny.Aws.Crypto.ICryptoMaterialsCache value)
-        {
-            return FromDafny_N3_aws__N6_crypto__S29_CryptoMaterialsCacheReference(value);
-        }
-
-        public static Dafny.Aws.Crypto.ICryptoMaterialsCache
-            ToDafny_N3_aws__N6_crypto__S47_CreateCachingCryptographicMaterialsManagerInput__M5_cache(
-                Aws.Crypto.ICryptoMaterialsCache value)
-        {
-            return ToDafny_N3_aws__N6_crypto__S29_CryptoMaterialsCacheReference(value);
-        }
-
-        public static System.Collections.Generic.Dictionary<string, string>
-            FromDafny_N3_aws__N6_crypto__S19_EncryptionMaterials__M17_encryptionContext(
-                Dafny.IMap<Dafny.ISequence<byte>, Dafny.ISequence<byte>> value)
-        {
-            return FromDafny_N3_aws__N6_crypto__S17_EncryptionContext(value);
-        }
-
-        public static Dafny.IMap<Dafny.ISequence<byte>, Dafny.ISequence<byte>>
-            ToDafny_N3_aws__N6_crypto__S19_EncryptionMaterials__M17_encryptionContext(
-                System.Collections.Generic.Dictionary<string, string> value)
-        {
-            return ToDafny_N3_aws__N6_crypto__S17_EncryptionContext(value);
-        }
-
-        public static Aws.Crypto.OnEncryptOutput FromDafny_N3_aws__N6_crypto__S15_OnEncryptOutput(
-            Dafny.Aws.Crypto.OnEncryptOutput value)
-        {
-            Aws.Crypto.OnEncryptOutput converted = new Aws.Crypto.OnEncryptOutput();
-            converted.Materials =
-                (Aws.Crypto.EncryptionMaterials) FromDafny_N3_aws__N6_crypto__S15_OnEncryptOutput__M9_materials(
-                    value.materials);
-            return converted;
-        }
-
-        public static Dafny.Aws.Crypto.OnEncryptOutput ToDafny_N3_aws__N6_crypto__S15_OnEncryptOutput(
-            Aws.Crypto.OnEncryptOutput value)
-        {
-            return new Dafny.Aws.Crypto.OnEncryptOutput(
-                ToDafny_N3_aws__N6_crypto__S15_OnEncryptOutput__M9_materials(value.Materials));
-        }
-
-        public static System.IO.MemoryStream FromDafny_N3_aws__N6_crypto__S23_GetEntryForDecryptInput__M10_identifier(
-            Dafny.ISequence<byte> value)
-        {
-            return FromDafny_N6_smithy__N3_api__S4_Blob(value);
-        }
-
-        public static Dafny.ISequence<byte> ToDafny_N3_aws__N6_crypto__S23_GetEntryForDecryptInput__M10_identifier(
-            System.IO.MemoryStream value)
-        {
-            return ToDafny_N6_smithy__N3_api__S4_Blob(value);
-        }
-
-        public static Aws.Crypto.DecryptMaterialsInput FromDafny_N3_aws__N6_crypto__S21_DecryptMaterialsInput(
-            Dafny.Aws.Crypto.DecryptMaterialsInput value)
-        {
-            Aws.Crypto.DecryptMaterialsInput converted = new Aws.Crypto.DecryptMaterialsInput();
+            Dafny.Aws.EncryptionSdk.Core.EncryptionMaterials concrete =
+                (Dafny.Aws.EncryptionSdk.Core.EncryptionMaterials)value;
+            AWS.EncryptionSDK.Core.EncryptionMaterials converted = new AWS.EncryptionSDK.Core.EncryptionMaterials();
             converted.AlgorithmSuiteId =
-                (Aws.Crypto.AlgorithmSuiteId)
-                FromDafny_N3_aws__N6_crypto__S21_DecryptMaterialsInput__M16_algorithmSuiteId(value.algorithmSuiteId);
-            converted.EncryptedDataKeys =
-                (System.Collections.Generic.List<Aws.Crypto.EncryptedDataKey>)
-                FromDafny_N3_aws__N6_crypto__S21_DecryptMaterialsInput__M17_encryptedDataKeys(value.encryptedDataKeys);
+                (AWS.EncryptionSDK.Core.AlgorithmSuiteId)
+                FromDafny_N3_aws__N13_encryptionSdk__N4_core__S19_EncryptionMaterials__M16_algorithmSuiteId(
+                    concrete.algorithmSuiteId);
             converted.EncryptionContext =
                 (System.Collections.Generic.Dictionary<string, string>)
-                FromDafny_N3_aws__N6_crypto__S21_DecryptMaterialsInput__M17_encryptionContext(value.encryptionContext);
+                FromDafny_N3_aws__N13_encryptionSdk__N4_core__S19_EncryptionMaterials__M17_encryptionContext(
+                    concrete.encryptionContext);
+            converted.EncryptedDataKeys =
+                (System.Collections.Generic.List<AWS.EncryptionSDK.Core.EncryptedDataKey>)
+                FromDafny_N3_aws__N13_encryptionSdk__N4_core__S19_EncryptionMaterials__M17_encryptedDataKeys(
+                    concrete.encryptedDataKeys);
+            if (concrete.plaintextDataKey.is_Some)
+                converted.PlaintextDataKey =
+                    (System.IO.MemoryStream)
+                    FromDafny_N3_aws__N13_encryptionSdk__N4_core__S19_EncryptionMaterials__M16_plaintextDataKey(
+                        concrete.plaintextDataKey);
+            if (concrete.signingKey.is_Some)
+                converted.SigningKey =
+                    (System.IO.MemoryStream)
+                    FromDafny_N3_aws__N13_encryptionSdk__N4_core__S19_EncryptionMaterials__M10_signingKey(
+                        concrete.signingKey);
             return converted;
         }
 
-        public static Dafny.Aws.Crypto.DecryptMaterialsInput ToDafny_N3_aws__N6_crypto__S21_DecryptMaterialsInput(
-            Aws.Crypto.DecryptMaterialsInput value)
+        public static Dafny.Aws.EncryptionSdk.Core._IEncryptionMaterials
+            ToDafny_N3_aws__N13_encryptionSdk__N4_core__S19_EncryptionMaterials(
+                AWS.EncryptionSDK.Core.EncryptionMaterials value)
         {
-            return new Dafny.Aws.Crypto.DecryptMaterialsInput(
-                ToDafny_N3_aws__N6_crypto__S21_DecryptMaterialsInput__M16_algorithmSuiteId(value.AlgorithmSuiteId),
-                ToDafny_N3_aws__N6_crypto__S21_DecryptMaterialsInput__M17_encryptedDataKeys(value.EncryptedDataKeys),
-                ToDafny_N3_aws__N6_crypto__S21_DecryptMaterialsInput__M17_encryptionContext(value.EncryptionContext));
+            System.IO.MemoryStream var_plaintextDataKey =
+                value.IsSetPlaintextDataKey() ? value.PlaintextDataKey : (System.IO.MemoryStream)null;
+            System.IO.MemoryStream var_signingKey =
+                value.IsSetSigningKey() ? value.SigningKey : (System.IO.MemoryStream)null;
+            return new Dafny.Aws.EncryptionSdk.Core.EncryptionMaterials(
+                ToDafny_N3_aws__N13_encryptionSdk__N4_core__S19_EncryptionMaterials__M16_algorithmSuiteId(
+                    value.AlgorithmSuiteId),
+                ToDafny_N3_aws__N13_encryptionSdk__N4_core__S19_EncryptionMaterials__M17_encryptionContext(
+                    value.EncryptionContext),
+                ToDafny_N3_aws__N13_encryptionSdk__N4_core__S19_EncryptionMaterials__M17_encryptedDataKeys(
+                    value.EncryptedDataKeys),
+                ToDafny_N3_aws__N13_encryptionSdk__N4_core__S19_EncryptionMaterials__M16_plaintextDataKey(
+                    var_plaintextDataKey),
+                ToDafny_N3_aws__N13_encryptionSdk__N4_core__S19_EncryptionMaterials__M10_signingKey(var_signingKey));
         }
 
-        public static Aws.Crypto.CacheUsageMetadata FromDafny_N3_aws__N6_crypto__S12_EncryptEntry__M13_usageMetadata(
-            Dafny.Aws.Crypto.CacheUsageMetadata value)
+        public static string FromDafny_N3_aws__N13_encryptionSdk__N4_core__S12_KmsKeyIdList__M6_member(
+            Dafny.ISequence<char> value)
         {
-            return FromDafny_N3_aws__N6_crypto__S18_CacheUsageMetadata(value);
+            return FromDafny_N3_aws__N13_encryptionSdk__N4_core__S8_KmsKeyId(value);
         }
 
-        public static Dafny.Aws.Crypto.CacheUsageMetadata
-            ToDafny_N3_aws__N6_crypto__S12_EncryptEntry__M13_usageMetadata(Aws.Crypto.CacheUsageMetadata value)
+        public static Dafny.ISequence<char> ToDafny_N3_aws__N13_encryptionSdk__N4_core__S12_KmsKeyIdList__M6_member(
+            string value)
         {
-            return ToDafny_N3_aws__N6_crypto__S18_CacheUsageMetadata(value);
+            return ToDafny_N3_aws__N13_encryptionSdk__N4_core__S8_KmsKeyId(value);
         }
 
-        public static Aws.Crypto.ICryptographicMaterialsManager
-            FromDafny_N3_aws__N6_crypto__S47_CreateCachingCryptographicMaterialsManagerInput__M16_materialsManager(
-                Dafny.Aws.Crypto.ICryptographicMaterialsManager value)
+        public static System.Collections.Generic.List<string>
+            FromDafny_N3_aws__N13_encryptionSdk__N4_core__S15_DiscoveryFilter__M10_accountIds(
+                Dafny.ISequence<Dafny.ISequence<char>> value)
         {
-            return FromDafny_N3_aws__N6_crypto__S38_CryptographicMaterialsManagerReference(value);
+            return FromDafny_N3_aws__N13_encryptionSdk__N4_core__S13_AccountIdList(value);
         }
 
-        public static Dafny.Aws.Crypto.ICryptographicMaterialsManager
-            ToDafny_N3_aws__N6_crypto__S47_CreateCachingCryptographicMaterialsManagerInput__M16_materialsManager(
-                Aws.Crypto.ICryptographicMaterialsManager value)
+        public static Dafny.ISequence<Dafny.ISequence<char>>
+            ToDafny_N3_aws__N13_encryptionSdk__N4_core__S15_DiscoveryFilter__M10_accountIds(
+                System.Collections.Generic.List<string> value)
         {
-            return ToDafny_N3_aws__N6_crypto__S38_CryptographicMaterialsManagerReference(value);
+            return ToDafny_N3_aws__N13_encryptionSdk__N4_core__S13_AccountIdList(value);
         }
 
-        public static Aws.Crypto.DecryptMaterialsOutput FromDafny_N3_aws__N6_crypto__S22_DecryptMaterialsOutput(
-            Dafny.Aws.Crypto.DecryptMaterialsOutput value)
+        public static AWS.EncryptionSDK.Core.GetEncryptionMaterialsInput
+            FromDafny_N3_aws__N13_encryptionSdk__N4_core__S27_GetEncryptionMaterialsInput(
+                Dafny.Aws.EncryptionSdk.Core._IGetEncryptionMaterialsInput value)
         {
-            Aws.Crypto.DecryptMaterialsOutput converted = new Aws.Crypto.DecryptMaterialsOutput();
-            converted.DecryptionMaterials =
-                (Aws.Crypto.DecryptionMaterials)
-                FromDafny_N3_aws__N6_crypto__S22_DecryptMaterialsOutput__M19_decryptionMaterials(
-                    value.decryptionMaterials);
+            Dafny.Aws.EncryptionSdk.Core.GetEncryptionMaterialsInput concrete =
+                (Dafny.Aws.EncryptionSdk.Core.GetEncryptionMaterialsInput)value;
+            AWS.EncryptionSDK.Core.GetEncryptionMaterialsInput converted =
+                new AWS.EncryptionSDK.Core.GetEncryptionMaterialsInput();
+            converted.EncryptionContext =
+                (System.Collections.Generic.Dictionary<string, string>)
+                FromDafny_N3_aws__N13_encryptionSdk__N4_core__S27_GetEncryptionMaterialsInput__M17_encryptionContext(
+                    concrete.encryptionContext);
+            converted.CommitmentPolicy =
+                (AWS.EncryptionSDK.Core.CommitmentPolicy)
+                FromDafny_N3_aws__N13_encryptionSdk__N4_core__S27_GetEncryptionMaterialsInput__M16_commitmentPolicy(
+                    concrete.commitmentPolicy);
+            if (concrete.algorithmSuiteId.is_Some)
+                converted.AlgorithmSuiteId =
+                    (AWS.EncryptionSDK.Core.AlgorithmSuiteId)
+                    FromDafny_N3_aws__N13_encryptionSdk__N4_core__S27_GetEncryptionMaterialsInput__M16_algorithmSuiteId(
+                        concrete.algorithmSuiteId);
+            if (concrete.maxPlaintextLength.is_Some)
+                converted.MaxPlaintextLength =
+                    (long)
+                    FromDafny_N3_aws__N13_encryptionSdk__N4_core__S27_GetEncryptionMaterialsInput__M18_maxPlaintextLength(
+                        concrete.maxPlaintextLength);
             return converted;
         }
 
-        public static Dafny.Aws.Crypto.DecryptMaterialsOutput ToDafny_N3_aws__N6_crypto__S22_DecryptMaterialsOutput(
-            Aws.Crypto.DecryptMaterialsOutput value)
+        public static Dafny.Aws.EncryptionSdk.Core._IGetEncryptionMaterialsInput
+            ToDafny_N3_aws__N13_encryptionSdk__N4_core__S27_GetEncryptionMaterialsInput(
+                AWS.EncryptionSDK.Core.GetEncryptionMaterialsInput value)
         {
-            return new Dafny.Aws.Crypto.DecryptMaterialsOutput(
-                ToDafny_N3_aws__N6_crypto__S22_DecryptMaterialsOutput__M19_decryptionMaterials(
-                    value.DecryptionMaterials));
+            AWS.EncryptionSDK.Core.AlgorithmSuiteId var_algorithmSuiteId = value.IsSetAlgorithmSuiteId()
+                ? value.AlgorithmSuiteId
+                : (AWS.EncryptionSDK.Core.AlgorithmSuiteId)null;
+            long? var_maxPlaintextLength = value.IsSetMaxPlaintextLength() ? value.MaxPlaintextLength : (long?)null;
+            return new Dafny.Aws.EncryptionSdk.Core.GetEncryptionMaterialsInput(
+                ToDafny_N3_aws__N13_encryptionSdk__N4_core__S27_GetEncryptionMaterialsInput__M17_encryptionContext(
+                    value.EncryptionContext),
+                ToDafny_N3_aws__N13_encryptionSdk__N4_core__S27_GetEncryptionMaterialsInput__M16_commitmentPolicy(
+                    value.CommitmentPolicy),
+                ToDafny_N3_aws__N13_encryptionSdk__N4_core__S27_GetEncryptionMaterialsInput__M16_algorithmSuiteId(
+                    var_algorithmSuiteId),
+                ToDafny_N3_aws__N13_encryptionSdk__N4_core__S27_GetEncryptionMaterialsInput__M18_maxPlaintextLength(
+                    var_maxPlaintextLength));
         }
 
-        public static Aws.Crypto.IKeyring
-            FromDafny_N3_aws__N6_crypto__S47_CreateDefaultCryptographicMaterialsManagerInput__M7_keyring(
-                Dafny.Aws.Crypto.IKeyring value)
+        public static AWS.EncryptionSDK.Core.CreateAwsKmsKeyringInput
+            FromDafny_N3_aws__N13_encryptionSdk__N4_core__S24_CreateAwsKmsKeyringInput(
+                Dafny.Aws.EncryptionSdk.Core._ICreateAwsKmsKeyringInput value)
         {
-            return FromDafny_N3_aws__N6_crypto__S16_KeyringReference(value);
-        }
-
-        public static Dafny.Aws.Crypto.IKeyring
-            ToDafny_N3_aws__N6_crypto__S47_CreateDefaultCryptographicMaterialsManagerInput__M7_keyring(
-                Aws.Crypto.IKeyring value)
-        {
-            return ToDafny_N3_aws__N6_crypto__S16_KeyringReference(value);
-        }
-
-        public static System.IO.MemoryStream FromDafny_N3_aws__N6_crypto__S23_PutEntryForDecryptInput__M10_identifier(
-            Dafny.ISequence<byte> value)
-        {
-            return FromDafny_N6_smithy__N3_api__S4_Blob(value);
-        }
-
-        public static Dafny.ISequence<byte> ToDafny_N3_aws__N6_crypto__S23_PutEntryForDecryptInput__M10_identifier(
-            System.IO.MemoryStream value)
-        {
-            return ToDafny_N6_smithy__N3_api__S4_Blob(value);
-        }
-
-        public static Aws.Crypto.AesWrappingAlg
-            FromDafny_N3_aws__N6_crypto__S24_CreateRawAesKeyringInput__M11_wrappingAlg(
-                Dafny.Aws.Crypto.AesWrappingAlg value)
-        {
-            return FromDafny_N3_aws__N6_crypto__S14_AesWrappingAlg(value);
-        }
-
-        public static Dafny.Aws.Crypto.AesWrappingAlg
-            ToDafny_N3_aws__N6_crypto__S24_CreateRawAesKeyringInput__M11_wrappingAlg(Aws.Crypto.AesWrappingAlg value)
-        {
-            return ToDafny_N3_aws__N6_crypto__S14_AesWrappingAlg(value);
-        }
-
-        public static long FromDafny_N3_aws__N6_crypto__S12_DecryptEntry__M10_expiryTime(long value)
-        {
-            return FromDafny_N6_smithy__N3_api__S4_Long(value);
-        }
-
-        public static long ToDafny_N3_aws__N6_crypto__S12_DecryptEntry__M10_expiryTime(long value)
-        {
-            return ToDafny_N6_smithy__N3_api__S4_Long(value);
-        }
-
-        public static Aws.Crypto.IKeyring
-            FromDafny_N3_aws__N6_crypto__S47_CreateCachingCryptographicMaterialsManagerInput__M7_keyring(
-                Dafny.Aws.Crypto.IKeyring value)
-        {
-            return FromDafny_N3_aws__N6_crypto__S16_KeyringReference(value);
-        }
-
-        public static Dafny.Aws.Crypto.IKeyring
-            ToDafny_N3_aws__N6_crypto__S47_CreateCachingCryptographicMaterialsManagerInput__M7_keyring(
-                Aws.Crypto.IKeyring value)
-        {
-            return ToDafny_N3_aws__N6_crypto__S16_KeyringReference(value);
-        }
-
-        public static Aws.Crypto.GetEntryForEncryptInput FromDafny_N3_aws__N6_crypto__S23_GetEntryForEncryptInput(
-            Dafny.Aws.Crypto.GetEntryForEncryptInput value)
-        {
-            Aws.Crypto.GetEntryForEncryptInput converted = new Aws.Crypto.GetEntryForEncryptInput();
-            converted.Identifier =
-                (System.IO.MemoryStream) FromDafny_N3_aws__N6_crypto__S23_GetEntryForEncryptInput__M10_identifier(
-                    value.identifier);
+            Dafny.Aws.EncryptionSdk.Core.CreateAwsKmsKeyringInput concrete =
+                (Dafny.Aws.EncryptionSdk.Core.CreateAwsKmsKeyringInput)value;
+            AWS.EncryptionSDK.Core.CreateAwsKmsKeyringInput converted =
+                new AWS.EncryptionSDK.Core.CreateAwsKmsKeyringInput();
+            converted.KmsKeyId =
+                (string)FromDafny_N3_aws__N13_encryptionSdk__N4_core__S24_CreateAwsKmsKeyringInput__M8_kmsKeyId(
+                    concrete.kmsKeyId);
+            converted.KmsClient =
+                (Amazon.KeyManagementService.IAmazonKeyManagementService)
+                FromDafny_N3_aws__N13_encryptionSdk__N4_core__S24_CreateAwsKmsKeyringInput__M9_kmsClient(
+                    concrete.kmsClient);
+            if (concrete.grantTokens.is_Some)
+                converted.GrantTokens =
+                    (System.Collections.Generic.List<string>)
+                    FromDafny_N3_aws__N13_encryptionSdk__N4_core__S24_CreateAwsKmsKeyringInput__M11_grantTokens(
+                        concrete.grantTokens);
             return converted;
         }
 
-        public static Dafny.Aws.Crypto.GetEntryForEncryptInput ToDafny_N3_aws__N6_crypto__S23_GetEntryForEncryptInput(
-            Aws.Crypto.GetEntryForEncryptInput value)
+        public static Dafny.Aws.EncryptionSdk.Core._ICreateAwsKmsKeyringInput
+            ToDafny_N3_aws__N13_encryptionSdk__N4_core__S24_CreateAwsKmsKeyringInput(
+                AWS.EncryptionSDK.Core.CreateAwsKmsKeyringInput value)
         {
-            return new Dafny.Aws.Crypto.GetEntryForEncryptInput(
-                ToDafny_N3_aws__N6_crypto__S23_GetEntryForEncryptInput__M10_identifier(value.Identifier));
+            System.Collections.Generic.List<string> var_grantTokens = value.IsSetGrantTokens()
+                ? value.GrantTokens
+                : (System.Collections.Generic.List<string>)null;
+            return new Dafny.Aws.EncryptionSdk.Core.CreateAwsKmsKeyringInput(
+                ToDafny_N3_aws__N13_encryptionSdk__N4_core__S24_CreateAwsKmsKeyringInput__M8_kmsKeyId(value.KmsKeyId),
+                ToDafny_N3_aws__N13_encryptionSdk__N4_core__S24_CreateAwsKmsKeyringInput__M9_kmsClient(value.KmsClient),
+                ToDafny_N3_aws__N13_encryptionSdk__N4_core__S24_CreateAwsKmsKeyringInput__M11_grantTokens(
+                    var_grantTokens));
         }
 
-        public static Aws.Crypto.ICryptoMaterialsCache
-            FromDafny_N3_aws__N6_crypto__S37_CreateLocalCryptoMaterialsCacheOutput__M5_cache(
-                Dafny.Aws.Crypto.ICryptoMaterialsCache value)
+        public static AWS.EncryptionSDK.Core.IAwsCryptographicMaterialProviders
+            FromDafny_N3_aws__N13_encryptionSdk__N4_core__S42_AwsCryptographicMaterialProvidersReference(
+                Dafny.Aws.EncryptionSdk.Core.IAwsCryptographicMaterialProviders value)
         {
-            return FromDafny_N3_aws__N6_crypto__S29_CryptoMaterialsCacheReference(value);
+            return new AwsCryptographicMaterialProviders(value);
         }
 
-        public static Dafny.Aws.Crypto.ICryptoMaterialsCache
-            ToDafny_N3_aws__N6_crypto__S37_CreateLocalCryptoMaterialsCacheOutput__M5_cache(
-                Aws.Crypto.ICryptoMaterialsCache value)
+        public static Dafny.Aws.EncryptionSdk.Core.IAwsCryptographicMaterialProviders
+            ToDafny_N3_aws__N13_encryptionSdk__N4_core__S42_AwsCryptographicMaterialProvidersReference(
+                AWS.EncryptionSDK.Core.IAwsCryptographicMaterialProviders value)
         {
-            return ToDafny_N3_aws__N6_crypto__S29_CryptoMaterialsCacheReference(value);
+            if (value is AwsCryptographicMaterialProviders valueWithImpl)
+            {
+                return valueWithImpl._impl;
+            }
+
+            throw new System.ArgumentException(
+                "Custom implementations of AWS.EncryptionSDK.Core.IAwsCryptographicMaterialProviders are not supported yet");
         }
 
-        public static System.Collections.Generic.List<Aws.Crypto.EncryptedDataKey>
-            FromDafny_N3_aws__N6_crypto__S21_DecryptMaterialsInput__M17_encryptedDataKeys(
-                Dafny.ISequence<Dafny.Aws.Crypto.EncryptedDataKey> value)
+        public static AWS.EncryptionSDK.Core.DiscoveryFilter
+            FromDafny_N3_aws__N13_encryptionSdk__N4_core__S36_CreateAwsKmsMrkDiscoveryKeyringInput__M15_discoveryFilter(
+                Wrappers_Compile._IOption<Dafny.Aws.EncryptionSdk.Core._IDiscoveryFilter> value)
         {
-            return FromDafny_N3_aws__N6_crypto__S20_EncryptedDataKeyList(value);
+            return value.is_None
+                ? (AWS.EncryptionSDK.Core.DiscoveryFilter)null
+                : FromDafny_N3_aws__N13_encryptionSdk__N4_core__S15_DiscoveryFilter(value.Extract());
         }
 
-        public static Dafny.ISequence<Dafny.Aws.Crypto.EncryptedDataKey>
-            ToDafny_N3_aws__N6_crypto__S21_DecryptMaterialsInput__M17_encryptedDataKeys(
-                System.Collections.Generic.List<Aws.Crypto.EncryptedDataKey> value)
+        public static Wrappers_Compile._IOption<Dafny.Aws.EncryptionSdk.Core._IDiscoveryFilter>
+            ToDafny_N3_aws__N13_encryptionSdk__N4_core__S36_CreateAwsKmsMrkDiscoveryKeyringInput__M15_discoveryFilter(
+                AWS.EncryptionSDK.Core.DiscoveryFilter value)
         {
-            return ToDafny_N3_aws__N6_crypto__S20_EncryptedDataKeyList(value);
+            return value == null
+                ? Wrappers_Compile.Option<Dafny.Aws.EncryptionSdk.Core._IDiscoveryFilter>.create_None()
+                : Wrappers_Compile.Option<Dafny.Aws.EncryptionSdk.Core._IDiscoveryFilter>.create_Some(
+                    ToDafny_N3_aws__N13_encryptionSdk__N4_core__S15_DiscoveryFilter(
+                        (AWS.EncryptionSDK.Core.DiscoveryFilter)value));
         }
 
-        public static int FromDafny_N3_aws__N6_crypto__S36_CreateLocalCryptoMaterialsCacheInput__M13_entryCapacity(
-            int value)
+        public static AWS.EncryptionSDK.Core.AwsCryptographicMaterialProvidersException
+            FromDafny_N3_aws__N13_encryptionSdk__N4_core__S42_AwsCryptographicMaterialProvidersException(
+                Dafny.Aws.EncryptionSdk.Core.AwsCryptographicMaterialProvidersException value)
         {
-            return FromDafny_N6_smithy__N3_api__S7_Integer(value);
+            return new AWS.EncryptionSDK.Core.AwsCryptographicMaterialProvidersException(
+                FromDafny_N3_aws__N13_encryptionSdk__N4_core__S42_AwsCryptographicMaterialProvidersException__M7_message(
+                    value.message));
         }
 
-        public static int ToDafny_N3_aws__N6_crypto__S36_CreateLocalCryptoMaterialsCacheInput__M13_entryCapacity(
-            int value)
+        public static Dafny.Aws.EncryptionSdk.Core.AwsCryptographicMaterialProvidersException
+            ToDafny_N3_aws__N13_encryptionSdk__N4_core__S42_AwsCryptographicMaterialProvidersException(
+                AWS.EncryptionSDK.Core.AwsCryptographicMaterialProvidersException value)
         {
-            return ToDafny_N6_smithy__N3_api__S7_Integer(value);
-        }
-
-        public static string FromDafny_N3_aws__N6_crypto__S17_EncryptionContext__M5_value(Dafny.ISequence<byte> value)
-        {
-            return FromDafny_N3_aws__N6_crypto__S9_Utf8Bytes(value);
-        }
-
-        public static Dafny.ISequence<byte> ToDafny_N3_aws__N6_crypto__S17_EncryptionContext__M5_value(string value)
-        {
-            return ToDafny_N3_aws__N6_crypto__S9_Utf8Bytes(value);
-        }
-
-        public static Aws.Crypto.GetEntryForDecryptInput FromDafny_N3_aws__N6_crypto__S23_GetEntryForDecryptInput(
-            Dafny.Aws.Crypto.GetEntryForDecryptInput value)
-        {
-            Aws.Crypto.GetEntryForDecryptInput converted = new Aws.Crypto.GetEntryForDecryptInput();
-            converted.Identifier =
-                (System.IO.MemoryStream) FromDafny_N3_aws__N6_crypto__S23_GetEntryForDecryptInput__M10_identifier(
-                    value.identifier);
+            Dafny.Aws.EncryptionSdk.Core.AwsCryptographicMaterialProvidersException converted =
+                new Dafny.Aws.EncryptionSdk.Core.AwsCryptographicMaterialProvidersException();
+            converted.message =
+                ToDafny_N3_aws__N13_encryptionSdk__N4_core__S42_AwsCryptographicMaterialProvidersException__M7_message(
+                    value.Message);
             return converted;
         }
 
-        public static Dafny.Aws.Crypto.GetEntryForDecryptInput ToDafny_N3_aws__N6_crypto__S23_GetEntryForDecryptInput(
-            Aws.Crypto.GetEntryForDecryptInput value)
+        public static string FromDafny_N3_aws__N13_encryptionSdk__N4_core__S15_DiscoveryFilter__M9_partition(
+            Dafny.ISequence<char> value)
         {
-            return new Dafny.Aws.Crypto.GetEntryForDecryptInput(
-                ToDafny_N3_aws__N6_crypto__S23_GetEntryForDecryptInput__M10_identifier(value.Identifier));
+            return FromDafny_N6_smithy__N3_api__S6_String(value);
         }
 
-        public static Aws.Crypto.GetEntryForEncryptOutput FromDafny_N3_aws__N6_crypto__S24_GetEntryForEncryptOutput(
-            Dafny.Aws.Crypto.GetEntryForEncryptOutput value)
+        public static Dafny.ISequence<char>
+            ToDafny_N3_aws__N13_encryptionSdk__N4_core__S15_DiscoveryFilter__M9_partition(string value)
         {
-            Aws.Crypto.GetEntryForEncryptOutput converted = new Aws.Crypto.GetEntryForEncryptOutput();
-            converted.CacheEntry =
-                (Aws.Crypto.EncryptEntry) FromDafny_N3_aws__N6_crypto__S24_GetEntryForEncryptOutput__M10_cacheEntry(
-                    value.cacheEntry);
-            return converted;
+            return ToDafny_N6_smithy__N3_api__S6_String(value);
         }
 
-        public static Dafny.Aws.Crypto.GetEntryForEncryptOutput ToDafny_N3_aws__N6_crypto__S24_GetEntryForEncryptOutput(
-            Aws.Crypto.GetEntryForEncryptOutput value)
+        public static AWS.EncryptionSDK.Core.EncryptedDataKey
+            FromDafny_N3_aws__N13_encryptionSdk__N4_core__S20_EncryptedDataKeyList__M6_member(
+                Dafny.Aws.EncryptionSdk.Core._IEncryptedDataKey value)
         {
-            return new Dafny.Aws.Crypto.GetEntryForEncryptOutput(
-                ToDafny_N3_aws__N6_crypto__S24_GetEntryForEncryptOutput__M10_cacheEntry(value.CacheEntry));
+            return FromDafny_N3_aws__N13_encryptionSdk__N4_core__S16_EncryptedDataKey(value);
         }
 
-        public static Aws.Crypto.OnEncryptInput FromDafny_N3_aws__N6_crypto__S14_OnEncryptInput(
-            Dafny.Aws.Crypto.OnEncryptInput value)
+        public static Dafny.Aws.EncryptionSdk.Core._IEncryptedDataKey
+            ToDafny_N3_aws__N13_encryptionSdk__N4_core__S20_EncryptedDataKeyList__M6_member(
+                AWS.EncryptionSDK.Core.EncryptedDataKey value)
         {
-            Aws.Crypto.OnEncryptInput converted = new Aws.Crypto.OnEncryptInput();
-            converted.Materials =
-                (Aws.Crypto.EncryptionMaterials) FromDafny_N3_aws__N6_crypto__S14_OnEncryptInput__M9_materials(
-                    value.materials);
-            return converted;
-        }
-
-        public static Dafny.Aws.Crypto.OnEncryptInput ToDafny_N3_aws__N6_crypto__S14_OnEncryptInput(
-            Aws.Crypto.OnEncryptInput value)
-        {
-            return new Dafny.Aws.Crypto.OnEncryptInput(
-                ToDafny_N3_aws__N6_crypto__S14_OnEncryptInput__M9_materials(value.Materials));
-        }
-
-        public static Aws.Crypto.EncryptionMaterials FromDafny_N3_aws__N6_crypto__S14_OnEncryptInput__M9_materials(
-            Dafny.Aws.Crypto.EncryptionMaterials value)
-        {
-            return FromDafny_N3_aws__N6_crypto__S19_EncryptionMaterials(value);
-        }
-
-        public static Dafny.Aws.Crypto.EncryptionMaterials ToDafny_N3_aws__N6_crypto__S14_OnEncryptInput__M9_materials(
-            Aws.Crypto.EncryptionMaterials value)
-        {
-            return ToDafny_N3_aws__N6_crypto__S19_EncryptionMaterials(value);
+            return ToDafny_N3_aws__N13_encryptionSdk__N4_core__S16_EncryptedDataKey(value);
         }
 
         public static string FromDafny_N6_smithy__N3_api__S6_String(Dafny.ISequence<char> value)
@@ -627,504 +885,870 @@ namespace Aws.Crypto
             return Dafny.Sequence<char>.FromString(value);
         }
 
-        public static Aws.Crypto.GetEntryForDecryptOutput FromDafny_N3_aws__N6_crypto__S24_GetEntryForDecryptOutput(
-            Dafny.Aws.Crypto.GetEntryForDecryptOutput value)
+        public static System.Collections.Generic.List<string>
+            FromDafny_N3_aws__N13_encryptionSdk__N4_core__S14_GrantTokenList(
+                Dafny.ISequence<Dafny.ISequence<char>> value)
         {
-            Aws.Crypto.GetEntryForDecryptOutput converted = new Aws.Crypto.GetEntryForDecryptOutput();
-            converted.CacheEntry =
-                (Aws.Crypto.DecryptEntry) FromDafny_N3_aws__N6_crypto__S24_GetEntryForDecryptOutput__M10_cacheEntry(
-                    value.cacheEntry);
-            return converted;
+            return new System.Collections.Generic.List<string>(
+                value.Elements.Select(FromDafny_N3_aws__N13_encryptionSdk__N4_core__S14_GrantTokenList__M6_member));
         }
 
-        public static Dafny.Aws.Crypto.GetEntryForDecryptOutput ToDafny_N3_aws__N6_crypto__S24_GetEntryForDecryptOutput(
-            Aws.Crypto.GetEntryForDecryptOutput value)
+        public static Dafny.ISequence<Dafny.ISequence<char>>
+            ToDafny_N3_aws__N13_encryptionSdk__N4_core__S14_GrantTokenList(
+                System.Collections.Generic.List<string> value)
         {
-            return new Dafny.Aws.Crypto.GetEntryForDecryptOutput(
-                ToDafny_N3_aws__N6_crypto__S24_GetEntryForDecryptOutput__M10_cacheEntry(value.CacheEntry));
+            return Dafny.Sequence<Dafny.ISequence<char>>.FromArray(value
+                .Select(ToDafny_N3_aws__N13_encryptionSdk__N4_core__S14_GrantTokenList__M6_member).ToArray());
         }
 
-        public static Aws.Crypto.CacheUsageMetadata FromDafny_N3_aws__N6_crypto__S18_CacheUsageMetadata(
-            Dafny.Aws.Crypto.CacheUsageMetadata value)
+        public static System.IO.MemoryStream
+            FromDafny_N3_aws__N13_encryptionSdk__N4_core__S19_DecryptionMaterials__M16_plaintextDataKey(
+                Wrappers_Compile._IOption<Dafny.ISequence<byte>> value)
         {
-            Aws.Crypto.CacheUsageMetadata converted = new Aws.Crypto.CacheUsageMetadata();
-            converted.MessageUsage =
-                (long) FromDafny_N3_aws__N6_crypto__S18_CacheUsageMetadata__M12_messageUsage(value.messageUsage);
-            converted.ByteUsage =
-                (long) FromDafny_N3_aws__N6_crypto__S18_CacheUsageMetadata__M9_byteUsage(value.byteUsage);
-            return converted;
+            return value.is_None ? (System.IO.MemoryStream)null : FromDafny_N6_smithy__N3_api__S4_Blob(value.Extract());
         }
 
-        public static Dafny.Aws.Crypto.CacheUsageMetadata ToDafny_N3_aws__N6_crypto__S18_CacheUsageMetadata(
-            Aws.Crypto.CacheUsageMetadata value)
-        {
-            return new Dafny.Aws.Crypto.CacheUsageMetadata(
-                ToDafny_N3_aws__N6_crypto__S18_CacheUsageMetadata__M12_messageUsage(value.MessageUsage),
-                ToDafny_N3_aws__N6_crypto__S18_CacheUsageMetadata__M9_byteUsage(value.ByteUsage));
-        }
-
-        public static Aws.Crypto.CacheUsageMetadata FromDafny_N3_aws__N6_crypto__S12_DecryptEntry__M13_usageMetadata(
-            Dafny.Aws.Crypto.CacheUsageMetadata value)
-        {
-            return FromDafny_N3_aws__N6_crypto__S18_CacheUsageMetadata(value);
-        }
-
-        public static Dafny.Aws.Crypto.CacheUsageMetadata
-            ToDafny_N3_aws__N6_crypto__S12_DecryptEntry__M13_usageMetadata(Aws.Crypto.CacheUsageMetadata value)
-        {
-            return ToDafny_N3_aws__N6_crypto__S18_CacheUsageMetadata(value);
-        }
-
-        public static Aws.Crypto.DecryptionMaterials
-            FromDafny_N3_aws__N6_crypto__S12_DecryptEntry__M19_decryptionMaterials(
-                Dafny.Aws.Crypto.DecryptionMaterials value)
-        {
-            return FromDafny_N3_aws__N6_crypto__S19_DecryptionMaterials(value);
-        }
-
-        public static Dafny.Aws.Crypto.DecryptionMaterials
-            ToDafny_N3_aws__N6_crypto__S12_DecryptEntry__M19_decryptionMaterials(Aws.Crypto.DecryptionMaterials value)
-        {
-            return ToDafny_N3_aws__N6_crypto__S19_DecryptionMaterials(value);
-        }
-
-        public static Aws.Crypto.EncryptionMaterials
-            FromDafny_N3_aws__N6_crypto__S23_PutEntryForEncryptInput__M19_encryptionMaterials(
-                Dafny.Aws.Crypto.EncryptionMaterials value)
-        {
-            return FromDafny_N3_aws__N6_crypto__S19_EncryptionMaterials(value);
-        }
-
-        public static Dafny.Aws.Crypto.EncryptionMaterials
-            ToDafny_N3_aws__N6_crypto__S23_PutEntryForEncryptInput__M19_encryptionMaterials(
-                Aws.Crypto.EncryptionMaterials value)
-        {
-            return ToDafny_N3_aws__N6_crypto__S19_EncryptionMaterials(value);
-        }
-
-        public static System.IO.MemoryStream FromDafny_N3_aws__N6_crypto__S23_PutEntryForEncryptInput__M10_identifier(
-            Dafny.ISequence<byte> value)
-        {
-            return FromDafny_N6_smithy__N3_api__S4_Blob(value);
-        }
-
-        public static Dafny.ISequence<byte> ToDafny_N3_aws__N6_crypto__S23_PutEntryForEncryptInput__M10_identifier(
-            System.IO.MemoryStream value)
-        {
-            return ToDafny_N6_smithy__N3_api__S4_Blob(value);
-        }
-
-        public static string
-            FromDafny_N3_aws__N6_crypto__S47_CreateCachingCryptographicMaterialsManagerInput__M11_partitionId(
-                Wrappers_Compile.Option<Dafny.ISequence<char>> value)
-        {
-            return value.is_None ? (string) null : FromDafny_N6_smithy__N3_api__S6_String(value.Extract());
-        }
-
-        public static Wrappers_Compile.Option<Dafny.ISequence<char>>
-            ToDafny_N3_aws__N6_crypto__S47_CreateCachingCryptographicMaterialsManagerInput__M11_partitionId(
-                string value)
+        public static Wrappers_Compile._IOption<Dafny.ISequence<byte>>
+            ToDafny_N3_aws__N13_encryptionSdk__N4_core__S19_DecryptionMaterials__M16_plaintextDataKey(
+                System.IO.MemoryStream value)
         {
             return value == null
-                ? Wrappers_Compile.Option<Dafny.ISequence<char>>.create_None()
-                : Wrappers_Compile.Option<Dafny.ISequence<char>>.create_Some(
-                    ToDafny_N6_smithy__N3_api__S6_String((string) value));
+                ? Wrappers_Compile.Option<Dafny.ISequence<byte>>.create_None()
+                : Wrappers_Compile.Option<Dafny.ISequence<byte>>.create_Some(
+                    ToDafny_N6_smithy__N3_api__S4_Blob((System.IO.MemoryStream)value));
         }
 
-        public static System.IO.MemoryStream FromDafny_N3_aws__N6_crypto__S16_DeleteEntryInput__M10_identifier(
-            Dafny.ISequence<byte> value)
+        public static AWS.EncryptionSDK.Core.ICryptographicMaterialsManager
+            FromDafny_N3_aws__N13_encryptionSdk__N4_core__S41_CreateCryptographicMaterialsManagerOutput__M16_materialsManager(
+                Dafny.Aws.EncryptionSdk.Core.ICryptographicMaterialsManager value)
         {
-            return FromDafny_N6_smithy__N3_api__S4_Blob(value);
+            return FromDafny_N3_aws__N13_encryptionSdk__N4_core__S38_CryptographicMaterialsManagerReference(value);
         }
 
-        public static Dafny.ISequence<byte> ToDafny_N3_aws__N6_crypto__S16_DeleteEntryInput__M10_identifier(
-            System.IO.MemoryStream value)
+        public static Dafny.Aws.EncryptionSdk.Core.ICryptographicMaterialsManager
+            ToDafny_N3_aws__N13_encryptionSdk__N4_core__S41_CreateCryptographicMaterialsManagerOutput__M16_materialsManager(
+                AWS.EncryptionSDK.Core.ICryptographicMaterialsManager value)
         {
-            return ToDafny_N6_smithy__N3_api__S4_Blob(value);
-        }
-
-        public static Aws.Crypto.EncryptedDataKey FromDafny_N3_aws__N6_crypto__S16_EncryptedDataKey(
-            Dafny.Aws.Crypto.EncryptedDataKey value)
-        {
-            Aws.Crypto.EncryptedDataKey converted = new Aws.Crypto.EncryptedDataKey();
-            converted.KeyProviderId =
-                (string) FromDafny_N3_aws__N6_crypto__S16_EncryptedDataKey__M13_keyProviderId(value.keyProviderId);
-            converted.KeyProviderInfo =
-                (string) FromDafny_N3_aws__N6_crypto__S16_EncryptedDataKey__M15_keyProviderInfo(value.keyProviderInfo);
-            converted.Ciphertext =
-                (System.IO.MemoryStream) FromDafny_N3_aws__N6_crypto__S16_EncryptedDataKey__M10_ciphertext(
-                    value.ciphertext);
-            return converted;
-        }
-
-        public static Dafny.Aws.Crypto.EncryptedDataKey ToDafny_N3_aws__N6_crypto__S16_EncryptedDataKey(
-            Aws.Crypto.EncryptedDataKey value)
-        {
-            return new Dafny.Aws.Crypto.EncryptedDataKey(
-                ToDafny_N3_aws__N6_crypto__S16_EncryptedDataKey__M13_keyProviderId(value.KeyProviderId),
-                ToDafny_N3_aws__N6_crypto__S16_EncryptedDataKey__M15_keyProviderInfo(value.KeyProviderInfo),
-                ToDafny_N3_aws__N6_crypto__S16_EncryptedDataKey__M10_ciphertext(value.Ciphertext));
-        }
-
-        public static System.IO.MemoryStream FromDafny_N3_aws__N6_crypto__S24_CreateRawAesKeyringInput__M11_wrappingKey(
-            Dafny.ISequence<byte> value)
-        {
-            return FromDafny_N6_smithy__N3_api__S4_Blob(value);
-        }
-
-        public static Dafny.ISequence<byte> ToDafny_N3_aws__N6_crypto__S24_CreateRawAesKeyringInput__M11_wrappingKey(
-            System.IO.MemoryStream value)
-        {
-            return ToDafny_N6_smithy__N3_api__S4_Blob(value);
-        }
-
-        public static System.IO.MemoryStream FromDafny_N3_aws__N6_crypto__S16_EncryptedDataKey__M10_ciphertext(
-            Dafny.ISequence<byte> value)
-        {
-            return FromDafny_N6_smithy__N3_api__S4_Blob(value);
-        }
-
-        public static Dafny.ISequence<byte> ToDafny_N3_aws__N6_crypto__S16_EncryptedDataKey__M10_ciphertext(
-            System.IO.MemoryStream value)
-        {
-            return ToDafny_N6_smithy__N3_api__S4_Blob(value);
-        }
-
-        public static Aws.Crypto.IKeyring FromDafny_N3_aws__N6_crypto__S19_CreateKeyringOutput(
-            Dafny.Aws.Crypto.IKeyring value)
-        {
-            return FromDafny_N3_aws__N6_crypto__S19_CreateKeyringOutput__M7_keyring(value);
-        }
-
-        public static Dafny.Aws.Crypto.IKeyring ToDafny_N3_aws__N6_crypto__S19_CreateKeyringOutput(
-            Aws.Crypto.IKeyring value)
-        {
-            return ToDafny_N3_aws__N6_crypto__S19_CreateKeyringOutput__M7_keyring(value);
+            return ToDafny_N3_aws__N13_encryptionSdk__N4_core__S38_CryptographicMaterialsManagerReference(value);
         }
 
         public static System.Collections.Generic.Dictionary<string, string>
-            FromDafny_N3_aws__N6_crypto__S21_DecryptMaterialsInput__M17_encryptionContext(
+            FromDafny_N3_aws__N13_encryptionSdk__N4_core__S19_EncryptionMaterials__M17_encryptionContext(
                 Dafny.IMap<Dafny.ISequence<byte>, Dafny.ISequence<byte>> value)
         {
-            return FromDafny_N3_aws__N6_crypto__S17_EncryptionContext(value);
+            return FromDafny_N3_aws__N13_encryptionSdk__N4_core__S17_EncryptionContext(value);
         }
 
         public static Dafny.IMap<Dafny.ISequence<byte>, Dafny.ISequence<byte>>
-            ToDafny_N3_aws__N6_crypto__S21_DecryptMaterialsInput__M17_encryptionContext(
+            ToDafny_N3_aws__N13_encryptionSdk__N4_core__S19_EncryptionMaterials__M17_encryptionContext(
                 System.Collections.Generic.Dictionary<string, string> value)
         {
-            return ToDafny_N3_aws__N6_crypto__S17_EncryptionContext(value);
+            return ToDafny_N3_aws__N13_encryptionSdk__N4_core__S17_EncryptionContext(value);
         }
 
-        public static Aws.Crypto.AlgorithmSuiteId FromDafny_N3_aws__N6_crypto__S16_AlgorithmSuiteId(
-            Dafny.Aws.Crypto.AlgorithmSuiteId value)
+        public static AWS.EncryptionSDK.Core.AesWrappingAlg
+            FromDafny_N3_aws__N13_encryptionSdk__N4_core__S24_CreateRawAesKeyringInput__M11_wrappingAlg(
+                Dafny.Aws.EncryptionSdk.Core._IAesWrappingAlg value)
         {
-            if (value.is_ALG__AES__128__GCM__IV12__TAG16__NO__KDF)
-                return Aws.Crypto.AlgorithmSuiteId.ALG_AES_128_GCM_IV12_TAG16_NO_KDF;
-            if (value.is_ALG__AES__192__GCM__IV12__TAG16__NO__KDF)
-                return Aws.Crypto.AlgorithmSuiteId.ALG_AES_192_GCM_IV12_TAG16_NO_KDF;
-            if (value.is_ALG__AES__256__GCM__IV12__TAG16__NO__KDF)
-                return Aws.Crypto.AlgorithmSuiteId.ALG_AES_256_GCM_IV12_TAG16_NO_KDF;
-            if (value.is_ALG__AES__128__GCM__IV12__TAG16__HKDF__SHA256)
-                return Aws.Crypto.AlgorithmSuiteId.ALG_AES_128_GCM_IV12_TAG16_HKDF_SHA256;
-            if (value.is_ALG__AES__192__GCM__IV12__TAG16__HKDF__SHA256)
-                return Aws.Crypto.AlgorithmSuiteId.ALG_AES_192_GCM_IV12_TAG16_HKDF_SHA256;
-            if (value.is_ALG__AES__256__GCM__IV12__TAG16__HKDF__SHA256)
-                return Aws.Crypto.AlgorithmSuiteId.ALG_AES_256_GCM_IV12_TAG16_HKDF_SHA256;
-            if (value.is_ALG__AES__128__GCM__IV12__TAG16__HKDF__SHA256__ECDSA__P256)
-                return Aws.Crypto.AlgorithmSuiteId.ALG_AES_128_GCM_IV12_TAG16_HKDF_SHA256_ECDSA_P256;
-            if (value.is_ALG__AES__192__GCM__IV12__TAG16__HKDF__SHA384__ECDSA__P384)
-                return Aws.Crypto.AlgorithmSuiteId.ALG_AES_192_GCM_IV12_TAG16_HKDF_SHA384_ECDSA_P384;
-            if (value.is_ALG__AES__256__GCM__IV12__TAG16__HKDF__SHA384__ECDSA__P384)
-                return Aws.Crypto.AlgorithmSuiteId.ALG_AES_256_GCM_IV12_TAG16_HKDF_SHA384_ECDSA_P384;
-            throw new System.ArgumentException("Invalid Aws.Crypto.AlgorithmSuiteId value");
+            return FromDafny_N3_aws__N13_encryptionSdk__N4_core__S14_AesWrappingAlg(value);
         }
 
-        public static Dafny.Aws.Crypto.AlgorithmSuiteId ToDafny_N3_aws__N6_crypto__S16_AlgorithmSuiteId(
-            Aws.Crypto.AlgorithmSuiteId value)
+        public static Dafny.Aws.EncryptionSdk.Core._IAesWrappingAlg
+            ToDafny_N3_aws__N13_encryptionSdk__N4_core__S24_CreateRawAesKeyringInput__M11_wrappingAlg(
+                AWS.EncryptionSDK.Core.AesWrappingAlg value)
         {
-            if (Aws.Crypto.AlgorithmSuiteId.ALG_AES_128_GCM_IV12_TAG16_NO_KDF.Equals(value))
-                return Dafny.Aws.Crypto.AlgorithmSuiteId.create_ALG__AES__128__GCM__IV12__TAG16__NO__KDF();
-            if (Aws.Crypto.AlgorithmSuiteId.ALG_AES_192_GCM_IV12_TAG16_NO_KDF.Equals(value))
-                return Dafny.Aws.Crypto.AlgorithmSuiteId.create_ALG__AES__192__GCM__IV12__TAG16__NO__KDF();
-            if (Aws.Crypto.AlgorithmSuiteId.ALG_AES_256_GCM_IV12_TAG16_NO_KDF.Equals(value))
-                return Dafny.Aws.Crypto.AlgorithmSuiteId.create_ALG__AES__256__GCM__IV12__TAG16__NO__KDF();
-            if (Aws.Crypto.AlgorithmSuiteId.ALG_AES_128_GCM_IV12_TAG16_HKDF_SHA256.Equals(value))
-                return Dafny.Aws.Crypto.AlgorithmSuiteId.create_ALG__AES__128__GCM__IV12__TAG16__HKDF__SHA256();
-            if (Aws.Crypto.AlgorithmSuiteId.ALG_AES_192_GCM_IV12_TAG16_HKDF_SHA256.Equals(value))
-                return Dafny.Aws.Crypto.AlgorithmSuiteId.create_ALG__AES__192__GCM__IV12__TAG16__HKDF__SHA256();
-            if (Aws.Crypto.AlgorithmSuiteId.ALG_AES_256_GCM_IV12_TAG16_HKDF_SHA256.Equals(value))
-                return Dafny.Aws.Crypto.AlgorithmSuiteId.create_ALG__AES__256__GCM__IV12__TAG16__HKDF__SHA256();
-            if (Aws.Crypto.AlgorithmSuiteId.ALG_AES_128_GCM_IV12_TAG16_HKDF_SHA256_ECDSA_P256.Equals(value))
-                return Dafny.Aws.Crypto.AlgorithmSuiteId
-                    .create_ALG__AES__128__GCM__IV12__TAG16__HKDF__SHA256__ECDSA__P256();
-            if (Aws.Crypto.AlgorithmSuiteId.ALG_AES_192_GCM_IV12_TAG16_HKDF_SHA384_ECDSA_P384.Equals(value))
-                return Dafny.Aws.Crypto.AlgorithmSuiteId
-                    .create_ALG__AES__192__GCM__IV12__TAG16__HKDF__SHA384__ECDSA__P384();
-            if (Aws.Crypto.AlgorithmSuiteId.ALG_AES_256_GCM_IV12_TAG16_HKDF_SHA384_ECDSA_P384.Equals(value))
-                return Dafny.Aws.Crypto.AlgorithmSuiteId
-                    .create_ALG__AES__256__GCM__IV12__TAG16__HKDF__SHA384__ECDSA__P384();
-            throw new System.ArgumentException("Invalid Aws.Crypto.AlgorithmSuiteId value");
+            return ToDafny_N3_aws__N13_encryptionSdk__N4_core__S14_AesWrappingAlg(value);
         }
 
-        public static Aws.Crypto.EncryptionMaterials FromDafny_N3_aws__N6_crypto__S19_EncryptionMaterials(
-            Dafny.Aws.Crypto.EncryptionMaterials value)
+        public static AWS.EncryptionSDK.Core.GetEncryptionMaterialsOutput
+            FromDafny_N3_aws__N13_encryptionSdk__N4_core__S28_GetEncryptionMaterialsOutput(
+                Dafny.Aws.EncryptionSdk.Core._IGetEncryptionMaterialsOutput value)
         {
-            Aws.Crypto.EncryptionMaterials converted = new Aws.Crypto.EncryptionMaterials();
+            Dafny.Aws.EncryptionSdk.Core.GetEncryptionMaterialsOutput concrete =
+                (Dafny.Aws.EncryptionSdk.Core.GetEncryptionMaterialsOutput)value;
+            AWS.EncryptionSDK.Core.GetEncryptionMaterialsOutput converted =
+                new AWS.EncryptionSDK.Core.GetEncryptionMaterialsOutput();
+            converted.EncryptionMaterials =
+                (AWS.EncryptionSDK.Core.EncryptionMaterials)
+                FromDafny_N3_aws__N13_encryptionSdk__N4_core__S28_GetEncryptionMaterialsOutput__M19_encryptionMaterials(
+                    concrete.encryptionMaterials);
+            return converted;
+        }
+
+        public static Dafny.Aws.EncryptionSdk.Core._IGetEncryptionMaterialsOutput
+            ToDafny_N3_aws__N13_encryptionSdk__N4_core__S28_GetEncryptionMaterialsOutput(
+                AWS.EncryptionSDK.Core.GetEncryptionMaterialsOutput value)
+        {
+            return new Dafny.Aws.EncryptionSdk.Core.GetEncryptionMaterialsOutput(
+                ToDafny_N3_aws__N13_encryptionSdk__N4_core__S28_GetEncryptionMaterialsOutput__M19_encryptionMaterials(
+                    value.EncryptionMaterials));
+        }
+
+        public static string
+            FromDafny_N3_aws__N13_encryptionSdk__N4_core__S42_AwsCryptographicMaterialProvidersException__M7_message(
+                Dafny.ISequence<char> value)
+        {
+            return FromDafny_N6_smithy__N3_api__S6_String(value);
+        }
+
+        public static Dafny.ISequence<char>
+            ToDafny_N3_aws__N13_encryptionSdk__N4_core__S42_AwsCryptographicMaterialProvidersException__M7_message(
+                string value)
+        {
+            return ToDafny_N6_smithy__N3_api__S6_String(value);
+        }
+
+        public static Amazon.KeyManagementService.IAmazonKeyManagementService
+            FromDafny_N3_aws__N13_encryptionSdk__N4_core__S36_CreateAwsKmsMrkDiscoveryKeyringInput__M9_kmsClient(
+                Dafny.Com.Amazonaws.Kms.IKeyManagementServiceClient value)
+        {
+            return FromDafny_N3_aws__N13_encryptionSdk__N4_core__S18_KmsClientReference(value);
+        }
+
+        public static Dafny.Com.Amazonaws.Kms.IKeyManagementServiceClient
+            ToDafny_N3_aws__N13_encryptionSdk__N4_core__S36_CreateAwsKmsMrkDiscoveryKeyringInput__M9_kmsClient(
+                Amazon.KeyManagementService.IAmazonKeyManagementService value)
+        {
+            return ToDafny_N3_aws__N13_encryptionSdk__N4_core__S18_KmsClientReference(value);
+        }
+
+        public static System.Collections.Generic.Dictionary<string, string>
+            FromDafny_N3_aws__N13_encryptionSdk__N4_core__S27_GetEncryptionMaterialsInput__M17_encryptionContext(
+                Dafny.IMap<Dafny.ISequence<byte>, Dafny.ISequence<byte>> value)
+        {
+            return FromDafny_N3_aws__N13_encryptionSdk__N4_core__S17_EncryptionContext(value);
+        }
+
+        public static Dafny.IMap<Dafny.ISequence<byte>, Dafny.ISequence<byte>>
+            ToDafny_N3_aws__N13_encryptionSdk__N4_core__S27_GetEncryptionMaterialsInput__M17_encryptionContext(
+                System.Collections.Generic.Dictionary<string, string> value)
+        {
+            return ToDafny_N3_aws__N13_encryptionSdk__N4_core__S17_EncryptionContext(value);
+        }
+
+        public static System.Collections.Generic.List<string>
+            FromDafny_N3_aws__N13_encryptionSdk__N4_core__S29_CreateAwsKmsMultiKeyringInput__M11_grantTokens(
+                Wrappers_Compile._IOption<Dafny.ISequence<Dafny.ISequence<char>>> value)
+        {
+            return value.is_None
+                ? (System.Collections.Generic.List<string>)null
+                : FromDafny_N3_aws__N13_encryptionSdk__N4_core__S14_GrantTokenList(value.Extract());
+        }
+
+        public static Wrappers_Compile._IOption<Dafny.ISequence<Dafny.ISequence<char>>>
+            ToDafny_N3_aws__N13_encryptionSdk__N4_core__S29_CreateAwsKmsMultiKeyringInput__M11_grantTokens(
+                System.Collections.Generic.List<string> value)
+        {
+            return value == null
+                ? Wrappers_Compile.Option<Dafny.ISequence<Dafny.ISequence<char>>>.create_None()
+                : Wrappers_Compile.Option<Dafny.ISequence<Dafny.ISequence<char>>>.create_Some(
+                    ToDafny_N3_aws__N13_encryptionSdk__N4_core__S14_GrantTokenList(
+                        (System.Collections.Generic.List<string>)value));
+        }
+
+        public static AWS.EncryptionSDK.Core.IClientSupplier
+            FromDafny_N3_aws__N13_encryptionSdk__N4_core__S38_CreateAwsKmsDiscoveryMultiKeyringInput__M14_clientSupplier(
+                Wrappers_Compile._IOption<Dafny.Aws.EncryptionSdk.Core.IClientSupplier> value)
+        {
+            return value.is_None
+                ? (AWS.EncryptionSDK.Core.IClientSupplier)null
+                : FromDafny_N3_aws__N13_encryptionSdk__N4_core__S23_ClientSupplierReference(value.Extract());
+        }
+
+        public static Wrappers_Compile._IOption<Dafny.Aws.EncryptionSdk.Core.IClientSupplier>
+            ToDafny_N3_aws__N13_encryptionSdk__N4_core__S38_CreateAwsKmsDiscoveryMultiKeyringInput__M14_clientSupplier(
+                AWS.EncryptionSDK.Core.IClientSupplier value)
+        {
+            return value == null
+                ? Wrappers_Compile.Option<Dafny.Aws.EncryptionSdk.Core.IClientSupplier>.create_None()
+                : Wrappers_Compile.Option<Dafny.Aws.EncryptionSdk.Core.IClientSupplier>.create_Some(
+                    ToDafny_N3_aws__N13_encryptionSdk__N4_core__S23_ClientSupplierReference(
+                        (AWS.EncryptionSDK.Core.IClientSupplier)value));
+        }
+
+        public static AWS.EncryptionSDK.Core.AlgorithmSuiteId
+            FromDafny_N3_aws__N13_encryptionSdk__N4_core__S19_DecryptionMaterials__M16_algorithmSuiteId(
+                Dafny.Aws.EncryptionSdk.Core._IAlgorithmSuiteId value)
+        {
+            return FromDafny_N3_aws__N13_encryptionSdk__N4_core__S16_AlgorithmSuiteId(value);
+        }
+
+        public static Dafny.Aws.EncryptionSdk.Core._IAlgorithmSuiteId
+            ToDafny_N3_aws__N13_encryptionSdk__N4_core__S19_DecryptionMaterials__M16_algorithmSuiteId(
+                AWS.EncryptionSDK.Core.AlgorithmSuiteId value)
+        {
+            return ToDafny_N3_aws__N13_encryptionSdk__N4_core__S16_AlgorithmSuiteId(value);
+        }
+
+        public static AWS.EncryptionSDK.Core.CommitmentPolicy
+            FromDafny_N3_aws__N13_encryptionSdk__N4_core__S21_DecryptMaterialsInput__M16_commitmentPolicy(
+                Dafny.Aws.EncryptionSdk.Core._ICommitmentPolicy value)
+        {
+            return FromDafny_N3_aws__N13_encryptionSdk__N4_core__S16_CommitmentPolicy(value);
+        }
+
+        public static Dafny.Aws.EncryptionSdk.Core._ICommitmentPolicy
+            ToDafny_N3_aws__N13_encryptionSdk__N4_core__S21_DecryptMaterialsInput__M16_commitmentPolicy(
+                AWS.EncryptionSDK.Core.CommitmentPolicy value)
+        {
+            return ToDafny_N3_aws__N13_encryptionSdk__N4_core__S16_CommitmentPolicy(value);
+        }
+
+        public static AWS.EncryptionSDK.Core.CreateRawAesKeyringInput
+            FromDafny_N3_aws__N13_encryptionSdk__N4_core__S24_CreateRawAesKeyringInput(
+                Dafny.Aws.EncryptionSdk.Core._ICreateRawAesKeyringInput value)
+        {
+            Dafny.Aws.EncryptionSdk.Core.CreateRawAesKeyringInput concrete =
+                (Dafny.Aws.EncryptionSdk.Core.CreateRawAesKeyringInput)value;
+            AWS.EncryptionSDK.Core.CreateRawAesKeyringInput converted =
+                new AWS.EncryptionSDK.Core.CreateRawAesKeyringInput();
+            converted.KeyNamespace =
+                (string)FromDafny_N3_aws__N13_encryptionSdk__N4_core__S24_CreateRawAesKeyringInput__M12_keyNamespace(
+                    concrete.keyNamespace);
+            converted.KeyName =
+                (string)FromDafny_N3_aws__N13_encryptionSdk__N4_core__S24_CreateRawAesKeyringInput__M7_keyName(
+                    concrete.keyName);
+            converted.WrappingKey =
+                (System.IO.MemoryStream)
+                FromDafny_N3_aws__N13_encryptionSdk__N4_core__S24_CreateRawAesKeyringInput__M11_wrappingKey(
+                    concrete.wrappingKey);
+            converted.WrappingAlg =
+                (AWS.EncryptionSDK.Core.AesWrappingAlg)
+                FromDafny_N3_aws__N13_encryptionSdk__N4_core__S24_CreateRawAesKeyringInput__M11_wrappingAlg(
+                    concrete.wrappingAlg);
+            return converted;
+        }
+
+        public static Dafny.Aws.EncryptionSdk.Core._ICreateRawAesKeyringInput
+            ToDafny_N3_aws__N13_encryptionSdk__N4_core__S24_CreateRawAesKeyringInput(
+                AWS.EncryptionSDK.Core.CreateRawAesKeyringInput value)
+        {
+            return new Dafny.Aws.EncryptionSdk.Core.CreateRawAesKeyringInput(
+                ToDafny_N3_aws__N13_encryptionSdk__N4_core__S24_CreateRawAesKeyringInput__M12_keyNamespace(
+                    value.KeyNamespace),
+                ToDafny_N3_aws__N13_encryptionSdk__N4_core__S24_CreateRawAesKeyringInput__M7_keyName(value.KeyName),
+                ToDafny_N3_aws__N13_encryptionSdk__N4_core__S24_CreateRawAesKeyringInput__M11_wrappingKey(
+                    value.WrappingKey),
+                ToDafny_N3_aws__N13_encryptionSdk__N4_core__S24_CreateRawAesKeyringInput__M11_wrappingAlg(
+                    value.WrappingAlg));
+        }
+
+        public static string FromDafny_N3_aws__N13_encryptionSdk__N4_core__S8_KmsKeyId(Dafny.ISequence<char> value)
+        {
+            return new string(value.Elements);
+        }
+
+        public static Dafny.ISequence<char> ToDafny_N3_aws__N13_encryptionSdk__N4_core__S8_KmsKeyId(string value)
+        {
+            return Dafny.Sequence<char>.FromString(value);
+        }
+
+        public static AWS.EncryptionSDK.Core.EncryptionMaterials
+            FromDafny_N3_aws__N13_encryptionSdk__N4_core__S28_GetEncryptionMaterialsOutput__M19_encryptionMaterials(
+                Dafny.Aws.EncryptionSdk.Core._IEncryptionMaterials value)
+        {
+            return FromDafny_N3_aws__N13_encryptionSdk__N4_core__S19_EncryptionMaterials(value);
+        }
+
+        public static Dafny.Aws.EncryptionSdk.Core._IEncryptionMaterials
+            ToDafny_N3_aws__N13_encryptionSdk__N4_core__S28_GetEncryptionMaterialsOutput__M19_encryptionMaterials(
+                AWS.EncryptionSDK.Core.EncryptionMaterials value)
+        {
+            return ToDafny_N3_aws__N13_encryptionSdk__N4_core__S19_EncryptionMaterials(value);
+        }
+
+        public static AWS.EncryptionSDK.Core.AesWrappingAlg
+            FromDafny_N3_aws__N13_encryptionSdk__N4_core__S14_AesWrappingAlg(
+                Dafny.Aws.EncryptionSdk.Core._IAesWrappingAlg value)
+        {
+            if (value.is_ALG__AES128__GCM__IV12__TAG16)
+                return AWS.EncryptionSDK.Core.AesWrappingAlg.ALG_AES128_GCM_IV12_TAG16;
+            if (value.is_ALG__AES192__GCM__IV12__TAG16)
+                return AWS.EncryptionSDK.Core.AesWrappingAlg.ALG_AES192_GCM_IV12_TAG16;
+            if (value.is_ALG__AES256__GCM__IV12__TAG16)
+                return AWS.EncryptionSDK.Core.AesWrappingAlg.ALG_AES256_GCM_IV12_TAG16;
+            throw new System.ArgumentException("Invalid AWS.EncryptionSDK.Core.AesWrappingAlg value");
+        }
+
+        public static Dafny.Aws.EncryptionSdk.Core._IAesWrappingAlg
+            ToDafny_N3_aws__N13_encryptionSdk__N4_core__S14_AesWrappingAlg(AWS.EncryptionSDK.Core.AesWrappingAlg value)
+        {
+            if (AWS.EncryptionSDK.Core.AesWrappingAlg.ALG_AES128_GCM_IV12_TAG16.Equals(value))
+                return Dafny.Aws.EncryptionSdk.Core.AesWrappingAlg.create_ALG__AES128__GCM__IV12__TAG16();
+            if (AWS.EncryptionSDK.Core.AesWrappingAlg.ALG_AES192_GCM_IV12_TAG16.Equals(value))
+                return Dafny.Aws.EncryptionSdk.Core.AesWrappingAlg.create_ALG__AES192__GCM__IV12__TAG16();
+            if (AWS.EncryptionSDK.Core.AesWrappingAlg.ALG_AES256_GCM_IV12_TAG16.Equals(value))
+                return Dafny.Aws.EncryptionSdk.Core.AesWrappingAlg.create_ALG__AES256__GCM__IV12__TAG16();
+            throw new System.ArgumentException("Invalid AWS.EncryptionSDK.Core.AesWrappingAlg value");
+        }
+
+        public static string
+            FromDafny_N3_aws__N13_encryptionSdk__N4_core__S24_CreateRawAesKeyringInput__M12_keyNamespace(
+                Dafny.ISequence<char> value)
+        {
+            return FromDafny_N6_smithy__N3_api__S6_String(value);
+        }
+
+        public static Dafny.ISequence<char>
+            ToDafny_N3_aws__N13_encryptionSdk__N4_core__S24_CreateRawAesKeyringInput__M12_keyNamespace(string value)
+        {
+            return ToDafny_N6_smithy__N3_api__S6_String(value);
+        }
+
+        public static AWS.EncryptionSDK.Core.DecryptionMaterials
+            FromDafny_N3_aws__N13_encryptionSdk__N4_core__S22_DecryptMaterialsOutput__M19_decryptionMaterials(
+                Dafny.Aws.EncryptionSdk.Core._IDecryptionMaterials value)
+        {
+            return FromDafny_N3_aws__N13_encryptionSdk__N4_core__S19_DecryptionMaterials(value);
+        }
+
+        public static Dafny.Aws.EncryptionSdk.Core._IDecryptionMaterials
+            ToDafny_N3_aws__N13_encryptionSdk__N4_core__S22_DecryptMaterialsOutput__M19_decryptionMaterials(
+                AWS.EncryptionSDK.Core.DecryptionMaterials value)
+        {
+            return ToDafny_N3_aws__N13_encryptionSdk__N4_core__S19_DecryptionMaterials(value);
+        }
+
+        public static string FromDafny_N3_aws__N13_encryptionSdk__N4_core__S17_EncryptionContext__M3_key(
+            Dafny.ISequence<byte> value)
+        {
+            return FromDafny_N3_aws__N13_encryptionSdk__N4_core__S9_Utf8Bytes(value);
+        }
+
+        public static Dafny.ISequence<byte> ToDafny_N3_aws__N13_encryptionSdk__N4_core__S17_EncryptionContext__M3_key(
+            string value)
+        {
+            return ToDafny_N3_aws__N13_encryptionSdk__N4_core__S9_Utf8Bytes(value);
+        }
+
+        public static System.IO.MemoryStream
+            FromDafny_N3_aws__N13_encryptionSdk__N4_core__S19_EncryptionMaterials__M16_plaintextDataKey(
+                Wrappers_Compile._IOption<Dafny.ISequence<byte>> value)
+        {
+            return value.is_None ? (System.IO.MemoryStream)null : FromDafny_N6_smithy__N3_api__S4_Blob(value.Extract());
+        }
+
+        public static Wrappers_Compile._IOption<Dafny.ISequence<byte>>
+            ToDafny_N3_aws__N13_encryptionSdk__N4_core__S19_EncryptionMaterials__M16_plaintextDataKey(
+                System.IO.MemoryStream value)
+        {
+            return value == null
+                ? Wrappers_Compile.Option<Dafny.ISequence<byte>>.create_None()
+                : Wrappers_Compile.Option<Dafny.ISequence<byte>>.create_Some(
+                    ToDafny_N6_smithy__N3_api__S4_Blob((System.IO.MemoryStream)value));
+        }
+
+        public static System.Collections.Generic.List<string>
+            FromDafny_N3_aws__N13_encryptionSdk__N4_core__S13_AccountIdList(
+                Dafny.ISequence<Dafny.ISequence<char>> value)
+        {
+            return new System.Collections.Generic.List<string>(
+                value.Elements.Select(FromDafny_N3_aws__N13_encryptionSdk__N4_core__S13_AccountIdList__M6_member));
+        }
+
+        public static Dafny.ISequence<Dafny.ISequence<char>>
+            ToDafny_N3_aws__N13_encryptionSdk__N4_core__S13_AccountIdList(System.Collections.Generic.List<string> value)
+        {
+            return Dafny.Sequence<Dafny.ISequence<char>>.FromArray(value
+                .Select(ToDafny_N3_aws__N13_encryptionSdk__N4_core__S13_AccountIdList__M6_member).ToArray());
+        }
+
+        public static AWS.EncryptionSDK.Core.ICryptographicMaterialsManager
+            FromDafny_N3_aws__N13_encryptionSdk__N4_core__S41_CreateCryptographicMaterialsManagerOutput(
+                Dafny.Aws.EncryptionSdk.Core.ICryptographicMaterialsManager value)
+        {
+            return
+                FromDafny_N3_aws__N13_encryptionSdk__N4_core__S41_CreateCryptographicMaterialsManagerOutput__M16_materialsManager(
+                    value);
+        }
+
+        public static Dafny.Aws.EncryptionSdk.Core.ICryptographicMaterialsManager
+            ToDafny_N3_aws__N13_encryptionSdk__N4_core__S41_CreateCryptographicMaterialsManagerOutput(
+                AWS.EncryptionSDK.Core.ICryptographicMaterialsManager value)
+        {
+            return
+                ToDafny_N3_aws__N13_encryptionSdk__N4_core__S41_CreateCryptographicMaterialsManagerOutput__M16_materialsManager(
+                    value);
+        }
+
+        public static string FromDafny_N3_aws__N13_encryptionSdk__N4_core__S24_CreateRawAesKeyringInput__M7_keyName(
+            Dafny.ISequence<char> value)
+        {
+            return FromDafny_N6_smithy__N3_api__S6_String(value);
+        }
+
+        public static Dafny.ISequence<char>
+            ToDafny_N3_aws__N13_encryptionSdk__N4_core__S24_CreateRawAesKeyringInput__M7_keyName(string value)
+        {
+            return ToDafny_N6_smithy__N3_api__S6_String(value);
+        }
+
+        public static System.Collections.Generic.List<string>
+            FromDafny_N3_aws__N13_encryptionSdk__N4_core__S38_CreateAwsKmsDiscoveryMultiKeyringInput__M11_grantTokens(
+                Wrappers_Compile._IOption<Dafny.ISequence<Dafny.ISequence<char>>> value)
+        {
+            return value.is_None
+                ? (System.Collections.Generic.List<string>)null
+                : FromDafny_N3_aws__N13_encryptionSdk__N4_core__S14_GrantTokenList(value.Extract());
+        }
+
+        public static Wrappers_Compile._IOption<Dafny.ISequence<Dafny.ISequence<char>>>
+            ToDafny_N3_aws__N13_encryptionSdk__N4_core__S38_CreateAwsKmsDiscoveryMultiKeyringInput__M11_grantTokens(
+                System.Collections.Generic.List<string> value)
+        {
+            return value == null
+                ? Wrappers_Compile.Option<Dafny.ISequence<Dafny.ISequence<char>>>.create_None()
+                : Wrappers_Compile.Option<Dafny.ISequence<Dafny.ISequence<char>>>.create_Some(
+                    ToDafny_N3_aws__N13_encryptionSdk__N4_core__S14_GrantTokenList(
+                        (System.Collections.Generic.List<string>)value));
+        }
+
+        public static AWS.EncryptionSDK.Core.CreateAwsKmsMrkDiscoveryKeyringInput
+            FromDafny_N3_aws__N13_encryptionSdk__N4_core__S36_CreateAwsKmsMrkDiscoveryKeyringInput(
+                Dafny.Aws.EncryptionSdk.Core._ICreateAwsKmsMrkDiscoveryKeyringInput value)
+        {
+            Dafny.Aws.EncryptionSdk.Core.CreateAwsKmsMrkDiscoveryKeyringInput concrete =
+                (Dafny.Aws.EncryptionSdk.Core.CreateAwsKmsMrkDiscoveryKeyringInput)value;
+            AWS.EncryptionSDK.Core.CreateAwsKmsMrkDiscoveryKeyringInput converted =
+                new AWS.EncryptionSDK.Core.CreateAwsKmsMrkDiscoveryKeyringInput();
+            converted.KmsClient =
+                (Amazon.KeyManagementService.IAmazonKeyManagementService)
+                FromDafny_N3_aws__N13_encryptionSdk__N4_core__S36_CreateAwsKmsMrkDiscoveryKeyringInput__M9_kmsClient(
+                    concrete.kmsClient);
+            if (concrete.discoveryFilter.is_Some)
+                converted.DiscoveryFilter =
+                    (AWS.EncryptionSDK.Core.DiscoveryFilter)
+                    FromDafny_N3_aws__N13_encryptionSdk__N4_core__S36_CreateAwsKmsMrkDiscoveryKeyringInput__M15_discoveryFilter(
+                        concrete.discoveryFilter);
+            if (concrete.grantTokens.is_Some)
+                converted.GrantTokens =
+                    (System.Collections.Generic.List<string>)
+                    FromDafny_N3_aws__N13_encryptionSdk__N4_core__S36_CreateAwsKmsMrkDiscoveryKeyringInput__M11_grantTokens(
+                        concrete.grantTokens);
+            converted.Region =
+                (string)
+                FromDafny_N3_aws__N13_encryptionSdk__N4_core__S36_CreateAwsKmsMrkDiscoveryKeyringInput__M6_region(
+                    concrete.region);
+            return converted;
+        }
+
+        public static Dafny.Aws.EncryptionSdk.Core._ICreateAwsKmsMrkDiscoveryKeyringInput
+            ToDafny_N3_aws__N13_encryptionSdk__N4_core__S36_CreateAwsKmsMrkDiscoveryKeyringInput(
+                AWS.EncryptionSDK.Core.CreateAwsKmsMrkDiscoveryKeyringInput value)
+        {
+            AWS.EncryptionSDK.Core.DiscoveryFilter var_discoveryFilter = value.IsSetDiscoveryFilter()
+                ? value.DiscoveryFilter
+                : (AWS.EncryptionSDK.Core.DiscoveryFilter)null;
+            System.Collections.Generic.List<string> var_grantTokens = value.IsSetGrantTokens()
+                ? value.GrantTokens
+                : (System.Collections.Generic.List<string>)null;
+            return new Dafny.Aws.EncryptionSdk.Core.CreateAwsKmsMrkDiscoveryKeyringInput(
+                ToDafny_N3_aws__N13_encryptionSdk__N4_core__S36_CreateAwsKmsMrkDiscoveryKeyringInput__M9_kmsClient(
+                    value.KmsClient),
+                ToDafny_N3_aws__N13_encryptionSdk__N4_core__S36_CreateAwsKmsMrkDiscoveryKeyringInput__M15_discoveryFilter(
+                    var_discoveryFilter),
+                ToDafny_N3_aws__N13_encryptionSdk__N4_core__S36_CreateAwsKmsMrkDiscoveryKeyringInput__M11_grantTokens(
+                    var_grantTokens),
+                ToDafny_N3_aws__N13_encryptionSdk__N4_core__S36_CreateAwsKmsMrkDiscoveryKeyringInput__M6_region(
+                    value.Region));
+        }
+
+        public static System.Collections.Generic.List<string>
+            FromDafny_N3_aws__N13_encryptionSdk__N4_core__S29_CreateAwsKmsMultiKeyringInput__M9_kmsKeyIds(
+                Wrappers_Compile._IOption<Dafny.ISequence<Dafny.ISequence<char>>> value)
+        {
+            return value.is_None
+                ? (System.Collections.Generic.List<string>)null
+                : FromDafny_N3_aws__N13_encryptionSdk__N4_core__S12_KmsKeyIdList(value.Extract());
+        }
+
+        public static Wrappers_Compile._IOption<Dafny.ISequence<Dafny.ISequence<char>>>
+            ToDafny_N3_aws__N13_encryptionSdk__N4_core__S29_CreateAwsKmsMultiKeyringInput__M9_kmsKeyIds(
+                System.Collections.Generic.List<string> value)
+        {
+            return value == null
+                ? Wrappers_Compile.Option<Dafny.ISequence<Dafny.ISequence<char>>>.create_None()
+                : Wrappers_Compile.Option<Dafny.ISequence<Dafny.ISequence<char>>>.create_Some(
+                    ToDafny_N3_aws__N13_encryptionSdk__N4_core__S12_KmsKeyIdList(
+                        (System.Collections.Generic.List<string>)value));
+        }
+
+        public static Amazon.KeyManagementService.IAmazonKeyManagementService
+            FromDafny_N3_aws__N13_encryptionSdk__N4_core__S24_CreateAwsKmsKeyringInput__M9_kmsClient(
+                Dafny.Com.Amazonaws.Kms.IKeyManagementServiceClient value)
+        {
+            return FromDafny_N3_aws__N13_encryptionSdk__N4_core__S18_KmsClientReference(value);
+        }
+
+        public static Dafny.Com.Amazonaws.Kms.IKeyManagementServiceClient
+            ToDafny_N3_aws__N13_encryptionSdk__N4_core__S24_CreateAwsKmsKeyringInput__M9_kmsClient(
+                Amazon.KeyManagementService.IAmazonKeyManagementService value)
+        {
+            return ToDafny_N3_aws__N13_encryptionSdk__N4_core__S18_KmsClientReference(value);
+        }
+
+        public static System.Collections.Generic.List<AWS.EncryptionSDK.Core.EncryptedDataKey>
+            FromDafny_N3_aws__N13_encryptionSdk__N4_core__S14_OnDecryptInput__M17_encryptedDataKeys(
+                Dafny.ISequence<Dafny.Aws.EncryptionSdk.Core._IEncryptedDataKey> value)
+        {
+            return FromDafny_N3_aws__N13_encryptionSdk__N4_core__S20_EncryptedDataKeyList(value);
+        }
+
+        public static Dafny.ISequence<Dafny.Aws.EncryptionSdk.Core._IEncryptedDataKey>
+            ToDafny_N3_aws__N13_encryptionSdk__N4_core__S14_OnDecryptInput__M17_encryptedDataKeys(
+                System.Collections.Generic.List<AWS.EncryptionSDK.Core.EncryptedDataKey> value)
+        {
+            return ToDafny_N3_aws__N13_encryptionSdk__N4_core__S20_EncryptedDataKeyList(value);
+        }
+
+        public static AWS.EncryptionSDK.Core.DecryptMaterialsInput
+            FromDafny_N3_aws__N13_encryptionSdk__N4_core__S21_DecryptMaterialsInput(
+                Dafny.Aws.EncryptionSdk.Core._IDecryptMaterialsInput value)
+        {
+            Dafny.Aws.EncryptionSdk.Core.DecryptMaterialsInput concrete =
+                (Dafny.Aws.EncryptionSdk.Core.DecryptMaterialsInput)value;
+            AWS.EncryptionSDK.Core.DecryptMaterialsInput converted = new AWS.EncryptionSDK.Core.DecryptMaterialsInput();
             converted.AlgorithmSuiteId =
-                (Aws.Crypto.AlgorithmSuiteId)
-                FromDafny_N3_aws__N6_crypto__S19_EncryptionMaterials__M16_algorithmSuiteId(value.algorithmSuiteId);
+                (AWS.EncryptionSDK.Core.AlgorithmSuiteId)
+                FromDafny_N3_aws__N13_encryptionSdk__N4_core__S21_DecryptMaterialsInput__M16_algorithmSuiteId(
+                    concrete.algorithmSuiteId);
+            converted.CommitmentPolicy =
+                (AWS.EncryptionSDK.Core.CommitmentPolicy)
+                FromDafny_N3_aws__N13_encryptionSdk__N4_core__S21_DecryptMaterialsInput__M16_commitmentPolicy(
+                    concrete.commitmentPolicy);
+            converted.EncryptedDataKeys =
+                (System.Collections.Generic.List<AWS.EncryptionSDK.Core.EncryptedDataKey>)
+                FromDafny_N3_aws__N13_encryptionSdk__N4_core__S21_DecryptMaterialsInput__M17_encryptedDataKeys(
+                    concrete.encryptedDataKeys);
             converted.EncryptionContext =
                 (System.Collections.Generic.Dictionary<string, string>)
-                FromDafny_N3_aws__N6_crypto__S19_EncryptionMaterials__M17_encryptionContext(value.encryptionContext);
-            converted.EncryptedDataKeys =
-                (System.Collections.Generic.List<Aws.Crypto.EncryptedDataKey>)
-                FromDafny_N3_aws__N6_crypto__S19_EncryptionMaterials__M17_encryptedDataKeys(value.encryptedDataKeys);
-            if (value.plaintextDataKey.is_Some)
-                converted.PlaintextDataKey =
-                    (System.IO.MemoryStream) FromDafny_N3_aws__N6_crypto__S19_EncryptionMaterials__M16_plaintextDataKey(
-                        value.plaintextDataKey);
-            if (value.signingKey.is_Some)
-                converted.SigningKey =
-                    (System.IO.MemoryStream) FromDafny_N3_aws__N6_crypto__S19_EncryptionMaterials__M10_signingKey(
-                        value.signingKey);
+                FromDafny_N3_aws__N13_encryptionSdk__N4_core__S21_DecryptMaterialsInput__M17_encryptionContext(
+                    concrete.encryptionContext);
             return converted;
         }
 
-        public static Dafny.Aws.Crypto.EncryptionMaterials ToDafny_N3_aws__N6_crypto__S19_EncryptionMaterials(
-            Aws.Crypto.EncryptionMaterials value)
+        public static Dafny.Aws.EncryptionSdk.Core._IDecryptMaterialsInput
+            ToDafny_N3_aws__N13_encryptionSdk__N4_core__S21_DecryptMaterialsInput(
+                AWS.EncryptionSDK.Core.DecryptMaterialsInput value)
         {
-            return new Dafny.Aws.Crypto.EncryptionMaterials(
-                ToDafny_N3_aws__N6_crypto__S19_EncryptionMaterials__M16_algorithmSuiteId(value.AlgorithmSuiteId),
-                ToDafny_N3_aws__N6_crypto__S19_EncryptionMaterials__M17_encryptionContext(value.EncryptionContext),
-                ToDafny_N3_aws__N6_crypto__S19_EncryptionMaterials__M17_encryptedDataKeys(value.EncryptedDataKeys),
-                ToDafny_N3_aws__N6_crypto__S19_EncryptionMaterials__M16_plaintextDataKey(value.PlaintextDataKey),
-                ToDafny_N3_aws__N6_crypto__S19_EncryptionMaterials__M10_signingKey(value.SigningKey));
+            return new Dafny.Aws.EncryptionSdk.Core.DecryptMaterialsInput(
+                ToDafny_N3_aws__N13_encryptionSdk__N4_core__S21_DecryptMaterialsInput__M16_algorithmSuiteId(
+                    value.AlgorithmSuiteId),
+                ToDafny_N3_aws__N13_encryptionSdk__N4_core__S21_DecryptMaterialsInput__M16_commitmentPolicy(
+                    value.CommitmentPolicy),
+                ToDafny_N3_aws__N13_encryptionSdk__N4_core__S21_DecryptMaterialsInput__M17_encryptedDataKeys(
+                    value.EncryptedDataKeys),
+                ToDafny_N3_aws__N13_encryptionSdk__N4_core__S21_DecryptMaterialsInput__M17_encryptionContext(
+                    value.EncryptionContext));
         }
 
-        public static Aws.Crypto.ICryptographicMaterialsManager
-            FromDafny_N3_aws__N6_crypto__S38_CryptographicMaterialsManagerReference(
-                Dafny.Aws.Crypto.ICryptographicMaterialsManager value)
+        public static AWS.EncryptionSDK.Core.OnEncryptOutput
+            FromDafny_N3_aws__N13_encryptionSdk__N4_core__S15_OnEncryptOutput(
+                Dafny.Aws.EncryptionSdk.Core._IOnEncryptOutput value)
         {
-            return new CryptographicMaterialsManager(value);
-        }
-
-        public static Dafny.Aws.Crypto.ICryptographicMaterialsManager
-            ToDafny_N3_aws__N6_crypto__S38_CryptographicMaterialsManagerReference(
-                Aws.Crypto.ICryptographicMaterialsManager value)
-        {
-            if (value is CryptographicMaterialsManager valueWithImpl)
-            {
-                return valueWithImpl._impl;
-            }
-
-            throw new System.ArgumentException(
-                "Custom implementations of Aws.Crypto.ICryptographicMaterialsManager are not supported yet");
-        }
-
-        public static Aws.Crypto.PutEntryForDecryptOutput FromDafny_N3_aws__N6_crypto__S24_PutEntryForDecryptOutput(
-            Dafny.Aws.Crypto.PutEntryForDecryptOutput value)
-        {
-            Aws.Crypto.PutEntryForDecryptOutput converted = new Aws.Crypto.PutEntryForDecryptOutput();
+            Dafny.Aws.EncryptionSdk.Core.OnEncryptOutput concrete = (Dafny.Aws.EncryptionSdk.Core.OnEncryptOutput)value;
+            AWS.EncryptionSDK.Core.OnEncryptOutput converted = new AWS.EncryptionSDK.Core.OnEncryptOutput();
+            converted.Materials =
+                (AWS.EncryptionSDK.Core.EncryptionMaterials)
+                FromDafny_N3_aws__N13_encryptionSdk__N4_core__S15_OnEncryptOutput__M9_materials(concrete.materials);
             return converted;
         }
 
-        public static Dafny.Aws.Crypto.PutEntryForDecryptOutput ToDafny_N3_aws__N6_crypto__S24_PutEntryForDecryptOutput(
-            Aws.Crypto.PutEntryForDecryptOutput value)
+        public static Dafny.Aws.EncryptionSdk.Core._IOnEncryptOutput
+            ToDafny_N3_aws__N13_encryptionSdk__N4_core__S15_OnEncryptOutput(
+                AWS.EncryptionSDK.Core.OnEncryptOutput value)
         {
-            return new Dafny.Aws.Crypto.PutEntryForDecryptOutput();
+            return new Dafny.Aws.EncryptionSdk.Core.OnEncryptOutput(
+                ToDafny_N3_aws__N13_encryptionSdk__N4_core__S15_OnEncryptOutput__M9_materials(value.Materials));
         }
 
-        public static Aws.Crypto.DeleteEntryOutput FromDafny_N3_aws__N6_crypto__S17_DeleteEntryOutput(
-            Dafny.Aws.Crypto.DeleteEntryOutput value)
+        public static string FromDafny_N3_aws__N13_encryptionSdk__N4_core__S10_RegionList__M6_member(
+            Dafny.ISequence<char> value)
         {
-            Aws.Crypto.DeleteEntryOutput converted = new Aws.Crypto.DeleteEntryOutput();
+            return FromDafny_N3_aws__N13_encryptionSdk__N4_core__S6_Region(value);
+        }
+
+        public static Dafny.ISequence<char> ToDafny_N3_aws__N13_encryptionSdk__N4_core__S10_RegionList__M6_member(
+            string value)
+        {
+            return ToDafny_N3_aws__N13_encryptionSdk__N4_core__S6_Region(value);
+        }
+
+        public static AWS.EncryptionSDK.Core.CreateAwsKmsMrkMultiKeyringInput
+            FromDafny_N3_aws__N13_encryptionSdk__N4_core__S32_CreateAwsKmsMrkMultiKeyringInput(
+                Dafny.Aws.EncryptionSdk.Core._ICreateAwsKmsMrkMultiKeyringInput value)
+        {
+            Dafny.Aws.EncryptionSdk.Core.CreateAwsKmsMrkMultiKeyringInput concrete =
+                (Dafny.Aws.EncryptionSdk.Core.CreateAwsKmsMrkMultiKeyringInput)value;
+            AWS.EncryptionSDK.Core.CreateAwsKmsMrkMultiKeyringInput converted =
+                new AWS.EncryptionSDK.Core.CreateAwsKmsMrkMultiKeyringInput();
+            if (concrete.generator.is_Some)
+                converted.Generator =
+                    (string)
+                    FromDafny_N3_aws__N13_encryptionSdk__N4_core__S32_CreateAwsKmsMrkMultiKeyringInput__M9_generator(
+                        concrete.generator);
+            if (concrete.kmsKeyIds.is_Some)
+                converted.KmsKeyIds =
+                    (System.Collections.Generic.List<string>)
+                    FromDafny_N3_aws__N13_encryptionSdk__N4_core__S32_CreateAwsKmsMrkMultiKeyringInput__M9_kmsKeyIds(
+                        concrete.kmsKeyIds);
+            if (concrete.clientSupplier.is_Some)
+                converted.ClientSupplier =
+                    (AWS.EncryptionSDK.Core.IClientSupplier)
+                    FromDafny_N3_aws__N13_encryptionSdk__N4_core__S32_CreateAwsKmsMrkMultiKeyringInput__M14_clientSupplier(
+                        concrete.clientSupplier);
+            if (concrete.grantTokens.is_Some)
+                converted.GrantTokens =
+                    (System.Collections.Generic.List<string>)
+                    FromDafny_N3_aws__N13_encryptionSdk__N4_core__S32_CreateAwsKmsMrkMultiKeyringInput__M11_grantTokens(
+                        concrete.grantTokens);
             return converted;
         }
 
-        public static Dafny.Aws.Crypto.DeleteEntryOutput ToDafny_N3_aws__N6_crypto__S17_DeleteEntryOutput(
-            Aws.Crypto.DeleteEntryOutput value)
+        public static Dafny.Aws.EncryptionSdk.Core._ICreateAwsKmsMrkMultiKeyringInput
+            ToDafny_N3_aws__N13_encryptionSdk__N4_core__S32_CreateAwsKmsMrkMultiKeyringInput(
+                AWS.EncryptionSDK.Core.CreateAwsKmsMrkMultiKeyringInput value)
         {
-            return new Dafny.Aws.Crypto.DeleteEntryOutput();
+            string var_generator = value.IsSetGenerator() ? value.Generator : (string)null;
+            System.Collections.Generic.List<string> var_kmsKeyIds =
+                value.IsSetKmsKeyIds() ? value.KmsKeyIds : (System.Collections.Generic.List<string>)null;
+            AWS.EncryptionSDK.Core.IClientSupplier var_clientSupplier = value.IsSetClientSupplier()
+                ? value.ClientSupplier
+                : (AWS.EncryptionSDK.Core.IClientSupplier)null;
+            System.Collections.Generic.List<string> var_grantTokens = value.IsSetGrantTokens()
+                ? value.GrantTokens
+                : (System.Collections.Generic.List<string>)null;
+            return new Dafny.Aws.EncryptionSdk.Core.CreateAwsKmsMrkMultiKeyringInput(
+                ToDafny_N3_aws__N13_encryptionSdk__N4_core__S32_CreateAwsKmsMrkMultiKeyringInput__M9_generator(
+                    var_generator),
+                ToDafny_N3_aws__N13_encryptionSdk__N4_core__S32_CreateAwsKmsMrkMultiKeyringInput__M9_kmsKeyIds(
+                    var_kmsKeyIds),
+                ToDafny_N3_aws__N13_encryptionSdk__N4_core__S32_CreateAwsKmsMrkMultiKeyringInput__M14_clientSupplier(
+                    var_clientSupplier),
+                ToDafny_N3_aws__N13_encryptionSdk__N4_core__S32_CreateAwsKmsMrkMultiKeyringInput__M11_grantTokens(
+                    var_grantTokens));
         }
 
-        public static int
-            FromDafny_N3_aws__N6_crypto__S47_CreateCachingCryptographicMaterialsManagerInput__M13_cacheLimitTtl(
-                int value)
+        public static AWS.EncryptionSDK.Core.CommitmentPolicy
+            FromDafny_N3_aws__N13_encryptionSdk__N4_core__S27_GetEncryptionMaterialsInput__M16_commitmentPolicy(
+                Dafny.Aws.EncryptionSdk.Core._ICommitmentPolicy value)
         {
-            return FromDafny_N6_smithy__N3_api__S7_Integer(value);
+            return FromDafny_N3_aws__N13_encryptionSdk__N4_core__S16_CommitmentPolicy(value);
         }
 
-        public static int
-            ToDafny_N3_aws__N6_crypto__S47_CreateCachingCryptographicMaterialsManagerInput__M13_cacheLimitTtl(int value)
+        public static Dafny.Aws.EncryptionSdk.Core._ICommitmentPolicy
+            ToDafny_N3_aws__N13_encryptionSdk__N4_core__S27_GetEncryptionMaterialsInput__M16_commitmentPolicy(
+                AWS.EncryptionSDK.Core.CommitmentPolicy value)
         {
-            return ToDafny_N6_smithy__N3_api__S7_Integer(value);
+            return ToDafny_N3_aws__N13_encryptionSdk__N4_core__S16_CommitmentPolicy(value);
         }
 
-        public static Aws.Crypto.CreateDefaultCryptographicMaterialsManagerInput
-            FromDafny_N3_aws__N6_crypto__S47_CreateDefaultCryptographicMaterialsManagerInput(
-                Dafny.Aws.Crypto.CreateDefaultCryptographicMaterialsManagerInput value)
+        public static System.IO.MemoryStream
+            FromDafny_N3_aws__N13_encryptionSdk__N4_core__S19_DecryptionMaterials__M15_verificationKey(
+                Wrappers_Compile._IOption<Dafny.ISequence<byte>> value)
         {
-            Aws.Crypto.CreateDefaultCryptographicMaterialsManagerInput converted =
-                new Aws.Crypto.CreateDefaultCryptographicMaterialsManagerInput();
-            converted.Keyring =
-                (Aws.Crypto.IKeyring)
-                FromDafny_N3_aws__N6_crypto__S47_CreateDefaultCryptographicMaterialsManagerInput__M7_keyring(
-                    value.keyring);
-            return converted;
+            return value.is_None ? (System.IO.MemoryStream)null : FromDafny_N6_smithy__N3_api__S4_Blob(value.Extract());
         }
 
-        public static Dafny.Aws.Crypto.CreateDefaultCryptographicMaterialsManagerInput
-            ToDafny_N3_aws__N6_crypto__S47_CreateDefaultCryptographicMaterialsManagerInput(
-                Aws.Crypto.CreateDefaultCryptographicMaterialsManagerInput value)
-        {
-            return new Dafny.Aws.Crypto.CreateDefaultCryptographicMaterialsManagerInput(
-                ToDafny_N3_aws__N6_crypto__S47_CreateDefaultCryptographicMaterialsManagerInput__M7_keyring(
-                    value.Keyring));
-        }
-
-        public static long?
-            FromDafny_N3_aws__N6_crypto__S47_CreateCachingCryptographicMaterialsManagerInput__M10_limitBytes(
-                Wrappers_Compile.Option<long> value)
-        {
-            return value.is_None ? (long?) null : FromDafny_N6_smithy__N3_api__S4_Long(value.Extract());
-        }
-
-        public static Wrappers_Compile.Option<long>
-            ToDafny_N3_aws__N6_crypto__S47_CreateCachingCryptographicMaterialsManagerInput__M10_limitBytes(long? value)
+        public static Wrappers_Compile._IOption<Dafny.ISequence<byte>>
+            ToDafny_N3_aws__N13_encryptionSdk__N4_core__S19_DecryptionMaterials__M15_verificationKey(
+                System.IO.MemoryStream value)
         {
             return value == null
-                ? Wrappers_Compile.Option<long>.create_None()
-                : Wrappers_Compile.Option<long>.create_Some(ToDafny_N6_smithy__N3_api__S4_Long((long) value));
+                ? Wrappers_Compile.Option<Dafny.ISequence<byte>>.create_None()
+                : Wrappers_Compile.Option<Dafny.ISequence<byte>>.create_Some(
+                    ToDafny_N6_smithy__N3_api__S4_Blob((System.IO.MemoryStream)value));
         }
 
-        public static Aws.Crypto.OnDecryptInput FromDafny_N3_aws__N6_crypto__S14_OnDecryptInput(
-            Dafny.Aws.Crypto.OnDecryptInput value)
+        public static System.Collections.Generic.List<string>
+            FromDafny_N3_aws__N13_encryptionSdk__N4_core__S41_CreateAwsKmsMrkDiscoveryMultiKeyringInput__M11_grantTokens(
+                Wrappers_Compile._IOption<Dafny.ISequence<Dafny.ISequence<char>>> value)
         {
-            Aws.Crypto.OnDecryptInput converted = new Aws.Crypto.OnDecryptInput();
-            converted.Materials =
-                (Aws.Crypto.DecryptionMaterials) FromDafny_N3_aws__N6_crypto__S14_OnDecryptInput__M9_materials(
-                    value.materials);
-            converted.EncryptedDataKeys =
-                (System.Collections.Generic.List<Aws.Crypto.EncryptedDataKey>)
-                FromDafny_N3_aws__N6_crypto__S14_OnDecryptInput__M17_encryptedDataKeys(value.encryptedDataKeys);
-            return converted;
+            return value.is_None
+                ? (System.Collections.Generic.List<string>)null
+                : FromDafny_N3_aws__N13_encryptionSdk__N4_core__S14_GrantTokenList(value.Extract());
         }
 
-        public static Dafny.Aws.Crypto.OnDecryptInput ToDafny_N3_aws__N6_crypto__S14_OnDecryptInput(
-            Aws.Crypto.OnDecryptInput value)
-        {
-            return new Dafny.Aws.Crypto.OnDecryptInput(
-                ToDafny_N3_aws__N6_crypto__S14_OnDecryptInput__M9_materials(value.Materials),
-                ToDafny_N3_aws__N6_crypto__S14_OnDecryptInput__M17_encryptedDataKeys(value.EncryptedDataKeys));
-        }
-
-        public static Aws.Crypto.EncryptionMaterials
-            FromDafny_N3_aws__N6_crypto__S12_EncryptEntry__M19_encryptionMaterials(
-                Dafny.Aws.Crypto.EncryptionMaterials value)
-        {
-            return FromDafny_N3_aws__N6_crypto__S19_EncryptionMaterials(value);
-        }
-
-        public static Dafny.Aws.Crypto.EncryptionMaterials
-            ToDafny_N3_aws__N6_crypto__S12_EncryptEntry__M19_encryptionMaterials(Aws.Crypto.EncryptionMaterials value)
-        {
-            return ToDafny_N3_aws__N6_crypto__S19_EncryptionMaterials(value);
-        }
-
-        public static Aws.Crypto.EncryptionMaterials FromDafny_N3_aws__N6_crypto__S15_OnEncryptOutput__M9_materials(
-            Dafny.Aws.Crypto.EncryptionMaterials value)
-        {
-            return FromDafny_N3_aws__N6_crypto__S19_EncryptionMaterials(value);
-        }
-
-        public static Dafny.Aws.Crypto.EncryptionMaterials ToDafny_N3_aws__N6_crypto__S15_OnEncryptOutput__M9_materials(
-            Aws.Crypto.EncryptionMaterials value)
-        {
-            return ToDafny_N3_aws__N6_crypto__S19_EncryptionMaterials(value);
-        }
-
-        public static System.Collections.Generic.List<Aws.Crypto.EncryptedDataKey>
-            FromDafny_N3_aws__N6_crypto__S14_OnDecryptInput__M17_encryptedDataKeys(
-                Dafny.ISequence<Dafny.Aws.Crypto.EncryptedDataKey> value)
-        {
-            return FromDafny_N3_aws__N6_crypto__S20_EncryptedDataKeyList(value);
-        }
-
-        public static Dafny.ISequence<Dafny.Aws.Crypto.EncryptedDataKey>
-            ToDafny_N3_aws__N6_crypto__S14_OnDecryptInput__M17_encryptedDataKeys(
-                System.Collections.Generic.List<Aws.Crypto.EncryptedDataKey> value)
-        {
-            return ToDafny_N3_aws__N6_crypto__S20_EncryptedDataKeyList(value);
-        }
-
-        public static long FromDafny_N3_aws__N6_crypto__S12_DecryptEntry__M12_creationTime(long value)
-        {
-            return FromDafny_N6_smithy__N3_api__S4_Long(value);
-        }
-
-        public static long ToDafny_N3_aws__N6_crypto__S12_DecryptEntry__M12_creationTime(long value)
-        {
-            return ToDafny_N6_smithy__N3_api__S4_Long(value);
-        }
-
-        public static Aws.Crypto.CreateRawAesKeyringInput FromDafny_N3_aws__N6_crypto__S24_CreateRawAesKeyringInput(
-            Dafny.Aws.Crypto.CreateRawAesKeyringInput value)
-        {
-            Aws.Crypto.CreateRawAesKeyringInput converted = new Aws.Crypto.CreateRawAesKeyringInput();
-            converted.KeyNamespace =
-                (string) FromDafny_N3_aws__N6_crypto__S24_CreateRawAesKeyringInput__M12_keyNamespace(
-                    value.keyNamespace);
-            converted.KeyName =
-                (string) FromDafny_N3_aws__N6_crypto__S24_CreateRawAesKeyringInput__M7_keyName(value.keyName);
-            converted.WrappingKey =
-                (System.IO.MemoryStream) FromDafny_N3_aws__N6_crypto__S24_CreateRawAesKeyringInput__M11_wrappingKey(
-                    value.wrappingKey);
-            converted.WrappingAlg =
-                (Aws.Crypto.AesWrappingAlg) FromDafny_N3_aws__N6_crypto__S24_CreateRawAesKeyringInput__M11_wrappingAlg(
-                    value.wrappingAlg);
-            return converted;
-        }
-
-        public static Dafny.Aws.Crypto.CreateRawAesKeyringInput ToDafny_N3_aws__N6_crypto__S24_CreateRawAesKeyringInput(
-            Aws.Crypto.CreateRawAesKeyringInput value)
-        {
-            return new Dafny.Aws.Crypto.CreateRawAesKeyringInput(
-                ToDafny_N3_aws__N6_crypto__S24_CreateRawAesKeyringInput__M12_keyNamespace(value.KeyNamespace),
-                ToDafny_N3_aws__N6_crypto__S24_CreateRawAesKeyringInput__M7_keyName(value.KeyName),
-                ToDafny_N3_aws__N6_crypto__S24_CreateRawAesKeyringInput__M11_wrappingKey(value.WrappingKey),
-                ToDafny_N3_aws__N6_crypto__S24_CreateRawAesKeyringInput__M11_wrappingAlg(value.WrappingAlg));
-        }
-
-        public static long? FromDafny_N3_aws__N6_crypto__S27_GetEncryptionMaterialsInput__M18_maxPlaintextLength(
-            Wrappers_Compile.Option<long> value)
-        {
-            return value.is_None ? (long?) null : FromDafny_N6_smithy__N3_api__S4_Long(value.Extract());
-        }
-
-        public static Wrappers_Compile.Option<long>
-            ToDafny_N3_aws__N6_crypto__S27_GetEncryptionMaterialsInput__M18_maxPlaintextLength(long? value)
+        public static Wrappers_Compile._IOption<Dafny.ISequence<Dafny.ISequence<char>>>
+            ToDafny_N3_aws__N13_encryptionSdk__N4_core__S41_CreateAwsKmsMrkDiscoveryMultiKeyringInput__M11_grantTokens(
+                System.Collections.Generic.List<string> value)
         {
             return value == null
-                ? Wrappers_Compile.Option<long>.create_None()
-                : Wrappers_Compile.Option<long>.create_Some(ToDafny_N6_smithy__N3_api__S4_Long((long) value));
+                ? Wrappers_Compile.Option<Dafny.ISequence<Dafny.ISequence<char>>>.create_None()
+                : Wrappers_Compile.Option<Dafny.ISequence<Dafny.ISequence<char>>>.create_Some(
+                    ToDafny_N3_aws__N13_encryptionSdk__N4_core__S14_GrantTokenList(
+                        (System.Collections.Generic.List<string>)value));
         }
 
-        public static Aws.Crypto.OnDecryptOutput FromDafny_N3_aws__N6_crypto__S15_OnDecryptOutput(
-            Dafny.Aws.Crypto.OnDecryptOutput value)
+        public static System.Collections.Generic.Dictionary<string, string>
+            FromDafny_N3_aws__N13_encryptionSdk__N4_core__S19_DecryptionMaterials__M17_encryptionContext(
+                Dafny.IMap<Dafny.ISequence<byte>, Dafny.ISequence<byte>> value)
         {
-            Aws.Crypto.OnDecryptOutput converted = new Aws.Crypto.OnDecryptOutput();
-            converted.Materials =
-                (Aws.Crypto.DecryptionMaterials) FromDafny_N3_aws__N6_crypto__S15_OnDecryptOutput__M9_materials(
-                    value.materials);
+            return FromDafny_N3_aws__N13_encryptionSdk__N4_core__S17_EncryptionContext(value);
+        }
+
+        public static Dafny.IMap<Dafny.ISequence<byte>, Dafny.ISequence<byte>>
+            ToDafny_N3_aws__N13_encryptionSdk__N4_core__S19_DecryptionMaterials__M17_encryptionContext(
+                System.Collections.Generic.Dictionary<string, string> value)
+        {
+            return ToDafny_N3_aws__N13_encryptionSdk__N4_core__S17_EncryptionContext(value);
+        }
+
+        public static string FromDafny_N3_aws__N13_encryptionSdk__N4_core__S14_GrantTokenList__M6_member(
+            Dafny.ISequence<char> value)
+        {
+            return FromDafny_N6_smithy__N3_api__S6_String(value);
+        }
+
+        public static Dafny.ISequence<char> ToDafny_N3_aws__N13_encryptionSdk__N4_core__S14_GrantTokenList__M6_member(
+            string value)
+        {
+            return ToDafny_N6_smithy__N3_api__S6_String(value);
+        }
+
+        public static AWS.EncryptionSDK.Core.DiscoveryFilter
+            FromDafny_N3_aws__N13_encryptionSdk__N4_core__S41_CreateAwsKmsMrkDiscoveryMultiKeyringInput__M15_discoveryFilter(
+                Wrappers_Compile._IOption<Dafny.Aws.EncryptionSdk.Core._IDiscoveryFilter> value)
+        {
+            return value.is_None
+                ? (AWS.EncryptionSDK.Core.DiscoveryFilter)null
+                : FromDafny_N3_aws__N13_encryptionSdk__N4_core__S15_DiscoveryFilter(value.Extract());
+        }
+
+        public static Wrappers_Compile._IOption<Dafny.Aws.EncryptionSdk.Core._IDiscoveryFilter>
+            ToDafny_N3_aws__N13_encryptionSdk__N4_core__S41_CreateAwsKmsMrkDiscoveryMultiKeyringInput__M15_discoveryFilter(
+                AWS.EncryptionSDK.Core.DiscoveryFilter value)
+        {
+            return value == null
+                ? Wrappers_Compile.Option<Dafny.Aws.EncryptionSdk.Core._IDiscoveryFilter>.create_None()
+                : Wrappers_Compile.Option<Dafny.Aws.EncryptionSdk.Core._IDiscoveryFilter>.create_Some(
+                    ToDafny_N3_aws__N13_encryptionSdk__N4_core__S15_DiscoveryFilter(
+                        (AWS.EncryptionSDK.Core.DiscoveryFilter)value));
+        }
+
+        public static AWS.EncryptionSDK.Core.AlgorithmSuiteId
+            FromDafny_N3_aws__N13_encryptionSdk__N4_core__S19_EncryptionMaterials__M16_algorithmSuiteId(
+                Dafny.Aws.EncryptionSdk.Core._IAlgorithmSuiteId value)
+        {
+            return FromDafny_N3_aws__N13_encryptionSdk__N4_core__S16_AlgorithmSuiteId(value);
+        }
+
+        public static Dafny.Aws.EncryptionSdk.Core._IAlgorithmSuiteId
+            ToDafny_N3_aws__N13_encryptionSdk__N4_core__S19_EncryptionMaterials__M16_algorithmSuiteId(
+                AWS.EncryptionSDK.Core.AlgorithmSuiteId value)
+        {
+            return ToDafny_N3_aws__N13_encryptionSdk__N4_core__S16_AlgorithmSuiteId(value);
+        }
+
+        public static string FromDafny_N3_aws__N13_encryptionSdk__N4_core__S16_EncryptedDataKey__M13_keyProviderId(
+            Dafny.ISequence<byte> value)
+        {
+            return FromDafny_N3_aws__N13_encryptionSdk__N4_core__S9_Utf8Bytes(value);
+        }
+
+        public static Dafny.ISequence<byte>
+            ToDafny_N3_aws__N13_encryptionSdk__N4_core__S16_EncryptedDataKey__M13_keyProviderId(string value)
+        {
+            return ToDafny_N3_aws__N13_encryptionSdk__N4_core__S9_Utf8Bytes(value);
+        }
+
+        public static AWS.EncryptionSDK.Core.PaddingScheme
+            FromDafny_N3_aws__N13_encryptionSdk__N4_core__S13_PaddingScheme(
+                Dafny.Aws.EncryptionSdk.Core._IPaddingScheme value)
+        {
+            if (value.is_PKCS1) return AWS.EncryptionSDK.Core.PaddingScheme.PKCS1;
+            if (value.is_OAEP__SHA1__MGF1) return AWS.EncryptionSDK.Core.PaddingScheme.OAEP_SHA1_MGF1;
+            if (value.is_OAEP__SHA256__MGF1) return AWS.EncryptionSDK.Core.PaddingScheme.OAEP_SHA256_MGF1;
+            if (value.is_OAEP__SHA384__MGF1) return AWS.EncryptionSDK.Core.PaddingScheme.OAEP_SHA384_MGF1;
+            if (value.is_OAEP__SHA512__MGF1) return AWS.EncryptionSDK.Core.PaddingScheme.OAEP_SHA512_MGF1;
+            throw new System.ArgumentException("Invalid AWS.EncryptionSDK.Core.PaddingScheme value");
+        }
+
+        public static Dafny.Aws.EncryptionSdk.Core._IPaddingScheme
+            ToDafny_N3_aws__N13_encryptionSdk__N4_core__S13_PaddingScheme(AWS.EncryptionSDK.Core.PaddingScheme value)
+        {
+            if (AWS.EncryptionSDK.Core.PaddingScheme.PKCS1.Equals(value))
+                return Dafny.Aws.EncryptionSdk.Core.PaddingScheme.create_PKCS1();
+            if (AWS.EncryptionSDK.Core.PaddingScheme.OAEP_SHA1_MGF1.Equals(value))
+                return Dafny.Aws.EncryptionSdk.Core.PaddingScheme.create_OAEP__SHA1__MGF1();
+            if (AWS.EncryptionSDK.Core.PaddingScheme.OAEP_SHA256_MGF1.Equals(value))
+                return Dafny.Aws.EncryptionSdk.Core.PaddingScheme.create_OAEP__SHA256__MGF1();
+            if (AWS.EncryptionSDK.Core.PaddingScheme.OAEP_SHA384_MGF1.Equals(value))
+                return Dafny.Aws.EncryptionSdk.Core.PaddingScheme.create_OAEP__SHA384__MGF1();
+            if (AWS.EncryptionSDK.Core.PaddingScheme.OAEP_SHA512_MGF1.Equals(value))
+                return Dafny.Aws.EncryptionSdk.Core.PaddingScheme.create_OAEP__SHA512__MGF1();
+            throw new System.ArgumentException("Invalid AWS.EncryptionSDK.Core.PaddingScheme value");
+        }
+
+        public static AWS.EncryptionSDK.Core.IKeyring
+            FromDafny_N3_aws__N13_encryptionSdk__N4_core__S19_CreateKeyringOutput(
+                Dafny.Aws.EncryptionSdk.Core.IKeyring value)
+        {
+            return FromDafny_N3_aws__N13_encryptionSdk__N4_core__S19_CreateKeyringOutput__M7_keyring(value);
+        }
+
+        public static Dafny.Aws.EncryptionSdk.Core.IKeyring
+            ToDafny_N3_aws__N13_encryptionSdk__N4_core__S19_CreateKeyringOutput(AWS.EncryptionSDK.Core.IKeyring value)
+        {
+            return ToDafny_N3_aws__N13_encryptionSdk__N4_core__S19_CreateKeyringOutput__M7_keyring(value);
+        }
+
+        public static AWS.EncryptionSDK.Core.CreateDefaultClientSupplierInput
+            FromDafny_N3_aws__N13_encryptionSdk__N4_core__S32_CreateDefaultClientSupplierInput(
+                Dafny.Aws.EncryptionSdk.Core._ICreateDefaultClientSupplierInput value)
+        {
+            Dafny.Aws.EncryptionSdk.Core.CreateDefaultClientSupplierInput concrete =
+                (Dafny.Aws.EncryptionSdk.Core.CreateDefaultClientSupplierInput)value;
+            AWS.EncryptionSDK.Core.CreateDefaultClientSupplierInput converted =
+                new AWS.EncryptionSDK.Core.CreateDefaultClientSupplierInput();
             return converted;
         }
 
-        public static Dafny.Aws.Crypto.OnDecryptOutput ToDafny_N3_aws__N6_crypto__S15_OnDecryptOutput(
-            Aws.Crypto.OnDecryptOutput value)
+        public static Dafny.Aws.EncryptionSdk.Core._ICreateDefaultClientSupplierInput
+            ToDafny_N3_aws__N13_encryptionSdk__N4_core__S32_CreateDefaultClientSupplierInput(
+                AWS.EncryptionSDK.Core.CreateDefaultClientSupplierInput value)
         {
-            return new Dafny.Aws.Crypto.OnDecryptOutput(
-                ToDafny_N3_aws__N6_crypto__S15_OnDecryptOutput__M9_materials(value.Materials));
+            return new Dafny.Aws.EncryptionSdk.Core.CreateDefaultClientSupplierInput();
+        }
+
+        public static string FromDafny_N3_aws__N13_encryptionSdk__N4_core__S24_CreateAwsKmsKeyringInput__M8_kmsKeyId(
+            Dafny.ISequence<char> value)
+        {
+            return FromDafny_N3_aws__N13_encryptionSdk__N4_core__S8_KmsKeyId(value);
+        }
+
+        public static Dafny.ISequence<char>
+            ToDafny_N3_aws__N13_encryptionSdk__N4_core__S24_CreateAwsKmsKeyringInput__M8_kmsKeyId(string value)
+        {
+            return ToDafny_N3_aws__N13_encryptionSdk__N4_core__S8_KmsKeyId(value);
+        }
+
+        public static System.Collections.Generic.List<string>
+            FromDafny_N3_aws__N13_encryptionSdk__N4_core__S10_RegionList(Dafny.ISequence<Dafny.ISequence<char>> value)
+        {
+            return new System.Collections.Generic.List<string>(
+                value.Elements.Select(FromDafny_N3_aws__N13_encryptionSdk__N4_core__S10_RegionList__M6_member));
+        }
+
+        public static Dafny.ISequence<Dafny.ISequence<char>> ToDafny_N3_aws__N13_encryptionSdk__N4_core__S10_RegionList(
+            System.Collections.Generic.List<string> value)
+        {
+            return Dafny.Sequence<Dafny.ISequence<char>>.FromArray(value
+                .Select(ToDafny_N3_aws__N13_encryptionSdk__N4_core__S10_RegionList__M6_member).ToArray());
+        }
+
+        public static AWS.EncryptionSDK.Core.DecryptionMaterials
+            FromDafny_N3_aws__N13_encryptionSdk__N4_core__S14_OnDecryptInput__M9_materials(
+                Dafny.Aws.EncryptionSdk.Core._IDecryptionMaterials value)
+        {
+            return FromDafny_N3_aws__N13_encryptionSdk__N4_core__S19_DecryptionMaterials(value);
+        }
+
+        public static Dafny.Aws.EncryptionSdk.Core._IDecryptionMaterials
+            ToDafny_N3_aws__N13_encryptionSdk__N4_core__S14_OnDecryptInput__M9_materials(
+                AWS.EncryptionSDK.Core.DecryptionMaterials value)
+        {
+            return ToDafny_N3_aws__N13_encryptionSdk__N4_core__S19_DecryptionMaterials(value);
         }
 
         public static System.IO.MemoryStream FromDafny_N6_smithy__N3_api__S4_Blob(Dafny.ISequence<byte> value)
@@ -1137,459 +1761,782 @@ namespace Aws.Crypto
             return Dafny.Sequence<byte>.FromArray(value.ToArray());
         }
 
-        public static System.Collections.Generic.List<Aws.Crypto.EncryptedDataKey>
-            FromDafny_N3_aws__N6_crypto__S19_EncryptionMaterials__M17_encryptedDataKeys(
-                Dafny.ISequence<Dafny.Aws.Crypto.EncryptedDataKey> value)
+        public static System.Collections.Generic.List<string>
+            FromDafny_N3_aws__N13_encryptionSdk__N4_core__S32_CreateAwsKmsMrkMultiKeyringInput__M9_kmsKeyIds(
+                Wrappers_Compile._IOption<Dafny.ISequence<Dafny.ISequence<char>>> value)
         {
-            return FromDafny_N3_aws__N6_crypto__S20_EncryptedDataKeyList(value);
+            return value.is_None
+                ? (System.Collections.Generic.List<string>)null
+                : FromDafny_N3_aws__N13_encryptionSdk__N4_core__S12_KmsKeyIdList(value.Extract());
         }
 
-        public static Dafny.ISequence<Dafny.Aws.Crypto.EncryptedDataKey>
-            ToDafny_N3_aws__N6_crypto__S19_EncryptionMaterials__M17_encryptedDataKeys(
-                System.Collections.Generic.List<Aws.Crypto.EncryptedDataKey> value)
+        public static Wrappers_Compile._IOption<Dafny.ISequence<Dafny.ISequence<char>>>
+            ToDafny_N3_aws__N13_encryptionSdk__N4_core__S32_CreateAwsKmsMrkMultiKeyringInput__M9_kmsKeyIds(
+                System.Collections.Generic.List<string> value)
         {
-            return ToDafny_N3_aws__N6_crypto__S20_EncryptedDataKeyList(value);
+            return value == null
+                ? Wrappers_Compile.Option<Dafny.ISequence<Dafny.ISequence<char>>>.create_None()
+                : Wrappers_Compile.Option<Dafny.ISequence<Dafny.ISequence<char>>>.create_Some(
+                    ToDafny_N3_aws__N13_encryptionSdk__N4_core__S12_KmsKeyIdList(
+                        (System.Collections.Generic.List<string>)value));
         }
 
-        public static System.Collections.Generic.Dictionary<string, string>
-            FromDafny_N3_aws__N6_crypto__S27_GetEncryptionMaterialsInput__M17_encryptionContext(
-                Dafny.IMap<Dafny.ISequence<byte>, Dafny.ISequence<byte>> value)
+        public static string
+            FromDafny_N3_aws__N13_encryptionSdk__N4_core__S29_CreateAwsKmsMultiKeyringInput__M9_generator(
+                Wrappers_Compile._IOption<Dafny.ISequence<char>> value)
         {
-            return FromDafny_N3_aws__N6_crypto__S17_EncryptionContext(value);
+            return value.is_None
+                ? (string)null
+                : FromDafny_N3_aws__N13_encryptionSdk__N4_core__S8_KmsKeyId(value.Extract());
         }
 
-        public static Dafny.IMap<Dafny.ISequence<byte>, Dafny.ISequence<byte>>
-            ToDafny_N3_aws__N6_crypto__S27_GetEncryptionMaterialsInput__M17_encryptionContext(
-                System.Collections.Generic.Dictionary<string, string> value)
+        public static Wrappers_Compile._IOption<Dafny.ISequence<char>>
+            ToDafny_N3_aws__N13_encryptionSdk__N4_core__S29_CreateAwsKmsMultiKeyringInput__M9_generator(string value)
         {
-            return ToDafny_N3_aws__N6_crypto__S17_EncryptionContext(value);
+            return value == null
+                ? Wrappers_Compile.Option<Dafny.ISequence<char>>.create_None()
+                : Wrappers_Compile.Option<Dafny.ISequence<char>>.create_Some(
+                    ToDafny_N3_aws__N13_encryptionSdk__N4_core__S8_KmsKeyId((string)value));
         }
 
-        public static Aws.Crypto.AlgorithmSuiteId
-            FromDafny_N3_aws__N6_crypto__S21_DecryptMaterialsInput__M16_algorithmSuiteId(
-                Dafny.Aws.Crypto.AlgorithmSuiteId value)
+        public static AWS.EncryptionSDK.Core.IKeyring
+            FromDafny_N3_aws__N13_encryptionSdk__N4_core__S47_CreateDefaultCryptographicMaterialsManagerInput__M7_keyring(
+                Dafny.Aws.EncryptionSdk.Core.IKeyring value)
         {
-            return FromDafny_N3_aws__N6_crypto__S16_AlgorithmSuiteId(value);
+            return FromDafny_N3_aws__N13_encryptionSdk__N4_core__S16_KeyringReference(value);
         }
 
-        public static Dafny.Aws.Crypto.AlgorithmSuiteId
-            ToDafny_N3_aws__N6_crypto__S21_DecryptMaterialsInput__M16_algorithmSuiteId(
-                Aws.Crypto.AlgorithmSuiteId value)
+        public static Dafny.Aws.EncryptionSdk.Core.IKeyring
+            ToDafny_N3_aws__N13_encryptionSdk__N4_core__S47_CreateDefaultCryptographicMaterialsManagerInput__M7_keyring(
+                AWS.EncryptionSDK.Core.IKeyring value)
         {
-            return ToDafny_N3_aws__N6_crypto__S16_AlgorithmSuiteId(value);
+            return ToDafny_N3_aws__N13_encryptionSdk__N4_core__S16_KeyringReference(value);
         }
 
-        public static Aws.Crypto.DecryptionMaterials
-            FromDafny_N3_aws__N6_crypto__S23_PutEntryForDecryptInput__M19_decryptionMaterials(
-                Dafny.Aws.Crypto.DecryptionMaterials value)
+        public static AWS.EncryptionSDK.Core.OnDecryptOutput
+            FromDafny_N3_aws__N13_encryptionSdk__N4_core__S15_OnDecryptOutput(
+                Dafny.Aws.EncryptionSdk.Core._IOnDecryptOutput value)
         {
-            return FromDafny_N3_aws__N6_crypto__S19_DecryptionMaterials(value);
-        }
-
-        public static Dafny.Aws.Crypto.DecryptionMaterials
-            ToDafny_N3_aws__N6_crypto__S23_PutEntryForDecryptInput__M19_decryptionMaterials(
-                Aws.Crypto.DecryptionMaterials value)
-        {
-            return ToDafny_N3_aws__N6_crypto__S19_DecryptionMaterials(value);
-        }
-
-        public static System.Collections.Generic.List<Aws.Crypto.EncryptedDataKey>
-            FromDafny_N3_aws__N6_crypto__S20_EncryptedDataKeyList(
-                Dafny.ISequence<Dafny.Aws.Crypto.EncryptedDataKey> value)
-        {
-            return new System.Collections.Generic.List<Aws.Crypto.EncryptedDataKey>(
-                value.Elements.Select(FromDafny_N3_aws__N6_crypto__S20_EncryptedDataKeyList__M6_member));
-        }
-
-        public static Dafny.ISequence<Dafny.Aws.Crypto.EncryptedDataKey>
-            ToDafny_N3_aws__N6_crypto__S20_EncryptedDataKeyList(
-                System.Collections.Generic.List<Aws.Crypto.EncryptedDataKey> value)
-        {
-            return Dafny.Sequence<Dafny.Aws.Crypto.EncryptedDataKey>.FromArray(value
-                .Select(ToDafny_N3_aws__N6_crypto__S20_EncryptedDataKeyList__M6_member).ToArray());
-        }
-
-        public static long FromDafny_N3_aws__N6_crypto__S18_CacheUsageMetadata__M12_messageUsage(long value)
-        {
-            return FromDafny_N6_smithy__N3_api__S4_Long(value);
-        }
-
-        public static long ToDafny_N3_aws__N6_crypto__S18_CacheUsageMetadata__M12_messageUsage(long value)
-        {
-            return ToDafny_N6_smithy__N3_api__S4_Long(value);
-        }
-
-        public static Aws.Crypto.DecryptEntry FromDafny_N3_aws__N6_crypto__S24_GetEntryForDecryptOutput__M10_cacheEntry(
-            Dafny.Aws.Crypto.DecryptEntry value)
-        {
-            return FromDafny_N3_aws__N6_crypto__S12_DecryptEntry(value);
-        }
-
-        public static Dafny.Aws.Crypto.DecryptEntry
-            ToDafny_N3_aws__N6_crypto__S24_GetEntryForDecryptOutput__M10_cacheEntry(Aws.Crypto.DecryptEntry value)
-        {
-            return ToDafny_N3_aws__N6_crypto__S12_DecryptEntry(value);
-        }
-
-        public static Aws.Crypto.DecryptEntry FromDafny_N3_aws__N6_crypto__S12_DecryptEntry(
-            Dafny.Aws.Crypto.DecryptEntry value)
-        {
-            Aws.Crypto.DecryptEntry converted = new Aws.Crypto.DecryptEntry();
-            converted.Identifier =
-                (System.IO.MemoryStream) FromDafny_N3_aws__N6_crypto__S12_DecryptEntry__M10_identifier(
-                    value.identifier);
-            converted.DecryptionMaterials =
-                (Aws.Crypto.DecryptionMaterials) FromDafny_N3_aws__N6_crypto__S12_DecryptEntry__M19_decryptionMaterials(
-                    value.decryptionMaterials);
-            converted.CreationTime =
-                (long) FromDafny_N3_aws__N6_crypto__S12_DecryptEntry__M12_creationTime(value.creationTime);
-            converted.ExpiryTime =
-                (long) FromDafny_N3_aws__N6_crypto__S12_DecryptEntry__M10_expiryTime(value.expiryTime);
-            converted.UsageMetadata =
-                (Aws.Crypto.CacheUsageMetadata) FromDafny_N3_aws__N6_crypto__S12_DecryptEntry__M13_usageMetadata(
-                    value.usageMetadata);
+            Dafny.Aws.EncryptionSdk.Core.OnDecryptOutput concrete = (Dafny.Aws.EncryptionSdk.Core.OnDecryptOutput)value;
+            AWS.EncryptionSDK.Core.OnDecryptOutput converted = new AWS.EncryptionSDK.Core.OnDecryptOutput();
+            converted.Materials =
+                (AWS.EncryptionSDK.Core.DecryptionMaterials)
+                FromDafny_N3_aws__N13_encryptionSdk__N4_core__S15_OnDecryptOutput__M9_materials(concrete.materials);
             return converted;
         }
 
-        public static Dafny.Aws.Crypto.DecryptEntry ToDafny_N3_aws__N6_crypto__S12_DecryptEntry(
-            Aws.Crypto.DecryptEntry value)
+        public static Dafny.Aws.EncryptionSdk.Core._IOnDecryptOutput
+            ToDafny_N3_aws__N13_encryptionSdk__N4_core__S15_OnDecryptOutput(
+                AWS.EncryptionSDK.Core.OnDecryptOutput value)
         {
-            return new Dafny.Aws.Crypto.DecryptEntry(
-                ToDafny_N3_aws__N6_crypto__S12_DecryptEntry__M10_identifier(value.Identifier),
-                ToDafny_N3_aws__N6_crypto__S12_DecryptEntry__M19_decryptionMaterials(value.DecryptionMaterials),
-                ToDafny_N3_aws__N6_crypto__S12_DecryptEntry__M12_creationTime(value.CreationTime),
-                ToDafny_N3_aws__N6_crypto__S12_DecryptEntry__M10_expiryTime(value.ExpiryTime),
-                ToDafny_N3_aws__N6_crypto__S12_DecryptEntry__M13_usageMetadata(value.UsageMetadata));
+            return new Dafny.Aws.EncryptionSdk.Core.OnDecryptOutput(
+                ToDafny_N3_aws__N13_encryptionSdk__N4_core__S15_OnDecryptOutput__M9_materials(value.Materials));
+        }
+
+        public static AWS.EncryptionSDK.Core.CreateMultiKeyringInput
+            FromDafny_N3_aws__N13_encryptionSdk__N4_core__S23_CreateMultiKeyringInput(
+                Dafny.Aws.EncryptionSdk.Core._ICreateMultiKeyringInput value)
+        {
+            Dafny.Aws.EncryptionSdk.Core.CreateMultiKeyringInput concrete =
+                (Dafny.Aws.EncryptionSdk.Core.CreateMultiKeyringInput)value;
+            AWS.EncryptionSDK.Core.CreateMultiKeyringInput converted =
+                new AWS.EncryptionSDK.Core.CreateMultiKeyringInput();
+            if (concrete.generator.is_Some)
+                converted.Generator =
+                    (AWS.EncryptionSDK.Core.IKeyring)
+                    FromDafny_N3_aws__N13_encryptionSdk__N4_core__S23_CreateMultiKeyringInput__M9_generator(
+                        concrete.generator);
+            converted.ChildKeyrings =
+                (System.Collections.Generic.List<AWS.EncryptionSDK.Core.IKeyring>)
+                FromDafny_N3_aws__N13_encryptionSdk__N4_core__S23_CreateMultiKeyringInput__M13_childKeyrings(
+                    concrete.childKeyrings);
+            return converted;
+        }
+
+        public static Dafny.Aws.EncryptionSdk.Core._ICreateMultiKeyringInput
+            ToDafny_N3_aws__N13_encryptionSdk__N4_core__S23_CreateMultiKeyringInput(
+                AWS.EncryptionSDK.Core.CreateMultiKeyringInput value)
+        {
+            AWS.EncryptionSDK.Core.IKeyring var_generator =
+                value.IsSetGenerator() ? value.Generator : (AWS.EncryptionSDK.Core.IKeyring)null;
+            return new Dafny.Aws.EncryptionSdk.Core.CreateMultiKeyringInput(
+                ToDafny_N3_aws__N13_encryptionSdk__N4_core__S23_CreateMultiKeyringInput__M9_generator(var_generator),
+                ToDafny_N3_aws__N13_encryptionSdk__N4_core__S23_CreateMultiKeyringInput__M13_childKeyrings(
+                    value.ChildKeyrings));
         }
 
         public static long?
-            FromDafny_N3_aws__N6_crypto__S47_CreateCachingCryptographicMaterialsManagerInput__M13_limitMessages(
-                Wrappers_Compile.Option<long> value)
+            FromDafny_N3_aws__N13_encryptionSdk__N4_core__S27_GetEncryptionMaterialsInput__M18_maxPlaintextLength(
+                Wrappers_Compile._IOption<long> value)
         {
-            return value.is_None ? (long?) null : FromDafny_N6_smithy__N3_api__S4_Long(value.Extract());
+            return value.is_None ? (long?)null : FromDafny_N6_smithy__N3_api__S4_Long(value.Extract());
         }
 
-        public static Wrappers_Compile.Option<long>
-            ToDafny_N3_aws__N6_crypto__S47_CreateCachingCryptographicMaterialsManagerInput__M13_limitMessages(
+        public static Wrappers_Compile._IOption<long>
+            ToDafny_N3_aws__N13_encryptionSdk__N4_core__S27_GetEncryptionMaterialsInput__M18_maxPlaintextLength(
                 long? value)
         {
             return value == null
                 ? Wrappers_Compile.Option<long>.create_None()
-                : Wrappers_Compile.Option<long>.create_Some(ToDafny_N6_smithy__N3_api__S4_Long((long) value));
+                : Wrappers_Compile.Option<long>.create_Some(ToDafny_N6_smithy__N3_api__S4_Long((long)value));
         }
 
-        public static Aws.Crypto.ICryptoMaterialsCache FromDafny_N3_aws__N6_crypto__S29_CryptoMaterialsCacheReference(
-            Dafny.Aws.Crypto.ICryptoMaterialsCache value)
+        public static AWS.EncryptionSDK.Core.CreateRawRsaKeyringInput
+            FromDafny_N3_aws__N13_encryptionSdk__N4_core__S24_CreateRawRsaKeyringInput(
+                Dafny.Aws.EncryptionSdk.Core._ICreateRawRsaKeyringInput value)
         {
-            return new CryptoMaterialsCache(value);
+            Dafny.Aws.EncryptionSdk.Core.CreateRawRsaKeyringInput concrete =
+                (Dafny.Aws.EncryptionSdk.Core.CreateRawRsaKeyringInput)value;
+            AWS.EncryptionSDK.Core.CreateRawRsaKeyringInput converted =
+                new AWS.EncryptionSDK.Core.CreateRawRsaKeyringInput();
+            converted.KeyNamespace =
+                (string)FromDafny_N3_aws__N13_encryptionSdk__N4_core__S24_CreateRawRsaKeyringInput__M12_keyNamespace(
+                    concrete.keyNamespace);
+            converted.KeyName =
+                (string)FromDafny_N3_aws__N13_encryptionSdk__N4_core__S24_CreateRawRsaKeyringInput__M7_keyName(
+                    concrete.keyName);
+            converted.PaddingScheme =
+                (AWS.EncryptionSDK.Core.PaddingScheme)
+                FromDafny_N3_aws__N13_encryptionSdk__N4_core__S24_CreateRawRsaKeyringInput__M13_paddingScheme(
+                    concrete.paddingScheme);
+            if (concrete.publicKey.is_Some)
+                converted.PublicKey =
+                    (System.IO.MemoryStream)
+                    FromDafny_N3_aws__N13_encryptionSdk__N4_core__S24_CreateRawRsaKeyringInput__M9_publicKey(
+                        concrete.publicKey);
+            if (concrete.privateKey.is_Some)
+                converted.PrivateKey =
+                    (System.IO.MemoryStream)
+                    FromDafny_N3_aws__N13_encryptionSdk__N4_core__S24_CreateRawRsaKeyringInput__M10_privateKey(
+                        concrete.privateKey);
+            return converted;
         }
 
-        public static Dafny.Aws.Crypto.ICryptoMaterialsCache
-            ToDafny_N3_aws__N6_crypto__S29_CryptoMaterialsCacheReference(Aws.Crypto.ICryptoMaterialsCache value)
+        public static Dafny.Aws.EncryptionSdk.Core._ICreateRawRsaKeyringInput
+            ToDafny_N3_aws__N13_encryptionSdk__N4_core__S24_CreateRawRsaKeyringInput(
+                AWS.EncryptionSDK.Core.CreateRawRsaKeyringInput value)
         {
-            if (value is CryptoMaterialsCache valueWithImpl)
+            System.IO.MemoryStream var_publicKey =
+                value.IsSetPublicKey() ? value.PublicKey : (System.IO.MemoryStream)null;
+            System.IO.MemoryStream var_privateKey =
+                value.IsSetPrivateKey() ? value.PrivateKey : (System.IO.MemoryStream)null;
+            return new Dafny.Aws.EncryptionSdk.Core.CreateRawRsaKeyringInput(
+                ToDafny_N3_aws__N13_encryptionSdk__N4_core__S24_CreateRawRsaKeyringInput__M12_keyNamespace(
+                    value.KeyNamespace),
+                ToDafny_N3_aws__N13_encryptionSdk__N4_core__S24_CreateRawRsaKeyringInput__M7_keyName(value.KeyName),
+                ToDafny_N3_aws__N13_encryptionSdk__N4_core__S24_CreateRawRsaKeyringInput__M13_paddingScheme(
+                    value.PaddingScheme),
+                ToDafny_N3_aws__N13_encryptionSdk__N4_core__S24_CreateRawRsaKeyringInput__M9_publicKey(var_publicKey),
+                ToDafny_N3_aws__N13_encryptionSdk__N4_core__S24_CreateRawRsaKeyringInput__M10_privateKey(
+                    var_privateKey));
+        }
+
+        public static AWS.EncryptionSDK.Core.CreateAwsKmsMultiKeyringInput
+            FromDafny_N3_aws__N13_encryptionSdk__N4_core__S29_CreateAwsKmsMultiKeyringInput(
+                Dafny.Aws.EncryptionSdk.Core._ICreateAwsKmsMultiKeyringInput value)
+        {
+            Dafny.Aws.EncryptionSdk.Core.CreateAwsKmsMultiKeyringInput concrete =
+                (Dafny.Aws.EncryptionSdk.Core.CreateAwsKmsMultiKeyringInput)value;
+            AWS.EncryptionSDK.Core.CreateAwsKmsMultiKeyringInput converted =
+                new AWS.EncryptionSDK.Core.CreateAwsKmsMultiKeyringInput();
+            if (concrete.generator.is_Some)
+                converted.Generator =
+                    (string)
+                    FromDafny_N3_aws__N13_encryptionSdk__N4_core__S29_CreateAwsKmsMultiKeyringInput__M9_generator(
+                        concrete.generator);
+            if (concrete.kmsKeyIds.is_Some)
+                converted.KmsKeyIds =
+                    (System.Collections.Generic.List<string>)
+                    FromDafny_N3_aws__N13_encryptionSdk__N4_core__S29_CreateAwsKmsMultiKeyringInput__M9_kmsKeyIds(
+                        concrete.kmsKeyIds);
+            if (concrete.clientSupplier.is_Some)
+                converted.ClientSupplier =
+                    (AWS.EncryptionSDK.Core.IClientSupplier)
+                    FromDafny_N3_aws__N13_encryptionSdk__N4_core__S29_CreateAwsKmsMultiKeyringInput__M14_clientSupplier(
+                        concrete.clientSupplier);
+            if (concrete.grantTokens.is_Some)
+                converted.GrantTokens =
+                    (System.Collections.Generic.List<string>)
+                    FromDafny_N3_aws__N13_encryptionSdk__N4_core__S29_CreateAwsKmsMultiKeyringInput__M11_grantTokens(
+                        concrete.grantTokens);
+            return converted;
+        }
+
+        public static Dafny.Aws.EncryptionSdk.Core._ICreateAwsKmsMultiKeyringInput
+            ToDafny_N3_aws__N13_encryptionSdk__N4_core__S29_CreateAwsKmsMultiKeyringInput(
+                AWS.EncryptionSDK.Core.CreateAwsKmsMultiKeyringInput value)
+        {
+            string var_generator = value.IsSetGenerator() ? value.Generator : (string)null;
+            System.Collections.Generic.List<string> var_kmsKeyIds =
+                value.IsSetKmsKeyIds() ? value.KmsKeyIds : (System.Collections.Generic.List<string>)null;
+            AWS.EncryptionSDK.Core.IClientSupplier var_clientSupplier = value.IsSetClientSupplier()
+                ? value.ClientSupplier
+                : (AWS.EncryptionSDK.Core.IClientSupplier)null;
+            System.Collections.Generic.List<string> var_grantTokens = value.IsSetGrantTokens()
+                ? value.GrantTokens
+                : (System.Collections.Generic.List<string>)null;
+            return new Dafny.Aws.EncryptionSdk.Core.CreateAwsKmsMultiKeyringInput(
+                ToDafny_N3_aws__N13_encryptionSdk__N4_core__S29_CreateAwsKmsMultiKeyringInput__M9_generator(
+                    var_generator),
+                ToDafny_N3_aws__N13_encryptionSdk__N4_core__S29_CreateAwsKmsMultiKeyringInput__M9_kmsKeyIds(
+                    var_kmsKeyIds),
+                ToDafny_N3_aws__N13_encryptionSdk__N4_core__S29_CreateAwsKmsMultiKeyringInput__M14_clientSupplier(
+                    var_clientSupplier),
+                ToDafny_N3_aws__N13_encryptionSdk__N4_core__S29_CreateAwsKmsMultiKeyringInput__M11_grantTokens(
+                    var_grantTokens));
+        }
+
+        public static AWS.EncryptionSDK.Core.DiscoveryFilter
+            FromDafny_N3_aws__N13_encryptionSdk__N4_core__S38_CreateAwsKmsDiscoveryMultiKeyringInput__M15_discoveryFilter(
+                Wrappers_Compile._IOption<Dafny.Aws.EncryptionSdk.Core._IDiscoveryFilter> value)
+        {
+            return value.is_None
+                ? (AWS.EncryptionSDK.Core.DiscoveryFilter)null
+                : FromDafny_N3_aws__N13_encryptionSdk__N4_core__S15_DiscoveryFilter(value.Extract());
+        }
+
+        public static Wrappers_Compile._IOption<Dafny.Aws.EncryptionSdk.Core._IDiscoveryFilter>
+            ToDafny_N3_aws__N13_encryptionSdk__N4_core__S38_CreateAwsKmsDiscoveryMultiKeyringInput__M15_discoveryFilter(
+                AWS.EncryptionSDK.Core.DiscoveryFilter value)
+        {
+            return value == null
+                ? Wrappers_Compile.Option<Dafny.Aws.EncryptionSdk.Core._IDiscoveryFilter>.create_None()
+                : Wrappers_Compile.Option<Dafny.Aws.EncryptionSdk.Core._IDiscoveryFilter>.create_Some(
+                    ToDafny_N3_aws__N13_encryptionSdk__N4_core__S15_DiscoveryFilter(
+                        (AWS.EncryptionSDK.Core.DiscoveryFilter)value));
+        }
+
+        public static AWS.EncryptionSDK.Core.IKeyring
+            FromDafny_N3_aws__N13_encryptionSdk__N4_core__S23_CreateMultiKeyringInput__M9_generator(
+                Wrappers_Compile._IOption<Dafny.Aws.EncryptionSdk.Core.IKeyring> value)
+        {
+            return value.is_None
+                ? (AWS.EncryptionSDK.Core.IKeyring)null
+                : FromDafny_N3_aws__N13_encryptionSdk__N4_core__S16_KeyringReference(value.Extract());
+        }
+
+        public static Wrappers_Compile._IOption<Dafny.Aws.EncryptionSdk.Core.IKeyring>
+            ToDafny_N3_aws__N13_encryptionSdk__N4_core__S23_CreateMultiKeyringInput__M9_generator(
+                AWS.EncryptionSDK.Core.IKeyring value)
+        {
+            return value == null
+                ? Wrappers_Compile.Option<Dafny.Aws.EncryptionSdk.Core.IKeyring>.create_None()
+                : Wrappers_Compile.Option<Dafny.Aws.EncryptionSdk.Core.IKeyring>.create_Some(
+                    ToDafny_N3_aws__N13_encryptionSdk__N4_core__S16_KeyringReference(
+                        (AWS.EncryptionSDK.Core.IKeyring)value));
+        }
+
+        public static System.Collections.Generic.List<string>
+            FromDafny_N3_aws__N13_encryptionSdk__N4_core__S27_CreateAwsKmsMrkKeyringInput__M11_grantTokens(
+                Wrappers_Compile._IOption<Dafny.ISequence<Dafny.ISequence<char>>> value)
+        {
+            return value.is_None
+                ? (System.Collections.Generic.List<string>)null
+                : FromDafny_N3_aws__N13_encryptionSdk__N4_core__S14_GrantTokenList(value.Extract());
+        }
+
+        public static Wrappers_Compile._IOption<Dafny.ISequence<Dafny.ISequence<char>>>
+            ToDafny_N3_aws__N13_encryptionSdk__N4_core__S27_CreateAwsKmsMrkKeyringInput__M11_grantTokens(
+                System.Collections.Generic.List<string> value)
+        {
+            return value == null
+                ? Wrappers_Compile.Option<Dafny.ISequence<Dafny.ISequence<char>>>.create_None()
+                : Wrappers_Compile.Option<Dafny.ISequence<Dafny.ISequence<char>>>.create_Some(
+                    ToDafny_N3_aws__N13_encryptionSdk__N4_core__S14_GrantTokenList(
+                        (System.Collections.Generic.List<string>)value));
+        }
+
+        public static AWS.EncryptionSDK.Core.EncryptionMaterials
+            FromDafny_N3_aws__N13_encryptionSdk__N4_core__S15_OnEncryptOutput__M9_materials(
+                Dafny.Aws.EncryptionSdk.Core._IEncryptionMaterials value)
+        {
+            return FromDafny_N3_aws__N13_encryptionSdk__N4_core__S19_EncryptionMaterials(value);
+        }
+
+        public static Dafny.Aws.EncryptionSdk.Core._IEncryptionMaterials
+            ToDafny_N3_aws__N13_encryptionSdk__N4_core__S15_OnEncryptOutput__M9_materials(
+                AWS.EncryptionSDK.Core.EncryptionMaterials value)
+        {
+            return ToDafny_N3_aws__N13_encryptionSdk__N4_core__S19_EncryptionMaterials(value);
+        }
+
+        public static string FromDafny_N3_aws__N13_encryptionSdk__N4_core__S24_CreateRawRsaKeyringInput__M7_keyName(
+            Dafny.ISequence<char> value)
+        {
+            return FromDafny_N6_smithy__N3_api__S6_String(value);
+        }
+
+        public static Dafny.ISequence<char>
+            ToDafny_N3_aws__N13_encryptionSdk__N4_core__S24_CreateRawRsaKeyringInput__M7_keyName(string value)
+        {
+            return ToDafny_N6_smithy__N3_api__S6_String(value);
+        }
+
+        public static System.IO.MemoryStream
+            FromDafny_N3_aws__N13_encryptionSdk__N4_core__S24_CreateRawRsaKeyringInput__M9_publicKey(
+                Wrappers_Compile._IOption<Dafny.ISequence<byte>> value)
+        {
+            return value.is_None ? (System.IO.MemoryStream)null : FromDafny_N6_smithy__N3_api__S4_Blob(value.Extract());
+        }
+
+        public static Wrappers_Compile._IOption<Dafny.ISequence<byte>>
+            ToDafny_N3_aws__N13_encryptionSdk__N4_core__S24_CreateRawRsaKeyringInput__M9_publicKey(
+                System.IO.MemoryStream value)
+        {
+            return value == null
+                ? Wrappers_Compile.Option<Dafny.ISequence<byte>>.create_None()
+                : Wrappers_Compile.Option<Dafny.ISequence<byte>>.create_Some(
+                    ToDafny_N6_smithy__N3_api__S4_Blob((System.IO.MemoryStream)value));
+        }
+
+        public static System.Collections.Generic.Dictionary<string, string>
+            FromDafny_N3_aws__N13_encryptionSdk__N4_core__S21_DecryptMaterialsInput__M17_encryptionContext(
+                Dafny.IMap<Dafny.ISequence<byte>, Dafny.ISequence<byte>> value)
+        {
+            return FromDafny_N3_aws__N13_encryptionSdk__N4_core__S17_EncryptionContext(value);
+        }
+
+        public static Dafny.IMap<Dafny.ISequence<byte>, Dafny.ISequence<byte>>
+            ToDafny_N3_aws__N13_encryptionSdk__N4_core__S21_DecryptMaterialsInput__M17_encryptionContext(
+                System.Collections.Generic.Dictionary<string, string> value)
+        {
+            return ToDafny_N3_aws__N13_encryptionSdk__N4_core__S17_EncryptionContext(value);
+        }
+
+        public static AWS.EncryptionSDK.Core.IClientSupplier
+            FromDafny_N3_aws__N13_encryptionSdk__N4_core__S41_CreateAwsKmsMrkDiscoveryMultiKeyringInput__M14_clientSupplier(
+                Wrappers_Compile._IOption<Dafny.Aws.EncryptionSdk.Core.IClientSupplier> value)
+        {
+            return value.is_None
+                ? (AWS.EncryptionSDK.Core.IClientSupplier)null
+                : FromDafny_N3_aws__N13_encryptionSdk__N4_core__S23_ClientSupplierReference(value.Extract());
+        }
+
+        public static Wrappers_Compile._IOption<Dafny.Aws.EncryptionSdk.Core.IClientSupplier>
+            ToDafny_N3_aws__N13_encryptionSdk__N4_core__S41_CreateAwsKmsMrkDiscoveryMultiKeyringInput__M14_clientSupplier(
+                AWS.EncryptionSDK.Core.IClientSupplier value)
+        {
+            return value == null
+                ? Wrappers_Compile.Option<Dafny.Aws.EncryptionSdk.Core.IClientSupplier>.create_None()
+                : Wrappers_Compile.Option<Dafny.Aws.EncryptionSdk.Core.IClientSupplier>.create_Some(
+                    ToDafny_N3_aws__N13_encryptionSdk__N4_core__S23_ClientSupplierReference(
+                        (AWS.EncryptionSDK.Core.IClientSupplier)value));
+        }
+
+        public static string
+            FromDafny_N3_aws__N13_encryptionSdk__N4_core__S36_CreateAwsKmsMrkDiscoveryKeyringInput__M6_region(
+                Dafny.ISequence<char> value)
+        {
+            return FromDafny_N3_aws__N13_encryptionSdk__N4_core__S6_Region(value);
+        }
+
+        public static Dafny.ISequence<char>
+            ToDafny_N3_aws__N13_encryptionSdk__N4_core__S36_CreateAwsKmsMrkDiscoveryKeyringInput__M6_region(
+                string value)
+        {
+            return ToDafny_N3_aws__N13_encryptionSdk__N4_core__S6_Region(value);
+        }
+
+        public static string FromDafny_N3_aws__N13_encryptionSdk__N4_core__S9_AccountId(Dafny.ISequence<char> value)
+        {
+            return new string(value.Elements);
+        }
+
+        public static Dafny.ISequence<char> ToDafny_N3_aws__N13_encryptionSdk__N4_core__S9_AccountId(string value)
+        {
+            return Dafny.Sequence<char>.FromString(value);
+        }
+
+        public static AWS.EncryptionSDK.Core.AlgorithmSuiteId
+            FromDafny_N3_aws__N13_encryptionSdk__N4_core__S16_AlgorithmSuiteId(
+                Dafny.Aws.EncryptionSdk.Core._IAlgorithmSuiteId value)
+        {
+            if (value.is_ALG__AES__128__GCM__IV12__TAG16__NO__KDF)
+                return AWS.EncryptionSDK.Core.AlgorithmSuiteId.ALG_AES_128_GCM_IV12_TAG16_NO_KDF;
+            if (value.is_ALG__AES__192__GCM__IV12__TAG16__NO__KDF)
+                return AWS.EncryptionSDK.Core.AlgorithmSuiteId.ALG_AES_192_GCM_IV12_TAG16_NO_KDF;
+            if (value.is_ALG__AES__256__GCM__IV12__TAG16__NO__KDF)
+                return AWS.EncryptionSDK.Core.AlgorithmSuiteId.ALG_AES_256_GCM_IV12_TAG16_NO_KDF;
+            if (value.is_ALG__AES__128__GCM__IV12__TAG16__HKDF__SHA256)
+                return AWS.EncryptionSDK.Core.AlgorithmSuiteId.ALG_AES_128_GCM_IV12_TAG16_HKDF_SHA256;
+            if (value.is_ALG__AES__192__GCM__IV12__TAG16__HKDF__SHA256)
+                return AWS.EncryptionSDK.Core.AlgorithmSuiteId.ALG_AES_192_GCM_IV12_TAG16_HKDF_SHA256;
+            if (value.is_ALG__AES__256__GCM__IV12__TAG16__HKDF__SHA256)
+                return AWS.EncryptionSDK.Core.AlgorithmSuiteId.ALG_AES_256_GCM_IV12_TAG16_HKDF_SHA256;
+            if (value.is_ALG__AES__128__GCM__IV12__TAG16__HKDF__SHA256__ECDSA__P256)
+                return AWS.EncryptionSDK.Core.AlgorithmSuiteId.ALG_AES_128_GCM_IV12_TAG16_HKDF_SHA256_ECDSA_P256;
+            if (value.is_ALG__AES__192__GCM__IV12__TAG16__HKDF__SHA384__ECDSA__P384)
+                return AWS.EncryptionSDK.Core.AlgorithmSuiteId.ALG_AES_192_GCM_IV12_TAG16_HKDF_SHA384_ECDSA_P384;
+            if (value.is_ALG__AES__256__GCM__IV12__TAG16__HKDF__SHA384__ECDSA__P384)
+                return AWS.EncryptionSDK.Core.AlgorithmSuiteId.ALG_AES_256_GCM_IV12_TAG16_HKDF_SHA384_ECDSA_P384;
+            if (value.is_ALG__AES__256__GCM__HKDF__SHA512__COMMIT__KEY)
+                return AWS.EncryptionSDK.Core.AlgorithmSuiteId.ALG_AES_256_GCM_HKDF_SHA512_COMMIT_KEY;
+            if (value.is_ALG__AES__256__GCM__HKDF__SHA512__COMMIT__KEY__ECDSA__P384)
+                return AWS.EncryptionSDK.Core.AlgorithmSuiteId.ALG_AES_256_GCM_HKDF_SHA512_COMMIT_KEY_ECDSA_P384;
+            throw new System.ArgumentException("Invalid AWS.EncryptionSDK.Core.AlgorithmSuiteId value");
+        }
+
+        public static Dafny.Aws.EncryptionSdk.Core._IAlgorithmSuiteId
+            ToDafny_N3_aws__N13_encryptionSdk__N4_core__S16_AlgorithmSuiteId(
+                AWS.EncryptionSDK.Core.AlgorithmSuiteId value)
+        {
+            if (AWS.EncryptionSDK.Core.AlgorithmSuiteId.ALG_AES_128_GCM_IV12_TAG16_NO_KDF.Equals(value))
+                return Dafny.Aws.EncryptionSdk.Core.AlgorithmSuiteId.create_ALG__AES__128__GCM__IV12__TAG16__NO__KDF();
+            if (AWS.EncryptionSDK.Core.AlgorithmSuiteId.ALG_AES_192_GCM_IV12_TAG16_NO_KDF.Equals(value))
+                return Dafny.Aws.EncryptionSdk.Core.AlgorithmSuiteId.create_ALG__AES__192__GCM__IV12__TAG16__NO__KDF();
+            if (AWS.EncryptionSDK.Core.AlgorithmSuiteId.ALG_AES_256_GCM_IV12_TAG16_NO_KDF.Equals(value))
+                return Dafny.Aws.EncryptionSdk.Core.AlgorithmSuiteId.create_ALG__AES__256__GCM__IV12__TAG16__NO__KDF();
+            if (AWS.EncryptionSDK.Core.AlgorithmSuiteId.ALG_AES_128_GCM_IV12_TAG16_HKDF_SHA256.Equals(value))
+                return Dafny.Aws.EncryptionSdk.Core.AlgorithmSuiteId
+                    .create_ALG__AES__128__GCM__IV12__TAG16__HKDF__SHA256();
+            if (AWS.EncryptionSDK.Core.AlgorithmSuiteId.ALG_AES_192_GCM_IV12_TAG16_HKDF_SHA256.Equals(value))
+                return Dafny.Aws.EncryptionSdk.Core.AlgorithmSuiteId
+                    .create_ALG__AES__192__GCM__IV12__TAG16__HKDF__SHA256();
+            if (AWS.EncryptionSDK.Core.AlgorithmSuiteId.ALG_AES_256_GCM_IV12_TAG16_HKDF_SHA256.Equals(value))
+                return Dafny.Aws.EncryptionSdk.Core.AlgorithmSuiteId
+                    .create_ALG__AES__256__GCM__IV12__TAG16__HKDF__SHA256();
+            if (AWS.EncryptionSDK.Core.AlgorithmSuiteId.ALG_AES_128_GCM_IV12_TAG16_HKDF_SHA256_ECDSA_P256.Equals(value))
+                return Dafny.Aws.EncryptionSdk.Core.AlgorithmSuiteId
+                    .create_ALG__AES__128__GCM__IV12__TAG16__HKDF__SHA256__ECDSA__P256();
+            if (AWS.EncryptionSDK.Core.AlgorithmSuiteId.ALG_AES_192_GCM_IV12_TAG16_HKDF_SHA384_ECDSA_P384.Equals(value))
+                return Dafny.Aws.EncryptionSdk.Core.AlgorithmSuiteId
+                    .create_ALG__AES__192__GCM__IV12__TAG16__HKDF__SHA384__ECDSA__P384();
+            if (AWS.EncryptionSDK.Core.AlgorithmSuiteId.ALG_AES_256_GCM_IV12_TAG16_HKDF_SHA384_ECDSA_P384.Equals(value))
+                return Dafny.Aws.EncryptionSdk.Core.AlgorithmSuiteId
+                    .create_ALG__AES__256__GCM__IV12__TAG16__HKDF__SHA384__ECDSA__P384();
+            if (AWS.EncryptionSDK.Core.AlgorithmSuiteId.ALG_AES_256_GCM_HKDF_SHA512_COMMIT_KEY.Equals(value))
+                return Dafny.Aws.EncryptionSdk.Core.AlgorithmSuiteId
+                    .create_ALG__AES__256__GCM__HKDF__SHA512__COMMIT__KEY();
+            if (AWS.EncryptionSDK.Core.AlgorithmSuiteId.ALG_AES_256_GCM_HKDF_SHA512_COMMIT_KEY_ECDSA_P384.Equals(value))
+                return Dafny.Aws.EncryptionSdk.Core.AlgorithmSuiteId
+                    .create_ALG__AES__256__GCM__HKDF__SHA512__COMMIT__KEY__ECDSA__P384();
+            throw new System.ArgumentException("Invalid AWS.EncryptionSDK.Core.AlgorithmSuiteId value");
+        }
+
+        public static AWS.EncryptionSDK.Core.CreateDefaultCryptographicMaterialsManagerInput
+            FromDafny_N3_aws__N13_encryptionSdk__N4_core__S47_CreateDefaultCryptographicMaterialsManagerInput(
+                Dafny.Aws.EncryptionSdk.Core._ICreateDefaultCryptographicMaterialsManagerInput value)
+        {
+            Dafny.Aws.EncryptionSdk.Core.CreateDefaultCryptographicMaterialsManagerInput concrete =
+                (Dafny.Aws.EncryptionSdk.Core.CreateDefaultCryptographicMaterialsManagerInput)value;
+            AWS.EncryptionSDK.Core.CreateDefaultCryptographicMaterialsManagerInput converted =
+                new AWS.EncryptionSDK.Core.CreateDefaultCryptographicMaterialsManagerInput();
+            converted.Keyring =
+                (AWS.EncryptionSDK.Core.IKeyring)
+                FromDafny_N3_aws__N13_encryptionSdk__N4_core__S47_CreateDefaultCryptographicMaterialsManagerInput__M7_keyring(
+                    concrete.keyring);
+            return converted;
+        }
+
+        public static Dafny.Aws.EncryptionSdk.Core._ICreateDefaultCryptographicMaterialsManagerInput
+            ToDafny_N3_aws__N13_encryptionSdk__N4_core__S47_CreateDefaultCryptographicMaterialsManagerInput(
+                AWS.EncryptionSDK.Core.CreateDefaultCryptographicMaterialsManagerInput value)
+        {
+            return new Dafny.Aws.EncryptionSdk.Core.CreateDefaultCryptographicMaterialsManagerInput(
+                ToDafny_N3_aws__N13_encryptionSdk__N4_core__S47_CreateDefaultCryptographicMaterialsManagerInput__M7_keyring(
+                    value.Keyring));
+        }
+
+        public static System.Collections.Generic.Dictionary<string, string>
+            FromDafny_N3_aws__N13_encryptionSdk__N4_core__S17_EncryptionContext(
+                Dafny.IMap<Dafny.ISequence<byte>, Dafny.ISequence<byte>> value)
+        {
+            return value.ItemEnumerable.ToDictionary(
+                pair => FromDafny_N3_aws__N13_encryptionSdk__N4_core__S17_EncryptionContext__M3_key(pair.Car),
+                pair => FromDafny_N3_aws__N13_encryptionSdk__N4_core__S17_EncryptionContext__M5_value(pair.Cdr));
+        }
+
+        public static Dafny.IMap<Dafny.ISequence<byte>, Dafny.ISequence<byte>>
+            ToDafny_N3_aws__N13_encryptionSdk__N4_core__S17_EncryptionContext(
+                System.Collections.Generic.Dictionary<string, string> value)
+        {
+            return Dafny.Map<Dafny.ISequence<byte>, Dafny.ISequence<byte>>.FromCollection(value.Select(pair =>
+                new Dafny.Pair<Dafny.ISequence<byte>, Dafny.ISequence<byte>>(
+                    ToDafny_N3_aws__N13_encryptionSdk__N4_core__S17_EncryptionContext__M3_key(pair.Key),
+                    ToDafny_N3_aws__N13_encryptionSdk__N4_core__S17_EncryptionContext__M5_value(pair.Value))
+            ));
+        }
+
+        public static AWS.EncryptionSDK.Core.IClientSupplier
+            FromDafny_N3_aws__N13_encryptionSdk__N4_core__S32_CreateAwsKmsMrkMultiKeyringInput__M14_clientSupplier(
+                Wrappers_Compile._IOption<Dafny.Aws.EncryptionSdk.Core.IClientSupplier> value)
+        {
+            return value.is_None
+                ? (AWS.EncryptionSDK.Core.IClientSupplier)null
+                : FromDafny_N3_aws__N13_encryptionSdk__N4_core__S23_ClientSupplierReference(value.Extract());
+        }
+
+        public static Wrappers_Compile._IOption<Dafny.Aws.EncryptionSdk.Core.IClientSupplier>
+            ToDafny_N3_aws__N13_encryptionSdk__N4_core__S32_CreateAwsKmsMrkMultiKeyringInput__M14_clientSupplier(
+                AWS.EncryptionSDK.Core.IClientSupplier value)
+        {
+            return value == null
+                ? Wrappers_Compile.Option<Dafny.Aws.EncryptionSdk.Core.IClientSupplier>.create_None()
+                : Wrappers_Compile.Option<Dafny.Aws.EncryptionSdk.Core.IClientSupplier>.create_Some(
+                    ToDafny_N3_aws__N13_encryptionSdk__N4_core__S23_ClientSupplierReference(
+                        (AWS.EncryptionSDK.Core.IClientSupplier)value));
+        }
+
+        public static string FromDafny_N3_aws__N13_encryptionSdk__N4_core__S13_AccountIdList__M6_member(
+            Dafny.ISequence<char> value)
+        {
+            return FromDafny_N3_aws__N13_encryptionSdk__N4_core__S9_AccountId(value);
+        }
+
+        public static Dafny.ISequence<char> ToDafny_N3_aws__N13_encryptionSdk__N4_core__S13_AccountIdList__M6_member(
+            string value)
+        {
+            return ToDafny_N3_aws__N13_encryptionSdk__N4_core__S9_AccountId(value);
+        }
+
+        public static string FromDafny_N3_aws__N13_encryptionSdk__N4_core__S27_CreateAwsKmsMrkKeyringInput__M8_kmsKeyId(
+            Dafny.ISequence<char> value)
+        {
+            return FromDafny_N3_aws__N13_encryptionSdk__N4_core__S8_KmsKeyId(value);
+        }
+
+        public static Dafny.ISequence<char>
+            ToDafny_N3_aws__N13_encryptionSdk__N4_core__S27_CreateAwsKmsMrkKeyringInput__M8_kmsKeyId(string value)
+        {
+            return ToDafny_N3_aws__N13_encryptionSdk__N4_core__S8_KmsKeyId(value);
+        }
+
+        public static AWS.EncryptionSDK.Core.DecryptionMaterials
+            FromDafny_N3_aws__N13_encryptionSdk__N4_core__S15_OnDecryptOutput__M9_materials(
+                Dafny.Aws.EncryptionSdk.Core._IDecryptionMaterials value)
+        {
+            return FromDafny_N3_aws__N13_encryptionSdk__N4_core__S19_DecryptionMaterials(value);
+        }
+
+        public static Dafny.Aws.EncryptionSdk.Core._IDecryptionMaterials
+            ToDafny_N3_aws__N13_encryptionSdk__N4_core__S15_OnDecryptOutput__M9_materials(
+                AWS.EncryptionSDK.Core.DecryptionMaterials value)
+        {
+            return ToDafny_N3_aws__N13_encryptionSdk__N4_core__S19_DecryptionMaterials(value);
+        }
+
+        public static AWS.EncryptionSDK.Core.GetClientInput
+            FromDafny_N3_aws__N13_encryptionSdk__N4_core__S14_GetClientInput(
+                Dafny.Aws.EncryptionSdk.Core._IGetClientInput value)
+        {
+            Dafny.Aws.EncryptionSdk.Core.GetClientInput concrete = (Dafny.Aws.EncryptionSdk.Core.GetClientInput)value;
+            AWS.EncryptionSDK.Core.GetClientInput converted = new AWS.EncryptionSDK.Core.GetClientInput();
+            converted.Region =
+                (string)FromDafny_N3_aws__N13_encryptionSdk__N4_core__S14_GetClientInput__M6_region(concrete.region);
+            return converted;
+        }
+
+        public static Dafny.Aws.EncryptionSdk.Core._IGetClientInput
+            ToDafny_N3_aws__N13_encryptionSdk__N4_core__S14_GetClientInput(AWS.EncryptionSDK.Core.GetClientInput value)
+        {
+            return new Dafny.Aws.EncryptionSdk.Core.GetClientInput(
+                ToDafny_N3_aws__N13_encryptionSdk__N4_core__S14_GetClientInput__M6_region(value.Region));
+        }
+
+        public static AWS.EncryptionSDK.Core.IKeyring
+            FromDafny_N3_aws__N13_encryptionSdk__N4_core__S16_KeyringReference(
+                Dafny.Aws.EncryptionSdk.Core.IKeyring value)
+        {
+            return new Keyring(value);
+        }
+
+        public static Dafny.Aws.EncryptionSdk.Core.IKeyring
+            ToDafny_N3_aws__N13_encryptionSdk__N4_core__S16_KeyringReference(AWS.EncryptionSDK.Core.IKeyring value)
+        {
+            if (value is Keyring valueWithImpl)
             {
                 return valueWithImpl._impl;
             }
 
             throw new System.ArgumentException(
-                "Custom implementations of Aws.Crypto.ICryptoMaterialsCache are not supported yet");
+                "Custom implementations of AWS.EncryptionSDK.Core.IKeyring are not supported yet");
         }
 
-        public static string FromDafny_N3_aws__N6_crypto__S24_CreateRawAesKeyringInput__M7_keyName(
-            Dafny.ISequence<char> value)
+        public static AWS.EncryptionSDK.Core.OnDecryptInput
+            FromDafny_N3_aws__N13_encryptionSdk__N4_core__S14_OnDecryptInput(
+                Dafny.Aws.EncryptionSdk.Core._IOnDecryptInput value)
         {
-            return FromDafny_N6_smithy__N3_api__S6_String(value);
-        }
-
-        public static Dafny.ISequence<char> ToDafny_N3_aws__N6_crypto__S24_CreateRawAesKeyringInput__M7_keyName(
-            string value)
-        {
-            return ToDafny_N6_smithy__N3_api__S6_String(value);
-        }
-
-        public static System.IO.MemoryStream FromDafny_N3_aws__N6_crypto__S19_EncryptionMaterials__M16_plaintextDataKey(
-            Wrappers_Compile.Option<Dafny.ISequence<byte>> value)
-        {
-            return value.is_None
-                ? (System.IO.MemoryStream) null
-                : FromDafny_N6_smithy__N3_api__S4_Blob(value.Extract());
-        }
-
-        public static Wrappers_Compile.Option<Dafny.ISequence<byte>>
-            ToDafny_N3_aws__N6_crypto__S19_EncryptionMaterials__M16_plaintextDataKey(System.IO.MemoryStream value)
-        {
-            return value == null
-                ? Wrappers_Compile.Option<Dafny.ISequence<byte>>.create_None()
-                : Wrappers_Compile.Option<Dafny.ISequence<byte>>.create_Some(
-                    ToDafny_N6_smithy__N3_api__S4_Blob((System.IO.MemoryStream) value));
-        }
-
-        public static string FromDafny_N3_aws__N6_crypto__S17_EncryptionContext__M3_key(Dafny.ISequence<byte> value)
-        {
-            return FromDafny_N3_aws__N6_crypto__S9_Utf8Bytes(value);
-        }
-
-        public static Dafny.ISequence<byte> ToDafny_N3_aws__N6_crypto__S17_EncryptionContext__M3_key(string value)
-        {
-            return ToDafny_N3_aws__N6_crypto__S9_Utf8Bytes(value);
-        }
-
-        public static long FromDafny_N3_aws__N6_crypto__S18_CacheUsageMetadata__M9_byteUsage(long value)
-        {
-            return FromDafny_N6_smithy__N3_api__S4_Long(value);
-        }
-
-        public static long ToDafny_N3_aws__N6_crypto__S18_CacheUsageMetadata__M9_byteUsage(long value)
-        {
-            return ToDafny_N6_smithy__N3_api__S4_Long(value);
-        }
-
-        public static long FromDafny_N3_aws__N6_crypto__S12_EncryptEntry__M12_creationTime(long value)
-        {
-            return FromDafny_N6_smithy__N3_api__S4_Long(value);
-        }
-
-        public static long ToDafny_N3_aws__N6_crypto__S12_EncryptEntry__M12_creationTime(long value)
-        {
-            return ToDafny_N6_smithy__N3_api__S4_Long(value);
-        }
-
-        public static Aws.Crypto.DecryptionMaterials
-            FromDafny_N3_aws__N6_crypto__S22_DecryptMaterialsOutput__M19_decryptionMaterials(
-                Dafny.Aws.Crypto.DecryptionMaterials value)
-        {
-            return FromDafny_N3_aws__N6_crypto__S19_DecryptionMaterials(value);
-        }
-
-        public static Dafny.Aws.Crypto.DecryptionMaterials
-            ToDafny_N3_aws__N6_crypto__S22_DecryptMaterialsOutput__M19_decryptionMaterials(
-                Aws.Crypto.DecryptionMaterials value)
-        {
-            return ToDafny_N3_aws__N6_crypto__S19_DecryptionMaterials(value);
-        }
-
-        public static System.IO.MemoryStream FromDafny_N3_aws__N6_crypto__S19_DecryptionMaterials__M15_verificationKey(
-            Wrappers_Compile.Option<Dafny.ISequence<byte>> value)
-        {
-            return value.is_None
-                ? (System.IO.MemoryStream) null
-                : FromDafny_N6_smithy__N3_api__S4_Blob(value.Extract());
-        }
-
-        public static Wrappers_Compile.Option<Dafny.ISequence<byte>>
-            ToDafny_N3_aws__N6_crypto__S19_DecryptionMaterials__M15_verificationKey(System.IO.MemoryStream value)
-        {
-            return value == null
-                ? Wrappers_Compile.Option<Dafny.ISequence<byte>>.create_None()
-                : Wrappers_Compile.Option<Dafny.ISequence<byte>>.create_Some(
-                    ToDafny_N6_smithy__N3_api__S4_Blob((System.IO.MemoryStream) value));
-        }
-
-        public static Aws.Crypto.AlgorithmSuiteId
-            FromDafny_N3_aws__N6_crypto__S19_EncryptionMaterials__M16_algorithmSuiteId(
-                Dafny.Aws.Crypto.AlgorithmSuiteId value)
-        {
-            return FromDafny_N3_aws__N6_crypto__S16_AlgorithmSuiteId(value);
-        }
-
-        public static Dafny.Aws.Crypto.AlgorithmSuiteId
-            ToDafny_N3_aws__N6_crypto__S19_EncryptionMaterials__M16_algorithmSuiteId(Aws.Crypto.AlgorithmSuiteId value)
-        {
-            return ToDafny_N3_aws__N6_crypto__S16_AlgorithmSuiteId(value);
-        }
-
-        public static Aws.Crypto.AlgorithmSuiteId
-            FromDafny_N3_aws__N6_crypto__S27_GetEncryptionMaterialsInput__M16_algorithmSuiteId(
-                Wrappers_Compile.Option<Dafny.Aws.Crypto.AlgorithmSuiteId> value)
-        {
-            return value.is_None
-                ? (Aws.Crypto.AlgorithmSuiteId) null
-                : FromDafny_N3_aws__N6_crypto__S16_AlgorithmSuiteId(value.Extract());
-        }
-
-        public static Wrappers_Compile.Option<Dafny.Aws.Crypto.AlgorithmSuiteId>
-            ToDafny_N3_aws__N6_crypto__S27_GetEncryptionMaterialsInput__M16_algorithmSuiteId(
-                Aws.Crypto.AlgorithmSuiteId value)
-        {
-            return value == null
-                ? Wrappers_Compile.Option<Dafny.Aws.Crypto.AlgorithmSuiteId>.create_None()
-                : Wrappers_Compile.Option<Dafny.Aws.Crypto.AlgorithmSuiteId>.create_Some(
-                    ToDafny_N3_aws__N6_crypto__S16_AlgorithmSuiteId((Aws.Crypto.AlgorithmSuiteId) value));
-        }
-
-        public static Aws.Crypto.CreateCachingCryptographicMaterialsManagerInput
-            FromDafny_N3_aws__N6_crypto__S47_CreateCachingCryptographicMaterialsManagerInput(
-                Dafny.Aws.Crypto.CreateCachingCryptographicMaterialsManagerInput value)
-        {
-            Aws.Crypto.CreateCachingCryptographicMaterialsManagerInput converted =
-                new Aws.Crypto.CreateCachingCryptographicMaterialsManagerInput();
-            converted.Cache =
-                (Aws.Crypto.ICryptoMaterialsCache)
-                FromDafny_N3_aws__N6_crypto__S47_CreateCachingCryptographicMaterialsManagerInput__M5_cache(value.cache);
-            converted.CacheLimitTtl =
-                (int)
-                FromDafny_N3_aws__N6_crypto__S47_CreateCachingCryptographicMaterialsManagerInput__M13_cacheLimitTtl(
-                    value.cacheLimitTtl);
-            if (value.keyring != null)
-                converted.Keyring =
-                    (Aws.Crypto.IKeyring)
-                    FromDafny_N3_aws__N6_crypto__S47_CreateCachingCryptographicMaterialsManagerInput__M7_keyring(
-                        value.keyring);
-            if (value.materialsManager != null)
-                converted.MaterialsManager =
-                    (Aws.Crypto.ICryptographicMaterialsManager)
-                    FromDafny_N3_aws__N6_crypto__S47_CreateCachingCryptographicMaterialsManagerInput__M16_materialsManager(
-                        value.materialsManager);
-            if (value.partitionId.is_Some)
-                converted.PartitionId =
-                    (string)
-                    FromDafny_N3_aws__N6_crypto__S47_CreateCachingCryptographicMaterialsManagerInput__M11_partitionId(
-                        value.partitionId);
-            if (value.limitBytes.is_Some)
-                converted.LimitBytes =
-                    (long)
-                    FromDafny_N3_aws__N6_crypto__S47_CreateCachingCryptographicMaterialsManagerInput__M10_limitBytes(
-                        value.limitBytes);
-            if (value.limitMessages.is_Some)
-                converted.LimitMessages =
-                    (long)
-                    FromDafny_N3_aws__N6_crypto__S47_CreateCachingCryptographicMaterialsManagerInput__M13_limitMessages(
-                        value.limitMessages);
+            Dafny.Aws.EncryptionSdk.Core.OnDecryptInput concrete = (Dafny.Aws.EncryptionSdk.Core.OnDecryptInput)value;
+            AWS.EncryptionSDK.Core.OnDecryptInput converted = new AWS.EncryptionSDK.Core.OnDecryptInput();
+            converted.Materials =
+                (AWS.EncryptionSDK.Core.DecryptionMaterials)
+                FromDafny_N3_aws__N13_encryptionSdk__N4_core__S14_OnDecryptInput__M9_materials(concrete.materials);
+            converted.EncryptedDataKeys =
+                (System.Collections.Generic.List<AWS.EncryptionSDK.Core.EncryptedDataKey>)
+                FromDafny_N3_aws__N13_encryptionSdk__N4_core__S14_OnDecryptInput__M17_encryptedDataKeys(
+                    concrete.encryptedDataKeys);
             return converted;
         }
 
-        public static Dafny.Aws.Crypto.CreateCachingCryptographicMaterialsManagerInput
-            ToDafny_N3_aws__N6_crypto__S47_CreateCachingCryptographicMaterialsManagerInput(
-                Aws.Crypto.CreateCachingCryptographicMaterialsManagerInput value)
+        public static Dafny.Aws.EncryptionSdk.Core._IOnDecryptInput
+            ToDafny_N3_aws__N13_encryptionSdk__N4_core__S14_OnDecryptInput(AWS.EncryptionSDK.Core.OnDecryptInput value)
         {
-            return new Dafny.Aws.Crypto.CreateCachingCryptographicMaterialsManagerInput(
-                ToDafny_N3_aws__N6_crypto__S47_CreateCachingCryptographicMaterialsManagerInput__M5_cache(value.Cache),
-                ToDafny_N3_aws__N6_crypto__S47_CreateCachingCryptographicMaterialsManagerInput__M13_cacheLimitTtl(
-                    value.CacheLimitTtl),
-                ToDafny_N3_aws__N6_crypto__S47_CreateCachingCryptographicMaterialsManagerInput__M7_keyring(
-                    value.Keyring),
-                ToDafny_N3_aws__N6_crypto__S47_CreateCachingCryptographicMaterialsManagerInput__M16_materialsManager(
-                    value.MaterialsManager),
-                ToDafny_N3_aws__N6_crypto__S47_CreateCachingCryptographicMaterialsManagerInput__M11_partitionId(
-                    value.PartitionId),
-                ToDafny_N3_aws__N6_crypto__S47_CreateCachingCryptographicMaterialsManagerInput__M10_limitBytes(
-                    value.LimitBytes),
-                ToDafny_N3_aws__N6_crypto__S47_CreateCachingCryptographicMaterialsManagerInput__M13_limitMessages(
-                    value.LimitMessages));
+            return new Dafny.Aws.EncryptionSdk.Core.OnDecryptInput(
+                ToDafny_N3_aws__N13_encryptionSdk__N4_core__S14_OnDecryptInput__M9_materials(value.Materials),
+                ToDafny_N3_aws__N13_encryptionSdk__N4_core__S14_OnDecryptInput__M17_encryptedDataKeys(
+                    value.EncryptedDataKeys));
         }
 
-        public static Aws.Crypto.PutEntryForDecryptInput FromDafny_N3_aws__N6_crypto__S23_PutEntryForDecryptInput(
-            Dafny.Aws.Crypto.PutEntryForDecryptInput value)
+        public static System.Collections.Generic.List<string>
+            FromDafny_N3_aws__N13_encryptionSdk__N4_core__S33_CreateAwsKmsDiscoveryKeyringInput__M11_grantTokens(
+                Wrappers_Compile._IOption<Dafny.ISequence<Dafny.ISequence<char>>> value)
         {
-            Aws.Crypto.PutEntryForDecryptInput converted = new Aws.Crypto.PutEntryForDecryptInput();
-            converted.Identifier =
-                (System.IO.MemoryStream) FromDafny_N3_aws__N6_crypto__S23_PutEntryForDecryptInput__M10_identifier(
-                    value.identifier);
-            converted.DecryptionMaterials =
-                (Aws.Crypto.DecryptionMaterials)
-                FromDafny_N3_aws__N6_crypto__S23_PutEntryForDecryptInput__M19_decryptionMaterials(
-                    value.decryptionMaterials);
+            return value.is_None
+                ? (System.Collections.Generic.List<string>)null
+                : FromDafny_N3_aws__N13_encryptionSdk__N4_core__S14_GrantTokenList(value.Extract());
+        }
+
+        public static Wrappers_Compile._IOption<Dafny.ISequence<Dafny.ISequence<char>>>
+            ToDafny_N3_aws__N13_encryptionSdk__N4_core__S33_CreateAwsKmsDiscoveryKeyringInput__M11_grantTokens(
+                System.Collections.Generic.List<string> value)
+        {
+            return value == null
+                ? Wrappers_Compile.Option<Dafny.ISequence<Dafny.ISequence<char>>>.create_None()
+                : Wrappers_Compile.Option<Dafny.ISequence<Dafny.ISequence<char>>>.create_Some(
+                    ToDafny_N3_aws__N13_encryptionSdk__N4_core__S14_GrantTokenList(
+                        (System.Collections.Generic.List<string>)value));
+        }
+
+        public static AWS.EncryptionSDK.Core.EncryptedDataKey
+            FromDafny_N3_aws__N13_encryptionSdk__N4_core__S16_EncryptedDataKey(
+                Dafny.Aws.EncryptionSdk.Core._IEncryptedDataKey value)
+        {
+            Dafny.Aws.EncryptionSdk.Core.EncryptedDataKey concrete =
+                (Dafny.Aws.EncryptionSdk.Core.EncryptedDataKey)value;
+            AWS.EncryptionSDK.Core.EncryptedDataKey converted = new AWS.EncryptionSDK.Core.EncryptedDataKey();
+            converted.KeyProviderId =
+                (string)FromDafny_N3_aws__N13_encryptionSdk__N4_core__S16_EncryptedDataKey__M13_keyProviderId(
+                    concrete.keyProviderId);
+            converted.KeyProviderInfo =
+                (string)FromDafny_N3_aws__N13_encryptionSdk__N4_core__S16_EncryptedDataKey__M15_keyProviderInfo(
+                    concrete.keyProviderInfo);
+            converted.Ciphertext =
+                (System.IO.MemoryStream)
+                FromDafny_N3_aws__N13_encryptionSdk__N4_core__S16_EncryptedDataKey__M10_ciphertext(concrete.ciphertext);
             return converted;
         }
 
-        public static Dafny.Aws.Crypto.PutEntryForDecryptInput ToDafny_N3_aws__N6_crypto__S23_PutEntryForDecryptInput(
-            Aws.Crypto.PutEntryForDecryptInput value)
+        public static Dafny.Aws.EncryptionSdk.Core._IEncryptedDataKey
+            ToDafny_N3_aws__N13_encryptionSdk__N4_core__S16_EncryptedDataKey(
+                AWS.EncryptionSDK.Core.EncryptedDataKey value)
         {
-            return new Dafny.Aws.Crypto.PutEntryForDecryptInput(
-                ToDafny_N3_aws__N6_crypto__S23_PutEntryForDecryptInput__M10_identifier(value.Identifier),
-                ToDafny_N3_aws__N6_crypto__S23_PutEntryForDecryptInput__M19_decryptionMaterials(
-                    value.DecryptionMaterials));
+            return new Dafny.Aws.EncryptionSdk.Core.EncryptedDataKey(
+                ToDafny_N3_aws__N13_encryptionSdk__N4_core__S16_EncryptedDataKey__M13_keyProviderId(
+                    value.KeyProviderId),
+                ToDafny_N3_aws__N13_encryptionSdk__N4_core__S16_EncryptedDataKey__M15_keyProviderInfo(
+                    value.KeyProviderInfo),
+                ToDafny_N3_aws__N13_encryptionSdk__N4_core__S16_EncryptedDataKey__M10_ciphertext(value.Ciphertext));
         }
 
-        public static string FromDafny_N3_aws__N6_crypto__S24_CreateRawAesKeyringInput__M12_keyNamespace(
-            Dafny.ISequence<char> value)
+        public static string
+            FromDafny_N3_aws__N13_encryptionSdk__N4_core__S32_CreateAwsKmsMrkMultiKeyringInput__M9_generator(
+                Wrappers_Compile._IOption<Dafny.ISequence<char>> value)
         {
-            return FromDafny_N6_smithy__N3_api__S6_String(value);
+            return value.is_None
+                ? (string)null
+                : FromDafny_N3_aws__N13_encryptionSdk__N4_core__S8_KmsKeyId(value.Extract());
         }
 
-        public static Dafny.ISequence<char> ToDafny_N3_aws__N6_crypto__S24_CreateRawAesKeyringInput__M12_keyNamespace(
-            string value)
+        public static Wrappers_Compile._IOption<Dafny.ISequence<char>>
+            ToDafny_N3_aws__N13_encryptionSdk__N4_core__S32_CreateAwsKmsMrkMultiKeyringInput__M9_generator(string value)
         {
-            return ToDafny_N6_smithy__N3_api__S6_String(value);
+            return value == null
+                ? Wrappers_Compile.Option<Dafny.ISequence<char>>.create_None()
+                : Wrappers_Compile.Option<Dafny.ISequence<char>>.create_Some(
+                    ToDafny_N3_aws__N13_encryptionSdk__N4_core__S8_KmsKeyId((string)value));
         }
 
-        public static Aws.Crypto.DecryptionMaterials FromDafny_N3_aws__N6_crypto__S19_DecryptionMaterials(
-            Dafny.Aws.Crypto.DecryptionMaterials value)
+        public static System.Collections.Generic.List<string>
+            FromDafny_N3_aws__N13_encryptionSdk__N4_core__S41_CreateAwsKmsMrkDiscoveryMultiKeyringInput__M7_regions(
+                Dafny.ISequence<Dafny.ISequence<char>> value)
         {
-            Aws.Crypto.DecryptionMaterials converted = new Aws.Crypto.DecryptionMaterials();
-            converted.AlgorithmSuiteId =
-                (Aws.Crypto.AlgorithmSuiteId)
-                FromDafny_N3_aws__N6_crypto__S19_DecryptionMaterials__M16_algorithmSuiteId(value.algorithmSuiteId);
-            converted.EncryptionContext =
-                (System.Collections.Generic.Dictionary<string, string>)
-                FromDafny_N3_aws__N6_crypto__S19_DecryptionMaterials__M17_encryptionContext(value.encryptionContext);
-            if (value.plaintextDataKey.is_Some)
-                converted.PlaintextDataKey =
-                    (System.IO.MemoryStream) FromDafny_N3_aws__N6_crypto__S19_DecryptionMaterials__M16_plaintextDataKey(
-                        value.plaintextDataKey);
-            if (value.verificationKey.is_Some)
-                converted.VerificationKey =
-                    (System.IO.MemoryStream) FromDafny_N3_aws__N6_crypto__S19_DecryptionMaterials__M15_verificationKey(
-                        value.verificationKey);
+            return FromDafny_N3_aws__N13_encryptionSdk__N4_core__S10_RegionList(value);
+        }
+
+        public static Dafny.ISequence<Dafny.ISequence<char>>
+            ToDafny_N3_aws__N13_encryptionSdk__N4_core__S41_CreateAwsKmsMrkDiscoveryMultiKeyringInput__M7_regions(
+                System.Collections.Generic.List<string> value)
+        {
+            return ToDafny_N3_aws__N13_encryptionSdk__N4_core__S10_RegionList(value);
+        }
+
+        public static System.Collections.Generic.List<string>
+            FromDafny_N3_aws__N13_encryptionSdk__N4_core__S24_CreateAwsKmsKeyringInput__M11_grantTokens(
+                Wrappers_Compile._IOption<Dafny.ISequence<Dafny.ISequence<char>>> value)
+        {
+            return value.is_None
+                ? (System.Collections.Generic.List<string>)null
+                : FromDafny_N3_aws__N13_encryptionSdk__N4_core__S14_GrantTokenList(value.Extract());
+        }
+
+        public static Wrappers_Compile._IOption<Dafny.ISequence<Dafny.ISequence<char>>>
+            ToDafny_N3_aws__N13_encryptionSdk__N4_core__S24_CreateAwsKmsKeyringInput__M11_grantTokens(
+                System.Collections.Generic.List<string> value)
+        {
+            return value == null
+                ? Wrappers_Compile.Option<Dafny.ISequence<Dafny.ISequence<char>>>.create_None()
+                : Wrappers_Compile.Option<Dafny.ISequence<Dafny.ISequence<char>>>.create_Some(
+                    ToDafny_N3_aws__N13_encryptionSdk__N4_core__S14_GrantTokenList(
+                        (System.Collections.Generic.List<string>)value));
+        }
+
+        public static AWS.EncryptionSDK.Core.ICryptographicMaterialsManager
+            FromDafny_N3_aws__N13_encryptionSdk__N4_core__S38_CryptographicMaterialsManagerReference(
+                Dafny.Aws.EncryptionSdk.Core.ICryptographicMaterialsManager value)
+        {
+            return new CryptographicMaterialsManager(value);
+        }
+
+        public static Dafny.Aws.EncryptionSdk.Core.ICryptographicMaterialsManager
+            ToDafny_N3_aws__N13_encryptionSdk__N4_core__S38_CryptographicMaterialsManagerReference(
+                AWS.EncryptionSDK.Core.ICryptographicMaterialsManager value)
+        {
+            if (value is CryptographicMaterialsManager valueWithImpl)
+            {
+                return valueWithImpl._impl;
+            }
+
+            throw new System.ArgumentException(
+                "Custom implementations of AWS.EncryptionSDK.Core.ICryptographicMaterialsManager are not supported yet");
+        }
+
+        public static AWS.EncryptionSDK.Core.CreateAwsKmsMrkKeyringInput
+            FromDafny_N3_aws__N13_encryptionSdk__N4_core__S27_CreateAwsKmsMrkKeyringInput(
+                Dafny.Aws.EncryptionSdk.Core._ICreateAwsKmsMrkKeyringInput value)
+        {
+            Dafny.Aws.EncryptionSdk.Core.CreateAwsKmsMrkKeyringInput concrete =
+                (Dafny.Aws.EncryptionSdk.Core.CreateAwsKmsMrkKeyringInput)value;
+            AWS.EncryptionSDK.Core.CreateAwsKmsMrkKeyringInput converted =
+                new AWS.EncryptionSDK.Core.CreateAwsKmsMrkKeyringInput();
+            converted.KmsKeyId =
+                (string)FromDafny_N3_aws__N13_encryptionSdk__N4_core__S27_CreateAwsKmsMrkKeyringInput__M8_kmsKeyId(
+                    concrete.kmsKeyId);
+            converted.KmsClient =
+                (Amazon.KeyManagementService.IAmazonKeyManagementService)
+                FromDafny_N3_aws__N13_encryptionSdk__N4_core__S27_CreateAwsKmsMrkKeyringInput__M9_kmsClient(
+                    concrete.kmsClient);
+            if (concrete.grantTokens.is_Some)
+                converted.GrantTokens =
+                    (System.Collections.Generic.List<string>)
+                    FromDafny_N3_aws__N13_encryptionSdk__N4_core__S27_CreateAwsKmsMrkKeyringInput__M11_grantTokens(
+                        concrete.grantTokens);
             return converted;
         }
 
-        public static Dafny.Aws.Crypto.DecryptionMaterials ToDafny_N3_aws__N6_crypto__S19_DecryptionMaterials(
-            Aws.Crypto.DecryptionMaterials value)
+        public static Dafny.Aws.EncryptionSdk.Core._ICreateAwsKmsMrkKeyringInput
+            ToDafny_N3_aws__N13_encryptionSdk__N4_core__S27_CreateAwsKmsMrkKeyringInput(
+                AWS.EncryptionSDK.Core.CreateAwsKmsMrkKeyringInput value)
         {
-            return new Dafny.Aws.Crypto.DecryptionMaterials(
-                ToDafny_N3_aws__N6_crypto__S19_DecryptionMaterials__M16_algorithmSuiteId(value.AlgorithmSuiteId),
-                ToDafny_N3_aws__N6_crypto__S19_DecryptionMaterials__M17_encryptionContext(value.EncryptionContext),
-                ToDafny_N3_aws__N6_crypto__S19_DecryptionMaterials__M16_plaintextDataKey(value.PlaintextDataKey),
-                ToDafny_N3_aws__N6_crypto__S19_DecryptionMaterials__M15_verificationKey(value.VerificationKey));
-        }
-
-        public static Aws.Crypto.AesWrappingAlg FromDafny_N3_aws__N6_crypto__S14_AesWrappingAlg(
-            Dafny.Aws.Crypto.AesWrappingAlg value)
-        {
-            if (value.is_ALG__AES128__GCM__IV12__TAG16) return Aws.Crypto.AesWrappingAlg.ALG_AES128_GCM_IV12_TAG16;
-            if (value.is_ALG__AES192__GCM__IV12__TAG16) return Aws.Crypto.AesWrappingAlg.ALG_AES192_GCM_IV12_TAG16;
-            if (value.is_ALG__AES256__GCM__IV12__TAG16) return Aws.Crypto.AesWrappingAlg.ALG_AES256_GCM_IV12_TAG16;
-            throw new System.ArgumentException("Invalid Aws.Crypto.AesWrappingAlg value");
-        }
-
-        public static Dafny.Aws.Crypto.AesWrappingAlg ToDafny_N3_aws__N6_crypto__S14_AesWrappingAlg(
-            Aws.Crypto.AesWrappingAlg value)
-        {
-            if (Aws.Crypto.AesWrappingAlg.ALG_AES128_GCM_IV12_TAG16.Equals(value))
-                return Dafny.Aws.Crypto.AesWrappingAlg.create_ALG__AES128__GCM__IV12__TAG16();
-            if (Aws.Crypto.AesWrappingAlg.ALG_AES192_GCM_IV12_TAG16.Equals(value))
-                return Dafny.Aws.Crypto.AesWrappingAlg.create_ALG__AES192__GCM__IV12__TAG16();
-            if (Aws.Crypto.AesWrappingAlg.ALG_AES256_GCM_IV12_TAG16.Equals(value))
-                return Dafny.Aws.Crypto.AesWrappingAlg.create_ALG__AES256__GCM__IV12__TAG16();
-            throw new System.ArgumentException("Invalid Aws.Crypto.AesWrappingAlg value");
-        }
-
-        public static System.Collections.Generic.Dictionary<string, string>
-            FromDafny_N3_aws__N6_crypto__S19_DecryptionMaterials__M17_encryptionContext(
-                Dafny.IMap<Dafny.ISequence<byte>, Dafny.ISequence<byte>> value)
-        {
-            return FromDafny_N3_aws__N6_crypto__S17_EncryptionContext(value);
-        }
-
-        public static Dafny.IMap<Dafny.ISequence<byte>, Dafny.ISequence<byte>>
-            ToDafny_N3_aws__N6_crypto__S19_DecryptionMaterials__M17_encryptionContext(
-                System.Collections.Generic.Dictionary<string, string> value)
-        {
-            return ToDafny_N3_aws__N6_crypto__S17_EncryptionContext(value);
-        }
-
-        public static string FromDafny_N3_aws__N6_crypto__S16_EncryptedDataKey__M13_keyProviderId(
-            Dafny.ISequence<byte> value)
-        {
-            return FromDafny_N3_aws__N6_crypto__S9_Utf8Bytes(value);
-        }
-
-        public static Dafny.ISequence<byte> ToDafny_N3_aws__N6_crypto__S16_EncryptedDataKey__M13_keyProviderId(
-            string value)
-        {
-            return ToDafny_N3_aws__N6_crypto__S9_Utf8Bytes(value);
+            System.Collections.Generic.List<string> var_grantTokens = value.IsSetGrantTokens()
+                ? value.GrantTokens
+                : (System.Collections.Generic.List<string>)null;
+            return new Dafny.Aws.EncryptionSdk.Core.CreateAwsKmsMrkKeyringInput(
+                ToDafny_N3_aws__N13_encryptionSdk__N4_core__S27_CreateAwsKmsMrkKeyringInput__M8_kmsKeyId(
+                    value.KmsKeyId),
+                ToDafny_N3_aws__N13_encryptionSdk__N4_core__S27_CreateAwsKmsMrkKeyringInput__M9_kmsClient(
+                    value.KmsClient),
+                ToDafny_N3_aws__N13_encryptionSdk__N4_core__S27_CreateAwsKmsMrkKeyringInput__M11_grantTokens(
+                    var_grantTokens));
         }
 
         public static long FromDafny_N6_smithy__N3_api__S4_Long(long value)
@@ -1602,194 +2549,208 @@ namespace Aws.Crypto
             return value;
         }
 
-        public static Aws.Crypto.ICryptographicMaterialsManager
-            FromDafny_N3_aws__N6_crypto__S41_CreateCryptographicMaterialsManagerOutput(
-                Dafny.Aws.Crypto.ICryptographicMaterialsManager value)
+        public static AWS.EncryptionSDK.Core.CommitmentPolicy
+            FromDafny_N3_aws__N13_encryptionSdk__N4_core__S16_CommitmentPolicy(
+                Dafny.Aws.EncryptionSdk.Core._ICommitmentPolicy value)
         {
-            return FromDafny_N3_aws__N6_crypto__S41_CreateCryptographicMaterialsManagerOutput__M16_materialsManager(
-                value);
+            if (value.is_FORBID__ENCRYPT__ALLOW__DECRYPT)
+                return AWS.EncryptionSDK.Core.CommitmentPolicy.FORBID_ENCRYPT_ALLOW_DECRYPT;
+            if (value.is_REQUIRE__ENCRYPT__ALLOW__DECRYPT)
+                return AWS.EncryptionSDK.Core.CommitmentPolicy.REQUIRE_ENCRYPT_ALLOW_DECRYPT;
+            if (value.is_REQUIRE__ENCRYPT__REQUIRE__DECRYPT)
+                return AWS.EncryptionSDK.Core.CommitmentPolicy.REQUIRE_ENCRYPT_REQUIRE_DECRYPT;
+            throw new System.ArgumentException("Invalid AWS.EncryptionSDK.Core.CommitmentPolicy value");
         }
 
-        public static Dafny.Aws.Crypto.ICryptographicMaterialsManager
-            ToDafny_N3_aws__N6_crypto__S41_CreateCryptographicMaterialsManagerOutput(
-                Aws.Crypto.ICryptographicMaterialsManager value)
+        public static Dafny.Aws.EncryptionSdk.Core._ICommitmentPolicy
+            ToDafny_N3_aws__N13_encryptionSdk__N4_core__S16_CommitmentPolicy(
+                AWS.EncryptionSDK.Core.CommitmentPolicy value)
         {
-            return ToDafny_N3_aws__N6_crypto__S41_CreateCryptographicMaterialsManagerOutput__M16_materialsManager(
-                value);
+            if (AWS.EncryptionSDK.Core.CommitmentPolicy.FORBID_ENCRYPT_ALLOW_DECRYPT.Equals(value))
+                return Dafny.Aws.EncryptionSdk.Core.CommitmentPolicy.create_FORBID__ENCRYPT__ALLOW__DECRYPT();
+            if (AWS.EncryptionSDK.Core.CommitmentPolicy.REQUIRE_ENCRYPT_ALLOW_DECRYPT.Equals(value))
+                return Dafny.Aws.EncryptionSdk.Core.CommitmentPolicy.create_REQUIRE__ENCRYPT__ALLOW__DECRYPT();
+            if (AWS.EncryptionSDK.Core.CommitmentPolicy.REQUIRE_ENCRYPT_REQUIRE_DECRYPT.Equals(value))
+                return Dafny.Aws.EncryptionSdk.Core.CommitmentPolicy.create_REQUIRE__ENCRYPT__REQUIRE__DECRYPT();
+            throw new System.ArgumentException("Invalid AWS.EncryptionSDK.Core.CommitmentPolicy value");
         }
 
-        public static int FromDafny_N6_smithy__N3_api__S7_Integer(int value)
+        public static System.Collections.Generic.List<AWS.EncryptionSDK.Core.EncryptedDataKey>
+            FromDafny_N3_aws__N13_encryptionSdk__N4_core__S19_EncryptionMaterials__M17_encryptedDataKeys(
+                Dafny.ISequence<Dafny.Aws.EncryptionSdk.Core._IEncryptedDataKey> value)
         {
-            return value;
+            return FromDafny_N3_aws__N13_encryptionSdk__N4_core__S20_EncryptedDataKeyList(value);
         }
 
-        public static int ToDafny_N6_smithy__N3_api__S7_Integer(int value)
+        public static Dafny.ISequence<Dafny.Aws.EncryptionSdk.Core._IEncryptedDataKey>
+            ToDafny_N3_aws__N13_encryptionSdk__N4_core__S19_EncryptionMaterials__M17_encryptedDataKeys(
+                System.Collections.Generic.List<AWS.EncryptionSDK.Core.EncryptedDataKey> value)
         {
-            return value;
+            return ToDafny_N3_aws__N13_encryptionSdk__N4_core__S20_EncryptedDataKeyList(value);
         }
 
-        public static Aws.Crypto.EncryptionMaterials
-            FromDafny_N3_aws__N6_crypto__S28_GetEncryptionMaterialsOutput__M19_encryptionMaterials(
-                Dafny.Aws.Crypto.EncryptionMaterials value)
+        public static AWS.EncryptionSDK.Core.CreateAwsKmsDiscoveryKeyringInput
+            FromDafny_N3_aws__N13_encryptionSdk__N4_core__S33_CreateAwsKmsDiscoveryKeyringInput(
+                Dafny.Aws.EncryptionSdk.Core._ICreateAwsKmsDiscoveryKeyringInput value)
         {
-            return FromDafny_N3_aws__N6_crypto__S19_EncryptionMaterials(value);
-        }
-
-        public static Dafny.Aws.Crypto.EncryptionMaterials
-            ToDafny_N3_aws__N6_crypto__S28_GetEncryptionMaterialsOutput__M19_encryptionMaterials(
-                Aws.Crypto.EncryptionMaterials value)
-        {
-            return ToDafny_N3_aws__N6_crypto__S19_EncryptionMaterials(value);
-        }
-
-        public static long FromDafny_N3_aws__N6_crypto__S12_EncryptEntry__M10_expiryTime(long value)
-        {
-            return FromDafny_N6_smithy__N3_api__S4_Long(value);
-        }
-
-        public static long ToDafny_N3_aws__N6_crypto__S12_EncryptEntry__M10_expiryTime(long value)
-        {
-            return ToDafny_N6_smithy__N3_api__S4_Long(value);
-        }
-
-        public static string FromDafny_N3_aws__N6_crypto__S9_Utf8Bytes(Dafny.ISequence<byte> value)
-        {
-            System.Text.UTF8Encoding utf8 = new System.Text.UTF8Encoding(false, true);
-            return utf8.GetString(value.Elements);
-        }
-
-        public static Dafny.ISequence<byte> ToDafny_N3_aws__N6_crypto__S9_Utf8Bytes(string value)
-        {
-            System.Text.UTF8Encoding utf8 = new System.Text.UTF8Encoding(false, true);
-            return Dafny.Sequence<byte>.FromArray(utf8.GetBytes(value));
-        }
-
-        public static System.IO.MemoryStream FromDafny_N3_aws__N6_crypto__S19_DecryptionMaterials__M16_plaintextDataKey(
-            Wrappers_Compile.Option<Dafny.ISequence<byte>> value)
-        {
-            return value.is_None
-                ? (System.IO.MemoryStream) null
-                : FromDafny_N6_smithy__N3_api__S4_Blob(value.Extract());
-        }
-
-        public static Wrappers_Compile.Option<Dafny.ISequence<byte>>
-            ToDafny_N3_aws__N6_crypto__S19_DecryptionMaterials__M16_plaintextDataKey(System.IO.MemoryStream value)
-        {
-            return value == null
-                ? Wrappers_Compile.Option<Dafny.ISequence<byte>>.create_None()
-                : Wrappers_Compile.Option<Dafny.ISequence<byte>>.create_Some(
-                    ToDafny_N6_smithy__N3_api__S4_Blob((System.IO.MemoryStream) value));
-        }
-
-        public static Aws.Crypto.AlgorithmSuiteId
-            FromDafny_N3_aws__N6_crypto__S19_DecryptionMaterials__M16_algorithmSuiteId(
-                Dafny.Aws.Crypto.AlgorithmSuiteId value)
-        {
-            return FromDafny_N3_aws__N6_crypto__S16_AlgorithmSuiteId(value);
-        }
-
-        public static Dafny.Aws.Crypto.AlgorithmSuiteId
-            ToDafny_N3_aws__N6_crypto__S19_DecryptionMaterials__M16_algorithmSuiteId(Aws.Crypto.AlgorithmSuiteId value)
-        {
-            return ToDafny_N3_aws__N6_crypto__S16_AlgorithmSuiteId(value);
-        }
-
-        public static System.IO.MemoryStream FromDafny_N3_aws__N6_crypto__S19_EncryptionMaterials__M10_signingKey(
-            Wrappers_Compile.Option<Dafny.ISequence<byte>> value)
-        {
-            return value.is_None
-                ? (System.IO.MemoryStream) null
-                : FromDafny_N6_smithy__N3_api__S4_Blob(value.Extract());
-        }
-
-        public static Wrappers_Compile.Option<Dafny.ISequence<byte>>
-            ToDafny_N3_aws__N6_crypto__S19_EncryptionMaterials__M10_signingKey(System.IO.MemoryStream value)
-        {
-            return value == null
-                ? Wrappers_Compile.Option<Dafny.ISequence<byte>>.create_None()
-                : Wrappers_Compile.Option<Dafny.ISequence<byte>>.create_Some(
-                    ToDafny_N6_smithy__N3_api__S4_Blob((System.IO.MemoryStream) value));
-        }
-
-        public static Aws.Crypto.EncryptEntry FromDafny_N3_aws__N6_crypto__S12_EncryptEntry(
-            Dafny.Aws.Crypto.EncryptEntry value)
-        {
-            Aws.Crypto.EncryptEntry converted = new Aws.Crypto.EncryptEntry();
-            converted.Identifier =
-                (System.IO.MemoryStream) FromDafny_N3_aws__N6_crypto__S12_EncryptEntry__M10_identifier(
-                    value.identifier);
-            converted.EncryptionMaterials =
-                (Aws.Crypto.EncryptionMaterials) FromDafny_N3_aws__N6_crypto__S12_EncryptEntry__M19_encryptionMaterials(
-                    value.encryptionMaterials);
-            converted.CreationTime =
-                (long) FromDafny_N3_aws__N6_crypto__S12_EncryptEntry__M12_creationTime(value.creationTime);
-            converted.ExpiryTime =
-                (long) FromDafny_N3_aws__N6_crypto__S12_EncryptEntry__M10_expiryTime(value.expiryTime);
-            converted.UsageMetadata =
-                (Aws.Crypto.CacheUsageMetadata) FromDafny_N3_aws__N6_crypto__S12_EncryptEntry__M13_usageMetadata(
-                    value.usageMetadata);
+            Dafny.Aws.EncryptionSdk.Core.CreateAwsKmsDiscoveryKeyringInput concrete =
+                (Dafny.Aws.EncryptionSdk.Core.CreateAwsKmsDiscoveryKeyringInput)value;
+            AWS.EncryptionSDK.Core.CreateAwsKmsDiscoveryKeyringInput converted =
+                new AWS.EncryptionSDK.Core.CreateAwsKmsDiscoveryKeyringInput();
+            converted.KmsClient =
+                (Amazon.KeyManagementService.IAmazonKeyManagementService)
+                FromDafny_N3_aws__N13_encryptionSdk__N4_core__S33_CreateAwsKmsDiscoveryKeyringInput__M9_kmsClient(
+                    concrete.kmsClient);
+            if (concrete.discoveryFilter.is_Some)
+                converted.DiscoveryFilter =
+                    (AWS.EncryptionSDK.Core.DiscoveryFilter)
+                    FromDafny_N3_aws__N13_encryptionSdk__N4_core__S33_CreateAwsKmsDiscoveryKeyringInput__M15_discoveryFilter(
+                        concrete.discoveryFilter);
+            if (concrete.grantTokens.is_Some)
+                converted.GrantTokens =
+                    (System.Collections.Generic.List<string>)
+                    FromDafny_N3_aws__N13_encryptionSdk__N4_core__S33_CreateAwsKmsDiscoveryKeyringInput__M11_grantTokens(
+                        concrete.grantTokens);
             return converted;
         }
 
-        public static Dafny.Aws.Crypto.EncryptEntry ToDafny_N3_aws__N6_crypto__S12_EncryptEntry(
-            Aws.Crypto.EncryptEntry value)
+        public static Dafny.Aws.EncryptionSdk.Core._ICreateAwsKmsDiscoveryKeyringInput
+            ToDafny_N3_aws__N13_encryptionSdk__N4_core__S33_CreateAwsKmsDiscoveryKeyringInput(
+                AWS.EncryptionSDK.Core.CreateAwsKmsDiscoveryKeyringInput value)
         {
-            return new Dafny.Aws.Crypto.EncryptEntry(
-                ToDafny_N3_aws__N6_crypto__S12_EncryptEntry__M10_identifier(value.Identifier),
-                ToDafny_N3_aws__N6_crypto__S12_EncryptEntry__M19_encryptionMaterials(value.EncryptionMaterials),
-                ToDafny_N3_aws__N6_crypto__S12_EncryptEntry__M12_creationTime(value.CreationTime),
-                ToDafny_N3_aws__N6_crypto__S12_EncryptEntry__M10_expiryTime(value.ExpiryTime),
-                ToDafny_N3_aws__N6_crypto__S12_EncryptEntry__M13_usageMetadata(value.UsageMetadata));
+            AWS.EncryptionSDK.Core.DiscoveryFilter var_discoveryFilter = value.IsSetDiscoveryFilter()
+                ? value.DiscoveryFilter
+                : (AWS.EncryptionSDK.Core.DiscoveryFilter)null;
+            System.Collections.Generic.List<string> var_grantTokens = value.IsSetGrantTokens()
+                ? value.GrantTokens
+                : (System.Collections.Generic.List<string>)null;
+            return new Dafny.Aws.EncryptionSdk.Core.CreateAwsKmsDiscoveryKeyringInput(
+                ToDafny_N3_aws__N13_encryptionSdk__N4_core__S33_CreateAwsKmsDiscoveryKeyringInput__M9_kmsClient(
+                    value.KmsClient),
+                ToDafny_N3_aws__N13_encryptionSdk__N4_core__S33_CreateAwsKmsDiscoveryKeyringInput__M15_discoveryFilter(
+                    var_discoveryFilter),
+                ToDafny_N3_aws__N13_encryptionSdk__N4_core__S33_CreateAwsKmsDiscoveryKeyringInput__M11_grantTokens(
+                    var_grantTokens));
         }
 
-        public static Aws.Crypto.ICryptographicMaterialsManager
-            FromDafny_N3_aws__N6_crypto__S41_CreateCryptographicMaterialsManagerOutput__M16_materialsManager(
-                Dafny.Aws.Crypto.ICryptographicMaterialsManager value)
+        public static System.Collections.Generic.List<string>
+            FromDafny_N3_aws__N13_encryptionSdk__N4_core__S12_KmsKeyIdList(Dafny.ISequence<Dafny.ISequence<char>> value)
         {
-            return FromDafny_N3_aws__N6_crypto__S38_CryptographicMaterialsManagerReference(value);
+            return new System.Collections.Generic.List<string>(
+                value.Elements.Select(FromDafny_N3_aws__N13_encryptionSdk__N4_core__S12_KmsKeyIdList__M6_member));
         }
 
-        public static Dafny.Aws.Crypto.ICryptographicMaterialsManager
-            ToDafny_N3_aws__N6_crypto__S41_CreateCryptographicMaterialsManagerOutput__M16_materialsManager(
-                Aws.Crypto.ICryptographicMaterialsManager value)
+        public static Dafny.ISequence<Dafny.ISequence<char>>
+            ToDafny_N3_aws__N13_encryptionSdk__N4_core__S12_KmsKeyIdList(System.Collections.Generic.List<string> value)
         {
-            return ToDafny_N3_aws__N6_crypto__S38_CryptographicMaterialsManagerReference(value);
+            return Dafny.Sequence<Dafny.ISequence<char>>.FromArray(value
+                .Select(ToDafny_N3_aws__N13_encryptionSdk__N4_core__S12_KmsKeyIdList__M6_member).ToArray());
         }
 
-        public static Aws.Crypto.EncryptedDataKey FromDafny_N3_aws__N6_crypto__S20_EncryptedDataKeyList__M6_member(
-            Dafny.Aws.Crypto.EncryptedDataKey value)
+        public static AWS.EncryptionSDK.Core.DiscoveryFilter
+            FromDafny_N3_aws__N13_encryptionSdk__N4_core__S15_DiscoveryFilter(
+                Dafny.Aws.EncryptionSdk.Core._IDiscoveryFilter value)
         {
-            return FromDafny_N3_aws__N6_crypto__S16_EncryptedDataKey(value);
+            Dafny.Aws.EncryptionSdk.Core.DiscoveryFilter concrete = (Dafny.Aws.EncryptionSdk.Core.DiscoveryFilter)value;
+            AWS.EncryptionSDK.Core.DiscoveryFilter converted = new AWS.EncryptionSDK.Core.DiscoveryFilter();
+            converted.AccountIds =
+                (System.Collections.Generic.List<string>)
+                FromDafny_N3_aws__N13_encryptionSdk__N4_core__S15_DiscoveryFilter__M10_accountIds(concrete.accountIds);
+            converted.Partition =
+                (string)FromDafny_N3_aws__N13_encryptionSdk__N4_core__S15_DiscoveryFilter__M9_partition(
+                    concrete.partition);
+            return converted;
         }
 
-        public static Dafny.Aws.Crypto.EncryptedDataKey ToDafny_N3_aws__N6_crypto__S20_EncryptedDataKeyList__M6_member(
-            Aws.Crypto.EncryptedDataKey value)
+        public static Dafny.Aws.EncryptionSdk.Core._IDiscoveryFilter
+            ToDafny_N3_aws__N13_encryptionSdk__N4_core__S15_DiscoveryFilter(
+                AWS.EncryptionSDK.Core.DiscoveryFilter value)
         {
-            return ToDafny_N3_aws__N6_crypto__S16_EncryptedDataKey(value);
+            return new Dafny.Aws.EncryptionSdk.Core.DiscoveryFilter(
+                ToDafny_N3_aws__N13_encryptionSdk__N4_core__S15_DiscoveryFilter__M10_accountIds(value.AccountIds),
+                ToDafny_N3_aws__N13_encryptionSdk__N4_core__S15_DiscoveryFilter__M9_partition(value.Partition));
         }
 
-        public static Aws.Crypto.IKeyring FromDafny_N3_aws__N6_crypto__S19_CreateKeyringOutput__M7_keyring(
-            Dafny.Aws.Crypto.IKeyring value)
+        public static AWS.EncryptionSDK.Core.EncryptionMaterials
+            FromDafny_N3_aws__N13_encryptionSdk__N4_core__S14_OnEncryptInput__M9_materials(
+                Dafny.Aws.EncryptionSdk.Core._IEncryptionMaterials value)
         {
-            return FromDafny_N3_aws__N6_crypto__S16_KeyringReference(value);
+            return FromDafny_N3_aws__N13_encryptionSdk__N4_core__S19_EncryptionMaterials(value);
         }
 
-        public static Dafny.Aws.Crypto.IKeyring ToDafny_N3_aws__N6_crypto__S19_CreateKeyringOutput__M7_keyring(
-            Aws.Crypto.IKeyring value)
+        public static Dafny.Aws.EncryptionSdk.Core._IEncryptionMaterials
+            ToDafny_N3_aws__N13_encryptionSdk__N4_core__S14_OnEncryptInput__M9_materials(
+                AWS.EncryptionSDK.Core.EncryptionMaterials value)
         {
-            return ToDafny_N3_aws__N6_crypto__S16_KeyringReference(value);
+            return ToDafny_N3_aws__N13_encryptionSdk__N4_core__S19_EncryptionMaterials(value);
         }
 
-        public static System.IO.MemoryStream FromDafny_N3_aws__N6_crypto__S12_DecryptEntry__M10_identifier(
-            Dafny.ISequence<byte> value)
+        public static AWS.EncryptionSDK.Core.IKeyring
+            FromDafny_N3_aws__N13_encryptionSdk__N4_core__S11_KeyringList__M6_member(
+                Dafny.Aws.EncryptionSdk.Core.IKeyring value)
         {
-            return FromDafny_N6_smithy__N3_api__S4_Blob(value);
+            return FromDafny_N3_aws__N13_encryptionSdk__N4_core__S16_KeyringReference(value);
         }
 
-        public static Dafny.ISequence<byte> ToDafny_N3_aws__N6_crypto__S12_DecryptEntry__M10_identifier(
-            System.IO.MemoryStream value)
+        public static Dafny.Aws.EncryptionSdk.Core.IKeyring
+            ToDafny_N3_aws__N13_encryptionSdk__N4_core__S11_KeyringList__M6_member(
+                AWS.EncryptionSDK.Core.IKeyring value)
         {
-            return ToDafny_N6_smithy__N3_api__S4_Blob(value);
+            return ToDafny_N3_aws__N13_encryptionSdk__N4_core__S16_KeyringReference(value);
+        }
+
+        public static System.Collections.Generic.List<string>
+            FromDafny_N3_aws__N13_encryptionSdk__N4_core__S38_CreateAwsKmsDiscoveryMultiKeyringInput__M7_regions(
+                Dafny.ISequence<Dafny.ISequence<char>> value)
+        {
+            return FromDafny_N3_aws__N13_encryptionSdk__N4_core__S10_RegionList(value);
+        }
+
+        public static Dafny.ISequence<Dafny.ISequence<char>>
+            ToDafny_N3_aws__N13_encryptionSdk__N4_core__S38_CreateAwsKmsDiscoveryMultiKeyringInput__M7_regions(
+                System.Collections.Generic.List<string> value)
+        {
+            return ToDafny_N3_aws__N13_encryptionSdk__N4_core__S10_RegionList(value);
+        }
+
+        public static AWS.EncryptionSDK.Core.DiscoveryFilter
+            FromDafny_N3_aws__N13_encryptionSdk__N4_core__S33_CreateAwsKmsDiscoveryKeyringInput__M15_discoveryFilter(
+                Wrappers_Compile._IOption<Dafny.Aws.EncryptionSdk.Core._IDiscoveryFilter> value)
+        {
+            return value.is_None
+                ? (AWS.EncryptionSDK.Core.DiscoveryFilter)null
+                : FromDafny_N3_aws__N13_encryptionSdk__N4_core__S15_DiscoveryFilter(value.Extract());
+        }
+
+        public static Wrappers_Compile._IOption<Dafny.Aws.EncryptionSdk.Core._IDiscoveryFilter>
+            ToDafny_N3_aws__N13_encryptionSdk__N4_core__S33_CreateAwsKmsDiscoveryKeyringInput__M15_discoveryFilter(
+                AWS.EncryptionSDK.Core.DiscoveryFilter value)
+        {
+            return value == null
+                ? Wrappers_Compile.Option<Dafny.Aws.EncryptionSdk.Core._IDiscoveryFilter>.create_None()
+                : Wrappers_Compile.Option<Dafny.Aws.EncryptionSdk.Core._IDiscoveryFilter>.create_Some(
+                    ToDafny_N3_aws__N13_encryptionSdk__N4_core__S15_DiscoveryFilter(
+                        (AWS.EncryptionSDK.Core.DiscoveryFilter)value));
+        }
+
+        public static AWS.EncryptionSDK.Core.AwsCryptographicMaterialProvidersBaseException
+            FromDafny_CommonError_AwsCryptographicMaterialProvidersBaseException(
+                Dafny.Aws.EncryptionSdk.Core.IAwsCryptographicMaterialProvidersException value)
+        {
+            if (value is Dafny.Aws.EncryptionSdk.Core.AwsCryptographicMaterialProvidersException)
+                return FromDafny_N3_aws__N13_encryptionSdk__N4_core__S42_AwsCryptographicMaterialProvidersException(
+                    (Dafny.Aws.EncryptionSdk.Core.AwsCryptographicMaterialProvidersException)value);
+            throw new System.ArgumentException("Unknown exception type");
+        }
+
+        public static Dafny.Aws.EncryptionSdk.Core.IAwsCryptographicMaterialProvidersException
+            ToDafny_CommonError_AwsCryptographicMaterialProvidersBaseException(
+                AWS.EncryptionSDK.Core.AwsCryptographicMaterialProvidersBaseException value)
+        {
+            if (value is AWS.EncryptionSDK.Core.AwsCryptographicMaterialProvidersException)
+                return ToDafny_N3_aws__N13_encryptionSdk__N4_core__S42_AwsCryptographicMaterialProvidersException(
+                    (AWS.EncryptionSDK.Core.AwsCryptographicMaterialProvidersException)value);
+            throw new System.ArgumentException("Unknown exception type");
         }
     }
 }

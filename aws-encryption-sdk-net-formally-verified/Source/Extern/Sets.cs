@@ -14,6 +14,10 @@ namespace Sets {
           Array.Sort(itemArray, lexicographicComapre);
           return Dafny.Sequence<Dafny.ISequence<T>>.FromElements(itemArray);
       }
+      // This is to facilitate moving the above from a `method` to a `function method` in Dafny.
+      public static Dafny.ISequence<Dafny.ISequence<T>> SetToOrderedSequence2<T>(Dafny.ISet<Dafny.ISequence<T>> set, Func<T,T,bool> less) {
+          return SetToOrderedSequence(set, less);
+      }
   }
 
   // Lexicographically compares two dafny sequences according to a given

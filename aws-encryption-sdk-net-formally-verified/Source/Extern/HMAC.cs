@@ -8,26 +8,20 @@ using byteseq = Dafny.Sequence<byte>;
 
 namespace HMAC {
 
-    public class UnsupportedDigestException : Exception
-    {
-        public UnsupportedDigestException(Digests digest)
-            : base(String.Format("Unsupported digest: {0}", digest.ToString()))
-        {
-        }
-    }
-
     public partial class HMac {
 
         private Org.BouncyCastle.Crypto.Macs.HMac hmac;
 
-        public HMac(Digests digest) {
+        public HMac(_IDigests digest) {
             Org.BouncyCastle.Crypto.IDigest bouncyCastleDigest;
             if(digest.is_SHA__256) {
                 bouncyCastleDigest = new Org.BouncyCastle.Crypto.Digests.Sha256Digest();
             } else if(digest.is_SHA__384) {
                 bouncyCastleDigest = new Org.BouncyCastle.Crypto.Digests.Sha384Digest();
+            } else if(digest.is_SHA__512) {
+                bouncyCastleDigest = new Org.BouncyCastle.Crypto.Digests.Sha512Digest();
             } else {
-                throw new UnsupportedDigestException(digest);
+                throw new ExternDigest.UnsupportedDigestException((Digests)digest);
             }
             hmac = new Org.BouncyCastle.Crypto.Macs.HMac(bouncyCastleDigest);
         }

@@ -53,7 +53,9 @@ public class DafnyFFI {
         return byteseq.FromArray(Encoding.UTF8.GetBytes(s));
     }
 
-    public static T ExtractResult<T>(Result<T, icharseq> result) {
+    public static T ExtractResult<T>(_IResult<T, icharseq> iResult)
+    {
+        Result<T, icharseq> result = (Result<T, icharseq>) iResult;
         if (result is Result_Success<T, icharseq> s) {
             return s.value;
         } else if (result is Result_Failure<T, icharseq> f) {
@@ -65,12 +67,12 @@ public class DafnyFFI {
         }
     }
 
-    public static Option<T> NullableToOption<T>(T t)
+    public static _IOption<T> NullableToOption<T>(T t)
     {
         return t == null ? Option<T>.create_None() : Option<T>.create_Some(t);
     }
 
-    public static Result<T, icharseq> CreateFailure<T>(string msg) where T : class
+    public static _IResult<T, icharseq> CreateFailure<T>(string msg) where T : class
     {
         return Result<T, icharseq>.create_Failure(DafnyStringFromString(msg));
     }

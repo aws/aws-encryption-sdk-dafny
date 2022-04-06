@@ -1,23 +1,26 @@
 // Copyright Amazon.com Inc. or its affiliates. All Rights Reserved.
 // SPDX-License-Identifier: Apache-2.0
+// Do not modify this file. This file is machine generated, and any changes to it will be overwritten.
 
 using System;
-using Aws.Crypto;
-using
-    Aws.Crypto
-    ;
+using AWS.EncryptionSDK.Core;
 
-namespace Aws.Crypto
+namespace AWS.EncryptionSDK.Core
 {
     public class DiscoveryFilter
     {
-        private string _region;
+        private System.Collections.Generic.List<string> _accountIds;
         private string _partition;
 
-        public string Region
+        public System.Collections.Generic.List<string> AccountIds
         {
-            get { return this._region; }
-            set { this._region = value; }
+            get { return this._accountIds; }
+            set { this._accountIds = value; }
+        }
+
+        internal bool IsSetAccountIds()
+        {
+            return this._accountIds != null;
         }
 
         public string Partition
@@ -26,8 +29,17 @@ namespace Aws.Crypto
             set { this._partition = value; }
         }
 
+        internal bool IsSetPartition()
+        {
+            return this._partition != null;
+        }
+
         public void Validate()
         {
+            if (!IsSetAccountIds())
+                throw new System.ArgumentException("Missing value for required property 'AccountIds'");
+            if (!IsSetPartition())
+                throw new System.ArgumentException("Missing value for required property 'Partition'");
         }
     }
 }

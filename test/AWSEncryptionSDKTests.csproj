@@ -3,12 +3,14 @@
   <PropertyGroup>
     <TargetFramework>net5.0</TargetFramework>
     <IsPackable>false</IsPackable>
-    <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
+    <GenerateAssemblyInfo>false</GenerateAssemblyInfo> 
+    <!-- If you need to run against a custom built version of Dafny: -->
+    <!-- <DafnyBinariesDir>/path/to/local/dafny/Scripts/</DafnyBinariesDir> -->
   </PropertyGroup>
 
   <ItemGroup>
     <PackageReference Include="dafny.msbuild" Version="1.0.0" />
-    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="16.2.0" />
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="16.11.0" />
     <PackageReference Include="xunit" Version="2.4.0" />
     <PackageReference Include="xunit.runner.visualstudio" Version="2.4.0" />
     <PackageReference Include="coverlet.collector" Version="1.0.1" />
@@ -37,10 +39,10 @@
       logical cores any more.
       See https://github.com/dafny-lang/dafny.msbuild/issues/20
     -->
-    <VerifyDafnyJobs>8</VerifyDafnyJobs>
+    <VerifyDafnyJobs>7</VerifyDafnyJobs>
   </PropertyGroup>
   <ItemGroup>
-    <VerifyDafnyPassthrough Include="timeLimit:600" />
+    <VerifyDafnyPassthrough Include="timeLimit:100" />
     <!-- 
       TODO: This is important to enable, but Dafny 3.1 and on seems to not be able to
       verify MessageBody.EncryptMessageBody with this flag on Mac OS.

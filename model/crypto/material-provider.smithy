@@ -1,53 +1,64 @@
-namespace aws.crypto
+namespace aws.encryptionSdk.core
 
-use aws.polymorph#clientConfig
+use aws.polymorph#reference
 
-// TODO
-// @clientConfig(config: AwsCryptographicMaterialProvidersClientConfig)
-service AwsCryptographicMaterialProviders {
+/////////////
+// AwsCryptographicMaterialProviders Creation
+
+// TODO add a trait to indicate that 'Client' should not be appended to this name,
+// and that the code gen should expose operations under this service statically if
+// possible in the target language
+service AwsCryptographicMaterialProvidersFactory {
     version: "2021-11-01",
+    operations: [CreateDefaultAwsCryptographicMaterialProviders],
+    errors: [AwsCryptographicMaterialProvidersException],
+}
+
+operation CreateDefaultAwsCryptographicMaterialProviders {
+    output: AwsCryptographicMaterialProvidersReference,
+    errors: [AwsCryptographicMaterialProvidersException],
+}
+
+@reference(resource: AwsCryptographicMaterialProviders)
+structure AwsCryptographicMaterialProvidersReference {}
+
+/////////////
+// AwsCryptographicMaterialProviders
+
+resource AwsCryptographicMaterialProviders {
     resources: [
         Keyring,
         CryptographicMaterialsManager,
-        CryptoMaterialsCache,
-        // TODO
-        // ClientSupplier,
+        ClientSupplier,
     ],
     operations: [
         // Keyrings
-        // TODO
-        // CreateAwsKmsKeyring,
-        // CreateMrkAwareStrictAwsKmsKeyring,
-        // CreateMrkAwareStrictMultiKeyring,
-        // CreateMrkAwareDiscoveryAwsKmsKeyring,
-        // CreateMrkAwareDiscoveryMultiKeyring,
-        // CreateMultiKeyring,
+        CreateAwsKmsKeyring,
+        CreateAwsKmsDiscoveryKeyring,
+        CreateAwsKmsMultiKeyring,
+        CreateAwsKmsDiscoveryMultiKeyring,
+        CreateAwsKmsMrkKeyring,
+        CreateAwsKmsMrkMultiKeyring,
+        CreateAwsKmsMrkDiscoveryKeyring,
+        CreateAwsKmsMrkDiscoveryMultiKeyring,
+        CreateMultiKeyring,
         CreateRawAesKeyring,
-        // CreateRawRsaKeyring,
+        CreateRawRsaKeyring,
 
         // CMMs
         CreateDefaultCryptographicMaterialsManager,
-        // TODO
-        // CreateCachingCryptographicMaterialsManager,
 
-        // Caches
-        // TODO
-        // CreateLocalCryptoMaterialsCache
+        // ClientSupplier
+        CreateDefaultClientSupplier
     ]
 }
 
-structure AwsCryptographicMaterialProvidersClientConfig {
-    @required
-    configDefaults: ConfigurationDefaults
-}
 
 ///////////////////
-// Default Versions
+// Errors
 
-@enum([
-    {
-        name: "V1",
-        value: "V1",
-    }
-])
-string ConfigurationDefaults
+@error("client")
+structure AwsCryptographicMaterialProvidersException {
+    @required
+    message: String,
+}

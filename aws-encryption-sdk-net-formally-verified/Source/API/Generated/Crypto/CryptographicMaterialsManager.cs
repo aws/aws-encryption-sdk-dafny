@@ -1,44 +1,51 @@
 // Copyright Amazon.com Inc. or its affiliates. All Rights Reserved.
 // SPDX-License-Identifier: Apache-2.0
+// Do not modify this file. This file is machine generated, and any changes to it will be overwritten.
 
 using System;
 using System.IO;
 using System.Collections.Generic;
-using Aws.Crypto;
-using
-    Aws.Crypto
-    ;
+using AWS.EncryptionSDK.Core;
 
-namespace Aws.Crypto
+namespace AWS.EncryptionSDK.Core
 {
     internal class CryptographicMaterialsManager : CryptographicMaterialsManagerBase
     {
-        internal Dafny.Aws.Crypto.ICryptographicMaterialsManager _impl { get; }
+        internal readonly Dafny.Aws.EncryptionSdk.Core.ICryptographicMaterialsManager _impl;
 
-        internal CryptographicMaterialsManager(Dafny.Aws.Crypto.ICryptographicMaterialsManager impl)
+        internal CryptographicMaterialsManager(Dafny.Aws.EncryptionSdk.Core.ICryptographicMaterialsManager impl)
         {
             this._impl = impl;
         }
 
-        protected override Aws.Crypto.GetEncryptionMaterialsOutput _GetEncryptionMaterials(
-            Aws.Crypto.GetEncryptionMaterialsInput input)
+        protected override AWS.EncryptionSDK.Core.DecryptMaterialsOutput _DecryptMaterials(
+            AWS.EncryptionSDK.Core.DecryptMaterialsInput input)
         {
-            Dafny.Aws.Crypto.GetEncryptionMaterialsInput internalInput =
-                TypeConversion.ToDafny_N3_aws__N6_crypto__S27_GetEncryptionMaterialsInput(input);
-            Dafny.Aws.Crypto.GetEncryptionMaterialsOutput internalOutput =
-                // TODO this line was manually updated
-                DafnyFFI.ExtractResult(this._impl.GetEncryptionMaterials(internalInput));
-            return TypeConversion.FromDafny_N3_aws__N6_crypto__S28_GetEncryptionMaterialsOutput(internalOutput);
+            Dafny.Aws.EncryptionSdk.Core._IDecryptMaterialsInput internalInput =
+                TypeConversion.ToDafny_N3_aws__N13_encryptionSdk__N4_core__S21_DecryptMaterialsInput(input);
+            Wrappers_Compile._IResult<Dafny.Aws.EncryptionSdk.Core._IDecryptMaterialsOutput,
+                Dafny.Aws.EncryptionSdk.Core.IAwsCryptographicMaterialProvidersException> result =
+                this._impl.DecryptMaterials(internalInput);
+            if (result.is_Failure)
+                throw TypeConversion.FromDafny_CommonError_AwsCryptographicMaterialProvidersBaseException(
+                    result.dtor_error);
+            return TypeConversion.FromDafny_N3_aws__N13_encryptionSdk__N4_core__S22_DecryptMaterialsOutput(
+                result.dtor_value);
         }
 
-        protected override Aws.Crypto.DecryptMaterialsOutput _DecryptMaterials(Aws.Crypto.DecryptMaterialsInput input)
+        protected override AWS.EncryptionSDK.Core.GetEncryptionMaterialsOutput _GetEncryptionMaterials(
+            AWS.EncryptionSDK.Core.GetEncryptionMaterialsInput input)
         {
-            Dafny.Aws.Crypto.DecryptMaterialsInput internalInput =
-                TypeConversion.ToDafny_N3_aws__N6_crypto__S21_DecryptMaterialsInput(input);
-            Dafny.Aws.Crypto.DecryptMaterialsOutput internalOutput =
-                // TODO this line was manually updated
-                DafnyFFI.ExtractResult(this._impl.DecryptMaterials(internalInput));
-            return TypeConversion.FromDafny_N3_aws__N6_crypto__S22_DecryptMaterialsOutput(internalOutput);
+            Dafny.Aws.EncryptionSdk.Core._IGetEncryptionMaterialsInput internalInput =
+                TypeConversion.ToDafny_N3_aws__N13_encryptionSdk__N4_core__S27_GetEncryptionMaterialsInput(input);
+            Wrappers_Compile._IResult<Dafny.Aws.EncryptionSdk.Core._IGetEncryptionMaterialsOutput,
+                Dafny.Aws.EncryptionSdk.Core.IAwsCryptographicMaterialProvidersException> result =
+                this._impl.GetEncryptionMaterials(internalInput);
+            if (result.is_Failure)
+                throw TypeConversion.FromDafny_CommonError_AwsCryptographicMaterialProvidersBaseException(
+                    result.dtor_error);
+            return TypeConversion.FromDafny_N3_aws__N13_encryptionSdk__N4_core__S28_GetEncryptionMaterialsOutput(
+                result.dtor_value);
         }
     }
 }
