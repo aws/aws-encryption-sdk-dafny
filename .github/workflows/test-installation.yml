@@ -51,8 +51,8 @@ jobs:
       run: |
         cd $GITHUB_WORKSPACE/aws-encryption-sdk-net-formally-verified
         aws codeartifact login --tool dotnet --domain github --domain-owner 587316601012 --repository dotnet-esdk --duration-seconds 900
-        dotnet nuget push build/AWSEncryptionSDK.$UNIQUE_VERSION.nupkg --source github/dotnet-esdk
-        
+        dotnet nuget push build/AWS.EncryptionSDK.$UNIQUE_VERSION.nupkg --source github/dotnet-esdk
+
   test_installation:
     name: test_installation_${{ matrix.os }}
     needs: push_to_code_artifact
@@ -82,10 +82,10 @@ jobs:
       run: |
         cd $GITHUB_WORKSPACE/aws-encryption-sdk-net-formally-verified
         sed -i.backup '/Source\/AWSEncryptionSDK.csproj/d' Examples/AWSEncryptionSDKExamples.csproj
-    - name: Add Back AWSEncryptionSDK
+    - name: Add back AWS.EncryptionSDK
       run: |
         cd $GITHUB_WORKSPACE/aws-encryption-sdk-net-formally-verified
-        dotnet add Examples/AWSEncryptionSDKExamples.csproj package AWSEncryptionSDK --version $UNIQUE_VERSION
+        dotnet add Examples/AWSEncryptionSDKExamples.csproj package AWS.EncryptionSDK --version $UNIQUE_VERSION
     # Note: DYLD_LIBRARY_PATH is only needed on macOS, and is unused on Linux
     - name: Test with Examples
       run: |
@@ -117,15 +117,15 @@ jobs:
         (Get-Content -Path ./Examples/AWSEncryptionSDKExamples.csproj) |
             ForEach-Object {$_ -Replace '    <ProjectReference Include="../Source/AWSEncryptionSDK.csproj" />', ''} |
                 Set-Content -Path ./Examples/AWSEncryptionSDKExamples.csproj
-    - name: Add Back AWSEncryptionSDK
+    - name: Add back AWS.EncryptionSDK
       run: |
         cd $Env:GITHUB_WORKSPACE/aws-encryption-sdk-net-formally-verified
-        dotnet add Examples/AWSEncryptionSDKExamples.csproj package AWSEncryptionSDK --version  "${{ needs.push_to_code_artifact.outputs.UNIQUE_VERSION }}"
+        dotnet add Examples/AWSEncryptionSDKExamples.csproj package AWS.EncryptionSDK --version  "${{ needs.push_to_code_artifact.outputs.UNIQUE_VERSION }}"
     - name: test examples
       run: |
-        cd $Env:GITHUB_WORKSPACE/aws-encryption-sdk-net-formally-verified        
+        cd $Env:GITHUB_WORKSPACE/aws-encryption-sdk-net-formally-verified
         dotnet test Examples
-        
+
   purge_from_code_artifact:
     name: purge_from_code_artifact
     needs: [test_installation, test_installation_windows, push_to_code_artifact]
