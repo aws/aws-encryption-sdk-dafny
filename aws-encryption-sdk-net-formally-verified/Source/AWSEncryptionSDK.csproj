@@ -8,7 +8,8 @@
     <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
     <IsPackable>true</IsPackable>
     <Version>0.0.1</Version>
-    <PackageId>AWSEncryptionSDK</PackageId>
+    <AssemblyName>AWS.EncryptionSDK</AssemblyName>
+    <PackageId>AWS.EncryptionSDK</PackageId>
     <Title>AWS Encryption SDK for .NET</Title>
     <Description>The AWS Encryption SDK is a client-side encryption library designed to make it easy for everyone to encrypt and decrypt data using industry standards and best practices.</Description>
     <Authors>Amazon Web Services</Authors>
