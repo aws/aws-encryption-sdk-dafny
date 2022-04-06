@@ -33,10 +33,10 @@ namespace ExampleUtils {
             return value;
         }
 
-        static public string GetRegionStringFromArn(string arn_string)
+        static public RegionEndpoint GetRegionEndpointFromArn(string arn_string)
         {
             Arn arn = Arn.Parse(arn_string);
-            return arn.Region;
+            return RegionEndpoint.GetBySystemName(arn.Region);
         }
 
         static public string GetDefaultRegionKmsKeyArn()

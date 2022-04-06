@@ -9,6 +9,7 @@ using Amazon.KeyManagementService;
 using AWS.EncryptionSDK;
 using AWS.EncryptionSDK.Core;
 using Xunit;
+using static ExampleUtils.ExampleUtils;
 
 /// Demonstrate an encrypt/decrypt cycle using an AWS MRK keyring.
 public class AwsKmsMrkKeyringExample
@@ -33,10 +34,9 @@ public class AwsKmsMrkKeyringExample
         var encryptionSdk = AwsEncryptionSdkFactory.CreateDefaultAwsEncryptionSdk();
 
         // Create a keyring that will encrypt your data, using a KMS MRK key in the first region.
-        var encryptRegion = Arn.Parse(encryptKeyArn).Region;
         var createEncryptKeyringInput = new CreateAwsKmsMrkKeyringInput
         {
-            KmsClient = new AmazonKeyManagementServiceClient(RegionEndpoint.GetBySystemName(encryptRegion)),
+            KmsClient = new AmazonKeyManagementServiceClient(GetRegionEndpointFromArn(encryptKeyArn)),
             KmsKeyId = encryptKeyArn
         };
         var encryptKeyring = materialProviders.CreateAwsKmsMrkKeyring(createEncryptKeyringInput);
@@ -57,10 +57,9 @@ public class AwsKmsMrkKeyringExample
         // Create a keyring that will decrypt your data, using the same KMS MRK key replicated to the second region.
         // This example assumes you have already replicated your key; for more info on this, see the KMS documentation:
         // https://docs.aws.amazon.com/kms/latest/developerguide/multi-region-keys-overview.html
-        var decryptRegion = Arn.Parse(decryptKeyArn).Region;
         var createDecryptKeyringInput = new CreateAwsKmsMrkKeyringInput
         {
-            KmsClient = new AmazonKeyManagementServiceClient(RegionEndpoint.GetBySystemName(decryptRegion)),
+            KmsClient = new AmazonKeyManagementServiceClient(GetRegionEndpointFromArn(decryptKeyArn)),
             KmsKeyId = decryptKeyArn
         };
         var decryptKeyring = materialProviders.CreateAwsKmsMrkKeyring(createDecryptKeyringInput);
@@ -100,9 +99,9 @@ public class AwsKmsMrkKeyringExample
     public void TestAwsKmsMrkKeyringExample()
     {
         Run(
-            ExampleUtils.ExampleUtils.GetPlaintextStream(),
-            ExampleUtils.ExampleUtils.GetDefaultRegionMrkKeyArn(),
-            ExampleUtils.ExampleUtils.GetAlternateRegionMrkKeyArn()
+            GetPlaintextStream(),
+            GetDefaultRegionMrkKeyArn(),
+            GetAlternateRegionMrkKeyArn()
         );
     }
 }

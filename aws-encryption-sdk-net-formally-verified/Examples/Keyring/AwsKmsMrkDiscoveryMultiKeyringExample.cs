@@ -39,8 +39,8 @@ public class AwsKmsMrkDiscoveryMultiKeyringExample
         // a KMS keyring without discovery.
         var createKeyringInput = new CreateAwsKmsMrkKeyringInput
         {
-            KmsClient = new AmazonKeyManagementServiceClient( // Create a KMS Client for the region of the Encrypt MRK Key
-                RegionEndpoint.GetBySystemName(GetRegionStringFromArn(keyArn))),
+            // Create a KMS Client for the region of the Encrypt MRK Key
+            KmsClient = new AmazonKeyManagementServiceClient(GetRegionEndpointFromArn(keyArn)),
             KmsKeyId = keyArn
         };
         var encryptKeyring = materialProviders.CreateAwsKmsMrkKeyring(createKeyringInput);
