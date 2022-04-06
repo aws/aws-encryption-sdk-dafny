@@ -4,10 +4,12 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using Amazon;
 using Amazon.KeyManagementService;
 using AWS.EncryptionSDK;
 using AWS.EncryptionSDK.Core;
 using Xunit;
+using static ExampleUtils.ExampleUtils;
 
 /// Demonstrate an encrypt/decrypt cycle using a Multi-Keyring containing multiple AWS KMS
 /// MRK Discovery Keyrings.
@@ -34,10 +36,11 @@ public class AwsKmsMrkDiscoveryMultiKeyringExample
 
         // Create the keyring that determines how your data keys are protected. Though this example highlights
         // Discovery keyrings, Discovery keyrings cannot be used to encrypt, so for encryption we create
-        // a KMS keyring without discovery mode.
+        // a KMS keyring without discovery.
         var createKeyringInput = new CreateAwsKmsMrkKeyringInput
         {
-            KmsClient = new AmazonKeyManagementServiceClient(),
+            // Create a KMS Client for the region of the Encrypt MRK Key
+            KmsClient = new AmazonKeyManagementServiceClient(GetRegionEndpointFromArn(keyArn)),
             KmsKeyId = keyArn
         };
         var encryptKeyring = materialProviders.CreateAwsKmsMrkKeyring(createKeyringInput);
@@ -68,14 +71,23 @@ public class AwsKmsMrkDiscoveryMultiKeyringExample
                 Partition = "aws"
             }
         };
-        var keyring = materialProviders.CreateAwsKmsMrkDiscoveryMultiKeyring(createDecryptKeyringInput);
 
-        // You do not need to specify the encryption context on decrypt
-        // because the header of the encrypted message includes the encryption context.
+        // This is a Multi Keyring composed of Discovery Keyrings.
+        // All the keyrings have the same Discovery Filter.
+        // Each keyring has its own KMS Client.
+        var multiKeyring = materialProviders.CreateAwsKmsMrkDiscoveryMultiKeyring(createDecryptKeyringInput);
+
+        // On Decrypt, the header of the encrypted message (ciphertext) will be parsed.
+        // The header contains the Encrypted Data Keys (EDKs), which include the KMS Key arn.
+        // For each member of the Multi Keyring, every EDK will try to be decrypted until a decryption is successful.
+        // Since every member of the Multi Keyring is a Discovery Keyring:
+        //   Each Keyring will filter the EDKs by the Discovery Filter
+        //      For the filtered EDKs, the keyring will try to decrypt it with the keyring's client.
+        // All of this is done serially, until a success occurs or all keyrings have failed all (filtered) EDKs.
         var decryptInput = new DecryptInput
         {
             Ciphertext = ciphertext,
-            Keyring = keyring
+            Keyring = multiKeyring
         };
         var decryptOutput = encryptionSdk.Decrypt(decryptInput);
 
@@ -103,10 +115,10 @@ public class AwsKmsMrkDiscoveryMultiKeyringExample
     public void TestAwsKmsMrkDiscoveryMultiKeyringExample()
     {
         Run(
-            ExampleUtils.ExampleUtils.GetPlaintextStream(),
-            ExampleUtils.ExampleUtils.GetDefaultRegionKmsKeyArn(),
-            ExampleUtils.ExampleUtils.GetAccountIds(),
-            ExampleUtils.ExampleUtils.GetRegions()
+            GetPlaintextStream(),
+            GetDefaultRegionMrkKeyArn(),
+            GetAccountIds(),
+            GetRegions()
         );
     }
 }
