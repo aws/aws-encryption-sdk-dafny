@@ -158,6 +158,24 @@ module {:extern "Dafny.Aws.EncryptionSdk.AwsEncryptionSdk"} AwsEncryptionSdk {
         //# If an input algorithm suite (Section 2.4.5) is provided that is not
         //# supported by the commitment policy (client.md#commitment-policy)
         //# configured in the client (client.md) encrypt MUST yield an error.
+        //
+        //= compliance/client-apis/client.txt#2.4.2.1
+        //= type=implication
+        //# *  encrypt (encrypt.md) MUST only support algorithm suites that have
+        //# a Key Commitment (../framework/algorithm-suites.md#algorithm-
+        //# suites-encryption-key-derivation-settings) value of False
+        //
+        //= compliance/client-apis/client.txt#2.4.2.2
+        //= type=implication
+        //# *  encrypt (encrypt.md) MUST only support algorithm suites that have
+        //# a Key Commitment (../framework/algorithm-suites.md#algorithm-
+        //# suites-encryption-key-derivation-settings) value of True
+        //
+        //= compliance/client-apis/client.txt#2.4.2.3
+        //= type=implication
+        //# *  encrypt (encrypt.md) MUST only support algorithm suites that have
+        //# a Key Commitment (../framework/algorithm-suites.md#algorithm-
+        //# suites-encryption-key-derivation-settings) value of True
         ensures
         (
             && input.algorithmSuiteId.Some?
@@ -746,6 +764,20 @@ module {:extern "Dafny.Aws.EncryptionSdk.AwsEncryptionSdk"} AwsEncryptionSdk {
         //# header.md#algorithm-suite-id) is not supported by the commitment
         //# policy (client.md#commitment-policy) configured in the client
         //# (client.md) decrypt MUST yield an error.
+
+        //= compliance/client-apis/client.txt#2.4.2.1
+        //= type=implication
+        //# *  decrypt (decrypt.md) MUST support all algorithm suites
+        //
+        //= compliance/client-apis/client.txt#2.4.2.2
+        //= type=implication
+        //# *  decrypt (decrypt.md) MUST support all algorithm suites
+        //
+        //= compliance/client-apis/client.txt#2.4.2.3
+        //= type=implication
+        //# *  decrypt (decrypt.md) MUST only support algorithm suites that have
+        //# a Key Commitment (../framework/algorithm-suites.md#algorithm-
+        //# suites-encryption-key-derivation-settings) value of True
 
         //= compliance/client-apis/decrypt.txt#2.7.2
         //= type=implication
