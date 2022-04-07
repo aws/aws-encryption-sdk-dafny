@@ -10,7 +10,7 @@ using AWS.EncryptionSDK.Core;
 using Xunit;
 using static ExampleUtils.ExampleUtils;
 
-/// Demonstrate limiting the number of Encrypted Data Keys allowed
+/// Demonstrate limiting the number of Encrypted Data Keys [EDKs] allowed
 /// when encrypting or decrypting a message.
 /// Limiting encrypted data keys is most valuable when you are decrypting
 /// messages from an untrusted source.
@@ -19,9 +19,9 @@ using static ExampleUtils.ExampleUtils;
 /// encrypted data keys, none of which can be decrypted.
 /// As a result, the AWS Encryption SDK would attempt to decrypt each
 /// encrypted data key until it exhausted the encrypted data keys in the message.
-public class LimitEDKsExample
+public class LimitEncryptedDataKeysExample
 {
-    private static void Run(MemoryStream plaintext, int maxEDks)
+    private static void Run(MemoryStream plaintext, int maxEncryptedDataKeys)
     {
         // Create your encryption context.
         // Remember that your encryption context is NOT SECRET.
@@ -41,14 +41,14 @@ public class LimitEDKsExample
         // Set the EncryptionSDK's MaxEncryptedDataKeys parameter
         var esdkConfig = new AwsEncryptionSdkConfig
         {
-            MaxEncryptedDataKeys = maxEDks
+            MaxEncryptedDataKeys = maxEncryptedDataKeys
         };
         // Instantiate the EncryptionSDK with the configuration
         var encryptionSdk = AwsEncryptionSdkFactory.CreateAwsEncryptionSdk(esdkConfig);
 
-        // We will use a helper method to create a Multi Keyring with `maxEDKs` AES Keyrings
+        // We will use a helper method to create a Multi Keyring with `maxEncryptedDataKeys` AES Keyrings
         var keyrings = new Queue<IKeyring>();
-        for (long i = 1; i <= maxEDks; i++)
+        for (long i = 1; i <= maxEncryptedDataKeys; i++)
         {
             keyrings.Enqueue(GetRawAESKeyring(materialProviders));
         }
@@ -106,7 +106,7 @@ public class LimitEDKsExample
         var failedDecryption = false;
         esdkConfig = new AwsEncryptionSdkConfig
         {
-            MaxEncryptedDataKeys = maxEDks - 1
+            MaxEncryptedDataKeys = maxEncryptedDataKeys - 1
         };
         // Instantiate the EncryptionSDK with the configuration
         encryptionSdk = AwsEncryptionSdkFactory.CreateAwsEncryptionSdk(esdkConfig);
@@ -127,7 +127,7 @@ public class LimitEDKsExample
 
     // We test examples to ensure they remain up-to-date.
     [Fact]
-    public void TestLimitEDKsExample()
+    public void TestLimitEncryptedDataKeysExample()
     {
         Run(GetPlaintextStream(), 3);
     }
