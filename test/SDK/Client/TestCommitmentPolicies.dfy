@@ -6,13 +6,12 @@ include "../../../src/Generated/AwsEncryptionSdk.dfy"
 include "../../../src/SDK/AwsEncryptionSdk.dfy"
 include "../../../src/SDK/AwsEncryptionSdkFactory.dfy"
 include "../../../src/SDK/Serialize/SerializableTypes.dfy"
-// include "../../../src/AwsCryptographicMaterialProviders/AlgorithmSuites.dfy"
 include "../../../src/StandardLibrary/StandardLibrary.dfy"
 include "../../../src/StandardLibrary/UInt.dfy"
 include "../../../src/Util/UTF8.dfy"
 include "../../Util/TestUtils.dfy"
 
-module TestForbidEncryptAllowDecrypt {
+module TestCommitmentPolicies {
   import Aws.Crypto
   import Aws.Esdk
   import AwsEncryptionSdk
