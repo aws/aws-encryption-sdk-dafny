@@ -71,6 +71,99 @@ module TestForbidEncryptAllowDecrypt {
     }
   }
 
+  method {:test} RequireEncryptAllowDecrypt()
+    returns (res: Result<(), string>)
+  {
+    // When the commitment policy "REQUIRE_ENCRYPT_ALLOW_DECRYPT" is configured:
+    var client :- SetupEsdkClient(Some(Crypto.REQUIRE_ENCRYPT_ALLOW_DECRYPT));
+
+    var keyring :- SetupTestKeyring();
+
+    //= compliance/client-apis/client.txt#2.4.2.2
+    //= type=test
+    //# *  "05 78" MUST be the default algorithm suite
+    var encryptOutputDefaultAlgSuite :- expect TryEncrypt(client, keyring, None());
+    expect encryptOutputDefaultAlgSuite.algorithmSuiteId ==
+      SerializableTypes.GetAlgorithmSuiteId(0x0578 as SerializableTypes.ESDKAlgorithmSuiteId);
+
+    //= compliance/client-apis/client.txt#2.4.2.2
+    //= type=test
+    //# *  encrypt (encrypt.md) MUST only support algorithm suites that have
+    //# a Key Commitment (../framework/algorithm-suites.md#algorithm-
+    //# suites-encryption-key-derivation-settings) value of True
+    var encryptAlgSuitesToCheck := AlgorithmSuites.SupportedAlgorithmSuiteIds;
+    while encryptAlgSuitesToCheck != {}
+      decreases |encryptAlgSuitesToCheck|
+    {
+      var id :| id in encryptAlgSuitesToCheck;
+      var suite := AlgorithmSuites.GetSuite(id);
+      var res := TryEncrypt(client, keyring, Some(id));
+      expect !suite.commitment.None? <==> res.Success?;
+      encryptAlgSuitesToCheck := encryptAlgSuitesToCheck - {id};
+    }
+
+    //= compliance/client-apis/client.txt#2.4.2.2
+    //= type=test
+    //# *  decrypt (decrypt.md) MUST support all algorithm suites
+    var decryptAlgSuitesToCheck := AlgorithmSuites.SupportedAlgorithmSuiteIds;
+    while decryptAlgSuitesToCheck != {}
+      decreases |decryptAlgSuitesToCheck|
+    {
+      var id :| id in decryptAlgSuitesToCheck;
+      var res := TryDecrypt(client, keyring, id);
+      expect res.Success?;
+      decryptAlgSuitesToCheck := decryptAlgSuitesToCheck - {id};
+    }
+  }
+
+  method {:test} RequireEncryptRequireDecrypt()
+    returns (res: Result<(), string>)
+  {
+    // When the commitment policy "REQUIRE_ENCRYPT_REQUIRE_DECRYPT" is configured:
+    var client :- SetupEsdkClient(Some(Crypto.REQUIRE_ENCRYPT_REQUIRE_DECRYPT));
+
+    var keyring :- SetupTestKeyring();
+
+    //= compliance/client-apis/client.txt#2.4.2.3
+    //= type=test
+    //# *  "05 78" MUST be the default algorithm suite
+    var encryptOutputDefaultAlgSuite :- expect TryEncrypt(client, keyring, None());
+    expect encryptOutputDefaultAlgSuite.algorithmSuiteId ==
+      SerializableTypes.GetAlgorithmSuiteId(0x0578 as SerializableTypes.ESDKAlgorithmSuiteId);
+
+    //= compliance/client-apis/client.txt#2.4.2.3
+    //= type=test
+    //# *  encrypt (encrypt.md) MUST only support algorithm suites that have
+    //# a Key Commitment (../framework/algorithm-suites.md#algorithm-
+    //# suites-encryption-key-derivation-settings) value of True
+    var encryptAlgSuitesToCheck := AlgorithmSuites.SupportedAlgorithmSuiteIds;
+    while encryptAlgSuitesToCheck != {}
+      decreases |encryptAlgSuitesToCheck|
+    {
+      var id :| id in encryptAlgSuitesToCheck;
+      var suite := AlgorithmSuites.GetSuite(id);
+      var res := TryEncrypt(client, keyring, Some(id));
+      expect !suite.commitment.None? <==> res.Success?;
+      encryptAlgSuitesToCheck := encryptAlgSuitesToCheck - {id};
+    }
+
+    //= compliance/client-apis/client.txt#2.4.2.3
+    //= type=test
+    //# *  decrypt (decrypt.md) MUST only support algorithm suites that have
+    //# a Key Commitment (../framework/algorithm-suites.md#algorithm-
+    //# suites-encryption-key-derivation-settings) value of True
+    var decryptAlgSuitesToCheck := AlgorithmSuites.SupportedAlgorithmSuiteIds;
+    while decryptAlgSuitesToCheck != {}
+      decreases |decryptAlgSuitesToCheck|
+    {
+      var id :| id in decryptAlgSuitesToCheck;
+      var suite := AlgorithmSuites.GetSuite(id);
+      var res := TryDecrypt(client, keyring, id);
+      expect !suite.commitment.None? <==> res.Success?;
+      decryptAlgSuitesToCheck := decryptAlgSuitesToCheck - {id};
+    }
+  }
+
   method SetupEsdkClient(commitmentPolicy: Option<Crypto.CommitmentPolicy>)
     returns (res: Result<Esdk.IAwsEncryptionSdk, string>)
   {
