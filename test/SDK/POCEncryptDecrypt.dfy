@@ -51,7 +51,7 @@ module {:extern "TestClient"} TestClient {
 
     var config := Esdk.AwsEncryptionSdkConfig(
       maxEncryptedDataKeys := Option.Some(2 as int64),
-      commitmentPolicy := Option.Some(Crypto.FORBID_ENCRYPT_ALLOW_DECRYPT) // TODO: update once commitment algs working
+      commitmentPolicy := Option.Some(Crypto.REQUIRE_ENCRYPT_ALLOW_DECRYPT)
     );
     var clientFactory := new AwsEncryptionSdkFactory.AwsEncryptionSdkFactory();
     var clientResult := clientFactory.CreateAwsEncryptionSdk(config);
