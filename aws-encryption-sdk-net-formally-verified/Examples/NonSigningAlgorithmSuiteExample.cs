@@ -13,7 +13,7 @@ using Xunit;
 /// This also demonstrates how to customize the Algorithm Suite used to encrypt the plaintext.
 /// For a full list of the Algorithm Suites the Encryption SDK supports,
 /// see https://docs.aws.amazon.com/encryption-sdk/latest/developer-guide/algorithms-reference.html
-public class SkipSigningExample
+public class NonSigningAlgorithmSuiteExample
 {
     private static void Run(MemoryStream plaintext)
     {
@@ -112,7 +112,7 @@ public class SkipSigningExample
 
     // We test examples to ensure they remain up-to-date.
     [Fact]
-    public void TestSkipSigningExample()
+    public void TestNonSigningAlgorithmSuiteExample()
     {
         Run(ExampleUtils.ExampleUtils.GetPlaintextStream());
     }
