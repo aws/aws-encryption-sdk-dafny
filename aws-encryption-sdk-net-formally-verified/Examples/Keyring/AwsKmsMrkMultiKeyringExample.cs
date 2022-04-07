@@ -12,13 +12,13 @@ using Xunit;
 using static ExampleUtils.ExampleUtils;
 
 /// Demonstrate an encrypt/decrypt cycle using a Multi-Keyring made up of multiple AWS KMS
-/// Keyrings.
+/// MRK Keyrings.
 public class AwsKmsMrkMultiKeyringExample
 {
     // For this example, `mrkKeyArn` is the ARN for a MRK KMS Key located in your default region,
     // and `kmsKeyArn` is the ARN for a KMS Key, possibly located in a different Region than the MRK Key.
-    // Finally, `mrkReplicateKeyArn` is an Arn for a KMS MRK key that
-    // is a replicate of the `mkrKeyArn` in a different Region.
+    // Finally, `mrkReplicaKeyArn` is an Arn for a KMS MRK key that
+    // is a replica of the `mkrKeyArn` in a different Region.
     private static void Run(MemoryStream plaintext, string mrkKeyArn, string kmsKeyArn, string mrkReplicateKeyArn)
     {
         // Create your encryption context.
@@ -39,8 +39,8 @@ public class AwsKmsMrkMultiKeyringExample
         var encryptionSdk = AwsEncryptionSdkFactory.CreateDefaultAwsEncryptionSdk();
 
         // Create an AwsKmsMrkMultiKeyring that protects your data under two different KMS Keys.
-        // The Keys can either be a regular KMS Key or MRK Keys.
-        // Either KMS Key individually is capable of decrypting data encrypted under this KeyAwsKmsMrkMultiKeyring.
+        // The Keys can either be regular KMS Keys or MRK Keys.
+        // Either KMS Key individually is capable of decrypting data encrypted under this keyring.
         var createAwsKmsMultiKeyringInput = new CreateAwsKmsMrkMultiKeyringInput
         {
             Generator = mrkKeyArn,
@@ -62,9 +62,9 @@ public class AwsKmsMrkMultiKeyringExample
         // Demonstrate that the ciphertext and plaintext are different.
         Assert.NotEqual(ciphertext.ToArray(), plaintext.ToArray());
 
-        // Decrypt your encrypted data using the AwsKmsMultiKeyring.
+        // Decrypt your encrypted data using the AwsKmsMrkMultiKeyring.
         // It will decrypt the data using the generator KMS key since
-        // it is the first available KMS key on the AwsKmsMultiKeyring that
+        // it is the first available KMS key on the keyring that
         // is capable of decrypting the data.
         //
         // You do not need to specify the encryption context on decrypt
@@ -94,10 +94,10 @@ public class AwsKmsMrkMultiKeyringExample
         var decrypted = decryptOutput.Plaintext;
         Assert.Equal(decrypted.ToArray(), plaintext.ToArray());
 
-        // Demonstrate that a single AwsKmsMrkKeyring configured with either KMS key or the replicate
+        // Demonstrate that a single AwsKmsMrkKeyring configured with either KMS key or the replica
         // is also capable of decrypting the data.
         //
-        // Create a single AwsKmsMrkKeyring with the replicate KMS MRK key from our second region.
+        // Create a single AwsKmsMrkKeyring with the replica KMS MRK key from our second region.
         var createKeyringInput = new CreateAwsKmsMrkKeyringInput
         {
             KmsClient = new AmazonKeyManagementServiceClient(GetRegionEndpointFromArn(mrkReplicateKeyArn)),
