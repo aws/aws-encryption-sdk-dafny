@@ -4,6 +4,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using AWS.EncryptionSDK;
 using AWS.EncryptionSDK.Core;
 using Xunit;
@@ -46,15 +47,15 @@ public class LimitEDKsExample
         var encryptionSdk = AwsEncryptionSdkFactory.CreateAwsEncryptionSdk(esdkConfig);
 
         // We will use a helper method to create a Multi Keyring with `maxEDKs` AES Keyrings
-        var keyrings = new List<IKeyring>();
+        var keyrings = new Queue<IKeyring>();
         for (long i = 1; i <= maxEDks; i++)
         {
-            keyrings.Add(GetRawAESKeyring(materialProviders));
+            keyrings.Enqueue(GetRawAESKeyring(materialProviders));
         }
         var createMultiKeyringInput = new CreateMultiKeyringInput
         {
-            Generator = keyrings[0],
-            ChildKeyrings = keyrings.GetRange(1, maxEDks - 1)
+            Generator = keyrings.Dequeue(),
+            ChildKeyrings = keyrings.ToList()
         };
         var multiKeyring = materialProviders.CreateMultiKeyring(createMultiKeyringInput);
 
