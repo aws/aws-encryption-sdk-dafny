@@ -11,7 +11,7 @@ using AWS.EncryptionSDK.Core;
 using Xunit;
 using static ExampleUtils.ExampleUtils;
 
-/// Demonstrate an encrypt/decrypt cycle using a Multi-Keyring containing multiple AWS KMS
+/// Demonstrate decrypt using a Multi-Keyring containing multiple AWS KMS
 /// MRK Discovery Keyrings.
 public class AwsKmsMrkDiscoveryMultiKeyringExample
 {
@@ -60,7 +60,7 @@ public class AwsKmsMrkDiscoveryMultiKeyringExample
         Assert.NotEqual(ciphertext.ToArray(), plaintext.ToArray());
 
         // Now create a Discovery keyring to use for decryption. We'll add a discovery filter so that we limit
-        // the set of ciphertexts we are willing to decrypt to only ones created by KMS keys in our region and
+        // the set of ciphertexts we are willing to decrypt to only ones created by KMS keys in our accounts and
         // partition.
         var createDecryptKeyringInput = new CreateAwsKmsMrkDiscoveryMultiKeyringInput
         {
@@ -73,8 +73,9 @@ public class AwsKmsMrkDiscoveryMultiKeyringExample
         };
 
         // This is a Multi Keyring composed of Discovery Keyrings.
+        // There is a keyring for every region in `regions`.
         // All the keyrings have the same Discovery Filter.
-        // Each keyring has its own KMS Client.
+        // Each keyring has its own KMS Client, which is created for the keyring's region.
         var multiKeyring = materialProviders.CreateAwsKmsMrkDiscoveryMultiKeyring(createDecryptKeyringInput);
 
         // On Decrypt, the header of the encrypted message (ciphertext) will be parsed.
