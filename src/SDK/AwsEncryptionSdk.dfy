@@ -49,7 +49,7 @@ module {:extern "Dafny.Aws.EncryptionSdk.AwsEncryptionSdk"} AwsEncryptionSdk {
   import Frames
 
   type FrameLength = frameLength : int64 | 0 < frameLength <= 0xFFFF_FFFF witness *
-  
+
   const DEFAULT_COMMITMENT_POLICY : Crypto.CommitmentPolicy := Crypto.REQUIRE_ENCRYPT_REQUIRE_DECRYPT;
 
   class AwsEncryptionSdk extends Esdk.IAwsEncryptionSdk {
@@ -142,12 +142,17 @@ module {:extern "Dafny.Aws.EncryptionSdk.AwsEncryptionSdk"} AwsEncryptionSdk {
         method Encrypt(input: Esdk.EncryptInput)
             returns (res: Result<Esdk.EncryptOutput, Esdk.IAwsEncryptionSdkException>)
         {
-            var encryptResult := EncryptInternal(input);
+            var encryptResult, _ := EncryptInternal(input);
             var withConvertedError := Esdk.AwsEncryptionSdkException.WrapResultString(encryptResult);
             return withConvertedError;
         }
 
-        method EncryptInternal(input: Esdk.EncryptInput) returns (res: Result<Esdk.EncryptOutput, string>)
+        method EncryptInternal(input: Esdk.EncryptInput)
+            returns (
+                res: Result<Esdk.EncryptOutput, string>,
+                // Used for verification
+                ghost ghostMaterials: Option<Crypto.EncryptionMaterials>
+            )
         //= compliance/client-apis/encrypt.txt#2.6.1
         //= type=implication
         //# If an input algorithm suite (Section 2.4.5) is provided that is not
@@ -166,13 +171,30 @@ module {:extern "Dafny.Aws.EncryptionSdk.AwsEncryptionSdk"} AwsEncryptionSdk {
        //= compliance/client-apis/encrypt.txt#2.4.6
        //= type=implication
        //# This value
-       //# MUST be greater than 0 and MUST NOT exceed the value 2^32 - 1. 
+       //# MUST be greater than 0 and MUST NOT exceed the value 2^32 - 1.
         ensures
             && input.frameLength.Some?
             && (input.frameLength.value <= 0 || input.frameLength.value > 0xFFFF_FFFF)
         ==>
-            res.Failure?            
+            res.Failure?
+
+        //= compliance/client-apis/encrypt.txt#2.6.1
+        //= type=implication
+        //# If the number of
+        //# encrypted data keys (../framework/structures.md#encrypted-data-keys)
+        //# on the encryption materials (../framework/structures.md#encryption-
+        //# materials) is greater than the maximum number of encrypted data keys
+        //# (client.md#maximum-number-of-encrypted-data-keys) configured in the
+        //# client (client.md) encrypt MUST yield an error.
+        ensures
+            && this.maxEncryptedDataKeys.Some?
+            && ghostMaterials.Some?
+            && |ghostMaterials.value.encryptedDataKeys| > this.maxEncryptedDataKeys.value as int
+        ==>
+            res.Failure?
         {
+            ghostMaterials := None;
+
             var frameLength : FrameLength := EncryptDecryptHelpers.DEFAULT_FRAME_LENGTH;
             if input.frameLength.Some? {
               :- Need(
@@ -210,14 +232,8 @@ module {:extern "Dafny.Aws.EncryptionSdk.AwsEncryptionSdk"} AwsEncryptionSdk {
                 //# known length, this length MUST be used.
                 |input.plaintext| as int64
             );
+            ghostMaterials := Some(materials);
 
-            //= compliance/client-apis/encrypt.txt#2.6.1
-            //# If the number of
-            //# encrypted data keys (../framework/structures.md#encrypted-data-keys)
-            //# on the encryption materials (../framework/structures.md#encryption-
-            //# materials) is greater than the maximum number of encrypted data keys
-            //# (client.md#maximum-number-of-encrypted-data-keys) configured in the
-            //# client (client.md) encrypt MUST yield an error.
             var _ :- ValidateMaxEncryptedDataKeys(materials.encryptedDataKeys);
 
             //= compliance/client-apis/encrypt.txt#2.6.1
@@ -339,7 +355,7 @@ module {:extern "Dafny.Aws.EncryptionSdk.AwsEncryptionSdk"} AwsEncryptionSdk {
                         encryptionContext := header.encryptionContext,
                         algorithmSuiteId := header.suite.id
                     )
-                );
+                ), ghostMaterials;
             } else {
                 //= compliance/client-apis/encrypt.txt#2.6
                 //# Otherwise the encrypt operation MUST
@@ -351,7 +367,7 @@ module {:extern "Dafny.Aws.EncryptionSdk.AwsEncryptionSdk"} AwsEncryptionSdk {
                         encryptionContext := header.encryptionContext,
                         algorithmSuiteId := header.suite.id
                     )
-                );
+                ), ghostMaterials;
             }
         }
 
@@ -777,7 +793,7 @@ module {:extern "Dafny.Aws.EncryptionSdk.AwsEncryptionSdk"} AwsEncryptionSdk {
           || (input.materialsManager.Some? && input.keyring.Some?)
           || (input.materialsManager.None? && input.keyring.None?)
         )
-        ==>  
+        ==>
           res.Failure?
 
         {
@@ -919,7 +935,7 @@ module {:extern "Dafny.Aws.EncryptionSdk.AwsEncryptionSdk"} AwsEncryptionSdk {
             //# Once the message header is successfully parsed, the next sequential
             //# bytes MUST be deserialized according to the message body spec
             //# (../data-format/message-body.md).
-            
+
             //= compliance/client-apis/decrypt.txt#2.7.4
             //# The content type (../data-format/message-header.md#content-type)
             //# field parsed from the message header above determines whether these
@@ -934,7 +950,7 @@ module {:extern "Dafny.Aws.EncryptionSdk.AwsEncryptionSdk"} AwsEncryptionSdk {
                     var decryptRes :- ReadAndDecryptNonFramedMessageBody(headerAuth.tail, header, key);
                     plaintext := decryptRes.0;
                     messageBodyTail := decryptRes.1;
-                    
+
                 case Framed =>
                     //= compliance/client-apis/decrypt.txt#2.7.4
                     //# If this decryption fails, this operation MUST immediately halt and
@@ -996,7 +1012,7 @@ module {:extern "Dafny.Aws.EncryptionSdk.AwsEncryptionSdk"} AwsEncryptionSdk {
 
             assert header == messageBody.data.finalFrame.header;
             assert |key| == messageBody.data.finalFrame.header.suite.encrypt.keyLength as int;
-            
+
             var plaintext :- MessageBody.DecryptFramedMessageBody(messageBody.data, key);
             var messageBodyTail := messageBody.tail;
 

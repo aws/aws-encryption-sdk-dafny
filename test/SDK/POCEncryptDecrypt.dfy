@@ -62,19 +62,35 @@ module {:extern "TestClient"} TestClient {
     var plaintext :- expect UTF8.Encode("hello");
     var encryptionContext := TestUtils.SmallEncryptionContext(TestUtils.SmallEncryptionContextVariation.A);
     var input := Esdk.EncryptInput(
-      plaintext:=plaintext,
-      encryptionContext:=Some(encryptionContext),
-      algorithmSuiteId:=None(),
-      materialsManager:=Some(cmm),
-      keyring:=None(),
-      frameLength:=Option.None());
-    var res :- expect client.Encrypt(input);
+      plaintext := plaintext,
+      encryptionContext := Some(encryptionContext),
+      algorithmSuiteId := Some(Crypto.AlgorithmSuiteId.ALG_AES_256_GCM_HKDF_SHA512_COMMIT_KEY_ECDSA_P384),
+      materialsManager := Some(cmm),
+      keyring := None(),
+      frameLength := Option.None());
+    var encryptRes :- expect client.Encrypt(input);
+
+    //= compliance/client-apis/encrypt.txt#2.5
+    //= type=test
+    //# This behavior MUST output the following if the behavior is
+    //# successful:
+    var ciphertext := encryptRes.ciphertext;
+    expect encryptionContext.Items <= encryptRes.encryptionContext.Items;
+
+    //= compliance/client-apis/encrypt.txt#2.4.5
+    //= type=test
+    //# The algorithm suite (../framework/algorithm-suite.md) that SHOULD be
+    //# used for encryption.
+    expect encryptRes.algorithmSuiteId == Crypto.AlgorithmSuiteId.ALG_AES_256_GCM_HKDF_SHA512_COMMIT_KEY_ECDSA_P384;
 
     // Use Decrypt API
-    var decryptInput := Esdk.DecryptInput(ciphertext:=res.ciphertext, materialsManager:=Some(cmm), keyring:=None());
-    var d :- expect client.Decrypt(decryptInput);
+    var decryptInput := Esdk.DecryptInput(
+      ciphertext := encryptRes.ciphertext,
+      materialsManager := Some(cmm),
+      keyring := None());
+    var decryptRes :- expect client.Decrypt(decryptInput);
 
     // ensure expected output
-    expect plaintext == d.plaintext;
+    expect plaintext == decryptRes.plaintext;
   }
 }
