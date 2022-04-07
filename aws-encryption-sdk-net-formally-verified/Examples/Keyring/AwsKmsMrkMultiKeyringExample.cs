@@ -19,7 +19,7 @@ public class AwsKmsMrkMultiKeyringExample
     // and `kmsKeyArn` is the ARN for a KMS Key, possibly located in a different Region than the MRK Key.
     // Finally, `mrkReplicaKeyArn` is an Arn for a KMS MRK key that
     // is a replica of the `mkrKeyArn` in a different Region.
-    private static void Run(MemoryStream plaintext, string mrkKeyArn, string kmsKeyArn, string mrkReplicateKeyArn)
+    private static void Run(MemoryStream plaintext, string mrkKeyArn, string kmsKeyArn, string mrkReplicaKeyArn)
     {
         // Create your encryption context.
         // Remember that your encryption context is NOT SECRET.
@@ -100,8 +100,8 @@ public class AwsKmsMrkMultiKeyringExample
         // Create a single AwsKmsMrkKeyring with the replica KMS MRK key from our second region.
         var createKeyringInput = new CreateAwsKmsMrkKeyringInput
         {
-            KmsClient = new AmazonKeyManagementServiceClient(GetRegionEndpointFromArn(mrkReplicateKeyArn)),
-            KmsKeyId = mrkReplicateKeyArn
+            KmsClient = new AmazonKeyManagementServiceClient(GetRegionEndpointFromArn(mrkReplicaKeyArn)),
+            KmsKeyId = mrkReplicaKeyArn
         };
         var mrkReplicateKeyring = materialProviders.CreateAwsKmsMrkKeyring(createKeyringInput);
 
