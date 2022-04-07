@@ -62,7 +62,7 @@ public class SkipSigningExample
             Keyring = keyring,
             EncryptionContext = encryptionContext,
             // Here, we customize the Algorithm Suite that is used to Encrypt the data.
-            // In particular, we use an Algorithm Suite with out Signing.
+            // In particular, we use an Algorithm Suite without Signing.
             AlgorithmSuiteId = AlgorithmSuiteId.ALG_AES_256_GCM_HKDF_SHA512_COMMIT_KEY
         };
         var encryptOutput = encryptionSdk.Encrypt(encryptInput);
