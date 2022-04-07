@@ -42,16 +42,12 @@ public class CommitmentPolicyExample
         // Instantiate the EncryptionSDK with the configuration
         var encryptionSdk = AwsEncryptionSdkFactory.CreateAwsEncryptionSdk(esdkConfig);
 
-        // Use a helper method to create a Raw AES keyring
+        // For illustrative purposes we create a Raw AES Keyring. You can use any keyring in its place.
         var keyring = GetRawAESKeyring(materialProviders);
 
         // Encrypt your plaintext data.
         // Since the CommitmentPolicy is set to Forbid Encrypt,
-        // the Algorithm Suite that will be used to encrypt the plaintext
-        // will not use Key Commitment.
-        // By default (when the Commitment Policy is set to Forbid Encrypt),
-        // that is ALG_AES_256_GCM_IV12_TAG16_HKDF_SHA384_ECDSA_P384,
-        // which is AES-GCM with Key Derivation and Signing.
+        // the Encryption SDK will encrypt the plaintext without key commitment.
         var encryptInput = new EncryptInput
         {
             Plaintext = plaintext,
