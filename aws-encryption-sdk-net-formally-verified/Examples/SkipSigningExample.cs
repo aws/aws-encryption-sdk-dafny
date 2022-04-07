@@ -10,6 +10,9 @@ using Org.BouncyCastle.Security; // In this example, we use BouncyCastle to gene
 using Xunit;
 
 /// Demonstrate an encrypt/decrypt cycle using a raw AES keyring and a non Signing Algorithm ID.
+/// This also demonstrates how to customize the Algorithm Suite used to encrypt the plaintext.
+/// For a full list of the Algorithm Suites the Encryption SDK supports,
+/// see https://docs.aws.amazon.com/encryption-sdk/latest/developer-guide/algorithms-reference.html
 public class SkipSigningExample
 {
     private static void Run(MemoryStream plaintext)
@@ -51,6 +54,7 @@ public class SkipSigningExample
             KeyNamespace = keyNamespace,
             KeyName = keyName,
             WrappingKey = key,
+            // This is the Algorithm that will encrypt the Data Key
             WrappingAlg = AesWrappingAlg.ALG_AES256_GCM_IV12_TAG16
         };
         var keyring = materialProviders.CreateRawAesKeyring(createKeyringInput);
@@ -61,8 +65,13 @@ public class SkipSigningExample
             Plaintext = plaintext,
             Keyring = keyring,
             EncryptionContext = encryptionContext,
-            // Here, we customize the Algorithm Suite that is used to Encrypt the data.
+            // Here, we customize the Algorithm Suite that is used to Encrypt the plaintext.
             // In particular, we use an Algorithm Suite with out Signing.
+            // Signature verification adds a significant performance cost on decryption.
+            // If the users encrypting data and the users decrypting data are equally trusted,
+            // consider using an algorithm suite that does not include signing.
+            // See more about Digital Signatures:
+            // https://docs.aws.amazon.com/encryption-sdk/latest/developer-guide/concepts.html#digital-sigs
             AlgorithmSuiteId = AlgorithmSuiteId.ALG_AES_256_GCM_HKDF_SHA512_COMMIT_KEY
         };
         var encryptOutput = encryptionSdk.Encrypt(encryptInput);
