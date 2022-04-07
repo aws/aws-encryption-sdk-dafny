@@ -66,7 +66,7 @@ public class SkipSigningExample
             Keyring = keyring,
             EncryptionContext = encryptionContext,
             // Here, we customize the Algorithm Suite that is used to Encrypt the plaintext.
-            // In particular, we use an Algorithm Suite with out Signing.
+            // In particular, we use an Algorithm Suite without Signing.
             // Signature verification adds a significant performance cost on decryption.
             // If the users encrypting data and the users decrypting data are equally trusted,
             // consider using an algorithm suite that does not include signing.
