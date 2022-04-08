@@ -33,9 +33,10 @@ public class AwsKmsMrkDiscoveryKeyringExample
             AwsCryptographicMaterialProvidersFactory.CreateDefaultAwsCryptographicMaterialProviders();
         var encryptionSdk = AwsEncryptionSdkFactory.CreateDefaultAwsEncryptionSdk();
 
-        // Create the keyring that determines how your data keys are protected. Though this example highlights
-        // Discovery keyrings, Discovery keyrings cannot be used to encrypt, so for encryption we create
-        // a KMS keyring without discovery mode.
+        // Create the keyring that determines how your data keys are protected.
+        // Though this example highlights MRK Discovery keyrings,
+        // MRK Discovery keyrings cannot be used to encrypt, so for encryption
+        // we create a KMS MRK keyring.
         var createKeyringInput = new CreateAwsKmsMrkKeyringInput
         {
             KmsClient = new AmazonKeyManagementServiceClient(GetRegionEndpointFromArn(encryptKeyArn)),
