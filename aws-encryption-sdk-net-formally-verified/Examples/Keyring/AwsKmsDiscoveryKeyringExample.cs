@@ -9,8 +9,9 @@ using Amazon.KeyManagementService;
 using AWS.EncryptionSDK;
 using AWS.EncryptionSDK.Core;
 using Xunit;
+using static ExampleUtils.ExampleUtils;
 
-/// Demonstrate an encrypt/decrypt cycle using an AWS KMS discovery keyring.
+/// Demonstrate decrypt using an AWS KMS discovery keyring.
 public class AwsKmsDiscoveryKeyringExample
 {
     private static void Run(MemoryStream plaintext, string keyArn)
@@ -63,12 +64,25 @@ public class AwsKmsDiscoveryKeyringExample
             KmsClient = new AmazonKeyManagementServiceClient(),
             DiscoveryFilter = new DiscoveryFilter()
             {
-                AccountIds = ExampleUtils.ExampleUtils.GetAccountIds(),
+                AccountIds = GetAccountIds(),
                 Partition = "aws"
             }
         };
         var decryptKeyring = materialProviders.CreateAwsKmsDiscoveryKeyring(createDecryptKeyringInput);
 
+        // On Decrypt, the header of the encrypted message (ciphertext) will be parsed.
+        // The header contains the Encrypted Data Keys (EDKs), which, if the EDK
+        // was encrypted by a KMS Keyring, includes the KMS Key arn.
+        // The Discovery Keyring filters these EDKs for:
+        // - EDKs encrypted by Single Region OR Multi Region KMS Keys
+        // These KMS Keys must belong to an AWS Account ID in the discovery filter's
+        // AccountIds and must be from the discovery filter's partition.
+        // (The discovery filter is optional. If it is not present, these conditions
+        // are not enforced).
+        // Finally, KMS is called to decrypt each filtered EDK until an EDK is
+        // successfully decrypted. The resulting data key is used to decrypt the
+        // ciphertext's message.
+        // If all calls to KMS fail, the decryption fails.
         var decryptInput = new DecryptInput
         {
             Ciphertext = ciphertext,
@@ -99,6 +113,6 @@ public class AwsKmsDiscoveryKeyringExample
     [Fact]
     public void TestAwsKmsDiscoveryKeyringExample()
     {
-        Run(ExampleUtils.ExampleUtils.GetPlaintextStream(), ExampleUtils.ExampleUtils.GetDefaultRegionKmsKeyArn());
+        Run(GetPlaintextStream(), GetDefaultRegionKmsKeyArn());
     }
 }
