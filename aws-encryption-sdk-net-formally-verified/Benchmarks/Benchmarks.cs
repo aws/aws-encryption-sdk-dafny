@@ -1,5 +1,7 @@
+using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Security.Cryptography;
 using AWS.EncryptionSDK;
 using AWS.EncryptionSDK.Core;
@@ -12,10 +14,10 @@ namespace Benchmarks
 {
     public abstract class BaseEncryptDecryptBenchmark
     {
-        [Params(0, 10, 100, 1_000, 10_000, 100_000, 1_000_000, 10_000_000)]
+        [ParamsSource(nameof(ValuesForPlaintextLengthBytes))]
         public int PlaintextLengthBytes { get; set; }
 
-        [Params(1024, 4096, 65536)]
+        [ParamsSource(nameof(ValuesForFrameLengthBytes))]
         public int FrameLengthBytes { get; set; }
 
         private IAwsEncryptionSdk _encryptionSdk;
@@ -69,6 +71,49 @@ namespace Benchmarks
                 Keyring = _keyring,
                 Ciphertext = _ciphertext
             });
+
+        private static readonly int[] DefaultValuesForPlaintextLengthBytes =
+        {
+            1, 10, 100, 1_000, 10_000, 100_000, 1_000_000, 10_000_000
+        };
+
+        public static IEnumerable<int> ValuesForPlaintextLengthBytes() =>
+            ParseIntsFromEnvVar("BENCHMARK_PLAINTEXT_LENGTH_BYTES", DefaultValuesForPlaintextLengthBytes);
+
+        private static readonly int[] DefaultValuesForFrameLengthBytes = { 1024, 4096, 65536 };
+
+        public static IEnumerable<int> ValuesForFrameLengthBytes() =>
+            ParseIntsFromEnvVar("BENCHMARK_FRAME_LENGTH_BYTES", DefaultValuesForFrameLengthBytes);
+
+        /// <summary>
+        /// Parses the named environment variable as comma-separated integers and returns them,
+        /// or returns the given default values if the environment variable is empty.
+        /// </summary>
+        /// <exception cref="ApplicationException">if the environment variable is incorrectly formatted</exception>
+        private static IEnumerable<int> ParseIntsFromEnvVar(string name, IEnumerable<int> defaults)
+        {
+            var envValue = Environment.GetEnvironmentVariable(name);
+            if (string.IsNullOrWhiteSpace(envValue))
+            {
+                return defaults;
+            }
+
+            try
+            {
+                return envValue
+                    .Split(',')
+                    .Select(part => int.Parse(part.Trim()))
+                    // Evaluate this query immediately so that we catch parse exceptions right away,
+                    // and not when the caller tries to use the results
+                    .ToList();
+            }
+            catch (FormatException exception)
+            {
+                throw new ApplicationException(
+                    $"Environment variable {name} could not be parsed as comma-separated ints",
+                    exception);
+            }
+        }
     }
 
     public class RawAesKeyringBenchmark : BaseEncryptDecryptBenchmark
