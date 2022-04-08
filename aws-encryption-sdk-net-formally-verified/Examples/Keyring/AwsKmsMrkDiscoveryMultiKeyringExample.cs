@@ -64,7 +64,7 @@ public class AwsKmsMrkDiscoveryMultiKeyringExample
         // we are willing to decrypt to only ones created by KMS keys in select
         // accounts and the partition `aws`.
         // MRK Discovery keyrings also filter encrypted data keys by the region
-        // they are created with.
+        // the keyring is created with.
         var mkrDiscoveryMultiKeyring = new CreateAwsKmsMrkDiscoveryMultiKeyringInput
         {
             Regions = regions,
