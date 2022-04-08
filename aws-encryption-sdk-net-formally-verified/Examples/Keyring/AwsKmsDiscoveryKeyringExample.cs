@@ -57,7 +57,7 @@ public class AwsKmsDiscoveryKeyringExample
         Assert.NotEqual(ciphertext.ToArray(), plaintext.ToArray());
 
         // Now create a Discovery keyring to use for decryption. We'll add a discovery filter so that we limit
-        // the set of ciphertexts we are willing to decrypt to only ones created by KMS keys in our region and
+        // the set of ciphertexts we are willing to decrypt to only ones created by KMS keys in our account and
         // partition.
         var createDecryptKeyringInput = new CreateAwsKmsDiscoveryKeyringInput
         {
