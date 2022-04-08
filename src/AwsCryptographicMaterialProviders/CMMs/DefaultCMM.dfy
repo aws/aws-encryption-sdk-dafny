@@ -75,6 +75,18 @@ module
             //# operation MUST add the default algorithm suite for the commitment
             //# policy (../client-apis/client.md#commitment-policy) as the
             //# algorithm suite in the encryption materials returned.
+            //
+            //= compliance/client-apis/client.txt#2.4.2.1
+            //= type=implication
+            //# *  "03 78" MUST be the default algorithm suite
+            //
+            //= compliance/client-apis/client.txt#2.4.2.2
+            //= type=implication
+            //# *  "05 78" MUST be the default algorithm suite
+            //
+            //= compliance/client-apis/client.txt#2.4.2.3
+            //= type=implication
+            //# *  "05 78" MUST be the default algorithm suite
             && input.algorithmSuiteId.None?
             && var selectedAlgorithm := Defaults.GetAlgorithmSuiteForCommitmentPolicy(input.commitmentPolicy);
             && res.value.encryptionMaterials.algorithmSuiteId == selectedAlgorithm
