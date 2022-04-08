@@ -9,7 +9,7 @@ using AWS.EncryptionSDK.Core;
 using Org.BouncyCastle.Security; // In this example, we use BouncyCastle to generate a wrapping key.
 using Xunit;
 
-/// Demonstrate an encrypt/decrypt cycle using a raw AES keyring and a non Signing Algorithm ID.
+/// Demonstrate an encrypt/decrypt cycle using a raw AES keyring and a non-signing Algorithm Suite.
 /// This also demonstrates how to customize the Algorithm Suite used to encrypt the plaintext.
 /// For a full list of the Algorithm Suites the Encryption SDK supports,
 /// see https://docs.aws.amazon.com/encryption-sdk/latest/developer-guide/algorithms-reference.html
@@ -54,7 +54,8 @@ public class NonSigningAlgorithmSuiteExample
             KeyNamespace = keyNamespace,
             KeyName = keyName,
             WrappingKey = key,
-            // This is the Algorithm that will encrypt the Data Key
+            // This is the algorithm that will encrypt the Data Key.
+            // It is different from the Algorithm Suite.
             WrappingAlg = AesWrappingAlg.ALG_AES256_GCM_IV12_TAG16
         };
         var keyring = materialProviders.CreateRawAesKeyring(createKeyringInput);
