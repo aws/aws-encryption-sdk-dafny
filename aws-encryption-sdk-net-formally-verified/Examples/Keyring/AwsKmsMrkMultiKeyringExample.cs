@@ -17,7 +17,7 @@ public class AwsKmsMrkMultiKeyringExample
 {
     // For this example, `mrkKeyArn` is the ARN for a AWS KMS multi-Region key (MRK) located in your default region,
     // and `kmsKeyArn` is the ARN for a KMS key, possibly located in a different Region than the MRK.
-    // Finally, `mrkReplicaKeyArn` is the ARN for an MRK that
+    // Finally, `mrkReplicaKeyArn` is the ARN for a MRK that
     // is a replica of the `mrkKeyArn` in a second region.
     private static void Run(MemoryStream plaintext, string mrkKeyArn, string kmsKeyArn, string mrkReplicaKeyArn)
     {
@@ -94,7 +94,7 @@ public class AwsKmsMrkMultiKeyringExample
         var decrypted = decryptOutput.Plaintext;
         Assert.Equal(decrypted.ToArray(), plaintext.ToArray());
 
-        // Demonstrate that a single AwsKmsMrkKeyring configured with a replica of an MRK from the
+        // Demonstrate that a single AwsKmsMrkKeyring configured with a replica of a MRK from the
         // multi-keyring used to encrypt the data is also capable of decrypting the data.
         //
         // Not shown is that a KMS Keyring created with `kmsKeyArn` could also decrypt this message.
