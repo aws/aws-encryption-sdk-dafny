@@ -34,9 +34,9 @@ public class AwsKmsMrkDiscoveryMultiKeyringExample
             AwsCryptographicMaterialProvidersFactory.CreateDefaultAwsCryptographicMaterialProviders();
         var encryptionSdk = AwsEncryptionSdkFactory.CreateDefaultAwsEncryptionSdk();
 
-        // Create the keyring that determines how your data keys are protected. Though this example highlights
-        // Discovery keyrings, Discovery keyrings cannot be used to encrypt, so for encryption we create
-        // a KMS keyring without discovery.
+        // Create the keyring that determines how your data keys are protected.
+        // Though this example highlights Discovery keyrings, Discovery keyrings
+        // cannot be used to encrypt, so for encryption we create a KMS MRK keyring.
         var createKeyringInput = new CreateAwsKmsMrkKeyringInput
         {
             // Create a KMS Client for the region of the Encrypt MRK Key
@@ -87,7 +87,7 @@ public class AwsKmsMrkDiscoveryMultiKeyringExample
         // For each member of the Multi Keyring, every EDK will try to be decrypted until a decryption is successful.
         // Since every member of the Multi Keyring is a Discovery Keyring:
         //   Each Keyring will filter the EDKs by the Discovery Filter and the Keyring's region.
-        //      For the filtered EDKs, the keyring will try to decrypt it with the keyring's client.
+        //      For each filtered EDK, the keyring will attempt decryption with the keyring's client.
         // All of this is done serially, until a success occurs or all keyrings have failed all (filtered) EDKs.
         // KMS MRK Discovery Keyrings will attempt to decrypt Multi Region Keys (MRKs) and regular KMS Keys.
         var decryptInput = new DecryptInput
