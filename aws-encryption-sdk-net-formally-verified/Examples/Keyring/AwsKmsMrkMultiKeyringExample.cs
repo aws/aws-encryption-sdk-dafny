@@ -15,10 +15,10 @@ using static ExampleUtils.ExampleUtils;
 /// MRK Keyrings.
 public class AwsKmsMrkMultiKeyringExample
 {
-    // For this example, `mrkKeyArn` is the ARN for a MRK KMS Key located in your default region,
-    // and `kmsKeyArn` is the ARN for a KMS Key, possibly located in a different Region than the MRK Key.
-    // Finally, `mrkReplicaKeyArn` is an Arn for a KMS MRK key that
-    // is a replica of the `mkrKeyArn` in a second region.
+    // For this example, `mrkKeyArn` is the ARN for a AWS KMS multi-Region key (MRK) located in your default region,
+    // and `kmsKeyArn` is the ARN for a KMS key, possibly located in a different Region than the MRK.
+    // Finally, `mrkReplicaKeyArn` is the ARN for an MRK that
+    // is a replica of the `mrkKeyArn` in a second region.
     private static void Run(MemoryStream plaintext, string mrkKeyArn, string kmsKeyArn, string mrkReplicaKeyArn)
     {
         // Create your encryption context.
@@ -39,7 +39,7 @@ public class AwsKmsMrkMultiKeyringExample
         var encryptionSdk = AwsEncryptionSdkFactory.CreateDefaultAwsEncryptionSdk();
 
         // Create an AwsKmsMrkMultiKeyring that protects your data under two different KMS Keys.
-        // The Keys can either be regular KMS Keys or MRK Keys.
+        // The Keys can either be regular KMS keys or MRKs.
         // Either KMS Key individually is capable of decrypting data encrypted under this keyring.
         var createAwsKmsMultiKeyringInput = new CreateAwsKmsMrkMultiKeyringInput
         {
@@ -94,12 +94,12 @@ public class AwsKmsMrkMultiKeyringExample
         var decrypted = decryptOutput.Plaintext;
         Assert.Equal(decrypted.ToArray(), plaintext.ToArray());
 
-        // Demonstrate that a single AwsKmsMrkKeyring configured a replica of a MRK Key from the
+        // Demonstrate that a single AwsKmsMrkKeyring configured with a replica of an MRK from the
         // multi-keyring used to encrypt the data is also capable of decrypting the data.
         //
         // Not shown is that a KMS Keyring created with `kmsKeyArn` could also decrypt this message.
-        //
-        // Create a single AwsKmsMrkKeyring with the replica KMS MRK key from the second region.
+
+        // Create a single AwsKmsMrkKeyring with the replica KMS MRK from the second region.
         var createKeyringInput = new CreateAwsKmsMrkKeyringInput
         {
             KmsClient = new AmazonKeyManagementServiceClient(GetRegionEndpointFromArn(mrkReplicaKeyArn)),
@@ -107,7 +107,7 @@ public class AwsKmsMrkMultiKeyringExample
         };
         var mrkReplicaKeyring = materialProviders.CreateAwsKmsMrkKeyring(createKeyringInput);
 
-        // Decrypt your encrypted data using the keyring configured with the KMS MRK Key from the second region.
+        // Decrypt your encrypted data using the keyring configured with the KMS MRK from the second region.
         decryptInput = new DecryptInput
         {
             Ciphertext = ciphertext,
