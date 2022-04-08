@@ -6,6 +6,8 @@ using System.Collections.Generic;
 using System.IO;
 using System.Text;
 using Amazon;
+using AWS.EncryptionSDK.Core;
+using Org.BouncyCastle.Security;
 
 namespace ExampleUtils {
     class ExampleUtils {
@@ -24,7 +26,7 @@ namespace ExampleUtils {
 
         static public string GetEnvVariable(string keyName)
         {
-            string value = System.Environment.GetEnvironmentVariable(keyName);
+            string value = Environment.GetEnvironmentVariable(keyName);
             if (value == null) {
                 throw new ArgumentException(
                     String.Format("Please set environment variable {0} to a valid KMS key ARN", keyName)
@@ -67,6 +69,36 @@ namespace ExampleUtils {
         static public List<string> GetRegions()
         {
             return new List<string>() {"us-west-2", "us-east-1"};
+        }
+
+        // Helper method to create RawAESKeyring for examples.
+        public static IKeyring GetRawAESKeyring(IAwsCryptographicMaterialProviders materialProviders)
+        {
+            // Generate a 256-bit AES key to use with your keyring.
+            // Here we use BouncyCastle, but you don't have to.
+            //
+            // In practice, you should get this key from a secure key management system such as an HSM.
+            var key = new MemoryStream(GeneratorUtilities.GetKeyGenerator("AES256").GenerateKey());
+
+            // The key namespace and key name are defined by you
+            // and are used by the raw AES keyring to determine
+            // whether it should attempt to decrypt an encrypted data key.
+            //
+            // https://docs.aws.amazon.com/encryption-sdk/latest/developer-guide/choose-keyring.html#use-raw-aes-keyring
+            var keyNamespace = "Some managed raw keys";
+            var keyName = "My 256-bit AES wrapping key";
+
+            // Create the keyring that determines how your data keys are protected.
+            var createAesKeyringInput = new CreateRawAesKeyringInput
+            {
+                KeyNamespace = keyNamespace,
+                KeyName = keyName,
+                WrappingKey = key,
+                WrappingAlg = AesWrappingAlg.ALG_AES256_GCM_IV12_TAG16
+            };
+            var aesKeyring = materialProviders.CreateRawAesKeyring(createAesKeyringInput);
+
+            return aesKeyring;
         }
     }
 }
