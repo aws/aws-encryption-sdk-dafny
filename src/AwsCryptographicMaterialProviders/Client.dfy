@@ -132,7 +132,17 @@ module
 
     method CreateRawAesKeyring(input: Crypto.CreateRawAesKeyringInput)
       returns (res: Result<Crypto.IKeyring, Crypto.IAwsCryptographicMaterialProvidersException>)
+      //= compliance/framework/raw-aes-keyring.txt#2.1.1
+      //= type=implication
+      //# -  Raw AES keyring MUST NOT accept a key namespace of "aws-kms".
+      ensures
+        input.keyNamespace == "aws-kms"
+      ==>
+        res.Failure?
     {
+      :- Crypto.Need(input.keyNamespace != "aws-kms",
+        "keyNamespace must not be `aws-kms`");
+        
       var wrappingAlg:AESEncryption.AES_GCM := match input.wrappingAlg
         case ALG_AES128_GCM_IV12_TAG16 => AESEncryption.AES_GCM(
             keyLength := 16 as AESEncryption.KeyLength,
