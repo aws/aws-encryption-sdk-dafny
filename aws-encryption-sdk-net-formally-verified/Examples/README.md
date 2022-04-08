@@ -16,6 +16,8 @@ in the [`Examples/`](./) directory.
 
 * [How to encrypt and decrypt](./Keyring/AwsKmsKeyringExample.cs)
 * [How to change the algorithm suite](./NonSigningAlgorithmSuiteExample.cs)
+* [How to set the commitment policy](./CommitmentPolicy.cs)
+* [How to limit the number of encrypted data keys (EDKs)](./LimitEncryptedDataKeysExample.cs)
 
 ## Configuration
 
