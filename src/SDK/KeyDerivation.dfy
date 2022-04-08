@@ -35,7 +35,7 @@ module {:extern "KeyDerivation"} KeyDerivation {
     messageId: HeaderTypes.MessageId,
     plaintextDataKey: seq<uint8>,
     suite: Client.AlgorithmSuites.AlgorithmSuite
-  ) 
+  )
     returns (res: Result<ExpandedKeyMaterial, string>)
 
     // This should only be used for v1 algorithms
@@ -50,6 +50,13 @@ module {:extern "KeyDerivation"} KeyDerivation {
     ensures res.Success? ==> suite.kdf.IDENTITY? || suite.kdf.HKDF?
     ensures suite.kdf.None? ==> res.Failure?
   {
+    //= compliance/client-apis/encrypt.txt#2.6.1
+    //# The algorithm used to derive a data key from the
+    //# plaintext data key MUST be the key derivation algorithm
+    //# (../framework/algorithm-suites.md#key-derivation-algorithm) included
+    //# in the algorithm suite (../framework/algorithm-suites.md) defined
+    //# above.
+
     //= compliance/client-apis/decrypt.txt#2.7.2
     //# The algorithm suite used to derive a data key from the
     //# plaintext data key MUST be the key derivation algorithm
@@ -63,7 +70,7 @@ module {:extern "KeyDerivation"} KeyDerivation {
         }
         return Success(ExpandedKeyMaterial(dataKey:=plaintextDataKey, commitmentKey:=None()));
       }
-      case HKDF(hmac, saltLength, inputKeyLength, outputKeyLength) => { 
+      case HKDF(hmac, saltLength, inputKeyLength, outputKeyLength) => {
         var algorithmSuiteID := SerializableTypes.GetESDKAlgorithmSuiteId(suite.id);
         var infoSeq := UInt16ToSeq(algorithmSuiteID as uint16) + messageId;
         var len := suite.kdf.inputKeyLength as int;
@@ -108,7 +115,7 @@ module {:extern "KeyDerivation"} KeyDerivation {
     //# in the algorithm suite (../framework/algorithm-suites.md) associated
     //# with the returned decryption materials.
     requires suite.kdf.HKDF?
-    
+
     requires |messageId| != 0
     requires |plaintextKey| == suite.encrypt.keyLength as int
     // TODO: seems like the below pre-condition should follow from the above
