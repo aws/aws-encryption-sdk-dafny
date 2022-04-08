@@ -9,11 +9,11 @@ using AWS.EncryptionSDK.Core;
 using Xunit;
 using static ExampleUtils.ExampleUtils;
 
-/// Demonstrates setting the Commitment Policy.
-/// The Commitment Policy is a security feature that, if set to its strictest
+/// Demonstrates setting the commitment policy.
+/// The commitment policy is a security feature that, if set to its strictest
 /// setting, ensures that messages are decrypted with the same data key
 /// used to encrypt them.
-/// Read more about Key Commitment and the Commitment Policy Here:
+/// Read more about Key Commitment and the commitment policy Here:
 /// https://docs.aws.amazon.com/encryption-sdk/latest/developer-guide/concepts.html#key-commitment
 public class CommitmentPolicyExample
 {
@@ -34,7 +34,7 @@ public class CommitmentPolicyExample
         // Instantiate the Material Providers
         var materialProviders =
             AwsCryptographicMaterialProvidersFactory.CreateDefaultAwsCryptographicMaterialProviders();
-        // Set the EncryptionSDK's Commitment Policy parameter
+        // Set the EncryptionSDK's commitment policy parameter
         var esdkConfig = new AwsEncryptionSdkConfig
         {
             CommitmentPolicy = CommitmentPolicy.FORBID_ENCRYPT_ALLOW_DECRYPT
@@ -112,7 +112,7 @@ public class CommitmentPolicyExample
         }
         Assert.True(failedDecryption);
 
-        // Demonstrate that the EncryptionSDK will not allow the Commitment Policy
+        // Demonstrate that the EncryptionSDK will not allow the commitment policy
         // and the Algorithm Suite to be in conflict.
         var failedEncrypt = false;
         // Now, the `encryptionSDK` is configured to Require Key Commitment
