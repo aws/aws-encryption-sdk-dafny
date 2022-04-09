@@ -46,7 +46,7 @@ We start with AWS KMS examples, then show how to use other wrapping keys.
 * How to reuse data keys across multiple messages
     * [with the caching cryptographic materials manager](./) *TODO*
 * How to restrict algorithm suites
-    * [with a custom cryptographic materials manager](./) *TODO*
+    * [with a custom cryptographic materials manager](./CryptographicMaterialsManager/RestrictAlgorithmSuite/SigningSuiteOnlyCMM.cs)
 * How to require encryption context fields
     * [with a custom cryptographic materials manager](./) *TODO*
 
