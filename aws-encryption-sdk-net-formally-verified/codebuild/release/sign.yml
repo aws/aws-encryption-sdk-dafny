@@ -1,0 +1,28 @@
+version: 0.2
+
+phases:
+  install:
+    runtime-versions:
+      dotnet: 5.0
+    commands:
+      - cd ..
+      # Get Dafny
+      - curl https://github.com/dafny-lang/dafny/releases/download/v3.5.0/dafny-3.5.0-x64-ubuntu-16.04.zip -L -o dafny.zip
+      - unzip -qq dafny.zip && rm dafny.zip
+      - export PATH="$PWD/dafny:$PATH"
+      # Switch back to the main directory
+      - cd aws-encryption-sdk-dafny/aws-encryption-sdk-net-formally-verified
+  build:
+    commands:
+      - dotnet build Source -p:Configuration=Release
+      - cd codebuild/release
+      # UNIQUE_ID should be passed in as an environment variable. It is used to tie
+      # the different parts of the asynchronous signing process together
+      - ./upload_assembly.sh netstandard2.1 $UNIQUE_ID
+      - ./upload_assembly.sh net452 $UNIQUE_ID
+  post_build:
+    commands:
+      # Retrieve the signed assembly. We're not going to use it, but this
+      # ensures that the signing process is complete
+      - ./retrieve_signed_assembly.sh netstandard2.1 $UNIQUE_ID
+      - ./retrieve_signed_assembly.sh net452 $UNIQUE_ID

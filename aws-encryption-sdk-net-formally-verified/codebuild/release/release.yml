@@ -1,0 +1,45 @@
+version: 0.2
+
+env:
+  variables:
+    AWS_ENCRYPTION_SDK_EXAMPLE_KMS_KEY_ID: >-
+      arn:aws:kms:us-west-2:658956600833:key/b3537ef1-d8dc-4780-9f5a-55776cbb2f7f
+    AWS_ENCRYPTION_SDK_EXAMPLE_KMS_KEY_ID_2: >-
+      arn:aws:kms:eu-central-1:658956600833:key/75414c93-5285-4b57-99c9-30c1cf0a22c2
+    AWS_ENCRYPTION_SDK_EXAMPLE_KMS_MRK_KEY_ID: >-
+      arn:aws:kms:us-east-1:658956600833:key/mrk-80bd8ecdcd4342aebd84b7dc9da498a7
+    AWS_ENCRYPTION_SDK_EXAMPLE_KMS_MRK_KEY_ID_2: >-
+      arn:aws:kms:eu-west-1:658956600833:key/mrk-80bd8ecdcd4342aebd84b7dc9da498a7
+
+phases:
+  install:
+    runtime-versions:
+      dotnet: 5.0
+    commands:
+      - cd ..
+      # Get Dafny
+      - curl https://github.com/dafny-lang/dafny/releases/download/v3.5.0/dafny-3.5.0-x64-ubuntu-16.04.zip -L -o dafny.zip
+      - unzip -qq dafny.zip && rm dafny.zip
+      - export PATH="$PWD/dafny:$PATH"
+      # Switch back to the main directory
+      - cd aws-encryption-sdk-dafny/aws-encryption-sdk-net-formally-verified
+  pre_build:
+      - dotnet build Source -p:Configuration=Release
+      # UNIQUE_ID should be passed in as an environment variable. It is used to tie
+      # the different parts of the asynchronous signing process together
+      - ./codebuild/release/retrieve_signed_assembly.sh netstandard2.1 $UNIQUE_ID
+      - ./codebuild/release/retrieve_signed_assembly.sh net452 $UNIQUE_ID
+  build:
+    commands:
+      - mkdir build
+      - >-
+        aws codeartifact login \
+            --region us-east-1 \
+            --tool dotnet \
+            --domain crypto-tools-internal \
+            --repository net-esdk-staging \
+            --domain-owner 587316601012
+      - export VERSION=`grep '<Version>' Source/AWSEncryptionSDK.csproj | sed 's/.*<Version>\(.*\)<\/Version>/\1/'`
+      - dotnet pack Source/AWSEncryptionSDK.csproj --no-build -p:Configuration=Release --output build
+      - dotnet nuget push build/AWSEncryptionSDK.$VERSION.nupkg --source crypto-tools-internal/net-esdk-staging
+
