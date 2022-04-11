@@ -33,7 +33,8 @@ module
       CommitmentDerivationAlgorithm,
       SignatureAlgorithm,
       AlgorithmSuiteInfo,
-      AlgorithmSuite
+      AlgorithmSuite,
+      SupportedAlgorithmSuiteIds
 
   datatype DerivationAlgorithm =
     | HKDF(
@@ -411,4 +412,22 @@ module
       assert GetSuite(id).encrypt.keyLength == suite.encrypt.keyLength;
     }
   }
+
+  const SupportedAlgorithmSuiteIds: set<Crypto.AlgorithmSuiteId> := {
+    Crypto.AlgorithmSuiteId.ALG_AES_128_GCM_IV12_TAG16_NO_KDF,
+    Crypto.AlgorithmSuiteId.ALG_AES_192_GCM_IV12_TAG16_NO_KDF,
+    Crypto.AlgorithmSuiteId.ALG_AES_256_GCM_IV12_TAG16_NO_KDF,
+    Crypto.AlgorithmSuiteId.ALG_AES_128_GCM_IV12_TAG16_HKDF_SHA256,
+    Crypto.AlgorithmSuiteId.ALG_AES_192_GCM_IV12_TAG16_HKDF_SHA256,
+    Crypto.AlgorithmSuiteId.ALG_AES_256_GCM_IV12_TAG16_HKDF_SHA256,
+    Crypto.AlgorithmSuiteId.ALG_AES_128_GCM_IV12_TAG16_HKDF_SHA256_ECDSA_P256,
+    Crypto.AlgorithmSuiteId.ALG_AES_192_GCM_IV12_TAG16_HKDF_SHA384_ECDSA_P384,
+    Crypto.AlgorithmSuiteId.ALG_AES_256_GCM_IV12_TAG16_HKDF_SHA384_ECDSA_P384,
+    Crypto.AlgorithmSuiteId.ALG_AES_256_GCM_HKDF_SHA512_COMMIT_KEY,
+    Crypto.AlgorithmSuiteId.ALG_AES_256_GCM_HKDF_SHA512_COMMIT_KEY_ECDSA_P384
+  };
+
+  lemma LemmaSupportedAlgorithmSuiteIdsIsComplete()
+    ensures SupportedAlgorithmSuiteIds == SupportedAlgorithmSuites.Keys
+  {}
 }

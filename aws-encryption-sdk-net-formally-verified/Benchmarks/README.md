@@ -15,13 +15,18 @@ Note the single quotes!
 
 ```bash
 $ # All benchmarks
-$ dotnet run -c Release -- -f '*'
+$ dotnet run -c Release -f netcoreapp3.1 -- -f '*'
 
 $ # Just encryption
-$ dotnet run -c Release -- -f '*Encrypt'
+$ dotnet run -c Release -f netcoreapp3.1 -- -f '*Encrypt'
 
-$ # Just decryption
-$ dotnet run -c Release -- -f '*Decrypt'
+$ # Just RawAesKeyring decryption
+$ dotnet run -c Release -f netcoreapp3.1 -- -f '*RawAes*Decrypt'
+
+$ # Just 1B and 1KB plaintexts, and just 4KB-byte frames
+$ BENCHMARK_PLAINTEXT_LENGTH_BYTES=1,1000 \
+    BENCHMARK_FRAME_LENGTH_BYTES=4096 \
+    dotnet run -c Release -f netcoreapp3.1 -- -f '*'
 ```
 
 The benchmarks will run, and dump output to both the console
@@ -30,7 +35,7 @@ and to the `BenchmarkDotNet.Artifacts` directory.
 ### List available benchmarks
 
 ```bash
-$ dotnet run -c Release -- --list flat
+$ dotnet run -c Release -f netcoreapp3.1 -- --list flat
 ```
 
 ## Troubleshooting

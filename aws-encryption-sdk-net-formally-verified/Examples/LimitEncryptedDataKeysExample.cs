@@ -4,17 +4,24 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
-using Amazon;
-using Amazon.KeyManagementService;
+using System.Linq;
 using AWS.EncryptionSDK;
 using AWS.EncryptionSDK.Core;
 using Xunit;
 using static ExampleUtils.ExampleUtils;
 
-/// Demonstrate an encrypt/decrypt cycle using an AWS MRK keyring.
-public class AwsKmsMrkKeyringExample
+/// Demonstrate limiting the number of Encrypted Data Keys [EDKs] allowed
+/// when encrypting or decrypting a message.
+/// Limiting encrypted data keys is most valuable when you are decrypting
+/// messages from an untrusted source.
+/// By default, the ESDK will allow up to 65,535 encrypted data keys.
+/// A malicious actor might construct an encrypted message with thousands of
+/// encrypted data keys, none of which can be decrypted.
+/// As a result, the AWS Encryption SDK would attempt to decrypt each
+/// encrypted data key until it exhausted the encrypted data keys in the message.
+public class LimitEncryptedDataKeysExample
 {
-    private static void Run(MemoryStream plaintext, string encryptKeyArn, string decryptKeyArn)
+    private static void Run(MemoryStream plaintext, int maxEncryptedDataKeys)
     {
         // Create your encryption context.
         // Remember that your encryption context is NOT SECRET.
@@ -28,24 +35,35 @@ public class AwsKmsMrkKeyringExample
             {"the data you are handling", "is what you think it is"}
         };
 
-        // Instantiate the Material Providers and the AWS Encryption SDK
+        // Instantiate the Material Providers
         var materialProviders =
             AwsCryptographicMaterialProvidersFactory.CreateDefaultAwsCryptographicMaterialProviders();
-        var encryptionSdk = AwsEncryptionSdkFactory.CreateDefaultAwsEncryptionSdk();
-
-        // Create a keyring that will encrypt your data, using a KMS MRK key in the first region.
-        var createEncryptKeyringInput = new CreateAwsKmsMrkKeyringInput
+        // Set the EncryptionSDK's MaxEncryptedDataKeys parameter
+        var esdkConfig = new AwsEncryptionSdkConfig
         {
-            KmsClient = new AmazonKeyManagementServiceClient(GetRegionEndpointFromArn(encryptKeyArn)),
-            KmsKeyId = encryptKeyArn
+            MaxEncryptedDataKeys = maxEncryptedDataKeys
         };
-        var encryptKeyring = materialProviders.CreateAwsKmsMrkKeyring(createEncryptKeyringInput);
+        // Instantiate the EncryptionSDK with the configuration
+        var encryptionSdk = AwsEncryptionSdkFactory.CreateAwsEncryptionSdk(esdkConfig);
+
+        // We will use a helper method to create a Multi Keyring with `maxEncryptedDataKeys` AES Keyrings
+        var keyrings = new Queue<IKeyring>();
+        for (long i = 1; i <= maxEncryptedDataKeys; i++)
+        {
+            keyrings.Enqueue(GetRawAESKeyring(materialProviders));
+        }
+        var createMultiKeyringInput = new CreateMultiKeyringInput
+        {
+            Generator = keyrings.Dequeue(),
+            ChildKeyrings = keyrings.ToList()
+        };
+        var multiKeyring = materialProviders.CreateMultiKeyring(createMultiKeyringInput);
 
         // Encrypt your plaintext data.
         var encryptInput = new EncryptInput
         {
             Plaintext = plaintext,
-            Keyring = encryptKeyring,
+            Keyring = multiKeyring,
             EncryptionContext = encryptionContext
         };
         var encryptOutput = encryptionSdk.Encrypt(encryptInput);
@@ -54,16 +72,6 @@ public class AwsKmsMrkKeyringExample
         // Demonstrate that the ciphertext and plaintext are different.
         Assert.NotEqual(ciphertext.ToArray(), plaintext.ToArray());
 
-        // Create a keyring that will decrypt your data, using the same KMS MRK key replicated to the second region.
-        // This example assumes you have already replicated your key; for more info on this, see the KMS documentation:
-        // https://docs.aws.amazon.com/kms/latest/developerguide/multi-region-keys-overview.html
-        var createDecryptKeyringInput = new CreateAwsKmsMrkKeyringInput
-        {
-            KmsClient = new AmazonKeyManagementServiceClient(GetRegionEndpointFromArn(decryptKeyArn)),
-            KmsKeyId = decryptKeyArn
-        };
-        var decryptKeyring = materialProviders.CreateAwsKmsMrkKeyring(createDecryptKeyringInput);
-
         // Decrypt your encrypted data using the same keyring you used on encrypt.
         //
         // You do not need to specify the encryption context on decrypt
@@ -71,7 +79,7 @@ public class AwsKmsMrkKeyringExample
         var decryptInput = new DecryptInput
         {
             Ciphertext = ciphertext,
-            Keyring = decryptKeyring
+            Keyring = multiKeyring
         };
         var decryptOutput = encryptionSdk.Decrypt(decryptInput);
 
@@ -92,16 +100,35 @@ public class AwsKmsMrkKeyringExample
         // Demonstrate that the decrypted plaintext is identical to the original plaintext.
         var decrypted = decryptOutput.Plaintext;
         Assert.Equal(decrypted.ToArray(), plaintext.ToArray());
+
+        // Demonstrate that an EncryptionSDK with a lower MaxEncryptedDataKeys
+        // will fail to decrypt the encrypted message.
+        var failedDecryption = false;
+        esdkConfig = new AwsEncryptionSdkConfig
+        {
+            MaxEncryptedDataKeys = maxEncryptedDataKeys - 1
+        };
+        // Instantiate the EncryptionSDK with the configuration
+        encryptionSdk = AwsEncryptionSdkFactory.CreateAwsEncryptionSdk(esdkConfig);
+
+        // Repeat the earlier decryption steps, proving that they fail
+        try
+        {
+            encryptionSdk.Decrypt(decryptInput);
+        }
+#pragma warning disable 168
+        catch (AwsEncryptionSdkException ignore)
+#pragma warning restore 168
+        {
+            failedDecryption = true;
+        }
+        Assert.True(failedDecryption);
     }
 
     // We test examples to ensure they remain up-to-date.
     [Fact]
-    public void TestAwsKmsMrkKeyringExample()
+    public void TestLimitEncryptedDataKeysExample()
     {
-        Run(
-            GetPlaintextStream(),
-            GetDefaultRegionMrkKeyArn(),
-            GetAlternateRegionMrkKeyArn()
-        );
+        Run(GetPlaintextStream(), 3);
     }
 }

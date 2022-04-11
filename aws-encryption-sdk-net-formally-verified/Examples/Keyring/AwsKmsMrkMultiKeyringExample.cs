@@ -12,12 +12,14 @@ using Xunit;
 using static ExampleUtils.ExampleUtils;
 
 /// Demonstrate an encrypt/decrypt cycle using a Multi-Keyring made up of multiple AWS KMS
-/// Keyrings.
-public class AwsKmsMultiKeyring
+/// MRK Keyrings.
+public class AwsKmsMrkMultiKeyringExample
 {
-    // For this example, `defaultRegionKeyArn` is the ARN for a KMS Key located in your default region,
-    // and `secondRegionKeyArn` is the ARN for a KMS Key located in some second Region.
-    private static void Run(MemoryStream plaintext, string defaultRegionKeyArn, string secondRegionKeyArn)
+    // For this example, `mrkKeyArn` is the ARN for a AWS KMS multi-Region key (MRK) located in your default region,
+    // and `kmsKeyArn` is the ARN for a KMS key, possibly located in a different Region than the MRK.
+    // Finally, `mrkReplicaKeyArn` is the ARN for a MRK that
+    // is a replica of the `mrkKeyArn` in a second region.
+    private static void Run(MemoryStream plaintext, string mrkKeyArn, string kmsKeyArn, string mrkReplicaKeyArn)
     {
         // Create your encryption context.
         // Remember that your encryption context is NOT SECRET.
@@ -36,14 +38,15 @@ public class AwsKmsMultiKeyring
             AwsCryptographicMaterialProvidersFactory.CreateDefaultAwsCryptographicMaterialProviders();
         var encryptionSdk = AwsEncryptionSdkFactory.CreateDefaultAwsEncryptionSdk();
 
-        // Create a AwsKmsMultiKeyring that protects your data under two different KMS Keys.
-        // Either KMS Key individually is capable of decrypting data encrypted under this KeyAwsKmsMultiKeyringring.
-        var createAwsKmsMultiKeyringInput = new CreateAwsKmsMultiKeyringInput
+        // Create an AwsKmsMrkMultiKeyring that protects your data under two different KMS Keys.
+        // The Keys can either be regular KMS keys or MRKs.
+        // Either KMS Key individually is capable of decrypting data encrypted under this keyring.
+        var createAwsKmsMultiKeyringInput = new CreateAwsKmsMrkMultiKeyringInput
         {
-            Generator = defaultRegionKeyArn,
-            KmsKeyIds = new List<string>() {secondRegionKeyArn}
+            Generator = mrkKeyArn,
+            KmsKeyIds = new List<string>() {kmsKeyArn}
         };
-        var kmsMultiKeyring = materialProviders.CreateAwsKmsMultiKeyring(createAwsKmsMultiKeyringInput);
+        var kmsMultiKeyring = materialProviders.CreateAwsKmsMrkMultiKeyring(createAwsKmsMultiKeyringInput);
 
         // Encrypt your plaintext data.
         var encryptInput = new EncryptInput
@@ -59,9 +62,9 @@ public class AwsKmsMultiKeyring
         // Demonstrate that the ciphertext and plaintext are different.
         Assert.NotEqual(ciphertext.ToArray(), plaintext.ToArray());
 
-        // Decrypt your encrypted data using the AwsKmsMultiKeyring.
+        // Decrypt your encrypted data using the AwsKmsMrkMultiKeyring.
         // It will decrypt the data using the generator KMS key since
-        // it is the first available KMS key on the AwsKmsMultiKeyring that
+        // it is the first available KMS key on the keyring that
         // is capable of decrypting the data.
         //
         // You do not need to specify the encryption context on decrypt
@@ -91,24 +94,26 @@ public class AwsKmsMultiKeyring
         var decrypted = decryptOutput.Plaintext;
         Assert.Equal(decrypted.ToArray(), plaintext.ToArray());
 
-        // Demonstrate that a single AwsKmsKeyring configured with either KMS key
-        // is also capable of decrypting the data.
+        // Demonstrate that a single AwsKmsMrkKeyring configured with a replica of a MRK from the
+        // multi-keyring used to encrypt the data is also capable of decrypting the data.
         //
-        // Create a single AwsKmsKeyring with the KMS key from our second region.
-        var createKeyringInput = new CreateAwsKmsKeyringInput
-        {
-            KmsClient = new AmazonKeyManagementServiceClient(GetRegionEndpointFromArn(secondRegionKeyArn)),
-            KmsKeyId = secondRegionKeyArn
-        };
-        var kmsKeyring = materialProviders.CreateAwsKmsKeyring(createKeyringInput);
+        // Not shown is that a KMS Keyring created with `kmsKeyArn` could also decrypt this message.
 
-        // Decrypt your encrypted data using the AwsKmsKeyring configured with the KMS Key from the second region.
-        var kmsKeyringDecryptInput = new DecryptInput
+        // Create a single AwsKmsMrkKeyring with the replica KMS MRK from the second region.
+        var createKeyringInput = new CreateAwsKmsMrkKeyringInput
+        {
+            KmsClient = new AmazonKeyManagementServiceClient(GetRegionEndpointFromArn(mrkReplicaKeyArn)),
+            KmsKeyId = mrkReplicaKeyArn
+        };
+        var mrkReplicaKeyring = materialProviders.CreateAwsKmsMrkKeyring(createKeyringInput);
+
+        // Decrypt your encrypted data using the keyring configured with the KMS MRK from the second region.
+        decryptInput = new DecryptInput
         {
             Ciphertext = ciphertext,
-            Keyring = kmsKeyring
+            Keyring = mrkReplicaKeyring
         };
-        var kmsKeyringDecryptOutput = encryptionSdk.Decrypt(kmsKeyringDecryptInput);
+        var mrkReplicaOutput = encryptionSdk.Decrypt(decryptInput);
 
         // Verify the Encryption Context on the output
         foreach (var expectedPair in encryptionContext)
@@ -121,18 +126,19 @@ public class AwsKmsMultiKeyring
         }
 
         // Demonstrate that the decrypted plaintext is identical to the original plaintext.
-        var kmsKeyringDecrypted = kmsKeyringDecryptOutput.Plaintext;
-        Assert.Equal(kmsKeyringDecrypted.ToArray(), plaintext.ToArray());
+        var mrkReplicaDecrypted = mrkReplicaOutput.Plaintext;
+        Assert.Equal(mrkReplicaDecrypted.ToArray(), plaintext.ToArray());
     }
 
     // We test examples to ensure they remain up-to-date.
     [Fact]
-    public void TestAwsKmsMultiKeyringExample()
+    public void TestAwsKmsMrkMultiKeyringExample()
     {
         Run(
             GetPlaintextStream(),
+            GetDefaultRegionMrkKeyArn(),
             GetDefaultRegionKmsKeyArn(),
-            GetAlternateRegionKmsKeyArn()
+            GetAlternateRegionMrkKeyArn()
         );
     }
 }

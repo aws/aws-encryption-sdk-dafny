@@ -87,6 +87,7 @@ module  AwsKmsMrkAreUnique {
       && |mrks| > 0
       && !Seq.HasNoDuplicates(ids)
     ==>
+      // TODO this only checks for failure, but not the error message
       AwsKmsMrkAreUnique(identifiers).Fail?
   {
     var mrks := Seq.Filter(IsMultiRegionAwsKmsIdentifier, identifiers);

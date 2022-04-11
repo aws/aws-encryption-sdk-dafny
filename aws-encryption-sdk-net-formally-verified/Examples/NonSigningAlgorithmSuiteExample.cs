@@ -4,17 +4,18 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
-using Amazon;
-using Amazon.KeyManagementService;
 using AWS.EncryptionSDK;
 using AWS.EncryptionSDK.Core;
+using Org.BouncyCastle.Security; // In this example, we use BouncyCastle to generate a wrapping key.
 using Xunit;
-using static ExampleUtils.ExampleUtils;
 
-/// Demonstrate an encrypt/decrypt cycle using an AWS MRK keyring.
-public class AwsKmsMrkKeyringExample
+/// Demonstrate an encrypt/decrypt cycle using a raw AES keyring and a non-signing Algorithm Suite.
+/// This also demonstrates how to customize the Algorithm Suite used to encrypt the plaintext.
+/// For a full list of the Algorithm Suites the Encryption SDK supports,
+/// see https://docs.aws.amazon.com/encryption-sdk/latest/developer-guide/algorithms-reference.html
+public class NonSigningAlgorithmSuiteExample
 {
-    private static void Run(MemoryStream plaintext, string encryptKeyArn, string decryptKeyArn)
+    private static void Run(MemoryStream plaintext)
     {
         // Create your encryption context.
         // Remember that your encryption context is NOT SECRET.
@@ -28,41 +29,57 @@ public class AwsKmsMrkKeyringExample
             {"the data you are handling", "is what you think it is"}
         };
 
+        // Generate a 256-bit AES key to use with your keyring.
+        // Here we use BouncyCastle, but you don't have to.
+        //
+        // In practice, you should get this key from a secure key management system such as an HSM.
+        var key = new MemoryStream(GeneratorUtilities.GetKeyGenerator("AES256").GenerateKey());
+
+        // The key namespace and key name are defined by you
+        // and are used by the raw AES keyring to determine
+        // whether it should attempt to decrypt an encrypted data key.
+        //
+        // https://docs.aws.amazon.com/encryption-sdk/latest/developer-guide/choose-keyring.html#use-raw-aes-keyring
+        var keyNamespace = "Some managed raw keys";
+        var keyName = "My 256-bit AES wrapping key";
+
         // Instantiate the Material Providers and the AWS Encryption SDK
         var materialProviders =
             AwsCryptographicMaterialProvidersFactory.CreateDefaultAwsCryptographicMaterialProviders();
         var encryptionSdk = AwsEncryptionSdkFactory.CreateDefaultAwsEncryptionSdk();
 
-        // Create a keyring that will encrypt your data, using a KMS MRK key in the first region.
-        var createEncryptKeyringInput = new CreateAwsKmsMrkKeyringInput
+        // Create the keyring that determines how your data keys are protected.
+        var createKeyringInput = new CreateRawAesKeyringInput
         {
-            KmsClient = new AmazonKeyManagementServiceClient(GetRegionEndpointFromArn(encryptKeyArn)),
-            KmsKeyId = encryptKeyArn
+            KeyNamespace = keyNamespace,
+            KeyName = keyName,
+            WrappingKey = key,
+            // This is the algorithm that will encrypt the Data Key.
+            // It is different from the Algorithm Suite.
+            WrappingAlg = AesWrappingAlg.ALG_AES256_GCM_IV12_TAG16
         };
-        var encryptKeyring = materialProviders.CreateAwsKmsMrkKeyring(createEncryptKeyringInput);
+        var keyring = materialProviders.CreateRawAesKeyring(createKeyringInput);
 
         // Encrypt your plaintext data.
         var encryptInput = new EncryptInput
         {
             Plaintext = plaintext,
-            Keyring = encryptKeyring,
-            EncryptionContext = encryptionContext
+            Keyring = keyring,
+            EncryptionContext = encryptionContext,
+            // Here, we customize the Algorithm Suite that is used to Encrypt the plaintext.
+            // In particular, we use an Algorithm Suite without Signing.
+            // Signature verification adds a significant performance cost on decryption.
+            // If the users encrypting data and the users decrypting data are equally trusted,
+            // consider using an algorithm suite that does not include signing.
+            // See more about Digital Signatures:
+            // https://docs.aws.amazon.com/encryption-sdk/latest/developer-guide/concepts.html#digital-sigs
+            AlgorithmSuiteId = AlgorithmSuiteId.ALG_AES_256_GCM_HKDF_SHA512_COMMIT_KEY
         };
         var encryptOutput = encryptionSdk.Encrypt(encryptInput);
         var ciphertext = encryptOutput.Ciphertext;
 
         // Demonstrate that the ciphertext and plaintext are different.
         Assert.NotEqual(ciphertext.ToArray(), plaintext.ToArray());
-
-        // Create a keyring that will decrypt your data, using the same KMS MRK key replicated to the second region.
-        // This example assumes you have already replicated your key; for more info on this, see the KMS documentation:
-        // https://docs.aws.amazon.com/kms/latest/developerguide/multi-region-keys-overview.html
-        var createDecryptKeyringInput = new CreateAwsKmsMrkKeyringInput
-        {
-            KmsClient = new AmazonKeyManagementServiceClient(GetRegionEndpointFromArn(decryptKeyArn)),
-            KmsKeyId = decryptKeyArn
-        };
-        var decryptKeyring = materialProviders.CreateAwsKmsMrkKeyring(createDecryptKeyringInput);
 
         // Decrypt your encrypted data using the same keyring you used on encrypt.
         //
@@ -71,7 +88,7 @@ public class AwsKmsMrkKeyringExample
         var decryptInput = new DecryptInput
         {
             Ciphertext = ciphertext,
-            Keyring = decryptKeyring
+            Keyring = keyring
         };
         var decryptOutput = encryptionSdk.Decrypt(decryptInput);
 
@@ -96,12 +113,8 @@ public class AwsKmsMrkKeyringExample
 
     // We test examples to ensure they remain up-to-date.
     [Fact]
-    public void TestAwsKmsMrkKeyringExample()
+    public void TestNonSigningAlgorithmSuiteExample()
     {
-        Run(
-            GetPlaintextStream(),
-            GetDefaultRegionMrkKeyArn(),
-            GetAlternateRegionMrkKeyArn()
-        );
+        Run(ExampleUtils.ExampleUtils.GetPlaintextStream());
     }
 }

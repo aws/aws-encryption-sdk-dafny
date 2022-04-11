@@ -11,6 +11,7 @@ using AWS.EncryptionSDK.Core;
 using Org.BouncyCastle.Security;
 using Org.BouncyCastle.Utilities; // In this example, we use BouncyCastle to generate a wrapping key.
 using Xunit;
+using static ExampleUtils.ExampleUtils;
 
 /// Demonstrate an encrypt/decrypt cycle using a Multi keyring consisting of an AWS KMS Keyring and
 /// a raw AES keyring.
@@ -131,38 +132,8 @@ public class MultiKeyringExample
     public void TestMultiKeyringExample()
     {
         Run(
-            ExampleUtils.ExampleUtils.GetPlaintextStream(),
-            ExampleUtils.ExampleUtils.GetDefaultRegionKmsKeyArn()
+            GetPlaintextStream(),
+            GetDefaultRegionKmsKeyArn()
         );
-    }
-
-    // Helper method to create RawAESKeyring for above example.
-    private static IKeyring GetRawAESKeyring(IAwsCryptographicMaterialProviders materialProviders)
-    {
-        // Generate a 256-bit AES key to use with your keyring.
-        // Here we use BouncyCastle, but you don't have to.
-        //
-        // In practice, you should get this key from a secure key management system such as an HSM.
-        var key = new MemoryStream(GeneratorUtilities.GetKeyGenerator("AES256").GenerateKey());
-
-        // The key namespace and key name are defined by you
-        // and are used by the raw AES keyring to determine
-        // whether it should attempt to decrypt an encrypted data key.
-        //
-        // https://docs.aws.amazon.com/encryption-sdk/latest/developer-guide/choose-keyring.html#use-raw-aes-keyring
-        var keyNamespace = "Some managed raw keys";
-        var keyName = "My 256-bit AES wrapping key";
-
-        // Create the keyring that determines how your data keys are protected.
-        var createAesKeyringInput = new CreateRawAesKeyringInput
-        {
-            KeyNamespace = keyNamespace,
-            KeyName = keyName,
-            WrappingKey = key,
-            WrappingAlg = AesWrappingAlg.ALG_AES256_GCM_IV12_TAG16
-        };
-        var aesKeyring = materialProviders.CreateRawAesKeyring(createAesKeyringInput);
-
-        return aesKeyring;
     }
 }
