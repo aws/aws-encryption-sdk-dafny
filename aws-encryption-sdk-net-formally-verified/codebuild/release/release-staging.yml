@@ -26,8 +26,8 @@ phases:
       - cd aws-encryption-sdk-dafny/aws-encryption-sdk-net-formally-verified
   pre_build:
       - dotnet build Source -p:Configuration=Release
-      # UNIQUE_ID should be passed in as an environment variable. It is used to tie
-      # the different parts of the asynchronous signing process together
+      # This step assumes signing has already happened and we just need to retrieve 
+      # the signed artifacts
       - python codebuild/release/retrieve_signed_assembly.sh netstandard2.1 $UNIQUE_ID
       - python codebuild/release/retrieve_signed_assembly.sh net452 $UNIQUE_ID
   build:
