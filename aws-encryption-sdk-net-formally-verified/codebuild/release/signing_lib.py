@@ -71,6 +71,7 @@ def upload_assembly(target_framework, unique_id, s3=None):
     """
     Uploads an unsigned assembly to the unsigned object bucket.
     """
+    print(f"Uploading assembly with params: {target_framework}, {unique_id}"
     if not s3:
         s3 = get_s3_client()
 
@@ -97,6 +98,7 @@ def get_job_id(target_framework, unique_id, s3=None):
     This job id is added as a tag to the original uploaded S3 object, so
     we query the tags for the appropriate key.
     """
+    print(f"Getting job id with params: {target_framework}, {unique_id}"
     if not s3:
         s3 = get_s3_client()
 
@@ -122,6 +124,7 @@ def retrieve_signed_assembly(target_framework, unique_id, s3=None):
     """
     Retrieves a signed assembly from the signed bucket
     """
+    print(f"Retrieving signed assembly with params: {target_framework}, {unique_id}"
     if not s3:
         s3 = get_s3_client()
 
@@ -152,6 +155,4 @@ def retrieve_signed_assembly(target_framework, unique_id, s3=None):
             retry_count += 1
 
     raise Exception(f"Could not retrieve signed object after {retry_count} attempts, stopping")
-
-
 
