@@ -4,6 +4,7 @@ phases:
   install:
     runtime-versions:
       dotnet: 5.0
+      python: 3.x
     commands:
       - cd ..
       # Get Dafny
@@ -18,11 +19,11 @@ phases:
       - cd codebuild/release
       # UNIQUE_ID should be passed in as an environment variable. It is used to tie
       # the different parts of the asynchronous signing process together
-      - ./upload_assembly.sh netstandard2.1 $UNIQUE_ID
-      - ./upload_assembly.sh net452 $UNIQUE_ID
+      - python upload_assembly.py netstandard2.1 $UNIQUE_ID
+      - python upload_assembly.py net452 $UNIQUE_ID
   post_build:
     commands:
       # Retrieve the signed assembly. We're not going to use it, but this
       # ensures that the signing process is complete
-      - ./retrieve_signed_assembly.sh netstandard2.1 $UNIQUE_ID
-      - ./retrieve_signed_assembly.sh net452 $UNIQUE_ID
+      - python retrieve_signed_assembly.py netstandard2.1 $UNIQUE_ID
+      - python retrieve_signed_assembly.py net452 $UNIQUE_ID

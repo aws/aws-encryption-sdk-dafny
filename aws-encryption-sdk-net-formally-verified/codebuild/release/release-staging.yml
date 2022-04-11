@@ -15,6 +15,7 @@ phases:
   install:
     runtime-versions:
       dotnet: 5.0
+      python: 3.x
     commands:
       - cd ..
       # Get Dafny
@@ -27,8 +28,8 @@ phases:
       - dotnet build Source -p:Configuration=Release
       # UNIQUE_ID should be passed in as an environment variable. It is used to tie
       # the different parts of the asynchronous signing process together
-      - ./codebuild/release/retrieve_signed_assembly.sh netstandard2.1 $UNIQUE_ID
-      - ./codebuild/release/retrieve_signed_assembly.sh net452 $UNIQUE_ID
+      - python codebuild/release/retrieve_signed_assembly.sh netstandard2.1 $UNIQUE_ID
+      - python codebuild/release/retrieve_signed_assembly.sh net452 $UNIQUE_ID
   build:
     commands:
       - mkdir build
@@ -42,4 +43,8 @@ phases:
       - export VERSION=`grep '<Version>' Source/AWSEncryptionSDK.csproj | sed 's/.*<Version>\(.*\)<\/Version>/\1/'`
       - dotnet pack Source/AWSEncryptionSDK.csproj --no-build -p:Configuration=Release --output build
       - dotnet nuget push build/AWSEncryptionSDK.$VERSION.nupkg --source crypto-tools-internal/net-esdk-staging
+      # Now validate we can run examples
+      - sed -i '/Source\/AWSEncryptionSDK.csproj/d' Examples/AWSEncryptionSDKExamples.csproj
+      - dotnet add Examples/AWSEncryptionSDKExamples.csproj package AWS.EncryptionSDK --version $VERSION
+      - dotnet test Examples
 
