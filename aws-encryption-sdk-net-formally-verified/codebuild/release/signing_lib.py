@@ -102,7 +102,6 @@ def get_job_id(target_framework, unique_id, s3=None):
 
     key = os.path.join(KEY_PREFIX, target_framework, f"{unique_id}-{ASSEMBLY_NAME}")
 
-    job_id = ''
     retry_count = 0
     while retry_count < 3:
         try:
@@ -113,7 +112,7 @@ def get_job_id(target_framework, unique_id, s3=None):
             return next(item for item in tags if item['Key'] == 'signer-job-id')['Value']
         except Exception:
             print("Job id tag not found, retrying")
-            time.sleep(3)
+            time.sleep(10)
             retry_count += 1
 
     raise Exception("Could not find signer job id after {retry_count} attempts, stopping")
@@ -149,7 +148,7 @@ def retrieve_signed_assembly(target_framework, unique_id, s3=None):
             return
         except Exception as e:
             print(f"Failed to retrieve signed object due to exception: {e}")
-            time.sleep(3)
+            time.sleep(10)
             retry_count += 1
 
     raise Exception(f"Could not retrieve signed object after {retry_count} attempts, stopping")
