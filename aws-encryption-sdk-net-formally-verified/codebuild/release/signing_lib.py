@@ -56,6 +56,10 @@ def assume_artifact_access_role():
     return creds
 
 def get_s3_client(creds=None):
+    """
+    Returns an S3 client, using the given creds if provided, other using
+    the IAM role that allows access to our signing artifacts.
+    """
     if not creds:
         creds = assume_artifact_access_role()
 
