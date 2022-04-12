@@ -26,11 +26,11 @@ phases:
       - cd aws-encryption-sdk-dafny/aws-encryption-sdk-net-formally-verified
   pre_build:
     commands:
-      - set -u
       # UNIQUE_ID should be passed in as an environment variable. It is used to tie
       # the different parts of the asynchronous signing process together
       # Use 'set -u' to make ourselves fail if it is not set
-      - echo "Using unique id for flow: $UNIQUE_ID"
+      - set -u
+      - echo "Using unique id for flow $UNIQUE_ID"
       # Build unsigned source
       - dotnet build Source -p:Configuration=Release
       # This step assumes signing has already happened and we just need to retrieve 
