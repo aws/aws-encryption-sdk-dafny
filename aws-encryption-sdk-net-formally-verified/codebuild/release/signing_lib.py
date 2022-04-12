@@ -119,10 +119,11 @@ def get_job_id(target_framework, unique_id, s3=None):
             return next(item for item in tags if item['Key'] == 'signer-job-id')['Value']
         except Exception:
             print("Job id tag not found, retrying")
+            print(e)
             time.sleep(10)
             retry_count += 1
 
-    raise Exception("Could not find signer job id after {retry_count} attempts, stopping")
+    raise Exception(f"Could not find signer job id after {retry_count} attempts, stopping")
 
 
 def retrieve_signed_assembly(target_framework, unique_id, s3=None):
