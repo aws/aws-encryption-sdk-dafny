@@ -30,10 +30,10 @@ and how to create some of your own.
 We start with AWS KMS examples, then show how to use other wrapping keys.
 
 * Using AWS Key Management Service (AWS KMS)
-    * [How to use one AWS KMS Key](./Keyring/AwsKmsKeyringExample.cs)
-    * [How to use multiple AWS KMS CMKs in different regions](./Keyring/AwsKmsMrkDiscoveryMultiKeyringExample.cs)
-    * [How to decrypt when you don't know the CMK](./Keyring/AwsKmsDiscoveryKeyringExample.cs)
-    * [How to decrypt within a region](./Keyring/AwsKmsMrkDiscoveryKeyringExample.cs)
+    * [How to use one AWS KMS key](./Keyring/AwsKmsKeyringExample.cs)
+    * [How to use multiple AWS KMS keys in different regions](./Keyring/AwsKmsMrkDiscoveryMultiKeyringExample.cs)
+    * [How to decrypt when you don't know the AWS KMS key](./Keyring/AwsKmsDiscoveryKeyringExample.cs)
+    * [How to limit decryption to a single region](./Keyring/AwsKmsMrkDiscoveryKeyringExample.cs)
     * [How to decrypt with a preferred region but failover to others](./Keyring/AwsKmsMrkDiscoveryMultiKeyringExample.cs)
     * [How to reproduce the behavior of an AWS KMS master key provider](./) *TODO*
 * Using raw wrapping keys
