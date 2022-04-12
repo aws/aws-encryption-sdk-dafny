@@ -21,8 +21,6 @@ phases:
       # the different parts of the asynchronous signing process together
       - python upload_assembly.py --target netstandard2.1 --unique-id $UNIQUE_ID
       - python upload_assembly.py --target net452 --unique-id $UNIQUE_ID
-  post_build:
-    commands:
       # Retrieve the signed assembly. We're not going to use it, but this
       # ensures that the signing process is complete
       - python retrieve_signed_assembly.py --target netstandard2.1 --unique-id $UNIQUE_ID
