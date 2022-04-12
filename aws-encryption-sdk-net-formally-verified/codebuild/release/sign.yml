@@ -19,11 +19,11 @@ phases:
       - cd codebuild/release
       # UNIQUE_ID should be passed in as an environment variable. It is used to tie
       # the different parts of the asynchronous signing process together
-      - python upload_assembly.py netstandard2.1 $UNIQUE_ID
-      - python upload_assembly.py net452 $UNIQUE_ID
+      - python upload_assembly.py --target netstandard2.1 --unique_id $UNIQUE_ID
+      - python upload_assembly.py --target net452 --unique_id $UNIQUE_ID
   post_build:
     commands:
       # Retrieve the signed assembly. We're not going to use it, but this
       # ensures that the signing process is complete
-      - python retrieve_signed_assembly.py netstandard2.1 $UNIQUE_ID
-      - python retrieve_signed_assembly.py net452 $UNIQUE_ID
+      - python retrieve_signed_assembly.py --target netstandard2.1 --unique_id $UNIQUE_ID
+      - python retrieve_signed_assembly.py --target net452 --unique_id $UNIQUE_ID
