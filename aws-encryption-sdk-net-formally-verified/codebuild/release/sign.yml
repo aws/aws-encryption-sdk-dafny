@@ -13,15 +13,19 @@ phases:
       - export PATH="$PWD/dafny:$PATH"
       # Switch back to the main directory
       - cd aws-encryption-sdk-dafny/aws-encryption-sdk-net-formally-verified
+  pre_build:
+      # UNIQUE_ID should be passed in as an environment variable. It is used to tie
+      # the different parts of the asynchronous signing process together
+      # Use 'set -u' to make ourselves fail if it is not set
+      - set -u
+      - echo "Using unique id for flow: $UNIQUE_ID"
   build:
     commands:
       - dotnet build Source -p:Configuration=Release
       - export BASE=codebuild/release
-      # UNIQUE_ID should be passed in as an environment variable. It is used to tie
-      # the different parts of the asynchronous signing process together
-      - python $BASE/upload_assembly.py --target netstandard2.1 --unique-id $CODEBUILD_BUILD_ID
-      - python $BASE/upload_assembly.py --target net452 --unique-id $CODEBUILD_BUILD_ID
+      - python $BASE/upload_assembly.py --target netstandard2.1 --unique-id $UNIQUE_ID
+      - python $BASE/upload_assembly.py --target net452 --unique-id $UNIQUE_ID
       # Retrieve the signed assembly. We're not going to use it, but this
       # ensures that the signing process is complete
-      - python $BASE/retrieve_signed_assembly.py --target netstandard2.1 --unique-id $CODEBUILD_BUILD_ID
-      - python $BASE/retrieve_signed_assembly.py --target net452 --unique-id $CODEBUILD_BUILD_ID
+      - python $BASE/retrieve_signed_assembly.py --target netstandard2.1 --unique-id $UNIQUE_ID
+      - python $BASE/retrieve_signed_assembly.py --target net452 --unique-id $UNIQUE_ID

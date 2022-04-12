@@ -7,11 +7,11 @@ batch:
       buildspec: aws-encryption-sdk-net-formally-verified/codebuild/release/sign.yml
       env:
         variables:
-          UNIQUE_ID: $CODEBUILD_BUILD_ID
+          UNIQUE_ID: $UNIQUE_ID
     - identifier: release_staging 
       buildspec: aws-encryption-sdk-net-formally-verified/codebuild/release/release-staging.yml
       env:
         variables:
-          UNIQUE_ID: $CODEBUILD_BUILD_ID
+          UNIQUE_ID: $UNIQUE_ID
       depend-on:
         - sign
