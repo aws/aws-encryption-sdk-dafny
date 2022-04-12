@@ -117,9 +117,8 @@ def get_job_id(target_framework, unique_id, s3=None):
                 Key=key,
             )['TagSet']
             return next(item for item in tags if item['Key'] == 'signer-job-id')['Value']
-        except Exception:
-            print("Job id tag not found, retrying")
-            print(e)
+        except Exception as e:
+            print(f"Failed to get job id due to exception: {e}")
             time.sleep(10)
             retry_count += 1
 
