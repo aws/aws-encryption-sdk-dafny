@@ -75,10 +75,9 @@ public class AwsKmsDiscoveryKeyringExample
         // was encrypted by a KMS Keyring, includes the KMS Key ARN.
         // The Discovery Keyring filters these EDKs for
         // EDKs encrypted by Single Region OR Multi Region KMS Keys.
-        // These KMS Keys must belong to an AWS Account ID in the discovery filter's
-        // AccountIds and must be from the discovery filter's partition.
-        // (The discovery filter is optional. If it is not present, these conditions
-        // are not enforced).
+        // If a Discovery Filter is present, these KMS Keys must belong
+        // to an AWS Account ID in the discovery filter's AccountIds and 
+        // must be from the discovery filter's partition.
         // Finally, KMS is called to decrypt each filtered EDK until an EDK is
         // successfully decrypted. The resulting data key is used to decrypt the
         // ciphertext's message.
