@@ -107,6 +107,7 @@ def get_job_id(target_framework, unique_id, s3=None):
         s3 = get_s3_client()
 
     key = os.path.join(KEY_PREFIX, target_framework, f"{unique_id}-{ASSEMBLY_NAME}")
+    print(f"Searching for key {key}")
 
     retry_count = 0
     while retry_count < 3:
