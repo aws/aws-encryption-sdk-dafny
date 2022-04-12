@@ -28,8 +28,8 @@ phases:
       - dotnet build Source -p:Configuration=Release
       # This step assumes signing has already happened and we just need to retrieve 
       # the signed artifacts
-      - python codebuild/release/retrieve_signed_assembly.sh netstandard2.1 $UNIQUE_ID
-      - python codebuild/release/retrieve_signed_assembly.sh net452 $UNIQUE_ID
+      - python codebuild/release/retrieve_signed_assembly.sh --target netstandard2.1 --uniqu-id $UNIQUE_ID
+      - python codebuild/release/retrieve_signed_assembly.sh --target net452 --unique-id $UNIQUE_ID
   build:
     commands:
       - mkdir build
