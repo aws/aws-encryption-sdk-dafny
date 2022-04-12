@@ -11,7 +11,7 @@ using AWS.EncryptionSDK.Core;
 using Xunit;
 using static ExampleUtils.ExampleUtils;
 
-/// Demonstrate decrypt using an AWS KMS MRK discovery keyring.
+/// Demonstrate decryption using an AWS KMS MRK discovery keyring.
 public class AwsKmsMrkDiscoveryKeyringExample
 {
     private static void Run(MemoryStream plaintext, string encryptKeyArn, RegionEndpoint decryptRegion)
@@ -69,7 +69,7 @@ public class AwsKmsMrkDiscoveryKeyringExample
 
         // On Decrypt, the header of the encrypted message (ciphertext) will be parsed.
         // The header contains the Encrypted Data Keys (EDKs), which, if the EDK
-        // was encrypted by a KMS Keyring, includes the KMS Key arn.
+        // was encrypted by a KMS Keyring, includes the KMS Key ARN.
         // The MRK Discovery Keyring filters these EDKs for:
         // - EDKs encrypted by Single Region KMS Keys in the keyring's region
         // OR

@@ -10,7 +10,7 @@ using AWS.EncryptionSDK.Core;
 using Xunit;
 using static ExampleUtils.ExampleUtils;
 
-/// Demonstrate decrypt using a Multi-Keyring containing multiple AWS KMS
+/// Demonstrate decryption using a Multi-Keyring containing multiple AWS KMS
 /// Discovery Keyrings.
 public class AwsKmsDiscoveryMultiKeyringExample
 {
@@ -78,7 +78,7 @@ public class AwsKmsDiscoveryMultiKeyringExample
 
         // On Decrypt, the header of the encrypted message (ciphertext) will be parsed.
         // The header contains the Encrypted Data Keys (EDKs), which, if the EDK
-        // was encrypted by a KMS Keyring, includes the KMS Key arn.
+        // was encrypted by a KMS Keyring, includes the KMS Key ARN.
         // For each member of the Multi Keyring, every EDK will try to be decrypted until a decryption is successful.
         // Since every member of the Multi Keyring is a Discovery Keyring:
         //   Each Keyring will filter the EDKs by the Discovery Filter
