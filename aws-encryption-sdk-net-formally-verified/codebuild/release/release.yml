@@ -4,14 +4,14 @@ batch:
   fast-fail: true
   build-graph:
     - identifier: sign
-      buildspec: sign.yml
+      buildspec: aws-encryption-sdk-dafny/codebuild/release/sign.yml
       env:
         variables:
           UNIQUE_ID: $CODEBUILD_BUILD_ID
     - identifier: release_staging 
-      buildspec: release-staging.yml
+      buildspec: aws-encryption-sdk-dafny/codebuild/release/release-staging.yml
       env:
         variables:
           UNIQUE_ID: $CODEBUILD_BUILD_ID
-      depends-on:
+      depend-on:
         - sign
