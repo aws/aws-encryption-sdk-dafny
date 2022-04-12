@@ -11,6 +11,13 @@ phases:
       - curl https://github.com/dafny-lang/dafny/releases/download/v3.5.0/dafny-3.5.0-x64-ubuntu-16.04.zip -L -o dafny.zip
       - unzip -qq dafny.zip && rm dafny.zip
       - export PATH="$PWD/dafny:$PATH"
+      # testing
+      - cd aws-encryption-sdk-dafny/libraries
+      - find .
+      - cd ../src
+      - find .
+      - cd ../..
+      # end testing
       # Switch back to the main directory
       - cd aws-encryption-sdk-dafny/aws-encryption-sdk-net-formally-verified
   build:
