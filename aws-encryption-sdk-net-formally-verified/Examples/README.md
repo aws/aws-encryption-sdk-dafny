@@ -70,6 +70,15 @@ or changing how you interact with keyrings.
 You can find these examples in
 [`examples/dotnet/CryptoMaterialsManager`](./CryptoMaterialsManager).
 
+### Client Supplier
+
+Client Suppliers facilitate AWS Multi Keyrings. If you are using KMS Keys from 
+multiple regions, and are following best practices that limit the access to KMS
+keys to only certain IAM Roles, implementing a Custom Client Supplier that retrieves
+the correct credentials for a region is a must.
+We have implemented an example of this in
+[`examples/ClientSupplier/CustomClientSupplier.cs`](./ClientSupplier/CustomClientSupplier.cs).
+
 # Writing Examples
 
 If you want to contribute a new example, that's awesome!
