@@ -15,7 +15,7 @@ phases:
       - cd aws-encryption-sdk-dafny/aws-encryption-sdk-net-formally-verified
   build:
     commands:
-      - dotnet build Source -p:Configuration=Release
+      - dotnet build Source #-p:Configuration=Release
       - cd codebuild/release
       # UNIQUE_ID should be passed in as an environment variable. It is used to tie
       # the different parts of the asynchronous signing process together
