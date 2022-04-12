@@ -16,12 +16,12 @@ phases:
   build:
     commands:
       - dotnet build Source -p:Configuration=Release
-      - cd codebuild/release
+      - export BASE=codebuild/release
       # UNIQUE_ID should be passed in as an environment variable. It is used to tie
       # the different parts of the asynchronous signing process together
-      - python upload_assembly.py --target netstandard2.1 --unique-id $UNIQUE_ID
-      - python upload_assembly.py --target net452 --unique-id $UNIQUE_ID
+      - python $BASE/upload_assembly.py --target netstandard2.1 --unique-id $UNIQUE_ID
+      - python $BASE/upload_assembly.py --target net452 --unique-id $UNIQUE_ID
       # Retrieve the signed assembly. We're not going to use it, but this
       # ensures that the signing process is complete
-      - python retrieve_signed_assembly.py --target netstandard2.1 --unique-id $UNIQUE_ID
-      - python retrieve_signed_assembly.py --target net452 --unique-id $UNIQUE_ID
+      - python $BASE/retrieve_signed_assembly.py --target netstandard2.1 --unique-id $UNIQUE_ID
+      - python $BASE/retrieve_signed_assembly.py --target net452 --unique-id $UNIQUE_ID
