@@ -12,4 +12,4 @@ batch:
     - identifier: release_prod
       buildspec: aws-encryption-sdk-net-formally-verified/codebuild/release/release-prod.yml
       depend-on:
-        - release-staging
+        - release_staging
