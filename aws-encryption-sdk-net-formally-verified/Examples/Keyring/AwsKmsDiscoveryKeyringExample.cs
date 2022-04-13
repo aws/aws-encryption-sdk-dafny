@@ -9,8 +9,9 @@ using Amazon.KeyManagementService;
 using AWS.EncryptionSDK;
 using AWS.EncryptionSDK.Core;
 using Xunit;
+using static ExampleUtils.ExampleUtils;
 
-/// Demonstrate an encrypt/decrypt cycle using an AWS KMS discovery keyring.
+/// Demonstrate decryption using an AWS KMS discovery keyring.
 public class AwsKmsDiscoveryKeyringExample
 {
     private static void Run(MemoryStream plaintext, string keyArn)
@@ -56,19 +57,31 @@ public class AwsKmsDiscoveryKeyringExample
         Assert.NotEqual(ciphertext.ToArray(), plaintext.ToArray());
 
         // Now create a Discovery keyring to use for decryption. We'll add a discovery filter so that we limit
-        // the set of ciphertexts we are willing to decrypt to only ones created by KMS keys in our region and
+        // the set of ciphertexts we are willing to decrypt to only ones created by KMS keys in our account and
         // partition.
         var createDecryptKeyringInput = new CreateAwsKmsDiscoveryKeyringInput
         {
             KmsClient = new AmazonKeyManagementServiceClient(),
             DiscoveryFilter = new DiscoveryFilter()
             {
-                AccountIds = ExampleUtils.ExampleUtils.GetAccountIds(),
+                AccountIds = GetAccountIds(),
                 Partition = "aws"
             }
         };
         var decryptKeyring = materialProviders.CreateAwsKmsDiscoveryKeyring(createDecryptKeyringInput);
 
+        // On Decrypt, the header of the encrypted message (ciphertext) will be parsed.
+        // The header contains the Encrypted Data Keys (EDKs), which, if the EDK
+        // was encrypted by a KMS Keyring, includes the KMS Key ARN.
+        // The Discovery Keyring filters these EDKs for
+        // EDKs encrypted by Single Region OR Multi Region KMS Keys.
+        // If a Discovery Filter is present, these KMS Keys must belong
+        // to an AWS Account ID in the discovery filter's AccountIds and 
+        // must be from the discovery filter's partition.
+        // Finally, KMS is called to decrypt each filtered EDK until an EDK is
+        // successfully decrypted. The resulting data key is used to decrypt the
+        // ciphertext's message.
+        // If all calls to KMS fail, the decryption fails.
         var decryptInput = new DecryptInput
         {
             Ciphertext = ciphertext,
@@ -99,6 +112,6 @@ public class AwsKmsDiscoveryKeyringExample
     [Fact]
     public void TestAwsKmsDiscoveryKeyringExample()
     {
-        Run(ExampleUtils.ExampleUtils.GetPlaintextStream(), ExampleUtils.ExampleUtils.GetDefaultRegionKmsKeyArn());
+        Run(GetPlaintextStream(), GetDefaultRegionKmsKeyArn());
     }
 }
