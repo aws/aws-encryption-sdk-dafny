@@ -18,6 +18,15 @@ namespace ExampleUtils {
         private static string TEST_AWS_KMS_MRK_KEY_ID_ENV_VAR = "AWS_ENCRYPTION_SDK_EXAMPLE_KMS_MRK_KEY_ID";
         private static string TEST_AWS_KMS_MRK_KEY_ID_ENV_VAR_2 = "AWS_ENCRYPTION_SDK_EXAMPLE_KMS_MRK_KEY_ID_2";
 
+        /// Returns the number of Keys used by the examples.
+        /// Bare in mind:
+        /// - MRK replica's should not be double counted
+        /// - Raw AES and RSA Keys count
+        public static int GetMaxExampleKeys()
+        {
+            return 5;
+        }
+
         static public MemoryStream GetPlaintextStream() {
             return new MemoryStream(Encoding.UTF8.GetBytes(
                         "Lorem ipsum dolor sit amet, consectetur adipiscing elit."

@@ -10,20 +10,26 @@ using AWS.EncryptionSDK.Core;
 using Xunit;
 using static ExampleUtils.ExampleUtils;
 
-/// <para>
 /// Demonstrate using Discovery Filters.
 /// Discovery Filters are used to restrict Discovery Keyrings to trusted AWS
 /// Accounts.
 /// The Accounts are specified by their Account Ids and the partition they are
 /// in.
-/// Using Discovery Filters with Discovery Keyrings is a best practice.
-/// Particularly if an application is decrypting messages from untrusted sources,
-/// limiting the AWS Accounts a KMS Key can be sourced from prevents calls to
-/// KMS that may fail due to permission issues.
-/// Of course, a malicious actor could encrypt data under a KMS Key that allows any
-/// AWS Account to decrypt it. Then the malicious message would successfully
-/// be decrypted, which could be harmful.
-/// </para>
+/// It's always a best practice to specify your wrapping keys explicitly when
+/// decrypting. This practice assures that you only use the keys that you intend.
+/// It also improves performance by preventing you from inadvertently using keys
+/// in a different AWS account or Region, or attempting to decrypt with keys that
+/// you don't have permission to use.
+/// However, when decrypting with AWS KMS keyrings, you are not required to specify
+/// wrapping keys. The AWS Encryption SDK can get the key identifier from the
+/// metadata of the encrypted data key.
+/// When specifying AWS KMS wrapping keys for decrypting is impractical, you can
+/// use discovery keyrings.
+/// If using discovery keyrings (which is not a best practice, but is necessary in
+/// some occasions), using Discovery Filters is a best practice.
+/// Particularly if an application is decrypting messages from multiple sources,
+/// adding trusted AWS accounts to the discovery filter allows it to
+/// protect itself from decrypting messages from untrusted sources.
 public class DiscoveryFilterExample
 {
     /// <param name="plaintext">Data to be encrypted</param>
@@ -38,10 +44,20 @@ public class DiscoveryFilterExample
         string awsPartition
     )
     {
-        // Instantiate the Material Providers and the AWS Encryption SDK
+        // Instantiate the Material Providers
         var materialProviders =
             AwsCryptographicMaterialProvidersFactory.CreateDefaultAwsCryptographicMaterialProviders();
-        var encryptionSdk = AwsEncryptionSdkFactory.CreateDefaultAwsEncryptionSdk();
+
+        // Instantiate the Encryption SDK such that it limits the number of
+        // Encrypted Data Keys a ciphertext may contain.
+        // This is a best practice, particularly when decrypting messages from
+        // multiple sources.
+        // See the <code>LimitEncryptedDataKeysExample</code> for details.
+        var esdkConfig = new AwsEncryptionSdkConfig
+        {
+            MaxEncryptedDataKeys = GetMaxExampleKeys()
+        };
+        var encryptionSdk = AwsEncryptionSdkFactory.CreateAwsEncryptionSdk(esdkConfig);
 
         // To focus on Discovery Filters, we will rely on a helper method
         // to create the encrypted message (ciphertext).
@@ -71,7 +87,7 @@ public class DiscoveryFilterExample
             Keyring = decryptKeyring
         };
         // If the `encryptKeyArn` is from an AWS Account in `trustedAccountIds`,
-        // then this decryption will succeed.
+        // then the Encryption SDK will attempt to decrypt .
         var decryptOutput = encryptionSdk.Decrypt(decryptInput);
         VerifyEncryptionContext(decryptOutput, encryptionContext);
         VerifyDecryptedIsPlaintext(decryptOutput, plaintext);
@@ -81,7 +97,7 @@ public class DiscoveryFilterExample
         var decryptFailed = false;
         decryptKeyringInput.DiscoveryFilter = new DiscoveryFilter
         {
-            AccountIds = new List<string>() {"123456789012"},
+            AccountIds = new List<string> {"123456789012"},
             Partition = awsPartition
         };
         var failingKeyring = materialProviders.CreateAwsKmsDiscoveryKeyring(decryptKeyringInput);
@@ -96,7 +112,6 @@ public class DiscoveryFilterExample
         }
 
         Assert.True(decryptFailed);
-
     }
 
     /// <summary>
@@ -165,8 +180,8 @@ public class DiscoveryFilterExample
     }
 
     /// <summary>
-    ///     This is helper method that ensures the decrypted message is the
-    ///     same as the encrypted message.
+    ///     This helper method ensures the decrypted message is the same as the
+    ///     encrypted message.
     /// </summary>
     private static void VerifyDecryptedIsPlaintext(DecryptOutput decryptOutput, MemoryStream plaintext)
     {
