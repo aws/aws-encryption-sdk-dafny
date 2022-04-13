@@ -30,7 +30,7 @@ phases:
       # the different parts of the asynchronous signing process together
       - echo "Using unique id for flow $UNIQUE_ID"
       # Build unsigned source
-      - dotnet build Source /p:Configuration=Release,NoWarn=CS0162,NoWarn=CS0168
+      - dotnet build Source /p:Configuration=Release -nowarn:CS0162,CS0168
       # This step assumes signing has already happened and we just need to retrieve 
       # the signed artifacts
       - export BASE=codebuild/release
