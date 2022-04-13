@@ -64,7 +64,7 @@ public class AwsKmsMrkKeyringExample
         };
         var decryptKeyring = materialProviders.CreateAwsKmsMrkKeyring(createDecryptKeyringInput);
 
-        // Decrypt your encrypted data using the same keyring you used on encrypt.
+        // Decrypt your encrypted data using the decrypt keyring.
         //
         // You do not need to specify the encryption context on decrypt
         // because the header of the encrypted message includes the encryption context.

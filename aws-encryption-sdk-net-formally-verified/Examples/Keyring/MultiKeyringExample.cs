@@ -4,17 +4,14 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using Amazon.KeyManagementService;
 using AWS.EncryptionSDK;
 using AWS.EncryptionSDK.Core;
-using Org.BouncyCastle.Security;
-using Org.BouncyCastle.Utilities; // In this example, we use BouncyCastle to generate a wrapping key.
 using Xunit;
 using static ExampleUtils.ExampleUtils;
 
-/// Demonstrate an encrypt/decrypt cycle using a Multi keyring consisting of an AWS KMS Keyring and
-/// a raw AES keyring.
+/// Demonstrate an encrypt/decrypt cycle using a Multi keyring consisting of an
+/// AWS KMS Keyring and a raw AES keyring.
 public class MultiKeyringExample
 {
     private static void Run(MemoryStream plaintext, string keyArn)

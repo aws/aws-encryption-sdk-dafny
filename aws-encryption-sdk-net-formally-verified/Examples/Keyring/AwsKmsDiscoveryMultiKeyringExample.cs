@@ -10,7 +10,7 @@ using AWS.EncryptionSDK.Core;
 using Xunit;
 using static ExampleUtils.ExampleUtils;
 
-/// Demonstrate an encrypt/decrypt cycle using a Multi-Keyring containing multiple AWS KMS
+/// Demonstrate decryption using a Multi-Keyring containing multiple AWS KMS
 /// Discovery Keyrings.
 public class AwsKmsDiscoveryMultiKeyringExample
 {
@@ -58,7 +58,7 @@ public class AwsKmsDiscoveryMultiKeyringExample
         Assert.NotEqual(ciphertext.ToArray(), plaintext.ToArray());
 
         // Now create a Discovery keyring to use for decryption. We'll add a discovery filter so that we limit
-        // the set of ciphertexts we are willing to decrypt to only ones created by KMS keys in our region and
+        // the set of ciphertexts we are willing to decrypt to only ones created by KMS keys in our accounts and
         // partition.
         var createDecryptKeyringInput = new CreateAwsKmsDiscoveryMultiKeyringInput
         {
@@ -71,17 +71,20 @@ public class AwsKmsDiscoveryMultiKeyringExample
         };
 
         // This is a Multi Keyring composed of Discovery Keyrings.
+        // There is a keyring for every region in `regions`.
         // All the keyrings have the same Discovery Filter.
-        // Each keyring has its own KMS Client.
+        // Each keyring has its own KMS Client, which is created for the keyring's region.
         var multiKeyring = materialProviders.CreateAwsKmsDiscoveryMultiKeyring(createDecryptKeyringInput);
 
         // On Decrypt, the header of the encrypted message (ciphertext) will be parsed.
-        // The header contains the Encrypted Data Keys (EDKs), which include the KMS Key arn.
+        // The header contains the Encrypted Data Keys (EDKs), which, if the EDK
+        // was encrypted by a KMS Keyring, includes the KMS Key ARN.
         // For each member of the Multi Keyring, every EDK will try to be decrypted until a decryption is successful.
         // Since every member of the Multi Keyring is a Discovery Keyring:
         //   Each Keyring will filter the EDKs by the Discovery Filter
         //      For the filtered EDKs, the keyring will try to decrypt it with the keyring's client.
         // All of this is done serially, until a success occurs or all keyrings have failed all (filtered) EDKs.
+        // KMS Discovery Keyrings will attempt to decrypt Multi Region Keys (MRKs) and regular KMS Keys.
         var decryptInput = new DecryptInput
         {
             Ciphertext = ciphertext,

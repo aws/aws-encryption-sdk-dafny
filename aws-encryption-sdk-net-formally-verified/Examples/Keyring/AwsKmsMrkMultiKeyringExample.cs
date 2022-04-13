@@ -15,8 +15,9 @@ using static ExampleUtils.ExampleUtils;
 /// MRK Keyrings.
 public class AwsKmsMrkMultiKeyringExample
 {
-    // For this example, `mrkKeyArn` is the ARN for a AWS KMS multi-Region key (MRK) located in your default region,
-    // and `kmsKeyArn` is the ARN for a KMS key, possibly located in a different Region than the MRK.
+    // For this example, `mrkKeyArn` is the ARN for an AWS KMS multi-Region key (MRK)
+    // located in your default region, and `kmsKeyArn` is the ARN for a KMS key,
+    // possibly located in a different Region than the MRK.
     // Finally, `mrkReplicaKeyArn` is the ARN for a MRK that
     // is a replica of the `mrkKeyArn` in a second region.
     private static void Run(MemoryStream plaintext, string mrkKeyArn, string kmsKeyArn, string mrkReplicaKeyArn)
