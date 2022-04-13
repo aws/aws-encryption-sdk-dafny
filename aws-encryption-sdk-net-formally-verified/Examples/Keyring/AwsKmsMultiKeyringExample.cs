@@ -37,7 +37,7 @@ public class AwsKmsMultiKeyring
         var encryptionSdk = AwsEncryptionSdkFactory.CreateDefaultAwsEncryptionSdk();
 
         // Create a AwsKmsMultiKeyring that protects your data under two different KMS Keys.
-        // Either KMS Key individually is capable of decrypting data encrypted under this KeyAwsKmsMultiKeyringring.
+        // Either KMS Key individually is capable of decrypting data encrypted under this AwsKmsMultiKeyring.
         var createAwsKmsMultiKeyringInput = new CreateAwsKmsMultiKeyringInput
         {
             Generator = defaultRegionKeyArn,

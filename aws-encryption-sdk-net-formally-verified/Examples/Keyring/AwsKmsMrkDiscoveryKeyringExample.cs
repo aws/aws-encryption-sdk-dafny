@@ -11,7 +11,7 @@ using AWS.EncryptionSDK.Core;
 using Xunit;
 using static ExampleUtils.ExampleUtils;
 
-/// Demonstrate an encrypt/decrypt cycle using an AWS KMS MRK discovery keyring.
+/// Demonstrate decryption using an AWS KMS MRK discovery keyring.
 public class AwsKmsMrkDiscoveryKeyringExample
 {
     private static void Run(MemoryStream plaintext, string encryptKeyArn, RegionEndpoint decryptRegion)
@@ -33,9 +33,10 @@ public class AwsKmsMrkDiscoveryKeyringExample
             AwsCryptographicMaterialProvidersFactory.CreateDefaultAwsCryptographicMaterialProviders();
         var encryptionSdk = AwsEncryptionSdkFactory.CreateDefaultAwsEncryptionSdk();
 
-        // Create the keyring that determines how your data keys are protected. Though this example highlights
-        // Discovery keyrings, Discovery keyrings cannot be used to encrypt, so for encryption we create
-        // a KMS keyring without discovery mode.
+        // Create the keyring that determines how your data keys are protected.
+        // Though this example highlights MRK Discovery keyrings,
+        // MRK Discovery keyrings cannot be used to encrypt, so for encryption
+        // we create a KMS MRK keyring.
         var createKeyringInput = new CreateAwsKmsMrkKeyringInput
         {
             KmsClient = new AmazonKeyManagementServiceClient(GetRegionEndpointFromArn(encryptKeyArn)),
@@ -56,20 +57,30 @@ public class AwsKmsMrkDiscoveryKeyringExample
         // Demonstrate that the ciphertext and plaintext are different.
         Assert.NotEqual(ciphertext.ToArray(), plaintext.ToArray());
 
-        // Now create a Discovery keyring to use for decryption. In order to illustrate the MRK behavior of this
-        // keyring, we configure the keyring to use the second KMS region where the MRK is replicated to.
+        // Now create a Discovery keyring to use for decryption.
+        // In order to illustrate the MRK behavior of this keyring, we configure
+        // the keyring to use the second KMS region where the MRK is replicated to.
         var createDecryptKeyringInput = new CreateAwsKmsMrkDiscoveryKeyringInput
         {
             KmsClient = new AmazonKeyManagementServiceClient(decryptRegion),
-            Region = decryptRegion.SystemName,
-            DiscoveryFilter = new DiscoveryFilter()
-            {
-                AccountIds = GetAccountIds(),
-                Partition = "aws"
-            }
+            Region = decryptRegion.SystemName
         };
         var decryptKeyring = materialProviders.CreateAwsKmsMrkDiscoveryKeyring(createDecryptKeyringInput);
 
+        // On Decrypt, the header of the encrypted message (ciphertext) will be parsed.
+        // The header contains the Encrypted Data Keys (EDKs), which, if the EDK
+        // was encrypted by a KMS Keyring, includes the KMS Key ARN.
+        // The MRK Discovery Keyring filters these EDKs for:
+        // - EDKs encrypted by Single Region KMS Keys in the keyring's region
+        // OR
+        // - EDKs encrypted by Multi Region KMS Keys
+        // Additionally, the keyring would filter these KMS encrypted data keys
+        // by the keyring's Discovery Filter, if a Discovery Filter is
+        // present on the keyring.
+        // Finally, KMS is called to decrypt each filtered EDK until an EDK is
+        // successfully decrypted. The resulting data key is used to decrypt the
+        // ciphertext's message.
+        // If all calls to KMS fail, the decryption fails.
         var decryptInput = new DecryptInput
         {
             Ciphertext = ciphertext,
