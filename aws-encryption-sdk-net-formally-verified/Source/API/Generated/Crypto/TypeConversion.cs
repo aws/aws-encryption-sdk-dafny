@@ -609,6 +609,7 @@ namespace AWS.EncryptionSDK.Core
             FromDafny_N3_aws__N13_encryptionSdk__N4_core__S23_ClientSupplierReference(
                 Dafny.Aws.EncryptionSdk.Core.IClientSupplier value)
         {
+            if (value is NativeWrapper_ClientSupplierBase nativeWrapper) return nativeWrapper._impl;
             return new ClientSupplier(value);
         }
 
@@ -621,8 +622,7 @@ namespace AWS.EncryptionSDK.Core
                 return valueWithImpl._impl;
             }
 
-            throw new System.ArgumentException(
-                "Custom implementations of AWS.EncryptionSDK.Core.IClientSupplier are not supported yet");
+            return new NativeWrapper_ClientSupplier(value);
         }
 
         public static AWS.EncryptionSDK.Core.EncryptionMaterials
