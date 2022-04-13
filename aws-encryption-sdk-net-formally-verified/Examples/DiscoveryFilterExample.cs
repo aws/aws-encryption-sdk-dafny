@@ -87,7 +87,7 @@ public class DiscoveryFilterExample
             Keyring = decryptKeyring
         };
         // If the `encryptKeyArn` is from an AWS Account in `trustedAccountIds`,
-        // then the Encryption SDK will attempt to decrypt .
+        // then the Encryption SDK will attempt to decrypt it.
         var decryptOutput = encryptionSdk.Decrypt(decryptInput);
         VerifyEncryptionContext(decryptOutput, encryptionContext);
         VerifyDecryptedIsPlaintext(decryptOutput, plaintext);
