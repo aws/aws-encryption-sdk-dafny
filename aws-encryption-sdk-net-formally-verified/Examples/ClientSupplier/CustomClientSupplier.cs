@@ -57,7 +57,8 @@ public class CustomClientSupplier : IClientSupplier
         var task = _stsClient.AssumeRoleAsync(new AssumeRoleRequest
         {
             RoleArn = iamArn,
-            DurationSeconds = 900 // 15 minutes is the minimum value
+            DurationSeconds = 900, // 15 minutes is the minimum value
+            RoleSessionName = "ESDK-NET-Custom-Client-Example"
         });
         AssumeRoleResponse response;
         // Await the async response
@@ -65,7 +66,7 @@ public class CustomClientSupplier : IClientSupplier
         {
             response = task.Result;
         }
-        catch (AggregateException e)
+        catch (Exception e)
         {
             throw new AssumeRoleException(input.Region, iamArn, e);
         }
@@ -86,5 +87,7 @@ public class AssumeRoleException : Exception
 {
     public AssumeRoleException(string region, string roleArn, Exception e) : base(
         $"Attempt to assume Role Arn {roleArn} for Region {region} failed", e)
-    { }
+    {
+        Console.Out.Write(e);
+    }
 }
