@@ -20,7 +20,7 @@ phases:
       - echo "Using unique id for flow $UNIQUE_ID"
   build:
     commands:
-      - dotnet build Source -p:Configuration=Release
+      - dotnet build Source /p:Configuration=Release,NoWarn=CS0162,NoWarn=CS0168
       - export BASE=codebuild/release
       - python $BASE/upload_assembly.py --target netstandard2.1 --unique-id $UNIQUE_ID
       - python $BASE/upload_assembly.py --target net452 --unique-id $UNIQUE_ID
