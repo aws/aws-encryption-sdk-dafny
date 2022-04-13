@@ -10,11 +10,21 @@ using Xunit;
 using static ExampleUtils.ExampleUtils;
 
 /// Demonstrate an encrypt/decrypt cycle using a Default Cryptographic Materials Manager.
-/// Cryptographic material managers (CMMs) give you higher-level controls than keyrings
-/// over how the AWS Encryption SDK protects your data.
-/// For the sake of convenience, the Encryption SDK will provision the Default CMM
-/// if a keyring is provided to the Encrypt or Decrypt APIs.
-/// As such, this example executes the same as the RawAESKeyringExample.
+///
+/// Cryptographic Materials Managers (CMM) assemble the cryptographic materials that
+/// are used to encrypt and decrypt data. The cryptographic materials include plaintext
+/// and encrypted data keys, and an optional message signing key. You never interact
+/// with the CMM directly. The encryption and decryption methods handle it for you.
+///
+/// Because the CMM acts as a liaison between the AWS Encryption SDK and a keyring,
+/// it is an ideal point for customization and extension, such as support for policy
+/// enforcement and caching.
+///
+/// You can use the default CMM or write a custom CMM. Specifying a CMM is not
+/// required. When you specify a keyring, the AWS Encryption SDK creates a default
+/// CMM for you. The default CMM gets the encryption or decryption materials from
+/// the keyring you specify.
+/// As such, this example is functionally equivalent to the RawAESKeyringExample.
 public class DefaultCryptographicMaterialsManagerExample
 {
     private static void Run(MemoryStream plaintext)
