@@ -48,6 +48,7 @@ public class DefaultCryptographicMaterialsManagerExample
         var encryptInput = new EncryptInput
         {
             Plaintext = plaintext,
+            // Specify the CMM instead of the keyring. They are mutually exclusive.
             MaterialsManager = cmm,
             EncryptionContext = encryptionContext
         };
