@@ -53,7 +53,7 @@ phases:
       - dotnet pack Source/AWSEncryptionSDK.csproj --no-build /p:Configuration=Release,Version=$UNIQUE_VERSION --output build
       - dotnet nuget push build/AWS.EncryptionSDK.$UNIQUE_VERSION.nupkg --source crypto-tools-internal/net-esdk-staging
       # Now validate we can run examples
-      - sed -i '/Source\/AWSEncryptionSDK.csproj/d' Examples/AWSEncryptionSDKExamples.csproj
+      - sed -i.backup '/Source\/AWSEncryptionSDK.csproj/d' Examples/AWSEncryptionSDKExamples.csproj
       - dotnet add Examples/AWSEncryptionSDKExamples.csproj package AWS.EncryptionSDK --version $UNIQUE_VERSION
       # Target only netcoreapp3.1, because we only support net452 for windows.
       # Since all frameworks and OS's are tested on commit, we mainly want to
