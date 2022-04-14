@@ -12,7 +12,12 @@ namespace AWS.EncryptionSDK.Core
 {
     public abstract class NativeWrapper_ClientSupplierBase : Dafny.Aws.EncryptionSdk.Core.IClientSupplier
     {
-        public IClientSupplier _impl;
+        internal readonly IClientSupplier _impl;
+
+        internal NativeWrapper_ClientSupplierBase(IClientSupplier native_impl)
+        {
+            _impl = native_impl;
+        }
 
         public abstract _IResult<
             Dafny.Com.Amazonaws.Kms.IKeyManagementServiceClient,

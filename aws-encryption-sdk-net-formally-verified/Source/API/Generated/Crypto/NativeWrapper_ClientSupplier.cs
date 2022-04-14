@@ -11,12 +11,10 @@ using Wrappers_Compile;
 
 namespace AWS.EncryptionSDK.Core
 {
-    public class NativeWrapper_ClientSupplier : NativeWrapper_ClientSupplierBase
+    internal class NativeWrapper_ClientSupplier : NativeWrapper_ClientSupplierBase
     {
-        public NativeWrapper_ClientSupplier(IClientSupplier native_impl)
-        {
-            _impl = native_impl;
-        }
+        public NativeWrapper_ClientSupplier(IClientSupplier native_impl) : base(native_impl)
+        { }
 
         public override _IResult<Dafny.Com.Amazonaws.Kms.IKeyManagementServiceClient,
             Dafny.Aws.EncryptionSdk.Core.IAwsCryptographicMaterialProvidersException> GetClient(
