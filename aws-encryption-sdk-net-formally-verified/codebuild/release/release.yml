@@ -6,7 +6,7 @@ batch:
     - identifier: sign
       buildspec: aws-encryption-sdk-net-formally-verified/codebuild/release/sign.yml
     - identifier: verify 
-      buildspec: codebuild/dotnet/verify.yml
+      buildspec: aws-encryption-sdk-net-formally-verified/codebuild/dotnet/verify.yml
       env:
         type: WINDOWS_SERVER_2019_CONTAINER
         image: aws/codebuild/windows-base:2019-1.0
