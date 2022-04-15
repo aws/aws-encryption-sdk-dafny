@@ -617,12 +617,19 @@ namespace AWS.EncryptionSDK.Core
             ToDafny_N3_aws__N13_encryptionSdk__N4_core__S23_ClientSupplierReference(
                 AWS.EncryptionSDK.Core.IClientSupplier value)
         {
-            if (value is ClientSupplier valueWithImpl)
+            switch (value)
             {
-                return valueWithImpl._impl;
+                case ClientSupplier valueWithImpl:
+                    return valueWithImpl._impl;
+                case ClientSupplierBase nativeImpl:
+                    return new NativeWrapper_ClientSupplier(nativeImpl);
+                case IClientSupplier _:
+                    throw new System.ArgumentException(
+                        "Custom implementations of ClientSupplier should extend ClientSupplierBase.");
+                default:
+                    throw new System.ArgumentException(
+                        $"{value} does not inherit from {typeof(ClientSupplier)} or {typeof(ClientSupplierBase)}.");
             }
-
-            return new NativeWrapper_ClientSupplier(value);
         }
 
         public static AWS.EncryptionSDK.Core.EncryptionMaterials
