@@ -11,9 +11,9 @@ namespace AWS.EncryptionSDK.Core
 {
     public abstract class NativeWrapper_ClientSupplierBase : Dafny.Aws.EncryptionSdk.Core.IClientSupplier
     {
-        internal readonly ClientSupplierBase _impl;
+        internal readonly IClientSupplier _impl;
 
-        internal NativeWrapper_ClientSupplierBase(ClientSupplierBase nativeImpl)
+        internal NativeWrapper_ClientSupplierBase(IClientSupplier nativeImpl)
         {
             _impl = nativeImpl;
         }

@@ -615,7 +615,7 @@ namespace AWS.EncryptionSDK.Core
 
         public static Dafny.Aws.EncryptionSdk.Core.IClientSupplier
             ToDafny_N3_aws__N13_encryptionSdk__N4_core__S23_ClientSupplierReference(
-                AWS.EncryptionSDK.Core.ClientSupplierBase value)
+                AWS.EncryptionSDK.Core.IClientSupplier value)
         {
             if (value is ClientSupplier valueWithImpl)
             {
