@@ -2,10 +2,9 @@
 // SPDX-License-Identifier: Apache-2.0
 // Do not modify this file. This file is machine generated, and any changes to it will be overwritten.
 
-// ReSharper disable once RedundantUsingDirective
+// ReSharper disable thrice RedundantUsingDirective
+using System;
 using AWS.EncryptionSDK.Core;
-
-// ReSharper disable once RedundantUsingDirective
 using Wrappers_Compile;
 
 namespace AWS.EncryptionSDK.Core
@@ -14,12 +13,12 @@ namespace AWS.EncryptionSDK.Core
     {
         internal readonly IClientSupplier _impl;
 
-        internal NativeWrapper_ClientSupplierBase(IClientSupplier native_impl)
+        internal NativeWrapper_ClientSupplierBase(IClientSupplier nativeImpl)
         {
-            _impl = native_impl;
+            _impl = nativeImpl;
         }
 
-        public abstract _IResult<
+        public abstract Wrappers_Compile._IResult<
             Dafny.Com.Amazonaws.Kms.IKeyManagementServiceClient,
             Dafny.Aws.EncryptionSdk.Core.IAwsCryptographicMaterialProvidersException
         > GetClient(Dafny.Aws.EncryptionSdk.Core._IGetClientInput input);

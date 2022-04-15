@@ -12,9 +12,11 @@ using Wrappers_Compile;
 
 namespace DefaultClientSupplier
 {
+    // ReSharper disable once RedundantExtendsListEntry
     public partial class DefaultClientSupplier : Dafny.Aws.EncryptionSdk.Core.IClientSupplier
     {
-        public _IResult<Dafny.Com.Amazonaws.Kms.IKeyManagementServiceClient,
+        // ReSharper disable once RedundantNameQualifier
+        public Wrappers_Compile._IResult<Dafny.Com.Amazonaws.Kms.IKeyManagementServiceClient,
             Dafny.Aws.EncryptionSdk.Core.IAwsCryptographicMaterialProvidersException> GetClient(
             Dafny.Aws.EncryptionSdk.Core._IGetClientInput input)
         {
@@ -33,7 +35,8 @@ namespace DefaultClientSupplier
                     client = new AmazonKeyManagementServiceClient();
                 }
 
-                return Result<Dafny.Com.Amazonaws.Kms.IKeyManagementServiceClient,
+                // ReSharper disable once RedundantNameQualifier
+                return Wrappers_Compile.Result<Dafny.Com.Amazonaws.Kms.IKeyManagementServiceClient,
                     Dafny.Aws.EncryptionSdk.Core.IAwsCryptographicMaterialProvidersException>.create_Success(
                     TypeConversion.ToDafny_N3_aws__N13_encryptionSdk__N4_core__S15_GetClientOutput__M6_client(client)
                 );
