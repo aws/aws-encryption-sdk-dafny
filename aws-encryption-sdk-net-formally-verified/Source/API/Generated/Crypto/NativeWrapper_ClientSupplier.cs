@@ -12,7 +12,7 @@ namespace AWS.EncryptionSDK.Core
 {
     internal class NativeWrapper_ClientSupplier : NativeWrapper_ClientSupplierBase
     {
-        public NativeWrapper_ClientSupplier(IClientSupplier nativeImpl) : base(nativeImpl)
+        public NativeWrapper_ClientSupplier(ClientSupplierBase nativeImpl) : base(nativeImpl)
         { }
 
         public override Wrappers_Compile._IResult<
