@@ -1,5 +1,14 @@
 version: 0.2
 
+env:
+  variables:
+    UNSIGNED_S3_BUCKET: "349032751102-unsigned-bucket"
+    SIGNED_S3_BUCKET: "349032751102-signed-bucket"
+    S3_PREFIX: "aws_encryption_sdk_net/AuthenticodeSigner-SHA256-RSA"
+    ROLE_ARN: "arn:aws:iam::349032751102:role/EncryptionSDKNetSigning-ArtifactAccessRole"
+    FILE_NAME: "AWS.EncryptionSDK.dll"
+   
+
 phases:
   install:
     commands:
@@ -14,10 +23,15 @@ phases:
       - Install-PackageProvider -Name NuGet -Force
       # Get AWS SDK
       - Install-Module -Name AWS.Tools.Installer -Force -Verbose
-      - Get-Command
       - Get-Command -Module Microsoft.Powershell.Security
-      - Get-Module AWS.Tools.Installer -ListAvailable
-      - Install-AWSToolsModule AWS.Tools.STS,AWS.Tools.S3 -Force
+      - Install-AWSToolsModule AWS.Tools.SecurityToken,AWS.Tools.S3 -Force
+      # Set some env variables
   build:
     commands:
-      - cd aws-encryption-sdk-net-formally-verified/Test
+      # First assume the ArtifactAccess role to retrieve the signed DLL
+      - $creds = Use-STSRole -RoleArn $Env:ROLE_ARN -RoleSessionName "CodeBuildVerify" -ExternalId "EncryptionSDKNetSigning"
+      # Next get the signer job id, stored as a tag on the unsigned object
+      - $tags = Get-S3ObjectTagSet -BucketName $Env.UNSIGNED_S3_BUCKET -Key $Env.S3_PREFIX/net452/$Env.UNIQUE_ID-$Env.FILE_NAME -Credential $creds.Credentials
+      - $signer_job_id = $tags[0].Value
+      # Now retrieve the signed dll
+      - Read-S3Object -BucketName $Env:SIGNED_S3_BUCKET -KEY $Env.S3_PREFIX/net452/$Env.UNIQUE_ID-$ENV.FILE_NAME-$signer_job_id -Credential $creds.Credentials -File net452-$Env.FILE_NAME
