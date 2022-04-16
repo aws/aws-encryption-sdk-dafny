@@ -29,10 +29,10 @@ phases:
   build:
     commands:
       # First assume the ArtifactAccess role to retrieve the signed DLL
-      - $creds = Use-STSRole -RoleArn $Env:ROLE_ARN -RoleSessionName "CodeBuildVerify" -ExternalId "EncryptionSDKNetSigning" -Verbose
-      - echo $creds.Credentials
-      - echo $creds.Credentials.AccessKeyId
-      - echo $creds.Credentials.SecretAccessKey
+      - Use-STSRole -RoleArn $Env:ROLE_ARN -RoleSessionName "CodeBuildVerify" -ExternalId "EncryptionSDKNetSigning" -Verbose
+      #- echo $creds.Credentials
+      #- echo $creds.Credentials.AccessKeyId
+      #- echo $creds.Credentials.SecretAccessKey
       - echo $Env:S3_PREFIX
       - echo $Env:UNSIGNED_S3_BUCKET
       - echo $Env:UNIQUE_ID
