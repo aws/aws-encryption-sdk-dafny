@@ -75,7 +75,7 @@ multiple regions, and are following best practices that limit the access to KMS
 keys to only certain IAM Roles, implementing a Custom Client Supplier that retrieves
 the correct credentials for a region is a must.
 We have implemented an example of this in
-[`examples/ClientSupplier/CustomClientSupplier.cs`](./ClientSupplier/CustomClientSupplier.cs).
+[`examples/ClientSupplier/RegionalRoleClientSupplier.cs`](./ClientSupplier/RegionalRoleClientSupplier.cs).
 
 # Writing Examples
 
