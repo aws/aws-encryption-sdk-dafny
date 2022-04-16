@@ -32,7 +32,8 @@ phases:
       # First assume the ArtifactAccess role to retrieve the signed DLL
       - $a = 6
       - echo $a
-      - $foo = Use-STSRole -RoleArn "arn:aws:iam::349032751102:role/EncryptionSDKNetSigning-ArtifactAccessRole" -RoleSessionName "CodeBuildVerify" -ExternalId "EncryptionSDKNetSigning" -Select "Credentials"
+      - Use-STSRole -RoleArn $Env:ROLE_ARN -RoleSessionName "CodeBuildVerify" -ExternalId "EncryptionSDKNetSigning" -Verbose
+      - $foo = Use-STSRole -RoleArn $Env:ROLE_ARN -RoleSessionName "CodeBuildVerify" -ExternalId "EncryptionSDKNetSigning" -Verbose
       - echo $foo
       #- $creds = Use-STSRole -RoleArn $Env:ROLE_ARN -RoleSessionName "CodeBuildVerify" -ExternalId "EncryptionSDKNetSigning"
       - Get-Member -InputObject $foo
@@ -41,8 +42,8 @@ phases:
       #- echo $creds.Credentials.AccessKeyId
       #- echo $creds.Credentials.SecretAccessKey
       # Next get the signer job id, stored as a tag on the unsigned object
-      #- $tags = Get-S3ObjectTagSet -BucketName $Env:UNSIGNED_S3_BUCKET -Key $Env:S3_PREFIX/net452/$Env:UNIQUE_ID-$Env:FILE_NAME -Credential $creds.Credentials
-      - $tags = Get-S3ObjectTagSet -BucketName $Env:UNSIGNED_S3_BUCKET -Key $Env:S3_PREFIX/net452/$Env:UNIQUE_ID-$Env:FILE_NAME
+      - $tags = Get-S3ObjectTagSet -BucketName $Env:UNSIGNED_S3_BUCKET -Key $Env:S3_PREFIX/net452/$Env:UNIQUE_ID-$Env:FILE_NAME -Credential $foo.Credentials
+      #- $tags = Get-S3ObjectTagSet -BucketName $Env:UNSIGNED_S3_BUCKET -Key $Env:S3_PREFIX/net452/$Env:UNIQUE_ID-$Env:FILE_NAME
       - $signer_job_id = $tags[0].Value
       # Now retrieve the signed dll
-      - Read-S3Object -BucketName $Env:SIGNED_S3_BUCKET -KEY $Env:S3_PREFIX/net452/$Env:UNIQUE_ID-$ENV.FILE_NAME-$signer_job_id -Credential $creds.Credentials -File net452-$Env:FILE_NAME
+      - Read-S3Object -BucketName $Env:SIGNED_S3_BUCKET -KEY $Env:S3_PREFIX/net452/$Env:UNIQUE_ID-$ENV.FILE_NAME-$signer_job_id -Credential $foo.Credentials -File net452-$Env:FILE_NAME
