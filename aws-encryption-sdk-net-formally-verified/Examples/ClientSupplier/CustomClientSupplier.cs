@@ -17,7 +17,7 @@ using static ExampleUtils.ExampleUtils;
 /// </summary>
 // When implementing a Custom Class of any member of AWS.EncryptionSDK.Core,
 // ALWAYS extend the Base class, not the interface.
-public class CustomClientSupplier : ClientSupplierBase
+public class RegionalRoleClientSupplier : ClientSupplierBase
 {
     /// <summary>
     ///     Maps a Region to the Arn of the IAM Role the client supplier will
@@ -51,10 +51,6 @@ public class CustomClientSupplier : ClientSupplierBase
     /// <returns>A KMS Client</returns>
     /// <exception cref="MissingRegionException">If the Region requested is missing from the RegionIAMRole Map</exception>
     /// <exception cref="AssumeRoleException">If the Assume Role call fails</exception>
-    // When implementing a method of any member of AWS.EncryptionSDK.Core,
-    // ALWAYS extend the abstract method (`_method`).
-    // The Base class' concrete method provides input validation, and then invokes
-    // the abstract method.
     protected override IAmazonKeyManagementService _GetClient(GetClientInput input)
     {
         // Check our RegionIAMRole map for the provided region.
@@ -101,9 +97,8 @@ public class AssumeRoleException : Exception
     public AssumeRoleException(string region, string roleArn, Exception e) : base(
         $"Attempt to assume Role Arn {roleArn} for Region {region} failed", e)
     {
-        // The Encryption SDK, unfortunately, drops details from exceptions.
-        // In particular, the stack trace. As such, it is helpful to manually log
-        // the exceptions.
+        // At this time the Encryption SDK only retains exception messages, and not the entire stack trace.
+        // As such, it is helpful to manually log the exceptions.
         Console.Out.Write(e);
     }
 }
