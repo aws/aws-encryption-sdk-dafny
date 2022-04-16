@@ -10,18 +10,24 @@ using Wrappers_Compile;
 
 namespace AWS.EncryptionSDK.Core
 {
-    internal class NativeWrapper_ClientSupplier : NativeWrapper_ClientSupplierBase
+    internal class NativeWrapper_ClientSupplier : Dafny.Aws.EncryptionSdk.Core.IClientSupplier
     {
-        public NativeWrapper_ClientSupplier(IClientSupplier nativeImpl) : base(nativeImpl)
-        { }
+        internal readonly ClientSupplierBase _impl;
 
-        public override Wrappers_Compile._IResult<
+        public NativeWrapper_ClientSupplier(ClientSupplierBase nativeImpl)/* : base(nativeImpl)*/
+        {
+            _impl = nativeImpl;
+        }
+
+        public /*override*/ Wrappers_Compile._IResult<
             Dafny.Com.Amazonaws.Kms.IKeyManagementServiceClient,
             Dafny.Aws.EncryptionSdk.Core.IAwsCryptographicMaterialProvidersException
         > GetClient(Dafny.Aws.EncryptionSdk.Core._IGetClientInput input)
         {
             // ReSharper disable once RedundantNameQualifier
-            AWS.EncryptionSDK.Core.GetClientInput nativeInput = TypeConversion.FromDafny_N3_aws__N13_encryptionSdk__N4_core__S14_GetClientInput(input);
+            AWS.EncryptionSDK.Core.GetClientInput nativeInput =
+                TypeConversion.FromDafny_N3_aws__N13_encryptionSdk__N4_core__S14_GetClientInput(
+                    input);
             try
             {
                 // ReSharper disable once RedundantNameQualifier
@@ -55,4 +61,19 @@ namespace AWS.EncryptionSDK.Core
             }
         }
     }
+
+    /*public abstract class NativeWrapper_ClientSupplierBase : Dafny.Aws.EncryptionSdk.Core.IClientSupplier
+    {
+        internal readonly ClientSupplierBase _impl;
+
+        internal NativeWrapper_ClientSupplierBase(ClientSupplierBase nativeImpl)
+        {
+            _impl = nativeImpl;
+        }
+
+        public abstract Wrappers_Compile._IResult<
+            Dafny.Com.Amazonaws.Kms.IKeyManagementServiceClient,
+            Dafny.Aws.EncryptionSdk.Core.IAwsCryptographicMaterialProvidersException
+        > GetClient(Dafny.Aws.EncryptionSdk.Core._IGetClientInput input);
+    }*/
 }

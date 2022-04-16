@@ -609,7 +609,7 @@ namespace AWS.EncryptionSDK.Core
             FromDafny_N3_aws__N13_encryptionSdk__N4_core__S23_ClientSupplierReference(
                 Dafny.Aws.EncryptionSdk.Core.IClientSupplier value)
         {
-            if (value is NativeWrapper_ClientSupplierBase nativeWrapper) return nativeWrapper._impl;
+            if (value is NativeWrapper_ClientSupplier nativeWrapper) return nativeWrapper._impl;
             return new ClientSupplier(value);
         }
 
