@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: Apache-2.0
 // Do not modify this file. This file is machine generated, and any changes to it will be overwritten.
 
-// ReSharper disable thrice RedundantUsingDirective
+// ReSharper disable RedundantUsingDirective
 using System;
 using Amazon.KeyManagementService;
 using AWS.EncryptionSDK.Core;
@@ -14,12 +14,12 @@ namespace AWS.EncryptionSDK.Core
     {
         internal readonly ClientSupplierBase _impl;
 
-        public NativeWrapper_ClientSupplier(ClientSupplierBase nativeImpl)/* : base(nativeImpl)*/
+        public NativeWrapper_ClientSupplier(ClientSupplierBase nativeImpl)
         {
             _impl = nativeImpl;
         }
 
-        public /*override*/ Wrappers_Compile._IResult<
+        public Wrappers_Compile._IResult<
             Dafny.Com.Amazonaws.Kms.IKeyManagementServiceClient,
             Dafny.Aws.EncryptionSdk.Core.IAwsCryptographicMaterialProvidersException
         > GetClient(Dafny.Aws.EncryptionSdk.Core._IGetClientInput input)
@@ -61,19 +61,4 @@ namespace AWS.EncryptionSDK.Core
             }
         }
     }
-
-    /*public abstract class NativeWrapper_ClientSupplierBase : Dafny.Aws.EncryptionSdk.Core.IClientSupplier
-    {
-        internal readonly ClientSupplierBase _impl;
-
-        internal NativeWrapper_ClientSupplierBase(ClientSupplierBase nativeImpl)
-        {
-            _impl = nativeImpl;
-        }
-
-        public abstract Wrappers_Compile._IResult<
-            Dafny.Com.Amazonaws.Kms.IKeyManagementServiceClient,
-            Dafny.Aws.EncryptionSdk.Core.IAwsCryptographicMaterialProvidersException
-        > GetClient(Dafny.Aws.EncryptionSdk.Core._IGetClientInput input);
-    }*/
 }
