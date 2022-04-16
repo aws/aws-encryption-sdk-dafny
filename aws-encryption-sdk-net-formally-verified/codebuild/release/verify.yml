@@ -26,10 +26,12 @@ phases:
       - Get-Command -Module Microsoft.Powershell.Security
       - Install-AWSToolsModule AWS.Tools.SecurityToken,AWS.Tools.S3 -Force
       # Set some env variables
+      - echo $PSVersionTable
   build:
     commands:
       # First assume the ArtifactAccess role to retrieve the signed DLL
       - Use-STSRole -?
+      - get-help Use-STSRole -examples
       - $creds = Use-STSRole -RoleArn $Env:ROLE_ARN -RoleSessionName "CodeBuildVerify" -ExternalId "EncryptionSDKNetSigning" -Verbose
       - Get-Member -InputObject $creds
       - Get-Member -InputObject $creds.Credentials
