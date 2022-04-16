@@ -29,6 +29,7 @@ phases:
   build:
     commands:
       # First assume the ArtifactAccess role to retrieve the signed DLL
+      - Use-STSRole -?
       - Use-STSRole -RoleArn $Env:ROLE_ARN -RoleSessionName "CodeBuildVerify" -ExternalId "EncryptionSDKNetSigning" -Verbose
       #- echo $creds.Credentials
       #- echo $creds.Credentials.AccessKeyId
