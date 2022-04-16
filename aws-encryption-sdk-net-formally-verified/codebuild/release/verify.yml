@@ -14,7 +14,8 @@ phases:
       - Install-PackageProvider -Name NuGet -Force
       # Get AWS SDK
       - Install-Module -Name AWS.Tools.Installer -Force
-      - Install-AWSToolsModule AWS.Tools.STS,AWS.Tools.S3 -CleanUp
+      - Get-Module AWS.Tools.Installer -ListAvailable
+      - Install-AWSToolsModule AWS.Tools.STS,AWS.Tools.S3 -Force
       - Get-Command -Module Microsoft.Powershell.Security
   build:
     commands:
