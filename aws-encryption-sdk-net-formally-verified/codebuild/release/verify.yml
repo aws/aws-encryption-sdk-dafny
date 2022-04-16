@@ -32,6 +32,7 @@ phases:
       - $creds = Use-STSRole -RoleArn $Env:ROLE_ARN -RoleSessionName "CodeBuildVerify" -ExternalId "EncryptionSDKNetSigning" -Verbose
       - $creds.Credentials
       - $creds.Credentials.AccessKeyId
+      - dir env:
       # Next get the signer job id, stored as a tag on the unsigned object
       #- $tags = Get-S3ObjectTagSet -BucketName $Env:UNSIGNED_S3_BUCKET -Key $Env:S3_PREFIX/net452/$Env:UNIQUE_ID-$Env:FILE_NAME -Credential $creds.Credentials
       - $tags = Get-S3ObjectTagSet -BucketName $Env:UNSIGNED_S3_BUCKET -Key $Env:S3_PREFIX/net452/$Env:UNIQUE_ID-$Env:FILE_NAME -AccessKey $creds.Credentials.AccessKeyId -SecretKey $creds.Credentials.SecretAccessKey -SessionToken $creds.Credentials.SessionToken
