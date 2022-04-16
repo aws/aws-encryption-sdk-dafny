@@ -22,9 +22,9 @@ phases:
       # Required to install Nuget packages
       - Install-PackageProvider -Name NuGet -Force
       # Get AWS SDK
-      #- Install-Module -Name AWS.Tools.Installer -Force
+      - Install-Module -Name AWS.Tools.Installer -Force
       - Get-Command -Module Microsoft.Powershell.Security
-      #- Install-AWSToolsModule AWS.Tools.SecurityToken,AWS.Tools.S3 -Force
+      - Install-AWSToolsModule AWS.Tools.SecurityToken,AWS.Tools.S3 -Force
       # Set some env variables
       - echo $PSVersionTable
   build:
@@ -33,7 +33,7 @@ phases:
       - Use-STSRole -?
       - get-help Use-STSRole -examples
       - Use-STSRole -RoleArn $Env:ROLE_ARN -RoleSessionName "CodeBuildVerify" -ExternalId "EncryptionSDKNetSigning"
-      - $creds = Use-STSRole -RoleArn $Env:ROLE_ARN -RoleSessionName "CodeBuildVerify" -ExternalId "EncryptionSDKNetSigning"
+      #- $creds = Use-STSRole -RoleArn $Env:ROLE_ARN -RoleSessionName "CodeBuildVerify" -ExternalId "EncryptionSDKNetSigning"
       - Get-Member -InputObject $creds
       - Get-Member -InputObject $creds.Credentials
       #- echo $creds.Credentials
@@ -41,7 +41,7 @@ phases:
       #- echo $creds.Credentials.SecretAccessKey
       # Next get the signer job id, stored as a tag on the unsigned object
       #- $tags = Get-S3ObjectTagSet -BucketName $Env:UNSIGNED_S3_BUCKET -Key $Env:S3_PREFIX/net452/$Env:UNIQUE_ID-$Env:FILE_NAME -Credential $creds.Credentials
-      - $tags = Get-S3ObjectTagSet -BucketName $Env:UNSIGNED_S3_BUCKET -Key $Env:S3_PREFIX/net452/$Env:UNIQUE_ID-$Env:FILE_NAME -AccessKey $creds.Credentials.AccessKeyId -SecretKey $creds.Credentials.SecretAccessKey -SessionToken $creds.Credentials.SessionToken
+      - $tags = Get-S3ObjectTagSet -BucketName $Env:UNSIGNED_S3_BUCKET -Key $Env:S3_PREFIX/net452/$Env:UNIQUE_ID-$Env:FILE_NAME
       - $signer_job_id = $tags[0].Value
       # Now retrieve the signed dll
       - Read-S3Object -BucketName $Env:SIGNED_S3_BUCKET -KEY $Env:S3_PREFIX/net452/$Env:UNIQUE_ID-$ENV.FILE_NAME-$signer_job_id -Credential $creds.Credentials -File net452-$Env:FILE_NAME
