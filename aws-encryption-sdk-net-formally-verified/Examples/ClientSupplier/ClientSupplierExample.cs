@@ -12,7 +12,7 @@ using Xunit;
 using static ExampleUtils.ExampleUtils;
 
 /// Demonstrates using a Custom Client Supplier.
-/// See <c>CustomClientSupplier.cs</c> for the details of implementing a
+/// See <c>RegionalRoleClientSupplier.cs</c> for the details of implementing a
 /// custom client supplier.
 /// This example uses an <c>AwsKmsMrkDiscoveryMultiKeyring</c>, but all
 /// the AWS Multi Keyrings take Client Suppliers.
@@ -37,7 +37,7 @@ public class ClientSupplierExample
         // We are passing in our Custom Client Supplier.
         var createDecryptKeyringInput = new CreateAwsKmsMrkDiscoveryMultiKeyringInput
         {
-            ClientSupplier = new CustomClientSupplier(),
+            ClientSupplier = new RegionalRoleClientSupplier(),
             Regions = regions,
             DiscoveryFilter = new DiscoveryFilter()
             {

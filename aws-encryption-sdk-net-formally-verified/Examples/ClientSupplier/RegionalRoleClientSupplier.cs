@@ -15,8 +15,8 @@ using static ExampleUtils.ExampleUtils;
 ///     This Client Supplier will create KMS Clients with different IAM roles,
 ///     depending on the Region passed.
 /// </summary>
-// When implementing a Custom Class of any member of AWS.EncryptionSDK.Core,
-// ALWAYS extend the Base class, not the interface.
+// When implementing a Custom Client Supplier ALWAYS extend the Base class,
+// not the interface.
 public class RegionalRoleClientSupplier : ClientSupplierBase
 {
     /// <summary>
@@ -31,7 +31,7 @@ public class RegionalRoleClientSupplier : ClientSupplierBase
     /// </summary>
     private static IAmazonSecurityTokenService _stsClient;
 
-    public CustomClientSupplier()
+    public RegionalRoleClientSupplier()
     {
         _regionIAMRoleMap = GetRegionIAMRoleMap();
         _stsClient = new AmazonSecurityTokenServiceClient();
