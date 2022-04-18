@@ -25,6 +25,8 @@ phases:
       - Install-Module -Name AWS.Tools.Installer -Force
       - Install-AWSToolsModule AWS.Tools.SecurityToken,AWS.Tools.S3 -Force
       - echo $PSVersionTable # TODO REMOVE
+      - Get-Command -Module Microsoft.PowerShell.Utility
+      - Get-Member -?
   build:
     commands:
       # Testing Get-AuthenticodeSignature
