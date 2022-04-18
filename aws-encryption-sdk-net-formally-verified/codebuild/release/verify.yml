@@ -30,7 +30,7 @@ phases:
       # Testing Get-AuthenticodeSignature
       - Get-AuthenticodeSignature -FilePath aws-encryption-sdk-net-formally-verified/codebuild/release/AWS.EncryptionSDK.dll -Verbose -Debug
       - $sig = Get-AuthenticodeSignature -FilePath aws-encryption-sdk-net-formally-verified/codebuild/release/AWS.EncryptionSDK.signed.dll -Verbose -Debug
-      - Get-Member -InputObject $sig
+      - Get-Member -InputObject $sig -Force
       - echo $sig.SignerCertificate
       - echo $sig.SignatureType
       - echo $sig.Status
@@ -43,8 +43,8 @@ phases:
       - $foo = Use-STSRole -RoleArn $Env:ROLE_ARN -RoleSessionName "CodeBuildVerify" -ExternalId "EncryptionSDKNetSigning" -Verbose
       - echo $foo
       #- $creds = Use-STSRole -RoleArn $Env:ROLE_ARN -RoleSessionName "CodeBuildVerify" -ExternalId "EncryptionSDKNetSigning"
-      - Get-Member -InputObject $foo
-      - Get-Member -InputObject $foo.Credentials
+      - Get-Member -InputObject $foo -Force
+      - Get-Member -InputObject $foo.Credentials -Force
       #- echo $creds.Credentials
       #- echo $creds.Credentials.AccessKeyId
       #- echo $creds.Credentials.SecretAccessKey
