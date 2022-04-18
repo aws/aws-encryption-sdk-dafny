@@ -100,7 +100,7 @@ def upload_assembly(args, s3=None):
             Body=source_object_data,
             ACL="bucket-owner-full-control",
         )
-        print(f"Successfully uploaded file {source_object} to {UNSIGNED_BUCKET}/{key}")
+        print(f"Successfully uploaded file {source_object} to {UNSIGNED_BUCKET}/{s3_key}")
 
 
 def get_job_id(args, s3=None):
@@ -115,7 +115,7 @@ def get_job_id(args, s3=None):
         s3 = get_s3_client()
 
     s3_key = "/".join([KEY_PREFIX, args.target, f"{args.unique_id}-{ASSEMBLY_NAME}"])
-    print(f"Searching for key {key}")
+    print(f"Searching for key {s3_key}")
 
     retry_count = 0
     while retry_count < 3:
