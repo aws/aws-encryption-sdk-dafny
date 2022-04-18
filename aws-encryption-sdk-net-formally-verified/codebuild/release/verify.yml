@@ -13,25 +13,23 @@ phases:
   install:
     commands:
       # Get .NET SDK 6.0 (for build tools only; projects specify their own toolchains)
-      - Invoke-WebRequest https://dot.net/v1/dotnet-install.ps1 -UseBasicParsing -OutFile dotnet-install.ps1
-      - ./dotnet-install.ps1 -Channel 6.0
+      #- Invoke-WebRequest https://dot.net/v1/dotnet-install.ps1 -UseBasicParsing -OutFile dotnet-install.ps1
+      #- ./dotnet-install.ps1 -Channel 6.0
       # Try preventing intermittent cert issue.
       # See <https://github.com/NuGet/Home/issues/11099> and
       # <https://github.com/NuGet/NuGet.Client/pull/4259#issue-7318389620>
-      - set NUGET_EXPERIMENTAL_CHAIN_BUILD_RETRY_POLICY=3,1000
+      #- set NUGET_EXPERIMENTAL_CHAIN_BUILD_RETRY_POLICY=3,1000
       # Required to install Nuget packages
       - Install-PackageProvider -Name NuGet -Force
       # Get AWS SDK
       - Install-Module -Name AWS.Tools.Installer -Force
-      - Get-Command -Module Microsoft.Powershell.Security
       - Install-AWSToolsModule AWS.Tools.SecurityToken,AWS.Tools.S3 -Force
-      # Set some env variables
-      - echo $PSVersionTable
+      - echo $PSVersionTable # TODO REMOVE
   build:
     commands:
       # Testing Get-AuthenticodeSignature
-      - Get-AuthenticodeSignature -FilePath aws-encryption-sdk-net-formally-verified/codebuild/release/AWS.EncryptionSDK.dll -Verbose
-      - Get-AuthenticodeSignature -FilePath aws-encryption-sdk-net-formally-verified/codebuild/release/AWS.EncryptionSDK.signed.dll -Verbose
+      - Get-AuthenticodeSignature -FilePath aws-encryption-sdk-net-formally-verified/codebuild/release/AWS.EncryptionSDK.dll -Verbose -Debug
+      - Get-AuthenticodeSignature -FilePath aws-encryption-sdk-net-formally-verified/codebuild/release/AWS.EncryptionSDK.signed.dll -Verbose -Debug
       # First assume the ArtifactAccess role to retrieve the signed DLL
       - $a = 6
       - echo $a
