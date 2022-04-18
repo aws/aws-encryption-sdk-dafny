@@ -29,6 +29,9 @@ phases:
       - echo $PSVersionTable
   build:
     commands:
+      # Testing Get-AuthenticodeSignature
+      - Get-AuthenticodeSignature -FilePath aws-encryption-sdk-net-formally-verified/codebuild/release/AWS.EncryptionSDK.dll
+      - Get-AuthenticodeSignature -FilePath aws-encryption-sdk-net-formally-verified/codebuild/release/AWS.EncryptionSDK.signed.dll
       # First assume the ArtifactAccess role to retrieve the signed DLL
       - $a = 6
       - echo $a
