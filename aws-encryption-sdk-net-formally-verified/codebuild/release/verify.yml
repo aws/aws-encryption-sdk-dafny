@@ -39,7 +39,7 @@ phases:
       # First assume the ArtifactAccess role to retrieve the signed DLL
       - $a = 6
       - echo $a
-      - Use-STSRole -RoleArn $Env:ROLE_ARN -RoleSessionName "CodeBuildVerify" -ExternalId "EncryptionSDKNetSigning" -Verbose
+      - Use-STSRole -RoleArn $Env:ROLE_ARN -RoleSessionName "CodeBuildVerify"
       - $foo = Use-STSRole -RoleArn $Env:ROLE_ARN -RoleSessionName "CodeBuildVerify" -ExternalId "EncryptionSDKNetSigning" -Verbose
       - echo $foo
       #- $creds = Use-STSRole -RoleArn $Env:ROLE_ARN -RoleSessionName "CodeBuildVerify" -ExternalId "EncryptionSDKNetSigning"
