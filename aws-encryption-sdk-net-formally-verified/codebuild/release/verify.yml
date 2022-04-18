@@ -26,7 +26,7 @@ phases:
       - Get-Command -Module Microsoft.PowerShell.Utility
   build:
     commands:
-      #- python aws-encryption-sdk-net-formally-verified/codebuild/release/retrieve_signed_assembly.py --target net452 --unique-id 16869
+      - python aws-encryption-sdk-net-formally-verified/codebuild/release/retrieve_signed_assembly.py --target net452 --unique-id $Env:UNIQUE_ID
       # Testing Get-AuthenticodeSignature
       - Get-AuthenticodeSignature -FilePath aws-encryption-sdk-net-formally-verified/codebuild/release/AWS.EncryptionSDK.dll -Verbose -Debug
       - $sig = [System.Management.Automation.Signature](Get-AuthenticodeSignature -FilePath aws-encryption-sdk-net-formally-verified/codebuild/release/AWS.EncryptionSDK.signed.dll)
