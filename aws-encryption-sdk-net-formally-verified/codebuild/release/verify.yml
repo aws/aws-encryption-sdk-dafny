@@ -24,6 +24,8 @@ phases:
       # Get AWS SDK
       - Install-Module -Name AWS.Tools.Installer -Force
       - Install-AWSToolsModule AWS.Tools.SecurityToken,AWS.Tools.S3 -Force
+      - Import-Module AWS.Tools.SecurityToken
+      - Import-Module AWS.Tools.S3
       - echo $PSVersionTable # TODO REMOVE
       - Get-Command -Module Microsoft.PowerShell.Utility
       - Get-Member -?
