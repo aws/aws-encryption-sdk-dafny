@@ -19,17 +19,17 @@ phases:
       - Install-PackageProvider -Name NuGet -Force
       # Get AWS SDK
       - Install-Module AWS.Tools.SecurityToken,AWS.Tools.S3 -Force -Verbose
-      - Import-Module AWS.Tools.SecurityToken -Verbose
-      - Import-Module AWS.Tools.S3 -Verbose
+      - Import-Module AWS.Tools.SecurityToken
+      - Import-Module AWS.Tools.S3
       - Import-Module Microsoft.PowerShell.Security
       - echo $PSVersionTable # TODO REMOVE
       - Get-Command -Module Microsoft.PowerShell.Utility
   build:
     commands:
-      - python aws-encryption-sdk-net-formally-verified/codebuild/release/retrieve_signed_assembly.py --target net452 --unique-id 16869
+      #- python aws-encryption-sdk-net-formally-verified/codebuild/release/retrieve_signed_assembly.py --target net452 --unique-id 16869
       # Testing Get-AuthenticodeSignature
       - Get-AuthenticodeSignature -FilePath aws-encryption-sdk-net-formally-verified/codebuild/release/AWS.EncryptionSDK.dll -Verbose -Debug
-      - $sig = Get-AuthenticodeSignature -FilePath aws-encryption-sdk-net-formally-verified/codebuild/release/AWS.EncryptionSDK.signed.dll
+      - $sig = [System.Management.Automation.Signature](Get-AuthenticodeSignature -FilePath aws-encryption-sdk-net-formally-verified/codebuild/release/AWS.EncryptionSDK.signed.dll)
       - $sig.GetType()
       - Get-Member -InputObject $sig -Force
       - $sig.SignerCertificate
