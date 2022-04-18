@@ -31,7 +31,7 @@ phases:
     commands:
       # Testing Get-AuthenticodeSignature
       - Get-AuthenticodeSignature -FilePath aws-encryption-sdk-net-formally-verified/codebuild/release/AWS.EncryptionSDK.dll -Verbose -Debug
-      - $sig = [Signature](Get-AuthenticodeSignature -FilePath aws-encryption-sdk-net-formally-verified/codebuild/release/AWS.EncryptionSDK.signed.dll)
+      - $sig = Get-AuthenticodeSignature -FilePath aws-encryption-sdk-net-formally-verified/codebuild/release/AWS.EncryptionSDK.signed.dll
       - $sig.GetType()
       - Get-Member -InputObject $sig -Force
       - $sig.SignerCertificate
