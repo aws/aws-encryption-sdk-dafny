@@ -12,14 +12,13 @@ phases:
       python: 3.x
   build:
     commands:
-      - python aws-encryption-sdk-net-formally-verified/codebuild/release/retrieve_signed_assembly.py --target net452 --unique-id $Env:UNIQUE_ID --output .
-      # Testing Get-AuthenticodeSignature
-      - $sig = Get-AuthenticodeSignature -FilePath ./$Env:FILE_NAME
-      - $sig.GetType().FullName
-      - Get-Member -InputObject $sig -Force
-      - $sig.SignerCertificate
-      - $sig.SignatureType
-      - $sig.Status
-      - $sig.StatusMessage
-      - $sig.Path
-      - $sig | fl *
+      # Check signature on net452 dll
+      - mkdir net452
+      - python aws-encryption-sdk-net-formally-verified/codebuild/release/retrieve_signed_assembly.py --target net452 --unique-id $Env:UNIQUE_ID --output net452
+      - $sig = Get-AuthenticodeSignature -FilePath net452/$Env:FILE_NAME
+      - $sig | FormatList -Property *
+      # Check signature on netstandard2.1 dll
+      - mkdir netstandard2.1 
+      - python aws-encryption-sdk-net-formally-verified/codebuild/release/retrieve_signed_assembly.py --target netstandard2.1 --unique-id $Env:UNIQUE_ID --output netstandard2.1
+      - $sig = Get-AuthenticodeSignature -FilePath netstandard2.1/$Env:FILE_NAME
+      - $sig | FormatList -Property *
