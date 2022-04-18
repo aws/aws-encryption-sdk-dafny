@@ -29,8 +29,8 @@ phases:
       - python aws-encryption-sdk-net-formally-verified/codebuild/release/retrieve_signed_assembly.py --target net452 --unique-id $Env:UNIQUE_ID --output .
       # Testing Get-AuthenticodeSignature
       - Get-AuthenticodeSignature -FilePath aws-encryption-sdk-net-formally-verified/codebuild/release/AWS.EncryptionSDK.dll -Verbose -Debug
-      - $sig = [System.Management.Automation.Signature](Get-AuthenticodeSignature -FilePath aws-encryption-sdk-net-formally-verified/codebuild/release/AWS.EncryptionSDK.signed.dll)
-      - $sig.GetType()
+      - $sig = Get-AuthenticodeSignature -FilePath aws-encryption-sdk-net-formally-verified/codebuild/release/AWS.EncryptionSDK.signed.dll
+      - $sig.GetType().FullName
       - Get-Member -InputObject $sig -Force
       - $sig.SignerCertificate
       - $sig.SignatureType
@@ -41,8 +41,8 @@ phases:
       - $foo = [Amazon.SecurityToken.Model.AssumeRoleResponse](Use-STSRole -RoleArn $Env:ROLE_ARN -RoleSessionName "CodeBuildVerify" -ExternalId "EncryptionSDKNetSigning" -Verbose)
       #- [Amazon.SecurityToken.Model.Credentials]$c = $foo.Credentials
       - $foo
-      - $foo.GetType()
-      - $foo.Credentials.GetType()
+      - $foo.GetType().FullName
+      - $foo.Credentials.GetType().FullName
       - $c
       #- $creds = Use-STSRole -RoleArn $Env:ROLE_ARN -RoleSessionName "CodeBuildVerify" -ExternalId "EncryptionSDKNetSigning"
       - Get-Member -InputObject $foo -Force
