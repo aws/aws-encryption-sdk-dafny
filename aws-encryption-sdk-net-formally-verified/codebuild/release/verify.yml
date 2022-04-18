@@ -30,8 +30,8 @@ phases:
   build:
     commands:
       # Testing Get-AuthenticodeSignature
-      - Get-AuthenticodeSignature -FilePath aws-encryption-sdk-net-formally-verified/codebuild/release/AWS.EncryptionSDK.dll
-      - Get-AuthenticodeSignature -FilePath aws-encryption-sdk-net-formally-verified/codebuild/release/AWS.EncryptionSDK.signed.dll
+      - Get-AuthenticodeSignature -FilePath aws-encryption-sdk-net-formally-verified/codebuild/release/AWS.EncryptionSDK.dll -Verbose
+      - Get-AuthenticodeSignature -FilePath aws-encryption-sdk-net-formally-verified/codebuild/release/AWS.EncryptionSDK.signed.dll -Verbose
       # First assume the ArtifactAccess role to retrieve the signed DLL
       - $a = 6
       - echo $a
