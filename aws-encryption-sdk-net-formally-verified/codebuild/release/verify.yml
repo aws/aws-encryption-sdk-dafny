@@ -2,10 +2,6 @@ version: 0.2
 
 env:
   variables:
-    UNSIGNED_S3_BUCKET: "349032751102-unsigned-bucket"
-    SIGNED_S3_BUCKET: "349032751102-signed-bucket"
-    S3_PREFIX: "aws_encryption_sdk_net/AuthenticodeSigner-SHA256-RSA"
-    ROLE_ARN: "arn:aws:iam::349032751102:role/EncryptionSDKNetSigning-ArtifactAccessRole"
     FILE_NAME: "AWS.EncryptionSDK.dll"
    
 
@@ -14,22 +10,11 @@ phases:
     runtime-versions:
       dotnet: 5.0
       python: 3.x
-    commands:
-      # Required to install Nuget packages
-      - Install-PackageProvider -Name NuGet -Force
-      # Get AWS SDK
-      - Install-Module AWS.Tools.SecurityToken,AWS.Tools.S3 -Force -Verbose
-      - Import-Module AWS.Tools.SecurityToken
-      - Import-Module AWS.Tools.S3
-      - Import-Module Microsoft.PowerShell.Security
-      - echo $PSVersionTable # TODO REMOVE
-      - Get-Command -Module Microsoft.PowerShell.Utility
   build:
     commands:
       - python aws-encryption-sdk-net-formally-verified/codebuild/release/retrieve_signed_assembly.py --target net452 --unique-id $Env:UNIQUE_ID --output .
       # Testing Get-AuthenticodeSignature
-      - Get-AuthenticodeSignature -FilePath aws-encryption-sdk-net-formally-verified/codebuild/release/AWS.EncryptionSDK.dll -Verbose -Debug
-      - $sig = Get-AuthenticodeSignature -FilePath aws-encryption-sdk-net-formally-verified/codebuild/release/AWS.EncryptionSDK.signed.dll
+      - $sig = Get-AuthenticodeSignature -FilePath ./$Env:FILE_NAME
       - $sig.GetType().FullName
       - Get-Member -InputObject $sig -Force
       - $sig.SignerCertificate
@@ -37,22 +22,4 @@ phases:
       - $sig.Status
       - $sig.StatusMessage
       - $sig.Path
-      # First assume the ArtifactAccess role to retrieve the signed DLL
-      - $foo = [Amazon.SecurityToken.Model.AssumeRoleResponse](Use-STSRole -RoleArn $Env:ROLE_ARN -RoleSessionName "CodeBuildVerify" -ExternalId "EncryptionSDKNetSigning" -Verbose)
-      #- [Amazon.SecurityToken.Model.Credentials]$c = $foo.Credentials
-      - $foo
-      - $foo.GetType().FullName
-      - $foo.Credentials.GetType().FullName
-      - $c
-      #- $creds = Use-STSRole -RoleArn $Env:ROLE_ARN -RoleSessionName "CodeBuildVerify" -ExternalId "EncryptionSDKNetSigning"
-      - Get-Member -InputObject $foo -Force
-      - Get-Member -InputObject $foo.Credentials -Force
-      #- echo $creds.Credentials
-      #- echo $creds.Credentials.AccessKeyId
-      #- echo $creds.Credentials.SecretAccessKey
-      # Next get the signer job id, stored as a tag on the unsigned object
-      - $tags = Get-S3ObjectTagSet -BucketName $Env:UNSIGNED_S3_BUCKET -Key $Env:S3_PREFIX/net452/$Env:UNIQUE_ID-$Env:FILE_NAME -Credential $foo.Credentials
-      #- $tags = Get-S3ObjectTagSet -BucketName $Env:UNSIGNED_S3_BUCKET -Key $Env:S3_PREFIX/net452/$Env:UNIQUE_ID-$Env:FILE_NAME
-      - $signer_job_id = $tags[0].Value
-      # Now retrieve the signed dll
-      - Read-S3Object -BucketName $Env:SIGNED_S3_BUCKET -KEY $Env:S3_PREFIX/net452/$Env:UNIQUE_ID-$ENV.FILE_NAME-$signer_job_id -Credential $foo.Credentials -File net452-$Env:FILE_NAME
+      - $sig | fl *
