@@ -12,12 +12,12 @@ batch:
         image: aws/codebuild/windows-base:2019-1.0
       depend-on:
         - sign
-    #- identifier: release_staging
-    #  buildspec: aws-encryption-sdk-net-formally-verified/codebuild/release/release-staging.yml
-    #  depend-on:
-    #    - sign
-    #- identifier: release_prod
-    #  buildspec: aws-encryption-sdk-net-formally-verified/codebuild/release/release-prod.yml
-    #  depend-on:
-    #    - verify
-    #    - release_staging
+    - identifier: release_staging
+      buildspec: aws-encryption-sdk-net-formally-verified/codebuild/release/release-staging.yml
+      depend-on:
+        - sign
+    - identifier: release_prod
+      buildspec: aws-encryption-sdk-net-formally-verified/codebuild/release/release-prod.yml
+      depend-on:
+        - verify
+        - release_staging
