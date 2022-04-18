@@ -22,13 +22,12 @@ phases:
       # Required to install Nuget packages
       - Install-PackageProvider -Name NuGet -Force
       # Get AWS SDK
-      - Install-Module -Name AWS.Tools.Installer -Force
-      - Install-AWSToolsModule AWS.Tools.SecurityToken,AWS.Tools.S3 -Force
-      - Import-Module AWS.Tools.SecurityToken
-      - Import-Module AWS.Tools.S3
+      - Install-Module AWS.Tools.SecurityToken,AWS.Tools.S3 -Force -Verbose
+      - Import-Module AWS.Tools.SecurityToken -Verbose
+      - Import-Module AWS.Tools.S3 -Verbose
+      - Import-Module Microsoft.PowerShell.Security
       - echo $PSVersionTable # TODO REMOVE
       - Get-Command -Module Microsoft.PowerShell.Utility
-      - Get-Member -?
   build:
     commands:
       # Testing Get-AuthenticodeSignature
