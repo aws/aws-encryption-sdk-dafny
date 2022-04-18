@@ -42,7 +42,7 @@ def parse_args():
         default=RELEASE_FOLDER,
         metavar='o',
         type=str,
-        help='A unique identifier for this signing flow'
+        help='Place to put output files'
     )
     return parser.parse_args()
     
@@ -141,7 +141,7 @@ def retrieve_signed_assembly(args, s3=None):
     if not s3:
         s3 = get_s3_client()
 
-    job_id = get_job_id(args.target, args.unique_id, s3=s3)
+    job_id = get_job_id(args, s3=s3)
     print(f"Found signer job id: {job_id}")
 
     object_name = f"{args.unique_id}-{ASSEMBLY_NAME}-{job_id}"
