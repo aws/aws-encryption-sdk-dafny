@@ -32,22 +32,22 @@ phases:
       # Testing Get-AuthenticodeSignature
       - Get-AuthenticodeSignature -FilePath aws-encryption-sdk-net-formally-verified/codebuild/release/AWS.EncryptionSDK.dll -Verbose -Debug
       - $sig = Get-AuthenticodeSignature -FilePath aws-encryption-sdk-net-formally-verified/codebuild/release/AWS.EncryptionSDK.signed.dll -Verbose -Debug
+      - $sig.GetType()
       - Get-Member -InputObject $sig -Force
-      - echo $sig.SignerCertificate
-      - echo $sig.SignatureType
-      - echo $sig.Status
-      - echo $sig.StatusMessage
-      - echo $sig.Path
+      - $sig.SignerCertificate
+      - $sig.SignatureType
+      - $sig.Status
+      - $sig.StatusMessage
+      - $sig.Path
       # First assume the ArtifactAccess role to retrieve the signed DLL
-      - $a = 6
-      - echo $a
-      - Use-STSRole -RoleArn $Env:ROLE_ARN -RoleSessionName "CodeBuildVerify" -ExternalId "EncryptionSDKNetSigning" -Verbose
-      - [Amazon.SecurityToken.Model.AssumeRoleResponse]$foo = Use-STSRole -RoleArn $Env:ROLE_ARN -RoleSessionName "CodeBuildVerify" -ExternalId "EncryptionSDKNetSigning" -Verbose
-      - [Amazon.SecurityToken.Model.Credentials]$c = $foo.Credentials
-      - echo $foo
-      - echo $foo.GetType()
-      - echo $foo.Credentials.GetType()
-      - echo $c
+      #- Use-STSRole -RoleArn $Env:ROLE_ARN -RoleSessionName "CodeBuildVerify" -ExternalId "EncryptionSDKNetSigning" -Verbose
+      #- [Amazon.SecurityToken.Model.AssumeRoleResponse]$foo = Use-STSRole -RoleArn $Env:ROLE_ARN -RoleSessionName "CodeBuildVerify" -ExternalId "EncryptionSDKNetSigning" -Verbose
+      #- [Amazon.SecurityToken.Model.AssumeRoleResponse]$foo = Use-STSRole -RoleArn $Env:ROLE_ARN -RoleSessionName "CodeBuildVerify" -ExternalId "EncryptionSDKNetSigning" -Verbose
+      #- [Amazon.SecurityToken.Model.Credentials]$c = $foo.Credentials
+      - $foo
+      - $foo.GetType()
+      - $foo.Credentials.GetType()
+      - $c
       #- $creds = Use-STSRole -RoleArn $Env:ROLE_ARN -RoleSessionName "CodeBuildVerify" -ExternalId "EncryptionSDKNetSigning"
       - Get-Member -InputObject $foo -Force
       - Get-Member -InputObject $foo.Credentials -Force
