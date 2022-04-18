@@ -39,7 +39,6 @@ def parse_args():
     parser.add_argument(
         '--output',
         required=False,
-        default=RELEASE_FOLDER,
         metavar='o',
         type=str,
         help='Place to put output files'
@@ -87,7 +86,7 @@ def upload_assembly(args, s3=None):
     if not s3:
         s3 = get_s3_client()
 
-    source_object = os.path.join(args.output, args.target, ASSEMBLY_NAME)
+    source_object = os.path.join(RELEASE_FOLDER, args.target, ASSEMBLY_NAME)
     if not os.path.exists(source_object):
         raise Exception(f"File {source_object} does not exist")
 
@@ -155,8 +154,10 @@ def retrieve_signed_assembly(args, s3=None):
                 Bucket=SIGNED_BUCKET,
                 Key=s3_key,
             )
-            
-            destination_object = "/".join([args.output, args.target, ASSEMBLY_NAME])
+            if not args.output:
+                destination_object = os.path.join(RELEASE_FOLDER, args.target, ASSEMBLY_NAME)
+            else:
+                destination_object = os.path.join(args.output, ASSEMBLY_NAME)
             with open(destination_object, 'wb') as destination_file:
                 destination_file.write(signed_object['Body'].read())
             print(f"Wrote signed assembly to {destination_object}")
