@@ -11,14 +11,10 @@ env:
 
 phases:
   install:
+    runtime-versions:
+      dotnet: 5.0
+      python: 3.x
     commands:
-      # Get .NET SDK 6.0 (for build tools only; projects specify their own toolchains)
-      #- Invoke-WebRequest https://dot.net/v1/dotnet-install.ps1 -UseBasicParsing -OutFile dotnet-install.ps1
-      #- ./dotnet-install.ps1 -Channel 6.0
-      # Try preventing intermittent cert issue.
-      # See <https://github.com/NuGet/Home/issues/11099> and
-      # <https://github.com/NuGet/NuGet.Client/pull/4259#issue-7318389620>
-      #- set NUGET_EXPERIMENTAL_CHAIN_BUILD_RETRY_POLICY=3,1000
       # Required to install Nuget packages
       - Install-PackageProvider -Name NuGet -Force
       # Get AWS SDK
