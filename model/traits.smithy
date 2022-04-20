@@ -40,3 +40,9 @@ structure positional {}
 // is improved: <https://github.com/dafny-lang/dafny/issues/413>
 @trait(selector: "string")
 structure dafnyUtf8Bytes {}
+
+// A trait indicating that the resource is extendable by customers.
+// i.e.: Users may author their own classes that implement and extend this resource.
+// Polymorph will generate and utilize NativeWrappers for these resources.
+@trait(selector: "resource")
+structure extendable {}

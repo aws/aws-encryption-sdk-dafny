@@ -623,12 +623,12 @@ namespace AWS.EncryptionSDK.Core
                     return valueWithImpl._impl;
                 case ClientSupplierBase nativeImpl:
                     return new NativeWrapper_ClientSupplier(nativeImpl);
-                case IClientSupplier _:
+                case AWS.EncryptionSDK.Core.IClientSupplier _:
                     throw new System.ArgumentException(
                         "Custom implementations of ClientSupplier should extend ClientSupplierBase.");
                 default:
                     throw new System.ArgumentException(
-                        $"{value} does not inherit from {typeof(ClientSupplier)} or {typeof(ClientSupplierBase)}.");
+                        $"{value} does not inherit from {typeof(ClientSupplierBase)} or {typeof(ClientSupplier)}.");
             }
         }
 
@@ -2344,19 +2344,26 @@ namespace AWS.EncryptionSDK.Core
             FromDafny_N3_aws__N13_encryptionSdk__N4_core__S16_KeyringReference(
                 Dafny.Aws.EncryptionSdk.Core.IKeyring value)
         {
+            if (value is NativeWrapper_Keyring nativeWrapper) return nativeWrapper._impl;
             return new Keyring(value);
         }
 
         public static Dafny.Aws.EncryptionSdk.Core.IKeyring
             ToDafny_N3_aws__N13_encryptionSdk__N4_core__S16_KeyringReference(AWS.EncryptionSDK.Core.IKeyring value)
         {
-            if (value is Keyring valueWithImpl)
+            switch (value)
             {
-                return valueWithImpl._impl;
+                case Keyring valueWithImpl:
+                    return valueWithImpl._impl;
+                case KeyringBase nativeImpl:
+                    return new NativeWrapper_Keyring(nativeImpl);
+                case AWS.EncryptionSDK.Core.IKeyring _:
+                    throw new System.ArgumentException(
+                        "Custom implementations of Keyring should extend KeyringBase.");
+                default:
+                    throw new System.ArgumentException(
+                        $"{value} does not inherit from {typeof(KeyringBase)} or {typeof(Keyring)}.");
             }
-
-            throw new System.ArgumentException(
-                "Custom implementations of AWS.EncryptionSDK.Core.IKeyring are not supported yet");
         }
 
         public static AWS.EncryptionSDK.Core.OnDecryptInput
@@ -2491,6 +2498,7 @@ namespace AWS.EncryptionSDK.Core
             FromDafny_N3_aws__N13_encryptionSdk__N4_core__S38_CryptographicMaterialsManagerReference(
                 Dafny.Aws.EncryptionSdk.Core.ICryptographicMaterialsManager value)
         {
+            if (value is NativeWrapper_CryptographicMaterialsManager nativeWrapper) return nativeWrapper._impl;
             return new CryptographicMaterialsManager(value);
         }
 
@@ -2498,13 +2506,19 @@ namespace AWS.EncryptionSDK.Core
             ToDafny_N3_aws__N13_encryptionSdk__N4_core__S38_CryptographicMaterialsManagerReference(
                 AWS.EncryptionSDK.Core.ICryptographicMaterialsManager value)
         {
-            if (value is CryptographicMaterialsManager valueWithImpl)
+            switch (value)
             {
-                return valueWithImpl._impl;
+                case CryptographicMaterialsManager valueWithImpl:
+                    return valueWithImpl._impl;
+                case CryptographicMaterialsManagerBase nativeImpl:
+                    return new NativeWrapper_CryptographicMaterialsManager(nativeImpl);
+                case AWS.EncryptionSDK.Core.ICryptographicMaterialsManager _:
+                    throw new System.ArgumentException(
+                        "Custom implementations of CryptographicMaterialsManager should extend CryptographicMaterialsManagerBase.");
+                default:
+                    throw new System.ArgumentException(
+                        $"{value} does not inherit from {typeof(CryptographicMaterialsManagerBase)} or {typeof(CryptographicMaterialsManager)}.");
             }
-
-            throw new System.ArgumentException(
-                "Custom implementations of AWS.EncryptionSDK.Core.ICryptographicMaterialsManager are not supported yet");
         }
 
         public static AWS.EncryptionSDK.Core.CreateAwsKmsMrkKeyringInput
