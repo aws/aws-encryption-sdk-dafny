@@ -12,7 +12,9 @@ namespace AWS.EncryptionSDK.Core
         public AWS.EncryptionSDK.Core.OnEncryptOutput OnEncrypt(AWS.EncryptionSDK.Core.OnEncryptInput input)
         {
             input.Validate();
-            return _OnEncrypt(input);
+            var output = _OnEncrypt(input);
+            output.Validate();
+            return output;
         }
 
         protected abstract AWS.EncryptionSDK.Core.OnEncryptOutput _OnEncrypt(
@@ -21,7 +23,9 @@ namespace AWS.EncryptionSDK.Core
         public AWS.EncryptionSDK.Core.OnDecryptOutput OnDecrypt(AWS.EncryptionSDK.Core.OnDecryptInput input)
         {
             input.Validate();
-            return _OnDecrypt(input);
+            var output = _OnDecrypt(input);
+            output.Validate();
+            return output;
         }
 
         protected abstract AWS.EncryptionSDK.Core.OnDecryptOutput _OnDecrypt(
