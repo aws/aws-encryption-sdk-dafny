@@ -13,9 +13,7 @@ namespace AWS.EncryptionSDK.Core
             AWS.EncryptionSDK.Core.GetEncryptionMaterialsInput input)
         {
             input.Validate();
-            var output = _GetEncryptionMaterials(input);
-            output.Validate();
-            return output;
+            return _GetEncryptionMaterials(input);
         }
 
         protected abstract AWS.EncryptionSDK.Core.GetEncryptionMaterialsOutput _GetEncryptionMaterials(
@@ -25,9 +23,7 @@ namespace AWS.EncryptionSDK.Core
             AWS.EncryptionSDK.Core.DecryptMaterialsInput input)
         {
             input.Validate();
-            var output = _DecryptMaterials(input);
-            output.Validate();
-            return output;
+            return _DecryptMaterials(input);
         }
 
         protected abstract AWS.EncryptionSDK.Core.DecryptMaterialsOutput _DecryptMaterials(
