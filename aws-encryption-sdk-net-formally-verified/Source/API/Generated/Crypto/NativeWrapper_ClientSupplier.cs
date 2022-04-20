@@ -32,6 +32,9 @@ namespace AWS.EncryptionSDK.Core
             {
                 // ReSharper disable once RedundantNameQualifier
                 Amazon.KeyManagementService.IAmazonKeyManagementService nativeOutput = _impl.GetClient(nativeInput);
+                _ = nativeOutput ?? throw new ArgumentNullException(
+                    $"Output of {_impl}._GetClient is invalid. " +
+                    $"Should be {typeof(IAmazonKeyManagementService)} but is {null}.");
                 return Wrappers_Compile.Result<
                     Dafny.Com.Amazonaws.Kms.IKeyManagementServiceClient,
                     Dafny.Aws.EncryptionSdk.Core.IAwsCryptographicMaterialProvidersException
