@@ -30,9 +30,9 @@ namespace AWS.EncryptionSDK.Core
             try
             {
                 AWS.EncryptionSDK.Core.DecryptMaterialsOutput nativeOutput = _impl.DecryptMaterials(nativeInput);
-                _ = nativeOutput ?? throw new ArgumentNullException(
+                _ = nativeOutput ?? throw new AwsCryptographicMaterialProvidersException(
                     $"Output of {_impl}._DecryptMaterials is invalid. " +
-                    $"Should be {typeof(AWS.EncryptionSDK.Core.DecryptMaterialsOutput)} but is {null}.");
+                    $"Should be {typeof(AWS.EncryptionSDK.Core.DecryptMaterialsOutput)} but is null.");
                 nativeOutput.Validate();
                 return Wrappers_Compile
                     .Result<Dafny.Aws.EncryptionSdk.Core._IDecryptMaterialsOutput,
@@ -41,7 +41,7 @@ namespace AWS.EncryptionSDK.Core
                         TypeConversion.ToDafny_N3_aws__N13_encryptionSdk__N4_core__S22_DecryptMaterialsOutput(
                             nativeOutput));
             }
-            catch (AwsCryptographicMaterialProvidersBaseException e)
+            catch (AwsCryptographicMaterialProvidersException e)
             {
                 return Wrappers_Compile
                     .Result<Dafny.Aws.EncryptionSdk.Core._IDecryptMaterialsOutput,
@@ -55,7 +55,7 @@ namespace AWS.EncryptionSDK.Core
                     .Result<Dafny.Aws.EncryptionSdk.Core._IDecryptMaterialsOutput,
                         Dafny.Aws.EncryptionSdk.Core.IAwsCryptographicMaterialProvidersException>.create_Failure(
                         TypeConversion.ToDafny_CommonError_AwsCryptographicMaterialProvidersBaseException(
-                            new AwsCryptographicMaterialProvidersBaseException(e.Message)));
+                            new AwsCryptographicMaterialProvidersException(e.Message)));
             }
         }
 
@@ -69,9 +69,9 @@ namespace AWS.EncryptionSDK.Core
             {
                 AWS.EncryptionSDK.Core.GetEncryptionMaterialsOutput nativeOutput =
                     _impl.GetEncryptionMaterials(nativeInput);
-                _ = nativeOutput ?? throw new ArgumentNullException(
+                _ = nativeOutput ?? throw new AwsCryptographicMaterialProvidersException(
                     $"Output of {_impl}._GetEncryptionMaterials is invalid. " +
-                    $"Should be {typeof(AWS.EncryptionSDK.Core.GetEncryptionMaterialsOutput)} but is {null}.");
+                    $"Should be {typeof(AWS.EncryptionSDK.Core.GetEncryptionMaterialsOutput)} but is null.");
                 nativeOutput.Validate();
                 return Wrappers_Compile
                     .Result<Dafny.Aws.EncryptionSdk.Core._IGetEncryptionMaterialsOutput,
@@ -79,7 +79,7 @@ namespace AWS.EncryptionSDK.Core
                     .create_Success(TypeConversion
                         .ToDafny_N3_aws__N13_encryptionSdk__N4_core__S28_GetEncryptionMaterialsOutput(nativeOutput));
             }
-            catch (AwsCryptographicMaterialProvidersBaseException e)
+            catch (AwsCryptographicMaterialProvidersException e)
             {
                 return Wrappers_Compile
                     .Result<Dafny.Aws.EncryptionSdk.Core._IGetEncryptionMaterialsOutput,
@@ -93,7 +93,7 @@ namespace AWS.EncryptionSDK.Core
                     .Result<Dafny.Aws.EncryptionSdk.Core._IGetEncryptionMaterialsOutput,
                         Dafny.Aws.EncryptionSdk.Core.IAwsCryptographicMaterialProvidersException>.create_Failure(
                         TypeConversion.ToDafny_CommonError_AwsCryptographicMaterialProvidersBaseException(
-                            new AwsCryptographicMaterialProvidersBaseException(e.Message)));
+                            new AwsCryptographicMaterialProvidersException(e.Message)));
             }
         }
     }

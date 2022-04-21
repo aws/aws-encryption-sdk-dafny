@@ -4,35 +4,88 @@
 using System;
 using System.Collections.Generic;
 using AWS.EncryptionSDK.Core;
+// ReSharper disable once RedundantUsingDirective
+using Wrappers_Compile;
 using Xunit;
+using Xunit.Sdk;
+using static AWSEncryptionSDKTests.NativeWrappers.Utils;
 
 namespace AWSEncryptionSDKTests.NativeWrappers
 {
     public class OutputValidationTests
     {
+        private const string EXPECTED_FAILURE =
+            "Wrappers_Compile.Result.Failure(Dafny.Aws.EncryptionSdk.Core.AwsCryptographicMaterialProvidersException)";
+
         [Fact]
         public void TestInvalidRejected()
         {
-            var wrappedBadKeyring = new NativeWrapper_Keyring(new BadKeyring());
-            var e = Assert.ThrowsAny<Exception>(() => wrappedBadKeyring.OnEncrypt(Utils.GetDafnyOnEncryptInput()));
-            Console.Out.WriteLine($"BadKeyring throw {e.GetType()} On Encrypt with message: \"{e.Message}\"");
-            // Currently getting
-            // `BadKeyring throw System.ArgumentException On Encrypt with message: "Unknown exception type"`
-            // But should be
-            // `BadKeyring throw AwsCryptographicMaterialProviders on Encrypt with message: "Missing value for required property 'Materials'"`
+            var underTest = new NativeWrapper_Keyring(new BadKeyring());
+            Wrappers_Compile._IResult<Dafny.Aws.EncryptionSdk.Core._IOnEncryptOutput,
+                // ReSharper disable once RedundantAssignment
+                Dafny.Aws.EncryptionSdk.Core.IAwsCryptographicMaterialProvidersException> output = null;
+            try
+            {
+                output = underTest.OnEncrypt(GetDafnyOnEncryptInput());
+            }
+            catch (Exception e)
+            {
+                throw new XunitException(
+                    $"{underTest}.OnEncrypt through an exception: {e.GetType()} with message: \"{e.Message}\"." +
+                    $"Should have returned: \"{EXPECTED_FAILURE}\""
+                );
+            }
+
+            if (output != null)
+            {
+                // Weird way of checking that the class is right, I know, but this is what I can figure out
+                Assert.Equal(EXPECTED_FAILURE, $"{output}");
+                var e = output.dtor_error;
+                const string expectedMessage =
+                    "Output of AWSEncryptionSDKTests.NativeWrappers.BadKeyring._OnEncrypt is invalid." +
+                    " Missing value for required property 'Materials'";
+                var actualMessage = TypeConversion.FromDafny_N6_smithy__N3_api__S6_String(e.GetMessage());
+                Assert.Equal(expectedMessage, actualMessage);
+            }
+            else
+            {
+                throw new XunitException($"{underTest}.OnEncrypt returned null." +
+                                         $"Should have returned: \"{EXPECTED_FAILURE}\"");
+            }
         }
 
         [Fact]
         public void TestNullRejected()
         {
-            var wrappedBadKeyring = new NativeWrapper_Keyring(new BadKeyring());
-            var e = Assert.ThrowsAny<Exception>(() => wrappedBadKeyring.OnDecrypt(Utils.GetDafnyOnDecryptInput()));
-            Console.Out.WriteLine($"BadKeyring throw {e.GetType()} On Decrypt with message: \"{e.Message}\"");
-            // Currently getting
-            // `BadKeyring throw System.ArgumentException On Decrypt with message: "Unknown exception type"`
-            // But should be
-            // `BadKeyring throw AwsCryptographicMaterialProviders on Decrypt with message:
-            // "Output of AWSEncryptionSDKTests.NativeWrappers.BadKeyring._OnDecrypt is invalid. Should be AWS.EncryptionSDK.Core.OnDecryptOutput but is ."
+            var underTest = new NativeWrapper_Keyring(new BadKeyring());
+            Wrappers_Compile._IResult<Dafny.Aws.EncryptionSdk.Core._IOnDecryptOutput,
+                // ReSharper disable once RedundantAssignment
+                Dafny.Aws.EncryptionSdk.Core.IAwsCryptographicMaterialProvidersException> output = null;
+            try
+            {
+                output = underTest.OnDecrypt(GetDafnyOnDecryptInput());
+            }
+            catch (Exception e)
+            {
+                throw new XunitException(
+                    $"{underTest}.OnDecrypt through an exception: {e.GetType()} with message: \"{e.Message}\"." +
+                    $"Should have returned: \"{EXPECTED_FAILURE}\""
+                );
+            }
+            if (output != null)
+            {
+                Assert.Equal(EXPECTED_FAILURE, $"{output}");
+                var e = output.dtor_error;
+                const string expectedMessage = "Output of AWSEncryptionSDKTests.NativeWrappers.BadKeyring._OnDecrypt is invalid. Should be AWS.EncryptionSDK.Core.OnDecryptOutput but is null.";
+                var actualMessage = TypeConversion.FromDafny_N6_smithy__N3_api__S6_String(e.GetMessage());
+                /*Console.Out.WriteLine($"actual is: \"{actualMessage}\"");*/
+                Assert.Equal(expectedMessage, actualMessage);
+            }
+            else
+            {
+                throw new XunitException($"{underTest}.OnDecrypt returned null." +
+                                         $"Should have returned: \"{EXPECTED_FAILURE}\"");
+            }
         }
     }
 

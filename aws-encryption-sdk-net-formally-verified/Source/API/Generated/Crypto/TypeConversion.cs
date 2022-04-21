@@ -2768,11 +2768,6 @@ namespace AWS.EncryptionSDK.Core
             ToDafny_CommonError_AwsCryptographicMaterialProvidersBaseException(
                 AWS.EncryptionSDK.Core.AwsCryptographicMaterialProvidersBaseException value)
         {
-            // TODO there is something very wrong here
-            // NativeWrapper's nativeOutput.Validate() is throwing a
-            // AwsCryptographicMaterialProvidersBaseException, but that does not
-            // match `value is AwsCryptographicMaterialProvidersException`
-            // so we are getting clobbered to "unknown exception type".
             if (value is AWS.EncryptionSDK.Core.AwsCryptographicMaterialProvidersException)
                 return ToDafny_N3_aws__N13_encryptionSdk__N4_core__S42_AwsCryptographicMaterialProvidersException(
                     (AWS.EncryptionSDK.Core.AwsCryptographicMaterialProvidersException)value);
