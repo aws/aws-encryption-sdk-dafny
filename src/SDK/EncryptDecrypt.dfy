@@ -96,6 +96,50 @@ module {:extern "EncryptDecryptHelpers"} EncryptDecryptHelpers {
     //# step.
     ensures decMat.verificationKey.None? ==> res.Success? && res.value == buffer
     
+    // This proof makes sure we return failure if signature verification fails.
+    // It is basically just reproducing the exact steps we take in the method body.
+    // See following proof for the success version
+    ensures (
+      && var sigAlg := Client.SpecificationClient().GetSuite(decMat.algorithmSuiteId).signature;
+      && sigAlg.ECDSA?
+      && var ecdsaParams := sigAlg.curve;
+      && var signature := SerializeFunctions
+        .ReadShortLengthSeq(buffer)
+        .MapFailure(MapSerializeFailure(": ReadShortLengthSeq"));
+      && signature.Success?
+      && var signatureVerifiedResult := Signature.Verify(ecdsaParams,
+        decMat.verificationKey.value,
+        msg,
+        signature.value.data
+      );
+      && signatureVerifiedResult.Success?
+      && !signatureVerifiedResult.value
+    )
+    ==>
+      res.Failure?
+
+    // This proof makes sure we return success if signature verification succeeds.
+    // It is basically just reproducing the exact steps we take in the method body.
+    // See previous proof for the failure version
+    ensures (
+      && var sigAlg := Client.SpecificationClient().GetSuite(decMat.algorithmSuiteId).signature;
+      && sigAlg.ECDSA?
+      && var ecdsaParams := sigAlg.curve;
+      && var signature := SerializeFunctions
+        .ReadShortLengthSeq(buffer)
+        .MapFailure(MapSerializeFailure(": ReadShortLengthSeq"));
+      && signature.Success?
+      && var signatureVerifiedResult := Signature.Verify(ecdsaParams,
+        decMat.verificationKey.value,
+        msg,
+        signature.value.data
+      );
+      && signatureVerifiedResult.Success?
+      && signatureVerifiedResult.value
+    )
+    ==>
+      res.Success?
+
   {
     // If there is no verification key, that lets us conclude that the suite does not have a signature.
     //= compliance/client-apis/decrypt.txt#2.7
