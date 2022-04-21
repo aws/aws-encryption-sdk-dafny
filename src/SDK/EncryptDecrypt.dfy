@@ -141,6 +141,10 @@ module {:extern "EncryptDecryptHelpers"} EncryptDecryptHelpers {
       signature.data
     );
 
+    if (!signatureVerifiedResult) {
+      return Failure("Invalid signature");
+    }
+
     return Success(signature.tail);
   }
 
