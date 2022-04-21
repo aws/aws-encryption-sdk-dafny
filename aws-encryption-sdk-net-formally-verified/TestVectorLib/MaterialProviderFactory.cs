@@ -209,8 +209,9 @@ namespace TestVectors
                 // Some of our test vector key definitions use bare key ids.
                 // These are usually meant to fail (since decryption requires
                 // full key arns), but in order for them to fail correctly
-                // we need to at least be able to create our client
-                return RegionEndpoint.USWest2;
+                // we need to at least be able to create our client, so we
+                // choose a default region
+                return RegionEndpoint.GetBySystemName("us-west-2");
             }
             string region = split[3];
             return RegionEndpoint.GetBySystemName(region);
