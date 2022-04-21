@@ -113,6 +113,7 @@ namespace TestVectors.Runner {
                 );
             }
 
+            bool decryptSucceeded = false;
             try
             {
                 AwsEncryptionSdkConfig config = new AwsEncryptionSdkConfig
@@ -129,7 +130,7 @@ namespace TestVectors.Runner {
                     MaterialsManager = cmm,
                 };
                 AWS.EncryptionSDK.DecryptOutput decryptOutput = encryptionSdk.Decrypt(decryptInput);
-
+                decryptSucceeded = true;
                 if (expectedError != null)
                 {
                     throw new Exception(
@@ -137,11 +138,10 @@ namespace TestVectors.Runner {
                     );
                 }
 
-
                 byte[] result = decryptOutput.Plaintext.ToArray();
                 Assert.Equal(expectedPlaintext, result);
             }
-            catch (Exception)
+            catch (Exception e)
             {
                 if (expectedPlaintext != null)
                 {
@@ -152,6 +152,10 @@ namespace TestVectors.Runner {
 
                 if (expectedError != null)
                 {
+                    if (decryptSucceeded)
+                    {
+                        throw;
+                    }
                     // TODO: maybe do some comparison on error messages. Or if not, at least make sure the types are
                     // right? A DafnyHalt exception is definitely bad.
                     // For now, suffice to say the test correctly failed.
