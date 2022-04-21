@@ -203,8 +203,8 @@ namespace TestVectors
 
         private static RegionEndpoint GetRegionForArn(string keyId)
         {
-            string[] split = keyId.Split(':');
-            if (split.Length < 6)
+            Arn arn = Arn.Parse(keyId);
+            if (arn.Region == null || arn.Region == "")
             {
                 // Some of our test vector key definitions use bare key ids.
                 // These are usually meant to fail (since decryption requires
@@ -213,8 +213,7 @@ namespace TestVectors
                 // choose a default region
                 return RegionEndpoint.GetBySystemName("us-west-2");
             }
-            string region = split[3];
-            return RegionEndpoint.GetBySystemName(region);
+            return RegionEndpoint.GetBySystemName(arn.Region);
         }
     }
 
