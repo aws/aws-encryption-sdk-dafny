@@ -95,7 +95,6 @@ namespace TestVectors.Runner {
     }
 
     public class TestVectorDecryptTests {
-        #pragma warning disable xUnit1026 // Suppress Unused argument warnings for vectorID.
         [SkippableTheory]
         [ClassData (typeof(DecryptTestVectors))]
         public void CanDecryptTestVector(
@@ -141,12 +140,11 @@ namespace TestVectors.Runner {
                 byte[] result = decryptOutput.Plaintext.ToArray();
                 Assert.Equal(expectedPlaintext, result);
             }
-            catch (Exception e)
+            catch (AwsEncryptionSdkException e)
             {
                 if (expectedPlaintext != null)
                 {
                     // Test was not expected to fail
-                    // TODO: don't allow DafnyHalt and maybe some other set of exceptions that we know are not right
                     throw;
                 }
 
@@ -156,9 +154,7 @@ namespace TestVectors.Runner {
                     {
                         throw;
                     }
-                    // TODO: maybe do some comparison on error messages. Or if not, at least make sure the types are
-                    // right? A DafnyHalt exception is definitely bad.
-                    // For now, suffice to say the test correctly failed.
+                    // TODO: maybe do some comparison on error messages
                 }
             }
         }
