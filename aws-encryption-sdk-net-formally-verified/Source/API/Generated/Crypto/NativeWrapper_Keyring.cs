@@ -29,6 +29,10 @@ namespace AWS.EncryptionSDK.Core
             try
             {
                 AWS.EncryptionSDK.Core.OnDecryptOutput nativeOutput = _impl.OnDecrypt(nativeInput);
+                _ = nativeOutput ?? throw new ArgumentNullException(
+                    $"Output of {_impl}._OnDecrypt is invalid. " +
+                    $"Should be {typeof(AWS.EncryptionSDK.Core.OnDecryptOutput)} but is {null}.");
+                nativeOutput.Validate();
                 return Wrappers_Compile
                     .Result<Dafny.Aws.EncryptionSdk.Core._IOnDecryptOutput,
                         Dafny.Aws.EncryptionSdk.Core.IAwsCryptographicMaterialProvidersException>
@@ -62,6 +66,10 @@ namespace AWS.EncryptionSDK.Core
             try
             {
                 AWS.EncryptionSDK.Core.OnEncryptOutput nativeOutput = _impl.OnEncrypt(nativeInput);
+                _ = nativeOutput ?? throw new ArgumentNullException(
+                    $"Output of {_impl}._OnEncrypt is invalid. " +
+                    $"Should be {typeof(AWS.EncryptionSDK.Core.OnEncryptOutput)} but is {null}.");
+                nativeOutput.Validate();
                 return Wrappers_Compile
                     .Result<Dafny.Aws.EncryptionSdk.Core._IOnEncryptOutput,
                         Dafny.Aws.EncryptionSdk.Core.IAwsCryptographicMaterialProvidersException>

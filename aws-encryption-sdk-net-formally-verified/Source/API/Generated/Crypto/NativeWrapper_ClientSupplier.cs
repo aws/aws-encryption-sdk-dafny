@@ -32,6 +32,7 @@ namespace AWS.EncryptionSDK.Core
                 _ = nativeOutput ?? throw new ArgumentNullException(
                     $"Output of {_impl}._GetClient is invalid. " +
                     $"Should be {typeof(Amazon.KeyManagementService.IAmazonKeyManagementService)} but is {null}.");
+
                 return Wrappers_Compile
                     .Result<Dafny.Com.Amazonaws.Kms.IKeyManagementServiceClient,
                         Dafny.Aws.EncryptionSdk.Core.IAwsCryptographicMaterialProvidersException>
