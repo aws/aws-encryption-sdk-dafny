@@ -140,7 +140,10 @@ namespace TestVectors.Runner {
                 byte[] result = decryptOutput.Plaintext.ToArray();
                 Assert.Equal(expectedPlaintext, result);
             }
-            catch (AwsEncryptionSdkException e)
+            catch (Exception e) when (
+                e is AwsEncryptionSdkException ||
+                e is AwsCryptographicMaterialProvidersException
+            )
             {
                 if (expectedPlaintext != null)
                 {
