@@ -203,17 +203,22 @@ namespace TestVectors
 
         private static RegionEndpoint GetRegionForArn(string keyId)
         {
-            Arn arn = Arn.Parse(keyId);
-            if (arn.Region == null || arn.Region == "")
+            try
             {
-                // Some of our test vector key definitions use bare key ids.
+                Arn arn = Arn.Parse(keyId);
+                return RegionEndpoint.GetBySystemName(arn.Region);
+            } catch (ArgumentException e)
+            {
+                // Some of our test vector key definitions use a variety of
+                // malformed key ids.
                 // These are usually meant to fail (since decryption requires
-                // full key arns), but in order for them to fail correctly
-                // we need to at least be able to create our client, so we
-                // choose a default region
+                // matching configured key arns to ciphertext key arns),
+                // but in order for them to fail correctly
+                // we need to at least be able to create our client,
+                // so we choose a default region
                 return RegionEndpoint.GetBySystemName("us-west-2");
+
             }
-            return RegionEndpoint.GetBySystemName(arn.Region);
         }
     }
 
