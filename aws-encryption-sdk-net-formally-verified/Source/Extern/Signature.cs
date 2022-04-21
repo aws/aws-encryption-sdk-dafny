@@ -104,7 +104,12 @@ namespace Signature {
                 sign.Init(false, vkp);
                 BigInteger r, s;
                 DERDeserialize(sig.Elements, out r, out s);
-                return Result<bool, icharseq>.create_Success(sign.VerifySignature(digest, r, s));
+                bool result = sign.VerifySignature(digest, r, s);
+                if (!result)
+                {
+                    return Result<bool, icharseq>.create_Failure(Dafny.Sequence<char>.FromString("Invalid signature"));
+                }
+                return Result<bool, icharseq>.create_Success(result);
             } catch (Exception e) {
                 return Result<bool, icharseq>.create_Failure(Dafny.Sequence<char>.FromString(e.ToString()));
             }
