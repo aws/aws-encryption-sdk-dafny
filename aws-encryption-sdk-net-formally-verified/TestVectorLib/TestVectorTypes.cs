@@ -54,6 +54,16 @@ namespace TestVectors
         public string PaddingHash { get; set; }
         [JsonProperty("default-mrk-region")]
         public string DefaultMrkRegion { get; set; }
+        [JsonProperty("aws-kms-discovery-filter")]
+        public DiscoveryFilter AwsKmsDiscoveryFilter { get; set; }
+    }
+
+    public class DiscoveryFilter
+    {
+        [JsonProperty("partition")]
+        public string Partition { get; set; }
+        [JsonProperty("account-ids")]
+        public IList<string> AccountIds { get; set; }
     }
 
     public class DecryptVector {

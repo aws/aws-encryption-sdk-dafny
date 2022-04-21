@@ -100,10 +100,21 @@ namespace TestVectors
             }
 
             if (keyInfo.Type == "aws-kms-mrk-aware-discovery" && operation == CryptoOperation.DECRYPT) {
+                AWS.EncryptionSDK.Core.DiscoveryFilter filter = null;
+                if (keyInfo.AwsKmsDiscoveryFilter != null)
+                {
+                    filter = new AWS.EncryptionSDK.Core.DiscoveryFilter
+                    {
+                        AccountIds = (List<string>)keyInfo.AwsKmsDiscoveryFilter.AccountIds,
+                        Partition = keyInfo.AwsKmsDiscoveryFilter.Partition,
+                    };
+                }
+
                 CreateAwsKmsMrkDiscoveryKeyringInput createKeyringInput = new CreateAwsKmsMrkDiscoveryKeyringInput
                 {
                     KmsClient = new AmazonKeyManagementServiceClient(RegionEndpoint.GetBySystemName(keyInfo.DefaultMrkRegion)),
-                    Region = keyInfo.DefaultMrkRegion
+                    Region = keyInfo.DefaultMrkRegion,
+                    DiscoveryFilter = filter,
                 };
                 return materialProviders.CreateAwsKmsMrkDiscoveryKeyring(createKeyringInput);
             }
