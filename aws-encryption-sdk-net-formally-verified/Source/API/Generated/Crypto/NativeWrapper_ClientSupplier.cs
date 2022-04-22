@@ -26,6 +26,7 @@ namespace AWS.EncryptionSDK.Core
         {
             AWS.EncryptionSDK.Core.GetClientInput nativeInput =
                 TypeConversion.FromDafny_N3_aws__N13_encryptionSdk__N4_core__S14_GetClientInput(input);
+            AwsCryptographicMaterialProvidersException finalException = null;
             try
             {
                 Amazon.KeyManagementService.IAmazonKeyManagementService nativeOutput = _impl.GetClient(nativeInput);
@@ -41,20 +42,17 @@ namespace AWS.EncryptionSDK.Core
             }
             catch (AwsCryptographicMaterialProvidersException e)
             {
-                return Wrappers_Compile
-                    .Result<Dafny.Com.Amazonaws.Kms.IKeyManagementServiceClient,
-                        Dafny.Aws.EncryptionSdk.Core.IAwsCryptographicMaterialProvidersException>
-                    .create_Failure(
-                        TypeConversion.ToDafny_CommonError_AwsCryptographicMaterialProvidersBaseException(e));
+                finalException = e;
             }
             catch (Exception e)
             {
-                return Wrappers_Compile
-                    .Result<Dafny.Com.Amazonaws.Kms.IKeyManagementServiceClient,
-                        Dafny.Aws.EncryptionSdk.Core.IAwsCryptographicMaterialProvidersException>.create_Failure(
-                        TypeConversion.ToDafny_CommonError_AwsCryptographicMaterialProvidersBaseException(
-                            new AwsCryptographicMaterialProvidersException(e.Message)));
+                finalException = new AwsCryptographicMaterialProvidersException(e.Message);
             }
+
+            return Wrappers_Compile
+                .Result<Dafny.Com.Amazonaws.Kms.IKeyManagementServiceClient,
+                    Dafny.Aws.EncryptionSdk.Core.IAwsCryptographicMaterialProvidersException>.create_Failure(
+                    TypeConversion.ToDafny_CommonError_AwsCryptographicMaterialProvidersBaseException(finalException));
         }
     }
 }

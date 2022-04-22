@@ -24,9 +24,13 @@ namespace AWS.EncryptionSDK.Core
             Dafny.Aws.EncryptionSdk.Core.IAwsCryptographicMaterialProvidersException> OnDecrypt(
             Dafny.Aws.EncryptionSdk.Core._IOnDecryptInput input)
         {
-            void validateOutput(OnDecryptOutput nativeOutput)
+            void validateOutput(AWS.EncryptionSDK.Core.OnDecryptOutput nativeOutput)
             {
-                try { nativeOutput.Validate(); } catch (ArgumentException e)
+                try
+                {
+                    nativeOutput.Validate();
+                }
+                catch (ArgumentException e)
                 {
                     var message = $"Output of {_impl}._OnDecrypt is invalid. {e.Message}";
                     throw new AwsCryptographicMaterialProvidersException(message);
@@ -38,7 +42,7 @@ namespace AWS.EncryptionSDK.Core
             AwsCryptographicMaterialProvidersException finalException = null;
             try
             {
-                var nativeOutput = _impl.OnDecrypt(nativeInput);
+                AWS.EncryptionSDK.Core.OnDecryptOutput nativeOutput = _impl.OnDecrypt(nativeInput);
                 _ = nativeOutput ?? throw new AwsCryptographicMaterialProvidersException(
                     $"Output of {_impl}._OnDecrypt is invalid. " +
                     $"Should be {typeof(AWS.EncryptionSDK.Core.OnDecryptOutput)} but is null.");
@@ -57,22 +61,24 @@ namespace AWS.EncryptionSDK.Core
             {
                 finalException = new AwsCryptographicMaterialProvidersException(e.Message);
             }
+
             return Wrappers_Compile
                 .Result<Dafny.Aws.EncryptionSdk.Core._IOnDecryptOutput,
-                    Dafny.Aws.EncryptionSdk.Core.IAwsCryptographicMaterialProvidersException>
-                .create_Failure(
-                    TypeConversion.ToDafny_CommonError_AwsCryptographicMaterialProvidersBaseException(finalException)
-                );
+                    Dafny.Aws.EncryptionSdk.Core.IAwsCryptographicMaterialProvidersException>.create_Failure(
+                    TypeConversion.ToDafny_CommonError_AwsCryptographicMaterialProvidersBaseException(finalException));
         }
-
 
         public Wrappers_Compile._IResult<Dafny.Aws.EncryptionSdk.Core._IOnEncryptOutput,
             Dafny.Aws.EncryptionSdk.Core.IAwsCryptographicMaterialProvidersException> OnEncrypt(
             Dafny.Aws.EncryptionSdk.Core._IOnEncryptInput input)
         {
-            void validateOutput(OnEncryptOutput nativeOutput)
+            void validateOutput(AWS.EncryptionSDK.Core.OnEncryptOutput nativeOutput)
             {
-                try { nativeOutput.Validate(); } catch (ArgumentException e)
+                try
+                {
+                    nativeOutput.Validate();
+                }
+                catch (ArgumentException e)
                 {
                     var message = $"Output of {_impl}._OnEncrypt is invalid. {e.Message}";
                     throw new AwsCryptographicMaterialProvidersException(message);
@@ -103,12 +109,11 @@ namespace AWS.EncryptionSDK.Core
             {
                 finalException = new AwsCryptographicMaterialProvidersException(e.Message);
             }
+
             return Wrappers_Compile
                 .Result<Dafny.Aws.EncryptionSdk.Core._IOnEncryptOutput,
-                    Dafny.Aws.EncryptionSdk.Core.IAwsCryptographicMaterialProvidersException>
-                .create_Failure(
-                    TypeConversion.ToDafny_CommonError_AwsCryptographicMaterialProvidersBaseException(finalException)
-                );
+                    Dafny.Aws.EncryptionSdk.Core.IAwsCryptographicMaterialProvidersException>.create_Failure(
+                    TypeConversion.ToDafny_CommonError_AwsCryptographicMaterialProvidersBaseException(finalException));
         }
     }
 }
