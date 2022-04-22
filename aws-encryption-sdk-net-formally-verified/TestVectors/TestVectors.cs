@@ -150,15 +150,6 @@ namespace TestVectors.Runner {
                     // Test was not expected to fail
                     throw;
                 }
-
-                if (expectedError != null)
-                {
-                    if (decryptSucceeded)
-                    {
-                        throw;
-                    }
-                    // TODO: maybe do some comparison on error messages
-                }
             }
         }
     }
