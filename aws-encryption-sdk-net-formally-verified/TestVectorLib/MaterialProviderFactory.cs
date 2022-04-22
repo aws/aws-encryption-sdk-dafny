@@ -100,10 +100,21 @@ namespace TestVectors
             }
 
             if (keyInfo.Type == "aws-kms-mrk-aware-discovery" && operation == CryptoOperation.DECRYPT) {
+                AWS.EncryptionSDK.Core.DiscoveryFilter filter = null;
+                if (keyInfo.AwsKmsDiscoveryFilter != null)
+                {
+                    filter = new AWS.EncryptionSDK.Core.DiscoveryFilter
+                    {
+                        AccountIds = (List<string>)keyInfo.AwsKmsDiscoveryFilter.AccountIds,
+                        Partition = keyInfo.AwsKmsDiscoveryFilter.Partition,
+                    };
+                }
+
                 CreateAwsKmsMrkDiscoveryKeyringInput createKeyringInput = new CreateAwsKmsMrkDiscoveryKeyringInput
                 {
                     KmsClient = new AmazonKeyManagementServiceClient(RegionEndpoint.GetBySystemName(keyInfo.DefaultMrkRegion)),
-                    Region = keyInfo.DefaultMrkRegion
+                    Region = keyInfo.DefaultMrkRegion,
+                    DiscoveryFilter = filter,
                 };
                 return materialProviders.CreateAwsKmsMrkDiscoveryKeyring(createKeyringInput);
             }
@@ -192,9 +203,22 @@ namespace TestVectors
 
         private static RegionEndpoint GetRegionForArn(string keyId)
         {
-            string[] split = keyId.Split(':');
-            string region = split[3];
-            return RegionEndpoint.GetBySystemName(region);
+            try
+            {
+                Arn arn = Arn.Parse(keyId);
+                return RegionEndpoint.GetBySystemName(arn.Region);
+            } catch (ArgumentException e)
+            {
+                // Some of our test vector key definitions use a variety of
+                // malformed key ids.
+                // These are usually meant to fail (since decryption requires
+                // matching configured key arns to ciphertext key arns),
+                // but in order for them to fail correctly
+                // we need to at least be able to create our client,
+                // so we choose a default region
+                return RegionEndpoint.GetBySystemName("us-west-2");
+
+            }
         }
     }
 
