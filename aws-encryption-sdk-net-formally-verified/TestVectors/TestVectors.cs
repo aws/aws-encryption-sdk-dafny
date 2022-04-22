@@ -20,7 +20,8 @@ namespace TestVectors.Runner {
         protected readonly string VectorRoot;
 
         protected TestVectorData() {
-            this.VectorRoot = Utils.GetEnvironmentVariableOrError("DAFNY_AWS_ESDK_TEST_VECTOR_MANIFEST_PATH");
+            //this.VectorRoot = Utils.GetEnvironmentVariableOrError("DAFNY_AWS_ESDK_TEST_VECTOR_MANIFEST_PATH");
+            this.VectorRoot = "/Users/farleyb/workspace/esdk/dafny/aws-encryption-sdk-dafny/aws-encryption-sdk-net-formally-verified/TestVectors/resources/aws-encryption-sdk-test-vectors/vectors/awses-decrypt/manifest2.json";
             DecryptManifest manifest = Utils.LoadObjectFromPath<DecryptManifest>(VectorRoot);
             this.VectorMap = manifest.VectorMap;
             string keysPath = Utils.ManifestUriToPath(manifest.KeysUri, VectorRoot);
@@ -112,7 +113,6 @@ namespace TestVectors.Runner {
                 );
             }
 
-            bool decryptSucceeded = false;
             try
             {
                 AwsEncryptionSdkConfig config = new AwsEncryptionSdkConfig
@@ -129,7 +129,6 @@ namespace TestVectors.Runner {
                     MaterialsManager = cmm,
                 };
                 AWS.EncryptionSDK.DecryptOutput decryptOutput = encryptionSdk.Decrypt(decryptInput);
-                decryptSucceeded = true;
                 if (expectedError != null)
                 {
                     throw new Exception(
