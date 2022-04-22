@@ -36,6 +36,13 @@ def parse_args():
         type=str,
         help='A unique identifier for this signing flow'
     )
+    parser.add_argument(
+        '--output',
+        required=False,
+        metavar='o',
+        type=str,
+        help='Place to put output files'
+    )
     return parser.parse_args()
     
 
@@ -71,50 +78,50 @@ def get_s3_client(creds=None):
         aws_session_token = creds['Credentials']['SessionToken'],
     )
 
-def upload_assembly(target_framework, unique_id, s3=None):
+def upload_assembly(args, s3=None):
     """
     Uploads an unsigned assembly to the unsigned object bucket.
     """
-    print(f"Uploading assembly with params: {target_framework}, {unique_id}")
+    print(f"Uploading assembly with params: {args.target}, {args.unique_id}")
     if not s3:
         s3 = get_s3_client()
 
-    source_object = os.path.join(RELEASE_FOLDER, target_framework, ASSEMBLY_NAME)
+    source_object = os.path.join(RELEASE_FOLDER, args.target, ASSEMBLY_NAME)
     if not os.path.exists(source_object):
         raise Exception(f"File {source_object} does not exist")
 
     with open(source_object, 'br') as source_object_data:
-        key = os.path.join(KEY_PREFIX, target_framework, f"{unique_id}-{ASSEMBLY_NAME}")
+        s3_key = "/".join([KEY_PREFIX, args.target, f"{args.unique_id}-{ASSEMBLY_NAME}"])
 
         result = s3.put_object(
             Bucket=UNSIGNED_BUCKET,
-            Key=key,
+            Key=s3_key,
             Body=source_object_data,
             ACL="bucket-owner-full-control",
         )
-        print(f"Successfully uploaded file {source_object} to {UNSIGNED_BUCKET}/{key}")
+        print(f"Successfully uploaded file {source_object} to {UNSIGNED_BUCKET}/{s3_key}")
 
 
-def get_job_id(target_framework, unique_id, s3=None):
+def get_job_id(args, s3=None):
     """
     Gets the signer job id of the job that is signing a given artifact
 
     This job id is added as a tag to the original uploaded S3 object, so
     we query the tags for the appropriate key.
     """
-    print(f"Getting job id with params: {target_framework}, {unique_id}")
+    print(f"Getting job id with params: {args.target}, {args.unique_id}")
     if not s3:
         s3 = get_s3_client()
 
-    key = os.path.join(KEY_PREFIX, target_framework, f"{unique_id}-{ASSEMBLY_NAME}")
-    print(f"Searching for key {key}")
+    s3_key = "/".join([KEY_PREFIX, args.target, f"{args.unique_id}-{ASSEMBLY_NAME}"])
+    print(f"Searching for key {s3_key}")
 
     retry_count = 0
     while retry_count < 3:
         try:
             tags = s3.get_object_tagging(
                 Bucket=UNSIGNED_BUCKET,
-                Key=key,
+                Key=s3_key,
             )['TagSet']
             return next(item for item in tags if item['Key'] == 'signer-job-id')['Value']
         except Exception as e:
@@ -125,30 +132,32 @@ def get_job_id(target_framework, unique_id, s3=None):
     raise Exception(f"Could not find signer job id after {retry_count} attempts, stopping")
 
 
-def retrieve_signed_assembly(target_framework, unique_id, s3=None):
+def retrieve_signed_assembly(args, s3=None):
     """
     Retrieves a signed assembly from the signed bucket
     """
-    print(f"Retrieving signed assembly with params: {target_framework}, {unique_id}")
+    print(f"Retrieving signed assembly with params: {args.target}, {args.unique_id}")
     if not s3:
         s3 = get_s3_client()
 
-    job_id = get_job_id(target_framework, unique_id, s3=s3)
+    job_id = get_job_id(args, s3=s3)
     print(f"Found signer job id: {job_id}")
 
-    object_name = f"{unique_id}-{ASSEMBLY_NAME}-{job_id}"
+    object_name = f"{args.unique_id}-{ASSEMBLY_NAME}-{job_id}"
 
-    key = os.path.join(KEY_PREFIX, target_framework, object_name)
+    s3_key = "/".join([KEY_PREFIX, args.target, object_name])
 
     retry_count = 0
     while retry_count < 3:
         try:
             signed_object = s3.get_object(
                 Bucket=SIGNED_BUCKET,
-                Key=key,
+                Key=s3_key,
             )
-            
-            destination_object = os.path.join(RELEASE_FOLDER, target_framework, ASSEMBLY_NAME)
+            if not args.output:
+                destination_object = os.path.join(RELEASE_FOLDER, args.target, ASSEMBLY_NAME)
+            else:
+                destination_object = os.path.join(args.output, ASSEMBLY_NAME)
             with open(destination_object, 'wb') as destination_file:
                 destination_file.write(signed_object['Body'].read())
             print(f"Wrote signed assembly to {destination_object}")
