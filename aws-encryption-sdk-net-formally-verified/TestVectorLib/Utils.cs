@@ -7,6 +7,7 @@ using System.IO;
 using System.Text;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
+using Newtonsoft.Json.Serialization;
 
 namespace TestVectors
 {
@@ -26,8 +27,13 @@ namespace TestVectors
                 throw new ArgumentException($"File not found: {path}");
             }
             string contents = File.ReadAllText(path);
-            JObject obj = JObject.Parse(contents);
-            return obj.ToObject<T>();
+
+            // As a safe-guard against not fully implementing the test vector spec,
+            // explicitly fail if the file contains any keys we were not expecting
+            JsonSerializerSettings settings = new JsonSerializerSettings();
+            settings.MissingMemberHandling = MissingMemberHandling.Error;
+
+            return JsonConvert.DeserializeObject<T>(contents, settings);
         }
 
         /// <summary>

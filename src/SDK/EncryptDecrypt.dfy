@@ -96,9 +96,9 @@ module {:extern "EncryptDecryptHelpers"} EncryptDecryptHelpers {
     //# step.
     ensures decMat.verificationKey.None? ==> res.Success? && res.value == buffer
     
-    // This proof makes sure we return failure if signature verification fails.
+    // This proof makes sure we return failure if we successfully call signature verification
+    // and it returns false.
     // It is basically just reproducing the exact steps we take in the method body.
-    // See following proof for the success version
     ensures (
       && var sigAlg := Client.SpecificationClient().GetSuite(decMat.algorithmSuiteId).signature;
       && sigAlg.ECDSA?
@@ -112,15 +112,16 @@ module {:extern "EncryptDecryptHelpers"} EncryptDecryptHelpers {
         msg,
         signature.value.data
       );
+      // The verification call succeeded and the value it returned was false
+      // (indicating invalid signature)
       && signatureVerifiedResult.Success?
       && !signatureVerifiedResult.value
     )
     ==>
       res.Failure?
 
-    // This proof makes sure we return success if signature verification succeeds.
+    // This proof makes sure we return failure if we fail to call signature verification.
     // It is basically just reproducing the exact steps we take in the method body.
-    // See previous proof for the failure version
     ensures (
       && var sigAlg := Client.SpecificationClient().GetSuite(decMat.algorithmSuiteId).signature;
       && sigAlg.ECDSA?
@@ -134,6 +135,30 @@ module {:extern "EncryptDecryptHelpers"} EncryptDecryptHelpers {
         msg,
         signature.value.data
       );
+      // The verification call failed
+      && signatureVerifiedResult.Failure?
+    )
+    ==>
+      res.Failure?
+
+
+    // This proof makes sure we return success if signature verification succeeds.
+    // It is basically just reproducing the exact steps we take in the method body.
+    ensures (
+      && var sigAlg := Client.SpecificationClient().GetSuite(decMat.algorithmSuiteId).signature;
+      && sigAlg.ECDSA?
+      && var ecdsaParams := sigAlg.curve;
+      && var signature := SerializeFunctions
+        .ReadShortLengthSeq(buffer)
+        .MapFailure(MapSerializeFailure(": ReadShortLengthSeq"));
+      && signature.Success?
+      && var signatureVerifiedResult := Signature.Verify(ecdsaParams,
+        decMat.verificationKey.value,
+        msg,
+        signature.value.data
+      );
+      // The verification call succeeded and the value it returned was true
+      // (indicating valid signature)
       && signatureVerifiedResult.Success?
       && signatureVerifiedResult.value
     )
