@@ -41,9 +41,7 @@ namespace TestVectors.Runner {
         protected static bool TargetVector(KeyValuePair<string, DecryptVector> entry)
         {
             if (entry.Value.DecryptionMethod != null && entry.Value.DecryptionMethod.Equals("streaming-unsigned-only")) {
-                // These vectors specifically target streaming APIs. One confirms
-                // successful streaming, and one confirms failure if trying to stream
-                // a signed message using an unsigned-only method. Since we do not
+                // These vectors specifically target streaming APIs. Since we do not
                 // yet support streaming, we cannot test against these.
                 return false;
             }
