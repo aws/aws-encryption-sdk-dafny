@@ -97,8 +97,10 @@ public class AssumeRoleException : Exception
     public AssumeRoleException(string region, string roleArn, Exception e) : base(
         $"Attempt to assume Role Arn {roleArn} for Region {region} failed", e)
     {
-        // At this time the Encryption SDK only retains exception messages, and not the entire stack trace.
-        // As such, it is helpful to manually log the exceptions.
+        // At this time, the Encryption SDK only retains exception messages,
+        // and not the entire stack trace.
+        // As such, it is helpful to manually log the exceptions (ideally, a
+        // logging framework would be used, instead of console).
         Console.Out.Write(e);
     }
 }

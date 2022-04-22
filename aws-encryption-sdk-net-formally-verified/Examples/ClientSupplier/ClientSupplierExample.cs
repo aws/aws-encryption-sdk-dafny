@@ -5,7 +5,6 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using Amazon.KeyManagementService;
 using AWS.EncryptionSDK;
 using AWS.EncryptionSDK.Core;
 using Xunit;
@@ -92,15 +91,12 @@ public class ClientSupplierExample
         };
 
         // Create the keyring that determines how your data keys are protected.
-        // Though this example highlights Client Suppliers, we are not using a
-        // cannot be used to encrypt, so for encryption we create
-        // a KMS keyring without discovery mode.
-        var createKeyringInput = new CreateAwsKmsMrkKeyringInput
+        var createKeyringInput = new CreateAwsKmsMrkMultiKeyringInput()
         {
-            KmsClient = new AmazonKeyManagementServiceClient(GetRegionEndpointFromArn(kmsKeyArn)),
-            KmsKeyId = kmsKeyArn
+            Generator = kmsKeyArn,
+            ClientSupplier = new RegionalRoleClientSupplier()
         };
-        var encryptKeyring = materialProviders.CreateAwsKmsMrkKeyring(createKeyringInput);
+        var encryptKeyring = materialProviders.CreateAwsKmsMrkMultiKeyring(createKeyringInput);
 
         // Encrypt your plaintext data.
         var encryptInput = new EncryptInput
