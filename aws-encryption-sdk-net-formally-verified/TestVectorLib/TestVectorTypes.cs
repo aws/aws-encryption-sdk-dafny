@@ -76,6 +76,8 @@ namespace TestVectors
         public IList<MasterKey> MasterKeys { get; set; }
         [JsonProperty("result")]
         public DecryptResult Result { get; set; }
+        [JsonProperty("decryption-method")]
+        public string DecryptionMethod { get; set; }
     }
 
     public class DecryptResult
