@@ -140,9 +140,17 @@ namespace TestVectors.Runner {
             }
             catch (Exception e) when (
                 e is AwsEncryptionSdkException ||
-                e is AwsCryptographicMaterialProvidersException
+                e is AwsCryptographicMaterialProvidersException ||
+                e is AggregateException // TODO: remove when CrypTool-4513 fixed
             )
             {
+                // TODO: remove when CrypTool-4513 fixed
+                if (e is AggregateException &&
+                    !(e.InnerException is Amazon.KeyManagementService.AmazonKeyManagementServiceException))
+                {
+                    throw;
+                }
+
                 if (expectedPlaintext != null)
                 {
                     // Test was not expected to fail
