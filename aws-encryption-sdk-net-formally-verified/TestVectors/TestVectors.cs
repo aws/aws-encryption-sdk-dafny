@@ -7,7 +7,6 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 
-using Newtonsoft.Json.Linq;
 using Xunit;
 
 using AWS.EncryptionSDK;
@@ -18,6 +17,16 @@ namespace TestVectors.Runner {
         protected readonly Dictionary<string, DecryptVector> VectorMap;
         protected readonly Dictionary<string, Key> KeyMap;
         protected readonly string VectorRoot;
+
+        protected static ISet<String> SKIPPED_VECTORS = new HashSet<String>()
+        {
+            // These vectors specifically target streaming APIs. One confirms
+            // successful streaming, and one confirms failure if trying to stream
+            // a signed message using an unsigned-only method. Since we do not
+            // yet support streaming, we cannot test against these.
+            "fe0a0327-a701-47f9-a42e-8ec7744161ab",
+            "d0717cd6-7c2f-4ba5-9744-4bb368869f2c"
+        };
 
         protected TestVectorData() {
             this.VectorRoot = Utils.GetEnvironmentVariableOrError("DAFNY_AWS_ESDK_TEST_VECTOR_MANIFEST_PATH");
@@ -40,6 +49,9 @@ namespace TestVectors.Runner {
         // Update if you want to test certain vectors
         protected static bool TargetVector(KeyValuePair<string, DecryptVector> entry)
         {
+            if (SKIPPED_VECTORS.Contains(entry.Key)) {
+                return false;
+            }
             return true;
         }
     }
@@ -141,16 +153,11 @@ namespace TestVectors.Runner {
             catch (Exception e) when (
                 e is AwsEncryptionSdkException ||
                 e is AwsCryptographicMaterialProvidersException ||
-                e is AggregateException // TODO: remove when CrypTool-4513 fixed
+                // TODO: remove when CrypTool-4513 fixed
+                (e is AggregateException  &&
+                 e.InnerException is Amazon.KeyManagementService.AmazonKeyManagementServiceException)
             )
             {
-                // TODO: remove when CrypTool-4513 fixed
-                if (e is AggregateException &&
-                    !(e.InnerException is Amazon.KeyManagementService.AmazonKeyManagementServiceException))
-                {
-                    throw;
-                }
-
                 if (expectedPlaintext != null)
                 {
                     // Test was not expected to fail
