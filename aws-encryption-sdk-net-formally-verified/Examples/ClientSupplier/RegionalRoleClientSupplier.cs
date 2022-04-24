@@ -39,8 +39,9 @@ public class RegionalRoleClientSupplier : ClientSupplierBase
 
     /// <summary>
     ///     This is the meat of a Client Supplier.
-    ///     The AWS Cryptographic Material Providers library will call
-    ///     <c>GetClient</c> for every region an AWS Multi Keyring is passed.
+    ///     Whenever the AWS Encryption SDK needs to create a KMS client,
+    ///     it will call <c>GetClient</c> for the regions in which it needs to call
+    ///     KMS.
     ///     In this example, we utilize a Dictionary to map regions to particular
     ///     IAM Roles.
     ///     We use Amazon Security Token Service to fetch temporary credentials,
