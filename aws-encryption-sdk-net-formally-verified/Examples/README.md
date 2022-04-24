@@ -70,12 +70,15 @@ You can find these examples in
 
 ### Client Supplier
 
-Client Suppliers facilitate AWS Multi Keyrings. If you are using KMS Keys from 
-multiple regions, and are following best practices that limit the access to KMS
-keys to only certain IAM Roles, implementing a Custom Client Supplier that retrieves
-the correct credentials for a region is a must.
-We have implemented an example of this in
-[`examples/ClientSupplier/RegionalRoleClientSupplier.cs`](./ClientSupplier/RegionalRoleClientSupplier.cs).
+Client Suppliers define how the AWS KMS clients required by the AWS
+Encryption SDK are created. If you want to customize your KMS
+clients, you can create a custom Client Supplier which 
+builds clients in a specific way. For example, you could tune
+the retry and timeout settings on the client, or use different credentials
+based on which region is being called. In our
+[RegionalRoleClientSupplier](./ClientSupplier/RegionalRoleClientSupplier.cs)
+example, we show how you can build a custom Client Supplier which
+creates clients by assuming different IAM roles for different regions.
 
 # Writing Examples
 
