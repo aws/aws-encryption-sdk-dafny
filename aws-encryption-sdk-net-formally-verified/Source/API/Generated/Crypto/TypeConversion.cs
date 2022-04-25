@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: Apache-2.0
 // Do not modify this file. This file is machine generated, and any changes to it will be overwritten.
 
+using System;
 using System.Linq;
 using AWS.EncryptionSDK.Core;
 
@@ -2737,20 +2738,39 @@ namespace AWS.EncryptionSDK.Core
             FromDafny_CommonError_AwsCryptographicMaterialProvidersBaseException(
                 Dafny.Aws.EncryptionSdk.Core.IAwsCryptographicMaterialProvidersException value)
         {
-            if (value is Dafny.Aws.EncryptionSdk.Core.AwsCryptographicMaterialProvidersException)
-                return FromDafny_N3_aws__N13_encryptionSdk__N4_core__S42_AwsCryptographicMaterialProvidersException(
-                    (Dafny.Aws.EncryptionSdk.Core.AwsCryptographicMaterialProvidersException)value);
-            throw new System.ArgumentException("Unknown exception type");
+            switch (value)
+            {
+                case Dafny.Aws.EncryptionSdk.Core.AwsCryptographicMaterialProvidersException dafnyVal:
+                    return FromDafny_N3_aws__N13_encryptionSdk__N4_core__S42_AwsCryptographicMaterialProvidersException(
+                        dafnyVal);
+                default:
+                    return new AwsCryptographicMaterialProvidersBaseException(
+                        FromDafny_N6_smithy__N3_api__S6_String(value.GetMessage()));
+            }
         }
 
+        // Note: I would like to rename this method
         public static Dafny.Aws.EncryptionSdk.Core.IAwsCryptographicMaterialProvidersException
-            ToDafny_CommonError_AwsCryptographicMaterialProvidersBaseException(
-                AWS.EncryptionSDK.Core.AwsCryptographicMaterialProvidersBaseException value)
+            ToDafny_CommonError(
+                Exception value)
         {
-            if (value is AWS.EncryptionSDK.Core.AwsCryptographicMaterialProvidersException)
-                return ToDafny_N3_aws__N13_encryptionSdk__N4_core__S42_AwsCryptographicMaterialProvidersException(
-                    (AWS.EncryptionSDK.Core.AwsCryptographicMaterialProvidersException)value);
-            throw new System.ArgumentException("Unknown exception type");
+            Dafny.Aws.EncryptionSdk.Core.AwsCryptographicMaterialProvidersBaseException rtn;
+            switch (value)
+            {
+                case AwsCryptographicMaterialProvidersException exception:
+                    return ToDafny_N3_aws__N13_encryptionSdk__N4_core__S42_AwsCryptographicMaterialProvidersException(
+                        exception);
+                case AwsCryptographicMaterialProvidersBaseException exception:
+                    rtn = new Dafny.Aws.EncryptionSdk.Core.AwsCryptographicMaterialProvidersBaseException();
+                    rtn.message = ToDafny_N6_smithy__N3_api__S6_String(exception.Message);
+                    return rtn;
+                default:
+                    var message = $"AwsCryptographicMaterialProviders encountered an Exception of type: {value.GetType()}" +
+                                  $" with message of: {value.Message}";
+                    rtn = new Dafny.Aws.EncryptionSdk.Core.AwsCryptographicMaterialProvidersBaseException();
+                    rtn.message = ToDafny_N6_smithy__N3_api__S6_String(message);
+                    return rtn;
+            }
         }
     }
 }
