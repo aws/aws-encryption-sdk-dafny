@@ -730,19 +730,34 @@ namespace AWS.EncryptionSDK
             FromDafny_CommonError_AwsEncryptionSdkBaseException(
                 Dafny.Aws.EncryptionSdk.IAwsEncryptionSdkException value)
         {
-            if (value is Dafny.Aws.EncryptionSdk.AwsEncryptionSdkException)
-                return FromDafny_N3_aws__N13_encryptionSdk__S25_AwsEncryptionSdkException(
-                    (Dafny.Aws.EncryptionSdk.AwsEncryptionSdkException)value);
-            throw new System.ArgumentException("Unknown exception type");
+            switch (value)
+            {
+                case Dafny.Aws.EncryptionSdk.AwsEncryptionSdkException dafnyVal:
+                    return FromDafny_N3_aws__N13_encryptionSdk__S25_AwsEncryptionSdkException(dafnyVal);
+                default:
+                    return new AWS.EncryptionSDK.AwsEncryptionSdkBaseException(
+                        FromDafny_N6_smithy__N3_api__S6_String(value.GetMessage()));
+            }
         }
 
-        public static Dafny.Aws.EncryptionSdk.IAwsEncryptionSdkException
-            ToDafny_CommonError_AwsEncryptionSdkBaseException(AWS.EncryptionSDK.AwsEncryptionSdkBaseException value)
+        public static Dafny.Aws.EncryptionSdk.IAwsEncryptionSdkException ToDafny_CommonError(System.Exception value)
         {
-            if (value is AWS.EncryptionSDK.AwsEncryptionSdkException)
-                return ToDafny_N3_aws__N13_encryptionSdk__S25_AwsEncryptionSdkException(
-                    (AWS.EncryptionSDK.AwsEncryptionSdkException)value);
-            throw new System.ArgumentException("Unknown exception type");
+            Dafny.Aws.EncryptionSdk.AwsEncryptionSdkBaseException rtn;
+            switch (value)
+            {
+                case AWS.EncryptionSDK.AwsEncryptionSdkException exception:
+                    return ToDafny_N3_aws__N13_encryptionSdk__S25_AwsEncryptionSdkException(exception);
+                case AWS.EncryptionSDK.AwsEncryptionSdkBaseException exception:
+                    rtn = new Dafny.Aws.EncryptionSdk.AwsEncryptionSdkBaseException();
+                    rtn.message = ToDafny_N6_smithy__N3_api__S6_String(exception.Message);
+                    return rtn;
+                default:
+                    var message = $"AwsEncryptionSdk encountered an Exception of type: {value.GetType()}" +
+                                  $" with message of: {value.Message}";
+                    rtn = new Dafny.Aws.EncryptionSdk.AwsEncryptionSdkBaseException();
+                    rtn.message = ToDafny_N6_smithy__N3_api__S6_String(message);
+                    return rtn;
+            }
         }
     }
 }
