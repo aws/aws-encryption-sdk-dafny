@@ -2,7 +2,6 @@
 // SPDX-License-Identifier: Apache-2.0
 // Do not modify this file. This file is machine generated, and any changes to it will be overwritten.
 
-using System;
 using System.Linq;
 using AWS.EncryptionSDK.Core;
 
@@ -2744,23 +2743,21 @@ namespace AWS.EncryptionSDK.Core
                     return FromDafny_N3_aws__N13_encryptionSdk__N4_core__S42_AwsCryptographicMaterialProvidersException(
                         dafnyVal);
                 default:
-                    return new AwsCryptographicMaterialProvidersBaseException(
+                    return new AWS.EncryptionSDK.Core.AwsCryptographicMaterialProvidersBaseException(
                         FromDafny_N6_smithy__N3_api__S6_String(value.GetMessage()));
             }
         }
 
-        // Note: I would like to rename this method
         public static Dafny.Aws.EncryptionSdk.Core.IAwsCryptographicMaterialProvidersException
-            ToDafny_CommonError(
-                Exception value)
+            ToDafny_CommonError(System.Exception value)
         {
             Dafny.Aws.EncryptionSdk.Core.AwsCryptographicMaterialProvidersBaseException rtn;
             switch (value)
             {
-                case AwsCryptographicMaterialProvidersException exception:
+                case AWS.EncryptionSDK.Core.AwsCryptographicMaterialProvidersException exception:
                     return ToDafny_N3_aws__N13_encryptionSdk__N4_core__S42_AwsCryptographicMaterialProvidersException(
                         exception);
-                case AwsCryptographicMaterialProvidersBaseException exception:
+                case AWS.EncryptionSDK.Core.AwsCryptographicMaterialProvidersBaseException exception:
                     rtn = new Dafny.Aws.EncryptionSdk.Core.AwsCryptographicMaterialProvidersBaseException();
                     rtn.message = ToDafny_N6_smithy__N3_api__S6_String(exception.Message);
                     return rtn;
