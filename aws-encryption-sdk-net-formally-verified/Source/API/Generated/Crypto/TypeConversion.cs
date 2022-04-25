@@ -2748,8 +2748,8 @@ namespace AWS.EncryptionSDK.Core
             }
         }
 
-        public static Dafny.Aws.EncryptionSdk.Core.IAwsCryptographicMaterialProvidersException
-            ToDafny_CommonError(System.Exception value)
+        public static Dafny.Aws.EncryptionSdk.Core.IAwsCryptographicMaterialProvidersException ToDafny_CommonError(
+            System.Exception value)
         {
             Dafny.Aws.EncryptionSdk.Core.AwsCryptographicMaterialProvidersBaseException rtn;
             switch (value)
@@ -2762,8 +2762,9 @@ namespace AWS.EncryptionSDK.Core
                     rtn.message = ToDafny_N6_smithy__N3_api__S6_String(exception.Message);
                     return rtn;
                 default:
-                    var message = $"AwsCryptographicMaterialProviders encountered an Exception of type: {value.GetType()}" +
-                                  $" with message of: {value.Message}";
+                    var message =
+                        $"AwsCryptographicMaterialProviders encountered an Exception of type: {value.GetType()}" +
+                        $" with message of: {value.Message}";
                     rtn = new Dafny.Aws.EncryptionSdk.Core.AwsCryptographicMaterialProvidersBaseException();
                     rtn.message = ToDafny_N6_smithy__N3_api__S6_String(message);
                     return rtn;
