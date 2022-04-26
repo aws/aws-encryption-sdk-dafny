@@ -40,7 +40,6 @@ namespace AWS.EncryptionSDK.Core
 
             AWS.EncryptionSDK.Core.DecryptMaterialsInput nativeInput =
                 TypeConversion.FromDafny_N3_aws__N13_encryptionSdk__N4_core__S21_DecryptMaterialsInput(input);
-            AwsCryptographicMaterialProvidersException finalException = null;
             try
             {
                 AWS.EncryptionSDK.Core.DecryptMaterialsOutput nativeOutput = _impl.DecryptMaterials(nativeInput);
@@ -55,19 +54,13 @@ namespace AWS.EncryptionSDK.Core
                         TypeConversion.ToDafny_N3_aws__N13_encryptionSdk__N4_core__S22_DecryptMaterialsOutput(
                             nativeOutput));
             }
-            catch (AwsCryptographicMaterialProvidersException e)
-            {
-                finalException = e;
-            }
             catch (Exception e)
             {
-                finalException = new AwsCryptographicMaterialProvidersException(e.Message);
+                return Wrappers_Compile
+                    .Result<Dafny.Aws.EncryptionSdk.Core._IDecryptMaterialsOutput,
+                        Dafny.Aws.EncryptionSdk.Core.IAwsCryptographicMaterialProvidersException>.create_Failure(
+                        TypeConversion.ToDafny_CommonError(e));
             }
-
-            return Wrappers_Compile
-                .Result<Dafny.Aws.EncryptionSdk.Core._IDecryptMaterialsOutput,
-                    Dafny.Aws.EncryptionSdk.Core.IAwsCryptographicMaterialProvidersException>.create_Failure(
-                    TypeConversion.ToDafny_CommonError_AwsCryptographicMaterialProvidersBaseException(finalException));
         }
 
         public Wrappers_Compile._IResult<Dafny.Aws.EncryptionSdk.Core._IGetEncryptionMaterialsOutput,
@@ -89,7 +82,6 @@ namespace AWS.EncryptionSDK.Core
 
             AWS.EncryptionSDK.Core.GetEncryptionMaterialsInput nativeInput =
                 TypeConversion.FromDafny_N3_aws__N13_encryptionSdk__N4_core__S27_GetEncryptionMaterialsInput(input);
-            AwsCryptographicMaterialProvidersException finalException = null;
             try
             {
                 AWS.EncryptionSDK.Core.GetEncryptionMaterialsOutput nativeOutput =
@@ -104,19 +96,13 @@ namespace AWS.EncryptionSDK.Core
                     .create_Success(TypeConversion
                         .ToDafny_N3_aws__N13_encryptionSdk__N4_core__S28_GetEncryptionMaterialsOutput(nativeOutput));
             }
-            catch (AwsCryptographicMaterialProvidersException e)
-            {
-                finalException = e;
-            }
             catch (Exception e)
             {
-                finalException = new AwsCryptographicMaterialProvidersException(e.Message);
+                return Wrappers_Compile
+                    .Result<Dafny.Aws.EncryptionSdk.Core._IGetEncryptionMaterialsOutput,
+                        Dafny.Aws.EncryptionSdk.Core.IAwsCryptographicMaterialProvidersException>.create_Failure(
+                        TypeConversion.ToDafny_CommonError(e));
             }
-
-            return Wrappers_Compile
-                .Result<Dafny.Aws.EncryptionSdk.Core._IGetEncryptionMaterialsOutput,
-                    Dafny.Aws.EncryptionSdk.Core.IAwsCryptographicMaterialProvidersException>.create_Failure(
-                    TypeConversion.ToDafny_CommonError_AwsCryptographicMaterialProvidersBaseException(finalException));
         }
     }
 }
