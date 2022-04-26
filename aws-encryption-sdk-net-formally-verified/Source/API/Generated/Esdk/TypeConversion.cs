@@ -752,8 +752,7 @@ namespace AWS.EncryptionSDK
                     rtn.message = ToDafny_N6_smithy__N3_api__S6_String(exception.Message);
                     return rtn;
                 default:
-                    var message = $"AwsEncryptionSdk encountered an Exception of type: {value.GetType()}" +
-                                  $" with message of: {value.Message}";
+                    var message = $"AwsEncryptionSdk encountered unexpected: {value.GetType()}: \"{value.Message}\"";
                     rtn = new Dafny.Aws.EncryptionSdk.AwsEncryptionSdkBaseException();
                     rtn.message = ToDafny_N6_smithy__N3_api__S6_String(message);
                     return rtn;

@@ -2763,8 +2763,7 @@ namespace AWS.EncryptionSDK.Core
                     return rtn;
                 default:
                     var message =
-                        $"AwsCryptographicMaterialProviders encountered an Exception of type: {value.GetType()}" +
-                        $" with message of: {value.Message}";
+                        $"AwsCryptographicMaterialProviders encountered unexpected: {value.GetType()}: \"{value.Message}\"";
                     rtn = new Dafny.Aws.EncryptionSdk.Core.AwsCryptographicMaterialProvidersBaseException();
                     rtn.message = ToDafny_N6_smithy__N3_api__S6_String(message);
                     return rtn;
