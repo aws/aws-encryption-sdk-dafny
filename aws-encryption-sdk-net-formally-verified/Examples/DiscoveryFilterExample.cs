@@ -11,10 +11,10 @@ using Xunit;
 using static ExampleUtils.ExampleUtils;
 
 /// Demonstrate using Discovery Filters.
-/// Discovery Filters are used to restrict Discovery Keyrings to trusted AWS
-/// Accounts.
-/// The Accounts are specified by their Account Ids and the partition they are
-/// in.
+/// Discovery Filters are used to restrict Discovery Keyrings
+/// to trusted AWS Accounts.
+/// The Accounts are specified by their Account Ids
+/// and the partition they are in.
 /// It's always a best practice to specify your wrapping keys explicitly when
 /// decrypting. This practice assures that you only use the keys that you intend.
 /// It also improves performance by preventing you from inadvertently using keys
