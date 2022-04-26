@@ -39,7 +39,7 @@ namespace AWS.EncryptionSDK.Core
 
             AWS.EncryptionSDK.Core.OnDecryptInput nativeInput =
                 TypeConversion.FromDafny_N3_aws__N13_encryptionSdk__N4_core__S14_OnDecryptInput(input);
-            AwsCryptographicMaterialProvidersException finalException = null;
+            AwsCryptographicMaterialProvidersBaseException finalException = null;
             try
             {
                 AWS.EncryptionSDK.Core.OnDecryptOutput nativeOutput = _impl.OnDecrypt(nativeInput);
@@ -53,14 +53,14 @@ namespace AWS.EncryptionSDK.Core
                     .create_Success(
                         TypeConversion.ToDafny_N3_aws__N13_encryptionSdk__N4_core__S15_OnDecryptOutput(nativeOutput));
             }
-            catch (AwsCryptographicMaterialProvidersException e)
+            catch (AwsCryptographicMaterialProvidersBaseException e)
             {
                 finalException = e;
             }
             catch (Exception e)
             {
                 var message = $"{_impl}._OnDecrypt threw unexpected: {e.GetType()}: \"{e.Message}\"";
-                finalException = new AwsCryptographicMaterialProvidersException(message);
+                finalException = new AwsCryptographicMaterialProvidersBaseException(message);
             }
 
             return Wrappers_Compile
@@ -88,7 +88,7 @@ namespace AWS.EncryptionSDK.Core
 
             AWS.EncryptionSDK.Core.OnEncryptInput nativeInput =
                 TypeConversion.FromDafny_N3_aws__N13_encryptionSdk__N4_core__S14_OnEncryptInput(input);
-            AwsCryptographicMaterialProvidersException finalException = null;
+            AwsCryptographicMaterialProvidersBaseException finalException = null;
             try
             {
                 AWS.EncryptionSDK.Core.OnEncryptOutput nativeOutput = _impl.OnEncrypt(nativeInput);
@@ -102,14 +102,14 @@ namespace AWS.EncryptionSDK.Core
                     .create_Success(
                         TypeConversion.ToDafny_N3_aws__N13_encryptionSdk__N4_core__S15_OnEncryptOutput(nativeOutput));
             }
-            catch (AwsCryptographicMaterialProvidersException e)
+            catch (AwsCryptographicMaterialProvidersBaseException e)
             {
                 finalException = e;
             }
             catch (Exception e)
             {
                 var message = $"{_impl}._OnEncrypt threw unexpected: {e.GetType()}: \"{e.Message}\"";
-                finalException = new AwsCryptographicMaterialProvidersException(message);
+                finalException = new AwsCryptographicMaterialProvidersBaseException(message);
             }
 
             return Wrappers_Compile

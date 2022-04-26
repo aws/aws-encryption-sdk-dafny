@@ -40,7 +40,7 @@ namespace AWS.EncryptionSDK.Core
 
             AWS.EncryptionSDK.Core.DecryptMaterialsInput nativeInput =
                 TypeConversion.FromDafny_N3_aws__N13_encryptionSdk__N4_core__S21_DecryptMaterialsInput(input);
-            AwsCryptographicMaterialProvidersException finalException = null;
+            AwsCryptographicMaterialProvidersBaseException finalException = null;
             try
             {
                 AWS.EncryptionSDK.Core.DecryptMaterialsOutput nativeOutput = _impl.DecryptMaterials(nativeInput);
@@ -55,14 +55,14 @@ namespace AWS.EncryptionSDK.Core
                         TypeConversion.ToDafny_N3_aws__N13_encryptionSdk__N4_core__S22_DecryptMaterialsOutput(
                             nativeOutput));
             }
-            catch (AwsCryptographicMaterialProvidersException e)
+            catch (AwsCryptographicMaterialProvidersBaseException e)
             {
                 finalException = e;
             }
             catch (Exception e)
             {
                 var message = $"{_impl}._DecryptMaterials threw unexpected: {e.GetType()}: \"{e.Message}\"";
-                finalException = new AwsCryptographicMaterialProvidersException(message);
+                finalException = new AwsCryptographicMaterialProvidersBaseException(message);
             }
 
             return Wrappers_Compile
@@ -90,7 +90,7 @@ namespace AWS.EncryptionSDK.Core
 
             AWS.EncryptionSDK.Core.GetEncryptionMaterialsInput nativeInput =
                 TypeConversion.FromDafny_N3_aws__N13_encryptionSdk__N4_core__S27_GetEncryptionMaterialsInput(input);
-            AwsCryptographicMaterialProvidersException finalException = null;
+            AwsCryptographicMaterialProvidersBaseException finalException = null;
             try
             {
                 AWS.EncryptionSDK.Core.GetEncryptionMaterialsOutput nativeOutput =
@@ -105,14 +105,14 @@ namespace AWS.EncryptionSDK.Core
                     .create_Success(TypeConversion
                         .ToDafny_N3_aws__N13_encryptionSdk__N4_core__S28_GetEncryptionMaterialsOutput(nativeOutput));
             }
-            catch (AwsCryptographicMaterialProvidersException e)
+            catch (AwsCryptographicMaterialProvidersBaseException e)
             {
                 finalException = e;
             }
             catch (Exception e)
             {
                 var message = $"{_impl}._GetEncryptionMaterials threw unexpected: {e.GetType()}: \"{e.Message}\"";
-                finalException = new AwsCryptographicMaterialProvidersException(message);
+                finalException = new AwsCryptographicMaterialProvidersBaseException(message);
             }
 
             return Wrappers_Compile

@@ -26,7 +26,7 @@ namespace AWS.EncryptionSDK.Core
         {
             AWS.EncryptionSDK.Core.GetClientInput nativeInput =
                 TypeConversion.FromDafny_N3_aws__N13_encryptionSdk__N4_core__S14_GetClientInput(input);
-            AwsCryptographicMaterialProvidersException finalException = null;
+            AwsCryptographicMaterialProvidersBaseException finalException = null;
             try
             {
                 Amazon.KeyManagementService.IAmazonKeyManagementService nativeOutput = _impl.GetClient(nativeInput);
@@ -40,14 +40,14 @@ namespace AWS.EncryptionSDK.Core
                     .create_Success(
                         TypeConversion.ToDafny_N3_aws__N13_encryptionSdk__N4_core__S15_GetClientOutput(nativeOutput));
             }
-            catch (AwsCryptographicMaterialProvidersException e)
+            catch (AwsCryptographicMaterialProvidersBaseException e)
             {
                 finalException = e;
             }
             catch (Exception e)
             {
                 var message = $"{_impl}._GetClient threw unexpected: {e.GetType()}: \"{e.Message}\"";
-                finalException = new AwsCryptographicMaterialProvidersException(message);
+                finalException = new AwsCryptographicMaterialProvidersBaseException(message);
             }
 
             return Wrappers_Compile
