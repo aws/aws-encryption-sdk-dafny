@@ -23,8 +23,8 @@ using static ExampleUtils.ExampleUtils;
 /// However, when decrypting with AWS KMS keyrings, you are not required to specify
 /// wrapping keys. The AWS Encryption SDK can get the key identifier from the
 /// metadata of the encrypted data key.
-/// When specifying AWS KMS wrapping keys for decrypting is impractical, you can
-/// use discovery keyrings.
+/// When specifying AWS KMS wrapping keys for decrypting is impractical (such as when
+/// encrypting using AWS KMS Aliases), you can use discovery keyrings.
 /// If using discovery keyrings (which is not a best practice, but is necessary in
 /// some occasions), using Discovery Filters is a best practice.
 /// Particularly if an application is decrypting messages from multiple sources,
