@@ -7,7 +7,6 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 
-using Newtonsoft.Json.Linq;
 using Xunit;
 
 using AWS.EncryptionSDK;
@@ -36,10 +35,16 @@ namespace TestVectors.Runner {
 
         IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
-        // Simplistic method for narrowing down which vectors to target. For now, no-op.
-        // Update if you want to test certain vectors
+        // Simplistic method for narrowing down which vectors to target. Add any permanent skips
+        // here (e.g. for unsupported features) or temporarily update if you want to
+        // test certain vectors
         protected static bool TargetVector(KeyValuePair<string, DecryptVector> entry)
         {
+            if (entry.Value.DecryptionMethod != null && entry.Value.DecryptionMethod.Equals("streaming-unsigned-only")) {
+                // These vectors specifically target streaming APIs. Since we do not
+                // yet support streaming, we cannot test against these.
+                return false;
+            }
             return true;
         }
     }
@@ -95,7 +100,6 @@ namespace TestVectors.Runner {
     }
 
     public class TestVectorDecryptTests {
-        #pragma warning disable xUnit1026 // Suppress Unused argument warnings for vectorID.
         [SkippableTheory]
         [ClassData (typeof(DecryptTestVectors))]
         public void CanDecryptTestVector(
@@ -129,7 +133,6 @@ namespace TestVectors.Runner {
                     MaterialsManager = cmm,
                 };
                 AWS.EncryptionSDK.DecryptOutput decryptOutput = encryptionSdk.Decrypt(decryptInput);
-
                 if (expectedError != null)
                 {
                     throw new Exception(
@@ -137,24 +140,21 @@ namespace TestVectors.Runner {
                     );
                 }
 
-
                 byte[] result = decryptOutput.Plaintext.ToArray();
                 Assert.Equal(expectedPlaintext, result);
             }
-            catch (Exception)
+            catch (Exception e) when (
+                e is AwsEncryptionSdkException ||
+                e is AwsCryptographicMaterialProvidersException ||
+                // TODO: remove when CrypTool-4513 fixed
+                (e is AggregateException  &&
+                 e.InnerException is Amazon.KeyManagementService.AmazonKeyManagementServiceException)
+            )
             {
                 if (expectedPlaintext != null)
                 {
                     // Test was not expected to fail
-                    // TODO: don't allow DafnyHalt and maybe some other set of exceptions that we know are not right
                     throw;
-                }
-
-                if (expectedError != null)
-                {
-                    // TODO: maybe do some comparison on error messages. Or if not, at least make sure the types are
-                    // right? A DafnyHalt exception is definitely bad.
-                    // For now, suffice to say the test correctly failed.
                 }
             }
         }
