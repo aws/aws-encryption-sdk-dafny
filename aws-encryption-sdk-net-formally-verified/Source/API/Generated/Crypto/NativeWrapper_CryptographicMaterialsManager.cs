@@ -61,13 +61,14 @@ namespace AWS.EncryptionSDK.Core
             }
             catch (Exception e)
             {
-                finalException = new AwsCryptographicMaterialProvidersException(e.Message);
+                var message = $"{_impl}._DecryptMaterials threw unexpected: {e.GetType()}: \"{e.Message}\"";
+                finalException = new AwsCryptographicMaterialProvidersException(message);
             }
 
             return Wrappers_Compile
                 .Result<Dafny.Aws.EncryptionSdk.Core._IDecryptMaterialsOutput,
                     Dafny.Aws.EncryptionSdk.Core.IAwsCryptographicMaterialProvidersException>.create_Failure(
-                    TypeConversion.ToDafny_CommonError_AwsCryptographicMaterialProvidersBaseException(finalException));
+                    TypeConversion.ToDafny_CommonError(finalException));
         }
 
         public Wrappers_Compile._IResult<Dafny.Aws.EncryptionSdk.Core._IGetEncryptionMaterialsOutput,
@@ -110,13 +111,14 @@ namespace AWS.EncryptionSDK.Core
             }
             catch (Exception e)
             {
-                finalException = new AwsCryptographicMaterialProvidersException(e.Message);
+                var message = $"{_impl}._GetEncryptionMaterials threw unexpected: {e.GetType()}: \"{e.Message}\"";
+                finalException = new AwsCryptographicMaterialProvidersException(message);
             }
 
             return Wrappers_Compile
                 .Result<Dafny.Aws.EncryptionSdk.Core._IGetEncryptionMaterialsOutput,
                     Dafny.Aws.EncryptionSdk.Core.IAwsCryptographicMaterialProvidersException>.create_Failure(
-                    TypeConversion.ToDafny_CommonError_AwsCryptographicMaterialProvidersBaseException(finalException));
+                    TypeConversion.ToDafny_CommonError(finalException));
         }
     }
 }

@@ -46,13 +46,14 @@ namespace AWS.EncryptionSDK.Core
             }
             catch (Exception e)
             {
-                finalException = new AwsCryptographicMaterialProvidersException(e.Message);
+                var message = $"{_impl}._GetClient threw unexpected: {e.GetType()}: \"{e.Message}\"";
+                finalException = new AwsCryptographicMaterialProvidersException(message);
             }
 
             return Wrappers_Compile
                 .Result<Dafny.Com.Amazonaws.Kms.IKeyManagementServiceClient,
                     Dafny.Aws.EncryptionSdk.Core.IAwsCryptographicMaterialProvidersException>.create_Failure(
-                    TypeConversion.ToDafny_CommonError_AwsCryptographicMaterialProvidersBaseException(finalException));
+                    TypeConversion.ToDafny_CommonError(finalException));
         }
     }
 }
