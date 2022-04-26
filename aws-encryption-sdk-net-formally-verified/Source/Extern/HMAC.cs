@@ -31,12 +31,18 @@ namespace HMAC {
             byte[] elemCopy = (byte[]) input.Elements.Clone();
             var keyParams = new Org.BouncyCastle.Crypto.Parameters.KeyParameter(elemCopy);
             hmac.Init(keyParams);
+            // elemCopy may contain sensitive info; zeroize it to reduce time this lives in memory
+            Array.Clear(elemCopy, 0, elemCopy.Length);
+            elemCopy = null;
         }
 
         public void BlockUpdate(ibyteseq input) {
             // BlockUpdate should not mutate input, but this is safer than using input.Elements directly
             byte[] elemCopy = (byte[]) input.Elements.Clone();
             hmac.BlockUpdate(elemCopy, 0, elemCopy.Length);
+            // elemCopy may contain sensitive info; zeroize it to reduce time this lives in memory
+            Array.Clear(elemCopy, 0, elemCopy.Length);
+            elemCopy = null;
         }
 
         public ibyteseq GetResult() {
