@@ -54,6 +54,16 @@ namespace TestVectors
         public string PaddingHash { get; set; }
         [JsonProperty("default-mrk-region")]
         public string DefaultMrkRegion { get; set; }
+        [JsonProperty("aws-kms-discovery-filter")]
+        public DiscoveryFilter AwsKmsDiscoveryFilter { get; set; }
+    }
+
+    public class DiscoveryFilter
+    {
+        [JsonProperty("partition")]
+        public string Partition { get; set; }
+        [JsonProperty("account-ids")]
+        public IList<string> AccountIds { get; set; }
     }
 
     public class DecryptVector {
@@ -66,6 +76,8 @@ namespace TestVectors
         public IList<MasterKey> MasterKeys { get; set; }
         [JsonProperty("result")]
         public DecryptResult Result { get; set; }
+        [JsonProperty("decryption-method")]
+        public string DecryptionMethod { get; set; }
     }
 
     public class DecryptResult
@@ -130,9 +142,21 @@ namespace TestVectors
         [JsonProperty("encryption-scenario")]
         public EncryptScenario Scenario { get; set; }
 
+        // TODO: each of these three are currently unused, but we need to model them
+        // so that we can successfully parse the manifest
+        [JsonProperty("decryption-method")]
+        public string DecryptionMethod { get; set; }
+        [JsonProperty("result")]
+        public DecryptResult Result { get; set; }
+        [JsonProperty("decryption-master-keys")]
+        public IList<MasterKey> DecryptionMasterKeys { get; set; }
+
         // TODO create tampered messages
-        // [JsonProperty("tampering")]
-        // public string Tampering { get; set; }
+        // 'dynamic' type because we sometimes set this as a string
+        // and sometimes set it as an object. Will need to figure this
+        // out when we support tampered messages
+        [JsonProperty("tampering")]
+        public dynamic Tampering { get; set; }
     }
 
     public class EncryptManifest
