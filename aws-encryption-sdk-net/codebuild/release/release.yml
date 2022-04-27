@@ -4,20 +4,20 @@ batch:
   fast-fail: true
   build-graph:
     - identifier: sign
-      buildspec: aws-encryption-sdk-net-formally-verified/codebuild/release/sign.yml
+      buildspec: aws-encryption-sdk-net/codebuild/release/sign.yml
     - identifier: verify 
-      buildspec: aws-encryption-sdk-net-formally-verified/codebuild/release/verify.yml
+      buildspec: aws-encryption-sdk-net/codebuild/release/verify.yml
       env:
         type: WINDOWS_SERVER_2019_CONTAINER
         image: aws/codebuild/windows-base:2019-1.0
       depend-on:
         - sign
     - identifier: release_staging
-      buildspec: aws-encryption-sdk-net-formally-verified/codebuild/release/release-staging.yml
+      buildspec: aws-encryption-sdk-net/codebuild/release/release-staging.yml
       depend-on:
         - sign
     - identifier: release_prod
-      buildspec: aws-encryption-sdk-net-formally-verified/codebuild/release/release-prod.yml
+      buildspec: aws-encryption-sdk-net/codebuild/release/release-prod.yml
       depend-on:
         - verify
         - release_staging
