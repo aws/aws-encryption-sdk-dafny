@@ -52,8 +52,8 @@ namespace AWS.EncryptionSDK.Core
 
             return Wrappers_Compile
                 .Result<Dafny.Com.Amazonaws.Kms.IKeyManagementServiceClient,
-                    Dafny.Aws.EncryptionSdk.Core.IAwsCryptographicMaterialProvidersException>.create_Failure(
-                    TypeConversion.ToDafny_CommonError(finalException));
+                    Dafny.Aws.EncryptionSdk.Core.IAwsCryptographicMaterialProvidersException>
+                .create_Failure(TypeConversion.ToDafny_CommonError(finalException));
         }
     }
 }

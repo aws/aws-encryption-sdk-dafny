@@ -67,8 +67,8 @@ namespace AWS.EncryptionSDK.Core
 
             return Wrappers_Compile
                 .Result<Dafny.Aws.EncryptionSdk.Core._IDecryptMaterialsOutput,
-                    Dafny.Aws.EncryptionSdk.Core.IAwsCryptographicMaterialProvidersException>.create_Failure(
-                    TypeConversion.ToDafny_CommonError(finalException));
+                    Dafny.Aws.EncryptionSdk.Core.IAwsCryptographicMaterialProvidersException>
+                .create_Failure(TypeConversion.ToDafny_CommonError(finalException));
         }
 
         public Wrappers_Compile._IResult<Dafny.Aws.EncryptionSdk.Core._IGetEncryptionMaterialsOutput,
@@ -117,8 +117,8 @@ namespace AWS.EncryptionSDK.Core
 
             return Wrappers_Compile
                 .Result<Dafny.Aws.EncryptionSdk.Core._IGetEncryptionMaterialsOutput,
-                    Dafny.Aws.EncryptionSdk.Core.IAwsCryptographicMaterialProvidersException>.create_Failure(
-                    TypeConversion.ToDafny_CommonError(finalException));
+                    Dafny.Aws.EncryptionSdk.Core.IAwsCryptographicMaterialProvidersException>
+                .create_Failure(TypeConversion.ToDafny_CommonError(finalException));
         }
     }
 }

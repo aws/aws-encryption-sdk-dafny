@@ -238,19 +238,26 @@ namespace AWS.EncryptionSDK
             FromDafny_N3_aws__N13_encryptionSdk__N4_core__S16_KeyringReference(
                 Dafny.Aws.EncryptionSdk.Core.IKeyring value)
         {
+            if (value is NativeWrapper_Keyring nativeWrapper) return nativeWrapper._impl;
             return new Keyring(value);
         }
 
         public static Dafny.Aws.EncryptionSdk.Core.IKeyring
             ToDafny_N3_aws__N13_encryptionSdk__N4_core__S16_KeyringReference(AWS.EncryptionSDK.Core.IKeyring value)
         {
-            if (value is Keyring valueWithImpl)
+            switch (value)
             {
-                return valueWithImpl._impl;
+                case Keyring valueWithImpl:
+                    return valueWithImpl._impl;
+                case KeyringBase nativeImpl:
+                    return new NativeWrapper_Keyring(nativeImpl);
+                case AWS.EncryptionSDK.Core.IKeyring _:
+                    throw new System.ArgumentException(
+                        "Custom implementations of Keyring should extend KeyringBase.");
+                default:
+                    throw new System.ArgumentException(
+                        $"{value} does not inherit from {typeof(KeyringBase)} or {typeof(Keyring)}.");
             }
-
-            throw new System.ArgumentException(
-                "Custom implementations of AWS.EncryptionSDK.Core.IKeyring are not supported yet");
         }
 
         public static string FromDafny_N6_smithy__N3_api__S6_String(Dafny.ISequence<char> value)
@@ -382,6 +389,7 @@ namespace AWS.EncryptionSDK
             FromDafny_N3_aws__N13_encryptionSdk__N4_core__S38_CryptographicMaterialsManagerReference(
                 Dafny.Aws.EncryptionSdk.Core.ICryptographicMaterialsManager value)
         {
+            if (value is NativeWrapper_CryptographicMaterialsManager nativeWrapper) return nativeWrapper._impl;
             return new CryptographicMaterialsManager(value);
         }
 
@@ -389,13 +397,19 @@ namespace AWS.EncryptionSDK
             ToDafny_N3_aws__N13_encryptionSdk__N4_core__S38_CryptographicMaterialsManagerReference(
                 AWS.EncryptionSDK.Core.ICryptographicMaterialsManager value)
         {
-            if (value is CryptographicMaterialsManager valueWithImpl)
+            switch (value)
             {
-                return valueWithImpl._impl;
+                case CryptographicMaterialsManager valueWithImpl:
+                    return valueWithImpl._impl;
+                case CryptographicMaterialsManagerBase nativeImpl:
+                    return new NativeWrapper_CryptographicMaterialsManager(nativeImpl);
+                case AWS.EncryptionSDK.Core.ICryptographicMaterialsManager _:
+                    throw new System.ArgumentException(
+                        "Custom implementations of CryptographicMaterialsManager should extend CryptographicMaterialsManagerBase.");
+                default:
+                    throw new System.ArgumentException(
+                        $"{value} does not inherit from {typeof(CryptographicMaterialsManagerBase)} or {typeof(CryptographicMaterialsManager)}.");
             }
-
-            throw new System.ArgumentException(
-                "Custom implementations of AWS.EncryptionSDK.Core.ICryptographicMaterialsManager are not supported yet");
         }
 
         public static long? FromDafny_N3_aws__N13_encryptionSdk__S12_EncryptInput__M11_frameLength(
@@ -628,6 +642,33 @@ namespace AWS.EncryptionSDK
             return Dafny.Sequence<byte>.FromArray(utf8.GetBytes(value));
         }
 
+        public static AWS.EncryptionSDK.DecryptOutput FromDafny_N3_aws__N13_encryptionSdk__S13_DecryptOutput(
+            Dafny.Aws.EncryptionSdk._IDecryptOutput value)
+        {
+            Dafny.Aws.EncryptionSdk.DecryptOutput concrete = (Dafny.Aws.EncryptionSdk.DecryptOutput)value;
+            AWS.EncryptionSDK.DecryptOutput converted = new AWS.EncryptionSDK.DecryptOutput();
+            converted.Plaintext =
+                (System.IO.MemoryStream)FromDafny_N3_aws__N13_encryptionSdk__S13_DecryptOutput__M9_plaintext(
+                    concrete.plaintext);
+            converted.EncryptionContext =
+                (System.Collections.Generic.Dictionary<string, string>)
+                FromDafny_N3_aws__N13_encryptionSdk__S13_DecryptOutput__M17_encryptionContext(
+                    concrete.encryptionContext);
+            converted.AlgorithmSuiteId =
+                (AWS.EncryptionSDK.Core.AlgorithmSuiteId)
+                FromDafny_N3_aws__N13_encryptionSdk__S13_DecryptOutput__M16_algorithmSuiteId(concrete.algorithmSuiteId);
+            return converted;
+        }
+
+        public static Dafny.Aws.EncryptionSdk._IDecryptOutput ToDafny_N3_aws__N13_encryptionSdk__S13_DecryptOutput(
+            AWS.EncryptionSDK.DecryptOutput value)
+        {
+            return new Dafny.Aws.EncryptionSdk.DecryptOutput(
+                ToDafny_N3_aws__N13_encryptionSdk__S13_DecryptOutput__M9_plaintext(value.Plaintext),
+                ToDafny_N3_aws__N13_encryptionSdk__S13_DecryptOutput__M17_encryptionContext(value.EncryptionContext),
+                ToDafny_N3_aws__N13_encryptionSdk__S13_DecryptOutput__M16_algorithmSuiteId(value.AlgorithmSuiteId));
+        }
+
         public static AWS.EncryptionSDK.EncryptInput FromDafny_N3_aws__N13_encryptionSdk__S12_EncryptInput(
             Dafny.Aws.EncryptionSdk._IEncryptInput value)
         {
@@ -683,33 +724,6 @@ namespace AWS.EncryptionSDK
                 ToDafny_N3_aws__N13_encryptionSdk__S12_EncryptInput__M7_keyring(var_keyring),
                 ToDafny_N3_aws__N13_encryptionSdk__S12_EncryptInput__M16_algorithmSuiteId(var_algorithmSuiteId),
                 ToDafny_N3_aws__N13_encryptionSdk__S12_EncryptInput__M11_frameLength(var_frameLength));
-        }
-
-        public static AWS.EncryptionSDK.DecryptOutput FromDafny_N3_aws__N13_encryptionSdk__S13_DecryptOutput(
-            Dafny.Aws.EncryptionSdk._IDecryptOutput value)
-        {
-            Dafny.Aws.EncryptionSdk.DecryptOutput concrete = (Dafny.Aws.EncryptionSdk.DecryptOutput)value;
-            AWS.EncryptionSDK.DecryptOutput converted = new AWS.EncryptionSDK.DecryptOutput();
-            converted.Plaintext =
-                (System.IO.MemoryStream)FromDafny_N3_aws__N13_encryptionSdk__S13_DecryptOutput__M9_plaintext(
-                    concrete.plaintext);
-            converted.EncryptionContext =
-                (System.Collections.Generic.Dictionary<string, string>)
-                FromDafny_N3_aws__N13_encryptionSdk__S13_DecryptOutput__M17_encryptionContext(
-                    concrete.encryptionContext);
-            converted.AlgorithmSuiteId =
-                (AWS.EncryptionSDK.Core.AlgorithmSuiteId)
-                FromDafny_N3_aws__N13_encryptionSdk__S13_DecryptOutput__M16_algorithmSuiteId(concrete.algorithmSuiteId);
-            return converted;
-        }
-
-        public static Dafny.Aws.EncryptionSdk._IDecryptOutput ToDafny_N3_aws__N13_encryptionSdk__S13_DecryptOutput(
-            AWS.EncryptionSDK.DecryptOutput value)
-        {
-            return new Dafny.Aws.EncryptionSdk.DecryptOutput(
-                ToDafny_N3_aws__N13_encryptionSdk__S13_DecryptOutput__M9_plaintext(value.Plaintext),
-                ToDafny_N3_aws__N13_encryptionSdk__S13_DecryptOutput__M17_encryptionContext(value.EncryptionContext),
-                ToDafny_N3_aws__N13_encryptionSdk__S13_DecryptOutput__M16_algorithmSuiteId(value.AlgorithmSuiteId));
         }
 
         public static System.Collections.Generic.Dictionary<string, string>
