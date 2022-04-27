@@ -28,13 +28,13 @@ namespace AWSEncryptionSDKTests.NativeWrappers
             catch (Exception e)
             {
                 throw new XunitException(
-                    $"TypeConversion.ToDafny_N3_aws__N13_encryptionSdk__N4_core__S16_KeyringReference" +
-                    $" through an exception: {e.GetType()} with message: \"{e.Message}\"." +
+                    nameof(TypeConversion.ToDafny_N3_aws__N13_encryptionSdk__N4_core__S16_KeyringReference) +
+                    $" threw an exception: {e.GetType()} with message: \"{e.Message}\"." +
                     $"Should have thrown: \"{expected}\""
                 );
             }
             throw new XunitException(
-                "TypeConversion.ToDafny_N3_aws__N13_encryptionSdk__N4_core__S16_KeyringReference" +
+                nameof(TypeConversion.ToDafny_N3_aws__N13_encryptionSdk__N4_core__S16_KeyringReference) +
                 $" returned {output}. Should have thrown: \"{expected}\"");
         }
     }

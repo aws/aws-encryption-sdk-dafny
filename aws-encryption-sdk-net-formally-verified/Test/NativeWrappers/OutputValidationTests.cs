@@ -31,7 +31,7 @@ namespace AWSEncryptionSDKTests.NativeWrappers
             catch (Exception e)
             {
                 throw new XunitException(
-                    $"{underTest}.OnEncrypt through an exception: {e.GetType()} with message: \"{e.Message}\"." +
+                    $"{underTest}.OnEncrypt threw an exception: {e.GetType()} with message: \"{e.Message}\"." +
                     $"Should have returned: \"{EXPECTED_FAILURE}\""
                 );
             }
@@ -68,7 +68,7 @@ namespace AWSEncryptionSDKTests.NativeWrappers
             catch (Exception e)
             {
                 throw new XunitException(
-                    $"{underTest}.OnDecrypt through an exception: {e.GetType()} with message: \"{e.Message}\"." +
+                    $"{underTest}.OnDecrypt threw an exception: {e.GetType()} with message: \"{e.Message}\"." +
                     $"Should have returned: \"{EXPECTED_FAILURE}\""
                 );
             }

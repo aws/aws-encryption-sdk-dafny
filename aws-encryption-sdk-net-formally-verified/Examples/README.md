@@ -70,10 +70,10 @@ You can find these examples in
 
 ### Client Supplier
 
-Client Suppliers define how the AWS KMS clients required by the AWS
-Encryption SDK are created. If you want to customize your KMS
-clients, you can create a custom Client Supplier which 
-builds clients in a specific way. For example, you could tune
+The AWS Encryption SDK creates AWS KMS clients when interacting with AWS KMS.
+In case the default AWS KMS client configuration doesn't suit your needs,
+you can configure clients by defining a custom Client Supplier.
+For example, your Client Supplier could tune
 the retry and timeout settings on the client, or use different credentials
 based on which region is being called. In our
 [RegionalRoleClientSupplier](./ClientSupplier/RegionalRoleClientSupplier.cs)
