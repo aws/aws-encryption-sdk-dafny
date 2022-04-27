@@ -42,11 +42,11 @@ public class RegionalRoleClientSupplier : ClientSupplierBase
     ///     Whenever the AWS Encryption SDK needs to create a KMS client,
     ///     it will call <c>GetClient</c> for the regions in which it needs to call
     ///     KMS.
-    ///     In this example, we utilize a Dictionary to map regions to particular
-    ///     IAM Roles.
+    ///     In this example, we utilize a Dictionary
+    ///     to map regions to particular IAM Roles.
     ///     We use Amazon Security Token Service to fetch temporary credentials,
-    ///     and then provision a Key Management Service (KMS) Client with those
-    ///     credentials and the input region.
+    ///     and then provision a Key Management Service (KMS) Client
+    ///     with those credentials and the input region.
     /// </summary>
     /// <param name="input"><c>GetClientInput</c> is just the region</param>
     /// <returns>A KMS Client</returns>
@@ -84,8 +84,13 @@ public class RegionalRoleClientSupplier : ClientSupplierBase
     }
 }
 
-
-public class MissingRegionException : Exception
+// Custom Exceptions SHOULD extend from the Library's Base Exception.
+// This is a quirk of using Dafny to generate the Encryption SDK.
+// The Encryption SDK will handle dotnet's System.Exception,
+// but the exception message will be altered.
+// By extending from the Library's Base Exception,
+// you can ensure the exception's message will be as intended.
+public class MissingRegionException : AwsCryptographicMaterialProvidersBaseException
 {
     public MissingRegionException(string region) : base(
         $"Region {region} is not supported by this client supplier")
@@ -93,15 +98,16 @@ public class MissingRegionException : Exception
     }
 }
 
-public class AssumeRoleException : Exception
+public class AssumeRoleException : AwsCryptographicMaterialProvidersBaseException
 {
     public AssumeRoleException(string region, string roleArn, Exception e) : base(
-        $"Attempt to assume Role Arn {roleArn} for Region {region} failed", e)
+        $"Attempt to assume Role Arn {roleArn} for Region {region}" +
+        $" encountered unexpected: {e.GetType()}: \"{e.Message}\"")
     {
         // At this time, the Encryption SDK only retains exception messages,
         // and not the entire stack trace.
-        // As such, it is helpful to manually log the exceptions (ideally, a
-        // logging framework would be used, instead of console).
+        // As such, it is helpful to manually log the exceptions
+        // (ideally, a logging framework would be used, instead of console).
         Console.Out.Write(e);
     }
 }
