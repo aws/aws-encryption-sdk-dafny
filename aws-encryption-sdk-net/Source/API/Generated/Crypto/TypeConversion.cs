@@ -609,6 +609,7 @@ namespace AWS.EncryptionSDK.Core
             FromDafny_N3_aws__N13_encryptionSdk__N4_core__S23_ClientSupplierReference(
                 Dafny.Aws.EncryptionSdk.Core.IClientSupplier value)
         {
+            if (value is NativeWrapper_ClientSupplier nativeWrapper) return nativeWrapper._impl;
             return new ClientSupplier(value);
         }
 
@@ -616,13 +617,16 @@ namespace AWS.EncryptionSDK.Core
             ToDafny_N3_aws__N13_encryptionSdk__N4_core__S23_ClientSupplierReference(
                 AWS.EncryptionSDK.Core.IClientSupplier value)
         {
-            if (value is ClientSupplier valueWithImpl)
+            switch (value)
             {
-                return valueWithImpl._impl;
+                case ClientSupplier valueWithImpl:
+                    return valueWithImpl._impl;
+                case ClientSupplierBase nativeImpl:
+                    return new NativeWrapper_ClientSupplier(nativeImpl);
+                default:
+                    throw new System.ArgumentException(
+                        "Custom implementations of ClientSupplier must extend ClientSupplierBase.");
             }
-
-            throw new System.ArgumentException(
-                "Custom implementations of AWS.EncryptionSDK.Core.IClientSupplier are not supported yet");
         }
 
         public static AWS.EncryptionSDK.Core.EncryptionMaterials
@@ -703,6 +707,43 @@ namespace AWS.EncryptionSDK.Core
             return ToDafny_N3_aws__N13_encryptionSdk__N4_core__S13_AccountIdList(value);
         }
 
+        public static AWS.EncryptionSDK.Core.CreateAwsKmsKeyringInput
+            FromDafny_N3_aws__N13_encryptionSdk__N4_core__S24_CreateAwsKmsKeyringInput(
+                Dafny.Aws.EncryptionSdk.Core._ICreateAwsKmsKeyringInput value)
+        {
+            Dafny.Aws.EncryptionSdk.Core.CreateAwsKmsKeyringInput concrete =
+                (Dafny.Aws.EncryptionSdk.Core.CreateAwsKmsKeyringInput)value;
+            AWS.EncryptionSDK.Core.CreateAwsKmsKeyringInput converted =
+                new AWS.EncryptionSDK.Core.CreateAwsKmsKeyringInput();
+            converted.KmsKeyId =
+                (string)FromDafny_N3_aws__N13_encryptionSdk__N4_core__S24_CreateAwsKmsKeyringInput__M8_kmsKeyId(
+                    concrete.kmsKeyId);
+            converted.KmsClient =
+                (Amazon.KeyManagementService.IAmazonKeyManagementService)
+                FromDafny_N3_aws__N13_encryptionSdk__N4_core__S24_CreateAwsKmsKeyringInput__M9_kmsClient(
+                    concrete.kmsClient);
+            if (concrete.grantTokens.is_Some)
+                converted.GrantTokens =
+                    (System.Collections.Generic.List<string>)
+                    FromDafny_N3_aws__N13_encryptionSdk__N4_core__S24_CreateAwsKmsKeyringInput__M11_grantTokens(
+                        concrete.grantTokens);
+            return converted;
+        }
+
+        public static Dafny.Aws.EncryptionSdk.Core._ICreateAwsKmsKeyringInput
+            ToDafny_N3_aws__N13_encryptionSdk__N4_core__S24_CreateAwsKmsKeyringInput(
+                AWS.EncryptionSDK.Core.CreateAwsKmsKeyringInput value)
+        {
+            System.Collections.Generic.List<string> var_grantTokens = value.IsSetGrantTokens()
+                ? value.GrantTokens
+                : (System.Collections.Generic.List<string>)null;
+            return new Dafny.Aws.EncryptionSdk.Core.CreateAwsKmsKeyringInput(
+                ToDafny_N3_aws__N13_encryptionSdk__N4_core__S24_CreateAwsKmsKeyringInput__M8_kmsKeyId(value.KmsKeyId),
+                ToDafny_N3_aws__N13_encryptionSdk__N4_core__S24_CreateAwsKmsKeyringInput__M9_kmsClient(value.KmsClient),
+                ToDafny_N3_aws__N13_encryptionSdk__N4_core__S24_CreateAwsKmsKeyringInput__M11_grantTokens(
+                    var_grantTokens));
+        }
+
         public static AWS.EncryptionSDK.Core.GetEncryptionMaterialsInput
             FromDafny_N3_aws__N13_encryptionSdk__N4_core__S27_GetEncryptionMaterialsInput(
                 Dafny.Aws.EncryptionSdk.Core._IGetEncryptionMaterialsInput value)
@@ -751,43 +792,6 @@ namespace AWS.EncryptionSDK.Core
                     var_maxPlaintextLength));
         }
 
-        public static AWS.EncryptionSDK.Core.CreateAwsKmsKeyringInput
-            FromDafny_N3_aws__N13_encryptionSdk__N4_core__S24_CreateAwsKmsKeyringInput(
-                Dafny.Aws.EncryptionSdk.Core._ICreateAwsKmsKeyringInput value)
-        {
-            Dafny.Aws.EncryptionSdk.Core.CreateAwsKmsKeyringInput concrete =
-                (Dafny.Aws.EncryptionSdk.Core.CreateAwsKmsKeyringInput)value;
-            AWS.EncryptionSDK.Core.CreateAwsKmsKeyringInput converted =
-                new AWS.EncryptionSDK.Core.CreateAwsKmsKeyringInput();
-            converted.KmsKeyId =
-                (string)FromDafny_N3_aws__N13_encryptionSdk__N4_core__S24_CreateAwsKmsKeyringInput__M8_kmsKeyId(
-                    concrete.kmsKeyId);
-            converted.KmsClient =
-                (Amazon.KeyManagementService.IAmazonKeyManagementService)
-                FromDafny_N3_aws__N13_encryptionSdk__N4_core__S24_CreateAwsKmsKeyringInput__M9_kmsClient(
-                    concrete.kmsClient);
-            if (concrete.grantTokens.is_Some)
-                converted.GrantTokens =
-                    (System.Collections.Generic.List<string>)
-                    FromDafny_N3_aws__N13_encryptionSdk__N4_core__S24_CreateAwsKmsKeyringInput__M11_grantTokens(
-                        concrete.grantTokens);
-            return converted;
-        }
-
-        public static Dafny.Aws.EncryptionSdk.Core._ICreateAwsKmsKeyringInput
-            ToDafny_N3_aws__N13_encryptionSdk__N4_core__S24_CreateAwsKmsKeyringInput(
-                AWS.EncryptionSDK.Core.CreateAwsKmsKeyringInput value)
-        {
-            System.Collections.Generic.List<string> var_grantTokens = value.IsSetGrantTokens()
-                ? value.GrantTokens
-                : (System.Collections.Generic.List<string>)null;
-            return new Dafny.Aws.EncryptionSdk.Core.CreateAwsKmsKeyringInput(
-                ToDafny_N3_aws__N13_encryptionSdk__N4_core__S24_CreateAwsKmsKeyringInput__M8_kmsKeyId(value.KmsKeyId),
-                ToDafny_N3_aws__N13_encryptionSdk__N4_core__S24_CreateAwsKmsKeyringInput__M9_kmsClient(value.KmsClient),
-                ToDafny_N3_aws__N13_encryptionSdk__N4_core__S24_CreateAwsKmsKeyringInput__M11_grantTokens(
-                    var_grantTokens));
-        }
-
         public static AWS.EncryptionSDK.Core.IAwsCryptographicMaterialProviders
             FromDafny_N3_aws__N13_encryptionSdk__N4_core__S42_AwsCryptographicMaterialProvidersReference(
                 Dafny.Aws.EncryptionSdk.Core.IAwsCryptographicMaterialProviders value)
@@ -805,7 +809,7 @@ namespace AWS.EncryptionSDK.Core
             }
 
             throw new System.ArgumentException(
-                "Custom implementations of AWS.EncryptionSDK.Core.IAwsCryptographicMaterialProviders are not supported yet");
+                "Custom implementations of AWS.EncryptionSDK.Core.IAwsCryptographicMaterialProviders are not supported");
         }
 
         public static AWS.EncryptionSDK.Core.DiscoveryFilter
@@ -1401,6 +1405,26 @@ namespace AWS.EncryptionSDK.Core
             return ToDafny_N3_aws__N13_encryptionSdk__N4_core__S20_EncryptedDataKeyList(value);
         }
 
+        public static AWS.EncryptionSDK.Core.OnEncryptOutput
+            FromDafny_N3_aws__N13_encryptionSdk__N4_core__S15_OnEncryptOutput(
+                Dafny.Aws.EncryptionSdk.Core._IOnEncryptOutput value)
+        {
+            Dafny.Aws.EncryptionSdk.Core.OnEncryptOutput concrete = (Dafny.Aws.EncryptionSdk.Core.OnEncryptOutput)value;
+            AWS.EncryptionSDK.Core.OnEncryptOutput converted = new AWS.EncryptionSDK.Core.OnEncryptOutput();
+            converted.Materials =
+                (AWS.EncryptionSDK.Core.EncryptionMaterials)
+                FromDafny_N3_aws__N13_encryptionSdk__N4_core__S15_OnEncryptOutput__M9_materials(concrete.materials);
+            return converted;
+        }
+
+        public static Dafny.Aws.EncryptionSdk.Core._IOnEncryptOutput
+            ToDafny_N3_aws__N13_encryptionSdk__N4_core__S15_OnEncryptOutput(
+                AWS.EncryptionSDK.Core.OnEncryptOutput value)
+        {
+            return new Dafny.Aws.EncryptionSdk.Core.OnEncryptOutput(
+                ToDafny_N3_aws__N13_encryptionSdk__N4_core__S15_OnEncryptOutput__M9_materials(value.Materials));
+        }
+
         public static AWS.EncryptionSDK.Core.DecryptMaterialsInput
             FromDafny_N3_aws__N13_encryptionSdk__N4_core__S21_DecryptMaterialsInput(
                 Dafny.Aws.EncryptionSdk.Core._IDecryptMaterialsInput value)
@@ -1440,26 +1464,6 @@ namespace AWS.EncryptionSDK.Core
                     value.EncryptedDataKeys),
                 ToDafny_N3_aws__N13_encryptionSdk__N4_core__S21_DecryptMaterialsInput__M17_encryptionContext(
                     value.EncryptionContext));
-        }
-
-        public static AWS.EncryptionSDK.Core.OnEncryptOutput
-            FromDafny_N3_aws__N13_encryptionSdk__N4_core__S15_OnEncryptOutput(
-                Dafny.Aws.EncryptionSdk.Core._IOnEncryptOutput value)
-        {
-            Dafny.Aws.EncryptionSdk.Core.OnEncryptOutput concrete = (Dafny.Aws.EncryptionSdk.Core.OnEncryptOutput)value;
-            AWS.EncryptionSDK.Core.OnEncryptOutput converted = new AWS.EncryptionSDK.Core.OnEncryptOutput();
-            converted.Materials =
-                (AWS.EncryptionSDK.Core.EncryptionMaterials)
-                FromDafny_N3_aws__N13_encryptionSdk__N4_core__S15_OnEncryptOutput__M9_materials(concrete.materials);
-            return converted;
-        }
-
-        public static Dafny.Aws.EncryptionSdk.Core._IOnEncryptOutput
-            ToDafny_N3_aws__N13_encryptionSdk__N4_core__S15_OnEncryptOutput(
-                AWS.EncryptionSDK.Core.OnEncryptOutput value)
-        {
-            return new Dafny.Aws.EncryptionSdk.Core.OnEncryptOutput(
-                ToDafny_N3_aws__N13_encryptionSdk__N4_core__S15_OnEncryptOutput__M9_materials(value.Materials));
         }
 
         public static string FromDafny_N3_aws__N13_encryptionSdk__N4_core__S10_RegionList__M6_member(
@@ -2337,19 +2341,23 @@ namespace AWS.EncryptionSDK.Core
             FromDafny_N3_aws__N13_encryptionSdk__N4_core__S16_KeyringReference(
                 Dafny.Aws.EncryptionSdk.Core.IKeyring value)
         {
+            if (value is NativeWrapper_Keyring nativeWrapper) return nativeWrapper._impl;
             return new Keyring(value);
         }
 
         public static Dafny.Aws.EncryptionSdk.Core.IKeyring
             ToDafny_N3_aws__N13_encryptionSdk__N4_core__S16_KeyringReference(AWS.EncryptionSDK.Core.IKeyring value)
         {
-            if (value is Keyring valueWithImpl)
+            switch (value)
             {
-                return valueWithImpl._impl;
+                case Keyring valueWithImpl:
+                    return valueWithImpl._impl;
+                case KeyringBase nativeImpl:
+                    return new NativeWrapper_Keyring(nativeImpl);
+                default:
+                    throw new System.ArgumentException(
+                        "Custom implementations of Keyring must extend KeyringBase.");
             }
-
-            throw new System.ArgumentException(
-                "Custom implementations of AWS.EncryptionSDK.Core.IKeyring are not supported yet");
         }
 
         public static AWS.EncryptionSDK.Core.OnDecryptInput
@@ -2484,6 +2492,7 @@ namespace AWS.EncryptionSDK.Core
             FromDafny_N3_aws__N13_encryptionSdk__N4_core__S38_CryptographicMaterialsManagerReference(
                 Dafny.Aws.EncryptionSdk.Core.ICryptographicMaterialsManager value)
         {
+            if (value is NativeWrapper_CryptographicMaterialsManager nativeWrapper) return nativeWrapper._impl;
             return new CryptographicMaterialsManager(value);
         }
 
@@ -2491,13 +2500,16 @@ namespace AWS.EncryptionSDK.Core
             ToDafny_N3_aws__N13_encryptionSdk__N4_core__S38_CryptographicMaterialsManagerReference(
                 AWS.EncryptionSDK.Core.ICryptographicMaterialsManager value)
         {
-            if (value is CryptographicMaterialsManager valueWithImpl)
+            switch (value)
             {
-                return valueWithImpl._impl;
+                case CryptographicMaterialsManager valueWithImpl:
+                    return valueWithImpl._impl;
+                case CryptographicMaterialsManagerBase nativeImpl:
+                    return new NativeWrapper_CryptographicMaterialsManager(nativeImpl);
+                default:
+                    throw new System.ArgumentException(
+                        "Custom implementations of CryptographicMaterialsManager must extend CryptographicMaterialsManagerBase.");
             }
-
-            throw new System.ArgumentException(
-                "Custom implementations of AWS.EncryptionSDK.Core.ICryptographicMaterialsManager are not supported yet");
         }
 
         public static AWS.EncryptionSDK.Core.CreateAwsKmsMrkKeyringInput
