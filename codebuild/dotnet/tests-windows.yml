@@ -20,5 +20,5 @@ phases:
       - Dafny.exe /version
   build:
     commands:
-      - cd aws-encryption-sdk-net-formally-verified/Test
+      - cd aws-encryption-sdk-net/Test
       - C:\Users\ContainerAdministrator\AppData\Local\Microsoft\dotnet\dotnet test /nowarn:CS0105,CS0618

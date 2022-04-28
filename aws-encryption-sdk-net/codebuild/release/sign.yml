@@ -1,0 +1,30 @@
+version: 0.2
+
+phases:
+  install:
+    runtime-versions:
+      dotnet: 5.0
+      python: 3.x
+    commands:
+      - cd ..
+      # Get Dafny
+      - curl https://github.com/dafny-lang/dafny/releases/download/v3.5.0/dafny-3.5.0-x64-ubuntu-16.04.zip -L -o dafny.zip
+      - unzip -qq dafny.zip && rm dafny.zip
+      - export PATH="$PWD/dafny:$PATH"
+      # Switch back to the main directory
+      - cd aws-encryption-sdk-dafny/aws-encryption-sdk-net
+  pre_build:
+    commands:
+      # UNIQUE_ID should be passed in as an environment variable. It is used to tie
+      # the different parts of the asynchronous signing process together
+      - echo "Using unique id for flow $UNIQUE_ID"
+  build:
+    commands:
+      - dotnet build Source /p:Configuration=Release -nowarn:CS0162,CS0168
+      - export BASE=codebuild/release
+      - python $BASE/upload_assembly.py --target netstandard2.1 --unique-id $UNIQUE_ID
+      - python $BASE/upload_assembly.py --target net452 --unique-id $UNIQUE_ID
+      # Retrieve the signed assembly. We're not going to use it, but this
+      # ensures that the signing process is complete
+      - python $BASE/retrieve_signed_assembly.py --target netstandard2.1 --unique-id $UNIQUE_ID
+      - python $BASE/retrieve_signed_assembly.py --target net452 --unique-id $UNIQUE_ID
