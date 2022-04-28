@@ -97,8 +97,6 @@ public class DiscoveryFilterExample
             Ciphertext = ciphertext,
             Keyring = decryptKeyring
         };
-        // If the `encryptKeyArn` is from an AWS Account in `trustedAccountIds`,
-        // then the Encryption SDK will attempt to decrypt it.
         var decryptOutput = encryptionSdk.Decrypt(decryptInput);
 
         /* 5. Verify the encryption context */
@@ -109,7 +107,7 @@ public class DiscoveryFilterExample
 
         /* 7. Create a discovery filter that excludes the encrypted data key */
         // If we create a Discovery Filter that excludes
-        // the account the ciphertext was encrypted with,
+        // all the accounts the ciphertext was encrypted with,
         // the decryption will fail.
         decryptKeyringInput.DiscoveryFilter = new DiscoveryFilter
         {
