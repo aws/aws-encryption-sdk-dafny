@@ -1,6 +1,10 @@
+// Copyright Amazon.com Inc. or its affiliates. All Rights Reserved.
+// SPDX-License-Identifier: Apache-2.0
+
 using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
+using AWS.EncryptionSDK;
 using AWS.EncryptionSDK.Core;
 
 /// <summary>
@@ -11,7 +15,7 @@ using AWS.EncryptionSDK.Core;
 /// Read more about Cryptographic Materials Managers (CMMs):
 /// https://docs.aws.amazon.com/encryption-sdk/latest/developer-guide/concepts.html#crypt-materials-manager
 /// </summary>
-public class SigningSuiteOnlyCMM : ICryptographicMaterialsManager
+public class SigningSuiteOnlyCMM : CryptographicMaterialsManagerBase
 {
     private readonly ICryptographicMaterialsManager _cmm;
 
@@ -35,7 +39,7 @@ public class SigningSuiteOnlyCMM : ICryptographicMaterialsManager
         _cmm = materialProviders.CreateDefaultCryptographicMaterialsManager(cmmInput);
     }
 
-    public GetEncryptionMaterialsOutput GetEncryptionMaterials(GetEncryptionMaterialsInput input)
+    protected override GetEncryptionMaterialsOutput _GetEncryptionMaterials(GetEncryptionMaterialsInput input)
     {
         if (!_approvedAlgos.Contains(input.AlgorithmSuiteId))
         {
@@ -44,7 +48,7 @@ public class SigningSuiteOnlyCMM : ICryptographicMaterialsManager
         return _cmm.GetEncryptionMaterials(input);
     }
 
-    public DecryptMaterialsOutput DecryptMaterials(DecryptMaterialsInput input)
+    protected override DecryptMaterialsOutput _DecryptMaterials(DecryptMaterialsInput input)
     {
         if (!_approvedAlgos.Contains(input.AlgorithmSuiteId))
         {
@@ -54,7 +58,13 @@ public class SigningSuiteOnlyCMM : ICryptographicMaterialsManager
     }
 }
 
-public class NonSigningSuiteException : Exception
+// Custom Exceptions SHOULD extend from the Library's Base Exception.
+// This is a quirk of using Dafny to generate the Encryption SDK.
+// The Encryption SDK will handle dotnet's System.Exception,
+// but the exception message will be altered.
+// By extending from the Library's Base Exception,
+// you can ensure the exception's message will be as intended.
+public class NonSigningSuiteException : AwsEncryptionSdkBaseException
 {
     public NonSigningSuiteException() : base("Algorithm Suite must use Signing") { }
 }

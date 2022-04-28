@@ -66,7 +66,7 @@ enforcing the use of certain algorithm suites or encryption context settings,
 reusing data keys across messages,
 or changing how you interact with keyrings.
 You can find these examples in
-[`Examples/CryptoMaterialsManager`](./CryptoMaterialsManager).
+[`Examples/CryptographicMaterialsManager`](./CryptographicMaterialsManager).
 
 ### Client Supplier
 
