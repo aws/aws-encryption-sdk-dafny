@@ -30,7 +30,7 @@ phases:
       - unzip -qq dafny.zip && rm dafny.zip
       - export PATH="$PWD/dafny:$PATH"
       # Switch back to the main directory
-      - cd aws-encryption-sdk-dafny/aws-encryption-sdk-net-formally-verified
+      - cd aws-encryption-sdk-dafny/aws-encryption-sdk-net
   build:
     commands:
       - dotnet test -f netcoreapp3.1 Examples /nowarn:CS0105
