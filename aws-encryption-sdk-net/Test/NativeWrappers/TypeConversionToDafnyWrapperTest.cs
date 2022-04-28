@@ -14,7 +14,7 @@ namespace AWSEncryptionSDKTests.NativeWrappers
         public void TestInterfaceThrowsException()
         {
             const string expectedMessage =
-                "Custom implementations of Keyring should extend KeyringBase.";
+                "Custom implementations of Keyring must extend KeyringBase.";
             var expected = new ArgumentException(expectedMessage);
             Dafny.Aws.EncryptionSdk.Core.IKeyring output = null;
             try

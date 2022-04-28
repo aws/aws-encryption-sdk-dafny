@@ -76,7 +76,7 @@ namespace AWSEncryptionSDKTests.NativeWrappers
             {
                 Assert.Equal(EXPECTED_FAILURE, $"{output}");
                 var e = output.dtor_error;
-                const string expectedMessage = "Output of AWSEncryptionSDKTests.NativeWrappers.BadKeyring._OnDecrypt is invalid. Should be AWS.EncryptionSDK.Core.OnDecryptOutput but is null.";
+                const string expectedMessage = "AWSEncryptionSDKTests.NativeWrappers.BadKeyring._OnDecrypt returned null, should be AWS.EncryptionSDK.Core.OnDecryptOutput";
                 var actualMessage = TypeConversion.FromDafny_N6_smithy__N3_api__S6_String(e.GetMessage());
                 /*Console.Out.WriteLine($"actual is: \"{actualMessage}\"");*/
                 Assert.Equal(expectedMessage, actualMessage);
