@@ -18,6 +18,10 @@ namespace ExampleUtils {
         private static string TEST_AWS_KMS_MRK_KEY_ID_ENV_VAR = "AWS_ENCRYPTION_SDK_EXAMPLE_KMS_MRK_KEY_ID";
         private static string TEST_AWS_KMS_MRK_KEY_ID_ENV_VAR_2 = "AWS_ENCRYPTION_SDK_EXAMPLE_KMS_MRK_KEY_ID_2";
 
+        // The name of the environment variable storing the IAM Role Arn to use in examples
+        private static string TEST_AWS_LIMITED_ROLE_ENV_VAR = "AWS_ENCRYPTION_SDK_EXAMPLE_LIMITED_ROLE_ARN_US_EAST_1";
+        private static string TEST_AWS_LIMITED_ROLE_ENV_VAR_2 = "AWS_ENCRYPTION_SDK_EXAMPLE_LIMITED_ROLE_ARN_EU_WEST_1";
+
         static public MemoryStream GetPlaintextStream() {
             return new MemoryStream(Encoding.UTF8.GetBytes(
                         "Lorem ipsum dolor sit amet, consectetur adipiscing elit."
@@ -69,6 +73,15 @@ namespace ExampleUtils {
         static public List<string> GetRegions()
         {
             return new List<string>() {"us-west-2", "us-east-1"};
+        }
+
+        static public Dictionary<string, string> GetRegionIAMRoleMap()
+        {
+            return new Dictionary<string, string>()
+            {
+                {RegionEndpoint.USEast1.SystemName, GetEnvVariable(TEST_AWS_LIMITED_ROLE_ENV_VAR)},
+                {RegionEndpoint.EUWest1.SystemName, GetEnvVariable(TEST_AWS_LIMITED_ROLE_ENV_VAR_2)}
+            };
         }
 
         // Helper method to create RawAESKeyring for examples.

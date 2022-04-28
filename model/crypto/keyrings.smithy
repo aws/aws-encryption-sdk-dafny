@@ -2,7 +2,9 @@ namespace aws.encryptionSdk.core
 
 use aws.polymorph#reference
 use aws.polymorph#positional
+use aws.polymorph#extendable
 
+@extendable
 resource Keyring {
     operations: [OnEncrypt, OnDecrypt]
 }
