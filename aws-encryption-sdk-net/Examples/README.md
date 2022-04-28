@@ -68,6 +68,18 @@ or changing how you interact with keyrings.
 You can find these examples in
 [`Examples/CryptoMaterialsManager`](./CryptoMaterialsManager).
 
+### Client Supplier
+
+The AWS Encryption SDK creates AWS KMS clients when interacting with AWS KMS.
+In case the default AWS KMS client configuration doesn't suit your needs,
+you can configure clients by defining a custom Client Supplier.
+For example, your Client Supplier could tune
+the retry and timeout settings on the client, or use different credentials
+based on which region is being called. In our
+[RegionalRoleClientSupplier](./ClientSupplier/RegionalRoleClientSupplier.cs)
+example, we show how you can build a custom Client Supplier which
+creates clients by assuming different IAM roles for different regions.
+
 # Writing Examples
 
 If you want to contribute a new example, that's awesome!
