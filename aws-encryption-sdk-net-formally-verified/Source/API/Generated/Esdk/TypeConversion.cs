@@ -167,7 +167,7 @@ namespace AWS.EncryptionSDK
             }
 
             throw new System.ArgumentException(
-                "Custom implementations of AWS.EncryptionSDK.IAwsEncryptionSdk are not supported yet");
+                "Custom implementations of AWS.EncryptionSDK.IAwsEncryptionSdk are not supported");
         }
 
         public static System.IO.MemoryStream FromDafny_N3_aws__N13_encryptionSdk__S12_DecryptInput__M10_ciphertext(
@@ -251,12 +251,9 @@ namespace AWS.EncryptionSDK
                     return valueWithImpl._impl;
                 case KeyringBase nativeImpl:
                     return new NativeWrapper_Keyring(nativeImpl);
-                case AWS.EncryptionSDK.Core.IKeyring _:
-                    throw new System.ArgumentException(
-                        "Custom implementations of Keyring should extend KeyringBase.");
                 default:
                     throw new System.ArgumentException(
-                        $"{value} does not inherit from {typeof(KeyringBase)} or {typeof(Keyring)}.");
+                        "Custom implementations of Keyring must extend KeyringBase.");
             }
         }
 
@@ -403,12 +400,9 @@ namespace AWS.EncryptionSDK
                     return valueWithImpl._impl;
                 case CryptographicMaterialsManagerBase nativeImpl:
                     return new NativeWrapper_CryptographicMaterialsManager(nativeImpl);
-                case AWS.EncryptionSDK.Core.ICryptographicMaterialsManager _:
-                    throw new System.ArgumentException(
-                        "Custom implementations of CryptographicMaterialsManager should extend CryptographicMaterialsManagerBase.");
                 default:
                     throw new System.ArgumentException(
-                        $"{value} does not inherit from {typeof(CryptographicMaterialsManagerBase)} or {typeof(CryptographicMaterialsManager)}.");
+                        "Custom implementations of CryptographicMaterialsManager must extend CryptographicMaterialsManagerBase.");
             }
         }
 

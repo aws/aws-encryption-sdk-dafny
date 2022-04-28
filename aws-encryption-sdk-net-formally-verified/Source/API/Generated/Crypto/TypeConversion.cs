@@ -623,12 +623,9 @@ namespace AWS.EncryptionSDK.Core
                     return valueWithImpl._impl;
                 case ClientSupplierBase nativeImpl:
                     return new NativeWrapper_ClientSupplier(nativeImpl);
-                case AWS.EncryptionSDK.Core.IClientSupplier _:
-                    throw new System.ArgumentException(
-                        "Custom implementations of ClientSupplier should extend ClientSupplierBase.");
                 default:
                     throw new System.ArgumentException(
-                        $"{value} does not inherit from {typeof(ClientSupplierBase)} or {typeof(ClientSupplier)}.");
+                        "Custom implementations of ClientSupplier must extend ClientSupplierBase.");
             }
         }
 
@@ -812,7 +809,7 @@ namespace AWS.EncryptionSDK.Core
             }
 
             throw new System.ArgumentException(
-                "Custom implementations of AWS.EncryptionSDK.Core.IAwsCryptographicMaterialProviders are not supported yet");
+                "Custom implementations of AWS.EncryptionSDK.Core.IAwsCryptographicMaterialProviders are not supported");
         }
 
         public static AWS.EncryptionSDK.Core.DiscoveryFilter
@@ -2357,12 +2354,9 @@ namespace AWS.EncryptionSDK.Core
                     return valueWithImpl._impl;
                 case KeyringBase nativeImpl:
                     return new NativeWrapper_Keyring(nativeImpl);
-                case AWS.EncryptionSDK.Core.IKeyring _:
-                    throw new System.ArgumentException(
-                        "Custom implementations of Keyring should extend KeyringBase.");
                 default:
                     throw new System.ArgumentException(
-                        $"{value} does not inherit from {typeof(KeyringBase)} or {typeof(Keyring)}.");
+                        "Custom implementations of Keyring must extend KeyringBase.");
             }
         }
 
@@ -2512,12 +2506,9 @@ namespace AWS.EncryptionSDK.Core
                     return valueWithImpl._impl;
                 case CryptographicMaterialsManagerBase nativeImpl:
                     return new NativeWrapper_CryptographicMaterialsManager(nativeImpl);
-                case AWS.EncryptionSDK.Core.ICryptographicMaterialsManager _:
-                    throw new System.ArgumentException(
-                        "Custom implementations of CryptographicMaterialsManager should extend CryptographicMaterialsManagerBase.");
                 default:
                     throw new System.ArgumentException(
-                        $"{value} does not inherit from {typeof(CryptographicMaterialsManagerBase)} or {typeof(CryptographicMaterialsManager)}.");
+                        "Custom implementations of CryptographicMaterialsManager must extend CryptographicMaterialsManagerBase.");
             }
         }
 

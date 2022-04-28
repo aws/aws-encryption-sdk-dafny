@@ -31,8 +31,7 @@ namespace AWS.EncryptionSDK.Core
             {
                 Amazon.KeyManagementService.IAmazonKeyManagementService nativeOutput = _impl.GetClient(nativeInput);
                 _ = nativeOutput ?? throw new AwsCryptographicMaterialProvidersException(
-                    $"Output of {_impl}._GetClient is invalid. " +
-                    $"Should be {typeof(Amazon.KeyManagementService.IAmazonKeyManagementService)} but is null.");
+                    $"{_impl}._GetClient returned null, should be {typeof(Amazon.KeyManagementService.IAmazonKeyManagementService)}");
 
                 return Wrappers_Compile
                     .Result<Dafny.Com.Amazonaws.Kms.IKeyManagementServiceClient,
