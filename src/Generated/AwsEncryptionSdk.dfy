@@ -117,6 +117,20 @@ module {:extern "Dafny.Aws.EncryptionSdk"} Aws.Esdk {
             reads this
     }
 
+    class AwsEncryptionSdkBaseException extends IAwsEncryptionSdkException {
+        var message: string
+
+        constructor (message: string) {
+            this.message := message;
+        }
+
+        function method GetMessage(): (message: string)
+            reads this
+        {
+            this.message
+        }
+    }
+
     class AwsEncryptionSdkException extends IAwsEncryptionSdkException {
         var message: string
 
