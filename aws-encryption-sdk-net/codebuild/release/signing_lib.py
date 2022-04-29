@@ -17,7 +17,13 @@ KEY_PREFIX = "aws_encryption_sdk_net/AuthenticodeSigner-SHA256-RSA"
 CONFIG = Config(region_name = REGION)
 
 # Role which provides access to our signed and unsigned buckets
-ARTIFACT_ACCESS_ROLE_ARN="arn:aws:iam::349032751102:role/EncryptionSDKNetSigning-ArtifactAccessRole"
+ARTIFACT_ACCESS_ROLE_ARN = "arn:aws:iam::349032751102:role/EncryptionSDKNetSigning-ArtifactAccessRole"
+
+# Constants for accessing our API key
+API_KEY_ROLE_ARN = "arn:aws:iam::582595803497:role/aws-net-encryption-sdk-key-build-role"
+# TODO: we won't have the actual value until it's created, because SM appends a random string
+# during creation
+API_KEY_SECRET_ARN = "arn:aws:secretsmanager:us-west-2:582595803497:secret:production/build/aws-net-encryption-sdk-key-nuget-api-key"
 
 
 def parse_args():
@@ -44,7 +50,7 @@ def parse_args():
         help='Place to put output files'
     )
     return parser.parse_args()
-    
+
 
 def assume_artifact_access_role():
     """
@@ -62,6 +68,20 @@ def assume_artifact_access_role():
 
     return creds
 
+def assume_api_key_role():
+    """
+    Assumes the role that is allowed to access the Nuget API key
+    """
+    sts = boto3.client("sts", config=CONFIG)
+
+    creds = sts.assume_role(
+        RoleArn=API_KEY_ROLE_ARN,
+        RoleSessionName="CodeBuildRelease",
+    )
+
+    return creds
+
+
 def get_s3_client(creds=None):
     """
     Returns an S3 client. Uses the given creds if provided, otherwise uses
@@ -77,6 +97,7 @@ def get_s3_client(creds=None):
         aws_secret_access_key = creds['Credentials']['SecretAccessKey'],
         aws_session_token = creds['Credentials']['SessionToken'],
     )
+
 
 def upload_assembly(args, s3=None):
     """
@@ -169,4 +190,22 @@ def retrieve_signed_assembly(args, s3=None):
             retry_count += 1
 
     raise Exception(f"Could not retrieve signed object after {retry_count} attempts, stopping")
+
+
+def retrieve_api_access_key():
+    """
+    Retrieves the API key used to access Nuget
+    """
+
+    creds = assume_api_key_role()
+
+    client = boto3.client(
+        "secretsmanager",
+        config=CONFIG,
+        aws_access_key_id = creds['Credentials']['AccessKeyId'],
+        aws_secret_access_key = creds['Credentials']['SecretAccessKey'],
+        aws_session_token = creds['Credentials']['SessionToken'],
+    )
+
+    return client.get_secret_value(SecretId=API_KEY_SECRET_ARN)
 
