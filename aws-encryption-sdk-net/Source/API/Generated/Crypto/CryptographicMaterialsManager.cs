@@ -41,6 +41,7 @@ namespace AWS.EncryptionSDK.Core
             Wrappers_Compile._IResult<Dafny.Aws.EncryptionSdk.Core._IGetEncryptionMaterialsOutput,
                 Dafny.Aws.EncryptionSdk.Core.IAwsCryptographicMaterialProvidersException> result =
                 this._impl.GetEncryptionMaterials(internalInput);
+            Console.Out.WriteLine($"Manual print in CMM Shim _GetEncryption materials: {result}\n");
             if (result.is_Failure)
                 throw TypeConversion.FromDafny_CommonError_AwsCryptographicMaterialProvidersBaseException(
                     result.dtor_error);

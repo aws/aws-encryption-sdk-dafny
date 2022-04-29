@@ -162,6 +162,8 @@ public class SigningOnlyExample
     [Fact]
     public void TestSigningOnlyExample()
     {
+        var path = GetEnvVariable("DYLD_LIBRARY_PATH");
+        Console.Out.WriteLine(path);
         Run(GetPlaintextStream());
     }
 }

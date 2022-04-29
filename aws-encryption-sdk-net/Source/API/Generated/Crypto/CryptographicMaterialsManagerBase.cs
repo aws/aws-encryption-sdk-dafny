@@ -12,8 +12,11 @@ namespace AWS.EncryptionSDK.Core
         public AWS.EncryptionSDK.Core.GetEncryptionMaterialsOutput GetEncryptionMaterials(
             AWS.EncryptionSDK.Core.GetEncryptionMaterialsInput input)
         {
+            Console.Out.WriteLine($"Manual print in CMM Base GetEncryption materials: We have entered Base\n");
             input.Validate();
-            return _GetEncryptionMaterials(input);
+            var res = _GetEncryptionMaterials(input);
+            Console.Out.WriteLine($"Manual print in CMM Base GetEncryption materials: {res}\n");
+            return res;
         }
 
         protected abstract AWS.EncryptionSDK.Core.GetEncryptionMaterialsOutput _GetEncryptionMaterials(

@@ -92,8 +92,10 @@ namespace AWS.EncryptionSDK.Core
             AwsCryptographicMaterialProvidersBaseException finalException = null;
             try
             {
+                Console.Out.WriteLine($"Manual print in NativeWrapper_CMM GetEncryption materials: We have entered NativeWrapper\n");
                 AWS.EncryptionSDK.Core.GetEncryptionMaterialsOutput nativeOutput =
                     _impl.GetEncryptionMaterials(nativeInput);
+                Console.Out.WriteLine($"Manual print in NativeWrapper_CMM GetEncryption materials: {nativeOutput}\n");
                 _ = nativeOutput ?? throw new AwsCryptographicMaterialProvidersException(
                     $"{_impl}._GetEncryptionMaterials returned null, should be {typeof(AWS.EncryptionSDK.Core.GetEncryptionMaterialsOutput)}");
                 validateOutput(nativeOutput);
