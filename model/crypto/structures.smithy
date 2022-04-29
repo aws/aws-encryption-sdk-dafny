@@ -50,11 +50,13 @@ structure DecryptionMaterials {
 }
 
 structure EncryptedDataKey {
+    // The key provider ID MUST be a binary value and SHOULD be equal to a UTF-8 encoding of the key namespace.
     @required
-    keyProviderId: Utf8Bytes,
+    keyProviderId: Blob,
 
+    // The key provider info MUST be a binary value and SHOULD be equal to a UTF-8 encoding of the key name.
     @required
-    keyProviderInfo: Utf8Bytes,
+    keyProviderInfo: Blob,
 
     @required
     ciphertext: Blob
