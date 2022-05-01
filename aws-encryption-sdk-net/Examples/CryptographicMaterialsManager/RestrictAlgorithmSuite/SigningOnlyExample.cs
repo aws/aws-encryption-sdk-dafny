@@ -81,8 +81,15 @@ public class SigningOnlyExample
         {
             encryptionSdk.Encrypt(encryptInput);
         }
-        catch (AwsEncryptionSdkBaseException)
+        // Even though we defined a custom exception,
+        // NonSigningSuiteException,
+        // The Encryption SDK casts the custom exception
+        // to an AwsEncryptionSdkBaseException.
+        // This a consequence of using authoring the Encryption SDK in Dafny.
+        // However, the exception message is as expected.
+        catch (AwsEncryptionSdkBaseException baseException)
         {
+            Assert.Equal("Algorithm Suite must use Signing", baseException.Message);
             encryptFailed = true;
         }
 
