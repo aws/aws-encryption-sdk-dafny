@@ -86,13 +86,13 @@ public class SigningOnlyExample
             Plaintext = plaintext,
             MaterialsManager = cmm,
             EncryptionContext = encryptionContext,
-            AlgorithmSuiteId = AlgorithmSuiteId.ALG_AES_128_GCM_IV12_TAG16_NO_KDF
+            AlgorithmSuiteId = AlgorithmSuiteId.ALG_AES_256_GCM_HKDF_SHA512_COMMIT_KEY
         };
         try
         {
             encryptionSdk.Encrypt(encryptInput);
         }
-        catch (NonSigningSuiteException)
+        catch (AwsEncryptionSdkBaseException)
         {
             encryptFailed = true;
         }
@@ -110,11 +110,12 @@ public class SigningOnlyExample
         {
             Plaintext = plaintext,
             EncryptionContext = encryptionContext,
-            AlgorithmSuiteId = AlgorithmSuiteId.ALG_AES_128_GCM_IV12_TAG16_NO_KDF,
+            AlgorithmSuiteId = AlgorithmSuiteId.ALG_AES_256_GCM_HKDF_SHA512_COMMIT_KEY,
             Keyring = keyring
         };
         encryptOutput = encryptionSdk.Encrypt(keyringEncryptInput);
         ciphertext = encryptOutput.Ciphertext;
+        decryptInput.Ciphertext = ciphertext;
 
         // Verify that the Signing Only CMM will fail decryption
         var decryptFailed = false;
@@ -122,7 +123,7 @@ public class SigningOnlyExample
         {
             encryptionSdk.Decrypt(decryptInput);
         }
-        catch (NonSigningSuiteException)
+        catch (AwsEncryptionSdkBaseException)
         {
             decryptFailed = true;
         }
