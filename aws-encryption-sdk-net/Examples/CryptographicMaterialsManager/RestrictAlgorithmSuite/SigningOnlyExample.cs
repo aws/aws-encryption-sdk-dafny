@@ -46,17 +46,6 @@ public class SigningOnlyExample
             EncryptionContext = encryptionContext,
             AlgorithmSuiteId = AlgorithmSuiteId.ALG_AES_256_GCM_HKDF_SHA512_COMMIT_KEY_ECDSA_P384
         };
-        encryptInput.Validate(); // added to debug
-        // The following line is throwing:
-        /*
-        Error Message:
-        AWS.EncryptionSDK.AwsEncryptionSdkException : SigningSuiteOnlyCMM._GetEncryptionMaterials threw unexpected: System.Text.DecoderFallbackException: "Unable to translate bytes [80] at index 30 from specified code page to Unicode."
-        Stack Trace:
-        at AWS.EncryptionSDK.AwsEncryptionSdk._Encrypt(EncryptInput input) in /Volumes/workplace/Polymorph/aws-encryption-sdk-dafny/aws-encryption-sdk-net/Source/API/Generated/Esdk/AwsEncryptionSdk.cs:line 41
-        at AWS.EncryptionSDK.AwsEncryptionSdkBase.Encrypt(EncryptInput input) in /Volumes/workplace/Polymorph/aws-encryption-sdk-dafny/aws-encryption-sdk-net/Source/API/Generated/Esdk/AwsEncryptionSdkBase.cs:line 16
-        at SigningOnlyExample.Run(MemoryStream plaintext) in /Volumes/workplace/Polymorph/aws-encryption-sdk-dafny/aws-encryption-sdk-net/Examples/CryptographicMaterialsManager/RestrictAlgorithmSuite/SigningOnlyExample.cs:line 50
-        at SigningOnlyExample.TestSigningOnlyExample() in /Volumes/workplace/Polymorph/aws-encryption-sdk-dafny/aws-encryption-sdk-net/Examples/CryptographicMaterialsManager/RestrictAlgorithmSuite/SigningOnlyExample.cs:line 155
-        */
         var encryptOutput = encryptionSdk.Encrypt(encryptInput);
         var ciphertext = encryptOutput.Ciphertext;
 
@@ -163,8 +152,6 @@ public class SigningOnlyExample
     [Fact]
     public void TestSigningOnlyExample()
     {
-        var path = GetEnvVariable("DYLD_LIBRARY_PATH");
-        Console.Out.WriteLine(path);
         Run(GetPlaintextStream());
     }
 }
