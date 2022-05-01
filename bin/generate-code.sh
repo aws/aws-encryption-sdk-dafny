@@ -12,7 +12,7 @@ pushd .
 
 export POLYMORPH_ROOT=$1
 export DAFNY_ROOT=`pwd`
-export DOTNET_ROOT=$DAFNY_ROOT/aws-encryption-sdk-net-formally-verified
+export DOTNET_ROOT=$DAFNY_ROOT/aws-encryption-sdk-net
 export MODEL_ROOT=$DAFNY_ROOT/model
 
 cd "$POLYMORPH_ROOT"
