@@ -345,8 +345,6 @@ namespace AWS.EncryptionSDK.Core
             FromDafny_N3_aws__N13_encryptionSdk__N4_core__S20_EncryptedDataKeyList(
                 Dafny.ISequence<Dafny.Aws.EncryptionSdk.Core._IEncryptedDataKey> value)
         {
-            System.Console.Out.WriteLine($"Manual print in Crypto TypeConversion.FromDafny_N3_aws__N13_encryptionSdk__N4_core__S20_EncryptedDataKeyList: {value}\n");
-
             return new System.Collections.Generic.List<AWS.EncryptionSDK.Core.EncryptedDataKey>(
                 value.Elements.Select(
                     FromDafny_N3_aws__N13_encryptionSdk__N4_core__S20_EncryptedDataKeyList__M6_member));
@@ -363,7 +361,6 @@ namespace AWS.EncryptionSDK.Core
         public static string FromDafny_N3_aws__N13_encryptionSdk__N4_core__S16_EncryptedDataKey__M15_keyProviderInfo(
             Dafny.ISequence<byte> value)
         {
-            System.Console.Out.WriteLine($"Manual print in Crypto.TypeConversion.FromDafny_N3_aws__N13_encryptionSdk__N4_core__S16_EncryptedDataKey__M15_keyProviderInfo: {value}\n");
             return FromDafny_N3_aws__N13_encryptionSdk__N4_core__S9_Utf8Bytes(value);
         }
 
@@ -484,21 +481,8 @@ namespace AWS.EncryptionSDK.Core
 
         public static string FromDafny_N3_aws__N13_encryptionSdk__N4_core__S9_Utf8Bytes(Dafny.ISequence<byte> value)
         {
-            System.Console.Out.WriteLine($"Manual print in Crypto.TypeConversion.FromDafny_N3_aws__N13_encryptionSdk__N4_core__S9_Utf8Bytes: {value}\n");
             System.Text.UTF8Encoding utf8 = new System.Text.UTF8Encoding(false, true);
-            string res = null;
-            try
-            {
-                res = utf8.GetString(value.Elements);
-            }
-            catch (System.Exception e)
-            {
-                System.Console.Out.WriteLine($"Manual print in Crypto.TypeConversion.FromDafny_N3_aws__N13_encryptionSdk__N4_core__S9_Utf8Bytes: {e}\n");
-                throw e;
-            }
-
-            System.Console.Out.WriteLine($"Manual print in Crypto.TypeConversion.FromDafny_N3_aws__N13_encryptionSdk__N4_core__S9_Utf8Bytes: {res}\n");
-            return res;
+            return utf8.GetString(value.Elements);
         }
 
         public static Dafny.ISequence<byte> ToDafny_N3_aws__N13_encryptionSdk__N4_core__S9_Utf8Bytes(string value)
@@ -652,35 +636,28 @@ namespace AWS.EncryptionSDK.Core
             Dafny.Aws.EncryptionSdk.Core.EncryptionMaterials concrete =
                 (Dafny.Aws.EncryptionSdk.Core.EncryptionMaterials)value;
             AWS.EncryptionSDK.Core.EncryptionMaterials converted = new AWS.EncryptionSDK.Core.EncryptionMaterials();
-            System.Console.Out.WriteLine($"Manual print in Crypto TypeConversion.FromDafny_N3_aws__N13_encryptionSdk__N4_core__S19_EncryptionMaterials: {converted}\n");
             converted.AlgorithmSuiteId =
                 (AWS.EncryptionSDK.Core.AlgorithmSuiteId)
                 FromDafny_N3_aws__N13_encryptionSdk__N4_core__S19_EncryptionMaterials__M16_algorithmSuiteId(
                     concrete.algorithmSuiteId);
-            System.Console.Out.WriteLine($"Manual print in Crypto TypeConversion.FromDafny_N3_aws__N13_encryptionSdk__N4_core__S19_EncryptionMaterials: {converted.AlgorithmSuiteId}\n");
             converted.EncryptionContext =
                 (System.Collections.Generic.Dictionary<string, string>)
                 FromDafny_N3_aws__N13_encryptionSdk__N4_core__S19_EncryptionMaterials__M17_encryptionContext(
                     concrete.encryptionContext);
-            System.Console.Out.WriteLine($"Manual print in Crypto TypeConversion.FromDafny_N3_aws__N13_encryptionSdk__N4_core__S19_EncryptionMaterials: {converted.EncryptionContext}\n");
             converted.EncryptedDataKeys =
                 (System.Collections.Generic.List<AWS.EncryptionSDK.Core.EncryptedDataKey>)
                 FromDafny_N3_aws__N13_encryptionSdk__N4_core__S19_EncryptionMaterials__M17_encryptedDataKeys(
                     concrete.encryptedDataKeys);
-            System.Console.Out.WriteLine($"Manual print in Crypto TypeConversion.FromDafny_N3_aws__N13_encryptionSdk__N4_core__S19_EncryptionMaterials: {converted.EncryptedDataKeys}\n");
             if (concrete.plaintextDataKey.is_Some)
                 converted.PlaintextDataKey =
                     (System.IO.MemoryStream)
                     FromDafny_N3_aws__N13_encryptionSdk__N4_core__S19_EncryptionMaterials__M16_plaintextDataKey(
                         concrete.plaintextDataKey);
-            System.Console.Out.WriteLine($"Manual print in Crypto TypeConversion.FromDafny_N3_aws__N13_encryptionSdk__N4_core__S19_EncryptionMaterials: {converted.PlaintextDataKey}\n");
             if (concrete.signingKey.is_Some)
                 converted.SigningKey =
                     (System.IO.MemoryStream)
                     FromDafny_N3_aws__N13_encryptionSdk__N4_core__S19_EncryptionMaterials__M10_signingKey(
                         concrete.signingKey);
-            System.Console.Out.WriteLine($"Manual print in Crypto TypeConversion.FromDafny_N3_aws__N13_encryptionSdk__N4_core__S19_EncryptionMaterials: {converted.SigningKey}\n");
-            System.Console.Out.WriteLine($"Manual print in Crypto TypeConversion.FromDafny_N3_aws__N13_encryptionSdk__N4_core__S19_EncryptionMaterials: {converted}\n");
             return converted;
         }
 
@@ -2432,18 +2409,15 @@ namespace AWS.EncryptionSDK.Core
             FromDafny_N3_aws__N13_encryptionSdk__N4_core__S16_EncryptedDataKey(
                 Dafny.Aws.EncryptionSdk.Core._IEncryptedDataKey value)
         {
-            System.Console.Out.WriteLine($"Manual print in Crypto.TypeConversion.FromDafny_N3_aws__N13_encryptionSdk__N4_core__S16_EncryptedDataKey: {value}\n");
             Dafny.Aws.EncryptionSdk.Core.EncryptedDataKey concrete =
                 (Dafny.Aws.EncryptionSdk.Core.EncryptedDataKey)value;
             AWS.EncryptionSDK.Core.EncryptedDataKey converted = new AWS.EncryptionSDK.Core.EncryptedDataKey();
             converted.KeyProviderId =
                 (string)FromDafny_N3_aws__N13_encryptionSdk__N4_core__S16_EncryptedDataKey__M13_keyProviderId(
                     concrete.keyProviderId);
-            System.Console.Out.WriteLine($"Manual print in Crypto.TypeConversion.FromDafny_N3_aws__N13_encryptionSdk__N4_core__S16_EncryptedDataKey: {converted.KeyProviderId}\n");
             converted.KeyProviderInfo =
                 (string)FromDafny_N3_aws__N13_encryptionSdk__N4_core__S16_EncryptedDataKey__M15_keyProviderInfo(
                     concrete.keyProviderInfo);
-            System.Console.Out.WriteLine($"Manual print in Crypto.TypeConversion.FromDafny_N3_aws__N13_encryptionSdk__N4_core__S16_EncryptedDataKey: {converted.KeyProviderInfo}\n");
             converted.Ciphertext =
                 (System.IO.MemoryStream)
                 FromDafny_N3_aws__N13_encryptionSdk__N4_core__S16_EncryptedDataKey__M10_ciphertext(concrete.ciphertext);

@@ -45,9 +45,7 @@ public class SigningSuiteOnlyCMM : CryptographicMaterialsManagerBase
         {
             throw new Exception("Algorithm Suite must use Signing");
         }
-        var res = _cmm.GetEncryptionMaterials(input);
-        Console.Out.WriteLine($"Manual print in Signing Only CMM _GetEncryption materials: {res}\n");
-        return res;
+        return _cmm.GetEncryptionMaterials(input);
     }
 
     protected override DecryptMaterialsOutput _DecryptMaterials(DecryptMaterialsInput input)
