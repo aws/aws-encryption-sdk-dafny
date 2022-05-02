@@ -358,16 +358,18 @@ namespace AWS.EncryptionSDK.Core
                 .Select(ToDafny_N3_aws__N13_encryptionSdk__N4_core__S20_EncryptedDataKeyList__M6_member).ToArray());
         }
 
-        public static string FromDafny_N3_aws__N13_encryptionSdk__N4_core__S16_EncryptedDataKey__M15_keyProviderInfo(
-            Dafny.ISequence<byte> value)
+        public static System.IO.MemoryStream
+            FromDafny_N3_aws__N13_encryptionSdk__N4_core__S16_EncryptedDataKey__M15_keyProviderInfo(
+                Dafny.ISequence<byte> value)
         {
-            return FromDafny_N3_aws__N13_encryptionSdk__N4_core__S9_Utf8Bytes(value);
+            return FromDafny_N6_smithy__N3_api__S4_Blob(value);
         }
 
         public static Dafny.ISequence<byte>
-            ToDafny_N3_aws__N13_encryptionSdk__N4_core__S16_EncryptedDataKey__M15_keyProviderInfo(string value)
+            ToDafny_N3_aws__N13_encryptionSdk__N4_core__S16_EncryptedDataKey__M15_keyProviderInfo(
+                System.IO.MemoryStream value)
         {
-            return ToDafny_N3_aws__N13_encryptionSdk__N4_core__S9_Utf8Bytes(value);
+            return ToDafny_N6_smithy__N3_api__S4_Blob(value);
         }
 
         public static System.Collections.Generic.List<string>
@@ -2416,7 +2418,8 @@ namespace AWS.EncryptionSDK.Core
                 (string)FromDafny_N3_aws__N13_encryptionSdk__N4_core__S16_EncryptedDataKey__M13_keyProviderId(
                     concrete.keyProviderId);
             converted.KeyProviderInfo =
-                (string)FromDafny_N3_aws__N13_encryptionSdk__N4_core__S16_EncryptedDataKey__M15_keyProviderInfo(
+                (System.IO.MemoryStream)
+                FromDafny_N3_aws__N13_encryptionSdk__N4_core__S16_EncryptedDataKey__M15_keyProviderInfo(
                     concrete.keyProviderInfo);
             converted.Ciphertext =
                 (System.IO.MemoryStream)

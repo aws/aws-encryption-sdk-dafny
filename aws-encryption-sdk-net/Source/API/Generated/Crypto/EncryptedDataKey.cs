@@ -10,7 +10,7 @@ namespace AWS.EncryptionSDK.Core
     public class EncryptedDataKey
     {
         private string _keyProviderId;
-        private string _keyProviderInfo;
+        private System.IO.MemoryStream _keyProviderInfo;
         private System.IO.MemoryStream _ciphertext;
 
         public string KeyProviderId
@@ -24,7 +24,7 @@ namespace AWS.EncryptionSDK.Core
             return this._keyProviderId != null;
         }
 
-        public string KeyProviderInfo
+        public System.IO.MemoryStream KeyProviderInfo
         {
             get { return this._keyProviderInfo; }
             set { this._keyProviderInfo = value; }
