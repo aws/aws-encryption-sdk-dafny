@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using Amazon;
 using AWS.EncryptionSDK;
 using AWS.EncryptionSDK.Core;
 using Xunit;
@@ -67,6 +68,23 @@ public class ClientSupplierExample
         var decryptOutput = encryptionSdk.Decrypt(decryptInput);
         VerifyEncryptionContext(decryptOutput, encryptionContext);
         VerifyDecryptedIsPlaintext(decryptOutput, plaintext);
+
+        // Demonstrate catching a custom exception.
+        var createMultiFailed = false;
+        createDecryptKeyringInput.Regions = new List<string>() {RegionEndpoint.CNNorth1.SystemName};
+        try { materialProviders.CreateAwsKmsMrkDiscoveryMultiKeyring(createDecryptKeyringInput); }
+        // Note that the exception returned is NOT a `MissingRegionException`
+        catch (MissingRegionException) { throw; }
+        // But is cast down to an `AwsCryptographicMaterialProvidersBaseException`.
+        catch (AwsCryptographicMaterialProvidersBaseException exception)
+        {
+            // However, the message is as expected.
+            Assert.Equal(
+                $"Region {RegionEndpoint.CNNorth1.SystemName} is not supported by this client supplier",
+                exception.Message);
+            createMultiFailed = true;
+        }
+        finally { Assert.True(createMultiFailed); }
     }
 
 
