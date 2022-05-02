@@ -43,7 +43,7 @@ public class SigningSuiteOnlyCMM : CryptographicMaterialsManagerBase
     {
         if (!_approvedAlgos.Contains(input.AlgorithmSuiteId))
         {
-            throw new Exception("Algorithm Suite must use Signing");
+            throw new NonSigningSuiteException();
         }
         return _cmm.GetEncryptionMaterials(input);
     }
@@ -64,7 +64,7 @@ public class SigningSuiteOnlyCMM : CryptographicMaterialsManagerBase
 // but the exception message will be altered.
 // By extending from the Library's Base Exception,
 // you can ensure the exception's message will be as intended.
-public class NonSigningSuiteException : AwsEncryptionSdkBaseException
+public class NonSigningSuiteException : AwsCryptographicMaterialProvidersBaseException
 {
     public NonSigningSuiteException() : base("Algorithm Suite must use Signing") { }
 }

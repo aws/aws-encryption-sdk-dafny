@@ -85,7 +85,7 @@ public class SigningOnlyExample
         // NonSigningSuiteException,
         // The Encryption SDK casts the custom exception
         // to an AwsEncryptionSdkBaseException.
-        // This a consequence of using authoring the Encryption SDK in Dafny.
+        // This a consequence of authoring the Encryption SDK in Dafny.
         // However, the exception message is as expected.
         catch (AwsEncryptionSdkBaseException baseException)
         {
