@@ -14,15 +14,12 @@ env:
       arn:aws:iam::587316601012:role/GitHub-DotNet-KMS-US-East-1-Only
     AWS_ENCRYPTION_SDK_EXAMPLE_LIMITED_ROLE_ARN_EU_WEST_1: >-
       arn:aws:iam::587316601012:role/GitHub-DotNet-KMS-EU-West-1-Only
-  DOTNET_NOLOGO: true
-  DOTNET_CLI_TELEMETRY_OPTOUT: true
-      
-
 
 phases:
   install:
     runtime-versions:
       dotnet: 5.0
+      python: 3.x
     commands:
       - cd ..
       # Get Dafny
@@ -31,6 +28,23 @@ phases:
       - export PATH="$PWD/dafny:$PATH"
       # Switch back to the main directory
       - cd aws-encryption-sdk-dafny/aws-encryption-sdk-net
+  pre_build:
+    commands:
+      # UNIQUE_ID should be passed in as an environment variable. It is used to tie
+      # the different parts of the asynchronous signing process together
+      - echo "Using unique id for flow $UNIQUE_ID"
+      # Build unsigned source
+      - dotnet build Source /p:Configuration=Release -nowarn:CS0162,CS0168
+      # This step assumes signing has already happened and we just need to retrieve 
+      # the signed artifacts
+      - export BASE=codebuild/release
+      - python $BASE/retrieve_signed_assembly.py --target netstandard2.1 --unique-id $UNIQUE_ID
+      - python $BASE/retrieve_signed_assembly.py --target net452 --unique-id $UNIQUE_ID
   build:
     commands:
-      - dotnet test -f netcoreapp3.1 Examples /nowarn:CS0105
+      - mkdir build
+      - export VERSION=`grep '<Version>' Source/AWSEncryptionSDK.csproj | sed 's/.*<Version>\(.*\)<\/Version>/\1/'`
+      - dotnet pack Source/AWSEncryptionSDK.csproj --no-build /p:Configuration=Release --output build
+      - export API_ACCESS_KEY=$(python $BASE/retrieve_api_access_key.py)
+      # TODO: Pending secrets manager creds from SDK team
+      #- dotnet nuget push build/AWS.EncryptionSDK.$VERSION.nupkg --source crypto-tools-internal/net-esdk-staging
