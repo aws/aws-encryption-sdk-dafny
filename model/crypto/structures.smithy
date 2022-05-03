@@ -50,11 +50,19 @@ structure DecryptionMaterials {
 }
 
 structure EncryptedDataKey {
+    // The spec defines keyProviderId in 2 places,
+    // and, while they are not identical,
+    // they do not disagree.
+    // data-format/message-header.md#encrypted-data-key-entries ::
+    // UTF-8 encoded bytes
+    // framework/keyring-interface.md#key-provider-id ::
+    // The key provider ID MUST be a binary value and SHOULD be equal to a UTF-8 encoding of the key namespace.
     @required
     keyProviderId: Utf8Bytes,
 
+    // The key provider info MUST be a binary value and SHOULD be equal to a UTF-8 encoding of the key name.
     @required
-    keyProviderInfo: Utf8Bytes,
+    keyProviderInfo: Blob,
 
     @required
     ciphertext: Blob
