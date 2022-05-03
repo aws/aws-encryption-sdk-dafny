@@ -71,7 +71,7 @@ public class ClientSupplierExample
 
         // Demonstrate catching a custom exception.
         var createMultiFailed = false;
-        createDecryptKeyringInput.Regions = new List<string>() {RegionEndpoint.CNNorth1.SystemName};
+        createDecryptKeyringInput.Regions = new List<string>() {"fake-region"};
         try { materialProviders.CreateAwsKmsMrkDiscoveryMultiKeyring(createDecryptKeyringInput); }
         // Note that the exception returned is NOT a `MissingRegionException`
         catch (MissingRegionException) { throw; }
