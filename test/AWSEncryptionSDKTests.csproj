@@ -42,7 +42,7 @@
     <VerifyDafnyJobs>7</VerifyDafnyJobs>
   </PropertyGroup>
   <ItemGroup>
-    <VerifyDafnyPassthrough Include="timeLimit:600" />
+    <VerifyDafnyPassthrough Include="timeLimit:100" />
     <!-- 
       TODO: This is important to enable, but Dafny 3.1 and on seems to not be able to
       verify MessageBody.EncryptMessageBody with this flag on Mac OS.

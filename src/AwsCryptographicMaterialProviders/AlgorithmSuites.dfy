@@ -8,7 +8,7 @@ include "../Crypto/Signature.dfy"
 include "../Crypto/AESEncryption.dfy"
 
 module
-  {:extern "Dafny.Aws.Crypto.MaterialProviders.AlgorithmSuites"}
+  {:extern "Dafny.Aws.EncryptionSdk.Core.AlgorithmSuites"}
   MaterialProviders.AlgorithmSuites
 {
 
@@ -33,7 +33,8 @@ module
       CommitmentDerivationAlgorithm,
       SignatureAlgorithm,
       AlgorithmSuiteInfo,
-      AlgorithmSuite
+      AlgorithmSuite,
+      SupportedAlgorithmSuiteIds
 
   datatype DerivationAlgorithm =
     | HKDF(
@@ -77,7 +78,16 @@ module
     | ECDSA(curve: Signature.ECDSAParams)
     | None
 
+  // TODO: may need to also bring iv length and header auth iv into this definition.
+  // For now, hard-coding elsewhere
   datatype AlgorithmSuiteInfo = AlgorithmSuiteInfo(
+    //= compliance/client-apis/encrypt.txt#2.6.2
+    //= type=implication
+    //# The message
+    //# format version (../data-format/message-header.md#supported-versions)
+    //# MUST be associated with the algorithm suite (../framework/algorithm-
+    //# suites.md#supported-algorithm-suites).
+    nameonly messageVersion: int,
     nameonly id: Crypto.AlgorithmSuiteId,
     nameonly encrypt: AESEncryption.AES_GCM,
     nameonly kdf: KeyDerivationAlgorithm,
@@ -112,18 +122,21 @@ module
     // Legacy non-KDF suites
     && (a.id == Crypto.AlgorithmSuiteId.ALG_AES_128_GCM_IV12_TAG16_NO_KDF
       ==>
+        && a.messageVersion == 1
         && a.encrypt.keyLength == 16
         && a.kdf.IDENTITY?
         && a.signature.None?
         && a.commitment.None?)
     && (a.id == Crypto.AlgorithmSuiteId.ALG_AES_192_GCM_IV12_TAG16_NO_KDF
       ==>
+        && a.messageVersion == 1
         && a.encrypt.keyLength == 24
         && a.kdf.IDENTITY?
         && a.signature.None?
         && a.commitment.None?)
     && (a.id == Crypto.AlgorithmSuiteId.ALG_AES_256_GCM_IV12_TAG16_NO_KDF
       ==>
+        && a.messageVersion == 1
         && a.encrypt.keyLength == 32
         && a.kdf.IDENTITY?
         && a.signature.None?
@@ -132,6 +145,7 @@ module
     // HKDF suites
     && (a.id == Crypto.AlgorithmSuiteId.ALG_AES_128_GCM_IV12_TAG16_HKDF_SHA256
       ==>
+        && a.messageVersion == 1
         && a.encrypt.keyLength == 16
         && a.kdf.HKDF?
         && a.kdf.hmac == HMAC.Digests.SHA_256
@@ -139,6 +153,7 @@ module
         && a.commitment.None?)
     && (a.id == Crypto.AlgorithmSuiteId.ALG_AES_192_GCM_IV12_TAG16_HKDF_SHA256
       ==>
+        && a.messageVersion == 1
         && a.encrypt.keyLength == 24
         && a.kdf.HKDF?
         && a.kdf.hmac == HMAC.Digests.SHA_256
@@ -146,6 +161,7 @@ module
         && a.commitment.None?)
     && (a.id == Crypto.AlgorithmSuiteId.ALG_AES_256_GCM_IV12_TAG16_HKDF_SHA256
       ==>
+        && a.messageVersion == 1
         && a.encrypt.keyLength == 32
         && a.kdf.HKDF?
         && a.kdf.hmac == HMAC.Digests.SHA_256
@@ -155,6 +171,7 @@ module
     // Signature suites
     && (a.id == Crypto.AlgorithmSuiteId.ALG_AES_128_GCM_IV12_TAG16_HKDF_SHA256_ECDSA_P256
       ==>
+        && a.messageVersion == 1
         && a.encrypt.keyLength == 16
         && a.kdf.HKDF?
         && a.kdf.hmac == HMAC.Digests.SHA_256
@@ -163,6 +180,7 @@ module
         && a.commitment.None?)
     && (a.id == Crypto.AlgorithmSuiteId.ALG_AES_192_GCM_IV12_TAG16_HKDF_SHA384_ECDSA_P384
       ==>
+        && a.messageVersion == 1
         && a.encrypt.keyLength == 24
         && a.kdf.HKDF?
         && a.kdf.hmac == HMAC.Digests.SHA_384
@@ -171,6 +189,7 @@ module
         && a.commitment.None?)
     && (a.id == Crypto.AlgorithmSuiteId.ALG_AES_256_GCM_IV12_TAG16_HKDF_SHA384_ECDSA_P384
       ==>
+        && a.messageVersion == 1
         && a.encrypt.keyLength == 32
         && a.kdf.HKDF?
         && a.kdf.hmac == HMAC.Digests.SHA_384
@@ -181,6 +200,7 @@ module
     // Suites with key commitment
     && (a.id == Crypto.AlgorithmSuiteId.ALG_AES_256_GCM_HKDF_SHA512_COMMIT_KEY
       ==>
+        && a.messageVersion == 2
         && a.encrypt.keyLength == 32
         && a.kdf.HKDF?
         && a.kdf.hmac == HMAC.Digests.SHA_512
@@ -188,6 +208,7 @@ module
         && a.commitment.HKDF?)
     && (a.id == Crypto.AlgorithmSuiteId.ALG_AES_256_GCM_HKDF_SHA512_COMMIT_KEY_ECDSA_P384
       ==>
+        && a.messageVersion == 2
         && a.encrypt.keyLength == 32
         && a.kdf.HKDF?
         && a.kdf.hmac == HMAC.Digests.SHA_512
@@ -261,6 +282,7 @@ module
 
   // Non-KDF suites
   const ALG_AES_128_GCM_IV12_TAG16_NO_KDF: AlgorithmSuite := AlgorithmSuiteInfo(
+    messageVersion := 1,
     id := Crypto.AlgorithmSuiteId.ALG_AES_128_GCM_IV12_TAG16_NO_KDF,
     encrypt := AES_128_GCM_IV12_TAG16,
     kdf := KeyDerivationAlgorithm.IDENTITY,
@@ -268,6 +290,7 @@ module
     signature := SignatureAlgorithm.None
   )
   const ALG_AES_192_GCM_IV12_TAG16_NO_KDF: AlgorithmSuite := AlgorithmSuiteInfo(
+    messageVersion := 1,
     id := Crypto.AlgorithmSuiteId.ALG_AES_192_GCM_IV12_TAG16_NO_KDF,
     encrypt := AES_192_GCM_IV12_TAG16,
     kdf := KeyDerivationAlgorithm.IDENTITY,
@@ -275,6 +298,7 @@ module
     signature := SignatureAlgorithm.None
   )
   const ALG_AES_256_GCM_IV12_TAG16_NO_KDF: AlgorithmSuite := AlgorithmSuiteInfo(
+    messageVersion := 1,
     id := Crypto.AlgorithmSuiteId.ALG_AES_256_GCM_IV12_TAG16_NO_KDF,
     encrypt := AES_256_GCM_IV12_TAG16,
     kdf := KeyDerivationAlgorithm.IDENTITY,
@@ -284,6 +308,7 @@ module
 
   //Non-Signature KDF suites
   const ALG_AES_128_GCM_IV12_TAG16_HKDF_SHA256: AlgorithmSuite := AlgorithmSuiteInfo(
+    messageVersion := 1,
     id := Crypto.AlgorithmSuiteId.ALG_AES_128_GCM_IV12_TAG16_HKDF_SHA256,
     encrypt := AES_128_GCM_IV12_TAG16,
     kdf := HKDF_SHA_256(Bits128),
@@ -291,6 +316,7 @@ module
     signature := SignatureAlgorithm.None
   )
   const ALG_AES_192_GCM_IV12_TAG16_HKDF_SHA256: AlgorithmSuite := AlgorithmSuiteInfo(
+    messageVersion := 1,
     id := Crypto.AlgorithmSuiteId.ALG_AES_192_GCM_IV12_TAG16_HKDF_SHA256,
     encrypt := AES_192_GCM_IV12_TAG16,
     kdf := HKDF_SHA_256(Bits192),
@@ -298,6 +324,7 @@ module
     signature := SignatureAlgorithm.None
   )
   const ALG_AES_256_GCM_IV12_TAG16_HKDF_SHA256: AlgorithmSuite := AlgorithmSuiteInfo(
+    messageVersion := 1,
     id := Crypto.AlgorithmSuiteId.ALG_AES_256_GCM_IV12_TAG16_HKDF_SHA256,
     encrypt := AES_256_GCM_IV12_TAG16,
     kdf := HKDF_SHA_256(Bits256),
@@ -307,6 +334,7 @@ module
 
   //Signature KDF suites
   const ALG_AES_128_GCM_IV12_TAG16_HKDF_SHA256_ECDSA_P256: AlgorithmSuite := AlgorithmSuiteInfo(
+    messageVersion := 1,
     id := Crypto.AlgorithmSuiteId.ALG_AES_128_GCM_IV12_TAG16_HKDF_SHA256_ECDSA_P256,
     encrypt := AES_128_GCM_IV12_TAG16,
     kdf := HKDF_SHA_256(Bits128),
@@ -315,12 +343,14 @@ module
   )
   const ALG_AES_192_GCM_IV12_TAG16_HKDF_SHA384_ECDSA_P384: AlgorithmSuite := AlgorithmSuiteInfo(
     id := Crypto.AlgorithmSuiteId.ALG_AES_192_GCM_IV12_TAG16_HKDF_SHA384_ECDSA_P384,
+    messageVersion := 1,
     encrypt := AES_192_GCM_IV12_TAG16,
     kdf := HKDF_SHA_384(Bits192),
     commitment := CommitmentDerivationAlgorithm.None,
     signature := SignatureAlgorithm.ECDSA(curve := Signature.ECDSAParams.ECDSA_P384)
   )
   const ALG_AES_256_GCM_IV12_TAG16_HKDF_SHA384_ECDSA_P384: AlgorithmSuite := AlgorithmSuiteInfo(
+    messageVersion := 1,
     id := Crypto.AlgorithmSuiteId.ALG_AES_256_GCM_IV12_TAG16_HKDF_SHA384_ECDSA_P384,
     encrypt := AES_256_GCM_IV12_TAG16,
     kdf := HKDF_SHA_384(Bits256),
@@ -330,6 +360,7 @@ module
 
   // Commitment Suites
     const ALG_AES_256_GCM_HKDF_SHA512_COMMIT_KEY: AlgorithmSuite := AlgorithmSuiteInfo(
+    messageVersion := 2,
     id := Crypto.AlgorithmSuiteId.ALG_AES_256_GCM_HKDF_SHA512_COMMIT_KEY,
     encrypt := AES_256_GCM_IV12_TAG16,
     kdf := HKDF_SHA_512(Bits256),
@@ -337,6 +368,7 @@ module
     signature := SignatureAlgorithm.None
   )
   const ALG_AES_256_GCM_HKDF_SHA512_COMMIT_KEY_ECDSA_P384: AlgorithmSuite := AlgorithmSuiteInfo(
+    messageVersion := 2,
     id := Crypto.AlgorithmSuiteId.ALG_AES_256_GCM_HKDF_SHA512_COMMIT_KEY_ECDSA_P384,
     encrypt := AES_256_GCM_IV12_TAG16,
     kdf := HKDF_SHA_512(Bits256),
@@ -380,4 +412,22 @@ module
       assert GetSuite(id).encrypt.keyLength == suite.encrypt.keyLength;
     }
   }
+
+  const SupportedAlgorithmSuiteIds: set<Crypto.AlgorithmSuiteId> := {
+    Crypto.AlgorithmSuiteId.ALG_AES_128_GCM_IV12_TAG16_NO_KDF,
+    Crypto.AlgorithmSuiteId.ALG_AES_192_GCM_IV12_TAG16_NO_KDF,
+    Crypto.AlgorithmSuiteId.ALG_AES_256_GCM_IV12_TAG16_NO_KDF,
+    Crypto.AlgorithmSuiteId.ALG_AES_128_GCM_IV12_TAG16_HKDF_SHA256,
+    Crypto.AlgorithmSuiteId.ALG_AES_192_GCM_IV12_TAG16_HKDF_SHA256,
+    Crypto.AlgorithmSuiteId.ALG_AES_256_GCM_IV12_TAG16_HKDF_SHA256,
+    Crypto.AlgorithmSuiteId.ALG_AES_128_GCM_IV12_TAG16_HKDF_SHA256_ECDSA_P256,
+    Crypto.AlgorithmSuiteId.ALG_AES_192_GCM_IV12_TAG16_HKDF_SHA384_ECDSA_P384,
+    Crypto.AlgorithmSuiteId.ALG_AES_256_GCM_IV12_TAG16_HKDF_SHA384_ECDSA_P384,
+    Crypto.AlgorithmSuiteId.ALG_AES_256_GCM_HKDF_SHA512_COMMIT_KEY,
+    Crypto.AlgorithmSuiteId.ALG_AES_256_GCM_HKDF_SHA512_COMMIT_KEY_ECDSA_P384
+  };
+
+  lemma LemmaSupportedAlgorithmSuiteIdsIsComplete()
+    ensures SupportedAlgorithmSuiteIds == SupportedAlgorithmSuites.Keys
+  {}
 }

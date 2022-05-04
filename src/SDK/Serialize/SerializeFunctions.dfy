@@ -2,13 +2,11 @@
 // SPDX-License-Identifier: Apache-2.0
 
 include "../../../libraries/src/Collections/Sequences/Seq.dfy"
-include "../../Generated/AwsCryptographicMaterialProviders.dfy"
 include "../../StandardLibrary/StandardLibrary.dfy"
 include "../../Util/UTF8.dfy"
 
 module SerializeFunctions {
-  import opened Aws.Crypto
-  import opened Seq
+  import Seq
   import opened StandardLibrary.UInt
   import opened Wrappers
   import opened UTF8
@@ -74,7 +72,8 @@ module SerializeFunctions {
     ==>
       && var SuccessfulRead(thing, tail) := res.value;
       && CorrectlyReadRange(buffer, tail)
-      && inversionFunction(thing) == tail.bytes[buffer.start..tail.start]
+      && inversionFunction(thing) <= buffer.bytes[buffer.start..]
+      && tail.start == buffer.start + |inversionFunction(thing)|
   }
 
   // Sequence ranges are complicated in Dafny.
@@ -88,9 +87,9 @@ module SerializeFunctions {
     tail: ReadableBuffer
   )
   {
-    && tail.bytes == buffer.bytes
+    && buffer.bytes == tail.bytes
     && buffer.start <= tail.start <= |tail.bytes|
-    && buffer.bytes[buffer.start..tail.start] == tail.bytes[buffer.start..tail.start]
+    && buffer.bytes[buffer.start..] == tail.bytes[buffer.start..]
   }
 
   // This function is trivial,
@@ -152,6 +151,7 @@ module SerializeFunctions {
     buffer: ReadableBuffer
   )
     :(res: ReadBinaryCorrect<uint16>)
+    ensures buffer.start + 2 <= |buffer.bytes| ==> res.Success?
     ensures CorrectlyRead(buffer, res, WriteUint16)
   {
     var SuccessfulRead(uint16Bytes, tail) :- Read(buffer, 2);
@@ -170,6 +170,7 @@ module SerializeFunctions {
     buffer: ReadableBuffer
   ):
     (res: ReadBinaryCorrect<uint32>)
+    ensures buffer.start + 4 <= |buffer.bytes| ==> res.Success?
     ensures CorrectlyRead(buffer, res, WriteUint32)
   {
     var SuccessfulRead(uint32Bytes, tail) :- Read(buffer, 4);
@@ -188,6 +189,7 @@ module SerializeFunctions {
     buffer: ReadableBuffer
   ):
     (res: ReadBinaryCorrect<uint64>)
+    ensures buffer.start + 8 <= |buffer.bytes| ==> res.Success?
     ensures CorrectlyRead(buffer, res, UInt64ToSeq)
   {
     var SuccessfulRead(uint64Bytes, tail) :- Read(buffer, 8);
@@ -295,7 +297,7 @@ module SerializeFunctions {
 
       assert ReadRange((Seq.First(positions),  Seq.Last(positions)))
       == ReadRange((Seq.First(positions), Seq.Last(left))) + ReadRange((Seq.Last(left), tail));
-      LemmaLast(positions);
+      Seq.LemmaLast(positions);
 
       assert PositionsToReadableRanges(positions) == PositionsToReadableRanges(left) + [(Seq.Last(left), tail)];
       assert ConcatenateRanges(PositionsToReadableRanges(positions)) == ConcatenateRanges(PositionsToReadableRanges(left)) + ReadRange((Seq.Last(left), tail));
@@ -433,6 +435,156 @@ module SerializeFunctions {
     requires CorrectlyReadRange(mid, end)
     ensures CorrectlyReadRange(start, end)
   {
+  }
+
+  // Completeness Lemmas to prove that ReadX/WriteX are both sound and complete
+
+  lemma ReadIsComplete(
+    data: seq<uint8>,
+    bytes: seq<uint8>,
+    buffer: ReadableBuffer
+  )
+    returns (ret: SuccessfulRead<seq<uint8>>)
+    requires
+      && Write(data) == bytes
+      && buffer.start <= |buffer.bytes|
+      && bytes <= buffer.bytes[buffer.start..]
+    ensures
+      && ret.data == data
+      && ret.tail.start == buffer.start + |bytes|
+      && Success(ret) == Read(buffer, |bytes|)
+  {
+    return Read(buffer, |Write(data)|).value;
+  }
+
+  lemma ReadUInt16IsComplete(
+    data: uint16,
+    bytes: seq<uint8>,
+    buffer: ReadableBuffer
+  )
+    returns (ret: SuccessfulRead<uint16>)
+    requires
+      && WriteUint16(data) == bytes
+      && buffer.start <= |buffer.bytes|
+      && bytes <= buffer.bytes[buffer.start..]
+    ensures
+      && ret.data == data
+      && ret.tail.start == buffer.start + |bytes|
+      && Success(ret) == ReadUInt16(buffer)
+  {
+    return ReadUInt16(buffer).value;
+  }
+
+  lemma ReadUInt32IsComplete(
+    data: uint32,
+    bytes: seq<uint8>,
+    buffer: ReadableBuffer
+  )
+    returns (ret: SuccessfulRead<uint32>)
+    requires
+      && WriteUint32(data) == bytes
+      && buffer.start <= |buffer.bytes|
+      && bytes <= buffer.bytes[buffer.start..]
+    ensures
+      && ret.data == data
+      && ret.tail.start == buffer.start + |bytes|
+      && Success(ret) == ReadUInt32(buffer)
+  {
+    return ReadUInt32(buffer).value;
+  }
+
+  lemma ReadUInt64IsComplete(
+    data: uint64,
+    bytes: seq<uint8>,
+    buffer: ReadableBuffer
+  )
+    returns (ret: SuccessfulRead<uint64>)
+    requires
+      && WriteUint64(data) == bytes
+      && buffer.start <= |buffer.bytes|
+      && bytes <= buffer.bytes[buffer.start..]
+    ensures
+      && ret.data == data
+      && ret.tail.start == buffer.start + |bytes|
+      && Success(ret) == ReadUInt64(buffer)
+  {
+    return ReadUInt64(buffer).value;
+  }
+
+  lemma ReadShortLengthSeqIsComplete(
+    data: Uint8Seq16,
+    bytes: seq<uint8>,
+    buffer: ReadableBuffer
+  )
+    returns (ret: SuccessfulRead<Uint8Seq16>)
+    requires
+      && WriteShortLengthSeq(data) == bytes
+      && buffer.start <= |buffer.bytes|
+      && bytes <= buffer.bytes[buffer.start..]
+    ensures
+      && ret.data == data
+      && ret.tail.start == buffer.start + |bytes|
+      && Success(ret) == ReadShortLengthSeq(buffer)
+  {
+    assert bytes == WriteUint16(|data| as uint16) + Write(data);
+    assert bytes[..|WriteUint16(|data| as uint16)|] == WriteUint16(|data| as uint16);
+    var continuation := ReadUInt16IsComplete(|data| as uint16, WriteUint16(|data| as uint16), buffer);
+    var tail := ReadIsComplete(data, Write(data), continuation.tail);
+    assert tail.data == data;
+
+    return ReadShortLengthSeq(buffer).value;
+  }
+
+  lemma ReadUint32SeqIsComplete(
+    data: Uint8Seq32,
+    bytes: seq<uint8>,
+    buffer: ReadableBuffer
+  )
+    returns (ret: SuccessfulRead<Uint8Seq32>)
+    requires
+      && WriteUint32Seq(data) == bytes
+      && buffer.start <= |buffer.bytes|
+      && bytes <= buffer.bytes[buffer.start..]
+    ensures
+      && ret.data == data
+      && ret.tail.start == buffer.start + |bytes|
+      && Success(ret) == ReadUint32Seq(buffer)
+  {
+    assert bytes == WriteUint32(|data| as uint32) + Write(data);
+    assert bytes[..|WriteUint32(|data| as uint32)|] == WriteUint32(|data| as uint32);
+    var continuation := ReadUInt32IsComplete(|data| as uint32, WriteUint32(|data| as uint32), buffer);
+    var tail := ReadIsComplete(data, Write(data), continuation.tail);
+    assert tail.data == data;
+
+    return ReadUint32Seq(buffer).value;
+  }
+
+  lemma ReadUint64SeqIsComplete(
+    data: Uint8Seq64,
+    bytes: seq<uint8>,
+    buffer: ReadableBuffer
+  )
+    returns (ret: SuccessfulRead<Uint8Seq64>)
+    requires
+      && WriteUint64Seq(data) == bytes
+      && buffer.start <= |buffer.bytes|
+      && bytes <= buffer.bytes[buffer.start..]
+    ensures 
+      && ReadUint64Seq(buffer).Success?
+      && ReadUint64Seq(buffer).value.data == data
+      && ReadUint64Seq(buffer).value.tail.start == buffer.start + |bytes|
+    ensures
+      && ret.data == data
+      && ret.tail.start == buffer.start + |bytes|
+      && Success(ret) == ReadUint64Seq(buffer)
+  {
+    assert bytes == WriteUint64(|data| as uint64) + Write(data);
+    assert bytes[..|WriteUint64(|data| as uint64)|] == WriteUint64(|data| as uint64);
+    var continuation := ReadUInt64IsComplete(|data| as uint64, WriteUint64(|data| as uint64), buffer);
+    var tail := ReadIsComplete(data, Write(data), continuation.tail);
+    assert tail.data == data;
+
+    return ReadUint64Seq(buffer).value;
   }
 
 }

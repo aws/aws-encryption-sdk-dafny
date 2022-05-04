@@ -5,5 +5,22 @@ batch:
   build-list:
     - identifier: dafny_verify
       buildspec: codebuild/dafny/verify.yml
-    - identifier: dotnet 
-      buildspec: codebuild/dotnet/ci.yml
+    - identifier: dotnet_tests
+      buildspec: codebuild/dotnet/tests.yml
+    # These currently fail on .NET Framework 4.5
+    # - identifier: dotnet_examples
+    #  buildspec: codebuild/dotnet/examples.yml
+    - identifier: dotnet_vectors
+      buildspec: codebuild/dotnet/test-vectors.yml
+    - identifier: dotnet_generate_vectors
+      buildspec: codebuild/dotnet/generate-test-vectors.yml
+    - identifier: dotnet_tests_windows
+      buildspec: codebuild/dotnet/tests-windows.yml
+      env:
+        type: WINDOWS_SERVER_2019_CONTAINER
+        image: aws/codebuild/windows-base:2019-1.0
+    - identifier: dotnet_benchmark_windows
+      buildspec: codebuild/dotnet/benchmark-windows.yml
+      env:
+        type: WINDOWS_SERVER_2019_CONTAINER
+        image: aws/codebuild/windows-base:2019-1.0

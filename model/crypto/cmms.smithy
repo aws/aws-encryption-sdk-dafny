@@ -1,9 +1,10 @@
-namespace aws.crypto
-
+namespace aws.encryptionSdk.core
 
 use aws.polymorph#reference
 use aws.polymorph#positional
+use aws.polymorph#extendable
 
+@extendable
 resource CryptographicMaterialsManager {
     operations: [GetEncryptionMaterials, DecryptMaterials]
 }
@@ -26,9 +27,8 @@ structure GetEncryptionMaterialsInput {
     @required
     encryptionContext: EncryptionContext,
 
-    // TODO
-    // @required
-    // commitmentPolicy: CommitmentPolicy,
+    @required
+    commitmentPolicy: CommitmentPolicy,
 
     algorithmSuiteId: AlgorithmSuiteId,
 
@@ -49,9 +49,8 @@ structure DecryptMaterialsInput {
     @required
     algorithmSuiteId: AlgorithmSuiteId,
 
-    // TODO
-    // @required
-    // commitmentPolicy: CommitmentPolicy,
+    @required
+    commitmentPolicy: CommitmentPolicy,
 
     @required
     encryptedDataKeys: EncryptedDataKeyList,
@@ -83,27 +82,3 @@ structure CreateDefaultCryptographicMaterialsManagerInput {
     @required
     keyring: KeyringReference 
 }
-
-operation CreateCachingCryptographicMaterialsManager {
-    input: CreateCachingCryptographicMaterialsManagerInput,
-    output: CreateCryptographicMaterialsManagerOutput,
-}
-
-structure CreateCachingCryptographicMaterialsManagerInput {
-    @required
-    cache: CryptoMaterialsCacheReference,
-
-    @required
-    cacheLimitTtl: Integer,
-
-    // One of keyring or CMM is required
-    keyring: KeyringReference,
-    materialsManager: CryptographicMaterialsManagerReference,
-
-    partitionId: String,
-
-    limitBytes: Long,
-
-    limitMessages: Long
-}
-

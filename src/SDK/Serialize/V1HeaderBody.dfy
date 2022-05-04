@@ -17,7 +17,7 @@ module V1HeaderBody {
   import Aws.Crypto
   import Seq
   import HeaderTypes
-  import SharedHeaderFunctions
+  import opened SharedHeaderFunctions
   import MaterialProviders.Client
   import opened EncryptedDataKeys
   import opened EncryptionContext
@@ -31,6 +31,10 @@ module V1HeaderBody {
   | h.V1HeaderBody?
   witness *
 
+  //= compliance/data-format/message-header.txt#2.5.2.1
+  //= type=implication
+  //# A reserved sequence of 4 bytes that MUST have the value (hex) of "00
+  //# 00 00 00".
   const RESERVED_BYTES: seq<uint8> := [0x00, 0x00, 0x00, 0x00];
   type ReservedBytes = s: seq<uint8>
   | s == RESERVED_BYTES
@@ -45,41 +49,98 @@ module V1HeaderBody {
     var suiteId := GetAlgorithmSuiteId(body.esdkSuiteId);
     var suite := Client.SpecificationClient().GetSuite(suiteId);
 
-    SharedHeaderFunctions.WriteMessageFormatVersion(HeaderTypes.MessageFormatVersion.V1)
-    + WriteV1MessageType(body.messageType)
-    + SharedHeaderFunctions.WriteESDKSuiteId(body.esdkSuiteId)
-    + SharedHeaderFunctions.WriteMessageId(body.messageId)
-    + WriteAADSection(body.encryptionContext)
-    + WriteEncryptedDataKeysSection(body.encryptedDataKeys)
-    + SharedHeaderFunctions.WriteContentType(body.contentType)
-    + WriteV1ReservedBytes(RESERVED_BYTES)
-    + WriteV1HeaderIvLength(suite.encrypt.ivLength)
-    + UInt32ToSeq(body.frameLength)
+    //= compliance/client-apis/encrypt.txt#2.6.2
+    //# If the message format version associated with the algorithm suite
+    //# (../framework/algorithm-suites.md#supported-algorithm-suites) is 1.0
+    //# then the message header body (../data-format/message-
+    //# header.md#header-body-version-1-0) MUST be serialized with the
+    //# following specifics:
+
+    // Dafny has trouble
+    // with associativity of concatenation
+    // (knowing that (a + b) + c == a + (b + c) ).
+    // So manually adding the () helps make it clear.
+
+    //= compliance/client-apis/encrypt.txt#2.6.2
+    //# *  Version (../data-format/message-header.md#version-1): MUST have a
+    //# value corresponding to 1.0 (../data-format/message-
+    //# header.md#supported-versions)
+    WriteMessageFormatVersion(HeaderTypes.MessageFormatVersion.V1)
+    //= compliance/client-apis/encrypt.txt#2.6.2
+    //# *  Type (../data-format/message-header.md#type): MUST have a value
+    //# corresponding to Customer Authenticated Encrypted Data (../data-
+    //# format/message-header.md#supported-types)
+    + (WriteV1MessageType(body.messageType)
+    //= compliance/client-apis/encrypt.txt#2.6.2
+    //# *  Algorithm Suite ID (../data-format/message-header.md#algorithm-
+    //# suite-id): MUST correspond to the algorithm suite (../framework/
+    //# algorithm-suites.md) used in this behavior
+    + (WriteESDKSuiteId(body.esdkSuiteId)
+    //= compliance/client-apis/encrypt.txt#2.6.2
+    //# *  Message ID (../data-format/message-header.md#message-id): The
+    //# process used to generate this identifier MUST use a good source of
+    //# randomness to make the chance of duplicate identifiers negligible.
+    + (WriteMessageId(body.messageId)
+    //= compliance/client-apis/encrypt.txt#2.6.2
+    //# *  AAD (../data-format/message-header.md#aad): MUST be the
+    //# serialization of the encryption context (../framework/
+    //# structures.md#encryption-context) in the encryption materials
+    //# (../framework/structures.md#encryption-materials)
+    + (WriteAADSection(body.encryptionContext)
+    //= compliance/client-apis/encrypt.txt#2.6.2
+    //# *  Encrypted Data Keys (../data-format/message-header.md#encrypted-
+    //# data-key-entries): MUST be the serialization of the encrypted data
+    //# keys (../framework/structures.md#encrypted-data-keys) in the
+    //# encryption materials (../framework/structures.md#encryption-
+    //# materials)
+    + (WriteEncryptedDataKeysSection(body.encryptedDataKeys)
+    //= compliance/client-apis/encrypt.txt#2.6.2
+    //# *  Content Type (../data-format/message-header.md#content-type): MUST
+    //# be 02 (../data-format/message-header.md#supported-content-types)
+    + (WriteContentType(body.contentType)
+    + (WriteV1ReservedBytes(RESERVED_BYTES)
+    //= compliance/data-format/message-header.txt#2.5.2.2
+    //# This value MUST be
+    //# equal to the IV length (../framework/algorithm-suites.md#iv-length)
+    //# value of the algorithm suite (../framework/algorithm-suites.md)
+    //# specified by the Algorithm Suite ID (Section 2.5.1.5) field.
+    //
+    //= compliance/client-apis/encrypt.txt#2.6.2
+    //# *  IV Length (../data-format/message-header.md#iv-length): MUST match
+    //# the IV length (../framework/algorithm-suites.md#iv-length)
+    //# specified by the algorithm suite (../framework/algorithm-
+    //# suites.md)
+    + (WriteV1HeaderIvLength(suite.encrypt.ivLength)
+    //= compliance/client-apis/encrypt.txt#2.6.2
+    //# *  Frame Length (../data-format/message-header.md#frame-length): MUST
+    //# be the value of the frame size determined above.
+    + (WriteUint32(body.frameLength))))))))))
   }
 
-  function method ReadV1HeaderBody(
-    buffer: ReadableBuffer
+  function method {:vcs_split_on_every_assert} ReadV1HeaderBody(
+    buffer: ReadableBuffer,
+    maxEdks: Option<posInt64>
   )
     :(res: ReadCorrect<V1HeaderBody>)
     ensures CorrectlyReadV1HeaderBody(buffer, res)
   {
-    var version :- SharedHeaderFunctions.ReadMessageFormatVersion(buffer);
+    var version :- ReadMessageFormatVersion(buffer);
     :- Need(version.data.V1?, Error("Message version must be version 1."));
 
     var messageType :- ReadV1MessageType(version.tail);
 
-    var esdkSuiteId :- SharedHeaderFunctions.ReadESDKSuiteId(messageType.tail);
+    var esdkSuiteId :- ReadESDKSuiteId(messageType.tail);
     var suiteId := GetAlgorithmSuiteId(esdkSuiteId.data);
     var suite := Client.SpecificationClient().GetSuite(suiteId);
     :- Need(suite.commitment.None?, Error("Algorithm suite must not support commitment."));
 
-    var messageId :- SharedHeaderFunctions.ReadMessageId(esdkSuiteId.tail);
+    var messageId :- ReadMessageIdV1(esdkSuiteId.tail);
 
     var encryptionContext :- EncryptionContext.ReadAADSection(messageId.tail);
 
-    var encryptedDataKeys :- EncryptedDataKeys.ReadEncryptedDataKeysSection(encryptionContext.tail);
+    var encryptedDataKeys :- EncryptedDataKeys.ReadEncryptedDataKeysSection(encryptionContext.tail, maxEdks);
 
-    var contentType :- SharedHeaderFunctions.ReadContentType(encryptedDataKeys.tail);
+    var contentType :- ReadContentType(encryptedDataKeys.tail);
 
     var reservedBytes :- ReadV1ReservedBytes(contentType.tail);
 
@@ -101,36 +162,32 @@ module V1HeaderBody {
       frameLength := frameLength.data
     );
 
+    assert if IsV1ExpandedAADSection(buffer) then
+      WriteV1ExpandedAADSectionHeaderBody(body) <= buffer.bytes[buffer.start..]
+    else
+      WriteV1HeaderBody(body) <= buffer.bytes[buffer.start..];
+
     Success(SuccessfulRead(body, frameLength.tail))
   }
 
-  // TODO: This needs to be proven
   predicate CorrectlyReadV1HeaderBody(
     buffer: ReadableBuffer,
     res: ReadCorrect<V1HeaderBody>
   )
   {
-    && res.Success? ==> CorrectlyReadRange(buffer, res.value.tail)
-    && (
-      || (
-          !IsV1ExpandedAADSection(buffer)
-        ==>
-          && CorrectlyRead(buffer, res, WriteV1HeaderBody))
-      // This is to handle the edge case in empty AAD see: `ReadAADSection`
-      || (
-          IsV1ExpandedAADSection(buffer)
-        ==>
-          && CorrectlyRead(buffer, res, WriteV1ExpandedAADSectionHeaderBody)))
+    if IsV1ExpandedAADSection(buffer) then
+      CorrectlyRead(buffer, res, WriteV1ExpandedAADSectionHeaderBody)
+    else
+      CorrectlyRead(buffer, res, WriteV1HeaderBody)
   }
 
   predicate IsV1ExpandedAADSection(
     buffer: ReadableBuffer
   )
   {
-    var headerBytesToAADStart := 20; 
-    var aadStartPosition := buffer.start+headerBytesToAADStart;
-    && aadStartPosition+4 < |buffer.bytes|
-    && buffer.bytes[aadStartPosition..aadStartPosition+4] == [0,2,0,0]
+    // version + messageType + suiteId + messageId
+    var headerBytesToAADStart := 1 + 1 + 2 + 16;
+    IsExpandedAADSection(MoveStart(buffer, headerBytesToAADStart))
   }
 
   function method WriteV1MessageType(
@@ -205,16 +262,20 @@ module V1HeaderBody {
     var suiteId := GetAlgorithmSuiteId(body.esdkSuiteId);
     var suite := Client.SpecificationClient().GetSuite(suiteId);
 
-    SharedHeaderFunctions.WriteMessageFormatVersion(HeaderTypes.MessageFormatVersion.V1)
-    + WriteV1MessageType(body.messageType)
-    + SharedHeaderFunctions.WriteESDKSuiteId(body.esdkSuiteId)
-    + SharedHeaderFunctions.WriteMessageId(body.messageId)
-    + WriteExpandedAADSection(body.encryptionContext)
-    + WriteEncryptedDataKeysSection(body.encryptedDataKeys)
-    + SharedHeaderFunctions.WriteContentType(body.contentType)
-    + WriteV1ReservedBytes(RESERVED_BYTES)
-    + WriteV1HeaderIvLength(suite.encrypt.ivLength)
-    + UInt32ToSeq(body.frameLength)
+    // Dafny has trouble
+    // with associativity of concatenation
+    // (knowing that (a + b) + c == a + (b + c) ).
+    // So manually adding the () helps make it clear.
+      WriteMessageFormatVersion(HeaderTypes.MessageFormatVersion.V1)
+    + (WriteV1MessageType(body.messageType)
+    + (WriteESDKSuiteId(body.esdkSuiteId)
+    + (WriteMessageId(body.messageId)
+    + (WriteExpandedAADSection(body.encryptionContext)
+    + (WriteEncryptedDataKeysSection(body.encryptedDataKeys)
+    + (WriteContentType(body.contentType)
+    + (WriteV1ReservedBytes(RESERVED_BYTES)
+    + (WriteV1HeaderIvLength(suite.encrypt.ivLength)
+    + (WriteUint32(body.frameLength))))))))))
   }
 
 }

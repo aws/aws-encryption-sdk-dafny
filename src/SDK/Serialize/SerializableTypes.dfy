@@ -50,7 +50,12 @@ module SerializableTypes {
   witness *
 
   const VALID_IDS: set<uint16> := {0x0578, 0x0478, 0x0378, 0x0346, 0x0214, 0x0178, 0x0146, 0x0114, 0x0078, 0x0046, 0x0014};
-  
+
+  //= compliance/data-format/message-header.txt#2.5.1.5
+  //= type=implication
+  //# The value (hex) of this field MUST be a value that exists
+  //# in the Supported Algorithm Suites (../framework/algorithm-
+  //# suites.md#supported-algorithm-suites) table.
   type ESDKAlgorithmSuiteId = id: uint16 | id in VALID_IDS witness *
 
   const SupportedAlgorithmSuites: map<Crypto.AlgorithmSuiteId, ESDKAlgorithmSuiteId> := map[
@@ -164,5 +169,33 @@ module SerializableTypes {
     (ret: nat)
   {
     2 + |pair.key| + 2 + |pair.value|
+  }
+
+  lemma LinearLengthIsDistributive(
+    a: Linear<UTF8.ValidUTF8Bytes, UTF8.ValidUTF8Bytes>,
+    b: Linear<UTF8.ValidUTF8Bytes, UTF8.ValidUTF8Bytes>
+  )
+    ensures LinearLength(a + b) == LinearLength(a) + LinearLength(b)
+  {
+    if b == [] {
+      assert a + b == a;
+    } else {
+      calc {
+        LinearLength(a + b);
+      == // Definition of LinearLength
+        if |a+b| == 0 then 0
+        else LinearLength(Seq.DropLast(a + b)) + PairLength(Seq.Last(a+b));
+      == {assert |a+b| > 0;} // Because of the above `if` block
+        LinearLength(Seq.DropLast(a + b)) + PairLength(Seq.Last(a+b));
+      == {assert Seq.Last(a+b) == Seq.Last(b) && Seq.DropLast(a+b) == a + Seq.DropLast(b);} // Breaking apart (a+b)
+        LinearLength(a + Seq.DropLast(b)) + PairLength(Seq.Last(b));
+      == {LinearLengthIsDistributive(a, Seq.DropLast(b));} // This lets us break apart LinearLength(a + Seq.DropLast(b))
+        (LinearLength(a) + LinearLength(Seq.DropLast(b))) + PairLength(Seq.Last(b));
+      == // Move () to prove associativity of +
+        LinearLength(a) + (LinearLength(Seq.DropLast(b)) + PairLength(Seq.Last(b)));
+      == {assert LinearLength(Seq.DropLast(b)) + PairLength(Seq.Last(b)) == LinearLength(b);} // join the 2 parts of b back together
+        LinearLength(a) + LinearLength(b);
+      }
+    }
   }
 }

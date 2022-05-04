@@ -15,31 +15,35 @@ module  AwsKmsMrkAreUnique {
   //= type=implication
   //# The caller MUST provide:
   function method AwsKmsMrkAreUnique(identifiers: seq<AwsKmsIdentifier>)
-  : (result: Result<(), string>)
+  : (result: Outcome<string>)
   {
     var mrks := Seq.Filter(IsMultiRegionAwsKmsIdentifier, identifiers);
 
     if |mrks| == 0 then
-      Success(())
+      Pass
     else
       var mrkKeyIds := Seq.Map(GetKeyId, mrks);
       var setMrks := ToSet(mrkKeyIds);
       if |mrkKeyIds| == |setMrks| then
-        Success(())
+        Pass
       else
         var duplicateMrkIds := set x | x in mrkKeyIds && multiset(mrkKeyIds)[x] >= 1;
         var isDuplicate := identifier => GetKeyId(identifier) in duplicateMrkIds;
         var identifierToString := (i: AwsKmsIdentifier) => i.ToString();
 
         var duplicateIdentifiers := Seq.Filter(isDuplicate, identifiers);
+        assert |identifiers| >= |mrkKeyIds|;
+        assert |mrks| == |mrkKeyIds|;
         var duplicates := Seq.Map(identifierToString, duplicateIdentifiers);
-        :- Need(|duplicates| > 0, "Impossible");
 
-        Failure(
-          "Related multi-Region keys: "
-          + Join(duplicates, ",")
-          + "are not allowed."
-        )
+        if |duplicates| == 0 then
+          Fail("Impossible")
+        else
+          Fail(
+            "Related multi-Region keys: "
+            + Join(duplicates, ",")
+            + "are not allowed."
+          )
   }
 
   function method GetKeyId(identifier: AwsKmsIdentifier): (result: string) {
@@ -58,7 +62,7 @@ module  AwsKmsMrkAreUnique {
     ensures
       |Seq.Filter(IsMultiRegionAwsKmsIdentifier, identifiers)| == 0
     ==>
-      AwsKmsMrkAreUnique(identifiers).Success?
+      AwsKmsMrkAreUnique(identifiers).Pass?
 
     //= compliance/framework/aws-kms/aws-kms-mrk-are-unique.txt#2.5
     //= type=implication
@@ -70,7 +74,7 @@ module  AwsKmsMrkAreUnique {
       && |mrks| > 0
       && Seq.HasNoDuplicates(ids)
     ==>
-      AwsKmsMrkAreUnique(identifiers).Success?
+      AwsKmsMrkAreUnique(identifiers).Pass?
 
     //= compliance/framework/aws-kms/aws-kms-mrk-are-unique.txt#2.5
     //= type=implication
@@ -83,7 +87,8 @@ module  AwsKmsMrkAreUnique {
       && |mrks| > 0
       && !Seq.HasNoDuplicates(ids)
     ==>
-      AwsKmsMrkAreUnique(identifiers).Failure?
+      // TODO this only checks for failure, but not the error message
+      AwsKmsMrkAreUnique(identifiers).Fail?
   {
     var mrks := Seq.Filter(IsMultiRegionAwsKmsIdentifier, identifiers);
     var ids := Seq.Map(GetKeyId, mrks);

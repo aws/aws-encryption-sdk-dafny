@@ -42,18 +42,13 @@ module {:extern "AwsKmsUtils"} AwsKmsUtils {
   }
 
   /*
-   * Determines whether the given client is configured to talk to the given region.
+   * Returns whether the given client is configured to talk to the given region,
+   * or None if the underlying AWS SDK implementation does not support querying the configuration.
    *
    * Useful for MRKs where we need to check whether our client can decrypt an MRK.
-   *
-   * Note that not all AWS SDK implementations will support this, so some implemetations
-   * may treat this as a no-op. Therefore we cannot make any guarantees in our
-   * Dafny code about client and region matching; we will always need to account
-   * for the case where they do not.
    */
-  predicate method {:extern "RegionMatch"} RegionMatch(
+  function method {:extern "RegionMatch"} RegionMatch(
     client: KMS.IKeyManagementServiceClient,
     region: string
-  )
-
+  ): Option<bool>
 }

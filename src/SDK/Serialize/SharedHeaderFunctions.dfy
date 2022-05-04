@@ -47,7 +47,7 @@ module SharedHeaderFunctions {
   ):
     (ret: seq<uint8>)
   {
-    UInt16ToSeq(esdkSuiteId)
+    WriteUint16(esdkSuiteId)
   }
 
   function method ReadESDKSuiteId(
@@ -56,27 +56,48 @@ module SharedHeaderFunctions {
     :(res: ReadCorrect<ESDKAlgorithmSuiteId>)
     ensures CorrectlyRead(buffer, res, WriteESDKSuiteId)
   {
-    var SuccessfulRead(esdkSuiteId, tail) :- ReadUInt16(buffer);
-    :- Need(esdkSuiteId in VALID_IDS, Error("Algorithm suite ID not supported."));
-    Success(SuccessfulRead(esdkSuiteId, tail))
+    var esdkSuiteIdBytes :- ReadUInt16(buffer);
+    :- Need(esdkSuiteIdBytes.data in VALID_IDS, Error("Algorithm suite ID not supported."));
+    var esdkSuiteId: ESDKAlgorithmSuiteId := esdkSuiteIdBytes.data;
+    Success(SuccessfulRead(esdkSuiteId, esdkSuiteIdBytes.tail))
   }
 
+  /*
+   * Writes the message id as bytes, which, since the message id is already stored
+   * as bytes, simply returns the message id.
+   *
+   * Though we have different V1 and V2 methods for the read path, since
+   * they read different numbers of bytes, a single method on the write path
+   * is fine since writing is identical for both.
+   */
   function method WriteMessageId(
-    messageId: MessageID
+    messageId: MessageId
   ):
     (ret: seq<uint8>)
   {
-    messageId
+    Write(messageId)
   }
 
-  function method ReadMessageId(
+  function method ReadMessageIdV1(
     buffer: ReadableBuffer
   )
-    :(res: ReadBinaryCorrect<MessageID>)
+    :(res: ReadBinaryCorrect<MessageId>)
     ensures CorrectlyRead(buffer, res, WriteMessageId)
   {
-    var messageIdRead :- SerializeFunctions.Read(buffer, MESSAGE_ID_LEN);
-    var messageId: MessageID := messageIdRead.data;
+    var messageIdRead :- SerializeFunctions.Read(buffer, MESSAGE_ID_LEN_V1);
+    var messageId: MessageId := messageIdRead.data;
+
+    Success(SuccessfulRead(messageId, messageIdRead.tail))
+  }
+
+  function method ReadMessageIdV2(
+    buffer: ReadableBuffer
+  )
+    :(res: ReadBinaryCorrect<MessageId>)
+    ensures CorrectlyRead(buffer, res, WriteMessageId)
+  {
+    var messageIdRead :- SerializeFunctions.Read(buffer, MESSAGE_ID_LEN_V2);
+    var messageId: MessageId := messageIdRead.data;
 
     Success(SuccessfulRead(messageId, messageIdRead.tail))
   }
@@ -86,7 +107,7 @@ module SharedHeaderFunctions {
   ):
     (ret: seq<uint8>)
   {
-    [contentType.Serialize()]
+    Write([contentType.Serialize()])
   }
 
   function method ReadContentType(

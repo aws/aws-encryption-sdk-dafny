@@ -1,8 +1,10 @@
-namespace aws.crypto
+namespace aws.encryptionSdk.core
 
 use aws.polymorph#reference
 use aws.polymorph#positional
+use aws.polymorph#extendable
 
+@extendable
 resource Keyring {
     operations: [OnEncrypt, OnDecrypt]
 }
@@ -88,16 +90,31 @@ structure CreateKeyringOutput {
 }
 
 // KMS - Strict
-operation CreateStrictAwsKmsKeyring {
-    input: CreateStrictAwsKmsKeyringInput,
+operation CreateAwsKmsKeyring {
+    input: CreateAwsKmsKeyringInput,
     output: CreateKeyringOutput
 }
-structure CreateStrictAwsKmsKeyringInput {
+structure CreateAwsKmsKeyringInput {
     @required
     kmsKeyId: KmsKeyId,
 
     @required
     kmsClient: KmsClientReference,
+
+    grantTokens: GrantTokenList
+}
+
+operation CreateAwsKmsMultiKeyring {
+    input: CreateAwsKmsMultiKeyringInput,
+    output: CreateKeyringOutput,
+}
+
+structure CreateAwsKmsMultiKeyringInput {
+    generator:  KmsKeyId,
+
+    kmsKeyIds: KmsKeyIdList,
+
+    clientSupplier: ClientSupplierReference,
 
     grantTokens: GrantTokenList
 }
@@ -117,13 +134,29 @@ structure CreateAwsKmsDiscoveryKeyringInput {
     grantTokens: GrantTokenList
 }
 
-// KMS - MRK Aware, Strict
-operation CreateMrkAwareStrictAwsKmsKeyring {
-    input: CreateMrkAwareStrictAwsKmsKeyringInput,
+operation CreateAwsKmsDiscoveryMultiKeyring {
+    input: CreateAwsKmsDiscoveryMultiKeyringInput,
     output: CreateKeyringOutput,
 }
 
-structure CreateMrkAwareStrictAwsKmsKeyringInput {
+structure CreateAwsKmsDiscoveryMultiKeyringInput {
+    @required
+    regions: RegionList,
+
+    discoveryFilter: DiscoveryFilter,
+
+    clientSupplier: ClientSupplierReference,
+
+    grantTokens: GrantTokenList
+}
+
+// KMS - MRK Aware, Strict
+operation CreateAwsKmsMrkKeyring {
+    input: CreateAwsKmsMrkKeyringInput,
+    output: CreateKeyringOutput,
+}
+
+structure CreateAwsKmsMrkKeyringInput {
     @required
     kmsKeyId: KmsKeyId,
 
@@ -133,30 +166,29 @@ structure CreateMrkAwareStrictAwsKmsKeyringInput {
     grantTokens: GrantTokenList
 }
 
-// operation CreateMrkAwareStrictMultiKeyring {
-//     input: CreateMrkAwareStrictMultiKeyringInput,
-//     output: CreateKeyringOutput,
-// }
-//
-// structure CreateMrkAwareStrictMultiKeyringInput {
-//     // TODO: spec doesn't call this required but it seems like it should be
-//     generator:  KmsKeyId,
-//
-//     kmsKeyIds: KmsKeyIdList,
-//
-//     clientSupplier: ClientSupplierReference,
-//
-//     grantTokens: GrantTokenList
-// }
-//
-// KMS - MRK Aware, Discovery
-
-operation CreateMrkAwareDiscoveryAwsKmsKeyring {
-    input: CreateMrkAwareDiscoveryAwsKmsKeyringInput,
+operation CreateAwsKmsMrkMultiKeyring {
+    input: CreateAwsKmsMrkMultiKeyringInput,
     output: CreateKeyringOutput,
 }
 
-structure CreateMrkAwareDiscoveryAwsKmsKeyringInput {
+structure CreateAwsKmsMrkMultiKeyringInput {
+    generator:  KmsKeyId,
+
+    kmsKeyIds: KmsKeyIdList,
+
+    clientSupplier: ClientSupplierReference,
+
+    grantTokens: GrantTokenList
+}
+
+// KMS - MRK Aware, Discovery
+
+operation CreateAwsKmsMrkDiscoveryKeyring {
+    input: CreateAwsKmsMrkDiscoveryKeyringInput,
+    output: CreateKeyringOutput,
+}
+
+structure CreateAwsKmsMrkDiscoveryKeyringInput {
     @required
     kmsClient: KmsClientReference,
 
@@ -168,21 +200,21 @@ structure CreateMrkAwareDiscoveryAwsKmsKeyringInput {
     region: Region
 }
 
-// operation CreateMrkAwareDiscoveryMultiKeyring {
-//     input: CreateMrkAwareDiscoveryMultiKeyringInput,
-//     output: CreateKeyringOutput,
-// }
-//
-// structure CreateMrkAwareDiscoveryMultiKeyringInput {
-//     @required
-//     regions: RegionList,
-//
-//     discoveryFilter: DiscoveryFilter,
-//
-//     clientSupplier: ClientSupplierReference,
-//
-//     grantTokens: GrantTokenList
-// }
+operation CreateAwsKmsMrkDiscoveryMultiKeyring {
+    input: CreateAwsKmsMrkDiscoveryMultiKeyringInput,
+    output: CreateKeyringOutput,
+}
+
+structure CreateAwsKmsMrkDiscoveryMultiKeyringInput {
+    @required
+    regions: RegionList,
+
+    discoveryFilter: DiscoveryFilter,
+
+    clientSupplier: ClientSupplierReference,
+
+    grantTokens: GrantTokenList
+}
 
 // TODO
 // Multi
@@ -222,22 +254,22 @@ structure CreateRawAesKeyringInput {
 }
 
 // TODO
-// operation CreateRawRsaKeyring {
-//     input: CreateRawRsaKeyringInput,
-//     output: CreateKeyringOutput,
-// }
-//
-// structure CreateRawRsaKeyringInput {
-//     @required
-//     keyNamespace: String,
-//
-//     @required
-//     keyName: String,
-//
-//     @required
-//     paddingScheme: PaddingScheme,
-//
-//     // One or both is required
-//     publicKey: Blob,
-//     privateKey: Blob
-// }
+ operation CreateRawRsaKeyring {
+     input: CreateRawRsaKeyringInput,
+     output: CreateKeyringOutput,
+ }
+
+ structure CreateRawRsaKeyringInput {
+     @required
+     keyNamespace: String,
+
+     @required
+     keyName: String,
+
+     @required
+     paddingScheme: PaddingScheme,
+
+     // One or both is required
+     publicKey: Blob,
+     privateKey: Blob
+ }

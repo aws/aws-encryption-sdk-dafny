@@ -14,7 +14,7 @@ include "AwsKmsUtils.dfy"
 include "AwsKmsArnParsing.dfy"
 
 module
-  {:extern "Dafny.Aws.Crypto.MaterialProviders.AwsKmsDiscoveryKeyring"}
+  {:extern "Dafny.Aws.EncryptionSdk.Core.AwsKmsDiscoveryKeyring"}
   MaterialProviders.AwsKmsDiscoveryKeyring
 {
   import opened StandardLibrary
@@ -67,13 +67,15 @@ module
     method OnEncrypt(
       input: Crypto.OnEncryptInput
     )
-      returns (res: Result<Crypto.OnEncryptOutput, string>)
+      returns (res: Result<Crypto.OnEncryptOutput, Crypto.IAwsCryptographicMaterialProvidersException>)
       //= compliance/framework/aws-kms/aws-kms-discovery-keyring.txt#2.7
       //= type=implication
       //# This function MUST fail.
       ensures res.Failure?
     {
-      return Failure("Encryption is not supported with a Discovery Keyring.");
+      var exception := new Crypto.AwsCryptographicMaterialProvidersException(
+        "Encryption is not supported with a Discovery Keyring.");
+      return Failure(exception);
     }
 
     //= compliance/framework/aws-kms/aws-kms-discovery-keyring.txt#2.8
@@ -84,7 +86,7 @@ module
     method OnDecrypt(
       input: Crypto.OnDecryptInput
     )
-      returns (res: Result<Crypto.OnDecryptOutput, string>)
+      returns (res: Result<Crypto.OnDecryptOutput, Crypto.IAwsCryptographicMaterialProvidersException>)
       ensures res.Success?
       ==>
         && Materials.DecryptionMaterialsTransitionIsValid(
@@ -175,20 +177,23 @@ module
       var encryptedDataKeys := input.encryptedDataKeys;
       var suite := AlgorithmSuites.GetSuite(input.materials.algorithmSuiteId);
 
-      :- Need(
-        Materials.DecryptionMaterialsWithoutPlaintextDataKey(materials), 
+      :- Crypto.Need(
+        Materials.DecryptionMaterialsWithoutPlaintextDataKey(materials),
         "Keyring received decryption materials that already contain a plaintext data key.");
 
       //= compliance/framework/aws-kms/aws-kms-discovery-keyring.txt#2.8
       //# The set of encrypted data keys MUST first be filtered to match this
       //# keyring's configuration.
       var edkFilter : AwsKmsEncryptedDataKeyFilter := new AwsKmsEncryptedDataKeyFilter(discoveryFilter);
-      var matchingEdks :- Actions.FilterWithResult(edkFilter, encryptedDataKeys);
+      var filterResult := Actions.FilterWithResult(edkFilter, encryptedDataKeys);
+      var matchingEdks :- Crypto.AwsCryptographicMaterialProvidersException.WrapResultString(filterResult);
 
       // Next we convert the input Crypto.EncrypteDataKeys into Constant.AwsKmsEdkHelpers,
       // which makes them slightly easier to work with.
       var edkTransform : AwsKmsEncryptedDataKeyTransformer := new AwsKmsEncryptedDataKeyTransformer();
-      var edksToAttempt, parts :- Actions.FlatMapWithResult(edkTransform, matchingEdks);
+      var edkTransformResult, parts := Actions.FlatMapWithResult(edkTransform, matchingEdks);
+      var edksToAttempt :- Crypto.AwsCryptographicMaterialProvidersException.WrapResultString(
+        edkTransformResult);
 
       // We want to make sure that the set of EDKs we're about to attempt
       // to decrypt all actually came from the original set of EDKs. This is useful
@@ -218,7 +223,7 @@ module
         edksToAttempt
       );
 
-      return match outcome {
+      var result := match outcome {
         case Success(mat) =>
           assert exists helper: AwsKmsEdkHelper | helper in edksToAttempt
           ::
@@ -242,6 +247,8 @@ module
             );
             Failure(error)
       };
+      var wrappedResult := Crypto.AwsCryptographicMaterialProvidersException.WrapResultString(result);
+      return wrappedResult;
     }
   }
 
@@ -273,6 +280,7 @@ module
       && res.Success?
       && res.value
       ==>
+        
         // Pull out some values so we can compare them
         && UTF8.ValidUTF8Seq(edk.keyProviderInfo)
         && var keyId := UTF8.Decode(edk.keyProviderInfo);
@@ -289,11 +297,6 @@ module
       returns (res: Result<bool, string>)
       ensures Ensures(edk, res)
     {
-
-      if edk.keyProviderId != PROVIDER_ID {
-        return Success(false);
-      }
-
       // The Keyring produces UTF8 providerInfo.
       // If an `aws-kms` encrypted data key's providerInfo is not UTF8
       // this is an error, not simply an EDK to filter out.
@@ -307,6 +310,10 @@ module
       //# arn.md#a-valid-aws-kms-arn) with a resource type of "key" or
       //# OnDecrypt MUST fail.
       :- Need(arn.resource.resourceType == "key", "Only AWS KMS Keys supported");
+
+      if edk.keyProviderId != PROVIDER_ID {
+        return Success(false);
+      }
 
       if !DiscoveryMatch(arn, discoveryFilter) {
         return Success(false);
@@ -447,6 +454,11 @@ module
             EncryptionAlgorithm := returnedEncryptionAlgorithm
           );
           && client.DecryptSucceededWith(request, response)
+          //= compliance/framework/aws-kms/aws-kms-discovery-keyring.txt#2.8
+          //= type=implication
+          //# *  The "KeyId" field in the response MUST equal the AWS KMS ARN from
+          //# the provider info
+          && returnedKeyId == Option.Some(keyArn)            
     }
 
     method Invoke(
