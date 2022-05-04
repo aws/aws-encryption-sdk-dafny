@@ -5,7 +5,7 @@ include "../Util/UTF8.dfy"
 include "../StandardLibrary/StandardLibrary.dfy"
 include "AwsCryptographicMaterialProviders.dfy"
 
-module {:extern "Dafny.Aws.Esdk"} Aws.Esdk {
+module {:extern "Dafny.Aws.EncryptionSdk"} Aws.Esdk {
     import Crypto
     import opened UInt = StandardLibrary.UInt
     import opened Wrappers
@@ -115,6 +115,20 @@ module {:extern "Dafny.Aws.Esdk"} Aws.Esdk {
     trait IAwsEncryptionSdkException {
         function method GetMessage(): (message: string)
             reads this
+    }
+
+    class AwsEncryptionSdkBaseException extends IAwsEncryptionSdkException {
+        var message: string
+
+        constructor (message: string) {
+            this.message := message;
+        }
+
+        function method GetMessage(): (message: string)
+            reads this
+        {
+            this.message
+        }
     }
 
     class AwsEncryptionSdkException extends IAwsEncryptionSdkException {

@@ -14,7 +14,7 @@ include "AwsKmsUtils.dfy"
 include "AwsKmsArnParsing.dfy"
 
 module
-  {:extern "Dafny.Aws.Crypto.MaterialProviders.AwsKmsMrkDiscoveryKeyring"}
+  {:extern "Dafny.Aws.EncryptionSdk.Core.AwsKmsMrkDiscoveryKeyring"}
   MaterialProviders.AwsKmsMrkDiscoveryKeyring
 {
   import opened StandardLibrary
@@ -317,6 +317,7 @@ module
         if |res.value| == 1 then
           && var h := res.value[0];
           && h.edk.keyProviderId == PROVIDER_ID
+          && UTF8.ValidUTF8Seq(h.edk.keyProviderInfo)
           && h.edk == edk
           && h.arn.resource.resourceType == "key"
           && DiscoveryMatch(h.arn, discoveryFilter, region)

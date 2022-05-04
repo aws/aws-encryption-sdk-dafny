@@ -58,8 +58,12 @@ module {:extern "Signature"} Signature {
     returns (res: Result<SignatureKeyPair, string>)
     ensures res.Success? ==> IsValidSignatureKeyPair(res.value)
 
-  method {:extern "Signature.ECDSA", "Sign"} Sign(s: ECDSAParams, key: seq<uint8>, msg: seq<uint8>) returns (sig: Result<seq<uint8>, string>)
+  method {:extern "Signature.ECDSA", "Sign"} Sign(s: ECDSAParams, key: seq<uint8>, msg: seq<uint8>)
+    returns (sig: Result<seq<uint8>, string>)
     ensures sig.Success? ==> IsSigned(key, msg, sig.value)
 
-  method {:extern "Signature.ECDSA", "Verify"} Verify(s: ECDSAParams, key: seq<uint8>, msg: seq<uint8>, sig: seq<uint8>) returns (res: Result<bool, string>)
+  // This is a valid function
+  // because the same inputs will result in the same outputs.
+  function method {:extern "Signature.ECDSA", "Verify"} Verify(s: ECDSAParams, key: seq<uint8>, msg: seq<uint8>, sig: seq<uint8>)
+    : (res: Result<bool, string>)
 }

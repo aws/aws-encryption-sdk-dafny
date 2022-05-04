@@ -24,7 +24,7 @@ include "Serialize/Frames.dfy"
 include "Serialize/SerializeFunctions.dfy"
 include "Serialize/EncryptionContext.dfy"
 
-module {:extern "Dafny.Aws.Esdk.AwsEncryptionSdk"} AwsEncryptionSdk {
+module {:extern "Dafny.Aws.EncryptionSdk.AwsEncryptionSdk"} AwsEncryptionSdk {
   import opened Wrappers
   import opened StandardLibrary
   import opened UInt = StandardLibrary.UInt
@@ -49,7 +49,7 @@ module {:extern "Dafny.Aws.Esdk.AwsEncryptionSdk"} AwsEncryptionSdk {
   import Frames
 
   type FrameLength = frameLength : int64 | 0 < frameLength <= 0xFFFF_FFFF witness *
-  
+
   const DEFAULT_COMMITMENT_POLICY : Crypto.CommitmentPolicy := Crypto.REQUIRE_ENCRYPT_REQUIRE_DECRYPT;
 
   class AwsEncryptionSdk extends Esdk.IAwsEncryptionSdk {
@@ -60,7 +60,7 @@ module {:extern "Dafny.Aws.Esdk.AwsEncryptionSdk"} AwsEncryptionSdk {
         //# Once a commitment policy (Section 2.4.1) has been set it SHOULD be
         //# immutable.
         const commitmentPolicy: Crypto.CommitmentPolicy;
-        const maxEncryptedDataKeys: Option<int64>;
+        const maxEncryptedDataKeys: Option<posInt64>;
 
         const materialProviders: Crypto.IAwsCryptographicMaterialProviders;
 
@@ -74,6 +74,8 @@ module {:extern "Dafny.Aws.Esdk.AwsEncryptionSdk"} AwsEncryptionSdk {
         //#*  maximum number of encrypted data keys (Section 2.4.2)
 
         constructor (config: Esdk.AwsEncryptionSdkConfig)
+            requires config.maxEncryptedDataKeys.Some? ==> config.maxEncryptedDataKeys.value > 0
+
             ensures this.config == config
 
             //= compliance/client-apis/client.txt#2.4
@@ -99,11 +101,24 @@ module {:extern "Dafny.Aws.Esdk.AwsEncryptionSdk"} AwsEncryptionSdk {
             //= type=implication
             //# Callers MUST have a way to disable
             //# this limit.
-            ensures this.maxEncryptedDataKeys == config.maxEncryptedDataKeys
+            ensures
+            || (
+                && this.maxEncryptedDataKeys.None?
+                && config.maxEncryptedDataKeys.None?
+            )
+            || (
+                && this.maxEncryptedDataKeys.Some?
+                && config.maxEncryptedDataKeys.Some?
+                && this.maxEncryptedDataKeys.value as int64 == config.maxEncryptedDataKeys.value
+            )
         {
             this.config := config;
 
-            this.maxEncryptedDataKeys := config.maxEncryptedDataKeys;
+            if (config.maxEncryptedDataKeys.None?) {
+                this.maxEncryptedDataKeys := None();
+            } else {
+                this.maxEncryptedDataKeys := Some(config.maxEncryptedDataKeys.value as posInt64);
+            }
 
             if config.commitmentPolicy.None? {
                 this.commitmentPolicy := DEFAULT_COMMITMENT_POLICY;
@@ -127,17 +142,40 @@ module {:extern "Dafny.Aws.Esdk.AwsEncryptionSdk"} AwsEncryptionSdk {
         method Encrypt(input: Esdk.EncryptInput)
             returns (res: Result<Esdk.EncryptOutput, Esdk.IAwsEncryptionSdkException>)
         {
-            var encryptResult := EncryptInternal(input);
+            var encryptResult, _ := EncryptInternal(input);
             var withConvertedError := Esdk.AwsEncryptionSdkException.WrapResultString(encryptResult);
             return withConvertedError;
         }
 
-        method EncryptInternal(input: Esdk.EncryptInput) returns (res: Result<Esdk.EncryptOutput, string>)
+        method EncryptInternal(input: Esdk.EncryptInput)
+            returns (
+                res: Result<Esdk.EncryptOutput, string>,
+                // Used for verification
+                ghost ghostMaterials: Option<Crypto.EncryptionMaterials>
+            )
         //= compliance/client-apis/encrypt.txt#2.6.1
         //= type=implication
         //# If an input algorithm suite (Section 2.4.5) is provided that is not
         //# supported by the commitment policy (client.md#commitment-policy)
         //# configured in the client (client.md) encrypt MUST yield an error.
+        //
+        //= compliance/client-apis/client.txt#2.4.2.1
+        //= type=implication
+        //# *  encrypt (encrypt.md) MUST only support algorithm suites that have
+        //# a Key Commitment (../framework/algorithm-suites.md#algorithm-
+        //# suites-encryption-key-derivation-settings) value of False
+        //
+        //= compliance/client-apis/client.txt#2.4.2.2
+        //= type=implication
+        //# *  encrypt (encrypt.md) MUST only support algorithm suites that have
+        //# a Key Commitment (../framework/algorithm-suites.md#algorithm-
+        //# suites-encryption-key-derivation-settings) value of True
+        //
+        //= compliance/client-apis/client.txt#2.4.2.3
+        //= type=implication
+        //# *  encrypt (encrypt.md) MUST only support algorithm suites that have
+        //# a Key Commitment (../framework/algorithm-suites.md#algorithm-
+        //# suites-encryption-key-derivation-settings) value of True
         ensures
         (
             && input.algorithmSuiteId.Some?
@@ -151,13 +189,30 @@ module {:extern "Dafny.Aws.Esdk.AwsEncryptionSdk"} AwsEncryptionSdk {
        //= compliance/client-apis/encrypt.txt#2.4.6
        //= type=implication
        //# This value
-       //# MUST be greater than 0 and MUST NOT exceed the value 2^32 - 1. 
+       //# MUST be greater than 0 and MUST NOT exceed the value 2^32 - 1.
         ensures
             && input.frameLength.Some?
             && (input.frameLength.value <= 0 || input.frameLength.value > 0xFFFF_FFFF)
         ==>
-            res.Failure?            
+            res.Failure?
+
+        //= compliance/client-apis/encrypt.txt#2.6.1
+        //= type=implication
+        //# If the number of
+        //# encrypted data keys (../framework/structures.md#encrypted-data-keys)
+        //# on the encryption materials (../framework/structures.md#encryption-
+        //# materials) is greater than the maximum number of encrypted data keys
+        //# (client.md#maximum-number-of-encrypted-data-keys) configured in the
+        //# client (client.md) encrypt MUST yield an error.
+        ensures
+            && this.maxEncryptedDataKeys.Some?
+            && ghostMaterials.Some?
+            && |ghostMaterials.value.encryptedDataKeys| > this.maxEncryptedDataKeys.value as int
+        ==>
+            res.Failure?
         {
+            ghostMaterials := None;
+
             var frameLength : FrameLength := EncryptDecryptHelpers.DEFAULT_FRAME_LENGTH;
             if input.frameLength.Some? {
               :- Need(
@@ -165,11 +220,6 @@ module {:extern "Dafny.Aws.Esdk.AwsEncryptionSdk"} AwsEncryptionSdk {
                 "FrameLength must be greater than 0 and less than 2^32"
               );
               frameLength := input.frameLength.value;
-            }
-
-            // TODO: Remove entirely once we can validate this value on client creation
-            if this.maxEncryptedDataKeys.Some? {
-                :- Need(this.maxEncryptedDataKeys.value > 0, "maxEncryptedDataKeys must be positive");
             }
 
             if input.encryptionContext.Some? {
@@ -200,14 +250,8 @@ module {:extern "Dafny.Aws.Esdk.AwsEncryptionSdk"} AwsEncryptionSdk {
                 //# known length, this length MUST be used.
                 |input.plaintext| as int64
             );
+            ghostMaterials := Some(materials);
 
-            //= compliance/client-apis/encrypt.txt#2.6.1
-            //# If the number of
-            //# encrypted data keys (../framework/structures.md#encrypted-data-keys)
-            //# on the encryption materials (../framework/structures.md#encryption-
-            //# materials) is greater than the maximum number of encrypted data keys
-            //# (client.md#maximum-number-of-encrypted-data-keys) configured in the
-            //# client (client.md) encrypt MUST yield an error.
             var _ :- ValidateMaxEncryptedDataKeys(materials.encryptedDataKeys);
 
             //= compliance/client-apis/encrypt.txt#2.6.1
@@ -329,7 +373,7 @@ module {:extern "Dafny.Aws.Esdk.AwsEncryptionSdk"} AwsEncryptionSdk {
                         encryptionContext := header.encryptionContext,
                         algorithmSuiteId := header.suite.id
                     )
-                );
+                ), ghostMaterials;
             } else {
                 //= compliance/client-apis/encrypt.txt#2.6
                 //# Otherwise the encrypt operation MUST
@@ -341,7 +385,7 @@ module {:extern "Dafny.Aws.Esdk.AwsEncryptionSdk"} AwsEncryptionSdk {
                         encryptionContext := header.encryptionContext,
                         algorithmSuiteId := header.suite.id
                     )
-                );
+                ), ghostMaterials;
             }
         }
 
@@ -721,6 +765,20 @@ module {:extern "Dafny.Aws.Esdk.AwsEncryptionSdk"} AwsEncryptionSdk {
         //# policy (client.md#commitment-policy) configured in the client
         //# (client.md) decrypt MUST yield an error.
 
+        //= compliance/client-apis/client.txt#2.4.2.1
+        //= type=implication
+        //# *  decrypt (decrypt.md) MUST support all algorithm suites
+        //
+        //= compliance/client-apis/client.txt#2.4.2.2
+        //= type=implication
+        //# *  decrypt (decrypt.md) MUST support all algorithm suites
+        //
+        //= compliance/client-apis/client.txt#2.4.2.3
+        //= type=implication
+        //# *  decrypt (decrypt.md) MUST only support algorithm suites that have
+        //# a Key Commitment (../framework/algorithm-suites.md#algorithm-
+        //# suites-encryption-key-derivation-settings) value of True
+
         //= compliance/client-apis/decrypt.txt#2.7.2
         //= type=implication
         //# If the
@@ -767,15 +825,10 @@ module {:extern "Dafny.Aws.Esdk.AwsEncryptionSdk"} AwsEncryptionSdk {
           || (input.materialsManager.Some? && input.keyring.Some?)
           || (input.materialsManager.None? && input.keyring.None?)
         )
-        ==>  
+        ==>
           res.Failure?
 
         {
-            // TODO: Remove entirely once we can validate this value on client creation
-            if this.maxEncryptedDataKeys.Some? {
-                :- Need(this.maxEncryptedDataKeys.value > 0, "maxEncryptedDataKeys must be positive");
-            }
-
             var cmm :- CreateCmmFromInput(input.materialsManager, input.keyring);
 
             //= compliance/client-apis/decrypt.txt#2.7.1
@@ -914,7 +967,7 @@ module {:extern "Dafny.Aws.Esdk.AwsEncryptionSdk"} AwsEncryptionSdk {
             //# Once the message header is successfully parsed, the next sequential
             //# bytes MUST be deserialized according to the message body spec
             //# (../data-format/message-body.md).
-            
+
             //= compliance/client-apis/decrypt.txt#2.7.4
             //# The content type (../data-format/message-header.md#content-type)
             //# field parsed from the message header above determines whether these
@@ -929,7 +982,7 @@ module {:extern "Dafny.Aws.Esdk.AwsEncryptionSdk"} AwsEncryptionSdk {
                     var decryptRes :- ReadAndDecryptNonFramedMessageBody(headerAuth.tail, header, key);
                     plaintext := decryptRes.0;
                     messageBodyTail := decryptRes.1;
-                    
+
                 case Framed =>
                     //= compliance/client-apis/decrypt.txt#2.7.4
                     //# If this decryption fails, this operation MUST immediately halt and
@@ -991,7 +1044,7 @@ module {:extern "Dafny.Aws.Esdk.AwsEncryptionSdk"} AwsEncryptionSdk {
 
             assert header == messageBody.data.finalFrame.header;
             assert |key| == messageBody.data.finalFrame.header.suite.encrypt.keyLength as int;
-            
+
             var plaintext :- MessageBody.DecryptFramedMessageBody(messageBody.data, key);
             var messageBodyTail := messageBody.tail;
 
@@ -1088,51 +1141,26 @@ module {:extern "Dafny.Aws.Esdk.AwsEncryptionSdk"} AwsEncryptionSdk {
         ==>
             res.Failure?
         {
-            // In this method, we're looping through all keys and failing if any violate the reserved prefix.
-            // Because we're using a loop, if we want to be able to prove things about what went on inside
-            // the loop, we need a loop invariant. So our approach will be to track two sets of keys,
-            // ones we have checked and ones we haven't checked; we can then set invariants on the loop
-            // proving that all keys we've checked satisfy the constraint.
+            var anyReservedPrefixUse := exists key: UTF8.ValidUTF8Bytes | key in input.Keys :: RESERVED_ENCRYPTION_CONTEXT <= key;
+            :- Need(!anyReservedPrefixUse, "Encryption context keys cannot contain reserved prefix 'aws-crypto-'");
 
-            ghost var checkedKeys: set<UTF8.ValidUTF8Bytes> := {};
-            var uncheckedKeys: set<UTF8.ValidUTF8Bytes> := input.Keys;
-
-            while uncheckedKeys != {}
-                // Prove we'll terminate
-                decreases |uncheckedKeys|
-                // Prove we don't miss any keys
-                invariant uncheckedKeys + checkedKeys == input.Keys
-                // Prove that all checked keys satisfy our constraint
-                invariant forall key | key in checkedKeys :: ! (RESERVED_ENCRYPTION_CONTEXT <= key)
-            {
-                var key :| key in uncheckedKeys;
-
-                if RESERVED_ENCRYPTION_CONTEXT <= key {
-                    return Failure("Encryption context keys cannot contain reserved prefix 'aws-crypto-'");
-                }
-
-                uncheckedKeys := uncheckedKeys - { key };
-                checkedKeys := checkedKeys + {key};
-            }
             return Success(());
         }
 
         method ValidateMaxEncryptedDataKeys(edks: SerializableTypes.ESDKEncryptedDataKeys)
             returns (res: Result<(), string>)
 
-        requires this.maxEncryptedDataKeys.Some? ==> this.maxEncryptedDataKeys.value > 0
-
         ensures this.maxEncryptedDataKeys.None? ==> res.Success?
 
         ensures
             && this.maxEncryptedDataKeys.Some?
-            && |edks| as int64 > this.maxEncryptedDataKeys.value
+            && |edks| > this.maxEncryptedDataKeys.value as int
         ==>
             res.Failure?
         {
             if
                 && this.maxEncryptedDataKeys.Some?
-                && |edks| as int64 > this.maxEncryptedDataKeys.value
+                && |edks| > this.maxEncryptedDataKeys.value as int
             {
                 return Failure("Encrypted data keys exceed maxEncryptedDataKeys");
             } else {

@@ -18,7 +18,7 @@ include "../../Materials.dfy"
 include "../../AlgorithmSuites.dfy"
 
 module
-  {:extern "Dafny.Aws.Crypto.MaterialProviders.AwsKmsMrkKeyring"}
+  {:extern "Dafny.Aws.EncryptionSdk.Core.AwsKmsMrkKeyring"}
   MaterialProviders.AwsKmsMrkKeyring
 {
   import opened StandardLibrary

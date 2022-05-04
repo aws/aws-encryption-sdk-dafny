@@ -6,7 +6,7 @@ include "../StandardLibrary/StandardLibrary.dfy"
 include "../Generated/KeyManagementService.dfy"
 include "./KeyManagementService.dfy"
 
-module {:extern "Dafny.Aws.Crypto"} Aws.Crypto {
+module {:extern "Dafny.Aws.EncryptionSdk.Core"} Aws.Crypto {
     import opened Wrappers
     import KMS = Com.Amazonaws.Kms
     import opened UInt = StandardLibrary.UInt
@@ -386,6 +386,20 @@ module {:extern "Dafny.Aws.Crypto"} Aws.Crypto {
     trait IAwsCryptographicMaterialProvidersException {
         function method GetMessage(): (message: string)
             reads this
+    }
+
+    class AwsCryptographicMaterialProvidersBaseException extends IAwsCryptographicMaterialProvidersException {
+        var message: string
+
+        constructor (message: string) {
+            this.message := message;
+        }
+
+        function method GetMessage(): (message: string)
+            reads this
+        {
+            this.message
+        }
     }
 
     class AwsCryptographicMaterialProvidersException extends IAwsCryptographicMaterialProvidersException {

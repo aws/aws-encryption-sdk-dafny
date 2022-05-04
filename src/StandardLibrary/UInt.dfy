@@ -11,6 +11,7 @@ module StandardLibrary.UInt {
 
   newtype int32 = x | -0x8000_0000 <= x < 0x8000_0000
   newtype int64 = x | -0x8000_0000_0000_0000 <= x < 0x8000_0000_0000_0000
+  newtype posInt64 = x | 0 < x < 0x8000_0000_0000_0000 witness 1
 
   const UINT16_LIMIT := 0x1_0000
   const UINT32_LIMIT := 0x1_0000_0000

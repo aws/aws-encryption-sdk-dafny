@@ -1,7 +1,8 @@
-namespace aws.crypto
+namespace aws.encryptionSdk.core
 
 use aws.polymorph#reference
 use aws.polymorph#positional
+use aws.polymorph#extendable
 
 use com.amazonaws.kms#KeyManagementService
 
@@ -35,6 +36,7 @@ structure KmsClientReference {}
 ///////////////////
 // Client Suppliers
 
+@extendable
 resource ClientSupplier {
     operations: [GetClient],
 }
