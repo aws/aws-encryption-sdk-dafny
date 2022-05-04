@@ -3,9 +3,13 @@
 
 using System;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.IO;
+using System.Linq;
 using System.Text;
 using Amazon;
+using Amazon.KeyManagementService;
+using AWS.EncryptionSDK;
 using AWS.EncryptionSDK.Core;
 using Org.BouncyCastle.Security;
 
@@ -21,6 +25,17 @@ namespace ExampleUtils {
         // The name of the environment variable storing the IAM Role Arn to use in examples
         private static string TEST_AWS_LIMITED_ROLE_ENV_VAR = "AWS_ENCRYPTION_SDK_EXAMPLE_LIMITED_ROLE_ARN_US_EAST_1";
         private static string TEST_AWS_LIMITED_ROLE_ENV_VAR_2 = "AWS_ENCRYPTION_SDK_EXAMPLE_LIMITED_ROLE_ARN_EU_WEST_1";
+
+        private const string ENCRYPTED_MESSAGE_PATH = "../../../resources/";
+
+        private static readonly ImmutableDictionary<string, string> ENCRYPTION_CONTEXT = new Dictionary<string, string>
+        {
+            {"encryption", "context"},
+            {"is not", "secret"},
+            {"but adds", "useful metadata"},
+            {"that can help you", "be confident that"},
+            {"the data you are handling", "is what you think it is"}
+        }.ToImmutableDictionary();
 
         static public MemoryStream GetPlaintextStream() {
             return new MemoryStream(Encoding.UTF8.GetBytes(
@@ -112,6 +127,52 @@ namespace ExampleUtils {
             var aesKeyring = materialProviders.CreateRawAesKeyring(createAesKeyringInput);
 
             return aesKeyring;
+        }
+
+        public static Dictionary<string, string> GetEncryptionContext()
+        {
+            return ENCRYPTION_CONTEXT.ToDictionary(p => p.Key, p => p.Value);
+        }
+
+        public static MemoryStream EncryptMessageWithKMSKey(MemoryStream plaintext, string kmsKeyArn)
+        {
+            var materialProviders =
+                AwsCryptographicMaterialProvidersFactory.CreateDefaultAwsCryptographicMaterialProviders();
+            var encryptionSdk = AwsEncryptionSdkFactory.CreateDefaultAwsEncryptionSdk();
+            var createKeyringInput = new CreateAwsKmsKeyringInput
+            {
+                KmsClient = new AmazonKeyManagementServiceClient(),
+                KmsKeyId = kmsKeyArn
+            };
+            var encryptKeyring = materialProviders.CreateAwsKmsKeyring(createKeyringInput);
+            var encryptInput = new EncryptInput
+            {
+                Plaintext = plaintext,
+                Keyring = encryptKeyring,
+                EncryptionContext = GetEncryptionContext()
+            };
+            var encryptOutput = encryptionSdk.Encrypt(encryptInput);
+            var ciphertext = encryptOutput.Ciphertext;
+            return ciphertext;
+        }
+
+        public static string GetResourcePath(string name)
+        {
+            return ENCRYPTED_MESSAGE_PATH + name;
+        }
+
+        public static void WriteMessage(MemoryStream message, string path)
+        {
+            using (var file = new FileStream(GetResourcePath(path), FileMode.OpenOrCreate, FileAccess.Write))
+                message.CopyTo(file);
+        }
+
+        public static MemoryStream ReadMessage(string path)
+        {
+            var rtn = new MemoryStream();
+            using (var file = new FileStream(GetResourcePath(path), FileMode.Open, FileAccess.Read))
+                file.CopyTo(rtn);
+            return rtn;
         }
     }
 }
