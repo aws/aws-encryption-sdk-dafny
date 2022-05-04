@@ -9,6 +9,7 @@ using AWS.EncryptionSDK;
 using AWS.EncryptionSDK.Core;
 using Xunit;
 using static ExampleUtils.ExampleUtils;
+using static ExampleUtils.WriteExampleResources;
 
 /// Demonstrates using a Custom Client Supplier.
 /// See <c>RegionalRoleClientSupplier.cs</c> for the details of implementing a
@@ -17,21 +18,23 @@ using static ExampleUtils.ExampleUtils;
 /// the AWS Multi Keyrings take Client Suppliers.
 public class ClientSupplierExample
 {
-    private static void Run(MemoryStream plaintext, string keyArn, List<string> accountIds, List<string> regions)
+    private const string FILE_NAME = "defaultRegionMrkKey.bin";
+
+    private static void Run(MemoryStream plaintext, List<string> accountIds, List<string> regions)
     {
         // Instantiate the Material Providers and the AWS Encryption SDK
         var materialProviders =
             AwsCryptographicMaterialProvidersFactory.CreateDefaultAwsCryptographicMaterialProviders();
         var encryptionSdk = AwsEncryptionSdkFactory.CreateDefaultAwsEncryptionSdk();
 
+        /* 1. Generate or load a ciphertext encrypted by the KMS Key. */
         // To focus on Client Suppliers, we will rely on a helper method
-        // to create the encrypted message (ciphertext).
-        Dictionary<string, string> encryptionContext;
-        MemoryStream ciphertext;
-        (encryptionContext, ciphertext) = EncryptMessageWithKMSKey(
-            plaintext, keyArn, materialProviders, encryptionSdk);
+        // to provide the encrypted message (ciphertext).
+        var ciphertext = ReadMessage(FILE_NAME);
+        var encryptionContext = GetEncryptionContext();
 
 
+        /* 2. Create a KMS Multi Keyring with the `RegionalRoleClientSupplier` */
         // Now create a Discovery keyring to use for decryption.
         // We are passing in our Custom Client Supplier.
         var createDecryptKeyringInput = new CreateAwsKmsMrkDiscoveryMultiKeyringInput
@@ -50,6 +53,7 @@ public class ClientSupplierExample
         // Each keyring has its own KMS Client, which is provisioned by the Custom Client Supplier.
         var multiKeyring = materialProviders.CreateAwsKmsMrkDiscoveryMultiKeyring(createDecryptKeyringInput);
 
+        /* 3. Decrypt the ciphertext with created KMS Multi Keyring */
         // On Decrypt, the header of the encrypted message (ciphertext) will be parsed.
         // The header contains the Encrypted Data Keys (EDKs), which, if the EDK
         // was encrypted by a KMS Keyring, includes the KMS Key arn.
@@ -65,9 +69,14 @@ public class ClientSupplierExample
             Keyring = multiKeyring
         };
         var decryptOutput = encryptionSdk.Decrypt(decryptInput);
+
+        /* 4. Verify the encryption context */
         VerifyEncryptionContext(decryptOutput, encryptionContext);
+
+        /* 5. Verify the decrypted plaintext is the same as the original */
         VerifyDecryptedIsPlaintext(decryptOutput, plaintext);
 
+        /* 6. Test the Missing Region Exception */
         // Demonstrate catching a custom exception.
         var createMultiFailed = false;
         createDecryptKeyringInput.Regions = new List<string>() {"fake-region"};
@@ -93,47 +102,6 @@ public class ClientSupplierExample
         {
             Assert.True(createMultiFailed);
         }
-    }
-
-
-    /// <summary>
-    ///     To focus on Client Suppliers, we rely on this helper method
-    ///     to create the encrypted message (ciphertext) with the given KMS Key.
-    /// </summary>
-    private static (Dictionary<string, string> encryptionContext, MemoryStream ciphertext) EncryptMessageWithKMSKey(
-        MemoryStream plaintext, string kmsKeyArn, IAwsCryptographicMaterialProviders materialProviders,
-        IAwsEncryptionSdk encryptionSdk)
-    {
-        // Create your encryption context.
-        // Remember that your encryption context is NOT SECRET.
-        // https://docs.aws.amazon.com/encryption-sdk/latest/developer-guide/concepts.html#encryption-context
-        var encryptionContext = new Dictionary<string, string>
-        {
-            {"encryption", "context"},
-            {"is not", "secret"},
-            {"but adds", "useful metadata"},
-            {"that can help you", "be confident that"},
-            {"the data you are handling", "is what you think it is"}
-        };
-
-        // Create the keyring that determines how your data keys are protected.
-        var createKeyringInput = new CreateAwsKmsMrkMultiKeyringInput()
-        {
-            Generator = kmsKeyArn,
-            ClientSupplier = new RegionalRoleClientSupplier()
-        };
-        var encryptKeyring = materialProviders.CreateAwsKmsMrkMultiKeyring(createKeyringInput);
-
-        // Encrypt your plaintext data.
-        var encryptInput = new EncryptInput
-        {
-            Plaintext = plaintext,
-            Keyring = encryptKeyring,
-            EncryptionContext = encryptionContext
-        };
-        var encryptOutput = encryptionSdk.Encrypt(encryptInput);
-        var ciphertext = encryptOutput.Ciphertext;
-        return (encryptionContext, ciphertext);
     }
 
     /// <summary>
@@ -164,7 +132,6 @@ public class ClientSupplierExample
     /// </summary>
     private static void VerifyDecryptedIsPlaintext(DecryptOutput decryptOutput, MemoryStream plaintext)
     {
-        // Demonstrate that the decrypted plaintext is identical to the original plaintext.
         var decrypted = decryptOutput.Plaintext;
         Assert.Equal(decrypted.ToArray(), plaintext.ToArray());
     }
@@ -173,9 +140,12 @@ public class ClientSupplierExample
     [Fact]
     public void TestClientSupplierExample()
     {
+        if (!File.Exists(GetResourcePath(FILE_NAME)))
+        {
+            EncryptAndWrite(GetPlaintextStream(), GetDefaultRegionMrkKeyArn(), FILE_NAME);
+        }
         Run(
             GetPlaintextStream(),
-            GetDefaultRegionMrkKeyArn(),
             GetAccountIds(),
             GetRegionIAMRoleMap().Keys.ToList()
         );
