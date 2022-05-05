@@ -513,8 +513,8 @@ import opened UTF8
 	ensures CreateKeyCalledWith (  input )
 	ensures output.Success? ==> CreateKeySucceededWith (  input , output.value )
 
- predicate {:opaque} DecryptCalledWith ( input: DecryptRequest ) {true}
- predicate {:opaque} DecryptSucceededWith (  input: DecryptRequest , output: DecryptResponse ) {true}
+ predicate DecryptCalledWith ( input: DecryptRequest )
+ predicate DecryptSucceededWith (  input: DecryptRequest , output: DecryptResponse )
  method Decrypt ( input: DecryptRequest ) returns  ( output: Result<DecryptResponse, KeyManagementServiceError> )
 	ensures DecryptCalledWith (  input )
 	ensures output.Success? ==> DecryptSucceededWith (  input , output.value )
