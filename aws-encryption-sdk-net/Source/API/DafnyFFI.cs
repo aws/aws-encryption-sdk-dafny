@@ -77,7 +77,7 @@ public class DafnyFFI {
         return Result<T, icharseq>.create_Failure(DafnyStringFromString(msg));
     }
     
-    public static Outcome<icharseq> CreateFail(string msg)
+    public static _IOutcome<icharseq> CreateFail(string msg)
     {
         return Outcome<icharseq>.create_Fail(DafnyStringFromString(msg));
     }
