@@ -32,7 +32,7 @@ and the date at which that transition will happen.
     * - 1.x
       - Generally Available 
       -
-        * C#
+        * .NET
       -
       -
 
