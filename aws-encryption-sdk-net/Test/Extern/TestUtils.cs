@@ -8,7 +8,7 @@ using ibyteseq = Dafny.ISequence<byte>;
 namespace TestUtils {
   public partial class __default {
 
-    public static Outcome<icharseq> WriteFile(icharseq path, ibyteseq contents) {
+    public static _IOutcome<icharseq> WriteFile(icharseq path, ibyteseq contents) {
       try {
         var pathString = DafnyFFI.StringFromDafnyString(path);
         var bytes = DafnyFFI.ByteArrayFromSequence(contents);
@@ -19,7 +19,7 @@ namespace TestUtils {
       }
     }
     
-    public static Result<ibyteseq, icharseq> ReadFile(icharseq path) {
+    public static _IResult<ibyteseq, icharseq> ReadFile(icharseq path) {
       try {
         var pathString = DafnyFFI.StringFromDafnyString(path);
         var bytes = File.ReadAllBytes(pathString);
