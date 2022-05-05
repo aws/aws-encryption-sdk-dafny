@@ -51,8 +51,8 @@ module TestCommitmentPolicies {
     {
       var id :| id in encryptAlgSuitesToCheck;
       var suite := AlgorithmSuites.GetSuite(id);
-      var res := TryEncrypt(client, keyring, Some(id));
-      expect suite.commitment.None? <==> res.Success?;
+      var encryptRes := TryEncrypt(client, keyring, Some(id));
+      expect suite.commitment.None? <==> encryptRes.Success?;
       encryptAlgSuitesToCheck := encryptAlgSuitesToCheck - {id};
     }
 
@@ -64,10 +64,11 @@ module TestCommitmentPolicies {
       decreases |decryptAlgSuitesToCheck|
     {
       var id :| id in decryptAlgSuitesToCheck;
-      var res := TryDecrypt(client, keyring, id);
-      expect res.Success?;
+      var decryptRes := TryDecrypt(client, keyring, id);
+      expect decryptRes.Success?;
       decryptAlgSuitesToCheck := decryptAlgSuitesToCheck - {id};
     }
+    res := Result.Success(());
   }
 
   method {:test} RequireEncryptAllowDecrypt()
@@ -96,8 +97,8 @@ module TestCommitmentPolicies {
     {
       var id :| id in encryptAlgSuitesToCheck;
       var suite := AlgorithmSuites.GetSuite(id);
-      var res := TryEncrypt(client, keyring, Some(id));
-      expect !suite.commitment.None? <==> res.Success?;
+      var encryptRes := TryEncrypt(client, keyring, Some(id));
+      expect !suite.commitment.None? <==> encryptRes.Success?;
       encryptAlgSuitesToCheck := encryptAlgSuitesToCheck - {id};
     }
 
@@ -109,10 +110,11 @@ module TestCommitmentPolicies {
       decreases |decryptAlgSuitesToCheck|
     {
       var id :| id in decryptAlgSuitesToCheck;
-      var res := TryDecrypt(client, keyring, id);
-      expect res.Success?;
+      var decryptRes := TryDecrypt(client, keyring, id);
+      expect decryptRes.Success?;
       decryptAlgSuitesToCheck := decryptAlgSuitesToCheck - {id};
     }
+    res := Result.Success(());
   }
 
   method {:test} RequireEncryptRequireDecrypt()
@@ -141,8 +143,8 @@ module TestCommitmentPolicies {
     {
       var id :| id in encryptAlgSuitesToCheck;
       var suite := AlgorithmSuites.GetSuite(id);
-      var res := TryEncrypt(client, keyring, Some(id));
-      expect !suite.commitment.None? <==> res.Success?;
+      var encryptRes := TryEncrypt(client, keyring, Some(id));
+      expect !suite.commitment.None? <==> encryptRes.Success?;
       encryptAlgSuitesToCheck := encryptAlgSuitesToCheck - {id};
     }
 
@@ -157,10 +159,11 @@ module TestCommitmentPolicies {
     {
       var id :| id in decryptAlgSuitesToCheck;
       var suite := AlgorithmSuites.GetSuite(id);
-      var res := TryDecrypt(client, keyring, id);
-      expect !suite.commitment.None? <==> res.Success?;
+      var decryptRes := TryDecrypt(client, keyring, id);
+      expect !suite.commitment.None? <==> decryptRes.Success?;
       decryptAlgSuitesToCheck := decryptAlgSuitesToCheck - {id};
     }
+    res := Result.Success(());
   }
 
   method SetupEsdkClient(commitmentPolicy: Option<Crypto.CommitmentPolicy>)
