@@ -12,7 +12,7 @@ phases:
       # Get .NET SDK 6.0 (for build tools only; projects specify their own toolchains)
       - Invoke-WebRequest https://dot.net/v1/dotnet-install.ps1 -UseBasicParsing -OutFile dotnet-install.ps1
       - ./dotnet-install.ps1 -Channel 6.0
-      - $env:PathPrefix += "C:\Users\ContainerAdministrator\AppData\Local\Microsoft\dotnet;"
+      - $PathPrefix += "C:\Users\ContainerAdministrator\AppData\Local\Microsoft\dotnet;"
       # Try preventing intermittent cert issue.
       # See <https://github.com/NuGet/Home/issues/11099> and
       # <https://github.com/NuGet/NuGet.Client/pull/4259#issue-7318389620>
@@ -21,23 +21,23 @@ phases:
       # Get Dafny
       - Invoke-WebRequest https://github.com/dafny-lang/dafny/releases/download/v3.5.0/dafny-3.5.0-x64-win.zip -UseBasicParsing -OutFile dafny.zip
       - Expand-Archive -Path dafny.zip -DestinationPath .
-      - $env:PathPrefix += (pwd).path + "\dafny;"
-      - echo $env:PathPrefix
+      - $PathPrefix += (pwd).path + "\dafny;"
+      - echo $PathPrefix
       # We can't modify $env:Path across items in this "commands" list,
       # so we set it within a single item using semicolon-separated commands
       - >-
-        echo $env:PathPrefix;
+        echo $PathPrefix;
         echo $env:Path;
-        $env:Path = $env:PathPrefix + $env:Path;
+        $env:Path = $PathPrefix + $env:Path;
         echo $env:Path;
         Dafny.exe /version
   build:
     commands:
       - cd aws-encryption-sdk-net/Benchmarks
       - >-
-        echo $env:PathPrefix;
+        echo $PathPrefix;
         echo $env:Path;
-        $env:Path = $env:PathPrefix + $env:Path;
+        $env:Path = $PathPrefix + $env:Path;
         echo $env:Path;
         dotnet run -c Release -f netcoreapp3.1 /nowarn:CS0105,CS0618 -- -f '*' --join 6>&1 5>&1 4>&1 > $null
 
