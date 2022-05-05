@@ -6,19 +6,24 @@ phases:
       # Get .NET SDK 6.0 (for build tools only; projects specify their own toolchains)
       - Invoke-WebRequest https://dot.net/v1/dotnet-install.ps1 -UseBasicParsing -OutFile dotnet-install.ps1
       - ./dotnet-install.ps1 -Channel 6.0
+      - $PathPrefix += "C:\Users\ContainerAdministrator\AppData\Local\Microsoft\dotnet;"
       # Try preventing intermittent cert issue.
       # See <https://github.com/NuGet/Home/issues/11099> and
       # <https://github.com/NuGet/NuGet.Client/pull/4259#issue-7318389620>
       - set NUGET_EXPERIMENTAL_CHAIN_BUILD_RETRY_POLICY=3,1000
+
       # Get Dafny
       - Invoke-WebRequest https://github.com/dafny-lang/dafny/releases/download/v3.5.0/dafny-3.5.0-x64-win.zip -UseBasicParsing -OutFile dafny.zip
       - Expand-Archive -Path dafny.zip -DestinationPath .
-      # We can't just add this to $env:Path because CodeBuild makes env vars read-only for some reason.
-      # Assignment to $env:Path just silently fails.
-      # So instead we copy the Dafny binary and DLLs to a known directory.
-      - Copy-Item ".\dafny\*" -Destination "C:\codebuild\user\bin" -Recurse
-      - Dafny.exe /version
+      - $PathPrefix += (pwd).path + "\dafny;"
+      # We can't modify $env:Path across items in this "commands" list,
+      # so we set it within a single item using semicolon-separated commands
+      - >-
+        $env:Path = $PathPrefix + $env:Path;
+        Dafny.exe /version
   build:
     commands:
-      - cd aws-encryption-sdk-net-formally-verified/Test
-      - C:\Users\ContainerAdministrator\AppData\Local\Microsoft\dotnet\dotnet test /nowarn:CS0105,CS0618
+      - cd aws-encryption-sdk-net/Test
+      - >-
+        $env:Path = $PathPrefix + $env:Path;
+        dotnet test /nowarn:CS0105,CS0618
