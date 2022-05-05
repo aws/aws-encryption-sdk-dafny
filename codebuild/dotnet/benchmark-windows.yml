@@ -22,16 +22,23 @@ phases:
       - Invoke-WebRequest https://github.com/dafny-lang/dafny/releases/download/v3.5.0/dafny-3.5.0-x64-win.zip -UseBasicParsing -OutFile dafny.zip
       - Expand-Archive -Path dafny.zip -DestinationPath .
       - $env:PathPrefix += (pwd).path + "\dafny;"
+      - echo $env:PathPrefix
       # We can't modify $env:Path across items in this "commands" list,
       # so we set it within a single item using semicolon-separated commands
       - >-
+        echo $env:PathPrefix;
+        echo $env:Path;
         $env:Path = $env:PathPrefix + $env:Path;
+        echo $env:Path;
         Dafny.exe /version
   build:
     commands:
       - cd aws-encryption-sdk-net/Benchmarks
       - >-
+        echo $env:PathPrefix;
+        echo $env:Path;
         $env:Path = $env:PathPrefix + $env:Path;
+        echo $env:Path;
         dotnet run -c Release -f netcoreapp3.1 /nowarn:CS0105,CS0618 -- -f '*' --join 6>&1 5>&1 4>&1 > $null
 
 artifacts:
