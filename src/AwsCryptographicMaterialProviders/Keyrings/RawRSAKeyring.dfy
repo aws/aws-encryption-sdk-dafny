@@ -362,6 +362,7 @@ module
       ==>
         true
     {
+      && UTF8.ValidUTF8Seq(edk.keyProviderInfo)
       && edk.keyProviderInfo == this.keyName
       && edk.keyProviderId == this.keyNamespace
       && |edk.ciphertext| > 0

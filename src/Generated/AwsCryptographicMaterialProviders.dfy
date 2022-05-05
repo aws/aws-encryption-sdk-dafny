@@ -388,6 +388,20 @@ module {:extern "Dafny.Aws.EncryptionSdk.Core"} Aws.Crypto {
             reads this
     }
 
+    class AwsCryptographicMaterialProvidersBaseException extends IAwsCryptographicMaterialProvidersException {
+        var message: string
+
+        constructor (message: string) {
+            this.message := message;
+        }
+
+        function method GetMessage(): (message: string)
+            reads this
+        {
+            this.message
+        }
+    }
+
     class AwsCryptographicMaterialProvidersException extends IAwsCryptographicMaterialProvidersException {
         var message: string
 

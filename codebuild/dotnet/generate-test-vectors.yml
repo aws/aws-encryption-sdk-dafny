@@ -20,7 +20,7 @@ phases:
   build:
     commands:
       # Generate decryption test vectors
-      - cd $CODEBUILD_SRC_DIR/aws-encryption-sdk-net-formally-verified/TestVectorGenerator
+      - cd $CODEBUILD_SRC_DIR/aws-encryption-sdk-net/TestVectorGenerator
       - export VECTORS_DIR="$CODEBUILD_SRC_DIR/generated_vectors"
       - mkdir $VECTORS_DIR
       - dotnet run -- --encrypt-manifest resources/0006-awses-message-decryption-generation.v2.json --output-dir $VECTORS_DIR --quiet
