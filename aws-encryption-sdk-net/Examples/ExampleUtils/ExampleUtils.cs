@@ -8,7 +8,6 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using Amazon;
-using Amazon.KeyManagementService;
 using AWS.EncryptionSDK;
 using AWS.EncryptionSDK.Core;
 using Org.BouncyCastle.Security;
@@ -139,12 +138,11 @@ namespace ExampleUtils {
             var materialProviders =
                 AwsCryptographicMaterialProvidersFactory.CreateDefaultAwsCryptographicMaterialProviders();
             var encryptionSdk = AwsEncryptionSdkFactory.CreateDefaultAwsEncryptionSdk();
-            var createKeyringInput = new CreateAwsKmsKeyringInput
+            var createKeyringInput = new CreateAwsKmsMrkMultiKeyringInput()
             {
-                KmsClient = new AmazonKeyManagementServiceClient(),
-                KmsKeyId = kmsKeyArn
+                Generator = kmsKeyArn
             };
-            var encryptKeyring = materialProviders.CreateAwsKmsKeyring(createKeyringInput);
+            var encryptKeyring = materialProviders.CreateAwsKmsMrkMultiKeyring(createKeyringInput);
             var encryptInput = new EncryptInput
             {
                 Plaintext = plaintext,
