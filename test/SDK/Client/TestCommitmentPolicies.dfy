@@ -67,7 +67,6 @@ module TestCommitmentPolicies {
       expect decryptRes.Success?;
       decryptAlgSuitesToCheck := decryptAlgSuitesToCheck - {id};
     }
-    res := Result.Success(());
   }
 
   method {:test} RequireEncryptAllowDecrypt()
@@ -112,7 +111,6 @@ module TestCommitmentPolicies {
       expect decryptRes.Success?;
       decryptAlgSuitesToCheck := decryptAlgSuitesToCheck - {id};
     }
-    res := Result.Success(());
   }
 
   method {:test} RequireEncryptRequireDecrypt()
@@ -160,7 +158,6 @@ module TestCommitmentPolicies {
       expect !suite.commitment.None? <==> decryptRes.Success?;
       decryptAlgSuitesToCheck := decryptAlgSuitesToCheck - {id};
     }
-    res := Result.Success(());
   }
 
   method SetupEsdkClient(commitmentPolicy: Option<Crypto.CommitmentPolicy>)
