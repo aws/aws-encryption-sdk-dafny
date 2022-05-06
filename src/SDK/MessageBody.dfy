@@ -35,6 +35,7 @@ module MessageBody {
   import Header
   import opened SerializeFunctions
   import Seq
+  import StandardLibrary
 
   datatype BodyAADContent = AADRegularFrame | AADFinalFrame | AADSingleBlock
 
@@ -515,8 +516,7 @@ module MessageBody {
       plaintextSeg := plaintextSeg + [plaintextSegment];
       decryptedFrames := decryptedFrames + [body.regularFrames[i]];
 
-      assert decryptedFrames[..i] == body.regularFrames[..i];
-      assert decryptedFrames[..i] + [body.regularFrames[i]] == body.regularFrames[..i + 1];
+      StandardLibrary.SeqTakeAppend(body.regularFrames, i);
     }
     var finalPlaintextSegment :- DecryptFrame(body.finalFrame, key);
     plaintext := plaintext + finalPlaintextSegment;
