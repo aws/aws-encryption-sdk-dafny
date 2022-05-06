@@ -26,12 +26,11 @@ module TestCommitmentPolicies {
   import opened Wrappers
 
   method {:test} ForbidEncryptAllowDecrypt()
-    returns (res: Result<(), string>)
   {
     // When the commitment policy "FORBID_ENCRYPT_ALLOW_DECRYPT" is configured:
-    var client :- SetupEsdkClient(Some(Crypto.FORBID_ENCRYPT_ALLOW_DECRYPT));
+    var client :- expect SetupEsdkClient(Some(Crypto.FORBID_ENCRYPT_ALLOW_DECRYPT));
 
-    var keyring :- SetupTestKeyring();
+    var keyring :- expect SetupTestKeyring();
 
     //= compliance/client-apis/client.txt#2.4.2.1
     //= type=test
@@ -51,8 +50,8 @@ module TestCommitmentPolicies {
     {
       var id :| id in encryptAlgSuitesToCheck;
       var suite := AlgorithmSuites.GetSuite(id);
-      var res := TryEncrypt(client, keyring, Some(id));
-      expect suite.commitment.None? <==> res.Success?;
+      var encryptRes := TryEncrypt(client, keyring, Some(id));
+      expect suite.commitment.None? <==> encryptRes.Success?;
       encryptAlgSuitesToCheck := encryptAlgSuitesToCheck - {id};
     }
 
@@ -64,19 +63,18 @@ module TestCommitmentPolicies {
       decreases |decryptAlgSuitesToCheck|
     {
       var id :| id in decryptAlgSuitesToCheck;
-      var res := TryDecrypt(client, keyring, id);
-      expect res.Success?;
+      var decryptRes := TryDecrypt(client, keyring, id);
+      expect decryptRes.Success?;
       decryptAlgSuitesToCheck := decryptAlgSuitesToCheck - {id};
     }
   }
 
   method {:test} RequireEncryptAllowDecrypt()
-    returns (res: Result<(), string>)
   {
     // When the commitment policy "REQUIRE_ENCRYPT_ALLOW_DECRYPT" is configured:
-    var client :- SetupEsdkClient(Some(Crypto.REQUIRE_ENCRYPT_ALLOW_DECRYPT));
+    var client :- expect SetupEsdkClient(Some(Crypto.REQUIRE_ENCRYPT_ALLOW_DECRYPT));
 
-    var keyring :- SetupTestKeyring();
+    var keyring :- expect SetupTestKeyring();
 
     //= compliance/client-apis/client.txt#2.4.2.2
     //= type=test
@@ -96,8 +94,8 @@ module TestCommitmentPolicies {
     {
       var id :| id in encryptAlgSuitesToCheck;
       var suite := AlgorithmSuites.GetSuite(id);
-      var res := TryEncrypt(client, keyring, Some(id));
-      expect !suite.commitment.None? <==> res.Success?;
+      var encryptRes := TryEncrypt(client, keyring, Some(id));
+      expect !suite.commitment.None? <==> encryptRes.Success?;
       encryptAlgSuitesToCheck := encryptAlgSuitesToCheck - {id};
     }
 
@@ -109,19 +107,18 @@ module TestCommitmentPolicies {
       decreases |decryptAlgSuitesToCheck|
     {
       var id :| id in decryptAlgSuitesToCheck;
-      var res := TryDecrypt(client, keyring, id);
-      expect res.Success?;
+      var decryptRes := TryDecrypt(client, keyring, id);
+      expect decryptRes.Success?;
       decryptAlgSuitesToCheck := decryptAlgSuitesToCheck - {id};
     }
   }
 
   method {:test} RequireEncryptRequireDecrypt()
-    returns (res: Result<(), string>)
   {
     // When the commitment policy "REQUIRE_ENCRYPT_REQUIRE_DECRYPT" is configured:
-    var client :- SetupEsdkClient(Some(Crypto.REQUIRE_ENCRYPT_REQUIRE_DECRYPT));
+    var client :- expect SetupEsdkClient(Some(Crypto.REQUIRE_ENCRYPT_REQUIRE_DECRYPT));
 
-    var keyring :- SetupTestKeyring();
+    var keyring :- expect SetupTestKeyring();
 
     //= compliance/client-apis/client.txt#2.4.2.3
     //= type=test
@@ -141,8 +138,8 @@ module TestCommitmentPolicies {
     {
       var id :| id in encryptAlgSuitesToCheck;
       var suite := AlgorithmSuites.GetSuite(id);
-      var res := TryEncrypt(client, keyring, Some(id));
-      expect !suite.commitment.None? <==> res.Success?;
+      var encryptRes := TryEncrypt(client, keyring, Some(id));
+      expect !suite.commitment.None? <==> encryptRes.Success?;
       encryptAlgSuitesToCheck := encryptAlgSuitesToCheck - {id};
     }
 
@@ -157,8 +154,8 @@ module TestCommitmentPolicies {
     {
       var id :| id in decryptAlgSuitesToCheck;
       var suite := AlgorithmSuites.GetSuite(id);
-      var res := TryDecrypt(client, keyring, id);
-      expect !suite.commitment.None? <==> res.Success?;
+      var decryptRes := TryDecrypt(client, keyring, id);
+      expect !suite.commitment.None? <==> decryptRes.Success?;
       decryptAlgSuitesToCheck := decryptAlgSuitesToCheck - {id};
     }
   }
