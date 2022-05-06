@@ -35,7 +35,7 @@ public class SigningOnlyExample
         // Create a keyring via a helper method.
         var keyring = GetRawAESKeyring(materialProviders);
 
-        // Create a DefaultCryptographicMaterialsManager
+        // Create an instance of the custom CMM
         var cmm = new SigningSuiteOnlyCMM(keyring, materialProviders);
 
         // Encrypt your plaintext data.
@@ -81,12 +81,9 @@ public class SigningOnlyExample
         {
             encryptionSdk.Encrypt(encryptInput);
         }
-        // Even though we defined a custom exception,
-        // NonSigningSuiteException,
-        // The Encryption SDK casts the custom exception
-        // to an AwsEncryptionSdkBaseException.
-        // This a consequence of authoring the Encryption SDK in Dafny.
-        // However, the exception message is as expected.
+        // The Encryption SDK converts the custom exception
+        // to an AwsEncryptionSdkBaseException, while retaining
+        // the exception message.
         catch (AwsEncryptionSdkBaseException baseException)
         {
             Assert.Equal("Algorithm Suite must use Signing", baseException.Message);
