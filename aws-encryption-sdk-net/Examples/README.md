@@ -42,7 +42,7 @@ We start with AWS KMS examples, then show how to use other wrapping keys.
 * Combining wrapping keys
     * [How to combine AWS KMS with an offline escrow key](./Keyring/MultiKeyringExample.cs)
 * How to restrict algorithm suites
-    * [with a custom cryptographic materials manager](./) *TODO*
+    * [with a custom cryptographic materials manager](./CryptographicMaterialsManager/RestrictAlgorithmSuite/SigningSuiteOnlyCMM.cs)
 
 ### Keyrings
 
@@ -62,7 +62,7 @@ enforcing the use of certain algorithm suites or encryption context settings,
 reusing data keys across messages,
 or changing how you interact with keyrings.
 You can find these examples in
-[`Examples/CryptoMaterialsManager`](./CryptoMaterialsManager).
+[`Examples/CryptographicMaterialsManager`](./CryptographicMaterialsManager).
 
 ### Client Supplier
 
