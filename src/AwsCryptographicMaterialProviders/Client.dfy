@@ -921,6 +921,7 @@ module
       AwsKmsArnParsing.ParseAwsKmsIdentifier(keyId));
     :- Crypto.Need(UTF8.IsASCIIString(keyId), "Key identifier is not ASCII");
     :- Crypto.Need(0 < |keyId| <= AwsKmsArnParsing.MAX_AWS_KMS_IDENTIFIER_LENGTH, "Key identifier is too long");
+    res := Success(());
   }
 
   method GetValidGrantTokens(grantTokens: Option<Crypto.GrantTokenList>)
