@@ -7,7 +7,7 @@ Updates may also address changes with dependencies, language runtimes, and opera
 
 We recommend users to stay up-to-date with Encryption SDK releases to keep up with the latest features,
 security updates, and underlying dependencies.
-Continued use of an unsupported SDK version is not recommended and is done at the user’s discretion
+Continued use of an unsupported SDK version is not recommended and is done at the user’s discretion.
 
 Major Version Lifecycle
 ========================
