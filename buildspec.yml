@@ -5,6 +5,13 @@ batch:
   build-list:
     - identifier: dafny_verify
       buildspec: codebuild/dafny/verify.yml
+      # The GitHub Actions verification job on Mac OS is the definitive build task,
+      # and Dafny does not behave consistently across platforms, so this one
+      # sometimes fails spuriously.
+      # See https://github.com/dafny-lang/dafny/issues/1807
+      # It is useful to gather data on when these inconsistencies occur,
+      # so we still run this task but ignore failures.
+      ignore-failure: true
     - identifier: dotnet_tests
       buildspec: codebuild/dotnet/tests.yml
     # These currently fail on .NET Framework 4.5
