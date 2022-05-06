@@ -26,12 +26,11 @@ module TestCommitmentPolicies {
   import opened Wrappers
 
   method {:test} ForbidEncryptAllowDecrypt()
-    returns (res: Result<(), string>)
   {
     // When the commitment policy "FORBID_ENCRYPT_ALLOW_DECRYPT" is configured:
-    var client :- SetupEsdkClient(Some(Crypto.FORBID_ENCRYPT_ALLOW_DECRYPT));
+    var client :- expect SetupEsdkClient(Some(Crypto.FORBID_ENCRYPT_ALLOW_DECRYPT));
 
-    var keyring :- SetupTestKeyring();
+    var keyring :- expect SetupTestKeyring();
 
     //= compliance/client-apis/client.txt#2.4.2.1
     //= type=test
@@ -71,12 +70,11 @@ module TestCommitmentPolicies {
   }
 
   method {:test} RequireEncryptAllowDecrypt()
-    returns (res: Result<(), string>)
   {
     // When the commitment policy "REQUIRE_ENCRYPT_ALLOW_DECRYPT" is configured:
-    var client :- SetupEsdkClient(Some(Crypto.REQUIRE_ENCRYPT_ALLOW_DECRYPT));
+    var client :- expect SetupEsdkClient(Some(Crypto.REQUIRE_ENCRYPT_ALLOW_DECRYPT));
 
-    var keyring :- SetupTestKeyring();
+    var keyring :- expect SetupTestKeyring();
 
     //= compliance/client-apis/client.txt#2.4.2.2
     //= type=test
@@ -116,12 +114,11 @@ module TestCommitmentPolicies {
   }
 
   method {:test} RequireEncryptRequireDecrypt()
-    returns (res: Result<(), string>)
   {
     // When the commitment policy "REQUIRE_ENCRYPT_REQUIRE_DECRYPT" is configured:
-    var client :- SetupEsdkClient(Some(Crypto.REQUIRE_ENCRYPT_REQUIRE_DECRYPT));
+    var client :- expect SetupEsdkClient(Some(Crypto.REQUIRE_ENCRYPT_REQUIRE_DECRYPT));
 
-    var keyring :- SetupTestKeyring();
+    var keyring :- expect SetupTestKeyring();
 
     //= compliance/client-apis/client.txt#2.4.2.3
     //= type=test

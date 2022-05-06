@@ -53,6 +53,9 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="../Source/**/*.cs" Exclude="../Source/obj/**/*.cs" />
+    <Content Include="../../test/hkdf/HKDFTest7OKM" LinkBase="hkdf">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="AWSSDK.Core" Version="3.7.9" />
