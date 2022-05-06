@@ -59,7 +59,6 @@ public class SigningSuiteOnlyCMM : CryptographicMaterialsManagerBase
 }
 
 // Custom Exceptions SHOULD extend from the Library's Base Exception.
-// This is a quirk of using Dafny to generate the Encryption SDK.
 // The Encryption SDK will handle dotnet's System.Exception,
 // but the exception message will be altered.
 // By extending from the Library's Base Exception,
