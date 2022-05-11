@@ -14,9 +14,6 @@ batch:
       ignore-failure: true
     - identifier: dotnet_tests
       buildspec: codebuild/dotnet/tests.yml
-    # These currently fail on .NET Framework 4.5
-    # - identifier: dotnet_examples
-    #  buildspec: codebuild/dotnet/examples.yml
     - identifier: dotnet_vectors
       buildspec: codebuild/dotnet/test-vectors.yml
     - identifier: dotnet_generate_vectors
