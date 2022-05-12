@@ -1,5 +1,6 @@
 // Copyright Amazon.com Inc. or its affiliates. All Rights Reserved.
 // SPDX-License-Identifier: Apache-2.0
+// Do not modify this file. This file is machine generated, and any changes to it will be overwritten.
 include "../StandardLibrary/StandardLibrary.dfy"
 include "../Util/UTF8.dfy"
  module {:extern "Dafny.Com.Amazonaws.Kms"} Com.Amazonaws.Kms {
@@ -21,12 +22,20 @@ import opened UTF8
  predicate method IsValid_AliasNameType(x: string) {
  ( 1 <= |x| <= 256 )
 }
- datatype AlreadyExistsException = AlreadyExistsException (
-	nameonly message: Option<ErrorMessageType> ) {
- 	function method CastToString(): string {
-		if message.Some? then "AlreadyExistsException: " + message.value else "AlreadyExistsException"
-	}
- }
+ class AlreadyExistsException extends IKeyManagementServiceException {
+    var message: string
+
+    constructor (message: string) {
+        this.message := message;
+    }
+
+    function method GetMessage(): (message: string)
+        reads this
+    {
+        this.message
+    }
+}
+
  type ArnType = x: string | IsValid_ArnType(x) witness *
  predicate method IsValid_ArnType(x: string) {
  ( 20 <= |x| <= 2048 )
@@ -45,36 +54,76 @@ import opened UTF8
  predicate method IsValid_CloudHsmClusterIdType(x: string) {
  ( 19 <= |x| <= 24 )
 }
- datatype CloudHsmClusterInUseException = CloudHsmClusterInUseException (
-	nameonly message: Option<ErrorMessageType> ) {
- 	function method CastToString(): string {
-		if message.Some? then "CloudHsmClusterInUseException: " + message.value else "CloudHsmClusterInUseException"
-	}
- }
- datatype CloudHsmClusterInvalidConfigurationException = CloudHsmClusterInvalidConfigurationException (
-	nameonly message: Option<ErrorMessageType> ) {
- 	function method CastToString(): string {
-		if message.Some? then "CloudHsmClusterInvalidConfigurationException: " + message.value else "CloudHsmClusterInvalidConfigurationException"
-	}
- }
- datatype CloudHsmClusterNotActiveException = CloudHsmClusterNotActiveException (
-	nameonly message: Option<ErrorMessageType> ) {
- 	function method CastToString(): string {
-		if message.Some? then "CloudHsmClusterNotActiveException: " + message.value else "CloudHsmClusterNotActiveException"
-	}
- }
- datatype CloudHsmClusterNotFoundException = CloudHsmClusterNotFoundException (
-	nameonly message: Option<ErrorMessageType> ) {
- 	function method CastToString(): string {
-		if message.Some? then "CloudHsmClusterNotFoundException: " + message.value else "CloudHsmClusterNotFoundException"
-	}
- }
- datatype CloudHsmClusterNotRelatedException = CloudHsmClusterNotRelatedException (
-	nameonly message: Option<ErrorMessageType> ) {
- 	function method CastToString(): string {
-		if message.Some? then "CloudHsmClusterNotRelatedException: " + message.value else "CloudHsmClusterNotRelatedException"
-	}
- }
+ class CloudHsmClusterInUseException extends IKeyManagementServiceException {
+    var message: string
+
+    constructor (message: string) {
+        this.message := message;
+    }
+
+    function method GetMessage(): (message: string)
+        reads this
+    {
+        this.message
+    }
+}
+
+ class CloudHsmClusterInvalidConfigurationException extends IKeyManagementServiceException {
+    var message: string
+
+    constructor (message: string) {
+        this.message := message;
+    }
+
+    function method GetMessage(): (message: string)
+        reads this
+    {
+        this.message
+    }
+}
+
+ class CloudHsmClusterNotActiveException extends IKeyManagementServiceException {
+    var message: string
+
+    constructor (message: string) {
+        this.message := message;
+    }
+
+    function method GetMessage(): (message: string)
+        reads this
+    {
+        this.message
+    }
+}
+
+ class CloudHsmClusterNotFoundException extends IKeyManagementServiceException {
+    var message: string
+
+    constructor (message: string) {
+        this.message := message;
+    }
+
+    function method GetMessage(): (message: string)
+        reads this
+    {
+        this.message
+    }
+}
+
+ class CloudHsmClusterNotRelatedException extends IKeyManagementServiceException {
+    var message: string
+
+    constructor (message: string) {
+        this.message := message;
+    }
+
+    function method GetMessage(): (message: string)
+        reads this
+    {
+        this.message
+    }
+}
+
  datatype ConnectCustomKeyStoreRequest = ConnectCustomKeyStoreRequest (
 	nameonly CustomKeyStoreId: CustomKeyStoreIdType )
  datatype ConnectCustomKeyStoreResponse = ConnectCustomKeyStoreResponse (  )
@@ -137,38 +186,70 @@ import opened UTF8
 	| ECC_NIST_P521
 	| ECC_SECG_P256K1
 	| SYMMETRIC_DEFAULT
- datatype CustomKeyStoreHasCMKsException = CustomKeyStoreHasCMKsException (
-	nameonly message: Option<ErrorMessageType> ) {
- 	function method CastToString(): string {
-		if message.Some? then "CustomKeyStoreHasCMKsException: " + message.value else "CustomKeyStoreHasCMKsException"
-	}
- }
+ class CustomKeyStoreHasCMKsException extends IKeyManagementServiceException {
+    var message: string
+
+    constructor (message: string) {
+        this.message := message;
+    }
+
+    function method GetMessage(): (message: string)
+        reads this
+    {
+        this.message
+    }
+}
+
  type CustomKeyStoreIdType = x: string | IsValid_CustomKeyStoreIdType(x) witness *
  predicate method IsValid_CustomKeyStoreIdType(x: string) {
  ( 1 <= |x| <= 64 )
 }
- datatype CustomKeyStoreInvalidStateException = CustomKeyStoreInvalidStateException (
-	nameonly message: Option<ErrorMessageType> ) {
- 	function method CastToString(): string {
-		if message.Some? then "CustomKeyStoreInvalidStateException: " + message.value else "CustomKeyStoreInvalidStateException"
-	}
- }
- datatype CustomKeyStoreNameInUseException = CustomKeyStoreNameInUseException (
-	nameonly message: Option<ErrorMessageType> ) {
- 	function method CastToString(): string {
-		if message.Some? then "CustomKeyStoreNameInUseException: " + message.value else "CustomKeyStoreNameInUseException"
-	}
- }
+ class CustomKeyStoreInvalidStateException extends IKeyManagementServiceException {
+    var message: string
+
+    constructor (message: string) {
+        this.message := message;
+    }
+
+    function method GetMessage(): (message: string)
+        reads this
+    {
+        this.message
+    }
+}
+
+ class CustomKeyStoreNameInUseException extends IKeyManagementServiceException {
+    var message: string
+
+    constructor (message: string) {
+        this.message := message;
+    }
+
+    function method GetMessage(): (message: string)
+        reads this
+    {
+        this.message
+    }
+}
+
  type CustomKeyStoreNameType = x: string | IsValid_CustomKeyStoreNameType(x) witness *
  predicate method IsValid_CustomKeyStoreNameType(x: string) {
  ( 1 <= |x| <= 256 )
 }
- datatype CustomKeyStoreNotFoundException = CustomKeyStoreNotFoundException (
-	nameonly message: Option<ErrorMessageType> ) {
- 	function method CastToString(): string {
-		if message.Some? then "CustomKeyStoreNotFoundException: " + message.value else "CustomKeyStoreNotFoundException"
-	}
- }
+ class CustomKeyStoreNotFoundException extends IKeyManagementServiceException {
+    var message: string
+
+    constructor (message: string) {
+        this.message := message;
+    }
+
+    function method GetMessage(): (message: string)
+        reads this
+    {
+        this.message
+    }
+}
+
  type CustomKeyStoresList = seq<CustomKeyStoresListEntry>
  datatype CustomKeyStoresListEntry = CustomKeyStoresListEntry (
 	nameonly CustomKeyStoreId: Option<CustomKeyStoreIdType> ,
@@ -206,12 +287,20 @@ import opened UTF8
  datatype DeleteCustomKeyStoreResponse = DeleteCustomKeyStoreResponse (  )
  datatype DeleteImportedKeyMaterialRequest = DeleteImportedKeyMaterialRequest (
 	nameonly KeyId: KeyIdType )
- datatype DependencyTimeoutException = DependencyTimeoutException (
-	nameonly message: Option<ErrorMessageType> ) {
- 	function method CastToString(): string {
-		if message.Some? then "DependencyTimeoutException: " + message.value else "DependencyTimeoutException"
-	}
- }
+ class DependencyTimeoutException extends IKeyManagementServiceException {
+    var message: string
+
+    constructor (message: string) {
+        this.message := message;
+    }
+
+    function method GetMessage(): (message: string)
+        reads this
+    {
+        this.message
+    }
+}
+
  datatype DescribeCustomKeyStoresRequest = DescribeCustomKeyStoresRequest (
 	nameonly CustomKeyStoreId: Option<CustomKeyStoreIdType> ,
 	nameonly CustomKeyStoreName: Option<CustomKeyStoreNameType> ,
@@ -230,12 +319,20 @@ import opened UTF8
  predicate method IsValid_DescriptionType(x: string) {
  ( 0 <= |x| <= 8192 )
 }
- datatype DisabledException = DisabledException (
-	nameonly message: Option<ErrorMessageType> ) {
- 	function method CastToString(): string {
-		if message.Some? then "DisabledException: " + message.value else "DisabledException"
-	}
- }
+ class DisabledException extends IKeyManagementServiceException {
+    var message: string
+
+    constructor (message: string) {
+        this.message := message;
+    }
+
+    function method GetMessage(): (message: string)
+        reads this
+    {
+        this.message
+    }
+}
+
  datatype DisableKeyRequest = DisableKeyRequest (
 	nameonly KeyId: KeyIdType )
  datatype DisableKeyRotationRequest = DisableKeyRotationRequest (
@@ -269,12 +366,20 @@ import opened UTF8
  datatype ExpirationModelType =
 	| KEY_MATERIAL_EXPIRES
 	| KEY_MATERIAL_DOES_NOT_EXPIRE
- datatype ExpiredImportTokenException = ExpiredImportTokenException (
-	nameonly message: Option<ErrorMessageType> ) {
- 	function method CastToString(): string {
-		if message.Some? then "ExpiredImportTokenException: " + message.value else "ExpiredImportTokenException"
-	}
- }
+ class ExpiredImportTokenException extends IKeyManagementServiceException {
+    var message: string
+
+    constructor (message: string) {
+        this.message := message;
+    }
+
+    function method GetMessage(): (message: string)
+        reads this
+    {
+        this.message
+    }
+}
+
  datatype GenerateDataKeyPairRequest = GenerateDataKeyPairRequest (
 	nameonly EncryptionContext: Option<EncryptionContextType> ,
 	nameonly KeyId: KeyIdType ,
@@ -402,72 +507,160 @@ import opened UTF8
 	nameonly ValidTo: Option<string> ,
 	nameonly ExpirationModel: Option<ExpirationModelType> )
  datatype ImportKeyMaterialResponse = ImportKeyMaterialResponse (  )
- datatype IncorrectKeyException = IncorrectKeyException (
-	nameonly message: Option<ErrorMessageType> ) {
- 	function method CastToString(): string {
-		if message.Some? then "IncorrectKeyException: " + message.value else "IncorrectKeyException"
-	}
- }
- datatype IncorrectKeyMaterialException = IncorrectKeyMaterialException (
-	nameonly message: Option<ErrorMessageType> ) {
- 	function method CastToString(): string {
-		if message.Some? then "IncorrectKeyMaterialException: " + message.value else "IncorrectKeyMaterialException"
-	}
- }
- datatype IncorrectTrustAnchorException = IncorrectTrustAnchorException (
-	nameonly message: Option<ErrorMessageType> ) {
- 	function method CastToString(): string {
-		if message.Some? then "IncorrectTrustAnchorException: " + message.value else "IncorrectTrustAnchorException"
-	}
- }
- datatype InvalidAliasNameException = InvalidAliasNameException (
-	nameonly message: Option<ErrorMessageType> ) {
- 	function method CastToString(): string {
-		if message.Some? then "InvalidAliasNameException: " + message.value else "InvalidAliasNameException"
-	}
- }
- datatype InvalidArnException = InvalidArnException (
-	nameonly message: Option<ErrorMessageType> ) {
- 	function method CastToString(): string {
-		if message.Some? then "InvalidArnException: " + message.value else "InvalidArnException"
-	}
- }
- datatype InvalidCiphertextException = InvalidCiphertextException (
-	nameonly message: Option<ErrorMessageType> ) {
- 	function method CastToString(): string {
-		if message.Some? then "InvalidCiphertextException: " + message.value else "InvalidCiphertextException"
-	}
- }
- datatype InvalidGrantIdException = InvalidGrantIdException (
-	nameonly message: Option<ErrorMessageType> ) {
- 	function method CastToString(): string {
-		if message.Some? then "InvalidGrantIdException: " + message.value else "InvalidGrantIdException"
-	}
- }
- datatype InvalidGrantTokenException = InvalidGrantTokenException (
-	nameonly message: Option<ErrorMessageType> ) {
- 	function method CastToString(): string {
-		if message.Some? then "InvalidGrantTokenException: " + message.value else "InvalidGrantTokenException"
-	}
- }
- datatype InvalidImportTokenException = InvalidImportTokenException (
-	nameonly message: Option<ErrorMessageType> ) {
- 	function method CastToString(): string {
-		if message.Some? then "InvalidImportTokenException: " + message.value else "InvalidImportTokenException"
-	}
- }
- datatype InvalidKeyUsageException = InvalidKeyUsageException (
-	nameonly message: Option<ErrorMessageType> ) {
- 	function method CastToString(): string {
-		if message.Some? then "InvalidKeyUsageException: " + message.value else "InvalidKeyUsageException"
-	}
- }
- datatype InvalidMarkerException = InvalidMarkerException (
-	nameonly message: Option<ErrorMessageType> ) {
- 	function method CastToString(): string {
-		if message.Some? then "InvalidMarkerException: " + message.value else "InvalidMarkerException"
-	}
- }
+ class IncorrectKeyException extends IKeyManagementServiceException {
+    var message: string
+
+    constructor (message: string) {
+        this.message := message;
+    }
+
+    function method GetMessage(): (message: string)
+        reads this
+    {
+        this.message
+    }
+}
+
+ class IncorrectKeyMaterialException extends IKeyManagementServiceException {
+    var message: string
+
+    constructor (message: string) {
+        this.message := message;
+    }
+
+    function method GetMessage(): (message: string)
+        reads this
+    {
+        this.message
+    }
+}
+
+ class IncorrectTrustAnchorException extends IKeyManagementServiceException {
+    var message: string
+
+    constructor (message: string) {
+        this.message := message;
+    }
+
+    function method GetMessage(): (message: string)
+        reads this
+    {
+        this.message
+    }
+}
+
+ class InvalidAliasNameException extends IKeyManagementServiceException {
+    var message: string
+
+    constructor (message: string) {
+        this.message := message;
+    }
+
+    function method GetMessage(): (message: string)
+        reads this
+    {
+        this.message
+    }
+}
+
+ class InvalidArnException extends IKeyManagementServiceException {
+    var message: string
+
+    constructor (message: string) {
+        this.message := message;
+    }
+
+    function method GetMessage(): (message: string)
+        reads this
+    {
+        this.message
+    }
+}
+
+ class InvalidCiphertextException extends IKeyManagementServiceException {
+    var message: string
+
+    constructor (message: string) {
+        this.message := message;
+    }
+
+    function method GetMessage(): (message: string)
+        reads this
+    {
+        this.message
+    }
+}
+
+ class InvalidGrantIdException extends IKeyManagementServiceException {
+    var message: string
+
+    constructor (message: string) {
+        this.message := message;
+    }
+
+    function method GetMessage(): (message: string)
+        reads this
+    {
+        this.message
+    }
+}
+
+ class InvalidGrantTokenException extends IKeyManagementServiceException {
+    var message: string
+
+    constructor (message: string) {
+        this.message := message;
+    }
+
+    function method GetMessage(): (message: string)
+        reads this
+    {
+        this.message
+    }
+}
+
+ class InvalidImportTokenException extends IKeyManagementServiceException {
+    var message: string
+
+    constructor (message: string) {
+        this.message := message;
+    }
+
+    function method GetMessage(): (message: string)
+        reads this
+    {
+        this.message
+    }
+}
+
+ class InvalidKeyUsageException extends IKeyManagementServiceException {
+    var message: string
+
+    constructor (message: string) {
+        this.message := message;
+    }
+
+    function method GetMessage(): (message: string)
+        reads this
+    {
+        this.message
+    }
+}
+
+ class InvalidMarkerException extends IKeyManagementServiceException {
+    var message: string
+
+    constructor (message: string) {
+        this.message := message;
+    }
+
+    function method GetMessage(): (message: string)
+        reads this
+    {
+        this.message
+    }
+}
+
  type KeyIdType = x: string | IsValid_KeyIdType(x) witness *
  predicate method IsValid_KeyIdType(x: string) {
  ( 1 <= |x| <= 2048 )
@@ -479,353 +672,299 @@ import opened UTF8
  trait IKeyManagementServiceClient {
  predicate {:opaque} CancelKeyDeletionCalledWith ( input: CancelKeyDeletionRequest ) {true}
  predicate {:opaque} CancelKeyDeletionSucceededWith (  input: CancelKeyDeletionRequest , output: CancelKeyDeletionResponse ) {true}
- method CancelKeyDeletion ( input: CancelKeyDeletionRequest ) returns  ( output: Result<CancelKeyDeletionResponse, KeyManagementServiceError> )
+ method CancelKeyDeletion ( input: CancelKeyDeletionRequest ) returns  ( output: Result<CancelKeyDeletionResponse, IKeyManagementServiceException> )
 	ensures CancelKeyDeletionCalledWith (  input )
 	ensures output.Success? ==> CancelKeyDeletionSucceededWith (  input , output.value )
 
  predicate {:opaque} ConnectCustomKeyStoreCalledWith ( input: ConnectCustomKeyStoreRequest ) {true}
  predicate {:opaque} ConnectCustomKeyStoreSucceededWith (  input: ConnectCustomKeyStoreRequest , output: ConnectCustomKeyStoreResponse ) {true}
- method ConnectCustomKeyStore ( input: ConnectCustomKeyStoreRequest ) returns  ( output: Result<ConnectCustomKeyStoreResponse, KeyManagementServiceError> )
+ method ConnectCustomKeyStore ( input: ConnectCustomKeyStoreRequest ) returns  ( output: Result<ConnectCustomKeyStoreResponse, IKeyManagementServiceException> )
 	ensures ConnectCustomKeyStoreCalledWith (  input )
 	ensures output.Success? ==> ConnectCustomKeyStoreSucceededWith (  input , output.value )
 
  predicate {:opaque} CreateAliasCalledWith ( input: CreateAliasRequest ) {true}
  predicate {:opaque} CreateAliasSucceededWith (  input: CreateAliasRequest ) {true}
- method CreateAlias ( input: CreateAliasRequest ) returns  ( output: Result<(), KeyManagementServiceError> )
+ method CreateAlias ( input: CreateAliasRequest ) returns  ( output: Result<(), IKeyManagementServiceException> )
 	ensures CreateAliasCalledWith (  input )
 	ensures output.Success? ==> CreateAliasSucceededWith (  input )
 
  predicate {:opaque} CreateCustomKeyStoreCalledWith ( input: CreateCustomKeyStoreRequest ) {true}
  predicate {:opaque} CreateCustomKeyStoreSucceededWith (  input: CreateCustomKeyStoreRequest , output: CreateCustomKeyStoreResponse ) {true}
- method CreateCustomKeyStore ( input: CreateCustomKeyStoreRequest ) returns  ( output: Result<CreateCustomKeyStoreResponse, KeyManagementServiceError> )
+ method CreateCustomKeyStore ( input: CreateCustomKeyStoreRequest ) returns  ( output: Result<CreateCustomKeyStoreResponse, IKeyManagementServiceException> )
 	ensures CreateCustomKeyStoreCalledWith (  input )
 	ensures output.Success? ==> CreateCustomKeyStoreSucceededWith (  input , output.value )
 
  predicate {:opaque} CreateGrantCalledWith ( input: CreateGrantRequest ) {true}
  predicate {:opaque} CreateGrantSucceededWith (  input: CreateGrantRequest , output: CreateGrantResponse ) {true}
- method CreateGrant ( input: CreateGrantRequest ) returns  ( output: Result<CreateGrantResponse, KeyManagementServiceError> )
+ method CreateGrant ( input: CreateGrantRequest ) returns  ( output: Result<CreateGrantResponse, IKeyManagementServiceException> )
 	ensures CreateGrantCalledWith (  input )
 	ensures output.Success? ==> CreateGrantSucceededWith (  input , output.value )
 
  predicate {:opaque} CreateKeyCalledWith ( input: CreateKeyRequest ) {true}
  predicate {:opaque} CreateKeySucceededWith (  input: CreateKeyRequest , output: CreateKeyResponse ) {true}
- method CreateKey ( input: CreateKeyRequest ) returns  ( output: Result<CreateKeyResponse, KeyManagementServiceError> )
+ method CreateKey ( input: CreateKeyRequest ) returns  ( output: Result<CreateKeyResponse, IKeyManagementServiceException> )
 	ensures CreateKeyCalledWith (  input )
 	ensures output.Success? ==> CreateKeySucceededWith (  input , output.value )
 
  predicate {:opaque} DecryptCalledWith ( input: DecryptRequest ) {true}
  predicate {:opaque} DecryptSucceededWith (  input: DecryptRequest , output: DecryptResponse ) {true}
- method Decrypt ( input: DecryptRequest ) returns  ( output: Result<DecryptResponse, KeyManagementServiceError> )
+ method Decrypt ( input: DecryptRequest ) returns  ( output: Result<DecryptResponse, IKeyManagementServiceException> )
 	ensures DecryptCalledWith (  input )
 	ensures output.Success? ==> DecryptSucceededWith (  input , output.value )
 
  predicate {:opaque} DeleteAliasCalledWith ( input: DeleteAliasRequest ) {true}
  predicate {:opaque} DeleteAliasSucceededWith (  input: DeleteAliasRequest ) {true}
- method DeleteAlias ( input: DeleteAliasRequest ) returns  ( output: Result<(), KeyManagementServiceError> )
+ method DeleteAlias ( input: DeleteAliasRequest ) returns  ( output: Result<(), IKeyManagementServiceException> )
 	ensures DeleteAliasCalledWith (  input )
 	ensures output.Success? ==> DeleteAliasSucceededWith (  input )
 
  predicate {:opaque} DeleteCustomKeyStoreCalledWith ( input: DeleteCustomKeyStoreRequest ) {true}
  predicate {:opaque} DeleteCustomKeyStoreSucceededWith (  input: DeleteCustomKeyStoreRequest , output: DeleteCustomKeyStoreResponse ) {true}
- method DeleteCustomKeyStore ( input: DeleteCustomKeyStoreRequest ) returns  ( output: Result<DeleteCustomKeyStoreResponse, KeyManagementServiceError> )
+ method DeleteCustomKeyStore ( input: DeleteCustomKeyStoreRequest ) returns  ( output: Result<DeleteCustomKeyStoreResponse, IKeyManagementServiceException> )
 	ensures DeleteCustomKeyStoreCalledWith (  input )
 	ensures output.Success? ==> DeleteCustomKeyStoreSucceededWith (  input , output.value )
 
  predicate {:opaque} DeleteImportedKeyMaterialCalledWith ( input: DeleteImportedKeyMaterialRequest ) {true}
  predicate {:opaque} DeleteImportedKeyMaterialSucceededWith (  input: DeleteImportedKeyMaterialRequest ) {true}
- method DeleteImportedKeyMaterial ( input: DeleteImportedKeyMaterialRequest ) returns  ( output: Result<(), KeyManagementServiceError> )
+ method DeleteImportedKeyMaterial ( input: DeleteImportedKeyMaterialRequest ) returns  ( output: Result<(), IKeyManagementServiceException> )
 	ensures DeleteImportedKeyMaterialCalledWith (  input )
 	ensures output.Success? ==> DeleteImportedKeyMaterialSucceededWith (  input )
 
  predicate {:opaque} DescribeCustomKeyStoresCalledWith ( input: DescribeCustomKeyStoresRequest ) {true}
  predicate {:opaque} DescribeCustomKeyStoresSucceededWith (  input: DescribeCustomKeyStoresRequest , output: DescribeCustomKeyStoresResponse ) {true}
- method DescribeCustomKeyStores ( input: DescribeCustomKeyStoresRequest ) returns  ( output: Result<DescribeCustomKeyStoresResponse, KeyManagementServiceError> )
+ method DescribeCustomKeyStores ( input: DescribeCustomKeyStoresRequest ) returns  ( output: Result<DescribeCustomKeyStoresResponse, IKeyManagementServiceException> )
 	ensures DescribeCustomKeyStoresCalledWith (  input )
 	ensures output.Success? ==> DescribeCustomKeyStoresSucceededWith (  input , output.value )
 
  predicate {:opaque} DescribeKeyCalledWith ( input: DescribeKeyRequest ) {true}
  predicate {:opaque} DescribeKeySucceededWith (  input: DescribeKeyRequest , output: DescribeKeyResponse ) {true}
- method DescribeKey ( input: DescribeKeyRequest ) returns  ( output: Result<DescribeKeyResponse, KeyManagementServiceError> )
+ method DescribeKey ( input: DescribeKeyRequest ) returns  ( output: Result<DescribeKeyResponse, IKeyManagementServiceException> )
 	ensures DescribeKeyCalledWith (  input )
 	ensures output.Success? ==> DescribeKeySucceededWith (  input , output.value )
 
  predicate {:opaque} DisableKeyCalledWith ( input: DisableKeyRequest ) {true}
  predicate {:opaque} DisableKeySucceededWith (  input: DisableKeyRequest ) {true}
- method DisableKey ( input: DisableKeyRequest ) returns  ( output: Result<(), KeyManagementServiceError> )
+ method DisableKey ( input: DisableKeyRequest ) returns  ( output: Result<(), IKeyManagementServiceException> )
 	ensures DisableKeyCalledWith (  input )
 	ensures output.Success? ==> DisableKeySucceededWith (  input )
 
  predicate {:opaque} DisableKeyRotationCalledWith ( input: DisableKeyRotationRequest ) {true}
  predicate {:opaque} DisableKeyRotationSucceededWith (  input: DisableKeyRotationRequest ) {true}
- method DisableKeyRotation ( input: DisableKeyRotationRequest ) returns  ( output: Result<(), KeyManagementServiceError> )
+ method DisableKeyRotation ( input: DisableKeyRotationRequest ) returns  ( output: Result<(), IKeyManagementServiceException> )
 	ensures DisableKeyRotationCalledWith (  input )
 	ensures output.Success? ==> DisableKeyRotationSucceededWith (  input )
 
  predicate {:opaque} DisconnectCustomKeyStoreCalledWith ( input: DisconnectCustomKeyStoreRequest ) {true}
  predicate {:opaque} DisconnectCustomKeyStoreSucceededWith (  input: DisconnectCustomKeyStoreRequest , output: DisconnectCustomKeyStoreResponse ) {true}
- method DisconnectCustomKeyStore ( input: DisconnectCustomKeyStoreRequest ) returns  ( output: Result<DisconnectCustomKeyStoreResponse, KeyManagementServiceError> )
+ method DisconnectCustomKeyStore ( input: DisconnectCustomKeyStoreRequest ) returns  ( output: Result<DisconnectCustomKeyStoreResponse, IKeyManagementServiceException> )
 	ensures DisconnectCustomKeyStoreCalledWith (  input )
 	ensures output.Success? ==> DisconnectCustomKeyStoreSucceededWith (  input , output.value )
 
  predicate {:opaque} EnableKeyCalledWith ( input: EnableKeyRequest ) {true}
  predicate {:opaque} EnableKeySucceededWith (  input: EnableKeyRequest ) {true}
- method EnableKey ( input: EnableKeyRequest ) returns  ( output: Result<(), KeyManagementServiceError> )
+ method EnableKey ( input: EnableKeyRequest ) returns  ( output: Result<(), IKeyManagementServiceException> )
 	ensures EnableKeyCalledWith (  input )
 	ensures output.Success? ==> EnableKeySucceededWith (  input )
 
  predicate {:opaque} EnableKeyRotationCalledWith ( input: EnableKeyRotationRequest ) {true}
  predicate {:opaque} EnableKeyRotationSucceededWith (  input: EnableKeyRotationRequest ) {true}
- method EnableKeyRotation ( input: EnableKeyRotationRequest ) returns  ( output: Result<(), KeyManagementServiceError> )
+ method EnableKeyRotation ( input: EnableKeyRotationRequest ) returns  ( output: Result<(), IKeyManagementServiceException> )
 	ensures EnableKeyRotationCalledWith (  input )
 	ensures output.Success? ==> EnableKeyRotationSucceededWith (  input )
 
  predicate {:opaque} EncryptCalledWith ( input: EncryptRequest ) {true}
  predicate {:opaque} EncryptSucceededWith (  input: EncryptRequest , output: EncryptResponse ) {true}
- method Encrypt ( input: EncryptRequest ) returns  ( output: Result<EncryptResponse, KeyManagementServiceError> )
+ method Encrypt ( input: EncryptRequest ) returns  ( output: Result<EncryptResponse, IKeyManagementServiceException> )
 	ensures EncryptCalledWith (  input )
 	ensures output.Success? ==> EncryptSucceededWith (  input , output.value )
 
  predicate {:opaque} GenerateDataKeyCalledWith ( input: GenerateDataKeyRequest ) {true}
  predicate {:opaque} GenerateDataKeySucceededWith (  input: GenerateDataKeyRequest , output: GenerateDataKeyResponse ) {true}
- method GenerateDataKey ( input: GenerateDataKeyRequest ) returns  ( output: Result<GenerateDataKeyResponse, KeyManagementServiceError> )
+ method GenerateDataKey ( input: GenerateDataKeyRequest ) returns  ( output: Result<GenerateDataKeyResponse, IKeyManagementServiceException> )
 	ensures GenerateDataKeyCalledWith (  input )
 	ensures output.Success? ==> GenerateDataKeySucceededWith (  input , output.value )
 
  predicate {:opaque} GenerateDataKeyPairCalledWith ( input: GenerateDataKeyPairRequest ) {true}
  predicate {:opaque} GenerateDataKeyPairSucceededWith (  input: GenerateDataKeyPairRequest , output: GenerateDataKeyPairResponse ) {true}
- method GenerateDataKeyPair ( input: GenerateDataKeyPairRequest ) returns  ( output: Result<GenerateDataKeyPairResponse, KeyManagementServiceError> )
+ method GenerateDataKeyPair ( input: GenerateDataKeyPairRequest ) returns  ( output: Result<GenerateDataKeyPairResponse, IKeyManagementServiceException> )
 	ensures GenerateDataKeyPairCalledWith (  input )
 	ensures output.Success? ==> GenerateDataKeyPairSucceededWith (  input , output.value )
 
  predicate {:opaque} GenerateDataKeyPairWithoutPlaintextCalledWith ( input: GenerateDataKeyPairWithoutPlaintextRequest ) {true}
  predicate {:opaque} GenerateDataKeyPairWithoutPlaintextSucceededWith (  input: GenerateDataKeyPairWithoutPlaintextRequest , output: GenerateDataKeyPairWithoutPlaintextResponse ) {true}
- method GenerateDataKeyPairWithoutPlaintext ( input: GenerateDataKeyPairWithoutPlaintextRequest ) returns  ( output: Result<GenerateDataKeyPairWithoutPlaintextResponse, KeyManagementServiceError> )
+ method GenerateDataKeyPairWithoutPlaintext ( input: GenerateDataKeyPairWithoutPlaintextRequest ) returns  ( output: Result<GenerateDataKeyPairWithoutPlaintextResponse, IKeyManagementServiceException> )
 	ensures GenerateDataKeyPairWithoutPlaintextCalledWith (  input )
 	ensures output.Success? ==> GenerateDataKeyPairWithoutPlaintextSucceededWith (  input , output.value )
 
  predicate {:opaque} GenerateDataKeyWithoutPlaintextCalledWith ( input: GenerateDataKeyWithoutPlaintextRequest ) {true}
  predicate {:opaque} GenerateDataKeyWithoutPlaintextSucceededWith (  input: GenerateDataKeyWithoutPlaintextRequest , output: GenerateDataKeyWithoutPlaintextResponse ) {true}
- method GenerateDataKeyWithoutPlaintext ( input: GenerateDataKeyWithoutPlaintextRequest ) returns  ( output: Result<GenerateDataKeyWithoutPlaintextResponse, KeyManagementServiceError> )
+ method GenerateDataKeyWithoutPlaintext ( input: GenerateDataKeyWithoutPlaintextRequest ) returns  ( output: Result<GenerateDataKeyWithoutPlaintextResponse, IKeyManagementServiceException> )
 	ensures GenerateDataKeyWithoutPlaintextCalledWith (  input )
 	ensures output.Success? ==> GenerateDataKeyWithoutPlaintextSucceededWith (  input , output.value )
 
  predicate {:opaque} GenerateRandomCalledWith ( input: GenerateRandomRequest ) {true}
  predicate {:opaque} GenerateRandomSucceededWith (  input: GenerateRandomRequest , output: GenerateRandomResponse ) {true}
- method GenerateRandom ( input: GenerateRandomRequest ) returns  ( output: Result<GenerateRandomResponse, KeyManagementServiceError> )
+ method GenerateRandom ( input: GenerateRandomRequest ) returns  ( output: Result<GenerateRandomResponse, IKeyManagementServiceException> )
 	ensures GenerateRandomCalledWith (  input )
 	ensures output.Success? ==> GenerateRandomSucceededWith (  input , output.value )
 
  predicate {:opaque} GetKeyPolicyCalledWith ( input: GetKeyPolicyRequest ) {true}
  predicate {:opaque} GetKeyPolicySucceededWith (  input: GetKeyPolicyRequest , output: GetKeyPolicyResponse ) {true}
- method GetKeyPolicy ( input: GetKeyPolicyRequest ) returns  ( output: Result<GetKeyPolicyResponse, KeyManagementServiceError> )
+ method GetKeyPolicy ( input: GetKeyPolicyRequest ) returns  ( output: Result<GetKeyPolicyResponse, IKeyManagementServiceException> )
 	ensures GetKeyPolicyCalledWith (  input )
 	ensures output.Success? ==> GetKeyPolicySucceededWith (  input , output.value )
 
  predicate {:opaque} GetKeyRotationStatusCalledWith ( input: GetKeyRotationStatusRequest ) {true}
  predicate {:opaque} GetKeyRotationStatusSucceededWith (  input: GetKeyRotationStatusRequest , output: GetKeyRotationStatusResponse ) {true}
- method GetKeyRotationStatus ( input: GetKeyRotationStatusRequest ) returns  ( output: Result<GetKeyRotationStatusResponse, KeyManagementServiceError> )
+ method GetKeyRotationStatus ( input: GetKeyRotationStatusRequest ) returns  ( output: Result<GetKeyRotationStatusResponse, IKeyManagementServiceException> )
 	ensures GetKeyRotationStatusCalledWith (  input )
 	ensures output.Success? ==> GetKeyRotationStatusSucceededWith (  input , output.value )
 
  predicate {:opaque} GetParametersForImportCalledWith ( input: GetParametersForImportRequest ) {true}
  predicate {:opaque} GetParametersForImportSucceededWith (  input: GetParametersForImportRequest , output: GetParametersForImportResponse ) {true}
- method GetParametersForImport ( input: GetParametersForImportRequest ) returns  ( output: Result<GetParametersForImportResponse, KeyManagementServiceError> )
+ method GetParametersForImport ( input: GetParametersForImportRequest ) returns  ( output: Result<GetParametersForImportResponse, IKeyManagementServiceException> )
 	ensures GetParametersForImportCalledWith (  input )
 	ensures output.Success? ==> GetParametersForImportSucceededWith (  input , output.value )
 
  predicate {:opaque} GetPublicKeyCalledWith ( input: GetPublicKeyRequest ) {true}
  predicate {:opaque} GetPublicKeySucceededWith (  input: GetPublicKeyRequest , output: GetPublicKeyResponse ) {true}
- method GetPublicKey ( input: GetPublicKeyRequest ) returns  ( output: Result<GetPublicKeyResponse, KeyManagementServiceError> )
+ method GetPublicKey ( input: GetPublicKeyRequest ) returns  ( output: Result<GetPublicKeyResponse, IKeyManagementServiceException> )
 	ensures GetPublicKeyCalledWith (  input )
 	ensures output.Success? ==> GetPublicKeySucceededWith (  input , output.value )
 
  predicate {:opaque} ImportKeyMaterialCalledWith ( input: ImportKeyMaterialRequest ) {true}
  predicate {:opaque} ImportKeyMaterialSucceededWith (  input: ImportKeyMaterialRequest , output: ImportKeyMaterialResponse ) {true}
- method ImportKeyMaterial ( input: ImportKeyMaterialRequest ) returns  ( output: Result<ImportKeyMaterialResponse, KeyManagementServiceError> )
+ method ImportKeyMaterial ( input: ImportKeyMaterialRequest ) returns  ( output: Result<ImportKeyMaterialResponse, IKeyManagementServiceException> )
 	ensures ImportKeyMaterialCalledWith (  input )
 	ensures output.Success? ==> ImportKeyMaterialSucceededWith (  input , output.value )
 
  predicate {:opaque} ListAliasesCalledWith ( input: ListAliasesRequest ) {true}
  predicate {:opaque} ListAliasesSucceededWith (  input: ListAliasesRequest , output: ListAliasesResponse ) {true}
- method ListAliases ( input: ListAliasesRequest ) returns  ( output: Result<ListAliasesResponse, KeyManagementServiceError> )
+ method ListAliases ( input: ListAliasesRequest ) returns  ( output: Result<ListAliasesResponse, IKeyManagementServiceException> )
 	ensures ListAliasesCalledWith (  input )
 	ensures output.Success? ==> ListAliasesSucceededWith (  input , output.value )
 
  predicate {:opaque} ListGrantsCalledWith ( input: ListGrantsRequest ) {true}
  predicate {:opaque} ListGrantsSucceededWith (  input: ListGrantsRequest , output: ListGrantsResponse ) {true}
- method ListGrants ( input: ListGrantsRequest ) returns  ( output: Result<ListGrantsResponse, KeyManagementServiceError> )
+ method ListGrants ( input: ListGrantsRequest ) returns  ( output: Result<ListGrantsResponse, IKeyManagementServiceException> )
 	ensures ListGrantsCalledWith (  input )
 	ensures output.Success? ==> ListGrantsSucceededWith (  input , output.value )
 
  predicate {:opaque} ListKeyPoliciesCalledWith ( input: ListKeyPoliciesRequest ) {true}
  predicate {:opaque} ListKeyPoliciesSucceededWith (  input: ListKeyPoliciesRequest , output: ListKeyPoliciesResponse ) {true}
- method ListKeyPolicies ( input: ListKeyPoliciesRequest ) returns  ( output: Result<ListKeyPoliciesResponse, KeyManagementServiceError> )
+ method ListKeyPolicies ( input: ListKeyPoliciesRequest ) returns  ( output: Result<ListKeyPoliciesResponse, IKeyManagementServiceException> )
 	ensures ListKeyPoliciesCalledWith (  input )
 	ensures output.Success? ==> ListKeyPoliciesSucceededWith (  input , output.value )
 
  predicate {:opaque} ListResourceTagsCalledWith ( input: ListResourceTagsRequest ) {true}
  predicate {:opaque} ListResourceTagsSucceededWith (  input: ListResourceTagsRequest , output: ListResourceTagsResponse ) {true}
- method ListResourceTags ( input: ListResourceTagsRequest ) returns  ( output: Result<ListResourceTagsResponse, KeyManagementServiceError> )
+ method ListResourceTags ( input: ListResourceTagsRequest ) returns  ( output: Result<ListResourceTagsResponse, IKeyManagementServiceException> )
 	ensures ListResourceTagsCalledWith (  input )
 	ensures output.Success? ==> ListResourceTagsSucceededWith (  input , output.value )
 
  predicate {:opaque} PutKeyPolicyCalledWith ( input: PutKeyPolicyRequest ) {true}
  predicate {:opaque} PutKeyPolicySucceededWith (  input: PutKeyPolicyRequest ) {true}
- method PutKeyPolicy ( input: PutKeyPolicyRequest ) returns  ( output: Result<(), KeyManagementServiceError> )
+ method PutKeyPolicy ( input: PutKeyPolicyRequest ) returns  ( output: Result<(), IKeyManagementServiceException> )
 	ensures PutKeyPolicyCalledWith (  input )
 	ensures output.Success? ==> PutKeyPolicySucceededWith (  input )
 
  predicate {:opaque} ReEncryptCalledWith ( input: ReEncryptRequest ) {true}
  predicate {:opaque} ReEncryptSucceededWith (  input: ReEncryptRequest , output: ReEncryptResponse ) {true}
- method ReEncrypt ( input: ReEncryptRequest ) returns  ( output: Result<ReEncryptResponse, KeyManagementServiceError> )
+ method ReEncrypt ( input: ReEncryptRequest ) returns  ( output: Result<ReEncryptResponse, IKeyManagementServiceException> )
 	ensures ReEncryptCalledWith (  input )
 	ensures output.Success? ==> ReEncryptSucceededWith (  input , output.value )
 
  predicate {:opaque} ReplicateKeyCalledWith ( input: ReplicateKeyRequest ) {true}
  predicate {:opaque} ReplicateKeySucceededWith (  input: ReplicateKeyRequest , output: ReplicateKeyResponse ) {true}
- method ReplicateKey ( input: ReplicateKeyRequest ) returns  ( output: Result<ReplicateKeyResponse, KeyManagementServiceError> )
+ method ReplicateKey ( input: ReplicateKeyRequest ) returns  ( output: Result<ReplicateKeyResponse, IKeyManagementServiceException> )
 	ensures ReplicateKeyCalledWith (  input )
 	ensures output.Success? ==> ReplicateKeySucceededWith (  input , output.value )
 
  predicate {:opaque} RetireGrantCalledWith ( input: RetireGrantRequest ) {true}
  predicate {:opaque} RetireGrantSucceededWith (  input: RetireGrantRequest ) {true}
- method RetireGrant ( input: RetireGrantRequest ) returns  ( output: Result<(), KeyManagementServiceError> )
+ method RetireGrant ( input: RetireGrantRequest ) returns  ( output: Result<(), IKeyManagementServiceException> )
 	ensures RetireGrantCalledWith (  input )
 	ensures output.Success? ==> RetireGrantSucceededWith (  input )
 
  predicate {:opaque} RevokeGrantCalledWith ( input: RevokeGrantRequest ) {true}
  predicate {:opaque} RevokeGrantSucceededWith (  input: RevokeGrantRequest ) {true}
- method RevokeGrant ( input: RevokeGrantRequest ) returns  ( output: Result<(), KeyManagementServiceError> )
+ method RevokeGrant ( input: RevokeGrantRequest ) returns  ( output: Result<(), IKeyManagementServiceException> )
 	ensures RevokeGrantCalledWith (  input )
 	ensures output.Success? ==> RevokeGrantSucceededWith (  input )
 
  predicate {:opaque} ScheduleKeyDeletionCalledWith ( input: ScheduleKeyDeletionRequest ) {true}
  predicate {:opaque} ScheduleKeyDeletionSucceededWith (  input: ScheduleKeyDeletionRequest , output: ScheduleKeyDeletionResponse ) {true}
- method ScheduleKeyDeletion ( input: ScheduleKeyDeletionRequest ) returns  ( output: Result<ScheduleKeyDeletionResponse, KeyManagementServiceError> )
+ method ScheduleKeyDeletion ( input: ScheduleKeyDeletionRequest ) returns  ( output: Result<ScheduleKeyDeletionResponse, IKeyManagementServiceException> )
 	ensures ScheduleKeyDeletionCalledWith (  input )
 	ensures output.Success? ==> ScheduleKeyDeletionSucceededWith (  input , output.value )
 
  predicate {:opaque} SignCalledWith ( input: SignRequest ) {true}
  predicate {:opaque} SignSucceededWith (  input: SignRequest , output: SignResponse ) {true}
- method Sign ( input: SignRequest ) returns  ( output: Result<SignResponse, KeyManagementServiceError> )
+ method Sign ( input: SignRequest ) returns  ( output: Result<SignResponse, IKeyManagementServiceException> )
 	ensures SignCalledWith (  input )
 	ensures output.Success? ==> SignSucceededWith (  input , output.value )
 
  predicate {:opaque} TagResourceCalledWith ( input: TagResourceRequest ) {true}
  predicate {:opaque} TagResourceSucceededWith (  input: TagResourceRequest ) {true}
- method TagResource ( input: TagResourceRequest ) returns  ( output: Result<(), KeyManagementServiceError> )
+ method TagResource ( input: TagResourceRequest ) returns  ( output: Result<(), IKeyManagementServiceException> )
 	ensures TagResourceCalledWith (  input )
 	ensures output.Success? ==> TagResourceSucceededWith (  input )
 
  predicate {:opaque} UntagResourceCalledWith ( input: UntagResourceRequest ) {true}
  predicate {:opaque} UntagResourceSucceededWith (  input: UntagResourceRequest ) {true}
- method UntagResource ( input: UntagResourceRequest ) returns  ( output: Result<(), KeyManagementServiceError> )
+ method UntagResource ( input: UntagResourceRequest ) returns  ( output: Result<(), IKeyManagementServiceException> )
 	ensures UntagResourceCalledWith (  input )
 	ensures output.Success? ==> UntagResourceSucceededWith (  input )
 
  predicate {:opaque} UpdateAliasCalledWith ( input: UpdateAliasRequest ) {true}
  predicate {:opaque} UpdateAliasSucceededWith (  input: UpdateAliasRequest ) {true}
- method UpdateAlias ( input: UpdateAliasRequest ) returns  ( output: Result<(), KeyManagementServiceError> )
+ method UpdateAlias ( input: UpdateAliasRequest ) returns  ( output: Result<(), IKeyManagementServiceException> )
 	ensures UpdateAliasCalledWith (  input )
 	ensures output.Success? ==> UpdateAliasSucceededWith (  input )
 
  predicate {:opaque} UpdateCustomKeyStoreCalledWith ( input: UpdateCustomKeyStoreRequest ) {true}
  predicate {:opaque} UpdateCustomKeyStoreSucceededWith (  input: UpdateCustomKeyStoreRequest , output: UpdateCustomKeyStoreResponse ) {true}
- method UpdateCustomKeyStore ( input: UpdateCustomKeyStoreRequest ) returns  ( output: Result<UpdateCustomKeyStoreResponse, KeyManagementServiceError> )
+ method UpdateCustomKeyStore ( input: UpdateCustomKeyStoreRequest ) returns  ( output: Result<UpdateCustomKeyStoreResponse, IKeyManagementServiceException> )
 	ensures UpdateCustomKeyStoreCalledWith (  input )
 	ensures output.Success? ==> UpdateCustomKeyStoreSucceededWith (  input , output.value )
 
  predicate {:opaque} UpdateKeyDescriptionCalledWith ( input: UpdateKeyDescriptionRequest ) {true}
  predicate {:opaque} UpdateKeyDescriptionSucceededWith (  input: UpdateKeyDescriptionRequest ) {true}
- method UpdateKeyDescription ( input: UpdateKeyDescriptionRequest ) returns  ( output: Result<(), KeyManagementServiceError> )
+ method UpdateKeyDescription ( input: UpdateKeyDescriptionRequest ) returns  ( output: Result<(), IKeyManagementServiceException> )
 	ensures UpdateKeyDescriptionCalledWith (  input )
 	ensures output.Success? ==> UpdateKeyDescriptionSucceededWith (  input )
 
  predicate {:opaque} UpdatePrimaryRegionCalledWith ( input: UpdatePrimaryRegionRequest ) {true}
  predicate {:opaque} UpdatePrimaryRegionSucceededWith (  input: UpdatePrimaryRegionRequest ) {true}
- method UpdatePrimaryRegion ( input: UpdatePrimaryRegionRequest ) returns  ( output: Result<(), KeyManagementServiceError> )
+ method UpdatePrimaryRegion ( input: UpdatePrimaryRegionRequest ) returns  ( output: Result<(), IKeyManagementServiceException> )
 	ensures UpdatePrimaryRegionCalledWith (  input )
 	ensures output.Success? ==> UpdatePrimaryRegionSucceededWith (  input )
 
  predicate {:opaque} VerifyCalledWith ( input: VerifyRequest ) {true}
  predicate {:opaque} VerifySucceededWith (  input: VerifyRequest , output: VerifyResponse ) {true}
- method Verify ( input: VerifyRequest ) returns  ( output: Result<VerifyResponse, KeyManagementServiceError> )
+ method Verify ( input: VerifyRequest ) returns  ( output: Result<VerifyResponse, IKeyManagementServiceException> )
 	ensures VerifyCalledWith (  input )
 	ensures output.Success? ==> VerifySucceededWith (  input , output.value )
 
 }
- datatype KeyManagementServiceError =
- | KeyManagementService_Unknown(unknownMessage: string)
- | KeyManagementService_AlreadyExistsException(AlreadyExistsException: AlreadyExistsException)
- | KeyManagementService_CloudHsmClusterInUseException(CloudHsmClusterInUseException: CloudHsmClusterInUseException)
- | KeyManagementService_CloudHsmClusterInvalidConfigurationException(CloudHsmClusterInvalidConfigurationException: CloudHsmClusterInvalidConfigurationException)
- | KeyManagementService_CloudHsmClusterNotActiveException(CloudHsmClusterNotActiveException: CloudHsmClusterNotActiveException)
- | KeyManagementService_CloudHsmClusterNotFoundException(CloudHsmClusterNotFoundException: CloudHsmClusterNotFoundException)
- | KeyManagementService_CloudHsmClusterNotRelatedException(CloudHsmClusterNotRelatedException: CloudHsmClusterNotRelatedException)
- | KeyManagementService_CustomKeyStoreHasCMKsException(CustomKeyStoreHasCMKsException: CustomKeyStoreHasCMKsException)
- | KeyManagementService_CustomKeyStoreInvalidStateException(CustomKeyStoreInvalidStateException: CustomKeyStoreInvalidStateException)
- | KeyManagementService_CustomKeyStoreNameInUseException(CustomKeyStoreNameInUseException: CustomKeyStoreNameInUseException)
- | KeyManagementService_CustomKeyStoreNotFoundException(CustomKeyStoreNotFoundException: CustomKeyStoreNotFoundException)
- | KeyManagementService_DependencyTimeoutException(DependencyTimeoutException: DependencyTimeoutException)
- | KeyManagementService_DisabledException(DisabledException: DisabledException)
- | KeyManagementService_ExpiredImportTokenException(ExpiredImportTokenException: ExpiredImportTokenException)
- | KeyManagementService_IncorrectKeyException(IncorrectKeyException: IncorrectKeyException)
- | KeyManagementService_IncorrectKeyMaterialException(IncorrectKeyMaterialException: IncorrectKeyMaterialException)
- | KeyManagementService_IncorrectTrustAnchorException(IncorrectTrustAnchorException: IncorrectTrustAnchorException)
- | KeyManagementService_InvalidAliasNameException(InvalidAliasNameException: InvalidAliasNameException)
- | KeyManagementService_InvalidArnException(InvalidArnException: InvalidArnException)
- | KeyManagementService_InvalidCiphertextException(InvalidCiphertextException: InvalidCiphertextException)
- | KeyManagementService_InvalidGrantIdException(InvalidGrantIdException: InvalidGrantIdException)
- | KeyManagementService_InvalidGrantTokenException(InvalidGrantTokenException: InvalidGrantTokenException)
- | KeyManagementService_InvalidImportTokenException(InvalidImportTokenException: InvalidImportTokenException)
- | KeyManagementService_InvalidKeyUsageException(InvalidKeyUsageException: InvalidKeyUsageException)
- | KeyManagementService_InvalidMarkerException(InvalidMarkerException: InvalidMarkerException)
- | KeyManagementService_KeyUnavailableException(KeyUnavailableException: KeyUnavailableException)
- | KeyManagementService_KMSInternalException(KMSInternalException: KMSInternalException)
- | KeyManagementService_KMSInvalidSignatureException(KMSInvalidSignatureException: KMSInvalidSignatureException)
- | KeyManagementService_KMSInvalidStateException(KMSInvalidStateException: KMSInvalidStateException)
- | KeyManagementService_LimitExceededException(LimitExceededException: LimitExceededException)
- | KeyManagementService_MalformedPolicyDocumentException(MalformedPolicyDocumentException: MalformedPolicyDocumentException)
- | KeyManagementService_NotFoundException(NotFoundException: NotFoundException)
- | KeyManagementService_TagException(TagException: TagException)
- | KeyManagementService_UnsupportedOperationException(UnsupportedOperationException: UnsupportedOperationException)
- function method CastKeyManagementServiceErrorToString(error: KeyManagementServiceError): string {
- 	match error
-	case KeyManagementService_AlreadyExistsException(arg) => arg.CastToString()
-	case KeyManagementService_CloudHsmClusterInUseException(arg) => arg.CastToString()
-	case KeyManagementService_CloudHsmClusterInvalidConfigurationException(arg) => arg.CastToString()
-	case KeyManagementService_CloudHsmClusterNotActiveException(arg) => arg.CastToString()
-	case KeyManagementService_CloudHsmClusterNotFoundException(arg) => arg.CastToString()
-	case KeyManagementService_CloudHsmClusterNotRelatedException(arg) => arg.CastToString()
-	case KeyManagementService_CustomKeyStoreHasCMKsException(arg) => arg.CastToString()
-	case KeyManagementService_CustomKeyStoreInvalidStateException(arg) => arg.CastToString()
-	case KeyManagementService_CustomKeyStoreNameInUseException(arg) => arg.CastToString()
-	case KeyManagementService_CustomKeyStoreNotFoundException(arg) => arg.CastToString()
-	case KeyManagementService_DependencyTimeoutException(arg) => arg.CastToString()
-	case KeyManagementService_DisabledException(arg) => arg.CastToString()
-	case KeyManagementService_ExpiredImportTokenException(arg) => arg.CastToString()
-	case KeyManagementService_IncorrectKeyException(arg) => arg.CastToString()
-	case KeyManagementService_IncorrectKeyMaterialException(arg) => arg.CastToString()
-	case KeyManagementService_IncorrectTrustAnchorException(arg) => arg.CastToString()
-	case KeyManagementService_InvalidAliasNameException(arg) => arg.CastToString()
-	case KeyManagementService_InvalidArnException(arg) => arg.CastToString()
-	case KeyManagementService_InvalidCiphertextException(arg) => arg.CastToString()
-	case KeyManagementService_InvalidGrantIdException(arg) => arg.CastToString()
-	case KeyManagementService_InvalidGrantTokenException(arg) => arg.CastToString()
-	case KeyManagementService_InvalidImportTokenException(arg) => arg.CastToString()
-	case KeyManagementService_InvalidKeyUsageException(arg) => arg.CastToString()
-	case KeyManagementService_InvalidMarkerException(arg) => arg.CastToString()
-	case KeyManagementService_KeyUnavailableException(arg) => arg.CastToString()
-	case KeyManagementService_KMSInternalException(arg) => arg.CastToString()
-	case KeyManagementService_KMSInvalidSignatureException(arg) => arg.CastToString()
-	case KeyManagementService_KMSInvalidStateException(arg) => arg.CastToString()
-	case KeyManagementService_LimitExceededException(arg) => arg.CastToString()
-	case KeyManagementService_MalformedPolicyDocumentException(arg) => arg.CastToString()
-	case KeyManagementService_NotFoundException(arg) => arg.CastToString()
-	case KeyManagementService_TagException(arg) => arg.CastToString()
-	case KeyManagementService_UnsupportedOperationException(arg) => arg.CastToString()
-	case KeyManagementService_Unknown(arg) => "Unexpected Exception from AWS KeyManagementService: " + arg
+ trait IKeyManagementServiceException {
+    function method GetMessage(): (message: string) reads this
 }
+
+ class UnknownKeyManagementServiceError extends IKeyManagementServiceException {
+    var message: string
+
+    constructor (message: string) {
+        this.message := message;
+    }
+
+    function method GetMessage(): (message: string)
+        reads this
+    {
+        this.message
+    }
+}
+
  datatype KeyManagerType =
 	| AWS
 	| CUSTOMER
@@ -874,39 +1013,79 @@ import opened UTF8
  predicate method IsValid_KeyStorePasswordType(x: string) {
  ( 7 <= |x| <= 32 )
 }
- datatype KeyUnavailableException = KeyUnavailableException (
-	nameonly message: Option<ErrorMessageType> ) {
- 	function method CastToString(): string {
-		if message.Some? then "KeyUnavailableException: " + message.value else "KeyUnavailableException"
-	}
- }
+ class KeyUnavailableException extends IKeyManagementServiceException {
+    var message: string
+
+    constructor (message: string) {
+        this.message := message;
+    }
+
+    function method GetMessage(): (message: string)
+        reads this
+    {
+        this.message
+    }
+}
+
  datatype KeyUsageType =
 	| SIGN_VERIFY
 	| ENCRYPT_DECRYPT
- datatype KMSInternalException = KMSInternalException (
-	nameonly message: Option<ErrorMessageType> ) {
- 	function method CastToString(): string {
-		if message.Some? then "KMSInternalException: " + message.value else "KMSInternalException"
-	}
- }
- datatype KMSInvalidSignatureException = KMSInvalidSignatureException (
-	nameonly message: Option<ErrorMessageType> ) {
- 	function method CastToString(): string {
-		if message.Some? then "KMSInvalidSignatureException: " + message.value else "KMSInvalidSignatureException"
-	}
- }
- datatype KMSInvalidStateException = KMSInvalidStateException (
-	nameonly message: Option<ErrorMessageType> ) {
- 	function method CastToString(): string {
-		if message.Some? then "KMSInvalidStateException: " + message.value else "KMSInvalidStateException"
-	}
- }
- datatype LimitExceededException = LimitExceededException (
-	nameonly message: Option<ErrorMessageType> ) {
- 	function method CastToString(): string {
-		if message.Some? then "LimitExceededException: " + message.value else "LimitExceededException"
-	}
- }
+ class KMSInternalException extends IKeyManagementServiceException {
+    var message: string
+
+    constructor (message: string) {
+        this.message := message;
+    }
+
+    function method GetMessage(): (message: string)
+        reads this
+    {
+        this.message
+    }
+}
+
+ class KMSInvalidSignatureException extends IKeyManagementServiceException {
+    var message: string
+
+    constructor (message: string) {
+        this.message := message;
+    }
+
+    function method GetMessage(): (message: string)
+        reads this
+    {
+        this.message
+    }
+}
+
+ class KMSInvalidStateException extends IKeyManagementServiceException {
+    var message: string
+
+    constructor (message: string) {
+        this.message := message;
+    }
+
+    function method GetMessage(): (message: string)
+        reads this
+    {
+        this.message
+    }
+}
+
+ class LimitExceededException extends IKeyManagementServiceException {
+    var message: string
+
+    constructor (message: string) {
+        this.message := message;
+    }
+
+    function method GetMessage(): (message: string)
+        reads this
+    {
+        this.message
+    }
+}
+
  type LimitType = x: int32 | IsValid_LimitType(x) witness *
  predicate method IsValid_LimitType(x: int32) {
  ( 1 <= x <= 1000 )
@@ -952,12 +1131,20 @@ import opened UTF8
 	nameonly Limit: Option<LimitType> ,
 	nameonly Marker: Option<MarkerType> ,
 	nameonly RetiringPrincipal: PrincipalIdType )
- datatype MalformedPolicyDocumentException = MalformedPolicyDocumentException (
-	nameonly message: Option<ErrorMessageType> ) {
- 	function method CastToString(): string {
-		if message.Some? then "MalformedPolicyDocumentException: " + message.value else "MalformedPolicyDocumentException"
-	}
- }
+ class MalformedPolicyDocumentException extends IKeyManagementServiceException {
+    var message: string
+
+    constructor (message: string) {
+        this.message := message;
+    }
+
+    function method GetMessage(): (message: string)
+        reads this
+    {
+        this.message
+    }
+}
+
  type MarkerType = x: string | IsValid_MarkerType(x) witness *
  predicate method IsValid_MarkerType(x: string) {
  ( 1 <= |x| <= 1024 )
@@ -976,12 +1163,20 @@ import opened UTF8
  datatype MultiRegionKeyType =
 	| PRIMARY
 	| REPLICA
- datatype NotFoundException = NotFoundException (
-	nameonly message: Option<ErrorMessageType> ) {
- 	function method CastToString(): string {
-		if message.Some? then "NotFoundException: " + message.value else "NotFoundException"
-	}
- }
+ class NotFoundException extends IKeyManagementServiceException {
+    var message: string
+
+    constructor (message: string) {
+        this.message := message;
+    }
+
+    function method GetMessage(): (message: string)
+        reads this
+    {
+        this.message
+    }
+}
+
  type NullableBooleanType = bool
  type NumberOfBytesType = x: int32 | IsValid_NumberOfBytesType(x) witness *
  predicate method IsValid_NumberOfBytesType(x: int32) {
@@ -1090,12 +1285,20 @@ import opened UTF8
  datatype Tag = Tag (
 	nameonly TagKey: TagKeyType ,
 	nameonly TagValue: TagValueType )
- datatype TagException = TagException (
-	nameonly message: Option<ErrorMessageType> ) {
- 	function method CastToString(): string {
-		if message.Some? then "TagException: " + message.value else "TagException"
-	}
- }
+ class TagException extends IKeyManagementServiceException {
+    var message: string
+
+    constructor (message: string) {
+        this.message := message;
+    }
+
+    function method GetMessage(): (message: string)
+        reads this
+    {
+        this.message
+    }
+}
+
  type TagKeyList = seq<TagKeyType>
  type TagKeyType = x: string | IsValid_TagKeyType(x) witness *
  predicate method IsValid_TagKeyType(x: string) {
@@ -1113,12 +1316,20 @@ import opened UTF8
  predicate method IsValid_TrustAnchorCertificateType(x: string) {
  ( 1 <= |x| <= 5000 )
 }
- datatype UnsupportedOperationException = UnsupportedOperationException (
-	nameonly message: Option<ErrorMessageType> ) {
- 	function method CastToString(): string {
-		if message.Some? then "UnsupportedOperationException: " + message.value else "UnsupportedOperationException"
-	}
- }
+ class UnsupportedOperationException extends IKeyManagementServiceException {
+    var message: string
+
+    constructor (message: string) {
+        this.message := message;
+    }
+
+    function method GetMessage(): (message: string)
+        reads this
+    {
+        this.message
+    }
+}
+
  datatype UntagResourceRequest = UntagResourceRequest (
 	nameonly KeyId: KeyIdType ,
 	nameonly TagKeys: TagKeyList )
