@@ -45,8 +45,8 @@ phases:
       - mkdir build
       - export VERSION=`grep '<Version>' Source/AWSEncryptionSDK.csproj | sed 's/.*<Version>\(.*\)<\/Version>/\1/'`
       - dotnet pack Source/AWSEncryptionSDK.csproj --no-build /p:Configuration=Release --output build
+      - python $BASE/retrieve_api_access_key.py
       - export API_ACCESS_KEY=$(python $BASE/retrieve_api_access_key.py)
-      - echo $API_ACCESS_KEY
       # TODO: Pending secrets manager creds from SDK team
       #- dotnet nuget push build/AWS.EncryptionSDK.$VERSION.nupkg --api-key $(API_ACCESS_KEY) --source https://api.nuget.org/v3/index.json
       # Now validate we can run examples

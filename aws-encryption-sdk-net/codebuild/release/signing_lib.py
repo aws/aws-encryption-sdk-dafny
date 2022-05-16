@@ -21,9 +21,7 @@ ARTIFACT_ACCESS_ROLE_ARN = "arn:aws:iam::349032751102:role/EncryptionSDKNetSigni
 
 # Constants for accessing our API key
 API_KEY_ROLE_ARN = "arn:aws:iam::582595803497:role/aws-net-encryption-sdk-key-build-role"
-# TODO: we won't have the actual value until it's created, because SM appends a random string
-# during creation
-API_KEY_SECRET_ARN = "arn:aws:secretsmanager:us-west-2:582595803497:secret:production/build/aws-net-encryption-sdk-key-nuget-api-key"
+API_KEY_SECRET_ARN = "arn:aws:secretsmanager:us-west-2:582595803497:secret:production/build/aws-net-encryption-sdk-key-nuget-api-key-XXKzXF"
 
 
 def parse_args():
