@@ -205,5 +205,6 @@ def retrieve_api_access_key():
         aws_session_token = creds['Credentials']['SessionToken'],
     )
 
-    return client.get_secret_value(SecretId=API_KEY_SECRET_ARN)
+    response = client.get_secret_value(SecretId=API_KEY_SECRET_ARN)
+    return response['SecretString']['Key']
 
