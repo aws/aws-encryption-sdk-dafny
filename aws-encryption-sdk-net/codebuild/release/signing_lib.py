@@ -1,6 +1,7 @@
 import argparse
 import os
 import time
+import json
 
 import boto3
 from botocore.config import Config
@@ -206,5 +207,9 @@ def retrieve_api_access_key():
     )
 
     response = client.get_secret_value(SecretId=API_KEY_SECRET_ARN)
-    return response['SecretString']['Key']
+
+    # Secrets Manager returns our secret value as a string containing json, i.e. '{"Key" : "Value"}'
+    # We need the value, so we parse it as json so we can easily grab it
+    parsed_secret = json.loads(response['SecretString'])
+    return parsed_secret['Key']
 
