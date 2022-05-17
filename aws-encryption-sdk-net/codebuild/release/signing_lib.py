@@ -1,6 +1,7 @@
 import argparse
 import os
 import time
+import json
 
 import boto3
 from botocore.config import Config
@@ -21,9 +22,7 @@ ARTIFACT_ACCESS_ROLE_ARN = "arn:aws:iam::349032751102:role/EncryptionSDKNetSigni
 
 # Constants for accessing our API key
 API_KEY_ROLE_ARN = "arn:aws:iam::582595803497:role/aws-net-encryption-sdk-key-build-role"
-# TODO: we won't have the actual value until it's created, because SM appends a random string
-# during creation
-API_KEY_SECRET_ARN = "arn:aws:secretsmanager:us-west-2:582595803497:secret:production/build/aws-net-encryption-sdk-key-nuget-api-key"
+API_KEY_SECRET_ARN = "arn:aws:secretsmanager:us-west-2:582595803497:secret:production/build/aws-net-encryption-sdk-key-nuget-api-key-XXKzXF"
 
 
 def parse_args():
@@ -207,5 +206,10 @@ def retrieve_api_access_key():
         aws_session_token = creds['Credentials']['SessionToken'],
     )
 
-    return client.get_secret_value(SecretId=API_KEY_SECRET_ARN)
+    response = client.get_secret_value(SecretId=API_KEY_SECRET_ARN)
+
+    # Secrets Manager returns our secret value as a string containing json, i.e. '{"Key" : "Value"}'
+    # We need the value, so we parse it as json so we can easily grab it
+    parsed_secret = json.loads(response['SecretString'])
+    return parsed_secret['Key']
 
