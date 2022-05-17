@@ -46,7 +46,7 @@ phases:
       - export VERSION=`grep '<Version>' Source/AWSEncryptionSDK.csproj | sed 's/.*<Version>\(.*\)<\/Version>/\1/'`
       - dotnet pack Source/AWSEncryptionSDK.csproj --no-build /p:Configuration=Release --output build
       - export API_ACCESS_KEY=$(python $BASE/retrieve_api_access_key.py)
-      - dotnet nuget push build/AWS.EncryptionSDK.$VERSION.nupkg --api-key $(API_ACCESS_KEY) --source https://api.nuget.org/v3/index.json
+      - dotnet nuget push build/AWS.EncryptionSDK.$VERSION.nupkg --api-key "$API_ACCESS_KEY" --source https://api.nuget.org/v3/index.json
       # Now validate we can run examples
       - sed -i.backup '/Source\/AWSEncryptionSDK.csproj/d' Examples/AWSEncryptionSDKExamples.csproj
       - dotnet add Examples/AWSEncryptionSDKExamples.csproj package AWS.EncryptionSDK --version $VERSION
