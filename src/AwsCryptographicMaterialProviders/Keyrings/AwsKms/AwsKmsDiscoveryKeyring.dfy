@@ -280,7 +280,7 @@ module
       && res.Success?
       && res.value
       ==>
-        
+
         // Pull out some values so we can compare them
         && UTF8.ValidUTF8Seq(edk.keyProviderInfo)
         && var keyId := UTF8.Decode(edk.keyProviderInfo);
@@ -458,7 +458,7 @@ module
           //= type=implication
           //# *  The "KeyId" field in the response MUST equal the AWS KMS ARN from
           //# the provider info
-          && returnedKeyId == Option.Some(keyArn)            
+          && returnedKeyId == Option.Some(keyArn)
     }
 
     method Invoke(
@@ -484,7 +484,7 @@ module
 
       var maybeDecryptResponse := client.Decrypt(decryptRequest);
       if maybeDecryptResponse.Failure? {
-        return Failure(KMS.CastKeyManagementServiceErrorToString(maybeDecryptResponse.error));
+        return Failure(maybeDecryptResponse.error.GetMessage());
       }
 
       var decryptResponse := maybeDecryptResponse.value;

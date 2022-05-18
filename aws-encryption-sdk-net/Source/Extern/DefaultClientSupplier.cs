@@ -21,7 +21,7 @@ namespace DefaultClientSupplier
             Dafny.Aws.EncryptionSdk.Core._IGetClientInput input)
         {
             GetClientInput convertedInput =
-                TypeConversion.FromDafny_N3_aws__N13_encryptionSdk__N4_core__S14_GetClientInput(input);
+                AWS.EncryptionSDK.Core.TypeConversion.FromDafny_N3_aws__N13_encryptionSdk__N4_core__S14_GetClientInput(input);
             try
             {
                 IAmazonKeyManagementService client;
@@ -38,14 +38,14 @@ namespace DefaultClientSupplier
                 // ReSharper disable once RedundantNameQualifier
                 return Wrappers_Compile.Result<Dafny.Com.Amazonaws.Kms.IKeyManagementServiceClient,
                     Dafny.Aws.EncryptionSdk.Core.IAwsCryptographicMaterialProvidersException>.create_Success(
-                    TypeConversion.ToDafny_N3_aws__N13_encryptionSdk__N4_core__S15_GetClientOutput__M6_client(client)
+                    AWS.EncryptionSDK.Core.TypeConversion.ToDafny_N3_aws__N13_encryptionSdk__N4_core__S15_GetClientOutput__M6_client(client)
                 );
             }
             catch (AmazonServiceException e)
             {
                 return Result<Dafny.Com.Amazonaws.Kms.IKeyManagementServiceClient,
                     Dafny.Aws.EncryptionSdk.Core.IAwsCryptographicMaterialProvidersException>.create_Failure(
-                    TypeConversion.ToDafny_CommonError(e)
+                    AWS.EncryptionSDK.Core.TypeConversion.ToDafny_CommonError(e)
                 );
             }
         }

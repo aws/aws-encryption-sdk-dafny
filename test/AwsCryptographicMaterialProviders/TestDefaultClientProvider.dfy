@@ -14,7 +14,7 @@ module TestDefaultClientProvider {
   import opened TestUtils
   import opened UInt = StandardLibrary.UInt
   import opened Wrappers
-  
+
   method {:test} GetUsWestTwo() {
     // Create material provider client
     var materialsClient := new Client.AwsCryptographicMaterialProviders();
@@ -24,7 +24,7 @@ module TestDefaultClientProvider {
       Crypto.CreateDefaultClientSupplierInput()
     );
     expect clientSupplierRes.Success?;
-    
+
     clientSupplier := clientSupplierRes.value;
     var clientRes := clientSupplier.GetClient(
       Crypto.GetClientInput(
@@ -35,13 +35,13 @@ module TestDefaultClientProvider {
     match clientRes {
       case Failure(error) => {
         print error.GetMessage();
-      }   
+      }
       case Success(value) => client := clientRes.value;
     }
 
     expect clientRes.Success?;
     expect client != null;
-    
+
     var kmsRequest := KMS.GenerateDataKeyRequest(
       KeyId := TestUtils.SHARED_TEST_KEY_ARN,
       EncryptionContext := Option.None,
@@ -53,7 +53,7 @@ module TestDefaultClientProvider {
     var kmsReply := client.GenerateDataKey(kmsRequest);
     match kmsReply {
       case Failure(error) => {
-        print KMS.CastKeyManagementServiceErrorToString(error);
+        print error.GetMessage();
       }
       case Success(value) => return;
     }

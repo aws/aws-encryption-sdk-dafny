@@ -454,7 +454,7 @@ module
 
       var maybeDecryptResponse := client.Decrypt(decryptRequest);
       if maybeDecryptResponse.Failure? {
-        return Failure(KMS.CastKeyManagementServiceErrorToString(maybeDecryptResponse.error));
+        return Failure(maybeDecryptResponse.error.GetMessage());
       }
 
       var decryptResponse := maybeDecryptResponse.value;

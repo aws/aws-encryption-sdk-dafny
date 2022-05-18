@@ -16,6 +16,7 @@
     <PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
     <RepositoryUrl>https://github.com/aws/aws-encryption-sdk-dafny</RepositoryUrl>
     <PackageIcon>icon.png</PackageIcon>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
     <PackageTags>AWS;Amazon;KMS;Encryption;Cryptography</PackageTags>
     <!--
       Ignore errors from generated code. Ideally this would be scoped to just the relevant files.
@@ -69,6 +70,7 @@
 
   <ItemGroup>
     <None Include="..\icon.png" Pack="true" PackagePath="" />
+    <None Include="..\README.md" Pack="true" PackagePath="" />
   </ItemGroup>
 
 </Project>
