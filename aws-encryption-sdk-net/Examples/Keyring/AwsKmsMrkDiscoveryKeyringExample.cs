@@ -2,7 +2,6 @@
 // SPDX-License-Identifier: Apache-2.0
 
 using System;
-using System.Collections.Generic;
 using System.IO;
 using Amazon;
 using Amazon.KeyManagementService;
@@ -10,52 +9,25 @@ using AWS.EncryptionSDK;
 using AWS.EncryptionSDK.Core;
 using Xunit;
 using static ExampleUtils.ExampleUtils;
+using static ExampleUtils.WriteExampleResources;
 
-/// Demonstrate decryption using an AWS KMS MRK discovery keyring.
+/// Demonstrate decryption using an AWS KMS Multi-Region Key (MRK) discovery keyring.
 public class AwsKmsMrkDiscoveryKeyringExample
 {
-    private static void Run(MemoryStream plaintext, string encryptKeyArn, RegionEndpoint decryptRegion)
-    {
-        // Create your encryption context.
-        // Remember that your encryption context is NOT SECRET.
-        // https://docs.aws.amazon.com/encryption-sdk/latest/developer-guide/concepts.html#encryption-context
-        var encryptionContext = new Dictionary<string, string>()
-        {
-            {"encryption", "context"},
-            {"is not", "secret"},
-            {"but adds", "useful metadata"},
-            {"that can help you", "be confident that"},
-            {"the data you are handling", "is what you think it is"}
-        };
+    private const string FILE_NAME = "defaultRegionMrkKey.bin";
 
+    private static void Run(MemoryStream plaintext, RegionEndpoint decryptRegion)
+    {
         // Instantiate the Material Providers and the AWS Encryption SDK
         var materialProviders =
             AwsCryptographicMaterialProvidersFactory.CreateDefaultAwsCryptographicMaterialProviders();
         var encryptionSdk = AwsEncryptionSdkFactory.CreateDefaultAwsEncryptionSdk();
 
-        // Create the keyring that determines how your data keys are protected.
-        // Though this example highlights MRK Discovery keyrings,
-        // MRK Discovery keyrings cannot be used to encrypt, so for encryption
-        // we create a KMS MRK keyring.
-        var createKeyringInput = new CreateAwsKmsMrkKeyringInput
-        {
-            KmsClient = new AmazonKeyManagementServiceClient(GetRegionEndpointFromArn(encryptKeyArn)),
-            KmsKeyId = encryptKeyArn
-        };
-        var encryptKeyring = materialProviders.CreateAwsKmsMrkKeyring(createKeyringInput);
-
-        // Encrypt your plaintext data.
-        var encryptInput = new EncryptInput
-        {
-            Plaintext = plaintext,
-            Keyring = encryptKeyring,
-            EncryptionContext = encryptionContext
-        };
-        var encryptOutput = encryptionSdk.Encrypt(encryptInput);
-        var ciphertext = encryptOutput.Ciphertext;
-
-        // Demonstrate that the ciphertext and plaintext are different.
-        Assert.NotEqual(ciphertext.ToArray(), plaintext.ToArray());
+        // To focus on the AWS KMS MRK Discovery Keyring,
+        // we will rely on a helper method
+        // to provide the encrypted message (ciphertext).
+        var ciphertext = ReadMessage(FILE_NAME);
+        var encryptionContext = GetEncryptionContext();
 
         // Now create a Discovery keyring to use for decryption.
         // In order to illustrate the MRK behavior of this keyring, we configure
@@ -63,7 +35,12 @@ public class AwsKmsMrkDiscoveryKeyringExample
         var createDecryptKeyringInput = new CreateAwsKmsMrkDiscoveryKeyringInput
         {
             KmsClient = new AmazonKeyManagementServiceClient(decryptRegion),
-            Region = decryptRegion.SystemName
+            Region = decryptRegion.SystemName,
+            DiscoveryFilter = new DiscoveryFilter()
+            {
+                AccountIds = GetAccountIds(),
+                Partition = "aws"
+            }
         };
         var decryptKeyring = materialProviders.CreateAwsKmsMrkDiscoveryKeyring(createDecryptKeyringInput);
 
@@ -74,7 +51,7 @@ public class AwsKmsMrkDiscoveryKeyringExample
         // - EDKs encrypted by Single Region KMS Keys in the keyring's region
         // OR
         // - EDKs encrypted by Multi Region KMS Keys
-        // Additionally, the keyring would filter these KMS encrypted data keys
+        // Additionally, the keyring filters these KMS encrypted data keys
         // by the keyring's Discovery Filter, if a Discovery Filter is
         // present on the keyring.
         // Finally, KMS is called to decrypt each filtered EDK until an EDK is
@@ -111,9 +88,12 @@ public class AwsKmsMrkDiscoveryKeyringExample
     [Fact]
     public void TestAwsKmsMrkDiscoveryKeyringExample()
     {
+        if (!File.Exists(GetResourcePath(FILE_NAME)))
+        {
+            EncryptAndWrite(GetPlaintextStream(), GetDefaultRegionMrkKeyArn(), FILE_NAME);
+        }
         Run(
             GetPlaintextStream(),
-            GetDefaultRegionMrkKeyArn(),
             GetRegionEndpointFromArn(GetAlternateRegionMrkKeyArn())
         );
     }
