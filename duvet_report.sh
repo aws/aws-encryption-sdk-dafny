@@ -25,6 +25,6 @@ fi
 $SPEC_ROOT/util/report.js \
   $(find src -name '*.dfy') \
   $(find test -name '*.dfy') \
-  $(find aws-encryption-sdk-net-formally-verified/Source -name '*.cs') \
-  $(find aws-encryption-sdk-net-formally-verified/Test -name '*.cs') \
+  $(find aws-encryption-sdk-net/Source -name '*.cs') \
+  $(find aws-encryption-sdk-net/Test -name '*.cs') \
   $(find compliance_exceptions -name '*.txt')
