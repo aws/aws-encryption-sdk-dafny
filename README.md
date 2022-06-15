@@ -22,7 +22,7 @@ dotnet build -t:VerifyDafny test
 The tests currently require native implementations of cryptographic primitives and other methods,
 so they can only be run when embedding this library into one of the compilation target languages supported by Dafny:
 
-- [.NET](https://github.com/awslabs/aws-encryption-sdk-net)
+- [.NET](aws-encryption-sdk-net)
 
 ## Generate Duvet Reports
 
