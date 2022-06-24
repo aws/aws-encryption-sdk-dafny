@@ -6,7 +6,7 @@ phases:
       dotnet: 5.0
     commands:
       - dotnet --info
-      - nuget help
+      - dotnet nuget --version
       - cd ..
       # Get Dafny
       - curl https://github.com/dafny-lang/dafny/releases/download/v3.5.0/dafny-3.5.0-x64-ubuntu-16.04.zip -L -o dafny.zip
