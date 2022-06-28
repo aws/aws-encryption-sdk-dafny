@@ -14,6 +14,11 @@ jobs:
       # it to verify the Dafny code. Instead we manually pull the submodule we DO need.
       - run: git submodule update --init libraries
 
+      - name: Set up .NET
+        uses: actions/setup-dotnet@v1
+        with:
+          dotnet-version: 6.0.x
+
       - name: Setup Dafny
         uses: dafny-lang/setup-dafny-action@v1
         with:
