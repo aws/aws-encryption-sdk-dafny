@@ -14,8 +14,6 @@ jobs:
       # it to verify the Dafny code. Instead we manually pull the submodule we DO need.
       - run: git submodule update --init libraries
 
-      # .NET is already installed, but v5.0, which dafny-reportgenerator
-      # currently doesn't work with.
       - name: Set up .NET
         uses: actions/setup-dotnet@v1
         with:
@@ -29,16 +27,9 @@ jobs:
       - name: Install dafny-reportgenerator
         run: dotnet tool install --global dafny-reportgenerator
 
-      - name: Verify Dafny code with stability analysis
-        # Analyzes the stability of verification by running it several
-        # more times and calculating statistics
-        #
-        # Runs Dafny directly because it doesn't seem like we can pass
-        # multiple arguments to it through MSBuild.
-        run: |
-          SRC_DFYS=`find src -name "*.dfy"`
-          TEST_DFYS=`find test -name "*.dfy"`
-          dafny /compile:0 /vcsCores:3 /verificationLogger:csv /randomSeedIterations:3 ${SRC_DFYS} ${TEST_DFYS}
+      - name: Verify Dafny code
+        # Currently, test depends on src, so verifying test will also verify src
+        run: dotnet build -t:VerifyDafny -p:VerifyDafnyJobs=2 -p:TestVerifyOverride="verificationLogger:csv" test
 
       - name: Check durations
-        run: dafny-reportgenerator summarize-csv-results --max-duration-seconds 40 TestResults/*.csv
+        run: dafny-reportgenerator summarize-csv-results --max-duration-seconds 40 test/TestResults/*.csv
