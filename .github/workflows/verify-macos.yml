@@ -28,8 +28,10 @@ jobs:
         run: dotnet tool install --global dafny-reportgenerator
 
       - name: Verify Dafny code
-        # Currently, test depends on src, so verifying test will also verify src
-        run: dotnet build -t:VerifyDafny -p:VerifyDafnyJobs=2 -p:TestVerifyOverride="verificationLogger:csv" test
+        run: |
+          SRC_DFYS=`find src -name "*.dfy"`
+          TEST_DFYS=`find test -name "*.dfy"`
+          dafny /compile:0 /verificationLogger:csv /vcsCores:3 /trace ${SRC_DFYS} ${TEST_DFYS}
 
       - name: Check durations
-        run: dafny-reportgenerator summarize-csv-results --max-duration-seconds 40 test/TestResults/*.csv
+        run: dafny-reportgenerator summarize-csv-results --max-duration-seconds 40 TestResults/*.csv
