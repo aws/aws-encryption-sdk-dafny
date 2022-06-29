@@ -33,4 +33,4 @@ jobs:
 
       - name: Check durations
         if: always()
-        run: dafny-reportgenerator summarize-csv-results --max-duration-seconds 40 test/TestResults/*.csv
+        run: dafny-reportgenerator summarize-csv-results --max-resource-count 300000000 test/TestResults/*.csv
