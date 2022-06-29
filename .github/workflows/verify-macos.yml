@@ -14,6 +14,7 @@ jobs:
       # it to verify the Dafny code. Instead we manually pull the submodule we DO need.
       - run: git submodule update --init libraries
 
+      # .NET is already installed, but we need a newer version for dafny-reportgenerator
       - name: Set up .NET
         uses: actions/setup-dotnet@v1
         with:
@@ -33,4 +34,4 @@ jobs:
 
       - name: Check durations
         if: always()
-        run: dafny-reportgenerator summarize-csv-results --max-duration-seconds 40 test/TestResults/*.csv
+        run: dafny-reportgenerator summarize-csv-results --max-duration-seconds 45 test/TestResults/*.csv
