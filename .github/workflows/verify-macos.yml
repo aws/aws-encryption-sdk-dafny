@@ -29,8 +29,9 @@ jobs:
         run: dotnet tool install --global dafny-reportgenerator
 
       - name: Verify Dafny code
-        # Currently, test depends on src, so verifying test will also verify src
-        run: dotnet build -t:VerifyDafny -p:VerifyDafnyJobs=2 -p:TestVerifyOverride="verificationLogger:csv" test
+        # We can't use `dotnet build` because we need to pass more
+        # options to Dafny
+        run: dafny /compile:0 /trace /vcsCores:2 /verificationLogger:csv /verificationLogger:trx `find src test -name "*.dfy"`
 
       - name: Check durations
         if: always()
