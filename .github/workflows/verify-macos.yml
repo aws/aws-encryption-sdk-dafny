@@ -23,7 +23,7 @@ jobs:
       - name: Setup Dafny
         uses: dafny-lang/setup-dafny-action@v1
         with:
-          dafny-version: "3.5.0"
+          dafny-version: "3.7.1"
 
       - name: Install dafny-reportgenerator
         run: dotnet tool install --global dafny-reportgenerator
