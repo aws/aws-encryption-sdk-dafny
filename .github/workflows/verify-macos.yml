@@ -29,10 +29,9 @@ jobs:
         run: dotnet tool install --global dafny-reportgenerator
 
       - name: Verify Dafny code
-        # We can't use `dotnet build` because we need to pass more
-        # options to Dafny
+        # We can't use `dotnet build` because we need to pass more than one option to Dafny
         run: dafny /compile:0 /trace /vcsCores:2 /verificationLogger:csv /verificationLogger:trx `find src test -name "*.dfy"`
 
-      - name: Check durations
+      - name: Check solver resource use
         if: always()
         run: dafny-reportgenerator summarize-csv-results --max-resource-count 600000000 TestResults/*.csv
