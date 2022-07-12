@@ -1,8 +1,6 @@
 // Copyright Amazon.com Inc. or its affiliates. All Rights Reserved.
 // SPDX-License-Identifier: Apache-2.0
 
-using System;
-using System.Reflection;
 using System.Threading.Tasks;
 using Amazon;
 using Amazon.KeyManagementService;
@@ -79,11 +77,9 @@ namespace DefaultClientSupplier
 
         static UserAgentHandler()
         {
-            AssemblyName assembly = typeof(UserAgentHandler).Assembly.GetName();
-            string version = $"{assembly.Version.Major}.{assembly.Version.Minor}.{assembly.Version.Build}";
-            UserAgentSuffix = $" AwsEncryptionSdkNet/{version}";
-
-            Console.WriteLine(assembly);
+            var version = typeof(UserAgentHandler).Assembly.GetName().Version;
+            var semver = $"{version.Major}.{version.Minor}.{version.Build}";
+            UserAgentSuffix = $" AwsEncryptionSdkNet/{semver}";
         }
 
         /// <inheritdoc />
@@ -100,7 +96,7 @@ namespace DefaultClientSupplier
             return base.InvokeAsync<T>(executionContext);
         }
 
-        protected void AddUserAgent(IExecutionContext executionContext)
+        private static void AddUserAgent(IExecutionContext executionContext)
         {
             var request = executionContext.RequestContext.Request;
             request.Headers[AWSSDKUtils.UserAgentHeader] += UserAgentSuffix;
