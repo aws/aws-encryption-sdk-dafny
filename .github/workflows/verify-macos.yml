@@ -22,7 +22,7 @@ jobs:
 
       - name: Install Dafny and dafny-reportgenerator
         run: |
-          dotnet tool install --global Dafny --version 3.7.2
+          dotnet tool install --global Dafny --version 3.7.1
           dotnet tool install --global dafny-reportgenerator --version 1.0.1
 
       - name: Verify Dafny code
