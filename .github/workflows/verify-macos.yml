@@ -26,7 +26,7 @@ jobs:
           dafny-version: "3.7.1"
 
       - name: Install dafny-reportgenerator
-        run: dotnet tool install --global dafny-reportgenerator
+        run: dotnet tool install --global dafny-reportgenerator --version 1.2.0
 
       - name: Verify Dafny code
         # We can't use `dotnet build` because we need to pass more than one option to Dafny
