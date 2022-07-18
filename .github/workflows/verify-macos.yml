@@ -31,9 +31,15 @@ jobs:
       - name: Verify Dafny code
         # We can't use `dotnet build` because we need to pass more than one option to Dafny
         run: |
-          dafny /compile:0 /trace /vcsCores:2 /verificationLogger:csv /verificationLogger:trx `find src test -name "*.dfy"`
-          dafny /compile:0 /trace /vcsCores:2 /randomSeed:1 /randomSeedIterations:2 /verificationLogger:csv /verificationLogger:trx `find src test -name "*.dfy"` || true
+          dafny /compile:0 /trace /vcsCores:4 /verificationLogger:csv /verificationLogger:trx `find src test -name "*.dfy"`
+          dafny /compile:0 /trace /vcsCores:4 /randomSeed:1 /randomSeedIterations:2 /timeLimit:120 /verificationLogger:csv /verificationLogger:trx `find src test -name "*.dfy"` || true
 
       - name: Check solver resource use
         if: always()
-        run: dafny-reportgenerator summarize-csv-results --max-resource-count 600000000 TestResults/*.csv
+        # The --allow-different-outcomes flag should be removed,
+        # eventually, once stability analysis no longer reliably leads
+        # to some proofs failing to complete. And --max-resource-cv-pct
+        # can probably get a smaller and smaller argument over time, as
+        # the proofs get more stable. Aiming for 10-20 is probably a
+        # good target.
+        run: dafny-reportgenerator summarize-csv-results --allow-different-outcomes --max-resource-cv-pct 150 --max-resource-count 800000000 TestResults/*.csv
