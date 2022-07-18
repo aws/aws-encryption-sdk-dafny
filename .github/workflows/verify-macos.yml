@@ -30,7 +30,9 @@ jobs:
 
       - name: Verify Dafny code
         # We can't use `dotnet build` because we need to pass more than one option to Dafny
-        run: dafny /compile:0 /trace /vcsCores:2 /verificationLogger:csv /verificationLogger:trx `find src test -name "*.dfy"`
+        run: |
+          dafny /compile:0 /trace /vcsCores:2 /verificationLogger:csv /verificationLogger:trx `find src test -name "*.dfy"`
+          dafny /compile:0 /trace /vcsCores:2 /randomSeed:1 /randomSeedIterations:2 /verificationLogger:csv /verificationLogger:trx `find src test -name "*.dfy"` || true
 
       - name: Check solver resource use
         if: always()
