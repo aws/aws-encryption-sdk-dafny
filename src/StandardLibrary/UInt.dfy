@@ -88,10 +88,11 @@ module StandardLibrary.UInt {
     requires |s| == 4
     ensures UInt32ToSeq(x) == s
   {
-    var x0 := s[0] as uint32 * 0x100_0000;
-    var x1 := x0 + s[1] as uint32 * 0x1_0000;
-    var x2 := x1 + s[2] as uint32 * 0x100;
-    x2 + s[3] as uint32
+    var x0 := 0x100_0000 * s[0] as uint32;
+    var x1 := 0x1_0000   * s[1] as uint32;
+    var x2 := 0x100      * s[2] as uint32;
+    var x3 := s[3] as uint32;
+    x0 + x1 + x2 + x3
   }
 
   lemma UInt32SeqSerializeDeserialize(x: uint32)
