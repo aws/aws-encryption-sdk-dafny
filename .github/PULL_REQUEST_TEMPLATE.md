@@ -22,4 +22,4 @@ that trait is defined in a different module
 (and hence must have `{:termination false}` on it).
 
 As such, if either (1.) or (2.) is true:
-Have you [ ] manually verified all the trait specifications are copied onto classes that extend them?
+- [ ] manually verified all the trait specifications are copied onto classes that extend them?
