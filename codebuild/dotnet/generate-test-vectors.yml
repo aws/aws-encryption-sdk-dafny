@@ -8,7 +8,7 @@ phases:
   install:
     runtime-versions:
       dotnet: 6.0
-      nodejs: 14
+      nodejs: 16
     commands:
       # Get Dafny
       - cd $CODEBUILD_SRC_DIR/..
