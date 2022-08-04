@@ -10,12 +10,12 @@ The AWS Encryption SDK is available on [NuGet](https://www.nuget.org/) and can r
 
 Using the dotnet CLI:
 ```shell
-dotnet add <your-project-name>.csproj package AWSEncryptionSDK
+dotnet add <your-project-name>.csproj package AWS.EncryptionSDK
 ```
 
 Alternatively, you may directly modify the `.csproj` and add the AWS Encryption SDK to `PackageReference` `ItemGroup`:
 ```xml
-<PackageReference Include="AWSEncryptionSDK" />
+<PackageReference Include="AWS.EncryptionSDK" />
 ```
 
 The AWS Encryption SDK targets both [.NET/.NET Core](https://docs.microsoft.com/en-us/dotnet/core/introduction) 3.1 and newer on all platforms, and [.NET Framework](https://docs.microsoft.com/en-us/dotnet/framework/) 4.5.2 and newer on Windows only.
