@@ -10,6 +10,9 @@ phases:
       - curl https://github.com/dafny-lang/dafny/releases/download/v3.5.0/dafny-3.5.0-x64-ubuntu-16.04.zip -L -o dafny.zip
       - unzip -qq dafny.zip && rm dafny.zip
       - export PATH="$PWD/dafny:$PATH"
+      # Install additional .NET runtime(s) as needed
+      - curl https://dot.net/v1/dotnet-install.sh -L -o dotnet-install.sh
+      - ./dotnet-install.sh --runtime dotnet --channel 3.1
       # Switch back to the main directory
       - cd aws-encryption-sdk-dafny/aws-encryption-sdk-net
   build:
