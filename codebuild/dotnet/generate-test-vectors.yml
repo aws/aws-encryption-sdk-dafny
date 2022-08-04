@@ -7,7 +7,7 @@ env:
 phases:
   install:
     runtime-versions:
-      dotnet: 5.0
+      dotnet: 6.0
       nodejs: 14
     commands:
       # Get Dafny
