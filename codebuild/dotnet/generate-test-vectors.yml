@@ -9,7 +9,7 @@ phases:
     runtime-versions:
       # TODO update to .NET 6.0
       dotnet: 5.0
-      nodejs: 16
+      nodejs: 14
     commands:
       # Get Dafny
       - cd $CODEBUILD_SRC_DIR/..
