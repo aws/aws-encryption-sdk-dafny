@@ -3,17 +3,14 @@ version: 0.2
 phases:
   install:
     runtime-versions:
-      dotnet: 6.0
+      # TODO update to .NET 6.0
+      dotnet: 5.0
     commands:
       - cd ..
       # Get Dafny
       - curl https://github.com/dafny-lang/dafny/releases/download/v3.5.0/dafny-3.5.0-x64-ubuntu-16.04.zip -L -o dafny.zip
       - unzip -qq dafny.zip && rm dafny.zip
       - export PATH="$PWD/dafny:$PATH"
-      # Install additional .NET runtime(s) as needed
-      - curl https://dot.net/v1/dotnet-install.sh -L -o dotnet-install.sh
-      - chmod +x dotnet-install.sh
-      - ./dotnet-install.sh --runtime dotnet --channel 3.1
       # Set up environment for running test vectors
       - wget https://github.com/awslabs/aws-encryption-sdk-test-vectors/raw/master/vectors/awses-decrypt/python-2.3.0.zip
       - unzip -qq python-2.3.0.zip && rm python-2.3.0.zip
