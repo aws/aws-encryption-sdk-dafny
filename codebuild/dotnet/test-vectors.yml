@@ -18,7 +18,7 @@ phases:
       # current working directory
       - export DAFNY_AWS_ESDK_TEST_VECTOR_MANIFEST_PATH="${PWD}/manifest.json"
       # Switch back to the main directory
-      - cd aws-encryption-sdk-dafny/aws-encryption-sdk-net
+      - cd private-aws-encryption-sdk-dafny-staging/aws-encryption-sdk-net
   build:
     commands:
       - dotnet test -f netcoreapp3.1 TestVectors /nowarn:CS0105
