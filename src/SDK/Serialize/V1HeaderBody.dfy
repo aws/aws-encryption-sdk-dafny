@@ -28,8 +28,8 @@ module V1HeaderBody {
   import opened SerializeFunctions
 
   type V1HeaderBody = h: HeaderTypes.HeaderBody
-  | h.V1HeaderBody?
-  witness *
+    | h.V1HeaderBody?
+    witness *
 
   //= compliance/data-format/message-header.txt#2.5.2.1
   //= type=implication
@@ -37,8 +37,8 @@ module V1HeaderBody {
   //# 00 00 00".
   const RESERVED_BYTES: seq<uint8> := [0x00, 0x00, 0x00, 0x00];
   type ReservedBytes = s: seq<uint8>
-  | s == RESERVED_BYTES
-  witness RESERVED_BYTES
+    | s == RESERVED_BYTES
+    witness RESERVED_BYTES
 
   function method WriteV1HeaderBody(
     body: V1HeaderBody
@@ -71,50 +71,50 @@ module V1HeaderBody {
     //# corresponding to Customer Authenticated Encrypted Data (../data-
     //# format/message-header.md#supported-types)
     + (WriteV1MessageType(body.messageType)
-    //= compliance/client-apis/encrypt.txt#2.6.2
-    //# *  Algorithm Suite ID (../data-format/message-header.md#algorithm-
-    //# suite-id): MUST correspond to the algorithm suite (../framework/
-    //# algorithm-suites.md) used in this behavior
-    + (WriteESDKSuiteId(body.esdkSuiteId)
-    //= compliance/client-apis/encrypt.txt#2.6.2
-    //# *  Message ID (../data-format/message-header.md#message-id): The
-    //# process used to generate this identifier MUST use a good source of
-    //# randomness to make the chance of duplicate identifiers negligible.
-    + (WriteMessageId(body.messageId)
-    //= compliance/client-apis/encrypt.txt#2.6.2
-    //# *  AAD (../data-format/message-header.md#aad): MUST be the
-    //# serialization of the encryption context (../framework/
-    //# structures.md#encryption-context) in the encryption materials
-    //# (../framework/structures.md#encryption-materials)
-    + (WriteAADSection(body.encryptionContext)
-    //= compliance/client-apis/encrypt.txt#2.6.2
-    //# *  Encrypted Data Keys (../data-format/message-header.md#encrypted-
-    //# data-key-entries): MUST be the serialization of the encrypted data
-    //# keys (../framework/structures.md#encrypted-data-keys) in the
-    //# encryption materials (../framework/structures.md#encryption-
-    //# materials)
-    + (WriteEncryptedDataKeysSection(body.encryptedDataKeys)
-    //= compliance/client-apis/encrypt.txt#2.6.2
-    //# *  Content Type (../data-format/message-header.md#content-type): MUST
-    //# be 02 (../data-format/message-header.md#supported-content-types)
-    + (WriteContentType(body.contentType)
-    + (WriteV1ReservedBytes(RESERVED_BYTES)
-    //= compliance/data-format/message-header.txt#2.5.2.2
-    //# This value MUST be
-    //# equal to the IV length (../framework/algorithm-suites.md#iv-length)
-    //# value of the algorithm suite (../framework/algorithm-suites.md)
-    //# specified by the Algorithm Suite ID (Section 2.5.1.5) field.
-    //
-    //= compliance/client-apis/encrypt.txt#2.6.2
-    //# *  IV Length (../data-format/message-header.md#iv-length): MUST match
-    //# the IV length (../framework/algorithm-suites.md#iv-length)
-    //# specified by the algorithm suite (../framework/algorithm-
-    //# suites.md)
-    + (WriteV1HeaderIvLength(suite.encrypt.ivLength)
-    //= compliance/client-apis/encrypt.txt#2.6.2
-    //# *  Frame Length (../data-format/message-header.md#frame-length): MUST
-    //# be the value of the frame size determined above.
-    + (WriteUint32(body.frameLength))))))))))
+       //= compliance/client-apis/encrypt.txt#2.6.2
+       //# *  Algorithm Suite ID (../data-format/message-header.md#algorithm-
+       //# suite-id): MUST correspond to the algorithm suite (../framework/
+       //# algorithm-suites.md) used in this behavior
+       + (WriteESDKSuiteId(body.esdkSuiteId)
+          //= compliance/client-apis/encrypt.txt#2.6.2
+          //# *  Message ID (../data-format/message-header.md#message-id): The
+          //# process used to generate this identifier MUST use a good source of
+          //# randomness to make the chance of duplicate identifiers negligible.
+          + (WriteMessageId(body.messageId)
+             //= compliance/client-apis/encrypt.txt#2.6.2
+             //# *  AAD (../data-format/message-header.md#aad): MUST be the
+             //# serialization of the encryption context (../framework/
+             //# structures.md#encryption-context) in the encryption materials
+             //# (../framework/structures.md#encryption-materials)
+             + (WriteAADSection(body.encryptionContext)
+                //= compliance/client-apis/encrypt.txt#2.6.2
+                //# *  Encrypted Data Keys (../data-format/message-header.md#encrypted-
+                //# data-key-entries): MUST be the serialization of the encrypted data
+                //# keys (../framework/structures.md#encrypted-data-keys) in the
+                //# encryption materials (../framework/structures.md#encryption-
+                //# materials)
+                + (WriteEncryptedDataKeysSection(body.encryptedDataKeys)
+                   //= compliance/client-apis/encrypt.txt#2.6.2
+                   //# *  Content Type (../data-format/message-header.md#content-type): MUST
+                   //# be 02 (../data-format/message-header.md#supported-content-types)
+                   + (WriteContentType(body.contentType)
+                      + (WriteV1ReservedBytes(RESERVED_BYTES)
+                         //= compliance/data-format/message-header.txt#2.5.2.2
+                         //# This value MUST be
+                         //# equal to the IV length (../framework/algorithm-suites.md#iv-length)
+                         //# value of the algorithm suite (../framework/algorithm-suites.md)
+                         //# specified by the Algorithm Suite ID (Section 2.5.1.5) field.
+                         //
+                         //= compliance/client-apis/encrypt.txt#2.6.2
+                         //# *  IV Length (../data-format/message-header.md#iv-length): MUST match
+                         //# the IV length (../framework/algorithm-suites.md#iv-length)
+                         //# specified by the algorithm suite (../framework/algorithm-
+                         //# suites.md)
+                         + (WriteV1HeaderIvLength(suite.encrypt.ivLength)
+                            //= compliance/client-apis/encrypt.txt#2.6.2
+                            //# *  Frame Length (../data-format/message-header.md#frame-length): MUST
+                            //# be the value of the frame size determined above.
+                            + (WriteUint32(body.frameLength))))))))))
   }
 
   function method {:vcs_split_on_every_assert} ReadV1HeaderBody(
@@ -145,27 +145,27 @@ module V1HeaderBody {
     var reservedBytes :- ReadV1ReservedBytes(contentType.tail);
 
     var headerIvLength :- ReadV1HeaderIvLength(
-      reservedBytes.tail,
-      suite
-    );
+                            reservedBytes.tail,
+                            suite
+                          );
 
     var frameLength :- ReadUInt32(headerIvLength.tail);
 
     var body:V1HeaderBody := HeaderTypes.V1HeaderBody(
-      messageType := messageType.data,
-      esdkSuiteId := esdkSuiteId.data,
-      messageId := messageId.data,
-      encryptionContext := encryptionContext.data,
-      encryptedDataKeys := encryptedDataKeys.data,
-      contentType := contentType.data,
-      headerIvLength := headerIvLength.data as nat,
-      frameLength := frameLength.data
-    );
+                               messageType := messageType.data,
+                               esdkSuiteId := esdkSuiteId.data,
+                               messageId := messageId.data,
+                               encryptionContext := encryptionContext.data,
+                               encryptedDataKeys := encryptedDataKeys.data,
+                               contentType := contentType.data,
+                               headerIvLength := headerIvLength.data as nat,
+                               frameLength := frameLength.data
+                             );
 
     assert if IsV1ExpandedAADSection(buffer) then
-      WriteV1ExpandedAADSectionHeaderBody(body) <= buffer.bytes[buffer.start..]
-    else
-      WriteV1HeaderBody(body) <= buffer.bytes[buffer.start..];
+        WriteV1ExpandedAADSectionHeaderBody(body) <= buffer.bytes[buffer.start..]
+      else
+        WriteV1HeaderBody(body) <= buffer.bytes[buffer.start..];
 
     Success(SuccessfulRead(body, frameLength.tail))
   }
@@ -266,16 +266,16 @@ module V1HeaderBody {
     // with associativity of concatenation
     // (knowing that (a + b) + c == a + (b + c) ).
     // So manually adding the () helps make it clear.
-      WriteMessageFormatVersion(HeaderTypes.MessageFormatVersion.V1)
+    WriteMessageFormatVersion(HeaderTypes.MessageFormatVersion.V1)
     + (WriteV1MessageType(body.messageType)
-    + (WriteESDKSuiteId(body.esdkSuiteId)
-    + (WriteMessageId(body.messageId)
-    + (WriteExpandedAADSection(body.encryptionContext)
-    + (WriteEncryptedDataKeysSection(body.encryptedDataKeys)
-    + (WriteContentType(body.contentType)
-    + (WriteV1ReservedBytes(RESERVED_BYTES)
-    + (WriteV1HeaderIvLength(suite.encrypt.ivLength)
-    + (WriteUint32(body.frameLength))))))))))
+       + (WriteESDKSuiteId(body.esdkSuiteId)
+          + (WriteMessageId(body.messageId)
+             + (WriteExpandedAADSection(body.encryptionContext)
+                + (WriteEncryptedDataKeysSection(body.encryptedDataKeys)
+                   + (WriteContentType(body.contentType)
+                      + (WriteV1ReservedBytes(RESERVED_BYTES)
+                         + (WriteV1HeaderIvLength(suite.encrypt.ivLength)
+                            + (WriteUint32(body.frameLength))))))))))
   }
 
 }

@@ -69,7 +69,7 @@ module StandardLibrary {
     requires elemIndex == |s| || s[elemIndex] == c
     ensures FindIndexMatching(s, c, start) == if elemIndex == |s| then None else Some(elemIndex)
     decreases elemIndex - start
-    {}
+  {}
 
   function method FindIndexMatching<T(==)>(s: seq<T>, c: T, i: nat): (index: Option<nat>)
     requires i <= |s|
@@ -179,17 +179,17 @@ module StandardLibrary {
     && (lengthOfCommonPrefix == |a| || (lengthOfCommonPrefix < |b| && less(a[lengthOfCommonPrefix], b[lengthOfCommonPrefix])))
   }
 
-   /*
-    * In order for the lexicographic ordering above to have the expected properties, the
-    * relation "less" must be trichotomous and transitive.
-    *
-    * For an ordering `less` to be _trichotomous_ means that for any two `x` and `y`,
-    * EXACTLY one of the following three conditions holds:
-    *   - less(x, y)
-    *   - x == y
-    *   - less(y, x)
-    * Note that being trichotomous implies being irreflexive.
-    */
+  /*
+   * In order for the lexicographic ordering above to have the expected properties, the
+   * relation "less" must be trichotomous and transitive.
+   *
+   * For an ordering `less` to be _trichotomous_ means that for any two `x` and `y`,
+   * EXACTLY one of the following three conditions holds:
+   *   - less(x, y)
+   *   - x == y
+   *   - less(y, x)
+   * Note that being trichotomous implies being irreflexive.
+   */
 
   predicate Trichotomous<T(!new)>(less: (T, T) -> bool) {
     (forall x, y :: less(x, y) || x == y || less(y, x)) &&  // at least one of the three

@@ -10,10 +10,10 @@ module {:extern "AESEncryption"} AESEncryption {
 
   export
     provides AESDecrypt, AESEncrypt, AESDecryptExtern, AESEncryptExtern, Wrappers,
-      UInt, PlaintextDecryptedWithAAD, EncryptionOutputEncryptedWithAAD, CiphertextGeneratedWithPlaintext,
-      EncryptedWithKey, DecryptedWithKey
-    reveals 
-      EncryptionOutput, 
+             UInt, PlaintextDecryptedWithAAD, EncryptionOutputEncryptedWithAAD, CiphertextGeneratedWithPlaintext,
+             EncryptedWithKey, DecryptedWithKey
+    reveals
+      EncryptionOutput,
       AES_GCM,
       KeyLength,
       TagLength,
@@ -24,10 +24,10 @@ module {:extern "AESEncryption"} AESEncryption {
   type IVLength = l: uint8 | l == 12 witness 12
 
   datatype AES_GCM = AES_GCM(
-    nameonly keyLength: KeyLength,
-    nameonly tagLength: TagLength,
-    nameonly ivLength: IVLength
-  )
+                       nameonly keyLength: KeyLength,
+                       nameonly tagLength: TagLength,
+                       nameonly ivLength: IVLength
+                     )
 
   datatype EncryptionOutput = EncryptionOutput(cipherText: seq<uint8>, authTag: seq<uint8>)
 
@@ -49,7 +49,7 @@ module {:extern "AESEncryption"} AESEncryption {
   }
 
   method {:extern "AESEncryption.AES_GCM", "AESEncryptExtern"} AESEncryptExtern(encAlg: AES_GCM, iv: seq<uint8>, key: seq<uint8>, msg: seq<uint8>, aad: seq<uint8>)
-      returns (res : Result<EncryptionOutput, string>)
+    returns (res : Result<EncryptionOutput, string>)
     requires |iv| == encAlg.ivLength as int
     requires |key| == encAlg.keyLength as int
     ensures res.Success? ==> EncryptionOutputEncryptedWithAAD(res.value, aad)
@@ -57,28 +57,28 @@ module {:extern "AESEncryption"} AESEncryption {
     ensures res.Success? ==> EncryptedWithKey(res.value.cipherText, key)
 
   method AESEncrypt(encAlg: AES_GCM, iv: seq<uint8>, key: seq<uint8>, msg: seq<uint8>, aad: seq<uint8>)
-      returns (res : Result<EncryptionOutput, string>)
+    returns (res : Result<EncryptionOutput, string>)
     requires |iv| == encAlg.ivLength as int
     requires |key| == encAlg.keyLength as int
     ensures res.Success? ==>
-      |res.value.cipherText| == |msg| && |res.value.authTag| == encAlg.tagLength as int
+              |res.value.cipherText| == |msg| && |res.value.authTag| == encAlg.tagLength as int
     ensures res.Success? ==> EncryptionOutputEncryptedWithAAD(res.value, aad)
     ensures res.Success? ==> CiphertextGeneratedWithPlaintext(res.value.cipherText, msg)
     ensures res.Success? ==> EncryptedWithKey(res.value.cipherText, key)
     // This is useful information to have to prove correctness
     ensures res.Success? ==> |res.value.authTag| == encAlg.tagLength as nat
-    {
-      res := AESEncryptExtern(encAlg, iv, key, msg, aad);
-      if (res.Success? && |res.value.cipherText| != |msg|){
-        res := Failure("AESEncrypt did not return cipherText of expected length");
-      }
-      if (res.Success? && |res.value.authTag| != encAlg.tagLength as int){
-        res := Failure("AESEncryption did not return valid tag");
-      }
+  {
+    res := AESEncryptExtern(encAlg, iv, key, msg, aad);
+    if (res.Success? && |res.value.cipherText| != |msg|){
+      res := Failure("AESEncrypt did not return cipherText of expected length");
     }
+    if (res.Success? && |res.value.authTag| != encAlg.tagLength as int){
+      res := Failure("AESEncryption did not return valid tag");
+    }
+  }
 
   method {:extern "AESEncryption.AES_GCM", "AESDecryptExtern"} AESDecryptExtern(encAlg: AES_GCM, key: seq<uint8>, cipherTxt: seq<uint8>, authTag: seq<uint8>, iv: seq<uint8>, aad: seq<uint8>)
-      returns (res: Result<seq<uint8>, string>)
+    returns (res: Result<seq<uint8>, string>)
     requires |key| == encAlg.keyLength as int
     requires |iv| == encAlg.ivLength as int
     requires |authTag| == encAlg.tagLength as int
@@ -87,7 +87,7 @@ module {:extern "AESEncryption"} AESEncryption {
     ensures res.Success? ==> DecryptedWithKey(key, res.value)
 
   method AESDecrypt(encAlg: AES_GCM, key: seq<uint8>, cipherTxt: seq<uint8>, authTag: seq<uint8>, iv: seq<uint8>, aad: seq<uint8>)
-      returns (res: Result<seq<uint8>, string>)
+    returns (res: Result<seq<uint8>, string>)
     requires |key| == encAlg.keyLength as int
     requires |iv| == encAlg.ivLength as int
     requires |authTag| == encAlg.tagLength as int
@@ -95,11 +95,11 @@ module {:extern "AESEncryption"} AESEncryption {
     ensures res.Success? ==> PlaintextDecryptedWithAAD(res.value, aad)
     ensures res.Success? ==> CiphertextGeneratedWithPlaintext(cipherTxt, res.value)
     ensures res.Success? ==> DecryptedWithKey(key, res.value)
-    {
-      res := AESDecryptExtern(encAlg, key, cipherTxt, authTag, iv, aad);
-      if (res.Success? && |cipherTxt| != |res.value|){
-        res := Failure("AESDecrypt did not return plaintext of expected length");
-      }
+  {
+    res := AESDecryptExtern(encAlg, key, cipherTxt, authTag, iv, aad);
+    if (res.Success? && |cipherTxt| != |res.value|){
+      res := Failure("AESDecrypt did not return plaintext of expected length");
     }
+  }
 
 }

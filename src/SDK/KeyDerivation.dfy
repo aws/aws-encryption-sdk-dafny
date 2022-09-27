@@ -23,9 +23,9 @@ module {:extern "KeyDerivation"} KeyDerivation {
   // Convenience container to hold both a data key and an optional commitment key
   // to support algorithm suites that provide commitment and those that do not
   datatype ExpandedKeyMaterial = ExpandedKeyMaterial(
-    nameonly dataKey: seq<uint8>,
-    nameonly commitmentKey: Option<seq<uint8>>
-  )
+                                   nameonly dataKey: seq<uint8>,
+                                   nameonly commitmentKey: Option<seq<uint8>>
+                                 )
 
   /*
    * Derives a single data key from an input plaintext data key, using "v1"-style
@@ -133,8 +133,8 @@ module {:extern "KeyDerivation"} KeyDerivation {
     //# data key using the commit key derivation (../framework/algorithm-
     //# suites.md#algorithm-suites-commit-key-derivation-settings).
     ensures res.Success? ==>
-      && res.value.commitmentKey.Some?
-      && |res.value.commitmentKey.value| == suite.commitment.outputKeyLength as int
+              && res.value.commitmentKey.Some?
+              && |res.value.commitmentKey.value| == suite.commitment.outputKeyLength as int
 
     ensures res.Success? ==> |res.value.dataKey| == suite.encrypt.keyLength as int
 
@@ -181,20 +181,20 @@ module {:extern "KeyDerivation"} KeyDerivation {
     requires |plaintextKey| < INT32_MAX_LIMIT
 
     ensures res.Success? ==>
-      |res.value.dataKey| == suite.encrypt.keyLength as nat
+              |res.value.dataKey| == suite.encrypt.keyLength as nat
 
     ensures
       && res.Success?
       && suite.commitment.None?
-    ==>
-      res.value.commitmentKey.None?
+      ==>
+        res.value.commitmentKey.None?
 
     ensures
       && res.Success?
       && suite.commitment.HKDF?
-    ==>
-      && res.value.commitmentKey.Some?
-      && |res.value.commitmentKey.value| == suite.commitment.outputKeyLength as int
+      ==>
+        && res.value.commitmentKey.Some?
+        && |res.value.commitmentKey.value| == suite.commitment.outputKeyLength as int
   {
     var keys : ExpandedKeyMaterial;
     if (suite.messageVersion == 2) {

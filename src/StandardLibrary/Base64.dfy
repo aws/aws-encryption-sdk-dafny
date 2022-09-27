@@ -345,31 +345,31 @@ module Base64 {
     // All Base64 strings are unpadded until the final block of 4 elements, where a padded seq could exist
     var finalBlockStart := |s| - 4;
     (|s| % 4 == 0) &&
-      (IsUnpaddedBase64String(s) ||
-      (IsUnpaddedBase64String(s[..finalBlockStart]) && (Is1Padding(s[finalBlockStart..]) || Is2Padding(s[finalBlockStart..]))))
+    (IsUnpaddedBase64String(s) ||
+     (IsUnpaddedBase64String(s[..finalBlockStart]) && (Is1Padding(s[finalBlockStart..]) || Is2Padding(s[finalBlockStart..]))))
   }
 
   function method DecodeValid(s: seq<char>): (b: seq<uint8>)
     requires IsBase64String(s)
   {
     if s == [] then [] else
-      var finalBlockStart := |s| - 4;
-      var prefix, suffix := s[..finalBlockStart], s[finalBlockStart..];
-      if Is1Padding(suffix) then
-        DecodeUnpadded(prefix) + Decode1Padding(suffix)
-      else if Is2Padding(suffix) then
-        DecodeUnpadded(prefix) + Decode2Padding(suffix)
-      else
-        DecodeUnpadded(s)
+    var finalBlockStart := |s| - 4;
+    var prefix, suffix := s[..finalBlockStart], s[finalBlockStart..];
+    if Is1Padding(suffix) then
+      DecodeUnpadded(prefix) + Decode1Padding(suffix)
+    else if Is2Padding(suffix) then
+      DecodeUnpadded(prefix) + Decode2Padding(suffix)
+    else
+      DecodeUnpadded(s)
   }
 
   lemma AboutDecodeValid(s: seq<char>, b: seq<uint8>)
     requires IsBase64String(s) && b == DecodeValid(s)
     ensures 4 <= |s| ==> var finalBlockStart := |s| - 4;
-      var prefix, suffix := s[..finalBlockStart], s[finalBlockStart..];
-      && (Is1Padding(suffix) ==> |b| % 3 == 2)
-      && (Is2Padding(suffix) ==> |b| % 3 == 1)
-      && (!Is1Padding(suffix) && !Is2Padding(suffix) ==> |b| % 3 == 0)
+                         var prefix, suffix := s[..finalBlockStart], s[finalBlockStart..];
+                         && (Is1Padding(suffix) ==> |b| % 3 == 2)
+                         && (Is2Padding(suffix) ==> |b| % 3 == 1)
+                         && (!Is1Padding(suffix) && !Is2Padding(suffix) ==> |b| % 3 == 0)
   {
     if 4 <= |s| {
       var finalBlockStart := |s| - 4;
@@ -446,8 +446,8 @@ module Base64 {
 
   lemma EncodeLengthExact(b: seq<uint8>)
     ensures var s := Encode(b);
-      && (|b| % 3 == 0 ==> |s| == |b| / 3 * 4)
-      && (|b| % 3 != 0 ==> |s| == |b| / 3 * 4 + 4)
+            && (|b| % 3 == 0 ==> |s| == |b| / 3 * 4)
+            && (|b| % 3 != 0 ==> |s| == |b| / 3 * 4 + 4)
   {
     var s := Encode(b);
     if |b| % 3 == 0 {
@@ -491,7 +491,7 @@ module Base64 {
 
   lemma EncodeLengthBound(b: seq<uint8>)
     ensures var s := Encode(b);
-      |s| <= |b| / 3 * 4 + 4
+            |s| <= |b| / 3 * 4 + 4
   {
     EncodeLengthExact(b);
   }

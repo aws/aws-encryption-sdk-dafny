@@ -12,16 +12,16 @@ module SerializeFunctions {
   import opened UTF8
 
   datatype ReadProblems =
-    // This _may_ be recoverable.
-    // if these is more data to read,
-    // then after getting this data
-    // a read function _may_ be able to return a datatype.
-    // If the caller is at EOS,
-    // then this is not recoverable.
+      // This _may_ be recoverable.
+      // if these is more data to read,
+      // then after getting this data
+      // a read function _may_ be able to return a datatype.
+      // If the caller is at EOS,
+      // then this is not recoverable.
     | MoreNeeded(pos: nat)
-    // These errors should not be recoverable.
-    // The data is incorrect
-    // and reading the same data again will generate the same error.
+      // These errors should not be recoverable.
+      // The data is incorrect
+      // and reading the same data again will generate the same error.
     | Error(message: string)
   type MoreNeeded = p: ReadProblems | p.MoreNeeded? witness *
 
@@ -30,17 +30,17 @@ module SerializeFunctions {
   // and the position to start reading withing these bytes.
   // This data structure represents this information.
   datatype ReadableBuffer = ReadableBuffer(
-    bytes: seq<uint8>,
-    start: nat
-  )
+                              bytes: seq<uint8>,
+                              start: nat
+                            )
 
   // This holds the data from a successful read.
   // The `data` is the read type,
   // and the `tail` is the remaining data left to be read.
   datatype SuccessfulRead<T> = SuccessfulRead(
-    data: T,
-    tail: ReadableBuffer
-  )
+                                 data: T,
+                                 tail: ReadableBuffer
+                               )
 
   type ReadResult<T, E> = Result<SuccessfulRead<T>, E>
   type ReadCorrect<T> = ReadResult<T, ReadProblems>
@@ -53,7 +53,7 @@ module SerializeFunctions {
   type ReadBinaryCorrect<T> = ReadResult<T, MoreNeeded>
 
   // This is the composable unit
-  // that all `ReadX` functions use to prove correctness. 
+  // that all `ReadX` functions use to prove correctness.
   // The idea is that WriteX(ReadX(ReadableBuffer)) == ReadableBuffer.
   // That a read is the inverse of a write.
   // The assertion is that the write side is correct _by construction_.
@@ -114,28 +114,28 @@ module SerializeFunctions {
     // Optional elements in a data structure can be represented with a length of 0 bytes.
     ensures
       && |buffer.bytes| >= buffer.start + length
-    ==>
-      && res.Success?
+      ==>
+        && res.Success?
     ensures
       && |buffer.bytes| < buffer.start + length
-    ==>
-      && res.Failure?
-      && res.error.MoreNeeded?
-      && res.error.pos == buffer.start + length
+      ==>
+        && res.Failure?
+        && res.error.MoreNeeded?
+        && res.error.pos == buffer.start + length
     ensures CorrectlyRead(buffer, res, Write)
     ensures res.Success?
-    ==>
-      var SuccessfulRead(thing, tail) := res.value;
-      && |thing| == length
-      && tail.start == buffer.start + length
-      && tail.bytes[buffer.start..tail.start] == thing
+            ==>
+              var SuccessfulRead(thing, tail) := res.value;
+              && |thing| == length
+              && tail.start == buffer.start + length
+              && tail.bytes[buffer.start..tail.start] == thing
   {
     var end := buffer.start + length;
     :- Need(|buffer.bytes| >= end, MoreNeeded(end));
 
     Success(SuccessfulRead(
-      buffer.bytes[buffer.start..end],
-      buffer.(start := end)))
+              buffer.bytes[buffer.start..end],
+              buffer.(start := end)))
   }
 
   function method WriteUint16(
@@ -276,14 +276,14 @@ module SerializeFunctions {
   lemma ConsecutiveReadsAreAssociative(positions: seq<ReadableBuffer>)
     requires |positions| >= 2
     requires forall i,j
-    | 0 <= i < j < |positions| && i + 1 == j
-    :: CorrectlyReadRange(positions[i], positions[j])
+               | 0 <= i < j < |positions| && i + 1 == j
+             :: CorrectlyReadRange(positions[i], positions[j])
 
     ensures PositionsAreConsecutive(positions)
     ensures
       var readableRanges := PositionsToReadableRanges(positions);
-    && ReadRange((Seq.First(positions), Seq.Last(positions)))
-    == ConcatenateRanges(readableRanges)
+      && ReadRange((Seq.First(positions), Seq.Last(positions)))
+         == ConcatenateRanges(readableRanges)
   {
     ConsecutiveCorrectlyReadPositionsAreAllConsecutivePositions(positions);
     assert PositionsAreConsecutive(positions);
@@ -296,7 +296,7 @@ module SerializeFunctions {
       var left := Seq.DropLast(positions);
 
       assert ReadRange((Seq.First(positions),  Seq.Last(positions)))
-      == ReadRange((Seq.First(positions), Seq.Last(left))) + ReadRange((Seq.Last(left), tail));
+          == ReadRange((Seq.First(positions), Seq.Last(left))) + ReadRange((Seq.Last(left), tail));
       Seq.LemmaLast(positions);
 
       assert PositionsToReadableRanges(positions) == PositionsToReadableRanges(left) + [(Seq.Last(left), tail)];
@@ -317,7 +317,7 @@ module SerializeFunctions {
   )
   {
     forall i,j
-    | 0 <= i < j < |positions|
+      | 0 <= i < j < |positions|
     :: CorrectlyReadRange(positions[i], positions[j])
   }
 
@@ -337,11 +337,11 @@ module SerializeFunctions {
     // There MUST NOT be any gap between ranges.
     // The end of one range MUST be the start of the next.
     ensures forall i,j
-    | 0 <= i < j < |ranges| && i + 1 == j
-    :: ranges[i].1 == ranges[j].0
+              | 0 <= i < j < |ranges| && i + 1 == j
+            :: ranges[i].1 == ranges[j].0
     ensures forall i
-    | 0 <= i < |ranges|
-    :: CorrectlyReadRange(ranges[i].0, ranges[i].1)
+              | 0 <= i < |ranges|
+            :: CorrectlyReadRange(ranges[i].0, ranges[i].1)
   {
     Seq.Zip(
       Seq.DropLast(positions),
@@ -356,15 +356,15 @@ module SerializeFunctions {
   function ConcatenateRanges(ranges: seq<(ReadableBuffer, ReadableBuffer)>)
     :(ret: seq<uint8>)
     requires forall i,j
-    | 0 <= i < j < |ranges| && i + 1 == j
-    :: ranges[i].1 == ranges[j].0
+               | 0 <= i < j < |ranges| && i + 1 == j
+             :: ranges[i].1 == ranges[j].0
     requires forall i
-    | 0 <= i < |ranges|
-    :: CorrectlyReadRange(ranges[i].0, ranges[i].1)
+               | 0 <= i < |ranges|
+             :: CorrectlyReadRange(ranges[i].0, ranges[i].1)
     ensures if |ranges| == 0 then
-      ret == []
-    else
-      ret == ConcatenateRanges(Seq.DropLast(ranges)) + ReadRange(Seq.Last(ranges))
+              ret == []
+            else
+              ret == ConcatenateRanges(Seq.DropLast(ranges)) + ReadRange(Seq.Last(ranges))
   {
     if |ranges| == 0 then
       []
@@ -394,13 +394,13 @@ module SerializeFunctions {
 
   lemma ConsecutiveCorrectlyReadPositionsAreAllConsecutivePositions(positions: seq<ReadableBuffer>)
     requires forall i,j
-    | 0 <= i < j < |positions| && i + 1 == j
-    :: CorrectlyReadRange(positions[i], positions[j])
+               | 0 <= i < j < |positions| && i + 1 == j
+             :: CorrectlyReadRange(positions[i], positions[j])
     ensures PositionsAreConsecutive(positions)
   {
     forall i,j
-    | 0 <= i < j < |positions|
-    ensures CorrectlyReadRange(positions[i], positions[j])
+      | 0 <= i < j < |positions|
+      ensures CorrectlyReadRange(positions[i], positions[j])
     {
       SequentialCorrectlyReadRangesAreTransitive(positions, i, j);
     }
@@ -412,8 +412,8 @@ module SerializeFunctions {
     j: nat
   )
     requires forall i,j
-    | 0 <= i < j < |positions| && i + 1 == j
-    :: CorrectlyReadRange(positions[i], positions[j])
+               | 0 <= i < j < |positions| && i + 1 == j
+             :: CorrectlyReadRange(positions[i], positions[j])
     requires i < j < |positions|
     ensures CorrectlyReadRange(positions[i], positions[j])
   {
@@ -569,7 +569,7 @@ module SerializeFunctions {
       && WriteUint64Seq(data) == bytes
       && buffer.start <= |buffer.bytes|
       && bytes <= buffer.bytes[buffer.start..]
-    ensures 
+    ensures
       && ReadUint64Seq(buffer).Success?
       && ReadUint64Seq(buffer).value.data == data
       && ReadUint64Seq(buffer).value.tail.start == buffer.start + |bytes|

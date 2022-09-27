@@ -40,10 +40,10 @@ module {:extern "RSAEncryption"} RSAEncryption {
   // PrivateKey represents an extension of Key for RSA private keys to aid with type safety
   class PrivateKey extends Key {
     constructor(pem: seq<uint8>, strength: StrengthBits)
-    requires |pem| > 0
-    ensures this.pem == pem
-    ensures this.strength == strength
-    ensures Valid()
+      requires |pem| > 0
+      ensures this.pem == pem
+      ensures this.strength == strength
+      ensures Valid()
     {
       this.pem := pem;
       this.strength := strength;
@@ -53,10 +53,10 @@ module {:extern "RSAEncryption"} RSAEncryption {
   // PublicKey represents an extension of Key for RSA public keys to aid with type safety
   class PublicKey extends Key {
     constructor(pem: seq<uint8>, strength: StrengthBits)
-    requires |pem| > 0
-    ensures this.pem == pem
-    ensures this.strength == strength
-    ensures Valid()
+      requires |pem| > 0
+      ensures this.pem == pem
+      ensures this.strength == strength
+      ensures Valid()
     {
       this.pem := pem;
       this.strength := strength;
@@ -64,7 +64,7 @@ module {:extern "RSAEncryption"} RSAEncryption {
   }
 
   method GenerateKeyPair(strength: StrengthBits)
-      returns (publicKey: PublicKey, privateKey: PrivateKey)
+    returns (publicKey: PublicKey, privateKey: PrivateKey)
     ensures privateKey.Valid()
     ensures publicKey.Valid()
   {
@@ -77,20 +77,20 @@ module {:extern "RSAEncryption"} RSAEncryption {
   // Note: Customers should call GenerateKeyPair instead of GenerateKeyPairExtern to ensure type safety and additional
   // verification
   method {:extern "RSAEncryption.RSA", "GenerateKeyPairExtern"} GenerateKeyPairExtern(strength: StrengthBits)
-      returns (publicKey: seq<uint8>, privateKey: seq<uint8>)
+    returns (publicKey: seq<uint8>, privateKey: seq<uint8>)
     ensures |publicKey| > 0
     ensures |privateKey| > 0
-    // Tie the public and private keys to a strength and padding to ensure validation fails if they are later changed
+  // Tie the public and private keys to a strength and padding to ensure validation fails if they are later changed
 
   method {:extern "RSAEncryption.RSA", "DecryptExtern"} DecryptExtern(padding: PaddingMode, privateKey: seq<uint8>,
                                                                       cipherText: seq<uint8>)
-      returns (res: Result<seq<uint8>, string>)
+    returns (res: Result<seq<uint8>, string>)
     requires |privateKey| > 0
     requires |cipherText| > 0
 
   method {:extern "RSAEncryption.RSA", "EncryptExtern"} EncryptExtern(padding: PaddingMode, publicKey: seq<uint8>,
                                                                       plaintextData: seq<uint8>)
-      returns (res: Result<seq<uint8>, string>)
+    returns (res: Result<seq<uint8>, string>)
     requires |publicKey| > 0
     requires |plaintextData| > 0
 }

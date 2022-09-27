@@ -53,7 +53,7 @@ module HKDF {
       exists prev :: PreTi(hmac, info, n, prev) &&  hmac.HashSignature(prev, res)
   }
 
-    // return T (i)
+  // return T (i)
   predicate PreTi(hmac: HMac, info: seq<uint8>, n: nat, res: seq<uint8>)
     requires 1 <= n < 256
     decreases n, 0
@@ -74,9 +74,9 @@ module HKDF {
     ensures hmac.GetKey() == prk
     ensures hmac.GetDigest() == digest
     ensures var n := (GetHashLength(digest) + expectedLength - 1) / GetHashLength(digest);
-      && T(hmac, info, n, okmUnabridged)
-      && (|okmUnabridged| <= expectedLength ==> okm == okmUnabridged)
-      && (expectedLength < |okmUnabridged| ==> okm == okmUnabridged[..expectedLength])
+            && T(hmac, info, n, okmUnabridged)
+            && (|okmUnabridged| <= expectedLength ==> okm == okmUnabridged)
+            && (expectedLength < |okmUnabridged| ==> okm == okmUnabridged[..expectedLength])
   {
     // N = ceil(L / Hash Length)
     var hashLength := GetHashLength(digest);

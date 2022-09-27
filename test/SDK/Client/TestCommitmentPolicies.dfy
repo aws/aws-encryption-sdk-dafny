@@ -37,7 +37,7 @@ module TestCommitmentPolicies {
     //# *  "03 78" MUST be the default algorithm suite
     var encryptOutputDefaultAlgSuite :- expect TryEncrypt(client, keyring, None());
     expect encryptOutputDefaultAlgSuite.algorithmSuiteId ==
-      SerializableTypes.GetAlgorithmSuiteId(0x0378 as SerializableTypes.ESDKAlgorithmSuiteId);
+           SerializableTypes.GetAlgorithmSuiteId(0x0378 as SerializableTypes.ESDKAlgorithmSuiteId);
 
     //= compliance/client-apis/client.txt#2.4.2.1
     //= type=test
@@ -81,7 +81,7 @@ module TestCommitmentPolicies {
     //# *  "05 78" MUST be the default algorithm suite
     var encryptOutputDefaultAlgSuite :- expect TryEncrypt(client, keyring, None());
     expect encryptOutputDefaultAlgSuite.algorithmSuiteId ==
-      SerializableTypes.GetAlgorithmSuiteId(0x0578 as SerializableTypes.ESDKAlgorithmSuiteId);
+           SerializableTypes.GetAlgorithmSuiteId(0x0578 as SerializableTypes.ESDKAlgorithmSuiteId);
 
     //= compliance/client-apis/client.txt#2.4.2.2
     //= type=test
@@ -125,7 +125,7 @@ module TestCommitmentPolicies {
     //# *  "05 78" MUST be the default algorithm suite
     var encryptOutputDefaultAlgSuite :- expect TryEncrypt(client, keyring, None());
     expect encryptOutputDefaultAlgSuite.algorithmSuiteId ==
-      SerializableTypes.GetAlgorithmSuiteId(0x0578 as SerializableTypes.ESDKAlgorithmSuiteId);
+           SerializableTypes.GetAlgorithmSuiteId(0x0578 as SerializableTypes.ESDKAlgorithmSuiteId);
 
     //= compliance/client-apis/client.txt#2.4.2.3
     //= type=test
@@ -164,9 +164,9 @@ module TestCommitmentPolicies {
     returns (res: Result<Esdk.IAwsEncryptionSdk, string>)
   {
     var config := Esdk.AwsEncryptionSdkConfig(
-      maxEncryptedDataKeys := None(),
-      commitmentPolicy := commitmentPolicy
-    );
+                    maxEncryptedDataKeys := None(),
+                    commitmentPolicy := commitmentPolicy
+                  );
     var clientFactory := new AwsEncryptionSdkFactory.AwsEncryptionSdkFactory();
     var client :- expect clientFactory.CreateAwsEncryptionSdk(config);
     return Success(client);
@@ -177,10 +177,10 @@ module TestCommitmentPolicies {
   {
     var materialsClient := new MaterialProviders.Client.AwsCryptographicMaterialProviders();
     var keyring :- expect materialsClient.CreateRawAesKeyring(Crypto.CreateRawAesKeyringInput(
-      keyNamespace := "someNamespace",
-      keyName := "someName",
-      wrappingKey := seq(32, i => 0),
-      wrappingAlg := Crypto.ALG_AES256_GCM_IV12_TAG16));
+                                                                keyNamespace := "someNamespace",
+                                                                keyName := "someName",
+                                                                wrappingKey := seq(32, i => 0),
+                                                                wrappingAlg := Crypto.ALG_AES256_GCM_IV12_TAG16));
     return Success(keyring);
   }
 
@@ -192,12 +192,12 @@ module TestCommitmentPolicies {
     returns (res: Result<Esdk.EncryptOutput, Esdk.IAwsEncryptionSdkException>)
   {
     var input := Esdk.EncryptInput(
-      plaintext := [],
-      encryptionContext := None(),
-      algorithmSuiteId := algorithmSuiteId,
-      materialsManager := None(),
-      keyring := Some(keyring),
-      frameLength := None());
+                   plaintext := [],
+                   encryptionContext := None(),
+                   algorithmSuiteId := algorithmSuiteId,
+                   materialsManager := None(),
+                   keyring := Some(keyring),
+                   frameLength := None());
     var output := client.Encrypt(input);
     return output;
   }
@@ -210,15 +210,15 @@ module TestCommitmentPolicies {
     returns (res: Result<Esdk.DecryptOutput, Esdk.IAwsEncryptionSdkException>)
   {
     var encryptCommitmentPolicy := if AlgorithmSuites.GetSuite(algorithmSuiteId).commitment.None?
-      then Crypto.FORBID_ENCRYPT_ALLOW_DECRYPT
-      else Crypto.REQUIRE_ENCRYPT_ALLOW_DECRYPT;
+                                   then Crypto.FORBID_ENCRYPT_ALLOW_DECRYPT
+                                   else Crypto.REQUIRE_ENCRYPT_ALLOW_DECRYPT;
     var encryptClient :- expect SetupEsdkClient(Some(encryptCommitmentPolicy));
     var encryptOutput :- expect TryEncrypt(encryptClient, keyring, Some(algorithmSuiteId));
 
     var decryptInput := Esdk.DecryptInput(
-      ciphertext := encryptOutput.ciphertext,
-      materialsManager := None(),
-      keyring := Some(keyring));
+                          ciphertext := encryptOutput.ciphertext,
+                          materialsManager := None(),
+                          keyring := Some(keyring));
     var decryptOutput := client.Decrypt(decryptInput);
     return decryptOutput;
   }

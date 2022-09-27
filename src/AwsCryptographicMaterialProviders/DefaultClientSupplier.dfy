@@ -8,11 +8,11 @@ include "../Generated/AwsCryptographicMaterialProviders.dfy"
 module
   {:extern "DefaultClientSupplier"}
   MaterialProviders.DefaultClientSupplier
- {
+{
   import KMS = Com.Amazonaws.Kms
   import Aws.Crypto
-  import opened Wrappers  
-    
+  import opened Wrappers
+
   class DefaultClientSupplier
     extends Crypto.IClientSupplier
   {
@@ -20,7 +20,7 @@ module
     constructor(){}
 
     method {:extern "DefaultClientSupplier.DefaultClientSupplier", "GetClient"} GetClient(input: Crypto.GetClientInput)
-      returns (res: Result<KMS.IKeyManagementServiceClient, Crypto.IAwsCryptographicMaterialProvidersException>) 
-    
+      returns (res: Result<KMS.IKeyManagementServiceClient, Crypto.IAwsCryptographicMaterialProvidersException>)
+
   }
 }

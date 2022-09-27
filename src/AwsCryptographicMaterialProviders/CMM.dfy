@@ -19,13 +19,13 @@ module
     method GetEncryptionMaterials(input: Crypto.GetEncryptionMaterialsInput)
       returns (res: Result<Crypto.GetEncryptionMaterialsOutput, Crypto.IAwsCryptographicMaterialProvidersException>)
       ensures res.Success?
-      ==>
-        && Materials.EncryptionMaterialsWithPlaintextDataKey(res.value.encryptionMaterials)
+              ==>
+                && Materials.EncryptionMaterialsWithPlaintextDataKey(res.value.encryptionMaterials)
 
     method DecryptMaterials(input: Crypto.DecryptMaterialsInput)
       returns (res: Result<Crypto.DecryptMaterialsOutput, Crypto.IAwsCryptographicMaterialProvidersException>)
       ensures res.Success?
-      ==>
-        && Materials.DecryptionMaterialsWithPlaintextDataKey(res.value.decryptionMaterials)
+              ==>
+                && Materials.DecryptionMaterialsWithPlaintextDataKey(res.value.decryptionMaterials)
   }
 }

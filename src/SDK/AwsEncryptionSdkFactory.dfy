@@ -22,12 +22,12 @@ module {:extern "Dafny.Aws.EncryptionSdk.AwsEncryptionSdkFactory"} AwsEncryption
 
       ensures res.Success?
     {
-        var emptyConfig := Esdk.AwsEncryptionSdkConfig(
-          commitmentPolicy := None(),
-          maxEncryptedDataKeys := None()
-        );
-        var esdk := new AwsEncryptionSdk.AwsEncryptionSdk(emptyConfig);
-        return Success(esdk);
+      var emptyConfig := Esdk.AwsEncryptionSdkConfig(
+                           commitmentPolicy := None(),
+                           maxEncryptedDataKeys := None()
+                         );
+      var esdk := new AwsEncryptionSdk.AwsEncryptionSdk(emptyConfig);
+      return Success(esdk);
     }
 
     method CreateAwsEncryptionSdk(input: Esdk.AwsEncryptionSdkConfig)
@@ -36,22 +36,22 @@ module {:extern "Dafny.Aws.EncryptionSdk.AwsEncryptionSdkFactory"} AwsEncryption
       ensures
         && input.maxEncryptedDataKeys.Some?
         && input.maxEncryptedDataKeys.value <= 0
-      ==>
-        res.Failure?
+        ==>
+          res.Failure?
 
       ensures
         || input.maxEncryptedDataKeys.None?
         || (input.maxEncryptedDataKeys.Some? && input.maxEncryptedDataKeys.value > 0)
-      ==>
-        res.Success?
+        ==>
+          res.Success?
     {
-        if input.maxEncryptedDataKeys.Some? && input.maxEncryptedDataKeys.value <= 0 {
-            var err := new Esdk.AwsEncryptionSdkException("maxEncryptedDataKeys must be non-negative");
-            return Failure(err);
-        }
+      if input.maxEncryptedDataKeys.Some? && input.maxEncryptedDataKeys.value <= 0 {
+        var err := new Esdk.AwsEncryptionSdkException("maxEncryptedDataKeys must be non-negative");
+        return Failure(err);
+      }
 
-        var esdk := new AwsEncryptionSdk.AwsEncryptionSdk(input);
-        return Success(esdk);
+      var esdk := new AwsEncryptionSdk.AwsEncryptionSdk(input);
+      return Success(esdk);
     }
   }
 }

@@ -26,8 +26,8 @@ module HeaderAuth {
   import opened SerializeFunctions
 
   type AESMac = a: HeaderTypes.HeaderAuth
-  | a.AESMac?
-  witness *
+    | a.AESMac?
+    witness *
 
   function method WriteHeaderAuthTagV2(
     headerAuth: AESMac
@@ -69,7 +69,7 @@ module HeaderAuth {
     //= compliance/client-apis/encrypt.txt#2.6.2
     //# *  Authentication Tag (../data-format/message-
     //# header.md#authentication-tag): MUST have the value of the
-    //# authentication tag calculated above.  
+    //# authentication tag calculated above.
     + Write(headerAuth.headerAuthTag)
   }
 
@@ -80,9 +80,9 @@ module HeaderAuth {
     :(ret: Result<seq<uint8>, string>)
   {
     match suite.messageVersion
-      case 1 => Success(WriteHeaderAuthTagV1(headerAuth))
-      case 2 => Success(WriteHeaderAuthTagV2(headerAuth))
-      case _ => Failure("Unexpected message version")
+    case 1 => Success(WriteHeaderAuthTagV1(headerAuth))
+    case 2 => Success(WriteHeaderAuthTagV2(headerAuth))
+    case _ => Failure("Unexpected message version")
   }
 
   function method ReadHeaderAuthTagV1(
@@ -92,17 +92,17 @@ module HeaderAuth {
     :(res: ReadCorrect<AESMac>)
     ensures CorrectlyRead(buffer, res, WriteHeaderAuthTagV1)
     ensures res.Success?
-    ==>
-      && |res.value.data.headerIv| == suite.encrypt.ivLength as nat
-      && |res.value.data.headerAuthTag| == suite.encrypt.tagLength as nat
+            ==>
+              && |res.value.data.headerIv| == suite.encrypt.ivLength as nat
+              && |res.value.data.headerAuthTag| == suite.encrypt.tagLength as nat
   {
     var headerIv :- Read(buffer, suite.encrypt.ivLength as nat);
     var headerAuthTag :- Read(headerIv.tail, suite.encrypt.tagLength as nat);
 
     var auth: AESMac := HeaderTypes.HeaderAuth.AESMac(
-      headerIv := headerIv.data,
-      headerAuthTag := headerAuthTag.data
-    );
+                          headerIv := headerIv.data,
+                          headerAuthTag := headerAuthTag.data
+                        );
 
     Success(SuccessfulRead(auth, headerAuthTag.tail))
   }
@@ -114,18 +114,18 @@ module HeaderAuth {
     :(res: ReadCorrect<AESMac>)
     ensures CorrectlyRead(buffer, res, WriteHeaderAuthTagV2)
     ensures res.Success?
-    ==>
-      && |res.value.data.headerIv| == suite.encrypt.ivLength as nat
-      && |res.value.data.headerAuthTag| == suite.encrypt.tagLength as nat
+            ==>
+              && |res.value.data.headerIv| == suite.encrypt.ivLength as nat
+              && |res.value.data.headerAuthTag| == suite.encrypt.tagLength as nat
   {
     // TODO: probably this hardcoded iv of all 0s will go into alg suite
     var headerIv := seq(suite.encrypt.ivLength as int, _ => 0);
     var headerAuthTag :- Read(buffer, suite.encrypt.tagLength as nat);
 
     var auth: AESMac := HeaderTypes.HeaderAuth.AESMac(
-      headerIv := headerIv,
-      headerAuthTag := headerAuthTag.data
-    );
+                          headerIv := headerIv,
+                          headerAuthTag := headerAuthTag.data
+                        );
 
     Success(SuccessfulRead(auth, headerAuthTag.tail))
   }
@@ -139,13 +139,13 @@ module HeaderAuth {
     ensures suite.messageVersion == 1 ==> CorrectlyRead(buffer, res, WriteHeaderAuthTagV1)
     ensures suite.messageVersion == 2 ==> CorrectlyRead(buffer, res, WriteHeaderAuthTagV2)
     ensures res.Success?
-    ==>
-      && |res.value.data.headerIv| == suite.encrypt.ivLength as nat
-      && |res.value.data.headerAuthTag| == suite.encrypt.tagLength as nat
+            ==>
+              && |res.value.data.headerIv| == suite.encrypt.ivLength as nat
+              && |res.value.data.headerAuthTag| == suite.encrypt.tagLength as nat
   {
     match suite.messageVersion
-      case 1 => ReadHeaderAuthTagV1(buffer, suite)
-      case 2 => ReadHeaderAuthTagV2(buffer, suite)
-      case _ => Failure(Error("Unexpected message version"))
+    case 1 => ReadHeaderAuthTagV1(buffer, suite)
+    case 2 => ReadHeaderAuthTagV2(buffer, suite)
+    case _ => Failure(Error("Unexpected message version"))
   }
 }

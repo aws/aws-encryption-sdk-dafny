@@ -32,36 +32,36 @@ module {:extern "Dafny.Aws.EncryptionSdk.Core.Commitment"} MaterialProviders.Com
         && var suite := AlgorithmSuites.GetSuite(algorithm);
         && !suite.commitment.None?
       )
-    ==>
-      res.Failure?
+      ==>
+        res.Failure?
 
     // Failure: Commitment policy requires encrypting with commitment but the
     // algorithm does not provide it
     ensures
       (
         && (
-          || commitmentPolicy == Crypto.REQUIRE_ENCRYPT_ALLOW_DECRYPT
-          || commitmentPolicy == Crypto.REQUIRE_ENCRYPT_REQUIRE_DECRYPT
-        )
+             || commitmentPolicy == Crypto.REQUIRE_ENCRYPT_ALLOW_DECRYPT
+             || commitmentPolicy == Crypto.REQUIRE_ENCRYPT_REQUIRE_DECRYPT
+           )
         && var suite := AlgorithmSuites.GetSuite(algorithm);
         && suite.commitment.None?
       )
-    ==>
-      res.Failure?
+      ==>
+        res.Failure?
 
     // Success: Commitment policy requires encrypting with commitment and the
     // algorithm provides it
     ensures
       (
         && (
-          || commitmentPolicy == Crypto.REQUIRE_ENCRYPT_ALLOW_DECRYPT
-          || commitmentPolicy == Crypto.REQUIRE_ENCRYPT_REQUIRE_DECRYPT
-        )
+             || commitmentPolicy == Crypto.REQUIRE_ENCRYPT_ALLOW_DECRYPT
+             || commitmentPolicy == Crypto.REQUIRE_ENCRYPT_REQUIRE_DECRYPT
+           )
         && var suite := AlgorithmSuites.GetSuite(algorithm);
         && !suite.commitment.None?
       )
-    ==>
-      res.Success?
+      ==>
+        res.Success?
 
     // Success: Commitment policy forbids encrypting with commitment and the
     // algorithm does not provide it
@@ -71,8 +71,8 @@ module {:extern "Dafny.Aws.EncryptionSdk.Core.Commitment"} MaterialProviders.Com
         && var suite := AlgorithmSuites.GetSuite(algorithm);
         && suite.commitment.None?
       )
-    ==>
-      res.Success?
+      ==>
+        res.Success?
   {
     var suite := AlgorithmSuites.GetSuite(algorithm);
     if
@@ -81,15 +81,15 @@ module {:extern "Dafny.Aws.EncryptionSdk.Core.Commitment"} MaterialProviders.Com
     then
       Failure("Configuration conflict. Commitment policy requires only non-committing algorithm suites")
     else if
-      && (
-          || commitmentPolicy == Crypto.REQUIRE_ENCRYPT_ALLOW_DECRYPT
-          || commitmentPolicy == Crypto.REQUIRE_ENCRYPT_REQUIRE_DECRYPT
-         )
-      && suite.commitment.None?
-    then
-      Failure("Configuration conflict. Commitment policy requires only committing algorithm suites")
-    else
-      Success(())
+        && (
+             || commitmentPolicy == Crypto.REQUIRE_ENCRYPT_ALLOW_DECRYPT
+             || commitmentPolicy == Crypto.REQUIRE_ENCRYPT_REQUIRE_DECRYPT
+           )
+        && suite.commitment.None?
+      then
+        Failure("Configuration conflict. Commitment policy requires only committing algorithm suites")
+      else
+        Success(())
   }
 
   /*
@@ -112,8 +112,8 @@ module {:extern "Dafny.Aws.EncryptionSdk.Core.Commitment"} MaterialProviders.Com
         && var suite := AlgorithmSuites.GetSuite(algorithm);
         && suite.commitment.None?
       )
-    ==>
-      res.Failure?
+      ==>
+        res.Failure?
 
     // Success: Commitment policy requires decrypting with commitment and
     // our algorithm provides it
@@ -123,22 +123,22 @@ module {:extern "Dafny.Aws.EncryptionSdk.Core.Commitment"} MaterialProviders.Com
         && var suite := AlgorithmSuites.GetSuite(algorithm);
         && !suite.commitment.None?
       )
-    ==>
-      res.Success?
+      ==>
+        res.Success?
 
     // Success: Commitment policy does not require decrypting with commitment and
     // our algorithm does not provide it
     ensures
       (
         && (
-            || commitmentPolicy == Crypto.FORBID_ENCRYPT_ALLOW_DECRYPT
-            || commitmentPolicy == Crypto.REQUIRE_ENCRYPT_ALLOW_DECRYPT
+             || commitmentPolicy == Crypto.FORBID_ENCRYPT_ALLOW_DECRYPT
+             || commitmentPolicy == Crypto.REQUIRE_ENCRYPT_ALLOW_DECRYPT
            )
         && var suite := AlgorithmSuites.GetSuite(algorithm);
         && suite.commitment.None?
       )
-    ==>
-      res.Success?
+      ==>
+        res.Success?
 
   {
     var suite := AlgorithmSuites.GetSuite(algorithm);

@@ -67,19 +67,19 @@ module
       returns (res: Result<Crypto.OnEncryptOutput, Crypto.IAwsCryptographicMaterialProvidersException>)
 
       ensures res.Success?
-      ==>
-        && Materials.EncryptionMaterialsTransitionIsValid(
-          input.materials,
-          res.value.materials
-        )
+              ==>
+                && Materials.EncryptionMaterialsTransitionIsValid(
+                     input.materials,
+                     res.value.materials
+                   )
 
       ensures res.Success? ==>
-        //= compliance/framework/multi-keyring.txt#2.6.1
-        //= type=implication
-        //# This means that this keyring MUST return
-        //# encryption materials (structures.md#encryption-materials) containing
-        //# a plaintext data key on OnEncrypt (keyring-interface.md#onencrypt).
-        && res.value.materials.plaintextDataKey.Some?
+                //= compliance/framework/multi-keyring.txt#2.6.1
+                //= type=implication
+                //# This means that this keyring MUST return
+                //# encryption materials (structures.md#encryption-materials) containing
+                //# a plaintext data key on OnEncrypt (keyring-interface.md#onencrypt).
+                && res.value.materials.plaintextDataKey.Some?
 
       //= compliance/framework/multi-keyring.txt#2.7.1
       //= type=implication
@@ -90,7 +90,7 @@ module
       ensures
         && this.generatorKeyring.None?
         && input.materials.plaintextDataKey.None?
-      ==> res.Failure?
+        ==> res.Failure?
 
       //= compliance/framework/multi-keyring.txt#2.7.1
       //= type=implication
@@ -99,7 +99,7 @@ module
       ensures
         && this.generatorKeyring.Some?
         && input.materials.plaintextDataKey.Some?
-      ==> res.Failure?
+        ==> res.Failure?
     {
 
       // We could also frame this as "Need", but I found an "if" statement more clearly matches the
@@ -107,7 +107,7 @@ module
       // and the input encryption materials does not include a plaintext data key")
       if this.generatorKeyring.None? && input.materials.plaintextDataKey.None? {
         var exception := new Crypto.AwsCryptographicMaterialProvidersException(
-          "Need either a generator keyring or input encryption materials which contain a plaintext data key");
+              "Need either a generator keyring or input encryption materials which contain a plaintext data key");
         return Failure(exception);
       }
 
@@ -118,7 +118,7 @@ module
       //# generate a plaintext data key using the generator keyring:
       if this.generatorKeyring.Some? {
         :- Crypto.Need(input.materials.plaintextDataKey.None?,
-          "This multi keyring has a generator but provided Encryption Materials already contain plaintext data key");
+                       "This multi keyring has a generator but provided Encryption Materials already contain plaintext data key");
 
         //= compliance/framework/multi-keyring.txt#2.7.1
         //# *  This keyring MUST first call the generator keyring's OnEncrypt
@@ -129,13 +129,13 @@ module
         //# *  If the generator keyring fails OnEncrypt, this OnEncrypt MUST also
         //# fail.
         :- Crypto.Need(onEncryptOutput.Success?,
-          "Generator keyring failed to generate plaintext data key");
+                       "Generator keyring failed to generate plaintext data key");
 
         //= compliance/framework/multi-keyring.txt#2.7.1
         //# *  If the generator keyring returns encryption materials missing a
         //# plaintext data key, OnEncrypt MUST fail.
         :- Crypto.Need(Materials.EncryptionMaterialsTransitionIsValid(input.materials, onEncryptOutput.value.materials),
-          "Generator keyring returned invalid encryption materials");
+                       "Generator keyring returned invalid encryption materials");
 
         returnMaterials := onEncryptOutput.value.materials;
       }
@@ -155,7 +155,7 @@ module
         //# If the child keyring's OnEncrypt (keyring-
         //# interface.md#onencrypt) fails, this OnEncrypt MUST also fail.
         :- Crypto.Need(onEncryptOutput.Success?,
-          "Child keyring failed to encrypt plaintext data key");
+                       "Child keyring failed to encrypt plaintext data key");
 
         // We have to explicitly check for this because our child and generator keyrings are of type
         // IKeyring, rather than VerifiableKeyring.
@@ -163,13 +163,13 @@ module
         // However, we want to support customer implementations of keyrings which may or may
         // not perform valid transitions.
         :- Crypto.Need(Materials.EncryptionMaterialsTransitionIsValid(returnMaterials, onEncryptOutput.value.materials),
-          "Child keyring performed invalid transition on encryption materials");
+                       "Child keyring performed invalid transition on encryption materials");
 
         returnMaterials := onEncryptOutput.value.materials;
       }
 
       :- Crypto.Need(Materials.EncryptionMaterialsTransitionIsValid(input.materials, returnMaterials),
-        "A child or generator keyring modified the encryption materials in illegal ways.");
+                     "A child or generator keyring modified the encryption materials in illegal ways.");
 
       //= compliance/framework/multi-keyring.txt#2.7.1
       //# If all previous OnEncrypt (keyring-interface.md#onencrypt) calls
@@ -185,11 +185,11 @@ module
     method OnDecrypt(input: Crypto.OnDecryptInput)
       returns (res: Result<Crypto.OnDecryptOutput, Crypto.IAwsCryptographicMaterialProvidersException>)
       ensures res.Success?
-      ==>
-        && Materials.DecryptionMaterialsTransitionIsValid(
-          input.materials,
-          res.value.materials
-        )
+              ==>
+                && Materials.DecryptionMaterialsTransitionIsValid(
+                     input.materials,
+                     res.value.materials
+                   )
 
       //= compliance/framework/multi-keyring.txt#2.7.2
       //= type=implication
@@ -205,7 +205,7 @@ module
       var materials := input.materials;
 
       :- Crypto.Need(Materials.DecryptionMaterialsWithoutPlaintextDataKey(input.materials),
-        "Keyring received decryption materials that already contain a plaintext data key.");
+                     "Keyring received decryption materials that already contain a plaintext data key.");
 
       // Failure messages will be collected here
       var failures : seq<string> := [];
@@ -278,10 +278,10 @@ module
       // omit the 'if' statement checking for it.
       var concatString := (s, a) => a + "\n" + s;
       var error := Seq.FoldRight(
-        concatString,
-        failures,
-        "Unable to decrypt data key:\n"
-      );
+                     concatString,
+                     failures,
+                     "Unable to decrypt data key:\n"
+                   );
       var combinedResult := new Crypto.AwsCryptographicMaterialProvidersException(error);
       return Failure(combinedResult);
     }
@@ -290,19 +290,19 @@ module
   method AttemptDecryptDataKey(keyring: Crypto.IKeyring, input: Crypto.OnDecryptInput)
     returns (res: Result<Crypto.OnDecryptOutput, string>)
     ensures res.Success?
-      ==> && res.value.materials.plaintextDataKey.Some?
-          && Materials.DecryptionMaterialsTransitionIsValid(input.materials, res.value.materials)
-    {
-      var decryptResult := keyring.OnDecrypt(input);
-      if decryptResult.Failure? {
-        return Failure(decryptResult.error.GetMessage());
-      }
-      var output := decryptResult.value;
+            ==> && res.value.materials.plaintextDataKey.Some?
+                && Materials.DecryptionMaterialsTransitionIsValid(input.materials, res.value.materials)
+  {
+    var decryptResult := keyring.OnDecrypt(input);
+    if decryptResult.Failure? {
+      return Failure(decryptResult.error.GetMessage());
+    }
+    var output := decryptResult.value;
 
-      :- Need(
-          Materials.DecryptionMaterialsTransitionIsValid(input.materials, output.materials),
-          "Keyring performed invalid material transition"
-        );
-      return Success(output);
+    :- Need(
+         Materials.DecryptionMaterialsTransitionIsValid(input.materials, output.materials),
+         "Keyring performed invalid material transition"
+       );
+    return Success(output);
   }
 }

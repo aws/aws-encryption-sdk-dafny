@@ -26,7 +26,7 @@ module {:extern "TestUtils"} TestUtils {
   const ACCOUNT_IDS := ["658956600833"];
 
   const PARTITION := "aws";
-  
+
   // TODO correctly verify UTF8 validity of long sequences
   // This axiom should only be used by tests to skip UTF8 verification of long sequences
   // long to be serialized in 16 bytes, in order to avoid a false negative for from verification.
@@ -121,12 +121,12 @@ module {:extern "TestUtils"} TestUtils {
     var encodedKeyProviderInfo :- expect UTF8.Encode(keyProviderInfo);
     var fakeCiphertext :- expect UTF8.Encode("fakeCiphertext");
     return Crypto.EncryptedDataKey(
-      keyProviderId := encodedkeyProviderId,
-      keyProviderInfo := encodedKeyProviderInfo,
-      ciphertext := fakeCiphertext
-    );
+             keyProviderId := encodedkeyProviderId,
+             keyProviderInfo := encodedKeyProviderInfo,
+             ciphertext := fakeCiphertext
+           );
   }
-    
+
 
   // lemma ValidSmallEncryptionContext(encryptionContext: EncryptionContext.Crypto.EncryptionContext)
   //   requires |encryptionContext| <= 5

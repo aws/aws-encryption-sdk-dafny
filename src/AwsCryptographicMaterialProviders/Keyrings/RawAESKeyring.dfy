@@ -99,37 +99,37 @@ module
     method OnEncrypt(input: Crypto.OnEncryptInput)
       returns (res: Result<Crypto.OnEncryptOutput, Crypto.IAwsCryptographicMaterialProvidersException>)
       ensures res.Success?
-      ==>
-        && Materials.EncryptionMaterialsTransitionIsValid(
-          input.materials,
-          res.value.materials
-        )
+              ==>
+                && Materials.EncryptionMaterialsTransitionIsValid(
+                     input.materials,
+                     res.value.materials
+                   )
 
       // EDK created using expected AAD
       ensures res.Success? ==>
-        && EncryptionContextToAAD(input.materials.encryptionContext).Success?
-        && |res.value.materials.encryptedDataKeys| == |input.materials.encryptedDataKeys| + 1
-        && wrappingAlgorithm.tagLength as nat <= |res.value.materials.encryptedDataKeys[|input.materials.encryptedDataKeys|].ciphertext|
-        && var encOutput := DeserializeEDKCiphertext(
-          res.value.materials.encryptedDataKeys[|input.materials.encryptedDataKeys|].ciphertext,
-          wrappingAlgorithm.tagLength as nat);
-        && AESEncryption.EncryptionOutputEncryptedWithAAD(
-          encOutput,
-          EncryptionContextToAAD(input.materials.encryptionContext).value)
+                && EncryptionContextToAAD(input.materials.encryptionContext).Success?
+                && |res.value.materials.encryptedDataKeys| == |input.materials.encryptedDataKeys| + 1
+                && wrappingAlgorithm.tagLength as nat <= |res.value.materials.encryptedDataKeys[|input.materials.encryptedDataKeys|].ciphertext|
+                && var encOutput := DeserializeEDKCiphertext(
+                                      res.value.materials.encryptedDataKeys[|input.materials.encryptedDataKeys|].ciphertext,
+                                      wrappingAlgorithm.tagLength as nat);
+                && AESEncryption.EncryptionOutputEncryptedWithAAD(
+                     encOutput,
+                     EncryptionContextToAAD(input.materials.encryptionContext).value)
 
       ensures res.Success? ==>
-        && |res.value.materials.encryptedDataKeys| == |input.materials.encryptedDataKeys| + 1
-        // *  The key provider ID (structures.md#key-provider-id) is this
-        // keyring's key namespace (./keyring-interface.md#key-namespace).
-        && res.value.materials.encryptedDataKeys[|input.materials.encryptedDataKeys|].keyProviderId == keyNamespace
-        // *  The key provider information (structures.md#key-provider-
-        //   information) is serialized as the raw AES keyring key provider
-        //   information (Section 2.6.1).
-        && ValidProviderInfo(res.value.materials.encryptedDataKeys[|input.materials.encryptedDataKeys|].keyProviderInfo)
-        // *  The ciphertext (structures.md#ciphertext) is serialized as the raw
-        // AES keyring ciphertext (Section 2.6.2).
-        // TODO ??? strongly tiw output to SerializeEDKCiphertext
-        // TODO seperate these in spec?
+                && |res.value.materials.encryptedDataKeys| == |input.materials.encryptedDataKeys| + 1
+                   // *  The key provider ID (structures.md#key-provider-id) is this
+                   // keyring's key namespace (./keyring-interface.md#key-namespace).
+                && res.value.materials.encryptedDataKeys[|input.materials.encryptedDataKeys|].keyProviderId == keyNamespace
+                   // *  The key provider information (structures.md#key-provider-
+                   //   information) is serialized as the raw AES keyring key provider
+                   //   information (Section 2.6.1).
+                && ValidProviderInfo(res.value.materials.encryptedDataKeys[|input.materials.encryptedDataKeys|].keyProviderInfo)
+      // *  The ciphertext (structures.md#ciphertext) is serialized as the raw
+      // AES keyring ciphertext (Section 2.6.2).
+      // TODO ??? strongly tiw output to SerializeEDKCiphertext
+      // TODO seperate these in spec?
 
       //= compliance/framework/raw-aes-keyring.txt#2.7.1
       //= type=implication
@@ -155,32 +155,32 @@ module
       //# plaintext data key and set it on the encryption materials
       //# (structures.md#encryption-materials).
       var plaintextDataKey := if materials.plaintextDataKey.None? then
-        k'
-      else
-        materials.plaintextDataKey.value;
+                                k'
+                              else
+                                materials.plaintextDataKey.value;
 
       :- Crypto.Need(|wrappingKey|== wrappingAlgorithm.keyLength as int,
-        "Wrapping key length does not match algorithm");
+                     "Wrapping key length does not match algorithm");
       :- Crypto.Need(|iv| == wrappingAlgorithm.ivLength as int,
-        "IV length does not match algorithm");
+                     "IV length does not match algorithm");
 
       //= compliance/framework/raw-aes-keyring.txt#2.7.1
       //# The keyring MUST encrypt the plaintext data key in the encryption
       //# materials (structures.md#encryption-materials) using AES-GCM.
       var aesEncryptResult := AESEncryption.AESEncrypt(
-        wrappingAlgorithm,
-        iv,
-        wrappingKey,
-        plaintextDataKey,
-        aad
-      );
+                                wrappingAlgorithm,
+                                iv,
+                                wrappingKey,
+                                plaintextDataKey,
+                                aad
+                              );
       var encryptResult :- Crypto.AwsCryptographicMaterialProvidersException.WrapResultString(aesEncryptResult);
       var encryptedKey := SerializeEDKCiphertext(encryptResult);
 
       :- Crypto.Need(HasUint16Len(providerInfo),
-        "Serialized provider info too long.");
+                     "Serialized provider info too long.");
       :- Crypto.Need(HasUint16Len(encryptedKey),
-        "Encrypted data key too long.");
+                     "Encrypted data key too long.");
 
       var edk: Crypto.EncryptedDataKey := Crypto.EncryptedDataKey(keyProviderId := keyNamespace, keyProviderInfo := providerInfo, ciphertext := encryptedKey);
 
@@ -193,9 +193,9 @@ module
       //# OnEncrypt MUST output the modified encryption materials
       //# (structures.md#encryption-materials).
       var addKeyResult := if materials.plaintextDataKey.None? then
-        Materials.EncryptionMaterialAddDataKey(materials, plaintextDataKey, [edk])
-      else
-        Materials.EncryptionMaterialAddEncryptedDataKeys(materials, [edk]);
+                            Materials.EncryptionMaterialAddDataKey(materials, plaintextDataKey, [edk])
+                          else
+                            Materials.EncryptionMaterialAddEncryptedDataKeys(materials, [edk]);
       var r :- Crypto.AwsCryptographicMaterialProvidersException.WrapResultString(addKeyResult);
       return Success(Crypto.OnEncryptOutput(materials := r));
     }
@@ -208,23 +208,23 @@ module
     method OnDecrypt(input: Crypto.OnDecryptInput)
       returns (res: Result<Crypto.OnDecryptOutput, Crypto.IAwsCryptographicMaterialProvidersException>)
       ensures res.Success?
-      ==>
-        && Materials.DecryptionMaterialsTransitionIsValid(
-          input.materials,
-          res.value.materials
-        )
+              ==>
+                && Materials.DecryptionMaterialsTransitionIsValid(
+                     input.materials,
+                     res.value.materials
+                   )
       // TODO: ensure non-None when input edk list has edk with valid provider info
 
-       // Plaintext decrypted using expected AAD
+      // Plaintext decrypted using expected AAD
       ensures
         && res.Success?
         && input.materials.plaintextDataKey.None?
         && res.value.materials.plaintextDataKey.Some?
-      ==>
-        && EncryptionContextToAAD(input.materials.encryptionContext).Success?
-        && AESEncryption.PlaintextDecryptedWithAAD(
-          res.value.materials.plaintextDataKey.value,
-          EncryptionContextToAAD(input.materials.encryptionContext).value)
+        ==>
+          && EncryptionContextToAAD(input.materials.encryptionContext).Success?
+          && AESEncryption.PlaintextDecryptedWithAAD(
+               res.value.materials.plaintextDataKey.value,
+               EncryptionContextToAAD(input.materials.encryptionContext).value)
 
       //= compliance/framework/raw-aes-keyring.txt#2.7.2
       //= type=implication
@@ -234,13 +234,13 @@ module
     {
       var materials := input.materials;
       :- Crypto.Need(
-        Materials.DecryptionMaterialsWithoutPlaintextDataKey(materials),
-        "Keyring received decryption materials that already contain a plaintext data key.");
+           Materials.DecryptionMaterialsWithoutPlaintextDataKey(materials),
+           "Keyring received decryption materials that already contain a plaintext data key.");
 
       var aadResult := EncryptionContextToAAD(input.materials.encryptionContext);
       var aad :- Crypto.AwsCryptographicMaterialProvidersException.WrapResultString(aadResult);
       :- Crypto.Need(|wrappingKey|== wrappingAlgorithm.keyLength as int,
-        "The wrapping key does not match the wrapping algorithm");
+                     "The wrapping key does not match the wrapping algorithm");
 
       var errors: seq<string> := [];
       //= compliance/framework/raw-aes-keyring.txt#2.7.2
@@ -254,17 +254,17 @@ module
 
           var iv := GetIvFromProvInfo(input.encryptedDataKeys[i].keyProviderInfo);
           var encryptionOutput := DeserializeEDKCiphertext(
-            input.encryptedDataKeys[i].ciphertext,
-            wrappingAlgorithm.tagLength as nat
-          );
+                                    input.encryptedDataKeys[i].ciphertext,
+                                    wrappingAlgorithm.tagLength as nat
+                                  );
 
           var ptKeyRes := this.Decrypt(iv, encryptionOutput, input.materials.encryptionContext);
           if ptKeyRes.Success?
           {
             :- Crypto.Need(
-              GetSuite(materials.algorithmSuiteId).encrypt.keyLength as int == |ptKeyRes.Extract()|,
-              // this should never happen
-              "Plaintext Data Key is not the expected length");
+                 GetSuite(materials.algorithmSuiteId).encrypt.keyLength as int == |ptKeyRes.Extract()|,
+                 // this should never happen
+                 "Plaintext Data Key is not the expected length");
             //= compliance/framework/raw-aes-keyring.txt#2.7.2
             //# If a decryption succeeds, this keyring MUST add the resulting
             //# plaintext data key to the decryption materials and return the
@@ -274,25 +274,25 @@ module
             return Success(Crypto.OnDecryptOutput(materials := r));
           } else {
             errors := errors + [
-              "AESKeyring could not decrypt EncryptedDataKey "
-              + Base10Int2String(i)
-              + ": "
-              + ptKeyRes.error
-            ];
+                        "AESKeyring could not decrypt EncryptedDataKey "
+                        + Base10Int2String(i)
+                        + ": "
+                        + ptKeyRes.error
+                      ];
           }
         } else {
           errors := errors + [
-            "EncrypedDataKey "
-            + Base10Int2String(i)
-            + " did not match AESKeyring. "
-          ];
+                      "EncrypedDataKey "
+                      + Base10Int2String(i)
+                      + " did not match AESKeyring. "
+                    ];
         }
       }
       //= compliance/framework/raw-aes-keyring.txt#2.7.2
       //# If no decryption succeeds, the keyring MUST fail and MUST NOT modify
       //# the decryption materials (structures.md#decryption-materials).
       var combinedErrorsException := new Crypto.AwsCryptographicMaterialProvidersException(
-        "Unable to decrypt any data keys. Encountered the following errors: " + Seq.Flatten(errors));
+            "Unable to decrypt any data keys. Encountered the following errors: " + Seq.Flatten(errors));
       return Failure(combinedErrorsException);
     }
 
@@ -306,23 +306,23 @@ module
       requires |wrappingKey| == wrappingAlgorithm.keyLength as int
       ensures
         res.Success?
-      ==>
-        && EncryptionContextToAAD(encryptionContext).Success?
-        && AESEncryption.PlaintextDecryptedWithAAD(
-          res.value,
-          EncryptionContextToAAD(encryptionContext).value
-        )
+        ==>
+          && EncryptionContextToAAD(encryptionContext).Success?
+          && AESEncryption.PlaintextDecryptedWithAAD(
+               res.value,
+               EncryptionContextToAAD(encryptionContext).value
+             )
     {
       :- Need(|iv| == wrappingAlgorithm.ivLength as int, "");
       var aad :- EncryptionContextToAAD(encryptionContext);
       var ptKey: seq<uint8> :- AESEncryption.AESDecrypt(
-        wrappingAlgorithm,
-        wrappingKey,
-        encryptionOutput.cipherText,
-        encryptionOutput.authTag,
-        iv,
-        aad
-      );
+                                 wrappingAlgorithm,
+                                 wrappingKey,
+                                 encryptionOutput.cipherText,
+                                 encryptionOutput.authTag,
+                                 iv,
+                                 aad
+                               );
       return Success(ptKey);
     }
 
@@ -330,10 +330,10 @@ module
     function method SerializeProviderInfo(iv: seq<uint8>): seq<uint8>
       requires |iv| == wrappingAlgorithm.ivLength as int
     {
-        keyName +
-        [0, 0, 0, wrappingAlgorithm.tagLength * 8] + // tag length in bits
-        [0, 0, 0, wrappingAlgorithm.ivLength as uint8] + // IV length in bytes
-        iv
+      keyName +
+      [0, 0, 0, wrappingAlgorithm.tagLength * 8] + // tag length in bits
+      [0, 0, 0, wrappingAlgorithm.ivLength as uint8] + // IV length in bytes
+      iv
     }
 
     // TODO bring in the broken up spec statements
@@ -348,20 +348,20 @@ module
     predicate method ValidProviderInfo(info: seq<uint8>)
     {
       && |info| == |keyName| + AUTH_TAG_LEN_LEN + IV_LEN_LEN + wrappingAlgorithm.ivLength as int
-      // The key name obtained from the encrypted data key's key provider information has a value equal to this keyring's key name.
+         // The key name obtained from the encrypted data key's key provider information has a value equal to this keyring's key name.
       && info[0..|keyName|] == keyName
-      //= compliance/framework/raw-aes-keyring.txt#2.6.1.2
-      //= type=implication
-      //# This value MUST match the authentication tag length of the keyring's
-      //# configured wrapping algorithm
+         //= compliance/framework/raw-aes-keyring.txt#2.6.1.2
+         //= type=implication
+         //# This value MUST match the authentication tag length of the keyring's
+         //# configured wrapping algorithm
 
       && SeqToUInt32(info[|keyName|..|keyName| + AUTH_TAG_LEN_LEN]) == 128
       && SeqToUInt32(info[|keyName|..|keyName| + AUTH_TAG_LEN_LEN]) == wrappingAlgorithm.tagLength as uint32 * 8
       && SeqToUInt32(info[|keyName| + AUTH_TAG_LEN_LEN .. |keyName| + AUTH_TAG_LEN_LEN + IV_LEN_LEN]) == wrappingAlgorithm.ivLength as uint32
-      //= compliance/framework/raw-aes-keyring.txt#2.6.1.3
-      //= type=implication
-      //# This value MUST match the IV length of the keyring's
-      //# configured wrapping algorithm
+         //= compliance/framework/raw-aes-keyring.txt#2.6.1.3
+         //= type=implication
+         //# This value MUST match the IV length of the keyring's
+         //# configured wrapping algorithm
       && SeqToUInt32(info[|keyName| + AUTH_TAG_LEN_LEN .. |keyName| + AUTH_TAG_LEN_LEN + IV_LEN_LEN]) == 12
     }
 
@@ -379,8 +379,8 @@ module
     requires tagLen <= |ciphertext|
     ensures |encOutput.authTag| == tagLen
   {
-      var encryptedKeyLength := |ciphertext| - tagLen as int;
-      AESEncryption.EncryptionOutput(ciphertext[.. encryptedKeyLength], ciphertext[encryptedKeyLength ..])
+    var encryptedKeyLength := |ciphertext| - tagLen as int;
+    AESEncryption.EncryptionOutput(ciphertext[.. encryptedKeyLength], ciphertext[encryptedKeyLength ..])
   }
 
   function method SerializeEDKCiphertext(encOutput: AESEncryption.EncryptionOutput): (ciphertext: seq<uint8>) {
@@ -417,11 +417,11 @@ module
       Success([])
     else
       var KeyIntoPairBytes := k
-        requires k in encryptionContext
-      =>
-        var v := encryptionContext[k];
-        :- Need(HasUint16Len(k) && HasUint16Len(v), "Unable to serialize encryption context");
-        Success(UInt16ToSeq(|k| as uint16) + k + UInt16ToSeq(|v| as uint16) + v);
+                              requires k in encryptionContext
+                              =>
+                                var v := encryptionContext[k];
+                                :- Need(HasUint16Len(k) && HasUint16Len(v), "Unable to serialize encryption context");
+                                Success(UInt16ToSeq(|k| as uint16) + k + UInt16ToSeq(|v| as uint16) + v);
 
       var pairsBytes :- Seq.MapWithResult(KeyIntoPairBytes, keys);
 

@@ -103,8 +103,8 @@ module MessageBody {
   {
     exists plaintextSeg: seq<seq<uint8>>
     ::
-    && FramesEncryptPlaintextSegments(frames.regularFrames + [frames.finalFrame], plaintextSeg)
-    && SumPlaintextSegments(plaintextSeg) == plaintext
+      && FramesEncryptPlaintextSegments(frames.regularFrames + [frames.finalFrame], plaintextSeg)
+      && SumPlaintextSegments(plaintextSeg) == plaintext
   }
 
   predicate FramesEncryptPlaintextSegments(frames: seq<Frame>, plaintextSeg: seq<seq<uint8>>)
@@ -113,13 +113,13 @@ module MessageBody {
     if |frames| != |plaintextSeg| then
       false
     else
-      // No more regular frames, check the tail
-     if frames == [] then
-        true
-      else
-        // Drop the segments
-        && FramesEncryptPlaintextSegments(Seq.DropLast(frames), Seq.DropLast(plaintextSeg))
-        && AESEncryption.CiphertextGeneratedWithPlaintext(Seq.Last(frames).encContent, Seq.Last(plaintextSeg))
+    // No more regular frames, check the tail
+    if frames == [] then
+      true
+    else
+      // Drop the segments
+      && FramesEncryptPlaintextSegments(Seq.DropLast(frames), Seq.DropLast(plaintextSeg))
+      && AESEncryption.CiphertextGeneratedWithPlaintext(Seq.Last(frames).encContent, Seq.Last(plaintextSeg))
   }
 
   function SumPlaintextSegments(plaintextSeg: seq<seq<uint8>>): seq<uint8>
@@ -131,8 +131,8 @@ module MessageBody {
   }
 
   type MessageRegularFrames = regularFrames: seq<Frames.RegularFrame>
-  | IsMessageRegularFrames(regularFrames)
-  witness *
+    | IsMessageRegularFrames(regularFrames)
+    witness *
 
   predicate MessageFramesAreMonotonic(frames: seq<MessageFrame>){
     if |frames| == 0 then true
@@ -146,9 +146,9 @@ module MessageBody {
 
   predicate MessageFramesAreForTheSameMessage(frames: seq<MessageFrame>){
     forall i
-    // This excludes the First frame in the seq
-    // because all headers are definitionally equal for `[]` and `[frame]`.
-    | 0 < i < |frames|
+      // This excludes the First frame in the seq
+      // because all headers are definitionally equal for `[]` and `[frame]`.
+      | 0 < i < |frames|
     ::  Seq.First(frames).header == frames[i].header
   }
 
@@ -162,53 +162,53 @@ module MessageBody {
     //# *  The number of frames in a single message MUST be less than or
     //# equal to "2^32 - 1".
     && 0 <= |regularFrames| < ENDFRAME_SEQUENCE_NUMBER as nat
-    // The sequence number MUST be monotonic
-    //
-    //= compliance/data-format/message-body.txt#2.5.2.1.1
-    //= type=implication
-    //# Framed Data MUST start at Sequence Number 1.
-    //
-    //= compliance/data-format/message-body.txt#2.5.2.1.1
-    //= type=implication
-    //# Subsequent frames MUST be in order and MUST contain an increment of 1
-    //# from the previous frame.
+       // The sequence number MUST be monotonic
+       //
+       //= compliance/data-format/message-body.txt#2.5.2.1.1
+       //= type=implication
+       //# Framed Data MUST start at Sequence Number 1.
+       //
+       //= compliance/data-format/message-body.txt#2.5.2.1.1
+       //= type=implication
+       //# Subsequent frames MUST be in order and MUST contain an increment of 1
+       //# from the previous frame.
     && MessageFramesAreMonotonic(regularFrames)
-    // All frames MUST all be from the same messages i.e. the same header
+       // All frames MUST all be from the same messages i.e. the same header
     && MessageFramesAreForTheSameMessage(regularFrames)
   }
 
   type NonFramedMessage = Frames.NonFramed
 
   datatype FramedMessageBody = FramedMessageBody(
-    regularFrames: MessageRegularFrames,
-    //= compliance/data-format/message-body.txt#2.5.2.2
-    //= type=implication
-    //# Framed data MUST contain exactly one final frame.
-    finalFrame: Frames.FinalFrame
-  )
+                                 regularFrames: MessageRegularFrames,
+                                 //= compliance/data-format/message-body.txt#2.5.2.2
+                                 //= type=implication
+                                 //# Framed data MUST contain exactly one final frame.
+                                 finalFrame: Frames.FinalFrame
+                               )
 
   type FramedMessage = body: FramedMessageBody
-  |
-  //= compliance/data-format/message-body.txt#2.5.2.2.2
-  //= type=implication
-  //# The Final Frame Sequence number MUST be equal to the total number of
-  //# frames in the Framed Data.
-  && MessageFramesAreMonotonic(body.regularFrames + [body.finalFrame])
-  && MessageFramesAreForTheSameMessage(body.regularFrames + [body.finalFrame])
-  witness *
+    |
+      //= compliance/data-format/message-body.txt#2.5.2.2.2
+      //= type=implication
+      //# The Final Frame Sequence number MUST be equal to the total number of
+      //# frames in the Framed Data.
+      && MessageFramesAreMonotonic(body.regularFrames + [body.finalFrame])
+      && MessageFramesAreForTheSameMessage(body.regularFrames + [body.finalFrame])
+    witness *
 
   type MessageFrame = frame: Frames.Frame
-  |
-  || Frames.IsFinalFrame(frame)
-  || Frames.IsRegularFrame(frame)
-  witness *
+    |
+      || Frames.IsFinalFrame(frame)
+      || Frames.IsRegularFrame(frame)
+    witness *
 
   type Frame = frame: Frames.Frame
-  |
-  || Frames.IsFinalFrame(frame)
-  || Frames.IsRegularFrame(frame)
-  || Frames.IsNonFramed(frame)
-  witness *
+    |
+      || Frames.IsFinalFrame(frame)
+      || Frames.IsRegularFrame(frame)
+      || Frames.IsNonFramed(frame)
+    witness *
 
   lemma LemmaAddingNextRegularFrame(
     regularFrames: MessageRegularFrames,
@@ -230,12 +230,12 @@ module MessageBody {
     requires 0 < header.body.frameLength as nat < UINT32_LIMIT
     requires header.body.contentType.Framed?
     ensures match result
-      case Failure(e) => true
-      case Success(body) =>
-        && (forall frame: Frames.Frame
-          | frame in body.regularFrames
-          :: AESEncryption.EncryptedWithKey(frame.encContent, key))
-        && AESEncryption.EncryptedWithKey(body.finalFrame.encContent, key)
+            case Failure(e) => true
+            case Success(body) =>
+              && (forall frame: Frames.Frame
+                    | frame in body.regularFrames
+                  :: AESEncryption.EncryptedWithKey(frame.encContent, key))
+              && AESEncryption.EncryptedWithKey(body.finalFrame.encContent, key)
   {
     var n : int, sequenceNumber := 0, START_SEQUENCE_NUMBER;
     var regularFrames: MessageRegularFrames := [];
@@ -260,10 +260,10 @@ module MessageBody {
       invariant START_SEQUENCE_NUMBER <= sequenceNumber <= ENDFRAME_SEQUENCE_NUMBER
       invariant |regularFrames| == (sequenceNumber - START_SEQUENCE_NUMBER) as nat
       invariant forall frame: Frames.Frame
-      | frame in regularFrames
-      ::
-        && AESEncryption.EncryptedWithKey(frame.encContent, key)
-        && frame.header == header
+                  | frame in regularFrames
+                ::
+                  && AESEncryption.EncryptedWithKey(frame.encContent, key)
+                  && frame.header == header
     {
       :- Need(sequenceNumber < ENDFRAME_SEQUENCE_NUMBER, "too many frames");
       var plaintextFrame := plaintext[n..n + header.body.frameLength as nat];
@@ -275,11 +275,11 @@ module MessageBody {
       //# a regular frame (Section 2.7.1) using the consumable plaintext
       //# bytes.
       var regularFrame :- EncryptRegularFrame(
-        key,
-        header,
-        plaintextFrame,
-        sequenceNumber
-      );
+                            key,
+                            header,
+                            plaintextFrame,
+                            sequenceNumber
+                          );
 
       assert regularFrame.seqNum as nat == |regularFrames| + 1;
       LemmaAddingNextRegularFrame(regularFrames, regularFrame);
@@ -317,18 +317,18 @@ module MessageBody {
     //# Frame encrypted content length SHOULD be equal to the frame length
     //# but MAY be 0.
     var finalFrame :- EncryptFinalFrame(
-      key,
-      header,
-      plaintext[n..],
-      sequenceNumber
-    );
+                        key,
+                        header,
+                        plaintext[n..],
+                        sequenceNumber
+                      );
 
     assert MessageFramesAreForTheSameMessage(regularFrames + [finalFrame]);
 
     return Success(FramedMessageBody(
-      regularFrames := regularFrames,
-      finalFrame := finalFrame
-    ));
+                     regularFrames := regularFrames,
+                     finalFrame := finalFrame
+                   ));
   }
 
   method EncryptRegularFrame(
@@ -349,12 +349,12 @@ module MessageBody {
     //# MUST equal the frame length.
     requires |plaintext| == header.body.frameLength as nat && sequenceNumber != ENDFRAME_SEQUENCE_NUMBER
     ensures match res
-      case Failure(e) => true
-      case Success(frame) =>
-        && AESEncryption.CiphertextGeneratedWithPlaintext(frame.encContent, plaintext)
-        && AESEncryption.EncryptedWithKey(frame.encContent, key)
-        && frame.seqNum == sequenceNumber
-        && frame.header == header
+            case Failure(e) => true
+            case Success(frame) =>
+              && AESEncryption.CiphertextGeneratedWithPlaintext(frame.encContent, plaintext)
+              && AESEncryption.EncryptedWithKey(frame.encContent, key)
+              && frame.seqNum == sequenceNumber
+              && frame.header == header
   {
     //= compliance/client-apis/encrypt.txt#2.7.1
     //# To construct a regular or final frame that represents the next frame
@@ -370,50 +370,50 @@ module MessageBody {
     // *  The AAD is the serialized message body AAD (../data-format/
     //    message-body-aad.md), constructed as follows:
     var aad := BodyAAD(
-      // -  The message ID (../data-format/message-body-aad.md#message-id)
-      //    is the same as the message ID (../data-frame/message-
-      //    header.md#message-id) serialized in the header of this message.
-      header.body.messageId,
-      AADRegularFrame,
-      sequenceNumber,
-      //= compliance/client-apis/encrypt.txt#2.7.1
-      //# -  The content length (../data-format/message-body-aad.md#content-
-      //# length) MUST have a value equal to the length of the plaintext
-      //# being encrypted.
-      |plaintext| as uint64
-    );
+                 // -  The message ID (../data-format/message-body-aad.md#message-id)
+                 //    is the same as the message ID (../data-frame/message-
+                 //    header.md#message-id) serialized in the header of this message.
+                 header.body.messageId,
+                 AADRegularFrame,
+                 sequenceNumber,
+                 //= compliance/client-apis/encrypt.txt#2.7.1
+                 //# -  The content length (../data-format/message-body-aad.md#content-
+                 //# length) MUST have a value equal to the length of the plaintext
+                 //# being encrypted.
+                 |plaintext| as uint64
+               );
 
     var encryptionOutput :- AESEncryption.AESEncrypt(
-      header.suite.encrypt,
-      iv,
-      key,
-      plaintext,
-      aad
-    );
+                              header.suite.encrypt,
+                              iv,
+                              key,
+                              plaintext,
+                              aad
+                            );
 
     //= compliance/client-apis/encrypt.txt#2.7.1
     //# This operation MUST serialize a regular frame or final frame with the
     //# following specifics:
     var frame: Frames.RegularFrame := Frames.Frame.RegularFrame(
-      header,
-      //= compliance/client-apis/encrypt.txt#2.7.1
-      //# *  Sequence Number (../data-format/message-body.md#sequence-number):
-      //# MUST be the sequence number of this frame, as determined above.
-      sequenceNumber,
-      //= compliance/client-apis/encrypt.txt#2.7.1
-      //# *  IV (../data-format/message-body.md#iv): MUST be the IV used when
-      //# calculating the encrypted content above
-      iv,
-      //= compliance/client-apis/encrypt.txt#2.7.1
-      //# *  Encrypted Content (../data-format/message-body.md#encrypted-
-      //# content): MUST be the encrypted content calculated above.
-      encryptionOutput.cipherText,
-      //= compliance/client-apis/encrypt.txt#2.7.1
-      //# *  Authentication Tag (../data-format/message-body.md#authentication-
-      //# tag): MUST be the authentication tag output when calculating the
-      //# encrypted content above.
-      encryptionOutput.authTag
-    );
+                                        header,
+                                        //= compliance/client-apis/encrypt.txt#2.7.1
+                                        //# *  Sequence Number (../data-format/message-body.md#sequence-number):
+                                        //# MUST be the sequence number of this frame, as determined above.
+                                        sequenceNumber,
+                                        //= compliance/client-apis/encrypt.txt#2.7.1
+                                        //# *  IV (../data-format/message-body.md#iv): MUST be the IV used when
+                                        //# calculating the encrypted content above
+                                        iv,
+                                        //= compliance/client-apis/encrypt.txt#2.7.1
+                                        //# *  Encrypted Content (../data-format/message-body.md#encrypted-
+                                        //# content): MUST be the encrypted content calculated above.
+                                        encryptionOutput.cipherText,
+                                        //= compliance/client-apis/encrypt.txt#2.7.1
+                                        //# *  Authentication Tag (../data-format/message-body.md#authentication-
+                                        //# tag): MUST be the authentication tag output when calculating the
+                                        //# encrypted content above.
+                                        encryptionOutput.authTag
+                                      );
 
     return Success(frame);
   }
@@ -442,42 +442,42 @@ module MessageBody {
     //# Length (message-header.md#frame-length).
     requires |plaintext| <= header.body.frameLength as nat
     ensures match res
-      case Failure(e) => true
-      case Success(frame) =>
-        && AESEncryption.CiphertextGeneratedWithPlaintext(frame.encContent, plaintext)
-        && AESEncryption.EncryptedWithKey(frame.encContent, key)
-        && frame.seqNum == sequenceNumber
-        && frame.header == header
+            case Failure(e) => true
+            case Success(frame) =>
+              && AESEncryption.CiphertextGeneratedWithPlaintext(frame.encContent, plaintext)
+              && AESEncryption.EncryptedWithKey(frame.encContent, key)
+              && frame.seqNum == sequenceNumber
+              && frame.header == header
   {
 
     var iv := IVSeq(header.suite, sequenceNumber);
 
     var aad := BodyAAD(
-      header.body.messageId,
-      AADFinalFrame,
-      sequenceNumber,
-      //= compliance/client-apis/encrypt.txt#2.7.1
-      //# o  For a final frame this MUST be the length of the remaining
-      //# plaintext bytes which have not yet been encrypted, whose
-      //# length MUST be equal to or less than the frame length.
-      |plaintext| as uint64
-    );
+                 header.body.messageId,
+                 AADFinalFrame,
+                 sequenceNumber,
+                 //= compliance/client-apis/encrypt.txt#2.7.1
+                 //# o  For a final frame this MUST be the length of the remaining
+                 //# plaintext bytes which have not yet been encrypted, whose
+                 //# length MUST be equal to or less than the frame length.
+                 |plaintext| as uint64
+               );
 
     var encryptionOutput :- AESEncryption.AESEncrypt(
-      header.suite.encrypt,
-      iv,
-      key,
-      plaintext,
-      aad
-    );
+                              header.suite.encrypt,
+                              iv,
+                              key,
+                              plaintext,
+                              aad
+                            );
 
     var finalFrame: Frames.FinalFrame := Frames.Frame.FinalFrame(
-      header,
-      sequenceNumber,
-      iv,
-      encryptionOutput.cipherText,
-      encryptionOutput.authTag
-    );
+                                           header,
+                                           sequenceNumber,
+                                           iv,
+                                           encryptionOutput.cipherText,
+                                           encryptionOutput.authTag
+                                         );
 
     return Success(finalFrame);
   }
@@ -489,10 +489,10 @@ module MessageBody {
     returns (res: Result<seq<uint8>, string>)
     requires |key| == body.finalFrame.header.suite.encrypt.keyLength as int
     ensures match res
-      case Failure(_) => true
-      case Success(plaintext) => //Exists a sequence of frames which encrypts the plaintext and is serialized in the read section of the stream
-        && FramesEncryptPlaintext(body, plaintext)
-        && DecryptedWithKey(key, plaintext)
+            case Failure(_) => true
+            case Success(plaintext) => //Exists a sequence of frames which encrypts the plaintext and is serialized in the read section of the stream
+              && FramesEncryptPlaintext(body, plaintext)
+              && DecryptedWithKey(key, plaintext)
   {
     var plaintext := [];
     // var n: uint32 := 1;
@@ -537,15 +537,15 @@ module MessageBody {
     returns (res: Result<seq<uint8>, string>)
     requires |key| == frame.header.suite.encrypt.keyLength as int
     ensures match res
-      case Success(plaintextSegment) => ( // Decrypting the frame encoded in the stream is the returned ghost frame
-        && AESEncryption.CiphertextGeneratedWithPlaintext(frame.encContent, plaintextSegment)
-        && AESEncryption.DecryptedWithKey(key, plaintextSegment)
-        && (frame.RegularFrame? || frame.FinalFrame? ==> |plaintextSegment| < UINT32_LIMIT)
-      )
-      case Failure(_) => true
+            case Success(plaintextSegment) => ( // Decrypting the frame encoded in the stream is the returned ghost frame
+              && AESEncryption.CiphertextGeneratedWithPlaintext(frame.encContent, plaintextSegment)
+              && AESEncryption.DecryptedWithKey(key, plaintextSegment)
+              && (frame.RegularFrame? || frame.FinalFrame? ==> |plaintextSegment| < UINT32_LIMIT)
+            )
+            case Failure(_) => true
   {
     var aad := BodyAADByFrameType(frame);
-    
+
     //= compliance/client-apis/decrypt.txt#2.7.4
     //# If this decryption fails, this operation MUST immediately halt and
     //# fail.
@@ -596,76 +596,76 @@ module MessageBody {
     returns (aad: seq<uint8>)
   {
     var (sequenceNumber, bc, length) := match frame
-      case RegularFrame(header,seqNum,_,_,_) => (
-        //= compliance/data-format/message-body-aad.txt#2.4.3
-        //# For framed data (message-body.md#framed-data), the value of this
-        //# field MUST be the frame sequence number (message-body.md#sequence-
-        //# number).
-        seqNum,
+                                        case RegularFrame(header,seqNum,_,_,_) => (
+                                        //= compliance/data-format/message-body-aad.txt#2.4.3
+                                        //# For framed data (message-body.md#framed-data), the value of this
+                                        //# field MUST be the frame sequence number (message-body.md#sequence-
+                                        //# number).
+                                        seqNum,
 
-        //= compliance/data-format/message-body-aad.txt#2.4.2
-        //# *  The regular frames (message-body.md#regular-frame) in framed data
-        //# (message-body.md#framed-data) MUST use the value
-        //# "AWSKMSEncryptionClient Frame".
-        AADRegularFrame,
+                                        //= compliance/data-format/message-body-aad.txt#2.4.2
+                                        //# *  The regular frames (message-body.md#regular-frame) in framed data
+                                        //# (message-body.md#framed-data) MUST use the value
+                                        //# "AWSKMSEncryptionClient Frame".
+                                        AADRegularFrame,
 
-        //= compliance/data-format/message-body-aad.txt#2.4.4
-        //# *  For framed data (message-body.md#framed-data), this value MUST
-        //# equal the length, in bytes, of the plaintext being encrypted in
-        //# this frame.
+                                        //= compliance/data-format/message-body-aad.txt#2.4.4
+                                        //# *  For framed data (message-body.md#framed-data), this value MUST
+                                        //# equal the length, in bytes, of the plaintext being encrypted in
+                                        //# this frame.
 
-        //= compliance/data-format/message-body-aad.txt#2.4.4
-        //# -  For regular frames (message-body.md#regular-frame), this value
-        //# MUST equal the value of the frame length (message-
-        //# header.md#frame-length) field in the message header.
-        header.body.frameLength as uint64
-      )
-      case FinalFrame(_,seqNum,_, encContent,_) => (
-        //= compliance/data-format/message-body-aad.txt#2.4.3
-        //# For framed data (message-body.md#framed-data), the value of this
-        //# field MUST be the frame sequence number (message-body.md#sequence-
-        //# number).
-        seqNum,
+                                        //= compliance/data-format/message-body-aad.txt#2.4.4
+                                        //# -  For regular frames (message-body.md#regular-frame), this value
+                                        //# MUST equal the value of the frame length (message-
+                                        //# header.md#frame-length) field in the message header.
+                                        header.body.frameLength as uint64
+                                        )
+                                        case FinalFrame(_,seqNum,_, encContent,_) => (
+                                        //= compliance/data-format/message-body-aad.txt#2.4.3
+                                        //# For framed data (message-body.md#framed-data), the value of this
+                                        //# field MUST be the frame sequence number (message-body.md#sequence-
+                                        //# number).
+                                        seqNum,
 
-        //= compliance/data-format/message-body-aad.txt#2.4.2
-        //# *  The final frame (message-body.md#final-frame) in framed data
-        //# (message-body.md#framed-data) MUST use the value
-        //# "AWSKMSEncryptionClient Final Frame".
-        AADFinalFrame,
+                                        //= compliance/data-format/message-body-aad.txt#2.4.2
+                                        //# *  The final frame (message-body.md#final-frame) in framed data
+                                        //# (message-body.md#framed-data) MUST use the value
+                                        //# "AWSKMSEncryptionClient Final Frame".
+                                        AADFinalFrame,
 
-        //= compliance/data-format/message-body-aad.txt#2.4.4
-        //# *  For framed data (message-body.md#framed-data), this value MUST
-        //# equal the length, in bytes, of the plaintext being encrypted in
-        //# this frame.
+                                        //= compliance/data-format/message-body-aad.txt#2.4.4
+                                        //# *  For framed data (message-body.md#framed-data), this value MUST
+                                        //# equal the length, in bytes, of the plaintext being encrypted in
+                                        //# this frame.
 
-        //= compliance/data-format/message-body-aad.txt#2.4.4
-        //# -  For the final frame (message-body.md#final-frame), this value
-        //# MUST be greater than or equal to 0 and less than or equal to
-        //# the value of the frame length (message-header.md#frame-length)
-        //# field in the message header.
-        |encContent| as uint64
-      )
-      case NonFramed(_,_,encContent,_) => (
-        //= compliance/client-apis/decrypt.txt#2.7.4
-        //# If this is un-framed data,
-        //# this value MUST be 1.
+                                        //= compliance/data-format/message-body-aad.txt#2.4.4
+                                        //# -  For the final frame (message-body.md#final-frame), this value
+                                        //# MUST be greater than or equal to 0 and less than or equal to
+                                        //# the value of the frame length (message-header.md#frame-length)
+                                        //# field in the message header.
+                                        |encContent| as uint64
+                                        )
+                                        case NonFramed(_,_,encContent,_) => (
+                                        //= compliance/client-apis/decrypt.txt#2.7.4
+                                        //# If this is un-framed data,
+                                        //# this value MUST be 1.
 
-        //= compliance/data-format/message-body-aad.txt#2.4.3
-        //# For non-framed data (message-body.md#non-framed-data), the
-        //# value of this field MUST be "1".
-        NONFRAMED_SEQUENCE_NUMBER,
-        
-        //= compliance/data-format/message-body-aad.txt#2.4.2
-        //# *  Non-framed data (message-body.md#non-framed-data) MUST use the
-        //# value "AWSKMSEncryptionClient Single Block".
-        AADSingleBlock,
+                                        //= compliance/data-format/message-body-aad.txt#2.4.3
+                                        //# For non-framed data (message-body.md#non-framed-data), the
+                                        //# value of this field MUST be "1".
+                                        NONFRAMED_SEQUENCE_NUMBER,
 
-        //= compliance/data-format/message-body-aad.txt#2.4.4
-        //# *  For non-framed data (message-body.md#non-framed-data), this value
-        //# MUST equal the length, in bytes, of the plaintext data provided to
-        //# the algorithm for encryption.
-        |encContent| as uint64
-      );
+                                        //= compliance/data-format/message-body-aad.txt#2.4.2
+                                        //# *  Non-framed data (message-body.md#non-framed-data) MUST use the
+                                        //# value "AWSKMSEncryptionClient Single Block".
+                                        AADSingleBlock,
+
+                                        //= compliance/data-format/message-body-aad.txt#2.4.4
+                                        //# *  For non-framed data (message-body.md#non-framed-data), this value
+                                        //# MUST equal the length, in bytes, of the plaintext data provided to
+                                        //# the algorithm for encryption.
+                                        |encContent| as uint64
+                                        );
 
     aad := BodyAAD(frame.header.body.messageId, bc, sequenceNumber, length);
   }
@@ -692,28 +692,28 @@ module MessageBody {
       + contentAAD.value
       //# -  The sequence number (../data-format/message-body-
       //#    aad.md#sequence-number) is the sequence number deserialized
-      //#    from the frame being decrypted. 
+      //#    from the frame being decrypted.
       + UInt32ToSeq(sequenceNumber)
       //= compliance/client-apis/decrypt.txt#2.7.4
       //# -  The content length (../data-format/message-body-aad.md#content-
       //# length) MUST have a value equal to the length of the plaintext
       //# that was encrypted.
       + UInt64ToSeq(length)
-    ;
+      ;
   }
 
   predicate DecryptedWithKey(key: seq<uint8>, plaintext: seq<uint8>)
   {
     if AESEncryption.DecryptedWithKey(key, plaintext) then true else
-      exists plaintextSeg | SumPlaintextSegments(plaintextSeg) == plaintext ::
-        DecryptedSegmentsWithKey(key, plaintextSeg)
+    exists plaintextSeg | SumPlaintextSegments(plaintextSeg) == plaintext ::
+      DecryptedSegmentsWithKey(key, plaintextSeg)
   }
 
   predicate DecryptedSegmentsWithKey(key: seq<uint8>, plaintextSeg: seq<seq<uint8>>)
   {
     if plaintextSeg == [] then true else
-      && DecryptedSegmentsWithKey(key, plaintextSeg[..|plaintextSeg| - 1])
-      && AESEncryption.DecryptedWithKey(key, plaintextSeg[|plaintextSeg| - 1])
+    && DecryptedSegmentsWithKey(key, plaintextSeg[..|plaintextSeg| - 1])
+    && AESEncryption.DecryptedWithKey(key, plaintextSeg[|plaintextSeg| - 1])
   }
 
   function method WriteFramedMessageBody(
@@ -725,7 +725,7 @@ module MessageBody {
     //# The final frame
     //# MUST be the last frame.
     ensures ret == WriteMessageRegularFrames(body.regularFrames)
-      + Frames.WriteFinalFrame(body.finalFrame)
+                   + Frames.WriteFinalFrame(body.finalFrame)
   {
     WriteMessageRegularFrames(body.regularFrames) + Frames.WriteFinalFrame(body.finalFrame)
   }
@@ -735,10 +735,10 @@ module MessageBody {
   )
     :(ret: seq<uint8>)
     ensures if |frames| == 0 then
-      ret == []
-    else
-      ret == WriteMessageRegularFrames(Seq.DropLast(frames))
-      + Frames.WriteRegularFrame(Seq.Last(frames))
+              ret == []
+            else
+              ret == WriteMessageRegularFrames(Seq.DropLast(frames))
+              + Frames.WriteRegularFrame(Seq.Last(frames))
   {
     if |frames| == 0 then []
     else
@@ -754,15 +754,15 @@ module MessageBody {
   )
     :(res: ReadCorrect<FramedMessage>)
     requires forall frame: Frames.Frame
-    | frame in regularFrames
-    :: frame.header == header
+               | frame in regularFrames
+             :: frame.header == header
     requires CorrectlyReadRange(buffer, continuation)
     requires CorrectlyRead(buffer, Success(SuccessfulRead(regularFrames, continuation)), WriteMessageRegularFrames)
     decreases ENDFRAME_SEQUENCE_NUMBER as nat - |regularFrames|
     ensures CorrectlyRead(buffer, res, WriteFramedMessageBody)
     ensures res.Success?
-    ==>
-      && res.value.data.finalFrame.header == header
+            ==>
+              && res.value.data.finalFrame.header == header
   {
     var sequenceNumber :- ReadUInt32(continuation);
 
@@ -773,7 +773,7 @@ module MessageBody {
     //# (../data-format/message-body.md#final-frame) or regular frame
     //# (../fata-format/message-body/md#regular-frame).
     if (sequenceNumber.data != ENDFRAME_SEQUENCE_NUMBER) then
-    
+
       assert {:split_here} true;
 
       //= compliance/client-apis/decrypt.txt#2.7.4
@@ -830,22 +830,22 @@ module MessageBody {
       //# number-end) and the following bytes according to the final frame spec
       //# (../data-format/message-body.md#final-frame).
       assert sequenceNumber.data == ENDFRAME_SEQUENCE_NUMBER;
-      
+
       assert {:split_here} true;
       var finalFrame :- Frames.ReadFinalFrame(continuation, header);
       :- Need(
-        finalFrame.data.seqNum as nat == |regularFrames| + 1,
-        Error("Sequence number out of order.")
-      );
+           finalFrame.data.seqNum as nat == |regularFrames| + 1,
+           Error("Sequence number out of order.")
+         );
 
       assert {:split_here} true;
       assert MessageFramesAreMonotonic(regularFrames + [finalFrame.data]);
       assert MessageFramesAreForTheSameMessage(regularFrames + [finalFrame.data]);
 
       var body: FramedMessage := FramedMessageBody(
-        regularFrames := regularFrames,
-        finalFrame := finalFrame.data
-      );
+                                   regularFrames := regularFrames,
+                                   finalFrame := finalFrame.data
+                                 );
 
       assert {:split_here} true;
       assert CorrectlyRead(continuation, Success(finalFrame), Frames.WriteFinalFrame);
@@ -873,8 +873,8 @@ module MessageBody {
     :(res: ReadCorrect<NonFramedMessage>)
     ensures CorrectlyRead(buffer, res, WriteNonFramedMessageBody)
     ensures res.Success?
-    ==>
-      && res.value.data.header == header
+            ==>
+              && res.value.data.header == header
   {
     var block :- Frames.ReadNonFrame(buffer, header);
     Success(SuccessfulRead(block.data, block.tail))

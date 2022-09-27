@@ -35,24 +35,24 @@ module {:extern "TestClient"} TestClient {
 
     // Use material provider client API for RawAESKeyring creation
     var rawAESKeyringResult := materialsClient.CreateRawAesKeyring(Crypto.CreateRawAesKeyringInput(
-      keyNamespace := "someNamespace",
-      keyName := "someName",
-      wrappingKey := seq(32, i => 0),
-      wrappingAlg := Crypto.ALG_AES256_GCM_IV12_TAG16));
+                                                                     keyNamespace := "someNamespace",
+                                                                     keyName := "someName",
+                                                                     wrappingKey := seq(32, i => 0),
+                                                                     wrappingAlg := Crypto.ALG_AES256_GCM_IV12_TAG16));
     expect rawAESKeyringResult.Success?;
     var rawAESKeyring := rawAESKeyringResult.value;
 
     // Use material provider client API for DefaultCMM creation
     var cmmResult := materialsClient.CreateDefaultCryptographicMaterialsManager(Crypto.CreateDefaultCryptographicMaterialsManagerInput(
-      keyring := rawAESKeyring
-    ));
+                                                                                  keyring := rawAESKeyring
+                                                                                ));
     expect cmmResult.Success?;
     var cmm := cmmResult.value;
 
     var config := Esdk.AwsEncryptionSdkConfig(
-      maxEncryptedDataKeys := Option.Some(2 as int64),
-      commitmentPolicy := Option.Some(Crypto.REQUIRE_ENCRYPT_ALLOW_DECRYPT)
-    );
+                    maxEncryptedDataKeys := Option.Some(2 as int64),
+                    commitmentPolicy := Option.Some(Crypto.REQUIRE_ENCRYPT_ALLOW_DECRYPT)
+                  );
     var clientFactory := new AwsEncryptionSdkFactory.AwsEncryptionSdkFactory();
     var clientResult := clientFactory.CreateAwsEncryptionSdk(config);
     expect clientResult.Success?;
@@ -62,12 +62,12 @@ module {:extern "TestClient"} TestClient {
     var plaintext :- expect UTF8.Encode("hello");
     var encryptionContext := TestUtils.SmallEncryptionContext(TestUtils.SmallEncryptionContextVariation.A);
     var input := Esdk.EncryptInput(
-      plaintext := plaintext,
-      encryptionContext := Some(encryptionContext),
-      algorithmSuiteId := Some(Crypto.AlgorithmSuiteId.ALG_AES_256_GCM_HKDF_SHA512_COMMIT_KEY_ECDSA_P384),
-      materialsManager := Some(cmm),
-      keyring := None(),
-      frameLength := Option.None());
+                   plaintext := plaintext,
+                   encryptionContext := Some(encryptionContext),
+                   algorithmSuiteId := Some(Crypto.AlgorithmSuiteId.ALG_AES_256_GCM_HKDF_SHA512_COMMIT_KEY_ECDSA_P384),
+                   materialsManager := Some(cmm),
+                   keyring := None(),
+                   frameLength := Option.None());
     var encryptRes :- expect client.Encrypt(input);
 
     //= compliance/client-apis/encrypt.txt#2.5
@@ -85,9 +85,9 @@ module {:extern "TestClient"} TestClient {
 
     // Use Decrypt API
     var decryptInput := Esdk.DecryptInput(
-      ciphertext := encryptRes.ciphertext,
-      materialsManager := Some(cmm),
-      keyring := None());
+                          ciphertext := encryptRes.ciphertext,
+                          materialsManager := Some(cmm),
+                          keyring := None());
     var decryptRes :- expect client.Decrypt(decryptInput);
 
     // ensure expected output

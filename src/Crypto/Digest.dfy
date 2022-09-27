@@ -21,7 +21,7 @@ module Digest {
   {
     var result := ExternDigest.Digest(alg, msg);
     if result.Success? && |result.value| != Length(alg) {
-        return Failure("Incorrect length digest from ExternDigest.");
+      return Failure("Incorrect length digest from ExternDigest.");
     }
     return result;
   }

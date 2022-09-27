@@ -35,23 +35,23 @@ module Header {
   import opened SerializeFunctions
 
   datatype HeaderInfo = HeaderInfo(
-    nameonly body: HeaderTypes.HeaderBody,
-    nameonly rawHeader: seq<uint8>,
-    nameonly encryptionContext: ESDKEncryptionContext,
-    nameonly suite: Client.AlgorithmSuites.AlgorithmSuite,
-    nameonly headerAuth: HeaderTypes.HeaderAuth
-  )
+                          nameonly body: HeaderTypes.HeaderBody,
+                          nameonly rawHeader: seq<uint8>,
+                          nameonly encryptionContext: ESDKEncryptionContext,
+                          nameonly suite: Client.AlgorithmSuites.AlgorithmSuite,
+                          nameonly headerAuth: HeaderTypes.HeaderAuth
+                        )
 
   predicate IsHeader(h: HeaderInfo)
   {
     && GetESDKAlgorithmSuiteId(h.suite.id) == h.body.esdkSuiteId
-    // TODO: Even though we're not yet supporting non-framed content,
-    // this assertion about non-framed messages has ripple effects on
-    // other proofs
+       // TODO: Even though we're not yet supporting non-framed content,
+       // this assertion about non-framed messages has ripple effects on
+       // other proofs
     && h.body.contentType.NonFramed? <==> 0 == h.body.frameLength
-    && h.body.contentType.Framed? <==> 0 < h.body.frameLength
-    && HeaderAuth?(h.suite, h.headerAuth)
-    && HeaderVersionSupportsCommitment?(h.suite, h.body)
+                                          && h.body.contentType.Framed? <==> 0 < h.body.frameLength
+                                                                             && HeaderAuth?(h.suite, h.headerAuth)
+                                                                             && HeaderVersionSupportsCommitment?(h.suite, h.body)
 
     // The readability of the header is effectively a completeness requirement.
     // By proving the soundness of the ReadV*HeaderBody,
@@ -74,10 +74,10 @@ module Header {
     headerAuth: HeaderTypes.HeaderAuth
   )
   {
-      && (headerAuth.AESMac?
-    ==>
-      && |headerAuth.headerIv| == suite.encrypt.ivLength as nat
-      && |headerAuth.headerAuthTag| == suite.encrypt.tagLength as nat)
+    && (headerAuth.AESMac?
+        ==>
+          && |headerAuth.headerIv| == suite.encrypt.ivLength as nat
+          && |headerAuth.headerAuthTag| == suite.encrypt.tagLength as nat)
   }
 
   predicate method HeaderVersionSupportsCommitment?(
@@ -86,17 +86,17 @@ module Header {
   )
   {
     && (suite.commitment.HKDF?
-      ==>
-        && body.V2HeaderBody?
-        && |body.suiteData| == suite.commitment.outputKeyLength as nat)
+        ==>
+          && body.V2HeaderBody?
+          && |body.suiteData| == suite.commitment.outputKeyLength as nat)
     && (!suite.commitment.HKDF?
-      ==>
-        && body.V1HeaderBody?)
+        ==>
+          && body.V1HeaderBody?)
   }
 
   type Header = h: HeaderInfo
-  | IsHeader(h)
-  witness *
+    | IsHeader(h)
+    witness *
 
   // ReadHeaderBody does not support streaming at this time
   //= compliance/client-apis/decrypt.txt#2.7.1
@@ -111,8 +111,8 @@ module Header {
   //# message bytes until it has successfully deserialized a valid message
   //# header (../data-format/message-header.md).
   function method ReadHeaderBody(
-     buffer: ReadableBuffer,
-     maxEdks: Option<posInt64>
+    buffer: ReadableBuffer,
+    maxEdks: Option<posInt64>
   )
     :(res: ReadCorrect<HeaderTypes.HeaderBody>)
     ensures CorrectlyReadHeaderBody(buffer, res)
@@ -121,27 +121,27 @@ module Header {
     //# When the content type (Section 2.5.1.11) is non-
     //# framed, the value of this field MUST be 0.
     ensures res.Success? ==>
-      var h := res.value.data;
-      && (h.contentType.NonFramed? <==> 0 == h.frameLength)
-      && (h.contentType.Framed? <==> 0 < h.frameLength)
+              var h := res.value.data;
+              && (h.contentType.NonFramed? <==> 0 == h.frameLength)
+              && (h.contentType.Framed? <==> 0 < h.frameLength)
   {
     var version :- SharedHeaderFunctions.ReadMessageFormatVersion(buffer);
 
     var (body, tail) :- match version.data {
-      case V1 =>
-        var b :- V1HeaderBody.ReadV1HeaderBody(buffer, maxEdks);
-        var body: HeaderTypes.HeaderBody := b.data;
-        Success((body, b.tail))
-      case V2 =>
-        var b :- V2HeaderBody.ReadV2HeaderBody(buffer, maxEdks);
-        var body: HeaderTypes.HeaderBody := b.data;
-        Success((body, b.tail))
-    };
+                          case V1 =>
+                            var b :- V1HeaderBody.ReadV1HeaderBody(buffer, maxEdks);
+                            var body: HeaderTypes.HeaderBody := b.data;
+                            Success((body, b.tail))
+                          case V2 =>
+                            var b :- V2HeaderBody.ReadV2HeaderBody(buffer, maxEdks);
+                            var body: HeaderTypes.HeaderBody := b.data;
+                            Success((body, b.tail))
+                        };
 
     :- Need(body.contentType.Framed? <==> body.frameLength > 0,
-      Error("Frame length must be positive if content is framed"));
+            Error("Frame length must be positive if content is framed"));
     :- Need(body.contentType.NonFramed? <==> body.frameLength == 0,
-      Error("Frame length must be zero if content is non-framed"));
+            Error("Frame length must be zero if content is non-framed"));
     Success(SuccessfulRead(body, tail))
   }
 
@@ -152,12 +152,12 @@ module Header {
   {
     res.Success?
     ==>
-    && CorrectlyReadRange(buffer, res.value.tail)
-    && match res.value.data
-      case V1HeaderBody(_,_,_,_,_,_,_,_) =>
-        V1HeaderBody.CorrectlyReadV1HeaderBody(buffer, res)
-      case V2HeaderBody(_,_,_,_,_,_,_) =>
-        V2HeaderBody.CorrectlyReadV2HeaderBody(buffer, res)
+      && CorrectlyReadRange(buffer, res.value.tail)
+      && match res.value.data
+         case V1HeaderBody(_,_,_,_,_,_,_,_) =>
+           V1HeaderBody.CorrectlyReadV1HeaderBody(buffer, res)
+         case V2HeaderBody(_,_,_,_,_,_,_) =>
+           V2HeaderBody.CorrectlyReadV2HeaderBody(buffer, res)
   }
 
   function method WriteHeaderBody(

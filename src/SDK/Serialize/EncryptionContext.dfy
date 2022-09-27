@@ -27,30 +27,30 @@ module EncryptionContext {
   // For reading and writing, we use the arbitrary given order,
   // and separate the ordering problem from serialization.
   type ESDKEncryptionContextPair = p: Pair<UTF8.ValidUTF8Bytes, UTF8.ValidUTF8Bytes>
-  |
-    && HasUint16Len(p.key) && ValidUTF8Seq(p.key)
-    && HasUint16Len(p.value) && ValidUTF8Seq(p.value)
-  witness *
+    |
+      && HasUint16Len(p.key) && ValidUTF8Seq(p.key)
+      && HasUint16Len(p.value) && ValidUTF8Seq(p.value)
+    witness *
 
   type ESDKCanonicalEncryptionContext = pairs: seq<ESDKEncryptionContextPair>
-  | ESDKCanonicalEncryptionContext?(pairs)
-  witness *
+    | ESDKCanonicalEncryptionContext?(pairs)
+    witness *
 
   predicate ESDKCanonicalEncryptionContext?(pairs: seq<ESDKEncryptionContextPair>) {
     && HasUint16Len(pairs)
     && LinearLength(pairs) < ESDK_CANONICAL_ENCRYPTION_CONTEXT_MAX_LENGTH
-    //= compliance/data-format/message-header.txt#2.5.1.7.2.2
-    //= type=implication
-    //# This sequence MUST NOT contain duplicate entries.
+       //= compliance/data-format/message-header.txt#2.5.1.7.2.2
+       //= type=implication
+       //# This sequence MUST NOT contain duplicate entries.
     && KeysAreUnique(pairs)
   }
 
   predicate KeysAreUnique<K, V>(pairs: Linear<K, V>)
   {
     (forall i, j
-    // This satisfies every cardinality AND i != j
-    :: 0 <= i < j < |pairs|
-    ==> pairs[i].key != pairs[j].key)
+       // This satisfies every cardinality AND i != j
+     :: 0 <= i < j < |pairs|
+        ==> pairs[i].key != pairs[j].key)
   }
 
   function method GetCanonicalEncryptionContext(
@@ -72,7 +72,7 @@ module EncryptionContext {
     assert ESDKCanonicalEncryptionContext?(canonicalEncryptionContext);
     assert KeysAreUnique(canonicalEncryptionContext);
     map i
-    | 0 <= i < |canonicalEncryptionContext|
+      | 0 <= i < |canonicalEncryptionContext|
     :: canonicalEncryptionContext[i].key := canonicalEncryptionContext[i].value
   }
 
@@ -154,28 +154,28 @@ module EncryptionContext {
     (ret: seq<uint8>)
     ensures
       if |ec| == 0 then
-      // These all deal with |ec| == 0
+        // These all deal with |ec| == 0
 
-      //= compliance/data-format/message-header.txt#2.5.1.7.1
-      //= type=implication
-      //# When the encryption context (../framework/structures.md#encryption-
-      //# context) is empty, the value of this field MUST be 0.
+        //= compliance/data-format/message-header.txt#2.5.1.7.1
+        //= type=implication
+        //# When the encryption context (../framework/structures.md#encryption-
+        //# context) is empty, the value of this field MUST be 0.
 
-      //= compliance/data-format/message-header.txt#2.5.1.7.2
-      //= type=implication
-      //# When the encryption
-      //# context (../framework/structures.md#encryption-context) is empty,
-      //# this field MUST NOT be included in the Section 2.5.1.7.
+        //= compliance/data-format/message-header.txt#2.5.1.7.2
+        //= type=implication
+        //# When the encryption
+        //# context (../framework/structures.md#encryption-context) is empty,
+        //# this field MUST NOT be included in the Section 2.5.1.7.
 
-      ret == WriteUint16(|ec| as uint16)
-    else
-      //= compliance/data-format/message-header.txt#2.5.1.7.2.1
-      //= type=implication
-      //# The value of this field MUST be greater
-      //# than 0.
-      && var aad := WriteAAD(ec);
-      && ret == WriteUint16(|aad| as uint16) + aad
-    {
+        ret == WriteUint16(|ec| as uint16)
+      else
+        //= compliance/data-format/message-header.txt#2.5.1.7.2.1
+        //= type=implication
+        //# The value of this field MUST be greater
+        //# than 0.
+        && var aad := WriteAAD(ec);
+        && ret == WriteUint16(|aad| as uint16) + aad
+  {
     if |ec| == 0 then WriteUint16(0)
     else
       var aad := WriteAAD(ec);
@@ -216,13 +216,13 @@ module EncryptionContext {
   ):
     (ret: seq<uint8>)
     ensures |ec| == 0
-    ==>
-      && LinearLength(ec) == |ret|
-      && ret == []
+            ==>
+              && LinearLength(ec) == |ret|
+              && ret == []
     ensures |ec| != 0
-    ==>
-      && LinearLength(Seq.DropLast(ec)) + PairLength(Seq.Last(ec)) == |ret|
-      && WriteAADPairs(Seq.DropLast(ec)) + WriteAADPair(Seq.Last(ec)) == ret
+            ==>
+              && LinearLength(Seq.DropLast(ec)) + PairLength(Seq.Last(ec)) == |ret|
+              && WriteAADPairs(Seq.DropLast(ec)) + WriteAADPair(Seq.Last(ec)) == ret
     ensures |ret| < ESDK_CANONICAL_ENCRYPTION_CONTEXT_MAX_LENGTH
   {
     if |ec| == 0 then []
@@ -334,9 +334,9 @@ module EncryptionContext {
   ):
     (res: ReadCorrect<ESDKCanonicalEncryptionContext>)
     ensures if IsExpandedAADSection(buffer) then
-      CorrectlyRead(buffer, res, WriteExpandedAADSection)
-    else 
-      CorrectlyRead(buffer, res, WriteAADSection)
+              CorrectlyRead(buffer, res, WriteExpandedAADSection)
+            else
+              CorrectlyRead(buffer, res, WriteAADSection)
   {
     var length :- ReadUInt16(buffer);
     if length.data == 0 then
@@ -359,7 +359,7 @@ module EncryptionContext {
         assert WriteExpandedAADSection(empty) == ReadRange((buffer, verifyCount.tail));
 
         Success(SuccessfulRead(empty, verifyCount.tail))
-      else 
+      else
         // This count MUST be greater than 0,
         // because the length of the AAD is greater than 2.
         :- Need(0 < verifyCount.data, Error("Encryption Context byte length exceeds pairs count."));
@@ -401,11 +401,11 @@ module EncryptionContext {
   ):
     (ret: seq<uint8>)
     ensures if |ec| == 0 then
-      ret == [0, 2, 0, 0]
-    else
-      && var aad := WriteAAD(ec);
-      && ret == UInt16ToSeq(|aad| as uint16) + aad
-    {
+              ret == [0, 2, 0, 0]
+            else
+              && var aad := WriteAAD(ec);
+              && ret == UInt16ToSeq(|aad| as uint16) + aad
+  {
     var aad := WriteAAD(ec);
     UInt16ToSeq(|aad| as uint16) + aad
   }
@@ -458,16 +458,16 @@ module EncryptionContext {
     data: ESDKCanonicalEncryptionContext
   )
     ensures forall accumulator
-    | accumulator <= data
-    ::
-      && ESDKCanonicalEncryptionContext?(accumulator)
-      && ESDKCanonicalEncryptionContext?(data[|accumulator|..])
+              | accumulator <= data
+            ::
+              && ESDKCanonicalEncryptionContext?(accumulator)
+              && ESDKCanonicalEncryptionContext?(data[|accumulator|..])
   {
     forall accumulator
-    | accumulator <= data
-    ensures
-      && ESDKCanonicalEncryptionContext?(accumulator)
-      && ESDKCanonicalEncryptionContext?(data[|accumulator|..])
+      | accumulator <= data
+      ensures
+        && ESDKCanonicalEncryptionContext?(accumulator)
+        && ESDKCanonicalEncryptionContext?(data[|accumulator|..])
     {
       assert |accumulator| <= |data|;
       assert |data[|accumulator|..]| <= |data|;
@@ -606,12 +606,12 @@ module EncryptionContext {
     // building up to the terminal case (see the inductive call below)
     if data == accumulator {
       return ReadAADPairs(
-        buffer,
-        accumulator,
-        keys,
-        |data| as uint16,
-        buffer.( start := buffer.start + |WriteAADPairs(data)| ))
-      .value;
+               buffer,
+               accumulator,
+               keys,
+               |data| as uint16,
+               buffer.( start := buffer.start + |WriteAADPairs(data)| ))
+             .value;
     } else {
 
       var nextPair := NextPairIsComplete(data, accumulator, bytes, buffer);
@@ -621,10 +621,10 @@ module EncryptionContext {
       // are valid WriteAADPair bytes,
       // we can prove that this part is complete
       var pair := ReadAADPairIsComplete(
-        data[|accumulator|],
-        WriteAADPair(data[|accumulator|]),
-        nextPair
-      );
+                    data[|accumulator|],
+                    WriteAADPair(data[|accumulator|]),
+                    nextPair
+                  );
 
       assert pair.data == data[|accumulator|];
       reveal KeysToSet();
@@ -651,12 +651,12 @@ module EncryptionContext {
       // Along the way, we prove ReadAADPairIsComplete
       // for each encryption context pair "along the way".
       var pairs := ReadAADPairsIsComplete(
-        data,
-        accumulator + [pair.data],
-        keys + KeysToSet([pair.data]),
-        bytes,
-        buffer
-      );
+                     data,
+                     accumulator + [pair.data],
+                     keys + KeysToSet([pair.data]),
+                     bytes,
+                     buffer
+                   );
 
       assert pairs.data == data;
 
@@ -688,20 +688,20 @@ module EncryptionContext {
     assert bytes[|WriteUint16(|data| as uint16)|..] == WriteAADPairs(data);
 
     var count := ReadUInt16IsComplete(
-      |data| as uint16,
-      WriteUint16(|data| as uint16),
-      buffer
-    );
+                   |data| as uint16,
+                   WriteUint16(|data| as uint16),
+                   buffer
+                 );
     assert count.data as nat == |data|;
     var accumulator:ESDKCanonicalEncryptionContext := [];
 
     var pairs := ReadAADPairsIsComplete(
-      data,
-      accumulator,
-      KeysToSet(accumulator),
-      WriteAADPairs(data),
-      count.tail
-    );
+                   data,
+                   accumulator,
+                   KeysToSet(accumulator),
+                   WriteAADPairs(data),
+                   count.tail
+                 );
     assert pairs.data == data;
 
     return ReadAAD(buffer).value;
@@ -736,19 +736,19 @@ module EncryptionContext {
       assert 0 < |data|;
 
       var length := ReadUInt16IsComplete(
-        |WriteAAD(data)| as uint16,
-        WriteUint16(|WriteAAD(data)| as uint16),
-        buffer
-      );
+                      |WriteAAD(data)| as uint16,
+                      WriteUint16(|WriteAAD(data)| as uint16),
+                      buffer
+                    );
       assert length.data == |WriteAAD(data)| as uint16;
       assert length.tail.start + length.data as nat <= |length.tail.bytes|;
       assert !IsExpandedAADSection(buffer);
 
       var aad := ReadAADIsComplete(
-        data,
-        WriteAAD(data),
-        length.tail
-      );
+                   data,
+                   WriteAAD(data),
+                   length.tail
+                 );
       assert aad.data == data;
 
       return ReadAADSection(buffer).value;

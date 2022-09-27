@@ -18,7 +18,7 @@ module Random {
   {
     var result := ExternRandom.GenerateBytes(i);
     if result.Success? && |result.value| != i as int {
-        return Failure("Incorrect length from ExternRandom.");
+      return Failure("Incorrect length from ExternRandom.");
     }
     return result;
   }

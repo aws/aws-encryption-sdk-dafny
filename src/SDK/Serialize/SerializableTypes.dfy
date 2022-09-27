@@ -39,15 +39,15 @@ module SerializableTypes {
     && |ec| < UINT16_LIMIT
     && Length(ec) < ESDK_CANONICAL_ENCRYPTION_CONTEXT_MAX_LENGTH
     && forall element
-    | element in (multiset(ec.Keys) + multiset(ec.Values))
-    ::
-      && HasUint16Len(element)
-      && ValidUTF8Seq(element)
+         | element in (multiset(ec.Keys) + multiset(ec.Values))
+       ::
+         && HasUint16Len(element)
+         && ValidUTF8Seq(element)
   }
 
   type ESDKEncryptionContext = ec: Crypto.EncryptionContext
-  | IsESDKEncryptionContext(ec)
-  witness *
+    | IsESDKEncryptionContext(ec)
+    witness *
 
   const VALID_IDS: set<uint16> := {0x0578, 0x0478, 0x0378, 0x0346, 0x0214, 0x0178, 0x0146, 0x0114, 0x0078, 0x0046, 0x0014};
 
@@ -59,17 +59,17 @@ module SerializableTypes {
   type ESDKAlgorithmSuiteId = id: uint16 | id in VALID_IDS witness *
 
   const SupportedAlgorithmSuites: map<Crypto.AlgorithmSuiteId, ESDKAlgorithmSuiteId> := map[
-    Crypto.AlgorithmSuiteId.ALG_AES_128_GCM_IV12_TAG16_NO_KDF := 0x0014,
-    Crypto.AlgorithmSuiteId.ALG_AES_192_GCM_IV12_TAG16_NO_KDF := 0x0046,
-    Crypto.AlgorithmSuiteId.ALG_AES_256_GCM_IV12_TAG16_NO_KDF := 0x0078,
-    Crypto.AlgorithmSuiteId.ALG_AES_128_GCM_IV12_TAG16_HKDF_SHA256 := 0x0114,
-    Crypto.AlgorithmSuiteId.ALG_AES_192_GCM_IV12_TAG16_HKDF_SHA256 := 0x0146,
-    Crypto.AlgorithmSuiteId.ALG_AES_256_GCM_IV12_TAG16_HKDF_SHA256 := 0x0178,
-    Crypto.AlgorithmSuiteId.ALG_AES_128_GCM_IV12_TAG16_HKDF_SHA256_ECDSA_P256 := 0x0214,
-    Crypto.AlgorithmSuiteId.ALG_AES_192_GCM_IV12_TAG16_HKDF_SHA384_ECDSA_P384 := 0x0346,
-    Crypto.AlgorithmSuiteId.ALG_AES_256_GCM_IV12_TAG16_HKDF_SHA384_ECDSA_P384 := 0x0378,
-    Crypto.AlgorithmSuiteId.ALG_AES_256_GCM_HKDF_SHA512_COMMIT_KEY := 0x0478,
-    Crypto.AlgorithmSuiteId.ALG_AES_256_GCM_HKDF_SHA512_COMMIT_KEY_ECDSA_P384 := 0x0578
+                                                                                          Crypto.AlgorithmSuiteId.ALG_AES_128_GCM_IV12_TAG16_NO_KDF := 0x0014,
+                                                                                          Crypto.AlgorithmSuiteId.ALG_AES_192_GCM_IV12_TAG16_NO_KDF := 0x0046,
+                                                                                          Crypto.AlgorithmSuiteId.ALG_AES_256_GCM_IV12_TAG16_NO_KDF := 0x0078,
+                                                                                          Crypto.AlgorithmSuiteId.ALG_AES_128_GCM_IV12_TAG16_HKDF_SHA256 := 0x0114,
+                                                                                          Crypto.AlgorithmSuiteId.ALG_AES_192_GCM_IV12_TAG16_HKDF_SHA256 := 0x0146,
+                                                                                          Crypto.AlgorithmSuiteId.ALG_AES_256_GCM_IV12_TAG16_HKDF_SHA256 := 0x0178,
+                                                                                          Crypto.AlgorithmSuiteId.ALG_AES_128_GCM_IV12_TAG16_HKDF_SHA256_ECDSA_P256 := 0x0214,
+                                                                                          Crypto.AlgorithmSuiteId.ALG_AES_192_GCM_IV12_TAG16_HKDF_SHA384_ECDSA_P384 := 0x0346,
+                                                                                          Crypto.AlgorithmSuiteId.ALG_AES_256_GCM_IV12_TAG16_HKDF_SHA384_ECDSA_P384 := 0x0378,
+                                                                                          Crypto.AlgorithmSuiteId.ALG_AES_256_GCM_HKDF_SHA512_COMMIT_KEY := 0x0478,
+                                                                                          Crypto.AlgorithmSuiteId.ALG_AES_256_GCM_HKDF_SHA512_COMMIT_KEY_ECDSA_P384 := 0x0578
   ]
 
   function method GetESDKAlgorithmSuiteId(
@@ -88,7 +88,7 @@ module SerializableTypes {
     (res: Crypto.AlgorithmSuiteId)
   {
     var suiteId
-    :|
+      :|
       && suiteId in SupportedAlgorithmSuites
       && SupportedAlgorithmSuites[suiteId] == esdkId;
     suiteId
@@ -120,8 +120,8 @@ module SerializableTypes {
       && ret == LinearLength(pairs)
   {
     if |encryptionContext| == 0 then 0 else
-      var pairs := GetCanonicalLinearPairs(encryptionContext);
-      LinearLength(pairs)
+    var pairs := GetCanonicalLinearPairs(encryptionContext);
+    LinearLength(pairs)
   }
 
   // Defining and reasoning about order with maps
@@ -137,16 +137,16 @@ module SerializableTypes {
     //# These entries MUST have entries sorted, by key, in ascending order
     //# according to the UTF-8 encoded binary value.
     var keys: seq<UTF8.ValidUTF8Bytes> := Sets.ComputeSetToOrderedSequence2<uint8>(
-      encryptionContext.Keys,
-      UInt.UInt8Less
-    );
+                                            encryptionContext.Keys,
+                                            UInt.UInt8Less
+                                          );
     seq(
-      |keys|,
-      i
-        requires 0 <= i < |keys|
-      => Pair(
-        keys[i],
-        encryptionContext[keys[i]]))
+    |keys|,
+    i
+    requires 0 <= i < |keys|
+    => Pair(
+         keys[i],
+         encryptionContext[keys[i]]))
   }
 
   function method {:tailrecursion} LinearLength(
@@ -154,9 +154,9 @@ module SerializableTypes {
   ):
     (ret: nat)
     ensures |pairs| == 0
-    ==> ret == 0
+            ==> ret == 0
     ensures |pairs| != 0
-    ==> ret == LinearLength(Seq.DropLast(pairs)) + PairLength(Seq.Last(pairs))
+            ==> ret == LinearLength(Seq.DropLast(pairs)) + PairLength(Seq.Last(pairs))
   {
     if |pairs| == 0 then 0
     else

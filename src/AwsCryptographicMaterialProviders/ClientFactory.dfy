@@ -18,10 +18,10 @@ module {:extern "Dafny.Aws.EncryptionSdk.Core.AwsCryptographicMaterialProvidersF
     constructor() {}
 
     method CreateDefaultAwsCryptographicMaterialProviders()
-          returns (res: Result<Crypto.IAwsCryptographicMaterialProviders, Crypto.IAwsCryptographicMaterialProvidersException>)
+      returns (res: Result<Crypto.IAwsCryptographicMaterialProviders, Crypto.IAwsCryptographicMaterialProvidersException>)
     {
-        var client := new Client.AwsCryptographicMaterialProviders();
-        return Success(client);
+      var client := new Client.AwsCryptographicMaterialProviders();
+      return Success(client);
     }
   }
 }

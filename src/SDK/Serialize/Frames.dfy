@@ -34,36 +34,36 @@ module Frames {
   const NONFRAMED_SEQUENCE_NUMBER: uint32 := 1
 
   type FramedHeader = h : Header.Header
-  | h.body.contentType.Framed?
-  witness *
+    | h.body.contentType.Framed?
+    witness *
 
   type NonFramedHeader = h : Header.Header
-  | h.body.contentType.NonFramed?
-  witness *
+    | h.body.contentType.NonFramed?
+    witness *
 
   datatype Frame =
-  | RegularFrame(
-    header: Header.Header,
-    seqNum: uint32,
-    iv: seq<uint8>,
-    encContent: seq<uint8>,
-    authTag: seq<uint8>)
-  | FinalFrame (
-    header: Header.Header,
-    seqNum: uint32,
-    iv: seq<uint8>,
-    encContent: seq<uint8>,
-    authTag: seq<uint8>)
-  | NonFramed(
-    header: Header.Header,
-    //= compliance/data-format/message-body.txt#2.5.1.1
-    //= type=implication
-    //# The
-    //# IV MUST be a unique IV within the message.
-    iv: seq<uint8>,
-    encContent: seq<uint8>,
-    authTag: seq<uint8>
-  )
+    | RegularFrame(
+        header: Header.Header,
+        seqNum: uint32,
+        iv: seq<uint8>,
+        encContent: seq<uint8>,
+        authTag: seq<uint8>)
+    | FinalFrame (
+        header: Header.Header,
+        seqNum: uint32,
+        iv: seq<uint8>,
+        encContent: seq<uint8>,
+        authTag: seq<uint8>)
+    | NonFramed(
+        header: Header.Header,
+        //= compliance/data-format/message-body.txt#2.5.1.1
+        //= type=implication
+        //# The
+        //# IV MUST be a unique IV within the message.
+        iv: seq<uint8>,
+        encContent: seq<uint8>,
+        authTag: seq<uint8>
+      )
 
   predicate IvTagLengths(frame: Frame){
     && |frame.iv| == frame.header.suite.encrypt.ivLength as nat
@@ -72,56 +72,56 @@ module Frames {
 
   predicate IsRegularFrame(frame: Frame){
     && frame.RegularFrame?
-    //= compliance/data-format/message-body.txt#2.5.2.1.4
-    //= type=implication
-    //# The authentication tag length MUST be equal to the authentication tag
-    //# length of the algorithm suite specified by the Algorithm Suite ID
-    //# (message-header.md#algorithm-suite-id) field.
+       //= compliance/data-format/message-body.txt#2.5.2.1.4
+       //= type=implication
+       //# The authentication tag length MUST be equal to the authentication tag
+       //# length of the algorithm suite specified by the Algorithm Suite ID
+       //# (message-header.md#algorithm-suite-id) field.
     && IvTagLengths(frame)
     && frame.header.body.contentType.Framed?
-    //= compliance/data-format/message-body.txt#2.5.2.1.3
-    //= type=implication
-    //# The length of the encrypted content of a Regular Frame MUST be equal
-    //# to the Frame Length.
+       //= compliance/data-format/message-body.txt#2.5.2.1.3
+       //= type=implication
+       //# The length of the encrypted content of a Regular Frame MUST be equal
+       //# to the Frame Length.
     && |frame.encContent| == frame.header.body.frameLength as nat
     && frame.seqNum != ENDFRAME_SEQUENCE_NUMBER
   }
 
   type RegularFrame = frame: Frame
-  | IsRegularFrame(frame)
-  witness *
+    | IsRegularFrame(frame)
+    witness *
 
   predicate IsFinalFrame(frame: Frame) {
     && frame.FinalFrame?
-    //= compliance/data-format/message-body.txt#2.5.2.2.6
-    //= type=implication
-    //# The authentication tag length MUST be equal to the authentication tag
-    //# length of the algorithm suite specified by the Algorithm Suite ID
-    //# (message-header.md#algorithm-suite-id) field.
+       //= compliance/data-format/message-body.txt#2.5.2.2.6
+       //= type=implication
+       //# The authentication tag length MUST be equal to the authentication tag
+       //# length of the algorithm suite specified by the Algorithm Suite ID
+       //# (message-header.md#algorithm-suite-id) field.
     && IvTagLengths(frame)
     && frame.header.body.contentType.Framed?
     && |frame.encContent| <= frame.header.body.frameLength as nat
   }
 
   type FinalFrame = frame: Frame
-  | IsFinalFrame(frame)
-  witness *
+    | IsFinalFrame(frame)
+    witness *
 
   predicate IsNonFramed(frame: Frame) {
     && frame.NonFramed?
     && IvTagLengths(frame)
     && frame.header.body.contentType.NonFramed?
-    //= compliance/data-format/message-body.txt#2.5.1.2
-    //= type=implication
-    //# The length MUST NOT be greater than "2^36 - 32", or 64 gibibytes (64
-    //# GiB), due to restrictions imposed by the implemented algorithms
-    //# (../framework/algorithm-suites.md).
+       //= compliance/data-format/message-body.txt#2.5.1.2
+       //= type=implication
+       //# The length MUST NOT be greater than "2^36 - 32", or 64 gibibytes (64
+       //# GiB), due to restrictions imposed by the implemented algorithms
+       //# (../framework/algorithm-suites.md).
     && |frame.encContent| < SAFE_MAX_ENCRYPT
   }
 
   type NonFramed = frame: Frame
-  | IsNonFramed(frame)
-  witness *
+    | IsNonFramed(frame)
+    witness *
 
   //= compliance/data-format/message-body.txt#2.5.2
   //= type=implication
@@ -129,7 +129,7 @@ module Frames {
   //# equal to "2^32 - 1".
   lemma LemmaRegularOrFinalFrameHasUint32ContentByteLength(frame: Frame)
     ensures IsRegularFrame(frame) || IsFinalFrame(frame)
-      ==> |frame.encContent| <= 0xFFFF_FFFF
+            ==> |frame.encContent| <= 0xFFFF_FFFF
   {}
 
   const SAFE_MAX_ENCRYPT := 0xFFFFFFFE0 // 2^36 - 32
@@ -144,8 +144,8 @@ module Frames {
   {
     WriteUint32(regularFrame.seqNum)
     + (Write(regularFrame.iv)
-    + (Write(regularFrame.encContent)
-    + (Write(regularFrame.authTag))))
+       + (Write(regularFrame.encContent)
+          + (Write(regularFrame.authTag))))
   }
 
   function method ReadRegularFrame(
@@ -154,7 +154,7 @@ module Frames {
   )
     :(res: ReadCorrect<RegularFrame>)
     ensures res.Success?
-    ==> res.value.data.header == header
+            ==> res.value.data.header == header
     ensures CorrectlyRead(buffer, res, WriteRegularFrame)
   {
 
@@ -166,12 +166,12 @@ module Frames {
     var authTag :- Read(encContent.tail, header.suite.encrypt.tagLength as nat);
 
     var regularFrame: RegularFrame := Frame.RegularFrame(
-      header,
-      sequenceNumber.data,
-      iv.data,
-      encContent.data,
-      authTag.data
-    );
+                                        header,
+                                        sequenceNumber.data,
+                                        iv.data,
+                                        encContent.data,
+                                        authTag.data
+                                      );
 
     assert {:split_here} true;
     assert WriteRegularFrame(regularFrame) <= buffer.bytes[buffer.start..];
@@ -185,17 +185,17 @@ module Frames {
     :(ret: seq<uint8>)
     ensures
       && ReadUInt32(ReadableBuffer(ret, 0)).Success?
-      //= compliance/data-format/message-body.txt#2.5.2.2.1
-      //= type=implication
-      //# The value MUST be encoded as the 4 bytes "FF FF FF FF" in hexadecimal
-      //# notation.
+         //= compliance/data-format/message-body.txt#2.5.2.2.1
+         //= type=implication
+         //# The value MUST be encoded as the 4 bytes "FF FF FF FF" in hexadecimal
+         //# notation.
       && ReadUInt32(ReadableBuffer(ret, 0)).value.data == ENDFRAME_SEQUENCE_NUMBER
   {
     WriteUint32(ENDFRAME_SEQUENCE_NUMBER)
     + (WriteUint32(finalFrame.seqNum)
-    + (Write(finalFrame.iv)
-    + (WriteUint32Seq(finalFrame.encContent)
-    + (Write(finalFrame.authTag)))))
+       + (Write(finalFrame.iv)
+          + (WriteUint32Seq(finalFrame.encContent)
+             + (Write(finalFrame.authTag)))))
   }
 
   function method {:vcs_split_on_every_assert} ReadFinalFrame(
@@ -204,7 +204,7 @@ module Frames {
   )
     :(res: ReadCorrect<FinalFrame>)
     ensures res.Success?
-    ==> res.value.data.header == header
+            ==> res.value.data.header == header
     ensures CorrectlyRead(buffer, res, WriteFinalFrame)
 
     //= compliance/client-apis/decrypt.txt#2.7.4
@@ -215,16 +215,16 @@ module Frames {
     //# in the message header.
     ensures
       res.Success?
-    ==>
-      && var finalFrameSignalRes := ReadUInt32(buffer);
-      && finalFrameSignalRes.Success?
-      && var sequenceNumberRes := ReadUInt32(finalFrameSignalRes.value.tail);
-      && sequenceNumberRes.Success?
-      && var ivRes := Read(sequenceNumberRes.value.tail, header.suite.encrypt.ivLength as nat);
-      && ivRes.Success?
-      && var encContentRes := ReadUint32Seq(ivRes.value.tail);
-      && encContentRes.Success?
-      && |encContentRes.value.data| as uint32 <= header.body.frameLength    
+      ==>
+        && var finalFrameSignalRes := ReadUInt32(buffer);
+        && finalFrameSignalRes.Success?
+        && var sequenceNumberRes := ReadUInt32(finalFrameSignalRes.value.tail);
+        && sequenceNumberRes.Success?
+        && var ivRes := Read(sequenceNumberRes.value.tail, header.suite.encrypt.ivLength as nat);
+        && ivRes.Success?
+        && var encContentRes := ReadUint32Seq(ivRes.value.tail);
+        && encContentRes.Success?
+        && |encContentRes.value.data| as uint32 <= header.body.frameLength
 
   {
     var finalFrameSignal :- ReadUInt32(buffer);
@@ -240,21 +240,21 @@ module Frames {
     //# content field is less than or equal to the frame length deserialized
     //# in the message header.
     :- Need(|encContent.data| as uint32 <= header.body.frameLength, Error("bad"));
-    
+
     var authTag :- Read(encContent.tail, header.suite.encrypt.tagLength as nat);
     var finalFrame: FinalFrame := Frame.FinalFrame(
-      header,
-      sequenceNumber.data,
-      iv.data,
-      encContent.data,
-      authTag.data
-    );
+                                    header,
+                                    sequenceNumber.data,
+                                    iv.data,
+                                    encContent.data,
+                                    authTag.data
+                                  );
 
     assert WriteUint32(finalFrameSignal.data)
-    + (WriteUint32(finalFrame.seqNum)
-    + (Write(finalFrame.iv)
-    + (WriteUint32Seq(finalFrame.encContent)
-    + (Write(finalFrame.authTag))))) <= buffer.bytes[buffer.start..];
+      + (WriteUint32(finalFrame.seqNum)
+         + (Write(finalFrame.iv)
+            + (WriteUint32Seq(finalFrame.encContent)
+               + (Write(finalFrame.authTag))))) <= buffer.bytes[buffer.start..];
     assert WriteFinalFrame(finalFrame) <= buffer.bytes[buffer.start..];
 
     Success(SuccessfulRead(finalFrame, authTag.tail))
@@ -276,11 +276,11 @@ module Frames {
     var authTag :- Read(encContent.tail, header.suite.encrypt.tagLength as nat);
 
     var nonFramed: NonFramed := Frame.NonFramed(
-      header,
-      iv.data,
-      encContent.data,
-      authTag.data
-    );
+                                  header,
+                                  iv.data,
+                                  encContent.data,
+                                  authTag.data
+                                );
 
     assert {:split_here} true;
     assert WriteNonFramed(nonFramed) <= buffer.bytes[buffer.start..];
@@ -298,7 +298,7 @@ module Frames {
   {
     Write(nonFramed.iv)
     + (WriteUint64Seq(nonFramed.encContent)
-    + (Write(nonFramed.authTag)))
+       + (Write(nonFramed.authTag)))
   }
 
 }

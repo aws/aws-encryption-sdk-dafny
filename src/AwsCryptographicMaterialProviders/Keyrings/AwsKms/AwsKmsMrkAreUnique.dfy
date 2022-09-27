@@ -15,7 +15,7 @@ module  AwsKmsMrkAreUnique {
   //= type=implication
   //# The caller MUST provide:
   function method AwsKmsMrkAreUnique(identifiers: seq<AwsKmsIdentifier>)
-  : (result: Outcome<string>)
+    : (result: Outcome<string>)
   {
     var mrks := Seq.Filter(IsMultiRegionAwsKmsIdentifier, identifiers);
 
@@ -61,8 +61,8 @@ module  AwsKmsMrkAreUnique {
     //# exit successfully.
     ensures
       |Seq.Filter(IsMultiRegionAwsKmsIdentifier, identifiers)| == 0
-    ==>
-      AwsKmsMrkAreUnique(identifiers).Pass?
+      ==>
+        AwsKmsMrkAreUnique(identifiers).Pass?
 
     //= compliance/framework/aws-kms/aws-kms-mrk-are-unique.txt#2.5
     //= type=implication
@@ -73,8 +73,8 @@ module  AwsKmsMrkAreUnique {
       var ids := Seq.Map(GetKeyId, mrks);
       && |mrks| > 0
       && Seq.HasNoDuplicates(ids)
-    ==>
-      AwsKmsMrkAreUnique(identifiers).Pass?
+      ==>
+        AwsKmsMrkAreUnique(identifiers).Pass?
 
     //= compliance/framework/aws-kms/aws-kms-mrk-are-unique.txt#2.5
     //= type=implication
@@ -86,9 +86,9 @@ module  AwsKmsMrkAreUnique {
       var ids := Seq.Map(GetKeyId, mrks);
       && |mrks| > 0
       && !Seq.HasNoDuplicates(ids)
-    ==>
-      // TODO this only checks for failure, but not the error message
-      AwsKmsMrkAreUnique(identifiers).Fail?
+      ==>
+        // TODO this only checks for failure, but not the error message
+        AwsKmsMrkAreUnique(identifiers).Fail?
   {
     var mrks := Seq.Filter(IsMultiRegionAwsKmsIdentifier, identifiers);
     var ids := Seq.Map(GetKeyId, mrks);

@@ -11,14 +11,14 @@ module TestBase64 {
   import opened Base64 = Base64
 
   const BASE64_TEST_VECTORS_ENCODED := ["", "VA==", "VGU=", "VGVz", "VGVzdA==", "VGVzdGk=", "VGVzdGlu", "VGVzdGluZw==",
-    "VGVzdGluZys=", "VGVzdGluZysx"];
+                                        "VGVzdGluZys=", "VGVzdGluZysx"];
   const BASE64_TEST_VECTORS_DECODED := ["", "T", "Te", "Tes", "Test", "Testi", "Testin", "Testing", "Testing+",
-    "Testing+1"];
+                                        "Testing+1"];
 
   const BASE64_TEST_VECTORS_DECODED_UINT8: seq<seq<uint8>> :=
     [[], [0x54], [0x54, 0x65], [0x54, 0x65, 0x73], [0x54, 0x65, 0x73, 0x74], [0x54, 0x65, 0x73, 0x74, 0x69],
-    [0x54, 0x65, 0x73, 0x74, 0x69, 0x6E], [0x54, 0x65, 0x73, 0x74, 0x69, 0x6E, 0x67],
-    [0x54, 0x65, 0x73, 0x74, 0x69, 0x6E, 0x67, 0x2B], [0x54, 0x65, 0x73, 0x74, 0x69, 0x6E, 0x67, 0x2B, 0x31]];
+     [0x54, 0x65, 0x73, 0x74, 0x69, 0x6E], [0x54, 0x65, 0x73, 0x74, 0x69, 0x6E, 0x67],
+     [0x54, 0x65, 0x73, 0x74, 0x69, 0x6E, 0x67, 0x2B], [0x54, 0x65, 0x73, 0x74, 0x69, 0x6E, 0x67, 0x2B, 0x31]];
 
   const BASE64_CHARS := "+/0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
 
@@ -294,12 +294,12 @@ module TestBase64 {
 
   method {:test} TestDecodeValidTestVectors() {
     expect forall i :: 0 <= i < |BASE64_TEST_VECTORS_ENCODED| ==>
-      DecodeValid(BASE64_TEST_VECTORS_ENCODED[i]) == BASE64_TEST_VECTORS_DECODED_UINT8[i];
+                         DecodeValid(BASE64_TEST_VECTORS_ENCODED[i]) == BASE64_TEST_VECTORS_DECODED_UINT8[i];
   }
 
   method {:test} TestDecodeTestVectors() {
     expect forall i :: 0 <= i < |BASE64_TEST_VECTORS_ENCODED| ==>
-      Decode(BASE64_TEST_VECTORS_ENCODED[i]) == Success(BASE64_TEST_VECTORS_DECODED_UINT8[i]);
+                         Decode(BASE64_TEST_VECTORS_ENCODED[i]) == Success(BASE64_TEST_VECTORS_DECODED_UINT8[i]);
   }
 
   method {:test} TestDecodeFailure() {
@@ -308,17 +308,17 @@ module TestBase64 {
 
   method {:test} TestEncode() {
     expect forall i :: 0 <= i < |BASE64_TEST_VECTORS_DECODED_UINT8| ==>
-      Encode(BASE64_TEST_VECTORS_DECODED_UINT8[i]) == BASE64_TEST_VECTORS_ENCODED[i];
+                         Encode(BASE64_TEST_VECTORS_DECODED_UINT8[i]) == BASE64_TEST_VECTORS_ENCODED[i];
   }
 
   method {:test} TestEncodeDecode() {
     expect forall i :: 0 <= i < |BASE64_TEST_VECTORS_DECODED_UINT8| ==>
-      Decode(Encode(BASE64_TEST_VECTORS_DECODED_UINT8[i])) == Success(BASE64_TEST_VECTORS_DECODED_UINT8[i]);
+                         Decode(Encode(BASE64_TEST_VECTORS_DECODED_UINT8[i])) == Success(BASE64_TEST_VECTORS_DECODED_UINT8[i]);
   }
 
   method {:test} TestDecodeEncode() {
     expect forall i :: 0 <= i < |BASE64_TEST_VECTORS_ENCODED| ==>
-      (Decode(BASE64_TEST_VECTORS_ENCODED[i]).Success?
-      && Encode(Decode(BASE64_TEST_VECTORS_ENCODED[i]).value) == BASE64_TEST_VECTORS_ENCODED[i]);
+                         (Decode(BASE64_TEST_VECTORS_ENCODED[i]).Success?
+                          && Encode(Decode(BASE64_TEST_VECTORS_ENCODED[i]).value) == BASE64_TEST_VECTORS_ENCODED[i]);
   }
 }

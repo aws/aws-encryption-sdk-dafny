@@ -15,9 +15,9 @@ module  AwsKmsArnParsing {
   const MAX_AWS_KMS_IDENTIFIER_LENGTH := 2048
 
   datatype AwsResource = AwsResource(
-    resourceType: string,
-    value: string
-  ) {
+                           resourceType: string,
+                           value: string
+                         ) {
     predicate method Valid()
     {
       && 0 < |value|
@@ -33,13 +33,13 @@ module  AwsKmsArnParsing {
   }
 
   datatype AwsArn = AwsArn(
-    arnLiteral: string,
-    partition: string,
-    service: string,
-    region: string,
-    account: string,
-    resource: AwsResource
-  ) {
+                      arnLiteral: string,
+                      partition: string,
+                      service: string,
+                      region: string,
+                      account: string,
+                      resource: AwsResource
+                    ) {
     predicate method Valid()
     {
       && arnLiteral == "arn"
@@ -63,15 +63,15 @@ module  AwsKmsArnParsing {
       match customRegion {
         case None => ToArnString(Some(region))
         case Some(customRegion) => Join(
-          [
-            arnLiteral,
-            partition,
-            service,
-            customRegion,
-            account,
-            resource.ToString()
-          ],
-          ":")
+                                     [
+                                       arnLiteral,
+                                       partition,
+                                       service,
+                                       customRegion,
+                                       account,
+                                       resource.ToString()
+                                     ],
+                                     ":")
       }
     }
   }
@@ -80,9 +80,9 @@ module  AwsKmsArnParsing {
   {
     && resource.Valid()
     && (
-      || resource.resourceType == "key"
-      || resource.resourceType == "alias"
-      )
+         || resource.resourceType == "key"
+         || resource.resourceType == "alias"
+       )
   }
 
   predicate method ValidAwsKmsArn(arn: AwsArn)
@@ -145,22 +145,22 @@ module  AwsKmsArnParsing {
     //# The resource section MUST be non-empty and MUST be split by a
     //# single "/" any additional "/" are included in the resource id
     ensures ParseAwsKmsResources(identifier).Success? ==>
-      var info := Split(identifier, '/');
-      var r := ParseAwsKmsResources(identifier);
-      && |info| > 1
-      && Join([r.value.resourceType, r.value.value], "/") == identifier
+              var info := Split(identifier, '/');
+              var r := ParseAwsKmsResources(identifier);
+              && |info| > 1
+              && Join([r.value.resourceType, r.value.value], "/") == identifier
     //= compliance/framework/aws-kms/aws-kms-key-arn.txt#2.5
     //= type=implication
     //# The resource type MUST be either "alias" or "key"
     ensures ParseAwsKmsResources(identifier).Success? ==>
-      var resourceType := Split(identifier, '/')[0];
-      "key" == resourceType || "alias" == resourceType
+              var resourceType := Split(identifier, '/')[0];
+              "key" == resourceType || "alias" == resourceType
     //= compliance/framework/aws-kms/aws-kms-key-arn.txt#2.5
     //= type=implication
     //# The resource id MUST be a non-empty string
     ensures ParseAwsKmsResources(identifier).Success? ==>
-      var info := Split(identifier, '/');
-      |Join(info[1..], "/")| > 0
+              var info := Split(identifier, '/');
+              |Join(info[1..], "/")| > 0
   {}
 
   function method ParseAwsKmsArn(identifier: string): (result: Result<AwsKmsArn, string>)
@@ -172,13 +172,13 @@ module  AwsKmsArnParsing {
     var resource :- ParseAwsKmsResources(components[5]);
 
     var arn := AwsArn(
-      components[0],
-      components[1],
-      components[2],
-      components[3],
-      components[4],
-      resource
-    );
+                 components[0],
+                 components[1],
+                 components[2],
+                 components[3],
+                 components[4],
+                 resource
+               );
 
     :- Need(ValidAwsKmsArn(arn), "Malformed Arn:" + identifier);
 
@@ -244,15 +244,15 @@ module  AwsKmsArnParsing {
     //# If resource type is "key" and resource ID does not start with "mrk-",
     //# this is a (single-region) AWS KMS key ARN and MUST return false.
     ensures !IsMultiRegionAwsKmsArn(arn) <==
-        && arn.resource.resourceType == "key"
-        && !("mrk-" <= arn.resource.value)
+            && arn.resource.resourceType == "key"
+            && !("mrk-" <= arn.resource.value)
     //= compliance/framework/aws-kms/aws-kms-key-arn.txt#2.8
     //= type=implication
     //# If resource type is "key" and resource ID starts with
     //# "mrk-", this is a AWS KMS multi-Region key ARN and MUST return true.
     ensures IsMultiRegionAwsKmsArn(arn) <==
-      && arn.resource.resourceType == "key"
-      && "mrk-" <= arn.resource.value
+            && arn.resource.resourceType == "key"
+            && "mrk-" <= arn.resource.value
   {
   }
 
@@ -277,43 +277,43 @@ module  AwsKmsArnParsing {
     //# arn.md#identifying-an-an-aws-kms-multi-region-arn) called with this
     //# input.
     ensures "arn:" <= s && ParseAwsKmsArn(s).Success?
-      ==>
-        var arn := ParseAwsKmsArn(s);
-        var arnIdentifier := AwsKmsArnIdentifier(arn.value);
-        IsMultiRegionAwsKmsIdentifier(arnIdentifier) == IsMultiRegionAwsKmsArn(arn.value)
+            ==>
+              var arn := ParseAwsKmsArn(s);
+              var arnIdentifier := AwsKmsArnIdentifier(arn.value);
+              IsMultiRegionAwsKmsIdentifier(arnIdentifier) == IsMultiRegionAwsKmsArn(arn.value)
 
     //= compliance/framework/aws-kms/aws-kms-key-arn.txt#2.9
     //= type=implication
     //# If the input starts with "alias/", this an AWS KMS alias and
     //# not a multi-Region key id and MUST return false.
     ensures "alias/" <= s && ParseAwsKmsResources(s).Success?
-      ==>
-        var resource := ParseAwsKmsResources(s);
-        var resourceIdentifier := AwsKmsRawResourceIdentifier(resource.value);
-        !IsMultiRegionAwsKmsIdentifier(resourceIdentifier)
+            ==>
+              var resource := ParseAwsKmsResources(s);
+              var resourceIdentifier := AwsKmsRawResourceIdentifier(resource.value);
+              !IsMultiRegionAwsKmsIdentifier(resourceIdentifier)
     //= compliance/framework/aws-kms/aws-kms-key-arn.txt#2.9
     //= type=implication
     //# If the input starts
     //# with "mrk-", this is a multi-Region key id and MUST return true.
     ensures "mrk-" <= s && ParseAwsKmsResources(s).Success?
-      ==>
-        var resource := ParseAwsKmsResources(s);
-        var resourceIdentifier := AwsKmsRawResourceIdentifier(resource.value);
-        IsMultiRegionAwsKmsIdentifier(resourceIdentifier)
+            ==>
+              var resource := ParseAwsKmsResources(s);
+              var resourceIdentifier := AwsKmsRawResourceIdentifier(resource.value);
+              IsMultiRegionAwsKmsIdentifier(resourceIdentifier)
     //= compliance/framework/aws-kms/aws-kms-key-arn.txt#2.9
     //= type=implication
     //# If
     //# the input does not start with any of the above, this is not a multi-
     //# Region key id and MUST return false.
     ensures (
-        && !("arn:" <= s )
-        && !("alias/" <= s )
-        && !("mrk-" <= s )
-        && ParseAwsKmsIdentifier(s).Success?
-      )
-      ==>
-        var resourceIdentifier := ParseAwsKmsIdentifier(s);
-        !IsMultiRegionAwsKmsIdentifier(resourceIdentifier.value)
+              && !("arn:" <= s )
+              && !("alias/" <= s )
+              && !("mrk-" <= s )
+              && ParseAwsKmsIdentifier(s).Success?
+            )
+            ==>
+              var resourceIdentifier := ParseAwsKmsIdentifier(s);
+              !IsMultiRegionAwsKmsIdentifier(resourceIdentifier.value)
   {}
 
   predicate method IsMultiRegionAwsKmsResource(resource: AwsKmsResource)
@@ -341,7 +341,7 @@ module  AwsKmsArnParsing {
   }
 
   type AwsKmsIdentifierString = s: string |
-    IsAwsKmsIdentifierString(s).Success?
+      IsAwsKmsIdentifierString(s).Success?
     witness *
 
 }

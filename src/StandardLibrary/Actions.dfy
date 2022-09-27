@@ -54,16 +54,16 @@ module Actions {
     ensures
       forall i ::
         && 0 <= i < |s|
-      ==>
-        action.Ensures(s[i], res[i])
+        ==>
+          action.Ensures(s[i], res[i])
   {
     var rs := [];
     for i := 0 to |s|
       invariant |s[..i]| == |rs|
       invariant forall j ::
-        && 0 <= j < i
-      ==>
-        action.Ensures(s[j], rs[j])
+          && 0 <= j < i
+          ==>
+            action.Ensures(s[j], rs[j])
     {
       var r := action.Invoke(s[i]);
       rs := rs + [r];
@@ -82,23 +82,23 @@ module Actions {
     returns (res: Result<seq<R>, E>)
     ensures
       res.Success?
-    ==>
-      |s| == |res.value|
+      ==>
+        |s| == |res.value|
     ensures
       res.Success?
-    ==>
+      ==>
         (forall i ::
-          && 0 <= i < |s|
-        ==>
-          action.Ensures(s[i], Success(res.value[i])))
+           && 0 <= i < |s|
+           ==>
+             action.Ensures(s[i], Success(res.value[i])))
   {
     var rs := [];
     for i := 0 to |s|
       invariant |s[..i]| == |rs|
       invariant forall j ::
-        && 0 <= j < i
-      ==>
-        action.Ensures(s[j], Success(rs[j]))
+          && 0 <= j < i
+          ==>
+            action.Ensures(s[j], Success(rs[j]))
     {
       var r :- action.Invoke(s[i]);
       rs := rs + [r];
@@ -119,19 +119,19 @@ module Actions {
     returns (res: seq<R>)
     ensures
       forall i :: i in s
-      ==>
-        && exists fm :: action.Ensures(i, fm)
-        && forall k | k in fm :: k in res
+                  ==>
+                    && exists fm :: action.Ensures(i, fm)
+                                    && forall k | k in fm :: k in res
   {
     ghost var parts := [];
     var rs := [];
     for i := 0 to |s|
       invariant |s[..i]| == |parts|
       invariant forall j ::
-        && 0 <= j < i
-      ==>
-        && action.Ensures(s[j], parts[j])
-        && forall b | b in parts[j] :: b in rs
+          && 0 <= j < i
+          ==>
+            && action.Ensures(s[j], parts[j])
+            && forall b | b in parts[j] :: b in rs
     {
       var r := action.Invoke(s[i]);
       rs := rs + r;
@@ -154,24 +154,24 @@ module Actions {
     returns (res: Result<seq<R>, E>, ghost parts: seq<seq<R>>)
     ensures
       res.Success?
-    ==>
-      && |s| == |parts|
-      && res.value == Flatten(parts)
-      && (forall i :: 0 <= i < |s|
       ==>
-        && action.Ensures(s[i], Success(parts[i]))
-        && multiset(parts[i]) <= multiset(res.value)
-      )
+        && |s| == |parts|
+        && res.value == Flatten(parts)
+        && (forall i :: 0 <= i < |s|
+                        ==>
+                          && action.Ensures(s[i], Success(parts[i]))
+                          && multiset(parts[i]) <= multiset(res.value)
+           )
   {
     parts := [];
     var rs := [];
     for i := 0 to |s|
       invariant |s[..i]| == |parts|
       invariant forall j ::
-        && 0 <= j < i
-      ==>
-        && action.Ensures(s[j], Success(parts[j]))
-        && multiset(parts[j]) <= multiset(rs)
+          && 0 <= j < i
+          ==>
+            && action.Ensures(s[j], Success(parts[j]))
+            && multiset(parts[j]) <= multiset(rs)
       invariant Flatten(parts) == rs
     {
       var r :- action.Invoke(s[i]);
@@ -196,18 +196,18 @@ module Actions {
     ensures
       forall j ::
         j in res
-      ==>
-        && j in s
-        && action.Ensures(j, true)
+        ==>
+          && j in s
+          && action.Ensures(j, true)
   {
     var rs := [];
     for i := 0 to |s|
       invariant |s[..i]| >= |rs|
       invariant forall j ::
-        j in rs
-      ==>
-        && j in s
-        && action.Ensures(j, true)
+          j in rs
+          ==>
+            && j in s
+            && action.Ensures(j, true)
     {
       var r := action.Invoke(s[i]);
       if r {
@@ -227,22 +227,22 @@ module Actions {
     returns (res: Result<seq<A>, E>)
     ensures
       res.Success?
-    ==>
-      && |s| >= |res.value|
-      && forall j ::
-        j in res.value
       ==>
-        && j in s
-        && action.Ensures(j, Success(true))
+        && |s| >= |res.value|
+        && forall j ::
+             j in res.value
+             ==>
+               && j in s
+               && action.Ensures(j, Success(true))
   {
     var rs := [];
     for i := 0 to |s|
       invariant |s[..i]| >= |rs|
       invariant forall j ::
-        j in rs
-      ==>
-        && j in s
-        && action.Ensures(j, Success(true))
+          j in rs
+          ==>
+            && j in s
+            && action.Ensures(j, Success(true))
     {
       var r :- action.Invoke(s[i]);
       if r {
@@ -266,8 +266,8 @@ module Actions {
     returns (res: Result<B, seq<E>>)
     ensures
       res.Success?
-    ==>
-      exists a | a in s :: action.Ensures(a, Success(res.value))
+      ==>
+        exists a | a in s :: action.Ensures(a, Success(res.value))
   {
     var errors := [];
     for i := 0 to |s| {

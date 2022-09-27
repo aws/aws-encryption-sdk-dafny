@@ -20,12 +20,12 @@ module {:extern "AwsKmsUtils"} AwsKmsUtils {
       var stringifyResults: map<UTF8.ValidUTF8Bytes, Result<(string, string), string>> :=
         map utf8Key | utf8Key in utf8EncCtx.Keys :: utf8Key := StringifyEncryptionContextPair(utf8Key, utf8EncCtx[utf8Key]);
       if exists r | r in stringifyResults.Values :: r.Failure?
-        then Failure("Encryption context contains invalid UTF8")
+      then Failure("Encryption context contains invalid UTF8")
       else
         assert forall r | r in stringifyResults.Values :: r.Success?;
         // TODO state that UTF8.Decode is injective so we don't need this
         var stringKeysUnique := forall k, k' | k in stringifyResults && k' in stringifyResults
-          :: k != k' ==> stringifyResults[k].value.0 != stringifyResults[k'].value.0;
+                                :: k != k' ==> stringifyResults[k].value.0 != stringifyResults[k'].value.0;
         if !stringKeysUnique then Failure("Encryption context keys are not unique")  // this should never happen...
         else Success(map r | r in stringifyResults.Values :: r.value.0 := r.value.1)
   }

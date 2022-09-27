@@ -7,7 +7,7 @@ module {:extern "HMAC"} HMAC {
   import opened StandardLibrary
   import opened UInt = StandardLibrary.UInt
 
-  datatype {:extern "Digests"} Digests = 
+  datatype {:extern "Digests"} Digests =
     | SHA_256
     | SHA_384
     | SHA_512

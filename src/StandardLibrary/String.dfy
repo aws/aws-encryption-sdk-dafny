@@ -3,9 +3,9 @@
 
 module StandardLibrary.String {
   export provides Int2String, Base10Int2String
-    
+
   const Base10: seq<char> := ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9'];
-  
+
   function method Int2Digits(n: int, base: int): (digits: seq<int>)
     requires base > 1
     requires n >= 0

@@ -36,15 +36,15 @@ module {:extern "Signature"} Signature {
 
   method KeyGen(s: ECDSAParams) returns (res: Result<SignatureKeyPair, string>)
     ensures match res
-      case Success(sigKeyPair) =>
-        //= compliance/framework/structures.txt#2.3.3.2.5
-        //= type=implication
-        //# The signing key MUST fit the specification described by the signature
-        //# algorithm (algorithm-suites.md#signature-algorithm) included in this
-        //# encryption material's algorithm suite (Section 2.3.3.2.1).
-        && |sigKeyPair.verificationKey| == s.FieldSize()
-        && IsValidSignatureKeyPair(sigKeyPair)
-      case Failure(_) => true
+            case Success(sigKeyPair) =>
+              //= compliance/framework/structures.txt#2.3.3.2.5
+              //= type=implication
+              //# The signing key MUST fit the specification described by the signature
+              //# algorithm (algorithm-suites.md#signature-algorithm) included in this
+              //# encryption material's algorithm suite (Section 2.3.3.2.1).
+              && |sigKeyPair.verificationKey| == s.FieldSize()
+              && IsValidSignatureKeyPair(sigKeyPair)
+            case Failure(_) => true
   {
     var sigKeyPair :- ExternKeyGen(s);
     if |sigKeyPair.verificationKey| == s.FieldSize() {

@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 include "../../../Util/UTF8.dfy"
-include "../../../Generated/AwsCryptographicMaterialProviders.dfy" 
+include "../../../Generated/AwsCryptographicMaterialProviders.dfy"
 include "AwsKmsArnParsing.dfy"
 
 module Constants {
@@ -14,11 +14,11 @@ module Constants {
   const PROVIDER_ID: UTF8.ValidUTF8Bytes :=
     var s := [0x61, 0x77, 0x73, 0x2D, 0x6B, 0x6D, 0x73];
     assert UTF8.ValidUTF8Range(s, 0, 7);
-    s
+  s
 
   type AwsKmsEncryptedDataKey = edk: Crypto.EncryptedDataKey |
-    && edk.keyProviderId == PROVIDER_ID
-    && UTF8.ValidUTF8Seq(edk.keyProviderInfo)
+      && edk.keyProviderId == PROVIDER_ID
+      && UTF8.ValidUTF8Seq(edk.keyProviderInfo)
     witness *
 
   /*
@@ -29,7 +29,7 @@ module Constants {
    * format makes our lives easier.
    */
   datatype AwsKmsEdkHelper = AwsKmsEdkHelper(
-    edk: AwsKmsEncryptedDataKey,
-    arn: AwsKmsArnParsing.AwsKmsArn
-  )
+                               edk: AwsKmsEncryptedDataKey,
+                               arn: AwsKmsArnParsing.AwsKmsArn
+                             )
 }

@@ -145,8 +145,8 @@ module Streams {
       ensures Valid()
       ensures res.Failure? ==> unchanged(reader)
       ensures res.Success? ==>
-        && reader.pos == old(reader.pos) + 4
-        && UInt32ToSeq(res.value) == reader.data[old(reader.pos)..reader.pos]
+                && reader.pos == old(reader.pos) + 4
+                && UInt32ToSeq(res.value) == reader.data[old(reader.pos)..reader.pos]
     {
       var bytes :- reader.ReadExact(4);
       assert |bytes| == 4;

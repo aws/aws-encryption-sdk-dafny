@@ -19,19 +19,19 @@ module
     method OnEncrypt(input: Crypto.OnEncryptInput)
       returns (res: Result<Crypto.OnEncryptOutput, Crypto.IAwsCryptographicMaterialProvidersException>)
       ensures res.Success?
-      ==>
-        && Materials.EncryptionMaterialsTransitionIsValid(
-          input.materials,
-          res.value.materials
-        )
+              ==>
+                && Materials.EncryptionMaterialsTransitionIsValid(
+                     input.materials,
+                     res.value.materials
+                   )
 
     method OnDecrypt(input: Crypto.OnDecryptInput)
       returns (res: Result<Crypto.OnDecryptOutput, Crypto.IAwsCryptographicMaterialProvidersException>)
       ensures res.Success?
-      ==>
-        && Materials.DecryptionMaterialsTransitionIsValid(
-          input.materials,
-          res.value.materials
-        )
+              ==>
+                && Materials.DecryptionMaterialsTransitionIsValid(
+                     input.materials,
+                     res.value.materials
+                   )
   }
 }
