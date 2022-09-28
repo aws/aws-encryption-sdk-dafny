@@ -60,9 +60,9 @@ module EncryptedDataKeys {
     var SuccessfulRead(providerInfo, providerInfoPos) :- ReadShortLengthSeq(providerIdPos);
     var SuccessfulRead(cipherText, tail) :- ReadShortLengthSeq(providerInfoPos);
     var edk: ESDKEncryptedDataKey := Crypto.EncryptedDataKey(
-                                       keyProviderId := providerId,
-                                       keyProviderInfo := providerInfo,
-                                       ciphertext := cipherText);
+      keyProviderId := providerId,
+      keyProviderInfo := providerInfo,
+      ciphertext := cipherText);
 
     Success(SuccessfulRead(edk, tail))
   }
@@ -235,10 +235,10 @@ module EncryptedDataKeys {
       // are valid WriteEncryptedDataKey bytes,
       // we can prove that this part is complete
       var edk := ReadEncryptedDataKeyIsComplete(
-                   data[|accumulator|],
-                   WriteEncryptedDataKey(data[|accumulator|]),
-                   nextEdkStart
-                 );
+        data[|accumulator|],
+        WriteEncryptedDataKey(data[|accumulator|]),
+        nextEdkStart
+      );
 
       assert edk.data == data[|accumulator|];
 
@@ -247,11 +247,11 @@ module EncryptedDataKeys {
       // Along the way, we prove ReadEncryptedDataKeyIsComplete
       // for each encrypted data key "along the way".
       var edks := ReadEncryptedDataKeysIsComplete(
-                    data,
-                    nextAccumulator,
-                    bytes,
-                    buffer
-                  );
+        data,
+        nextAccumulator,
+        bytes,
+        buffer
+      );
 
       assert edks.data == data;
       assert edks.tail.start == buffer.start + |WriteEncryptedDataKeys(data)|;
@@ -283,10 +283,10 @@ module EncryptedDataKeys {
     assert bytes[|WriteUint16(|data| as uint16)|..] == WriteEncryptedDataKeys(data);
 
     var count := ReadUInt16IsComplete(
-                   |data| as uint16,
-                   WriteUint16(|data| as uint16),
-                   buffer
-                 );
+      |data| as uint16,
+      WriteUint16(|data| as uint16),
+      buffer
+    );
     assert count.data == |data| as uint16;
 
     var edks := ReadEncryptedDataKeysIsComplete(data, [], WriteEncryptedDataKeys(data), count.tail);

@@ -23,9 +23,9 @@ module {:extern "Dafny.Aws.EncryptionSdk.AwsEncryptionSdkFactory"} AwsEncryption
       ensures res.Success?
     {
       var emptyConfig := Esdk.AwsEncryptionSdkConfig(
-                           commitmentPolicy := None(),
-                           maxEncryptedDataKeys := None()
-                         );
+        commitmentPolicy := None(),
+        maxEncryptedDataKeys := None()
+      );
       var esdk := new AwsEncryptionSdk.AwsEncryptionSdk(emptyConfig);
       return Success(esdk);
     }

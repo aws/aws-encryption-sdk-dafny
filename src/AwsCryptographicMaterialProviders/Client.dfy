@@ -233,7 +233,7 @@ module
     {
       if input.generator.None? && |input.childKeyrings| == 0 {
         var error := new Crypto.AwsCryptographicMaterialProvidersException(
-              "Must include a generator keyring and/or at least one child keyring");
+          "Must include a generator keyring and/or at least one child keyring");
         return Failure(error);
       }
 
@@ -292,11 +292,11 @@ module
         clientSupplier := input.clientSupplier.value;
       }
       res := MrkAwareStrictMultiKeyring(
-               input.generator,
-               input.kmsKeyIds,
-               clientSupplier,
-               Option.Some(grantTokens)
-             );
+        input.generator,
+        input.kmsKeyIds,
+        clientSupplier,
+        Option.Some(grantTokens)
+      );
     }
 
     method MrkAwareStrictMultiKeyring(
@@ -391,24 +391,24 @@ module
       assert awsKmsKeys.Some? ==> forall k | k in awsKmsKeys.value :: k in allStrings;
 
       var allIdentifiersResults := Seq.MapWithResult(
-                                     AwsKmsArnParsing.IsAwsKmsIdentifierString,
-                                     allStrings
-                                   );
+        AwsKmsArnParsing.IsAwsKmsIdentifierString,
+        allStrings
+      );
       var allIdentifiers :- Crypto.AwsCryptographicMaterialProvidersException.WrapResultString(
-                              allIdentifiersResults
-                            );
+        allIdentifiersResults
+      );
       var mrkAreUniqueRes := AwsKmsMrkAreUnique.AwsKmsMrkAreUnique(allIdentifiers);
       :- Crypto.AwsCryptographicMaterialProvidersException.WrapOutcomeString(
-           mrkAreUniqueRes
-         );
+        mrkAreUniqueRes
+      );
 
       var generatorKeyring : Option<AwsKmsMrkKeyring.AwsKmsMrkKeyring>;
       match generator {
         case Some(generatorIdentifier) =>
           var arnRes := AwsKmsArnParsing.IsAwsKmsIdentifierString(generatorIdentifier);
           var arn :- Crypto.AwsCryptographicMaterialProvidersException.WrapResultString(
-                       arnRes
-                     );
+            arnRes
+          );
           var region := AwsKmsArnParsing.GetRegion(arn);
           //= compliance/framework/aws-kms/aws-kms-mrk-multi-keyrings.txt#2.5
           //= type=implication
@@ -418,10 +418,10 @@ module
           // I assume that the SDK will use the default region or throw an error
           var client :- clientSupplier.GetClient(Crypto.GetClientInput(region.UnwrapOr("")));
           var g := new AwsKmsMrkKeyring.AwsKmsMrkKeyring(
-                client,
-                generatorIdentifier,
-                grantTokens.UnwrapOr([])
-              );
+            client,
+            generatorIdentifier,
+            grantTokens.UnwrapOr([])
+          );
           generatorKeyring := Some(g);
         case None() => generatorKeyring := None();
       }
@@ -440,17 +440,17 @@ module
             var childIdentifier := childIdentifiers[index];
             var infoRes := AwsKmsArnParsing.IsAwsKmsIdentifierString(childIdentifier);
             var info :- Crypto.AwsCryptographicMaterialProvidersException.WrapResultString(
-                          infoRes
-                        );
+              infoRes
+            );
             var region := AwsKmsArnParsing.GetRegion(info);
             //Question: What should the behavior be if there is no region supplied?
             // I assume that the SDK will use the default region or throw an error
             var client :- clientSupplier.GetClient(Crypto.GetClientInput(region.UnwrapOr("")));
             var keyring := new AwsKmsMrkKeyring.AwsKmsMrkKeyring(
-                  client,
-                  childIdentifier,
-                  grantTokens.UnwrapOr([])
-                );
+              client,
+              childIdentifier,
+              grantTokens.UnwrapOr([])
+            );
             // Order is important
             children := children + [keyring];
           }
@@ -459,13 +459,13 @@ module
       }
 
       :- Crypto.Need(
-           generatorKeyring.Some? || |children| > 0,
-           "generatorKeyring or child Keyrings needed to create a multi keyring"
-         );
+        generatorKeyring.Some? || |children| > 0,
+        "generatorKeyring or child Keyrings needed to create a multi keyring"
+      );
       var keyring := new MultiKeyring.MultiKeyring(
-            generatorKeyring,
-            children
-          );
+        generatorKeyring,
+        children
+      );
 
       return Success(keyring);
     }
@@ -487,11 +487,11 @@ module
         clientSupplier := input.clientSupplier.value;
       }
       res := MrkAwareDiscoveryMultiKeyring(
-               input.regions,
-               input.discoveryFilter,
-               clientSupplier,
-               Option.Some(grantTokens)
-             );
+        input.regions,
+        input.discoveryFilter,
+        clientSupplier,
+        Option.Some(grantTokens)
+      );
     }
 
     //= compliance/framework/aws-kms/aws-kms-mrk-multi-keyrings.txt#2.6
@@ -579,19 +579,19 @@ module
         //   "The region for the client did not match the requested region"
         // );
         var keyring := new AwsKmsMrkDiscoveryKeyring.AwsKmsMrkDiscoveryKeyring(
-              client,
-              region,
-              discoveryFilter,
-              grantTokens.UnwrapOr([])
-            );
+          client,
+          region,
+          discoveryFilter,
+          grantTokens.UnwrapOr([])
+        );
         // Order is important
         children := children + [keyring];
       }
 
       var keyring := new MultiKeyring.MultiKeyring(
-            None(),
-            children
-          );
+        None(),
+        children
+      );
 
       return Success(keyring);
     }
@@ -613,11 +613,11 @@ module
         clientSupplier := input.clientSupplier.value;
       }
       res := StrictMultiKeyring(
-               input.generator,
-               input.kmsKeyIds,
-               clientSupplier,
-               Option.Some(grantTokens)
-             );
+        input.generator,
+        input.kmsKeyIds,
+        clientSupplier,
+        Option.Some(grantTokens)
+      );
     }
 
     method StrictMultiKeyring(
@@ -705,20 +705,20 @@ module
       assert awsKmsKeys.Some? ==> forall k | k in awsKmsKeys.value :: k in allStrings;
 
       var allIdentifiersResults := Seq.MapWithResult(
-                                     AwsKmsArnParsing.IsAwsKmsIdentifierString,
-                                     allStrings
-                                   );
+        AwsKmsArnParsing.IsAwsKmsIdentifierString,
+        allStrings
+      );
       var allIdentifiers :- Crypto.AwsCryptographicMaterialProvidersException.WrapResultString(
-                              allIdentifiersResults
-                            );
+        allIdentifiersResults
+      );
 
       var generatorKeyring : Option<AwsKmsKeyring.AwsKmsKeyring>;
       match generator {
         case Some(generatorIdentifier) =>
           var arnRes := AwsKmsArnParsing.IsAwsKmsIdentifierString(generatorIdentifier);
           var arn :- Crypto.AwsCryptographicMaterialProvidersException.WrapResultString(
-                       arnRes
-                     );
+            arnRes
+          );
           var region := AwsKmsArnParsing.GetRegion(arn);
           //= compliance/framework/aws-kms/aws-kms-multi-keyrings.txt#2.5
           //= type=implication
@@ -726,10 +726,10 @@ module
           //# default region.
           var client :- clientSupplier.GetClient(Crypto.GetClientInput(region.UnwrapOr("")));
           var g := new AwsKmsKeyring.AwsKmsKeyring(
-                client,
-                generatorIdentifier,
-                grantTokens.UnwrapOr([])
-              );
+            client,
+            generatorIdentifier,
+            grantTokens.UnwrapOr([])
+          );
           generatorKeyring := Some(g);
         case None() => generatorKeyring := None();
       }
@@ -748,17 +748,17 @@ module
             var childIdentifier := childIdentifiers[index];
             var infoRes := AwsKmsArnParsing.IsAwsKmsIdentifierString(childIdentifier);
             var info :- Crypto.AwsCryptographicMaterialProvidersException.WrapResultString(
-                          infoRes
-                        );
+              infoRes
+            );
             var region := AwsKmsArnParsing.GetRegion(info);
             //Question: What should the behavior be if there is no region supplied?
             // I assume that the SDK will use the default region or throw an error
             var client :- clientSupplier.GetClient(Crypto.GetClientInput(region.UnwrapOr("")));
             var keyring := new AwsKmsKeyring.AwsKmsKeyring(
-                  client,
-                  childIdentifier,
-                  grantTokens.UnwrapOr([])
-                );
+              client,
+              childIdentifier,
+              grantTokens.UnwrapOr([])
+            );
             // Order is important
             children := children + [keyring];
           }
@@ -767,13 +767,13 @@ module
       }
 
       :- Crypto.Need(
-           generatorKeyring.Some? || |children| > 0,
-           "generatorKeyring or child Keryings needed to create a multi keyring"
-         );
+        generatorKeyring.Some? || |children| > 0,
+        "generatorKeyring or child Keryings needed to create a multi keyring"
+      );
       var keyring := new MultiKeyring.MultiKeyring(
-            generatorKeyring,
-            children
-          );
+        generatorKeyring,
+        children
+      );
 
       return Success(keyring);
     }
@@ -795,11 +795,11 @@ module
         clientSupplier := input.clientSupplier.value;
       }
       res := DiscoveryMultiKeyring(
-               input.regions,
-               input.discoveryFilter,
-               clientSupplier,
-               Option.Some(grantTokens)
-             );
+        input.regions,
+        input.discoveryFilter,
+        clientSupplier,
+        Option.Some(grantTokens)
+      );
     }
 
     //= compliance/framework/aws-kms/aws-kms-multi-keyrings.txt#2.6
@@ -886,18 +886,18 @@ module
         //   "The region for the client did not match the requested region"
         // );
         var keyring := new AwsKmsDiscoveryKeyring.AwsKmsDiscoveryKeyring(
-              client,
-              discoveryFilter,
-              grantTokens.UnwrapOr([])
-            );
+          client,
+          discoveryFilter,
+          grantTokens.UnwrapOr([])
+        );
         // Order is important
         children := children + [keyring];
       }
 
       var keyring := new MultiKeyring.MultiKeyring(
-            None(),
-            children
-          );
+        None(),
+        children
+      );
 
       return Success(keyring);
     }
@@ -918,7 +918,7 @@ module
               && 0 < |keyId| <= AwsKmsArnParsing.MAX_AWS_KMS_IDENTIFIER_LENGTH
   {
     var _ :- Crypto.AwsCryptographicMaterialProvidersException.WrapResultString(
-               AwsKmsArnParsing.ParseAwsKmsIdentifier(keyId));
+      AwsKmsArnParsing.ParseAwsKmsIdentifier(keyId));
     :- Crypto.Need(UTF8.IsASCIIString(keyId), "Key identifier is not ASCII");
     :- Crypto.Need(0 < |keyId| <= AwsKmsArnParsing.MAX_AWS_KMS_IDENTIFIER_LENGTH, "Key identifier is too long");
     res := Success(());

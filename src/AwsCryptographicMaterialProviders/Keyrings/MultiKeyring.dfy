@@ -107,7 +107,7 @@ module
       // and the input encryption materials does not include a plaintext data key")
       if this.generatorKeyring.None? && input.materials.plaintextDataKey.None? {
         var exception := new Crypto.AwsCryptographicMaterialProvidersException(
-              "Need either a generator keyring or input encryption materials which contain a plaintext data key");
+          "Need either a generator keyring or input encryption materials which contain a plaintext data key");
         return Failure(exception);
       }
 
@@ -278,10 +278,10 @@ module
       // omit the 'if' statement checking for it.
       var concatString := (s, a) => a + "\n" + s;
       var error := Seq.FoldRight(
-                     concatString,
-                     failures,
-                     "Unable to decrypt data key:\n"
-                   );
+        concatString,
+        failures,
+        "Unable to decrypt data key:\n"
+      );
       var combinedResult := new Crypto.AwsCryptographicMaterialProvidersException(error);
       return Failure(combinedResult);
     }
@@ -300,9 +300,9 @@ module
     var output := decryptResult.value;
 
     :- Need(
-         Materials.DecryptionMaterialsTransitionIsValid(input.materials, output.materials),
-         "Keyring performed invalid material transition"
-       );
+      Materials.DecryptionMaterialsTransitionIsValid(input.materials, output.materials),
+      "Keyring performed invalid material transition"
+    );
     return Success(output);
   }
 }

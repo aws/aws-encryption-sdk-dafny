@@ -137,9 +137,9 @@ module SerializableTypes {
     //# These entries MUST have entries sorted, by key, in ascending order
     //# according to the UTF-8 encoded binary value.
     var keys: seq<UTF8.ValidUTF8Bytes> := Sets.ComputeSetToOrderedSequence2<uint8>(
-                                            encryptionContext.Keys,
-                                            UInt.UInt8Less
-                                          );
+      encryptionContext.Keys,
+      UInt.UInt8Less
+    );
     seq(
     |keys|,
     i

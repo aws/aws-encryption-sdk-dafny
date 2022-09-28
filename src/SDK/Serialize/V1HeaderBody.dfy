@@ -145,22 +145,22 @@ module V1HeaderBody {
     var reservedBytes :- ReadV1ReservedBytes(contentType.tail);
 
     var headerIvLength :- ReadV1HeaderIvLength(
-                            reservedBytes.tail,
-                            suite
-                          );
+      reservedBytes.tail,
+      suite
+    );
 
     var frameLength :- ReadUInt32(headerIvLength.tail);
 
     var body:V1HeaderBody := HeaderTypes.V1HeaderBody(
-                               messageType := messageType.data,
-                               esdkSuiteId := esdkSuiteId.data,
-                               messageId := messageId.data,
-                               encryptionContext := encryptionContext.data,
-                               encryptedDataKeys := encryptedDataKeys.data,
-                               contentType := contentType.data,
-                               headerIvLength := headerIvLength.data as nat,
-                               frameLength := frameLength.data
-                             );
+      messageType := messageType.data,
+      esdkSuiteId := esdkSuiteId.data,
+      messageId := messageId.data,
+      encryptionContext := encryptionContext.data,
+      encryptedDataKeys := encryptedDataKeys.data,
+      contentType := contentType.data,
+      headerIvLength := headerIvLength.data as nat,
+      frameLength := frameLength.data
+    );
 
     assert if IsV1ExpandedAADSection(buffer) then
         WriteV1ExpandedAADSectionHeaderBody(body) <= buffer.bytes[buffer.start..]

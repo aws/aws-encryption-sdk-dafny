@@ -100,9 +100,9 @@ module HeaderAuth {
     var headerAuthTag :- Read(headerIv.tail, suite.encrypt.tagLength as nat);
 
     var auth: AESMac := HeaderTypes.HeaderAuth.AESMac(
-                          headerIv := headerIv.data,
-                          headerAuthTag := headerAuthTag.data
-                        );
+      headerIv := headerIv.data,
+      headerAuthTag := headerAuthTag.data
+    );
 
     Success(SuccessfulRead(auth, headerAuthTag.tail))
   }
@@ -123,9 +123,9 @@ module HeaderAuth {
     var headerAuthTag :- Read(buffer, suite.encrypt.tagLength as nat);
 
     var auth: AESMac := HeaderTypes.HeaderAuth.AESMac(
-                          headerIv := headerIv,
-                          headerAuthTag := headerAuthTag.data
-                        );
+      headerIv := headerIv,
+      headerAuthTag := headerAuthTag.data
+    );
 
     Success(SuccessfulRead(auth, headerAuthTag.tail))
   }

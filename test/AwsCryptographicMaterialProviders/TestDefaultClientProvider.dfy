@@ -21,16 +21,16 @@ module TestDefaultClientProvider {
 
     var clientSupplier: Crypto.IClientSupplier;
     var clientSupplierRes := materialsClient.CreateDefaultClientSupplier(
-                               Crypto.CreateDefaultClientSupplierInput()
-                             );
+      Crypto.CreateDefaultClientSupplierInput()
+    );
     expect clientSupplierRes.Success?;
 
     clientSupplier := clientSupplierRes.value;
     var clientRes := clientSupplier.GetClient(
-                       Crypto.GetClientInput(
-                         "us-west-2"
-                       )
-                     );
+      Crypto.GetClientInput(
+        "us-west-2"
+      )
+    );
     var client : KMS.IKeyManagementServiceClient?;
     match clientRes {
       case Failure(error) => {
@@ -43,12 +43,12 @@ module TestDefaultClientProvider {
     expect client != null;
 
     var kmsRequest := KMS.GenerateDataKeyRequest(
-                        KeyId := TestUtils.SHARED_TEST_KEY_ARN,
-                        EncryptionContext := Option.None,
-                        GrantTokens := Option.None,
-                        NumberOfBytes := Option.Some(24 as int32),
-                        KeySpec := Option.None
-                      );
+      KeyId := TestUtils.SHARED_TEST_KEY_ARN,
+      EncryptionContext := Option.None,
+      GrantTokens := Option.None,
+      NumberOfBytes := Option.Some(24 as int32),
+      KeySpec := Option.None
+    );
 
     var kmsReply := client.GenerateDataKey(kmsRequest);
     match kmsReply {

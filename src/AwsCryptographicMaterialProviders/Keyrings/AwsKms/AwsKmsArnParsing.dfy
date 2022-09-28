@@ -172,13 +172,13 @@ module  AwsKmsArnParsing {
     var resource :- ParseAwsKmsResources(components[5]);
 
     var arn := AwsArn(
-                 components[0],
-                 components[1],
-                 components[2],
-                 components[3],
-                 components[4],
-                 resource
-               );
+      components[0],
+      components[1],
+      components[2],
+      components[3],
+      components[4],
+      resource
+    );
 
     :- Need(ValidAwsKmsArn(arn), "Malformed Arn:" + identifier);
 

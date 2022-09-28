@@ -116,31 +116,31 @@ module
       }
 
       var validateCommitmentPolicyResult := Commitment.ValidateCommitmentPolicyOnEncrypt(
-                                              algorithmId, input.commitmentPolicy
-                                            );
+        algorithmId, input.commitmentPolicy
+      );
       var _ :- Crypto.AwsCryptographicMaterialProvidersException.WrapResultString(
-                 validateCommitmentPolicyResult);
+        validateCommitmentPolicyResult);
 
       var suite := AlgorithmSuites.GetSuite(algorithmId);
       var initializeMaterialsResult := InitializeEncryptionMaterials(
-                                         suite,
-                                         input.encryptionContext
-                                       );
+        suite,
+        input.encryptionContext
+      );
       var materials :- Crypto.AwsCryptographicMaterialProvidersException.WrapResultString(initializeMaterialsResult);
 
       var result :- keyring.OnEncrypt(Crypto.OnEncryptInput(materials:=materials));
       :- Crypto.Need(
-           && result.materials.plaintextDataKey.Some?
-           && |result.materials.encryptedDataKeys| > 0,
-           "Could not retrieve materials required for encryption");
+        && result.materials.plaintextDataKey.Some?
+        && |result.materials.encryptedDataKeys| > 0,
+        "Could not retrieve materials required for encryption");
 
       // For Dafny keyrings this is a trivial statement
       // because they implement a trait that ensures this.
       // However not all keyrings are Dafny keyrings.
       // Customers can create custom keyrings.
       :- Crypto.Need(
-           Materials.EncryptionMaterialsTransitionIsValid(materials, result.materials),
-           "Keyring returned an invalid response");
+        Materials.EncryptionMaterialsTransitionIsValid(materials, result.materials),
+        "Keyring returned an invalid response");
 
       AlgorithmSuites.LemmaAlgorithmSuiteIdImpliesEquality(result.materials.algorithmSuiteId, suite);
       return Success(Crypto.GetEncryptionMaterialsOutput(encryptionMaterials:=result.materials));
@@ -177,15 +177,15 @@ module
                 res.Failure?
     {
       var validateCommitmentPolicyResult := Commitment.ValidateCommitmentPolicyOnDecrypt(
-                                              input.algorithmSuiteId, input.commitmentPolicy
-                                            );
+        input.algorithmSuiteId, input.commitmentPolicy
+      );
       var _ :- Crypto.AwsCryptographicMaterialProvidersException.WrapResultString(
-                 validateCommitmentPolicyResult);
+        validateCommitmentPolicyResult);
 
       var initializeMaterialsResult := InitializeDecryptionMaterials(
-                                         AlgorithmSuites.GetSuite(input.algorithmSuiteId),
-                                         input.encryptionContext
-                                       );
+        AlgorithmSuites.GetSuite(input.algorithmSuiteId),
+        input.encryptionContext
+      );
       var materials :- Crypto.AwsCryptographicMaterialProvidersException.WrapResultString(initializeMaterialsResult);
 
       var result :- keyring.OnDecrypt(Crypto.OnDecryptInput(
@@ -198,8 +198,8 @@ module
       // However not all keyrings are Dafny keyrings.
       // Customers can create custom keyrings.
       :- Crypto.Need(
-           Materials.DecryptionMaterialsTransitionIsValid(materials, result.materials),
-           "Keyring.OnDecrypt failed to decrypt the plaintext data key.");
+        Materials.DecryptionMaterialsTransitionIsValid(materials, result.materials),
+        "Keyring.OnDecrypt failed to decrypt the plaintext data key.");
 
       return Success(Crypto.DecryptMaterialsOutput(decryptionMaterials:=result.materials));
     }
@@ -227,12 +227,12 @@ module
     match suite.signature
     case None =>
       var mat := Crypto.EncryptionMaterials(
-                   encryptionContext := encryptionContext,
-                   algorithmSuiteId := suite.id,
-                   plaintextDataKey := None(),
-                   encryptedDataKeys := [],
-                   signingKey := None()
-                 );
+        encryptionContext := encryptionContext,
+        algorithmSuiteId := suite.id,
+        plaintextDataKey := None(),
+        encryptedDataKeys := [],
+        signingKey := None()
+      );
       AlgorithmSuites.LemmaAlgorithmSuiteIdImpliesEquality(mat.algorithmSuiteId, suite);
       return Success(mat);
     case ECDSA(curve) =>
@@ -246,12 +246,12 @@ module
       assert Signature.IsValidSignatureKeyPair(signatureKeys);
       var enc_vk :- UTF8.Encode(Base64.Encode(signatureKeys.verificationKey));
       var mat := Crypto.EncryptionMaterials(
-                   encryptionContext := encryptionContext[Materials.EC_PUBLIC_KEY_FIELD := enc_vk],
-                   algorithmSuiteId := suite.id,
-                   plaintextDataKey := None(),
-                   encryptedDataKeys := [],
-                   signingKey := Some(signatureKeys.signingKey)
-                 );
+        encryptionContext := encryptionContext[Materials.EC_PUBLIC_KEY_FIELD := enc_vk],
+        algorithmSuiteId := suite.id,
+        plaintextDataKey := None(),
+        encryptedDataKeys := [],
+        signingKey := Some(signatureKeys.signingKey)
+      );
       AlgorithmSuites.LemmaAlgorithmSuiteIdImpliesEquality(mat.algorithmSuiteId, suite);
       return Success(mat);
   }
@@ -288,27 +288,27 @@ module
     match suite.signature
     case None =>
       :- Need(
-           Materials.EC_PUBLIC_KEY_FIELD !in encryptionContext,
-           "Verification key can not exist in non-signed Algorithm Suites.");
+        Materials.EC_PUBLIC_KEY_FIELD !in encryptionContext,
+        "Verification key can not exist in non-signed Algorithm Suites.");
       var mat := Crypto.DecryptionMaterials(
-                   encryptionContext := encryptionContext,
-                   algorithmSuiteId := suite.id,
-                   plaintextDataKey := None(),
-                   verificationKey := None()
-                 );
+        encryptionContext := encryptionContext,
+        algorithmSuiteId := suite.id,
+        plaintextDataKey := None(),
+        verificationKey := None()
+      );
       AlgorithmSuites.LemmaAlgorithmSuiteIdImpliesEquality(mat.algorithmSuiteId, suite);
       return Success(mat);
     case ECDSA(curve) =>
       :- Need(
-           Materials.EC_PUBLIC_KEY_FIELD in encryptionContext,
-           "Encryption Context missing verification key.");
+        Materials.EC_PUBLIC_KEY_FIELD in encryptionContext,
+        "Encryption Context missing verification key.");
       var verificationKey :- DecodeVerificationKey(encryptionContext[Materials.EC_PUBLIC_KEY_FIELD]);
       var mat := Crypto.DecryptionMaterials(
-                   encryptionContext := encryptionContext,
-                   algorithmSuiteId := suite.id,
-                   plaintextDataKey := None(),
-                   verificationKey := Some(verificationKey)
-                 );
+        encryptionContext := encryptionContext,
+        algorithmSuiteId := suite.id,
+        plaintextDataKey := None(),
+        verificationKey := Some(verificationKey)
+      );
       AlgorithmSuites.LemmaAlgorithmSuiteIdImpliesEquality(mat.algorithmSuiteId, suite);
       return Success(mat);
   }

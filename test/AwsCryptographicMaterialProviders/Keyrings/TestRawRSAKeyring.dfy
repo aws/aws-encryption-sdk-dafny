@@ -26,24 +26,24 @@ module TestRawRSAKeying {
   {
     var namespace, name := TestUtils.NamespaceAndName(0);
     var publicKey, privateKey, rawRSAKeyring := GenerateKeyPairAndKeyring(
-                                                  namespace,
-                                                  name,
-                                                  2048 as RSAEncryption.StrengthBits,
-                                                  RSAEncryption.PaddingMode.OAEP_SHA1
-                                                );
+      namespace,
+      name,
+      2048 as RSAEncryption.StrengthBits,
+      RSAEncryption.PaddingMode.OAEP_SHA1
+    );
     var encryptionContext := TestUtils.SmallEncryptionContext(
-                               TestUtils.SmallEncryptionContextVariation.A
-                             );
+      TestUtils.SmallEncryptionContextVariation.A
+    );
     var pdk := seq(32, i => 0);
 
     var wrappingAlgorithmID := Crypto.ALG_AES_256_GCM_IV12_TAG16_NO_KDF;
     var encryptionMaterialsIn := Crypto.EncryptionMaterials(
-                                   encryptionContext:=encryptionContext,
-                                   algorithmSuiteId:=wrappingAlgorithmID,
-                                   plaintextDataKey:=Some(pdk),
-                                   encryptedDataKeys:=[],
-                                   signingKey:=None()
-                                 );
+      encryptionContext:=encryptionContext,
+      algorithmSuiteId:=wrappingAlgorithmID,
+      plaintextDataKey:=Some(pdk),
+      encryptedDataKeys:=[],
+      signingKey:=None()
+    );
     expect Materials.ValidEncryptionMaterials(encryptionMaterialsIn);
     var encryptionMaterialsOut :- expect rawRSAKeyring.OnEncrypt(
                                            Crypto.OnEncryptInput(materials:=encryptionMaterialsIn)
@@ -53,11 +53,11 @@ module TestRawRSAKeying {
 
     var edk := encryptionMaterialsOut.materials.encryptedDataKeys[0];
     var decryptionMaterialsIn := Crypto.DecryptionMaterials(
-                                   encryptionContext:=encryptionContext,
-                                   algorithmSuiteId:=wrappingAlgorithmID,
-                                   plaintextDataKey:=Option.None,
-                                   verificationKey:=Option.None
-                                 );
+      encryptionContext:=encryptionContext,
+      algorithmSuiteId:=wrappingAlgorithmID,
+      plaintextDataKey:=Option.None,
+      verificationKey:=Option.None
+    );
 
     var decryptionMaterialsOut :- expect rawRSAKeyring.OnDecrypt(
                                            Crypto.OnDecryptInput(
@@ -78,35 +78,35 @@ module TestRawRSAKeying {
   {
     var namespace, name := TestUtils.NamespaceAndName(0);
     var publicKey, privateKey, rawRSAKeyring := GenerateKeyPairAndKeyring(
-                                                  namespace,
-                                                  name,
-                                                  2048 as RSAEncryption.StrengthBits,
-                                                  RSAEncryption.PaddingMode.OAEP_SHA1
-                                                );
+      namespace,
+      name,
+      2048 as RSAEncryption.StrengthBits,
+      RSAEncryption.PaddingMode.OAEP_SHA1
+    );
 
     var mismatchName :- expect UTF8.Encode("mismatched");
     var mismatchedRSAKeyring := new RawRSAKeyring.RawRSAKeyring(
-          namespace,
-          mismatchName,
-          Option.Some(publicKey.pem),
-          Option.Some(privateKey.pem),
-          RSAEncryption.PaddingMode.OAEP_SHA1
-        );
+      namespace,
+      mismatchName,
+      Option.Some(publicKey.pem),
+      Option.Some(privateKey.pem),
+      RSAEncryption.PaddingMode.OAEP_SHA1
+    );
 
     var encryptionContext := TestUtils.SmallEncryptionContext(
-                               TestUtils.SmallEncryptionContextVariation.A
-                             );
+      TestUtils.SmallEncryptionContextVariation.A
+    );
 
     var pdk := seq(32, i => 0);
 
     var wrappingAlgorithmID := Crypto.ALG_AES_256_GCM_IV12_TAG16_NO_KDF;
     var encryptionMaterialsIn := Crypto.EncryptionMaterials(
-                                   encryptionContext:=encryptionContext,
-                                   algorithmSuiteId:=wrappingAlgorithmID,
-                                   plaintextDataKey:=Option.Some(pdk),
-                                   encryptedDataKeys:=[],
-                                   signingKey:=Option.None
-                                 );
+      encryptionContext:=encryptionContext,
+      algorithmSuiteId:=wrappingAlgorithmID,
+      plaintextDataKey:=Option.Some(pdk),
+      encryptedDataKeys:=[],
+      signingKey:=Option.None
+    );
     var encryptionMaterialsOut :- expect mismatchedRSAKeyring.OnEncrypt(
                                            Crypto.OnEncryptInput(materials:=encryptionMaterialsIn)
                                          );
@@ -115,14 +115,14 @@ module TestRawRSAKeying {
     var edk := encryptionMaterialsOut.materials.encryptedDataKeys[0];
 
     var decryptionMaterialsIn := Crypto.DecryptionMaterials(
-                                   encryptionContext:=encryptionContext,
-                                   algorithmSuiteId:=wrappingAlgorithmID,
-                                   plaintextDataKey:=Option.None,
-                                   verificationKey:=Option.None
-                                 );
+      encryptionContext:=encryptionContext,
+      algorithmSuiteId:=wrappingAlgorithmID,
+      plaintextDataKey:=Option.None,
+      verificationKey:=Option.None
+    );
     var decryptionMaterialsOut := rawRSAKeyring.OnDecrypt(
-                                    Crypto.OnDecryptInput(materials:=decryptionMaterialsIn, encryptedDataKeys:=[edk])
-                                  );
+      Crypto.OnDecryptInput(materials:=decryptionMaterialsIn, encryptedDataKeys:=[edk])
+    );
 
     expect decryptionMaterialsOut.IsFailure();
   }
@@ -131,17 +131,17 @@ module TestRawRSAKeying {
   {
     var namespace, name := TestUtils.NamespaceAndName(0);
     var _, _, encryptKeyring := GenerateKeyPairAndKeyring(
-                                  namespace,
-                                  name,
-                                  2048 as RSAEncryption.StrengthBits,
-                                  RSAEncryption.PaddingMode.OAEP_SHA1
-                                );
+      namespace,
+      name,
+      2048 as RSAEncryption.StrengthBits,
+      RSAEncryption.PaddingMode.OAEP_SHA1
+    );
     var _, _, decryptKeyring := GenerateKeyPairAndKeyring(
-                                  namespace,
-                                  name,
-                                  2048 as RSAEncryption.StrengthBits,
-                                  RSAEncryption.PaddingMode.OAEP_SHA1
-                                );
+      namespace,
+      name,
+      2048 as RSAEncryption.StrengthBits,
+      RSAEncryption.PaddingMode.OAEP_SHA1
+    );
 
     var encryptionContext := TestUtils.SmallEncryptionContext(TestUtils.SmallEncryptionContextVariation.A);
 
@@ -149,12 +149,12 @@ module TestRawRSAKeying {
 
     var wrappingAlgorithmID := Crypto.ALG_AES_256_GCM_IV12_TAG16_NO_KDF;
     var encryptionMaterialsIn := Crypto.EncryptionMaterials(
-                                   encryptionContext:=encryptionContext,
-                                   algorithmSuiteId:=wrappingAlgorithmID,
-                                   plaintextDataKey:=Option.Some(pdk),
-                                   encryptedDataKeys:=[],
-                                   signingKey:=Option.None
-                                 );
+      encryptionContext:=encryptionContext,
+      algorithmSuiteId:=wrappingAlgorithmID,
+      plaintextDataKey:=Option.Some(pdk),
+      encryptedDataKeys:=[],
+      signingKey:=Option.None
+    );
     var encryptionMaterialsOut :- expect encryptKeyring.OnEncrypt(
                                            Crypto.OnEncryptInput(materials:=encryptionMaterialsIn)
                                          );
@@ -163,14 +163,14 @@ module TestRawRSAKeying {
     var edk := encryptionMaterialsOut.materials.encryptedDataKeys[0];
 
     var decryptionMaterialsIn := Crypto.DecryptionMaterials(
-                                   encryptionContext:=encryptionContext,
-                                   algorithmSuiteId:=wrappingAlgorithmID,
-                                   plaintextDataKey:=Option.None,
-                                   verificationKey:=Option.None
-                                 );
+      encryptionContext:=encryptionContext,
+      algorithmSuiteId:=wrappingAlgorithmID,
+      plaintextDataKey:=Option.None,
+      verificationKey:=Option.None
+    );
     var decryptionMaterialsOut := decryptKeyring.OnDecrypt(
-                                    Crypto.OnDecryptInput(materials:=decryptionMaterialsIn, encryptedDataKeys:=[edk])
-                                  );
+      Crypto.OnDecryptInput(materials:=decryptionMaterialsIn, encryptedDataKeys:=[edk])
+    );
 
     //= compliance/framework/raw-rsa-keyring.txt#2.6.2
     //= type=test
@@ -189,24 +189,24 @@ module TestRawRSAKeying {
   {
     var namespace, name := TestUtils.NamespaceAndName(0);
     var publicKey, privateKey, rawRSAKeyring := GenerateKeyPairAndKeyring(
-                                                  namespace,
-                                                  name,
-                                                  2048 as RSAEncryption.StrengthBits,
-                                                  RSAEncryption.PaddingMode.OAEP_SHA1
-                                                );
+      namespace,
+      name,
+      2048 as RSAEncryption.StrengthBits,
+      RSAEncryption.PaddingMode.OAEP_SHA1
+    );
     var encryptionContext := TestUtils.SmallEncryptionContext(
-                               TestUtils.SmallEncryptionContextVariation.A
-                             );
+      TestUtils.SmallEncryptionContextVariation.A
+    );
     var pdk := seq(32, i => 0);
 
     var wrappingAlgorithmID := Crypto.ALG_AES_256_GCM_IV12_TAG16_NO_KDF;
     var encryptionMaterialsIn := Crypto.EncryptionMaterials(
-                                   encryptionContext:=encryptionContext,
-                                   algorithmSuiteId:=wrappingAlgorithmID,
-                                   plaintextDataKey:=Some(pdk),
-                                   encryptedDataKeys:=[],
-                                   signingKey:=None()
-                                 );
+      encryptionContext:=encryptionContext,
+      algorithmSuiteId:=wrappingAlgorithmID,
+      plaintextDataKey:=Some(pdk),
+      encryptedDataKeys:=[],
+      signingKey:=None()
+    );
     expect Materials.ValidEncryptionMaterials(encryptionMaterialsIn);
     var encryptionMaterialsOut :- expect rawRSAKeyring.OnEncrypt(
                                            Crypto.OnEncryptInput(materials:=encryptionMaterialsIn)
@@ -216,16 +216,16 @@ module TestRawRSAKeying {
 
     var edk := encryptionMaterialsOut.materials.encryptedDataKeys[0];
     var decryptionMaterialsIn := Crypto.DecryptionMaterials(
-                                   encryptionContext:=encryptionContext,
-                                   algorithmSuiteId:=wrappingAlgorithmID,
-                                   plaintextDataKey:=Option.None,
-                                   verificationKey:=Option.None
-                                 );
+      encryptionContext:=encryptionContext,
+      algorithmSuiteId:=wrappingAlgorithmID,
+      plaintextDataKey:=Option.None,
+      verificationKey:=Option.None
+    );
     var fakeEdk: Crypto.EncryptedDataKey := Crypto.EncryptedDataKey(
-                                              keyProviderId := edk.keyProviderId,
-                                              keyProviderInfo := edk.keyProviderInfo,
-                                              ciphertext := seq(|edk.ciphertext|, i => 0)
-                                            );
+      keyProviderId := edk.keyProviderId,
+      keyProviderInfo := edk.keyProviderInfo,
+      ciphertext := seq(|edk.ciphertext|, i => 0)
+    );
 
     //= compliance/framework/raw-rsa-keyring.txt#2.6.2
     //= type=test
@@ -260,8 +260,8 @@ module TestRawRSAKeying {
     requires |name| < UINT16_LIMIT
   {
     publicKey, privateKey := RSAEncryption.GenerateKeyPair(
-                               keyStrength
-                             );
+      keyStrength
+    );
     keyring := new RawRSAKeyring.RawRSAKeyring(
                  namespace,
                  name,

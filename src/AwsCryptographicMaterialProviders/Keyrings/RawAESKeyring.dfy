@@ -111,8 +111,8 @@ module
                 && |res.value.materials.encryptedDataKeys| == |input.materials.encryptedDataKeys| + 1
                 && wrappingAlgorithm.tagLength as nat <= |res.value.materials.encryptedDataKeys[|input.materials.encryptedDataKeys|].ciphertext|
                 && var encOutput := DeserializeEDKCiphertext(
-                                      res.value.materials.encryptedDataKeys[|input.materials.encryptedDataKeys|].ciphertext,
-                                      wrappingAlgorithm.tagLength as nat);
+                     res.value.materials.encryptedDataKeys[|input.materials.encryptedDataKeys|].ciphertext,
+                     wrappingAlgorithm.tagLength as nat);
                 && AESEncryption.EncryptionOutputEncryptedWithAAD(
                      encOutput,
                      EncryptionContextToAAD(input.materials.encryptionContext).value)
@@ -168,12 +168,12 @@ module
       //# The keyring MUST encrypt the plaintext data key in the encryption
       //# materials (structures.md#encryption-materials) using AES-GCM.
       var aesEncryptResult := AESEncryption.AESEncrypt(
-                                wrappingAlgorithm,
-                                iv,
-                                wrappingKey,
-                                plaintextDataKey,
-                                aad
-                              );
+        wrappingAlgorithm,
+        iv,
+        wrappingKey,
+        plaintextDataKey,
+        aad
+      );
       var encryptResult :- Crypto.AwsCryptographicMaterialProvidersException.WrapResultString(aesEncryptResult);
       var encryptedKey := SerializeEDKCiphertext(encryptResult);
 
@@ -234,8 +234,8 @@ module
     {
       var materials := input.materials;
       :- Crypto.Need(
-           Materials.DecryptionMaterialsWithoutPlaintextDataKey(materials),
-           "Keyring received decryption materials that already contain a plaintext data key.");
+        Materials.DecryptionMaterialsWithoutPlaintextDataKey(materials),
+        "Keyring received decryption materials that already contain a plaintext data key.");
 
       var aadResult := EncryptionContextToAAD(input.materials.encryptionContext);
       var aad :- Crypto.AwsCryptographicMaterialProvidersException.WrapResultString(aadResult);
@@ -254,17 +254,17 @@ module
 
           var iv := GetIvFromProvInfo(input.encryptedDataKeys[i].keyProviderInfo);
           var encryptionOutput := DeserializeEDKCiphertext(
-                                    input.encryptedDataKeys[i].ciphertext,
-                                    wrappingAlgorithm.tagLength as nat
-                                  );
+            input.encryptedDataKeys[i].ciphertext,
+            wrappingAlgorithm.tagLength as nat
+          );
 
           var ptKeyRes := this.Decrypt(iv, encryptionOutput, input.materials.encryptionContext);
           if ptKeyRes.Success?
           {
             :- Crypto.Need(
-                 GetSuite(materials.algorithmSuiteId).encrypt.keyLength as int == |ptKeyRes.Extract()|,
-                 // this should never happen
-                 "Plaintext Data Key is not the expected length");
+              GetSuite(materials.algorithmSuiteId).encrypt.keyLength as int == |ptKeyRes.Extract()|,
+              // this should never happen
+              "Plaintext Data Key is not the expected length");
             //= compliance/framework/raw-aes-keyring.txt#2.7.2
             //# If a decryption succeeds, this keyring MUST add the resulting
             //# plaintext data key to the decryption materials and return the
@@ -292,7 +292,7 @@ module
       //# If no decryption succeeds, the keyring MUST fail and MUST NOT modify
       //# the decryption materials (structures.md#decryption-materials).
       var combinedErrorsException := new Crypto.AwsCryptographicMaterialProvidersException(
-            "Unable to decrypt any data keys. Encountered the following errors: " + Seq.Flatten(errors));
+        "Unable to decrypt any data keys. Encountered the following errors: " + Seq.Flatten(errors));
       return Failure(combinedErrorsException);
     }
 
@@ -316,13 +316,13 @@ module
       :- Need(|iv| == wrappingAlgorithm.ivLength as int, "");
       var aad :- EncryptionContextToAAD(encryptionContext);
       var ptKey: seq<uint8> :- AESEncryption.AESDecrypt(
-                                 wrappingAlgorithm,
-                                 wrappingKey,
-                                 encryptionOutput.cipherText,
-                                 encryptionOutput.authTag,
-                                 iv,
-                                 aad
-                               );
+        wrappingAlgorithm,
+        wrappingKey,
+        encryptionOutput.cipherText,
+        encryptionOutput.authTag,
+        iv,
+        aad
+      );
       return Success(ptKey);
     }
 

@@ -49,8 +49,8 @@ module TestMultiKeyring {
     // directly get materials using the generator
     var rawAESKeyring := setupRawAesKeyring(encryptionContext);
     var expectedEncryptionMaterials := rawAESKeyring.OnEncrypt(
-                                         Crypto.OnEncryptInput(materials:=encryptionMaterials)
-                                       );
+      Crypto.OnEncryptInput(materials:=encryptionMaterials)
+    );
     expect expectedEncryptionMaterials.Success?;
     var expectedPlaintextDataKey := expectedEncryptionMaterials.value.materials.plaintextDataKey;
     expect expectedPlaintextDataKey.Some?;
@@ -58,9 +58,9 @@ module TestMultiKeyring {
     var staticKeyring := new StaticKeyring(Some(expectedEncryptionMaterials.value.materials), None());
 
     var multiKeyring := new MultiKeyring.MultiKeyring(
-          generatorKeyring := Some(staticKeyring),
-          childKeyrings := [rawAESKeyring]
-        );
+      generatorKeyring := Some(staticKeyring),
+      childKeyrings := [rawAESKeyring]
+    );
 
     var result := multiKeyring.OnEncrypt(Crypto.OnEncryptInput(materials:=encryptionMaterials));
     expect result.Success?;
@@ -101,9 +101,9 @@ module TestMultiKeyring {
     var failingKeyring := new FailingKeyring();
 
     var multiKeyring := new MultiKeyring.MultiKeyring(
-          generatorKeyring := Some(rawAESKeyring),
-          childKeyrings := [failingKeyring]
-        );
+      generatorKeyring := Some(rawAESKeyring),
+      childKeyrings := [failingKeyring]
+    );
 
     var encryptionMaterials := getInputEncryptionMaterials(encryptionContext);
 
@@ -124,9 +124,9 @@ module TestMultiKeyring {
     var rawAESKeyring := setupRawAesKeyring(encryptionContext);
 
     var multiKeyring := new MultiKeyring.MultiKeyring(
-          generatorKeyring := Some(failingKeyring),
-          childKeyrings := [rawAESKeyring]
-        );
+      generatorKeyring := Some(failingKeyring),
+      childKeyrings := [rawAESKeyring]
+    );
 
     var encryptionMaterials := getInputEncryptionMaterials(encryptionContext);
 
@@ -144,9 +144,9 @@ module TestMultiKeyring {
     var failingKeyring := new StaticKeyring(Some(encryptionMaterials), None());
 
     var multiKeyring := new MultiKeyring.MultiKeyring(
-          generatorKeyring := Some(failingKeyring),
-          childKeyrings := []
-        );
+      generatorKeyring := Some(failingKeyring),
+      childKeyrings := []
+    );
 
     var result := multiKeyring.OnEncrypt(Crypto.OnEncryptInput(materials:=encryptionMaterials));
     expect result.IsFailure();
@@ -172,13 +172,13 @@ module TestMultiKeyring {
     var failingKeyring := new FailingKeyring();
 
     var multiKeyring := new MultiKeyring.MultiKeyring(
-          generatorKeyring := Some(rawAESKeyring),
-          childKeyrings := [failingKeyring]
-        );
+      generatorKeyring := Some(rawAESKeyring),
+      childKeyrings := [failingKeyring]
+    );
 
     var onDecryptInput := Crypto.OnDecryptInput(
-                            materials := inputDecryptionMaterials, encryptedDataKeys := encryptionMaterials.value.materials.encryptedDataKeys
-                          );
+      materials := inputDecryptionMaterials, encryptedDataKeys := encryptionMaterials.value.materials.encryptedDataKeys
+    );
 
     var decryptionMaterials := multiKeyring.OnDecrypt(input:=onDecryptInput);
     expect decryptionMaterials.Success?;
@@ -218,13 +218,13 @@ module TestMultiKeyring {
     // For children, we add failing keyrings on both sides of the valid keyring so we exercise
     // all paths
     var multiKeyring := new MultiKeyring.MultiKeyring(
-          generatorKeyring := Some(failingKeyring),
-          childKeyrings := [failingKeyring, rawAESKeyring, failingKeyring]
-        );
+      generatorKeyring := Some(failingKeyring),
+      childKeyrings := [failingKeyring, rawAESKeyring, failingKeyring]
+    );
 
     var onDecryptInput := Crypto.OnDecryptInput(
-                            materials := inputDecryptionMaterials, encryptedDataKeys := encryptionMaterials.value.materials.encryptedDataKeys
-                          );
+      materials := inputDecryptionMaterials, encryptedDataKeys := encryptionMaterials.value.materials.encryptedDataKeys
+    );
 
     //= compliance/framework/multi-keyring.txt#2.7.2
     //= type=TODO
@@ -261,16 +261,16 @@ module TestMultiKeyring {
 
     var failingKeyring := new FailingKeyring();
     var multiKeyring := new MultiKeyring.MultiKeyring(
-          generatorKeyring := None(),
-          childKeyrings := [failingKeyring, failingKeyring]
-        );
+      generatorKeyring := None(),
+      childKeyrings := [failingKeyring, failingKeyring]
+    );
 
     var materials := Crypto.DecryptionMaterials(
-                       encryptionContext:=encryptionContext,
-                       algorithmSuiteId := Crypto.ALG_AES_256_GCM_IV12_TAG16_HKDF_SHA256,
-                       verificationKey := None(),
-                       plaintextDataKey:=None()
-                     );
+      encryptionContext:=encryptionContext,
+      algorithmSuiteId := Crypto.ALG_AES_256_GCM_IV12_TAG16_HKDF_SHA256,
+      verificationKey := None(),
+      plaintextDataKey:=None()
+    );
 
     var result := multiKeyring.OnDecrypt(Crypto.OnDecryptInput(materials:=materials, encryptedDataKeys:=[]));
     expect result.IsFailure();
@@ -280,14 +280,14 @@ module TestMultiKeyring {
   method setupRawAesKeyring(encryptionContext: Crypto.EncryptionContext) returns (res: Crypto.IKeyring) {
     var namespace, name := TestUtils.NamespaceAndName(0);
     var rawAESKeyring := new RawAESKeyring.RawAESKeyring(
-          namespace,
-          name,
-          seq(32, i => 0),
-          AESEncryption.AES_GCM(
-          keyLength := 32 as AESEncryption.KeyLength,
-          tagLength := 16 as AESEncryption.TagLength,
-          ivLength := 12 as AESEncryption.IVLength
-          ));
+      namespace,
+      name,
+      seq(32, i => 0),
+      AESEncryption.AES_GCM(
+      keyLength := 32 as AESEncryption.KeyLength,
+      tagLength := 16 as AESEncryption.TagLength,
+      ivLength := 12 as AESEncryption.IVLength
+      ));
     return rawAESKeyring;
   }
 

@@ -151,17 +151,17 @@ module
           && exists returnedKeyId ::
             && client.GenerateDataKeySucceededWith(
                  input := KMS.GenerateDataKeyRequest(
-                            KeyId := awsKmsKey,
-                            EncryptionContext := Option.Some(StringifyEncryptionContext(input.materials.encryptionContext).Extract()),
-                            GrantTokens := Option.Some(grantTokens),
-                            NumberOfBytes := Option.Some(algId.encrypt.keyLength as int32),
-                            KeySpec := Option.None
-                          ),
+                 KeyId := awsKmsKey,
+                 EncryptionContext := Option.Some(StringifyEncryptionContext(input.materials.encryptionContext).Extract()),
+                 GrantTokens := Option.Some(grantTokens),
+                 NumberOfBytes := Option.Some(algId.encrypt.keyLength as int32),
+                 KeySpec := Option.None
+               ),
                  output := KMS.GenerateDataKeyResponse(
-                             KeyId := returnedKeyId,
-                             CiphertextBlob := Option.Some(Last(res.value.materials.encryptedDataKeys).ciphertext),
-                             Plaintext := Option.Some(res.value.materials.plaintextDataKey.value)
-                           )
+                 KeyId := returnedKeyId,
+                 CiphertextBlob := Option.Some(Last(res.value.materials.encryptedDataKeys).ciphertext),
+                 Plaintext := Option.Some(res.value.materials.plaintextDataKey.value)
+               )
                )
 
       //= compliance/framework/aws-kms/aws-kms-mrk-keyring.txt#2.7
@@ -215,17 +215,17 @@ module
           && exists returnedKeyId, returnedEncryptionAlgorithm ::
                && client.EncryptSucceededWith(
                     input := KMS.EncryptRequest(
-                               KeyId := awsKmsKey,
-                               Plaintext := input.materials.plaintextDataKey.value,
-                               EncryptionContext := Option.Some(StringifyEncryptionContext(input.materials.encryptionContext).Extract()),
-                               GrantTokens := Option.Some(grantTokens),
-                               EncryptionAlgorithm := Option.None
-                             ),
+                    KeyId := awsKmsKey,
+                    Plaintext := input.materials.plaintextDataKey.value,
+                    EncryptionContext := Option.Some(StringifyEncryptionContext(input.materials.encryptionContext).Extract()),
+                    GrantTokens := Option.Some(grantTokens),
+                    EncryptionAlgorithm := Option.None
+                  ),
                     output := KMS.EncryptResponse(
-                                CiphertextBlob := Option.Some(Last(res.value.materials.encryptedDataKeys).ciphertext),
-                                KeyId := returnedKeyId,
-                                EncryptionAlgorithm := returnedEncryptionAlgorithm
-                              )
+                    CiphertextBlob := Option.Some(Last(res.value.materials.encryptedDataKeys).ciphertext),
+                    KeyId := returnedKeyId,
+                    EncryptionAlgorithm := returnedEncryptionAlgorithm
+                  )
                   )
     {
       var materials := input.materials;
@@ -236,12 +236,12 @@ module
       if materials.plaintextDataKey.None? {
 
         var generatorRequest := KMS.GenerateDataKeyRequest(
-                                  KeyId := awsKmsKey,
-                                  EncryptionContext := Option.Some(stringifiedEncCtx),
-                                  GrantTokens := Option.Some(grantTokens),
-                                  NumberOfBytes := Option.Some(suite.encrypt.keyLength as int32),
-                                  KeySpec := Option.None
-                                );
+          KeyId := awsKmsKey,
+          EncryptionContext := Option.Some(stringifiedEncCtx),
+          GrantTokens := Option.Some(grantTokens),
+          NumberOfBytes := Option.Some(suite.encrypt.keyLength as int32),
+          KeySpec := Option.None
+        );
 
         var maybeGenerateResponse := client.GenerateDataKey(generatorRequest);
 
@@ -263,35 +263,35 @@ module
         //# KMS key ARN (aws-kms-key-arn.md#identifying-an-aws-kms-
         //# multi-region-key).
         :- Crypto.Need(
-             && generateResponse.KeyId.Some?
-             && ParseAwsKmsIdentifier(generateResponse.KeyId.value).Success?,
-             "Invalid response from KMS GenerateDataKey: Invalid Key Id"
-           );
+          && generateResponse.KeyId.Some?
+          && ParseAwsKmsIdentifier(generateResponse.KeyId.value).Success?,
+          "Invalid response from KMS GenerateDataKey: Invalid Key Id"
+        );
         var keyId := generateResponse.KeyId.value;
         var providerInfoResult := UTF8.Encode(keyId);
         var providerInfo :- Crypto.AwsCryptographicMaterialProvidersException.WrapResultString(
-                              providerInfoResult);
+          providerInfoResult);
         :- Crypto.Need(|providerInfo| < UINT16_LIMIT,
                        "Invalid response from KMS GenerateDataKey: AWS KMS Key ID too long.");
 
         :- Crypto.Need(
-             && generateResponse.Plaintext.Some?
-             && suite.encrypt.keyLength as int == |generateResponse.Plaintext.value|,
-             "Invalid response from KMS GenerateDataKey: Invalid data key"
-           );
+          && generateResponse.Plaintext.Some?
+          && suite.encrypt.keyLength as int == |generateResponse.Plaintext.value|,
+          "Invalid response from KMS GenerateDataKey: Invalid data key"
+        );
         var plaintextDataKey := generateResponse.Plaintext.value;
 
         :- Crypto.Need(
-             && generateResponse.CiphertextBlob.Some?
-             && KMS.IsValid_CiphertextType(generateResponse.CiphertextBlob.value),
-             "Returned ciphertext is invalid length");
+          && generateResponse.CiphertextBlob.Some?
+          && KMS.IsValid_CiphertextType(generateResponse.CiphertextBlob.value),
+          "Returned ciphertext is invalid length");
         var ciphertext := generateResponse.CiphertextBlob.value;
 
         var edk := Crypto.EncryptedDataKey(
-                     keyProviderId := PROVIDER_ID,
-                     keyProviderInfo := providerInfo,
-                     ciphertext := ciphertext
-                   );
+          keyProviderId := PROVIDER_ID,
+          keyProviderInfo := providerInfo,
+          ciphertext := ciphertext
+        );
 
         var addKeyResult := Materials.EncryptionMaterialAddDataKey(materials, plaintextDataKey, [edk]);
         var result :- Crypto.AwsCryptographicMaterialProvidersException.WrapResultString(addKeyResult);
@@ -301,14 +301,14 @@ module
       } else {
         :- Crypto.Need(KMS.IsValid_PlaintextType(materials.plaintextDataKey.value),
                        "PlaintextDataKey is invalid length"
-           );
+        );
         var encryptRequest := KMS.EncryptRequest(
-                                KeyId := awsKmsKey,
-                                Plaintext := materials.plaintextDataKey.value,
-                                EncryptionContext := Option.Some(stringifiedEncCtx),
-                                GrantTokens := Option.Some(grantTokens),
-                                EncryptionAlgorithm := Option.None
-                              );
+          KeyId := awsKmsKey,
+          Plaintext := materials.plaintextDataKey.value,
+          EncryptionContext := Option.Some(stringifiedEncCtx),
+          GrantTokens := Option.Some(grantTokens),
+          EncryptionAlgorithm := Option.None
+        );
         var maybeEncryptResponse := client.Encrypt(encryptRequest);
 
         //= compliance/framework/aws-kms/aws-kms-mrk-keyring.txt#2.7
@@ -328,25 +328,25 @@ module
         //# If the Encrypt call succeeds the response's "KeyId" MUST be A valid
         //# AWS KMS key ARN (aws-kms-key-arn.md#a-valid-aws-kms-arn).
         :- Crypto.Need(
-             && encryptResponse.KeyId.Some?
-             && ParseAwsKmsIdentifier(encryptResponse.KeyId.value).Success?,
-             "Invalid response from AWS KMS Encrypt: Invalid Key Id"
-           );
+          && encryptResponse.KeyId.Some?
+          && ParseAwsKmsIdentifier(encryptResponse.KeyId.value).Success?,
+          "Invalid response from AWS KMS Encrypt: Invalid Key Id"
+        );
 
         :- Crypto.Need(encryptResponse.CiphertextBlob.Some?,
                        "Invalid response from AWS KMS Encrypt: Invalid Ciphertext Blob"
-           );
+        );
 
         var providerInfoResult := UTF8.Encode(encryptResponse.KeyId.Extract());
         var providerInfo :- Crypto.AwsCryptographicMaterialProvidersException.WrapResultString(
-                              providerInfoResult);
+          providerInfoResult);
         :- Crypto.Need(|providerInfo| < UINT16_LIMIT, "AWS KMS Key ID too long.");
 
         var edk := Crypto.EncryptedDataKey(
-                     keyProviderId := PROVIDER_ID,
-                     keyProviderInfo := providerInfo,
-                     ciphertext := encryptResponse.CiphertextBlob.value
-                   );
+          keyProviderId := PROVIDER_ID,
+          keyProviderInfo := providerInfo,
+          ciphertext := encryptResponse.CiphertextBlob.value
+        );
 
         var addKeyResult := Materials.EncryptionMaterialAddEncryptedDataKeys(materials, [edk]);
         var result :- Crypto.AwsCryptographicMaterialProvidersException.WrapResultString(addKeyResult);
@@ -387,12 +387,12 @@ module
                && edk.keyProviderId == PROVIDER_ID
                && KMS.IsValid_CiphertextType(edk.ciphertext)
                && var request := KMS.DecryptRequest(
-                                   KeyId := Option.Some(awsKmsKey),
-                                   CiphertextBlob :=  edk.ciphertext,
-                                   EncryptionContext := Option.Some(maybeStringifiedEncCtx.Extract()),
-                                   GrantTokens := Option.Some(grantTokens),
-                                   EncryptionAlgorithm := Option.None()
-                                 );
+                    KeyId := Option.Some(awsKmsKey),
+                    CiphertextBlob :=  edk.ciphertext,
+                    EncryptionContext := Option.Some(maybeStringifiedEncCtx.Extract()),
+                    GrantTokens := Option.Some(grantTokens),
+                    EncryptionAlgorithm := Option.None()
+                  );
                //= compliance/framework/aws-kms/aws-kms-mrk-keyring.txt#2.8
                //= type=implication
                //# To attempt to decrypt a particular encrypted data key
@@ -418,10 +418,10 @@ module
                && algId.encrypt.keyLength as int == |res.value.materials.plaintextDataKey.value|
                && exists returnedKeyId, returnedEncryptionAlgorithm ::
                     && var response := KMS.DecryptResponse(
-                                         KeyId := returnedKeyId,
-                                         Plaintext := res.value.materials.plaintextDataKey,
-                                         EncryptionAlgorithm := returnedEncryptionAlgorithm
-                                       );
+                      KeyId := returnedKeyId,
+                      Plaintext := res.value.materials.plaintextDataKey,
+                      EncryptionAlgorithm := returnedEncryptionAlgorithm
+                    );
                     //= compliance/framework/aws-kms/aws-kms-mrk-keyring.txt#2.8
                     //= type=implication
                     //# If the response does satisfies these requirements then OnDecrypt MUST
@@ -433,8 +433,8 @@ module
       var suite := AlgorithmSuites.GetSuite(input.materials.algorithmSuiteId);
 
       :- Crypto.Need(
-           Materials.DecryptionMaterialsWithoutPlaintextDataKey(materials),
-           "Keyring received decryption materials that already contain a plaintext data key.");
+        Materials.DecryptionMaterialsWithoutPlaintextDataKey(materials),
+        "Keyring received decryption materials that already contain a plaintext data key.");
 
       //= compliance/framework/aws-kms/aws-kms-mrk-keyring.txt#2.8
       //# The set of encrypted data keys MUST first be filtered to match this
@@ -449,24 +449,24 @@ module
       //# If this attempt
       //# results in an error, then these errors MUST be collected.
       var decryptClosure := new DecryptSingleEncryptedDataKey(
-            materials,
-            client,
-            awsKmsKey,
-            grantTokens
-          );
+        materials,
+        client,
+        awsKmsKey,
+        grantTokens
+      );
 
       //= compliance/framework/aws-kms/aws-kms-mrk-keyring.txt#2.8
       //# If the response does not satisfies these requirements then an error
       //# MUST be collected and the next encrypted data key in the filtered set
       //# MUST be attempted.
       var outcome := ReduceToSuccess(
-                       decryptClosure,
-                       edksToAttempt
-                     );
+        decryptClosure,
+        edksToAttempt
+      );
 
       var stringifiedEncCtxResult := StringifyEncryptionContext(materials.encryptionContext);
       var stringifiedEncCtx :- Crypto.AwsCryptographicMaterialProvidersException.WrapResultString(
-                                 stringifiedEncCtxResult);
+        stringifiedEncCtxResult);
       var result := match outcome {
                       case Success(mat) =>
                         assert exists edk, returnedKeyId, returnedEncryptionAlgorithm | edk in edksToAttempt
@@ -475,19 +475,19 @@ module
                             && filter.Ensures(edk, Success(true))
                             && decryptClosure.Ensures(edk, Success(mat))
                             && var request := KMS.DecryptRequest(
-                                                KeyId := Option.Some(awsKmsKey),
-                                                CiphertextBlob :=  edk.ciphertext,
-                                                EncryptionContext := Option.Some(stringifiedEncCtx),
-                                                GrantTokens := Option.Some(grantTokens),
-                                                EncryptionAlgorithm := Option.None()
-                                              );
+                                 KeyId := Option.Some(awsKmsKey),
+                                 CiphertextBlob :=  edk.ciphertext,
+                                 EncryptionContext := Option.Some(stringifiedEncCtx),
+                                 GrantTokens := Option.Some(grantTokens),
+                                 EncryptionAlgorithm := Option.None()
+                               );
 
                             && client.DecryptCalledWith(request)
                             && var response := KMS.DecryptResponse(
-                                                 KeyId := returnedKeyId,
-                                                 Plaintext := mat.plaintextDataKey,
-                                                 EncryptionAlgorithm := returnedEncryptionAlgorithm
-                                               );
+                                 KeyId := returnedKeyId,
+                                 Plaintext := mat.plaintextDataKey,
+                                 EncryptionAlgorithm := returnedEncryptionAlgorithm
+                               );
                             && client.DecryptSucceededWith(request, response);
                         Success(Crypto.OnDecryptOutput(
                                   materials := mat
@@ -502,10 +502,10 @@ module
                         else
                           var concatString := (s, a) => a + "\n" + s;
                           var error := Seq.FoldRight(
-                                         concatString,
-                                         errors,
-                                         "Unable to decrypt data key:\n"
-                                       );
+                            concatString,
+                            errors,
+                            "Unable to decrypt data key:\n"
+                          );
                           Failure(error)
                     };
       var wrappedResult := Crypto.AwsCryptographicMaterialProvidersException.WrapResultString(result);
@@ -607,19 +607,19 @@ module
         && var maybeStringifiedEncCtx := StringifyEncryptionContext(materials.encryptionContext);
         && maybeStringifiedEncCtx.Success?
         && var request := KMS.DecryptRequest(
-                            KeyId := Option.Some(awsKmsKey),
-                            CiphertextBlob := edk.ciphertext,
-                            EncryptionContext := Option.Some(maybeStringifiedEncCtx.Extract()),
-                            GrantTokens := Option.Some(grantTokens),
-                            EncryptionAlgorithm := Option.None()
-                          );
+             KeyId := Option.Some(awsKmsKey),
+             CiphertextBlob := edk.ciphertext,
+             EncryptionContext := Option.Some(maybeStringifiedEncCtx.Extract()),
+             GrantTokens := Option.Some(grantTokens),
+             EncryptionAlgorithm := Option.None()
+           );
         && client.DecryptCalledWith(request )
         && exists returnedKeyId, returnedEncryptionAlgorithm ::
              && var response := KMS.DecryptResponse(
-                                  KeyId := returnedKeyId,
-                                  Plaintext := Option.Some(res.value.plaintextDataKey.value),
-                                  EncryptionAlgorithm := returnedEncryptionAlgorithm
-                                );
+               KeyId := returnedKeyId,
+               Plaintext := Option.Some(res.value.plaintextDataKey.value),
+               EncryptionAlgorithm := returnedEncryptionAlgorithm
+             );
              && client.DecryptSucceededWith(request, response)
     }
 
@@ -631,12 +631,12 @@ module
       :- Need(KMS.IsValid_CiphertextType(edk.ciphertext), "Ciphertext length invalid");
       var stringifiedEncCtx :- StringifyEncryptionContext(materials.encryptionContext);
       var decryptRequest := KMS.DecryptRequest(
-                              KeyId := Option.Some(awsKmsKey),
-                              CiphertextBlob := edk.ciphertext,
-                              EncryptionContext := Option.Some(stringifiedEncCtx),
-                              GrantTokens := Option.Some(grantTokens),
-                              EncryptionAlgorithm := Option.None()
-                            );
+        KeyId := Option.Some(awsKmsKey),
+        CiphertextBlob := edk.ciphertext,
+        EncryptionContext := Option.Some(stringifiedEncCtx),
+        GrantTokens := Option.Some(grantTokens),
+        EncryptionAlgorithm := Option.None()
+      );
 
       var maybeDecryptResponse := client.Decrypt(decryptRequest);
       if maybeDecryptResponse.Failure? {
@@ -646,11 +646,11 @@ module
       var decryptResponse := maybeDecryptResponse.value;
       var algId := AlgorithmSuites.GetSuite(materials.algorithmSuiteId);
       :- Need(
-           && decryptResponse.KeyId.Some?
-           && decryptResponse.KeyId.value == awsKmsKey
-           && decryptResponse.Plaintext.Some?
-           && algId.encrypt.keyLength as int == |decryptResponse.Plaintext.value|
-         , "Invalid response from KMS Decrypt");
+        && decryptResponse.KeyId.Some?
+        && decryptResponse.KeyId.value == awsKmsKey
+        && decryptResponse.Plaintext.Some?
+        && algId.encrypt.keyLength as int == |decryptResponse.Plaintext.value|
+      , "Invalid response from KMS Decrypt");
 
       var result :- Materials.DecryptionMaterialsAddDataKey(materials, decryptResponse.Plaintext.value);
       return Success(result);

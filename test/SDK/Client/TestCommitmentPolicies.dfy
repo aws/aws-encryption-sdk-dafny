@@ -164,9 +164,9 @@ module TestCommitmentPolicies {
     returns (res: Result<Esdk.IAwsEncryptionSdk, string>)
   {
     var config := Esdk.AwsEncryptionSdkConfig(
-                    maxEncryptedDataKeys := None(),
-                    commitmentPolicy := commitmentPolicy
-                  );
+      maxEncryptedDataKeys := None(),
+      commitmentPolicy := commitmentPolicy
+    );
     var clientFactory := new AwsEncryptionSdkFactory.AwsEncryptionSdkFactory();
     var client :- expect clientFactory.CreateAwsEncryptionSdk(config);
     return Success(client);
@@ -192,12 +192,12 @@ module TestCommitmentPolicies {
     returns (res: Result<Esdk.EncryptOutput, Esdk.IAwsEncryptionSdkException>)
   {
     var input := Esdk.EncryptInput(
-                   plaintext := [],
-                   encryptionContext := None(),
-                   algorithmSuiteId := algorithmSuiteId,
-                   materialsManager := None(),
-                   keyring := Some(keyring),
-                   frameLength := None());
+      plaintext := [],
+      encryptionContext := None(),
+      algorithmSuiteId := algorithmSuiteId,
+      materialsManager := None(),
+      keyring := Some(keyring),
+      frameLength := None());
     var output := client.Encrypt(input);
     return output;
   }
@@ -216,9 +216,9 @@ module TestCommitmentPolicies {
     var encryptOutput :- expect TryEncrypt(encryptClient, keyring, Some(algorithmSuiteId));
 
     var decryptInput := Esdk.DecryptInput(
-                          ciphertext := encryptOutput.ciphertext,
-                          materialsManager := None(),
-                          keyring := Some(keyring));
+      ciphertext := encryptOutput.ciphertext,
+      materialsManager := None(),
+      keyring := Some(keyring));
     var decryptOutput := client.Decrypt(decryptInput);
     return decryptOutput;
   }

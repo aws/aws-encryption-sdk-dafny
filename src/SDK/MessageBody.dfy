@@ -275,11 +275,11 @@ module MessageBody {
       //# a regular frame (Section 2.7.1) using the consumable plaintext
       //# bytes.
       var regularFrame :- EncryptRegularFrame(
-                            key,
-                            header,
-                            plaintextFrame,
-                            sequenceNumber
-                          );
+        key,
+        header,
+        plaintextFrame,
+        sequenceNumber
+      );
 
       assert regularFrame.seqNum as nat == |regularFrames| + 1;
       LemmaAddingNextRegularFrame(regularFrames, regularFrame);
@@ -317,11 +317,11 @@ module MessageBody {
     //# Frame encrypted content length SHOULD be equal to the frame length
     //# but MAY be 0.
     var finalFrame :- EncryptFinalFrame(
-                        key,
-                        header,
-                        plaintext[n..],
-                        sequenceNumber
-                      );
+      key,
+      header,
+      plaintext[n..],
+      sequenceNumber
+    );
 
     assert MessageFramesAreForTheSameMessage(regularFrames + [finalFrame]);
 
@@ -370,50 +370,50 @@ module MessageBody {
     // *  The AAD is the serialized message body AAD (../data-format/
     //    message-body-aad.md), constructed as follows:
     var aad := BodyAAD(
-                 // -  The message ID (../data-format/message-body-aad.md#message-id)
-                 //    is the same as the message ID (../data-frame/message-
-                 //    header.md#message-id) serialized in the header of this message.
-                 header.body.messageId,
-                 AADRegularFrame,
-                 sequenceNumber,
-                 //= compliance/client-apis/encrypt.txt#2.7.1
-                 //# -  The content length (../data-format/message-body-aad.md#content-
-                 //# length) MUST have a value equal to the length of the plaintext
-                 //# being encrypted.
-                 |plaintext| as uint64
-               );
+      // -  The message ID (../data-format/message-body-aad.md#message-id)
+      //    is the same as the message ID (../data-frame/message-
+      //    header.md#message-id) serialized in the header of this message.
+      header.body.messageId,
+      AADRegularFrame,
+      sequenceNumber,
+      //= compliance/client-apis/encrypt.txt#2.7.1
+      //# -  The content length (../data-format/message-body-aad.md#content-
+      //# length) MUST have a value equal to the length of the plaintext
+      //# being encrypted.
+      |plaintext| as uint64
+    );
 
     var encryptionOutput :- AESEncryption.AESEncrypt(
-                              header.suite.encrypt,
-                              iv,
-                              key,
-                              plaintext,
-                              aad
-                            );
+      header.suite.encrypt,
+      iv,
+      key,
+      plaintext,
+      aad
+    );
 
     //= compliance/client-apis/encrypt.txt#2.7.1
     //# This operation MUST serialize a regular frame or final frame with the
     //# following specifics:
     var frame: Frames.RegularFrame := Frames.Frame.RegularFrame(
-                                        header,
-                                        //= compliance/client-apis/encrypt.txt#2.7.1
-                                        //# *  Sequence Number (../data-format/message-body.md#sequence-number):
-                                        //# MUST be the sequence number of this frame, as determined above.
-                                        sequenceNumber,
-                                        //= compliance/client-apis/encrypt.txt#2.7.1
-                                        //# *  IV (../data-format/message-body.md#iv): MUST be the IV used when
-                                        //# calculating the encrypted content above
-                                        iv,
-                                        //= compliance/client-apis/encrypt.txt#2.7.1
-                                        //# *  Encrypted Content (../data-format/message-body.md#encrypted-
-                                        //# content): MUST be the encrypted content calculated above.
-                                        encryptionOutput.cipherText,
-                                        //= compliance/client-apis/encrypt.txt#2.7.1
-                                        //# *  Authentication Tag (../data-format/message-body.md#authentication-
-                                        //# tag): MUST be the authentication tag output when calculating the
-                                        //# encrypted content above.
-                                        encryptionOutput.authTag
-                                      );
+      header,
+      //= compliance/client-apis/encrypt.txt#2.7.1
+      //# *  Sequence Number (../data-format/message-body.md#sequence-number):
+      //# MUST be the sequence number of this frame, as determined above.
+      sequenceNumber,
+      //= compliance/client-apis/encrypt.txt#2.7.1
+      //# *  IV (../data-format/message-body.md#iv): MUST be the IV used when
+      //# calculating the encrypted content above
+      iv,
+      //= compliance/client-apis/encrypt.txt#2.7.1
+      //# *  Encrypted Content (../data-format/message-body.md#encrypted-
+      //# content): MUST be the encrypted content calculated above.
+      encryptionOutput.cipherText,
+      //= compliance/client-apis/encrypt.txt#2.7.1
+      //# *  Authentication Tag (../data-format/message-body.md#authentication-
+      //# tag): MUST be the authentication tag output when calculating the
+      //# encrypted content above.
+      encryptionOutput.authTag
+    );
 
     return Success(frame);
   }
@@ -453,31 +453,31 @@ module MessageBody {
     var iv := IVSeq(header.suite, sequenceNumber);
 
     var aad := BodyAAD(
-                 header.body.messageId,
-                 AADFinalFrame,
-                 sequenceNumber,
-                 //= compliance/client-apis/encrypt.txt#2.7.1
-                 //# o  For a final frame this MUST be the length of the remaining
-                 //# plaintext bytes which have not yet been encrypted, whose
-                 //# length MUST be equal to or less than the frame length.
-                 |plaintext| as uint64
-               );
+      header.body.messageId,
+      AADFinalFrame,
+      sequenceNumber,
+      //= compliance/client-apis/encrypt.txt#2.7.1
+      //# o  For a final frame this MUST be the length of the remaining
+      //# plaintext bytes which have not yet been encrypted, whose
+      //# length MUST be equal to or less than the frame length.
+      |plaintext| as uint64
+    );
 
     var encryptionOutput :- AESEncryption.AESEncrypt(
-                              header.suite.encrypt,
-                              iv,
-                              key,
-                              plaintext,
-                              aad
-                            );
+      header.suite.encrypt,
+      iv,
+      key,
+      plaintext,
+      aad
+    );
 
     var finalFrame: Frames.FinalFrame := Frames.Frame.FinalFrame(
-                                           header,
-                                           sequenceNumber,
-                                           iv,
-                                           encryptionOutput.cipherText,
-                                           encryptionOutput.authTag
-                                         );
+      header,
+      sequenceNumber,
+      iv,
+      encryptionOutput.cipherText,
+      encryptionOutput.authTag
+    );
 
     return Success(finalFrame);
   }
@@ -834,18 +834,18 @@ module MessageBody {
       assert {:split_here} true;
       var finalFrame :- Frames.ReadFinalFrame(continuation, header);
       :- Need(
-           finalFrame.data.seqNum as nat == |regularFrames| + 1,
-           Error("Sequence number out of order.")
-         );
+        finalFrame.data.seqNum as nat == |regularFrames| + 1,
+        Error("Sequence number out of order.")
+      );
 
       assert {:split_here} true;
       assert MessageFramesAreMonotonic(regularFrames + [finalFrame.data]);
       assert MessageFramesAreForTheSameMessage(regularFrames + [finalFrame.data]);
 
       var body: FramedMessage := FramedMessageBody(
-                                   regularFrames := regularFrames,
-                                   finalFrame := finalFrame.data
-                                 );
+        regularFrames := regularFrames,
+        finalFrame := finalFrame.data
+      );
 
       assert {:split_here} true;
       assert CorrectlyRead(continuation, Success(finalFrame), Frames.WriteFinalFrame);

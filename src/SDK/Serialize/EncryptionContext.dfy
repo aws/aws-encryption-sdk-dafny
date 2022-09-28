@@ -621,10 +621,10 @@ module EncryptionContext {
       // are valid WriteAADPair bytes,
       // we can prove that this part is complete
       var pair := ReadAADPairIsComplete(
-                    data[|accumulator|],
-                    WriteAADPair(data[|accumulator|]),
-                    nextPair
-                  );
+        data[|accumulator|],
+        WriteAADPair(data[|accumulator|]),
+        nextPair
+      );
 
       assert pair.data == data[|accumulator|];
       reveal KeysToSet();
@@ -651,12 +651,12 @@ module EncryptionContext {
       // Along the way, we prove ReadAADPairIsComplete
       // for each encryption context pair "along the way".
       var pairs := ReadAADPairsIsComplete(
-                     data,
-                     accumulator + [pair.data],
-                     keys + KeysToSet([pair.data]),
-                     bytes,
-                     buffer
-                   );
+        data,
+        accumulator + [pair.data],
+        keys + KeysToSet([pair.data]),
+        bytes,
+        buffer
+      );
 
       assert pairs.data == data;
 
@@ -688,20 +688,20 @@ module EncryptionContext {
     assert bytes[|WriteUint16(|data| as uint16)|..] == WriteAADPairs(data);
 
     var count := ReadUInt16IsComplete(
-                   |data| as uint16,
-                   WriteUint16(|data| as uint16),
-                   buffer
-                 );
+      |data| as uint16,
+      WriteUint16(|data| as uint16),
+      buffer
+    );
     assert count.data as nat == |data|;
     var accumulator:ESDKCanonicalEncryptionContext := [];
 
     var pairs := ReadAADPairsIsComplete(
-                   data,
-                   accumulator,
-                   KeysToSet(accumulator),
-                   WriteAADPairs(data),
-                   count.tail
-                 );
+      data,
+      accumulator,
+      KeysToSet(accumulator),
+      WriteAADPairs(data),
+      count.tail
+    );
     assert pairs.data == data;
 
     return ReadAAD(buffer).value;
@@ -736,19 +736,19 @@ module EncryptionContext {
       assert 0 < |data|;
 
       var length := ReadUInt16IsComplete(
-                      |WriteAAD(data)| as uint16,
-                      WriteUint16(|WriteAAD(data)| as uint16),
-                      buffer
-                    );
+        |WriteAAD(data)| as uint16,
+        WriteUint16(|WriteAAD(data)| as uint16),
+        buffer
+      );
       assert length.data == |WriteAAD(data)| as uint16;
       assert length.tail.start + length.data as nat <= |length.tail.bytes|;
       assert !IsExpandedAADSection(buffer);
 
       var aad := ReadAADIsComplete(
-                   data,
-                   WriteAAD(data),
-                   length.tail
-                 );
+        data,
+        WriteAAD(data),
+        length.tail
+      );
       assert aad.data == data;
 
       return ReadAADSection(buffer).value;

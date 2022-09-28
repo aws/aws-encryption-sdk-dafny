@@ -166,12 +166,12 @@ module Frames {
     var authTag :- Read(encContent.tail, header.suite.encrypt.tagLength as nat);
 
     var regularFrame: RegularFrame := Frame.RegularFrame(
-                                        header,
-                                        sequenceNumber.data,
-                                        iv.data,
-                                        encContent.data,
-                                        authTag.data
-                                      );
+      header,
+      sequenceNumber.data,
+      iv.data,
+      encContent.data,
+      authTag.data
+    );
 
     assert {:split_here} true;
     assert WriteRegularFrame(regularFrame) <= buffer.bytes[buffer.start..];
@@ -243,12 +243,12 @@ module Frames {
 
     var authTag :- Read(encContent.tail, header.suite.encrypt.tagLength as nat);
     var finalFrame: FinalFrame := Frame.FinalFrame(
-                                    header,
-                                    sequenceNumber.data,
-                                    iv.data,
-                                    encContent.data,
-                                    authTag.data
-                                  );
+      header,
+      sequenceNumber.data,
+      iv.data,
+      encContent.data,
+      authTag.data
+    );
 
     assert WriteUint32(finalFrameSignal.data)
       + (WriteUint32(finalFrame.seqNum)
@@ -276,11 +276,11 @@ module Frames {
     var authTag :- Read(encContent.tail, header.suite.encrypt.tagLength as nat);
 
     var nonFramed: NonFramed := Frame.NonFramed(
-                                  header,
-                                  iv.data,
-                                  encContent.data,
-                                  authTag.data
-                                );
+      header,
+      iv.data,
+      encContent.data,
+      authTag.data
+    );
 
     assert {:split_here} true;
     assert WriteNonFramed(nonFramed) <= buffer.bytes[buffer.start..];

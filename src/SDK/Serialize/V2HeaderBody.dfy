@@ -123,14 +123,14 @@ module V2HeaderBody {
     assert |suiteData.data| == suite.commitment.outputKeyLength as nat;
 
     var body:V2HeaderBody := HeaderTypes.V2HeaderBody(
-                               esdkSuiteId := esdkSuiteId.data,
-                               messageId := messageId.data,
-                               encryptionContext := encryptionContext.data,
-                               encryptedDataKeys := encryptedDataKeys.data,
-                               contentType := contentType.data,
-                               frameLength := frameLength.data,
-                               suiteData := suiteData.data
-                             );
+      esdkSuiteId := esdkSuiteId.data,
+      messageId := messageId.data,
+      encryptionContext := encryptionContext.data,
+      encryptedDataKeys := encryptedDataKeys.data,
+      contentType := contentType.data,
+      frameLength := frameLength.data,
+      suiteData := suiteData.data
+    );
 
     assert version.tail.start - buffer.start == 1;
     assert esdkSuiteId.tail.start - version.tail.start == 2;

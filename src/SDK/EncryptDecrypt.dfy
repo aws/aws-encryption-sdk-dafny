@@ -105,13 +105,13 @@ module {:extern "EncryptDecryptHelpers"} EncryptDecryptHelpers {
               && var ecdsaParams := sigAlg.curve;
               && var signature := SerializeFunctions
                                   .ReadShortLengthSeq(buffer)
-                                  .MapFailure(MapSerializeFailure(": ReadShortLengthSeq"));
+              .MapFailure(MapSerializeFailure(": ReadShortLengthSeq"));
               && signature.Success?
               && var signatureVerifiedResult := Signature.Verify(ecdsaParams,
                                                                  decMat.verificationKey.value,
                                                                  msg,
                                                                  signature.value.data
-                                                );
+                 );
               // The verification call succeeded and the value it returned was false
               // (indicating invalid signature)
               && signatureVerifiedResult.Success?
@@ -128,13 +128,13 @@ module {:extern "EncryptDecryptHelpers"} EncryptDecryptHelpers {
               && var ecdsaParams := sigAlg.curve;
               && var signature := SerializeFunctions
                                   .ReadShortLengthSeq(buffer)
-                                  .MapFailure(MapSerializeFailure(": ReadShortLengthSeq"));
+              .MapFailure(MapSerializeFailure(": ReadShortLengthSeq"));
               && signature.Success?
               && var signatureVerifiedResult := Signature.Verify(ecdsaParams,
                                                                  decMat.verificationKey.value,
                                                                  msg,
                                                                  signature.value.data
-                                                );
+                 );
               // The verification call failed
               && signatureVerifiedResult.Failure?
             )
@@ -150,13 +150,13 @@ module {:extern "EncryptDecryptHelpers"} EncryptDecryptHelpers {
               && var ecdsaParams := sigAlg.curve;
               && var signature := SerializeFunctions
                                   .ReadShortLengthSeq(buffer)
-                                  .MapFailure(MapSerializeFailure(": ReadShortLengthSeq"));
+              .MapFailure(MapSerializeFailure(": ReadShortLengthSeq"));
               && signature.Success?
               && var signatureVerifiedResult := Signature.Verify(ecdsaParams,
                                                                  decMat.verificationKey.value,
                                                                  msg,
                                                                  signature.value.data
-                                                );
+                 );
               // The verification call succeeded and the value it returned was true
               // (indicating valid signature)
               && signatureVerifiedResult.Success?
@@ -189,7 +189,7 @@ module {:extern "EncryptDecryptHelpers"} EncryptDecryptHelpers {
                      //# next encrypted message bytes as the message footer (../data-format/
                      //# message-footer.md).
                      .ReadShortLengthSeq(buffer)
-                     .MapFailure(MapSerializeFailure(": ReadShortLengthSeq"));
+    .MapFailure(MapSerializeFailure(": ReadShortLengthSeq"));
 
     var ecdsaParams := Client.SpecificationClient().GetSuite(decMat.algorithmSuiteId).signature.curve;
 
@@ -208,7 +208,7 @@ module {:extern "EncryptDecryptHelpers"} EncryptDecryptHelpers {
                                                     //#   body (../data-format/message-body.md).
                                                     msg,
                                                     signature.data
-                                   );
+    );
 
     if (!signatureVerifiedResult) {
       return Failure("Invalid signature");
