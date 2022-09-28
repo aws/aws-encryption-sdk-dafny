@@ -37,8 +37,8 @@ module
 
   class RawAESKeyring
     extends
-    Keyring.VerifiableInterface,
-    Crypto.IKeyring
+      Keyring.VerifiableInterface,
+      Crypto.IKeyring
   {
     const keyNamespace: UTF8.ValidUTF8Bytes
     const keyName: UTF8.ValidUTF8Bytes

@@ -258,9 +258,9 @@ module
    */
   class AwsKmsEncryptedDataKeyFilter
     extends ActionWithResult<
-    Crypto.EncryptedDataKey,
-    bool,
-    string
+      Crypto.EncryptedDataKey,
+      bool,
+      string
     >
   {
     const discoveryFilter: Option<Crypto.DiscoveryFilter>
@@ -344,9 +344,9 @@ module
    */
   class AwsKmsEncryptedDataKeyTransformer
     extends ActionWithResult<
-    Crypto.EncryptedDataKey,
-    seq<AwsKmsEdkHelper>,
-    string
+      Crypto.EncryptedDataKey,
+      seq<AwsKmsEdkHelper>,
+      string
     >
   {
     constructor() {}
@@ -397,9 +397,9 @@ module
    */
   class AwsKmsEncryptedDataKeyDecryptor
     extends ActionWithResult<
-    AwsKmsEdkHelper,
-    Materials.SealedDecryptionMaterials,
-    string>
+      AwsKmsEdkHelper,
+      Materials.SealedDecryptionMaterials,
+      string>
   {
     const materials: Materials.DecryptionMaterialsPendingPlaintextDataKey
     const client: KMS.IKeyManagementServiceClient

@@ -569,9 +569,9 @@ module
 
   class DecryptSingleEncryptedDataKey
     extends ActionWithResult<
-    Crypto.EncryptedDataKey,
-    Materials.SealedDecryptionMaterials,
-    string>
+      Crypto.EncryptedDataKey,
+      Materials.SealedDecryptionMaterials,
+      string>
   {
     const materials: Materials.DecryptionMaterialsPendingPlaintextDataKey
     const client: KMS.IKeyManagementServiceClient

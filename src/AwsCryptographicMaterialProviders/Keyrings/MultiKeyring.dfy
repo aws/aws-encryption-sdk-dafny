@@ -22,8 +22,8 @@ module
 
   class MultiKeyring
     extends
-    Keyring.VerifiableInterface,
-    Crypto.IKeyring
+      Keyring.VerifiableInterface,
+      Crypto.IKeyring
   {
     const generatorKeyring: Option<Crypto.IKeyring>
     const childKeyrings: seq<Crypto.IKeyring>

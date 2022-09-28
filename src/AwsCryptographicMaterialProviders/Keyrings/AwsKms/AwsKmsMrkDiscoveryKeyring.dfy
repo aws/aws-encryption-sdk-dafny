@@ -289,9 +289,9 @@ module
 
   class AwsKmsEncryptedDataKeyFilterTransform
     extends ActionWithResult<
-    Crypto.EncryptedDataKey,
-    seq<AwsKmsEdkHelper>,
-    string
+      Crypto.EncryptedDataKey,
+      seq<AwsKmsEdkHelper>,
+      string
     >
   {
     const region: string
@@ -369,9 +369,9 @@ module
    */
   class AwsKmsEncryptedDataKeyDecryptor
     extends ActionWithResult<
-    AwsKmsEdkHelper,
-    Materials.SealedDecryptionMaterials,
-    string>
+      AwsKmsEdkHelper,
+      Materials.SealedDecryptionMaterials,
+      string>
   {
     const materials: Materials.DecryptionMaterialsPendingPlaintextDataKey
     const client: KMS.IKeyManagementServiceClient
