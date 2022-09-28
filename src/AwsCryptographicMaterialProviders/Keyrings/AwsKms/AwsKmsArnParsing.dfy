@@ -15,9 +15,9 @@ module  AwsKmsArnParsing {
   const MAX_AWS_KMS_IDENTIFIER_LENGTH := 2048
 
   datatype AwsResource = AwsResource(
-                           resourceType: string,
-                           value: string
-                         ) {
+    resourceType: string,
+    value: string
+  ) {
     predicate method Valid()
     {
       && 0 < |value|
@@ -33,13 +33,13 @@ module  AwsKmsArnParsing {
   }
 
   datatype AwsArn = AwsArn(
-                      arnLiteral: string,
-                      partition: string,
-                      service: string,
-                      region: string,
-                      account: string,
-                      resource: AwsResource
-                    ) {
+    arnLiteral: string,
+    partition: string,
+    service: string,
+    region: string,
+    account: string,
+    resource: AwsResource
+  ) {
     predicate method Valid()
     {
       && arnLiteral == "arn"

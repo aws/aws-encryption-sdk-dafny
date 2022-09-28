@@ -15,37 +15,37 @@ module {:extern "Dafny.Aws.EncryptionSdk"} Aws.Esdk {
   // auto-generated
 
   datatype EncryptInput = EncryptInput(
-                            //= compliance/client-apis/encrypt.txt#2.4
-                            //= type=implication
-                            //# The following inputs to this behavior are REQUIRED:
-                            //# *  Plaintext (Section 2.4.1)
+    //= compliance/client-apis/encrypt.txt#2.4
+    //= type=implication
+    //# The following inputs to this behavior are REQUIRED:
+    //# *  Plaintext (Section 2.4.1)
 
-                            //= compliance/client-apis/encrypt.txt#2.4.1
-                            //= type=implication
-                            //# This MUST be a sequence of bytes.
-                            nameonly plaintext: seq<uint8>,
-                            nameonly encryptionContext: Option<Crypto.EncryptionContext>,
-                            nameonly materialsManager: Option<Crypto.ICryptographicMaterialsManager>,
-                            nameonly keyring: Option<Crypto.IKeyring>,
+    //= compliance/client-apis/encrypt.txt#2.4.1
+    //= type=implication
+    //# This MUST be a sequence of bytes.
+    nameonly plaintext: seq<uint8>,
+    nameonly encryptionContext: Option<Crypto.EncryptionContext>,
+    nameonly materialsManager: Option<Crypto.ICryptographicMaterialsManager>,
+    nameonly keyring: Option<Crypto.IKeyring>,
 
-                            //= compliance/client-apis/encrypt.txt#2.4
-                            //# The following inputs to this behavior MUST be OPTIONAL:
-                            //# *  Algorithm Suite (Section 2.4.5)
-                            //# *  Encryption Context (Section 2.4.2)
-                            //# *  Frame Length (Section 2.4.6)
-                            nameonly algorithmSuiteId: Option<Crypto.AlgorithmSuiteId>,
-                            nameonly frameLength: Option<int64>
-                          )
+    //= compliance/client-apis/encrypt.txt#2.4
+    //# The following inputs to this behavior MUST be OPTIONAL:
+    //# *  Algorithm Suite (Section 2.4.5)
+    //# *  Encryption Context (Section 2.4.2)
+    //# *  Frame Length (Section 2.4.6)
+    nameonly algorithmSuiteId: Option<Crypto.AlgorithmSuiteId>,
+    nameonly frameLength: Option<int64>
+  )
 
   datatype EncryptOutput = EncryptOutput(
-                             //= compliance/client-apis/encrypt.txt#2.5.1
-                             //# This MUST
-                             //# be a sequence of bytes and conform to the message format
-                             //# specification (../data-format/message.md).
-                             nameonly ciphertext: seq<uint8>,
-                             nameonly encryptionContext: Crypto.EncryptionContext,
-                             nameonly algorithmSuiteId: Crypto.AlgorithmSuiteId
-                           )
+    //= compliance/client-apis/encrypt.txt#2.5.1
+    //# This MUST
+    //# be a sequence of bytes and conform to the message format
+    //# specification (../data-format/message.md).
+    nameonly ciphertext: seq<uint8>,
+    nameonly encryptionContext: Crypto.EncryptionContext,
+    nameonly algorithmSuiteId: Crypto.AlgorithmSuiteId
+  )
 
   //= compliance/client-apis/decrypt.txt#2.5
   //= type=implication
@@ -61,10 +61,10 @@ module {:extern "Dafny.Aws.EncryptionSdk"} Aws.Esdk {
   // an ESDK message, but fail to Decrypt if it is not.
   // TODO: Update Spec accordingly
   datatype DecryptInput = DecryptInput(
-                            nameonly ciphertext: seq<uint8>,
-                            nameonly materialsManager: Option<Crypto.ICryptographicMaterialsManager>,
-                            nameonly keyring: Option<Crypto.IKeyring>
-                          )
+    nameonly ciphertext: seq<uint8>,
+    nameonly materialsManager: Option<Crypto.ICryptographicMaterialsManager>,
+    nameonly keyring: Option<Crypto.IKeyring>
+  )
 
   //= compliance/client-apis/decrypt.txt#2.6
   //= type=implication
@@ -92,15 +92,15 @@ module {:extern "Dafny.Aws.EncryptionSdk"} Aws.Esdk {
   //# The client SHOULD return as an output:
   //#*  Parsed Header (Section 2.6.4)
   datatype DecryptOutput = DecryptOutput(
-                             nameonly plaintext: seq<uint8>,
-                             nameonly encryptionContext: Crypto.EncryptionContext,
-                             nameonly algorithmSuiteId: Crypto.AlgorithmSuiteId
-                           )
+    nameonly plaintext: seq<uint8>,
+    nameonly encryptionContext: Crypto.EncryptionContext,
+    nameonly algorithmSuiteId: Crypto.AlgorithmSuiteId
+  )
 
   datatype AwsEncryptionSdkConfig = AwsEncryptionSdkConfig(
-                                      nameonly commitmentPolicy: Option<Crypto.CommitmentPolicy>,
-                                      nameonly maxEncryptedDataKeys: Option<int64>
-                                    )
+    nameonly commitmentPolicy: Option<Crypto.CommitmentPolicy>,
+    nameonly maxEncryptedDataKeys: Option<int64>
+  )
 
   trait {:termination false} IAwsEncryptionSdkFactory {
     method CreateAwsEncryptionSdk(input: AwsEncryptionSdkConfig) returns (res: Result<IAwsEncryptionSdk, IAwsEncryptionSdkException>)

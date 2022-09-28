@@ -30,17 +30,17 @@ module SerializeFunctions {
   // and the position to start reading withing these bytes.
   // This data structure represents this information.
   datatype ReadableBuffer = ReadableBuffer(
-                              bytes: seq<uint8>,
-                              start: nat
-                            )
+    bytes: seq<uint8>,
+    start: nat
+  )
 
   // This holds the data from a successful read.
   // The `data` is the read type,
   // and the `tail` is the remaining data left to be read.
   datatype SuccessfulRead<T> = SuccessfulRead(
-                                 data: T,
-                                 tail: ReadableBuffer
-                               )
+    data: T,
+    tail: ReadableBuffer
+  )
 
   type ReadResult<T, E> = Result<SuccessfulRead<T>, E>
   type ReadCorrect<T> = ReadResult<T, ReadProblems>

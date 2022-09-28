@@ -86,9 +86,9 @@ module HeaderTypes {
 
   datatype HeaderAuth =
     | AESMac(
-        nameonly headerIv: seq<uint8>,
-        nameonly headerAuthTag: seq<uint8>
-      )
+    nameonly headerIv: seq<uint8>,
+    nameonly headerAuthTag: seq<uint8>
+  )
 
   datatype MessageType =
     | TYPE_CUSTOMER_AED

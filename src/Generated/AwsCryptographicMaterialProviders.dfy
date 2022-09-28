@@ -226,26 +226,26 @@ module {:extern "Dafny.Aws.EncryptionSdk.Core"} Aws.Crypto {
   //////////////
   // cmms.smithy
   datatype GetEncryptionMaterialsInput = GetEncryptionMaterialsInput(
-                                           nameonly encryptionContext: EncryptionContext,
-                                           nameonly commitmentPolicy: CommitmentPolicy,
-                                           nameonly algorithmSuiteId: Option<AlgorithmSuiteId>,
-                                           nameonly maxPlaintextLength: Option<int64>
-                                         )
+    nameonly encryptionContext: EncryptionContext,
+    nameonly commitmentPolicy: CommitmentPolicy,
+    nameonly algorithmSuiteId: Option<AlgorithmSuiteId>,
+    nameonly maxPlaintextLength: Option<int64>
+  )
 
   datatype GetEncryptionMaterialsOutput = GetEncryptionMaterialsOutput(
-                                            nameonly encryptionMaterials: EncryptionMaterials
-                                          )
+    nameonly encryptionMaterials: EncryptionMaterials
+  )
 
   datatype DecryptMaterialsInput = DecryptMaterialsInput(
-                                     nameonly algorithmSuiteId: AlgorithmSuiteId,
-                                     nameonly commitmentPolicy: CommitmentPolicy,
-                                     nameonly encryptedDataKeys: EncryptedDataKeyList,
-                                     nameonly encryptionContext: EncryptionContext
-                                   )
+    nameonly algorithmSuiteId: AlgorithmSuiteId,
+    nameonly commitmentPolicy: CommitmentPolicy,
+    nameonly encryptedDataKeys: EncryptedDataKeyList,
+    nameonly encryptionContext: EncryptionContext
+  )
 
   datatype DecryptMaterialsOutput = DecryptMaterialsOutput(
-                                      nameonly decryptionMaterials: DecryptionMaterials
-                                    )
+    nameonly decryptionMaterials: DecryptionMaterials
+  )
 
   trait {:termination false} ICryptographicMaterialsManager {
     method GetEncryptionMaterials(input: GetEncryptionMaterialsInput)
@@ -258,90 +258,90 @@ module {:extern "Dafny.Aws.EncryptionSdk.Core"} Aws.Crypto {
 
   // KMS
   datatype CreateAwsKmsKeyringInput = CreateAwsKmsKeyringInput(
-                                        nameonly kmsKeyId: KmsKeyId,
-                                        nameonly kmsClient: KMS.IKeyManagementServiceClient,
-                                        nameonly grantTokens: Option<GrantTokenList>
-                                      )
+    nameonly kmsKeyId: KmsKeyId,
+    nameonly kmsClient: KMS.IKeyManagementServiceClient,
+    nameonly grantTokens: Option<GrantTokenList>
+  )
 
   datatype CreateAwsKmsMultiKeyringInput = CreateAwsKmsMultiKeyringInput(
-                                             nameonly generator: Option<KmsKeyId>,
-                                             nameonly kmsKeyIds: Option<KmsKeyIdList>,
-                                             nameonly clientSupplier: Option<IClientSupplier>,
-                                             nameonly grantTokens: Option<GrantTokenList>
-                                           )
+    nameonly generator: Option<KmsKeyId>,
+    nameonly kmsKeyIds: Option<KmsKeyIdList>,
+    nameonly clientSupplier: Option<IClientSupplier>,
+    nameonly grantTokens: Option<GrantTokenList>
+  )
 
   // KMS - Discovery
   datatype CreateAwsKmsDiscoveryKeyringInput = CreateAwsKmsDiscoveryKeyringInput(
-                                                 nameonly kmsClient: KMS.IKeyManagementServiceClient,
-                                                 nameonly discoveryFilter: Option<DiscoveryFilter>,
-                                                 grantTokens: Option<GrantTokenList>
-                                               )
+    nameonly kmsClient: KMS.IKeyManagementServiceClient,
+    nameonly discoveryFilter: Option<DiscoveryFilter>,
+    grantTokens: Option<GrantTokenList>
+  )
 
   datatype CreateAwsKmsDiscoveryMultiKeyringInput = CreateAwsKmsDiscoveryMultiKeyringInput(
-                                                      nameonly regions: RegionList,
-                                                      nameonly discoveryFilter: Option<DiscoveryFilter>,
-                                                      nameonly clientSupplier: Option<IClientSupplier>,
-                                                      nameonly grantTokens: Option<GrantTokenList>
-                                                    )
+    nameonly regions: RegionList,
+    nameonly discoveryFilter: Option<DiscoveryFilter>,
+    nameonly clientSupplier: Option<IClientSupplier>,
+    nameonly grantTokens: Option<GrantTokenList>
+  )
 
 
   // KMS - MRK Aware, Strict
   datatype CreateAwsKmsMrkKeyringInput = CreateAwsKmsMrkKeyringInput(
-                                           nameonly kmsKeyId: KmsKeyId,
-                                           nameonly kmsClient: KMS.IKeyManagementServiceClient,
-                                           nameonly grantTokens: Option<GrantTokenList>
-                                         )
+    nameonly kmsKeyId: KmsKeyId,
+    nameonly kmsClient: KMS.IKeyManagementServiceClient,
+    nameonly grantTokens: Option<GrantTokenList>
+  )
 
   datatype CreateAwsKmsMrkMultiKeyringInput = CreateAwsKmsMrkMultiKeyringInput(
-                                                nameonly generator: Option<KmsKeyId>,
-                                                nameonly kmsKeyIds: Option<KmsKeyIdList>,
-                                                nameonly clientSupplier: Option<IClientSupplier>,
-                                                nameonly grantTokens: Option<GrantTokenList>
-                                              )
+    nameonly generator: Option<KmsKeyId>,
+    nameonly kmsKeyIds: Option<KmsKeyIdList>,
+    nameonly clientSupplier: Option<IClientSupplier>,
+    nameonly grantTokens: Option<GrantTokenList>
+  )
 
   // KMS - MRK Aware, Discovery
   datatype CreateAwsKmsMrkDiscoveryKeyringInput = CreateAwsKmsMrkDiscoveryKeyringInput(
-                                                    nameonly kmsClient: KMS.IKeyManagementServiceClient,
-                                                    nameonly discoveryFilter: Option<DiscoveryFilter>,
-                                                    nameonly grantTokens: Option<GrantTokenList>,
-                                                    nameonly region: string
-                                                  )
+    nameonly kmsClient: KMS.IKeyManagementServiceClient,
+    nameonly discoveryFilter: Option<DiscoveryFilter>,
+    nameonly grantTokens: Option<GrantTokenList>,
+    nameonly region: string
+  )
 
   datatype CreateAwsKmsMrkDiscoveryMultiKeyringInput = CreateAwsKmsMrkDiscoveryMultiKeyringInput(
-                                                         nameonly regions: RegionList,
-                                                         nameonly discoveryFilter: Option<DiscoveryFilter>,
-                                                         nameonly clientSupplier: Option<IClientSupplier>,
-                                                         nameonly grantTokens: Option<GrantTokenList>
-                                                       )
+    nameonly regions: RegionList,
+    nameonly discoveryFilter: Option<DiscoveryFilter>,
+    nameonly clientSupplier: Option<IClientSupplier>,
+    nameonly grantTokens: Option<GrantTokenList>
+  )
 
   // Multi
   datatype CreateMultiKeyringInput = CreateMultiKeyringInput(
-                                       nameonly generator: Option<IKeyring>,
-                                       nameonly childKeyrings: seq<IKeyring>
-                                     )
+    nameonly generator: Option<IKeyring>,
+    nameonly childKeyrings: seq<IKeyring>
+  )
 
   // Raw Keyrings
   datatype CreateRawAesKeyringInput = CreateRawAesKeyringInput(
-                                        nameonly keyNamespace: string,
-                                        nameonly keyName: string,
-                                        nameonly wrappingKey: seq<uint8>,
-                                        // TODO update spec with wrappingAlg input to Raw AES Keyring init
-                                        nameonly wrappingAlg: AesWrappingAlg
-                                      )
+    nameonly keyNamespace: string,
+    nameonly keyName: string,
+    nameonly wrappingKey: seq<uint8>,
+    // TODO update spec with wrappingAlg input to Raw AES Keyring init
+    nameonly wrappingAlg: AesWrappingAlg
+  )
 
   datatype CreateRawRsaKeyringInput = CreateRawRsaKeyringInput(
-                                        nameonly keyNamespace: string,
-                                        nameonly keyName: string,
-                                        nameonly paddingScheme: PaddingScheme,
-                                        nameonly publicKey: Option<seq<uint8>>,
-                                        nameonly privateKey: Option<seq<uint8>>
-                                      )
+    nameonly keyNamespace: string,
+    nameonly keyName: string,
+    nameonly paddingScheme: PaddingScheme,
+    nameonly publicKey: Option<seq<uint8>>,
+    nameonly privateKey: Option<seq<uint8>>
+  )
 
   // CMM Creation input structures
 
   datatype CreateDefaultCryptographicMaterialsManagerInput = CreateDefaultCryptographicMaterialsManagerInput(
-                                                               nameonly keyring: IKeyring
-                                                             )
+    nameonly keyring: IKeyring
+  )
 
   trait {:termination false} IAwsCryptographicMaterialProvidersFactory {
     method CreateDefaultAwsCryptographicMaterialProviders()

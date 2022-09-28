@@ -23,9 +23,9 @@ module {:extern "KeyDerivation"} KeyDerivation {
   // Convenience container to hold both a data key and an optional commitment key
   // to support algorithm suites that provide commitment and those that do not
   datatype ExpandedKeyMaterial = ExpandedKeyMaterial(
-                                   nameonly dataKey: seq<uint8>,
-                                   nameonly commitmentKey: Option<seq<uint8>>
-                                 )
+    nameonly dataKey: seq<uint8>,
+    nameonly commitmentKey: Option<seq<uint8>>
+  )
 
   /*
    * Derives a single data key from an input plaintext data key, using "v1"-style

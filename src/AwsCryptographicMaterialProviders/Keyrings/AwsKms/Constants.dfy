@@ -29,7 +29,7 @@ module Constants {
    * format makes our lives easier.
    */
   datatype AwsKmsEdkHelper = AwsKmsEdkHelper(
-                               edk: AwsKmsEncryptedDataKey,
-                               arn: AwsKmsArnParsing.AwsKmsArn
-                             )
+    edk: AwsKmsEncryptedDataKey,
+    arn: AwsKmsArnParsing.AwsKmsArn
+  )
 }

@@ -24,10 +24,10 @@ module {:extern "AESEncryption"} AESEncryption {
   type IVLength = l: uint8 | l == 12 witness 12
 
   datatype AES_GCM = AES_GCM(
-                       nameonly keyLength: KeyLength,
-                       nameonly tagLength: TagLength,
-                       nameonly ivLength: IVLength
-                     )
+    nameonly keyLength: KeyLength,
+    nameonly tagLength: TagLength,
+    nameonly ivLength: IVLength
+  )
 
   datatype EncryptionOutput = EncryptionOutput(cipherText: seq<uint8>, authTag: seq<uint8>)
 

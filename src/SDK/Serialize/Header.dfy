@@ -35,12 +35,12 @@ module Header {
   import opened SerializeFunctions
 
   datatype HeaderInfo = HeaderInfo(
-                          nameonly body: HeaderTypes.HeaderBody,
-                          nameonly rawHeader: seq<uint8>,
-                          nameonly encryptionContext: ESDKEncryptionContext,
-                          nameonly suite: Client.AlgorithmSuites.AlgorithmSuite,
-                          nameonly headerAuth: HeaderTypes.HeaderAuth
-                        )
+    nameonly body: HeaderTypes.HeaderBody,
+    nameonly rawHeader: seq<uint8>,
+    nameonly encryptionContext: ESDKEncryptionContext,
+    nameonly suite: Client.AlgorithmSuites.AlgorithmSuite,
+    nameonly headerAuth: HeaderTypes.HeaderAuth
+  )
 
   predicate IsHeader(h: HeaderInfo)
   {

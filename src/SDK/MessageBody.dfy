@@ -180,12 +180,12 @@ module MessageBody {
   type NonFramedMessage = Frames.NonFramed
 
   datatype FramedMessageBody = FramedMessageBody(
-                                 regularFrames: MessageRegularFrames,
-                                 //= compliance/data-format/message-body.txt#2.5.2.2
-                                 //= type=implication
-                                 //# Framed data MUST contain exactly one final frame.
-                                 finalFrame: Frames.FinalFrame
-                               )
+    regularFrames: MessageRegularFrames,
+    //= compliance/data-format/message-body.txt#2.5.2.2
+    //= type=implication
+    //# Framed data MUST contain exactly one final frame.
+    finalFrame: Frames.FinalFrame
+  )
 
   type FramedMessage = body: FramedMessageBody
     |

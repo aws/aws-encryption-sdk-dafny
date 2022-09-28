@@ -81,19 +81,19 @@ module
   // TODO: may need to also bring iv length and header auth iv into this definition.
   // For now, hard-coding elsewhere
   datatype AlgorithmSuiteInfo = AlgorithmSuiteInfo(
-                                  //= compliance/client-apis/encrypt.txt#2.6.2
-                                  //= type=implication
-                                  //# The message
-                                  //# format version (../data-format/message-header.md#supported-versions)
-                                  //# MUST be associated with the algorithm suite (../framework/algorithm-
-                                  //# suites.md#supported-algorithm-suites).
-                                  nameonly messageVersion: int,
-                                  nameonly id: Crypto.AlgorithmSuiteId,
-                                  nameonly encrypt: AESEncryption.AES_GCM,
-                                  nameonly kdf: KeyDerivationAlgorithm,
-                                  nameonly commitment: CommitmentDerivationAlgorithm,
-                                  nameonly signature: SignatureAlgorithm
-                                )
+    //= compliance/client-apis/encrypt.txt#2.6.2
+    //= type=implication
+    //# The message
+    //# format version (../data-format/message-header.md#supported-versions)
+    //# MUST be associated with the algorithm suite (../framework/algorithm-
+    //# suites.md#supported-algorithm-suites).
+    nameonly messageVersion: int,
+    nameonly id: Crypto.AlgorithmSuiteId,
+    nameonly encrypt: AESEncryption.AES_GCM,
+    nameonly kdf: KeyDerivationAlgorithm,
+    nameonly commitment: CommitmentDerivationAlgorithm,
+    nameonly signature: SignatureAlgorithm
+  )
 
   type AlgorithmSuite = a: AlgorithmSuiteInfo |
       // General constraints for all existing Algorithm Suites.
