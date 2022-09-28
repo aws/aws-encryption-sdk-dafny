@@ -63,15 +63,15 @@ module  AwsKmsArnParsing {
       match customRegion {
         case None => ToArnString(Some(region))
         case Some(customRegion) => Join(
-                                     [
-                                       arnLiteral,
-                                       partition,
-                                       service,
-                                       customRegion,
-                                       account,
-                                       resource.ToString()
-                                     ],
-                                     ":")
+          [
+            arnLiteral,
+            partition,
+            service,
+            customRegion,
+            account,
+            resource.ToString()
+          ],
+          ":")
       }
     }
   }

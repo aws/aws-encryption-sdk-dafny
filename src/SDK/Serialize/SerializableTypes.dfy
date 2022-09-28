@@ -145,8 +145,8 @@ module SerializableTypes {
     i
     requires 0 <= i < |keys|
     => Pair(
-         keys[i],
-         encryptionContext[keys[i]]))
+      keys[i],
+      encryptionContext[keys[i]]))
   }
 
   function method {:tailrecursion} LinearLength(

@@ -224,29 +224,29 @@ module
       );
 
       var result := match outcome {
-                      case Success(mat) =>
-                        assert exists helper: AwsKmsEdkHelper | helper in edksToAttempt
-                          ::
-                            && helper.edk in encryptedDataKeys
-                            && decryptAction.Ensures(helper, Success(mat));
-                        Success(Crypto.OnDecryptOutput(materials := mat))
+        case Success(mat) =>
+          assert exists helper: AwsKmsEdkHelper | helper in edksToAttempt
+            ::
+              && helper.edk in encryptedDataKeys
+              && decryptAction.Ensures(helper, Success(mat));
+          Success(Crypto.OnDecryptOutput(materials := mat))
 
-                      //= compliance/framework/aws-kms/aws-kms-discovery-keyring.txt#2.8
-                      //# If OnDecrypt fails to successfully decrypt any encrypted data key
-                      //# (../structures.md#encrypted-data-key), then it MUST yield an error that
-                      //# includes all collected errors.
-                      case Failure(errors) =>
-                        if |errors| == 0 then
-                          Failure("Unable to decrypt data key: No Encrypted Data Keys found to match.")
-                        else
-                          var concatString := (s, a) => a + "\n" + s;
-                          var error := Seq.FoldRight(
-                            concatString,
-                            errors,
-                            "Unable to decrypt data key:\n"
-                          );
-                          Failure(error)
-                    };
+        //= compliance/framework/aws-kms/aws-kms-discovery-keyring.txt#2.8
+        //# If OnDecrypt fails to successfully decrypt any encrypted data key
+        //# (../structures.md#encrypted-data-key), then it MUST yield an error that
+        //# includes all collected errors.
+        case Failure(errors) =>
+          if |errors| == 0 then
+            Failure("Unable to decrypt data key: No Encrypted Data Keys found to match.")
+          else
+            var concatString := (s, a) => a + "\n" + s;
+            var error := Seq.FoldRight(
+              concatString,
+              errors,
+              "Unable to decrypt data key:\n"
+            );
+            Failure(error)
+      };
       var wrappedResult := Crypto.AwsCryptographicMaterialProvidersException.WrapResultString(result);
       return wrappedResult;
     }

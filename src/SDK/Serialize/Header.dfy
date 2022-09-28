@@ -128,15 +128,15 @@ module Header {
     var version :- SharedHeaderFunctions.ReadMessageFormatVersion(buffer);
 
     var (body, tail) :- match version.data {
-                          case V1 =>
-                            var b :- V1HeaderBody.ReadV1HeaderBody(buffer, maxEdks);
-                            var body: HeaderTypes.HeaderBody := b.data;
-                            Success((body, b.tail))
-                          case V2 =>
-                            var b :- V2HeaderBody.ReadV2HeaderBody(buffer, maxEdks);
-                            var body: HeaderTypes.HeaderBody := b.data;
-                            Success((body, b.tail))
-                        };
+      case V1 =>
+        var b :- V1HeaderBody.ReadV1HeaderBody(buffer, maxEdks);
+        var body: HeaderTypes.HeaderBody := b.data;
+        Success((body, b.tail))
+      case V2 =>
+        var b :- V2HeaderBody.ReadV2HeaderBody(buffer, maxEdks);
+        var body: HeaderTypes.HeaderBody := b.data;
+        Success((body, b.tail))
+    };
 
     :- Need(body.contentType.Framed? <==> body.frameLength > 0,
             Error("Frame length must be positive if content is framed"));

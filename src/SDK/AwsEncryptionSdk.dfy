@@ -430,9 +430,9 @@ module {:extern "Dafny.Aws.EncryptionSdk.AwsEncryptionSdk"} AwsEncryptionSdk {
       //# encryption-materials) on a CMM (../framework/cmm-interface.md).
       var getEncMatResult := cmm.GetEncryptionMaterials(encMatRequest);
       var output :- match getEncMatResult {
-                      case Success(value) => Success(value)
-                      case Failure(exception) => Failure(exception.GetMessage())
-                    };
+        case Success(value) => Success(value)
+        case Failure(exception) => Failure(exception.GetMessage())
+      };
 
       var materials := output.encryptionMaterials;
 
@@ -1107,9 +1107,9 @@ module {:extern "Dafny.Aws.EncryptionSdk.AwsEncryptionSdk"} AwsEncryptionSdk {
       );
       var decMatResult := cmm.DecryptMaterials(decMatRequest);
       var output :- match decMatResult {
-                      case Success(value) => Success(value)
-                      case Failure(exception) => Failure(exception.GetMessage())
-                    };
+        case Success(value) => Success(value)
+        case Failure(exception) => Failure(exception.GetMessage())
+      };
       var decMat := output.decryptionMaterials;
 
       // Validate decryption materials

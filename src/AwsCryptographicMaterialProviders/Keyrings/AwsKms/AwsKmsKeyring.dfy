@@ -566,31 +566,31 @@ module
       ghost var stringifiedEncCtx :- Crypto.AwsCryptographicMaterialProvidersException.WrapResultString(
         stringifiedEncCtxResult);
       var result := match outcome {
-                      case Success(mat) =>
-                        assert exists edk | edk in edksToAttempt
-                          ::
-                            && edk in input.encryptedDataKeys
-                            && filter.Ensures(edk, Success(true))
-                            && decryptClosure.Ensures(edk, Success(mat));
-                        Success(Crypto.OnDecryptOutput(
-                                  materials := mat
-                                ))
-                      //= compliance/framework/aws-kms/aws-kms-keyring.txt#2.8
-                      //# If OnDecrypt fails to successfully decrypt any encrypted data key
-                      //# (../structures.md#encrypted-data-key), then it MUST yield an error
-                      //# that includes all the collected errors.
-                      case Failure(errors) =>
-                        if |errors| == 0 then
-                          Failure("Unable to decrypt data key: No Encrypted Data Keys found to match.")
-                        else
-                          var concatString := (s, a) => a + "\n" + s;
-                          var error := Seq.FoldRight(
-                            concatString,
-                            errors,
-                            "Unable to decrypt data key:\n"
-                          );
-                          Failure(error)
-                    };
+        case Success(mat) =>
+          assert exists edk | edk in edksToAttempt
+            ::
+              && edk in input.encryptedDataKeys
+              && filter.Ensures(edk, Success(true))
+              && decryptClosure.Ensures(edk, Success(mat));
+          Success(Crypto.OnDecryptOutput(
+                    materials := mat
+                  ))
+        //= compliance/framework/aws-kms/aws-kms-keyring.txt#2.8
+        //# If OnDecrypt fails to successfully decrypt any encrypted data key
+        //# (../structures.md#encrypted-data-key), then it MUST yield an error
+        //# that includes all the collected errors.
+        case Failure(errors) =>
+          if |errors| == 0 then
+            Failure("Unable to decrypt data key: No Encrypted Data Keys found to match.")
+          else
+            var concatString := (s, a) => a + "\n" + s;
+            var error := Seq.FoldRight(
+              concatString,
+              errors,
+              "Unable to decrypt data key:\n"
+            );
+            Failure(error)
+      };
       var wrapped := Crypto.AwsCryptographicMaterialProvidersException.WrapResultString(result);
       return wrapped;
     }

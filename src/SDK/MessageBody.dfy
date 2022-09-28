@@ -596,76 +596,76 @@ module MessageBody {
     returns (aad: seq<uint8>)
   {
     var (sequenceNumber, bc, length) := match frame
-                                        case RegularFrame(header,seqNum,_,_,_) => (
-                                        //= compliance/data-format/message-body-aad.txt#2.4.3
-                                        //# For framed data (message-body.md#framed-data), the value of this
-                                        //# field MUST be the frame sequence number (message-body.md#sequence-
-                                        //# number).
-                                        seqNum,
+      case RegularFrame(header,seqNum,_,_,_) => (
+      //= compliance/data-format/message-body-aad.txt#2.4.3
+      //# For framed data (message-body.md#framed-data), the value of this
+      //# field MUST be the frame sequence number (message-body.md#sequence-
+      //# number).
+      seqNum,
 
-                                        //= compliance/data-format/message-body-aad.txt#2.4.2
-                                        //# *  The regular frames (message-body.md#regular-frame) in framed data
-                                        //# (message-body.md#framed-data) MUST use the value
-                                        //# "AWSKMSEncryptionClient Frame".
-                                        AADRegularFrame,
+      //= compliance/data-format/message-body-aad.txt#2.4.2
+      //# *  The regular frames (message-body.md#regular-frame) in framed data
+      //# (message-body.md#framed-data) MUST use the value
+      //# "AWSKMSEncryptionClient Frame".
+      AADRegularFrame,
 
-                                        //= compliance/data-format/message-body-aad.txt#2.4.4
-                                        //# *  For framed data (message-body.md#framed-data), this value MUST
-                                        //# equal the length, in bytes, of the plaintext being encrypted in
-                                        //# this frame.
+      //= compliance/data-format/message-body-aad.txt#2.4.4
+      //# *  For framed data (message-body.md#framed-data), this value MUST
+      //# equal the length, in bytes, of the plaintext being encrypted in
+      //# this frame.
 
-                                        //= compliance/data-format/message-body-aad.txt#2.4.4
-                                        //# -  For regular frames (message-body.md#regular-frame), this value
-                                        //# MUST equal the value of the frame length (message-
-                                        //# header.md#frame-length) field in the message header.
-                                        header.body.frameLength as uint64
-                                        )
-                                        case FinalFrame(_,seqNum,_, encContent,_) => (
-                                        //= compliance/data-format/message-body-aad.txt#2.4.3
-                                        //# For framed data (message-body.md#framed-data), the value of this
-                                        //# field MUST be the frame sequence number (message-body.md#sequence-
-                                        //# number).
-                                        seqNum,
+      //= compliance/data-format/message-body-aad.txt#2.4.4
+      //# -  For regular frames (message-body.md#regular-frame), this value
+      //# MUST equal the value of the frame length (message-
+      //# header.md#frame-length) field in the message header.
+      header.body.frameLength as uint64
+      )
+      case FinalFrame(_,seqNum,_, encContent,_) => (
+      //= compliance/data-format/message-body-aad.txt#2.4.3
+      //# For framed data (message-body.md#framed-data), the value of this
+      //# field MUST be the frame sequence number (message-body.md#sequence-
+      //# number).
+      seqNum,
 
-                                        //= compliance/data-format/message-body-aad.txt#2.4.2
-                                        //# *  The final frame (message-body.md#final-frame) in framed data
-                                        //# (message-body.md#framed-data) MUST use the value
-                                        //# "AWSKMSEncryptionClient Final Frame".
-                                        AADFinalFrame,
+      //= compliance/data-format/message-body-aad.txt#2.4.2
+      //# *  The final frame (message-body.md#final-frame) in framed data
+      //# (message-body.md#framed-data) MUST use the value
+      //# "AWSKMSEncryptionClient Final Frame".
+      AADFinalFrame,
 
-                                        //= compliance/data-format/message-body-aad.txt#2.4.4
-                                        //# *  For framed data (message-body.md#framed-data), this value MUST
-                                        //# equal the length, in bytes, of the plaintext being encrypted in
-                                        //# this frame.
+      //= compliance/data-format/message-body-aad.txt#2.4.4
+      //# *  For framed data (message-body.md#framed-data), this value MUST
+      //# equal the length, in bytes, of the plaintext being encrypted in
+      //# this frame.
 
-                                        //= compliance/data-format/message-body-aad.txt#2.4.4
-                                        //# -  For the final frame (message-body.md#final-frame), this value
-                                        //# MUST be greater than or equal to 0 and less than or equal to
-                                        //# the value of the frame length (message-header.md#frame-length)
-                                        //# field in the message header.
-                                        |encContent| as uint64
-                                        )
-                                        case NonFramed(_,_,encContent,_) => (
-                                        //= compliance/client-apis/decrypt.txt#2.7.4
-                                        //# If this is un-framed data,
-                                        //# this value MUST be 1.
+      //= compliance/data-format/message-body-aad.txt#2.4.4
+      //# -  For the final frame (message-body.md#final-frame), this value
+      //# MUST be greater than or equal to 0 and less than or equal to
+      //# the value of the frame length (message-header.md#frame-length)
+      //# field in the message header.
+      |encContent| as uint64
+      )
+      case NonFramed(_,_,encContent,_) => (
+      //= compliance/client-apis/decrypt.txt#2.7.4
+      //# If this is un-framed data,
+      //# this value MUST be 1.
 
-                                        //= compliance/data-format/message-body-aad.txt#2.4.3
-                                        //# For non-framed data (message-body.md#non-framed-data), the
-                                        //# value of this field MUST be "1".
-                                        NONFRAMED_SEQUENCE_NUMBER,
+      //= compliance/data-format/message-body-aad.txt#2.4.3
+      //# For non-framed data (message-body.md#non-framed-data), the
+      //# value of this field MUST be "1".
+      NONFRAMED_SEQUENCE_NUMBER,
 
-                                        //= compliance/data-format/message-body-aad.txt#2.4.2
-                                        //# *  Non-framed data (message-body.md#non-framed-data) MUST use the
-                                        //# value "AWSKMSEncryptionClient Single Block".
-                                        AADSingleBlock,
+      //= compliance/data-format/message-body-aad.txt#2.4.2
+      //# *  Non-framed data (message-body.md#non-framed-data) MUST use the
+      //# value "AWSKMSEncryptionClient Single Block".
+      AADSingleBlock,
 
-                                        //= compliance/data-format/message-body-aad.txt#2.4.4
-                                        //# *  For non-framed data (message-body.md#non-framed-data), this value
-                                        //# MUST equal the length, in bytes, of the plaintext data provided to
-                                        //# the algorithm for encryption.
-                                        |encContent| as uint64
-                                        );
+      //= compliance/data-format/message-body-aad.txt#2.4.4
+      //# *  For non-framed data (message-body.md#non-framed-data), this value
+      //# MUST equal the length, in bytes, of the plaintext data provided to
+      //# the algorithm for encryption.
+      |encContent| as uint64
+      );
 
     aad := BodyAAD(frame.header.body.messageId, bc, sequenceNumber, length);
   }

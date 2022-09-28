@@ -144,21 +144,21 @@ module
                      "keyNamespace must not be `aws-kms`");
 
       var wrappingAlg:AESEncryption.AES_GCM := match input.wrappingAlg
-                                               case ALG_AES128_GCM_IV12_TAG16 => AESEncryption.AES_GCM(
-                                                                                   keyLength := 16 as AESEncryption.KeyLength,
-                                                                                   tagLength := 16 as AESEncryption.TagLength,
-                                                                                   ivLength := 12 as AESEncryption.IVLength
-                                                                                 )
-                                               case ALG_AES192_GCM_IV12_TAG16 => AESEncryption.AES_GCM(
-                                                                                   keyLength := 24 as AESEncryption.KeyLength,
-                                                                                   tagLength := 16 as AESEncryption.TagLength,
-                                                                                   ivLength := 12 as AESEncryption.IVLength
-                                                                                 )
-                                               case ALG_AES256_GCM_IV12_TAG16 => AESEncryption.AES_GCM(
-                                                                                   keyLength := 32 as AESEncryption.KeyLength,
-                                                                                   tagLength := 16 as AESEncryption.TagLength,
-                                                                                   ivLength := 12 as AESEncryption.IVLength
-                                                                                 );
+        case ALG_AES128_GCM_IV12_TAG16 => AESEncryption.AES_GCM(
+          keyLength := 16 as AESEncryption.KeyLength,
+          tagLength := 16 as AESEncryption.TagLength,
+          ivLength := 12 as AESEncryption.IVLength
+        )
+        case ALG_AES192_GCM_IV12_TAG16 => AESEncryption.AES_GCM(
+          keyLength := 24 as AESEncryption.KeyLength,
+          tagLength := 16 as AESEncryption.TagLength,
+          ivLength := 12 as AESEncryption.IVLength
+        )
+        case ALG_AES256_GCM_IV12_TAG16 => AESEncryption.AES_GCM(
+          keyLength := 32 as AESEncryption.KeyLength,
+          tagLength := 16 as AESEncryption.TagLength,
+          ivLength := 12 as AESEncryption.IVLength
+        );
 
       var namespaceAndName :- ParseKeyNamespaceAndName(input.keyNamespace, input.keyName);
       var (namespace, name) := namespaceAndName;
@@ -261,11 +261,11 @@ module
                      "A publicKey or a privateKey is required");
 
       var padding: RSAEncryption.PaddingMode := match input.paddingScheme
-                                                case PKCS1 => RSAEncryption.PaddingMode.PKCS1
-                                                case OAEP_SHA1_MGF1 => RSAEncryption.PaddingMode.OAEP_SHA1
-                                                case OAEP_SHA256_MGF1 => RSAEncryption.PaddingMode.OAEP_SHA256
-                                                case OAEP_SHA384_MGF1 => RSAEncryption.PaddingMode.OAEP_SHA384
-                                                case OAEP_SHA512_MGF1 => RSAEncryption.PaddingMode.OAEP_SHA512
+        case PKCS1 => RSAEncryption.PaddingMode.PKCS1
+        case OAEP_SHA1_MGF1 => RSAEncryption.PaddingMode.OAEP_SHA1
+        case OAEP_SHA256_MGF1 => RSAEncryption.PaddingMode.OAEP_SHA256
+        case OAEP_SHA384_MGF1 => RSAEncryption.PaddingMode.OAEP_SHA384
+        case OAEP_SHA512_MGF1 => RSAEncryption.PaddingMode.OAEP_SHA512
         ;
 
       var namespaceAndName :- ParseKeyNamespaceAndName(input.keyNamespace, input.keyName);
@@ -384,9 +384,9 @@ module
                 && res.value.childKeyrings == [])
     {
       var allStrings := match (generator) {
-                          case Some(g) => [g] + awsKmsKeys.UnwrapOr([])
-                          case None => awsKmsKeys.UnwrapOr([])
-                        };
+        case Some(g) => [g] + awsKmsKeys.UnwrapOr([])
+        case None => awsKmsKeys.UnwrapOr([])
+      };
       assert generator.Some? ==> generator.value in allStrings;
       assert awsKmsKeys.Some? ==> forall k | k in awsKmsKeys.value :: k in allStrings;
 
@@ -698,9 +698,9 @@ module
                 && res.value.childKeyrings == [])
     {
       var allStrings := match (generator) {
-                          case Some(g) => [g] + awsKmsKeys.UnwrapOr([])
-                          case None => awsKmsKeys.UnwrapOr([])
-                        };
+        case Some(g) => [g] + awsKmsKeys.UnwrapOr([])
+        case None => awsKmsKeys.UnwrapOr([])
+      };
       assert generator.Some? ==> generator.value in allStrings;
       assert awsKmsKeys.Some? ==> forall k | k in awsKmsKeys.value :: k in allStrings;
 
