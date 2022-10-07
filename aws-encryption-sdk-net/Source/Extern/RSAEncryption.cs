@@ -121,6 +121,10 @@ namespace RSAEncryption {
         }
 
         public static void GenerateKeyPairBytes(int strength, out byte[] publicKeyBytes, out byte[] privateKeyBytes) {
+            if (strength > 4096)
+            {
+                throw new ArgumentException("AWS Crypto will not generate an RSA Key greater than 4096.");
+            }
             RsaKeyPairGenerator keygen = new RsaKeyPairGenerator();
             SecureRandom secureRandom = new SecureRandom();
             keygen.Init(new RsaKeyGenerationParameters(
