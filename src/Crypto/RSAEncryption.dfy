@@ -65,7 +65,7 @@ module {:extern "RSAEncryption"} RSAEncryption {
 
   method GenerateKeyPair(strength: StrengthBits)
     returns (publicKey: PublicKey, privateKey: PrivateKey)
-    requires strength <= 15360
+    requires strength <= 4096
     ensures privateKey.Valid()
     ensures publicKey.Valid()
   {

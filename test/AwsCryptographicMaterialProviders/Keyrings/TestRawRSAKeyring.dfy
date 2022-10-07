@@ -258,7 +258,7 @@ module TestRawRSAKeying {
     )
     requires |namespace| < UINT16_LIMIT
     requires |name| < UINT16_LIMIT
-    requires keyStrength <= 15360
+    requires keyStrength <= 4096
   {
     publicKey, privateKey := RSAEncryption.GenerateKeyPair(
       keyStrength
