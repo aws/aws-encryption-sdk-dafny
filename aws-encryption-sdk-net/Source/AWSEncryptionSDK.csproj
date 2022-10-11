@@ -1,13 +1,15 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
-
   <PropertyGroup>
     <OutputType>Library</OutputType>
     <TargetFrameworks>netstandard2.1;net452</TargetFrameworks>
     <LangVersion>7.3</LangVersion>
     <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
     <IsPackable>true</IsPackable>
-    <Version>3.0.0</Version>
+
+    <!-- This should be kept in sync with the version number in AssemblyInfo.cs -->
+    <Version>3.1.0</Version>
+
     <AssemblyName>AWS.EncryptionSDK</AssemblyName>
     <PackageId>AWS.EncryptionSDK</PackageId>
     <Title>AWS Encryption SDK for .NET</Title>

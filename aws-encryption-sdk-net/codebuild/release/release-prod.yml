@@ -18,7 +18,7 @@ env:
 phases:
   install:
     runtime-versions:
-      dotnet: 5.0
+      dotnet: 6.0
       python: 3.x
     commands:
       - cd ..
@@ -50,8 +50,8 @@ phases:
       # Now validate we can run examples
       - sed -i.backup '/Source\/AWSEncryptionSDK.csproj/d' Examples/AWSEncryptionSDKExamples.csproj
       - dotnet add Examples/AWSEncryptionSDKExamples.csproj package AWS.EncryptionSDK --version $VERSION
-      # Target only netcoreapp3.1, because we only support net452 for windows.
+      # Run examples for just one supported version.
       # Since all frameworks and OS's are tested on commit, we mainly want to
       # run this as a smoke test and the confirm we can find the dependency,
       # rather than a comprehensive test suite.
-      - dotnet test Examples -f netcoreapp3.1
+      - dotnet test Examples -f net6.0
