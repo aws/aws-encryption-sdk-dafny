@@ -1,0 +1,84 @@
+# This workflow performs static analysis checks.
+name: AwsCryptographyPrimitives
+
+on: ["pull_request", "push"]
+
+jobs:
+  verification:
+    strategy:
+      matrix:
+        os: [ windows-latest, ubuntu-latest, macos-latest ]
+    runs-on: ${{ matrix.os }}
+    env:
+      DOTNET_CLI_TELEMETRY_OPTOUT: 1
+      DOTNET_NOLOGO: 1
+    steps:
+      - uses: actions/checkout@v2
+      # The specification submodule is private so we don't have access, but we don't need
+      # it to verify the Dafny code. Instead we manually pull the submodule we DO need.
+      - run: git submodule update --init libraries
+
+      - name: Setup Dafny
+        uses: dafny-lang/setup-dafny-action@v1.4.0
+        with:
+          dafny-version: "3.9.0"
+
+      - name: Verify Dafny code
+        shell: bash
+        working-directory: ./AwsCryptographyPrimitives
+        run: |
+          # This works because `node` is installed by default on GHA runners
+          CORES=$(node -e 'console.log(os.cpus().length)')
+          make verify CORES=$CORES
+
+      - if: always()
+        shell: bash
+        run: MAX_VERIFICATION_DURATION_SECONDS=10 python3 verification-times-from-trx.py AwsCryptographyPrimitives/TestResults/*.trx
+
+  test:
+    strategy:
+      matrix:
+        dotnet-version: [ '6.0' ]
+        os: [
+          windows-latest,
+        ]
+    runs-on: ${{ matrix.os }}
+    env:
+      DOTNET_CLI_TELEMETRY_OPTOUT: 1
+      DOTNET_NOLOGO: 1
+    steps:
+      - uses: actions/checkout@v3
+      # The specification submodule is private so we don't have access, but we don't need
+      # it to verify the Dafny code. Instead we manually pull the submodule we DO need.
+      - run: git submodule update --init libraries
+
+      - name: Setup Dafny
+        uses: dafny-lang/setup-dafny-action@v1.4.0
+        with:
+          dafny-version: "3.9.0"
+
+      - name: Setup .NET Core SDK ${{ matrix.dotnet-version }}
+        uses: actions/setup-dotnet@v2
+        with:
+          dotnet-version: ${{ matrix.dotnet-version }}
+
+      - name: Install implementation
+        working-directory: ./AwsCryptographyPrimitives
+        run: make dotnet_restore
+
+      - name: Compile implementation
+        working-directory: ./AwsCryptographyPrimitives
+        shell: bash
+        run: |
+          # This works because `node` is installed by default on GHA runners
+          CORES=$(node -e 'console.log(os.cpus().length)')
+          make compile_net CORES=$CORES
+
+      - name: Test
+        working-directory: ./AwsCryptographyPrimitives
+        shell: bash
+        run: |
+          if [ "$RUNNER_OS" == "macOS" ]; then
+            export DYLD_LIBRARY_PATH="/usr/local/opt/openssl@1.1/lib"
+          fi
+          make test_net

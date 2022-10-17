@@ -2,7 +2,8 @@
 // SPDX-License-Identifier: Apache-2.0
 
 include "HMAC.dfy"
-include "../../StandardLibrary/StandardLibrary.dfy"
+include "../Digest.dfy"
+include "../../Model/AwsCryptographyPrimitivesTypes.dfy"
 
 /*
  * Implementation of the https://tools.ietf.org/html/rfc5869 HMAC-based key derivation function
@@ -11,13 +12,41 @@ module HKDF {
   import opened HMAC
   import opened Wrappers
   import opened UInt = StandardLibrary.UInt
+  import Types = AwsCryptographyPrimitivesTypes
+  import Digest
 
-  method Extract(hmac: HMac, salt: seq<uint8>, ikm: seq<uint8>, ghost digest: Digests) returns (prk: seq<uint8>)
+
+  // 2.2.  Step 1: Extract
+  // 
+  //  HKDF-Extract(salt, IKM) -> PRK
+  // 
+  //  Options:
+  //     Hash     a hash function; HashLen denotes the length of the
+  //              hash function output in octets
+  // 
+  //  Inputs:
+  //     salt     optional salt value (a non-secret random value);
+  //              if not provided, it is set to a string of HashLen zeros.
+  //     IKM      input keying material
+  // 
+  //  Output:
+  //     PRK      a pseudorandom key (of HashLen octets)
+  // 
+  //  The output PRK is calculated as follows:
+  // 
+  //  PRK = HMAC-Hash(salt, IKM)
+  method Extract(
+    hmac: HMac,
+    salt: seq<uint8>,
+    ikm: seq<uint8>, 
+    ghost digest: Types.DigestAlgorithm
+  )
+    returns (prk: seq<uint8>)
     requires hmac.GetDigest() == digest
     requires |salt| != 0
     requires |ikm| < INT32_MAX_LIMIT
     modifies hmac
-    ensures GetHashLength(hmac.GetDigest()) == |prk|
+    ensures Digest.Length(hmac.GetDigest()) == |prk|
     ensures hmac.GetKey() == salt
     ensures hmac.GetDigest() == digest
   {
@@ -78,24 +107,49 @@ module HKDF {
     exists prev | Ti(hmac, info, nMinusOne, prev) :: res == prev + info + [(n as uint8)]
   }
 
-  method Expand(hmac: HMac, prk: seq<uint8>, info: seq<uint8>, expectedLength: int, digest: Digests, ghost salt: seq<uint8>) returns (okm: seq<uint8>, ghost okmUnabridged: seq<uint8>)
+  // 2.3.  Step 2: Expand
+  // 
+  //    HKDF-Expand(PRK, info, L) -> OKM
+  // 
+  //    Options:
+  //       Hash     a hash function; HashLen denotes the length of the
+  //                hash function output in octets
+  // 
+  //    Inputs:
+  //       PRK      a pseudorandom key of at least HashLen octets
+  //                (usually, the output from the extract step)
+  //       info     optional context and application specific information
+  //                (can be a zero-length string)
+  //       L        length of output keying material in octets
+  //                (<= 255*HashLen)
+  // 
+  //    Output:
+  //       OKM      output keying material (of L octets)
+  method Expand(
+    hmac: HMac, 
+    prk: seq<uint8>, 
+    info: seq<uint8>, 
+    expectedLength: int, 
+    digest: Types.DigestAlgorithm
+  ) returns (
+      okm: seq<uint8>, 
+      ghost okmUnabridged: seq<uint8>
+  )
     requires hmac.GetDigest() == digest
-    requires 1 <= expectedLength <= 255 * GetHashLength(hmac.GetDigest())
-    requires |salt| != 0
-    requires hmac.GetKey() == salt
+    requires 1 <= expectedLength <= 255 * Digest.Length(hmac.GetDigest())
     requires |info| < INT32_MAX_LIMIT
-    requires GetHashLength(hmac.GetDigest()) == |prk|
+    requires Digest.Length(hmac.GetDigest()) == |prk|
     modifies hmac
     ensures |okm| == expectedLength
     ensures hmac.GetKey() == prk
     ensures hmac.GetDigest() == digest
-    ensures var n := (GetHashLength(digest) + expectedLength - 1) / GetHashLength(digest);
+    ensures var n := (Digest.Length(digest) + expectedLength - 1) / Digest.Length(digest);
       && T(hmac, info, n, okmUnabridged)
       && (|okmUnabridged| <= expectedLength ==> okm == okmUnabridged)
       && (expectedLength < |okmUnabridged| ==> okm == okmUnabridged[..expectedLength])
   {
     // N = ceil(L / Hash Length)
-    var hashLength := GetHashLength(digest);
+    var hashLength := Digest.Length(digest);
     var n := (hashLength + expectedLength - 1) / hashLength;
     assert 0 <= n < 256;
 
@@ -149,8 +203,14 @@ module HKDF {
   /*
    * The RFC 5869 KDF. Outputs L bytes of output key material.
    */
-  method Hkdf(digest: HMAC.Digests, salt: Option<seq<uint8>>, ikm: seq<uint8>, info: seq<uint8>, L: int) returns (okm: seq<uint8>)
-    requires 0 <= L <= 255 * GetHashLength(digest)
+  method Hkdf(
+    digest: Types.DigestAlgorithm, 
+    salt: Option<seq<uint8>>, 
+    ikm: seq<uint8>, 
+    info: seq<uint8>, 
+    L: int
+  ) returns (okm: seq<uint8>)
+    requires 0 <= L <= 255 * Digest.Length(digest)
     requires salt.None? || |salt.value| != 0
     requires |info| < INT32_MAX_LIMIT
     requires |ikm| < INT32_MAX_LIMIT
@@ -160,7 +220,7 @@ module HKDF {
       return [];
     }
     var hmac := new HMac(digest);
-    var hashLength := GetHashLength(digest);
+    var hashLength := Digest.Length(digest);
 
     var nonEmptySalt: seq<uint8>;
     match salt {
@@ -172,6 +232,6 @@ module HKDF {
 
     var prk := Extract(hmac, nonEmptySalt, ikm, digest);
     ghost var okmUnabridged;
-    okm, okmUnabridged := Expand(hmac, prk, info, L, digest, nonEmptySalt);
+    okm, okmUnabridged := Expand(hmac, prk, info, L, digest);
   }
 }
