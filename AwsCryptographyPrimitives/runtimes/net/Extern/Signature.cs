@@ -36,7 +36,7 @@ namespace Signature {
                 } else {
                     return Result<SignatureKeyPair, _IError>
                         .create_Failure(new Error_AwsCryptographicPrimitivesError(
-                            Dafny.Sequence<char>.FromString(String.Format("Unsupported ECDSA parameters: {0}", x)));
+                            Dafny.Sequence<char>.FromString(String.Format("Unsupported ECDSA parameters: {0}", x))));
                 }
                 generator.Init(new ECKeyGenerationParameters(new ECDomainParameters(p.Curve, p.G, p.N, p.H), rng));
                 AsymmetricCipherKeyPair kp = generator.GenerateKeyPair();
@@ -95,7 +95,7 @@ namespace Signature {
                 } else {
                     return Result<bool, _IError>
                         .create_Failure(new Error_AwsCryptographicPrimitivesError(
-                            Dafny.Sequence<char>.FromString(String.Format("Unsupported ECDSA parameters: {0}", x)));
+                            Dafny.Sequence<char>.FromString(String.Format("Unsupported ECDSA parameters: {0}", x))));
                 }
                 
                 byte[] digest = InternalDigest(x, msg);
@@ -124,7 +124,7 @@ namespace Signature {
                 } else {
                     return Result<ibyteseq, _IError>
                         .create_Failure(new Error_AwsCryptographicPrimitivesError(
-                            Dafny.Sequence<char>.FromString(String.Format("Unsupported ECDSA parameters: {0}", x)));
+                            Dafny.Sequence<char>.FromString(String.Format("Unsupported ECDSA parameters: {0}", x))));
                 }
 
                 byte[] digest = InternalDigest(x, msg);

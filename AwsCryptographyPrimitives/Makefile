@@ -43,5 +43,5 @@ test_net:
 		--project runtimes/net/tests/ \
 		--framework net6.0
 
-dotnet_restore:
+setup_net:
 	dotnet restore runtimes/net/
