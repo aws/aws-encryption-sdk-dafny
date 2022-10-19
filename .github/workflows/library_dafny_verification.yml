@@ -1,0 +1,42 @@
+# This workflow performs static analysis checks.
+name: Library Dafny verification
+
+on: 
+  pull_request:
+  push:
+    branches:
+      - main
+
+jobs:
+  verification:
+    strategy:
+      matrix:
+        os: [ windows-latest, ubuntu-latest, macos-latest ]
+        library: [ AwsCryptographyPrimitives, ComAmazonawsKms ]
+    runs-on: ${{ matrix.os }}
+    env:
+      DOTNET_CLI_TELEMETRY_OPTOUT: 1
+      DOTNET_NOLOGO: 1
+    steps:
+      - uses: actions/checkout@v2
+      # The specification submodule is private so we don't have access, but we don't need
+      # it to verify the Dafny code. Instead we manually pull the submodule we DO need.
+      - run: git submodule update --init libraries
+
+      - name: Setup Dafny
+        uses: dafny-lang/setup-dafny-action@v1.4.0
+        with:
+          dafny-version: "3.9.0"
+
+      - name: Verify ${{ matrix.library }} Dafny code
+        shell: bash
+        working-directory: ./${{ matrix.library }}
+        run: |
+          # This works because `node` is installed by default on GHA runners
+          CORES=$(node -e 'console.log(os.cpus().length)')
+          make verify CORES=$CORES
+
+# TODO migrate this to use dafny-reportgenerator
+      - if: always()
+        shell: bash
+        run: MAX_VERIFICATION_DURATION_SECONDS=10 python3 verification-times-from-trx.py ${{ matrix.library }}/TestResults/*.trx

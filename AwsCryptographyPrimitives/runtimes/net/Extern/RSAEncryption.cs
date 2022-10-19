@@ -72,7 +72,7 @@ namespace RSAEncryption {
             } else if (padding.is_OAEP__SHA512) {
                 return new OaepEncoding(new RsaBlindedEngine(), new Sha512Digest());
             } else {
-                throw new System.Exception(String.Format("Invalid RSA Padding Scheme: {0}", paddingScheme));
+                throw new System.Exception(String.Format("Invalid RSA Padding Scheme: {0}", padding));
             }
         }
 
