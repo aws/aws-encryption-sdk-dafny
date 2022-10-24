@@ -35,6 +35,7 @@ module TestUTF8 {
     // Create byte sequence with UTF-16 surrogate (0xEDA080)
     var invalidUnicode := [0x61, 0x62, 0x63, 0xED, 0xA0, 0x80];
     expect !ValidUTF8Seq(invalidUnicode);
+    expect UTF8.Decode(invalidUnicode).Error?;
   }
 
   method {:test} Test1Byte() {
