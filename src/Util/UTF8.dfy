@@ -26,7 +26,8 @@ module {:extern "UTF8"} UTF8 {
     // US-ASCII only needs a single UTF-8 byte per character
     ensures IsASCIIString(s) ==> res.Success? && |res.value| == |s|
 
-  function method {:extern "Decode"} Decode(b: ValidUTF8Bytes): (res: Result<string, string>)
+  // Decode return a Result, therefore doesn't need to require utf8 input
+  function method {:extern "Decode"} Decode(b: seq<uint8>): (res: Result<string, string>)
 
   predicate method IsASCIIString(s: string) {
     forall i :: 0 <= i < |s| ==> s[i] as int < 128
