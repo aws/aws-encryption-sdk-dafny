@@ -28,6 +28,7 @@ module {:extern "UTF8"} UTF8 {
 
   // Decode return a Result, therefore doesn't need to require utf8 input
   function method {:extern "Decode"} Decode(b: seq<uint8>): (res: Result<string, string>)
+    ensures res.Success? ==> ValidUTF8Seq(b)
 
   predicate method IsASCIIString(s: string) {
     forall i :: 0 <= i < |s| ==> s[i] as int < 128
