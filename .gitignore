@@ -12,3 +12,5 @@ specification_compliance_report.html
 
 # VS Code local history
 /.history
+
+*/**/.idea/
