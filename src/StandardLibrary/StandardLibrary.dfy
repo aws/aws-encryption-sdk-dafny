@@ -31,6 +31,27 @@ module StandardLibrary {
     if i.Some? then [s[..i.value]] + Split(s[(i.value + 1)..], delim) else [s]
   }
 
+  // split on first occurrence of delim, which must exist
+  function method {:tailrecursion} SplitOnce<T(==)>(s: seq<T>, delim: T): (res : (seq<T>,seq<T>))
+    requires delim in s
+    ensures res.0 + [delim] + res.1 == s
+    ensures !(delim in res.0)
+  {
+    var i := FindIndexMatching(s, delim, 0);
+    assert i.Some?;
+    (s[..i.value], s[(i.value + 1)..])
+  }
+
+  // split on first occurrence of delim, return None if delim not present
+  function method {:tailrecursion} SplitOnce?<T(==)>(s: seq<T>, delim: T): (res : Option<(seq<T>,seq<T>)>)
+    ensures res.Some? ==> res.value.0 + [delim] + res.value.1 == s
+    ensures res.None? ==> !(delim in s)
+    ensures res.Some? ==> !(delim in res.value.0)
+  {
+    var i :- FindIndexMatching(s, delim, 0);
+    Some((s[..i], s[(i + 1)..]))
+  }
+
   lemma WillSplitOnDelim<T>(s: seq<T>, delim: T, prefix: seq<T>)
     requires |prefix| < |s|
     requires forall i :: 0 <= i < |prefix| ==> prefix[i] == s[i]
