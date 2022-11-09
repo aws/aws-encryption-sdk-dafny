@@ -1,8 +1,7 @@
 // Copyright Amazon.com Inc. or its affiliates. All Rights Reserved.
 // SPDX-License-Identifier: Apache-2.0
 // Do not modify this file. This file is machine generated, and any changes to it will be overwritten.
-include "../../src/StandardLibrary/StandardLibrary.dfy"
- include "../../src/Util/UTF8.dfy"
+include "../../AwsCryptographyPrimitives/src/include.dfy"
  module {:extern "Dafny.Com.Amazonaws.Kms.Types" } ComAmazonawsKmsTypes
  {
  import opened Wrappers
@@ -10,7 +9,6 @@ include "../../src/StandardLibrary/StandardLibrary.dfy"
  import opened UTF8
  // Generic helpers for verification of mock/unit tests.
  datatype DafnyCallEvent<I, O> = DafnyCallEvent(input: I, output: O)
- function Last<T>(s: seq<T>): T requires |s| > 0 { s[|s|-1] }
  
  // Begin Generated Types
  
@@ -496,9 +494,9 @@ include "../../src/StandardLibrary/StandardLibrary.dfy"
 }
  trait {:termination false} IKeyManagementServiceClient
  {
- // Helper to define any additional modifies/reads clauses
- // If your operations need to mutate state add it
- // in your constructor function:
+ // Helper to define any additional modifies/reads clauses.
+ // If your operations need to mutate state,
+ // add it in your constructor function:
  // Modifies := {your, fields, here, History};
  // If you do not need to mutate anything:
  // Modifies := {History};
@@ -509,8 +507,8 @@ include "../../src/StandardLibrary/StandardLibrary.dfy"
  // it needs some way to know (an invariant),
  // about the state of the object.
  // This builds on the Valid/Repr paradigm
- // To make this kind requires is safe to add
- // to methods called from unverified code
+ // To make this kind requires safe to add
+ // to methods called from unverified code,
  // the predicate MUST NOT take any arguments.
  // This means that the correctness of this requires
  // MUST only be evaluated by the class itself.
@@ -526,10 +524,10 @@ include "../../src/StandardLibrary/StandardLibrary.dfy"
  returns (output: Result<CancelKeyDeletionResponse, Error>)
  requires
  && ValidState()
- modifies Modifies ,
+ modifies Modifies - {History} ,
  History`CancelKeyDeletion
  // Dafny will skip type parameters when generating a default decreases clause.
- decreases Modifies
+ decreases Modifies - {History}
  ensures
  && ValidState()
  ensures CancelKeyDeletionEnsuresPublicly(input, output)
@@ -541,10 +539,10 @@ include "../../src/StandardLibrary/StandardLibrary.dfy"
  returns (output: Result<ConnectCustomKeyStoreResponse, Error>)
  requires
  && ValidState()
- modifies Modifies ,
+ modifies Modifies - {History} ,
  History`ConnectCustomKeyStore
  // Dafny will skip type parameters when generating a default decreases clause.
- decreases Modifies
+ decreases Modifies - {History}
  ensures
  && ValidState()
  ensures ConnectCustomKeyStoreEnsuresPublicly(input, output)
@@ -556,10 +554,10 @@ include "../../src/StandardLibrary/StandardLibrary.dfy"
  returns (output: Result<(), Error>)
  requires
  && ValidState()
- modifies Modifies ,
+ modifies Modifies - {History} ,
  History`CreateAlias
  // Dafny will skip type parameters when generating a default decreases clause.
- decreases Modifies
+ decreases Modifies - {History}
  ensures
  && ValidState()
  ensures CreateAliasEnsuresPublicly(input, output)
@@ -571,10 +569,10 @@ include "../../src/StandardLibrary/StandardLibrary.dfy"
  returns (output: Result<CreateCustomKeyStoreResponse, Error>)
  requires
  && ValidState()
- modifies Modifies ,
+ modifies Modifies - {History} ,
  History`CreateCustomKeyStore
  // Dafny will skip type parameters when generating a default decreases clause.
- decreases Modifies
+ decreases Modifies - {History}
  ensures
  && ValidState()
  ensures CreateCustomKeyStoreEnsuresPublicly(input, output)
@@ -586,10 +584,10 @@ include "../../src/StandardLibrary/StandardLibrary.dfy"
  returns (output: Result<CreateGrantResponse, Error>)
  requires
  && ValidState()
- modifies Modifies ,
+ modifies Modifies - {History} ,
  History`CreateGrant
  // Dafny will skip type parameters when generating a default decreases clause.
- decreases Modifies
+ decreases Modifies - {History}
  ensures
  && ValidState()
  ensures CreateGrantEnsuresPublicly(input, output)
@@ -601,10 +599,10 @@ include "../../src/StandardLibrary/StandardLibrary.dfy"
  returns (output: Result<CreateKeyResponse, Error>)
  requires
  && ValidState()
- modifies Modifies ,
+ modifies Modifies - {History} ,
  History`CreateKey
  // Dafny will skip type parameters when generating a default decreases clause.
- decreases Modifies
+ decreases Modifies - {History}
  ensures
  && ValidState()
  ensures CreateKeyEnsuresPublicly(input, output)
@@ -616,10 +614,10 @@ include "../../src/StandardLibrary/StandardLibrary.dfy"
  returns (output: Result<DecryptResponse, Error>)
  requires
  && ValidState()
- modifies Modifies ,
+ modifies Modifies - {History} ,
  History`Decrypt
  // Dafny will skip type parameters when generating a default decreases clause.
- decreases Modifies
+ decreases Modifies - {History}
  ensures
  && ValidState()
  ensures DecryptEnsuresPublicly(input, output)
@@ -631,10 +629,10 @@ include "../../src/StandardLibrary/StandardLibrary.dfy"
  returns (output: Result<(), Error>)
  requires
  && ValidState()
- modifies Modifies ,
+ modifies Modifies - {History} ,
  History`DeleteAlias
  // Dafny will skip type parameters when generating a default decreases clause.
- decreases Modifies
+ decreases Modifies - {History}
  ensures
  && ValidState()
  ensures DeleteAliasEnsuresPublicly(input, output)
@@ -646,10 +644,10 @@ include "../../src/StandardLibrary/StandardLibrary.dfy"
  returns (output: Result<DeleteCustomKeyStoreResponse, Error>)
  requires
  && ValidState()
- modifies Modifies ,
+ modifies Modifies - {History} ,
  History`DeleteCustomKeyStore
  // Dafny will skip type parameters when generating a default decreases clause.
- decreases Modifies
+ decreases Modifies - {History}
  ensures
  && ValidState()
  ensures DeleteCustomKeyStoreEnsuresPublicly(input, output)
@@ -661,10 +659,10 @@ include "../../src/StandardLibrary/StandardLibrary.dfy"
  returns (output: Result<(), Error>)
  requires
  && ValidState()
- modifies Modifies ,
+ modifies Modifies - {History} ,
  History`DeleteImportedKeyMaterial
  // Dafny will skip type parameters when generating a default decreases clause.
- decreases Modifies
+ decreases Modifies - {History}
  ensures
  && ValidState()
  ensures DeleteImportedKeyMaterialEnsuresPublicly(input, output)
@@ -676,10 +674,10 @@ include "../../src/StandardLibrary/StandardLibrary.dfy"
  returns (output: Result<DescribeCustomKeyStoresResponse, Error>)
  requires
  && ValidState()
- modifies Modifies ,
+ modifies Modifies - {History} ,
  History`DescribeCustomKeyStores
  // Dafny will skip type parameters when generating a default decreases clause.
- decreases Modifies
+ decreases Modifies - {History}
  ensures
  && ValidState()
  ensures DescribeCustomKeyStoresEnsuresPublicly(input, output)
@@ -691,10 +689,10 @@ include "../../src/StandardLibrary/StandardLibrary.dfy"
  returns (output: Result<DescribeKeyResponse, Error>)
  requires
  && ValidState()
- modifies Modifies ,
+ modifies Modifies - {History} ,
  History`DescribeKey
  // Dafny will skip type parameters when generating a default decreases clause.
- decreases Modifies
+ decreases Modifies - {History}
  ensures
  && ValidState()
  ensures DescribeKeyEnsuresPublicly(input, output)
@@ -706,10 +704,10 @@ include "../../src/StandardLibrary/StandardLibrary.dfy"
  returns (output: Result<(), Error>)
  requires
  && ValidState()
- modifies Modifies ,
+ modifies Modifies - {History} ,
  History`DisableKey
  // Dafny will skip type parameters when generating a default decreases clause.
- decreases Modifies
+ decreases Modifies - {History}
  ensures
  && ValidState()
  ensures DisableKeyEnsuresPublicly(input, output)
@@ -721,10 +719,10 @@ include "../../src/StandardLibrary/StandardLibrary.dfy"
  returns (output: Result<(), Error>)
  requires
  && ValidState()
- modifies Modifies ,
+ modifies Modifies - {History} ,
  History`DisableKeyRotation
  // Dafny will skip type parameters when generating a default decreases clause.
- decreases Modifies
+ decreases Modifies - {History}
  ensures
  && ValidState()
  ensures DisableKeyRotationEnsuresPublicly(input, output)
@@ -736,10 +734,10 @@ include "../../src/StandardLibrary/StandardLibrary.dfy"
  returns (output: Result<DisconnectCustomKeyStoreResponse, Error>)
  requires
  && ValidState()
- modifies Modifies ,
+ modifies Modifies - {History} ,
  History`DisconnectCustomKeyStore
  // Dafny will skip type parameters when generating a default decreases clause.
- decreases Modifies
+ decreases Modifies - {History}
  ensures
  && ValidState()
  ensures DisconnectCustomKeyStoreEnsuresPublicly(input, output)
@@ -751,10 +749,10 @@ include "../../src/StandardLibrary/StandardLibrary.dfy"
  returns (output: Result<(), Error>)
  requires
  && ValidState()
- modifies Modifies ,
+ modifies Modifies - {History} ,
  History`EnableKey
  // Dafny will skip type parameters when generating a default decreases clause.
- decreases Modifies
+ decreases Modifies - {History}
  ensures
  && ValidState()
  ensures EnableKeyEnsuresPublicly(input, output)
@@ -766,10 +764,10 @@ include "../../src/StandardLibrary/StandardLibrary.dfy"
  returns (output: Result<(), Error>)
  requires
  && ValidState()
- modifies Modifies ,
+ modifies Modifies - {History} ,
  History`EnableKeyRotation
  // Dafny will skip type parameters when generating a default decreases clause.
- decreases Modifies
+ decreases Modifies - {History}
  ensures
  && ValidState()
  ensures EnableKeyRotationEnsuresPublicly(input, output)
@@ -781,10 +779,10 @@ include "../../src/StandardLibrary/StandardLibrary.dfy"
  returns (output: Result<EncryptResponse, Error>)
  requires
  && ValidState()
- modifies Modifies ,
+ modifies Modifies - {History} ,
  History`Encrypt
  // Dafny will skip type parameters when generating a default decreases clause.
- decreases Modifies
+ decreases Modifies - {History}
  ensures
  && ValidState()
  ensures EncryptEnsuresPublicly(input, output)
@@ -796,10 +794,10 @@ include "../../src/StandardLibrary/StandardLibrary.dfy"
  returns (output: Result<GenerateDataKeyResponse, Error>)
  requires
  && ValidState()
- modifies Modifies ,
+ modifies Modifies - {History} ,
  History`GenerateDataKey
  // Dafny will skip type parameters when generating a default decreases clause.
- decreases Modifies
+ decreases Modifies - {History}
  ensures
  && ValidState()
  ensures GenerateDataKeyEnsuresPublicly(input, output)
@@ -811,10 +809,10 @@ include "../../src/StandardLibrary/StandardLibrary.dfy"
  returns (output: Result<GenerateDataKeyPairResponse, Error>)
  requires
  && ValidState()
- modifies Modifies ,
+ modifies Modifies - {History} ,
  History`GenerateDataKeyPair
  // Dafny will skip type parameters when generating a default decreases clause.
- decreases Modifies
+ decreases Modifies - {History}
  ensures
  && ValidState()
  ensures GenerateDataKeyPairEnsuresPublicly(input, output)
@@ -826,10 +824,10 @@ include "../../src/StandardLibrary/StandardLibrary.dfy"
  returns (output: Result<GenerateDataKeyPairWithoutPlaintextResponse, Error>)
  requires
  && ValidState()
- modifies Modifies ,
+ modifies Modifies - {History} ,
  History`GenerateDataKeyPairWithoutPlaintext
  // Dafny will skip type parameters when generating a default decreases clause.
- decreases Modifies
+ decreases Modifies - {History}
  ensures
  && ValidState()
  ensures GenerateDataKeyPairWithoutPlaintextEnsuresPublicly(input, output)
@@ -841,10 +839,10 @@ include "../../src/StandardLibrary/StandardLibrary.dfy"
  returns (output: Result<GenerateDataKeyWithoutPlaintextResponse, Error>)
  requires
  && ValidState()
- modifies Modifies ,
+ modifies Modifies - {History} ,
  History`GenerateDataKeyWithoutPlaintext
  // Dafny will skip type parameters when generating a default decreases clause.
- decreases Modifies
+ decreases Modifies - {History}
  ensures
  && ValidState()
  ensures GenerateDataKeyWithoutPlaintextEnsuresPublicly(input, output)
@@ -856,10 +854,10 @@ include "../../src/StandardLibrary/StandardLibrary.dfy"
  returns (output: Result<GenerateRandomResponse, Error>)
  requires
  && ValidState()
- modifies Modifies ,
+ modifies Modifies - {History} ,
  History`GenerateRandom
  // Dafny will skip type parameters when generating a default decreases clause.
- decreases Modifies
+ decreases Modifies - {History}
  ensures
  && ValidState()
  ensures GenerateRandomEnsuresPublicly(input, output)
@@ -871,10 +869,10 @@ include "../../src/StandardLibrary/StandardLibrary.dfy"
  returns (output: Result<GetKeyPolicyResponse, Error>)
  requires
  && ValidState()
- modifies Modifies ,
+ modifies Modifies - {History} ,
  History`GetKeyPolicy
  // Dafny will skip type parameters when generating a default decreases clause.
- decreases Modifies
+ decreases Modifies - {History}
  ensures
  && ValidState()
  ensures GetKeyPolicyEnsuresPublicly(input, output)
@@ -886,10 +884,10 @@ include "../../src/StandardLibrary/StandardLibrary.dfy"
  returns (output: Result<GetKeyRotationStatusResponse, Error>)
  requires
  && ValidState()
- modifies Modifies ,
+ modifies Modifies - {History} ,
  History`GetKeyRotationStatus
  // Dafny will skip type parameters when generating a default decreases clause.
- decreases Modifies
+ decreases Modifies - {History}
  ensures
  && ValidState()
  ensures GetKeyRotationStatusEnsuresPublicly(input, output)
@@ -901,10 +899,10 @@ include "../../src/StandardLibrary/StandardLibrary.dfy"
  returns (output: Result<GetParametersForImportResponse, Error>)
  requires
  && ValidState()
- modifies Modifies ,
+ modifies Modifies - {History} ,
  History`GetParametersForImport
  // Dafny will skip type parameters when generating a default decreases clause.
- decreases Modifies
+ decreases Modifies - {History}
  ensures
  && ValidState()
  ensures GetParametersForImportEnsuresPublicly(input, output)
@@ -916,10 +914,10 @@ include "../../src/StandardLibrary/StandardLibrary.dfy"
  returns (output: Result<GetPublicKeyResponse, Error>)
  requires
  && ValidState()
- modifies Modifies ,
+ modifies Modifies - {History} ,
  History`GetPublicKey
  // Dafny will skip type parameters when generating a default decreases clause.
- decreases Modifies
+ decreases Modifies - {History}
  ensures
  && ValidState()
  ensures GetPublicKeyEnsuresPublicly(input, output)
@@ -931,10 +929,10 @@ include "../../src/StandardLibrary/StandardLibrary.dfy"
  returns (output: Result<ImportKeyMaterialResponse, Error>)
  requires
  && ValidState()
- modifies Modifies ,
+ modifies Modifies - {History} ,
  History`ImportKeyMaterial
  // Dafny will skip type parameters when generating a default decreases clause.
- decreases Modifies
+ decreases Modifies - {History}
  ensures
  && ValidState()
  ensures ImportKeyMaterialEnsuresPublicly(input, output)
@@ -946,10 +944,10 @@ include "../../src/StandardLibrary/StandardLibrary.dfy"
  returns (output: Result<ListAliasesResponse, Error>)
  requires
  && ValidState()
- modifies Modifies ,
+ modifies Modifies - {History} ,
  History`ListAliases
  // Dafny will skip type parameters when generating a default decreases clause.
- decreases Modifies
+ decreases Modifies - {History}
  ensures
  && ValidState()
  ensures ListAliasesEnsuresPublicly(input, output)
@@ -961,10 +959,10 @@ include "../../src/StandardLibrary/StandardLibrary.dfy"
  returns (output: Result<ListGrantsResponse, Error>)
  requires
  && ValidState()
- modifies Modifies ,
+ modifies Modifies - {History} ,
  History`ListGrants
  // Dafny will skip type parameters when generating a default decreases clause.
- decreases Modifies
+ decreases Modifies - {History}
  ensures
  && ValidState()
  ensures ListGrantsEnsuresPublicly(input, output)
@@ -976,10 +974,10 @@ include "../../src/StandardLibrary/StandardLibrary.dfy"
  returns (output: Result<ListKeyPoliciesResponse, Error>)
  requires
  && ValidState()
- modifies Modifies ,
+ modifies Modifies - {History} ,
  History`ListKeyPolicies
  // Dafny will skip type parameters when generating a default decreases clause.
- decreases Modifies
+ decreases Modifies - {History}
  ensures
  && ValidState()
  ensures ListKeyPoliciesEnsuresPublicly(input, output)
@@ -991,10 +989,10 @@ include "../../src/StandardLibrary/StandardLibrary.dfy"
  returns (output: Result<ListResourceTagsResponse, Error>)
  requires
  && ValidState()
- modifies Modifies ,
+ modifies Modifies - {History} ,
  History`ListResourceTags
  // Dafny will skip type parameters when generating a default decreases clause.
- decreases Modifies
+ decreases Modifies - {History}
  ensures
  && ValidState()
  ensures ListResourceTagsEnsuresPublicly(input, output)
@@ -1006,10 +1004,10 @@ include "../../src/StandardLibrary/StandardLibrary.dfy"
  returns (output: Result<(), Error>)
  requires
  && ValidState()
- modifies Modifies ,
+ modifies Modifies - {History} ,
  History`PutKeyPolicy
  // Dafny will skip type parameters when generating a default decreases clause.
- decreases Modifies
+ decreases Modifies - {History}
  ensures
  && ValidState()
  ensures PutKeyPolicyEnsuresPublicly(input, output)
@@ -1021,10 +1019,10 @@ include "../../src/StandardLibrary/StandardLibrary.dfy"
  returns (output: Result<ReEncryptResponse, Error>)
  requires
  && ValidState()
- modifies Modifies ,
+ modifies Modifies - {History} ,
  History`ReEncrypt
  // Dafny will skip type parameters when generating a default decreases clause.
- decreases Modifies
+ decreases Modifies - {History}
  ensures
  && ValidState()
  ensures ReEncryptEnsuresPublicly(input, output)
@@ -1036,10 +1034,10 @@ include "../../src/StandardLibrary/StandardLibrary.dfy"
  returns (output: Result<ReplicateKeyResponse, Error>)
  requires
  && ValidState()
- modifies Modifies ,
+ modifies Modifies - {History} ,
  History`ReplicateKey
  // Dafny will skip type parameters when generating a default decreases clause.
- decreases Modifies
+ decreases Modifies - {History}
  ensures
  && ValidState()
  ensures ReplicateKeyEnsuresPublicly(input, output)
@@ -1051,10 +1049,10 @@ include "../../src/StandardLibrary/StandardLibrary.dfy"
  returns (output: Result<(), Error>)
  requires
  && ValidState()
- modifies Modifies ,
+ modifies Modifies - {History} ,
  History`RetireGrant
  // Dafny will skip type parameters when generating a default decreases clause.
- decreases Modifies
+ decreases Modifies - {History}
  ensures
  && ValidState()
  ensures RetireGrantEnsuresPublicly(input, output)
@@ -1066,10 +1064,10 @@ include "../../src/StandardLibrary/StandardLibrary.dfy"
  returns (output: Result<(), Error>)
  requires
  && ValidState()
- modifies Modifies ,
+ modifies Modifies - {History} ,
  History`RevokeGrant
  // Dafny will skip type parameters when generating a default decreases clause.
- decreases Modifies
+ decreases Modifies - {History}
  ensures
  && ValidState()
  ensures RevokeGrantEnsuresPublicly(input, output)
@@ -1081,10 +1079,10 @@ include "../../src/StandardLibrary/StandardLibrary.dfy"
  returns (output: Result<ScheduleKeyDeletionResponse, Error>)
  requires
  && ValidState()
- modifies Modifies ,
+ modifies Modifies - {History} ,
  History`ScheduleKeyDeletion
  // Dafny will skip type parameters when generating a default decreases clause.
- decreases Modifies
+ decreases Modifies - {History}
  ensures
  && ValidState()
  ensures ScheduleKeyDeletionEnsuresPublicly(input, output)
@@ -1096,10 +1094,10 @@ include "../../src/StandardLibrary/StandardLibrary.dfy"
  returns (output: Result<SignResponse, Error>)
  requires
  && ValidState()
- modifies Modifies ,
+ modifies Modifies - {History} ,
  History`Sign
  // Dafny will skip type parameters when generating a default decreases clause.
- decreases Modifies
+ decreases Modifies - {History}
  ensures
  && ValidState()
  ensures SignEnsuresPublicly(input, output)
@@ -1111,10 +1109,10 @@ include "../../src/StandardLibrary/StandardLibrary.dfy"
  returns (output: Result<(), Error>)
  requires
  && ValidState()
- modifies Modifies ,
+ modifies Modifies - {History} ,
  History`TagResource
  // Dafny will skip type parameters when generating a default decreases clause.
- decreases Modifies
+ decreases Modifies - {History}
  ensures
  && ValidState()
  ensures TagResourceEnsuresPublicly(input, output)
@@ -1126,10 +1124,10 @@ include "../../src/StandardLibrary/StandardLibrary.dfy"
  returns (output: Result<(), Error>)
  requires
  && ValidState()
- modifies Modifies ,
+ modifies Modifies - {History} ,
  History`UntagResource
  // Dafny will skip type parameters when generating a default decreases clause.
- decreases Modifies
+ decreases Modifies - {History}
  ensures
  && ValidState()
  ensures UntagResourceEnsuresPublicly(input, output)
@@ -1141,10 +1139,10 @@ include "../../src/StandardLibrary/StandardLibrary.dfy"
  returns (output: Result<(), Error>)
  requires
  && ValidState()
- modifies Modifies ,
+ modifies Modifies - {History} ,
  History`UpdateAlias
  // Dafny will skip type parameters when generating a default decreases clause.
- decreases Modifies
+ decreases Modifies - {History}
  ensures
  && ValidState()
  ensures UpdateAliasEnsuresPublicly(input, output)
@@ -1156,10 +1154,10 @@ include "../../src/StandardLibrary/StandardLibrary.dfy"
  returns (output: Result<UpdateCustomKeyStoreResponse, Error>)
  requires
  && ValidState()
- modifies Modifies ,
+ modifies Modifies - {History} ,
  History`UpdateCustomKeyStore
  // Dafny will skip type parameters when generating a default decreases clause.
- decreases Modifies
+ decreases Modifies - {History}
  ensures
  && ValidState()
  ensures UpdateCustomKeyStoreEnsuresPublicly(input, output)
@@ -1171,10 +1169,10 @@ include "../../src/StandardLibrary/StandardLibrary.dfy"
  returns (output: Result<(), Error>)
  requires
  && ValidState()
- modifies Modifies ,
+ modifies Modifies - {History} ,
  History`UpdateKeyDescription
  // Dafny will skip type parameters when generating a default decreases clause.
- decreases Modifies
+ decreases Modifies - {History}
  ensures
  && ValidState()
  ensures UpdateKeyDescriptionEnsuresPublicly(input, output)
@@ -1186,10 +1184,10 @@ include "../../src/StandardLibrary/StandardLibrary.dfy"
  returns (output: Result<(), Error>)
  requires
  && ValidState()
- modifies Modifies ,
+ modifies Modifies - {History} ,
  History`UpdatePrimaryRegion
  // Dafny will skip type parameters when generating a default decreases clause.
- decreases Modifies
+ decreases Modifies - {History}
  ensures
  && ValidState()
  ensures UpdatePrimaryRegionEnsuresPublicly(input, output)
@@ -1201,10 +1199,10 @@ include "../../src/StandardLibrary/StandardLibrary.dfy"
  returns (output: Result<VerifyResponse, Error>)
  requires
  && ValidState()
- modifies Modifies ,
+ modifies Modifies - {History} ,
  History`Verify
  // Dafny will skip type parameters when generating a default decreases clause.
- decreases Modifies
+ decreases Modifies - {History}
  ensures
  && ValidState()
  ensures VerifyEnsuresPublicly(input, output)
@@ -1518,94 +1516,31 @@ include "../../src/StandardLibrary/StandardLibrary.dfy"
 	| RSA_2048
  datatype Error =
  // Local Error structures are listed here
- | InvalidGrantTokenException (
- nameonly message: Option<ErrorMessageType>
- )
- | CloudHsmClusterNotActiveException (
- nameonly message: Option<ErrorMessageType>
- )
- | IncorrectKeyMaterialException (
- nameonly message: Option<ErrorMessageType>
- )
- | InvalidImportTokenException (
- nameonly message: Option<ErrorMessageType>
- )
- | InvalidAliasNameException (
- nameonly message: Option<ErrorMessageType>
- )
- | InvalidKeyUsageException (
- nameonly message: Option<ErrorMessageType>
- )
- | CloudHsmClusterNotFoundException (
- nameonly message: Option<ErrorMessageType>
- )
  | TagException (
- nameonly message: Option<ErrorMessageType>
- )
- | CustomKeyStoreNotFoundException (
- nameonly message: Option<ErrorMessageType>
- )
- | InvalidArnException (
  nameonly message: Option<ErrorMessageType>
  )
  | CloudHsmClusterNotRelatedException (
  nameonly message: Option<ErrorMessageType>
  )
- | NotFoundException (
- nameonly message: Option<ErrorMessageType>
- )
- | CloudHsmClusterInvalidConfigurationException (
- nameonly message: Option<ErrorMessageType>
- )
- | CustomKeyStoreNameInUseException (
- nameonly message: Option<ErrorMessageType>
- )
- | UnsupportedOperationException (
- nameonly message: Option<ErrorMessageType>
- )
- | DependencyTimeoutException (
- nameonly message: Option<ErrorMessageType>
- )
- | CloudHsmClusterInUseException (
- nameonly message: Option<ErrorMessageType>
- )
- | DisabledException (
- nameonly message: Option<ErrorMessageType>
- )
- | KeyUnavailableException (
- nameonly message: Option<ErrorMessageType>
- )
- | KMSInvalidSignatureException (
- nameonly message: Option<ErrorMessageType>
- )
- | IncorrectKeyException (
- nameonly message: Option<ErrorMessageType>
- )
- | CustomKeyStoreInvalidStateException (
- nameonly message: Option<ErrorMessageType>
- )
- | ExpiredImportTokenException (
- nameonly message: Option<ErrorMessageType>
- )
- | KMSInvalidStateException (
- nameonly message: Option<ErrorMessageType>
- )
- | InvalidMarkerException (
- nameonly message: Option<ErrorMessageType>
- )
- | InvalidGrantIdException (
- nameonly message: Option<ErrorMessageType>
- )
- | AlreadyExistsException (
+ | CloudHsmClusterNotFoundException (
  nameonly message: Option<ErrorMessageType>
  )
  | MalformedPolicyDocumentException (
  nameonly message: Option<ErrorMessageType>
  )
- | LimitExceededException (
+ | CustomKeyStoreHasCMKsException (
  nameonly message: Option<ErrorMessageType>
  )
- | CustomKeyStoreHasCMKsException (
+ | InvalidGrantIdException (
+ nameonly message: Option<ErrorMessageType>
+ )
+ | InvalidMarkerException (
+ nameonly message: Option<ErrorMessageType>
+ )
+ | InvalidImportTokenException (
+ nameonly message: Option<ErrorMessageType>
+ )
+ | KMSInvalidSignatureException (
  nameonly message: Option<ErrorMessageType>
  )
  | IncorrectTrustAnchorException (
@@ -1615,6 +1550,69 @@ include "../../src/StandardLibrary/StandardLibrary.dfy"
  nameonly message: Option<ErrorMessageType>
  )
  | KMSInternalException (
+ nameonly message: Option<ErrorMessageType>
+ )
+ | InvalidAliasNameException (
+ nameonly message: Option<ErrorMessageType>
+ )
+ | InvalidKeyUsageException (
+ nameonly message: Option<ErrorMessageType>
+ )
+ | CustomKeyStoreNotFoundException (
+ nameonly message: Option<ErrorMessageType>
+ )
+ | AlreadyExistsException (
+ nameonly message: Option<ErrorMessageType>
+ )
+ | InvalidArnException (
+ nameonly message: Option<ErrorMessageType>
+ )
+ | NotFoundException (
+ nameonly message: Option<ErrorMessageType>
+ )
+ | CloudHsmClusterInvalidConfigurationException (
+ nameonly message: Option<ErrorMessageType>
+ )
+ | LimitExceededException (
+ nameonly message: Option<ErrorMessageType>
+ )
+ | KeyUnavailableException (
+ nameonly message: Option<ErrorMessageType>
+ )
+ | IncorrectKeyException (
+ nameonly message: Option<ErrorMessageType>
+ )
+ | CustomKeyStoreInvalidStateException (
+ nameonly message: Option<ErrorMessageType>
+ )
+ | InvalidGrantTokenException (
+ nameonly message: Option<ErrorMessageType>
+ )
+ | IncorrectKeyMaterialException (
+ nameonly message: Option<ErrorMessageType>
+ )
+ | CloudHsmClusterNotActiveException (
+ nameonly message: Option<ErrorMessageType>
+ )
+ | ExpiredImportTokenException (
+ nameonly message: Option<ErrorMessageType>
+ )
+ | KMSInvalidStateException (
+ nameonly message: Option<ErrorMessageType>
+ )
+ | UnsupportedOperationException (
+ nameonly message: Option<ErrorMessageType>
+ )
+ | CustomKeyStoreNameInUseException (
+ nameonly message: Option<ErrorMessageType>
+ )
+ | DependencyTimeoutException (
+ nameonly message: Option<ErrorMessageType>
+ )
+ | CloudHsmClusterInUseException (
+ nameonly message: Option<ErrorMessageType>
+ )
+ | DisabledException (
  nameonly message: Option<ErrorMessageType>
  )
  // Any dependent models are listed here

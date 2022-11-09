@@ -1,8 +1,7 @@
 // Copyright Amazon.com Inc. or its affiliates. All Rights Reserved.
 // SPDX-License-Identifier: Apache-2.0
 // Do not modify this file. This file is machine generated, and any changes to it will be overwritten.
-include "../../src/StandardLibrary/StandardLibrary.dfy"
- include "../../src/Util/UTF8.dfy"
+include "../src/include.dfy"
  module {:extern "Dafny.Aws.Cryptography.Primitives.Types" } AwsCryptographyPrimitivesTypes
  {
  import opened Wrappers
@@ -10,15 +9,9 @@ include "../../src/StandardLibrary/StandardLibrary.dfy"
  import opened UTF8
  // Generic helpers for verification of mock/unit tests.
  datatype DafnyCallEvent<I, O> = DafnyCallEvent(input: I, output: O)
- function Last<T>(s: seq<T>): T requires |s| > 0 { s[|s|-1] }
  
  // Begin Generated Types
  
- datatype AES_CBC = | AES_CBC (
- nameonly keyLength: SymmetricKeyLength ,
- nameonly tagLength: Uint8Bytes ,
- nameonly ivLength: Uint8Bits
- )
  datatype AES_GCM = | AES_GCM (
  nameonly keyLength: SymmetricKeyLength ,
  nameonly tagLength: Uint8Bytes ,
@@ -77,9 +70,9 @@ include "../../src/StandardLibrary/StandardLibrary.dfy"
 }
  trait {:termination false} IAwsCryptographicPrimitivesClient
  {
- // Helper to define any additional modifies/reads clauses
- // If your operations need to mutate state add it
- // in your constructor function:
+ // Helper to define any additional modifies/reads clauses.
+ // If your operations need to mutate state,
+ // add it in your constructor function:
  // Modifies := {your, fields, here, History};
  // If you do not need to mutate anything:
  // Modifies := {History};
@@ -90,8 +83,8 @@ include "../../src/StandardLibrary/StandardLibrary.dfy"
  // it needs some way to know (an invariant),
  // about the state of the object.
  // This builds on the Valid/Repr paradigm
- // To make this kind requires is safe to add
- // to methods called from unverified code
+ // To make this kind requires safe to add
+ // to methods called from unverified code,
  // the predicate MUST NOT take any arguments.
  // This means that the correctness of this requires
  // MUST only be evaluated by the class itself.
@@ -107,10 +100,10 @@ include "../../src/StandardLibrary/StandardLibrary.dfy"
  returns (output: Result<seq<uint8>, Error>)
  requires
  && ValidState()
- modifies Modifies ,
+ modifies Modifies - {History} ,
  History`GenerateRandomBytes
  // Dafny will skip type parameters when generating a default decreases clause.
- decreases Modifies
+ decreases Modifies - {History}
  ensures
  && ValidState()
  ensures GenerateRandomBytesEnsuresPublicly(input, output)
@@ -122,10 +115,10 @@ include "../../src/StandardLibrary/StandardLibrary.dfy"
  returns (output: Result<seq<uint8>, Error>)
  requires
  && ValidState()
- modifies Modifies ,
+ modifies Modifies - {History} ,
  History`Digest
  // Dafny will skip type parameters when generating a default decreases clause.
- decreases Modifies
+ decreases Modifies - {History}
  ensures
  && ValidState()
  ensures DigestEnsuresPublicly(input, output)
@@ -137,10 +130,10 @@ include "../../src/StandardLibrary/StandardLibrary.dfy"
  returns (output: Result<seq<uint8>, Error>)
  requires
  && ValidState()
- modifies Modifies ,
+ modifies Modifies - {History} ,
  History`HMac
  // Dafny will skip type parameters when generating a default decreases clause.
- decreases Modifies
+ decreases Modifies - {History}
  ensures
  && ValidState()
  ensures HMacEnsuresPublicly(input, output)
@@ -152,10 +145,10 @@ include "../../src/StandardLibrary/StandardLibrary.dfy"
  returns (output: Result<seq<uint8>, Error>)
  requires
  && ValidState()
- modifies Modifies ,
+ modifies Modifies - {History} ,
  History`HkdfExtract
  // Dafny will skip type parameters when generating a default decreases clause.
- decreases Modifies
+ decreases Modifies - {History}
  ensures
  && ValidState()
  ensures HkdfExtractEnsuresPublicly(input, output)
@@ -167,10 +160,10 @@ include "../../src/StandardLibrary/StandardLibrary.dfy"
  returns (output: Result<seq<uint8>, Error>)
  requires
  && ValidState()
- modifies Modifies ,
+ modifies Modifies - {History} ,
  History`HkdfExpand
  // Dafny will skip type parameters when generating a default decreases clause.
- decreases Modifies
+ decreases Modifies - {History}
  ensures
  && ValidState()
  ensures HkdfExpandEnsuresPublicly(input, output)
@@ -182,10 +175,10 @@ include "../../src/StandardLibrary/StandardLibrary.dfy"
  returns (output: Result<seq<uint8>, Error>)
  requires
  && ValidState()
- modifies Modifies ,
+ modifies Modifies - {History} ,
  History`Hkdf
  // Dafny will skip type parameters when generating a default decreases clause.
- decreases Modifies
+ decreases Modifies - {History}
  ensures
  && ValidState()
  ensures HkdfEnsuresPublicly(input, output)
@@ -197,10 +190,10 @@ include "../../src/StandardLibrary/StandardLibrary.dfy"
  returns (output: Result<AESEncryptOutput, Error>)
  requires
  && ValidState()
- modifies Modifies ,
+ modifies Modifies - {History} ,
  History`AESEncrypt
  // Dafny will skip type parameters when generating a default decreases clause.
- decreases Modifies
+ decreases Modifies - {History}
  ensures
  && ValidState()
  ensures AESEncryptEnsuresPublicly(input, output)
@@ -212,10 +205,10 @@ include "../../src/StandardLibrary/StandardLibrary.dfy"
  returns (output: Result<seq<uint8>, Error>)
  requires
  && ValidState()
- modifies Modifies ,
+ modifies Modifies - {History} ,
  History`AESDecrypt
  // Dafny will skip type parameters when generating a default decreases clause.
- decreases Modifies
+ decreases Modifies - {History}
  ensures
  && ValidState()
  ensures AESDecryptEnsuresPublicly(input, output)
@@ -227,10 +220,10 @@ include "../../src/StandardLibrary/StandardLibrary.dfy"
  returns (output: Result<GenerateRSAKeyPairOutput, Error>)
  requires
  && ValidState()
- modifies Modifies ,
+ modifies Modifies - {History} ,
  History`GenerateRSAKeyPair
  // Dafny will skip type parameters when generating a default decreases clause.
- decreases Modifies
+ decreases Modifies - {History}
  ensures
  && ValidState()
  ensures GenerateRSAKeyPairEnsuresPublicly(input, output)
@@ -242,10 +235,10 @@ include "../../src/StandardLibrary/StandardLibrary.dfy"
  returns (output: Result<seq<uint8>, Error>)
  requires
  && ValidState()
- modifies Modifies ,
+ modifies Modifies - {History} ,
  History`RSADecrypt
  // Dafny will skip type parameters when generating a default decreases clause.
- decreases Modifies
+ decreases Modifies - {History}
  ensures
  && ValidState()
  ensures RSADecryptEnsuresPublicly(input, output)
@@ -257,10 +250,10 @@ include "../../src/StandardLibrary/StandardLibrary.dfy"
  returns (output: Result<seq<uint8>, Error>)
  requires
  && ValidState()
- modifies Modifies ,
+ modifies Modifies - {History} ,
  History`RSAEncrypt
  // Dafny will skip type parameters when generating a default decreases clause.
- decreases Modifies
+ decreases Modifies - {History}
  ensures
  && ValidState()
  ensures RSAEncryptEnsuresPublicly(input, output)
@@ -272,10 +265,10 @@ include "../../src/StandardLibrary/StandardLibrary.dfy"
  returns (output: Result<GenerateECDSASignatureKeyOutput, Error>)
  requires
  && ValidState()
- modifies Modifies ,
+ modifies Modifies - {History} ,
  History`GenerateECDSASignatureKey
  // Dafny will skip type parameters when generating a default decreases clause.
- decreases Modifies
+ decreases Modifies - {History}
  ensures
  && ValidState()
  ensures GenerateECDSASignatureKeyEnsuresPublicly(input, output)
@@ -287,10 +280,10 @@ include "../../src/StandardLibrary/StandardLibrary.dfy"
  returns (output: Result<seq<uint8>, Error>)
  requires
  && ValidState()
- modifies Modifies ,
+ modifies Modifies - {History} ,
  History`ECDSASign
  // Dafny will skip type parameters when generating a default decreases clause.
- decreases Modifies
+ decreases Modifies - {History}
  ensures
  && ValidState()
  ensures ECDSASignEnsuresPublicly(input, output)
@@ -302,10 +295,10 @@ include "../../src/StandardLibrary/StandardLibrary.dfy"
  returns (output: Result<bool, Error>)
  requires
  && ValidState()
- modifies Modifies ,
+ modifies Modifies - {History} ,
  History`ECDSAVerify
  // Dafny will skip type parameters when generating a default decreases clause.
- decreases Modifies
+ decreases Modifies - {History}
  ensures
  && ValidState()
  ensures ECDSAVerifyEnsuresPublicly(input, output)
@@ -409,7 +402,7 @@ include "../../src/StandardLibrary/StandardLibrary.dfy"
  )
  type RSAStrengthBits = x: int32 | IsValid_RSAStrengthBits(x) witness *
  predicate method IsValid_RSAStrengthBits(x: int32) {
- ( 81 <= x <= 80000000 )
+ ( 81 <= x <= 4096 )
 }
  type SymmetricKeyLength = x: int32 | IsValid_SymmetricKeyLength(x) witness *
  predicate method IsValid_SymmetricKeyLength(x: int32) {
@@ -494,10 +487,10 @@ include "../../src/StandardLibrary/StandardLibrary.dfy"
  returns (output: Result<seq<uint8>, Error>)
  requires
  && ValidState()
- modifies Modifies ,
+ modifies Modifies - {History} ,
  History`GenerateRandomBytes
  // Dafny will skip type parameters when generating a default decreases clause.
- decreases Modifies
+ decreases Modifies - {History}
  ensures
  && ValidState()
  ensures GenerateRandomBytesEnsuresPublicly(input, output)
@@ -514,10 +507,10 @@ include "../../src/StandardLibrary/StandardLibrary.dfy"
  returns (output: Result<seq<uint8>, Error>)
  requires
  && ValidState()
- modifies Modifies ,
+ modifies Modifies - {History} ,
  History`Digest
  // Dafny will skip type parameters when generating a default decreases clause.
- decreases Modifies
+ decreases Modifies - {History}
  ensures
  && ValidState()
  ensures DigestEnsuresPublicly(input, output)
@@ -534,10 +527,10 @@ include "../../src/StandardLibrary/StandardLibrary.dfy"
  returns (output: Result<seq<uint8>, Error>)
  requires
  && ValidState()
- modifies Modifies ,
+ modifies Modifies - {History} ,
  History`HMac
  // Dafny will skip type parameters when generating a default decreases clause.
- decreases Modifies
+ decreases Modifies - {History}
  ensures
  && ValidState()
  ensures HMacEnsuresPublicly(input, output)
@@ -554,10 +547,10 @@ include "../../src/StandardLibrary/StandardLibrary.dfy"
  returns (output: Result<seq<uint8>, Error>)
  requires
  && ValidState()
- modifies Modifies ,
+ modifies Modifies - {History} ,
  History`HkdfExtract
  // Dafny will skip type parameters when generating a default decreases clause.
- decreases Modifies
+ decreases Modifies - {History}
  ensures
  && ValidState()
  ensures HkdfExtractEnsuresPublicly(input, output)
@@ -574,10 +567,10 @@ include "../../src/StandardLibrary/StandardLibrary.dfy"
  returns (output: Result<seq<uint8>, Error>)
  requires
  && ValidState()
- modifies Modifies ,
+ modifies Modifies - {History} ,
  History`HkdfExpand
  // Dafny will skip type parameters when generating a default decreases clause.
- decreases Modifies
+ decreases Modifies - {History}
  ensures
  && ValidState()
  ensures HkdfExpandEnsuresPublicly(input, output)
@@ -594,10 +587,10 @@ include "../../src/StandardLibrary/StandardLibrary.dfy"
  returns (output: Result<seq<uint8>, Error>)
  requires
  && ValidState()
- modifies Modifies ,
+ modifies Modifies - {History} ,
  History`Hkdf
  // Dafny will skip type parameters when generating a default decreases clause.
- decreases Modifies
+ decreases Modifies - {History}
  ensures
  && ValidState()
  ensures HkdfEnsuresPublicly(input, output)
@@ -614,10 +607,10 @@ include "../../src/StandardLibrary/StandardLibrary.dfy"
  returns (output: Result<AESEncryptOutput, Error>)
  requires
  && ValidState()
- modifies Modifies ,
+ modifies Modifies - {History} ,
  History`AESEncrypt
  // Dafny will skip type parameters when generating a default decreases clause.
- decreases Modifies
+ decreases Modifies - {History}
  ensures
  && ValidState()
  ensures AESEncryptEnsuresPublicly(input, output)
@@ -634,10 +627,10 @@ include "../../src/StandardLibrary/StandardLibrary.dfy"
  returns (output: Result<seq<uint8>, Error>)
  requires
  && ValidState()
- modifies Modifies ,
+ modifies Modifies - {History} ,
  History`AESDecrypt
  // Dafny will skip type parameters when generating a default decreases clause.
- decreases Modifies
+ decreases Modifies - {History}
  ensures
  && ValidState()
  ensures AESDecryptEnsuresPublicly(input, output)
@@ -654,10 +647,10 @@ include "../../src/StandardLibrary/StandardLibrary.dfy"
  returns (output: Result<GenerateRSAKeyPairOutput, Error>)
  requires
  && ValidState()
- modifies Modifies ,
+ modifies Modifies - {History} ,
  History`GenerateRSAKeyPair
  // Dafny will skip type parameters when generating a default decreases clause.
- decreases Modifies
+ decreases Modifies - {History}
  ensures
  && ValidState()
  ensures GenerateRSAKeyPairEnsuresPublicly(input, output)
@@ -674,10 +667,10 @@ include "../../src/StandardLibrary/StandardLibrary.dfy"
  returns (output: Result<seq<uint8>, Error>)
  requires
  && ValidState()
- modifies Modifies ,
+ modifies Modifies - {History} ,
  History`RSADecrypt
  // Dafny will skip type parameters when generating a default decreases clause.
- decreases Modifies
+ decreases Modifies - {History}
  ensures
  && ValidState()
  ensures RSADecryptEnsuresPublicly(input, output)
@@ -694,10 +687,10 @@ include "../../src/StandardLibrary/StandardLibrary.dfy"
  returns (output: Result<seq<uint8>, Error>)
  requires
  && ValidState()
- modifies Modifies ,
+ modifies Modifies - {History} ,
  History`RSAEncrypt
  // Dafny will skip type parameters when generating a default decreases clause.
- decreases Modifies
+ decreases Modifies - {History}
  ensures
  && ValidState()
  ensures RSAEncryptEnsuresPublicly(input, output)
@@ -714,10 +707,10 @@ include "../../src/StandardLibrary/StandardLibrary.dfy"
  returns (output: Result<GenerateECDSASignatureKeyOutput, Error>)
  requires
  && ValidState()
- modifies Modifies ,
+ modifies Modifies - {History} ,
  History`GenerateECDSASignatureKey
  // Dafny will skip type parameters when generating a default decreases clause.
- decreases Modifies
+ decreases Modifies - {History}
  ensures
  && ValidState()
  ensures GenerateECDSASignatureKeyEnsuresPublicly(input, output)
@@ -734,10 +727,10 @@ include "../../src/StandardLibrary/StandardLibrary.dfy"
  returns (output: Result<seq<uint8>, Error>)
  requires
  && ValidState()
- modifies Modifies ,
+ modifies Modifies - {History} ,
  History`ECDSASign
  // Dafny will skip type parameters when generating a default decreases clause.
- decreases Modifies
+ decreases Modifies - {History}
  ensures
  && ValidState()
  ensures ECDSASignEnsuresPublicly(input, output)
@@ -754,10 +747,10 @@ include "../../src/StandardLibrary/StandardLibrary.dfy"
  returns (output: Result<bool, Error>)
  requires
  && ValidState()
- modifies Modifies ,
+ modifies Modifies - {History} ,
  History`ECDSAVerify
  // Dafny will skip type parameters when generating a default decreases clause.
- decreases Modifies
+ decreases Modifies - {History}
  ensures
  && ValidState()
  ensures ECDSAVerifyEnsuresPublicly(input, output)

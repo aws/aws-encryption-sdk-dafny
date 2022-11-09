@@ -9,6 +9,7 @@ module Actions {
   import opened Wrappers
   import opened Seq
 
+  datatype ActionInvoke<A, R> = ActionInvoke(input: A, output: R)
   /*
    * A trait that can execute arbitrary actions on input type A
    * and return results of type R.
@@ -17,6 +18,57 @@ module Actions {
   {
     /*
      * Contains the implementation of the given action
+     */
+    method Invoke(a: A, ghost attemptsState: seq<ActionInvoke<A, R>>)
+      returns (r: R)
+      requires Invariant()
+      modifies Modifies
+      decreases Modifies
+      ensures Invariant()
+      ensures Ensures(a, r, attemptsState)
+
+    predicate Invariant()
+      reads Modifies
+      decreases Modifies
+
+    /*
+     * Contains the assertions that should be true upon return of the Invoke method
+     */
+    predicate Ensures(
+      a: A,
+      r: R,
+      attemptsState: seq<ActionInvoke<A, R>>
+    )
+      reads Modifies
+      decreases Modifies
+
+    /*
+     * Contains the set of fields that may be modified during `Invoke`
+     */
+    ghost const Modifies: set<object>
+  }
+
+  /*
+   * A trait that can execute actions which can fail. Is invoked on inputs
+   * of type A, and returns Result types which contain type R on success
+   * or type E on failure.
+   */
+  trait {:termination false} ActionWithResult<A, R, E>
+    extends Action<A, Result<R, E>>
+  {
+    method Invoke(a: A, ghost attemptsState: seq<ActionInvoke<A, Result<R, E>>>)
+      returns (r: Result<R, E>)
+      requires Invariant()
+      modifies Modifies
+      decreases Modifies
+      ensures Invariant()
+      ensures Ensures(a, r, attemptsState)
+  }
+
+    trait {:termination false} DeterministicAction<A, R>
+  {
+    /*
+     * Contains the implementation of the given deterministic action
      */
     method Invoke(a: A)
       returns (r: R)
@@ -29,24 +81,28 @@ module Actions {
   }
 
   /*
-   * A trait that can execute actions which can fail. Is invoked on inputs
-   * of type A, and returns Result types which contain type R on success
+   * A trait that can execute deterministic actions which can fail.
+   * Is invoked on inputs of type A,
+   * and returns Result types which contain type R on success
    * or type E on failure.
    */
-  trait {:termination false} ActionWithResult<A, R, E>
-    extends Action<A, Result<R, E>>
+  trait {:termination false} DeterministicActionWithResult<A, R, E>
+    extends DeterministicAction<A, Result<R, E>>
   {
     method Invoke(a: A)
-      returns (res: Result<R, E>)
-      ensures Ensures(a, res)
+      returns (r: Result<R, E>)
+      ensures Ensures(a, r)
   }
 
-  /*
-   * Returns a sequence with elements of type R which is built by executing the input action
+/*
+   * Returns a sequence with elements of type R
+   * which is built by executing the input action
    * to all items in the input sequence.
+   *
+   * This operation MUST be deterministic.
    */
-  method Map<A, R>(
-    action: Action<A, R>,
+  method DeterministicMap<A, R>(
+    action: DeterministicAction<A, R>,
     s: seq<A>
   )
     returns (res: seq<R>)
@@ -74,9 +130,8 @@ module Actions {
   /*
    * A specialized version of the Map method which allows actions that can fail.
    */
-  // TODO: Change R(0) -> R once https://github.com/dafny-lang/dafny/issues/1553 resolved
-  method MapWithResult<A, R(0), E>(
-    action: ActionWithResult<A, R, E>,
+  method DeterministicMapWithResult<A, R, E>(
+    action: DeterministicActionWithResult<A, R, E>,
     s: seq<A>
   )
     returns (res: Result<seq<R>, E>)
@@ -112,8 +167,8 @@ module Actions {
    * than recursively; that is, if the action returns a sequence of sequences, the return
    * of this method will also be a sequence of sequences.
    */
-  method FlatMap<A, R>(
-    action: Action<A, seq<R>>,
+  method DeterministicFlatMap<A, R>(
+    action: DeterministicAction<A, seq<R>>,
     s: seq<A>
   )
     returns (res: seq<R>)
@@ -147,8 +202,8 @@ module Actions {
    * the action's return sequences, which may be useful in helping callers
    * prove things.
    */
-  method FlatMapWithResult<A, R, E>(
-    action: ActionWithResult<A, seq<R>, E>,
+  method DeterministicFlatMapWithResult<A, R, E>(
+    action: DeterministicActionWithResult<A, seq<R>, E>,
     s: seq<A>
   )
     returns (res: Result<seq<R>, E>, ghost parts: seq<seq<R>>)
@@ -182,13 +237,13 @@ module Actions {
     return Success(rs), parts;
   }
 
-  /*
+ /*
    * Given an input action (which must return a boolean) and an input sequence,
    * returns a sequence containing only those items from the input sequence which
    * return true when the action is invoked on them.
    */
   method Filter<A>(
-    action: Action<A, bool>,
+    action: DeterministicAction<A, bool>,
     s: seq<A>
   )
     returns (res: seq<A>)
@@ -221,7 +276,7 @@ module Actions {
    * Specialized version of Filter whose input action may fail.
    */
   method FilterWithResult<A, E>(
-    action: ActionWithResult<A, bool, E>,
+    action: DeterministicActionWithResult<A, bool, E>,
     s: seq<A>
   )
     returns (res: Result<seq<A>, E>)
@@ -259,25 +314,73 @@ module Actions {
    * the successful attempt's result. If all fail, this method returns a single
    * failure which aggregates all failures.
    */
-  method ReduceToSuccess<A, B, E>(
+    method ReduceToSuccess<A, B, E>(
     action: ActionWithResult<A, B, E>,
     s: seq<A>
   )
-    returns (res: Result<B, seq<E>>)
+    returns (
+      res: Result<B, seq<E>>,
+      ghost attemptsState: seq<ActionInvoke<A, Result<B, E>>>
+    )
+    requires 0 < |s|
+    requires action.Invariant()
+    modifies action.Modifies
+    decreases action.Modifies
+    ensures 0 < |attemptsState| <= |s|
+    ensures forall i
+      | 0 <= i < |attemptsState|
+      :: attemptsState[i].input == s[i]
+    ensures action.Invariant() // this feels a little strange
     ensures
-      res.Success?
-    ==>
-      exists a | a in s :: action.Ensures(a, Success(res.value))
+    if res.Success? then
+      && Last(attemptsState).output.Success?
+      && Last(attemptsState).output.value == res.value
+      // This is the engine that can be used to hoist proof obligations
+      && action.Ensures(
+        Last(attemptsState).input,
+        Last(attemptsState).output,
+        DropLast(attemptsState))
+      // Attempts are made until there is a success
+      // so attemps will be amde up of failures
+      // with one final Success at the end.
+      && forall i
+      | 0 <= i < |DropLast(attemptsState)|
+      :: attemptsState[i].output.Failure?
+    else
+      && |attemptsState| == |s|
+      && forall i
+      | 0 <= i < |attemptsState|
+      :: attemptsState[i].output.Failure?
   {
-    var errors := [];
-    for i := 0 to |s| {
-      var attempt := action.Invoke(s[i]);
+    var attemptedResults := [];
+    attemptsState := [];
+    for i := 0 to |s|
+      invariant |s[..i]| == |attemptsState| == |attemptedResults|
+      invariant forall j
+      | 0 <= j < |attemptsState|
+      ::
+        && attemptsState[j].input == s[j]
+        && attemptsState[j].output.Failure?
+        && attemptedResults[j] == attemptsState[j].output
+      invariant action.Invariant()
+    {
+      var attempt := action.Invoke(s[i], attemptsState);
+
+      attemptsState := attemptsState + [ActionInvoke(s[i], attempt)];
+      attemptedResults := attemptedResults + [attempt];
+
       if attempt.Success? {
-        return Success(attempt.value);
-      } else {
-        errors := errors + [attempt.error];
+        return Success(attempt.value), attemptsState;
       }
     }
-    return Failure(errors);
+    res := Failure(Seq.Map(pluckErrors, attemptedResults));
+  }
+
+  function method pluckErrors<B, E>(r: Result<B, E>)
+    :(e: E)
+    requires r.Failure?
+    ensures r.error == e
+  {
+    r.error
   }
 }

@@ -11,9 +11,9 @@ jobs:
   testDotNet:
     strategy:
       matrix:
+        library: [ AwsCryptographyPrimitives, ComAmazonawsKms ]
         dotnet-version: [ '6.0.x' ]
         os: [ windows-latest, ubuntu-latest, macos-latest ]
-        library: [ AwsCryptographyPrimitives, ComAmazonawsKms ]
     runs-on: ${{ matrix.os }}
     permissions:
       id-token: write
@@ -38,7 +38,7 @@ jobs:
       - name: Setup Dafny
         uses: dafny-lang/setup-dafny-action@v1.4.0
         with:
-          dafny-version: "3.9.0"
+          dafny-version: "3.9.1"
 
       - name: Setup .NET Core SDK ${{ matrix.dotnet-version }}
         uses: actions/setup-dotnet@v3

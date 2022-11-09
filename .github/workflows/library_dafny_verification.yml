@@ -11,8 +11,8 @@ jobs:
   verification:
     strategy:
       matrix:
+        library: [ AwsCryptographyPrimitives, ComAmazonawsKms, AwsCryptographicMaterialProviders ]
         os: [ windows-latest, ubuntu-latest, macos-latest ]
-        library: [ AwsCryptographyPrimitives, ComAmazonawsKms ]
     runs-on: ${{ matrix.os }}
     env:
       DOTNET_CLI_TELEMETRY_OPTOUT: 1
@@ -26,7 +26,10 @@ jobs:
       - name: Setup Dafny
         uses: dafny-lang/setup-dafny-action@v1.4.0
         with:
-          dafny-version: "3.9.0"
+          dafny-version: "3.9.1"
+
+      - name: Install dafny-reportgenerator
+        run: dotnet tool install --global dafny-reportgenerator --version 1.2.0
 
       - name: Verify ${{ matrix.library }} Dafny code
         shell: bash
@@ -36,7 +39,8 @@ jobs:
           CORES=$(node -e 'console.log(os.cpus().length)')
           make verify CORES=$CORES
 
-# TODO migrate this to use dafny-reportgenerator
-      - if: always()
+      - name: Check solver resource use
         shell: bash
-        run: MAX_VERIFICATION_DURATION_SECONDS=10 python3 verification-times-from-trx.py ${{ matrix.library }}/TestResults/*.trx
+        working-directory: ./${{ matrix.library }}
+        run: |
+          make dafny-reportgenerator
