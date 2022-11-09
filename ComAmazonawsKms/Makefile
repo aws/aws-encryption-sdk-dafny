@@ -8,11 +8,16 @@ verify:
 		-vcsCores:$(CORES) \
 		-compile:0 \
 		-definiteAssignment:3 \
-		/timeLimit:300 \
+		-verificationLogger:csv \
+		-timeLimit:300 \
 		-trace \
-		-verificationLogger:trx \
-		./src/*.dfy \
-		./test/*.dfy
+		`find . -name '*.dfy'`
+
+dafny-reportgenerator:
+	dafny-reportgenerator \
+		summarize-csv-results \
+		--max-resource-count 10000000 \
+		TestResults/*.csv
 
 compile_net: | compile_implementation_net compile_test_net
 

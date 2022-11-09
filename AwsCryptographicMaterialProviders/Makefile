@@ -16,7 +16,7 @@ verify:
 dafny-reportgenerator:
 	dafny-reportgenerator \
 		summarize-csv-results \
-		--max-resource-count 10000000 \
+		--max-resource-count 110000000 \
 		TestResults/*.csv
 
 compile_net: | compile_implementation_net compile_test_net
