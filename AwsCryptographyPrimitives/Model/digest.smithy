@@ -35,6 +35,7 @@ structure DigestInput {
 
 @aws.polymorph#positional
 structure DigestOutput {
+  @required
   digest: Blob
 }
 

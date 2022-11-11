@@ -27,13 +27,18 @@ structure localService {
   config: String,
 }
 
-// A trait which indicates that the members of given structure should be
-// expanded, to be used when we want operations to accept
+// Trait indicates that the member of the given structure MUST be expanded.
+// To be used when we want operations to accept
 // or return bare values rather than a nested structure.
 // Code generation SHOULD throw an error if this is applied to a structure
 // that is not used as input or output to an operation.
-// Code generation MUST throw an error if this is applied to an output
-// structures with more than one member.
+// At this time,
+// Code generation MUST throw an error if this is applied to a structure
+// with more than or less than one member.
+// i.e: The structure MUST have one and only one member.
+// At this time,
+// the sole member's requirement status MUST NOT be determined by
+// the positional trait.
 // TODO: naming
 @trait(selector: "structure")
 structure positional {}

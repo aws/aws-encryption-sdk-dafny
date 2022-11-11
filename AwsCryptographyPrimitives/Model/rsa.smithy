@@ -83,6 +83,7 @@ structure RSADecryptInput {
 
 @aws.polymorph#positional
 structure RSADecryptOutput {
+  @required
   plaintext: Blob
 }
 
@@ -103,5 +104,6 @@ structure RSAEncryptInput {
 
 @aws.polymorph#positional
 structure RSAEncryptOutput {
+  @required
   cipherText: Blob
 }
