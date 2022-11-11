@@ -13,5 +13,6 @@ structure GenerateRandomBytesInput {
 
 @aws.polymorph#positional
 structure GenerateRandomBytesOutput {
+  @required
   data: Blob
 }

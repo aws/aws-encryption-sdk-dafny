@@ -53,6 +53,7 @@ structure ECDSASignInput {
 
 @aws.polymorph#positional
 structure ECDSASignOutput {
+  @required
   signature: Blob
 }
 
@@ -69,6 +70,7 @@ structure ECDSAVerifyInput {
 
 @aws.polymorph#positional
 structure ECDSAVerifyOutput {
+  @required
   success: Boolean,
 }
 

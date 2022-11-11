@@ -55,6 +55,7 @@ structure AESDecryptInput {
 
 @aws.polymorph#positional
 structure AESDecryptOutput {
+  @required
   plaintext: Blob
 }
 

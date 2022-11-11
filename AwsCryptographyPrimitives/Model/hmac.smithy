@@ -16,5 +16,6 @@ structure HMacInput {
 
 @aws.polymorph#positional
 structure HMacOutput {
+  @required
   digest: Blob
 }

@@ -56,6 +56,13 @@ using System.Linq; namespace AWS.Cryptography.Primitives {
  public static Dafny.ISequence<byte> ToDafny_N3_aws__N12_cryptography__N10_primitives__S16_RSADecryptOutput (System.IO.MemoryStream value) {
  return ToDafny_N3_aws__N12_cryptography__N10_primitives__S16_RSADecryptOutput__M9_plaintext(value);
 }
+ public static AWS.Cryptography.Primitives.GenerateRSAKeyPairInput FromDafny_N3_aws__N12_cryptography__N10_primitives__S23_GenerateRSAKeyPairInput (Dafny.Aws.Cryptography.Primitives.Types._IGenerateRSAKeyPairInput value) {
+ Dafny.Aws.Cryptography.Primitives.Types.GenerateRSAKeyPairInput concrete = (Dafny.Aws.Cryptography.Primitives.Types.GenerateRSAKeyPairInput)value; AWS.Cryptography.Primitives.GenerateRSAKeyPairInput converted = new AWS.Cryptography.Primitives.GenerateRSAKeyPairInput();  converted.Strength = (int) FromDafny_N3_aws__N12_cryptography__N10_primitives__S23_GenerateRSAKeyPairInput__M8_strength(concrete._strength); return converted;
+}
+ public static Dafny.Aws.Cryptography.Primitives.Types._IGenerateRSAKeyPairInput ToDafny_N3_aws__N12_cryptography__N10_primitives__S23_GenerateRSAKeyPairInput (AWS.Cryptography.Primitives.GenerateRSAKeyPairInput value) {
+
+ return new Dafny.Aws.Cryptography.Primitives.Types.GenerateRSAKeyPairInput ( ToDafny_N3_aws__N12_cryptography__N10_primitives__S23_GenerateRSAKeyPairInput__M8_strength(value.Strength) ) ;
+}
  public static AWS.Cryptography.Primitives.GenerateECDSASignatureKeyOutput FromDafny_N3_aws__N12_cryptography__N10_primitives__S31_GenerateECDSASignatureKeyOutput (Dafny.Aws.Cryptography.Primitives.Types._IGenerateECDSASignatureKeyOutput value) {
  Dafny.Aws.Cryptography.Primitives.Types.GenerateECDSASignatureKeyOutput concrete = (Dafny.Aws.Cryptography.Primitives.Types.GenerateECDSASignatureKeyOutput)value; AWS.Cryptography.Primitives.GenerateECDSASignatureKeyOutput converted = new AWS.Cryptography.Primitives.GenerateECDSASignatureKeyOutput();  converted.SignatureAlgorithm = (AWS.Cryptography.Primitives.ECDSASignatureAlgorithm) FromDafny_N3_aws__N12_cryptography__N10_primitives__S31_GenerateECDSASignatureKeyOutput__M18_signatureAlgorithm(concrete._signatureAlgorithm);
   converted.VerificationKey = (System.IO.MemoryStream) FromDafny_N3_aws__N12_cryptography__N10_primitives__S31_GenerateECDSASignatureKeyOutput__M15_verificationKey(concrete._verificationKey);
@@ -64,13 +71,6 @@ using System.Linq; namespace AWS.Cryptography.Primitives {
  public static Dafny.Aws.Cryptography.Primitives.Types._IGenerateECDSASignatureKeyOutput ToDafny_N3_aws__N12_cryptography__N10_primitives__S31_GenerateECDSASignatureKeyOutput (AWS.Cryptography.Primitives.GenerateECDSASignatureKeyOutput value) {
 
  return new Dafny.Aws.Cryptography.Primitives.Types.GenerateECDSASignatureKeyOutput ( ToDafny_N3_aws__N12_cryptography__N10_primitives__S31_GenerateECDSASignatureKeyOutput__M18_signatureAlgorithm(value.SignatureAlgorithm) , ToDafny_N3_aws__N12_cryptography__N10_primitives__S31_GenerateECDSASignatureKeyOutput__M15_verificationKey(value.VerificationKey) , ToDafny_N3_aws__N12_cryptography__N10_primitives__S31_GenerateECDSASignatureKeyOutput__M10_signingKey(value.SigningKey) ) ;
-}
- public static AWS.Cryptography.Primitives.GenerateRSAKeyPairInput FromDafny_N3_aws__N12_cryptography__N10_primitives__S23_GenerateRSAKeyPairInput (Dafny.Aws.Cryptography.Primitives.Types._IGenerateRSAKeyPairInput value) {
- Dafny.Aws.Cryptography.Primitives.Types.GenerateRSAKeyPairInput concrete = (Dafny.Aws.Cryptography.Primitives.Types.GenerateRSAKeyPairInput)value; AWS.Cryptography.Primitives.GenerateRSAKeyPairInput converted = new AWS.Cryptography.Primitives.GenerateRSAKeyPairInput();  converted.Strength = (int) FromDafny_N3_aws__N12_cryptography__N10_primitives__S23_GenerateRSAKeyPairInput__M8_strength(concrete._strength); return converted;
-}
- public static Dafny.Aws.Cryptography.Primitives.Types._IGenerateRSAKeyPairInput ToDafny_N3_aws__N12_cryptography__N10_primitives__S23_GenerateRSAKeyPairInput (AWS.Cryptography.Primitives.GenerateRSAKeyPairInput value) {
-
- return new Dafny.Aws.Cryptography.Primitives.Types.GenerateRSAKeyPairInput ( ToDafny_N3_aws__N12_cryptography__N10_primitives__S23_GenerateRSAKeyPairInput__M8_strength(value.Strength) ) ;
 }
  public static AWS.Cryptography.Primitives.GenerateRandomBytesInput FromDafny_N3_aws__N12_cryptography__N10_primitives__S24_GenerateRandomBytesInput (Dafny.Aws.Cryptography.Primitives.Types._IGenerateRandomBytesInput value) {
  Dafny.Aws.Cryptography.Primitives.Types.GenerateRandomBytesInput concrete = (Dafny.Aws.Cryptography.Primitives.Types.GenerateRandomBytesInput)value; AWS.Cryptography.Primitives.GenerateRandomBytesInput converted = new AWS.Cryptography.Primitives.GenerateRandomBytesInput();  converted.Length = (int) FromDafny_N3_aws__N12_cryptography__N10_primitives__S24_GenerateRandomBytesInput__M6_length(concrete._length); return converted;
@@ -92,15 +92,6 @@ using System.Linq; namespace AWS.Cryptography.Primitives {
 
  return new Dafny.Aws.Cryptography.Primitives.Types.GenerateECDSASignatureKeyInput ( ToDafny_N3_aws__N12_cryptography__N10_primitives__S30_GenerateECDSASignatureKeyInput__M18_signatureAlgorithm(value.SignatureAlgorithm) ) ;
 }
- public static AWS.Cryptography.Primitives.ECDSASignInput FromDafny_N3_aws__N12_cryptography__N10_primitives__S14_ECDSASignInput (Dafny.Aws.Cryptography.Primitives.Types._IECDSASignInput value) {
- Dafny.Aws.Cryptography.Primitives.Types.ECDSASignInput concrete = (Dafny.Aws.Cryptography.Primitives.Types.ECDSASignInput)value; AWS.Cryptography.Primitives.ECDSASignInput converted = new AWS.Cryptography.Primitives.ECDSASignInput();  converted.SignatureAlgorithm = (AWS.Cryptography.Primitives.ECDSASignatureAlgorithm) FromDafny_N3_aws__N12_cryptography__N10_primitives__S14_ECDSASignInput__M18_signatureAlgorithm(concrete._signatureAlgorithm);
-  converted.SigningKey = (System.IO.MemoryStream) FromDafny_N3_aws__N12_cryptography__N10_primitives__S14_ECDSASignInput__M10_signingKey(concrete._signingKey);
-  converted.Message = (System.IO.MemoryStream) FromDafny_N3_aws__N12_cryptography__N10_primitives__S14_ECDSASignInput__M7_message(concrete._message); return converted;
-}
- public static Dafny.Aws.Cryptography.Primitives.Types._IECDSASignInput ToDafny_N3_aws__N12_cryptography__N10_primitives__S14_ECDSASignInput (AWS.Cryptography.Primitives.ECDSASignInput value) {
-
- return new Dafny.Aws.Cryptography.Primitives.Types.ECDSASignInput ( ToDafny_N3_aws__N12_cryptography__N10_primitives__S14_ECDSASignInput__M18_signatureAlgorithm(value.SignatureAlgorithm) , ToDafny_N3_aws__N12_cryptography__N10_primitives__S14_ECDSASignInput__M10_signingKey(value.SigningKey) , ToDafny_N3_aws__N12_cryptography__N10_primitives__S14_ECDSASignInput__M7_message(value.Message) ) ;
-}
  public static AWS.Cryptography.Primitives.HkdfExtractInput FromDafny_N3_aws__N12_cryptography__N10_primitives__S16_HkdfExtractInput (Dafny.Aws.Cryptography.Primitives.Types._IHkdfExtractInput value) {
  Dafny.Aws.Cryptography.Primitives.Types.HkdfExtractInput concrete = (Dafny.Aws.Cryptography.Primitives.Types.HkdfExtractInput)value; AWS.Cryptography.Primitives.HkdfExtractInput converted = new AWS.Cryptography.Primitives.HkdfExtractInput();  converted.DigestAlgorithm = (AWS.Cryptography.Primitives.DigestAlgorithm) FromDafny_N3_aws__N12_cryptography__N10_primitives__S16_HkdfExtractInput__M15_digestAlgorithm(concrete._digestAlgorithm);
  if (concrete._salt.is_Some) converted.Salt = (System.IO.MemoryStream) FromDafny_N3_aws__N12_cryptography__N10_primitives__S16_HkdfExtractInput__M4_salt(concrete._salt);
@@ -109,6 +100,15 @@ using System.Linq; namespace AWS.Cryptography.Primitives {
  public static Dafny.Aws.Cryptography.Primitives.Types._IHkdfExtractInput ToDafny_N3_aws__N12_cryptography__N10_primitives__S16_HkdfExtractInput (AWS.Cryptography.Primitives.HkdfExtractInput value) {
  System.IO.MemoryStream var_salt = value.IsSetSalt() ? value.Salt : (System.IO.MemoryStream) null;
  return new Dafny.Aws.Cryptography.Primitives.Types.HkdfExtractInput ( ToDafny_N3_aws__N12_cryptography__N10_primitives__S16_HkdfExtractInput__M15_digestAlgorithm(value.DigestAlgorithm) , ToDafny_N3_aws__N12_cryptography__N10_primitives__S16_HkdfExtractInput__M4_salt(var_salt) , ToDafny_N3_aws__N12_cryptography__N10_primitives__S16_HkdfExtractInput__M3_ikm(value.Ikm) ) ;
+}
+ public static AWS.Cryptography.Primitives.ECDSASignInput FromDafny_N3_aws__N12_cryptography__N10_primitives__S14_ECDSASignInput (Dafny.Aws.Cryptography.Primitives.Types._IECDSASignInput value) {
+ Dafny.Aws.Cryptography.Primitives.Types.ECDSASignInput concrete = (Dafny.Aws.Cryptography.Primitives.Types.ECDSASignInput)value; AWS.Cryptography.Primitives.ECDSASignInput converted = new AWS.Cryptography.Primitives.ECDSASignInput();  converted.SignatureAlgorithm = (AWS.Cryptography.Primitives.ECDSASignatureAlgorithm) FromDafny_N3_aws__N12_cryptography__N10_primitives__S14_ECDSASignInput__M18_signatureAlgorithm(concrete._signatureAlgorithm);
+  converted.SigningKey = (System.IO.MemoryStream) FromDafny_N3_aws__N12_cryptography__N10_primitives__S14_ECDSASignInput__M10_signingKey(concrete._signingKey);
+  converted.Message = (System.IO.MemoryStream) FromDafny_N3_aws__N12_cryptography__N10_primitives__S14_ECDSASignInput__M7_message(concrete._message); return converted;
+}
+ public static Dafny.Aws.Cryptography.Primitives.Types._IECDSASignInput ToDafny_N3_aws__N12_cryptography__N10_primitives__S14_ECDSASignInput (AWS.Cryptography.Primitives.ECDSASignInput value) {
+
+ return new Dafny.Aws.Cryptography.Primitives.Types.ECDSASignInput ( ToDafny_N3_aws__N12_cryptography__N10_primitives__S14_ECDSASignInput__M18_signatureAlgorithm(value.SignatureAlgorithm) , ToDafny_N3_aws__N12_cryptography__N10_primitives__S14_ECDSASignInput__M10_signingKey(value.SigningKey) , ToDafny_N3_aws__N12_cryptography__N10_primitives__S14_ECDSASignInput__M7_message(value.Message) ) ;
 }
  public static AWS.Cryptography.Primitives.RSADecryptInput FromDafny_N3_aws__N12_cryptography__N10_primitives__S15_RSADecryptInput (Dafny.Aws.Cryptography.Primitives.Types._IRSADecryptInput value) {
  Dafny.Aws.Cryptography.Primitives.Types.RSADecryptInput concrete = (Dafny.Aws.Cryptography.Primitives.Types.RSADecryptInput)value; AWS.Cryptography.Primitives.RSADecryptInput converted = new AWS.Cryptography.Primitives.RSADecryptInput();  converted.Padding = (AWS.Cryptography.Primitives.RSAPaddingMode) FromDafny_N3_aws__N12_cryptography__N10_primitives__S15_RSADecryptInput__M7_padding(concrete._padding);
@@ -202,17 +202,17 @@ using System.Linq; namespace AWS.Cryptography.Primitives {
 
  return new Dafny.Aws.Cryptography.Primitives.Types.RSAEncryptInput ( ToDafny_N3_aws__N12_cryptography__N10_primitives__S15_RSAEncryptInput__M7_padding(value.Padding) , ToDafny_N3_aws__N12_cryptography__N10_primitives__S15_RSAEncryptInput__M9_publicKey(value.PublicKey) , ToDafny_N3_aws__N12_cryptography__N10_primitives__S15_RSAEncryptInput__M9_plaintext(value.Plaintext) ) ;
 }
- public static System.IO.MemoryStream FromDafny_N3_aws__N12_cryptography__N10_primitives__S16_AESDecryptOutput (Dafny.ISequence<byte> value) {
- return FromDafny_N3_aws__N12_cryptography__N10_primitives__S16_AESDecryptOutput__M9_plaintext(value);
-}
- public static Dafny.ISequence<byte> ToDafny_N3_aws__N12_cryptography__N10_primitives__S16_AESDecryptOutput (System.IO.MemoryStream value) {
- return ToDafny_N3_aws__N12_cryptography__N10_primitives__S16_AESDecryptOutput__M9_plaintext(value);
-}
  public static System.IO.MemoryStream FromDafny_N3_aws__N12_cryptography__N10_primitives__S12_DigestOutput (Dafny.ISequence<byte> value) {
  return FromDafny_N3_aws__N12_cryptography__N10_primitives__S12_DigestOutput__M6_digest(value);
 }
  public static Dafny.ISequence<byte> ToDafny_N3_aws__N12_cryptography__N10_primitives__S12_DigestOutput (System.IO.MemoryStream value) {
  return ToDafny_N3_aws__N12_cryptography__N10_primitives__S12_DigestOutput__M6_digest(value);
+}
+ public static System.IO.MemoryStream FromDafny_N3_aws__N12_cryptography__N10_primitives__S16_AESDecryptOutput (Dafny.ISequence<byte> value) {
+ return FromDafny_N3_aws__N12_cryptography__N10_primitives__S16_AESDecryptOutput__M9_plaintext(value);
+}
+ public static Dafny.ISequence<byte> ToDafny_N3_aws__N12_cryptography__N10_primitives__S16_AESDecryptOutput (System.IO.MemoryStream value) {
+ return ToDafny_N3_aws__N12_cryptography__N10_primitives__S16_AESDecryptOutput__M9_plaintext(value);
 }
  public static AWS.Cryptography.Primitives.GenerateRSAKeyPairOutput FromDafny_N3_aws__N12_cryptography__N10_primitives__S24_GenerateRSAKeyPairOutput (Dafny.Aws.Cryptography.Primitives.Types._IGenerateRSAKeyPairOutput value) {
  Dafny.Aws.Cryptography.Primitives.Types.GenerateRSAKeyPairOutput concrete = (Dafny.Aws.Cryptography.Primitives.Types.GenerateRSAKeyPairOutput)value; AWS.Cryptography.Primitives.GenerateRSAKeyPairOutput converted = new AWS.Cryptography.Primitives.GenerateRSAKeyPairOutput();  converted.PublicKey = (AWS.Cryptography.Primitives.RSAPublicKey) FromDafny_N3_aws__N12_cryptography__N10_primitives__S24_GenerateRSAKeyPairOutput__M9_publicKey(concrete._publicKey);
@@ -330,6 +330,12 @@ using System.Linq; namespace AWS.Cryptography.Primitives {
  public static Dafny.ISequence<byte> ToDafny_N3_aws__N12_cryptography__N10_primitives__S16_RSADecryptOutput__M9_plaintext (System.IO.MemoryStream value) {
  return ToDafny_N6_smithy__N3_api__S4_Blob(value);
 }
+ public static int FromDafny_N3_aws__N12_cryptography__N10_primitives__S23_GenerateRSAKeyPairInput__M8_strength (int value) {
+ return FromDafny_N3_aws__N12_cryptography__N10_primitives__S15_RSAStrengthBits(value);
+}
+ public static int ToDafny_N3_aws__N12_cryptography__N10_primitives__S23_GenerateRSAKeyPairInput__M8_strength (int value) {
+ return ToDafny_N3_aws__N12_cryptography__N10_primitives__S15_RSAStrengthBits(value);
+}
  public static AWS.Cryptography.Primitives.ECDSASignatureAlgorithm FromDafny_N3_aws__N12_cryptography__N10_primitives__S31_GenerateECDSASignatureKeyOutput__M18_signatureAlgorithm (Dafny.Aws.Cryptography.Primitives.Types._IECDSASignatureAlgorithm value) {
  return FromDafny_N3_aws__N12_cryptography__N10_primitives__S23_ECDSASignatureAlgorithm(value);
 }
@@ -347,12 +353,6 @@ using System.Linq; namespace AWS.Cryptography.Primitives {
 }
  public static Dafny.ISequence<byte> ToDafny_N3_aws__N12_cryptography__N10_primitives__S31_GenerateECDSASignatureKeyOutput__M10_signingKey (System.IO.MemoryStream value) {
  return ToDafny_N6_smithy__N3_api__S4_Blob(value);
-}
- public static int FromDafny_N3_aws__N12_cryptography__N10_primitives__S23_GenerateRSAKeyPairInput__M8_strength (int value) {
- return FromDafny_N3_aws__N12_cryptography__N10_primitives__S15_RSAStrengthBits(value);
-}
- public static int ToDafny_N3_aws__N12_cryptography__N10_primitives__S23_GenerateRSAKeyPairInput__M8_strength (int value) {
- return ToDafny_N3_aws__N12_cryptography__N10_primitives__S15_RSAStrengthBits(value);
 }
  public static int FromDafny_N3_aws__N12_cryptography__N10_primitives__S24_GenerateRandomBytesInput__M6_length (int value) {
  return FromDafny_N3_aws__N12_cryptography__N10_primitives__S15_PositiveInteger(value);
@@ -372,24 +372,6 @@ using System.Linq; namespace AWS.Cryptography.Primitives {
  public static Dafny.Aws.Cryptography.Primitives.Types._IECDSASignatureAlgorithm ToDafny_N3_aws__N12_cryptography__N10_primitives__S30_GenerateECDSASignatureKeyInput__M18_signatureAlgorithm (AWS.Cryptography.Primitives.ECDSASignatureAlgorithm value) {
  return ToDafny_N3_aws__N12_cryptography__N10_primitives__S23_ECDSASignatureAlgorithm(value);
 }
- public static AWS.Cryptography.Primitives.ECDSASignatureAlgorithm FromDafny_N3_aws__N12_cryptography__N10_primitives__S14_ECDSASignInput__M18_signatureAlgorithm (Dafny.Aws.Cryptography.Primitives.Types._IECDSASignatureAlgorithm value) {
- return FromDafny_N3_aws__N12_cryptography__N10_primitives__S23_ECDSASignatureAlgorithm(value);
-}
- public static Dafny.Aws.Cryptography.Primitives.Types._IECDSASignatureAlgorithm ToDafny_N3_aws__N12_cryptography__N10_primitives__S14_ECDSASignInput__M18_signatureAlgorithm (AWS.Cryptography.Primitives.ECDSASignatureAlgorithm value) {
- return ToDafny_N3_aws__N12_cryptography__N10_primitives__S23_ECDSASignatureAlgorithm(value);
-}
- public static System.IO.MemoryStream FromDafny_N3_aws__N12_cryptography__N10_primitives__S14_ECDSASignInput__M10_signingKey (Dafny.ISequence<byte> value) {
- return FromDafny_N6_smithy__N3_api__S4_Blob(value);
-}
- public static Dafny.ISequence<byte> ToDafny_N3_aws__N12_cryptography__N10_primitives__S14_ECDSASignInput__M10_signingKey (System.IO.MemoryStream value) {
- return ToDafny_N6_smithy__N3_api__S4_Blob(value);
-}
- public static System.IO.MemoryStream FromDafny_N3_aws__N12_cryptography__N10_primitives__S14_ECDSASignInput__M7_message (Dafny.ISequence<byte> value) {
- return FromDafny_N6_smithy__N3_api__S4_Blob(value);
-}
- public static Dafny.ISequence<byte> ToDafny_N3_aws__N12_cryptography__N10_primitives__S14_ECDSASignInput__M7_message (System.IO.MemoryStream value) {
- return ToDafny_N6_smithy__N3_api__S4_Blob(value);
-}
  public static AWS.Cryptography.Primitives.DigestAlgorithm FromDafny_N3_aws__N12_cryptography__N10_primitives__S16_HkdfExtractInput__M15_digestAlgorithm (Dafny.Aws.Cryptography.Primitives.Types._IDigestAlgorithm value) {
  return FromDafny_N3_aws__N12_cryptography__N10_primitives__S15_DigestAlgorithm(value);
 }
@@ -406,6 +388,24 @@ using System.Linq; namespace AWS.Cryptography.Primitives {
  return FromDafny_N6_smithy__N3_api__S4_Blob(value);
 }
  public static Dafny.ISequence<byte> ToDafny_N3_aws__N12_cryptography__N10_primitives__S16_HkdfExtractInput__M3_ikm (System.IO.MemoryStream value) {
+ return ToDafny_N6_smithy__N3_api__S4_Blob(value);
+}
+ public static AWS.Cryptography.Primitives.ECDSASignatureAlgorithm FromDafny_N3_aws__N12_cryptography__N10_primitives__S14_ECDSASignInput__M18_signatureAlgorithm (Dafny.Aws.Cryptography.Primitives.Types._IECDSASignatureAlgorithm value) {
+ return FromDafny_N3_aws__N12_cryptography__N10_primitives__S23_ECDSASignatureAlgorithm(value);
+}
+ public static Dafny.Aws.Cryptography.Primitives.Types._IECDSASignatureAlgorithm ToDafny_N3_aws__N12_cryptography__N10_primitives__S14_ECDSASignInput__M18_signatureAlgorithm (AWS.Cryptography.Primitives.ECDSASignatureAlgorithm value) {
+ return ToDafny_N3_aws__N12_cryptography__N10_primitives__S23_ECDSASignatureAlgorithm(value);
+}
+ public static System.IO.MemoryStream FromDafny_N3_aws__N12_cryptography__N10_primitives__S14_ECDSASignInput__M10_signingKey (Dafny.ISequence<byte> value) {
+ return FromDafny_N6_smithy__N3_api__S4_Blob(value);
+}
+ public static Dafny.ISequence<byte> ToDafny_N3_aws__N12_cryptography__N10_primitives__S14_ECDSASignInput__M10_signingKey (System.IO.MemoryStream value) {
+ return ToDafny_N6_smithy__N3_api__S4_Blob(value);
+}
+ public static System.IO.MemoryStream FromDafny_N3_aws__N12_cryptography__N10_primitives__S14_ECDSASignInput__M7_message (Dafny.ISequence<byte> value) {
+ return FromDafny_N6_smithy__N3_api__S4_Blob(value);
+}
+ public static Dafny.ISequence<byte> ToDafny_N3_aws__N12_cryptography__N10_primitives__S14_ECDSASignInput__M7_message (System.IO.MemoryStream value) {
  return ToDafny_N6_smithy__N3_api__S4_Blob(value);
 }
  public static AWS.Cryptography.Primitives.RSAPaddingMode FromDafny_N3_aws__N12_cryptography__N10_primitives__S15_RSADecryptInput__M7_padding (Dafny.Aws.Cryptography.Primitives.Types._IRSAPaddingMode value) {
@@ -588,16 +588,16 @@ using System.Linq; namespace AWS.Cryptography.Primitives {
  public static Dafny.ISequence<byte> ToDafny_N3_aws__N12_cryptography__N10_primitives__S15_RSAEncryptInput__M9_plaintext (System.IO.MemoryStream value) {
  return ToDafny_N6_smithy__N3_api__S4_Blob(value);
 }
- public static System.IO.MemoryStream FromDafny_N3_aws__N12_cryptography__N10_primitives__S16_AESDecryptOutput__M9_plaintext (Dafny.ISequence<byte> value) {
- return FromDafny_N6_smithy__N3_api__S4_Blob(value);
-}
- public static Dafny.ISequence<byte> ToDafny_N3_aws__N12_cryptography__N10_primitives__S16_AESDecryptOutput__M9_plaintext (System.IO.MemoryStream value) {
- return ToDafny_N6_smithy__N3_api__S4_Blob(value);
-}
  public static System.IO.MemoryStream FromDafny_N3_aws__N12_cryptography__N10_primitives__S12_DigestOutput__M6_digest (Dafny.ISequence<byte> value) {
  return FromDafny_N6_smithy__N3_api__S4_Blob(value);
 }
  public static Dafny.ISequence<byte> ToDafny_N3_aws__N12_cryptography__N10_primitives__S12_DigestOutput__M6_digest (System.IO.MemoryStream value) {
+ return ToDafny_N6_smithy__N3_api__S4_Blob(value);
+}
+ public static System.IO.MemoryStream FromDafny_N3_aws__N12_cryptography__N10_primitives__S16_AESDecryptOutput__M9_plaintext (Dafny.ISequence<byte> value) {
+ return FromDafny_N6_smithy__N3_api__S4_Blob(value);
+}
+ public static Dafny.ISequence<byte> ToDafny_N3_aws__N12_cryptography__N10_primitives__S16_AESDecryptOutput__M9_plaintext (System.IO.MemoryStream value) {
  return ToDafny_N6_smithy__N3_api__S4_Blob(value);
 }
  public static AWS.Cryptography.Primitives.RSAPublicKey FromDafny_N3_aws__N12_cryptography__N10_primitives__S24_GenerateRSAKeyPairOutput__M9_publicKey (Dafny.Aws.Cryptography.Primitives.Types._IRSAPublicKey value) {
@@ -644,6 +644,12 @@ throw new System.ArgumentException("Invalid AWS.Cryptography.Primitives.DigestAl
  public static int ToDafny_N3_aws__N12_cryptography__N10_primitives__S15_PositiveInteger (int value) {
  return value;
 }
+ public static int FromDafny_N3_aws__N12_cryptography__N10_primitives__S15_RSAStrengthBits (int value) {
+ return value;
+}
+ public static int ToDafny_N3_aws__N12_cryptography__N10_primitives__S15_RSAStrengthBits (int value) {
+ return value;
+}
  public static AWS.Cryptography.Primitives.ECDSASignatureAlgorithm FromDafny_N3_aws__N12_cryptography__N10_primitives__S23_ECDSASignatureAlgorithm (Dafny.Aws.Cryptography.Primitives.Types._IECDSASignatureAlgorithm value) {
  if (value.is_ECDSA__P384) return AWS.Cryptography.Primitives.ECDSASignatureAlgorithm.ECDSA_P384;
  if (value.is_ECDSA__P256) return AWS.Cryptography.Primitives.ECDSASignatureAlgorithm.ECDSA_P256;
@@ -653,12 +659,6 @@ throw new System.ArgumentException("Invalid AWS.Cryptography.Primitives.ECDSASig
  if (AWS.Cryptography.Primitives.ECDSASignatureAlgorithm.ECDSA_P384.Equals(value)) return Dafny.Aws.Cryptography.Primitives.Types.ECDSASignatureAlgorithm.create_ECDSA__P384();
  if (AWS.Cryptography.Primitives.ECDSASignatureAlgorithm.ECDSA_P256.Equals(value)) return Dafny.Aws.Cryptography.Primitives.Types.ECDSASignatureAlgorithm.create_ECDSA__P256();
 throw new System.ArgumentException("Invalid AWS.Cryptography.Primitives.ECDSASignatureAlgorithm value");
-}
- public static int FromDafny_N3_aws__N12_cryptography__N10_primitives__S15_RSAStrengthBits (int value) {
- return value;
-}
- public static int ToDafny_N3_aws__N12_cryptography__N10_primitives__S15_RSAStrengthBits (int value) {
- return value;
 }
  public static AWS.Cryptography.Primitives.RSAPaddingMode FromDafny_N3_aws__N12_cryptography__N10_primitives__S14_RSAPaddingMode (Dafny.Aws.Cryptography.Primitives.Types._IRSAPaddingMode value) {
  if (value.is_PKCS1) return AWS.Cryptography.Primitives.RSAPaddingMode.PKCS1;

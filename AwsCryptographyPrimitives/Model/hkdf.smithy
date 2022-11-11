@@ -23,6 +23,7 @@ structure HkdfExtractInput {
 
 @aws.polymorph#positional
 structure HkdfExtractOutput {
+  @required
   prk: Blob
 }
 
@@ -39,6 +40,7 @@ structure HkdfExpandInput {
 
 @aws.polymorph#positional
 structure HkdfExpandOutput {
+  @required
   okm: Blob,
 }
 
@@ -56,5 +58,6 @@ structure HkdfInput {
 
 @aws.polymorph#positional
 structure HkdfOutput {
+  @required
   okm: Blob,
 }

@@ -961,7 +961,13 @@ include "../src/include.dfy"
  )
  datatype Error =
  // Local Error structures are listed here
- | InvalidEncryptionMaterials (
+ | InvalidAlgorithmSuiteInfoOnEncrypt (
+ nameonly message: string
+ )
+ | InvalidAlgorithmSuiteInfoOnDecrypt (
+ nameonly message: string
+ )
+ | InvalidEncryptionMaterialsTransition (
  nameonly message: string
  )
  | InvalidAlgorithmSuiteInfo (
@@ -970,19 +976,13 @@ include "../src/include.dfy"
  | AwsCryptographicMaterialProvidersException (
  nameonly message: string
  )
- | InvalidAlgorithmSuiteInfoOnEncrypt (
- nameonly message: string
- )
- | InvalidEncryptionMaterialsTransition (
- nameonly message: string
- )
- | InvalidAlgorithmSuiteInfoOnDecrypt (
- nameonly message: string
- )
- | InvalidDecryptionMaterials (
+ | InvalidEncryptionMaterials (
  nameonly message: string
  )
  | InvalidDecryptionMaterialsTransition (
+ nameonly message: string
+ )
+ | InvalidDecryptionMaterials (
  nameonly message: string
  )
  // Any dependent models are listed here
