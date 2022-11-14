@@ -62,6 +62,7 @@ jobs:
         shell: bash
         run: |
           if [ "$RUNNER_OS" == "macOS" ]; then
-            export DYLD_LIBRARY_PATH="/usr/local/opt/openssl@1.1/lib"
+            make test_net_mac_intel
+          else
+            make test_net
           fi
-          make test_net
