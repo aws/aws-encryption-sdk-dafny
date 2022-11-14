@@ -44,9 +44,14 @@ compile_test_net:
 		-library:src/Index.dfy
 
 test_net:
-	dotnet run \
+	@exit $(shell dotnet run \
 		--project runtimes/net/tests/ \
-		--framework net6.0
+		--framework net6.0 | tee /dev/stderr | grep -c "FAILED")
+
+test_net_mac_intel:
+	@exit $(shell DYLD_LIBRARY_PATH="/usr/local/opt/openssl@1.1/lib" dotnet run \
+		--project runtimes/net/tests/ \
+		--framework net6.0 | tee /dev/stderr | grep -c "FAILED")
 
 setup_net:
 	dotnet restore runtimes/net/
