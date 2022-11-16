@@ -11,7 +11,7 @@
 
   <ItemGroup>
     <PackageReference Include="AWSSDK.Core" Version="3.7.12.2" />
-    <PackageReference Include="DafnyRuntime" Version="3.8.1.40901-nightly-2022-09-29-13352e7" />
+    <PackageReference Include="DafnyRuntime" Version="3.9.1.41027" />
     <PackageReference Include="Portable.BouncyCastle" Version="1.8.5.2" />
     <!--
       System.Collections.Immutable can be removed once dafny.msbuild is updated with
@@ -24,6 +24,10 @@
     <Compile Include="Extern/**/*.cs" />
     <Compile Include="Generated/**/*.cs" />
     <Compile Include="ImplementationFromDafny.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\..\StandardLibrary\runtimes\net\STD.csproj" />
   </ItemGroup>
 
   <!-- <ItemGroup>

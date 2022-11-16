@@ -19,7 +19,7 @@ dafny-reportgenerator:
 		--max-resource-count 110000000 \
 		TestResults/*.csv
 
-compile_net: | compile_implementation_net compile_test_net
+compile_net: | compile_implementation_net compile_test_net compile_net_dependencies
 
 compile_implementation_net:
 	dafny \
@@ -29,7 +29,10 @@ compile_implementation_net:
 		-compile:0 \
 		-useRuntimeLib \
 		-out runtimes/net/ImplementationFromDafny \
-		./src/*.dfy
+		./src/Index.dfy \
+		-library:../AwsCryptographyPrimitives/src/Index.dfy \
+		-library:../ComAmazonawsKms/src/Index.dfy \
+		-library:../StandardLibrary/src/Index.dfy
 
 compile_test_net:
 	dafny \
@@ -40,8 +43,13 @@ compile_test_net:
 		-compile:0 \
 		-useRuntimeLib \
 		-out runtimes/net/tests/TestsFromDafny \
-		./test/*.dfy \
+		`find ./test -name '*.dfy'` \
 		-library:src/Index.dfy
+
+compile_net_dependencies:
+	$(MAKE) -C ../StandardLibrary compile_implementation_net
+	$(MAKE) -C ../AwsCryptographyPrimitives compile_implementation_net
+	$(MAKE) -C ../ComAmazonawsKms compile_implementation_net
 
 test_net:
 	@exit $(shell dotnet run \

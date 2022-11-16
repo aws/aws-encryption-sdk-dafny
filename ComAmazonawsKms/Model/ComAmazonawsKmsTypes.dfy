@@ -1,7 +1,7 @@
 // Copyright Amazon.com Inc. or its affiliates. All Rights Reserved.
 // SPDX-License-Identifier: Apache-2.0
 // Do not modify this file. This file is machine generated, and any changes to it will be overwritten.
-include "../src/include.dfy"
+include "../../StandardLibrary/src/Index.dfy"
  module {:extern "Dafny.Com.Amazonaws.Kms.Types" } ComAmazonawsKmsTypes
  {
  import opened Wrappers
@@ -1516,43 +1516,7 @@ include "../src/include.dfy"
 	| RSA_2048
  datatype Error =
  // Local Error structures are listed here
- | InvalidGrantIdException (
- nameonly message: Option<ErrorMessageType>
- )
- | IncorrectTrustAnchorException (
- nameonly message: Option<ErrorMessageType>
- )
- | DependencyTimeoutException (
- nameonly message: Option<ErrorMessageType>
- )
- | CloudHsmClusterNotRelatedException (
- nameonly message: Option<ErrorMessageType>
- )
- | ExpiredImportTokenException (
- nameonly message: Option<ErrorMessageType>
- )
- | TagException (
- nameonly message: Option<ErrorMessageType>
- )
- | CloudHsmClusterNotFoundException (
- nameonly message: Option<ErrorMessageType>
- )
- | InvalidMarkerException (
- nameonly message: Option<ErrorMessageType>
- )
- | InvalidImportTokenException (
- nameonly message: Option<ErrorMessageType>
- )
- | InvalidCiphertextException (
- nameonly message: Option<ErrorMessageType>
- )
- | MalformedPolicyDocumentException (
- nameonly message: Option<ErrorMessageType>
- )
- | LimitExceededException (
- nameonly message: Option<ErrorMessageType>
- )
- | CustomKeyStoreHasCMKsException (
+ | KeyUnavailableException (
  nameonly message: Option<ErrorMessageType>
  )
  | KMSInvalidSignatureException (
@@ -1561,25 +1525,43 @@ include "../src/include.dfy"
  | KMSInternalException (
  nameonly message: Option<ErrorMessageType>
  )
- | IncorrectKeyMaterialException (
+ | DisabledException (
+ nameonly message: Option<ErrorMessageType>
+ )
+ | CustomKeyStoreInvalidStateException (
+ nameonly message: Option<ErrorMessageType>
+ )
+ | ExpiredImportTokenException (
+ nameonly message: Option<ErrorMessageType>
+ )
+ | KMSInvalidStateException (
+ nameonly message: Option<ErrorMessageType>
+ )
+ | IncorrectTrustAnchorException (
+ nameonly message: Option<ErrorMessageType>
+ )
+ | IncorrectKeyException (
+ nameonly message: Option<ErrorMessageType>
+ )
+ | LimitExceededException (
+ nameonly message: Option<ErrorMessageType>
+ )
+ | InvalidGrantIdException (
+ nameonly message: Option<ErrorMessageType>
+ )
+ | InvalidMarkerException (
+ nameonly message: Option<ErrorMessageType>
+ )
+ | CustomKeyStoreHasCMKsException (
+ nameonly message: Option<ErrorMessageType>
+ )
+ | MalformedPolicyDocumentException (
  nameonly message: Option<ErrorMessageType>
  )
  | AlreadyExistsException (
  nameonly message: Option<ErrorMessageType>
  )
- | CloudHsmClusterInvalidConfigurationException (
- nameonly message: Option<ErrorMessageType>
- )
- | NotFoundException (
- nameonly message: Option<ErrorMessageType>
- )
- | UnsupportedOperationException (
- nameonly message: Option<ErrorMessageType>
- )
- | CustomKeyStoreNameInUseException (
- nameonly message: Option<ErrorMessageType>
- )
- | CustomKeyStoreInvalidStateException (
+ | InvalidCiphertextException (
  nameonly message: Option<ErrorMessageType>
  )
  | CloudHsmClusterNotActiveException (
@@ -1588,7 +1570,10 @@ include "../src/include.dfy"
  | InvalidGrantTokenException (
  nameonly message: Option<ErrorMessageType>
  )
- | KMSInvalidStateException (
+ | IncorrectKeyMaterialException (
+ nameonly message: Option<ErrorMessageType>
+ )
+ | InvalidImportTokenException (
  nameonly message: Option<ErrorMessageType>
  )
  | InvalidAliasNameException (
@@ -1600,19 +1585,34 @@ include "../src/include.dfy"
  | CustomKeyStoreNotFoundException (
  nameonly message: Option<ErrorMessageType>
  )
+ | CloudHsmClusterNotFoundException (
+ nameonly message: Option<ErrorMessageType>
+ )
+ | NotFoundException (
+ nameonly message: Option<ErrorMessageType>
+ )
+ | CloudHsmClusterNotRelatedException (
+ nameonly message: Option<ErrorMessageType>
+ )
+ | DependencyTimeoutException (
+ nameonly message: Option<ErrorMessageType>
+ )
+ | TagException (
+ nameonly message: Option<ErrorMessageType>
+ )
+ | CloudHsmClusterInvalidConfigurationException (
+ nameonly message: Option<ErrorMessageType>
+ )
+ | CustomKeyStoreNameInUseException (
+ nameonly message: Option<ErrorMessageType>
+ )
  | InvalidArnException (
- nameonly message: Option<ErrorMessageType>
- )
- | KeyUnavailableException (
- nameonly message: Option<ErrorMessageType>
- )
- | IncorrectKeyException (
  nameonly message: Option<ErrorMessageType>
  )
  | CloudHsmClusterInUseException (
  nameonly message: Option<ErrorMessageType>
  )
- | DisabledException (
+ | UnsupportedOperationException (
  nameonly message: Option<ErrorMessageType>
  )
  // Any dependent models are listed here
