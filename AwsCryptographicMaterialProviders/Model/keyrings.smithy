@@ -227,6 +227,38 @@ structure CreateMultiKeyringInput {
   childKeyrings: KeyringList
 }
 
+// KMS - Hierarchical Keyring
+operation CreateAwsKmsHierarchicalKeyring {
+    input: CreateAwsKmsHierarchyKeyringInput,
+    output: CreateKeyringOutput,
+}
+
+structure CreateAwsKmsHierarchyKeyringInput {
+    @required
+    branchKeyId: String,
+    
+    @required 
+    kmsKeyId: String,
+    
+    @required 
+    kmsClient: KmsClientReference,
+    
+    @required 
+    ddbClient: DdbClientReference,
+    
+    @required 
+    branchKeysTableName: String,
+    
+    @required
+    @range(min: 1)
+    ttlMilliseconds: Long,
+
+    @range(min: 1)
+    maxCacheSize: Integer,
+    
+    grantTokens: GrantTokenList
+}
+
 // Raw
 
 operation CreateRawAesKeyring {

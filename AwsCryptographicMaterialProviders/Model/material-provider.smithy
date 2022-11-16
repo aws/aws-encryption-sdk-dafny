@@ -23,6 +23,7 @@ service AwsCryptographicMaterialProviders {
     CreateAwsKmsMrkMultiKeyring,
     CreateAwsKmsMrkDiscoveryKeyring,
     CreateAwsKmsMrkDiscoveryMultiKeyring,
+    CreateAwsKmsHierarchicalKeyring,
     CreateMultiKeyring,
     CreateRawAesKeyring,
     CreateRawRsaKeyring,
@@ -36,6 +37,7 @@ service AwsCryptographicMaterialProviders {
     // Materials
     InitializeEncryptionMaterials,
     InitializeDecryptionMaterials,
+    InitializeHierarchicalMaterials,
     ValidEncryptionMaterialsTransition,
     ValidDecryptionMaterialsTransition,
     EncryptionMaterialsHasPlaintextDataKey,
