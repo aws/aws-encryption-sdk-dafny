@@ -4,8 +4,6 @@
 include "../../Keyring.dfy"
 include "../../Materials.dfy"
 include "../../AlgorithmSuites.dfy"
-include "../../../../libraries/src/Collections/Sequences/Seq.dfy"
-include "../../../../src/StandardLibrary/Actions.dfy"
 include "Constants.dfy"
 include "AwsKmsMrkMatchForDecrypt.dfy"
 include "AwsKmsArnParsing.dfy"

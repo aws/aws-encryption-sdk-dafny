@@ -25,7 +25,7 @@ cd "$POLYMORPH_ROOT"
 # Generate code for the AWS KMS SDK
 ./gradlew run --args="\
     --output-dafny \
-    --include-dafny $ComAmazonawsKms_ROOT/src/include.dfy \
+    --include-dafny $DAFNY_ROOT/StandardLibrary/src/Index.dfy \
     --output-dotnet $ComAmazonawsKms_ROOT/runtimes/net/Generated/ \
     --model $ComAmazonawsKms_ROOT/Model \
     --dependent-model $DAFNY_ROOT/model \
@@ -35,7 +35,7 @@ cd "$POLYMORPH_ROOT"
 # Generate code for cryptographic primitives
 ./gradlew run --args="\
     --output-dafny \
-    --include-dafny $AwsCryptographyPrimitives_ROOT/src/include.dfy \
+    --include-dafny $DAFNY_ROOT/StandardLibrary/src/Index.dfy \
     --output-dotnet $AwsCryptographyPrimitives_ROOT/runtimes/net/Generated/ \
     --model $AwsCryptographyPrimitives_ROOT/Model \
     --dependent-model $DAFNY_ROOT/model \
@@ -44,7 +44,7 @@ cd "$POLYMORPH_ROOT"
 # Generate code for material providers
 ./gradlew run --args="\
     --output-dafny \
-    --include-dafny $MaterialProviders_ROOT/src/include.dfy \
+    --include-dafny $DAFNY_ROOT/StandardLibrary/src/Index.dfy \
     --output-dotnet $MaterialProviders_ROOT/runtimes/net/Generated/ \
     --model $MaterialProviders_ROOT/Model \
     --dependent-model $ComAmazonawsKms_ROOT/Model \

@@ -4,6 +4,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AWS-KMS", "AWS-KMS.csproj",
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Test-AWS-KMS", "tests/Test-AWS-KMS.csproj", "{FF640AFC-F932-446E-9D17-A6A0725CAD07}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "STD", "..\..\..\StandardLibrary\runtimes\net\STD.csproj", "{300A887C-81D1-4D78-9EFC-9347C58CEEC5}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -18,5 +20,9 @@ Global
 		{FF640AFC-F932-446E-9D17-A6A0725CAD07}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{FF640AFC-F932-446E-9D17-A6A0725CAD07}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{FF640AFC-F932-446E-9D17-A6A0725CAD07}.Release|Any CPU.Build.0 = Release|Any CPU
+		{300A887C-81D1-4D78-9EFC-9347C58CEEC5}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{300A887C-81D1-4D78-9EFC-9347C58CEEC5}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{300A887C-81D1-4D78-9EFC-9347C58CEEC5}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{300A887C-81D1-4D78-9EFC-9347C58CEEC5}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal

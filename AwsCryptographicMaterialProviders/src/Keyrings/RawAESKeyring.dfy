@@ -4,11 +4,8 @@
 include "../Keyring.dfy"
 include "../Materials.dfy"
 include "../AlgorithmSuites.dfy"
-include "../../../src/StandardLibrary/String.dfy"
-include "../AlgorithmSuites.dfy"
 include "../Materials.dfy"
 include "../../Model/AwsCryptographyMaterialProvidersTypes.dfy"
-include "../../../libraries/src/Collections/Sequences/Seq.dfy"
 
 module RawAESKeyring {
   import opened StandardLibrary
@@ -451,6 +448,7 @@ module RawAESKeyring {
   ): ( encOutput: Crypto.AESEncryptOutput)
     requires tagLen <= |ciphertext|
     ensures |encOutput.authTag| == tagLen
+    ensures SerializeEDKCiphertext(encOutput) == ciphertext
   {
       var encryptedKeyLength := |ciphertext| - tagLen as int;
       Crypto.AESEncryptOutput(

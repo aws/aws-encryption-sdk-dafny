@@ -10,7 +10,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="DafnyRuntime" Version="3.8.1.40901-nightly-2022-09-29-13352e7" />
+    <PackageReference Include="DafnyRuntime" Version="3.9.1.41027" />
     <PackageReference Include="AWSSDK.Core" Version="3.7.11.12" />
     <PackageReference Include="AWSSDK.KeyManagementService" Version="3.7.3.20" />
     <!--
@@ -26,6 +26,14 @@
     <Compile Include="ImplementationFromDafny.cs" />
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\..\..\StandardLibrary\runtimes\net\STD.csproj" />
+  </ItemGroup>
+
+  <!--
+    TODO .NET assemblies are expected to have an ICON.
+    This MUST be replaced before launch.
+  -->
   <!-- <ItemGroup>
     <None Include="..\icon.png" Pack="true" PackagePath="" />
     <None Include="..\README.md" Pack="true" PackagePath="" />

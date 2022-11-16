@@ -1,8 +1,6 @@
 // Copyright Amazon.com Inc. or its affiliates. All Rights Reserved.
 // SPDX-License-Identifier: Apache-2.0
 
-
-include "../../../../libraries/src/Collections/Sequences/Seq.dfy"
 include "../../../Model/AwsCryptographyMaterialProvidersTypes.dfy"
 
 module  AwsKmsArnParsing {

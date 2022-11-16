@@ -3,7 +3,6 @@
 
 include "../Model/AwsCryptographyMaterialProvidersTypes.dfy"
 include "AlgorithmSuites.dfy"
-include "../../src/StandardLibrary/Base64.dfy"
 
 module Materials {
   import opened StandardLibrary

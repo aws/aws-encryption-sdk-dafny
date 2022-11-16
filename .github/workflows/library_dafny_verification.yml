@@ -11,8 +11,17 @@ jobs:
   verification:
     strategy:
       matrix:
-        library: [ AwsCryptographyPrimitives, ComAmazonawsKms, AwsCryptographicMaterialProviders ]
+        library: [
+          AwsCryptographyPrimitives,
+          ComAmazonawsKms,
+          AwsCryptographicMaterialProviders, 
+          # "src/StandardLibrary", add back in once Dafny does not crash
+        ]
         os: [ windows-latest, ubuntu-latest, macos-latest ]
+        # This crashes on osx
+        include:
+          - library: StandardLibrary
+            os: ubuntu-latest
     runs-on: ${{ matrix.os }}
     env:
       DOTNET_CLI_TELEMETRY_OPTOUT: 1
@@ -24,12 +33,9 @@ jobs:
       - run: git submodule update --init libraries
 
       - name: Setup Dafny
-        uses: dafny-lang/setup-dafny-action@v1.4.0
+        uses: dafny-lang/setup-dafny-action@v1
         with:
           dafny-version: "3.9.1"
-
-      - name: Install dafny-reportgenerator
-        run: dotnet tool install --global dafny-reportgenerator --version 1.2.0
 
       - name: Verify ${{ matrix.library }} Dafny code
         shell: bash
