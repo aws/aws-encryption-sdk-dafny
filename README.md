@@ -32,17 +32,16 @@ Refer to the [specification](https://github.com/awslabs/aws-encryption-sdk-speci
 To generate a report for this AWS Encryption SDK for Dafny, run the following command:
 
 ```
-./duvet_report.sh
+make duvet
 ```
 
 It will output if there is any missing coverage.
 
-By default `duvet_report` will extract the spec only if it cannot find the `compliance` directory in the specification repo, but will re-use a previous extraction if
-it exists. If you want to force it to re-extract the spec (for example, if you have made changes to the spec in your local directory),
-you can do so with the following:
+By default this will extract the spec to the `compliance` directory.
+If you only want to generate the report you can do so with the following:
 
 ```
-./duvet_report.sh rebuild
+make duvet_report
 ```
 
 ```
@@ -50,6 +49,12 @@ open specification_compliance_report.html
 ```
 
 To view the report, look at the generated `specification_compliance_report.html`:
+
+### To install Duvet
+
+```
+cargo +stable install duvet
+```
 
 ## License
 

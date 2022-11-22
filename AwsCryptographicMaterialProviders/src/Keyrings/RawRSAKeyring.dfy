@@ -23,10 +23,10 @@ module RawRSAKeyring {
   import UTF8
   import Seq
 
-  //= compliance/framework/raw-rsa-keyring.txt#2.5.2
+  //= aws-encryption-sdk-specification/framework/raw-rsa-keyring.md#public-key
   //= type=TODO
   //# The raw RSA keyring SHOULD support loading PEM
-  //# encoded X.509 SubjectPublicKeyInfo structures
+  //# encoded [X.509 SubjectPublicKeyInfo structures]
   //# (https://tools.ietf.org/html/rfc5280#section-4.1) as public keys.
 
   class RawRSAKeyring
@@ -49,36 +49,34 @@ module RawRSAKeyring {
     const privateKey: Option<seq<uint8>>
     const paddingScheme: Crypto.RSAPaddingMode
 
-    //= compliance/framework/raw-rsa-keyring.txt#2.5
+    //= aws-encryption-sdk-specification/framework/raw-rsa-keyring.md#initialization
     //= type=implication
     //# On keyring initialization, the caller MUST provide the following:
-    //#*  Key Namespace (./keyring-interface.md#key-namespace)
-    //#*  Key Name (./keyring-interface.md#key-name)
-    //#*  Padding Scheme (Section 2.5.1)
-    //#*  Public Key (Section 2.5.2) and/or Private Key (Section 2.5.3)
+    //# - [Key Namespace](./keyring-interface.md#key-namespace)
+    //# - [Key Name](./keyring-interface.md#key-name)
+    //# - [Padding Scheme](#padding-scheme)
+    //# - [Public Key](#public-key) and/or [Private Key](#private-key)
     constructor (
       namespace: UTF8.ValidUTF8Bytes,
       name: UTF8.ValidUTF8Bytes,
 
-      //= compliance/framework/raw-rsa-keyring.txt#2.5.2
+      //= aws-encryption-sdk-specification/framework/raw-rsa-keyring.md#public-key
       //= type=TODO
-      //# The public key MUST follow the RSA specification for public keys
-      //# (Section 2.4.2).
+      //# The public key MUST follow the [RSA specification for public keys](#rsa)
       // NOTE: section 2.4.2 is a lie,
       // See https://datatracker.ietf.org/doc/html/rfc8017#section-3.1 instead
       // NOTE: A sequence of uint8 is NOT how a public key is stored according to the RFC linked, though it is how the libraries we use define them
       publicKey: Option<seq<uint8>>,
 
-      //= compliance/framework/raw-rsa-keyring.txt#2.5.3
+      //= aws-encryption-sdk-specification/framework/raw-rsa-keyring.md#private-key
       //= type=TODO
-      //# The private key MUST follow the RSA specification for private keys
-      //# (Section 2.4.2).
+      //# The private key MUST follow the [RSA specification for private keys](#rsa)
       // NOTE: section 2.4.2 is a lie,
       // See https://datatracker.ietf.org/doc/html/rfc8017#section-3.2 instead
       // NOTE: A sequence of uint8s is NOT how a public key is stored according to the RFC linked, though it is how the libraries we use define them
       privateKey: Option<seq<uint8>>,
 
-      //= compliance/framework/raw-rsa-keyring.txt#2.5.3
+      //= aws-encryption-sdk-specification/framework/raw-rsa-keyring.md#private-key
       //= type=TODO
       //# The
       //# private key SHOULD contain all Chinese Remainder Theorem (CRT)
@@ -87,10 +85,10 @@ module RawRSAKeyring {
       // NOTE: What? Shouldn't the above be on the Cryptographic library?
       // i.e.: BouncyCastle, pyca, etc.?
 
-      //= compliance/framework/raw-rsa-keyring.txt#2.5.1
+      //= aws-encryption-sdk-specification/framework/raw-rsa-keyring.md#padding-scheme
       //= type=implication
-      //# This value MUST correspond with one of the supported padding schemes
-      //# (Section 2.5.1.1).
+      //# This value MUST correspond with one of the [supported padding schemes]
+      //# (#supported-padding-schemes).
       paddingScheme: Crypto.RSAPaddingMode,
       cryptoPrimitives: Primitives.AtomicPrimitivesClient
     )
@@ -118,9 +116,9 @@ module RawRSAKeyring {
 
     predicate OnEncryptEnsuresPublicly(input: Types.OnEncryptInput, output: Result<Types.OnEncryptOutput, Types.Error>) {true}
 
-    //= compliance/framework/raw-rsa-keyring.txt#2.6.1
+    //= aws-encryption-sdk-specification/framework/raw-rsa-keyring.md#onencrypt
     //= type=implication
-    //# OnEncrypt MUST take encryption materials (structures.md#encryption-
+    //# OnEncrypt MUST take [encryption materials](structures.md#encryption-
     //# materials) as input.
     method OnEncrypt'(input: Types.OnEncryptInput)
       returns (output: Result<Types.OnEncryptOutput, Types.Error>)
@@ -138,20 +136,20 @@ module RawRSAKeyring {
           output.value.materials
         )
 
-     //= compliance/framework/raw-rsa-keyring.txt#2.6.1
+     //= aws-encryption-sdk-specification/framework/raw-rsa-keyring.md#onencrypt
      //= type=implication
-     //# OnEncrypt MUST fail if this keyring does not have a specified public
-     //# key (Section 2.5.2).
+     //# OnEncrypt MUST fail if this keyring does not have a specified [public
+     //# key](#public-key).
      ensures
        this.publicKey.None? || |this.publicKey.Extract()| == 0
      ==>
        output.Failure?
 
-     //= compliance/framework/raw-rsa-keyring.txt#2.6.1
+     //= aws-encryption-sdk-specification/framework/raw-rsa-keyring.md#onencrypt
      //= type=implication
-     //# If the encryption materials (structures.md#encryption-materials) do
+     //# If the [encryption materials](structures.md#encryption-materials) do
      //# not contain a plaintext data key, OnEncrypt MUST generate a random
-     //# plaintext data key and set it on the encryption materials
+     //# plaintext data key and set it on the [encryption materials]
      //# (structures.md#encryption-materials).
      ensures
        && input.materials.plaintextDataKey.None?
@@ -159,22 +157,22 @@ module RawRSAKeyring {
      ==>
        output.value.materials.plaintextDataKey.Some?
 
-     //= compliance/framework/raw-rsa-keyring.txt#2.6.1
+     //= aws-encryption-sdk-specification/framework/raw-rsa-keyring.md#onencrypt
      //= type=implication
      //# If RSA encryption was successful, OnEncrypt MUST return the input
-     //# encryption materials (structures.md#encryption-materials), modified
+     //# [encryption materials](structures.md#encryption-materials), modified
      //# in the following ways:
-     //#*  The encrypted data key list has a new encrypted data key added,
+     //# - The encrypted data key list has a new encrypted data key added,
      //#   constructed as follows:
      ensures
        && output.Success?
      ==>
        |output.value.materials.encryptedDataKeys| == |input.materials.encryptedDataKeys| + 1
 
-     //= compliance/framework/raw-rsa-keyring.txt#2.6.1
+     //= aws-encryption-sdk-specification/framework/raw-rsa-keyring.md#onencrypt
      //= type=implication
      //# The keyring MUST NOT derive a public key from a
-     //# specified private key (Section 2.5.3).
+     //# specified [private key](#private-key).
      // NOTE: Attempting to proove this by stating that a Keyring
      // without a public key but with a private key will not encrypt
      ensures
@@ -196,60 +194,60 @@ module RawRSAKeyring {
         .GenerateRandomBytes(Crypto.GenerateRandomBytesInput(length := GetEncryptKeyLength(suite)));
       var newPlaintextDataKey :- generateBytesResult.MapFailure(e => Types.AwsCryptographyPrimitives(AwsCryptographyPrimitives := e));
 
-      //= compliance/framework/raw-rsa-keyring.txt#2.6.1
-      //# If the encryption materials (structures.md#encryption-materials) do
+      //= aws-encryption-sdk-specification/framework/raw-rsa-keyring.md#onencrypt
+      //# If the [encryption materials](structures.md#encryption-materials) do
       //# not contain a plaintext data key, OnEncrypt MUST generate a random
-      //# plaintext data key and set it on the encryption materials
+      //# plaintext data key and set it on the [encryption materials]
       //# (structures.md#encryption-materials).
       var plaintextDataKey :=
         if materials.plaintextDataKey.Some? && |materials.plaintextDataKey.Extract()| > 0
         then materials.plaintextDataKey.value
         else newPlaintextDataKey;
 
-      //= compliance/framework/raw-rsa-keyring.txt#2.6.1
+      //= aws-encryption-sdk-specification/framework/raw-rsa-keyring.md#onencrypt
       //# The keyring MUST attempt to encrypt the plaintext data key in the
-      //# encryption materials (structures.md#encryption-materials) using RSA.
-      //# The keyring performs RSA encryption (Section 2.4.2) with the
+      //# [encryption materials](structures.md#encryption-materials) using RSA.
+      //# The keyring performs [RSA encryption](#rsa) with the
       //# following specifics:
       var RSAEncryptOutput := cryptoPrimitives.RSAEncrypt(Crypto.RSAEncryptInput(
-        //= compliance/framework/raw-rsa-keyring.txt#2.6.1
-        //#*  This keyring's padding scheme (Section 2.5.1.1) is the RSA padding
+        //= aws-encryption-sdk-specification/framework/raw-rsa-keyring.md#onencrypt
+        //# - This keyring's [padding scheme](#supported-padding-schemes) is the RSA padding
         //#   scheme.
         padding := paddingScheme,
 
-        //= compliance/framework/raw-rsa-keyring.txt#2.6.1
-        //#*  This keyring's public key (Section 2.5.2) is the RSA public key.
+        //= aws-encryption-sdk-specification/framework/raw-rsa-keyring.md#onencrypt
+        //# - This keyring's [public key](#public-key) is the RSA public key.
         publicKey := publicKey.Extract(),
 
-        //= compliance/framework/raw-rsa-keyring.txt#2.6.1
-        //#*  The plaintext data key is the plaintext input to RSA encryption.
+        //= aws-encryption-sdk-specification/framework/raw-rsa-keyring.md#onencrypt
+        //# - The plaintext data key is the plaintext input to RSA encryption.
         plaintext := plaintextDataKey
       ));
 
       var ciphertext :- RSAEncryptOutput.MapFailure(e => Types.AwsCryptographyPrimitives(e));
 
-      //= compliance/framework/raw-rsa-keyring.txt#2.6.1
+      //= aws-encryption-sdk-specification/framework/raw-rsa-keyring.md#onencrypt
       //# If RSA encryption was successful, OnEncrypt MUST return the input
-      //# encryption materials (structures.md#encryption-materials), modified
+      //# [encryption materials](structures.md#encryption-materials), modified
       //# in the following ways:
-      //#*  The encrypted data key list has a new encrypted data key added,
+      //# - The encrypted data key list has a new encrypted data key added,
       //#   constructed as follows:
       var edk: Types.EncryptedDataKey := Types.EncryptedDataKey(
 
-        //= compliance/framework/raw-rsa-keyring.txt#2.6.1
-        //#  -  The key provider ID (structures.md#key-provider-id) field is
-        //#     this keyring's key namespace (keyring-interface.md#key-
+        //= aws-encryption-sdk-specification/framework/raw-rsa-keyring.md#onencrypt
+        //#  -  The [key provider ID](structures.md#key-provider-id) field is
+        //#     this keyring's [key namespace](keyring-interface.md#key-
         //#     namespace).
         keyProviderId := this.keyNamespace,
 
-        //= compliance/framework/raw-rsa-keyring.txt#2.6.1
-        //#  -  The key provider information (structures.md#key-provider-
-        //#     information) field is this keyring's key name (keyring-
+        //= aws-encryption-sdk-specification/framework/raw-rsa-keyring.md#onencrypt
+        //#  -  The [key provider information](structures.md#key-provider-
+        //#     information) field is this keyring's [key name](keyring-
         //#     interface.md#key-name).
         keyProviderInfo := this.keyName,
 
-        //= compliance/framework/raw-rsa-keyring.txt#2.6.1
-        //#  -  The ciphertext (structures.md#ciphertext) field is the
+        //= aws-encryption-sdk-specification/framework/raw-rsa-keyring.md#onencrypt
+        //#  -  The [ciphertext](structures.md#ciphertext) field is the
         //#     ciphertext output by the RSA encryption of the plaintext data
         //#     key.
         ciphertext := ciphertext
@@ -264,10 +262,10 @@ module RawRSAKeyring {
 
     predicate OnDecryptEnsuresPublicly(input: Types.OnDecryptInput, output: Result<Types.OnDecryptOutput, Types.Error>){true}
 
-    //= compliance/framework/raw-rsa-keyring.txt#2.6.2
+    //= aws-encryption-sdk-specification/framework/raw-rsa-keyring.md#ondecrypt
     //= type=implication
-    //# OnDecrypt MUST take decryption materials (structures.md#decryption-
-    //# materials) and a list of encrypted data keys
+    //# OnDecrypt MUST take [decryption materials](structures.md#decryption-
+    //# materials) and a list of [encrypted data keys]
     //# (structures.md#encrypted-data-key) as input.
     method OnDecrypt'(input: Types.OnDecryptInput)
       returns (output: Result<Types.OnDecryptOutput, Types.Error>)
@@ -284,19 +282,19 @@ module RawRSAKeyring {
           output.value.materials
         )
 
-      //= compliance/framework/raw-rsa-keyring.txt#2.6.2
+      //= aws-encryption-sdk-specification/framework/raw-rsa-keyring.md#ondecrypt
       //= type=implication
-      //# OnDecrypt MUST fail if this keyring does not have a specified private
-      //# key (Section 2.5.3).
+      //# OnDecrypt MUST fail if this keyring does not have a specified [private
+      //# key](#private-key).
       ensures
         privateKey.None? || |privateKey.Extract()| == 0
       ==>
         output.Failure?
 
-      //= compliance/framework/raw-rsa-keyring.txt#2.6.2
+      //= aws-encryption-sdk-specification/framework/raw-rsa-keyring.md#ondecrypt
       //= type=implication
       //# If the decryption materials already contain a plaintext data key, the
-      //# keyring MUST fail and MUST NOT modify the decryption materials
+      //# keyring MUST fail and MUST NOT modify the [decryption materials]
       //# (structures.md#decryption-materials).
       ensures
         input.materials.plaintextDataKey.Some?
@@ -315,7 +313,7 @@ module RawRSAKeyring {
           message := "Keyring received decryption materials that already contain a plaintext data key."));
 
       var errors: seq<Types.Error> := [];
-      //= compliance/framework/raw-rsa-keyring.txt#2.6.2
+      //= aws-encryption-sdk-specification/framework/raw-rsa-keyring.md#ondecrypt
       //# The keyring MUST attempt to decrypt the input encrypted data keys, in
       //# list order, until it successfully decrypts one.
       for i := 0 to |input.encryptedDataKeys|
@@ -329,13 +327,13 @@ module RawRSAKeyring {
             cipherText := edk.ciphertext
           ));
 
-          //= compliance/framework/raw-rsa-keyring.txt#2.6.2
+          //= aws-encryption-sdk-specification/framework/raw-rsa-keyring.md#ondecrypt
           //# If any decryption succeeds, this keyring MUST immediately return the
-          //# input decryption materials (structures.md#decryption-materials),
+          //# input [decryption materials](structures.md#decryption-materials),
           //# modified in the following ways:
           if decryptResult.Success? {
-            //= compliance/framework/raw-rsa-keyring.txt#2.6.2
-            //#*  The output of RSA decryption is set as the decryption material's
+            //= aws-encryption-sdk-specification/framework/raw-rsa-keyring.md#ondecrypt
+            //# - The output of RSA decryption is set as the decryption material's
             //#   plaintext data key.
             var returnMaterials :- Materials.DecryptionMaterialsAddDataKey(
               materials,
@@ -353,30 +351,30 @@ module RawRSAKeyring {
           ];
         }
       }
-      //= compliance/framework/raw-rsa-keyring.txt#2.6.2
+      //= aws-encryption-sdk-specification/framework/raw-rsa-keyring.md#ondecrypt
       //# If no decryption succeeds, the keyring MUST fail and MUST NOT modify
-      //# the decryption materials (structures.md#decryption-materials).
+      //# the [decryption materials](structures.md#decryption-materials).
       return Failure(Types.Collection(list := errors));
     }
 
     predicate method ShouldDecryptEDK(edk: Types.EncryptedDataKey)
-      //= compliance/framework/raw-rsa-keyring.txt#2.6.2
+      //= aws-encryption-sdk-specification/framework/raw-rsa-keyring.md#ondecrypt
       //= type=implication
       //# For each encrypted data key, the keyring MUST attempt to decrypt the
       //# encrypted data key into plaintext using RSA if and only if the
       //# following is true:
       ensures
-        //= compliance/framework/raw-rsa-keyring.txt#2.6.2
+        //= aws-encryption-sdk-specification/framework/raw-rsa-keyring.md#ondecrypt
         //= type=implication
-        //#*  The encrypted data key's key provider information
+        //# - The encrypted data key's [key provider information]
         //#   (structures.md#key-provider-information). has a value equal to
-        //#   this keyring's key name (keyring-interface.md#key-name).
+        //#   this keyring's [key name](keyring-interface.md#key-name).
         && edk.keyProviderInfo == this.keyName
 
-        //= compliance/framework/raw-rsa-keyring.txt#2.6.2
+        //= aws-encryption-sdk-specification/framework/raw-rsa-keyring.md#ondecrypt
         //= type=implication
-        //#*  The encrypted data key's key provider ID (structures.md#key-
-        //#   provider-id) has a value equal to this keyring's key namespace
+        //# - The encrypted data key's [key provider ID](structures.md#key-
+        //#   provider-id) has a value equal to this keyring's [key namespace]
         //#   (keyring-interface.md#key-namespace).
         && edk.keyProviderId == this.keyNamespace
 

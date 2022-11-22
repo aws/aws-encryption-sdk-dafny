@@ -37,18 +37,18 @@ module Materials {
       && var suite := AS.GetSuite(input.algorithmSuiteId);
       && res.value.algorithmSuite == suite
       && (!suite.signature.None? <==> EC_PUBLIC_KEY_FIELD in res.value.encryptionContext)
-      //= compliance/framework/structures.txt#2.3.3.2.5
+      //= aws-encryption-sdk-specification/framework/structures.md#signing-key
       //= type=implication
       //# If the
       //# algorithm suite does not contain a signing algorithm, the signing key
       //# MUST NOT be present.
       && (suite.signature.None? <==> res.value.signingKey.None?)
-    //= compliance/framework/structures.txt#2.3.3.2.3
+    //= aws-encryption-sdk-specification/framework/structures.md#encryption-context-1
     //= type=implication
     //# The mapped value
-    //# from the reserved key "aws-crypto-public-key" SHOULD be the signature
-    //# verification key corresponding to the signing key (Section 2.3.3.2.5)
-    //# stored on the encryption material (Section 2.3.3).
+    //# from the reserved key `aws-crypto-public-key` SHOULD be the signature
+    //# verification key corresponding to the [signing key](#signing-key)
+    //# stored on the [encryption material](#encryption-materials).
     ensures
       && EC_PUBLIC_KEY_FIELD in input.encryptionContext
     ==>
@@ -93,11 +93,11 @@ module Materials {
       && var suite := AS.GetSuite(input.algorithmSuiteId);
       && res.value.algorithmSuite == suite
       && (suite.signature.None? <==> EC_PUBLIC_KEY_FIELD !in input.encryptionContext)
-      //= compliance/framework/structures.txt#2.3.4.2.2
+      //= aws-encryption-sdk-specification/framework/structures.md#encryption-context-2
       //= type=implication
       //# The mapped value
-      //# from the reserved key "aws-crypto-public-key" SHOULD be the signature
-      //# verification key stored on the decryption materials (Section 2.3.4).
+      //# from the reserved key `aws-crypto-public-key` SHOULD be the signature
+      //# verification key stored on the [decryption materials](#decryption-materials).
       && var verificationKey := DecodeVerificationKey(input.encryptionContext);
       && (
         verificationKey.Success? && verificationKey.value.Some?
@@ -193,30 +193,30 @@ module Materials {
     && AS.AlgorithmSuite?(encryptionMaterials.algorithmSuite)
     && var suite := encryptionMaterials.algorithmSuite;
     && (suite.signature.None? <==> encryptionMaterials.signingKey.None?)
-    //= compliance/framework/structures.txt#2.3.3.2.4
+    //= aws-encryption-sdk-specification/framework/structures.md#plaintext-data-key
     //= type=implication
     //# The plaintext data key MUST:
-    //   * Fit the specification for the key derivation algorithm (algorithm-
-    //     suites.md#key-derivation-algorithm) included in this decryption
-    //     material's algorithm suite (Section 2.3.3.2.1).
+    //# - Fit the specification for the [key derivation algorithm](algorithm-
+    //#   suites.md#key-derivation-algorithm) included in this decryption
+    //#   material's [algorithm suite](#algorithm-suite).
     && (encryptionMaterials.plaintextDataKey.Some? ==> AS.GetEncryptKeyLength(suite) as nat == |encryptionMaterials.plaintextDataKey.value|)
-    //= compliance/framework/structures.txt#2.3.3.2.2
+    //= aws-encryption-sdk-specification/framework/structures.md#encrypted-data-keys
     //= type=implication
     //# If the plaintext data key is not included in this set of encryption
     //# materials, this list MUST be empty.
     && (encryptionMaterials.plaintextDataKey.None? ==> |encryptionMaterials.encryptedDataKeys| == 0)
-    //= compliance/framework/structures.txt#2.3.3.2.3
+    //= aws-encryption-sdk-specification/framework/structures.md#encryption-context-1
     //= type=implication
-    //# If an encryption material (Section 2.3.3) contains a signing key
-    //# (Section 2.3.3.2.5), the encryption context (Section 2.3.2) SHOULD
-    //# include the reserved key "aws-crypto-public-key".
+    //# If an [encryption material](#encryption-materials) contains a [signing key]
+    //# (#signing-key), the [encryption context](#encryption-context) SHOULD
+    //# include the reserved key `aws-crypto-public-key`.
     //
-    //= compliance/framework/structures.txt#2.3.3.2.3
+    //= aws-encryption-sdk-specification/framework/structures.md#encryption-context-1
     //= type=implication
-    //# If an encryption
-    //# material (Section 2.3.3) does not contains a signing key
-    //# (Section 2.3.3.2.5), the encryption context (Section 2.3.2) SHOULD
-    //# NOT include the reserved key "aws-crypto-public-key".
+    //# If an [encryption
+    //# material](#encryption-materials) does not contains a [signing key]
+    //# (#signing-key), the [encryption context](#encryption-context) SHOULD
+    //# NOT include the reserved key `aws-crypto-public-key`.
     && (suite.signature.ECDSA? <==> encryptionMaterials.signingKey.Some?)
     && (!suite.signature.None? <==> EC_PUBLIC_KEY_FIELD in encryptionMaterials.encryptionContext)
   }
@@ -322,25 +322,25 @@ module Materials {
   predicate method ValidDecryptionMaterials(decryptionMaterials: Types.DecryptionMaterials) {
     && AS.AlgorithmSuite?(decryptionMaterials.algorithmSuite)
     && var suite := decryptionMaterials.algorithmSuite;
-    //= compliance/framework/structures.txt#2.3.4.2.3
+    //= aws-encryption-sdk-specification/framework/structures.md#plaintext-data-key-1
     //= type=implication
     //# The plaintext data key MUST:
-    //  *  Fit the specification for the encryption algorithm (algorithm-
-    //     suites.md#encryption-algorithm) included in this decryption
-    //     material's algorithm suite (Section 2.3.4.2.1).
+    //# - Fit the specification for the [encryption algorithm](algorithm-
+    //# suites.md#encryption-algorithm)  included in this decryption
+    //# material's [algorithm suite](#algorithm-suite-1).
     && (decryptionMaterials.plaintextDataKey.Some? ==> AS.GetEncryptKeyLength(suite) as nat == |decryptionMaterials.plaintextDataKey.value|)
-    //= compliance/framework/structures.txt#2.3.4.2.2
+    //= aws-encryption-sdk-specification/framework/structures.md#encryption-context-2
     //= type=implication
-    //# If a decryption materials (Section 2.3.4) contains a verification key
-    //# (Section 2.3.4.2.4), the encryption context (Section 2.3.2) SHOULD
-    //# include the reserved key "aws-crypto-public-key".
+    //# If a [decryption materials](#decryption-materials) contains a [verification key]
+    //# (#verification-key), the [encryption context](#encryption-context) SHOULD
+    //# include the reserved key `aws-crypto-public-key`.
     //
-    //= compliance/framework/structures.txt#2.3.4.2.2
+    //= aws-encryption-sdk-specification/framework/structures.md#encryption-context-2
     //= type=implication
-    //# If a decryption materials (Section 2.3.4) does not contain a
-    //# verification key (Section 2.3.4.2.4), the encryption context
-    //# (Section 2.3.2) SHOULD NOT include the reserved key "aws-crypto-
-    //# public-key".
+    //# If a [decryption materials](#decryption-materials) does not contain a
+    //# [verification key](#verification-key), the [encryption context]
+    //# (#encryption-context) SHOULD NOT include the reserved key `aws-crypto-
+    //# public-key`.
     && (suite.signature.ECDSA? <==> decryptionMaterials.verificationKey.Some?)
     && (!suite.signature.None? <==> EC_PUBLIC_KEY_FIELD in decryptionMaterials.encryptionContext)
   }

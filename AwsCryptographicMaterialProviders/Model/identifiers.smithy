@@ -3,6 +3,18 @@ namespace aws.cryptography.materialProviders
 /////////////
 // Commitment
 
+//= aws-encryption-sdk-specification/framework/commitment-policy.md#supported-library-commitment-policy-enum
+//= type=implication
+//# The Material Providers Library MUST provide
+//# a distinct commitment policy ENUM for each library.
+
+//= aws-encryption-sdk-specification/framework/commitment-policy.md#supported-library-commitment-policy-enum
+//= type=implication
+//# | ESDK Commitment Policy ENUM     |
+//# | ------------------------------- |
+//# | FORBID_ENCRYPT_ALLOW_DECRYPT    |
+//# | REQUIRE_ENCRYPT_ALLOW_DECRYPT   |
+//# | REQUIRE_ENCRYPT_REQUIRE_DECRYPT |
 @enum([
   {
     name: "FORBID_ENCRYPT_ALLOW_DECRYPT",
@@ -19,6 +31,15 @@ namespace aws.cryptography.materialProviders
 ])
 string ESDKCommitmentPolicy
 
+//= aws-encryption-sdk-specification/framework/commitment-policy.md#supported-commitment-policy-enum
+//= type=implication
+//# This means that different libraries MAY have duplicate Library Commitment Policy ENUM.
+
+//= aws-encryption-sdk-specification/framework/commitment-policy.md#supported-commitment-policy-enum
+//= type=implication
+//# The Material Providers Library also MUST provide
+//# a union ENUM for all distinct commitment policy ENUMs
+//# called the Commitment Policy ENUM.
 union CommitmentPolicy {
   ESDK: ESDKCommitmentPolicy
 }

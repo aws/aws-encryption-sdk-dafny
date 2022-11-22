@@ -9,7 +9,7 @@ module  AwsKmsMrkMatchForDecrypt {
   import opened Seq
   import opened AwsKmsArnParsing
 
-  //= compliance/framework/aws-kms/aws-kms-mrk-match-for-decrypt.txt#2.5
+  //= aws-encryption-sdk-specification/framework/aws-kms/aws-kms-mrk-match-for-decrypt.md#implementation
   //= type=implication
   //# The caller MUST provide:
   //# *  2 AWS KMS key identifiers 
@@ -35,9 +35,9 @@ module  AwsKmsMrkMatchForDecrypt {
   }
 
   lemma AwsKmsMrkMatchForDecryptCorrect(config: string, message: string)
-    //= compliance/framework/aws-kms/aws-kms-mrk-match-for-decrypt.txt#2.5
+    //= aws-encryption-sdk-specification/framework/aws-kms/aws-kms-mrk-match-for-decrypt.md#implementation
     //= type=implication
-    //# If both identifiers are identical, this function MUST return "true".
+    //# If both identifiers are identical, this function MUST return `true`.
     ensures
       var c := ParseAwsKmsIdentifier(config);
       var m := ParseAwsKmsIdentifier(message);
@@ -46,11 +46,11 @@ module  AwsKmsMrkMatchForDecrypt {
       && m.Success?
     ==>
       AwsKmsMrkMatchForDecrypt(c.value, m.value)
-    //= compliance/framework/aws-kms/aws-kms-mrk-match-for-decrypt.txt#2.5
+    //= aws-encryption-sdk-specification/framework/aws-kms/aws-kms-mrk-match-for-decrypt.md#implementation
     //= type=implication
-    //# Otherwise if either input is not identified as a multi-Region key
+    //# Otherwise if either input is not [identified as a multi-Region key]
     //# (aws-kms-key-arn.md#identifying-an-aws-kms-multi-region-key), then
-    //# this function MUST return "false".
+    //# this function MUST return `false`.
     ensures
       var c := ParseAwsKmsArn(config);
       var m := ParseAwsKmsArn(message);
@@ -63,13 +63,13 @@ module  AwsKmsMrkMatchForDecrypt {
         AwsKmsArnIdentifier(c.value), 
         AwsKmsArnIdentifier(m.value)
       );
-    //= compliance/framework/aws-kms/aws-kms-mrk-match-for-decrypt.txt#2.5
+    //= aws-encryption-sdk-specification/framework/aws-kms/aws-kms-mrk-match-for-decrypt.md#implementation
     //= type=implication
     //# Otherwise if both inputs are
-    //# identified as a multi-Region keys (aws-kms-key-arn.md#identifying-an-
+    //# [identified as a multi-Region keys](aws-kms-key-arn.md#identifying-an-
     //# aws-kms-multi-region-key), this function MUST return the result of
-    //# comparing the "partition", "service", "accountId", "resourceType",
-    //# and "resource" parts of both ARN inputs.
+    //# comparing the `partition`, `service`, `accountId`, `resourceType`,
+    //# and `resource` parts of both ARN inputs.
     ensures
       var c := ParseAwsKmsArn(config);
       var m := ParseAwsKmsArn(message);

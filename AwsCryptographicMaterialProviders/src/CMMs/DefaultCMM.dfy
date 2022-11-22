@@ -94,42 +94,30 @@ module DefaultCMM {
         && output.Success?
       ==>
         (if input.algorithmSuiteId.Some? then
-          //= compliance/framework/default-cmm.txt#2.6.1
+          //= aws-encryption-sdk-specification/framework/default-cmm.md#get-encryption-materials
           //= type=implication
-          //# *  If the encryption materials request (cmm-interface.md#encryption-
+          //# - If the [encryption materials request](cmm-interface.md#encryption-
           //# materials-request) does contain an algorithm suite, the encryption
           //# materials returned MUST contain the same algorithm suite.
           output.value.encryptionMaterials.algorithmSuite.id == input.algorithmSuiteId.value
         else
-            //= compliance/framework/default-cmm.txt#2.6.1
+            //= aws-encryption-sdk-specification/framework/default-cmm.md#get-encryption-materials
             //= type=implication
-            //# *  If the encryption materials request (cmm-interface.md#encryption-
+            //# - If the [encryption materials request](cmm-interface.md#encryption-
             //# materials-request) does not contain an algorithm suite, the
-            //# operation MUST add the default algorithm suite for the commitment
-            //# policy (../client-apis/client.md#commitment-policy) as the
+            //# operation MUST add the default algorithm suite for the [commitment
+            //# policy](./commitment-policy.md#supported-commitment-policy-enum) as the
             //# algorithm suite in the encryption materials returned.
-            //
-            //= compliance/client-apis/client.txt#2.4.2.1
-            //= type=implication
-            //# *  "03 78" MUST be the default algorithm suite
-            //
-            //= compliance/client-apis/client.txt#2.4.2.2
-            //= type=implication
-            //# *  "05 78" MUST be the default algorithm suite
-            //
-            //= compliance/client-apis/client.txt#2.4.2.3
-            //= type=implication
-            //# *  "05 78" MUST be the default algorithm suite
             && input.algorithmSuiteId.None?
             && output.value.encryptionMaterials.algorithmSuite.id
               == Defaults.GetAlgorithmSuiteForCommitmentPolicy(input.commitmentPolicy))
 
-      //= compliance/framework/default-cmm.txt#2.6.1
+      //= aws-encryption-sdk-specification/framework/default-cmm.md#get-encryption-materials
       //= type=implication
-      //# *  If the encryption materials request (cmm-interface.md#encryption-
+      //# - If the [encryption materials request](cmm-interface.md#encryption-
       //# materials-request) does contain an algorithm suite, the request
       //# MUST fail if the algorithm suite is not supported by the
-      //# commitment policy (../client-apis/client.md#commitment-policy) on
+      //# [commitment policy](./commitment-policy.md#supported-commitment-policy-enum) on
       //# the request.
       ensures
         && input.algorithmSuiteId.Some?
@@ -230,11 +218,11 @@ module DefaultCMM {
         )
         ==> output.Failure?
 
-      //= compliance/framework/default-cmm.txt#2.6.2
+      //= aws-encryption-sdk-specification/framework/default-cmm.md#decrypt-materials
       //= type=implication
       //# The request MUST fail if the algorithm suite on the request is not
-      //# supported by the commitment policy (../client-apis/
-      //# client.md#commitment-policy) on the request.
+      //# supported by the [commitment policy](./commitment-policy.md#supported-commitment-policy-enum)
+      //# on the request.
       ensures Commitment.ValidateCommitmentPolicyOnDecrypt(input.algorithmSuiteId, input.commitmentPolicy).Fail?
       ==>
         output.Failure?

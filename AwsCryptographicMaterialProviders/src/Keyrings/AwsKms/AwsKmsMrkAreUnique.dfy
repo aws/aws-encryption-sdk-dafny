@@ -11,7 +11,7 @@ module AwsKmsMrkAreUnique {
   import opened AwsKmsArnParsing
   import Types = AwsCryptographyMaterialProvidersTypes 
 
-  //= compliance/framework/aws-kms/aws-kms-mrk-are-unique.txt#2.5
+  //= aws-encryption-sdk-specification/framework/aws-kms/aws-kms-mrk-are-unique.md#implementation
   //= type=implication
   //# The caller MUST provide:
   function method AwsKmsMrkAreUnique(identifiers: seq<AwsKmsIdentifier>)
@@ -54,9 +54,9 @@ module AwsKmsMrkAreUnique {
   }
 
   lemma AwsKmsMrkAreUniqueCorrect(identifiers: seq<AwsKmsIdentifier>)
-    //= compliance/framework/aws-kms/aws-kms-mrk-are-unique.txt#2.5
+    //= aws-encryption-sdk-specification/framework/aws-kms/aws-kms-mrk-are-unique.md#implementation
     //= type=implication
-    //# If the list does not contain any multi-Region keys (aws-kms-key-
+    //# If the list does not contain any [multi-Region keys](aws-kms-key-
     //# arn.md#identifying-an-aws-kms-multi-region-key) this function MUST
     //# exit successfully.
     ensures
@@ -64,7 +64,7 @@ module AwsKmsMrkAreUnique {
     ==>
       AwsKmsMrkAreUnique(identifiers).Pass?
 
-    //= compliance/framework/aws-kms/aws-kms-mrk-are-unique.txt#2.5
+    //= aws-encryption-sdk-specification/framework/aws-kms/aws-kms-mrk-are-unique.md#implementation
     //= type=implication
     //# If there are zero duplicate resource ids between the multi-region
     //# keys, this function MUST exit successfully
@@ -76,7 +76,7 @@ module AwsKmsMrkAreUnique {
     ==>
       AwsKmsMrkAreUnique(identifiers).Pass?
 
-    //= compliance/framework/aws-kms/aws-kms-mrk-are-unique.txt#2.5
+    //= aws-encryption-sdk-specification/framework/aws-kms/aws-kms-mrk-are-unique.md#implementation
     //= type=implication
     //# If any duplicate multi-region resource ids exist, this function MUST
     //# yield an error that includes all identifiers with duplicate resource

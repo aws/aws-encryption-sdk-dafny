@@ -28,10 +28,9 @@ module AwsKmsKeyring {
   import KMS = ComAmazonawsKmsTypes
   import UTF8
 
-  //= compliance/framework/aws-kms/aws-kms-keyring.txt#2.5
+  //= aws-encryption-sdk-specification/framework/aws-kms/aws-kms-keyring.md#interface
   //= type=implication
-  //# MUST implement the AWS Encryption SDK Keyring interface (../keyring-
-  //# interface.md#interface)
+  //# MUST implement the [AWS Encryption SDK Keyring interface](../keyring-interface.md#interface)
   class AwsKmsKeyring
     extends Keyring.VerifiableInterface
   {
@@ -51,31 +50,31 @@ module AwsKmsKeyring {
     }
 
     constructor (
-      //= compliance/framework/aws-kms/aws-kms-keyring.txt#2.6
+      //= aws-encryption-sdk-specification/framework/aws-kms/aws-kms-keyring.md#initialization
       //= type=implication
-      //# *  MUST provide an AWS KMS SDK client
+      //# - MUST provide an AWS KMS SDK client
       // (blank line for duvet)
-      //= compliance/framework/aws-kms/aws-kms-keyring.txt#2.6
+      //= aws-encryption-sdk-specification/framework/aws-kms/aws-kms-keyring.md#initialization
       //= type=implication
       //# The AWS KMS SDK client MUST NOT be null.
       client: KMS.IKeyManagementServiceClient,
-      //= compliance/framework/aws-kms/aws-kms-keyring.txt#2.6
+      //= aws-encryption-sdk-specification/framework/aws-kms/aws-kms-keyring.md#initialization
       //= type=implication
-      //# *  MUST provide an AWS KMS key identifier
+      //# - MUST provide an AWS KMS key identifier
       awsKmsKey: string,
-      //= compliance/framework/aws-kms/aws-kms-keyring.txt#2.6
+      //= aws-encryption-sdk-specification/framework/aws-kms/aws-kms-keyring.md#initialization
       //= type=implication
-      //# *  MAY provide a list of Grant Tokens
+      //# - MAY provide a list of Grant Tokens
       grantTokens: KMS.GrantTokenList
     )
-      //= compliance/framework/aws-kms/aws-kms-keyring.txt#2.6
+      //= aws-encryption-sdk-specification/framework/aws-kms/aws-kms-keyring.md#initialization
       //= type=implication
       //# The AWS KMS
-      //# key identifier MUST be a valid identifier (aws-kms-key-arn.md#a-
+      //# key identifier MUST be [a valid identifier](aws-kms-key-arn.md#a-
       //# valid-aws-kms-identifier).
       requires ParseAwsKmsIdentifier(awsKmsKey).Success?
       requires UTF8.IsASCIIString(awsKmsKey)
-      //= compliance/framework/aws-kms/aws-kms-keyring.txt#2.6
+      //= aws-encryption-sdk-specification/framework/aws-kms/aws-kms-keyring.md#initialization
       //= type=implication
       //# The AWS KMS key identifier MUST NOT be null or empty.
       requires 0 < |awsKmsKey| <= MAX_AWS_KMS_IDENTIFIER_LENGTH
@@ -98,9 +97,9 @@ module AwsKmsKeyring {
 
     predicate OnEncryptEnsuresPublicly ( input: Types.OnEncryptInput , output: Result<Types.OnEncryptOutput, Types.Error> ) {true}
 
-    //= compliance/framework/aws-kms/aws-kms-keyring.txt#2.7
+    //= aws-encryption-sdk-specification/framework/aws-kms/aws-kms-keyring.md#onencrypt
     //= type=implication
-    //# OnEncrypt MUST take encryption materials
+    //# OnEncrypt MUST take [encryption materials]
     //# (../structures.md#encryption-materials) as input.
     method OnEncrypt'(input: Types.OnEncryptInput)
       returns (res: Result<Types.OnEncryptOutput, Types.Error>)
@@ -131,12 +130,12 @@ module AwsKmsKeyring {
       ==>
         res.Failure?
 
-      //= compliance/framework/aws-kms/aws-kms-keyring.txt#2.7
+      //= aws-encryption-sdk-specification/framework/aws-kms/aws-kms-keyring.md#onencrypt
       //= type=implication
-      //# If the input encryption materials (../structures.md#encryption-
-      //# materials) do not contain a plaintext data key OnEncrypt MUST attempt
-      //# to generate a new plaintext data key by calling AWS KMS
-      //# GenerateDataKey (https://docs.aws.amazon.com/kms/latest/APIReference/
+      //# If the input [encryption materials](../structures.md#encryption-materials)
+      //# do not contain a plaintext data key OnEncrypt MUST attempt
+      //# to generate a new plaintext data key by calling [AWS KMS
+      //# GenerateDataKey](https://docs.aws.amazon.com/kms/latest/APIReference/
       //# API_GenerateDataKey.html).
       ensures
         // This must be before the .None? check, otherwise the verifier fails
@@ -145,45 +144,44 @@ module AwsKmsKeyring {
         && maybeStringifiedEncCtx.Success?
       ==>
         && 0 < |client.History.GenerateDataKey|
-        //= compliance/framework/aws-kms/aws-kms-keyring.txt#2.7
+        //= aws-encryption-sdk-specification/framework/aws-kms/aws-kms-keyring.md#onencrypt
         //= type=implication
         //# If the keyring calls AWS KMS GenerateDataKeys, it MUST use the
         //# configured AWS KMS client to make the call.
         && Last(client.History.GenerateDataKey).input
-          //= compliance/framework/aws-kms/aws-kms-keyring.txt#2.7
+          //= aws-encryption-sdk-specification/framework/aws-kms/aws-kms-keyring.md#onencrypt
           //= type=implication
           //# The keyring MUST call
           //# AWS KMS GenerateDataKeys with a request constructed as follows:
           == KMS.GenerateDataKeyRequest(
-            //= compliance/framework/aws-kms/aws-kms-keyring.txt#2.7
+            //= aws-encryption-sdk-specification/framework/aws-kms/aws-kms-keyring.md#onencrypt
             //= type=implication
-            //# *  "EncryptionContext" MUST be the encryption context
+            //# - `EncryptionContext` MUST be the [encryption context]
             //# (../structures.md#encryption-context) included in the input
-            //# encryption materials (../structures.md#encryption-materials).
+            //# [encryption materials](../structures.md#encryption-materials).
             EncryptionContext := Some(maybeStringifiedEncCtx.value),
-            //= compliance/framework/aws-kms/aws-kms-keyring.txt#2.7
+            //= aws-encryption-sdk-specification/framework/aws-kms/aws-kms-keyring.md#onencrypt
             //= type=implication
-            //# *  "GrantTokens" MUST be this keyring's grant tokens
-            //# (https://docs.aws.amazon.com/kms/latest/developerguide/
-            //# concepts.html#grant_token).
+            //# - `GrantTokens` MUST be this keyring's [grant tokens]
+            //# (https://docs.aws.amazon.com/kms/latest/developerguide/concepts.html#grant_token).
             GrantTokens := Some(grantTokens),
-            //= compliance/framework/aws-kms/aws-kms-keyring.txt#2.7
+            //= aws-encryption-sdk-specification/framework/aws-kms/aws-kms-keyring.md#onencrypt
             //= type=implication
-            //# *  "KeyId" MUST be the keyring's KMS key identifier.
+            //# - `KeyId` MUST be the keyring's KMS key identifier.
             KeyId := awsKmsKey,
-            //= compliance/framework/aws-kms/aws-kms-keyring.txt#2.7
+            //= aws-encryption-sdk-specification/framework/aws-kms/aws-kms-keyring.md#onencrypt
             //= type=implication
-            //# *  "NumberOfBytes" MUST be the key derivation input length
+            //# - `NumberOfBytes` MUST be the [key derivation input length]
             //# (../algorithm-suites.md#key-derivation-input-length) specified by
-            //# the algorithm suite (../algorithm-suites.md) included in the input
-            //# encryption materials (../structures.md#encryption-materials).
+            //# the [algorithm suite](../algorithm-suites.md) included in the input
+            //# [encryption materials](../structures.md#encryption-materials).
             NumberOfBytes := Some(AlgorithmSuites.GetEncryptKeyLength(input.materials.algorithmSuite)),
             KeySpec := None
           )
 
-      //= compliance/framework/aws-kms/aws-kms-keyring.txt#2.7
+      //= aws-encryption-sdk-specification/framework/aws-kms/aws-kms-keyring.md#onencrypt
       //= type=implication
-      //# *  MUST output the modified encryption materials
+      //# - MUST output the modified [encryption materials]
       //# (../structures.md#encryption-materials)
       ensures
         && input.materials.plaintextDataKey.None?
@@ -194,11 +192,11 @@ module AwsKmsKeyring {
         && KMS.IsValid_CiphertextType(Last(res.value.materials.encryptedDataKeys).ciphertext)
         && var algSuite := input.materials.algorithmSuite;
         && Last(client.History.GenerateDataKey).output.Success?
-        //= compliance/framework/aws-kms/aws-kms-keyring.txt#2.7
+        //= aws-encryption-sdk-specification/framework/aws-kms/aws-kms-keyring.md#onencrypt
         //= type=implication
         //# If the Generate Data Key call succeeds, OnEncrypt MUST verify that
-        //# the response "Plaintext" length matches the specification of the
-        //# algorithm suite (../algorithm-suites.md)'s Key Derivation Input
+        //# the response `Plaintext` length matches the specification of the
+        //# [algorithm suite](../algorithm-suites.md)'s Key Derivation Input
         //# Length field.
         && AlgorithmSuites.GetEncryptKeyLength(algSuite) as int == |res.value.materials.plaintextDataKey.value|
         && exists returnedKeyId
@@ -211,9 +209,9 @@ module AwsKmsKeyring {
               Plaintext := Some(res.value.materials.plaintextDataKey.value)
             )
 
-      //= compliance/framework/aws-kms/aws-kms-keyring.txt#2.7
+      //= aws-encryption-sdk-specification/framework/aws-kms/aws-kms-keyring.md#onencrypt
       //= type=implication
-      //# If the input encryption materials (../structures.md#encryption-
+      //# If the input [encryption materials](../structures.md#encryption-
       //# materials) do contain a plaintext data key, OnEncrypt MUST attempt to
       //# encrypt the plaintext data key using the configured AWS KMS key
       //# identifier.
@@ -226,53 +224,51 @@ module AwsKmsKeyring {
       ==>
         && var stringifiedEncCtx := StringifyEncryptionContext(input.materials.encryptionContext).Extract();
         && 0 < |client.History.Encrypt|
-        //= compliance/framework/aws-kms/aws-kms-keyring.txt#2.7
+        //= aws-encryption-sdk-specification/framework/aws-kms/aws-kms-keyring.md#onencrypt
         //= type=implication
-        //# The keyring MUST call AWS KMS Encrypt
-        //# (https://docs.aws.amazon.com/kms/latest/APIReference/
-        //# API_Encrypt.html) using the configured AWS KMS client.
+        //# The keyring MUST call [AWS KMS Encrypt]
+        //# (https://docs.aws.amazon.com/kms/latest/APIReference/API_Encrypt.html) using the configured AWS KMS client.
         && Last(client.History.Encrypt).input
-          //= compliance/framework/aws-kms/aws-kms-keyring.txt#2.7
+          //= aws-encryption-sdk-specification/framework/aws-kms/aws-kms-keyring.md#onencrypt
           //= type=implication
           //# The keyring
           //# MUST AWS KMS Encrypt call with a request constructed as follows:
           == KMS.EncryptRequest(
-            //= compliance/framework/aws-kms/aws-kms-keyring.txt#2.7
-            //# *  "EncryptionContext" MUST be the encryption context
+            //= aws-encryption-sdk-specification/framework/aws-kms/aws-kms-keyring.md#onencrypt
+            //# - `EncryptionContext` MUST be the [encryption context]
             //# (../structures.md#encryption-context) included in the input
-            //# encryption materials (../structures.md#encryption-materials).
+            //# [encryption materials](../structures.md#encryption-materials).
             EncryptionContext := Some(stringifiedEncCtx),
-            //= compliance/framework/aws-kms/aws-kms-keyring.txt#2.7
-            //# *  "GrantTokens" MUST be this keyring's grant tokens
-            //# (https://docs.aws.amazon.com/kms/latest/developerguide/
-            //# concepts.html#grant_token).
+            //= aws-encryption-sdk-specification/framework/aws-kms/aws-kms-keyring.md#onencrypt
+            //# - `GrantTokens` MUST be this keyring's [grant tokens]
+            //# (https://docs.aws.amazon.com/kms/latest/developerguide/concepts.html#grant_token).
             GrantTokens := Some(grantTokens),
-            //= compliance/framework/aws-kms/aws-kms-keyring.txt#2.7
+            //= aws-encryption-sdk-specification/framework/aws-kms/aws-kms-keyring.md#onencrypt
             //= type=implication
-            //# *  "KeyId" MUST be the configured AWS KMS key identifier.
+            //# - `KeyId` MUST be the configured AWS KMS key identifier.
             KeyId := awsKmsKey,
-            //= compliance/framework/aws-kms/aws-kms-keyring.txt#2.7
+            //= aws-encryption-sdk-specification/framework/aws-kms/aws-kms-keyring.md#onencrypt
             //= type=implication
-            //# *  "PlaintextDataKey" MUST be the plaintext data key in the
-            //# encryption materials (../structures.md#encryption-materials).
+            //# - `PlaintextDataKey` MUST be the plaintext data key in the
+            //# [encryption materials](../structures.md#encryption-materials).
             Plaintext := input.materials.plaintextDataKey.value,
             EncryptionAlgorithm := None
           )
 
-      //= compliance/framework/aws-kms/aws-kms-keyring.txt#2.7
+      //= aws-encryption-sdk-specification/framework/aws-kms/aws-kms-keyring.md#onencrypt
       //= type=implication
       //# If all Encrypt calls succeed, OnEncrypt MUST output the modified
-      //# encryption materials (../structures.md#encryption-materials).
+      //# [encryption materials](../structures.md#encryption-materials).
       ensures
         && input.materials.plaintextDataKey.Some?
         && res.Success?
       ==>
-        //= compliance/framework/aws-kms/aws-kms-keyring.txt#2.7
+        //= aws-encryption-sdk-specification/framework/aws-kms/aws-kms-keyring.md#onencrypt
         //= type=implication
         //# If
-        //# verified, OnEncrypt MUST append a new encrypted data key
+        //# verified, OnEncrypt MUST append a new [encrypted data key]
         //# (../structures.md#encrypted-data-key) to the encrypted data key list
-        //# in the encryption materials (../structures.md#encryption-materials),
+        //# in the [encryption materials](../structures.md#encryption-materials),
         //# constructed as follows:
         && |res.value.materials.encryptedDataKeys| == |input.materials.encryptedDataKeys| + 1
         && KMS.IsValid_CiphertextType(Last(res.value.materials.encryptedDataKeys).ciphertext)
@@ -302,18 +298,18 @@ module AwsKmsKeyring {
 
         var maybeGenerateResponse := client.GenerateDataKey(generatorRequest);
 
-        //= compliance/framework/aws-kms/aws-kms-keyring.txt#2.7
-        //# If the call to AWS KMS GenerateDataKey
-        //# (https://docs.aws.amazon.com/kms/latest/APIReference/
-        //# API_GenerateDataKey.html) does not succeed, OnEncrypt MUST NOT modify
-        //# the encryption materials (../structures.md#encryption-materials) and
+        //= aws-encryption-sdk-specification/framework/aws-kms/aws-kms-keyring.md#onencrypt
+        //# If the call to [AWS KMS GenerateDataKey]
+        //# (https://docs.aws.amazon.com/kms/latest/APIReference/API_GenerateDataKey.html)
+        //# does not succeed, OnEncrypt MUST NOT modify
+        //# the [encryption materials](../structures.md#encryption-materials) and
         //# MUST fail.
         var generateResponse :- maybeGenerateResponse
           .MapFailure(e => Types.ComAmazonawsKms(ComAmazonawsKms := e));
 
-        //= compliance/framework/aws-kms/aws-kms-keyring.txt#2.7
-        //# The Generate Data Key response's "KeyId" MUST be a
-        //# valid AWS KMS key ARN (aws-kms-key-arn.md#a-valid-aws-kms-arn).
+        //= aws-encryption-sdk-specification/framework/aws-kms/aws-kms-keyring.md#onencrypt
+        //# The Generate Data Key response’s `KeyId` MUST be [a
+        //# valid AWS KMS key ARN](aws-kms-key-arn.md#a-valid-aws-kms-arn).
         :- Need(
           && generateResponse.KeyId.Some?
           && ParseAwsKmsIdentifier(generateResponse.KeyId.value).Success?,
@@ -340,29 +336,29 @@ module AwsKmsKeyring {
         );
 
         var edk := Types.EncryptedDataKey(
-          //= compliance/framework/aws-kms/aws-kms-keyring.txt#2.7
-          //# -  the key provider id (../structures.md#key-provider-id) MUST be
+          //= aws-encryption-sdk-specification/framework/aws-kms/aws-kms-keyring.md#onencrypt
+          //# - the [key provider id](../structures.md#key-provider-id) MUST be
           //# "aws-kms".
           keyProviderId := PROVIDER_ID,
-          //= compliance/framework/aws-kms/aws-kms-keyring.txt#2.7
-          //# -  the key provider information (../structures.md#key-provider-
-          //# information) MUST be the response "KeyId".
+          //= aws-encryption-sdk-specification/framework/aws-kms/aws-kms-keyring.md#onencrypt
+          //# - the [key provider information](../structures.md#key-provider-
+          //# information) MUST be the response `KeyId`.
           keyProviderInfo := providerInfo,
-          //= compliance/framework/aws-kms/aws-kms-keyring.txt#2.7
-          //# -  the ciphertext (../structures.md#ciphertext) MUST be the
-          //# response "CiphertextBlob".
+          //= aws-encryption-sdk-specification/framework/aws-kms/aws-kms-keyring.md#onencrypt
+          //# - the [ciphertext](../structures.md#ciphertext) MUST be the
+          //# response `CiphertextBlob`.
           ciphertext := generateResponse.CiphertextBlob.value
         );
-        //= compliance/framework/aws-kms/aws-kms-keyring.txt#2.7
-        //# *  MUST set the plaintext data key on the encryption materials
+        //= aws-encryption-sdk-specification/framework/aws-kms/aws-kms-keyring.md#onencrypt
+        //# - MUST set the plaintext data key on the [encryption materials]
         //# (../structures.md#encryption-materials) as the response
-        //# "Plaintext".
+        //# `Plaintext`.
         var plaintextDataKey := generateResponse.Plaintext.value;
 
-        //= compliance/framework/aws-kms/aws-kms-keyring.txt#2.7
-        //# *  MUST append a new encrypted data key (../structures.md#encrypted-
-        //# data-key) to the encrypted data key list in the encryption
-        //# materials (../structures.md#encryption-materials), constructed as
+        //= aws-encryption-sdk-specification/framework/aws-kms/aws-kms-keyring.md#onencrypt
+        //# - MUST append a new [encrypted data key](../structures.md#encrypted-
+        //# data-key) to the encrypted data key list in the [encryption
+        //# materials](../structures.md#encryption-materials), constructed as
         //# follows:
         var result :- Materials.EncryptionMaterialAddDataKey(materials, plaintextDataKey, [edk]);
         return Success(Types.OnEncryptOutput(
@@ -382,17 +378,17 @@ module AwsKmsKeyring {
         );
         var maybeEncryptResponse := client.Encrypt(encryptRequest);
 
-        //= compliance/framework/aws-kms/aws-kms-keyring.txt#2.7
+        //= aws-encryption-sdk-specification/framework/aws-kms/aws-kms-keyring.md#onencrypt
         //= type=implication
-        //# If the call to AWS KMS Encrypt
-        //# (https://docs.aws.amazon.com/kms/latest/APIReference/
-        //# API_Encrypt.html) does not succeed, OnEncrypt MUST fail.
+        //# If the call to [AWS KMS Encrypt]
+        //# (https://docs.aws.amazon.com/kms/latest/APIReference/API_Encrypt.html)
+        //# does not succeed, OnEncrypt MUST fail.
         var encryptResponse :- maybeEncryptResponse
           .MapFailure(e => Types.ComAmazonawsKms(ComAmazonawsKms := e));
 
-        //= compliance/framework/aws-kms/aws-kms-keyring.txt#2.7
-        //# If the Encrypt call succeeds the response's "KeyId" MUST be A valid
-        //# AWS KMS key ARN (aws-kms-key-arn.md#a-valid-aws-kms-arn).
+        //= aws-encryption-sdk-specification/framework/aws-kms/aws-kms-keyring.md#onencrypt
+        //# If the Encrypt call succeeds the response’s `KeyId` MUST be
+        //# [A valid AWS KMS key ARN](aws-kms-key-arn.md#a-valid-aws-kms-arn).
         :- Need(
           && encryptResponse.KeyId.Some?
           && ParseAwsKmsIdentifier(encryptResponse.KeyId.value).Success?,
@@ -412,18 +408,18 @@ module AwsKmsKeyring {
         );
 
         var edk := Types.EncryptedDataKey(
-          //= compliance/framework/aws-kms/aws-kms-keyring.txt#2.7
-          //# *  The key provider id (../structures.md#key-provider-id) MUST be
+          //= aws-encryption-sdk-specification/framework/aws-kms/aws-kms-keyring.md#onencrypt
+          //# - The [key provider id](../structures.md#key-provider-id) MUST be
           //# "aws-kms".
           keyProviderId := PROVIDER_ID,
-          //= compliance/framework/aws-kms/aws-kms-keyring.txt#2.7
-          //# *  The key provider information (../structures.md#key-provider-
-          //# information) MUST be the response "KeyId".  Note that the "KeyId"
+          //= aws-encryption-sdk-specification/framework/aws-kms/aws-kms-keyring.md#onencrypt
+          //# - The [key provider information](../structures.md#key-provider-information)
+          //# MUST be the response `KeyId`.  Note that the `KeyId`
           //# in the response is always in key ARN format.
           keyProviderInfo := providerInfo,
-          //= compliance/framework/aws-kms/aws-kms-keyring.txt#2.7
-          //# *  The ciphertext (../structures.md#ciphertext) MUST be the response
-          //# "CiphertextBlob".
+          //= aws-encryption-sdk-specification/framework/aws-kms/aws-kms-keyring.md#onencrypt
+          //# - The [ciphertext](../structures.md#ciphertext) MUST be the response
+          //# `CiphertextBlob`.
           ciphertext := encryptResponse.CiphertextBlob.value
         );
 
@@ -436,11 +432,11 @@ module AwsKmsKeyring {
 
     predicate OnDecryptEnsuresPublicly ( input: Types.OnDecryptInput , output: Result<Types.OnDecryptOutput, Types.Error> ) {true}
 
-    //= compliance/framework/aws-kms/aws-kms-keyring.txt#2.8
+    //= aws-encryption-sdk-specification/framework/aws-kms/aws-kms-keyring.md#ondecrypt
     //= type=implication
-    //# OnDecrypt MUST take decryption materials
-    //# (../structures.md#decryption-materials) and a list of encrypted data
-    //# keys (../structures.md#encrypted-data-key) as input.
+    //# OnDecrypt MUST take [decryption materials]
+    //# (../structures.md#decryption-materials) and a list of [encrypted data
+    //# keys](../structures.md#encrypted-data-key) as input.
     method OnDecrypt'(
       input: Types.OnDecryptInput
     )
@@ -458,9 +454,9 @@ module AwsKmsKeyring {
           res.value.materials
         )
 
-      //= compliance/framework/aws-kms/aws-kms-keyring.txt#2.8
+      //= aws-encryption-sdk-specification/framework/aws-kms/aws-kms-keyring.md#ondecrypt
       //= type=implication
-      //# If the decryption materials (../structures.md#decryption-materials)
+      //# If the [decryption materials](../structures.md#decryption-materials)
       //# already contained a valid plaintext data key OnDecrypt MUST return an
       //# error.
       ensures input.materials.plaintextDataKey.Some? ==> res.Failure?
@@ -471,12 +467,12 @@ module AwsKmsKeyring {
         && var maybeStringifiedEncCtx := StringifyEncryptionContext(input.materials.encryptionContext);
         && maybeStringifiedEncCtx.Success?
         && 0 < |client.History.Decrypt|
-        //= compliance/framework/aws-kms/aws-kms-keyring.txt#2.8
+        //= aws-encryption-sdk-specification/framework/aws-kms/aws-kms-keyring.md#ondecrypt
         //= type=implication
-        //# *  The length of the response's "Plaintext" MUST equal the key
-        //# derivation input length (../algorithm-suites.md#key-derivation-
-        //# input-length) specified by the algorithm suite (../algorithm-
-        //# suites.md) included in the input decryption materials
+        //# - The length of the response’s `Plaintext` MUST equal the
+        //# [key derivation input length](../algorithm-suites.md#key-derivation-input-length)
+        //# specified by the [algorithm suite](../algorithm-suites.md)
+        //# included in the input [decryption materials]
         //# (../structures.md#decryption-materials).
         && AlgorithmSuites.GetEncryptKeyLength(input.materials.algorithmSuite) as nat == |res.value.materials.plaintextDataKey.value|
         && var LastDecrypt := Last(client.History.Decrypt);
@@ -485,56 +481,55 @@ module AwsKmsKeyring {
         // , returnedEncryptionAlgorithm
         | edk in input.encryptedDataKeys
         ::
-          //= compliance/framework/aws-kms/aws-kms-keyring.txt#2.8
+          //= aws-encryption-sdk-specification/framework/aws-kms/aws-kms-keyring.md#ondecrypt
           //= type=implication
-          //# *  Its provider ID MUST exactly match the value "aws-kms".
+          //# - Its provider ID MUST exactly match the value “aws-kms”.
           && edk.keyProviderId == PROVIDER_ID
           && KMS.IsValid_CiphertextType(edk.ciphertext)
-          //= compliance/framework/aws-kms/aws-kms-keyring.txt#2.8
+          //= aws-encryption-sdk-specification/framework/aws-kms/aws-kms-keyring.md#ondecrypt
           //= type=implication
-          //# When calling AWS KMS Decrypt
-          //# (https://docs.aws.amazon.com/kms/latest/APIReference/
-          //# API_Decrypt.html), the keyring MUST call with a request constructed
+          //# When calling [AWS KMS Decrypt]
+          //# (https://docs.aws.amazon.com/kms/latest/APIReference/API_Decrypt.html),
+          //# the keyring MUST call with a request constructed
           //# as follows:
           && KMS.DecryptRequest(
-              //= compliance/framework/aws-kms/aws-kms-keyring.txt#2.8
+              //= aws-encryption-sdk-specification/framework/aws-kms/aws-kms-keyring.md#ondecrypt
               //= type=implication
-              //# *  "KeyId" MUST be the configured AWS KMS key identifier.
+              //# - `KeyId` MUST be the configured AWS KMS key identifier.
               KeyId := Some(awsKmsKey),
-              //= compliance/framework/aws-kms/aws-kms-keyring.txt#2.8
+              //= aws-encryption-sdk-specification/framework/aws-kms/aws-kms-keyring.md#ondecrypt
               //= type=implication
-              //# *  "CiphertextBlob" MUST be the encrypted data key ciphertext
+              //# - `CiphertextBlob` MUST be the [encrypted data key ciphertext]
               //# (../structures.md#ciphertext).
               CiphertextBlob := edk.ciphertext,
-              //= compliance/framework/aws-kms/aws-kms-keyring.txt#2.8
+              //= aws-encryption-sdk-specification/framework/aws-kms/aws-kms-keyring.md#ondecrypt
               //= type=implication
-              //# *  "EncryptionContext" MUST be the encryption context
+              //# - `EncryptionContext` MUST be the [encryption context]
               //# (../structures.md#encryption-context) included in the input
-              //# decryption materials (../structures.md#decryption-materials).
+              //# [decryption materials](../structures.md#decryption-materials).
               EncryptionContext := Some(maybeStringifiedEncCtx.value),
-              //= compliance/framework/aws-kms/aws-kms-keyring.txt#2.8
+              //= aws-encryption-sdk-specification/framework/aws-kms/aws-kms-keyring.md#ondecrypt
               //= type=implication
-              //# *  "GrantTokens" MUST be this keyring's grant tokens
-              //# (https://docs.aws.amazon.com/kms/latest/developerguide/
-              //# concepts.html#grant_token).
+              //# - `GrantTokens` MUST be this keyring's [grant tokens]
+              //# (https://docs.aws.amazon.com/kms/latest/developerguide/concepts.html#grant_token).
               GrantTokens := Some(grantTokens),
               EncryptionAlgorithm := None
             )
-            //= compliance/framework/aws-kms/aws-kms-keyring.txt#2.8
+            //= aws-encryption-sdk-specification/framework/aws-kms/aws-kms-keyring.md#ondecrypt
             //= type=implication
-            //# To attempt to decrypt a particular encrypted data key
-            //# (../structures.md#encrypted-data-key), OnDecrypt MUST call AWS KMS
-            //# Decrypt (https://docs.aws.amazon.com/kms/latest/APIReference/
-            //# API_Decrypt.html) with the configured AWS KMS client.
+            //# To attempt to decrypt a particular [encrypted data key]
+            //# (../structures.md#encrypted-data-key), OnDecrypt MUST call [AWS KMS
+            //# Decrypt](https://docs.aws.amazon.com/kms/latest/APIReference/API_Decrypt.html)
+            //# with the configured AWS KMS client.
             == LastDecrypt.input
-          //= compliance/framework/aws-kms/aws-kms-keyring.txt#2.8
+          //= aws-encryption-sdk-specification/framework/aws-kms/aws-kms-keyring.md#ondecrypt
           //= type=implication
-          //# *  The "KeyId" field in the response MUST equal the configured AWS
+          //# - The `KeyId` field in the response MUST equal the configured AWS
           //# KMS key identifier.
           && LastDecrypt.output.value.KeyId == Some(awsKmsKey)
-          //= compliance/framework/aws-kms/aws-kms-keyring.txt#2.8
+          //= aws-encryption-sdk-specification/framework/aws-kms/aws-kms-keyring.md#ondecrypt
           //= type=implication
-          //# *  MUST immediately return the modified decryption materials
+          //# - MUST immediately return the modified [decryption materials]
           //# (../structures.md#decryption-materials).
           && LastDecrypt.output.value.Plaintext == res.value.materials.plaintextDataKey
     {
@@ -547,9 +542,9 @@ module AwsKmsKeyring {
         Types.AwsCryptographicMaterialProvidersException(
           message := "Keyring received decryption materials that already contain a plaintext data key."));
 
-      //= compliance/framework/aws-kms/aws-kms-keyring.txt#2.8
+      //= aws-encryption-sdk-specification/framework/aws-kms/aws-kms-keyring.md#ondecrypt
       //# The set of encrypted data keys MUST first be filtered to match this
-      //# keyring's configuration.
+      //#  keyring’s configuration.
       var filter := new OnDecryptEncryptedDataKeyFilter(awsKmsKey);
       var edksToAttempt :- FilterWithResult(filter, input.encryptedDataKeys);
 
@@ -557,7 +552,7 @@ module AwsKmsKeyring {
         Types.AwsCryptographicMaterialProvidersException(
           message := "Unable to decrypt data key: No Encrypted Data Keys found to match."));
 
-      //= compliance/framework/aws-kms/aws-kms-keyring.txt#2.8
+      //= aws-encryption-sdk-specification/framework/aws-kms/aws-kms-keyring.md#ondecrypt
       //# For each encrypted data key in the filtered set, one at a time, the
       //# OnDecrypt MUST attempt to decrypt the data key.
       //# If this attempt
@@ -569,7 +564,7 @@ module AwsKmsKeyring {
         grantTokens
       );
 
-      //= compliance/framework/aws-kms/aws-kms-keyring.txt#2.8
+      //= aws-encryption-sdk-specification/framework/aws-kms/aws-kms-keyring.md#ondecrypt
       //# If the response does not satisfies these requirements then an error
       //# MUST be collected and the next encrypted data key in the filtered set
       //# MUST be attempted.
@@ -579,8 +574,8 @@ module AwsKmsKeyring {
       );
 
       var SealedDecryptionMaterials :- outcome
-        //= compliance/framework/aws-kms/aws-kms-keyring.txt#2.8
-        //# If OnDecrypt fails to successfully decrypt any encrypted data key
+        //= aws-encryption-sdk-specification/framework/aws-kms/aws-kms-keyring.md#ondecrypt
+        //# If OnDecrypt fails to successfully decrypt any [encrypted data key]
         //# (../structures.md#encrypted-data-key), then it MUST yield an error
         //# that includes all the collected errors.
         .MapFailure(errors => Types.Collection( list := errors));
@@ -630,14 +625,14 @@ module AwsKmsKeyring {
       }
 
       var keyId :- UTF8.Decode(edk.keyProviderInfo).MapFailure(WrapStringToError);
-      //= compliance/framework/aws-kms/aws-kms-keyring.txt#2.8
-      //# *  The provider info MUST be a valid AWS KMS ARN (aws-kms-key-
-      //# arn.md#a-valid-aws-kms-arn) with a resource type of "key" or
+      //= aws-encryption-sdk-specification/framework/aws-kms/aws-kms-keyring.md#ondecrypt
+      //# - The provider info MUST be a [valid AWS KMS ARN](aws-kms-key-
+      //# arn.md#a-valid-aws-kms-arn) with a resource type of `key` or
       //# OnDecrypt MUST fail.
       var _ :- ParseAwsKmsArn(keyId).MapFailure(WrapStringToError);
 
-      //= compliance/framework/aws-kms/aws-kms-keyring.txt#2.8
-      //# *  The provider info MUST match the configured AWS KMS key
+      //= aws-encryption-sdk-specification/framework/aws-kms/aws-kms-keyring.md#ondecrypt
+      //# - The provider info MUST match the configured AWS KMS key
       //# identifier.
       return Success(this.awsKmsKey == keyId);
     }
@@ -747,10 +742,10 @@ module AwsKmsKeyring {
         , Types.AwsCryptographicMaterialProvidersException(
           message := "Invalid response from KMS Decrypt"));
 
-      //= compliance/framework/aws-kms/aws-kms-keyring.txt#2.8
-      //# *  MUST set the plaintext data key on the decryption materials
+      //= aws-encryption-sdk-specification/framework/aws-kms/aws-kms-keyring.md#ondecrypt
+      //# - MUST set the plaintext data key on the [decryption materials]
       //# (../structures.md#decryption-materials) as the response
-      //# "Plaintext".
+      //# `Plaintext`.
       var result :- Materials.DecryptionMaterialsAddDataKey(materials, decryptResponse.Plaintext.value);
       return Success(result);
     }
