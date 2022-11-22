@@ -41,9 +41,9 @@ module StrictMultiKeyring {
     ==>
       output.Failure?
 
-    //= compliance/framework/aws-kms/aws-kms-multi-keyrings.txt#2.5
+    //= aws-encryption-sdk-specification/framework/aws-kms/aws-kms-multi-keyrings.md#aws-kms-multi-keyring
     //= type=implication
-    //# If any of the AWS KMS key identifiers is not a valid AWS KMS key ARN
+    //# If any of the AWS KMS key identifiers is not a [valid AWS KMS key ARN]
     //# (aws-kms-key-arn.md#a-valid-aws-kms-arn), this function MUST fail.
     ensures
       var allStrings := if generator.Some? then
@@ -55,24 +55,24 @@ module StrictMultiKeyring {
     ==>
       output.Failure?
 
-    //= compliance/framework/aws-kms/aws-kms-multi-keyrings.txt#2.5
+    //= aws-encryption-sdk-specification/framework/aws-kms/aws-kms-multi-keyrings.md#aws-kms-multi-keyring
     //= type=implication
-    //# Then a Multi-Keyring (../multi-keyring.md#inputs) MUST be initialize
-    //# by using this generator keyring as the generator keyring (../multi-
+    //# Then a [Multi-Keyring](../multi-keyring.md#inputs) MUST be initialize
+    //# by using this generator keyring as the [generator keyring](../multi-
     //# keyring.md#generator-keyring) and this set of child keyrings as the
-    //# child keyrings (../multi-keyring.md#child-keyrings).
+    //# [child keyrings](../multi-keyring.md#child-keyrings).
 
-    //= compliance/framework/aws-kms/aws-kms-multi-keyrings.txt#2.5
+    //= aws-encryption-sdk-specification/framework/aws-kms/aws-kms-multi-keyrings.md#aws-kms-multi-keyring
     //= type=implication
     //# This Multi-
     //# Keyring MUST be this function's output.
     ensures
       && output.Success?
     ==>
-      //= compliance/framework/aws-kms/aws-kms-multi-keyrings.txt#2.5
+      //= aws-encryption-sdk-specification/framework/aws-kms/aws-kms-multi-keyrings.md#aws-kms-multi-keyring
       //= type=implication
       //# If there is a generator input then the generator keyring MUST be a
-      //# AWS KMS Keyring (aws-kms-keyring.md) initialized with
+      //# [AWS KMS Keyring](aws-kms-keyring.md) initialized with
       && (generator.Some?
       ==>
         && output.value.generatorKeyring.Some?
@@ -83,9 +83,9 @@ module StrictMultiKeyring {
       && (generator.None?
       ==>
         && output.value.generatorKeyring.None?)
-      //= compliance/framework/aws-kms/aws-kms-multi-keyrings.txt#2.5
+      //= aws-encryption-sdk-specification/framework/aws-kms/aws-kms-multi-keyrings.md#aws-kms-multi-keyring
       //= type=implication
-      //# If there is a set of child identifiers then a set of AWS KMS Keyring
+      //# If there is a set of child identifiers then a set of [AWS KMS Keyring]
       //# (aws-kms-keyring.md) MUST be created for each AWS KMS key identifier
       //# by initializing each keyring with
       && (awsKmsKeys.Some?
@@ -121,7 +121,7 @@ module StrictMultiKeyring {
       case Some(generatorIdentifier) =>
         var arn :- AwsKmsArnParsing.IsAwsKmsIdentifierString(generatorIdentifier).MapFailure(WrapStringToError);
         var region := AwsKmsArnParsing.GetRegion(arn);
-        //= compliance/framework/aws-kms/aws-kms-multi-keyrings.txt#2.5
+        //= aws-encryption-sdk-specification/framework/aws-kms/aws-kms-multi-keyrings.md#aws-kms-multi-keyring
         //= type=implication
         //# NOTE: The AWS Encryption SDK SHOULD NOT attempt to evaluate its own
         //# default region.

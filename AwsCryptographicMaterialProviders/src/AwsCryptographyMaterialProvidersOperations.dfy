@@ -101,7 +101,7 @@ module AwsCryptographyMaterialProvidersOperations refines AbstractAwsCryptograph
         Option.Some(grantTokens)
       );
     } else {
-      //= compliance/framework/aws-kms/aws-kms-multi-keyrings.txt#2.5
+      //= aws-encryption-sdk-specification/framework/aws-kms/aws-kms-multi-keyrings.md#aws-kms-multi-keyring
       //# If a regional client supplier is not passed, then a default MUST be
       //# created that takes a region string and generates a default AWS SDK
       //# client for the given region.
@@ -125,10 +125,8 @@ module AwsCryptographyMaterialProvidersOperations refines AbstractAwsCryptograph
 
     var clientSupplier: Types.IClientSupplier;
 
-    //= compliance/framework/aws-kms/aws-kms-multi-keyrings.txt#2.6
-    //# If a regional client supplier is not passed,
-    //# then a default MUST be created that takes a region string and
-    //# generates a default AWS SDK client for the given region.
+    //= aws-encryption-sdk-specification/framework/aws-kms/aws-kms-multi-keyrings.md#aws-kms-discovery-multi-keyring
+    //# If a regional client supplier is not passed, then a default MUST be created that takes a region string and generates a default AWS SDK client for the given region.
     if input.clientSupplier.None? {
       clientSupplier :- CreateDefaultClientSupplier(config, Types.CreateDefaultClientSupplierInput());
     } else {
@@ -165,10 +163,8 @@ module AwsCryptographyMaterialProvidersOperations refines AbstractAwsCryptograph
 
     var clientSupplier: Types.IClientSupplier;
 
-    //= compliance/framework/aws-kms/aws-kms-mrk-multi-keyrings.txt#2.5
-    //# If a regional client supplier is
-    //# not passed, then a default MUST be created that takes a region string
-    //# and generates a default AWS SDK client for the given region.
+    //= aws-encryption-sdk-specification/framework/aws-kms/aws-kms-mrk-multi-keyrings.md#aws-kms-mrk-multi-keyring
+    //# If a regional client supplier is not passed, then a default MUST be created that takes a region string and generates a default AWS SDK client for the given region.
     if input.clientSupplier.None? {
       clientSupplier :- CreateDefaultClientSupplier(config, Types.CreateDefaultClientSupplierInput());
     } else {
@@ -192,10 +188,10 @@ module AwsCryptographyMaterialProvidersOperations refines AbstractAwsCryptograph
       var _ :- ValidateDiscoveryFilter(input.discoveryFilter.value);
     }
 
-    //= compliance/framework/aws-kms/aws-kms-mrk-discovery-keyring.txt#2.6
+    //= aws-encryption-sdk-specification/framework/aws-kms/aws-kms-mrk-discovery-keyring.md#initialization
     //= type=implication
-    //# The keyring SHOULD fail initialization if the
-    //# provided region does not match the region of the KMS client.
+    //# The keyring SHOULD fail initialization if the provided region does not match the
+    //# region of the KMS client.
     var regionMatch := AwsKmsUtils.RegionMatch(input.kmsClient, input.region);
     :- Need(regionMatch != Some(false),
       Types.AwsCryptographicMaterialProvidersException(
@@ -217,7 +213,7 @@ module AwsCryptographyMaterialProvidersOperations refines AbstractAwsCryptograph
 
     var clientSupplier: Types.IClientSupplier;
 
-    //= compliance/framework/aws-kms/aws-kms-mrk-multi-keyrings.txt#2.6
+    //= aws-encryption-sdk-specification/framework/aws-kms/aws-kms-mrk-multi-keyrings.md#aws-kms-mrk-multi-keyring
     //# If a regional client supplier is not passed,
     //# then a default MUST be created that takes a region string and
     //# generates a default AWS SDK client for the given region.
@@ -251,9 +247,9 @@ module AwsCryptographyMaterialProvidersOperations refines AbstractAwsCryptograph
 
   predicate CreateRawAesKeyringEnsuresPublicly(input: CreateRawAesKeyringInput, output: Result<IKeyring, Error>)
   {
-    //= compliance/framework/raw-aes-keyring.txt#2.1.1
+    //= aws-encryption-sdk-specification/framework/raw-aes-keyring.md#changelog
     //= type=implication
-    //# -  Raw AES keyring MUST NOT accept a key namespace of "aws-kms".
+    //# Raw AES keyring MUST NOT accept a key namespace of "aws-kms".
       input.keyNamespace == "aws-kms"
     ==>
       output.Failure?
@@ -307,9 +303,9 @@ module AwsCryptographyMaterialProvidersOperations refines AbstractAwsCryptograph
 
   predicate CreateRawRsaKeyringEnsuresPublicly(input: CreateRawRsaKeyringInput, output: Result<IKeyring, Error>)
   {
-    //= compliance/framework/raw-rsa-keyring.txt#2.1.1
+    //= aws-encryption-sdk-specification/framework/raw-rsa-keyring.md#changelog
     //= type=implication
-    //# -  Raw RSA keyring MUST NOT accept a key namespace of "aws-kms".
+    //# Raw RSA keyring MUST NOT accept a key namespace of "aws-kms".
     && (input.keyNamespace == "aws-kms"
     ==>
       output.Failure?)

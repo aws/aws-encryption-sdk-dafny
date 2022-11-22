@@ -53,17 +53,17 @@ module RawAESKeyring {
     // Suffice to say: If these are not preserved
     // then the RawAESKeyring is not secure.
 
-    //= compliance/framework/raw-aes-keyring.txt#2.5.1
+    //= aws-encryption-sdk-specification/framework/raw-aes-keyring.md#wrapping-key
     //# The wrapping key MUST be a secret value consisting of
     //# cryptographically secure pseudo-random bytes.
 
-    //= compliance/framework/raw-aes-keyring.txt#2.5.1
+    //= aws-encryption-sdk-specification/framework/raw-aes-keyring.md#wrapping-key
     //# It MUST be randomly
     //# generated from a cryptographically secure entropy source.
     const wrappingKey: seq<uint8>
     const wrappingAlgorithm: Crypto.AES_GCM
 
-    //= compliance/framework/raw-aes-keyring.txt#2.5
+    //= aws-encryption-sdk-specification/framework/raw-aes-keyring.md#initialization
     //= type=implication
     //# On keyring initialization, the caller MUST provide the following:
     constructor (
@@ -76,7 +76,7 @@ module RawAESKeyring {
       requires |namespace| < UINT16_LIMIT
       requires |name| < UINT16_LIMIT
 
-      //= compliance/framework/raw-aes-keyring.txt#2.5.1
+      //= aws-encryption-sdk-specification/framework/raw-aes-keyring.md#wrapping-key
       //= type=implication
       //# The length
       //# of the wrapping key MUST be 128, 192, or 256.
@@ -104,9 +104,9 @@ module RawAESKeyring {
 
     predicate OnEncryptEnsuresPublicly(input: Types.OnEncryptInput, output: Result<Types.OnEncryptOutput, Types.Error>) {true}
 
-    //= compliance/framework/raw-aes-keyring.txt#2.7.1
+    //= aws-encryption-sdk-specification/framework/raw-aes-keyring.md#onencrypt
     //= type=implication
-    //# OnEncrypt MUST take encryption materials (structures.md#encryption-
+    //# OnEncrypt MUST take [encryption materials](structures.md#encryption-
     //# materials) as input.
     method  OnEncrypt'(input: Types.OnEncryptInput)
       returns (output: Result<Types.OnEncryptOutput, Types.Error>)
@@ -162,7 +162,7 @@ module RawAESKeyring {
         && Seq.Last(cryptoPrimitives.History.AESEncrypt).input.msg
           == input.materials.plaintextDataKey.value
 
-      //= compliance/framework/raw-aes-keyring.txt#2.7.1
+      //= aws-encryption-sdk-specification/framework/raw-aes-keyring.md#onencrypt
       //= type=implication
       //# If the keyring cannot serialize
       //# the encryption context, OnEncrypt MUST fail.
@@ -181,10 +181,10 @@ module RawAESKeyring {
       var iv :- randomIvResult.MapFailure(e => Types.AwsCryptographyPrimitives(AwsCryptographyPrimitives := e));
       var providerInfo := SerializeProviderInfo(iv);
 
-      //= compliance/framework/raw-aes-keyring.txt#2.7.1
-      //# If the encryption materials (structures.md#encryption-materials) do
+      //= aws-encryption-sdk-specification/framework/raw-aes-keyring.md#onencrypt
+      //# If the [encryption materials](structures.md#encryption-materials) do
       //# not contain a plaintext data key, OnEncrypt MUST generate a random
-      //# plaintext data key and set it on the encryption materials
+      //# plaintext data key and set it on the [encryption materials]
       //# (structures.md#encryption-materials).
       var plaintextDataKey := if materials.plaintextDataKey.None? then
         k'
@@ -194,9 +194,9 @@ module RawAESKeyring {
       :- Need(|wrappingKey|== wrappingAlgorithm.keyLength as int,
         Types.AwsCryptographicMaterialProvidersException( message := "Wrapping key length does not match algorithm"));
 
-      //= compliance/framework/raw-aes-keyring.txt#2.7.1
-      //# The keyring MUST encrypt the plaintext data key in the encryption
-      //# materials (structures.md#encryption-materials) using AES-GCM.
+      //= aws-encryption-sdk-specification/framework/raw-aes-keyring.md#onencrypt
+      //# The keyring MUST encrypt the plaintext data key in the [encryption
+      //# materials](structures.md#encryption-materials) using AES-GCM.
       var aesEncryptResult := cryptoPrimitives
         .AESEncrypt(
           Crypto.AESEncryptInput(
@@ -220,13 +220,13 @@ module RawAESKeyring {
         keyProviderInfo := providerInfo,
         ciphertext := encryptedKey);
 
-      //= compliance/framework/raw-aes-keyring.txt#2.7.1
+      //= aws-encryption-sdk-specification/framework/raw-aes-keyring.md#onencrypt
       //# The keyring MUST append the constructed encrypted data key to the
-      //# encrypted data key list in the encryption materials
+      //# encrypted data key list in the [encryption materials]
       //# (structures.md#encryption-materials).
 
-      //= compliance/framework/raw-aes-keyring.txt#2.7.1
-      //# OnEncrypt MUST output the modified encryption materials
+      //= aws-encryption-sdk-specification/framework/raw-aes-keyring.md#onencrypt
+      //# OnEncrypt MUST output the modified [encryption materials]
       //# (structures.md#encryption-materials).
       var nextMaterials :- if materials.plaintextDataKey.None? then
         Materials.EncryptionMaterialAddDataKey(materials, plaintextDataKey, [edk])
@@ -238,10 +238,10 @@ module RawAESKeyring {
 
     predicate OnDecryptEnsuresPublicly(input: Types.OnDecryptInput, output: Result<Types.OnDecryptOutput, Types.Error>){true}
 
-    //= compliance/framework/raw-aes-keyring.txt#2.7.2
+    //= aws-encryption-sdk-specification/framework/raw-aes-keyring.md#ondecrypt
     //= type=implication
-    //# OnDecrypt MUST take decryption materials (structures.md#decryption-
-    //# materials) and a list of encrypted data keys
+    //# OnDecrypt MUST take [decryption materials](structures.md#decryption-
+    //# materials) and a list of [encrypted data keys]
     //# (structures.md#encrypted-data-key) as input.
     method OnDecrypt'(input: Types.OnDecryptInput)
       returns (output: Result<Types.OnDecryptOutput, Types.Error>)
@@ -288,7 +288,7 @@ module RawAESKeyring {
         && output.value.materials.plaintextDataKey.value
           == Seq.Last(cryptoPrimitives.History.AESDecrypt).output.value;
 
-      //= compliance/framework/raw-aes-keyring.txt#2.7.2
+      //= aws-encryption-sdk-specification/framework/raw-aes-keyring.md#ondecrypt
       //= type=implication
       //# If the keyring cannot
       //# serialize the encryption context, OnDecrypt MUST fail.
@@ -304,9 +304,9 @@ module RawAESKeyring {
         Types.AwsCryptographicMaterialProvidersException( message := "The wrapping key does not match the wrapping algorithm"));
 
       var errors: seq<Types.Error> := [];
-      //= compliance/framework/raw-aes-keyring.txt#2.7.2
+      //= aws-encryption-sdk-specification/framework/raw-aes-keyring.md#ondecrypt
       //# The keyring MUST perform the following actions on each encrypted data
-      //# key (structures.md#encrypted-data-key) in the input encrypted data
+      //# key](structures.md#encrypted-data-key) in the input encrypted data
       //# key list, serially, until it successfully decrypts one.
       for i := 0 to |input.encryptedDataKeys|
         invariant |errors| == i
@@ -327,7 +327,7 @@ module RawAESKeyring {
               GetEncryptKeyLength(materials.algorithmSuite) as nat == |ptKeyRes.Extract()|,
               // this should never happen
               Types.AwsCryptographicMaterialProvidersException( message := "Plaintext Data Key is not the expected length"));
-            //= compliance/framework/raw-aes-keyring.txt#2.7.2
+            //= aws-encryption-sdk-specification/framework/raw-aes-keyring.md#ondecrypt
             //# If a decryption succeeds, this keyring MUST add the resulting
             //# plaintext data key to the decryption materials and return the
             //# modified materials.
@@ -346,9 +346,9 @@ module RawAESKeyring {
           ];
         }
       }
-      //= compliance/framework/raw-aes-keyring.txt#2.7.2
+      //= aws-encryption-sdk-specification/framework/raw-aes-keyring.md#ondecrypt
       //# If no decryption succeeds, the keyring MUST fail and MUST NOT modify
-      //# the decryption materials (structures.md#decryption-materials).
+      //# the [decryption materials](structures.md#decryption-materials).
       return Failure(Types.Collection(list := errors));
     }
 
@@ -420,7 +420,7 @@ module RawAESKeyring {
       && |info| == |keyName| + AUTH_TAG_LEN_LEN + IV_LEN_LEN + wrappingAlgorithm.ivLength as int
       // The key name obtained from the encrypted data key's key provider information has a value equal to this keyring's key name.
       && info[0..|keyName|] == keyName
-      //= compliance/framework/raw-aes-keyring.txt#2.6.1.2
+      //= aws-encryption-sdk-specification/framework/raw-aes-keyring.md#authentication-tag-length
       //= type=implication
       //# This value MUST match the authentication tag length of the keyring's
       //# configured wrapping algorithm
@@ -428,7 +428,7 @@ module RawAESKeyring {
       && SeqToUInt32(info[|keyName|..|keyName| + AUTH_TAG_LEN_LEN]) == 128
       && SeqToUInt32(info[|keyName|..|keyName| + AUTH_TAG_LEN_LEN]) == wrappingAlgorithm.tagLength as uint32 * 8
       && SeqToUInt32(info[|keyName| + AUTH_TAG_LEN_LEN .. |keyName| + AUTH_TAG_LEN_LEN + IV_LEN_LEN]) == wrappingAlgorithm.ivLength as uint32
-      //= compliance/framework/raw-aes-keyring.txt#2.6.1.3
+      //= aws-encryption-sdk-specification/framework/raw-aes-keyring.md#iv-length
       //= type=implication
       //# This value MUST match the IV length of the keyring's
       //# configured wrapping algorithm
@@ -469,11 +469,11 @@ module RawAESKeyring {
     ensures SerializeEDKCiphertext(DeserializeEDKCiphertext(ciphertext, tagLen)) == ciphertext
   {}
 
-  //= compliance/framework/raw-aes-keyring.txt#2.7.1
-  //# The keyring MUST attempt to serialize the encryption materials'
-  //# (structures.md#encryption-materials) encryption context
+  //= aws-encryption-sdk-specification/framework/raw-aes-keyring.md#onencrypt
+  //# The keyring MUST attempt to serialize the [encryption materials']
+  //# (structures.md#encryption-materials) [encryption context]
   //# (structures.md#encryption-context-1) in the same format as the
-  //# serialization of message header AAD key value pairs (../data-format/
+  //# serialization of [message header AAD key value pairs](../data-format/
   //# message-header.md#key-value-pairs).
   // TODO: Tests/proofs
   function method EncryptionContextToAAD(

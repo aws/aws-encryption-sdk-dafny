@@ -138,22 +138,22 @@ module  AwsKmsArnParsing {
   }
 
   lemma ParseAwsKmsResourcesCorrect(identifier: string)
-    //= compliance/framework/aws-kms/aws-kms-key-arn.txt#2.5
+    //= aws-encryption-sdk-specification/framework/aws-kms/aws-kms-key-arn.md#a-valid-aws-kms-arn
     //= type=implication
     //# The resource section MUST be non-empty and MUST be split by a
-    //# single "/" any additional "/" are included in the resource id
+    //# single `/` any additional `/` are included in the resource id
     ensures ParseAwsKmsResources(identifier).Success? ==>
       var info := Split(identifier, '/');
       var r := ParseAwsKmsResources(identifier);
       && |info| > 1
       && Join([r.value.resourceType, r.value.value], "/") == identifier
-    //= compliance/framework/aws-kms/aws-kms-key-arn.txt#2.5
+    //= aws-encryption-sdk-specification/framework/aws-kms/aws-kms-key-arn.md#a-valid-aws-kms-arn
     //= type=implication
-    //# The resource type MUST be either "alias" or "key"
+    //# The resource type MUST be either `alias` or `key`
     ensures ParseAwsKmsResources(identifier).Success? ==>
       var resourceType := Split(identifier, '/')[0];
       "key" == resourceType || "alias" == resourceType
-    //= compliance/framework/aws-kms/aws-kms-key-arn.txt#2.5
+    //= aws-encryption-sdk-specification/framework/aws-kms/aws-kms-key-arn.md#a-valid-aws-kms-arn
     //= type=implication
     //# The resource id MUST be a non-empty string
     ensures ParseAwsKmsResources(identifier).Success? ==>
@@ -184,29 +184,29 @@ module  AwsKmsArnParsing {
   }
 
   lemma ParseAwsKmsArnCorrect(identifier: string)
-    //= compliance/framework/aws-kms/aws-kms-key-arn.txt#2.5
+    //= aws-encryption-sdk-specification/framework/aws-kms/aws-kms-key-arn.md#a-valid-aws-kms-arn
     //= type=implication
-    //# MUST start with string "arn"
+    //# MUST start with string `arn`
     ensures ParseAwsKmsArn(identifier).Success? ==> "arn" <= identifier
 
     ensures ParseAwsKmsArn(identifier).Success? ==> |Split(identifier, ':')| == 6
 
-    //= compliance/framework/aws-kms/aws-kms-key-arn.txt#2.5
+    //= aws-encryption-sdk-specification/framework/aws-kms/aws-kms-key-arn.md#a-valid-aws-kms-arn
     //= type=implication
     //# The partition MUST be a non-empty
     ensures ParseAwsKmsArn(identifier).Success? ==> |Split(identifier, ':')[1]| > 0
 
-    //= compliance/framework/aws-kms/aws-kms-key-arn.txt#2.5
+    //= aws-encryption-sdk-specification/framework/aws-kms/aws-kms-key-arn.md#a-valid-aws-kms-arn
     //= type=implication
-    //# The service MUST be the string "kms"
+    //# The service MUST be the string `kms`
     ensures ParseAwsKmsArn(identifier).Success? ==> Split(identifier, ':')[2] == "kms"
 
-    //= compliance/framework/aws-kms/aws-kms-key-arn.txt#2.5
+    //= aws-encryption-sdk-specification/framework/aws-kms/aws-kms-key-arn.md#a-valid-aws-kms-arn
     //= type=implication
     //# The region MUST be a non-empty string
     ensures ParseAwsKmsArn(identifier).Success? ==> |Split(identifier, ':')[3]| > 0
 
-    //= compliance/framework/aws-kms/aws-kms-key-arn.txt#2.5
+    //= aws-encryption-sdk-specification/framework/aws-kms/aws-kms-key-arn.md#a-valid-aws-kms-arn
     //= type=implication
     //# The account MUST be a non-empty string
     ensures ParseAwsKmsArn(identifier).Success? ==> |Split(identifier, ':')[4]| > 0
@@ -222,7 +222,7 @@ module  AwsKmsArnParsing {
       Success(AwsKmsRawResourceIdentifier(r))
   }
 
-  //= compliance/framework/aws-kms/aws-kms-key-arn.txt#2.8
+  //= aws-encryption-sdk-specification/framework/aws-kms/aws-kms-key-arn.md#identifying-an-an-aws-kms-multi-region-arn
   //= type=implication
   //# This function MUST take a single AWS KMS ARN
   //# If the input is an invalid AWS KMS ARN this function MUST error.
@@ -232,29 +232,29 @@ module  AwsKmsArnParsing {
   }
 
   lemma IsMultiRegionAwsKmsArnCorrectness(arn: AwsKmsArn)
-    //= compliance/framework/aws-kms/aws-kms-key-arn.txt#2.8
+    //= aws-encryption-sdk-specification/framework/aws-kms/aws-kms-key-arn.md#identifying-an-an-aws-kms-multi-region-arn
     //= type=implication
-    //# If resource type is "alias", this is an AWS KMS alias ARN and MUST
-    //# return false.
+    //# If resource type is “alias”,
+    //# this is an AWS KMS alias ARN and MUST return false.
     ensures !IsMultiRegionAwsKmsArn(arn) <== arn.resource.resourceType == "alias"
-    //= compliance/framework/aws-kms/aws-kms-key-arn.txt#2.8
+    //= aws-encryption-sdk-specification/framework/aws-kms/aws-kms-key-arn.md#identifying-an-an-aws-kms-multi-region-arn
     //= type=implication
-    //# If resource type is "key" and resource ID does not start with "mrk-",
-    //# this is a (single-region) AWS KMS key ARN and MUST return false.
+    //# If resource type is “key” and resource ID starts with “mrk-“,
+    //# this is a AWS KMS multi-Region key ARN and MUST return true.
     ensures !IsMultiRegionAwsKmsArn(arn) <==
         && arn.resource.resourceType == "key"
         && !("mrk-" <= arn.resource.value)
-    //= compliance/framework/aws-kms/aws-kms-key-arn.txt#2.8
+    //= aws-encryption-sdk-specification/framework/aws-kms/aws-kms-key-arn.md#identifying-an-an-aws-kms-multi-region-arn
     //= type=implication
-    //# If resource type is "key" and resource ID starts with
-    //# "mrk-", this is a AWS KMS multi-Region key ARN and MUST return true.
+    //# If resource type is “key” and resource ID does not start with “mrk-“,
+    //# this is a (single-region) AWS KMS key ARN and MUST return false.
     ensures IsMultiRegionAwsKmsArn(arn) <==
       && arn.resource.resourceType == "key"
       && "mrk-" <= arn.resource.value
   {
   }
 
-  //= compliance/framework/aws-kms/aws-kms-key-arn.txt#2.9
+  //= aws-encryption-sdk-specification/framework/aws-kms/aws-kms-key-arn.md#identifying-an-an-aws-kms-multi-region-identifier
   //= type=implication
   //# This function MUST take a single AWS KMS identifier
   predicate method IsMultiRegionAwsKmsIdentifier(identifier: AwsKmsIdentifier)
@@ -268,37 +268,36 @@ module  AwsKmsArnParsing {
   }
 
   lemma IsMultiRegionAwsKmsIdentifierCorrect(s: string)
-    //= compliance/framework/aws-kms/aws-kms-key-arn.txt#2.9
+    //= aws-encryption-sdk-specification/framework/aws-kms/aws-kms-key-arn.md#identifying-an-an-aws-kms-multi-region-identifier
     //= type=implication
-    //# If the input starts with "arn:", this MUST return the output of
-    //# identifying an an AWS KMS multi-Region ARN (aws-kms-key-
-    //# arn.md#identifying-an-an-aws-kms-multi-region-arn) called with this
-    //# input.
+    //# If the input starts with "arn:",
+    //# this MUST return the output of [identifying an an AWS KMS multi-Region ARN](aws-kms-key-arn.md#identifying-an-an-aws-kms-multi-region-arn)
+    //# called with this input.
     ensures "arn:" <= s && ParseAwsKmsArn(s).Success?
       ==>
         var arn := ParseAwsKmsArn(s);
         var arnIdentifier := AwsKmsArnIdentifier(arn.value);
         IsMultiRegionAwsKmsIdentifier(arnIdentifier) == IsMultiRegionAwsKmsArn(arn.value)
 
-    //= compliance/framework/aws-kms/aws-kms-key-arn.txt#2.9
+    //= aws-encryption-sdk-specification/framework/aws-kms/aws-kms-key-arn.md#identifying-an-an-aws-kms-multi-region-identifier
     //= type=implication
-    //# If the input starts with "alias/", this an AWS KMS alias and
-    //# not a multi-Region key id and MUST return false.
+    //# If the input starts with “alias/“,
+    //# this an AWS KMS alias and not a multi-Region key id and MUST return false.
     ensures "alias/" <= s && ParseAwsKmsResources(s).Success?
       ==>
         var resource := ParseAwsKmsResources(s);
         var resourceIdentifier := AwsKmsRawResourceIdentifier(resource.value);
         !IsMultiRegionAwsKmsIdentifier(resourceIdentifier)
-    //= compliance/framework/aws-kms/aws-kms-key-arn.txt#2.9
+    //= aws-encryption-sdk-specification/framework/aws-kms/aws-kms-key-arn.md#identifying-an-an-aws-kms-multi-region-identifier
     //= type=implication
-    //# If the input starts
-    //# with "mrk-", this is a multi-Region key id and MUST return true.
+    //# If the input starts with “mrk-“,
+    //# this is a multi-Region key id and MUST return true.
     ensures "mrk-" <= s && ParseAwsKmsResources(s).Success?
       ==>
         var resource := ParseAwsKmsResources(s);
         var resourceIdentifier := AwsKmsRawResourceIdentifier(resource.value);
         IsMultiRegionAwsKmsIdentifier(resourceIdentifier)
-    //= compliance/framework/aws-kms/aws-kms-key-arn.txt#2.9
+    //= aws-encryption-sdk-specification/framework/aws-kms/aws-kms-key-arn.md#identifying-an-an-aws-kms-multi-region-identifier
     //= type=implication
     //# If
     //# the input does not start with any of the above, this is not a multi-

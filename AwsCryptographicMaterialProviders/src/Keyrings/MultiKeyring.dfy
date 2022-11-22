@@ -44,7 +44,7 @@ module MultiKeyring {
       generatorKeyring: Option<Types.IKeyring>,
       childKeyrings: seq<Types.IKeyring>
     )
-      //= compliance/framework/multi-keyring.txt#2.6
+      //= aws-encryption-sdk-specification/framework/multi-keyring.md#inputs
       //= type=implication
       //# On keyring initialization, a keyring MUST define at least one of the
       //# following:
@@ -54,15 +54,15 @@ module MultiKeyring {
       && (generatorKeyring.Some? ==> generatorKeyring.value.ValidState())
       && forall k <- childKeyrings :: k.ValidState()
 
-      //= compliance/framework/multi-keyring.txt#2.6.1
+      //= aws-encryption-sdk-specification/framework/multi-keyring.md#generator-keyring
       //= type=implication
-      //# If the list of child keyrings (Section 2.6.2) is empty, a generator
-      //# keyring (Section 2.6.1) MUST be defined for the keyring.
+      //# If the list of [child keyrings](#child-keyrings) is empty, a [generator
+      //# keyring](#generator-keyring) MUST be defined for the keyring.
       requires |childKeyrings| == 0 ==> generatorKeyring.Some?
 
-      //= compliance/framework/multi-keyring.txt#2.6.2
+      //= aws-encryption-sdk-specification/framework/multi-keyring.md#child-keyrings
       //= type=implication
-      //# If this keyring does not have a generator keyring (Section 2.6.1),
+      //# If this keyring does not have a [generator keyring](#generator-keyring),
       //# this list MUST NOT be empty.
       requires generatorKeyring.None? ==> |childKeyrings| > 0
 
@@ -96,10 +96,10 @@ module MultiKeyring {
 
 
     predicate OnEncryptEnsuresPublicly(input: Types.OnEncryptInput, output: Result<Types.OnEncryptOutput, Types.Error>) {true}
-    //= compliance/framework/multi-keyring.txt#2.6.1
+    //= aws-encryption-sdk-specification/framework/multi-keyring.md#generator-keyring
     //= type=implication
-    //# This keyring MUST implement the Generate Data Key (keyring-
-    //# interface.md#generate-data-key) behavior during OnEncrypt (keyring-
+    //# This keyring MUST implement the [Generate Data Key](keyring-
+    //# interface.md#generate-data-key) behavior during [OnEncrypt](keyring-
     //# interface.md#onencrypt).
     method OnEncrypt'(input: Types.OnEncryptInput)
       returns (res: Result<Types.OnEncryptOutput, Types.Error>)
@@ -118,17 +118,17 @@ module MultiKeyring {
         )
 
       ensures res.Success? ==>
-        //= compliance/framework/multi-keyring.txt#2.6.1
+        //= aws-encryption-sdk-specification/framework/multi-keyring.md#generator-keyring
         //= type=implication
         //# This means that this keyring MUST return
-        //# encryption materials (structures.md#encryption-materials) containing
-        //# a plaintext data key on OnEncrypt (keyring-interface.md#onencrypt).
+        //# [encryption materials](structures.md#encryption-materials) containing
+        //# a plaintext data key on [OnEncrypt](keyring-interface.md#onencrypt).
         && res.value.materials.plaintextDataKey.Some?
 
-      //= compliance/framework/multi-keyring.txt#2.7.1
+      //= aws-encryption-sdk-specification/framework/multi-keyring.md#onencrypt
       //= type=implication
-      //# If this keyring does not have a generator keyring (Section 2.6.1),
-      //# and the input encryption materials (structures.md#encryption-
+      //# If this keyring does not have a [generator keyring](#generator-keyring),
+      //# and the input [encryption materials](structures.md#encryption-
       //# materials) does not include a plaintext data key, OnEncrypt MUST
       //# fail.
       ensures
@@ -136,9 +136,9 @@ module MultiKeyring {
         && input.materials.plaintextDataKey.None?
       ==> res.Failure?
 
-      //= compliance/framework/multi-keyring.txt#2.7.1
+      //= aws-encryption-sdk-specification/framework/multi-keyring.md#onencrypt
       //= type=implication
-      //# *  If the input encryption materials already include a plaintext data
+      //# - If the input encryption materials already include a plaintext data
       //# key, OnEncrypt MUST fail.
       ensures
         && this.generatorKeyring.Some?
@@ -156,26 +156,26 @@ module MultiKeyring {
 
       var returnMaterials := input.materials;
 
-      //= compliance/framework/multi-keyring.txt#2.7.1
+      //= aws-encryption-sdk-specification/framework/multi-keyring.md#onencrypt
       //# If this keyring has a generator keyring, this keyring MUST first
       //# generate a plaintext data key using the generator keyring:
       if this.generatorKeyring.Some? {
         :- Need(input.materials.plaintextDataKey.None?,
           Types.AwsCryptographicMaterialProvidersException( message := "This multi keyring has a generator but provided Encryption Materials already contain plaintext data key"));
 
-        //= compliance/framework/multi-keyring.txt#2.7.1
-        //# *  This keyring MUST first call the generator keyring's OnEncrypt
+        //= aws-encryption-sdk-specification/framework/multi-keyring.md#onencrypt
+        //# - This keyring MUST first call the generator keyring's OnEncrypt
         //# using the input encryption materials as input.
         var onEncryptOutput := this.generatorKeyring.value.OnEncrypt(input);
 
-        //= compliance/framework/multi-keyring.txt#2.7.1
-        //# *  If the generator keyring fails OnEncrypt, this OnEncrypt MUST also
+        //= aws-encryption-sdk-specification/framework/multi-keyring.md#onencrypt
+        //# - If the generator keyring fails OnEncrypt, this OnEncrypt MUST also
         //# fail.
         :- Need(onEncryptOutput.Success?,
           Types.AwsCryptographicMaterialProvidersException( message := "Generator keyring failed to generate plaintext data key"));
 
-        //= compliance/framework/multi-keyring.txt#2.7.1
-        //# *  If the generator keyring returns encryption materials missing a
+        //= aws-encryption-sdk-specification/framework/multi-keyring.md#onencrypt
+        //# - If the generator keyring returns encryption materials missing a
         //# plaintext data key, OnEncrypt MUST fail.
         :- Need(Materials.ValidEncryptionMaterialsTransition(input.materials, onEncryptOutput.value.materials),
           Types.AwsCryptographicMaterialProvidersException( message := "Generator keyring returned invalid encryption materials"));
@@ -189,14 +189,14 @@ module MultiKeyring {
       {
         var onEncryptInput := Types.OnEncryptInput(materials := returnMaterials);
 
-        //= compliance/framework/multi-keyring.txt#2.7.1
-        //# Next, for each keyring (keyring-interface.md) in this keyring's list
-        //# of child keyrings (Section 2.6.2), the keyring MUST call OnEncrypt
+        //= aws-encryption-sdk-specification/framework/multi-keyring.md#onencrypt
+        //# Next, for each [keyring](keyring-interface.md) in this keyring's list
+        //# of [child keyrings](#child-keyrings), the keyring MUST call [OnEncrypt]
         //# (keyring-interface.md#onencrypt).
         var onEncryptOutput := this.childKeyrings[i].OnEncrypt(onEncryptInput);
 
-        //= compliance/framework/multi-keyring.txt#2.7.1
-        //# If the child keyring's OnEncrypt (keyring-
+        //= aws-encryption-sdk-specification/framework/multi-keyring.md#onencrypt
+        //# If the child keyring's [OnEncrypt](keyring-
         //# interface.md#onencrypt) fails, this OnEncrypt MUST also fail.
         :- Need(onEncryptOutput.Success?,
           Types.AwsCryptographicMaterialProvidersException( message := "Child keyring failed to encrypt plaintext data key"));
@@ -215,9 +215,9 @@ module MultiKeyring {
       :- Need(Materials.ValidEncryptionMaterialsTransition(input.materials, returnMaterials),
         Types.AwsCryptographicMaterialProvidersException( message := "A child or generator keyring modified the encryption materials in illegal ways."));
 
-      //= compliance/framework/multi-keyring.txt#2.7.1
-      //# If all previous OnEncrypt (keyring-interface.md#onencrypt) calls
-      //# succeeded, this keyring MUST return the encryption materials
+      //= aws-encryption-sdk-specification/framework/multi-keyring.md#onencrypt
+      //# If all previous [OnEncrypt](keyring-interface.md#onencrypt) calls
+      //# succeeded, this keyring MUST return the [encryption materials]
       //# (structures.md#encryption-materials) returned by the last OnEncrypt
       //# call.
       return Success(Types.OnEncryptOutput(materials := returnMaterials));
@@ -242,10 +242,10 @@ module MultiKeyring {
           res.value.materials
         )
 
-      //= compliance/framework/multi-keyring.txt#2.7.2
+      //= aws-encryption-sdk-specification/framework/multi-keyring.md#ondecrypt
       //= type=implication
       //# If the decryption materials already contain a plaintext data key, the
-      //# keyring MUST fail and MUST NOT modify the decryption materials
+      //# keyring MUST fail and MUST NOT modify the [decryption materials]
       //# (structures.md#decryption-materials).
       // The "MUST NOT modify" clause is true because objects are immutable in Dafny.
       ensures Materials.DecryptionMaterialsWithPlaintextDataKey(input.materials) ==> res.Failure?
@@ -261,11 +261,11 @@ module MultiKeyring {
       // Failure messages will be collected here
       var failures : seq<Types.Error> := [];
 
-      //= compliance/framework/multi-keyring.txt#2.7.2
-      //# Otherwise, OnDecrypt MUST first attempt to decrypt the encrypted data
-      //# keys (structures.md#encrypted-data-keys-1) in the input decryption
-      //# materials (structures.md#decryption-materials) using its generator
-      //# keyring (Section 2.6.1).
+      //= aws-encryption-sdk-specification/framework/multi-keyring.md#ondecrypt
+      //# Otherwise, OnDecrypt MUST first attempt to decrypt the [encrypted data
+      //# keys](structures.md#encrypted-data-keys-1) in the input [decryption
+      //# materials](structures.md#decryption-materials) using its [generator
+      //# keyring](#generator-keyring).
       if this.generatorKeyring.Some? {
         var result := AttemptDecryptDataKey(this.generatorKeyring.value, input);
 
@@ -278,7 +278,7 @@ module MultiKeyring {
         }
       }
 
-      //= compliance/framework/multi-keyring.txt#2.7.2
+      //= aws-encryption-sdk-specification/framework/multi-keyring.md#ondecrypt
       //# If the generator keyring is unable to
       //# decrypt the materials, the multi-keyring MUST attempt to decrypt
       //# using its child keyrings, until one either succeeds in decryption or
@@ -288,18 +288,18 @@ module MultiKeyring {
         invariant unchanged(History)
       {
 
-        //= compliance/framework/multi-keyring.txt#2.7.2
-        //# For each keyring (keyring-interface.md) to be used for decryption,
-        //# the multi-keyring MUST call that keyring's OnDecrypt (keyring-
-        //# interface.md#ondecrypt) using the unmodified decryption materials
-        //# (structures.md#decryption-materials) and the input encrypted data key
+        //= aws-encryption-sdk-specification/framework/multi-keyring.md#ondecrypt
+        //# For each [keyring](keyring-interface.md) to be used for decryption,
+        //# the multi-keyring MUST call that keyring's [OnDecrypt](keyring-
+        //# interface.md#ondecrypt) using the unmodified [decryption materials]
+        //# (structures.md#decryption-materials) and the input [encrypted data key]
         //# (structures.md#encrypted-data-key) list.
         var result := AttemptDecryptDataKey(this.childKeyrings[j], input);
 
         if result.Success? {
-          //= compliance/framework/multi-keyring.txt#2.7.2
-          //# If OnDecrypt (keyring-
-          //# interface.md#ondecrypt) returns decryption materials
+          //= aws-encryption-sdk-specification/framework/multi-keyring.md#ondecrypt
+          //# If [OnDecrypt](keyring-
+          //# interface.md#ondecrypt) returns [decryption materials]
           //# (structures.md#decryption-materials) containing a plaintext data key,
           //# the multi-keyring MUST immediately return the modified decryption
           //# materials.
@@ -308,7 +308,7 @@ module MultiKeyring {
           // if the call is successful, the result has a plaintext data key
           return Success(result.value);
         } else {
-          //= compliance/framework/multi-keyring.txt#2.7.2
+          //= aws-encryption-sdk-specification/framework/multi-keyring.md#ondecrypt
           //# If the child keyring's OnDecrypt call fails, the multi-
           //# keyring MUST collect the error and continue to the next keyring, if
           //# any.
@@ -316,10 +316,10 @@ module MultiKeyring {
         }
       }
 
-      //= compliance/framework/multi-keyring.txt#2.7.2
-      //# If, after calling OnDecrypt (keyring-interface.md#ondecrypt) on every
-      //# child keyring (Section 2.6.2) (and possibly the generator keyring
-      //# (Section 2.6.1)), the decryption materials (structures.md#decryption-
+      //= aws-encryption-sdk-specification/framework/multi-keyring.md#ondecrypt
+      //# If, after calling [OnDecrypt](keyring-interface.md#ondecrypt) on every
+      //# [child keyring](#child-keyrings) (and possibly the [generator keyring]
+      //# (#generator-keyring)), the [decryption materials](structures.md#decryption-
       //# materials) still do not contain a plaintext data key, OnDecrypt MUST
       //# return a failure message containing the collected failure messages
       //# from the child keyrings.
