@@ -20,7 +20,7 @@ module MrkAwareStrictMultiKeyring {
   import AwsKmsMrkKeyring
   import opened AwsKmsUtils
 
-  method {:vcs_split_on_every_assert} MrkAwareStrictMultiKeyring(
+  method MrkAwareStrictMultiKeyring(
     generator: Option<string>,
     awsKmsKeys: Option<seq<string>>,
     clientSupplier: Types.IClientSupplier,
@@ -171,10 +171,16 @@ module MrkAwareStrictMultiKeyring {
           children := children + [keyring];
 
           // Dafny needs a little help because we modify the `children` seq.
-          assert forall i | 0 <= i < |children| - 1
-          :: ChildLoopInvariant(children[i],  awsKmsKeys.value[i], grantTokens);
-          assert children[|children| - 1 ] == keyring;
-          assert ChildLoopInvariant(keyring, awsKmsKeys.value[index], grantTokens);
+          assert forall i | 0 <= i < |children|
+          :: ChildLoopInvariant(children[i],  awsKmsKeys.value[i], grantTokens) by {
+            // Clearly everything holds for all children _before_ this one
+            assert forall i | 0 <= i < |children| - 1
+            :: ChildLoopInvariant(children[i],  awsKmsKeys.value[i], grantTokens);
+            // The invariant holds for this last keyring
+            assert ChildLoopInvariant(keyring, awsKmsKeys.value[index], grantTokens);
+            // The last child is this last keyring
+            assert children[|children| - 1 ] == keyring;
+          }
         }
       case None() =>
         children := [];
