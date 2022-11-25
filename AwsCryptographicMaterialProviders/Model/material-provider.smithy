@@ -37,7 +37,6 @@ service AwsCryptographicMaterialProviders {
     // Materials
     InitializeEncryptionMaterials,
     InitializeDecryptionMaterials,
-    InitializeHierarchicalMaterials,
     ValidEncryptionMaterialsTransition,
     ValidDecryptionMaterialsTransition,
     EncryptionMaterialsHasPlaintextDataKey,

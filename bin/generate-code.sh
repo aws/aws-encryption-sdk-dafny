@@ -18,6 +18,7 @@ export ESDK_ROOT=$DAFNY_ROOT/src/SDK
 export MaterialProviders_ROOT=$DAFNY_ROOT/AwsCryptographicMaterialProviders
 export AwsCryptographyPrimitives_ROOT=$DAFNY_ROOT/AwsCryptographyPrimitives
 export ComAmazonawsKms_ROOT=$DAFNY_ROOT/ComAmazonawsKms
+export ComAmazonawsDynamodb_ROOT=$DAFNY_ROOT/ComAmazonawsDynamodb
 
 
 cd "$POLYMORPH_ROOT"
@@ -30,6 +31,16 @@ cd "$POLYMORPH_ROOT"
     --model $ComAmazonawsKms_ROOT/Model \
     --dependent-model $DAFNY_ROOT/model \
     --namespace com.amazonaws.kms \
+    --aws-sdk"
+
+# Generate code from AWS DDB SDK
+# TODO generate .NET code
+./gradlew run --args="\
+    --output-dafny \
+    --include-dafny $DAFNY_ROOT/StandardLibrary/src/Index.dfy \
+    --model $ComAmazonawsDynamodb_ROOT/Model \
+    --dependent-model $DAFNY_ROOT/model \
+    --namespace com.amazonaws.dynamodb \
     --aws-sdk"
 
 # Generate code for cryptographic primitives

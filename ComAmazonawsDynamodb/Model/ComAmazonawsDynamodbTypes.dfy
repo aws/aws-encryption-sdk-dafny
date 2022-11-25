@@ -1,8 +1,7 @@
 // Copyright Amazon.com Inc. or its affiliates. All Rights Reserved.
 // SPDX-License-Identifier: Apache-2.0
 // Do not modify this file. This file is machine generated, and any changes to it will be overwritten.
-// TODO had to manually update the below file. Polymorph needs to be fixed to not assume location of this file
-include "../../AwsCryptographyPrimitives/src/include.dfy"
+include "../../StandardLibrary/src/Index.dfy"
  module {:extern "Dafny.Com.Amazonaws.Dynamodb.Types" } ComAmazonawsDynamodbTypes
  {
  import opened Wrappers
@@ -10,7 +9,6 @@ include "../../AwsCryptographyPrimitives/src/include.dfy"
  import opened UTF8
  // Generic helpers for verification of mock/unit tests.
  datatype DafnyCallEvent<I, O> = DafnyCallEvent(input: I, output: O)
- function Last<T>(s: seq<T>): T requires |s| > 0 { s[|s|-1] }
  
  // Begin Generated Types
  
@@ -641,9 +639,9 @@ include "../../AwsCryptographyPrimitives/src/include.dfy"
 }
  trait {:termination false} IDynamoDB_20120810Client
  {
- // Helper to define any additional modifies/reads clauses
- // If your operations need to mutate state add it
- // in your constructor function:
+ // Helper to define any additional modifies/reads clauses.
+ // If your operations need to mutate state,
+ // add it in your constructor function:
  // Modifies := {your, fields, here, History};
  // If you do not need to mutate anything:
  // Modifies := {History};
@@ -654,8 +652,8 @@ include "../../AwsCryptographyPrimitives/src/include.dfy"
  // it needs some way to know (an invariant),
  // about the state of the object.
  // This builds on the Valid/Repr paradigm
- // To make this kind requires is safe to add
- // to methods called from unverified code
+ // To make this kind requires safe to add
+ // to methods called from unverified code,
  // the predicate MUST NOT take any arguments.
  // This means that the correctness of this requires
  // MUST only be evaluated by the class itself.
@@ -670,11 +668,11 @@ include "../../AwsCryptographyPrimitives/src/include.dfy"
  method BatchExecuteStatement ( input: BatchExecuteStatementInput )
  returns (output: Result<BatchExecuteStatementOutput, Error>)
  requires
- && ValidState() 
+ && ValidState()
  modifies Modifies - {History} ,
  History`BatchExecuteStatement
  // Dafny will skip type parameters when generating a default decreases clause.
- decreases Modifies
+ decreases Modifies - {History}
  ensures
  && ValidState()
  ensures BatchExecuteStatementEnsuresPublicly(input, output)
@@ -685,11 +683,11 @@ include "../../AwsCryptographyPrimitives/src/include.dfy"
  method BatchGetItem ( input: BatchGetItemInput )
  returns (output: Result<BatchGetItemOutput, Error>)
  requires
- && ValidState() 
+ && ValidState()
  modifies Modifies - {History} ,
  History`BatchGetItem
  // Dafny will skip type parameters when generating a default decreases clause.
- decreases Modifies
+ decreases Modifies - {History}
  ensures
  && ValidState()
  ensures BatchGetItemEnsuresPublicly(input, output)
@@ -700,11 +698,11 @@ include "../../AwsCryptographyPrimitives/src/include.dfy"
  method BatchWriteItem ( input: BatchWriteItemInput )
  returns (output: Result<BatchWriteItemOutput, Error>)
  requires
- && ValidState() 
+ && ValidState()
  modifies Modifies - {History} ,
  History`BatchWriteItem
  // Dafny will skip type parameters when generating a default decreases clause.
- decreases Modifies
+ decreases Modifies - {History}
  ensures
  && ValidState()
  ensures BatchWriteItemEnsuresPublicly(input, output)
@@ -715,11 +713,11 @@ include "../../AwsCryptographyPrimitives/src/include.dfy"
  method CreateBackup ( input: CreateBackupInput )
  returns (output: Result<CreateBackupOutput, Error>)
  requires
- && ValidState() 
+ && ValidState()
  modifies Modifies - {History} ,
  History`CreateBackup
  // Dafny will skip type parameters when generating a default decreases clause.
- decreases Modifies
+ decreases Modifies - {History}
  ensures
  && ValidState()
  ensures CreateBackupEnsuresPublicly(input, output)
@@ -730,11 +728,11 @@ include "../../AwsCryptographyPrimitives/src/include.dfy"
  method CreateGlobalTable ( input: CreateGlobalTableInput )
  returns (output: Result<CreateGlobalTableOutput, Error>)
  requires
- && ValidState() 
+ && ValidState()
  modifies Modifies - {History} ,
  History`CreateGlobalTable
  // Dafny will skip type parameters when generating a default decreases clause.
- decreases Modifies
+ decreases Modifies - {History}
  ensures
  && ValidState()
  ensures CreateGlobalTableEnsuresPublicly(input, output)
@@ -745,11 +743,11 @@ include "../../AwsCryptographyPrimitives/src/include.dfy"
  method CreateTable ( input: CreateTableInput )
  returns (output: Result<CreateTableOutput, Error>)
  requires
- && ValidState() 
+ && ValidState()
  modifies Modifies - {History} ,
  History`CreateTable
  // Dafny will skip type parameters when generating a default decreases clause.
- decreases Modifies
+ decreases Modifies - {History}
  ensures
  && ValidState()
  ensures CreateTableEnsuresPublicly(input, output)
@@ -760,11 +758,11 @@ include "../../AwsCryptographyPrimitives/src/include.dfy"
  method DeleteBackup ( input: DeleteBackupInput )
  returns (output: Result<DeleteBackupOutput, Error>)
  requires
- && ValidState() 
+ && ValidState()
  modifies Modifies - {History} ,
  History`DeleteBackup
  // Dafny will skip type parameters when generating a default decreases clause.
- decreases Modifies
+ decreases Modifies - {History}
  ensures
  && ValidState()
  ensures DeleteBackupEnsuresPublicly(input, output)
@@ -775,11 +773,11 @@ include "../../AwsCryptographyPrimitives/src/include.dfy"
  method DeleteItem ( input: DeleteItemInput )
  returns (output: Result<DeleteItemOutput, Error>)
  requires
- && ValidState() 
+ && ValidState()
  modifies Modifies - {History} ,
  History`DeleteItem
  // Dafny will skip type parameters when generating a default decreases clause.
- decreases Modifies
+ decreases Modifies - {History}
  ensures
  && ValidState()
  ensures DeleteItemEnsuresPublicly(input, output)
@@ -790,11 +788,11 @@ include "../../AwsCryptographyPrimitives/src/include.dfy"
  method DeleteTable ( input: DeleteTableInput )
  returns (output: Result<DeleteTableOutput, Error>)
  requires
- && ValidState() 
+ && ValidState()
  modifies Modifies - {History} ,
  History`DeleteTable
  // Dafny will skip type parameters when generating a default decreases clause.
- decreases Modifies
+ decreases Modifies - {History}
  ensures
  && ValidState()
  ensures DeleteTableEnsuresPublicly(input, output)
@@ -805,11 +803,11 @@ include "../../AwsCryptographyPrimitives/src/include.dfy"
  method DescribeBackup ( input: DescribeBackupInput )
  returns (output: Result<DescribeBackupOutput, Error>)
  requires
- && ValidState() 
+ && ValidState()
  modifies Modifies - {History} ,
  History`DescribeBackup
  // Dafny will skip type parameters when generating a default decreases clause.
- decreases Modifies
+ decreases Modifies - {History}
  ensures
  && ValidState()
  ensures DescribeBackupEnsuresPublicly(input, output)
@@ -820,11 +818,11 @@ include "../../AwsCryptographyPrimitives/src/include.dfy"
  method DescribeContinuousBackups ( input: DescribeContinuousBackupsInput )
  returns (output: Result<DescribeContinuousBackupsOutput, Error>)
  requires
- && ValidState() 
+ && ValidState()
  modifies Modifies - {History} ,
  History`DescribeContinuousBackups
  // Dafny will skip type parameters when generating a default decreases clause.
- decreases Modifies
+ decreases Modifies - {History}
  ensures
  && ValidState()
  ensures DescribeContinuousBackupsEnsuresPublicly(input, output)
@@ -835,11 +833,11 @@ include "../../AwsCryptographyPrimitives/src/include.dfy"
  method DescribeContributorInsights ( input: DescribeContributorInsightsInput )
  returns (output: Result<DescribeContributorInsightsOutput, Error>)
  requires
- && ValidState() 
+ && ValidState()
  modifies Modifies - {History} ,
  History`DescribeContributorInsights
  // Dafny will skip type parameters when generating a default decreases clause.
- decreases Modifies
+ decreases Modifies - {History}
  ensures
  && ValidState()
  ensures DescribeContributorInsightsEnsuresPublicly(input, output)
@@ -850,11 +848,11 @@ include "../../AwsCryptographyPrimitives/src/include.dfy"
  method DescribeEndpoints ( input: DescribeEndpointsRequest )
  returns (output: Result<DescribeEndpointsResponse, Error>)
  requires
- && ValidState() 
+ && ValidState()
  modifies Modifies - {History} ,
  History`DescribeEndpoints
  // Dafny will skip type parameters when generating a default decreases clause.
- decreases Modifies
+ decreases Modifies - {History}
  ensures
  && ValidState()
  ensures DescribeEndpointsEnsuresPublicly(input, output)
@@ -865,11 +863,11 @@ include "../../AwsCryptographyPrimitives/src/include.dfy"
  method DescribeExport ( input: DescribeExportInput )
  returns (output: Result<DescribeExportOutput, Error>)
  requires
- && ValidState() 
+ && ValidState()
  modifies Modifies - {History} ,
  History`DescribeExport
  // Dafny will skip type parameters when generating a default decreases clause.
- decreases Modifies
+ decreases Modifies - {History}
  ensures
  && ValidState()
  ensures DescribeExportEnsuresPublicly(input, output)
@@ -880,11 +878,11 @@ include "../../AwsCryptographyPrimitives/src/include.dfy"
  method DescribeGlobalTable ( input: DescribeGlobalTableInput )
  returns (output: Result<DescribeGlobalTableOutput, Error>)
  requires
- && ValidState() 
+ && ValidState()
  modifies Modifies - {History} ,
  History`DescribeGlobalTable
  // Dafny will skip type parameters when generating a default decreases clause.
- decreases Modifies
+ decreases Modifies - {History}
  ensures
  && ValidState()
  ensures DescribeGlobalTableEnsuresPublicly(input, output)
@@ -895,11 +893,11 @@ include "../../AwsCryptographyPrimitives/src/include.dfy"
  method DescribeGlobalTableSettings ( input: DescribeGlobalTableSettingsInput )
  returns (output: Result<DescribeGlobalTableSettingsOutput, Error>)
  requires
- && ValidState() 
+ && ValidState()
  modifies Modifies - {History} ,
  History`DescribeGlobalTableSettings
  // Dafny will skip type parameters when generating a default decreases clause.
- decreases Modifies
+ decreases Modifies - {History}
  ensures
  && ValidState()
  ensures DescribeGlobalTableSettingsEnsuresPublicly(input, output)
@@ -910,11 +908,11 @@ include "../../AwsCryptographyPrimitives/src/include.dfy"
  method DescribeImport ( input: DescribeImportInput )
  returns (output: Result<DescribeImportOutput, Error>)
  requires
- && ValidState() 
+ && ValidState()
  modifies Modifies - {History} ,
  History`DescribeImport
  // Dafny will skip type parameters when generating a default decreases clause.
- decreases Modifies
+ decreases Modifies - {History}
  ensures
  && ValidState()
  ensures DescribeImportEnsuresPublicly(input, output)
@@ -925,11 +923,11 @@ include "../../AwsCryptographyPrimitives/src/include.dfy"
  method DescribeKinesisStreamingDestination ( input: DescribeKinesisStreamingDestinationInput )
  returns (output: Result<DescribeKinesisStreamingDestinationOutput, Error>)
  requires
- && ValidState() 
+ && ValidState()
  modifies Modifies - {History} ,
  History`DescribeKinesisStreamingDestination
  // Dafny will skip type parameters when generating a default decreases clause.
- decreases Modifies
+ decreases Modifies - {History}
  ensures
  && ValidState()
  ensures DescribeKinesisStreamingDestinationEnsuresPublicly(input, output)
@@ -940,11 +938,11 @@ include "../../AwsCryptographyPrimitives/src/include.dfy"
  method DescribeLimits ( input: DescribeLimitsInput )
  returns (output: Result<DescribeLimitsOutput, Error>)
  requires
- && ValidState() 
+ && ValidState()
  modifies Modifies - {History} ,
  History`DescribeLimits
  // Dafny will skip type parameters when generating a default decreases clause.
- decreases Modifies
+ decreases Modifies - {History}
  ensures
  && ValidState()
  ensures DescribeLimitsEnsuresPublicly(input, output)
@@ -955,11 +953,11 @@ include "../../AwsCryptographyPrimitives/src/include.dfy"
  method DescribeTable ( input: DescribeTableInput )
  returns (output: Result<DescribeTableOutput, Error>)
  requires
- && ValidState() 
+ && ValidState()
  modifies Modifies - {History} ,
  History`DescribeTable
  // Dafny will skip type parameters when generating a default decreases clause.
- decreases Modifies
+ decreases Modifies - {History}
  ensures
  && ValidState()
  ensures DescribeTableEnsuresPublicly(input, output)
@@ -970,11 +968,11 @@ include "../../AwsCryptographyPrimitives/src/include.dfy"
  method DescribeTableReplicaAutoScaling ( input: DescribeTableReplicaAutoScalingInput )
  returns (output: Result<DescribeTableReplicaAutoScalingOutput, Error>)
  requires
- && ValidState() 
+ && ValidState()
  modifies Modifies - {History} ,
  History`DescribeTableReplicaAutoScaling
  // Dafny will skip type parameters when generating a default decreases clause.
- decreases Modifies
+ decreases Modifies - {History}
  ensures
  && ValidState()
  ensures DescribeTableReplicaAutoScalingEnsuresPublicly(input, output)
@@ -985,11 +983,11 @@ include "../../AwsCryptographyPrimitives/src/include.dfy"
  method DescribeTimeToLive ( input: DescribeTimeToLiveInput )
  returns (output: Result<DescribeTimeToLiveOutput, Error>)
  requires
- && ValidState() 
+ && ValidState()
  modifies Modifies - {History} ,
  History`DescribeTimeToLive
  // Dafny will skip type parameters when generating a default decreases clause.
- decreases Modifies
+ decreases Modifies - {History}
  ensures
  && ValidState()
  ensures DescribeTimeToLiveEnsuresPublicly(input, output)
@@ -1000,11 +998,11 @@ include "../../AwsCryptographyPrimitives/src/include.dfy"
  method DisableKinesisStreamingDestination ( input: KinesisStreamingDestinationInput )
  returns (output: Result<KinesisStreamingDestinationOutput, Error>)
  requires
- && ValidState() 
+ && ValidState()
  modifies Modifies - {History} ,
  History`DisableKinesisStreamingDestination
  // Dafny will skip type parameters when generating a default decreases clause.
- decreases Modifies
+ decreases Modifies - {History}
  ensures
  && ValidState()
  ensures DisableKinesisStreamingDestinationEnsuresPublicly(input, output)
@@ -1015,11 +1013,11 @@ include "../../AwsCryptographyPrimitives/src/include.dfy"
  method EnableKinesisStreamingDestination ( input: KinesisStreamingDestinationInput )
  returns (output: Result<KinesisStreamingDestinationOutput, Error>)
  requires
- && ValidState() 
+ && ValidState()
  modifies Modifies - {History} ,
  History`EnableKinesisStreamingDestination
  // Dafny will skip type parameters when generating a default decreases clause.
- decreases Modifies
+ decreases Modifies - {History}
  ensures
  && ValidState()
  ensures EnableKinesisStreamingDestinationEnsuresPublicly(input, output)
@@ -1030,11 +1028,11 @@ include "../../AwsCryptographyPrimitives/src/include.dfy"
  method ExecuteStatement ( input: ExecuteStatementInput )
  returns (output: Result<ExecuteStatementOutput, Error>)
  requires
- && ValidState() 
+ && ValidState()
  modifies Modifies - {History} ,
  History`ExecuteStatement
  // Dafny will skip type parameters when generating a default decreases clause.
- decreases Modifies
+ decreases Modifies - {History}
  ensures
  && ValidState()
  ensures ExecuteStatementEnsuresPublicly(input, output)
@@ -1045,11 +1043,11 @@ include "../../AwsCryptographyPrimitives/src/include.dfy"
  method ExecuteTransaction ( input: ExecuteTransactionInput )
  returns (output: Result<ExecuteTransactionOutput, Error>)
  requires
- && ValidState() 
+ && ValidState()
  modifies Modifies - {History} ,
  History`ExecuteTransaction
  // Dafny will skip type parameters when generating a default decreases clause.
- decreases Modifies
+ decreases Modifies - {History}
  ensures
  && ValidState()
  ensures ExecuteTransactionEnsuresPublicly(input, output)
@@ -1060,11 +1058,11 @@ include "../../AwsCryptographyPrimitives/src/include.dfy"
  method ExportTableToPointInTime ( input: ExportTableToPointInTimeInput )
  returns (output: Result<ExportTableToPointInTimeOutput, Error>)
  requires
- && ValidState() 
+ && ValidState()
  modifies Modifies - {History} ,
  History`ExportTableToPointInTime
  // Dafny will skip type parameters when generating a default decreases clause.
- decreases Modifies
+ decreases Modifies - {History}
  ensures
  && ValidState()
  ensures ExportTableToPointInTimeEnsuresPublicly(input, output)
@@ -1075,11 +1073,11 @@ include "../../AwsCryptographyPrimitives/src/include.dfy"
  method GetItem ( input: GetItemInput )
  returns (output: Result<GetItemOutput, Error>)
  requires
- && ValidState() 
+ && ValidState()
  modifies Modifies - {History} ,
  History`GetItem
  // Dafny will skip type parameters when generating a default decreases clause.
- decreases Modifies
+ decreases Modifies - {History}
  ensures
  && ValidState()
  ensures GetItemEnsuresPublicly(input, output)
@@ -1090,11 +1088,11 @@ include "../../AwsCryptographyPrimitives/src/include.dfy"
  method ImportTable ( input: ImportTableInput )
  returns (output: Result<ImportTableOutput, Error>)
  requires
- && ValidState() 
+ && ValidState()
  modifies Modifies - {History} ,
  History`ImportTable
  // Dafny will skip type parameters when generating a default decreases clause.
- decreases Modifies
+ decreases Modifies - {History}
  ensures
  && ValidState()
  ensures ImportTableEnsuresPublicly(input, output)
@@ -1105,11 +1103,11 @@ include "../../AwsCryptographyPrimitives/src/include.dfy"
  method ListBackups ( input: ListBackupsInput )
  returns (output: Result<ListBackupsOutput, Error>)
  requires
- && ValidState() 
+ && ValidState()
  modifies Modifies - {History} ,
  History`ListBackups
  // Dafny will skip type parameters when generating a default decreases clause.
- decreases Modifies
+ decreases Modifies - {History}
  ensures
  && ValidState()
  ensures ListBackupsEnsuresPublicly(input, output)
@@ -1120,11 +1118,11 @@ include "../../AwsCryptographyPrimitives/src/include.dfy"
  method ListContributorInsights ( input: ListContributorInsightsInput )
  returns (output: Result<ListContributorInsightsOutput, Error>)
  requires
- && ValidState() 
+ && ValidState()
  modifies Modifies - {History} ,
  History`ListContributorInsights
  // Dafny will skip type parameters when generating a default decreases clause.
- decreases Modifies
+ decreases Modifies - {History}
  ensures
  && ValidState()
  ensures ListContributorInsightsEnsuresPublicly(input, output)
@@ -1135,11 +1133,11 @@ include "../../AwsCryptographyPrimitives/src/include.dfy"
  method ListExports ( input: ListExportsInput )
  returns (output: Result<ListExportsOutput, Error>)
  requires
- && ValidState() 
+ && ValidState()
  modifies Modifies - {History} ,
  History`ListExports
  // Dafny will skip type parameters when generating a default decreases clause.
- decreases Modifies
+ decreases Modifies - {History}
  ensures
  && ValidState()
  ensures ListExportsEnsuresPublicly(input, output)
@@ -1150,11 +1148,11 @@ include "../../AwsCryptographyPrimitives/src/include.dfy"
  method ListGlobalTables ( input: ListGlobalTablesInput )
  returns (output: Result<ListGlobalTablesOutput, Error>)
  requires
- && ValidState() 
+ && ValidState()
  modifies Modifies - {History} ,
  History`ListGlobalTables
  // Dafny will skip type parameters when generating a default decreases clause.
- decreases Modifies
+ decreases Modifies - {History}
  ensures
  && ValidState()
  ensures ListGlobalTablesEnsuresPublicly(input, output)
@@ -1165,11 +1163,11 @@ include "../../AwsCryptographyPrimitives/src/include.dfy"
  method ListImports ( input: ListImportsInput )
  returns (output: Result<ListImportsOutput, Error>)
  requires
- && ValidState() 
+ && ValidState()
  modifies Modifies - {History} ,
  History`ListImports
  // Dafny will skip type parameters when generating a default decreases clause.
- decreases Modifies
+ decreases Modifies - {History}
  ensures
  && ValidState()
  ensures ListImportsEnsuresPublicly(input, output)
@@ -1180,11 +1178,11 @@ include "../../AwsCryptographyPrimitives/src/include.dfy"
  method ListTables ( input: ListTablesInput )
  returns (output: Result<ListTablesOutput, Error>)
  requires
- && ValidState() 
+ && ValidState()
  modifies Modifies - {History} ,
  History`ListTables
  // Dafny will skip type parameters when generating a default decreases clause.
- decreases Modifies
+ decreases Modifies - {History}
  ensures
  && ValidState()
  ensures ListTablesEnsuresPublicly(input, output)
@@ -1195,11 +1193,11 @@ include "../../AwsCryptographyPrimitives/src/include.dfy"
  method ListTagsOfResource ( input: ListTagsOfResourceInput )
  returns (output: Result<ListTagsOfResourceOutput, Error>)
  requires
- && ValidState() 
+ && ValidState()
  modifies Modifies - {History} ,
  History`ListTagsOfResource
  // Dafny will skip type parameters when generating a default decreases clause.
- decreases Modifies
+ decreases Modifies - {History}
  ensures
  && ValidState()
  ensures ListTagsOfResourceEnsuresPublicly(input, output)
@@ -1210,11 +1208,11 @@ include "../../AwsCryptographyPrimitives/src/include.dfy"
  method PutItem ( input: PutItemInput )
  returns (output: Result<PutItemOutput, Error>)
  requires
- && ValidState() 
+ && ValidState()
  modifies Modifies - {History} ,
  History`PutItem
  // Dafny will skip type parameters when generating a default decreases clause.
- decreases Modifies
+ decreases Modifies - {History}
  ensures
  && ValidState()
  ensures PutItemEnsuresPublicly(input, output)
@@ -1225,11 +1223,11 @@ include "../../AwsCryptographyPrimitives/src/include.dfy"
  method Query ( input: QueryInput )
  returns (output: Result<QueryOutput, Error>)
  requires
- && ValidState() 
+ && ValidState()
  modifies Modifies - {History} ,
  History`Query
  // Dafny will skip type parameters when generating a default decreases clause.
- decreases Modifies
+ decreases Modifies - {History}
  ensures
  && ValidState()
  ensures QueryEnsuresPublicly(input, output)
@@ -1240,11 +1238,11 @@ include "../../AwsCryptographyPrimitives/src/include.dfy"
  method RestoreTableFromBackup ( input: RestoreTableFromBackupInput )
  returns (output: Result<RestoreTableFromBackupOutput, Error>)
  requires
- && ValidState() 
+ && ValidState()
  modifies Modifies - {History} ,
  History`RestoreTableFromBackup
  // Dafny will skip type parameters when generating a default decreases clause.
- decreases Modifies
+ decreases Modifies - {History}
  ensures
  && ValidState()
  ensures RestoreTableFromBackupEnsuresPublicly(input, output)
@@ -1255,11 +1253,11 @@ include "../../AwsCryptographyPrimitives/src/include.dfy"
  method RestoreTableToPointInTime ( input: RestoreTableToPointInTimeInput )
  returns (output: Result<RestoreTableToPointInTimeOutput, Error>)
  requires
- && ValidState() 
+ && ValidState()
  modifies Modifies - {History} ,
  History`RestoreTableToPointInTime
  // Dafny will skip type parameters when generating a default decreases clause.
- decreases Modifies
+ decreases Modifies - {History}
  ensures
  && ValidState()
  ensures RestoreTableToPointInTimeEnsuresPublicly(input, output)
@@ -1270,11 +1268,11 @@ include "../../AwsCryptographyPrimitives/src/include.dfy"
  method Scan ( input: ScanInput )
  returns (output: Result<ScanOutput, Error>)
  requires
- && ValidState() 
+ && ValidState()
  modifies Modifies - {History} ,
  History`Scan
  // Dafny will skip type parameters when generating a default decreases clause.
- decreases Modifies
+ decreases Modifies - {History}
  ensures
  && ValidState()
  ensures ScanEnsuresPublicly(input, output)
@@ -1285,11 +1283,11 @@ include "../../AwsCryptographyPrimitives/src/include.dfy"
  method TagResource ( input: TagResourceInput )
  returns (output: Result<(), Error>)
  requires
- && ValidState() 
+ && ValidState()
  modifies Modifies - {History} ,
  History`TagResource
  // Dafny will skip type parameters when generating a default decreases clause.
- decreases Modifies
+ decreases Modifies - {History}
  ensures
  && ValidState()
  ensures TagResourceEnsuresPublicly(input, output)
@@ -1300,11 +1298,11 @@ include "../../AwsCryptographyPrimitives/src/include.dfy"
  method TransactGetItems ( input: TransactGetItemsInput )
  returns (output: Result<TransactGetItemsOutput, Error>)
  requires
- && ValidState() 
+ && ValidState()
  modifies Modifies - {History} ,
  History`TransactGetItems
  // Dafny will skip type parameters when generating a default decreases clause.
- decreases Modifies
+ decreases Modifies - {History}
  ensures
  && ValidState()
  ensures TransactGetItemsEnsuresPublicly(input, output)
@@ -1315,11 +1313,11 @@ include "../../AwsCryptographyPrimitives/src/include.dfy"
  method TransactWriteItems ( input: TransactWriteItemsInput )
  returns (output: Result<TransactWriteItemsOutput, Error>)
  requires
- && ValidState() 
+ && ValidState()
  modifies Modifies - {History} ,
  History`TransactWriteItems
  // Dafny will skip type parameters when generating a default decreases clause.
- decreases Modifies
+ decreases Modifies - {History}
  ensures
  && ValidState()
  ensures TransactWriteItemsEnsuresPublicly(input, output)
@@ -1330,11 +1328,11 @@ include "../../AwsCryptographyPrimitives/src/include.dfy"
  method UntagResource ( input: UntagResourceInput )
  returns (output: Result<(), Error>)
  requires
- && ValidState() 
+ && ValidState()
  modifies Modifies - {History} ,
  History`UntagResource
  // Dafny will skip type parameters when generating a default decreases clause.
- decreases Modifies
+ decreases Modifies - {History}
  ensures
  && ValidState()
  ensures UntagResourceEnsuresPublicly(input, output)
@@ -1345,11 +1343,11 @@ include "../../AwsCryptographyPrimitives/src/include.dfy"
  method UpdateContinuousBackups ( input: UpdateContinuousBackupsInput )
  returns (output: Result<UpdateContinuousBackupsOutput, Error>)
  requires
- && ValidState() 
+ && ValidState()
  modifies Modifies - {History} ,
  History`UpdateContinuousBackups
  // Dafny will skip type parameters when generating a default decreases clause.
- decreases Modifies
+ decreases Modifies - {History}
  ensures
  && ValidState()
  ensures UpdateContinuousBackupsEnsuresPublicly(input, output)
@@ -1360,11 +1358,11 @@ include "../../AwsCryptographyPrimitives/src/include.dfy"
  method UpdateContributorInsights ( input: UpdateContributorInsightsInput )
  returns (output: Result<UpdateContributorInsightsOutput, Error>)
  requires
- && ValidState() 
+ && ValidState()
  modifies Modifies - {History} ,
  History`UpdateContributorInsights
  // Dafny will skip type parameters when generating a default decreases clause.
- decreases Modifies
+ decreases Modifies - {History}
  ensures
  && ValidState()
  ensures UpdateContributorInsightsEnsuresPublicly(input, output)
@@ -1375,11 +1373,11 @@ include "../../AwsCryptographyPrimitives/src/include.dfy"
  method UpdateGlobalTable ( input: UpdateGlobalTableInput )
  returns (output: Result<UpdateGlobalTableOutput, Error>)
  requires
- && ValidState() 
+ && ValidState()
  modifies Modifies - {History} ,
  History`UpdateGlobalTable
  // Dafny will skip type parameters when generating a default decreases clause.
- decreases Modifies
+ decreases Modifies - {History}
  ensures
  && ValidState()
  ensures UpdateGlobalTableEnsuresPublicly(input, output)
@@ -1390,11 +1388,11 @@ include "../../AwsCryptographyPrimitives/src/include.dfy"
  method UpdateGlobalTableSettings ( input: UpdateGlobalTableSettingsInput )
  returns (output: Result<UpdateGlobalTableSettingsOutput, Error>)
  requires
- && ValidState() 
+ && ValidState()
  modifies Modifies - {History} ,
  History`UpdateGlobalTableSettings
  // Dafny will skip type parameters when generating a default decreases clause.
- decreases Modifies
+ decreases Modifies - {History}
  ensures
  && ValidState()
  ensures UpdateGlobalTableSettingsEnsuresPublicly(input, output)
@@ -1405,11 +1403,11 @@ include "../../AwsCryptographyPrimitives/src/include.dfy"
  method UpdateItem ( input: UpdateItemInput )
  returns (output: Result<UpdateItemOutput, Error>)
  requires
- && ValidState() 
+ && ValidState()
  modifies Modifies - {History} ,
  History`UpdateItem
  // Dafny will skip type parameters when generating a default decreases clause.
- decreases Modifies
+ decreases Modifies - {History}
  ensures
  && ValidState()
  ensures UpdateItemEnsuresPublicly(input, output)
@@ -1420,11 +1418,11 @@ include "../../AwsCryptographyPrimitives/src/include.dfy"
  method UpdateTable ( input: UpdateTableInput )
  returns (output: Result<UpdateTableOutput, Error>)
  requires
- && ValidState() 
+ && ValidState()
  modifies Modifies - {History} ,
  History`UpdateTable
  // Dafny will skip type parameters when generating a default decreases clause.
- decreases Modifies
+ decreases Modifies - {History}
  ensures
  && ValidState()
  ensures UpdateTableEnsuresPublicly(input, output)
@@ -1435,11 +1433,11 @@ include "../../AwsCryptographyPrimitives/src/include.dfy"
  method UpdateTableReplicaAutoScaling ( input: UpdateTableReplicaAutoScalingInput )
  returns (output: Result<UpdateTableReplicaAutoScalingOutput, Error>)
  requires
- && ValidState() 
+ && ValidState()
  modifies Modifies - {History} ,
  History`UpdateTableReplicaAutoScaling
  // Dafny will skip type parameters when generating a default decreases clause.
- decreases Modifies
+ decreases Modifies - {History}
  ensures
  && ValidState()
  ensures UpdateTableReplicaAutoScalingEnsuresPublicly(input, output)
@@ -1450,11 +1448,11 @@ include "../../AwsCryptographyPrimitives/src/include.dfy"
  method UpdateTimeToLive ( input: UpdateTimeToLiveInput )
  returns (output: Result<UpdateTimeToLiveOutput, Error>)
  requires
- && ValidState() 
+ && ValidState()
  modifies Modifies - {History} ,
  History`UpdateTimeToLive
  // Dafny will skip type parameters when generating a default decreases clause.
- decreases Modifies
+ decreases Modifies - {History}
  ensures
  && ValidState()
  ensures UpdateTimeToLiveEnsuresPublicly(input, output)
@@ -1482,7 +1480,7 @@ include "../../AwsCryptographyPrimitives/src/include.dfy"
  nameonly Limit: Option<PositiveIntegerObject>
  )
  datatype ExecuteStatementOutput = | ExecuteStatementOutput (
- // TODO Manually updated. Dafny bug that prevents "Items" from being param name
+// TODO manually updated Item -> ItemList
  nameonly ItemList: Option<ItemList> ,
  nameonly NextToken: Option<PartiQLNextToken> ,
  nameonly ConsumedCapacity: Option<ConsumedCapacity> ,
@@ -1766,7 +1764,7 @@ include "../../AwsCryptographyPrimitives/src/include.dfy"
  ( 1 <= |x| <= 100 )
 }
  datatype KeysAndAttributes = | KeysAndAttributes (
- // TODO manually updated. Dafny bug that prevents "Keys" from being a param name
+// TODO manually updated Key -> KeyList
  nameonly KeyList: KeyList ,
  nameonly AttributesToGet: Option<AttributeNameList> ,
  nameonly ConsistentRead: Option<ConsistentRead> ,
@@ -2045,7 +2043,7 @@ include "../../AwsCryptographyPrimitives/src/include.dfy"
  nameonly ExpressionAttributeValues: Option<ExpressionAttributeValueMap>
  )
  datatype QueryOutput = | QueryOutput (
- // TODO manually updated. Dafny bug that prevents "Items" from being a param name
+// TODO manually updated Item -> ItemList
  nameonly ItemList: Option<ItemList> ,
  nameonly Count: Option<Integer> ,
  nameonly ScannedCount: Option<Integer> ,
@@ -2274,7 +2272,7 @@ include "../../AwsCryptographyPrimitives/src/include.dfy"
  nameonly ConsistentRead: Option<ConsistentRead>
  )
  datatype ScanOutput = | ScanOutput (
- // TODO manually updated, Dafny bug that prevents "Items" from being a param name
+// TODO manually updated Item -> ItemList
  nameonly ItemList: Option<ItemList> ,
  nameonly Count: Option<Integer> ,
  nameonly ScannedCount: Option<Integer> ,
@@ -2602,28 +2600,16 @@ include "../../AwsCryptographyPrimitives/src/include.dfy"
 }
  datatype Error =
  // Local Error structures are listed here
- | TableInUseException (
+ | BackupInUseException (
  nameonly message: Option<ErrorMessage>
  )
- | ProvisionedThroughputExceededException (
- nameonly message: Option<ErrorMessage>
- )
- | ReplicaNotFoundException (
- nameonly message: Option<ErrorMessage>
- )
- | IndexNotFoundException (
- nameonly message: Option<ErrorMessage>
- )
- | InvalidRestoreTimeException (
+ | TableNotFoundException (
  nameonly message: Option<ErrorMessage>
  )
  | ResourceInUseException (
  nameonly message: Option<ErrorMessage>
  )
- | IdempotentParameterMismatchException (
- nameonly Message: Option<ErrorMessage>
- )
- | ExportNotFoundException (
+ | GlobalTableNotFoundException (
  nameonly message: Option<ErrorMessage>
  )
  | RequestLimitExceeded (
@@ -2632,19 +2618,25 @@ include "../../AwsCryptographyPrimitives/src/include.dfy"
  | ContinuousBackupsUnavailableException (
  nameonly message: Option<ErrorMessage>
  )
- | TableNotFoundException (
+ | IndexNotFoundException (
+ nameonly message: Option<ErrorMessage>
+ )
+ | ExportNotFoundException (
+ nameonly message: Option<ErrorMessage>
+ )
+ | InvalidEndpointException (
+ nameonly Message: Option<String>
+ )
+ | ReplicaNotFoundException (
  nameonly message: Option<ErrorMessage>
  )
  | PointInTimeRecoveryUnavailableException (
  nameonly message: Option<ErrorMessage>
  )
- | LimitExceededException (
+ | InvalidExportTimeException (
  nameonly message: Option<ErrorMessage>
  )
- | TransactionInProgressException (
- nameonly Message: Option<ErrorMessage>
- )
- | BackupInUseException (
+ | TableAlreadyExistsException (
  nameonly message: Option<ErrorMessage>
  )
  | ExportConflictException (
@@ -2654,49 +2646,55 @@ include "../../AwsCryptographyPrimitives/src/include.dfy"
  nameonly Message: Option<ErrorMessage> ,
  nameonly CancellationReasons: Option<CancellationReasonList>
  )
- | InvalidExportTimeException (
- nameonly message: Option<ErrorMessage>
- )
- | TableAlreadyExistsException (
- nameonly message: Option<ErrorMessage>
- )
- | DuplicateItemException (
- nameonly message: Option<ErrorMessage>
- )
- | TransactionConflictException (
- nameonly message: Option<ErrorMessage>
- )
- | InvalidEndpointException (
- nameonly Message: Option<String>
- )
- | BackupNotFoundException (
- nameonly message: Option<ErrorMessage>
- )
- | GlobalTableAlreadyExistsException (
+ | ConditionalCheckFailedException (
  nameonly message: Option<ErrorMessage>
  )
  | ResourceNotFoundException (
  nameonly message: Option<ErrorMessage>
  )
- | ImportConflictException (
- nameonly message: Option<ErrorMessage>
- )
- | ReplicaAlreadyExistsException (
- nameonly message: Option<ErrorMessage>
- )
- | ConditionalCheckFailedException (
- nameonly message: Option<ErrorMessage>
- )
- | ImportNotFoundException (
- nameonly message: Option<ErrorMessage>
- )
- | ItemCollectionSizeLimitExceededException (
+ | DuplicateItemException (
  nameonly message: Option<ErrorMessage>
  )
  | InternalServerError (
  nameonly message: Option<ErrorMessage>
  )
- | GlobalTableNotFoundException (
+ | ProvisionedThroughputExceededException (
+ nameonly message: Option<ErrorMessage>
+ )
+ | GlobalTableAlreadyExistsException (
+ nameonly message: Option<ErrorMessage>
+ )
+ | BackupNotFoundException (
+ nameonly message: Option<ErrorMessage>
+ )
+ | ImportNotFoundException (
+ nameonly message: Option<ErrorMessage>
+ )
+ | InvalidRestoreTimeException (
+ nameonly message: Option<ErrorMessage>
+ )
+ | LimitExceededException (
+ nameonly message: Option<ErrorMessage>
+ )
+ | IdempotentParameterMismatchException (
+ nameonly Message: Option<ErrorMessage>
+ )
+ | TransactionInProgressException (
+ nameonly Message: Option<ErrorMessage>
+ )
+ | ReplicaAlreadyExistsException (
+ nameonly message: Option<ErrorMessage>
+ )
+ | TransactionConflictException (
+ nameonly message: Option<ErrorMessage>
+ )
+ | ItemCollectionSizeLimitExceededException (
+ nameonly message: Option<ErrorMessage>
+ )
+ | ImportConflictException (
+ nameonly message: Option<ErrorMessage>
+ )
+ | TableInUseException (
  nameonly message: Option<ErrorMessage>
  )
  // Any dependent models are listed here
@@ -2729,8 +2727,7 @@ include "../../AwsCryptographyPrimitives/src/include.dfy"
  | Opaque(obj: object)
  type OpaqueError = e: Error | e.Opaque? witness *
 }
- abstract module ComAmazonawsDynamodbAbstract
- {
+ abstract module AbstractComAmazonawsDynamodbService {
  import opened Wrappers
  import opened StandardLibrary.UInt
  import opened UTF8
@@ -2744,4 +2741,859 @@ include "../../AwsCryptographyPrimitives/src/include.dfy"
  && fresh(res.value.Modifies)
  && fresh(res.value.History)
  && res.value.ValidState()
+}
+ abstract module AbstractComAmazonawsDynamodbOperations {
+ import opened Wrappers
+ import opened StandardLibrary.UInt
+ import opened UTF8
+ import opened Types = ComAmazonawsDynamodbTypes
+ type InternalConfig
+ predicate ValidInternalConfig?(config: InternalConfig)
+ function ModifiesInternalConfig(config: InternalConfig): set<object>
+ predicate BatchExecuteStatementEnsuresPublicly(input: BatchExecuteStatementInput, output: Result<BatchExecuteStatementOutput, Error>)
+ // The private method to be refined by the library developer
+
+
+ method BatchExecuteStatement ( config: InternalConfig,  input: BatchExecuteStatementInput )
+ returns (output: Result<BatchExecuteStatementOutput, Error>)
+ requires
+ && ValidInternalConfig?(config)
+ modifies ModifiesInternalConfig(config)
+ // Dafny will skip type parameters when generating a default decreases clause.
+ decreases ModifiesInternalConfig(config)
+ ensures
+ && ValidInternalConfig?(config)
+ ensures BatchExecuteStatementEnsuresPublicly(input, output)
+
+
+ predicate BatchGetItemEnsuresPublicly(input: BatchGetItemInput, output: Result<BatchGetItemOutput, Error>)
+ // The private method to be refined by the library developer
+
+
+ method BatchGetItem ( config: InternalConfig,  input: BatchGetItemInput )
+ returns (output: Result<BatchGetItemOutput, Error>)
+ requires
+ && ValidInternalConfig?(config)
+ modifies ModifiesInternalConfig(config)
+ // Dafny will skip type parameters when generating a default decreases clause.
+ decreases ModifiesInternalConfig(config)
+ ensures
+ && ValidInternalConfig?(config)
+ ensures BatchGetItemEnsuresPublicly(input, output)
+
+
+ predicate BatchWriteItemEnsuresPublicly(input: BatchWriteItemInput, output: Result<BatchWriteItemOutput, Error>)
+ // The private method to be refined by the library developer
+
+
+ method BatchWriteItem ( config: InternalConfig,  input: BatchWriteItemInput )
+ returns (output: Result<BatchWriteItemOutput, Error>)
+ requires
+ && ValidInternalConfig?(config)
+ modifies ModifiesInternalConfig(config)
+ // Dafny will skip type parameters when generating a default decreases clause.
+ decreases ModifiesInternalConfig(config)
+ ensures
+ && ValidInternalConfig?(config)
+ ensures BatchWriteItemEnsuresPublicly(input, output)
+
+
+ predicate CreateBackupEnsuresPublicly(input: CreateBackupInput, output: Result<CreateBackupOutput, Error>)
+ // The private method to be refined by the library developer
+
+
+ method CreateBackup ( config: InternalConfig,  input: CreateBackupInput )
+ returns (output: Result<CreateBackupOutput, Error>)
+ requires
+ && ValidInternalConfig?(config)
+ modifies ModifiesInternalConfig(config)
+ // Dafny will skip type parameters when generating a default decreases clause.
+ decreases ModifiesInternalConfig(config)
+ ensures
+ && ValidInternalConfig?(config)
+ ensures CreateBackupEnsuresPublicly(input, output)
+
+
+ predicate CreateGlobalTableEnsuresPublicly(input: CreateGlobalTableInput, output: Result<CreateGlobalTableOutput, Error>)
+ // The private method to be refined by the library developer
+
+
+ method CreateGlobalTable ( config: InternalConfig,  input: CreateGlobalTableInput )
+ returns (output: Result<CreateGlobalTableOutput, Error>)
+ requires
+ && ValidInternalConfig?(config)
+ modifies ModifiesInternalConfig(config)
+ // Dafny will skip type parameters when generating a default decreases clause.
+ decreases ModifiesInternalConfig(config)
+ ensures
+ && ValidInternalConfig?(config)
+ ensures CreateGlobalTableEnsuresPublicly(input, output)
+
+
+ predicate CreateTableEnsuresPublicly(input: CreateTableInput, output: Result<CreateTableOutput, Error>)
+ // The private method to be refined by the library developer
+
+
+ method CreateTable ( config: InternalConfig,  input: CreateTableInput )
+ returns (output: Result<CreateTableOutput, Error>)
+ requires
+ && ValidInternalConfig?(config)
+ modifies ModifiesInternalConfig(config)
+ // Dafny will skip type parameters when generating a default decreases clause.
+ decreases ModifiesInternalConfig(config)
+ ensures
+ && ValidInternalConfig?(config)
+ ensures CreateTableEnsuresPublicly(input, output)
+
+
+ predicate DeleteBackupEnsuresPublicly(input: DeleteBackupInput, output: Result<DeleteBackupOutput, Error>)
+ // The private method to be refined by the library developer
+
+
+ method DeleteBackup ( config: InternalConfig,  input: DeleteBackupInput )
+ returns (output: Result<DeleteBackupOutput, Error>)
+ requires
+ && ValidInternalConfig?(config)
+ modifies ModifiesInternalConfig(config)
+ // Dafny will skip type parameters when generating a default decreases clause.
+ decreases ModifiesInternalConfig(config)
+ ensures
+ && ValidInternalConfig?(config)
+ ensures DeleteBackupEnsuresPublicly(input, output)
+
+
+ predicate DeleteItemEnsuresPublicly(input: DeleteItemInput, output: Result<DeleteItemOutput, Error>)
+ // The private method to be refined by the library developer
+
+
+ method DeleteItem ( config: InternalConfig,  input: DeleteItemInput )
+ returns (output: Result<DeleteItemOutput, Error>)
+ requires
+ && ValidInternalConfig?(config)
+ modifies ModifiesInternalConfig(config)
+ // Dafny will skip type parameters when generating a default decreases clause.
+ decreases ModifiesInternalConfig(config)
+ ensures
+ && ValidInternalConfig?(config)
+ ensures DeleteItemEnsuresPublicly(input, output)
+
+
+ predicate DeleteTableEnsuresPublicly(input: DeleteTableInput, output: Result<DeleteTableOutput, Error>)
+ // The private method to be refined by the library developer
+
+
+ method DeleteTable ( config: InternalConfig,  input: DeleteTableInput )
+ returns (output: Result<DeleteTableOutput, Error>)
+ requires
+ && ValidInternalConfig?(config)
+ modifies ModifiesInternalConfig(config)
+ // Dafny will skip type parameters when generating a default decreases clause.
+ decreases ModifiesInternalConfig(config)
+ ensures
+ && ValidInternalConfig?(config)
+ ensures DeleteTableEnsuresPublicly(input, output)
+
+
+ predicate DescribeBackupEnsuresPublicly(input: DescribeBackupInput, output: Result<DescribeBackupOutput, Error>)
+ // The private method to be refined by the library developer
+
+
+ method DescribeBackup ( config: InternalConfig,  input: DescribeBackupInput )
+ returns (output: Result<DescribeBackupOutput, Error>)
+ requires
+ && ValidInternalConfig?(config)
+ modifies ModifiesInternalConfig(config)
+ // Dafny will skip type parameters when generating a default decreases clause.
+ decreases ModifiesInternalConfig(config)
+ ensures
+ && ValidInternalConfig?(config)
+ ensures DescribeBackupEnsuresPublicly(input, output)
+
+
+ predicate DescribeContinuousBackupsEnsuresPublicly(input: DescribeContinuousBackupsInput, output: Result<DescribeContinuousBackupsOutput, Error>)
+ // The private method to be refined by the library developer
+
+
+ method DescribeContinuousBackups ( config: InternalConfig,  input: DescribeContinuousBackupsInput )
+ returns (output: Result<DescribeContinuousBackupsOutput, Error>)
+ requires
+ && ValidInternalConfig?(config)
+ modifies ModifiesInternalConfig(config)
+ // Dafny will skip type parameters when generating a default decreases clause.
+ decreases ModifiesInternalConfig(config)
+ ensures
+ && ValidInternalConfig?(config)
+ ensures DescribeContinuousBackupsEnsuresPublicly(input, output)
+
+
+ predicate DescribeContributorInsightsEnsuresPublicly(input: DescribeContributorInsightsInput, output: Result<DescribeContributorInsightsOutput, Error>)
+ // The private method to be refined by the library developer
+
+
+ method DescribeContributorInsights ( config: InternalConfig,  input: DescribeContributorInsightsInput )
+ returns (output: Result<DescribeContributorInsightsOutput, Error>)
+ requires
+ && ValidInternalConfig?(config)
+ modifies ModifiesInternalConfig(config)
+ // Dafny will skip type parameters when generating a default decreases clause.
+ decreases ModifiesInternalConfig(config)
+ ensures
+ && ValidInternalConfig?(config)
+ ensures DescribeContributorInsightsEnsuresPublicly(input, output)
+
+
+ predicate DescribeEndpointsEnsuresPublicly(input: DescribeEndpointsRequest, output: Result<DescribeEndpointsResponse, Error>)
+ // The private method to be refined by the library developer
+
+
+ method DescribeEndpoints ( config: InternalConfig,  input: DescribeEndpointsRequest )
+ returns (output: Result<DescribeEndpointsResponse, Error>)
+ requires
+ && ValidInternalConfig?(config)
+ modifies ModifiesInternalConfig(config)
+ // Dafny will skip type parameters when generating a default decreases clause.
+ decreases ModifiesInternalConfig(config)
+ ensures
+ && ValidInternalConfig?(config)
+ ensures DescribeEndpointsEnsuresPublicly(input, output)
+
+
+ predicate DescribeExportEnsuresPublicly(input: DescribeExportInput, output: Result<DescribeExportOutput, Error>)
+ // The private method to be refined by the library developer
+
+
+ method DescribeExport ( config: InternalConfig,  input: DescribeExportInput )
+ returns (output: Result<DescribeExportOutput, Error>)
+ requires
+ && ValidInternalConfig?(config)
+ modifies ModifiesInternalConfig(config)
+ // Dafny will skip type parameters when generating a default decreases clause.
+ decreases ModifiesInternalConfig(config)
+ ensures
+ && ValidInternalConfig?(config)
+ ensures DescribeExportEnsuresPublicly(input, output)
+
+
+ predicate DescribeGlobalTableEnsuresPublicly(input: DescribeGlobalTableInput, output: Result<DescribeGlobalTableOutput, Error>)
+ // The private method to be refined by the library developer
+
+
+ method DescribeGlobalTable ( config: InternalConfig,  input: DescribeGlobalTableInput )
+ returns (output: Result<DescribeGlobalTableOutput, Error>)
+ requires
+ && ValidInternalConfig?(config)
+ modifies ModifiesInternalConfig(config)
+ // Dafny will skip type parameters when generating a default decreases clause.
+ decreases ModifiesInternalConfig(config)
+ ensures
+ && ValidInternalConfig?(config)
+ ensures DescribeGlobalTableEnsuresPublicly(input, output)
+
+
+ predicate DescribeGlobalTableSettingsEnsuresPublicly(input: DescribeGlobalTableSettingsInput, output: Result<DescribeGlobalTableSettingsOutput, Error>)
+ // The private method to be refined by the library developer
+
+
+ method DescribeGlobalTableSettings ( config: InternalConfig,  input: DescribeGlobalTableSettingsInput )
+ returns (output: Result<DescribeGlobalTableSettingsOutput, Error>)
+ requires
+ && ValidInternalConfig?(config)
+ modifies ModifiesInternalConfig(config)
+ // Dafny will skip type parameters when generating a default decreases clause.
+ decreases ModifiesInternalConfig(config)
+ ensures
+ && ValidInternalConfig?(config)
+ ensures DescribeGlobalTableSettingsEnsuresPublicly(input, output)
+
+
+ predicate DescribeImportEnsuresPublicly(input: DescribeImportInput, output: Result<DescribeImportOutput, Error>)
+ // The private method to be refined by the library developer
+
+
+ method DescribeImport ( config: InternalConfig,  input: DescribeImportInput )
+ returns (output: Result<DescribeImportOutput, Error>)
+ requires
+ && ValidInternalConfig?(config)
+ modifies ModifiesInternalConfig(config)
+ // Dafny will skip type parameters when generating a default decreases clause.
+ decreases ModifiesInternalConfig(config)
+ ensures
+ && ValidInternalConfig?(config)
+ ensures DescribeImportEnsuresPublicly(input, output)
+
+
+ predicate DescribeKinesisStreamingDestinationEnsuresPublicly(input: DescribeKinesisStreamingDestinationInput, output: Result<DescribeKinesisStreamingDestinationOutput, Error>)
+ // The private method to be refined by the library developer
+
+
+ method DescribeKinesisStreamingDestination ( config: InternalConfig,  input: DescribeKinesisStreamingDestinationInput )
+ returns (output: Result<DescribeKinesisStreamingDestinationOutput, Error>)
+ requires
+ && ValidInternalConfig?(config)
+ modifies ModifiesInternalConfig(config)
+ // Dafny will skip type parameters when generating a default decreases clause.
+ decreases ModifiesInternalConfig(config)
+ ensures
+ && ValidInternalConfig?(config)
+ ensures DescribeKinesisStreamingDestinationEnsuresPublicly(input, output)
+
+
+ predicate DescribeLimitsEnsuresPublicly(input: DescribeLimitsInput, output: Result<DescribeLimitsOutput, Error>)
+ // The private method to be refined by the library developer
+
+
+ method DescribeLimits ( config: InternalConfig,  input: DescribeLimitsInput )
+ returns (output: Result<DescribeLimitsOutput, Error>)
+ requires
+ && ValidInternalConfig?(config)
+ modifies ModifiesInternalConfig(config)
+ // Dafny will skip type parameters when generating a default decreases clause.
+ decreases ModifiesInternalConfig(config)
+ ensures
+ && ValidInternalConfig?(config)
+ ensures DescribeLimitsEnsuresPublicly(input, output)
+
+
+ predicate DescribeTableEnsuresPublicly(input: DescribeTableInput, output: Result<DescribeTableOutput, Error>)
+ // The private method to be refined by the library developer
+
+
+ method DescribeTable ( config: InternalConfig,  input: DescribeTableInput )
+ returns (output: Result<DescribeTableOutput, Error>)
+ requires
+ && ValidInternalConfig?(config)
+ modifies ModifiesInternalConfig(config)
+ // Dafny will skip type parameters when generating a default decreases clause.
+ decreases ModifiesInternalConfig(config)
+ ensures
+ && ValidInternalConfig?(config)
+ ensures DescribeTableEnsuresPublicly(input, output)
+
+
+ predicate DescribeTableReplicaAutoScalingEnsuresPublicly(input: DescribeTableReplicaAutoScalingInput, output: Result<DescribeTableReplicaAutoScalingOutput, Error>)
+ // The private method to be refined by the library developer
+
+
+ method DescribeTableReplicaAutoScaling ( config: InternalConfig,  input: DescribeTableReplicaAutoScalingInput )
+ returns (output: Result<DescribeTableReplicaAutoScalingOutput, Error>)
+ requires
+ && ValidInternalConfig?(config)
+ modifies ModifiesInternalConfig(config)
+ // Dafny will skip type parameters when generating a default decreases clause.
+ decreases ModifiesInternalConfig(config)
+ ensures
+ && ValidInternalConfig?(config)
+ ensures DescribeTableReplicaAutoScalingEnsuresPublicly(input, output)
+
+
+ predicate DescribeTimeToLiveEnsuresPublicly(input: DescribeTimeToLiveInput, output: Result<DescribeTimeToLiveOutput, Error>)
+ // The private method to be refined by the library developer
+
+
+ method DescribeTimeToLive ( config: InternalConfig,  input: DescribeTimeToLiveInput )
+ returns (output: Result<DescribeTimeToLiveOutput, Error>)
+ requires
+ && ValidInternalConfig?(config)
+ modifies ModifiesInternalConfig(config)
+ // Dafny will skip type parameters when generating a default decreases clause.
+ decreases ModifiesInternalConfig(config)
+ ensures
+ && ValidInternalConfig?(config)
+ ensures DescribeTimeToLiveEnsuresPublicly(input, output)
+
+
+ predicate DisableKinesisStreamingDestinationEnsuresPublicly(input: KinesisStreamingDestinationInput, output: Result<KinesisStreamingDestinationOutput, Error>)
+ // The private method to be refined by the library developer
+
+
+ method DisableKinesisStreamingDestination ( config: InternalConfig,  input: KinesisStreamingDestinationInput )
+ returns (output: Result<KinesisStreamingDestinationOutput, Error>)
+ requires
+ && ValidInternalConfig?(config)
+ modifies ModifiesInternalConfig(config)
+ // Dafny will skip type parameters when generating a default decreases clause.
+ decreases ModifiesInternalConfig(config)
+ ensures
+ && ValidInternalConfig?(config)
+ ensures DisableKinesisStreamingDestinationEnsuresPublicly(input, output)
+
+
+ predicate EnableKinesisStreamingDestinationEnsuresPublicly(input: KinesisStreamingDestinationInput, output: Result<KinesisStreamingDestinationOutput, Error>)
+ // The private method to be refined by the library developer
+
+
+ method EnableKinesisStreamingDestination ( config: InternalConfig,  input: KinesisStreamingDestinationInput )
+ returns (output: Result<KinesisStreamingDestinationOutput, Error>)
+ requires
+ && ValidInternalConfig?(config)
+ modifies ModifiesInternalConfig(config)
+ // Dafny will skip type parameters when generating a default decreases clause.
+ decreases ModifiesInternalConfig(config)
+ ensures
+ && ValidInternalConfig?(config)
+ ensures EnableKinesisStreamingDestinationEnsuresPublicly(input, output)
+
+
+ predicate ExecuteStatementEnsuresPublicly(input: ExecuteStatementInput, output: Result<ExecuteStatementOutput, Error>)
+ // The private method to be refined by the library developer
+
+
+ method ExecuteStatement ( config: InternalConfig,  input: ExecuteStatementInput )
+ returns (output: Result<ExecuteStatementOutput, Error>)
+ requires
+ && ValidInternalConfig?(config)
+ modifies ModifiesInternalConfig(config)
+ // Dafny will skip type parameters when generating a default decreases clause.
+ decreases ModifiesInternalConfig(config)
+ ensures
+ && ValidInternalConfig?(config)
+ ensures ExecuteStatementEnsuresPublicly(input, output)
+
+
+ predicate ExecuteTransactionEnsuresPublicly(input: ExecuteTransactionInput, output: Result<ExecuteTransactionOutput, Error>)
+ // The private method to be refined by the library developer
+
+
+ method ExecuteTransaction ( config: InternalConfig,  input: ExecuteTransactionInput )
+ returns (output: Result<ExecuteTransactionOutput, Error>)
+ requires
+ && ValidInternalConfig?(config)
+ modifies ModifiesInternalConfig(config)
+ // Dafny will skip type parameters when generating a default decreases clause.
+ decreases ModifiesInternalConfig(config)
+ ensures
+ && ValidInternalConfig?(config)
+ ensures ExecuteTransactionEnsuresPublicly(input, output)
+
+
+ predicate ExportTableToPointInTimeEnsuresPublicly(input: ExportTableToPointInTimeInput, output: Result<ExportTableToPointInTimeOutput, Error>)
+ // The private method to be refined by the library developer
+
+
+ method ExportTableToPointInTime ( config: InternalConfig,  input: ExportTableToPointInTimeInput )
+ returns (output: Result<ExportTableToPointInTimeOutput, Error>)
+ requires
+ && ValidInternalConfig?(config)
+ modifies ModifiesInternalConfig(config)
+ // Dafny will skip type parameters when generating a default decreases clause.
+ decreases ModifiesInternalConfig(config)
+ ensures
+ && ValidInternalConfig?(config)
+ ensures ExportTableToPointInTimeEnsuresPublicly(input, output)
+
+
+ predicate GetItemEnsuresPublicly(input: GetItemInput, output: Result<GetItemOutput, Error>)
+ // The private method to be refined by the library developer
+
+
+ method GetItem ( config: InternalConfig,  input: GetItemInput )
+ returns (output: Result<GetItemOutput, Error>)
+ requires
+ && ValidInternalConfig?(config)
+ modifies ModifiesInternalConfig(config)
+ // Dafny will skip type parameters when generating a default decreases clause.
+ decreases ModifiesInternalConfig(config)
+ ensures
+ && ValidInternalConfig?(config)
+ ensures GetItemEnsuresPublicly(input, output)
+
+
+ predicate ImportTableEnsuresPublicly(input: ImportTableInput, output: Result<ImportTableOutput, Error>)
+ // The private method to be refined by the library developer
+
+
+ method ImportTable ( config: InternalConfig,  input: ImportTableInput )
+ returns (output: Result<ImportTableOutput, Error>)
+ requires
+ && ValidInternalConfig?(config)
+ modifies ModifiesInternalConfig(config)
+ // Dafny will skip type parameters when generating a default decreases clause.
+ decreases ModifiesInternalConfig(config)
+ ensures
+ && ValidInternalConfig?(config)
+ ensures ImportTableEnsuresPublicly(input, output)
+
+
+ predicate ListBackupsEnsuresPublicly(input: ListBackupsInput, output: Result<ListBackupsOutput, Error>)
+ // The private method to be refined by the library developer
+
+
+ method ListBackups ( config: InternalConfig,  input: ListBackupsInput )
+ returns (output: Result<ListBackupsOutput, Error>)
+ requires
+ && ValidInternalConfig?(config)
+ modifies ModifiesInternalConfig(config)
+ // Dafny will skip type parameters when generating a default decreases clause.
+ decreases ModifiesInternalConfig(config)
+ ensures
+ && ValidInternalConfig?(config)
+ ensures ListBackupsEnsuresPublicly(input, output)
+
+
+ predicate ListContributorInsightsEnsuresPublicly(input: ListContributorInsightsInput, output: Result<ListContributorInsightsOutput, Error>)
+ // The private method to be refined by the library developer
+
+
+ method ListContributorInsights ( config: InternalConfig,  input: ListContributorInsightsInput )
+ returns (output: Result<ListContributorInsightsOutput, Error>)
+ requires
+ && ValidInternalConfig?(config)
+ modifies ModifiesInternalConfig(config)
+ // Dafny will skip type parameters when generating a default decreases clause.
+ decreases ModifiesInternalConfig(config)
+ ensures
+ && ValidInternalConfig?(config)
+ ensures ListContributorInsightsEnsuresPublicly(input, output)
+
+
+ predicate ListExportsEnsuresPublicly(input: ListExportsInput, output: Result<ListExportsOutput, Error>)
+ // The private method to be refined by the library developer
+
+
+ method ListExports ( config: InternalConfig,  input: ListExportsInput )
+ returns (output: Result<ListExportsOutput, Error>)
+ requires
+ && ValidInternalConfig?(config)
+ modifies ModifiesInternalConfig(config)
+ // Dafny will skip type parameters when generating a default decreases clause.
+ decreases ModifiesInternalConfig(config)
+ ensures
+ && ValidInternalConfig?(config)
+ ensures ListExportsEnsuresPublicly(input, output)
+
+
+ predicate ListGlobalTablesEnsuresPublicly(input: ListGlobalTablesInput, output: Result<ListGlobalTablesOutput, Error>)
+ // The private method to be refined by the library developer
+
+
+ method ListGlobalTables ( config: InternalConfig,  input: ListGlobalTablesInput )
+ returns (output: Result<ListGlobalTablesOutput, Error>)
+ requires
+ && ValidInternalConfig?(config)
+ modifies ModifiesInternalConfig(config)
+ // Dafny will skip type parameters when generating a default decreases clause.
+ decreases ModifiesInternalConfig(config)
+ ensures
+ && ValidInternalConfig?(config)
+ ensures ListGlobalTablesEnsuresPublicly(input, output)
+
+
+ predicate ListImportsEnsuresPublicly(input: ListImportsInput, output: Result<ListImportsOutput, Error>)
+ // The private method to be refined by the library developer
+
+
+ method ListImports ( config: InternalConfig,  input: ListImportsInput )
+ returns (output: Result<ListImportsOutput, Error>)
+ requires
+ && ValidInternalConfig?(config)
+ modifies ModifiesInternalConfig(config)
+ // Dafny will skip type parameters when generating a default decreases clause.
+ decreases ModifiesInternalConfig(config)
+ ensures
+ && ValidInternalConfig?(config)
+ ensures ListImportsEnsuresPublicly(input, output)
+
+
+ predicate ListTablesEnsuresPublicly(input: ListTablesInput, output: Result<ListTablesOutput, Error>)
+ // The private method to be refined by the library developer
+
+
+ method ListTables ( config: InternalConfig,  input: ListTablesInput )
+ returns (output: Result<ListTablesOutput, Error>)
+ requires
+ && ValidInternalConfig?(config)
+ modifies ModifiesInternalConfig(config)
+ // Dafny will skip type parameters when generating a default decreases clause.
+ decreases ModifiesInternalConfig(config)
+ ensures
+ && ValidInternalConfig?(config)
+ ensures ListTablesEnsuresPublicly(input, output)
+
+
+ predicate ListTagsOfResourceEnsuresPublicly(input: ListTagsOfResourceInput, output: Result<ListTagsOfResourceOutput, Error>)
+ // The private method to be refined by the library developer
+
+
+ method ListTagsOfResource ( config: InternalConfig,  input: ListTagsOfResourceInput )
+ returns (output: Result<ListTagsOfResourceOutput, Error>)
+ requires
+ && ValidInternalConfig?(config)
+ modifies ModifiesInternalConfig(config)
+ // Dafny will skip type parameters when generating a default decreases clause.
+ decreases ModifiesInternalConfig(config)
+ ensures
+ && ValidInternalConfig?(config)
+ ensures ListTagsOfResourceEnsuresPublicly(input, output)
+
+
+ predicate PutItemEnsuresPublicly(input: PutItemInput, output: Result<PutItemOutput, Error>)
+ // The private method to be refined by the library developer
+
+
+ method PutItem ( config: InternalConfig,  input: PutItemInput )
+ returns (output: Result<PutItemOutput, Error>)
+ requires
+ && ValidInternalConfig?(config)
+ modifies ModifiesInternalConfig(config)
+ // Dafny will skip type parameters when generating a default decreases clause.
+ decreases ModifiesInternalConfig(config)
+ ensures
+ && ValidInternalConfig?(config)
+ ensures PutItemEnsuresPublicly(input, output)
+
+
+ predicate QueryEnsuresPublicly(input: QueryInput, output: Result<QueryOutput, Error>)
+ // The private method to be refined by the library developer
+
+
+ method Query ( config: InternalConfig,  input: QueryInput )
+ returns (output: Result<QueryOutput, Error>)
+ requires
+ && ValidInternalConfig?(config)
+ modifies ModifiesInternalConfig(config)
+ // Dafny will skip type parameters when generating a default decreases clause.
+ decreases ModifiesInternalConfig(config)
+ ensures
+ && ValidInternalConfig?(config)
+ ensures QueryEnsuresPublicly(input, output)
+
+
+ predicate RestoreTableFromBackupEnsuresPublicly(input: RestoreTableFromBackupInput, output: Result<RestoreTableFromBackupOutput, Error>)
+ // The private method to be refined by the library developer
+
+
+ method RestoreTableFromBackup ( config: InternalConfig,  input: RestoreTableFromBackupInput )
+ returns (output: Result<RestoreTableFromBackupOutput, Error>)
+ requires
+ && ValidInternalConfig?(config)
+ modifies ModifiesInternalConfig(config)
+ // Dafny will skip type parameters when generating a default decreases clause.
+ decreases ModifiesInternalConfig(config)
+ ensures
+ && ValidInternalConfig?(config)
+ ensures RestoreTableFromBackupEnsuresPublicly(input, output)
+
+
+ predicate RestoreTableToPointInTimeEnsuresPublicly(input: RestoreTableToPointInTimeInput, output: Result<RestoreTableToPointInTimeOutput, Error>)
+ // The private method to be refined by the library developer
+
+
+ method RestoreTableToPointInTime ( config: InternalConfig,  input: RestoreTableToPointInTimeInput )
+ returns (output: Result<RestoreTableToPointInTimeOutput, Error>)
+ requires
+ && ValidInternalConfig?(config)
+ modifies ModifiesInternalConfig(config)
+ // Dafny will skip type parameters when generating a default decreases clause.
+ decreases ModifiesInternalConfig(config)
+ ensures
+ && ValidInternalConfig?(config)
+ ensures RestoreTableToPointInTimeEnsuresPublicly(input, output)
+
+
+ predicate ScanEnsuresPublicly(input: ScanInput, output: Result<ScanOutput, Error>)
+ // The private method to be refined by the library developer
+
+
+ method Scan ( config: InternalConfig,  input: ScanInput )
+ returns (output: Result<ScanOutput, Error>)
+ requires
+ && ValidInternalConfig?(config)
+ modifies ModifiesInternalConfig(config)
+ // Dafny will skip type parameters when generating a default decreases clause.
+ decreases ModifiesInternalConfig(config)
+ ensures
+ && ValidInternalConfig?(config)
+ ensures ScanEnsuresPublicly(input, output)
+
+
+ predicate TagResourceEnsuresPublicly(input: TagResourceInput, output: Result<(), Error>)
+ // The private method to be refined by the library developer
+
+
+ method TagResource ( config: InternalConfig,  input: TagResourceInput )
+ returns (output: Result<(), Error>)
+ requires
+ && ValidInternalConfig?(config)
+ modifies ModifiesInternalConfig(config)
+ // Dafny will skip type parameters when generating a default decreases clause.
+ decreases ModifiesInternalConfig(config)
+ ensures
+ && ValidInternalConfig?(config)
+ ensures TagResourceEnsuresPublicly(input, output)
+
+
+ predicate TransactGetItemsEnsuresPublicly(input: TransactGetItemsInput, output: Result<TransactGetItemsOutput, Error>)
+ // The private method to be refined by the library developer
+
+
+ method TransactGetItems ( config: InternalConfig,  input: TransactGetItemsInput )
+ returns (output: Result<TransactGetItemsOutput, Error>)
+ requires
+ && ValidInternalConfig?(config)
+ modifies ModifiesInternalConfig(config)
+ // Dafny will skip type parameters when generating a default decreases clause.
+ decreases ModifiesInternalConfig(config)
+ ensures
+ && ValidInternalConfig?(config)
+ ensures TransactGetItemsEnsuresPublicly(input, output)
+
+
+ predicate TransactWriteItemsEnsuresPublicly(input: TransactWriteItemsInput, output: Result<TransactWriteItemsOutput, Error>)
+ // The private method to be refined by the library developer
+
+
+ method TransactWriteItems ( config: InternalConfig,  input: TransactWriteItemsInput )
+ returns (output: Result<TransactWriteItemsOutput, Error>)
+ requires
+ && ValidInternalConfig?(config)
+ modifies ModifiesInternalConfig(config)
+ // Dafny will skip type parameters when generating a default decreases clause.
+ decreases ModifiesInternalConfig(config)
+ ensures
+ && ValidInternalConfig?(config)
+ ensures TransactWriteItemsEnsuresPublicly(input, output)
+
+
+ predicate UntagResourceEnsuresPublicly(input: UntagResourceInput, output: Result<(), Error>)
+ // The private method to be refined by the library developer
+
+
+ method UntagResource ( config: InternalConfig,  input: UntagResourceInput )
+ returns (output: Result<(), Error>)
+ requires
+ && ValidInternalConfig?(config)
+ modifies ModifiesInternalConfig(config)
+ // Dafny will skip type parameters when generating a default decreases clause.
+ decreases ModifiesInternalConfig(config)
+ ensures
+ && ValidInternalConfig?(config)
+ ensures UntagResourceEnsuresPublicly(input, output)
+
+
+ predicate UpdateContinuousBackupsEnsuresPublicly(input: UpdateContinuousBackupsInput, output: Result<UpdateContinuousBackupsOutput, Error>)
+ // The private method to be refined by the library developer
+
+
+ method UpdateContinuousBackups ( config: InternalConfig,  input: UpdateContinuousBackupsInput )
+ returns (output: Result<UpdateContinuousBackupsOutput, Error>)
+ requires
+ && ValidInternalConfig?(config)
+ modifies ModifiesInternalConfig(config)
+ // Dafny will skip type parameters when generating a default decreases clause.
+ decreases ModifiesInternalConfig(config)
+ ensures
+ && ValidInternalConfig?(config)
+ ensures UpdateContinuousBackupsEnsuresPublicly(input, output)
+
+
+ predicate UpdateContributorInsightsEnsuresPublicly(input: UpdateContributorInsightsInput, output: Result<UpdateContributorInsightsOutput, Error>)
+ // The private method to be refined by the library developer
+
+
+ method UpdateContributorInsights ( config: InternalConfig,  input: UpdateContributorInsightsInput )
+ returns (output: Result<UpdateContributorInsightsOutput, Error>)
+ requires
+ && ValidInternalConfig?(config)
+ modifies ModifiesInternalConfig(config)
+ // Dafny will skip type parameters when generating a default decreases clause.
+ decreases ModifiesInternalConfig(config)
+ ensures
+ && ValidInternalConfig?(config)
+ ensures UpdateContributorInsightsEnsuresPublicly(input, output)
+
+
+ predicate UpdateGlobalTableEnsuresPublicly(input: UpdateGlobalTableInput, output: Result<UpdateGlobalTableOutput, Error>)
+ // The private method to be refined by the library developer
+
+
+ method UpdateGlobalTable ( config: InternalConfig,  input: UpdateGlobalTableInput )
+ returns (output: Result<UpdateGlobalTableOutput, Error>)
+ requires
+ && ValidInternalConfig?(config)
+ modifies ModifiesInternalConfig(config)
+ // Dafny will skip type parameters when generating a default decreases clause.
+ decreases ModifiesInternalConfig(config)
+ ensures
+ && ValidInternalConfig?(config)
+ ensures UpdateGlobalTableEnsuresPublicly(input, output)
+
+
+ predicate UpdateGlobalTableSettingsEnsuresPublicly(input: UpdateGlobalTableSettingsInput, output: Result<UpdateGlobalTableSettingsOutput, Error>)
+ // The private method to be refined by the library developer
+
+
+ method UpdateGlobalTableSettings ( config: InternalConfig,  input: UpdateGlobalTableSettingsInput )
+ returns (output: Result<UpdateGlobalTableSettingsOutput, Error>)
+ requires
+ && ValidInternalConfig?(config)
+ modifies ModifiesInternalConfig(config)
+ // Dafny will skip type parameters when generating a default decreases clause.
+ decreases ModifiesInternalConfig(config)
+ ensures
+ && ValidInternalConfig?(config)
+ ensures UpdateGlobalTableSettingsEnsuresPublicly(input, output)
+
+
+ predicate UpdateItemEnsuresPublicly(input: UpdateItemInput, output: Result<UpdateItemOutput, Error>)
+ // The private method to be refined by the library developer
+
+
+ method UpdateItem ( config: InternalConfig,  input: UpdateItemInput )
+ returns (output: Result<UpdateItemOutput, Error>)
+ requires
+ && ValidInternalConfig?(config)
+ modifies ModifiesInternalConfig(config)
+ // Dafny will skip type parameters when generating a default decreases clause.
+ decreases ModifiesInternalConfig(config)
+ ensures
+ && ValidInternalConfig?(config)
+ ensures UpdateItemEnsuresPublicly(input, output)
+
+
+ predicate UpdateTableEnsuresPublicly(input: UpdateTableInput, output: Result<UpdateTableOutput, Error>)
+ // The private method to be refined by the library developer
+
+
+ method UpdateTable ( config: InternalConfig,  input: UpdateTableInput )
+ returns (output: Result<UpdateTableOutput, Error>)
+ requires
+ && ValidInternalConfig?(config)
+ modifies ModifiesInternalConfig(config)
+ // Dafny will skip type parameters when generating a default decreases clause.
+ decreases ModifiesInternalConfig(config)
+ ensures
+ && ValidInternalConfig?(config)
+ ensures UpdateTableEnsuresPublicly(input, output)
+
+
+ predicate UpdateTableReplicaAutoScalingEnsuresPublicly(input: UpdateTableReplicaAutoScalingInput, output: Result<UpdateTableReplicaAutoScalingOutput, Error>)
+ // The private method to be refined by the library developer
+
+
+ method UpdateTableReplicaAutoScaling ( config: InternalConfig,  input: UpdateTableReplicaAutoScalingInput )
+ returns (output: Result<UpdateTableReplicaAutoScalingOutput, Error>)
+ requires
+ && ValidInternalConfig?(config)
+ modifies ModifiesInternalConfig(config)
+ // Dafny will skip type parameters when generating a default decreases clause.
+ decreases ModifiesInternalConfig(config)
+ ensures
+ && ValidInternalConfig?(config)
+ ensures UpdateTableReplicaAutoScalingEnsuresPublicly(input, output)
+
+
+ predicate UpdateTimeToLiveEnsuresPublicly(input: UpdateTimeToLiveInput, output: Result<UpdateTimeToLiveOutput, Error>)
+ // The private method to be refined by the library developer
+
+
+ method UpdateTimeToLive ( config: InternalConfig,  input: UpdateTimeToLiveInput )
+ returns (output: Result<UpdateTimeToLiveOutput, Error>)
+ requires
+ && ValidInternalConfig?(config)
+ modifies ModifiesInternalConfig(config)
+ // Dafny will skip type parameters when generating a default decreases clause.
+ decreases ModifiesInternalConfig(config)
+ ensures
+ && ValidInternalConfig?(config)
+ ensures UpdateTimeToLiveEnsuresPublicly(input, output)
 }
