@@ -33,6 +33,11 @@ jobs:
         run: |
           cargo +stable install duvet
 
+      # //= aws-encryption-sdk-specification/framework/structures.md#overview
+      # //= type=implication
+      # //# These structures define a group of related fields that MUST hold certain properties.
+      # //# Wherever these structures are referenced in this specification,
+      # //# implementations MUST ensure that all properties of a structure's fields are upheld.
       - name: Run the duvet report
         shell: bash
         run: |

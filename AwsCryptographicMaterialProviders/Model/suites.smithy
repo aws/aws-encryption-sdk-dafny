@@ -57,10 +57,26 @@ namespace aws.cryptography.materialProviders
 ])
 string ESDKAlgorithmSuiteId
 
+//= aws-encryption-sdk-specification/framework/algorithm-suites.md#supported-algorithm-suites-enum
+//= type=implication
+//# The Material Providers Library MUST provide
+//# an ENUM that is the super set of all the [supported library algorithm suites enum](#supported-library-algorithm-suites-enum)
+//# called the Algorithm Suite ENUM.
+//
+//= aws-encryption-sdk-specification/framework/algorithm-suites.md#supported-algorithm-suites-enum
+//= type=implication
+//# This means that different libraries MAY have duplicate Library Algorithm Suite ENUM.
 union AlgorithmSuiteId {
-  ESDK: ESDKAlgorithmSuiteId
+  //= aws-encryption-sdk-specification/framework/algorithm-suites.md#overview
+  //= type=implication
+  //# The algorithm suite defines the behaviors the AWS Encryption SDK MUST follow for cryptographic operations.
+  ESDK: ESDKAlgorithmSuiteId,
+
 }
 
+//= aws-encryption-sdk-specification/framework/algorithm-suites.md#structure
+//= type=implication
+//# The fields described below are REQUIRED to be specified by algorithm suites, unless otherwise specified.
 structure AlgorithmSuiteInfo {
   @required
   id: AlgorithmSuiteId,
@@ -79,6 +95,10 @@ structure AlgorithmSuiteInfo {
 }
  
 union Encrypt {
+  //= aws-encryption-sdk-specification/framework/algorithm-suites.md#gcm
+  //= type=implication
+  //# If specified to use GCM, the AWS Encryption SDK MUST use GCM with the following specifics:
+  //# - The internal block cipher is the encryption algorithm specified by the algorithm suite.
   AES_GCM: aws.cryptography.primitives#AES_GCM,
 }
 
@@ -94,6 +114,9 @@ union DerivationAlgorithm {
   None: None,
 }
 
+//= aws-encryption-sdk-specification/framework/algorithm-suites.md#signature-algorithm
+//= type=implication
+//# This field is OPTIONAL.
 union SignatureAlgorithm {
   ECDSA: ECDSA,
   None: None
