@@ -41,6 +41,9 @@ list GrantTokenList {
 /////////////////////
 // Keyring Operations
 
+//= aws-encryption-sdk-specification/framework/keyring-interface.md#onencrypt
+//= type=implication
+//# This interface MUST take [encryption materials](structures.md#encryption-materials) as input.
 operation OnEncrypt {
   input: OnEncryptInput,
   output: OnEncryptOutput,
@@ -56,6 +59,10 @@ structure OnEncryptOutput {
   materials: EncryptionMaterials
 }
 
+//= aws-encryption-sdk-specification/framework/keyring-interface.md#ondecrypt
+//= type=implication
+//# This interface MUST take [decryption materials](structures.md#decryption-materials) and
+//# a list of [encrypted data keys](structures.md#encrypted-data-key) as input.
 operation OnDecrypt {
   input: OnDecryptInput,
   output: OnDecryptOutput,

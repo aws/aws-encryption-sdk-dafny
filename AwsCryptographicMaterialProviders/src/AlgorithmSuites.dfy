@@ -469,5 +469,25 @@ module AlgorithmSuites {
     Wrappers.Success(AlgorithmSuiteInfoByBinaryId[binaryId?])
   }
 
+  //= aws-encryption-sdk-specification/framework/algorithm-suites.md#supported-algorithm-suites
+  //= type=implication
+  //# The value `00 00` is reserved
+  //# and MUST NOT be used
+  //# as an Algorithm Suite ID in the future.
+  lemma ReservedAlgorithmSuiteId(a: AlgorithmSuite)
+    ensures a.binaryId != [0x00, 0x00]
+  {}
+
+  //= aws-encryption-sdk-specification/framework/algorithm-suites.md#supported-algorithm-suites
+  //= type=implication
+  //# Algorithm Suite ID MUST be a unique hex value across all [supported algorithm suites](#supported-algorithm-suites).
+  //
+  //= aws-encryption-sdk-specification/framework/algorithm-suites.md#algorithm-suite-id
+  //= type=implication
+  //# A 2-byte hex value that MUST uniquely identify an algorithm suite.
+  lemma AlgorithmSuiteIdIsUnique(a: AlgorithmSuite, b: AlgorithmSuite)
+    requires a.id != b.id
+    ensures a.binaryId != b.binaryId
+  {}
 
 }
