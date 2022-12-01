@@ -29,7 +29,6 @@
     <ItemGroup>
         <ProjectReference Include="..\..\..\AwsCryptographyPrimitives\runtimes\net\Crypto.csproj" />
         <ProjectReference Include="..\..\..\ComAmazonawsKms\runtimes\net\AWS-KMS.csproj" />
-        <ProjectReference Include="..\..\..\ComAmazonawsDynamodb\runtimes\net\ComAmazonawsDynamodb.csproj" />
     </ItemGroup>
 
     <!--

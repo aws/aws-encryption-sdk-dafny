@@ -35,13 +35,16 @@ cd "$POLYMORPH_ROOT"
 
 # Generate code from AWS DDB SDK
 # TODO generate .NET code
-./gradlew run --args="\
-    --output-dafny \
-    --include-dafny $DAFNY_ROOT/StandardLibrary/src/Index.dfy \
-    --model $ComAmazonawsDynamodb_ROOT/Model \
-    --dependent-model $DAFNY_ROOT/model \
-    --namespace com.amazonaws.dynamodb \
-    --aws-sdk"
+# TODO the generated Dafny code requires some manual updates,
+# Documented at ComAmazonawsDynamodb/README.md
+#
+# ./gradlew run --args="\
+#     --output-dafny \
+#     --include-dafny $DAFNY_ROOT/StandardLibrary/src/Index.dfy \
+#     --model $ComAmazonawsDynamodb_ROOT/Model \
+#     --dependent-model $DAFNY_ROOT/model \
+#     --namespace com.amazonaws.dynamodb \
+#     --aws-sdk"
 
 # Generate code for cryptographic primitives
 ./gradlew run --args="\
