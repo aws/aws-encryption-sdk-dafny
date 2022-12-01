@@ -23,7 +23,6 @@ service AwsCryptographicMaterialProviders {
     CreateAwsKmsMrkMultiKeyring,
     CreateAwsKmsMrkDiscoveryKeyring,
     CreateAwsKmsMrkDiscoveryMultiKeyring,
-    CreateAwsKmsHierarchicalKeyring,
     CreateMultiKeyring,
     CreateRawAesKeyring,
     CreateRawRsaKeyring,
