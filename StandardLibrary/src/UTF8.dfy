@@ -25,6 +25,9 @@ module {:extern "UTF8"} UTF8 {
   function method {:extern "Encode"} Encode(s: string): (res: Result<ValidUTF8Bytes, string>)
     // US-ASCII only needs a single UTF-8 byte per character
     ensures IsASCIIString(s) ==> res.Success? && |res.value| == |s|
+    // The following MUST be true for any correct implementation of Encode
+    // If it weren't, then data would be lost.
+    ensures res.Success? ==> Decode(res.value).Success? && Decode(res.value).value == s
 
   // Decode return a Result, therefore doesn't need to require utf8 input
   function method {:extern "Decode"} Decode(b: seq<uint8>): (res: Result<string, string>)
