@@ -12,11 +12,11 @@ module AlgorithmSuites {
   predicate method SupportedESDKEncrypt?(e: Encrypt) {
     && e.AES_GCM?
     && (
-      || e.AwsCryptographyPrimitivesTypesAES_GCM.keyLength == 32
-      || e.AwsCryptographyPrimitivesTypesAES_GCM.keyLength == 24
-      || e.AwsCryptographyPrimitivesTypesAES_GCM.keyLength == 16)
-    && e.AwsCryptographyPrimitivesTypesAES_GCM.tagLength == 16
-    && e.AwsCryptographyPrimitivesTypesAES_GCM.ivLength == 12
+      || e.AES_GCM.keyLength == 32
+      || e.AES_GCM.keyLength == 24
+      || e.AES_GCM.keyLength == 16)
+    && e.AES_GCM.tagLength == 16
+    && e.AES_GCM.ivLength == 12
   }
 
   predicate method KeyDerivationAlgorithm?(kdf: DerivationAlgorithm) {
@@ -60,7 +60,7 @@ module AlgorithmSuites {
 
     // If there is a KDF, the output length MUST match the encrypt length
     && (a.kdf.HKDF? ==> 
-      && a.kdf.HKDF.outputKeyLength == a.encrypt.AwsCryptographyPrimitivesTypesAES_GCM.keyLength)
+      && a.kdf.HKDF.outputKeyLength == a.encrypt.AES_GCM.keyLength)
     // If there is a signature, there MUST be a KDF
     && (a.signature.ECDSA? ==> a.kdf.HKDF?)
     // If there is commitment, the KDF MUST match
@@ -69,14 +69,14 @@ module AlgorithmSuites {
       && a.commitment == a.kdf)
     // If there is a KDF and no commitment then salt MUST be 0
     && (a.kdf.HKDF? && a.commitment.None? ==> a.kdf.HKDF.saltLength == 0)
-    && match a.id.ESDKAlgorithmSuiteId
+    && match a.id.ESDK
       // Legacy non-KDF suites
 
       case ALG_AES_128_GCM_IV12_TAG16_NO_KDF() =>
         && a.binaryId == [0x00, 0x14]
         && a.messageVersion == 1
         && a.encrypt.AES_GCM?
-        && a.encrypt.AwsCryptographyPrimitivesTypesAES_GCM.keyLength == 16
+        && a.encrypt.AES_GCM.keyLength == 16
         && a.kdf.IDENTITY?
         && a.signature.None?
         && a.commitment.None?
@@ -84,7 +84,7 @@ module AlgorithmSuites {
         && a.binaryId == [0x00, 0x46]
         && a.messageVersion == 1
         && a.encrypt.AES_GCM?
-        && a.encrypt.AwsCryptographyPrimitivesTypesAES_GCM.keyLength == 24
+        && a.encrypt.AES_GCM.keyLength == 24
         && a.kdf.IDENTITY?
         && a.signature.None?
         && a.commitment.None?
@@ -92,7 +92,7 @@ module AlgorithmSuites {
         && a.binaryId == [0x00, 0x78]
         && a.messageVersion == 1
         && a.encrypt.AES_GCM?
-        && a.encrypt.AwsCryptographyPrimitivesTypesAES_GCM.keyLength == 32
+        && a.encrypt.AES_GCM.keyLength == 32
         && a.kdf.IDENTITY?
         && a.signature.None?
         && a.commitment.None?
@@ -103,7 +103,7 @@ module AlgorithmSuites {
         && a.binaryId == [0x01, 0x14]
         && a.messageVersion == 1
         && a.encrypt.AES_GCM?
-        && a.encrypt.AwsCryptographyPrimitivesTypesAES_GCM.keyLength == 16
+        && a.encrypt.AES_GCM.keyLength == 16
         && a.kdf.HKDF?
         && a.kdf.HKDF.hmac == AwsCryptographyPrimitivesTypes.SHA_256
         && a.signature.None?
@@ -112,7 +112,7 @@ module AlgorithmSuites {
         && a.binaryId == [0x01, 0x46]
         && a.messageVersion == 1
         && a.encrypt.AES_GCM?
-        && a.encrypt.AwsCryptographyPrimitivesTypesAES_GCM.keyLength == 24
+        && a.encrypt.AES_GCM.keyLength == 24
         && a.kdf.HKDF?
         && a.kdf.HKDF.hmac == AwsCryptographyPrimitivesTypes.SHA_256
         && a.signature.None?
@@ -121,7 +121,7 @@ module AlgorithmSuites {
         && a.binaryId == [0x01, 0x78]
         && a.messageVersion == 1
         && a.encrypt.AES_GCM?
-        && a.encrypt.AwsCryptographyPrimitivesTypesAES_GCM.keyLength == 32
+        && a.encrypt.AES_GCM.keyLength == 32
         && a.kdf.HKDF?
         && a.kdf.HKDF.hmac == AwsCryptographyPrimitivesTypes.SHA_256
         && a.signature.None?
@@ -133,7 +133,7 @@ module AlgorithmSuites {
         && a.binaryId == [0x02, 0x14]
         && a.messageVersion == 1
         && a.encrypt.AES_GCM?
-        && a.encrypt.AwsCryptographyPrimitivesTypesAES_GCM.keyLength == 16
+        && a.encrypt.AES_GCM.keyLength == 16
         && a.kdf.HKDF?
         && a.kdf.HKDF.hmac == AwsCryptographyPrimitivesTypes.SHA_256
         && a.signature.ECDSA?
@@ -143,7 +143,7 @@ module AlgorithmSuites {
         && a.binaryId == [0x03, 0x46]
         && a.messageVersion == 1
         && a.encrypt.AES_GCM?
-        && a.encrypt.AwsCryptographyPrimitivesTypesAES_GCM.keyLength == 24
+        && a.encrypt.AES_GCM.keyLength == 24
         && a.kdf.HKDF?
         && a.kdf.HKDF.hmac == AwsCryptographyPrimitivesTypes.SHA_384
         && a.signature.ECDSA?
@@ -153,7 +153,7 @@ module AlgorithmSuites {
         && a.binaryId == [0x03, 0x78]
         && a.messageVersion == 1
         && a.encrypt.AES_GCM?
-        && a.encrypt.AwsCryptographyPrimitivesTypesAES_GCM.keyLength == 32
+        && a.encrypt.AES_GCM.keyLength == 32
         && a.kdf.HKDF?
         && a.kdf.HKDF.hmac == AwsCryptographyPrimitivesTypes.SHA_384
         && a.signature.ECDSA?
@@ -166,7 +166,7 @@ module AlgorithmSuites {
         && a.binaryId == [0x04, 0x78]
         && a.messageVersion == 2
         && a.encrypt.AES_GCM?
-        && a.encrypt.AwsCryptographyPrimitivesTypesAES_GCM.keyLength == 32
+        && a.encrypt.AES_GCM.keyLength == 32
         && a.kdf.HKDF?
         && a.kdf.HKDF.hmac == AwsCryptographyPrimitivesTypes.SHA_512
         && a.signature.None?
@@ -175,7 +175,7 @@ module AlgorithmSuites {
         && a.binaryId == [0x05, 0x78]
         && a.messageVersion == 2
         && a.encrypt.AES_GCM?
-        && a.encrypt.AwsCryptographyPrimitivesTypesAES_GCM.keyLength == 32
+        && a.encrypt.AES_GCM.keyLength == 32
         && a.kdf.HKDF?
         && a.kdf.HKDF.hmac == AwsCryptographyPrimitivesTypes.SHA_512
         && a.signature.ECDSA?
@@ -413,7 +413,7 @@ module AlgorithmSuites {
     (res: AlgorithmSuite)
     ensures
     && res.id.ESDK?
-    && res.id.ESDKAlgorithmSuiteId == id
+    && res.id.ESDK == id
   {
     LemmaSupportedESDKAlgorithmSuitesIsComplete(id);
     SupportedESDKAlgorithmSuites[id]
@@ -422,11 +422,11 @@ module AlgorithmSuites {
   lemma LemmaESDKAlgorithmSuiteIdImpliesEquality(id: ESDKAlgorithmSuiteId, suite: AlgorithmSuite)
     requires 
     && suite.id.ESDK?
-    && id == suite.id.ESDKAlgorithmSuiteId
+    && id == suite.id.ESDK
     ensures GetESDKSuite(id) == suite
   {
     if GetESDKSuite(id) != suite {
-      assert GetESDKSuite(id).encrypt.AwsCryptographyPrimitivesTypesAES_GCM.keyLength == suite.encrypt.AwsCryptographyPrimitivesTypesAES_GCM.keyLength;
+      assert GetESDKSuite(id).encrypt.AES_GCM.keyLength == suite.encrypt.AES_GCM.keyLength;
     }
   }
 

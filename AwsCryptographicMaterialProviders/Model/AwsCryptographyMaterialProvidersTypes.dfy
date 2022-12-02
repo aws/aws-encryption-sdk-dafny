@@ -23,7 +23,7 @@ include "../../StandardLibrary/src/Index.dfy"
 	| ALG_AES192_GCM_IV12_TAG16
 	| ALG_AES256_GCM_IV12_TAG16
  datatype AlgorithmSuiteId =
- | ESDK(ESDKAlgorithmSuiteId: ESDKAlgorithmSuiteId)
+ | ESDK(ESDK: ESDKAlgorithmSuiteId)
  datatype AlgorithmSuiteInfo = | AlgorithmSuiteInfo (
  nameonly id: AlgorithmSuiteId ,
  nameonly binaryId: seq<uint8> ,
@@ -555,7 +555,7 @@ include "../../StandardLibrary/src/Index.dfy"
  
 }
  datatype CommitmentPolicy =
- | ESDK(ESDKCommitmentPolicy: ESDKCommitmentPolicy)
+ | ESDK(ESDK: ESDKCommitmentPolicy)
  datatype CreateAwsKmsDiscoveryKeyringInput = | CreateAwsKmsDiscoveryKeyringInput (
  nameonly kmsClient: ComAmazonawsKmsTypes.IKeyManagementServiceClient ,
  nameonly discoveryFilter: Option<DiscoveryFilter> ,
@@ -748,7 +748,7 @@ include "../../StandardLibrary/src/Index.dfy"
  nameonly curve: AwsCryptographyPrimitivesTypes.ECDSASignatureAlgorithm
  )
  datatype Encrypt =
- | AES_GCM(AwsCryptographyPrimitivesTypesAES_GCM: AwsCryptographyPrimitivesTypes.AES_GCM)
+ | AES_GCM(AES_GCM: AwsCryptographyPrimitivesTypes.AES_GCM)
  datatype EncryptedDataKey = | EncryptedDataKey (
  nameonly keyProviderId: Utf8Bytes ,
  nameonly keyProviderInfo: seq<uint8> ,

@@ -332,8 +332,10 @@ using System.Linq; namespace AWS.Cryptography.MaterialProviders {
  return new Dafny.Aws.Cryptography.MaterialProviders.Types.MaterialProvidersConfig (  ) ;
 }
  public static AWS.Cryptography.MaterialProviders.AlgorithmSuiteId FromDafny_N3_aws__N12_cryptography__N17_materialProviders__S16_AlgorithmSuiteId (Dafny.Aws.Cryptography.MaterialProviders.Types._IAlgorithmSuiteId value) {
- Dafny.Aws.Cryptography.MaterialProviders.Types.AlgorithmSuiteId concrete = (Dafny.Aws.Cryptography.MaterialProviders.Types.AlgorithmSuiteId)value; var converted = new AWS.Cryptography.MaterialProviders.AlgorithmSuiteId(); if (value.is_ESDK) {
- converted.ESDK = FromDafny_N3_aws__N12_cryptography__N17_materialProviders__S16_AlgorithmSuiteId__M4_ESDK(concrete.dtor_ESDKAlgorithmSuiteId);
+ Dafny.Aws.Cryptography.MaterialProviders.Types.AlgorithmSuiteId concrete = (Dafny.Aws.Cryptography.MaterialProviders.Types.AlgorithmSuiteId)value;
+ var converted = new AWS.Cryptography.MaterialProviders.AlgorithmSuiteId();
+ if (value.is_ESDK) {
+   converted.ESDK = FromDafny_N3_aws__N12_cryptography__N17_materialProviders__S16_AlgorithmSuiteId__M4_ESDK(concrete.dtor_ESDK);
  return converted;
 }
 throw new System.ArgumentException("Invalid AWS.Cryptography.MaterialProviders.AlgorithmSuiteId state");
@@ -386,8 +388,9 @@ throw new System.ArgumentException("Invalid AWS.Cryptography.MaterialProviders.S
 throw new System.ArgumentException("Invalid AWS.Cryptography.MaterialProviders.SignatureAlgorithm state");
 }
  public static AWS.Cryptography.MaterialProviders.CommitmentPolicy FromDafny_N3_aws__N12_cryptography__N17_materialProviders__S16_CommitmentPolicy (Dafny.Aws.Cryptography.MaterialProviders.Types._ICommitmentPolicy value) {
- Dafny.Aws.Cryptography.MaterialProviders.Types.CommitmentPolicy concrete = (Dafny.Aws.Cryptography.MaterialProviders.Types.CommitmentPolicy)value; var converted = new AWS.Cryptography.MaterialProviders.CommitmentPolicy(); if (value.is_ESDK) {
- converted.ESDK = FromDafny_N3_aws__N12_cryptography__N17_materialProviders__S16_CommitmentPolicy__M4_ESDK(concrete.dtor_ESDKCommitmentPolicy);
+ Dafny.Aws.Cryptography.MaterialProviders.Types.CommitmentPolicy concrete = (Dafny.Aws.Cryptography.MaterialProviders.Types.CommitmentPolicy)value;
+ var converted = new AWS.Cryptography.MaterialProviders.CommitmentPolicy(); if (value.is_ESDK) {
+ converted.ESDK = FromDafny_N3_aws__N12_cryptography__N17_materialProviders__S16_CommitmentPolicy__M4_ESDK(concrete.dtor_ESDK);
  return converted;
 }
 throw new System.ArgumentException("Invalid AWS.Cryptography.MaterialProviders.CommitmentPolicy state");
@@ -399,8 +402,9 @@ throw new System.ArgumentException("Invalid AWS.Cryptography.MaterialProviders.C
 throw new System.ArgumentException("Invalid AWS.Cryptography.MaterialProviders.CommitmentPolicy state");
 }
  public static AWS.Cryptography.MaterialProviders.Encrypt FromDafny_N3_aws__N12_cryptography__N17_materialProviders__S7_Encrypt (Dafny.Aws.Cryptography.MaterialProviders.Types._IEncrypt value) {
- Dafny.Aws.Cryptography.MaterialProviders.Types.Encrypt concrete = (Dafny.Aws.Cryptography.MaterialProviders.Types.Encrypt)value; var converted = new AWS.Cryptography.MaterialProviders.Encrypt(); if (value.is_AES__GCM) {
- converted.AES__GCM = FromDafny_N3_aws__N12_cryptography__N17_materialProviders__S7_Encrypt__M7_AES_GCM(concrete.dtor_AwsCryptographyPrimitivesTypesAES__GCM);
+ Dafny.Aws.Cryptography.MaterialProviders.Types.Encrypt concrete = (Dafny.Aws.Cryptography.MaterialProviders.Types.Encrypt)value;
+ var converted = new AWS.Cryptography.MaterialProviders.Encrypt(); if (value.is_AES__GCM) {
+ converted.AES__GCM = FromDafny_N3_aws__N12_cryptography__N17_materialProviders__S7_Encrypt__M7_AES_GCM(concrete.dtor_AES__GCM);
  return converted;
 }
 throw new System.ArgumentException("Invalid AWS.Cryptography.MaterialProviders.Encrypt state");
