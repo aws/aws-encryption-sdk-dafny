@@ -2,6 +2,7 @@
 # SPDX-License-Identifier: Apache-2.0
 
 CORES=2
+POLYMORPH_ROOT="../../polymorph/smithy-polymorph"
 
 verify:
 	dafny \
@@ -31,3 +32,33 @@ compile_implementation_net:
 		-useRuntimeLib \
 		-out runtimes/net/ImplementationFromDafny \
 		./src/Index.dfy
+
+setup_net:
+	dotnet restore runtimes/net/
+
+compile_java: compile_implementation_java
+
+compile_implementation_java: | _clean_implementation_java _compile_implementation_java _mv_implementation_java
+
+_clean_implementation_java:
+	rm -rf runtimes/java/temp/StandardLibrary-java/* && \
+	rm -rf runtimes/java/src/main/dafny-generated/*
+
+_compile_implementation_java:
+	dafny \
+		-vcsCores:$(CORES) \
+		-compileTarget:java \
+		-spillTargetCode:3 \
+		-compile:0 \
+		-useRuntimeLib \
+		-out runtimes/java/temp/StandardLibrary \
+		./src/Index.dfy
+
+_mv_implementation_java:
+	./runtimes/java/makefile_helper.sh implementation
+
+setup_java:
+	gradle -p runtimes/java assemble
+
+mvn_local_deploy: compile_java
+	gradle -p runtimes/java publishToMavenLocal
