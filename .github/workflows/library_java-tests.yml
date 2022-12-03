@@ -13,7 +13,7 @@ jobs:
       matrix:
         library: [
           AwsCryptographyPrimitives,
-          #ComAmazonawsKms,
+          ComAmazonawsKms,
           #AwsCryptographicMaterialProviders
         ]
         java-version: [ 8, 11, 16, 17 ]
@@ -28,6 +28,13 @@ jobs:
       id-token: write
       contents: read
     steps:
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-region: us-west-2
+          role-to-assume: arn:aws:iam::405437749609:role/Github-OICD-for-private-aws-encryption-sdk-da-Role-15BEGAP519YZV
+          role-session-name: NetTests
+
       - uses: actions/checkout@v3
       # The specification submodule is private so we don't have access, but we don't need
       # it to verify the Dafny code. Instead we manually pull the submodule we DO need.
@@ -36,7 +43,7 @@ jobs:
       - name: Setup Dafny
         uses: dafny-lang/setup-dafny-action@v1.4.0
         with:
-          dafny-version: "3.9.1"
+          dafny-version: "nightly-2022-12-02-edab6cc"
 
       - name: Setup Java ${{ matrix.java-version }}
         uses: actions/setup-java@v3
@@ -45,16 +52,16 @@ jobs:
           java-version: ${{ matrix.java-version }}
 
       # Java DafnyRuntime is not published to maven,
-      # so manually download the 3.9.1 release and grab it from there.
+      # so manually download a nightly build for 3.10.0 and grab it from there.
       - name: Locally Cache Java DafnyRuntime
         run: |
-          wget https://github.com/dafny-lang/dafny/releases/download/v3.9.1/dafny-3.9.1-x64-osx-10.14.2.zip 
-          unzip dafny-3.9.1-x64-osx-10.14.2.zip
+          wget https://github.com/dafny-lang/dafny/releases/download/nightly/dafny-nightly-2022-12-02-edab6cc-x64-osx-10.14.2.zip 
+          unzip dafny-nightly-2022-12-02-edab6cc-x64-osx-10.14.2.zip 
           mvn install:install-file \
           -Dfile=dafny/DafnyRuntime.jar \
           -DgroupId=dafny.lang \
           -DartifactId=DafnyRuntime \
-          -Dversion=3.9.1 \
+          -Dversion=3.10.0 \
           -DgeneratePom=true \
           -Dpackaging=jar
 
@@ -67,13 +74,6 @@ jobs:
           make compile_java CORES=$CORES
 
       # Currently tests do not pass.
-      # We also cannot just test the build of the tests
-      # because the test runner does not catch errors
-      # coming from our Externs. This means that NPEs
-      # due to our unimplemented Externs causes
-      # the test runner to halt instead of report
-      # test failures.
-      #
       # - name: Test ${{ matrix.library }}
       #  working-directory: ./${{ matrix.library }}
       #  shell: bash

@@ -5,7 +5,7 @@ plugins {
 
 group = "software.amazon.cryptography"
 version = "1.0-SNAPSHOT"
-description = "AwsCryptographyPrimitives"
+description = "ComAmazonawsKms"
 
 java {
     toolchain.languageVersion.set(JavaLanguageVersion.of(8))
@@ -27,12 +27,13 @@ repositories {
 dependencies {
     implementation("dafny.lang:DafnyRuntime:3.10.0")
     implementation("software.amazon.cryptography:StandardLibrary:1.0-SNAPSHOT")
+    implementation("com.amazonaws:aws-java-sdk:1.12.347")
 }
 
 publishing {
     publications.create<MavenPublication>("maven") {
         groupId = "software.amazon.cryptography"
-        artifactId = "AwsCryptographyPrimitives"
+        artifactId = "ComAmazonawsKms"
         from(components["java"])
     }
     repositories { mavenLocal() }
@@ -42,9 +43,13 @@ tasks.withType<JavaCompile>() {
     options.encoding = "UTF-8"
 }
 
+tasks.withType<Wrapper>() {
+    gradleVersion = "7.6"
+}
+
 tasks {
     register("runTests", JavaExec::class.java) {
-        mainClass.set("AwsCryptographyPrimitivesTests")
+        mainClass.set("ComAmazonawsKmsTests")
         classpath = sourceSets["test"].runtimeClasspath
     }
 }

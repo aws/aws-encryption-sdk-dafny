@@ -52,14 +52,14 @@ compile_net_dependencies:
 	$(MAKE) -C ../ComAmazonawsKms compile_implementation_net
 
 test_net:
-	@exit $(shell dotnet run \
+	dotnet run \
 		--project runtimes/net/tests/ \
-		--framework net6.0 | tee /dev/stderr | grep -c "FAILED")
+		--framework net6.0
 
 test_net_mac_intel:
-	@exit $(shell DYLD_LIBRARY_PATH="/usr/local/opt/openssl@1.1/lib" dotnet run \
+	DYLD_LIBRARY_PATH="/usr/local/opt/openssl@1.1/lib" dotnet run \
 		--project runtimes/net/tests/ \
-		--framework net6.0 | tee /dev/stderr | grep -c "FAILED")
+		--framework net6.0
 
 setup_net:
 	dotnet restore runtimes/net/

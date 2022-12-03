@@ -21,7 +21,7 @@ repositories {
 }
 
 dependencies {
-    implementation("dafny.lang:DafnyRuntime:3.9.1")
+    implementation("dafny.lang:DafnyRuntime:3.10.0")
 }
 publishing {
     publications.create<MavenPublication>("maven") {
