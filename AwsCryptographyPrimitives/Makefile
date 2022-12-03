@@ -48,14 +48,14 @@ compile_net_dependencies:
 	$(MAKE) -C ../StandardLibrary compile_implementation_net
 
 test_net:
-	@exit $(shell dotnet run \
+	dotnet run \
 		--project runtimes/net/tests/ \
-		--framework net6.0 | tee /dev/stderr | grep -c "FAILED")
+		--framework net6.0
 
 test_net_mac_intel:
-	@exit $(shell DYLD_LIBRARY_PATH="/usr/local/opt/openssl@1.1/lib" dotnet run \
+	DYLD_LIBRARY_PATH="/usr/local/opt/openssl@1.1/lib" dotnet run \
 		--project runtimes/net/tests/ \
-		--framework net6.0 | tee /dev/stderr | grep -c "FAILED")
+		--framework net6.0
 
 setup_net:
 	dotnet restore runtimes/net/
@@ -105,5 +105,4 @@ compile_java_dependencies:
 	$(MAKE) -C ../StandardLibrary mvn_local_deploy
 
 test_java:
-	@exit $(shell gradle -p runtimes/java runTests \
-		| tee /dev/stderr | grep -c "FAILED")
+	gradle -p runtimes/java runTests
