@@ -37,7 +37,6 @@ module Streams {
       ensures n == 0 ==> elems == []
       ensures n > 0 ==> elems == data[old(pos)..][..n]
       ensures pos == old(pos) + n
-      ensures data == old(data)
       ensures Valid()
     {
       elems := data[pos..][..n];
@@ -54,7 +53,6 @@ module Streams {
       ensures res.Success? ==> res.value == data[old(pos)..old(pos) + n]
       ensures res.Failure? ==> n > |data| - pos
       ensures res.Failure? ==> pos == old(pos)
-      ensures data == old(data)
       ensures Valid()
     {
       if n > |data| - pos {
@@ -94,9 +92,8 @@ module Streams {
       ensures res.Failure? ==> |reader.data| - reader.pos < 1
       ensures res.Failure? ==> unchanged(reader)
       ensures res.Success? ==> reader.pos == old(reader.pos) + 1
-      ensures old(reader.pos) + 1 <= |old(reader.data)| <==> res.Success?
+      ensures old(reader.pos) + 1 <= |reader.data| <==> res.Success?
       ensures res.Success? ==> res.value == reader.data[old(reader.pos)]
-      ensures reader.data == old(reader.data)
       ensures Valid()
     {
       var bytes :- reader.ReadExact(1);
@@ -112,9 +109,8 @@ module Streams {
       ensures res.Success? ==> |res.value| == n
       ensures res.Success? && |res.value| == 0 ==> unchanged(reader)
       ensures res.Success? ==> reader.pos == old(reader.pos) + n
-      ensures old(reader.pos) + n <= |old(reader.data)| <==> res.Success?
+      ensures old(reader.pos) + n <= |reader.data| <==> res.Success?
       ensures res.Success? ==> res.value == reader.data[old(reader.pos)..old(reader.pos) + n]
-      ensures reader.data == old(reader.data)
       ensures Valid()
     {
       var bytes :- reader.ReadExact(n);
@@ -128,9 +124,8 @@ module Streams {
       ensures res.Failure? ==> |reader.data| - reader.pos < 2
       ensures res.Failure? ==> unchanged(reader)
       ensures res.Success? ==> reader.pos == old(reader.pos) + 2
-      ensures old(reader.pos) + 2 <= |old(reader.data)| <==> res.Success?
+      ensures old(reader.pos) + 2 <= |reader.data| <==> res.Success?
       ensures res.Success? ==> res.value == SeqToUInt16(reader.data[old(reader.pos)..old(reader.pos) + 2])
-      ensures reader.data == old(reader.data)
       ensures Valid()
     {
       var bytes :- reader.ReadExact(2);
@@ -161,9 +156,8 @@ module Streams {
       ensures res.Failure? ==> |reader.data| - reader.pos < 8
       ensures res.Failure? ==> unchanged(reader)
       ensures res.Success? ==> reader.pos == old(reader.pos) + 8
-      ensures old(reader.pos) + 8 <= |old(reader.data)| <==> res.Success?
+      ensures old(reader.pos) + 8 <= |reader.data| <==> res.Success?
       ensures res.Success? ==> res.value == SeqToUInt64(reader.data[old(reader.pos)..old(reader.pos) + 8])
-      ensures reader.data == old(reader.data)
       ensures Valid()
     {
       var bytes :- reader.ReadExact(8);
