@@ -110,7 +110,7 @@ module Actions {
     ensures
       forall i ::
         && 0 <= i < |s|
-      ==>
+        ==>
         action.Ensures(s[i], res[i])
   {
     var rs := [];
@@ -118,7 +118,7 @@ module Actions {
       invariant |s[..i]| == |rs|
       invariant forall j ::
         && 0 <= j < i
-      ==>
+        ==>
         action.Ensures(s[j], rs[j])
     {
       var r := action.Invoke(s[i]);
@@ -144,7 +144,7 @@ module Actions {
     ==>
         (forall i ::
           && 0 <= i < |s|
-        ==>
+          ==>
           action.Ensures(s[i], Success(res.value[i])))
   {
     var rs := [];
@@ -152,7 +152,7 @@ module Actions {
       invariant |s[..i]| == |rs|
       invariant forall j ::
         && 0 <= j < i
-      ==>
+        ==>
         action.Ensures(s[j], Success(rs[j]))
     {
       var r :- action.Invoke(s[i]);
@@ -174,9 +174,10 @@ module Actions {
     returns (res: seq<R>)
     ensures
       forall i :: i in s
-      ==>
-        && exists fm :: action.Ensures(i, fm)
-        && forall k | k in fm :: k in res
+        ==>
+        && exists fm ::
+          && action.Ensures(i, fm)
+          && forall k | k in fm :: k in res
   {
     ghost var parts := [];
     var rs := [];
@@ -184,7 +185,7 @@ module Actions {
       invariant |s[..i]| == |parts|
       invariant forall j ::
         && 0 <= j < i
-      ==>
+        ==>
         && action.Ensures(s[j], parts[j])
         && forall b | b in parts[j] :: b in rs
     {
@@ -212,11 +213,11 @@ module Actions {
     ==>
       && |s| == |parts|
       && res.value == Flatten(parts)
-      && (forall i :: 0 <= i < |s|
-      ==>
-        && action.Ensures(s[i], Success(parts[i]))
-        && multiset(parts[i]) <= multiset(res.value)
-      )
+      && (
+        forall i :: 0 <= i < |s|
+          ==>
+          && action.Ensures(s[i], Success(parts[i]))
+          && multiset(parts[i]) <= multiset(res.value))
   {
     parts := [];
     var rs := [];
@@ -224,7 +225,7 @@ module Actions {
       invariant |s[..i]| == |parts|
       invariant forall j ::
         && 0 <= j < i
-      ==>
+        ==>
         && action.Ensures(s[j], Success(parts[j]))
         && multiset(parts[j]) <= multiset(rs)
       invariant Flatten(parts) == rs
@@ -251,7 +252,7 @@ module Actions {
     ensures
       forall j ::
         j in res
-      ==>
+        ==>
         && j in s
         && action.Ensures(j, true)
   {
@@ -260,7 +261,7 @@ module Actions {
       invariant |s[..i]| >= |rs|
       invariant forall j ::
         j in rs
-      ==>
+        ==>
         && j in s
         && action.Ensures(j, true)
     {
@@ -286,7 +287,7 @@ module Actions {
       && |s| >= |res.value|
       && forall j ::
         j in res.value
-      ==>
+        ==>
         && j in s
         && action.Ensures(j, Success(true))
   {
@@ -295,7 +296,7 @@ module Actions {
       invariant |s[..i]| >= |rs|
       invariant forall j ::
         j in rs
-      ==>
+        ==>
         && j in s
         && action.Ensures(j, Success(true))
     {
