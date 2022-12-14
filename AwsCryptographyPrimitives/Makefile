@@ -108,5 +108,8 @@ build_java_dependencies:
 build_java: transpile_java build_java_dependencies
 	gradle -p runtimes/java build
 
+mvn_local_deploy: transpile_java
+	gradle -p runtimes/java publishToMavenLocal
+
 test_java:
 	gradle -p runtimes/java runTests
