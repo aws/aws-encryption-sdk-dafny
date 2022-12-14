@@ -37,6 +37,50 @@ module {:extern "UTF8"} UTF8 {
     forall i :: 0 <= i < |s| ==> s[i] as int < 128
   }
 
+  // Encode ASCII as UTF8 in a function, to allow use in ensures clause
+  function method {:opaque} {:tailrecursion} EncodeAscii(s : string) : (ret : ValidUTF8Bytes)
+    requires IsASCIIString(s)
+    ensures |s| == |ret|
+    ensures forall i | 0 <= i < |s| :: s[i] as uint8 == ret[i]
+  {
+    if |s| == 0 then
+      []
+    else
+      var x := [s[0] as uint8];
+      assert ValidUTF8Seq(x);
+      ValidUTF8Concat(x, EncodeAscii(s[1..]));
+      x + EncodeAscii(s[1..])
+  }
+
+  // if ascii strings are different, their encoding is also unique
+  lemma EncodeAsciiUnique2(x : string, y : string)
+    requires IsASCIIString(x) && IsASCIIString(y)
+    requires x != y
+    ensures EncodeAscii(x) != EncodeAscii(y)
+  {
+    reveal EncodeAscii();
+    if EncodeAscii(x) == EncodeAscii(y) {
+      if |EncodeAscii(x)| == 0 && |EncodeAscii(y)| == 0 {
+      } else if EncodeAscii(x)[0] == EncodeAscii(y)[0] {
+        assert EncodeAscii(x)[1..] != EncodeAscii(y)[1..] by {
+          EncodeAsciiUnique2(x[1..], y[1..]);
+        }
+      } else {
+      }
+    }
+  }
+
+  // if ascii strings are different, their encoding is also unique
+  lemma {:opaque} EncodeAsciiUnique()
+    ensures forall x : string, y : string :: IsASCIIString(x) && IsASCIIString(y) && x != y ==> EncodeAscii(x) != EncodeAscii(y)
+  {
+    forall x : string, y : string ensures IsASCIIString(x) && IsASCIIString(y) && x != y ==> EncodeAscii(x) != EncodeAscii(y) {
+        if IsASCIIString(x) && IsASCIIString(y) && x != y {
+            EncodeAsciiUnique2(x, y);
+        }
+    }
+  }
+
   predicate method Uses1Byte(s: seq<uint8>)
     requires |s| >= 1
   {
