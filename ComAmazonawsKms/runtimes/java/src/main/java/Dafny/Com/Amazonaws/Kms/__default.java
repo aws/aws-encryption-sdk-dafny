@@ -11,9 +11,8 @@ import Wrappers_Compile.Option;
 import Wrappers_Compile.Result;
 import dafny.DafnySequence;
 
-// TODO: restore next two lines once software.amazon.dafny.conversion is added
-//import static software.amazon.dafny.conversion.ToDafny.Simple.CharacterSequence;
-//import static software.amazon.dafny.conversion.ToNative.Simple.String;
+import static software.amazon.dafny.conversion.ToDafny.Simple.CharacterSequence;
+import static software.amazon.dafny.conversion.ToNative.Simple.String;
 
 public class __default extends Dafny.Com.Amazonaws.Kms._ExternBase___default{
     public static Result<IKeyManagementServiceClient, Error> KMSClient() {
@@ -24,11 +23,8 @@ public class __default extends Dafny.Com.Amazonaws.Kms._ExternBase___default{
             final IKeyManagementServiceClient client,
             final DafnySequence<? extends Character> region
     ) {
-        // TODO: restore next line once software.amazon.dafny.conversion is added
-        //String regionStr = String(region);
-        // TODO: restore next two lines once Shim is generated and commited
-        // String actualRegion = ((Shim) client).region();
-        // return Option.create_Some(regionStr.equals(actualRegion));
-        return Option.create_None();
+        String regionStr = String(region);
+        String actualRegion = ((Shim) client).region();
+        return Option.create_Some(regionStr.equals(actualRegion));
     }
 }

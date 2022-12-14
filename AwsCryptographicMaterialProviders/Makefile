@@ -19,9 +19,9 @@ dafny-reportgenerator:
 		--max-resource-count 10000000 \
 		TestResults/*.csv
 
-compile_net: | compile_implementation_net compile_test_net compile_net_dependencies
+transpile_net: | transpile_implementation_net transpile_test_net transpile_net_dependencies
 
-compile_implementation_net:
+transpile_implementation_net:
 	dafny \
 		-vcsCores:$(CORES) \
 		-compileTarget:cs \
@@ -34,7 +34,7 @@ compile_implementation_net:
 		-library:../ComAmazonawsKms/src/Index.dfy \
 		-library:../StandardLibrary/src/Index.dfy
 
-compile_test_net:
+transpile_test_net:
 	dafny \
 		-vcsCores:$(CORES) \
 		-compileTarget:cs \
@@ -46,10 +46,10 @@ compile_test_net:
 		`find ./test -name '*.dfy'` \
 		-library:src/Index.dfy
 
-compile_net_dependencies:
-	$(MAKE) -C ../StandardLibrary compile_implementation_net
-	$(MAKE) -C ../AwsCryptographyPrimitives compile_implementation_net
-	$(MAKE) -C ../ComAmazonawsKms compile_implementation_net
+transpile_net_dependencies:
+	$(MAKE) -C ../StandardLibrary transpile_implementation_net
+	$(MAKE) -C ../AwsCryptographyPrimitives transpile_implementation_net
+	$(MAKE) -C ../ComAmazonawsKms transpile_implementation_net
 
 test_net:
 	dotnet run \

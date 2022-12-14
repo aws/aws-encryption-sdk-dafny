@@ -32,13 +32,30 @@ jobs:
         uses: aws-actions/configure-aws-credentials@v1
         with:
           aws-region: us-west-2
-          role-to-assume: arn:aws:iam::405437749609:role/Github-OICD-for-private-aws-encryption-sdk-da-Role-15BEGAP519YZV
-          role-session-name: NetTests
+          # TODO: This role was manually created.
+          role-to-assume: arn:aws:iam::370957321024:role/ESDK-Dafny-Private-CA-Read
+          role-session-name: JavaPrivateESDKDafnyTests
 
       - uses: actions/checkout@v3
       # The specification submodule is private so we don't have access, but we don't need
       # it to verify the Dafny code. Instead we manually pull the submodule we DO need.
       - run: git submodule update --init libraries
+
+      # Set up env vars for CodeArtifact
+      - name: Set Up Env Vars for CodeArtifact
+        run: |
+          export URL=`aws codeartifact get-repository-endpoint \
+            --domain github-polymorph \
+            --domain-owner "370957321024" \
+            --repository DafnyJavaConversion \
+            --format maven | jq -r .repositoryEndpoint`
+          export TOKEN=`aws codeartifact get-authorization-token \
+            --domain github-polymorph \
+            --domain-owner "370957321024" \
+            --query authorizationToken \
+            --output text`
+          echo "CODEARTIFACT_URL_JAVA_CONVERSION=$URL" >> $GITHUB_ENV
+          echo "CODEARTIFACT_AUTH_TOKEN=$TOKEN" >> $GITHUB_ENV
 
       - name: Setup Dafny
         uses: dafny-lang/setup-dafny-action@v1.4.0
@@ -65,17 +82,17 @@ jobs:
           -DgeneratePom=true \
           -Dpackaging=jar
 
-      - name: Compile ${{ matrix.library }} implementation
+      - name: Build ${{ matrix.library }} implementation
         shell: bash
         working-directory: ./${{ matrix.library }}
         run: |
           # This works because `node` is installed by default on GHA runners
           CORES=$(node -e 'console.log(os.cpus().length)')
-          make compile_java CORES=$CORES
+          make build_java CORES=$CORES
 
-      # Currently tests do not pass.
+      # TODO: No tests can run without extern implementations
       # - name: Test ${{ matrix.library }}
-      #  working-directory: ./${{ matrix.library }}
-      #  shell: bash
-      #  run: |
-      #    make test_java
+      #   working-directory: ./${{ matrix.library }}
+      #   shell: bash
+      #   run: |
+      #     make test_java

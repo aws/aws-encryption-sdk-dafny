@@ -55,7 +55,7 @@ jobs:
         run: |
           # This works because `node` is installed by default on GHA runners
           CORES=$(node -e 'console.log(os.cpus().length)')
-          make compile_net CORES=$CORES
+          make transpile_net CORES=$CORES
 
       - name: Test ${{ matrix.library }}
         working-directory: ./${{ matrix.library }}

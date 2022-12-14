@@ -21,9 +21,9 @@ dafny-reportgenerator:
 		--max-resource-count 50000000 \
 		TestResults/*.csv
 
-compile_net: | compile_implementation_net
+transpile_net: | transpile_implementation_net
 
-compile_implementation_net:
+transpile_implementation_net:
 	dafny \
 		-vcsCores:$(CORES) \
 		-compileTarget:cs \
@@ -36,15 +36,15 @@ compile_implementation_net:
 setup_net:
 	dotnet restore runtimes/net/
 
-compile_java: compile_implementation_java
+transpile_java: transpile_implementation_java
 
-compile_implementation_java: | _clean_implementation_java _compile_implementation_java _mv_implementation_java
+transpile_implementation_java: | _clean_implementation_java _transpile_implementation_java _mv_implementation_java
 
 _clean_implementation_java:
 	rm -rf runtimes/java/temp/StandardLibrary-java/* && \
 	rm -rf runtimes/java/src/main/dafny-generated/*
 
-_compile_implementation_java:
+_transpile_implementation_java:
 	dafny \
 		-vcsCores:$(CORES) \
 		-compileTarget:java \
@@ -60,5 +60,8 @@ _mv_implementation_java:
 setup_java:
 	gradle -p runtimes/java assemble
 
-mvn_local_deploy: compile_java
+build_java: transpile_java
+	gradle -p runtimes/java build
+
+mvn_local_deploy: transpile_java
 	gradle -p runtimes/java publishToMavenLocal
