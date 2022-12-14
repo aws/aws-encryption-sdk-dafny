@@ -14,7 +14,7 @@ jobs:
         library: [
           AwsCryptographyPrimitives,
           ComAmazonawsKms,
-          #AwsCryptographicMaterialProviders
+          AwsCryptographicMaterialProviders
         ]
         java-version: [ 8, 11, 16, 17 ]
         os: [

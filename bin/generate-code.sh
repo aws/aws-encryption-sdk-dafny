@@ -62,6 +62,7 @@ cd "$POLYMORPH_ROOT"
     --output-dafny \
     --include-dafny $DAFNY_ROOT/StandardLibrary/src/Index.dfy \
     --output-dotnet $MaterialProviders_ROOT/runtimes/net/Generated/ \
+    --output-java $MaterialProviders_ROOT/runtimes/java/src/main/smithy-generated \
     --model $MaterialProviders_ROOT/Model \
     --dependent-model $ComAmazonawsKms_ROOT/Model \
     --dependent-model $DAFNY_ROOT/model \

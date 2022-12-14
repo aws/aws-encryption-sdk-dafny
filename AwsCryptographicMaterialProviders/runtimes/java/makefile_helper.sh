@@ -2,7 +2,7 @@
 
 if [[ "$1" == "implementation" ]]; then
   mkdir -p runtimes/java/src/main/dafny-generated
-  for directory in runtimes/java/temp/AwsCryptographyPrimitives-java/*; do
+  for directory in runtimes/java/temp/AwsCryptographicMaterialProviders-java/*; do
     mv "$directory" "runtimes/java/src/main/dafny-generated/"
   done
   exit 0
@@ -10,7 +10,7 @@ elif [[ "$1" == "test" ]]; then
   # With the runAllTests flag, dafny generates an entry point for the tests that we want,
   # so we copy all files to the test destination.
   mkdir -p runtimes/java/src/test/dafny-generated
-  for allFiles in runtimes/java/temp-tests/AwsCryptographyPrimitivesTests-java/*; do
+  for allFiles in runtimes/java/temp-tests/AwsCryptographicMaterialProvidersTests-java/*; do
     mv "$allFiles" "runtimes/java/src/test/dafny-generated/"
   done
   exit 0
