@@ -9,4 +9,15 @@ module {:extern "Dafny.Com.Amazonaws.Kms"} Com.Amazonaws.Kms refines AbstractCom
     KMSClientConfigType
   }
 
+  /*
+   * Returns whether the given client is configured to talk to the given region,
+   * or None if the underlying AWS SDK implementation does not support querying the configuration.
+   *
+   * Useful for MRKs where we need to check whether our client can decrypt an MRK.
+   */
+  function method {:extern "RegionMatch"} RegionMatch(
+    client: IKeyManagementServiceClient,
+    region: string
+  ): Option<bool>
+
 }

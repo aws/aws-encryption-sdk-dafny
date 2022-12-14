@@ -42,6 +42,7 @@ module AwsCryptographyMaterialProvidersOperations refines AbstractAwsCryptograph
   import Materials
   import Commitment
   import AlgorithmSuites
+  import Kms = Com.Amazonaws.Kms
 
   datatype Config = Config(
     nameonly crypto: Primitives.AtomicPrimitivesClient
@@ -192,7 +193,7 @@ module AwsCryptographyMaterialProvidersOperations refines AbstractAwsCryptograph
     //= type=implication
     //# The keyring SHOULD fail initialization if the provided region does not match the
     //# region of the KMS client.
-    var regionMatch := AwsKmsUtils.RegionMatch(input.kmsClient, input.region);
+    var regionMatch := Kms.RegionMatch(input.kmsClient, input.region);
     :- Need(regionMatch != Some(false),
       Types.AwsCryptographicMaterialProvidersException(
         message := "Provided client and region do not match"));
