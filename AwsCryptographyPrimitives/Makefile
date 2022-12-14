@@ -19,9 +19,9 @@ dafny-reportgenerator:
 		--max-resource-count 10000000 \
 		TestResults/*.csv
 
-compile_net: | compile_implementation_net compile_test_net compile_net_dependencies
+transpile_net: | transpile_implementation_net transpile_test_net transpile_net_dependencies
 
-compile_implementation_net:
+transpile_implementation_net:
 	dafny \
 		-vcsCores:$(CORES) \
 		-compileTarget:cs \
@@ -32,7 +32,7 @@ compile_implementation_net:
 		./src/Index.dfy \
 		-library:../StandardLibrary/src/Index.dfy
 
-compile_test_net:
+transpile_test_net:
 	dafny \
 		-vcsCores:$(CORES) \
 		-compileTarget:cs \
@@ -44,8 +44,8 @@ compile_test_net:
 		`find ./test -name '*.dfy'` \
 		-library:src/Index.dfy
 
-compile_net_dependencies:
-	$(MAKE) -C ../StandardLibrary compile_implementation_net
+transpile_net_dependencies:
+	$(MAKE) -C ../StandardLibrary transpile_implementation_net
 
 test_net:
 	dotnet run \
@@ -60,14 +60,14 @@ test_net_mac_intel:
 setup_net:
 	dotnet restore runtimes/net/
 
-compile_java: | compile_implementation_java compile_test_java compile_java_dependencies
+transpile_java: | transpile_implementation_java transpile_test_java
 
-compile_implementation_java: | _clean_implementation_java _compile_implementation_java _mv_implementation_java
+transpile_implementation_java: | _clean_implementation_java _transpile_implementation_java _mv_implementation_java
 
 _clean_implementation_java:
 	rm -rf runtimes/java/temp/AwsCryptographyPrimitives-java/* && rm -rf runtimes/java/src/main/dafny-generated/*
 
-_compile_implementation_java:
+_transpile_implementation_java:
 	dafny \
 		-vcsCores:$(CORES) \
 		-compileTarget:java \
@@ -81,12 +81,13 @@ _compile_implementation_java:
 _mv_implementation_java:
 	./runtimes/java/makefile_helper.sh implementation
 
-compile_test_java: | _clean_test_java _compile_test_java _mv_test_java
+transpile_test_java: | _clean_test_java _transpile_test_java _mv_test_java
 
 _clean_test_java:
 	rm -rf runtimes/java/temp-tests/AwsCryptographyPrimitivesTests-java/* && rm -rf runtimes/java/src/test/dafny-generated/*
 
-_compile_test_java:
+# TODO test all Dafny tests. Currently only testing a subset of implemented externs
+_transpile_test_java:
 	dafny \
 		-vcsCores:$(CORES) \
 		-compileTarget:java \
@@ -101,8 +102,11 @@ _compile_test_java:
 _mv_test_java:
 	./runtimes/java/makefile_helper.sh test
 
-compile_java_dependencies:
+build_java_dependencies:
 	$(MAKE) -C ../StandardLibrary mvn_local_deploy
+
+build_java: transpile_java build_java_dependencies
+	gradle -p runtimes/java build
 
 test_java:
 	gradle -p runtimes/java runTests

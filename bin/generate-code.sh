@@ -28,6 +28,7 @@ cd "$POLYMORPH_ROOT"
     --output-dafny \
     --include-dafny $DAFNY_ROOT/StandardLibrary/src/Index.dfy \
     --output-dotnet $ComAmazonawsKms_ROOT/runtimes/net/Generated/ \
+    --output-java $ComAmazonawsKms_ROOT/runtimes/java/src/main/smithy-generated \
     --model $ComAmazonawsKms_ROOT/Model \
     --dependent-model $DAFNY_ROOT/model \
     --namespace com.amazonaws.kms \
@@ -51,6 +52,7 @@ cd "$POLYMORPH_ROOT"
     --output-dafny \
     --include-dafny $DAFNY_ROOT/StandardLibrary/src/Index.dfy \
     --output-dotnet $AwsCryptographyPrimitives_ROOT/runtimes/net/Generated/ \
+    --output-java $AwsCryptographyPrimitives_ROOT/runtimes/java/src/main/smithy-generated \
     --model $AwsCryptographyPrimitives_ROOT/Model \
     --dependent-model $DAFNY_ROOT/model \
     --namespace aws.cryptography.primitives"

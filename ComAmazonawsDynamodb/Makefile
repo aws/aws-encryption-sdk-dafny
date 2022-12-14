@@ -5,9 +5,9 @@ ROOT_DIR:=$(shell dirname $(realpath $(firstword $(MAKEFILE_LIST))))
 DEPS_DIR:=$(ROOT_DIR)/..
 CORES=2
 
-compile_net: | compile_implementation_net compile_net_dependencies
+transpile_net: | transpile_implementation_net transpile_net_dependencies
 
-compile_implementation_net:
+transpile_implementation_net:
 	dafny \
 		-vcsCores:$(CORES) \
 		-compileTarget:cs \
@@ -18,8 +18,8 @@ compile_implementation_net:
 		./src/Index.dfy \
 		-library:$(DEPS_DIR)/StandardLibrary/src/Index.dfy
 
-compile_net_dependencies:
-	$(MAKE) -C $(DEPS_DIR)/StandardLibrary compile_implementation_net
+transpile_net_dependencies:
+	$(MAKE) -C $(DEPS_DIR)/StandardLibrary transpile_implementation_net
 
 setup_net:
 	dotnet restore runtimes/net/
