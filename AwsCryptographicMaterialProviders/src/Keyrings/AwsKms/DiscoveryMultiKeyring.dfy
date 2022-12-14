@@ -19,6 +19,7 @@ module DiscoveryMultiKeyring {
   import AwsKmsMrkAreUnique
   import AwsKmsDiscoveryKeyring
   import opened AwsKmsUtils
+  import Kms = Com.Amazonaws.Kms
 
   //= aws-encryption-sdk-specification/framework/aws-kms/aws-kms-multi-keyrings.md#aws-kms-discovery-multi-keyring
   //= type=implication
@@ -111,7 +112,7 @@ module DiscoveryMultiKeyring {
         //# supplier for each region in the input set of regions.
         var client :- clientSupplier.GetClient(Types.GetClientInput(region := region));
         // :- Need(
-        //   AwsKmsUtils.RegionMatch(client, region),
+        //   Kms.RegionMatch(client, region),
         //   "The region for the client did not match the requested region"
         // );
         var keyring := new AwsKmsDiscoveryKeyring.AwsKmsDiscoveryKeyring(
