@@ -62,7 +62,7 @@ module TestMultiKeyring {
     var expectedPlaintextDataKey := expectedEncryptionMaterials.value.materials.plaintextDataKey;
     expect expectedPlaintextDataKey.Some?;
 
-    var staticKeyring := new StaticKeyring(Some(expectedEncryptionMaterials.value.materials), None());
+    var staticKeyring := SetupStaticKeyring(Some(expectedEncryptionMaterials.value.materials), None());
 
     var multiKeyring :- expect mpl.CreateMultiKeyring(Types.CreateMultiKeyringInput(
         generator := Some(staticKeyring),
@@ -109,7 +109,7 @@ module TestMultiKeyring {
     //# interface.md#onencrypt) fails, this OnEncrypt MUST also fail.
     var encryptionContext := TestUtils.SmallEncryptionContext(TestUtils.SmallEncryptionContextVariation.A);
     var rawAESKeyring := setupRawAesKeyring(encryptionContext);
-    var failingKeyring := new FailingKeyring();
+    var failingKeyring := SetupFailingKeyring();
 
     var multiKeyring :- expect mpl.CreateMultiKeyring(Types.CreateMultiKeyringInput(
         generator := Some(rawAESKeyring),
@@ -131,7 +131,7 @@ module TestMultiKeyring {
     //# *  If the generator keyring fails OnEncrypt, this OnEncrypt MUST also
     //# fail.
     var encryptionContext := TestUtils.SmallEncryptionContext(TestUtils.SmallEncryptionContextVariation.A);
-    var failingKeyring := new FailingKeyring();
+    var failingKeyring := SetupFailingKeyring();
 
     // We'll add a functional AES keyring as a small validation that something *could* have succeeded in
     // generating but the call still fails.
@@ -158,7 +158,7 @@ module TestMultiKeyring {
     //# plaintext data key, OnEncrypt MUST fail.
     var encryptionContext := TestUtils.SmallEncryptionContext(TestUtils.SmallEncryptionContextVariation.A);
     var encryptionMaterials := getInputEncryptionMaterials(encryptionContext);
-    var failingKeyring := new StaticKeyring(Some(encryptionMaterials), None());
+    var failingKeyring := SetupStaticKeyring(Some(encryptionMaterials), None());
 
     var multiKeyring :- expect mpl.CreateMultiKeyring(Types.CreateMultiKeyringInput(
         generator := Some(failingKeyring),
@@ -189,7 +189,7 @@ module TestMultiKeyring {
 
     var inputDecryptionMaterials := getInputDecryptionMaterials(encryptionContext);
 
-    var failingKeyring := new FailingKeyring();
+    var failingKeyring := SetupFailingKeyring();
 
     var multiKeyring :- expect mpl.CreateMultiKeyring(Types.CreateMultiKeyringInput(
         generator := Some(rawAESKeyring),
@@ -236,7 +236,7 @@ module TestMultiKeyring {
 
     var inputDecryptionMaterials := getInputDecryptionMaterials(encryptionContext);
 
-    var failingKeyring := new FailingKeyring();
+    var failingKeyring := SetupFailingKeyring();
 
     // For children, we add failing keyrings on both sides of the valid keyring so we exercise
     // all paths
@@ -285,7 +285,7 @@ module TestMultiKeyring {
     //# from the child keyrings.
     var encryptionContext := TestUtils.SmallEncryptionContext(TestUtils.SmallEncryptionContextVariation.A);
 
-    var failingKeyring := new FailingKeyring();
+    var failingKeyring := SetupFailingKeyring();
     var multiKeyring :- expect mpl.CreateMultiKeyring(Types.CreateMultiKeyringInput(
         generator := None(),
         childKeyrings := [failingKeyring, failingKeyring]
@@ -317,6 +317,21 @@ module TestMultiKeyring {
       wrappingAlg := Types.ALG_AES256_GCM_IV12_TAG16
     ));
     return rawAESKeyring;
+  }
+  
+  method SetupStaticKeyring(
+      encryptionMaterials: Option<Types.EncryptionMaterials>,
+      decryptionMaterials: Option<Types.DecryptionMaterials>
+    ) returns (res: Types.IKeyring)
+    ensures res.ValidState() && fresh(res) && fresh(res.History) && fresh(res.Modifies)
+  {
+    return new StaticKeyring(encryptionMaterials, decryptionMaterials);
+  }
+
+  method SetupFailingKeyring() returns (res: Types.IKeyring)
+    ensures res.ValidState() && fresh(res) && fresh(res.History) && fresh(res.Modifies)
+  {
+    return new FailingKeyring();
   }
 
   /*
