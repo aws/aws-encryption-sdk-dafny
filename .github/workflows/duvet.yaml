@@ -23,8 +23,8 @@ jobs:
       - uses: actions/checkout@v3
         with:
           # This secret is in the configured environment
-          # Token created on # 11/16/2022
-          # expires in ~30 days 12/16/2022
+          # Token created on # 12/14/2022
+          # expires in ~30 days 01/13/2023
           token: ${{ secrets.PAT_SPEC }}
           submodules: true
 
