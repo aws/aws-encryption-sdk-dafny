@@ -14,6 +14,7 @@ jobs:
         library: [
           AwsCryptographyPrimitives,
           ComAmazonawsKms,
+          ComAmazonawsDynamodb,
           AwsCryptographicMaterialProviders, 
           # "src/StandardLibrary", add back in once Dafny does not crash
         ]
