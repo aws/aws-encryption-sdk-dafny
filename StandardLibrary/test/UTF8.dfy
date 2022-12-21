@@ -1,8 +1,8 @@
 // Copyright Amazon.com Inc. or its affiliates. All Rights Reserved.
 // SPDX-License-Identifier: Apache-2.0
 
-include "../../src/StandardLibrary/StandardLibrary.dfy"
-include "../../src/Util/UTF8.dfy"
+include "../src/StandardLibrary.dfy"
+include "../src/UTF8.dfy"
 
 module TestUTF8 {
   import opened UInt = StandardLibrary.UInt
@@ -35,7 +35,7 @@ module TestUTF8 {
     // Create byte sequence with UTF-16 surrogate (0xEDA080)
     var invalidUnicode := [0x61, 0x62, 0x63, 0xED, 0xA0, 0x80];
     expect !ValidUTF8Seq(invalidUnicode);
-    expect UTF8.Decode(invalidUnicode).Error?;
+    expect UTF8.Decode(invalidUnicode).Failure?;
   }
 
   method {:test} Test1Byte() {

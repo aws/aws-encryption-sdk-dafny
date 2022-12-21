@@ -8,6 +8,14 @@ module TestComAmazonawsKms {
   import opened StandardLibrary.UInt
 
   const keyId :=  "arn:aws:kms:us-west-2:658956600833:key/b3537ef1-d8dc-4780-9f5a-55776cbb2f7f";
+  // One test depends on knowing the region it is being run it.
+  // For now, hardcode this value to the region we are currently using to test,
+  // which is the same region that our test KMS Key lives in.
+  // If we want to run tests in other regions we will need a way to
+  // grab this value from some config.
+  // For now, we prefer to have brittleness in these tests vs. missing a test case
+  // that cannot be formally verified.
+  const TEST_REGION := "us-west-2";
 
   // This is required because
   // https://github.com/dafny-lang/dafny/issues/2311
@@ -154,6 +162,14 @@ module TestComAmazonawsKms {
       expectedPlaintext := input.Plaintext,
       expectedKeyId := input.KeyId
     );
+  }
+
+  // While we cannot easily test that the expected implementations
+  // return Some(), we can at least ensure that the ones that do are correct.
+  method {:test} RegionMatchTest() {
+    var client :- expect Kms.KMSClient();
+    var region := Kms.RegionMatch(client, TEST_REGION);
+    expect region.None? || region.value;
   }
 
 }

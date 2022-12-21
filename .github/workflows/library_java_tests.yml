@@ -15,7 +15,8 @@ jobs:
           AwsCryptographyPrimitives,
           ComAmazonawsKms,
           ComAmazonawsDynamodb,
-          AwsCryptographicMaterialProviders
+          AwsCryptographicMaterialProviders,
+          StandardLibrary
         ]
         java-version: [ 8, 11, 16, 17 ]
         os: [
@@ -91,9 +92,18 @@ jobs:
           CORES=$(node -e 'console.log(os.cpus().length)')
           make build_java CORES=$CORES
 
-      # TODO: No tests can run without extern implementations
-      # - name: Test ${{ matrix.library }}
-      #   working-directory: ./${{ matrix.library }}
-      #   shell: bash
-      #   run: |
-      #     make test_java
+      # KMS tests need to use credentials which can call KMS
+      - name: Configure AWS Credentials for Tests
+        uses: aws-actions/configure-aws-credentials@v1
+        if: matrix.library == 'ComAmazonawsKms'
+        with:
+          aws-region: us-west-2
+          role-to-assume: arn:aws:iam::405437749609:role/Github-OICD-for-private-aws-encryption-sdk-da-Role-15BEGAP519YZV
+          role-session-name: JavaTests
+
+      - name: Test ${{ matrix.library }}
+        working-directory: ./${{ matrix.library }}
+        # TODO: only tests with implemented externs may be run currently
+        if: matrix.library == 'StandardLibrary' || matrix.library == 'ComAmazonawsKms'
+        run: |
+          make test_java

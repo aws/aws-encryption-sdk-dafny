@@ -34,9 +34,10 @@ namespace Dafny.Com.Amazonaws.Kms
             Dafny.ISequence<char> region)
         {
             string regionStr = TypeConversion.FromDafny_N6_smithy__N3_api__S6_String(region);
-            // TODO Move this to the ComAmazonawsKms project.
-            // This is MUCH safer in there.
-            IAmazonKeyManagementService nativeClient = (IAmazonKeyManagementService)client;
+            // We should never be passing anything other than KeyManagementServiceShim as the 'client'.
+            // If this cast fails, that indicates that there is something wrong with
+            // our code generation.
+            IAmazonKeyManagementService nativeClient = ((KeyManagementServiceShim)client)._impl;
             return new Option_Some<bool>(nativeClient.Config.RegionEndpoint.SystemName.Equals(regionStr));
         }    
   }

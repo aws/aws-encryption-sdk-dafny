@@ -86,7 +86,6 @@ transpile_test_java: | _clean_test_java _transpile_test_java _mv_test_java
 _clean_test_java:
 	rm -rf runtimes/java/temp-tests/AwsCryptographyPrimitivesTests-java/* && rm -rf runtimes/java/src/test/dafny-generated/*
 
-# TODO test all Dafny tests. Currently only testing a subset of implemented externs
 _transpile_test_java:
 	dafny \
 		-vcsCores:$(CORES) \
