@@ -38,16 +38,16 @@ include "../../StandardLibrary/src/Index.dfy"
 }
  type AttributeUpdates = map<AttributeName, AttributeValueUpdate>
  datatype AttributeValue =
- | S(StringAttributeValue: StringAttributeValue)
- | N(NumberAttributeValue: NumberAttributeValue)
- | B(BinaryAttributeValue: BinaryAttributeValue)
- | SS(StringSetAttributeValue: StringSetAttributeValue)
- | NS(NumberSetAttributeValue: NumberSetAttributeValue)
- | BS(BinarySetAttributeValue: BinarySetAttributeValue)
- | M(MapAttributeValue: MapAttributeValue)
- | L(ListAttributeValue: ListAttributeValue)
- | NULL(NullAttributeValue: NullAttributeValue)
- | BOOL(BooleanAttributeValue: BooleanAttributeValue)
+ | S(S: StringAttributeValue)
+ | N(N: NumberAttributeValue)
+ | B(B: BinaryAttributeValue)
+ | SS(SS: StringSetAttributeValue)
+ | NS(NS: NumberSetAttributeValue)
+ | BS(BS: BinarySetAttributeValue)
+ | M(M: MapAttributeValue)
+ | L(L: ListAttributeValue)
+ | NULL(NULL: NullAttributeValue)
+ | BOOL(BOOL: BooleanAttributeValue)
  type AttributeValueList = seq<AttributeValue>
  datatype AttributeValueUpdate = | AttributeValueUpdate (
  nameonly Value: Option<AttributeValue> ,
@@ -526,6 +526,15 @@ include "../../StandardLibrary/src/Index.dfy"
 	| DISABLING
 	| DISABLED
 	| ENABLE_FAILED
+ datatype DisableKinesisStreamingDestinationInput = | DisableKinesisStreamingDestinationInput (
+ nameonly TableName: TableName ,
+ nameonly StreamArn: StreamArn
+ )
+ datatype DisableKinesisStreamingDestinationOutput = | DisableKinesisStreamingDestinationOutput (
+ nameonly TableName: Option<TableName> ,
+ nameonly StreamArn: Option<StreamArn> ,
+ nameonly DestinationStatus: Option<DestinationStatus>
+ )
  type Double = int32
  class IDynamoDB_20120810ClientCallHistory {
  ghost constructor() {
@@ -605,8 +614,8 @@ include "../../StandardLibrary/src/Index.dfy"
  ghost var DescribeTable: seq<DafnyCallEvent<DescribeTableInput, Result<DescribeTableOutput, Error>>>
  ghost var DescribeTableReplicaAutoScaling: seq<DafnyCallEvent<DescribeTableReplicaAutoScalingInput, Result<DescribeTableReplicaAutoScalingOutput, Error>>>
  ghost var DescribeTimeToLive: seq<DafnyCallEvent<DescribeTimeToLiveInput, Result<DescribeTimeToLiveOutput, Error>>>
- ghost var DisableKinesisStreamingDestination: seq<DafnyCallEvent<KinesisStreamingDestinationInput, Result<KinesisStreamingDestinationOutput, Error>>>
- ghost var EnableKinesisStreamingDestination: seq<DafnyCallEvent<KinesisStreamingDestinationInput, Result<KinesisStreamingDestinationOutput, Error>>>
+ ghost var DisableKinesisStreamingDestination: seq<DafnyCallEvent<DisableKinesisStreamingDestinationInput, Result<DisableKinesisStreamingDestinationOutput, Error>>>
+ ghost var EnableKinesisStreamingDestination: seq<DafnyCallEvent<EnableKinesisStreamingDestinationInput, Result<EnableKinesisStreamingDestinationOutput, Error>>>
  ghost var ExecuteStatement: seq<DafnyCallEvent<ExecuteStatementInput, Result<ExecuteStatementOutput, Error>>>
  ghost var ExecuteTransaction: seq<DafnyCallEvent<ExecuteTransactionInput, Result<ExecuteTransactionOutput, Error>>>
  ghost var ExportTableToPointInTime: seq<DafnyCallEvent<ExportTableToPointInTimeInput, Result<ExportTableToPointInTimeOutput, Error>>>
@@ -644,9 +653,10 @@ include "../../StandardLibrary/src/Index.dfy"
  // add it in your constructor function:
  // Modifies := {your, fields, here, History};
  // If you do not need to mutate anything:
- // Modifies := {History};
+// Modifies := {History};
+
  ghost const Modifies: set<object>
- // For an unassigned const field defined in a trait,
+ // For an unassigned field defined in a trait,
  // Dafny can only assign a value in the constructor.
  // This means that for Dafny to reason about this value,
  // it needs some way to know (an invariant),
@@ -658,7 +668,7 @@ include "../../StandardLibrary/src/Index.dfy"
  // This means that the correctness of this requires
  // MUST only be evaluated by the class itself.
  // If you require any additional mutation,
- // Then you MUST ensure everything you need in ValidState.
+ // then you MUST ensure everything you need in ValidState.
  // You MUST also ensure ValidState in your constructor.
  predicate ValidState()
  ensures ValidState() ==> History in Modifies
@@ -993,10 +1003,10 @@ include "../../StandardLibrary/src/Index.dfy"
  ensures DescribeTimeToLiveEnsuresPublicly(input, output)
  ensures History.DescribeTimeToLive == old(History.DescribeTimeToLive) + [DafnyCallEvent(input, output)]
  
- predicate DisableKinesisStreamingDestinationEnsuresPublicly(input: KinesisStreamingDestinationInput, output: Result<KinesisStreamingDestinationOutput, Error>)
+ predicate DisableKinesisStreamingDestinationEnsuresPublicly(input: DisableKinesisStreamingDestinationInput, output: Result<DisableKinesisStreamingDestinationOutput, Error>)
  // The public method to be called by library consumers
- method DisableKinesisStreamingDestination ( input: KinesisStreamingDestinationInput )
- returns (output: Result<KinesisStreamingDestinationOutput, Error>)
+ method DisableKinesisStreamingDestination ( input: DisableKinesisStreamingDestinationInput )
+ returns (output: Result<DisableKinesisStreamingDestinationOutput, Error>)
  requires
  && ValidState()
  modifies Modifies - {History} ,
@@ -1008,10 +1018,10 @@ include "../../StandardLibrary/src/Index.dfy"
  ensures DisableKinesisStreamingDestinationEnsuresPublicly(input, output)
  ensures History.DisableKinesisStreamingDestination == old(History.DisableKinesisStreamingDestination) + [DafnyCallEvent(input, output)]
  
- predicate EnableKinesisStreamingDestinationEnsuresPublicly(input: KinesisStreamingDestinationInput, output: Result<KinesisStreamingDestinationOutput, Error>)
+ predicate EnableKinesisStreamingDestinationEnsuresPublicly(input: EnableKinesisStreamingDestinationInput, output: Result<EnableKinesisStreamingDestinationOutput, Error>)
  // The public method to be called by library consumers
- method EnableKinesisStreamingDestination ( input: KinesisStreamingDestinationInput )
- returns (output: Result<KinesisStreamingDestinationOutput, Error>)
+ method EnableKinesisStreamingDestination ( input: EnableKinesisStreamingDestinationInput )
+ returns (output: Result<EnableKinesisStreamingDestinationOutput, Error>)
  requires
  && ValidState()
  modifies Modifies - {History} ,
@@ -1459,6 +1469,15 @@ include "../../StandardLibrary/src/Index.dfy"
  ensures History.UpdateTimeToLive == old(History.UpdateTimeToLive) + [DafnyCallEvent(input, output)]
  
 }
+ datatype EnableKinesisStreamingDestinationInput = | EnableKinesisStreamingDestinationInput (
+ nameonly TableName: TableName ,
+ nameonly StreamArn: StreamArn
+ )
+ datatype EnableKinesisStreamingDestinationOutput = | EnableKinesisStreamingDestinationOutput (
+ nameonly TableName: Option<TableName> ,
+ nameonly StreamArn: Option<StreamArn> ,
+ nameonly DestinationStatus: Option<DestinationStatus>
+ )
  datatype Endpoint = | Endpoint (
  nameonly Address: String ,
  nameonly CachePeriodInMinutes: Long
@@ -1480,8 +1499,7 @@ include "../../StandardLibrary/src/Index.dfy"
  nameonly Limit: Option<PositiveIntegerObject>
  )
  datatype ExecuteStatementOutput = | ExecuteStatementOutput (
-// TODO manually updated Item -> ItemList
- nameonly ItemList: Option<ItemList> ,
+ nameonly Items: Option<ItemList> ,
  nameonly NextToken: Option<PartiQLNextToken> ,
  nameonly ConsumedCapacity: Option<ConsumedCapacity> ,
  nameonly LastEvaluatedKey: Option<Key>
@@ -1764,8 +1782,7 @@ include "../../StandardLibrary/src/Index.dfy"
  ( 1 <= |x| <= 100 )
 }
  datatype KeysAndAttributes = | KeysAndAttributes (
-// TODO manually updated Key -> KeyList
- nameonly KeyList: KeyList ,
+ nameonly Keys: KeyList ,
  nameonly AttributesToGet: Option<AttributeNameList> ,
  nameonly ConsistentRead: Option<ConsistentRead> ,
  nameonly ProjectionExpression: Option<ProjectionExpression> ,
@@ -2043,8 +2060,7 @@ include "../../StandardLibrary/src/Index.dfy"
  nameonly ExpressionAttributeValues: Option<ExpressionAttributeValueMap>
  )
  datatype QueryOutput = | QueryOutput (
-// TODO manually updated Item -> ItemList
- nameonly ItemList: Option<ItemList> ,
+ nameonly Items: Option<ItemList> ,
  nameonly Count: Option<Integer> ,
  nameonly ScannedCount: Option<Integer> ,
  nameonly LastEvaluatedKey: Option<Key> ,
@@ -2272,8 +2288,7 @@ include "../../StandardLibrary/src/Index.dfy"
  nameonly ConsistentRead: Option<ConsistentRead>
  )
  datatype ScanOutput = | ScanOutput (
-// TODO manually updated Item -> ItemList
- nameonly ItemList: Option<ItemList> ,
+ nameonly Items: Option<ItemList> ,
  nameonly Count: Option<Integer> ,
  nameonly ScannedCount: Option<Integer> ,
  nameonly LastEvaluatedKey: Option<Key> ,
@@ -2603,99 +2618,99 @@ include "../../StandardLibrary/src/Index.dfy"
  | BackupInUseException (
  nameonly message: Option<ErrorMessage>
  )
- | TableNotFoundException (
+ | BackupNotFoundException (
  nameonly message: Option<ErrorMessage>
  )
- | ResourceInUseException (
- nameonly message: Option<ErrorMessage>
- )
- | GlobalTableNotFoundException (
- nameonly message: Option<ErrorMessage>
- )
- | RequestLimitExceeded (
+ | ConditionalCheckFailedException (
  nameonly message: Option<ErrorMessage>
  )
  | ContinuousBackupsUnavailableException (
  nameonly message: Option<ErrorMessage>
  )
- | IndexNotFoundException (
+ | DuplicateItemException (
+ nameonly message: Option<ErrorMessage>
+ )
+ | ExportConflictException (
  nameonly message: Option<ErrorMessage>
  )
  | ExportNotFoundException (
  nameonly message: Option<ErrorMessage>
  )
+ | GlobalTableAlreadyExistsException (
+ nameonly message: Option<ErrorMessage>
+ )
+ | GlobalTableNotFoundException (
+ nameonly message: Option<ErrorMessage>
+ )
+ | IdempotentParameterMismatchException (
+ nameonly Message: Option<ErrorMessage>
+ )
+ | ImportConflictException (
+ nameonly message: Option<ErrorMessage>
+ )
+ | ImportNotFoundException (
+ nameonly message: Option<ErrorMessage>
+ )
+ | IndexNotFoundException (
+ nameonly message: Option<ErrorMessage>
+ )
+ | InternalServerError (
+ nameonly message: Option<ErrorMessage>
+ )
  | InvalidEndpointException (
  nameonly Message: Option<String>
  )
- | ReplicaNotFoundException (
+ | InvalidExportTimeException (
+ nameonly message: Option<ErrorMessage>
+ )
+ | InvalidRestoreTimeException (
+ nameonly message: Option<ErrorMessage>
+ )
+ | ItemCollectionSizeLimitExceededException (
+ nameonly message: Option<ErrorMessage>
+ )
+ | LimitExceededException (
  nameonly message: Option<ErrorMessage>
  )
  | PointInTimeRecoveryUnavailableException (
  nameonly message: Option<ErrorMessage>
  )
- | InvalidExportTimeException (
+ | ProvisionedThroughputExceededException (
+ nameonly message: Option<ErrorMessage>
+ )
+ | ReplicaAlreadyExistsException (
+ nameonly message: Option<ErrorMessage>
+ )
+ | ReplicaNotFoundException (
+ nameonly message: Option<ErrorMessage>
+ )
+ | RequestLimitExceeded (
+ nameonly message: Option<ErrorMessage>
+ )
+ | ResourceInUseException (
+ nameonly message: Option<ErrorMessage>
+ )
+ | ResourceNotFoundException (
  nameonly message: Option<ErrorMessage>
  )
  | TableAlreadyExistsException (
  nameonly message: Option<ErrorMessage>
  )
- | ExportConflictException (
+ | TableInUseException (
+ nameonly message: Option<ErrorMessage>
+ )
+ | TableNotFoundException (
  nameonly message: Option<ErrorMessage>
  )
  | TransactionCanceledException (
  nameonly Message: Option<ErrorMessage> ,
  nameonly CancellationReasons: Option<CancellationReasonList>
  )
- | ConditionalCheckFailedException (
- nameonly message: Option<ErrorMessage>
- )
- | ResourceNotFoundException (
- nameonly message: Option<ErrorMessage>
- )
- | DuplicateItemException (
- nameonly message: Option<ErrorMessage>
- )
- | InternalServerError (
- nameonly message: Option<ErrorMessage>
- )
- | ProvisionedThroughputExceededException (
- nameonly message: Option<ErrorMessage>
- )
- | GlobalTableAlreadyExistsException (
- nameonly message: Option<ErrorMessage>
- )
- | BackupNotFoundException (
- nameonly message: Option<ErrorMessage>
- )
- | ImportNotFoundException (
- nameonly message: Option<ErrorMessage>
- )
- | InvalidRestoreTimeException (
- nameonly message: Option<ErrorMessage>
- )
- | LimitExceededException (
- nameonly message: Option<ErrorMessage>
- )
- | IdempotentParameterMismatchException (
- nameonly Message: Option<ErrorMessage>
- )
- | TransactionInProgressException (
- nameonly Message: Option<ErrorMessage>
- )
- | ReplicaAlreadyExistsException (
- nameonly message: Option<ErrorMessage>
- )
  | TransactionConflictException (
  nameonly message: Option<ErrorMessage>
  )
- | ItemCollectionSizeLimitExceededException (
- nameonly message: Option<ErrorMessage>
- )
- | ImportConflictException (
- nameonly message: Option<ErrorMessage>
- )
- | TableInUseException (
- nameonly message: Option<ErrorMessage>
+ | TransactionInProgressException (
+ nameonly Message: Option<ErrorMessage>
  )
  // Any dependent models are listed here
  
@@ -3102,12 +3117,12 @@ include "../../StandardLibrary/src/Index.dfy"
  ensures DescribeTimeToLiveEnsuresPublicly(input, output)
 
 
- predicate DisableKinesisStreamingDestinationEnsuresPublicly(input: KinesisStreamingDestinationInput, output: Result<KinesisStreamingDestinationOutput, Error>)
+ predicate DisableKinesisStreamingDestinationEnsuresPublicly(input: DisableKinesisStreamingDestinationInput, output: Result<DisableKinesisStreamingDestinationOutput, Error>)
  // The private method to be refined by the library developer
 
 
- method DisableKinesisStreamingDestination ( config: InternalConfig,  input: KinesisStreamingDestinationInput )
- returns (output: Result<KinesisStreamingDestinationOutput, Error>)
+ method DisableKinesisStreamingDestination ( config: InternalConfig,  input: DisableKinesisStreamingDestinationInput )
+ returns (output: Result<DisableKinesisStreamingDestinationOutput, Error>)
  requires
  && ValidInternalConfig?(config)
  modifies ModifiesInternalConfig(config)
@@ -3118,12 +3133,12 @@ include "../../StandardLibrary/src/Index.dfy"
  ensures DisableKinesisStreamingDestinationEnsuresPublicly(input, output)
 
 
- predicate EnableKinesisStreamingDestinationEnsuresPublicly(input: KinesisStreamingDestinationInput, output: Result<KinesisStreamingDestinationOutput, Error>)
+ predicate EnableKinesisStreamingDestinationEnsuresPublicly(input: EnableKinesisStreamingDestinationInput, output: Result<EnableKinesisStreamingDestinationOutput, Error>)
  // The private method to be refined by the library developer
 
 
- method EnableKinesisStreamingDestination ( config: InternalConfig,  input: KinesisStreamingDestinationInput )
- returns (output: Result<KinesisStreamingDestinationOutput, Error>)
+ method EnableKinesisStreamingDestination ( config: InternalConfig,  input: EnableKinesisStreamingDestinationInput )
+ returns (output: Result<EnableKinesisStreamingDestinationOutput, Error>)
  requires
  && ValidInternalConfig?(config)
  modifies ModifiesInternalConfig(config)
