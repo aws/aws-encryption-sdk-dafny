@@ -45,6 +45,17 @@ structure DecryptionMaterials {
   verificationKey: Secret
 }
 
+structure HierarchicalMaterials {
+  // TODO we should revisit if it makes sense to model
+  // as utf8bytes instead instead of integer so as to avoid 
+  // runtime checks in dafny
+    @required
+    branchKeyVersion: Utf8Bytes,
+
+    @required 
+    branchKey: Secret
+}
+
 structure EncryptedDataKey {
   // The spec defines keyProviderId in 2 places,
   // and, while they are not identical,

@@ -3,15 +3,15 @@
 // Do not modify this file. This file is machine generated, and any changes to it will be overwritten.
 package software.amazon.cryptography.materialProviders.model;
 
-import Dafny.Aws.Cryptography.MaterialProviders.Types.IClientSupplier;
 import java.util.List;
+import software.amazon.cryptography.materialProviders.ClientSupplier;
 
 public class CreateAwsKmsMultiKeyringInput {
   private final String generator;
 
   private final List<String> kmsKeyIds;
 
-  private final IClientSupplier clientSupplier;
+  private final ClientSupplier clientSupplier;
 
   private final List<String> grantTokens;
 
@@ -30,7 +30,7 @@ public class CreateAwsKmsMultiKeyringInput {
     return this.kmsKeyIds;
   }
 
-  public IClientSupplier clientSupplier() {
+  public ClientSupplier clientSupplier() {
     return this.clientSupplier;
   }
 
@@ -55,9 +55,9 @@ public class CreateAwsKmsMultiKeyringInput {
 
     List<String> kmsKeyIds();
 
-    Builder clientSupplier(IClientSupplier clientSupplier);
+    Builder clientSupplier(ClientSupplier clientSupplier);
 
-    IClientSupplier clientSupplier();
+    ClientSupplier clientSupplier();
 
     Builder grantTokens(List<String> grantTokens);
 
@@ -71,7 +71,7 @@ public class CreateAwsKmsMultiKeyringInput {
 
     protected List<String> kmsKeyIds;
 
-    protected IClientSupplier clientSupplier;
+    protected ClientSupplier clientSupplier;
 
     protected List<String> grantTokens;
 
@@ -103,12 +103,12 @@ public class CreateAwsKmsMultiKeyringInput {
       return this.kmsKeyIds;
     }
 
-    public Builder clientSupplier(IClientSupplier clientSupplier) {
+    public Builder clientSupplier(ClientSupplier clientSupplier) {
       this.clientSupplier = clientSupplier;
       return this;
     }
 
-    public IClientSupplier clientSupplier() {
+    public ClientSupplier clientSupplier() {
       return this.clientSupplier;
     }
 

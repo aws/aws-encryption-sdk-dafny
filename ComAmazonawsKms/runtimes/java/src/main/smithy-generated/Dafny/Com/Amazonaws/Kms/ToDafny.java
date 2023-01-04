@@ -922,196 +922,12 @@ public class ToDafny {
         software.amazon.dafny.conversion.ToDafny.Simple::CharacterSequence);
   }
 
-  public static Error Error(CustomKeyStoreHasCMKsException nativeValue) {
-    Option<DafnySequence<? extends Character>> message;
-    message = Objects.nonNull(nativeValue.getMessage()) ?
-        Option.create_Some(software.amazon.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.getMessage()))
-        : Option.create_None();
-    return new Error_CustomKeyStoreHasCMKsException(message);
-  }
-
-  public static Error Error(CloudHsmClusterNotFoundException nativeValue) {
-    Option<DafnySequence<? extends Character>> message;
-    message = Objects.nonNull(nativeValue.getMessage()) ?
-        Option.create_Some(software.amazon.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.getMessage()))
-        : Option.create_None();
-    return new Error_CloudHsmClusterNotFoundException(message);
-  }
-
-  public static Error Error(InvalidImportTokenException nativeValue) {
-    Option<DafnySequence<? extends Character>> message;
-    message = Objects.nonNull(nativeValue.getMessage()) ?
-        Option.create_Some(software.amazon.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.getMessage()))
-        : Option.create_None();
-    return new Error_InvalidImportTokenException(message);
-  }
-
-  public static Error Error(TagException nativeValue) {
-    Option<DafnySequence<? extends Character>> message;
-    message = Objects.nonNull(nativeValue.getMessage()) ?
-        Option.create_Some(software.amazon.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.getMessage()))
-        : Option.create_None();
-    return new Error_TagException(message);
-  }
-
-  public static Error Error(MalformedPolicyDocumentException nativeValue) {
-    Option<DafnySequence<? extends Character>> message;
-    message = Objects.nonNull(nativeValue.getMessage()) ?
-        Option.create_Some(software.amazon.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.getMessage()))
-        : Option.create_None();
-    return new Error_MalformedPolicyDocumentException(message);
-  }
-
-  public static Error Error(InvalidMarkerException nativeValue) {
-    Option<DafnySequence<? extends Character>> message;
-    message = Objects.nonNull(nativeValue.getMessage()) ?
-        Option.create_Some(software.amazon.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.getMessage()))
-        : Option.create_None();
-    return new Error_InvalidMarkerException(message);
-  }
-
-  public static Error Error(InvalidGrantIdException nativeValue) {
-    Option<DafnySequence<? extends Character>> message;
-    message = Objects.nonNull(nativeValue.getMessage()) ?
-        Option.create_Some(software.amazon.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.getMessage()))
-        : Option.create_None();
-    return new Error_InvalidGrantIdException(message);
-  }
-
-  public static Error Error(IncorrectKeyException nativeValue) {
-    Option<DafnySequence<? extends Character>> message;
-    message = Objects.nonNull(nativeValue.getMessage()) ?
-        Option.create_Some(software.amazon.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.getMessage()))
-        : Option.create_None();
-    return new Error_IncorrectKeyException(message);
-  }
-
-  public static Error Error(CloudHsmClusterNotActiveException nativeValue) {
-    Option<DafnySequence<? extends Character>> message;
-    message = Objects.nonNull(nativeValue.getMessage()) ?
-        Option.create_Some(software.amazon.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.getMessage()))
-        : Option.create_None();
-    return new Error_CloudHsmClusterNotActiveException(message);
-  }
-
-  public static Error Error(InvalidGrantTokenException nativeValue) {
-    Option<DafnySequence<? extends Character>> message;
-    message = Objects.nonNull(nativeValue.getMessage()) ?
-        Option.create_Some(software.amazon.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.getMessage()))
-        : Option.create_None();
-    return new Error_InvalidGrantTokenException(message);
-  }
-
-  public static Error Error(ExpiredImportTokenException nativeValue) {
-    Option<DafnySequence<? extends Character>> message;
-    message = Objects.nonNull(nativeValue.getMessage()) ?
-        Option.create_Some(software.amazon.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.getMessage()))
-        : Option.create_None();
-    return new Error_ExpiredImportTokenException(message);
-  }
-
-  public static Error Error(KMSInvalidStateException nativeValue) {
-    Option<DafnySequence<? extends Character>> message;
-    message = Objects.nonNull(nativeValue.getMessage()) ?
-        Option.create_Some(software.amazon.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.getMessage()))
-        : Option.create_None();
-    return new Error_KMSInvalidStateException(message);
-  }
-
-  public static Error Error(KeyUnavailableException nativeValue) {
-    Option<DafnySequence<? extends Character>> message;
-    message = Objects.nonNull(nativeValue.getMessage()) ?
-        Option.create_Some(software.amazon.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.getMessage()))
-        : Option.create_None();
-    return new Error_KeyUnavailableException(message);
-  }
-
-  public static Error Error(CustomKeyStoreNameInUseException nativeValue) {
-    Option<DafnySequence<? extends Character>> message;
-    message = Objects.nonNull(nativeValue.getMessage()) ?
-        Option.create_Some(software.amazon.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.getMessage()))
-        : Option.create_None();
-    return new Error_CustomKeyStoreNameInUseException(message);
-  }
-
-  public static Error Error(DependencyTimeoutException nativeValue) {
-    Option<DafnySequence<? extends Character>> message;
-    message = Objects.nonNull(nativeValue.getMessage()) ?
-        Option.create_Some(software.amazon.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.getMessage()))
-        : Option.create_None();
-    return new Error_DependencyTimeoutException(message);
-  }
-
-  public static Error Error(UnsupportedOperationException nativeValue) {
-    Option<DafnySequence<? extends Character>> message;
-    message = Objects.nonNull(nativeValue.getMessage()) ?
-        Option.create_Some(software.amazon.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.getMessage()))
-        : Option.create_None();
-    return new Error_UnsupportedOperationException(message);
-  }
-
-  public static Error Error(CustomKeyStoreInvalidStateException nativeValue) {
-    Option<DafnySequence<? extends Character>> message;
-    message = Objects.nonNull(nativeValue.getMessage()) ?
-        Option.create_Some(software.amazon.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.getMessage()))
-        : Option.create_None();
-    return new Error_CustomKeyStoreInvalidStateException(message);
-  }
-
-  public static Error Error(CloudHsmClusterNotRelatedException nativeValue) {
-    Option<DafnySequence<? extends Character>> message;
-    message = Objects.nonNull(nativeValue.getMessage()) ?
-        Option.create_Some(software.amazon.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.getMessage()))
-        : Option.create_None();
-    return new Error_CloudHsmClusterNotRelatedException(message);
-  }
-
-  public static Error Error(DisabledException nativeValue) {
-    Option<DafnySequence<? extends Character>> message;
-    message = Objects.nonNull(nativeValue.getMessage()) ?
-        Option.create_Some(software.amazon.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.getMessage()))
-        : Option.create_None();
-    return new Error_DisabledException(message);
-  }
-
-  public static Error Error(InvalidAliasNameException nativeValue) {
-    Option<DafnySequence<? extends Character>> message;
-    message = Objects.nonNull(nativeValue.getMessage()) ?
-        Option.create_Some(software.amazon.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.getMessage()))
-        : Option.create_None();
-    return new Error_InvalidAliasNameException(message);
-  }
-
-  public static Error Error(InvalidKeyUsageException nativeValue) {
-    Option<DafnySequence<? extends Character>> message;
-    message = Objects.nonNull(nativeValue.getMessage()) ?
-        Option.create_Some(software.amazon.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.getMessage()))
-        : Option.create_None();
-    return new Error_InvalidKeyUsageException(message);
-  }
-
-  public static Error Error(CustomKeyStoreNotFoundException nativeValue) {
-    Option<DafnySequence<? extends Character>> message;
-    message = Objects.nonNull(nativeValue.getMessage()) ?
-        Option.create_Some(software.amazon.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.getMessage()))
-        : Option.create_None();
-    return new Error_CustomKeyStoreNotFoundException(message);
-  }
-
   public static Error Error(AlreadyExistsException nativeValue) {
     Option<DafnySequence<? extends Character>> message;
     message = Objects.nonNull(nativeValue.getMessage()) ?
         Option.create_Some(software.amazon.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.getMessage()))
         : Option.create_None();
     return new Error_AlreadyExistsException(message);
-  }
-
-  public static Error Error(InvalidArnException nativeValue) {
-    Option<DafnySequence<? extends Character>> message;
-    message = Objects.nonNull(nativeValue.getMessage()) ?
-        Option.create_Some(software.amazon.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.getMessage()))
-        : Option.create_None();
-    return new Error_InvalidArnException(message);
   }
 
   public static Error Error(CloudHsmClusterInUseException nativeValue) {
@@ -1130,20 +946,92 @@ public class ToDafny {
     return new Error_CloudHsmClusterInvalidConfigurationException(message);
   }
 
-  public static Error Error(NotFoundException nativeValue) {
+  public static Error Error(CloudHsmClusterNotActiveException nativeValue) {
     Option<DafnySequence<? extends Character>> message;
     message = Objects.nonNull(nativeValue.getMessage()) ?
         Option.create_Some(software.amazon.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.getMessage()))
         : Option.create_None();
-    return new Error_NotFoundException(message);
+    return new Error_CloudHsmClusterNotActiveException(message);
   }
 
-  public static Error Error(LimitExceededException nativeValue) {
+  public static Error Error(CloudHsmClusterNotFoundException nativeValue) {
     Option<DafnySequence<? extends Character>> message;
     message = Objects.nonNull(nativeValue.getMessage()) ?
         Option.create_Some(software.amazon.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.getMessage()))
         : Option.create_None();
-    return new Error_LimitExceededException(message);
+    return new Error_CloudHsmClusterNotFoundException(message);
+  }
+
+  public static Error Error(CloudHsmClusterNotRelatedException nativeValue) {
+    Option<DafnySequence<? extends Character>> message;
+    message = Objects.nonNull(nativeValue.getMessage()) ?
+        Option.create_Some(software.amazon.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.getMessage()))
+        : Option.create_None();
+    return new Error_CloudHsmClusterNotRelatedException(message);
+  }
+
+  public static Error Error(CustomKeyStoreHasCMKsException nativeValue) {
+    Option<DafnySequence<? extends Character>> message;
+    message = Objects.nonNull(nativeValue.getMessage()) ?
+        Option.create_Some(software.amazon.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.getMessage()))
+        : Option.create_None();
+    return new Error_CustomKeyStoreHasCMKsException(message);
+  }
+
+  public static Error Error(CustomKeyStoreInvalidStateException nativeValue) {
+    Option<DafnySequence<? extends Character>> message;
+    message = Objects.nonNull(nativeValue.getMessage()) ?
+        Option.create_Some(software.amazon.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.getMessage()))
+        : Option.create_None();
+    return new Error_CustomKeyStoreInvalidStateException(message);
+  }
+
+  public static Error Error(CustomKeyStoreNameInUseException nativeValue) {
+    Option<DafnySequence<? extends Character>> message;
+    message = Objects.nonNull(nativeValue.getMessage()) ?
+        Option.create_Some(software.amazon.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.getMessage()))
+        : Option.create_None();
+    return new Error_CustomKeyStoreNameInUseException(message);
+  }
+
+  public static Error Error(CustomKeyStoreNotFoundException nativeValue) {
+    Option<DafnySequence<? extends Character>> message;
+    message = Objects.nonNull(nativeValue.getMessage()) ?
+        Option.create_Some(software.amazon.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.getMessage()))
+        : Option.create_None();
+    return new Error_CustomKeyStoreNotFoundException(message);
+  }
+
+  public static Error Error(DependencyTimeoutException nativeValue) {
+    Option<DafnySequence<? extends Character>> message;
+    message = Objects.nonNull(nativeValue.getMessage()) ?
+        Option.create_Some(software.amazon.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.getMessage()))
+        : Option.create_None();
+    return new Error_DependencyTimeoutException(message);
+  }
+
+  public static Error Error(DisabledException nativeValue) {
+    Option<DafnySequence<? extends Character>> message;
+    message = Objects.nonNull(nativeValue.getMessage()) ?
+        Option.create_Some(software.amazon.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.getMessage()))
+        : Option.create_None();
+    return new Error_DisabledException(message);
+  }
+
+  public static Error Error(ExpiredImportTokenException nativeValue) {
+    Option<DafnySequence<? extends Character>> message;
+    message = Objects.nonNull(nativeValue.getMessage()) ?
+        Option.create_Some(software.amazon.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.getMessage()))
+        : Option.create_None();
+    return new Error_ExpiredImportTokenException(message);
+  }
+
+  public static Error Error(IncorrectKeyException nativeValue) {
+    Option<DafnySequence<? extends Character>> message;
+    message = Objects.nonNull(nativeValue.getMessage()) ?
+        Option.create_Some(software.amazon.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.getMessage()))
+        : Option.create_None();
+    return new Error_IncorrectKeyException(message);
   }
 
   public static Error Error(IncorrectKeyMaterialException nativeValue) {
@@ -1154,20 +1042,84 @@ public class ToDafny {
     return new Error_IncorrectKeyMaterialException(message);
   }
 
-  public static Error Error(KMSInvalidSignatureException nativeValue) {
-    Option<DafnySequence<? extends Character>> message;
-    message = Objects.nonNull(nativeValue.getMessage()) ?
-        Option.create_Some(software.amazon.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.getMessage()))
-        : Option.create_None();
-    return new Error_KMSInvalidSignatureException(message);
-  }
-
   public static Error Error(IncorrectTrustAnchorException nativeValue) {
     Option<DafnySequence<? extends Character>> message;
     message = Objects.nonNull(nativeValue.getMessage()) ?
         Option.create_Some(software.amazon.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.getMessage()))
         : Option.create_None();
     return new Error_IncorrectTrustAnchorException(message);
+  }
+
+  public static Error Error(InvalidAliasNameException nativeValue) {
+    Option<DafnySequence<? extends Character>> message;
+    message = Objects.nonNull(nativeValue.getMessage()) ?
+        Option.create_Some(software.amazon.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.getMessage()))
+        : Option.create_None();
+    return new Error_InvalidAliasNameException(message);
+  }
+
+  public static Error Error(InvalidArnException nativeValue) {
+    Option<DafnySequence<? extends Character>> message;
+    message = Objects.nonNull(nativeValue.getMessage()) ?
+        Option.create_Some(software.amazon.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.getMessage()))
+        : Option.create_None();
+    return new Error_InvalidArnException(message);
+  }
+
+  public static Error Error(InvalidCiphertextException nativeValue) {
+    Option<DafnySequence<? extends Character>> message;
+    message = Objects.nonNull(nativeValue.getMessage()) ?
+        Option.create_Some(software.amazon.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.getMessage()))
+        : Option.create_None();
+    return new Error_InvalidCiphertextException(message);
+  }
+
+  public static Error Error(InvalidGrantIdException nativeValue) {
+    Option<DafnySequence<? extends Character>> message;
+    message = Objects.nonNull(nativeValue.getMessage()) ?
+        Option.create_Some(software.amazon.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.getMessage()))
+        : Option.create_None();
+    return new Error_InvalidGrantIdException(message);
+  }
+
+  public static Error Error(InvalidGrantTokenException nativeValue) {
+    Option<DafnySequence<? extends Character>> message;
+    message = Objects.nonNull(nativeValue.getMessage()) ?
+        Option.create_Some(software.amazon.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.getMessage()))
+        : Option.create_None();
+    return new Error_InvalidGrantTokenException(message);
+  }
+
+  public static Error Error(InvalidImportTokenException nativeValue) {
+    Option<DafnySequence<? extends Character>> message;
+    message = Objects.nonNull(nativeValue.getMessage()) ?
+        Option.create_Some(software.amazon.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.getMessage()))
+        : Option.create_None();
+    return new Error_InvalidImportTokenException(message);
+  }
+
+  public static Error Error(InvalidKeyUsageException nativeValue) {
+    Option<DafnySequence<? extends Character>> message;
+    message = Objects.nonNull(nativeValue.getMessage()) ?
+        Option.create_Some(software.amazon.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.getMessage()))
+        : Option.create_None();
+    return new Error_InvalidKeyUsageException(message);
+  }
+
+  public static Error Error(InvalidMarkerException nativeValue) {
+    Option<DafnySequence<? extends Character>> message;
+    message = Objects.nonNull(nativeValue.getMessage()) ?
+        Option.create_Some(software.amazon.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.getMessage()))
+        : Option.create_None();
+    return new Error_InvalidMarkerException(message);
+  }
+
+  public static Error Error(KeyUnavailableException nativeValue) {
+    Option<DafnySequence<? extends Character>> message;
+    message = Objects.nonNull(nativeValue.getMessage()) ?
+        Option.create_Some(software.amazon.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.getMessage()))
+        : Option.create_None();
+    return new Error_KeyUnavailableException(message);
   }
 
   public static Error Error(KMSInternalException nativeValue) {
@@ -1178,12 +1130,60 @@ public class ToDafny {
     return new Error_KMSInternalException(message);
   }
 
-  public static Error Error(InvalidCiphertextException nativeValue) {
+  public static Error Error(KMSInvalidSignatureException nativeValue) {
     Option<DafnySequence<? extends Character>> message;
     message = Objects.nonNull(nativeValue.getMessage()) ?
         Option.create_Some(software.amazon.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.getMessage()))
         : Option.create_None();
-    return new Error_InvalidCiphertextException(message);
+    return new Error_KMSInvalidSignatureException(message);
+  }
+
+  public static Error Error(KMSInvalidStateException nativeValue) {
+    Option<DafnySequence<? extends Character>> message;
+    message = Objects.nonNull(nativeValue.getMessage()) ?
+        Option.create_Some(software.amazon.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.getMessage()))
+        : Option.create_None();
+    return new Error_KMSInvalidStateException(message);
+  }
+
+  public static Error Error(LimitExceededException nativeValue) {
+    Option<DafnySequence<? extends Character>> message;
+    message = Objects.nonNull(nativeValue.getMessage()) ?
+        Option.create_Some(software.amazon.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.getMessage()))
+        : Option.create_None();
+    return new Error_LimitExceededException(message);
+  }
+
+  public static Error Error(MalformedPolicyDocumentException nativeValue) {
+    Option<DafnySequence<? extends Character>> message;
+    message = Objects.nonNull(nativeValue.getMessage()) ?
+        Option.create_Some(software.amazon.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.getMessage()))
+        : Option.create_None();
+    return new Error_MalformedPolicyDocumentException(message);
+  }
+
+  public static Error Error(NotFoundException nativeValue) {
+    Option<DafnySequence<? extends Character>> message;
+    message = Objects.nonNull(nativeValue.getMessage()) ?
+        Option.create_Some(software.amazon.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.getMessage()))
+        : Option.create_None();
+    return new Error_NotFoundException(message);
+  }
+
+  public static Error Error(TagException nativeValue) {
+    Option<DafnySequence<? extends Character>> message;
+    message = Objects.nonNull(nativeValue.getMessage()) ?
+        Option.create_Some(software.amazon.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.getMessage()))
+        : Option.create_None();
+    return new Error_TagException(message);
+  }
+
+  public static Error Error(UnsupportedOperationException nativeValue) {
+    Option<DafnySequence<? extends Character>> message;
+    message = Objects.nonNull(nativeValue.getMessage()) ?
+        Option.create_Some(software.amazon.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.getMessage()))
+        : Option.create_None();
+    return new Error_UnsupportedOperationException(message);
   }
 
   public static Error Error(AWSKMSException nativeValue) {

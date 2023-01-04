@@ -35,17 +35,16 @@ cd "$POLYMORPH_ROOT"
     --aws-sdk"
 
 # Generate code from AWS DDB SDK
-# TODO generate .NET code
 # TODO the generated Dafny code requires some manual updates,
-# Documented at ComAmazonawsDynamodb/README.md
-#
-# ./gradlew run --args="\
-#     --output-dafny \
-#     --include-dafny $DAFNY_ROOT/StandardLibrary/src/Index.dfy \
-#     --model $ComAmazonawsDynamodb_ROOT/Model \
-#     --dependent-model $DAFNY_ROOT/model \
-#     --namespace com.amazonaws.dynamodb \
-#     --aws-sdk"
+# Documented at ComAmazonawsDynamodb/README-ERATA.md
+#  ./gradlew run --args="\
+#      --output-dafny \
+#      --include-dafny $DAFNY_ROOT/StandardLibrary/src/Index.dfy \
+#      --output-dotnet $ComAmazonawsDynamodb_ROOT/runtimes/net/Generated \
+#      --model $ComAmazonawsDynamodb_ROOT/Model/ \
+#      --dependent-model $DAFNY_ROOT/model \
+#      --namespace com.amazonaws.dynamodb \
+#      --aws-sdk"
 
 # Generate code for cryptographic primitives
 ./gradlew run --args="\
@@ -65,6 +64,7 @@ cd "$POLYMORPH_ROOT"
     --output-java $MaterialProviders_ROOT/runtimes/java/src/main/smithy-generated \
     --model $MaterialProviders_ROOT/Model \
     --dependent-model $ComAmazonawsKms_ROOT/Model \
+    --dependent-model $ComAmazonawsDynamodb_ROOT/Model \
     --dependent-model $DAFNY_ROOT/model \
     --dependent-model $AwsCryptographyPrimitives_ROOT/Model \
     --namespace aws.cryptography.materialProviders"

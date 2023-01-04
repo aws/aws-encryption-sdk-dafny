@@ -70,3 +70,43 @@ mvn_local_deploy: transpile_java
 build_java: transpile_java build_java_dependencies
 	gradle -p runtimes/java build
 
+transpile_net: | transpile_implementation_net transpile_test_net transpile_net_dependencies
+
+transpile_implementation_net:
+	dafny \
+		-vcsCores:$(CORES) \
+		-compileTarget:cs \
+		-spillTargetCode:3 \
+		-compile:0 \
+		-useRuntimeLib \
+		-out runtimes/net/ImplementationFromDafny \
+		./src/Index.dfy \
+		-library:../StandardLibrary/src/Index.dfy
+
+transpile_test_net:
+	dafny \
+		-vcsCores:$(CORES) \
+		-compileTarget:cs \
+		-spillTargetCode:3 \
+		-runAllTests:1 \
+		-compile:0 \
+		-useRuntimeLib \
+		-out runtimes/net/tests/TestsFromDafny \
+		`find ./test -name '*.dfy'` \
+		-library:src/Index.dfy
+
+transpile_net_dependencies:
+	$(MAKE) -C ../StandardLibrary transpile_implementation_net
+
+test_net:
+	dotnet run \
+		--project runtimes/net/tests/ \
+		--framework net6.0
+
+test_net_mac_intel:
+	DYLD_LIBRARY_PATH="/usr/local/opt/openssl@1.1/lib" dotnet run \
+		--project runtimes/net/tests/ \
+		--framework net6.0
+
+setup_net:
+	dotnet restore runtimes/net/
