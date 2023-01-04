@@ -3,17 +3,17 @@
 // Do not modify this file. This file is machine generated, and any changes to it will be overwritten.
 package software.amazon.cryptography.materialProviders.model;
 
-import Dafny.Aws.Cryptography.MaterialProviders.Types.IKeyring;
 import java.util.Objects;
+import software.amazon.cryptography.materialProviders.Keyring;
 
 public class CreateDefaultCryptographicMaterialsManagerInput {
-  private final IKeyring keyring;
+  private final Keyring keyring;
 
   protected CreateDefaultCryptographicMaterialsManagerInput(BuilderImpl builder) {
     this.keyring = builder.keyring();
   }
 
-  public IKeyring keyring() {
+  public Keyring keyring() {
     return this.keyring;
   }
 
@@ -26,15 +26,15 @@ public class CreateDefaultCryptographicMaterialsManagerInput {
   }
 
   public interface Builder {
-    Builder keyring(IKeyring keyring);
+    Builder keyring(Keyring keyring);
 
-    IKeyring keyring();
+    Keyring keyring();
 
     CreateDefaultCryptographicMaterialsManagerInput build();
   }
 
   static class BuilderImpl implements Builder {
-    protected IKeyring keyring;
+    protected Keyring keyring;
 
     protected BuilderImpl() {
     }
@@ -43,12 +43,12 @@ public class CreateDefaultCryptographicMaterialsManagerInput {
       this.keyring = model.keyring();
     }
 
-    public Builder keyring(IKeyring keyring) {
+    public Builder keyring(Keyring keyring) {
       this.keyring = keyring;
       return this;
     }
 
-    public IKeyring keyring() {
+    public Keyring keyring() {
       return this.keyring;
     }
 

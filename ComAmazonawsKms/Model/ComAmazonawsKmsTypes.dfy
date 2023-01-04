@@ -499,9 +499,10 @@ include "../../StandardLibrary/src/Index.dfy"
  // add it in your constructor function:
  // Modifies := {your, fields, here, History};
  // If you do not need to mutate anything:
- // Modifies := {History};
+// Modifies := {History};
+
  ghost const Modifies: set<object>
- // For an unassigned const field defined in a trait,
+ // For an unassigned field defined in a trait,
  // Dafny can only assign a value in the constructor.
  // This means that for Dafny to reason about this value,
  // it needs some way to know (an invariant),
@@ -513,7 +514,7 @@ include "../../StandardLibrary/src/Index.dfy"
  // This means that the correctness of this requires
  // MUST only be evaluated by the class itself.
  // If you require any additional mutation,
- // Then you MUST ensure everything you need in ValidState.
+ // then you MUST ensure everything you need in ValidState.
  // You MUST also ensure ValidState in your constructor.
  predicate ValidState()
  ensures ValidState() ==> History in Modifies
@@ -1516,100 +1517,100 @@ include "../../StandardLibrary/src/Index.dfy"
 	| RSA_2048
  datatype Error =
  // Local Error structures are listed here
- | KeyUnavailableException (
- nameonly message: Option<ErrorMessageType>
- )
- | KMSInvalidSignatureException (
- nameonly message: Option<ErrorMessageType>
- )
- | KMSInternalException (
- nameonly message: Option<ErrorMessageType>
- )
- | DisabledException (
- nameonly message: Option<ErrorMessageType>
- )
- | CustomKeyStoreInvalidStateException (
- nameonly message: Option<ErrorMessageType>
- )
- | ExpiredImportTokenException (
- nameonly message: Option<ErrorMessageType>
- )
- | KMSInvalidStateException (
- nameonly message: Option<ErrorMessageType>
- )
- | IncorrectTrustAnchorException (
- nameonly message: Option<ErrorMessageType>
- )
- | IncorrectKeyException (
- nameonly message: Option<ErrorMessageType>
- )
- | LimitExceededException (
- nameonly message: Option<ErrorMessageType>
- )
- | InvalidGrantIdException (
- nameonly message: Option<ErrorMessageType>
- )
- | InvalidMarkerException (
- nameonly message: Option<ErrorMessageType>
- )
- | CustomKeyStoreHasCMKsException (
- nameonly message: Option<ErrorMessageType>
- )
- | MalformedPolicyDocumentException (
- nameonly message: Option<ErrorMessageType>
- )
  | AlreadyExistsException (
  nameonly message: Option<ErrorMessageType>
  )
- | InvalidCiphertextException (
- nameonly message: Option<ErrorMessageType>
- )
- | CloudHsmClusterNotActiveException (
- nameonly message: Option<ErrorMessageType>
- )
- | InvalidGrantTokenException (
- nameonly message: Option<ErrorMessageType>
- )
- | IncorrectKeyMaterialException (
- nameonly message: Option<ErrorMessageType>
- )
- | InvalidImportTokenException (
- nameonly message: Option<ErrorMessageType>
- )
- | InvalidAliasNameException (
- nameonly message: Option<ErrorMessageType>
- )
- | InvalidKeyUsageException (
- nameonly message: Option<ErrorMessageType>
- )
- | CustomKeyStoreNotFoundException (
- nameonly message: Option<ErrorMessageType>
- )
- | CloudHsmClusterNotFoundException (
- nameonly message: Option<ErrorMessageType>
- )
- | NotFoundException (
- nameonly message: Option<ErrorMessageType>
- )
- | CloudHsmClusterNotRelatedException (
- nameonly message: Option<ErrorMessageType>
- )
- | DependencyTimeoutException (
- nameonly message: Option<ErrorMessageType>
- )
- | TagException (
+ | CloudHsmClusterInUseException (
  nameonly message: Option<ErrorMessageType>
  )
  | CloudHsmClusterInvalidConfigurationException (
  nameonly message: Option<ErrorMessageType>
  )
+ | CloudHsmClusterNotActiveException (
+ nameonly message: Option<ErrorMessageType>
+ )
+ | CloudHsmClusterNotFoundException (
+ nameonly message: Option<ErrorMessageType>
+ )
+ | CloudHsmClusterNotRelatedException (
+ nameonly message: Option<ErrorMessageType>
+ )
+ | CustomKeyStoreHasCMKsException (
+ nameonly message: Option<ErrorMessageType>
+ )
+ | CustomKeyStoreInvalidStateException (
+ nameonly message: Option<ErrorMessageType>
+ )
  | CustomKeyStoreNameInUseException (
+ nameonly message: Option<ErrorMessageType>
+ )
+ | CustomKeyStoreNotFoundException (
+ nameonly message: Option<ErrorMessageType>
+ )
+ | DependencyTimeoutException (
+ nameonly message: Option<ErrorMessageType>
+ )
+ | DisabledException (
+ nameonly message: Option<ErrorMessageType>
+ )
+ | ExpiredImportTokenException (
+ nameonly message: Option<ErrorMessageType>
+ )
+ | IncorrectKeyException (
+ nameonly message: Option<ErrorMessageType>
+ )
+ | IncorrectKeyMaterialException (
+ nameonly message: Option<ErrorMessageType>
+ )
+ | IncorrectTrustAnchorException (
+ nameonly message: Option<ErrorMessageType>
+ )
+ | InvalidAliasNameException (
  nameonly message: Option<ErrorMessageType>
  )
  | InvalidArnException (
  nameonly message: Option<ErrorMessageType>
  )
- | CloudHsmClusterInUseException (
+ | InvalidCiphertextException (
+ nameonly message: Option<ErrorMessageType>
+ )
+ | InvalidGrantIdException (
+ nameonly message: Option<ErrorMessageType>
+ )
+ | InvalidGrantTokenException (
+ nameonly message: Option<ErrorMessageType>
+ )
+ | InvalidImportTokenException (
+ nameonly message: Option<ErrorMessageType>
+ )
+ | InvalidKeyUsageException (
+ nameonly message: Option<ErrorMessageType>
+ )
+ | InvalidMarkerException (
+ nameonly message: Option<ErrorMessageType>
+ )
+ | KeyUnavailableException (
+ nameonly message: Option<ErrorMessageType>
+ )
+ | KMSInternalException (
+ nameonly message: Option<ErrorMessageType>
+ )
+ | KMSInvalidSignatureException (
+ nameonly message: Option<ErrorMessageType>
+ )
+ | KMSInvalidStateException (
+ nameonly message: Option<ErrorMessageType>
+ )
+ | LimitExceededException (
+ nameonly message: Option<ErrorMessageType>
+ )
+ | MalformedPolicyDocumentException (
+ nameonly message: Option<ErrorMessageType>
+ )
+ | NotFoundException (
+ nameonly message: Option<ErrorMessageType>
+ )
+ | TagException (
  nameonly message: Option<ErrorMessageType>
  )
  | UnsupportedOperationException (

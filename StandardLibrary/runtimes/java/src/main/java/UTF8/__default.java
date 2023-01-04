@@ -28,7 +28,7 @@ public class __default extends UTF8._ExternBase___default {
     public static Result<
             DafnySequence<? extends Byte>,
             DafnySequence<? extends Character>> Encode(
-                    final DafnySequence<? extends Character> s) {
+                final DafnySequence<? extends Character> s) {
         Charset utf8 = StandardCharsets.UTF_8;
         // See thread/concurrent safe comment above class
         CharsetEncoder coder = utf8.newEncoder();

@@ -2,15 +2,17 @@
 // SPDX-License-Identifier: Apache-2.0
 // Do not modify this file. This file is machine generated, and any changes to it will be overwritten.
 include "../../StandardLibrary/src/Index.dfy"
- include "../../ComAmazonawsKms/src/Index.dfy"
  include "../../AwsCryptographyPrimitives/src/Index.dfy"
+ include "../../ComAmazonawsDynamodb/src/Index.dfy"
+ include "../../ComAmazonawsKms/src/Index.dfy"
  module {:extern "Dafny.Aws.Cryptography.MaterialProviders.Types" } AwsCryptographyMaterialProvidersTypes
  {
  import opened Wrappers
  import opened StandardLibrary.UInt
  import opened UTF8
- import ComAmazonawsKmsTypes
  import AwsCryptographyPrimitivesTypes
+ import ComAmazonawsDynamodbTypes
+ import ComAmazonawsKmsTypes
  // Generic helpers for verification of mock/unit tests.
  datatype DafnyCallEvent<I, O> = DafnyCallEvent(input: I, output: O)
  
@@ -43,6 +45,7 @@ include "../../StandardLibrary/src/Index.dfy"
  CreateAwsKmsMrkMultiKeyring := [];
  CreateAwsKmsMrkDiscoveryKeyring := [];
  CreateAwsKmsMrkDiscoveryMultiKeyring := [];
+ CreateAwsKmsHierarchicalKeyring := [];
  CreateMultiKeyring := [];
  CreateRawAesKeyring := [];
  CreateRawRsaKeyring := [];
@@ -67,6 +70,7 @@ include "../../StandardLibrary/src/Index.dfy"
  ghost var CreateAwsKmsMrkMultiKeyring: seq<DafnyCallEvent<CreateAwsKmsMrkMultiKeyringInput, Result<IKeyring, Error>>>
  ghost var CreateAwsKmsMrkDiscoveryKeyring: seq<DafnyCallEvent<CreateAwsKmsMrkDiscoveryKeyringInput, Result<IKeyring, Error>>>
  ghost var CreateAwsKmsMrkDiscoveryMultiKeyring: seq<DafnyCallEvent<CreateAwsKmsMrkDiscoveryMultiKeyringInput, Result<IKeyring, Error>>>
+ ghost var CreateAwsKmsHierarchicalKeyring: seq<DafnyCallEvent<CreateAwsKmsHierarchicalKeyringInput, Result<IKeyring, Error>>>
  ghost var CreateMultiKeyring: seq<DafnyCallEvent<CreateMultiKeyringInput, Result<IKeyring, Error>>>
  ghost var CreateRawAesKeyring: seq<DafnyCallEvent<CreateRawAesKeyringInput, Result<IKeyring, Error>>>
  ghost var CreateRawRsaKeyring: seq<DafnyCallEvent<CreateRawRsaKeyringInput, Result<IKeyring, Error>>>
@@ -90,9 +94,10 @@ include "../../StandardLibrary/src/Index.dfy"
  // add it in your constructor function:
  // Modifies := {your, fields, here, History};
  // If you do not need to mutate anything:
- // Modifies := {History};
+// Modifies := {History};
+
  ghost const Modifies: set<object>
- // For an unassigned const field defined in a trait,
+ // For an unassigned field defined in a trait,
  // Dafny can only assign a value in the constructor.
  // This means that for Dafny to reason about this value,
  // it needs some way to know (an invariant),
@@ -104,7 +109,7 @@ include "../../StandardLibrary/src/Index.dfy"
  // This means that the correctness of this requires
  // MUST only be evaluated by the class itself.
  // If you require any additional mutation,
- // Then you MUST ensure everything you need in ValidState.
+ // then you MUST ensure everything you need in ValidState.
  // You MUST also ensure ValidState in your constructor.
  predicate ValidState()
  ensures ValidState() ==> History in Modifies
@@ -305,6 +310,34 @@ include "../../StandardLibrary/src/Index.dfy"
  ensures CreateAwsKmsMrkDiscoveryMultiKeyringEnsuresPublicly(input, output)
  ensures History.CreateAwsKmsMrkDiscoveryMultiKeyring == old(History.CreateAwsKmsMrkDiscoveryMultiKeyring) + [DafnyCallEvent(input, output)]
  
+ predicate CreateAwsKmsHierarchicalKeyringEnsuresPublicly(input: CreateAwsKmsHierarchicalKeyringInput, output: Result<IKeyring, Error>)
+ // The public method to be called by library consumers
+ method CreateAwsKmsHierarchicalKeyring ( input: CreateAwsKmsHierarchicalKeyringInput )
+ returns (output: Result<IKeyring, Error>)
+ requires
+ && ValidState()
+ && input.kmsClient.ValidState()
+ && input.kmsClient.Modifies !! {History}
+ && input.ddbClient.ValidState()
+ && input.ddbClient.Modifies !! {History}
+ modifies Modifies - {History} ,
+ input.kmsClient.Modifies ,
+ input.ddbClient.Modifies ,
+ History`CreateAwsKmsHierarchicalKeyring
+ // Dafny will skip type parameters when generating a default decreases clause.
+ decreases Modifies - {History} ,
+ input.kmsClient.Modifies ,
+ input.ddbClient.Modifies
+ ensures
+ && ValidState()
+ && ( output.Success? ==> 
+ && output.value.ValidState()
+ && output.value.Modifies !! {History}
+ && fresh(output.value)
+ && fresh ( output.value.Modifies - Modifies - {History} - input.kmsClient.Modifies - input.ddbClient.Modifies ) )
+ ensures CreateAwsKmsHierarchicalKeyringEnsuresPublicly(input, output)
+ ensures History.CreateAwsKmsHierarchicalKeyring == old(History.CreateAwsKmsHierarchicalKeyring) + [DafnyCallEvent(input, output)]
+ 
  predicate CreateMultiKeyringEnsuresPublicly(input: CreateMultiKeyringInput, output: Result<IKeyring, Error>)
  // The public method to be called by library consumers
  method CreateMultiKeyring ( input: CreateMultiKeyringInput )
@@ -493,9 +526,10 @@ include "../../StandardLibrary/src/Index.dfy"
  // add it in your constructor function:
  // Modifies := {your, fields, here, History};
  // If you do not need to mutate anything:
- // Modifies := {History};
+// Modifies := {History};
+
  ghost const Modifies: set<object>
- // For an unassigned const field defined in a trait,
+ // For an unassigned field defined in a trait,
  // Dafny can only assign a value in the constructor.
  // This means that for Dafny to reason about this value,
  // it needs some way to know (an invariant),
@@ -507,7 +541,7 @@ include "../../StandardLibrary/src/Index.dfy"
  // This means that the correctness of this requires
  // MUST only be evaluated by the class itself.
  // If you require any additional mutation,
- // Then you MUST ensure everything you need in ValidState.
+ // then you MUST ensure everything you need in ValidState.
  // You MUST also ensure ValidState in your constructor.
  predicate ValidState()
  ensures ValidState() ==> History in Modifies
@@ -565,6 +599,16 @@ include "../../StandardLibrary/src/Index.dfy"
  nameonly regions: RegionList ,
  nameonly discoveryFilter: Option<DiscoveryFilter> ,
  nameonly clientSupplier: Option<IClientSupplier> ,
+ nameonly grantTokens: Option<GrantTokenList>
+ )
+ datatype CreateAwsKmsHierarchicalKeyringInput = | CreateAwsKmsHierarchicalKeyringInput (
+ nameonly branchKeyId: string ,
+ nameonly kmsKeyId: string ,
+ nameonly kmsClient: ComAmazonawsKmsTypes.IKeyManagementServiceClient ,
+ nameonly ddbClient: ComAmazonawsDynamodbTypes.IDynamoDB_20120810Client ,
+ nameonly branchKeysTableName: string ,
+ nameonly ttlMilliseconds: int64 ,
+ nameonly maxCacheSize: Option<int32> ,
  nameonly grantTokens: Option<GrantTokenList>
  )
  datatype CreateAwsKmsKeyringInput = | CreateAwsKmsKeyringInput (
@@ -639,9 +683,10 @@ include "../../StandardLibrary/src/Index.dfy"
  // add it in your constructor function:
  // Modifies := {your, fields, here, History};
  // If you do not need to mutate anything:
- // Modifies := {History};
+// Modifies := {History};
+
  ghost const Modifies: set<object>
- // For an unassigned const field defined in a trait,
+ // For an unassigned field defined in a trait,
  // Dafny can only assign a value in the constructor.
  // This means that for Dafny to reason about this value,
  // it needs some way to know (an invariant),
@@ -653,7 +698,7 @@ include "../../StandardLibrary/src/Index.dfy"
  // This means that the correctness of this requires
  // MUST only be evaluated by the class itself.
  // If you require any additional mutation,
- // Then you MUST ensure everything you need in ValidState.
+ // then you MUST ensure everything you need in ValidState.
  // You MUST also ensure ValidState in your constructor.
  predicate ValidState()
  ensures ValidState() ==> History in Modifies
@@ -792,6 +837,10 @@ include "../../StandardLibrary/src/Index.dfy"
  nameonly encryptionMaterials: EncryptionMaterials
  )
  type GrantTokenList = seq<string>
+ datatype HierarchicalMaterials = | HierarchicalMaterials (
+ nameonly branchKeyVersion: Utf8Bytes ,
+ nameonly branchKey: Secret
+ )
  datatype HKDF = | HKDF (
  nameonly hmac: AwsCryptographyPrimitivesTypes.DigestAlgorithm ,
  nameonly saltLength: AwsCryptographyPrimitivesTypes.PositiveInteger ,
@@ -827,9 +876,10 @@ include "../../StandardLibrary/src/Index.dfy"
  // add it in your constructor function:
  // Modifies := {your, fields, here, History};
  // If you do not need to mutate anything:
- // Modifies := {History};
+// Modifies := {History};
+
  ghost const Modifies: set<object>
- // For an unassigned const field defined in a trait,
+ // For an unassigned field defined in a trait,
  // Dafny can only assign a value in the constructor.
  // This means that for Dafny to reason about this value,
  // it needs some way to know (an invariant),
@@ -841,7 +891,7 @@ include "../../StandardLibrary/src/Index.dfy"
  // This means that the correctness of this requires
  // MUST only be evaluated by the class itself.
  // If you require any additional mutation,
- // Then you MUST ensure everything you need in ValidState.
+ // then you MUST ensure everything you need in ValidState.
  // You MUST also ensure ValidState in your constructor.
  predicate ValidState()
  ensures ValidState() ==> History in Modifies
@@ -961,22 +1011,16 @@ include "../../StandardLibrary/src/Index.dfy"
  )
  datatype Error =
  // Local Error structures are listed here
- | InvalidEncryptionMaterials (
+ | AwsCryptographicMaterialProvidersException (
  nameonly message: string
  )
  | InvalidAlgorithmSuiteInfo (
  nameonly message: string
  )
- | AwsCryptographicMaterialProvidersException (
+ | InvalidAlgorithmSuiteInfoOnDecrypt (
  nameonly message: string
  )
  | InvalidAlgorithmSuiteInfoOnEncrypt (
- nameonly message: string
- )
- | InvalidEncryptionMaterialsTransition (
- nameonly message: string
- )
- | InvalidAlgorithmSuiteInfoOnDecrypt (
  nameonly message: string
  )
  | InvalidDecryptionMaterials (
@@ -985,9 +1029,16 @@ include "../../StandardLibrary/src/Index.dfy"
  | InvalidDecryptionMaterialsTransition (
  nameonly message: string
  )
+ | InvalidEncryptionMaterials (
+ nameonly message: string
+ )
+ | InvalidEncryptionMaterialsTransition (
+ nameonly message: string
+ )
  // Any dependent models are listed here
- | ComAmazonawsKms(ComAmazonawsKms: ComAmazonawsKmsTypes.Error)
  | AwsCryptographyPrimitives(AwsCryptographyPrimitives: AwsCryptographyPrimitivesTypes.Error)
+ | ComAmazonawsDynamodb(ComAmazonawsDynamodb: ComAmazonawsDynamodbTypes.Error)
+ | ComAmazonawsKms(ComAmazonawsKms: ComAmazonawsKmsTypes.Error)
  // The Collection error is used to collect several errors together
  // This is useful when composing OR logic.
  // Consider the following method:
@@ -1279,6 +1330,39 @@ include "../../StandardLibrary/src/Index.dfy"
  {
  output := Operations.CreateAwsKmsMrkDiscoveryMultiKeyring(config, input);
  History.CreateAwsKmsMrkDiscoveryMultiKeyring := History.CreateAwsKmsMrkDiscoveryMultiKeyring + [DafnyCallEvent(input, output)];
+}
+ 
+ predicate CreateAwsKmsHierarchicalKeyringEnsuresPublicly(input: CreateAwsKmsHierarchicalKeyringInput, output: Result<IKeyring, Error>)
+ {Operations.CreateAwsKmsHierarchicalKeyringEnsuresPublicly(input, output)}
+ // The public method to be called by library consumers
+ method CreateAwsKmsHierarchicalKeyring ( input: CreateAwsKmsHierarchicalKeyringInput )
+ returns (output: Result<IKeyring, Error>)
+ requires
+ && ValidState()
+ && input.kmsClient.ValidState()
+ && input.kmsClient.Modifies !! {History}
+ && input.ddbClient.ValidState()
+ && input.ddbClient.Modifies !! {History}
+ modifies Modifies - {History} ,
+ input.kmsClient.Modifies ,
+ input.ddbClient.Modifies ,
+ History`CreateAwsKmsHierarchicalKeyring
+ // Dafny will skip type parameters when generating a default decreases clause.
+ decreases Modifies - {History} ,
+ input.kmsClient.Modifies ,
+ input.ddbClient.Modifies
+ ensures
+ && ValidState()
+ && ( output.Success? ==> 
+ && output.value.ValidState()
+ && output.value.Modifies !! {History}
+ && fresh(output.value)
+ && fresh ( output.value.Modifies - Modifies - {History} - input.kmsClient.Modifies - input.ddbClient.Modifies ) )
+ ensures CreateAwsKmsHierarchicalKeyringEnsuresPublicly(input, output)
+ ensures History.CreateAwsKmsHierarchicalKeyring == old(History.CreateAwsKmsHierarchicalKeyring) + [DafnyCallEvent(input, output)]
+ {
+ output := Operations.CreateAwsKmsHierarchicalKeyring(config, input);
+ History.CreateAwsKmsHierarchicalKeyring := History.CreateAwsKmsHierarchicalKeyring + [DafnyCallEvent(input, output)];
 }
  
  predicate CreateMultiKeyringEnsuresPublicly(input: CreateMultiKeyringInput, output: Result<IKeyring, Error>)
@@ -1706,6 +1790,32 @@ include "../../StandardLibrary/src/Index.dfy"
  && fresh(output.value)
  && fresh ( output.value.Modifies - ModifiesInternalConfig(config) - (if input.clientSupplier.Some? then input.clientSupplier.value.Modifies else {}) ) )
  ensures CreateAwsKmsMrkDiscoveryMultiKeyringEnsuresPublicly(input, output)
+
+
+ predicate CreateAwsKmsHierarchicalKeyringEnsuresPublicly(input: CreateAwsKmsHierarchicalKeyringInput, output: Result<IKeyring, Error>)
+ // The private method to be refined by the library developer
+
+
+ method CreateAwsKmsHierarchicalKeyring ( config: InternalConfig,  input: CreateAwsKmsHierarchicalKeyringInput )
+ returns (output: Result<IKeyring, Error>)
+ requires
+ && ValidInternalConfig?(config)
+ && input.kmsClient.ValidState()
+ && input.ddbClient.ValidState()
+ modifies ModifiesInternalConfig(config) ,
+ input.kmsClient.Modifies ,
+ input.ddbClient.Modifies
+ // Dafny will skip type parameters when generating a default decreases clause.
+ decreases ModifiesInternalConfig(config) ,
+ input.kmsClient.Modifies ,
+ input.ddbClient.Modifies
+ ensures
+ && ValidInternalConfig?(config)
+ && ( output.Success? ==> 
+ && output.value.ValidState()
+ && fresh(output.value)
+ && fresh ( output.value.Modifies - ModifiesInternalConfig(config) - input.kmsClient.Modifies - input.ddbClient.Modifies ) )
+ ensures CreateAwsKmsHierarchicalKeyringEnsuresPublicly(input, output)
 
 
  predicate CreateMultiKeyringEnsuresPublicly(input: CreateMultiKeyringInput, output: Result<IKeyring, Error>)

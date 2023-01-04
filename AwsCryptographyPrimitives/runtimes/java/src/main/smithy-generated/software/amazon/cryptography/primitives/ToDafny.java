@@ -70,6 +70,184 @@ public class ToDafny {
     return Error.create_Collection(list);
   }
 
+  public static DafnySequence<? extends Byte> AESDecryptOutput(ByteBuffer nativeValue) {
+    DafnySequence<? extends Byte> plaintext;
+    plaintext = software.amazon.dafny.conversion.ToDafny.Simple.ByteSequence(nativeValue);
+    return plaintext;
+  }
+
+  public static AES__GCM AES_GCM(AES_GCM nativeValue) {
+    Integer keyLength;
+    keyLength = (nativeValue.keyLength());
+    Integer tagLength;
+    tagLength = (nativeValue.tagLength());
+    Integer ivLength;
+    ivLength = (nativeValue.ivLength());
+    return new AES__GCM(keyLength, tagLength, ivLength);
+  }
+
+  public static GenerateECDSASignatureKeyOutput GenerateECDSASignatureKeyOutput(
+      software.amazon.cryptography.primitives.model.GenerateECDSASignatureKeyOutput nativeValue) {
+    ECDSASignatureAlgorithm signatureAlgorithm;
+    signatureAlgorithm = ToDafny.ECDSASignatureAlgorithm(nativeValue.signatureAlgorithm());
+    DafnySequence<? extends Byte> verificationKey;
+    verificationKey = software.amazon.dafny.conversion.ToDafny.Simple.ByteSequence(nativeValue.verificationKey());
+    DafnySequence<? extends Byte> signingKey;
+    signingKey = software.amazon.dafny.conversion.ToDafny.Simple.ByteSequence(nativeValue.signingKey());
+    return new GenerateECDSASignatureKeyOutput(signatureAlgorithm, verificationKey, signingKey);
+  }
+
+  public static CryptoConfig CryptoConfig(
+      software.amazon.cryptography.primitives.model.CryptoConfig nativeValue) {
+    return new CryptoConfig();
+  }
+
+  public static DafnySequence<? extends Byte> RSAEncryptOutput(ByteBuffer nativeValue) {
+    DafnySequence<? extends Byte> cipherText;
+    cipherText = software.amazon.dafny.conversion.ToDafny.Simple.ByteSequence(nativeValue);
+    return cipherText;
+  }
+
+  public static DigestInput DigestInput(
+      software.amazon.cryptography.primitives.model.DigestInput nativeValue) {
+    DigestAlgorithm digestAlgorithm;
+    digestAlgorithm = ToDafny.DigestAlgorithm(nativeValue.digestAlgorithm());
+    DafnySequence<? extends Byte> message;
+    message = software.amazon.dafny.conversion.ToDafny.Simple.ByteSequence(nativeValue.message());
+    return new DigestInput(digestAlgorithm, message);
+  }
+
+  public static DafnySequence<? extends Byte> GenerateRandomBytesOutput(ByteBuffer nativeValue) {
+    DafnySequence<? extends Byte> data;
+    data = software.amazon.dafny.conversion.ToDafny.Simple.ByteSequence(nativeValue);
+    return data;
+  }
+
+  public static AESDecryptInput AESDecryptInput(
+      software.amazon.cryptography.primitives.model.AESDecryptInput nativeValue) {
+    AES__GCM encAlg;
+    encAlg = ToDafny.AES_GCM(nativeValue.encAlg());
+    DafnySequence<? extends Byte> key;
+    key = software.amazon.dafny.conversion.ToDafny.Simple.ByteSequence(nativeValue.key());
+    DafnySequence<? extends Byte> cipherTxt;
+    cipherTxt = software.amazon.dafny.conversion.ToDafny.Simple.ByteSequence(nativeValue.cipherTxt());
+    DafnySequence<? extends Byte> authTag;
+    authTag = software.amazon.dafny.conversion.ToDafny.Simple.ByteSequence(nativeValue.authTag());
+    DafnySequence<? extends Byte> iv;
+    iv = software.amazon.dafny.conversion.ToDafny.Simple.ByteSequence(nativeValue.iv());
+    DafnySequence<? extends Byte> aad;
+    aad = software.amazon.dafny.conversion.ToDafny.Simple.ByteSequence(nativeValue.aad());
+    return new AESDecryptInput(encAlg, key, cipherTxt, authTag, iv, aad);
+  }
+
+  public static HkdfExpandInput HkdfExpandInput(
+      software.amazon.cryptography.primitives.model.HkdfExpandInput nativeValue) {
+    DigestAlgorithm digestAlgorithm;
+    digestAlgorithm = ToDafny.DigestAlgorithm(nativeValue.digestAlgorithm());
+    DafnySequence<? extends Byte> prk;
+    prk = software.amazon.dafny.conversion.ToDafny.Simple.ByteSequence(nativeValue.prk());
+    DafnySequence<? extends Byte> info;
+    info = software.amazon.dafny.conversion.ToDafny.Simple.ByteSequence(nativeValue.info());
+    Integer expectedLength;
+    expectedLength = (nativeValue.expectedLength());
+    return new HkdfExpandInput(digestAlgorithm, prk, info, expectedLength);
+  }
+
+  public static Boolean ECDSAVerifyOutput(Boolean nativeValue) {
+    Boolean success;
+    success = (nativeValue);
+    return success;
+  }
+
+  public static DafnySequence<? extends Byte> HMacOutput(ByteBuffer nativeValue) {
+    DafnySequence<? extends Byte> digest;
+    digest = software.amazon.dafny.conversion.ToDafny.Simple.ByteSequence(nativeValue);
+    return digest;
+  }
+
+  public static RSAEncryptInput RSAEncryptInput(
+      software.amazon.cryptography.primitives.model.RSAEncryptInput nativeValue) {
+    RSAPaddingMode padding;
+    padding = ToDafny.RSAPaddingMode(nativeValue.padding());
+    DafnySequence<? extends Byte> publicKey;
+    publicKey = software.amazon.dafny.conversion.ToDafny.Simple.ByteSequence(nativeValue.publicKey());
+    DafnySequence<? extends Byte> plaintext;
+    plaintext = software.amazon.dafny.conversion.ToDafny.Simple.ByteSequence(nativeValue.plaintext());
+    return new RSAEncryptInput(padding, publicKey, plaintext);
+  }
+
+  public static GenerateECDSASignatureKeyInput GenerateECDSASignatureKeyInput(
+      software.amazon.cryptography.primitives.model.GenerateECDSASignatureKeyInput nativeValue) {
+    ECDSASignatureAlgorithm signatureAlgorithm;
+    signatureAlgorithm = ToDafny.ECDSASignatureAlgorithm(nativeValue.signatureAlgorithm());
+    return new GenerateECDSASignatureKeyInput(signatureAlgorithm);
+  }
+
+  public static DafnySequence<? extends Byte> HkdfExtractOutput(ByteBuffer nativeValue) {
+    DafnySequence<? extends Byte> prk;
+    prk = software.amazon.dafny.conversion.ToDafny.Simple.ByteSequence(nativeValue);
+    return prk;
+  }
+
+  public static GenerateRSAKeyPairInput GenerateRSAKeyPairInput(
+      software.amazon.cryptography.primitives.model.GenerateRSAKeyPairInput nativeValue) {
+    Integer strength;
+    strength = (nativeValue.strength());
+    return new GenerateRSAKeyPairInput(strength);
+  }
+
+  public static HkdfExtractInput HkdfExtractInput(
+      software.amazon.cryptography.primitives.model.HkdfExtractInput nativeValue) {
+    DigestAlgorithm digestAlgorithm;
+    digestAlgorithm = ToDafny.DigestAlgorithm(nativeValue.digestAlgorithm());
+    Option<DafnySequence<? extends Byte>> salt;
+    salt = Objects.nonNull(nativeValue.salt()) ?
+        Option.create_Some(software.amazon.dafny.conversion.ToDafny.Simple.ByteSequence(nativeValue.salt()))
+        : Option.create_None();
+    DafnySequence<? extends Byte> ikm;
+    ikm = software.amazon.dafny.conversion.ToDafny.Simple.ByteSequence(nativeValue.ikm());
+    return new HkdfExtractInput(digestAlgorithm, salt, ikm);
+  }
+
+  public static RSAPublicKey RSAPublicKey(
+      software.amazon.cryptography.primitives.model.RSAPublicKey nativeValue) {
+    Integer strength;
+    strength = (nativeValue.strength());
+    DafnySequence<? extends Byte> pem;
+    pem = software.amazon.dafny.conversion.ToDafny.Simple.ByteSequence(nativeValue.pem());
+    return new RSAPublicKey(strength, pem);
+  }
+
+  public static ECDSAVerifyInput ECDSAVerifyInput(
+      software.amazon.cryptography.primitives.model.ECDSAVerifyInput nativeValue) {
+    ECDSASignatureAlgorithm signatureAlgorithm;
+    signatureAlgorithm = ToDafny.ECDSASignatureAlgorithm(nativeValue.signatureAlgorithm());
+    DafnySequence<? extends Byte> verificationKey;
+    verificationKey = software.amazon.dafny.conversion.ToDafny.Simple.ByteSequence(nativeValue.verificationKey());
+    DafnySequence<? extends Byte> message;
+    message = software.amazon.dafny.conversion.ToDafny.Simple.ByteSequence(nativeValue.message());
+    DafnySequence<? extends Byte> signature;
+    signature = software.amazon.dafny.conversion.ToDafny.Simple.ByteSequence(nativeValue.signature());
+    return new ECDSAVerifyInput(signatureAlgorithm, verificationKey, message, signature);
+  }
+
+  public static HkdfInput HkdfInput(
+      software.amazon.cryptography.primitives.model.HkdfInput nativeValue) {
+    DigestAlgorithm digestAlgorithm;
+    digestAlgorithm = ToDafny.DigestAlgorithm(nativeValue.digestAlgorithm());
+    Option<DafnySequence<? extends Byte>> salt;
+    salt = Objects.nonNull(nativeValue.salt()) ?
+        Option.create_Some(software.amazon.dafny.conversion.ToDafny.Simple.ByteSequence(nativeValue.salt()))
+        : Option.create_None();
+    DafnySequence<? extends Byte> ikm;
+    ikm = software.amazon.dafny.conversion.ToDafny.Simple.ByteSequence(nativeValue.ikm());
+    DafnySequence<? extends Byte> info;
+    info = software.amazon.dafny.conversion.ToDafny.Simple.ByteSequence(nativeValue.info());
+    Integer expectedLength;
+    expectedLength = (nativeValue.expectedLength());
+    return new HkdfInput(digestAlgorithm, salt, ikm, info, expectedLength);
+  }
+
   public static AESEncryptOutput AESEncryptOutput(
       software.amazon.cryptography.primitives.model.AESEncryptOutput nativeValue) {
     DafnySequence<? extends Byte> cipherText;
@@ -77,17 +255,6 @@ public class ToDafny {
     DafnySequence<? extends Byte> authTag;
     authTag = software.amazon.dafny.conversion.ToDafny.Simple.ByteSequence(nativeValue.authTag());
     return new AESEncryptOutput(cipherText, authTag);
-  }
-
-  public static HMacInput HMacInput(
-      software.amazon.cryptography.primitives.model.HMacInput nativeValue) {
-    DigestAlgorithm digestAlgorithm;
-    digestAlgorithm = ToDafny.DigestAlgorithm(nativeValue.digestAlgorithm());
-    DafnySequence<? extends Byte> key;
-    key = software.amazon.dafny.conversion.ToDafny.Simple.ByteSequence(nativeValue.key());
-    DafnySequence<? extends Byte> message;
-    message = software.amazon.dafny.conversion.ToDafny.Simple.ByteSequence(nativeValue.message());
-    return new HMacInput(digestAlgorithm, key, message);
   }
 
   public static DafnySequence<? extends Byte> RSADecryptOutput(ByteBuffer nativeValue) {
@@ -102,38 +269,37 @@ public class ToDafny {
     return okm;
   }
 
-  public static RSADecryptInput RSADecryptInput(
-      software.amazon.cryptography.primitives.model.RSADecryptInput nativeValue) {
-    RSAPaddingMode padding;
-    padding = ToDafny.RSAPaddingMode(nativeValue.padding());
-    DafnySequence<? extends Byte> privateKey;
-    privateKey = software.amazon.dafny.conversion.ToDafny.Simple.ByteSequence(nativeValue.privateKey());
-    DafnySequence<? extends Byte> cipherText;
-    cipherText = software.amazon.dafny.conversion.ToDafny.Simple.ByteSequence(nativeValue.cipherText());
-    return new RSADecryptInput(padding, privateKey, cipherText);
+  public static GenerateRandomBytesInput GenerateRandomBytesInput(
+      software.amazon.cryptography.primitives.model.GenerateRandomBytesInput nativeValue) {
+    Integer length;
+    length = (nativeValue.length());
+    return new GenerateRandomBytesInput(length);
   }
 
-  public static ECDSASignInput ECDSASignInput(
-      software.amazon.cryptography.primitives.model.ECDSASignInput nativeValue) {
-    ECDSASignatureAlgorithm signatureAlgorithm;
-    signatureAlgorithm = ToDafny.ECDSASignatureAlgorithm(nativeValue.signatureAlgorithm());
-    DafnySequence<? extends Byte> signingKey;
-    signingKey = software.amazon.dafny.conversion.ToDafny.Simple.ByteSequence(nativeValue.signingKey());
+  public static HMacInput HMacInput(
+      software.amazon.cryptography.primitives.model.HMacInput nativeValue) {
+    DigestAlgorithm digestAlgorithm;
+    digestAlgorithm = ToDafny.DigestAlgorithm(nativeValue.digestAlgorithm());
+    DafnySequence<? extends Byte> key;
+    key = software.amazon.dafny.conversion.ToDafny.Simple.ByteSequence(nativeValue.key());
     DafnySequence<? extends Byte> message;
     message = software.amazon.dafny.conversion.ToDafny.Simple.ByteSequence(nativeValue.message());
-    return new ECDSASignInput(signatureAlgorithm, signingKey, message);
+    return new HMacInput(digestAlgorithm, key, message);
   }
 
-  public static DafnySequence<? extends Byte> ECDSASignOutput(ByteBuffer nativeValue) {
-    DafnySequence<? extends Byte> signature;
-    signature = software.amazon.dafny.conversion.ToDafny.Simple.ByteSequence(nativeValue);
-    return signature;
+  public static DafnySequence<? extends Byte> HkdfOutput(ByteBuffer nativeValue) {
+    DafnySequence<? extends Byte> okm;
+    okm = software.amazon.dafny.conversion.ToDafny.Simple.ByteSequence(nativeValue);
+    return okm;
   }
 
-  public static DafnySequence<? extends Byte> DigestOutput(ByteBuffer nativeValue) {
-    DafnySequence<? extends Byte> digest;
-    digest = software.amazon.dafny.conversion.ToDafny.Simple.ByteSequence(nativeValue);
-    return digest;
+  public static RSAPrivateKey RSAPrivateKey(
+      software.amazon.cryptography.primitives.model.RSAPrivateKey nativeValue) {
+    Integer strength;
+    strength = (nativeValue.strength());
+    DafnySequence<? extends Byte> pem;
+    pem = software.amazon.dafny.conversion.ToDafny.Simple.ByteSequence(nativeValue.pem());
+    return new RSAPrivateKey(strength, pem);
   }
 
   public static GenerateRSAKeyPairOutput GenerateRSAKeyPairOutput(
@@ -160,204 +326,38 @@ public class ToDafny {
     return new AESEncryptInput(encAlg, iv, key, msg, aad);
   }
 
-  public static DafnySequence<? extends Byte> RSAEncryptOutput(ByteBuffer nativeValue) {
+  public static RSADecryptInput RSADecryptInput(
+      software.amazon.cryptography.primitives.model.RSADecryptInput nativeValue) {
+    RSAPaddingMode padding;
+    padding = ToDafny.RSAPaddingMode(nativeValue.padding());
+    DafnySequence<? extends Byte> privateKey;
+    privateKey = software.amazon.dafny.conversion.ToDafny.Simple.ByteSequence(nativeValue.privateKey());
     DafnySequence<? extends Byte> cipherText;
-    cipherText = software.amazon.dafny.conversion.ToDafny.Simple.ByteSequence(nativeValue);
-    return cipherText;
+    cipherText = software.amazon.dafny.conversion.ToDafny.Simple.ByteSequence(nativeValue.cipherText());
+    return new RSADecryptInput(padding, privateKey, cipherText);
   }
 
-  public static GenerateECDSASignatureKeyOutput GenerateECDSASignatureKeyOutput(
-      software.amazon.cryptography.primitives.model.GenerateECDSASignatureKeyOutput nativeValue) {
+  public static DafnySequence<? extends Byte> ECDSASignOutput(ByteBuffer nativeValue) {
+    DafnySequence<? extends Byte> signature;
+    signature = software.amazon.dafny.conversion.ToDafny.Simple.ByteSequence(nativeValue);
+    return signature;
+  }
+
+  public static ECDSASignInput ECDSASignInput(
+      software.amazon.cryptography.primitives.model.ECDSASignInput nativeValue) {
     ECDSASignatureAlgorithm signatureAlgorithm;
     signatureAlgorithm = ToDafny.ECDSASignatureAlgorithm(nativeValue.signatureAlgorithm());
-    DafnySequence<? extends Byte> verificationKey;
-    verificationKey = software.amazon.dafny.conversion.ToDafny.Simple.ByteSequence(nativeValue.verificationKey());
     DafnySequence<? extends Byte> signingKey;
     signingKey = software.amazon.dafny.conversion.ToDafny.Simple.ByteSequence(nativeValue.signingKey());
-    return new GenerateECDSASignatureKeyOutput(signatureAlgorithm, verificationKey, signingKey);
+    DafnySequence<? extends Byte> message;
+    message = software.amazon.dafny.conversion.ToDafny.Simple.ByteSequence(nativeValue.message());
+    return new ECDSASignInput(signatureAlgorithm, signingKey, message);
   }
 
-  public static AES__GCM AES_GCM(AES_GCM nativeValue) {
-    Integer keyLength;
-    keyLength = (nativeValue.keyLength());
-    Integer tagLength;
-    tagLength = (nativeValue.tagLength());
-    Integer ivLength;
-    ivLength = (nativeValue.ivLength());
-    return new AES__GCM(keyLength, tagLength, ivLength);
-  }
-
-  public static Boolean ECDSAVerifyOutput(Boolean nativeValue) {
-    Boolean success;
-    success = (nativeValue);
-    return success;
-  }
-
-  public static AESDecryptInput AESDecryptInput(
-      software.amazon.cryptography.primitives.model.AESDecryptInput nativeValue) {
-    AES__GCM encAlg;
-    encAlg = ToDafny.AES_GCM(nativeValue.encAlg());
-    DafnySequence<? extends Byte> key;
-    key = software.amazon.dafny.conversion.ToDafny.Simple.ByteSequence(nativeValue.key());
-    DafnySequence<? extends Byte> cipherTxt;
-    cipherTxt = software.amazon.dafny.conversion.ToDafny.Simple.ByteSequence(nativeValue.cipherTxt());
-    DafnySequence<? extends Byte> authTag;
-    authTag = software.amazon.dafny.conversion.ToDafny.Simple.ByteSequence(nativeValue.authTag());
-    DafnySequence<? extends Byte> iv;
-    iv = software.amazon.dafny.conversion.ToDafny.Simple.ByteSequence(nativeValue.iv());
-    DafnySequence<? extends Byte> aad;
-    aad = software.amazon.dafny.conversion.ToDafny.Simple.ByteSequence(nativeValue.aad());
-    return new AESDecryptInput(encAlg, key, cipherTxt, authTag, iv, aad);
-  }
-
-  public static GenerateECDSASignatureKeyInput GenerateECDSASignatureKeyInput(
-      software.amazon.cryptography.primitives.model.GenerateECDSASignatureKeyInput nativeValue) {
-    ECDSASignatureAlgorithm signatureAlgorithm;
-    signatureAlgorithm = ToDafny.ECDSASignatureAlgorithm(nativeValue.signatureAlgorithm());
-    return new GenerateECDSASignatureKeyInput(signatureAlgorithm);
-  }
-
-  public static DafnySequence<? extends Byte> HMacOutput(ByteBuffer nativeValue) {
+  public static DafnySequence<? extends Byte> DigestOutput(ByteBuffer nativeValue) {
     DafnySequence<? extends Byte> digest;
     digest = software.amazon.dafny.conversion.ToDafny.Simple.ByteSequence(nativeValue);
     return digest;
-  }
-
-  public static HkdfExpandInput HkdfExpandInput(
-      software.amazon.cryptography.primitives.model.HkdfExpandInput nativeValue) {
-    DigestAlgorithm digestAlgorithm;
-    digestAlgorithm = ToDafny.DigestAlgorithm(nativeValue.digestAlgorithm());
-    DafnySequence<? extends Byte> prk;
-    prk = software.amazon.dafny.conversion.ToDafny.Simple.ByteSequence(nativeValue.prk());
-    DafnySequence<? extends Byte> info;
-    info = software.amazon.dafny.conversion.ToDafny.Simple.ByteSequence(nativeValue.info());
-    Integer expectedLength;
-    expectedLength = (nativeValue.expectedLength());
-    return new HkdfExpandInput(digestAlgorithm, prk, info, expectedLength);
-  }
-
-  public static HkdfInput HkdfInput(
-      software.amazon.cryptography.primitives.model.HkdfInput nativeValue) {
-    DigestAlgorithm digestAlgorithm;
-    digestAlgorithm = ToDafny.DigestAlgorithm(nativeValue.digestAlgorithm());
-    Option<DafnySequence<? extends Byte>> salt;
-    salt = Objects.nonNull(nativeValue.salt()) ?
-        Option.create_Some(software.amazon.dafny.conversion.ToDafny.Simple.ByteSequence(nativeValue.salt()))
-        : Option.create_None();
-    DafnySequence<? extends Byte> ikm;
-    ikm = software.amazon.dafny.conversion.ToDafny.Simple.ByteSequence(nativeValue.ikm());
-    DafnySequence<? extends Byte> info;
-    info = software.amazon.dafny.conversion.ToDafny.Simple.ByteSequence(nativeValue.info());
-    Integer expectedLength;
-    expectedLength = (nativeValue.expectedLength());
-    return new HkdfInput(digestAlgorithm, salt, ikm, info, expectedLength);
-  }
-
-  public static DafnySequence<? extends Byte> AESDecryptOutput(ByteBuffer nativeValue) {
-    DafnySequence<? extends Byte> plaintext;
-    plaintext = software.amazon.dafny.conversion.ToDafny.Simple.ByteSequence(nativeValue);
-    return plaintext;
-  }
-
-  public static DafnySequence<? extends Byte> GenerateRandomBytesOutput(ByteBuffer nativeValue) {
-    DafnySequence<? extends Byte> data;
-    data = software.amazon.dafny.conversion.ToDafny.Simple.ByteSequence(nativeValue);
-    return data;
-  }
-
-  public static HkdfExtractInput HkdfExtractInput(
-      software.amazon.cryptography.primitives.model.HkdfExtractInput nativeValue) {
-    DigestAlgorithm digestAlgorithm;
-    digestAlgorithm = ToDafny.DigestAlgorithm(nativeValue.digestAlgorithm());
-    Option<DafnySequence<? extends Byte>> salt;
-    salt = Objects.nonNull(nativeValue.salt()) ?
-        Option.create_Some(software.amazon.dafny.conversion.ToDafny.Simple.ByteSequence(nativeValue.salt()))
-        : Option.create_None();
-    DafnySequence<? extends Byte> ikm;
-    ikm = software.amazon.dafny.conversion.ToDafny.Simple.ByteSequence(nativeValue.ikm());
-    return new HkdfExtractInput(digestAlgorithm, salt, ikm);
-  }
-
-  public static CryptoConfig CryptoConfig(
-      software.amazon.cryptography.primitives.model.CryptoConfig nativeValue) {
-    return new CryptoConfig();
-  }
-
-  public static GenerateRSAKeyPairInput GenerateRSAKeyPairInput(
-      software.amazon.cryptography.primitives.model.GenerateRSAKeyPairInput nativeValue) {
-    Integer strength;
-    strength = (nativeValue.strength());
-    return new GenerateRSAKeyPairInput(strength);
-  }
-
-  public static RSAPrivateKey RSAPrivateKey(
-      software.amazon.cryptography.primitives.model.RSAPrivateKey nativeValue) {
-    Integer strength;
-    strength = (nativeValue.strength());
-    DafnySequence<? extends Byte> pem;
-    pem = software.amazon.dafny.conversion.ToDafny.Simple.ByteSequence(nativeValue.pem());
-    return new RSAPrivateKey(strength, pem);
-  }
-
-  public static DafnySequence<? extends Byte> HkdfOutput(ByteBuffer nativeValue) {
-    DafnySequence<? extends Byte> okm;
-    okm = software.amazon.dafny.conversion.ToDafny.Simple.ByteSequence(nativeValue);
-    return okm;
-  }
-
-  public static ECDSAVerifyInput ECDSAVerifyInput(
-      software.amazon.cryptography.primitives.model.ECDSAVerifyInput nativeValue) {
-    ECDSASignatureAlgorithm signatureAlgorithm;
-    signatureAlgorithm = ToDafny.ECDSASignatureAlgorithm(nativeValue.signatureAlgorithm());
-    DafnySequence<? extends Byte> verificationKey;
-    verificationKey = software.amazon.dafny.conversion.ToDafny.Simple.ByteSequence(nativeValue.verificationKey());
-    DafnySequence<? extends Byte> message;
-    message = software.amazon.dafny.conversion.ToDafny.Simple.ByteSequence(nativeValue.message());
-    DafnySequence<? extends Byte> signature;
-    signature = software.amazon.dafny.conversion.ToDafny.Simple.ByteSequence(nativeValue.signature());
-    return new ECDSAVerifyInput(signatureAlgorithm, verificationKey, message, signature);
-  }
-
-  public static DafnySequence<? extends Byte> HkdfExtractOutput(ByteBuffer nativeValue) {
-    DafnySequence<? extends Byte> prk;
-    prk = software.amazon.dafny.conversion.ToDafny.Simple.ByteSequence(nativeValue);
-    return prk;
-  }
-
-  public static RSAEncryptInput RSAEncryptInput(
-      software.amazon.cryptography.primitives.model.RSAEncryptInput nativeValue) {
-    RSAPaddingMode padding;
-    padding = ToDafny.RSAPaddingMode(nativeValue.padding());
-    DafnySequence<? extends Byte> publicKey;
-    publicKey = software.amazon.dafny.conversion.ToDafny.Simple.ByteSequence(nativeValue.publicKey());
-    DafnySequence<? extends Byte> plaintext;
-    plaintext = software.amazon.dafny.conversion.ToDafny.Simple.ByteSequence(nativeValue.plaintext());
-    return new RSAEncryptInput(padding, publicKey, plaintext);
-  }
-
-  public static RSAPublicKey RSAPublicKey(
-      software.amazon.cryptography.primitives.model.RSAPublicKey nativeValue) {
-    Integer strength;
-    strength = (nativeValue.strength());
-    DafnySequence<? extends Byte> pem;
-    pem = software.amazon.dafny.conversion.ToDafny.Simple.ByteSequence(nativeValue.pem());
-    return new RSAPublicKey(strength, pem);
-  }
-
-  public static DigestInput DigestInput(
-      software.amazon.cryptography.primitives.model.DigestInput nativeValue) {
-    DigestAlgorithm digestAlgorithm;
-    digestAlgorithm = ToDafny.DigestAlgorithm(nativeValue.digestAlgorithm());
-    DafnySequence<? extends Byte> message;
-    message = software.amazon.dafny.conversion.ToDafny.Simple.ByteSequence(nativeValue.message());
-    return new DigestInput(digestAlgorithm, message);
-  }
-
-  public static GenerateRandomBytesInput GenerateRandomBytesInput(
-      software.amazon.cryptography.primitives.model.GenerateRandomBytesInput nativeValue) {
-    Integer length;
-    length = (nativeValue.length());
-    return new GenerateRandomBytesInput(length);
   }
 
   public static Error Error(AwsCryptographicPrimitivesError nativeValue) {

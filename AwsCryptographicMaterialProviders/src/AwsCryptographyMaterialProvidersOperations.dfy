@@ -5,6 +5,7 @@ include "../Model/AwsCryptographyMaterialProvidersTypes.dfy"
 include "Keyrings/AwsKms/StrictMultiKeyring.dfy"
 include "Keyrings/MultiKeyring.dfy"
 include "Keyrings/AwsKms/AwsKmsKeyring.dfy"
+include "Keyrings/AwsKms/AwsKmsHierarchicalKeyring.dfy"
 include "Keyrings/AwsKms/AwsKmsUtils.dfy"
 include "Keyrings/AwsKms/AwsKmsDiscoveryKeyring.dfy"
 include "Keyrings/AwsKms/DiscoveryMultiKeyring.dfy"
@@ -29,6 +30,7 @@ module AwsCryptographyMaterialProvidersOperations refines AbstractAwsCryptograph
   import opened MD = MrkAwareDiscoveryMultiKeyring
   import opened M = MrkAwareStrictMultiKeyring
   import AwsKmsKeyring
+  import AwsKmsHierarchicalKeyring
   import AwsKmsMrkKeyring
   import AwsKmsDiscoveryKeyring
   import AwsKmsMrkDiscoveryKeyring
@@ -229,6 +231,49 @@ module AwsCryptographyMaterialProvidersOperations refines AbstractAwsCryptograph
       clientSupplier,
       Option.Some(grantTokens)
     );
+  }
+
+  predicate CreateAwsKmsHierarchicalKeyringEnsuresPublicly(input: CreateAwsKmsHierarchicalKeyringInput, output: Result<IKeyring, Error>)
+  {true}
+
+  method CreateAwsKmsHierarchicalKeyring ( config: InternalConfig, input: CreateAwsKmsHierarchicalKeyringInput)
+    returns (output: Result<IKeyring, Error>)
+  {
+    var _ :- ValidateKmsKeyId(input.kmsKeyId);
+    var grantTokens :- GetValidGrantTokens(input.grantTokens);
+    var maxCacheSize : int32;
+
+    :- Need(
+      3 <= |input.branchKeysTableName| <= 255,
+      Types.AwsCryptographicMaterialProvidersException(
+        message := "Invalid DynamoDB Table Name"
+      )
+    );
+
+    if input.maxCacheSize.None? {
+      maxCacheSize := 1000;
+    } else {
+      :- Need(
+        input.maxCacheSize.value >= 1,
+        Types.AwsCryptographicMaterialProvidersException(
+          message := "Invalid Cache Size"
+        )
+      );
+
+      maxCacheSize := input.maxCacheSize.value;
+    }
+    
+    var keyring := new AwsKmsHierarchicalKeyring.AwsKmsHierarchicalKeyring(
+      input.kmsClient,
+      input.kmsKeyId,
+      grantTokens,
+      input.ddbClient,
+      input.branchKeysTableName,
+      input.branchKeyId,
+      input.ttlMilliseconds,
+      maxCacheSize
+    );
+    return Success(keyring);
   }
 
   predicate CreateMultiKeyringEnsuresPublicly(input: CreateMultiKeyringInput, output: Result<IKeyring, Error>)

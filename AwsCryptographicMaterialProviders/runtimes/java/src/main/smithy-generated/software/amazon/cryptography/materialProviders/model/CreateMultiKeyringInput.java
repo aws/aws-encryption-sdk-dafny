@@ -3,25 +3,25 @@
 // Do not modify this file. This file is machine generated, and any changes to it will be overwritten.
 package software.amazon.cryptography.materialProviders.model;
 
-import Dafny.Aws.Cryptography.MaterialProviders.Types.IKeyring;
 import java.util.List;
 import java.util.Objects;
+import software.amazon.cryptography.materialProviders.Keyring;
 
 public class CreateMultiKeyringInput {
-  private final IKeyring generator;
+  private final Keyring generator;
 
-  private final List<IKeyring> childKeyrings;
+  private final List<Keyring> childKeyrings;
 
   protected CreateMultiKeyringInput(BuilderImpl builder) {
     this.generator = builder.generator();
     this.childKeyrings = builder.childKeyrings();
   }
 
-  public IKeyring generator() {
+  public Keyring generator() {
     return this.generator;
   }
 
-  public List<IKeyring> childKeyrings() {
+  public List<Keyring> childKeyrings() {
     return this.childKeyrings;
   }
 
@@ -34,21 +34,21 @@ public class CreateMultiKeyringInput {
   }
 
   public interface Builder {
-    Builder generator(IKeyring generator);
+    Builder generator(Keyring generator);
 
-    IKeyring generator();
+    Keyring generator();
 
-    Builder childKeyrings(List<IKeyring> childKeyrings);
+    Builder childKeyrings(List<Keyring> childKeyrings);
 
-    List<IKeyring> childKeyrings();
+    List<Keyring> childKeyrings();
 
     CreateMultiKeyringInput build();
   }
 
   static class BuilderImpl implements Builder {
-    protected IKeyring generator;
+    protected Keyring generator;
 
-    protected List<IKeyring> childKeyrings;
+    protected List<Keyring> childKeyrings;
 
     protected BuilderImpl() {
     }
@@ -58,21 +58,21 @@ public class CreateMultiKeyringInput {
       this.childKeyrings = model.childKeyrings();
     }
 
-    public Builder generator(IKeyring generator) {
+    public Builder generator(Keyring generator) {
       this.generator = generator;
       return this;
     }
 
-    public IKeyring generator() {
+    public Keyring generator() {
       return this.generator;
     }
 
-    public Builder childKeyrings(List<IKeyring> childKeyrings) {
+    public Builder childKeyrings(List<Keyring> childKeyrings) {
       this.childKeyrings = childKeyrings;
       return this;
     }
 
-    public List<IKeyring> childKeyrings() {
+    public List<Keyring> childKeyrings() {
       return this.childKeyrings;
     }
 

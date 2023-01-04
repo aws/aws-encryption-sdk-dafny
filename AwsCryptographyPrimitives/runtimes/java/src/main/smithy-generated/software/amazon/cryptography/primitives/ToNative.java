@@ -80,19 +80,152 @@ public class ToNative {
     return nativeBuilder.build();
   }
 
+  public static ByteBuffer AESDecryptOutput(DafnySequence<? extends Byte> dafnyValue) {
+    return software.amazon.dafny.conversion.ToNative.Simple.ByteBuffer(dafnyValue);
+  }
+
+  public static AES_GCM AES_GCM(AES__GCM dafnyValue) {
+    AES_GCM.Builder nativeBuilder = AES_GCM.builder();
+    nativeBuilder.keyLength((dafnyValue.dtor_keyLength()));
+    nativeBuilder.tagLength((dafnyValue.dtor_tagLength()));
+    nativeBuilder.ivLength((dafnyValue.dtor_ivLength()));
+    return nativeBuilder.build();
+  }
+
+  public static GenerateECDSASignatureKeyOutput GenerateECDSASignatureKeyOutput(
+      Dafny.Aws.Cryptography.Primitives.Types.GenerateECDSASignatureKeyOutput dafnyValue) {
+    GenerateECDSASignatureKeyOutput.Builder nativeBuilder = GenerateECDSASignatureKeyOutput.builder();
+    nativeBuilder.signatureAlgorithm(ToNative.ECDSASignatureAlgorithm(dafnyValue.dtor_signatureAlgorithm()));
+    nativeBuilder.verificationKey(software.amazon.dafny.conversion.ToNative.Simple.ByteBuffer(dafnyValue.dtor_verificationKey()));
+    nativeBuilder.signingKey(software.amazon.dafny.conversion.ToNative.Simple.ByteBuffer(dafnyValue.dtor_signingKey()));
+    return nativeBuilder.build();
+  }
+
+  public static CryptoConfig CryptoConfig(
+      Dafny.Aws.Cryptography.Primitives.Types.CryptoConfig dafnyValue) {
+    CryptoConfig.Builder nativeBuilder = CryptoConfig.builder();
+    return nativeBuilder.build();
+  }
+
+  public static ByteBuffer RSAEncryptOutput(DafnySequence<? extends Byte> dafnyValue) {
+    return software.amazon.dafny.conversion.ToNative.Simple.ByteBuffer(dafnyValue);
+  }
+
+  public static DigestInput DigestInput(
+      Dafny.Aws.Cryptography.Primitives.Types.DigestInput dafnyValue) {
+    DigestInput.Builder nativeBuilder = DigestInput.builder();
+    nativeBuilder.digestAlgorithm(ToNative.DigestAlgorithm(dafnyValue.dtor_digestAlgorithm()));
+    nativeBuilder.message(software.amazon.dafny.conversion.ToNative.Simple.ByteBuffer(dafnyValue.dtor_message()));
+    return nativeBuilder.build();
+  }
+
+  public static ByteBuffer GenerateRandomBytesOutput(DafnySequence<? extends Byte> dafnyValue) {
+    return software.amazon.dafny.conversion.ToNative.Simple.ByteBuffer(dafnyValue);
+  }
+
+  public static AESDecryptInput AESDecryptInput(
+      Dafny.Aws.Cryptography.Primitives.Types.AESDecryptInput dafnyValue) {
+    AESDecryptInput.Builder nativeBuilder = AESDecryptInput.builder();
+    nativeBuilder.encAlg(ToNative.AES_GCM(dafnyValue.dtor_encAlg()));
+    nativeBuilder.key(software.amazon.dafny.conversion.ToNative.Simple.ByteBuffer(dafnyValue.dtor_key()));
+    nativeBuilder.cipherTxt(software.amazon.dafny.conversion.ToNative.Simple.ByteBuffer(dafnyValue.dtor_cipherTxt()));
+    nativeBuilder.authTag(software.amazon.dafny.conversion.ToNative.Simple.ByteBuffer(dafnyValue.dtor_authTag()));
+    nativeBuilder.iv(software.amazon.dafny.conversion.ToNative.Simple.ByteBuffer(dafnyValue.dtor_iv()));
+    nativeBuilder.aad(software.amazon.dafny.conversion.ToNative.Simple.ByteBuffer(dafnyValue.dtor_aad()));
+    return nativeBuilder.build();
+  }
+
+  public static HkdfExpandInput HkdfExpandInput(
+      Dafny.Aws.Cryptography.Primitives.Types.HkdfExpandInput dafnyValue) {
+    HkdfExpandInput.Builder nativeBuilder = HkdfExpandInput.builder();
+    nativeBuilder.digestAlgorithm(ToNative.DigestAlgorithm(dafnyValue.dtor_digestAlgorithm()));
+    nativeBuilder.prk(software.amazon.dafny.conversion.ToNative.Simple.ByteBuffer(dafnyValue.dtor_prk()));
+    nativeBuilder.info(software.amazon.dafny.conversion.ToNative.Simple.ByteBuffer(dafnyValue.dtor_info()));
+    nativeBuilder.expectedLength((dafnyValue.dtor_expectedLength()));
+    return nativeBuilder.build();
+  }
+
+  public static Boolean ECDSAVerifyOutput(Boolean dafnyValue) {
+    return (dafnyValue);
+  }
+
+  public static ByteBuffer HMacOutput(DafnySequence<? extends Byte> dafnyValue) {
+    return software.amazon.dafny.conversion.ToNative.Simple.ByteBuffer(dafnyValue);
+  }
+
+  public static RSAEncryptInput RSAEncryptInput(
+      Dafny.Aws.Cryptography.Primitives.Types.RSAEncryptInput dafnyValue) {
+    RSAEncryptInput.Builder nativeBuilder = RSAEncryptInput.builder();
+    nativeBuilder.padding(ToNative.RSAPaddingMode(dafnyValue.dtor_padding()));
+    nativeBuilder.publicKey(software.amazon.dafny.conversion.ToNative.Simple.ByteBuffer(dafnyValue.dtor_publicKey()));
+    nativeBuilder.plaintext(software.amazon.dafny.conversion.ToNative.Simple.ByteBuffer(dafnyValue.dtor_plaintext()));
+    return nativeBuilder.build();
+  }
+
+  public static GenerateECDSASignatureKeyInput GenerateECDSASignatureKeyInput(
+      Dafny.Aws.Cryptography.Primitives.Types.GenerateECDSASignatureKeyInput dafnyValue) {
+    GenerateECDSASignatureKeyInput.Builder nativeBuilder = GenerateECDSASignatureKeyInput.builder();
+    nativeBuilder.signatureAlgorithm(ToNative.ECDSASignatureAlgorithm(dafnyValue.dtor_signatureAlgorithm()));
+    return nativeBuilder.build();
+  }
+
+  public static ByteBuffer HkdfExtractOutput(DafnySequence<? extends Byte> dafnyValue) {
+    return software.amazon.dafny.conversion.ToNative.Simple.ByteBuffer(dafnyValue);
+  }
+
+  public static GenerateRSAKeyPairInput GenerateRSAKeyPairInput(
+      Dafny.Aws.Cryptography.Primitives.Types.GenerateRSAKeyPairInput dafnyValue) {
+    GenerateRSAKeyPairInput.Builder nativeBuilder = GenerateRSAKeyPairInput.builder();
+    nativeBuilder.strength((dafnyValue.dtor_strength()));
+    return nativeBuilder.build();
+  }
+
+  public static HkdfExtractInput HkdfExtractInput(
+      Dafny.Aws.Cryptography.Primitives.Types.HkdfExtractInput dafnyValue) {
+    HkdfExtractInput.Builder nativeBuilder = HkdfExtractInput.builder();
+    nativeBuilder.digestAlgorithm(ToNative.DigestAlgorithm(dafnyValue.dtor_digestAlgorithm()));
+    if (dafnyValue.dtor_salt().is_Some()) {
+      nativeBuilder.salt(software.amazon.dafny.conversion.ToNative.Simple.ByteBuffer(dafnyValue.dtor_salt().dtor_value()));
+    }
+    nativeBuilder.ikm(software.amazon.dafny.conversion.ToNative.Simple.ByteBuffer(dafnyValue.dtor_ikm()));
+    return nativeBuilder.build();
+  }
+
+  public static RSAPublicKey RSAPublicKey(
+      Dafny.Aws.Cryptography.Primitives.Types.RSAPublicKey dafnyValue) {
+    RSAPublicKey.Builder nativeBuilder = RSAPublicKey.builder();
+    nativeBuilder.strength((dafnyValue.dtor_strength()));
+    nativeBuilder.pem(software.amazon.dafny.conversion.ToNative.Simple.ByteBuffer(dafnyValue.dtor_pem()));
+    return nativeBuilder.build();
+  }
+
+  public static ECDSAVerifyInput ECDSAVerifyInput(
+      Dafny.Aws.Cryptography.Primitives.Types.ECDSAVerifyInput dafnyValue) {
+    ECDSAVerifyInput.Builder nativeBuilder = ECDSAVerifyInput.builder();
+    nativeBuilder.signatureAlgorithm(ToNative.ECDSASignatureAlgorithm(dafnyValue.dtor_signatureAlgorithm()));
+    nativeBuilder.verificationKey(software.amazon.dafny.conversion.ToNative.Simple.ByteBuffer(dafnyValue.dtor_verificationKey()));
+    nativeBuilder.message(software.amazon.dafny.conversion.ToNative.Simple.ByteBuffer(dafnyValue.dtor_message()));
+    nativeBuilder.signature(software.amazon.dafny.conversion.ToNative.Simple.ByteBuffer(dafnyValue.dtor_signature()));
+    return nativeBuilder.build();
+  }
+
+  public static HkdfInput HkdfInput(Dafny.Aws.Cryptography.Primitives.Types.HkdfInput dafnyValue) {
+    HkdfInput.Builder nativeBuilder = HkdfInput.builder();
+    nativeBuilder.digestAlgorithm(ToNative.DigestAlgorithm(dafnyValue.dtor_digestAlgorithm()));
+    if (dafnyValue.dtor_salt().is_Some()) {
+      nativeBuilder.salt(software.amazon.dafny.conversion.ToNative.Simple.ByteBuffer(dafnyValue.dtor_salt().dtor_value()));
+    }
+    nativeBuilder.ikm(software.amazon.dafny.conversion.ToNative.Simple.ByteBuffer(dafnyValue.dtor_ikm()));
+    nativeBuilder.info(software.amazon.dafny.conversion.ToNative.Simple.ByteBuffer(dafnyValue.dtor_info()));
+    nativeBuilder.expectedLength((dafnyValue.dtor_expectedLength()));
+    return nativeBuilder.build();
+  }
+
   public static AESEncryptOutput AESEncryptOutput(
       Dafny.Aws.Cryptography.Primitives.Types.AESEncryptOutput dafnyValue) {
     AESEncryptOutput.Builder nativeBuilder = AESEncryptOutput.builder();
     nativeBuilder.cipherText(software.amazon.dafny.conversion.ToNative.Simple.ByteBuffer(dafnyValue.dtor_cipherText()));
     nativeBuilder.authTag(software.amazon.dafny.conversion.ToNative.Simple.ByteBuffer(dafnyValue.dtor_authTag()));
-    return nativeBuilder.build();
-  }
-
-  public static HMacInput HMacInput(Dafny.Aws.Cryptography.Primitives.Types.HMacInput dafnyValue) {
-    HMacInput.Builder nativeBuilder = HMacInput.builder();
-    nativeBuilder.digestAlgorithm(ToNative.DigestAlgorithm(dafnyValue.dtor_digestAlgorithm()));
-    nativeBuilder.key(software.amazon.dafny.conversion.ToNative.Simple.ByteBuffer(dafnyValue.dtor_key()));
-    nativeBuilder.message(software.amazon.dafny.conversion.ToNative.Simple.ByteBuffer(dafnyValue.dtor_message()));
     return nativeBuilder.build();
   }
 
@@ -104,30 +237,31 @@ public class ToNative {
     return software.amazon.dafny.conversion.ToNative.Simple.ByteBuffer(dafnyValue);
   }
 
-  public static RSADecryptInput RSADecryptInput(
-      Dafny.Aws.Cryptography.Primitives.Types.RSADecryptInput dafnyValue) {
-    RSADecryptInput.Builder nativeBuilder = RSADecryptInput.builder();
-    nativeBuilder.padding(ToNative.RSAPaddingMode(dafnyValue.dtor_padding()));
-    nativeBuilder.privateKey(software.amazon.dafny.conversion.ToNative.Simple.ByteBuffer(dafnyValue.dtor_privateKey()));
-    nativeBuilder.cipherText(software.amazon.dafny.conversion.ToNative.Simple.ByteBuffer(dafnyValue.dtor_cipherText()));
+  public static GenerateRandomBytesInput GenerateRandomBytesInput(
+      Dafny.Aws.Cryptography.Primitives.Types.GenerateRandomBytesInput dafnyValue) {
+    GenerateRandomBytesInput.Builder nativeBuilder = GenerateRandomBytesInput.builder();
+    nativeBuilder.length((dafnyValue.dtor_length()));
     return nativeBuilder.build();
   }
 
-  public static ECDSASignInput ECDSASignInput(
-      Dafny.Aws.Cryptography.Primitives.Types.ECDSASignInput dafnyValue) {
-    ECDSASignInput.Builder nativeBuilder = ECDSASignInput.builder();
-    nativeBuilder.signatureAlgorithm(ToNative.ECDSASignatureAlgorithm(dafnyValue.dtor_signatureAlgorithm()));
-    nativeBuilder.signingKey(software.amazon.dafny.conversion.ToNative.Simple.ByteBuffer(dafnyValue.dtor_signingKey()));
+  public static HMacInput HMacInput(Dafny.Aws.Cryptography.Primitives.Types.HMacInput dafnyValue) {
+    HMacInput.Builder nativeBuilder = HMacInput.builder();
+    nativeBuilder.digestAlgorithm(ToNative.DigestAlgorithm(dafnyValue.dtor_digestAlgorithm()));
+    nativeBuilder.key(software.amazon.dafny.conversion.ToNative.Simple.ByteBuffer(dafnyValue.dtor_key()));
     nativeBuilder.message(software.amazon.dafny.conversion.ToNative.Simple.ByteBuffer(dafnyValue.dtor_message()));
     return nativeBuilder.build();
   }
 
-  public static ByteBuffer ECDSASignOutput(DafnySequence<? extends Byte> dafnyValue) {
+  public static ByteBuffer HkdfOutput(DafnySequence<? extends Byte> dafnyValue) {
     return software.amazon.dafny.conversion.ToNative.Simple.ByteBuffer(dafnyValue);
   }
 
-  public static ByteBuffer DigestOutput(DafnySequence<? extends Byte> dafnyValue) {
-    return software.amazon.dafny.conversion.ToNative.Simple.ByteBuffer(dafnyValue);
+  public static RSAPrivateKey RSAPrivateKey(
+      Dafny.Aws.Cryptography.Primitives.Types.RSAPrivateKey dafnyValue) {
+    RSAPrivateKey.Builder nativeBuilder = RSAPrivateKey.builder();
+    nativeBuilder.strength((dafnyValue.dtor_strength()));
+    nativeBuilder.pem(software.amazon.dafny.conversion.ToNative.Simple.ByteBuffer(dafnyValue.dtor_pem()));
+    return nativeBuilder.build();
   }
 
   public static GenerateRSAKeyPairOutput GenerateRSAKeyPairOutput(
@@ -149,164 +283,30 @@ public class ToNative {
     return nativeBuilder.build();
   }
 
-  public static ByteBuffer RSAEncryptOutput(DafnySequence<? extends Byte> dafnyValue) {
-    return software.amazon.dafny.conversion.ToNative.Simple.ByteBuffer(dafnyValue);
-  }
-
-  public static GenerateECDSASignatureKeyOutput GenerateECDSASignatureKeyOutput(
-      Dafny.Aws.Cryptography.Primitives.Types.GenerateECDSASignatureKeyOutput dafnyValue) {
-    GenerateECDSASignatureKeyOutput.Builder nativeBuilder = GenerateECDSASignatureKeyOutput.builder();
-    nativeBuilder.signatureAlgorithm(ToNative.ECDSASignatureAlgorithm(dafnyValue.dtor_signatureAlgorithm()));
-    nativeBuilder.verificationKey(software.amazon.dafny.conversion.ToNative.Simple.ByteBuffer(dafnyValue.dtor_verificationKey()));
-    nativeBuilder.signingKey(software.amazon.dafny.conversion.ToNative.Simple.ByteBuffer(dafnyValue.dtor_signingKey()));
-    return nativeBuilder.build();
-  }
-
-  public static AES_GCM AES_GCM(AES__GCM dafnyValue) {
-    AES_GCM.Builder nativeBuilder = AES_GCM.builder();
-    nativeBuilder.keyLength((dafnyValue.dtor_keyLength()));
-    nativeBuilder.tagLength((dafnyValue.dtor_tagLength()));
-    nativeBuilder.ivLength((dafnyValue.dtor_ivLength()));
-    return nativeBuilder.build();
-  }
-
-  public static Boolean ECDSAVerifyOutput(Boolean dafnyValue) {
-    return (dafnyValue);
-  }
-
-  public static AESDecryptInput AESDecryptInput(
-      Dafny.Aws.Cryptography.Primitives.Types.AESDecryptInput dafnyValue) {
-    AESDecryptInput.Builder nativeBuilder = AESDecryptInput.builder();
-    nativeBuilder.encAlg(ToNative.AES_GCM(dafnyValue.dtor_encAlg()));
-    nativeBuilder.key(software.amazon.dafny.conversion.ToNative.Simple.ByteBuffer(dafnyValue.dtor_key()));
-    nativeBuilder.cipherTxt(software.amazon.dafny.conversion.ToNative.Simple.ByteBuffer(dafnyValue.dtor_cipherTxt()));
-    nativeBuilder.authTag(software.amazon.dafny.conversion.ToNative.Simple.ByteBuffer(dafnyValue.dtor_authTag()));
-    nativeBuilder.iv(software.amazon.dafny.conversion.ToNative.Simple.ByteBuffer(dafnyValue.dtor_iv()));
-    nativeBuilder.aad(software.amazon.dafny.conversion.ToNative.Simple.ByteBuffer(dafnyValue.dtor_aad()));
-    return nativeBuilder.build();
-  }
-
-  public static GenerateECDSASignatureKeyInput GenerateECDSASignatureKeyInput(
-      Dafny.Aws.Cryptography.Primitives.Types.GenerateECDSASignatureKeyInput dafnyValue) {
-    GenerateECDSASignatureKeyInput.Builder nativeBuilder = GenerateECDSASignatureKeyInput.builder();
-    nativeBuilder.signatureAlgorithm(ToNative.ECDSASignatureAlgorithm(dafnyValue.dtor_signatureAlgorithm()));
-    return nativeBuilder.build();
-  }
-
-  public static ByteBuffer HMacOutput(DafnySequence<? extends Byte> dafnyValue) {
-    return software.amazon.dafny.conversion.ToNative.Simple.ByteBuffer(dafnyValue);
-  }
-
-  public static HkdfExpandInput HkdfExpandInput(
-      Dafny.Aws.Cryptography.Primitives.Types.HkdfExpandInput dafnyValue) {
-    HkdfExpandInput.Builder nativeBuilder = HkdfExpandInput.builder();
-    nativeBuilder.digestAlgorithm(ToNative.DigestAlgorithm(dafnyValue.dtor_digestAlgorithm()));
-    nativeBuilder.prk(software.amazon.dafny.conversion.ToNative.Simple.ByteBuffer(dafnyValue.dtor_prk()));
-    nativeBuilder.info(software.amazon.dafny.conversion.ToNative.Simple.ByteBuffer(dafnyValue.dtor_info()));
-    nativeBuilder.expectedLength((dafnyValue.dtor_expectedLength()));
-    return nativeBuilder.build();
-  }
-
-  public static HkdfInput HkdfInput(Dafny.Aws.Cryptography.Primitives.Types.HkdfInput dafnyValue) {
-    HkdfInput.Builder nativeBuilder = HkdfInput.builder();
-    nativeBuilder.digestAlgorithm(ToNative.DigestAlgorithm(dafnyValue.dtor_digestAlgorithm()));
-    if (dafnyValue.dtor_salt().is_Some()) {
-      nativeBuilder.salt(software.amazon.dafny.conversion.ToNative.Simple.ByteBuffer(dafnyValue.dtor_salt().dtor_value()));
-    }
-    nativeBuilder.ikm(software.amazon.dafny.conversion.ToNative.Simple.ByteBuffer(dafnyValue.dtor_ikm()));
-    nativeBuilder.info(software.amazon.dafny.conversion.ToNative.Simple.ByteBuffer(dafnyValue.dtor_info()));
-    nativeBuilder.expectedLength((dafnyValue.dtor_expectedLength()));
-    return nativeBuilder.build();
-  }
-
-  public static ByteBuffer AESDecryptOutput(DafnySequence<? extends Byte> dafnyValue) {
-    return software.amazon.dafny.conversion.ToNative.Simple.ByteBuffer(dafnyValue);
-  }
-
-  public static ByteBuffer GenerateRandomBytesOutput(DafnySequence<? extends Byte> dafnyValue) {
-    return software.amazon.dafny.conversion.ToNative.Simple.ByteBuffer(dafnyValue);
-  }
-
-  public static HkdfExtractInput HkdfExtractInput(
-      Dafny.Aws.Cryptography.Primitives.Types.HkdfExtractInput dafnyValue) {
-    HkdfExtractInput.Builder nativeBuilder = HkdfExtractInput.builder();
-    nativeBuilder.digestAlgorithm(ToNative.DigestAlgorithm(dafnyValue.dtor_digestAlgorithm()));
-    if (dafnyValue.dtor_salt().is_Some()) {
-      nativeBuilder.salt(software.amazon.dafny.conversion.ToNative.Simple.ByteBuffer(dafnyValue.dtor_salt().dtor_value()));
-    }
-    nativeBuilder.ikm(software.amazon.dafny.conversion.ToNative.Simple.ByteBuffer(dafnyValue.dtor_ikm()));
-    return nativeBuilder.build();
-  }
-
-  public static CryptoConfig CryptoConfig(
-      Dafny.Aws.Cryptography.Primitives.Types.CryptoConfig dafnyValue) {
-    CryptoConfig.Builder nativeBuilder = CryptoConfig.builder();
-    return nativeBuilder.build();
-  }
-
-  public static GenerateRSAKeyPairInput GenerateRSAKeyPairInput(
-      Dafny.Aws.Cryptography.Primitives.Types.GenerateRSAKeyPairInput dafnyValue) {
-    GenerateRSAKeyPairInput.Builder nativeBuilder = GenerateRSAKeyPairInput.builder();
-    nativeBuilder.strength((dafnyValue.dtor_strength()));
-    return nativeBuilder.build();
-  }
-
-  public static RSAPrivateKey RSAPrivateKey(
-      Dafny.Aws.Cryptography.Primitives.Types.RSAPrivateKey dafnyValue) {
-    RSAPrivateKey.Builder nativeBuilder = RSAPrivateKey.builder();
-    nativeBuilder.strength((dafnyValue.dtor_strength()));
-    nativeBuilder.pem(software.amazon.dafny.conversion.ToNative.Simple.ByteBuffer(dafnyValue.dtor_pem()));
-    return nativeBuilder.build();
-  }
-
-  public static ByteBuffer HkdfOutput(DafnySequence<? extends Byte> dafnyValue) {
-    return software.amazon.dafny.conversion.ToNative.Simple.ByteBuffer(dafnyValue);
-  }
-
-  public static ECDSAVerifyInput ECDSAVerifyInput(
-      Dafny.Aws.Cryptography.Primitives.Types.ECDSAVerifyInput dafnyValue) {
-    ECDSAVerifyInput.Builder nativeBuilder = ECDSAVerifyInput.builder();
-    nativeBuilder.signatureAlgorithm(ToNative.ECDSASignatureAlgorithm(dafnyValue.dtor_signatureAlgorithm()));
-    nativeBuilder.verificationKey(software.amazon.dafny.conversion.ToNative.Simple.ByteBuffer(dafnyValue.dtor_verificationKey()));
-    nativeBuilder.message(software.amazon.dafny.conversion.ToNative.Simple.ByteBuffer(dafnyValue.dtor_message()));
-    nativeBuilder.signature(software.amazon.dafny.conversion.ToNative.Simple.ByteBuffer(dafnyValue.dtor_signature()));
-    return nativeBuilder.build();
-  }
-
-  public static ByteBuffer HkdfExtractOutput(DafnySequence<? extends Byte> dafnyValue) {
-    return software.amazon.dafny.conversion.ToNative.Simple.ByteBuffer(dafnyValue);
-  }
-
-  public static RSAEncryptInput RSAEncryptInput(
-      Dafny.Aws.Cryptography.Primitives.Types.RSAEncryptInput dafnyValue) {
-    RSAEncryptInput.Builder nativeBuilder = RSAEncryptInput.builder();
+  public static RSADecryptInput RSADecryptInput(
+      Dafny.Aws.Cryptography.Primitives.Types.RSADecryptInput dafnyValue) {
+    RSADecryptInput.Builder nativeBuilder = RSADecryptInput.builder();
     nativeBuilder.padding(ToNative.RSAPaddingMode(dafnyValue.dtor_padding()));
-    nativeBuilder.publicKey(software.amazon.dafny.conversion.ToNative.Simple.ByteBuffer(dafnyValue.dtor_publicKey()));
-    nativeBuilder.plaintext(software.amazon.dafny.conversion.ToNative.Simple.ByteBuffer(dafnyValue.dtor_plaintext()));
+    nativeBuilder.privateKey(software.amazon.dafny.conversion.ToNative.Simple.ByteBuffer(dafnyValue.dtor_privateKey()));
+    nativeBuilder.cipherText(software.amazon.dafny.conversion.ToNative.Simple.ByteBuffer(dafnyValue.dtor_cipherText()));
     return nativeBuilder.build();
   }
 
-  public static RSAPublicKey RSAPublicKey(
-      Dafny.Aws.Cryptography.Primitives.Types.RSAPublicKey dafnyValue) {
-    RSAPublicKey.Builder nativeBuilder = RSAPublicKey.builder();
-    nativeBuilder.strength((dafnyValue.dtor_strength()));
-    nativeBuilder.pem(software.amazon.dafny.conversion.ToNative.Simple.ByteBuffer(dafnyValue.dtor_pem()));
-    return nativeBuilder.build();
+  public static ByteBuffer ECDSASignOutput(DafnySequence<? extends Byte> dafnyValue) {
+    return software.amazon.dafny.conversion.ToNative.Simple.ByteBuffer(dafnyValue);
   }
 
-  public static DigestInput DigestInput(
-      Dafny.Aws.Cryptography.Primitives.Types.DigestInput dafnyValue) {
-    DigestInput.Builder nativeBuilder = DigestInput.builder();
-    nativeBuilder.digestAlgorithm(ToNative.DigestAlgorithm(dafnyValue.dtor_digestAlgorithm()));
+  public static ECDSASignInput ECDSASignInput(
+      Dafny.Aws.Cryptography.Primitives.Types.ECDSASignInput dafnyValue) {
+    ECDSASignInput.Builder nativeBuilder = ECDSASignInput.builder();
+    nativeBuilder.signatureAlgorithm(ToNative.ECDSASignatureAlgorithm(dafnyValue.dtor_signatureAlgorithm()));
+    nativeBuilder.signingKey(software.amazon.dafny.conversion.ToNative.Simple.ByteBuffer(dafnyValue.dtor_signingKey()));
     nativeBuilder.message(software.amazon.dafny.conversion.ToNative.Simple.ByteBuffer(dafnyValue.dtor_message()));
     return nativeBuilder.build();
   }
 
-  public static GenerateRandomBytesInput GenerateRandomBytesInput(
-      Dafny.Aws.Cryptography.Primitives.Types.GenerateRandomBytesInput dafnyValue) {
-    GenerateRandomBytesInput.Builder nativeBuilder = GenerateRandomBytesInput.builder();
-    nativeBuilder.length((dafnyValue.dtor_length()));
-    return nativeBuilder.build();
+  public static ByteBuffer DigestOutput(DafnySequence<? extends Byte> dafnyValue) {
+    return software.amazon.dafny.conversion.ToNative.Simple.ByteBuffer(dafnyValue);
   }
 
   public static ECDSASignatureAlgorithm ECDSASignatureAlgorithm(

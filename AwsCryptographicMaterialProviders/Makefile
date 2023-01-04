@@ -32,6 +32,7 @@ transpile_implementation_net:
 		./src/Index.dfy \
 		-library:../AwsCryptographyPrimitives/src/Index.dfy \
 		-library:../ComAmazonawsKms/src/Index.dfy \
+		-library:../ComAmazonawsDynamodb/src/Index.dfy \
 		-library:../StandardLibrary/src/Index.dfy
 
 transpile_test_net:
@@ -50,6 +51,7 @@ transpile_net_dependencies:
 	$(MAKE) -C ../StandardLibrary transpile_implementation_net
 	$(MAKE) -C ../AwsCryptographyPrimitives transpile_implementation_net
 	$(MAKE) -C ../ComAmazonawsKms transpile_implementation_net
+	$(MAKE) -C ../ComAmazonawsDynamodb transpile_implementation_net
 
 test_net:
 	dotnet run \
@@ -82,6 +84,7 @@ _transpile_implementation_java:
 		./src/Index.dfy \
 		-library:../AwsCryptographyPrimitives/src/Index.dfy \
 		-library:../ComAmazonawsKms/src/Index.dfy \
+		-library:../ComAmazonawsDynamodb/src/Index.dfy \
 		-library:../StandardLibrary/src/Index.dfy
 
 _mv_implementation_java:
@@ -110,6 +113,7 @@ _mv_test_java:
 build_java_dependencies:
 	$(MAKE) -C ../StandardLibrary mvn_local_deploy
 	$(MAKE) -C ../ComAmazonawsKms mvn_local_deploy
+	$(MAKE) -C ../ComAmazonawsDynamodb mvn_local_deploy
 	$(MAKE) -C ../AwsCryptographyPrimitives mvn_local_deploy
 
 build_java: transpile_java build_java_dependencies
