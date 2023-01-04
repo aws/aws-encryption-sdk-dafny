@@ -5,6 +5,9 @@ package software.amazon.cryptography.materialProviders.model;
 
 import java.util.List;
 import java.util.Objects;
+import java.util.stream.Collectors;
+
+import software.amazon.cryptography.materialProviders.IKeyring;
 import software.amazon.cryptography.materialProviders.Keyring;
 
 public class CreateMultiKeyringInput {
@@ -34,11 +37,11 @@ public class CreateMultiKeyringInput {
   }
 
   public interface Builder {
-    Builder generator(Keyring generator);
+    <I extends IKeyring> Builder generator(I generator);
 
     Keyring generator();
 
-    Builder childKeyrings(List<Keyring> childKeyrings);
+    <I extends IKeyring> Builder childKeyrings(List<I> childKeyrings);
 
     List<Keyring> childKeyrings();
 
@@ -58,8 +61,8 @@ public class CreateMultiKeyringInput {
       this.childKeyrings = model.childKeyrings();
     }
 
-    public Builder generator(Keyring generator) {
-      this.generator = generator;
+    public <I extends IKeyring> Builder generator(I generator) {
+      this.generator = Keyring.create(generator);
       return this;
     }
 
@@ -67,8 +70,10 @@ public class CreateMultiKeyringInput {
       return this.generator;
     }
 
-    public Builder childKeyrings(List<Keyring> childKeyrings) {
-      this.childKeyrings = childKeyrings;
+    public <I extends IKeyring> Builder childKeyrings(List<I> childKeyrings) {
+      this.childKeyrings = childKeyrings.stream().sequential()
+              .map(Keyring::create)
+              .collect(Collectors.toList());
       return this;
     }
 

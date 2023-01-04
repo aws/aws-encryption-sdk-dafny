@@ -6,6 +6,9 @@ package software.amazon.cryptography.materialProviders.model;
 import java.util.Objects;
 import software.amazon.cryptography.materialProviders.Keyring;
 
+import software.amazon.cryptography.materialProviders.IKeyring;
+import software.amazon.cryptography.materialProviders.Keyring;
+
 public class CreateDefaultCryptographicMaterialsManagerInput {
   private final Keyring keyring;
 
@@ -26,7 +29,7 @@ public class CreateDefaultCryptographicMaterialsManagerInput {
   }
 
   public interface Builder {
-    Builder keyring(Keyring keyring);
+    <I extends IKeyring> Builder keyring(I keyring);
 
     Keyring keyring();
 
@@ -43,8 +46,8 @@ public class CreateDefaultCryptographicMaterialsManagerInput {
       this.keyring = model.keyring();
     }
 
-    public Builder keyring(Keyring keyring) {
-      this.keyring = keyring;
+    public <I extends IKeyring> Builder keyring(I keyring) {
+      this.keyring = Keyring.create(keyring);
       return this;
     }
 

@@ -3,8 +3,9 @@
 // Do not modify this file. This file is machine generated, and any changes to it will be overwritten.
 package software.amazon.cryptography.materialProviders.model;
 
-import Dafny.Com.Amazonaws.Dynamodb.Types.IDynamoDB__20120810Client;
-import Dafny.Com.Amazonaws.Kms.Types.IKeyManagementServiceClient;
+import com.amazonaws.services.kms.AWSKMS;
+import software.amazon.awssdk.services.dynamodb.DynamoDbClient;
+
 import java.util.List;
 import java.util.Objects;
 
@@ -13,9 +14,9 @@ public class CreateAwsKmsHierarchicalKeyringInput {
 
   private final String kmsKeyId;
 
-  private final IKeyManagementServiceClient kmsClient;
+  private final AWSKMS kmsClient;
 
-  private final IDynamoDB__20120810Client ddbClient;
+  private final DynamoDbClient ddbClient;
 
   private final String branchKeysTableName;
 
@@ -44,11 +45,11 @@ public class CreateAwsKmsHierarchicalKeyringInput {
     return this.kmsKeyId;
   }
 
-  public IKeyManagementServiceClient kmsClient() {
+  public AWSKMS kmsClient() {
     return this.kmsClient;
   }
 
-  public IDynamoDB__20120810Client ddbClient() {
+  public DynamoDbClient ddbClient() {
     return this.ddbClient;
   }
 
@@ -85,13 +86,13 @@ public class CreateAwsKmsHierarchicalKeyringInput {
 
     String kmsKeyId();
 
-    Builder kmsClient(IKeyManagementServiceClient kmsClient);
+    Builder kmsClient(AWSKMS kmsClient);
 
-    IKeyManagementServiceClient kmsClient();
+    AWSKMS kmsClient();
 
-    Builder ddbClient(IDynamoDB__20120810Client ddbClient);
+    Builder ddbClient(DynamoDbClient ddbClient);
 
-    IDynamoDB__20120810Client ddbClient();
+    DynamoDbClient ddbClient();
 
     Builder branchKeysTableName(String branchKeysTableName);
 
@@ -117,9 +118,9 @@ public class CreateAwsKmsHierarchicalKeyringInput {
 
     protected String kmsKeyId;
 
-    protected IKeyManagementServiceClient kmsClient;
+    protected AWSKMS kmsClient;
 
-    protected IDynamoDB__20120810Client ddbClient;
+    protected DynamoDbClient ddbClient;
 
     protected String branchKeysTableName;
 
@@ -161,21 +162,21 @@ public class CreateAwsKmsHierarchicalKeyringInput {
       return this.kmsKeyId;
     }
 
-    public Builder kmsClient(IKeyManagementServiceClient kmsClient) {
+    public Builder kmsClient(AWSKMS kmsClient) {
       this.kmsClient = kmsClient;
       return this;
     }
 
-    public IKeyManagementServiceClient kmsClient() {
+    public AWSKMS kmsClient() {
       return this.kmsClient;
     }
 
-    public Builder ddbClient(IDynamoDB__20120810Client ddbClient) {
+    public Builder ddbClient(DynamoDbClient ddbClient) {
       this.ddbClient = ddbClient;
       return this;
     }
 
-    public IDynamoDB__20120810Client ddbClient() {
+    public DynamoDbClient ddbClient() {
       return this.ddbClient;
     }
 
