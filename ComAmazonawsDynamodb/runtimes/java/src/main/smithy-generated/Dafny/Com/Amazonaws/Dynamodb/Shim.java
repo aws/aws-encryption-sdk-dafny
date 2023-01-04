@@ -157,6 +157,10 @@ public class Shim implements IDynamoDB__20120810Client {
     this.region = region;
   }
 
+  public DynamoDbClient impl() {
+    return this._impl;
+  }
+
   public String region() {
     return this.region;
   }

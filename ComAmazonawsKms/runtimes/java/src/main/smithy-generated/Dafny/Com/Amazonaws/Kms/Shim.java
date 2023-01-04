@@ -167,6 +167,10 @@ public class Shim implements IKeyManagementServiceClient {
     return this.region;
   }
 
+  public AWSKMS impl() {
+    return this._impl;
+  }
+
   @Override
   public Result<CancelKeyDeletionResponse, Error> CancelKeyDeletion(
       CancelKeyDeletionRequest input) {

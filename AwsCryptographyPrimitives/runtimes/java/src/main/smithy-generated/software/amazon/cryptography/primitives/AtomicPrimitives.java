@@ -177,6 +177,10 @@ public class AtomicPrimitives {
     return ToNative.ECDSAVerifyOutput(result.dtor_value());
   }
 
+  protected IAwsCryptographicPrimitivesClient impl() {
+    return this._impl;
+  }
+
   public interface Builder {
     Builder CryptoConfig(CryptoConfig CryptoConfig);
 

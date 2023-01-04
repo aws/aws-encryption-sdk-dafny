@@ -5,6 +5,7 @@ package software.amazon.cryptography.materialProviders.model;
 
 import java.util.List;
 import software.amazon.cryptography.materialProviders.ClientSupplier;
+import software.amazon.cryptography.materialProviders.IClientSupplier;
 
 public class CreateAwsKmsMrkMultiKeyringInput {
   private final String generator;
@@ -55,7 +56,7 @@ public class CreateAwsKmsMrkMultiKeyringInput {
 
     List<String> kmsKeyIds();
 
-    Builder clientSupplier(ClientSupplier clientSupplier);
+    <I extends IClientSupplier> Builder clientSupplier(I clientSupplier);
 
     ClientSupplier clientSupplier();
 
@@ -103,8 +104,8 @@ public class CreateAwsKmsMrkMultiKeyringInput {
       return this.kmsKeyIds;
     }
 
-    public Builder clientSupplier(ClientSupplier clientSupplier) {
-      this.clientSupplier = clientSupplier;
+    public <I extends IClientSupplier> Builder clientSupplier(I clientSupplier) {
+      this.clientSupplier = ClientSupplier.create(clientSupplier);
       return this;
     }
 

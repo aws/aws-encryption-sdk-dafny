@@ -14,29 +14,8 @@ import java.lang.Byte;
 import java.lang.IllegalArgumentException;
 import java.nio.ByteBuffer;
 import java.util.Objects;
-import software.amazon.cryptography.materialProviders.model.AlgorithmSuiteInfo;
-import software.amazon.cryptography.materialProviders.model.CreateAwsKmsDiscoveryKeyringInput;
-import software.amazon.cryptography.materialProviders.model.CreateAwsKmsDiscoveryMultiKeyringInput;
-import software.amazon.cryptography.materialProviders.model.CreateAwsKmsKeyringInput;
-import software.amazon.cryptography.materialProviders.model.CreateAwsKmsMrkDiscoveryKeyringInput;
-import software.amazon.cryptography.materialProviders.model.CreateAwsKmsMrkDiscoveryMultiKeyringInput;
-import software.amazon.cryptography.materialProviders.model.CreateAwsKmsMrkKeyringInput;
-import software.amazon.cryptography.materialProviders.model.CreateAwsKmsMrkMultiKeyringInput;
-import software.amazon.cryptography.materialProviders.model.CreateAwsKmsMultiKeyringInput;
-import software.amazon.cryptography.materialProviders.model.CreateDefaultClientSupplierInput;
-import software.amazon.cryptography.materialProviders.model.CreateDefaultCryptographicMaterialsManagerInput;
-import software.amazon.cryptography.materialProviders.model.CreateMultiKeyringInput;
-import software.amazon.cryptography.materialProviders.model.CreateRawAesKeyringInput;
-import software.amazon.cryptography.materialProviders.model.CreateRawRsaKeyringInput;
-import software.amazon.cryptography.materialProviders.model.DecryptionMaterials;
-import software.amazon.cryptography.materialProviders.model.EncryptionMaterials;
-import software.amazon.cryptography.materialProviders.model.InitializeDecryptionMaterialsInput;
-import software.amazon.cryptography.materialProviders.model.InitializeEncryptionMaterialsInput;
-import software.amazon.cryptography.materialProviders.model.MaterialProvidersConfig;
-import software.amazon.cryptography.materialProviders.model.ValidDecryptionMaterialsTransitionInput;
-import software.amazon.cryptography.materialProviders.model.ValidEncryptionMaterialsTransitionInput;
-import software.amazon.cryptography.materialProviders.model.ValidateCommitmentPolicyOnDecryptInput;
-import software.amazon.cryptography.materialProviders.model.ValidateCommitmentPolicyOnEncryptInput;
+
+import software.amazon.cryptography.materialProviders.model.*;
 
 public class MaterialProviders {
   private final IAwsCryptographicMaterialProvidersClient _impl;
@@ -104,6 +83,15 @@ public class MaterialProviders {
   public Keyring CreateAwsKmsMrkMultiKeyring(CreateAwsKmsMrkMultiKeyringInput nativeValue) {
     Dafny.Aws.Cryptography.MaterialProviders.Types.CreateAwsKmsMrkMultiKeyringInput dafnyValue = ToDafny.CreateAwsKmsMrkMultiKeyringInput(nativeValue);
     Result<Dafny.Aws.Cryptography.MaterialProviders.Types.IKeyring, Error> result = this._impl.CreateAwsKmsMrkMultiKeyring(dafnyValue);
+    if (result.is_Failure()) {
+      throw ToNative.Error(result.dtor_error());
+    }
+    return Keyring.create(result.dtor_value());
+  }
+
+  public Keyring CreateAwsKmsHierarchicalKeyring(CreateAwsKmsHierarchicalKeyringInput nativeValue) {
+    Dafny.Aws.Cryptography.MaterialProviders.Types.CreateAwsKmsHierarchicalKeyringInput dafnyValue = ToDafny.CreateAwsKmsHierarchyKeyringInput(nativeValue);
+    Result<Dafny.Aws.Cryptography.MaterialProviders.Types.IKeyring, Error> result = this._impl.CreateAwsKmsHierarchicalKeyring(dafnyValue);
     if (result.is_Failure()) {
       throw ToNative.Error(result.dtor_error());
     }

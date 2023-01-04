@@ -4,11 +4,16 @@
 package software.amazon.cryptography.materialProviders;
 
 import Dafny.Aws.Cryptography.MaterialProviders.Types.Error;
+import Dafny.Com.Amazonaws.Kms.Shim;
 import Dafny.Com.Amazonaws.Kms.Types.IKeyManagementServiceClient;
 import Wrappers_Compile.Result;
+import com.amazonaws.services.kms.AWSKMS;
+import java.lang.Exception;
 import java.lang.IllegalArgumentException;
 import java.util.Objects;
 import software.amazon.cryptography.materialProviders.model.GetClientInput;
+import software.amazon.cryptography.materialProviders.model.NativeError;
+import software.amazon.cryptography.materialProviders.model.OpaqueError;
 
 public final class ClientSupplier implements IClientSupplier {
   private final Dafny.Aws.Cryptography.MaterialProviders.Types.IClientSupplier _impl;
@@ -29,19 +34,50 @@ public final class ClientSupplier implements IClientSupplier {
     if (iClientSupplier instanceof software.amazon.cryptography.materialProviders.ClientSupplier) {
       return ((ClientSupplier) iClientSupplier);
     }
-    throw new IllegalArgumentException("Custom implementations of software.amazon.cryptography.materialProviders.IClientSupplier are NOT supported at this time.");
+    return ClientSupplier.create(new NativeWrapper(iClientSupplier));
   }
 
   public Dafny.Aws.Cryptography.MaterialProviders.Types.IClientSupplier impl() {
     return this._impl;
   }
 
-  public IKeyManagementServiceClient GetClient(GetClientInput nativeValue) {
+  public AWSKMS GetClient(GetClientInput nativeValue) {
     Dafny.Aws.Cryptography.MaterialProviders.Types.GetClientInput dafnyValue = ToDafny.GetClientInput(nativeValue);
     Result<IKeyManagementServiceClient, Error> result = this._impl.GetClient(dafnyValue);
     if (result.is_Failure()) {
       throw ToNative.Error(result.dtor_error());
     }
-    return result.dtor_value();
+    return ((Shim) result.dtor_value()).impl();
+  }
+
+  private static final class NativeWrapper implements Dafny.Aws.Cryptography.MaterialProviders.Types.IClientSupplier {
+    private final IClientSupplier _impl;
+
+    NativeWrapper(IClientSupplier nativeImpl) {
+      if (nativeImpl instanceof ClientSupplier) {
+        throw new IllegalArgumentException("Recursive wrapping is strictly forbidden.");
+      }
+      this._impl = nativeImpl;
+    }
+
+    public Result<IKeyManagementServiceClient, Error> GetClient(
+        Dafny.Aws.Cryptography.MaterialProviders.Types.GetClientInput dafnyInput) {
+      GetClientInput nativeInput = ToNative.GetClientInput(dafnyInput);
+      try {
+        AWSKMS nativeOutput = this._impl.GetClient(nativeInput);
+        IKeyManagementServiceClient dafnyOutput = new Shim(nativeOutput, nativeInput.region());
+        return Result.create_Success(dafnyOutput);
+      } catch (NativeError ex) {
+        return Result.create_Failure(ToDafny.Error(ex));
+      } catch (Exception ex) {
+        OpaqueError error = OpaqueError.builder().obj(ex).cause(ex).build();
+        return Result.create_Failure(ToDafny.Error(error));
+      }
+    }
+
+    public Result<IKeyManagementServiceClient, Error> GetClient_k(
+        Dafny.Aws.Cryptography.MaterialProviders.Types.GetClientInput dafnyInput) {
+      throw NativeError.builder().message("Not supported at this time.").build();
+    }
   }
 }

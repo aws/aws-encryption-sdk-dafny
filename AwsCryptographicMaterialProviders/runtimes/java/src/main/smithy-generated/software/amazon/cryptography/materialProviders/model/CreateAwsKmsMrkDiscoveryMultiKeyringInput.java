@@ -6,6 +6,7 @@ package software.amazon.cryptography.materialProviders.model;
 import java.util.List;
 import java.util.Objects;
 import software.amazon.cryptography.materialProviders.ClientSupplier;
+import software.amazon.cryptography.materialProviders.IClientSupplier;
 
 public class CreateAwsKmsMrkDiscoveryMultiKeyringInput {
   private final List<String> regions;
@@ -56,7 +57,7 @@ public class CreateAwsKmsMrkDiscoveryMultiKeyringInput {
 
     DiscoveryFilter discoveryFilter();
 
-    Builder clientSupplier(ClientSupplier clientSupplier);
+    <I extends IClientSupplier> Builder clientSupplier(I clientSupplier);
 
     ClientSupplier clientSupplier();
 
@@ -104,8 +105,8 @@ public class CreateAwsKmsMrkDiscoveryMultiKeyringInput {
       return this.discoveryFilter;
     }
 
-    public Builder clientSupplier(ClientSupplier clientSupplier) {
-      this.clientSupplier = clientSupplier;
+    public <I extends IClientSupplier> Builder clientSupplier(I clientSupplier) {
+      this.clientSupplier = ClientSupplier.create(clientSupplier);
       return this;
     }
 
