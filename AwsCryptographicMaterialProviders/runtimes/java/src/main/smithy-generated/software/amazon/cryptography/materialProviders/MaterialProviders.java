@@ -15,6 +15,7 @@ import java.lang.IllegalArgumentException;
 import java.nio.ByteBuffer;
 import java.util.Objects;
 
+import software.amazon.awssdk.services.dynamodb.model.TableDescription;
 import software.amazon.cryptography.materialProviders.model.*;
 
 public class MaterialProviders {
@@ -32,6 +33,38 @@ public class MaterialProviders {
 
   public static Builder builder() {
     return new BuilderImpl();
+  }
+
+  // TODO This is manually added and needs to be added to smithy and generated properly
+  public BranchKeySupplier CreateDynamoDbEncryptionBranchKeySupplier(CreateDynamoDbEncryptionBranchKeySupplierInput nativeValue) {
+    // Stubbed implementation ignores input and returns a 'DynamoDbEncryptionBranchKeySupplier'
+    // which currently is stubbed to return 'foobar'
+    return new DynamoDbEncryptionBranchKeySupplier();
+  }
+
+  // TODO This is manually added and needs to be added to smithy and generated properly
+  public CreateBranchKeyStoreOutput CreateBranchKeyStore(CreateBranchKeyStoreInput input) {
+    // Stubbed to return an empty TableDescription
+    return CreateBranchKeyStoreOutput.builder()
+            .tableDescription(TableDescription.builder().build())
+            .build();
+  }
+
+  // TODO This is manually added and needs to be added to smithy and generated properly
+  public CreateBranchKeyOutput CreateBranchKey(CreateBranchKeyInput input) {
+    // Stubbed to return an constant guid
+    return CreateBranchKeyOutput.builder()
+            .branchKeyId("a89b547a-7062-4048-b455-d850e32ef808")
+            .build();
+
+  }
+
+  // TODO This is manually added and needs to be added to smithy and generated properly
+  public VersionBranchKeyOutput VersionBranchKey(VersionBranchKeyInput input) {
+    // Stubbed to always return 1
+    return VersionBranchKeyOutput.builder()
+            .versionCreated(1)
+            .build();
   }
 
   public Keyring CreateAwsKmsKeyring(CreateAwsKmsKeyringInput nativeValue) {

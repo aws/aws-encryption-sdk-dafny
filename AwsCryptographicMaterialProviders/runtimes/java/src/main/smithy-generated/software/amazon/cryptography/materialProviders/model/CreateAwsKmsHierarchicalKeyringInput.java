@@ -9,8 +9,12 @@ import software.amazon.awssdk.services.dynamodb.DynamoDbClient;
 import java.util.List;
 import java.util.Objects;
 
+// TODO branchKeySupplier was manually added to this file, and needs to be added to the smithy model
+
 public class CreateAwsKmsHierarchicalKeyringInput {
   private final String branchKeyId;
+
+  private final BranchKeySupplier branchKeySupplier;
 
   private final String kmsKeyId;
 
@@ -28,6 +32,7 @@ public class CreateAwsKmsHierarchicalKeyringInput {
 
   protected CreateAwsKmsHierarchicalKeyringInput(BuilderImpl builder) {
     this.branchKeyId = builder.branchKeyId();
+    this.branchKeySupplier = builder.branchKeySupplier();
     this.kmsKeyId = builder.kmsKeyId();
     this.kmsClient = builder.kmsClient();
     this.ddbClient = builder.ddbClient();
@@ -39,6 +44,10 @@ public class CreateAwsKmsHierarchicalKeyringInput {
 
   public String branchKeyId() {
     return this.branchKeyId;
+  }
+
+  public BranchKeySupplier branchKeySupplier() {
+    return this.branchKeySupplier;
   }
 
   public String kmsKeyId() {
@@ -82,6 +91,10 @@ public class CreateAwsKmsHierarchicalKeyringInput {
 
     String branchKeyId();
 
+    Builder branchKeySupplier(BranchKeySupplier branchKeySupplier);
+
+    BranchKeySupplier branchKeySupplier();
+
     Builder kmsKeyId(String kmsKeyId);
 
     String kmsKeyId();
@@ -115,6 +128,8 @@ public class CreateAwsKmsHierarchicalKeyringInput {
 
   static class BuilderImpl implements Builder {
     protected String branchKeyId;
+
+    protected BranchKeySupplier branchKeySupplier;
 
     protected String kmsKeyId;
 
@@ -151,6 +166,15 @@ public class CreateAwsKmsHierarchicalKeyringInput {
 
     public String branchKeyId() {
       return this.branchKeyId;
+    }
+
+    public Builder branchKeySupplier(BranchKeySupplier branchKeySupplier) {
+      this.branchKeySupplier = branchKeySupplier;
+      return this;
+    }
+
+    public BranchKeySupplier branchKeySupplier() {
+      return this.branchKeySupplier;
     }
 
     public Builder kmsKeyId(String kmsKeyId) {
@@ -217,9 +241,15 @@ public class CreateAwsKmsHierarchicalKeyringInput {
     }
 
     public CreateAwsKmsHierarchicalKeyringInput build() {
-      if (Objects.isNull(this.branchKeyId()))  {
-        throw new IllegalArgumentException("Missing value for required field `branchKeyId`");
+      // TODO below is a hack to get validation with the branchKeySupplier working.
+      // Once properly modelled in smithy, this check needs to move into dafny
+      if (Objects.isNull(this.branchKeyId()) && Objects.isNull(this.branchKeySupplier))  {
+        throw new IllegalArgumentException("`branchKeyId` or `branchKeySupplier` must be configured.");
       }
+      if (Objects.nonNull(this.branchKeyId()) && Objects.nonNull(this.branchKeySupplier))  {
+        throw new IllegalArgumentException("`branchKeyId` or `branchKeySupplier` cannot both be configured.");
+      }
+
       if (Objects.isNull(this.kmsKeyId()))  {
         throw new IllegalArgumentException("Missing value for required field `kmsKeyId`");
       }
