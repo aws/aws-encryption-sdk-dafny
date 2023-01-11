@@ -41,7 +41,7 @@ jobs:
       - name: Setup Dafny
         uses: dafny-lang/setup-dafny-action@v1.4.0
         with:
-          dafny-version: "nightly-2022-12-02-edab6cc"
+          dafny-version: "3.10.0"
 
       - name: Setup .NET Core SDK ${{ matrix.dotnet-version }}
         uses: actions/setup-dotnet@v3
