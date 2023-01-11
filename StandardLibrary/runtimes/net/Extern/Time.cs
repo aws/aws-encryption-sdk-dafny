@@ -3,12 +3,15 @@
 
 using System;
 using System.Numerics;
+using Microsoft.VisualBasic;
 
-namespace TimeUtil {
-    public class Time {
-        public static ulong CurrentRelativeTime() {
+namespace Time {
+
+    public partial class __default {
+        public static ulong CurrentRelativeTime()
+        {
             var timespan = DateTime.Now - DateTime.MinValue;
-            return (ulong)timespan.TotalSeconds;
+            return (ulong) timespan.TotalSeconds;
         }
     }
 }
