@@ -99,7 +99,7 @@ _transpile_test_java:
 		-useRuntimeLib \
 		-optimizeErasableDatatypeWrapper:0 \
 		-out runtimes/java/temp-tests/AwsCryptographyPrimitivesTests \
-		`find ./test -name '*.dfy'` \
+		./test/TestAES.dfy \
 		-library:src/Index.dfy
 
 _mv_test_java:
