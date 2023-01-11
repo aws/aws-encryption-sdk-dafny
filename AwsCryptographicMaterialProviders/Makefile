@@ -28,6 +28,7 @@ transpile_implementation_net:
 		-spillTargetCode:3 \
 		-compile:0 \
 		-useRuntimeLib \
+		-optimizeErasableDatatypeWrapper:0 \
 		-out runtimes/net/ImplementationFromDafny \
 		./src/Index.dfy \
 		-library:../AwsCryptographyPrimitives/src/Index.dfy \
@@ -43,6 +44,7 @@ transpile_test_net:
 		-runAllTests:1 \
 		-compile:0 \
 		-useRuntimeLib \
+		-optimizeErasableDatatypeWrapper:0 \
 		-out runtimes/net/tests/TestsFromDafny \
 		`find ./test -name '*.dfy'` \
 		-library:src/Index.dfy
@@ -80,6 +82,7 @@ _transpile_implementation_java:
 		-spillTargetCode:3 \
 		-compile:0 \
 		-useRuntimeLib \
+		-optimizeErasableDatatypeWrapper:0 \
 		-out runtimes/java/temp/AwsCryptographicMaterialProviders \
 		./src/Index.dfy \
 		-library:../AwsCryptographyPrimitives/src/Index.dfy \
@@ -103,6 +106,7 @@ _transpile_test_java:
 		-runAllTests:1 \
 		-compile:0 \
 		-useRuntimeLib \
+		-optimizeErasableDatatypeWrapper:0 \
 		-out runtimes/java/temp-tests/AwsCryptographicMaterialProvidersTests \
 		`find ./test -name '*.dfy'` \
 		-library:src/Index.dfy
