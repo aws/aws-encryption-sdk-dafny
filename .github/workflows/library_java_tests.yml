@@ -90,6 +90,6 @@ jobs:
       - name: Test ${{ matrix.library }}
         working-directory: ./${{ matrix.library }}
         # TODO: only tests with implemented externs may be run currently
-        if: matrix.library == 'StandardLibrary' || matrix.library == 'ComAmazonawsKms'
+        if: matrix.library == 'StandardLibrary' || matrix.library == 'ComAmazonawsKms' || matrix.library == 'AwsCryptographyPrimitives'
         run: |
           make test_java
