@@ -40,7 +40,7 @@ jobs:
       - name: Setup Dafny
         uses: dafny-lang/setup-dafny-action@v1
         with:
-          dafny-version: "3.9.1"
+          dafny-version: "3.10.0"
 
       - name: Verify ${{ matrix.library }} Dafny code
         shell: bash

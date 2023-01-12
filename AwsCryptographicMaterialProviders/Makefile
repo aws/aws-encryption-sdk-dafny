@@ -13,10 +13,12 @@ verify:
 		-trace \
 		`find . -name '*.dfy'`
 
+# TODO dafny 3.9.1 -> 3.10.0 increased resources above original 10000000 limit
+# Investigate and pull back limit to something reasonable
 dafny-reportgenerator:
 	dafny-reportgenerator \
 		summarize-csv-results \
-		--max-resource-count 10000000 \
+		--max-resource-count 50000000 \
 		TestResults/*.csv
 
 transpile_net: | transpile_implementation_net transpile_test_net transpile_net_dependencies
