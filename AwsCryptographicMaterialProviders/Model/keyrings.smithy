@@ -4,6 +4,8 @@ use aws.polymorph#reference
 use aws.polymorph#positional
 use aws.polymorph#extendable
 
+use com.amazonaws.kms#EncryptionAlgorithmSpec
+
 @extendable
 resource Keyring {
   operations: [OnEncrypt, OnDecrypt]
@@ -306,3 +308,20 @@ structure CreateRawAesKeyringInput {
    publicKey: Blob,
    privateKey: Blob
  }
+
+  operation CreateAwsKmsRsaKeyring {
+    input: CreateAwsKmsRsaKeyringInput,
+    output: CreateKeyringOutput,
+  }
+
+  structure CreateAwsKmsRsaKeyringInput {
+    // MUST be configured for this keyring to allow encryption
+    publicKey: Secret,
+    @required
+    kmsKeyId: KmsKeyId,
+    @required
+    encryptionAlgorithm: EncryptionAlgorithmSpec,
+    // MUST be configured for this keyring to allow decryption
+    kmsClient: KmsClientReference,
+    grantTokens: GrantTokenList
+  }

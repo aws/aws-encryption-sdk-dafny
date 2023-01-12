@@ -12,6 +12,7 @@ import Dafny.Aws.Cryptography.Primitives.Types.DigestAlgorithm;
 import Dafny.Aws.Cryptography.Primitives.Types.ECDSASignatureAlgorithm;
 import Dafny.Com.Amazonaws.Dynamodb.Types.IDynamoDB__20120810Client;
 import Dafny.Com.Amazonaws.Kms.Types.IKeyManagementServiceClient;
+import Dafny.Com.Amazonaws.Kms.Types.EncryptionAlgorithmSpec;
 import Wrappers_Compile.Option;
 import dafny.DafnyMap;
 import dafny.DafnySequence;
@@ -187,6 +188,27 @@ public class ToDafny {
         Option.create_Some(ToDafny.GrantTokenList(nativeValue.grantTokens()))
         : Option.create_None();
     return new CreateAwsKmsDiscoveryKeyringInput(kmsClient, discoveryFilter, grantTokens);
+  }
+
+  public static CreateAwsKmsRsaKeyringInput CreateAwsKmsRsaKeyringInput(
+      software.amazon.cryptography.materialProviders.model.CreateAwsKmsRsaKeyringInput nativeValue) {
+    Option<DafnySequence<? extends Byte>> publicKey;
+    publicKey = Objects.nonNull(nativeValue.publicKey()) ?
+        Option.create_Some(software.amazon.dafny.conversion.ToDafny.Simple.ByteSequence(nativeValue.publicKey()))
+        : Option.create_None();
+    DafnySequence<? extends Character> kmsKeyId;
+    kmsKeyId = software.amazon.dafny.conversion.ToDafny.Simple.CharacterSequence(nativeValue.kmsKeyId());
+    EncryptionAlgorithmSpec encryptionAlgorithm;
+    encryptionAlgorithm = Dafny.Com.Amazonaws.Kms.ToDafny.EncryptionAlgorithmSpec(nativeValue.encryptionAlgorithm());
+    Option<IKeyManagementServiceClient> kmsClient;
+    kmsClient = Objects.nonNull(nativeValue.kmsClient()) ?
+        Option.create_Some((new Dafny.Com.Amazonaws.Kms.Shim(nativeValue.kmsClient(), null)))
+        : Option.create_None();
+    Option<DafnySequence<? extends DafnySequence<? extends Character>>> grantTokens;
+    grantTokens = Objects.nonNull(nativeValue.grantTokens()) ?
+        Option.create_Some(ToDafny.GrantTokenList(nativeValue.grantTokens()))
+        : Option.create_None();
+    return new CreateAwsKmsRsaKeyringInput(publicKey, kmsKeyId, encryptionAlgorithm, kmsClient, grantTokens);
   }
 
   public static ValidateCommitmentPolicyOnDecryptInput ValidateCommitmentPolicyOnDecryptInput(

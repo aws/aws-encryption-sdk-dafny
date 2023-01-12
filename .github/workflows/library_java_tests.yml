@@ -89,7 +89,7 @@ jobs:
 
       - name: Test ${{ matrix.library }}
         working-directory: ./${{ matrix.library }}
-        # TODO: only tests with implemented externs may be run currently
-        if: matrix.library == 'StandardLibrary' || matrix.library == 'ComAmazonawsKms' || matrix.library == 'AwsCryptographyPrimitives'
+        # TODO: DDB currently has no tests
+        if: matrix.library != 'ComAmazonawsDynamodb'
         run: |
           make test_java

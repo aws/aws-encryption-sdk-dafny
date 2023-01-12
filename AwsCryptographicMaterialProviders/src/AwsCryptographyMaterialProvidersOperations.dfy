@@ -14,6 +14,7 @@ include "Keyrings/AwsKms/AwsKmsUtils.dfy"
 include "Keyrings/AwsKms/MrkAwareStrictMultiKeyring.dfy"
 include "Keyrings/AwsKms/AwsKmsMrkDiscoveryKeyring.dfy"
 include "Keyrings/AwsKms/MrkAwareDiscoveryMultiKeyring.dfy"
+include "Keyrings/AwsKms/AwsKmsRsaKeyring.dfy"
 include "Keyrings/RawAESKeyring.dfy"
 include "Keyrings/RawRSAKeyring.dfy"
 include "CMMs/DefaultCMM.dfy"
@@ -34,6 +35,7 @@ module AwsCryptographyMaterialProvidersOperations refines AbstractAwsCryptograph
   import AwsKmsMrkKeyring
   import AwsKmsDiscoveryKeyring
   import AwsKmsMrkDiscoveryKeyring
+  import AwsKmsRsaKeyring
   import RawAESKeyring
   import RawRSAKeyring
   import opened C = DefaultCMM
@@ -391,8 +393,29 @@ module AwsCryptographyMaterialProvidersOperations refines AbstractAwsCryptograph
     );
     return Success(keyring);
   }
- 
 
+  predicate CreateAwsKmsRsaKeyringEnsuresPublicly(input: CreateAwsKmsRsaKeyringInput, output: Result<IKeyring, Error>)
+  {true}
+
+  method CreateAwsKmsRsaKeyring(config: InternalConfig, input: CreateAwsKmsRsaKeyringInput)
+    returns (output: Result<IKeyring, Error>)
+  {
+    :- Need(input.publicKey.Some? || input.kmsClient.Some?,
+      Types.AwsCryptographicMaterialProvidersException(
+        message := "A publicKey or a kmsClient is required"));
+    var _ :- ValidateKmsKeyId(input.kmsKeyId);
+    var grantTokens :- GetValidGrantTokens(input.grantTokens);
+    // TODO complete validation, e.g. also ensure non-alias Key ID
+    var keyring := new AwsKmsRsaKeyring.AwsKmsRsaKeyring(
+      input.publicKey,
+      input.kmsKeyId,
+      input.encryptionAlgorithm,
+      input.kmsClient,
+      grantTokens
+    );
+    return Success(keyring);
+  }
+ 
   predicate CreateDefaultCryptographicMaterialsManagerEnsuresPublicly(input: CreateDefaultCryptographicMaterialsManagerInput, output: Result<ICryptographicMaterialsManager, Error>)
   {true}
 

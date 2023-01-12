@@ -27,6 +27,7 @@ service AwsCryptographicMaterialProviders {
     CreateMultiKeyring,
     CreateRawAesKeyring,
     CreateRawRsaKeyring,
+    CreateAwsKmsRsaKeyring,
 
     // CMMs
     CreateDefaultCryptographicMaterialsManager,

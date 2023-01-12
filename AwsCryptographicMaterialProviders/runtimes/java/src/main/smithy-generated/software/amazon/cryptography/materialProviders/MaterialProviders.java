@@ -178,6 +178,15 @@ public class MaterialProviders {
     return Keyring.create(result.dtor_value());
   }
 
+  public Keyring CreateAwsKmsRsaKeyring(CreateAwsKmsRsaKeyringInput nativeValue) {
+    Dafny.Aws.Cryptography.MaterialProviders.Types.CreateAwsKmsRsaKeyringInput dafnyValue = ToDafny.CreateAwsKmsRsaKeyringInput(nativeValue);
+    Result<Dafny.Aws.Cryptography.MaterialProviders.Types.IKeyring, Error> result = this._impl.CreateAwsKmsRsaKeyring(dafnyValue);
+    if (result.is_Failure()) {
+      throw ToNative.Error(result.dtor_error());
+    }
+    return Keyring.create(result.dtor_value());
+  }
+
   public ICryptographicMaterialsManager CreateDefaultCryptographicMaterialsManager(
       CreateDefaultCryptographicMaterialsManagerInput nativeValue) {
     Dafny.Aws.Cryptography.MaterialProviders.Types.CreateDefaultCryptographicMaterialsManagerInput dafnyValue = ToDafny.CreateDefaultCryptographicMaterialsManagerInput(nativeValue);
