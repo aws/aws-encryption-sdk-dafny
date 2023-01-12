@@ -87,6 +87,12 @@ using System;
  if (result.is_Failure) throw TypeConversion.FromDafny_CommonError(result.dtor_error);
  return TypeConversion.FromDafny_N3_aws__N12_cryptography__N17_materialProviders__S19_CreateKeyringOutput(result.dtor_value);
 }
+ public AWS.Cryptography.MaterialProviders.IKeyring CreateAwsKmsRsaKeyring(AWS.Cryptography.MaterialProviders.CreateAwsKmsRsaKeyringInput input) {
+ Dafny.Aws.Cryptography.MaterialProviders.Types._ICreateAwsKmsRsaKeyringInput internalInput = TypeConversion.ToDafny_N3_aws__N12_cryptography__N17_materialProviders__S27_CreateAwsKmsRsaKeyringInput(input);
+ Wrappers_Compile._IResult<Dafny.Aws.Cryptography.MaterialProviders.Types.IKeyring, Dafny.Aws.Cryptography.MaterialProviders.Types._IError> result = _impl.CreateAwsKmsRsaKeyring(internalInput);
+ if (result.is_Failure) throw TypeConversion.FromDafny_CommonError(result.dtor_error);
+ return TypeConversion.FromDafny_N3_aws__N12_cryptography__N17_materialProviders__S19_CreateKeyringOutput(result.dtor_value);
+}
  public AWS.Cryptography.MaterialProviders.ICryptographicMaterialsManager CreateDefaultCryptographicMaterialsManager(AWS.Cryptography.MaterialProviders.CreateDefaultCryptographicMaterialsManagerInput input) {
  Dafny.Aws.Cryptography.MaterialProviders.Types._ICreateDefaultCryptographicMaterialsManagerInput internalInput = TypeConversion.ToDafny_N3_aws__N12_cryptography__N17_materialProviders__S47_CreateDefaultCryptographicMaterialsManagerInput(input);
  Wrappers_Compile._IResult<Dafny.Aws.Cryptography.MaterialProviders.Types.ICryptographicMaterialsManager, Dafny.Aws.Cryptography.MaterialProviders.Types._IError> result = _impl.CreateDefaultCryptographicMaterialsManager(internalInput);

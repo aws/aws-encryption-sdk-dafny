@@ -49,6 +49,7 @@ include "../../StandardLibrary/src/Index.dfy"
  CreateMultiKeyring := [];
  CreateRawAesKeyring := [];
  CreateRawRsaKeyring := [];
+ CreateAwsKmsRsaKeyring := [];
  CreateDefaultCryptographicMaterialsManager := [];
  CreateDefaultClientSupplier := [];
  InitializeEncryptionMaterials := [];
@@ -74,6 +75,7 @@ include "../../StandardLibrary/src/Index.dfy"
  ghost var CreateMultiKeyring: seq<DafnyCallEvent<CreateMultiKeyringInput, Result<IKeyring, Error>>>
  ghost var CreateRawAesKeyring: seq<DafnyCallEvent<CreateRawAesKeyringInput, Result<IKeyring, Error>>>
  ghost var CreateRawRsaKeyring: seq<DafnyCallEvent<CreateRawRsaKeyringInput, Result<IKeyring, Error>>>
+ ghost var CreateAwsKmsRsaKeyring: seq<DafnyCallEvent<CreateAwsKmsRsaKeyringInput, Result<IKeyring, Error>>>
  ghost var CreateDefaultCryptographicMaterialsManager: seq<DafnyCallEvent<CreateDefaultCryptographicMaterialsManagerInput, Result<ICryptographicMaterialsManager, Error>>>
  ghost var CreateDefaultClientSupplier: seq<DafnyCallEvent<CreateDefaultClientSupplierInput, Result<IClientSupplier, Error>>>
  ghost var InitializeEncryptionMaterials: seq<DafnyCallEvent<InitializeEncryptionMaterialsInput, Result<EncryptionMaterials, Error>>>
@@ -408,6 +410,31 @@ include "../../StandardLibrary/src/Index.dfy"
  ensures CreateRawRsaKeyringEnsuresPublicly(input, output)
  ensures History.CreateRawRsaKeyring == old(History.CreateRawRsaKeyring) + [DafnyCallEvent(input, output)]
  
+ predicate CreateAwsKmsRsaKeyringEnsuresPublicly(input: CreateAwsKmsRsaKeyringInput, output: Result<IKeyring, Error>)
+ // The public method to be called by library consumers
+ method CreateAwsKmsRsaKeyring ( input: CreateAwsKmsRsaKeyringInput )
+ returns (output: Result<IKeyring, Error>)
+ requires
+ && ValidState() && ( input.kmsClient.Some? ==>
+ && input.kmsClient.value.ValidState()
+ && input.kmsClient.value.Modifies !! {History}
+ )
+ modifies Modifies - {History} ,
+ (if input.kmsClient.Some? then input.kmsClient.value.Modifies else {}) ,
+ History`CreateAwsKmsRsaKeyring
+ // Dafny will skip type parameters when generating a default decreases clause.
+ decreases Modifies - {History} ,
+ (if input.kmsClient.Some? then input.kmsClient.value.Modifies else {})
+ ensures
+ && ValidState()
+ && ( output.Success? ==> 
+ && output.value.ValidState()
+ && output.value.Modifies !! {History}
+ && fresh(output.value)
+ && fresh ( output.value.Modifies - Modifies - {History} - (if input.kmsClient.Some? then input.kmsClient.value.Modifies else {}) ) )
+ ensures CreateAwsKmsRsaKeyringEnsuresPublicly(input, output)
+ ensures History.CreateAwsKmsRsaKeyring == old(History.CreateAwsKmsRsaKeyring) + [DafnyCallEvent(input, output)]
+ 
  predicate CreateDefaultCryptographicMaterialsManagerEnsuresPublicly(input: CreateDefaultCryptographicMaterialsManagerInput, output: Result<ICryptographicMaterialsManager, Error>)
  // The public method to be called by library consumers
  method CreateDefaultCryptographicMaterialsManager ( input: CreateDefaultCryptographicMaterialsManagerInput )
@@ -643,6 +670,13 @@ include "../../StandardLibrary/src/Index.dfy"
  nameonly generator: Option<KmsKeyId> ,
  nameonly kmsKeyIds: Option<KmsKeyIdList> ,
  nameonly clientSupplier: Option<IClientSupplier> ,
+ nameonly grantTokens: Option<GrantTokenList>
+ )
+ datatype CreateAwsKmsRsaKeyringInput = | CreateAwsKmsRsaKeyringInput (
+ nameonly publicKey: Option<Secret> ,
+ nameonly kmsKeyId: KmsKeyId ,
+ nameonly encryptionAlgorithm: ComAmazonawsKmsTypes.EncryptionAlgorithmSpec ,
+ nameonly kmsClient: Option<ComAmazonawsKmsTypes.IKeyManagementServiceClient> ,
  nameonly grantTokens: Option<GrantTokenList>
  )
  datatype CreateDefaultClientSupplierInput = | CreateDefaultClientSupplierInput (
@@ -1450,6 +1484,36 @@ include "../../StandardLibrary/src/Index.dfy"
  History.CreateRawRsaKeyring := History.CreateRawRsaKeyring + [DafnyCallEvent(input, output)];
 }
  
+ predicate CreateAwsKmsRsaKeyringEnsuresPublicly(input: CreateAwsKmsRsaKeyringInput, output: Result<IKeyring, Error>)
+ {Operations.CreateAwsKmsRsaKeyringEnsuresPublicly(input, output)}
+ // The public method to be called by library consumers
+ method CreateAwsKmsRsaKeyring ( input: CreateAwsKmsRsaKeyringInput )
+ returns (output: Result<IKeyring, Error>)
+ requires
+ && ValidState() && ( input.kmsClient.Some? ==>
+ && input.kmsClient.value.ValidState()
+ && input.kmsClient.value.Modifies !! {History}
+ )
+ modifies Modifies - {History} ,
+ (if input.kmsClient.Some? then input.kmsClient.value.Modifies else {}) ,
+ History`CreateAwsKmsRsaKeyring
+ // Dafny will skip type parameters when generating a default decreases clause.
+ decreases Modifies - {History} ,
+ (if input.kmsClient.Some? then input.kmsClient.value.Modifies else {})
+ ensures
+ && ValidState()
+ && ( output.Success? ==> 
+ && output.value.ValidState()
+ && output.value.Modifies !! {History}
+ && fresh(output.value)
+ && fresh ( output.value.Modifies - Modifies - {History} - (if input.kmsClient.Some? then input.kmsClient.value.Modifies else {}) ) )
+ ensures CreateAwsKmsRsaKeyringEnsuresPublicly(input, output)
+ ensures History.CreateAwsKmsRsaKeyring == old(History.CreateAwsKmsRsaKeyring) + [DafnyCallEvent(input, output)]
+ {
+ output := Operations.CreateAwsKmsRsaKeyring(config, input);
+ History.CreateAwsKmsRsaKeyring := History.CreateAwsKmsRsaKeyring + [DafnyCallEvent(input, output)];
+}
+ 
  predicate CreateDefaultCryptographicMaterialsManagerEnsuresPublicly(input: CreateDefaultCryptographicMaterialsManagerInput, output: Result<ICryptographicMaterialsManager, Error>)
  {Operations.CreateDefaultCryptographicMaterialsManagerEnsuresPublicly(input, output)}
  // The public method to be called by library consumers
@@ -1884,6 +1948,30 @@ include "../../StandardLibrary/src/Index.dfy"
  && fresh(output.value)
  && fresh ( output.value.Modifies - ModifiesInternalConfig(config) ) )
  ensures CreateRawRsaKeyringEnsuresPublicly(input, output)
+
+
+ predicate CreateAwsKmsRsaKeyringEnsuresPublicly(input: CreateAwsKmsRsaKeyringInput, output: Result<IKeyring, Error>)
+ // The private method to be refined by the library developer
+
+
+ method CreateAwsKmsRsaKeyring ( config: InternalConfig,  input: CreateAwsKmsRsaKeyringInput )
+ returns (output: Result<IKeyring, Error>)
+ requires
+ && ValidInternalConfig?(config) && ( input.kmsClient.Some? ==>
+ && input.kmsClient.value.ValidState()
+ )
+ modifies ModifiesInternalConfig(config) ,
+ (if input.kmsClient.Some? then input.kmsClient.value.Modifies else {})
+ // Dafny will skip type parameters when generating a default decreases clause.
+ decreases ModifiesInternalConfig(config) ,
+ (if input.kmsClient.Some? then input.kmsClient.value.Modifies else {})
+ ensures
+ && ValidInternalConfig?(config)
+ && ( output.Success? ==> 
+ && output.value.ValidState()
+ && fresh(output.value)
+ && fresh ( output.value.Modifies - ModifiesInternalConfig(config) - (if input.kmsClient.Some? then input.kmsClient.value.Modifies else {}) ) )
+ ensures CreateAwsKmsRsaKeyringEnsuresPublicly(input, output)
 
 
  predicate CreateDefaultCryptographicMaterialsManagerEnsuresPublicly(input: CreateDefaultCryptographicMaterialsManagerInput, output: Result<ICryptographicMaterialsManager, Error>)
