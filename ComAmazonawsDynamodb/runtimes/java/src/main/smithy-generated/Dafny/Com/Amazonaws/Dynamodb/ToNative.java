@@ -3,7 +3,9 @@
 // Do not modify this file. This file is machine generated, and any changes to it will be overwritten.
 package Dafny.Com.Amazonaws.Dynamodb;
 
+import Dafny.Com.Amazonaws.Dynamodb.Types.IDynamoDB__20120810Client;
 import software.amazon.awssdk.core.SdkBytes;
+import software.amazon.awssdk.services.dynamodb.DynamoDbClient;
 import software.amazon.awssdk.services.dynamodb.model.ArchivalSummary;
 import software.amazon.awssdk.services.dynamodb.model.AttributeAction;
 import software.amazon.awssdk.services.dynamodb.model.AttributeDefinition;
@@ -4409,5 +4411,9 @@ public class ToNative {
     }
     converted.targetValue(Double.valueOf(dafnyValue.dtor_TargetValue()));
     return converted.build();
+  }
+
+  public static DynamoDbClient DynamoDB__20120810(IDynamoDB__20120810Client dafnyValue) {
+    return ((Shim) dafnyValue).impl();
   }
 }

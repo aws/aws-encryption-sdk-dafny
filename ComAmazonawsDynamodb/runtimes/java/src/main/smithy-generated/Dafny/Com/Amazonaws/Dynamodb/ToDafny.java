@@ -152,6 +152,7 @@ import software.amazon.awssdk.core.util.DefaultSdkAutoConstructList;
 import software.amazon.awssdk.core.util.DefaultSdkAutoConstructMap;
 import software.amazon.awssdk.core.util.SdkAutoConstructList;
 import software.amazon.awssdk.core.util.SdkAutoConstructMap;
+import software.amazon.awssdk.services.dynamodb.DynamoDbClient;
 import software.amazon.awssdk.services.dynamodb.model.*;
 
 import java.nio.ByteBuffer;
@@ -5499,5 +5500,9 @@ public class ToDafny {
     public static ReturnValuesOnConditionCheckFailure ReturnValuesOnConditionCheckFailure(
             String nativeValue) {
         return ReturnValuesOnConditionCheckFailure(software.amazon.awssdk.services.dynamodb.model.ReturnValuesOnConditionCheckFailure.fromValue(nativeValue));
+    }
+
+    public static IDynamoDB__20120810Client DynamoDB__20120810(DynamoDbClient nativeValue) {
+        return new Shim(nativeValue, null);
     }
 }
