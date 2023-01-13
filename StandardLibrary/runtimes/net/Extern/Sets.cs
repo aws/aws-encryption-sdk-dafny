@@ -18,6 +18,9 @@ namespace Sets {
       public static Dafny.ISequence<Dafny.ISequence<T>> SetToOrderedSequence2<T>(Dafny.ISet<Dafny.ISequence<T>> set, Func<T,T,bool> less) {
           return SetToOrderedSequence(set, less);
       }
+      public static Dafny.ISequence<T> SetToSequence<T>(Dafny.ISet<T> set) {
+          return Dafny.Sequence<T>.FromElements(set.Elements.ToArray());
+      }
   }
 
   // Lexicographically compares two dafny sequences according to a given
