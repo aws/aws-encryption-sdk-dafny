@@ -55,6 +55,7 @@ dependencies {
     implementation("dafny.lang:DafnyRuntime:3.10.0")
     implementation("software.amazon.dafny:conversion:1.0-SNAPSHOT")
     implementation("software.amazon.cryptography:StandardLibrary:1.0-SNAPSHOT")
+    implementation("org.bouncycastle:bcprov-jdk18on:1.72")
 }
 
 publishing {
