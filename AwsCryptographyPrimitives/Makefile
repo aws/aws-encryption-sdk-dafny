@@ -100,6 +100,7 @@ _transpile_test_java:
 		-optimizeErasableDatatypeWrapper:0 \
 		-out runtimes/java/temp-tests/AwsCryptographyPrimitivesTests \
 		./test/TestAES.dfy \
+		./test/TestRSA.dfy \
 		./test/TestGenerateRandomBytes.dfy \
 		-library:src/Index.dfy
 

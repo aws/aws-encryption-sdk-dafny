@@ -29,7 +29,7 @@ public class ExternRandom {
                 RND.nextBytes(result);
                 return Result.create_Success(DafnySequence.fromBytes(result));
             } catch (Exception e) {
-                return Result.create_Failure(ToDafny.Error(OpaqueError.builder().message(e.getMessage()).build()));
+                return Result.create_Failure(ToDafny.Error(OpaqueError.builder().obj(e).message(e.getMessage()).cause(e).build()));
             }
         }
     }
