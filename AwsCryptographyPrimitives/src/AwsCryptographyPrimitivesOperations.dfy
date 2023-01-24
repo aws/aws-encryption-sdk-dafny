@@ -49,10 +49,10 @@ module AwsCryptographyPrimitivesOperations refines AbstractAwsCryptographyPrimit
   predicate HMacEnsuresPublicly(input: HMacInput, output: Result<seq<uint8>, Error>)
   {true}
 
-  method HMac ( config: InternalConfig,  input: HMacInput )
-    returns (output: Result<seq<uint8>, Error>)
+  function method HMac ( config: InternalConfig,  input: HMacInput )
+    : (output: Result<seq<uint8>, Error>)
   {
-    output := WrappedHMAC.Digest(input);
+    WrappedHMAC.Digest(input)
   }
 
   predicate HkdfExtractEnsuresPublicly(input: HkdfExtractInput, output: Result<seq<uint8>, Error>)

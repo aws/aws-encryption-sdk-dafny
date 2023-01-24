@@ -2,7 +2,9 @@
 // SPDX-License-Identifier: Apache-2.0
 
 using System;
-
+using System.Collections.Immutable;
+using Wrappers_Compile;
+using Dafny.Aws.Cryptography.Primitives.Types;
 using ibyteseq = Dafny.ISequence<byte>;
 using byteseq = Dafny.Sequence<byte>;
 using _IDigestAlgorithm = Dafny.Aws.Cryptography.Primitives.Types._IDigestAlgorithm;
@@ -10,9 +12,39 @@ using Error_Opaque = Dafny.Aws.Cryptography.Primitives.Types.Error_Opaque;
 
 namespace HMAC {
 
+    public partial class __default {
+        public static _IResult<ibyteseq, _IError> Digest(_IHMacInput input)
+        {
+            var maybeHmac = HMac.Build(input.dtor_digestAlgorithm);
+
+            if (maybeHmac.is_Failure)
+            {
+                return (maybeHmac).PropagateFailure<Dafny.ISequence<byte>>();
+            }
+            var hmac = maybeHmac.Extract();
+            hmac.Init(input.dtor_key);
+            hmac.BlockUpdate(input.dtor_message);
+            return Result<ibyteseq, _IError>.create_Success(hmac.GetResult());
+        }
+    }
+
     public partial class HMac {
 
         private Org.BouncyCastle.Crypto.Macs.HMac hmac;
+
+        public static _IResult<HMac, _IError> Build(_IDigestAlgorithm digest)
+        {
+            try
+            {
+                return Result<HMac, _IError>.create_Success(new HMac(digest));
+            }
+            catch (Exception ex)
+            {
+                return Wrappers_Compile.Result<HMac, _IError>
+                    .create_Failure(AWS.Cryptography.Primitives.TypeConversion.ToDafny_CommonError(ex));
+            }
+            
+        }
 
         public HMac(_IDigestAlgorithm digest) {
             Org.BouncyCastle.Crypto.IDigest bouncyCastleDigest;

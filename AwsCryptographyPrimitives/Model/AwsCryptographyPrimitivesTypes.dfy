@@ -125,20 +125,11 @@ include "../../StandardLibrary/src/Index.dfy"
  ensures DigestEnsuresPublicly(input, output)
  ensures History.Digest == old(History.Digest) + [DafnyCallEvent(input, output)]
  
- predicate HMacEnsuresPublicly(input: HMacInput, output: Result<seq<uint8>, Error>)
+ // Functions are deterministic, no need for historical call events or ensures indirection
  // The public method to be called by library consumers
- method HMac ( input: HMacInput )
- returns (output: Result<seq<uint8>, Error>)
- requires
- && ValidState()
- modifies Modifies - {History} ,
- History`HMac
- // Dafny will skip type parameters when generating a default decreases clause.
- decreases Modifies - {History}
- ensures
- && ValidState()
- ensures HMacEnsuresPublicly(input, output)
- ensures History.HMac == old(History.HMac) + [DafnyCallEvent(input, output)]
+ function method HMac ( input: HMacInput )
+ : (output: Result<seq<uint8>, Error>)
+ // Functions that are transparent do not need ensures
  
  predicate HkdfExtractEnsuresPublicly(input: HkdfExtractInput, output: Result<seq<uint8>, Error>)
  // The public method to be called by library consumers
@@ -521,24 +512,13 @@ include "../../StandardLibrary/src/Index.dfy"
  History.Digest := History.Digest + [DafnyCallEvent(input, output)];
 }
  
- predicate HMacEnsuresPublicly(input: HMacInput, output: Result<seq<uint8>, Error>)
- {Operations.HMacEnsuresPublicly(input, output)}
+ 
  // The public method to be called by library consumers
- method HMac ( input: HMacInput )
- returns (output: Result<seq<uint8>, Error>)
- requires
- && ValidState()
- modifies Modifies - {History} ,
- History`HMac
- // Dafny will skip type parameters when generating a default decreases clause.
- decreases Modifies - {History}
- ensures
- && ValidState()
- ensures HMacEnsuresPublicly(input, output)
- ensures History.HMac == old(History.HMac) + [DafnyCallEvent(input, output)]
+ function method HMac ( input: HMacInput )
+ : (output: Result<seq<uint8>, Error>)
+ // Functions that are transparent do not need ensures
  {
- output := Operations.HMac(config, input);
- History.HMac := History.HMac + [DafnyCallEvent(input, output)];
+ Operations.HMac(config, input)
 }
  
  predicate HkdfExtractEnsuresPublicly(input: HkdfExtractInput, output: Result<seq<uint8>, Error>)
@@ -803,20 +783,13 @@ include "../../StandardLibrary/src/Index.dfy"
  ensures DigestEnsuresPublicly(input, output)
 
 
- predicate HMacEnsuresPublicly(input: HMacInput, output: Result<seq<uint8>, Error>)
+ // Functions are deterministic, no need for historical call events or ensures indirection
  // The private method to be refined by the library developer
 
 
- method HMac ( config: InternalConfig,  input: HMacInput )
- returns (output: Result<seq<uint8>, Error>)
- requires
- && ValidInternalConfig?(config)
- modifies ModifiesInternalConfig(config)
- // Dafny will skip type parameters when generating a default decreases clause.
- decreases ModifiesInternalConfig(config)
- ensures
- && ValidInternalConfig?(config)
- ensures HMacEnsuresPublicly(input, output)
+ function method HMac ( config: InternalConfig,  input: HMacInput )
+ : (output: Result<seq<uint8>, Error>)
+ // Functions that are transparent do not need ensures
 
 
  predicate HkdfExtractEnsuresPublicly(input: HkdfExtractInput, output: Result<seq<uint8>, Error>)
