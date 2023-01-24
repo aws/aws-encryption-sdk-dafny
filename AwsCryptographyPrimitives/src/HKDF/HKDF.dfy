@@ -219,7 +219,7 @@ module HKDF {
     if L == 0 {
       return [];
     }
-    var hmac := new HMac(digest);
+    var hmac :- expect HMac.Build(digest);
     var hashLength := Digest.Length(digest);
 
     var nonEmptySalt: seq<uint8>;

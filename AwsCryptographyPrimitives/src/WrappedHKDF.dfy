@@ -30,7 +30,7 @@ module WrappedHKDF {
 
     var HkdfExtractInput(digestAlgorithm, salt, ikm) := input;
 
-    var hmac := new HMAC.HMac(digestAlgorithm);
+    var hmac :- HMAC.HMac.Build(digestAlgorithm);
     var prk := HKDF.Extract(
       hmac,
       salt.UnwrapOr(StandardLibrary.Fill(0, Digest.Length(digestAlgorithm))),
@@ -54,7 +54,7 @@ module WrappedHKDF {
     );
     var HkdfExpandInput(digestAlgorithm, prk, info, expectedLength) := input;
 
-    var hmac := new HMAC.HMac(digestAlgorithm);
+    var hmac :- HMAC.HMac.Build(digestAlgorithm);
     var omk, _ := HKDF.Expand(
       hmac,
       prk,

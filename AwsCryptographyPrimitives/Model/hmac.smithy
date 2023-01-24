@@ -1,5 +1,6 @@
 namespace aws.cryptography.primitives
 
+@readonly
 operation HMac {
   input: HMacInput,
   output: HMacOutput,

@@ -35,7 +35,7 @@ namespace ExternDigest {
                     .create_Success(byteseq.FromArray(digest));
             } catch (Exception e) {
                 return Result<ibyteseq, _IError>
-                    .create_Failure(new Error_Opaque(e));
+                    .create_Failure(AWS.Cryptography.Primitives.TypeConversion.ToDafny_CommonError(e));
             }
         }
     }

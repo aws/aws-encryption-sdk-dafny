@@ -39,5 +39,5 @@ module {:extern "ExternDigest" } ExternDigest {
   import Types = AwsCryptographyPrimitivesTypes
 
   method {:extern } Digest(alg: Types.DigestAlgorithm, msg: seq<uint8>)
-    returns (res: Result<seq<uint8>, Types.OpaqueError>)
+    returns (res: Result<seq<uint8>, Types.Error>)
 }
