@@ -11,6 +11,7 @@ import javax.crypto.spec.SecretKeySpec;
 import Dafny.Aws.Cryptography.Primitives.Types.AESEncryptOutput;
 import Dafny.Aws.Cryptography.Primitives.Types.AES__GCM;
 import Dafny.Aws.Cryptography.Primitives.Types.Error;
+import Random_Compile.ExternRandom;
 import Wrappers_Compile.Result;
 
 import dafny.Array;
@@ -35,7 +36,7 @@ public class AES_GCM {
         try {
             Cipher cipher_ = Cipher.getInstance("AES/GCM/NoPadding");
             SecretKey secretKey = new SecretKeySpec(keyBytes, "AES");
-            cipher_.init(Cipher.ENCRYPT_MODE, secretKey, spec);
+            cipher_.init(Cipher.ENCRYPT_MODE, secretKey, spec, ExternRandom.getSecureRandom());
             if (aad != null) {
                 byte[] aadBytes = (byte[]) Array.unwrap(aad.toArray());
                 cipher_.updateAAD(aadBytes);
@@ -73,7 +74,7 @@ public class AES_GCM {
         try {
             Cipher cipher_ = Cipher.getInstance("AES/GCM/NoPadding");
             SecretKey secretKey = new SecretKeySpec(keyBytes, "AES");
-            cipher_.init(Cipher.DECRYPT_MODE, secretKey, spec);
+            cipher_.init(Cipher.DECRYPT_MODE, secretKey, spec, ExternRandom.getSecureRandom());
             if (aad != null) {
                 byte[] aadBytes = (byte[]) Array.unwrap(aad.toArray());
                 cipher_.updateAAD(aadBytes);

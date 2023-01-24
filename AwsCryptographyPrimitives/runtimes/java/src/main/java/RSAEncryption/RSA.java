@@ -2,6 +2,7 @@ package RSAEncryption;
 
 import Dafny.Aws.Cryptography.Primitives.Types.Error;
 import Dafny.Aws.Cryptography.Primitives.Types.RSAPaddingMode;
+import Random_Compile.ExternRandom;
 import Wrappers_Compile.Result;
 import dafny.Array;
 import dafny.DafnySequence;
@@ -45,8 +46,9 @@ public class RSA {
                 throw new RuntimeException(RSA_ERROR_MSG);
             }
             RSAKeyPairGenerator keygen = new RSAKeyPairGenerator();
+            final SecureRandom secureRandom = ExternRandom.getSecureRandom();
             KeyGenerationParameters keyGenerationParameters = new RSAKeyGenerationParameters(
-                    BigInteger.valueOf(RSA_PUBLIC_EXPONENT), new SecureRandom(), strength, RSA_CERTAINTY
+                    BigInteger.valueOf(RSA_PUBLIC_EXPONENT), secureRandom, strength, RSA_CERTAINTY
             );
             keygen.init(keyGenerationParameters);
             AsymmetricCipherKeyPair keyPair = keygen.generateKeyPair();
