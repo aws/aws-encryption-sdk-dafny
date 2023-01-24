@@ -85,7 +85,12 @@ namespace Signature {
             return byteseq.Concat(byteseq.FromArray(yBytes), (byteseq.FromArray(xBytes)));
         }
 
-        public static _IResult<bool, _IError> Verify(_IECDSASignatureAlgorithm x, ibyteseq vk, ibyteseq msg, ibyteseq sig) {
+        public static _IResult<bool, _IError> Verify(
+          _IECDSASignatureAlgorithm x,
+          ibyteseq vk,
+          ibyteseq msg,
+          ibyteseq sig
+        ) {
             try {
                 X9ECParameters parameters;
                 if (x.is_ECDSA__P384) {

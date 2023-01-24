@@ -16,24 +16,35 @@ public class ExternDigest {
 
     public static Result<DafnySequence<? extends Byte>, Error> Digest(
         DigestAlgorithm digestAlgorithm,
-        DafnySequence<? extends Byte> message
+        DafnySequence<? extends Byte> dtor_message
+    ) {
+      final Result<byte[], Error> maybeDigest = internalDigest(digestAlgorithm, dtor_message);
+      if (maybeDigest.is_Failure()) {
+        return Result.create_Failure(maybeDigest.dtor_error());
+      }
+      return Result.create_Success(DafnySequence.fromBytes(
+              maybeDigest.dtor_value()));
+    }
+
+    public static Result<byte[], Error> internalDigest(
+            DigestAlgorithm digestAlgorithm,
+            DafnySequence<? extends Byte> dtor_message
     ) {
       try {
         final MessageDigest hash = getHash(digestAlgorithm);
-        final byte[] messageBytes = (byte[]) Array.unwrap(message.toArray());
+        final byte[] messageBytes = (byte[]) Array.unwrap(dtor_message.toArray());
         hash.update(messageBytes);
         final byte[] digest = hash.digest();
-        return Result.create_Success(DafnySequence.fromBytes(digest));
+        return Result.create_Success(digest);
       } catch ( NoSuchAlgorithmException ex) {
         final Error err = ToDafny.Error(
-          AwsCryptographicPrimitivesError
-            .builder()
-            .message("Requested digest Algorithm is not supported.")
-            .cause(ex)
-            .build());
+                AwsCryptographicPrimitivesError
+                        .builder()
+                        .message("Requested digest Algorithm is not supported.")
+                        .cause(ex)
+                        .build());
         return Result.create_Failure(err);
       }
-
     }
 
     private static MessageDigest getHash(DigestAlgorithm digestAlgorithm) throws NoSuchAlgorithmException {

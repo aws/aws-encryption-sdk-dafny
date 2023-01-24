@@ -33,7 +33,9 @@ module {:extern "Signature"} Signature {
 
   predicate {:axiom} IsValidSignatureKeyPair(sigKeyPair: SignatureKeyPair)
 
-  method KeyGen(input: Types.GenerateECDSASignatureKeyInput) returns (res: Result<Types.GenerateECDSASignatureKeyOutput, Types.Error>)
+  method KeyGen(
+    input: Types.GenerateECDSASignatureKeyInput
+  ) returns (res: Result<Types.GenerateECDSASignatureKeyOutput, Types.Error>)
     ensures match res
       case Success(sigKeyPair) =>
         //= compliance/framework/structures.txt#2.3.3.2.5
@@ -59,16 +61,23 @@ module {:extern "Signature"} Signature {
     ));
   }
 
-  method {:extern "Signature.ECDSA", "ExternKeyGen"} ExternKeyGen(s: Types.ECDSASignatureAlgorithm)
-    returns (res: Result<SignatureKeyPair, Types.Error>)
+  method {:extern "Signature.ECDSA", "ExternKeyGen"} ExternKeyGen(
+    s: Types.ECDSASignatureAlgorithm
+  ) returns (res: Result<SignatureKeyPair, Types.Error>)
     ensures res.Success? ==> IsValidSignatureKeyPair(res.value)
 
-  method {:extern "Signature.ECDSA", "Sign"} Sign(s: Types.ECDSASignatureAlgorithm, key: seq<uint8>, msg: seq<uint8>)
-    returns (sig: Result<seq<uint8>, Types.Error>)
+  method {:extern "Signature.ECDSA", "Sign"} Sign(
+    s: Types.ECDSASignatureAlgorithm,
+    key: seq<uint8>,
+    msg: seq<uint8>
+  ) returns (sig: Result<seq<uint8>, Types.Error>)
     ensures sig.Success? ==> IsSigned(key, msg, sig.value)
 
   // This is a valid function
   // because the same inputs will result in the same outputs.
-  function method {:extern "Signature.ECDSA", "Verify"} Verify(s: Types.ECDSASignatureAlgorithm, key: seq<uint8>, msg: seq<uint8>, sig: seq<uint8>)
-    : (res: Result<bool, Types.Error>)
+  function method {:extern "Signature.ECDSA", "Verify"} Verify(
+    s: Types.ECDSASignatureAlgorithm, key: seq<uint8>,
+    msg: seq<uint8>,
+    sig: seq<uint8>
+  ): (res: Result<bool, Types.Error>)
 }
