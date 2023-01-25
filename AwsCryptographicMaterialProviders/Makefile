@@ -100,7 +100,6 @@ transpile_test_java: | _clean_test_java _transpile_test_java _mv_test_java
 _clean_test_java:
 	rm -rf runtimes/java/temp-tests/AwsCryptographicMaterialProvidersTests-java/* && rm -rf runtimes/java/src/test/dafny-generated/*
 
-# TODO include all tests once all externs are implemented
 _transpile_test_java:
 	dafny \
 		-vcsCores:$(CORES) \
@@ -111,7 +110,7 @@ _transpile_test_java:
 		-useRuntimeLib \
 		-optimizeErasableDatatypeWrapper:0 \
 		-out runtimes/java/temp-tests/AwsCryptographicMaterialProvidersTests \
-		./test/Keyrings/AwsKms/TestAwsKmsRsaKeyring.dfy \
+		`find ./test -name '*.dfy'` \
 		-library:src/Index.dfy
 
 _mv_test_java:

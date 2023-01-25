@@ -78,10 +78,10 @@ jobs:
           CORES=$(node -e 'console.log(os.cpus().length)')
           make build_java CORES=$CORES
 
-      # KMS tests need to use credentials which can call KMS
+      # KMS and MPL tests need to use credentials which can call KMS
       - name: Configure AWS Credentials for Tests
         uses: aws-actions/configure-aws-credentials@v1
-        if: matrix.library == 'ComAmazonawsKms'
+        if: matrix.library == 'ComAmazonawsKms' || matrix.library == 'AwsCryptographicMaterialProviders'
         with:
           aws-region: us-west-2
           role-to-assume: arn:aws:iam::405437749609:role/Github-OICD-for-private-aws-encryption-sdk-da-Role-15BEGAP519YZV
