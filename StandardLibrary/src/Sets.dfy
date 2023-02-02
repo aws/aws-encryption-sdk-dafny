@@ -21,6 +21,8 @@ module {:extern "Sets"} Sets {
     ensures res == SetToOrderedSequence(s, less)
     // The seq came from the set
     ensures Seq.HasNoDuplicates(res)
+    ensures forall k <- res :: k in s
+    ensures |res| == |s|
 
 function method {:extern "SetToSequence"} ComputeSetToSequence<T(==)>(
     s: set<T>
