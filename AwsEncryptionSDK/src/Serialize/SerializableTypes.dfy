@@ -1,17 +1,14 @@
 // Copyright Amazon.com Inc. or its affiliates. All Rights Reserved.
 // SPDX-License-Identifier: Apache-2.0
 
-include "../../Util/UTF8.dfy"
-include "../../Generated/AwsCryptographicMaterialProviders.dfy"
-include "../../StandardLibrary/StandardLibrary.dfy"
-include "../../Util/Sets.dfy"
-include "../../../libraries/src/Collections/Sequences/Seq.dfy"
+include "../../Model/AwsEncryptionSdkTypes.dfy"
 
 module SerializableTypes {
   import StandardLibrary
   import opened UInt = StandardLibrary.UInt
   import opened UTF8
-  import opened Aws.Crypto
+  import MPL = AwsCryptographyMaterialProvidersTypes
+  import AwsCryptographyPrimitivesTypes
   import Sets
   import Seq
 
@@ -21,21 +18,21 @@ module SerializableTypes {
   datatype Pair<K, V> = Pair(key: K, value: V)
   type Linear<K, V> = seq<Pair<K,V>>
 
-  predicate method IsESDKEncryptedDataKey(edk: EncryptedDataKey) {
+  predicate method IsESDKEncryptedDataKey(edk: MPL.EncryptedDataKey) {
     && HasUint16Len(edk.keyProviderId)
     && ValidUTF8Seq(edk.keyProviderId)
     && HasUint16Len(edk.keyProviderInfo)
     && HasUint16Len(edk.ciphertext)
   }
 
-  type ESDKEncryptedDataKey = e: EncryptedDataKey | IsESDKEncryptedDataKey(e) witness *
+  type ESDKEncryptedDataKey = e: MPL.EncryptedDataKey | IsESDKEncryptedDataKey(e) witness *
   type ESDKEncryptedDataKeys = seq16<ESDKEncryptedDataKey>
   // The AAD section is the total length|number of pairs|key|value|key|value...
   // The total length is uint16, so the maximum length for the keys and values
   // MUST be able to include the uint16 for the number of pairs.
   const ESDK_CANONICAL_ENCRYPTION_CONTEXT_MAX_LENGTH := UINT16_LIMIT - 2;
 
-  predicate method IsESDKEncryptionContext(ec: Crypto.EncryptionContext) {
+  predicate method IsESDKEncryptionContext(ec: MPL.EncryptionContext) {
     && |ec| < UINT16_LIMIT
     && Length(ec) < ESDK_CANONICAL_ENCRYPTION_CONTEXT_MAX_LENGTH
     && forall element
@@ -45,58 +42,33 @@ module SerializableTypes {
       && ValidUTF8Seq(element)
   }
 
-  type ESDKEncryptionContext = ec: Crypto.EncryptionContext
+  type ESDKEncryptionContext = ec: MPL.EncryptionContext
   | IsESDKEncryptionContext(ec)
   witness *
 
-  const VALID_IDS: set<uint16> := {0x0578, 0x0478, 0x0378, 0x0346, 0x0214, 0x0178, 0x0146, 0x0114, 0x0078, 0x0046, 0x0014};
-
-  //= compliance/data-format/message-header.txt#2.5.1.5
-  //= type=implication
-  //# The value (hex) of this field MUST be a value that exists
-  //# in the Supported Algorithm Suites (../framework/algorithm-
-  //# suites.md#supported-algorithm-suites) table.
-  type ESDKAlgorithmSuiteId = id: uint16 | id in VALID_IDS witness *
-
-  const SupportedAlgorithmSuites: map<Crypto.AlgorithmSuiteId, ESDKAlgorithmSuiteId> := map[
-    Crypto.AlgorithmSuiteId.ALG_AES_128_GCM_IV12_TAG16_NO_KDF := 0x0014,
-    Crypto.AlgorithmSuiteId.ALG_AES_192_GCM_IV12_TAG16_NO_KDF := 0x0046,
-    Crypto.AlgorithmSuiteId.ALG_AES_256_GCM_IV12_TAG16_NO_KDF := 0x0078,
-    Crypto.AlgorithmSuiteId.ALG_AES_128_GCM_IV12_TAG16_HKDF_SHA256 := 0x0114,
-    Crypto.AlgorithmSuiteId.ALG_AES_192_GCM_IV12_TAG16_HKDF_SHA256 := 0x0146,
-    Crypto.AlgorithmSuiteId.ALG_AES_256_GCM_IV12_TAG16_HKDF_SHA256 := 0x0178,
-    Crypto.AlgorithmSuiteId.ALG_AES_128_GCM_IV12_TAG16_HKDF_SHA256_ECDSA_P256 := 0x0214,
-    Crypto.AlgorithmSuiteId.ALG_AES_192_GCM_IV12_TAG16_HKDF_SHA384_ECDSA_P384 := 0x0346,
-    Crypto.AlgorithmSuiteId.ALG_AES_256_GCM_IV12_TAG16_HKDF_SHA384_ECDSA_P384 := 0x0378,
-    Crypto.AlgorithmSuiteId.ALG_AES_256_GCM_HKDF_SHA512_COMMIT_KEY := 0x0478,
-    Crypto.AlgorithmSuiteId.ALG_AES_256_GCM_HKDF_SHA512_COMMIT_KEY_ECDSA_P384 := 0x0578
-  ]
-
-  function method GetESDKAlgorithmSuiteId(
-    suiteId: Crypto.AlgorithmSuiteId
-  ):
-    (res: ESDKAlgorithmSuiteId)
-    ensures GetAlgorithmSuiteId(res) == suiteId
+  function method GetIvLength(a: MPL.AlgorithmSuiteInfo)
+    : (output: uint8)
   {
-    LemmaSupportedAlgorithmSuitesIsComplete(suiteId);
-    SupportedAlgorithmSuites[suiteId]
+    match a.encrypt
+      case AES_GCM(e) => e.ivLength as uint8
   }
 
-  function method GetAlgorithmSuiteId(
-    esdkId: ESDKAlgorithmSuiteId
-  ):
-    (res: Crypto.AlgorithmSuiteId)
+  function method GetTagLength(a: MPL.AlgorithmSuiteInfo)
+    : (output: uint8)
   {
-    var suiteId
-    :|
-      && suiteId in SupportedAlgorithmSuites
-      && SupportedAlgorithmSuites[suiteId] == esdkId;
-    suiteId
+    match a.encrypt
+      case AES_GCM(e) => e.tagLength as uint8
   }
 
-  lemma LemmaSupportedAlgorithmSuitesIsComplete(id:Crypto.AlgorithmSuiteId)
-    ensures id in SupportedAlgorithmSuites
-  {}
+  function method GetEncryptKeyLength(a: MPL.AlgorithmSuiteInfo)
+    : (output: int32)
+    ensures
+      && AwsCryptographyPrimitivesTypes.IsValid_PositiveInteger(output)
+      && AwsCryptographyPrimitivesTypes.IsValid_SymmetricKeyLength(output)
+  {
+    match a.encrypt
+      case AES_GCM(e) => e.keyLength
+  }
 
   /*
    * Length properties of the Encryption Context.
@@ -112,7 +84,7 @@ module SerializableTypes {
    * Uint16-2-2-1 for the value data
    */
   function method Length(
-    encryptionContext: Crypto.EncryptionContext
+    encryptionContext: MPL.EncryptionContext
   )
     : (ret: nat)
     ensures
@@ -128,7 +100,7 @@ module SerializableTypes {
   // is simplified by using a sequence of
   // key value pairs instead.
   function method GetCanonicalLinearPairs(
-    encryptionContext: Crypto.EncryptionContext
+    encryptionContext: MPL.EncryptionContext
   )
     :(ret: Linear<UTF8.ValidUTF8Bytes, UTF8.ValidUTF8Bytes>)
     ensures |encryptionContext| == 0 ==> |ret| == 0

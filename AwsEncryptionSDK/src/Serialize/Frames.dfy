@@ -1,22 +1,17 @@
 // Copyright Amazon.com Inc. or its affiliates. All Rights Reserved.
 // SPDX-License-Identifier: Apache-2.0
 
-include "../../../libraries/src/Collections/Sequences/Seq.dfy"
-include "../../Generated/AwsCryptographicMaterialProviders.dfy"
-include "../../AwsCryptographicMaterialProviders/Client.dfy"
-include "../../StandardLibrary/StandardLibrary.dfy"
-include "../../Util/UTF8.dfy"
-include "./SerializableTypes.dfy"
+include "../../Model/AwsEncryptionSdkTypes.dfy"
+include "SerializableTypes.dfy"
 include "SerializeFunctions.dfy"
 include "Header.dfy"
 include "EncryptionContext.dfy"
 include "EncryptedDataKeys.dfy"
 
 module Frames {
-  import Aws.Crypto
+  import MPL = AwsCryptographyMaterialProvidersTypes
   import Seq
   import Header
-  import MaterialProviders.Client
   import opened EncryptedDataKeys
   import opened EncryptionContext
   import opened SerializableTypes
@@ -66,8 +61,8 @@ module Frames {
   )
 
   predicate IvTagLengths(frame: Frame){
-    && |frame.iv| == frame.header.suite.encrypt.ivLength as nat
-    && |frame.authTag| == frame.header.suite.encrypt.tagLength as nat
+    && |frame.iv| == GetIvLength(frame.header.suite) as nat
+    && |frame.authTag| == GetTagLength(frame.header.suite) as nat
   }
 
   predicate IsRegularFrame(frame: Frame){
@@ -161,9 +156,9 @@ module Frames {
     var sequenceNumber :- ReadUInt32(buffer);
     :- Need(sequenceNumber.data != ENDFRAME_SEQUENCE_NUMBER, Error("bad"));
 
-    var iv :- Read(sequenceNumber.tail, header.suite.encrypt.ivLength as nat);
+    var iv :- Read(sequenceNumber.tail, GetIvLength(header.suite) as nat);
     var encContent :- Read(iv.tail, header.body.frameLength as nat);
-    var authTag :- Read(encContent.tail, header.suite.encrypt.tagLength as nat);
+    var authTag :- Read(encContent.tail, GetTagLength(header.suite) as nat);
 
     var regularFrame: RegularFrame := Frame.RegularFrame(
       header,
@@ -220,7 +215,7 @@ module Frames {
       && finalFrameSignalRes.Success?
       && var sequenceNumberRes := ReadUInt32(finalFrameSignalRes.value.tail);
       && sequenceNumberRes.Success?
-      && var ivRes := Read(sequenceNumberRes.value.tail, header.suite.encrypt.ivLength as nat);
+      && var ivRes := Read(sequenceNumberRes.value.tail, GetIvLength(header.suite) as nat);
       && ivRes.Success?
       && var encContentRes := ReadUint32Seq(ivRes.value.tail);
       && encContentRes.Success?
@@ -231,7 +226,7 @@ module Frames {
     :- Need(finalFrameSignal.data == ENDFRAME_SEQUENCE_NUMBER, Error("bad"));
 
     var sequenceNumber :- ReadUInt32(finalFrameSignal.tail);
-    var iv :- Read(sequenceNumber.tail, header.suite.encrypt.ivLength as nat);
+    var iv :- Read(sequenceNumber.tail, GetIvLength(header.suite) as nat);
     var encContent :- ReadUint32Seq(iv.tail);
 
     //= compliance/client-apis/decrypt.txt#2.7.4
@@ -241,7 +236,7 @@ module Frames {
     //# in the message header.
     :- Need(|encContent.data| as uint32 <= header.body.frameLength, Error("bad"));
     
-    var authTag :- Read(encContent.tail, header.suite.encrypt.tagLength as nat);
+    var authTag :- Read(encContent.tail, GetTagLength(header.suite) as nat);
     var finalFrame: FinalFrame := Frame.FinalFrame(
       header,
       sequenceNumber.data,
@@ -267,13 +262,13 @@ module Frames {
     :(res: ReadCorrect<NonFramed>)
     ensures CorrectlyRead(buffer, res, WriteNonFramed)
   {
-    var iv :- Read(buffer, header.suite.encrypt.ivLength as nat);
+    var iv :- Read(buffer, GetIvLength(header.suite) as nat);
     // Checking only the content length _before_ reading it into memory
     // is just a nice thing to do given the sizes involved.
     var contentLength :- ReadUInt64(iv.tail);
     :- Need(contentLength.data as nat < SAFE_MAX_ENCRYPT, Error("Too Much"));
     var encContent :- ReadUint64Seq(iv.tail);
-    var authTag :- Read(encContent.tail, header.suite.encrypt.tagLength as nat);
+    var authTag :- Read(encContent.tail, GetTagLength(header.suite) as nat);
 
     var nonFramed: NonFramed := Frame.NonFramed(
       header,

@@ -1,12 +1,8 @@
 // Copyright Amazon.com Inc. or its affiliates. All Rights Reserved.
 // SPDX-License-Identifier: Apache-2.0
 
-include "../../../libraries/src/Collections/Sequences/Seq.dfy"
-include "../../Generated/AwsCryptographicMaterialProviders.dfy"
-include "../../AwsCryptographicMaterialProviders/Client.dfy"
-include "../../StandardLibrary/StandardLibrary.dfy"
-include "../../Util/UTF8.dfy"
-include "./SerializableTypes.dfy"
+include "../../Model/AwsEncryptionSdkTypes.dfy"
+include "SerializableTypes.dfy"
 include "SerializeFunctions.dfy"
 include "HeaderTypes.dfy"
 include "SharedHeaderFunctions.dfy"
@@ -14,11 +10,11 @@ include "EncryptionContext.dfy"
 include "EncryptedDataKeys.dfy"
 
 module V1HeaderBody {
-  import Aws.Crypto
+  import Types = AwsEncryptionSdkTypes
+  import MaterialProviders
   import Seq
   import HeaderTypes
   import opened SharedHeaderFunctions
-  import MaterialProviders.Client
   import opened EncryptedDataKeys
   import opened EncryptionContext
   import opened SerializableTypes
@@ -46,9 +42,6 @@ module V1HeaderBody {
     :(ret: seq<uint8>)
   {
 
-    var suiteId := GetAlgorithmSuiteId(body.esdkSuiteId);
-    var suite := Client.SpecificationClient().GetSuite(suiteId);
-
     //= compliance/client-apis/encrypt.txt#2.6.2
     //# If the message format version associated with the algorithm suite
     //# (../framework/algorithm-suites.md#supported-algorithm-suites) is 1.0
@@ -75,7 +68,7 @@ module V1HeaderBody {
     //# *  Algorithm Suite ID (../data-format/message-header.md#algorithm-
     //# suite-id): MUST correspond to the algorithm suite (../framework/
     //# algorithm-suites.md) used in this behavior
-    + (WriteESDKSuiteId(body.esdkSuiteId)
+    + (WriteESDKSuiteId(body.algorithmSuite)
     //= compliance/client-apis/encrypt.txt#2.6.2
     //# *  Message ID (../data-format/message-header.md#message-id): The
     //# process used to generate this identifier MUST use a good source of
@@ -110,7 +103,7 @@ module V1HeaderBody {
     //# the IV length (../framework/algorithm-suites.md#iv-length)
     //# specified by the algorithm suite (../framework/algorithm-
     //# suites.md)
-    + (WriteV1HeaderIvLength(suite.encrypt.ivLength)
+    + (WriteV1HeaderIvLength(GetIvLength(body.algorithmSuite))
     //= compliance/client-apis/encrypt.txt#2.6.2
     //# *  Frame Length (../data-format/message-header.md#frame-length): MUST
     //# be the value of the frame size determined above.
@@ -119,7 +112,8 @@ module V1HeaderBody {
 
   function method {:vcs_split_on_every_assert} ReadV1HeaderBody(
     buffer: ReadableBuffer,
-    maxEdks: Option<posInt64>
+    maxEdks: Option<Types.CountingNumbers>,
+    mpl: MaterialProviders.MaterialProvidersClient
   )
     :(res: ReadCorrect<V1HeaderBody>)
     ensures CorrectlyReadV1HeaderBody(buffer, res)
@@ -129,12 +123,10 @@ module V1HeaderBody {
 
     var messageType :- ReadV1MessageType(version.tail);
 
-    var esdkSuiteId :- ReadESDKSuiteId(messageType.tail);
-    var suiteId := GetAlgorithmSuiteId(esdkSuiteId.data);
-    var suite := Client.SpecificationClient().GetSuite(suiteId);
-    :- Need(suite.commitment.None?, Error("Algorithm suite must not support commitment."));
+    var suite :- ReadESDKSuiteId(messageType.tail, mpl);
+    :- Need(suite.data.commitment.None?, Error("Algorithm suite must not support commitment."));
 
-    var messageId :- ReadMessageIdV1(esdkSuiteId.tail);
+    var messageId :- ReadMessageIdV1(suite.tail);
 
     var encryptionContext :- EncryptionContext.ReadAADSection(messageId.tail);
 
@@ -146,14 +138,14 @@ module V1HeaderBody {
 
     var headerIvLength :- ReadV1HeaderIvLength(
       reservedBytes.tail,
-      suite
+      suite.data
     );
 
     var frameLength :- ReadUInt32(headerIvLength.tail);
 
     var body:V1HeaderBody := HeaderTypes.V1HeaderBody(
       messageType := messageType.data,
-      esdkSuiteId := esdkSuiteId.data,
+      algorithmSuite := suite.data,
       messageId := messageId.data,
       encryptionContext := encryptionContext.data,
       encryptedDataKeys := encryptedDataKeys.data,
@@ -162,10 +154,22 @@ module V1HeaderBody {
       frameLength := frameLength.data
     );
 
-    assert if IsV1ExpandedAADSection(buffer) then
-      WriteV1ExpandedAADSectionHeaderBody(body) <= buffer.bytes[buffer.start..]
-    else
-      WriteV1HeaderBody(body) <= buffer.bytes[buffer.start..];
+    assert CorrectlyReadV1HeaderBody(buffer, Success(SuccessfulRead(body, frameLength.tail))) by {
+      if IsV1ExpandedAADSection(buffer) {
+        assert 0 == |body.encryptionContext|;
+        assert messageId.tail.start + 4 == encryptionContext.tail.start;
+        assert WriteV1ExpandedAADSectionHeaderBody(body) <= buffer.bytes[buffer.start..];
+      } else {
+        if 0 < |body.encryptionContext| {
+          HeadersAreTheSameWhenThereIsEncryptionContext(body);
+          assert WriteV1ExpandedAADSectionHeaderBody(body) <= buffer.bytes[buffer.start..];
+          assert WriteV1HeaderBody(body) <= buffer.bytes[buffer.start..];
+        } else {
+          assert messageId.tail.start + 2 == encryptionContext.tail.start;
+          assert WriteV1HeaderBody(body) <= buffer.bytes[buffer.start..];
+        }
+      }
+    }
 
     Success(SuccessfulRead(body, frameLength.tail))
   }
@@ -239,13 +243,13 @@ module V1HeaderBody {
 
   function method ReadV1HeaderIvLength(
     buffer: ReadableBuffer,
-    suite: Client.AlgorithmSuites.AlgorithmSuite
+    suite: MPL.AlgorithmSuiteInfo
   )
     :(res: ReadCorrect<uint8>)
     ensures CorrectlyRead(buffer, res, WriteV1HeaderIvLength)
   {
     var SuccessfulRead(raw, tail) :- SerializeFunctions.Read(buffer, 1);
-    :- Need(raw[0] == suite.encrypt.ivLength, Error("HeaderIv Length does not match Algorithm Suite."));
+    :- Need(raw[0] == GetIvLength(suite), Error("HeaderIv Length does not match Algorithm Suite."));
     Success(SuccessfulRead(raw[0], tail))
   }
 
@@ -259,23 +263,25 @@ module V1HeaderBody {
     :(ret: seq<uint8>)
   {
 
-    var suiteId := GetAlgorithmSuiteId(body.esdkSuiteId);
-    var suite := Client.SpecificationClient().GetSuite(suiteId);
-
     // Dafny has trouble
     // with associativity of concatenation
     // (knowing that (a + b) + c == a + (b + c) ).
     // So manually adding the () helps make it clear.
       WriteMessageFormatVersion(HeaderTypes.MessageFormatVersion.V1)
     + (WriteV1MessageType(body.messageType)
-    + (WriteESDKSuiteId(body.esdkSuiteId)
+    + (WriteESDKSuiteId(body.algorithmSuite)
     + (WriteMessageId(body.messageId)
     + (WriteExpandedAADSection(body.encryptionContext)
     + (WriteEncryptedDataKeysSection(body.encryptedDataKeys)
     + (WriteContentType(body.contentType)
     + (WriteV1ReservedBytes(RESERVED_BYTES)
-    + (WriteV1HeaderIvLength(suite.encrypt.ivLength)
+    + (WriteV1HeaderIvLength(GetIvLength(body.algorithmSuite))
     + (WriteUint32(body.frameLength))))))))))
   }
+
+  lemma HeadersAreTheSameWhenThereIsEncryptionContext(body: V1HeaderBody)
+    requires 0 < |body.encryptionContext|
+    ensures WriteV1ExpandedAADSectionHeaderBody(body) == WriteV1HeaderBody(body)
+{}
 
 }

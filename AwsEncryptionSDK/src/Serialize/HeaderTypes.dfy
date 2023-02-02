@@ -1,18 +1,14 @@
 // Copyright Amazon.com Inc. or its affiliates. All Rights Reserved.
 // SPDX-License-Identifier: Apache-2.0
-include "../../../libraries/src/Collections/Sequences/Seq.dfy"
-include "../../Generated/AwsCryptographicMaterialProviders.dfy"
-include "../../AwsCryptographicMaterialProviders/Client.dfy"
-include "../../StandardLibrary/StandardLibrary.dfy"
-include "../../Util/UTF8.dfy"
-include "./SerializableTypes.dfy"
+
+include "../../Model/AwsEncryptionSdkTypes.dfy"
+include "SerializableTypes.dfy"
 include "SerializeFunctions.dfy"
 include "EncryptionContext.dfy"
 
 module HeaderTypes {
-  import Aws.Crypto
+  import MPL = AwsCryptographyMaterialProvidersTypes
   import Seq
-  import MaterialProviders.Client
   import EncryptionContext
   import opened SerializableTypes
   import opened StandardLibrary.UInt
@@ -66,7 +62,7 @@ module HeaderTypes {
   datatype HeaderBody =
     | V1HeaderBody(
       nameonly messageType: MessageType,
-      nameonly esdkSuiteId: ESDKAlgorithmSuiteId,
+      nameonly algorithmSuite: MPL.AlgorithmSuiteInfo,
       nameonly messageId: MessageId,
       nameonly encryptionContext: EncryptionContext.ESDKCanonicalEncryptionContext,
       nameonly encryptedDataKeys: ESDKEncryptedDataKeys,
@@ -75,7 +71,7 @@ module HeaderTypes {
       nameonly frameLength: uint32
     )
     | V2HeaderBody(
-      nameonly esdkSuiteId: ESDKAlgorithmSuiteId,
+      nameonly algorithmSuite: MPL.AlgorithmSuiteInfo,
       nameonly messageId: MessageId,
       nameonly encryptionContext: EncryptionContext.ESDKCanonicalEncryptionContext,
       nameonly encryptedDataKeys: ESDKEncryptedDataKeys,

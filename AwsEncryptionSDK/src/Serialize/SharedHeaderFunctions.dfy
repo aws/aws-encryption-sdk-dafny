@@ -1,19 +1,16 @@
 // Copyright Amazon.com Inc. or its affiliates. All Rights Reserved.
 // SPDX-License-Identifier: Apache-2.0
-include "../../../libraries/src/Collections/Sequences/Seq.dfy"
-include "../../Generated/AwsCryptographicMaterialProviders.dfy"
-include "../../AwsCryptographicMaterialProviders/Client.dfy"
-include "../../StandardLibrary/StandardLibrary.dfy"
-include "../../Util/UTF8.dfy"
+
+include "../../Model/AwsEncryptionSdkTypes.dfy"
 include "./SerializableTypes.dfy"
 include "SerializeFunctions.dfy"
 include "EncryptionContext.dfy"
 include "HeaderTypes.dfy"
 
 module SharedHeaderFunctions {
-  import Aws.Crypto
+  import MPL = AwsCryptographyMaterialProvidersTypes
+  import Types = AwsEncryptionSdkTypes
   import Seq
-  import MaterialProviders.Client
   import EncryptionContext
   import opened SerializableTypes
   import opened StandardLibrary.UInt
@@ -21,6 +18,7 @@ module SharedHeaderFunctions {
   import opened UTF8
   import opened SerializeFunctions
   import opened HeaderTypes
+  import MaterialProviders
 
   function method WriteMessageFormatVersion(
     version: MessageFormatVersion
@@ -43,23 +41,25 @@ module SharedHeaderFunctions {
   }
 
   function method WriteESDKSuiteId(
-    esdkSuiteId: ESDKAlgorithmSuiteId
+    suite: MPL.AlgorithmSuiteInfo
   ):
     (ret: seq<uint8>)
   {
-    WriteUint16(esdkSuiteId)
+    Write(suite.binaryId)
   }
 
   function method ReadESDKSuiteId(
-    buffer: ReadableBuffer
+    buffer: ReadableBuffer,
+    mpl: MaterialProviders.MaterialProvidersClient
   )
-    :(res: ReadCorrect<ESDKAlgorithmSuiteId>)
+    :(res: ReadCorrect<MPL.AlgorithmSuiteInfo>)
     ensures CorrectlyRead(buffer, res, WriteESDKSuiteId)
+    ensures res.Success? ==> mpl.ValidAlgorithmSuiteInfo(res.value.data).Success?
   {
-    var esdkSuiteIdBytes :- ReadUInt16(buffer);
-    :- Need(esdkSuiteIdBytes.data in VALID_IDS, Error("Algorithm suite ID not supported."));
-    var esdkSuiteId: ESDKAlgorithmSuiteId := esdkSuiteIdBytes.data;
-    Success(SuccessfulRead(esdkSuiteId, esdkSuiteIdBytes.tail))
+    var esdkSuiteIdBytes :- Read(buffer, 2);
+    var suite :- mpl.GetAlgorithmSuiteInfo(esdkSuiteIdBytes.data).MapFailure(_ => Error("Algorithm suite ID not supported."));
+    :- Need(suite.binaryId == esdkSuiteIdBytes.data, Error("Algorithm suite ID not supported."));
+    Success(SuccessfulRead(suite, esdkSuiteIdBytes.tail))
   }
 
   /*

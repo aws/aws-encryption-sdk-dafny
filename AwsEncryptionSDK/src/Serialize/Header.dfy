@@ -1,10 +1,7 @@
 // Copyright Amazon.com Inc. or its affiliates. All Rights Reserved.
 // SPDX-License-Identifier: Apache-2.0
-include "../../../libraries/src/Collections/Sequences/Seq.dfy"
-include "../../Generated/AwsCryptographicMaterialProviders.dfy"
-include "../../AwsCryptographicMaterialProviders/Client.dfy"
-include "../../StandardLibrary/StandardLibrary.dfy"
-include "../../Util/UTF8.dfy"
+
+include "../../Model/AwsEncryptionSdkTypes.dfy"
 include "SerializableTypes.dfy"
 include "SerializeFunctions.dfy"
 include "EncryptionContext.dfy"
@@ -17,9 +14,9 @@ include "SharedHeaderFunctions.dfy"
 
 
 module Header {
-  import Aws.Crypto
+  import Types = AwsEncryptionSdkTypes
+  import MaterialProviders
   import Seq
-  import MaterialProviders.Client
   import EncryptionContext
 
   import V1HeaderBody
@@ -38,13 +35,13 @@ module Header {
     nameonly body: HeaderTypes.HeaderBody,
     nameonly rawHeader: seq<uint8>,
     nameonly encryptionContext: ESDKEncryptionContext,
-    nameonly suite: Client.AlgorithmSuites.AlgorithmSuite,
+    nameonly suite: MPL.AlgorithmSuiteInfo,
     nameonly headerAuth: HeaderTypes.HeaderAuth
   )
 
   predicate IsHeader(h: HeaderInfo)
   {
-    && GetESDKAlgorithmSuiteId(h.suite.id) == h.body.esdkSuiteId
+    && h.suite == h.body.algorithmSuite
     // TODO: Even though we're not yet supporting non-framed content,
     // this assertion about non-framed messages has ripple effects on
     // other proofs
@@ -70,25 +67,25 @@ module Header {
   }
 
   predicate HeaderAuth?(
-    suite: Client.AlgorithmSuites.AlgorithmSuite,
+    suite: MPL.AlgorithmSuiteInfo,
     headerAuth: HeaderTypes.HeaderAuth
   )
   {
       && (headerAuth.AESMac?
     ==>
-      && |headerAuth.headerIv| == suite.encrypt.ivLength as nat
-      && |headerAuth.headerAuthTag| == suite.encrypt.tagLength as nat)
+      && |headerAuth.headerIv| == GetIvLength(suite) as nat
+      && |headerAuth.headerAuthTag| == GetTagLength(suite) as nat)
   }
 
   predicate method HeaderVersionSupportsCommitment?(
-    suite: Client.AlgorithmSuites.AlgorithmSuite,
+    suite: MPL.AlgorithmSuiteInfo,
     body: HeaderTypes.HeaderBody
   )
   {
     && (suite.commitment.HKDF?
       ==>
         && body.V2HeaderBody?
-        && |body.suiteData| == suite.commitment.outputKeyLength as nat)
+        && |body.suiteData| == suite.commitment.HKDF.outputKeyLength as nat)
     && (!suite.commitment.HKDF?
       ==>
         && body.V1HeaderBody?)
@@ -112,7 +109,8 @@ module Header {
   //# header (../data-format/message-header.md).
   function method ReadHeaderBody(
      buffer: ReadableBuffer,
-     maxEdks: Option<posInt64>
+     maxEdks: Option<Types.CountingNumbers>,
+     mpl: MaterialProviders.MaterialProvidersClient
   )
     :(res: ReadCorrect<HeaderTypes.HeaderBody>)
     ensures CorrectlyReadHeaderBody(buffer, res)
@@ -129,11 +127,11 @@ module Header {
 
     var (body, tail) :- match version.data {
       case V1 =>
-        var b :- V1HeaderBody.ReadV1HeaderBody(buffer, maxEdks);
+        var b :- V1HeaderBody.ReadV1HeaderBody(buffer, maxEdks, mpl);
         var body: HeaderTypes.HeaderBody := b.data;
         Success((body, b.tail))
       case V2 =>
-        var b :- V2HeaderBody.ReadV2HeaderBody(buffer, maxEdks);
+        var b :- V2HeaderBody.ReadV2HeaderBody(buffer, maxEdks, mpl);
         var body: HeaderTypes.HeaderBody := b.data;
         Success((body, b.tail))
     };
