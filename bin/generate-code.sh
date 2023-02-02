@@ -14,7 +14,7 @@ export POLYMORPH_ROOT=$1
 export DAFNY_ROOT=`pwd`
 export DOTNET_ROOT=$DAFNY_ROOT/aws-encryption-sdk-net
 
-export ESDK_ROOT=$DAFNY_ROOT/src/SDK
+export ESDK_ROOT=$DAFNY_ROOT/AwsEncryptionSDK
 export MaterialProviders_ROOT=$DAFNY_ROOT/AwsCryptographicMaterialProviders
 export AwsCryptographyPrimitives_ROOT=$DAFNY_ROOT/AwsCryptographyPrimitives
 export ComAmazonawsKms_ROOT=$DAFNY_ROOT/ComAmazonawsKms
@@ -70,13 +70,15 @@ cd "$POLYMORPH_ROOT"
     --namespace aws.cryptography.materialProviders"
 
 # # Generate code for ESDK
-# ./gradlew run --args="\
-#     --output-dotnet $ESDK_ROOT/runtimes/net/Generated/ \
-#     --model $ESDK_ROOT/Model \
-#     --dependent-model $MaterialProviders_ROOT/Model \
-#     --dependent-model $DAFNY_ROOT/model \
-#     --dependent-model $ComAmazonawsKms_ROOT/Model \
-#     --dependent-model $AwsCryptographyPrimitives_ROOT/Model \
-#     --namespace aws.encryptionSdk"
+./gradlew run --args="\
+    --output-dafny \
+    --include-dafny $DAFNY_ROOT/StandardLibrary/src/Index.dfy \
+    --output-dotnet $ESDK_ROOT/runtimes/net/Generated/ \
+    --model $ESDK_ROOT/Model \
+    --dependent-model $MaterialProviders_ROOT/Model \
+    --dependent-model $ComAmazonawsKms_ROOT/Model \
+    --dependent-model $AwsCryptographyPrimitives_ROOT/Model \
+    --dependent-model $DAFNY_ROOT/model \
+    --namespace aws.encryptionSdk"
 
 popd

@@ -1,15 +1,13 @@
 // Copyright Amazon.com Inc. or its affiliates. All Rights Reserved.
 // SPDX-License-Identifier: Apache-2.0
 
-include "../../../libraries/src/Collections/Sequences/Seq.dfy"
-include "../../Generated/AwsCryptographicMaterialProviders.dfy"
-include "../../StandardLibrary/StandardLibrary.dfy"
-include "../../Util/UTF8.dfy"
+include "../../Model/AwsEncryptionSdkTypes.dfy"
 include "./SerializableTypes.dfy"
 include "SerializeFunctions.dfy"
 
 module EncryptedDataKeys {
-  import Aws.Crypto
+  import Types = AwsEncryptionSdkTypes
+  import MPL = AwsCryptographyMaterialProvidersTypes
   import Seq
   import opened SerializableTypes
   import opened StandardLibrary.UInt
@@ -59,7 +57,7 @@ module EncryptedDataKeys {
     :- Need(ValidUTF8Seq(providerId), Error("Invalid providerID"));
     var SuccessfulRead(providerInfo, providerInfoPos) :- ReadShortLengthSeq(providerIdPos);
     var SuccessfulRead(cipherText, tail) :- ReadShortLengthSeq(providerInfoPos);
-    var edk: ESDKEncryptedDataKey := Crypto.EncryptedDataKey(
+    var edk: ESDKEncryptedDataKey := MPL.EncryptedDataKey(
         keyProviderId := providerId,
         keyProviderInfo := providerInfo,
         ciphertext := cipherText);
@@ -90,7 +88,7 @@ module EncryptedDataKeys {
 
   function method {:opaque} ReadEncryptedDataKeysSection(
     buffer: ReadableBuffer,
-    maxEdks: Option<posInt64>
+    maxEdks: Option<Types.CountingNumbers>
   )
     :(res: ReadCorrect<ESDKEncryptedDataKeys>)
     ensures CorrectlyRead(buffer, res, WriteEncryptedDataKeysSection)
@@ -246,18 +244,12 @@ module EncryptedDataKeys {
       // This will recurse *forward* to the final case where data == accumulator.
       // Along the way, we prove ReadEncryptedDataKeyIsComplete
       // for each encrypted data key "along the way".
-      var edks := ReadEncryptedDataKeysIsComplete(
+      ret := ReadEncryptedDataKeysIsComplete(
         data,
         nextAccumulator,
         bytes,
         buffer
       );
-
-      assert edks.data == data;
-      assert edks.tail.start == buffer.start + |WriteEncryptedDataKeys(data)|;
-
-      assert {:split_here} true;
-      return ReadEncryptedDataKeys(buffer, accumulator, |data| as uint16, nextEdkStart).value;
     }
   }
 
@@ -265,7 +257,7 @@ module EncryptedDataKeys {
     data: ESDKEncryptedDataKeys,
     bytes: seq<uint8>,
     buffer: ReadableBuffer,
-    maxEdks: Option<posInt64>
+    maxEdks: Option<Types.CountingNumbers>
   )
     returns (ret: ReadCorrect<ESDKEncryptedDataKeys>)
     requires

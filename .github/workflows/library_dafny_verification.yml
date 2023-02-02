@@ -1,7 +1,7 @@
 # This workflow performs static analysis checks.
 name: Library Dafny verification
 
-on: 
+on:
   pull_request:
   push:
     branches:
@@ -16,6 +16,7 @@ jobs:
           ComAmazonawsKms,
           ComAmazonawsDynamodb,
           AwsCryptographicMaterialProviders, 
+          AwsEncryptionSDK,
           # "src/StandardLibrary", add back in once Dafny does not crash
         ]
         os: [ windows-latest, ubuntu-latest, macos-latest ]

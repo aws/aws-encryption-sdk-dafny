@@ -1,13 +1,8 @@
 // Copyright Amazon.com Inc. or its affiliates. All Rights Reserved.
 // SPDX-License-Identifier: Apache-2.0
 
-include "../StandardLibrary/StandardLibrary.dfy"
-include "../StandardLibrary/UInt.dfy"
 include "Serialize/SerializableTypes.dfy"
-include "../AwsCryptographicMaterialProviders/Client.dfy"
-include "../Crypto/AESEncryption.dfy"
-include "../Util/Streams.dfy"
-include "../Util/UTF8.dfy"
+include "../Model/AwsEncryptionSdkTypes.dfy"
 include "Serialize/Frames.dfy"
 
 include "Serialize/Header.dfy"
@@ -15,7 +10,6 @@ include "Serialize/HeaderTypes.dfy"
 include "Serialize/V1HeaderBody.dfy"
 include "Serialize/HeaderAuth.dfy"
 include "Serialize/SerializeFunctions.dfy"
-include "../../libraries/src/Collections/Sequences/Seq.dfy"
 
 module MessageBody {
   // export
@@ -26,11 +20,12 @@ module MessageBody {
 
   import opened Wrappers
   import opened UInt = StandardLibrary.UInt
-  import AESEncryption
+  import Types = AwsEncryptionSdkTypes
+  import MPL = AwsCryptographyMaterialProvidersTypes
+  import Aws.Cryptography.Primitives
   import Streams
   import UTF8
   import SerializableTypes
-  import MaterialProviders.Client
   import Frames
   import Header
   import opened SerializeFunctions
@@ -54,8 +49,9 @@ module MessageBody {
   const ENDFRAME_SEQUENCE_NUMBER: uint32 := Frames.ENDFRAME_SEQUENCE_NUMBER
   const NONFRAMED_SEQUENCE_NUMBER: uint32 := Frames.NONFRAMED_SEQUENCE_NUMBER
 
-  function method IVSeq(suite: Client.AlgorithmSuites.AlgorithmSuite, sequenceNumber: uint32)
+  function method IVSeq(suite: MPL.AlgorithmSuiteInfo, sequenceNumber: uint32)
     :(ret: seq<uint8>)
+    requires 4 <= SerializableTypes.GetIvLength(suite)
     //= compliance/data-format/message-body.txt#2.5.2.1.2
     //= type=implication
     //# The IV length MUST be equal to the IV
@@ -66,9 +62,9 @@ module MessageBody {
     //= type=implication
     //# The IV length MUST be equal to the IV length of the algorithm suite
     //# (../framework/algorithm-suites.md) that generated the message.
-    ensures |ret| == suite.encrypt.ivLength as nat
+    ensures |ret| == SerializableTypes.GetIvLength(suite) as nat
   {
-    seq(suite.encrypt.ivLength as int - 4, _ => 0) + UInt32ToSeq(sequenceNumber)
+    seq(SerializableTypes.GetIvLength(suite) as nat - 4, _ => 0) + UInt32ToSeq(sequenceNumber)
   }
 
   //= compliance/data-format/message-body.txt#2.5.2.1.2
@@ -79,13 +75,12 @@ module MessageBody {
   //= compliance/data-format/message-body.txt#2.5.2.2.3
   //= type=implication
   //# The IV MUST be a unique IV within the message.
-  lemma IVSeqDistinct(suite: Client.AlgorithmSuites.AlgorithmSuite, m: uint32, n: uint32)
+  lemma IVSeqDistinct(suite: MPL.AlgorithmSuiteInfo, m: uint32, n: uint32)
     requires m != n
-    ensures
-      var algorithmSuiteID := SerializableTypes.GetESDKAlgorithmSuiteId(suite.id);
-      && IVSeq(suite, m) != IVSeq(suite, n)
+    requires 4 <= SerializableTypes.GetIvLength(suite) 
+    ensures IVSeq(suite, m) != IVSeq(suite, n)
   {
-    var paddingLength :=  suite.encrypt.ivLength as int - 4;
+    var paddingLength :=  SerializableTypes.GetIvLength(suite) as nat - 4;
     assert IVSeq(suite, m)[paddingLength..] == UInt32ToSeq(m);
     assert IVSeq(suite, n)[paddingLength..] == UInt32ToSeq(n);
     UInt32SeqSerializeDeserialize(m);
@@ -93,41 +88,16 @@ module MessageBody {
   }
 
   /**
-    Predicate states that frames encrypt plaintext
-
-      Plaintext is split into chunks of frameLength. One chunck is encrypted in one frame. Reasoning about chunks makes proving predicate easier
-        FramesEncryptPlaintextSegments: States that sequence of frames decrypts to sequence of chunks
-        SumPlaintextSegments: States that sum of chunks is the plaintext
-   */
-  predicate FramesEncryptPlaintext(frames: FramedMessage, plaintext: seq<uint8>)
+    Says that   
+  */
+  function SumDecryptCalls(decryptCalls: seq<Primitives.Types.DafnyCallEvent<Primitives.Types.AESDecryptInput, Result<seq<uint8>, Primitives.Types.Error>>>)
+    : seq<uint8>
+    requires forall call <- decryptCalls :: call.output.Success?
   {
-    exists plaintextSeg: seq<seq<uint8>>
-    ::
-    && FramesEncryptPlaintextSegments(frames.regularFrames + [frames.finalFrame], plaintextSeg)
-    && SumPlaintextSegments(plaintextSeg) == plaintext
-  }
-
-  predicate FramesEncryptPlaintextSegments(frames: seq<Frame>, plaintextSeg: seq<seq<uint8>>)
-  {
-    // The total number of frames MUST equal the total number of plaintext segments.
-    if |frames| != |plaintextSeg| then
-      false
-    else
-      // No more regular frames, check the tail
-     if frames == [] then
-        true
-      else
-        // Drop the segments
-        && FramesEncryptPlaintextSegments(Seq.DropLast(frames), Seq.DropLast(plaintextSeg))
-        && AESEncryption.CiphertextGeneratedWithPlaintext(Seq.Last(frames).encContent, Seq.Last(plaintextSeg))
-  }
-
-  function SumPlaintextSegments(plaintextSeg: seq<seq<uint8>>): seq<uint8>
-  {
-    if plaintextSeg == [] then
+    if decryptCalls == [] then
       []
     else
-      SumPlaintextSegments(plaintextSeg[..|plaintextSeg| - 1]) + plaintextSeg[|plaintextSeg| - 1]
+      SumDecryptCalls(Seq.DropLast(decryptCalls)) + Seq.Last(decryptCalls).output.value
   }
 
   type MessageRegularFrames = regularFrames: seq<Frames.RegularFrame>
@@ -216,26 +186,46 @@ module MessageBody {
   )
     requires |regularFrames| + 1 < ENDFRAME_SEQUENCE_NUMBER as nat
     requires nextRegularFrame.seqNum as nat == |regularFrames| + 1 as nat
-    requires MessageFramesAreForTheSameMessage(regularFrames + [nextRegularFrame])
+    requires 0 < |regularFrames| ==> Seq.First(regularFrames).header == nextRegularFrame.header
     ensures IsMessageRegularFrames(regularFrames + [nextRegularFrame])
   {}
 
   method EncryptMessageBody(
     plaintext: seq<uint8>,
     header : Header.Header,
-    key: seq<uint8>
+    key: seq<uint8>,
+    crypto: Primitives.AtomicPrimitivesClient
   )
-    returns (result: Result<FramedMessage, string>)
-    requires |key| ==  header.suite.encrypt.keyLength as nat
+    returns (result: Result<FramedMessage, Types.Error>)
+    requires |key| == SerializableTypes.GetEncryptKeyLength(header.suite) as nat
+    requires 4 <= SerializableTypes.GetIvLength(header.suite)
     requires 0 < header.body.frameLength as nat < UINT32_LIMIT
     requires header.body.contentType.Framed?
+
+    requires crypto.ValidState()
+    modifies crypto.Modifies
+    ensures crypto.ValidState()
+
     ensures match result
       case Failure(e) => true
       case Success(body) =>
-        && (forall frame: Frames.Frame
-          | frame in body.regularFrames
-          :: AESEncryption.EncryptedWithKey(frame.encContent, key))
-        && AESEncryption.EncryptedWithKey(body.finalFrame.encContent, key)
+      // add final
+        && (forall i, j, frame: Frames.Frame, callEvent
+          |
+            && 0 <= i < |body.regularFrames|
+            && |old(crypto.History.AESEncrypt)| < j < |crypto.History.AESEncrypt| - 1
+            && i == j - |old(crypto.History.AESEncrypt)|
+            && frame == body.regularFrames[i]
+            && callEvent == crypto.History.AESEncrypt[j]
+          ::
+            && callEvent.input.key == key
+            && callEvent.output.Success?
+            && frame.header == header
+            && frame.seqNum as nat == i + 1
+            && frame.iv == callEvent.input.iv
+            && frame.encContent == callEvent.output.value.cipherText
+            && frame.authTag == callEvent.output.value.authTag
+          )
   {
     var n : int, sequenceNumber := 0, START_SEQUENCE_NUMBER;
     var regularFrames: MessageRegularFrames := [];
@@ -259,13 +249,30 @@ module MessageBody {
       invariant |plaintext| == 0 ==> 0 == n
       invariant START_SEQUENCE_NUMBER <= sequenceNumber <= ENDFRAME_SEQUENCE_NUMBER
       invariant |regularFrames| == (sequenceNumber - START_SEQUENCE_NUMBER) as nat
-      invariant forall frame: Frames.Frame
-      | frame in regularFrames
+      invariant |crypto.History.AESEncrypt| - |old(crypto.History.AESEncrypt)|
+        == |regularFrames|
+      invariant 0 < |regularFrames| ==> Seq.First(regularFrames).header == header;
+      invariant IsMessageRegularFrames(regularFrames)
+
+      invariant forall i: nat, j: nat, frame: Frames.Frame, callEvent
+      |
+        && 0 <= i < |regularFrames|
+        && |old(crypto.History.AESEncrypt)| <= j < |crypto.History.AESEncrypt|
+        && i == j - |old(crypto.History.AESEncrypt)|
+        && frame == regularFrames[i]
+        && callEvent == crypto.History.AESEncrypt[j]
       ::
-        && AESEncryption.EncryptedWithKey(frame.encContent, key)
+        && callEvent.input.key == key
+        && callEvent.output.Success?
         && frame.header == header
+        && frame.seqNum as nat == i + 1
+        && frame.iv == callEvent.input.iv
+        && frame.encContent == callEvent.output.value.cipherText
+        && frame.authTag == callEvent.output.value.authTag
+
     {
-      :- Need(sequenceNumber < ENDFRAME_SEQUENCE_NUMBER, "too many frames");
+      :- Need(sequenceNumber < ENDFRAME_SEQUENCE_NUMBER, Types.AwsEncryptionSdkException(
+          message := "too many frames"));
       var plaintextFrame := plaintext[n..n + header.body.frameLength as nat];
 
       //= compliance/client-apis/encrypt.txt#2.7
@@ -278,12 +285,12 @@ module MessageBody {
         key,
         header,
         plaintextFrame,
-        sequenceNumber
+        sequenceNumber,
+        crypto
       );
 
       assert regularFrame.seqNum as nat == |regularFrames| + 1;
       LemmaAddingNextRegularFrame(regularFrames, regularFrame);
-
       regularFrames := regularFrames + [regularFrame];
 
       n := n + header.body.frameLength as nat;
@@ -320,12 +327,11 @@ module MessageBody {
       key,
       header,
       plaintext[n..],
-      sequenceNumber
+      sequenceNumber,
+      crypto
     );
 
-    assert MessageFramesAreForTheSameMessage(regularFrames + [finalFrame]);
-
-    return Success(FramedMessageBody(
+    result := Success(FramedMessageBody(
       regularFrames := regularFrames,
       finalFrame := finalFrame
     ));
@@ -335,83 +341,150 @@ module MessageBody {
     key: seq<uint8>,
     header: Header.Header,
     plaintext: seq<uint8>,
-    sequenceNumber: uint32
+    sequenceNumber: uint32,
+    crypto: Primitives.AtomicPrimitivesClient
   )
-    returns (res: Result<Frames.RegularFrame, string>)
-    requires |key| == header.suite.encrypt.keyLength as int
+    returns (res: Result<Frames.RegularFrame, Types.Error>)
+    requires |key| == SerializableTypes.GetEncryptKeyLength(header.suite) as nat
+    requires 4 <= SerializableTypes.GetIvLength(header.suite)
     requires 0 < header.body.frameLength as nat < UINT32_LIMIT && START_SEQUENCE_NUMBER <= sequenceNumber < ENDFRAME_SEQUENCE_NUMBER
     requires header.body.contentType.Framed?
     requires |plaintext| < UINT32_LIMIT
 
     //= compliance/client-apis/encrypt.txt#2.7.1
     //= type=implication
+    //# o  For a regular frame the length of this plaintext MUST equal
+    //# the frame length.
+
+    //= compliance/client-apis/encrypt.txt#2.7.1
+    //= type=implication
     //# -  For a regular frame the length of this plaintext subsequence
     //# MUST equal the frame length.
     requires |plaintext| == header.body.frameLength as nat && sequenceNumber != ENDFRAME_SEQUENCE_NUMBER
+
+    requires crypto.ValidState()
+    modifies crypto.Modifies
+    ensures crypto.ValidState()
+    ensures old(crypto.History.AESEncrypt) < crypto.History.AESEncrypt
+    ensures crypto.History.AESEncrypt == old(crypto.History.AESEncrypt) + [Seq.Last(crypto.History.AESEncrypt)]
+
     ensures match res
       case Failure(e) => true
       case Success(frame) =>
-        && AESEncryption.CiphertextGeneratedWithPlaintext(frame.encContent, plaintext)
-        && AESEncryption.EncryptedWithKey(frame.encContent, key)
-        && frame.seqNum == sequenceNumber
-        && frame.header == header
-  {
-    //= compliance/client-apis/encrypt.txt#2.7.1
-    //# To construct a regular or final frame that represents the next frame
-    //# in the encrypted message's body, this operation MUST calculate the
-    //# encrypted content and an authentication tag using the authenticated
-    //# encryption algorithm (../framework/algorithm-suites.md#encryption-
-    //# algorithm) specified by the algorithm suite (../framework/algorithm-
-    //# suites.md), with the following inputs:
-    var seqNumSeq := UInt32ToSeq(sequenceNumber);
-    var unauthenticatedFrame := seqNumSeq;
-    var iv := IVSeq(header.suite, sequenceNumber);
+        && Seq.Last(crypto.History.AESEncrypt).output.Success?
+        && var encryptionOutput := Seq.Last(crypto.History.AESEncrypt).output.value;
+        && var encryptionInput := Seq.Last(crypto.History.AESEncrypt).input;
 
-    // *  The AAD is the serialized message body AAD (../data-format/
-    //    message-body-aad.md), constructed as follows:
+        //= compliance/client-apis/encrypt.txt#2.7.1
+        //= type=implication
+        //# To construct a regular or final frame that represents the next frame
+        //# in the encrypted message's body, this operation MUST calculate the
+        //# encrypted content and an authentication tag using the authenticated
+        //# encryption algorithm (../framework/algorithm-suites.md#encryption-
+        //# algorithm) specified by the algorithm suite (../framework/algorithm-
+        //# suites.md), with the following inputs:
+        && encryptionInput.encAlg == header.suite.encrypt.AES_GCM
+        //= compliance/client-apis/encrypt.txt#2.7.1
+        //= type=implication
+        //# *  The AAD is the serialized message body AAD (../data-format/
+        //#    message-body-aad.md), constructed as follows:
+        && encryptionInput.aad == BodyAAD(
+          //= compliance/client-apis/encrypt.txt#2.7.1
+          //= type=implication
+          //# -  The message ID (../data-format/message-body-aad.md#message-id)
+          //#    is the same as the message ID (../data-frame/message-
+          //#    header.md#message-id) serialized in the header of this message.
+          header.body.messageId,
+          //= compliance/client-apis/encrypt.txt#2.7.1
+          //= type=implication
+          //# -  The Body AAD Content (../data-format/message-body-aad.md#body-
+          //# aad-content) depends on whether the thing being encrypted is a
+          //# regular frame or final frame.  Refer to Message Body AAD
+          //# (../data-format/message-body-aad.md) specification for more
+          //# information.
+          AADRegularFrame,
+          //= compliance/client-apis/encrypt.txt#2.7.1
+          //= type=implication
+          //# -  The sequence number (../data-format/message-body-
+          //# aad.md#sequence-number) is the sequence number of the frame
+          //# being encrypted.
+          sequenceNumber,
+          //= compliance/client-apis/encrypt.txt#2.7.1
+          //= type=implication
+          //# -  The content length (../data-format/message-body-aad.md#content-
+          //# length) MUST have a value equal to the length of the plaintext
+          //# being encrypted.
+          |plaintext| as uint64
+        )
+        //= compliance/client-apis/encrypt.txt#2.7.1
+        //= type=implication
+        //# *  The IV is the sequence number (../data-format/message-body-
+        //#   aad.md#sequence-number) used in the message body AAD above, padded
+        //#   to the IV length (../data-format/message-header.md#iv-length).
+        && encryptionInput.iv == IVSeq(header.suite, sequenceNumber)
+
+        //= compliance/client-apis/encrypt.txt#2.7.1
+        //= type=implication
+        //# *  The cipherkey is the derived data key
+        && encryptionInput.key == key
+        //= compliance/client-apis/encrypt.txt#2.7.1
+        //= type=implication
+        //# *  The plaintext is the next subsequence of consumable plaintext
+        //# bytes that have not yet been encrypted.
+        && encryptionInput.msg == plaintext
+
+        //= compliance/client-apis/encrypt.txt#2.7.1
+        //= type=implication
+        //# This operation MUST serialize a regular frame or final frame with the
+        //# following specifics:
+        && frame.header == header
+        //= compliance/client-apis/encrypt.txt#2.7.1
+        //= type=implication
+        //# *  Sequence Number (../data-format/message-body.md#sequence-number):
+        //# MUST be the sequence number of this frame, as determined above.
+        && frame.seqNum == sequenceNumber
+        //= compliance/client-apis/encrypt.txt#2.7.1
+        //= type=implication
+        //# *  IV (../data-format/message-body.md#iv): MUST be the IV used when
+        //# calculating the encrypted content above
+        && frame.iv == encryptionInput.iv
+        //= compliance/client-apis/encrypt.txt#2.7.1
+        //= type=implication
+        //# *  Encrypted Content (../data-format/message-body.md#encrypted-
+        //# content): MUST be the encrypted content calculated above.
+        && frame.encContent == encryptionOutput.cipherText
+        //= compliance/client-apis/encrypt.txt#2.7.1
+        //= type=implication
+        //# *  Authentication Tag (../data-format/message-body.md#authentication-
+        //# tag): MUST be the authentication tag output when calculating the
+        //# encrypted content above.
+        && frame.authTag == encryptionOutput.authTag
+  {
+    var iv := IVSeq(header.suite, sequenceNumber);
     var aad := BodyAAD(
-      // -  The message ID (../data-format/message-body-aad.md#message-id)
-      //    is the same as the message ID (../data-frame/message-
-      //    header.md#message-id) serialized in the header of this message.
       header.body.messageId,
       AADRegularFrame,
       sequenceNumber,
-      //= compliance/client-apis/encrypt.txt#2.7.1
-      //# -  The content length (../data-format/message-body-aad.md#content-
-      //# length) MUST have a value equal to the length of the plaintext
-      //# being encrypted.
       |plaintext| as uint64
     );
 
-    var encryptionOutput :- AESEncryption.AESEncrypt(
-      header.suite.encrypt,
-      iv,
-      key,
-      plaintext,
-      aad
+    var aesEncryptInput := Primitives.Types.AESEncryptInput(
+      encAlg := header.suite.encrypt.AES_GCM,
+      iv := iv,
+      key := key,
+      msg := plaintext,
+      aad := aad
     );
 
-    //= compliance/client-apis/encrypt.txt#2.7.1
-    //# This operation MUST serialize a regular frame or final frame with the
-    //# following specifics:
+    var maybeEncryptionOutput := crypto.AESEncrypt(aesEncryptInput);
+    var encryptionOutput :- maybeEncryptionOutput
+      .MapFailure(e => Types.AwsCryptographyPrimitives(e));
+
     var frame: Frames.RegularFrame := Frames.Frame.RegularFrame(
       header,
-      //= compliance/client-apis/encrypt.txt#2.7.1
-      //# *  Sequence Number (../data-format/message-body.md#sequence-number):
-      //# MUST be the sequence number of this frame, as determined above.
       sequenceNumber,
-      //= compliance/client-apis/encrypt.txt#2.7.1
-      //# *  IV (../data-format/message-body.md#iv): MUST be the IV used when
-      //# calculating the encrypted content above
       iv,
-      //= compliance/client-apis/encrypt.txt#2.7.1
-      //# *  Encrypted Content (../data-format/message-body.md#encrypted-
-      //# content): MUST be the encrypted content calculated above.
       encryptionOutput.cipherText,
-      //= compliance/client-apis/encrypt.txt#2.7.1
-      //# *  Authentication Tag (../data-format/message-body.md#authentication-
-      //# tag): MUST be the authentication tag output when calculating the
-      //# encrypted content above.
       encryptionOutput.authTag
     );
 
@@ -422,10 +495,12 @@ module MessageBody {
     key: seq<uint8>,
     header: Header.Header,
     plaintext: seq<uint8>,
-    sequenceNumber: uint32
+    sequenceNumber: uint32,
+    crypto: Primitives.AtomicPrimitivesClient
   )
-    returns (res: Result<Frames.FinalFrame, string>)
-    requires |key| == header.suite.encrypt.keyLength as nat
+    returns (res: Result<Frames.FinalFrame, Types.Error>)
+    requires |key| == SerializableTypes.GetEncryptKeyLength(header.suite) as nat
+    requires 4 <= SerializableTypes.GetIvLength(header.suite)
     requires START_SEQUENCE_NUMBER <= sequenceNumber <= ENDFRAME_SEQUENCE_NUMBER
     requires 0 <= |plaintext| < UINT32_LIMIT
     requires header.body.contentType.Framed?
@@ -441,13 +516,104 @@ module MessageBody {
     //# be greater than or equal to 0 and less than or equal to the Frame
     //# Length (message-header.md#frame-length).
     requires |plaintext| <= header.body.frameLength as nat
+
+    requires crypto.ValidState()
+    modifies crypto.Modifies
+    ensures crypto.ValidState()
+    ensures old(crypto.History.AESEncrypt) < crypto.History.AESEncrypt
+    ensures crypto.History.AESEncrypt == old(crypto.History.AESEncrypt) + [Seq.Last(crypto.History.AESEncrypt)]
+
     ensures match res
       case Failure(e) => true
       case Success(frame) =>
-        && AESEncryption.CiphertextGeneratedWithPlaintext(frame.encContent, plaintext)
-        && AESEncryption.EncryptedWithKey(frame.encContent, key)
-        && frame.seqNum == sequenceNumber
+        && Seq.Last(crypto.History.AESEncrypt).output.Success?
+        && var encryptionOutput := Seq.Last(crypto.History.AESEncrypt).output.value;
+        && var encryptionInput := Seq.Last(crypto.History.AESEncrypt).input;
+
+        //= compliance/client-apis/encrypt.txt#2.7.1
+        //= type=implication
+        //# To construct a regular or final frame that represents the next frame
+        //# in the encrypted message's body, this operation MUST calculate the
+        //# encrypted content and an authentication tag using the authenticated
+        //# encryption algorithm (../framework/algorithm-suites.md#encryption-
+        //# algorithm) specified by the algorithm suite (../framework/algorithm-
+        //# suites.md), with the following inputs:
+        && encryptionInput.encAlg == header.suite.encrypt.AES_GCM
+        //= compliance/client-apis/encrypt.txt#2.7.1
+        //= type=implication
+        //# *  The AAD is the serialized message body AAD (../data-format/
+        //#    message-body-aad.md), constructed as follows:
+        && encryptionInput.aad == BodyAAD(
+          //= compliance/client-apis/encrypt.txt#2.7.1
+          //= type=implication
+          //# -  The message ID (../data-format/message-body-aad.md#message-id)
+          //#    is the same as the message ID (../data-frame/message-
+          //#    header.md#message-id) serialized in the header of this message.
+          header.body.messageId,
+          //= compliance/client-apis/encrypt.txt#2.7.1
+          //= type=implication
+          //# -  The Body AAD Content (../data-format/message-body-aad.md#body-
+          //# aad-content) depends on whether the thing being encrypted is a
+          //# regular frame or final frame.  Refer to Message Body AAD
+          //# (../data-format/message-body-aad.md) specification for more
+          //# information.
+          AADFinalFrame,
+          //= compliance/client-apis/encrypt.txt#2.7.1
+          //= type=implication
+          //# -  The sequence number (../data-format/message-body-
+          //# aad.md#sequence-number) is the sequence number of the frame
+          //# being encrypted.
+          sequenceNumber,
+          //= compliance/client-apis/encrypt.txt#2.7.1
+          //= type=implication
+          //# -  The content length (../data-format/message-body-aad.md#content-
+          //# length) MUST have a value equal to the length of the plaintext
+          //# being encrypted.
+          |plaintext| as uint64
+        )
+        //= compliance/client-apis/encrypt.txt#2.7.1
+        //= type=implication
+        //# *  The IV is the sequence number (../data-format/message-body-
+        //#   aad.md#sequence-number) used in the message body AAD above, padded
+        //#   to the IV length (../data-format/message-header.md#iv-length).
+        && encryptionInput.iv == IVSeq(header.suite, sequenceNumber)
+
+        //= compliance/client-apis/encrypt.txt#2.7.1
+        //= type=implication
+        //# *  The cipherkey is the derived data key
+        && encryptionInput.key == key
+        //= compliance/client-apis/encrypt.txt#2.7.1
+        //= type=implication
+        //# *  The plaintext is the next subsequence of consumable plaintext
+        //# bytes that have not yet been encrypted.
+        && encryptionInput.msg == plaintext
+
+        //= compliance/client-apis/encrypt.txt#2.7.1
+        //= type=implication
+        //# This operation MUST serialize a regular frame or final frame with the
+        //# following specifics:
         && frame.header == header
+        //= compliance/client-apis/encrypt.txt#2.7.1
+        //= type=implication
+        //# *  Sequence Number (../data-format/message-body.md#sequence-number):
+        //# MUST be the sequence number of this frame, as determined above.
+        && frame.seqNum == sequenceNumber
+        //= compliance/client-apis/encrypt.txt#2.7.1
+        //= type=implication
+        //# *  IV (../data-format/message-body.md#iv): MUST be the IV used when
+        //# calculating the encrypted content above
+        && frame.iv == encryptionInput.iv
+        //= compliance/client-apis/encrypt.txt#2.7.1
+        //= type=implication
+        //# *  Encrypted Content (../data-format/message-body.md#encrypted-
+        //# content): MUST be the encrypted content calculated above.
+        && frame.encContent == encryptionOutput.cipherText
+        //= compliance/client-apis/encrypt.txt#2.7.1
+        //= type=implication
+        //# *  Authentication Tag (../data-format/message-body.md#authentication-
+        //# tag): MUST be the authentication tag output when calculating the
+        //# encrypted content above.
+        && frame.authTag == encryptionOutput.authTag
   {
 
     var iv := IVSeq(header.suite, sequenceNumber);
@@ -463,13 +629,18 @@ module MessageBody {
       |plaintext| as uint64
     );
 
-    var encryptionOutput :- AESEncryption.AESEncrypt(
-      header.suite.encrypt,
-      iv,
-      key,
-      plaintext,
-      aad
+    var aesEncryptInput := Primitives.Types.AESEncryptInput(
+      encAlg := header.suite.encrypt.AES_GCM,
+      iv := iv,
+      key := key,
+      msg := plaintext,
+      aad := aad
     );
+
+    var maybeEncryptionOutput := crypto.AESEncrypt(aesEncryptInput);
+
+    var encryptionOutput :- maybeEncryptionOutput
+      .MapFailure(e => Types.AwsCryptographyPrimitives(e));
 
     var finalFrame: Frames.FinalFrame := Frames.Frame.FinalFrame(
       header,
@@ -484,72 +655,111 @@ module MessageBody {
 
   method DecryptFramedMessageBody(
     body: FramedMessage,
-    key: seq<uint8>
+    key: seq<uint8>,
+    crypto: Primitives.AtomicPrimitivesClient
   )
-    returns (res: Result<seq<uint8>, string>)
-    requires |key| == body.finalFrame.header.suite.encrypt.keyLength as int
+    returns (res: Result<seq<uint8>, Types.Error>)
+    requires |key| == SerializableTypes.GetEncryptKeyLength(body.finalFrame.header.suite) as nat
+
+    requires crypto.ValidState()
+    modifies crypto.Modifies
+    ensures crypto.ValidState()
+    ensures old(crypto.History.AESDecrypt) < crypto.History.AESDecrypt
+
     ensures match res
       case Failure(_) => true
       case Success(plaintext) => //Exists a sequence of frames which encrypts the plaintext and is serialized in the read section of the stream
-        && FramesEncryptPlaintext(body, plaintext)
-        && DecryptedWithKey(key, plaintext)
+        var decryptCalls := crypto.History.AESDecrypt[|old(crypto.History.AESDecrypt)|..];
+        && (forall call <- decryptCalls :: call.output.Success?)
+        && SumDecryptCalls(decryptCalls) == plaintext
+        && (forall cryptoCall <- decryptCalls
+          ::
+            && cryptoCall.input.key == key
+            && exists frame <- body.regularFrames + [body.finalFrame]
+              ::
+                && frame.encContent == cryptoCall.input.cipherTxt
+                && frame.authTag == cryptoCall.input.authTag)
+
   {
     var plaintext := [];
-    // var n: uint32 := 1;
-    ghost var decryptedFrames: seq<Frames.RegularFrame> := [];
-    ghost var plaintextSeg: seq<seq<uint8>> := []; // Chunks of plaintext which are decrypted from the frame
+
+    // Dafny has trouble joining this seq with `body.regularFrames` and `plaintextSeg`
+    // It seems simpler to create a sub seq that I can prove is equivalent
+    var AESDecryptHistory := crypto.History.AESDecrypt[|old(crypto.History.AESDecrypt)|..];
+    assert |AESDecryptHistory| == 0;
+    assert SumDecryptCalls(AESDecryptHistory) == plaintext;
 
     for i := 0 to |body.regularFrames|
-      invariant body.regularFrames[..i] == decryptedFrames
-      // The goal is to assert FramesEncryptPlaintext.
-      // But this requires the final frame e.g. a FramedMessage.
-      // So I decompose this predicate into its parts
-      invariant FramesEncryptPlaintextSegments(decryptedFrames, plaintextSeg) // So far: All decrypted frames decrypt to the list of plaintext chunks
-      invariant SumPlaintextSegments(plaintextSeg) == plaintext // So far: The current plaintext is the sum of all decrypted chunks
-      invariant DecryptedSegmentsWithKey(key, plaintextSeg)
-      invariant DecryptedWithKey(key, plaintext)
+      // // The goal is to assert FramesEncryptPlaintext.
+      // // But this requires the final frame e.g. a FramedMessage.
+      // // So I decompose this into parts
+      invariant |body.regularFrames[..i]| == |AESDecryptHistory|
+      invariant crypto.History.AESDecrypt == old(crypto.History.AESDecrypt) + AESDecryptHistory
+      // So far: All decrypted frames decrypt to the list of plaintext chunks
+      invariant forall j
+      | 0 <= j < i
+      ::
+        && AESDecryptHistory[j].output.Success?
+        && AESDecryptHistory[j].input.key == key
+        && AESDecryptHistory[j].input.cipherTxt == body.regularFrames[j].encContent
+        && AESDecryptHistory[j].input.authTag == body.regularFrames[j].authTag
+        && AESDecryptHistory[j].input.iv == body.regularFrames[j].iv
+        // && AESDecryptHistory[j].input.aad == BodyAADByFrameType(body.regularFrames[j])
+      invariant SumDecryptCalls(AESDecryptHistory) == plaintext
     {
 
-      var plaintextSegment :- DecryptFrame(body.regularFrames[i], key);
-
+      var plaintextSegment :- DecryptFrame(body.regularFrames[i], key, crypto);
       plaintext := plaintext + plaintextSegment;
-      plaintextSeg := plaintextSeg + [plaintextSegment];
-      decryptedFrames := decryptedFrames + [body.regularFrames[i]];
 
-      StandardLibrary.SeqTakeAppend(body.regularFrames, i);
+      AESDecryptHistory := AESDecryptHistory + [Seq.Last(crypto.History.AESDecrypt)];
+      assert Seq.Last(AESDecryptHistory) == Seq.Last(crypto.History.AESDecrypt);
+      assert crypto.History.AESDecrypt[i + |old(crypto.History.AESDecrypt)|].input.iv == body.regularFrames[i].iv;
     }
-    var finalPlaintextSegment :- DecryptFrame(body.finalFrame, key);
+
+    var finalPlaintextSegment :- DecryptFrame(body.finalFrame, key, crypto);
     plaintext := plaintext + finalPlaintextSegment;
-    plaintextSeg := plaintextSeg + [finalPlaintextSegment];
 
-    assert FramesEncryptPlaintextSegments([body.finalFrame], [finalPlaintextSegment]);
-    assert body.regularFrames == decryptedFrames;
-    assert FramesEncryptPlaintextSegments(body.regularFrames + [body.finalFrame], plaintextSeg);
-    assert SumPlaintextSegments(plaintextSeg) == plaintext;
+    res := Success(plaintext);
 
-    return Success(plaintext);
+    AESDecryptHistory := AESDecryptHistory + [Seq.Last(crypto.History.AESDecrypt)];
+    assert SumDecryptCalls(AESDecryptHistory) == plaintext;
+    assert AESDecryptHistory == crypto.History.AESDecrypt[|old(crypto.History.AESDecrypt)|..];
   }
 
   method DecryptFrame(
     frame: Frame,
-    key: seq<uint8>
+    key: seq<uint8>,
+    crypto: Primitives.AtomicPrimitivesClient
   )
-    returns (res: Result<seq<uint8>, string>)
-    requires |key| == frame.header.suite.encrypt.keyLength as int
+    returns (res: Result<seq<uint8>, Types.Error>)
+    requires |key| == SerializableTypes.GetEncryptKeyLength(frame.header.suite) as nat
+
+    requires crypto.ValidState()
+    modifies crypto.Modifies
+    ensures crypto.ValidState()
+    ensures old(crypto.History.AESDecrypt) < crypto.History.AESDecrypt
+    ensures crypto.History.AESDecrypt == old(crypto.History.AESDecrypt) + [Seq.Last(crypto.History.AESDecrypt)]
+
     ensures match res
       case Success(plaintextSegment) => ( // Decrypting the frame encoded in the stream is the returned ghost frame
-        && AESEncryption.CiphertextGeneratedWithPlaintext(frame.encContent, plaintextSegment)
-        && AESEncryption.DecryptedWithKey(key, plaintextSegment)
+        && Seq.Last(crypto.History.AESDecrypt).output.Success?
+        && var decryptInput := Seq.Last(crypto.History.AESDecrypt).input;
+        && decryptInput.encAlg == frame.header.suite.encrypt.AES_GCM
+        && decryptInput.key == key
+        && decryptInput.cipherTxt == frame.encContent
+        && decryptInput.authTag == frame.authTag
+        && decryptInput.iv == frame.iv
+        && decryptInput.aad == BodyAADByFrameType(frame)
+        && res.value == Seq.Last(crypto.History.AESDecrypt).output.value
+        && |res.value| == |decryptInput.cipherTxt|
+
         && (frame.RegularFrame? || frame.FinalFrame? ==> |plaintextSegment| < UINT32_LIMIT)
       )
       case Failure(_) => true
   {
     var aad := BodyAADByFrameType(frame);
-    
-    //= compliance/client-apis/decrypt.txt#2.7.4
-    //# If this decryption fails, this operation MUST immediately halt and
-    //# fail.
-    var plaintextSegment :-
+
+    var maybePlaintextSegment :=
       // This is here as a citation for the decryption.
       // The manner in which it is currently called does not allow for a
       // single frame to be decrypted. We are ok with this as there is no
@@ -562,38 +772,45 @@ module MessageBody {
       //# (../framework/algorithm-suites.md#encryption-algorithm) specified by
       //# the algorithm suite (../framework/algorithm-suites.md), with the
       //# following inputs:
-      AESEncryption.AESDecrypt(
-        frame.header.suite.encrypt,
-        //#*  The cipherkey is the derived data key
-        key,
-        //#*  The ciphertext is the encrypted content (../data-format/message-
-        //#   body.md#encrypted-content).
-        frame.encContent,
-        //#*  the tag is the value serialized in the authentication tag field
-        //#   (../data-format/message-body.md#authentication-tag) in the message
-        //#   body or frame.
-        frame.authTag,
-        //#*  The IV is the sequence number (../data-format/message-body-
-        //#   aad.md#sequence-number) used in the message body AAD above, padded
-        //#   to the IV length (../data-format/message-header.md#iv-length) with
-        //#   0.
-        frame.iv,
-        //#*  The AAD is the serialized message body AAD (../data-format/
-        //#   message-body-aad.md)
-        aad
-      );
+      crypto.AESDecrypt(
+        Primitives.Types.AESDecryptInput(
+          encAlg := frame.header.suite.encrypt.AES_GCM,
+            //#*  The cipherkey is the derived data key
+          key := key,
+            //#*  The ciphertext is the encrypted content (../data-format/message-
+            //#   body.md#encrypted-content).
+          cipherTxt := frame.encContent,
+            //#*  the tag is the value serialized in the authentication tag field
+            //#   (../data-format/message-body.md#authentication-tag) in the message
+            //#   body or frame.
+          authTag := frame.authTag,
+            //#*  The IV is the sequence number (../data-format/message-body-
+            //#   aad.md#sequence-number) used in the message body AAD above, padded
+            //#   to the IV length (../data-format/message-header.md#iv-length) with
+            //#   0.
+          iv := frame.iv,
+            //#*  The AAD is the serialized message body AAD (../data-format/
+            //#   message-body-aad.md)
+          aad := aad
+        ));
+
+    //= compliance/client-apis/decrypt.txt#2.7.4
+    //# If this decryption fails, this operation MUST immediately halt and
+    //# fail.
+    var plaintextSegment :- maybePlaintextSegment
+      .MapFailure(e => Types.AwsCryptographyPrimitives(e));
 
     return Success(plaintextSegment);
   }
 
   /*
    * Extracts the Body Additional Authenticated Data as per the
-   * AWS Encryption SDK Spececification for Message Body AAD.
+   * AWS Encryption SDK Specification for Message Body AAD.
    */
-  method BodyAADByFrameType(
+  function method BodyAADByFrameType(
     frame: Frame
   )
-    returns (aad: seq<uint8>)
+    : (aad: seq<uint8>)
   {
     var (sequenceNumber, bc, length) := match frame
       case RegularFrame(header,seqNum,_,_,_) => (
@@ -667,18 +884,25 @@ module MessageBody {
         |encContent| as uint64
       );
 
-    aad := BodyAAD(frame.header.body.messageId, bc, sequenceNumber, length);
+    BodyAAD(frame.header.body.messageId, bc, sequenceNumber, length)
   }
 
   /*
    * Serializes the Message Body ADD
    */
-  method BodyAAD(messageID: seq<uint8>, bc: BodyAADContent, sequenceNumber: uint32, length: uint64) returns (aad: seq<uint8>) {
+  function method BodyAAD(
+    messageID: seq<uint8>,
+    bc: BodyAADContent,
+    sequenceNumber: uint32,
+    length: uint64
+  ) 
+    : (aad: seq<uint8>)
+  {
     var contentAAD := UTF8.Encode(BodyAADContentTypeString(bc));
     //= compliance/client-apis/decrypt.txt#2.7.4
     //#*  The AAD is the serialized message body AAD (../data-format/
     //#   message-body-aad.md), constructed as follows:
-    aad :=
+
       //# -  The message ID (../data-format/message-body-aad.md#message-id)
       //#    is the same as the message ID (../data-frame/message-
       //#    header.md#message-id) deserialized from the header of this
@@ -699,21 +923,6 @@ module MessageBody {
       //# length) MUST have a value equal to the length of the plaintext
       //# that was encrypted.
       + UInt64ToSeq(length)
-    ;
-  }
-
-  predicate DecryptedWithKey(key: seq<uint8>, plaintext: seq<uint8>)
-  {
-    if AESEncryption.DecryptedWithKey(key, plaintext) then true else
-      exists plaintextSeg | SumPlaintextSegments(plaintextSeg) == plaintext ::
-        DecryptedSegmentsWithKey(key, plaintextSeg)
-  }
-
-  predicate DecryptedSegmentsWithKey(key: seq<uint8>, plaintextSeg: seq<seq<uint8>>)
-  {
-    if plaintextSeg == [] then true else
-      && DecryptedSegmentsWithKey(key, plaintextSeg[..|plaintextSeg| - 1])
-      && AESEncryption.DecryptedWithKey(key, plaintextSeg[|plaintextSeg| - 1])
   }
 
   function method WriteFramedMessageBody(

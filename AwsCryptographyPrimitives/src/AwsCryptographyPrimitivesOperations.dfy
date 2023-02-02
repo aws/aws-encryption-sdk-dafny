@@ -65,7 +65,11 @@ module AwsCryptographyPrimitivesOperations refines AbstractAwsCryptographyPrimit
   }
 
   predicate HkdfExpandEnsuresPublicly(input: HkdfExpandInput, output: Result<seq<uint8>, Error>)
-  {true}
+  {
+      output.Success?
+    ==>
+      && |output.value| == input.expectedLength as nat
+  }
 
   method HkdfExpand ( config: InternalConfig,  input: HkdfExpandInput )
     returns (output: Result<seq<uint8>, Error>)
@@ -74,7 +78,11 @@ module AwsCryptographyPrimitivesOperations refines AbstractAwsCryptographyPrimit
   }
 
   predicate HkdfEnsuresPublicly(input: HkdfInput, output: Result<seq<uint8>, Error>)
-  {true}
+  {
+      output.Success?
+    ==>
+      && |output.value| == input.expectedLength as nat
+  }
 
   method Hkdf ( config: InternalConfig,  input: HkdfInput )
     returns (output: Result<seq<uint8>, Error>)

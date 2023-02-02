@@ -1,20 +1,16 @@
 // Copyright Amazon.com Inc. or its affiliates. All Rights Reserved.
 // SPDX-License-Identifier: Apache-2.0
 
-include "../../../libraries/src/Collections/Sequences/Seq.dfy"
-include "../../Generated/AwsCryptographicMaterialProviders.dfy"
-include "../../StandardLibrary/StandardLibrary.dfy"
-include "../../Util/UTF8.dfy"
+include "../../Model/AwsEncryptionSdkTypes.dfy"
 include "./SerializableTypes.dfy"
 include "SerializeFunctions.dfy"
-include "../../Util/Sets.dfy"
 
 module EncryptionContext {
-  import Aws.Crypto
   import Seq
   import StandardLibrary
   import Sets
   import opened SerializableTypes
+  import MPL = AwsCryptographyMaterialProvidersTypes
   import opened StandardLibrary.UInt
   import opened Wrappers
   import opened UTF8
@@ -65,7 +61,7 @@ module EncryptionContext {
   function method GetEncryptionContext(
     canonicalEncryptionContext: ESDKCanonicalEncryptionContext
   )
-    :(ret: Crypto.EncryptionContext)
+    :(ret: MPL.EncryptionContext)
     ensures |canonicalEncryptionContext| == 0 ==> |ret| == 0
   {
     // This is needed because Dafny can not reveal the subset type by default?
@@ -78,7 +74,7 @@ module EncryptionContext {
 
   lemma LemmaCardinalityOfEncryptionContextEqualsPairs(
     pairs: ESDKCanonicalEncryptionContext,
-    ec: Crypto.EncryptionContext
+    ec: MPL.EncryptionContext
   )
     requires ec == GetEncryptionContext(pairs)
     ensures |ec| == |pairs|
@@ -98,7 +94,7 @@ module EncryptionContext {
 
   lemma  {:vcs_split_on_every_assert} LemmaLengthOfPairsEqualsEncryptionContext(
     pairs: ESDKCanonicalEncryptionContext,
-    ec: Crypto.EncryptionContext
+    ec: MPL.EncryptionContext
   )
     requires ec == GetEncryptionContext(pairs)
     ensures LinearLength(pairs) == Length(ec)
@@ -124,7 +120,7 @@ module EncryptionContext {
 
   lemma LemmaESDKCanonicalEncryptionContextIsESDKEncryptionContext(
     pairs: ESDKCanonicalEncryptionContext,
-    ec: Crypto.EncryptionContext
+    ec: MPL.EncryptionContext
   )
     requires ec == GetEncryptionContext(pairs)
     ensures IsESDKEncryptionContext(ec)
@@ -333,6 +329,17 @@ module EncryptionContext {
     buffer: ReadableBuffer
   ):
     (res: ReadCorrect<ESDKCanonicalEncryptionContext>)
+    ensures IsExpandedAADSection(buffer)
+    ==>
+      && res.Success?
+      && |res.value.data| == 0
+    ensures
+      && ReadUInt16(buffer).Success?
+      && ReadUInt16(buffer).value.data == 0
+    ==>
+      && res.Success?
+      && |res.value.data| == 0
+      // && buffer.start + 2 == res.value.tail.start
     ensures if IsExpandedAADSection(buffer) then
       CorrectlyRead(buffer, res, WriteExpandedAADSection)
     else 
@@ -389,7 +396,10 @@ module EncryptionContext {
   )
   {
     && buffer.start + 2 <= |buffer.bytes|
-    && ReadUInt16(buffer).value.data == 2
+    && var sectionLength := ReadUInt16(buffer).value;
+    && sectionLength.data == 2
+    && sectionLength.tail.start + 2 <= |buffer.bytes|
+    && ReadUInt16(sectionLength.tail).value.data == 0
   }
 
   // This is *not* a function method,
@@ -570,7 +580,7 @@ module EncryptionContext {
     return buffer.( start := buffer.start + |WriteAADPairs(accumulator)| );
   }
 
-  lemma ReadAADPairsIsComplete(
+  lemma {:vcs_split_on_every_assert} ReadAADPairsIsComplete(
     data: ESDKCanonicalEncryptionContext,
     accumulator: ESDKCanonicalEncryptionContext,
     keys: set<UTF8.ValidUTF8Bytes>,
@@ -614,6 +624,8 @@ module EncryptionContext {
       .value;
     } else {
 
+      assert accumulator < data;
+
       var nextPair := NextPairIsComplete(data, accumulator, bytes, buffer);
       assert WriteAADPair(data[|accumulator|]) <= nextPair.bytes[nextPair.start..];
 
@@ -629,7 +641,7 @@ module EncryptionContext {
       assert pair.data == data[|accumulator|];
       reveal KeysToSet();
       assert pair.data.key !in keys;
-      assert accumulator < data;
+      assert pair.data in data;
       assert accumulator + [pair.data] <= data;
 
       // The length constraint is a little complicated.
@@ -650,19 +662,13 @@ module EncryptionContext {
       // This will recurse *forward* to the final case where data == accumulator.
       // Along the way, we prove ReadAADPairIsComplete
       // for each encryption context pair "along the way".
-      var pairs := ReadAADPairsIsComplete(
+      ret := ReadAADPairsIsComplete(
         data,
         accumulator + [pair.data],
         keys + KeysToSet([pair.data]),
         bytes,
         buffer
       );
-
-      assert pairs.data == data;
-
-      ret := ReadAADPairs(buffer, accumulator, keys, |data| as uint16, nextPair).value;
-      assert pairs.tail == ret.tail;
-      assert pairs.data == ret.data;
     }
   }
 
