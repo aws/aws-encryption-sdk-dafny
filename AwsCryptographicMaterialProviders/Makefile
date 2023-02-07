@@ -3,130 +3,15 @@
 
 CORES=2
 
-verify:
-	dafny \
-		-vcsCores:$(CORES) \
-		-compile:0 \
-		-definiteAssignment:3 \
-		-verificationLogger:csv \
-		-timeLimit:300 \
-		-trace \
-		`find . -name '*.dfy'`
+include ../SharedMakefile.mk
 
-# TODO dafny 3.9.1 -> 3.10.0 increased resources above original 10000000 limit
-# Investigate and pull back limit to something reasonable
-dafny-reportgenerator:
-	dafny-reportgenerator \
-		summarize-csv-results \
-		--max-resource-count 50000000 \
-		TestResults/*.csv
-
-transpile_net: | transpile_implementation_net transpile_test_net transpile_net_dependencies
-
-transpile_implementation_net:
-	dafny \
-		-vcsCores:$(CORES) \
-		-compileTarget:cs \
-		-spillTargetCode:3 \
-		-compile:0 \
-		-useRuntimeLib \
-		-optimizeErasableDatatypeWrapper:0 \
-		-out runtimes/net/ImplementationFromDafny \
-		./src/Index.dfy \
-		-library:../AwsCryptographyPrimitives/src/Index.dfy \
-		-library:../ComAmazonawsKms/src/Index.dfy \
-		-library:../ComAmazonawsDynamodb/src/Index.dfy \
-		-library:../StandardLibrary/src/Index.dfy
-
-transpile_test_net:
-	dafny \
-		-vcsCores:$(CORES) \
-		-compileTarget:cs \
-		-spillTargetCode:3 \
-		-runAllTests:1 \
-		-compile:0 \
-		-useRuntimeLib \
-		-optimizeErasableDatatypeWrapper:0 \
-		-out runtimes/net/tests/TestsFromDafny \
-		`find ./test -name '*.dfy'` \
-		-library:src/Index.dfy
-
-transpile_net_dependencies:
-	$(MAKE) -C ../StandardLibrary transpile_implementation_net
-	$(MAKE) -C ../AwsCryptographyPrimitives transpile_implementation_net
-	$(MAKE) -C ../ComAmazonawsKms transpile_implementation_net
-	$(MAKE) -C ../ComAmazonawsDynamodb transpile_implementation_net
-
-test_net:
-	dotnet run \
-		--project runtimes/net/tests/ \
-		--framework net6.0
-
-test_net_mac_intel:
-	DYLD_LIBRARY_PATH="/usr/local/opt/openssl@1.1/lib" dotnet run \
-		--project runtimes/net/tests/ \
-		--framework net6.0
-
-setup_net:
-	dotnet restore runtimes/net/
-
-transpile_java: | transpile_implementation_java transpile_test_java
-
-transpile_implementation_java: | _clean_implementation_java _transpile_implementation_java _mv_implementation_java
-
-_clean_implementation_java:
-	rm -rf runtimes/java/temp/AwsCryptographicMaterialProviders-java/* && rm -rf runtimes/java/src/main/dafny-generated/*
-
-_transpile_implementation_java:
-	dafny \
-		-vcsCores:$(CORES) \
-		-compileTarget:java \
-		-spillTargetCode:3 \
-		-compile:0 \
-		-useRuntimeLib \
-		-optimizeErasableDatatypeWrapper:0 \
-		-out runtimes/java/temp/AwsCryptographicMaterialProviders \
-		./src/Index.dfy \
-		-library:../AwsCryptographyPrimitives/src/Index.dfy \
-		-library:../ComAmazonawsKms/src/Index.dfy \
-		-library:../ComAmazonawsDynamodb/src/Index.dfy \
-		-library:../StandardLibrary/src/Index.dfy
-
-_mv_implementation_java:
-	./runtimes/java/makefile_helper.sh implementation
-
-transpile_test_java: | _clean_test_java _transpile_test_java _mv_test_java
-
-_clean_test_java:
-	rm -rf runtimes/java/temp-tests/AwsCryptographicMaterialProvidersTests-java/* && rm -rf runtimes/java/src/test/dafny-generated/*
-
-_transpile_test_java:
-	dafny \
-		-vcsCores:$(CORES) \
-		-compileTarget:java \
-		-spillTargetCode:3 \
-		-runAllTests:1 \
-		-compile:0 \
-		-useRuntimeLib \
-		-optimizeErasableDatatypeWrapper:0 \
-		-out runtimes/java/temp-tests/AwsCryptographicMaterialProvidersTests \
-		`find ./test -name '*.dfy'` \
-		-library:src/Index.dfy
-
-_mv_test_java:
-	./runtimes/java/makefile_helper.sh test
-
-build_java_dependencies:
-	$(MAKE) -C ../StandardLibrary mvn_local_deploy
-	$(MAKE) -C ../ComAmazonawsKms mvn_local_deploy
-	$(MAKE) -C ../ComAmazonawsDynamodb mvn_local_deploy
-	$(MAKE) -C ../AwsCryptographyPrimitives mvn_local_deploy
-
-build_java: transpile_java build_java_dependencies
-	gradle -p runtimes/java build
-
-mvn_local_deploy: transpile_java
-	gradle -p runtimes/java publishToMavenLocal
-
-test_java:
-	gradle -p runtimes/java runTests
+SMITHY_NAMESPACE=aws.cryptography.materialProviders
+MAX_RESOURCE_COUNT=50000000
+# Order is important
+# In java they MUST be built
+# in the order they depend on each other
+LIBRARIES := \
+	StandardLibrary \
+	AwsCryptographyPrimitives \
+	ComAmazonawsKms \
+	ComAmazonawsDynamodb 

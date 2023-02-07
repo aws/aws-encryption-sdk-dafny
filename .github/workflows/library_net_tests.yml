@@ -11,9 +11,18 @@ jobs:
   testDotNet:
     strategy:
       matrix:
-        library: [ AwsCryptographyPrimitives, ComAmazonawsKms, AwsCryptographicMaterialProviders, StandardLibrary ]
+        library: [
+          AwsCryptographyPrimitives,
+          ComAmazonawsKms,
+          AwsCryptographicMaterialProviders,
+          StandardLibrary,
+        ]
         dotnet-version: [ '6.0.x' ]
-        os: [ windows-latest, ubuntu-latest, macos-latest ]
+        os: [
+          windows-latest,
+          ubuntu-latest,
+          macos-latest,
+        ]
     runs-on: ${{ matrix.os }}
     permissions:
       id-token: write
