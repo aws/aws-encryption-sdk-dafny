@@ -89,7 +89,7 @@ module AwsCryptographyPrimitivesOperations refines AbstractAwsCryptographyPrimit
   {
     output := WrappedHKDF.Hkdf(input);
   }
-
+  
   predicate AESEncryptEnsuresPublicly(input: AESEncryptInput, output: Result<AESEncryptOutput, Error>)
   {
       && output.Success?

@@ -16,6 +16,8 @@ service AwsCryptographicPrimitives {
     HkdfExtract,
     HkdfExpand,
     Hkdf,
+    KdfCtr,
+    AesKdfCtr,
     AESEncrypt,
     AESDecrypt,
     GenerateRSAKeyPair,
