@@ -16,7 +16,7 @@ jobs:
           ComAmazonawsKms,
           ComAmazonawsDynamodb,
           AwsCryptographicMaterialProviders,
-          StandardLibrary
+          StandardLibrary,
         ]
         java-version: [ 8, 11, 16, 17 ]
         os: [

@@ -77,7 +77,7 @@ tasks.withType<Wrapper>() {
 
 tasks {
     register("runTests", JavaExec::class.java) {
-        mainClass.set("ComAmazonawsKmsTests")
+        mainClass.set("TestsFromDafny")
         classpath = sourceSets["test"].runtimeClasspath
     }
 }

@@ -78,7 +78,7 @@ tasks.withType<Wrapper>() {
 
 tasks {
     register("runTests", JavaExec::class.java) {
-        mainClass.set("ComAmazonawsDynamodbTests")
+        mainClass.set("TestsFromDafny")
         classpath = sourceSets["test"].runtimeClasspath
     }
 }
