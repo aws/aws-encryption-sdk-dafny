@@ -92,6 +92,10 @@ transpile_dependencies:
 
 ########################## Code-Gen targets
 
+# Pass in POLYMORPH_ROOT in command line, e.g.
+#   make polymorph_code_gen POLYMORPH_ROOT=/path/to/polymorph/smithy-polymorph
+# StandardLibrary is filtered out from dependent-model patsubst list;
+#   Its model is contained in $(PROJECT_ROOT)/model, not $(PROJECT_ROOT)/../StandardLibrary/Model.
 polymorph_code_gen :
 	cd $(POLYMORPH_ROOT); \
 	./gradlew run --args="\
@@ -100,8 +104,8 @@ polymorph_code_gen :
 	--output-dotnet $(PROJECT_ROOT)/runtimes/net/Generated/ \
 	--model $(PROJECT_ROOT)/Model \
 	--dependent-model $(ESDK_ROOT)/model \
-	$(patsubst %, --dependent-model $(PROJECT_ROOT)/../%/Model, $(LIBRARIES)) \
-	--namespace $(SMITHY_NAMESPACE)
+	$(patsubst %, --dependent-model $(PROJECT_ROOT)/../%/Model, $(filter-out StandardLibrary,$(LIBRARIES))) \
+	--namespace $(SMITHY_NAMESPACE) \
 	$(AWS_SDK_CMD)";
 
 ########################## .NET targets
