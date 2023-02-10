@@ -24,6 +24,27 @@ so they can only be run when embedding this library into one of the compilation 
 
 - [.NET](aws-encryption-sdk-net)
 
+## Generating Code from Smithy Model
+
+To generate code from the Smithy models for either the AWS Encryption SDK or for any of its dependencies, you will need the [Polymorph](https://github.com/awslabs/polymorph) project set up locally.
+
+To run the code generator, open any of the modules (e.g. AwsCryptographyPrimitives), then run:
+
+```
+ make polymorph_code_gen POLYMORPH_ROOT=/[path]/[to]/polymorph/smithy-polymorph
+```
+
+### Transpiling Generated Code to a Runtime
+
+The AWS Encryption SDK for Dafny must be transpiled to a runtime to be used.
+There is no Dafny runtime, so there is no concept of "running the AWS Encryption SDK for Dafny".
+
+To transpile the generated code to a runtime (e.g. Dotnet), open the module, then run:
+
+```
+make transpile_net
+```
+
 ## Generate Duvet Reports
 
 This repo uses Duvet to directly document the [specification](https://github.com/awslabs/aws-encryption-sdk-specification) alongside this implementation.
