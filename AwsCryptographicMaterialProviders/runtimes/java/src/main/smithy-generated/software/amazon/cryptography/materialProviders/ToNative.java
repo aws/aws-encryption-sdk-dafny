@@ -16,6 +16,7 @@ import Dafny.Aws.Cryptography.MaterialProviders.Types.Error_InvalidEncryptionMat
 import Dafny.Aws.Cryptography.MaterialProviders.Types.Error_Opaque;
 import Dafny.Aws.Cryptography.MaterialProviders.Types.IClientSupplier;
 import Dafny.Aws.Cryptography.MaterialProviders.Types.IKeyring;
+import Dafny.Aws.Cryptography.MaterialProviders.Types.DIRECT__KEY__WRAPPING;
 import dafny.DafnyMap;
 import dafny.DafnySequence;
 import java.lang.Byte;
@@ -251,6 +252,8 @@ public class ToNative {
     nativeBuilder.kdf(ToNative.DerivationAlgorithm(dafnyValue.dtor_kdf()));
     nativeBuilder.commitment(ToNative.DerivationAlgorithm(dafnyValue.dtor_commitment()));
     nativeBuilder.signature(ToNative.SignatureAlgorithm(dafnyValue.dtor_signature()));
+    nativeBuilder.symmetricSignature(ToNative.SymmetricSignatureAlgorithm(dafnyValue.dtor_symmetricSignature()));
+    nativeBuilder.edkWrapping(ToNative.EdkWrappingAlgorithm(dafnyValue.dtor_edkWrapping()));
     return nativeBuilder.build();
   }
 
@@ -657,6 +660,9 @@ public class ToNative {
     if (dafnyValue.is_ESDK()) {
       nativeBuilder.ESDK(ToNative.ESDKAlgorithmSuiteId(dafnyValue.dtor_ESDK()));
     }
+    if (dafnyValue.is_DBE()) {
+      nativeBuilder.DBE(ToNative.DBEAlgorithmSuiteId(dafnyValue.dtor_DBE()));
+    }
     return nativeBuilder.build();
   }
 
@@ -749,5 +755,54 @@ public class ToNative {
 
   public static software.amazon.cryptography.materialProviders.IClientSupplier ClientSupplier(IClientSupplier dafnyValue) {
     return ClientSupplier.create(dafnyValue);
+  }
+
+    public static SymmetricSignatureAlgorithm SymmetricSignatureAlgorithm(
+      Dafny.Aws.Cryptography.MaterialProviders.Types.SymmetricSignatureAlgorithm dafnyValue) {
+    SymmetricSignatureAlgorithm.Builder nativeBuilder = SymmetricSignatureAlgorithm.builder();
+    if (dafnyValue.is_HMAC()) {
+      nativeBuilder.HMAC(software.amazon.cryptography.primitives.ToNative.DigestAlgorithm(dafnyValue.dtor_HMAC()));
+    }
+    if (dafnyValue.is_None()) {
+      nativeBuilder.None(ToNative.None(dafnyValue.dtor_None()));
+    }
+    return nativeBuilder.build();
+  }
+
+  public static EdkWrappingAlgorithm EdkWrappingAlgorithm(
+      Dafny.Aws.Cryptography.MaterialProviders.Types.EdkWrappingAlgorithm dafnyValue) {
+    EdkWrappingAlgorithm.Builder nativeBuilder = EdkWrappingAlgorithm.builder();
+    if (dafnyValue.is_DIRECT__KEY__WRAPPING()) {
+      nativeBuilder.DIRECT_KEY_WRAPPING(ToNative.DIRECT_KEY_WRAPPING(dafnyValue.dtor_DIRECT__KEY__WRAPPING()));
+    }
+    if (dafnyValue.is_IntermediateKeyWrapping()) {
+      nativeBuilder.IntermediateKeyWrapping(ToNative.IntermediateKeyWrapping(dafnyValue.dtor_IntermediateKeyWrapping()));
+    }
+    return nativeBuilder.build();
+  }
+
+  public static DIRECT_KEY_WRAPPING DIRECT_KEY_WRAPPING(DIRECT__KEY__WRAPPING dafnyValue) {
+    DIRECT_KEY_WRAPPING.Builder nativeBuilder = DIRECT_KEY_WRAPPING.builder();
+    return nativeBuilder.build();
+  }
+
+  public static DBEAlgorithmSuiteId DBEAlgorithmSuiteId(
+      Dafny.Aws.Cryptography.MaterialProviders.Types.DBEAlgorithmSuiteId dafnyValue) {
+    if (dafnyValue.is_ALG__AES__256__GCM__HKDF__SHA512__COMMIT__KEY__SYMSIG__HMAC__SHA384()) {
+      return DBEAlgorithmSuiteId.ALG_AES_256_GCM_HKDF_SHA512_COMMIT_KEY_SYMSIG_HMAC_SHA384;
+    }
+    if (dafnyValue.is_ALG__AES__256__GCM__HKDF__SHA512__COMMIT__KEY__ECDSA__P384__SYMSIG__HMAC__SHA384()) {
+      return DBEAlgorithmSuiteId.ALG_AES_256_GCM_HKDF_SHA512_COMMIT_KEY_ECDSA_P384_SYMSIG_HMAC_SHA384;
+    }
+    throw new IllegalArgumentException("No entry of software.amazon.cryptography.materialProviders.model.DBEAlgorithmSuiteId matches the input : " + dafnyValue);
+  }
+
+  public static IntermediateKeyWrapping IntermediateKeyWrapping(
+      Dafny.Aws.Cryptography.MaterialProviders.Types.IntermediateKeyWrapping dafnyValue) {
+    IntermediateKeyWrapping.Builder nativeBuilder = IntermediateKeyWrapping.builder();
+    nativeBuilder.keyEncryptionKeyKdf(ToNative.DerivationAlgorithm(dafnyValue.dtor_keyEncryptionKeyKdf()));
+    nativeBuilder.macKeyKdf(ToNative.DerivationAlgorithm(dafnyValue.dtor_macKeyKdf()));
+    nativeBuilder.pdkEncryptAlgorithm(ToNative.Encrypt(dafnyValue.dtor_pdkEncryptAlgorithm()));
+    return nativeBuilder.build();
   }
 }

@@ -9,6 +9,7 @@ module AlgorithmSuites {
   import opened AwsCryptographyMaterialProvidersTypes
   import Wrappers
 
+  // Invariants for ESDK Encrypt
   predicate method SupportedESDKEncrypt?(e: Encrypt) {
     && e.AES_GCM?
     && (
@@ -19,6 +20,26 @@ module AlgorithmSuites {
     && e.AES_GCM.ivLength == 12
   }
 
+  // Invariants for DBE Encrypt
+  predicate method SupportedDBEEncrypt?(e: Encrypt) {
+    && e.AES_GCM?
+    && e.AES_GCM.keyLength == 32
+    && e.AES_GCM.tagLength == 16
+    && e.AES_GCM.ivLength == 12
+  }
+
+  // Invariants for DBE EDK Wrapping Algorithms
+  predicate method SupportedDBEEDKWrapping?(p: EdkWrappingAlgorithm) {
+    && p.IntermediateKeyWrapping?
+    && p.IntermediateKeyWrapping.pdkEncryptAlgorithm.AES_GCM?
+    && p.IntermediateKeyWrapping.pdkEncryptAlgorithm.AES_GCM.keyLength == 32
+    && p.IntermediateKeyWrapping.pdkEncryptAlgorithm.AES_GCM.tagLength == 16
+    && p.IntermediateKeyWrapping.pdkEncryptAlgorithm.AES_GCM.ivLength == 12
+    && p.IntermediateKeyWrapping.macKeyKdf.HKDF?
+    && p.IntermediateKeyWrapping.keyEncryptionKeyKdf.HKDF?
+  }
+
+  // Invariants for all supported KDFs
   predicate method KeyDerivationAlgorithm?(kdf: DerivationAlgorithm) {
     && (
         && kdf.HKDF?
@@ -28,6 +49,7 @@ module AlgorithmSuites {
     && !kdf.None?
   }
 
+  // Invariants for all supported Commitment Derivation Algorithms
   predicate method CommitmentDerivationAlgorithm?(kdf: DerivationAlgorithm) {
     && (
         && kdf.HKDF?
@@ -39,24 +61,23 @@ module AlgorithmSuites {
     && !kdf.IDENTITY?
   }
 
-  // These are the specific Algorithm Suites definitions.
-  // Because the Smithy side can not fully express these kinds of requirements
-  // it only has the `AlgorithmSuiteId`.
-  // This means that on the cryptographic materials
-  // there is only a `AlgorithmSuiteId`.
-  // For Dafny to be able to reason practically about the `AlgorithmSuite`
-  // it needs to be able to prove that
-  // GetSuite(suite.id) == suite
-  predicate method ESDKAlgorithmSuite?(a: AlgorithmSuiteInfo)
-    requires a.id.ESDK?
-  {
-    // General constraints for all existing ESDK Algorithm Suites.
-    // These are here to make sure that these are true.
+  // Invariants for all supported Provider Wrapping Algorithms
+  predicate method EdkWrappingAlgorithm?(alg: EdkWrappingAlgorithm) {
+    || (
+        && alg.IntermediateKeyWrapping?
+        && alg.IntermediateKeyWrapping.keyEncryptionKeyKdf.HKDF?
+        && alg.IntermediateKeyWrapping.macKeyKdf.HKDF?
+        && alg.IntermediateKeyWrapping.pdkEncryptAlgorithm.AES_GCM?
+        && alg.IntermediateKeyWrapping.pdkEncryptAlgorithm.AES_GCM.keyLength == 32
+    )
+    || alg.DIRECT_KEY_WRAPPING?
+  }
 
-    // All ESDK encrypt with AES_GCM
-    && SupportedESDKEncrypt?(a.encrypt)
+  // Invariants for all supported Algorithm Suites
+  predicate method AlgorithmSuiteInfo?(a: AlgorithmSuiteInfo) {
     && KeyDerivationAlgorithm?(a.kdf)
     && CommitmentDerivationAlgorithm?(a.commitment)
+    && EdkWrappingAlgorithm?(a.edkWrapping)
 
     // If there is a KDF, the output length MUST match the encrypt length
     && (a.kdf.HKDF? ==> 
@@ -67,8 +88,41 @@ module AlgorithmSuites {
     && (a.commitment.HKDF? ==>
       && a.commitment.HKDF.saltLength == 32
       && a.commitment == a.kdf)
+    // If there is a IntermediateKeyWrapping, the KDFs MUST match
+    && (a.edkWrapping.IntermediateKeyWrapping? ==>
+      && a.kdf.HKDF?
+      && a.edkWrapping.IntermediateKeyWrapping.keyEncryptionKeyKdf == a.kdf
+      && a.edkWrapping.IntermediateKeyWrapping.macKeyKdf == a.kdf)
     // If there is a KDF and no commitment then salt MUST be 0
     && (a.kdf.HKDF? && a.commitment.None? ==> a.kdf.HKDF.saltLength == 0)
+    //= aws-encryption-sdk-specification/framework/algorithm-suites.md#algorithm-suites-signature-settings
+    //= type=implication
+    //# An algorithm suite with a symmetric signature algorithm MUST use [intermediate key wrapping](#intermediate-key-wrapping).
+    //
+    // If the algorithm suite includes an symmetric signature algorithm:
+    //= aws-encryption-sdk-specification/framework/algorithm-suites.md#symmetric-signature-algorithm
+    //# - The algorithm suite MUST also use [Intermediate Key Wrapping](#intermediate-key-wrapping).
+    && (!a.symmetricSignature.None? ==>
+      && a.edkWrapping.IntermediateKeyWrapping?)
+  }
+
+  // These are the specific Algorithm Suites definitions for the ESDK.
+  // Because the Smithy side can not fully express these kinds of requirements
+  // it only has the `AlgorithmSuiteId`.
+  // This means that on the cryptographic materials
+  // there is only a `AlgorithmSuiteId`.
+  // For Dafny to be able to reason practically about the `AlgorithmSuite`
+  // it needs to be able to prove that
+  // GetSuite(suite.id) == suite
+  predicate method ESDKAlgorithmSuite?(a: AlgorithmSuiteInfo)
+    requires a.id.ESDK?
+  {
+    // Adheres to constraints for all algorithm suites
+    && AlgorithmSuiteInfo?(a)
+    // All ESDK encrypt with AES_GCM
+    && SupportedESDKEncrypt?(a.encrypt)
+
+    // Specification for each supported ESDK Algorithm Suite
     && match a.id.ESDK
       // Legacy non-KDF suites
 
@@ -80,6 +134,8 @@ module AlgorithmSuites {
         && a.kdf.IDENTITY?
         && a.signature.None?
         && a.commitment.None?
+        && a.symmetricSignature.None?
+        && a.edkWrapping.DIRECT_KEY_WRAPPING?
       case ALG_AES_192_GCM_IV12_TAG16_NO_KDF() =>
         && a.binaryId == [0x00, 0x46]
         && a.messageVersion == 1
@@ -88,6 +144,8 @@ module AlgorithmSuites {
         && a.kdf.IDENTITY?
         && a.signature.None?
         && a.commitment.None?
+        && a.symmetricSignature.None?
+        && a.edkWrapping.DIRECT_KEY_WRAPPING?
       case ALG_AES_256_GCM_IV12_TAG16_NO_KDF() =>
         && a.binaryId == [0x00, 0x78]
         && a.messageVersion == 1
@@ -96,6 +154,8 @@ module AlgorithmSuites {
         && a.kdf.IDENTITY?
         && a.signature.None?
         && a.commitment.None?
+        && a.symmetricSignature.None?
+        && a.edkWrapping.DIRECT_KEY_WRAPPING?
 
       // HKDF suites
 
@@ -108,6 +168,8 @@ module AlgorithmSuites {
         && a.kdf.HKDF.hmac == AwsCryptographyPrimitivesTypes.SHA_256
         && a.signature.None?
         && a.commitment.None?
+        && a.symmetricSignature.None?
+        && a.edkWrapping.DIRECT_KEY_WRAPPING?
       case ALG_AES_192_GCM_IV12_TAG16_HKDF_SHA256() =>
         && a.binaryId == [0x01, 0x46]
         && a.messageVersion == 1
@@ -117,6 +179,8 @@ module AlgorithmSuites {
         && a.kdf.HKDF.hmac == AwsCryptographyPrimitivesTypes.SHA_256
         && a.signature.None?
         && a.commitment.None?
+        && a.symmetricSignature.None?
+        && a.edkWrapping.DIRECT_KEY_WRAPPING?
       case ALG_AES_256_GCM_IV12_TAG16_HKDF_SHA256() =>
         && a.binaryId == [0x01, 0x78]
         && a.messageVersion == 1
@@ -126,6 +190,8 @@ module AlgorithmSuites {
         && a.kdf.HKDF.hmac == AwsCryptographyPrimitivesTypes.SHA_256
         && a.signature.None?
         && a.commitment.None?
+        && a.symmetricSignature.None?
+        && a.edkWrapping.DIRECT_KEY_WRAPPING?
 
       // Signature suites
 
@@ -139,6 +205,8 @@ module AlgorithmSuites {
         && a.signature.ECDSA?
         && a.signature.ECDSA.curve == AwsCryptographyPrimitivesTypes.ECDSA_P256
         && a.commitment.None?
+        && a.symmetricSignature.None?
+        && a.edkWrapping.DIRECT_KEY_WRAPPING?
       case ALG_AES_192_GCM_IV12_TAG16_HKDF_SHA384_ECDSA_P384() =>
         && a.binaryId == [0x03, 0x46]
         && a.messageVersion == 1
@@ -149,6 +217,8 @@ module AlgorithmSuites {
         && a.signature.ECDSA?
         && a.signature.ECDSA.curve == AwsCryptographyPrimitivesTypes.ECDSA_P384
         && a.commitment.None?
+        && a.symmetricSignature.None?
+        && a.edkWrapping.DIRECT_KEY_WRAPPING?
       case ALG_AES_256_GCM_IV12_TAG16_HKDF_SHA384_ECDSA_P384() =>
         && a.binaryId == [0x03, 0x78]
         && a.messageVersion == 1
@@ -159,6 +229,8 @@ module AlgorithmSuites {
         && a.signature.ECDSA?
         && a.signature.ECDSA.curve == AwsCryptographyPrimitivesTypes.ECDSA_P384
         && a.commitment.None?
+        && a.symmetricSignature.None?
+        && a.edkWrapping.DIRECT_KEY_WRAPPING?
 
       // Suites with key commitment
 
@@ -171,6 +243,8 @@ module AlgorithmSuites {
         && a.kdf.HKDF.hmac == AwsCryptographyPrimitivesTypes.SHA_512
         && a.signature.None?
         && a.commitment.HKDF?
+        && a.symmetricSignature.None?
+        && a.edkWrapping.DIRECT_KEY_WRAPPING?
       case ALG_AES_256_GCM_HKDF_SHA512_COMMIT_KEY_ECDSA_P384() =>
         && a.binaryId == [0x05, 0x78]
         && a.messageVersion == 2
@@ -181,11 +255,59 @@ module AlgorithmSuites {
         && a.signature.ECDSA?
         && a.signature.ECDSA.curve == AwsCryptographyPrimitivesTypes.ECDSA_P384
         && a.commitment.HKDF?
+        && a.symmetricSignature.None?
+        && a.edkWrapping.DIRECT_KEY_WRAPPING?
+  }
+
+  predicate method DBEAlgorithmSuite?(a: AlgorithmSuiteInfo)
+    requires a.id.DBE?
+  {
+    // Adheres to general Algorithm Suite constraints
+    && AlgorithmSuiteInfo?(a)
+
+    // DBE only supports suites with AES_GCM 256
+    && SupportedDBEEncrypt?(a.encrypt)
+
+    // DBE only supports suites with intermediate provider wrapping keys
+    && SupportedDBEEDKWrapping?(a.edkWrapping)
+
+    // Specification for each supported DBE Algorithm Suite
+    && match a.id.DBE
+      case ALG_AES_256_GCM_HKDF_SHA512_COMMIT_KEY_SYMSIG_HMAC_SHA384() =>
+        && a.binaryId == [0x67, 0x00]
+        && a.messageVersion == 1
+        && a.encrypt.AES_GCM?
+        && a.encrypt.AES_GCM.keyLength == 32
+        && a.kdf.HKDF?
+        && a.kdf.HKDF.hmac == AwsCryptographyPrimitivesTypes.SHA_512
+        && a.signature.None?
+        && a.commitment.HKDF?
+        && a.symmetricSignature.HMAC?
+        && a.symmetricSignature.HMAC == AwsCryptographyPrimitivesTypes.SHA_384
+        && a.edkWrapping.IntermediateKeyWrapping?
+        && a.edkWrapping.IntermediateKeyWrapping.pdkEncryptAlgorithm.AES_GCM?
+        && a.edkWrapping.IntermediateKeyWrapping.pdkEncryptAlgorithm.AES_GCM.keyLength == 32
+      case ALG_AES_256_GCM_HKDF_SHA512_COMMIT_KEY_ECDSA_P384_SYMSIG_HMAC_SHA384() =>
+        && a.binaryId == [0x67, 0x01]
+        && a.messageVersion == 1
+        && a.encrypt.AES_GCM?
+        && a.encrypt.AES_GCM.keyLength == 32
+        && a.kdf.HKDF?
+        && a.kdf.HKDF.hmac == AwsCryptographyPrimitivesTypes.SHA_512
+        && a.signature.ECDSA?
+        && a.signature.ECDSA.curve == AwsCryptographyPrimitivesTypes.ECDSA_P384
+        && a.commitment.HKDF?
+        && a.symmetricSignature.HMAC?
+        && a.symmetricSignature.HMAC == AwsCryptographyPrimitivesTypes.SHA_384
+        && a.edkWrapping.IntermediateKeyWrapping?
+        && a.edkWrapping.IntermediateKeyWrapping.pdkEncryptAlgorithm.AES_GCM?
+        && a.edkWrapping.IntermediateKeyWrapping.pdkEncryptAlgorithm.AES_GCM.keyLength == 32
   }
 
   predicate method AlgorithmSuite?(a: AlgorithmSuiteInfo) {
     match a.id
       case ESDK(_) => ESDKAlgorithmSuite?(a)
+      case DBE(_) => DBEAlgorithmSuite?(a)
   }
 
   type AlgorithmSuite = a: AlgorithmSuiteInfo | AlgorithmSuite?(a)
@@ -252,7 +374,40 @@ module AlgorithmSuites {
     ))
   }
 
-  // All algorithm suites
+  const EDK_INTERMEDIATE_WRAPPING_AES_GCM_256_HKDF_SHA_512 := EdkWrappingAlgorithm.IntermediateKeyWrapping(
+    IntermediateKeyWrapping.IntermediateKeyWrapping(
+      keyEncryptionKeyKdf := HKDF_SHA_512(Bits256),
+      macKeyKdf := HKDF_SHA_512(Bits256),
+      pdkEncryptAlgorithm := AES_256_GCM_IV12_TAG16
+    )
+  )
+
+  // DBE algorithm suites
+
+  const DBE_ALG_AES_256_GCM_HKDF_SHA512_COMMIT_KEY_SYMSIG_HMAC_SHA384: AlgorithmSuite := AlgorithmSuiteInfo.AlgorithmSuiteInfo(
+    id := AlgorithmSuiteId.DBE(DBEAlgorithmSuiteId.ALG_AES_256_GCM_HKDF_SHA512_COMMIT_KEY_SYMSIG_HMAC_SHA384),
+    binaryId := [0x67, 0x00],
+    messageVersion := 1,
+    encrypt := AES_256_GCM_IV12_TAG16,
+    kdf := HKDF_SHA_512(Bits256),
+    commitment := HKDF_SHA_512(Bits256),
+    signature := SignatureAlgorithm.None(None.None),
+    symmetricSignature := SymmetricSignatureAlgorithm.HMAC(AwsCryptographyPrimitivesTypes.SHA_384),
+    edkWrapping := EDK_INTERMEDIATE_WRAPPING_AES_GCM_256_HKDF_SHA_512
+  )
+  const DBE_ALG_AES_256_GCM_HKDF_SHA512_COMMIT_KEY_ECDSA_P384_SYMSIG_HMAC_SHA384: AlgorithmSuite := AlgorithmSuiteInfo.AlgorithmSuiteInfo(
+    id := AlgorithmSuiteId.DBE(DBEAlgorithmSuiteId.ALG_AES_256_GCM_HKDF_SHA512_COMMIT_KEY_ECDSA_P384_SYMSIG_HMAC_SHA384),
+    binaryId := [0x67, 0x01],
+    messageVersion := 1,
+    encrypt := AES_256_GCM_IV12_TAG16,
+    kdf := HKDF_SHA_512(Bits256),
+    commitment := HKDF_SHA_512(Bits256),
+    signature := SignatureAlgorithm.ECDSA(ECDSA.ECDSA(curve := AwsCryptographyPrimitivesTypes.ECDSA_P384)),
+    symmetricSignature := SymmetricSignatureAlgorithm.HMAC(AwsCryptographyPrimitivesTypes.SHA_384),
+    edkWrapping := EDK_INTERMEDIATE_WRAPPING_AES_GCM_256_HKDF_SHA_512
+  )
+
+  // ESDK algorithm suites
 
   // Non-KDF suites
   const ESDK_ALG_AES_128_GCM_IV12_TAG16_NO_KDF: AlgorithmSuite := AlgorithmSuiteInfo.AlgorithmSuiteInfo(
@@ -262,7 +417,9 @@ module AlgorithmSuites {
     encrypt := AES_128_GCM_IV12_TAG16,
     kdf := DerivationAlgorithm.IDENTITY(IDENTITY.IDENTITY),
     commitment := DerivationAlgorithm.None(None.None),
-    signature := SignatureAlgorithm.None(None.None)
+    signature := SignatureAlgorithm.None(None.None),
+    symmetricSignature := SymmetricSignatureAlgorithm.None(None.None),
+    edkWrapping := EdkWrappingAlgorithm.DIRECT_KEY_WRAPPING(DIRECT_KEY_WRAPPING.DIRECT_KEY_WRAPPING)
   )
   const ESDK_ALG_AES_192_GCM_IV12_TAG16_NO_KDF: AlgorithmSuite := AlgorithmSuiteInfo.AlgorithmSuiteInfo(
     id := AlgorithmSuiteId.ESDK(ESDKAlgorithmSuiteId.ALG_AES_192_GCM_IV12_TAG16_NO_KDF),
@@ -271,7 +428,9 @@ module AlgorithmSuites {
     encrypt := AES_192_GCM_IV12_TAG16,
     kdf := DerivationAlgorithm.IDENTITY(IDENTITY.IDENTITY),
     commitment := DerivationAlgorithm.None(None.None),
-    signature := SignatureAlgorithm.None(None.None)
+    signature := SignatureAlgorithm.None(None.None),
+    symmetricSignature := SymmetricSignatureAlgorithm.None(None.None),
+    edkWrapping := EdkWrappingAlgorithm.DIRECT_KEY_WRAPPING(DIRECT_KEY_WRAPPING.DIRECT_KEY_WRAPPING)
   )
   const ESDK_ALG_AES_256_GCM_IV12_TAG16_NO_KDF: AlgorithmSuite := AlgorithmSuiteInfo.AlgorithmSuiteInfo(
     id := AlgorithmSuiteId.ESDK(ESDKAlgorithmSuiteId.ALG_AES_256_GCM_IV12_TAG16_NO_KDF),
@@ -280,7 +439,9 @@ module AlgorithmSuites {
     encrypt := AES_256_GCM_IV12_TAG16,
     kdf := DerivationAlgorithm.IDENTITY(IDENTITY.IDENTITY),
     commitment := DerivationAlgorithm.None(None.None),
-    signature := SignatureAlgorithm.None(None.None)
+    signature := SignatureAlgorithm.None(None.None),
+    symmetricSignature := SymmetricSignatureAlgorithm.None(None.None),
+    edkWrapping := EdkWrappingAlgorithm.DIRECT_KEY_WRAPPING(DIRECT_KEY_WRAPPING.DIRECT_KEY_WRAPPING)
   )
 
   //Non-Signature KDF suites
@@ -291,7 +452,9 @@ module AlgorithmSuites {
     encrypt := AES_128_GCM_IV12_TAG16,
     kdf := HKDF_SHA_256(Bits128),
     commitment := DerivationAlgorithm.None(None.None),
-    signature := SignatureAlgorithm.None(None.None)
+    signature := SignatureAlgorithm.None(None.None),
+    symmetricSignature := SymmetricSignatureAlgorithm.None(None.None),
+    edkWrapping := EdkWrappingAlgorithm.DIRECT_KEY_WRAPPING(DIRECT_KEY_WRAPPING.DIRECT_KEY_WRAPPING)
   )
   const ESDK_ALG_AES_192_GCM_IV12_TAG16_HKDF_SHA256: AlgorithmSuite := AlgorithmSuiteInfo.AlgorithmSuiteInfo(
     id := AlgorithmSuiteId.ESDK(ESDKAlgorithmSuiteId.ALG_AES_192_GCM_IV12_TAG16_HKDF_SHA256),
@@ -300,7 +463,9 @@ module AlgorithmSuites {
     encrypt := AES_192_GCM_IV12_TAG16,
     kdf := HKDF_SHA_256(Bits192),
     commitment := DerivationAlgorithm.None(None.None),
-    signature := SignatureAlgorithm.None(None.None)
+    signature := SignatureAlgorithm.None(None.None),
+    symmetricSignature := SymmetricSignatureAlgorithm.None(None.None),
+    edkWrapping := EdkWrappingAlgorithm.DIRECT_KEY_WRAPPING(DIRECT_KEY_WRAPPING.DIRECT_KEY_WRAPPING)
   )
   const ESDK_ALG_AES_256_GCM_IV12_TAG16_HKDF_SHA256: AlgorithmSuite := AlgorithmSuiteInfo.AlgorithmSuiteInfo(
     id := AlgorithmSuiteId.ESDK(ESDKAlgorithmSuiteId.ALG_AES_256_GCM_IV12_TAG16_HKDF_SHA256),
@@ -309,7 +474,9 @@ module AlgorithmSuites {
     encrypt := AES_256_GCM_IV12_TAG16,
     kdf := HKDF_SHA_256(Bits256),
     commitment := DerivationAlgorithm.None(None.None),
-    signature := SignatureAlgorithm.None(None.None)
+    signature := SignatureAlgorithm.None(None.None),
+    symmetricSignature := SymmetricSignatureAlgorithm.None(None.None),
+    edkWrapping := EdkWrappingAlgorithm.DIRECT_KEY_WRAPPING(DIRECT_KEY_WRAPPING.DIRECT_KEY_WRAPPING)
   )
 
   //Signature KDF suites
@@ -320,7 +487,9 @@ module AlgorithmSuites {
     encrypt := AES_128_GCM_IV12_TAG16,
     kdf := HKDF_SHA_256(Bits128),
     commitment := DerivationAlgorithm.None(None.None),
-    signature := SignatureAlgorithm.ECDSA(ECDSA.ECDSA(curve := AwsCryptographyPrimitivesTypes.ECDSA_P256))
+    signature := SignatureAlgorithm.ECDSA(ECDSA.ECDSA(curve := AwsCryptographyPrimitivesTypes.ECDSA_P256)),
+    symmetricSignature := SymmetricSignatureAlgorithm.None(None.None),
+    edkWrapping := EdkWrappingAlgorithm.DIRECT_KEY_WRAPPING(DIRECT_KEY_WRAPPING.DIRECT_KEY_WRAPPING)
   )
   const ESDK_ALG_AES_192_GCM_IV12_TAG16_HKDF_SHA384_ECDSA_P384: AlgorithmSuite := AlgorithmSuiteInfo.AlgorithmSuiteInfo(
     id := AlgorithmSuiteId.ESDK(ESDKAlgorithmSuiteId.ALG_AES_192_GCM_IV12_TAG16_HKDF_SHA384_ECDSA_P384),
@@ -329,7 +498,9 @@ module AlgorithmSuites {
     messageVersion := 1,
     kdf := HKDF_SHA_384(Bits192),
     commitment := DerivationAlgorithm.None(None.None),
-    signature := SignatureAlgorithm.ECDSA(ECDSA.ECDSA(curve := AwsCryptographyPrimitivesTypes.ECDSA_P384))
+    signature := SignatureAlgorithm.ECDSA(ECDSA.ECDSA(curve := AwsCryptographyPrimitivesTypes.ECDSA_P384)),
+    symmetricSignature := SymmetricSignatureAlgorithm.None(None.None),
+    edkWrapping := EdkWrappingAlgorithm.DIRECT_KEY_WRAPPING(DIRECT_KEY_WRAPPING.DIRECT_KEY_WRAPPING)
   )
   const ESDK_ALG_AES_256_GCM_IV12_TAG16_HKDF_SHA384_ECDSA_P384: AlgorithmSuite := AlgorithmSuiteInfo.AlgorithmSuiteInfo(
     id := AlgorithmSuiteId.ESDK(ESDKAlgorithmSuiteId.ALG_AES_256_GCM_IV12_TAG16_HKDF_SHA384_ECDSA_P384),
@@ -338,7 +509,9 @@ module AlgorithmSuites {
     encrypt := AES_256_GCM_IV12_TAG16,
     kdf := HKDF_SHA_384(Bits256),
     commitment := DerivationAlgorithm.None(None.None),
-    signature := SignatureAlgorithm.ECDSA(ECDSA.ECDSA(curve := AwsCryptographyPrimitivesTypes.ECDSA_P384))
+    signature := SignatureAlgorithm.ECDSA(ECDSA.ECDSA(curve := AwsCryptographyPrimitivesTypes.ECDSA_P384)),
+    symmetricSignature := SymmetricSignatureAlgorithm.None(None.None),
+    edkWrapping := EdkWrappingAlgorithm.DIRECT_KEY_WRAPPING(DIRECT_KEY_WRAPPING.DIRECT_KEY_WRAPPING)
   )
 
   // Commitment Suites
@@ -349,7 +522,9 @@ module AlgorithmSuites {
     encrypt := AES_256_GCM_IV12_TAG16,
     kdf := HKDF_SHA_512(Bits256),
     commitment := HKDF_SHA_512(Bits256),
-    signature := SignatureAlgorithm.None(None.None)
+    signature := SignatureAlgorithm.None(None.None),
+    symmetricSignature := SymmetricSignatureAlgorithm.None(None.None),
+    edkWrapping := EdkWrappingAlgorithm.DIRECT_KEY_WRAPPING(DIRECT_KEY_WRAPPING.DIRECT_KEY_WRAPPING)
   )
   const ESDK_ALG_AES_256_GCM_HKDF_SHA512_COMMIT_KEY_ECDSA_P384: AlgorithmSuite := AlgorithmSuiteInfo.AlgorithmSuiteInfo(
     id := AlgorithmSuiteId.ESDK(ESDKAlgorithmSuiteId.ALG_AES_256_GCM_HKDF_SHA512_COMMIT_KEY_ECDSA_P384),
@@ -358,7 +533,9 @@ module AlgorithmSuites {
     encrypt := AES_256_GCM_IV12_TAG16,
     kdf := HKDF_SHA_512(Bits256),
     commitment := HKDF_SHA_512(Bits256),
-    signature := SignatureAlgorithm.ECDSA(ECDSA.ECDSA(curve := AwsCryptographyPrimitivesTypes.ECDSA_P384))
+    signature := SignatureAlgorithm.ECDSA(ECDSA.ECDSA(curve := AwsCryptographyPrimitivesTypes.ECDSA_P384)),
+    symmetricSignature := SymmetricSignatureAlgorithm.None(None.None),
+    edkWrapping := EdkWrappingAlgorithm.DIRECT_KEY_WRAPPING(DIRECT_KEY_WRAPPING.DIRECT_KEY_WRAPPING)
   )
 
   function method GetSuite(
@@ -369,6 +546,7 @@ module AlgorithmSuites {
   {
     match id
       case ESDK(e) => GetESDKSuite(e)
+      case DBE(e) => GetDBESuite(e)
   }
 
   lemma LemmaAlgorithmSuiteIdImpliesEquality(id: AlgorithmSuiteId, suite: AlgorithmSuite)
@@ -379,12 +557,47 @@ module AlgorithmSuites {
       case ESDK(e) => {
         LemmaESDKAlgorithmSuiteIdImpliesEquality(e, suite);
       }
+      case DBE(e) => {
+        LemmaDBEAlgorithmSuiteIdImpliesEquality(e, suite);
+      }
   }
 
   lemma LemmaBinaryIdIsUnique(a: AlgorithmSuite, b: AlgorithmSuite)
     requires a.id != b.id
     ensures a.binaryId != b.binaryId
   {}
+
+  /////////////////////////// DBE Suites ///////////////////////////////
+
+  const SupportedDBEAlgorithmSuites: map<DBEAlgorithmSuiteId, AlgorithmSuite> := map[
+    DBEAlgorithmSuiteId.ALG_AES_256_GCM_HKDF_SHA512_COMMIT_KEY_SYMSIG_HMAC_SHA384 := DBE_ALG_AES_256_GCM_HKDF_SHA512_COMMIT_KEY_SYMSIG_HMAC_SHA384,
+    DBEAlgorithmSuiteId.ALG_AES_256_GCM_HKDF_SHA512_COMMIT_KEY_ECDSA_P384_SYMSIG_HMAC_SHA384 := DBE_ALG_AES_256_GCM_HKDF_SHA512_COMMIT_KEY_ECDSA_P384_SYMSIG_HMAC_SHA384
+  ];
+
+  lemma LemmaSupportedDBEAlgorithmSuitesIsComplete(id: DBEAlgorithmSuiteId)
+    ensures id in SupportedDBEAlgorithmSuites
+  {}
+
+  function method GetDBESuite(
+    id: DBEAlgorithmSuiteId
+  ):
+    (res: AlgorithmSuite)
+    ensures
+    && res.id.DBE?
+    && res.id.DBE == id
+  {
+    LemmaSupportedDBEAlgorithmSuitesIsComplete(id);
+    SupportedDBEAlgorithmSuites[id]
+  }
+
+  lemma LemmaDBEAlgorithmSuiteIdImpliesEquality(id: DBEAlgorithmSuiteId, suite: AlgorithmSuite)
+    requires 
+    && suite.id.DBE?
+    && id == suite.id.DBE
+    ensures GetDBESuite(id) == suite
+  {
+    if GetDBESuite(id) != suite {}
+  }
 
   /////////////////////////// ESDK Suites ///////////////////////////////
 
@@ -426,7 +639,7 @@ module AlgorithmSuites {
     ensures GetESDKSuite(id) == suite
   {
     if GetESDKSuite(id) != suite {
-      assert GetESDKSuite(id).encrypt.AES_GCM.keyLength == suite.encrypt.AES_GCM.keyLength;
+      assert GetESDKSuite(id).encrypt.AES_GCM.tagLength == suite.encrypt.AES_GCM.tagLength;
     }
   }
 
@@ -451,7 +664,9 @@ module AlgorithmSuites {
     [0x03, 0x46] := ESDK_ALG_AES_192_GCM_IV12_TAG16_HKDF_SHA384_ECDSA_P384,
     [0x03, 0x78] := ESDK_ALG_AES_256_GCM_IV12_TAG16_HKDF_SHA384_ECDSA_P384,
     [0x04, 0x78] := ESDK_ALG_AES_256_GCM_HKDF_SHA512_COMMIT_KEY,
-    [0x05, 0x78] := ESDK_ALG_AES_256_GCM_HKDF_SHA512_COMMIT_KEY_ECDSA_P384
+    [0x05, 0x78] := ESDK_ALG_AES_256_GCM_HKDF_SHA512_COMMIT_KEY_ECDSA_P384,
+    [0x67, 0x00] := DBE_ALG_AES_256_GCM_HKDF_SHA512_COMMIT_KEY_SYMSIG_HMAC_SHA384,
+    [0x67, 0x01] := DBE_ALG_AES_256_GCM_HKDF_SHA512_COMMIT_KEY_ECDSA_P384_SYMSIG_HMAC_SHA384
   ];
 
   lemma AlgorithmSuiteInfoByBinaryIdIsComplete(a: AlgorithmSuite)
@@ -480,7 +695,7 @@ module AlgorithmSuites {
 
   //= aws-encryption-sdk-specification/framework/algorithm-suites.md#supported-algorithm-suites
   //= type=implication
-  //# Algorithm Suite ID MUST be a unique hex value across all [supported algorithm suites](#supported-algorithm-suites).
+  //# Algorithm Suite ID MUST be a unique hex value across all supported algorithm suites.
   //
   //= aws-encryption-sdk-specification/framework/algorithm-suites.md#algorithm-suite-id
   //= type=implication

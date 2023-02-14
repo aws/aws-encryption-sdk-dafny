@@ -41,6 +41,7 @@ module Header {
 
   predicate IsHeader(h: HeaderInfo)
   {
+    && h.suite.id.ESDK?
     && h.suite == h.body.algorithmSuite
     // TODO: Even though we're not yet supporting non-framed content,
     // this assertion about non-framed messages has ripple effects on

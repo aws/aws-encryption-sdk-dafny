@@ -5,6 +5,7 @@ using System;
  using AWS.Cryptography.MaterialProviders; namespace AWS.Cryptography.MaterialProviders {
  public class AlgorithmSuiteId {
  private AWS.Cryptography.MaterialProviders.ESDKAlgorithmSuiteId _eSDK ;
+ private AWS.Cryptography.MaterialProviders.DBEAlgorithmSuiteId _dBE ;
  public AWS.Cryptography.MaterialProviders.ESDKAlgorithmSuiteId ESDK {
  get { return this._eSDK; }
  set { this._eSDK = value; }
@@ -12,8 +13,16 @@ using System;
  internal bool IsSetESDK () {
  return this._eSDK != null;
 }
+ public AWS.Cryptography.MaterialProviders.DBEAlgorithmSuiteId DBE {
+ get { return this._dBE; }
+ set { this._dBE = value; }
+}
+ internal bool IsSetDBE () {
+ return this._dBE != null;
+}
  public void Validate() {
- var numberOfPropertiesSet = Convert.ToUInt16(IsSetESDK()) ;
+ var numberOfPropertiesSet = Convert.ToUInt16(IsSetESDK()) +
+ Convert.ToUInt16(IsSetDBE()) ;
  if (numberOfPropertiesSet == 0) throw new System.ArgumentException("No union value set");
 
  if (numberOfPropertiesSet > 1) throw new System.ArgumentException("Multiple union values set");

@@ -409,7 +409,7 @@ module {:extern "EncryptDecryptHelpers"} EncryptDecryptHelpers {
     // We restrict this method to the encrypt path so that we can assume the body is framed.
   method BuildHeaderForEncrypt(
     messageId: HeaderTypes.MessageId,
-    suite: MPL.AlgorithmSuiteInfo,
+    suite: HeaderTypes.ESDKAlgorithmSuite,
     encryptionContext: MPL.EncryptionContext,
     encryptedDataKeys: SerializableTypes.ESDKEncryptedDataKeys,
     frameLength: uint32,
@@ -477,7 +477,7 @@ module {:extern "EncryptDecryptHelpers"} EncryptDecryptHelpers {
 
   method BuildHeaderBody(
     messageId: HeaderTypes.MessageId,
-    suite: MPL.AlgorithmSuiteInfo,
+    suite: HeaderTypes.ESDKAlgorithmSuite,
     encryptionContext: EncryptionContext.ESDKCanonicalEncryptionContext,
     encryptedDataKeys: SerializableTypes.ESDKEncryptedDataKeys,
     frameLength: uint32,
