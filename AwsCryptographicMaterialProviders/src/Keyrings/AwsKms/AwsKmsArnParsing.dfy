@@ -242,15 +242,15 @@ module  AwsKmsArnParsing {
     //# If resource type is “key” and resource ID starts with “mrk-“,
     //# this is a AWS KMS multi-Region key ARN and MUST return true.
     ensures !IsMultiRegionAwsKmsArn(arn) <==
-        && arn.resource.resourceType == "key"
-        && !("mrk-" <= arn.resource.value)
+        (&& arn.resource.resourceType == "key"
+        && !("mrk-" <= arn.resource.value))
     //= aws-encryption-sdk-specification/framework/aws-kms/aws-kms-key-arn.md#identifying-an-an-aws-kms-multi-region-arn
     //= type=implication
     //# If resource type is “key” and resource ID does not start with “mrk-“,
     //# this is a (single-region) AWS KMS key ARN and MUST return false.
     ensures IsMultiRegionAwsKmsArn(arn) <==
-      && arn.resource.resourceType == "key"
-      && "mrk-" <= arn.resource.value
+      (&& arn.resource.resourceType == "key"
+      && "mrk-" <= arn.resource.value)
   {
   }
 
