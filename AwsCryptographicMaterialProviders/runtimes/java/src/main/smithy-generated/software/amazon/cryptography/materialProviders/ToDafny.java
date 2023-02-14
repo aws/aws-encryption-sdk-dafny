@@ -39,6 +39,7 @@ import software.amazon.cryptography.materialProviders.model.InvalidEncryptionMat
 import software.amazon.cryptography.materialProviders.model.InvalidEncryptionMaterialsTransition;
 import software.amazon.cryptography.materialProviders.model.NativeError;
 import software.amazon.cryptography.materialProviders.model.OpaqueError;
+import software.amazon.cryptography.materialProviders.model.DIRECT_KEY_WRAPPING;
 
 public class ToDafny {
   public static Error Error(NativeError nativeValue) {
@@ -262,7 +263,11 @@ public class ToDafny {
     commitment = ToDafny.DerivationAlgorithm(nativeValue.commitment());
     SignatureAlgorithm signature;
     signature = ToDafny.SignatureAlgorithm(nativeValue.signature());
-    return new AlgorithmSuiteInfo(id, binaryId, messageVersion, encrypt, kdf, commitment, signature);
+    SymmetricSignatureAlgorithm symmetricSignature;
+    symmetricSignature = ToDafny.SymmetricSignatureAlgorithm(nativeValue.symmetricSignature());
+    EdkWrappingAlgorithm edkWrapping;
+    edkWrapping = ToDafny.EdkWrappingAlgorithm(nativeValue.edkWrapping());
+    return new AlgorithmSuiteInfo(id, binaryId, messageVersion, encrypt, kdf, commitment, signature, symmetricSignature, edkWrapping);
   }
 
   public static OnDecryptInput OnDecryptInput(
@@ -752,7 +757,13 @@ public class ToDafny {
 
   public static AlgorithmSuiteId AlgorithmSuiteId(
       software.amazon.cryptography.materialProviders.model.AlgorithmSuiteId nativeValue) {
-    return AlgorithmSuiteId.create(ToDafny.ESDKAlgorithmSuiteId(nativeValue.ESDK()));
+    if (Objects.nonNull(nativeValue.ESDK())) {
+      return AlgorithmSuiteId.create_ESDK(ToDafny.ESDKAlgorithmSuiteId(nativeValue.ESDK()));
+    }
+    if (Objects.nonNull(nativeValue.DBE())) {
+      return AlgorithmSuiteId.create_DBE(ToDafny.DBEAlgorithmSuiteId(nativeValue.DBE()));
+    }
+    throw new IllegalArgumentException("Cannot convert " + nativeValue + " to Dafny.Aws.Cryptography.MaterialProviders.Types.AlgorithmSuiteId.");
   }
 
   public static DerivationAlgorithm DerivationAlgorithm(
@@ -847,5 +858,57 @@ public class ToDafny {
           software.amazon.cryptography.materialProviders.IClientSupplier nativeValue
   ) {
     return ClientSupplier.create(nativeValue).impl();
+  }
+
+    public static SymmetricSignatureAlgorithm SymmetricSignatureAlgorithm(
+      software.amazon.cryptography.materialProviders.model.SymmetricSignatureAlgorithm nativeValue) {
+    if (Objects.nonNull(nativeValue.HMAC())) {
+      return SymmetricSignatureAlgorithm.create_HMAC(software.amazon.cryptography.primitives.ToDafny.DigestAlgorithm(nativeValue.HMAC()));
+    }
+    if (Objects.nonNull(nativeValue.None())) {
+      return SymmetricSignatureAlgorithm.create_None(ToDafny.None(nativeValue.None()));
+    }
+    throw new IllegalArgumentException("Cannot convert " + nativeValue + " to Dafny.Aws.Cryptography.MaterialProviders.Types.SymmetricSignatureAlgorithm.");
+  }
+
+  public static EdkWrappingAlgorithm EdkWrappingAlgorithm(
+      software.amazon.cryptography.materialProviders.model.EdkWrappingAlgorithm nativeValue) {
+    if (Objects.nonNull(nativeValue.DIRECT_KEY_WRAPPING())) {
+      return EdkWrappingAlgorithm.create_DIRECT__KEY__WRAPPING(ToDafny.DIRECT_KEY_WRAPPING(nativeValue.DIRECT_KEY_WRAPPING()));
+    }
+    if (Objects.nonNull(nativeValue.IntermediateKeyWrapping())) {
+      return EdkWrappingAlgorithm.create_IntermediateKeyWrapping(ToDafny.IntermediateKeyWrapping(nativeValue.IntermediateKeyWrapping()));
+    }
+    throw new IllegalArgumentException("Cannot convert " + nativeValue + " to Dafny.Aws.Cryptography.MaterialProviders.Types.EdkWrappingAlgorithm.");
+  }
+
+  public static DIRECT__KEY__WRAPPING DIRECT_KEY_WRAPPING(DIRECT_KEY_WRAPPING nativeValue) {
+    return new DIRECT__KEY__WRAPPING();
+  }
+
+  public static DBEAlgorithmSuiteId DBEAlgorithmSuiteId(
+      software.amazon.cryptography.materialProviders.model.DBEAlgorithmSuiteId nativeValue) {
+    switch (nativeValue) {
+      case ALG_AES_256_GCM_HKDF_SHA512_COMMIT_KEY_SYMSIG_HMAC_SHA384: {
+        return DBEAlgorithmSuiteId.create_ALG__AES__256__GCM__HKDF__SHA512__COMMIT__KEY__SYMSIG__HMAC__SHA384();
+      }
+      case ALG_AES_256_GCM_HKDF_SHA512_COMMIT_KEY_ECDSA_P384_SYMSIG_HMAC_SHA384: {
+        return DBEAlgorithmSuiteId.create_ALG__AES__256__GCM__HKDF__SHA512__COMMIT__KEY__ECDSA__P384__SYMSIG__HMAC__SHA384();
+      }
+      default: {
+        throw new RuntimeException("Cannot convert " + nativeValue + " to Dafny.Aws.Cryptography.MaterialProviders.Types.DBEAlgorithmSuiteId.");
+      }
+    }
+  }
+
+  public static IntermediateKeyWrapping IntermediateKeyWrapping(
+      software.amazon.cryptography.materialProviders.model.IntermediateKeyWrapping nativeValue) {
+    DerivationAlgorithm keyEncryptionKeyKdf;
+    keyEncryptionKeyKdf = ToDafny.DerivationAlgorithm(nativeValue.keyEncryptionKeyKdf());
+    DerivationAlgorithm macKeyKdf;
+    macKeyKdf = ToDafny.DerivationAlgorithm(nativeValue.macKeyKdf());
+    Encrypt pdkEncryptAlgorithm;
+    pdkEncryptAlgorithm = ToDafny.Encrypt(nativeValue.pdkEncryptAlgorithm());
+    return new IntermediateKeyWrapping(keyEncryptionKeyKdf, macKeyKdf, pdkEncryptAlgorithm);
   }
 }

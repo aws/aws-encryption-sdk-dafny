@@ -57,21 +57,34 @@ namespace aws.cryptography.materialProviders
 ])
 string ESDKAlgorithmSuiteId
 
+@enum([
+  {
+    name: "ALG_AES_256_GCM_HKDF_SHA512_COMMIT_KEY_SYMSIG_HMAC_SHA384",
+    value: "0x6700",
+  },
+  {
+    name: "ALG_AES_256_GCM_HKDF_SHA512_COMMIT_KEY_ECDSA_P384_SYMSIG_HMAC_SHA384",
+    value: "0x6701",
+  },
+])
+string DBEAlgorithmSuiteId
+
 //= aws-encryption-sdk-specification/framework/algorithm-suites.md#supported-algorithm-suites-enum
 //= type=implication
 //# The Material Providers Library MUST provide
-//# an ENUM that is the super set of all the [supported library algorithm suites enum](#supported-library-algorithm-suites-enum)
+//# an ENUM that is the super set of all the [supported format algorithm suites enum](#supported-format-algorithm-suites-enum)
 //# called the Algorithm Suite ENUM.
 //
 //= aws-encryption-sdk-specification/framework/algorithm-suites.md#supported-algorithm-suites-enum
 //= type=implication
-//# This means that different libraries MAY have duplicate Library Algorithm Suite ENUM.
+//# This means that different formats MAY have duplicate Format Algorithm Suite ENUM.
+//
+//= aws-encryption-sdk-specification/framework/algorithm-suites.md#overview
+//= type=implication
+//# The algorithm suite defines the behaviors [supported formats](#supported-formats) MUST follow for cryptographic operations.
 union AlgorithmSuiteId {
-  //= aws-encryption-sdk-specification/framework/algorithm-suites.md#overview
-  //= type=implication
-  //# The algorithm suite defines the behaviors the AWS Encryption SDK MUST follow for cryptographic operations.
   ESDK: ESDKAlgorithmSuiteId,
-
+  DBE: DBEAlgorithmSuiteId,
 }
 
 //= aws-encryption-sdk-specification/framework/algorithm-suites.md#structure
@@ -92,6 +105,10 @@ structure AlgorithmSuiteInfo {
   commitment: DerivationAlgorithm,
   @required
   signature: SignatureAlgorithm,
+  @required
+  symmetricSignature: SymmetricSignatureAlgorithm,
+  @required
+  edkWrapping: EdkWrappingAlgorithm
 }
  
 union Encrypt {
@@ -114,7 +131,7 @@ union DerivationAlgorithm {
   None: None,
 }
 
-//= aws-encryption-sdk-specification/framework/algorithm-suites.md#signature-algorithm
+//= aws-encryption-sdk-specification/framework/algorithm-suites.md#asymmetric-signature-algorithm
 //= type=implication
 //# This field is OPTIONAL.
 union SignatureAlgorithm {
@@ -138,6 +155,29 @@ structure None {}
 structure ECDSA {
   @required
   curve: aws.cryptography.primitives#ECDSASignatureAlgorithm,
+}
+
+//= aws-encryption-sdk-specification/framework/algorithm-suites.md#symmetric-signature-algorithm
+//# This field is OPTIONAL.
+union SymmetricSignatureAlgorithm {
+  HMAC: aws.cryptography.primitives#DigestAlgorithm,
+  None: None
+}
+
+union EdkWrappingAlgorithm {
+  DIRECT_KEY_WRAPPING: DIRECT_KEY_WRAPPING,
+  IntermediateKeyWrapping: IntermediateKeyWrapping,
+}
+
+structure DIRECT_KEY_WRAPPING {}
+
+structure IntermediateKeyWrapping {
+  @required
+  keyEncryptionKeyKdf: DerivationAlgorithm,
+  @required
+  macKeyKdf: DerivationAlgorithm,
+  @required
+  pdkEncryptAlgorithm: Encrypt
 }
 
 @readonly

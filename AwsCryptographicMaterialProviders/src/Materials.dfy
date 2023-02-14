@@ -40,7 +40,7 @@ module Materials {
       //= aws-encryption-sdk-specification/framework/structures.md#signing-key
       //= type=implication
       //# If the
-      //# algorithm suite does not contain a signing algorithm, the signing key
+      //# algorithm suite does not contain an asymmetric signing algorithm, the signing key
       //# MUST NOT be present.
       && (suite.signature.None? <==> res.value.signingKey.None?)
     //= aws-encryption-sdk-specification/framework/structures.md#encryption-context-1

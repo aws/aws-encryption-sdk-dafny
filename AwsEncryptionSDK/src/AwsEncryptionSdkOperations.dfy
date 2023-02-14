@@ -176,6 +176,10 @@ module AwsEncryptionSdkOperations refines AbstractAwsEncryptionSdkOperations {
       config.mpl
     );
 
+    :- Need(materials.algorithmSuite.id.ESDK?,
+      Types.AwsEncryptionSdkException(
+      message := "Encryption materials contain incompatible algorithm suite for the AWS Encryption SDK."));
+
     :- EncryptDecryptHelpers.ValidateMaxEncryptedDataKeys(config.maxEncryptedDataKeys, materials.encryptedDataKeys);
 
     var encryptedDataKeys: SerializableTypes.ESDKEncryptedDataKeys := materials.encryptedDataKeys;
@@ -378,6 +382,7 @@ module AwsEncryptionSdkOperations refines AbstractAwsEncryptionSdkOperations {
       && var headerBody := Header.ReadHeaderBody(buffer, config.maxEncryptedDataKeys, config.mpl);
       && headerBody.Success?
       // *  Algorithm Suite (Section 2.6.3)
+      && headerBody.value.data.algorithmSuite.id.ESDK?
       && output.value.algorithmSuiteId == headerBody.value.data.algorithmSuite.id.ESDK
       // *  Encryption Context (Section 2.6.2)
       && var ec := EncryptionContext.GetEncryptionContext(headerBody.value.data.encryptionContext);
@@ -422,6 +427,7 @@ module AwsEncryptionSdkOperations refines AbstractAwsEncryptionSdkOperations {
     var rawHeader := headerBody.tail.bytes[buffer.start..headerBody.tail.start];
 
     var algorithmSuite := headerBody.data.algorithmSuite;
+
     //= compliance/client-apis/decrypt.txt#2.7.2
     //# If the
     //# algorithm suite is not supported by the commitment policy

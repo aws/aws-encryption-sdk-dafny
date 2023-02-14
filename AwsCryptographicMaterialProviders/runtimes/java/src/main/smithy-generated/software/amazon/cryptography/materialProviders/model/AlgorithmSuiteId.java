@@ -8,12 +8,19 @@ import java.util.Objects;
 public class AlgorithmSuiteId {
   private final ESDKAlgorithmSuiteId ESDK;
 
+  private final DBEAlgorithmSuiteId DBE;
+
   protected AlgorithmSuiteId(BuilderImpl builder) {
     this.ESDK = builder.ESDK();
+    this.DBE = builder.DBE();
   }
 
   public ESDKAlgorithmSuiteId ESDK() {
     return this.ESDK;
+  }
+
+  public DBEAlgorithmSuiteId DBE() {
+    return this.DBE;
   }
 
   public Builder toBuilder() {
@@ -29,17 +36,24 @@ public class AlgorithmSuiteId {
 
     ESDKAlgorithmSuiteId ESDK();
 
+    Builder DBE(DBEAlgorithmSuiteId DBE);
+
+    DBEAlgorithmSuiteId DBE();
+
     AlgorithmSuiteId build();
   }
 
   static class BuilderImpl implements Builder {
     protected ESDKAlgorithmSuiteId ESDK;
 
+    protected DBEAlgorithmSuiteId DBE;
+
     protected BuilderImpl() {
     }
 
     protected BuilderImpl(AlgorithmSuiteId model) {
       this.ESDK = model.ESDK();
+      this.DBE = model.DBE();
     }
 
     public Builder ESDK(ESDKAlgorithmSuiteId ESDK) {
@@ -51,6 +65,15 @@ public class AlgorithmSuiteId {
       return this.ESDK;
     }
 
+    public Builder DBE(DBEAlgorithmSuiteId DBE) {
+      this.DBE = DBE;
+      return this;
+    }
+
+    public DBEAlgorithmSuiteId DBE() {
+      return this.DBE;
+    }
+
     public AlgorithmSuiteId build() {
       if (!onlyOneNonNull()) {
         throw new IllegalArgumentException("`AlgorithmSuiteId` is a Union. A Union MUST have one and only one value set.");
@@ -59,7 +82,7 @@ public class AlgorithmSuiteId {
     }
 
     private boolean onlyOneNonNull() {
-      Object[] allValues = {this.ESDK};
+      Object[] allValues = {this.ESDK, this.DBE};
       boolean haveOneNonNull = false;
       for (Object o : allValues) {
         if (Objects.nonNull(o)) {

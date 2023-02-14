@@ -155,6 +155,7 @@ module V1HeaderBody {
     );
 
     assert CorrectlyReadV1HeaderBody(buffer, Success(SuccessfulRead(body, frameLength.tail))) by {
+      assert WriteMessageFormatVersion(HeaderTypes.MessageFormatVersion.V1) <= buffer.bytes[buffer.start..];
       if IsV1ExpandedAADSection(buffer) {
         assert 0 == |body.encryptionContext|;
         assert messageId.tail.start + 4 == encryptionContext.tail.start;

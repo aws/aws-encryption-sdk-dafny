@@ -21,6 +21,10 @@ public class AlgorithmSuiteInfo {
 
   private final SignatureAlgorithm signature;
 
+  private final SymmetricSignatureAlgorithm symmetricSignature;
+
+  private final EdkWrappingAlgorithm edkWrapping;
+
   protected AlgorithmSuiteInfo(BuilderImpl builder) {
     this.id = builder.id();
     this.binaryId = builder.binaryId();
@@ -29,6 +33,8 @@ public class AlgorithmSuiteInfo {
     this.kdf = builder.kdf();
     this.commitment = builder.commitment();
     this.signature = builder.signature();
+    this.symmetricSignature = builder.symmetricSignature();
+    this.edkWrapping = builder.edkWrapping();
   }
 
   public AlgorithmSuiteId id() {
@@ -57,6 +63,14 @@ public class AlgorithmSuiteInfo {
 
   public SignatureAlgorithm signature() {
     return this.signature;
+  }
+
+  public SymmetricSignatureAlgorithm symmetricSignature() {
+    return this.symmetricSignature;
+  }
+
+  public EdkWrappingAlgorithm edkWrapping() {
+    return this.edkWrapping;
   }
 
   public Builder toBuilder() {
@@ -96,6 +110,14 @@ public class AlgorithmSuiteInfo {
 
     SignatureAlgorithm signature();
 
+    Builder symmetricSignature(SymmetricSignatureAlgorithm symmetricSignature);
+
+    SymmetricSignatureAlgorithm symmetricSignature();
+
+    Builder edkWrapping(EdkWrappingAlgorithm edkWrapping);
+
+    EdkWrappingAlgorithm edkWrapping();
+
     AlgorithmSuiteInfo build();
   }
 
@@ -114,6 +136,10 @@ public class AlgorithmSuiteInfo {
 
     protected SignatureAlgorithm signature;
 
+    protected SymmetricSignatureAlgorithm symmetricSignature;
+
+    protected EdkWrappingAlgorithm edkWrapping;
+
     protected BuilderImpl() {
     }
 
@@ -125,6 +151,8 @@ public class AlgorithmSuiteInfo {
       this.kdf = model.kdf();
       this.commitment = model.commitment();
       this.signature = model.signature();
+      this.symmetricSignature = model.symmetricSignature();
+      this.edkWrapping = model.edkWrapping();
     }
 
     public Builder id(AlgorithmSuiteId id) {
@@ -190,6 +218,24 @@ public class AlgorithmSuiteInfo {
       return this.signature;
     }
 
+    public Builder symmetricSignature(SymmetricSignatureAlgorithm symmetricSignature) {
+      this.symmetricSignature = symmetricSignature;
+      return this;
+    }
+
+    public SymmetricSignatureAlgorithm symmetricSignature() {
+      return this.symmetricSignature;
+    }
+
+    public Builder edkWrapping(EdkWrappingAlgorithm edkWrapping) {
+      this.edkWrapping = edkWrapping;
+      return this;
+    }
+
+    public EdkWrappingAlgorithm edkWrapping() {
+      return this.edkWrapping;
+    }
+
     public AlgorithmSuiteInfo build() {
       if (Objects.isNull(this.id()))  {
         throw new IllegalArgumentException("Missing value for required field `id`");
@@ -211,6 +257,12 @@ public class AlgorithmSuiteInfo {
       }
       if (Objects.isNull(this.signature()))  {
         throw new IllegalArgumentException("Missing value for required field `signature`");
+      }
+      if (Objects.isNull(this.symmetricSignature()))  {
+        throw new IllegalArgumentException("Missing value for required field `symmetricSignature`");
+      }
+      if (Objects.isNull(this.edkWrapping()))  {
+        throw new IllegalArgumentException("Missing value for required field `edkWrapping`");
       }
       return new AlgorithmSuiteInfo(this);
     }

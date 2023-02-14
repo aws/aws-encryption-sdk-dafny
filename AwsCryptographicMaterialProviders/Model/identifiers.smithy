@@ -3,12 +3,12 @@ namespace aws.cryptography.materialProviders
 /////////////
 // Commitment
 
-//= aws-encryption-sdk-specification/framework/commitment-policy.md#supported-library-commitment-policy-enum
+//= aws-encryption-sdk-specification/framework/commitment-policy.md#supported-format-commitment-policy-enum
 //= type=implication
 //# The Material Providers Library MUST provide
-//# a distinct commitment policy ENUM for each library.
+//# a distinct commitment policy ENUM for each format.
 
-//= aws-encryption-sdk-specification/framework/commitment-policy.md#supported-library-commitment-policy-enum
+//= aws-encryption-sdk-specification/framework/commitment-policy.md#supported-format-commitment-policy-enum
 //= type=implication
 //# | ESDK Commitment Policy ENUM     |
 //# | ------------------------------- |
@@ -33,7 +33,7 @@ string ESDKCommitmentPolicy
 
 //= aws-encryption-sdk-specification/framework/commitment-policy.md#supported-commitment-policy-enum
 //= type=implication
-//# This means that different libraries MAY have duplicate Library Commitment Policy ENUM.
+//# This means that different formats MAY have duplicate Format Commitment Policy ENUM.
 
 //= aws-encryption-sdk-specification/framework/commitment-policy.md#supported-commitment-policy-enum
 //= type=implication

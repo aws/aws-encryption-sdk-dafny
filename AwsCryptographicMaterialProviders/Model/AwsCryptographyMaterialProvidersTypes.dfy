@@ -26,6 +26,7 @@ include "../../StandardLibrary/src/Index.dfy"
 	| ALG_AES256_GCM_IV12_TAG16
  datatype AlgorithmSuiteId =
  | ESDK(ESDK: ESDKAlgorithmSuiteId)
+ | DBE(DBE: DBEAlgorithmSuiteId)
  datatype AlgorithmSuiteInfo = | AlgorithmSuiteInfo (
  nameonly id: AlgorithmSuiteId ,
  nameonly binaryId: seq<uint8> ,
@@ -33,7 +34,9 @@ include "../../StandardLibrary/src/Index.dfy"
  nameonly encrypt: Encrypt ,
  nameonly kdf: DerivationAlgorithm ,
  nameonly commitment: DerivationAlgorithm ,
- nameonly signature: SignatureAlgorithm
+ nameonly signature: SignatureAlgorithm ,
+ nameonly symmetricSignature: SymmetricSignatureAlgorithm ,
+ nameonly edkWrapping: EdkWrappingAlgorithm
  )
  class IAwsCryptographicMaterialProvidersClientCallHistory {
  ghost constructor() {
@@ -800,6 +803,9 @@ include "../../StandardLibrary/src/Index.dfy"
  ensures unchanged(History)
  
 }
+ datatype DBEAlgorithmSuiteId =
+	| ALG_AES_256_GCM_HKDF_SHA512_COMMIT_KEY_SYMSIG_HMAC_SHA384
+	| ALG_AES_256_GCM_HKDF_SHA512_COMMIT_KEY_ECDSA_P384_SYMSIG_HMAC_SHA384
  datatype DecryptionMaterials = | DecryptionMaterials (
  nameonly algorithmSuite: AlgorithmSuiteInfo ,
  nameonly encryptionContext: EncryptionContext ,
@@ -819,6 +825,9 @@ include "../../StandardLibrary/src/Index.dfy"
  | HKDF(HKDF: HKDF)
  | IDENTITY(IDENTITY: IDENTITY)
  | None(None: None)
+ datatype DIRECT_KEY_WRAPPING = | DIRECT_KEY_WRAPPING (
+ 
+ )
  datatype DiscoveryFilter = | DiscoveryFilter (
  nameonly accountIds: AccountIdList ,
  nameonly partition: string
@@ -826,6 +835,9 @@ include "../../StandardLibrary/src/Index.dfy"
  datatype ECDSA = | ECDSA (
  nameonly curve: AwsCryptographyPrimitivesTypes.ECDSASignatureAlgorithm
  )
+ datatype EdkWrappingAlgorithm =
+ | DIRECT_KEY_WRAPPING(DIRECT_KEY_WRAPPING: DIRECT_KEY_WRAPPING)
+ | IntermediateKeyWrapping(IntermediateKeyWrapping: IntermediateKeyWrapping)
  datatype Encrypt =
  | AES_GCM(AES_GCM: AwsCryptographyPrimitivesTypes.AES_GCM)
  datatype EncryptedDataKey = | EncryptedDataKey (
@@ -893,6 +905,11 @@ include "../../StandardLibrary/src/Index.dfy"
  nameonly encryptionContext: EncryptionContext ,
  nameonly signingKey: Option<Secret> ,
  nameonly verificationKey: Option<Secret>
+ )
+ datatype IntermediateKeyWrapping = | IntermediateKeyWrapping (
+ nameonly keyEncryptionKeyKdf: DerivationAlgorithm ,
+ nameonly macKeyKdf: DerivationAlgorithm ,
+ nameonly pdkEncryptAlgorithm: Encrypt
  )
  type KeyringList = seq<IKeyring>
  class IKeyringCallHistory {
@@ -1025,6 +1042,9 @@ include "../../StandardLibrary/src/Index.dfy"
  type Secret = seq<uint8>
  datatype SignatureAlgorithm =
  | ECDSA(ECDSA: ECDSA)
+ | None(None: None)
+ datatype SymmetricSignatureAlgorithm =
+ | HMAC(HMAC: AwsCryptographyPrimitivesTypes.DigestAlgorithm)
  | None(None: None)
  type Utf8Bytes = ValidUTF8Bytes
  datatype ValidateCommitmentPolicyOnDecryptInput = | ValidateCommitmentPolicyOnDecryptInput (

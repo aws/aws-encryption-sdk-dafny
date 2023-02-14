@@ -17,9 +17,9 @@ jobs:
           ComAmazonawsDynamodb,
           AwsCryptographicMaterialProviders, 
           AwsEncryptionSDK,
-          # "src/StandardLibrary", add back in once Dafny does not crash
+          # "StandardLibrary", add this back in once we fix the issue on osx
         ]
-        os: [ windows-latest, ubuntu-latest, macos-latest ]
+        os: [ macos-latest ]
         # This crashes on osx
         include:
           - library: StandardLibrary

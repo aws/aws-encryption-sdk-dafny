@@ -11,6 +11,8 @@ using System;
  private AWS.Cryptography.MaterialProviders.DerivationAlgorithm _kdf ;
  private AWS.Cryptography.MaterialProviders.DerivationAlgorithm _commitment ;
  private AWS.Cryptography.MaterialProviders.SignatureAlgorithm _signature ;
+ private AWS.Cryptography.MaterialProviders.SymmetricSignatureAlgorithm _symmetricSignature ;
+ private AWS.Cryptography.MaterialProviders.EdkWrappingAlgorithm _edkWrapping ;
  public AWS.Cryptography.MaterialProviders.AlgorithmSuiteId Id {
  get { return this._id; }
  set { this._id = value; }
@@ -60,6 +62,20 @@ using System;
  internal bool IsSetSignature () {
  return this._signature != null;
 }
+ public AWS.Cryptography.MaterialProviders.SymmetricSignatureAlgorithm SymmetricSignature {
+ get { return this._symmetricSignature; }
+ set { this._symmetricSignature = value; }
+}
+ internal bool IsSetSymmetricSignature () {
+ return this._symmetricSignature != null;
+}
+ public AWS.Cryptography.MaterialProviders.EdkWrappingAlgorithm EdkWrapping {
+ get { return this._edkWrapping; }
+ set { this._edkWrapping = value; }
+}
+ internal bool IsSetEdkWrapping () {
+ return this._edkWrapping != null;
+}
  public void Validate() {
  if (!IsSetId()) throw new System.ArgumentException("Missing value for required property 'Id'");
  if (!IsSetBinaryId()) throw new System.ArgumentException("Missing value for required property 'BinaryId'");
@@ -68,6 +84,8 @@ using System;
  if (!IsSetKdf()) throw new System.ArgumentException("Missing value for required property 'Kdf'");
  if (!IsSetCommitment()) throw new System.ArgumentException("Missing value for required property 'Commitment'");
  if (!IsSetSignature()) throw new System.ArgumentException("Missing value for required property 'Signature'");
+ if (!IsSetSymmetricSignature()) throw new System.ArgumentException("Missing value for required property 'SymmetricSignature'");
+ if (!IsSetEdkWrapping()) throw new System.ArgumentException("Missing value for required property 'EdkWrapping'");
 
 }
 }

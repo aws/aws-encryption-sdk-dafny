@@ -41,7 +41,7 @@ module SharedHeaderFunctions {
   }
 
   function method WriteESDKSuiteId(
-    suite: MPL.AlgorithmSuiteInfo
+    suite: ESDKAlgorithmSuite
   ):
     (ret: seq<uint8>)
   {
@@ -52,14 +52,16 @@ module SharedHeaderFunctions {
     buffer: ReadableBuffer,
     mpl: MaterialProviders.MaterialProvidersClient
   )
-    :(res: ReadCorrect<MPL.AlgorithmSuiteInfo>)
+    :(res: ReadCorrect<ESDKAlgorithmSuite>)
     ensures CorrectlyRead(buffer, res, WriteESDKSuiteId)
     ensures res.Success? ==> mpl.ValidAlgorithmSuiteInfo(res.value.data).Success?
   {
     var esdkSuiteIdBytes :- Read(buffer, 2);
     var suite :- mpl.GetAlgorithmSuiteInfo(esdkSuiteIdBytes.data).MapFailure(_ => Error("Algorithm suite ID not supported."));
     :- Need(suite.binaryId == esdkSuiteIdBytes.data, Error("Algorithm suite ID not supported."));
-    Success(SuccessfulRead(suite, esdkSuiteIdBytes.tail))
+    :- Need(suite.id.ESDK?, Error("Algorithm suite ID not supported."));
+    var esdkSuite: ESDKAlgorithmSuite := suite; // TODO Dafny has type troubles without this, explicitly use ESDKAlgorithmSuite var
+    Success(SuccessfulRead(esdkSuite, esdkSuiteIdBytes.tail))
   }
 
   /*

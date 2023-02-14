@@ -59,10 +59,17 @@ module HeaderTypes {
     }
   }
 
+  predicate ESDKAlgorithmSuite?(a: MPL.AlgorithmSuiteInfo) {
+    a.id.ESDK?
+  }
+
+  type ESDKAlgorithmSuite = a: MPL.AlgorithmSuiteInfo | ESDKAlgorithmSuite?(a)
+  witness *
+
   datatype HeaderBody =
     | V1HeaderBody(
       nameonly messageType: MessageType,
-      nameonly algorithmSuite: MPL.AlgorithmSuiteInfo,
+      nameonly algorithmSuite: ESDKAlgorithmSuite, // TODO add MUST to spec to ensure this stays true
       nameonly messageId: MessageId,
       nameonly encryptionContext: EncryptionContext.ESDKCanonicalEncryptionContext,
       nameonly encryptedDataKeys: ESDKEncryptedDataKeys,
@@ -71,7 +78,7 @@ module HeaderTypes {
       nameonly frameLength: uint32
     )
     | V2HeaderBody(
-      nameonly algorithmSuite: MPL.AlgorithmSuiteInfo,
+      nameonly algorithmSuite: ESDKAlgorithmSuite,
       nameonly messageId: MessageId,
       nameonly encryptionContext: EncryptionContext.ESDKCanonicalEncryptionContext,
       nameonly encryptedDataKeys: ESDKEncryptedDataKeys,
