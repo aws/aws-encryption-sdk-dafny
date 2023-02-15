@@ -687,6 +687,9 @@ public class ToNative {
     if (dafnyValue.is_ESDK()) {
       nativeBuilder.ESDK(ToNative.ESDKCommitmentPolicy(dafnyValue.dtor_ESDK()));
     }
+    if (dafnyValue.is_DBE()) {
+      nativeBuilder.DBE(ToNative.DBECommitmentPolicy(dafnyValue.dtor_DBE()));
+    }
     return nativeBuilder.build();
   }
 
@@ -804,5 +807,13 @@ public class ToNative {
     nativeBuilder.macKeyKdf(ToNative.DerivationAlgorithm(dafnyValue.dtor_macKeyKdf()));
     nativeBuilder.pdkEncryptAlgorithm(ToNative.Encrypt(dafnyValue.dtor_pdkEncryptAlgorithm()));
     return nativeBuilder.build();
+  }
+
+  public static DBECommitmentPolicy DBECommitmentPolicy(
+      Dafny.Aws.Cryptography.MaterialProviders.Types.DBECommitmentPolicy dafnyValue) {
+    if (dafnyValue.is_REQUIRE__ENCRYPT__REQUIRE__DECRYPT()) {
+      return DBECommitmentPolicy.REQUIRE_ENCRYPT_REQUIRE_DECRYPT;
+    }
+    throw new IllegalArgumentException("No entry of software.amazon.cryptography.materialProviders.model.DBECommitmentPolicy matches the input : " + dafnyValue);
   }
 }

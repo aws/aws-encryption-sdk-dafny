@@ -782,7 +782,13 @@ public class ToDafny {
 
   public static CommitmentPolicy CommitmentPolicy(
       software.amazon.cryptography.materialProviders.model.CommitmentPolicy nativeValue) {
-    return CommitmentPolicy.create(ToDafny.ESDKCommitmentPolicy(nativeValue.ESDK()));
+    if (Objects.nonNull(nativeValue.ESDK())) {
+      return CommitmentPolicy.create_ESDK(ToDafny.ESDKCommitmentPolicy(nativeValue.ESDK()));
+    }
+    if (Objects.nonNull(nativeValue.DBE())) {
+      return CommitmentPolicy.create_DBE(ToDafny.DBECommitmentPolicy(nativeValue.DBE()));
+    }
+    throw new IllegalArgumentException("Cannot convert " + nativeValue + " to Dafny.Aws.Cryptography.MaterialProviders.Types.CommitmentPolicy.");
   }
 
   public static DafnySequence<? extends DafnySequence<? extends Character>> AccountIdList(
@@ -910,5 +916,17 @@ public class ToDafny {
     Encrypt pdkEncryptAlgorithm;
     pdkEncryptAlgorithm = ToDafny.Encrypt(nativeValue.pdkEncryptAlgorithm());
     return new IntermediateKeyWrapping(keyEncryptionKeyKdf, macKeyKdf, pdkEncryptAlgorithm);
+  }
+
+  public static DBECommitmentPolicy DBECommitmentPolicy(
+      software.amazon.cryptography.materialProviders.model.DBECommitmentPolicy nativeValue) {
+    switch (nativeValue) {
+      case REQUIRE_ENCRYPT_REQUIRE_DECRYPT: {
+        return DBECommitmentPolicy.create(); // TODO Dafny converts datatypes with a single constructor in a different way than expected
+      }
+      default: {
+        throw new RuntimeException("Cannot convert " + nativeValue + " to Dafny.Aws.Cryptography.MaterialProviders.Types.DBECommitmentPolicy.");
+      }
+    }
   }
 }

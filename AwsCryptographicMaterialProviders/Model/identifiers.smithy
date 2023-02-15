@@ -31,6 +31,14 @@ namespace aws.cryptography.materialProviders
 ])
 string ESDKCommitmentPolicy
 
+@enum([
+  {
+    name: "REQUIRE_ENCRYPT_REQUIRE_DECRYPT",
+    value: "REQUIRE_ENCRYPT_REQUIRE_DECRYPT",
+  },
+])
+string DBECommitmentPolicy
+
 //= aws-encryption-sdk-specification/framework/commitment-policy.md#supported-commitment-policy-enum
 //= type=implication
 //# This means that different formats MAY have duplicate Format Commitment Policy ENUM.
@@ -41,7 +49,8 @@ string ESDKCommitmentPolicy
 //# a union ENUM for all distinct commitment policy ENUMs
 //# called the Commitment Policy ENUM.
 union CommitmentPolicy {
-  ESDK: ESDKCommitmentPolicy
+  ESDK: ESDKCommitmentPolicy,
+  DBE: DBECommitmentPolicy
 }
 
 //////////

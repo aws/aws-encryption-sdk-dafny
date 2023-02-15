@@ -8,12 +8,19 @@ import java.util.Objects;
 public class CommitmentPolicy {
   private final ESDKCommitmentPolicy ESDK;
 
+  private final DBECommitmentPolicy DBE;
+
   protected CommitmentPolicy(BuilderImpl builder) {
     this.ESDK = builder.ESDK();
+    this.DBE = builder.DBE();
   }
 
   public ESDKCommitmentPolicy ESDK() {
     return this.ESDK;
+  }
+
+  public DBECommitmentPolicy DBE() {
+    return this.DBE;
   }
 
   public Builder toBuilder() {
@@ -29,17 +36,24 @@ public class CommitmentPolicy {
 
     ESDKCommitmentPolicy ESDK();
 
+    Builder DBE(DBECommitmentPolicy DBE);
+
+    DBECommitmentPolicy DBE();
+
     CommitmentPolicy build();
   }
 
   static class BuilderImpl implements Builder {
     protected ESDKCommitmentPolicy ESDK;
 
+    protected DBECommitmentPolicy DBE;
+
     protected BuilderImpl() {
     }
 
     protected BuilderImpl(CommitmentPolicy model) {
       this.ESDK = model.ESDK();
+      this.DBE = model.DBE();
     }
 
     public Builder ESDK(ESDKCommitmentPolicy ESDK) {
@@ -51,6 +65,15 @@ public class CommitmentPolicy {
       return this.ESDK;
     }
 
+    public Builder DBE(DBECommitmentPolicy DBE) {
+      this.DBE = DBE;
+      return this;
+    }
+
+    public DBECommitmentPolicy DBE() {
+      return this.DBE;
+    }
+
     public CommitmentPolicy build() {
       if (!onlyOneNonNull()) {
         throw new IllegalArgumentException("`CommitmentPolicy` is a Union. A Union MUST have one and only one value set.");
@@ -59,7 +82,7 @@ public class CommitmentPolicy {
     }
 
     private boolean onlyOneNonNull() {
-      Object[] allValues = {this.ESDK};
+      Object[] allValues = {this.ESDK, this.DBE};
       boolean haveOneNonNull = false;
       for (Object o : allValues) {
         if (Objects.nonNull(o)) {

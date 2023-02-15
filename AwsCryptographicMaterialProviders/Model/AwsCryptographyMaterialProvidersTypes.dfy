@@ -620,6 +620,7 @@ include "../../StandardLibrary/src/Index.dfy"
 }
  datatype CommitmentPolicy =
  | ESDK(ESDK: ESDKCommitmentPolicy)
+ | DBE(DBE: DBECommitmentPolicy)
  datatype CreateAwsKmsDiscoveryKeyringInput = | CreateAwsKmsDiscoveryKeyringInput (
  nameonly kmsClient: ComAmazonawsKmsTypes.IKeyManagementServiceClient ,
  nameonly discoveryFilter: Option<DiscoveryFilter> ,
@@ -806,6 +807,8 @@ include "../../StandardLibrary/src/Index.dfy"
  datatype DBEAlgorithmSuiteId =
 	| ALG_AES_256_GCM_HKDF_SHA512_COMMIT_KEY_SYMSIG_HMAC_SHA384
 	| ALG_AES_256_GCM_HKDF_SHA512_COMMIT_KEY_ECDSA_P384_SYMSIG_HMAC_SHA384
+ datatype DBECommitmentPolicy =
+	| REQUIRE_ENCRYPT_REQUIRE_DECRYPT
  datatype DecryptionMaterials = | DecryptionMaterials (
  nameonly algorithmSuite: AlgorithmSuiteInfo ,
  nameonly encryptionContext: EncryptionContext ,
