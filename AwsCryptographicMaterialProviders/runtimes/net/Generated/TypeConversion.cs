@@ -21,7 +21,7 @@ throw new System.ArgumentException("Invalid AWS.Cryptography.MaterialProviders.A
  converted.ESDK = FromDafny_N3_aws__N12_cryptography__N17_materialProviders__S16_AlgorithmSuiteId__M4_ESDK(concrete.dtor_ESDK);
  return converted;
 } if (value.is_DBE) {
- converted.DBE = FromDafny_N3_aws__N12_cryptography__N17_materialProviders__S16_AlgorithmSuiteId__M5_DBE(concrete.dtor_DBE);
+ converted.DBE = FromDafny_N3_aws__N12_cryptography__N17_materialProviders__S16_AlgorithmSuiteId__M3_DBE(concrete.dtor_DBE);
  return converted;
 }
 throw new System.ArgumentException("Invalid AWS.Cryptography.MaterialProviders.AlgorithmSuiteId state");
@@ -30,7 +30,7 @@ throw new System.ArgumentException("Invalid AWS.Cryptography.MaterialProviders.A
  if (value.IsSetESDK()) {
  return Dafny.Aws.Cryptography.MaterialProviders.Types.AlgorithmSuiteId.create_ESDK(ToDafny_N3_aws__N12_cryptography__N17_materialProviders__S16_AlgorithmSuiteId__M4_ESDK(value.ESDK));
 } if (value.IsSetDBE()) {
- return Dafny.Aws.Cryptography.MaterialProviders.Types.AlgorithmSuiteId.create_DBE(ToDafny_N3_aws__N12_cryptography__N17_materialProviders__S16_AlgorithmSuiteId__M5_DBE(value.DBE));
+ return Dafny.Aws.Cryptography.MaterialProviders.Types.AlgorithmSuiteId.create_DBE(ToDafny_N3_aws__N12_cryptography__N17_materialProviders__S16_AlgorithmSuiteId__M3_DBE(value.DBE));
 }
 throw new System.ArgumentException("Invalid AWS.Cryptography.MaterialProviders.AlgorithmSuiteId state");
 }
@@ -65,12 +65,17 @@ throw new System.ArgumentException("Invalid AWS.Cryptography.MaterialProviders.A
  var converted = new AWS.Cryptography.MaterialProviders.CommitmentPolicy(); if (value.is_ESDK) {
  converted.ESDK = FromDafny_N3_aws__N12_cryptography__N17_materialProviders__S16_CommitmentPolicy__M4_ESDK(concrete.dtor_ESDK);
  return converted;
+} if (value.is_DBE) {
+ converted.DBE = FromDafny_N3_aws__N12_cryptography__N17_materialProviders__S16_CommitmentPolicy__M3_DBE(concrete.dtor_DBE);
+ return converted;
 }
 throw new System.ArgumentException("Invalid AWS.Cryptography.MaterialProviders.CommitmentPolicy state");
 }
  public static Dafny.Aws.Cryptography.MaterialProviders.Types._ICommitmentPolicy ToDafny_N3_aws__N12_cryptography__N17_materialProviders__S16_CommitmentPolicy (AWS.Cryptography.MaterialProviders.CommitmentPolicy value) {
  if (value.IsSetESDK()) {
- return Dafny.Aws.Cryptography.MaterialProviders.Types.CommitmentPolicy.create(ToDafny_N3_aws__N12_cryptography__N17_materialProviders__S16_CommitmentPolicy__M4_ESDK(value.ESDK));
+ return Dafny.Aws.Cryptography.MaterialProviders.Types.CommitmentPolicy.create_ESDK(ToDafny_N3_aws__N12_cryptography__N17_materialProviders__S16_CommitmentPolicy__M4_ESDK(value.ESDK));
+} if (value.IsSetDBE()) {
+ return Dafny.Aws.Cryptography.MaterialProviders.Types.CommitmentPolicy.create_DBE(ToDafny_N3_aws__N12_cryptography__N17_materialProviders__S16_CommitmentPolicy__M3_DBE(value.DBE));
 }
 throw new System.ArgumentException("Invalid AWS.Cryptography.MaterialProviders.CommitmentPolicy state");
 }
@@ -253,15 +258,23 @@ throw new System.ArgumentException("Invalid AWS.Cryptography.MaterialProviders.C
  System.IO.MemoryStream var_privateKey = value.IsSetPrivateKey() ? value.PrivateKey : (System.IO.MemoryStream) null;
  return new Dafny.Aws.Cryptography.MaterialProviders.Types.CreateRawRsaKeyringInput ( ToDafny_N3_aws__N12_cryptography__N17_materialProviders__S24_CreateRawRsaKeyringInput__M12_keyNamespace(value.KeyNamespace) , ToDafny_N3_aws__N12_cryptography__N17_materialProviders__S24_CreateRawRsaKeyringInput__M7_keyName(value.KeyName) , ToDafny_N3_aws__N12_cryptography__N17_materialProviders__S24_CreateRawRsaKeyringInput__M13_paddingScheme(value.PaddingScheme) , ToDafny_N3_aws__N12_cryptography__N17_materialProviders__S24_CreateRawRsaKeyringInput__M9_publicKey(var_publicKey) , ToDafny_N3_aws__N12_cryptography__N17_materialProviders__S24_CreateRawRsaKeyringInput__M10_privateKey(var_privateKey) ) ;
 }
- public static AWS.Cryptography.MaterialProviders.DBEAlgorithmSuiteId FromDafny_N3_aws__N12_cryptography__N17_materialProviders__S21_DBEAlgorithmSuiteId (Dafny.Aws.Cryptography.MaterialProviders.Types._IDBEAlgorithmSuiteId value) {
+ public static AWS.Cryptography.MaterialProviders.DBEAlgorithmSuiteId FromDafny_N3_aws__N12_cryptography__N17_materialProviders__S19_DBEAlgorithmSuiteId (Dafny.Aws.Cryptography.MaterialProviders.Types._IDBEAlgorithmSuiteId value) {
  if (value.is_ALG__AES__256__GCM__HKDF__SHA512__COMMIT__KEY__SYMSIG__HMAC__SHA384) return AWS.Cryptography.MaterialProviders.DBEAlgorithmSuiteId.ALG_AES_256_GCM_HKDF_SHA512_COMMIT_KEY_SYMSIG_HMAC_SHA384;
  if (value.is_ALG__AES__256__GCM__HKDF__SHA512__COMMIT__KEY__ECDSA__P384__SYMSIG__HMAC__SHA384) return AWS.Cryptography.MaterialProviders.DBEAlgorithmSuiteId.ALG_AES_256_GCM_HKDF_SHA512_COMMIT_KEY_ECDSA_P384_SYMSIG_HMAC_SHA384;
 throw new System.ArgumentException("Invalid AWS.Cryptography.MaterialProviders.DBEAlgorithmSuiteId value");
 }
- public static Dafny.Aws.Cryptography.MaterialProviders.Types._IDBEAlgorithmSuiteId ToDafny_N3_aws__N12_cryptography__N17_materialProviders__S21_DBEAlgorithmSuiteId (AWS.Cryptography.MaterialProviders.DBEAlgorithmSuiteId value) {
+ public static Dafny.Aws.Cryptography.MaterialProviders.Types._IDBEAlgorithmSuiteId ToDafny_N3_aws__N12_cryptography__N17_materialProviders__S19_DBEAlgorithmSuiteId (AWS.Cryptography.MaterialProviders.DBEAlgorithmSuiteId value) {
  if (AWS.Cryptography.MaterialProviders.DBEAlgorithmSuiteId.ALG_AES_256_GCM_HKDF_SHA512_COMMIT_KEY_SYMSIG_HMAC_SHA384.Equals(value)) return Dafny.Aws.Cryptography.MaterialProviders.Types.DBEAlgorithmSuiteId.create_ALG__AES__256__GCM__HKDF__SHA512__COMMIT__KEY__SYMSIG__HMAC__SHA384();
  if (AWS.Cryptography.MaterialProviders.DBEAlgorithmSuiteId.ALG_AES_256_GCM_HKDF_SHA512_COMMIT_KEY_ECDSA_P384_SYMSIG_HMAC_SHA384.Equals(value)) return Dafny.Aws.Cryptography.MaterialProviders.Types.DBEAlgorithmSuiteId.create_ALG__AES__256__GCM__HKDF__SHA512__COMMIT__KEY__ECDSA__P384__SYMSIG__HMAC__SHA384();
 throw new System.ArgumentException("Invalid AWS.Cryptography.MaterialProviders.DBEAlgorithmSuiteId value");
+}
+ public static AWS.Cryptography.MaterialProviders.DBECommitmentPolicy FromDafny_N3_aws__N12_cryptography__N17_materialProviders__S19_DBECommitmentPolicy (Dafny.Aws.Cryptography.MaterialProviders.Types._IDBECommitmentPolicy value) {
+ if (value.is_REQUIRE__ENCRYPT__REQUIRE__DECRYPT) return AWS.Cryptography.MaterialProviders.DBECommitmentPolicy.REQUIRE_ENCRYPT_REQUIRE_DECRYPT;
+throw new System.ArgumentException("Invalid AWS.Cryptography.MaterialProviders.DBECommitmentPolicy value");
+}
+ public static Dafny.Aws.Cryptography.MaterialProviders.Types._IDBECommitmentPolicy ToDafny_N3_aws__N12_cryptography__N17_materialProviders__S19_DBECommitmentPolicy (AWS.Cryptography.MaterialProviders.DBECommitmentPolicy value) {
+ if (AWS.Cryptography.MaterialProviders.DBECommitmentPolicy.REQUIRE_ENCRYPT_REQUIRE_DECRYPT.Equals(value)) return Dafny.Aws.Cryptography.MaterialProviders.Types.DBECommitmentPolicy.create();
+throw new System.ArgumentException("Invalid AWS.Cryptography.MaterialProviders.DBECommitmentPolicy value");
 }
  public static AWS.Cryptography.MaterialProviders.DecryptionMaterials FromDafny_N3_aws__N12_cryptography__N17_materialProviders__S19_DecryptionMaterials (Dafny.Aws.Cryptography.MaterialProviders.Types._IDecryptionMaterials value) {
  Dafny.Aws.Cryptography.MaterialProviders.Types.DecryptionMaterials concrete = (Dafny.Aws.Cryptography.MaterialProviders.Types.DecryptionMaterials)value; AWS.Cryptography.MaterialProviders.DecryptionMaterials converted = new AWS.Cryptography.MaterialProviders.DecryptionMaterials();  converted.AlgorithmSuite = (AWS.Cryptography.MaterialProviders.AlgorithmSuiteInfo) FromDafny_N3_aws__N12_cryptography__N17_materialProviders__S19_DecryptionMaterials__M14_algorithmSuite(concrete._algorithmSuite);
@@ -661,11 +674,11 @@ throw new System.ArgumentException("Invalid AWS.Cryptography.MaterialProviders.S
  public static Dafny.Aws.Cryptography.MaterialProviders.Types._IESDKAlgorithmSuiteId ToDafny_N3_aws__N12_cryptography__N17_materialProviders__S16_AlgorithmSuiteId__M4_ESDK (AWS.Cryptography.MaterialProviders.ESDKAlgorithmSuiteId value) {
  return ToDafny_N3_aws__N12_cryptography__N17_materialProviders__S20_ESDKAlgorithmSuiteId(value);
 }
- public static AWS.Cryptography.MaterialProviders.DBEAlgorithmSuiteId FromDafny_N3_aws__N12_cryptography__N17_materialProviders__S16_AlgorithmSuiteId__M5_DBE (Dafny.Aws.Cryptography.MaterialProviders.Types._IDBEAlgorithmSuiteId value) {
- return FromDafny_N3_aws__N12_cryptography__N17_materialProviders__S21_DBEAlgorithmSuiteId(value);
+ public static AWS.Cryptography.MaterialProviders.DBEAlgorithmSuiteId FromDafny_N3_aws__N12_cryptography__N17_materialProviders__S16_AlgorithmSuiteId__M3_DBE (Dafny.Aws.Cryptography.MaterialProviders.Types._IDBEAlgorithmSuiteId value) {
+ return FromDafny_N3_aws__N12_cryptography__N17_materialProviders__S19_DBEAlgorithmSuiteId(value);
 }
- public static Dafny.Aws.Cryptography.MaterialProviders.Types._IDBEAlgorithmSuiteId ToDafny_N3_aws__N12_cryptography__N17_materialProviders__S16_AlgorithmSuiteId__M5_DBE (AWS.Cryptography.MaterialProviders.DBEAlgorithmSuiteId value) {
- return ToDafny_N3_aws__N12_cryptography__N17_materialProviders__S21_DBEAlgorithmSuiteId(value);
+ public static Dafny.Aws.Cryptography.MaterialProviders.Types._IDBEAlgorithmSuiteId ToDafny_N3_aws__N12_cryptography__N17_materialProviders__S16_AlgorithmSuiteId__M3_DBE (AWS.Cryptography.MaterialProviders.DBEAlgorithmSuiteId value) {
+ return ToDafny_N3_aws__N12_cryptography__N17_materialProviders__S19_DBEAlgorithmSuiteId(value);
 }
  public static AWS.Cryptography.MaterialProviders.AlgorithmSuiteId FromDafny_N3_aws__N12_cryptography__N17_materialProviders__S18_AlgorithmSuiteInfo__M2_id (Dafny.Aws.Cryptography.MaterialProviders.Types._IAlgorithmSuiteId value) {
  return FromDafny_N3_aws__N12_cryptography__N17_materialProviders__S16_AlgorithmSuiteId(value);
@@ -732,6 +745,12 @@ throw new System.ArgumentException("Invalid AWS.Cryptography.MaterialProviders.S
 }
  public static Dafny.Aws.Cryptography.MaterialProviders.Types._IESDKCommitmentPolicy ToDafny_N3_aws__N12_cryptography__N17_materialProviders__S16_CommitmentPolicy__M4_ESDK (AWS.Cryptography.MaterialProviders.ESDKCommitmentPolicy value) {
  return ToDafny_N3_aws__N12_cryptography__N17_materialProviders__S20_ESDKCommitmentPolicy(value);
+}
+ public static AWS.Cryptography.MaterialProviders.DBECommitmentPolicy FromDafny_N3_aws__N12_cryptography__N17_materialProviders__S16_CommitmentPolicy__M3_DBE (Dafny.Aws.Cryptography.MaterialProviders.Types._IDBECommitmentPolicy value) {
+ return FromDafny_N3_aws__N12_cryptography__N17_materialProviders__S19_DBECommitmentPolicy(value);
+}
+ public static Dafny.Aws.Cryptography.MaterialProviders.Types._IDBECommitmentPolicy ToDafny_N3_aws__N12_cryptography__N17_materialProviders__S16_CommitmentPolicy__M3_DBE (AWS.Cryptography.MaterialProviders.DBECommitmentPolicy value) {
+ return ToDafny_N3_aws__N12_cryptography__N17_materialProviders__S19_DBECommitmentPolicy(value);
 }
  public static Amazon.KeyManagementService.IAmazonKeyManagementService FromDafny_N3_aws__N12_cryptography__N17_materialProviders__S33_CreateAwsKmsDiscoveryKeyringInput__M9_kmsClient (Dafny.Com.Amazonaws.Kms.Types.IKeyManagementServiceClient value) {
  return FromDafny_N3_aws__N12_cryptography__N17_materialProviders__S18_KmsClientReference(value);

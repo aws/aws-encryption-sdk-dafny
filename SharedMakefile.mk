@@ -19,7 +19,7 @@
 # AWS_SDK_CMD -- the `--aws-sdk` command to generate AWS SDK style interfaces
 
 # This evaluates to the local path _of this file_
-ESDK_ROOT := $(realpath $(dir $(realpath $(lastword $(MAKEFILE_LIST)))))
+ESDK_ROOT := $(abspath $(dir $(abspath $(lastword $(MAKEFILE_LIST)))))
 # This evaluates to the path of the current working directory
 PROJECT_ROOT = $(PWD)
 
@@ -43,9 +43,6 @@ dafny-reportgenerator:
 
 # Dafny helper targets
 
-# In windows `patsubst` is unhappy with $(VAR)%
-# So rather than use $(ESDK_ROOT)% we use $(PROJECT_ROOT)/../%
-# 
 # The `$(OUT)` and $(TARGET) variables are problematic.
 # Idealy they are different for every target call.
 # However the way make evaluates variables
@@ -70,7 +67,7 @@ transpile_implementation:
 		-useRuntimeLib \
 		-out $(OUT) \
 		./src/Index.dfy \
-		$(patsubst %, -library:$(PROJECT_ROOT)/../%/src/Index.dfy, $(LIBRARIES))
+		$(patsubst %, -library:$(ESDK_ROOT)/%/src/Index.dfy, $(LIBRARIES))
 
 transpile_test:
 	dafny \
@@ -85,10 +82,8 @@ transpile_test:
 		`find ./test -name '*.dfy'` \
 		-library:src/Index.dfy
 
-# In windows `patsubst` is unhappy with $(VAR)%
-# So rather than use $(ESDK_ROOT)% we use $(PROJECT_ROOT)/../%
 transpile_dependencies:
-	$(patsubst %, $(MAKE) -C $(PROJECT_ROOT)/../% transpile_implementation_$(LANG);, $(LIBRARIES))
+	$(patsubst %, $(MAKE) -C $(ESDK_ROOT)/% transpile_implementation_$(LANG);, $(LIBRARIES))
 
 ########################## Code-Gen targets
 
@@ -104,7 +99,7 @@ polymorph_code_gen :
 	--output-dotnet $(PROJECT_ROOT)/runtimes/net/Generated/ \
 	--model $(PROJECT_ROOT)/Model \
 	--dependent-model $(ESDK_ROOT)/model \
-	$(patsubst %, --dependent-model $(PROJECT_ROOT)/../%/Model, $(filter-out StandardLibrary,$(LIBRARIES))) \
+	$(patsubst %, --dependent-model $(ESDK_ROOT)/%/Model, $(filter-out StandardLibrary,$(LIBRARIES))) \
 	--namespace $(SMITHY_NAMESPACE) \
 	$(AWS_SDK_CMD)";
 
@@ -170,10 +165,8 @@ _mv_test_java:
 transpile_dependencies_java: LANG=java
 transpile_dependencies_java: transpile_dependencies
 
-# In windows `patsubst` is unhappy with $(VAR)%
-# So rather than use $(ESDK_ROOT)% we use $(PROJECT_ROOT)/../%
 mvn_local_deploy_dependencies:
-	$(patsubst %, $(MAKE) -C $(PROJECT_ROOT)/../% mvn_local_deploy;, $(LIBRARIES))
+	$(patsubst %, $(MAKE) -C $(ESDK_ROOT)/% mvn_local_deploy;, $(LIBRARIES))
 
 # The Java MUST all exist already through the transpile step.
 mvn_local_deploy:

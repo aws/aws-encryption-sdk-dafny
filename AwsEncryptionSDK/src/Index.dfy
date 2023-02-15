@@ -13,7 +13,7 @@ module {:extern "Dafny.qwer.EncryptionSdk" } qwer.EncryptionSdk refines Abstract
   function method DefaultAwsEncryptionSdkConfig(): AwsEncryptionSdkConfig
   {
     AwsEncryptionSdkConfig(
-      commitmentPolicy := Some(AwsCryptographyMaterialProvidersTypes.REQUIRE_ENCRYPT_REQUIRE_DECRYPT),
+      commitmentPolicy := Some(AwsCryptographyMaterialProvidersTypes.ESDKCommitmentPolicy.REQUIRE_ENCRYPT_REQUIRE_DECRYPT),
       maxEncryptedDataKeys := None
     )
   }
@@ -31,7 +31,7 @@ module {:extern "Dafny.qwer.EncryptionSdk" } qwer.EncryptionSdk refines Abstract
     var internalConfig := Operations.Config(
       crypto := crypto,
       mpl := mpl,
-      commitmentPolicy := config.commitmentPolicy.UnwrapOr(AwsCryptographyMaterialProvidersTypes.REQUIRE_ENCRYPT_REQUIRE_DECRYPT),
+      commitmentPolicy := config.commitmentPolicy.UnwrapOr(AwsCryptographyMaterialProvidersTypes.ESDKCommitmentPolicy.REQUIRE_ENCRYPT_REQUIRE_DECRYPT),
       maxEncryptedDataKeys := config.maxEncryptedDataKeys
 
     );
