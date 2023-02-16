@@ -50,12 +50,12 @@ module {:extern "AesKdfCtr"} AesKdfCtr {
 
   // Derive 'length' bytes of new key from the key and nonce
   // by encrypting 'length' zeros with AES/CTR
-  method {:extern "AesKdfCtrStream"} Stream (
+  function method {:extern "AesKdfCtrStream"} Stream (
     nonce: seq<uint8>,
     key: seq<uint8>,
     length: uint32
   )
-    returns (res : Result<seq<uint8>, Types.OpaqueError>)
+    : (res : Result<seq<uint8>, Types.OpaqueError>)
     requires |nonce| == 16
     requires |key| == 32
     ensures res.Success? ==> |res.value| == length as nat
