@@ -78,7 +78,8 @@ module Materials {
       encryptionContext := encryptionContext,
       encryptedDataKeys := [],
       plaintextDataKey := Option.None,
-      signingKey := input.signingKey
+      signingKey := input.signingKey,
+      symmetricSigningKeys := if suite.symmetricSignature.None? then None else Some([])
     ))
   }
 
@@ -119,7 +120,8 @@ module Materials {
       encryptionContext := input.encryptionContext,
       algorithmSuite := suite,
       plaintextDataKey := Wrappers.None,
-      verificationKey := verificationKey
+      verificationKey := verificationKey,
+      symmetricSigningKey := Wrappers.None
     ))
   }
 
@@ -162,6 +164,12 @@ module Materials {
     && newMat.plaintextDataKey.Some?
     && |oldMat.encryptedDataKeys| <= |newMat.encryptedDataKeys|
     && multiset(oldMat.encryptedDataKeys) <= multiset(newMat.encryptedDataKeys)
+    && (
+        !oldMat.algorithmSuite.symmetricSignature.None?
+      ==>
+        && newMat.symmetricSigningKeys.Some?
+        && oldMat.symmetricSigningKeys.Some?
+        && multiset(oldMat.symmetricSigningKeys.value) <= multiset(newMat.symmetricSigningKeys.value))
     && ValidEncryptionMaterials(oldMat)
     && ValidEncryptionMaterials(newMat)
   }
@@ -219,6 +227,16 @@ module Materials {
     //# NOT include the reserved key `aws-crypto-public-key`.
     && (suite.signature.ECDSA? <==> encryptionMaterials.signingKey.Some?)
     && (!suite.signature.None? <==> EC_PUBLIC_KEY_FIELD in encryptionMaterials.encryptionContext)
+    //= aws-encryption-sdk-specification/framework/structures.md#symmetric-signing-keys
+    //= type=implication
+    //# If the algorithm suite does contain a symmetric signing algorithm, this list MUST have length equal to the [encrypted data key list](#encrypted-data-keys).
+    && (suite.symmetricSignature.HMAC? && encryptionMaterials.symmetricSigningKeys.Some? ==> 
+       |encryptionMaterials.symmetricSigningKeys.value| == |encryptionMaterials.encryptedDataKeys|)
+    && (suite.symmetricSignature.HMAC? ==> encryptionMaterials.symmetricSigningKeys.Some?)
+    //= aws-encryption-sdk-specification/framework/structures.md#symmetric-signing-keys
+    //= type=implication
+    //# If the algorithm suite does not contain a symmetric signing algorithm, this list MUST NOT be included in the materials.
+    && (suite.symmetricSignature.None? ==> encryptionMaterials.symmetricSigningKeys.None?)
   }
 
   predicate method EncryptionMaterialsHasPlaintextDataKey(encryptionMaterials: Types.EncryptionMaterials) {
@@ -229,10 +247,12 @@ module Materials {
 
   function method EncryptionMaterialAddEncryptedDataKeys(
     encryptionMaterials: Types.EncryptionMaterials,
-    encryptedDataKeysToAdd: Types.EncryptedDataKeyList
+    encryptedDataKeysToAdd: Types.EncryptedDataKeyList,
+    symmetricSigningKeysToAdd: Option<Types.SymmetricSigningKeyList>
   )
     :(res: Result<Types.EncryptionMaterials, Types.Error>)
     requires |encryptedDataKeysToAdd| > 0
+    requires symmetricSigningKeysToAdd.Some? ==> |encryptedDataKeysToAdd| == |symmetricSigningKeysToAdd.value|
     ensures res.Success?
     ==>
       && EncryptionMaterialsHasPlaintextDataKey(res.value)
@@ -242,22 +262,36 @@ module Materials {
       Types.InvalidEncryptionMaterialsTransition( message := "Attempt to modify invalid encryption material."));
     :- Need(encryptionMaterials.plaintextDataKey.Some?,
       Types.InvalidEncryptionMaterialsTransition( message := "Adding encrypted data keys without a plaintext data key is not allowed."));
+    :- Need(symmetricSigningKeysToAdd.None? ==> encryptionMaterials.algorithmSuite.symmetricSignature.None?,
+      Types.InvalidEncryptionMaterialsTransition( message := "Adding encrypted data keys without a symmetric signing key when using symmetric signing is not allowed."));
+    :- Need(symmetricSigningKeysToAdd.Some? ==> !encryptionMaterials.algorithmSuite.symmetricSignature.None?,
+      Types.InvalidEncryptionMaterialsTransition( message := "Adding encrypted data keys with a symmetric signing key when not using symmetric signing is not allowed."));
+
+    var symmetricSigningKeys :=
+      if symmetricSigningKeysToAdd.None? then
+        encryptionMaterials.symmetricSigningKeys
+      else
+        Some(encryptionMaterials.symmetricSigningKeys.value + symmetricSigningKeysToAdd.value);
+
     Success(Types.EncryptionMaterials(
       plaintextDataKey := encryptionMaterials.plaintextDataKey,
       encryptedDataKeys := encryptionMaterials.encryptedDataKeys + encryptedDataKeysToAdd,
       algorithmSuite := encryptionMaterials.algorithmSuite,
       encryptionContext := encryptionMaterials.encryptionContext,
-      signingKey := encryptionMaterials.signingKey
+      signingKey := encryptionMaterials.signingKey,
+      symmetricSigningKeys := symmetricSigningKeys
     ))
   }
 
   function method EncryptionMaterialAddDataKey(
     encryptionMaterials: Types.EncryptionMaterials,
     plaintextDataKey: seq<uint8>,
-    encryptedDataKeysToAdd: Types.EncryptedDataKeyList
+    encryptedDataKeysToAdd: Types.EncryptedDataKeyList,
+    symmetricSigningKeysToAdd: Option<Types.SymmetricSigningKeyList>
   )
     :(res: Result<Types.EncryptionMaterials, Types.Error>)
     requires |encryptedDataKeysToAdd| > 0
+    requires symmetricSigningKeysToAdd.Some? ==> |encryptedDataKeysToAdd| == |symmetricSigningKeysToAdd.value|
     ensures res.Success?
     ==>
       && EncryptionMaterialsHasPlaintextDataKey(res.value)
@@ -270,13 +304,24 @@ module Materials {
       Types.InvalidEncryptionMaterialsTransition( message :="Attempt to modify plaintextDataKey."));
     :- Need(AS.GetEncryptKeyLength(suite) as nat == |plaintextDataKey|,
       Types.InvalidEncryptionMaterialsTransition( message := "plaintextDataKey does not match Algorithm Suite specification."));
+    :- Need(symmetricSigningKeysToAdd.None? == encryptionMaterials.algorithmSuite.symmetricSignature.None?,
+      Types.InvalidEncryptionMaterialsTransition( message := "Adding encrypted data keys without a symmetric signing key when using symmetric signing is not allowed."));
+    :- Need(symmetricSigningKeysToAdd.Some? == !encryptionMaterials.algorithmSuite.symmetricSignature.None?,
+      Types.InvalidEncryptionMaterialsTransition( message := "Adding encrypted data keys with a symmetric signing key when not using symmetric signing is not allowed."));
+    
+    var symmetricSigningKeys :=
+      if symmetricSigningKeysToAdd.None? then
+        encryptionMaterials.symmetricSigningKeys
+      else
+        Some(encryptionMaterials.symmetricSigningKeys.value + symmetricSigningKeysToAdd.value);
 
     Success(Types.EncryptionMaterials(
       plaintextDataKey := Some(plaintextDataKey),
       encryptedDataKeys := encryptionMaterials.encryptedDataKeys + encryptedDataKeysToAdd,
       algorithmSuite := encryptionMaterials.algorithmSuite,
       encryptionContext := encryptionMaterials.encryptionContext,
-      signingKey := encryptionMaterials.signingKey
+      signingKey := encryptionMaterials.signingKey,
+      symmetricSigningKeys := symmetricSigningKeys
     ))
   }
 
@@ -299,6 +344,7 @@ module Materials {
     && newMat.verificationKey == oldMat.verificationKey
     && oldMat.plaintextDataKey.None?
     && newMat.plaintextDataKey.Some?
+    && oldMat.symmetricSigningKey.None?
     && ValidDecryptionMaterials(oldMat)
     && ValidDecryptionMaterials(newMat)
   }
@@ -343,11 +389,23 @@ module Materials {
     //# public-key`.
     && (suite.signature.ECDSA? <==> decryptionMaterials.verificationKey.Some?)
     && (!suite.signature.None? <==> EC_PUBLIC_KEY_FIELD in decryptionMaterials.encryptionContext)
+    //= aws-encryption-sdk-specification/framework/structures.md#symmetric-signing-key
+    //= type=implication
+    //# If the algorithm suite does contain a symmetric signing algorithm,
+    //# the symmetric signing key MUST also be included in the materials
+    //# if and only if the materials also include a [plaintext data key](#plaintext-data-key-1).
+    && (!suite.symmetricSignature.None? ==> (decryptionMaterials.plaintextDataKey.Some? <==> decryptionMaterials.symmetricSigningKey.Some?))
+    //= aws-encryption-sdk-specification/framework/structures.md#symmetric-signing-key
+    //= type=implication
+    //# If the algorithm suite does not contain a symmetric signing algorithm,
+    //# the symmetric signing key MUST NOT be included in the materials.
+    && (suite.symmetricSignature.None? ==> decryptionMaterials.symmetricSigningKey.None?)
   }
 
   function method DecryptionMaterialsAddDataKey(
     decryptionMaterials: Types.DecryptionMaterials,
-    plaintextDataKey: seq<uint8>
+    plaintextDataKey: seq<uint8>,
+    symmetricSigningKey: Option<seq<uint8>>
   )
     :(res: Result<Types.DecryptionMaterials, Types.Error>)
     ensures res.Success?
@@ -362,12 +420,17 @@ module Materials {
       Types.InvalidDecryptionMaterialsTransition( message := "Attempt to modify plaintextDataKey."));
     :- Need(AS.GetEncryptKeyLength(suite) as nat == |plaintextDataKey|,
       Types.InvalidDecryptionMaterialsTransition( message := "plaintextDataKey does not match Algorithm Suite specification."));
+    :- Need(symmetricSigningKey.Some? == !decryptionMaterials.algorithmSuite.symmetricSignature.None?,
+      Types.InvalidDecryptionMaterialsTransition( message := "symmetric signature key must be added with plaintextDataKey if using an algorithm suite with symmetric signing."));
+    :- Need(symmetricSigningKey.None? == decryptionMaterials.algorithmSuite.symmetricSignature.None?,
+      Types.InvalidDecryptionMaterialsTransition( message := "symmetric signature key cannot be added with plaintextDataKey if using an algorithm suite without symmetric signing."));
 
     Success(Types.DecryptionMaterials(
       plaintextDataKey := Some(plaintextDataKey),
       algorithmSuite := decryptionMaterials.algorithmSuite,
       encryptionContext := decryptionMaterials.encryptionContext,
-      verificationKey := decryptionMaterials.verificationKey
+      verificationKey := decryptionMaterials.verificationKey,
+      symmetricSigningKey := symmetricSigningKey
     ))
   }
 

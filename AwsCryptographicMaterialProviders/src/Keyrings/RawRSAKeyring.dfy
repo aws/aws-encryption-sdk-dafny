@@ -188,6 +188,11 @@ module RawRSAKeyring {
       var materials := input.materials;
       var suite := materials.algorithmSuite;
 
+      // TODO add support
+      :- Need(materials.algorithmSuite.symmetricSignature.None?,
+        Types.AwsCryptographicMaterialProvidersException(
+          message := "Symmetric Signatures not yet implemented."));
+
       // While this may be an unnecessary operation, it is more legiable to generate
       // and then maybe use this new plain text datakey then generate it in the if statement
       var generateBytesResult := cryptoPrimitives
@@ -254,9 +259,9 @@ module RawRSAKeyring {
       );
 
       var returnMaterials :- if materials.plaintextDataKey.None? then
-        Materials.EncryptionMaterialAddDataKey(materials, plaintextDataKey, [edk])
+        Materials.EncryptionMaterialAddDataKey(materials, plaintextDataKey, [edk], None)
       else
-        Materials.EncryptionMaterialAddEncryptedDataKeys(materials, [edk]);
+        Materials.EncryptionMaterialAddEncryptedDataKeys(materials, [edk], None);
       return Success(Types.OnEncryptOutput(materials := returnMaterials));
     }
 
@@ -307,6 +312,11 @@ module RawRSAKeyring {
           message := "A RawRSAKeyring without a private key cannot provide OnEncrypt"));
 
       var materials := input.materials;
+      // TODO add support
+      :- Need(materials.algorithmSuite.symmetricSignature.None?,
+        Types.AwsCryptographicMaterialProvidersException(
+          message := "Symmetric Signatures not yet implemented."));
+
       :- Need(
         Materials.DecryptionMaterialsWithoutPlaintextDataKey(materials),
         Types.AwsCryptographicMaterialProvidersException(
@@ -337,7 +347,8 @@ module RawRSAKeyring {
             //#   plaintext data key.
             var returnMaterials :- Materials.DecryptionMaterialsAddDataKey(
               materials,
-              decryptResult.Extract()
+              decryptResult.Extract(),
+              None
             );
             return Success(Types.OnDecryptOutput(materials := returnMaterials));
           } else {

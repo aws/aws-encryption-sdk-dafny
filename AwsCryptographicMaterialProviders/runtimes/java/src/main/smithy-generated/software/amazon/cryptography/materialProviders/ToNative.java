@@ -231,6 +231,9 @@ public class ToNative {
     if (dafnyValue.dtor_verificationKey().is_Some()) {
       nativeBuilder.verificationKey(software.amazon.dafny.conversion.ToNative.Simple.ByteBuffer(dafnyValue.dtor_verificationKey().dtor_value()));
     }
+    if (dafnyValue.dtor_symmetricSigningKey().is_Some()) {
+      nativeBuilder.symmetricSigningKey(software.amazon.dafny.conversion.ToNative.Simple.ByteBuffer(dafnyValue.dtor_symmetricSigningKey().dtor_value()));
+    }
     return nativeBuilder.build();
   }
 
@@ -421,6 +424,9 @@ public class ToNative {
     }
     if (dafnyValue.dtor_signingKey().is_Some()) {
       nativeBuilder.signingKey(software.amazon.dafny.conversion.ToNative.Simple.ByteBuffer(dafnyValue.dtor_signingKey().dtor_value()));
+    }
+    if (dafnyValue.dtor_symmetricSigningKeys().is_Some()) {
+      nativeBuilder.symmetricSigningKeys(ToNative.SymmetricSigningKeyList(dafnyValue.dtor_symmetricSigningKeys().dtor_value()));
     }
     return nativeBuilder.build();
   }
@@ -815,5 +821,12 @@ public class ToNative {
       return DBECommitmentPolicy.REQUIRE_ENCRYPT_REQUIRE_DECRYPT;
     }
     throw new IllegalArgumentException("No entry of software.amazon.cryptography.materialProviders.model.DBECommitmentPolicy matches the input : " + dafnyValue);
+  }
+
+  public static List<ByteBuffer> SymmetricSigningKeyList(
+      DafnySequence<? extends DafnySequence<? extends Byte>> dafnyValue) {
+    return software.amazon.dafny.conversion.ToNative.Aggregate.GenericToList(
+        dafnyValue, 
+        software.amazon.dafny.conversion.ToNative.Simple::ByteBuffer);
   }
 }

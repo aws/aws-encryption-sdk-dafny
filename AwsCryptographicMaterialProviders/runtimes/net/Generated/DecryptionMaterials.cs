@@ -8,6 +8,7 @@ using System;
  private System.Collections.Generic.Dictionary<string, string> _encryptionContext ;
  private System.IO.MemoryStream _plaintextDataKey ;
  private System.IO.MemoryStream _verificationKey ;
+ private System.IO.MemoryStream _symmetricSigningKey ;
  public AWS.Cryptography.MaterialProviders.AlgorithmSuiteInfo AlgorithmSuite {
  get { return this._algorithmSuite; }
  set { this._algorithmSuite = value; }
@@ -35,6 +36,13 @@ using System;
 }
  internal bool IsSetVerificationKey () {
  return this._verificationKey != null;
+}
+ public System.IO.MemoryStream SymmetricSigningKey {
+ get { return this._symmetricSigningKey; }
+ set { this._symmetricSigningKey = value; }
+}
+ internal bool IsSetSymmetricSigningKey () {
+ return this._symmetricSigningKey != null;
 }
  public void Validate() {
  if (!IsSetAlgorithmSuite()) throw new System.ArgumentException("Missing value for required property 'AlgorithmSuite'");

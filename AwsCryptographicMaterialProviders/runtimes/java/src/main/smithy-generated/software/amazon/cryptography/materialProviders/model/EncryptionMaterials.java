@@ -19,12 +19,15 @@ public class EncryptionMaterials {
 
   private final ByteBuffer signingKey;
 
+  private final List<ByteBuffer> symmetricSigningKeys;
+
   protected EncryptionMaterials(BuilderImpl builder) {
     this.algorithmSuite = builder.algorithmSuite();
     this.encryptionContext = builder.encryptionContext();
     this.encryptedDataKeys = builder.encryptedDataKeys();
     this.plaintextDataKey = builder.plaintextDataKey();
     this.signingKey = builder.signingKey();
+    this.symmetricSigningKeys = builder.symmetricSigningKeys();
   }
 
   public AlgorithmSuiteInfo algorithmSuite() {
@@ -45,6 +48,10 @@ public class EncryptionMaterials {
 
   public ByteBuffer signingKey() {
     return this.signingKey;
+  }
+
+  public List<ByteBuffer> symmetricSigningKeys() {
+    return this.symmetricSigningKeys;
   }
 
   public Builder toBuilder() {
@@ -76,6 +83,10 @@ public class EncryptionMaterials {
 
     ByteBuffer signingKey();
 
+    Builder symmetricSigningKeys(List<ByteBuffer> symmetricSigningKeys);
+
+    List<ByteBuffer> symmetricSigningKeys();
+
     EncryptionMaterials build();
   }
 
@@ -90,6 +101,8 @@ public class EncryptionMaterials {
 
     protected ByteBuffer signingKey;
 
+    protected List<ByteBuffer> symmetricSigningKeys;
+
     protected BuilderImpl() {
     }
 
@@ -99,6 +112,7 @@ public class EncryptionMaterials {
       this.encryptedDataKeys = model.encryptedDataKeys();
       this.plaintextDataKey = model.plaintextDataKey();
       this.signingKey = model.signingKey();
+      this.symmetricSigningKeys = model.symmetricSigningKeys();
     }
 
     public Builder algorithmSuite(AlgorithmSuiteInfo algorithmSuite) {
@@ -144,6 +158,15 @@ public class EncryptionMaterials {
 
     public ByteBuffer signingKey() {
       return this.signingKey;
+    }
+
+    public Builder symmetricSigningKeys(List<ByteBuffer> symmetricSigningKeys) {
+      this.symmetricSigningKeys = symmetricSigningKeys;
+      return this;
+    }
+
+    public List<ByteBuffer> symmetricSigningKeys() {
+      return this.symmetricSigningKeys;
     }
 
     public EncryptionMaterials build() {

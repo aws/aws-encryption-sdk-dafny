@@ -322,7 +322,12 @@ module AwsKmsMrkKeyring {
           ciphertext := ciphertext
         );
 
-        var outputMaterials :- Materials.EncryptionMaterialAddDataKey(materials, plaintextDataKey, [edk]);
+        // TODO add support
+        :- Need(materials.algorithmSuite.symmetricSignature.None?,
+          Types.AwsCryptographicMaterialProvidersException(
+            message := "Symmetric Signatures not yet implemented."));
+
+        var outputMaterials :- Materials.EncryptionMaterialAddDataKey(materials, plaintextDataKey, [edk], None);
         var result := Types.OnEncryptOutput(
           materials := outputMaterials
         );
@@ -368,7 +373,7 @@ module AwsKmsMrkKeyring {
           ciphertext := encryptResponse.CiphertextBlob.value
         );
 
-        var outputMaterials :- Materials.EncryptionMaterialAddEncryptedDataKeys(materials, [edk]);
+        var outputMaterials :- Materials.EncryptionMaterialAddEncryptedDataKeys(materials, [edk], None);
         var result := Types.OnEncryptOutput(
           materials := outputMaterials
         );
@@ -667,8 +672,13 @@ module AwsKmsMrkKeyring {
         && decryptResponse.Plaintext.Some?
         && AlgorithmSuites.GetEncryptKeyLength(suite) as nat == |decryptResponse.Plaintext.value|
         , Types.AwsCryptographicMaterialProvidersException( message := "Invalid response from KMS Decrypt"));
+      
+      // TODO add support
+      :- Need(materials.algorithmSuite.symmetricSignature.None?,
+        Types.AwsCryptographicMaterialProvidersException(
+          message := "Symmetric Signatures not yet implemented."));
 
-      var result :- Materials.DecryptionMaterialsAddDataKey(materials, decryptResponse.Plaintext.value);
+      var result :- Materials.DecryptionMaterialsAddDataKey(materials, decryptResponse.Plaintext.value, None);
       return Success(result);
     }
   }

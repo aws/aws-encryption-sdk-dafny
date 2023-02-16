@@ -534,7 +534,12 @@ module AwsKmsDiscoveryKeyring {
         , Types.AwsCryptographicMaterialProvidersException(
             message := "Invalid response from KMS Decrypt"));
 
-      var result :- Materials.DecryptionMaterialsAddDataKey(materials, decryptResponse.Plaintext.value);
+      // TODO add support
+      :- Need(materials.algorithmSuite.symmetricSignature.None?,
+        Types.AwsCryptographicMaterialProvidersException(
+          message := "Symmetric Signatures not yet implemented."));
+
+      var result :- Materials.DecryptionMaterialsAddDataKey(materials, decryptResponse.Plaintext.value, None);
       return Success(result);
     }
   }

@@ -355,12 +355,17 @@ module AwsKmsKeyring {
         //# `Plaintext`.
         var plaintextDataKey := generateResponse.Plaintext.value;
 
+        // TODO add support
+        :- Need(materials.algorithmSuite.symmetricSignature.None?,
+          Types.AwsCryptographicMaterialProvidersException(
+            message := "Symmetric Signatures not yet implemented."));
+
         //= aws-encryption-sdk-specification/framework/aws-kms/aws-kms-keyring.md#onencrypt
         //# - MUST append a new [encrypted data key](../structures.md#encrypted-
         //# data-key) to the encrypted data key list in the [encryption
         //# materials](../structures.md#encryption-materials), constructed as
         //# follows:
-        var result :- Materials.EncryptionMaterialAddDataKey(materials, plaintextDataKey, [edk]);
+        var result :- Materials.EncryptionMaterialAddDataKey(materials, plaintextDataKey, [edk], None);
         return Success(Types.OnEncryptOutput(
           materials := result
         ));
@@ -423,7 +428,7 @@ module AwsKmsKeyring {
           ciphertext := encryptResponse.CiphertextBlob.value
         );
 
-        var result :- Materials.EncryptionMaterialAddEncryptedDataKeys(materials, [edk]);
+        var result :- Materials.EncryptionMaterialAddEncryptedDataKeys(materials, [edk], None);
         return Success(Types.OnEncryptOutput(
           materials := result
         ));
@@ -742,11 +747,16 @@ module AwsKmsKeyring {
         , Types.AwsCryptographicMaterialProvidersException(
           message := "Invalid response from KMS Decrypt"));
 
+      // TODO add support
+      :- Need(materials.algorithmSuite.symmetricSignature.None?,
+        Types.AwsCryptographicMaterialProvidersException(
+          message := "Symmetric Signatures not yet implemented."));
+
       //= aws-encryption-sdk-specification/framework/aws-kms/aws-kms-keyring.md#ondecrypt
       //# - MUST set the plaintext data key on the [decryption materials]
       //# (../structures.md#decryption-materials) as the response
       //# `Plaintext`.
-      var result :- Materials.DecryptionMaterialsAddDataKey(materials, decryptResponse.Plaintext.value);
+      var result :- Materials.DecryptionMaterialsAddDataKey(materials, decryptResponse.Plaintext.value, None);
       return Success(result);
     }
   }
