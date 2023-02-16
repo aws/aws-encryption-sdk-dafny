@@ -813,7 +813,8 @@ include "../../StandardLibrary/src/Index.dfy"
  nameonly algorithmSuite: AlgorithmSuiteInfo ,
  nameonly encryptionContext: EncryptionContext ,
  nameonly plaintextDataKey: Option<Secret> ,
- nameonly verificationKey: Option<Secret>
+ nameonly verificationKey: Option<Secret> ,
+ nameonly symmetricSigningKey: Option<Secret>
  )
  datatype DecryptMaterialsInput = | DecryptMaterialsInput (
  nameonly algorithmSuiteId: AlgorithmSuiteId ,
@@ -855,7 +856,8 @@ include "../../StandardLibrary/src/Index.dfy"
  nameonly encryptionContext: EncryptionContext ,
  nameonly encryptedDataKeys: EncryptedDataKeyList ,
  nameonly plaintextDataKey: Option<Secret> ,
- nameonly signingKey: Option<Secret>
+ nameonly signingKey: Option<Secret> ,
+ nameonly symmetricSigningKeys: Option<SymmetricSigningKeyList>
  )
  datatype ESDKAlgorithmSuiteId =
 	| ALG_AES_128_GCM_IV12_TAG16_NO_KDF
@@ -1049,6 +1051,7 @@ include "../../StandardLibrary/src/Index.dfy"
  datatype SymmetricSignatureAlgorithm =
  | HMAC(HMAC: AwsCryptographyPrimitivesTypes.DigestAlgorithm)
  | None(None: None)
+ type SymmetricSigningKeyList = seq<Secret>
  type Utf8Bytes = ValidUTF8Bytes
  datatype ValidateCommitmentPolicyOnDecryptInput = | ValidateCommitmentPolicyOnDecryptInput (
  nameonly algorithm: AlgorithmSuiteId ,

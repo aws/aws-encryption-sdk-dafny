@@ -9,6 +9,7 @@ using System;
  private System.Collections.Generic.List<AWS.Cryptography.MaterialProviders.EncryptedDataKey> _encryptedDataKeys ;
  private System.IO.MemoryStream _plaintextDataKey ;
  private System.IO.MemoryStream _signingKey ;
+ private System.Collections.Generic.List<System.IO.MemoryStream> _symmetricSigningKeys ;
  public AWS.Cryptography.MaterialProviders.AlgorithmSuiteInfo AlgorithmSuite {
  get { return this._algorithmSuite; }
  set { this._algorithmSuite = value; }
@@ -43,6 +44,13 @@ using System;
 }
  internal bool IsSetSigningKey () {
  return this._signingKey != null;
+}
+ public System.Collections.Generic.List<System.IO.MemoryStream> SymmetricSigningKeys {
+ get { return this._symmetricSigningKeys; }
+ set { this._symmetricSigningKeys = value; }
+}
+ internal bool IsSetSymmetricSigningKeys () {
+ return this._symmetricSigningKeys != null;
 }
  public void Validate() {
  if (!IsSetAlgorithmSuite()) throw new System.ArgumentException("Missing value for required property 'AlgorithmSuite'");

@@ -16,11 +16,14 @@ public class DecryptionMaterials {
 
   private final ByteBuffer verificationKey;
 
+  private final ByteBuffer symmetricSigningKey;
+
   protected DecryptionMaterials(BuilderImpl builder) {
     this.algorithmSuite = builder.algorithmSuite();
     this.encryptionContext = builder.encryptionContext();
     this.plaintextDataKey = builder.plaintextDataKey();
     this.verificationKey = builder.verificationKey();
+    this.symmetricSigningKey = builder.symmetricSigningKey();
   }
 
   public AlgorithmSuiteInfo algorithmSuite() {
@@ -37,6 +40,10 @@ public class DecryptionMaterials {
 
   public ByteBuffer verificationKey() {
     return this.verificationKey;
+  }
+
+  public ByteBuffer symmetricSigningKey() {
+    return this.symmetricSigningKey;
   }
 
   public Builder toBuilder() {
@@ -64,6 +71,10 @@ public class DecryptionMaterials {
 
     ByteBuffer verificationKey();
 
+    Builder symmetricSigningKey(ByteBuffer symmetricSigningKey);
+
+    ByteBuffer symmetricSigningKey();
+
     DecryptionMaterials build();
   }
 
@@ -76,6 +87,8 @@ public class DecryptionMaterials {
 
     protected ByteBuffer verificationKey;
 
+    protected ByteBuffer symmetricSigningKey;
+
     protected BuilderImpl() {
     }
 
@@ -84,6 +97,7 @@ public class DecryptionMaterials {
       this.encryptionContext = model.encryptionContext();
       this.plaintextDataKey = model.plaintextDataKey();
       this.verificationKey = model.verificationKey();
+      this.symmetricSigningKey = model.symmetricSigningKey();
     }
 
     public Builder algorithmSuite(AlgorithmSuiteInfo algorithmSuite) {
@@ -120,6 +134,15 @@ public class DecryptionMaterials {
 
     public ByteBuffer verificationKey() {
       return this.verificationKey;
+    }
+
+    public Builder symmetricSigningKey(ByteBuffer symmetricSigningKey) {
+      this.symmetricSigningKey = symmetricSigningKey;
+      return this;
+    }
+
+    public ByteBuffer symmetricSigningKey() {
+      return this.symmetricSigningKey;
     }
 
     public DecryptionMaterials build() {

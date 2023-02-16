@@ -172,6 +172,11 @@ module RawAESKeyring {
       var suite := materials.algorithmSuite;
       var aad :- EncryptionContextToAAD(materials.encryptionContext);
 
+      // TODO add support
+      :- Need(materials.algorithmSuite.symmetricSignature.None?,
+        Types.AwsCryptographicMaterialProvidersException(
+          message := "Symmetric Signatures not yet implemented."));
+
       // Random is a method, and transitions require both a key and encrypted data key
       var randomKeyResult := cryptoPrimitives
         .GenerateRandomBytes(Crypto.GenerateRandomBytesInput(length := GetEncryptKeyLength(suite)));
@@ -229,9 +234,9 @@ module RawAESKeyring {
       //# OnEncrypt MUST output the modified [encryption materials]
       //# (structures.md#encryption-materials).
       var nextMaterials :- if materials.plaintextDataKey.None? then
-        Materials.EncryptionMaterialAddDataKey(materials, plaintextDataKey, [edk])
+        Materials.EncryptionMaterialAddDataKey(materials, plaintextDataKey, [edk], None)
       else
-        Materials.EncryptionMaterialAddEncryptedDataKeys(materials, [edk]);
+        Materials.EncryptionMaterialAddEncryptedDataKeys(materials, [edk], None);
       var result := Types.OnEncryptOutput(materials := nextMaterials);
       return Success(result);
     }
@@ -295,6 +300,12 @@ module RawAESKeyring {
       ensures EncryptionContextToAAD(input.materials.encryptionContext).Failure? ==> output.Failure?
     {
       var materials := input.materials;
+
+      // TODO add support
+      :- Need(materials.algorithmSuite.symmetricSignature.None?,
+        Types.AwsCryptographicMaterialProvidersException(
+          message := "Symmetric Signatures not yet implemented."));
+
       :- Need(
         Materials.DecryptionMaterialsWithoutPlaintextDataKey(materials),
         Types.AwsCryptographicMaterialProvidersException( message := "Keyring received decryption materials that already contain a plaintext data key."));
@@ -331,7 +342,7 @@ module RawAESKeyring {
             //# If a decryption succeeds, this keyring MUST add the resulting
             //# plaintext data key to the decryption materials and return the
             //# modified materials.
-            var result :- Materials.DecryptionMaterialsAddDataKey(materials, ptKeyRes.Extract());
+            var result :- Materials.DecryptionMaterialsAddDataKey(materials, ptKeyRes.Extract(), None);
             var value := Types.OnDecryptOutput(materials := result);
             return Success(value);
           } else {

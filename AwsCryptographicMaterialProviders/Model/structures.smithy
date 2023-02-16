@@ -30,7 +30,9 @@ structure EncryptionMaterials {
 
   plaintextDataKey: Secret,
 
-  signingKey: Secret
+  signingKey: Secret,
+
+  symmetricSigningKeys: SymmetricSigningKeyList
 }
 
 structure DecryptionMaterials {
@@ -42,7 +44,12 @@ structure DecryptionMaterials {
 
   plaintextDataKey: Secret,
 
-  verificationKey: Secret
+  verificationKey: Secret,
+
+  //= aws-encryption-sdk-specification/framework/structures.md#symmetric-signing-key
+  //= type=implication
+  //# This value MUST be kept secret.
+  symmetricSigningKey: Secret
 }
 
 structure HierarchicalMaterials {
@@ -77,6 +84,13 @@ structure EncryptedDataKey {
 
 list EncryptedDataKeyList {
   member: EncryptedDataKey
+}
+
+list SymmetricSigningKeyList {
+  //= aws-encryption-sdk-specification/framework/structures.md#symmetric-signing-keys
+  //= type=implication
+  //# The value of keys in this list MUST be kept secret.
+  member: Secret
 }
 
 map EncryptionContext {

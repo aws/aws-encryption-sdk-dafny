@@ -235,7 +235,11 @@ public class ToDafny {
     verificationKey = Objects.nonNull(nativeValue.verificationKey()) ?
         Option.create_Some(software.amazon.dafny.conversion.ToDafny.Simple.ByteSequence(nativeValue.verificationKey()))
         : Option.create_None();
-    return new DecryptionMaterials(algorithmSuite, encryptionContext, plaintextDataKey, verificationKey);
+    Option<DafnySequence<? extends Byte>> symmetricSigningKey;
+    symmetricSigningKey = Objects.nonNull(nativeValue.symmetricSigningKey()) ?
+        Option.create_Some(software.amazon.dafny.conversion.ToDafny.Simple.ByteSequence(nativeValue.symmetricSigningKey()))
+        : Option.create_None();
+    return new DecryptionMaterials(algorithmSuite, encryptionContext, plaintextDataKey, verificationKey, symmetricSigningKey);
   }
 
   public static InitializeDecryptionMaterialsInput InitializeDecryptionMaterialsInput(
@@ -443,7 +447,11 @@ public class ToDafny {
     signingKey = Objects.nonNull(nativeValue.signingKey()) ?
         Option.create_Some(software.amazon.dafny.conversion.ToDafny.Simple.ByteSequence(nativeValue.signingKey()))
         : Option.create_None();
-    return new EncryptionMaterials(algorithmSuite, encryptionContext, encryptedDataKeys, plaintextDataKey, signingKey);
+    Option<DafnySequence<? extends DafnySequence<? extends Byte>>> symmetricSigningKeys;
+    symmetricSigningKeys = Objects.nonNull(nativeValue.symmetricSigningKeys()) ?
+        Option.create_Some(ToDafny.SymmetricSigningKeyList(nativeValue.symmetricSigningKeys()))
+        : Option.create_None();
+    return new EncryptionMaterials(algorithmSuite, encryptionContext, encryptedDataKeys, plaintextDataKey, signingKey, symmetricSigningKeys);
   }
 
   public static None None(software.amazon.cryptography.materialProviders.model.None nativeValue) {
@@ -928,5 +936,13 @@ public class ToDafny {
         throw new RuntimeException("Cannot convert " + nativeValue + " to Dafny.Aws.Cryptography.MaterialProviders.Types.DBECommitmentPolicy.");
       }
     }
+  }
+
+  public static DafnySequence<? extends DafnySequence<? extends Byte>> SymmetricSigningKeyList(
+      List<ByteBuffer> nativeValue) {
+    return software.amazon.dafny.conversion.ToDafny.Aggregate.GenericToSequence(
+        nativeValue, 
+        software.amazon.dafny.conversion.ToDafny.Simple::ByteSequence, 
+        DafnySequence._typeDescriptor(TypeDescriptor.BYTE));
   }
 }

@@ -280,12 +280,14 @@ throw new System.ArgumentException("Invalid AWS.Cryptography.MaterialProviders.D
  Dafny.Aws.Cryptography.MaterialProviders.Types.DecryptionMaterials concrete = (Dafny.Aws.Cryptography.MaterialProviders.Types.DecryptionMaterials)value; AWS.Cryptography.MaterialProviders.DecryptionMaterials converted = new AWS.Cryptography.MaterialProviders.DecryptionMaterials();  converted.AlgorithmSuite = (AWS.Cryptography.MaterialProviders.AlgorithmSuiteInfo) FromDafny_N3_aws__N12_cryptography__N17_materialProviders__S19_DecryptionMaterials__M14_algorithmSuite(concrete._algorithmSuite);
   converted.EncryptionContext = (System.Collections.Generic.Dictionary<string, string>) FromDafny_N3_aws__N12_cryptography__N17_materialProviders__S19_DecryptionMaterials__M17_encryptionContext(concrete._encryptionContext);
  if (concrete._plaintextDataKey.is_Some) converted.PlaintextDataKey = (System.IO.MemoryStream) FromDafny_N3_aws__N12_cryptography__N17_materialProviders__S19_DecryptionMaterials__M16_plaintextDataKey(concrete._plaintextDataKey);
- if (concrete._verificationKey.is_Some) converted.VerificationKey = (System.IO.MemoryStream) FromDafny_N3_aws__N12_cryptography__N17_materialProviders__S19_DecryptionMaterials__M15_verificationKey(concrete._verificationKey); return converted;
+ if (concrete._verificationKey.is_Some) converted.VerificationKey = (System.IO.MemoryStream) FromDafny_N3_aws__N12_cryptography__N17_materialProviders__S19_DecryptionMaterials__M15_verificationKey(concrete._verificationKey);
+ if (concrete._symmetricSigningKey.is_Some) converted.SymmetricSigningKey = (System.IO.MemoryStream) FromDafny_N3_aws__N12_cryptography__N17_materialProviders__S19_DecryptionMaterials__M19_symmetricSigningKey(concrete._symmetricSigningKey); return converted;
 }
  public static Dafny.Aws.Cryptography.MaterialProviders.Types._IDecryptionMaterials ToDafny_N3_aws__N12_cryptography__N17_materialProviders__S19_DecryptionMaterials (AWS.Cryptography.MaterialProviders.DecryptionMaterials value) {
  System.IO.MemoryStream var_plaintextDataKey = value.IsSetPlaintextDataKey() ? value.PlaintextDataKey : (System.IO.MemoryStream) null;
  System.IO.MemoryStream var_verificationKey = value.IsSetVerificationKey() ? value.VerificationKey : (System.IO.MemoryStream) null;
- return new Dafny.Aws.Cryptography.MaterialProviders.Types.DecryptionMaterials ( ToDafny_N3_aws__N12_cryptography__N17_materialProviders__S19_DecryptionMaterials__M14_algorithmSuite(value.AlgorithmSuite) , ToDafny_N3_aws__N12_cryptography__N17_materialProviders__S19_DecryptionMaterials__M17_encryptionContext(value.EncryptionContext) , ToDafny_N3_aws__N12_cryptography__N17_materialProviders__S19_DecryptionMaterials__M16_plaintextDataKey(var_plaintextDataKey) , ToDafny_N3_aws__N12_cryptography__N17_materialProviders__S19_DecryptionMaterials__M15_verificationKey(var_verificationKey) ) ;
+ System.IO.MemoryStream var_symmetricSigningKey = value.IsSetSymmetricSigningKey() ? value.SymmetricSigningKey : (System.IO.MemoryStream) null;
+ return new Dafny.Aws.Cryptography.MaterialProviders.Types.DecryptionMaterials ( ToDafny_N3_aws__N12_cryptography__N17_materialProviders__S19_DecryptionMaterials__M14_algorithmSuite(value.AlgorithmSuite) , ToDafny_N3_aws__N12_cryptography__N17_materialProviders__S19_DecryptionMaterials__M17_encryptionContext(value.EncryptionContext) , ToDafny_N3_aws__N12_cryptography__N17_materialProviders__S19_DecryptionMaterials__M16_plaintextDataKey(var_plaintextDataKey) , ToDafny_N3_aws__N12_cryptography__N17_materialProviders__S19_DecryptionMaterials__M15_verificationKey(var_verificationKey) , ToDafny_N3_aws__N12_cryptography__N17_materialProviders__S19_DecryptionMaterials__M19_symmetricSigningKey(var_symmetricSigningKey) ) ;
 }
  public static AWS.Cryptography.MaterialProviders.DecryptMaterialsInput FromDafny_N3_aws__N12_cryptography__N17_materialProviders__S21_DecryptMaterialsInput (Dafny.Aws.Cryptography.MaterialProviders.Types._IDecryptMaterialsInput value) {
  Dafny.Aws.Cryptography.MaterialProviders.Types.DecryptMaterialsInput concrete = (Dafny.Aws.Cryptography.MaterialProviders.Types.DecryptMaterialsInput)value; AWS.Cryptography.MaterialProviders.DecryptMaterialsInput converted = new AWS.Cryptography.MaterialProviders.DecryptMaterialsInput();  converted.AlgorithmSuiteId = (AWS.Cryptography.MaterialProviders.AlgorithmSuiteId) FromDafny_N3_aws__N12_cryptography__N17_materialProviders__S21_DecryptMaterialsInput__M16_algorithmSuiteId(concrete._algorithmSuiteId);
@@ -366,12 +368,14 @@ throw new System.ArgumentException("Invalid AWS.Cryptography.MaterialProviders.E
   converted.EncryptionContext = (System.Collections.Generic.Dictionary<string, string>) FromDafny_N3_aws__N12_cryptography__N17_materialProviders__S19_EncryptionMaterials__M17_encryptionContext(concrete._encryptionContext);
   converted.EncryptedDataKeys = (System.Collections.Generic.List<AWS.Cryptography.MaterialProviders.EncryptedDataKey>) FromDafny_N3_aws__N12_cryptography__N17_materialProviders__S19_EncryptionMaterials__M17_encryptedDataKeys(concrete._encryptedDataKeys);
  if (concrete._plaintextDataKey.is_Some) converted.PlaintextDataKey = (System.IO.MemoryStream) FromDafny_N3_aws__N12_cryptography__N17_materialProviders__S19_EncryptionMaterials__M16_plaintextDataKey(concrete._plaintextDataKey);
- if (concrete._signingKey.is_Some) converted.SigningKey = (System.IO.MemoryStream) FromDafny_N3_aws__N12_cryptography__N17_materialProviders__S19_EncryptionMaterials__M10_signingKey(concrete._signingKey); return converted;
+ if (concrete._signingKey.is_Some) converted.SigningKey = (System.IO.MemoryStream) FromDafny_N3_aws__N12_cryptography__N17_materialProviders__S19_EncryptionMaterials__M10_signingKey(concrete._signingKey);
+ if (concrete._symmetricSigningKeys.is_Some) converted.SymmetricSigningKeys = (System.Collections.Generic.List<System.IO.MemoryStream>) FromDafny_N3_aws__N12_cryptography__N17_materialProviders__S19_EncryptionMaterials__M20_symmetricSigningKeys(concrete._symmetricSigningKeys); return converted;
 }
  public static Dafny.Aws.Cryptography.MaterialProviders.Types._IEncryptionMaterials ToDafny_N3_aws__N12_cryptography__N17_materialProviders__S19_EncryptionMaterials (AWS.Cryptography.MaterialProviders.EncryptionMaterials value) {
  System.IO.MemoryStream var_plaintextDataKey = value.IsSetPlaintextDataKey() ? value.PlaintextDataKey : (System.IO.MemoryStream) null;
  System.IO.MemoryStream var_signingKey = value.IsSetSigningKey() ? value.SigningKey : (System.IO.MemoryStream) null;
- return new Dafny.Aws.Cryptography.MaterialProviders.Types.EncryptionMaterials ( ToDafny_N3_aws__N12_cryptography__N17_materialProviders__S19_EncryptionMaterials__M14_algorithmSuite(value.AlgorithmSuite) , ToDafny_N3_aws__N12_cryptography__N17_materialProviders__S19_EncryptionMaterials__M17_encryptionContext(value.EncryptionContext) , ToDafny_N3_aws__N12_cryptography__N17_materialProviders__S19_EncryptionMaterials__M17_encryptedDataKeys(value.EncryptedDataKeys) , ToDafny_N3_aws__N12_cryptography__N17_materialProviders__S19_EncryptionMaterials__M16_plaintextDataKey(var_plaintextDataKey) , ToDafny_N3_aws__N12_cryptography__N17_materialProviders__S19_EncryptionMaterials__M10_signingKey(var_signingKey) ) ;
+ System.Collections.Generic.List<System.IO.MemoryStream> var_symmetricSigningKeys = value.IsSetSymmetricSigningKeys() ? value.SymmetricSigningKeys : (System.Collections.Generic.List<System.IO.MemoryStream>) null;
+ return new Dafny.Aws.Cryptography.MaterialProviders.Types.EncryptionMaterials ( ToDafny_N3_aws__N12_cryptography__N17_materialProviders__S19_EncryptionMaterials__M14_algorithmSuite(value.AlgorithmSuite) , ToDafny_N3_aws__N12_cryptography__N17_materialProviders__S19_EncryptionMaterials__M17_encryptionContext(value.EncryptionContext) , ToDafny_N3_aws__N12_cryptography__N17_materialProviders__S19_EncryptionMaterials__M17_encryptedDataKeys(value.EncryptedDataKeys) , ToDafny_N3_aws__N12_cryptography__N17_materialProviders__S19_EncryptionMaterials__M16_plaintextDataKey(var_plaintextDataKey) , ToDafny_N3_aws__N12_cryptography__N17_materialProviders__S19_EncryptionMaterials__M10_signingKey(var_signingKey) , ToDafny_N3_aws__N12_cryptography__N17_materialProviders__S19_EncryptionMaterials__M20_symmetricSigningKeys(var_symmetricSigningKeys) ) ;
 }
  public static AWS.Cryptography.MaterialProviders.ESDKAlgorithmSuiteId FromDafny_N3_aws__N12_cryptography__N17_materialProviders__S20_ESDKAlgorithmSuiteId (Dafny.Aws.Cryptography.MaterialProviders.Types._IESDKAlgorithmSuiteId value) {
  if (value.is_ALG__AES__128__GCM__IV12__TAG16__NO__KDF) return AWS.Cryptography.MaterialProviders.ESDKAlgorithmSuiteId.ALG_AES_128_GCM_IV12_TAG16_NO_KDF;
@@ -1118,6 +1122,12 @@ throw new System.ArgumentException("Invalid AWS.Cryptography.MaterialProviders.S
  public static Wrappers_Compile._IOption<Dafny.ISequence<byte>> ToDafny_N3_aws__N12_cryptography__N17_materialProviders__S19_DecryptionMaterials__M15_verificationKey (System.IO.MemoryStream value) {
  return value == null ? Wrappers_Compile.Option<Dafny.ISequence<byte>>.create_None() : Wrappers_Compile.Option<Dafny.ISequence<byte>>.create_Some(ToDafny_N3_aws__N12_cryptography__N17_materialProviders__S6_Secret((System.IO.MemoryStream) value));
 }
+ public static System.IO.MemoryStream FromDafny_N3_aws__N12_cryptography__N17_materialProviders__S19_DecryptionMaterials__M19_symmetricSigningKey (Wrappers_Compile._IOption<Dafny.ISequence<byte>> value) {
+ return value.is_None ? (System.IO.MemoryStream) null : FromDafny_N3_aws__N12_cryptography__N17_materialProviders__S6_Secret(value.Extract());
+}
+ public static Wrappers_Compile._IOption<Dafny.ISequence<byte>> ToDafny_N3_aws__N12_cryptography__N17_materialProviders__S19_DecryptionMaterials__M19_symmetricSigningKey (System.IO.MemoryStream value) {
+ return value == null ? Wrappers_Compile.Option<Dafny.ISequence<byte>>.create_None() : Wrappers_Compile.Option<Dafny.ISequence<byte>>.create_Some(ToDafny_N3_aws__N12_cryptography__N17_materialProviders__S6_Secret((System.IO.MemoryStream) value));
+}
  public static AWS.Cryptography.MaterialProviders.AlgorithmSuiteId FromDafny_N3_aws__N12_cryptography__N17_materialProviders__S21_DecryptMaterialsInput__M16_algorithmSuiteId (Dafny.Aws.Cryptography.MaterialProviders.Types._IAlgorithmSuiteId value) {
  return FromDafny_N3_aws__N12_cryptography__N17_materialProviders__S16_AlgorithmSuiteId(value);
 }
@@ -1213,6 +1223,12 @@ throw new System.ArgumentException("Invalid AWS.Cryptography.MaterialProviders.S
 }
  public static Wrappers_Compile._IOption<Dafny.ISequence<byte>> ToDafny_N3_aws__N12_cryptography__N17_materialProviders__S19_EncryptionMaterials__M10_signingKey (System.IO.MemoryStream value) {
  return value == null ? Wrappers_Compile.Option<Dafny.ISequence<byte>>.create_None() : Wrappers_Compile.Option<Dafny.ISequence<byte>>.create_Some(ToDafny_N3_aws__N12_cryptography__N17_materialProviders__S6_Secret((System.IO.MemoryStream) value));
+}
+ public static System.Collections.Generic.List<System.IO.MemoryStream> FromDafny_N3_aws__N12_cryptography__N17_materialProviders__S19_EncryptionMaterials__M20_symmetricSigningKeys (Wrappers_Compile._IOption<Dafny.ISequence<Dafny.ISequence<byte>>> value) {
+ return value.is_None ? (System.Collections.Generic.List<System.IO.MemoryStream>) null : FromDafny_N3_aws__N12_cryptography__N17_materialProviders__S23_SymmetricSigningKeyList(value.Extract());
+}
+ public static Wrappers_Compile._IOption<Dafny.ISequence<Dafny.ISequence<byte>>> ToDafny_N3_aws__N12_cryptography__N17_materialProviders__S19_EncryptionMaterials__M20_symmetricSigningKeys (System.Collections.Generic.List<System.IO.MemoryStream> value) {
+ return value == null ? Wrappers_Compile.Option<Dafny.ISequence<Dafny.ISequence<byte>>>.create_None() : Wrappers_Compile.Option<Dafny.ISequence<Dafny.ISequence<byte>>>.create_Some(ToDafny_N3_aws__N12_cryptography__N17_materialProviders__S23_SymmetricSigningKeyList((System.Collections.Generic.List<System.IO.MemoryStream>) value));
 }
  public static System.IO.MemoryStream FromDafny_N3_aws__N12_cryptography__N17_materialProviders__S26_GetAlgorithmSuiteInfoInput__M8_binaryId (Dafny.ISequence<byte> value) {
  return FromDafny_N6_smithy__N3_api__S4_Blob(value);
@@ -1654,6 +1670,12 @@ return new Keyring(value);
 
  return new Dafny.Aws.Cryptography.Primitives.Types.AES__GCM ( ToDafny_N3_aws__N12_cryptography__N10_primitives__S7_AES_GCM__M9_keyLength(value.KeyLength) , ToDafny_N3_aws__N12_cryptography__N10_primitives__S7_AES_GCM__M9_tagLength(value.TagLength) , ToDafny_N3_aws__N12_cryptography__N10_primitives__S7_AES_GCM__M8_ivLength(value.IvLength) ) ;
 }
+ public static System.Collections.Generic.List<System.IO.MemoryStream> FromDafny_N3_aws__N12_cryptography__N17_materialProviders__S23_SymmetricSigningKeyList (Dafny.ISequence<Dafny.ISequence<byte>> value) {
+ return new System.Collections.Generic.List<System.IO.MemoryStream>(value.Elements.Select(FromDafny_N3_aws__N12_cryptography__N17_materialProviders__S23_SymmetricSigningKeyList__M6_member));
+}
+ public static Dafny.ISequence<Dafny.ISequence<byte>> ToDafny_N3_aws__N12_cryptography__N17_materialProviders__S23_SymmetricSigningKeyList (System.Collections.Generic.List<System.IO.MemoryStream> value) {
+ return Dafny.Sequence<Dafny.ISequence<byte>>.FromArray(value.Select(ToDafny_N3_aws__N12_cryptography__N17_materialProviders__S23_SymmetricSigningKeyList__M6_member).ToArray());
+}
  public static AWS.Cryptography.MaterialProviders.ECDSA FromDafny_N3_aws__N12_cryptography__N17_materialProviders__S5_ECDSA (Dafny.Aws.Cryptography.MaterialProviders.Types._IECDSA value) {
  Dafny.Aws.Cryptography.MaterialProviders.Types.ECDSA concrete = (Dafny.Aws.Cryptography.MaterialProviders.Types.ECDSA)value; AWS.Cryptography.MaterialProviders.ECDSA converted = new AWS.Cryptography.MaterialProviders.ECDSA();  converted.Curve = (AWS.Cryptography.Primitives.ECDSASignatureAlgorithm) FromDafny_N3_aws__N12_cryptography__N17_materialProviders__S5_ECDSA__M5_curve(concrete._curve); return converted;
 }
@@ -1788,6 +1810,12 @@ throw new System.ArgumentException("Invalid AWS.Cryptography.Primitives.DigestAl
 }
  public static int ToDafny_N3_aws__N12_cryptography__N10_primitives__S7_AES_GCM__M8_ivLength (int value) {
  return ToDafny_N3_aws__N12_cryptography__N10_primitives__S9_Uint8Bits(value);
+}
+ public static System.IO.MemoryStream FromDafny_N3_aws__N12_cryptography__N17_materialProviders__S23_SymmetricSigningKeyList__M6_member (Dafny.ISequence<byte> value) {
+ return FromDafny_N3_aws__N12_cryptography__N17_materialProviders__S6_Secret(value);
+}
+ public static Dafny.ISequence<byte> ToDafny_N3_aws__N12_cryptography__N17_materialProviders__S23_SymmetricSigningKeyList__M6_member (System.IO.MemoryStream value) {
+ return ToDafny_N3_aws__N12_cryptography__N17_materialProviders__S6_Secret(value);
 }
  public static AWS.Cryptography.Primitives.ECDSASignatureAlgorithm FromDafny_N3_aws__N12_cryptography__N17_materialProviders__S5_ECDSA__M5_curve (Dafny.Aws.Cryptography.Primitives.Types._IECDSASignatureAlgorithm value) {
  return FromDafny_N3_aws__N12_cryptography__N10_primitives__S23_ECDSASignatureAlgorithm(value);
