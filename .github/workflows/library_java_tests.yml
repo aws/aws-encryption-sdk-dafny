@@ -84,7 +84,7 @@ jobs:
         if: matrix.library == 'ComAmazonawsKms' || matrix.library == 'AwsCryptographicMaterialProviders'
         with:
           aws-region: us-west-2
-          role-to-assume: arn:aws:iam::405437749609:role/Github-OICD-for-private-aws-encryption-sdk-da-Role-15BEGAP519YZV
+          role-to-assume: arn:aws:iam::370957321024:role/GitHub-CI-ESDK-Dafny-Role-us-west-2
           role-session-name: JavaTests
 
       - name: Test ${{ matrix.library }}

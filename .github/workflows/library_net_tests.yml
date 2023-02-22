@@ -39,7 +39,7 @@ jobs:
         uses: aws-actions/configure-aws-credentials@v1
         with:
           aws-region: us-west-2
-          role-to-assume: arn:aws:iam::405437749609:role/Github-OICD-for-private-aws-encryption-sdk-da-Role-15BEGAP519YZV
+          role-to-assume: arn:aws:iam::370957321024:role/GitHub-CI-ESDK-Dafny-Role-us-west-2
           role-session-name: NetTests
 
       - uses: actions/checkout@v3
