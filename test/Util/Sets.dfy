@@ -7,7 +7,7 @@ include "../../src/Util/Sets.dfy"
 module TestSeqReaderReadElements {
   import opened StandardLibrary
   import opened UInt = StandardLibrary.UInt
-  import opened Sets
+  import opened SortedSets
 
   method {:test} TestSetToOrderedSequenceEmpty() {
     var output := ComputeSetToOrderedSequence({}, UInt8Less);
