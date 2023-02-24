@@ -8,7 +8,6 @@ include "SerializeFunctions.dfy"
 module EncryptionContext {
   import Seq
   import StandardLibrary
-  import Sets
   import opened SerializableTypes
   import MPL = AwsCryptographyMaterialProvidersTypes
   import opened StandardLibrary.UInt

@@ -7,7 +7,7 @@ include "../src/Sets.dfy"
 module TestSeqReaderReadElements {
   import opened StandardLibrary
   import opened UInt = StandardLibrary.UInt
-  import opened Sets
+  import opened SortedSets
 
   predicate method UInt8Greater(x : uint8, y : uint8) {
     y < x
