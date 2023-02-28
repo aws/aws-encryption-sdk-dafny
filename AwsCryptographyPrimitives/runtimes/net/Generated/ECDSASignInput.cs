@@ -11,21 +11,21 @@ using System;
  get { return this._signatureAlgorithm; }
  set { this._signatureAlgorithm = value; }
 }
- internal bool IsSetSignatureAlgorithm () {
+ public bool IsSetSignatureAlgorithm () {
  return this._signatureAlgorithm != null;
 }
  public System.IO.MemoryStream SigningKey {
  get { return this._signingKey; }
  set { this._signingKey = value; }
 }
- internal bool IsSetSigningKey () {
+ public bool IsSetSigningKey () {
  return this._signingKey != null;
 }
  public System.IO.MemoryStream Message {
  get { return this._message; }
  set { this._message = value; }
 }
- internal bool IsSetMessage () {
+ public bool IsSetMessage () {
  return this._message != null;
 }
  public void Validate() {

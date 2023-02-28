@@ -5,13 +5,16 @@ import Dafny.Aws.Cryptography.Primitives.Types.Error;
 import Wrappers_Compile.Result;
 import dafny.Array;
 import dafny.DafnySequence;
+import org.bouncycastle.util.Bytes;
 import software.amazon.cryptography.primitives.ToDafny;
 import software.amazon.cryptography.primitives.model.AwsCryptographicPrimitivesError;
 
 import javax.crypto.Mac;
+import javax.crypto.ShortBufferException;
 import javax.crypto.spec.SecretKeySpec;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
+import java.util.Collections;
 
 public class HMac extends _ExternBase_HMac {
 

@@ -5,6 +5,7 @@ using System;
 using System.Collections.Immutable;
 using Wrappers_Compile;
 using Dafny.Aws.Cryptography.Primitives.Types;
+using Org.BouncyCastle.Math;
 using ibyteseq = Dafny.ISequence<byte>;
 using byteseq = Dafny.Sequence<byte>;
 using _IDigestAlgorithm = Dafny.Aws.Cryptography.Primitives.Types._IDigestAlgorithm;
@@ -87,5 +88,6 @@ namespace HMAC {
             hmac.DoFinal(output, 0);
             return byteseq.FromArray(output);
         }
+        
     }
 }

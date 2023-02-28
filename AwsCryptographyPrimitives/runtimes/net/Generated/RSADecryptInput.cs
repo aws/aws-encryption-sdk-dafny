@@ -11,21 +11,21 @@ using System;
  get { return this._padding; }
  set { this._padding = value; }
 }
- internal bool IsSetPadding () {
+ public bool IsSetPadding () {
  return this._padding != null;
 }
  public System.IO.MemoryStream PrivateKey {
  get { return this._privateKey; }
  set { this._privateKey = value; }
 }
- internal bool IsSetPrivateKey () {
+ public bool IsSetPrivateKey () {
  return this._privateKey != null;
 }
  public System.IO.MemoryStream CipherText {
  get { return this._cipherText; }
  set { this._cipherText = value; }
 }
- internal bool IsSetCipherText () {
+ public bool IsSetCipherText () {
  return this._cipherText != null;
 }
  public void Validate() {

@@ -10,14 +10,14 @@ using System;
  get { return this._strength.GetValueOrDefault(); }
  set { this._strength = value; }
 }
- internal bool IsSetStrength () {
+ public bool IsSetStrength () {
  return this._strength.HasValue;
 }
  public System.IO.MemoryStream Pem {
  get { return this._pem; }
  set { this._pem = value; }
 }
- internal bool IsSetPem () {
+ public bool IsSetPem () {
  return this._pem != null;
 }
  public void Validate() {

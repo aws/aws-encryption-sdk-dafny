@@ -5,6 +5,7 @@ include "../Model/AwsCryptographyPrimitivesTypes.dfy"
 include "Random.dfy"
 include "WrappedHMAC.dfy"
 include "WrappedHKDF.dfy"
+include "./KDF/KdfCtr.dfy"
 include "AESEncryption.dfy"
 include "Digest.dfy"
 include "RSAEncryption.dfy"
@@ -17,6 +18,7 @@ module AwsCryptographyPrimitivesOperations refines AbstractAwsCryptographyPrimit
   import WrappedHMAC
   import WrappedHKDF
   import Signature
+  import KdfCtr
   import RSAEncryption
 
   datatype Config = Config
@@ -88,6 +90,32 @@ module AwsCryptographyPrimitivesOperations refines AbstractAwsCryptographyPrimit
     returns (output: Result<seq<uint8>, Error>)
   {
     output := WrappedHKDF.Hkdf(input);
+  }
+  
+  predicate KdfCounterModeEnsuresPublicly(input: KdfCtrInput, output: Result<seq<uint8>, Error>)
+  {
+      output.Success?
+    ==>
+      && |output.value| == input.expectedLength as nat
+  }
+
+  method KdfCounterMode(config: InternalConfig, input: KdfCtrInput)
+    returns (output: Result<seq<uint8>, Error>)
+  {
+    output := KdfCtr.KdfCounterMode(input);
+  }
+
+  predicate AesKdfCounterModeEnsuresPublicly(input: AesKdfCtrInput, output: Result<seq<uint8>, Error>)
+  {
+      output.Success?
+    ==>
+      && |output.value| == input.expectedLength as nat
+  }
+
+  method AesKdfCounterMode(config: InternalConfig, input: AesKdfCtrInput)
+    returns (output: Result<seq<uint8>, Error>)
+  {
+    output := Failure(Types.AwsCryptographicPrimitivesError(message := "Implement"));
   }
   
   predicate AESEncryptEnsuresPublicly(input: AESEncryptInput, output: Result<AESEncryptOutput, Error>)

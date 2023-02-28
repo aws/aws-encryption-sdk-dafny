@@ -10,14 +10,14 @@ using System;
  get { return this._publicKey; }
  set { this._publicKey = value; }
 }
- internal bool IsSetPublicKey () {
+ public bool IsSetPublicKey () {
  return this._publicKey != null;
 }
  public AWS.Cryptography.Primitives.RSAPrivateKey PrivateKey {
  get { return this._privateKey; }
  set { this._privateKey = value; }
 }
- internal bool IsSetPrivateKey () {
+ public bool IsSetPrivateKey () {
  return this._privateKey != null;
 }
  public void Validate() {

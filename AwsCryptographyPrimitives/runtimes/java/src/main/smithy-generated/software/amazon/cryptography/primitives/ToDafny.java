@@ -6,7 +6,9 @@ package software.amazon.cryptography.primitives;
 import Dafny.Aws.Cryptography.Primitives.Types.AESDecryptInput;
 import Dafny.Aws.Cryptography.Primitives.Types.AESEncryptInput;
 import Dafny.Aws.Cryptography.Primitives.Types.AESEncryptOutput;
+import Dafny.Aws.Cryptography.Primitives.Types.AES__CTR;
 import Dafny.Aws.Cryptography.Primitives.Types.AES__GCM;
+import Dafny.Aws.Cryptography.Primitives.Types.AesKdfCtrInput;
 import Dafny.Aws.Cryptography.Primitives.Types.CryptoConfig;
 import Dafny.Aws.Cryptography.Primitives.Types.DigestAlgorithm;
 import Dafny.Aws.Cryptography.Primitives.Types.DigestInput;
@@ -24,6 +26,7 @@ import Dafny.Aws.Cryptography.Primitives.Types.HMacInput;
 import Dafny.Aws.Cryptography.Primitives.Types.HkdfExpandInput;
 import Dafny.Aws.Cryptography.Primitives.Types.HkdfExtractInput;
 import Dafny.Aws.Cryptography.Primitives.Types.HkdfInput;
+import Dafny.Aws.Cryptography.Primitives.Types.KdfCtrInput;
 import Dafny.Aws.Cryptography.Primitives.Types.RSADecryptInput;
 import Dafny.Aws.Cryptography.Primitives.Types.RSAEncryptInput;
 import Dafny.Aws.Cryptography.Primitives.Types.RSAPaddingMode;
@@ -38,6 +41,7 @@ import java.lang.Integer;
 import java.lang.RuntimeException;
 import java.nio.ByteBuffer;
 import java.util.Objects;
+import software.amazon.cryptography.primitives.model.AES_CTR;
 import software.amazon.cryptography.primitives.model.AES_GCM;
 import software.amazon.cryptography.primitives.model.AwsCryptographicPrimitivesError;
 import software.amazon.cryptography.primitives.model.CollectionOfErrors;
@@ -102,6 +106,20 @@ public class ToDafny {
     return new CryptoConfig();
   }
 
+  public static AES__CTR AES_CTR(AES_CTR nativeValue) {
+    Integer keyLength;
+    keyLength = (nativeValue.keyLength());
+    Integer nonceLength;
+    nonceLength = (nativeValue.nonceLength());
+    return new AES__CTR(keyLength, nonceLength);
+  }
+
+  public static DafnySequence<? extends Byte> AesKdfCtrOutput(ByteBuffer nativeValue) {
+    DafnySequence<? extends Byte> okm;
+    okm = software.amazon.dafny.conversion.ToDafny.Simple.ByteSequence(nativeValue);
+    return okm;
+  }
+
   public static DafnySequence<? extends Byte> RSAEncryptOutput(ByteBuffer nativeValue) {
     DafnySequence<? extends Byte> cipherText;
     cipherText = software.amazon.dafny.conversion.ToDafny.Simple.ByteSequence(nativeValue);
@@ -121,6 +139,25 @@ public class ToDafny {
     DafnySequence<? extends Byte> data;
     data = software.amazon.dafny.conversion.ToDafny.Simple.ByteSequence(nativeValue);
     return data;
+  }
+
+  public static KdfCtrInput KdfCtrInput(
+      software.amazon.cryptography.primitives.model.KdfCtrInput nativeValue) {
+    DigestAlgorithm digestAlgorithm;
+    digestAlgorithm = ToDafny.DigestAlgorithm(nativeValue.digestAlgorithm());
+    DafnySequence<? extends Byte> ikm;
+    ikm = software.amazon.dafny.conversion.ToDafny.Simple.ByteSequence(nativeValue.ikm());
+    Integer expectedLength;
+    expectedLength = (nativeValue.expectedLength());
+    Option<DafnySequence<? extends Byte>> purpose;
+    purpose = Objects.nonNull(nativeValue.purpose()) ?
+        Option.create_Some(software.amazon.dafny.conversion.ToDafny.Simple.ByteSequence(nativeValue.purpose()))
+        : Option.create_None();
+    Option<DafnySequence<? extends Byte>> nonce;
+    nonce = Objects.nonNull(nativeValue.nonce()) ?
+        Option.create_Some(software.amazon.dafny.conversion.ToDafny.Simple.ByteSequence(nativeValue.nonce()))
+        : Option.create_None();
+    return new KdfCtrInput(digestAlgorithm, ikm, expectedLength, purpose, nonce);
   }
 
   public static AESDecryptInput AESDecryptInput(
@@ -196,6 +233,12 @@ public class ToDafny {
     return new GenerateRSAKeyPairInput(strength);
   }
 
+  public static DafnySequence<? extends Byte> KdfCtrOutput(ByteBuffer nativeValue) {
+    DafnySequence<? extends Byte> okm;
+    okm = software.amazon.dafny.conversion.ToDafny.Simple.ByteSequence(nativeValue);
+    return okm;
+  }
+
   public static HkdfExtractInput HkdfExtractInput(
       software.amazon.cryptography.primitives.model.HkdfExtractInput nativeValue) {
     DigestAlgorithm digestAlgorithm;
@@ -216,6 +259,19 @@ public class ToDafny {
     DafnySequence<? extends Byte> pem;
     pem = software.amazon.dafny.conversion.ToDafny.Simple.ByteSequence(nativeValue.pem());
     return new RSAPublicKey(strength, pem);
+  }
+
+  public static AesKdfCtrInput AesKdfCtrInput(
+      software.amazon.cryptography.primitives.model.AesKdfCtrInput nativeValue) {
+    DafnySequence<? extends Byte> ikm;
+    ikm = software.amazon.dafny.conversion.ToDafny.Simple.ByteSequence(nativeValue.ikm());
+    Integer expectedLength;
+    expectedLength = (nativeValue.expectedLength());
+    Option<DafnySequence<? extends Byte>> nonce;
+    nonce = Objects.nonNull(nativeValue.nonce()) ?
+        Option.create_Some(software.amazon.dafny.conversion.ToDafny.Simple.ByteSequence(nativeValue.nonce()))
+        : Option.create_None();
+    return new AesKdfCtrInput(ikm, expectedLength, nonce);
   }
 
   public static ECDSAVerifyInput ECDSAVerifyInput(
