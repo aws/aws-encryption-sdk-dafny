@@ -3,6 +3,7 @@
 // Do not modify this file. This file is machine generated, and any changes to it will be overwritten.
 package software.amazon.cryptography.primitives;
 
+import Dafny.Aws.Cryptography.Primitives.Types.AES__CTR;
 import Dafny.Aws.Cryptography.Primitives.Types.AES__GCM;
 import Dafny.Aws.Cryptography.Primitives.Types.Error;
 import Dafny.Aws.Cryptography.Primitives.Types.Error_AwsCryptographicPrimitivesError;
@@ -16,7 +17,9 @@ import java.nio.ByteBuffer;
 import software.amazon.cryptography.primitives.model.AESDecryptInput;
 import software.amazon.cryptography.primitives.model.AESEncryptInput;
 import software.amazon.cryptography.primitives.model.AESEncryptOutput;
+import software.amazon.cryptography.primitives.model.AES_CTR;
 import software.amazon.cryptography.primitives.model.AES_GCM;
+import software.amazon.cryptography.primitives.model.AesKdfCtrInput;
 import software.amazon.cryptography.primitives.model.AwsCryptographicPrimitivesError;
 import software.amazon.cryptography.primitives.model.CollectionOfErrors;
 import software.amazon.cryptography.primitives.model.CryptoConfig;
@@ -34,6 +37,7 @@ import software.amazon.cryptography.primitives.model.HMacInput;
 import software.amazon.cryptography.primitives.model.HkdfExpandInput;
 import software.amazon.cryptography.primitives.model.HkdfExtractInput;
 import software.amazon.cryptography.primitives.model.HkdfInput;
+import software.amazon.cryptography.primitives.model.KdfCtrInput;
 import software.amazon.cryptography.primitives.model.NativeError;
 import software.amazon.cryptography.primitives.model.OpaqueError;
 import software.amazon.cryptography.primitives.model.RSADecryptInput;
@@ -107,6 +111,17 @@ public class ToNative {
     return nativeBuilder.build();
   }
 
+  public static AES_CTR AES_CTR(AES__CTR dafnyValue) {
+    AES_CTR.Builder nativeBuilder = AES_CTR.builder();
+    nativeBuilder.keyLength((dafnyValue.dtor_keyLength()));
+    nativeBuilder.nonceLength((dafnyValue.dtor_nonceLength()));
+    return nativeBuilder.build();
+  }
+
+  public static ByteBuffer AesKdfCtrOutput(DafnySequence<? extends Byte> dafnyValue) {
+    return software.amazon.dafny.conversion.ToNative.Simple.ByteBuffer(dafnyValue);
+  }
+
   public static ByteBuffer RSAEncryptOutput(DafnySequence<? extends Byte> dafnyValue) {
     return software.amazon.dafny.conversion.ToNative.Simple.ByteBuffer(dafnyValue);
   }
@@ -121,6 +136,21 @@ public class ToNative {
 
   public static ByteBuffer GenerateRandomBytesOutput(DafnySequence<? extends Byte> dafnyValue) {
     return software.amazon.dafny.conversion.ToNative.Simple.ByteBuffer(dafnyValue);
+  }
+
+  public static KdfCtrInput KdfCtrInput(
+      Dafny.Aws.Cryptography.Primitives.Types.KdfCtrInput dafnyValue) {
+    KdfCtrInput.Builder nativeBuilder = KdfCtrInput.builder();
+    nativeBuilder.digestAlgorithm(ToNative.DigestAlgorithm(dafnyValue.dtor_digestAlgorithm()));
+    nativeBuilder.ikm(software.amazon.dafny.conversion.ToNative.Simple.ByteBuffer(dafnyValue.dtor_ikm()));
+    nativeBuilder.expectedLength((dafnyValue.dtor_expectedLength()));
+    if (dafnyValue.dtor_purpose().is_Some()) {
+      nativeBuilder.purpose(software.amazon.dafny.conversion.ToNative.Simple.ByteBuffer(dafnyValue.dtor_purpose().dtor_value()));
+    }
+    if (dafnyValue.dtor_nonce().is_Some()) {
+      nativeBuilder.nonce(software.amazon.dafny.conversion.ToNative.Simple.ByteBuffer(dafnyValue.dtor_nonce().dtor_value()));
+    }
+    return nativeBuilder.build();
   }
 
   public static AESDecryptInput AESDecryptInput(
@@ -180,6 +210,10 @@ public class ToNative {
     return nativeBuilder.build();
   }
 
+  public static ByteBuffer KdfCtrOutput(DafnySequence<? extends Byte> dafnyValue) {
+    return software.amazon.dafny.conversion.ToNative.Simple.ByteBuffer(dafnyValue);
+  }
+
   public static HkdfExtractInput HkdfExtractInput(
       Dafny.Aws.Cryptography.Primitives.Types.HkdfExtractInput dafnyValue) {
     HkdfExtractInput.Builder nativeBuilder = HkdfExtractInput.builder();
@@ -196,6 +230,17 @@ public class ToNative {
     RSAPublicKey.Builder nativeBuilder = RSAPublicKey.builder();
     nativeBuilder.strength((dafnyValue.dtor_strength()));
     nativeBuilder.pem(software.amazon.dafny.conversion.ToNative.Simple.ByteBuffer(dafnyValue.dtor_pem()));
+    return nativeBuilder.build();
+  }
+
+  public static AesKdfCtrInput AesKdfCtrInput(
+      Dafny.Aws.Cryptography.Primitives.Types.AesKdfCtrInput dafnyValue) {
+    AesKdfCtrInput.Builder nativeBuilder = AesKdfCtrInput.builder();
+    nativeBuilder.ikm(software.amazon.dafny.conversion.ToNative.Simple.ByteBuffer(dafnyValue.dtor_ikm()));
+    nativeBuilder.expectedLength((dafnyValue.dtor_expectedLength()));
+    if (dafnyValue.dtor_nonce().is_Some()) {
+      nativeBuilder.nonce(software.amazon.dafny.conversion.ToNative.Simple.ByteBuffer(dafnyValue.dtor_nonce().dtor_value()));
+    }
     return nativeBuilder.build();
   }
 

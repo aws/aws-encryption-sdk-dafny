@@ -17,6 +17,7 @@ import java.util.Objects;
 import software.amazon.cryptography.primitives.model.AESDecryptInput;
 import software.amazon.cryptography.primitives.model.AESEncryptInput;
 import software.amazon.cryptography.primitives.model.AESEncryptOutput;
+import software.amazon.cryptography.primitives.model.AesKdfCtrInput;
 import software.amazon.cryptography.primitives.model.CryptoConfig;
 import software.amazon.cryptography.primitives.model.DigestInput;
 import software.amazon.cryptography.primitives.model.ECDSASignInput;
@@ -30,6 +31,7 @@ import software.amazon.cryptography.primitives.model.HMacInput;
 import software.amazon.cryptography.primitives.model.HkdfExpandInput;
 import software.amazon.cryptography.primitives.model.HkdfExtractInput;
 import software.amazon.cryptography.primitives.model.HkdfInput;
+import software.amazon.cryptography.primitives.model.KdfCtrInput;
 import software.amazon.cryptography.primitives.model.RSADecryptInput;
 import software.amazon.cryptography.primitives.model.RSAEncryptInput;
 
@@ -48,6 +50,10 @@ public class AtomicPrimitives {
 
   public static Builder builder() {
     return new BuilderImpl();
+  }
+
+  protected IAwsCryptographicPrimitivesClient impl() {
+    return this._impl;
   }
 
   public ByteBuffer GenerateRandomBytes(GenerateRandomBytesInput nativeValue) {
@@ -102,6 +108,24 @@ public class AtomicPrimitives {
       throw ToNative.Error(result.dtor_error());
     }
     return ToNative.HkdfOutput(result.dtor_value());
+  }
+
+  public ByteBuffer KdfCounterMode(KdfCtrInput nativeValue) {
+    Dafny.Aws.Cryptography.Primitives.Types.KdfCtrInput dafnyValue = ToDafny.KdfCtrInput(nativeValue);
+    Result<DafnySequence<? extends Byte>, Error> result = this._impl.KdfCounterMode(dafnyValue);
+    if (result.is_Failure()) {
+      throw ToNative.Error(result.dtor_error());
+    }
+    return ToNative.KdfCtrOutput(result.dtor_value());
+  }
+
+  public ByteBuffer AesKdfCounterMode(AesKdfCtrInput nativeValue) {
+    Dafny.Aws.Cryptography.Primitives.Types.AesKdfCtrInput dafnyValue = ToDafny.AesKdfCtrInput(nativeValue);
+    Result<DafnySequence<? extends Byte>, Error> result = this._impl.AesKdfCounterMode(dafnyValue);
+    if (result.is_Failure()) {
+      throw ToNative.Error(result.dtor_error());
+    }
+    return ToNative.AesKdfCtrOutput(result.dtor_value());
   }
 
   public AESEncryptOutput AESEncrypt(AESEncryptInput nativeValue) {
@@ -175,10 +199,6 @@ public class AtomicPrimitives {
       throw ToNative.Error(result.dtor_error());
     }
     return ToNative.ECDSAVerifyOutput(result.dtor_value());
-  }
-
-  protected IAwsCryptographicPrimitivesClient impl() {
-    return this._impl;
   }
 
   public interface Builder {

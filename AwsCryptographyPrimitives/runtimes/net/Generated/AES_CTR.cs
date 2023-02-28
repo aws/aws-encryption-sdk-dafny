@@ -3,10 +3,9 @@
 // Do not modify this file. This file is machine generated, and any changes to it will be overwritten.
 using System;
  using AWS.Cryptography.Primitives; namespace AWS.Cryptography.Primitives {
- public class AES_GCM {
+ public class AES_CTR {
  private int? _keyLength ;
- private int? _tagLength ;
- private int? _ivLength ;
+ private int? _nonceLength ;
  public int KeyLength {
  get { return this._keyLength.GetValueOrDefault(); }
  set { this._keyLength = value; }
@@ -14,24 +13,16 @@ using System;
  public bool IsSetKeyLength () {
  return this._keyLength.HasValue;
 }
- public int TagLength {
- get { return this._tagLength.GetValueOrDefault(); }
- set { this._tagLength = value; }
+ public int NonceLength {
+ get { return this._nonceLength.GetValueOrDefault(); }
+ set { this._nonceLength = value; }
 }
- public bool IsSetTagLength () {
- return this._tagLength.HasValue;
-}
- public int IvLength {
- get { return this._ivLength.GetValueOrDefault(); }
- set { this._ivLength = value; }
-}
- public bool IsSetIvLength () {
- return this._ivLength.HasValue;
+ public bool IsSetNonceLength () {
+ return this._nonceLength.HasValue;
 }
  public void Validate() {
  if (!IsSetKeyLength()) throw new System.ArgumentException("Missing value for required property 'KeyLength'");
- if (!IsSetTagLength()) throw new System.ArgumentException("Missing value for required property 'TagLength'");
- if (!IsSetIvLength()) throw new System.ArgumentException("Missing value for required property 'IvLength'");
+ if (!IsSetNonceLength()) throw new System.ArgumentException("Missing value for required property 'NonceLength'");
 
 }
 }

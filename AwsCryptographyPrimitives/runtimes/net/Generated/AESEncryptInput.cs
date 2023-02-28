@@ -13,35 +13,35 @@ using System;
  get { return this._encAlg; }
  set { this._encAlg = value; }
 }
- internal bool IsSetEncAlg () {
+ public bool IsSetEncAlg () {
  return this._encAlg != null;
 }
  public System.IO.MemoryStream Iv {
  get { return this._iv; }
  set { this._iv = value; }
 }
- internal bool IsSetIv () {
+ public bool IsSetIv () {
  return this._iv != null;
 }
  public System.IO.MemoryStream Key {
  get { return this._key; }
  set { this._key = value; }
 }
- internal bool IsSetKey () {
+ public bool IsSetKey () {
  return this._key != null;
 }
  public System.IO.MemoryStream Msg {
  get { return this._msg; }
  set { this._msg = value; }
 }
- internal bool IsSetMsg () {
+ public bool IsSetMsg () {
  return this._msg != null;
 }
  public System.IO.MemoryStream Aad {
  get { return this._aad; }
  set { this._aad = value; }
 }
- internal bool IsSetAad () {
+ public bool IsSetAad () {
  return this._aad != null;
 }
  public void Validate() {

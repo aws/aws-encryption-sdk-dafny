@@ -9,7 +9,7 @@ using System;
  get { return this._length.GetValueOrDefault(); }
  set { this._length = value; }
 }
- internal bool IsSetLength () {
+ public bool IsSetLength () {
  return this._length.HasValue;
 }
  public void Validate() {

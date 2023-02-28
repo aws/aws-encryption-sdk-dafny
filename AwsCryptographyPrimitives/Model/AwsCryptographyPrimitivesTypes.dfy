@@ -12,6 +12,10 @@ include "../../StandardLibrary/src/Index.dfy"
  
  // Begin Generated Types
  
+ datatype AES_CTR = | AES_CTR (
+ nameonly keyLength: SymmetricKeyLength ,
+ nameonly nonceLength: Uint8Bits
+ )
  datatype AES_GCM = | AES_GCM (
  nameonly keyLength: SymmetricKeyLength ,
  nameonly tagLength: Uint8Bytes ,
@@ -36,6 +40,11 @@ include "../../StandardLibrary/src/Index.dfy"
  nameonly cipherText: seq<uint8> ,
  nameonly authTag: seq<uint8>
  )
+ datatype AesKdfCtrInput = | AesKdfCtrInput (
+ nameonly ikm: seq<uint8> ,
+ nameonly expectedLength: PositiveInteger ,
+ nameonly nonce: Option<seq<uint8>>
+ )
  class IAwsCryptographicPrimitivesClientCallHistory {
  ghost constructor() {
  GenerateRandomBytes := [];
@@ -44,6 +53,8 @@ include "../../StandardLibrary/src/Index.dfy"
  HkdfExtract := [];
  HkdfExpand := [];
  Hkdf := [];
+ KdfCounterMode := [];
+ AesKdfCounterMode := [];
  AESEncrypt := [];
  AESDecrypt := [];
  GenerateRSAKeyPair := [];
@@ -59,6 +70,8 @@ include "../../StandardLibrary/src/Index.dfy"
  ghost var HkdfExtract: seq<DafnyCallEvent<HkdfExtractInput, Result<seq<uint8>, Error>>>
  ghost var HkdfExpand: seq<DafnyCallEvent<HkdfExpandInput, Result<seq<uint8>, Error>>>
  ghost var Hkdf: seq<DafnyCallEvent<HkdfInput, Result<seq<uint8>, Error>>>
+ ghost var KdfCounterMode: seq<DafnyCallEvent<KdfCtrInput, Result<seq<uint8>, Error>>>
+ ghost var AesKdfCounterMode: seq<DafnyCallEvent<AesKdfCtrInput, Result<seq<uint8>, Error>>>
  ghost var AESEncrypt: seq<DafnyCallEvent<AESEncryptInput, Result<AESEncryptOutput, Error>>>
  ghost var AESDecrypt: seq<DafnyCallEvent<AESDecryptInput, Result<seq<uint8>, Error>>>
  ghost var GenerateRSAKeyPair: seq<DafnyCallEvent<GenerateRSAKeyPairInput, Result<GenerateRSAKeyPairOutput, Error>>>
@@ -175,6 +188,36 @@ include "../../StandardLibrary/src/Index.dfy"
  && ValidState()
  ensures HkdfEnsuresPublicly(input, output)
  ensures History.Hkdf == old(History.Hkdf) + [DafnyCallEvent(input, output)]
+ 
+ predicate KdfCounterModeEnsuresPublicly(input: KdfCtrInput, output: Result<seq<uint8>, Error>)
+ // The public method to be called by library consumers
+ method KdfCounterMode ( input: KdfCtrInput )
+ returns (output: Result<seq<uint8>, Error>)
+ requires
+ && ValidState()
+ modifies Modifies - {History} ,
+ History`KdfCounterMode
+ // Dafny will skip type parameters when generating a default decreases clause.
+ decreases Modifies - {History}
+ ensures
+ && ValidState()
+ ensures KdfCounterModeEnsuresPublicly(input, output)
+ ensures History.KdfCounterMode == old(History.KdfCounterMode) + [DafnyCallEvent(input, output)]
+ 
+ predicate AesKdfCounterModeEnsuresPublicly(input: AesKdfCtrInput, output: Result<seq<uint8>, Error>)
+ // The public method to be called by library consumers
+ method AesKdfCounterMode ( input: AesKdfCtrInput )
+ returns (output: Result<seq<uint8>, Error>)
+ requires
+ && ValidState()
+ modifies Modifies - {History} ,
+ History`AesKdfCounterMode
+ // Dafny will skip type parameters when generating a default decreases clause.
+ decreases Modifies - {History}
+ ensures
+ && ValidState()
+ ensures AesKdfCounterModeEnsuresPublicly(input, output)
+ ensures History.AesKdfCounterMode == old(History.AesKdfCounterMode) + [DafnyCallEvent(input, output)]
  
  predicate AESEncryptEnsuresPublicly(input: AESEncryptInput, output: Result<AESEncryptOutput, Error>)
  // The public method to be called by library consumers
@@ -363,6 +406,13 @@ include "../../StandardLibrary/src/Index.dfy"
  nameonly digestAlgorithm: DigestAlgorithm ,
  nameonly key: seq<uint8> ,
  nameonly message: seq<uint8>
+ )
+ datatype KdfCtrInput = | KdfCtrInput (
+ nameonly digestAlgorithm: DigestAlgorithm ,
+ nameonly ikm: seq<uint8> ,
+ nameonly expectedLength: PositiveInteger ,
+ nameonly purpose: Option<seq<uint8>> ,
+ nameonly nonce: Option<seq<uint8>>
  )
  type PositiveInteger = x: int32 | IsValid_PositiveInteger(x) witness *
  predicate method IsValid_PositiveInteger(x: int32) {
@@ -579,6 +629,46 @@ include "../../StandardLibrary/src/Index.dfy"
  {
  output := Operations.Hkdf(config, input);
  History.Hkdf := History.Hkdf + [DafnyCallEvent(input, output)];
+}
+ 
+ predicate KdfCounterModeEnsuresPublicly(input: KdfCtrInput, output: Result<seq<uint8>, Error>)
+ {Operations.KdfCounterModeEnsuresPublicly(input, output)}
+ // The public method to be called by library consumers
+ method KdfCounterMode ( input: KdfCtrInput )
+ returns (output: Result<seq<uint8>, Error>)
+ requires
+ && ValidState()
+ modifies Modifies - {History} ,
+ History`KdfCounterMode
+ // Dafny will skip type parameters when generating a default decreases clause.
+ decreases Modifies - {History}
+ ensures
+ && ValidState()
+ ensures KdfCounterModeEnsuresPublicly(input, output)
+ ensures History.KdfCounterMode == old(History.KdfCounterMode) + [DafnyCallEvent(input, output)]
+ {
+ output := Operations.KdfCounterMode(config, input);
+ History.KdfCounterMode := History.KdfCounterMode + [DafnyCallEvent(input, output)];
+}
+ 
+ predicate AesKdfCounterModeEnsuresPublicly(input: AesKdfCtrInput, output: Result<seq<uint8>, Error>)
+ {Operations.AesKdfCounterModeEnsuresPublicly(input, output)}
+ // The public method to be called by library consumers
+ method AesKdfCounterMode ( input: AesKdfCtrInput )
+ returns (output: Result<seq<uint8>, Error>)
+ requires
+ && ValidState()
+ modifies Modifies - {History} ,
+ History`AesKdfCounterMode
+ // Dafny will skip type parameters when generating a default decreases clause.
+ decreases Modifies - {History}
+ ensures
+ && ValidState()
+ ensures AesKdfCounterModeEnsuresPublicly(input, output)
+ ensures History.AesKdfCounterMode == old(History.AesKdfCounterMode) + [DafnyCallEvent(input, output)]
+ {
+ output := Operations.AesKdfCounterMode(config, input);
+ History.AesKdfCounterMode := History.AesKdfCounterMode + [DafnyCallEvent(input, output)];
 }
  
  predicate AESEncryptEnsuresPublicly(input: AESEncryptInput, output: Result<AESEncryptOutput, Error>)
@@ -838,6 +928,38 @@ include "../../StandardLibrary/src/Index.dfy"
  ensures
  && ValidInternalConfig?(config)
  ensures HkdfEnsuresPublicly(input, output)
+
+
+ predicate KdfCounterModeEnsuresPublicly(input: KdfCtrInput, output: Result<seq<uint8>, Error>)
+ // The private method to be refined by the library developer
+
+
+ method KdfCounterMode ( config: InternalConfig,  input: KdfCtrInput )
+ returns (output: Result<seq<uint8>, Error>)
+ requires
+ && ValidInternalConfig?(config)
+ modifies ModifiesInternalConfig(config)
+ // Dafny will skip type parameters when generating a default decreases clause.
+ decreases ModifiesInternalConfig(config)
+ ensures
+ && ValidInternalConfig?(config)
+ ensures KdfCounterModeEnsuresPublicly(input, output)
+
+
+ predicate AesKdfCounterModeEnsuresPublicly(input: AesKdfCtrInput, output: Result<seq<uint8>, Error>)
+ // The private method to be refined by the library developer
+
+
+ method AesKdfCounterMode ( config: InternalConfig,  input: AesKdfCtrInput )
+ returns (output: Result<seq<uint8>, Error>)
+ requires
+ && ValidInternalConfig?(config)
+ modifies ModifiesInternalConfig(config)
+ // Dafny will skip type parameters when generating a default decreases clause.
+ decreases ModifiesInternalConfig(config)
+ ensures
+ && ValidInternalConfig?(config)
+ ensures AesKdfCounterModeEnsuresPublicly(input, output)
 
 
  predicate AESEncryptEnsuresPublicly(input: AESEncryptInput, output: Result<AESEncryptOutput, Error>)

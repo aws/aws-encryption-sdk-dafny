@@ -16,9 +16,12 @@ operation AesKdfCounterMode {
 
 structure KdfCtrInput {
   @required
+  digestAlgorithm: DigestAlgorithm,
+  @required
   ikm: Blob,
   @required
   expectedLength: PositiveInteger,
+  purpose: Blob,
   nonce: Blob
 }
 
@@ -29,8 +32,6 @@ structure KdfCtrOutput {
 }
 
 structure AesKdfCtrInput {
-  @required
-  alg: AES_CTR,
   @required
   ikm: Blob,
   @required

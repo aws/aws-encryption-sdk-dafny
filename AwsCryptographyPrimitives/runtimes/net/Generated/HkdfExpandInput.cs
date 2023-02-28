@@ -12,28 +12,28 @@ using System;
  get { return this._digestAlgorithm; }
  set { this._digestAlgorithm = value; }
 }
- internal bool IsSetDigestAlgorithm () {
+ public bool IsSetDigestAlgorithm () {
  return this._digestAlgorithm != null;
 }
  public System.IO.MemoryStream Prk {
  get { return this._prk; }
  set { this._prk = value; }
 }
- internal bool IsSetPrk () {
+ public bool IsSetPrk () {
  return this._prk != null;
 }
  public System.IO.MemoryStream Info {
  get { return this._info; }
  set { this._info = value; }
 }
- internal bool IsSetInfo () {
+ public bool IsSetInfo () {
  return this._info != null;
 }
  public int ExpectedLength {
  get { return this._expectedLength.GetValueOrDefault(); }
  set { this._expectedLength = value; }
 }
- internal bool IsSetExpectedLength () {
+ public bool IsSetExpectedLength () {
  return this._expectedLength.HasValue;
 }
  public void Validate() {

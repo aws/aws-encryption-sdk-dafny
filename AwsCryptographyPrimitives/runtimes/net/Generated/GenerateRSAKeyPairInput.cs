@@ -9,7 +9,7 @@ using System;
  get { return this._strength.GetValueOrDefault(); }
  set { this._strength = value; }
 }
- internal bool IsSetStrength () {
+ public bool IsSetStrength () {
  return this._strength.HasValue;
 }
  public void Validate() {

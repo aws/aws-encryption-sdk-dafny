@@ -51,6 +51,18 @@ using System;
  if (result.is_Failure) throw TypeConversion.FromDafny_CommonError(result.dtor_error);
  return TypeConversion.FromDafny_N3_aws__N12_cryptography__N10_primitives__S10_HkdfOutput(result.dtor_value);
 }
+ public System.IO.MemoryStream KdfCounterMode(AWS.Cryptography.Primitives.KdfCtrInput input) {
+ Dafny.Aws.Cryptography.Primitives.Types._IKdfCtrInput internalInput = TypeConversion.ToDafny_N3_aws__N12_cryptography__N10_primitives__S11_KdfCtrInput(input);
+ Wrappers_Compile._IResult<Dafny.ISequence<byte>, Dafny.Aws.Cryptography.Primitives.Types._IError> result = _impl.KdfCounterMode(internalInput);
+ if (result.is_Failure) throw TypeConversion.FromDafny_CommonError(result.dtor_error);
+ return TypeConversion.FromDafny_N3_aws__N12_cryptography__N10_primitives__S12_KdfCtrOutput(result.dtor_value);
+}
+ public System.IO.MemoryStream AesKdfCounterMode(AWS.Cryptography.Primitives.AesKdfCtrInput input) {
+ Dafny.Aws.Cryptography.Primitives.Types._IAesKdfCtrInput internalInput = TypeConversion.ToDafny_N3_aws__N12_cryptography__N10_primitives__S14_AesKdfCtrInput(input);
+ Wrappers_Compile._IResult<Dafny.ISequence<byte>, Dafny.Aws.Cryptography.Primitives.Types._IError> result = _impl.AesKdfCounterMode(internalInput);
+ if (result.is_Failure) throw TypeConversion.FromDafny_CommonError(result.dtor_error);
+ return TypeConversion.FromDafny_N3_aws__N12_cryptography__N10_primitives__S15_AesKdfCtrOutput(result.dtor_value);
+}
  public AWS.Cryptography.Primitives.AESEncryptOutput AESEncrypt(AWS.Cryptography.Primitives.AESEncryptInput input) {
  Dafny.Aws.Cryptography.Primitives.Types._IAESEncryptInput internalInput = TypeConversion.ToDafny_N3_aws__N12_cryptography__N10_primitives__S15_AESEncryptInput(input);
  Wrappers_Compile._IResult<Dafny.Aws.Cryptography.Primitives.Types._IAESEncryptOutput, Dafny.Aws.Cryptography.Primitives.Types._IError> result = _impl.AESEncrypt(internalInput);

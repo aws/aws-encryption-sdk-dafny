@@ -9,7 +9,7 @@ using System;
  get { return this._signatureAlgorithm; }
  set { this._signatureAlgorithm = value; }
 }
- internal bool IsSetSignatureAlgorithm () {
+ public bool IsSetSignatureAlgorithm () {
  return this._signatureAlgorithm != null;
 }
  public void Validate() {

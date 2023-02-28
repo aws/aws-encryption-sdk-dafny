@@ -11,21 +11,21 @@ using System;
  get { return this._digestAlgorithm; }
  set { this._digestAlgorithm = value; }
 }
- internal bool IsSetDigestAlgorithm () {
+ public bool IsSetDigestAlgorithm () {
  return this._digestAlgorithm != null;
 }
  public System.IO.MemoryStream Key {
  get { return this._key; }
  set { this._key = value; }
 }
- internal bool IsSetKey () {
+ public bool IsSetKey () {
  return this._key != null;
 }
  public System.IO.MemoryStream Message {
  get { return this._message; }
  set { this._message = value; }
 }
- internal bool IsSetMessage () {
+ public bool IsSetMessage () {
  return this._message != null;
 }
  public void Validate() {

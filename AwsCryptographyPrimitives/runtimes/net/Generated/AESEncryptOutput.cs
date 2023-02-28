@@ -10,14 +10,14 @@ using System;
  get { return this._cipherText; }
  set { this._cipherText = value; }
 }
- internal bool IsSetCipherText () {
+ public bool IsSetCipherText () {
  return this._cipherText != null;
 }
  public System.IO.MemoryStream AuthTag {
  get { return this._authTag; }
  set { this._authTag = value; }
 }
- internal bool IsSetAuthTag () {
+ public bool IsSetAuthTag () {
  return this._authTag != null;
 }
  public void Validate() {
