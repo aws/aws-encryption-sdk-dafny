@@ -648,9 +648,32 @@ module AlgorithmSuites {
     ensures
       && AwsCryptographyPrimitivesTypes.IsValid_PositiveInteger(output)
       && AwsCryptographyPrimitivesTypes.IsValid_SymmetricKeyLength(output)
+    ensures a.encrypt.AES_GCM? ==> output == a.encrypt.AES_GCM.keyLength
   {
     match a.encrypt
       case AES_GCM(e) => e.keyLength
+  }
+
+  function method GetEncryptTagLength(a: AlgorithmSuiteInfo)
+    : (output: int32)
+    ensures
+      && AwsCryptographyPrimitivesTypes.IsValid_PositiveInteger(output)
+      && AwsCryptographyPrimitivesTypes.IsValid_Uint8Bytes(output)
+    ensures a.encrypt.AES_GCM? ==> output == a.encrypt.AES_GCM.tagLength
+  {
+    match a.encrypt
+      case AES_GCM(e) => e.tagLength
+  }
+
+  function method GetEncryptIvLength(a: AlgorithmSuiteInfo)
+    : (output: int32)
+    ensures
+      && AwsCryptographyPrimitivesTypes.IsValid_PositiveInteger(output)
+      && AwsCryptographyPrimitivesTypes.IsValid_Uint8Bits(output)
+    ensures a.encrypt.AES_GCM? ==> output == a.encrypt.AES_GCM.ivLength
+  {
+    match a.encrypt
+      case AES_GCM(e) => e.ivLength
   }
 
   const AlgorithmSuiteInfoByBinaryId: map<seq<uint8>, AlgorithmSuite> := map[
