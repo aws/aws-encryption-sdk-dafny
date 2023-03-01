@@ -18,10 +18,16 @@
 # SMITHY_NAMESPACE -- The smithy namespace to use for code generation. 
 # AWS_SDK_CMD -- the `--aws-sdk` command to generate AWS SDK style interfaces
 
-# This evaluates to the local path _of this file_
-ESDK_ROOT := $(abspath $(dir $(abspath $(lastword $(MAKEFILE_LIST)))))
-# This evaluates to the path of the current working directory
-PROJECT_ROOT = $(PWD)
+# This evaluates to the local path _of this file_.
+# This means that these are the project roots
+# that are shared by all libraries in this repo.
+PROJECT_ROOT := $(abspath $(dir $(abspath $(lastword $(MAKEFILE_LIST)))))
+# This relative path is for include files between libraries.
+# If an absolut path is used, this path will not be portable.
+PROJECT_RELATIVE_ROOT := $(dir $(lastword $(MAKEFILE_LIST)))
+# This evaluates to the path of the current working directory.
+# i.e. The specific library under consideration.
+LIBRARY_ROOT = $(PWD)
 
 ########################## Dafny targets
 
@@ -67,7 +73,7 @@ transpile_implementation:
 		-useRuntimeLib \
 		-out $(OUT) \
 		./src/Index.dfy \
-		$(patsubst %, -library:$(ESDK_ROOT)/%/src/Index.dfy, $(LIBRARIES))
+		$(patsubst %, -library:$(PROJECT_ROOT)/%/src/Index.dfy, $(LIBRARIES))
 
 transpile_test:
 	dafny \
@@ -83,25 +89,45 @@ transpile_test:
 		-library:src/Index.dfy
 
 transpile_dependencies:
-	$(patsubst %, $(MAKE) -C $(ESDK_ROOT)/% transpile_implementation_$(LANG);, $(LIBRARIES))
+	$(patsubst %, $(MAKE) -C $(PROJECT_ROOT)/% transpile_implementation_$(LANG);, $(LIBRARIES))
 
 ########################## Code-Gen targets
+
+# The OUTPUT variables are created this way
+# so that it is possible to run _parts_ of polymorph.
+# Otherwise it is difficult to run/test only a Dafny change.
+# Since they are defined per target
+# a single target can decide what parts it wants to build.
 
 # Pass in POLYMORPH_ROOT in command line, e.g.
 #   make polymorph_code_gen POLYMORPH_ROOT=/path/to/polymorph/smithy-polymorph
 # StandardLibrary is filtered out from dependent-model patsubst list;
-#   Its model is contained in $(PROJECT_ROOT)/model, not $(PROJECT_ROOT)/../StandardLibrary/Model.
-polymorph_code_gen :
+#   Its model is contained in $(LIBRARY_ROOT)/model, not $(LIBRARY_ROOT)/../StandardLibrary/Model.
+_polymorph:
+	@: $(if ${POLYMORPH_ROOT},,$(error You must pass the path POLYMORPH_ROOT: POLYMORPH_ROOT=/path/to/polymorph/smithy-polymorph));
 	cd $(POLYMORPH_ROOT); \
 	./gradlew run --args="\
-	--output-dafny \
-	--include-dafny $(ESDK_ROOT)/StandardLibrary/src/Index.dfy \
-	--output-dotnet $(PROJECT_ROOT)/runtimes/net/Generated/ \
-	--model $(PROJECT_ROOT)/Model \
-	--dependent-model $(ESDK_ROOT)/model \
-	$(patsubst %, --dependent-model $(ESDK_ROOT)/%/Model, $(filter-out StandardLibrary,$(LIBRARIES))) \
+	$(OUTPUT_DAFNY) \
+	$(OUTPUT_DOTNET) \
+	$(OUTPUT_JAVA) \
+	--model $(LIBRARY_ROOT)/Model \
+	--dependent-model $(PROJECT_ROOT)/model \
+	$(patsubst %, --dependent-model $(PROJECT_ROOT)/%/Model, $(filter-out StandardLibrary,$(LIBRARIES))) \
 	--namespace $(SMITHY_NAMESPACE) \
 	$(AWS_SDK_CMD)";
+
+polymorph_code_gen: OUTPUT_DAFNY=--output-dafny --include-dafny $(PROJECT_RELATIVE_ROOT)/StandardLibrary/src/Index.dfy
+polymorph_code_gen: OUTPUT_DOTNET=--output-dotnet $(LIBRARY_ROOT)/runtimes/net/Generated/
+polymorph_code_gen: _polymorph
+
+polymorph_dafny: OUTPUT_DAFNY=--output-dafny --include-dafny $(PROJECT_RELATIVE_ROOT)/StandardLibrary/src/Index.dfy
+polymorph_dafny: _polymorph
+
+polymorph_dotnet: OUTPUT_DOTNET=--output-dotnet $(LIBRARY_ROOT)/runtimes/net/Generated/
+polymorph_dotnet: _polymorph
+
+polymorph_java: OUTPUT_JAVA=--output-java $(LIBRARY_ROOT)/runtimes/java/src/main/smithy-generated
+polymorph_java: _polymorph
 
 ########################## .NET targets
 
@@ -166,7 +192,7 @@ transpile_dependencies_java: LANG=java
 transpile_dependencies_java: transpile_dependencies
 
 mvn_local_deploy_dependencies:
-	$(patsubst %, $(MAKE) -C $(ESDK_ROOT)/% mvn_local_deploy;, $(LIBRARIES))
+	$(patsubst %, $(MAKE) -C $(PROJECT_ROOT)/% mvn_local_deploy;, $(LIBRARIES))
 
 # The Java MUST all exist already through the transpile step.
 mvn_local_deploy:
