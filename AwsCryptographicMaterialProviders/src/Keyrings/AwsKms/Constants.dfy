@@ -14,6 +14,13 @@ module Constants {
     var s := [0x61, 0x77, 0x73, 0x2D, 0x6B, 0x6D, 0x73];
     assert UTF8.ValidUTF8Range(s, 0, 7);
     s
+  
+  // UTF-8 encoded "aws-kms-hierarchy"
+  const PROVIDER_ID_HIERARCHY:  UTF8.ValidUTF8Bytes :=
+    var s := [0x61, 0x77, 0x73, 0x2D, 0x6B, 0x6D, 0x73, 
+      0x2D, 0x68, 0x69, 0x65, 0x72, 0x61, 0x72, 0x63, 0x68, 0x79];
+    assert UTF8.ValidUTF8Range(s, 0, 17);
+    s
 
   type AwsKmsEncryptedDataKey = edk: Types.EncryptedDataKey |
     && edk.keyProviderId == PROVIDER_ID

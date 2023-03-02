@@ -47,6 +47,7 @@ module AwsCryptographyMaterialProvidersOperations refines AbstractAwsCryptograph
   import Commitment
   import AlgorithmSuites
   import Kms = Com.Amazonaws.Kms
+  import Ddb = ComAmazonawsDynamodbTypes
 
   datatype Config = Config(
     nameonly crypto: Primitives.AtomicPrimitivesClient
@@ -238,19 +239,19 @@ module AwsCryptographyMaterialProvidersOperations refines AbstractAwsCryptograph
   predicate CreateAwsKmsHierarchicalKeyringEnsuresPublicly(input: CreateAwsKmsHierarchicalKeyringInput, output: Result<IKeyring, Error>)
   {true}
 
-  method CreateAwsKmsHierarchicalKeyring ( config: InternalConfig, input: CreateAwsKmsHierarchicalKeyringInput)
+  method CreateAwsKmsHierarchicalKeyring (config: InternalConfig, input: CreateAwsKmsHierarchicalKeyringInput)
     returns (output: Result<IKeyring, Error>)
   {
     var _ :- ValidateKmsKeyId(input.kmsKeyId);
-    var grantTokens :- GetValidGrantTokens(input.grantTokens);
-    var maxCacheSize : int32;
-
+    // TODO add DDB Table Arn Validation
     :- Need(
-      3 <= |input.branchKeysTableName| <= 255,
+      Ddb.IsValid_TableName(input.branchKeyStoreArn),
       Types.AwsCryptographicMaterialProvidersException(
         message := "Invalid DynamoDB Table Name"
       )
     );
+    var grantTokens :- GetValidGrantTokens(input.grantTokens);
+    var maxCacheSize : int32;
 
     if input.maxCacheSize.None? {
       maxCacheSize := 1000;
@@ -264,16 +265,17 @@ module AwsCryptographyMaterialProvidersOperations refines AbstractAwsCryptograph
 
       maxCacheSize := input.maxCacheSize.value;
     }
-    
+
     var keyring := new AwsKmsHierarchicalKeyring.AwsKmsHierarchicalKeyring(
       input.kmsClient,
       input.kmsKeyId,
       grantTokens,
       input.ddbClient,
-      input.branchKeysTableName,
+      input.branchKeyStoreArn,
       input.branchKeyId,
-      input.ttlMilliseconds,
-      maxCacheSize
+      input.ttlSeconds,
+      maxCacheSize,
+      config.crypto
     );
     return Success(keyring);
   }
@@ -415,7 +417,7 @@ module AwsCryptographyMaterialProvidersOperations refines AbstractAwsCryptograph
     );
     return Success(keyring);
   }
- 
+
   predicate CreateDefaultCryptographicMaterialsManagerEnsuresPublicly(input: CreateDefaultCryptographicMaterialsManagerInput, output: Result<ICryptographicMaterialsManager, Error>)
   {true}
 
@@ -455,7 +457,7 @@ module AwsCryptographyMaterialProvidersOperations refines AbstractAwsCryptograph
       Materials.ValidEncryptionMaterialsTransition(input.start, input.stop),
       InvalidEncryptionMaterialsTransition( message := "Invalid Encryption Materials Transition" )
     );
-    
+
     Success(())
   }
 

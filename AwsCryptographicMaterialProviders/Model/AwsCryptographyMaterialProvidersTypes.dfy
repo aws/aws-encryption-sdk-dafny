@@ -634,12 +634,12 @@ include "../../StandardLibrary/src/Index.dfy"
  )
  datatype CreateAwsKmsHierarchicalKeyringInput = | CreateAwsKmsHierarchicalKeyringInput (
  nameonly branchKeyId: string ,
- nameonly kmsKeyId: string ,
+ nameonly kmsKeyId: KmsKeyId ,
  nameonly kmsClient: ComAmazonawsKmsTypes.IKeyManagementServiceClient ,
  nameonly ddbClient: ComAmazonawsDynamodbTypes.IDynamoDB_20120810Client ,
- nameonly branchKeysTableName: string ,
- nameonly ttlMilliseconds: int64 ,
- nameonly maxCacheSize: Option<int32> ,
+ nameonly branchKeyStoreArn: DdbTableArn ,
+ nameonly ttlSeconds: int64 ,
+ nameonly maxCacheSize: Option<PositiveInteger> ,
  nameonly grantTokens: Option<GrantTokenList>
  )
  datatype CreateAwsKmsKeyringInput = | CreateAwsKmsKeyringInput (
@@ -809,6 +809,7 @@ include "../../StandardLibrary/src/Index.dfy"
 	| ALG_AES_256_GCM_HKDF_SHA512_COMMIT_KEY_ECDSA_P384_SYMSIG_HMAC_SHA384
  datatype DBECommitmentPolicy =
 	| REQUIRE_ENCRYPT_REQUIRE_DECRYPT
+ type DdbTableArn = string
  datatype DecryptionMaterials = | DecryptionMaterials (
  nameonly algorithmSuite: AlgorithmSuiteInfo ,
  nameonly encryptionContext: EncryptionContext ,
@@ -1042,6 +1043,10 @@ include "../../StandardLibrary/src/Index.dfy"
 	| OAEP_SHA256_MGF1
 	| OAEP_SHA384_MGF1
 	| OAEP_SHA512_MGF1
+ type PositiveInteger = x: int32 | IsValid_PositiveInteger(x) witness *
+ predicate method IsValid_PositiveInteger(x: int32) {
+ ( 0 <= x  )
+}
  type Region = string
  type RegionList = seq<Region>
  type Secret = seq<uint8>

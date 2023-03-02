@@ -19,10 +19,8 @@ import static software.amazon.dafny.conversion.ToNative.Simple.String;
 public class __default extends Dafny.Com.Amazonaws.Dynamodb._ExternBase___default{
     public static Result<IDynamoDB__20120810Client, Error> DynamoDBClient() {
         try {
-            ProfileCredentialsProvider credentialsProvider = ProfileCredentialsProvider.create();
             Region region = new DefaultAwsRegionProviderChain().getRegion();
             final DynamoDbClient ddbClient = DynamoDbClient.builder()
-                    .credentialsProvider(credentialsProvider)
                     .region(region)
                     .build();
 

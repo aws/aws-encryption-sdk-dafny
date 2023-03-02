@@ -8,8 +8,8 @@ using System;
  private string _kmsKeyId ;
  private Amazon.KeyManagementService.IAmazonKeyManagementService _kmsClient ;
  private Amazon.DynamoDBv2.IAmazonDynamoDB _ddbClient ;
- private string _branchKeysTableName ;
- private long? _ttlMilliseconds ;
+ private string _branchKeyStoreArn ;
+ private long? _ttlSeconds ;
  private int? _maxCacheSize ;
  private System.Collections.Generic.List<string> _grantTokens ;
  public string BranchKeyId {
@@ -40,19 +40,19 @@ using System;
  internal bool IsSetDdbClient () {
  return this._ddbClient != null;
 }
- public string BranchKeysTableName {
- get { return this._branchKeysTableName; }
- set { this._branchKeysTableName = value; }
+ internal string BranchKeyStoreArn {
+  get { return this._branchKeyStoreArn; }
+  set { this._branchKeyStoreArn = value; }
 }
- internal bool IsSetBranchKeysTableName () {
- return this._branchKeysTableName != null;
+ internal bool IsSetBranchKeyStoreArn () {
+  return this._branchKeyStoreArn != null;
 }
- public long TtlMilliseconds {
- get { return this._ttlMilliseconds.GetValueOrDefault(); }
- set { this._ttlMilliseconds = value; }
+ public long TtlSeconds {
+  get { return this._ttlSeconds.GetValueOrDefault(); }
+  set { this._ttlSeconds = value; }
 }
- internal bool IsSetTtlMilliseconds () {
- return this._ttlMilliseconds.HasValue;
+ internal bool IsSetTtlSeconds () {
+  return this._ttlSeconds.HasValue;
 }
  public int MaxCacheSize {
  get { return this._maxCacheSize.GetValueOrDefault(); }
@@ -73,8 +73,8 @@ using System;
  if (!IsSetKmsKeyId()) throw new System.ArgumentException("Missing value for required property 'KmsKeyId'");
  if (!IsSetKmsClient()) throw new System.ArgumentException("Missing value for required property 'KmsClient'");
  if (!IsSetDdbClient()) throw new System.ArgumentException("Missing value for required property 'DdbClient'");
- if (!IsSetBranchKeysTableName()) throw new System.ArgumentException("Missing value for required property 'BranchKeysTableName'");
- if (!IsSetTtlMilliseconds()) throw new System.ArgumentException("Missing value for required property 'TtlMilliseconds'");
+ if (!IsSetBranchKeyStoreArn()) throw new System.ArgumentException("Missing value for required property 'BranchKeyStoreArn'");
+ if (!IsSetTtlSeconds()) throw new System.ArgumentException("Missing value for required property 'TtlSeconds'");
 
 }
 }

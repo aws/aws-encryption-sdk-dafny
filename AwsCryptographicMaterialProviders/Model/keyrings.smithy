@@ -246,24 +246,23 @@ structure CreateAwsKmsHierarchicalKeyringInput {
     @required
     branchKeyId: String,
 
-    @required 
-    kmsKeyId: String,
+    @required
+    kmsKeyId: KmsKeyId,
 
-    @required 
+    @required
     kmsClient: KmsClientReference,
 
-    @required 
+    @required
     ddbClient: DdbClientReference,
 
-    @required 
-    branchKeysTableName: String,
+    @required
+    branchKeyStoreArn: DdbTableArn,
 
     @required
     @range(min: 1)
-    ttlMilliseconds: Long,
+    ttlSeconds: Long,
 
-    @range(min: 1)
-    maxCacheSize: Integer,
+    maxCacheSize: PositiveInteger,
 
     grantTokens: GrantTokenList
 }
