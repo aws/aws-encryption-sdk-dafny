@@ -5,16 +5,11 @@ package software.amazon.cryptography.materialProviders.model;
 
 import com.amazonaws.services.kms.AWSKMS;
 import software.amazon.awssdk.services.dynamodb.DynamoDbClient;
-
 import java.util.List;
 import java.util.Objects;
 
-// TODO branchKeySupplier was manually added to this file, and needs to be added to the smithy model
-
 public class CreateAwsKmsHierarchicalKeyringInput {
   private final String branchKeyId;
-
-  private final BranchKeySupplier branchKeySupplier;
 
   private final String kmsKeyId;
 
@@ -22,32 +17,27 @@ public class CreateAwsKmsHierarchicalKeyringInput {
 
   private final DynamoDbClient ddbClient;
 
-  private final String branchKeysTableName;
+  private final String branchKeyStoreArn;
 
-  private final Long ttlMilliseconds;
+  private final Long ttlSeconds;
 
-  private final Integer maxCacheSize;
+  private final int maxCacheSize;
 
   private final List<String> grantTokens;
 
   protected CreateAwsKmsHierarchicalKeyringInput(BuilderImpl builder) {
     this.branchKeyId = builder.branchKeyId();
-    this.branchKeySupplier = builder.branchKeySupplier();
     this.kmsKeyId = builder.kmsKeyId();
     this.kmsClient = builder.kmsClient();
     this.ddbClient = builder.ddbClient();
-    this.branchKeysTableName = builder.branchKeysTableName();
-    this.ttlMilliseconds = builder.ttlMilliseconds();
+    this.branchKeyStoreArn = builder.branchKeyStoreArn();
+    this.ttlSeconds = builder.ttlSeconds();
     this.maxCacheSize = builder.maxCacheSize();
     this.grantTokens = builder.grantTokens();
   }
 
   public String branchKeyId() {
     return this.branchKeyId;
-  }
-
-  public BranchKeySupplier branchKeySupplier() {
-    return this.branchKeySupplier;
   }
 
   public String kmsKeyId() {
@@ -62,15 +52,15 @@ public class CreateAwsKmsHierarchicalKeyringInput {
     return this.ddbClient;
   }
 
-  public String branchKeysTableName() {
-    return this.branchKeysTableName;
+  public String branchKeyStoreArn() {
+    return this.branchKeyStoreArn;
   }
 
-  public Long ttlMilliseconds() {
-    return this.ttlMilliseconds;
+  public Long ttlSeconds() {
+    return this.ttlSeconds;
   }
 
-  public Integer maxCacheSize() {
+  public int maxCacheSize() {
     return this.maxCacheSize;
   }
 
@@ -91,10 +81,6 @@ public class CreateAwsKmsHierarchicalKeyringInput {
 
     String branchKeyId();
 
-    Builder branchKeySupplier(BranchKeySupplier branchKeySupplier);
-
-    BranchKeySupplier branchKeySupplier();
-
     Builder kmsKeyId(String kmsKeyId);
 
     String kmsKeyId();
@@ -107,17 +93,17 @@ public class CreateAwsKmsHierarchicalKeyringInput {
 
     DynamoDbClient ddbClient();
 
-    Builder branchKeysTableName(String branchKeysTableName);
+    Builder branchKeyStoreArn(String branchKeyStoreArn);
 
-    String branchKeysTableName();
+    String branchKeyStoreArn();
 
-    Builder ttlMilliseconds(Long ttlMilliseconds);
+    Builder ttlSeconds(Long ttlSeconds);
 
-    Long ttlMilliseconds();
+    Long ttlSeconds();
 
-    Builder maxCacheSize(Integer maxCacheSize);
+    Builder maxCacheSize(int maxCacheSize);
 
-    Integer maxCacheSize();
+    int maxCacheSize();
 
     Builder grantTokens(List<String> grantTokens);
 
@@ -129,19 +115,17 @@ public class CreateAwsKmsHierarchicalKeyringInput {
   static class BuilderImpl implements Builder {
     protected String branchKeyId;
 
-    protected BranchKeySupplier branchKeySupplier;
-
     protected String kmsKeyId;
 
     protected AWSKMS kmsClient;
 
     protected DynamoDbClient ddbClient;
 
-    protected String branchKeysTableName;
+    protected String branchKeyStoreArn;
 
-    protected Long ttlMilliseconds;
+    protected Long ttlSeconds;
 
-    protected Integer maxCacheSize;
+    protected int maxCacheSize;
 
     protected List<String> grantTokens;
 
@@ -153,8 +137,8 @@ public class CreateAwsKmsHierarchicalKeyringInput {
       this.kmsKeyId = model.kmsKeyId();
       this.kmsClient = model.kmsClient();
       this.ddbClient = model.ddbClient();
-      this.branchKeysTableName = model.branchKeysTableName();
-      this.ttlMilliseconds = model.ttlMilliseconds();
+      this.branchKeyStoreArn = model.branchKeyStoreArn();
+      this.ttlSeconds = model.ttlSeconds();
       this.maxCacheSize = model.maxCacheSize();
       this.grantTokens = model.grantTokens();
     }
@@ -166,15 +150,6 @@ public class CreateAwsKmsHierarchicalKeyringInput {
 
     public String branchKeyId() {
       return this.branchKeyId;
-    }
-
-    public Builder branchKeySupplier(BranchKeySupplier branchKeySupplier) {
-      this.branchKeySupplier = branchKeySupplier;
-      return this;
-    }
-
-    public BranchKeySupplier branchKeySupplier() {
-      return this.branchKeySupplier;
     }
 
     public Builder kmsKeyId(String kmsKeyId) {
@@ -204,30 +179,30 @@ public class CreateAwsKmsHierarchicalKeyringInput {
       return this.ddbClient;
     }
 
-    public Builder branchKeysTableName(String branchKeysTableName) {
-      this.branchKeysTableName = branchKeysTableName;
+    public Builder branchKeyStoreArn(String branchKeyStoreArn) {
+      this.branchKeyStoreArn = branchKeyStoreArn;
       return this;
     }
 
-    public String branchKeysTableName() {
-      return this.branchKeysTableName;
+    public String branchKeyStoreArn() {
+      return this.branchKeyStoreArn;
     }
 
-    public Builder ttlMilliseconds(Long ttlMilliseconds) {
-      this.ttlMilliseconds = ttlMilliseconds;
+    public Builder ttlSeconds(Long ttlSeconds) {
+      this.ttlSeconds = ttlSeconds;
       return this;
     }
 
-    public Long ttlMilliseconds() {
-      return this.ttlMilliseconds;
+    public Long ttlSeconds() {
+      return this.ttlSeconds;
     }
 
-    public Builder maxCacheSize(Integer maxCacheSize) {
+    public Builder maxCacheSize(int maxCacheSize) {
       this.maxCacheSize = maxCacheSize;
       return this;
     }
 
-    public Integer maxCacheSize() {
+    public int maxCacheSize() {
       return this.maxCacheSize;
     }
 
@@ -241,15 +216,9 @@ public class CreateAwsKmsHierarchicalKeyringInput {
     }
 
     public CreateAwsKmsHierarchicalKeyringInput build() {
-      // TODO below is a hack to get validation with the branchKeySupplier working.
-      // Once properly modelled in smithy, this check needs to move into dafny
-      if (Objects.isNull(this.branchKeyId()) && Objects.isNull(this.branchKeySupplier))  {
-        throw new IllegalArgumentException("`branchKeyId` or `branchKeySupplier` must be configured.");
+      if (Objects.isNull(this.branchKeyId()))  {
+        throw new IllegalArgumentException("Missing value for required field `branchKeyId`");
       }
-      if (Objects.nonNull(this.branchKeyId()) && Objects.nonNull(this.branchKeySupplier))  {
-        throw new IllegalArgumentException("`branchKeyId` or `branchKeySupplier` cannot both be configured.");
-      }
-
       if (Objects.isNull(this.kmsKeyId()))  {
         throw new IllegalArgumentException("Missing value for required field `kmsKeyId`");
       }
@@ -259,17 +228,17 @@ public class CreateAwsKmsHierarchicalKeyringInput {
       if (Objects.isNull(this.ddbClient()))  {
         throw new IllegalArgumentException("Missing value for required field `ddbClient`");
       }
-      if (Objects.isNull(this.branchKeysTableName()))  {
-        throw new IllegalArgumentException("Missing value for required field `branchKeysTableName`");
+      if (Objects.isNull(this.branchKeyStoreArn()))  {
+        throw new IllegalArgumentException("Missing value for required field `branchKeyStoreArn`");
       }
-      if (Objects.isNull(this.ttlMilliseconds()))  {
-        throw new IllegalArgumentException("Missing value for required field `ttlMilliseconds`");
+      if (Objects.isNull(this.ttlSeconds()))  {
+        throw new IllegalArgumentException("Missing value for required field `ttlSeconds`");
       }
-      if (Objects.nonNull(this.ttlMilliseconds()) && this.ttlMilliseconds() < 1) {
-        throw new IllegalArgumentException("`ttlMilliseconds` must be greater than or equal to 1");
+      if (Objects.nonNull(this.ttlSeconds()) && this.ttlSeconds() < 1) {
+        throw new IllegalArgumentException("`ttlSeconds` must be greater than or equal to 1");
       }
-      if (Objects.nonNull(this.maxCacheSize()) && this.maxCacheSize() < 1) {
-        throw new IllegalArgumentException("`maxCacheSize` must be greater than or equal to 1");
+      if (Objects.nonNull(this.maxCacheSize()) && this.maxCacheSize() < 0) {
+        throw new IllegalArgumentException("`maxCacheSize` must be greater than or equal to 0");
       }
       return new CreateAwsKmsHierarchicalKeyringInput(this);
     }

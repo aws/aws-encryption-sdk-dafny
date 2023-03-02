@@ -31,10 +31,6 @@ public class MaterialProviders {
     this._impl = result.dtor_value();
   }
 
-  public static Builder builder() {
-    return new BuilderImpl();
-  }
-
   // TODO This is manually added and needs to be added to smithy and generated properly
   public BranchKeySupplier CreateDynamoDbEncryptionBranchKeySupplier(CreateDynamoDbEncryptionBranchKeySupplierInput nativeValue) {
     // Stubbed implementation ignores input and returns a 'DynamoDbEncryptionBranchKeySupplier'
@@ -65,6 +61,14 @@ public class MaterialProviders {
     return VersionBranchKeyOutput.builder()
             .versionCreated(1)
             .build();
+  }
+
+  public static Builder builder() {
+    return new BuilderImpl();
+  }
+
+  protected IAwsCryptographicMaterialProvidersClient impl() {
+    return this._impl;
   }
 
   public Keyring CreateAwsKmsKeyring(CreateAwsKmsKeyringInput nativeValue) {
@@ -122,15 +126,6 @@ public class MaterialProviders {
     return Keyring.create(result.dtor_value());
   }
 
-  public Keyring CreateAwsKmsHierarchicalKeyring(CreateAwsKmsHierarchicalKeyringInput nativeValue) {
-    Dafny.Aws.Cryptography.MaterialProviders.Types.CreateAwsKmsHierarchicalKeyringInput dafnyValue = ToDafny.CreateAwsKmsHierarchyKeyringInput(nativeValue);
-    Result<Dafny.Aws.Cryptography.MaterialProviders.Types.IKeyring, Error> result = this._impl.CreateAwsKmsHierarchicalKeyring(dafnyValue);
-    if (result.is_Failure()) {
-      throw ToNative.Error(result.dtor_error());
-    }
-    return Keyring.create(result.dtor_value());
-  }
-
   public Keyring CreateAwsKmsMrkDiscoveryKeyring(
       CreateAwsKmsMrkDiscoveryKeyringInput nativeValue) {
     Dafny.Aws.Cryptography.MaterialProviders.Types.CreateAwsKmsMrkDiscoveryKeyringInput dafnyValue = ToDafny.CreateAwsKmsMrkDiscoveryKeyringInput(nativeValue);
@@ -145,6 +140,16 @@ public class MaterialProviders {
       CreateAwsKmsMrkDiscoveryMultiKeyringInput nativeValue) {
     Dafny.Aws.Cryptography.MaterialProviders.Types.CreateAwsKmsMrkDiscoveryMultiKeyringInput dafnyValue = ToDafny.CreateAwsKmsMrkDiscoveryMultiKeyringInput(nativeValue);
     Result<Dafny.Aws.Cryptography.MaterialProviders.Types.IKeyring, Error> result = this._impl.CreateAwsKmsMrkDiscoveryMultiKeyring(dafnyValue);
+    if (result.is_Failure()) {
+      throw ToNative.Error(result.dtor_error());
+    }
+    return Keyring.create(result.dtor_value());
+  }
+
+  public Keyring CreateAwsKmsHierarchicalKeyring(
+      CreateAwsKmsHierarchicalKeyringInput nativeValue) {
+    Dafny.Aws.Cryptography.MaterialProviders.Types.CreateAwsKmsHierarchicalKeyringInput dafnyValue = ToDafny.CreateAwsKmsHierarchicalKeyringInput(nativeValue);
+    Result<Dafny.Aws.Cryptography.MaterialProviders.Types.IKeyring, Error> result = this._impl.CreateAwsKmsHierarchicalKeyring(dafnyValue);
     if (result.is_Failure()) {
       throw ToNative.Error(result.dtor_error());
     }
@@ -293,10 +298,6 @@ public class MaterialProviders {
     if (result.is_Failure()) {
       throw ToNative.Error(result.dtor_error());
     }
-  }
-
-  protected IAwsCryptographicMaterialProvidersClient impl() {
-    return this._impl;
   }
 
   public interface Builder {

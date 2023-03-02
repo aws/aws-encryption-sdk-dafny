@@ -1,5 +1,8 @@
 namespace aws.cryptography.materialProviders
 
+@range(min: 0)
+integer PositiveInteger
+
 /////////////
 // AwsCryptographicMaterialProviders Creation
 @aws.polymorph#localService(
