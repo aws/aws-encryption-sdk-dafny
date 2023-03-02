@@ -5,6 +5,7 @@ include "../Keyring.dfy"
 include "../Materials.dfy"
 include "../AlgorithmSuites.dfy"
 include "../Materials.dfy"
+include "../CanonicalEncryptionContext.dfy"
 include "../../Model/AwsCryptographyMaterialProvidersTypes.dfy"
 
 module RawAESKeyring {
@@ -16,6 +17,7 @@ module RawAESKeyring {
   import Crypto = AwsCryptographyPrimitivesTypes
   import Keyring
   import Materials
+  import CanonicalEncryptionContext
   import opened AlgorithmSuites
   import UTF8
   import Seq
@@ -126,7 +128,7 @@ module RawAESKeyring {
       // EDK created using expected AAD
       ensures output.Success?
       ==>
-        && EncryptionContextToAAD(input.materials.encryptionContext).Success?
+        && CanonicalEncryptionContext.EncryptionContextToAAD(input.materials.encryptionContext).Success?
         && |output.value.materials.encryptedDataKeys| == |input.materials.encryptedDataKeys| + 1
         && |cryptoPrimitives.History.GenerateRandomBytes| == |old(cryptoPrimitives.History.GenerateRandomBytes)| + 2
         && |cryptoPrimitives.History.AESEncrypt| == |old(cryptoPrimitives.History.AESEncrypt)| + 1
@@ -139,7 +141,7 @@ module RawAESKeyring {
         && AESEncryptInput.encAlg == wrappingAlgorithm
         && AESEncryptInput.key == wrappingKey
         && AESEncryptInput.iv == iv
-        && AESEncryptInput.aad == EncryptionContextToAAD(input.materials.encryptionContext).value 
+        && AESEncryptInput.aad == CanonicalEncryptionContext.EncryptionContextToAAD(input.materials.encryptionContext).value 
         && var edk := Seq.Last(output.value.materials.encryptedDataKeys);
         && edk.keyProviderId == keyNamespace
         && |iv| == wrappingAlgorithm.ivLength as int
@@ -166,11 +168,11 @@ module RawAESKeyring {
       //= type=implication
       //# If the keyring cannot serialize
       //# the encryption context, OnEncrypt MUST fail.
-      ensures EncryptionContextToAAD(input.materials.encryptionContext).Failure? ==> output.Failure?
+      ensures CanonicalEncryptionContext.EncryptionContextToAAD(input.materials.encryptionContext).Failure? ==> output.Failure?
     {
       var materials := input.materials;
       var suite := materials.algorithmSuite;
-      var aad :- EncryptionContextToAAD(materials.encryptionContext);
+      var aad :- CanonicalEncryptionContext.EncryptionContextToAAD(materials.encryptionContext);
 
       // TODO add support
       :- Need(materials.algorithmSuite.symmetricSignature.None?,
@@ -272,7 +274,7 @@ module RawAESKeyring {
         && output.value.materials.plaintextDataKey.Some?
         && 0 < |cryptoPrimitives.History.AESDecrypt|
         && Seq.Last(cryptoPrimitives.History.AESDecrypt).output.Success?
-        && EncryptionContextToAAD(input.materials.encryptionContext).Success?
+        && CanonicalEncryptionContext.EncryptionContextToAAD(input.materials.encryptionContext).Success?
         && var AESDecryptRequest := Seq.Last(cryptoPrimitives.History.AESDecrypt).input;
         && AESDecryptRequest.encAlg == wrappingAlgorithm
         && AESDecryptRequest.key == wrappingKey
@@ -289,7 +291,7 @@ module RawAESKeyring {
             && AESDecryptRequest.authTag == encryptionOutput.authTag
             && AESDecryptRequest.iv == GetIvFromProvInfo(edk.keyProviderInfo)
         )
-        && AESDecryptRequest.aad == EncryptionContextToAAD(input.materials.encryptionContext).value
+        && AESDecryptRequest.aad == CanonicalEncryptionContext.EncryptionContextToAAD(input.materials.encryptionContext).value
         && output.value.materials.plaintextDataKey.value
           == Seq.Last(cryptoPrimitives.History.AESDecrypt).output.value;
 
@@ -297,7 +299,7 @@ module RawAESKeyring {
       //= type=implication
       //# If the keyring cannot
       //# serialize the encryption context, OnDecrypt MUST fail.
-      ensures EncryptionContextToAAD(input.materials.encryptionContext).Failure? ==> output.Failure?
+      ensures CanonicalEncryptionContext.EncryptionContextToAAD(input.materials.encryptionContext).Failure? ==> output.Failure?
     {
       var materials := input.materials;
 
@@ -310,7 +312,7 @@ module RawAESKeyring {
         Materials.DecryptionMaterialsWithoutPlaintextDataKey(materials),
         Types.AwsCryptographicMaterialProvidersException( message := "Keyring received decryption materials that already contain a plaintext data key."));
 
-      var aad :- EncryptionContextToAAD(input.materials.encryptionContext);
+      var aad :- CanonicalEncryptionContext.EncryptionContextToAAD(input.materials.encryptionContext);
       :- Need(|wrappingKey|== wrappingAlgorithm.keyLength as int,
         Types.AwsCryptographicMaterialProvidersException( message := "The wrapping key does not match the wrapping algorithm"));
 
@@ -380,19 +382,19 @@ module RawAESKeyring {
       ==>
         && |old(cryptoPrimitives.History.AESDecrypt)| + 1 == |cryptoPrimitives.History.AESDecrypt|
         && Seq.Last(cryptoPrimitives.History.AESDecrypt).output.Success?
-        && EncryptionContextToAAD(encryptionContext).Success?
+        && CanonicalEncryptionContext.EncryptionContextToAAD(encryptionContext).Success?
         && var AESDecryptRequest := Seq.Last(cryptoPrimitives.History.AESDecrypt).input;
         && AESDecryptRequest.encAlg == wrappingAlgorithm
         && AESDecryptRequest.key == wrappingKey
         && AESDecryptRequest.cipherTxt == encryptionOutput.cipherText
         && AESDecryptRequest.authTag == encryptionOutput.authTag
         && AESDecryptRequest.iv == iv
-        && AESDecryptRequest.aad == EncryptionContextToAAD(encryptionContext).value
+        && AESDecryptRequest.aad == CanonicalEncryptionContext.EncryptionContextToAAD(encryptionContext).value
         && res.value
           == Seq.Last(cryptoPrimitives.History.AESDecrypt).output.value;
     {
       :- Need(|iv| == wrappingAlgorithm.ivLength as int, Types.AwsCryptographicMaterialProvidersException( message := ""));
-      var aad :- EncryptionContextToAAD(encryptionContext);
+      var aad :- CanonicalEncryptionContext.EncryptionContextToAAD(encryptionContext);
       var maybePtKey := cryptoPrimitives
         .AESDecrypt(
           Crypto.AESDecryptInput(
@@ -480,39 +482,4 @@ module RawAESKeyring {
     ensures SerializeEDKCiphertext(DeserializeEDKCiphertext(ciphertext, tagLen)) == ciphertext
   {}
 
-  //= aws-encryption-sdk-specification/framework/raw-aes-keyring.md#onencrypt
-  //# The keyring MUST attempt to serialize the [encryption materials']
-  //# (structures.md#encryption-materials) [encryption context]
-  //# (structures.md#encryption-context-1) in the same format as the
-  //# serialization of [message header AAD key value pairs](../data-format/
-  //# message-header.md#key-value-pairs).
-  // TODO: Tests/proofs
-  function method EncryptionContextToAAD(
-    encryptionContext: Types.EncryptionContext
-  ):
-    (res: Result<seq<uint8>, Types.Error>)
-  {
-    :- Need(|encryptionContext| < UINT16_LIMIT,
-      Types.AwsCryptographicMaterialProvidersException( message := "Encryption Context is too large" ));
-    var keys := SetToOrderedSequence(encryptionContext.Keys, UInt.UInt8Less);
-
-    if |keys| == 0 then
-      // TODO: this adheres to spec (message-header.md) but diverges from what we do
-      // in EncryptionContext.WriteAADSection
-      Success([])
-    else
-      var KeyIntoPairBytes := k
-        requires k in encryptionContext
-      =>
-        var v := encryptionContext[k];
-        :- Need(HasUint16Len(k) && HasUint16Len(v),
-          Types.AwsCryptographicMaterialProvidersException( message := "Unable to serialize encryption context"));
-        Success(UInt16ToSeq(|k| as uint16) + k + UInt16ToSeq(|v| as uint16) + v);
-
-      var pairsBytes :- Seq.MapWithResult(KeyIntoPairBytes, keys);
-
-      // The final return should be the bytes of the pairs, prepended with the number of pairs
-      var allBytes := UInt16ToSeq(|keys| as uint16) + Seq.Flatten(pairsBytes);
-      Success(allBytes)
-  }
 }

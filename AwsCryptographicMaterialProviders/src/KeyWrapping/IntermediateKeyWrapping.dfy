@@ -4,7 +4,7 @@
 include "../../Model/AwsCryptographyMaterialProvidersTypes.dfy"
 include "../Materials.dfy"
 include "MaterialWrapping.dfy"
-include "../Keyrings/RawAESKeyring.dfy"
+include "../CanonicalEncryptionContext.dfy"
 
 module IntermediateKeyWrapping {
   import opened StandardLibrary
@@ -19,7 +19,7 @@ module IntermediateKeyWrapping {
   import Materials
   import UTF8
   import HKDF
-  import RawAESKeyring // TODO centralize EC serialization
+  import CanonicalEncryptionContext
 
   const KEYWRAP_MAC_INFO := UTF8.EncodeAscii("AWS_MPL_INTERMEDIATE_KEYWRAP_MAC");
   const KEYWRAP_ENC_INFO := UTF8.EncodeAscii("AWS_MPL_INTERMEDIATE_KEYWRAP_ENC");
@@ -102,7 +102,7 @@ module IntermediateKeyWrapping {
     // Decrypt the plaintext data key with the pdkEncryptionKey
     var iv: seq<uint8> := seq(AlgorithmSuites.GetEncryptIvLength(algorithmSuite) as nat, _ => 0); // IV is zero
     var tagIndex := |encryptedPdk| - AlgorithmSuites.GetEncryptTagLength(algorithmSuite) as nat;
-    var aad :- RawAESKeyring.EncryptionContextToAAD(encryptionContext); // TODO centralize EC serialization
+    var aad :- CanonicalEncryptionContext.EncryptionContextToAAD(encryptionContext); // TODO centralize EC serialization
 
     var decInput := Crypto.AESDecryptInput(
       encAlg := algorithmSuite.encrypt.AES_GCM,
@@ -199,7 +199,7 @@ module IntermediateKeyWrapping {
     //  - AAD: The [enccryption context](./structures.md#encryption-context) in the related encryption or decryption materials,
     //    serialized according to the the [ESDK message header](../data-format/message-header.md#aad).
     var iv: seq<uint8> := seq(AlgorithmSuites.GetEncryptIvLength(algorithmSuite) as nat, _ => 0); // IV is zero
-    var aad :- RawAESKeyring.EncryptionContextToAAD(encryptionContext); // TODO centralize EC serialization
+    var aad :- CanonicalEncryptionContext.EncryptionContextToAAD(encryptionContext); // TODO centralize EC serialization
     var encInput := Crypto.AESEncryptInput(
       encAlg := algorithmSuite.encrypt.AES_GCM,
       iv := iv,
