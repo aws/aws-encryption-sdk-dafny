@@ -7,13 +7,13 @@ include "../../AlgorithmSuites.dfy"
 include "../../../Model/AwsCryptographyMaterialProvidersTypes.dfy"
 include "Constants.dfy"
 include "AwsKmsUtils.dfy"
-include "AwsKmsArnParsing.dfy"
+include "../../AwsArnParsing.dfy"
 
 module AwsKmsMrkDiscoveryKeyring {
   import opened StandardLibrary
   import opened Wrappers
   import opened UInt = StandardLibrary.UInt
-  import opened AwsKmsArnParsing
+   import opened AwsArnParsing
   import opened Actions
   import opened Constants
   import AlgorithmSuites

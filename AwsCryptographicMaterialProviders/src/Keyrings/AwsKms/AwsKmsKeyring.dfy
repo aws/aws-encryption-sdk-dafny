@@ -7,7 +7,7 @@ include "../../AlgorithmSuites.dfy"
 include "../../KeyWrapping/EdkWrapping.dfy"
 include "Constants.dfy"
 include "AwsKmsMrkMatchForDecrypt.dfy"
-include "AwsKmsArnParsing.dfy"
+include "../../AwsArnParsing.dfy"
 include "AwsKmsUtils.dfy"
 
 include "../../../Model/AwsCryptographyMaterialProvidersTypes.dfy"
@@ -16,7 +16,7 @@ module AwsKmsKeyring {
   import opened StandardLibrary
   import opened Wrappers
   import opened UInt = StandardLibrary.UInt
-  import opened AwsKmsArnParsing
+  import opened AwsArnParsing
   import opened AwsKmsUtils
   import opened Seq
   import opened Actions

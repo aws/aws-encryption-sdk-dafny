@@ -3,7 +3,7 @@
 
 include "../../../Model/AwsCryptographyMaterialProvidersTypes.dfy"
 include "../MultiKeyring.dfy"
-include "AwsKmsArnParsing.dfy"
+include "../../AwsArnParsing.dfy"
 include "AwsKmsMrkAreUnique.dfy"
 include "AwsKmsDiscoveryKeyring.dfy"
 include "AwsKmsUtils.dfy"
@@ -15,7 +15,7 @@ module DiscoveryMultiKeyring {
   import Types = AwsCryptographyMaterialProvidersTypes 
   import KMS = Types.ComAmazonawsKmsTypes
   import MultiKeyring
-  import AwsKmsArnParsing
+  import AwsArnParsing
   import AwsKmsMrkAreUnique
   import AwsKmsDiscoveryKeyring
   import opened AwsKmsUtils

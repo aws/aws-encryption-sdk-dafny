@@ -2,13 +2,13 @@
 // SPDX-License-Identifier: Apache-2.0
 
 include "../../../Model/AwsCryptographyMaterialProvidersTypes.dfy"
-include "AwsKmsArnParsing.dfy"
+include "../../AwsArnParsing.dfy"
 
 module AwsKmsMrkAreUnique {
   import opened StandardLibrary
   import opened Wrappers
   import opened Seq
-  import opened AwsKmsArnParsing
+   import opened AwsArnParsing
   import Types = AwsCryptographyMaterialProvidersTypes 
 
   //= aws-encryption-sdk-specification/framework/aws-kms/aws-kms-mrk-are-unique.md#implementation
