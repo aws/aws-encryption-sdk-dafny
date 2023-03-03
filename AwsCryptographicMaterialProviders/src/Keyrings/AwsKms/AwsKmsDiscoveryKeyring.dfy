@@ -6,7 +6,7 @@ include "../../Materials.dfy"
 include "../../AlgorithmSuites.dfy"
 include "Constants.dfy"
 include "AwsKmsUtils.dfy"
-include "AwsKmsArnParsing.dfy"
+include "../../AwsArnParsing.dfy"
 include "../../../Model/AwsCryptographyMaterialProvidersTypes.dfy"
 
 module AwsKmsDiscoveryKeyring {
@@ -18,7 +18,7 @@ module AwsKmsDiscoveryKeyring {
   import AlgorithmSuites
   import Keyring
   import Materials
-  import opened AwsKmsArnParsing
+  import opened AwsArnParsing
   import UTF8
   import Types = AwsCryptographyMaterialProvidersTypes
   import KMS = ComAmazonawsKmsTypes

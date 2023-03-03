@@ -3,7 +3,7 @@
 
 include "../../../Model/AwsCryptographyMaterialProvidersTypes.dfy"
 include "../MultiKeyring.dfy"
-include "AwsKmsArnParsing.dfy"
+include "../../AwsArnParsing.dfy"
 include "AwsKmsMrkAreUnique.dfy"
 include "AwsKmsKeyring.dfy"
 include "AwsKmsUtils.dfy"
@@ -15,7 +15,7 @@ module StrictMultiKeyring {
   import Types = AwsCryptographyMaterialProvidersTypes 
   import KMS = Types.ComAmazonawsKmsTypes
   import MultiKeyring
-  import AwsKmsArnParsing
+  import AwsArnParsing
   import AwsKmsMrkAreUnique
   import AwsKmsKeyring
   import opened AwsKmsUtils
@@ -50,7 +50,7 @@ module StrictMultiKeyring {
         [generator.value] + awsKmsKeys.UnwrapOr([])
       else
         awsKmsKeys.UnwrapOr([]);
-      var allIdentifiers := Seq.MapWithResult(AwsKmsArnParsing.IsAwsKmsIdentifierString, allStrings);
+      var allIdentifiers := Seq.MapWithResult(AwsArnParsing.IsAwsKmsIdentifierString, allStrings);
       && allIdentifiers.Failure?
     ==>
       output.Failure?
@@ -112,15 +112,15 @@ module StrictMultiKeyring {
     assert awsKmsKeys.Some? ==> forall k | k in awsKmsKeys.value :: k in allStrings;
 
     var allIdentifiers :- Seq.MapWithResult(
-      AwsKmsArnParsing.IsAwsKmsIdentifierString,
+      AwsArnParsing.IsAwsKmsIdentifierString,
       allStrings
     ).MapFailure(WrapStringToError);
 
     var generatorKeyring : Option<AwsKmsKeyring.AwsKmsKeyring>;
     match generator {
       case Some(generatorIdentifier) =>
-        var arn :- AwsKmsArnParsing.IsAwsKmsIdentifierString(generatorIdentifier).MapFailure(WrapStringToError);
-        var region := AwsKmsArnParsing.GetRegion(arn);
+        var arn :- AwsArnParsing.IsAwsKmsIdentifierString(generatorIdentifier).MapFailure(WrapStringToError);
+        var region := AwsArnParsing.GetRegion(arn);
         //= aws-encryption-sdk-specification/framework/aws-kms/aws-kms-multi-keyrings.md#aws-kms-multi-keyring
         //= type=implication
         //# NOTE: The AWS Encryption SDK SHOULD NOT attempt to evaluate its own
@@ -149,8 +149,8 @@ module StrictMultiKeyring {
             && children[i].ValidState()
         {
           var childIdentifier := childIdentifiers[index];
-          var info :- AwsKmsArnParsing.IsAwsKmsIdentifierString(childIdentifier).MapFailure(WrapStringToError);
-          var region := AwsKmsArnParsing.GetRegion(info);
+          var info :- AwsArnParsing.IsAwsKmsIdentifierString(childIdentifier).MapFailure(WrapStringToError);
+          var region := AwsArnParsing.GetRegion(info);
           //Question: What should the behavior be if there is no region supplied?
           // I assume that the SDK will use the default region or throw an error
           var client :- clientSupplier.GetClient(Types.GetClientInput( region := region.UnwrapOr("")));

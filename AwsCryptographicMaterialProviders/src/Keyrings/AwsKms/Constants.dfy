@@ -2,12 +2,12 @@
 // SPDX-License-Identifier: Apache-2.0
 
 include "../../../Model/AwsCryptographyMaterialProvidersTypes.dfy"
-include "AwsKmsArnParsing.dfy"
+include "../../AwsArnParsing.dfy"
 
 module Constants {
   import UTF8
   import Types = AwsCryptographyMaterialProvidersTypes
-  import AwsKmsArnParsing
+  import AwsArnParsing
 
   // UTF-8 encoded "aws-kms"
   const PROVIDER_ID: UTF8.ValidUTF8Bytes :=
@@ -36,6 +36,6 @@ module Constants {
    */
   datatype AwsKmsEdkHelper = AwsKmsEdkHelper(
     edk: AwsKmsEncryptedDataKey,
-    arn: AwsKmsArnParsing.AwsKmsArn
+    arn: AwsArnParsing.AwsKmsArn
   )
 }

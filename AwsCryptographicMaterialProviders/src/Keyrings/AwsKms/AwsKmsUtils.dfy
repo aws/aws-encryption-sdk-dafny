@@ -2,14 +2,14 @@
 // SPDX-License-Identifier: Apache-2.0
 
 include "../../../Model/AwsCryptographyMaterialProvidersTypes.dfy"
-include "AwsKmsArnParsing.dfy"
+include "../../AwsArnParsing.dfy"
 
 module AwsKmsUtils {
   import opened Wrappers
   import opened UInt = StandardLibrary.UInt
   import Types = AwsCryptographyMaterialProvidersTypes
   import KMS = Types.ComAmazonawsKmsTypes
-  import AwsKmsArnParsing
+  import AwsArnParsing
   import UTF8
 
   // TODO: These EncryptionContext methods can be removed once we move to UTF8 strings
@@ -57,16 +57,16 @@ module AwsKmsUtils {
   function method ValidateKmsKeyId(keyId: string)
     : (res: Result<(), Types.Error>)
     ensures res.Success? ==>
-      && AwsKmsArnParsing.ParseAwsKmsIdentifier(keyId).Success?
+      && AwsArnParsing.ParseAwsKmsIdentifier(keyId).Success?
       && UTF8.IsASCIIString(keyId)
-      && 0 < |keyId| <= AwsKmsArnParsing.MAX_AWS_KMS_IDENTIFIER_LENGTH
+      && 0 < |keyId| <= AwsArnParsing.MAX_AWS_KMS_IDENTIFIER_LENGTH
   {
-    var _ :- AwsKmsArnParsing.ParseAwsKmsIdentifier(keyId).MapFailure(WrapStringToError);
+    var _ :- AwsArnParsing.ParseAwsKmsIdentifier(keyId).MapFailure(WrapStringToError);
 
     :- Need(UTF8.IsASCIIString(keyId),
       Types.AwsCryptographicMaterialProvidersException(
         message := "Key identifier is not ASCII"));
-    :- Need(0 < |keyId| <= AwsKmsArnParsing.MAX_AWS_KMS_IDENTIFIER_LENGTH,
+    :- Need(0 < |keyId| <= AwsArnParsing.MAX_AWS_KMS_IDENTIFIER_LENGTH,
       Types.AwsCryptographicMaterialProvidersException(
         message := "Key identifier is too long"));
     Success(())

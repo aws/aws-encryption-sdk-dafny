@@ -3,7 +3,7 @@
 
 include "../../../Model/AwsCryptographyMaterialProvidersTypes.dfy"
 include "../MultiKeyring.dfy"
-include "AwsKmsArnParsing.dfy"
+include "../../AwsArnParsing.dfy"
 include "AwsKmsMrkAreUnique.dfy"
 include "AwsKmsMrkKeyring.dfy"
 include "AwsKmsUtils.dfy"
@@ -15,7 +15,7 @@ module MrkAwareStrictMultiKeyring {
   import Types = AwsCryptographyMaterialProvidersTypes
   import KMS = Types.ComAmazonawsKmsTypes
   import MultiKeyring
-  import AwsKmsArnParsing
+  import AwsArnParsing
   import AwsKmsMrkAreUnique
   import AwsKmsMrkKeyring
   import opened AwsKmsUtils
@@ -59,7 +59,7 @@ module MrkAwareStrictMultiKeyring {
         [generator.value] + awsKmsKeys.UnwrapOr([])
       else
         awsKmsKeys.UnwrapOr([]);
-      var allIdentifiers := Seq.MapWithResult(AwsKmsArnParsing.IsAwsKmsIdentifierString, allStrings);
+      var allIdentifiers := Seq.MapWithResult(AwsArnParsing.IsAwsKmsIdentifierString, allStrings);
       || allIdentifiers.Failure?
       || (allIdentifiers.Success? && AwsKmsMrkAreUnique.AwsKmsMrkAreUnique(allIdentifiers.value).Fail?)
     ==>
@@ -119,7 +119,7 @@ module MrkAwareStrictMultiKeyring {
     assert awsKmsKeys.Some? ==> forall k | k in awsKmsKeys.value :: k in allStrings;
 
     var allIdentifiers :- Seq.MapWithResult(
-      AwsKmsArnParsing.IsAwsKmsIdentifierString,
+      AwsArnParsing.IsAwsKmsIdentifierString,
       allStrings
     ).MapFailure(WrapStringToError);
     :- AwsKmsMrkAreUnique.AwsKmsMrkAreUnique(allIdentifiers);
@@ -127,8 +127,8 @@ module MrkAwareStrictMultiKeyring {
     var generatorKeyring : Option<AwsKmsMrkKeyring.AwsKmsMrkKeyring>;
     match generator {
       case Some(generatorIdentifier) =>
-        var arn :- AwsKmsArnParsing.IsAwsKmsIdentifierString(generatorIdentifier).MapFailure(WrapStringToError);
-        var region := AwsKmsArnParsing.GetRegion(arn);
+        var arn :- AwsArnParsing.IsAwsKmsIdentifierString(generatorIdentifier).MapFailure(WrapStringToError);
+        var region := AwsArnParsing.GetRegion(arn);
         //= aws-encryption-sdk-specification/framework/aws-kms/aws-kms-mrk-multi-keyrings.md#aws-kms-mrk-multi-keyring
         //= type=implication
         //# NOTE: The AWS Encryption SDK SHOULD NOT attempt to evaluate its own
@@ -156,8 +156,8 @@ module MrkAwareStrictMultiKeyring {
           :: ChildLoopInvariant(children[i],  awsKmsKeys.value[i], grantTokens)
         {
           var childIdentifier := childIdentifiers[index];
-          var info :- AwsKmsArnParsing.IsAwsKmsIdentifierString(childIdentifier).MapFailure(WrapStringToError);
-          var region := AwsKmsArnParsing.GetRegion(info);
+          var info :- AwsArnParsing.IsAwsKmsIdentifierString(childIdentifier).MapFailure(WrapStringToError);
+          var region := AwsArnParsing.GetRegion(info);
           //Question: What should the behavior be if there is no region supplied?
           // I assume that the SDK will use the default region or throw an error
           var client :- clientSupplier.GetClient(Types.GetClientInput(region := region.UnwrapOr("")));

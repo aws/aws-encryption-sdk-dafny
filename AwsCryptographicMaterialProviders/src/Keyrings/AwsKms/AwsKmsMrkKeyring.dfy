@@ -5,7 +5,7 @@
 include "../../../Model/AwsCryptographyMaterialProvidersTypes.dfy"
 include "Constants.dfy"
 include "AwsKmsMrkMatchForDecrypt.dfy"
-include "AwsKmsArnParsing.dfy"
+include "../../AwsArnParsing.dfy"
 include "AwsKmsUtils.dfy"
 include "../../Keyring.dfy"
 include "../../Materials.dfy"
@@ -15,7 +15,7 @@ module AwsKmsMrkKeyring {
   import opened StandardLibrary
   import opened Wrappers
   import opened UInt = StandardLibrary.UInt
-  import opened AwsKmsArnParsing
+   import opened AwsArnParsing
   import opened AwsKmsUtils
   import Types = AwsCryptographyMaterialProvidersTypes
   import KMS = Types.ComAmazonawsKmsTypes

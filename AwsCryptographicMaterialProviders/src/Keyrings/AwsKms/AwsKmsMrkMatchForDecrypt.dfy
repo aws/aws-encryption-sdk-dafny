@@ -1,13 +1,13 @@
 // Copyright Amazon.com Inc. or its affiliates. All Rights Reserved.
 // SPDX-License-Identifier: Apache-2.0
 
-include "AwsKmsArnParsing.dfy"
+include "../../AwsArnParsing.dfy"
 
 module  AwsKmsMrkMatchForDecrypt {
   import opened StandardLibrary
   import opened Wrappers
   import opened Seq
-  import opened AwsKmsArnParsing
+   import opened AwsArnParsing
 
   //= aws-encryption-sdk-specification/framework/aws-kms/aws-kms-mrk-match-for-decrypt.md#implementation
   //= type=implication

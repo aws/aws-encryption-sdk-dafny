@@ -1,13 +1,16 @@
 // Copyright Amazon.com Inc. or its affiliates. All Rights Reserved.
 // SPDX-License-Identifier: Apache-2.0
 
-include "../../../Model/AwsCryptographyMaterialProvidersTypes.dfy"
+include "../Model/AwsCryptographyMaterialProvidersTypes.dfy"
+include "../../ComAmazonawsDynamodb/Model/ComAmazonawsDynamodbTypes.dfy"
 
-module  AwsKmsArnParsing {
+module AwsArnParsing {
   import opened StandardLibrary
   import opened Wrappers
   import opened Seq
   import opened UInt = StandardLibrary.UInt
+  import Types = AwsCryptographyMaterialProvidersTypes
+  import DDB = ComAmazonawsDynamodbTypes
   import UTF8
 
   const MAX_AWS_KMS_IDENTIFIER_LENGTH := 2048
@@ -137,6 +140,57 @@ module  AwsKmsArnParsing {
     Success(resource)
   }
 
+  predicate method ValidAmazonDynamodbResource(resource: AwsResource)
+  {
+    // There are other valid resources aside from table in dynamodb 
+    // but for now we only care about table:
+    // https://docs.aws.amazon.com/service-authorization/latest/reference/list_amazondynamodb.html#amazondynamodb-resources-for-iam-policies
+    && resource.Valid()
+    && resource.resourceType == "table"
+  }
+
+  predicate method ValidAmazonDynamodbArn(arn: AwsArn)
+  {
+    && arn.Valid()
+    && arn.service == "dynamodb"
+    && ValidAmazonDynamodbResource(arn.resource)
+  }
+
+  type AmazonDynamodbTableArn = a : AwsArn | ValidAmazonDynamodbArn(a)
+    witness *
+  
+  type AmazonDynamodbResource = r : AwsResource | ValidAmazonDynamodbResource(r)
+    witness *
+  
+  datatype AmazonDynamodbTableName = AmazonDynamodbTableArn(a: AmazonDynamodbTableArn)
+  {
+    function method GetTableName(): string
+    {
+      match this {
+        case AmazonDynamodbTableArn(a: AmazonDynamodbTableArn) => a.resource.value
+      }
+    }
+  }
+
+  function method ParseAmazonDynamodbResources(identifier: string): (result: Result<AmazonDynamodbResource, string>)
+  {
+    var info := SplitOnce?(identifier, '/');
+    
+    :- Need(info.Some?, "Malformed resource: " + identifier);
+    
+    var resourceType := info.value.0;
+    var value := info.value.1;
+
+    // https://docs.aws.amazon.com/amazondynamodb/latest/developerguide/HowItWorks.NamingRulesDataTypes.html#HowItWorks.NamingRules
+    :- Need(DDB.IsValid_TableName(value), "Table Name invalid: " + identifier);
+
+    var resource := AwsResource(resourceType, value);
+
+    :- Need(ValidAmazonDynamodbResource(resource), "Malformed resource: " + identifier);
+
+    Success(resource)
+  }
+
   lemma ParseAwsKmsResourcesCorrect(identifier: string)
     //= aws-encryption-sdk-specification/framework/aws-kms/aws-kms-key-arn.md#a-valid-aws-kms-arn
     //= type=implication
@@ -161,6 +215,20 @@ module  AwsKmsArnParsing {
       |Join(info[1..], "/")| > 0
   {}
 
+  lemma ParseAmazonDynamodbResourcesCorrect(identifier: string)
+    ensures ParseAmazonDynamodbResources(identifier).Success? ==>
+      var info := SplitOnce?(identifier, '/');
+      var r := ParseAmazonDynamodbResources(identifier);
+      &&  info.Some?
+      && Join([r.value.resourceType, r.value.value], "/") == identifier
+    ensures ParseAmazonDynamodbResources(identifier).Success? ==>
+      var resourceType := SplitOnce?(identifier, '/').value.0;
+      resourceType == "table"
+    ensures ParseAmazonDynamodbResources(identifier).Success? ==>
+      var info := SplitOnce?(identifier, '/');
+      DDB.IsValid_TableName(info.value.1)
+  {}
+
   function method ParseAwsKmsArn(identifier: string): (result: Result<AwsKmsArn, string>)
   {
     var components := Split(identifier, ':');
@@ -179,6 +247,28 @@ module  AwsKmsArnParsing {
     );
 
     :- Need(ValidAwsKmsArn(arn), "Malformed Arn:" + identifier);
+
+    Success(arn)
+  }
+
+  function method ParseAmazonDynamodbTableArn(identifier: string): (result: Result<AmazonDynamodbTableArn, string>)
+  {
+    var components := Split(identifier, ':');
+
+    :- Need(6 == |components|, "Malformed arn: " + identifier);
+
+    var resource :- ParseAmazonDynamodbResources(components[5]);
+
+    var arn := AwsArn(
+      components[0],
+      components[1],
+      components[2],
+      components[3],
+      components[4],
+      resource
+    );
+
+    :- Need(ValidAmazonDynamodbArn(arn), "Malformed Arn:" + identifier);
 
     Success(arn)
   }
@@ -212,6 +302,15 @@ module  AwsKmsArnParsing {
     ensures ParseAwsKmsArn(identifier).Success? ==> |Split(identifier, ':')[4]| > 0
   {}
 
+  lemma ParseAmazonDynamodbTableArnCorrect(identifier: string)
+    ensures ParseAmazonDynamodbTableArn(identifier).Success? ==> "arn" <= identifier
+    ensures ParseAmazonDynamodbTableArn(identifier).Success? ==> |Split(identifier, ':')| == 6
+    ensures ParseAmazonDynamodbTableArn(identifier).Success? ==> |Split(identifier, ':')[1]| > 0 
+    ensures ParseAmazonDynamodbTableArn(identifier).Success? ==>  Split(identifier, ':')[2] == "dynamodb"
+    ensures ParseAmazonDynamodbTableArn(identifier).Success? ==> |Split(identifier, ':')[3]| > 0 
+    ensures ParseAmazonDynamodbTableArn(identifier).Success? ==> |Split(identifier, ':')[4]| > 0
+  {}
+
   function method ParseAwsKmsIdentifier(identifier: string): (result: Result<AwsKmsIdentifier, string>)
   {
     if "arn:" <= identifier then
@@ -220,6 +319,14 @@ module  AwsKmsArnParsing {
     else
       var r :- ParseAwsKmsRawResources(identifier);
       Success(AwsKmsRawResourceIdentifier(r))
+  }
+
+  function method ParseAmazonDynamodbTableName(identifier: string): (result: Result<DDB.TableName, string>)
+  {
+    var arn :- ParseAmazonDynamodbTableArn(identifier);
+    var tableArn := AmazonDynamodbTableArn(arn);
+    var tableName := tableArn.GetTableName();
+    Success(tableName)
   }
 
   //= aws-encryption-sdk-specification/framework/aws-kms/aws-kms-key-arn.md#identifying-an-an-aws-kms-multi-region-arn
@@ -341,4 +448,25 @@ module  AwsKmsArnParsing {
     IsAwsKmsIdentifierString(s).Success?
     witness *
 
+  function method Error(s : string) : Types.Error {
+    Types.AwsCryptographicMaterialProvidersException(message := s)
+  }
+
+  function method ValidateDdbTableArn(tableArn: string)
+      : (res: Result<(), Types.Error>)
+      ensures res.Success? ==>
+        && ParseAmazonDynamodbTableArn(tableArn).Success?
+        && UTF8.IsASCIIString(tableArn)
+        && DDB.IsValid_TableName(ParseAmazonDynamodbTableName(tableArn).value)
+    {
+      var _ :- ParseAmazonDynamodbTableName(tableArn).MapFailure(Error);
+
+      :- Need(UTF8.IsASCIIString(tableArn),
+        Types.AwsCryptographicMaterialProvidersException(
+          message := "Table Arn is not ASCII"));
+      :- Need(DDB.IsValid_TableName(ParseAmazonDynamodbTableName(tableArn).value),
+        Types.AwsCryptographicMaterialProvidersException(
+          message := "Table Name is too long"));
+      Success(())
+    }
 }

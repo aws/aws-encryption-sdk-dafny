@@ -21,6 +21,7 @@ include "CMMs/DefaultCMM.dfy"
 include "DefaultClientSupplier.dfy"
 include "Materials.dfy"
 include "Commitment.dfy"
+include "AwsArnParsing.dfy"
 include "AlgorithmSuites.dfy"
 
 module AwsCryptographyMaterialProvidersOperations refines AbstractAwsCryptographyMaterialProvidersOperations {
@@ -46,6 +47,7 @@ module AwsCryptographyMaterialProvidersOperations refines AbstractAwsCryptograph
   import Materials
   import Commitment
   import AlgorithmSuites
+  import opened AwsArnParsing
   import Kms = Com.Amazonaws.Kms
   import Ddb = ComAmazonawsDynamodbTypes
 
@@ -243,6 +245,7 @@ module AwsCryptographyMaterialProvidersOperations refines AbstractAwsCryptograph
     returns (output: Result<IKeyring, Error>)
   {
     var _ :- ValidateKmsKeyId(input.kmsKeyId);
+    var _ :- ValidateDdbTableArn(input.branchKeyStoreArn);
     // TODO add DDB Table Arn Validation
     :- Need(
       Ddb.IsValid_TableName(input.branchKeyStoreArn),

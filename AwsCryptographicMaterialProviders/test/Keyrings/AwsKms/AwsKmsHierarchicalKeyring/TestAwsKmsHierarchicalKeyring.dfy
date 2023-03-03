@@ -23,6 +23,7 @@ module TestAwsKmsHierarchicalKeyring {
     var ttl : int64 := (1 * 60000) * 10;
     // THIS IS A TESTING RESOURCE DO NOT USE IN A PRODUCTION ENVIRONMENT
     var keyArn := "arn:aws:kms:us-west-2:370957321024:key/9d989aa2-2f9c-438c-a745-cc57d3ad0126";
+    var branchKeyStoreArn := "arn:aws:dynamodb:us-west-2:370957321024:table/HierarchicalKeyringTestTable";
 
     var hierarchyKeyringResult := mpl.CreateAwsKmsHierarchicalKeyring(
       Types.CreateAwsKmsHierarchicalKeyringInput(
@@ -30,7 +31,7 @@ module TestAwsKmsHierarchicalKeyring {
         kmsKeyId := keyArn,
         kmsClient := kmsClient,
         ddbClient := dynamodbClient,
-        branchKeyStoreArn := "HierarchicalKeyringTestTable",
+        branchKeyStoreArn := branchKeyStoreArn,
         ttlSeconds := ttl,
         maxCacheSize := Option.Some(10),
         grantTokens := Option.None
