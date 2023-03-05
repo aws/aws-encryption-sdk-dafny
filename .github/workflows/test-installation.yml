@@ -1,7 +1,11 @@
 # This workflow pushes the .NET ESDK to CodeArtifact, tests on Linux, Windows, & Mac OSX, and then cleans up
 name: test-installation
 
-on: ["push"]
+on:
+  push:
+  # Run once a day
+  schedule:
+    - cron: '0 0 * * *'
 
 env:
   AWS_ENCRYPTION_SDK_EXAMPLE_KMS_KEY_ID: arn:aws:kms:us-west-2:658956600833:key/b3537ef1-d8dc-4780-9f5a-55776cbb2f7f
