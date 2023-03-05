@@ -2,6 +2,7 @@
 name: test-installation
 
 on:
+  pull_request:
   push:
   # Run once a day
   schedule:
