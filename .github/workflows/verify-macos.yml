@@ -1,7 +1,12 @@
 # This workflow performs static analysis checks.
 name: verification
 
-on: ["pull_request", "push"]
+on:
+  pull_request:
+  push:
+  # Run once a day
+  schedule:
+    - cron: '0 0 * * *'
 
 jobs:
   verification:
