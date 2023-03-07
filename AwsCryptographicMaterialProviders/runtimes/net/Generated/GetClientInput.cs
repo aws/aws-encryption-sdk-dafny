@@ -9,7 +9,7 @@ using System;
  get { return this._region; }
  set { this._region = value; }
 }
- internal bool IsSetRegion () {
+ public bool IsSetRegion () {
  return this._region != null;
 }
  public void Validate() {

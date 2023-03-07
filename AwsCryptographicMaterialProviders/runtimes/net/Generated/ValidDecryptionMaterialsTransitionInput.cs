@@ -10,14 +10,14 @@ using System;
  get { return this._start; }
  set { this._start = value; }
 }
- internal bool IsSetStart () {
+ public bool IsSetStart () {
  return this._start != null;
 }
  public AWS.Cryptography.MaterialProviders.DecryptionMaterials Stop {
  get { return this._stop; }
  set { this._stop = value; }
 }
- internal bool IsSetStop () {
+ public bool IsSetStop () {
  return this._stop != null;
 }
  public void Validate() {

@@ -10,14 +10,14 @@ using System;
  get { return this._eSDK; }
  set { this._eSDK = value; }
 }
- internal bool IsSetESDK () {
+ public bool IsSetESDK () {
  return this._eSDK != null;
 }
  public AWS.Cryptography.MaterialProviders.DBECommitmentPolicy DBE {
  get { return this._dBE; }
  set { this._dBE = value; }
 }
- internal bool IsSetDBE () {
+ public bool IsSetDBE () {
  return this._dBE != null;
 }
  public void Validate() {

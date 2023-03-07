@@ -10,14 +10,14 @@ using System;
  get { return this._accountIds; }
  set { this._accountIds = value; }
 }
- internal bool IsSetAccountIds () {
+ public bool IsSetAccountIds () {
  return this._accountIds != null;
 }
  public string Partition {
  get { return this._partition; }
  set { this._partition = value; }
 }
- internal bool IsSetPartition () {
+ public bool IsSetPartition () {
  return this._partition != null;
 }
  public void Validate() {

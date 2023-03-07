@@ -12,28 +12,28 @@ using System;
  get { return this._algorithmSuiteId; }
  set { this._algorithmSuiteId = value; }
 }
- internal bool IsSetAlgorithmSuiteId () {
+ public bool IsSetAlgorithmSuiteId () {
  return this._algorithmSuiteId != null;
 }
  public System.Collections.Generic.Dictionary<string, string> EncryptionContext {
  get { return this._encryptionContext; }
  set { this._encryptionContext = value; }
 }
- internal bool IsSetEncryptionContext () {
+ public bool IsSetEncryptionContext () {
  return this._encryptionContext != null;
 }
  public System.IO.MemoryStream SigningKey {
  get { return this._signingKey; }
  set { this._signingKey = value; }
 }
- internal bool IsSetSigningKey () {
+ public bool IsSetSigningKey () {
  return this._signingKey != null;
 }
  public System.IO.MemoryStream VerificationKey {
  get { return this._verificationKey; }
  set { this._verificationKey = value; }
 }
- internal bool IsSetVerificationKey () {
+ public bool IsSetVerificationKey () {
  return this._verificationKey != null;
 }
  public void Validate() {

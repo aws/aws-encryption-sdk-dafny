@@ -9,7 +9,7 @@ using System;
  get { return this._aES_GCM; }
  set { this._aES_GCM = value; }
 }
- internal bool IsSetAES__GCM () {
+ public bool IsSetAES__GCM () {
  return this._aES_GCM != null;
 }
  public void Validate() {

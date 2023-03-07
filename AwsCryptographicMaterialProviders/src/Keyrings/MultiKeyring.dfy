@@ -328,7 +328,7 @@ module MultiKeyring {
       // DecryptionMaterialsWithoutPlaintextDataKey), we know that the *only*
       // way to get to this place is if there is no plaintext data key, so we
       // omit the 'if' statement checking for it.
-      var combinedResult := Types.Collection( list := failures);
+      var combinedResult := Types.CollectionOfErrors( list := failures);
       return Failure(combinedResult);
     }
   }

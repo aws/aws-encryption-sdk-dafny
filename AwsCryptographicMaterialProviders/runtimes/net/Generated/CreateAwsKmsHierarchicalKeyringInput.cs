@@ -16,56 +16,56 @@ using System;
  get { return this._branchKeyId; }
  set { this._branchKeyId = value; }
 }
- internal bool IsSetBranchKeyId () {
+ public bool IsSetBranchKeyId () {
  return this._branchKeyId != null;
 }
  public string KmsKeyId {
  get { return this._kmsKeyId; }
  set { this._kmsKeyId = value; }
 }
- internal bool IsSetKmsKeyId () {
+ public bool IsSetKmsKeyId () {
  return this._kmsKeyId != null;
 }
  public Amazon.KeyManagementService.IAmazonKeyManagementService KmsClient {
  get { return this._kmsClient; }
  set { this._kmsClient = value; }
 }
- internal bool IsSetKmsClient () {
+ public bool IsSetKmsClient () {
  return this._kmsClient != null;
 }
  public Amazon.DynamoDBv2.IAmazonDynamoDB DdbClient {
  get { return this._ddbClient; }
  set { this._ddbClient = value; }
 }
- internal bool IsSetDdbClient () {
+ public bool IsSetDdbClient () {
  return this._ddbClient != null;
 }
- internal string BranchKeyStoreArn {
-  get { return this._branchKeyStoreArn; }
-  set { this._branchKeyStoreArn = value; }
+ public string BranchKeyStoreArn {
+ get { return this._branchKeyStoreArn; }
+ set { this._branchKeyStoreArn = value; }
 }
- internal bool IsSetBranchKeyStoreArn () {
-  return this._branchKeyStoreArn != null;
+ public bool IsSetBranchKeyStoreArn () {
+ return this._branchKeyStoreArn != null;
 }
  public long TtlSeconds {
-  get { return this._ttlSeconds.GetValueOrDefault(); }
-  set { this._ttlSeconds = value; }
+ get { return this._ttlSeconds.GetValueOrDefault(); }
+ set { this._ttlSeconds = value; }
 }
- internal bool IsSetTtlSeconds () {
-  return this._ttlSeconds.HasValue;
+ public bool IsSetTtlSeconds () {
+ return this._ttlSeconds.HasValue;
 }
  public int MaxCacheSize {
  get { return this._maxCacheSize.GetValueOrDefault(); }
  set { this._maxCacheSize = value; }
 }
- internal bool IsSetMaxCacheSize () {
+ public bool IsSetMaxCacheSize () {
  return this._maxCacheSize.HasValue;
 }
  public System.Collections.Generic.List<string> GrantTokens {
  get { return this._grantTokens; }
  set { this._grantTokens = value; }
 }
- internal bool IsSetGrantTokens () {
+ public bool IsSetGrantTokens () {
  return this._grantTokens != null;
 }
  public void Validate() {

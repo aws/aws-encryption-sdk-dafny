@@ -7,7 +7,7 @@ import Dafny.Aws.Cryptography.Primitives.Types.AES__CTR;
 import Dafny.Aws.Cryptography.Primitives.Types.AES__GCM;
 import Dafny.Aws.Cryptography.Primitives.Types.Error;
 import Dafny.Aws.Cryptography.Primitives.Types.Error_AwsCryptographicPrimitivesError;
-import Dafny.Aws.Cryptography.Primitives.Types.Error_Collection;
+import Dafny.Aws.Cryptography.Primitives.Types.Error_CollectionOfErrors;
 import Dafny.Aws.Cryptography.Primitives.Types.Error_Opaque;
 import dafny.DafnySequence;
 import java.lang.Boolean;
@@ -53,7 +53,7 @@ public class ToNative {
     return nativeBuilder.build();
   }
 
-  public static CollectionOfErrors Error(Error_Collection dafnyValue) {
+  public static CollectionOfErrors Error(Error_CollectionOfErrors dafnyValue) {
     CollectionOfErrors.Builder nativeBuilder = CollectionOfErrors.builder();
     nativeBuilder.list(
         software.amazon.dafny.conversion.ToNative.Aggregate.GenericToList(
@@ -76,8 +76,8 @@ public class ToNative {
     if (dafnyValue.is_Opaque()) {
       return ToNative.Error((Error_Opaque) dafnyValue);
     }
-    if (dafnyValue.is_Collection()) {
-      return ToNative.Error((Error_Collection) dafnyValue);
+    if (dafnyValue.is_CollectionOfErrors()) {
+      return ToNative.Error((Error_CollectionOfErrors) dafnyValue);
     }
     OpaqueError.Builder nativeBuilder = OpaqueError.builder();
     nativeBuilder.obj(dafnyValue);

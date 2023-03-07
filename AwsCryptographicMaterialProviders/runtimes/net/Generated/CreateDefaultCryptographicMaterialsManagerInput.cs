@@ -9,7 +9,7 @@ using System;
  get { return this._keyring; }
  set { this._keyring = value; }
 }
- internal bool IsSetKeyring () {
+ public bool IsSetKeyring () {
  return this._keyring != null;
 }
  public void Validate() {

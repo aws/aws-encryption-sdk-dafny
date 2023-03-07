@@ -537,7 +537,7 @@ module AwsKmsKeyring {
         //# If OnDecrypt fails to successfully decrypt any [encrypted data key]
         //# (../structures.md#encrypted-data-key), then it MUST yield an error
         //# that includes all the collected errors.
-        .MapFailure(errors => Types.Collection( list := errors));
+        .MapFailure(errors => Types.CollectionOfErrors( list := errors));
 
       assert decryptClosure.Ensures(Last(attempts).input, Success(SealedDecryptionMaterials), DropLast(attempts));
       return Success(Types.OnDecryptOutput(

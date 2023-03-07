@@ -22,9 +22,6 @@
 # This means that these are the project roots
 # that are shared by all libraries in this repo.
 PROJECT_ROOT := $(abspath $(dir $(abspath $(lastword $(MAKEFILE_LIST)))))
-# This relative path is for include files between libraries.
-# If an absolut path is used, this path will not be portable.
-PROJECT_RELATIVE_ROOT := $(dir $(lastword $(MAKEFILE_LIST)))
 # This evaluates to the path of the current working directory.
 # i.e. The specific library under consideration.
 LIBRARY_ROOT = $(PWD)
@@ -116,11 +113,11 @@ _polymorph:
 	--namespace $(SMITHY_NAMESPACE) \
 	$(AWS_SDK_CMD)";
 
-polymorph_code_gen: OUTPUT_DAFNY=--output-dafny --include-dafny $(PROJECT_RELATIVE_ROOT)/StandardLibrary/src/Index.dfy
+polymorph_code_gen: OUTPUT_DAFNY=--output-dafny --include-dafny $(PROJECT_ROOT)/StandardLibrary/src/Index.dfy
 polymorph_code_gen: OUTPUT_DOTNET=--output-dotnet $(LIBRARY_ROOT)/runtimes/net/Generated/
 polymorph_code_gen: _polymorph
 
-polymorph_dafny: OUTPUT_DAFNY=--output-dafny --include-dafny $(PROJECT_RELATIVE_ROOT)/StandardLibrary/src/Index.dfy
+polymorph_dafny: OUTPUT_DAFNY=--output-dafny --include-dafny $(PROJECT_ROOT)/StandardLibrary/src/Index.dfy
 polymorph_dafny: _polymorph
 
 polymorph_dotnet: OUTPUT_DOTNET=--output-dotnet $(LIBRARY_ROOT)/runtimes/net/Generated/

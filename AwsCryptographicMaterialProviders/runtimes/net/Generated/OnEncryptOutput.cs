@@ -9,7 +9,7 @@ using System;
  get { return this._materials; }
  set { this._materials = value; }
 }
- internal bool IsSetMaterials () {
+ public bool IsSetMaterials () {
  return this._materials != null;
 }
  public void Validate() {

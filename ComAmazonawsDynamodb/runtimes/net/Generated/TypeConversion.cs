@@ -2,20 +2,20 @@
 // SPDX-License-Identifier: Apache-2.0
 // Do not modify this file. This file is machine generated, and any changes to it will be overwritten.
 using System.Linq; using System; namespace Com.Amazonaws.Dynamodb {
- internal static class TypeConversion {
- public static Amazon.DynamoDBv2.AttributeAction FromDafny_N3_com__N9_amazonaws__N8_dynamodb__S15_AttributeAction (Dafny.Com.Amazonaws.Dynamodb.Types._IAttributeAction value) {
+ public static class TypeConversion {
+ internal static Amazon.DynamoDBv2.AttributeAction FromDafny_N3_com__N9_amazonaws__N8_dynamodb__S15_AttributeAction (Dafny.Com.Amazonaws.Dynamodb.Types._IAttributeAction value) {
  if (value.is_ADD) return Amazon.DynamoDBv2.AttributeAction.ADD;
  if (value.is_PUT) return Amazon.DynamoDBv2.AttributeAction.PUT;
  if (value.is_DELETE) return Amazon.DynamoDBv2.AttributeAction.DELETE;
 throw new System.ArgumentException("Invalid Amazon.DynamoDBv2.AttributeAction value");
 }
- public static Dafny.Com.Amazonaws.Dynamodb.Types._IAttributeAction ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S15_AttributeAction (Amazon.DynamoDBv2.AttributeAction value) {
+ internal static Dafny.Com.Amazonaws.Dynamodb.Types._IAttributeAction ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S15_AttributeAction (Amazon.DynamoDBv2.AttributeAction value) {
  if (Amazon.DynamoDBv2.AttributeAction.ADD.Equals(value)) return Dafny.Com.Amazonaws.Dynamodb.Types.AttributeAction.create_ADD();
  if (Amazon.DynamoDBv2.AttributeAction.PUT.Equals(value)) return Dafny.Com.Amazonaws.Dynamodb.Types.AttributeAction.create_PUT();
  if (Amazon.DynamoDBv2.AttributeAction.DELETE.Equals(value)) return Dafny.Com.Amazonaws.Dynamodb.Types.AttributeAction.create_DELETE();
 throw new System.ArgumentException("Invalid Amazon.DynamoDBv2.AttributeAction value");
 }
- public static Amazon.DynamoDBv2.Model.AttributeValue FromDafny_N3_com__N9_amazonaws__N8_dynamodb__S14_AttributeValue (Dafny.Com.Amazonaws.Dynamodb.Types._IAttributeValue value) {
+ internal static Amazon.DynamoDBv2.Model.AttributeValue FromDafny_N3_com__N9_amazonaws__N8_dynamodb__S14_AttributeValue (Dafny.Com.Amazonaws.Dynamodb.Types._IAttributeValue value) {
  Dafny.Com.Amazonaws.Dynamodb.Types.AttributeValue concrete = (Dafny.Com.Amazonaws.Dynamodb.Types.AttributeValue)value;
  var converted = new Amazon.DynamoDBv2.Model.AttributeValue(); if (value.is_S) {
  converted.S = FromDafny_N3_com__N9_amazonaws__N8_dynamodb__S14_AttributeValue__M1_S(concrete.dtor_S);
@@ -50,46 +50,30 @@ throw new System.ArgumentException("Invalid Amazon.DynamoDBv2.AttributeAction va
 }
 throw new System.ArgumentException("Invalid Amazon.DynamoDBv2.Model.AttributeValue state");
 }
-
-public static Dafny.Com.Amazonaws.Dynamodb.Types._IAttributeValue
-  ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S14_AttributeValue(Amazon.DynamoDBv2.Model.AttributeValue value)
- {
-  // Benerated for now; newest polymoprh changes should take care of this but it also intorduces new changes that have to be fixed. 
-  if (value.S != null)
-  {
-   return Dafny.Com.Amazonaws.Dynamodb.Types.AttributeValue.create_S(
-    ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S14_AttributeValue__M1_S(value.S));
-  }
-  if (value.N != null)
-  {
-   return Dafny.Com.Amazonaws.Dynamodb.Types.AttributeValue.create_N(
-    ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S14_AttributeValue__M1_N(value.N));
-  }
-  if (value.B != null)
-  {
-   return Dafny.Com.Amazonaws.Dynamodb.Types.AttributeValue.create_B(
-    ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S14_AttributeValue__M1_B(value.B));
-  }
-  if (value.IsMSet)
-  {
-   return Dafny.Com.Amazonaws.Dynamodb.Types.AttributeValue.create_M(
-    ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S14_AttributeValue__M1_M(value.M));
-  }
-
-  if (value.IsLSet)
-  {
-   return Dafny.Com.Amazonaws.Dynamodb.Types.AttributeValue.create_L(
-    ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S14_AttributeValue__M1_L(value.L));
-  }
-
-  if (value.IsBOOLSet)
-  {
-   return Dafny.Com.Amazonaws.Dynamodb.Types.AttributeValue.create_BOOL(
-    ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S14_AttributeValue__M4_BOOL(value.BOOL));
-  }
-
-  throw new System.ArgumentException("Invalid Amazon.DynamoDBv2.Model.AttributeValue state");
- }
+ internal static Dafny.Com.Amazonaws.Dynamodb.Types._IAttributeValue ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S14_AttributeValue (Amazon.DynamoDBv2.Model.AttributeValue value) {
+ if (value.S != null) {
+ return Dafny.Com.Amazonaws.Dynamodb.Types.AttributeValue.create_S(ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S14_AttributeValue__M1_S(value.S));
+} if (value.N != null) {
+ return Dafny.Com.Amazonaws.Dynamodb.Types.AttributeValue.create_N(ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S14_AttributeValue__M1_N(value.N));
+} if (value.B != null) {
+ return Dafny.Com.Amazonaws.Dynamodb.Types.AttributeValue.create_B(ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S14_AttributeValue__M1_B(value.B));
+} if (!value.SS.Any()) {
+ return Dafny.Com.Amazonaws.Dynamodb.Types.AttributeValue.create_SS(ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S14_AttributeValue__M2_SS(value.SS));
+} if (!value.NS.Any()) {
+ return Dafny.Com.Amazonaws.Dynamodb.Types.AttributeValue.create_NS(ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S14_AttributeValue__M2_NS(value.NS));
+} if (!value.BS.Any()) {
+ return Dafny.Com.Amazonaws.Dynamodb.Types.AttributeValue.create_BS(ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S14_AttributeValue__M2_BS(value.BS));
+} if (value.IsMSet) {
+ return Dafny.Com.Amazonaws.Dynamodb.Types.AttributeValue.create_M(ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S14_AttributeValue__M1_M(value.M));
+} if (value.IsLSet) {
+ return Dafny.Com.Amazonaws.Dynamodb.Types.AttributeValue.create_L(ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S14_AttributeValue__M1_L(value.L));
+} if (value.NULL == true) {
+ return Dafny.Com.Amazonaws.Dynamodb.Types.AttributeValue.create_NULL(ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S14_AttributeValue__M4_NULL(value.NULL));
+} if (value.IsBOOLSet) {
+ return Dafny.Com.Amazonaws.Dynamodb.Types.AttributeValue.create_BOOL(ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S14_AttributeValue__M4_BOOL(value.BOOL));
+}
+throw new System.ArgumentException("Invalid Amazon.DynamoDBv2.Model.AttributeValue state");
+}
  internal static Amazon.DynamoDBv2.Model.BackupInUseException FromDafny_N3_com__N9_amazonaws__N8_dynamodb__S20_BackupInUseException (Dafny.Com.Amazonaws.Dynamodb.Types.Error_BackupInUseException value) {
  return new Amazon.DynamoDBv2.Model.BackupInUseException (
  FromDafny_N3_com__N9_amazonaws__N8_dynamodb__S20_BackupInUseException__M7_message(value._message)

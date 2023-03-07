@@ -12,28 +12,28 @@ using System;
  get { return this._kmsClient; }
  set { this._kmsClient = value; }
 }
- internal bool IsSetKmsClient () {
+ public bool IsSetKmsClient () {
  return this._kmsClient != null;
 }
  public AWS.Cryptography.MaterialProviders.DiscoveryFilter DiscoveryFilter {
  get { return this._discoveryFilter; }
  set { this._discoveryFilter = value; }
 }
- internal bool IsSetDiscoveryFilter () {
+ public bool IsSetDiscoveryFilter () {
  return this._discoveryFilter != null;
 }
  public System.Collections.Generic.List<string> GrantTokens {
  get { return this._grantTokens; }
  set { this._grantTokens = value; }
 }
- internal bool IsSetGrantTokens () {
+ public bool IsSetGrantTokens () {
  return this._grantTokens != null;
 }
  public string Region {
  get { return this._region; }
  set { this._region = value; }
 }
- internal bool IsSetRegion () {
+ public bool IsSetRegion () {
  return this._region != null;
 }
  public void Validate() {

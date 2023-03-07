@@ -12,28 +12,28 @@ using System;
  get { return this._keyNamespace; }
  set { this._keyNamespace = value; }
 }
- internal bool IsSetKeyNamespace () {
+ public bool IsSetKeyNamespace () {
  return this._keyNamespace != null;
 }
  public string KeyName {
  get { return this._keyName; }
  set { this._keyName = value; }
 }
- internal bool IsSetKeyName () {
+ public bool IsSetKeyName () {
  return this._keyName != null;
 }
  public System.IO.MemoryStream WrappingKey {
  get { return this._wrappingKey; }
  set { this._wrappingKey = value; }
 }
- internal bool IsSetWrappingKey () {
+ public bool IsSetWrappingKey () {
  return this._wrappingKey != null;
 }
  public AWS.Cryptography.MaterialProviders.AesWrappingAlg WrappingAlg {
  get { return this._wrappingAlg; }
  set { this._wrappingAlg = value; }
 }
- internal bool IsSetWrappingAlg () {
+ public bool IsSetWrappingAlg () {
  return this._wrappingAlg != null;
 }
  public void Validate() {
