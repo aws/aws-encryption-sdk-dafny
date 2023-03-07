@@ -17,17 +17,41 @@ module TestAwsKmsHierarchicalKeyring {
 
   method {:test} TestClientWithHierarchy()
   {
-    var mpl :- expect MaterialProviders.MaterialProviders();
-    var kmsClient :- expect KMS.KMSClient();
-    var dynamodbClient :- expect DDB.DynamoDBClient();
-    var ttl : int64 := (1 * 60000) * 10;
     // THIS IS A TESTING RESOURCE DO NOT USE IN A PRODUCTION ENVIRONMENT
     var keyArn := "arn:aws:kms:us-west-2:370957321024:key/9d989aa2-2f9c-438c-a745-cc57d3ad0126";
     var branchKeyStoreArn := "arn:aws:dynamodb:us-west-2:370957321024:table/HierarchicalKeyringTestTable";
+    var branchKeyId := "hierarchy-test-v1";
+    var ttl : int64 := (1 * 60000) * 10;
+    BuildKeyringAndTest(branchKeyId, branchKeyStoreArn, keyArn, ttl);
+  }
+
+  method {:test} TestClientWithHierarchyActiveActive() 
+  { 
+    // THIS IS A TESTING RESOURCE DO NOT USE IN A PRODUCTION ENVIRONMENT
+    var keyArn := "arn:aws:kms:us-west-2:370957321024:key/9d989aa2-2f9c-438c-a745-cc57d3ad0126";
+    var branchKeyStoreArn := "arn:aws:dynamodb:us-west-2:370957321024:table/HierarchicalKeyringTestTable";
+    // The HierarchicalKeyringTestTable has two active keys under the branchKeyId below.
+    // They have "create-time" timestamps of: 2023-03-07T17:09Z and 2023-03-07T17:07Z
+    // When sorting them lexicographically, we should be using 2023-03-07T17:09Z as the "newest" 
+    // branch key since this timestamp is more recent.
+    var branchKeyId := "hierarchy-test-active-active";
+    var ttl : int64 := (1 * 60000) * 10;
+    BuildKeyringAndTest(branchKeyId, branchKeyStoreArn, keyArn, ttl);
+  }
+
+  method BuildKeyringAndTest(
+    branchKeyId: string,
+    branchKeyStoreArn: string,
+    keyArn: string,
+    ttl: int64
+  ) {
+    var mpl :- expect MaterialProviders.MaterialProviders();
+    var kmsClient :- expect KMS.KMSClient();
+    var dynamodbClient :- expect DDB.DynamoDBClient();
 
     var hierarchyKeyringResult := mpl.CreateAwsKmsHierarchicalKeyring(
       Types.CreateAwsKmsHierarchicalKeyringInput(
-        branchKeyId := "hierarchy-test-v1",
+        branchKeyId := branchKeyId,
         kmsKeyId := keyArn,
         kmsClient := kmsClient,
         ddbClient := dynamodbClient,

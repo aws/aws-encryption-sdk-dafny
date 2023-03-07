@@ -440,14 +440,14 @@ module AwsKmsHierarchicalKeyring {
       //# The AWS DDB response MUST contain the fields defined in the [branch keystore record format](../branch-key-store.md#record-format).
       //# If the record does not contain the defined fields, OnEncrypt MUST fail.
       :- Need(
-        branchKeyItemHasRequiredAttributes?(queryResponse.Items.value[0]),
+        forall resp <- queryResponse.Items.value :: branchKeyItemHasRequiredAttributes?(resp),
         E("Malformed Branch Key entry")
       );
 
       // TODO resolve the one to take by using the create-time value
       // if we have an active-active case we should resolve the version to use 
       // by looking at the `create-time` value
-      var branchKeyRecord: branchKeyItem := queryResponse.Items.value[0];
+      var branchKeyRecord := SortByTime(queryResponse.Items.value);
 
       //= aws-encryption-sdk-specification/framework/aws-kms/aws-kms-hierarchical-keyring.md#aws-kms-branch-key-decryption
       //= type=implication
@@ -470,6 +470,38 @@ module AwsKmsHierarchicalKeyring {
       return Success(hierarchicalMaterials);
     }
   }
+
+  method SortByTime(queryResponse: DDB.ItemList)
+    returns (output: branchKeyItem)
+    requires |queryResponse| > 0
+    requires 
+      && (forall resp <- queryResponse :: 
+        && branchKeyItemHasRequiredAttributes?(resp))
+    ensures branchKeyItemHasRequiredAttributes?(output)
+  { 
+    if |queryResponse| == 1 {
+      return queryResponse[0];
+    }
+
+    var newestBranchKey: branchKeyItem := queryResponse[0];
+    
+    for i := 1 to |queryResponse| {
+      var tmp: branchKeyItem := queryResponse[i];
+      var a := newestBranchKey["create-time"].S;
+      var b := tmp["create-time"].S;
+
+      if !LexicographicLessOrEqual(a, b, CharGreater) {
+        newestBranchKey := queryResponse[i];
+      }
+    }
+
+    return newestBranchKey;
+  }
+
+  function method CharGreater(a: char, b: char): bool 
+  {
+    a > b
+  } 
 
   method decryptBranchKey(
     branchKeyRecord: branchKeyItem,
