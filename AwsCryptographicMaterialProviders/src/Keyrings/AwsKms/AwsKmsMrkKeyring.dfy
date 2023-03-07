@@ -502,7 +502,7 @@ module AwsKmsMrkKeyring {
       );
 
       var SealedDecryptionMaterials :- outcome
-        .MapFailure(errors => Types.Collection( list := errors));
+        .MapFailure(errors => Types.CollectionOfErrors( list := errors));
 
       assert decryptClosure.Ensures(Last(attempts).input, Success(SealedDecryptionMaterials), DropLast(attempts));
 

@@ -871,6 +871,8 @@ throw new System.ArgumentException("Invalid AWS.Cryptography.Primitives.RSAPaddi
  {
  case Dafny.Aws.Cryptography.Primitives.Types.Error_AwsCryptographicPrimitivesError dafnyVal:
 return FromDafny_N3_aws__N12_cryptography__N10_primitives__S31_AwsCryptographicPrimitivesError(dafnyVal);
+ case Dafny.Aws.Cryptography.Primitives.Types.Error_CollectionOfErrors dafnyVal:
+ return new CollectionOfErrors(new System.Collections.Generic.List<Exception>(dafnyVal._list.Elements.Select(x => TypeConversion.FromDafny_CommonError(x))));
  case Dafny.Aws.Cryptography.Primitives.Types.Error_Opaque dafnyVal:
  return new OpaqueError(dafnyVal._obj);
  default:
@@ -883,6 +885,16 @@ return FromDafny_N3_aws__N12_cryptography__N10_primitives__S31_AwsCryptographicP
  {
  case AWS.Cryptography.Primitives.AwsCryptographicPrimitivesError exception:
  return ToDafny_N3_aws__N12_cryptography__N10_primitives__S31_AwsCryptographicPrimitivesError(exception);
+ case CollectionOfErrors collectionOfErrors:
+ return new Dafny.Aws.Cryptography.Primitives.Types.Error_CollectionOfErrors(
+     Dafny.Sequence<Dafny.Aws.Cryptography.Primitives.Types._IError>
+     .FromArray(
+         collectionOfErrors.list.Select
+             (x => TypeConversion.ToDafny_CommonError(x))
+         .ToArray()
+     )
+ );
+
  // OpaqueError is redundant, but listed for completeness.
  case OpaqueError exception:
  return new Dafny.Aws.Cryptography.Primitives.Types.Error_Opaque(exception);

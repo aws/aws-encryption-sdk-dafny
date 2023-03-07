@@ -9,7 +9,7 @@ using System;
  get { return this._curve; }
  set { this._curve = value; }
 }
- internal bool IsSetCurve () {
+ public bool IsSetCurve () {
  return this._curve != null;
 }
  public void Validate() {

@@ -10,14 +10,14 @@ using System;
  get { return this._dIRECT_KEY_WRAPPING; }
  set { this._dIRECT_KEY_WRAPPING = value; }
 }
- internal bool IsSetDIRECT__KEY__WRAPPING () {
+ public bool IsSetDIRECT__KEY__WRAPPING () {
  return this._dIRECT_KEY_WRAPPING != null;
 }
  public AWS.Cryptography.MaterialProviders.IntermediateKeyWrapping IntermediateKeyWrapping {
  get { return this._intermediateKeyWrapping; }
  set { this._intermediateKeyWrapping = value; }
 }
- internal bool IsSetIntermediateKeyWrapping () {
+ public bool IsSetIntermediateKeyWrapping () {
  return this._intermediateKeyWrapping != null;
 }
  public void Validate() {

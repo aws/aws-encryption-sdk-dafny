@@ -9,7 +9,7 @@ using System;
  get { return this._encryptionMaterials; }
  set { this._encryptionMaterials = value; }
 }
- internal bool IsSetEncryptionMaterials () {
+ public bool IsSetEncryptionMaterials () {
  return this._encryptionMaterials != null;
 }
  public void Validate() {

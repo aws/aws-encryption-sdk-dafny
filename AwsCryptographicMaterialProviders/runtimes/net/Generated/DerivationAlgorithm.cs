@@ -11,21 +11,21 @@ using System;
  get { return this._hKDF; }
  set { this._hKDF = value; }
 }
- internal bool IsSetHKDF () {
+ public bool IsSetHKDF () {
  return this._hKDF != null;
 }
  public AWS.Cryptography.MaterialProviders.IDENTITY IDENTITY {
  get { return this._iDENTITY; }
  set { this._iDENTITY = value; }
 }
- internal bool IsSetIDENTITY () {
+ public bool IsSetIDENTITY () {
  return this._iDENTITY != null;
 }
  public AWS.Cryptography.MaterialProviders.None None {
  get { return this._none; }
  set { this._none = value; }
 }
- internal bool IsSetNone () {
+ public bool IsSetNone () {
  return this._none != null;
 }
  public void Validate() {

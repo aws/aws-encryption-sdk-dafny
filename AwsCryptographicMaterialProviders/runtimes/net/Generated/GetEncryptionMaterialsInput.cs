@@ -12,28 +12,28 @@ using System;
  get { return this._encryptionContext; }
  set { this._encryptionContext = value; }
 }
- internal bool IsSetEncryptionContext () {
+ public bool IsSetEncryptionContext () {
  return this._encryptionContext != null;
 }
  public AWS.Cryptography.MaterialProviders.CommitmentPolicy CommitmentPolicy {
  get { return this._commitmentPolicy; }
  set { this._commitmentPolicy = value; }
 }
- internal bool IsSetCommitmentPolicy () {
+ public bool IsSetCommitmentPolicy () {
  return this._commitmentPolicy != null;
 }
  public AWS.Cryptography.MaterialProviders.AlgorithmSuiteId AlgorithmSuiteId {
  get { return this._algorithmSuiteId; }
  set { this._algorithmSuiteId = value; }
 }
- internal bool IsSetAlgorithmSuiteId () {
+ public bool IsSetAlgorithmSuiteId () {
  return this._algorithmSuiteId != null;
 }
  public long MaxPlaintextLength {
  get { return this._maxPlaintextLength.GetValueOrDefault(); }
  set { this._maxPlaintextLength = value; }
 }
- internal bool IsSetMaxPlaintextLength () {
+ public bool IsSetMaxPlaintextLength () {
  return this._maxPlaintextLength.HasValue;
 }
  public void Validate() {

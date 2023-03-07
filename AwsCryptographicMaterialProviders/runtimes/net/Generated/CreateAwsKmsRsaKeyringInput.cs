@@ -6,8 +6,6 @@ using System;
  public class CreateAwsKmsRsaKeyringInput {
  private System.IO.MemoryStream _publicKey ;
  private string _kmsKeyId ;
-// TODO Smithy->.NET does not handle references to structures in seperate namespaces correctly yet
-// Here, and throghout "Com.Amazonaws.Kms" -> "Amazon.KeyManagementService"
  private Amazon.KeyManagementService.EncryptionAlgorithmSpec _encryptionAlgorithm ;
  private Amazon.KeyManagementService.IAmazonKeyManagementService _kmsClient ;
  private System.Collections.Generic.List<string> _grantTokens ;
@@ -15,36 +13,35 @@ using System;
  get { return this._publicKey; }
  set { this._publicKey = value; }
 }
- internal bool IsSetPublicKey () {
+ public bool IsSetPublicKey () {
  return this._publicKey != null;
 }
  public string KmsKeyId {
  get { return this._kmsKeyId; }
  set { this._kmsKeyId = value; }
 }
- internal bool IsSetKmsKeyId () {
+ public bool IsSetKmsKeyId () {
  return this._kmsKeyId != null;
 }
-
  public Amazon.KeyManagementService.EncryptionAlgorithmSpec EncryptionAlgorithm {
  get { return this._encryptionAlgorithm; }
  set { this._encryptionAlgorithm = value; }
 }
- internal bool IsSetEncryptionAlgorithm () {
+ public bool IsSetEncryptionAlgorithm () {
  return this._encryptionAlgorithm != null;
 }
  public Amazon.KeyManagementService.IAmazonKeyManagementService KmsClient {
  get { return this._kmsClient; }
  set { this._kmsClient = value; }
 }
- internal bool IsSetKmsClient () {
+ public bool IsSetKmsClient () {
  return this._kmsClient != null;
 }
  public System.Collections.Generic.List<string> GrantTokens {
  get { return this._grantTokens; }
  set { this._grantTokens = value; }
 }
- internal bool IsSetGrantTokens () {
+ public bool IsSetGrantTokens () {
  return this._grantTokens != null;
 }
  public void Validate() {

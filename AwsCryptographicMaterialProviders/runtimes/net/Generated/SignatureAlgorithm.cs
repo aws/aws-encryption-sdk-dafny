@@ -10,14 +10,14 @@ using System;
  get { return this._eCDSA; }
  set { this._eCDSA = value; }
 }
- internal bool IsSetECDSA () {
+ public bool IsSetECDSA () {
  return this._eCDSA != null;
 }
  public AWS.Cryptography.MaterialProviders.None None {
  get { return this._none; }
  set { this._none = value; }
 }
- internal bool IsSetNone () {
+ public bool IsSetNone () {
  return this._none != null;
 }
  public void Validate() {

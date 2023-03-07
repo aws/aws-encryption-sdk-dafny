@@ -12,28 +12,28 @@ using System;
  get { return this._generator; }
  set { this._generator = value; }
 }
- internal bool IsSetGenerator () {
+ public bool IsSetGenerator () {
  return this._generator != null;
 }
  public System.Collections.Generic.List<string> KmsKeyIds {
  get { return this._kmsKeyIds; }
  set { this._kmsKeyIds = value; }
 }
- internal bool IsSetKmsKeyIds () {
+ public bool IsSetKmsKeyIds () {
  return this._kmsKeyIds != null;
 }
  public AWS.Cryptography.MaterialProviders.IClientSupplier ClientSupplier {
  get { return this._clientSupplier; }
  set { this._clientSupplier = value; }
 }
- internal bool IsSetClientSupplier () {
+ public bool IsSetClientSupplier () {
  return this._clientSupplier != null;
 }
  public System.Collections.Generic.List<string> GrantTokens {
  get { return this._grantTokens; }
  set { this._grantTokens = value; }
 }
- internal bool IsSetGrantTokens () {
+ public bool IsSetGrantTokens () {
  return this._grantTokens != null;
 }
  public void Validate() {

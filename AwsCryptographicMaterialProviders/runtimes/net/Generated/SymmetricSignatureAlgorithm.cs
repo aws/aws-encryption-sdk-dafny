@@ -10,14 +10,14 @@ using System;
  get { return this._hMAC; }
  set { this._hMAC = value; }
 }
- internal bool IsSetHMAC () {
+ public bool IsSetHMAC () {
  return this._hMAC != null;
 }
  public AWS.Cryptography.MaterialProviders.None None {
  get { return this._none; }
  set { this._none = value; }
 }
- internal bool IsSetNone () {
+ public bool IsSetNone () {
  return this._none != null;
 }
  public void Validate() {

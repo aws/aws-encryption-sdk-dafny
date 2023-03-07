@@ -10,14 +10,14 @@ using System;
  get { return this._algorithmSuiteId; }
  set { this._algorithmSuiteId = value; }
 }
- internal bool IsSetAlgorithmSuiteId () {
+ public bool IsSetAlgorithmSuiteId () {
  return this._algorithmSuiteId != null;
 }
  public System.Collections.Generic.Dictionary<string, string> EncryptionContext {
  get { return this._encryptionContext; }
  set { this._encryptionContext = value; }
 }
- internal bool IsSetEncryptionContext () {
+ public bool IsSetEncryptionContext () {
  return this._encryptionContext != null;
 }
  public void Validate() {

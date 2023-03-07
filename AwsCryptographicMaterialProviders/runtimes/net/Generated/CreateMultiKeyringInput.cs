@@ -10,14 +10,14 @@ using System;
  get { return this._generator; }
  set { this._generator = value; }
 }
- internal bool IsSetGenerator () {
+ public bool IsSetGenerator () {
  return this._generator != null;
 }
  public System.Collections.Generic.List<AWS.Cryptography.MaterialProviders.IKeyring> ChildKeyrings {
  get { return this._childKeyrings; }
  set { this._childKeyrings = value; }
 }
- internal bool IsSetChildKeyrings () {
+ public bool IsSetChildKeyrings () {
  return this._childKeyrings != null;
 }
  public void Validate() {

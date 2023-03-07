@@ -149,7 +149,7 @@ public class ToDafny {
         nativeValue.list(), 
         ToDafny::Error, 
         Error._typeDescriptor());
-    return Error.create_Collection(list);
+    return Error.create_CollectionOfErrors(list);
   }
 
   public static CreateDefaultClientSupplierInput CreateDefaultClientSupplierInput(

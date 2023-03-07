@@ -300,7 +300,7 @@ module AwsKmsMrkDiscoveryKeyring {
         //# If OnDecrypt fails to successfully decrypt any [encrypted data key]
         //# (../structures.md#encrypted-data-key), then it MUST yield an error that
         //# includes all collected errors.
-        case Failure(errors) => Failure(Types.Collection(list := errors))
+        case Failure(errors) => Failure(Types.CollectionOfErrors(list := errors))
       };
     }
   }

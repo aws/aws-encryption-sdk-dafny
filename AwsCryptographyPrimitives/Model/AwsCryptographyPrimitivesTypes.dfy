@@ -108,7 +108,7 @@ include "../../StandardLibrary/src/Index.dfy"
  predicate ValidState()
  ensures ValidState() ==> History in Modifies
   ghost const History: IAwsCryptographicPrimitivesClientCallHistory
- predicate GenerateRandomBytesEnsuresPublicly(input: GenerateRandomBytesInput, output: Result<seq<uint8>, Error>)
+ predicate GenerateRandomBytesEnsuresPublicly(input: GenerateRandomBytesInput , output: Result<seq<uint8>, Error>)
  // The public method to be called by library consumers
  method GenerateRandomBytes ( input: GenerateRandomBytesInput )
  returns (output: Result<seq<uint8>, Error>)
@@ -123,7 +123,7 @@ include "../../StandardLibrary/src/Index.dfy"
  ensures GenerateRandomBytesEnsuresPublicly(input, output)
  ensures History.GenerateRandomBytes == old(History.GenerateRandomBytes) + [DafnyCallEvent(input, output)]
  
- predicate DigestEnsuresPublicly(input: DigestInput, output: Result<seq<uint8>, Error>)
+ predicate DigestEnsuresPublicly(input: DigestInput , output: Result<seq<uint8>, Error>)
  // The public method to be called by library consumers
  method Digest ( input: DigestInput )
  returns (output: Result<seq<uint8>, Error>)
@@ -144,7 +144,7 @@ include "../../StandardLibrary/src/Index.dfy"
  : (output: Result<seq<uint8>, Error>)
  // Functions that are transparent do not need ensures
  
- predicate HkdfExtractEnsuresPublicly(input: HkdfExtractInput, output: Result<seq<uint8>, Error>)
+ predicate HkdfExtractEnsuresPublicly(input: HkdfExtractInput , output: Result<seq<uint8>, Error>)
  // The public method to be called by library consumers
  method HkdfExtract ( input: HkdfExtractInput )
  returns (output: Result<seq<uint8>, Error>)
@@ -159,7 +159,7 @@ include "../../StandardLibrary/src/Index.dfy"
  ensures HkdfExtractEnsuresPublicly(input, output)
  ensures History.HkdfExtract == old(History.HkdfExtract) + [DafnyCallEvent(input, output)]
  
- predicate HkdfExpandEnsuresPublicly(input: HkdfExpandInput, output: Result<seq<uint8>, Error>)
+ predicate HkdfExpandEnsuresPublicly(input: HkdfExpandInput , output: Result<seq<uint8>, Error>)
  // The public method to be called by library consumers
  method HkdfExpand ( input: HkdfExpandInput )
  returns (output: Result<seq<uint8>, Error>)
@@ -174,7 +174,7 @@ include "../../StandardLibrary/src/Index.dfy"
  ensures HkdfExpandEnsuresPublicly(input, output)
  ensures History.HkdfExpand == old(History.HkdfExpand) + [DafnyCallEvent(input, output)]
  
- predicate HkdfEnsuresPublicly(input: HkdfInput, output: Result<seq<uint8>, Error>)
+ predicate HkdfEnsuresPublicly(input: HkdfInput , output: Result<seq<uint8>, Error>)
  // The public method to be called by library consumers
  method Hkdf ( input: HkdfInput )
  returns (output: Result<seq<uint8>, Error>)
@@ -189,7 +189,7 @@ include "../../StandardLibrary/src/Index.dfy"
  ensures HkdfEnsuresPublicly(input, output)
  ensures History.Hkdf == old(History.Hkdf) + [DafnyCallEvent(input, output)]
  
- predicate KdfCounterModeEnsuresPublicly(input: KdfCtrInput, output: Result<seq<uint8>, Error>)
+ predicate KdfCounterModeEnsuresPublicly(input: KdfCtrInput , output: Result<seq<uint8>, Error>)
  // The public method to be called by library consumers
  method KdfCounterMode ( input: KdfCtrInput )
  returns (output: Result<seq<uint8>, Error>)
@@ -204,7 +204,7 @@ include "../../StandardLibrary/src/Index.dfy"
  ensures KdfCounterModeEnsuresPublicly(input, output)
  ensures History.KdfCounterMode == old(History.KdfCounterMode) + [DafnyCallEvent(input, output)]
  
- predicate AesKdfCounterModeEnsuresPublicly(input: AesKdfCtrInput, output: Result<seq<uint8>, Error>)
+ predicate AesKdfCounterModeEnsuresPublicly(input: AesKdfCtrInput , output: Result<seq<uint8>, Error>)
  // The public method to be called by library consumers
  method AesKdfCounterMode ( input: AesKdfCtrInput )
  returns (output: Result<seq<uint8>, Error>)
@@ -219,7 +219,7 @@ include "../../StandardLibrary/src/Index.dfy"
  ensures AesKdfCounterModeEnsuresPublicly(input, output)
  ensures History.AesKdfCounterMode == old(History.AesKdfCounterMode) + [DafnyCallEvent(input, output)]
  
- predicate AESEncryptEnsuresPublicly(input: AESEncryptInput, output: Result<AESEncryptOutput, Error>)
+ predicate AESEncryptEnsuresPublicly(input: AESEncryptInput , output: Result<AESEncryptOutput, Error>)
  // The public method to be called by library consumers
  method AESEncrypt ( input: AESEncryptInput )
  returns (output: Result<AESEncryptOutput, Error>)
@@ -234,7 +234,7 @@ include "../../StandardLibrary/src/Index.dfy"
  ensures AESEncryptEnsuresPublicly(input, output)
  ensures History.AESEncrypt == old(History.AESEncrypt) + [DafnyCallEvent(input, output)]
  
- predicate AESDecryptEnsuresPublicly(input: AESDecryptInput, output: Result<seq<uint8>, Error>)
+ predicate AESDecryptEnsuresPublicly(input: AESDecryptInput , output: Result<seq<uint8>, Error>)
  // The public method to be called by library consumers
  method AESDecrypt ( input: AESDecryptInput )
  returns (output: Result<seq<uint8>, Error>)
@@ -249,7 +249,7 @@ include "../../StandardLibrary/src/Index.dfy"
  ensures AESDecryptEnsuresPublicly(input, output)
  ensures History.AESDecrypt == old(History.AESDecrypt) + [DafnyCallEvent(input, output)]
  
- predicate GenerateRSAKeyPairEnsuresPublicly(input: GenerateRSAKeyPairInput, output: Result<GenerateRSAKeyPairOutput, Error>)
+ predicate GenerateRSAKeyPairEnsuresPublicly(input: GenerateRSAKeyPairInput , output: Result<GenerateRSAKeyPairOutput, Error>)
  // The public method to be called by library consumers
  method GenerateRSAKeyPair ( input: GenerateRSAKeyPairInput )
  returns (output: Result<GenerateRSAKeyPairOutput, Error>)
@@ -264,7 +264,7 @@ include "../../StandardLibrary/src/Index.dfy"
  ensures GenerateRSAKeyPairEnsuresPublicly(input, output)
  ensures History.GenerateRSAKeyPair == old(History.GenerateRSAKeyPair) + [DafnyCallEvent(input, output)]
  
- predicate RSADecryptEnsuresPublicly(input: RSADecryptInput, output: Result<seq<uint8>, Error>)
+ predicate RSADecryptEnsuresPublicly(input: RSADecryptInput , output: Result<seq<uint8>, Error>)
  // The public method to be called by library consumers
  method RSADecrypt ( input: RSADecryptInput )
  returns (output: Result<seq<uint8>, Error>)
@@ -279,7 +279,7 @@ include "../../StandardLibrary/src/Index.dfy"
  ensures RSADecryptEnsuresPublicly(input, output)
  ensures History.RSADecrypt == old(History.RSADecrypt) + [DafnyCallEvent(input, output)]
  
- predicate RSAEncryptEnsuresPublicly(input: RSAEncryptInput, output: Result<seq<uint8>, Error>)
+ predicate RSAEncryptEnsuresPublicly(input: RSAEncryptInput , output: Result<seq<uint8>, Error>)
  // The public method to be called by library consumers
  method RSAEncrypt ( input: RSAEncryptInput )
  returns (output: Result<seq<uint8>, Error>)
@@ -294,7 +294,7 @@ include "../../StandardLibrary/src/Index.dfy"
  ensures RSAEncryptEnsuresPublicly(input, output)
  ensures History.RSAEncrypt == old(History.RSAEncrypt) + [DafnyCallEvent(input, output)]
  
- predicate GenerateECDSASignatureKeyEnsuresPublicly(input: GenerateECDSASignatureKeyInput, output: Result<GenerateECDSASignatureKeyOutput, Error>)
+ predicate GenerateECDSASignatureKeyEnsuresPublicly(input: GenerateECDSASignatureKeyInput , output: Result<GenerateECDSASignatureKeyOutput, Error>)
  // The public method to be called by library consumers
  method GenerateECDSASignatureKey ( input: GenerateECDSASignatureKeyInput )
  returns (output: Result<GenerateECDSASignatureKeyOutput, Error>)
@@ -309,7 +309,7 @@ include "../../StandardLibrary/src/Index.dfy"
  ensures GenerateECDSASignatureKeyEnsuresPublicly(input, output)
  ensures History.GenerateECDSASignatureKey == old(History.GenerateECDSASignatureKey) + [DafnyCallEvent(input, output)]
  
- predicate ECDSASignEnsuresPublicly(input: ECDSASignInput, output: Result<seq<uint8>, Error>)
+ predicate ECDSASignEnsuresPublicly(input: ECDSASignInput , output: Result<seq<uint8>, Error>)
  // The public method to be called by library consumers
  method ECDSASign ( input: ECDSASignInput )
  returns (output: Result<seq<uint8>, Error>)
@@ -324,7 +324,7 @@ include "../../StandardLibrary/src/Index.dfy"
  ensures ECDSASignEnsuresPublicly(input, output)
  ensures History.ECDSASign == old(History.ECDSASign) + [DafnyCallEvent(input, output)]
  
- predicate ECDSAVerifyEnsuresPublicly(input: ECDSAVerifyInput, output: Result<bool, Error>)
+ predicate ECDSAVerifyEnsuresPublicly(input: ECDSAVerifyInput , output: Result<bool, Error>)
  // The public method to be called by library consumers
  method ECDSAVerify ( input: ECDSAVerifyInput )
  returns (output: Result<bool, Error>)
@@ -488,7 +488,7 @@ include "../../StandardLibrary/src/Index.dfy"
  // || (!exit(A(I)) && !exit(B(I)))
  // || (!access(A(I)) && !exit(B(I)))
  // || (!exit(A(I)) && !access(B(I)))
- | Collection(list: seq<Error>)
+ | CollectionOfErrors(list: seq<Error>)
  // The Opaque error, used for native, extern, wrapped or unknown errors
  | Opaque(obj: object)
  type OpaqueError = e: Error | e.Opaque? witness *
@@ -522,7 +522,7 @@ include "../../StandardLibrary/src/Index.dfy"
  && Operations.ValidInternalConfig?(config)
  && History !in Operations.ModifiesInternalConfig(config)
  && Modifies == Operations.ModifiesInternalConfig(config) + {History}
- predicate GenerateRandomBytesEnsuresPublicly(input: GenerateRandomBytesInput, output: Result<seq<uint8>, Error>)
+ predicate GenerateRandomBytesEnsuresPublicly(input: GenerateRandomBytesInput , output: Result<seq<uint8>, Error>)
  {Operations.GenerateRandomBytesEnsuresPublicly(input, output)}
  // The public method to be called by library consumers
  method GenerateRandomBytes ( input: GenerateRandomBytesInput )
@@ -542,7 +542,7 @@ include "../../StandardLibrary/src/Index.dfy"
  History.GenerateRandomBytes := History.GenerateRandomBytes + [DafnyCallEvent(input, output)];
 }
  
- predicate DigestEnsuresPublicly(input: DigestInput, output: Result<seq<uint8>, Error>)
+ predicate DigestEnsuresPublicly(input: DigestInput , output: Result<seq<uint8>, Error>)
  {Operations.DigestEnsuresPublicly(input, output)}
  // The public method to be called by library consumers
  method Digest ( input: DigestInput )
@@ -571,7 +571,7 @@ include "../../StandardLibrary/src/Index.dfy"
  Operations.HMac(config, input)
 }
  
- predicate HkdfExtractEnsuresPublicly(input: HkdfExtractInput, output: Result<seq<uint8>, Error>)
+ predicate HkdfExtractEnsuresPublicly(input: HkdfExtractInput , output: Result<seq<uint8>, Error>)
  {Operations.HkdfExtractEnsuresPublicly(input, output)}
  // The public method to be called by library consumers
  method HkdfExtract ( input: HkdfExtractInput )
@@ -591,7 +591,7 @@ include "../../StandardLibrary/src/Index.dfy"
  History.HkdfExtract := History.HkdfExtract + [DafnyCallEvent(input, output)];
 }
  
- predicate HkdfExpandEnsuresPublicly(input: HkdfExpandInput, output: Result<seq<uint8>, Error>)
+ predicate HkdfExpandEnsuresPublicly(input: HkdfExpandInput , output: Result<seq<uint8>, Error>)
  {Operations.HkdfExpandEnsuresPublicly(input, output)}
  // The public method to be called by library consumers
  method HkdfExpand ( input: HkdfExpandInput )
@@ -611,7 +611,7 @@ include "../../StandardLibrary/src/Index.dfy"
  History.HkdfExpand := History.HkdfExpand + [DafnyCallEvent(input, output)];
 }
  
- predicate HkdfEnsuresPublicly(input: HkdfInput, output: Result<seq<uint8>, Error>)
+ predicate HkdfEnsuresPublicly(input: HkdfInput , output: Result<seq<uint8>, Error>)
  {Operations.HkdfEnsuresPublicly(input, output)}
  // The public method to be called by library consumers
  method Hkdf ( input: HkdfInput )
@@ -631,7 +631,7 @@ include "../../StandardLibrary/src/Index.dfy"
  History.Hkdf := History.Hkdf + [DafnyCallEvent(input, output)];
 }
  
- predicate KdfCounterModeEnsuresPublicly(input: KdfCtrInput, output: Result<seq<uint8>, Error>)
+ predicate KdfCounterModeEnsuresPublicly(input: KdfCtrInput , output: Result<seq<uint8>, Error>)
  {Operations.KdfCounterModeEnsuresPublicly(input, output)}
  // The public method to be called by library consumers
  method KdfCounterMode ( input: KdfCtrInput )
@@ -651,7 +651,7 @@ include "../../StandardLibrary/src/Index.dfy"
  History.KdfCounterMode := History.KdfCounterMode + [DafnyCallEvent(input, output)];
 }
  
- predicate AesKdfCounterModeEnsuresPublicly(input: AesKdfCtrInput, output: Result<seq<uint8>, Error>)
+ predicate AesKdfCounterModeEnsuresPublicly(input: AesKdfCtrInput , output: Result<seq<uint8>, Error>)
  {Operations.AesKdfCounterModeEnsuresPublicly(input, output)}
  // The public method to be called by library consumers
  method AesKdfCounterMode ( input: AesKdfCtrInput )
@@ -671,7 +671,7 @@ include "../../StandardLibrary/src/Index.dfy"
  History.AesKdfCounterMode := History.AesKdfCounterMode + [DafnyCallEvent(input, output)];
 }
  
- predicate AESEncryptEnsuresPublicly(input: AESEncryptInput, output: Result<AESEncryptOutput, Error>)
+ predicate AESEncryptEnsuresPublicly(input: AESEncryptInput , output: Result<AESEncryptOutput, Error>)
  {Operations.AESEncryptEnsuresPublicly(input, output)}
  // The public method to be called by library consumers
  method AESEncrypt ( input: AESEncryptInput )
@@ -691,7 +691,7 @@ include "../../StandardLibrary/src/Index.dfy"
  History.AESEncrypt := History.AESEncrypt + [DafnyCallEvent(input, output)];
 }
  
- predicate AESDecryptEnsuresPublicly(input: AESDecryptInput, output: Result<seq<uint8>, Error>)
+ predicate AESDecryptEnsuresPublicly(input: AESDecryptInput , output: Result<seq<uint8>, Error>)
  {Operations.AESDecryptEnsuresPublicly(input, output)}
  // The public method to be called by library consumers
  method AESDecrypt ( input: AESDecryptInput )
@@ -711,7 +711,7 @@ include "../../StandardLibrary/src/Index.dfy"
  History.AESDecrypt := History.AESDecrypt + [DafnyCallEvent(input, output)];
 }
  
- predicate GenerateRSAKeyPairEnsuresPublicly(input: GenerateRSAKeyPairInput, output: Result<GenerateRSAKeyPairOutput, Error>)
+ predicate GenerateRSAKeyPairEnsuresPublicly(input: GenerateRSAKeyPairInput , output: Result<GenerateRSAKeyPairOutput, Error>)
  {Operations.GenerateRSAKeyPairEnsuresPublicly(input, output)}
  // The public method to be called by library consumers
  method GenerateRSAKeyPair ( input: GenerateRSAKeyPairInput )
@@ -731,7 +731,7 @@ include "../../StandardLibrary/src/Index.dfy"
  History.GenerateRSAKeyPair := History.GenerateRSAKeyPair + [DafnyCallEvent(input, output)];
 }
  
- predicate RSADecryptEnsuresPublicly(input: RSADecryptInput, output: Result<seq<uint8>, Error>)
+ predicate RSADecryptEnsuresPublicly(input: RSADecryptInput , output: Result<seq<uint8>, Error>)
  {Operations.RSADecryptEnsuresPublicly(input, output)}
  // The public method to be called by library consumers
  method RSADecrypt ( input: RSADecryptInput )
@@ -751,7 +751,7 @@ include "../../StandardLibrary/src/Index.dfy"
  History.RSADecrypt := History.RSADecrypt + [DafnyCallEvent(input, output)];
 }
  
- predicate RSAEncryptEnsuresPublicly(input: RSAEncryptInput, output: Result<seq<uint8>, Error>)
+ predicate RSAEncryptEnsuresPublicly(input: RSAEncryptInput , output: Result<seq<uint8>, Error>)
  {Operations.RSAEncryptEnsuresPublicly(input, output)}
  // The public method to be called by library consumers
  method RSAEncrypt ( input: RSAEncryptInput )
@@ -771,7 +771,7 @@ include "../../StandardLibrary/src/Index.dfy"
  History.RSAEncrypt := History.RSAEncrypt + [DafnyCallEvent(input, output)];
 }
  
- predicate GenerateECDSASignatureKeyEnsuresPublicly(input: GenerateECDSASignatureKeyInput, output: Result<GenerateECDSASignatureKeyOutput, Error>)
+ predicate GenerateECDSASignatureKeyEnsuresPublicly(input: GenerateECDSASignatureKeyInput , output: Result<GenerateECDSASignatureKeyOutput, Error>)
  {Operations.GenerateECDSASignatureKeyEnsuresPublicly(input, output)}
  // The public method to be called by library consumers
  method GenerateECDSASignatureKey ( input: GenerateECDSASignatureKeyInput )
@@ -791,7 +791,7 @@ include "../../StandardLibrary/src/Index.dfy"
  History.GenerateECDSASignatureKey := History.GenerateECDSASignatureKey + [DafnyCallEvent(input, output)];
 }
  
- predicate ECDSASignEnsuresPublicly(input: ECDSASignInput, output: Result<seq<uint8>, Error>)
+ predicate ECDSASignEnsuresPublicly(input: ECDSASignInput , output: Result<seq<uint8>, Error>)
  {Operations.ECDSASignEnsuresPublicly(input, output)}
  // The public method to be called by library consumers
  method ECDSASign ( input: ECDSASignInput )
@@ -811,7 +811,7 @@ include "../../StandardLibrary/src/Index.dfy"
  History.ECDSASign := History.ECDSASign + [DafnyCallEvent(input, output)];
 }
  
- predicate ECDSAVerifyEnsuresPublicly(input: ECDSAVerifyInput, output: Result<bool, Error>)
+ predicate ECDSAVerifyEnsuresPublicly(input: ECDSAVerifyInput , output: Result<bool, Error>)
  {Operations.ECDSAVerifyEnsuresPublicly(input, output)}
  // The public method to be called by library consumers
  method ECDSAVerify ( input: ECDSAVerifyInput )
@@ -841,11 +841,11 @@ include "../../StandardLibrary/src/Index.dfy"
  type InternalConfig
  predicate ValidInternalConfig?(config: InternalConfig)
  function ModifiesInternalConfig(config: InternalConfig): set<object>
- predicate GenerateRandomBytesEnsuresPublicly(input: GenerateRandomBytesInput, output: Result<seq<uint8>, Error>)
+ predicate GenerateRandomBytesEnsuresPublicly(input: GenerateRandomBytesInput , output: Result<seq<uint8>, Error>)
  // The private method to be refined by the library developer
 
 
- method GenerateRandomBytes ( config: InternalConfig,  input: GenerateRandomBytesInput )
+ method GenerateRandomBytes ( config: InternalConfig , input: GenerateRandomBytesInput )
  returns (output: Result<seq<uint8>, Error>)
  requires
  && ValidInternalConfig?(config)
@@ -857,11 +857,11 @@ include "../../StandardLibrary/src/Index.dfy"
  ensures GenerateRandomBytesEnsuresPublicly(input, output)
 
 
- predicate DigestEnsuresPublicly(input: DigestInput, output: Result<seq<uint8>, Error>)
+ predicate DigestEnsuresPublicly(input: DigestInput , output: Result<seq<uint8>, Error>)
  // The private method to be refined by the library developer
 
 
- method Digest ( config: InternalConfig,  input: DigestInput )
+ method Digest ( config: InternalConfig , input: DigestInput )
  returns (output: Result<seq<uint8>, Error>)
  requires
  && ValidInternalConfig?(config)
@@ -877,16 +877,16 @@ include "../../StandardLibrary/src/Index.dfy"
  // The private method to be refined by the library developer
 
 
- function method HMac ( config: InternalConfig,  input: HMacInput )
+ function method HMac ( config: InternalConfig , input: HMacInput )
  : (output: Result<seq<uint8>, Error>)
  // Functions that are transparent do not need ensures
 
 
- predicate HkdfExtractEnsuresPublicly(input: HkdfExtractInput, output: Result<seq<uint8>, Error>)
+ predicate HkdfExtractEnsuresPublicly(input: HkdfExtractInput , output: Result<seq<uint8>, Error>)
  // The private method to be refined by the library developer
 
 
- method HkdfExtract ( config: InternalConfig,  input: HkdfExtractInput )
+ method HkdfExtract ( config: InternalConfig , input: HkdfExtractInput )
  returns (output: Result<seq<uint8>, Error>)
  requires
  && ValidInternalConfig?(config)
@@ -898,11 +898,11 @@ include "../../StandardLibrary/src/Index.dfy"
  ensures HkdfExtractEnsuresPublicly(input, output)
 
 
- predicate HkdfExpandEnsuresPublicly(input: HkdfExpandInput, output: Result<seq<uint8>, Error>)
+ predicate HkdfExpandEnsuresPublicly(input: HkdfExpandInput , output: Result<seq<uint8>, Error>)
  // The private method to be refined by the library developer
 
 
- method HkdfExpand ( config: InternalConfig,  input: HkdfExpandInput )
+ method HkdfExpand ( config: InternalConfig , input: HkdfExpandInput )
  returns (output: Result<seq<uint8>, Error>)
  requires
  && ValidInternalConfig?(config)
@@ -914,11 +914,11 @@ include "../../StandardLibrary/src/Index.dfy"
  ensures HkdfExpandEnsuresPublicly(input, output)
 
 
- predicate HkdfEnsuresPublicly(input: HkdfInput, output: Result<seq<uint8>, Error>)
+ predicate HkdfEnsuresPublicly(input: HkdfInput , output: Result<seq<uint8>, Error>)
  // The private method to be refined by the library developer
 
 
- method Hkdf ( config: InternalConfig,  input: HkdfInput )
+ method Hkdf ( config: InternalConfig , input: HkdfInput )
  returns (output: Result<seq<uint8>, Error>)
  requires
  && ValidInternalConfig?(config)
@@ -930,11 +930,11 @@ include "../../StandardLibrary/src/Index.dfy"
  ensures HkdfEnsuresPublicly(input, output)
 
 
- predicate KdfCounterModeEnsuresPublicly(input: KdfCtrInput, output: Result<seq<uint8>, Error>)
+ predicate KdfCounterModeEnsuresPublicly(input: KdfCtrInput , output: Result<seq<uint8>, Error>)
  // The private method to be refined by the library developer
 
 
- method KdfCounterMode ( config: InternalConfig,  input: KdfCtrInput )
+ method KdfCounterMode ( config: InternalConfig , input: KdfCtrInput )
  returns (output: Result<seq<uint8>, Error>)
  requires
  && ValidInternalConfig?(config)
@@ -946,11 +946,11 @@ include "../../StandardLibrary/src/Index.dfy"
  ensures KdfCounterModeEnsuresPublicly(input, output)
 
 
- predicate AesKdfCounterModeEnsuresPublicly(input: AesKdfCtrInput, output: Result<seq<uint8>, Error>)
+ predicate AesKdfCounterModeEnsuresPublicly(input: AesKdfCtrInput , output: Result<seq<uint8>, Error>)
  // The private method to be refined by the library developer
 
 
- method AesKdfCounterMode ( config: InternalConfig,  input: AesKdfCtrInput )
+ method AesKdfCounterMode ( config: InternalConfig , input: AesKdfCtrInput )
  returns (output: Result<seq<uint8>, Error>)
  requires
  && ValidInternalConfig?(config)
@@ -962,11 +962,11 @@ include "../../StandardLibrary/src/Index.dfy"
  ensures AesKdfCounterModeEnsuresPublicly(input, output)
 
 
- predicate AESEncryptEnsuresPublicly(input: AESEncryptInput, output: Result<AESEncryptOutput, Error>)
+ predicate AESEncryptEnsuresPublicly(input: AESEncryptInput , output: Result<AESEncryptOutput, Error>)
  // The private method to be refined by the library developer
 
 
- method AESEncrypt ( config: InternalConfig,  input: AESEncryptInput )
+ method AESEncrypt ( config: InternalConfig , input: AESEncryptInput )
  returns (output: Result<AESEncryptOutput, Error>)
  requires
  && ValidInternalConfig?(config)
@@ -978,11 +978,11 @@ include "../../StandardLibrary/src/Index.dfy"
  ensures AESEncryptEnsuresPublicly(input, output)
 
 
- predicate AESDecryptEnsuresPublicly(input: AESDecryptInput, output: Result<seq<uint8>, Error>)
+ predicate AESDecryptEnsuresPublicly(input: AESDecryptInput , output: Result<seq<uint8>, Error>)
  // The private method to be refined by the library developer
 
 
- method AESDecrypt ( config: InternalConfig,  input: AESDecryptInput )
+ method AESDecrypt ( config: InternalConfig , input: AESDecryptInput )
  returns (output: Result<seq<uint8>, Error>)
  requires
  && ValidInternalConfig?(config)
@@ -994,11 +994,11 @@ include "../../StandardLibrary/src/Index.dfy"
  ensures AESDecryptEnsuresPublicly(input, output)
 
 
- predicate GenerateRSAKeyPairEnsuresPublicly(input: GenerateRSAKeyPairInput, output: Result<GenerateRSAKeyPairOutput, Error>)
+ predicate GenerateRSAKeyPairEnsuresPublicly(input: GenerateRSAKeyPairInput , output: Result<GenerateRSAKeyPairOutput, Error>)
  // The private method to be refined by the library developer
 
 
- method GenerateRSAKeyPair ( config: InternalConfig,  input: GenerateRSAKeyPairInput )
+ method GenerateRSAKeyPair ( config: InternalConfig , input: GenerateRSAKeyPairInput )
  returns (output: Result<GenerateRSAKeyPairOutput, Error>)
  requires
  && ValidInternalConfig?(config)
@@ -1010,11 +1010,11 @@ include "../../StandardLibrary/src/Index.dfy"
  ensures GenerateRSAKeyPairEnsuresPublicly(input, output)
 
 
- predicate RSADecryptEnsuresPublicly(input: RSADecryptInput, output: Result<seq<uint8>, Error>)
+ predicate RSADecryptEnsuresPublicly(input: RSADecryptInput , output: Result<seq<uint8>, Error>)
  // The private method to be refined by the library developer
 
 
- method RSADecrypt ( config: InternalConfig,  input: RSADecryptInput )
+ method RSADecrypt ( config: InternalConfig , input: RSADecryptInput )
  returns (output: Result<seq<uint8>, Error>)
  requires
  && ValidInternalConfig?(config)
@@ -1026,11 +1026,11 @@ include "../../StandardLibrary/src/Index.dfy"
  ensures RSADecryptEnsuresPublicly(input, output)
 
 
- predicate RSAEncryptEnsuresPublicly(input: RSAEncryptInput, output: Result<seq<uint8>, Error>)
+ predicate RSAEncryptEnsuresPublicly(input: RSAEncryptInput , output: Result<seq<uint8>, Error>)
  // The private method to be refined by the library developer
 
 
- method RSAEncrypt ( config: InternalConfig,  input: RSAEncryptInput )
+ method RSAEncrypt ( config: InternalConfig , input: RSAEncryptInput )
  returns (output: Result<seq<uint8>, Error>)
  requires
  && ValidInternalConfig?(config)
@@ -1042,11 +1042,11 @@ include "../../StandardLibrary/src/Index.dfy"
  ensures RSAEncryptEnsuresPublicly(input, output)
 
 
- predicate GenerateECDSASignatureKeyEnsuresPublicly(input: GenerateECDSASignatureKeyInput, output: Result<GenerateECDSASignatureKeyOutput, Error>)
+ predicate GenerateECDSASignatureKeyEnsuresPublicly(input: GenerateECDSASignatureKeyInput , output: Result<GenerateECDSASignatureKeyOutput, Error>)
  // The private method to be refined by the library developer
 
 
- method GenerateECDSASignatureKey ( config: InternalConfig,  input: GenerateECDSASignatureKeyInput )
+ method GenerateECDSASignatureKey ( config: InternalConfig , input: GenerateECDSASignatureKeyInput )
  returns (output: Result<GenerateECDSASignatureKeyOutput, Error>)
  requires
  && ValidInternalConfig?(config)
@@ -1058,11 +1058,11 @@ include "../../StandardLibrary/src/Index.dfy"
  ensures GenerateECDSASignatureKeyEnsuresPublicly(input, output)
 
 
- predicate ECDSASignEnsuresPublicly(input: ECDSASignInput, output: Result<seq<uint8>, Error>)
+ predicate ECDSASignEnsuresPublicly(input: ECDSASignInput , output: Result<seq<uint8>, Error>)
  // The private method to be refined by the library developer
 
 
- method ECDSASign ( config: InternalConfig,  input: ECDSASignInput )
+ method ECDSASign ( config: InternalConfig , input: ECDSASignInput )
  returns (output: Result<seq<uint8>, Error>)
  requires
  && ValidInternalConfig?(config)
@@ -1074,11 +1074,11 @@ include "../../StandardLibrary/src/Index.dfy"
  ensures ECDSASignEnsuresPublicly(input, output)
 
 
- predicate ECDSAVerifyEnsuresPublicly(input: ECDSAVerifyInput, output: Result<bool, Error>)
+ predicate ECDSAVerifyEnsuresPublicly(input: ECDSAVerifyInput , output: Result<bool, Error>)
  // The private method to be refined by the library developer
 
 
- method ECDSAVerify ( config: InternalConfig,  input: ECDSAVerifyInput )
+ method ECDSAVerify ( config: InternalConfig , input: ECDSAVerifyInput )
  returns (output: Result<bool, Error>)
  requires
  && ValidInternalConfig?(config)

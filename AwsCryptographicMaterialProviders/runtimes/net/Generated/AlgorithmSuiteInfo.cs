@@ -17,63 +17,63 @@ using System;
  get { return this._id; }
  set { this._id = value; }
 }
- internal bool IsSetId () {
+ public bool IsSetId () {
  return this._id != null;
 }
  public System.IO.MemoryStream BinaryId {
  get { return this._binaryId; }
  set { this._binaryId = value; }
 }
- internal bool IsSetBinaryId () {
+ public bool IsSetBinaryId () {
  return this._binaryId != null;
 }
  public int MessageVersion {
  get { return this._messageVersion.GetValueOrDefault(); }
  set { this._messageVersion = value; }
 }
- internal bool IsSetMessageVersion () {
+ public bool IsSetMessageVersion () {
  return this._messageVersion.HasValue;
 }
  public AWS.Cryptography.MaterialProviders.Encrypt Encrypt {
  get { return this._encrypt; }
  set { this._encrypt = value; }
 }
- internal bool IsSetEncrypt () {
+ public bool IsSetEncrypt () {
  return this._encrypt != null;
 }
  public AWS.Cryptography.MaterialProviders.DerivationAlgorithm Kdf {
  get { return this._kdf; }
  set { this._kdf = value; }
 }
- internal bool IsSetKdf () {
+ public bool IsSetKdf () {
  return this._kdf != null;
 }
  public AWS.Cryptography.MaterialProviders.DerivationAlgorithm Commitment {
  get { return this._commitment; }
  set { this._commitment = value; }
 }
- internal bool IsSetCommitment () {
+ public bool IsSetCommitment () {
  return this._commitment != null;
 }
  public AWS.Cryptography.MaterialProviders.SignatureAlgorithm Signature {
  get { return this._signature; }
  set { this._signature = value; }
 }
- internal bool IsSetSignature () {
+ public bool IsSetSignature () {
  return this._signature != null;
 }
  public AWS.Cryptography.MaterialProviders.SymmetricSignatureAlgorithm SymmetricSignature {
  get { return this._symmetricSignature; }
  set { this._symmetricSignature = value; }
 }
- internal bool IsSetSymmetricSignature () {
+ public bool IsSetSymmetricSignature () {
  return this._symmetricSignature != null;
 }
  public AWS.Cryptography.MaterialProviders.EdkWrappingAlgorithm EdkWrapping {
  get { return this._edkWrapping; }
  set { this._edkWrapping = value; }
 }
- internal bool IsSetEdkWrapping () {
+ public bool IsSetEdkWrapping () {
  return this._edkWrapping != null;
 }
  public void Validate() {

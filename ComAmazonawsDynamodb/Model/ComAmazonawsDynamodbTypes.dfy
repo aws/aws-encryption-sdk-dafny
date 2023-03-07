@@ -673,7 +673,7 @@ include "../../StandardLibrary/src/Index.dfy"
  predicate ValidState()
  ensures ValidState() ==> History in Modifies
   ghost const History: IDynamoDB_20120810ClientCallHistory
- predicate BatchExecuteStatementEnsuresPublicly(input: BatchExecuteStatementInput, output: Result<BatchExecuteStatementOutput, Error>)
+ predicate BatchExecuteStatementEnsuresPublicly(input: BatchExecuteStatementInput , output: Result<BatchExecuteStatementOutput, Error>)
  // The public method to be called by library consumers
  method BatchExecuteStatement ( input: BatchExecuteStatementInput )
  returns (output: Result<BatchExecuteStatementOutput, Error>)
@@ -688,7 +688,7 @@ include "../../StandardLibrary/src/Index.dfy"
  ensures BatchExecuteStatementEnsuresPublicly(input, output)
  ensures History.BatchExecuteStatement == old(History.BatchExecuteStatement) + [DafnyCallEvent(input, output)]
  
- predicate BatchGetItemEnsuresPublicly(input: BatchGetItemInput, output: Result<BatchGetItemOutput, Error>)
+ predicate BatchGetItemEnsuresPublicly(input: BatchGetItemInput , output: Result<BatchGetItemOutput, Error>)
  // The public method to be called by library consumers
  method BatchGetItem ( input: BatchGetItemInput )
  returns (output: Result<BatchGetItemOutput, Error>)
@@ -703,7 +703,7 @@ include "../../StandardLibrary/src/Index.dfy"
  ensures BatchGetItemEnsuresPublicly(input, output)
  ensures History.BatchGetItem == old(History.BatchGetItem) + [DafnyCallEvent(input, output)]
  
- predicate BatchWriteItemEnsuresPublicly(input: BatchWriteItemInput, output: Result<BatchWriteItemOutput, Error>)
+ predicate BatchWriteItemEnsuresPublicly(input: BatchWriteItemInput , output: Result<BatchWriteItemOutput, Error>)
  // The public method to be called by library consumers
  method BatchWriteItem ( input: BatchWriteItemInput )
  returns (output: Result<BatchWriteItemOutput, Error>)
@@ -718,7 +718,7 @@ include "../../StandardLibrary/src/Index.dfy"
  ensures BatchWriteItemEnsuresPublicly(input, output)
  ensures History.BatchWriteItem == old(History.BatchWriteItem) + [DafnyCallEvent(input, output)]
  
- predicate CreateBackupEnsuresPublicly(input: CreateBackupInput, output: Result<CreateBackupOutput, Error>)
+ predicate CreateBackupEnsuresPublicly(input: CreateBackupInput , output: Result<CreateBackupOutput, Error>)
  // The public method to be called by library consumers
  method CreateBackup ( input: CreateBackupInput )
  returns (output: Result<CreateBackupOutput, Error>)
@@ -733,7 +733,7 @@ include "../../StandardLibrary/src/Index.dfy"
  ensures CreateBackupEnsuresPublicly(input, output)
  ensures History.CreateBackup == old(History.CreateBackup) + [DafnyCallEvent(input, output)]
  
- predicate CreateGlobalTableEnsuresPublicly(input: CreateGlobalTableInput, output: Result<CreateGlobalTableOutput, Error>)
+ predicate CreateGlobalTableEnsuresPublicly(input: CreateGlobalTableInput , output: Result<CreateGlobalTableOutput, Error>)
  // The public method to be called by library consumers
  method CreateGlobalTable ( input: CreateGlobalTableInput )
  returns (output: Result<CreateGlobalTableOutput, Error>)
@@ -748,7 +748,7 @@ include "../../StandardLibrary/src/Index.dfy"
  ensures CreateGlobalTableEnsuresPublicly(input, output)
  ensures History.CreateGlobalTable == old(History.CreateGlobalTable) + [DafnyCallEvent(input, output)]
  
- predicate CreateTableEnsuresPublicly(input: CreateTableInput, output: Result<CreateTableOutput, Error>)
+ predicate CreateTableEnsuresPublicly(input: CreateTableInput , output: Result<CreateTableOutput, Error>)
  // The public method to be called by library consumers
  method CreateTable ( input: CreateTableInput )
  returns (output: Result<CreateTableOutput, Error>)
@@ -763,7 +763,7 @@ include "../../StandardLibrary/src/Index.dfy"
  ensures CreateTableEnsuresPublicly(input, output)
  ensures History.CreateTable == old(History.CreateTable) + [DafnyCallEvent(input, output)]
  
- predicate DeleteBackupEnsuresPublicly(input: DeleteBackupInput, output: Result<DeleteBackupOutput, Error>)
+ predicate DeleteBackupEnsuresPublicly(input: DeleteBackupInput , output: Result<DeleteBackupOutput, Error>)
  // The public method to be called by library consumers
  method DeleteBackup ( input: DeleteBackupInput )
  returns (output: Result<DeleteBackupOutput, Error>)
@@ -778,7 +778,7 @@ include "../../StandardLibrary/src/Index.dfy"
  ensures DeleteBackupEnsuresPublicly(input, output)
  ensures History.DeleteBackup == old(History.DeleteBackup) + [DafnyCallEvent(input, output)]
  
- predicate DeleteItemEnsuresPublicly(input: DeleteItemInput, output: Result<DeleteItemOutput, Error>)
+ predicate DeleteItemEnsuresPublicly(input: DeleteItemInput , output: Result<DeleteItemOutput, Error>)
  // The public method to be called by library consumers
  method DeleteItem ( input: DeleteItemInput )
  returns (output: Result<DeleteItemOutput, Error>)
@@ -793,7 +793,7 @@ include "../../StandardLibrary/src/Index.dfy"
  ensures DeleteItemEnsuresPublicly(input, output)
  ensures History.DeleteItem == old(History.DeleteItem) + [DafnyCallEvent(input, output)]
  
- predicate DeleteTableEnsuresPublicly(input: DeleteTableInput, output: Result<DeleteTableOutput, Error>)
+ predicate DeleteTableEnsuresPublicly(input: DeleteTableInput , output: Result<DeleteTableOutput, Error>)
  // The public method to be called by library consumers
  method DeleteTable ( input: DeleteTableInput )
  returns (output: Result<DeleteTableOutput, Error>)
@@ -808,7 +808,7 @@ include "../../StandardLibrary/src/Index.dfy"
  ensures DeleteTableEnsuresPublicly(input, output)
  ensures History.DeleteTable == old(History.DeleteTable) + [DafnyCallEvent(input, output)]
  
- predicate DescribeBackupEnsuresPublicly(input: DescribeBackupInput, output: Result<DescribeBackupOutput, Error>)
+ predicate DescribeBackupEnsuresPublicly(input: DescribeBackupInput , output: Result<DescribeBackupOutput, Error>)
  // The public method to be called by library consumers
  method DescribeBackup ( input: DescribeBackupInput )
  returns (output: Result<DescribeBackupOutput, Error>)
@@ -823,7 +823,7 @@ include "../../StandardLibrary/src/Index.dfy"
  ensures DescribeBackupEnsuresPublicly(input, output)
  ensures History.DescribeBackup == old(History.DescribeBackup) + [DafnyCallEvent(input, output)]
  
- predicate DescribeContinuousBackupsEnsuresPublicly(input: DescribeContinuousBackupsInput, output: Result<DescribeContinuousBackupsOutput, Error>)
+ predicate DescribeContinuousBackupsEnsuresPublicly(input: DescribeContinuousBackupsInput , output: Result<DescribeContinuousBackupsOutput, Error>)
  // The public method to be called by library consumers
  method DescribeContinuousBackups ( input: DescribeContinuousBackupsInput )
  returns (output: Result<DescribeContinuousBackupsOutput, Error>)
@@ -838,7 +838,7 @@ include "../../StandardLibrary/src/Index.dfy"
  ensures DescribeContinuousBackupsEnsuresPublicly(input, output)
  ensures History.DescribeContinuousBackups == old(History.DescribeContinuousBackups) + [DafnyCallEvent(input, output)]
  
- predicate DescribeContributorInsightsEnsuresPublicly(input: DescribeContributorInsightsInput, output: Result<DescribeContributorInsightsOutput, Error>)
+ predicate DescribeContributorInsightsEnsuresPublicly(input: DescribeContributorInsightsInput , output: Result<DescribeContributorInsightsOutput, Error>)
  // The public method to be called by library consumers
  method DescribeContributorInsights ( input: DescribeContributorInsightsInput )
  returns (output: Result<DescribeContributorInsightsOutput, Error>)
@@ -853,7 +853,7 @@ include "../../StandardLibrary/src/Index.dfy"
  ensures DescribeContributorInsightsEnsuresPublicly(input, output)
  ensures History.DescribeContributorInsights == old(History.DescribeContributorInsights) + [DafnyCallEvent(input, output)]
  
- predicate DescribeEndpointsEnsuresPublicly(input: DescribeEndpointsRequest, output: Result<DescribeEndpointsResponse, Error>)
+ predicate DescribeEndpointsEnsuresPublicly(input: DescribeEndpointsRequest , output: Result<DescribeEndpointsResponse, Error>)
  // The public method to be called by library consumers
  method DescribeEndpoints ( input: DescribeEndpointsRequest )
  returns (output: Result<DescribeEndpointsResponse, Error>)
@@ -868,7 +868,7 @@ include "../../StandardLibrary/src/Index.dfy"
  ensures DescribeEndpointsEnsuresPublicly(input, output)
  ensures History.DescribeEndpoints == old(History.DescribeEndpoints) + [DafnyCallEvent(input, output)]
  
- predicate DescribeExportEnsuresPublicly(input: DescribeExportInput, output: Result<DescribeExportOutput, Error>)
+ predicate DescribeExportEnsuresPublicly(input: DescribeExportInput , output: Result<DescribeExportOutput, Error>)
  // The public method to be called by library consumers
  method DescribeExport ( input: DescribeExportInput )
  returns (output: Result<DescribeExportOutput, Error>)
@@ -883,7 +883,7 @@ include "../../StandardLibrary/src/Index.dfy"
  ensures DescribeExportEnsuresPublicly(input, output)
  ensures History.DescribeExport == old(History.DescribeExport) + [DafnyCallEvent(input, output)]
  
- predicate DescribeGlobalTableEnsuresPublicly(input: DescribeGlobalTableInput, output: Result<DescribeGlobalTableOutput, Error>)
+ predicate DescribeGlobalTableEnsuresPublicly(input: DescribeGlobalTableInput , output: Result<DescribeGlobalTableOutput, Error>)
  // The public method to be called by library consumers
  method DescribeGlobalTable ( input: DescribeGlobalTableInput )
  returns (output: Result<DescribeGlobalTableOutput, Error>)
@@ -898,7 +898,7 @@ include "../../StandardLibrary/src/Index.dfy"
  ensures DescribeGlobalTableEnsuresPublicly(input, output)
  ensures History.DescribeGlobalTable == old(History.DescribeGlobalTable) + [DafnyCallEvent(input, output)]
  
- predicate DescribeGlobalTableSettingsEnsuresPublicly(input: DescribeGlobalTableSettingsInput, output: Result<DescribeGlobalTableSettingsOutput, Error>)
+ predicate DescribeGlobalTableSettingsEnsuresPublicly(input: DescribeGlobalTableSettingsInput , output: Result<DescribeGlobalTableSettingsOutput, Error>)
  // The public method to be called by library consumers
  method DescribeGlobalTableSettings ( input: DescribeGlobalTableSettingsInput )
  returns (output: Result<DescribeGlobalTableSettingsOutput, Error>)
@@ -913,7 +913,7 @@ include "../../StandardLibrary/src/Index.dfy"
  ensures DescribeGlobalTableSettingsEnsuresPublicly(input, output)
  ensures History.DescribeGlobalTableSettings == old(History.DescribeGlobalTableSettings) + [DafnyCallEvent(input, output)]
  
- predicate DescribeImportEnsuresPublicly(input: DescribeImportInput, output: Result<DescribeImportOutput, Error>)
+ predicate DescribeImportEnsuresPublicly(input: DescribeImportInput , output: Result<DescribeImportOutput, Error>)
  // The public method to be called by library consumers
  method DescribeImport ( input: DescribeImportInput )
  returns (output: Result<DescribeImportOutput, Error>)
@@ -928,7 +928,7 @@ include "../../StandardLibrary/src/Index.dfy"
  ensures DescribeImportEnsuresPublicly(input, output)
  ensures History.DescribeImport == old(History.DescribeImport) + [DafnyCallEvent(input, output)]
  
- predicate DescribeKinesisStreamingDestinationEnsuresPublicly(input: DescribeKinesisStreamingDestinationInput, output: Result<DescribeKinesisStreamingDestinationOutput, Error>)
+ predicate DescribeKinesisStreamingDestinationEnsuresPublicly(input: DescribeKinesisStreamingDestinationInput , output: Result<DescribeKinesisStreamingDestinationOutput, Error>)
  // The public method to be called by library consumers
  method DescribeKinesisStreamingDestination ( input: DescribeKinesisStreamingDestinationInput )
  returns (output: Result<DescribeKinesisStreamingDestinationOutput, Error>)
@@ -943,7 +943,7 @@ include "../../StandardLibrary/src/Index.dfy"
  ensures DescribeKinesisStreamingDestinationEnsuresPublicly(input, output)
  ensures History.DescribeKinesisStreamingDestination == old(History.DescribeKinesisStreamingDestination) + [DafnyCallEvent(input, output)]
  
- predicate DescribeLimitsEnsuresPublicly(input: DescribeLimitsInput, output: Result<DescribeLimitsOutput, Error>)
+ predicate DescribeLimitsEnsuresPublicly(input: DescribeLimitsInput , output: Result<DescribeLimitsOutput, Error>)
  // The public method to be called by library consumers
  method DescribeLimits ( input: DescribeLimitsInput )
  returns (output: Result<DescribeLimitsOutput, Error>)
@@ -958,7 +958,7 @@ include "../../StandardLibrary/src/Index.dfy"
  ensures DescribeLimitsEnsuresPublicly(input, output)
  ensures History.DescribeLimits == old(History.DescribeLimits) + [DafnyCallEvent(input, output)]
  
- predicate DescribeTableEnsuresPublicly(input: DescribeTableInput, output: Result<DescribeTableOutput, Error>)
+ predicate DescribeTableEnsuresPublicly(input: DescribeTableInput , output: Result<DescribeTableOutput, Error>)
  // The public method to be called by library consumers
  method DescribeTable ( input: DescribeTableInput )
  returns (output: Result<DescribeTableOutput, Error>)
@@ -973,7 +973,7 @@ include "../../StandardLibrary/src/Index.dfy"
  ensures DescribeTableEnsuresPublicly(input, output)
  ensures History.DescribeTable == old(History.DescribeTable) + [DafnyCallEvent(input, output)]
  
- predicate DescribeTableReplicaAutoScalingEnsuresPublicly(input: DescribeTableReplicaAutoScalingInput, output: Result<DescribeTableReplicaAutoScalingOutput, Error>)
+ predicate DescribeTableReplicaAutoScalingEnsuresPublicly(input: DescribeTableReplicaAutoScalingInput , output: Result<DescribeTableReplicaAutoScalingOutput, Error>)
  // The public method to be called by library consumers
  method DescribeTableReplicaAutoScaling ( input: DescribeTableReplicaAutoScalingInput )
  returns (output: Result<DescribeTableReplicaAutoScalingOutput, Error>)
@@ -988,7 +988,7 @@ include "../../StandardLibrary/src/Index.dfy"
  ensures DescribeTableReplicaAutoScalingEnsuresPublicly(input, output)
  ensures History.DescribeTableReplicaAutoScaling == old(History.DescribeTableReplicaAutoScaling) + [DafnyCallEvent(input, output)]
  
- predicate DescribeTimeToLiveEnsuresPublicly(input: DescribeTimeToLiveInput, output: Result<DescribeTimeToLiveOutput, Error>)
+ predicate DescribeTimeToLiveEnsuresPublicly(input: DescribeTimeToLiveInput , output: Result<DescribeTimeToLiveOutput, Error>)
  // The public method to be called by library consumers
  method DescribeTimeToLive ( input: DescribeTimeToLiveInput )
  returns (output: Result<DescribeTimeToLiveOutput, Error>)
@@ -1003,7 +1003,7 @@ include "../../StandardLibrary/src/Index.dfy"
  ensures DescribeTimeToLiveEnsuresPublicly(input, output)
  ensures History.DescribeTimeToLive == old(History.DescribeTimeToLive) + [DafnyCallEvent(input, output)]
  
- predicate DisableKinesisStreamingDestinationEnsuresPublicly(input: DisableKinesisStreamingDestinationInput, output: Result<DisableKinesisStreamingDestinationOutput, Error>)
+ predicate DisableKinesisStreamingDestinationEnsuresPublicly(input: DisableKinesisStreamingDestinationInput , output: Result<DisableKinesisStreamingDestinationOutput, Error>)
  // The public method to be called by library consumers
  method DisableKinesisStreamingDestination ( input: DisableKinesisStreamingDestinationInput )
  returns (output: Result<DisableKinesisStreamingDestinationOutput, Error>)
@@ -1018,7 +1018,7 @@ include "../../StandardLibrary/src/Index.dfy"
  ensures DisableKinesisStreamingDestinationEnsuresPublicly(input, output)
  ensures History.DisableKinesisStreamingDestination == old(History.DisableKinesisStreamingDestination) + [DafnyCallEvent(input, output)]
  
- predicate EnableKinesisStreamingDestinationEnsuresPublicly(input: EnableKinesisStreamingDestinationInput, output: Result<EnableKinesisStreamingDestinationOutput, Error>)
+ predicate EnableKinesisStreamingDestinationEnsuresPublicly(input: EnableKinesisStreamingDestinationInput , output: Result<EnableKinesisStreamingDestinationOutput, Error>)
  // The public method to be called by library consumers
  method EnableKinesisStreamingDestination ( input: EnableKinesisStreamingDestinationInput )
  returns (output: Result<EnableKinesisStreamingDestinationOutput, Error>)
@@ -1033,7 +1033,7 @@ include "../../StandardLibrary/src/Index.dfy"
  ensures EnableKinesisStreamingDestinationEnsuresPublicly(input, output)
  ensures History.EnableKinesisStreamingDestination == old(History.EnableKinesisStreamingDestination) + [DafnyCallEvent(input, output)]
  
- predicate ExecuteStatementEnsuresPublicly(input: ExecuteStatementInput, output: Result<ExecuteStatementOutput, Error>)
+ predicate ExecuteStatementEnsuresPublicly(input: ExecuteStatementInput , output: Result<ExecuteStatementOutput, Error>)
  // The public method to be called by library consumers
  method ExecuteStatement ( input: ExecuteStatementInput )
  returns (output: Result<ExecuteStatementOutput, Error>)
@@ -1048,7 +1048,7 @@ include "../../StandardLibrary/src/Index.dfy"
  ensures ExecuteStatementEnsuresPublicly(input, output)
  ensures History.ExecuteStatement == old(History.ExecuteStatement) + [DafnyCallEvent(input, output)]
  
- predicate ExecuteTransactionEnsuresPublicly(input: ExecuteTransactionInput, output: Result<ExecuteTransactionOutput, Error>)
+ predicate ExecuteTransactionEnsuresPublicly(input: ExecuteTransactionInput , output: Result<ExecuteTransactionOutput, Error>)
  // The public method to be called by library consumers
  method ExecuteTransaction ( input: ExecuteTransactionInput )
  returns (output: Result<ExecuteTransactionOutput, Error>)
@@ -1063,7 +1063,7 @@ include "../../StandardLibrary/src/Index.dfy"
  ensures ExecuteTransactionEnsuresPublicly(input, output)
  ensures History.ExecuteTransaction == old(History.ExecuteTransaction) + [DafnyCallEvent(input, output)]
  
- predicate ExportTableToPointInTimeEnsuresPublicly(input: ExportTableToPointInTimeInput, output: Result<ExportTableToPointInTimeOutput, Error>)
+ predicate ExportTableToPointInTimeEnsuresPublicly(input: ExportTableToPointInTimeInput , output: Result<ExportTableToPointInTimeOutput, Error>)
  // The public method to be called by library consumers
  method ExportTableToPointInTime ( input: ExportTableToPointInTimeInput )
  returns (output: Result<ExportTableToPointInTimeOutput, Error>)
@@ -1078,7 +1078,7 @@ include "../../StandardLibrary/src/Index.dfy"
  ensures ExportTableToPointInTimeEnsuresPublicly(input, output)
  ensures History.ExportTableToPointInTime == old(History.ExportTableToPointInTime) + [DafnyCallEvent(input, output)]
  
- predicate GetItemEnsuresPublicly(input: GetItemInput, output: Result<GetItemOutput, Error>)
+ predicate GetItemEnsuresPublicly(input: GetItemInput , output: Result<GetItemOutput, Error>)
  // The public method to be called by library consumers
  method GetItem ( input: GetItemInput )
  returns (output: Result<GetItemOutput, Error>)
@@ -1093,7 +1093,7 @@ include "../../StandardLibrary/src/Index.dfy"
  ensures GetItemEnsuresPublicly(input, output)
  ensures History.GetItem == old(History.GetItem) + [DafnyCallEvent(input, output)]
  
- predicate ImportTableEnsuresPublicly(input: ImportTableInput, output: Result<ImportTableOutput, Error>)
+ predicate ImportTableEnsuresPublicly(input: ImportTableInput , output: Result<ImportTableOutput, Error>)
  // The public method to be called by library consumers
  method ImportTable ( input: ImportTableInput )
  returns (output: Result<ImportTableOutput, Error>)
@@ -1108,7 +1108,7 @@ include "../../StandardLibrary/src/Index.dfy"
  ensures ImportTableEnsuresPublicly(input, output)
  ensures History.ImportTable == old(History.ImportTable) + [DafnyCallEvent(input, output)]
  
- predicate ListBackupsEnsuresPublicly(input: ListBackupsInput, output: Result<ListBackupsOutput, Error>)
+ predicate ListBackupsEnsuresPublicly(input: ListBackupsInput , output: Result<ListBackupsOutput, Error>)
  // The public method to be called by library consumers
  method ListBackups ( input: ListBackupsInput )
  returns (output: Result<ListBackupsOutput, Error>)
@@ -1123,7 +1123,7 @@ include "../../StandardLibrary/src/Index.dfy"
  ensures ListBackupsEnsuresPublicly(input, output)
  ensures History.ListBackups == old(History.ListBackups) + [DafnyCallEvent(input, output)]
  
- predicate ListContributorInsightsEnsuresPublicly(input: ListContributorInsightsInput, output: Result<ListContributorInsightsOutput, Error>)
+ predicate ListContributorInsightsEnsuresPublicly(input: ListContributorInsightsInput , output: Result<ListContributorInsightsOutput, Error>)
  // The public method to be called by library consumers
  method ListContributorInsights ( input: ListContributorInsightsInput )
  returns (output: Result<ListContributorInsightsOutput, Error>)
@@ -1138,7 +1138,7 @@ include "../../StandardLibrary/src/Index.dfy"
  ensures ListContributorInsightsEnsuresPublicly(input, output)
  ensures History.ListContributorInsights == old(History.ListContributorInsights) + [DafnyCallEvent(input, output)]
  
- predicate ListExportsEnsuresPublicly(input: ListExportsInput, output: Result<ListExportsOutput, Error>)
+ predicate ListExportsEnsuresPublicly(input: ListExportsInput , output: Result<ListExportsOutput, Error>)
  // The public method to be called by library consumers
  method ListExports ( input: ListExportsInput )
  returns (output: Result<ListExportsOutput, Error>)
@@ -1153,7 +1153,7 @@ include "../../StandardLibrary/src/Index.dfy"
  ensures ListExportsEnsuresPublicly(input, output)
  ensures History.ListExports == old(History.ListExports) + [DafnyCallEvent(input, output)]
  
- predicate ListGlobalTablesEnsuresPublicly(input: ListGlobalTablesInput, output: Result<ListGlobalTablesOutput, Error>)
+ predicate ListGlobalTablesEnsuresPublicly(input: ListGlobalTablesInput , output: Result<ListGlobalTablesOutput, Error>)
  // The public method to be called by library consumers
  method ListGlobalTables ( input: ListGlobalTablesInput )
  returns (output: Result<ListGlobalTablesOutput, Error>)
@@ -1168,7 +1168,7 @@ include "../../StandardLibrary/src/Index.dfy"
  ensures ListGlobalTablesEnsuresPublicly(input, output)
  ensures History.ListGlobalTables == old(History.ListGlobalTables) + [DafnyCallEvent(input, output)]
  
- predicate ListImportsEnsuresPublicly(input: ListImportsInput, output: Result<ListImportsOutput, Error>)
+ predicate ListImportsEnsuresPublicly(input: ListImportsInput , output: Result<ListImportsOutput, Error>)
  // The public method to be called by library consumers
  method ListImports ( input: ListImportsInput )
  returns (output: Result<ListImportsOutput, Error>)
@@ -1183,7 +1183,7 @@ include "../../StandardLibrary/src/Index.dfy"
  ensures ListImportsEnsuresPublicly(input, output)
  ensures History.ListImports == old(History.ListImports) + [DafnyCallEvent(input, output)]
  
- predicate ListTablesEnsuresPublicly(input: ListTablesInput, output: Result<ListTablesOutput, Error>)
+ predicate ListTablesEnsuresPublicly(input: ListTablesInput , output: Result<ListTablesOutput, Error>)
  // The public method to be called by library consumers
  method ListTables ( input: ListTablesInput )
  returns (output: Result<ListTablesOutput, Error>)
@@ -1198,7 +1198,7 @@ include "../../StandardLibrary/src/Index.dfy"
  ensures ListTablesEnsuresPublicly(input, output)
  ensures History.ListTables == old(History.ListTables) + [DafnyCallEvent(input, output)]
  
- predicate ListTagsOfResourceEnsuresPublicly(input: ListTagsOfResourceInput, output: Result<ListTagsOfResourceOutput, Error>)
+ predicate ListTagsOfResourceEnsuresPublicly(input: ListTagsOfResourceInput , output: Result<ListTagsOfResourceOutput, Error>)
  // The public method to be called by library consumers
  method ListTagsOfResource ( input: ListTagsOfResourceInput )
  returns (output: Result<ListTagsOfResourceOutput, Error>)
@@ -1213,7 +1213,7 @@ include "../../StandardLibrary/src/Index.dfy"
  ensures ListTagsOfResourceEnsuresPublicly(input, output)
  ensures History.ListTagsOfResource == old(History.ListTagsOfResource) + [DafnyCallEvent(input, output)]
  
- predicate PutItemEnsuresPublicly(input: PutItemInput, output: Result<PutItemOutput, Error>)
+ predicate PutItemEnsuresPublicly(input: PutItemInput , output: Result<PutItemOutput, Error>)
  // The public method to be called by library consumers
  method PutItem ( input: PutItemInput )
  returns (output: Result<PutItemOutput, Error>)
@@ -1228,7 +1228,7 @@ include "../../StandardLibrary/src/Index.dfy"
  ensures PutItemEnsuresPublicly(input, output)
  ensures History.PutItem == old(History.PutItem) + [DafnyCallEvent(input, output)]
  
- predicate QueryEnsuresPublicly(input: QueryInput, output: Result<QueryOutput, Error>)
+ predicate QueryEnsuresPublicly(input: QueryInput , output: Result<QueryOutput, Error>)
  // The public method to be called by library consumers
  method Query ( input: QueryInput )
  returns (output: Result<QueryOutput, Error>)
@@ -1243,7 +1243,7 @@ include "../../StandardLibrary/src/Index.dfy"
  ensures QueryEnsuresPublicly(input, output)
  ensures History.Query == old(History.Query) + [DafnyCallEvent(input, output)]
  
- predicate RestoreTableFromBackupEnsuresPublicly(input: RestoreTableFromBackupInput, output: Result<RestoreTableFromBackupOutput, Error>)
+ predicate RestoreTableFromBackupEnsuresPublicly(input: RestoreTableFromBackupInput , output: Result<RestoreTableFromBackupOutput, Error>)
  // The public method to be called by library consumers
  method RestoreTableFromBackup ( input: RestoreTableFromBackupInput )
  returns (output: Result<RestoreTableFromBackupOutput, Error>)
@@ -1258,7 +1258,7 @@ include "../../StandardLibrary/src/Index.dfy"
  ensures RestoreTableFromBackupEnsuresPublicly(input, output)
  ensures History.RestoreTableFromBackup == old(History.RestoreTableFromBackup) + [DafnyCallEvent(input, output)]
  
- predicate RestoreTableToPointInTimeEnsuresPublicly(input: RestoreTableToPointInTimeInput, output: Result<RestoreTableToPointInTimeOutput, Error>)
+ predicate RestoreTableToPointInTimeEnsuresPublicly(input: RestoreTableToPointInTimeInput , output: Result<RestoreTableToPointInTimeOutput, Error>)
  // The public method to be called by library consumers
  method RestoreTableToPointInTime ( input: RestoreTableToPointInTimeInput )
  returns (output: Result<RestoreTableToPointInTimeOutput, Error>)
@@ -1273,7 +1273,7 @@ include "../../StandardLibrary/src/Index.dfy"
  ensures RestoreTableToPointInTimeEnsuresPublicly(input, output)
  ensures History.RestoreTableToPointInTime == old(History.RestoreTableToPointInTime) + [DafnyCallEvent(input, output)]
  
- predicate ScanEnsuresPublicly(input: ScanInput, output: Result<ScanOutput, Error>)
+ predicate ScanEnsuresPublicly(input: ScanInput , output: Result<ScanOutput, Error>)
  // The public method to be called by library consumers
  method Scan ( input: ScanInput )
  returns (output: Result<ScanOutput, Error>)
@@ -1288,7 +1288,7 @@ include "../../StandardLibrary/src/Index.dfy"
  ensures ScanEnsuresPublicly(input, output)
  ensures History.Scan == old(History.Scan) + [DafnyCallEvent(input, output)]
  
- predicate TagResourceEnsuresPublicly(input: TagResourceInput, output: Result<(), Error>)
+ predicate TagResourceEnsuresPublicly(input: TagResourceInput , output: Result<(), Error>)
  // The public method to be called by library consumers
  method TagResource ( input: TagResourceInput )
  returns (output: Result<(), Error>)
@@ -1303,7 +1303,7 @@ include "../../StandardLibrary/src/Index.dfy"
  ensures TagResourceEnsuresPublicly(input, output)
  ensures History.TagResource == old(History.TagResource) + [DafnyCallEvent(input, output)]
  
- predicate TransactGetItemsEnsuresPublicly(input: TransactGetItemsInput, output: Result<TransactGetItemsOutput, Error>)
+ predicate TransactGetItemsEnsuresPublicly(input: TransactGetItemsInput , output: Result<TransactGetItemsOutput, Error>)
  // The public method to be called by library consumers
  method TransactGetItems ( input: TransactGetItemsInput )
  returns (output: Result<TransactGetItemsOutput, Error>)
@@ -1318,7 +1318,7 @@ include "../../StandardLibrary/src/Index.dfy"
  ensures TransactGetItemsEnsuresPublicly(input, output)
  ensures History.TransactGetItems == old(History.TransactGetItems) + [DafnyCallEvent(input, output)]
  
- predicate TransactWriteItemsEnsuresPublicly(input: TransactWriteItemsInput, output: Result<TransactWriteItemsOutput, Error>)
+ predicate TransactWriteItemsEnsuresPublicly(input: TransactWriteItemsInput , output: Result<TransactWriteItemsOutput, Error>)
  // The public method to be called by library consumers
  method TransactWriteItems ( input: TransactWriteItemsInput )
  returns (output: Result<TransactWriteItemsOutput, Error>)
@@ -1333,7 +1333,7 @@ include "../../StandardLibrary/src/Index.dfy"
  ensures TransactWriteItemsEnsuresPublicly(input, output)
  ensures History.TransactWriteItems == old(History.TransactWriteItems) + [DafnyCallEvent(input, output)]
  
- predicate UntagResourceEnsuresPublicly(input: UntagResourceInput, output: Result<(), Error>)
+ predicate UntagResourceEnsuresPublicly(input: UntagResourceInput , output: Result<(), Error>)
  // The public method to be called by library consumers
  method UntagResource ( input: UntagResourceInput )
  returns (output: Result<(), Error>)
@@ -1348,7 +1348,7 @@ include "../../StandardLibrary/src/Index.dfy"
  ensures UntagResourceEnsuresPublicly(input, output)
  ensures History.UntagResource == old(History.UntagResource) + [DafnyCallEvent(input, output)]
  
- predicate UpdateContinuousBackupsEnsuresPublicly(input: UpdateContinuousBackupsInput, output: Result<UpdateContinuousBackupsOutput, Error>)
+ predicate UpdateContinuousBackupsEnsuresPublicly(input: UpdateContinuousBackupsInput , output: Result<UpdateContinuousBackupsOutput, Error>)
  // The public method to be called by library consumers
  method UpdateContinuousBackups ( input: UpdateContinuousBackupsInput )
  returns (output: Result<UpdateContinuousBackupsOutput, Error>)
@@ -1363,7 +1363,7 @@ include "../../StandardLibrary/src/Index.dfy"
  ensures UpdateContinuousBackupsEnsuresPublicly(input, output)
  ensures History.UpdateContinuousBackups == old(History.UpdateContinuousBackups) + [DafnyCallEvent(input, output)]
  
- predicate UpdateContributorInsightsEnsuresPublicly(input: UpdateContributorInsightsInput, output: Result<UpdateContributorInsightsOutput, Error>)
+ predicate UpdateContributorInsightsEnsuresPublicly(input: UpdateContributorInsightsInput , output: Result<UpdateContributorInsightsOutput, Error>)
  // The public method to be called by library consumers
  method UpdateContributorInsights ( input: UpdateContributorInsightsInput )
  returns (output: Result<UpdateContributorInsightsOutput, Error>)
@@ -1378,7 +1378,7 @@ include "../../StandardLibrary/src/Index.dfy"
  ensures UpdateContributorInsightsEnsuresPublicly(input, output)
  ensures History.UpdateContributorInsights == old(History.UpdateContributorInsights) + [DafnyCallEvent(input, output)]
  
- predicate UpdateGlobalTableEnsuresPublicly(input: UpdateGlobalTableInput, output: Result<UpdateGlobalTableOutput, Error>)
+ predicate UpdateGlobalTableEnsuresPublicly(input: UpdateGlobalTableInput , output: Result<UpdateGlobalTableOutput, Error>)
  // The public method to be called by library consumers
  method UpdateGlobalTable ( input: UpdateGlobalTableInput )
  returns (output: Result<UpdateGlobalTableOutput, Error>)
@@ -1393,7 +1393,7 @@ include "../../StandardLibrary/src/Index.dfy"
  ensures UpdateGlobalTableEnsuresPublicly(input, output)
  ensures History.UpdateGlobalTable == old(History.UpdateGlobalTable) + [DafnyCallEvent(input, output)]
  
- predicate UpdateGlobalTableSettingsEnsuresPublicly(input: UpdateGlobalTableSettingsInput, output: Result<UpdateGlobalTableSettingsOutput, Error>)
+ predicate UpdateGlobalTableSettingsEnsuresPublicly(input: UpdateGlobalTableSettingsInput , output: Result<UpdateGlobalTableSettingsOutput, Error>)
  // The public method to be called by library consumers
  method UpdateGlobalTableSettings ( input: UpdateGlobalTableSettingsInput )
  returns (output: Result<UpdateGlobalTableSettingsOutput, Error>)
@@ -1408,7 +1408,7 @@ include "../../StandardLibrary/src/Index.dfy"
  ensures UpdateGlobalTableSettingsEnsuresPublicly(input, output)
  ensures History.UpdateGlobalTableSettings == old(History.UpdateGlobalTableSettings) + [DafnyCallEvent(input, output)]
  
- predicate UpdateItemEnsuresPublicly(input: UpdateItemInput, output: Result<UpdateItemOutput, Error>)
+ predicate UpdateItemEnsuresPublicly(input: UpdateItemInput , output: Result<UpdateItemOutput, Error>)
  // The public method to be called by library consumers
  method UpdateItem ( input: UpdateItemInput )
  returns (output: Result<UpdateItemOutput, Error>)
@@ -1423,7 +1423,7 @@ include "../../StandardLibrary/src/Index.dfy"
  ensures UpdateItemEnsuresPublicly(input, output)
  ensures History.UpdateItem == old(History.UpdateItem) + [DafnyCallEvent(input, output)]
  
- predicate UpdateTableEnsuresPublicly(input: UpdateTableInput, output: Result<UpdateTableOutput, Error>)
+ predicate UpdateTableEnsuresPublicly(input: UpdateTableInput , output: Result<UpdateTableOutput, Error>)
  // The public method to be called by library consumers
  method UpdateTable ( input: UpdateTableInput )
  returns (output: Result<UpdateTableOutput, Error>)
@@ -1438,7 +1438,7 @@ include "../../StandardLibrary/src/Index.dfy"
  ensures UpdateTableEnsuresPublicly(input, output)
  ensures History.UpdateTable == old(History.UpdateTable) + [DafnyCallEvent(input, output)]
  
- predicate UpdateTableReplicaAutoScalingEnsuresPublicly(input: UpdateTableReplicaAutoScalingInput, output: Result<UpdateTableReplicaAutoScalingOutput, Error>)
+ predicate UpdateTableReplicaAutoScalingEnsuresPublicly(input: UpdateTableReplicaAutoScalingInput , output: Result<UpdateTableReplicaAutoScalingOutput, Error>)
  // The public method to be called by library consumers
  method UpdateTableReplicaAutoScaling ( input: UpdateTableReplicaAutoScalingInput )
  returns (output: Result<UpdateTableReplicaAutoScalingOutput, Error>)
@@ -1453,7 +1453,7 @@ include "../../StandardLibrary/src/Index.dfy"
  ensures UpdateTableReplicaAutoScalingEnsuresPublicly(input, output)
  ensures History.UpdateTableReplicaAutoScaling == old(History.UpdateTableReplicaAutoScaling) + [DafnyCallEvent(input, output)]
  
- predicate UpdateTimeToLiveEnsuresPublicly(input: UpdateTimeToLiveInput, output: Result<UpdateTimeToLiveOutput, Error>)
+ predicate UpdateTimeToLiveEnsuresPublicly(input: UpdateTimeToLiveInput , output: Result<UpdateTimeToLiveOutput, Error>)
  // The public method to be called by library consumers
  method UpdateTimeToLive ( input: UpdateTimeToLiveInput )
  returns (output: Result<UpdateTimeToLiveOutput, Error>)
@@ -2737,7 +2737,7 @@ include "../../StandardLibrary/src/Index.dfy"
  // || (!exit(A(I)) && !exit(B(I)))
  // || (!access(A(I)) && !exit(B(I)))
  // || (!exit(A(I)) && !access(B(I)))
- | Collection(list: seq<Error>)
+ | CollectionOfErrors(list: seq<Error>)
  // The Opaque error, used for native, extern, wrapped or unknown errors
  | Opaque(obj: object)
  type OpaqueError = e: Error | e.Opaque? witness *
@@ -2765,11 +2765,11 @@ include "../../StandardLibrary/src/Index.dfy"
  type InternalConfig
  predicate ValidInternalConfig?(config: InternalConfig)
  function ModifiesInternalConfig(config: InternalConfig): set<object>
- predicate BatchExecuteStatementEnsuresPublicly(input: BatchExecuteStatementInput, output: Result<BatchExecuteStatementOutput, Error>)
+ predicate BatchExecuteStatementEnsuresPublicly(input: BatchExecuteStatementInput , output: Result<BatchExecuteStatementOutput, Error>)
  // The private method to be refined by the library developer
 
 
- method BatchExecuteStatement ( config: InternalConfig,  input: BatchExecuteStatementInput )
+ method BatchExecuteStatement ( config: InternalConfig , input: BatchExecuteStatementInput )
  returns (output: Result<BatchExecuteStatementOutput, Error>)
  requires
  && ValidInternalConfig?(config)
@@ -2781,11 +2781,11 @@ include "../../StandardLibrary/src/Index.dfy"
  ensures BatchExecuteStatementEnsuresPublicly(input, output)
 
 
- predicate BatchGetItemEnsuresPublicly(input: BatchGetItemInput, output: Result<BatchGetItemOutput, Error>)
+ predicate BatchGetItemEnsuresPublicly(input: BatchGetItemInput , output: Result<BatchGetItemOutput, Error>)
  // The private method to be refined by the library developer
 
 
- method BatchGetItem ( config: InternalConfig,  input: BatchGetItemInput )
+ method BatchGetItem ( config: InternalConfig , input: BatchGetItemInput )
  returns (output: Result<BatchGetItemOutput, Error>)
  requires
  && ValidInternalConfig?(config)
@@ -2797,11 +2797,11 @@ include "../../StandardLibrary/src/Index.dfy"
  ensures BatchGetItemEnsuresPublicly(input, output)
 
 
- predicate BatchWriteItemEnsuresPublicly(input: BatchWriteItemInput, output: Result<BatchWriteItemOutput, Error>)
+ predicate BatchWriteItemEnsuresPublicly(input: BatchWriteItemInput , output: Result<BatchWriteItemOutput, Error>)
  // The private method to be refined by the library developer
 
 
- method BatchWriteItem ( config: InternalConfig,  input: BatchWriteItemInput )
+ method BatchWriteItem ( config: InternalConfig , input: BatchWriteItemInput )
  returns (output: Result<BatchWriteItemOutput, Error>)
  requires
  && ValidInternalConfig?(config)
@@ -2813,11 +2813,11 @@ include "../../StandardLibrary/src/Index.dfy"
  ensures BatchWriteItemEnsuresPublicly(input, output)
 
 
- predicate CreateBackupEnsuresPublicly(input: CreateBackupInput, output: Result<CreateBackupOutput, Error>)
+ predicate CreateBackupEnsuresPublicly(input: CreateBackupInput , output: Result<CreateBackupOutput, Error>)
  // The private method to be refined by the library developer
 
 
- method CreateBackup ( config: InternalConfig,  input: CreateBackupInput )
+ method CreateBackup ( config: InternalConfig , input: CreateBackupInput )
  returns (output: Result<CreateBackupOutput, Error>)
  requires
  && ValidInternalConfig?(config)
@@ -2829,11 +2829,11 @@ include "../../StandardLibrary/src/Index.dfy"
  ensures CreateBackupEnsuresPublicly(input, output)
 
 
- predicate CreateGlobalTableEnsuresPublicly(input: CreateGlobalTableInput, output: Result<CreateGlobalTableOutput, Error>)
+ predicate CreateGlobalTableEnsuresPublicly(input: CreateGlobalTableInput , output: Result<CreateGlobalTableOutput, Error>)
  // The private method to be refined by the library developer
 
 
- method CreateGlobalTable ( config: InternalConfig,  input: CreateGlobalTableInput )
+ method CreateGlobalTable ( config: InternalConfig , input: CreateGlobalTableInput )
  returns (output: Result<CreateGlobalTableOutput, Error>)
  requires
  && ValidInternalConfig?(config)
@@ -2845,11 +2845,11 @@ include "../../StandardLibrary/src/Index.dfy"
  ensures CreateGlobalTableEnsuresPublicly(input, output)
 
 
- predicate CreateTableEnsuresPublicly(input: CreateTableInput, output: Result<CreateTableOutput, Error>)
+ predicate CreateTableEnsuresPublicly(input: CreateTableInput , output: Result<CreateTableOutput, Error>)
  // The private method to be refined by the library developer
 
 
- method CreateTable ( config: InternalConfig,  input: CreateTableInput )
+ method CreateTable ( config: InternalConfig , input: CreateTableInput )
  returns (output: Result<CreateTableOutput, Error>)
  requires
  && ValidInternalConfig?(config)
@@ -2861,11 +2861,11 @@ include "../../StandardLibrary/src/Index.dfy"
  ensures CreateTableEnsuresPublicly(input, output)
 
 
- predicate DeleteBackupEnsuresPublicly(input: DeleteBackupInput, output: Result<DeleteBackupOutput, Error>)
+ predicate DeleteBackupEnsuresPublicly(input: DeleteBackupInput , output: Result<DeleteBackupOutput, Error>)
  // The private method to be refined by the library developer
 
 
- method DeleteBackup ( config: InternalConfig,  input: DeleteBackupInput )
+ method DeleteBackup ( config: InternalConfig , input: DeleteBackupInput )
  returns (output: Result<DeleteBackupOutput, Error>)
  requires
  && ValidInternalConfig?(config)
@@ -2877,11 +2877,11 @@ include "../../StandardLibrary/src/Index.dfy"
  ensures DeleteBackupEnsuresPublicly(input, output)
 
 
- predicate DeleteItemEnsuresPublicly(input: DeleteItemInput, output: Result<DeleteItemOutput, Error>)
+ predicate DeleteItemEnsuresPublicly(input: DeleteItemInput , output: Result<DeleteItemOutput, Error>)
  // The private method to be refined by the library developer
 
 
- method DeleteItem ( config: InternalConfig,  input: DeleteItemInput )
+ method DeleteItem ( config: InternalConfig , input: DeleteItemInput )
  returns (output: Result<DeleteItemOutput, Error>)
  requires
  && ValidInternalConfig?(config)
@@ -2893,11 +2893,11 @@ include "../../StandardLibrary/src/Index.dfy"
  ensures DeleteItemEnsuresPublicly(input, output)
 
 
- predicate DeleteTableEnsuresPublicly(input: DeleteTableInput, output: Result<DeleteTableOutput, Error>)
+ predicate DeleteTableEnsuresPublicly(input: DeleteTableInput , output: Result<DeleteTableOutput, Error>)
  // The private method to be refined by the library developer
 
 
- method DeleteTable ( config: InternalConfig,  input: DeleteTableInput )
+ method DeleteTable ( config: InternalConfig , input: DeleteTableInput )
  returns (output: Result<DeleteTableOutput, Error>)
  requires
  && ValidInternalConfig?(config)
@@ -2909,11 +2909,11 @@ include "../../StandardLibrary/src/Index.dfy"
  ensures DeleteTableEnsuresPublicly(input, output)
 
 
- predicate DescribeBackupEnsuresPublicly(input: DescribeBackupInput, output: Result<DescribeBackupOutput, Error>)
+ predicate DescribeBackupEnsuresPublicly(input: DescribeBackupInput , output: Result<DescribeBackupOutput, Error>)
  // The private method to be refined by the library developer
 
 
- method DescribeBackup ( config: InternalConfig,  input: DescribeBackupInput )
+ method DescribeBackup ( config: InternalConfig , input: DescribeBackupInput )
  returns (output: Result<DescribeBackupOutput, Error>)
  requires
  && ValidInternalConfig?(config)
@@ -2925,11 +2925,11 @@ include "../../StandardLibrary/src/Index.dfy"
  ensures DescribeBackupEnsuresPublicly(input, output)
 
 
- predicate DescribeContinuousBackupsEnsuresPublicly(input: DescribeContinuousBackupsInput, output: Result<DescribeContinuousBackupsOutput, Error>)
+ predicate DescribeContinuousBackupsEnsuresPublicly(input: DescribeContinuousBackupsInput , output: Result<DescribeContinuousBackupsOutput, Error>)
  // The private method to be refined by the library developer
 
 
- method DescribeContinuousBackups ( config: InternalConfig,  input: DescribeContinuousBackupsInput )
+ method DescribeContinuousBackups ( config: InternalConfig , input: DescribeContinuousBackupsInput )
  returns (output: Result<DescribeContinuousBackupsOutput, Error>)
  requires
  && ValidInternalConfig?(config)
@@ -2941,11 +2941,11 @@ include "../../StandardLibrary/src/Index.dfy"
  ensures DescribeContinuousBackupsEnsuresPublicly(input, output)
 
 
- predicate DescribeContributorInsightsEnsuresPublicly(input: DescribeContributorInsightsInput, output: Result<DescribeContributorInsightsOutput, Error>)
+ predicate DescribeContributorInsightsEnsuresPublicly(input: DescribeContributorInsightsInput , output: Result<DescribeContributorInsightsOutput, Error>)
  // The private method to be refined by the library developer
 
 
- method DescribeContributorInsights ( config: InternalConfig,  input: DescribeContributorInsightsInput )
+ method DescribeContributorInsights ( config: InternalConfig , input: DescribeContributorInsightsInput )
  returns (output: Result<DescribeContributorInsightsOutput, Error>)
  requires
  && ValidInternalConfig?(config)
@@ -2957,11 +2957,11 @@ include "../../StandardLibrary/src/Index.dfy"
  ensures DescribeContributorInsightsEnsuresPublicly(input, output)
 
 
- predicate DescribeEndpointsEnsuresPublicly(input: DescribeEndpointsRequest, output: Result<DescribeEndpointsResponse, Error>)
+ predicate DescribeEndpointsEnsuresPublicly(input: DescribeEndpointsRequest , output: Result<DescribeEndpointsResponse, Error>)
  // The private method to be refined by the library developer
 
 
- method DescribeEndpoints ( config: InternalConfig,  input: DescribeEndpointsRequest )
+ method DescribeEndpoints ( config: InternalConfig , input: DescribeEndpointsRequest )
  returns (output: Result<DescribeEndpointsResponse, Error>)
  requires
  && ValidInternalConfig?(config)
@@ -2973,11 +2973,11 @@ include "../../StandardLibrary/src/Index.dfy"
  ensures DescribeEndpointsEnsuresPublicly(input, output)
 
 
- predicate DescribeExportEnsuresPublicly(input: DescribeExportInput, output: Result<DescribeExportOutput, Error>)
+ predicate DescribeExportEnsuresPublicly(input: DescribeExportInput , output: Result<DescribeExportOutput, Error>)
  // The private method to be refined by the library developer
 
 
- method DescribeExport ( config: InternalConfig,  input: DescribeExportInput )
+ method DescribeExport ( config: InternalConfig , input: DescribeExportInput )
  returns (output: Result<DescribeExportOutput, Error>)
  requires
  && ValidInternalConfig?(config)
@@ -2989,11 +2989,11 @@ include "../../StandardLibrary/src/Index.dfy"
  ensures DescribeExportEnsuresPublicly(input, output)
 
 
- predicate DescribeGlobalTableEnsuresPublicly(input: DescribeGlobalTableInput, output: Result<DescribeGlobalTableOutput, Error>)
+ predicate DescribeGlobalTableEnsuresPublicly(input: DescribeGlobalTableInput , output: Result<DescribeGlobalTableOutput, Error>)
  // The private method to be refined by the library developer
 
 
- method DescribeGlobalTable ( config: InternalConfig,  input: DescribeGlobalTableInput )
+ method DescribeGlobalTable ( config: InternalConfig , input: DescribeGlobalTableInput )
  returns (output: Result<DescribeGlobalTableOutput, Error>)
  requires
  && ValidInternalConfig?(config)
@@ -3005,11 +3005,11 @@ include "../../StandardLibrary/src/Index.dfy"
  ensures DescribeGlobalTableEnsuresPublicly(input, output)
 
 
- predicate DescribeGlobalTableSettingsEnsuresPublicly(input: DescribeGlobalTableSettingsInput, output: Result<DescribeGlobalTableSettingsOutput, Error>)
+ predicate DescribeGlobalTableSettingsEnsuresPublicly(input: DescribeGlobalTableSettingsInput , output: Result<DescribeGlobalTableSettingsOutput, Error>)
  // The private method to be refined by the library developer
 
 
- method DescribeGlobalTableSettings ( config: InternalConfig,  input: DescribeGlobalTableSettingsInput )
+ method DescribeGlobalTableSettings ( config: InternalConfig , input: DescribeGlobalTableSettingsInput )
  returns (output: Result<DescribeGlobalTableSettingsOutput, Error>)
  requires
  && ValidInternalConfig?(config)
@@ -3021,11 +3021,11 @@ include "../../StandardLibrary/src/Index.dfy"
  ensures DescribeGlobalTableSettingsEnsuresPublicly(input, output)
 
 
- predicate DescribeImportEnsuresPublicly(input: DescribeImportInput, output: Result<DescribeImportOutput, Error>)
+ predicate DescribeImportEnsuresPublicly(input: DescribeImportInput , output: Result<DescribeImportOutput, Error>)
  // The private method to be refined by the library developer
 
 
- method DescribeImport ( config: InternalConfig,  input: DescribeImportInput )
+ method DescribeImport ( config: InternalConfig , input: DescribeImportInput )
  returns (output: Result<DescribeImportOutput, Error>)
  requires
  && ValidInternalConfig?(config)
@@ -3037,11 +3037,11 @@ include "../../StandardLibrary/src/Index.dfy"
  ensures DescribeImportEnsuresPublicly(input, output)
 
 
- predicate DescribeKinesisStreamingDestinationEnsuresPublicly(input: DescribeKinesisStreamingDestinationInput, output: Result<DescribeKinesisStreamingDestinationOutput, Error>)
+ predicate DescribeKinesisStreamingDestinationEnsuresPublicly(input: DescribeKinesisStreamingDestinationInput , output: Result<DescribeKinesisStreamingDestinationOutput, Error>)
  // The private method to be refined by the library developer
 
 
- method DescribeKinesisStreamingDestination ( config: InternalConfig,  input: DescribeKinesisStreamingDestinationInput )
+ method DescribeKinesisStreamingDestination ( config: InternalConfig , input: DescribeKinesisStreamingDestinationInput )
  returns (output: Result<DescribeKinesisStreamingDestinationOutput, Error>)
  requires
  && ValidInternalConfig?(config)
@@ -3053,11 +3053,11 @@ include "../../StandardLibrary/src/Index.dfy"
  ensures DescribeKinesisStreamingDestinationEnsuresPublicly(input, output)
 
 
- predicate DescribeLimitsEnsuresPublicly(input: DescribeLimitsInput, output: Result<DescribeLimitsOutput, Error>)
+ predicate DescribeLimitsEnsuresPublicly(input: DescribeLimitsInput , output: Result<DescribeLimitsOutput, Error>)
  // The private method to be refined by the library developer
 
 
- method DescribeLimits ( config: InternalConfig,  input: DescribeLimitsInput )
+ method DescribeLimits ( config: InternalConfig , input: DescribeLimitsInput )
  returns (output: Result<DescribeLimitsOutput, Error>)
  requires
  && ValidInternalConfig?(config)
@@ -3069,11 +3069,11 @@ include "../../StandardLibrary/src/Index.dfy"
  ensures DescribeLimitsEnsuresPublicly(input, output)
 
 
- predicate DescribeTableEnsuresPublicly(input: DescribeTableInput, output: Result<DescribeTableOutput, Error>)
+ predicate DescribeTableEnsuresPublicly(input: DescribeTableInput , output: Result<DescribeTableOutput, Error>)
  // The private method to be refined by the library developer
 
 
- method DescribeTable ( config: InternalConfig,  input: DescribeTableInput )
+ method DescribeTable ( config: InternalConfig , input: DescribeTableInput )
  returns (output: Result<DescribeTableOutput, Error>)
  requires
  && ValidInternalConfig?(config)
@@ -3085,11 +3085,11 @@ include "../../StandardLibrary/src/Index.dfy"
  ensures DescribeTableEnsuresPublicly(input, output)
 
 
- predicate DescribeTableReplicaAutoScalingEnsuresPublicly(input: DescribeTableReplicaAutoScalingInput, output: Result<DescribeTableReplicaAutoScalingOutput, Error>)
+ predicate DescribeTableReplicaAutoScalingEnsuresPublicly(input: DescribeTableReplicaAutoScalingInput , output: Result<DescribeTableReplicaAutoScalingOutput, Error>)
  // The private method to be refined by the library developer
 
 
- method DescribeTableReplicaAutoScaling ( config: InternalConfig,  input: DescribeTableReplicaAutoScalingInput )
+ method DescribeTableReplicaAutoScaling ( config: InternalConfig , input: DescribeTableReplicaAutoScalingInput )
  returns (output: Result<DescribeTableReplicaAutoScalingOutput, Error>)
  requires
  && ValidInternalConfig?(config)
@@ -3101,11 +3101,11 @@ include "../../StandardLibrary/src/Index.dfy"
  ensures DescribeTableReplicaAutoScalingEnsuresPublicly(input, output)
 
 
- predicate DescribeTimeToLiveEnsuresPublicly(input: DescribeTimeToLiveInput, output: Result<DescribeTimeToLiveOutput, Error>)
+ predicate DescribeTimeToLiveEnsuresPublicly(input: DescribeTimeToLiveInput , output: Result<DescribeTimeToLiveOutput, Error>)
  // The private method to be refined by the library developer
 
 
- method DescribeTimeToLive ( config: InternalConfig,  input: DescribeTimeToLiveInput )
+ method DescribeTimeToLive ( config: InternalConfig , input: DescribeTimeToLiveInput )
  returns (output: Result<DescribeTimeToLiveOutput, Error>)
  requires
  && ValidInternalConfig?(config)
@@ -3117,11 +3117,11 @@ include "../../StandardLibrary/src/Index.dfy"
  ensures DescribeTimeToLiveEnsuresPublicly(input, output)
 
 
- predicate DisableKinesisStreamingDestinationEnsuresPublicly(input: DisableKinesisStreamingDestinationInput, output: Result<DisableKinesisStreamingDestinationOutput, Error>)
+ predicate DisableKinesisStreamingDestinationEnsuresPublicly(input: DisableKinesisStreamingDestinationInput , output: Result<DisableKinesisStreamingDestinationOutput, Error>)
  // The private method to be refined by the library developer
 
 
- method DisableKinesisStreamingDestination ( config: InternalConfig,  input: DisableKinesisStreamingDestinationInput )
+ method DisableKinesisStreamingDestination ( config: InternalConfig , input: DisableKinesisStreamingDestinationInput )
  returns (output: Result<DisableKinesisStreamingDestinationOutput, Error>)
  requires
  && ValidInternalConfig?(config)
@@ -3133,11 +3133,11 @@ include "../../StandardLibrary/src/Index.dfy"
  ensures DisableKinesisStreamingDestinationEnsuresPublicly(input, output)
 
 
- predicate EnableKinesisStreamingDestinationEnsuresPublicly(input: EnableKinesisStreamingDestinationInput, output: Result<EnableKinesisStreamingDestinationOutput, Error>)
+ predicate EnableKinesisStreamingDestinationEnsuresPublicly(input: EnableKinesisStreamingDestinationInput , output: Result<EnableKinesisStreamingDestinationOutput, Error>)
  // The private method to be refined by the library developer
 
 
- method EnableKinesisStreamingDestination ( config: InternalConfig,  input: EnableKinesisStreamingDestinationInput )
+ method EnableKinesisStreamingDestination ( config: InternalConfig , input: EnableKinesisStreamingDestinationInput )
  returns (output: Result<EnableKinesisStreamingDestinationOutput, Error>)
  requires
  && ValidInternalConfig?(config)
@@ -3149,11 +3149,11 @@ include "../../StandardLibrary/src/Index.dfy"
  ensures EnableKinesisStreamingDestinationEnsuresPublicly(input, output)
 
 
- predicate ExecuteStatementEnsuresPublicly(input: ExecuteStatementInput, output: Result<ExecuteStatementOutput, Error>)
+ predicate ExecuteStatementEnsuresPublicly(input: ExecuteStatementInput , output: Result<ExecuteStatementOutput, Error>)
  // The private method to be refined by the library developer
 
 
- method ExecuteStatement ( config: InternalConfig,  input: ExecuteStatementInput )
+ method ExecuteStatement ( config: InternalConfig , input: ExecuteStatementInput )
  returns (output: Result<ExecuteStatementOutput, Error>)
  requires
  && ValidInternalConfig?(config)
@@ -3165,11 +3165,11 @@ include "../../StandardLibrary/src/Index.dfy"
  ensures ExecuteStatementEnsuresPublicly(input, output)
 
 
- predicate ExecuteTransactionEnsuresPublicly(input: ExecuteTransactionInput, output: Result<ExecuteTransactionOutput, Error>)
+ predicate ExecuteTransactionEnsuresPublicly(input: ExecuteTransactionInput , output: Result<ExecuteTransactionOutput, Error>)
  // The private method to be refined by the library developer
 
 
- method ExecuteTransaction ( config: InternalConfig,  input: ExecuteTransactionInput )
+ method ExecuteTransaction ( config: InternalConfig , input: ExecuteTransactionInput )
  returns (output: Result<ExecuteTransactionOutput, Error>)
  requires
  && ValidInternalConfig?(config)
@@ -3181,11 +3181,11 @@ include "../../StandardLibrary/src/Index.dfy"
  ensures ExecuteTransactionEnsuresPublicly(input, output)
 
 
- predicate ExportTableToPointInTimeEnsuresPublicly(input: ExportTableToPointInTimeInput, output: Result<ExportTableToPointInTimeOutput, Error>)
+ predicate ExportTableToPointInTimeEnsuresPublicly(input: ExportTableToPointInTimeInput , output: Result<ExportTableToPointInTimeOutput, Error>)
  // The private method to be refined by the library developer
 
 
- method ExportTableToPointInTime ( config: InternalConfig,  input: ExportTableToPointInTimeInput )
+ method ExportTableToPointInTime ( config: InternalConfig , input: ExportTableToPointInTimeInput )
  returns (output: Result<ExportTableToPointInTimeOutput, Error>)
  requires
  && ValidInternalConfig?(config)
@@ -3197,11 +3197,11 @@ include "../../StandardLibrary/src/Index.dfy"
  ensures ExportTableToPointInTimeEnsuresPublicly(input, output)
 
 
- predicate GetItemEnsuresPublicly(input: GetItemInput, output: Result<GetItemOutput, Error>)
+ predicate GetItemEnsuresPublicly(input: GetItemInput , output: Result<GetItemOutput, Error>)
  // The private method to be refined by the library developer
 
 
- method GetItem ( config: InternalConfig,  input: GetItemInput )
+ method GetItem ( config: InternalConfig , input: GetItemInput )
  returns (output: Result<GetItemOutput, Error>)
  requires
  && ValidInternalConfig?(config)
@@ -3213,11 +3213,11 @@ include "../../StandardLibrary/src/Index.dfy"
  ensures GetItemEnsuresPublicly(input, output)
 
 
- predicate ImportTableEnsuresPublicly(input: ImportTableInput, output: Result<ImportTableOutput, Error>)
+ predicate ImportTableEnsuresPublicly(input: ImportTableInput , output: Result<ImportTableOutput, Error>)
  // The private method to be refined by the library developer
 
 
- method ImportTable ( config: InternalConfig,  input: ImportTableInput )
+ method ImportTable ( config: InternalConfig , input: ImportTableInput )
  returns (output: Result<ImportTableOutput, Error>)
  requires
  && ValidInternalConfig?(config)
@@ -3229,11 +3229,11 @@ include "../../StandardLibrary/src/Index.dfy"
  ensures ImportTableEnsuresPublicly(input, output)
 
 
- predicate ListBackupsEnsuresPublicly(input: ListBackupsInput, output: Result<ListBackupsOutput, Error>)
+ predicate ListBackupsEnsuresPublicly(input: ListBackupsInput , output: Result<ListBackupsOutput, Error>)
  // The private method to be refined by the library developer
 
 
- method ListBackups ( config: InternalConfig,  input: ListBackupsInput )
+ method ListBackups ( config: InternalConfig , input: ListBackupsInput )
  returns (output: Result<ListBackupsOutput, Error>)
  requires
  && ValidInternalConfig?(config)
@@ -3245,11 +3245,11 @@ include "../../StandardLibrary/src/Index.dfy"
  ensures ListBackupsEnsuresPublicly(input, output)
 
 
- predicate ListContributorInsightsEnsuresPublicly(input: ListContributorInsightsInput, output: Result<ListContributorInsightsOutput, Error>)
+ predicate ListContributorInsightsEnsuresPublicly(input: ListContributorInsightsInput , output: Result<ListContributorInsightsOutput, Error>)
  // The private method to be refined by the library developer
 
 
- method ListContributorInsights ( config: InternalConfig,  input: ListContributorInsightsInput )
+ method ListContributorInsights ( config: InternalConfig , input: ListContributorInsightsInput )
  returns (output: Result<ListContributorInsightsOutput, Error>)
  requires
  && ValidInternalConfig?(config)
@@ -3261,11 +3261,11 @@ include "../../StandardLibrary/src/Index.dfy"
  ensures ListContributorInsightsEnsuresPublicly(input, output)
 
 
- predicate ListExportsEnsuresPublicly(input: ListExportsInput, output: Result<ListExportsOutput, Error>)
+ predicate ListExportsEnsuresPublicly(input: ListExportsInput , output: Result<ListExportsOutput, Error>)
  // The private method to be refined by the library developer
 
 
- method ListExports ( config: InternalConfig,  input: ListExportsInput )
+ method ListExports ( config: InternalConfig , input: ListExportsInput )
  returns (output: Result<ListExportsOutput, Error>)
  requires
  && ValidInternalConfig?(config)
@@ -3277,11 +3277,11 @@ include "../../StandardLibrary/src/Index.dfy"
  ensures ListExportsEnsuresPublicly(input, output)
 
 
- predicate ListGlobalTablesEnsuresPublicly(input: ListGlobalTablesInput, output: Result<ListGlobalTablesOutput, Error>)
+ predicate ListGlobalTablesEnsuresPublicly(input: ListGlobalTablesInput , output: Result<ListGlobalTablesOutput, Error>)
  // The private method to be refined by the library developer
 
 
- method ListGlobalTables ( config: InternalConfig,  input: ListGlobalTablesInput )
+ method ListGlobalTables ( config: InternalConfig , input: ListGlobalTablesInput )
  returns (output: Result<ListGlobalTablesOutput, Error>)
  requires
  && ValidInternalConfig?(config)
@@ -3293,11 +3293,11 @@ include "../../StandardLibrary/src/Index.dfy"
  ensures ListGlobalTablesEnsuresPublicly(input, output)
 
 
- predicate ListImportsEnsuresPublicly(input: ListImportsInput, output: Result<ListImportsOutput, Error>)
+ predicate ListImportsEnsuresPublicly(input: ListImportsInput , output: Result<ListImportsOutput, Error>)
  // The private method to be refined by the library developer
 
 
- method ListImports ( config: InternalConfig,  input: ListImportsInput )
+ method ListImports ( config: InternalConfig , input: ListImportsInput )
  returns (output: Result<ListImportsOutput, Error>)
  requires
  && ValidInternalConfig?(config)
@@ -3309,11 +3309,11 @@ include "../../StandardLibrary/src/Index.dfy"
  ensures ListImportsEnsuresPublicly(input, output)
 
 
- predicate ListTablesEnsuresPublicly(input: ListTablesInput, output: Result<ListTablesOutput, Error>)
+ predicate ListTablesEnsuresPublicly(input: ListTablesInput , output: Result<ListTablesOutput, Error>)
  // The private method to be refined by the library developer
 
 
- method ListTables ( config: InternalConfig,  input: ListTablesInput )
+ method ListTables ( config: InternalConfig , input: ListTablesInput )
  returns (output: Result<ListTablesOutput, Error>)
  requires
  && ValidInternalConfig?(config)
@@ -3325,11 +3325,11 @@ include "../../StandardLibrary/src/Index.dfy"
  ensures ListTablesEnsuresPublicly(input, output)
 
 
- predicate ListTagsOfResourceEnsuresPublicly(input: ListTagsOfResourceInput, output: Result<ListTagsOfResourceOutput, Error>)
+ predicate ListTagsOfResourceEnsuresPublicly(input: ListTagsOfResourceInput , output: Result<ListTagsOfResourceOutput, Error>)
  // The private method to be refined by the library developer
 
 
- method ListTagsOfResource ( config: InternalConfig,  input: ListTagsOfResourceInput )
+ method ListTagsOfResource ( config: InternalConfig , input: ListTagsOfResourceInput )
  returns (output: Result<ListTagsOfResourceOutput, Error>)
  requires
  && ValidInternalConfig?(config)
@@ -3341,11 +3341,11 @@ include "../../StandardLibrary/src/Index.dfy"
  ensures ListTagsOfResourceEnsuresPublicly(input, output)
 
 
- predicate PutItemEnsuresPublicly(input: PutItemInput, output: Result<PutItemOutput, Error>)
+ predicate PutItemEnsuresPublicly(input: PutItemInput , output: Result<PutItemOutput, Error>)
  // The private method to be refined by the library developer
 
 
- method PutItem ( config: InternalConfig,  input: PutItemInput )
+ method PutItem ( config: InternalConfig , input: PutItemInput )
  returns (output: Result<PutItemOutput, Error>)
  requires
  && ValidInternalConfig?(config)
@@ -3357,11 +3357,11 @@ include "../../StandardLibrary/src/Index.dfy"
  ensures PutItemEnsuresPublicly(input, output)
 
 
- predicate QueryEnsuresPublicly(input: QueryInput, output: Result<QueryOutput, Error>)
+ predicate QueryEnsuresPublicly(input: QueryInput , output: Result<QueryOutput, Error>)
  // The private method to be refined by the library developer
 
 
- method Query ( config: InternalConfig,  input: QueryInput )
+ method Query ( config: InternalConfig , input: QueryInput )
  returns (output: Result<QueryOutput, Error>)
  requires
  && ValidInternalConfig?(config)
@@ -3373,11 +3373,11 @@ include "../../StandardLibrary/src/Index.dfy"
  ensures QueryEnsuresPublicly(input, output)
 
 
- predicate RestoreTableFromBackupEnsuresPublicly(input: RestoreTableFromBackupInput, output: Result<RestoreTableFromBackupOutput, Error>)
+ predicate RestoreTableFromBackupEnsuresPublicly(input: RestoreTableFromBackupInput , output: Result<RestoreTableFromBackupOutput, Error>)
  // The private method to be refined by the library developer
 
 
- method RestoreTableFromBackup ( config: InternalConfig,  input: RestoreTableFromBackupInput )
+ method RestoreTableFromBackup ( config: InternalConfig , input: RestoreTableFromBackupInput )
  returns (output: Result<RestoreTableFromBackupOutput, Error>)
  requires
  && ValidInternalConfig?(config)
@@ -3389,11 +3389,11 @@ include "../../StandardLibrary/src/Index.dfy"
  ensures RestoreTableFromBackupEnsuresPublicly(input, output)
 
 
- predicate RestoreTableToPointInTimeEnsuresPublicly(input: RestoreTableToPointInTimeInput, output: Result<RestoreTableToPointInTimeOutput, Error>)
+ predicate RestoreTableToPointInTimeEnsuresPublicly(input: RestoreTableToPointInTimeInput , output: Result<RestoreTableToPointInTimeOutput, Error>)
  // The private method to be refined by the library developer
 
 
- method RestoreTableToPointInTime ( config: InternalConfig,  input: RestoreTableToPointInTimeInput )
+ method RestoreTableToPointInTime ( config: InternalConfig , input: RestoreTableToPointInTimeInput )
  returns (output: Result<RestoreTableToPointInTimeOutput, Error>)
  requires
  && ValidInternalConfig?(config)
@@ -3405,11 +3405,11 @@ include "../../StandardLibrary/src/Index.dfy"
  ensures RestoreTableToPointInTimeEnsuresPublicly(input, output)
 
 
- predicate ScanEnsuresPublicly(input: ScanInput, output: Result<ScanOutput, Error>)
+ predicate ScanEnsuresPublicly(input: ScanInput , output: Result<ScanOutput, Error>)
  // The private method to be refined by the library developer
 
 
- method Scan ( config: InternalConfig,  input: ScanInput )
+ method Scan ( config: InternalConfig , input: ScanInput )
  returns (output: Result<ScanOutput, Error>)
  requires
  && ValidInternalConfig?(config)
@@ -3421,11 +3421,11 @@ include "../../StandardLibrary/src/Index.dfy"
  ensures ScanEnsuresPublicly(input, output)
 
 
- predicate TagResourceEnsuresPublicly(input: TagResourceInput, output: Result<(), Error>)
+ predicate TagResourceEnsuresPublicly(input: TagResourceInput , output: Result<(), Error>)
  // The private method to be refined by the library developer
 
 
- method TagResource ( config: InternalConfig,  input: TagResourceInput )
+ method TagResource ( config: InternalConfig , input: TagResourceInput )
  returns (output: Result<(), Error>)
  requires
  && ValidInternalConfig?(config)
@@ -3437,11 +3437,11 @@ include "../../StandardLibrary/src/Index.dfy"
  ensures TagResourceEnsuresPublicly(input, output)
 
 
- predicate TransactGetItemsEnsuresPublicly(input: TransactGetItemsInput, output: Result<TransactGetItemsOutput, Error>)
+ predicate TransactGetItemsEnsuresPublicly(input: TransactGetItemsInput , output: Result<TransactGetItemsOutput, Error>)
  // The private method to be refined by the library developer
 
 
- method TransactGetItems ( config: InternalConfig,  input: TransactGetItemsInput )
+ method TransactGetItems ( config: InternalConfig , input: TransactGetItemsInput )
  returns (output: Result<TransactGetItemsOutput, Error>)
  requires
  && ValidInternalConfig?(config)
@@ -3453,11 +3453,11 @@ include "../../StandardLibrary/src/Index.dfy"
  ensures TransactGetItemsEnsuresPublicly(input, output)
 
 
- predicate TransactWriteItemsEnsuresPublicly(input: TransactWriteItemsInput, output: Result<TransactWriteItemsOutput, Error>)
+ predicate TransactWriteItemsEnsuresPublicly(input: TransactWriteItemsInput , output: Result<TransactWriteItemsOutput, Error>)
  // The private method to be refined by the library developer
 
 
- method TransactWriteItems ( config: InternalConfig,  input: TransactWriteItemsInput )
+ method TransactWriteItems ( config: InternalConfig , input: TransactWriteItemsInput )
  returns (output: Result<TransactWriteItemsOutput, Error>)
  requires
  && ValidInternalConfig?(config)
@@ -3469,11 +3469,11 @@ include "../../StandardLibrary/src/Index.dfy"
  ensures TransactWriteItemsEnsuresPublicly(input, output)
 
 
- predicate UntagResourceEnsuresPublicly(input: UntagResourceInput, output: Result<(), Error>)
+ predicate UntagResourceEnsuresPublicly(input: UntagResourceInput , output: Result<(), Error>)
  // The private method to be refined by the library developer
 
 
- method UntagResource ( config: InternalConfig,  input: UntagResourceInput )
+ method UntagResource ( config: InternalConfig , input: UntagResourceInput )
  returns (output: Result<(), Error>)
  requires
  && ValidInternalConfig?(config)
@@ -3485,11 +3485,11 @@ include "../../StandardLibrary/src/Index.dfy"
  ensures UntagResourceEnsuresPublicly(input, output)
 
 
- predicate UpdateContinuousBackupsEnsuresPublicly(input: UpdateContinuousBackupsInput, output: Result<UpdateContinuousBackupsOutput, Error>)
+ predicate UpdateContinuousBackupsEnsuresPublicly(input: UpdateContinuousBackupsInput , output: Result<UpdateContinuousBackupsOutput, Error>)
  // The private method to be refined by the library developer
 
 
- method UpdateContinuousBackups ( config: InternalConfig,  input: UpdateContinuousBackupsInput )
+ method UpdateContinuousBackups ( config: InternalConfig , input: UpdateContinuousBackupsInput )
  returns (output: Result<UpdateContinuousBackupsOutput, Error>)
  requires
  && ValidInternalConfig?(config)
@@ -3501,11 +3501,11 @@ include "../../StandardLibrary/src/Index.dfy"
  ensures UpdateContinuousBackupsEnsuresPublicly(input, output)
 
 
- predicate UpdateContributorInsightsEnsuresPublicly(input: UpdateContributorInsightsInput, output: Result<UpdateContributorInsightsOutput, Error>)
+ predicate UpdateContributorInsightsEnsuresPublicly(input: UpdateContributorInsightsInput , output: Result<UpdateContributorInsightsOutput, Error>)
  // The private method to be refined by the library developer
 
 
- method UpdateContributorInsights ( config: InternalConfig,  input: UpdateContributorInsightsInput )
+ method UpdateContributorInsights ( config: InternalConfig , input: UpdateContributorInsightsInput )
  returns (output: Result<UpdateContributorInsightsOutput, Error>)
  requires
  && ValidInternalConfig?(config)
@@ -3517,11 +3517,11 @@ include "../../StandardLibrary/src/Index.dfy"
  ensures UpdateContributorInsightsEnsuresPublicly(input, output)
 
 
- predicate UpdateGlobalTableEnsuresPublicly(input: UpdateGlobalTableInput, output: Result<UpdateGlobalTableOutput, Error>)
+ predicate UpdateGlobalTableEnsuresPublicly(input: UpdateGlobalTableInput , output: Result<UpdateGlobalTableOutput, Error>)
  // The private method to be refined by the library developer
 
 
- method UpdateGlobalTable ( config: InternalConfig,  input: UpdateGlobalTableInput )
+ method UpdateGlobalTable ( config: InternalConfig , input: UpdateGlobalTableInput )
  returns (output: Result<UpdateGlobalTableOutput, Error>)
  requires
  && ValidInternalConfig?(config)
@@ -3533,11 +3533,11 @@ include "../../StandardLibrary/src/Index.dfy"
  ensures UpdateGlobalTableEnsuresPublicly(input, output)
 
 
- predicate UpdateGlobalTableSettingsEnsuresPublicly(input: UpdateGlobalTableSettingsInput, output: Result<UpdateGlobalTableSettingsOutput, Error>)
+ predicate UpdateGlobalTableSettingsEnsuresPublicly(input: UpdateGlobalTableSettingsInput , output: Result<UpdateGlobalTableSettingsOutput, Error>)
  // The private method to be refined by the library developer
 
 
- method UpdateGlobalTableSettings ( config: InternalConfig,  input: UpdateGlobalTableSettingsInput )
+ method UpdateGlobalTableSettings ( config: InternalConfig , input: UpdateGlobalTableSettingsInput )
  returns (output: Result<UpdateGlobalTableSettingsOutput, Error>)
  requires
  && ValidInternalConfig?(config)
@@ -3549,11 +3549,11 @@ include "../../StandardLibrary/src/Index.dfy"
  ensures UpdateGlobalTableSettingsEnsuresPublicly(input, output)
 
 
- predicate UpdateItemEnsuresPublicly(input: UpdateItemInput, output: Result<UpdateItemOutput, Error>)
+ predicate UpdateItemEnsuresPublicly(input: UpdateItemInput , output: Result<UpdateItemOutput, Error>)
  // The private method to be refined by the library developer
 
 
- method UpdateItem ( config: InternalConfig,  input: UpdateItemInput )
+ method UpdateItem ( config: InternalConfig , input: UpdateItemInput )
  returns (output: Result<UpdateItemOutput, Error>)
  requires
  && ValidInternalConfig?(config)
@@ -3565,11 +3565,11 @@ include "../../StandardLibrary/src/Index.dfy"
  ensures UpdateItemEnsuresPublicly(input, output)
 
 
- predicate UpdateTableEnsuresPublicly(input: UpdateTableInput, output: Result<UpdateTableOutput, Error>)
+ predicate UpdateTableEnsuresPublicly(input: UpdateTableInput , output: Result<UpdateTableOutput, Error>)
  // The private method to be refined by the library developer
 
 
- method UpdateTable ( config: InternalConfig,  input: UpdateTableInput )
+ method UpdateTable ( config: InternalConfig , input: UpdateTableInput )
  returns (output: Result<UpdateTableOutput, Error>)
  requires
  && ValidInternalConfig?(config)
@@ -3581,11 +3581,11 @@ include "../../StandardLibrary/src/Index.dfy"
  ensures UpdateTableEnsuresPublicly(input, output)
 
 
- predicate UpdateTableReplicaAutoScalingEnsuresPublicly(input: UpdateTableReplicaAutoScalingInput, output: Result<UpdateTableReplicaAutoScalingOutput, Error>)
+ predicate UpdateTableReplicaAutoScalingEnsuresPublicly(input: UpdateTableReplicaAutoScalingInput , output: Result<UpdateTableReplicaAutoScalingOutput, Error>)
  // The private method to be refined by the library developer
 
 
- method UpdateTableReplicaAutoScaling ( config: InternalConfig,  input: UpdateTableReplicaAutoScalingInput )
+ method UpdateTableReplicaAutoScaling ( config: InternalConfig , input: UpdateTableReplicaAutoScalingInput )
  returns (output: Result<UpdateTableReplicaAutoScalingOutput, Error>)
  requires
  && ValidInternalConfig?(config)
@@ -3597,11 +3597,11 @@ include "../../StandardLibrary/src/Index.dfy"
  ensures UpdateTableReplicaAutoScalingEnsuresPublicly(input, output)
 
 
- predicate UpdateTimeToLiveEnsuresPublicly(input: UpdateTimeToLiveInput, output: Result<UpdateTimeToLiveOutput, Error>)
+ predicate UpdateTimeToLiveEnsuresPublicly(input: UpdateTimeToLiveInput , output: Result<UpdateTimeToLiveOutput, Error>)
  // The private method to be refined by the library developer
 
 
- method UpdateTimeToLive ( config: InternalConfig,  input: UpdateTimeToLiveInput )
+ method UpdateTimeToLive ( config: InternalConfig , input: UpdateTimeToLiveInput )
  returns (output: Result<UpdateTimeToLiveOutput, Error>)
  requires
  && ValidInternalConfig?(config)

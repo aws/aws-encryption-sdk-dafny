@@ -10,14 +10,14 @@ using System;
  get { return this._algorithm; }
  set { this._algorithm = value; }
 }
- internal bool IsSetAlgorithm () {
+ public bool IsSetAlgorithm () {
  return this._algorithm != null;
 }
  public AWS.Cryptography.MaterialProviders.CommitmentPolicy CommitmentPolicy {
  get { return this._commitmentPolicy; }
  set { this._commitmentPolicy = value; }
 }
- internal bool IsSetCommitmentPolicy () {
+ public bool IsSetCommitmentPolicy () {
  return this._commitmentPolicy != null;
 }
  public void Validate() {

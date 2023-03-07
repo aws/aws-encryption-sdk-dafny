@@ -13,35 +13,35 @@ using System;
  get { return this._algorithmSuite; }
  set { this._algorithmSuite = value; }
 }
- internal bool IsSetAlgorithmSuite () {
+ public bool IsSetAlgorithmSuite () {
  return this._algorithmSuite != null;
 }
  public System.Collections.Generic.Dictionary<string, string> EncryptionContext {
  get { return this._encryptionContext; }
  set { this._encryptionContext = value; }
 }
- internal bool IsSetEncryptionContext () {
+ public bool IsSetEncryptionContext () {
  return this._encryptionContext != null;
 }
  public System.IO.MemoryStream PlaintextDataKey {
  get { return this._plaintextDataKey; }
  set { this._plaintextDataKey = value; }
 }
- internal bool IsSetPlaintextDataKey () {
+ public bool IsSetPlaintextDataKey () {
  return this._plaintextDataKey != null;
 }
  public System.IO.MemoryStream VerificationKey {
  get { return this._verificationKey; }
  set { this._verificationKey = value; }
 }
- internal bool IsSetVerificationKey () {
+ public bool IsSetVerificationKey () {
  return this._verificationKey != null;
 }
  public System.IO.MemoryStream SymmetricSigningKey {
  get { return this._symmetricSigningKey; }
  set { this._symmetricSigningKey = value; }
 }
- internal bool IsSetSymmetricSigningKey () {
+ public bool IsSetSymmetricSigningKey () {
  return this._symmetricSigningKey != null;
 }
  public void Validate() {

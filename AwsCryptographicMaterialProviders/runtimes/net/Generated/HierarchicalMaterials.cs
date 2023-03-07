@@ -10,14 +10,14 @@ using System;
  get { return this._branchKeyVersion; }
  set { this._branchKeyVersion = value; }
 }
- internal bool IsSetBranchKeyVersion () {
+ public bool IsSetBranchKeyVersion () {
  return this._branchKeyVersion != null;
 }
  public System.IO.MemoryStream BranchKey {
  get { return this._branchKey; }
  set { this._branchKey = value; }
 }
- internal bool IsSetBranchKey () {
+ public bool IsSetBranchKey () {
  return this._branchKey != null;
 }
  public void Validate() {

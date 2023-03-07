@@ -11,21 +11,21 @@ using System;
  get { return this._keyProviderId; }
  set { this._keyProviderId = value; }
 }
- internal bool IsSetKeyProviderId () {
+ public bool IsSetKeyProviderId () {
  return this._keyProviderId != null;
 }
  public System.IO.MemoryStream KeyProviderInfo {
  get { return this._keyProviderInfo; }
  set { this._keyProviderInfo = value; }
 }
- internal bool IsSetKeyProviderInfo () {
+ public bool IsSetKeyProviderInfo () {
  return this._keyProviderInfo != null;
 }
  public System.IO.MemoryStream Ciphertext {
  get { return this._ciphertext; }
  set { this._ciphertext = value; }
 }
- internal bool IsSetCiphertext () {
+ public bool IsSetCiphertext () {
  return this._ciphertext != null;
 }
  public void Validate() {

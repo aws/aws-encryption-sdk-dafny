@@ -10,14 +10,14 @@ using System;
  get { return this._materials; }
  set { this._materials = value; }
 }
- internal bool IsSetMaterials () {
+ public bool IsSetMaterials () {
  return this._materials != null;
 }
  public System.Collections.Generic.List<AWS.Cryptography.MaterialProviders.EncryptedDataKey> EncryptedDataKeys {
  get { return this._encryptedDataKeys; }
  set { this._encryptedDataKeys = value; }
 }
- internal bool IsSetEncryptedDataKeys () {
+ public bool IsSetEncryptedDataKeys () {
  return this._encryptedDataKeys != null;
 }
  public void Validate() {

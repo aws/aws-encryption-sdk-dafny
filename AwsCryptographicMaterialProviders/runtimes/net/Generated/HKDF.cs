@@ -12,28 +12,28 @@ using System;
  get { return this._hmac; }
  set { this._hmac = value; }
 }
- internal bool IsSetHmac () {
+ public bool IsSetHmac () {
  return this._hmac != null;
 }
  public int SaltLength {
  get { return this._saltLength.GetValueOrDefault(); }
  set { this._saltLength = value; }
 }
- internal bool IsSetSaltLength () {
+ public bool IsSetSaltLength () {
  return this._saltLength.HasValue;
 }
  public int InputKeyLength {
  get { return this._inputKeyLength.GetValueOrDefault(); }
  set { this._inputKeyLength = value; }
 }
- internal bool IsSetInputKeyLength () {
+ public bool IsSetInputKeyLength () {
  return this._inputKeyLength.HasValue;
 }
  public int OutputKeyLength {
  get { return this._outputKeyLength.GetValueOrDefault(); }
  set { this._outputKeyLength = value; }
 }
- internal bool IsSetOutputKeyLength () {
+ public bool IsSetOutputKeyLength () {
  return this._outputKeyLength.HasValue;
 }
  public void Validate() {

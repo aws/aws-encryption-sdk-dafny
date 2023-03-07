@@ -11,21 +11,21 @@ using System;
  get { return this._keyEncryptionKeyKdf; }
  set { this._keyEncryptionKeyKdf = value; }
 }
- internal bool IsSetKeyEncryptionKeyKdf () {
+ public bool IsSetKeyEncryptionKeyKdf () {
  return this._keyEncryptionKeyKdf != null;
 }
  public AWS.Cryptography.MaterialProviders.DerivationAlgorithm MacKeyKdf {
  get { return this._macKeyKdf; }
  set { this._macKeyKdf = value; }
 }
- internal bool IsSetMacKeyKdf () {
+ public bool IsSetMacKeyKdf () {
  return this._macKeyKdf != null;
 }
  public AWS.Cryptography.MaterialProviders.Encrypt PdkEncryptAlgorithm {
  get { return this._pdkEncryptAlgorithm; }
  set { this._pdkEncryptAlgorithm = value; }
 }
- internal bool IsSetPdkEncryptAlgorithm () {
+ public bool IsSetPdkEncryptAlgorithm () {
  return this._pdkEncryptAlgorithm != null;
 }
  public void Validate() {

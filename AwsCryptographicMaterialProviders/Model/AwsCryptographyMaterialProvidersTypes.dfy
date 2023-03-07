@@ -119,7 +119,7 @@ include "../../StandardLibrary/src/Index.dfy"
  predicate ValidState()
  ensures ValidState() ==> History in Modifies
   ghost const History: IAwsCryptographicMaterialProvidersClientCallHistory
- predicate CreateAwsKmsKeyringEnsuresPublicly(input: CreateAwsKmsKeyringInput, output: Result<IKeyring, Error>)
+ predicate CreateAwsKmsKeyringEnsuresPublicly(input: CreateAwsKmsKeyringInput , output: Result<IKeyring, Error>)
  // The public method to be called by library consumers
  method CreateAwsKmsKeyring ( input: CreateAwsKmsKeyringInput )
  returns (output: Result<IKeyring, Error>)
@@ -143,7 +143,7 @@ include "../../StandardLibrary/src/Index.dfy"
  ensures CreateAwsKmsKeyringEnsuresPublicly(input, output)
  ensures History.CreateAwsKmsKeyring == old(History.CreateAwsKmsKeyring) + [DafnyCallEvent(input, output)]
  
- predicate CreateAwsKmsDiscoveryKeyringEnsuresPublicly(input: CreateAwsKmsDiscoveryKeyringInput, output: Result<IKeyring, Error>)
+ predicate CreateAwsKmsDiscoveryKeyringEnsuresPublicly(input: CreateAwsKmsDiscoveryKeyringInput , output: Result<IKeyring, Error>)
  // The public method to be called by library consumers
  method CreateAwsKmsDiscoveryKeyring ( input: CreateAwsKmsDiscoveryKeyringInput )
  returns (output: Result<IKeyring, Error>)
@@ -167,7 +167,7 @@ include "../../StandardLibrary/src/Index.dfy"
  ensures CreateAwsKmsDiscoveryKeyringEnsuresPublicly(input, output)
  ensures History.CreateAwsKmsDiscoveryKeyring == old(History.CreateAwsKmsDiscoveryKeyring) + [DafnyCallEvent(input, output)]
  
- predicate CreateAwsKmsMultiKeyringEnsuresPublicly(input: CreateAwsKmsMultiKeyringInput, output: Result<IKeyring, Error>)
+ predicate CreateAwsKmsMultiKeyringEnsuresPublicly(input: CreateAwsKmsMultiKeyringInput , output: Result<IKeyring, Error>)
  // The public method to be called by library consumers
  method CreateAwsKmsMultiKeyring ( input: CreateAwsKmsMultiKeyringInput )
  returns (output: Result<IKeyring, Error>)
@@ -192,7 +192,7 @@ include "../../StandardLibrary/src/Index.dfy"
  ensures CreateAwsKmsMultiKeyringEnsuresPublicly(input, output)
  ensures History.CreateAwsKmsMultiKeyring == old(History.CreateAwsKmsMultiKeyring) + [DafnyCallEvent(input, output)]
  
- predicate CreateAwsKmsDiscoveryMultiKeyringEnsuresPublicly(input: CreateAwsKmsDiscoveryMultiKeyringInput, output: Result<IKeyring, Error>)
+ predicate CreateAwsKmsDiscoveryMultiKeyringEnsuresPublicly(input: CreateAwsKmsDiscoveryMultiKeyringInput , output: Result<IKeyring, Error>)
  // The public method to be called by library consumers
  method CreateAwsKmsDiscoveryMultiKeyring ( input: CreateAwsKmsDiscoveryMultiKeyringInput )
  returns (output: Result<IKeyring, Error>)
@@ -217,7 +217,7 @@ include "../../StandardLibrary/src/Index.dfy"
  ensures CreateAwsKmsDiscoveryMultiKeyringEnsuresPublicly(input, output)
  ensures History.CreateAwsKmsDiscoveryMultiKeyring == old(History.CreateAwsKmsDiscoveryMultiKeyring) + [DafnyCallEvent(input, output)]
  
- predicate CreateAwsKmsMrkKeyringEnsuresPublicly(input: CreateAwsKmsMrkKeyringInput, output: Result<IKeyring, Error>)
+ predicate CreateAwsKmsMrkKeyringEnsuresPublicly(input: CreateAwsKmsMrkKeyringInput , output: Result<IKeyring, Error>)
  // The public method to be called by library consumers
  method CreateAwsKmsMrkKeyring ( input: CreateAwsKmsMrkKeyringInput )
  returns (output: Result<IKeyring, Error>)
@@ -241,7 +241,7 @@ include "../../StandardLibrary/src/Index.dfy"
  ensures CreateAwsKmsMrkKeyringEnsuresPublicly(input, output)
  ensures History.CreateAwsKmsMrkKeyring == old(History.CreateAwsKmsMrkKeyring) + [DafnyCallEvent(input, output)]
  
- predicate CreateAwsKmsMrkMultiKeyringEnsuresPublicly(input: CreateAwsKmsMrkMultiKeyringInput, output: Result<IKeyring, Error>)
+ predicate CreateAwsKmsMrkMultiKeyringEnsuresPublicly(input: CreateAwsKmsMrkMultiKeyringInput , output: Result<IKeyring, Error>)
  // The public method to be called by library consumers
  method CreateAwsKmsMrkMultiKeyring ( input: CreateAwsKmsMrkMultiKeyringInput )
  returns (output: Result<IKeyring, Error>)
@@ -266,7 +266,7 @@ include "../../StandardLibrary/src/Index.dfy"
  ensures CreateAwsKmsMrkMultiKeyringEnsuresPublicly(input, output)
  ensures History.CreateAwsKmsMrkMultiKeyring == old(History.CreateAwsKmsMrkMultiKeyring) + [DafnyCallEvent(input, output)]
  
- predicate CreateAwsKmsMrkDiscoveryKeyringEnsuresPublicly(input: CreateAwsKmsMrkDiscoveryKeyringInput, output: Result<IKeyring, Error>)
+ predicate CreateAwsKmsMrkDiscoveryKeyringEnsuresPublicly(input: CreateAwsKmsMrkDiscoveryKeyringInput , output: Result<IKeyring, Error>)
  // The public method to be called by library consumers
  method CreateAwsKmsMrkDiscoveryKeyring ( input: CreateAwsKmsMrkDiscoveryKeyringInput )
  returns (output: Result<IKeyring, Error>)
@@ -290,7 +290,7 @@ include "../../StandardLibrary/src/Index.dfy"
  ensures CreateAwsKmsMrkDiscoveryKeyringEnsuresPublicly(input, output)
  ensures History.CreateAwsKmsMrkDiscoveryKeyring == old(History.CreateAwsKmsMrkDiscoveryKeyring) + [DafnyCallEvent(input, output)]
  
- predicate CreateAwsKmsMrkDiscoveryMultiKeyringEnsuresPublicly(input: CreateAwsKmsMrkDiscoveryMultiKeyringInput, output: Result<IKeyring, Error>)
+ predicate CreateAwsKmsMrkDiscoveryMultiKeyringEnsuresPublicly(input: CreateAwsKmsMrkDiscoveryMultiKeyringInput , output: Result<IKeyring, Error>)
  // The public method to be called by library consumers
  method CreateAwsKmsMrkDiscoveryMultiKeyring ( input: CreateAwsKmsMrkDiscoveryMultiKeyringInput )
  returns (output: Result<IKeyring, Error>)
@@ -315,7 +315,7 @@ include "../../StandardLibrary/src/Index.dfy"
  ensures CreateAwsKmsMrkDiscoveryMultiKeyringEnsuresPublicly(input, output)
  ensures History.CreateAwsKmsMrkDiscoveryMultiKeyring == old(History.CreateAwsKmsMrkDiscoveryMultiKeyring) + [DafnyCallEvent(input, output)]
  
- predicate CreateAwsKmsHierarchicalKeyringEnsuresPublicly(input: CreateAwsKmsHierarchicalKeyringInput, output: Result<IKeyring, Error>)
+ predicate CreateAwsKmsHierarchicalKeyringEnsuresPublicly(input: CreateAwsKmsHierarchicalKeyringInput , output: Result<IKeyring, Error>)
  // The public method to be called by library consumers
  method CreateAwsKmsHierarchicalKeyring ( input: CreateAwsKmsHierarchicalKeyringInput )
  returns (output: Result<IKeyring, Error>)
@@ -343,7 +343,7 @@ include "../../StandardLibrary/src/Index.dfy"
  ensures CreateAwsKmsHierarchicalKeyringEnsuresPublicly(input, output)
  ensures History.CreateAwsKmsHierarchicalKeyring == old(History.CreateAwsKmsHierarchicalKeyring) + [DafnyCallEvent(input, output)]
  
- predicate CreateMultiKeyringEnsuresPublicly(input: CreateMultiKeyringInput, output: Result<IKeyring, Error>)
+ predicate CreateMultiKeyringEnsuresPublicly(input: CreateMultiKeyringInput , output: Result<IKeyring, Error>)
  // The public method to be called by library consumers
  method CreateMultiKeyring ( input: CreateMultiKeyringInput )
  returns (output: Result<IKeyring, Error>)
@@ -373,7 +373,7 @@ include "../../StandardLibrary/src/Index.dfy"
  ensures CreateMultiKeyringEnsuresPublicly(input, output)
  ensures History.CreateMultiKeyring == old(History.CreateMultiKeyring) + [DafnyCallEvent(input, output)]
  
- predicate CreateRawAesKeyringEnsuresPublicly(input: CreateRawAesKeyringInput, output: Result<IKeyring, Error>)
+ predicate CreateRawAesKeyringEnsuresPublicly(input: CreateRawAesKeyringInput , output: Result<IKeyring, Error>)
  // The public method to be called by library consumers
  method CreateRawAesKeyring ( input: CreateRawAesKeyringInput )
  returns (output: Result<IKeyring, Error>)
@@ -393,7 +393,7 @@ include "../../StandardLibrary/src/Index.dfy"
  ensures CreateRawAesKeyringEnsuresPublicly(input, output)
  ensures History.CreateRawAesKeyring == old(History.CreateRawAesKeyring) + [DafnyCallEvent(input, output)]
  
- predicate CreateRawRsaKeyringEnsuresPublicly(input: CreateRawRsaKeyringInput, output: Result<IKeyring, Error>)
+ predicate CreateRawRsaKeyringEnsuresPublicly(input: CreateRawRsaKeyringInput , output: Result<IKeyring, Error>)
  // The public method to be called by library consumers
  method CreateRawRsaKeyring ( input: CreateRawRsaKeyringInput )
  returns (output: Result<IKeyring, Error>)
@@ -413,7 +413,7 @@ include "../../StandardLibrary/src/Index.dfy"
  ensures CreateRawRsaKeyringEnsuresPublicly(input, output)
  ensures History.CreateRawRsaKeyring == old(History.CreateRawRsaKeyring) + [DafnyCallEvent(input, output)]
  
- predicate CreateAwsKmsRsaKeyringEnsuresPublicly(input: CreateAwsKmsRsaKeyringInput, output: Result<IKeyring, Error>)
+ predicate CreateAwsKmsRsaKeyringEnsuresPublicly(input: CreateAwsKmsRsaKeyringInput , output: Result<IKeyring, Error>)
  // The public method to be called by library consumers
  method CreateAwsKmsRsaKeyring ( input: CreateAwsKmsRsaKeyringInput )
  returns (output: Result<IKeyring, Error>)
@@ -438,7 +438,7 @@ include "../../StandardLibrary/src/Index.dfy"
  ensures CreateAwsKmsRsaKeyringEnsuresPublicly(input, output)
  ensures History.CreateAwsKmsRsaKeyring == old(History.CreateAwsKmsRsaKeyring) + [DafnyCallEvent(input, output)]
  
- predicate CreateDefaultCryptographicMaterialsManagerEnsuresPublicly(input: CreateDefaultCryptographicMaterialsManagerInput, output: Result<ICryptographicMaterialsManager, Error>)
+ predicate CreateDefaultCryptographicMaterialsManagerEnsuresPublicly(input: CreateDefaultCryptographicMaterialsManagerInput , output: Result<ICryptographicMaterialsManager, Error>)
  // The public method to be called by library consumers
  method CreateDefaultCryptographicMaterialsManager ( input: CreateDefaultCryptographicMaterialsManagerInput )
  returns (output: Result<ICryptographicMaterialsManager, Error>)
@@ -462,7 +462,7 @@ include "../../StandardLibrary/src/Index.dfy"
  ensures CreateDefaultCryptographicMaterialsManagerEnsuresPublicly(input, output)
  ensures History.CreateDefaultCryptographicMaterialsManager == old(History.CreateDefaultCryptographicMaterialsManager) + [DafnyCallEvent(input, output)]
  
- predicate CreateDefaultClientSupplierEnsuresPublicly(input: CreateDefaultClientSupplierInput, output: Result<IClientSupplier, Error>)
+ predicate CreateDefaultClientSupplierEnsuresPublicly(input: CreateDefaultClientSupplierInput , output: Result<IClientSupplier, Error>)
  // The public method to be called by library consumers
  method CreateDefaultClientSupplier ( input: CreateDefaultClientSupplierInput )
  returns (output: Result<IClientSupplier, Error>)
@@ -576,7 +576,7 @@ include "../../StandardLibrary/src/Index.dfy"
  predicate ValidState()
  ensures ValidState() ==> History in Modifies
   ghost const History: IClientSupplierCallHistory
- predicate GetClientEnsuresPublicly(input: GetClientInput, output: Result<ComAmazonawsKmsTypes.IKeyManagementServiceClient, Error>)
+ predicate GetClientEnsuresPublicly(input: GetClientInput , output: Result<ComAmazonawsKmsTypes.IKeyManagementServiceClient, Error>)
  // The public method to be called by library consumers
  method GetClient ( input: GetClientInput )
  returns (output: Result<ComAmazonawsKmsTypes.IKeyManagementServiceClient, Error>)
@@ -741,7 +741,7 @@ include "../../StandardLibrary/src/Index.dfy"
  predicate ValidState()
  ensures ValidState() ==> History in Modifies
   ghost const History: ICryptographicMaterialsManagerCallHistory
- predicate GetEncryptionMaterialsEnsuresPublicly(input: GetEncryptionMaterialsInput, output: Result<GetEncryptionMaterialsOutput, Error>)
+ predicate GetEncryptionMaterialsEnsuresPublicly(input: GetEncryptionMaterialsInput , output: Result<GetEncryptionMaterialsOutput, Error>)
  // The public method to be called by library consumers
  method GetEncryptionMaterials ( input: GetEncryptionMaterialsInput )
  returns (output: Result<GetEncryptionMaterialsOutput, Error>)
@@ -772,7 +772,7 @@ include "../../StandardLibrary/src/Index.dfy"
  ensures GetEncryptionMaterialsEnsuresPublicly(input, output)
  ensures unchanged(History)
  
- predicate DecryptMaterialsEnsuresPublicly(input: DecryptMaterialsInput, output: Result<DecryptMaterialsOutput, Error>)
+ predicate DecryptMaterialsEnsuresPublicly(input: DecryptMaterialsInput , output: Result<DecryptMaterialsOutput, Error>)
  // The public method to be called by library consumers
  method DecryptMaterials ( input: DecryptMaterialsInput )
  returns (output: Result<DecryptMaterialsOutput, Error>)
@@ -953,7 +953,7 @@ include "../../StandardLibrary/src/Index.dfy"
  predicate ValidState()
  ensures ValidState() ==> History in Modifies
   ghost const History: IKeyringCallHistory
- predicate OnEncryptEnsuresPublicly(input: OnEncryptInput, output: Result<OnEncryptOutput, Error>)
+ predicate OnEncryptEnsuresPublicly(input: OnEncryptInput , output: Result<OnEncryptOutput, Error>)
  // The public method to be called by library consumers
  method OnEncrypt ( input: OnEncryptInput )
  returns (output: Result<OnEncryptOutput, Error>)
@@ -984,7 +984,7 @@ include "../../StandardLibrary/src/Index.dfy"
  ensures OnEncryptEnsuresPublicly(input, output)
  ensures unchanged(History)
  
- predicate OnDecryptEnsuresPublicly(input: OnDecryptInput, output: Result<OnDecryptOutput, Error>)
+ predicate OnDecryptEnsuresPublicly(input: OnDecryptInput , output: Result<OnDecryptOutput, Error>)
  // The public method to be called by library consumers
  method OnDecrypt ( input: OnDecryptInput )
  returns (output: Result<OnDecryptOutput, Error>)
@@ -1127,7 +1127,7 @@ include "../../StandardLibrary/src/Index.dfy"
  // || (!exit(A(I)) && !exit(B(I)))
  // || (!access(A(I)) && !exit(B(I)))
  // || (!exit(A(I)) && !access(B(I)))
- | Collection(list: seq<Error>)
+ | CollectionOfErrors(list: seq<Error>)
  // The Opaque error, used for native, extern, wrapped or unknown errors
  | Opaque(obj: object)
  type OpaqueError = e: Error | e.Opaque? witness *
@@ -1161,7 +1161,7 @@ include "../../StandardLibrary/src/Index.dfy"
  && Operations.ValidInternalConfig?(config)
  && History !in Operations.ModifiesInternalConfig(config)
  && Modifies == Operations.ModifiesInternalConfig(config) + {History}
- predicate CreateAwsKmsKeyringEnsuresPublicly(input: CreateAwsKmsKeyringInput, output: Result<IKeyring, Error>)
+ predicate CreateAwsKmsKeyringEnsuresPublicly(input: CreateAwsKmsKeyringInput , output: Result<IKeyring, Error>)
  {Operations.CreateAwsKmsKeyringEnsuresPublicly(input, output)}
  // The public method to be called by library consumers
  method CreateAwsKmsKeyring ( input: CreateAwsKmsKeyringInput )
@@ -1190,7 +1190,7 @@ include "../../StandardLibrary/src/Index.dfy"
  History.CreateAwsKmsKeyring := History.CreateAwsKmsKeyring + [DafnyCallEvent(input, output)];
 }
  
- predicate CreateAwsKmsDiscoveryKeyringEnsuresPublicly(input: CreateAwsKmsDiscoveryKeyringInput, output: Result<IKeyring, Error>)
+ predicate CreateAwsKmsDiscoveryKeyringEnsuresPublicly(input: CreateAwsKmsDiscoveryKeyringInput , output: Result<IKeyring, Error>)
  {Operations.CreateAwsKmsDiscoveryKeyringEnsuresPublicly(input, output)}
  // The public method to be called by library consumers
  method CreateAwsKmsDiscoveryKeyring ( input: CreateAwsKmsDiscoveryKeyringInput )
@@ -1219,7 +1219,7 @@ include "../../StandardLibrary/src/Index.dfy"
  History.CreateAwsKmsDiscoveryKeyring := History.CreateAwsKmsDiscoveryKeyring + [DafnyCallEvent(input, output)];
 }
  
- predicate CreateAwsKmsMultiKeyringEnsuresPublicly(input: CreateAwsKmsMultiKeyringInput, output: Result<IKeyring, Error>)
+ predicate CreateAwsKmsMultiKeyringEnsuresPublicly(input: CreateAwsKmsMultiKeyringInput , output: Result<IKeyring, Error>)
  {Operations.CreateAwsKmsMultiKeyringEnsuresPublicly(input, output)}
  // The public method to be called by library consumers
  method CreateAwsKmsMultiKeyring ( input: CreateAwsKmsMultiKeyringInput )
@@ -1249,7 +1249,7 @@ include "../../StandardLibrary/src/Index.dfy"
  History.CreateAwsKmsMultiKeyring := History.CreateAwsKmsMultiKeyring + [DafnyCallEvent(input, output)];
 }
  
- predicate CreateAwsKmsDiscoveryMultiKeyringEnsuresPublicly(input: CreateAwsKmsDiscoveryMultiKeyringInput, output: Result<IKeyring, Error>)
+ predicate CreateAwsKmsDiscoveryMultiKeyringEnsuresPublicly(input: CreateAwsKmsDiscoveryMultiKeyringInput , output: Result<IKeyring, Error>)
  {Operations.CreateAwsKmsDiscoveryMultiKeyringEnsuresPublicly(input, output)}
  // The public method to be called by library consumers
  method CreateAwsKmsDiscoveryMultiKeyring ( input: CreateAwsKmsDiscoveryMultiKeyringInput )
@@ -1279,7 +1279,7 @@ include "../../StandardLibrary/src/Index.dfy"
  History.CreateAwsKmsDiscoveryMultiKeyring := History.CreateAwsKmsDiscoveryMultiKeyring + [DafnyCallEvent(input, output)];
 }
  
- predicate CreateAwsKmsMrkKeyringEnsuresPublicly(input: CreateAwsKmsMrkKeyringInput, output: Result<IKeyring, Error>)
+ predicate CreateAwsKmsMrkKeyringEnsuresPublicly(input: CreateAwsKmsMrkKeyringInput , output: Result<IKeyring, Error>)
  {Operations.CreateAwsKmsMrkKeyringEnsuresPublicly(input, output)}
  // The public method to be called by library consumers
  method CreateAwsKmsMrkKeyring ( input: CreateAwsKmsMrkKeyringInput )
@@ -1308,7 +1308,7 @@ include "../../StandardLibrary/src/Index.dfy"
  History.CreateAwsKmsMrkKeyring := History.CreateAwsKmsMrkKeyring + [DafnyCallEvent(input, output)];
 }
  
- predicate CreateAwsKmsMrkMultiKeyringEnsuresPublicly(input: CreateAwsKmsMrkMultiKeyringInput, output: Result<IKeyring, Error>)
+ predicate CreateAwsKmsMrkMultiKeyringEnsuresPublicly(input: CreateAwsKmsMrkMultiKeyringInput , output: Result<IKeyring, Error>)
  {Operations.CreateAwsKmsMrkMultiKeyringEnsuresPublicly(input, output)}
  // The public method to be called by library consumers
  method CreateAwsKmsMrkMultiKeyring ( input: CreateAwsKmsMrkMultiKeyringInput )
@@ -1338,7 +1338,7 @@ include "../../StandardLibrary/src/Index.dfy"
  History.CreateAwsKmsMrkMultiKeyring := History.CreateAwsKmsMrkMultiKeyring + [DafnyCallEvent(input, output)];
 }
  
- predicate CreateAwsKmsMrkDiscoveryKeyringEnsuresPublicly(input: CreateAwsKmsMrkDiscoveryKeyringInput, output: Result<IKeyring, Error>)
+ predicate CreateAwsKmsMrkDiscoveryKeyringEnsuresPublicly(input: CreateAwsKmsMrkDiscoveryKeyringInput , output: Result<IKeyring, Error>)
  {Operations.CreateAwsKmsMrkDiscoveryKeyringEnsuresPublicly(input, output)}
  // The public method to be called by library consumers
  method CreateAwsKmsMrkDiscoveryKeyring ( input: CreateAwsKmsMrkDiscoveryKeyringInput )
@@ -1367,7 +1367,7 @@ include "../../StandardLibrary/src/Index.dfy"
  History.CreateAwsKmsMrkDiscoveryKeyring := History.CreateAwsKmsMrkDiscoveryKeyring + [DafnyCallEvent(input, output)];
 }
  
- predicate CreateAwsKmsMrkDiscoveryMultiKeyringEnsuresPublicly(input: CreateAwsKmsMrkDiscoveryMultiKeyringInput, output: Result<IKeyring, Error>)
+ predicate CreateAwsKmsMrkDiscoveryMultiKeyringEnsuresPublicly(input: CreateAwsKmsMrkDiscoveryMultiKeyringInput , output: Result<IKeyring, Error>)
  {Operations.CreateAwsKmsMrkDiscoveryMultiKeyringEnsuresPublicly(input, output)}
  // The public method to be called by library consumers
  method CreateAwsKmsMrkDiscoveryMultiKeyring ( input: CreateAwsKmsMrkDiscoveryMultiKeyringInput )
@@ -1397,7 +1397,7 @@ include "../../StandardLibrary/src/Index.dfy"
  History.CreateAwsKmsMrkDiscoveryMultiKeyring := History.CreateAwsKmsMrkDiscoveryMultiKeyring + [DafnyCallEvent(input, output)];
 }
  
- predicate CreateAwsKmsHierarchicalKeyringEnsuresPublicly(input: CreateAwsKmsHierarchicalKeyringInput, output: Result<IKeyring, Error>)
+ predicate CreateAwsKmsHierarchicalKeyringEnsuresPublicly(input: CreateAwsKmsHierarchicalKeyringInput , output: Result<IKeyring, Error>)
  {Operations.CreateAwsKmsHierarchicalKeyringEnsuresPublicly(input, output)}
  // The public method to be called by library consumers
  method CreateAwsKmsHierarchicalKeyring ( input: CreateAwsKmsHierarchicalKeyringInput )
@@ -1430,7 +1430,7 @@ include "../../StandardLibrary/src/Index.dfy"
  History.CreateAwsKmsHierarchicalKeyring := History.CreateAwsKmsHierarchicalKeyring + [DafnyCallEvent(input, output)];
 }
  
- predicate CreateMultiKeyringEnsuresPublicly(input: CreateMultiKeyringInput, output: Result<IKeyring, Error>)
+ predicate CreateMultiKeyringEnsuresPublicly(input: CreateMultiKeyringInput , output: Result<IKeyring, Error>)
  {Operations.CreateMultiKeyringEnsuresPublicly(input, output)}
  // The public method to be called by library consumers
  method CreateMultiKeyring ( input: CreateMultiKeyringInput )
@@ -1465,7 +1465,7 @@ include "../../StandardLibrary/src/Index.dfy"
  History.CreateMultiKeyring := History.CreateMultiKeyring + [DafnyCallEvent(input, output)];
 }
  
- predicate CreateRawAesKeyringEnsuresPublicly(input: CreateRawAesKeyringInput, output: Result<IKeyring, Error>)
+ predicate CreateRawAesKeyringEnsuresPublicly(input: CreateRawAesKeyringInput , output: Result<IKeyring, Error>)
  {Operations.CreateRawAesKeyringEnsuresPublicly(input, output)}
  // The public method to be called by library consumers
  method CreateRawAesKeyring ( input: CreateRawAesKeyringInput )
@@ -1490,7 +1490,7 @@ include "../../StandardLibrary/src/Index.dfy"
  History.CreateRawAesKeyring := History.CreateRawAesKeyring + [DafnyCallEvent(input, output)];
 }
  
- predicate CreateRawRsaKeyringEnsuresPublicly(input: CreateRawRsaKeyringInput, output: Result<IKeyring, Error>)
+ predicate CreateRawRsaKeyringEnsuresPublicly(input: CreateRawRsaKeyringInput , output: Result<IKeyring, Error>)
  {Operations.CreateRawRsaKeyringEnsuresPublicly(input, output)}
  // The public method to be called by library consumers
  method CreateRawRsaKeyring ( input: CreateRawRsaKeyringInput )
@@ -1515,7 +1515,7 @@ include "../../StandardLibrary/src/Index.dfy"
  History.CreateRawRsaKeyring := History.CreateRawRsaKeyring + [DafnyCallEvent(input, output)];
 }
  
- predicate CreateAwsKmsRsaKeyringEnsuresPublicly(input: CreateAwsKmsRsaKeyringInput, output: Result<IKeyring, Error>)
+ predicate CreateAwsKmsRsaKeyringEnsuresPublicly(input: CreateAwsKmsRsaKeyringInput , output: Result<IKeyring, Error>)
  {Operations.CreateAwsKmsRsaKeyringEnsuresPublicly(input, output)}
  // The public method to be called by library consumers
  method CreateAwsKmsRsaKeyring ( input: CreateAwsKmsRsaKeyringInput )
@@ -1545,7 +1545,7 @@ include "../../StandardLibrary/src/Index.dfy"
  History.CreateAwsKmsRsaKeyring := History.CreateAwsKmsRsaKeyring + [DafnyCallEvent(input, output)];
 }
  
- predicate CreateDefaultCryptographicMaterialsManagerEnsuresPublicly(input: CreateDefaultCryptographicMaterialsManagerInput, output: Result<ICryptographicMaterialsManager, Error>)
+ predicate CreateDefaultCryptographicMaterialsManagerEnsuresPublicly(input: CreateDefaultCryptographicMaterialsManagerInput , output: Result<ICryptographicMaterialsManager, Error>)
  {Operations.CreateDefaultCryptographicMaterialsManagerEnsuresPublicly(input, output)}
  // The public method to be called by library consumers
  method CreateDefaultCryptographicMaterialsManager ( input: CreateDefaultCryptographicMaterialsManagerInput )
@@ -1574,7 +1574,7 @@ include "../../StandardLibrary/src/Index.dfy"
  History.CreateDefaultCryptographicMaterialsManager := History.CreateDefaultCryptographicMaterialsManager + [DafnyCallEvent(input, output)];
 }
  
- predicate CreateDefaultClientSupplierEnsuresPublicly(input: CreateDefaultClientSupplierInput, output: Result<IClientSupplier, Error>)
+ predicate CreateDefaultClientSupplierEnsuresPublicly(input: CreateDefaultClientSupplierInput , output: Result<IClientSupplier, Error>)
  {Operations.CreateDefaultClientSupplierEnsuresPublicly(input, output)}
  // The public method to be called by library consumers
  method CreateDefaultClientSupplier ( input: CreateDefaultClientSupplierInput )
@@ -1699,11 +1699,11 @@ include "../../StandardLibrary/src/Index.dfy"
  type InternalConfig
  predicate ValidInternalConfig?(config: InternalConfig)
  function ModifiesInternalConfig(config: InternalConfig): set<object>
- predicate CreateAwsKmsKeyringEnsuresPublicly(input: CreateAwsKmsKeyringInput, output: Result<IKeyring, Error>)
+ predicate CreateAwsKmsKeyringEnsuresPublicly(input: CreateAwsKmsKeyringInput , output: Result<IKeyring, Error>)
  // The private method to be refined by the library developer
 
 
- method CreateAwsKmsKeyring ( config: InternalConfig,  input: CreateAwsKmsKeyringInput )
+ method CreateAwsKmsKeyring ( config: InternalConfig , input: CreateAwsKmsKeyringInput )
  returns (output: Result<IKeyring, Error>)
  requires
  && ValidInternalConfig?(config)
@@ -1722,11 +1722,11 @@ include "../../StandardLibrary/src/Index.dfy"
  ensures CreateAwsKmsKeyringEnsuresPublicly(input, output)
 
 
- predicate CreateAwsKmsDiscoveryKeyringEnsuresPublicly(input: CreateAwsKmsDiscoveryKeyringInput, output: Result<IKeyring, Error>)
+ predicate CreateAwsKmsDiscoveryKeyringEnsuresPublicly(input: CreateAwsKmsDiscoveryKeyringInput , output: Result<IKeyring, Error>)
  // The private method to be refined by the library developer
 
 
- method CreateAwsKmsDiscoveryKeyring ( config: InternalConfig,  input: CreateAwsKmsDiscoveryKeyringInput )
+ method CreateAwsKmsDiscoveryKeyring ( config: InternalConfig , input: CreateAwsKmsDiscoveryKeyringInput )
  returns (output: Result<IKeyring, Error>)
  requires
  && ValidInternalConfig?(config)
@@ -1745,11 +1745,11 @@ include "../../StandardLibrary/src/Index.dfy"
  ensures CreateAwsKmsDiscoveryKeyringEnsuresPublicly(input, output)
 
 
- predicate CreateAwsKmsMultiKeyringEnsuresPublicly(input: CreateAwsKmsMultiKeyringInput, output: Result<IKeyring, Error>)
+ predicate CreateAwsKmsMultiKeyringEnsuresPublicly(input: CreateAwsKmsMultiKeyringInput , output: Result<IKeyring, Error>)
  // The private method to be refined by the library developer
 
 
- method CreateAwsKmsMultiKeyring ( config: InternalConfig,  input: CreateAwsKmsMultiKeyringInput )
+ method CreateAwsKmsMultiKeyring ( config: InternalConfig , input: CreateAwsKmsMultiKeyringInput )
  returns (output: Result<IKeyring, Error>)
  requires
  && ValidInternalConfig?(config) && ( input.clientSupplier.Some? ==>
@@ -1769,11 +1769,11 @@ include "../../StandardLibrary/src/Index.dfy"
  ensures CreateAwsKmsMultiKeyringEnsuresPublicly(input, output)
 
 
- predicate CreateAwsKmsDiscoveryMultiKeyringEnsuresPublicly(input: CreateAwsKmsDiscoveryMultiKeyringInput, output: Result<IKeyring, Error>)
+ predicate CreateAwsKmsDiscoveryMultiKeyringEnsuresPublicly(input: CreateAwsKmsDiscoveryMultiKeyringInput , output: Result<IKeyring, Error>)
  // The private method to be refined by the library developer
 
 
- method CreateAwsKmsDiscoveryMultiKeyring ( config: InternalConfig,  input: CreateAwsKmsDiscoveryMultiKeyringInput )
+ method CreateAwsKmsDiscoveryMultiKeyring ( config: InternalConfig , input: CreateAwsKmsDiscoveryMultiKeyringInput )
  returns (output: Result<IKeyring, Error>)
  requires
  && ValidInternalConfig?(config) && ( input.clientSupplier.Some? ==>
@@ -1793,11 +1793,11 @@ include "../../StandardLibrary/src/Index.dfy"
  ensures CreateAwsKmsDiscoveryMultiKeyringEnsuresPublicly(input, output)
 
 
- predicate CreateAwsKmsMrkKeyringEnsuresPublicly(input: CreateAwsKmsMrkKeyringInput, output: Result<IKeyring, Error>)
+ predicate CreateAwsKmsMrkKeyringEnsuresPublicly(input: CreateAwsKmsMrkKeyringInput , output: Result<IKeyring, Error>)
  // The private method to be refined by the library developer
 
 
- method CreateAwsKmsMrkKeyring ( config: InternalConfig,  input: CreateAwsKmsMrkKeyringInput )
+ method CreateAwsKmsMrkKeyring ( config: InternalConfig , input: CreateAwsKmsMrkKeyringInput )
  returns (output: Result<IKeyring, Error>)
  requires
  && ValidInternalConfig?(config)
@@ -1816,11 +1816,11 @@ include "../../StandardLibrary/src/Index.dfy"
  ensures CreateAwsKmsMrkKeyringEnsuresPublicly(input, output)
 
 
- predicate CreateAwsKmsMrkMultiKeyringEnsuresPublicly(input: CreateAwsKmsMrkMultiKeyringInput, output: Result<IKeyring, Error>)
+ predicate CreateAwsKmsMrkMultiKeyringEnsuresPublicly(input: CreateAwsKmsMrkMultiKeyringInput , output: Result<IKeyring, Error>)
  // The private method to be refined by the library developer
 
 
- method CreateAwsKmsMrkMultiKeyring ( config: InternalConfig,  input: CreateAwsKmsMrkMultiKeyringInput )
+ method CreateAwsKmsMrkMultiKeyring ( config: InternalConfig , input: CreateAwsKmsMrkMultiKeyringInput )
  returns (output: Result<IKeyring, Error>)
  requires
  && ValidInternalConfig?(config) && ( input.clientSupplier.Some? ==>
@@ -1840,11 +1840,11 @@ include "../../StandardLibrary/src/Index.dfy"
  ensures CreateAwsKmsMrkMultiKeyringEnsuresPublicly(input, output)
 
 
- predicate CreateAwsKmsMrkDiscoveryKeyringEnsuresPublicly(input: CreateAwsKmsMrkDiscoveryKeyringInput, output: Result<IKeyring, Error>)
+ predicate CreateAwsKmsMrkDiscoveryKeyringEnsuresPublicly(input: CreateAwsKmsMrkDiscoveryKeyringInput , output: Result<IKeyring, Error>)
  // The private method to be refined by the library developer
 
 
- method CreateAwsKmsMrkDiscoveryKeyring ( config: InternalConfig,  input: CreateAwsKmsMrkDiscoveryKeyringInput )
+ method CreateAwsKmsMrkDiscoveryKeyring ( config: InternalConfig , input: CreateAwsKmsMrkDiscoveryKeyringInput )
  returns (output: Result<IKeyring, Error>)
  requires
  && ValidInternalConfig?(config)
@@ -1863,11 +1863,11 @@ include "../../StandardLibrary/src/Index.dfy"
  ensures CreateAwsKmsMrkDiscoveryKeyringEnsuresPublicly(input, output)
 
 
- predicate CreateAwsKmsMrkDiscoveryMultiKeyringEnsuresPublicly(input: CreateAwsKmsMrkDiscoveryMultiKeyringInput, output: Result<IKeyring, Error>)
+ predicate CreateAwsKmsMrkDiscoveryMultiKeyringEnsuresPublicly(input: CreateAwsKmsMrkDiscoveryMultiKeyringInput , output: Result<IKeyring, Error>)
  // The private method to be refined by the library developer
 
 
- method CreateAwsKmsMrkDiscoveryMultiKeyring ( config: InternalConfig,  input: CreateAwsKmsMrkDiscoveryMultiKeyringInput )
+ method CreateAwsKmsMrkDiscoveryMultiKeyring ( config: InternalConfig , input: CreateAwsKmsMrkDiscoveryMultiKeyringInput )
  returns (output: Result<IKeyring, Error>)
  requires
  && ValidInternalConfig?(config) && ( input.clientSupplier.Some? ==>
@@ -1887,11 +1887,11 @@ include "../../StandardLibrary/src/Index.dfy"
  ensures CreateAwsKmsMrkDiscoveryMultiKeyringEnsuresPublicly(input, output)
 
 
- predicate CreateAwsKmsHierarchicalKeyringEnsuresPublicly(input: CreateAwsKmsHierarchicalKeyringInput, output: Result<IKeyring, Error>)
+ predicate CreateAwsKmsHierarchicalKeyringEnsuresPublicly(input: CreateAwsKmsHierarchicalKeyringInput , output: Result<IKeyring, Error>)
  // The private method to be refined by the library developer
 
 
- method CreateAwsKmsHierarchicalKeyring ( config: InternalConfig,  input: CreateAwsKmsHierarchicalKeyringInput )
+ method CreateAwsKmsHierarchicalKeyring ( config: InternalConfig , input: CreateAwsKmsHierarchicalKeyringInput )
  returns (output: Result<IKeyring, Error>)
  requires
  && ValidInternalConfig?(config)
@@ -1913,11 +1913,11 @@ include "../../StandardLibrary/src/Index.dfy"
  ensures CreateAwsKmsHierarchicalKeyringEnsuresPublicly(input, output)
 
 
- predicate CreateMultiKeyringEnsuresPublicly(input: CreateMultiKeyringInput, output: Result<IKeyring, Error>)
+ predicate CreateMultiKeyringEnsuresPublicly(input: CreateMultiKeyringInput , output: Result<IKeyring, Error>)
  // The private method to be refined by the library developer
 
 
- method CreateMultiKeyring ( config: InternalConfig,  input: CreateMultiKeyringInput )
+ method CreateMultiKeyring ( config: InternalConfig , input: CreateMultiKeyringInput )
  returns (output: Result<IKeyring, Error>)
  requires
  && ValidInternalConfig?(config) && ( input.generator.Some? ==>
@@ -1941,11 +1941,11 @@ include "../../StandardLibrary/src/Index.dfy"
  ensures CreateMultiKeyringEnsuresPublicly(input, output)
 
 
- predicate CreateRawAesKeyringEnsuresPublicly(input: CreateRawAesKeyringInput, output: Result<IKeyring, Error>)
+ predicate CreateRawAesKeyringEnsuresPublicly(input: CreateRawAesKeyringInput , output: Result<IKeyring, Error>)
  // The private method to be refined by the library developer
 
 
- method CreateRawAesKeyring ( config: InternalConfig,  input: CreateRawAesKeyringInput )
+ method CreateRawAesKeyring ( config: InternalConfig , input: CreateRawAesKeyringInput )
  returns (output: Result<IKeyring, Error>)
  requires
  && ValidInternalConfig?(config)
@@ -1961,11 +1961,11 @@ include "../../StandardLibrary/src/Index.dfy"
  ensures CreateRawAesKeyringEnsuresPublicly(input, output)
 
 
- predicate CreateRawRsaKeyringEnsuresPublicly(input: CreateRawRsaKeyringInput, output: Result<IKeyring, Error>)
+ predicate CreateRawRsaKeyringEnsuresPublicly(input: CreateRawRsaKeyringInput , output: Result<IKeyring, Error>)
  // The private method to be refined by the library developer
 
 
- method CreateRawRsaKeyring ( config: InternalConfig,  input: CreateRawRsaKeyringInput )
+ method CreateRawRsaKeyring ( config: InternalConfig , input: CreateRawRsaKeyringInput )
  returns (output: Result<IKeyring, Error>)
  requires
  && ValidInternalConfig?(config)
@@ -1981,11 +1981,11 @@ include "../../StandardLibrary/src/Index.dfy"
  ensures CreateRawRsaKeyringEnsuresPublicly(input, output)
 
 
- predicate CreateAwsKmsRsaKeyringEnsuresPublicly(input: CreateAwsKmsRsaKeyringInput, output: Result<IKeyring, Error>)
+ predicate CreateAwsKmsRsaKeyringEnsuresPublicly(input: CreateAwsKmsRsaKeyringInput , output: Result<IKeyring, Error>)
  // The private method to be refined by the library developer
 
 
- method CreateAwsKmsRsaKeyring ( config: InternalConfig,  input: CreateAwsKmsRsaKeyringInput )
+ method CreateAwsKmsRsaKeyring ( config: InternalConfig , input: CreateAwsKmsRsaKeyringInput )
  returns (output: Result<IKeyring, Error>)
  requires
  && ValidInternalConfig?(config) && ( input.kmsClient.Some? ==>
@@ -2005,11 +2005,11 @@ include "../../StandardLibrary/src/Index.dfy"
  ensures CreateAwsKmsRsaKeyringEnsuresPublicly(input, output)
 
 
- predicate CreateDefaultCryptographicMaterialsManagerEnsuresPublicly(input: CreateDefaultCryptographicMaterialsManagerInput, output: Result<ICryptographicMaterialsManager, Error>)
+ predicate CreateDefaultCryptographicMaterialsManagerEnsuresPublicly(input: CreateDefaultCryptographicMaterialsManagerInput , output: Result<ICryptographicMaterialsManager, Error>)
  // The private method to be refined by the library developer
 
 
- method CreateDefaultCryptographicMaterialsManager ( config: InternalConfig,  input: CreateDefaultCryptographicMaterialsManagerInput )
+ method CreateDefaultCryptographicMaterialsManager ( config: InternalConfig , input: CreateDefaultCryptographicMaterialsManagerInput )
  returns (output: Result<ICryptographicMaterialsManager, Error>)
  requires
  && ValidInternalConfig?(config)
@@ -2028,11 +2028,11 @@ include "../../StandardLibrary/src/Index.dfy"
  ensures CreateDefaultCryptographicMaterialsManagerEnsuresPublicly(input, output)
 
 
- predicate CreateDefaultClientSupplierEnsuresPublicly(input: CreateDefaultClientSupplierInput, output: Result<IClientSupplier, Error>)
+ predicate CreateDefaultClientSupplierEnsuresPublicly(input: CreateDefaultClientSupplierInput , output: Result<IClientSupplier, Error>)
  // The private method to be refined by the library developer
 
 
- method CreateDefaultClientSupplier ( config: InternalConfig,  input: CreateDefaultClientSupplierInput )
+ method CreateDefaultClientSupplier ( config: InternalConfig , input: CreateDefaultClientSupplierInput )
  returns (output: Result<IClientSupplier, Error>)
  requires
  && ValidInternalConfig?(config)
@@ -2052,7 +2052,7 @@ include "../../StandardLibrary/src/Index.dfy"
  // The private method to be refined by the library developer
 
 
- function method InitializeEncryptionMaterials ( config: InternalConfig,  input: InitializeEncryptionMaterialsInput )
+ function method InitializeEncryptionMaterials ( config: InternalConfig , input: InitializeEncryptionMaterialsInput )
  : (output: Result<EncryptionMaterials, Error>)
  // Functions that are transparent do not need ensures
 
@@ -2061,7 +2061,7 @@ include "../../StandardLibrary/src/Index.dfy"
  // The private method to be refined by the library developer
 
 
- function method InitializeDecryptionMaterials ( config: InternalConfig,  input: InitializeDecryptionMaterialsInput )
+ function method InitializeDecryptionMaterials ( config: InternalConfig , input: InitializeDecryptionMaterialsInput )
  : (output: Result<DecryptionMaterials, Error>)
  // Functions that are transparent do not need ensures
 
@@ -2070,7 +2070,7 @@ include "../../StandardLibrary/src/Index.dfy"
  // The private method to be refined by the library developer
 
 
- function method ValidEncryptionMaterialsTransition ( config: InternalConfig,  input: ValidEncryptionMaterialsTransitionInput )
+ function method ValidEncryptionMaterialsTransition ( config: InternalConfig , input: ValidEncryptionMaterialsTransitionInput )
  : (output: Result<(), Error>)
  // Functions that are transparent do not need ensures
 
@@ -2079,7 +2079,7 @@ include "../../StandardLibrary/src/Index.dfy"
  // The private method to be refined by the library developer
 
 
- function method ValidDecryptionMaterialsTransition ( config: InternalConfig,  input: ValidDecryptionMaterialsTransitionInput )
+ function method ValidDecryptionMaterialsTransition ( config: InternalConfig , input: ValidDecryptionMaterialsTransitionInput )
  : (output: Result<(), Error>)
  // Functions that are transparent do not need ensures
 
@@ -2088,7 +2088,7 @@ include "../../StandardLibrary/src/Index.dfy"
  // The private method to be refined by the library developer
 
 
- function method EncryptionMaterialsHasPlaintextDataKey ( config: InternalConfig,  input: EncryptionMaterials )
+ function method EncryptionMaterialsHasPlaintextDataKey ( config: InternalConfig , input: EncryptionMaterials )
  : (output: Result<(), Error>)
  // Functions that are transparent do not need ensures
 
@@ -2097,7 +2097,7 @@ include "../../StandardLibrary/src/Index.dfy"
  // The private method to be refined by the library developer
 
 
- function method DecryptionMaterialsWithPlaintextDataKey ( config: InternalConfig,  input: DecryptionMaterials )
+ function method DecryptionMaterialsWithPlaintextDataKey ( config: InternalConfig , input: DecryptionMaterials )
  : (output: Result<(), Error>)
  // Functions that are transparent do not need ensures
 
@@ -2106,7 +2106,7 @@ include "../../StandardLibrary/src/Index.dfy"
  // The private method to be refined by the library developer
 
 
- function method GetAlgorithmSuiteInfo ( config: InternalConfig,  input: seq<uint8> )
+ function method GetAlgorithmSuiteInfo ( config: InternalConfig , input: seq<uint8> )
  : (output: Result<AlgorithmSuiteInfo, Error>)
  // Functions that are transparent do not need ensures
 
@@ -2115,7 +2115,7 @@ include "../../StandardLibrary/src/Index.dfy"
  // The private method to be refined by the library developer
 
 
- function method ValidAlgorithmSuiteInfo ( config: InternalConfig,  input: AlgorithmSuiteInfo )
+ function method ValidAlgorithmSuiteInfo ( config: InternalConfig , input: AlgorithmSuiteInfo )
  : (output: Result<(), Error>)
  // Functions that are transparent do not need ensures
 
@@ -2124,7 +2124,7 @@ include "../../StandardLibrary/src/Index.dfy"
  // The private method to be refined by the library developer
 
 
- function method ValidateCommitmentPolicyOnEncrypt ( config: InternalConfig,  input: ValidateCommitmentPolicyOnEncryptInput )
+ function method ValidateCommitmentPolicyOnEncrypt ( config: InternalConfig , input: ValidateCommitmentPolicyOnEncryptInput )
  : (output: Result<(), Error>)
  // Functions that are transparent do not need ensures
 
@@ -2133,7 +2133,7 @@ include "../../StandardLibrary/src/Index.dfy"
  // The private method to be refined by the library developer
 
 
- function method ValidateCommitmentPolicyOnDecrypt ( config: InternalConfig,  input: ValidateCommitmentPolicyOnDecryptInput )
+ function method ValidateCommitmentPolicyOnDecrypt ( config: InternalConfig , input: ValidateCommitmentPolicyOnDecryptInput )
  : (output: Result<(), Error>)
  // Functions that are transparent do not need ensures
 }

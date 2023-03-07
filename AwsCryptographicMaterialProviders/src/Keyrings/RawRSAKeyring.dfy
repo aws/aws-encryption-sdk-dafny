@@ -365,7 +365,7 @@ module RawRSAKeyring {
       //= aws-encryption-sdk-specification/framework/raw-rsa-keyring.md#ondecrypt
       //# If no decryption succeeds, the keyring MUST fail and MUST NOT modify
       //# the [decryption materials](structures.md#decryption-materials).
-      return Failure(Types.Collection(list := errors));
+      return Failure(Types.CollectionOfErrors(list := errors));
     }
 
     predicate method ShouldDecryptEDK(edk: Types.EncryptedDataKey)

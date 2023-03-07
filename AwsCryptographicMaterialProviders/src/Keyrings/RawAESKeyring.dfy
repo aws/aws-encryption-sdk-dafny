@@ -362,7 +362,7 @@ module RawAESKeyring {
       //= aws-encryption-sdk-specification/framework/raw-aes-keyring.md#ondecrypt
       //# If no decryption succeeds, the keyring MUST fail and MUST NOT modify
       //# the [decryption materials](structures.md#decryption-materials).
-      return Failure(Types.Collection(list := errors));
+      return Failure(Types.CollectionOfErrors(list := errors));
     }
 
     //TODO This needs to be a private method

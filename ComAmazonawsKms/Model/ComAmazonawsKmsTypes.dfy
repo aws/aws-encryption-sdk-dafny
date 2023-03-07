@@ -519,7 +519,7 @@ include "../../StandardLibrary/src/Index.dfy"
  predicate ValidState()
  ensures ValidState() ==> History in Modifies
   ghost const History: IKeyManagementServiceClientCallHistory
- predicate CancelKeyDeletionEnsuresPublicly(input: CancelKeyDeletionRequest, output: Result<CancelKeyDeletionResponse, Error>)
+ predicate CancelKeyDeletionEnsuresPublicly(input: CancelKeyDeletionRequest , output: Result<CancelKeyDeletionResponse, Error>)
  // The public method to be called by library consumers
  method CancelKeyDeletion ( input: CancelKeyDeletionRequest )
  returns (output: Result<CancelKeyDeletionResponse, Error>)
@@ -534,7 +534,7 @@ include "../../StandardLibrary/src/Index.dfy"
  ensures CancelKeyDeletionEnsuresPublicly(input, output)
  ensures History.CancelKeyDeletion == old(History.CancelKeyDeletion) + [DafnyCallEvent(input, output)]
  
- predicate ConnectCustomKeyStoreEnsuresPublicly(input: ConnectCustomKeyStoreRequest, output: Result<ConnectCustomKeyStoreResponse, Error>)
+ predicate ConnectCustomKeyStoreEnsuresPublicly(input: ConnectCustomKeyStoreRequest , output: Result<ConnectCustomKeyStoreResponse, Error>)
  // The public method to be called by library consumers
  method ConnectCustomKeyStore ( input: ConnectCustomKeyStoreRequest )
  returns (output: Result<ConnectCustomKeyStoreResponse, Error>)
@@ -549,7 +549,7 @@ include "../../StandardLibrary/src/Index.dfy"
  ensures ConnectCustomKeyStoreEnsuresPublicly(input, output)
  ensures History.ConnectCustomKeyStore == old(History.ConnectCustomKeyStore) + [DafnyCallEvent(input, output)]
  
- predicate CreateAliasEnsuresPublicly(input: CreateAliasRequest, output: Result<(), Error>)
+ predicate CreateAliasEnsuresPublicly(input: CreateAliasRequest , output: Result<(), Error>)
  // The public method to be called by library consumers
  method CreateAlias ( input: CreateAliasRequest )
  returns (output: Result<(), Error>)
@@ -564,7 +564,7 @@ include "../../StandardLibrary/src/Index.dfy"
  ensures CreateAliasEnsuresPublicly(input, output)
  ensures History.CreateAlias == old(History.CreateAlias) + [DafnyCallEvent(input, output)]
  
- predicate CreateCustomKeyStoreEnsuresPublicly(input: CreateCustomKeyStoreRequest, output: Result<CreateCustomKeyStoreResponse, Error>)
+ predicate CreateCustomKeyStoreEnsuresPublicly(input: CreateCustomKeyStoreRequest , output: Result<CreateCustomKeyStoreResponse, Error>)
  // The public method to be called by library consumers
  method CreateCustomKeyStore ( input: CreateCustomKeyStoreRequest )
  returns (output: Result<CreateCustomKeyStoreResponse, Error>)
@@ -579,7 +579,7 @@ include "../../StandardLibrary/src/Index.dfy"
  ensures CreateCustomKeyStoreEnsuresPublicly(input, output)
  ensures History.CreateCustomKeyStore == old(History.CreateCustomKeyStore) + [DafnyCallEvent(input, output)]
  
- predicate CreateGrantEnsuresPublicly(input: CreateGrantRequest, output: Result<CreateGrantResponse, Error>)
+ predicate CreateGrantEnsuresPublicly(input: CreateGrantRequest , output: Result<CreateGrantResponse, Error>)
  // The public method to be called by library consumers
  method CreateGrant ( input: CreateGrantRequest )
  returns (output: Result<CreateGrantResponse, Error>)
@@ -594,7 +594,7 @@ include "../../StandardLibrary/src/Index.dfy"
  ensures CreateGrantEnsuresPublicly(input, output)
  ensures History.CreateGrant == old(History.CreateGrant) + [DafnyCallEvent(input, output)]
  
- predicate CreateKeyEnsuresPublicly(input: CreateKeyRequest, output: Result<CreateKeyResponse, Error>)
+ predicate CreateKeyEnsuresPublicly(input: CreateKeyRequest , output: Result<CreateKeyResponse, Error>)
  // The public method to be called by library consumers
  method CreateKey ( input: CreateKeyRequest )
  returns (output: Result<CreateKeyResponse, Error>)
@@ -609,7 +609,7 @@ include "../../StandardLibrary/src/Index.dfy"
  ensures CreateKeyEnsuresPublicly(input, output)
  ensures History.CreateKey == old(History.CreateKey) + [DafnyCallEvent(input, output)]
  
- predicate DecryptEnsuresPublicly(input: DecryptRequest, output: Result<DecryptResponse, Error>)
+ predicate DecryptEnsuresPublicly(input: DecryptRequest , output: Result<DecryptResponse, Error>)
  // The public method to be called by library consumers
  method Decrypt ( input: DecryptRequest )
  returns (output: Result<DecryptResponse, Error>)
@@ -624,7 +624,7 @@ include "../../StandardLibrary/src/Index.dfy"
  ensures DecryptEnsuresPublicly(input, output)
  ensures History.Decrypt == old(History.Decrypt) + [DafnyCallEvent(input, output)]
  
- predicate DeleteAliasEnsuresPublicly(input: DeleteAliasRequest, output: Result<(), Error>)
+ predicate DeleteAliasEnsuresPublicly(input: DeleteAliasRequest , output: Result<(), Error>)
  // The public method to be called by library consumers
  method DeleteAlias ( input: DeleteAliasRequest )
  returns (output: Result<(), Error>)
@@ -639,7 +639,7 @@ include "../../StandardLibrary/src/Index.dfy"
  ensures DeleteAliasEnsuresPublicly(input, output)
  ensures History.DeleteAlias == old(History.DeleteAlias) + [DafnyCallEvent(input, output)]
  
- predicate DeleteCustomKeyStoreEnsuresPublicly(input: DeleteCustomKeyStoreRequest, output: Result<DeleteCustomKeyStoreResponse, Error>)
+ predicate DeleteCustomKeyStoreEnsuresPublicly(input: DeleteCustomKeyStoreRequest , output: Result<DeleteCustomKeyStoreResponse, Error>)
  // The public method to be called by library consumers
  method DeleteCustomKeyStore ( input: DeleteCustomKeyStoreRequest )
  returns (output: Result<DeleteCustomKeyStoreResponse, Error>)
@@ -654,7 +654,7 @@ include "../../StandardLibrary/src/Index.dfy"
  ensures DeleteCustomKeyStoreEnsuresPublicly(input, output)
  ensures History.DeleteCustomKeyStore == old(History.DeleteCustomKeyStore) + [DafnyCallEvent(input, output)]
  
- predicate DeleteImportedKeyMaterialEnsuresPublicly(input: DeleteImportedKeyMaterialRequest, output: Result<(), Error>)
+ predicate DeleteImportedKeyMaterialEnsuresPublicly(input: DeleteImportedKeyMaterialRequest , output: Result<(), Error>)
  // The public method to be called by library consumers
  method DeleteImportedKeyMaterial ( input: DeleteImportedKeyMaterialRequest )
  returns (output: Result<(), Error>)
@@ -669,7 +669,7 @@ include "../../StandardLibrary/src/Index.dfy"
  ensures DeleteImportedKeyMaterialEnsuresPublicly(input, output)
  ensures History.DeleteImportedKeyMaterial == old(History.DeleteImportedKeyMaterial) + [DafnyCallEvent(input, output)]
  
- predicate DescribeCustomKeyStoresEnsuresPublicly(input: DescribeCustomKeyStoresRequest, output: Result<DescribeCustomKeyStoresResponse, Error>)
+ predicate DescribeCustomKeyStoresEnsuresPublicly(input: DescribeCustomKeyStoresRequest , output: Result<DescribeCustomKeyStoresResponse, Error>)
  // The public method to be called by library consumers
  method DescribeCustomKeyStores ( input: DescribeCustomKeyStoresRequest )
  returns (output: Result<DescribeCustomKeyStoresResponse, Error>)
@@ -684,7 +684,7 @@ include "../../StandardLibrary/src/Index.dfy"
  ensures DescribeCustomKeyStoresEnsuresPublicly(input, output)
  ensures History.DescribeCustomKeyStores == old(History.DescribeCustomKeyStores) + [DafnyCallEvent(input, output)]
  
- predicate DescribeKeyEnsuresPublicly(input: DescribeKeyRequest, output: Result<DescribeKeyResponse, Error>)
+ predicate DescribeKeyEnsuresPublicly(input: DescribeKeyRequest , output: Result<DescribeKeyResponse, Error>)
  // The public method to be called by library consumers
  method DescribeKey ( input: DescribeKeyRequest )
  returns (output: Result<DescribeKeyResponse, Error>)
@@ -699,7 +699,7 @@ include "../../StandardLibrary/src/Index.dfy"
  ensures DescribeKeyEnsuresPublicly(input, output)
  ensures History.DescribeKey == old(History.DescribeKey) + [DafnyCallEvent(input, output)]
  
- predicate DisableKeyEnsuresPublicly(input: DisableKeyRequest, output: Result<(), Error>)
+ predicate DisableKeyEnsuresPublicly(input: DisableKeyRequest , output: Result<(), Error>)
  // The public method to be called by library consumers
  method DisableKey ( input: DisableKeyRequest )
  returns (output: Result<(), Error>)
@@ -714,7 +714,7 @@ include "../../StandardLibrary/src/Index.dfy"
  ensures DisableKeyEnsuresPublicly(input, output)
  ensures History.DisableKey == old(History.DisableKey) + [DafnyCallEvent(input, output)]
  
- predicate DisableKeyRotationEnsuresPublicly(input: DisableKeyRotationRequest, output: Result<(), Error>)
+ predicate DisableKeyRotationEnsuresPublicly(input: DisableKeyRotationRequest , output: Result<(), Error>)
  // The public method to be called by library consumers
  method DisableKeyRotation ( input: DisableKeyRotationRequest )
  returns (output: Result<(), Error>)
@@ -729,7 +729,7 @@ include "../../StandardLibrary/src/Index.dfy"
  ensures DisableKeyRotationEnsuresPublicly(input, output)
  ensures History.DisableKeyRotation == old(History.DisableKeyRotation) + [DafnyCallEvent(input, output)]
  
- predicate DisconnectCustomKeyStoreEnsuresPublicly(input: DisconnectCustomKeyStoreRequest, output: Result<DisconnectCustomKeyStoreResponse, Error>)
+ predicate DisconnectCustomKeyStoreEnsuresPublicly(input: DisconnectCustomKeyStoreRequest , output: Result<DisconnectCustomKeyStoreResponse, Error>)
  // The public method to be called by library consumers
  method DisconnectCustomKeyStore ( input: DisconnectCustomKeyStoreRequest )
  returns (output: Result<DisconnectCustomKeyStoreResponse, Error>)
@@ -744,7 +744,7 @@ include "../../StandardLibrary/src/Index.dfy"
  ensures DisconnectCustomKeyStoreEnsuresPublicly(input, output)
  ensures History.DisconnectCustomKeyStore == old(History.DisconnectCustomKeyStore) + [DafnyCallEvent(input, output)]
  
- predicate EnableKeyEnsuresPublicly(input: EnableKeyRequest, output: Result<(), Error>)
+ predicate EnableKeyEnsuresPublicly(input: EnableKeyRequest , output: Result<(), Error>)
  // The public method to be called by library consumers
  method EnableKey ( input: EnableKeyRequest )
  returns (output: Result<(), Error>)
@@ -759,7 +759,7 @@ include "../../StandardLibrary/src/Index.dfy"
  ensures EnableKeyEnsuresPublicly(input, output)
  ensures History.EnableKey == old(History.EnableKey) + [DafnyCallEvent(input, output)]
  
- predicate EnableKeyRotationEnsuresPublicly(input: EnableKeyRotationRequest, output: Result<(), Error>)
+ predicate EnableKeyRotationEnsuresPublicly(input: EnableKeyRotationRequest , output: Result<(), Error>)
  // The public method to be called by library consumers
  method EnableKeyRotation ( input: EnableKeyRotationRequest )
  returns (output: Result<(), Error>)
@@ -774,7 +774,7 @@ include "../../StandardLibrary/src/Index.dfy"
  ensures EnableKeyRotationEnsuresPublicly(input, output)
  ensures History.EnableKeyRotation == old(History.EnableKeyRotation) + [DafnyCallEvent(input, output)]
  
- predicate EncryptEnsuresPublicly(input: EncryptRequest, output: Result<EncryptResponse, Error>)
+ predicate EncryptEnsuresPublicly(input: EncryptRequest , output: Result<EncryptResponse, Error>)
  // The public method to be called by library consumers
  method Encrypt ( input: EncryptRequest )
  returns (output: Result<EncryptResponse, Error>)
@@ -789,7 +789,7 @@ include "../../StandardLibrary/src/Index.dfy"
  ensures EncryptEnsuresPublicly(input, output)
  ensures History.Encrypt == old(History.Encrypt) + [DafnyCallEvent(input, output)]
  
- predicate GenerateDataKeyEnsuresPublicly(input: GenerateDataKeyRequest, output: Result<GenerateDataKeyResponse, Error>)
+ predicate GenerateDataKeyEnsuresPublicly(input: GenerateDataKeyRequest , output: Result<GenerateDataKeyResponse, Error>)
  // The public method to be called by library consumers
  method GenerateDataKey ( input: GenerateDataKeyRequest )
  returns (output: Result<GenerateDataKeyResponse, Error>)
@@ -804,7 +804,7 @@ include "../../StandardLibrary/src/Index.dfy"
  ensures GenerateDataKeyEnsuresPublicly(input, output)
  ensures History.GenerateDataKey == old(History.GenerateDataKey) + [DafnyCallEvent(input, output)]
  
- predicate GenerateDataKeyPairEnsuresPublicly(input: GenerateDataKeyPairRequest, output: Result<GenerateDataKeyPairResponse, Error>)
+ predicate GenerateDataKeyPairEnsuresPublicly(input: GenerateDataKeyPairRequest , output: Result<GenerateDataKeyPairResponse, Error>)
  // The public method to be called by library consumers
  method GenerateDataKeyPair ( input: GenerateDataKeyPairRequest )
  returns (output: Result<GenerateDataKeyPairResponse, Error>)
@@ -819,7 +819,7 @@ include "../../StandardLibrary/src/Index.dfy"
  ensures GenerateDataKeyPairEnsuresPublicly(input, output)
  ensures History.GenerateDataKeyPair == old(History.GenerateDataKeyPair) + [DafnyCallEvent(input, output)]
  
- predicate GenerateDataKeyPairWithoutPlaintextEnsuresPublicly(input: GenerateDataKeyPairWithoutPlaintextRequest, output: Result<GenerateDataKeyPairWithoutPlaintextResponse, Error>)
+ predicate GenerateDataKeyPairWithoutPlaintextEnsuresPublicly(input: GenerateDataKeyPairWithoutPlaintextRequest , output: Result<GenerateDataKeyPairWithoutPlaintextResponse, Error>)
  // The public method to be called by library consumers
  method GenerateDataKeyPairWithoutPlaintext ( input: GenerateDataKeyPairWithoutPlaintextRequest )
  returns (output: Result<GenerateDataKeyPairWithoutPlaintextResponse, Error>)
@@ -834,7 +834,7 @@ include "../../StandardLibrary/src/Index.dfy"
  ensures GenerateDataKeyPairWithoutPlaintextEnsuresPublicly(input, output)
  ensures History.GenerateDataKeyPairWithoutPlaintext == old(History.GenerateDataKeyPairWithoutPlaintext) + [DafnyCallEvent(input, output)]
  
- predicate GenerateDataKeyWithoutPlaintextEnsuresPublicly(input: GenerateDataKeyWithoutPlaintextRequest, output: Result<GenerateDataKeyWithoutPlaintextResponse, Error>)
+ predicate GenerateDataKeyWithoutPlaintextEnsuresPublicly(input: GenerateDataKeyWithoutPlaintextRequest , output: Result<GenerateDataKeyWithoutPlaintextResponse, Error>)
  // The public method to be called by library consumers
  method GenerateDataKeyWithoutPlaintext ( input: GenerateDataKeyWithoutPlaintextRequest )
  returns (output: Result<GenerateDataKeyWithoutPlaintextResponse, Error>)
@@ -849,7 +849,7 @@ include "../../StandardLibrary/src/Index.dfy"
  ensures GenerateDataKeyWithoutPlaintextEnsuresPublicly(input, output)
  ensures History.GenerateDataKeyWithoutPlaintext == old(History.GenerateDataKeyWithoutPlaintext) + [DafnyCallEvent(input, output)]
  
- predicate GenerateRandomEnsuresPublicly(input: GenerateRandomRequest, output: Result<GenerateRandomResponse, Error>)
+ predicate GenerateRandomEnsuresPublicly(input: GenerateRandomRequest , output: Result<GenerateRandomResponse, Error>)
  // The public method to be called by library consumers
  method GenerateRandom ( input: GenerateRandomRequest )
  returns (output: Result<GenerateRandomResponse, Error>)
@@ -864,7 +864,7 @@ include "../../StandardLibrary/src/Index.dfy"
  ensures GenerateRandomEnsuresPublicly(input, output)
  ensures History.GenerateRandom == old(History.GenerateRandom) + [DafnyCallEvent(input, output)]
  
- predicate GetKeyPolicyEnsuresPublicly(input: GetKeyPolicyRequest, output: Result<GetKeyPolicyResponse, Error>)
+ predicate GetKeyPolicyEnsuresPublicly(input: GetKeyPolicyRequest , output: Result<GetKeyPolicyResponse, Error>)
  // The public method to be called by library consumers
  method GetKeyPolicy ( input: GetKeyPolicyRequest )
  returns (output: Result<GetKeyPolicyResponse, Error>)
@@ -879,7 +879,7 @@ include "../../StandardLibrary/src/Index.dfy"
  ensures GetKeyPolicyEnsuresPublicly(input, output)
  ensures History.GetKeyPolicy == old(History.GetKeyPolicy) + [DafnyCallEvent(input, output)]
  
- predicate GetKeyRotationStatusEnsuresPublicly(input: GetKeyRotationStatusRequest, output: Result<GetKeyRotationStatusResponse, Error>)
+ predicate GetKeyRotationStatusEnsuresPublicly(input: GetKeyRotationStatusRequest , output: Result<GetKeyRotationStatusResponse, Error>)
  // The public method to be called by library consumers
  method GetKeyRotationStatus ( input: GetKeyRotationStatusRequest )
  returns (output: Result<GetKeyRotationStatusResponse, Error>)
@@ -894,7 +894,7 @@ include "../../StandardLibrary/src/Index.dfy"
  ensures GetKeyRotationStatusEnsuresPublicly(input, output)
  ensures History.GetKeyRotationStatus == old(History.GetKeyRotationStatus) + [DafnyCallEvent(input, output)]
  
- predicate GetParametersForImportEnsuresPublicly(input: GetParametersForImportRequest, output: Result<GetParametersForImportResponse, Error>)
+ predicate GetParametersForImportEnsuresPublicly(input: GetParametersForImportRequest , output: Result<GetParametersForImportResponse, Error>)
  // The public method to be called by library consumers
  method GetParametersForImport ( input: GetParametersForImportRequest )
  returns (output: Result<GetParametersForImportResponse, Error>)
@@ -909,7 +909,7 @@ include "../../StandardLibrary/src/Index.dfy"
  ensures GetParametersForImportEnsuresPublicly(input, output)
  ensures History.GetParametersForImport == old(History.GetParametersForImport) + [DafnyCallEvent(input, output)]
  
- predicate GetPublicKeyEnsuresPublicly(input: GetPublicKeyRequest, output: Result<GetPublicKeyResponse, Error>)
+ predicate GetPublicKeyEnsuresPublicly(input: GetPublicKeyRequest , output: Result<GetPublicKeyResponse, Error>)
  // The public method to be called by library consumers
  method GetPublicKey ( input: GetPublicKeyRequest )
  returns (output: Result<GetPublicKeyResponse, Error>)
@@ -924,7 +924,7 @@ include "../../StandardLibrary/src/Index.dfy"
  ensures GetPublicKeyEnsuresPublicly(input, output)
  ensures History.GetPublicKey == old(History.GetPublicKey) + [DafnyCallEvent(input, output)]
  
- predicate ImportKeyMaterialEnsuresPublicly(input: ImportKeyMaterialRequest, output: Result<ImportKeyMaterialResponse, Error>)
+ predicate ImportKeyMaterialEnsuresPublicly(input: ImportKeyMaterialRequest , output: Result<ImportKeyMaterialResponse, Error>)
  // The public method to be called by library consumers
  method ImportKeyMaterial ( input: ImportKeyMaterialRequest )
  returns (output: Result<ImportKeyMaterialResponse, Error>)
@@ -939,7 +939,7 @@ include "../../StandardLibrary/src/Index.dfy"
  ensures ImportKeyMaterialEnsuresPublicly(input, output)
  ensures History.ImportKeyMaterial == old(History.ImportKeyMaterial) + [DafnyCallEvent(input, output)]
  
- predicate ListAliasesEnsuresPublicly(input: ListAliasesRequest, output: Result<ListAliasesResponse, Error>)
+ predicate ListAliasesEnsuresPublicly(input: ListAliasesRequest , output: Result<ListAliasesResponse, Error>)
  // The public method to be called by library consumers
  method ListAliases ( input: ListAliasesRequest )
  returns (output: Result<ListAliasesResponse, Error>)
@@ -954,7 +954,7 @@ include "../../StandardLibrary/src/Index.dfy"
  ensures ListAliasesEnsuresPublicly(input, output)
  ensures History.ListAliases == old(History.ListAliases) + [DafnyCallEvent(input, output)]
  
- predicate ListGrantsEnsuresPublicly(input: ListGrantsRequest, output: Result<ListGrantsResponse, Error>)
+ predicate ListGrantsEnsuresPublicly(input: ListGrantsRequest , output: Result<ListGrantsResponse, Error>)
  // The public method to be called by library consumers
  method ListGrants ( input: ListGrantsRequest )
  returns (output: Result<ListGrantsResponse, Error>)
@@ -969,7 +969,7 @@ include "../../StandardLibrary/src/Index.dfy"
  ensures ListGrantsEnsuresPublicly(input, output)
  ensures History.ListGrants == old(History.ListGrants) + [DafnyCallEvent(input, output)]
  
- predicate ListKeyPoliciesEnsuresPublicly(input: ListKeyPoliciesRequest, output: Result<ListKeyPoliciesResponse, Error>)
+ predicate ListKeyPoliciesEnsuresPublicly(input: ListKeyPoliciesRequest , output: Result<ListKeyPoliciesResponse, Error>)
  // The public method to be called by library consumers
  method ListKeyPolicies ( input: ListKeyPoliciesRequest )
  returns (output: Result<ListKeyPoliciesResponse, Error>)
@@ -984,7 +984,7 @@ include "../../StandardLibrary/src/Index.dfy"
  ensures ListKeyPoliciesEnsuresPublicly(input, output)
  ensures History.ListKeyPolicies == old(History.ListKeyPolicies) + [DafnyCallEvent(input, output)]
  
- predicate ListResourceTagsEnsuresPublicly(input: ListResourceTagsRequest, output: Result<ListResourceTagsResponse, Error>)
+ predicate ListResourceTagsEnsuresPublicly(input: ListResourceTagsRequest , output: Result<ListResourceTagsResponse, Error>)
  // The public method to be called by library consumers
  method ListResourceTags ( input: ListResourceTagsRequest )
  returns (output: Result<ListResourceTagsResponse, Error>)
@@ -999,7 +999,7 @@ include "../../StandardLibrary/src/Index.dfy"
  ensures ListResourceTagsEnsuresPublicly(input, output)
  ensures History.ListResourceTags == old(History.ListResourceTags) + [DafnyCallEvent(input, output)]
  
- predicate PutKeyPolicyEnsuresPublicly(input: PutKeyPolicyRequest, output: Result<(), Error>)
+ predicate PutKeyPolicyEnsuresPublicly(input: PutKeyPolicyRequest , output: Result<(), Error>)
  // The public method to be called by library consumers
  method PutKeyPolicy ( input: PutKeyPolicyRequest )
  returns (output: Result<(), Error>)
@@ -1014,7 +1014,7 @@ include "../../StandardLibrary/src/Index.dfy"
  ensures PutKeyPolicyEnsuresPublicly(input, output)
  ensures History.PutKeyPolicy == old(History.PutKeyPolicy) + [DafnyCallEvent(input, output)]
  
- predicate ReEncryptEnsuresPublicly(input: ReEncryptRequest, output: Result<ReEncryptResponse, Error>)
+ predicate ReEncryptEnsuresPublicly(input: ReEncryptRequest , output: Result<ReEncryptResponse, Error>)
  // The public method to be called by library consumers
  method ReEncrypt ( input: ReEncryptRequest )
  returns (output: Result<ReEncryptResponse, Error>)
@@ -1029,7 +1029,7 @@ include "../../StandardLibrary/src/Index.dfy"
  ensures ReEncryptEnsuresPublicly(input, output)
  ensures History.ReEncrypt == old(History.ReEncrypt) + [DafnyCallEvent(input, output)]
  
- predicate ReplicateKeyEnsuresPublicly(input: ReplicateKeyRequest, output: Result<ReplicateKeyResponse, Error>)
+ predicate ReplicateKeyEnsuresPublicly(input: ReplicateKeyRequest , output: Result<ReplicateKeyResponse, Error>)
  // The public method to be called by library consumers
  method ReplicateKey ( input: ReplicateKeyRequest )
  returns (output: Result<ReplicateKeyResponse, Error>)
@@ -1044,7 +1044,7 @@ include "../../StandardLibrary/src/Index.dfy"
  ensures ReplicateKeyEnsuresPublicly(input, output)
  ensures History.ReplicateKey == old(History.ReplicateKey) + [DafnyCallEvent(input, output)]
  
- predicate RetireGrantEnsuresPublicly(input: RetireGrantRequest, output: Result<(), Error>)
+ predicate RetireGrantEnsuresPublicly(input: RetireGrantRequest , output: Result<(), Error>)
  // The public method to be called by library consumers
  method RetireGrant ( input: RetireGrantRequest )
  returns (output: Result<(), Error>)
@@ -1059,7 +1059,7 @@ include "../../StandardLibrary/src/Index.dfy"
  ensures RetireGrantEnsuresPublicly(input, output)
  ensures History.RetireGrant == old(History.RetireGrant) + [DafnyCallEvent(input, output)]
  
- predicate RevokeGrantEnsuresPublicly(input: RevokeGrantRequest, output: Result<(), Error>)
+ predicate RevokeGrantEnsuresPublicly(input: RevokeGrantRequest , output: Result<(), Error>)
  // The public method to be called by library consumers
  method RevokeGrant ( input: RevokeGrantRequest )
  returns (output: Result<(), Error>)
@@ -1074,7 +1074,7 @@ include "../../StandardLibrary/src/Index.dfy"
  ensures RevokeGrantEnsuresPublicly(input, output)
  ensures History.RevokeGrant == old(History.RevokeGrant) + [DafnyCallEvent(input, output)]
  
- predicate ScheduleKeyDeletionEnsuresPublicly(input: ScheduleKeyDeletionRequest, output: Result<ScheduleKeyDeletionResponse, Error>)
+ predicate ScheduleKeyDeletionEnsuresPublicly(input: ScheduleKeyDeletionRequest , output: Result<ScheduleKeyDeletionResponse, Error>)
  // The public method to be called by library consumers
  method ScheduleKeyDeletion ( input: ScheduleKeyDeletionRequest )
  returns (output: Result<ScheduleKeyDeletionResponse, Error>)
@@ -1089,7 +1089,7 @@ include "../../StandardLibrary/src/Index.dfy"
  ensures ScheduleKeyDeletionEnsuresPublicly(input, output)
  ensures History.ScheduleKeyDeletion == old(History.ScheduleKeyDeletion) + [DafnyCallEvent(input, output)]
  
- predicate SignEnsuresPublicly(input: SignRequest, output: Result<SignResponse, Error>)
+ predicate SignEnsuresPublicly(input: SignRequest , output: Result<SignResponse, Error>)
  // The public method to be called by library consumers
  method Sign ( input: SignRequest )
  returns (output: Result<SignResponse, Error>)
@@ -1104,7 +1104,7 @@ include "../../StandardLibrary/src/Index.dfy"
  ensures SignEnsuresPublicly(input, output)
  ensures History.Sign == old(History.Sign) + [DafnyCallEvent(input, output)]
  
- predicate TagResourceEnsuresPublicly(input: TagResourceRequest, output: Result<(), Error>)
+ predicate TagResourceEnsuresPublicly(input: TagResourceRequest , output: Result<(), Error>)
  // The public method to be called by library consumers
  method TagResource ( input: TagResourceRequest )
  returns (output: Result<(), Error>)
@@ -1119,7 +1119,7 @@ include "../../StandardLibrary/src/Index.dfy"
  ensures TagResourceEnsuresPublicly(input, output)
  ensures History.TagResource == old(History.TagResource) + [DafnyCallEvent(input, output)]
  
- predicate UntagResourceEnsuresPublicly(input: UntagResourceRequest, output: Result<(), Error>)
+ predicate UntagResourceEnsuresPublicly(input: UntagResourceRequest , output: Result<(), Error>)
  // The public method to be called by library consumers
  method UntagResource ( input: UntagResourceRequest )
  returns (output: Result<(), Error>)
@@ -1134,7 +1134,7 @@ include "../../StandardLibrary/src/Index.dfy"
  ensures UntagResourceEnsuresPublicly(input, output)
  ensures History.UntagResource == old(History.UntagResource) + [DafnyCallEvent(input, output)]
  
- predicate UpdateAliasEnsuresPublicly(input: UpdateAliasRequest, output: Result<(), Error>)
+ predicate UpdateAliasEnsuresPublicly(input: UpdateAliasRequest , output: Result<(), Error>)
  // The public method to be called by library consumers
  method UpdateAlias ( input: UpdateAliasRequest )
  returns (output: Result<(), Error>)
@@ -1149,7 +1149,7 @@ include "../../StandardLibrary/src/Index.dfy"
  ensures UpdateAliasEnsuresPublicly(input, output)
  ensures History.UpdateAlias == old(History.UpdateAlias) + [DafnyCallEvent(input, output)]
  
- predicate UpdateCustomKeyStoreEnsuresPublicly(input: UpdateCustomKeyStoreRequest, output: Result<UpdateCustomKeyStoreResponse, Error>)
+ predicate UpdateCustomKeyStoreEnsuresPublicly(input: UpdateCustomKeyStoreRequest , output: Result<UpdateCustomKeyStoreResponse, Error>)
  // The public method to be called by library consumers
  method UpdateCustomKeyStore ( input: UpdateCustomKeyStoreRequest )
  returns (output: Result<UpdateCustomKeyStoreResponse, Error>)
@@ -1164,7 +1164,7 @@ include "../../StandardLibrary/src/Index.dfy"
  ensures UpdateCustomKeyStoreEnsuresPublicly(input, output)
  ensures History.UpdateCustomKeyStore == old(History.UpdateCustomKeyStore) + [DafnyCallEvent(input, output)]
  
- predicate UpdateKeyDescriptionEnsuresPublicly(input: UpdateKeyDescriptionRequest, output: Result<(), Error>)
+ predicate UpdateKeyDescriptionEnsuresPublicly(input: UpdateKeyDescriptionRequest , output: Result<(), Error>)
  // The public method to be called by library consumers
  method UpdateKeyDescription ( input: UpdateKeyDescriptionRequest )
  returns (output: Result<(), Error>)
@@ -1179,7 +1179,7 @@ include "../../StandardLibrary/src/Index.dfy"
  ensures UpdateKeyDescriptionEnsuresPublicly(input, output)
  ensures History.UpdateKeyDescription == old(History.UpdateKeyDescription) + [DafnyCallEvent(input, output)]
  
- predicate UpdatePrimaryRegionEnsuresPublicly(input: UpdatePrimaryRegionRequest, output: Result<(), Error>)
+ predicate UpdatePrimaryRegionEnsuresPublicly(input: UpdatePrimaryRegionRequest , output: Result<(), Error>)
  // The public method to be called by library consumers
  method UpdatePrimaryRegion ( input: UpdatePrimaryRegionRequest )
  returns (output: Result<(), Error>)
@@ -1194,7 +1194,7 @@ include "../../StandardLibrary/src/Index.dfy"
  ensures UpdatePrimaryRegionEnsuresPublicly(input, output)
  ensures History.UpdatePrimaryRegion == old(History.UpdatePrimaryRegion) + [DafnyCallEvent(input, output)]
  
- predicate VerifyEnsuresPublicly(input: VerifyRequest, output: Result<VerifyResponse, Error>)
+ predicate VerifyEnsuresPublicly(input: VerifyRequest , output: Result<VerifyResponse, Error>)
  // The public method to be called by library consumers
  method Verify ( input: VerifyRequest )
  returns (output: Result<VerifyResponse, Error>)
@@ -1641,7 +1641,7 @@ include "../../StandardLibrary/src/Index.dfy"
  // || (!exit(A(I)) && !exit(B(I)))
  // || (!access(A(I)) && !exit(B(I)))
  // || (!exit(A(I)) && !access(B(I)))
- | Collection(list: seq<Error>)
+ | CollectionOfErrors(list: seq<Error>)
  // The Opaque error, used for native, extern, wrapped or unknown errors
  | Opaque(obj: object)
  type OpaqueError = e: Error | e.Opaque? witness *
@@ -1669,11 +1669,11 @@ include "../../StandardLibrary/src/Index.dfy"
  type InternalConfig
  predicate ValidInternalConfig?(config: InternalConfig)
  function ModifiesInternalConfig(config: InternalConfig): set<object>
- predicate CancelKeyDeletionEnsuresPublicly(input: CancelKeyDeletionRequest, output: Result<CancelKeyDeletionResponse, Error>)
+ predicate CancelKeyDeletionEnsuresPublicly(input: CancelKeyDeletionRequest , output: Result<CancelKeyDeletionResponse, Error>)
  // The private method to be refined by the library developer
 
 
- method CancelKeyDeletion ( config: InternalConfig,  input: CancelKeyDeletionRequest )
+ method CancelKeyDeletion ( config: InternalConfig , input: CancelKeyDeletionRequest )
  returns (output: Result<CancelKeyDeletionResponse, Error>)
  requires
  && ValidInternalConfig?(config)
@@ -1685,11 +1685,11 @@ include "../../StandardLibrary/src/Index.dfy"
  ensures CancelKeyDeletionEnsuresPublicly(input, output)
 
 
- predicate ConnectCustomKeyStoreEnsuresPublicly(input: ConnectCustomKeyStoreRequest, output: Result<ConnectCustomKeyStoreResponse, Error>)
+ predicate ConnectCustomKeyStoreEnsuresPublicly(input: ConnectCustomKeyStoreRequest , output: Result<ConnectCustomKeyStoreResponse, Error>)
  // The private method to be refined by the library developer
 
 
- method ConnectCustomKeyStore ( config: InternalConfig,  input: ConnectCustomKeyStoreRequest )
+ method ConnectCustomKeyStore ( config: InternalConfig , input: ConnectCustomKeyStoreRequest )
  returns (output: Result<ConnectCustomKeyStoreResponse, Error>)
  requires
  && ValidInternalConfig?(config)
@@ -1701,11 +1701,11 @@ include "../../StandardLibrary/src/Index.dfy"
  ensures ConnectCustomKeyStoreEnsuresPublicly(input, output)
 
 
- predicate CreateAliasEnsuresPublicly(input: CreateAliasRequest, output: Result<(), Error>)
+ predicate CreateAliasEnsuresPublicly(input: CreateAliasRequest , output: Result<(), Error>)
  // The private method to be refined by the library developer
 
 
- method CreateAlias ( config: InternalConfig,  input: CreateAliasRequest )
+ method CreateAlias ( config: InternalConfig , input: CreateAliasRequest )
  returns (output: Result<(), Error>)
  requires
  && ValidInternalConfig?(config)
@@ -1717,11 +1717,11 @@ include "../../StandardLibrary/src/Index.dfy"
  ensures CreateAliasEnsuresPublicly(input, output)
 
 
- predicate CreateCustomKeyStoreEnsuresPublicly(input: CreateCustomKeyStoreRequest, output: Result<CreateCustomKeyStoreResponse, Error>)
+ predicate CreateCustomKeyStoreEnsuresPublicly(input: CreateCustomKeyStoreRequest , output: Result<CreateCustomKeyStoreResponse, Error>)
  // The private method to be refined by the library developer
 
 
- method CreateCustomKeyStore ( config: InternalConfig,  input: CreateCustomKeyStoreRequest )
+ method CreateCustomKeyStore ( config: InternalConfig , input: CreateCustomKeyStoreRequest )
  returns (output: Result<CreateCustomKeyStoreResponse, Error>)
  requires
  && ValidInternalConfig?(config)
@@ -1733,11 +1733,11 @@ include "../../StandardLibrary/src/Index.dfy"
  ensures CreateCustomKeyStoreEnsuresPublicly(input, output)
 
 
- predicate CreateGrantEnsuresPublicly(input: CreateGrantRequest, output: Result<CreateGrantResponse, Error>)
+ predicate CreateGrantEnsuresPublicly(input: CreateGrantRequest , output: Result<CreateGrantResponse, Error>)
  // The private method to be refined by the library developer
 
 
- method CreateGrant ( config: InternalConfig,  input: CreateGrantRequest )
+ method CreateGrant ( config: InternalConfig , input: CreateGrantRequest )
  returns (output: Result<CreateGrantResponse, Error>)
  requires
  && ValidInternalConfig?(config)
@@ -1749,11 +1749,11 @@ include "../../StandardLibrary/src/Index.dfy"
  ensures CreateGrantEnsuresPublicly(input, output)
 
 
- predicate CreateKeyEnsuresPublicly(input: CreateKeyRequest, output: Result<CreateKeyResponse, Error>)
+ predicate CreateKeyEnsuresPublicly(input: CreateKeyRequest , output: Result<CreateKeyResponse, Error>)
  // The private method to be refined by the library developer
 
 
- method CreateKey ( config: InternalConfig,  input: CreateKeyRequest )
+ method CreateKey ( config: InternalConfig , input: CreateKeyRequest )
  returns (output: Result<CreateKeyResponse, Error>)
  requires
  && ValidInternalConfig?(config)
@@ -1765,11 +1765,11 @@ include "../../StandardLibrary/src/Index.dfy"
  ensures CreateKeyEnsuresPublicly(input, output)
 
 
- predicate DecryptEnsuresPublicly(input: DecryptRequest, output: Result<DecryptResponse, Error>)
+ predicate DecryptEnsuresPublicly(input: DecryptRequest , output: Result<DecryptResponse, Error>)
  // The private method to be refined by the library developer
 
 
- method Decrypt ( config: InternalConfig,  input: DecryptRequest )
+ method Decrypt ( config: InternalConfig , input: DecryptRequest )
  returns (output: Result<DecryptResponse, Error>)
  requires
  && ValidInternalConfig?(config)
@@ -1781,11 +1781,11 @@ include "../../StandardLibrary/src/Index.dfy"
  ensures DecryptEnsuresPublicly(input, output)
 
 
- predicate DeleteAliasEnsuresPublicly(input: DeleteAliasRequest, output: Result<(), Error>)
+ predicate DeleteAliasEnsuresPublicly(input: DeleteAliasRequest , output: Result<(), Error>)
  // The private method to be refined by the library developer
 
 
- method DeleteAlias ( config: InternalConfig,  input: DeleteAliasRequest )
+ method DeleteAlias ( config: InternalConfig , input: DeleteAliasRequest )
  returns (output: Result<(), Error>)
  requires
  && ValidInternalConfig?(config)
@@ -1797,11 +1797,11 @@ include "../../StandardLibrary/src/Index.dfy"
  ensures DeleteAliasEnsuresPublicly(input, output)
 
 
- predicate DeleteCustomKeyStoreEnsuresPublicly(input: DeleteCustomKeyStoreRequest, output: Result<DeleteCustomKeyStoreResponse, Error>)
+ predicate DeleteCustomKeyStoreEnsuresPublicly(input: DeleteCustomKeyStoreRequest , output: Result<DeleteCustomKeyStoreResponse, Error>)
  // The private method to be refined by the library developer
 
 
- method DeleteCustomKeyStore ( config: InternalConfig,  input: DeleteCustomKeyStoreRequest )
+ method DeleteCustomKeyStore ( config: InternalConfig , input: DeleteCustomKeyStoreRequest )
  returns (output: Result<DeleteCustomKeyStoreResponse, Error>)
  requires
  && ValidInternalConfig?(config)
@@ -1813,11 +1813,11 @@ include "../../StandardLibrary/src/Index.dfy"
  ensures DeleteCustomKeyStoreEnsuresPublicly(input, output)
 
 
- predicate DeleteImportedKeyMaterialEnsuresPublicly(input: DeleteImportedKeyMaterialRequest, output: Result<(), Error>)
+ predicate DeleteImportedKeyMaterialEnsuresPublicly(input: DeleteImportedKeyMaterialRequest , output: Result<(), Error>)
  // The private method to be refined by the library developer
 
 
- method DeleteImportedKeyMaterial ( config: InternalConfig,  input: DeleteImportedKeyMaterialRequest )
+ method DeleteImportedKeyMaterial ( config: InternalConfig , input: DeleteImportedKeyMaterialRequest )
  returns (output: Result<(), Error>)
  requires
  && ValidInternalConfig?(config)
@@ -1829,11 +1829,11 @@ include "../../StandardLibrary/src/Index.dfy"
  ensures DeleteImportedKeyMaterialEnsuresPublicly(input, output)
 
 
- predicate DescribeCustomKeyStoresEnsuresPublicly(input: DescribeCustomKeyStoresRequest, output: Result<DescribeCustomKeyStoresResponse, Error>)
+ predicate DescribeCustomKeyStoresEnsuresPublicly(input: DescribeCustomKeyStoresRequest , output: Result<DescribeCustomKeyStoresResponse, Error>)
  // The private method to be refined by the library developer
 
 
- method DescribeCustomKeyStores ( config: InternalConfig,  input: DescribeCustomKeyStoresRequest )
+ method DescribeCustomKeyStores ( config: InternalConfig , input: DescribeCustomKeyStoresRequest )
  returns (output: Result<DescribeCustomKeyStoresResponse, Error>)
  requires
  && ValidInternalConfig?(config)
@@ -1845,11 +1845,11 @@ include "../../StandardLibrary/src/Index.dfy"
  ensures DescribeCustomKeyStoresEnsuresPublicly(input, output)
 
 
- predicate DescribeKeyEnsuresPublicly(input: DescribeKeyRequest, output: Result<DescribeKeyResponse, Error>)
+ predicate DescribeKeyEnsuresPublicly(input: DescribeKeyRequest , output: Result<DescribeKeyResponse, Error>)
  // The private method to be refined by the library developer
 
 
- method DescribeKey ( config: InternalConfig,  input: DescribeKeyRequest )
+ method DescribeKey ( config: InternalConfig , input: DescribeKeyRequest )
  returns (output: Result<DescribeKeyResponse, Error>)
  requires
  && ValidInternalConfig?(config)
@@ -1861,11 +1861,11 @@ include "../../StandardLibrary/src/Index.dfy"
  ensures DescribeKeyEnsuresPublicly(input, output)
 
 
- predicate DisableKeyEnsuresPublicly(input: DisableKeyRequest, output: Result<(), Error>)
+ predicate DisableKeyEnsuresPublicly(input: DisableKeyRequest , output: Result<(), Error>)
  // The private method to be refined by the library developer
 
 
- method DisableKey ( config: InternalConfig,  input: DisableKeyRequest )
+ method DisableKey ( config: InternalConfig , input: DisableKeyRequest )
  returns (output: Result<(), Error>)
  requires
  && ValidInternalConfig?(config)
@@ -1877,11 +1877,11 @@ include "../../StandardLibrary/src/Index.dfy"
  ensures DisableKeyEnsuresPublicly(input, output)
 
 
- predicate DisableKeyRotationEnsuresPublicly(input: DisableKeyRotationRequest, output: Result<(), Error>)
+ predicate DisableKeyRotationEnsuresPublicly(input: DisableKeyRotationRequest , output: Result<(), Error>)
  // The private method to be refined by the library developer
 
 
- method DisableKeyRotation ( config: InternalConfig,  input: DisableKeyRotationRequest )
+ method DisableKeyRotation ( config: InternalConfig , input: DisableKeyRotationRequest )
  returns (output: Result<(), Error>)
  requires
  && ValidInternalConfig?(config)
@@ -1893,11 +1893,11 @@ include "../../StandardLibrary/src/Index.dfy"
  ensures DisableKeyRotationEnsuresPublicly(input, output)
 
 
- predicate DisconnectCustomKeyStoreEnsuresPublicly(input: DisconnectCustomKeyStoreRequest, output: Result<DisconnectCustomKeyStoreResponse, Error>)
+ predicate DisconnectCustomKeyStoreEnsuresPublicly(input: DisconnectCustomKeyStoreRequest , output: Result<DisconnectCustomKeyStoreResponse, Error>)
  // The private method to be refined by the library developer
 
 
- method DisconnectCustomKeyStore ( config: InternalConfig,  input: DisconnectCustomKeyStoreRequest )
+ method DisconnectCustomKeyStore ( config: InternalConfig , input: DisconnectCustomKeyStoreRequest )
  returns (output: Result<DisconnectCustomKeyStoreResponse, Error>)
  requires
  && ValidInternalConfig?(config)
@@ -1909,11 +1909,11 @@ include "../../StandardLibrary/src/Index.dfy"
  ensures DisconnectCustomKeyStoreEnsuresPublicly(input, output)
 
 
- predicate EnableKeyEnsuresPublicly(input: EnableKeyRequest, output: Result<(), Error>)
+ predicate EnableKeyEnsuresPublicly(input: EnableKeyRequest , output: Result<(), Error>)
  // The private method to be refined by the library developer
 
 
- method EnableKey ( config: InternalConfig,  input: EnableKeyRequest )
+ method EnableKey ( config: InternalConfig , input: EnableKeyRequest )
  returns (output: Result<(), Error>)
  requires
  && ValidInternalConfig?(config)
@@ -1925,11 +1925,11 @@ include "../../StandardLibrary/src/Index.dfy"
  ensures EnableKeyEnsuresPublicly(input, output)
 
 
- predicate EnableKeyRotationEnsuresPublicly(input: EnableKeyRotationRequest, output: Result<(), Error>)
+ predicate EnableKeyRotationEnsuresPublicly(input: EnableKeyRotationRequest , output: Result<(), Error>)
  // The private method to be refined by the library developer
 
 
- method EnableKeyRotation ( config: InternalConfig,  input: EnableKeyRotationRequest )
+ method EnableKeyRotation ( config: InternalConfig , input: EnableKeyRotationRequest )
  returns (output: Result<(), Error>)
  requires
  && ValidInternalConfig?(config)
@@ -1941,11 +1941,11 @@ include "../../StandardLibrary/src/Index.dfy"
  ensures EnableKeyRotationEnsuresPublicly(input, output)
 
 
- predicate EncryptEnsuresPublicly(input: EncryptRequest, output: Result<EncryptResponse, Error>)
+ predicate EncryptEnsuresPublicly(input: EncryptRequest , output: Result<EncryptResponse, Error>)
  // The private method to be refined by the library developer
 
 
- method Encrypt ( config: InternalConfig,  input: EncryptRequest )
+ method Encrypt ( config: InternalConfig , input: EncryptRequest )
  returns (output: Result<EncryptResponse, Error>)
  requires
  && ValidInternalConfig?(config)
@@ -1957,11 +1957,11 @@ include "../../StandardLibrary/src/Index.dfy"
  ensures EncryptEnsuresPublicly(input, output)
 
 
- predicate GenerateDataKeyEnsuresPublicly(input: GenerateDataKeyRequest, output: Result<GenerateDataKeyResponse, Error>)
+ predicate GenerateDataKeyEnsuresPublicly(input: GenerateDataKeyRequest , output: Result<GenerateDataKeyResponse, Error>)
  // The private method to be refined by the library developer
 
 
- method GenerateDataKey ( config: InternalConfig,  input: GenerateDataKeyRequest )
+ method GenerateDataKey ( config: InternalConfig , input: GenerateDataKeyRequest )
  returns (output: Result<GenerateDataKeyResponse, Error>)
  requires
  && ValidInternalConfig?(config)
@@ -1973,11 +1973,11 @@ include "../../StandardLibrary/src/Index.dfy"
  ensures GenerateDataKeyEnsuresPublicly(input, output)
 
 
- predicate GenerateDataKeyPairEnsuresPublicly(input: GenerateDataKeyPairRequest, output: Result<GenerateDataKeyPairResponse, Error>)
+ predicate GenerateDataKeyPairEnsuresPublicly(input: GenerateDataKeyPairRequest , output: Result<GenerateDataKeyPairResponse, Error>)
  // The private method to be refined by the library developer
 
 
- method GenerateDataKeyPair ( config: InternalConfig,  input: GenerateDataKeyPairRequest )
+ method GenerateDataKeyPair ( config: InternalConfig , input: GenerateDataKeyPairRequest )
  returns (output: Result<GenerateDataKeyPairResponse, Error>)
  requires
  && ValidInternalConfig?(config)
@@ -1989,11 +1989,11 @@ include "../../StandardLibrary/src/Index.dfy"
  ensures GenerateDataKeyPairEnsuresPublicly(input, output)
 
 
- predicate GenerateDataKeyPairWithoutPlaintextEnsuresPublicly(input: GenerateDataKeyPairWithoutPlaintextRequest, output: Result<GenerateDataKeyPairWithoutPlaintextResponse, Error>)
+ predicate GenerateDataKeyPairWithoutPlaintextEnsuresPublicly(input: GenerateDataKeyPairWithoutPlaintextRequest , output: Result<GenerateDataKeyPairWithoutPlaintextResponse, Error>)
  // The private method to be refined by the library developer
 
 
- method GenerateDataKeyPairWithoutPlaintext ( config: InternalConfig,  input: GenerateDataKeyPairWithoutPlaintextRequest )
+ method GenerateDataKeyPairWithoutPlaintext ( config: InternalConfig , input: GenerateDataKeyPairWithoutPlaintextRequest )
  returns (output: Result<GenerateDataKeyPairWithoutPlaintextResponse, Error>)
  requires
  && ValidInternalConfig?(config)
@@ -2005,11 +2005,11 @@ include "../../StandardLibrary/src/Index.dfy"
  ensures GenerateDataKeyPairWithoutPlaintextEnsuresPublicly(input, output)
 
 
- predicate GenerateDataKeyWithoutPlaintextEnsuresPublicly(input: GenerateDataKeyWithoutPlaintextRequest, output: Result<GenerateDataKeyWithoutPlaintextResponse, Error>)
+ predicate GenerateDataKeyWithoutPlaintextEnsuresPublicly(input: GenerateDataKeyWithoutPlaintextRequest , output: Result<GenerateDataKeyWithoutPlaintextResponse, Error>)
  // The private method to be refined by the library developer
 
 
- method GenerateDataKeyWithoutPlaintext ( config: InternalConfig,  input: GenerateDataKeyWithoutPlaintextRequest )
+ method GenerateDataKeyWithoutPlaintext ( config: InternalConfig , input: GenerateDataKeyWithoutPlaintextRequest )
  returns (output: Result<GenerateDataKeyWithoutPlaintextResponse, Error>)
  requires
  && ValidInternalConfig?(config)
@@ -2021,11 +2021,11 @@ include "../../StandardLibrary/src/Index.dfy"
  ensures GenerateDataKeyWithoutPlaintextEnsuresPublicly(input, output)
 
 
- predicate GenerateRandomEnsuresPublicly(input: GenerateRandomRequest, output: Result<GenerateRandomResponse, Error>)
+ predicate GenerateRandomEnsuresPublicly(input: GenerateRandomRequest , output: Result<GenerateRandomResponse, Error>)
  // The private method to be refined by the library developer
 
 
- method GenerateRandom ( config: InternalConfig,  input: GenerateRandomRequest )
+ method GenerateRandom ( config: InternalConfig , input: GenerateRandomRequest )
  returns (output: Result<GenerateRandomResponse, Error>)
  requires
  && ValidInternalConfig?(config)
@@ -2037,11 +2037,11 @@ include "../../StandardLibrary/src/Index.dfy"
  ensures GenerateRandomEnsuresPublicly(input, output)
 
 
- predicate GetKeyPolicyEnsuresPublicly(input: GetKeyPolicyRequest, output: Result<GetKeyPolicyResponse, Error>)
+ predicate GetKeyPolicyEnsuresPublicly(input: GetKeyPolicyRequest , output: Result<GetKeyPolicyResponse, Error>)
  // The private method to be refined by the library developer
 
 
- method GetKeyPolicy ( config: InternalConfig,  input: GetKeyPolicyRequest )
+ method GetKeyPolicy ( config: InternalConfig , input: GetKeyPolicyRequest )
  returns (output: Result<GetKeyPolicyResponse, Error>)
  requires
  && ValidInternalConfig?(config)
@@ -2053,11 +2053,11 @@ include "../../StandardLibrary/src/Index.dfy"
  ensures GetKeyPolicyEnsuresPublicly(input, output)
 
 
- predicate GetKeyRotationStatusEnsuresPublicly(input: GetKeyRotationStatusRequest, output: Result<GetKeyRotationStatusResponse, Error>)
+ predicate GetKeyRotationStatusEnsuresPublicly(input: GetKeyRotationStatusRequest , output: Result<GetKeyRotationStatusResponse, Error>)
  // The private method to be refined by the library developer
 
 
- method GetKeyRotationStatus ( config: InternalConfig,  input: GetKeyRotationStatusRequest )
+ method GetKeyRotationStatus ( config: InternalConfig , input: GetKeyRotationStatusRequest )
  returns (output: Result<GetKeyRotationStatusResponse, Error>)
  requires
  && ValidInternalConfig?(config)
@@ -2069,11 +2069,11 @@ include "../../StandardLibrary/src/Index.dfy"
  ensures GetKeyRotationStatusEnsuresPublicly(input, output)
 
 
- predicate GetParametersForImportEnsuresPublicly(input: GetParametersForImportRequest, output: Result<GetParametersForImportResponse, Error>)
+ predicate GetParametersForImportEnsuresPublicly(input: GetParametersForImportRequest , output: Result<GetParametersForImportResponse, Error>)
  // The private method to be refined by the library developer
 
 
- method GetParametersForImport ( config: InternalConfig,  input: GetParametersForImportRequest )
+ method GetParametersForImport ( config: InternalConfig , input: GetParametersForImportRequest )
  returns (output: Result<GetParametersForImportResponse, Error>)
  requires
  && ValidInternalConfig?(config)
@@ -2085,11 +2085,11 @@ include "../../StandardLibrary/src/Index.dfy"
  ensures GetParametersForImportEnsuresPublicly(input, output)
 
 
- predicate GetPublicKeyEnsuresPublicly(input: GetPublicKeyRequest, output: Result<GetPublicKeyResponse, Error>)
+ predicate GetPublicKeyEnsuresPublicly(input: GetPublicKeyRequest , output: Result<GetPublicKeyResponse, Error>)
  // The private method to be refined by the library developer
 
 
- method GetPublicKey ( config: InternalConfig,  input: GetPublicKeyRequest )
+ method GetPublicKey ( config: InternalConfig , input: GetPublicKeyRequest )
  returns (output: Result<GetPublicKeyResponse, Error>)
  requires
  && ValidInternalConfig?(config)
@@ -2101,11 +2101,11 @@ include "../../StandardLibrary/src/Index.dfy"
  ensures GetPublicKeyEnsuresPublicly(input, output)
 
 
- predicate ImportKeyMaterialEnsuresPublicly(input: ImportKeyMaterialRequest, output: Result<ImportKeyMaterialResponse, Error>)
+ predicate ImportKeyMaterialEnsuresPublicly(input: ImportKeyMaterialRequest , output: Result<ImportKeyMaterialResponse, Error>)
  // The private method to be refined by the library developer
 
 
- method ImportKeyMaterial ( config: InternalConfig,  input: ImportKeyMaterialRequest )
+ method ImportKeyMaterial ( config: InternalConfig , input: ImportKeyMaterialRequest )
  returns (output: Result<ImportKeyMaterialResponse, Error>)
  requires
  && ValidInternalConfig?(config)
@@ -2117,11 +2117,11 @@ include "../../StandardLibrary/src/Index.dfy"
  ensures ImportKeyMaterialEnsuresPublicly(input, output)
 
 
- predicate ListAliasesEnsuresPublicly(input: ListAliasesRequest, output: Result<ListAliasesResponse, Error>)
+ predicate ListAliasesEnsuresPublicly(input: ListAliasesRequest , output: Result<ListAliasesResponse, Error>)
  // The private method to be refined by the library developer
 
 
- method ListAliases ( config: InternalConfig,  input: ListAliasesRequest )
+ method ListAliases ( config: InternalConfig , input: ListAliasesRequest )
  returns (output: Result<ListAliasesResponse, Error>)
  requires
  && ValidInternalConfig?(config)
@@ -2133,11 +2133,11 @@ include "../../StandardLibrary/src/Index.dfy"
  ensures ListAliasesEnsuresPublicly(input, output)
 
 
- predicate ListGrantsEnsuresPublicly(input: ListGrantsRequest, output: Result<ListGrantsResponse, Error>)
+ predicate ListGrantsEnsuresPublicly(input: ListGrantsRequest , output: Result<ListGrantsResponse, Error>)
  // The private method to be refined by the library developer
 
 
- method ListGrants ( config: InternalConfig,  input: ListGrantsRequest )
+ method ListGrants ( config: InternalConfig , input: ListGrantsRequest )
  returns (output: Result<ListGrantsResponse, Error>)
  requires
  && ValidInternalConfig?(config)
@@ -2149,11 +2149,11 @@ include "../../StandardLibrary/src/Index.dfy"
  ensures ListGrantsEnsuresPublicly(input, output)
 
 
- predicate ListKeyPoliciesEnsuresPublicly(input: ListKeyPoliciesRequest, output: Result<ListKeyPoliciesResponse, Error>)
+ predicate ListKeyPoliciesEnsuresPublicly(input: ListKeyPoliciesRequest , output: Result<ListKeyPoliciesResponse, Error>)
  // The private method to be refined by the library developer
 
 
- method ListKeyPolicies ( config: InternalConfig,  input: ListKeyPoliciesRequest )
+ method ListKeyPolicies ( config: InternalConfig , input: ListKeyPoliciesRequest )
  returns (output: Result<ListKeyPoliciesResponse, Error>)
  requires
  && ValidInternalConfig?(config)
@@ -2165,11 +2165,11 @@ include "../../StandardLibrary/src/Index.dfy"
  ensures ListKeyPoliciesEnsuresPublicly(input, output)
 
 
- predicate ListResourceTagsEnsuresPublicly(input: ListResourceTagsRequest, output: Result<ListResourceTagsResponse, Error>)
+ predicate ListResourceTagsEnsuresPublicly(input: ListResourceTagsRequest , output: Result<ListResourceTagsResponse, Error>)
  // The private method to be refined by the library developer
 
 
- method ListResourceTags ( config: InternalConfig,  input: ListResourceTagsRequest )
+ method ListResourceTags ( config: InternalConfig , input: ListResourceTagsRequest )
  returns (output: Result<ListResourceTagsResponse, Error>)
  requires
  && ValidInternalConfig?(config)
@@ -2181,11 +2181,11 @@ include "../../StandardLibrary/src/Index.dfy"
  ensures ListResourceTagsEnsuresPublicly(input, output)
 
 
- predicate PutKeyPolicyEnsuresPublicly(input: PutKeyPolicyRequest, output: Result<(), Error>)
+ predicate PutKeyPolicyEnsuresPublicly(input: PutKeyPolicyRequest , output: Result<(), Error>)
  // The private method to be refined by the library developer
 
 
- method PutKeyPolicy ( config: InternalConfig,  input: PutKeyPolicyRequest )
+ method PutKeyPolicy ( config: InternalConfig , input: PutKeyPolicyRequest )
  returns (output: Result<(), Error>)
  requires
  && ValidInternalConfig?(config)
@@ -2197,11 +2197,11 @@ include "../../StandardLibrary/src/Index.dfy"
  ensures PutKeyPolicyEnsuresPublicly(input, output)
 
 
- predicate ReEncryptEnsuresPublicly(input: ReEncryptRequest, output: Result<ReEncryptResponse, Error>)
+ predicate ReEncryptEnsuresPublicly(input: ReEncryptRequest , output: Result<ReEncryptResponse, Error>)
  // The private method to be refined by the library developer
 
 
- method ReEncrypt ( config: InternalConfig,  input: ReEncryptRequest )
+ method ReEncrypt ( config: InternalConfig , input: ReEncryptRequest )
  returns (output: Result<ReEncryptResponse, Error>)
  requires
  && ValidInternalConfig?(config)
@@ -2213,11 +2213,11 @@ include "../../StandardLibrary/src/Index.dfy"
  ensures ReEncryptEnsuresPublicly(input, output)
 
 
- predicate ReplicateKeyEnsuresPublicly(input: ReplicateKeyRequest, output: Result<ReplicateKeyResponse, Error>)
+ predicate ReplicateKeyEnsuresPublicly(input: ReplicateKeyRequest , output: Result<ReplicateKeyResponse, Error>)
  // The private method to be refined by the library developer
 
 
- method ReplicateKey ( config: InternalConfig,  input: ReplicateKeyRequest )
+ method ReplicateKey ( config: InternalConfig , input: ReplicateKeyRequest )
  returns (output: Result<ReplicateKeyResponse, Error>)
  requires
  && ValidInternalConfig?(config)
@@ -2229,11 +2229,11 @@ include "../../StandardLibrary/src/Index.dfy"
  ensures ReplicateKeyEnsuresPublicly(input, output)
 
 
- predicate RetireGrantEnsuresPublicly(input: RetireGrantRequest, output: Result<(), Error>)
+ predicate RetireGrantEnsuresPublicly(input: RetireGrantRequest , output: Result<(), Error>)
  // The private method to be refined by the library developer
 
 
- method RetireGrant ( config: InternalConfig,  input: RetireGrantRequest )
+ method RetireGrant ( config: InternalConfig , input: RetireGrantRequest )
  returns (output: Result<(), Error>)
  requires
  && ValidInternalConfig?(config)
@@ -2245,11 +2245,11 @@ include "../../StandardLibrary/src/Index.dfy"
  ensures RetireGrantEnsuresPublicly(input, output)
 
 
- predicate RevokeGrantEnsuresPublicly(input: RevokeGrantRequest, output: Result<(), Error>)
+ predicate RevokeGrantEnsuresPublicly(input: RevokeGrantRequest , output: Result<(), Error>)
  // The private method to be refined by the library developer
 
 
- method RevokeGrant ( config: InternalConfig,  input: RevokeGrantRequest )
+ method RevokeGrant ( config: InternalConfig , input: RevokeGrantRequest )
  returns (output: Result<(), Error>)
  requires
  && ValidInternalConfig?(config)
@@ -2261,11 +2261,11 @@ include "../../StandardLibrary/src/Index.dfy"
  ensures RevokeGrantEnsuresPublicly(input, output)
 
 
- predicate ScheduleKeyDeletionEnsuresPublicly(input: ScheduleKeyDeletionRequest, output: Result<ScheduleKeyDeletionResponse, Error>)
+ predicate ScheduleKeyDeletionEnsuresPublicly(input: ScheduleKeyDeletionRequest , output: Result<ScheduleKeyDeletionResponse, Error>)
  // The private method to be refined by the library developer
 
 
- method ScheduleKeyDeletion ( config: InternalConfig,  input: ScheduleKeyDeletionRequest )
+ method ScheduleKeyDeletion ( config: InternalConfig , input: ScheduleKeyDeletionRequest )
  returns (output: Result<ScheduleKeyDeletionResponse, Error>)
  requires
  && ValidInternalConfig?(config)
@@ -2277,11 +2277,11 @@ include "../../StandardLibrary/src/Index.dfy"
  ensures ScheduleKeyDeletionEnsuresPublicly(input, output)
 
 
- predicate SignEnsuresPublicly(input: SignRequest, output: Result<SignResponse, Error>)
+ predicate SignEnsuresPublicly(input: SignRequest , output: Result<SignResponse, Error>)
  // The private method to be refined by the library developer
 
 
- method Sign ( config: InternalConfig,  input: SignRequest )
+ method Sign ( config: InternalConfig , input: SignRequest )
  returns (output: Result<SignResponse, Error>)
  requires
  && ValidInternalConfig?(config)
@@ -2293,11 +2293,11 @@ include "../../StandardLibrary/src/Index.dfy"
  ensures SignEnsuresPublicly(input, output)
 
 
- predicate TagResourceEnsuresPublicly(input: TagResourceRequest, output: Result<(), Error>)
+ predicate TagResourceEnsuresPublicly(input: TagResourceRequest , output: Result<(), Error>)
  // The private method to be refined by the library developer
 
 
- method TagResource ( config: InternalConfig,  input: TagResourceRequest )
+ method TagResource ( config: InternalConfig , input: TagResourceRequest )
  returns (output: Result<(), Error>)
  requires
  && ValidInternalConfig?(config)
@@ -2309,11 +2309,11 @@ include "../../StandardLibrary/src/Index.dfy"
  ensures TagResourceEnsuresPublicly(input, output)
 
 
- predicate UntagResourceEnsuresPublicly(input: UntagResourceRequest, output: Result<(), Error>)
+ predicate UntagResourceEnsuresPublicly(input: UntagResourceRequest , output: Result<(), Error>)
  // The private method to be refined by the library developer
 
 
- method UntagResource ( config: InternalConfig,  input: UntagResourceRequest )
+ method UntagResource ( config: InternalConfig , input: UntagResourceRequest )
  returns (output: Result<(), Error>)
  requires
  && ValidInternalConfig?(config)
@@ -2325,11 +2325,11 @@ include "../../StandardLibrary/src/Index.dfy"
  ensures UntagResourceEnsuresPublicly(input, output)
 
 
- predicate UpdateAliasEnsuresPublicly(input: UpdateAliasRequest, output: Result<(), Error>)
+ predicate UpdateAliasEnsuresPublicly(input: UpdateAliasRequest , output: Result<(), Error>)
  // The private method to be refined by the library developer
 
 
- method UpdateAlias ( config: InternalConfig,  input: UpdateAliasRequest )
+ method UpdateAlias ( config: InternalConfig , input: UpdateAliasRequest )
  returns (output: Result<(), Error>)
  requires
  && ValidInternalConfig?(config)
@@ -2341,11 +2341,11 @@ include "../../StandardLibrary/src/Index.dfy"
  ensures UpdateAliasEnsuresPublicly(input, output)
 
 
- predicate UpdateCustomKeyStoreEnsuresPublicly(input: UpdateCustomKeyStoreRequest, output: Result<UpdateCustomKeyStoreResponse, Error>)
+ predicate UpdateCustomKeyStoreEnsuresPublicly(input: UpdateCustomKeyStoreRequest , output: Result<UpdateCustomKeyStoreResponse, Error>)
  // The private method to be refined by the library developer
 
 
- method UpdateCustomKeyStore ( config: InternalConfig,  input: UpdateCustomKeyStoreRequest )
+ method UpdateCustomKeyStore ( config: InternalConfig , input: UpdateCustomKeyStoreRequest )
  returns (output: Result<UpdateCustomKeyStoreResponse, Error>)
  requires
  && ValidInternalConfig?(config)
@@ -2357,11 +2357,11 @@ include "../../StandardLibrary/src/Index.dfy"
  ensures UpdateCustomKeyStoreEnsuresPublicly(input, output)
 
 
- predicate UpdateKeyDescriptionEnsuresPublicly(input: UpdateKeyDescriptionRequest, output: Result<(), Error>)
+ predicate UpdateKeyDescriptionEnsuresPublicly(input: UpdateKeyDescriptionRequest , output: Result<(), Error>)
  // The private method to be refined by the library developer
 
 
- method UpdateKeyDescription ( config: InternalConfig,  input: UpdateKeyDescriptionRequest )
+ method UpdateKeyDescription ( config: InternalConfig , input: UpdateKeyDescriptionRequest )
  returns (output: Result<(), Error>)
  requires
  && ValidInternalConfig?(config)
@@ -2373,11 +2373,11 @@ include "../../StandardLibrary/src/Index.dfy"
  ensures UpdateKeyDescriptionEnsuresPublicly(input, output)
 
 
- predicate UpdatePrimaryRegionEnsuresPublicly(input: UpdatePrimaryRegionRequest, output: Result<(), Error>)
+ predicate UpdatePrimaryRegionEnsuresPublicly(input: UpdatePrimaryRegionRequest , output: Result<(), Error>)
  // The private method to be refined by the library developer
 
 
- method UpdatePrimaryRegion ( config: InternalConfig,  input: UpdatePrimaryRegionRequest )
+ method UpdatePrimaryRegion ( config: InternalConfig , input: UpdatePrimaryRegionRequest )
  returns (output: Result<(), Error>)
  requires
  && ValidInternalConfig?(config)
@@ -2389,11 +2389,11 @@ include "../../StandardLibrary/src/Index.dfy"
  ensures UpdatePrimaryRegionEnsuresPublicly(input, output)
 
 
- predicate VerifyEnsuresPublicly(input: VerifyRequest, output: Result<VerifyResponse, Error>)
+ predicate VerifyEnsuresPublicly(input: VerifyRequest , output: Result<VerifyResponse, Error>)
  // The private method to be refined by the library developer
 
 
- method Verify ( config: InternalConfig,  input: VerifyRequest )
+ method Verify ( config: InternalConfig , input: VerifyRequest )
  returns (output: Result<VerifyResponse, Error>)
  requires
  && ValidInternalConfig?(config)

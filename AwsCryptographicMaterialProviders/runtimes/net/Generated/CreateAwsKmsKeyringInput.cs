@@ -11,21 +11,21 @@ using System;
  get { return this._kmsKeyId; }
  set { this._kmsKeyId = value; }
 }
- internal bool IsSetKmsKeyId () {
+ public bool IsSetKmsKeyId () {
  return this._kmsKeyId != null;
 }
  public Amazon.KeyManagementService.IAmazonKeyManagementService KmsClient {
  get { return this._kmsClient; }
  set { this._kmsClient = value; }
 }
- internal bool IsSetKmsClient () {
+ public bool IsSetKmsClient () {
  return this._kmsClient != null;
 }
  public System.Collections.Generic.List<string> GrantTokens {
  get { return this._grantTokens; }
  set { this._grantTokens = value; }
 }
- internal bool IsSetGrantTokens () {
+ public bool IsSetGrantTokens () {
  return this._grantTokens != null;
 }
  public void Validate() {
